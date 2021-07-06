@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_CTPFiles
@@ -10,22 +10,24 @@
 #include <sys/types.h>
 #include <vector>
 #include "TrigConfL1Data/L1DataBaseclass.h"
+#include "CxxUtils/checker_macros.h"
 
 namespace TrigConf {
    
    class CTPFiles : public L1DataBaseclass {
       
    public:
-      static u_int ALL_CTPCORELUT_SIZE;      
-      static u_int ALL_CTPCORECAM_SIZE;
+      // thread-safe because only set once during initialize
+      static u_int ALL_CTPCORELUT_SIZE ATLAS_THREAD_SAFE;
+      static u_int ALL_CTPCORECAM_SIZE ATLAS_THREAD_SAFE;
       
-      static u_int ALL_CTPINMONSEL_SIZE;
-      static u_int ALL_CTPINMONDEC_SIZE;
+      static u_int ALL_CTPINMONSEL_SIZE ATLAS_THREAD_SAFE;
+      static u_int ALL_CTPINMONDEC_SIZE ATLAS_THREAD_SAFE;
 
-      static u_int CTPMON_MUX_OUTPUT_NUMBER;
-      static u_int CTPMON_ADDRESS_SELECTOR_NUMBER;
-      static u_int ALL_CTPMONSELECTOR_SIZE;
-      static u_int ALL_CTPMONDECODER_SIZE;
+      static u_int CTPMON_MUX_OUTPUT_NUMBER ATLAS_THREAD_SAFE;
+      static u_int CTPMON_ADDRESS_SELECTOR_NUMBER ATLAS_THREAD_SAFE;
+      static u_int ALL_CTPMONSELECTOR_SIZE ATLAS_THREAD_SAFE;
+      static u_int ALL_CTPMONDECODER_SIZE ATLAS_THREAD_SAFE;
 
      
       CTPFiles();

@@ -17,4 +17,7 @@ def chainNameFromLegName(legName):
 
 def isLegId(chainName):
     return chainName.startswith("leg")
+    
+def getLegIndexInt(chainName):
+    return int(chainName[3:6])
 

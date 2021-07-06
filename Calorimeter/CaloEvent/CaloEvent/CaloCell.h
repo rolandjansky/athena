@@ -124,9 +124,10 @@ public:
   virtual double cotTh  () const final;
   /** @brief get mass (hardcoded to be null) */
   virtual double m      () const final;
-  /** @brief get energy (data member) (synonym to method e() */
+  /** @brief get energy (data member) (synonym to method energy() */
   virtual double e      () const final;
-
+  /** @brief get et  */
+  virtual double et     () const final;
   /** @brief get x (through CaloDetDescrElement) */
   virtual float x      () const final;
   /** @brief get y (through CaloDetDescrElement) */
@@ -403,6 +404,11 @@ double CaloCell::cosPhi() const
   return m_caloDDE->cosPhi();
 }
 
+inline double
+CaloCell::et() const
+{
+  return this->e() * this->sinTh();
+}
 
 inline
 float CaloCell::x() const

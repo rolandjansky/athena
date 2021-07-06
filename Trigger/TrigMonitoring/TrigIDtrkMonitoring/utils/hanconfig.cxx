@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 //
 //   @file    hanconfig.cxx         
@@ -9,7 +9,6 @@
 //   @author M.Sutton
 // 
 //
-//   $Id: hanconfig.cxx, v0.0   Thu  12 March 2015 14:13:47 CEST sutt $
 
 
 
@@ -356,9 +355,6 @@ void search(TDirectory* td=0, const std::string& s="") {
 
 
 
-#include <cstdlib>
-
-
 
 bool file_exists(const std::string& s) {   
   if ( FILE* testfile=fopen(s.c_str(),"r") ) { 
@@ -548,9 +544,6 @@ int main(int argc, char** argv) {
 
   for ( int i=1 ; i<argc ; i++ ) { 
     if ( std::string(argv[i])=="-h" || std::string(argv[i])=="--help" )  return usage( out, argc, argv ); 
-    //    if ( std::string(argv[i])=="-v" || std::string(argv[i])=="--version" ) {
-    //      out << argv[0] << " APPLgrid version " << PACKAGE_VERSION << std::endl; 
-    //  return 0;
   }
   
   bool verbose = false; 

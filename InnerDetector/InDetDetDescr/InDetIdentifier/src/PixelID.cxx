@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 /***************************************************************************
@@ -31,7 +31,7 @@ PixelID::PixelID(void)
   m_PHI_INDEX_INDEX(6),
   m_ETA_INDEX_INDEX(7),
   m_ETA_MODULE_OFFSET(999),
-  m_dict(0),
+  m_dict(nullptr),
   m_wafer_hash_max(0),
   m_pixel_hash_max(0) {
   m_barrel_field.add_value(0);

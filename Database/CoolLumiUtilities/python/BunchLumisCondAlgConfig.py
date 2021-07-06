@@ -8,6 +8,7 @@
 
 from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -23,7 +24,7 @@ def BunchLumisCondAlgCfg (configFlags):
         return result
 
     folder = '/TDAQ/OLC/BUNCHLUMIS'
-    if configFlags.Detector.Overlay:
+    if configFlags.Common.ProductionStep == ProductionStep.Overlay:
         # Load reduced channel list for overlay jobs to try to reduce COOL access
         # Need Lucid AND, OR, HitOR, BcmH OR, BcmV OR
         folder = '<channelSelection>101,102,103,201,211</channelSelection> ' + folder
@@ -66,7 +67,7 @@ if __name__ == "__main__":
     flags2 = ConfigFlags.clone()
     flags2.Input.Files = defaultTestFiles.RAW
     flags2.Input.ProjectName = 'data12_8TeV'
-    flags2.Detector.Overlay = True
+    flags2.Common.ProductionStep = ProductionStep.Overlay
     flags2.lock()
     acc2 = BunchLumisCondAlgCfg (flags2)
     acc2.printCondAlgs(summariseProps=True)

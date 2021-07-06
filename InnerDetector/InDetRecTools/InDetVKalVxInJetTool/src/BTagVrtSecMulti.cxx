@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -69,7 +69,7 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
   int nRefPVTrk = 0;
   if (xAODwrk) {
     nRefPVTrk = selGoodTrkParticle(xAODwrk->InpTrk, primVrt, jetDir, xAODwrk->listJetTracks);
-    while (xAODwrk->listJetTracks.size() &&
+    while (!xAODwrk->listJetTracks.empty() &&
            xAODwrk->listJetTracks[0]->pt() / jetDir.Pt() > 1.)
       xAODwrk->listJetTracks.erase(xAODwrk->listJetTracks.begin());
     nTracks = xAODwrk->listJetTracks.size();
@@ -135,7 +135,6 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
   newvrt.Good = true;
   std::unique_ptr<Trk::IVKalState> state = m_fitSvc->makeState();
   StatusCode sc;
-  sc.setChecked();
   long int NPTR = 0, nth = 2; // VK nth=2 to speed up PGRAPH when it's used
 
  //================================================== Boost version (don't
@@ -304,7 +303,7 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
        if(jetDir.DeltaR(SVPV)>m_coneForTag)tmpV.Good=false; // SV is outside of the jet cone
     }
     int tmpV=0; while( tmpV<(int)(*wrkVrtSet).size() )if( !(*wrkVrtSet)[tmpV].Good ) { (*wrkVrtSet).erase((*wrkVrtSet).begin()+tmpV);} else {tmpV++;}
-    if((*wrkVrtSet).size()==0){             // No vertices at all
+    if((*wrkVrtSet).empty()){             // No vertices at all
       return finalVertices;
     }
     //------
@@ -581,7 +580,7 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
 // VK - 27.04.2017 - new try
     std::vector<int> nonusedTrk(0);
     for(int trk=0; trk<nTracks; trk++){    bool present=false;
-      for(auto iv : (*wrkVrtSet)){ 
+      for(const auto& iv : (*wrkVrtSet)){ 
           if(iv.Good){for(auto t_in_V : iv.selTrk){if(trk==t_in_V){present=true; break;}}};
 	  if(present)break;
       }        if(!present)nonusedTrk.push_back(trk);
@@ -604,7 +603,7 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
       bool addedT=false;   std::map<double,int> addTrk;
       for(int it=0; it<(int)nonusedTrk.size(); it++){ if(matchSV[it].indVrt==iv){addTrk[matchSV[it].Signif3D]=it;} }
       std::map<double,int>::iterator atrk=addTrk.begin();
-      if(addTrk.size()>0){       if(atrk->first<4.){newV.selTrk.push_back(nonusedTrk[atrk->second]);addedT=true;}}
+      if(!addTrk.empty()){       if(atrk->first<4.){newV.selTrk.push_back(nonusedTrk[atrk->second]);addedT=true;}}
       if(addTrk.size()>1){++atrk;if(atrk->first<4.){newV.selTrk.push_back(nonusedTrk[atrk->second]);}}
       if(addedT){ if     (xAODwrk)vProb = refitVertex( newV, xAODwrk->listJetTracks, *state, true);
                  if(vProb>0.01)goodVertices[iv]=newV;
@@ -667,12 +666,14 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
 
           std::vector<Trk::VxTrackAtVertex> & tmpVTAV=tmpVertex->vxTrackAtVertex();    tmpVTAV.clear();
           for(int ii=0; ii<nth; ii++) {
-             AmgSymMatrix(5) *CovMtxP=new AmgSymMatrix(5);    (*CovMtxP).setIdentity(); 
+             AmgSymMatrix(5) CovMtxP;    
+             CovMtxP.setIdentity(); 
              Trk::Perigee * tmpMeasPer  =  new Trk::Perigee( 0.,0.,  goodVertices[iv].trkAtVrt[ii][0], 
-	                                                             goodVertices[iv].trkAtVrt[ii][1],
-                                                                     goodVertices[iv].trkAtVrt[ii][2],
-                                                                Trk::PerigeeSurface(goodVertices[iv].vertex), CovMtxP );
-             tmpVTAV.push_back( Trk::VxTrackAtVertex( 1., tmpMeasPer) );
+                                                             goodVertices[iv].trkAtVrt[ii][1],
+                                                             goodVertices[iv].trkAtVrt[ii][2],
+                                                             Trk::PerigeeSurface(goodVertices[iv].vertex), 
+                                                             std::move(CovMtxP) );
+             tmpVTAV.emplace_back( 1., tmpMeasPer );
 	     if(xAODwrk){
                ElementLink<xAOD::TrackParticleContainer> TEL;  TEL.setElement( xAODwrk->tmpListTracks[ii] );
                const xAOD::TrackParticleContainer* cont = (const xAOD::TrackParticleContainer* ) (xAODwrk->tmpListTracks[ii]->container() );
@@ -765,7 +766,7 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
       std::vector<const Particle*>  ListBaseTracks;
       int NTrk=(*wrkVrtSet)[iv].selTrk.size(), SelT=-1;
       if(NTrk<3)return;
-      StatusCode sc; sc.setChecked();
+      StatusCode sc;
 //=== To get robust definition of most bad outlier
       m_fitSvc->setRobustness(5, istate);
       sc = refitVertex( wrkVrtSet, iv, AllTracks, istate, false);
@@ -985,7 +986,7 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
 	   if( (*wrkVrtSet)[selectedVertex].vertexMom.M()>c_vrtBCMassLimit)(*wrkVrtSet)[selectedVertex].Good=false; // Vertex is too heavy
            int ipos=0; if(posInVrtFit==0)ipos=1;  // Position of remaining track in previous 2track vertex fit
 	   (*wrkVrtSet)[selectedVertex].vertexMom=momAtVrt((*wrkVrtSet)[selectedVertex].trkAtVrt[ipos]); //Redefine vertexMom using remaining track
-	   if((*TrkInVrt)[LeftTrack].size()>0)(*wrkVrtSet)[selectedVertex].Good=false;    //Vertex is declared false only if remaining track 
+	   if(!(*TrkInVrt)[LeftTrack].empty())(*wrkVrtSet)[selectedVertex].Good=false;    //Vertex is declared false only if remaining track 
 	    										  // is still linked to another vertex
 	   (*wrkVrtSet)[selectedVertex].trkAtVrt.erase((*wrkVrtSet)[selectedVertex].trkAtVrt.begin()+posInVrtFit);  //Remove also TrkAtVrt
         }
@@ -1139,7 +1140,7 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
       // Try to add non-common tracks one by one
       std::vector<const Particle*>  fitTrackList(0);
       std::vector<int> detachedTrk(0);
-      StatusCode sc; sc.setChecked();
+      StatusCode sc;
       WrkVrt bestVrt;
       bool foundMerged=false;
       for( auto nct : noncommonTrk){  

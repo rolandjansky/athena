@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 #*****************************************************************
@@ -455,6 +455,4 @@ if TileUseCOOL:
 #if hasattr (svcMgr.ToolSvc, 'TileCellBuilder'):
 #    ToolSvc.TileCellBuilder.OutputLevel = DEBUG
 
-if hasattr (svcMgr.ToolSvc, 'CaloNoiseToolDefault'):
-    ToolSvc.CaloNoiseToolDefault.RescaleForHV = False
 

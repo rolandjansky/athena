@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,7 @@
 #include "TrkDetDescrUtils/GeometryStatics.h"
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "TrkSurfaces/Surface.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 
 //Truth
 #include "GeneratorObjects/HepMcParticleLink.h"
@@ -143,7 +144,7 @@ StatusCode sTgcDigitizationTool::initialize() {
   ATH_CHECK(m_outputSDO_CollectionKey.initialize());
   
   // initialize class to execute digitization 
-  m_digitizer = std::make_unique<sTgcDigitMaker>(m_hitIdHelper, m_mdManager);
+  m_digitizer = std::make_unique<sTgcDigitMaker>(m_hitIdHelper, m_mdManager, m_doEfficiencyCorrection);
   m_digitizer->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
   ATH_CHECK(m_rndmSvc.retrieve());
     
@@ -496,8 +497,8 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
         float newTime = (*it_digiHits)->time();
         int newChannelType = m_idHelperSvc->stgcIdHelper().channelType((*it_digiHits)->identify());
 
-        float timeJitterElectronicsStrip = CLHEP::RandGauss::shoot(rndmEngine, 0, m_timeJitterElectronicsStrip);
-        float timeJitterElectronicsPad = CLHEP::RandGauss::shoot(rndmEngine, 0, m_timeJitterElectronicsPad);
+        float timeJitterElectronicsStrip = CLHEP::RandGaussZiggurat::shoot(rndmEngine, 0, m_timeJitterElectronicsStrip);
+        float timeJitterElectronicsPad = CLHEP::RandGaussZiggurat::shoot(rndmEngine, 0, m_timeJitterElectronicsPad);
         if(newChannelType==1)
           newTime += timeJitterElectronicsStrip;
         else
@@ -632,7 +633,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 
       float vmmStartTime = (*(merged_pad_digits.begin())).time();
 
-      sTgcVMMSim* theVMM = new sTgcVMMSim(merged_pad_digits, vmmStartTime, m_deadtimePad, m_readtimePad, m_produceDeadDigits, 0);  // object to simulate the VMM response
+      std::unique_ptr<sTgcVMMSim> theVMM = std::make_unique<sTgcVMMSim>(merged_pad_digits, vmmStartTime, m_deadtimePad, m_readtimePad, m_produceDeadDigits, 0);  // object to simulate the VMM response
       theVMM->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
       theVMM->initialReport();
 
@@ -655,7 +656,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
             ATH_MSG_VERBOSE(" charge = "    << flushedDigit->charge()) ;
           }
           else ATH_MSG_VERBOSE("No digit for this timestep on Pad REID[" << it_REID->first.getString() << "]");
-        }
+	}
       }
     }
   }
@@ -676,7 +677,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
    * and decide which digits to keep.
   */
   ATH_MSG_VERBOSE("Processing Strip Digits");
-  std::map< Identifier, std::map< Identifier, std::pair <bool, sTgcVMMSim* > > > vmmArray; // map holding the VMMSim objects and a bool indicating if the channel is done processing
+  std::map< Identifier, std::map< Identifier, std::pair <bool, std::unique_ptr<sTgcVMMSim> > > > vmmArray; // map holding the VMMSim objects and a bool indicating if the channel is done processing
   int nStripDigits = 0;
   for (std::map< Identifier, std::map< Identifier, std::vector<sTgcSimDigitData> > >::iterator it_DETEL = unmergedStripDigits.begin(); it_DETEL!= unmergedStripDigits.end(); ++it_DETEL) {
     for (std::map< Identifier, std::vector<sTgcSimDigitData> >::iterator it_REID = it_DETEL->second.begin(); it_REID != it_DETEL->second.end(); ++it_REID) {  //loop on Pads
@@ -731,16 +732,17 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       ATH_MSG_VERBOSE("Merging complete for Strip REID[" << it_REID->first.getString() << "]");
       ATH_MSG_VERBOSE(it_REID->second.size() << " digits on the channel after merging");
       vmmArray[it_DETEL->first][it_REID->first].first = true;
-      vmmArray[it_DETEL->first][it_REID->first].second = new sTgcVMMSim(merged_strip_digits, (earliestEventTime-25), m_deadtimeStrip, m_readtimeStrip, m_produceDeadDigits, 1);  // object to simulate the VMM response
+      std::unique_ptr<sTgcVMMSim> vMMSimPtr = std::make_unique<sTgcVMMSim>(merged_strip_digits, (earliestEventTime-25), m_deadtimeStrip, m_readtimeStrip, m_produceDeadDigits, 1); // object to simulate the VMM response
+      vmmArray[it_DETEL->first][it_REID->first].second = std::move(vMMSimPtr);
       vmmArray[it_DETEL->first][it_REID->first].second->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
       ATH_MSG_VERBOSE("VMM instantiated for Strip REID[" << it_REID->first.getString() << "]");
     }
   }
-  for(std::map< Identifier, std::map< Identifier, std::pair <bool, sTgcVMMSim* > > >::iterator it_DETEL = vmmArray.begin(); it_DETEL != vmmArray.end(); ++it_DETEL) {
+  for(std::map< Identifier, std::map< Identifier, std::pair <bool, std::unique_ptr<sTgcVMMSim> > > >::iterator it_DETEL = vmmArray.begin(); it_DETEL != vmmArray.end(); ++it_DETEL) {
     bool vmmTerminateSignal = false; // when all channels are done processing this will flip true
     while(true){
       vmmTerminateSignal = false;
-      for (std::map< Identifier, std::pair <bool, sTgcVMMSim* > >::iterator it_VMM = it_DETEL->second.begin(); it_VMM != it_DETEL->second.end(); ++it_VMM) { // Loop over VMM ticks
+      for (std::map< Identifier, std::pair <bool, std::unique_ptr<sTgcVMMSim> > >::iterator it_VMM = it_DETEL->second.begin(); it_VMM != it_DETEL->second.end(); ++it_VMM) { // Loop over VMM ticks
         ATH_MSG_VERBOSE("Strip REID[" << it_VMM->first.getString() << "]");
         if (it_VMM->second.first) it_VMM->second.first = it_VMM->second.second->tick();  // returns true if there are still digits to process as well as advances the clock
         vmmTerminateSignal = (vmmTerminateSignal || it_VMM->second.first);  // record the presence of at least one channel with digits to process
@@ -750,7 +752,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
         ATH_MSG_VERBOSE("No more digits to process.  Breaking VMM Loop.");
         break; //Break the Loop if there are no more digits to process
       }
-      for (std::map< Identifier, std::pair <bool, sTgcVMMSim* > >::iterator it_VMM = it_DETEL->second.begin(); it_VMM != it_DETEL->second.end(); ++it_VMM) { // Loop over VMM tocks
+      for (std::map< Identifier, std::pair <bool,  std::unique_ptr<sTgcVMMSim> > >::iterator it_VMM = it_DETEL->second.begin(); it_VMM != it_DETEL->second.end(); ++it_VMM) { // Loop over VMM tocks
         bool thresholdCrossed = false;
         if (it_VMM->second.first) {
           ATH_MSG_VERBOSE("Strip REID[" << it_VMM->first.getString() << "]");
@@ -783,7 +785,8 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
         }
       }
 
-      for (std::map< Identifier, std::pair <bool, sTgcVMMSim* > >::iterator it_VMM = it_DETEL->second.begin(); it_VMM != it_DETEL->second.end(); ++it_VMM) { // Loop over VMM flushes
+
+      for (std::map< Identifier, std::pair <bool,  std::unique_ptr<sTgcVMMSim> > >::iterator it_VMM = it_DETEL->second.begin(); it_VMM != it_DETEL->second.end(); ++it_VMM) { // Loop over VMM flushes
         sTgcDigit* flushedDigit = it_VMM->second.second->flush();  //Readout the digit buffer
         if(flushedDigit) {
           outputDigits[it_DETEL->first][it_VMM->first].push_back(*flushedDigit);  // If a digit was in the buffer: store it to the RDO
@@ -872,7 +875,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 
       float vmmStartTime = (*(merged_wire_digits.begin())).time();
 
-      sTgcVMMSim* theVMM = new sTgcVMMSim(merged_wire_digits, vmmStartTime, m_deadtimeWire, m_readtimeWire, m_produceDeadDigits, 2);  // object to simulate the VMM response
+      std::unique_ptr<sTgcVMMSim> theVMM = std::make_unique<sTgcVMMSim>(merged_wire_digits, vmmStartTime, m_deadtimeWire, m_readtimeWire, m_produceDeadDigits, 2);  // object to simulate the VMM response
       theVMM->setMessageLevel(msgLevel());
       theVMM->initialReport();
 
@@ -924,14 +927,20 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 
   if ( acceptDigit ) { 
 
-	  if ( m_idHelperSvc->stgcIdHelper().channelType(it_digit->identify()) == 1 ) {
-	    //Only strips since strips are readout in PDO counts and not charge
-      chargeAfterSmearing = 1000*chargeAfterSmearing; // VMM gain setting for conversion from charge to potential, 1mV=1fC; from McGill cosmics tests
-	    chargeAfterSmearing = chargeAfterSmearing*1.0304 + 59.997; // conversion from potential to PDO for VMM1 configuration, mV*1.0304 + 59.997; from Shandong cosmics tests
+    if ( m_idHelperSvc->stgcIdHelper().channelType(it_digit->identify()) == 1 ) {
+      // Change strip charge to PDO
+      // VMM gain setting for conversion from charge to potential, 1mV=1fC; from McGill cosmics tests
+      // Conversion from V to PDO from Shandong Cosmics tests: PDO = mV * 1.0304 + 59.997
       // link to study outlining conversion https://doi.org/10.1016/j.nima.2019.02.061
-	  }
+      /* Note from Alexandre Laurier - 2021-05-17
+      // Removing the pedestal of 59.997; It us causing issues in clustering
+         This instead needs to be accounted for by calibration tools.
+      */
+      chargeAfterSmearing = 1000*chargeAfterSmearing;
+      chargeAfterSmearing = chargeAfterSmearing*1.0304;
+    }
 
-	  std::unique_ptr<sTgcDigit> finalDigit = std::make_unique<sTgcDigit>(it_digit->identify(), 
+    std::unique_ptr<sTgcDigit> finalDigit = std::make_unique<sTgcDigit>(it_digit->identify(), 
 									      it_digit->bcTag(), 
 									      it_digit->time(), 
 									      chargeAfterSmearing, 

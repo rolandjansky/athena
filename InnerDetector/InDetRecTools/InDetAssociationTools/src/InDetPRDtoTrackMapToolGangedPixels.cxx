@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetAssociationTools/InDetPRDtoTrackMapToolGangedPixels.h"
@@ -11,6 +11,8 @@
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "Identifier/Identifier.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
+
+#include <memory>
 
 #include <vector>
 InDet::InDetPRDtoTrackMapToolGangedPixels::InDetPRDtoTrackMapToolGangedPixels(const std::string& t,
@@ -60,7 +62,7 @@ std::unique_ptr<Trk::PRDtoTrackMap> InDet::InDetPRDtoTrackMapToolGangedPixels::r
                    << " . The tool can only handle a map created by the same tool. ");
   }
   Trk::PRDtoTrackMap *the_obj=static_cast<PRDtoTrackMap *>(obj_in.get());
-  return std::unique_ptr<Trk::PRDtoTrackMap>(new Trk::PRDtoTrackMap(std::move(*the_obj)));
+  return std::make_unique<Trk::PRDtoTrackMap>(std::move(*the_obj));
 }
 
 
@@ -80,7 +82,6 @@ StatusCode InDet::InDetPRDtoTrackMapToolGangedPixels::addPRDs(Trk::PRDtoTrackMap
 {
   ensureType(virt_prd_to_track_map);
   PRDtoTrackMap &prd_to_track_map = static_cast<PRDtoTrackMap&>(virt_prd_to_track_map);
-
   // test caching
   Trk::PRDtoTrackMap::TrackPrepRawDataMap::const_iterator itvec = prd_to_track_map.m_trackPrepRawDataMap.find(&track);
   if (itvec!=prd_to_track_map.m_trackPrepRawDataMap.end())
@@ -90,22 +91,21 @@ StatusCode InDet::InDetPRDtoTrackMapToolGangedPixels::addPRDs(Trk::PRDtoTrackMap
   }
   // get all prds on 'track'
   std::vector< const Trk::PrepRawData* > prds = getPrdsOnTrack(prd_to_track_map, track );
-
   // loop over PRD
   for (const Trk::PrepRawData* prd : prds) {
      prd_to_track_map.m_prepRawDataTrackMap.insert(std::make_pair(prd, &track) );
      // test ganged ambiguity
-     const PixelCluster* pixel = dynamic_cast<const PixelCluster*> (prd);
-     if (pixel!=0) {
+     if (prd->type(Trk::PrepRawDataType::PixelCluster)) {
+       const PixelCluster* pixel = static_cast<const PixelCluster*> (prd);
        if (pixel->gangedPixel()) {
          ATH_MSG_DEBUG( "Found ganged pixel, search for mirror" );
-	 std::pair<PixelGangedClusterAmbiguities::const_iterator,
+	       std::pair<PixelGangedClusterAmbiguities::const_iterator,
 	           PixelGangedClusterAmbiguities::const_iterator> ambi = prd_to_track_map.m_gangedAmbis->equal_range(pixel);
-	 for (; ambi.first != ambi.second ; ++(ambi.first) ) {
-	   // add ambiguity as used by this track as well
-	   if (msgLvl(MSG::DEBUG)) msg() << "Found mirror pixel, add mirror to association map" << endmsg;
-	   prd_to_track_map.m_prepRawDataTrackMap.insert(std::make_pair(ambi.first->second, &track) );
-	 }
+         for (; ambi.first != ambi.second ; ++(ambi.first) ) {
+           // add ambiguity as used by this track as well
+           if (msgLvl(MSG::DEBUG)) msg() << "Found mirror pixel, add mirror to association map" << endmsg;
+           prd_to_track_map.m_prepRawDataTrackMap.insert(std::make_pair(ambi.first->second, &track) );
+         }
        }
      }
   }
@@ -136,17 +136,18 @@ InDet::InDetPRDtoTrackMapToolGangedPixels::findConnectedTracks(Trk::PRDtoTrackMa
       connectedTracks.insert((range.first)->second);
 
     // test ganged ambiguity
-    const PixelCluster* pixel = dynamic_cast<const PixelCluster*> (prd);
-    if (pixel!=0) {
+    
+    if (prd->type(Trk::PrepRawDataType::PixelCluster)) {
+      const PixelCluster* pixel = static_cast<const PixelCluster*> (prd);
       if (pixel->gangedPixel()) {
-	std::pair<PixelGangedClusterAmbiguities::const_iterator,
+	      std::pair<PixelGangedClusterAmbiguities::const_iterator,
 	          PixelGangedClusterAmbiguities::const_iterator> ambi = prd_to_track_map.m_gangedAmbis->equal_range(pixel);
-	for (; ambi.first != ambi.second ; ++(ambi.first) ) {
-	  range = prd_to_track_map.onTracks( *(ambi.first->second) );
-	  // add them into the list
-	  for ( ; range.first!=range.second; ++(range.first) )
-	    connectedTracks.insert((range.first)->second);
-	}
+        for (; ambi.first != ambi.second ; ++(ambi.first) ) {
+          range = prd_to_track_map.onTracks( *(ambi.first->second) );
+          // add them into the list
+          for ( ; range.first!=range.second; ++(range.first) )
+            connectedTracks.insert((range.first)->second);
+        }
       }
     }
   }
@@ -177,7 +178,7 @@ InDet::InDetPRDtoTrackMapToolGangedPixels::getPrdsOnTrack(Trk::PRDtoTrackMap &vi
     return itvec->second;
   }
 
-  if (track.measurementsOnTrack()==0) {
+  if (track.measurementsOnTrack()==nullptr) {
     ATH_MSG_WARNING("Track has no RoTs");
     return PRDs_t(); // return vector optimization
    }
@@ -197,38 +198,30 @@ InDet::InDetPRDtoTrackMapToolGangedPixels::getPrdsOnTrack(Trk::PRDtoTrackMap &vi
   // get the PRDs for the measuremenst on track
   DataVector<const Trk::MeasurementBase>::const_iterator it    = track.measurementsOnTrack()->begin();
   DataVector<const Trk::MeasurementBase>::const_iterator itEnd = track.measurementsOnTrack()->end();
-  for (;it!=itEnd;it++)
+  for (;it!=itEnd;++it)
     {
-    const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(*it);
-    if (0!=rot)
+    const auto meas{*it};
+    if (meas->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
+    const Trk::RIO_OnTrack* rot = static_cast<const Trk::RIO_OnTrack*>(meas);
       vec.push_back(rot->prepRawData());
+    }
   }
-  
-  ATH_MSG_DEBUG(" Getting "<<vec.size()
-			       <<" PRDs from track at:"<<&track);
-  
+  ATH_MSG_DEBUG(" Getting "<<vec.size()<<" PRDs from track at:"<<&track);
   // new mode, we add the outleirs in the TRT
   if (m_addTRToutliers) {
-
     // get the PRDs for the measuremenst on track
-    for (const Trk::MeasurementBase* meas : *track.outliersOnTrack())
-      {
-
-	// get the ROT, make sure it is not a pseudo measurment
-	const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(meas);
-	if (0!=rot) {
-
-	  // check if outlier is TRT ?
-	  const TRT_DriftCircleOnTrack* trt = dynamic_cast<const TRT_DriftCircleOnTrack*> (rot);
-	  if (trt) {
-	    // add to the list, it is TRT
-	    vec.push_back(rot->prepRawData());
-	  }
-	}
+    for (const Trk::MeasurementBase* meas : *track.outliersOnTrack()){
+      // get the ROT, make sure it is not a pseudo measurment
+      if (meas->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
+        const Trk::RIO_OnTrack* rot = static_cast<const Trk::RIO_OnTrack*>(meas);
+        // check if outlier is TRT ?
+        if (rot->rioType(Trk::RIO_OnTrackType::TRT_DriftCircle)) {
+          // add to the list, it is TRT
+          vec.push_back(rot->prepRawData());
+        }
       }
-  
-    ATH_MSG_DEBUG(" Getting "<<vec.size()
-				 <<" PRDs including TRT outlier from track at:"<<&track);
+    }
+    ATH_MSG_DEBUG(" Getting "<<vec.size()<<" PRDs including TRT outlier from track at:"<<&track);
   }
 
   return vec;

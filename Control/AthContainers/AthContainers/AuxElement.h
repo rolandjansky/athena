@@ -1,7 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthContainers/AuxElement.h
@@ -27,15 +26,679 @@
 #include <cstddef>
 
 
+// If set, we need to write data that's forward-compatible with r21.
+#define ATHCONTAINERS_R21_COMPAT
+
+
 
 namespace SG {
 
 
+class AuxElement;
 class AuxElementData;
 class AuxElementStandaloneData;
 class AuxVectorData_test;
 class AuxVectorBase;
 class AuxVectorBase_test;
+
+
+/**
+ * @brief Const part of @c AuxElement.
+ *
+ * This base class factors out the const portions of @c AuxElement
+ * (which see for a complete description).
+ */
+class ConstAuxElement
+  : public SG::IAuxElement
+{
+public:
+  /// Default constructor.
+  ConstAuxElement();
+
+
+  /**
+   * @brief Constructor with explicit container / index.
+   * @param container Container of which this element will be a part.
+   * @param index Index of this element within the container.
+   *
+   * This does not make any changes to aux data.
+   */
+  ConstAuxElement (const SG::AuxVectorData* container,  size_t index);
+
+
+  /**
+   * @brief Copy Constructor.
+   * @param other Object being copied.
+   *
+   * We do not copy the container/index --- the new object is not yet
+   * in a container!
+   *
+   * In the case of constructing an object with a private store,
+   * @c makePrivateStore will take care of copying the aux data.
+   */
+  ConstAuxElement (const ConstAuxElement& other);
+
+
+  /// No assignment to a const element.
+  ConstAuxElement& operator= (const ConstAuxElement& other) = delete;
+
+
+  /**
+   * @brief Destructor.
+   *
+   * Any private store is deleted.
+   */
+  ~ConstAuxElement();
+
+
+  /**
+   * @brief Return the container holding this element.
+   */
+  const SG::AuxVectorData* container() const;
+
+
+  /**
+   * @brief Return the index of this element within its container.
+   *
+   * Inherited from IAuxElement.
+   */
+  using IAuxElement::index;
+
+
+  /**
+   * @brief Helper class to provide const generic access to aux data.
+   *
+   * This is written as a separate class in order to be able
+   * to cache the name -> auxid lookup.
+   *
+   * This should generally only be used by code which treats
+   * auxiliary data generically (that is, where the type is not
+   * known at compile-time).  Most of the time, you'd want to use
+   * the type-safe versions @c ConstAccessor and @c Accessor.
+   */
+  class TypelessConstAccessor
+  {
+  public:
+    /**
+     * @brief Constructor.
+     * @param name Name of this aux variable.
+     *
+     * The name -> auxid lookup is done here.
+     */
+    TypelessConstAccessor (const std::string& name);
+
+
+    /**
+     * @brief Constructor.
+     * @param ti The type for this aux data item.
+     * @param name Name of this aux variable.
+     *
+     * The name -> auxid lookup is done here.
+     */
+    TypelessConstAccessor (const std::type_info& ti,
+                           const std::string& name);
+
+
+    /**
+     * @brief Constructor.
+     * @param name Name of this aux variable.
+     * @param clsname The name of its associated class.  May be blank.
+     *
+     * The name -> auxid lookup is done here.
+     */
+    TypelessConstAccessor (const std::string& name,
+                           const std::string& clsname);
+
+
+    /**
+     * @brief Constructor.
+     * @param ti The type for this aux data item.
+     * @param name Name of this aux variable.
+     * @param clsname The name of its associated class.  May be blank.
+     *
+     * The name -> auxid lookup is done here.
+     */
+    TypelessConstAccessor (const std::type_info& ti,
+                           const std::string& name,
+                           const std::string& clsname);
+
+
+    /**
+     * @brief Fetch the variable for one element, as a const pointer.
+     * @param e The element for which to fetch the variable.
+     */
+    const void* operator() (const ConstAuxElement& e) const;
+
+#ifdef ATHCONTAINERS_R21_COMPAT
+    const void* operator() (const AuxElement& e) const;
+#endif    
+    
+
+    /**
+     * @brief Fetch the variable for one element, as a const pointer.
+     * @param container The container from which to fetch the variable.
+     * @param index The index of the desired element.
+     *
+     * This allows retrieving aux data by container / index.
+     * Looping over the index via this method will be faster then
+     * looping over the elements of the container.
+     */
+    const void* operator() (const AuxVectorData& container, size_t index) const;
+
+    
+    /**
+     * @brief Get a pointer to the start of the auxiliary data array.
+     * @param container The container from which to fetch the variable.
+     */
+    const void* getDataArray (const AuxVectorData& container) const;
+    
+
+    /**
+     * @brief Test to see if this variable exists in the store.
+     * @param e An element of the container which to test the variable.
+     */
+    bool isAvailable (const ConstAuxElement& e) const;
+
+#ifdef ATHCONTAINERS_R21_COMPAT
+    bool isAvailable (const AuxElement& e) const;
+#endif    
+
+    /**
+     * @brief Return the aux id for this variable.
+     */
+    SG::auxid_t auxid() const;
+
+
+  protected:
+    /// The cached @c auxid.
+    SG::auxid_t m_auxid;
+
+    /// Cached element size.
+    size_t m_eltSize;
+  };
+
+
+  /**
+   * @brief Helper class to provide constant type-safe access to aux data.
+   *
+   * This is written as a separate class in order to be able
+   * to cache the name -> auxid lookup.
+   *
+   * You might use this something like this:
+   *
+   *@code
+   *   // Only need to do this once.
+   *   Myclass::ConstAccessor<int> vint1 ("myInt");
+   *   ...
+   *   const Myclass* m = ...;
+   *   int x = vint1 (*m);
+   @endcode
+   *
+   * This class can be used only for reading data.
+   * To modify data, see the class @c Accessor.
+   */
+  template <class T>
+  class ConstAccessor
+  {
+  public:
+    /// Type the user sees.
+    typedef typename AuxDataTraits<T>::element_type
+     element_type;
+
+    /// Type referencing an item.
+    typedef typename AuxDataTraits<T>::const_reference_type
+      const_reference_type;
+
+    /// Pointer into the container holding this item.
+    typedef typename AuxDataTraits<T>::const_container_pointer_type
+      const_container_pointer_type;
+
+    /**
+     * @brief Constructor.
+     * @param name Name of this aux variable.
+     *
+     * The name -> auxid lookup is done here.
+     */
+    ConstAccessor (const std::string& name);
+
+
+    /**
+     * @brief Constructor.
+     * @param name Name of this aux variable.
+     * @param clsname The name of its associated class.  May be blank.
+     *
+     * The name -> auxid lookup is done here.
+     */
+    ConstAccessor (const std::string& name, const std::string& clsname);
+
+
+    /**
+     * @brief Fetch the variable for one element, as a const reference.
+     * @param e The element for which to fetch the variable.
+     */
+    const_reference_type operator() (const ConstAuxElement& e) const;
+
+#ifdef ATHCONTAINERS_R21_COMPAT
+    const_reference_type operator() (const AuxElement& e) const;
+#endif
+
+
+    /**
+     * @brief Fetch the variable for one element, as a const reference.
+     * @param container The container from which to fetch the variable.
+     * @param index The index of the desired element.
+     *
+     * This allows retrieving aux data by container / index.
+     * Looping over the index via this method will be faster then
+     * looping over the elements of the container.
+     */
+    const_reference_type
+    operator() (const AuxVectorData& container, size_t index) const;
+
+
+    /**
+     * @brief Get a pointer to the start of the auxiliary data array.
+     * @param container The container from which to fetch the variable.
+     */
+    const_container_pointer_type
+    getDataArray (const AuxVectorData& container) const;
+    
+
+    /**
+     * @brief Test to see if this variable exists in the store.
+     * @param e An element of the container which to test the variable.
+     */
+    bool isAvailable (const ConstAuxElement& e) const;
+
+#ifdef ATHCONTAINERS_R21_COMPAT
+    bool isAvailable (const AuxElement& e) const;
+#endif
+
+
+    /**
+     * @brief Return the aux id for this variable.
+     */
+    SG::auxid_t auxid() const;
+
+
+  protected:
+    /**
+     * @brief Constructor.
+     * @param name Name of this aux variable.
+     * @param clsname The name of its associated class.  May be blank.
+     * @param flags Optional flags qualifying the type.  See AuxTypeRegsitry.
+     *
+     * The name -> auxid lookup is done here.
+     */
+    ConstAccessor (const std::string& name,
+                   const std::string& clsname,
+                   const SG::AuxTypeRegistry::Flags flags);
+
+
+    /// The cached @c auxid.
+    SG::auxid_t m_auxid;
+  };
+
+
+  /**
+   * @brief Helper class to provide type-safe access to aux data.
+   *
+   * This is like @c Accessor, except that it only `decorates' the container.
+   * What this means is that this object can operate on a const container
+   * and return a non-const reference.  However, if the container is locked,
+   * this will only work if either this is a reference to a new variable,
+   * in which case it is marked as a decoration, or it is a reference
+   * to a variable already marked as a decoration.
+   * 
+   * This is written as a separate class in order to be able
+   * to cache the name -> auxid lookup.
+   *
+   * You might use this something like this:
+   *
+   *@code
+   *   // Only need to do this once.
+   *   Myclass::Decorator<int> vint1 ("myInt");
+   *   ...
+   *   const Myclass* m = ...;
+   *   vint1 (*m) = 123;
+   @endcode
+   */
+  template <class T>
+  class Decorator
+  {
+  public:
+    /// Type referencing an item.
+    typedef typename AuxDataTraits<T>::reference_type
+     reference_type;
+
+    /// Type the user sees.
+    typedef typename AuxDataTraits<T>::element_type
+     element_type;
+
+    /// Pointer into the container holding this item.
+    typedef typename AuxDataTraits<T>::container_pointer_type
+      container_pointer_type;
+    typedef typename AuxDataTraits<T>::const_container_pointer_type
+      const_container_pointer_type;
+
+
+    /**
+     * @brief Constructor.
+     * @param name Name of this aux variable.
+     *
+     * The name -> auxid lookup is done here.
+     */
+    Decorator (const std::string& name);
+
+
+    /**
+     * @brief Constructor.
+     * @param name Name of this aux variable.
+     * @param clsname The name of its associated class.  May be blank.
+     *
+     * The name -> auxid lookup is done here.
+     */
+    Decorator (const std::string& name, const std::string& clsname);
+
+
+    /**
+     * @brief Fetch the variable for one element, as a non-const reference.
+     * @param e The element for which to fetch the variable.
+     *
+     * If the container is locked, this will allow fetching only variables
+     * that do not yet exist (in which case they will be marked as decorations)
+     * or variables already marked as decorations.
+     */
+    reference_type operator() (const ConstAuxElement& e) const;
+
+#ifdef ATHCONTAINERS_R21_COMPAT
+    reference_type operator() (const AuxElement& e) const;
+#endif
+
+
+    /**
+     * @brief Fetch the variable for one element, as a non-const reference.
+     * @param container The container from which to fetch the variable.
+     * @param index The index of the desired element.
+     *
+     * This allows retrieving aux data by container / index.
+     * Looping over the index via this method will be faster then
+     * looping over the elements of the container.
+     *
+     * If the container is locked, this will allow fetching only variables
+     * that do not yet exist (in which case they will be marked as decorations)
+     * or variables already marked as decorations.
+     */
+    reference_type
+    operator() (const AuxVectorData& container, size_t index) const;
+
+
+    /**
+     * @brief Set the variable for one element.
+     * @param e The element for which to fetch the variable.
+     * @param x The variable value to set.
+     */
+    void set (const ConstAuxElement& e, const element_type& x) const;
+
+#ifdef ATHCONTAINERS_R21_COMPAT
+    void set (const AuxElement& e, const element_type& x) const;
+#endif
+
+
+    /**
+     * @brief Get a pointer to the start of the auxiliary data array.
+     * @param container The container from which to fetch the variable.
+     */
+    const_container_pointer_type getDataArray (const AuxVectorData& container) const;
+    
+
+    /**
+     * @brief Get a pointer to the start of the auxiliary data array.
+     * @param container The container from which to fetch the variable.
+     *
+     * If the container is locked, this will allow fetching only variables
+     * that do not yet exist (in which case they will be marked as decorations)
+     * or variables already marked as decorations.
+     */
+    container_pointer_type getDecorationArray (const AuxVectorData& container) const;
+    
+
+    /**
+     * @brief Test to see if this variable exists in the store.
+     * @param e An element of the container which to test the variable.
+     */
+    bool isAvailable (const ConstAuxElement& e) const;
+
+#ifdef ATHCONTAINERS_R21_COMPAT
+    bool isAvailable (const AuxElement& e) const;
+#endif
+
+
+    /**
+     * @brief Test to see if this variable exists in the store and is writable.
+     * @param e An element of the container which to test the variable.
+     */
+    bool isAvailableWritable (const ConstAuxElement& e) const;
+
+#ifdef ATHCONTAINERS_R21_COMPAT
+    bool isAvailableWritable (const AuxElement& e) const;
+#endif
+
+
+    /**
+     * @brief Return the aux id for this variable.
+     */
+    SG::auxid_t auxid() const;
+
+
+  protected:
+    /**
+     * @brief Constructor.
+     * @param name Name of this aux variable.
+     * @param clsname The name of its associated class.  May be blank.
+     * @param flags Optional flags qualifying the type.  See AuxTypeRegsitry.
+     *
+     * The name -> auxid lookup is done here.
+     */
+    Decorator (const std::string& name,
+               const std::string& clsname,
+               const SG::AuxTypeRegistry::Flags flags);
+
+
+  private:
+    /// The cached @c auxid.
+    SG::auxid_t m_auxid;
+  };
+
+
+  /**
+   * @brief Fetch an aux data variable, as a const reference.
+   * @param name Name of the aux variable.
+   *
+   * This method has to translate from the aux data name to the internal
+   * representation each time it is called.  Using this method
+   * inside of loops is discouraged; instead use the @c Accessor
+   * or @c ConstAccessor classes above.
+   */
+  template <class T>
+  typename AuxDataTraits<T>::const_reference_type
+  auxdata (const std::string& name) const;
+
+
+  /**
+   * @brief Fetch an aux data variable, as a const reference.
+   * @param name Name of the aux variable.
+   * @param clsname The name of the associated class.  May be blank.
+   *
+   * This method has to translate from the aux data name to the internal
+   * representation each time it is called.  Using this method
+   * inside of loops is discouraged; instead use the @c Accessor
+   * or @c ConstAccessor classes above.
+   */
+  template <class T>
+  typename AuxDataTraits<T>::const_reference_type
+  auxdata (const std::string& name,
+           const std::string& clsname) const;
+
+
+  /**
+   * @brief Fetch an aux data variable, as a const reference.
+   * @param name Name of the aux variable.
+   *
+   * This method has to translate from the aux data name to the internal
+   * representation each time it is called.  Using this method
+   * inside of loops is discouraged; instead use the @c ConstAccessor
+   * class above.
+   */
+  template <class T>
+  typename AuxDataTraits<T>::const_reference_type
+  auxdataConst (const std::string& name) const;
+
+
+  /**
+   * @brief Fetch an aux data variable, as a const reference.
+   * @param name Name of the aux variable.
+   * @param clsname The name of the associated class.  May be blank.
+   *
+   * This method has to translate from the aux data name to the internal
+   * representation each time it is called.  Using this method
+   * inside of loops is discouraged; instead use the @c ConstAccessor
+   * class above.
+   */
+  template <class T>
+  typename AuxDataTraits<T>::const_reference_type
+  auxdataConst (const std::string& name,
+                const std::string& clsname) const;
+
+
+  /**
+   * @brief Check if an aux variable is available for reading
+   * @param name Name of the aux variable.
+   * @param clsname The name of the associated class.  May be blank.
+   *
+   * This method has to translate from the aux data name to the internal
+   * representation each time it is called.  Using this method
+   * inside of loops is discouraged; instead use the @c Accessor
+   * class above.
+   */
+  template <class T>
+  bool isAvailable (const std::string& name,
+                    const std::string& clsname = "") const;
+
+
+  /**
+   * @brief Check if an aux variable is available for writing as a decoration.
+   * @param name Name of the aux variable.
+   * @param clsname The name of the associated class.  May be blank.
+   *
+   * This method has to translate from the aux data name to the internal
+   * representation each time it is called.  Using this method
+   * inside of loops is discouraged; instead use the @c Accessor
+   * class above.
+   */
+  template <class T>
+  bool isAvailableWritableAsDecoration (const std::string& name,
+                                        const std::string& clsname = "") const;
+
+
+  /**
+   * @brief Fetch an aux decoration, as a non-const reference.
+   * @param name Name of the aux variable.
+   *
+   * This method has to translate from the aux data name to the internal
+   * representation each time it is called.  Using this method
+   * inside of loops is discouraged; instead use the @c Accessor
+   * class above.
+   *
+   * If the container is locked, this will allow fetching only variables
+   * that do not yet exist (in which case they will be marked as decorations)
+   * or variables already marked as decorations.
+   */
+  template <class T>
+  typename AuxDataTraits<T>::reference_type
+  auxdecor (const std::string& name) const;
+
+
+  /**
+   * @brief Fetch an aux decoration, as a non-const reference.
+   * @param name Name of the aux variable.
+   * @param clsname The name of the associated class.  May be blank.
+   *
+   * This method has to translate from the aux data name to the internal
+   * representation each time it is called.  Using this method
+   * inside of loops is discouraged; instead use the @c Accessor
+   * class above.
+   *
+   * If the container is locked, this will allow fetching only variables
+   * that do not yet exist (in which case they will be marked as decorations)
+   * or variables already marked as decorations.
+   */
+  template <class T>
+  typename AuxDataTraits<T>::reference_type
+  auxdecor (const std::string& name,
+            const std::string& clsname) const;
+
+
+  /**
+   * @brief Return a set of identifiers for existing data items
+   *        for this object.
+   *
+   *        If this object has a private or standalone store, then information
+   *        from that will be returned.  Otherwise, if this element
+   *        is part of a container, then information for the container
+   *        will be returned.  Otherwise, return an empty set.
+   */
+  const SG::auxid_set_t& getAuxIDs() const;
+
+
+private:
+  friend class AuxElement;
+
+
+  /**
+   * @brief Out-of-line portion of destructor.
+   *
+   * Delete a private store if we have one.
+   */
+  void releasePrivateStoreForDtor();
+
+
+  /**
+   * @brief Set the index/container for this element.
+   * @param index The index of this object within the container.
+   * @param container The container holding this object.
+   *                  May be null if this object is being removed
+   *                  from a container.
+   *
+   * Usually this simply sets the index and container members
+   * of this object.  However, in the case where this object has
+   * an associated private store, then we need to deal with
+   * releasing the store if the object is being added to a container,
+   * or making a new store if the object is being removed from a container.
+   */
+  void setIndex (size_t index, const SG::AuxVectorData* container);
+
+
+  /**
+   * @brief Set the index/container for this element.
+   * @param index The index of this object within the container.
+   * @param container The container holding this object.
+   *                  May be null if this object is being removed
+   *                  from a container.
+   *
+   * This is called from @c setIndex when we have a private store to deal with.
+   */
+  bool setIndexPrivate (size_t index, const SG::AuxVectorData* container);
+
+
+  /// The container of which this object is an element.
+  /// Should be null if this object is not within a container,
+  /// except that it may also point at a private store.
+  const SG::AuxVectorData* m_container;
+};
+
+
+//***************************************************************************
 
 
 /**
@@ -174,11 +837,26 @@ class AuxVectorBase_test;
  * derived classes to have a vtable).
  */
 class AuxElement
+#ifdef ATHCONTAINERS_R21_COMPAT
   : public SG::IAuxElement
+#else
+  : public ConstAuxElement
+#endif
 {
 public:
   /// Default constructor.
   AuxElement();
+
+
+  /**
+   * @brief Constructor with explicit container / index.
+   * @param container Container of which this element will be a part.
+   * @param index Index of this element within the container.
+   *
+   * This does not make any changes to aux data.
+   */
+  AuxElement (SG::AuxVectorData* container,  size_t index);
+
 
 
   /**
@@ -217,19 +895,21 @@ public:
   /**
    * @brief Return the container holding this element.
    */
-  SG::AuxVectorData* container();
+  const SG::AuxVectorData* container() const;
 
 
   /**
    * @brief Return the container holding this element.
    */
-  const SG::AuxVectorData* container() const;
+  SG::AuxVectorData* container();
 
 
   /**
    * @brief Return the index of this element within its container.
+   *
+   * Inherited from IAuxElement.
    */
-  size_t index() const;
+  using IAuxElement::index;
 
 
   /**
@@ -243,99 +923,7 @@ public:
    * known at compile-time).  Most of the time, you'd want to use
    * the type-safe versions @c ConstAccessor and @c Accessor.
    */
-  class TypelessConstAccessor
-  {
-  public:
-    /**
-     * @brief Constructor.
-     * @param name Name of this aux variable.
-     *
-     * The name -> auxid lookup is done here.
-     */
-    TypelessConstAccessor (const std::string& name);
-
-
-    /**
-     * @brief Constructor.
-     * @param ti The type for this aux data item.
-     * @param name Name of this aux variable.
-     *
-     * The name -> auxid lookup is done here.
-     */
-    TypelessConstAccessor (const std::type_info& ti,
-                           const std::string& name);
-
-
-    /**
-     * @brief Constructor.
-     * @param name Name of this aux variable.
-     * @param clsname The name of its associated class.  May be blank.
-     *
-     * The name -> auxid lookup is done here.
-     */
-    TypelessConstAccessor (const std::string& name,
-                           const std::string& clsname);
-
-
-    /**
-     * @brief Constructor.
-     * @param ti The type for this aux data item.
-     * @param name Name of this aux variable.
-     * @param clsname The name of its associated class.  May be blank.
-     *
-     * The name -> auxid lookup is done here.
-     */
-    TypelessConstAccessor (const std::type_info& ti,
-                           const std::string& name,
-                           const std::string& clsname);
-
-
-    /**
-     * @brief Fetch the variable for one element, as a const pointer.
-     * @param e The element for which to fetch the variable.
-     */
-    const void* operator() (const AuxElement& e) const;
-    
-
-    /**
-     * @brief Fetch the variable for one element, as a const pointer.
-     * @param container The container from which to fetch the variable.
-     * @param index The index of the desired element.
-     *
-     * This allows retrieving aux data by container / index.
-     * Looping over the index via this method will be faster then
-     * looping over the elements of the container.
-     */
-    const void* operator() (const AuxVectorData& container, size_t index) const;
-
-    
-    /**
-     * @brief Get a pointer to the start of the auxiliary data array.
-     * @param container The container from which to fetch the variable.
-     */
-    const void* getDataArray (const AuxVectorData& container) const;
-    
-
-    /**
-     * @brief Test to see if this variable exists in the store.
-     * @param e An element of the container which to test the variable.
-     */
-    bool isAvailable (const AuxElement& e) const;
-
-
-    /**
-     * @brief Return the aux id for this variable.
-     */
-    SG::auxid_t auxid() const;
-
-
-  protected:
-    /// The cached @c auxid.
-    SG::auxid_t m_auxid;
-
-    /// Cached element size.
-    size_t m_eltSize;
-  };
+  using TypelessConstAccessor = ConstAuxElement::TypelessConstAccessor;
 
 
   /**
@@ -359,96 +947,18 @@ public:
    */
   template <class T>
   class ConstAccessor
+    : public ConstAuxElement::ConstAccessor<T>
   {
   public:
-    /// Type the user sees.
-    typedef typename AuxDataTraits<T>::element_type
-     element_type;
-
-    /// Type referencing an item.
-    typedef typename AuxDataTraits<T>::const_reference_type
-      const_reference_type;
-
-    /// Pointer into the container holding this item.
-    typedef typename AuxDataTraits<T>::const_container_pointer_type
-      const_container_pointer_type;
-
-    /**
-     * @brief Constructor.
-     * @param name Name of this aux variable.
-     *
-     * The name -> auxid lookup is done here.
-     */
-    ConstAccessor (const std::string& name);
-
-
-    /**
-     * @brief Constructor.
-     * @param name Name of this aux variable.
-     * @param clsname The name of its associated class.  May be blank.
-     *
-     * The name -> auxid lookup is done here.
-     */
-    ConstAccessor (const std::string& name, const std::string& clsname);
-
-
-    /**
-     * @brief Fetch the variable for one element, as a const reference.
-     * @param e The element for which to fetch the variable.
-     */
-    const_reference_type operator() (const AuxElement& e) const;
-    
-
-    /**
-     * @brief Fetch the variable for one element, as a const reference.
-     * @param container The container from which to fetch the variable.
-     * @param index The index of the desired element.
-     *
-     * This allows retrieving aux data by container / index.
-     * Looping over the index via this method will be faster then
-     * looping over the elements of the container.
-     */
-    const_reference_type
-    operator() (const AuxVectorData& container, size_t index) const;
-
-
-    /**
-     * @brief Get a pointer to the start of the auxiliary data array.
-     * @param container The container from which to fetch the variable.
-     */
-    const_container_pointer_type
-    getDataArray (const AuxVectorData& container) const;
-    
-
-    /**
-     * @brief Test to see if this variable exists in the store.
-     * @param e An element of the container which to test the variable.
-     */
-    bool isAvailable (const AuxElement& e) const;
-
-
-    /**
-     * @brief Return the aux id for this variable.
-     */
-    SG::auxid_t auxid() const;
-
-
+    ConstAccessor (const std::string& name)
+      : ConstAuxElement::ConstAccessor<T> (name) {}
+    ConstAccessor (const std::string& name, const std::string& clsname)
+      : ConstAuxElement::ConstAccessor<T> (name, clsname) {}
   protected:
-    /**
-     * @brief Constructor.
-     * @param name Name of this aux variable.
-     * @param clsname The name of its associated class.  May be blank.
-     * @param flags Optional flags qualifying the type.  See AuxTypeRegsitry.
-     *
-     * The name -> auxid lookup is done here.
-     */
     ConstAccessor (const std::string& name,
                    const std::string& clsname,
-                   const SG::AuxTypeRegistry::Flags flags);
-
-
-    /// The cached @c auxid.
-    SG::auxid_t m_auxid;
+                   const SG::AuxTypeRegistry::Flags flags)
+      : ConstAuxElement::ConstAccessor<T> (name, clsname, flags) {}
   };
 
 
@@ -588,133 +1098,19 @@ public:
    */
   template <class T>
   class Decorator
+    : public ConstAuxElement::Decorator<T>
   {
   public:
-    /// Type referencing an item.
-    typedef typename AuxDataTraits<T>::reference_type
-     reference_type;
-
-    /// Type the user sees.
-    typedef typename AuxDataTraits<T>::element_type
-     element_type;
-
-    /// Pointer into the container holding this item.
-    typedef typename AuxDataTraits<T>::container_pointer_type
-      container_pointer_type;
-    typedef typename AuxDataTraits<T>::const_container_pointer_type
-      const_container_pointer_type;
-
-
-    /**
-     * @brief Constructor.
-     * @param name Name of this aux variable.
-     *
-     * The name -> auxid lookup is done here.
-     */
-    Decorator (const std::string& name);
-
-
-    /**
-     * @brief Constructor.
-     * @param name Name of this aux variable.
-     * @param clsname The name of its associated class.  May be blank.
-     *
-     * The name -> auxid lookup is done here.
-     */
-    Decorator (const std::string& name, const std::string& clsname);
-
-
-    /**
-     * @brief Fetch the variable for one element, as a non-const reference.
-     * @param e The element for which to fetch the variable.
-     *
-     * If the container is locked, this will allow fetching only variables
-     * that do not yet exist (in which case they will be marked as decorations)
-     * or variables already marked as decorations.
-     */
-    reference_type operator() (const AuxElement& e) const;
-
-
-    /**
-     * @brief Fetch the variable for one element, as a non-const reference.
-     * @param container The container from which to fetch the variable.
-     * @param index The index of the desired element.
-     *
-     * This allows retrieving aux data by container / index.
-     * Looping over the index via this method will be faster then
-     * looping over the elements of the container.
-     *
-     * If the container is locked, this will allow fetching only variables
-     * that do not yet exist (in which case they will be marked as decorations)
-     * or variables already marked as decorations.
-     */
-    reference_type
-    operator() (const AuxVectorData& container, size_t index) const;
-
-
-    /**
-     * @brief Set the variable for one element.
-     * @param e The element for which to fetch the variable.
-     * @param x The variable value to set.
-     */
-    void set (const AuxElement& e, const element_type& x) const;
-
-
-    /**
-     * @brief Get a pointer to the start of the auxiliary data array.
-     * @param container The container from which to fetch the variable.
-     */
-    const_container_pointer_type getDataArray (const AuxVectorData& container) const;
-    
-
-    /**
-     * @brief Get a pointer to the start of the auxiliary data array.
-     * @param container The container from which to fetch the variable.
-     *
-     * If the container is locked, this will allow fetching only variables
-     * that do not yet exist (in which case they will be marked as decorations)
-     * or variables already marked as decorations.
-     */
-    container_pointer_type getDecorationArray (const AuxVectorData& container) const;
-    
-
-    /**
-     * @brief Test to see if this variable exists in the store.
-     * @param e An element of the container which to test the variable.
-     */
-    bool isAvailable (const AuxElement& e) const;
-
-
-    /**
-     * @brief Test to see if this variable exists in the store and is writable.
-     * @param e An element of the container which to test the variable.
-     */
-    bool isAvailableWritable (const AuxElement& e) const;
-
-
-    /**
-     * @brief Return the aux id for this variable.
-     */
-    SG::auxid_t auxid() const;
-
-
+    Decorator (const std::string& name)
+      : ConstAuxElement::Decorator<T> (name) {}
+    Decorator (const std::string& name, const std::string& clsname)
+      : ConstAuxElement::Decorator<T> (name, clsname) {}
   protected:
-    /**
-     * @brief Constructor.
-     * @param name Name of this aux variable.
-     * @param clsname The name of its associated class.  May be blank.
-     * @param flags Optional flags qualifying the type.  See AuxTypeRegsitry.
-     *
-     * The name -> auxid lookup is done here.
-     */
     Decorator (const std::string& name,
                const std::string& clsname,
-               const SG::AuxTypeRegistry::Flags flags);
-
-
-  private:
-    /// The cached @c auxid.
-    SG::auxid_t m_auxid;
+               const SG::AuxTypeRegistry::Flags flags)
+    
+      : ConstAuxElement::Decorator<T> (name, clsname, flags) {}
   };
 
 
@@ -891,7 +1287,7 @@ public:
             const std::string& clsname) const;
 
 
-  /**
+ /**
    * @brief Create a new (empty) private store for this object.
    *
    * @c ExcBadPrivateStore will be thrown if this object is already
@@ -1086,19 +1482,9 @@ public:
 
 
 private:
+  friend class SG::ConstAuxElement;
   friend class SG::AuxVectorBase;
   friend class SG::AuxVectorBase_test;
-
-
-  /**
-   * @brief Constructor with explicit container / index.
-   * @param container Container of which this element will be a part.
-   * @param index Index of this element within the container.
-   *
-   * This does not make any changes to aux data.
-   */
-  AuxElement (SG::AuxVectorData* container,  size_t index);
-
 
 
   /**
@@ -1192,41 +1578,30 @@ private:
    * in @c other are cleared.  (If @c other has no aux data, then all
    * aux data items for this object are cleared.)
    */
+  void copyAux (const ConstAuxElement& other);
+
+
+#ifdef ATHCONTAINERS_R21_COMPAT
+  /**
+   * @brief Copy aux data from another object.
+   * @param other The object from which to copy.
+   *
+   * If this object has no associated store, this does nothing.
+   * If the associated aux data is const, this throws @c ExcConstAuxData.
+   *
+   * All aux data items from @c other are copied to this object.
+   * Any aux data items associated with this object that are not present
+   * in @c other are cleared.  (If @c other has no aux data, then all
+   * aux data items for this object are cleared.)
+   */
   void copyAux (const AuxElement& other);
 
 
-  /**
-   * @brief Helper to test if m_privateData is valid.
-   */
-  bool privateDataValid() const;
-
-
-  /// The index of this element within its container.
-  /// Should be 0 if this object is not within a container.
-  size_t m_index;
-
   /// The container of which this object is an element.
   /// Should be null if this object is not within a container,
-  /// except for the case where this object as a private store.
-  /// In that case, @c m_container should be the same as @c m_privateData.
+  /// except that it may also point at a private store.
   SG::AuxVectorData* m_container;
-
-  /// If this object has a current private store, then this points
-  /// at the container object holding the store.  In that case,
-  /// @c m_container should have the same value.  If this object
-  /// had a private store but it was released because the object
-  /// was added to a container, then this should be set to
-  /// @c s_privatePlaceholder.  That way, we know to reconstruct
-  /// the private store in the event this object is removed from
-  /// the container.  Otherwise, if we no private store association at all,
-  /// then this should be null.
-  SG::AuxElementData* m_privateData;
-
-  /// Special value used to mark that an object had a private store,
-  /// but it was released because it was added to a container.
-  /// (And therefore we should recreate the private store if the
-  /// object is later removed.)
-  static SG::AuxElementData* const s_privatePlaceholder;
+#endif
 };
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file CondProxyProvider.cxx
@@ -31,7 +31,8 @@
 CondProxyProvider::CondProxyProvider(const std::string& name, ISvcLocator* pSvcLocator) :
 	::AthService(name, pSvcLocator),
 	m_athenaPoolCnvSvc("AthenaPoolCnvSvc", name),
-	m_poolCollectionConverter(0)
+	m_poolCollectionConverter(0),
+	m_contextId(IPoolSvc::kInputStream)
 	{
 }
 //________________________________________________________________________________
@@ -39,7 +40,7 @@ CondProxyProvider::~CondProxyProvider() {
 }
 //________________________________________________________________________________
 StatusCode CondProxyProvider::initialize() {
-   ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
+   ATH_MSG_INFO("Initializing " << name());
    if (!::AthService::initialize().isSuccess()) {
       ATH_MSG_FATAL("Cannot initialize AthService base class.");
       return(StatusCode::FAILURE);
@@ -53,11 +54,16 @@ StatusCode CondProxyProvider::initialize() {
       ATH_MSG_FATAL("Cannot get AthenaPoolCnvSvc.");
       return(StatusCode::FAILURE);
    }
-   // Get PersistencySvc
-   StatusCode status = m_athenaPoolCnvSvc->getPoolSvc()->connect(pool::ITransaction::READ, IPoolSvc::kInputStream);
+   // Get PoolSvc and connect as "Conditions"
+   IPoolSvc *poolSvc = m_athenaPoolCnvSvc->getPoolSvc();
+   m_contextId = poolSvc->getInputContext("Conditions");
+   StatusCode status = poolSvc->connect( pool::ITransaction::READ, m_contextId );
    if (!status.isSuccess()) {
       ATH_MSG_FATAL("Cannot connect to Database.");
       return(StatusCode::FAILURE);
+   }
+   for( const auto &inp : m_inputCollectionsProp.value() ) {
+      ATH_MSG_INFO("Inputs: " << inp);
    }
    // Initialize
    m_inputCollectionsIterator = m_inputCollectionsProp.value().begin();
@@ -126,7 +132,7 @@ StatusCode CondProxyProvider::preLoadAddresses(StoreID::type storeID,
       SG::VersionedKey myVersKey(name(), verNumber);
       Token* token = new Token;
       token->fromString(headerIterator->eventRef().toString());
-      TokenAddress* tokenAddr = new TokenAddress(POOL_StorageType, ClassID_traits<DataHeader>::ID(), "", myVersKey, IPoolSvc::kInputStream, token);
+      TokenAddress* tokenAddr = new TokenAddress(POOL_StorageType, ClassID_traits<DataHeader>::ID(), "", myVersKey, m_contextId, token);
       if (!detectorStoreSvc->recordAddress(tokenAddr).isSuccess()) {
          ATH_MSG_ERROR("Cannot record DataHeader.");
          return(StatusCode::FAILURE);
@@ -173,6 +179,7 @@ PoolCollectionConverter* CondProxyProvider::getCollectionCnv() {
    ATH_MSG_DEBUG("Try item: \"" << *m_inputCollectionsIterator << "\" from the collection list.");
    PoolCollectionConverter* pCollCnv = new PoolCollectionConverter("ImplicitROOT",
 	   *m_inputCollectionsIterator,
+	   m_contextId,
 	   "",
 	   m_athenaPoolCnvSvc->getPoolSvc());
    if (!pCollCnv->initialize().isSuccess()) {

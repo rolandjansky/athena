@@ -17,7 +17,7 @@
 #include "xAODRootAccess/tools/ReturnCheck.h"
 
 /// Helper macro
-#define CHECK( CONTEXT, EXP )                                        \
+#define TEST_CHECK( CONTEXT, EXP )                                        \
    do {                                                              \
       const StatusCode result = EXP;                          \
       if( ! result.isSuccess() ) {                                   \
@@ -36,12 +36,12 @@ int main() {
    static const char* APP_NAME = "ut_xaodrootaccess_tevent_copy_test";
 
    // Initialise the environment:
-   CHECK( APP_NAME, xAOD::Init() );
+   TEST_CHECK( APP_NAME, xAOD::Init() );
 
    // Test the copying in class access mode:
-   CHECK( APP_NAME, copyObjects( xAOD::TEvent::kClassAccess ) );
+   TEST_CHECK( APP_NAME, copyObjects( xAOD::TEvent::kClassAccess ) );
    // Test the copying in athena access mode:
-   CHECK( APP_NAME, copyObjects( xAOD::TEvent::kAthenaAccess ) );
+   TEST_CHECK( APP_NAME, copyObjects( xAOD::TEvent::kAthenaAccess ) );
 
    // Return gracefully:
    return 0;

@@ -114,8 +114,13 @@ if DetFlags.digitize.LVL1_on():
     # TrigT1Muctpi Algos
     #--------------------------------------------------------------
     if DetFlags.simulateLVL1.RPC_on() or DetFlags.simulateLVL1.TGC_on():
-        from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi
-        topSequence += L1Muctpi()
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        if ConfigFlags.Trigger.enableL1MuonPhase1:
+            from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1
+            topSequence += L1MuctpiPhase1()
+        else:
+            from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi
+            topSequence += L1Muctpi()
 
     #-------------------------------------------------------
     # TrigT1CaloSim Algos
@@ -142,14 +147,6 @@ if DetFlags.digitize.LVL1_on():
     if DetFlags.simulateLVL1.BCM_on():
         from TrigT1BCM.TrigT1BCMConf import LVL1__TrigT1BCM
         topSequence += LVL1__TrigT1BCM()
-
-    #-------------------------------------------------------
-    # TrigT1TRT Alg
-    #-------------------------------------------------------
-    from AthenaCommon.BeamFlags import jobproperties
-    if DetFlags.simulateLVL1.TRT_on():
-        from TrigT1TRT.TrigT1TRTConf import LVL1__TrigT1TRT
-        topSequence += LVL1__TrigT1TRT()
 
     #-------------------------------------------------------
     # TrigT1LUCID Alg

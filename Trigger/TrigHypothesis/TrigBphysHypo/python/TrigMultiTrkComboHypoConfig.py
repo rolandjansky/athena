@@ -1,31 +1,95 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from TrigBphysHypo.TrigBphysHypoConf import TrigMultiTrkComboHypo, TrigMultiTrkComboHypoTool
+from AthenaConfiguration.ComponentFactory import CompFactory
 from TrigBphysHypo.TrigMultiTrkComboHypoMonitoringConfig import TrigMultiTrkComboHypoMonitoring, TrigMultiTrkComboHypoToolMonitoring
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TrigMultiTrkComboHypoConfig')
 
-def DimuL2ComboHypoCfg(name):
+trigMultiTrkComboHypoToolDict = {
+    'bJpsimumu'     : { 'massRange' : (2500.,  4300.), 'chi2' : 20. },
+    'bJpsi'         : { 'massRange' : (2500.,  4300.), 'chi2' : 20. },
+    'bJpsimumul2io' : { 'massRange' : (2500.,  4300.), 'chi2' : 20. },
+    'bUpsimumu'     : { 'massRange' : (8000., 12000.), 'chi2' : 20. },
+    'bUpsi'         : { 'massRange' : (8000., 12000.), 'chi2' : 20. },
+    'bDimu'         : { 'massRange' : (1500., 14000.), 'chi2' : 20. },
+    'bDimu2700'     : { 'massRange' : ( 100.,  2700.), 'chi2' : 20. },
+    'bDimu6000'     : { 'massRange' : ( 100.,  6000.), 'chi2' : 20. },
+    'bBmumu'        : { 'massRange' : (4000.,  8500.), 'chi2' : 20. },
+    'bPhi'          : { 'massRange' : ( 940.,  1100.), 'chi2' : 10. },
+    'bTau'          : { 'massRange' : (   0.,  2700.), 'chi2' : 50. },
+    'bBeeM6000'     : { 'massRange' : ( 100.,  6000.), 'chi2' : 20. },
+}
+
+
+def StreamerDimuL2ComboHypoCfg(name):
     log.debug('DimuL2ComboHypoCfg.name = %s ', name)
 
     config = TrigMultiTrkComboHypoConfig()
     hypo = config.ConfigurationComboHypo(
+        isStreamer = True,
         trigSequenceName = 'Dimu',
         trigLevel = 'L2',
         trackCollection='HLT_IDTrack_Muon_FTF')
     return hypo
 
+def StreamerDimuL2IOComboHypoCfg(name):
+    log.debug('DimuL2IOComboHypoCfg.name = %s ', name)
+
+    config = TrigMultiTrkComboHypoConfig()
+    hypo = config.ConfigurationComboHypo(
+        isStreamer = True,
+        trigSequenceName = 'Dimu',
+        trigLevel = 'L2IO')
+    return hypo
+
 def DimuEFComboHypoCfg(name):
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muonNames
     log.debug('DimuEFComboHypoCfg.name = %s ', name)
 
     config = TrigMultiTrkComboHypoConfig()
     hypo = config.ConfigurationComboHypo(
+        isStreamer = False,
         trigSequenceName = 'Dimu',
         trigLevel = 'EF',
-        muonCollection = muonNames().getNames('RoI').EFCBName)
+        outputTrigBphysCollection = 'HLT_DimuEF')
     return hypo
+
+def StreamerDimuEFComboHypoCfg(name):
+    log.debug('StreamerDimuEFComboHypoCfg.name = %s ', name)
+
+    config = TrigMultiTrkComboHypoConfig()
+    hypo = config.ConfigurationComboHypo(
+        isStreamer = True,
+        trigSequenceName = 'StreamerDimu',
+        trigLevel = 'EF')
+    hypo.chi2 = 20.
+    hypo.massRanges = [ (100., 6000.) ]
+    return hypo
+
+def StreamerDiElecFastComboHypoCfg(name):
+    log.debug('StreamerDiElecFastComboHypoCfg.name = %s ', name)
+
+    config = TrigMultiTrkComboHypoConfig()
+    hypo = config.ConfigurationComboHypo(
+        isStreamer = True,
+        trigSequenceName = 'DiElecFast',
+        trigLevel = 'L2',
+        doElectrons = True,
+        trackCollection='HLT_IDTrack_Electron_FTF')
+    return hypo
+
+def DiElecPrecisionComboHypoCfg(name):
+    log.debug('DiElecPrecisionComboHypoCfg.name = %s ', name)
+
+    config = TrigMultiTrkComboHypoConfig()
+    hypo = config.ConfigurationComboHypo(
+        isStreamer = False,
+        trigSequenceName = 'DiElecPrecision',
+        trigLevel = 'EF',
+        doElectrons = True,
+        outputTrigBphysCollection = 'HLT_DiElecPrecision')
+    return hypo
+
 
 def TrigMultiTrkComboHypoToolFromDict(chainDict):
     config = TrigMultiTrkComboHypoConfig()
@@ -34,126 +98,86 @@ def TrigMultiTrkComboHypoToolFromDict(chainDict):
 
 class TrigMultiTrkComboHypoConfig(object):
 
-    def ConfigurationComboHypo(self, trigSequenceName='Dimu', trigLevel='L2', trackCollection='', muonCollection=''):
+    def ConfigurationComboHypo(self, isStreamer='False', trigSequenceName='Dimu', trigLevel='L2', trackCollection='', outputTrigBphysCollection='TrigBphysContainer', doElectrons = False):
 
-        trigLevelDict = {'L2':0, 'EF':1}
+        trigLevelDict = {'L2':0, 'L2IO':1, 'EF':2}
 
         try:
             value = trigLevelDict[trigLevel]
             log.debug('TrigMultiTrkComboHypo.trigLevel = %s ', value)
         except KeyError:
-            log.error('TrigMultiTrkComboHypo.trigLevel should be L2 or EF, but %s provided.', trigLevel)
+            raise Exception('TrigMultiTrkComboHypo.trigLevel should be L2, L2IO or EF, but %s provided.', trigLevel)
+
+        baseName = 'Streamer'+trigSequenceName+trigLevel if isStreamer else trigSequenceName+trigLevel
 
         from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-        from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
-        VertexFitter = Trk__TrkVKalVrtFitter(
-            name = 'TrigBphysFitter_'+trigSequenceName+trigLevel,
+        VertexFitter = CompFactory.Trk__TrkVKalVrtFitter(
+            name = 'TrigBphysFitter_'+baseName,
             FirstMeasuredPoint = False,
             MakeExtendedVertex = False,
             Extrapolator = AtlasExtrapolator())
 
-        from InDetConversionFinderTools.InDetConversionFinderToolsConf import InDet__VertexPointEstimator
-        VertexPointEstimator = InDet__VertexPointEstimator(
-            name = 'VertexPointEstimator_'+trigSequenceName+trigLevel,
+        VertexPointEstimator = CompFactory.InDet__VertexPointEstimator(
+            name = 'VertexPointEstimator_'+baseName,
             MinDeltaR = [-10000., -10000., -10000.],
             MaxDeltaR = [ 10000.,  10000.,  10000.],
             MaxPhi    = [ 10000.,  10000.,  10000.],
             MaxChi2OfVtxEstimation = 2000.)
 
-        tool = TrigMultiTrkComboHypo(
-            name = trigSequenceName+trigLevel+'ComboHypo',
+        if doElectrons:
+            trackMasses = [0.511,0.511]
+            tool = CompFactory.TrigMultiTrkComboHypo(
+              name = baseName+'ComboHypo',
+              isStreamer = isStreamer,
+              doElectrons = True,
+              trigLevel = trigLevel,
+              nTracks = 2,
+              trackMasses = trackMasses,
+              massRanges = [ (100., 20000.) ],
+              TrackCollectionKey = trackCollection,
+              TrigBphysCollectionKey = outputTrigBphysCollection,
+              VertexFitter = VertexFitter,
+              VertexPointEstimator = VertexPointEstimator,
+              CheckMultiplicityMap = False,
+              MonTool = TrigMultiTrkComboHypoMonitoring('TrigMultiTrkComboHypoMonitoring_'+baseName))
+
+
+        tool = CompFactory.TrigMultiTrkComboHypo(
+            name = baseName+'ComboHypo',
+            isStreamer = isStreamer,
             trigLevel = trigLevel,
             nTracks = 2,
             massRanges = [ (100., 20000.) ],
             TrackCollectionKey = trackCollection,
-            MuonCollectionKey = muonCollection,
+            TrigBphysCollectionKey = outputTrigBphysCollection,
             VertexFitter = VertexFitter,
             VertexPointEstimator = VertexPointEstimator,
             CheckMultiplicityMap = False,
-            MonTool = TrigMultiTrkComboHypoMonitoring('TrigMultiTrkComboHypoMonitoring_'+trigSequenceName+trigLevel))
-
-        if trigLevel == 'EF':
-            tool.TrigBphysCollectionKey = 'HLT_'+trigSequenceName+trigLevel
+            MonTool = TrigMultiTrkComboHypoMonitoring('TrigMultiTrkComboHypoMonitoring_'+baseName))
 
         return tool
 
     def ConfigurationComboHypoTool(self, chainDict):
 
-        topoAlgs = chainDict['chainName']
-        log.debug("Set for algorithm %s", topoAlgs)
+        tool = CompFactory.TrigMultiTrkComboHypoTool(chainDict['chainName'])
 
-        tool = TrigMultiTrkComboHypoTool(topoAlgs)
+        try:
+            topo = chainDict['topo'][0]
+            value = trigMultiTrkComboHypoToolDict[topo]
+            tool.massRange = value['massRange']
+            tool.chi2 = value['chi2']
+            tool.totalCharge = 0
+        except LookupError:
+            raise Exception('TrigMultiTrkComboHypo misconfigured for \'%s\': topo \'%s\' is not supported.', chainDict['chainName'], topo)
 
-        if 'nocut' in topoAlgs:
+        if 'nocut' in chainDict['topo']:
             tool.AcceptAll = True
 
-        if 'noos' in topoAlgs:
-            tool.TotChargeCut = -100 #Negative number to indicate no charge cut
+        if 'noos' in chainDict['topo']:
+            tool.totalCharge = -100 # negative number to indicate no charge cut
 
-        tool.ApplyUpperMassCut = True
-        tool.ApplyChi2Cut = True
-        tool.Chi2VtxCut = 20
-        tool.trkPtThresholds = getBphysThresholds(chainDict)
-
-        if 'bJpsimumu' in topoAlgs:
-            tool.LowerMassCut =  2500 #MeV
-            tool.UpperMassCut =  4300 #MeV
-
-        elif 'bUpsimumu' in topoAlgs:
-            tool.LowerMassCut =  8000 #MeV
-            tool.UpperMassCut = 12000 #MeV
-
-        elif 'bBmumu' in topoAlgs:
-            tool.LowerMassCut =  4000 #MeV
-            tool.UpperMassCut =  8500 #MeV
-
-        elif 'bDimu' in topoAlgs:
-            tool.LowerMassCut =  1500 #MeV
-            tool.UpperMassCut = 14000 #MeV
-
-        elif 'bDimu2700' in topoAlgs:
-            tool.LowerMassCut =   100 #MeV
-            tool.UpperMassCut =  2700 #MeV
-
-        elif 'bPhi' in topoAlgs:
-            tool.LowerMassCut =   940 #MeV
-            tool.UpperMassCut =  1100 #MeV
-            tool.Chi2VtxCut = 10
-
-        elif 'bTau' in topoAlgs:
-            tool.LowerMassCut =     0 #MeV
-            tool.UpperMassCut =  2700 #MeV
-            tool.Chi2VtxCut = 50
+        if 'Lxy0' in chainDict['topo']:
+            tool.LxyCut = 0.0
 
         tool.MonTool = TrigMultiTrkComboHypoToolMonitoring('MonTool')
         return tool
-
-
-def getBphysThresholds(chainDict):
-    mult = 0
-    trkmuons = []
-
-    for part in chainDict['chainParts']:
-        mult = mult + int(part['multiplicity'])
-
-    for dictpart in chainDict['chainParts']:
-        if 'mu' in dictpart['trigType']:
-            for x in range(0,int(dictpart['multiplicity'])):
-                if dictpart['threshold']!='0':
-                    dthr = float(dictpart['threshold'] )
-                    thr= dthr * 1000.  # in MeV;
-
-                    #lower to match EF muon threshols
-                    if dthr < 9.5 :
-                        thr = thr - 350.
-                    elif dthr < 11.5 :
-                        thr = thr - 550.
-                    elif dthr < 21.5  :
-                        thr = thr - 750.
-                    else :
-                        thr = thr - 1000.
-
-                else :
-                    thr = 900.
-                trkmuons.append(thr)
-    return trkmuons

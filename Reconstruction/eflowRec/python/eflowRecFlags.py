@@ -13,44 +13,6 @@ class eflowAlgType(JobProperty):
     allowedValue = ["CellLevel","EOverP"]
     StoredValue = "CellLevel"
 
-class CalType(JobProperty):
-    """ Flag to select calibration type
-    """
-    statusOn = True
-    allowedTypes = ['str']
-    allowedValue = ["LocalHad","NoCal"]
-    StoredValue = "LocalHad"
-
-class useLocalHadWeightsOOCC(JobProperty):
-   """ Flag to decide if should use OutOfClusterCorrection
-   """
-   statusOn = True
-   allowedTypes = ['bool']
-   StoredValue = True
-
-class useOverLapShowerCells(JobProperty):
-    """ Flag to decide whether to calibrate cells in partially subtracted clusters
-    """
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = True
-
-class useSplitShowers(JobProperty):
-    """ Flag to decide if should recover split hadronic showers
-    """
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = True
-
-class useEEtaFirstInt(JobProperty):
-    """ Whether to bin E/P in E,Eta and layer of First Interaction
-    or just E,Eta
-    """
-
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = True
-
 class recoverIsolatedTracks(JobProperty):
     """ Flag to decide whether to recover isolated tracks
     """
@@ -58,22 +20,15 @@ class recoverIsolatedTracks(JobProperty):
     allowedTypes = ['bool']
     StoredValue = False
 
-class UseElectronHadronID(JobProperty):
-    """ Flag to decide whether to use electron/pion ID
-    """
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-
-class runTauMode(JobProperty):
-    """ Flag to decide whether to run on clusters/tracks from tau cands only
+class useElectrons(JobProperty):
+    """ Flag to toggle usage of electron tracks on/off - if on electron tracks are masked out
     """
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = True
 
-class useLeptons(JobProperty):
-    """ Flag to toggle usage of lepton tracks on/off - if on lepton tracks are masked out
+class useMuons(JobProperty):
+    """ Flag to toggle usage of muon tracks on/off - if on muon tracks are masked out
     """
     statusOn = True
     allowedTypes = ['bool']
@@ -86,22 +41,8 @@ class storeLeptonCells(JobProperty):
     allowedTypes = ['bool']
     StoredValue = False
 
-class useLCInput(JobProperty):
-    """ Flag to toggle usage of EM and LC inputs
-    """
-    statusOn = False
-    allowedTypes = ['bool']
-    StoredValue = False
-
 class useUpdated2015ChargedShowerSubtraction(JobProperty):
     """ Flag to toggle use of 2015 charged shower subtraction - this disables the subtraction for tracks found to be in dense environments
-    """
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = True
-
-class useAODReductionClusterMomentList(JobProperty):
-    """ Flag to toggle use of AOD reduction Task force reduced moment list
     """
     statusOn = True
     allowedTypes = ['bool']
@@ -114,19 +55,19 @@ class useCalibHitTruth(JobProperty):
     allowedTypes = ['bool']
     StoredValue = False
 
-class usePFEGammaPFOAssoc(JobProperty):
-    """ Flag to toggle use of linking between Egamma objects and PFOs
+class usePFlowFlowElementTauAssoc(JobProperty):
+    """ Flag to toggle use of linking  between tau objects and flow elements 
     """
     statusOn = True
     allowedTypes = ['bool']
-    StoredValue = False
+    StoredValue = True
 
-class usePFTauFlowElementAssoc(JobProperty):
-    """ Flag to toggle use of linking between tau objects and flow elements
+class usePFFlowElementAssoc(JobProperty):
+    """ Flag to toggle use of linking  between objects (egamma,muon,tau) and flow elements
     """
     statusOn = True
     allowedTypes = ['bool']
-    StoredValue = False
+    StoredValue = True
 
 class provideShowerSubtractedClusters(JobProperty):
     """ Flag to toggle provision of ElementLink to charged shower subtracted calorimeter clusters. Such links are added to
@@ -135,14 +76,14 @@ class provideShowerSubtractedClusters(JobProperty):
     allowedTypes = ['bool']
     StoredValue = False
 
-class useFlowElements(JobProperty):
-    """ Flag to toggle whether to create the new FlowElement EDM objects in addition to the PFO EDM objects. """
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = True
-
 class doFlowElementValidation(JobProperty):
     """Flag to turn on Validation plots for Flow Elements (only works if useFlowElements also set ON)"""
+    statusOn=True
+    allowedTypes= ['bool']
+    StoredValue= False
+
+class useRun2_mc20_EOverP(JobProperty):
+    """ Flag to enable usage of Run2_MC16 E/p reference file """
     statusOn=True
     allowedTypes= ['bool']
     StoredValue= False
@@ -157,7 +98,7 @@ class eflowRecFlags(JobPropertyContainer):
 # add the flags container to the top container
 jobproperties.add_Container(eflowRecFlags)
 
-eflowJobProperties = [eflowAlgType,CalType,useLocalHadWeightsOOCC,useOverLapShowerCells,useSplitShowers,useEEtaFirstInt,recoverIsolatedTracks,UseElectronHadronID,runTauMode, useLeptons,storeLeptonCells, useLCInput, useUpdated2015ChargedShowerSubtraction,useAODReductionClusterMomentList,useCalibHitTruth,usePFEGammaPFOAssoc,usePFTauFlowElementAssoc,provideShowerSubtractedClusters, useFlowElements, doFlowElementValidation]
+eflowJobProperties = [eflowAlgType,recoverIsolatedTracks, useElectrons, useMuons ,storeLeptonCells, useUpdated2015ChargedShowerSubtraction,useCalibHitTruth,usePFlowFlowElementTauAssoc,usePFFlowElementAssoc,provideShowerSubtractedClusters, doFlowElementValidation, useRun2_mc20_EOverP]
 
 for i in eflowJobProperties :
     jobproperties.eflowRecFlags.add_JobProperty(i)

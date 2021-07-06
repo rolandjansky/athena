@@ -126,7 +126,7 @@ StatusCode AODReader::execute()
   ElectronContainer::const_iterator elecItr       = elecTES->begin();
   ElectronContainer::const_iterator elecItrE      = elecTES->end();
   
-  HepMC::GenParticlePtr trPart{nullptr};
+  HepMC::ConstGenParticlePtr trPart{nullptr};
   if (mcEvtColl) {
 	  McEventCollection::const_iterator mcTrPart = mcEvtColl->begin();
 	  if (mcTrPart != mcEvtColl->end()) {

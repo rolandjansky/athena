@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AsgMessaging/MessageCheck.h"
@@ -45,17 +45,9 @@ namespace TrigCompositeUtils {
 
   template<typename T>
   void
-  findLinks(const Decision* start, const std::string& linkName, std::vector<LinkInfo<T>>& links, unsigned int behaviour, std::set<const Decision*>* visitedCache) {
+  findLinks(const Decision* start, const std::string& linkName, std::vector<LinkInfo<T>>& links, unsigned int behaviour, std::set<const Decision*>* fullyExploredFrom) {
     using namespace msgFindLink;
-    if (visitedCache != nullptr) {
-      // We only need to recursivly explore back from each node in the graph once.
-      // We can keep a record of nodes which we have already explored, these we can safely skip over.
-      if (visitedCache->count(start) == 1) {
-        return; // Early exit
-      }
-    }
     ElementLinkVector<T> featureLinks;
-    //
     if (start->hasObjectCollectionLinks(linkName, ClassID_traits<T>::ID())) {
       featureLinks = start->objectCollectionLinks<T>(linkName);
     }
@@ -68,7 +60,7 @@ namespace TrigCompositeUtils {
       if (std::none_of(links.begin(), links.end(), 
         [&](const auto& li) { 
           if (li.link == featureLink) {
-            if (li.source != start && linkName != initialRoIString() && linkName != roiString()) {
+            if (li.source != start && linkName != initialRoIString() && linkName != roiString() && linkName != "l2cbroi") {
               // Leaving this warning in for now, but there are known cases of the FS ROI being re-used
               // in multiple outputs from the L1 decoder. E.g. HLTNav_L1J:0 and HLTNav_L1MET:0
               // so supressing for initialRoIString().
@@ -94,12 +86,21 @@ namespace TrigCompositeUtils {
       return;
     }
     // If not Early Exit, then recurse
-    for (const auto& seed : getLinkToPrevious(start)) {
-      findLinks<T>(*seed, linkName, links, behaviour, visitedCache);
+    for (const auto seed : getLinkToPrevious(start)) {
+#if TRIGCOMPUTILS_ENABLE_EARLY_EXIT == 1
+      if (fullyExploredFrom != nullptr) {
+        // We only need to recursivly explore back from each node in the graph once.
+        // We can keep a record of nodes which we have already explored, these we can safely skip over.
+        if (fullyExploredFrom->count(*seed) == 1) {
+          continue;
+        }
+      }
+#endif
+      findLinks<T>(*seed, linkName, links, behaviour, fullyExploredFrom);
     }
     // Fully explored this node
-    if (visitedCache != nullptr) {
-      visitedCache->insert(start);
+    if (fullyExploredFrom != nullptr) {
+      fullyExploredFrom->insert(start);
     }
   }
 
@@ -107,8 +108,8 @@ namespace TrigCompositeUtils {
   std::vector<LinkInfo<T>>
   findLinks(const Decision* start, const std::string& linkName, unsigned int behaviour) {
     std::vector<LinkInfo<T>> links;
-    std::set<const Decision*> visitedCache;
-    findLinks(start, linkName, links, behaviour, &visitedCache);
+    std::set<const Decision*> fullyExploredFrom;
+    findLinks(start, linkName, links, behaviour, &fullyExploredFrom);
     return links;
   }
 
@@ -183,9 +184,7 @@ namespace TrigCompositeUtils {
     const std::string& navElementLinkKey,
     const DecisionIDContainer chainIDs) {
 
-    if (fullyExploredFrom.count(navGraphNode) == 1) {
-      return; // Already explored down from here
-    }
+
  
     const Decision* decisionObj = navGraphNode->node();
     ElementLinkVector<CONTAINER> featureLinks;
@@ -270,6 +269,11 @@ namespace TrigCompositeUtils {
 
     // Recurse to decisionObj's seeds
     for (const NavGraphNode* seedNavNode : navGraphNode->seeds()) {
+#if TRIGCOMPUTILS_ENABLE_EARLY_EXIT == 1
+      if (fullyExploredFrom.count(seedNavNode) == 1) {
+        continue; // Already explored down from here
+      }
+#endif
       recursiveGetFeaturesOfTypeInternal<CONTAINER>(features,
         fullyExploredFrom,
         seedNavNode,

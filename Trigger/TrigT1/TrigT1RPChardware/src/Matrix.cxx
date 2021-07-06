@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <fstream>
@@ -338,7 +338,7 @@ if(m_matrixDebug&1<<df) {
 } 
 }//end-of-Matrix::setDefaultConfiguration
 //-----------------------------------------------------------------------//
-void  Matrix::dispDefaultConfiguration() {
+void  Matrix::dispDefaultConfiguration() const {
 ubit16 i,j,k;
 //
 // Coincidence Windows for the the three thresholds
@@ -533,16 +533,6 @@ if (BCID>=NOBXS) return;
   // coverity change
    rpcpntnew = new rpcdata;
 
-   if(!rpcpntnew) {  
-    DISP<<"=========================="<<endl
-        <<"=   Matrix::putData;     ="<<endl
-        <<"=   new pointer for      ="<<endl
-        <<"=   rpcpntnew;           ="<<endl
-        <<"=   No Memory Available  ="<<endl
-        <<"=========================="<<endl;
-    DISP_ERROR;
-    exit(1);
-  }//end-of-if(!rpcpntnew)
    rpcpntnew->layer    = layer;
    rpcpntnew->stripadd = stripaddress;
    rpcpntnew->time     = time;
@@ -943,7 +933,7 @@ if(add>s_nchan[0]) {
 }//end-of-if
 }//end-of-Matrix::setDiagonal
 //----------------------------------------------------------------------//
-CMAword Matrix::getMatOverlap(ubit16 add) {
+CMAword Matrix::getMatOverlap(ubit16 add) const {
 CMAword output=0;
 if(add>1) {
  DISP<<" Matrix::getMatOverlap :  add= "<<add<<" not valid"<<endl;
@@ -955,7 +945,7 @@ return output;
 }//end-of-Matrix::getMatOverlap
 //----------------------------------------------------------------------//
 CMAword Matrix::getRoad(ubit16 addThres, 
-                                   ubit16 addChn, ubit16 add64){
+                                   ubit16 addChn, ubit16 add64) const {
 CMAword output=0;
 if(addThres>=s_nthres||addChn>s_nchan[0]||add64>1) {
  DISP<<" Matrix::getRoad :  addThres= "<<addThres
@@ -968,7 +958,7 @@ output=m_trigRoad[addThres][addChn][add64];
 return output;
 }//end-of-Matrix::getRoad
 //----------------------------------------------------------------------//
-int Matrix::getMajority(ubit16 add) {
+int Matrix::getMajority(ubit16 add) const {
 int output=0;
 if(add>=s_nthres) {
  DISP<<" Matrix::getMajority :  add= "<<add<<" not valid"<<endl;
@@ -1513,7 +1503,7 @@ for(n=0; n<s_nthres; n++) {    // the s_nthres thresholds
 }//end-of-for(n
 }//end-of-method majori
 //------------------------------------------------------------------------//
-void Matrix::shift (CMAword *buffi, CMAword *buffo, ubit16 i) {
+void Matrix::shift (CMAword *buffi, CMAword *buffo, ubit16 i) const {
 //
 ubit16 k;
 switch (m_localDirec[i]) {
@@ -1895,7 +1885,7 @@ out_k_trigger.close();
 //
 }//end-of-makeOutPattern
 //------------------------------------------------------------------------//
-ubit16 Matrix::config (ubit16 i, ubit16 *arr) {
+ubit16 Matrix::config (ubit16 i, ubit16 *arr) const {
 //
 // input:  i     threshold address
 //         *arr  pointer to bidimen. array
@@ -1964,39 +1954,39 @@ switch (m_lowhigh) {
  return nconf;
 }//end-of-method-config
 //------------------------------------------------------------------------//
-int Matrix::getSubsystem() {return m_subsystem;}
+int Matrix::getSubsystem() const {return m_subsystem;}
 //------------------------------------------------------------------------//
-int Matrix::getProjection() {return m_projection;}
+int Matrix::getProjection() const {return m_projection;}
 //------------------------------------------------------------------------//
-int Matrix::getSector() {return m_sector;}
+int Matrix::getSector() const {return m_sector;}
 //------------------------------------------------------------------------//
-int Matrix::getPad() {return m_pad;}
+int Matrix::getPad() const {return m_pad;}
 //------------------------------------------------------------------------//
-int Matrix::getLowHigh() {return m_lowhigh;}
+int Matrix::getLowHigh() const {return m_lowhigh;}
 //------------------------------------------------------------------------//
-int Matrix::getAddress0() {return m_address[0];}
+int Matrix::getAddress0() const {return m_address[0];}
 //------------------------------------------------------------------------//
-int Matrix::getAddress1() {return m_address[1];}
+int Matrix::getAddress1() const {return m_address[1];}
 //------------------------------------------------------------------------//
-int Matrix::getLocalAdd() {return m_localadd;}
+int Matrix::getLocalAdd() const {return m_localadd;}
 //------------------------------------------------------------------------//
-ubit16 Matrix::getOutputThres(ubit16 bunch) {
+ubit16 Matrix::getOutputThres(ubit16 bunch) const {
 return m_highestth[bunch];
 }//end-of-ubit16-getOutput 
 //------------------------------------------------------------------------//
-ubit16 Matrix::getOutputOverl(ubit16 bunch) {
+ubit16 Matrix::getOutputOverl(ubit16 bunch) const {
 return m_overlap[bunch];
 }//end-of-ubit16-getOutput
 //------------------------------------------------------------------------//
-sbit16 Matrix::getBunchPhase() {
+sbit16 Matrix::getBunchPhase() const {
 return m_BunchPhase;
 }//end-of-ubit16-getBunchPhase
 //------------------------------------------------------------------------//
-sbit16 Matrix::getBunchOffset() {
+sbit16 Matrix::getBunchOffset() const {
 return m_BunchOffset;
 }//end-of-ubit16-getBunchOffset
 //------------------------------------------------------------------------//
-void Matrix::set_to_1(CMAword *p, sbit16 channel) {
+void Matrix::set_to_1(CMAword *p, sbit16 channel) const {
 ubit16 i[2];
 CMAword j;
 i[0]=0; i[1]=0;
@@ -2011,7 +2001,7 @@ if(!(channel<0)) {
 }//end-of-if(!(channel<0 
 }//end-of-Matrix::set_to_1
 //----------------------------------------------------------------------//
-void Matrix::set_to_0(CMAword *p, sbit16 channel) {
+void Matrix::set_to_0(CMAword *p, sbit16 channel) const {
 ubit16 i[2];
 CMAword j;
 j=1;
@@ -2025,7 +2015,7 @@ if(!(channel<0)) {
 }//end-of-if(!(channel<0 
 }//end-of-Matrix::set_to_1
 //----------------------------------------------------------------------//
-ubit16 Matrix::bitstatus(const CMAword *p,ubit16 channel) {
+ubit16 Matrix::bitstatus(const CMAword *p,ubit16 channel) const {
 ubit16 id[2];
 CMAword j;
 j=1;
@@ -2033,7 +2023,7 @@ inds(&id[0],channel);
 return *(p+id[0])& j<<id[1] ? 1 : 0 ;
 }//end-of-Matrix::bitstatus
 //----------------------------------------------------------------------//
-void Matrix::wind () {
+void Matrix::wind () const {
 sbit16 i, j;
  DISP<<"-----------------------"<<endl
      <<"|     Matrix::wind    |"<<endl
@@ -2063,7 +2053,7 @@ sbit16 i, j;
  }//end-of-for(i
 }//end-of-method-wind
 //----------------------------------------------------------------------//
-void Matrix::display() {
+void Matrix::display() const {
 ubit16 i;
 ubit16 df=19;
 rpcdata *rpcpnt;
@@ -2131,7 +2121,7 @@ if(m_matrixDebug&1<<(df+3)) {
 //}//end-of-Matrix::display
 }//end-of-method display
 //------------------------------------------------------------------------//
-void Matrix::show_attributes () {
+void Matrix::show_attributes () const {
 DISP<<" Matrix Attributes: "<<endl
     <<" Subsystem "<<m_subsystem<<"; Projection "<<m_projection
     <<"; Sector "<<m_sector<<"; Pad "<<m_pad<<"; LowHig "<<m_lowhigh
@@ -2139,7 +2129,7 @@ DISP<<" Matrix Attributes: "<<endl
 DISP_DEBUG;
 }//end-of-Matrix::attributes
 //------------------------------------------------------------------------//
-void Matrix::disp_CMAreg(ubit16 id) {
+void Matrix::disp_CMAreg(ubit16 id) const {
 //
 // display the CMA registers
 //
@@ -2205,7 +2195,7 @@ DISP<<" "<<endl;
 DISP_DEBUG;
 }//end-of-Matrix::disp_CMAreg
 //------------------------------------------------------------------------//
-void Matrix::dispRegister(const CMAword *p, ubit16 side) {
+void Matrix::dispRegister(const CMAword *p, ubit16 side) const {
 ubit16 n, j, k;
 //
 // allocation for oststream strdisp
@@ -2242,7 +2232,7 @@ for(j=0; j<s_nclock; j++) {       // loop on the s_nclock cycles
  delete strdisp;
 }//end-of-Matrix::dispRegister
 //------------------------------------------------------------------------//
-void Matrix::dispTrigger(const CMAword *p) {
+void Matrix::dispTrigger(const CMAword *p) const {
 ubit16 j;
 //
 // allocation for oststream strdisp
@@ -2276,7 +2266,7 @@ for(j=0; j<s_nclock; j++) {       // loop on the s_nclock cycles
  delete strdisp;
 }//end-of-Matrix::dispTrigger
 //------------------------------------------------------------------------//
-void Matrix::dispBinary (const CMAword *p, __osstream *strdisp) {
+void Matrix::dispBinary (const CMAword *p, __osstream *strdisp) const {
 ubit16 i;
 CMAword j;
 j=1;
@@ -2290,11 +2280,11 @@ for(i=0; i<s_wordlen; i++) {
  }//end-of-for(
 }//end-of-Matrix::dispBinary
 //------------------------------------------------------------------------//
-void Matrix::dispWind () {
+void Matrix::dispWind () const {
 for(ubit16 i=0; i<s_nthres; i++) {dispWind(i);}
 }//end-of-dispWind
 //------------------------------------------------------------------------//
-void Matrix::dispWind (ubit16 thres) {
+void Matrix::dispWind (ubit16 thres) const {
 #if (__GNUC__) && (__GNUC__ > 2) 
     // put your gcc 3.2 specific code here
     __osstream* strdisp = new std::ostringstream;
@@ -2340,7 +2330,7 @@ for(sbit16 j=s_nchan[1]-1; j>=0; j--) {
  delete strdisp;
 }//end-of-dispWind
 //------------------------------------------------------------------------//
-void Matrix::inds(ubit16 *i, ubit16 channel){
+void Matrix::inds(ubit16 *i, ubit16 channel) const{
 //
 // input channel: CMA channel address
 //
@@ -2408,7 +2398,7 @@ void Matrix::inds(ubit16 *i, ubit16 channel){
  return outflag;
 }//end-of-char2int
 //----------------------------------------------------------------------------//
-CMAword Matrix::intPow (const ubit16 base, const ubit16 expo) {
+CMAword Matrix::intPow (const ubit16 base, const ubit16 expo) const {
 CMAword output=1;
 if(expo) {
  for(ubit16 i=1; i<=expo; i++) {

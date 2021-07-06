@@ -1,12 +1,14 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // PseudoJetAlgorithm.cxx 
 
-#include "PseudoJetAlgorithm.h"
+#include "JetRec/PseudoJetAlgorithm.h"
 #include "JetRec/PseudoJetGetter.h"
 #include "JetRec/IParticleExtractor.h"
+#include "AsgDataHandles/ReadHandle.h"
+#include "AsgDataHandles/WriteHandle.h"
 
 // Fixed value by which to scale ghost kinematics
 constexpr float ghostscale = 1e-40;
@@ -81,7 +83,7 @@ std::unique_ptr<PseudoJetContainer> PseudoJetAlgorithm::createPJContainer(const 
   }
   
   // Put the PseudoJetContainer together
-  auto pjcont = std::make_unique<PseudoJetContainer>(extractor.release(), vpj);
+  auto pjcont = std::make_unique<PseudoJetContainer>(std::move(extractor), vpj);
   ATH_MSG_DEBUG("New PseudoJetContainer size " << pjcont->size());
 
   return pjcont;

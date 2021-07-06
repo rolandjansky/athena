@@ -12,6 +12,7 @@
 #include "xAODEgamma/Photon.h"
 #include "xAODMuon/Muon.h"
 #include "xAODTau/TauJet.h"
+#include "xAODEventInfo/EventInfo.h"
 
 namespace PFO {
 
@@ -21,10 +22,10 @@ namespace PFO {
 
     LeptonFELinkerPlots(PlotBase *pParent, std::string sDir, std::string LeptonContainerName, const bool& m_doNeutralFE, const int& m_LeptonID);
     
-    void fill(const xAOD::Electron& el);
-    void fill(const xAOD::Muon& muon);
-    void fill(const xAOD::TauJet& tau);
-    void fill(const xAOD::Photon& phot);
+    void fill(const xAOD::Electron& el, const xAOD::EventInfo& eventInfo);
+    void fill(const xAOD::Muon& muon, const xAOD::EventInfo& eventInfo);
+    void fill(const xAOD::TauJet& tau, const xAOD::EventInfo& eventInfo);
+    void fill(const xAOD::Photon& phot, const xAOD::EventInfo& eventInfo);
 
 
   private:

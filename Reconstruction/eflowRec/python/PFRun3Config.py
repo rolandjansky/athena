@@ -1,14 +1,15 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 def getOfflinePFAlgorithm(inputFlags):
+    result=ComponentAccumulator()
 
     PFAlgorithm=CompFactory.PFAlgorithm
     PFAlgorithm = PFAlgorithm("PFAlgorithm")   
     
     from eflowRec.PFCfg import getPFClusterSelectorTool
-    PFAlgorithm.PFClusterSelectorTool = getPFClusterSelectorTool("CaloTopoClusters","","PFClusterSelectorTool")
+    PFAlgorithm.PFClusterSelectorTool = getPFClusterSelectorTool("CaloTopoClusters","CaloCalTopoClusters","PFClusterSelectorTool")
 
     from eflowRec.PFCfg import getPFCellLevelSubtractionTool
     PFAlgorithm.SubtractionToolList = [getPFCellLevelSubtractionTool(inputFlags,"PFCellLevelSubtractionTool")]
@@ -18,11 +19,12 @@ def getOfflinePFAlgorithm(inputFlags):
         PFAlgorithm.SubtractionToolList += [getPFRecoverSplitShowersTool(inputFlags,"PFRecoverSplitShowersTool")]
 
     from eflowRec.PFCfg import getPFMomentCalculatorTool
-    PFAlgorithm.BaseToolList = [getPFMomentCalculatorTool(inputFlags,[])]
+    PFMomentCalculatorTools=result.popToolsAndMerge(getPFMomentCalculatorTool(inputFlags,[]))
+    PFAlgorithm.BaseToolList = [PFMomentCalculatorTools]
     from eflowRec.PFCfg import getPFLCCalibTool
     PFAlgorithm.BaseToolList += [getPFLCCalibTool(inputFlags)]
-
-    return PFAlgorithm
+    result.addEventAlgo(PFAlgorithm)
+    return result
 
 def PFCfg(inputFlags,**kwargs):
 
@@ -96,16 +98,14 @@ def PFCfg(inputFlags,**kwargs):
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     result.merge(MagneticFieldSvcCfg(inputFlags))
 
-    #hard-code MC conditions tag needed for my ESD file - must be a better way? how to auto-configure?
-    iovDbSvc=result.getService("IOVDbSvc")
-    iovDbSvc.GlobalTag="OFLCOND-MC16-SDR-20"
-
-    #Configure topocluster algorithmsm, and associated conditions
+    #Configure topocluster algorithmsm, and associated conditions    
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
-    result.merge(CaloTopoClusterCfg(inputFlags,doLCCalib=True))
-    
-    from CaloRec.CaloTopoClusterConfig import caloTopoCoolFolderCfg
-    result.merge(caloTopoCoolFolderCfg(inputFlags))
+    result.merge(CaloTopoClusterCfg(inputFlags,
+                                    doLCCalib=True))
+
+
+    #from CaloRec.CaloTopoClusterConfig import caloTopoCoolFolderCfg
+    #result.merge(caloTopoCoolFolderCfg(inputFlags))
 
     from CaloTools.CaloNoiseCondAlgConfig import CaloNoiseCondAlgCfg
     result.merge(CaloNoiseCondAlgCfg(inputFlags,"totalNoise"))
@@ -122,11 +122,15 @@ def PFCfg(inputFlags,**kwargs):
     from eflowRec.PFCfg import PFTrackSelectorAlgCfg
     result.merge(PFTrackSelectorAlgCfg(inputFlags,"PFTrackSelector"))
 
-    result.addEventAlgo(getOfflinePFAlgorithm(inputFlags))
+    result.merge(getOfflinePFAlgorithm(inputFlags))
 
     from eflowRec.PFCfg import getChargedPFOCreatorAlgorithm,getNeutralPFOCreatorAlgorithm
     result.addEventAlgo(getChargedPFOCreatorAlgorithm(inputFlags,""))
     result.addEventAlgo(getNeutralPFOCreatorAlgorithm(inputFlags,""))
+
+    from eflowRec.PFCfg import getChargedFlowElementCreatorAlgorithm,getNeutralFlowElementCreatorAlgorithm
+    result.addEventAlgo(getChargedFlowElementCreatorAlgorithm(inputFlags,""))
+    result.addEventAlgo(getNeutralFlowElementCreatorAlgorithm(inputFlags,""))
 
     return result
 
@@ -138,7 +142,7 @@ if __name__=="__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as cfgFlags
 
     cfgFlags.Input.isMC=True
-    cfgFlags.Input.Files=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root"]
+    cfgFlags.Input.Files=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/PFlowTests/mc16_13TeV/mc16_13TeV.361021.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ1W.recon.ESD.e3569_s3170_r12310_r12253_r12310/ESD.23850840._000295.pool.root.1"]
     cfgFlags.lock()
     
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg 

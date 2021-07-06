@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,26 +13,25 @@
 
 namespace Trk {
 
-  
-  /** @class LayerAttemptsCalculator
-    
-      Simple helper class that allows to define different number
-      of layer attempts in the extrapolation before throwing a veto
-      
-      @author Andreas.Salzburger@cern.ch
-    */ 
-    class LayerAttemptsCalculator {
-      public:
-       virtual ~LayerAttemptsCalculator(){}  
-          
-       /** The calculator interface */
-       virtual unsigned int layerAttempts(BoundarySurfaceFace bsFace = Trk::undefinedFace) const = 0;
-       
-       /** The max attempts */
-       virtual unsigned int maxLayerAttempts() const = 0;
+/** @class LayerAttemptsCalculator
 
-    };
+    Simple helper class that allows to define different number
+    of layer attempts in the extrapolation before throwing a veto
 
-}
+    @author Andreas.Salzburger@cern.ch
+  */
+class LayerAttemptsCalculator {
+ public:
+  virtual ~LayerAttemptsCalculator() {}
+
+  /** The calculator interface */
+  virtual unsigned int layerAttempts(
+      BoundarySurfaceFace bsFace = Trk::undefinedFace) const = 0;
+
+  /** The max attempts */
+  virtual unsigned int maxLayerAttempts() const = 0;
+};
+
+}  // namespace Trk
 
 #endif

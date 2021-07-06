@@ -3,7 +3,7 @@
 from collections import OrderedDict as odict
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger("Menu.L1.Base.CTP") 
+log = logging.getLogger(__name__)
 
 from ..Config.MonitorDef import MonitorDef
 from ..Config.CTPInputConfig import CTPInputConfig
@@ -25,14 +25,17 @@ class CTP(object):
     def addBunchGroup(self, name, internalNumber, bunches):
         self.bunchGroupSet.addBunchGroup(name, internalNumber, bunches)
 
-
-    def setupMonitoring(self, menuItems, menuThresholds):
+    def setupMonitoring(self, menuItems, menuThresholds, connectors):
         ##  # add the CTPIN counters
         ##  for counter in MonitorDef.ctpinCounters( menuThresholds ):
         ##      self.counters.addCounter( counter )
 
-        # add the CTPMon counters
-        for counter in MonitorDef.ctpmonCounters( menuThresholds ):
+        # add the CTPMon counters (selection defined in L1/Config/MonitorDef.py)
+        for counter in MonitorDef.ctpmonCounters( menuThresholds, connectors ):
+            self.counters.addCounter( counter )
+
+        # add the CTPIN counters (selection defined in L1/Config/MonitorDef.py)
+        for counter in MonitorDef.ctpinCounters( menuThresholds, connectors, self.inputConnectors["ctpin"] ):
             self.counters.addCounter( counter )
 
         # mark the L1 Items that they should be monitored
@@ -48,7 +51,7 @@ class CTP(object):
         inputConnectorList += self.inputConnectors["ctpin"]["slot9"].values()
         for connName in inputConnectorList:
             if connName != '' and connName not in availableConnectors:
-                msg = "Connector '%s' requested in L1/Config/CTPConfig.py not defined as menu input. Please add it to L1/Menu/Menu_%s_inputs.py" % (connName, menuToLoad)
+                msg = "Connector '%s' requested in L1/Config/CTPConfig.py not defined as menu input. Please add it to L1/Menu/Menu_%s.py" % (connName, menuToLoad[1])
                 log.error(msg)
                 raise RuntimeError(msg)
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondSvc/RPC_DCSConditionsSvc.h"
@@ -30,9 +30,8 @@ RPC_DCSConditionsSvc::~RPC_DCSConditionsSvc()
 StatusCode RPC_DCSConditionsSvc::initialize()
 {
   
-  ATH_MSG_INFO( "Initializing " << name() << " - package version " 
-                << PACKAGE_VERSION  );
-  
+  ATH_MSG_INFO( "Initializing" );
+
   StoreGateSvc * detStore;
   StatusCode status = service("DetectorStore",detStore);
   if (status.isFailure()) {

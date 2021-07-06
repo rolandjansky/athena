@@ -1,11 +1,8 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
-from __future__ import print_function, absolute_import
-
 from AthenaCommon.Include import include
-include.block("InDetTrigRecExample/EFInDetConfig.py")
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger("InDetSetup")
@@ -14,16 +11,16 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags # noqa: F401
 
 include("InDetTrigRecExample/InDetTrigRec_jobOptions.py")
 
-def makeInDetAlgsNoView( config = None, rois = 'EMViewRoIs', doFTF = True ):
+def makeInDetAlgsNoView( config = None, rois = 'EMViewRoIs', doFTF = True, secondStageConfig = None ):
 
-  viewAlgs, viewVerify = makeInDetAlgs( config, rois, doFTF, None)
+  viewAlgs, viewVerify = makeInDetAlgs( config, rois, doFTF, None, secondStageConfig)
   return viewAlgs
 
-def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifier='IDViewDataVerifier'):
+def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifier='IDViewDataVerifier', secondStageConfig = None):
   if config is None :
     raise ValueError('makeInDetAlgs() No config provided!')
   #Add suffix to the algorithms
-  signature =  '_{}'.format( config.name )
+  signature =  '_{}'.format( config.input_name )
 
   #Global keys/names for Trigger collections
   from .InDetTrigCollectionKeys import  TrigPixelKeys, TrigSCTKeys
@@ -48,6 +45,10 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
                                     ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTFlaggedCondCacheKey ),
                                     ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                                     ( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
+    if doFTF and config.name == 'fullScanUTT' :
+      ViewDataVerifier.DataObjects += [ ( 'DataVector< LVL1::RecJetRoI >' , 'StoreGateSvc+HLT_RecJETRoIs' ) ]
+
+
 
     viewAlgs.append( ViewDataVerifier )
 
@@ -61,13 +62,9 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
 
     if not globalflags.InputFormat.is_bytestream():
       ViewDataVerifier.DataObjects +=   [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
-                                         ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() ),
-                                         ( 'IDCInDetBSErrContainer' , InDetKeys.PixelByteStreamErrs() ),
-                                         ( 'IDCInDetBSErrContainer' , InDetKeys.SCT_ByteStreamErrs() )]
+                                         ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() )]
       topSequence.SGInputLoader.Load += [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
-                                         ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() ),
-                                         ( 'IDCInDetBSErrContainer' , InDetKeys.PixelByteStreamErrs() ),
-                                         ( 'IDCInDetBSErrContainer' , InDetKeys.SCT_ByteStreamErrs() )]
+                                         ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() )]
 
   from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
   from AthenaCommon.AppMgr import ToolSvc
@@ -86,8 +83,7 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
 
     from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRawDataProviderTool
     InDetPixelRawDataProviderTool = PixelRawDataProviderTool(name    = "InDetPixelRawDataProviderTool_" + signature,
-                                                             Decoder = InDetPixelRodDecoder,
-                                                             checkLVL1ID = False)
+                                                             Decoder = InDetPixelRodDecoder)
     ToolSvc += InDetPixelRawDataProviderTool
 
     if (InDetTrigFlags.doPrintConfigurables()):
@@ -158,9 +154,16 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
 
   ToolSvc += InDetClusterMakerTool
 
+  from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
+  idPixelSummary = PixelConditionsSummaryTool("PixelConditionsSummaryTool",
+                                              UseByteStreamFEI4=globalflags.InputFormat.is_bytestream(),
+                                              UseByteStreamFEI3=globalflags.InputFormat.is_bytestream())
+
   from SiClusterizationTool.SiClusterizationToolConf import InDet__MergedPixelsTool
-  InDetMergedPixelsTool = InDet__MergedPixelsTool(name                    = "InDetMergedPixelsTool_" + signature,
-                                                  globalPosAlg            = InDetClusterMakerTool)
+  InDetMergedPixelsTool = InDet__MergedPixelsTool(name                       = "InDetMergedPixelsTool_" + signature,
+                                                  PixelConditionsSummaryTool = idPixelSummary,
+                                                  globalPosAlg               = InDetClusterMakerTool)
+
   # Enable duplcated RDO check for data15 because duplication mechanism was used.
   from RecExConfig.RecFlags import rec
   if len(rec.projectName())>=6 and rec.projectName()[:6]=="data15":
@@ -185,6 +188,9 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
 
   from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
   InDetPixelClusterization.RegSelTool = makeRegSelTool_Pixel()
+
+  from InDetPrepRawDataFormation.MonitoringTool import PixelClusterization_MonitoringTool
+  InDetPixelClusterization.MonTool = PixelClusterization_MonitoringTool()
 
   viewAlgs.append(InDetPixelClusterization)
 
@@ -213,15 +219,16 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
   sct_ReadCalibDataToolSetup.setup()
   InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools.append(sct_ReadCalibDataToolSetup.getTool().getFullName())
 
-  from SCT_ConditionsTools.SCT_ByteStreamErrorsToolSetup import SCT_ByteStreamErrorsToolSetup
-  sct_ByteStreamErrorsToolSetup = SCT_ByteStreamErrorsToolSetup()
-  sct_ByteStreamErrorsToolSetup.setToolName("InDetSCT_BSErrorTool_" + signature)
-  sct_ByteStreamErrorsToolSetup.setConfigTool(sct_ConfigurationConditionsToolSetup.getTool())
-  sct_ByteStreamErrorsToolSetup.setup()
-  InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools.append(sct_ByteStreamErrorsToolSetup.getTool().getFullName())
+  if (globalflags.InputFormat.is_bytestream()):
+     from SCT_ConditionsTools.SCT_ByteStreamErrorsToolSetup import SCT_ByteStreamErrorsToolSetup
+     sct_ByteStreamErrorsToolSetup = SCT_ByteStreamErrorsToolSetup()
+     sct_ByteStreamErrorsToolSetup.setToolName("InDetSCT_BSErrorTool_" + signature)
+     sct_ByteStreamErrorsToolSetup.setConfigTool(sct_ConfigurationConditionsToolSetup.getTool())
+     sct_ByteStreamErrorsToolSetup.setup()
+     InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools.append(sct_ByteStreamErrorsToolSetup.getTool().getFullName())
 
   if (InDetTrigFlags.doPrintConfigurables()):
-     print (InDetSCT_ConditionsSummaryToolWithoutFlagged)
+     print (InDetSCT_ConditionsSummaryToolWithoutFlagged)  # noqa: ATL901
 
   #
   # --- SCT_ClusteringTool
@@ -256,6 +263,10 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
 
   from RegionSelector.RegSelToolConfig import makeRegSelTool_SCT
   InDetSCT_Clusterization.RegSelTool = makeRegSelTool_SCT()
+  
+  from InDetPrepRawDataFormation.MonitoringTool import SCT_Clusterization_MonitoringTool
+  InDetSCT_Clusterization.MonTool = SCT_Clusterization_MonitoringTool()
+  
 
   viewAlgs.append(InDetSCT_Clusterization)
 
@@ -296,36 +307,94 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
   #FIXME have a flag for now set for True( as most cases call FTF) but potentially separate
   #do not add if the config is LRT
   if doFTF:
-      #Load signature configuration (containing cut values, names of collections, etc)
-      #from .InDetTrigConfigSettings import getInDetTrigConfig
-      #configSetting = getInDetTrigConfig( whichSignature )
+
       if config is None:
             raise ValueError('makeInDetAlgs() No signature config specified')
 
       from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinderBase
       #TODO: eventually adapt IDTrigConfig also in FTF configuration (pass as additional param)
-      theFTF = TrigFastTrackFinderBase("TrigFastTrackFinder_" + signature, config.FT.signatureType )
+      theFTF = TrigFastTrackFinderBase("TrigFastTrackFinder_" + signature, config.input_name,
+                                       conditionsTool = InDetSCT_ConditionsSummaryToolWithoutFlagged )
       theFTF.RoIs           = rois
-      theFTF.TracksName     = config.FT.trkTracksFTF()
-      theFTF.doCloneRemoval = config.FT.setting.doCloneRemoval
 
       viewAlgs.append(theFTF)
 
+      if not config.doZFinderOnly: 
 
-      from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
-      from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigTrackingxAODCnvMT
+        from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
+        from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigTrackingxAODCnvMT
+
+        theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + signature,
+                                                                  TrackName = config.trkTracks_FTF(),
+                                                                  ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
+
+        #In general all FTF trackParticle collections are recordable except beamspot to save space
+        theTrackParticleCreatorAlg.TrackParticlesName = config.tracks_FTF()
+
+        viewAlgs.append(theTrackParticleCreatorAlg)
+
+        if secondStageConfig is not None:
+          #have been supplied with a second stage config, create another instance of FTF
+          theFTF2 = TrigFastTrackFinderBase("TrigFastTrackFinder_" + secondStageConfig.input_name, secondStageConfig.input_name,
+                                            conditionsTool = InDetSCT_ConditionsSummaryToolWithoutFlagged )
+          theFTF2.RoIs           = rois
+          theFTF2.inputTracksName = config.trkTracks_FTF()
+        
+          
+          viewAlgs.append(theFTF2)
+
+          
+          from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
+          from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigTrackingxAODCnvMT
+          
+          
+          
+          theTrackParticleCreatorAlg2 = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg_" + secondStageConfig.input_name,
+                                                                  TrackName = secondStageConfig.trkTracks_FTF(),
+                                                                     ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
+          
+          
+          #In general all FTF trackParticle collections are recordable except beamspot to save space
+          theTrackParticleCreatorAlg2.TrackParticlesName = secondStageConfig.tracks_FTF()
+          
+          viewAlgs.append(theTrackParticleCreatorAlg2)
 
 
+      if (InDetTrigFlags.doTruth()):   
 
-      theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + signature,
-                                                                TrackName = config.FT.trkTracksFTF(),
-                                                                ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
-
-
-      #In general all FTF trackParticle collections are recordable except beamspot to save space
-      theTrackParticleCreatorAlg.TrackParticlesName = config.FT.tracksFTF( doRecord = config.isRecordable )
-
-      viewAlgs.append(theTrackParticleCreatorAlg)
-
-
+        from InDetTruthAlgs.InDetTruthAlgsConf import InDet__PRD_MultiTruthMaker
+        InDetTrigPRD_MultiTruthMakerSi = InDet__PRD_MultiTruthMaker (name                    = 'InDetTrigPRD_MultiTruthMakerSi',
+                                                                 PixelClusterContainerName   = 'PixelTrigClusters',
+                                                                 SCTClusterContainerName     = 'SCT_TrigClusters',
+                                                                 TRTDriftCircleContainerName = '',
+                                                                 SimDataMapNamePixel         = 'PixelSDO_Map',
+                                                                 SimDataMapNameSCT           = 'SCT_SDO_Map',
+                                                                 SimDataMapNameTRT           = '',
+                                                                 TruthNamePixel              = 'PRD_MultiTruthPixel',
+                                                                 TruthNameSCT                = 'PRD_MultiTruthSCT',
+                                                                 TruthNameTRT                = '')
+        
+        viewAlgs.append(InDetTrigPRD_MultiTruthMakerSi)
+        MyTrackCollections = ["HLT_IDTrkTrack_FS_FTF"]
+        import AthenaCommon.SystemOfUnits as Units
+        from InDetTrackClusterAssValidation.InDetTrackClusterAssValidationConf import InDet__TrackClusterAssValidation
+        InDetTrigTrackClusterAssValidation = InDet__TrackClusterAssValidation(name              = "InDetTrigTrackClusterAssValidation",
+                                                                          TracksLocation         = MyTrackCollections             ,
+                                                                          SpacePointsPixelName   = "PixelTrigSpacePoints"    ,
+                                                                          SpacePointsSCTName     = "SCT_TrigSpacePoints"    ,
+                                                                          SpacePointsOverlapName = "OverlapSpacePoints",
+                                                                          PixelClustesContainer  = 'PixelTrigClusters',
+                                                                          SCT_ClustesContainer   = 'SCT_TrigClusters',
+                                                                          MomentumCut            = 1.5 * Units.GeV,
+                                                                          RapidityCut            = 2.7     ,
+                                                                          RadiusMin              = 0.0     ,
+                                                                          RadiusMax              = 20.0 * Units.mm    ,
+                                                                          MinNumberClusters      = 7       ,
+                                                                          MinNumberClustersTRT   = 0       ,
+                                                                          MinNumberSpacePoints   = 3       ,
+                                                                          usePixel               = True     ,
+                                                                          useSCT                 = True     ,
+                                                                          useTRT                 = False     )
+        viewAlgs.append(InDetTrigTrackClusterAssValidation)
+ 
   return viewAlgs, ViewDataVerifier

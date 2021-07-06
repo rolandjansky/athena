@@ -14,3 +14,8 @@ DECLARE_COMPONENT( AFP_RawDataProviderTool )
 // DECLARE_ALGORITHM_FACTORY( AFP_RawDataProvider )
 DECLARE_COMPONENT( AFP_RawDataProvider )
 
+#include "AFP_ByteStream2RawCnv/AFP_LinkNumTranslator.h"
+DECLARE_COMPONENT( AFP_LinkNumTranslator )
+
+#include "AFP_ByteStream2RawCnv/AFP_WordReadOut.h"
+DECLARE_COMPONENT( AFP_WordReadOut )

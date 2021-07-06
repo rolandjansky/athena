@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
@@ -144,6 +144,8 @@ private:
 public:
 
 	grTileBase(TGeoMedium *GeoMedium = NULL);
+        grTileBase (const grTileBase&) = delete;
+        grTileBase& operator= (const grTileBase&) = delete;
 };
 
 class grTilePMT : public grTileBase
@@ -494,6 +496,7 @@ grTileCal::grTileCal(): grTileBase()
 		pcon->DefineSection(0, sector_tz[3]-sector_dz[3],2290,3850.0);
 
 	if (EBA_LBA > 0)
+                // cppcheck-suppress arrayIndexOutOfBoundsCond; false positive
 		pcon->DefineSection(1, sector_tz[0]+sector_dz[0],2290,3850.0);
 	else
 		pcon->DefineSection(1, sector_tz[2]+sector_dz[2],2290,3850.0);

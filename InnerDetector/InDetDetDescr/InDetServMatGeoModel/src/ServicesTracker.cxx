@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/ServicesTracker.h"
@@ -13,13 +13,12 @@
 #include "InDetServMatGeoModel/ConvertStaveServices.h"
 
 #include <map>
-#include <iostream>
 
 #include <iostream>  // for DEBUG only
 using namespace std;
 
 ServicesTracker::ServicesTracker(const Athena::MsgStreamMember& msg):
-  m_geoMgr(0),
+  m_geoMgr(nullptr),
   m_msg(msg)
 {
   m_barrelLayers.clear();
@@ -134,7 +133,7 @@ void ServicesTracker::addEosMaterial( const ServiceVolume& vol, std::vector<Serv
 
   ServiceMaterial::Entry eos( name, layer->nStaves(), 0);
   ServiceMaterial::EntryContainer entries( 1, eos);
-  result.push_back( ServiceMaterial( name, entries));
+  result.emplace_back( name, entries);
   // msg(MSG::INFO) << "Added EOS material to volume " << vol.name() << endmsg;
 }
 

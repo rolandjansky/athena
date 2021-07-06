@@ -1,11 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CompositeParticle_v1.cxx 677733 2015-06-23 19:31:10Z kkoeneke $
 
 // standard includes
-#include <math.h>       /* remainder and M_PI */
+#include <cmath>       /* remainder and M_PI */
+
+// Event Kernel include
+#include "TruthUtils/PIDHelpers.h" // for MC::PID::isElectron(...) and others
 
 // EDM include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -590,12 +593,12 @@ namespace xAOD {
   const xAOD::MissingET*
   CompositeParticle_v1::missingET() const {
     if ( !(metLinkAcc.isAvailable(*this)) ) {
-      return 0;
+      return nullptr;
     }
     const ElementLink<xAOD::MissingETContainer>& metLink = metLinkAcc(*this);
     // Check if we have a valid ElementLink
     if ( ! metLink.isValid() ) {
-      return 0;
+      return nullptr;
     }
     return *metLink;
   }
@@ -752,18 +755,38 @@ namespace xAOD {
   NUM_PARTS(nJets,Jet)
   NUM_PARTS(nTruthParts,TruthParticle)
 
+#define NUM_TRUTHPARTS( FUNCNAME, PIDMETHOD )                                                    \
+  std::size_t CompositeParticle_v1::FUNCNAME() const {                                           \
+    std::size_t n(0);                                                                            \
+    std::size_t nParts = this->nParts();                                                         \
+    for ( std::size_t i=0; i<nParts; ++i ) {                                                     \
+      const xAOD::IParticle* part = this->part(i);                                               \
+      if (!part) { throw std::runtime_error("Got a zero pointer to an xAOD::IParticle!"); }      \
+      if ( part->type() != xAOD::Type::TruthParticle ) { continue; }                             \
+      const xAOD::TruthParticle* truthParticle = dynamic_cast<const xAOD::TruthParticle*>(part); \
+      if (!truthParticle) { throw std::runtime_error("Zero pointer to xAOD::TruthParticle"); }   \
+      if ( PIDMETHOD(truthParticle->pdgId()) ) { n += 1; }                                       \
+    }                                                                                            \
+    return n;                                                                                    \
+  }
 
+  NUM_TRUTHPARTS(nTruthPhotons,MC::PID::isPhoton)
+  NUM_TRUTHPARTS(nTruthElectrons,MC::PID::isElectron)
+  NUM_TRUTHPARTS(nTruthMuons,MC::PID::isMuon)
+  NUM_TRUTHPARTS(nTruthTaus,MC::PID::isTau)
 
-
+  std::size_t CompositeParticle_v1::nTruthLeptons() const {
+    return this->nTruthElectrons() + this->nTruthMuons() + this->nTruthTaus();
+  }
 
   const xAOD::IParticle*
   CompositeParticle_v1::part( std::size_t index ) const {
     if ( index >= this->nParts() ) {
-       return 0;
+       return nullptr;
     }
     const xAOD::IParticleLink & constitLink = partLink( index );
     if ( ! constitLink.isValid() ) {
-       return 0;
+       return nullptr;
     }
     return *constitLink;
   }
@@ -1020,17 +1043,39 @@ namespace xAOD {
   NUM_OTHERPARTS(nOtherJets,Jet)
   NUM_OTHERPARTS(nOtherTruthParts,TruthParticle)
 
+#define NUM_OTHERTRUTHPARTS( FUNCNAME, PIDMETHOD )                                               \
+  std::size_t CompositeParticle_v1::FUNCNAME() const {                                           \
+    std::size_t n(0);                                                                            \
+    std::size_t nParts = this->nOtherParts();                                                    \
+    for ( std::size_t i=0; i<nParts; ++i ) {                                                     \
+      const xAOD::IParticle* part = this->otherPart(i);                                          \
+      if (!part) { throw std::runtime_error("Got a zero pointer to an xAOD::IParticle!"); }      \
+      if ( part->type() != xAOD::Type::TruthParticle ) { continue; }                             \
+      const xAOD::TruthParticle* truthParticle = dynamic_cast<const xAOD::TruthParticle*>(part); \
+      if (!truthParticle) { throw std::runtime_error("Zero pointer to xAOD::TruthParticle"); }   \
+      if ( PIDMETHOD(truthParticle->pdgId()) ) { n += 1; }                                       \
+    }                                                                                            \
+    return n;                                                                                    \
+  }
 
+  NUM_OTHERTRUTHPARTS(nOtherTruthPhotons,MC::PID::isPhoton)
+  NUM_OTHERTRUTHPARTS(nOtherTruthElectrons,MC::PID::isElectron)
+  NUM_OTHERTRUTHPARTS(nOtherTruthMuons,MC::PID::isMuon)
+  NUM_OTHERTRUTHPARTS(nOtherTruthTaus,MC::PID::isTau)
+
+  std::size_t CompositeParticle_v1::nOtherTruthLeptons() const {
+    return this->nOtherTruthElectrons() + this->nOtherTruthMuons() + this->nOtherTruthTaus();
+  }
 
 
   const xAOD::IParticle*
   CompositeParticle_v1::otherPart( std::size_t index ) const {
     if ( index >= this->nOtherParts() ) {
-       return 0;
+       return nullptr;
     }
     const xAOD::IParticleLink & otherPartLink = this->otherPartLink( index );
     if ( ! otherPartLink.isValid() ) {
-       return 0;
+       return nullptr;
     }
     return *otherPartLink;
   }

@@ -6,10 +6,7 @@
 #ifndef LARSTRIPSCROSSTALKCORRECTOR_H
 #define LARSTRIPSCROSSTALKCORRECTOR_H
 
-//#include "GaudiKernel/Algorithm.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
-//#include "StoreGate/StoreGateSvc.h"
 
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArRecConditions/LArBadChannelCont.h"
@@ -18,6 +15,7 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArElecCalib/ILArPedestal.h"
 #include "LArRawEvent/LArAccumulatedCalibDigit.h"
+#include "LArRecConditions/LArBadChannelMask.h"
 
 #include <vector>
 #include <string>
@@ -49,7 +47,6 @@ private:
 };
 
 
-class ILArBadChannelMasker;
 
 
 //===================================================================================
@@ -74,8 +71,16 @@ class LArStripsCrossTalkCorrector : public AthAlgorithm
   SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
   SG::ReadCondHandleKey<LArBadFebCont> m_BFKey {this, "MissingFEBKey", "LArBadFeb", "SG key for miffing FEB object"};
   SG::ReadCondHandleKey<LArOnOffIdMapping>  m_cablingKey{this, "OnOffMap", "LArOnOffIdMap", "SG key for mapping object"};
-  ToolHandle<ILArBadChannelMasker> m_dontUseForCorr;
-  ToolHandle<ILArBadChannelMasker> m_dontCorrect;
+  
+
+  Gaudi::Property<std::vector<std::string> > m_dontUseForCorr{this,"DontUseForXtalkCorr",{}, "Types of bad channel should not be taken into accout for xtalk correction of their neighbor"};
+
+
+  LArBadChannelMask m_dontUseForCorrMask;
+  Gaudi::Property<std::vector<std::string> > m_dontCorr{this,"NoXtalkCorr",{}, "Types of bad channel should be ignored and not x-talk corrected"};
+  LArBadChannelMask m_dontCorrMask;
+
+
 
   const LArOnlineID*  m_onlineHelper;
   const LArEM_ID*     m_emId;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileEvent/TileRawChannel.h"
@@ -42,7 +42,6 @@ const InterfaceID& TileRawChannelBuilderWienerFilter::interfaceID() {
 TileRawChannelBuilderWienerFilter::TileRawChannelBuilderWienerFilter(const std::string& type,
     const std::string& name, const IInterface *parent)
   : TileRawChannelBuilder(type, name, parent)
-  , m_bunchCrossingTool("BunchCrossingTool")
   , m_nSignal(0)
   , m_nNegative(0)
   , m_nCenter(0)
@@ -60,7 +59,6 @@ TileRawChannelBuilderWienerFilter::TileRawChannelBuilderWienerFilter(const std::
   m_rawChannelContainerKey = "TileRawChannelWiener";
 
   //declare properties
-  declareProperty("BunchCrossingTool", m_bunchCrossingTool);
   declareProperty("MaxIterations",m_maxIterations = 5);
   declareProperty("PedestalMode",m_pedestalMode = 17);
   declareProperty("TimeForConvergence",m_timeForConvergence = 0.5);
@@ -145,13 +143,8 @@ StatusCode TileRawChannelBuilderWienerFilter::initialize() {
     ATH_CHECK( m_tileToolTiming.retrieve() );
   }
 
-  //=== get TrigBunchCrossingTool
-  if (m_isMC) {
-      m_bunchCrossingTool.setTypeAndName("Trig::MCBunchCrossingTool/BunchCrossingTool");
-  } else { // is data
-      m_bunchCrossingTool.setTypeAndName("Trig::LHCBunchCrossingTool/BunchCrossingTool");
-  }
-  ATH_CHECK( m_bunchCrossingTool.retrieve() );
+  //=== get BunchCrossingCondData
+  ATH_CHECK( m_bunchCrossingKey.initialize() );
 
   ATH_MSG_INFO( "initialization completed" );
 
@@ -174,6 +167,8 @@ StatusCode TileRawChannelBuilderWienerFilter::finalize() {
 
 TileRawChannel * TileRawChannelBuilderWienerFilter::rawChannel(const TileDigits* digits) {
 
+  const EventContext &ctx = Gaudi::Hive::currentContext();
+
   ++m_chCounter;
 
   double pedestal = 0.;
@@ -193,7 +188,7 @@ TileRawChannel * TileRawChannelBuilderWienerFilter::rawChannel(const TileDigits*
   int drawer = m_tileHWID->drawer(adcId);
   int channel = m_tileHWID->channel(adcId);
 
-  chi2 = filter(ros, drawer, channel, gain, pedestal, energy, time);
+  chi2 = filter(ros, drawer, channel, gain, pedestal, energy, time, ctx);
 
   unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
 
@@ -278,13 +273,13 @@ int TileRawChannelBuilderWienerFilter::findMaxDigitPosition() {
 }
 
 
-float TileRawChannelBuilderWienerFilter::getPedestal(int ros, int drawer, int channel, int gain) {
+float TileRawChannelBuilderWienerFilter::getPedestal(int ros, int drawer, int channel, int gain, const EventContext &ctx) {
   float pedestal = 0.;
 
   switch (m_pedestalMode) {
     case -1:
       // use pedestal from conditions DB
-      pedestal = m_tileToolNoiseSample->getPed(TileCalibUtils::getDrawerIdx(ros, drawer), channel, gain);
+      pedestal = m_tileToolNoiseSample->getPed(TileCalibUtils::getDrawerIdx(ros, drawer), channel, gain, TileRawChannelUnit::ADCcounts, ctx);
       break;
     case 7:
       pedestal = m_digits[6];
@@ -317,29 +312,34 @@ float TileRawChannelBuilderWienerFilter::getPedestal(int ros, int drawer, int ch
   return pedestal;
 }
 
-int TileRawChannelBuilderWienerFilter::getBCIDIndex() {
+int TileRawChannelBuilderWienerFilter::getBCIDIndex(const EventContext &ctx) {
   int bcidIndex = -1;
 
   const xAOD::EventInfo* eventInfo(0);
 
   if (evtStore()->retrieve(eventInfo).isSuccess()) {
-    int bcid      = eventInfo->bcid();
-    int distFront = m_bunchCrossingTool->distanceFromFront(bcid, Trig::IBunchCrossingTool::BunchCrossings);
-    int distTail  = m_bunchCrossingTool->distanceFromTail(bcid, Trig::IBunchCrossingTool::BunchCrossings);
+    SG::ReadCondHandle<BunchCrossingCondData> bcData(m_bunchCrossingKey, ctx);
+    if (bcData.isValid()) {
+      const int bcid      = eventInfo->bcid();
+      const int distFront = bcData->distanceFromFront(bcid, BunchCrossingCondData::BunchDistanceType::BunchCrossings);
+      const int distTail  = bcData->distanceFromTail(bcid, BunchCrossingCondData::BunchDistanceType::BunchCrossings);
 
-    ATH_MSG_VERBOSE( "EventInfo loaded: "
-                  << " BCID=" << bcid
-                  << " DistFront=" << distFront
-                  << " DistTail=" << distTail);
+      ATH_MSG_VERBOSE( "EventInfo loaded: "
+                    << " BCID=" << bcid
+                    << " DistFront=" << distFront
+                    << " DistTail=" << distTail);
 
-    if (distFront == -1 || distTail == -1) {
-      bcidIndex = -1;
-    } else if (distFront < 3 && distTail > distFront) {
-      bcidIndex = distFront;
-    } else if (distTail < 3 && distTail < distFront) {
-      bcidIndex = 6 - distTail;
+      if (distFront == -1 || distTail == -1) {
+        bcidIndex = -1;
+      } else if (distFront < 3 && distTail > distFront) {
+        bcidIndex = distFront;
+      } else if (distTail < 3 && distTail < distFront) {
+        bcidIndex = 6 - distTail;
+      } else {
+        bcidIndex = 3;
+      }
     } else {
-      bcidIndex = 3;
+      ATH_MSG_VERBOSE("BunchCrossingCondData not available");
     }
   } else {
     ATH_MSG_VERBOSE("EventInfo not available");
@@ -352,7 +352,7 @@ int TileRawChannelBuilderWienerFilter::getBCIDIndex() {
 
 
 double TileRawChannelBuilderWienerFilter::filter(int ros, int drawer, int channel
-    , int &gain, double &pedestal, double &amplitude, double &time) {
+    , int &gain, double &pedestal, double &amplitude, double &time, const EventContext &ctx) {
 
   ATH_MSG_VERBOSE( "filter()" );
 
@@ -377,7 +377,7 @@ double TileRawChannelBuilderWienerFilter::filter(int ros, int drawer, int channe
     double weights[8];
     memset(weights, 0, sizeof(weights));
 
-    int bcidIndex = getBCIDIndex();
+    int bcidIndex = getBCIDIndex(ctx);
 
     // check if it is E3 or E4 cells and if the BCID is available
     if (ros > 2 && (channel == 0 || channel == 1) && bcidIndex > -1) {
@@ -399,7 +399,7 @@ double TileRawChannelBuilderWienerFilter::filter(int ros, int drawer, int channe
     amplitude += weights[7]; // Wiener bias
 
     double phase = 0.;
-    pedestal = getPedestal(ros, drawer, channel, gain);
+    pedestal = getPedestal(ros, drawer, channel, gain, ctx);
 
     chi2 = compute(ros, drawer, channel, gain, pedestal, amplitude, time, phase);
 

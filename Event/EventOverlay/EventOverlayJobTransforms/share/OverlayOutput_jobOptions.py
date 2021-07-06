@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 include.block('EventOverlayJobTransforms/OverlayOutput_jobOptions.py')
 
@@ -6,6 +6,9 @@ from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 from OverlayCommonAlgs.OverlayFlags import overlayFlags
+
+from AthenaCommon.ConcurrencyFlags import jobproperties as jp
+nThreads = jp.ConcurrencyFlags.NumThreads()
 
 outStream = AthenaPoolOutputStream('StreamRDO', athenaCommonFlags.PoolRDOOutput(), asAlg=True)
 outStream.ItemList = []
@@ -15,7 +18,7 @@ outStream.ItemList += [ 'xAOD::EventInfo#EventInfo', 'xAOD::EventAuxInfo#EventIn
 
 # Timings
 outStream.ItemList += ['RecoTimingObj#EVNTtoHITS_timings']
-if not overlayFlags.isDataOverlay():
+if not overlayFlags.isDataOverlay() and nThreads == 0:
     outStream.ItemList += ['RecoTimingObj#HITStoRDO_timings']
 
 # Truth
@@ -27,10 +30,18 @@ if DetFlags.overlay.Truth_on():
             outStream.ItemList += ['TrackRecordCollection#' + collection]
 
     if not overlayFlags.isDataOverlay():
-        outStream.ItemList += ['xAOD::JetContainer#InTimeAntiKt4TruthJets']
-        outStream.ItemList += ['xAOD::JetAuxContainer#InTimeAntiKt4TruthJetsAux.']
-        outStream.ItemList += ['xAOD::JetContainer#OutOfTimeAntiKt4TruthJets']
-        outStream.ItemList += ['xAOD::JetAuxContainer#OutOfTimeAntiKt4TruthJetsAux.']
+        if 'xAOD::JetContainer' in overlayFlags.optionalContainerMap():
+            outStream.ItemList += ['xAOD::JetContainer#InTimeAntiKt4TruthJets']
+            outStream.ItemList += ['xAOD::JetAuxContainer#InTimeAntiKt4TruthJetsAux.']
+            outStream.ItemList += ['xAOD::JetContainer#OutOfTimeAntiKt4TruthJets']
+            outStream.ItemList += ['xAOD::JetAuxContainer#OutOfTimeAntiKt4TruthJetsAux.']
+            outStream.ItemList += ['xAOD::JetContainer#InTimeAntiKt6TruthJets']
+            outStream.ItemList += ['xAOD::JetAuxContainer#InTimeAntiKt6TruthJetsAux.']
+            outStream.ItemList += ['xAOD::JetContainer#OutOfTimeAntiKt6TruthJets']
+            outStream.ItemList += ['xAOD::JetAuxContainer#OutOfTimeAntiKt6TruthJetsAux.']
+        if 'xAOD::TruthParticleContainer' in overlayFlags.optionalContainerMap():
+            outStream.ItemList += ["xAOD::TruthParticleContainer#TruthPileupParticles"]
+            outStream.ItemList += ["xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux."]
 
     if DetFlags.overlay.BCM_on():
         outStream.ItemList += [ 'InDetSimDataCollection#BCM_SDO_Map' ]
@@ -90,7 +101,7 @@ if DetFlags.overlay.LAr_on():
     outStream.ItemList+=['LArRawChannelContainer#LArRawChannels']
     if 'AddCaloDigi' in digitizationFlags.experimentalDigi():
         outStream.ItemList+=['LArDigitContainer#LArDigitContainer_MC']
-    else:
+    elif 'AddCaloDigiThinned' in digitizationFlags.experimentalDigi():
         outStream.ItemList+=['LArDigitContainer#LArDigitContainer_MC_Thinned']
 
 if DetFlags.overlay.Tile_on():

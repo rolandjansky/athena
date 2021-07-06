@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ACTSGEANTFOLLOWERTOOL_H
@@ -25,9 +25,6 @@ protected:
   /// Create an action for this thread
   virtual std::unique_ptr<ActsGeantFollower>
   makeAndFillAction(G4UA::G4AtlasUserActions&) override final;
-private:
-  /// Configuration parameters
-  ActsGeantFollower::Config m_config;
 }; // class ActsGeantFollowerTool
 
 #endif

@@ -1,7 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from JetMonitoring.JetHistoTools import jhm, selectionAndHistos
-from JetMonitoring.JetMonitoringConf import JetAttributeHisto, HistoDefinitionTool, JetMonitoringTool, JetKinematicHistos, JetContainerHistoFiller
+from JetMonitoring.JetMonitoringConf import JetMonitoringTool, JetKinematicHistos, JetContainerHistoFiller
 from AthenaCommon.AppMgr import ToolSvc
 from JetRec.JetRecFlags import jetFlags
 from JetSelectorTools.JetSelectorToolsConf import JetCleaningTool

@@ -67,6 +67,18 @@
 #include "xAODTrigCalo/CaloClusterTrigAuxContainer.h"
 #include "xAODCore/ShallowAuxContainer.h"
 
+#include "xAODTrigMinBias/TrigT2MbtsBitsContainer.h"
+#include "xAODTrigMinBias/TrigT2MbtsBitsAuxContainer.h"
+
+#include "xAODHIEvent/HIEventShapeContainer.h"
+#include "xAODHIEvent/HIEventShapeAuxContainer.h"
+
+#include "xAODTrigRinger/TrigRNNOutputContainer.h"
+#include "xAODTrigRinger/TrigRNNOutputAuxContainer.h"
+
+#include "xAODForward/AFPTrackContainer.h"
+#include "xAODForward/AFPTrackAuxContainer.h"
+
 /**
  * @class HLTEDMCreator
  * @brief Tool capable of creating collections missing (early rejection) after HLT processing.
@@ -76,7 +88,7 @@
  * 1) add EDM pkg in CMakeLists
  * 2) add includes in this file
  * 3) add DEF_*_KEY here
- * 4) initialise it 
+ * 4) initialise it in initialize method (in cxx file)
  * 5) add create in the createOutput
  * 6) test 
  **/
@@ -141,6 +153,11 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
   DEF_XAOD_KEY( BTaggingContainer );
   DEF_XAOD_KEY( BTagVertexContainer );
   DEF_XAOD_KEY( TrigBphysContainer );
+  DEF_XAOD_KEY( TrigT2MbtsBitsContainer );
+  DEF_XAOD_KEY( HIEventShapeContainer );
+  DEF_XAOD_KEY( TrigRNNOutputContainer );
+  DEF_XAOD_KEY( AFPTrackContainer );
+
 #undef DEF_VIEWS
 #undef DEF_KEY
 #undef DEF_XAOD_KEY

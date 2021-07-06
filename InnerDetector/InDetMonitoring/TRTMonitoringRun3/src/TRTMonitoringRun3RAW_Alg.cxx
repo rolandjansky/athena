@@ -2,6 +2,15 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#define FILLEVENTNORMALIZATION(NBINS, MIN, WIDTH, VALUE, VARPASSED, VAR, HISTGROUP) \
+for (int i = 1; i <= NBINS; i++) \
+    if (MIN + WIDTH*(i-1) >= VALUE || MIN + WIDTH*(i+1) <= VALUE) \
+    { \
+        VARPASSED = 0.0; \
+        VAR = i; \
+        fill(HISTGROUP, VARPASSED, VAR); \
+    }
+
 #include "TRTMonitoringRun3/TRTMonitoringRun3RAW_Alg.h"
 
 #include "AthContainers/DataVector.h"
@@ -40,11 +49,13 @@ TRTMonitoringRun3RAW_Alg::TRTMonitoringRun3RAW_Alg( const std::string& name, ISv
 ,m_mgr(0)
 ,m_sumTool("TRT_StrawStatusSummaryTool", this)
 ,m_TRTStrawNeighbourSvc("TRT_StrawNeighbourSvc", name)
+,m_BSSvc("TRT_ByteStream_ConditionsSvc", name)
 {
     declareProperty("InDetTRTStrawStatusSummaryTool", m_sumTool);
     declareProperty("doStraws",                       m_doStraws         = true);
-    declareProperty("doExpert",                       m_doExpert         = true);
+    declareProperty("doExpert",                       m_doExpert         = false);
     declareProperty("doChips",                        m_doChips          = true);
+    declareProperty("doTracksMon",                    m_doTracksMon      = true);
     declareProperty("doRDOsMon",                      m_doRDOsMon        = true);
     declareProperty("doShift",                        m_doShift          = true);
     declareProperty("doEfficiency",                   m_doEfficiency     = true);
@@ -76,7 +87,6 @@ StatusCode TRTMonitoringRun3RAW_Alg::initialize() {
     // initialize superclass
     ATH_CHECK( AthMonitorAlgorithm::initialize() );
     
-    
     // Retrieve detector manager.
     ATH_CHECK( detStore()->retrieve(m_mgr, "TRT") );
     // Get ID helper for TRT to access various detector components like straw, straw_layer, layer_or_wheel, phi_module, etc...
@@ -97,6 +107,13 @@ StatusCode TRTMonitoringRun3RAW_Alg::initialize() {
             ATH_MSG_VERBOSE("Trying " << m_sumTool << " isGood");
             ATH_MSG_VERBOSE("TRT_StrawStatusTool reports status = " << m_sumTool->getStatus(ident));
         }
+        
+        // Retrieve the TRT_ByteStreamService.
+		if (m_BSSvc.name().empty()) {
+			ATH_MSG_WARNING("TRT_ByteStreamSvc not given.");
+		} else {
+			ATH_CHECK( m_BSSvc.retrieve() );
+		}
     }//If do expert
 
     // Get Track summary tool
@@ -229,11 +246,13 @@ StatusCode TRTMonitoringRun3RAW_Alg::checkTRTReadoutIntegrity(const xAOD::EventI
     const std::set<uint32_t>                       &MissingErrorSet   = bsErrCont->getMissingErrorSet();
     const std::set<uint32_t>                       &SidErrorSet       = bsErrCont->getSidErrorSet();
     const std::set<std::pair<uint32_t, uint32_t> > &RobStatusErrorSet = bsErrCont->getRobErrorSet();
+
     const unsigned int rod_id_base[2][2] = { { 0x310000, 0x320000 }, { 0x330000, 0x340000 } };
     const unsigned int nChipsTotal[2][2] = { {     3328,     3328 }, {     7680,     7680 } };
     const unsigned int nRobsTotal[2][2]  = { {       32,       32 }, {       64,       64 } };
     float nBSErrors[2][2]  = { { 0, 0 }, { 0, 0 } };
     float nRobErrors[2][2] = { { 0, 0 }, { 0, 0 } };
+
     const std::set<std::pair<uint32_t, uint32_t> > *errorset1[2] = { &BCIDErrorSet, &L1IDErrorSet };
 
     for (int iset = 0; iset < 2; ++iset) {
@@ -532,6 +551,12 @@ struct straw_struct {
     float HitToTMapS_y;
     bool HitToTLong_cut;
     bool HitTrWMapS_cut;
+    float HitTrWMapS_y;
+};
+
+struct straw_norm_struct {
+    int strawNumber;
+    bool HitAMapS_passed;
 };
 
 struct chip_struct {
@@ -563,7 +588,7 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTRDOs(const TRT_RDO_Container& rdoCon
                                             const InDetTimeCollection* trtBCIDCollection) const {
 //----------------------------------------------------------------------------------//
     ATH_MSG_DEBUG("Filling TRT RDO Histograms");
-    
+
     // TProfile
     auto HitToTLongTrMapS_x   = Monitored::Scalar<float>("HitToTLongTrMapS_x", 0.0);
     auto HitToTLongTrMapS_y   = Monitored::Scalar<float>("HitToTLongTrMapS_y", 0.0);
@@ -583,11 +608,13 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTRDOs(const TRT_RDO_Container& rdoCon
     auto ChipBSErrorsVsLB_y   = Monitored::Scalar<float>("ChipBSErrorsVsLB_y", 0.0);
     auto RobBSErrorsVsLB_x    = Monitored::Scalar<float>("RobBSErrorsVsLB_x", 0.0);
     auto RobBSErrorsVsLB_y    = Monitored::Scalar<float>("RobBSErrorsVsLB_y", 0.0);
-    
+    auto NHitsperLB_x         = Monitored::Scalar<float>("NHitsperLB_x", 0.0);
+    auto NHitsperLB_y         = Monitored::Scalar<float>("NHitsperLB_y", 0.0);
+    auto NHLHitsperLB_x       = Monitored::Scalar<float>("NHLHitsperLB_x", 0.0);
+    auto NHLHitsperLB_y       = Monitored::Scalar<float>("NHLHitsperLB_y", 0.0);
+
     // TH1F
     auto OccAll               = Monitored::Scalar<float>("OccAll", 0.0);
-    auto Summary              = Monitored::Scalar<float>("Summary", 0.0);
-    auto SummaryWeight        = Monitored::Scalar<float>("SummaryWeight", 0.0);
     
     // TH2F
     
@@ -615,6 +642,9 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTRDOs(const TRT_RDO_Container& rdoCon
     auto StrawOcc             = Monitored::Scalar<float>("StrawOcc", 0.0);
     auto StrawOcc_passed      = Monitored::Scalar<bool>("StrawOcc_passed", false);
     
+    auto strawnumber          = Monitored::Scalar<int>("strawNumber", 0.0);
+    auto HitAMapS_passed      = Monitored::Scalar<bool>("HitAMapS_passed", false);
+    
     const unsigned int lumiBlock = eventInfo.lumiBlock();
     ATH_MSG_VERBOSE("This is lumiblock : " << lumiBlock);
     auto good_bcid = eventInfo.bcid();
@@ -638,8 +668,11 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTRDOs(const TRT_RDO_Container& rdoCon
     int moduleHits_E[128];
     int HLmoduleHits_B[192];
     int HLmoduleHits_E[128];
+    int nHitsperLB_B = 0;
+    int nHLHitsperLB_B = 0;
+    int nHitsperLB_E[2] = {0, 0};
+    int nHLHitsperLB_E[2] = {0, 0};
     
-
     for (int i = 0; i < 192; i++) {
         moduleHits_B[i] = 0;
         HLmoduleHits_B[i] = 0;
@@ -691,6 +724,7 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTRDOs(const TRT_RDO_Container& rdoCon
 
     int nhitsall = 0;
 
+    std::map<int,std::map<int, std::vector<straw_norm_struct>>> straw_norm_map;
     std::map<int,std::map<int, std::vector<straw_struct>>> straw_map;
     std::map<int,std::map<int, std::vector<chip_struct>>> chip_map;
     std::map<int,std::vector<straw_shifter_struct>> straw_shifter_map;
@@ -810,24 +844,23 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTRDOs(const TRT_RDO_Container& rdoCon
             if (ibe == 0) {
 
                 if (m_doShift) {
-//                    m_nHitsperLB_B++;
+                    nHitsperLB_B++;
 
                     if (highlevel) {
-//                        m_nHLHitsperLB_B++;
+                        nHLHitsperLB_B++;
                     }
                 }
             } else if (ibe == 1) {
                 nTRTHits[ibe]++;
 
                 if (m_doShift) {
-//                    m_nHitsperLB_E[iside]++;
+                    nHitsperLB_E[iside]++;
 
                     if (highlevel) {
-//                        m_nHLHitsperLB_E[iside]++;
+                        nHLHitsperLB_E[iside]++;
                     }
                 }
             }
-
 
             if (m_doExpert) {
                 float trailingEdgeScaled = (trailingEdge + 1)*3.125;
@@ -843,8 +876,36 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTRDOs(const TRT_RDO_Container& rdoCon
                     this_struct.HitAWMapS_passed=(is_anybininVgate_high ? 1 : 0);
                     this_struct.HitToTMapS_y = timeOverThreshold;
                     this_struct.HitToTLong_cut = (timeOverThreshold > m_longToTCut);
+                    this_struct.HitTrWMapS_y = trailingEdgeScaled;
                     this_struct.HitTrWMapS_cut = (trailingEdge < 23) && !lastBinHigh && !firstBinHigh;
                 }
+
+                if (m_doStraws) { // Experimental
+                    double histLow = 0.;
+                    double histBinWidth = 1.;
+                    straw_norm_struct& this_struct = straw_norm_map[ibe][iphi_module].emplace_back();
+                    for (int i = 1; i <= m_strawMax[ibe]; i++) {
+                        if (histLow + histBinWidth*(i-1) >= thisStrawNumber || histLow + histBinWidth*(i+1) <= thisStrawNumber) {
+                            this_struct.strawNumber = i;
+                            this_struct.HitAMapS_passed = 0;
+                        }
+                    } 
+                }
+
+            if (highlevel) {
+                if (m_doStraws) {    
+                    HtoLMapS = thisStrawNumber;
+                    HtoLMapS_passed = 1.0;
+                    fill("RDOStackHistograms"+std::to_string(ibe)+std::to_string(iphi_module), HtoLMapS_passed, HtoLMapS);
+                }
+            } else {
+                if (m_doStraws) {
+                    HtoLMapS = thisStrawNumber;
+                    HtoLMapS_passed = 0.0;
+                    fill("RDOStackHistograms"+std::to_string(ibe)+std::to_string(iphi_module), HtoLMapS_passed, HtoLMapS);
+                }
+            }
+                
                 if (m_doChips) { // Experimental
                     chip_struct& this_struct = chip_map[ibe][iphi_module].emplace_back();
                     this_struct.chipNumber = chip - 1;
@@ -876,6 +937,19 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTRDOs(const TRT_RDO_Container& rdoCon
                         this_struct.HtoBCMapC_x = 2.;
                         this_struct.HtoBCMapB_x = 2.;
                         this_struct.HtoBCMap_cut=true;
+                    }
+                }
+                if (highlevel) {
+                    if (m_doChips) {    
+                        HtoLMapC = chip - 1;
+                        HtoLMapC_passed = 1.0;
+                        fill("RDOStackHistograms"+std::to_string(ibe)+std::to_string(iphi_module), HtoLMapC_passed, HtoLMapC);
+                    }
+                } else {
+                    if (m_doChips) {
+                        HtoLMapC = chip - 1;
+                        HtoLMapC_passed = 0.0;
+                        fill("RDOStackHistograms"+std::to_string(ibe)+std::to_string(iphi_module), HtoLMapC_passed, HtoLMapC);
                     }
                 }
             }
@@ -954,12 +1028,22 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTRDOs(const TRT_RDO_Container& rdoCon
             auto HitTrMapS_y          = Monitored::Collection("HitTrMapS_y", iphi_modulepair.second, [](const auto& s){return s.HitTrMapS_y;});
             auto HitToTMapS_y         = Monitored::Collection("HitToTMapS_y", iphi_modulepair.second, [](const auto& s){return s.HitToTMapS_y;});
             auto HitToTLong_cut       = Monitored::Collection("HitToTLong_cut", iphi_modulepair.second, [](const auto& s){return s.HitToTLong_cut;});
+            auto HitTrWMapS_y         = Monitored::Collection("HitTrWMapS_y",  iphi_modulepair.second, [](const auto& s){return s.HitTrWMapS_y;});
             auto HitTrWMapS_cut       = Monitored::Collection("HitTrWMapS_cut", iphi_modulepair.second, [](const auto& s){return s.HitTrWMapS_cut;});
 
             fill("RDOStackHistograms"+std::to_string(ibepair.first)+std::to_string(iphi_modulepair.first), strawNumber,
                  HitWMapS_passed, HitHWMapS_passed, HitHMapS_passed, HitAMapS_passed, HitAWMapS_passed,
-                 HitTrMapS_y, HitToTMapS_y, HitToTLong_cut, HitTrWMapS_cut);
+                 HitTrMapS_y, HitToTMapS_y, HitToTLong_cut, HitTrWMapS_y, HitTrWMapS_cut);
         }
+    }
+    
+    // Experimental
+    for (const auto& ibepair : straw_norm_map) {
+            for (const auto& iphi_modulepair : ibepair.second ) {
+                auto strawNumber          = Monitored::Collection("strawNumber", iphi_modulepair.second, [](const auto& s){return s.strawNumber;});
+                auto HitAMapS_passed      = Monitored::Collection("HitAMapS_passed", iphi_modulepair.second, [](const auto& s){return s.HitAMapS_passed;});
+                fill("RDOStackHistograms"+std::to_string(ibepair.first)+std::to_string(iphi_modulepair.first), strawNumber, HitAMapS_passed);
+            }
     }
 
     for (const auto& ibepair : chip_map) {
@@ -1004,6 +1088,7 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTRDOs(const TRT_RDO_Container& rdoCon
 
             for (int iside = 0; iside < 2; iside++) {
                 for (int i = 1; i <= numberOfStacks_b[ibe]; i++) {
+
                     int index_tmp = 0;
                     int modulenum_tmp = 0;
 
@@ -1032,7 +1117,6 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTRDOs(const TRT_RDO_Container& rdoCon
                         if (ibe == 0) {
                             float occLL = float(moduleHits_B[modulenum_tmp]) / float(numberOfStrawsMod[nclass]);
                             float occHL = float(HLmoduleHits_B[modulenum_tmp]) / float(numberOfStrawsMod[nclass]);
-//                            m_LLOcc[ibe][LLocc_index] += occLL;
                             AvgLLOcc_side_x = i - (32 * nclass);
                             AvgLLOcc_side_y = occLL;
                             AvgHLOcc_side_x = i - (32 * nclass);
@@ -1046,7 +1130,6 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTRDOs(const TRT_RDO_Container& rdoCon
                             float occHL = float(HLmoduleHits_E[modulenum_tmp]) / float(numberOfStrawsWheel[nclass]);
 
                             if (LLocc_index < 64) {
-//                                m_LLOcc[ibe][LLocc_index] += occLL;
                             } else {
                                 ATH_MSG_WARNING("m_LLOcc index out of bounds!"); // To satisfy Coverity defect CID 16514 which we believe is a false report.
                             }
@@ -1069,14 +1152,121 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTRDOs(const TRT_RDO_Container& rdoCon
         // Insert here
         
     }
-  
-    if (m_environment == Environment_t::online) {
-        if (m_doShift) {
-            Summary = 0;
-            SummaryWeight = m_totalEvents;
-            fill("RDOShiftSmryHistograms", SummaryWeight, Summary);
+    
+    
+if (m_environment != Environment_t::online) {
+
+	if (m_doShift) {
+        const unsigned int lumiBlock = eventInfo.lumiBlock();
+        ATH_MSG_VERBOSE("This is lumiblock : " << lumiBlock);
+int lastLumiBlock = -99;
+        if ((int)lumiBlock != lastLumiBlock) {
+            lastLumiBlock = lumiBlock;
         }
-    }
+        float evtLumiBlock = 1.;
+        float lumiBlockScale = (evtLumiBlock > 0) ? (1. / evtLumiBlock) : 0;
+		const float barrelConst = 1. / 105088;
+		const float endcapConst = 1. / 122880;
+
+		if (m_doTracksMon && evtLumiBlock > 0) {
+            NHitsperLB_x = lastLumiBlock;
+            NHitsperLB_y = (float)nHitsperLB_B * lumiBlockScale * barrelConst;
+            fill("RDOShiftRebinnedBarrelHistograms0", NHitsperLB_x, NHitsperLB_y);
+            NHLHitsperLB_x = lastLumiBlock;
+            NHLHitsperLB_y = (float)nHLHitsperLB_B * lumiBlockScale * barrelConst;
+            fill("RDOShiftRebinnedBarrelHistograms0", NHLHitsperLB_x, NHLHitsperLB_y);
+
+			for (int iside = 0; iside < 2; iside++) {
+                NHitsperLB_x = lastLumiBlock;
+                NHitsperLB_y = (float)nHitsperLB_E[iside] * lumiBlockScale * endcapConst;
+                fill("RDOShiftRebinnedEndcapHistograms1"+std::to_string(iside), NHitsperLB_x, NHitsperLB_y);
+                NHLHitsperLB_x = lastLumiBlock;
+                NHLHitsperLB_y = (float)nHLHitsperLB_E[iside] * lumiBlockScale * endcapConst;
+                fill("RDOShiftRebinnedEndcapHistograms1"+std::to_string(iside), NHLHitsperLB_x, NHLHitsperLB_y);
+			}
+            
+			nHitsperLB_B = 0;
+			nHLHitsperLB_B = 0;
+
+			for (int iside = 0; iside < 2; iside++) {
+				nHitsperLB_E[iside] = 0;
+				nHLHitsperLB_E[iside] = 0;
+			}
+		}
+	}
+
+	ATH_MSG_DEBUG("end of event and lumi block");
+} // TODO!
+
+
+	//Get BSConversion Errors from BSConditionsServices:
+	std::set<std::pair<uint32_t, uint32_t> > *L1IDErrorSet      = m_BSSvc->getIdErrorSet(TRTByteStreamErrors::L1IDError);
+	std::set<std::pair<uint32_t, uint32_t> > *BCIDErrorSet      = m_BSSvc->getIdErrorSet(TRTByteStreamErrors::BCIDError);
+	std::set<uint32_t>                       *MissingErrorSet   = m_BSSvc->getErrorSet(TRTByteStreamErrors::MISSINGError);
+	std::set<uint32_t>                       *SidErrorSet       = m_BSSvc->getErrorSet(TRTByteStreamErrors::SIDError);
+	std::set<std::pair<uint32_t, uint32_t> > *RobStatusErrorSet = m_BSSvc->getRodRobErrorSet(TRTByteStreamErrors::RobStatusError);
+	const unsigned int rod_id_base[2][2] = { { 0x310000, 0x320000 }, { 0x330000, 0x340000 } };
+	const unsigned int nChipsTotal[2][2] = { {     3328,     3328 }, {     7680,     7680 } };
+	const unsigned int nRobsTotal[2][2]  = { {       32,       32 }, {       64,       64 } };
+	float nBSErrors[2][2]  = { { 0, 0 }, { 0, 0 } };
+	float nRobErrors[2][2] = { { 0, 0 }, { 0, 0 } };
+	const std::set<std::pair<uint32_t, uint32_t> > *errorset1[2] = { BCIDErrorSet, L1IDErrorSet };
+
+	for (int iset = 0; iset < 2; ++iset) {
+		for (auto setIt = errorset1[iset]->begin(); setIt != errorset1[iset]->end(); ++setIt) {
+			for (int ibe = 0; ibe < 2; ++ibe) {
+				for (int iside = 0; iside < 2; ++iside) {
+					if (((setIt->first >> 8) & 0xFF0000) == rod_id_base[ibe][iside]) {
+						nBSErrors[ibe][iside] += 1. / nChipsTotal[ibe][iside];
+					}
+				}
+			}
+		}
+	}
+
+	const std::set<uint32_t> *errorset2[2] = { MissingErrorSet, SidErrorSet };
+
+	for (int iset = 0; iset < 2; ++iset) {
+		for (auto setIt = errorset2[iset]->begin(); setIt != errorset2[iset]->end(); ++setIt) {
+			for (int ibe = 0; ibe < 2; ++ibe) {
+				for (int iside = 0; iside < 2; ++iside) {
+					if (((*setIt >> 8) & 0xFF0000) == rod_id_base[ibe][iside]) {
+						nBSErrors[ibe][iside] += 1. / nChipsTotal[ibe][iside];
+					}
+				}
+			}
+		}
+	}
+
+	for (int ibe = 0; ibe < 2; ++ibe) {
+		for (int iside = 0; iside < 2; ++iside) {
+            ChipBSErrorsVsLB_x = lumiBlock;
+            ChipBSErrorsVsLB_y = nBSErrors[ibe][iside];
+            fill("RDOShiftSmryRebinnedHistograms"+std::to_string(ibe)+std::to_string(iside), ChipBSErrorsVsLB_x, ChipBSErrorsVsLB_y);
+//			m_hChipBSErrorsVsLB[ibe][iside]->Fill(lumiBlock, nBSErrors[ibe][iside]);
+//			m_hChipBSErrorsVsLB[ibe][iside]->SetEntries(lumiBlock); // we need this so the LastBinThreshold algorithm can find the last bin
+		}
+	}
+
+	for (auto setIt = RobStatusErrorSet->begin(); setIt != RobStatusErrorSet->end(); ++setIt) {
+		for (int ibe = 0; ibe < 2; ++ibe) {
+			for (int iside = 0; iside < 2; ++iside) {
+				if (setIt->first % rod_id_base[ibe][iside] < 0xffff) {
+					nRobErrors[ibe][iside] += 1. / nRobsTotal[ibe][iside];
+				}
+			}
+		}
+	}
+
+	for (int ibe = 0; ibe < 2; ++ibe) {
+		for (int iside = 0; iside < 2; ++iside) {
+            RobBSErrorsVsLB_x = lumiBlock;
+            RobBSErrorsVsLB_y = nRobErrors[ibe][iside];
+            fill("RDOShiftSmryRebinnedHistograms"+std::to_string(ibe)+std::to_string(iside), RobBSErrorsVsLB_x, RobBSErrorsVsLB_y);
+//			m_hRobBSErrorsVsLB[ibe][iside]->Fill(lumiBlock, nRobErrors[ibe][iside]);
+//			m_hRobBSErrorsVsLB[ibe][iside]->SetEntries(lumiBlock); // we need this so the LastBinThreshold algorithm can find the last bin
+		}
+	}  
 
     ATH_MSG_VERBOSE("Leaving Fill TRT RDO Histograms");
     return StatusCode::SUCCESS;
@@ -1308,6 +1498,7 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTEfficiency(const TrackCollection& co
 			const DataVector<const Trk::TrackStateOnSurface> *holes = m_trt_hole_finder->getHolesOnTrack(**track);
 
 			if (!holes) {
+
 				ATH_MSG_WARNING("TRTTrackHoleSearchTool returned null results.");
 				continue;
 			} else {
@@ -1476,7 +1667,20 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTHits(const TrackCollection& trackCol
     auto HitAWonTMapS_passed            = Monitored::Scalar<bool>("HitAWonTMapS_passed", false);
     auto HitAWonTMapC                   = Monitored::Scalar<float>("HitAWonTMapC", 0.0);
     auto HitAWonTMapC_passed            = Monitored::Scalar<bool>("HitAWonTMapC_passed", false);
+    auto HtoLonTMapS                    = Monitored::Scalar<float>("HtoLonTMapS", 0.0);
+    auto HtoLonTMapS_passed             = Monitored::Scalar<bool>("HtoLonTMapS_passed", false);
+    auto HtoLWonTMapS                   = Monitored::Scalar<float>("HtoLWonTMapS", 0.0);
+    auto HtoLWonTMapS_passed            = Monitored::Scalar<bool>("HtoLWonTMapS_passed", false);
+    auto HtoLonTMapC                    = Monitored::Scalar<float>("HtoLonTMapC", 0.0);
+    auto HtoLonTMapC_passed             = Monitored::Scalar<bool>("HtoLonTMapC_passed", false);
+    auto HtoLWonTMapC                   = Monitored::Scalar<float>("HtoLWonTMapC", 0.0);
+    auto HtoLWonTMapC_passed            = Monitored::Scalar<bool>("HtoLWonTMapC_passed", false);
 
+    auto HitTronTMapC_x                 = Monitored::Scalar<float>("HitTronTMapC_x", 0.0);
+    auto HitTronTMapC_y                 = Monitored::Scalar<float>("HitTronTMapC_y", 0.0);
+    auto HitonTrackVAllS_x              = Monitored::Scalar<float>("HitonTrackVAllS_x", 0.0);
+    auto HitonTrackVAllS_y              = Monitored::Scalar<float>("HitonTrackVAllS_y", 0.0);
+    
     auto p_trk = trackCollection.begin();
 
     const Trk::Perigee *mPer = nullptr;
@@ -1544,9 +1748,6 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTHits(const TrackCollection& trackCol
 
         if (!passed_track_preselection) continue;
 
-        int checkB[2] = {0, 0};
-        int checkEC[2] = {0, 0};
-        int checkEC_B[2] = {0, 0};
         int nTRTHitsW[2][2];
         int nTRTHitsW_Ar[2][2];
         int nTRTHitsW_Xe[2][2];
@@ -1680,17 +1881,6 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTHits(const TrackCollection& trackCol
             }
 
             if (thisStrawNumber[ibe] < 0 || thisStrawNumber[ibe] >= s_Straw_max[ibe]) continue;
-            if (checkB[iside] == 0 && ibe == 0) {
-                checkB[iside] = 1;
-            }
-
-            if (checkEC[iside] == 0 && ibe == 1) {
-                checkEC[iside] = 1;
-            }
-
-            if (checkEC_B[iside] == 0 && checkB[iside] == 1 && ibe == 1 ) {
-                checkEC_B[iside] = 1;
-            } // ToDo: be sure about this approach
 
             if (ibe == 0) {
                 Bhit = true;
@@ -1809,6 +1999,13 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTHits(const TrackCollection& trackCol
                         HitHWonTMapS = thisStrawNumber[ibe];
                         HitHWonTMapS_passed = 1.0;
                         fill("TRTTrackHistograms"+std::to_string(ibe)+std::to_string(iphi_module), HitHWonTMapS_passed, HitHWonTMapS);
+                        
+                        HtoLonTMapS = thisStrawNumber[ibe];
+                        HtoLonTMapS_passed = 1.0;
+                        fill("TRTTrackHistograms"+std::to_string(ibe)+std::to_string(iphi_module), HtoLonTMapS_passed, HtoLonTMapS);
+                        HtoLWonTMapS = thisStrawNumber[ibe];
+                        HtoLWonTMapS_passed = 1.0;
+                        fill("TRTTrackHistograms"+std::to_string(ibe)+std::to_string(iphi_module), HtoLWonTMapS_passed, HtoLWonTMapS);
                     }
                 }
                 
@@ -1828,6 +2025,12 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTHits(const TrackCollection& trackCol
                         HitHonTMapC = chip[ibe] - 1;
                         HitHonTMapC_passed = 1.0;
                         fill("TRTTrackHistograms"+std::to_string(ibe)+std::to_string(iphi_module), HitHonTMapC_passed, HitHonTMapC);
+                        HtoLonTMapC = chip[ibe] - 1;
+                        HtoLonTMapC_passed = 1.0;
+                        fill("TRTTrackHistograms"+std::to_string(ibe)+std::to_string(iphi_module), HtoLonTMapC_passed, HtoLonTMapC);
+                        HtoLWonTMapC = chip[ibe] - 1;
+                        HtoLWonTMapC_passed = 1.0;
+                        fill("TRTTrackHistograms"+std::to_string(ibe)+std::to_string(iphi_module), HtoLWonTMapC_passed, HtoLWonTMapC);
                     }
                 }
 
@@ -1863,6 +2066,7 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTHits(const TrackCollection& trackCol
                         HitWonTMapS = thisStrawNumber[ibe];
                         HitWonTMapS_passed = 1.0;
                         fill("TRTTrackHistograms"+std::to_string(ibe)+std::to_string(iphi_module), HitWonTMapS_passed, HitWonTMapS);
+
                     }
                     if (m_doExpert && m_doChips) {
                         HitWonTMapC = chip[ibe] - 1;
@@ -1872,6 +2076,17 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTHits(const TrackCollection& trackCol
                 }
 
                 const int trailingEdge = RawDriftCircle->trailingEdge();
+                float trailingEdgeScaled = (trailingEdge + 1) * 3.125;
+                
+                if ((trailingEdge < 23) &&
+                    !(RawDriftCircle->lastBinHigh()) &&
+                    !(RawDriftCircle->firstBinHigh())) {
+                    if (m_doExpert && m_doChips) {
+                        HitTronTMapC_x = chip[ibe] - 1;
+                        HitTronTMapC_y = trailingEdgeScaled;
+                        fill("TRTTrackHistograms"+std::to_string(ibe)+std::to_string(iphi_module), HitTronTMapC_x, HitTronTMapC_y);
+                    }
+                }
 
                 const bool firstBinHigh = RawDriftCircle->firstBinHigh();
                 const bool lastBinHigh = RawDriftCircle->lastBinHigh();
@@ -1881,12 +2096,23 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTHits(const TrackCollection& trackCol
                         HitAonTMapS = thisStrawNumber[ibe];
                         HitAonTMapS_passed = 1.0;
                         fill("TRTTrackHistograms"+std::to_string(ibe)+std::to_string(iphi_module), HitAonTMapS_passed, HitAonTMapS);
+                        
+                    if (!is_middleHTbit_high) {
+                        HtoLonTMapS = thisStrawNumber[ibe];
+                        HtoLonTMapS_passed = 0.0;
+                        fill("TRTTrackHistograms"+std::to_string(ibe)+std::to_string(iphi_module), HtoLonTMapS_passed, HtoLonTMapS);
+                    }
                     }
 
                     if (m_doExpert && m_doChips) {
                         HitAonTMapC = chip[ibe] - 1;
                         HitAonTMapC_passed = 1.0;
                         fill("TRTTrackHistograms"+std::to_string(ibe)+std::to_string(iphi_module), HitAonTMapC_passed, HitAonTMapC);
+                        if (!is_middleHTbit_high) {
+                            HtoLonTMapC = chip[ibe] - 1;
+                            HtoLonTMapC_passed = 0.0;
+                            fill("TRTTrackHistograms"+std::to_string(ibe)+std::to_string(iphi_module), HtoLonTMapC_passed, HtoLonTMapC);
+                        }
                     }
 
                     nTRTHitsW[ibe][iside]++;
@@ -1904,17 +2130,36 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTHits(const TrackCollection& trackCol
                     }
                 }
 
+                // Experimental
+                if (m_doExpert && m_doStraws) {
+                    double histLow = 0;
+                    double histBinWidth = 1;
+                    FILLEVENTNORMALIZATION(m_strawMax[ibe], histLow, histBinWidth, thisStrawNumber[ibe], HitAWonTMapS_passed, HitAWonTMapS, "TRTTrackHistograms"+std::to_string(ibe)+std::to_string(iphi_module))
+                }
+
                 if (is_anybininVgate_high) {
                     if (m_doExpert && m_doStraws) {
                         HitAWonTMapS = thisStrawNumber[ibe];
                         HitAWonTMapS_passed = 1.0;
                         fill("TRTTrackHistograms"+std::to_string(ibe)+std::to_string(iphi_module), HitAWonTMapS_passed, HitAWonTMapS);
+                        
+                        if (!is_middleHTbit_high) {
+                            HtoLWonTMapS = thisStrawNumber[ibe];
+                            HtoLWonTMapS_passed = 0.0;
+                            fill("TRTTrackHistograms"+std::to_string(ibe)+std::to_string(iphi_module), HtoLWonTMapS_passed, HtoLWonTMapS);
+                        }
                     }
 
                     if (m_doExpert && m_doChips) {
                         HitAWonTMapC = chip[ibe] - 1;
                         HitAWonTMapC_passed = 1.0;
                         fill("TRTTrackHistograms"+std::to_string(ibe)+std::to_string(iphi_module), HitAWonTMapC_passed, HitAWonTMapC);
+                        
+                        if (!is_middleHTbit_high) {
+                            HtoLWonTMapC = chip[ibe] - 1;
+                            HtoLWonTMapC_passed = 0.0;
+                            fill("TRTTrackHistograms"+std::to_string(ibe)+std::to_string(iphi_module), HtoLWonTMapC_passed, HtoLWonTMapC);
+                        }
                     }
                 }
             }
@@ -1995,9 +2240,9 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTHits(const TrackCollection& trackCol
                     } else if (nTRTHitsW[ibe][1] > 0) {
                         if (ECChit && !ECAhit && !Bhit) {
                             NumSwLLWoT_E = nTRTHitsW[ibe][1];
-                            fill("ShiftTRTTrackHistograms"+std::to_string(ibe)+"0", NumSwLLWoT_E);
+                            fill("ShiftTRTTrackHistograms"+std::to_string(ibe)+"1", NumSwLLWoT_E);
                         }
-                    }
+                    } 
 
                     for (int iside = 0; iside < 2; iside++) {
                         if (nTRTHLHitsW[ibe][iside] > 0) {

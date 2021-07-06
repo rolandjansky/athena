@@ -55,7 +55,7 @@ ByteStreamAddre...  DEBUG in preLoadAddress
 EventSelector       DEBUG Property update for OutputLevel : new value = 2
 EventSelector       DEBUG Initializing EventSelector
 EventSelector       DEBUG Service base class initialized successfully
-ByteStreamInputSvc   INFO Initializing ByteStreamInputSvc - package version ByteStreamCnvSvc-00-00-00
+ByteStreamInputSvc   INFO Initializing
 ROBDataProviderSvc   INFO Initializing ROBDataProviderSvc - package version ByteStreamCnvSvcBase-00-00-00
 ROBDataProviderSvc   INFO  ---> Filter out empty ROB fragments                               =  'filterEmptyROB':False
 ROBDataProviderSvc   INFO  ---> Filter out specific ROBs by Status Code: # ROBs = 0

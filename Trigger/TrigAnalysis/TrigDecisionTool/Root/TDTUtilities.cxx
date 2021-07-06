@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <boost/algorithm/string.hpp>
@@ -12,7 +12,6 @@
 #include <string>
 #include <vector>
 
-#include "TPython.h"
 #include "TTree.h"
 #include "TROOT.h"
 
@@ -59,40 +58,6 @@ Trig::keyWrap(const std::vector< std::string >& triggerNames) {
   v.erase( std::unique(v.begin(),v.end()),v.end());
   return v;
 }
-
-
-void
-Trig::BuildTransientTrees(const std::vector< std::string >& PoolFileList, TTree*& eventTree, TTree*& metadataTree) {
-
-   // import necessary python libs
-   TPython::Exec("import ROOT");
-   TPython::Exec("import AthenaROOTAccess.transientTree");
-   
-   // create the persistent trees
-   TPython::Exec("ct = ROOT.AthenaROOTAccess.TChainROOTAccess(\'CollectionTree\')");
-   TPython::Exec("mdt = ROOT.AthenaROOTAccess.TChainROOTAccess(\'MetaData\')");
-   for(std::vector<std::string>::const_iterator fIt = PoolFileList.begin(); fIt != PoolFileList.end(); fIt++ ) {
-      std::string inputAODCT  = "ct.Add(\""  + *fIt + "/CollectionTree\")";
-      std::string inputAODMDT = "mdt.Add(\"" + *fIt + "/MetaData\")";
-      TPython::Exec(inputAODCT.c_str());
-      TPython::Exec(inputAODMDT.c_str());
-   }
-   TPython::Exec("trct  = AthenaROOTAccess.transientTree.makeTree(ct)");
-   TPython::Exec("trmdt = AthenaROOTAccess.transientTree.makeTree(mdt, persTreeName = \'MetaData\', dhTreeName = \'MetaDataHdrDataHeader\')");
-
-   eventTree    = (TTree*)gROOT->Get("CollectionTree_trans");
-   metadataTree = (TTree*)gROOT->Get("MetaData_trans");
-
-}
-
-void
-Trig::DestroyTransientTrees() {
-   TPython::Exec("del ct");
-   TPython::Exec("del mdt");
-   TPython::Exec("del trct");
-   TPython::Exec("del trmdt");
-}
-
 
 
 std::string Trig::getTEName(const HLT::TriggerElement& te)

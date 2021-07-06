@@ -27,7 +27,7 @@ class SimHitHandleBase;
 class AscObj_TruthPoint : public AssociatedObjectHandleBase {
 public:
 
-  AscObj_TruthPoint( TrackHandleBase*, const HepMC::GenVertex * v, const HepMC::GenParticle * p );
+  AscObj_TruthPoint( TrackHandleBase*, HepMC::ConstGenVertexPtr  v, HepMC::ConstGenParticlePtr p );
   AscObj_TruthPoint( TrackHandleBase*, SimHitHandleBase* );
   virtual ~AscObj_TruthPoint();
 

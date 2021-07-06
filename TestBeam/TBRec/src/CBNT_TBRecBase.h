@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -22,19 +22,19 @@ class CBNT_TBRecBase : public AthAlgorithm {
 
  public:
   CBNT_TBRecBase(const std::string & name, ISvcLocator * pSvcLocator);
-  ~CBNT_TBRecBase();
+  virtual ~CBNT_TBRecBase();
 
   //Standard algo methods
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
-  StatusCode pre_execute();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
+  virtual StatusCode pre_execute();
 
   //These needs to be implemented by the deriving class
-  virtual StatusCode CBNT_initialize(){return StatusCode::SUCCESS;}
-  virtual StatusCode CBNT_execute(){return StatusCode::SUCCESS;}
-  virtual StatusCode CBNT_finalize(){return StatusCode::SUCCESS;}
-  virtual StatusCode CBNT_clear(){return StatusCode::SUCCESS;}
+  virtual StatusCode CBNT_initialize() {return StatusCode::SUCCESS;}
+  virtual StatusCode CBNT_execute() {return StatusCode::SUCCESS;}
+  virtual StatusCode CBNT_finalize() {return StatusCode::SUCCESS;}
+  virtual StatusCode CBNT_clear() {return StatusCode::SUCCESS;}
 
  private:
   bool m_initialized;

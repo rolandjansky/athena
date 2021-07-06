@@ -29,7 +29,7 @@ class IntersectorWrapper final: public AthAlgTool,
     using IPropagator::propagate;
     using IPropagator::propagateT;
 
-    IntersectorWrapper	(const std::string& type, 
+    IntersectorWrapper	(const std::string& type,
                          const std::string& name,
                          const IInterface* parent);
     ~IntersectorWrapper	(void); 	// destructor
@@ -43,13 +43,15 @@ class IntersectorWrapper final: public AthAlgTool,
       - returns a ParametersBase object as well, 0 if the extrapolation did not succeed
       */
     /// implemented
-    virtual  NeutralParameters* propagate(const NeutralParameters&,
-                                       const Surface&,
-                                       PropDirection,
-                                       const BoundaryCheck& ,
-                                       bool) const override;
+    virtual std::unique_ptr<NeutralParameters> propagate(
+      const NeutralParameters&,
+      const Surface&,
+      PropDirection,
+      const BoundaryCheck&,
+      bool) const override;
 
-    /** [TrackParameters] --------------------------------------------------------- */
+    /** [TrackParameters]
+     * --------------------------------------------------------- */
 
     /** Propagation interface:
 
@@ -57,15 +59,16 @@ class IntersectorWrapper final: public AthAlgTool,
       is responsible for the underlying logic of which surface to go to.
       */
     /// implemented
-    virtual  TrackParameters*      propagate( const EventContext&     ctx,
-                                              const TrackParameters&  parm,
-                                              const Surface&          sf,
-                                              PropDirection           dir,
-                                              const BoundaryCheck&    bcheck,
-                                              const MagneticFieldProperties& mprop,
-                                              ParticleHypothesis             particle,
-                                              bool                           returnCurv,
-                                              const TrackingVolume*) const   override final;
+    virtual  std::unique_ptr<TrackParameters>
+    propagate( const EventContext&     ctx,
+              const TrackParameters&  parm,
+              const Surface&          sf,
+              PropDirection           dir,
+              const BoundaryCheck&    bcheck,
+              const MagneticFieldProperties& mprop,
+              ParticleHypothesis             particle,
+              bool                           returnCurv,
+              const TrackingVolume*) const   override final;
 
 
     /** Propagation interface:
@@ -73,34 +76,36 @@ class IntersectorWrapper final: public AthAlgTool,
       The propagation method called by the TrkExtrapolator. The propagator
       finds the closest surface.
       */
-    virtual TrackParameters* propagate( const EventContext&,
-                                        const TrackParameters&,
-                                        std::vector<DestSurf>&,
-                                        PropDirection,
-                                        const MagneticFieldProperties&,
-                                        ParticleHypothesis,
-                                        std::vector<unsigned int>&,
-                                        double&,
-                                        bool,
-                                        bool,
-                                        const TrackingVolume*) const override{ return 0; }
+    virtual std::unique_ptr<TrackParameters>
+    propagate( const EventContext&,
+              const TrackParameters&,
+              std::vector<DestSurf>&,
+              PropDirection,
+              const MagneticFieldProperties&,
+              ParticleHypothesis,
+              std::vector<unsigned int>&,
+              double&,
+              bool,
+              bool,
+              const TrackingVolume*) const override{ return 0; }
 
     /** Propagation interface:
 
       The propagation method called by the TrkExtrapolator. The propagator
       finds the closest surface. Timing included.
       */
-    virtual  TrackParameters* propagateT( const EventContext&,
-                                          const TrackParameters&,
-                                          std::vector<DestSurf>&,
-                                          PropDirection,
-                                          const MagneticFieldProperties&,
-                                          ParticleHypothesis,
-                                          std::vector<unsigned int>&,
-                                          PathLimit&, TimeLimit&,
-                                          bool,
-                                          const TrackingVolume*,
-                                          std::vector<Trk::HitInfo>*&) const override{ return 0; }
+    virtual std::unique_ptr<TrackParameters>
+    propagateT( const EventContext&,
+                const TrackParameters&,
+                std::vector<DestSurf>&,
+                PropDirection,
+                const MagneticFieldProperties&,
+                ParticleHypothesis,
+                std::vector<unsigned int>&,
+                PathLimit&, TimeLimit&,
+                bool,
+                const TrackingVolume*,
+                std::vector<Trk::HitInfo>*&) const override{ return 0; }
 
 
     /** Propagation interface:
@@ -109,35 +114,38 @@ class IntersectorWrapper final: public AthAlgTool,
 
 */
     /// implemented
-    virtual  TrackParameters*      propagate( const EventContext&          ctx,
-                                              const TrackParameters&,
-                                              const Surface&,
-                                              PropDirection,
-                                              const BoundaryCheck& ,
-                                              const MagneticFieldProperties&,
-                                              TransportJacobian*&,
-                                              double&,
-                                              ParticleHypothesis,
-                                              bool,
-                                              const TrackingVolume*) const override;
+    virtual std::unique_ptr<TrackParameters>
+    propagate( const EventContext&          ctx,
+              const TrackParameters&,
+              const Surface&,
+              PropDirection,
+              const BoundaryCheck& ,
+              const MagneticFieldProperties&,
+              TransportJacobian*&,
+              double&,
+              ParticleHypothesis,
+              bool,
+              const TrackingVolume*) const override;
 
     /** Propagation interface without Covariance matrix propagation
       the pathlength has to be returned for eventual following propagateCovariance
       */
     /// implemented
     using Trk::IPropagator::propagateParameters;
-    virtual  TrackParameters*      propagateParameters( const EventContext&            ctx,
-                                                        const TrackParameters&         parm,
-                                                        const Surface&                 sf,
-                                                        PropDirection                  dir,
-                                                        const BoundaryCheck&           bcheck,
-                                                        const MagneticFieldProperties& mprop,
-                                                        ParticleHypothesis             particle   = pion,
-                                                        bool                           returnCurv = false,
-                                                        const TrackingVolume*          tVol       = nullptr) const override;
+    virtual std::unique_ptr<TrackParameters>
+    propagateParameters( const EventContext&            ctx,
+                        const TrackParameters&         parm,
+                        const Surface&                 sf,
+                        PropDirection                  dir,
+                        const BoundaryCheck&           bcheck,
+                        const MagneticFieldProperties& mprop,
+                        ParticleHypothesis             particle   = pion,
+                        bool                           returnCurv = false,
+                        const TrackingVolume*          tVol       = nullptr) const override;
 
     /// implemented
-    virtual  TrackParameters*      propagateParameters( const EventContext&            ctx,
+    virtual std::unique_ptr<TrackParameters>
+    propagateParameters( const EventContext&            ctx,
                                                         const TrackParameters&         parm,
                                                         const Surface&                 sf,
                                                         PropDirection                  dir,
@@ -172,7 +180,7 @@ class IntersectorWrapper final: public AthAlgTool,
       */
     using Trk::IPropagator::globalPositions;
     virtual void globalPositions(const EventContext&            ctx,
-                                 std::list<Amg::Vector3D>&      positionslist, 
+                                 std::list<Amg::Vector3D>&      positionslist,
                                  const TrackParameters&         parm,
                                  const MagneticFieldProperties& mprop,
                                  const CylinderBounds&          cylbo,
@@ -180,7 +188,7 @@ class IntersectorWrapper final: public AthAlgTool,
                                  ParticleHypothesis             particle = pion,
                                  const TrackingVolume*          tVol     = nullptr) const override;
 
-    //placeholder for compatibility with new interface                                                                                                                        
+    //placeholder for compatibility with new interface
     using Trk::IPropagator::intersectSurface;
     virtual const TrackSurfaceIntersection* intersectSurface(const EventContext&,
                                                              const Surface&,
@@ -200,11 +208,11 @@ class IntersectorWrapper final: public AthAlgTool,
       double			                                    m_charge;
       double			                                    m_qOverP;
       std::unique_ptr<const TrackSurfaceIntersection> m_intersection;
-      TrackParameters*                         	      m_parameters;
+      std::unique_ptr<TrackParameters>                m_parameters;
       Amg::Vector3D		                                m_position;
       Amg::Vector3D		                                m_momentum;
 
-      Cache():	
+      Cache():
         m_charge{},
         m_qOverP{},
         m_intersection{nullptr},
@@ -214,13 +222,13 @@ class IntersectorWrapper final: public AthAlgTool,
         }
     };
     // private methods
-    void			
-      createParameters (Cache& cache, 
+    void
+      createParameters (Cache& cache,
                         const Surface&	surface,
                         const BoundaryCheck& 		boundsCheck,
                         bool			curvilinear) const;
-    void			
-      findIntersection (Cache& cache, 
+    void
+      findIntersection (Cache& cache,
                         const TrackParameters& parameters,
                         const Surface&	surface,
                         PropDirection		dir = Trk::anyDirection) const;

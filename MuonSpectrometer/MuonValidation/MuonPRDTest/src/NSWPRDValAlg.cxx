@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <fstream>
@@ -7,63 +7,27 @@
 // NSWValAlg inlcudes
 #include "NSWPRDValAlg.h"
 
-#include "MMDigitVariables.h"
-#include "MMSimHitVariables.h"
-#include "MDTSimHitVariables.h"
-#include "RPCSimHitVariables.h"
-#include "MMSDOVariables.h"
-#include "MMRDOVariables.h"
-#include "MMPRDVariables.h"
-
-#include "sTGCDigitVariables.h"
-#include "sTGCSimHitVariables.h"
-#include "sTGCRDOVariables.h"
-#include "sTGCSDOVariables.h"
-#include "sTGCPRDVariables.h"
-
-#include "CSCDigitVariables.h"
-
-#include "MuEntryVariables.h"
-#include "TruthVariables.h"
-
 #include "EDM_object.h"
 
 // Other NSW includes
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-
-// ROOT includes
-#include "TTree.h"
 
 // Misc includes
 #include "GaudiKernel/ITHistSvc.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
+#include "TGCcablingInterface/ITGCcablingServerSvc.h"
 
-NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator),
-    m_TruthVar(nullptr),
-    m_MuEntryVar(nullptr),
-    m_sTgcSimHitVar(nullptr),
-    m_sTgcRdoVar(nullptr),
-    m_sTgcSdoVar(nullptr),
-    m_sTgcFastSdoVar(nullptr),
-    m_sTgcDigitVar(nullptr),
-    m_sTgcPrdVar(nullptr),
-    m_MmSimHitVar(nullptr),
-    m_MmSdoVar(nullptr),
-    m_MmFastSdoVar(nullptr),
-    m_MmDigitVar(nullptr),
-    m_MmRdoVar(nullptr),
-    m_MmPrdVar(nullptr),
-    m_CscDigitVar(nullptr),
-    m_MDTSimHitVar(nullptr),
-    m_RPCSimHitVar(nullptr),
-    m_thistSvc(nullptr),
+
+NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator) :
+    AthAlgorithm(name, pSvcLocator),
     m_tree(nullptr),
+    m_muonDetMgrDS(nullptr),
+    m_tgcCabling(nullptr),
+    m_thistSvc(nullptr),
     m_runNumber(0),
-    m_eventNumber(0)
-{
+    m_eventNumber(0) {
   // Input properties: Container names
   declareProperty("Truth_ContainerName",            m_Truth_ContainerName="TruthEvent");
   declareProperty("MuonEntryLayer_ContainerName",   m_MuEntry_ContainerName="MuonEntryLayer");
@@ -79,7 +43,15 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("NSWMM_PRDContainerName",         m_NSWMM_PRDContainerName="MM_Measurements");
   declareProperty("CSC_DigitContainerName",         m_CSC_DigitContainerName="CSC_DIGITS");
   declareProperty("MDT_SimContainerName",           m_MDT_SimContainerName="MDT_Hits");
+  declareProperty("MDT_SDOContainerName",           m_MDT_SDOContainerName="MDT_SDO");
+  declareProperty("MDT_DigitContainerName",         m_MDT_DigitContainerName="MDT_DIGITS");
   declareProperty("RPC_SimContainerName",           m_RPC_SimContainerName="RPC_Hits");
+  declareProperty("RPC_SDOContainerName",           m_RPC_SDOContainerName="RPC_SDO");
+  declareProperty("RPC_DigitContainerName",         m_RPC_DigitContainerName="RPC_DIGITS");
+  declareProperty("CSC_SimContainerName",           m_CSC_SimContainerName="CSC_Hits");
+  declareProperty("TGC_SimContainerName",           m_TGC_SimContainerName="TGC_Hits");
+  declareProperty("TGC_DigitContainerName",         m_TGC_DigitContainerName="TGC_DIGITS");
+  declareProperty("TGC_RDOContainerName",           m_TGC_RDOContainerName="TGCRDO");
 
   // Input properties: do EDM objects
   declareProperty("isData",          m_isData=false);
@@ -97,7 +69,15 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("doMMPRD",         m_doMMPRD=false);
   declareProperty("doCSCDigit",      m_doCSCDigit=false);
   declareProperty("doMDTHit",        m_doMDTHit=false);
+  declareProperty("doMDTSDO",        m_doMDTSDO=false);
+  declareProperty("doMDTDigit",      m_doMDTDigit=false);
   declareProperty("doRPCHit",        m_doRPCHit=false);
+  declareProperty("doRPCSDO",        m_doRPCSDO=false);
+  declareProperty("doRPCDigit",      m_doRPCDigit=false);
+  declareProperty("doCSCHit",        m_doCSCHit=false);
+  declareProperty("doTGCHit",        m_doTGCHit=false);
+  declareProperty("doTGCDigit",      m_doTGCDigit=false);
+  declareProperty("doTGCRDO",        m_doTGCRDO=false);
 
   // Input properties: NSW Maching algorithm
   declareProperty("doNSWMatchingAlg",   m_doNSWMatching=true);
@@ -129,37 +109,37 @@ StatusCode NSWPRDValAlg::initialize() {
   ATH_CHECK(m_idHelperSvc.retrieve());
 
   if (m_doTruth){
-     m_TruthVar = new TruthVariables(&(*(evtStore())), m_muonDetMgrDS,
+     m_TruthVar = std::make_unique<TruthVariables>(&(*(evtStore())), m_muonDetMgrDS,
                                                 m_tree, m_Truth_ContainerName, msgLevel());
      ATH_CHECK( m_TruthVar->initializeVariables() );
   }
 
   if (m_doMuEntry){
-     m_MuEntryVar = new MuEntryVariables(&(*(evtStore())), m_muonDetMgrDS,
+     m_MuEntryVar = std::make_unique<MuEntryVariables>(&(*(evtStore())), m_muonDetMgrDS,
                                                 m_tree, m_MuEntry_ContainerName, msgLevel());
      ATH_CHECK( m_MuEntryVar->initializeVariables() );
   }
 
   if (m_doSTGCHit){
-     m_sTgcSimHitVar = new sTGCSimHitVariables(&(*(evtStore())), m_muonDetMgrDS,
+     m_sTgcSimHitVar = std::make_unique<sTGCSimHitVariables>(&(*(evtStore())), m_muonDetMgrDS,
                                                 &m_idHelperSvc->stgcIdHelper(), m_tree, m_NSWsTGC_ContainerName, msgLevel());
      ATH_CHECK( m_sTgcSimHitVar->initializeVariables() );
   }
   
   if (m_doSTGCDigit){
-     m_sTgcDigitVar = new sTGCDigitVariables(&(*(evtStore())), m_muonDetMgrDS,
+     m_sTgcDigitVar = std::make_unique<sTGCDigitVariables>(&(*(evtStore())), m_muonDetMgrDS,
                                                 &m_idHelperSvc->stgcIdHelper(), m_tree, m_NSWsTGC_DigitContainerName, msgLevel());
      ATH_CHECK( m_sTgcDigitVar->initializeVariables() );
 
       // Take SDO conainer
-     m_sTgcSdoVar = new sTGCSDOVariables(&(*(evtStore())), m_muonDetMgrDS,
+     m_sTgcSdoVar = std::make_unique<sTGCSDOVariables>(&(*(evtStore())), m_muonDetMgrDS,
                                                 &m_idHelperSvc->stgcIdHelper(), m_tree, m_NSWsTGC_SDOContainerName, msgLevel());
      ATH_CHECK( m_sTgcSdoVar->initializeVariables() );
   }
 
   if (m_doSTGCFastDigit){
       // Take the "fast_SDO" instead of the SDOs from full sim
-     m_sTgcFastSdoVar = new sTGCSDOVariables(&(*(evtStore())), m_muonDetMgrDS,
+     m_sTgcFastSdoVar = std::make_unique<sTGCSDOVariables>(&(*(evtStore())), m_muonDetMgrDS,
                                                 &m_idHelperSvc->stgcIdHelper(), m_tree, "sTGCfast_SDO", msgLevel());
      ATH_CHECK( m_sTgcFastSdoVar->initializeVariables() );
 
@@ -168,37 +148,37 @@ StatusCode NSWPRDValAlg::initialize() {
   }
 
   if (m_doSTGCRDO){
-     m_sTgcRdoVar = new sTGCRDOVariables(&(*(evtStore())), m_muonDetMgrDS,
+     m_sTgcRdoVar = std::make_unique<sTGCRDOVariables>(&(*(evtStore())), m_muonDetMgrDS,
                                                 &m_idHelperSvc->stgcIdHelper(), m_tree, m_NSWsTGC_RDOContainerName, msgLevel());
      ATH_CHECK( m_sTgcRdoVar->initializeVariables() );
   }
 
   if (m_doSTGCPRD){
-     m_sTgcPrdVar = new sTGCPRDVariables(&(*(evtStore())), m_muonDetMgrDS,
+     m_sTgcPrdVar = std::make_unique<sTGCPRDVariables>(&(*(evtStore())), m_muonDetMgrDS,
                                                 &m_idHelperSvc->stgcIdHelper(), m_tree, m_NSWsTGC_PRDContainerName, msgLevel());
      ATH_CHECK( m_sTgcPrdVar->initializeVariables() );
   }
 
   if (m_doMMHit) {
-     m_MmSimHitVar = new MMSimHitVariables(&(*(evtStore())), m_muonDetMgrDS,
+     m_MmSimHitVar = std::make_unique<MMSimHitVariables>(&(*(evtStore())), m_muonDetMgrDS,
                                                 &m_idHelperSvc->mmIdHelper(), m_tree, m_NSWMM_ContainerName, msgLevel());
      ATH_CHECK( m_MmSimHitVar->initializeVariables() );
   }
 
   if (m_doMMDigit) {
-     m_MmDigitVar = new MMDigitVariables(&(*(evtStore())), m_muonDetMgrDS,
+     m_MmDigitVar = std::make_unique< MMDigitVariables>(&(*(evtStore())), m_muonDetMgrDS,
                                                 &m_idHelperSvc->mmIdHelper(), m_tree, m_NSWMM_DigitContainerName, msgLevel());
      ATH_CHECK( m_MmDigitVar->initializeVariables() );
 
      // Take SDO conainer
-     m_MmSdoVar = new MMSDOVariables(&(*(evtStore())), m_muonDetMgrDS,
+     m_MmSdoVar = std::make_unique<MMSDOVariables>(&(*(evtStore())), m_muonDetMgrDS,
                                                 &m_idHelperSvc->mmIdHelper(), m_tree, m_NSWMM_SDOContainerName, msgLevel());
      ATH_CHECK( m_MmSdoVar->initializeVariables() );
   }
 
   if (m_doMMFastDigit){
       // Take the "fast_SDO" instead of the SDOs from full sim
-     m_MmFastSdoVar = new MMSDOVariables(&(*(evtStore())), m_muonDetMgrDS,
+     m_MmFastSdoVar = std::make_unique<MMSDOVariables>(&(*(evtStore())), m_muonDetMgrDS,
                                                 &m_idHelperSvc->mmIdHelper(), m_tree, "MMfast_SDO", msgLevel());
      ATH_CHECK( m_MmFastSdoVar->initializeVariables() );
 
@@ -208,34 +188,88 @@ StatusCode NSWPRDValAlg::initialize() {
 
   if (m_doMMRDO) {
 
-    m_MmRdoVar = new MMRDOVariables(&(*(evtStore())), m_muonDetMgrDS,
+    m_MmRdoVar = std::make_unique<MMRDOVariables>(&(*(evtStore())), m_muonDetMgrDS,
                                                 &m_idHelperSvc->mmIdHelper(), m_tree, m_NSWMM_RDOContainerName, msgLevel());
     ATH_CHECK( m_MmRdoVar->initializeVariables() );
   }
 
  if (m_doMMPRD){
-     m_MmPrdVar = new MMPRDVariables(&(*(evtStore())), m_muonDetMgrDS,
+     m_MmPrdVar = std::make_unique<MMPRDVariables>(&(*(evtStore())), m_muonDetMgrDS,
                                                 &m_idHelperSvc->mmIdHelper(), m_tree, m_NSWMM_PRDContainerName, msgLevel());
      ATH_CHECK( m_MmPrdVar->initializeVariables() );
   }
 
   if (m_doCSCDigit){
-     m_CscDigitVar = new CSCDigitVariables(&(*(evtStore())), m_muonDetMgrDS,
+     m_CscDigitVar = std::make_unique<CSCDigitVariables>(&(*(evtStore())), m_muonDetMgrDS,
                                                 &m_idHelperSvc->cscIdHelper(), m_tree, m_CSC_DigitContainerName, msgLevel());
      ATH_CHECK( m_CscDigitVar->initializeVariables() );
   }
 
   if (m_doMDTHit){
-     m_MDTSimHitVar = new MDTSimHitVariables(&(*(evtStore())), m_muonDetMgrDS,
+     m_MDTSimHitVar = std::make_unique<MDTSimHitVariables>(&(*(evtStore())), m_muonDetMgrDS,
                                              &m_idHelperSvc->mdtIdHelper(), m_tree, m_MDT_SimContainerName, msgLevel());
      ATH_CHECK( m_MDTSimHitVar->initializeVariables() );
   }
+  if (m_doMDTSDO){
+     m_MDTSDOVar = std::make_unique<MdtSDOVariables>(&(*(evtStore())), m_muonDetMgrDS,
+                                             &m_idHelperSvc->mdtIdHelper(), m_tree, m_MDT_SDOContainerName, msgLevel());
+     ATH_CHECK( m_MDTSDOVar->initializeVariables() );
+  }
+  if (m_doMDTDigit){
+     m_MDTDigitVar = std::make_unique<MdtDigitVariables>(&(*(evtStore())), m_muonDetMgrDS,
+                                             &m_idHelperSvc->mdtIdHelper(), m_tree, m_MDT_DigitContainerName, msgLevel());
+     ATH_CHECK( m_MDTDigitVar->initializeVariables() );
+  }
 
-    if (m_doRPCHit){
-     m_RPCSimHitVar = new RPCSimHitVariables(&(*(evtStore())), m_muonDetMgrDS,
+  if (m_doRPCHit){
+     m_RPCSimHitVar = std::make_unique<RPCSimHitVariables>(&(*(evtStore())), m_muonDetMgrDS,
                                              &m_idHelperSvc->rpcIdHelper(), m_tree, m_RPC_SimContainerName, msgLevel());
      ATH_CHECK( m_RPCSimHitVar->initializeVariables() );
   }
+  if (m_doRPCSDO){
+     m_RPCSDOVar = std::make_unique<RpcSDOVariables>(&(*(evtStore())), m_muonDetMgrDS,
+                                             &m_idHelperSvc->rpcIdHelper(), m_tree, m_RPC_SDOContainerName, msgLevel());
+     ATH_CHECK( m_RPCSDOVar->initializeVariables() );
+  }
+  if (m_doRPCDigit){
+     m_RPCDigitVar = std::make_unique<RpcDigitVariables>(&(*(evtStore())), m_muonDetMgrDS,
+                                             &m_idHelperSvc->rpcIdHelper(), m_tree, m_RPC_DigitContainerName, msgLevel());
+     ATH_CHECK( m_RPCDigitVar->initializeVariables() );
+  }
+  
+  if (m_doCSCHit){
+     m_CSCSimHitVar = std::make_unique<CSCSimHitVariables>(&(*(evtStore())), m_muonDetMgrDS,
+                                             &m_idHelperSvc->cscIdHelper(), m_tree, m_CSC_SimContainerName, msgLevel());
+     ATH_CHECK( m_CSCSimHitVar->initializeVariables() );
+  }
+
+  if (m_doTGCHit){
+     m_TGCSimHitVar = std::make_unique<TGCSimHitVariables>(&(*(evtStore())), m_muonDetMgrDS,
+                                             &m_idHelperSvc->tgcIdHelper(), m_tree, m_TGC_SimContainerName, msgLevel());
+     ATH_CHECK( m_TGCSimHitVar->initializeVariables() );
+  }
+
+  if (m_doTGCDigit){
+     m_TgcDigitVar = std::make_unique<TGCDigitVariables>(&(*(evtStore())), m_muonDetMgrDS,
+                                                &m_idHelperSvc->tgcIdHelper(), m_tree, m_TGC_DigitContainerName, msgLevel());
+     ATH_CHECK( m_TgcDigitVar->initializeVariables() );
+  }
+
+  if (m_retrieveTgcCabling) {
+     const ITGCcablingServerSvc* TgcCabGet = nullptr;
+     ATH_CHECK(service("TGCcablingServerSvc", TgcCabGet, true));
+     ATH_CHECK(TgcCabGet->giveCabling(m_tgcCabling));
+  }
+
+  if (m_doTGCRDO) {
+
+    m_TgcRdoVar = std::make_unique<TGCRDOVariables>(&(*(evtStore())), m_muonDetMgrDS,
+                                                &m_idHelperSvc->tgcIdHelper(), m_tree, m_TGC_RDOContainerName, msgLevel());
+    ATH_CHECK( m_TgcRdoVar->initializeVariables() );
+  }
+
+  if (m_retrieveTgcCabling) m_TgcRdoVar->setTgcCabling(m_tgcCabling);
+
   return StatusCode::SUCCESS;
 }
 
@@ -243,25 +277,6 @@ StatusCode NSWPRDValAlg::finalize()
 {
   ATH_MSG_DEBUG("NSWPRDValAlg:: Finalize + Matching");
   if (m_doNSWMatching) { ATH_CHECK ( NSWMatchingAlg() );} 
-
-  if (m_TruthVar) { delete m_TruthVar; m_TruthVar=0;}
-  if (m_doMuEntry) { delete m_MuEntryVar; m_MuEntryVar=0;}
-  if (m_sTgcSimHitVar) { delete m_sTgcSimHitVar; m_sTgcSimHitVar=0;}
-  if (m_sTgcRdoVar) { delete m_sTgcRdoVar; m_sTgcRdoVar=0;}
-  if (m_sTgcSdoVar) { delete m_sTgcSdoVar; m_sTgcSdoVar=0;}
-  if (m_sTgcFastSdoVar) { delete m_sTgcSdoVar; m_sTgcSdoVar=0;}
-  if (m_sTgcDigitVar) { delete m_sTgcDigitVar; m_sTgcDigitVar=0;}
-  if (m_sTgcPrdVar) { delete m_sTgcPrdVar; m_sTgcPrdVar=0;}
-  if (m_MmSimHitVar) { delete m_MmSimHitVar; m_MmSimHitVar=0;}
-  if (m_MmSdoVar) { delete m_MmSdoVar; m_MmSdoVar=0;}
-  if (m_MmFastSdoVar) { delete m_MmSdoVar; m_MmSdoVar=0;}
-  if (m_MmDigitVar) { delete m_MmDigitVar; m_MmDigitVar=0;}
-  if (m_MmRdoVar) { delete m_MmRdoVar; m_MmRdoVar=0;}
-  if (m_MmPrdVar) { delete m_MmPrdVar; m_MmPrdVar=0;}
-  if (m_CscDigitVar) { delete m_CscDigitVar; m_CscDigitVar=0;}
-  if (m_MDTSimHitVar) { delete m_MDTSimHitVar; m_MDTSimHitVar=0;}
-  if (m_RPCSimHitVar) { delete m_RPCSimHitVar; m_RPCSimHitVar=0;}
-
   return StatusCode::SUCCESS;
 }
 
@@ -320,8 +335,20 @@ StatusCode NSWPRDValAlg::execute()
   if (m_doCSCDigit) ATH_CHECK( m_CscDigitVar->fillVariables(muonDetMgr) );
 
   if (m_doMDTHit) ATH_CHECK( m_MDTSimHitVar->fillVariables(muonDetMgr) );
+  if (m_doMDTSDO) ATH_CHECK( m_MDTSDOVar->fillVariables(muonDetMgr) );  
+  if (m_doMDTDigit) ATH_CHECK( m_MDTDigitVar->fillVariables(muonDetMgr) );
 
   if (m_doRPCHit) ATH_CHECK( m_RPCSimHitVar->fillVariables(muonDetMgr) );
+  if (m_doRPCSDO) ATH_CHECK( m_RPCSDOVar->fillVariables(muonDetMgr) );
+  if (m_doRPCDigit) ATH_CHECK( m_RPCDigitVar->fillVariables(muonDetMgr) );
+
+  if (m_doCSCHit) ATH_CHECK( m_CSCSimHitVar->fillVariables(muonDetMgr) );
+
+  if (m_doTGCHit) ATH_CHECK( m_TGCSimHitVar->fillVariables(muonDetMgr) );
+
+  if (m_doTGCDigit) ATH_CHECK( m_TgcDigitVar->fillVariables(muonDetMgr) );
+
+  if (m_doTGCRDO) ATH_CHECK( m_TgcRdoVar->fillVariables(muonDetMgr) );
 
   m_tree->Fill();
 

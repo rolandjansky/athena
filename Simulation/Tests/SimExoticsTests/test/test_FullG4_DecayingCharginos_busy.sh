@@ -9,6 +9,7 @@
 # art-include: master/Athena
 # art-include: master/AthSimulation
 # art-output: *.root
+# art-output: PDGTABLE.MeV
 
 # MC16 setup
 # ATLAS-R2-2016-01-00-01 and OFLCOND-MC16-SDR-14
@@ -33,7 +34,7 @@ if [ $rc -eq 0 ]
 then
     ArtPackage=$1
     ArtJobName=$2
-    art.py compare grid --entries 4 ${ArtPackage} ${ArtJobName} --mode=semi-detailed
+    art.py compare grid --entries 4 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --txt-file=PDGTABLE.MeV
     rc2=$?
 fi
 echo  "art-result: $rc2 regression"

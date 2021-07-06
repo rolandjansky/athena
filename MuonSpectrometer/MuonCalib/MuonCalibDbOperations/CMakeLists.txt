@@ -16,13 +16,13 @@ atlas_add_library( MuonCalibDbOperationsLib
                    src/*.cxx
                    PUBLIC_HEADERS MuonCalibDbOperations
                    PRIVATE_INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthenaBaseComps GaudiKernel MdtCalibUtils MuonCalibStandAloneBaseLib StoreGateLib SGtests MuonIdHelpersLib z
+                   LINK_LIBRARIES AthenaBaseComps GaudiKernel MdtCalibUtils MuonCalibStandAloneBaseLib StoreGateLib MuonIdHelpersLib z
                    PRIVATE_LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaKernel MdtCalibData MdtCalibRt MuonCalibIdentifier MuonCalibMath MuonReadoutGeometry )
 
 atlas_add_component( MuonCalibDbOperations
                      src/components/*.cxx
                      INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps GaudiKernel MdtCalibUtils MuonCalibStandAloneBaseLib AthenaKernel StoreGateLib SGtests MdtCalibData MdtCalibRt MuonCalibIdentifier MuonCalibMath MuonReadoutGeometry MuonIdHelpersLib MuonCalibDbOperationsLib z )
+                     LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps GaudiKernel MdtCalibUtils MuonCalibStandAloneBaseLib AthenaKernel StoreGateLib MdtCalibData MdtCalibRt MuonCalibIdentifier MuonCalibMath MuonReadoutGeometry MuonIdHelpersLib MuonCalibDbOperationsLib z )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

@@ -17,8 +17,8 @@ def setupMenu():
     from TriggerJobOpts.TriggerFlags          import TriggerFlags
     from AthenaCommon.Logging import logging
     log = logging.getLogger( __name__ )
-    log.info('setupMenu ...')
-
+    log.info('[setupMenu] going to add the MC menu chains now')
+    
     physics_menu.setupMenu()
 
     TriggerFlags.TestSlice.signatures = TriggerFlags.TestSlice.signatures() + []

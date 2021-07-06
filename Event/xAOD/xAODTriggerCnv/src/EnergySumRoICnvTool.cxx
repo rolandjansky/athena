@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EnergySumRoICnvTool.cxx 629847 2014-11-20 15:41:02Z masik $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -26,15 +25,6 @@ namespace xAODMaker {
       declareInterface< IEnergySumRoICnvTool >( this );
    }
 
-   StatusCode EnergySumRoICnvTool::initialize() {
-
-      // Greet the user:
-      ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
-
-      // Return gracefully:
-      return StatusCode::SUCCESS;
-   }
-
    /**
     * This is the important function of the tool. It takes the energy-sum RoI object
     * from a LVL1_ROI container, and fills an xAOD::EnergySumRoI with it.
@@ -48,7 +38,7 @@ namespace xAODMaker {
                                             xAOD::EnergySumRoI* xaod ) {
 
       // If there is no RoI to convert:
-      if( ! aod->getEnergySumROIs().size() ) {
+      if( aod->getEnergySumROIs().empty() ) {
          ATH_MSG_WARNING( "No EnergySum RoI received on the input" );
          return StatusCode::SUCCESS;
       }

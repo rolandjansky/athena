@@ -31,12 +31,12 @@ StatusCode AthenaSharedWriter::initialize() {
    }
    // Initialize IAthenaSharedWriterSvc
    ATH_CHECK(m_sharedWriterSvc.retrieve());
-   ATH_CHECK(m_sharedWriterSvc->share(m_numberOfClients.value()));
    return StatusCode::SUCCESS;
 }
 //___________________________________________________________________________
 StatusCode AthenaSharedWriter::execute() {
    ATH_MSG_DEBUG("in execute()");
+   ATH_CHECK(m_sharedWriterSvc->share(m_numberOfClients.value()));
    setFilterPassed(false); // don't output events
    return StatusCode::SUCCESS;
 }

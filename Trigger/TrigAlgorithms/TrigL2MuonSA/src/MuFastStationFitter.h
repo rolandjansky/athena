@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUFASTSTATIONFITTER_H
@@ -8,7 +8,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "TrigT1Interfaces/RecMuonRoI.h"
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 #include "MdtData.h"
 #include "TgcFitResult.h"
@@ -37,16 +37,16 @@ class MuFastStationFitter: public AthAlgTool
       virtual StatusCode initialize() override;
     
    public:
-      StatusCode findSuperPoints(const LVL1::RecMuonRoI*    p_roi,
+      StatusCode findSuperPoints(const TrigRoiDescriptor* p_roids,
 				 const TrigL2MuonSA::MuonRoad& muonRoad,
 				 TrigL2MuonSA::RpcFitResult& rpcFitResult,
 				 std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns) const;
-      StatusCode findSuperPointsSimple(const LVL1::RecMuonRoI*    p_roi,
+      StatusCode findSuperPointsSimple(const TrigRoiDescriptor* p_roids,
 				       const TrigL2MuonSA::MuonRoad& muonRoad,
 				       TrigL2MuonSA::TgcFitResult& tgcFitResult,
 				       std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns) const;
 
-      StatusCode findSuperPoints(const LVL1::RecMuonRoI*    p_roi,
+      StatusCode findSuperPoints(const TrigRoiDescriptor* p_roids,
                                  const TrigL2MuonSA::MuonRoad& muonRoad,
                                  TrigL2MuonSA::TgcFitResult& tgcFitResult,
                                  std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns) const;

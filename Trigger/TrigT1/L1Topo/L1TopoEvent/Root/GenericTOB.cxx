@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #include "L1TopoEvent/GenericTOB.h"
 
@@ -6,14 +6,14 @@ thread_local TCS::Heap<TCS::GenericTOB> TCS::GenericTOB::fg_heap("Generic",100);
 
 // default constructor
 TCS::GenericTOB::GenericTOB(uint32_t roiWord) :
-   BaseTOB( roiWord )
+  BaseTOB( roiWord,"GenericTOB" ),
+  m_tobType (JET)
 {
-   m_tobType = JET;
 }
 
 // constructor from generic data
 TCS::GenericTOB::GenericTOB(unsigned int Et, int eta, int phi, uint32_t roiWord) :
-   BaseTOB( roiWord )
+  BaseTOB( roiWord,"GenericTOB" )
    , m_Et(Et)
    , m_eta(eta)
    , m_phi(phi)
@@ -39,6 +39,42 @@ TCS::GenericTOB::GenericTOB(const JetTOB & jet, JetTOB::JetSize jetSize) :
    , m_tobType(JET)
 {}
 
+// constructor from small R jet
+TCS::GenericTOB::GenericTOB(const jTauTOB & tau) :
+   BaseTOB(tau)
+   , m_Et(tau.Et())
+   , m_eta(tau.eta())
+   , m_phi(tau.phi())
+   , m_EtDouble(tau.EtDouble())
+   , m_etaDouble(tau.etaDouble())
+   , m_phiDouble(tau.phiDouble())
+   , m_tobType(JET)
+{}
+
+// constructor from large R jet
+TCS::GenericTOB::GenericTOB(const jLargeRJetTOB & jet) :
+   BaseTOB(jet)
+   , m_Et(jet.Et())
+   , m_eta(jet.eta())
+   , m_phi(jet.phi())
+   , m_EtDouble(jet.EtDouble())
+   , m_etaDouble(jet.etaDouble())
+   , m_phiDouble(jet.phiDouble())
+   , m_tobType(JET)
+{}
+
+// constructor from small R jet
+TCS::GenericTOB::GenericTOB(const jJetTOB & jet) :
+   BaseTOB(jet)
+   , m_Et(jet.Et())
+   , m_eta(jet.eta())
+   , m_phi(jet.phi())
+   , m_EtDouble(jet.EtDouble())
+   , m_etaDouble(jet.etaDouble())
+   , m_phiDouble(jet.phiDouble())
+   , m_tobType(JET)
+{}
+
 // constructor from cluster
 TCS::GenericTOB::GenericTOB(const ClusterTOB & cluster) :
    BaseTOB(cluster)
@@ -51,15 +87,32 @@ TCS::GenericTOB::GenericTOB(const ClusterTOB & cluster) :
    , m_tobType(cluster.tobType())
 {}
 
+// constructor from eEm
+TCS::GenericTOB::GenericTOB(const eEmTOB & eem) :
+   BaseTOB(eem)
+   , m_Et(eem.Et())
+   , m_eta(eem.eta())
+   , m_phi(eem.phi())
+   , m_EtDouble(eem.EtDouble())
+   , m_etaDouble(eem.etaDouble())
+   , m_phiDouble(eem.phiDouble())
+   , m_tobType(eem.tobType())
+{}
+
 // constructor from muon
 TCS::GenericTOB::GenericTOB(const MuonTOB & muon) :
    BaseTOB(muon)
    , m_Et(muon.Et())
    , m_eta(muon.eta())
    , m_phi(muon.phi())
-   , m_EtDouble((double)muon.Et())
-   , m_etaDouble(((double)muon.eta())/10.)
-   , m_phiDouble(((double)muon.phi())/10.)
+   , m_bw2or3(muon.bw2or3())
+   , m_innerCoin(muon.innerCoin())
+   , m_goodMF(muon.goodMF())
+   , m_charge(muon.charge())
+   , m_is2cand(muon.is2cand())
+   , m_EtDouble(muon.EtDouble())
+   , m_etaDouble(muon.EtaDouble())
+   , m_phiDouble(muon.PhiDouble())
    , m_tobType(MUON)
 {}
 

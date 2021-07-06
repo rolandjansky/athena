@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CMMJetHitsCnvTool.h 576052 2013-12-18 09:13:50Z morrisj $
 #ifndef XAODTRIGL1CALOCNV_CMMJETHITSCNVTOOL_H
 #define XAODTRIGL1CALOCNV_CMMJETHITSCNVTOOL_H
 
@@ -24,8 +23,6 @@ namespace xAODMaker {
     *
     * @author John Morris <john.morris@cern.ch>
     *
-    * $Revision: 576052 $
-    * $Date: 2013-12-18 10:13:50 +0100 (Wed, 18 Dec 2013) $
     */
    class CMMJetHitsCnvTool : public AthAlgTool,
                              public virtual ICMMJetHitsCnvTool {
@@ -35,12 +32,9 @@ namespace xAODMaker {
       CMMJetHitsCnvTool( const std::string& type, const std::string& name,
                          const IInterface* parent );
 
-      /// Function initialising the tool
-      virtual StatusCode initialize();
-
       /// Function that fills an existing xAOD::EmTauRoIContainer
       virtual StatusCode convert( const DataVector<LVL1::CMMJetHits>* esd,
-                                  xAOD::CMMJetHitsContainer* xaod );
+                                  xAOD::CMMJetHitsContainer* xaod ) override;
 
    }; // class CMMJetHitsCnvTool
 

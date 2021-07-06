@@ -8,6 +8,7 @@
 #include "AthViews/ViewHelper.h"
 #include "HLTEDMCreator.h"
 #include "StoreGate/WriteDecorHandle.h"
+#include "TrigOutputHandling/TriggerEDMAuxAccessors.h"
 
 HLTEDMCreator::HLTEDMCreator( const std::string& type, 
             const std::string& name,
@@ -96,6 +97,10 @@ StatusCode HLTEDMCreator::initialize()
   INIT_XAOD( BTaggingContainer );
   INIT_XAOD( BTagVertexContainer );
   INIT_XAOD( CaloClusterContainer );
+  INIT_XAOD( TrigT2MbtsBitsContainer );
+  INIT_XAOD( HIEventShapeContainer );
+  INIT_XAOD( TrigRNNOutputContainer );
+  INIT_XAOD( AFPTrackContainer );
 
 #undef INIT
 #undef INIT_XAOD
@@ -269,6 +274,11 @@ StatusCode HLTEDMCreator::createIfMissing( const EventContext& context, const Co
   for (size_t i = 0; i < handles.out.size(); ++i) {
     SG::WriteHandleKey<T> writeHandleKey = handles.out.at(i);
 
+    // Special case. The slimmed navigation container is exceptionally created _after_ the HLTEDMCreator as it reads remapped navigation data.
+    if (writeHandleKey.key() == "HLTNav_Summary_OnlineSlimmed") {
+      continue;
+    }
+
     if ( handles.views.empty() ) { // no merging will be needed
       // Note: This is correct. We are testing if we can read, and if we cannot then we write.
       // What we write will either be a dummy (empty) container, or be populated from N in-View collections.
@@ -342,13 +352,7 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
   }
 
 
-#define CREATE_XAOD_NO_MERGE(__TYPE, __STORE_TYPE)      \
-  { \
-    xAODGenerator<xAOD::__TYPE, xAOD::__STORE_TYPE> generator; \
-    ATH_CHECK( createIfMissing<xAOD::__TYPE>( context, ConstHandlesGroup<xAOD::__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ), generator, &HLTEDMCreator::noMerge<xAOD::__TYPE> )  ); \
-  }
-  
-  CREATE_XAOD_NO_MERGE( TrigCompositeContainer, TrigCompositeAuxContainer );
+  CREATE_XAOD( TrigCompositeContainer, TrigCompositeAuxContainer );
   CREATE_XAOD( TrigElectronContainer, TrigElectronAuxContainer );
   CREATE_XAOD( ElectronContainer, ElectronAuxContainer );
   CREATE_XAOD( PhotonContainer, PhotonAuxContainer );
@@ -366,18 +370,20 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
   CREATE_XAOD( TauJetContainer, TauJetAuxContainer );
   CREATE_XAOD( TauTrackContainer, TauTrackAuxContainer );
   CREATE_XAOD( CaloClusterContainer, CaloClusterTrigAuxContainer ); // NOTE: Difference in interface and aux
-  // After view collections are merged, need to update collection links
-
   CREATE_XAOD( JetContainer, JetAuxContainer );
   CREATE_XAOD( VertexContainer,VertexAuxContainer );
   CREATE_XAOD( TrigBphysContainer, TrigBphysAuxContainer );
   CREATE_XAOD( BTaggingContainer,BTaggingAuxContainer );
   CREATE_XAOD( BTagVertexContainer,BTagVertexAuxContainer );
+  CREATE_XAOD( TrigT2MbtsBitsContainer, TrigT2MbtsBitsAuxContainer );
+  CREATE_XAOD( HIEventShapeContainer, HIEventShapeAuxContainer );
+  CREATE_XAOD( TrigRNNOutputContainer, TrigRNNOutputAuxContainer );
+  CREATE_XAOD( AFPTrackContainer, AFPTrackAuxContainer );
 
+  // After view collections are merged, need to update collection links
   ATH_CHECK( fixLinks() );
   
 #undef CREATE_XAOD
-#undef CREATE_XAOD_NO_MERGE
 
   // special cases
   #define CREATE_SHALLOW(__TYPE) \

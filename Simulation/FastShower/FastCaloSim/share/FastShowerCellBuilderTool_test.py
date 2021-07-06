@@ -12,6 +12,18 @@ from __future__ import print_function
 
 import ROOT
 ROOT.TH1F
+try:
+          from ROOT import HepMC3  as HepMC
+          def  newGenParticlePtr(v, pdgid, status):
+           return ROOT.std.make_shared[HepMC.GenParticle](v, pdgid, status)
+          def  newGenVertexPtr():
+           return ROOT.std.make_shared[HepMC.GenVertex]()
+except ImportError:
+          from ROOT import HepMC   as HepMC
+          def  newGenParticlePtr(v, pdgid, status):
+           return HepMC.GenParticle(v, pdgid, status)
+          def  newGenVertexPtr():
+           return HepMC.GenVertex()
 
 from AthenaCommon.DetFlags      import DetFlags
 DetFlags.detdescr.Tile_setOn()
@@ -174,14 +186,14 @@ class TestAlg (Alg):
     def add_particle (self, vtx, pdgid, pt, eta, phi, status=2002):
         e = pt * math.cosh(eta)
         pz= pt * math.sinh(eta)
-        v = ROOT.HepMC.FourVector (pt*math.cos(phi), pt*math.sin(phi), pz, e)
-        p = ROOT.HepMC.GenParticle (v, pdgid, status)
+        v = HepMC.FourVector (pt*math.cos(phi), pt*math.sin(phi), pz, e)
+        p=newGenParticlePtr(v, pdgid, status)
         vtx.add_particle_out (p)
         return
 
 
     def record_mc (self):
-        vtx = ROOT.HepMC.GenVertex()
+        vtx = newGenVertexPtr()
         self.add_particle (vtx,  22, 10*GeV, -1.5, 2.8)
         self.add_particle (vtx,  11, 15*GeV, -2.9, 2.9)
         self.add_particle (vtx, -11, 20*GeV,  1.5, 2.5)
@@ -190,7 +202,7 @@ class TestAlg (Alg):
         self.add_particle (vtx,  22,  1*GeV,  0.1,  2.4)
         self.add_particle (vtx,  22, 40*GeV,  3.6,  1.5, 100)
 
-        evt = ROOT.HepMC.GenEvent()
+        evt = HepMC.GenEvent()
         evt.add_vertex (vtx)
         mccoll = ROOT.McEventCollection()
         mccoll.push_back (evt)

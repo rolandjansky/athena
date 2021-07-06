@@ -19,6 +19,7 @@ using TrigCompositeUtils::decisionIDs;
 using TrigCompositeUtils::linkToPrevious;
 using TrigCompositeUtils::newDecisionIn;
 using TrigCompositeUtils::featureString;
+using TrigCompositeUtils::hypoAlgNodeName;
 using TrigCompositeUtils::roiString;
 using TrigCompositeUtils::findLink;
 
@@ -77,8 +78,8 @@ StatusCode PEBInfoWriterAlg::execute(const EventContext& eventContext) const {
     auto roiEL = roiELInfo.link;
     ATH_CHECK(roiEL.isValid());
 
-    // Create new decision
-    Decision* newd = newDecisionIn(decisions);
+    // Create new HypoAlg decision and link it to previousDecision
+    Decision* newd = newDecisionIn(decisions, previousDecision, hypoAlgNodeName(), eventContext);
 
     // Attach empty PEB Info lists to the new decision
     ATH_CHECK(newd->setDetail(PEBInfoWriterToolBase::robListKey(), std::vector<uint32_t>()));
@@ -87,13 +88,9 @@ StatusCode PEBInfoWriterAlg::execute(const EventContext& eventContext) const {
     // Push_back to toolInput
     toolInputs.emplace_back(newd, eventContext, roiEL, previousDecision);
 
-    // Link to new decision
-    linkToPrevious(newd, previousDecision, eventContext);
-
     // Link to feature. Dummy link here
     ElementLink<DecisionContainer> dummyLink(*decisions, decisions->size()-1, eventContext);
     newd->setObjectLink(featureString(), dummyLink);
-    newd->setObjectLink(roiString(), roiEL);
 
     ATH_MSG_DEBUG("RoI eta/phi = " << (*roiEL)->eta() << "/" << (*roiEL)->phi());
     ATH_MSG_DEBUG("Added RoI, previous decision and dummy feature to new decision " << counter);

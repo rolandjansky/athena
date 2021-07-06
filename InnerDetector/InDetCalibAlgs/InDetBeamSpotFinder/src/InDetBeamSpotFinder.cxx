@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetBeamSpotFinder.h"
@@ -54,7 +54,7 @@ InDet::InDetBeamSpotFinder::InDetBeamSpotFinder(const std::string& name, ISvcLoc
   declareProperty( "VertexTreeName"    , m_vertexTreeName);
   declareProperty( "SecondsPerFit",  m_secondsPerFit = 1);
 }
-
+  
 StatusCode InDet::InDetBeamSpotFinder::initialize() {
   ATH_MSG_DEBUG( "in initialize()");
   if ( m_beamSpotToolList.empty() ){
@@ -78,7 +78,6 @@ StatusCode InDet::InDetBeamSpotFinder::initialize() {
 StatusCode InDet::InDetBeamSpotFinder::execute(){
   SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfo);
   SG::ReadHandle<xAOD::VertexContainer> vertexContainer(m_vertexContainer);
-
   if ( !passEventSelection( *eventInfo ) ) return StatusCode::SUCCESS;
   BeamSpot::Event currentEvent = readEvent(*eventInfo, *vertexContainer);
   m_eventList.push_back( currentEvent );
@@ -111,17 +110,17 @@ BeamSpot::Event InDet::InDetBeamSpotFinder::readEvent(const xAOD::EventInfo & ev
   event.eventNumber  = eventInfo.eventNumber();
   const EventInfo* BSeventInfo; 
   //This is required for pseudo lumiblocks 
+ 
   if( evtStore()->retrieve(BSeventInfo) != StatusCode::SUCCESS){
     ATH_MSG_ERROR("Cannot get event info.");
     return event;
   }
   if (event.lumiBlock != BSeventInfo->event_ID()->lumi_block())
   {
-    //ATH_MSG_INFO("Updating Event info " <<  BSeventInfo->event_ID()->lumi_block() );   
     event.lumiBlock = BSeventInfo->event_ID()->lumi_block(); 
   }
   
-  for(const auto & vtx:vertexContainer) {
+  for(const xAOD::Vertex* vtx:vertexContainer) {
     if (vtx->vertexType() == xAOD::VxType::NoVtx) continue; 
     vertex.x          = vtx->x();
     vertex.y          = vtx->y();
@@ -146,7 +145,6 @@ void InDet::InDetBeamSpotFinder::sortEvents(){
     id.lumiBlock( (m_maxLBsPerFit  > 0) ? thisEvent.lumiBlock : 0 );
     id.pileup   ( iequals(m_fitSortingKey,"pileup") ? thisEvent.pileup : 0 );
     id.bcid     ( iequals(m_fitSortingKey,"bcid"  ) ? thisEvent.bcid   : 0 );
-    //std::cout << "time " << iequals(m_fitSortingKey,"time"  )<< "  "  <<  m_eventList[i].eventTime/m_secondsPerFit  << std::endl; 
     id.timeStamp( iequals(m_fitSortingKey,"time"  ) ? thisEvent.eventTime/m_secondsPerFit  : 0 );
     m_eventMap[id].push_back( thisEvent );
   }
@@ -157,24 +155,33 @@ void InDet::InDetBeamSpotFinder::sortEvents(){
   unsigned int nLBs = 0;
   unsigned int nFits = 1;
   m_sortedEventList.resize( nFits );
+  
   for( iter = m_eventMap.begin(); iter != m_eventMap.end(); ++iter){
     currentID = iter->first;
     if( iter == m_eventMap.begin() || currentID.runNumber() != lastID.runNumber() ){ nRuns++; }
     if( iter == m_eventMap.begin() || currentID.lumiBlock() != lastID.lumiBlock() ){ nLBs++;  }
     if( currentID.timeStamp() != lastID.timeStamp() || 
-      currentID.pileup() != lastID.pileup() || currentID.bcid() != lastID.bcid() 
-  || ( m_maxRunsPerFit > 0 && nRuns > m_maxRunsPerFit )
-  || ( m_maxLBsPerFit  > 0 && nLBs  > m_maxLBsPerFit )){
+        currentID.pileup() != lastID.pileup() 
+        || currentID.bcid() != lastID.bcid() 
+        || ( m_maxRunsPerFit > 0 && nRuns > m_maxRunsPerFit )
+        || ( m_maxLBsPerFit  > 0 && nLBs  > m_maxLBsPerFit )){
+      ATH_MSG_INFO( "New Fit " << currentID.timeStamp() << "<--"<<  lastID.timeStamp() << "\n\t" 
+        << currentID.pileup() << " <-- " << lastID.pileup() << "\n\t" 
+        << currentID.bcid() << " <-- " <<  lastID.bcid() << "\n\t"
+        << nRuns << " " << m_maxRunsPerFit << "\n\t"
+        << nLBs << "  " << m_maxLBsPerFit );
+     
       nFits++;
       m_sortedEventList.resize(nFits);
       nRuns = 1; nLBs = 1;
     }
     for( unsigned int i = 0; i < iter->second.size(); i++){
       if( m_sortedEventList.at(nFits-1).size() == m_maxEventsPerFit && m_maxEventsPerFit > 0 ){
-  nFits++;
-  m_sortedEventList.resize(nFits);
-  nRuns = 1; nLBs = 1;
+        nFits++;
+        m_sortedEventList.resize(nFits);
+        nRuns = 1; nLBs = 1;
       }
+      
       m_sortedEventList.at(nFits-1).push_back( iter->second.at(i) );
     }
     lastID = iter->first;
@@ -213,13 +220,14 @@ bool InDet::InDetBeamSpotFinder::passEventSelection(const xAOD::EventInfo & even
 
 bool InDet::InDetBeamSpotFinder::passVertexSelection(const xAOD::Vertex * vtx ) {
   if(!vtx)                                                     { return false; }
+  if(m_vertexTypes.end() == std::find(  m_vertexTypes.begin(), m_vertexTypes.end(), vtx->vertexType() ) ) { return false; }
   if(vtx->chiSquared()/vtx->numberDoF() > m_maxChi2Vertex)     { return false; }
   if(static_cast<int>(vtx->nTrackParticles()) < m_minTrackNum ){ return false; }
   if(static_cast<int>(vtx->nTrackParticles()) > m_maxTrackNum ){ return false; }
   if(TMath::Prob(vtx->chiSquared(), vtx->numberDoF()) < m_minVtxProb ) { return false; }
   if(vtx->covariancePosition()(0,0) <= 0 || vtx->covariancePosition()(1,1) <= 0 || vtx->covariancePosition()(2,2) <= 0 ) { return false; }
-  if(m_vertexTypes.end() == std::find(  m_vertexTypes.begin(), m_vertexTypes.end(), vtx->vertexType() ) ) { return false; }
-  if(std::sqrt(vtx->covariancePosition()(0,0)) > m_maxTransverseError || std::sqrt(vtx->covariancePosition()(1,1)) > m_maxTransverseError) {return false;}
+  double maxTransverseError2 = m_maxTransverseError * m_maxTransverseError;
+  if(vtx->covariancePosition()(0,0) > maxTransverseError2 || vtx->covariancePosition()(1,1) > maxTransverseError2) {return false;}
   return true;
 }
 
@@ -242,6 +250,7 @@ StatusCode InDet::InDetBeamSpotFinder::performFits(){
         if( thisVertex.passed ) { verticesToFit.push_back( thisVertex ); }
       }
     }
+
     for( unsigned int j = 0; j < m_beamSpotToolList.size(); j++){
       IInDetBeamSpotTool * bs(0);
       bs = cloneTool(j);
@@ -381,11 +390,12 @@ void InDet::InDetBeamSpotFinder::writeToBeamSpotTree(const IInDetBeamSpotTool *b
   m_beamSpotNtuple.timeEnd = iequals(m_fitSortingKey,"time")   ? eventList.back().eventTime   : 0;
   m_beamSpotNtuple.timeStart = iequals(m_fitSortingKey,"time")   ? eventList.front().eventTime   : 0;
   m_beamSpotNtuple.runEnd = max_run( eventList );
+  const auto & bsToolParamMap = bs->getParamMap();
   const auto & bsToolCovMap= bs->getCovMap();
   for (auto & param:m_beamSpotNtuple.paramMap){
     const std::string & key = param.first;
-    const auto & bsToolEquivalent = bsToolCovMap.find(key);
-    param.second = ( bsToolEquivalent == bsToolCovMap.end() ) ? 0 : bsToolEquivalent->second;
+    const auto & bsToolEquivalent =bsToolParamMap.find(key);
+    param.second = ( bsToolEquivalent == bsToolParamMap.end() ) ? 0 : bsToolEquivalent->second;
   }
   /** leave these here; illustrates coverity defect 29456
   for( std::map<std::string,double>::iterator iter = m_beamSpotNtuple.paramMap.begin(); 

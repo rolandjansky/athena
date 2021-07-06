@@ -9,12 +9,12 @@ atlas_subdir( TGCcabling )
 atlas_add_library( TGCcablingLib
                    src/*.cxx
                    PUBLIC_HEADERS TGCcabling
-                   LINK_LIBRARIES GaudiKernel TGCcablingInterfaceLib StoreGateLib SGtests MuonIdHelpersLib
+                   LINK_LIBRARIES GaudiKernel TGCcablingInterfaceLib StoreGateLib MuonIdHelpersLib CxxUtils
                    PRIVATE_LINK_LIBRARIES PathResolver )
 
 atlas_add_component( TGCcabling
                      src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel TGCcablingInterfaceLib StoreGateLib SGtests MuonIdHelpersLib PathResolver TGCcablingLib )
+                     LINK_LIBRARIES GaudiKernel TGCcablingInterfaceLib StoreGateLib MuonIdHelpersLib PathResolver TGCcablingLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

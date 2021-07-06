@@ -11,7 +11,6 @@
 #include "LArCalibUtils/LArDeltaRespPredictor.h"
 #include "LArCalibUtils/LArDeltaRespTool.h"
 #include "LArCalibUtils/LArDigitOscillationCorrTool.h"
-#include "LArCalibUtils/LArFill.h"
 #include "LArCalibUtils/LArMasterWaveBuilder.h"
 #include "LArCalibUtils/LArOFCAlg.h"
 #include "LArCalibUtils/LArPedestalInPhysicsMaker.h"
@@ -44,17 +43,15 @@
 #include "LArCalibUtils/LArPedestalAutoCorrBuilder.h"
 #include "LArCalibUtils/LArRampAdHocPatchingAlg.h"
 #include "LArCalibUtils/LArShapeCorrector.h"
-#include "LArCalibUtils/LArAutoCorrToolToDB.h"
+#include "LArCalibUtils/LArAutoCorrAlgToDB.h"
 #include "LArCalibUtils/LArDuplicateConstants.h"
 #include "LArCalibUtils/LArCalibPatchingAlg.h"
 #include "LArCalibUtils/LArCalibCopyAlg.h"
-
+#include "../LArConditionsMergerAlg.h"
 
 
 typedef LArCalibPatchingAlg<LArRampComplete> LArRampPatcher;
-//typedef LArCalibPatchingAlg<LArOFCComplete> LArOFCPatcher;
 typedef LArCalibPatchingAlg<LArCaliWaveContainer> LArCaliWavePatcher;
-//#include "LArRawConditions/LArMphysOverMcalComplete.h"
 typedef LArCalibPatchingAlg<LArMphysOverMcalComplete> LArMphysOverMcalPatcher;
 
 //typedef LArCalibCopyAlg<LArPedestalComplete> LArPedestalCopyAlg;
@@ -73,7 +70,6 @@ DECLARE_COMPONENT( LArCaliWaveBuilderXtalk )
 DECLARE_COMPONENT( LArCaliWaveMerger )
 DECLARE_COMPONENT( LArCaliWaveSelector )
 DECLARE_COMPONENT( LArDeltaRespPredictor )
-DECLARE_COMPONENT( LArFill )
 DECLARE_COMPONENT( LArMasterWaveBuilder )
 DECLARE_COMPONENT( LArOFCAlg )
 DECLARE_COMPONENT( LArPedestalInPhysicsMaker )
@@ -100,15 +96,13 @@ DECLARE_COMPONENT( LArHVCorrMaker )
 DECLARE_COMPONENT( LArCalibShortCorrector )
 DECLARE_COMPONENT( LArTimePhysPrediction )
 DECLARE_COMPONENT( LArRampAdHocPatchingAlg )
-//DECLARE_COMPONENT( LArPedestalCopyAlg )
 DECLARE_COMPONENT( LArPhysWaveCopyAlg )
 DECLARE_COMPONENT( LArDAC2uAMCCopyAlg )
 DECLARE_COMPONENT( LArTdriftCompleteCopyAlg )
 DECLARE_COMPONENT( LArShapeCorrector )
-DECLARE_COMPONENT( LArAutoCorrToolToDB )
+DECLARE_COMPONENT( LArAutoCorrAlgToDB )
 DECLARE_COMPONENT( LArDuplicateConstants )
 
-  //DECLARE_COMPONENT( LArOFCPatcher )
 DECLARE_COMPONENT( LArAutoCorrDecoderTool )
 DECLARE_COMPONENT( LArDigitOscillationCorrTool )
 DECLARE_COMPONENT( LArDeltaRespTool )
@@ -119,4 +113,8 @@ DECLARE_COMPONENT( LArWFParamTool )
 DECLARE_COMPONENT( LArPhaseToolConst )
 DECLARE_COMPONENT( LArPhaseToolMC )
 DECLARE_COMPONENT( LArPhaseToolTB )
+
+DECLARE_COMPONENT( LArPedestalMerger )
+DECLARE_COMPONENT( LArOFCMerger )
+DECLARE_COMPONENT( LArAutoCorrMerger )
 

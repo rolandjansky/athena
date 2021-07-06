@@ -1,27 +1,16 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // class declaration
-#include "./HLTConfigSvc.h"
+#include "HLTConfigSvc.h"
 
-#include <exception>
 #include <vector>
 
 // Athena/Gaudi includes:
-#include "PathResolver/PathResolver.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
-#include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/Timing.h"
-
-// Root incluces:
-#include "TH1F.h"
-#include "TH2I.h"
 
 // Local includes:
 #include "TrigConfIO/JsonFileLoader.h"
@@ -30,33 +19,18 @@
 #include "TrigConfBase/TrigDBConnectionConfig.h"
 #include "TrigConfStorage/StorageMgr.h"
 #include "TrigConfStorage/IStorageMgr.h"
-#include "TrigConfStorage/XMLStorageMgr.h"
-#include "TrigConfStorage/IHLTPrescaleSetLoader.h"
-#include "TrigConfStorage/IHLTPrescaleSetCollectionLoader.h"
 #include "TrigConfL1Data/HelperFunctions.h"
 #include "TrigConfL1Data/CTPConfig.h" 
 #include "TrigConfHLTData/HLTFrame.h"
-#include "TrigConfHLTData/HLTChainList.h"
-#include "TrigConfHLTData/HLTSequenceList.h"
-#include "TrigConfHLTData/HLTPrescaleSet.h"
 #include "TrigConfHLTData/HLTPrescaleSetCollection.h"
-#include "AthenaMonitoringKernel/OHLockedHist.h"
-
-#include "TrigConfData/HLTMenu.h"
-
-#include "TrigConfInterfaces/IJobOptionsSvc.h"
-
 #include "TrigConfInterfaces/IJobOptionsSvc.h"
 
 #include "boost/algorithm/string/case_conv.hpp"
-#include "boost/lexical_cast.hpp"
 
-using namespace std;
 using namespace TrigConf;
 
-HLTConfigSvc::HLTConfigSvc( const string& name, ISvcLocator* pSvcLocator ) :
-   base_class(name, pSvcLocator),
-   m_eventStore( "StoreGateSvc/StoreGateSvc",  name )
+HLTConfigSvc::HLTConfigSvc( const std::string& name, ISvcLocator* pSvcLocator ) :
+   base_class(name, pSvcLocator)
 {
    base_class::declareCommonProperties();
 
@@ -65,18 +39,15 @@ HLTConfigSvc::HLTConfigSvc( const string& name, ISvcLocator* pSvcLocator ) :
                     "List of HLT Prescale keys associated with start Lumiblocks LB1uPSK1cLB2uPSK2" );
    declareProperty( "doMergedHLT",      m_setMergedHLT,
                     "Set true to run the merged HLT processing");
-   declareProperty( "doMonitoring",     m_doMon,
-                    "Enable monitoring (mostly for online)");
 }
-
-HLTConfigSvc::~HLTConfigSvc()
-{}
 
 
 StatusCode
 HLTConfigSvc::writeConfigToDetectorStore() {
 
-    TrigConf::HLTMenu * hltmenu = new TrigConf::HLTMenu;
+   m_inputType = boost::to_lower_copy(m_inputType.value()); // lower case
+
+   TrigConf::HLTMenu * hltmenu = new TrigConf::HLTMenu;
 
    if( m_inputType == "db" ) {
 
@@ -98,6 +69,7 @@ HLTConfigSvc::writeConfigToDetectorStore() {
       fileLoader.setLevel(TrigConf::MSGTC::WARNING);
 
       if( fileLoader.loadFile( m_hltFileName, *hltmenu ) ) {
+         hltmenu->setSMK(m_smk);
          ATH_MSG_INFO( "Loaded HLT menu file " << m_hltFileName.value() );
       } else {
          ATH_MSG_WARNING( "Failed loading HLT menu file " << m_hltFileName.value());
@@ -121,50 +93,16 @@ HLTConfigSvc::writeConfigToDetectorStore() {
    }
 
    return StatusCode::SUCCESS;
-} 
-
-
-// Suppress warnings for two functions of this class marked as deprecated.
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-const HLTChainList*
-HLTConfigSvc::chainList() const {
-   return &m_HLTFrame.getHLTChainList();
-}
-
-
-const HLTSequenceList*
-HLTConfigSvc::sequenceList() const {
-   return &m_HLTFrame.getHLTSequenceList();
-}
-
-
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
-
-
-const HLTChainList&
-HLTConfigSvc::chains() const {
-   return m_HLTFrame.getHLTChainList();
-}
-
-
-const HLTSequenceList&
-HLTConfigSvc::sequences() const {
-   return m_HLTFrame.getHLTSequenceList();
 }
 
 
 StatusCode
-HLTConfigSvc::initialize() {
+HLTConfigSvc::initialize ATLAS_NOT_THREAD_SAFE() {
 
    // ATH_CHECK( m_hltMenuKey.initialize() );
 
    {
-      /// Handle to JobOptionsSvc used to retrieve the DataFlowConfig property
+      /// Handle to JobOptionsSvc to retrieve configuration keys
       if( auto joSvc = serviceLocator()->service<TrigConf::IJobOptionsSvc>( "JobOptionsSvc" ) ) {
          if( joSvc->superMasterKey()>0 ) {
             m_inputType = "db";
@@ -186,7 +124,7 @@ HLTConfigSvc::initialize() {
 
    std::string xmlFile(boost::to_lower_copy(m_xmlFile)); // lower case
    if( !fromDB() and (xmlFile=="none" or xmlFile == "")) {
-      ATH_MSG_INFO("xml file set to NONE, will not load HLT Menu");
+      ATH_MSG_INFO("xml file set to NONE, will not load old-style HLT Menu");
       return StatusCode::SUCCESS;
    }
 
@@ -223,7 +161,7 @@ HLTConfigSvc::initialize() {
       }
       ATH_MSG_VERBOSE("HLTFrame configuration object loaded");
    }
-   catch (exception & e) {
+   catch (std::exception & e) {
       ATH_MSG_ERROR("Standard exception caught: " << e.what());
       return StatusCode::FAILURE;
    }
@@ -234,11 +172,11 @@ HLTConfigSvc::initialize() {
    // to do so, take the EF chain's lower_chain_name and loop through 
    // all L2 chains to find the matching chain_counter 
 
-   for( HLTChain* ch: m_HLTFrame.chains() ) {
+   for( HLTChain* ch: m_HLTFrame.getHLTChainList() ) {
       if( ch->level_enum() != EF ) continue;
       unsigned int lower_chain_counter = -1;
       if(ch->lower_chain_name() != "") {
-         HLTChain* lowerChain = m_HLTFrame.chains().chain(ch->lower_chain_name());
+         HLTChain* lowerChain = m_HLTFrame.getHLTChainList().chain(ch->lower_chain_name());
          if(lowerChain) lower_chain_counter = lowerChain->chain_counter();
       }
       ch->set_lower_chain_counter( lower_chain_counter );
@@ -258,12 +196,10 @@ HLTConfigSvc::initialize() {
    if (incSvc.retrieve().isFailure()) {
       ATH_MSG_WARNING("Cannot retrieve IncidentSvc");
    } else {
-      string incname("HLTMenu HLTPS");
+     std::string incname("HLTMenu HLTPS");
       incSvc->fireIncident( Incident(incname, "TrigConf") );
       ATH_MSG_INFO("Fired Incident 'TrigConf' - " << incname);
    }
-
-   CHECK( m_eventStore.retrieve() );
 
    ATH_MSG_INFO("finish initialize");
 
@@ -282,8 +218,6 @@ StatusCode
 TrigConf::HLTConfigSvc::start() {
 
    ATH_MSG_INFO("HLTConfigSvc::start");
-
-   m_currentLumiblock = 0;
 
    if( ! fromDB() ) // xml config
       return StatusCode::SUCCESS;
@@ -309,141 +243,16 @@ TrigConf::HLTConfigSvc::start() {
 
       m_HLTFrame.thePrescaleSetCollection().setPrescaleSet(pss); // assumes LB=0
 
-      applyPrescaleSet(*pss);
-    
+      ATH_MSG_INFO("Applying PSK " << pss->id() << " to menu ");
+      m_HLTFrame.theHLTChainList().applyPrescaleSet(pss);
+
       ATH_MSG_INFO( m_HLTFrame.getPrescaleSetCollection() );
    }
   
    return StatusCode::SUCCESS;
 }
 
-
-void
-TrigConf::HLTConfigSvc::applyPrescaleSet(const TrigConf::HLTPrescaleSet& pss) {
-
-  ATH_MSG_INFO("Applying PSK " << pss.id() << " to menu ");
-  const EventInfo* pEvent(0);
-  if ( m_eventStore->retrieve(pEvent).isSuccess() ) {
-     ATH_MSG_INFO("on event " << *pEvent->event_ID());
-  }
-
-  m_HLTFrame.theHLTChainList().applyPrescaleSet(&pss);
-
-  m_currentPSS = pss.id();
-
-}
-
-
-StatusCode
-TrigConf::HLTConfigSvc::finalize() {
-   ATH_MSG_DEBUG("Finalizing");
-   CHECK(AthService::finalize());
-   return StatusCode::SUCCESS;
-}
-
-
-StatusCode
-TrigConf::HLTConfigSvc::queryInterface( const InterfaceID& riid, void** ppvIF ) {
-   StatusCode sc = StatusCode::FAILURE;
-
-   if (ppvIF) {
-      *ppvIF = 0;
-
-      if (riid == IHLTConfigSvc::interfaceID()) {
-         try {
-            *ppvIF = dynamic_cast<IHLTConfigSvc*>( this );
-         }
-         catch( const std::bad_cast& ) {
-            return StatusCode::FAILURE;
-         }
-         sc = StatusCode::SUCCESS;
-      }
-      else {
-         sc = Service::queryInterface( riid, ppvIF );
-      }
-
-   }
-
-   if ( sc.isSuccess() ) addRef();
-   return sc;
-
-}
-
-uint32_t
-TrigConf::HLTConfigSvc::masterKey() const {
-   return m_HLTFrame.smk();
-}
-
-uint32_t
-TrigConf::HLTConfigSvc::hltPrescaleKey() const {
-   uint32_t key = m_HLTFrame.getPrescaleSet() ? m_HLTFrame.getPrescaleSet()->id() : 0;
-   return key;
-}
-
 void
 TrigConf::HLTConfigSvc::setL2LowerChainCounter(const CTPConfig* ctpcfg) {
    m_HLTFrame.theHLTChainList().setL2LowerChainCounter(ctpcfg);
-}
-
-
-
-// query the TriggerDB for the list of lumiblocks and corresponding prescalekeys
-// will then load the and prescaleSets that have not yet been loaded
-StatusCode
-TrigConf::HLTConfigSvc::updatePrescaleSets(uint requestcount) {
-
-   if( ! fromDB() ) { // xml 
-      ATH_MSG_WARNING("Configured to not run from the database!");
-      return StatusCode::SUCCESS;
-   }
-
-   if( !m_dbconfig->m_hltkeys.empty() ) {
-      ATH_MSG_WARNING("Has list of [(lb1,psk1), (lb2,psk2),...] defined!");
-      return StatusCode::SUCCESS;
-   }
-
-   // Load prescale set
-   CHECK(initStorageMgr());
-
-   bool loadSuccess = dynamic_cast<TrigConf::StorageMgr*>
-     (m_storageMgr)->hltPrescaleSetCollectionLoader().load( m_HLTFrame.thePrescaleSetCollection(), requestcount, "" );
-
-   CHECK(freeStorageMgr());
-
-   if(!loadSuccess) {
-      ATH_MSG_WARNING("HLTConfigSvc::updatePrescaleSets(): loading failed");
-      return StatusCode::FAILURE;
-   } else {
-      ATH_MSG_INFO ( m_HLTFrame.thePrescaleSetCollection() );
-   }
-   return StatusCode::SUCCESS;
-}
-
-
-// Assigns the prescales that are valid for a given lumiblock to the chains
-// This method is called by TrigSteer on *every* event (keep it fast)
-StatusCode
-TrigConf::HLTConfigSvc::assignPrescalesToChains(uint lumiblock) {
-
-   if(! fromDB() ) // xml
-      return StatusCode::SUCCESS;
-
-   // get the HLTPrescaleSet
-   const HLTPrescaleSet* pss = m_HLTFrame.getPrescaleSetCollection().prescaleSet(lumiblock);
-   if (pss == 0) {
-      ATH_MSG_ERROR("Could not retrieve HLT prescale set for lumiblock = " << lumiblock);
-      return StatusCode::FAILURE;
-   }
-
-   // still the same HLTPSS -> nothing to do
-   if(pss->id() ==  m_currentPSS) {
-      return StatusCode::SUCCESS;
-   }
-
-   ATH_MSG_INFO("Changing PSK from " << m_currentPSS << " to " << pss->id()
-                << " for lumiblock " << lumiblock);
-
-   applyPrescaleSet(*pss);
-
-   return StatusCode::FAILURE;
 }

@@ -1,16 +1,10 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """ Muon slice specific flags  """
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties # noqa: F401
 from TriggerJobOpts.CommonSignatureHelper import CommonSignatureHelper
-
-
-__author__  = 'T. Bold, B.Demirkoz'
-__version__="$Revision: 1.46 $"
-__doc__="Muon slice specific flags  "
-
 
 _flags = [] 
 class doTrigMuonConfig(JobProperty):
@@ -20,14 +14,6 @@ class doTrigMuonConfig(JobProperty):
     StoredValue=False
 
 _flags.append(doTrigMuonConfig)
-
-class doSiTrack(JobProperty):
-    """ do or not to do SiTrack algo """ 
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
-
-_flags.append(doSiTrack)
 
 class doMuonCalibrationStream(JobProperty):
     """ do or not to do the setup for the muon calibration stream"""
@@ -61,12 +47,5 @@ class MuonSlice(JobPropertyContainer, CommonSignatureHelper):
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 TriggerFlags.add_Container(MuonSlice)
 
-# add add common slice flags
-#TriggerFlags.MuonSlice.import_JobProperties('TriggerJobOpts.CommonSignatureFlags')
-
 for flag in _flags:
     TriggerFlags.MuonSlice.add_JobProperty(flag)
-del _flags
-
-# make an alias
-MuonSliceFlags = TriggerFlags.MuonSlice

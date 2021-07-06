@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTGC_Cabling/TGCDatabasePPToSL.h"
@@ -10,7 +10,8 @@
 namespace MuonTGC_Cabling 
 {
 
-TGCDatabasePPToSL::TGCDatabasePPToSL(std::string filename, std::string blockname)
+TGCDatabasePPToSL::TGCDatabasePPToSL(const std::string& filename,
+                                     const std::string& blockname)
     : TGCDatabase(TGCDatabase::PPToSL, filename, blockname)
 {
   // read out ascii file and fill database

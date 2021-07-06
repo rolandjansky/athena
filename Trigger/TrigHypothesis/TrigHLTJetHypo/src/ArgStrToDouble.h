@@ -19,7 +19,7 @@ class ArgStrToDouble {
     if(std::find(m_posinf.begin(), m_posinf.end(), s) != m_posinf.end()){
       val =  std::numeric_limits<double>::max();}
     else if (std::find(m_neginf.begin(), m_neginf.end(), s) != m_neginf.end()){
-      val = std::numeric_limits<double>::min();}
+      val = std::numeric_limits<double>::lowest();}
     else {
       val = std::stod(s);
     }

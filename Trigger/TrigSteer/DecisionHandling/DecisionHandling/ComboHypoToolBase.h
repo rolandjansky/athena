@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef DECISIONHANDLING_COMBOHYPOTOOLBASE_H
 #define DECISIONHANDLING_COMBOHYPOTOOLBASE_H
@@ -29,7 +29,7 @@ public:
 
   
   /**
-   * @brief retreives the decisions associated to this decId, make their combinations and apply the algorithm
+   * @brief retrieves the decisions associated to this decId, make their combinations and apply the algorithm
    @param[in]  LegDecisionsMap that lists all the passing decisions, to be updated  
    @param[in]  Event Context passed to store the output collection
   **/  
@@ -42,7 +42,7 @@ public:
    **/
   virtual HLT::Identifier decisionId() const { return m_decisionId; }
 
-  void setLegDecisionIds(const std::vector<HLT::Identifier>& legDecisionIds) { m_legDecisionIds = legDecisionIds; }
+  void setLegDecisionIds(std::vector<HLT::Identifier> legDecisionIds) { m_legDecisionIds = std::move(legDecisionIds); }
   HLT::Identifier legDecisionId(size_t i) const { return m_legDecisionIds.at(i); }
   const std::vector<HLT::Identifier>& legDecisionIds() const { return m_legDecisionIds; }
     
@@ -88,6 +88,10 @@ public:
   void updateLegDecisionsMap(const std::vector<std::vector<LegDecision>> & passing_comb,
 			     LegDecisionsMap & passingLegs) const;
 
+ /**
+  * @brief remove chain related info from passing legs
+  **/
+  void eraseFromLegDecisionsMap(LegDecisionsMap &passingLegs) const;
 
   /**
   * @brief Print the Tool results stored in the passing combinations
@@ -103,7 +107,7 @@ public:
   // comment now, because this must be designed properly
     StatusCode createOutput( LegDecisionsMap & passingLegs, const EventContext& ctx ) const;
 
-  // add here WriteHandkles of combinations
+  // add here WriteHandles of combinations
   // problem: the size of the array depends on the number of combinations, so cannot use the WriteHandleKeyArray
     SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_passingLegs { this, "PassingLegs", {}, "Ouput Decisions legs passing the selection" };
   */

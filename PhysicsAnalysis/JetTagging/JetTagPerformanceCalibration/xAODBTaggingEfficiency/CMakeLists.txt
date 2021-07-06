@@ -3,7 +3,6 @@
 # Declare the package name:
 atlas_subdir( xAODBTaggingEfficiency )
 
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core Hist RIO )
 
@@ -31,22 +30,31 @@ atlas_add_dictionary( xAODBTaggingEfficiencyDict
   LINK_LIBRARIES xAODBTaggingEfficiencyLib )
 
 # Executable(s) in the package (to be built only under AthAnalysis or in stand-alone mode):
-if( XAOD_ANALYSIS OR XAOD_STANDALONE )
+if( XAOD_ANALYSIS )
    atlas_add_executable( BTaggingEfficiencyToolTester
       util/BTaggingEfficiencyToolTester.cxx
-      LINK_LIBRARIES xAODBTaggingEfficiencyLib )
+      LINK_LIBRARIES xAODRootAccess AsgTools FTagAnalysisInterfacesLib )
 
    atlas_add_executable( BTaggingEigenVectorRecompositionToolTester
       util/BTaggingEigenVectorRecompositionToolTester.cxx
-      LINK_LIBRARIES xAODBTaggingEfficiencyLib )
+      LINK_LIBRARIES AsgTools FTagAnalysisInterfacesLib )
 
-  atlas_add_executable( BTaggingSelectionToolTester
+   atlas_add_executable( BTaggingSelectionToolTester
       util/BTaggingSelectionToolTester.cxx
-      LINK_LIBRARIES AsgMessagingLib xAODJet xAODBTagging xAODBTaggingEfficiencyLib )
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODJet xAODBTagging
+      PATInterfaces FTagAnalysisInterfacesLib )
+   if( XAOD_STANDALONE )
+      target_link_libraries( BTaggingSelectionToolTester
+         PRIVATE xAODRootAccess )
+   else()
+      target_link_libraries( BTaggingSelectionToolTester
+         PRIVATE POOLRootAccessLib )
+   endif()
 
     atlas_add_executable( BTaggingTruthTaggingTester
       util/BTaggingTruthTaggingTester.cxx
-      LINK_LIBRARIES AsgMessagingLib xAODJet xAODBTagging xAODBTaggingEfficiencyLib FTagAnalysisInterfacesLib )
+      LINK_LIBRARIES AsgTools AsgMessagingLib FTagAnalysisInterfacesLib )
 endif()
 
 # Install files from the package:

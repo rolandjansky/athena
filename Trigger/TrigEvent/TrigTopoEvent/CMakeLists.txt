@@ -20,3 +20,5 @@ atlas_add_dictionary( TrigTopoEventDict
                       LINK_LIBRARIES TrigTopoEvent
                       DATA_LINKS ElectronMuonTopoInfo
                       ELEMENT_LINKS ElectronMuonTopoInfoContainer )
+
+atlas_generate_cliddb( TrigTopoEvent )

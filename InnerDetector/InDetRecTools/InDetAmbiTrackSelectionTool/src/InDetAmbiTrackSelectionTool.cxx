@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -551,12 +551,12 @@ Trk::Track* InDet::InDetAmbiTrackSelectionTool::createSubTrack( const std::vecto
     return nullptr;
   }
 
-  DataVector<const Trk::TrackStateOnSurface>* vecTsos = new DataVector<const Trk::TrackStateOnSurface>();
+  auto vecTsos = DataVector<const Trk::TrackStateOnSurface>();
 
   // loop over TSOS, copy TSOS and push into vector
   for (const Trk::TrackStateOnSurface* tsosIt : tsos) {
     const Trk::TrackStateOnSurface* newTsos = new Trk::TrackStateOnSurface(*tsosIt);
-    vecTsos->push_back(newTsos);
+    vecTsos.push_back(newTsos);
   }
 
   Trk::TrackInfo info;
@@ -565,7 +565,7 @@ Trk::Track* InDet::InDetAmbiTrackSelectionTool::createSubTrack( const std::vecto
   newInfo.setPatternRecognitionInfo(Trk::TrackInfo::InDetAmbiTrackSelectionTool);
   info.addPatternReco(newInfo);
 
-  Trk::Track* newTrack = new Trk::Track(info, vecTsos,0);
+  Trk::Track* newTrack = new Trk::Track(info, std::move(vecTsos),nullptr);
   
   return newTrack;
 

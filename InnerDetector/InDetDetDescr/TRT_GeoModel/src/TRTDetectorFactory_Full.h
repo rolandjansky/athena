@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------//
@@ -91,9 +91,9 @@ class TRTDetectorFactory_Full : public InDetDD::DetectorFactoryBase  {
   GeoFullPhysVol  *makeStrawPlane( size_t w , ActiveGasMixture gasMixture = GM_XENON);
 
   // private member data:
-  InDetDD::TRT_DetectorManager * m_detectorManager;
-  InDetMaterialManager         * m_materialManager;
-  TRTParameterInterface        * m_data;
+  InDetDD::TRT_DetectorManager                  *m_detectorManager = nullptr; // ownership handed to calleer.
+  std::unique_ptr<InDetMaterialManager>         m_materialManager;
+  std::unique_ptr<TRTParameterInterface>        m_data;
 
   bool m_useOldActiveGasMixture;
   bool m_DC2CompatibleBarrelCoordinates;

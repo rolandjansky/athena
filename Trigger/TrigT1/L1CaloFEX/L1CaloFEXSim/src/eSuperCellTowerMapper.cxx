@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+    Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -52,7 +52,7 @@ StatusCode eSuperCellTowerMapper::initialize()
  
   ATH_CHECK( m_scellsCollectionSGKey.initialize() );
   ATH_CHECK( m_triggerTowerCollectionSGKey.initialize() );
-
+  ATH_CHECK( m_eFEXSuperCellTowerIdProviderTool.retrieve() );
   return StatusCode::SUCCESS;
     
 }
@@ -118,17 +118,49 @@ void eSuperCellTowerMapper::reset(){
   //const CaloCell_Base_ID* idHelper = caloIdManager->getCaloCell_SuperCell_ID(); // getting the id helper class
   const CaloCell_Base_ID* idHelper = nullptr;
   ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_SuperCell_ID") );
-
   for (const auto& cell : * jk_scellsCollection){
 
     const CaloSampling::CaloSample sample = (cell)->caloDDE()->getSampling();
     const Identifier ID = (cell)->ID(); // super cell unique ID
     int region = idHelper->region(ID);
-    int layer = -1;
+    float et = (cell)->energy()/cosh((cell)->eta());
     int pos_neg = idHelper->pos_neg(ID);
+    //We need to explicitly avoid +/- 3 pos_neg supercells! These go beyond |eta| == 2.5
+    if(abs(pos_neg) == 3){ continue; }
+    // mapping with csv file
+    if(m_eFEXSuperCellTowerIdProviderTool->ifhaveinputfile()){
+      int towerid{ -1 };
+      int slot{ -1 };
+      bool doenergysplit { false };
+      ATH_CHECK( m_eFEXSuperCellTowerIdProviderTool->geteTowerIDandslot(ID.get_compact(), towerid, slot, doenergysplit) );
+      // ignore invalid SuperCell
+      if (towerid == -1) {
+        continue;
+      }
+      int layer_tem = -1;
+      // Layer 0:  Cell 0
+      // Layer 1:  Cell 1, 2, 3, 4
+      // Layer 2:  Cell 5, 6, 7, 8
+      // Layer 3:  Cell 9
+      // Layer 4:  Cell 10 (HEC or TILE, if we have them!)
+      if (slot == 0) {
+        layer_tem = 0;
+      } else if (slot <= 4) {
+        layer_tem = 1;
+      } else if (slot <= 8) {
+        layer_tem = 2;
+      } else if (slot == 9) {
+        layer_tem = 3;
+      } else {
+        layer_tem = 4;
+      }
+
+      ConnectSuperCellToTower( my_eTowerContainerRaw, towerid, ID, slot, et, layer_tem, doenergysplit);
+      continue;
+    }
+    int layer = -1;
     int eta_index = idHelper->eta(ID);
     const int phi_index = idHelper->phi(ID);
-    float et = (cell)->energy();
     int prov = (cell)->provenance();
 
     /*
@@ -147,10 +179,30 @@ void eSuperCellTowerMapper::reset(){
            HEC1  9
            HEC2  10
            HEC3  11
-    */
 
-    //We need to explicitly avoid +/- 3 pos_neg supercells! These go beyond |eta| == 2.5
-    if(abs(pos_neg) == 3){ continue; }
+           TileBar0 12  (Tile Barrel)
+           TileBar1 13
+           TileBar2 14
+
+           TileGap1 15 (ITC and Scintillator)
+           TileGap2 16
+           TileGap3 17
+
+           TileExt0 18 (Tile Extended Barrel)
+           TileExt1 19
+           TileExt2 20
+
+           FCAL0 21 (Forward EM Endcap)
+           FCAL1 22
+           FCAL2 23
+
+           MINIFCAL0 24
+           MINIFCAL1 25
+           MINIFCAL2 26
+           MINIFCAL3 27
+
+           Unknown 28
+    */
 
     // LOCAL TO GLOBAL ETA INDEX PATCH - USE A 'TOWER OFFSET' TO MARK THE START OF THE ETA_INDEX COUNTING (e.g. the rounded eta value of the innermost supercell)
     switch(sample){
@@ -537,7 +589,7 @@ void eSuperCellTowerMapper::ConnectSuperCellToTower(std::unique_ptr<eTowerContai
     switch (region) {
     case 0: { // special treatment for TRANSITON region
 
-      layer = 3; // change layer label for ET threshold treatment since we are treating this as a layer3 cell - it's an extreme special case cell as part of tne transition region
+      layer = 3; // change layer label for ET threshold treatment since we are treating this as a layer3 cell - it's an extreme special case cell as part of the transition region
 
       towereta = eta_index;
       towerphi = phi_index;

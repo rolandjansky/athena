@@ -31,7 +31,7 @@ MuonSegmentTruthRelatedPlots::~MuonSegmentTruthRelatedPlots()
 {
 }
 
-void MuonSegmentTruthRelatedPlots::fill(const xAOD::MuonSegment& muSeg,const xAOD::MuonSegment& truthMuSeg)
+  void MuonSegmentTruthRelatedPlots::fill(const xAOD::MuonSegment& muSeg,const xAOD::MuonSegment& truthMuSeg, float weight)
 {
 
   //// hit difference plots
@@ -62,20 +62,20 @@ void MuonSegmentTruthRelatedPlots::fill(const xAOD::MuonSegment& muSeg,const xAO
   if ( !( (truthMuSeg.px()) && (truthMuSeg.py()) && (truthMuSeg.pz()) && truthMuSeg.px()!=0 && truthMuSeg.py()!=0 && truthMuSeg.pz()!=0) ) return; 
 
 
-  dxpos->Fill(muSeg.x()-truthMuSeg.x());
-  dypos->Fill(muSeg.y()-truthMuSeg.y());
-  dzpos->Fill(muSeg.z()-truthMuSeg.z());
+  dxpos->Fill(muSeg.x()-truthMuSeg.x(), weight);
+  dypos->Fill(muSeg.y()-truthMuSeg.y(), weight);
+  dzpos->Fill(muSeg.z()-truthMuSeg.z(), weight);
   
   truthGlobalPos = Amg::Vector3D(truthMuSeg.x(),truthMuSeg.y(),truthMuSeg.z());
 
-  detapos->Fill(globalPos.eta()-truthGlobalPos.eta());
-  dphipos->Fill(globalPos.deltaPhi(truthGlobalPos));
+  detapos->Fill(globalPos.eta()-truthGlobalPos.eta(), weight);
+  dphipos->Fill(globalPos.deltaPhi(truthGlobalPos), weight);
 
   Amg::Vector3D globalDir(muSeg.px(),muSeg.py(),muSeg.pz());
   Amg::Vector3D truthGlobalDir(truthMuSeg.px(),truthMuSeg.py(),truthMuSeg.pz());
 
-  dphidir->Fill(globalDir.deltaPhi(truthGlobalDir));
-  detadir->Fill(globalDir.eta()-truthGlobalDir.eta());
+  dphidir->Fill(globalDir.deltaPhi(truthGlobalDir),weight);
+  detadir->Fill(globalDir.eta()-truthGlobalDir.eta(),weight);
 
 }
 

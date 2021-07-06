@@ -513,7 +513,7 @@ StatusCode TRT_FastRDOAnalysis::execute() {
         // Surface & Tracking info
         // -- element surface (straw layer)
         const Trk::Surface& surf((*detElement).surface());
-        const int surfType(surf.type());
+        const int surfType(static_cast<int>(surf.type()));
 
         const Trk::SurfaceBounds& bnds((*detElement).bounds());
         const int bndsType(bnds.type());
@@ -534,7 +534,7 @@ StatusCode TRT_FastRDOAnalysis::execute() {
 
         // -- straw surface (first straw in layer?)
         const Trk::Surface& strSurf((*detElement).surface(trtID));
-        const int strSurfType(strSurf.type());
+        const int strSurfType(static_cast<int>(strSurf.type()));
 
         const Trk::SurfaceBounds& strBnds((*detElement).bounds(trtID));
         const int strBndsType(strBnds.type());

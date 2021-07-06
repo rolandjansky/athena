@@ -7,7 +7,7 @@
 #ifndef CALOTOOLS_CALRNOISECONDALG_H
 #define CALOTOOLS_CALRNOISECONDALG_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "GaudiKernel/ICondSvc.h"
@@ -15,21 +15,23 @@
 #include "LArElecCalib/ILArHVScaleCorr.h"
 #include "CaloConditions/CaloNoise.h"
 #include "LArCabling/LArOnOffIdMapping.h"
+#include "CaloIdentifier/CaloNoiseHashRanges.h"
 
 class CaloCell_ID;
 
-class CaloNoiseCondAlg: public AthAlgorithm {
+class CaloNoiseCondAlg: public AthReentrantAlgorithm {
  public:
-
-  CaloNoiseCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
-  virtual ~CaloNoiseCondAlg() {};
+  using AthReentrantAlgorithm::AthReentrantAlgorithm;
+  virtual ~CaloNoiseCondAlg() = default;
 
   StatusCode initialize() override final;
-  StatusCode execute() override final;
+  StatusCode execute(const EventContext& ctx) const override final;
   StatusCode finalize() override final {return StatusCode::SUCCESS;}
 
 
  private:
+
+  //SG Keys and other properties:
   SG::ReadCondHandleKey<CondAttrListCollection> m_larNoiseKey{this, "LArNoiseFolder","/LAR/NoiseOfl/CellNoise",
       "SG key of CondAttrListCollection holding the LAr noise"};
   SG::ReadCondHandleKey<CondAttrListCollection> m_tileNoiseKey{this, "TileNoiseFolder","/TILE/OFL02/NOISE/CELL",
@@ -49,24 +51,14 @@ class CaloNoiseCondAlg: public AthAlgorithm {
   Gaudi::Property<bool> m_useHVCorr{this,"useHVCorr",false,"Use HV Corr on/off"};
   Gaudi::Property<float> m_lumi0{this,"Luminosity",-1.0,"Fixed Luminosity. -1 means read lumi from DB"};
 
-  ServiceHandle<ICondSvc> m_condSvc;
-
-  const CaloCell_ID* m_caloCellID;
+  ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 
 
- //SYSTEM == COOL channel number
-  enum SYSTEM{EMECZNEG = 0,
-              EMBZNEG  = 1,
-              EMBZPOS  = 2,
-              EMECZPOS = 3,
-              HEC      =16,
-              FCAL     =32,
-              TILE     =48};
+  //The following variables will be set during initialize:
 
-  std::map<SYSTEM,IdentifierHash> m_hashOffsets;
-  std::size_t m_maxLArCells=0;
-  std::size_t m_maxTileCells=0;
-  void buildHashRanges();
+  const CaloCell_ID* m_caloCellID=nullptr;
+
+  std::unique_ptr<CaloNoiseHashRanges> m_hashRange;
 
   CaloNoise::NOISETYPE m_noiseType=CaloNoise::TOTAL;
 

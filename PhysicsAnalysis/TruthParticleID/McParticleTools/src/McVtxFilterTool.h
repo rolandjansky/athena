@@ -120,7 +120,7 @@ class McVtxFilterTool : virtual public IMcVtxFilterTool,
 
   /** Return true if one of the McVtxFilters accept this GenVertex
    */
-  virtual bool isAccepted( const HepMC::GenVertex* vtx ) const;
+  virtual bool isAccepted( HepMC::ConstGenVertexPtr vtx ) const;
 
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 
@@ -145,14 +145,14 @@ class McVtxFilterTool : virtual public IMcVtxFilterTool,
    *  The last parameter is used here to add (or not) the whole decay tree at a given
    *  vertex. (Default: just add the vertex, not the whole tree of children)
    */
-  void addVertex( const HepMC::GenVertex* vtx, HepMC::GenEvent * evt,
+  void addVertex(  HepMC::ConstGenVertexPtr vtx, HepMC::GenEvent * evt,
 		  const VtxType::Flag vtxType = VtxType::IsNotRootVertex ) const;
 
   /** Helper function: return true if we are at a root vertex (i.e., a vertex
    *  that satisfies one of the chosen decay modes) and if the PDG of the particle
    *  is in the m_particles list (or the m_particle list is empty).
    */
-  bool keepParticle( const VtxType::Flag vtxType, const HepMC::GenParticle* p ) const;
+  bool keepParticle( const VtxType::Flag vtxType, HepMC::ConstGenParticlePtr p ) const;
 
   /** @brief Callback method to ensure consistency of filters.
    *  Method to ensure the synchronisation between the filters
@@ -213,12 +213,5 @@ class McVtxFilterTool : virtual public IMcVtxFilterTool,
    */
   LongArrayProperty m_particles;
 }; 
-
-/// I/O operators
-//////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-/// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 #endif //> MCPARTICLETOOLS_MCVTXFILTERTOOL_H

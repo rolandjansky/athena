@@ -127,7 +127,7 @@ StatusCode Trk::GeometryAsciiDumper::processNode(const Trk::Surface& sf, size_t 
     std::stringstream levelBuffer;
     for (size_t il = 0; il < level; ++il) levelBuffer << " ";
 
-    m_outputFile << levelBuffer.str() << "        Trk::Surface object of type " << sf.type()                               << std::endl;
+    m_outputFile << levelBuffer.str() << "        Trk::Surface object of type " <<  static_cast<int>(sf.type()) << std::endl;
     std::string rotationOffset = levelBuffer.str() +"                              ";
     m_outputFile << levelBuffer.str() << "          - transform       : " << Amg::toString( sf.transform(), 
                                                                                     m_outputPrecision, rotationOffset )    << std::endl;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s):
@@ -81,7 +81,7 @@ StatusCode
             outputMetaStore()->retrieve(output, m_outputKey));
 #else
       if (m_metaDataSvc->contains< xAOD::FileMetaData >(m_outputKey)) {
-        auto output = m_metaDataSvc->tryConstRetrieve< xAOD::FileMetaData >(m_outputKey);
+        const auto *output = m_metaDataSvc->tryConstRetrieve< xAOD::FileMetaData >(m_outputKey);
         if (!output) return StatusCode::FAILURE;
 #endif  // XAOD_STANDALONE
 

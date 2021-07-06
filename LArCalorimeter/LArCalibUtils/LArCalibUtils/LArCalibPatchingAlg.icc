@@ -1,13 +1,12 @@
+//Dear emacs, this is -*-c++-*-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-//Dear emacs, this is -*-c++-*-
 
 template<class CONDITIONSCONTAINER>
 LArCalibPatchingAlg<CONDITIONSCONTAINER>::LArCalibPatchingAlg (const std::string& name, ISvcLocator* pSvcLocator) : 
   AthAlgorithm(name,pSvcLocator),
-  m_maskingTool("LArBadChannelMaskingTool"),
   m_useCorrChannel(true),
   m_patchAllMissing(false),
   m_onlineHelper(0),
@@ -24,8 +23,6 @@ LArCalibPatchingAlg<CONDITIONSCONTAINER>::LArCalibPatchingAlg (const std::string
 		  "Method to patch conditions for channels with broken calibration line");
   declareProperty("NewContainerKey",m_newContainerKey="",
 		  "If the corrections go in a separate container put SG key here");
-  declareProperty("MaskingTool",m_maskingTool,
-		  "Masking tool to define channels that should be set to zero");
   declareProperty("UseCorrChannels",m_useCorrChannel,
 		  "True: Use separate correction COOL channel, False: Correction + data in the same channel");
   declareProperty("PatchAllMissing",m_patchAllMissing,
@@ -88,7 +85,7 @@ StatusCode LArCalibPatchingAlg<CONDITIONSCONTAINER>::stop() {
   ATH_CHECK( detStore()->retrieve(m_fcalId, "LArFCAL_ID") );
   ATH_CHECK( detStore()->retrieve(m_caloId, "CaloCell_ID") );
 
-  ATH_CHECK( m_maskingTool.retrieve() );
+  ATH_CHECK(m_bcMask.buildBitMask(m_problemsToPatch,msg()));
   SG::ReadCondHandle<LArBadChannelCont> readHandle{m_BCKey};
   const LArBadChannelCont *bcCont {*readHandle};
   if(!bcCont) {
@@ -132,7 +129,7 @@ StatusCode LArCalibPatchingAlg<CONDITIONSCONTAINER>::stop() {
     for (;it!=it_e;it++) {
       const HWIdentifier chid = it.channelId();
       if (!cabling->isOnlineConnected(chid)) continue; //Don't care about disconnected channels
-      if (m_maskingTool->cellShouldBeMasked(chid)) {
+      if (m_bcMask.cellShouldBeMasked(bcCont,chid)) {
 	ATH_MSG_INFO ( "Found problematic channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
                        <<" Gain:" << igain << " " <<  m_onlineHelper->channel_name(chid) << ". Trying to patch." );
 	if (patch(chid,igain, bcCont, cabling)) {
@@ -389,28 +386,18 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier, co
 template<class CONDITIONSCONTAINER>
 bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chid, const int gain, LArRampP1& patch, const LArBadChannelCont* bcCont, const LArOnOffIdMapping* cabling, bool isphi) {
 
-  std::vector<HWIdentifier>::const_iterator it;
-  std::vector<HWIdentifier>::const_iterator it_e;
-
-  if(isphi) {
-   std::vector<HWIdentifier>& symCells=getPhiRing(chid, bcCont, cabling);  
-   it = symCells.begin();
-   it_e=symCells.end();
-  } else {
-   std::vector<HWIdentifier>& symCells=getFEBChans(chid, bcCont);
-   it = symCells.begin();
-   it_e=symCells.end();
-  }
-  if (it==it_e) {
+  std::vector<HWIdentifier>& symCells =
+    isphi ? getPhiRing(chid, bcCont, cabling) : getFEBChans(chid, bcCont);
+  if (symCells.empty()) {
     ATH_MSG_ERROR ( "No symmetry cells found!" );
     return false;
   }
-  size_t s=m_contIn->get(*it,gain).m_vRamp.size();
+  size_t s=m_contIn->get(symCells[0],gain).m_vRamp.size();
   patch.m_vRamp.clear();
   patch.m_vRamp.resize(s);
   unsigned nCells=0;
-  for (;it_e!=it;it++) {
-    const LArRampP1& ramp=m_contIn->get(*it,gain);
+  for (HWIdentifier hwid : symCells) {
+    const LArRampP1& ramp=m_contIn->get(hwid,gain);
     if (ramp.m_vRamp.size()==0) continue; //This one is empty...
     if (ramp.m_vRamp.size()!=s) {
       if(isphi) {
@@ -420,7 +407,7 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
       }
       continue;
     }
-    msg() << MSG::DEBUG << "Adding cell 0x"<< std::hex << it->get_compact() << std::dec << " Ramp:";
+    msg() << MSG::DEBUG << "Adding cell 0x"<< std::hex << hwid.get_compact() << std::dec << " Ramp:";
     for (size_t i=0;i<s;i++) {
       patch.m_vRamp[i]+=ramp.m_vRamp[i];
       msg() << MSG::DEBUG << ramp.m_vRamp[i] << " ";
@@ -452,34 +439,32 @@ template<class CONDITIONSCONTAINER>
 bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chid, const int gain, LArOFCP1& patch, const LArBadChannelCont* bcCont, const LArOnOffIdMapping* cabling, bool /*isphi*/) {
 
   std::vector<HWIdentifier>& symCells=getPhiRing(chid, bcCont, cabling);  
-  std::vector<HWIdentifier>::const_iterator it=symCells.begin();
-  std::vector<HWIdentifier>::const_iterator it_e=symCells.end();
 
-  if (it==it_e) {
+  if (symCells.empty()) {
     ATH_MSG_ERROR ( "No symmetry cells found!" );
     return false;
   }
-  const size_t nPhases=m_contIn->get(*it,gain).m_vOFC_a.size();
+  const size_t nPhases=m_contIn->get(symCells[0],gain).m_vOFC_a.size();
   if (!nPhases) {
     ATH_MSG_ERROR ( "OFC of neighbor nPhase=0!" );
     return false;
   }
-  const size_t nSamples=m_contIn->get(*it,gain).mvOFC_a[0].size();
+  const size_t nSamples=m_contIn->get(symCells[0],gain).mvOFC_a[0].size();
   if (!nPhases) {
     ATH_MSG_ERROR ( "OFC of neighbor nSamples=0!" );
     return false;
   }
 
-  float timeOffset = m_contIn->get(*it,gain).m_timeOffset;
-  float timeBinWidth = m_contIn->get(*it,gain).m_timeBinWidth;
+  float timeOffset = m_contIn->get(symCells[0],gain).m_timeOffset;
+  float timeBinWidth = m_contIn->get(symCells[0],gain).m_timeBinWidth;
   std::vector<std::vector<float> > ofc_a;
   std::vector<std::vector<float> > ofc_b;
   ofc_a.resize(nPhases,std::vector<float>(nSamples));
   ofc_b.resize(nPhases,std::vector<float>(nSamples));
 
   unsigned nCells=0;
-  for (;it_e!=it;it++) {
-    const LArOFCP1& ofc=m_contIn->get(*it,gain);
+  for (HWIdentifier hwid : symCells) {
+    const LArOFCP1& ofc=m_contIn->get(hwid,gain);
     if (ofc.OFC_aSize()==0 || ofc.OFC_bSize()==0) continue; //This one is empty...
     if (ofc.OFC_aSize()!=nPhases) {
       ATH_MSG_WARNING ("Cell with same phi but different nPhases found! Ignored" );
@@ -494,7 +479,7 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
       continue;
     }
 
-    ATH_MSG_DEBUG ( "Adding cell 0x"<< std::hex << it->get_compact() << std::dec );
+    ATH_MSG_DEBUG ( "Adding cell 0x"<< std::hex << hwid.get_compact() << std::dec );
     for (size_t iPhase=0;iPhase<nPhases;++iPhase) {
       //Check size of vector?
       for (size_t iSample=0;iSample<nSamples;++iSample) {
@@ -530,15 +515,13 @@ template<class CONDITIONSCONTAINER>
 bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chid, const int gain, LArCaliWaveVec& patch,const LArBadChannelCont* bcCont, const LArOnOffIdMapping* cabling, bool /*isphi*/) {
 
   std::vector<HWIdentifier>& symCells=getPhiRing(chid, bcCont, cabling);  
-  std::vector<HWIdentifier>::const_iterator it=symCells.begin();
-  std::vector<HWIdentifier>::const_iterator it_e=symCells.end();
 
-  if (it==it_e) {
+  if (symCells.empty()) {
     ATH_MSG_ERROR ( "No symmetry cells found!" );
     return false;
   }
   ATH_MSG_DEBUG ( "Averaging for " << symCells.size() << " cells" );
-  size_t s=m_contIn->get(*it,gain).size();
+  size_t s=m_contIn->get(symCells[0],gain).size();
   if (s == 0) {
     ATH_MSG_WARNING ( "No CaliWaves for channel 0x"<<std::hex<<chid.get_compact() << std::dec << ", not patched" );
     return false;
@@ -558,13 +541,10 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
   double tmax;
 
   // first compute average tmax for each DAC
-  for ( ; it_e != it; it++) {
-    std::vector<LArCaliWave>::const_iterator vecit = m_contIn->get(*it,gain).begin();
-    std::vector<LArCaliWave>::const_iterator vecit_e = m_contIn->get(*it,gain).end();
-    for( ; vecit != vecit_e; vecit++) {
-       const LArCaliWave& cwave = *vecit;
+  for (HWIdentifier hwid : symCells) {
+    for (const LArCaliWave& cwave : m_contIn->get(hwid,gain)) {
        // Check if we have such DAC in our patched vector
-       int ourDAC = vecit->getDAC();
+       int ourDAC = cwave.getDAC();
        for(idx=0; idx<patch.size(); ++idx) {
           if(patch[idx].getDAC() == ourDAC) {
               break;
@@ -572,7 +552,7 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
        }
        if(idx == patch.size()) { // New DAC
          if(idx >= s) {
-           ATH_MSG_ERROR ( "Why more DAC's in cell 0x"<< std::hex << it->get_compact() << std::dec );
+           ATH_MSG_ERROR ( "Why more DAC's in cell 0x"<< std::hex << hwid.get_compact() << std::dec );
            continue;
          }
          patch.push_back(cwave);
@@ -592,19 +572,15 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
   }
   ATH_MSG_DEBUG ( "Averaged tmax computed: "<<patch_max[idx]<<" starting to add waves");
 
-  it=symCells.begin(); // Again from beginning
   patch_nadd.clear();
   patch.clear();
        
-  for ( ; it_e != it; it++) {
-    ATH_MSG_DEBUG ( "Adding ch. "<<*it<<", layer: "<<m_caloId->sampling(cabling->cnvToIdentifier(*it))<<", region: "<<m_caloId->region(cabling->cnvToIdentifier(*it))<<" eta: "<<m_caloId->eta(cabling->cnvToIdentifier(*it))<<", phi: "<<m_caloId->phi(cabling->cnvToIdentifier(*it)));
+  for (HWIdentifier hwid : symCells) {
+    ATH_MSG_DEBUG ( "Adding ch. "<<hwid<<", layer: "<<m_caloId->sampling(cabling->cnvToIdentifier(hwid))<<", region: "<<m_caloId->region(cabling->cnvToIdentifier(hwid))<<" eta: "<<m_caloId->eta(cabling->cnvToIdentifier(hwid))<<", phi: "<<m_caloId->phi(cabling->cnvToIdentifier(hwid)));
 
-    std::vector<LArCaliWave>::const_iterator vecit = m_contIn->get(*it,gain).begin();
-    std::vector<LArCaliWave>::const_iterator vecit_e = m_contIn->get(*it,gain).end();
-    for( ; vecit != vecit_e; vecit++) {
-       const LArCaliWave& cwave = *vecit;
+    for (const LArCaliWave& cwave : m_contIn->get(hwid,gain)) {
        // Check if we have such DAC in our patched vector
-       int ourDAC = vecit->getDAC();
+       int ourDAC = cwave.getDAC();
        ATH_MSG_DEBUG ( "Checking DAC: " << ourDAC );
        for(idx=0; idx<patch.size(); ++idx) {
           if(patch[idx].getDAC() == ourDAC) {
@@ -613,7 +589,7 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
        }
        if(idx == patch.size()) { // New DAC
          if(idx >= s) {
-           ATH_MSG_ERROR ( "Why more DAC's in cell 0x"<< std::hex << it->get_compact() << std::dec );
+           ATH_MSG_ERROR ( "Why more DAC's in cell 0x"<< std::hex << hwid.get_compact() << std::dec );
             continue;
          }
          patch.push_back(cwave);
@@ -627,11 +603,11 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
          patch_nadd.push_back(1);
        } else { // We have such DAC already, shift and add
          /*dmax =*/ wHelper.getDMax(cwave, tmax); 
-         ATH_MSG_DEBUG ( "Adding cell 0x"<< std::hex << it->get_compact() << std::dec );
+         ATH_MSG_DEBUG ( "Adding cell 0x"<< std::hex << hwid.get_compact() << std::dec );
          ATH_MSG_DEBUG ( " shifted by: "<< patch_max[idx] - tmax );
          //(*m_log) << MSG::DEBUG <<tmax<<endmsg;
          if(tmax < 0 || fabs(patch_max[idx] - tmax) > cwave.getWave().size()*cwave.getDt()) {
-           ATH_MSG_WARNING ( "Wrong patch_max[idx]-tmax:"<<patch_max[idx]-tmax<<" for cell 0x" << std::hex << it->get_compact() << std::dec <<", not added in average");
+           ATH_MSG_WARNING ( "Wrong patch_max[idx]-tmax:"<<patch_max[idx]-tmax<<" for cell 0x" << std::hex << hwid.get_compact() << std::dec <<", not added in average");
              continue;
          }
          LArWave wtrans = wHelper.Dtranslate(cwave, patch_max[idx] - tmax);
@@ -660,14 +636,12 @@ template<class CONDITIONSCONTAINER>
 bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chid, const int gain, LArMphysOverMcalP1& patch, const LArBadChannelCont* bcCont, const LArOnOffIdMapping* cabling, bool isphi) {
 
   std::vector<HWIdentifier>& symCells=getPhiRing(chid, bcCont, cabling);  
-  std::vector<HWIdentifier>::const_iterator it=symCells.begin();
-  std::vector<HWIdentifier>::const_iterator it_e=symCells.end();
 
   patch.m_MphysOverMcal=0;
 
   unsigned nCells=0;
-  for (;it_e!=it;it++) {
-    const float mPmC=m_contIn->get(*it,gain);
+  for (HWIdentifier hwid : symCells) {
+    const float mPmC=m_contIn->get(hwid,gain);
     if (mPmC>0) {
       patch.m_MphysOverMcal+=mPmC;
       nCells++;
@@ -690,14 +664,12 @@ template<class CONDITIONSCONTAINER>
 bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chid, const int gain, LArSingleFloatP& patch, const LArBadChannelCont* bcCont, const LArOnOffIdMapping* cabling, bool /*isphi*/) {
 
   std::vector<HWIdentifier>& symCells=getPhiRing(chid, bcCont, cabling);  
-  std::vector<HWIdentifier>::const_iterator it=symCells.begin();
-  std::vector<HWIdentifier>::const_iterator it_e=symCells.end();
 
   patch.m_data=0;
 
   unsigned nCells=0;
-  for (;it_e!=it;it++) {
-    const LArSingleFloatP& sf=m_contIn->get(*it,gain);
+  for (HWIdentifier hwid : symCells) {
+    const LArSingleFloatP& sf=m_contIn->get(hwid,gain);
     if (!sf.isEmpty()) {
       patch.m_data+=sf.m_data;
       nCells++;

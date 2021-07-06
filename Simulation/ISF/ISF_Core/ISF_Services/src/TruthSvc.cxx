@@ -298,32 +298,18 @@ void ISF::TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) const {
       // 2) A new GenVertex for the intermediate interaction should be
       // added.
 #ifdef HEPMC3
-      auto newVtx = HepMC::newGenVertexPtr( vtx->position(), vtx->id());
-#else
-      std::unique_ptr<HepMC::GenVertex> newVtx = std::make_unique<HepMC::GenVertex>( vtx->position(), vtx->id(), vtx->weights() );
-#endif
-#ifdef DEBUG_TRUTHSVC
-      ATH_MSG_INFO("New GenVertex 1: " << *(newVtx.get()) );
-      ATH_MSG_INFO("New QS GenVertex 1: " << *(newVtx.get()) );
-#endif
+      auto newVtx = HepMC::newGenVertexPtr( vtx->position(), vtx->status());
       HepMC::GenEvent *mcEvent = parentBeforeIncident->parent_event();
-      HepMC::suggest_barcode(newVtx.get(), this->maxGeneratedVertexBarcode(mcEvent)-1 );
-#ifdef DEBUG_TRUTHSVC
-      ATH_MSG_INFO("New QSGenVertex 2: " << *(newVtx.get()) );
-#endif
-#ifdef HEPMC3
       auto tmpVtx = newVtx;
-#else
-      auto tmpVtx = newVtx.get();
-#endif
-#ifdef DEBUG_TRUTHSVC
-      ATH_MSG_INFO("New QS GenVertex 3: " << (*tmpVtx) );
-#endif
-#ifdef HEPMC3
       mcEvent->add_vertex( newVtx);
-      auto vtx_weights=newVtx->attribute<HepMC3::VectorDoubleAttribute>("weights");
+      HepMC::suggest_barcode(newVtx, this->maxGeneratedVertexBarcode(mcEvent)-1 );
+      auto vtx_weights=vtx->attribute<HepMC3::VectorDoubleAttribute>("weights");
       if (vtx_weights) newVtx->add_attribute("weights",std::make_shared<HepMC3::VectorDoubleAttribute>(vtx_weights->value()));
 #else
+      std::unique_ptr<HepMC::GenVertex> newVtx = std::make_unique<HepMC::GenVertex>( vtx->position(), vtx->id(), vtx->weights() );
+      HepMC::GenEvent *mcEvent = parentBeforeIncident->parent_event();
+      HepMC::suggest_barcode(newVtx.get(), this->maxGeneratedVertexBarcode(mcEvent)-1 );
+      auto tmpVtx = newVtx.get();
       if(!mcEvent->add_vertex( newVtx.release() )) {
         ATH_MSG_FATAL("Failed to add GenVertex to GenEvent.");
         abort();
@@ -462,8 +448,8 @@ HepMC::GenVertexPtr  ISF::TruthSvc::createGenVertexFromTruthIncident( ISF::ITrut
   auto vtx = HepMC::newGenVertexPtr( ti.position(),vtxID);
 #else
   std::unique_ptr<HepMC::GenVertex> vtx = std::make_unique<HepMC::GenVertex>( ti.position(), vtxID, weights );
-#endif
   HepMC::suggest_barcode( vtx.get(), vtxbcode );
+#endif
 
   if (parent->end_vertex()){
     if(!m_quasiStableParticlesIncluded) {
@@ -479,18 +465,32 @@ HepMC::GenVertexPtr  ISF::TruthSvc::createGenVertexFromTruthIncident( ISF::ITrut
 #endif
     if(replaceExistingGenVertex) {
       vtx->add_particle_in( parent );
-      ATH_MSG_VERBOSE("createGVfromTI Replacement QS GenVertex: " << vtx.get() );
+
 #ifdef HEPMC3
+      ATH_MSG_VERBOSE("createGVfromTI Replacement QS GenVertex: " << vtx );
       mcEvent->add_vertex(vtx);
+      HepMC::suggest_barcode( vtx, vtxbcode );
       vtx->add_attribute("weights",std::make_shared<HepMC3::VectorDoubleAttribute>(weights));
 #else
+      ATH_MSG_VERBOSE("createGVfromTI Replacement QS GenVertex: " << vtx.get() );
       mcEvent->add_vertex( vtx.release() );
 #endif
       // Delete oldVertex and children here
       this->deleteChildVertex(oldVertex);
     }
     else {
-      oldVertex->set_position( ti.position() );
+      const auto& old_pos=oldVertex->position();
+      const auto& new_pos=ti.position();
+      double diffr=std::sqrt(std::pow(new_pos.x()-old_pos.x(),2)+std::pow(new_pos.y()-old_pos.y(),2)+std::pow(new_pos.z()-old_pos.z(),2));
+      //AV The comparison below is not portable.
+      if(diffr>1*Gaudi::Units::mm) { //Check for a change of the vertex position by more than 1mm
+        ATH_MSG_WARNING("For particle: " << parent);
+        ATH_MSG_WARNING("  decay vertex before QS partice sim: " << oldVertex );
+        oldVertex->set_position( ti.position() );
+        ATH_MSG_WARNING("  decay vertex after  QS partice sim:  " << oldVertex );
+      } else {
+        oldVertex->set_position( ti.position() );
+      }  
 #ifdef HEPMC3
       oldVertex->set_status( vtxID );
       oldVertex->add_attribute("weights",std::make_shared<HepMC3::VectorDoubleAttribute>(weights));
@@ -518,6 +518,7 @@ HepMC::GenVertexPtr  ISF::TruthSvc::createGenVertexFromTruthIncident( ISF::ITrut
 #endif
 #ifdef HEPMC3
     mcEvent->add_vertex(vtx);
+    HepMC::suggest_barcode( vtx, vtxbcode );
     vtx->add_attribute("weights",std::make_shared<HepMC3::VectorDoubleAttribute>(weights));
 #else
     mcEvent->add_vertex( vtx.release() );

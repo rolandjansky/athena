@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBXCRYYTABLEREAD_H
@@ -17,9 +17,9 @@ class TBXCryYTableRead: public AthAlgorithm {
   
   TBXCryYTableRead(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~TBXCryYTableRead();
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
   
  private: 
   void clear();

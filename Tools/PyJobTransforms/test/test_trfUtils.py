@@ -1,16 +1,13 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @Package test_trfUtils.py
 #  @brief Unittests for trfUtils.py
 #  @author graeme.andrew.stewart@cern.ch
-#  @version $Id: test_trfUtils.py 711194 2015-11-27 14:44:03Z mavogel $
 
-from __future__ import print_function
 import unittest
 import os
-import pwd
 import subprocess
 import time
 
@@ -75,6 +72,22 @@ class TestValgrindCommand(unittest.TestCase):
     def test_valgrindarguments(self):
         vgc=ValgrindCommand()
         self.assertTrue(vgc.startswith('valgrind'))
-        
+
+class TestVersionDetection(unittest.TestCase):
+    def test_asetup_version_detection(self):
+        self.assertFalse(asetupReleaseIsOlderThan('Athena,master,latest', 22))
+        self.assertFalse(asetupReleaseIsOlderThan('Athena,22.0,latest', 22))
+        self.assertFalse(asetupReleaseIsOlderThan('Athena,22.0.12', 22))
+        self.assertFalse(asetupReleaseIsOlderThan('Athena,21.3,latest', 21, 0))
+
+        self.assertTrue(asetupReleaseIsOlderThan('Athena,21.0,latest', 22))
+        self.assertTrue(asetupReleaseIsOlderThan('Athena,21.3,latest', 22))
+        self.assertTrue(asetupReleaseIsOlderThan('Athena,21.3,latest', 21, 9))
+        self.assertTrue(asetupReleaseIsOlderThan('Athena,21.0.123', 22))
+        self.assertTrue(asetupReleaseIsOlderThan('Athena,21.0.123.1', 22))
+        self.assertTrue(asetupReleaseIsOlderThan('Athena, 21.0.123.1', 22))
+        self.assertTrue(asetupReleaseIsOlderThan('21.0.123,Athena', 22))
+
+
 if __name__ == '__main__':
     unittest.main()

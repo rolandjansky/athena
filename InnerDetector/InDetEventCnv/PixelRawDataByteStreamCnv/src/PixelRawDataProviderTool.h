@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELRAWDATABYTESTREAMCNV_PIXELRAWDATAPROVIDERTOOL_H
@@ -54,15 +54,6 @@ private:
   SG::WriteHandleKey<InDetTimeCollection> m_BCIDCollectionKey{this, "BCIDCollectionName", "PixelBCID"};
 
   mutable std::atomic_int m_DecodeErrCount;
-  bool m_checkLVL1ID;
-
-  mutable std::mutex m_mutex;
-  struct CacheEntry {
-    EventContext::ContextEvt_t m_evt{EventContext::INVALID_CONTEXT_EVT};
-    uint32_t m_LastLvl1ID{0xffffffff};
-  };
-  mutable SG::SlotSpecificObj<CacheEntry> m_cache ATLAS_THREAD_SAFE; // Guarded by m_mutex
-
 };
 
 #endif

@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Athena/Gaudi includes
 #include "GaudiKernel/ITHistSvc.h"
-#include "AthenaMonitoring/IMonitorToolBase.h"
 
 //Event info includes
 #include "EventInfo/EventInfo.h"
@@ -35,8 +34,6 @@ namespace NSWL1 {
       m_current_evt(-1)
   {
 
-    m_counters.clear();
-
     // Property setting general behaviour:
     declareProperty( "DoOffline",    m_doOffline    = false, "Steers the offline emulation of the LVL1 logic" );
      declareProperty( "UseLookup",   m_useLookup    = false, "Toggle Lookup mode on and off default is the otf(old) mode" );
@@ -57,13 +54,6 @@ namespace NSWL1 {
     declareProperty( "MMStripTdsTool",  m_mmstrip_tds,  "Tool that simulates the functionalities of the MM STRIP TDS");
     declareProperty( "MMTriggerTool",   m_mmtrigger,    "Tool that simulates the MM Trigger");
     declareProperty("NSWTrigRDOContainerName", m_trigRdoContainer = "NSWTRGRDO"," Give a name to NSW trigger rdo container");
-
-    // declare monitoring variables
-    declareMonitoredStdContainer("COUNTERS", m_counters); // custom monitoring: number of processed events    
-  }
-
-  NSWL1Simulation::~NSWL1Simulation() {
-
   }
 
 
@@ -125,15 +115,13 @@ namespace NSWL1 {
 
 
   StatusCode NSWL1Simulation::execute() {
-    m_counters.clear();
     const DataHandle<EventInfo> pevt;
     ATH_CHECK( evtStore()->retrieve(pevt) );
     m_current_run = pevt->event_ID()->run_number();
     m_current_evt = pevt->event_ID()->event_number();
 
 
-    m_counters.push_back(1.);
-    std::vector<std::shared_ptr<PadData>> pads;  
+    std::vector<std::shared_ptr<PadData>> pads;
     std::vector<std::unique_ptr<PadTrigger>> padTriggers;
     std::vector<std::unique_ptr<StripData>> strips;
     std::vector< std::unique_ptr<StripClusterData> > clusters;

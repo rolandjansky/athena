@@ -38,7 +38,7 @@ namespace Trk {
        static const InterfaceID& interfaceID() { return IID_IPRD_TruthTrajectoryBuilder; }
 
        /** return a vector of PrepRawData trajectories - uses internal cache**/
-       virtual const std::map< const HepMC::GenParticle*, PRD_TruthTrajectory >& truthTrajectories() const = 0;
+       virtual const std::map< HepMC::ConstGenParticlePtr, PRD_TruthTrajectory >& truthTrajectories() const = 0;
        
        /** Event refresh - can't be an IIncident, because it has to run after PRD creation and PRD truth creation */
        virtual StatusCode refreshEvent() = 0;       

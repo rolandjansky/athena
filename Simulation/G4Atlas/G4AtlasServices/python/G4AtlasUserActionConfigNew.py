@@ -13,7 +13,7 @@ from CaloG4Sim.CaloG4SimConfigNew import CalibrationDefaultProcessingToolCfg
 from ISF_Tools.ISF_ToolsConfigNew import StoppedParticleFilterToolCfg
 from ISF_Services.ISF_ServicesCoreConfigNew import GeoIDSvcCfg, AFIIGeoIDSvcCfg
 from ISF_Services.ISF_ServicesConfigNew import (
-    TruthServiceCfg, ParticleBrokerSvcCfg, 
+    TruthServiceCfg, ParticleBrokerSvcCfg, AFIIParticleBrokerSvcCfg
 )
 from ISF_Geant4CommonTools.ISF_Geant4CommonToolsConfigNew import EntryLayerToolCfg, EntryLayerToolMTCfg
 
@@ -22,15 +22,14 @@ from ISF_Geant4CommonTools.ISF_Geant4CommonToolsConfigNew import EntryLayerToolC
 def FullG4TrackProcessorUserActionToolCfg(flags, name="FullG4TrackProcessorUserActionTool", **kwargs):
     result = ComponentAccumulator()
     if flags.Sim.ISF.Simulator in ["FullG4MT"]:
-        result.merge(EntryLayerToolMTCfg(flags))
-        tool = result.getPublicTool("ISF_EntryLayerToolMT")
+        tool = result.popToolsAndMerge(EntryLayerToolMTCfg(flags))
     else:
-        result.merge(EntryLayerToolCfg(flags))
-        tool = result.getPublicTool("ISF_EntryLayerTool")
-    kwargs.setdefault("EntryLayerTool", tool)
+        tool = result.popToolsAndMerge(EntryLayerToolCfg(flags))
+    result.addPublicTool(tool)
+    kwargs.setdefault("EntryLayerTool", result.getPublicTool(tool.name))
     result.merge(GeoIDSvcCfg(flags))
     kwargs.setdefault("GeoIDSvc", result.getService("ISF_GeoIDSvc"))
-    if flags.Detector.SimulateCavern:
+    if flags.Detector.GeometryCavern:
         kwargs.setdefault("TruthVolumeLevel", 2)
     result.setPrivateTools(CompFactory.G4UA.iGeant4.TrackProcessorUserActionFullG4Tool(name, **kwargs))
     return result
@@ -52,8 +51,10 @@ def MCTruthUserActionToolCfg(flags, name="ISFMCTruthUserActionTool", **kwargs):
 
 
 def TrackProcessorUserActionToolCfg(flags, name="ISFG4TrackProcessorUserActionTool", **kwargs):
-    result = ParticleBrokerSvcCfg(flags)
-    kwargs.setdefault("ParticleBroker", result.getService("ISF_ParticleBrokerSvc"))
+    result = ComponentAccumulator()
+    if "ParticleBroker" not in kwargs:
+        result.merge(ParticleBrokerSvcCfg(flags))
+        kwargs.setdefault("ParticleBroker", result.getService("ISF_ParticleBrokerSvc"))
     result.merge(GeoIDSvcCfg(flags))
     kwargs.setdefault("GeoIDSvc", result.getService("ISF_GeoIDSvc"))
     result.setPrivateTools(CompFactory.G4UA.iGeant4.TrackProcessorUserActionPassBackTool(name, **kwargs))
@@ -68,6 +69,9 @@ def AFII_G4TrackProcessorUserActionToolCfg(flags, name="AFII_G4TrackProcessorUse
     result = ComponentAccumulator()
     if flags.Sim.ISF.Simulator in ["PassBackG4MT", "ATLFASTIIMT", "G4FastCaloMT"]:
         kwargs.setdefault("ParticleBroker", "")
+    if flags.Sim.ISF.Simulator in ["ATLFASTII","ATLFASTIIF_G4MS"]:
+        result.merge(AFIIParticleBrokerSvcCfg(flags))
+        kwargs.setdefault("ParticleBroker", result.getService("ISF_AFIIParticleBrokerSvc"))
     result.merge(AFIIGeoIDSvcCfg(flags))
     kwargs.setdefault("GeoIDSvc", result.getService("ISF_AFIIGeoIDSvc"))
     kwargs.setdefault("PassBackEkinThreshold", 0.05*MeV)
@@ -114,7 +118,7 @@ def getDefaultActions(ConfigFlags):
         actions += [result.popToolsAndMerge(CalibrationDefaultProcessingToolCfg(ConfigFlags))]
 
     actions += [result.popToolsAndMerge(LooperKillerToolCfg(ConfigFlags))]
-    
+
     result.setPrivateTools(actions)
     return result
 
@@ -139,7 +143,6 @@ def CTBUserActionSvcCfg(ConfigFlags, name="G4UA::CTBUserActionSvc", **kwargs):
     result = ComponentAccumulator()
     # FIXME migrate an alternative to this
     generalActions = result.popToolsAndMerge(getDefaultActions(ConfigFlags))
-    generalActions += [result.popToolsAndMerge(LooperKillerToolCfg(ConfigFlags))]
     # This comment carried over from old style:
     # FIXME: ADS these actions are not yet migrated to Hive
     #if simFlags.SimLayout.get_Value()=="tb_LArH6_2004":
@@ -178,7 +181,6 @@ def ISFUserActionSvcCfg(ConfigFlags, name="G4UA::ISFUserActionSvc", **kwargs):
     generalActions = (
         TrackProcessorUserAction + MCTruthUserAction +
         result.popToolsAndMerge(getDefaultActions(ConfigFlags)) +
-        [result.popToolsAndMerge(LooperKillerToolCfg(ConfigFlags))] +
         PhysicsValidationUserAction
     )
 

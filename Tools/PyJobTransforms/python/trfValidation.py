@@ -1,12 +1,4 @@
-from future.utils import iteritems
-
-from builtins import zip
-from builtins import object
-from builtins import range
-from builtins import int
-import six
-
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfValidation
 #
@@ -14,7 +6,6 @@ import six
 # @details Contains validation classes controlling how the transforms
 # will validate jobs they run.
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfValidation.py 782012 2016-11-03 01:45:33Z uworlika $
 # @note Old validation dictionary shows usefully different options:
 # <tt>self.validationOptions = {'testIfEmpty' : True, 'testIfNoEvents' : False, 'testIfExists' : True,
 #                          'testIfCorrupt' : True, 'testCountEvents' : True, 'extraValidation' : False,
@@ -185,7 +176,7 @@ class logFileReport(object):
     def __init__(self, logfile=None, msgLimit=10, msgDetailLevel=stdLogLevels['ERROR']):
 
         # We can have one logfile or a set
-        if isinstance(logfile, six.string_types):
+        if isinstance(logfile, str):
             self._logfile = [logfile, ]
         else:
             self._logfile = logfile
@@ -248,7 +239,7 @@ class athenaLogFileReport(logFileReport):
     @property
     def python(self):
         errorDict = {'countSummary': {}, 'details': {}}
-        for level, count in iteritems(self._levelCounter):
+        for level, count in self._levelCounter.items():
             errorDict['countSummary'][level] = count
             if self._levelCounter[level] > 0 and len(self._errorDetails[level]) > 0:
                 errorDict['details'][level] = []
@@ -431,7 +422,7 @@ class athenaLogFileReport(logFileReport):
     def worstError(self):
         worst = stdLogLevels['DEBUG']
         worstName = 'DEBUG'
-        for lvl, count in iteritems(self._levelCounter):
+        for lvl, count in self._levelCounter.items():
             if count > 0 and stdLogLevels.get(lvl, 0) > worst:
                 worstName = lvl
                 worst = stdLogLevels[lvl]
@@ -448,7 +439,7 @@ class athenaLogFileReport(logFileReport):
         firstLine = firstError = None
         firstLevel = stdLogLevels[floor]
         firstName = floor
-        for lvl, count in iteritems(self._levelCounter):
+        for lvl, count in self._levelCounter.items():
             if (count > 0 and stdLogLevels.get(lvl, 0) >= stdLogLevels[floor] and
                 (firstError is None or self._errorDetails[lvl][0]['firstLine'] < firstLine)):
                 firstLine = self._errorDetails[lvl][0]['firstLine']
@@ -704,7 +695,7 @@ class scriptLogFileReport(logFileReport):
     def worstError(self):
         worstlevelName = 'DEBUG'
         worstLevel = stdLogLevels[worstlevelName]
-        for levelName, count in iteritems(self._levelCounter):
+        for levelName, count in self._levelCounter.items():
             if count > 0 and stdLogLevels.get(levelName, 0) > worstLevel:
                 worstlevelName = levelName
                 worstLevel = stdLogLevels[levelName]
@@ -743,7 +734,7 @@ def returnIntegrityOfFile(file, functionName):
 def performStandardFileValidation(dictionary, io, parallelMode = False):
     if parallelMode is False:
         msg.info('Starting legacy (serial) file validation')
-        for (key, arg) in iteritems(dictionary):
+        for (key, arg) in dictionary.items():
             if not isinstance(arg, argFile):
                 continue
             if not arg.io == io:
@@ -801,7 +792,7 @@ def performStandardFileValidation(dictionary, io, parallelMode = False):
         # Create a list for collation of file validation jobs for submission to
         # the parallel job processor.
         jobs = []
-        for (key, arg) in iteritems(dictionary):
+        for (key, arg) in dictionary.items():
             if not isinstance(arg, argFile):
                 continue
             if not arg.io == io:
@@ -1016,7 +1007,7 @@ class eventMatch(object):
     def decide(self):
         # We have all that we need to proceed: input and output data, skip and max events plus any efficiency factor
         # So loop over the input and output data and make our checks
-        for inData, neventsInData in iteritems(self._inEventDict):
+        for inData, neventsInData in self._inEventDict.items():
             if not isinstance(neventsInData, int):
                 msg.warning('File size metadata for {inData} was not countable, found {neventsInData}. No event checks possible for this input data.'.format(inData=inData, neventsInData=neventsInData))
                 continue
@@ -1052,7 +1043,7 @@ class eventMatch(object):
             msg.debug('Expected number of processed events for {0} is {1}'.format(inData, expectedEvents))
 
             # Loop over output data - first find event count configuration
-            for outData, neventsOutData in iteritems(self._outEventDict):
+            for outData, neventsOutData in self._outEventDict.items():
                 if not isinstance(neventsOutData, int):
                     msg.warning('File size metadata for {outData} was not countable, found "{neventsOutData}". No event checks possible for this output data.'.format(outData=outData, neventsOutData=neventsOutData))
                     continue
@@ -1062,7 +1053,7 @@ class eventMatch(object):
                 else:
                     # Look for glob matches
                     checkConf = None
-                    for outDataKey, outDataConf in iteritems(self._eventCountConf[inDataKey]):
+                    for outDataKey, outDataConf in self._eventCountConf[inDataKey].items():
                         if fnmatch.fnmatch(outData, outDataKey):
                             msg.info('Matched output data type {outData} to {outDatakey} by globbing'.format(outData=outData, outDatakey=outDataKey))
                             outDataKey = outData

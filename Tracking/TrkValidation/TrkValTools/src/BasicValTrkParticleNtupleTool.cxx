@@ -121,7 +121,7 @@ StatusCode Trk::BasicValTrkParticleNtupleTool::finalize() {
   ATH_MSG_DEBUG("start finalize() in " << name());
   if (m_nt) {
     delete m_nt;
-    m_nt = 0;
+    m_nt = nullptr;
   }
 
   return StatusCode::SUCCESS;
@@ -222,7 +222,7 @@ StatusCode Trk::BasicValTrkParticleNtupleTool::fillTrackParticleData (
     //----------------------------------------------
     // fill track parameters in ntuple
     const Trk::Perigee* perpars = track.perigee();
-    if (perpars != NULL && fillTrkParticlePerigee(perpars).isFailure())  ATH_MSG_WARNING("Perigee parameters could not be written to ntuple");
+    if (perpars != nullptr && fillTrkParticlePerigee(perpars).isFailure())  ATH_MSG_WARNING("Perigee parameters could not be written to ntuple");
     
     const Trk::TrackSummary* summary = track.trackSummary();
     if((!summary) || fillTrkParticleSummary(summary).isFailure()) ATH_MSG_WARNING("Summary parameters could not be written to ntuple");

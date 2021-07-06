@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -17,7 +17,7 @@
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
-#include "PixelReadoutGeometry/PixelDiodeMatrix.h"
+#include "ReadoutGeometryBase/PixelDiodeMatrix.h"
 using namespace InDetDD;
 
 DBM_Module::DBM_Module(InDetDD::PixelDetectorManager* ddmgr,
@@ -125,7 +125,7 @@ GeoVPhysVol* DBM_Module::Build()
     const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
     //first try the Diamond
     const GeoMaterial* diamond = m_mat_mgr->getMaterial("pix::Diamond");
-    if(diamond == NULL)
+    if(diamond == nullptr)
     {
   	diamond = m_mat_mgr->getMaterial("std::Carbon");	
     }

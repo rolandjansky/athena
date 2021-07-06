@@ -139,7 +139,20 @@ TruthParticleFilterBase::buildMcAod (const McEventCollection* mc_in,
   mc_out->reserve (mc_in->size());
   for (const HepMC::GenEvent* ev_in : *mc_in) {
     if (!ev_in) continue;
+#ifdef HEPMC3
+    HepMC::GenEvent* ev_out = HepMC::copyemptyGenEvent( ev_in);
+    // Copy and filter the contents.
+    CHECK( filterEvent (ev_in, ev_out) );
+    // Maybe throw out empty GenEvent's.
+    if (m_removeEmpty && ev_out->particles().empty())
+      delete ev_out;
+    else
+      mc_out->push_back (ev_out);
+    // If we don't want pileup, only do the first non-empty GenEvent.
+    if (!m_doPileup && ev_in->particles().size() != 0)
+      break;
 
+#else
     // Copy the GenEvent.
     HepMC::GenEvent* ev_out = new HepMC::GenEvent (ev_in->signal_process_id(),
                                                    ev_in->event_number());
@@ -165,6 +178,7 @@ TruthParticleFilterBase::buildMcAod (const McEventCollection* mc_in,
     // If we don't want pileup, only do the first non-empty GenEvent.
     if (!m_doPileup && ev_in->particles_size() != 0)
       break;
+#endif
   }
   return StatusCode::SUCCESS;
 }
@@ -174,19 +188,16 @@ TruthParticleFilterBase::buildMcAod (const McEventCollection* mc_in,
  * @brief Filter a single @c GenEvent.
  */
 StatusCode
-TruthParticleFilterBase::filterEvent (const HepMC::GenEvent* ev_in,
-                                      HepMC::GenEvent* ev_out)
+TruthParticleFilterBase::filterEvent (const HepMC::GenEvent* ev_in, HepMC::GenEvent* ev_out)
 {
   // Loop over particles.
   // (range-based for doesn't work here because particle_const_iterator
   // isn't consistent in the use of const...)
-  for (HepMC::GenEvent::particle_const_iterator ip = ev_in->particles_begin();
-       ip != ev_in->particles_end();
-       ++ip)
+  for (auto ip: *((HepMC::GenEvent*)ev_in))
   {
     // Copy the particle if we want to keep it.
-    if (isAccepted (*ip))
-      CHECK( addParticle (*ip, ev_out) );
+    if (isAccepted (ip))
+      CHECK( addParticle (ip, ev_out) );
   }
   return StatusCode::SUCCESS;
 }
@@ -196,8 +207,7 @@ TruthParticleFilterBase::filterEvent (const HepMC::GenEvent* ev_in,
  * @brief Add a @c GenParticle (and its production vertex) to a @c GenEvent.
  */
 StatusCode
-TruthParticleFilterBase::addParticle (const HepMC::GenParticle* p,
-                                      HepMC::GenEvent* ev)
+TruthParticleFilterBase::addParticle (HepMC::GenParticlePtr p, HepMC::GenEvent* ev)
 {
   // Add parent vertex if it exists.  Otherwise, add decay vertex.
   if (p->production_vertex())
@@ -208,7 +218,22 @@ TruthParticleFilterBase::addParticle (const HepMC::GenParticle* p,
     REPORT_MESSAGE (MSG::ERROR) << "Encountered GenParticle with no vertices!";
     return StatusCode::FAILURE;
   }
+#ifdef HEPMC3
+  // Find the particle in the event.
+  // If it doesn't exist yet, copy it.
+  HepMC::GenParticlePtr pnew = HepMC::barcode_to_particle (ev,HepMC::barcode(p));
+  if (!pnew) pnew = std::make_shared<HepMC::GenParticle>(*p);
+  // Add ourself to our vertices.
+  if (p->production_vertex()) {
+    HepMC::GenVertexPtr v = HepMC::barcode_to_vertex (ev,HepMC::barcode(p->production_vertex()));
+    if (v) v->add_particle_out (pnew);
+  }
+  if (p->end_vertex()) {
+    HepMC::GenVertexPtr v =  HepMC::barcode_to_vertex (ev, HepMC::barcode(p->end_vertex()));
+    if (v) v->add_particle_in (pnew);
+  }
 
+#else
   // Find the particle in the event.
   // If it doesn't exist yet, copy it.
   HepMC::GenParticle* pnew = ev->barcode_to_particle (p->barcode());
@@ -229,6 +254,8 @@ TruthParticleFilterBase::addParticle (const HepMC::GenParticle* p,
     if (v)
       v->add_particle_in (pnew);
   }
+//AV: here is a memory leak in case the p has no prod/no end vertex
+#endif
 
   return StatusCode::SUCCESS;
 }
@@ -238,9 +265,34 @@ TruthParticleFilterBase::addParticle (const HepMC::GenParticle* p,
  * @brief Add a @c GenVertex to a @c GenEvent.
  */
 StatusCode
-TruthParticleFilterBase::addVertex (const HepMC::GenVertex* v,
-                                    HepMC::GenEvent* ev)
+TruthParticleFilterBase::addVertex (HepMC::GenVertexPtr v, HepMC::GenEvent* ev)
 {
+#ifdef HEPMC3
+  // See if this vertex has already been copied.
+  HepMC::GenVertexPtr vnew = HepMC::barcode_to_vertex (ev,HepMC::barcode(v));
+  if (!vnew) {
+    // No ... make a new one.
+    vnew = HepMC::newGenVertexPtr();
+    ev->add_vertex (vnew);
+    vnew->set_position (v->position());
+    vnew->set_status (v->status());
+    HepMC::suggest_barcode (vnew,HepMC::barcode(v));
+//AV: Are these needed?FIXME?    vnew->weights() = v->weights();
+    // Fill in the existing relations of the new vertex.
+    for (auto  p : v->particles_in())
+    {
+      HepMC::GenParticlePtr pnew = HepMC::barcode_to_particle (ev,HepMC::barcode(p));
+      if (pnew) vnew->add_particle_in (pnew);
+    }
+    
+   for (auto  p :v->particles_out())
+    {
+      HepMC::GenParticlePtr pnew = HepMC::barcode_to_particle (ev,HepMC::barcode(p));
+      if (pnew) vnew->add_particle_out (pnew);
+    }
+  }
+
+#else
   // See if this vertex has already been copied.
   HepMC::GenVertex* vnew = ev->barcode_to_vertex (v->barcode());
   if (!vnew) {
@@ -271,6 +323,7 @@ TruthParticleFilterBase::addVertex (const HepMC::GenVertex* v,
         vnew->add_particle_out (pnew);
     }
   }
+#endif
 
   return StatusCode::SUCCESS;
 }
@@ -280,7 +333,7 @@ TruthParticleFilterBase::addVertex (const HepMC::GenVertex* v,
  * @brief Test to see if we want to keep a particle.
  */
 bool
-TruthParticleFilterBase::isAccepted (const HepMC::GenParticle* /*p*/)
+TruthParticleFilterBase::isAccepted (HepMC::ConstGenParticlePtr /*p*/)
 {
   // Default implementation accepts everything.
   return true;
@@ -298,14 +351,11 @@ TruthParticleFilterBase::isolations (TruthEtIsolationsContainer const* &isocont)
     return StatusCode::FAILURE;
   }
 
-  std::string isoname =
-    m_isolationTool->etIsolationsName (m_mcEventsOutputName);
+  std::string isoname = m_isolationTool->etIsolationsName (m_mcEventsOutputName);
 
   CHECK( evtStore()->retrieve (isocont, isoname) );
 
   return StatusCode::SUCCESS;
 }
-
-
 
 } // namespace D3PD

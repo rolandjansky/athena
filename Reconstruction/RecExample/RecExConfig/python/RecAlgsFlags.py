@@ -102,9 +102,11 @@ class doEgammaBremReco(JobProperty):
     StoredValue=False 
 class doTrigger(JobProperty):
     """ Switch for trigger"""
+    # TODO: Remove this flag and assume False in all client configuration
+    # once the Run-2 trigger execution is removed from release 22
     statusOn=True 
     allowedTypes=['bool']
-    StoredValue=True 
+    StoredValue=False
 class doAtlfast(JobProperty):
     """ Switch for fast simulation (but normally run at ESD->AOD stage)"""
     statusOn=True

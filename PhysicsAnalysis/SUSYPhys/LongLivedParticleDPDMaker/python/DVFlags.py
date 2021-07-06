@@ -20,7 +20,6 @@ class DV_containerFlags(JobProperty):
     muonCollectionName='Muons'
     jetCollectionName="AntiKt4EMTopoJets"
     METCollectionName="MET_LocHadTopo"
-    pass
 primRPVLLDESDM.add_JobProperty(DV_containerFlags)
 
 class DV_MultiJetTriggerFlags(JobProperty):
@@ -40,7 +39,6 @@ class DV_MultiJetTriggerFlags(JobProperty):
     triggers += ["HLT_5j85_L14J15"] # 2018 5 jet
     if rpvllTrig.doRPVLLTriggerAPI:
         triggers += apitriggers.getDVMultiJetTriggers() ## TriggerAPI
-    pass
 primRPVLLDESDM.add_JobProperty(DV_MultiJetTriggerFlags)
 
 ### Additional multijet filter for DV+Jets
@@ -51,7 +49,6 @@ class DV_2JetFilterFlags_HighpTCut(JobProperty):
     StoredValue=True
     cutEtMin=500.0*Units.GeV
     nPassed=2
-    pass
 primRPVLLDESDM.add_JobProperty(DV_2JetFilterFlags_HighpTCut)
 
 class DV_3JetFilterFlags_HighpTCut(JobProperty):
@@ -60,7 +57,6 @@ class DV_3JetFilterFlags_HighpTCut(JobProperty):
     StoredValue=True
     cutEtMin=180.0*Units.GeV
     nPassed=3
-    pass
 primRPVLLDESDM.add_JobProperty(DV_3JetFilterFlags_HighpTCut)
 
 class DV_4JetFilterFlags_HighpTCut(JobProperty):
@@ -69,7 +65,6 @@ class DV_4JetFilterFlags_HighpTCut(JobProperty):
     StoredValue=True
     cutEtMin=220.0*Units.GeV
     nPassed=4
-    pass
 primRPVLLDESDM.add_JobProperty(DV_4JetFilterFlags_HighpTCut)
 
 class DV_5JetFilterFlags_HighpTCut(JobProperty):
@@ -78,7 +73,6 @@ class DV_5JetFilterFlags_HighpTCut(JobProperty):
     StoredValue=True
     cutEtMin=170.0*Units.GeV
     nPassed=5
-    pass
 primRPVLLDESDM.add_JobProperty(DV_5JetFilterFlags_HighpTCut)
 
 class DV_6JetFilterFlags_HighpTCut(JobProperty):
@@ -87,7 +81,6 @@ class DV_6JetFilterFlags_HighpTCut(JobProperty):
     StoredValue=True
     cutEtMin=100.0*Units.GeV
     nPassed=6
-    pass
 primRPVLLDESDM.add_JobProperty(DV_6JetFilterFlags_HighpTCut)
 
 class DV_7JetFilterFlags_HighpTCut(JobProperty):
@@ -96,7 +89,6 @@ class DV_7JetFilterFlags_HighpTCut(JobProperty):
     StoredValue=True
     cutEtMin=75.0*Units.GeV
     nPassed=7
-    pass
 primRPVLLDESDM.add_JobProperty(DV_7JetFilterFlags_HighpTCut)
 
 
@@ -110,7 +102,6 @@ class DV_2JetFilterFlags(JobProperty):
     StoredValue=True
     cutEtMin=220.0*Units.GeV
     nPassed=2
-    pass
 primRPVLLDESDM.add_JobProperty(DV_2JetFilterFlags)
 
 class DV_3JetFilterFlags(JobProperty):
@@ -119,7 +110,6 @@ class DV_3JetFilterFlags(JobProperty):
     StoredValue=True
     cutEtMin=120.0*Units.GeV
     nPassed=3
-    pass
 primRPVLLDESDM.add_JobProperty(DV_3JetFilterFlags)
 
 class DV_4JetFilterFlags(JobProperty):
@@ -128,7 +118,6 @@ class DV_4JetFilterFlags(JobProperty):
     StoredValue=True
     cutEtMin=100.0*Units.GeV
     nPassed=4
-    pass
 primRPVLLDESDM.add_JobProperty(DV_4JetFilterFlags)
 
 class DV_5JetFilterFlags(JobProperty):
@@ -137,7 +126,6 @@ class DV_5JetFilterFlags(JobProperty):
     StoredValue=True
     cutEtMin=75.0*Units.GeV
     nPassed=5
-    pass
 primRPVLLDESDM.add_JobProperty(DV_5JetFilterFlags)
 
 class DV_6JetFilterFlags(JobProperty):
@@ -146,7 +134,6 @@ class DV_6JetFilterFlags(JobProperty):
     StoredValue=True
     cutEtMin=50.0*Units.GeV
     nPassed=6
-    pass
 primRPVLLDESDM.add_JobProperty(DV_6JetFilterFlags)
 
 class DV_7JetFilterFlags(JobProperty):
@@ -155,7 +142,6 @@ class DV_7JetFilterFlags(JobProperty):
     StoredValue=True
     cutEtMin=45.0*Units.GeV
     nPassed=7
-    pass
 primRPVLLDESDM.add_JobProperty(DV_7JetFilterFlags)
 
 class DV_MuonBarrelFilterFlags(JobProperty):
@@ -168,7 +154,6 @@ class DV_MuonBarrelFilterFlags(JobProperty):
     if rpvllTrig.doRPVLLTriggerAPI:
         triggers += apitriggers.getDVMuonBarrelTriggers() ## TriggerAPI
     nPassed=1
-    pass
 primRPVLLDESDM.add_JobProperty(DV_MuonBarrelFilterFlags)
 
 class DV_MuonFullMSFilterFlags(JobProperty):
@@ -181,7 +166,6 @@ class DV_MuonFullMSFilterFlags(JobProperty):
     if rpvllTrig.doRPVLLTriggerAPI:
         triggers += apitriggers.getDVMuonFullMSTriggers() ## TriggerAPI
     nPassed=1
-    pass
 primRPVLLDESDM.add_JobProperty(DV_MuonFullMSFilterFlags)
 
 class DV_PhotonFilterFlags(JobProperty):
@@ -197,7 +181,6 @@ class DV_PhotonFilterFlags(JobProperty):
         triggers += apitriggers.getDVPhotonTriggers() ## TriggerAPI
     prescale=20
     nPassed=1
-    pass
 primRPVLLDESDM.add_JobProperty(DV_PhotonFilterFlags)
 
 
@@ -228,7 +211,6 @@ class DV_METFilterFlags(JobProperty):
                 "HLT_xe110_pufit_xe65_L1XE60" ] #2018 backup
     if rpvllTrig.doRPVLLTriggerAPI:
         triggers += apitriggers.getDVMETTriggers() ## TriggerAPI
-    pass
 primRPVLLDESDM.add_JobProperty(DV_METFilterFlags)
 
 class DV_SingleTracklessJetFilterFlags(JobProperty):
@@ -238,7 +220,6 @@ class DV_SingleTracklessJetFilterFlags(JobProperty):
     cutEtMin=70.0*Units.GeV
     cutEtaMax=2.5
     cutSumPtTrkMax=5.0*Units.GeV
-    pass
 primRPVLLDESDM.add_JobProperty(DV_SingleTracklessJetFilterFlags)
 
 class DV_DoubleTracklessJetFilterFlags(JobProperty):
@@ -248,7 +229,6 @@ class DV_DoubleTracklessJetFilterFlags(JobProperty):
     cutEtMin=50.0*Units.GeV
     cutEtaMax=2.5
     cutSumPtTrkMax=5.0*Units.GeV
-    pass
 primRPVLLDESDM.add_JobProperty(DV_DoubleTracklessJetFilterFlags)
 
 class DV_MeffFilterFlags(JobProperty):
@@ -277,7 +257,6 @@ class DV_MeffFilterFlags(JobProperty):
                           "HLT_xe90_topoclPUC_L1XE55","HLT_xe100_topoclPUC_L1XE55","HLT_xe120_topoclPUC_L1XE55",
                     "HLT_xe90_topoclPUC_L1XE60","HLT_xe100_topoclPUC_L1XE60","HLT_xe120_topoclPUC_L1XE60"
                          ]
-    pass
 #primRPVLLDESDM.add_JobProperty(DV_MeffFilterFlags)
 
 class DV_PrescalerFlags(JobProperty):
@@ -285,6 +264,5 @@ class DV_PrescalerFlags(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
     prescale=20
-    pass
 primRPVLLDESDM.add_JobProperty(DV_PrescalerFlags)
 

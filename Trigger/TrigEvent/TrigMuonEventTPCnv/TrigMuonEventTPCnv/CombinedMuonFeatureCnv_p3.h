@@ -22,7 +22,6 @@
 #include "TrigMuonEventTPCnv/MuonFeatureCnv_p1.h"
 #include "TrigInDetEventTPCnv/TrigInDetTrackCnv_p1.h"
 #include "DataModelAthenaPool/ElementLinkCnv_p3.h"
-#include "DataModelAthenaPool/ElementLinkCnv_p3.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "TrigMuonEvent/CombinedMuonFeatureContainer.h"
 #include "TrigMuonEvent/MuonFeatureContainer.h"

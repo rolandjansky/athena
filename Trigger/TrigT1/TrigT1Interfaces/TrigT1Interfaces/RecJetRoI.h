@@ -1,8 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: RecJetRoI.h 782811 2016-11-07 17:20:40Z smh $
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
+// Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 /***************************************************************************
                          RecJetRoI.h  -  description
                             -------------------
@@ -27,6 +24,7 @@
 // Forward declaration(s):
 namespace TrigConf {
    class TriggerThreshold;
+   class L1Menu;
 }
 
 namespace LVL1 {
@@ -43,9 +41,12 @@ namespace LVL1 {
    public:
       // constructor
       RecJetRoI() {}
-      // constructor
+      // constructor using Run 1+2 configuration
       RecJetRoI( unsigned int RoIWord,
                  const std::vector< TrigConf::TriggerThreshold* >* caloThresholds );
+      /// constructor using Run 3 configuration
+      RecJetRoI( unsigned int RoIWord,
+                 const TrigConf::L1Menu * const l1menu );
 
       //copy constructor
       RecJetRoI( const RecJetRoI &obj );
@@ -82,30 +83,34 @@ namespace LVL1 {
       virtual unsigned int etLarge() const;
 
       /** returns roi ET in smaller cluster. Only valid for Run 2 data.
-          Will return highest threshold passed if called for Run 1 data. */
+       *  Will return highest threshold passed if called for Run 1 data.
+       **/
       virtual unsigned int etSmall() const;
 
-      /** returns TRUE if threshold number <em>threshold_number</em> has been passed
-          by this ROI. */
+      /** returns TRUE if threshold number <em>threshold_number</em> has been passed by this ROI. */
       bool passedThreshold( int thresholdNumber ) const;
 
       /** Same for forward jets. Deprecated in Run 2, will always return false. */
       bool passedFwdThreshold( int thresholdNumber ) const;
 
-      /** returns the CoordinateRange. This is worked out from the RoIWord's hardware coords
-          (i.e. crate number, CPM number etc.) by the RoIDecoder class.  */
+      /** @brief returns the CoordinateRange.
+       * This is worked out from the RoIWord's hardware coords
+       * (i.e. crate number, CPM number etc.) by the RoIDecoder class.
+       **/
       CoordinateRange coord() const;
 
       /** returns a vector of thresholds passed. */
-      std::vector< unsigned int >* thresholdsPassed() const;
+      std::vector<unsigned int> thresholdsPassed() const;
 
-      /** returns the value of the trigger threshold for the threshold passed.
-          Thresholds can vary by coordinate. Return value which matches coord of RecRoI*/
+      /** @brief returns the value of the trigger threshold for the threshold passed.
+       * Thresholds can vary by coordinate. Return value which matches coord of RecRoI
+       **/
       unsigned int triggerThreshold( unsigned int thresh ) const;
 
-      /** returns the size of the window.
-          For Run 1 this should be 4, 6 or 8, for 4x4, 6x6, 8x8 jets.
-          For Run 2 this should be 0 or 1, denoting large or small */
+      /** @brief returns the size of the window.
+       * For Run 1 this should be 4, 6 or 8, for 4x4, 6x6, 8x8 jets.
+       * For Run 2 this should be 0 or 1, denoting large or small
+       **/
       unsigned int windowSize( unsigned int thresh ) const;
       
       /** returns bitmask of passed thresholds */
@@ -113,29 +118,32 @@ namespace LVL1 {
 
       /** returns true if thresh is a valid threshold number */
       bool isValidThreshold( unsigned int thresh ) const;
-      
-     /** returns true if the RoI is a forward jet RoI. A forward jet is defined as one that
-     passes ANY forward jet threshold.
-     For legacy compatibility with Run 1 only. Deprecated in Run 2 */
-     bool isForwardJet() const;
+
+      /** returns true if the RoI is a forward jet RoI. A forward jet is defined as one that
+       * passes ANY forward jet threshold.
+       * For legacy compatibility with Run 1 only. Deprecated in Run 2
+       **/
+      bool isForwardJet() const;
 
    private:
-      /** this contains the coordinate range worked out from the RoIWord hardware coord
-          (i.e. crate number, CPM number etc.)*/
-      CoordinateRange m_coordRange;
-
-      /** Used for decoding RoI word */
-      JEPRoIDecoder* m_decoder { 0 };
-
       /** this is the actual format of the data sent from
           the LVL1 hardware. */
       unsigned long int m_roiWord { 0 };
       
+      /** Used for decoding RoI word */
+      JEPRoIDecoder* m_decoder { 0 };
+
       /** Store the RoI format version */
       int m_version { 0 };
 
+      /** this contains the coordinate range worked out from the RoIWord hardware coord
+       * (i.e. crate number, CPM number etc.)
+       **/
+      CoordinateRange m_coordRange;
+
       /** Information on trigger thresholds passed by RoI */ 
       unsigned long int m_thresholdMask { 0 };
+
       std::map< int, unsigned int > m_triggerThresholdValue;
       std::map< int, unsigned int > m_windowSize;
       
@@ -146,6 +154,8 @@ namespace LVL1 {
       // Constructor for Run 2 RoI format
       void constructRun2( const std::vector< TrigConf::TriggerThreshold* >* caloThresholds );
 
+      // Constructor for Run 3 Legacy RoI format from new config
+      void constructRun3(const TrigConf::L1Menu * const l1menu);
 
    }; // class RecJetRoI
 

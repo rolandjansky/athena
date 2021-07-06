@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1RPClogic/CMAreadout.h"
@@ -19,11 +19,11 @@ CMAreadout::CMAreadout(CMApatterns* patterns) :
 
 CMAreadout::CMAreadout(const CMAreadout& readout) :
               RPCtrigDataObject(readout.number(),readout.name()),
-              m_CMAconfiguration(readout.CMAconfiguration()),
-	      m_sector(readout.sector()),
-              m_cma_identity(readout.id()),
-              m_low_pt_matrix(readout.low_pt_matrix()),
-              m_high_pt_matrix(readout.high_pt_matrix())
+              m_CMAconfiguration(readout.m_CMAconfiguration),
+              m_sector(readout.m_sector),
+              m_cma_identity(readout.m_cma_identity),
+              m_low_pt_matrix(readout.m_low_pt_matrix),
+              m_high_pt_matrix(readout.m_high_pt_matrix)
 {
     m_matrices_readout[0] = 0;
     m_matrices_readout[1] = 0;
@@ -40,11 +40,11 @@ CMAreadout::operator=(const CMAreadout& readout)
 {
     static_cast<RPCtrigDataObject&>(*this) = 
         static_cast<const RPCtrigDataObject&>(readout);
-    m_CMAconfiguration = readout.CMAconfiguration();
-    m_sector = readout.sector();
-    m_cma_identity = readout.id();
-    m_low_pt_matrix = readout.low_pt_matrix();
-    m_high_pt_matrix = readout.high_pt_matrix();
+    m_CMAconfiguration = readout.m_CMAconfiguration;
+    m_sector = readout.m_sector;
+    m_cma_identity = readout.m_cma_identity;
+    m_low_pt_matrix = readout.m_low_pt_matrix;
+    m_high_pt_matrix = readout.m_high_pt_matrix;
     return *this;
 }
 

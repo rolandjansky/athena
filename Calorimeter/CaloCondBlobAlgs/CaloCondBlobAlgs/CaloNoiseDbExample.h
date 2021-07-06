@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOTOOLS_CALONOISEDBEXAMPLE_H
@@ -19,9 +19,6 @@
 
 #include "StoreGate/DataHandle.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-
-//#include "CaloTools/CaloNoiseToolDB.h"
-//#include "CaloInterface/ICaloNoiseTool.h"
 
 #include "CaloIdentifier/CaloGain.h"
 #include "AthenaKernel/IOVSvcDefs.h"

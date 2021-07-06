@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SGTools/DataProxy.h"
@@ -28,8 +28,7 @@ SGDeleteAlg::~SGDeleteAlg()
 StatusCode
 SGDeleteAlg::initialize() {
   StatusCode sc;
-  ATH_MSG_VERBOSE("Initializing " << name() 
-                  << " - package version " << PACKAGE_VERSION);
+  ATH_MSG_VERBOSE("Initializing " << name());
   (sc=m_targetStore.retrieve()).isSuccess() &&
     (sc=m_toDelete.retrieve()).isSuccess();
   return sc;

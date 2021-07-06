@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -48,11 +48,11 @@ public:
   //
   // default constructor for rootcint
 #ifdef __CINT__
-  AtlasHitsVector<T>( ) {}
+  AtlasHitsVector( ) {}
   //
   // methods not provided to rootcint
 #else
-  AtlasHitsVector<T>(std::string collectionName="DefaultCollectionName", const unsigned int mySize=100)
+  AtlasHitsVector(const std::string& collectionName="DefaultCollectionName", const unsigned int mySize=100)
   {
     IMessageSvc* msgSvc(Athena::getMessageSvc());
     MsgStream log(msgSvc, "AtlasHitsVector");
@@ -62,9 +62,8 @@ public:
     m_hitvector.reserve(mySize);
   }
 
-  ~AtlasHitsVector<T> () {
-    std::vector<T>().swap(m_hitvector);
-  }
+  ~AtlasHitsVector () =default;
+
   void Clear()
   {
     m_hitvector.clear();
@@ -92,6 +91,8 @@ public:
   explicit AtlasHitsVector(const AtlasHitsVector<T>& rhs)
     : m_hitvector(rhs.m_hitvector) {}
 
+  AtlasHitsVector(AtlasHitsVector<T>&& rhs) noexcept = default;
+
   // Conversion
   explicit AtlasHitsVector(const AthenaHitsVector<T>& rhs) {
     m_hitvector.reserve(rhs.Size());
@@ -105,6 +106,8 @@ public:
     }
     return *this;
   }
+
+  AtlasHitsVector<T>& operator=(AtlasHitsVector<T>&& rhs) noexcept = default;
 
   /// assignment deletes old elements and deep copies the new ones
   // Assignment from the AthenaHitsVector form

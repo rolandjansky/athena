@@ -49,8 +49,6 @@ namespace tauRecTools
 
   TLorentzVector GetConstituentP4(const xAOD::JetConstituent& constituent);
 
-  const StatusCode GetJetClusterList(const xAOD::Jet* jet, std::vector<const xAOD::CaloCluster*> &clusterList, bool useSubtractedCluster);
-
   xAOD::TauTrack::TrackFlagType isolateClassifiedBits(xAOD::TauTrack::TrackFlagType flag);
   bool sortTracks(const ElementLink<xAOD::TauTrackContainer> &l1, const ElementLink<xAOD::TauTrackContainer> &l2);
 
@@ -62,4 +60,4 @@ namespace tauRecTools
   std::vector<TString> parseStringMVAUtilsBDT(const TString& str, const TString& delim=",");
 }
 
-#endif // not TAUANALYSISTOOLS_HELPERFUNCTIONS_H
+#endif // TAURECTOOLS_HELPERFUNCTIONS_H

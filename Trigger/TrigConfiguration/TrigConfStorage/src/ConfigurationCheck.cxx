@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -156,9 +156,9 @@ public:
       for(const TrigConf::HLTSequence* seq : m_hlt->getHLTSequenceList()) {
          const std::string& tename = seq->outputTE()->name();
         
-         if( ( tename.find("L2") != 0 ) &&
-             ( tename.find("EF") != 0 ) &&
-             ( tename.find("HLT") != 0 ) ) {
+         if( ( tename.compare(0, 2, "L2") != 0 ) &&
+             ( tename.compare(0, 2, "EF") != 0 ) &&
+             ( tename.compare(0, 3, "HLT") != 0 ) ) {
             // name of output TE does not start with L2 nor EF
             //          if(!isExplicitTE(tename))
             //            m_offending += tename + ", ";
@@ -479,7 +479,7 @@ public:
       
         bool bwgroup=false;
         for( const string& it : ch->groups()) {
-           if ( it.find("BW:") == 0 ) { bwgroup=true; break; }
+           if ( it.compare(0, 3, "BW:") == 0 ) { bwgroup=true; break; }
         }
         if(!bwgroup)
            m_offending += ch->chain_name() + ", ";
@@ -1086,7 +1086,7 @@ public:
       m_offending("")
   {}
 
-  void checkForBG0inTop(TriggerItemNode * const  node, bool& found) const
+  void checkForBG0inTop(const TriggerItemNode * const  node, bool& found) const
   {
     // BGRP0 must be in top AND in the logic
     if(node==0 || node->type()==TriggerItemNode::OR || node->type()==TriggerItemNode::NOT) return;
@@ -1155,7 +1155,7 @@ public:
          }
       }
 
-      for( HLTChain* ch: m_hlt->chains() ) {
+      for( HLTChain* ch: m_hlt->getHLTChainList() ) {
 
          if( ch->level()=="EF" ) continue; // chains we do not care about in this check
          if( ch->lower_chain_name() == "") continue; // unseeded
@@ -1802,9 +1802,7 @@ public:
 	if( algoname.find("TrigSubDetListWriter")!= std::string::npos || algoname.find("TrigROBListWriter")!= std::string::npos || algoname.find("ScoutingStreamWriter")!= std::string::npos){
 	  const std::string& tename = seq->outputTE()->name();
 
-	  if ( teOutFromSeq.count( tename ) == 0 ) {
-            teOutFromSeq.insert( tename);
-	  }
+          teOutFromSeq.insert( tename);
 
 	  //	  m_nonCalibPEB += algoname + ": " + tename + ", ";
 	}
@@ -1892,10 +1890,8 @@ ConfigurationCheck::ConfigurationCheck(TrigConf::CTPConfig* ctp, TrigConf::HLTFr
 // destructor
 ConfigurationCheck::~ConfigurationCheck() {
 
-   std::vector<TrigConfTest*>::iterator itTest = m_tests.begin();
-   std::vector<TrigConfTest*>::iterator lastTest = m_tests.end();
-   for (;itTest != lastTest; itTest++) {
-      delete *itTest; *itTest = 0;
+   for (TrigConfTest* tct : m_tests) {
+     delete tct;
    }
    m_tests.clear();
 }

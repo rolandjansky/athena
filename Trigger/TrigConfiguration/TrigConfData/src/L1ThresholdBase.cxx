@@ -28,22 +28,22 @@ std::shared_ptr<TrigConf::L1Threshold>
 TrigConf::L1Threshold::createThreshold( const std::string & name, const std::string & type, 
                                         std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data )
 {
-  if( type == "EM" )
+   if( type == "EM" )
       return std::make_shared<L1Threshold_EM>( name, type, extraInfo, data );
-    
+
    if( type == "TAU" )
       return std::make_shared<L1Threshold_TAU>( name, type, extraInfo, data );
 
    if( type == "XE" )
       return std::make_shared<L1Threshold_XE>( name, type, extraInfo, data );
 
-   if( type == "JET" )
+   if( type == "JET"  || type == "JB" || type == "JF" ) // JB and JF are Run 1 thresholds
       return std::make_shared<L1Threshold_JET>( name, type, extraInfo, data );
    
    if( type == "XS" )
       return std::make_shared<L1Threshold_XS>( name, type, extraInfo, data );
    
-   if( type == "TE" )
+   if( type == "TE" || type == "JE" ) // JE is a Run 1 threshold
       return std::make_shared<L1Threshold_TE>( name, type, extraInfo, data );
 
    if( type == "eEM" )
@@ -62,8 +62,7 @@ TrigConf::L1Threshold::createThreshold( const std::string & name, const std::str
       return std::make_shared<L1Threshold_ZB>( name, type, extraInfo, data );
 
    static const std::string NIMtypes[] = { "BCM", "BCMCMB", "LUCID", "ZDC", "BPTX", "CALREQ", "MBTS", "MBTSSI", "NIM" };
-   bool isNIMtype = std::find(std::begin(NIMtypes), std::end(NIMtypes), type) !=
-     std::end(NIMtypes);
+   bool isNIMtype = std::find(std::begin(NIMtypes), std::end(NIMtypes), type) != std::end(NIMtypes);
 
    if( isNIMtype )
       return std::make_shared<L1Threshold_NIM>( name, type, extraInfo, data );
@@ -72,21 +71,19 @@ TrigConf::L1Threshold::createThreshold( const std::string & name, const std::str
       return std::make_shared<L1Threshold_internal>( name, type, extraInfo, data );
 
    static const std::string caloBaseImp[] = { "gXE", "jXE" };
-   bool useCaloBaseClass = std::find(std::begin(caloBaseImp), std::end(caloBaseImp),type) !=
-     std::end(caloBaseImp);
+   bool useCaloBaseClass = std::find(std::begin(caloBaseImp), std::end(caloBaseImp),type) != std::end(caloBaseImp);
 
    if( useCaloBaseClass )
       return std::make_shared<L1Threshold_Calo>( name, type, extraInfo, data );
 
-   static const std::string noSpecialImp[] = { "JET", "XS", "TOPO", "MULTTOPO", "MUTOPO", "R2TOPO", "ALFA" };
-   bool useBaseClass = std::find(std::begin(noSpecialImp), std::end(noSpecialImp),type) !=
-     std::end(noSpecialImp);
+   static const std::string noSpecialImp[] = { "JET", "XS", "TOPO", "MULTTOPO", "MUTOPO", "R2TOPO", "ALFA"};
+   bool useBaseClass = std::find(std::begin(noSpecialImp), std::end(noSpecialImp),type) != std::end(noSpecialImp);
 
    if( useBaseClass )
       return std::make_shared<L1Threshold>( name, type, extraInfo, data );
-  
+
    throw std::runtime_error("Threshold " + name + " is not of a valid L1 threshold type: " + type);
-  
+
 }
 
 TrigConf::L1Threshold::L1Threshold( const std::string & name, const std::string & type,

@@ -12,7 +12,7 @@ atlas_add_component( PixelDigitization
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaBaseComps GaudiKernel AthenaKernel PileUpToolsLib StoreGateLib GeneratorObjects PixelConditionsData SiPropertiesToolLib InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry SiDigitization InDetCondTools InDetRawData InDetSimData InDetSimEvent HitManagement PathResolver PixelCablingLib InDetConditionsSummaryService )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaBaseComps GaudiKernel AthenaKernel PileUpToolsLib StoreGateLib GeneratorObjects PixelConditionsData SiPropertiesToolLib InDetIdentifier ReadoutGeometryBase InDetReadoutGeometry PixelReadoutGeometry SiDigitization InDetCondTools InDetRawData InDetSimData InDetSimEvent HitManagement PathResolver PixelCablingLib InDetConditionsSummaryService )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

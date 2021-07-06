@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -49,14 +49,6 @@ public:
     {
       //This ordering is not "newer". It is solely to be able to use in a set.
       return runNumber==o.runNumber ? eventNumber < o.eventNumber : runNumber < o.runNumber;
-    }
-
-    EventID & operator= (const EventID & o )
-    { 
-      if (&o == this) return *this;
-      eventNumber = o.eventNumber;
-      runNumber = o.runNumber;
-      return *this;
     }
   };
 

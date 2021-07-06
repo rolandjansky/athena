@@ -6,62 +6,63 @@
 
 namespace LVL1 {
 
-  MuCTPIL1Topo::MuCTPIL1Topo( ):m_bcidOffset(0){
+  LVL1::MuCTPIL1Topo::MuCTPIL1Topo() {}
 
-  }
-  MuCTPIL1Topo::MuCTPIL1Topo(std::vector<MuCTPIL1TopoCandidate> candList):m_bcidOffset(0){
-    m_muonTopoCandidates = candList;
-  }
 
-  MuCTPIL1Topo& MuCTPIL1Topo::operator=( const MuCTPIL1Topo& a ) {
-    
-    clearCandidates();
-    m_muonTopoCandidates = a.getCandidates();
+  LVL1::MuCTPIL1Topo::MuCTPIL1Topo(const std::vector<MuCTPIL1TopoCandidate> & candList)
+    : m_muonTopoCandidates(candList)
+  {}
 
+  LVL1::MuCTPIL1Topo&
+  LVL1::MuCTPIL1Topo::operator=( const MuCTPIL1Topo& a ) {
+    if( this != &a ) {  
+      m_muonTopoCandidates = a.getCandidates();
+    }
     return *this;      
   }
   
-  MuCTPIL1Topo& MuCTPIL1Topo::operator+=( const MuCTPIL1Topo& a) {
-
-    std::vector<MuCTPIL1TopoCandidate>::iterator it;
-    std::vector<MuCTPIL1TopoCandidate> a_candvect = a.getCandidates();
-    for(it = a_candvect.begin(); it != a_candvect.end(); ++it) {
-      addCandidate( *it );
+  LVL1::MuCTPIL1Topo&
+  LVL1::MuCTPIL1Topo::operator+=( const MuCTPIL1Topo& a) {
+    for(const MuCTPIL1TopoCandidate & muCand : a.getCandidates())
+    {
+      addCandidate( muCand );
     } 
     return *this;    
   }
 
-  MuCTPIL1Topo MuCTPIL1Topo::operator+( const MuCTPIL1Topo& a ) {
-    
+  LVL1::MuCTPIL1Topo
+  LVL1::MuCTPIL1Topo::operator+( const MuCTPIL1Topo& a ) {
     MuCTPIL1Topo result = *this;
-      result += a;
-      return result;
+    result += a;
+    return result;
   }
   
-  
-  std::vector<MuCTPIL1TopoCandidate> MuCTPIL1Topo::getCandidates() const {
-     return m_muonTopoCandidates;
-   }
+  const std::vector<MuCTPIL1TopoCandidate> &
+  LVL1::MuCTPIL1Topo::getCandidates() const {
+    return m_muonTopoCandidates;
+  }
 
-  void MuCTPIL1Topo::setCandidates(std::vector<MuCTPIL1TopoCandidate> candList)  {
-    clearCandidates();
+  void
+  LVL1::MuCTPIL1Topo::setCandidates(const std::vector<MuCTPIL1TopoCandidate> & candList)  {
     m_muonTopoCandidates = candList;
-   }
+  }
   
-  void MuCTPIL1Topo::addCandidate(MuCTPIL1TopoCandidate candidate){
+  void
+  LVL1::MuCTPIL1Topo::addCandidate(const MuCTPIL1TopoCandidate & candidate){
     m_muonTopoCandidates.push_back(candidate);
   }
 
-  void  MuCTPIL1Topo::clearCandidates(){
+  void
+  LVL1::MuCTPIL1Topo::clearCandidates(){
     m_muonTopoCandidates.clear();
   }
 
-  void MuCTPIL1Topo::print() const {
-    for (std::vector<MuCTPIL1TopoCandidate>::const_iterator it =  m_muonTopoCandidates.begin(); 
-	 it != m_muonTopoCandidates.end(); ++it) {
-      it->print();
+  void
+  LVL1::MuCTPIL1Topo::print() const {
+    for (const MuCTPIL1TopoCandidate & muCand : m_muonTopoCandidates)
+    {
+      muCand.print();
     }
-
   }
 
 } // namespace LVL1

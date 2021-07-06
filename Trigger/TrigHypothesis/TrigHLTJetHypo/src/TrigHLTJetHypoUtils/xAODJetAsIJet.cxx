@@ -34,6 +34,10 @@ bool xAODJetAsIJet::getAttribute(const std::string &name, float& val) const{
   return m_jet->getAttribute<float>(name, val);
 }
 
+bool xAODJetAsIJet::getAttribute(const std::string &name, bool& val) const{
+  return m_jet->getAttribute<bool>(name, val);
+}
+
 std::optional<const xAOD::Jet*>  xAODJetAsIJet::xAODJet() const{
   return std::make_optional<const xAOD::Jet*>(m_jet);
 }

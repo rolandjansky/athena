@@ -1,26 +1,14 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigTRTHTHCounter.h"
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
-
-#include "CxxUtils/phihelper.h"
-#include "InDetIdentifier/TRT_ID.h"
-#include "Identifier/IdentifierHash.h"
-#include "InDetPrepRawData/TRT_DriftCircleContainer.h" 
-
-#include "TrigCaloEvent/TrigEMCluster.h"
-#include "xAODTrigRinger/TrigRNNOutput.h"
-#include "GeoPrimitives/GeoPrimitives.h"
-
-#include<cmath>
-#include<fstream>
+#include "AthenaMonitoringKernel/Monitored.h"
 
 //Function to calculate distance for road algorithm
 float dist2COR(float R, float phi1, float phi2){
-  float PHI=fabs(phi1-phi2);
-  return fabs(R*sin(PHI));
+  float PHI= std::abs(phi1-phi2);
+  return std::abs(R*sin(PHI));
 }
 
 //TRT hit struct used for convenience
@@ -39,50 +27,17 @@ TRT_hit make_hit(float phi, float R, bool isHT){
 
 //---------------------------------------------------------------------------------
 
-TrigTRTHTHCounter::TrigTRTHTHCounter(const std::string& name, ISvcLocator* pSvcLocator)
-  : HLT::FexAlgo(name, pSvcLocator),
-    m_trtHelper(0),
-    m_phiHalfWidth(0.1),
-    m_etaHalfWidth(0.1),
-    m_doFullScan(false),
-    m_maxCaloEta(1.7),
-    m_roadWidth(4.),
-    m_nBinCoarse(14),
-    m_nBinFine(14),
-    m_wedgeMinEta(0),
-    m_roadMaxEta(1.06),
-    m_wedgeNBin(5)
+
+TrigTRTHTHCounter::TrigTRTHTHCounter(const std::string & name, ISvcLocator* pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
+{}
+
+StatusCode TrigTRTHTHCounter::initialize()
 {
-  
-  declareProperty("TRT_DC_ContainerName", m_trtDCContainerName = "TRT_TrigDriftCircles" );
-  declareProperty("EtaHalfWidth",         m_etaHalfWidth); //Used to define subsection of RoI (to retrieve fewer TRT hits)
-  declareProperty("PhiHalfWidth",         m_phiHalfWidth); //Used to define subsection of RoI (to retrieve fewer TRT hits)
-  declareProperty("doFullScan",           m_doFullScan); //Whether to use all RoI (not implmented)
-  declareProperty("RoadWidth",            m_roadWidth); //Width of road in mm
-  declareProperty("nBinCoarse",           m_nBinCoarse); //Number of coarse bins used while phi centering
-  declareProperty("nBinFine",             m_nBinFine); //Number of fine bins used while phi centering
-  declareProperty("WedgeMinEta",          m_wedgeMinEta); //Min eta for wedge algorithm
-  declareProperty("RoadMaxEta",           m_roadMaxEta); //Max eta for road algorithm (barrel only)
-  declareProperty("WedgeNBin",            m_wedgeNBin); //Number of fine bins to consider in the wedge algorithm
-
-}
-
-//---------------------------------------------------------------------------------
-
-TrigTRTHTHCounter::~TrigTRTHTHCounter() {
-}
-
-//---------------------------------------------------------------------------------
-
-HLT::ErrorCode TrigTRTHTHCounter::hltInitialize() {
   ATH_MSG_DEBUG ( "Initialising this TrigTRTHTHCounter: " << name());
-  
+
   // Get a TRT identifier helper
-  if( detStore()->retrieve(m_trtHelper, "TRT_ID").isFailure()) {
-    ATH_MSG_ERROR ( "Failed to retrieve " << m_trtHelper); // fatal?
-    return HLT::BAD_JOB_SETUP;
-  } else
-    ATH_MSG_INFO ( "Retrieved service " << m_trtHelper);
+  ATH_CHECK( detStore()->retrieve(m_trtHelper, "TRT_ID") );
 
   if (!m_doFullScan){
     ATH_MSG_INFO ( "PhiHalfWidth: " << m_phiHalfWidth << " EtaHalfWidth: "<< m_etaHalfWidth);
@@ -90,121 +45,124 @@ HLT::ErrorCode TrigTRTHTHCounter::hltInitialize() {
     ATH_MSG_INFO ( "FullScan mode");
   }
 
-  ATH_MSG_INFO ( " TrigTRTHTHCounter initialized successfully");
+  ATH_CHECK( m_roiCollectionKey.initialize() );
+  ATH_CHECK( m_trtDCContainerKey.initialize() );
+  ATH_CHECK( m_trigRNNOutputKey.initialize() );
 
-  return HLT::OK;
+  return StatusCode::SUCCESS;
 }
 
-//---------------------------------------------------------------------------------------------------------------------------------------------
 
-HLT::ErrorCode TrigTRTHTHCounter::hltExecute(const HLT::TriggerElement* inputTE,
-					     HLT::TriggerElement* outputTE) {
+StatusCode TrigTRTHTHCounter::execute(const EventContext& ctx) const {
+ using namespace xAOD;
 
-  ATH_MSG_DEBUG ( "Executing TrigTRTHTHCounter " << name());
+ ATH_MSG_DEBUG( "Executing " <<name());
 
-  m_listOfTrtIds.clear();
-
-  float hitInit[6]={0,-999,0,-999,-999,-999};
-  m_trththits.clear();
-  for (int i=0; i<6; i++) {
-    m_trththits.push_back(hitInit[i]);
-  }
-
-  //Vectors to hold the count of total and HT TRT hits in the coarse bins 
-  std::vector<int> count_httrt_c(m_nBinCoarse);
-  std::vector<int> count_tottrt_c(m_nBinCoarse);
+ auto trigRNNOutputColl = SG::makeHandle (m_trigRNNOutputKey, ctx);  
+ ATH_CHECK(trigRNNOutputColl.record (std::make_unique<xAOD::TrigRNNOutputContainer>(),
+                                      std::make_unique<xAOD::TrigRNNOutputAuxContainer>()));
   
-  //Vectors to hold the count of total and HT TRT hits in the fine bins
-  std::vector<int> count_httrt(3*m_nBinFine);
-  std::vector<int> count_tottrt(3*m_nBinFine);
+ ATH_MSG_DEBUG( "Made WriteHandle " << m_trigRNNOutputKey );  
 
-  //Vector to hold TRT hits that are within RoI
-  std::vector<TRT_hit> hit;
+ auto roiCollection = SG::makeHandle(m_roiCollectionKey, ctx);
+ ATH_MSG_DEBUG( "Made handle " << m_roiCollectionKey  );
 
-  const TrigRoiDescriptor* roi = 0;
-  HLT::ErrorCode stat = getFeature( inputTE, roi); //used to be initialRoI, data preparation done in the most recent RoI - use it as well
-  if (stat!=HLT::OK || roi==0){
-    return HLT::NAV_ERROR;
+ if (roiCollection->size()==0) {
+    ATH_MSG_DEBUG(" RoI collection size = 0");
+    return StatusCode::SUCCESS;
+ }
+
+ const TrigRoiDescriptor* roiDescriptor = *(roiCollection->begin());
+
+ ATH_MSG_DEBUG(" RoI ID = "   << (roiDescriptor)->roiId()
+		<< ": Eta = "      << (roiDescriptor)->eta()
+		<< ", Phi = "      << (roiDescriptor)->phi());
+
+
+ std::vector<float> trththits{0,-999,0,-999,-999,-999};
+
+ //Vectors to hold the count of total and HT TRT hits in the coarse bins 
+ std::vector<int> count_httrt_c(m_nBinCoarse);
+ std::vector<int> count_tottrt_c(m_nBinCoarse);
+  
+ //Vectors to hold the count of total and HT TRT hits in the fine bins
+ std::vector<int> count_httrt(3*m_nBinFine);
+ std::vector<int> count_tottrt(3*m_nBinFine);
+
+ //Vector to hold TRT hits that are within RoI
+ std::vector<TRT_hit> hit;
+
+ //Sanity check of the ROI size
+ double deltaEta= std::abs(roiDescriptor->etaPlus()-roiDescriptor->etaMinus());
+ double deltaPhi=CxxUtils::deltaPhi(roiDescriptor->phiPlus(),roiDescriptor->phiMinus());
+
+ ATH_MSG_DEBUG( "roiDescriptor->etaPlus() in TrigTRTHTHCounter:"<<roiDescriptor->etaPlus());
+ ATH_MSG_DEBUG( "roiDescriptor->etaMinus() in TrigTRTHTHCounter:"<<roiDescriptor->etaMinus());
+ ATH_MSG_DEBUG( "deltaEta in TrigTRTHTHCounter:"<<deltaEta); 
+
+ float phiTolerance = 0.001;
+ float etaTolerance = 0.001;
+
+ if((m_etaHalfWidth - deltaEta/2.) > etaTolerance)
+  ATH_MSG_WARNING ( "ROI eta range too small : " << deltaEta);
+
+ if((m_phiHalfWidth - deltaPhi/2.) > phiTolerance)
+  ATH_MSG_WARNING ( "ROI phi range too small : " << deltaPhi);
+
+ float coarseWedgeHalfWidth = m_phiHalfWidth/m_nBinCoarse;
+ float fineWedgeHalfWidth = coarseWedgeHalfWidth/m_nBinFine;
+
+ //Code will only proceed if the RoI eta is not too large; used to limit rate from endcap
+ if ( std::abs(roiDescriptor->eta())<=m_maxCaloEta ){
+
+  SG::ReadHandle<InDet::TRT_DriftCircleContainer> trtDCC(m_trtDCContainerKey, ctx);
+  ATH_MSG_DEBUG( "Made handle " << m_trtDCContainerKey );
+
+  if (trtDCC->size() == 0){
+      return StatusCode::SUCCESS; // Exit early if there are no tracks
   }
- 
-  //Sanity check of the ROI size
-  double deltaEta=fabs(roi->etaPlus()-roi->etaMinus());
-  double deltaPhi=CxxUtils::deltaPhi(roi->phiPlus(),roi->phiMinus());
-  float phiTolerance = 0.001;
-  float etaTolerance = 0.001;
 
-  if((m_etaHalfWidth - deltaEta/2.) > etaTolerance)
-    ATH_MSG_WARNING ( "ROI eta range too small : " << deltaEta);
+  InDet::TRT_DriftCircleContainer::const_iterator trtdriftContainerItr  = trtDCC->begin();
+  InDet::TRT_DriftCircleContainer::const_iterator trtdriftContainerItrE = trtDCC->end();
 
-  if((m_phiHalfWidth - deltaPhi/2.) > phiTolerance)
-    ATH_MSG_WARNING ( "ROI phi range too small : " << deltaPhi);
-
-  float coarseWedgeHalfWidth = m_phiHalfWidth/m_nBinCoarse;
-  float fineWedgeHalfWidth = coarseWedgeHalfWidth/m_nBinFine;
-
-  // Adding xAOD information 
-  ATH_MSG_VERBOSE ( "Attempting to get xAOD::RNNOutput");
-
-  xAOD::TrigRNNOutput *rnnOutput = new xAOD::TrigRNNOutput();
-  ATH_MSG_VERBOSE ( "Successfully got xAOD::RNNOutput ");
-  rnnOutput->makePrivateStore();
-
-  ATH_MSG_VERBOSE ( "Got makePrivateStore " << name());
-
-  //Code will only proceed if the RoI eta is not too large; used to limit rate from endcap
-  if ( fabs(roi->eta())<=m_maxCaloEta ){
-
-    const InDet::TRT_DriftCircleContainer* driftCircleContainer = nullptr;
-    StatusCode sc_sg = evtStore()->retrieve( driftCircleContainer, m_trtDCContainerName) ;
-    if( sc_sg.isFailure() ){
-      ATH_MSG_ERROR ( " Failed to retrieve trt data from SG. "); 
-      return HLT::TOOL_FAILURE;
-    }
-    else {
-      ATH_MSG_VERBOSE ( " Successfully retrieved trt data from SG. "); 
-    }    
-
-    InDet::TRT_DriftCircleContainer::const_iterator trtdriftContainerItr  = driftCircleContainer->begin();
-    InDet::TRT_DriftCircleContainer::const_iterator trtdriftContainerItrE = driftCircleContainer->end();
-
-    for (; trtdriftContainerItr != trtdriftContainerItrE; ++trtdriftContainerItr) {
+  for (; trtdriftContainerItr != trtdriftContainerItrE; ++trtdriftContainerItr) {
     
-      InDet::TRT_DriftCircleCollection::const_iterator trtItr = (*trtdriftContainerItr)->begin();
-      InDet::TRT_DriftCircleCollection::const_iterator trtEnd = (*trtdriftContainerItr)->end();
+    InDet::TRT_DriftCircleCollection::const_iterator trtItr = (*trtdriftContainerItr)->begin();
+    InDet::TRT_DriftCircleCollection::const_iterator trtEnd = (*trtdriftContainerItr)->end();
       
-      for(; trtItr!=trtEnd; trtItr++){
+    for(; trtItr!=trtEnd; trtItr++){
 	
-        // find out which detector element the hit belongs to
-        const InDetDD::TRT_BaseElement *det = (*trtItr)->detectorElement();
-        Identifier ID = (*trtItr)->identify();
-        const Amg::Vector3D& strawcenter = det->strawCenter(m_trtHelper->straw(ID));
+      // find out which detector element the hit belongs to
+      const InDetDD::TRT_BaseElement *det = (*trtItr)->detectorElement();
+      Identifier ID = (*trtItr)->identify();
+      const Amg::Vector3D& strawcenter = det->strawCenter(m_trtHelper->straw(ID));
 
-        bool hth = false;
-	float hphi = strawcenter.phi();
-	float heta = strawcenter.eta();
-	float R = strawcenter.perp(); 
+      bool hth = false;
+      float hphi = strawcenter.phi();
+      float heta = strawcenter.eta();
+      float R = strawcenter.perp(); 
 
-        if ((*trtItr)->highLevel()) hth = true;
-	
-	//hit needs to be stored
-        hit.push_back(make_hit(hphi,R,hth));
+      if ((*trtItr)->highLevel()) hth = true;
 
-	//First, define coarse wedges in phi, and count the TRT hits in these wedges
-        int countbin=0;	
-        if(CxxUtils::deltaPhi(hphi, static_cast<float>(roi->phi())) < 0.1){
-	  float startValue = roi->phi() - m_phiHalfWidth + coarseWedgeHalfWidth;
-	  float endValue = roi->phi() + m_phiHalfWidth;
-	  float increment = 2*coarseWedgeHalfWidth;
-          for(float roibincenter = startValue; roibincenter < endValue; roibincenter += increment){
-            if (CxxUtils::deltaPhi(hphi,roibincenter)<=coarseWedgeHalfWidth) {
-	      if(hth) count_httrt_c.at(countbin) += 1.;
-	      count_tottrt_c.at(countbin) += 1.;
-	      break; //the hit has been assigned to one of the coarse wedges, so no need to continue the for loop							
-	    }
-	    countbin++;
-	  }
+      //hit needs to be stored
+      hit.push_back(make_hit(hphi,R,hth));
+
+      //First, define coarse wedges in phi, and count the TRT hits in these wedges
+      int countbin=0;	
+      if(CxxUtils::deltaPhi(hphi, static_cast<float>(roiDescriptor->phi())) < 0.1){
+        float startValue = roiDescriptor->phi() - m_phiHalfWidth + coarseWedgeHalfWidth;
+	float endValue = roiDescriptor->phi() + m_phiHalfWidth;
+	float increment = 2*coarseWedgeHalfWidth;
+        for(float roibincenter = startValue; roibincenter < endValue; roibincenter += increment){
+        if (CxxUtils::deltaPhi(hphi,roibincenter)<=coarseWedgeHalfWidth) {
+	  if(hth) count_httrt_c.at(countbin) += 1.;
+	  count_tottrt_c.at(countbin) += 1.;
+	  break; //the hit has been assigned to one of the coarse wedges, so no need to continue the for loop							
 	}
-        ATH_MSG_VERBOSE ( "timeOverThreshold=" << (*trtItr)->timeOverThreshold()
+	countbin++;
+       }
+     }
+     ATH_MSG_VERBOSE ( "timeOverThreshold=" << (*trtItr)->timeOverThreshold()
 			<< "  highLevel=" << (*trtItr)->highLevel()
 			<< " rawDriftTime=" << (*trtItr)->rawDriftTime()
 			<< " barrel_ec=" << m_trtHelper->barrel_ec(ID)
@@ -231,7 +189,7 @@ HLT::ErrorCode TrigTRTHTHCounter::hltExecute(const HLT::TriggerElement* inputTE,
   }
 
   //Value of dist can range between 0 and (m_nBinCoarse-1)
-  float center_pos_phi=roi->phi()+(2*dist+1-m_nBinCoarse)*coarseWedgeHalfWidth;
+  float center_pos_phi=roiDescriptor->phi()+(2*dist+1-m_nBinCoarse)*coarseWedgeHalfWidth;
 
   //Now, define fine wedges in phi, centered around the best coarse wedge, and count the TRT hits in these fine wedges
   for(size_t v=0;v<hit.size();v++){
@@ -254,7 +212,7 @@ HLT::ErrorCode TrigTRTHTHCounter::hltExecute(const HLT::TriggerElement* inputTE,
   //Now figure out which of the fine bins in phi has the max number of HT TRT hits
   maxHits = 0; //used to keep track of the max number of HT TRT hits in a fine bin
   dist = 0; //used to keep track of which fine bin has the max number of HT TRT hits
-
+  
   for (size_t iw = 0; iw < count_httrt.size(); iw++){
     if(maxHits <= count_httrt[iw]){ 
       maxHits = count_httrt[iw]; 
@@ -274,9 +232,9 @@ HLT::ErrorCode TrigTRTHTHCounter::hltExecute(const HLT::TriggerElement* inputTE,
     }
   }
 
-  if (trthit!=0&&(fabs(roi->eta())<=m_roadMaxEta)){
-    m_trththits[0] = trthit_ht;
-    m_trththits[1] = (float)trthit_ht/trthit;
+  if (trthit!=0&&(std::abs(roiDescriptor->eta())<=m_roadMaxEta)){
+    trththits[0] = trthit_ht;
+    trththits[1] = (float)trthit_ht/trthit;
   }
 
   //Count the number of total and HT TRT hits for the wedge algorithm
@@ -293,41 +251,27 @@ HLT::ErrorCode TrigTRTHTHCounter::hltExecute(const HLT::TriggerElement* inputTE,
     }
   }
 
-  if (trthit!=0&&(fabs(roi->eta())>=m_wedgeMinEta)){
-    m_trththits[2] = trthit_ht;
-    m_trththits[3] = (float)trthit_ht/trthit;
+  if (trthit!=0&&(std::abs(roiDescriptor->eta())>=m_wedgeMinEta)){
+    trththits[2] = trthit_ht;
+    trththits[3] = (float)trthit_ht/trthit;
   }
 
-  m_trththits[4]=roi->eta();
-  m_trththits[5]=roi->phi();
+  trththits[4]=roiDescriptor->eta();
+  trththits[5]=roiDescriptor->phi();
 
-  ATH_MSG_VERBOSE ( "trthits with road algorithm : " << m_trththits[0]);
-  ATH_MSG_VERBOSE ( "fHT with road algorithm : " << m_trththits[1]);
-  ATH_MSG_VERBOSE ( "trthits with wedge algorithm : " << m_trththits[2]);
-  ATH_MSG_VERBOSE ( "fHT with wedge algorithm : " << m_trththits[3]);
-  ATH_MSG_VERBOSE ( "ROI eta : " << m_trththits[4]);
+  ATH_MSG_VERBOSE ( "trthits with road algorithm : " << trththits[0]);
+  ATH_MSG_VERBOSE ( "fHT with road algorithm : " << trththits[1]);
+  ATH_MSG_VERBOSE ( "trthits with wedge algorithm : " << trththits[2]);
+  ATH_MSG_VERBOSE ( "fHT with wedge algorithm : " << trththits[3]);
+  ATH_MSG_VERBOSE ( "ROI eta : " << trththits[4]);
   
   //Writing to xAOD
-  rnnOutput->setRnnDecision(m_trththits);
+  xAOD::TrigRNNOutput* rnnOutput = new xAOD::TrigRNNOutput();
+  trigRNNOutputColl->push_back(rnnOutput);
+  rnnOutput->setRnnDecision(trththits);
+  
+  ATH_MSG_DEBUG("REGTEST:  returning an xAOD::TrigRNNOutputContainer with size "<< trigRNNOutputColl->size() << ".");
 
-  std::string key="";
-  std::string label="TrigTRTHTCounts";
-
-  //Write and attach for xAOD
-  HLT::ErrorCode hitStatus = recordAndAttachFeature<xAOD::TrigRNNOutput>(outputTE, rnnOutput, key, label) ;
-
-  if (hitStatus != HLT::OK){
-    ATH_MSG_ERROR ( "Writing to xAODs failed");
-    return HLT::NAV_ERROR;
-  }
-  return HLT::OK;
+  return StatusCode::SUCCESS;
 }
-
-//---------------------------------------------------------------------------------
-
-HLT::ErrorCode TrigTRTHTHCounter::hltFinalize() {
-  ATH_MSG_DEBUG ( " finalizing TrigTRTHTHCounter : "<< name()); 
-  return HLT::OK;  
-}
-
 

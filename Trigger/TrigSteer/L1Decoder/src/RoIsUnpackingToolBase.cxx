@@ -18,10 +18,16 @@ StatusCode RoIsUnpackingToolBase::initialize()
 {
   if ( !m_monTool.empty() ) ATH_CHECK( m_monTool.retrieve() );
   ATH_CHECK( m_decisionsKey.initialize() );
+  ATH_CHECK( m_decisionsKeyProbe.initialize(SG::AllowEmpty) );
   ATH_CHECK( m_HLTMenuKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
+
+std::string RoIsUnpackingToolBase::getProbeThresholdName(const std::string& thresholdName) {
+  return "PROBE" + thresholdName;
+}
+
 
 StatusCode RoIsUnpackingToolBase::decodeMapping( std::function< bool(const std::string&)> filter ) {
 
@@ -31,6 +37,12 @@ StatusCode RoIsUnpackingToolBase::decodeMapping( std::function< bool(const std::
   for ( const TrigConf::Chain& chain: *hltMenuHandle ) {
     const HLT::Identifier chainIdentifier(chain.name());
     const std::vector<std::string> thresholds{ chain.l1thresholds() };
+    const std::vector<size_t> legMultiplicities{ chain.legMultiplicities() };
+    if (thresholds.size() != legMultiplicities.size()) {
+      ATH_MSG_ERROR("Encountered a chain " << chain.name() << " with " << legMultiplicities.size() << " legs but only " << 
+        thresholds.size() << " thresolds. These should be the same.");
+      return StatusCode::FAILURE;
+    }
     size_t counter = 0;
     for ( const std::string& th: thresholds ) {
       if ( filter(th) ) {
@@ -63,19 +75,19 @@ void RoIsUnpackingToolBase::addChainsToDecision( HLT::Identifier thresholdId,
   for ( auto chainId: chains->second ) {
     if ( activeChains.find(chainId) != activeChains.end() ) {
       ids.insert( chainId.numeric() );
-      ATH_MSG_DEBUG( "Added chain to the RoI/threshold decision " << chainId );
+      ATH_MSG_DEBUG( "Added " << chainId << " to the RoI/threshold decision " << thresholdId );
     } else {    // maybe it is a leg?
       auto legIterator = m_legToChainMapping.find( chainId );
       if ( legIterator != m_legToChainMapping.end() ) { // this is a leg we care about, need to check if respective chain was active, and activate
-	if ( activeChains.find( legIterator->second ) != activeChains.end() ) {
-	  ids.insert( chainId.numeric() );
-	  ATH_MSG_DEBUG( "Added chain leg to the RoI/threshold decision " << chainId );
-	}
+        if ( activeChains.find( legIterator->second ) != activeChains.end() ) {
+          ids.insert( chainId.numeric() );
+          ATH_MSG_DEBUG( "Added " << chainId << " to the RoI/threshold decision " << thresholdId );
+        }
       }
     }
   }
   TrigCompositeUtils::insertDecisionIDs(ids, d);
-  ATH_MSG_DEBUG( "Number of decisions per RoI after adding chains using threshold " << thresholdId << " " << TrigCompositeUtils::decisionIDs( d ).size() );
+  ATH_MSG_DEBUG( "Number of decisions in this RoI after adding chains using threshold " << thresholdId << " " << TrigCompositeUtils::decisionIDs( d ).size() );
 }
 
 StatusCode RoIsUnpackingToolBase::copyThresholds( const std::vector<TrigConf::TriggerThreshold*>& src, std::vector<TrigConf::TriggerThreshold*>& dest ) const {

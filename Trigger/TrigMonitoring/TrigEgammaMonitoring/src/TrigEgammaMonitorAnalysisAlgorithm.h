@@ -17,7 +17,7 @@ class TrigEgammaMonitorAnalysisAlgorithm: public TrigEgammaMonitorBaseAlgorithm
     virtual ~TrigEgammaMonitorAnalysisAlgorithm() override;
 
     virtual StatusCode initialize() override;
-
+    
   protected:
 
     void fillLabel( const ToolHandle<GenericMonitoringTool>& groupHandle, const std::string &histname, const std::string &label ) const;
@@ -31,7 +31,7 @@ class TrigEgammaMonitorAnalysisAlgorithm: public TrigEgammaMonitorBaseAlgorithm
     // Efficiency monitoring
     void fillEfficiency( const std::string &subgroup, const std::string &level, const std::string &pidword, const TrigInfo info, 
                          std::vector< std::pair< const xAOD::Egamma *, const TrigCompositeUtils::Decision* >> pairObjs,
-                         std::vector< asg::AcceptData > acceptObjs ) const;
+                         std::vector< asg::AcceptData > acceptObjs, std::string dirname ) const;
 
 
     // Disribution monitoring
@@ -39,7 +39,7 @@ class TrigEgammaMonitorAnalysisAlgorithm: public TrigEgammaMonitorBaseAlgorithm
     void fillL2Calo(const std::string &trigger, std::vector< const xAOD::TrigEMCluster*> emCluster_vec ) const;
     void fillL2Electron(const std::string &trigger, std::vector<const xAOD::TrigElectron*> el_vec) const;
     void fillEFCalo(const std::string &trigger, std::vector<const xAOD::CaloCluster*> clus_vec) const;
-    void fillShowerShapes(const std::string &trigger, std::vector<const xAOD::Egamma*> eg_vec, bool online ) const; 
+    void fillShowerShapes(const std::string &trigger, std::vector<const xAOD::Egamma*> eg_vec, bool online) const; 
     void fillTracking(const std::string &trigger, std::vector<const xAOD::Electron *> eg_vec, bool online ) const;
 
 

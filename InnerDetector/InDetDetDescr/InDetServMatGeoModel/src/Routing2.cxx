@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/Routing2.h"
@@ -292,8 +292,7 @@ void Routing2::routeEndcapPixel(ServicesTracker& tracker)
 
 bool Routing2::isRoutedOutsideSupportTube(LayerContainer::const_iterator bl, HRoute& route)
 {
-  if ( (**bl).rMax() > route.radius())  return true;
-  return false;
+  return (**bl).rMax() > route.radius();
 }
 
 void Routing2::routeInnerBarrelPixel(ServicesTracker& tracker)
@@ -333,9 +332,8 @@ void Routing2::routeBarrelLayer(LayerContainer::const_iterator bl,
   if (route.volumes().empty()) rMin = route.rMin();
   else rMin = route.volumes().back()->rMax() + m_c_safetyGap;
 
-  LayerContainer::const_iterator blnext = bl+1;
-  if (blnext != blend) {
-    rMax = std::min((**blnext).radius(), route.rExit());
+  if (bl+1 != blend) {
+    rMax = std::min((**(bl+1)).radius(), route.rExit());
   }
   else rMax = route.rExit();
 
@@ -521,7 +519,7 @@ void Routing2::connectRoutes( Route& in, Route& out)
 {
   // choose volume to connect to
   ServiceVolume* entryVol = out.entryVolume(in.position(),true,msgStream());
-  if (entryVol == 0) entryVol = createSingleRouteVolume( out);
+  if (entryVol == nullptr) entryVol = createSingleRouteVolume( out);
   ServiceVolume* exitVol = in.exitVolume(true,msgStream());
   // maybe check volumes are connectable?
   entryVol->addPrevious(exitVol);
@@ -532,15 +530,15 @@ void Routing2::connectRoutes( Route& in, Route& out)
   while (true) {
     nextVol->addLayers( exitVol->layers());
     nextVol = nextVol->next();
-    if (nextVol == 0) break;
+    if (nextVol == nullptr) break;
   }
 }
 
 ServiceVolume* Routing2::createSingleRouteVolume( Route& rt)
 {
-  ServiceVolume* vol(0);
+  ServiceVolume* vol(nullptr);
   HRoute* hrt = dynamic_cast<HRoute*>(&rt);
-  if (hrt != 0) {
+  if (hrt != nullptr) {
     vol = new ServiceVolume( ServiceVolume::Cylinder,  
 			     rt.position()-0.5*m_c_ServiceCylinderThickness,
 			     rt.position()+0.5*m_c_ServiceCylinderThickness,
@@ -557,12 +555,12 @@ ServiceVolume* Routing2::createSingleRouteVolume( Route& rt)
   return vol;
 }
 
-double Routing2::eosTolerance( DetType::Type /*type*/, DetType::Part /*part*/) 
+double Routing2::eosTolerance( DetType::Type /*type*/, DetType::Part /*part*/) const 
 {
   return m_c_EosTolerance;
 }
 
-double Routing2::eosLength( DetType::Type type, DetType::Part part)
+double Routing2::eosLength( DetType::Type type, DetType::Part part) const
 {
   using namespace DetType;
   if (type == Pixel) {
@@ -576,7 +574,7 @@ double Routing2::eosLength( DetType::Type type, DetType::Part part)
 }
 
   
-double Routing2::eosHalfThickness( DetType::Type /*type*/, DetType::Part /*part*/)
+double Routing2::eosHalfThickness( DetType::Type /*type*/, DetType::Part /*part*/) const
 {
   return m_c_halfEosThick;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -86,15 +86,15 @@ class TFile;
 class TileDigitsFromPulse : public AthAlgorithm {
 public:
     // Constructor
-    TileDigitsFromPulse(std::string name, ISvcLocator* pSvcLocator);
+    TileDigitsFromPulse(const std::string& name, ISvcLocator* pSvcLocator);
 
     //Destructor 
     virtual ~TileDigitsFromPulse();                         
     
     //Gaudi Hooks
-    StatusCode initialize(); //!< initialize method
-    StatusCode execute();    //!< execute method
-    StatusCode finalize();   //!< finalize method
+    virtual StatusCode initialize() override; //!< initialize method
+    virtual StatusCode execute() override;    //!< execute method
+    virtual StatusCode finalize() override;   //!< finalize method
 
 private:
     std::string m_outputContainer; //!< Name of the output TileDigitsContainer

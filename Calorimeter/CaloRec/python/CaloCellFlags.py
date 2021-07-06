@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # @file: CaloCellFlags.py
 # @purpose: a container of flags for CaloCell making configuring
@@ -65,13 +65,6 @@ class doPedestalCorr(JobProperty):
    statusOn     = True
    allowedTypes = ['bool']
    StoredValue  = True
-
-class doMinBiasAverage(JobProperty):
-   """ Flag to activate cell level energy shift correction computed on the fly for MC pileup reco
-   """  
-   statusOn     = True
-   allowedTypes = ['bool']
-   StoredValue  = False
 
 class doLArNoiseMasking(JobProperty):
    """ Flag to activate masking of high noise / dead  cell for all events
@@ -175,7 +168,6 @@ list_jobproperties = [
     doLArThinnedDigits,
     doLArHVCorr,
     doPedestalCorr,
-    doMinBiasAverage,
     doLArNoiseMasking,
     doLArSporadicMasking,
     doLArBadFebMasking,

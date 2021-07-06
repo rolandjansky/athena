@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CBNTAA_BeamInstrumentation.h"
@@ -140,10 +140,7 @@ StatusCode CBNTAA_BeamInstrumentation::CBNT_execute()
 //      m_scint_tdc->reserve(nScint);
       m_scint_adc->resize(nScint);
       m_scint_tdc->resize(nScint);
-      TBScintillatorCont::const_iterator it_scint = scintc->begin();
-      TBScintillatorCont::const_iterator last_scint = scintc->end();
-      for(;it_scint!=last_scint;it_scint++) {
-	const TBScintillator * scint = (*it_scint);
+      for (const TBScintillator * scint : *scintc) {
  	const std::string name = scint->getDetectorName();
 	//In the initialize method we build the vectors of ntuple-items for ADCs and BPCs that
 	//the same scintillators have the same index. We search the name-vector and use the index
@@ -180,10 +177,7 @@ StatusCode CBNTAA_BeamInstrumentation::CBNT_execute()
       const unsigned nBPCs=m_bpc_names.size();
       m_bpc_x->reserve(nBPCs);
       m_bpc_y->reserve(nBPCs);
-      TBBPCCont::const_iterator it_bpc = bpcc->begin();
-      TBBPCCont::const_iterator last_bpc = bpcc->end();
-      for(;it_bpc!=last_bpc;it_bpc++) {
-        const TBBPC * bpc = (*it_bpc);
+      for (const TBBPC * bpc : *bpcc) {
 	std::string name = bpc->getDetectorName();
 	unsigned NtupleVectorIndex;
 	for ( NtupleVectorIndex=0; NtupleVectorIndex!=nBPCs; NtupleVectorIndex++) 
@@ -209,11 +203,8 @@ StatusCode CBNTAA_BeamInstrumentation::CBNT_execute()
       m_bpc_right->reserve(nBPCs);
       m_bpc_left->reserve(nBPCs);
       m_bpc_adc_hor->reserve(nBPCs);
-      m_bpc_adc_ver->reserve(nBPCs);   
-      TBBPCRawCont::const_iterator it_bpcr = bpccr->begin();
-      TBBPCRawCont::const_iterator last_bpcr = bpccr->end();      
-      for(;it_bpcr!=last_bpcr;it_bpcr++) {
-        const TBBPCRaw * bpcr = (*it_bpcr);
+      m_bpc_adc_ver->reserve(nBPCs);
+      for (const TBBPCRaw * bpcr : *bpccr) {
 	std::string name = bpcr->getDetectorName();
         unsigned NtupleVectorIndex;
         for ( NtupleVectorIndex=0; NtupleVectorIndex!=nBPCs; NtupleVectorIndex++){
@@ -320,7 +311,7 @@ StatusCode CBNTAA_BeamInstrumentation::CBNT_finalize()
   return StatusCode::SUCCESS;
 }
 
-std::string CBNTAA_BeamInstrumentation::add_name(const char* base, const std::string extension) {
+std::string CBNTAA_BeamInstrumentation::add_name(const char* base, const std::string& extension) {
   std::string retval(base);
   for (unsigned i=0;i<extension.size();i++) {
     const char& ch=extension[i];

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // METMaker.h
@@ -24,6 +24,8 @@
 
 // EDM includes
 #include "xAODJet/JetContainer.h"
+#include "xAODPFlow/PFOContainer.h"
+
 
 // Tracking Tool
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
@@ -57,71 +59,106 @@ namespace met {
     virtual ~METMaker();
 
     // Athena algtool's Hooks
-    StatusCode  initialize();
-    StatusCode  finalize();
+    virtual StatusCode initialize() override final;
 
-    StatusCode rebuildMET(const std::string& metKey,
-                          xAOD::Type::ObjectType metType,
-                          xAOD::MissingETContainer* metCont,
-                          const xAOD::IParticleContainer* collection,
-                          xAOD::MissingETAssociationHelper* helper,
-                          MissingETBase::UsageHandler::Policy objScale);
+    virtual StatusCode rebuildMET(
+      const std::string& metKey,
+      xAOD::Type::ObjectType metType,
+      xAOD::MissingETContainer* metCont,
+      const xAOD::IParticleContainer* collection,
+      xAOD::MissingETAssociationHelper& helper,
+      MissingETBase::UsageHandler::Policy objScale) override final;
     //
-    StatusCode rebuildMET(xAOD::MissingET* met,
-                          const xAOD::IParticleContainer* collection,
-                          xAOD::MissingETAssociationHelper* helper,
-                          MissingETBase::UsageHandler::Policy objScale);
+    virtual StatusCode rebuildMET(
+      xAOD::MissingET* met,
+      const xAOD::IParticleContainer* collection,
+      xAOD::MissingETAssociationHelper& helper,
+      MissingETBase::UsageHandler::Policy objScale) override final;
     //
-    StatusCode rebuildMET(xAOD::MissingET* met,
-                          const xAOD::IParticleContainer* collection,
-                          xAOD::MissingETAssociationHelper* helper,
-                          MissingETBase::UsageHandler::Policy p,
-                          bool removeOverlap,
-                          MissingETBase::UsageHandler::Policy objScale);
+    virtual StatusCode rebuildMET(
+      xAOD::MissingET* met,
+      const xAOD::IParticleContainer* collection,
+      xAOD::MissingETAssociationHelper& helper,
+      MissingETBase::UsageHandler::Policy p,
+      bool removeOverlap,
+      MissingETBase::UsageHandler::Policy objScale) override final;
 
-    StatusCode rebuildJetMET(const std::string& metJetKey,
-                             const std::string& softClusKey,
-                             const std::string& softTrkKey,
-                             xAOD::MissingETContainer* metCont,
-                             const xAOD::JetContainer* jets,
-                             const xAOD::MissingETContainer* metCoreCont,
-                             xAOD::MissingETAssociationHelper* helper,
-                             bool doJetJVT);
-    StatusCode rebuildJetMET(const std::string& metJetKey,
-                             const std::string& metSoftKey,
-                             xAOD::MissingETContainer* metCont,
-                             const xAOD::JetContainer* jets,
-                             const xAOD::MissingETContainer* metCoreCont,
-                             xAOD::MissingETAssociationHelper* helper,
-                             bool doJetJVT);
-    StatusCode rebuildJetMET(xAOD::MissingET* metJet,
-                             const xAOD::JetContainer* jets,
-                             xAOD::MissingETAssociationHelper* helper,
-                             xAOD::MissingET* metSoftClus,
-                             const xAOD::MissingET* coreSoftClus,
-                             xAOD::MissingET* metSoftTrk,
-                             const xAOD::MissingET* coreSoftTrk,
-                             bool doJetJVT,
-                             bool tracksForHardJets = false,
-                             std::vector<const xAOD::IParticle*>* softConst=0);
+    virtual StatusCode rebuildJetMET(
+      const std::string& metJetKey,
+      const std::string& softClusKey,
+      const std::string& softTrkKey,
+      xAOD::MissingETContainer* metCont,
+      const xAOD::JetContainer* jets,
+      const xAOD::MissingETContainer* metCoreCont,
+      xAOD::MissingETAssociationHelper& helper,
+      bool doJetJVT) override final;
 
-    StatusCode rebuildTrackMET(const std::string& metJetKey,
-                             const std::string& softTrkKey,
-                             xAOD::MissingETContainer* metCont,
-                             const xAOD::JetContainer* jets,
-                             const xAOD::MissingETContainer* metCoreCont,
-                             xAOD::MissingETAssociationHelper* helper,
-                             bool doJetJVT);
-    StatusCode rebuildTrackMET(xAOD::MissingET* metJet,
-                             const xAOD::JetContainer* jets,
-                             xAOD::MissingETAssociationHelper* helper,
-                             xAOD::MissingET* metSoftTrk,
-                             const xAOD::MissingET* coreSoftTrk,
-                             bool doJetJVT);
+    virtual StatusCode rebuildJetMET(
+      const std::string& metJetKey,
+      const std::string& metSoftKey,
+      xAOD::MissingETContainer* metCont,
+      const xAOD::JetContainer* jets,
+      const xAOD::MissingETContainer* metCoreCont,
+      xAOD::MissingETAssociationHelper& helper,
+      bool doJetJVT) override final;
 
-    StatusCode markInvisible(const xAOD::IParticleContainer* collection,
-			     xAOD::MissingETAssociationHelper* helper,
-			     xAOD::MissingETContainer* metCont);
+    virtual StatusCode rebuildJetMET(
+      xAOD::MissingET* metJet,
+      const xAOD::JetContainer* jets,
+      xAOD::MissingETAssociationHelper& helper,
+      xAOD::MissingET* metSoftClus,
+      const xAOD::MissingET* coreSoftClus,
+      xAOD::MissingET* metSoftTrk,
+      const xAOD::MissingET* coreSoftTrk,
+      bool doJetJVT,
+      bool tracksForHardJets = false,
+      std::vector<const xAOD::IParticle*>* softConst = 0) override final;
+
+    virtual StatusCode rebuildTrackMET(
+      const std::string& metJetKey,
+      const std::string& softTrkKey,
+      xAOD::MissingETContainer* metCont,
+      const xAOD::JetContainer* jets,
+      const xAOD::MissingETContainer* metCoreCont,
+      xAOD::MissingETAssociationHelper& helper,
+      bool doJetJVT) override final;
+
+    virtual StatusCode retrieveOverlapRemovedConstituents(
+      const xAOD::PFOContainer* cpfo,
+      const xAOD::PFOContainer* npfo,
+      xAOD::MissingETAssociationHelper& metHelper,
+      xAOD::PFOContainer* OR_cpfos,
+      xAOD::PFOContainer* OR_npfos,
+      bool retainMuon = false,
+      const xAOD::IParticleContainer* muonCollection = 0) override final; //,
+    // MissingETBase::UsageHandler::Policy p);
+
+    virtual StatusCode retrieveOverlapRemovedConstituents(
+      const xAOD::PFOContainer* pfo,
+      xAOD::MissingETAssociationHelper& metHelper,
+      const xAOD::PFOContainer** OR_pfos,
+      bool retainMuon,
+      const xAOD::IParticleContainer* muonCollection) override final;
+
+    virtual const xAOD::PFOContainer* retrieveOverlapRemovedConstituents(
+      const xAOD::PFOContainer* signals,
+      xAOD::MissingETAssociationHelper& helper,
+      bool retainMuon = false,
+      const xAOD::IParticleContainer* muonCollection = 0,
+      MissingETBase::UsageHandler::Policy p =
+        MissingETBase::UsageHandler::ParticleFlow) override final;
+
+    virtual StatusCode rebuildTrackMET(xAOD::MissingET* metJet,
+                                       const xAOD::JetContainer* jets,
+                                       xAOD::MissingETAssociationHelper& helper,
+                                       xAOD::MissingET* metSoftTrk,
+                                       const xAOD::MissingET* coreSoftTrk,
+                                       bool doJetJVT) override final;
+
+    virtual StatusCode markInvisible(
+      const xAOD::IParticleContainer* collection,
+      xAOD::MissingETAssociationHelper& helper,
+      xAOD::MissingETContainer* metCont) override final;
 
     ///////////////////////////////////////////////////////////////////
     // Const methods:
@@ -170,6 +207,9 @@ namespace met {
 
     bool m_muEloss;
     bool m_orCaloTaggedMuon;
+    bool m_greedyPhotons;
+    bool m_veryGreedyPhotons;
+
 
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trkseltool;
     /// Default constructor:

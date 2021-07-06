@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -19,6 +19,7 @@
 #include "LArReadoutGeometry/LArDetectorManager.h"
 #include "GeoModelKernel/GeoVDetectorFactory.h"
 
+class StoreGateSvc;
 class LArHVManager;
 
 namespace LArGeo {
@@ -28,7 +29,10 @@ namespace LArGeo {
   public:
 
     // Constructor:
-    LArDetectorFactory(int testbeam, bool fullGeo, const LArHVManager* hvManager);
+    LArDetectorFactory(StoreGateSvc* detStore
+		       , const LArHVManager* hvManager
+		       , int testbeam
+		       , bool fullGeo);
 
     // Destructor:
     virtual ~LArDetectorFactory();
@@ -53,6 +57,7 @@ namespace LArGeo {
         m_EMECVariantOuter = outer;
     }
     void setActivateFT(bool flag)           { m_activateFT = flag; }
+    void setEnableMBTS(bool flag)           { m_enableMBTS = flag; }
 
   private:
 
@@ -62,6 +67,7 @@ namespace LArGeo {
 
     // The manager:
     LArDetectorManager*       m_detectorManager;
+    StoreGateSvc*             m_detStore;
     const LArHVManager*       m_hvManager;
     bool                      m_barrelSagging;
     int                       m_barrelVisLimit;
@@ -72,11 +78,12 @@ namespace LArGeo {
 
     int                       m_testbeam;
 
-    bool                       m_fullGeo;  // true->FULL, false->RECO
+    bool                      m_fullGeo;  // true->FULL, false->RECO
     std::string               m_EMECVariantInner;
     std::string               m_EMECVariantOuter;
 
     bool                      m_activateFT;
+    bool                      m_enableMBTS;
   };
 
 } // namespace LArGeo

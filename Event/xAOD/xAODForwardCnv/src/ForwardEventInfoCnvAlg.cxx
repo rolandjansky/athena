@@ -15,56 +15,39 @@
 // Local include(s):
 #include "ForwardEventInfoCnvAlg.h"
 
+namespace xAODMaker
+{
 
-namespace xAODMaker {
+  ForwardEventInfoCnvAlg::ForwardEventInfoCnvAlg(const std::string &name,
+                                                 ISvcLocator *svcLoc)
+      : AthReentrantAlgorithm(name, svcLoc) {}
 
-  ForwardEventInfoCnvAlg::ForwardEventInfoCnvAlg( const std::string& name,
-				  ISvcLocator* svcLoc )
-    : AthAlgorithm( name, svcLoc ),m_cnvTool( "xAODMaker::ForwardEventInfoCnvTool/ForwardEventInfoCnvTool", this ) {
+  StatusCode ForwardEventInfoCnvAlg::initialize()
+  {
 
-    declareProperty( "AODContainerName", m_aodContainerName = "MBTSCollisionTime" );
-    declareProperty( "xAODContainerName", m_xaodContainerName = "MBTSForwardEventInfo" );
-
-    declareProperty("CnvTool", m_cnvTool, "The converter tool for MBTSForwardEventInfo");
-  }
-
-  StatusCode ForwardEventInfoCnvAlg::initialize() {
-
-    ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
-    ATH_MSG_INFO( "AODContainerName  = " << m_aodContainerName );
-    ATH_MSG_INFO( "xAODContainerName = " << m_xaodContainerName );
-
-    CHECK(m_cnvTool.retrieve());
+    ATH_CHECK(m_inputKey.initialize());
+    ATH_CHECK(m_outputKey.initialize());
+    ATH_CHECK(m_cnvTool.retrieve());
 
     // Return gracefully:
     return StatusCode::SUCCESS;
   }
 
-  StatusCode ForwardEventInfoCnvAlg::execute() {
-    
-    // Retrieve the AOD particles:
-    const MBTSCollisionTime* aod = 0;
-    CHECK( evtStore()->retrieve(aod, m_aodContainerName) ); 
-    if (!aod) { 
-      ATH_MSG_WARNING("No ForwardEventInfoCollection with key " << m_aodContainerName << " found. Do nothing."); 
-      return StatusCode::SUCCESS; 
-    } 
-    ATH_MSG_INFO( "Retrieved particles with key: " << m_aodContainerName );
-    
-    /////////////////////////////////////////////////////////////////////////////////////////
-    
-    // Create the xAOD container and its auxiliary store:
-    xAOD::ForwardEventInfoContainer* xaod = new xAOD::ForwardEventInfoContainer();
-    CHECK( evtStore()->record( xaod, m_xaodContainerName ) );
-    xAOD::ForwardEventInfoAuxContainer* aux = new xAOD::ForwardEventInfoAuxContainer();
-    CHECK( evtStore()->record( aux, m_xaodContainerName + "Aux." ) );
-    xaod->setStore( aux );
-    ATH_MSG_INFO( "Recorded ForwardEventInfos with key: " << m_xaodContainerName );
+  StatusCode ForwardEventInfoCnvAlg::execute(const EventContext &ctx) const
+  {
 
-    CHECK( m_cnvTool->convert(aod, xaod) );
-    // Return gracefully - like a elephant on roller skates :
+    auto mbtsCollisionsTimeHandle = SG::makeHandle(m_inputKey, ctx);
+    ATH_MSG_INFO("Retrieved particles with key: " << m_inputKey.key());
+
+    auto fwdEventInfo = std::make_unique<xAOD::ForwardEventInfoContainer>();
+    auto fwdEventInfoAux = std::make_unique<xAOD::ForwardEventInfoAuxContainer>();
+    fwdEventInfo->setStore(fwdEventInfoAux.get());
+
+    ATH_CHECK(m_cnvTool->convert(mbtsCollisionsTimeHandle.ptr(), fwdEventInfo.get()));
+
+    auto fwdEventInfoHandle = SG::makeHandle(m_outputKey, ctx);
+    ATH_CHECK(fwdEventInfoHandle.record(std::move(fwdEventInfo), std::move(fwdEventInfoAux)));
     return StatusCode::SUCCESS;
   }
-  
-} // namespace xAODMaker
 
+} // namespace xAODMaker

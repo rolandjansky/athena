@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTgcFastDigitizer.h"
@@ -16,6 +16,7 @@
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "TrkSurfaces/Surface.h"
 #include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "PathResolver/PathResolver.h"
 #include "AthenaKernel/RNGWrapper.h"
 
@@ -266,10 +267,16 @@ StatusCode sTgcFastDigitizer::execute() {
           std::vector<Identifier> rdoList;
           rdoList.push_back(id_prd);
           double covX = sTgcprds[i]->localCovariance()(Trk::locX,Trk::locX);
-          Amg::MatrixX* covN = new Amg::MatrixX(1,1);
-          covN->setIdentity();
-          (*covN)(0,0) = covX;
-          sTgcPrepData* prdN = new sTgcPrepData(id_prd, hashLast, sTgcprds[i]->localPosition(), rdoList, covN, sTgcprds[i]->detectorElement(), sTgcprds[i]->getBcBitMap());
+          auto covN = Amg::MatrixX(1,1);
+          covN.setIdentity();
+          (covN)(0,0) = covX;
+          sTgcPrepData* prdN = new sTgcPrepData(id_prd,
+                                                hashLast,
+                                                sTgcprds[i]->localPosition(),
+                                                rdoList,
+                                                std::move(covN),
+                                                sTgcprds[i]->detectorElement(),
+                                                sTgcprds[i]->getBcBitMap());
           prdN->setHashAndIndex(col->identifyHash(), col->size());
           col->push_back(prdN);
         } else {
@@ -319,12 +326,18 @@ StatusCode sTgcFastDigitizer::execute() {
           ATH_MSG_VERBOSE(" Look for strip nr " << stripSum << " found at index " << j);
 
           double covX = sTgcprds[j]->localCovariance()(Trk::locX, Trk::locX);
-          Amg::MatrixX* covN = new Amg::MatrixX(1,1);
-          covN->setIdentity();
-          (*covN)(0,0) = 6.*(nmerge + 1.)*covX;
+          auto covN = Amg::MatrixX(1,1);
+          covN.setIdentity();
+          (covN)(0,0) = 6.*(nmerge + 1.)*covX;
           ATH_MSG_VERBOSE(" make merged prepData at strip " << m_idHelperSvc->stgcIdHelper().channel(sTgcprds[j]->identify()));
 
-          sTgcPrepData* prdN = new sTgcPrepData(sTgcprds[j]->identify(), hashLast, sTgcprds[j]->localPosition(), rdoList, covN, sTgcprds[j]->detectorElement(), sTgcprds[j]->getBcBitMap());
+          sTgcPrepData* prdN = new sTgcPrepData(sTgcprds[j]->identify(),
+                                                hashLast,
+                                                sTgcprds[j]->localPosition(),
+                                                rdoList,
+                                                std::move(covN),
+                                                sTgcprds[j]->detectorElement(),
+                                                sTgcprds[j]->getBcBitMap());
           prdN->setHashAndIndex(col->identifyHash(), col->size());
           col->push_back(prdN);
         }
@@ -403,7 +416,7 @@ StatusCode sTgcFastDigitizer::execute() {
       double resolution = 0;
       if( type == 1 ){
 	resolution = getResolution(inAngle_time);
-	sp = CLHEP::RandGauss::shoot(rndmEngine, hitOnSurface.x(), resolution);
+	sp = CLHEP::RandGaussZiggurat::shoot(rndmEngine, hitOnSurface.x(), resolution);
       }
 
       
@@ -574,12 +587,13 @@ StatusCode sTgcFastDigitizer::execute() {
 	  errX = design->inputPhiPitch*M_PI/180.*radius/sqrt(12);
 	}
       }
-      
-      Amg::MatrixX* cov = new Amg::MatrixX(1,1);
-      cov->setIdentity();
-      (*cov)(0,0) = errX*errX;      
 
-      sTgcPrepData* prd = new sTgcPrepData( id,hash,posOnSurf,rdoList,cov,detEl, bctag);
+      auto cov = Amg::MatrixX(1, 1);
+      cov.setIdentity();
+      (cov)(0, 0) = errX * errX;
+
+      sTgcPrepData* prd = new sTgcPrepData(
+        id, hash, posOnSurf, rdoList, std::move(cov), detEl, bctag);
 
       if(type!=1 || lastHit || !m_mergePrds) {
         // always store last hit

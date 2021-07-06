@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
                          InDetSecVtxFinder.cxx  -  Description
@@ -93,8 +93,8 @@ namespace InDet
 
     SG::WriteHandle<xAOD::VertexContainer> outputVertices (m_vxCandidatesOutputName);
 
-    xAOD::VertexContainer* theXAODContainer = 0;
-    xAOD::VertexAuxContainer* theXAODAuxContainer = 0;
+    xAOD::VertexContainer* theXAODContainer = nullptr;
+    xAOD::VertexAuxContainer* theXAODAuxContainer = nullptr;
     std::pair<xAOD::VertexContainer*,xAOD::VertexAuxContainer*> theXAODContainers
 	= std::make_pair( theXAODContainer, theXAODAuxContainer );
 
@@ -143,8 +143,8 @@ namespace InDet
   
 
     // now  re-merge and resort the vertex container and store to SG
-    xAOD::VertexContainer* myVertexContainer = 0;
-    xAOD::VertexAuxContainer* myVertexAuxContainer = 0;
+    xAOD::VertexContainer* myVertexContainer = nullptr;
+    xAOD::VertexAuxContainer* myVertexAuxContainer = nullptr;
     std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> myVxContainers
 	= std::make_pair( myVertexContainer, myVertexAuxContainer );
 

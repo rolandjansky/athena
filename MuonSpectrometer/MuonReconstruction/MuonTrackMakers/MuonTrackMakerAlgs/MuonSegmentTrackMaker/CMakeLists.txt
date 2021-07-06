@@ -9,7 +9,7 @@ atlas_subdir( MuonSegmentTrackMaker )
 atlas_add_component( MuonSegmentTrackMaker
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AthenaMonitoringKernelLib GaudiKernel StoreGateLib SGtests MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces Particle TrkSegment TrkTrack )
+                     LINK_LIBRARIES AthenaBaseComps AthenaMonitoringKernelLib GaudiKernel StoreGateLib MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces Particle TrkSegment TrkTrack )
 
 # Install files from the package:
 

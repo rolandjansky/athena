@@ -1,7 +1,7 @@
-
 #
 #  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
+
 def LArDigitMonConfigOld(inputFlags):
     from AthenaMonitoring.AthMonitorCfgHelper import AthMonitorCfgHelperOld
     from LArMonitoring.LArMonitoringConf import LArDigitMonAlg
@@ -38,25 +38,8 @@ def LArDigitMonConfigCore(helper, algoinstance,inputFlags):
     larDigitMonAlg.LArDigitsSubDetNames=lArDQGlobals.SubDet
     larDigitMonAlg.LArDigitsPartitionNames=lArDQGlobals.Partitions
     larDigitMonAlg.LArDigitsNslots=nslots
-
-    # adding BadChan masker private tool
-    from AthenaConfiguration.ComponentFactory import isRun3Cfg
-    if isRun3Cfg() :
-        from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-        cfg=ComponentAccumulator()
-
-        from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg
-        acc= LArBadChannelMaskerCfg(inputFlags,problemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"],ToolName="BadLArRawChannelMask")
-        larDigitMonAlg.LArBadChannelMask=acc.popPrivateTools()
-        cfg.merge(acc)
-    else :
-
-        from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-        theLArBadChannelsMasker=LArBadChannelMasker("BadLArRawChannelMask")
-        theLArBadChannelsMasker.DoMasking=True
-        theLArBadChannelsMasker.ProblemsToMask=["deadReadout","deadPhys","short","almostDead","highNoiseHG","highNoiseMG","highNoiseLG","sporadicBurstNoise"]
-        larDigitMonAlg.LArBadChannelMask=theLArBadChannelsMasker
-
+    larDigitMonAlg.ProblemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"]
+    larDigitMonAlg.Streams=lArDQGlobals.defaultStreamNames 
 
     summaryGroup = helper.addGroup(
         larDigitMonAlg,
@@ -67,22 +50,18 @@ def LArDigitMonConfigCore(helper, algoinstance,inputFlags):
 
     summary_hist_path=summaryGroupName+'/'
     
-    summaryGroup.defineHistogram('sumbin,partition;RAW_Summary', 
-                                  title='Gain',
+    summaryGroup.defineHistogram('gain,partition;SummaryGain', 
+                                  title='Gain;Gain;Partition',
                                   type='TH2F',
                                   path=summary_hist_path,
-                                  weight='weight',
-                                  xbins=lArDQGlobals.N_DigitsSummary,xmin=-0.5,xmax=lArDQGlobals.N_DigitsSummary-0.5,
-                                  ybins=lArDQGlobals.N_Partitions, ymin=-0.5, ymax=lArDQGlobals.N_Partitions-0.5,
-                                  xlabels=lArDQGlobals.DigitsSummary,ylabels=lArDQGlobals.Partitions)
-    summaryGroup.defineHistogram('gain,partition;RAW_summaryGain', 
-                                  title='Gain',
-                                  type='TH2F',
-                                  path=summary_hist_path,
-                                  weight='weight',
                                   xbins=lArDQGlobals.N_Gains,xmin=-0.5,xmax=lArDQGlobals.N_Gains-0.5,
                                   ybins=lArDQGlobals.N_Partitions, ymin=-0.5, ymax=lArDQGlobals.N_Partitions-0.5,
                                   xlabels=lArDQGlobals.Gains,ylabels=lArDQGlobals.Partitions)
+
+    summaryGroup.defineHistogram('LBN;LBN',type='TH1I',
+                                 title='Event counter per LB', 
+                                 path='',
+                                 xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
     
     # now individual partitions, because we need a different directories, will have only 2dim arrays (side)
     for subdet in range(0,lArDQGlobals.N_SubDet):
@@ -190,33 +169,44 @@ def LArDigitMonConfigCore(helper, algoinstance,inputFlags):
                                   ybins=int(ft_n), ymin=ft_low, ymax=ft_up)
 
        array.defineHistogram('LBN,MaxPos;MaxVsTime', 
-                                  title='Average Max Sample vs LumiBlock ',
+                                  title='Average Max Sample vs LumiBlock;Luminosity Block;Average Max Sample',
                                   type='TProfile',
                                   path=hist_path,
                                   xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
-       array.defineHistogram('MaxPos,Energy;EnVsTime', 
-                                  title='Energy vs max sample ',
+       array.defineHistogram('MaxPos,Energy;EnVsMaxSample', 
+                                  title='Energy vs max sample;Sample Number;Energy [ADC] ',
                                   type='TH2F',
                                   path=hist_path,
                                   xbins=lArDQGlobals.Samples_Bins,xmin=lArDQGlobals.Samples_Min,xmax=lArDQGlobals.Samples_Max,
                                   ybins=lArDQGlobals.Energy_Bins, ymin=lArDQGlobals.Energy_Min, ymax=lArDQGlobals.Energy_Max)
 
+       array.defineHistogram('MaxPos,streamBin;MaxSample_PerStream',
+                             title="Position of the Max Sample;Average Max Sample",
+                             type='TH2F',
+                             path=hist_path,
+                             xbins=lArDQGlobals.Samples_Bins,xmin=lArDQGlobals.Samples_Min,xmax=lArDQGlobals.Samples_Max,
+                             ybins=len(lArDQGlobals.defaultStreamNames),ymin=-0.5, ymax=len(lArDQGlobals.defaultStreamNames)-0.5,
+                             ylabels=lArDQGlobals.defaultStreamNames)
+                             
+
        array.defineHistogram('l1trig,MaxPos;TriggerWord', 
-                                  title='Position of max sample per L1 trigger word (8 bits) ',
+                                  title='Position of max sample per L1 trigger word (8 bits);L1 trigger word;Position of max Sample ',
                                   type='TProfile',
                                   path=hist_path,
                                   xbins=lArDQGlobals.L1Trig_Bins,xmin=lArDQGlobals.L1Trig_Min,xmax=lArDQGlobals.L1Trig_Max)
 
        array.defineHistogram('Sample,SignalNorm;SignShape', 
-                                  title='Normalized Signal Shape ',
+                                  title='Normalized Signal Shape;Sample Number;Normalized Signal Shape ',
                                   type='TProfile',
                                   weight='weight',
                                   path=hist_path,
                                   xbins=lArDQGlobals.Samples_Bins,xmin=lArDQGlobals.Samples_Min,xmax=lArDQGlobals.Samples_Max)
     
 
-
+    from AthenaConfiguration.ComponentFactory import isRun3Cfg
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     if isRun3Cfg():
+        cfg=ComponentAccumulator()
         cfg.merge(helper.result())
         return cfg
     else:    
@@ -227,7 +217,7 @@ if __name__=='__main__':
 
    from AthenaConfiguration.AllConfigFlags import ConfigFlags
    from AthenaCommon.Logging import log
-   from AthenaCommon.Constants import DEBUG #,WARNING
+   from AthenaCommon.Constants import DEBUG#,WARNING
    from AthenaCommon.Configurable import Configurable
    Configurable.configurableRun3Behavior=1
    log.setLevel(DEBUG)

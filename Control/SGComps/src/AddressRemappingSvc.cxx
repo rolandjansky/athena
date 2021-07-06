@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file AddressRemappingSvc.cxx
  *  @brief This file contains the implementation for the AddressRemappingSvc class.
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
- *  $Id: AddressRemappingSvc.cxx,v 1.7 2009-05-04 15:47:18 calaf Exp $
  **/
 
 #include "AddressRemappingSvc.h"
@@ -14,9 +13,9 @@
 #include "GaudiKernel/GenericAddress.h"
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/IAlgManager.h"
+#include "GaudiKernel/IClassIDSvc.h"
 
 #include "AthContainersInterfaces/IConstAuxStore.h"
-#include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IRCUSvc.h"
 #include "AthenaKernel/ClassID_traits.h"
 
@@ -45,8 +44,7 @@ AddressRemappingSvc::~AddressRemappingSvc() {
 }
 //__________________________________________________________________________
 StatusCode AddressRemappingSvc::initialize() {
-   ATH_MSG_VERBOSE("Initializing " << name() << " - package version "
-                << PACKAGE_VERSION);
+   ATH_MSG_VERBOSE("Initializing " << name());
 
    ATH_CHECK( ::AthService::initialize() );
    ATH_CHECK( m_clidSvc.retrieve() );
@@ -55,20 +53,19 @@ StatusCode AddressRemappingSvc::initialize() {
 
    m_oldTads.clear();
    m_newTads.clear();
-   for (std::vector<std::string>::const_iterator iter = m_overwriteMaps.value().begin(),
-                   iterEnd = m_overwriteMaps.value().end(); iter != iterEnd; iter++) {
-      const std::string::size_type p_sep = iter->find("->");
+   for (const std::string& overwrite : m_overwriteMaps) {
+      const std::string::size_type p_sep = overwrite.find("->");
       if (p_sep == std::string::npos) {
-         ATH_MSG_ERROR("Unexpected format in TypeKeyOverwriteMaps: " << *iter);
+         ATH_MSG_ERROR("Unexpected format in TypeKeyOverwriteMaps: " << overwrite);
          return(StatusCode::FAILURE);
       }
-      //const std::pair<std::string, std::string> entry(iter->substr(0, p_sep), iter->substr(p_sep + 2));
-      const std::pair<std::string, std::string> entry(iter->substr(p_sep + 2), iter->substr(0, p_sep));
+      //const std::pair<std::string, std::string> entry(overwrite.substr(0, p_sep), overwrite.substr(p_sep + 2));
+      const std::pair<std::string, std::string> entry(overwrite.substr(p_sep + 2), overwrite.substr(0, p_sep));
       ATH_MSG_INFO("TypeKeyOverwriteMaps for: " << entry.second
                    << " -> " << entry.first);
       const std::string::size_type p_oldSep = entry.first.find("#");
       if (p_oldSep == std::string::npos) {
-         ATH_MSG_ERROR("Unexpected format in TypeKeyOverwriteMaps: " << *iter);
+         ATH_MSG_ERROR("Unexpected format in TypeKeyOverwriteMaps: " << overwrite);
          return(StatusCode::FAILURE);
       }
 
@@ -83,15 +80,14 @@ StatusCode AddressRemappingSvc::initialize() {
          aliases.insert(keyStr.substr(p_keySep + 1));
       }
       SG::TransientAddress oldTad(getClid(clidStr), keyStr);
-      for (std::set<CLID>::const_iterator clidIter = symClids.begin(), clidEnd = symClids.end();
-		      clidIter != clidEnd; clidIter++) {
-         oldTad.setTransientID(*clidIter);
+      for (CLID clid : symClids) {
+         oldTad.setTransientID(clid);
       }
       oldTad.setAlias(aliases);
 
       const std::string::size_type p_newSep = entry.second.find("#");
       if (p_newSep == std::string::npos) {
-         ATH_MSG_ERROR("Unexpected format in TypeKeyOverwriteMaps: " << *iter);
+         ATH_MSG_ERROR("Unexpected format in TypeKeyOverwriteMaps: " << overwrite);
          return(StatusCode::FAILURE);
       }
       SG::TransientAddress newTad(getClid(entry.second.substr(0, p_newSep)), entry.second.substr(p_newSep + 1));
@@ -173,24 +169,13 @@ StatusCode AddressRemappingSvc::initInputRenames()
   return StatusCode::SUCCESS;
 }
 //__________________________________________________________________________
-StatusCode AddressRemappingSvc::finalize() {
-   StatusCode status = m_clidSvc.release();
-   if (!status.isSuccess()) {
-      ATH_MSG_ERROR("Cannot release ClassIDSvc");
-      return(status);
-   }
-   status = m_proxyDict.release();
-   if (!status.isSuccess()) {
-      ATH_MSG_ERROR("Cannot release IProxyDict");
-      return(status);
-   }
+StatusCode AddressRemappingSvc::finalize()
+{
+   ATH_CHECK( m_clidSvc.release() );
+   ATH_CHECK( m_proxyDict.release() );
    ATH_CHECK( m_RCUSvc.release() );
    ATH_CHECK( m_algResourcePool.release() );
-   status = ::AthService::finalize();
-   if (!status.isSuccess()) {
-      ATH_MSG_ERROR("Can not finalize Service base class.");
-      return(status);
-   }
+   ATH_CHECK( ::AthService::finalize() );
    return(StatusCode::SUCCESS);
 }
 //________________________________________________________________________________
@@ -210,7 +195,7 @@ StatusCode AddressRemappingSvc::preLoadAddresses(StoreID::type storeID,
    }
    for (std::vector<SG::TransientAddress>::const_iterator oldIter = m_oldTads.begin(),
 		   newIter = m_newTads.begin(), oldIterEnd = m_oldTads.end();
-		   oldIter != oldIterEnd; oldIter++, newIter++) {
+		   oldIter != oldIterEnd; ++oldIter, ++newIter) {
       SG::TransientAddress* tadd = new SG::TransientAddress(*oldIter);
       tads.push_back(tadd);
       m_proxyDict->stringToKey(oldIter->name(), oldIter->clID());
@@ -237,7 +222,7 @@ StatusCode AddressRemappingSvc::loadAddresses(StoreID::type storeID,
    }
    for (std::vector<SG::TransientAddress>::iterator oldIter = m_oldTads.begin(),
 		   newIter = m_newTads.begin(), oldIterEnd = m_oldTads.end();
-		   oldIter != oldIterEnd; oldIter++, newIter++) {
+		   oldIter != oldIterEnd; ++oldIter, ++newIter) {
       CLID goodCLID = newIter->clID(); //newIter are the things we are remapping to 
       SG::TransientAddress::TransientClidSet clidvec(oldIter->transientID());
       std::set<CLID> clidToKeep (clidvec.begin(), clidvec.end());
@@ -294,7 +279,7 @@ StatusCode AddressRemappingSvc::updateAddress(StoreID::type /*storeID*/,
    lock_t lock (m_mutex);
    for (std::vector<SG::TransientAddress>::const_iterator oldIter = m_oldTads.begin(),
 		   newIter = m_newTads.begin(), oldIterEnd = m_oldTads.end();
-		   oldIter != oldIterEnd; oldIter++, newIter++) {
+		   oldIter != oldIterEnd; ++oldIter, ++newIter) {
       if (oldIter->transientID(tad->clID())
 	      && (oldIter->name() == tad->name() || oldIter->alias().find(tad->name()) != oldIter->alias().end())) {
          ATH_MSG_DEBUG("Overwrite for: " << tad->clID() << "#" << tad->name() << " -> " << newIter->clID() << "#" << newIter->name());

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -30,11 +30,8 @@ class ZdcByteStreamTester: public AthAlgorithm
 {
 public:
 	ZdcByteStreamTester(const std::string& name, ISvcLocator* pSvcLocator);
-	virtual ~ZdcByteStreamTester();
 
-	virtual StatusCode initialize();
-	virtual StatusCode execute();
-	virtual StatusCode finalize();
+	virtual StatusCode execute() override;
 
 private:
 	typedef std::map<unsigned int, const ZdcDigits*> ZdcDigitsMap;

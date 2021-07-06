@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGJETCONDITIONCONFIG_DIJET_DPHI_H
@@ -7,10 +7,8 @@
 
 
 #include "ITrigJetConditionConfig.h"
-#include "./ConditionsDefsMT.h"
+#include "./ConditionsDefs.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
 
 class TrigJetConditionConfig_dijet_dphi:
 public extends<AthAlgTool, ITrigJetConditionConfig> {
@@ -22,12 +20,8 @@ public extends<AthAlgTool, ITrigJetConditionConfig> {
 				    const IInterface* parent);
   
   virtual StatusCode initialize() override;
-  virtual ConditionMT getCondition() const override;
+  virtual Condition getCondition() const override;
 
-  virtual bool addToCapacity(std::size_t) override;
-  virtual std::size_t capacity() const override;
-  
-  
  private:
   
   Gaudi::Property<std::string>

@@ -9,20 +9,15 @@
 #include "AthenaKernel/CLASS_DEF.h"
 #include "MuonAlignmentData/ALinePar.h"
 
-class ALineParContainer : public DataVector<ALinePar>
-{
- public:
-  ALineParContainer();
-  ~ALineParContainer();
-
+class ALineParContainer : public DataVector<ALinePar> {
+public:
+    ALineParContainer();
+    ~ALineParContainer();
 };
 
-inline ALineParContainer::ALineParContainer():
-  DataVector<ALinePar>()
-{ } 
+inline ALineParContainer::ALineParContainer() : DataVector<ALinePar>() {}
 
-inline ALineParContainer::~ALineParContainer()
-{ } 
+inline ALineParContainer::~ALineParContainer() {}
 
 CLASS_DEF(ALineParContainer, 1324994856, 1)
 

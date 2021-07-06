@@ -168,7 +168,7 @@ private:
 protected:
 
   bool isInHotspot(const xAOD::CaloCluster& ptow) const;
-  bool fillComposition(const xAOD::CaloCluster& ptow,std::vector<double>& deta,std::vector<double>& dphi,std::vector<CaloSampling::CaloSample>& csam) const;
+  static bool fillComposition(const xAOD::CaloCluster& ptow,std::vector<double>& deta,std::vector<double>& dphi,std::vector<CaloSampling::CaloSample>& csam) ;
   bool setAxisTitle(TH1* h,const std::string& title,const std::string& axis="x"); 
 
   virtual StatusCode book();

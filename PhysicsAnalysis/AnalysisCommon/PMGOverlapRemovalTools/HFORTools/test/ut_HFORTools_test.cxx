@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/StandaloneToolHandle.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "PMGAnalysisInterfaces/IHFORSelectionTool.h"
 
@@ -45,7 +45,7 @@ int main() {
   evt.getEntry(0);
 
   //configuring the tool
-  asg::AnaToolHandle<IHFORSelectionTool> myTool("HFORSelectionTool/HFORSelectionTool");
+  asg::StandaloneToolHandle<IHFORSelectionTool> myTool("HFORSelectionTool/HFORSelectionTool");
 
   ANA_CHECK(myTool.setProperty("HFORStrategy", "DRBased"));
   ANA_CHECK(myTool.setProperty("MatchCone", 0.4));

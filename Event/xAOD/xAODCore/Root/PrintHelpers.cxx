@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: PrintHelpers.cxx 780624 2016-10-26 22:41:13Z ssnyder $
 
 // System include(s):
+#include <cstdint>
 #include <iostream>
-#include <stdint.h>
 
 // EDM include(s):
 #include "AthContainers/AuxElement.h"
@@ -23,15 +23,15 @@ template <class T> struct VecPrintType {
 };
 
 template <> struct VecPrintType<char> {
-  typedef int type;
+  using type = int;
 };
 
 template <> struct VecPrintType<int8_t> {
-  typedef int type;
+  using type = int;
 };
 
 template <> struct VecPrintType<uint8_t> {
-  typedef unsigned int type;
+  using type = unsigned int;
 };
 
 } // namespace PrintHelpers
@@ -182,7 +182,7 @@ std::ostream& operator<< ( std::ostream& out, const SG::AuxElement& obj ) {
       } else if( *ti == typeid( std::vector< std::string > ) ) {
          PRINTER( std::vector< std::string > );
       } else if( *ti == typeid( std::vector< std::pair<std::string, std::string> > ) ) {
-         typedef std::pair<std::string, std::string> Stringpair_t;
+         using Stringpair_t = std::pair<std::string, std::string>;
          PRINTER( std::vector< Stringpair_t > );
       } else {
          out << "N/A";

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -75,9 +75,9 @@ namespace InDet{
       virtual std::vector<const Trk::MeasurementBase*>& extendTrack
         (const EventContext& ctx, const Trk::Track&,InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
       virtual std::vector<const Trk::MeasurementBase*>& extendTrack
-        (const EventContext& ctx, const Trk::TrackParameters&,InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
+        (const EventContext& ctx, const Trk::TrackParameters *,InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
       virtual Trk::TrackSegment* findSegment
-        (const EventContext& ctx, const Trk::TrackParameters&, InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
+        (const EventContext& ctx, const Trk::TrackParameters *, InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
       virtual Trk::Track* newTrack
         (const EventContext& ctx, const Trk::Track&, InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
       virtual std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData> newEvent(const EventContext& ctx) const override;
@@ -111,14 +111,14 @@ namespace InDet{
 
       std::vector<const Trk::MeasurementBase*>& extendTrackFromParameters
       (const EventContext& ctx,
-       const Trk::TrackParameters&,
+       const Trk::TrackParameters *,
        InDet::TRT_TrackExtensionTool_xk::EventData &event_data) const;
 
       ///////////////////////////////////////////////////////////////////
       // Protected Data
       ///////////////////////////////////////////////////////////////////
 
-      const TRT_ID                          *m_trtid;
+      const TRT_ID                          *m_trtid{};
       ToolHandle<ITRT_DetElementsRoadMaker>         m_roadtool   ; // TRT road maker tool
       ToolHandle<Trk::IPatternParametersPropagator> m_proptool   ; //
       ToolHandle<Trk::IPatternParametersUpdator>    m_updatortool; //
@@ -130,8 +130,8 @@ namespace InDet{
 
 
       int                              m_segmentFindMode; // Method of segment find
-      int                              m_outputlevel    ; // Print level
-      int                              m_nprint         ; // Kind of print
+      int                              m_outputlevel{}    ; // Print level
+      int                              m_nprint{}         ; // Kind of print
       int                              m_minNumberDCs   ; // Min. number of DriftCircles
       int                              m_minNumberSCT   ; // Min. number SCT clusters for extension
       int                              m_minNumberPIX   ; // Min. number SCT clusters for extension
@@ -156,12 +156,12 @@ namespace InDet{
       void       magneticFieldInit();
       StatusCode magneticFieldInit(IOVSVC_CALLBACK_ARGS);
       bool isGoodExtension(const EventContext& ctx,
-                           const Trk::TrackParameters&,
+                           const Trk::TrackParameters *,
                            InDet::TRT_TrackExtensionTool_xk::EventData &event_data) const;
       bool numberPIXandSCTclustersCut(const Trk::Track&) const;
 
       MsgStream&    dumpConditions(MsgStream   & out) const;
-      MsgStream&    dumpEvent     (MsgStream   & out) const;
+      static MsgStream&    dumpEvent     (MsgStream   & out) ;
     };
 
   MsgStream&    operator << (MsgStream&   ,const TRT_TrackExtensionTool_xk&);

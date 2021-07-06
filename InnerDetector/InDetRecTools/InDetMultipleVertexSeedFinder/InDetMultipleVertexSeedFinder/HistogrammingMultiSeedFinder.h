@@ -8,6 +8,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "InDetRecToolInterfaces/IMultiPVSeedFinder.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 /**
  * A multi seed finder for primary vertexing. Uses a 
@@ -23,7 +24,6 @@
  * Mai 2007
  */
 
-class IBeamCondSvc;
 
 namespace Trk
 {
@@ -54,11 +54,11 @@ namespace InDet
 /**
  * Clustering method itself
  */   
-   std::vector< std::vector<const Trk::Track *> > seeds(const std::vector<const Trk::Track*>& tracks )const; 
+   virtual std::vector< std::vector<const Trk::Track *> > seeds(const std::vector<const Trk::Track*>& tracks )const override;
 
-   std::vector< std::vector<const Trk::TrackParticleBase *> > seeds(const std::vector<const Trk::TrackParticleBase*>& tracks )const;
+   virtual std::vector< std::vector<const Trk::TrackParticleBase *> > seeds(const std::vector<const Trk::TrackParticleBase*>& tracks )const override;
     
-   std::vector< std::vector<const Trk::TrackParameters *> > seeds(const std::vector<const xAOD::TrackParticle*>& tracks )const;
+   virtual std::vector< std::vector<const Trk::TrackParameters *> > seeds(const std::vector<const xAOD::TrackParticle*>& tracks )const override;
 
    //  std::pair<std::vector<const Trk::TrackParameters *>, 
    //  std::vector<const xAOD::TrackParticle *> > m_clusterAndOutliers(std::vector<const xAOD::TrackParticle *> tracks_to_clean, xAOD::Vertex * beamposition) const;
@@ -83,7 +83,7 @@ namespace InDet
    ToolHandle<Trk::IVertexSeedFinder> m_vtxSeedFinder;
 
 //beam spot finder
-  ServiceHandle< IBeamCondSvc > m_beamService;  
+   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
   ToolHandle<Trk::IExtrapolator> m_extrapolator; //<! Extrapolator tool
  };
 }//end of namespace definitions

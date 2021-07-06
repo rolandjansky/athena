@@ -18,17 +18,20 @@
 #include "LArElecCalib/ILArOFC.h"
 #include "LArElecCalib/ILArShape.h"
 #include "LArElecCalib/ILArHVScaleCorr.h"
-#include "CaloInterface/ICaloNoiseTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArRawConditions/LArADC2MeV.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
-#include "LArRawEvent/LArFebHeaderContainer.h"
-
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
+
+//Events infos:
+
+#include "LArRawEvent/LArFebHeaderContainer.h"
 //Events infos:
 #include "xAODEventInfo/EventInfo.h"
+
+#include "LArRecConditions/LArBadChannelMask.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 
 
 class LArRawChannel;
@@ -120,6 +123,9 @@ private:
   unsigned m_eventsCounter;
   enum PARTITION {EMBC=0,EMBA,EMECC,EMECA,HECC,HECA,FCALC,FCALA,N_PARTITIONS};
 
+  
+
+
   PARTITION getPartition(const HWIdentifier chid) const;
 
   struct HistGroup{
@@ -168,7 +174,12 @@ private:
                              const ILArHVScaleCorr* hvScaleCorrs,
                              const ILArPedestal* pedestals,
                              const LArADC2MeV* adc2mev,
-                             const HWIdentifier chid, const LArRawChannel& rcDig, const LArRawChannel& rcBS, const LArDigit* dig=NULL);
+                             const HWIdentifier chid, 
+			     const LArRawChannel& rcDig, 
+			     const LArRawChannel& rcBS, 
+			     const LArDigit* dig=nullptr
+
+			     );
 
   class ERRCOUNTER {
   public:
@@ -220,9 +231,11 @@ private:
 
   SG::ReadCondHandleKey<LArADC2MeV> m_adc2mevKey{this,"LArADC2MeVKey","LArADC2MeV","SG Key of the LArADC2MeV CDO"};
 
-  ToolHandle<ILArBadChannelMasker> m_badChannelMask;
 
-  ToolHandle<ICaloNoiseTool>       m_calo_noise_tool;
+  LArBadChannelMask m_bcMask;
+  SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
+  Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{}, "Bad-Channel categories to mask"}; 
+  
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping CDO"};
 

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // McEventCollectionCnv_p1.cxx
@@ -78,7 +78,7 @@ void McEventCollectionCnv_p1::persToTrans( const McEventCollection_p1* persObj,
         itr != itrEnd;
         ++itr ) {
     const GenEvent_p1& persEvt = *itr;
-    HepMC::GenEvent * genEvt   = datapool.evt.nextElementPtr();
+    HepMC::GenEvent * genEvt   = datapool.getGenEvent();
     genEvtCnv.persToTrans( &persEvt, genEvt, msg );
     transObj->push_back( genEvt );
 

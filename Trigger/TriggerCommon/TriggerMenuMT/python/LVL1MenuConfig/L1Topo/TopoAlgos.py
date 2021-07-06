@@ -3,7 +3,7 @@
 from AthenaCommon.Logging import logging
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
-log = logging.getLogger("TopoAlgo") 
+log = logging.getLogger(__name__)
 
 class TopoAlgo(object):
 

@@ -1,83 +1,13 @@
-# $Id: CMakeLists.txt 796545 2017-02-10 11:59:08Z tripiana $
-################################################################################
-# Package: SUSYTools
-################################################################################
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
- 
 # Declare the package name:
 atlas_subdir( SUSYTools )
 
 # Extra dependencies based on the build environment:
-set( extra_deps )
 set( extra_libs )
 if( NOT XAOD_STANDALONE )
-   set( extra_deps GaudiKernel PhysicsAnalysis/POOLRootAccess
-      Control/AthAnalysisBaseComps Control/AthenaBaseComps
-      Control/AthenaKernel )
    set( extra_libs GaudiKernel AthAnalysisBaseCompsLib )
 endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   Event/xAOD/xAODCore
-   Event/xAOD/xAODEgamma
-   Event/xAOD/xAODEventInfo
-   Event/xAOD/xAODJet
-   Event/xAOD/xAODMissingET
-   Event/xAOD/xAODTrigMissingET
-   Event/xAOD/xAODMuon
-   Event/xAOD/xAODTau
-   Event/xAOD/xAODTracking
-   Event/xAOD/xAODTruth
-   PhysicsAnalysis/AnalysisCommon/AssociationUtils
-   PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   PhysicsAnalysis/AnalysisCommon/PMGTools
-   PhysicsAnalysis/MCTruthClassifier
-   Reconstruction/Jet/JetJvtEfficiency
-   Reconstruction/Jet/JetSubStructureUtils
-   Trigger/TrigAnalysis/TrigDecisionTool
-   PRIVATE
-   AsgExternal/Asg_Test
-   Control/xAODRootAccess
-   Control/AthContainers
-   DataQuality/GoodRunsLists
-   Event/EventPrimitives
-   Event/FourMomUtils
-   Event/xAOD/xAODBTagging
-   Event/xAOD/xAODBase
-   Event/xAOD/xAODCaloEvent
-   Event/xAOD/xAODCutFlow
-   Event/xAOD/xAODPrimitives
-   PhysicsAnalysis/AnalysisCommon/IsolationSelection
-   PhysicsAnalysis/AnalysisCommon/PileupReweighting
-   PhysicsAnalysis/ElectronPhotonID/ElectronEfficiencyCorrection
-   PhysicsAnalysis/ElectronPhotonID/ElectronPhotonFourMomentumCorrection
-   PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
-   PhysicsAnalysis/ElectronPhotonID/ElectronPhotonShowerShapeFudgeTool
-   PhysicsAnalysis/ElectronPhotonID/IsolationCorrections
-   PhysicsAnalysis/ElectronPhotonID/PhotonEfficiencyCorrection
-   PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
-   PhysicsAnalysis/JetMissingEtID/JetSelectorTools
-   PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
-   PhysicsAnalysis/MuonID/MuonIDAnalysis/MuonEfficiencyCorrections
-   PhysicsAnalysis/MuonID/MuonIDAnalysis/MuonMomentumCorrections
-   PhysicsAnalysis/MuonID/MuonSelectorTools
-   PhysicsAnalysis/TauID/TauAnalysisTools
-   Reconstruction/Jet/JetCPInterfaces
-   Reconstruction/Jet/JetCalibTools
-   Reconstruction/Jet/JetInterface
-   Reconstruction/Jet/JetResolution
-   Reconstruction/Jet/JetUncertainties
-   Reconstruction/Jet/JetMomentTools
-   Reconstruction/MET/METInterface
-   Reconstruction/MET/METUtilities
-   Tools/PathResolver
-   Trigger/TrigAnalysis/TriggerMatchingTool
-   Trigger/TrigConfiguration/TrigConfInterfaces
-   Trigger/TrigConfiguration/TrigConfxAOD
-   ${extra_deps} )
 
 # External dependencies:
 find_package( Boost )
@@ -86,35 +16,38 @@ find_package( GTest )
 
 # Libraries in the package:
 atlas_add_library( SUSYToolsLib
-   SUSYTools/*.h Root/*.cxx
-   PUBLIC_HEADERS SUSYTools
-   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
+   SUSYTools/*.h Root/*.cxx src/SUSYToolsAlg.cxx src/SUSYToolsAlg.h
+   PUBLIC_HEADERS SUSYTools src
+   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${BOOST_INCLUDE_DIRS}
    LINK_LIBRARIES AsgTools xAODCore xAODEgamma xAODEventInfo
    xAODJet xAODMissingET xAODMuon xAODTau xAODTracking xAODTruth
-   AssociationUtilsLib PATInterfaces TrigDecisionToolLib PMGToolsLib
+   AssociationUtilsLib BoostedJetTaggersLib GoodRunsListsLib PATInterfaces TrigDecisionToolLib
    MCTruthClassifierLib JetJvtEfficiencyLib JetSubStructureUtils
-   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES}
+   ParticleJetToolsLib PMGAnalysisInterfacesLib AnaAlgorithmLib
+   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${BOOST_LIBRARIES}
    AthContainers EventPrimitives FourMomUtils xAODBTagging xAODBase
-   xAODPrimitives IsolationSelectionLib PileupReweightingLib
-   ElectronEfficiencyCorrectionLib ElectronPhotonFourMomentumCorrectionLib
-   ElectronPhotonSelectorToolsLib ElectronPhotonShowerShapeFudgeToolLib
-   IsolationCorrectionsLib PhotonEfficiencyCorrectionLib JetSelectorToolsLib
-   xAODBTaggingEfficiencyLib MuonEfficiencyCorrectionsLib
-   MuonMomentumCorrectionsLib MuonSelectorToolsLib TauAnalysisToolsLib
-   JetCPInterfaces JetCalibToolsLib JetInterface JetResolutionLib
+   xAODPrimitives xAODRootAccess
+   EgammaAnalysisInterfacesLib
+   EgammaAnalysisHelpersLib FTagAnalysisInterfacesLib IsolationSelectionLib
+   IsolationCorrectionsLib JetAnalysisInterfacesLib JetSelectorToolsLib
+   JetCPInterfaces JetCalibToolsLib JetInterface
+   # JetResolutionLib
    JetUncertaintiesLib JetMomentToolsLib METInterface METUtilitiesLib
-   PathResolver TriggerMatchingToolLib TrigConfInterfaces TrigConfxAODLib
-   xAODTrigMissingET ${extra_libs} )
+   PileupReweightingLib PathResolver TauAnalysisToolsLib
+   TriggerAnalysisInterfaces
+   TrigGlobalEfficiencyCorrectionLib TriggerMatchingToolLib TrigConfInterfaces TrigConfxAODLib
+   xAODTrigMissingET xAODMetaData xAODCutFlow ${extra_libs} )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( SUSYTools
       src/*.h src/*.cxx src/components/*.cxx
+      NOCLID
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel
       AthenaKernel AthAnalysisBaseCompsLib xAODEventInfo xAODMuon xAODPrimitives
       xAODJet xAODBTagging xAODEgamma xAODMissingET xAODTracking xAODTau
       TauAnalysisToolsLib xAODCore AthContainers AsgTools xAODBase xAODCutFlow
-      PATInterfaces PathResolver SUSYToolsLib )
+      PATInterfaces PathResolver SUSYToolsLib MuonAnalysisInterfacesLib JetAnalysisInterfacesLib EgammaAnalysisInterfacesLib )
 endif()
 
 atlas_add_dictionary( SUSYToolsDict
@@ -125,21 +58,28 @@ atlas_add_dictionary( SUSYToolsDict
 # Executable(s) in the package:
 set( extra_libs )
 if( NOT XAOD_STANDALONE )
-   set( extra_libs POOLRootAccess )
+   set( extra_libs POOLRootAccessLib )
 endif()
 atlas_add_executable( SUSYToolsTester
    util/SUSYToolsTester.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODMuon
    xAODEgamma xAODTau xAODTruth xAODJet xAODCaloEvent xAODCore xAODMissingET
-   xAODBTaggingEfficiencyLib xAODBase TauAnalysisToolsLib GoodRunsListsLib
+   FTagAnalysisInterfacesLib xAODBase TauAnalysisToolsLib GoodRunsListsLib
    PileupReweightingLib PATInterfaces PathResolver METUtilitiesLib xAODCutFlow
+   SUSYToolsLib ${extra_libs} )
+
+atlas_add_executable( SUSYTruthTester
+   util/SUSYTruthTester.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo
+   xAODTruth xAODCore xAODBase PATInterfaces PathResolver xAODCutFlow
    SUSYToolsLib ${extra_libs} )
 
 atlas_add_executable( SUSYTools_check_xsections
    util/check_xsections.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} PMGToolsLib SUSYToolsLib )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} SUSYToolsLib )
 
 if( XAOD_STANDALONE )
    atlas_add_executable( SUSYTools_check_syst
@@ -149,35 +89,29 @@ if( XAOD_STANDALONE )
       SUSYToolsLib )
 endif()
 
+# Log ignore patterns
+set (extra_patterns "  (Entire loop|Excluding first event|First event).*ms|cvmfs/atlas.*\.cern\.ch/repo|INFO|${ATLAS_PLATFORM}/data/SUSYTools|build(/Analysis.*)?/${ATLAS_PLATFORM}|mySTdefs_conf\.tmp|^Ran [0-9]+ tests in [0-9.]+s|create data set info.*|Booked|<HEADER>")
+
 # Test(s) in the package:
 if( XAOD_STANDALONE )
-   atlas_add_test( gt_SUSYTools_xs_loader
-      SOURCES test/gt_SUSYTools_xs_loader.cxx
-      INCLUDE_DIRS ${GTEST_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${GTEST_LIBRARIES} ${ROOT_LIBRARIES} SampleHandler )
-
-   atlas_add_test( ut_SUSYTools_test_xs_files
-      SOURCES test/ut_SUSYTools_test_xs_files.cxx
-      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} SampleHandler )
-
-   atlas_add_test( ut_SUSYTools_config_checker
-      SCRIPT test/ut_SUSYTools_config_checker.py )
-   atlas_add_test( ut_SUSYTools_wp_checker
-      SCRIPT test/ut_SUSYTools_wp_checker.py )
+   atlas_add_test( ut_SUSYToolsTester_data
+      SCRIPT SUSYToolsTester /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYS.data18_13TeV.358031.data18_p4441.PHYS.pool.root
+             maxEvents=500 isData=1 isAtlfast=0 Debug=0
+      LOG_IGNORE_PATTERN ${extra_patterns}
+      PROPERTIES TIMEOUT 300
+   )
+   atlas_add_test( ut_SUSYToolsTester_mc
+      SCRIPT SUSYToolsTester /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYS.mc16_13TeV.410470.FS_mc16e_p4441.PHYS.pool.root
+             maxEvents=100 isData=0 isAtlfast=0 Debug=0 NoSyst=0
+             PRWFile=dev/PileupReweighting/mc16_13TeV/pileup_mc16e_dsid410470_FS.root
+             ilumicalcFile=GoodRunsLists/data18_13TeV/20190318/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-010.root
+      LOG_IGNORE_PATTERN ${extra_patterns}
+      PROPERTIES TIMEOUT 300
+   )
 endif()
-
-atlas_add_test( ut_SUSYToolsTester_atlfast
-   SOURCES test/ut_SUSYToolsTester_atlfast.cxx )
-atlas_add_test( ut_SUSYToolsTester_data
-   SOURCES test/ut_SUSYToolsTester_data.cxx )
-atlas_add_test( ut_SUSYToolsTester_mc
-   SOURCES test/ut_SUSYToolsTester_mc.cxx )
-atlas_add_test( ut_SUSYToolsTester_mc_w_2016_lumi
-   SOURCES test/ut_SUSYToolsTester_mc_w_2016_lumi.cxx )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_data( data/* )
-
+atlas_install_scripts( scripts/TestSUSYToolsAlg.py )

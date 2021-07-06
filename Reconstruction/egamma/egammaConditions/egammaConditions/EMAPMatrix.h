@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -85,13 +85,13 @@ public:
   // 		EMAPMatrix(std::vector<EMAPMatrixAxis> axes, T emptyObject);
 
   /** Copy constructor */
-  EMAPMatrix(const EMAPMatrix& ob);
+  EMAPMatrix(const EMAPMatrix& ob) = default;
 				
   /** Default destructor */
   ~EMAPMatrix();
 		
   /** Operator = Overload */
-  EMAPMatrix& operator = (const EMAPMatrix& ob);
+  EMAPMatrix& operator = (const EMAPMatrix& ob) = default;
 		
   // Constructor Methods
   /** Setup Matrix via given std::vector of EMAPMatrixAxis objects */
@@ -125,7 +125,7 @@ public:
       matrix if the length of the std::vector x ind n.
       @param x: std::vector of length n which represents the values on all axes
       @param T: value which should be set*/
-  StatusCode setBinContent(std::vector<double> x, T value);
+  StatusCode setBinContent(const std::vector<double>& x, T value);
 
   /** Get Bin-content to "T" in bin which corresponds to value "x". Can only used for 1-dimensional matrix
       @param x: value on x-axis

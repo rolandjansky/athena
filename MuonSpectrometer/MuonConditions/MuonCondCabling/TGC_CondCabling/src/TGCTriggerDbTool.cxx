@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGC_CondCabling/TGCTriggerDbTool.h" 
@@ -9,11 +9,10 @@
 TGCTriggerDbTool::TGCTriggerDbTool(const std::string& type,
 				   const std::string& name,
 				   const IInterface* parent)
-  : AthAlgTool(type, name, parent)
+  : AthAlgTool(type, name, parent),
+    m_DataLocation ("keyTGC")
 {
   declareInterface<ITGCTriggerDbTool>(this);
-  
-  m_DataLocation = "keyTGC";
   
   declareProperty("BwFolder",   m_bwFolder="/TGC/TRIGGER/CW_BW");
   declareProperty("EifiFolder", m_eifiFolder="/TGC/TRIGGER/CW_EIFI");

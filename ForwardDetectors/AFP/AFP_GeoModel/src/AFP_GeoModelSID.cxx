@@ -23,7 +23,6 @@
 #include "CLHEP/GenericFunctions/Sin.hh"
 #include "CLHEP/GenericFunctions/Cos.hh"
 
-#include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
 #include <iostream>

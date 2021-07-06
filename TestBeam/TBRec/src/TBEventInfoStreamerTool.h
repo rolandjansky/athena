@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBEVENTINFOSTREAMERTOOL_H
@@ -18,9 +18,9 @@ class TBEventInfoStreamerTool : public TBEventStreamerTool
 			    const IInterface* parent);
   virtual ~TBEventInfoStreamerTool();
 
-  virtual StatusCode initializeTool();
+  virtual StatusCode initializeTool() override;
 
-  virtual StatusCode accept();
+  virtual StatusCode accept() override;
 
  protected:
 

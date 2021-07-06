@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INCLUDE_PERSISTENCYSVC_DATABASEHANDLER_H
@@ -67,7 +67,7 @@ namespace pool {
       const std::string& fid() const;
 
       /// Returns the merged file identifier
-      pool::DbDatabase::Redirections redirections() const;
+      pool::DbDatabase::Redirections redirections();
 
       /// Returns the technology identifier
       long technology() const;
@@ -87,11 +87,11 @@ namespace pool {
       /// Reads an object given a token
       void* readObject( const Token& token, void* object = 0 );
 
-      /// Returns an attrtibute
+      /// Returns an attribute
       bool attribute( const std::string& attributeName,
                       void* data,
                       const std::type_info& typeInfo,
-                      const std::string& option ) const;
+                      const std::string& option );
 
       /// Sets an attrtibute
       bool setAttribute( const std::string& attributeName,

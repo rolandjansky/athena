@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // +==========================================================================+
@@ -184,12 +184,10 @@ StatusCode LArPileUpTool::initialize()
   // retrieve tool to compute sqrt of time correlation matrix
   ATH_CHECK(m_autoCorrNoiseKey.initialize(!m_RndmEvtOverlay && m_NoiseOnOff));
 
-  if (m_maskingTool.retrieve().isFailure()) {
-       ATH_MSG_INFO(" No tool for bad channel masking");
-      m_useBad=false;
-  }
-
+  ATH_CHECK(m_bcContKey.initialize());
   ATH_CHECK(m_badFebKey.initialize());
+
+  ATH_CHECK(m_bcMask.buildBitMask(m_problemsToMask,msg()));  
 
   if (m_useTriggerTime) {
      if (m_triggerTimeTool.retrieve().isFailure()) {
@@ -227,10 +225,10 @@ StatusCode LArPileUpTool::initialize()
   ATH_CHECK(m_cablingKey.initialize());
 
   ATH_CHECK(m_hitMapKey.initialize());
-  ATH_CHECK(m_hitMapKey_DigiHSTruth.initialize());
+  ATH_CHECK(m_hitMapKey_DigiHSTruth.initialize(m_doDigiTruth));
 
   ATH_CHECK(m_DigitContainerName.initialize());
-  ATH_CHECK(m_DigitContainerName_DigiHSTruth.initialize());
+  ATH_CHECK(m_DigitContainerName_DigiHSTruth.initialize(m_doDigiTruth));
   
 
 
@@ -700,16 +698,14 @@ StatusCode LArPileUpTool::fillMapFromHit(StoreGateSvc* myStore, float bunchTime,
        if (sc.isFailure() || !hit_container) {
           return StatusCode::FAILURE;
        }
-       LArHitFloatContainer::const_iterator hititer;
-       for(hititer=hit_container->begin();
-           hititer != hit_container->end();hititer++)
+       for (const LArHitFloat& hit : *hit_container)
        {
          m_nhit_tot++;
-         Identifier cellId = (*hititer).cellID();
-         float energy = (float) (*hititer).energy();
+         Identifier cellId = hit.cellID();
+         float energy = (float) hit.energy();
          float time;
          if (m_ignoreTime) time=0.;
-         else time   = (float) ((*hititer).time() - m_trigtime);
+         else time   = (float) (hit.time() - m_trigtime);
          time = time + bunchTime;
 
          if (this->AddHit(cellId,energy,time,isSignal).isFailure()) return StatusCode::FAILURE;
@@ -731,7 +727,7 @@ StatusCode LArPileUpTool::fillMapFromHit(StoreGateSvc* myStore, float bunchTime,
        }
        LArHitContainer::const_iterator hititer;
        for(hititer=hit_container->begin();
-           hititer != hit_container->end();hititer++)
+           hititer != hit_container->end();++hititer)
        {
          m_nhit_tot++;
          Identifier cellId = (*hititer)->cellID();
@@ -776,16 +772,14 @@ StatusCode LArPileUpTool::fillMapFromHit(SubEventIterator iEvt, float bunchTime,
 	return StatusCode::FAILURE;
       }
 
-      LArHitFloatContainer::const_iterator hititer;
-      for(hititer=hit_container->begin();
-	  hititer != hit_container->end();hititer++)
+      for (const LArHitFloat& hit : *hit_container)
 	{
 	  m_nhit_tot++;
-	  Identifier cellId = (*hititer).cellID();
-	  float energy = (float) (*hititer).energy();
+	  Identifier cellId = hit.cellID();
+	  float energy = (float) hit.energy();
 	  float time;
 	  if (m_ignoreTime) time=0.;
-	  else time   = (float) ((*hititer).time() - m_trigtime);
+	  else time   = (float) (hit.time() - m_trigtime);
 	  time = time + bunchTime;
 
          if (this->AddHit(cellId,energy,time,isSignal).isFailure()) return StatusCode::FAILURE;
@@ -803,7 +797,7 @@ StatusCode LArPileUpTool::fillMapFromHit(SubEventIterator iEvt, float bunchTime,
 
       LArHitContainer::const_iterator hititer;
       for(hititer=hit_container->begin();
-	  hititer != hit_container->end();hititer++)
+	  hititer != hit_container->end();++hititer)
 	{
 	  m_nhit_tot++;
 	  Identifier cellId = (*hititer)->cellID();
@@ -1649,6 +1643,9 @@ StatusCode LArPileUpTool::MakeDigit(const EventContext& ctx, const Identifier & 
     autoCorrNoise=*autoCorrNoiseHdl;
   }
 
+  /** Retrieve BadChannels */
+  SG::ReadCondHandle<LArBadChannelCont> bch{m_bcContKey,ctx};
+  const LArBadChannelCont* bcCont{*bch}; 
 
   LArDigit *Digit;
   LArDigit *Digit_DigiHSTruth;
@@ -1699,8 +1696,7 @@ StatusCode LArPileUpTool::MakeDigit(const EventContext& ctx, const Identifier & 
 //
 // convert Hits into energy samples and add result to m_Samples assuming LARHIGHGAIN for pulse shape
 //
-  bool isDead = false;
-  if (m_useBad) isDead = m_maskingTool->cellShouldBeMasked(ch_id);
+  bool isDead = m_bcMask.cellShouldBeMasked(bcCont,ch_id);
 
   if (!isDead) {
     if( this->ConvertHits2Samples(ctx, cellId,ch_id,initialGain,TimeE, m_Samples).isFailure() ) return StatusCode::SUCCESS;

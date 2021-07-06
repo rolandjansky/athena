@@ -15,11 +15,12 @@ def getSubSequences(sequence,sequenceList):
             getSubSequences(item,sequenceList)
     return
 
-if hasattr(runArgs, "reductionConf"):
-    msg.info('Will attempt to make the following reduced formats: {0}'.format(runArgs.reductionConf))
-else:
-    msg.error('AOD Reduction job started, but with no "reductionConf" array - aborting')
-    raise RuntimeError("No reductions configured")
+if not hasattr(runArgs, "outputNTUP_PILEUPFile"):
+    if hasattr(runArgs, "reductionConf"):
+        msg.info('Will attempt to make the following reduced formats: {0}'.format(runArgs.reductionConf))
+    else:
+        msg.error('AOD Reduction job started, but with no "reductionConf" array - aborting')
+        raise RuntimeError("No reductions configured")
 
 include("RecJobTransforms/CommonRecoSkeletonJobOptions.py")
 
@@ -65,6 +66,13 @@ elif hasattr(runArgs,'inputEVNTFile') or hasattr(runArgs,'jobConfig'):
 else:
     msg.error('AOD Reduction job started, but with no AOD inputs - aborting')
     raise RuntimeError("No AOD input")
+
+# Deal appropriately with NTUP_PILEUP
+if hasattr(runArgs, "outputNTUP_PILEUPFile"):
+    from DerivationFrameworkDataPrep.DataPrepJobProperties import DataPrepFlags
+    DataPrepFlags.outputFile = runArgs.outputNTUP_PILEUPFile
+    runArgs.outputDAOD_DAPR0File = "DAOD_DAPR0.root"
+    runArgs.reductionConf = "DAPR0"
 
 listOfFlags=[]
 

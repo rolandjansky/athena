@@ -316,7 +316,7 @@ TgcLv1RawDataValAlg::fillEfficiency(int ms,// 0:Muid 1:Staco
       if(opt> thresetavsphi[pt]){
         m_tgclv1effetavsphidenom[ac][pt][pn][ms]->Fill(std::abs(oeta),ophi_mod);
       }
-      if( m_found_express_stream && m_found_nonmuon_express_chain ){
+      if( m_found_nonmuon_express_chain ){
         m_tgclv1turnondenom_ES[ac][pt]->Fill(opt);
         if( opt > threscount[pt] )
           m_tgclv1_plateau_eff_counting_denom_ES[ac]->Fill(pt);
@@ -399,7 +399,7 @@ TgcLv1RawDataValAlg::fillEfficiency(int ms,// 0:Muid 1:Staco
         for(int pt=0;pt<6;pt++){
           if(flag[pt]==true){
             m_tgclv1turnonnum[ac][pt][pn][ms]->Fill(opt);
-            if(m_found_express_stream && m_found_nonmuon_express_chain){
+            if(m_found_nonmuon_express_chain){
               m_tgclv1turnonnum_ES[ac][pt]->Fill(opt);
               if(opt>threscount[pt])
                 m_tgclv1_plateau_eff_counting_num_ES[ac]->Fill(pt);

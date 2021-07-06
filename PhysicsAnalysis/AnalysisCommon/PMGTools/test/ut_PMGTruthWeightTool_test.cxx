@@ -9,7 +9,7 @@
 
 // EDM include(s):
 #include "AsgMessaging/MessageCheck.h"
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/StandaloneToolHandle.h"
 
 // Project dependent include(s)
 #ifdef XAOD_STANDALONE
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
 
   // Create the truth weight tool:
   ANA_MSG_INFO("Creating PMGTruthWeightTool...");
-  asg::AnaToolHandle< PMGTools::IPMGTruthWeightTool > weightTool("PMGTools::PMGTruthWeightTool/PMGTruthWeightTool");
+  asg::StandaloneToolHandle< PMGTools::IPMGTruthWeightTool > weightTool("PMGTools::PMGTruthWeightTool/PMGTruthWeightTool");
   ANA_CHECK(weightTool.retrieve());
 
   // Loop over a few events:

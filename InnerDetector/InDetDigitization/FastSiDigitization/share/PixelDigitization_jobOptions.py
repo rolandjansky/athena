@@ -31,12 +31,10 @@ if not hasattr(condSeq, 'PixelConfigCondAlg'):
 
 
 useNewChargeFormat  = False
-useNewDeadmapFormat = False
 
-if useNewDeadmapFormat:
-  if not hasattr(condSeq, "PixelDeadMapCondAlg"):
-    from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
-    condSeq += PixelDeadMapCondAlg(name="PixelDeadMapCondAlg",ReadKey="")
+if not hasattr(condSeq, "PixelDeadMapCondAlg"):
+  from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
+  condSeq += PixelDeadMapCondAlg(name="PixelDeadMapCondAlg",ReadKey="")
 
 #####################
 # Calibration setup #

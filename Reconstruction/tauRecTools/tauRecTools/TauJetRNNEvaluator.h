@@ -1,16 +1,14 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUREC_TAUJETRNNEVALUATOR_H
-#define TAUREC_TAUJETRNNEVALUATOR_H
+#ifndef TAURECTOOLS_TAUJETRNNEVALUATOR_H
+#define TAURECTOOLS_TAUJETRNNEVALUATOR_H
 
 #include "tauRecTools/TauRecToolBase.h"
-#include "tauRecTools/ITauVertexCorrection.h"
 
 #include "xAODTau/TauJet.h"
-
-#include "AsgTools/ToolHandle.h"
+#include "xAODCaloEvent/CaloVertexedTopoCluster.h"
 
 #include <memory>
 
@@ -38,25 +36,28 @@ public:
     // Getter for the underlying RNN implementation
     const TauJetRNN* get_rnn_0p() const;
     const TauJetRNN* get_rnn_1p() const;
+    const TauJetRNN* get_rnn_2p() const;
     const TauJetRNN* get_rnn_3p() const;
 
-public:
     // Selects tracks to be used as input to the network
     StatusCode get_tracks(const xAOD::TauJet &tau,
                           std::vector<const xAOD::TauTrack *> &out) const;
 
     // Selects clusters to be used as input to the network
     StatusCode get_clusters(const xAOD::TauJet &tau,
-                            std::vector<const xAOD::CaloCluster *> &out) const;
+                            std::vector<xAOD::CaloVertexedTopoCluster> &out) const;
 
 private:
     std::string m_output_varname;
     std::string m_weightfile_0p;
     std::string m_weightfile_1p;
+    std::string m_weightfile_2p;
     std::string m_weightfile_3p;
     std::size_t m_max_tracks;
     std::size_t m_max_clusters;
     float m_max_cluster_dr;
+    bool m_doVertexCorrection;
+    bool m_doTrackClassification;
 
     // Configuration of the weight file
     std::string m_input_layer_scalar;
@@ -68,13 +69,8 @@ private:
     // Wrappers for lwtnn
     std::unique_ptr<TauJetRNN> m_net_0p; //!
     std::unique_ptr<TauJetRNN> m_net_1p; //!
+    std::unique_ptr<TauJetRNN> m_net_2p; //!
     std::unique_ptr<TauJetRNN> m_net_3p; //!
-
-    bool m_useSubtractedCluster;
-
-    ToolHandle<ITauVertexCorrection> m_tauVertexCorrection { this, 
-      "TauVertexCorrection", "TauVertexCorrection", "Tool to perform the vertex correction"};
 };
 
-
-#endif // TAUREC_TAUJETRNNEVALUATOR_H
+#endif // TAURECTOOLS_TAUJETRNNEVALUATOR_H

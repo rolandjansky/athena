@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -58,12 +58,17 @@ public:
 
   /**Default Constructor, needed for persistency*/
   AnnulusBounds();
-
   /**Constructor for AnnulusBounds*/
   AnnulusBounds(double minR, double maxR, double R, double phi, double phiS);
 
   /**Copy constructor*/
   AnnulusBounds(const AnnulusBounds& annbo) = default;
+  /**Assignment operator*/
+  AnnulusBounds& operator=(const AnnulusBounds& sbo) = default;
+ /** Move constructor */
+  AnnulusBounds(AnnulusBounds&& annbo) = default;
+ /** Move assignment */
+  AnnulusBounds& operator=(AnnulusBounds&& sbo) = default;
 
   /**Destructor*/
   virtual ~AnnulusBounds() = default;
@@ -73,9 +78,6 @@ public:
 
   /** Return the type of the bounds for persistency */
   virtual BoundsType type() const override { return SurfaceBounds::Annulus; }
-
-  /**Assignment operator*/
-  AnnulusBounds& operator=(const AnnulusBounds& sbo) = default;
 
   /**Equality operator*/
   bool operator==(const SurfaceBounds& annbo) const override;
@@ -158,27 +160,27 @@ private:
 
   /** isAbove() method for checking whether a point lies above or under a straight line */
 
-  bool isAbove(const Amg::Vector2D& locpo, double tol1, double tol2, double x1, double y1, double x2, double y2) const;
+  static bool isAbove(const Amg::Vector2D& locpo, double tol1, double tol2, double x1, double y1, double x2, double y2) ;
 
-  bool isRight(const Amg::Vector2D& locpo, double tol1, double tol2, double x1, double y1, double x2, double y2) const;
+  static bool isRight(const Amg::Vector2D& locpo, double tol1, double tol2, double x1, double y1, double x2, double y2) ;
 
-  bool isLeft(const Amg::Vector2D& locpo, double tol1, double tol2, double x1, double y1, double x2, double y2) const;
+  static bool isLeft(const Amg::Vector2D& locpo, double tol1, double tol2, double x1, double y1, double x2, double y2) ;
 
   // check whether an ellipse intersects a line
-  bool EllipseIntersectLine(const Amg::Vector2D& locpo, double h, double k, double x1, double y1, double x2, double y2)
-    const;
+  static bool EllipseIntersectLine(const Amg::Vector2D& locpo, double h, double k, double x1, double y1, double x2, double y2)
+    ;
 
   /** Distance to line */
-  double distanceToLine(const Amg::Vector2D& locpo, std::vector<TDD_real_t> P1, std::vector<TDD_real_t> P2) const;
+  static double distanceToLine(const Amg::Vector2D& locpo, std::vector<TDD_real_t> P1, std::vector<TDD_real_t> P2) ;
 
   /** Distance to arc */
-  double distanceToArc(const Amg::Vector2D& locpo,
+  static double distanceToArc(const Amg::Vector2D& locpo,
                        double R,
                        std::vector<TDD_real_t> sL,
-                       std::vector<TDD_real_t> sR) const;
+                       std::vector<TDD_real_t> sR) ;
 
   /** Circle and line intersection **/
-  std::vector<double> circleLineIntersection(double R, double k, double d) const;
+  static std::vector<double> circleLineIntersection(double R, double k, double d) ;
 
   std::vector<TDD_real_t> m_boundValues;
 

@@ -32,7 +32,7 @@ static const bool dontUseRealDatabase=true;
 BOOST_AUTO_TEST_SUITE(CrestFunctionsTest)
   BOOST_AUTO_TEST_CASE(urlBase_test){
     const std::string baseUrl=urlBase();
-    BOOST_TEST(baseUrl == "http://crest-undertow.web.cern.ch/crestapi");
+    BOOST_TEST(baseUrl == "http://crest-01.cern.ch:8080");
   }
   
   BOOST_AUTO_TEST_CASE(extractHashFromJson_test){

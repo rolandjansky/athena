@@ -72,6 +72,8 @@ atlas_add_executable( TIDAcomparitor
 
 atlas_add_executable( TIDAcpucost
    Analysis/src/cpucost.cxx
+   Analysis/src/AtlasStyle.h Analysis/src/AtlasStyle.cxx
+   Analysis/src/AtlasLabels.h Analysis/src/AtlasLabels.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} Readcards TIDAcomputils )
 
@@ -114,6 +116,12 @@ atlas_add_executable( TIDAsb
    Analysis/src/chainparser.cxx
    LINK_LIBRARIES Readcards )
 
+atlas_add_executable( TIDAdependence
+   Analysis/src/dependence.cxx
+   Analysis/src/AtlasStyle.h Analysis/src/AtlasStyle.cxx
+   Analysis/src/AtlasLabels.h Analysis/src/AtlasLabels.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} TrigInDetAnalysis Readcards  )
 
 # Disable naming convention checker.
 # FIXME: This should be fixed properly once run2 is finished.
@@ -132,6 +140,7 @@ if( ${CMAKE_CXX_FLAGS} MATCHES "libchecker_gccplugins" )
   set_target_properties( TIDAlistroot PROPERTIES COMPILE_FLAGS -fplugin-arg-libchecker_gccplugins-checkers=no-naming )
   set_target_properties( TIDAskim PROPERTIES COMPILE_FLAGS -fplugin-arg-libchecker_gccplugins-checkers=no-naming )
   set_target_properties( TIDAfastadd PROPERTIES COMPILE_FLAGS -fplugin-arg-libchecker_gccplugins-checkers=no-naming )
+  set_target_properties( TIDAdependence PROPERTIES COMPILE_FLAGS -fplugin-arg-libchecker_gccplugins-checkers=no-naming )
 endif()
 
 # Install files from the package:

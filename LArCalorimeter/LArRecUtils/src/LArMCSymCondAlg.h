@@ -18,18 +18,18 @@
 class LArMCSymCondAlg: public AthAlgorithm {
 
 public:
+  using AthAlgorithm::AthAlgorithm;
 
-  LArMCSymCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
-  ~LArMCSymCondAlg();
+  ~LArMCSymCondAlg()=default;
 
   StatusCode initialize();
   StatusCode execute();
   StatusCode finalize() {return StatusCode::SUCCESS;}
 
  private:
-  SG::ReadCondHandleKey<LArOnOffIdMapping> m_readKey;
-  SG::WriteCondHandleKey<LArMCSym>  m_writeKey;
-  ServiceHandle<ICondSvc> m_condSvc;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_readKey  {this,"ReadKey","LArOnOffIdMap"};
+  SG::WriteCondHandleKey<LArMCSym>         m_writeKey {this,"WriteKey","LArMCSym"};
+  ServiceHandle<ICondSvc> m_condSvc{this,"CondSvc","CondSvc"};
 
 };
 

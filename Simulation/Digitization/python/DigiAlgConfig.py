@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
 from AthenaCommon import CfgMgr
@@ -43,7 +43,12 @@ def getStandardTruthPileUpTools():
                 PileUpToolsList += [ "NewMergeMcEventCollTool_HaloGas" ]
         else:
             PileUpToolsList += [ "MergeMcEventCollTool" ]
-        PileUpToolsList += [ "MergeTruthJetsTool" ]
+        if 'PileUpAntiKt4TruthJets' in digitizationFlags.experimentalDigi():
+            PileUpToolsList += [ "MergeAntiKt4TruthJetsTool" ]
+        if 'PileUpAntiKt6TruthJets' in digitizationFlags.experimentalDigi():
+            PileUpToolsList += [ "MergeAntiKt6TruthJetsTool" ]
+        if 'PileUpTruthParticles' in digitizationFlags.experimentalDigi():
+            PileUpToolsList += [ "MergeTruthParticlesTool" ]
         if DetFlags.writeRDOPool.Muon_on(): #possibly this should be digitize.Muon_on()
             PileUpToolsList += [ "MergeMuonEntryLayerTool" ]
         if DetFlags.writeRDOPool.Calo_on(): #possibly this should be digitize.Calo_on()
@@ -60,7 +65,12 @@ def getStandardSignalOnlyTruthPileUpTools():
                 PileUpToolsList += [ "NewMergeMcEventCollTool_Signal" ]
         else:
             PileUpToolsList += [ "SignalOnlyMcEventCollTool" ]
-        PileUpToolsList += [ "MergeTruthJetsTool" ]
+        if 'PileUpAntiKt4TruthJets' in digitizationFlags.experimentalDigi():
+            PileUpToolsList += [ "MergeAntiKt4TruthJetsTool" ]
+        if 'PileUpAntiKt6TruthJets' in digitizationFlags.experimentalDigi():
+            PileUpToolsList += [ "MergeAntiKt6TruthJetsTool" ]
+        if 'PileUpTruthParticles' in digitizationFlags.experimentalDigi():
+            PileUpToolsList += [ "MergeTruthParticlesTool" ]
         if not athenaCommonFlags.DoFullChain() and DetFlags.writeRDOPool.Muon_on(): #possibly this should be digitize.Muon_on()
             PileUpToolsList += [ "MergeMuonEntryLayerTool" ]
         if DetFlags.writeRDOPool.Calo_on(): #possibly this should be digitize.Calo_on()
@@ -85,7 +95,12 @@ def getStandardInTimeOnlyTruthPileUpTools():
                 PileUpToolsList += [ "InTimeOnlyNewMergeMcEventCollTool_HaloGas" ]
         else:
             PileUpToolsList += [ "InTimeOnlyMcEventCollTool" ]
-        PileUpToolsList += [ "MergeTruthJetsTool" ]
+        if 'PileUpAntiKt4TruthJets' in digitizationFlags.experimentalDigi():
+            PileUpToolsList += [ "MergeAntiKt4TruthJetsTool" ]
+        if 'PileUpAntiKt6TruthJets' in digitizationFlags.experimentalDigi():
+            PileUpToolsList += [ "MergeAntiKt6TruthJetsTool" ]
+        if 'PileUpTruthParticles' in digitizationFlags.experimentalDigi():
+            PileUpToolsList += [ "MergeTruthParticlesTool" ]
         if not athenaCommonFlags.DoFullChain() and DetFlags.writeRDOPool.Muon_on(): #possibly this should be digitize.Muon_on()
             PileUpToolsList += [ "MergeMuonEntryLayerTool" ]
         if DetFlags.writeRDOPool.Calo_on(): #possibly this should be digitize.Calo_on()
@@ -479,7 +494,7 @@ def getStandardPileUpToolsAlg(name="StandardPileUpToolsAlg", **kwargs):
     kwargs.setdefault('ExtraInputs', [('xAOD::EventInfo', 'EventInfo')])
     from Digitization.DigitizationFlags import digitizationFlags
     if digitizationFlags.doXingByXingPileUp():
-        if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+        if digitizationFlags.PileUpPresampling and 'LegacyOverlay' not in digitizationFlags.experimentalDigi():
             from OverlayCommonAlgs.OverlayFlags import overlayFlags
             kwargs.setdefault('EventInfoKey', overlayFlags.bkgPrefix() + 'EventInfo')
         else:

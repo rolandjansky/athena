@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////
@@ -35,7 +35,6 @@
 
 #include "TrigConfL1Data/HelperFunctions.h"
 #include "TrigConfL1Data/CTPConfig.h"
-#include "TrigConfL1Data/CTPConfigOnline.h"
 
 #include "TrigConfStorage/StorageMgr.h"
 #include "TrigConfStorage/XMLStorageMgr.h"
@@ -104,10 +103,8 @@ std::string pathresolve(const std::string& filename, const std::string & searchp
    std::string fullname = findInPath(filename,".");
    if( fullname != "" ) { return fullname; }
    std::vector<std::string> listofpaths = splitpath(searchpath);
-   std::vector<std::string>::const_iterator path    = listofpaths.begin();
-   std::vector<std::string>::const_iterator pathEnd = listofpaths.end();
-   for(;path!=pathEnd;path++) {
-      fullname = findInPath(filename,*path);
+   for (const std::string& path : listofpaths) {
+      fullname = findInPath(filename,path);
       if( fullname != "" ) { return fullname; }      
    }
    return "";
@@ -116,7 +113,7 @@ std::string pathresolve(const std::string& filename, const std::string & searchp
 std::string xmlpathresolve(const std::string& filename) {
 
    // if path starts with '/' then it is absolute
-   if( filename.find('/') == 0 ) return filename;
+   if (!filename.empty() && filename[0] =='/') return filename;
 
    std::string xmlpath = ::getenv("XMLPATH");
    if(filename.find('/')==std::string::npos) {
@@ -229,7 +226,7 @@ void printhelp(std::ostream & o, std::ostream& (*lineend) ( std::ostream& os )) 
 }
 
 class JobConfig {
- public:
+public:
   enum ETriggerLevel { NONE = 0, LVL1 = 1, HLT = 2, BOTH = 3 };
 
   JobConfig() :
@@ -296,10 +293,8 @@ class JobConfig {
 
   void SetTriggerRunRanges(const std::string & runs) {
     std::vector<std::string> runRangeList = splitpath(runs, ",");
-    std::vector<std::string>::iterator rrIt = runRangeList.begin();
-    std::vector<std::string>::iterator rrItEnd = runRangeList.end();
-    for(;rrIt!=rrItEnd;rrIt++) {
-      std::vector<std::string> startend = splitpath((*rrIt), "-");
+    for (const std::string& rr : runRangeList) {
+      std::vector<std::string> startend = splitpath(rr, "-");
       unsigned int first = (unsigned int)convertStringToInt(startend[0]);
       unsigned int last  = (unsigned int)startend.size()==1?first:convertStringToInt(startend[1]);
       m_triggerRunRanges.push_back(std::pair<unsigned int,unsigned int>(first,last));
@@ -472,7 +467,7 @@ void JobConfig::PrintCompleteSetup(std::ostream & log, std::ostream& (*lineend) 
         log << "Run numbers         : ";
         std::vector<std::pair<unsigned int,unsigned int> >::const_iterator rrIt = RunRanges().begin();
         std::vector<std::pair<unsigned int,unsigned int> >::const_iterator rrItEnd = RunRanges().end();
-        for(;rrIt!=rrItEnd; rrIt++) {
+        for(;rrIt!=rrItEnd; ++rrIt) {
           if(rrIt != RunRanges().begin()) log << ", ";
           int first = (*rrIt).first;
           int last = (*rrIt).second;
@@ -495,7 +490,7 @@ void JobConfig::PrintCompleteSetup(std::ostream & log, std::ostream& (*lineend) 
       log << "Run numbers       : ";
       std::vector<std::pair<unsigned int,unsigned int> >::const_iterator rrIt = RunRanges().begin();
       std::vector<std::pair<unsigned int,unsigned int> >::const_iterator rrItEnd = RunRanges().end();
-      for(;rrIt!=rrItEnd; rrIt++) {
+      for(;rrIt!=rrItEnd; ++rrIt) {
         if(rrIt != RunRanges().begin()) log << ", ";
         int first = (*rrIt).first;
         int last = (*rrIt).second;
@@ -509,11 +504,10 @@ void JobConfig::PrintCompleteSetup(std::ostream & log, std::ostream& (*lineend) 
       log << "Lumiblock number    : " << LumiblockNumber() << lineend;
     } 
 		if(ListOfWriteFolders().size()>0) {
-    log << "Writing will be restricted to the following folders:" << lineend;
-		std::vector<std::string>::const_iterator wfIt = ListOfWriteFolders().begin();
-		for(;wfIt!=ListOfWriteFolders().end();wfIt++) {
-		  log << "  " << (*wfIt) << lineend;
-		}
+      log << "Writing will be restricted to the following folders:" << lineend;
+      for (const std::string& wf : ListOfWriteFolders()) {
+        log << "  " << wf << lineend;
+      }
 		}
   }
 
@@ -755,11 +749,9 @@ int main( int argc, char* argv[] ) {
          std::vector<std::string> csv = TrigConf::split(configSource, ";");
          std::string user = "";
          std::string passwd = "";
-         std::vector<std::string>::iterator csIt = csv.begin();
-         for(;csIt!=csv.end();csIt++) {
-            std::string& s = *csIt;
-            if( s.find("user")==0 ) user=TrigConf::split(s, "=")[1];
-            if( s.find("passwd")==0 ) passwd=TrigConf::split(s, "=")[1];
+         for (const std::string& s : csv) {
+            if( s.compare(0, 4, "user")==0 ) user=TrigConf::split(s, "=")[1];
+            if( s.compare(0, 6, "passwd")==0 ) passwd=TrigConf::split(s, "=")[1];
          }
       
          try {
@@ -768,9 +760,9 @@ int main( int argc, char* argv[] ) {
 
             // setup the coolWriter
             TrigConf::TrigConfCoolWriter coolWriter(gConfig.CoolConnection(),log);
-            std::vector<std::string>::const_iterator wfIt = gConfig.ListOfWriteFolders().begin();
-            for(;wfIt!=gConfig.ListOfWriteFolders().end();wfIt++) 
-               coolWriter.addWriteFolder(*wfIt);
+            for (const std::string& wf : gConfig.ListOfWriteFolders()) {
+               coolWriter.addWriteFolder(wf);
+            }
 											
             if( lumiblockNumber == 0 ) { // write runwise configuration information
 
@@ -791,27 +783,12 @@ int main( int argc, char* argv[] ) {
                //thrcfg.print();
       
                if(gConfig.WriteLevel() & JobConfig::LVL1) {
-                 log << "Retrieving Lvl1 CTP configuration" << lineend;
-                 log << "NB: BG set is hardcoded to 1 so better make sure its in the DB!" << lineend;
-                 bool useCTPConfigOnline = false;
-                 if(useCTPConfigOnline) {
-                   TrigConf::CTPConfigOnline ctpconl;
-                   ctpconl.setSuperMasterTableId(masterConfigKey);
-                   sm->masterTableLoader().load(ctpconl);
-                   ctpc.setMenu( ctpconl.menu() );
-                   ctpc.setPrescaleSet( ctpconl.prescaleSet() );
-                   ctpc.setBunchGroupSet( ctpconl.bunchGroupSet() );
-                   ctpc.setPrescaledClock( ctpconl.prescaledClock() );
-                   ctpc.setDeadTime( ctpconl.deadTime() );
-                   ctpc.setRandom( ctpconl.random() );
-                   ctpc.setLvl1MasterTableId( ctpconl.lvl1MasterTableId() );
-                 } else {
-                   ctpc.setSuperMasterTableId(masterConfigKey);
-                   ctpc.setPrescaleSetId(lvlPrescaleKey);
-                   ctpc.setBunchGroupSetId(bgKey);
-                   sm->masterTableLoader().load(ctpc);
-                 }
-                 //ctpc.print("  ",5);
+                  log << "Retrieving Lvl1 CTP configuration" << lineend;
+                  log << "NB: BG set is hardcoded to 1 so better make sure its in the DB!" << lineend;
+                  ctpc.setSuperMasterTableId(masterConfigKey);
+                  ctpc.setPrescaleSetId(lvlPrescaleKey);
+                  ctpc.setBunchGroupSetId(bgKey);
+                  sm->masterTableLoader().load(ctpc);
                }
 
                // get the HLT trigger information
@@ -879,7 +856,7 @@ int main( int argc, char* argv[] ) {
                    hltFrame.setSMK(masterConfigKey);
                    hltFrame.thePrescaleSetCollection().set_prescale_key_to_load(hltPrescaleKey);
                    sm->hltFrameLoader().load( hltFrame );
-                   hltpss = unique_ptr<TrigConf::HLTPrescaleSet>(hltFrame.chains().extractPrescaleSet());
+                   hltpss = unique_ptr<TrigConf::HLTPrescaleSet>(hltFrame.getHLTChainList().extractPrescaleSet());
                    cout << endl << *hltpss << endl;
                  }
                }
@@ -981,7 +958,7 @@ int main( int argc, char* argv[] ) {
                                            hltFrame,
                                            configSource);
 
-               unique_ptr<TrigConf::HLTPrescaleSet> hltpss(hltFrame.chains().extractPrescaleSet());
+               unique_ptr<TrigConf::HLTPrescaleSet> hltpss(hltFrame.getHLTChainList().extractPrescaleSet());
                coolWriter->writeHltPrescalePayload( runRanges, *hltpss.get());
                
                log << "Retrieving Lvl1 prescale set from " << lvl1ConfigXml << lineend;

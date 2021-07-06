@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name.
 atlas_subdir( xAODMissingET )
@@ -13,7 +13,7 @@ atlas_add_library( xAODMissingET
    Root/*.cxx
    PUBLIC_HEADERS xAODMissingET
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES AthContainers AthLinks xAODBase xAODCore xAODJet
+   LINK_LIBRARIES AthContainers AthLinks xAODBase xAODCore xAODJet 
    PRIVATE_LINK_LIBRARIES xAODCaloEvent xAODTracking xAODTruth )
 
 atlas_add_xaod_smart_pointer_dicts(

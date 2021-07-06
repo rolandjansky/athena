@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # JetRecStandardTools.py
 #
@@ -17,11 +17,8 @@
 # Import the jet flags.
 from JetRec.JetRecFlags import jetFlags
 
-if not "UseTriggerStore " in locals():
+if "UseTriggerStore " not in locals():
   UseTriggerStore = False
-
-# get levels defined VERBOSE=1 etc.
-from GaudiKernel.Constants import *
 
 from eflowRec.eflowRecFlags import jobproperties
 
@@ -38,13 +35,11 @@ from JetRecTools.JetRecToolsConf import SimpleJetTrackSelectionTool
 from JetRecTools.JetRecToolsConf import TrackVertexAssociationTool
 
 try:
-  from JetRecCalo.JetRecCaloConf import MissingCellListTool
   jtm.haveJetRecCalo = True
 except ImportError:
   jtm.haveJetRecCalo = False
 from JetRec.JetRecConf import JetPseudojetRetriever
 from JetRec.JetRecConf import JetConstituentsRetriever
-from JetRec.JetRecConf import JetRecTool
 from JetRec.JetRecConf import JetFromPseudojet
 from JetRec.JetRecConf import JetConstitRemover
 from JetRec.JetRecConf import JetSorter
@@ -59,7 +54,6 @@ except ImportError:
 from JetMomentTools.JetMomentToolsConf import JetWidthTool
 from JetMomentTools.JetMomentToolsConf import JetCaloEnergies
 try:
-  from JetMomentTools.JetMomentToolsConf import JetJetBadChanCorrTool
   jtm.haveJetBadChanCorrTool = True
 except ImportError:
   jtm.haveJetBadChanCorrTool = False
@@ -96,13 +90,14 @@ except ImportError:
 try:
   from ParticleJetTools.ParticleJetToolsConf import Analysis__JetQuarkLabel
   jtm.haveParticleJetTools = True
-except:
+except ImportError:
   jtm.haveParticleJetTools = False
 if jtm.haveParticleJetTools:
   from ParticleJetTools.ParticleJetToolsConf import Analysis__JetConeLabeling
   from ParticleJetTools.ParticleJetToolsConf import Analysis__JetPartonTruthLabel
   from ParticleJetTools.ParticleJetToolsConf import CopyTruthJetParticles
   from ParticleJetTools.ParticleJetToolsConf import ParticleJetDeltaRLabelTool
+  from ParticleJetTools.ParticleJetToolsConf import ParticleJetGhostLabelTool
 
 
 #--------------------------------------------------------------
@@ -162,8 +157,9 @@ else:
 # Track-vertex association.
 #--------------------------------------------------------------
 
-from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__TrackVertexAssociationTool
-jtm += CP__TrackVertexAssociationTool("jetLooseTVAtool", WorkingPoint='Loose')
+from TrackVertexAssociationTool.getTTVAToolForReco import getTTVAToolForReco
+jtm += getTTVAToolForReco("jetLooseTVAtool", WorkingPoint="Custom", d0_cut=2.0, dzSinTheta_cut=2.0, TrackContName=jtm.trackContainer, VertexContName=jtm.vertexContainer)
+jtm += getTTVAToolForReco("trackjetTVAtool", WorkingPoint="Nonprompt_All_MaxWeight", TrackContName="JetSelectedTracks_LooseTrackJets", VertexContName=jtm.vertexContainer)
 
 jtm += TrackVertexAssociationTool(
   "tvassoc",
@@ -173,6 +169,15 @@ jtm += TrackVertexAssociationTool(
   TrackVertexAssoTool     = jtm.jetLooseTVAtool,
 )
 
+from TrackVertexAssociationTool.TrackVertexAssociationToolConf import PV0TrackSelectionAlg
+
+jtm += PV0TrackSelectionAlg(
+  "pv0tracksel_trackjet",
+  InputTrackContainer  = "JetSelectedTracks_LooseTrackJets",
+  VertexContainer      = jtm.vertexContainer,
+  OutputTrackContainer = "PV0JetSelectedTracks_LooseTrackJets",
+  TVATool              = jtm.trackjetTVAtool
+)
 #--------------------------------------------------------------
 # Truth selection.
 #--------------------------------------------------------------
@@ -276,6 +281,15 @@ jtm += PseudoJetAlgorithm(
   SkipNegativeEnergy = True,
 )
 
+# PV0 Tracks.
+jtm += PseudoJetAlgorithm(
+  "pv0trackget",
+  InputContainer = jtm.pv0tracksel_trackjet.OutputTrackContainer,
+  Label = "Track",
+  OutputContainer = "PseudoJetPV0Track",
+  SkipNegativeEnergy = True,
+)
+
 # Ghost tracks.
 jtm += PseudoJetAlgorithm(
   "gtrackget",
@@ -295,16 +309,16 @@ jtm += MuonSegmentPseudoJetAlgorithm(
 )
 
 useVertices = True
-if False == jetFlags.useVertices:
+if not jetFlags.useVertices:
   useVertices = False
 
-if True == jobproperties.eflowRecFlags.useUpdated2015ChargedShowerSubtraction:
+if jobproperties.eflowRecFlags.useUpdated2015ChargedShowerSubtraction:
   useChargedWeights = True
 else:
   useChargedWeights = False
 
 useTrackVertexTool = False
-if True == jetFlags.useTrackVertexTool:
+if jetFlags.useTrackVertexTool:
   useTrackVertexTool = True
 
 # Weight tool for charged pflow objects.
@@ -314,7 +328,7 @@ jtm += WeightPFOTool("pflowweighter")
 import cppyy
 try:
     cppyy.load_library('libxAODBaseObjectTypeDict')
-except:
+except Exception:
     pass
 from ROOT import xAODType
 xAODType.ObjectType
@@ -328,45 +342,25 @@ ctm.add( CorrectPFOTool("CorrectPFOTool",
                         InputIsEM = True,
                         CalibratePFO = False,
                         UseChargedWeights = True,
-                        InputType = xAODType.ParticleFlow
+                        InputType = xAODType.FlowElement
                         ),
          alias = 'correctPFO' )
 
-ctm.add( CorrectPFOTool("CorrectPFOTool_FE",
-                        WeightPFOTool = jtm.pflowweighter,
-                        InputIsEM = True,
-                        CalibratePFO = False,
-                        UseChargedWeights = True,
-                        InputType = xAODType.FlowElement
-                        ),
-         alias = 'correctPFO_FE' )
-
 # this removes (weights momenta to 0) charged PFOs from non-hard-scatter vertices
-ctm.add( ChargedHadronSubtractionTool("CHSTool", InputType = xAODType.ParticleFlow),
+ctm.add( ChargedHadronSubtractionTool("CHSTool", InputType = xAODType.FlowElement),
          alias = 'chsPFO' )
-
-ctm.add( ChargedHadronSubtractionTool("CHSTool_FE", InputType = xAODType.FlowElement),
-         alias = 'chsPFO_FE' )
 
 # Options to disable dependence on primary vertex container
 # for PFO corrections (e.g. when running cosmics)
 if not (jetFlags.useTracks and jetFlags.useVertices):
   ctm.modifiersMap['correctPFO'].CorrectNeutral=False
-  ctm.modifiersMap['correctPFO_FE'].CorrectNeutral=False
   ctm.modifiersMap['chsPFO'].IgnoreVertex=True
-  ctm.modifiersMap['chsPFO_FE'].IgnoreVertex=True
 
 # Run the above tools to modify PFO
 jtm += ctm.buildConstitModifSequence( "JetConstitSeq_PFlowCHS",
                                       InputContainer = "JetETMiss",
                                       OutputContainer = "CHS",  #"ParticleFlowObjects" will be appended later
                                       modList = ['correctPFO', 'chsPFO'] )
-
-jtm += ctm.buildConstitModifSequence( "JetConstitSeq_PFlowCHS_FE",
-                                      InputContainer = "JetETMiss",
-                                      OutputContainer = "CHS",  #"FlowElements" will be appended later
-                                      modList = ['correctPFO_FE', 'chsPFO_FE'],
-                                      InputType = xAODType.FlowElement )
 
 # EM-scale pflow.
 jtm += PseudoJetAlgorithm(
@@ -377,11 +371,12 @@ jtm += PseudoJetAlgorithm(
   SkipNegativeEnergy = True,
 )
 
+# EM-scale pflow with custom selection for the primary vertex 
 jtm += PseudoJetAlgorithm(
-  "empflowget_fe",
-  Label = "EMPFlowFE",
-  InputContainer = "CHSFlowElements",
-  OutputContainer = "PseudoJetEMPFlowFE",
+  "pflowcustomvtxget",
+  Label = "PFlowCustomVtx",
+  InputContainer = "CustomVtxParticleFlowObjects",
+  OutputContainer = "PseudoJetPFlowCustomVtx",
   SkipNegativeEnergy = True,
 )
 
@@ -400,6 +395,15 @@ jtm += PseudoJetAlgorithm(
   InputContainer = jetFlags.containerNamePrefix() + "AntiKt4PV0TrackJets", # SG key
   Label = "GhostAntiKt4TrackJet",   # this is the name you'll use to retrieve associated ghosts
   OutputContainer = "PseudoJetGhostAntiKt4TrackJet",
+  SkipNegativeEnergy = True,
+)
+
+# Standard VR track jets.
+jtm += PseudoJetAlgorithm(
+  "gvrtrackget", # give a unique name
+  InputContainer = jetFlags.containerNamePrefix() + "AntiKtVR30Rmax4Rmin02PV0TrackJets", # SG key
+  Label = "GhostVR30Rmax4Rmin02PV0TrackJet",   # this is the name you'll use to retrieve associated ghosts
+  OutputContainer = "PseudoJetGhostVR30Rmax4Rmin02PV0TrackJet",
   SkipNegativeEnergy = True,
 )
 
@@ -488,6 +492,16 @@ if jetFlags.useTruth and jtm.haveParticleJetTools:
     MatchMode = "MinDR"
   )
 
+  jtm += ParticleJetGhostLabelTool(
+    "ghostlabeler",
+    LabelName = "HadronGhostTruthLabelID",
+    DoubleLabelName = "HadronGhostExtendedTruthLabelID",
+    GhostBName = "GhostBHadronsFinal",
+    GhostCName = "GhostCHadronsFinal",
+    GhostTauName = "GhostTausFinal",
+    PartPtMin = 5000.0
+  )
+
 #--------------------------------------------------------------
 # Jet builder.
 # The tool manager must have one jet builder.
@@ -530,74 +544,6 @@ jtm += JetWidthTool("width")
 # Calo layer energies.
 jtm += JetCaloEnergies("jetens")
 
-# Read in missing cell map (needed for the following)
-# commented out : incompatible with trigger : ATR-9696
-## if jtm.haveJetRecCalo:
-##     def missingCellFileReader(): 
-##       import os
-##       dataPathList = os.environ[ 'DATAPATH' ].split(os.pathsep)
-##       dataPathList.insert(0, os.curdir)
-##       from AthenaCommon.Utils.unixtools import FindFile
-##       RefFileName = FindFile( "JetBadChanCorrTool.root" ,dataPathList, os.R_OK )
-##       from AthenaCommon.AppMgr import ServiceMgr
-##       if not hasattr(ServiceMgr, 'THistSvc'):
-##         from GaudiSvc.GaudiSvcConf import THistSvc
-##         ServiceMgr += THistSvc()
-##       ServiceMgr.THistSvc.Input += ["JetBadChanCorrTool DATAFILE=\'%s\' OPT=\'READ\'" % RefFileName]
-##       missingCellFileReader.called = True 
-
-##     missingCellFileReader()
-
-##     jtm += MissingCellListTool(
-##       "missingcells",
-##       AddCellList = [],
-##       RemoveCellList = [],
-##       AddBadCells = True,
-##       DeltaRmax = 1.0,
-##       AddCellFromTool = False,
-##       LArMaskBit = 608517,
-##       TileMaskBit = 1,
-##       MissingCellMapName = "MissingCaloCellsMap"
-## )
-
-## # Bad channel corrections from cells
-## if jtm.haveJetBadChanCorrTool:
-##   jtm += JetBadChanCorrTool(
-##     "bchcorrcell",
-##     NBadCellLimit = 10000,
-##     StreamName = "/JetBadChanCorrTool/",
-##     ProfileName = "JetBadChanCorrTool.root",
-##     ProfileTag = "",
-##     UseCone = True,
-##     UseCalibScale = False,
-##     MissingCellMap = "MissingCaloCellsMap",
-##     ForceMissingCellCheck = False,
-##     UseClusters = False,
-##   )
-  
-##   # Bad channel corrections from clusters
-##   jtm += JetBadChanCorrTool(
-##     "bchcorrclus",
-##     NBadCellLimit = 0,
-##     StreamName = "",
-##     ProfileName = "",
-##     ProfileTag = "",
-##     UseCone = True,
-##     UseCalibScale = False,
-##     MissingCellMap = "",
-##     ForceMissingCellCheck = False,
-##     UseClusters = True
-##   )
-
-# Jet vertex fraction.
-# jtm += JetVertexFractionTool(
-#   "jvfold",
-#   VertexContainer = jtm.vertexContainer,
-#   AssociatedTracks = "GhostTrack",
-#   TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
-#   JVFName = "JVFOld"
-# )
-
 # Jet vertex fraction with selection.
 jtm += JetVertexFractionTool(
   "jvf",
@@ -613,13 +559,12 @@ jtm += JetVertexFractionTool(
 )
 
 # Jet vertex tagger.
+# This is never used without jtm.jvf when configured from here, so suppress input dependence.
 jtm += JetVertexTaggerTool(
   "jvt",
   VertexContainer = jtm.vertexContainer,
-  # AssociatedTracks = "GhostTrack",
-  # TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
-  # TrackSelector = jtm.trackselloose,
   JVTName = "Jvt",
+  SuppressInputDependence = True,
 )
 
 # Jet track info.

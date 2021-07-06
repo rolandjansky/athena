@@ -50,7 +50,7 @@ void RIO_OnTrackCnv_p1::persToTrans( const Trk::RIO_OnTrack_p1 *persObj, Trk::RI
 
   m_eventCnvTool->recreateRIO_OnTrack(transObj);
 //   std::cout<<"RIO_OnTrackCnv_p1::persToTrans after  : detEl="<<transObj->detectorElement()<<std::endl;
-  if (transObj->detectorElement()==0) 
+  if (transObj->detectorElement()==nullptr) 
     log << MSG::WARNING<<"Unable to reset DetEl for this RIO_OnTrack, "
     << "probably because of a problem with the Identifier/IdentifierHash : ("
     << transObj->identify()<<"/"<<transObj->idDE()<<endmsg;

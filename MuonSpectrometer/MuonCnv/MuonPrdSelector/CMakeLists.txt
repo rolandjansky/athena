@@ -15,7 +15,7 @@ atlas_add_library( MuonPrdSelectorLib
 atlas_add_component( MuonPrdSelector
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES MuonPrdSelectorLib StoreGateLib SGtests MuonReadoutGeometry )
+                     LINK_LIBRARIES MuonPrdSelectorLib StoreGateLib MuonReadoutGeometry )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

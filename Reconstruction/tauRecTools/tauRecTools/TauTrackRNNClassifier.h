@@ -1,17 +1,19 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUREC_TAUTRACKRNNCLASSIFIER_H
-#define TAUREC_TAUTRACKRNNCLASSIFIER_H
+#ifndef TAURECTOOLS_TAUTRACKRNNCLASSIFIER_H
+#define TAURECTOOLS_TAUTRACKRNNCLASSIFIER_H
 
 // ASG include(s)
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandleArray.h"
+#include "AsgDataHandles/ReadHandleKey.h"
 
 // xAOD include(s)
 #include "xAODTau/TauJet.h"
-#include "xAODTau/TauTrack.h"
+#include "xAODTau/TauTrackContainer.h"
+#include "xAODTracking/VertexContainer.h"
 
 // local include(s)
 #include "tauRecTools/TauRecToolBase.h"
@@ -21,7 +23,7 @@
 #include <memory>
 
 /**
- * @brief Implementation of a TrackClassifier based on an MVA 
+ * @brief Implementation of a TrackClassifier based on an RNN 
  * 
  * @author Max Maerker
  *                                                                              
@@ -49,7 +51,7 @@ public:
 
   ASG_TOOL_CLASS2( TauTrackRNNClassifier, TauRecToolBase, ITauToolBase )
 
-  TauTrackRNNClassifier(const std::string& sName="TauTrackRNNClassifier");
+  TauTrackRNNClassifier(const std::string& name="TauTrackRNNClassifier");
   ~TauTrackRNNClassifier();
 
   // retrieve all track classifier sub tools
@@ -59,6 +61,11 @@ public:
 
  private:
   ToolHandleArray<TrackRNN> m_vClassifier {this, "Classifiers", {}};
+
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainerKey {this, "Key_vertexInputContainer", "PrimaryVertices", "Vertex container key"};
+
+  bool m_classifyLRT;
+
 }; // class TauTrackRNNClassifier
   
 //______________________________________________________________________________
@@ -72,7 +79,7 @@ class TrackRNN
   
   public:
   
-  TrackRNN(const std::string& sName);
+  TrackRNN(const std::string& name);
   ~TrackRNN();
 
   // configure the MVA object and build a general map to store variables
@@ -80,33 +87,27 @@ class TrackRNN
   // are passed to the MVA object
   virtual StatusCode initialize() override;
   
-  // executes MVA object to get the BDT score, makes the decision and resets
-  // classification flags
-  StatusCode classifyTracks(std::vector<xAOD::TauTrack*>& vTracks, xAOD::TauJet& xTau) const;
+  // executes MVA object to get the RNN scores and set classification flags
+  StatusCode classifyTracks(std::vector<xAOD::TauTrack*>& vTracks,
+			    xAOD::TauJet& xTau,
+			    const xAOD::VertexContainer* vertexContainer,
+			    bool skipTracks=false) const;
   
 private:
-  // set BDT input variables in the corresponding map entries
-  StatusCode calulateVars(const std::vector<xAOD::TauTrack*>& vTracks, const xAOD::TauJet& xTau, VectorMap& valueMap) const;
+  // set RNN input variables in the corresponding map entries
+  StatusCode calulateVars(const std::vector<xAOD::TauTrack*>& vTracks,
+			  const xAOD::TauJet& xTau,
+			  const xAOD::VertexContainer* vertexContainer,
+			  VectorMap& valueMap) const;
 
-  // equivalent for trigger
-  // TRIGGER NOT YET IMPLEMENTET!
-  //StatusCode classifyTriggerTrack(xAOD::TauTrack& vTrack, const xAOD::TauJet& xTau, const xAOD::TauTrack* lead_track, double mu);
-  //StatusCode setTriggerVars(const xAOD::TauTrack& xTrack, const xAOD::TauJet& xTau, const xAOD::TauTrack* lead_track);
-
-  // load the root weights file and configure the MVA object with the correct
-  // variable addresses
-  StatusCode addWeightsFile();
-  
-private:
   // configurable variables
-  std::string m_sInputWeightsPath; 
+  std::string m_inputWeightsPath; 
   unsigned int m_nMaxNtracks;
 
-private:
   std::unique_ptr<lwtDev::LightweightGraph> m_RNNClassifier; //!
 
 }; // class TrackRNN
 
 } // namespace tauRecTools
 
-#endif // not TAUTRACKCLASSIFIER
+#endif // TAURECTOOLS_TAUTRACKRNNCLASSIFIER_H

@@ -28,6 +28,7 @@ namespace HypoJet{
     virtual std::optional<const xAOD::Jet*> xAODJet() const = 0;
       
     virtual bool getAttribute(const std::string &name, float&) const =0;
+    virtual bool getAttribute(const std::string &name, bool&) const =0;
     virtual std::string toString() const = 0;
   };
 }

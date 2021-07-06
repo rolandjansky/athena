@@ -12,23 +12,22 @@ class GeoVPhysVol;
 
 namespace MuonGM {
 
+    class Spacer : public DetectorElement {
 
-class Spacer: public DetectorElement {
+      public:
+        double width;
+        double length;
+        double thickness;
+        double longWidth; // for trapezoidal layers
 
-public:
-   double width;
-   double length;
-   double thickness;
-   double longWidth;	// for trapezoidal layers
-	
-   Spacer(Component *s);
-   GeoVPhysVol* build();
-   GeoVPhysVol* build(int cutoutson);
-   void print();
+        Spacer(Component *s);
+        GeoVPhysVol *build();
+        GeoVPhysVol *build(int cutoutson);
+        void print();
 
-private:
-   SpaComponent m_component;
-};
+      private:
+        SpaComponent m_component;
+    };
 
 } // namespace MuonGM
 

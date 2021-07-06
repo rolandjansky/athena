@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // NAME:     LArCellMonTool.cxx
@@ -22,6 +22,8 @@
 #include "AthenaMonitoring/DQAtlasReadyFilterTool.h"
 
 #include "CaloEvent/CaloCellContainer.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include "AthenaKernel/Units.h"
 
 #include "TProfile2D.h"
@@ -38,10 +40,7 @@ using Athena::Units::GeV;
 ////////////////////////////////////////////
 LArCellMonTool::LArCellMonTool(const std::string& type, const std::string& name,const IInterface* parent) 
   :CaloMonToolBase(type, name, parent),
-   m_useElectronicNoiseOnly(false),
-   m_noiseTool("CaloNoiseTool"),
    m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
-   m_badChannelMask("BadLArRawChannelMask",this),
    m_LArOnlineIDHelper(nullptr),
    m_calo_id(nullptr),
    m_counter_sporadic_protc(0),
@@ -51,12 +50,8 @@ LArCellMonTool::LArCellMonTool(const std::string& type, const std::string& name,
 
   declareProperty("DoSaveTempHists",m_doSaveTempHists=false,"Store temporary, intermediate histograms in a /Temp/ directory (for debugging");
 
-  // tools 
-  declareProperty("useElectronicNoiseOnly",m_useElectronicNoiseOnly=false,"Consider only electronic noise and ignore pile-up contributiuon)");
-  declareProperty("CaloNoiseTool",m_noiseTool,"Tool Handle for noise Tool");
-
   // Trigger Awareness:
-  declareProperty("useTrigger",m_useTrigger=true);
+  declareProperty("useTrigger",m_useTriggerCaloMon=true);
   declareProperty("rndmTriggerNames", m_triggerNames[RNDM]);
   declareProperty("caloTriggerNames",m_triggerNames[CALO]);
   declareProperty("minBiasTriggerNames",m_triggerNames[MINBIAS]);
@@ -64,7 +59,6 @@ LArCellMonTool::LArCellMonTool(const std::string& type, const std::string& name,
   declareProperty("miscTriggerNames",m_triggerNames[MISC]);
   
   // Bad channel masking options 
-  declareProperty("LArBadChannelMask",m_badChannelMask,"Tool handle for LArBadChanelMasker AlgTool");
   declareProperty("MaskBadChannels",m_maskKnownBadChannels=false,"Do not fill histograms with values from known bad channels"); 
   declareProperty("MaskNoCondChannels", m_maskNoCondChannels=false,"Do not fill histograms with values from cells reco'ed w/o conditions database");
 
@@ -154,49 +148,30 @@ StatusCode LArCellMonTool::initialize() {
   ATH_CHECK( detStore()->retrieve(m_calo_id) );
 
   // Bad channel masker tool 
-  if(m_maskKnownBadChannels){
-    ATH_CHECK(m_badChannelMask.retrieve());
-  }
-  else {
-    m_badChannelMask.disable();
-  }
+  ATH_CHECK(m_BCKey.initialize(m_maskKnownBadChannels || m_doKnownBadChannelsVsEtaPhi));
+  ATH_CHECK(m_bcMask.buildBitMask(m_problemsToMask,msg()));
 
   ATH_CHECK( m_cablingKey.initialize() );
-
-  // Bad channels key
-  //(used for building eta phi map of known bad channels)
-  if( m_doKnownBadChannelsVsEtaPhi) {
-    ATH_CHECK(m_BCKey.initialize());
-  }
-
-  //Calonoise tool
-  ATH_CHECK(m_noiseTool.retrieve());
-
+  ATH_CHECK(m_noiseKey.initialize());
 
   //JobO consistency check:
-  if (m_useTrigger && std::all_of(m_triggerNames.begin(),m_triggerNames.end(),[](const std::string& trigName){return trigName.empty();})) {
+  if (m_useTriggerCaloMon && std::all_of(m_triggerNames.begin(),m_triggerNames.end(),[](const std::string& trigName){return trigName.empty();})) {
       ATH_MSG_WARNING("UseTrigger set to true but no trigger names given! Forcing useTrigger to false");
-      m_useTrigger=false;
+      m_useTriggerCaloMon=false;
   }
     
   //retrieve trigger decision tool and chain groups
-  if( m_useTrigger) {
+  if( m_useTriggerCaloMon) {
     ATH_CHECK(m_trigDec.retrieve());
     ATH_MSG_INFO("TrigDecisionTool retrieved");
     for (size_t i=0;i<NOTA;++i) {
       const std::string& trigName=m_triggerNames[i];
       if (!trigName.empty()) m_chainGroups[i]=m_trigDec->getChainGroup(trigName.c_str());
     }//end loop over TriggerType enum
-  }//end if m_useTrigger
+  }//end if m_useTriggerCaloMon
   else {
     m_trigDec.disable();
   }
-
-  //Choose noise type
-  if (m_useElectronicNoiseOnly) 
-    m_noiseType = ICalorimeterNoiseTool::ELECTRONICNOISE;
-  else
-    m_noiseType=ICalorimeterNoiseTool::TOTALNOISE; 
 
   // Sets the threshold value arrays
   ATH_CHECK(initThreshHists());
@@ -534,7 +509,7 @@ void LArCellMonTool::checkTriggerAndBeamBackground() {
 
   m_h_n_trigEvent->Fill(0.5);
 
-  if (m_useTrigger) {
+  if (m_useTriggerCaloMon) {
     std::bitset<MAXTRIGTYPE> triggersPassed(0x1<<NOTA); //Last bit: NOTA, always passes
     constexpr std::bitset<MAXTRIGTYPE> NOTAmask=~(0x1<<NOTA);
     for (unsigned i=0;i<m_chainGroups.size();++i) {
@@ -653,19 +628,32 @@ StatusCode LArCellMonTool::fillHistograms(){
 
   ATH_MSG_DEBUG("LArCellMonTool::fillHistograms() starts");
 
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl (m_cablingKey, ctx);
   const LArOnOffIdMapping* cabling{*cablingHdl};
   if(!cabling) {
      ATH_MSG_ERROR( "Do not have cabling");
      return StatusCode::FAILURE;
   }
 
-  SG::ReadHandle<CaloCellContainer> cellContHandle{m_cellContainerName};
+  SG::ReadCondHandle<CaloNoise> noise (m_noiseKey, ctx);
+
+
+  SG::ReadCondHandle<LArBadChannelCont> readHandle (m_BCKey, ctx);
+  const LArBadChannelCont *bcCont {*readHandle};
+  if(m_maskKnownBadChannels && !bcCont) {
+     ATH_MSG_WARNING( "Do not have Bad chan container !!!" );
+     return StatusCode::FAILURE;
+  }
+
+
+  SG::ReadHandle<CaloCellContainer> cellContHandle (m_cellContainerName, ctx);
   if (! cellContHandle.isValid()) { return StatusCode::FAILURE; }
   const CaloCellContainer* cellCont = cellContHandle.get();
 	    
   if (!m_oncePerJobHistosDone) {
-    ATH_CHECK(createPerJobHistograms(cellCont));
+    ATH_CHECK(createPerJobHistograms(ctx, cellCont));
     m_oncePerJobHistosDone=true;
   }
 
@@ -697,7 +685,7 @@ StatusCode LArCellMonTool::fillHistograms(){
     const bool celltqavailable = ( cellprovenance & 0x2000 );
     
     // No more filling if we encounter a bad channel ....
-    if (m_maskKnownBadChannels && m_badChannelMask->cellShouldBeMasked(id,gain)) continue;
+    if (m_maskKnownBadChannels && m_bcMask.cellShouldBeMasked(bcCont,id)) continue;
 
     // ...or a channel w/o conditions
     if (m_maskNoCondChannels && (cellprovenance & 0x00FF) != 0x00A5) continue; //FIXME, I think that cut is wrong
@@ -709,10 +697,10 @@ StatusCode LArCellMonTool::fillHistograms(){
     //Start filling per-threshold histograms:
     for (auto& thr :  m_thresholdHists) {
       //std::cout << "Threshold name " << thr.m_threshName << std::endl;
-      //Any of the conditons below means we do not fill the histogram:
+      //Any of the conditions below means we do not fill the histogram:
     
       //Trigger passed?
-      if (m_useTrigger && !thr.m_threshTriggerDecision) continue;
+      if (m_useTriggerCaloMon && !thr.m_threshTriggerDecision) continue;
       //std::cout << " Trigger passed" << std::endl;
 
       //Beam background event?
@@ -725,7 +713,7 @@ StatusCode LArCellMonTool::fillHistograms(){
 	ATH_MSG_WARNING("Got threshold 0 for type '" << thr.m_threshName  << "'for cell in layer " << m_layerNames[iLyr]);
       }
 
-      if (thr.m_inSigNoise) thresholdVal*=m_noiseTool->getNoise(cell,m_noiseType);
+      if (thr.m_inSigNoise) thresholdVal*=noise->getNoise(id, gain);
         
       if (thr.m_threshDirection==OVER && cellen <= thresholdVal) continue;
       if (thr.m_threshDirection==UNDER && cellen > thresholdVal) continue;
@@ -933,7 +921,8 @@ TH2F* LArCellMonTool::newEtaPhiHist(const std::string& hName, const std::string&
 
 
 
-StatusCode LArCellMonTool::createPerJobHistograms(const CaloCellContainer* cellCont) {
+StatusCode LArCellMonTool::createPerJobHistograms(const EventContext& ctx,
+                                                  const CaloCellContainer* cellCont) {
 
   ATH_MSG_INFO("Creating the once-per-job histograms");
   //The following histograms can be considered constants for one job
@@ -942,7 +931,7 @@ StatusCode LArCellMonTool::createPerJobHistograms(const CaloCellContainer* cellC
   //BadChannel word
   //Database noise
   
-  
+ 
   //1. Bad Channel word
   if (m_doKnownBadChannelsVsEtaPhi) {
     MonGroup knownBadChannelGroup(this,m_lArPath+"KnownBadChannels", run, ATTRIB_MANAGED,"","weightedAverage"); //Merging this info makes no sense at all! 
@@ -1010,12 +999,14 @@ StatusCode LArCellMonTool::createPerJobHistograms(const CaloCellContainer* cellC
   }//end loop over thresholds
   
 
-  SG::ReadCondHandle<LArBadChannelCont> readHandle{m_BCKey};
+  SG::ReadCondHandle<LArBadChannelCont> readHandle (m_BCKey, ctx);
   const LArBadChannelCont *bcCont {*readHandle};
   if(m_doKnownBadChannelsVsEtaPhi && !bcCont) {
      ATH_MSG_WARNING( "Do not have Bad chan container !!!" );
      return StatusCode::FAILURE;
   }
+
+  SG::ReadCondHandle<CaloNoise> noise (m_noiseKey, ctx);
   
   //filling:
   CaloCellContainer::const_iterator it = cellCont->begin(); 
@@ -1039,7 +1030,7 @@ StatusCode LArCellMonTool::createPerJobHistograms(const CaloCellContainer* cellC
     } 
   
     if ( m_doDatabaseNoiseVsEtaPhi ) {
-      const float cellnoisedb = m_noiseTool->getNoise(cell,m_noiseType);
+      const float cellnoisedb = noise->getNoise(id, cell->gain());
       m_h_dbnoise_etaphi[iLyr]->Fill(celleta,cellphi,cellnoisedb);
     }      
     
@@ -1187,7 +1178,7 @@ StatusCode LArCellMonTool::bookLarMultThreHists() {
 	sHistTitle <<  "Fraction of Events in " << m_layerNames[iLyr] << "  with " << thr.m_threshName 
 		   <<  " for which the Time is further than " << thr.m_timeThreshold << " from Zero";
 	thr.m_h_fractionPastTth_etaphi[iLyr]=newEtaPhiHist("fractionPastTthVsEtaPhi_"+m_layerNames[iLyr]+"_"+thr.m_threshName,
-							   sHistTitle.str().c_str(),binning);
+							   sHistTitle.str(),binning);
       
 	ATH_CHECK(monGroupOutOfTime.regHist(thr.m_h_fractionPastTth_etaphi[iLyr]));
       }//end if doEtaPhiFractionPastTth
@@ -1206,7 +1197,7 @@ StatusCode LArCellMonTool::bookLarMultThreHists() {
 		   << " for which the Quality Factor Exceeds " << thr.m_qualityFactorThreshold;
 
 	thr.m_h_fractionOverQth_etaphi[iLyr]=newEtaPhiHist("fractionOverQthVsEtaPhi_"+m_layerNames[iLyr]+"_"+thr.m_threshName,
-							   sHistTitle.str().c_str(),binning);
+							   sHistTitle.str(),binning);
 
 	ATH_CHECK(monGroupPoorQ.regHist(thr.m_h_fractionOverQth_etaphi[iLyr]));
       }

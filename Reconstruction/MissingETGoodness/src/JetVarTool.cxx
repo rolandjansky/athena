@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MissingETGoodness/JetVarTool.h"
@@ -9,7 +9,6 @@
 #include "CaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloSamplingHelper.h"
 #include "TileEvent/TileCell.h"
-
 
 namespace {
 
@@ -107,9 +106,7 @@ StatusCode JetVarTool::initialize() {
   IClassIDSvc* clidsvc = 0;
   ATH_CHECK( service("ClassIDSvc", clidsvc) );
   if (!clidsvc->isIDInUse (1118613496)) {
-    ATH_CHECK( clidsvc->setTypePackageForID (1118613496,
-                                             "ParticleJetContainer",
-                                             Athena::PackageInfo("dummy-00-00-00")) );
+    ATH_CHECK( clidsvc->setTypeForID (1118613496, "ParticleJetContainer") );
   }
 
   return StatusCode::SUCCESS;

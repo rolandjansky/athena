@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -140,16 +140,9 @@ StatusCode TBEMECXTalkToyModel::process (CaloCellContainer* theCont,
 StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::iterator &  itrCellBeg,
                                                        const CaloCellContainer::iterator & itrCellEnd ) const
 {
-  unsigned int myCellHashOffset[CaloCell_ID::NSUBCALO];
-  std::set<int> m_validCalos;
-  m_validCalos.insert(CaloCell_ID::LAREM);
-  std::set<int>::const_iterator vCaloIter = m_validCalos.begin(); 
-  std::set<int>::const_iterator vCaloIterEnd = m_validCalos.end(); 
-  for(; vCaloIter!=vCaloIterEnd; vCaloIter++) {
-    IdentifierHash myHashMin,myHashMax;
-    m_calo_id->calo_cell_hash_range ((*vCaloIter),myHashMin,myHashMax);
-    myCellHashOffset[(*vCaloIter)] = myHashMin;
-  }
+  IdentifierHash myHashMin,myHashMax;
+  m_calo_id->calo_cell_hash_range (CaloCell_ID::LAREM,myHashMin,myHashMax);
+  unsigned int myCellHashOffset = myHashMin;
 
   CaloCellContainer::iterator itrCell;
   std::map<Identifier,CaloCell*> cellMap;
@@ -183,9 +176,9 @@ StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::
 	IdentifierHash myHashId = m_calo_id->subcalo_cell_hash(myId,otherSubDet);
 
 	// longitudinal neighbor (N1)
-	m_calo_id->get_neighbours(myHashId+myCellHashOffset[mySubDet],LArNeighbours::nextInSamp,theNeighbors);
+	m_calo_id->get_neighbours(myHashId+myCellHashOffset,LArNeighbours::nextInSamp,theNeighbors);
         ATH_MSG_DEBUG ("N1 theNeighbors.size() = " << theNeighbors.size());
-	IdentifierHash nId = theNeighbors.at(0)-myCellHashOffset[mySubDet];
+	IdentifierHash nId = theNeighbors.at(0)-myCellHashOffset;
 	myId = m_calo_id->cell_id(mySubDet,nId);
 	std::map<Identifier,CaloCell*>::iterator cellIt = cellMap.find(myId);
 	if (cellIt==cellMap.end()) {
@@ -208,16 +201,16 @@ StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::
 	int EMEC3neighbors = 0;
 	myHashId = m_calo_id->subcalo_cell_hash(theCellN1->ID(),otherSubDet);
 	//
-	m_calo_id->get_neighbours(myHashId+myCellHashOffset[mySubDet],LArNeighbours::nextInEta,theNeighbors);
+	m_calo_id->get_neighbours(myHashId+myCellHashOffset,LArNeighbours::nextInEta,theNeighbors);
 	ATH_MSG_DEBUG ( "N2 theNeighbors.size() = " << theNeighbors.size() );
 	CaloCell * theCellN2 = 0x0;
 	double eN2 = 0.;
 	if (theNeighbors.size()>0) {
-	  nId = theNeighbors.at(0)-myCellHashOffset[mySubDet];
+	  nId = theNeighbors.at(0)-myCellHashOffset;
 	  myId = m_calo_id->cell_id(mySubDet,nId);
 	  cellIt = cellMap.find(myId);
-	  theCellN2 = (*cellIt).second;
 	  if (cellIt!=cellMap.end()) {
+            theCellN2 = (*cellIt).second;
 	    cellItEng = energyMap.find(theCellN2->ID());
 	    if (cellItEng==energyMap.end()) {
 	      ATH_MSG_ERROR ( "Identifier not found in energyMap" );
@@ -228,16 +221,16 @@ StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::
 	  }
 	}
 	//
-	m_calo_id->get_neighbours(myHashId+myCellHashOffset[mySubDet],LArNeighbours::prevInEta,theNeighbors);
+	m_calo_id->get_neighbours(myHashId+myCellHashOffset,LArNeighbours::prevInEta,theNeighbors);
 	ATH_MSG_DEBUG ( "N3 theNeighbors.size() = " << theNeighbors.size() );
 	CaloCell * theCellN3 = 0x0;
 	double eN3 = 0.;
 	if (theNeighbors.size()>0) {
-	  nId = theNeighbors.at(0)-myCellHashOffset[mySubDet];
+	  nId = theNeighbors.at(0)-myCellHashOffset;
 	  myId = m_calo_id->cell_id(mySubDet,nId);
 	  cellIt = cellMap.find(myId);
-	  theCellN3 = (*cellIt).second;
 	  if (cellIt!=cellMap.end()) {
+            theCellN3 = (*cellIt).second;
 	    cellItEng = energyMap.find(theCellN3->ID());
 	    if (cellItEng==energyMap.end()) {
 	      ATH_MSG_ERROR ( "Identifier not found in energyMap" );
@@ -252,16 +245,16 @@ StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::
 	int EMEC2neighbors = 0;
 	myHashId = m_calo_id->subcalo_cell_hash(theCell->ID(),otherSubDet);
 	//
-	m_calo_id->get_neighbours(myHashId+myCellHashOffset[mySubDet],LArNeighbours::nextInEta,theNeighbors);
+	m_calo_id->get_neighbours(myHashId+myCellHashOffset,LArNeighbours::nextInEta,theNeighbors);
 	ATH_MSG_DEBUG ( "N4 theNeighbors.size() = " << theNeighbors.size() );
 	CaloCell * theCellN4 = 0x0;
 	double eN4 = 0.;
 	if (theNeighbors.size()>0) {
-	  nId = theNeighbors.at(0)-myCellHashOffset[mySubDet];
+	  nId = theNeighbors.at(0)-myCellHashOffset;
 	  myId = m_calo_id->cell_id(mySubDet,nId);
 	  cellIt = cellMap.find(myId);
-	  theCellN4 = (*cellIt).second;
 	  if (cellIt!=cellMap.end()) {
+            theCellN4 = (*cellIt).second;
 	    cellItEng = energyMap.find(theCellN4->ID());
 	    if (cellItEng==energyMap.end()) {
 	      ATH_MSG_ERROR ( "Identifier not found in energyMap" );
@@ -272,16 +265,16 @@ StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::
 	  }
 	}
 	//
-	m_calo_id->get_neighbours(myHashId+myCellHashOffset[mySubDet],LArNeighbours::prevInEta,theNeighbors);
+	m_calo_id->get_neighbours(myHashId+myCellHashOffset,LArNeighbours::prevInEta,theNeighbors);
 	ATH_MSG_DEBUG ( "N5 theNeighbors.size() = " << theNeighbors.size() );
 	CaloCell * theCellN5 = 0x0;
 	double eN5 = 0.;
 	if (theNeighbors.size()>0) {
-	  nId = theNeighbors.at(0)-myCellHashOffset[mySubDet];
+	  nId = theNeighbors.at(0)-myCellHashOffset;
 	  myId = m_calo_id->cell_id(mySubDet,nId);
 	  cellIt = cellMap.find(myId);
-	  theCellN5 = (*cellIt).second;
 	  if (cellIt!=cellMap.end()) {
+            theCellN5 = (*cellIt).second;
 	    cellItEng = energyMap.find(theCellN5->ID());
 	    if (cellItEng==energyMap.end()) {
 	      ATH_MSG_ERROR ( "Identifier not found in energyMap" );

@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file TrigDecisionEventTPCnv/test/TrigDecisionCnv_p1_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -19,6 +17,7 @@
 #include "SGTools/TestStore.h"
 #include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include <cassert>
 #include <iostream>
 
@@ -62,10 +61,10 @@ void testit (const TrigDec::TrigDecision& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  (void)Gaudi::Hive::currentContext();
   // Get proxies created outside of leak check.
   DataLink<HLT::HLTResult> l2link ("l2result");
   DataLink<HLT::HLTResult> eflink ("efresult");
-  Athena_test::Leakcheck check;
 
   LVL1CTP::Lvl1Result l1result (true);
   l1result.itemsBeforePrescale().assign ({1, 2, 3});
@@ -76,7 +75,9 @@ void test1()
                                 l2link, eflink,
                                 12345,
                                 10);
+  trans1.getL2Result();
   
+  Athena_test::Leakcheck check;
   testit (trans1);
 }
 

@@ -1,14 +1,12 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
-
 '''@file TRTMonitoringRun3ESD_Alg.py
 @author N. Belyaev
 @date 20.09.2019
 @brief MT-compatible TRT Monitoring Tool for Run III based on the
 AthenaMonitoring package
 '''
-
 
 def TRTMonitoringRun3ESD_AlgConfig(inputFlags):
     '''Function to configures some algorithms in the monitoring system.'''
@@ -31,6 +29,7 @@ def TRTMonitoringRun3ESD_AlgConfig(inputFlags):
     result.merge(AtlasGeometryCfg(inputFlags))
 
     from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
+
     result.merge(addFoldersSplitOnline(inputFlags, "TRT","/TRT/Onl/Calib/errors2d","/TRT/Calib/errors2d",className="TRTCond::RtRelationMultChanContainer"))
     result.merge(addFoldersSplitOnline(inputFlags, "TRT","/TRT/Onl/Calib/slopes","/TRT/Calib/slopes",className="TRTCond::RtRelationMultChanContainer"))
     result.merge(addFoldersSplitOnline(inputFlags, "TRT","/TRT/Onl/Calib/RT","/TRT/Calib/RT",className="TRTCond::RtRelationMultChanContainer"))
@@ -40,6 +39,13 @@ def TRTMonitoringRun3ESD_AlgConfig(inputFlags):
     from SCT_Monitoring.TrackSummaryToolWorkaround import TrackSummaryToolWorkaround
     algTRTMonitoringRun3ESD.TrackSummaryTool = result.popToolsAndMerge(TrackSummaryToolWorkaround(inputFlags))
     ############################## WORKAROUND (END) ############################
+    
+#     # To run job only with ID
+#    if hasattr(inputFlags, "Detector") and hasattr(inputFlags.Detector, "GeometryMuon") and hasattr(inputFlags.Detector, "GeometryID"):
+#        TrkEventCnvSuperTool = CompFactory.Trk.EventCnvSuperTool(name = "EventCnvSuperTool",
+#                                                                 DoMuons = inputFlags.Detector.GeometryMuon,
+#                                                                 DoID = inputFlags.Detector.GeometryID)
+#        result.addPublicTool(TrkEventCnvSuperTool)
 
     barrelOrEndcap     = ('Barrel', 'EndCap')
     beId                 = ('B', 'E')
@@ -50,6 +56,7 @@ def TRTMonitoringRun3ESD_AlgConfig(inputFlags):
     distToStraw          = 0.4
     nPhiBins             = 360
     minTRTHits           = 10
+    maxLumiblock         = 720
 
     for ibe in range(2):
         oss_distance = distToStraw
@@ -78,7 +85,7 @@ def TRTMonitoringRun3ESD_AlgConfig(inputFlags):
 
             trackGroup.defineHistogram('HitTronTMapS_x,HitTronTMapS_y;hHitTronTMapS',type='TProfile',title='Mean Trailing Edge on Track: Straws;Straw Number in Stack;Time (ns)',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe],duration='run')
             trackGroup.defineHistogram('HitToTonTMapS_x,HitToTonTMapS_y;hHitToTonTMapS',type='TProfile',title='Mean ToT on Track: Straws;Straw Number in Stack;Time (ns)',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe],duration='run')
-            trackGroup.defineHistogram('ValidRawDriftTimeonTrkS_x,ValidRawDriftTimeonTrkS_y;hValidRawDriftTimeonTrk',type='TProfile',title='Valid Raw Drift Time on Track: Straws;Straw Number in Stack;Time (ns)',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe],duration='run')
+            trackGroup.defineHistogram('ValidRawDriftTimeonTrkS_x,ValidRawDriftTimeonTrkS_y;hValidRawDriftTimeonTrkS',type='TProfile',title='Valid Raw Drift Time on Track: Straws;Straw Number in Stack;Time (ns)',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe],duration='run')
             trackGroup.defineHistogram('HitTronTwEPCMapS_x,HitTronTwEPCMapS_y;hHitTronTwEPCMapS',type='TProfile',title='Mean Trailing Edge on Track (with Event Phase Correction): Straws;Straw Number in Stack;Time (ns)',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe],duration='run')
 
             trackGroup.defineHistogram('HitTronTMapC_x,HitTronTMapC_y;hHitTronTMapC',type='TProfile',title='Mean Trailing Edge on Track: Chips;Chip Number in Stack;Time (ns)',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe],duration='run')
@@ -102,7 +109,7 @@ def TRTMonitoringRun3ESD_AlgConfig(inputFlags):
             shiftTrackGroup.defineHistogram('NumHoTDetPhi_B_x,NumHoTDetPhi_B_y;hNumHoTDetPhi',type='TProfile',title='Number of Hits per Track with {0} mm Cut vs #phi{1};#phi (deg);Hits per Track, TRT Hits >= {2}'.format(distance,regionTag,minTRTHits),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=nPhiBins,xmin=0.,xmax=360.,duration='run')
             shiftTrackGroup.defineHistogram('TronTDist_B;hTronTDist',type='TH1F',title='Trailing Edge Distribution on Track for Xenon Straws{0};Trailing Edge (ns);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=26,xmin=-0.5,xmax=80.75,duration='run')
             shiftTrackGroup.defineHistogram('DriftTimeonTrkDist_B;hDriftTimeonTrkDist',type='TH1F',title='Drift Time Distribution on Track for Xenon Straws{0};Drift Time (ns);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=32,xmin=0,xmax=100,duration='run')
-            shiftTrackGroup.defineHistogram('NumTrksDetPhi_B;hNumTrksDetPhi_B',type='TH1F',title='Number of Reconstructed Tracks vs #phi (2D){0};#phi (deg);Number of Tracks'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=60,xmin=0,xmax=360,duration='run')
+            shiftTrackGroup.defineHistogram('NumTrksDetPhi_B;hNumTrksDetPhi',type='TH1F',title='Number of Reconstructed Tracks vs #phi (2D){0};#phi (deg);Number of Tracks'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=60,xmin=0,xmax=360,duration='run')
 
             shiftTrackGroup.defineHistogram('DriftTimeonTrkDist_B_Ar;hDriftTimeonTrkDist_Ar',type='TH1F',title='Drift Time Distribution on Track for Argon Straws{0};Drift Time (ns);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=32,xmin=0,xmax=100,duration='run')
             shiftTrackGroup.defineHistogram('TronTDist_B_Ar;hTronTDist_Ar',type='TH1F',title='Trailing Edge Distribution on Track for Argon Straws{0};Trailing Edge (ns);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=26,xmin=-0.5,xmax=80.75,duration='run')
@@ -121,6 +128,8 @@ def TRTMonitoringRun3ESD_AlgConfig(inputFlags):
             shiftTrackGroup.defineHistogram('TimeResidual_B;hTimeResidual',type='TH1F',title='Time Residuals for Xenon Straws{0};Time Residual (ns);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-20,xmax=20,duration='run')
             shiftTrackGroup.defineHistogram('WireToTrkPosition_B;hWireToTrkPosition',type='TH1F',title='Track-to-Wire Distance for Xenon{0};Track-to-Wire Distance (mm);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=100,xmin=-5,xmax=5,duration='run')
             shiftTrackGroup.defineHistogram('AvgTroTDetPhi_B_x,AvgTroTDetPhi_B_y;hAvgTroTDetPhi',type='TProfile',title='Avg. Trailing Edge on Track vs #phi (2D) for Xenon{0};#phi (deg);Trailing Edge (ns)'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=nPhiBins,xmin=0,xmax=360,duration='run')
+            shiftTrackGroup.defineHistogram('NTrksperLB_x,NTrksperLB_y;hNTrksperLB',type='TProfile',title='Avg. Number of Reconstructed Tracks per Event{0};Luminosity Block;Number of Tracks'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=maxLumiblock,xmin=-0.5,xmax=maxLumiblock-0.5,duration='run')
+            #CAN_REBIN(hNTrksperLB);
         elif ibe == 1:
             shiftTrackGroup.defineHistogram('Pull_Biased_EndCap;hPull_Biased_EndCap',type='TH1F',title='Biased Track Pulls for EndCap Hits;Pulls;Entries',path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-2.5,xmax=2.5,duration='run')
 
@@ -148,9 +157,11 @@ def TRTMonitoringRun3ESD_AlgConfig(inputFlags):
                 shiftTrackEndcapGroup.defineHistogram('TimeResidual_E_Ar;hTimeResidual_Ar_{0}'.format(sideId[iside]),type='TH1F',title='Time Residuals for Argon Straws{0};Time Residual (ns);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-20,xmax=20,duration='run')
                 shiftTrackEndcapGroup.defineHistogram('WireToTrkPosition_E_Ar;hWireToTrkPosition_Ar_{0}'.format(sideId[iside]),type='TH1F',title='Track-to-Wire Distance for Argon{0};Track-to-Wire Distance (mm);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=100,xmin=-5,xmax=5,duration='run')
                 
-                shiftTrackEndcapGroup.defineHistogram('WireToTrkPosition_E;hWireToTrkPosition_{0}'.format(sideId[iside]),type='TH1F',title='Track-to-Wire Distance for Xenon{0};Track-to-Wire Distance (mm);Norm. Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=100,xmin=-5,xmax=5,duration='run')
+                shiftTrackEndcapGroup.defineHistogram('WireToTrkPosition_E;hWireToTrkPosition_{0}'.format(sideId[iside]),type='TH1F',title='Track-to-Wire Distance for Xenon{0};Track-to-Wire Distance (mm);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=100,xmin=-5,xmax=5,duration='run')
                 shiftTrackEndcapGroup.defineHistogram('AvgTroTDetPhi_E_x,AvgTroTDetPhi_E_y;hAvgTroTDetPhi_{0}'.format(sideId[iside]),type='TProfile',title='Avg. Trailing Edge on Track vs #phi (2D) for Xenon{0};#phi (deg);Trailing Edge (ns)'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=nPhiBins,xmin=0,xmax=360,duration='run')
-
+                shiftTrackEndcapGroup.defineHistogram('NTrksperLB_x,NTrksperLB_y;hNTrksperLB_{0}'.format(sideId[iside]),type='TProfile',title='Avg. Number of Reconstructed Tracks per Even{0};Luminosity Block;Number of Tracks'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=maxLumiblock,xmin=-0.5,xmax=maxLumiblock-0.5,duration='run')
+                #CAN_REBIN(hNTrksperLB_[iside]);
+                
         #Initialize Aging plots
         for iL in range(5):
             for iSide in range(2): 
@@ -182,6 +193,11 @@ def TRTMonitoringRun3ESD_AlgConfig(inputFlags):
                         agingGroup.defineHistogram('Trackr_HT;trackr_E{0}_{1}_HT'.format(sideId[iSide],gas[iL]),type='TH1F',title='Number HT Hits E{0} {1};r [mm];Number of HT Hits'.format(sideId[iSide],gas[iL]),path='TRT/Aging/{0}'.format(barrelOrEndcap[ibe]),xbins=30,xmin=644.,xmax=1004.,duration='run')
                         agingGroup.defineHistogram('Trackr_HT;trackr_E{0}_{1}_HT'.format(sideId[iSide],gas[iL]),type='TH1F',title='Number HT Hits E{0} {1};r [mm];Number of HT Hits'.format(sideId[iSide],gas[iL]),path='TRT/Aging/{0}'.format(barrelOrEndcap[ibe]),xbins=30,xmin=644.,xmax=1004.,duration='lowStat')
 
+    smryGroup = helper.addGroup(algTRTMonitoringRun3ESD,'SmryHistograms')
+    sumLabels = ['Events', 'Tracks Total', 'Tracks BA', 'Tracks BC', 'Tracks EA', 'Tracks EC', 'Transition Side A', 'Transition Side C']
+    smryGroup.defineHistogram('Summary;hSummary',weight='SummaryWeight',type='TH1F',title='Run Summary;;Entries',path='TRT/Shift/Summary',xbins=8,xmin=0,xmax=8,xlabels=sumLabels) 
+
+
     acc = helper.result()
     result.merge(acc)
     return result
@@ -203,9 +219,15 @@ if __name__ == '__main__':
     ConfigFlags.Input.Files = [nightly+file]
     ConfigFlags.Input.isMC = False
     ConfigFlags.Output.HISTFileName = 'TRTMonitoringRun3_ToolOutput.root'
+    ConfigFlags.GeoModel.Align.Dynamic = False
+    ConfigFlags.Detector.GeometryPixel = True
+    ConfigFlags.Detector.GeometrySCT = True
+    ConfigFlags.Detector.GeometryTRT = True
+    ConfigFlags.Detector.GeometryMuon = False
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
+
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     from AthenaCommon.AppMgr import ServiceMgr

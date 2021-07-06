@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -18,12 +18,16 @@
 #include "L1CaloFEXToolInterfaces/IjFEXFPGA.h"
 #include "L1CaloFEXSim/jTower.h"
 #include "L1CaloFEXSim/jTowerContainer.h"
-//#include "L1CaloFEXToolInterfaces/IjFEXtauAlgo.h"
-//#include "L1CaloFEXToolInterfaces/IjFEXegAlgo.h"
+#include "L1CaloFEXToolInterfaces/IjFEXSmallRJetAlgo.h"
+#include "L1CaloFEXToolInterfaces/IjFEXLargeRJetAlgo.h"
+#include "L1CaloFEXToolInterfaces/IjFEXtauAlgo.h"
+#include "L1CaloFEXToolInterfaces/IjFEXsumETAlgo.h"
+#include "L1CaloFEXToolInterfaces/IjFEXmetAlgo.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
-//#include "L1CaloFEXSim/jFEXOutputCollection.h"
+#include "L1CaloFEXSim/jFEXOutputCollection.h"
+#include "L1CaloFEXSim/FEXAlgoSpaceDefs.h"
 
 namespace LVL1 {
   
@@ -31,7 +35,7 @@ namespace LVL1 {
   /** The jFEXFPGA class defines the structure of a single jFEX FPGA
       Its purpose is:
       - to emulate the steps taken in processing data for a single jFEX FPGA in hardware and firmware
-      - It will need to interact with jTowers and produce the eTOBs.  It will be created and handed data by jFEXSim
+      - It will need to interact with jTowers and produce the jTOBs.  It will be created and handed data by jFEXSim
   */
   
   class jFEXFPGA : public AthAlgTool, virtual public IjFEXFPGA {
@@ -53,26 +57,59 @@ namespace LVL1 {
 
     virtual int ID() override {return m_id;}
 
-    virtual void SetTowersAndCells_SG( int [][17] ) override ;
-    virtual void SetTowersAndCells_SG( int [][24] ) override ;
+    virtual void SetTowersAndCells_SG( int [][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width] ) override ;
+    virtual void SetTowersAndCells_SG( int [][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width] ) override ;
 
-    /** Internal data */
+    /**Form a tob word out of the potential candidate SmallRJet tob */
+    virtual uint32_t formSmallRJetTOB(int &, int &) override;
+    virtual uint32_t formLargeRJetTOB(int &, int &) override;
+    virtual std::vector <uint32_t> getSmallRJetTOBs() override;
+    virtual std::vector <uint32_t> getLargeRJetTOBs() override;
+
+    /**Form a tob word out of the potential candidate Tau tob */
+    virtual uint32_t formTauTOB(int &, int &) override;
+    virtual std::vector <uint32_t> getTauTOBs() override;    
+    virtual std::vector <uint32_t> getTauxTOBs() override; 
+       
+    /**Form a tob word out of the potential candidate SumET tob */
+    virtual uint32_t formSumETTOB(int , int ) override;
+    virtual std::vector <uint32_t> getSumEtTOBs() override;    
+       
+    /**Form a tob word out of the potential candidate MET tob */
+    virtual uint32_t formMetTOB(int , int ) override;
+    virtual std::vector <uint32_t> getMetTOBs() override;    
+    
+ 
+   /** Internal data */
   private:
-
+    static bool etSRJetSort(uint32_t i, uint32_t j){ return (((i >> 12 ) & 0x7ff)> ((j >> 12) & 0x7ff));}
+    static bool etLRJetSort(uint32_t i, uint32_t j){return (((i >>10) & 0x1fff)> ((j>>10) & 0x1fff));}
+    static bool etTauSort(uint32_t i, uint32_t j) {
+      return (((i >> 0 ) & 0x7ff000)> ((j >> 0) & 0x7ff000));
+    }
     int m_id;
     int m_jfexid;
-
-    int m_jTowersIDs_Wide [16*2][17];
-    int m_jTowersIDs_Thin [16*2][24];
+    std::vector<uint32_t> m_SRJet_tobwords;
+    std::vector<uint32_t> m_LRJet_tobwords;
+    std::vector<uint32_t> m_tau_tobwords;
+    std::vector<uint32_t> m_sumET_tobwords;
+    std::vector<uint32_t> m_Met_tobwords;
+    int m_jTowersIDs_Wide [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width] = {{0}};
+    int m_jTowersIDs_Thin [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width] = {{0}};
+    int m_jTowersIDs      [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width] = {{0}};
     std::map<int,jTower> m_jTowersColl;
 
     CaloCellContainer m_sCellsCollection;
 
     SG::ReadHandleKey<LVL1::jTowerContainer> m_jFEXFPGA_jTowerContainerKey {this, "MyETowers", "jTowerContainer", "Input container for jTowers"};
 
-    //SG::ReadHandleKey<jFEXOutputCollection> m_jFEXFPGA_jFEXOutputCollectionKey {this, "MyOutputs", "jFEXOutputCollection", "Input container for jFEXOutputCollection"};
+    SG::ReadHandleKey<jFEXOutputCollection> m_jFEXFPGA_jFEXOutputCollectionKey {this, "MyOutputs", "jFEXOutputCollection", "Input container for jFEXOutputCollection"};
 
-    //ToolHandle<IjFEXtauAlgo> m_jFEXtauAlgoTool {this, "jFEXtauAlgoTool", "LVL1::jFEXtauAlgo", "Tool that runs the jFEX tau algorithm"};
+    ToolHandle<IjFEXSmallRJetAlgo> m_jFEXSmallRJetAlgoTool {this, "jFEXSmallRJetAlgoTool", "LVL1::jFEXSmallRJetAlgo", "Tool that runs the jFEX Small R Jet algorithm"};
+    ToolHandle<IjFEXLargeRJetAlgo> m_jFEXLargeRJetAlgoTool {this, "jFEXLargeRJetAlgoTool", "LVL1::jFEXLargeRJetAlgo", "Tool that runs the jFEX Large R Jet algorithm"};
+    ToolHandle<IjFEXtauAlgo> m_jFEXtauAlgoTool             {this, "jFEXtauAlgoTool"      , "LVL1::jFEXtauAlgo"      , "Tool that runs the jFEX tau algorithm"};
+    ToolHandle<IjFEXsumETAlgo> m_jFEXsumETAlgoTool         {this, "jFEXsumETAlgoTool"    , "LVL1::jFEXsumETAlgo"    , "Tool that runs the jFEX sumET algorithm"};
+    ToolHandle<IjFEXmetAlgo> m_jFEXmetAlgoTool             {this, "jFEXmetAlgoTool"      , "LVL1::jFEXmetAlgo"      , "Tool that runs the jFEX met algorithm"};
     //ToolHandle<IjFEXegAlgo> m_jFEXegAlgoTool {this, "jFEXegAlgoTool", "LVL1::jFEXegAlgo", "Tool that runs the jFEX e/gamma algorithm"};
     
   };

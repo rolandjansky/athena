@@ -1,12 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #  include "TTreeFormulaManager.h"
 
 #include "APRTreeFormula.h"
+#include "POOLCore/Exception.h"
 
-#include "RootUtils/TBranchElementClang.h" // avoid clang warning
+#include "TBranchElement.h"
 #include "TTree.h"
 #include "TBranch.h"
 #include "TFormLeafInfo.h"
@@ -21,6 +22,7 @@
 #include <cstring>
 #include <cmath>
 #include <sstream>
+#include <cassert>
 //#include <iostream>
 using namespace std;
 
@@ -411,7 +413,13 @@ Double_t APRTreeFormula::EvalInstance(Int_t instance, const char *stringStackArg
             case ksign : if (tab[pos-1] < 0) tab[pos-1] = -1; else tab[pos-1] = 1; continue;
             case kint  : tab[pos-1] = LDouble_t(Int_t(tab[pos-1])); continue;
             case kSignInv: tab[pos-1] = -1 * tab[pos-1]; continue;
-            case krndm : pos++; tab[pos-1] = gRandom->Rndm(1); continue;
+            case krndm : //pos++; tab[pos-1] = gRandom->Rndm(1); continue;
+              // Using gRandom is not thread-safe.
+              // ATLAS doesn't use this code, so just give an error
+              // rather than trying to fix it.
+              throw pool::Exception ("Rndm() not supported",
+                                     "APRTreeFormula::EvalInstance",
+                                     "APRTreeFormula");
 
             case kAnd  : pos--; if (tab[pos-1]!=0 && tab[pos]!=0) tab[pos-1]=1;
                                 else tab[pos-1]=0;
@@ -580,7 +588,7 @@ Double_t APRTreeFormula::EvalInstance(Int_t instance, const char *stringStackArg
             case kAlias: {
                int aliasN = i;
                TTreeFormula *subform = static_cast<TTreeFormula*>(fAliases.UncheckedAt(aliasN));
-               R__ASSERT(subform);
+               assert(subform);
 
                LDouble_t param = subform->EvalInstance(instance);
 
@@ -591,7 +599,7 @@ Double_t APRTreeFormula::EvalInstance(Int_t instance, const char *stringStackArg
             case kAliasString: {
                int aliasN = i;
                TTreeFormula *subform = static_cast<TTreeFormula*>(fAliases.UncheckedAt(aliasN));
-               R__ASSERT(subform);
+               assert(subform);
 
                pos2++;
                stringStack[pos2-1] = subform->EvalStringInstance(instance);
@@ -694,7 +702,7 @@ Double_t APRTreeFormula::EvalInstance(Int_t instance, const char *stringStackArg
          }
       }
 
-      R__ASSERT(i<fNoper);
+      assert(i<fNoper);
    }
 
    Double_t result = tab[0];

@@ -1,21 +1,23 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigNavigation )
 
 # External dependencies:
 find_package( Boost COMPONENTS regex )
+find_package( ROOT COMPONENTS Core )
 
 # Component(s) in the package:
 atlas_add_library( TrigNavigationLib
    TrigNavigation/*.h TrigNavigation/*.icc src/*.cxx
    PUBLIC_HEADERS TrigNavigation
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} AthContainers AthContainersRoot AthLinks AsgTools
-   AthenaBaseComps AthenaKernel SGTools GaudiKernel TrigNavStructure
-   TrigStorageDefinitions StoreGateLib
-   PRIVATE_LINK_LIBRARIES xAODCore TrigConfHLTData TrigSerializeCnvSvcLib
-   TrigSerializeResultLib )
+   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${Boost_LIBRARIES} AthContainers AthLinks AsgMessagingLib
+   AthenaBaseComps AthenaKernel CxxUtils SGTools GaudiKernel TrigNavStructure
+   TrigStorageDefinitions StoreGateLib xAODCore
+   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainersInterfaces AthContainersRoot RootUtils
+   TrigConfHLTData TrigSerializeCnvSvcLib TrigSerializeResultLib )
 
 atlas_add_component( TrigNavigation
    src/components/*.cxx
@@ -28,8 +30,6 @@ atlas_add_dictionary( TrigNavigationDict
 
 # Test(s) in the package:
 foreach( name TriggerElement_test Holder_test Registration_test Ownership_test HLTNavigation_test RoICache_test )
-#foreach( name TriggerElement_test Holder_test Registration_test Ownership_test
-#      HLTNavigation_test RoICache_test )
 
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BYTESTREAMCNVSVCBASE_ROBDATAPROVIDERSVC_H
@@ -42,14 +42,9 @@ public:
 
    /// Constructor
    ROBDataProviderSvc(const std::string& name, ISvcLocator* svcloc);
-   /// Destructor
-   virtual ~ROBDataProviderSvc();
 
    /// initialize the service
    virtual StatusCode initialize() override;
-
-   /// Gaudi queryInterface method.
-   //   virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
 
    /// Add ROBFragments to cache for given ROB ids, ROB fragments may be retrieved with DataCollector
    virtual void addROBData(const std::vector<uint32_t>& robIds, const std::string_view callerName="UNKNOWN") override;
@@ -124,9 +119,7 @@ protected:
    BooleanProperty m_filterEmptyROB;
    bool m_maskL2EFModuleID = false;    
 
-private: // data
-
-private: //
+private:
   static void robmapClear(ROBMAP& toclear);
 };
 

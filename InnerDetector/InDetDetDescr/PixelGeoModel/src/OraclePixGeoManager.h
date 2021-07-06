@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef OraclePixelGeoManager_H
@@ -111,9 +111,6 @@ class OraclePixGeoManager : public PixelGeometryManager {
 
   // control whether callbacks get registered 
   bool m_alignable;
-
-  // SLHC
-  bool m_slhc;
 
   // IBL
   bool m_ibl;
@@ -228,10 +225,6 @@ class OraclePixGeoManager : public PixelGeometryManager {
   virtual void SetAlignable(bool flag) override {m_alignable = flag;}
   virtual bool Alignable() const override;
 
-  // SLHC
-  virtual void SetSLHC(bool flag) override {m_slhc = flag;}
-  virtual bool slhc() const override {return m_slhc;}
-
   // IBL
   virtual void SetIBL(bool flag) override {m_ibl = flag;}
   virtual bool ibl() const override {return m_ibl;}
@@ -296,7 +289,7 @@ class OraclePixGeoManager : public PixelGeometryManager {
 
   
   virtual int dbVersion() override {return m_dbVersion;}
-  bool useLegacy() {return !slhc() && (m_dbVersion < 4);}
+  bool useLegacy() {return m_dbVersion < 4;}
 
   // Si Board
   virtual double PixelBoardWidth(bool isModule3D=false) override;
@@ -482,7 +475,7 @@ class OraclePixGeoManager : public PixelGeometryManager {
   virtual double IBLServiceGetMaxRadialPosition(const std::string& srvName, const std::string& srvType, 
                                                 double srvZmin, double srvZmax) override;
 
-  // Simple ladder services (SLHC)
+  // Simple ladder services
   virtual double PixelLadderSupportThickness() override; 
   virtual double PixelLadderSupportWidth() override; 
   virtual double PixelLadderSupportLength() override; 
@@ -491,13 +484,6 @@ class OraclePixGeoManager : public PixelGeometryManager {
   virtual double PixelLadderBentStaveAngle() override;
   virtual int PixelBentStaveNModule() override;
   virtual double PixelLadderModuleDeltaZ() override;
-
-  // Layer support (SLHC)
-  // if rmin is not found or <=0 the calculate as Rmin = layer radius + roffset 
-  virtual bool PixelLayerSupportCylPresent() override; 
-  virtual double PixelLayerSupportRMin() override;
-  virtual double PixelLayerSupportROffset() override;
-  virtual double PixelLayerSupportThick() override;
 
   virtual int PixelBiStaveType(int layer, int phi) override;
   virtual int NPixelSectors() override;
@@ -803,29 +789,12 @@ class OraclePixGeoManager : public PixelGeometryManager {
   // Geometry DB Interface
   const IGeometryDBSvc * db() const {return athenaComps()->geomDB();}
 
-  virtual int    PixelDiskNRings() override;
-  virtual int    PixelDiskRingNModules() override;
-  virtual double PixelDiskRMin(bool includeSupports=false) override;
-  virtual double PixelDiskRMax(bool includeSupports=false) override;
-  virtual double PixelDiskThickness(double safety=0.01) override;
-  virtual double PixelRingRcenter() override;
-  virtual double PixelRingRMin(double safety=0.01) override;
-  virtual double PixelRingRMax(double safety=0.01) override;
-  virtual double PixelRingThickness(double safety=0.01) override;
-  virtual double PixelRingZpos() override;
-  virtual double PixelRingZoffset() override;
-  virtual double PixelRingStagger() override;
-  virtual int    PixelRingSide() override;
+  virtual double PixelDiskRMin() override;
   virtual int    PixelDiskNumSupports() override;
   virtual double PixelDiskSupportRMin(int isup) override;
   virtual double PixelDiskSupportRMax(int isup) override;
   virtual double PixelDiskSupportThickness(int isup) override;
   virtual int    PixelDiskSupportMaterialTypeNum(int isup) override;
-  virtual double PixelModuleThicknessN() override;
-  virtual double PixelModuleThicknessP() override;
-  virtual double PixelModuleThickness() override;
-  virtual double PixelModuleWidth() override;
-  virtual double PixelModuleLength() override;
   virtual int moduleType() override;
   virtual int moduleType3D() override;
   int getDiskRingIndex(int disk, int eta);
@@ -834,7 +803,7 @@ class OraclePixGeoManager : public PixelGeometryManager {
   /////
  private:
 
-  double CalculateThickness(double,std::string);
+  double CalculateThickness(double,const std::string&);
   int determineDbVersion();
   void addDefaultMaterials();
   // return default length unit (Gaudi::Units::mm or Gaudi::Units::cm)

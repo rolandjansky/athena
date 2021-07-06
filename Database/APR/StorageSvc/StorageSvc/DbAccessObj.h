@@ -83,7 +83,8 @@ namespace pool    {
     // Inline functions
     const DbType& type()  const       {      return m_type;           }
     /// Allow access to the Database implementation
-    IOODatabase* db()         const   {      return m_pool;           }
+    const IOODatabase* db()   const   {      return m_pool;           }
+    IOODatabase* db()                 {      return m_pool;           }
     /// Access reference counter
     int refCount()   const            {      return m_refCount;       }
     /// Add reference count

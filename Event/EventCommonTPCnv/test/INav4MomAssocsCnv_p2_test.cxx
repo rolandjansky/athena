@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file EventCommonTPCnv/test/INav4MomAssocsCnv_p2_test.cxx
@@ -16,6 +16,7 @@
 #include "TestTools/leakcheck.h"
 #include "SGTools/TestStore.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include <cassert>
 #include <iostream>
 
@@ -66,6 +67,7 @@ void testit (const INav4MomAssocs& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  (void)Gaudi::Hive::currentContext();
 
   INavigable4MomentumCollection* in4mc = new INavigable4MomentumCollection;
   for (int i=0; i < 10; i++)

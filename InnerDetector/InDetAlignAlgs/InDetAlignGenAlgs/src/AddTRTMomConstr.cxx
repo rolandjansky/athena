@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // @file AddTRTMomConstr.cxx
@@ -119,7 +119,7 @@ StatusCode AddTRTMomConstr::execute() {
     const TrackCollection* inputtracks ;
     ATH_CHECK(sgSvc()->retrieve( inputtracks, m_trackListInput) );
     auto outputtracks = std::make_unique<ConstDataVector<TrackCollection> >( SG::VIEW_ELEMENTS ) ;
-    for (const auto & it : *inputtracks){
+    for (const auto it : *inputtracks){
       auto track=it;
       if( m_applyTrkSel && !accept( *track ) ) {
         ATH_MSG_DEBUG( "kinematic requirements not passed, skip track") ;
@@ -343,7 +343,7 @@ Trk::Track* AddTRTMomConstr::addTRTMomentumConstraint(const Trk::Track* track) {
   Trk::MeasurementSet setSi ;
   Trk::MeasurementSet setTRT ;
   //store all silicon measurements into the measurementset
-  for (const auto & it:*(track->measurementsOnTrack())){
+  for (const auto it:*(track->measurementsOnTrack())){
     const Trk::RIO_OnTrack* rio = dynamic_cast <const Trk::RIO_OnTrack*>(it);
     if (rio) {
       const Identifier& surfaceID = (rio->identify()) ;

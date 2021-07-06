@@ -98,11 +98,11 @@ AscObj_TSOS::AscObj_TSOS( TrackHandleBase *track,
     m_parts(TrackCommonFlags::TSOS_NoObjects),
     m_indexOfPointOnTrack(indexOfPointOnTrack), 
     m_distToNextPar(-1), 
-    m_objBrowseTree(0)
+    m_objBrowseTree(nullptr)
 {
   SoTransparency::initClass();
 
-  const Trk::Surface * surf(0);
+  const Trk::Surface * surf(nullptr);
   
   if (m_tsos->type(Trk::TrackStateOnSurface::Hole)) m_parts |= TrackCommonFlags::TSOS_Hole;
   
@@ -201,8 +201,8 @@ const Trk::MeasurementBase * AscObj_TSOS::measurement() const
 SoTranslation* AscObj_TSOS::getZTranslationTube( const Trk::Surface * theSurface,
                          const double& maxTrans ) const
 {
-  const Amg::Vector3D* origo = theSurface->localToGlobal(Amg::Vector2D(0,0));
-  const Amg::Vector3D* unitz = theSurface->localToGlobal(Amg::Vector2D(0,1));
+  const Amg::Vector3D origo = theSurface->localToGlobal(Amg::Vector2D(0,0));
+  const Amg::Vector3D unitz = theSurface->localToGlobal(Amg::Vector2D(0,1));
 
   std::vector< Amg::Vector3D > * points = trackHandle()->hackGetPointsPropagated();//FIXME
 
@@ -213,7 +213,7 @@ SoTranslation* AscObj_TSOS::getZTranslationTube( const Trk::Surface * theSurface
   for ( size_t i = 0; i<points->size(); i++)
   {
     double s;
-    double dist = VP1LinAlgUtils::distPointLine2( (*points)[i], *origo, *unitz, s );
+    double dist = VP1LinAlgUtils::distPointLine2( (*points)[i], origo, unitz, s );
     if (dist < min)
     {
       min = dist;
@@ -231,16 +231,16 @@ SoTranslation* AscObj_TSOS::getZTranslationTube( const Trk::Surface * theSurface
     double sp,tp,sm,tm;
     if (imin+1 < points->size() && imin >= 1)
     {
-      VP1LinAlgUtils::distLineLineParam((*points).at(imin),(*points).at(imin+1),*origo,*unitz,tp,sp);
-      VP1LinAlgUtils::distLineLineParam((*points).at(imin-1),(*points).at(imin),*origo,*unitz,tm,sm);
-      smin = fabs(tm - 0.5) < fabs(tp - 0.5) ? sm : sp;
+      VP1LinAlgUtils::distLineLineParam((*points).at(imin),(*points).at(imin+1),origo,unitz,tp,sp);
+      VP1LinAlgUtils::distLineLineParam((*points).at(imin-1),(*points).at(imin),origo,unitz,tm,sm);
+      smin = std::abs(tm - 0.5) < std::abs(tp - 0.5) ? sm : sp;
     } else if (imin+1 >= points->size() && imin >= 1 )
     {
-      VP1LinAlgUtils::distLineLineParam((*points).at(imin-1),(*points).at(imin),*origo,*unitz,tm,sm);
+      VP1LinAlgUtils::distLineLineParam((*points).at(imin-1),(*points).at(imin),origo,unitz,tm,sm);
       smin = sm;
     } else
     {
-      VP1LinAlgUtils::distLineLineParam((*points).at(imin),(*points).at(imin+1),*origo,*unitz,tp,sp);
+      VP1LinAlgUtils::distLineLineParam((*points).at(imin),(*points).at(imin+1),origo,unitz,tp,sp);
       smin = sp;
     }
   } else {
@@ -249,7 +249,7 @@ SoTranslation* AscObj_TSOS::getZTranslationTube( const Trk::Surface * theSurface
   }
 
   //Ensure that we do not get out of bounds, preserve sign of translation.
-  if (fabs(smin) > maxTrans)
+  if (std::abs(smin) > maxTrans)
   {
     double sign = smin > 0 ? 1.0 : -1.0;
     smin = sign*maxTrans;
@@ -268,7 +268,7 @@ double AscObj_TSOS::deviationFromMeasurement(const bool& absolute)
   double sigma = 1;
 
   const Trk::RIO_OnTrack* rio = rioOnTrack();
-  if (!rio && competingRIOsOnTrack()!=0 ) {
+  if (!rio && competingRIOsOnTrack()!=nullptr ) {
       // must be crot
       rio =  &(competingRIOsOnTrack()->rioOnTrack(competingRIOsOnTrack()->indexOfMaxAssignProb () ));
   } else {
@@ -283,7 +283,7 @@ double AscObj_TSOS::deviationFromMeasurement(const bool& absolute)
   if ( idhelper && ( isTRT||isMDT ) )
   {
     //Value from the measurement
-    rioValue = fabs(rio->localParameters().get(Trk::driftRadius));
+    rioValue = std::abs(rio->localParameters().get(Trk::driftRadius));
 
     //Value from the track
     const Trk::TrackParameters* trackParams = m_tsos->trackParameters();
@@ -291,7 +291,7 @@ double AscObj_TSOS::deviationFromMeasurement(const bool& absolute)
     const Trk::AtaStraightLine * atas = dynamic_cast<const Trk::AtaStraightLine *>(meas);
     if (not atas) return std::nan("");
     const Amg::Vector2D& localposMeas = atas->localPosition();
-    paramValue = fabs(localposMeas[Trk::locR]);
+    paramValue = std::abs(localposMeas[Trk::locR]);
 
     if (!absolute)
     {
@@ -300,7 +300,7 @@ double AscObj_TSOS::deviationFromMeasurement(const bool& absolute)
     }
   }
 
-  return absolute ? fabs( rioValue - paramValue ) : fabs( rioValue - paramValue )/sigma;
+  return absolute ? std::abs( rioValue - paramValue ) : std::abs( rioValue - paramValue )/sigma;
 }
 
 void AscObj_TSOS::addDeviationFromMeasurementInfoToShapes( SoSeparator*&shape_simple, SoSeparator*&shape_detailed)
@@ -314,8 +314,8 @@ void AscObj_TSOS::addDeviationFromMeasurementInfoToShapes( SoSeparator*&shape_si
   if ( idhelper && ( isTRT||isMDT ) )
   {
     const Trk::Surface& theSurface = rio->associatedSurface();
-    const Amg::Vector3D* origo = theSurface.localToGlobal(Amg::Vector2D(0,0));
-    const Amg::Vector3D* unitz = theSurface.localToGlobal(Amg::Vector2D(0,1));
+    const Amg::Vector3D origo = theSurface.localToGlobal(Amg::Vector2D(0,0));
+    const Amg::Vector3D unitz = theSurface.localToGlobal(Amg::Vector2D(0,1));
     const Amg::Vector3D& point = m_tsos->trackParameters()->position(); //FIXME: use the one from rio when it is fixed.
     //const Amg::Vector3D& point = rio->globalPosition();
     //this is currently returning a position on the z-axis which is wrong. Re-enable this feature
@@ -323,10 +323,8 @@ void AscObj_TSOS::addDeviationFromMeasurementInfoToShapes( SoSeparator*&shape_si
 
     //Get the point 'pointMeas' on the measurement z-axis which is closest to the point 'point'
     double s;
-    VP1LinAlgUtils::distPointLineParam( point, *origo, *unitz, s );
-    const Amg::Vector3D pointMeas = *origo + s*(*unitz - *origo);
-    delete origo;
-    delete unitz;
+    VP1LinAlgUtils::distPointLineParam( point, origo, unitz, s );
+    const Amg::Vector3D pointMeas = origo + s*(unitz - origo);
 
     SoLineSet * line = new SoLineSet();
     SoVertexProperty * vertices = new SoVertexProperty();
@@ -492,13 +490,12 @@ void AscObj_TSOS::addErrors(const Trk::Surface& theSurface, const AmgSymMatrix(5
     // Shift from Surface centre to correct position
     if (applyLocalTrans) {
       SoTranslation * theTransform = new SoTranslation;
-      const Amg::Vector2D* locPosTmp = surface()->globalToLocal(p1);
+      std::optional<Amg::Vector2D> locPosTmp = surface()->globalToLocal(p1);
       if (locPosTmp) {
         theTransform->translation.setValue(locPosTmp->x(),locPosTmp->y(),0.0); 
         // std::cout<<"applyLocalTrans & Offset=("<<locPosTmp->x()<<","<<locPosTmp->y()<<std::endl;
         errSimple->addChild(theTransform);
         errDetailed->addChild(theTransform);
-        delete locPosTmp;
       } else {
         VP1Msg::message("AscObj_TSOS::addErrors - failed to get tmp position");  
       }
@@ -550,7 +547,7 @@ void AscObj_TSOS::addSurfaceToShapes( SoSeparator*&shape_simple, SoSeparator*&sh
     if (ps) {
       Amg::Vector3D z(0.0,0.0,1.0);
       double angle_z_normal = Amg::angle(z, ps->normal());
-      double abscostheta = fabs(cos(angle_z_normal));
+      double abscostheta = std::abs(cos(angle_z_normal));
       if (abscostheta>0.707) return;
     }
   }
@@ -641,7 +638,7 @@ void AscObj_TSOS::addMaterialEffectsToShapes( SoSeparator*&shape_simple, SoSepar
     const Trk::MaterialEffectsBase* matEff = m_tsos->materialEffectsOnTrack();
     const Trk::MaterialEffectsOnTrack* matEffOnTrk = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(matEff);
     if (matEffOnTrk){
-      const double absDeltaE = fabs(matEffOnTrk->energyLoss()->deltaE());
+      const double absDeltaE = std::abs(matEffOnTrk->energyLoss()->deltaE());
       const double radius(absDeltaE > 1*CLHEP::eV ? 5.0*exp(log(absDeltaE/CLHEP::MeV)/3.0) : 0);//\propto cube root
       //TK: radius used to be: 5.0*sqrt(absDE), but we want sphere volume \propto deltaE
       const double scale = common()->controller()->materialEffectsOnTrackScale();
@@ -941,7 +938,7 @@ const Trk::CompetingRIOsOnTrack * AscObj_TSOS::competingRIOsOnTrack() const
 //____________________________________________________________________
 const Trk::Surface * AscObj_TSOS::surface() const
 {
-  const Trk::Surface * surf(0);
+  const Trk::Surface * surf(nullptr);
   if (m_tsos->trackParameters())
     surf = &(m_tsos->trackParameters()->associatedSurface());
   if (!surf&&m_tsos->measurementOnTrack())
@@ -964,10 +961,10 @@ void AscObj_TSOS::addTransformToSurface(SoSeparator*& shape_simple,SoSeparator*&
   if (surface()->associatedDetectorElement()) type= m_objToType.type(surface()->associatedDetectorElement());
   
 //  const Trk::RIO_OnTrack* rio = rioOnTrack() ? rioOnTrack() : competingRIOsOnTrack() ? competingRIOsOnTrack()->rioOnTrack(competingRIOsOnTrack()->indexOfMaxAssignProb()) : 0;
-  const Trk::RIO_OnTrack* rio = rioOnTrack() ? rioOnTrack() : competingRIOsOnTrack() ? &(competingRIOsOnTrack()->rioOnTrack(competingRIOsOnTrack()->indexOfMaxAssignProb())) : 0;
+  const Trk::RIO_OnTrack* rio = rioOnTrack() ? rioOnTrack() : competingRIOsOnTrack() ? &(competingRIOsOnTrack()->rioOnTrack(competingRIOsOnTrack()->indexOfMaxAssignProb())) : nullptr;
   if (type==TrkObjToString::Unknown && rio) type=m_objToType.type(rio);
 
-  SoTransform*   theHitTransform=0;  
+  SoTransform*   theHitTransform=nullptr;  
   if (rio) {
     TrkObjToString::MeasurementType type=m_objToType.type(rio);
     // std::cout<<"Got ROT of type"<<static_cast<unsigned int>(type)<<std::endl; 
@@ -1179,7 +1176,7 @@ void AscObj_TSOS::setVisible(bool vis) {
       
       if (!visible()) {
         // std::cout<<"Hidden"<<std::endl;
-        me->setFlags(0); // not selectable, not enabled
+        me->setFlags(nullptr); // not selectable, not enabled
         itemFont.setStrikeOut(true);
         
       } else {

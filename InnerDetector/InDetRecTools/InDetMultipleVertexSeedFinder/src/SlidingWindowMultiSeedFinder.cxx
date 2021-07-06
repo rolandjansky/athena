@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetMultipleVertexSeedFinder/SlidingWindowMultiSeedFinder.h"
@@ -9,7 +9,6 @@
 
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "InDetMultipleVertexSeedFinderUtils/InDetTrackZ0SortingTool.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "TrkParticleBase/TrackParticleBase.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkVertexFitterInterfaces/IVertexSeedFinder.h"
@@ -32,12 +31,7 @@ namespace InDet
    return StatusCode::FAILURE;
   }else msg(MSG::INFO)<<"Track sorting tool retrieved"<<endmsg;  
    
-  if(m_beamService.retrieve().isFailure())
-  {
-   msg(MSG::ERROR)<<"Unable to retieve "<<m_beamService<<endmsg;
-   return StatusCode::FAILURE;
-  }else msg(MSG::INFO)<< "BeamSpot service retrieved"<<endmsg; 
-
+  ATH_CHECK(m_beamSpotKey.initialize());
 
   if(m_vtxSeedFinder.retrieve().isFailure())
   {
@@ -65,7 +59,6 @@ namespace InDet
                                                                           m_ignoreLevel(0),
                                                                           m_ignoreBeamSpot(false),
                                                                           m_vtxSeedFinder("Trk::CrossDistancesSeedFinder"),
-                                                                          m_beamService("BeamCondSvc" ,n),
                                                                           m_extrapolator("Trk::Extrapolator") 
  {
   declareInterface<IMultiPVSeedFinder>(this); 
@@ -85,9 +78,6 @@ namespace InDet
 //vertex finder tool (needed when no beam spot is available)
   declareProperty("VertexSeedFinder",m_vtxSeedFinder);
   
-//beam spot finding tool
-  declareProperty("BeamSpotSvc", m_beamService);
-
 //extrapolator
   declareProperty("Extrapolator", m_extrapolator);  
   
@@ -102,8 +92,8 @@ namespace InDet
   std::vector<const Trk::Track*>::const_iterator tr = tracks.begin();
   std::vector<const Trk::Track*>::const_iterator tre = tracks.end(); 
   
-  
-  Trk::RecVertex  beamRecVertex(m_beamService->beamVtx());
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  Trk::RecVertex  beamRecVertex(beamSpotHandle->beamVtx());
   for(;tr!=tre;++tr) if(m_trkFilter->decision(**tr,&beamRecVertex)) preselectedTracks.push_back(*tr);
   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Beam spot position is: "<< beamRecVertex.position()<<endmsg;
 
@@ -125,7 +115,7 @@ namespace InDet
   std::vector< std::vector<const Trk::Track *> > result(0);
 
 //sorting the tracks on their z_0 basis.
-  if(preselectedTracks.size() !=0)
+  if(!preselectedTracks.empty())
   {
    std::vector<int> indexOfSorted = m_sortingTool->sortedIndex(preselectedTracks,beamVertex);  
    
@@ -133,7 +123,7 @@ namespace InDet
   
    Trk::PerigeeSurface perigeeSurface(beamVertex->position());
 
-   const Trk::TrackParameters * exPerigee = 0;
+   const Trk::TrackParameters * exPerigee = nullptr;
    if (!indexOfSorted.empty()) exPerigee = 
 				 m_extrapolator->extrapolate(*preselectedTracks[indexOfSorted[0]],perigeeSurface,Trk::anyDirection,true, Trk::pion);
          
@@ -205,8 +195,8 @@ namespace InDet
   std::vector<const Trk::TrackParticleBase*>::const_iterator tre = tracks.end(); 
   
 //using the beam position for pre-selection  
-  
-  Trk::RecVertex  beamRecVertex(m_beamService->beamVtx()); 
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  Trk::RecVertex  beamRecVertex(beamSpotHandle->beamVtx()); 
   for(;tr!=tre;++tr) if(m_trkFilter->decision(**tr,&beamRecVertex)) preselectedTracks.push_back(*tr);
   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Beam spot position is: "<< beamRecVertex.position()<<endmsg;
   Trk::Vertex* beamVertex=&beamRecVertex;
@@ -235,14 +225,14 @@ namespace InDet
   std::vector< std::vector<const Trk::TrackParticleBase*> > result(0);
 
 //sorting the tracks on their z_0 basis.
-  if(preselectedTracks.size() !=0)
+  if(!preselectedTracks.empty())
   {
    std::vector<int> indexOfSorted = m_sortingTool->sortedIndex(preselectedTracks, beamVertex);
    
    std::vector<const Trk::TrackParticleBase *> tmp_cluster(0); 
    
 //extrapolating the tracks to the actual beam spot   
-   const Trk::TrackParameters * exPerigee(0);
+   const Trk::TrackParameters * exPerigee(nullptr);
    Trk::PerigeeSurface perigeeSurface(beamVertex->position());
 
    exPerigee = m_extrapolator->extrapolate(preselectedTracks[indexOfSorted[0]]->definingParameters(),
@@ -326,8 +316,9 @@ std::vector< std::vector<const Trk::TrackParameters *> > SlidingWindowMultiSeedF
     
     
     xAOD::Vertex * beamposition = new xAOD::Vertex(); 
-    beamposition->setPosition(m_beamService->beamVtx().position());
-    beamposition->setCovariancePosition(m_beamService->beamVtx().covariancePosition());
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    beamposition->setPosition(beamSpotHandle->beamVtx().position());
+    beamposition->setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
     // for(;tr!=tre;++tr) if(m_trkFilter->decision(**tr, &beamrecposition)) preselectedTracks.push_back(*tr);
     // if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Beam spot position is: "<< beamrecposition.position()<<endmsg;
     //Trk::Vertex* beamposition=&beamrecposition;
@@ -365,14 +356,14 @@ std::vector< std::vector<const Trk::TrackParameters *> > SlidingWindowMultiSeedF
     //step 2: sorting in z0
     //output container  
     std::vector< std::vector<const Trk::TrackParameters *> > result(0);
-    if(preselectedTracks.size() !=0)
+    if(!preselectedTracks.empty())
       {
 	std::vector<int> indexOfSorted = m_sortingTool->sortedIndex(preselectedTracks, beamposition);
 	
 	std::vector<const Trk::TrackParameters *> tmp_cluster(0); 
 	
 	//extrapolating the tracks to the actual beam spot   
-	const Trk::TrackParameters * exPerigee(0);
+	const Trk::TrackParameters * exPerigee(nullptr);
 	Trk::PerigeeSurface perigeeSurface(beamposition->position());
 	
 	exPerigee = m_extrapolator->extrapolate(*preselectedTracks[indexOfSorted[0]],

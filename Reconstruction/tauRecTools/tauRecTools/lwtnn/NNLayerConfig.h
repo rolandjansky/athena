@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef NN_LAYER_CONFIG_HH_TAURECTOOLS
@@ -37,8 +37,8 @@ namespace lwtDev {
 
   struct ActivationConfig
   {
-    Activation function;
-    double alpha;
+    Activation function = Activation::NONE;
+    double alpha = 0;
   };
 
   // main layer configuration
@@ -50,8 +50,8 @@ namespace lwtDev {
     std::vector<double> U;      // TODO: what is this thing called in LSTMs?
     ActivationConfig activation;
     ActivationConfig inner_activation; // for LSTMs and GRUs
-    bool go_backwards; // for LSTMs and GRUs
-    bool return_sequence; // for LSTMs and GRUs
+    bool go_backwards = false; // for LSTMs and GRUs
+    bool return_sequence = false; // for LSTMs and GRUs
     std::string merge_mode; // for Bidirectional
 
 
@@ -61,7 +61,7 @@ namespace lwtDev {
     std::vector<EmbeddingConfig> embedding;
 
     // arch flag
-    Architecture architecture;
+    Architecture architecture = Architecture::NONE;
   };
 
   // graph node configuration

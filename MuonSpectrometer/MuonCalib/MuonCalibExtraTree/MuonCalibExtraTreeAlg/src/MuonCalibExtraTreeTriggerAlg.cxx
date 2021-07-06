@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibExtraTreeAlg/MuonCalibExtraTreeTriggerAlg.h"
@@ -46,9 +46,7 @@
 namespace MuonCalib { 
 
 MuonCalibExtraTreeTriggerAlg::MuonCalibExtraTreeTriggerAlg(const std::string &name, ISvcLocator *pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_rpcRoiService( "LVL1RPC::RPCRecRoiSvc", name ),
-  m_tgcRoiService( "LVL1TGC::TGCRecRoiSvc", name ),
+  AthAlgorithm(name, pSvcLocator), 
   m_caloBranch("calo_"),
   m_init(false) {
   declareProperty("doCTP", m_doCTP = true );
@@ -61,7 +59,7 @@ MuonCalibExtraTreeTriggerAlg::MuonCalibExtraTreeTriggerAlg(const std::string &na
   declareProperty("MBTSContainerLocation",m_mbtsLocation = "MBTSContainer");
   declareProperty("NtupleName",m_ntupleName = "PatternNtupleMaker");
   m_eventNumber=0;
-  m_tileID=NULL; m_tree=NULL;
+  m_tileID=nullptr; m_tree=nullptr;
 }  //end MuonCalibExtraTreeTriggerAlg::MuonCalibExtraTreeTriggerAlg
   
 MuonCalibExtraTreeTriggerAlg::~MuonCalibExtraTreeTriggerAlg() {
@@ -70,48 +68,36 @@ MuonCalibExtraTreeTriggerAlg::~MuonCalibExtraTreeTriggerAlg() {
 StatusCode MuonCalibExtraTreeTriggerAlg::initialize() {
   
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "Initialisation started     " << endmsg;
+  ATH_MSG_INFO("Initialisation started     " );
 
   if( m_doMuCTPI ){
-    StatusCode sc = m_rpcRoiService.retrieve();
-    if ( sc.isFailure() ) {
-      log << MSG::FATAL << "Unable to access RPCRecRoiSvc" << endmsg;
-      return sc;
-    }
-    sc = m_tgcRoiService.retrieve();
-    if ( sc.isFailure() ) {
-      log << MSG::FATAL << "Unable to access TGCRecRoiSvc" << endmsg;
-      return sc;
-    }
+    ATH_CHECK( m_rpcRoiTool.retrieve());
+    ATH_CHECK( m_tgcRoiTool.retrieve());
   }
 
   if( m_doMBTS ){
-    m_tileID = 0;
-    StatusCode sc = detStore()->retrieve(m_tileID);
-    if ( sc.isFailure()) {
-      log << MSG::ERROR << "Unable to retrieve TileID helper from DetectorStore" << endmsg;
-    }
+    m_tileID = nullptr;
+    ATH_CHECK(detStore()->retrieve(m_tileID));
   }
 
-  log << MSG::INFO << "Initialization ended     " << endmsg;
+ ATH_MSG_INFO( "Initialization ended     ");
   return StatusCode::SUCCESS;
 }  //end MuonCalibExtraTreeTriggerAlg::initialize
 
 // Execute
 StatusCode MuonCalibExtraTreeTriggerAlg::execute(){
-  MsgStream log(msgSvc(), name());
-
+ 
   if(!m_init) {
 
     TDirectory* dir = RootFileManager::getInstance()->getDirectory( m_ntupleName.c_str() );
     dir->cd();
       
-    log << MSG::DEBUG << "Try the GetObject call" << endmsg;
+    ATH_MSG_DEBUG( "Try the GetObject call" );
     dir->GetObject("Segments",m_tree);
       
-    log << MSG::DEBUG << "retrieved tree " << m_tree << endmsg;
+    ATH_MSG_DEBUG( "retrieved tree " << m_tree );
     
-    log << MSG::DEBUG << "created tree" << endmsg;
+    ATH_MSG_DEBUG( "created tree" );
     if(m_doMuCTPI) m_muCTPIBranch.createBranch(m_tree);
     if(m_doMBTS) m_mbtsBranch.createBranch(m_tree);
     if(m_doLVL1Calo) m_caloBranch.createBranch(m_tree);
@@ -120,7 +106,7 @@ StatusCode MuonCalibExtraTreeTriggerAlg::execute(){
     m_init = true;
   }
 
-  log << MSG::DEBUG << " execute()     " << endmsg;
+  ATH_MSG_DEBUG( " execute()     " );
 
   if( m_doMuCTPI ) addMuCTPI();
   if( m_doCTP )    addCTP();
@@ -142,24 +128,23 @@ StatusCode MuonCalibExtraTreeTriggerAlg::finalize() {
 
 void MuonCalibExtraTreeTriggerAlg::addCTP() {
   m_ctpBranch.reset();
-
   //=======================================================================
   // CTP Information
   //=======================================================================
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << " adding CTP information " << endmsg;
+ 
+  ATH_MSG_DEBUG( " adding CTP information " );
   if( !evtStore()->contains< CTP_RDO >( m_ctpLocation ) ) {
-    log << MSG::DEBUG << " CTP information no available in StoreGate at " << m_ctpLocation << endmsg;
+    ATH_MSG_DEBUG( " CTP information no available in StoreGate at " << m_ctpLocation );
     return;
   }
 
-  const CTP_RDO* theCTP_RDO = 0;
+  const CTP_RDO* theCTP_RDO = nullptr;
   if(evtStore()->retrieve(theCTP_RDO, m_ctpLocation).isFailure()) {
-    log << MSG::WARNING << "Could not find \"CTP_RDO\" in StoreGate at " << m_ctpLocation << endmsg;
+    ATH_MSG_WARNING ( "Could not find \"CTP_RDO\" in StoreGate at " << m_ctpLocation );
     return;
   }
   if( !theCTP_RDO ) {
-    log << MSG::WARNING << "Could not find \"CTP_RDO\" in StoreGate at " << m_ctpLocation << endmsg;
+    ATH_MSG_WARNING ( "Could not find \"CTP_RDO\" in StoreGate at " << m_ctpLocation );
     return;
   }
     
@@ -170,22 +155,22 @@ void MuonCalibExtraTreeTriggerAlg::addCTP() {
 }
   
 void MuonCalibExtraTreeTriggerAlg::addMuCTPI() {
-  MsgStream log(msgSvc(), name());    
+ 
 
   m_muCTPIBranch.reset();
 
   // Get the MuCTPI RDO from StoreGate:
   if( !evtStore()->contains< MuCTPI_RDO >(m_muCPTILocation) ) {
-    log << MSG::DEBUG << " MuCTPI information no available in StoreGate at " << m_muCPTILocation << endmsg;
+    ATH_MSG_DEBUG( " MuCTPI information no available in StoreGate at " << m_muCPTILocation );
     return;
   }
 
-  const MuCTPI_RDO* muCTPI_RDO;
+  const MuCTPI_RDO* muCTPI_RDO = nullptr;
   if ( evtStore()->retrieve( muCTPI_RDO, m_muCPTILocation ).isFailure() ) {
-    log << MSG::DEBUG << "Could not find MUCTPI_RDO at " << m_muCPTILocation << endmsg;
+    ATH_MSG_DEBUG( "Could not find MUCTPI_RDO at " << m_muCPTILocation );
     return;
   }
-  log << MSG::DEBUG << "Retrieved MUCTPI_RDO at " << m_muCPTILocation << endmsg;
+  ATH_MSG_DEBUG( "Retrieved MUCTPI_RDO at " << m_muCPTILocation );
 
   std::vector< uint32_t > dataWords = muCTPI_RDO->dataWord();
 
@@ -201,13 +186,13 @@ void MuonCalibExtraTreeTriggerAlg::addMuCTPI() {
                      ( daqWord & 0x10000000 );
 
  // copied from CBNTAA_MuctpiRoI
-    LVL1::RecMuonRoI rec_roi( data, &( *m_rpcRoiService ), &( *m_tgcRoiService ), &dummy_thresholds );
-    log << MSG::DEBUG << " MuCTPI entry: sys  " << rec_roi.sysID() << " subsys " << rec_roi.subsysID() 
+    LVL1::RecMuonRoI rec_roi( data, &( *m_rpcRoiTool ), &( *m_tgcRoiTool ), &dummy_thresholds );
+    ATH_MSG_DEBUG( " MuCTPI entry: sys  " << rec_roi.sysID() << " subsys " << rec_roi.subsysID() 
 	<< " sectorId " << rec_roi.sectorID()
 	<< " roi " << rec_roi.getRoINumber() 
 	<< " overlap " << rec_roi.getOverlap()
 	<< " eta " << rec_roi.eta() 
-	<< " phi " << rec_roi.phi() << endmsg;
+	<< " phi " << rec_roi.phi() );
     
     MuCTPI_DataWord_Decoder daqWordDecod = MuCTPI_DataWord_Decoder( daqWord );
     uint16_t   roiBCIDWord = daqWordDecod.getBCID();
@@ -218,24 +203,23 @@ void MuonCalibExtraTreeTriggerAlg::addMuCTPI() {
 }  //end MuonCalibExtraTreeTriggerAlg::addMuCTPI
 
 void MuonCalibExtraTreeTriggerAlg::addCalo() {
-  MsgStream log(msgSvc(), name());    
+ 
 
   m_caloBranch.reset();
 
-  const CaloCellContainer* theCalocontainer;
+  const CaloCellContainer* theCalocontainer = nullptr;
   if( !evtStore()->contains<CaloCellContainer>(m_caloLocation) ) {
-    log << MSG::DEBUG << " CaloCellContainer no available in StoreGate at " << m_caloLocation << endmsg;
+    ATH_MSG_DEBUG( " CaloCellContainer no available in StoreGate at " << m_caloLocation );
     return;
   }
 
   if(evtStore()->retrieve(theCalocontainer,m_caloLocation).isFailure()) {
-    log<<MSG::WARNING<<" Cannot find CaloCell Container in TDS at " << m_caloLocation <<endmsg;
+    ATH_MSG_WARNING(" Cannot find CaloCell Container in TDS at " << m_caloLocation );
     return;
   }  
-  log << MSG::VERBOSE << "Retrieval of CaloCell container succeeded at " << m_caloLocation << endmsg;
+  ATH_MSG_VERBOSE ( "Retrieval of CaloCell container succeeded at " << m_caloLocation );
 
-  if( m_tileID ) {
-    double pi = 4*std::atan(1.);  
+  if( m_tileID ) {    
     double cellEnergyThreshold = 100. ;
     double eCellcut = 200.;
     double etowercut = 500.;
@@ -258,7 +242,7 @@ void MuonCalibExtraTreeTriggerAlg::addCalo() {
       const CaloCell* cell = (*iCell) ;
       if(! m_tileID->is_tile(cell->ID()) ) continue;
       const TileCell* tilecell = dynamic_cast<const TileCell*> (cell);
-      if (tilecell!=0) {
+      if (tilecell!=nullptr) {
 	Identifier id  = cell->ID();
 	float e  = cell->energy() ; 
 	if (e < cellEnergyThreshold ) continue ;
@@ -266,7 +250,7 @@ void MuonCalibExtraTreeTriggerAlg::addCalo() {
 	int sample = m_tileID->sample(id);
 	if (sample > 2) continue;
 
-	int k = int(32.0*(cell->phi()/pi));
+	int k = int(32.0*(cell->phi()/M_PI));
 	if( k < 0) k += 64;
 	if(sample == 2){
 	  int m1 = int(10.0*(cell->eta() - 0.05));
@@ -291,9 +275,9 @@ void MuonCalibExtraTreeTriggerAlg::addCalo() {
 	  double et2 = etower0[k][m2];
 	  if (l2==1) et2 = etower1[k][m2];
 	  //	  {
-	  log << MSG::DEBUG<< " Store tower energies sample " << sample << " index1 " <<   index1 << " index2 " <<  index2 << " E " << e << endmsg;
-	  log << MSG::DEBUG<< " k " << k << " m1 " << m1 << " l1 " << l1 << " E " << et1 << endmsg;
-	  log << MSG::DEBUG<< " k " << k << " m2 " << m2 << " l2 " << l2 << " E " << et2 << endmsg;
+	  ATH_MSG_DEBUG( " Store tower energies sample " << sample << " index1 " <<   index1 << " index2 " <<  index2 << " E " << e );
+	  ATH_MSG_DEBUG( " k " << k << " m1 " << m1 << " l1 " << l1 << " E " << et1 );
+	  ATH_MSG_DEBUG( " k " << k << " m2 " << m2 << " l2 " << l2 << " E " << et2 );
 	    //	  }
 	  // Keep Maximum energy and second Maximum: Cross check               
 	  if (et1 > et2) {
@@ -354,8 +338,8 @@ void MuonCalibExtraTreeTriggerAlg::addCalo() {
 	  double et = etower0[k][m];
 	  if (l==1) et = etower1[k][m];
 	  //	  {
-	  log << MSG::DEBUG<< " Store tower energies sample " << sample << " index " <<   index << " E " << e << endmsg;
-	  log << MSG::DEBUG<< " k " << k << " m " << m << " l " << l <<  " E " << et << endmsg;
+	  ATH_MSG_DEBUG( " Store tower energies sample " << sample << " index " <<   index << " E " << e );
+	  ATH_MSG_DEBUG( " k " << k << " m " << m << " l " << l <<  " E " << et );
 	  //	  }
 	  // Store Energies
 	  indexToEnergy[index] += e;
@@ -397,11 +381,11 @@ void MuonCalibExtraTreeTriggerAlg::addCalo() {
     std::map <double,int>::iterator ite = energyToIndex.begin();
     std::map <double,int>::iterator ite_end = energyToIndex.end();
     for (;ite!=ite_end;++ite) {
-      log << MSG::DEBUG<< " Energy " << std::abs(ite->first) << " index " << ite->second << endmsg; 
+      ATH_MSG_DEBUG( " Energy " << std::abs(ite->first) << " index " << ite->second ); 
       std::vector <const CaloCell* > cellVector = towerIndexToCells[ite->second];
       if (nstore > nmaxstore) continue;
       nstore++;
-      log << MSG::DEBUG<< " cells in tower " << cellVector.size() << endmsg;
+      ATH_MSG_DEBUG( " cells in tower " << cellVector.size() );
       std::vector<const CaloCell*>::const_iterator itc = cellVector.begin();
       std::vector<const CaloCell*>::const_iterator itc_end = cellVector.end();
       double xpos = 0;   
@@ -416,12 +400,12 @@ void MuonCalibExtraTreeTriggerAlg::addCalo() {
 	zpos += (*itc)->z()*ei;
 	time += (*itc)->time()*ei;
 	etot += ei;
-	log << MSG::DEBUG<< " x " << (*itc)->x() << " y " <<  (*itc)->y()<< " z " <<  (*itc)->z() << " time " <<  (*itc)->time() << " eta " << (*itc)->eta() << " phi " << (*itc)->phi() << " energy " <<  (*itc)->energy() << endmsg;
+	ATH_MSG_DEBUG( " x " << (*itc)->x() << " y " <<  (*itc)->y()<< " z " <<  (*itc)->z() << " time " <<  (*itc)->time() << " eta " << (*itc)->eta() << " phi " << (*itc)->phi() << " energy " <<  (*itc)->energy() );
       }
       if (cellVector.size() >  0) {  
 	time = time/etot; 
 	Amg::Vector3D gpos(xpos/etot,ypos/etot,zpos/etot); 
-	log << MSG::DEBUG << " Store Calo info " << cellVector.size() << " positions " << gpos << " time " << time << " Etot " << etot << endmsg;
+	ATH_MSG_DEBUG( " Store Calo info " << cellVector.size() << " positions " << gpos << " time " << time << " Etot " << etot );
 	// We could also store 
 	//int index = ite->second;
 	MuonCalibCaloHit hit(cellVector.size(),gpos,time,etot); 
@@ -430,48 +414,47 @@ void MuonCalibExtraTreeTriggerAlg::addCalo() {
     }
          
     if (indMax > 0) {
-      log << MSG::DEBUG<< " Cross check Highest Energy " << Emax <<  " index " << indMax << endmsg;
+      ATH_MSG_DEBUG( " Cross check Highest Energy " << Emax <<  " index " << indMax );
       std::vector <const CaloCell* > cellVector = towerIndexToCells[indMax];
-      log << MSG::DEBUG<< " cells " << cellVector.size() << endmsg;
+      ATH_MSG_DEBUG( " cells " << cellVector.size() );
       std::vector<const CaloCell*>::const_iterator itc = cellVector.begin();
       std::vector<const CaloCell*>::const_iterator itc_end = cellVector.end();
       for (;itc!=itc_end;++itc) {
-	log << MSG::DEBUG << " x " << (*itc)->x() << " y " <<  (*itc)->y()<< " z " <<  (*itc)->z() << " time " <<  (*itc)->time() << " eta " << (*itc)->eta() << " phi " << (*itc)->phi() << " energy " <<  (*itc)->energy() << endmsg;
+	ATH_MSG_DEBUG( " x " << (*itc)->x() << " y " <<  (*itc)->y()<< " z " <<  (*itc)->z() << " time " <<  (*itc)->time() << " eta " << (*itc)->eta() << " phi " << (*itc)->phi() << " energy " <<  (*itc)->energy() );
       }    
     } 
     if (indsMax > 0) {
-      log << MSG::DEBUG << " Cross check Second Highest Energy " << Esmax <<  " index " << indsMax << endmsg;
+      ATH_MSG_DEBUG( " Cross check Second Highest Energy " << Esmax <<  " index " << indsMax );
       std::vector <const CaloCell* > cellVector = towerIndexToCells[indsMax];
-      log << MSG::DEBUG<< " cells " << cellVector.size() << endmsg;
+      ATH_MSG_DEBUG( " cells " << cellVector.size() );
       std::vector<const CaloCell*>::const_iterator itc = cellVector.begin();
       std::vector<const CaloCell*>::const_iterator itc_end = cellVector.end();
       for (;itc!=itc_end;++itc) {
-	log << MSG::DEBUG << " x " << (*itc)->x() << " y " <<  (*itc)->y()<< " z " <<  (*itc)->z() << " time " <<  (*itc)->time() << " eta " << (*itc)->eta() << " phi " << (*itc)->phi() << " energy " <<  (*itc)->energy() << endmsg;
+	ATH_MSG_DEBUG( " x " << (*itc)->x() << " y " <<  (*itc)->y()<< " z " <<  (*itc)->z() << " time " <<  (*itc)->time() << " eta " << (*itc)->eta() << " phi " << (*itc)->phi() << " energy " <<  (*itc)->energy() );
       }    
     } 
   } // endif TileID helper && detStore successful
   
 }  //end MuonCalibExtraTreeTriggerAlg::addCalo
 
-void MuonCalibExtraTreeTriggerAlg::addMBTS() {
-  MsgStream log(msgSvc(), name());    
+void MuonCalibExtraTreeTriggerAlg::addMBTS() { 
 
   m_mbtsBranch.reset();
     
   if( !evtStore()->contains<TileCellContainer>(m_mbtsLocation) ) {
-    log << MSG::DEBUG << " MBTS TileCellContainer no available in StoreGate at " << m_mbtsLocation << endmsg;
+    ATH_MSG_DEBUG( " MBTS TileCellContainer no available in StoreGate at " << m_mbtsLocation );
     return;
   }
 
   const TileCellContainer* theMBTScontainer;
   if(evtStore()->retrieve(theMBTScontainer,m_mbtsLocation).isFailure()) {
-    log<<MSG::WARNING<<" Cannot find MBTS Container in TDS at " << m_mbtsLocation << endmsg;
+    ATH_MSG_WARNING(" Cannot find MBTS Container in TDS at " << m_mbtsLocation );
     return;
   }  
-  log << MSG::VERBOSE << "Retrieval of MBTS container succeeded at " << m_mbtsLocation << endmsg;
+  ATH_MSG_VERBOSE ( "Retrieval of MBTS container succeeded at " << m_mbtsLocation );
          
-  if( m_tileID ) {  
-    double pi = 4*std::atan(1.); 
+  if( m_tileID ) { 
+   
     double energy[32],time[32];
     int module[32];
          
@@ -482,7 +465,7 @@ void MuonCalibExtraTreeTriggerAlg::addMBTS() {
     for( ; iCell != lastCell; ++iCell) {
       Identifier id;
       const TileCell* mbtsCell = *iCell;   // pointer to cell object
-      if (mbtsCell != 0)  {
+      if (mbtsCell != nullptr)  {
 	id = mbtsCell->ID();
  
 	// Calculate MBTS counter from "side", "tower" and "module"
@@ -502,9 +485,9 @@ void MuonCalibExtraTreeTriggerAlg::addMBTS() {
 	  time[ic] = mbtsCell->time();
 	  module[ic] = counter;
 	  if (msgSvc()->outputLevel( name() )< MSG::DEBUG ) {
-	    log << MSG::VERBOSE << "Counter: " << counter << endmsg;
-	    log << MSG::VERBOSE << "Energy= " << energy[ic] << " pCb" << endmsg;
-	    log << MSG::VERBOSE << "Time= " << time[ic] << endmsg ;
+	    ATH_MSG_VERBOSE ( "Counter: " << counter );
+	    ATH_MSG_VERBOSE ( "Energy= " << energy[ic] << " pCb" );
+	    ATH_MSG_VERBOSE ( "Time= " << time[ic] ); ;
 	  }
 	  //                         double quality = mbtsCell->quality();
 	  ic++;
@@ -519,7 +502,7 @@ void MuonCalibExtraTreeTriggerAlg::addMBTS() {
       if (module[i]>15) ze = -ze;
       double radius = 153+(426-153)/2.; 
       if (module[i]%16 > 7) radius = 426 +(890-426)/2.; 
-      double phi0 = (module[i]%8)*2*pi/8.;
+      double phi0 = (module[i]%8)*2*M_PI/8.;
       Amg::Vector3D gpos(radius*std::cos(phi0),radius*std::sin(phi0),ze); 
       MuonCalibCaloHit hit(module[i],gpos,time[i],energy[i]); 
       m_mbtsBranch.fillBranch(hit);
@@ -529,14 +512,14 @@ void MuonCalibExtraTreeTriggerAlg::addMBTS() {
 
 void MuonCalibExtraTreeTriggerAlg::finishEvent(){
   MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "in finishEvent, filling tree " << m_tree << endmsg;
+  ATH_MSG_DEBUG( "in finishEvent, filling tree " << m_tree );
   m_tree->Fill();
-  log << MSG::DEBUG << "tree Filled " << endmsg;
+  ATH_MSG_DEBUG( "tree Filled " );
   if(m_doCTP)  m_ctpBranch.reset();
   if(m_doMBTS) m_mbtsBranch.reset();
   if(m_doMuCTPI) m_muCTPIBranch.reset();
   if(m_doLVL1Calo) m_caloBranch.reset();
-  log << MSG::DEBUG << "finish event ready... " << endmsg;
+  ATH_MSG_DEBUG( "finish event ready... " );
 }  //end MuonCalibExtraTreeTriggerAlg::finishEvent
   
 }//end namespace MuonCalib

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -13,12 +13,12 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 
 // Trk
+#include "CxxUtils/CachedValue.h"
 #include "TrkDetDescrUtils/SharedObject.h"
 #include "TrkParametersBase/ParametersT.h"
 #include "TrkSurfaces/CylinderBounds.h"
 #include "TrkSurfaces/NoBounds.h"
 #include "TrkSurfaces/Surface.h"
-#include "CxxUtils/CachedValue.h"
 
 class Identifier;
 class MsgStream;
@@ -46,35 +46,40 @@ class StraightLineSurface : public Surface
 {
 
 public:
-  static constexpr SurfaceType staticType = Surface::Line;
+  static constexpr SurfaceType staticType = SurfaceType::Line;
   /**Default Constructor - needed for persistency*/
   StraightLineSurface();
-
-  /**Constructor from HepTransform (boundless surface)*/
-  StraightLineSurface(Amg::Transform3D* htrans);
-
-  /**Constructor from HepTransform by unique_ptr (boundless surface)*/
-  StraightLineSurface(std::unique_ptr<Amg::Transform3D> htrans);
-
-  /**Constructor from HepTransform and bounds*/
-  StraightLineSurface(Amg::Transform3D* htrans, double radius, double halez);
-
-  /**Constructor from TrkDetElementBase and Element identifier*/
-  StraightLineSurface(const TrkDetElementBase& detelement,
-                      const Identifier& id);
 
   /**Copy constructor*/
   StraightLineSurface(const StraightLineSurface& slsf);
 
-  /**Copy constructor with shift*/
-  StraightLineSurface(const StraightLineSurface& slsf,
-                      const Amg::Transform3D& transf);
+  /**Assignment operator*/
+  StraightLineSurface& operator=(const StraightLineSurface& slsf);
+
+  /**Move constructor*/
+  StraightLineSurface(StraightLineSurface&& slsf) noexcept = default;
+
+  /**Move Assignment operator*/
+  StraightLineSurface& operator=(StraightLineSurface&& slsf) noexcept = default;
 
   /**Destructor*/
   virtual ~StraightLineSurface() = default;
 
-  /**Assignment operator*/
-  StraightLineSurface& operator=(const StraightLineSurface& slsf);
+  /**Constructor from Amg Transform ref (boundless surface)*/
+  StraightLineSurface(const Amg::Transform3D& htrans);
+
+  /**Constructor from Amg::Transform and bounds*/
+  StraightLineSurface(const Amg::Transform3D& htrans, double radius, double halez);
+
+  /**Constructor from TrkDetElementBase and Element identifier*/
+  StraightLineSurface(
+    const TrkDetElementBase& detelement,
+    const Identifier& id);
+
+  /**Copy constructor with shift*/
+  StraightLineSurface(
+    const StraightLineSurface& slsf,
+    const Amg::Transform3D& transf);
 
   /**Equality operator*/
   virtual bool operator==(const Surface& sf) const override;
@@ -84,57 +89,77 @@ public:
 
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * charged */
-  virtual ParametersT<5, Charged, StraightLineSurface>* createTrackParameters(
+  virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
     double l1,
     double l2,
     double phi,
     double theta,
     double qop,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * charged*/
-  virtual ParametersT<5, Charged, StraightLineSurface>* createTrackParameters(
+  virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * neutral */
-  virtual ParametersT<5, Neutral, StraightLineSurface>* createNeutralParameters(
+  virtual NeutralTrackParametersUniquePtr createUniqueNeutralParameters(
     double l1,
     double l2,
     double phi,
     double theta,
     double qop,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * neutral */
-  virtual ParametersT<5, Neutral, StraightLineSurface>* createNeutralParameters(
+  virtual NeutralTrackParametersUniquePtr createUniqueNeutralParameters(
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters */
   template<int DIM, class T>
-  ParametersT<DIM, T, StraightLineSurface>* createParameters(double l1,
-                                                             double l2,
-                                                             double phi,
-                                                             double theta,
-                                                             double qop,
-                                                             AmgSymMatrix(DIM) *
-                                                               cov = 0) const;
+  std::unique_ptr<ParametersT<DIM, T, StraightLineSurface>>
+  createUniqueParameters(
+    double l1,
+    double l2,
+    double phi,
+    double theta,
+    double qop,
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters */
   template<int DIM, class T>
-  ParametersT<DIM, T, StraightLineSurface>* createParameters(
+  std::unique_ptr<ParametersT<DIM, T, StraightLineSurface>>
+  createUniqueParameters(
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
-    AmgSymMatrix(DIM) * cov = 0) const;
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
+
+  /** Use the Surface as a ParametersBase constructor, from local parameters */
+  template<int DIM, class T>
+  ParametersT<DIM, T, StraightLineSurface> createParameters(
+    double l1,
+    double l2,
+    double phi,
+    double theta,
+    double qop,
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
+
+  /** Use the Surface as a ParametersBase constructor, from global parameters */
+  template<int DIM, class T>
+  ParametersT<DIM, T, StraightLineSurface> createParameters(
+    const Amg::Vector3D& position,
+    const Amg::Vector3D& momentum,
+    double charge,
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
 
   /** Return the measurement frame - this is needed for alignment, in particular
      for StraightLine and Perigee Surface
@@ -147,12 +172,12 @@ public:
   /** Return the surface type */
   virtual SurfaceType type() const override final;
 
-
   /** Specified for StraightLineSurface: LocalToGlobal method without dynamic
    * memory allocation */
-  virtual void localToGlobal(const Amg::Vector2D& locp,
-                             const Amg::Vector3D& mom,
-                             Amg::Vector3D& glob) const override final;
+  virtual void localToGlobal(
+    const Amg::Vector2D& locp,
+    const Amg::Vector3D& mom,
+    Amg::Vector3D& glob) const override final;
 
   /** Specified for StraightLineSurface: GlobalToLocal method without dynamic
     memory allocation This method is the true global->local transformation.<br>
@@ -173,21 +198,17 @@ public:
 
     \image html SignOfDriftCircleD0.gif
   */
-  virtual bool globalToLocal(const Amg::Vector3D& glob,
-                             const Amg::Vector3D& mom,
-                             Amg::Vector2D& loc) const override final;
+  virtual bool globalToLocal(
+    const Amg::Vector3D& glob,
+    const Amg::Vector3D& mom,
+    Amg::Vector2D& loc) const override final;
 
   /** Special method for StraightLineSurface - providing a different z estimate
-   Performs memory allocation the caller owns the ptr
    */
-  Amg::Vector3D* localToGlobal(const Trk::LocalParameters& locpars,
-                               const Amg::Vector3D& glomom,
-                               double locZ) const;
-  /** Special method for StraightLineSurface - providing a different z estimate
-   */
-  Amg::Vector3D localToGlobalPos(const Trk::LocalParameters& locpars,
-                                 const Amg::Vector3D& glomom,
-                                 double locZ) const;
+  Amg::Vector3D localToGlobal(
+    const Trk::LocalParameters& locpars,
+    const Amg::Vector3D& glomom,
+    double locZ) const;
 
   /** Special method for StraightLineSurface - provides the Line direction from
    * cache: speedup */
@@ -241,27 +262,30 @@ public:
     bool Bound) const override final;
 
   /** the pathCorrection for derived classes with thickness */
-  virtual double pathCorrection(const Amg::Vector3D&,
-                                const Amg::Vector3D&) const override final;
+  virtual double pathCorrection(const Amg::Vector3D&, const Amg::Vector3D&)
+    const override final;
 
   /** This method checks if the provided GlobalPosition is inside the assigned
     straw radius, but no check is done whether the GlobalPosition is inside
     bounds or not. It overwrites isOnSurface from Base Class as it saves the
     time of sign determination.  */
-  virtual bool isOnSurface(const Amg::Vector3D& glopo,
-                           BoundaryCheck bchk = true,
-                           double tol1 = 0.,
-                           double tol2 = 0.) const override final;
+  virtual bool isOnSurface(
+    const Amg::Vector3D& glopo,
+    const BoundaryCheck& bchk = true,
+    double tol1 = 0.,
+    double tol2 = 0.) const override final;
 
   /**This method returns the bounds of the Surface by reference */
   virtual const SurfaceBounds& bounds() const override final;
 
   /**This surface calls the iside method of the bouns */
-  virtual bool insideBounds(const Amg::Vector2D& locpos,
-                            double tol1 = 0.,
-                            double tol2 = 0.) const override final;
-  virtual bool insideBoundsCheck(const Amg::Vector2D& locpos,
-                                 const BoundaryCheck& bchk) const override final;
+  virtual bool insideBounds(
+    const Amg::Vector2D& locpos,
+    double tol1 = 0.,
+    double tol2 = 0.) const override final;
+  virtual bool insideBoundsCheck(
+    const Amg::Vector2D& locpos,
+    const BoundaryCheck& bchk) const override final;
 
   /** Return properly formatted class name for screen output */
   virtual std::string name() const override final;

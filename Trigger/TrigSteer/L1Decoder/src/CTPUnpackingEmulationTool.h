@@ -5,7 +5,7 @@
 #ifndef L1DECODER_CTPUNPACKINGEMULATIONTOOL_H
 #define L1DECODER_CTPUNPACKINGEMULATIONTOOL_H
 
-#include "L1Decoder/CTPUnpackingToolBase.h"
+#include "CTPUnpackingToolBase.h"
 
 #include "TrigCompositeUtils/HLTIdentifier.h"
 
@@ -20,6 +20,8 @@ public:
   virtual StatusCode decode(const ROIB::RoIBResult& roib, HLT::IDVec& enabledChains) const override;
 
   virtual StatusCode initialize() override;
+
+  virtual bool isEmulated() const override {return true;}
 
 private:
 

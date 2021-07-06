@@ -43,26 +43,36 @@ _all_streams = [
     StreamInfo('Standby', 'physics', True, True),
     StreamInfo('L1Calo', 'physics', True, True),
     StreamInfo('EnhancedBias', 'physics', True, True),
+    StreamInfo('Late', 'physics', True, True),
     # TLA/PEB/DATA SCOUTING (physics) STREAMS
     StreamInfo('JetDS','physics',True,False),
+    StreamInfo('PhotonDS','physics',True,False),
     # EXPRESS STREAM
     StreamInfo('express', 'express', True, True),
     # MONITORING STREAMS
     StreamInfo('IDMonitoring', 'monitoring', True, True),
     StreamInfo('CSC', 'monitoring', True, False),
     # CALIBRATION STREAMS
+    StreamInfo('BphysPEB','calibration',True,False),
     StreamInfo('BeamSpot', 'calibration', True, False),
     StreamInfo('LArCells', 'calibration', False, False),
+    StreamInfo('LArNoiseBurst', 'calibration', False, True),
     StreamInfo('RPCSecondaryReadout', 'calibration', False, False),
     StreamInfo('CostMonitoring', 'calibration', False, False),
     StreamInfo('SCTNoise', 'calibration', False, False),
     StreamInfo('Tile', 'calibration', False, False),
     StreamInfo('ALFACalib', 'calibration', False, False),
+    StreamInfo('LArPEB', 'calibration', False, False),
+    StreamInfo('L1TopoMismatches', 'calibration', False, True),
     # HI STREAMS
     StreamInfo('HardProbes', 'physics', True, True),
     StreamInfo('MinBias', 'physics', True, True),
+    # DELAYED STREAMS
+    StreamInfo('VBFDelayed'  , 'physics', True, True),
+    StreamInfo('BphysDelayed', 'physics', True, True),
     # Special stream to be used only for special chains rejecting all events like timeburner
-    StreamInfo('DISCARD', 'unknown', False, False)
+    StreamInfo('DISCARD', 'unknown', False, True),
+
     # Add new streams grouped by type as above, not at the end of the list
 ]
 

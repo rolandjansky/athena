@@ -174,7 +174,7 @@ InDetPerfPlot_ANTracking::initializePlots() {
 }
 
 void 
-InDetPerfPlot_ANTracking::fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::TrackParticle& track, const bool isGood, const float mu, const unsigned int nVtx) {
+InDetPerfPlot_ANTracking::fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::TrackParticle& track, const bool isGood, const float mu, const unsigned int nVtx, float weight) {
  
   const float undefinedValue = -9999;
 
@@ -194,65 +194,65 @@ InDetPerfPlot_ANTracking::fillEfficiency(const xAOD::TruthParticle& truth, const
     isSTD = not isBAT and not isANT;
  
     if(isANT){
-      fillHisto(m_effANT_eta, eta, isGood);
-      fillHisto(m_effANT_pt, pt, isGood);
-      fillHisto(m_effANT_phi, phi, isGood);
-      fillHisto(m_effANT_d0, d0, isGood);
-      fillHisto(m_effANT_z0, z0, isGood);
-      fillHisto(m_effANT_radius, radius, isGood);
-      fillHisto(m_effANT_mu, mu, isGood);
-      fillHisto(m_effANT_nvertices, nVtx, isGood);
+      fillHisto(m_effANT_eta, eta, isGood, weight);
+      fillHisto(m_effANT_pt, pt, isGood, weight);
+      fillHisto(m_effANT_phi, phi, isGood, weight);
+      fillHisto(m_effANT_d0, d0, isGood, weight);
+      fillHisto(m_effANT_z0, z0, isGood, weight);
+      fillHisto(m_effANT_radius, radius, isGood, weight);
+      fillHisto(m_effANT_mu, mu, isGood, weight);
+      fillHisto(m_effANT_nvertices, nVtx, isGood, weight);
     } else if(isSTD){
-      fillHisto(m_effSTD_eta, eta, isGood);
-      fillHisto(m_effSTD_pt, pt, isGood);
-      fillHisto(m_effSTD_phi, phi, isGood);
-      fillHisto(m_effSTD_d0, d0, isGood);
-      fillHisto(m_effSTD_z0, z0, isGood);
-      fillHisto(m_effSTD_radius, radius, isGood);
-      fillHisto(m_effSTD_mu, mu, isGood);
-      fillHisto(m_effSTD_nvertices, nVtx, isGood);
+      fillHisto(m_effSTD_eta, eta, isGood, weight);
+      fillHisto(m_effSTD_pt, pt, isGood, weight);
+      fillHisto(m_effSTD_phi, phi, isGood, weight);
+      fillHisto(m_effSTD_d0, d0, isGood, weight);
+      fillHisto(m_effSTD_z0, z0, isGood, weight);
+      fillHisto(m_effSTD_radius, radius, isGood, weight);
+      fillHisto(m_effSTD_mu, mu, isGood, weight);
+      fillHisto(m_effSTD_nvertices, nVtx, isGood, weight);
     } else if(isBAT){
-      fillHisto(m_effBAT_eta, eta, isGood);
-      fillHisto(m_effBAT_pt, pt, isGood);
-      fillHisto(m_effBAT_phi, phi, isGood);
-      fillHisto(m_effBAT_d0, d0, isGood);
-      fillHisto(m_effBAT_z0, z0, isGood);
-      fillHisto(m_effBAT_radius, radius, isGood);
-      fillHisto(m_effBAT_mu, mu, isGood);
-      fillHisto(m_effBAT_nvertices, nVtx, isGood);
+      fillHisto(m_effBAT_eta, eta, isGood, weight);
+      fillHisto(m_effBAT_pt, pt, isGood, weight);
+      fillHisto(m_effBAT_phi, phi, isGood, weight);
+      fillHisto(m_effBAT_d0, d0, isGood, weight);
+      fillHisto(m_effBAT_z0, z0, isGood, weight);
+      fillHisto(m_effBAT_radius, radius, isGood, weight);
+      fillHisto(m_effBAT_mu, mu, isGood, weight);
+      fillHisto(m_effBAT_nvertices, nVtx, isGood, weight);
     }
 
   } else {
-    fillHisto(m_effANT_eta, eta, isGood);
-    fillHisto(m_effANT_pt, pt, isGood);
-    fillHisto(m_effANT_phi, phi, isGood);
-    fillHisto(m_effANT_d0, d0, isGood);
-    fillHisto(m_effANT_z0, z0, isGood);
-    fillHisto(m_effANT_radius, radius, isGood);
-    fillHisto(m_effANT_mu, mu, isGood);
-    fillHisto(m_effANT_nvertices, nVtx, isGood);
-    fillHisto(m_effSTD_eta, eta, isGood);
-    fillHisto(m_effSTD_pt, pt, isGood);
-    fillHisto(m_effSTD_phi, phi, isGood);
-    fillHisto(m_effSTD_d0, d0, isGood);
-    fillHisto(m_effSTD_z0, z0, isGood);
-    fillHisto(m_effSTD_radius, radius, isGood);
-    fillHisto(m_effSTD_mu, mu, isGood);
-    fillHisto(m_effSTD_nvertices, nVtx, isGood);
-    fillHisto(m_effBAT_eta, eta, isGood);
-    fillHisto(m_effBAT_pt, pt, isGood);
-    fillHisto(m_effBAT_phi, phi, isGood);
-    fillHisto(m_effBAT_d0, d0, isGood);
-    fillHisto(m_effBAT_z0, z0, isGood);
-    fillHisto(m_effBAT_radius, radius, isGood);
-    fillHisto(m_effBAT_mu, mu, isGood);
-    fillHisto(m_effBAT_nvertices, nVtx, isGood);
+    fillHisto(m_effANT_eta, eta, isGood, weight); 
+    fillHisto(m_effANT_pt, pt, isGood, weight); 
+    fillHisto(m_effANT_phi, phi, isGood, weight); 
+    fillHisto(m_effANT_d0, d0, isGood, weight); 
+    fillHisto(m_effANT_z0, z0, isGood, weight); 
+    fillHisto(m_effANT_radius, radius, isGood, weight); 
+    fillHisto(m_effANT_mu, mu, isGood, weight); 
+    fillHisto(m_effANT_nvertices, nVtx, isGood, weight); 
+    fillHisto(m_effSTD_eta, eta, isGood, weight); 
+    fillHisto(m_effSTD_pt, pt, isGood, weight); 
+    fillHisto(m_effSTD_phi, phi, isGood, weight); 
+    fillHisto(m_effSTD_d0, d0, isGood, weight); 
+    fillHisto(m_effSTD_z0, z0, isGood, weight); 
+    fillHisto(m_effSTD_radius, radius, isGood, weight); 
+    fillHisto(m_effSTD_mu, mu, isGood, weight); 
+    fillHisto(m_effSTD_nvertices, nVtx, isGood, weight); 
+    fillHisto(m_effBAT_eta, eta, isGood, weight); 
+    fillHisto(m_effBAT_pt, pt, isGood, weight); 
+    fillHisto(m_effBAT_phi, phi, isGood, weight); 
+    fillHisto(m_effBAT_d0, d0, isGood, weight); 
+    fillHisto(m_effBAT_z0, z0, isGood, weight); 
+    fillHisto(m_effBAT_radius, radius, isGood, weight); 
+    fillHisto(m_effBAT_mu, mu, isGood, weight); 
+    fillHisto(m_effBAT_nvertices, nVtx, isGood, weight); 
   }
 
 }
 
 void
-InDetPerfPlot_ANTracking::fillFakeRate(const xAOD::TrackParticle& track, const bool isFake, const float mu, const unsigned int nVtx){
+InDetPerfPlot_ANTracking::fillFakeRate(const xAOD::TrackParticle& track, const bool isFake, const float mu, const unsigned int nVtx, float weight){
 
   double eta = track.eta();
   double phi = track.phi();
@@ -266,36 +266,36 @@ InDetPerfPlot_ANTracking::fillFakeRate(const xAOD::TrackParticle& track, const b
   bool isSTD = not isBAT and not isANT;
 
   if(isANT){
-    fillHisto(m_fakeANT_eta, eta, isFake);
-    fillHisto(m_fakeANT_pt, pt, isFake);
-    fillHisto(m_fakeANT_phi, phi, isFake);
-    fillHisto(m_fakeANT_d0, d0, isFake);
-    fillHisto(m_fakeANT_z0, z0, isFake);
-    fillHisto(m_fakeANT_mu, mu, isFake);
-    fillHisto(m_fakeANT_nvertices, nVtx, isFake);
+    fillHisto(m_fakeANT_eta, eta, isFake, weight);
+    fillHisto(m_fakeANT_pt, pt, isFake, weight);
+    fillHisto(m_fakeANT_phi, phi, isFake, weight);
+    fillHisto(m_fakeANT_d0, d0, isFake, weight);
+    fillHisto(m_fakeANT_z0, z0, isFake, weight);
+    fillHisto(m_fakeANT_mu, mu, isFake, weight);
+    fillHisto(m_fakeANT_nvertices, nVtx, isFake, weight);
   } else if(isSTD){
-    fillHisto(m_fakeSTD_eta, eta, isFake);
-    fillHisto(m_fakeSTD_pt, pt, isFake);
-    fillHisto(m_fakeSTD_phi, phi, isFake);
-    fillHisto(m_fakeSTD_d0, d0, isFake);
-    fillHisto(m_fakeSTD_z0, z0, isFake);
-    fillHisto(m_fakeSTD_mu, mu, isFake);
-    fillHisto(m_fakeSTD_nvertices, nVtx, isFake);
+    fillHisto(m_fakeSTD_eta, eta, isFake, weight);
+    fillHisto(m_fakeSTD_pt, pt, isFake, weight);
+    fillHisto(m_fakeSTD_phi, phi, isFake, weight);
+    fillHisto(m_fakeSTD_d0, d0, isFake, weight);
+    fillHisto(m_fakeSTD_z0, z0, isFake, weight);
+    fillHisto(m_fakeSTD_mu, mu, isFake, weight);
+    fillHisto(m_fakeSTD_nvertices, nVtx, isFake, weight);
   } else if(isBAT){
-    fillHisto(m_fakeBAT_eta, eta, isFake);
-    fillHisto(m_fakeBAT_pt, pt, isFake);
-    fillHisto(m_fakeBAT_phi, phi, isFake);
-    fillHisto(m_fakeBAT_d0, d0, isFake);
-    fillHisto(m_fakeBAT_z0, z0, isFake);
-    fillHisto(m_fakeBAT_mu, mu, isFake);
-    fillHisto(m_fakeBAT_nvertices, nVtx, isFake);
+    fillHisto(m_fakeBAT_eta, eta, isFake, weight);
+    fillHisto(m_fakeBAT_pt, pt, isFake, weight);
+    fillHisto(m_fakeBAT_phi, phi, isFake, weight);
+    fillHisto(m_fakeBAT_d0, d0, isFake, weight);
+    fillHisto(m_fakeBAT_z0, z0, isFake, weight);
+    fillHisto(m_fakeBAT_mu, mu, isFake, weight);
+    fillHisto(m_fakeBAT_nvertices, nVtx, isFake, weight);
   }
 
 
 }
 
 void
-InDetPerfPlot_ANTracking::fillUnlinked(const xAOD::TrackParticle& track, const bool isAssociatedTruth, const float mu, const unsigned int nVtx) {
+InDetPerfPlot_ANTracking::fillUnlinked(const xAOD::TrackParticle& track, const bool isAssociatedTruth, const float mu, const unsigned int nVtx, float weight) {
 
   double eta = track.eta();
   double phi = track.phi();
@@ -309,36 +309,36 @@ InDetPerfPlot_ANTracking::fillUnlinked(const xAOD::TrackParticle& track, const b
   bool isSTD = not isBAT and not isANT;
 
   if(isANT){
-    fillHisto(m_unlinkedANT_eta, eta, isAssociatedTruth);
-    fillHisto(m_unlinkedANT_pt, pt, isAssociatedTruth);
-    fillHisto(m_unlinkedANT_phi, phi, isAssociatedTruth);
-    fillHisto(m_unlinkedANT_d0, d0, isAssociatedTruth);
-    fillHisto(m_unlinkedANT_z0, z0, isAssociatedTruth);
-    fillHisto(m_unlinkedANT_mu, mu, isAssociatedTruth);
-    fillHisto(m_unlinkedANT_nvertices, nVtx, isAssociatedTruth);
+    fillHisto(m_unlinkedANT_eta, eta, isAssociatedTruth, weight);
+    fillHisto(m_unlinkedANT_pt, pt, isAssociatedTruth, weight);
+    fillHisto(m_unlinkedANT_phi, phi, isAssociatedTruth, weight);
+    fillHisto(m_unlinkedANT_d0, d0, isAssociatedTruth, weight);
+    fillHisto(m_unlinkedANT_z0, z0, isAssociatedTruth, weight);
+    fillHisto(m_unlinkedANT_mu, mu, isAssociatedTruth, weight);
+    fillHisto(m_unlinkedANT_nvertices, nVtx, isAssociatedTruth, weight);
   } else if(isSTD){
-    fillHisto(m_unlinkedSTD_eta, eta, isAssociatedTruth);
-    fillHisto(m_unlinkedSTD_pt, pt, isAssociatedTruth);
-    fillHisto(m_unlinkedSTD_phi, phi, isAssociatedTruth);
-    fillHisto(m_unlinkedSTD_d0, d0, isAssociatedTruth);
-    fillHisto(m_unlinkedSTD_z0, z0, isAssociatedTruth);
-    fillHisto(m_unlinkedSTD_mu, mu, isAssociatedTruth);
-    fillHisto(m_unlinkedSTD_nvertices, nVtx, isAssociatedTruth);
+    fillHisto(m_unlinkedSTD_eta, eta, isAssociatedTruth, weight);
+    fillHisto(m_unlinkedSTD_pt, pt, isAssociatedTruth, weight);
+    fillHisto(m_unlinkedSTD_phi, phi, isAssociatedTruth, weight);
+    fillHisto(m_unlinkedSTD_d0, d0, isAssociatedTruth, weight);
+    fillHisto(m_unlinkedSTD_z0, z0, isAssociatedTruth, weight);
+    fillHisto(m_unlinkedSTD_mu, mu, isAssociatedTruth, weight);
+    fillHisto(m_unlinkedSTD_nvertices, nVtx, isAssociatedTruth, weight);
   } else if(isBAT){
-    fillHisto(m_unlinkedBAT_eta, eta, isAssociatedTruth);
-    fillHisto(m_unlinkedBAT_pt, pt, isAssociatedTruth);
-    fillHisto(m_unlinkedBAT_phi, phi, isAssociatedTruth);
-    fillHisto(m_unlinkedBAT_d0, d0, isAssociatedTruth);
-    fillHisto(m_unlinkedBAT_z0, z0, isAssociatedTruth);
-    fillHisto(m_unlinkedBAT_mu, mu, isAssociatedTruth);
-    fillHisto(m_unlinkedBAT_nvertices, nVtx, isAssociatedTruth);
+    fillHisto(m_unlinkedBAT_eta, eta, isAssociatedTruth, weight);
+    fillHisto(m_unlinkedBAT_pt, pt, isAssociatedTruth, weight);
+    fillHisto(m_unlinkedBAT_phi, phi, isAssociatedTruth, weight);
+    fillHisto(m_unlinkedBAT_d0, d0, isAssociatedTruth, weight);
+    fillHisto(m_unlinkedBAT_z0, z0, isAssociatedTruth, weight);
+    fillHisto(m_unlinkedBAT_mu, mu, isAssociatedTruth, weight);
+    fillHisto(m_unlinkedBAT_nvertices, nVtx, isAssociatedTruth, weight);
   }
 
 
 }
 
 void
-InDetPerfPlot_ANTracking::fill(const xAOD::TrackParticle& track) {
+InDetPerfPlot_ANTracking::fill(const xAOD::TrackParticle& track, const float weight) {
 
   double eta = track.eta();
   double phi = track.phi();
@@ -356,80 +356,80 @@ InDetPerfPlot_ANTracking::fill(const xAOD::TrackParticle& track) {
   uint8_t iPixelShared(0), iSCTShared(0);
 
   if (track.summaryValue(iPixHits, xAOD::numberOfPixelHits)) {
-    if(isANT) fillHisto(m_nPixelHitsANT_vs_eta, eta, iPixHits);
-    if(isSTD) fillHisto(m_nPixelHitsSTD_vs_eta, eta, iPixHits);
-    if(isBAT) fillHisto(m_nPixelHitsBAT_vs_eta, eta, iPixHits);
+    if(isANT) fillHisto(m_nPixelHitsANT_vs_eta, eta, iPixHits, weight);
+    if(isSTD) fillHisto(m_nPixelHitsSTD_vs_eta, eta, iPixHits, weight);
+    if(isBAT) fillHisto(m_nPixelHitsBAT_vs_eta, eta, iPixHits, weight);
   }
   if (track.summaryValue(iSctHits, xAOD::numberOfSCTHits)) {
-    if(isANT) fillHisto(m_nSCTHitsANT_vs_eta, eta, iSctHits);
-    if(isSTD) fillHisto(m_nSCTHitsSTD_vs_eta, eta, iSctHits);
-    if(isBAT) fillHisto(m_nSCTHitsBAT_vs_eta, eta, iSctHits);
+    if(isANT) fillHisto(m_nSCTHitsANT_vs_eta, eta, iSctHits, weight);
+    if(isSTD) fillHisto(m_nSCTHitsSTD_vs_eta, eta, iSctHits, weight);
+    if(isBAT) fillHisto(m_nSCTHitsBAT_vs_eta, eta, iSctHits, weight);
   }
   if (track.summaryValue(iTrtHits, xAOD::numberOfTRTHits)) {
-    if(isANT) fillHisto(m_nTRTHitsANT_vs_eta, eta, iTrtHits);
-    if(isSTD) fillHisto(m_nTRTHitsSTD_vs_eta, eta, iTrtHits);
-    if(isBAT) fillHisto(m_nTRTHitsBAT_vs_eta, eta, iTrtHits);
+    if(isANT) fillHisto(m_nTRTHitsANT_vs_eta, eta, iTrtHits, weight);
+    if(isSTD) fillHisto(m_nTRTHitsSTD_vs_eta, eta, iTrtHits, weight);
+    if(isBAT) fillHisto(m_nTRTHitsBAT_vs_eta, eta, iTrtHits, weight);
   }
   if (track.summaryValue(iPixHoles, xAOD::numberOfPixelHoles)) {
-    if(isANT) fillHisto(m_nPixelHolesANT_vs_eta, eta, iPixHoles);
-    if(isSTD) fillHisto(m_nPixelHolesSTD_vs_eta, eta, iPixHoles);
-    if(isBAT) fillHisto(m_nPixelHolesBAT_vs_eta, eta, iPixHoles);
+    if(isANT) fillHisto(m_nPixelHolesANT_vs_eta, eta, iPixHoles, weight);
+    if(isSTD) fillHisto(m_nPixelHolesSTD_vs_eta, eta, iPixHoles, weight);
+    if(isBAT) fillHisto(m_nPixelHolesBAT_vs_eta, eta, iPixHoles, weight);
   }
   if (track.summaryValue(iSCTHoles, xAOD::numberOfSCTHoles)) {
-    if(isANT) fillHisto(m_nSCTHolesANT_vs_eta, eta, iSCTHoles);
-    if(isSTD) fillHisto(m_nSCTHolesSTD_vs_eta, eta, iSCTHoles);
-    if(isBAT) fillHisto(m_nSCTHolesBAT_vs_eta, eta, iSCTHoles);
+    if(isANT) fillHisto(m_nSCTHolesANT_vs_eta, eta, iSCTHoles, weight);
+    if(isSTD) fillHisto(m_nSCTHolesSTD_vs_eta, eta, iSCTHoles, weight);
+    if(isBAT) fillHisto(m_nSCTHolesBAT_vs_eta, eta, iSCTHoles, weight);
   }
   if (track.summaryValue(iTrtHTHits, xAOD::numberOfTRTHighThresholdHits)) {
-    if(isANT) fillHisto(m_nTRTHTHitsANT_vs_eta, eta, iTrtHTHits);
-    if(isSTD) fillHisto(m_nTRTHTHitsSTD_vs_eta, eta, iTrtHTHits);
-    if(isBAT) fillHisto(m_nTRTHTHitsBAT_vs_eta, eta, iTrtHTHits);
+    if(isANT) fillHisto(m_nTRTHTHitsANT_vs_eta, eta, iTrtHTHits, weight);
+    if(isSTD) fillHisto(m_nTRTHTHitsSTD_vs_eta, eta, iTrtHTHits, weight);
+    if(isBAT) fillHisto(m_nTRTHTHitsBAT_vs_eta, eta, iTrtHTHits, weight);
   }
   if (track.summaryValue(iPixelShared, xAOD::numberOfPixelSharedHits)) {
-    if(isANT) fillHisto(m_nPixelSharedHitsANT_vs_eta, eta, iPixelShared);
-    if(isSTD) fillHisto(m_nPixelSharedHitsSTD_vs_eta, eta, iPixelShared);
-    if(isBAT) fillHisto(m_nPixelSharedHitsBAT_vs_eta, eta, iPixelShared);
+    if(isANT) fillHisto(m_nPixelSharedHitsANT_vs_eta, eta, iPixelShared, weight);
+    if(isSTD) fillHisto(m_nPixelSharedHitsSTD_vs_eta, eta, iPixelShared, weight);
+    if(isBAT) fillHisto(m_nPixelSharedHitsBAT_vs_eta, eta, iPixelShared, weight);
   }
   if (track.summaryValue(iSCTShared, xAOD::numberOfSCTSharedHits)) {
-    if(isANT) fillHisto(m_nSCTSharedHitsANT_vs_eta, eta, iSCTShared);
-    if(isSTD) fillHisto(m_nSCTSharedHitsSTD_vs_eta, eta, iSCTShared);
-    if(isBAT) fillHisto(m_nSCTSharedHitsBAT_vs_eta, eta, iSCTShared);
+    if(isANT) fillHisto(m_nSCTSharedHitsANT_vs_eta, eta, iSCTShared, weight);
+    if(isSTD) fillHisto(m_nSCTSharedHitsSTD_vs_eta, eta, iSCTShared, weight);
+    if(isBAT) fillHisto(m_nSCTSharedHitsBAT_vs_eta, eta, iSCTShared, weight);
   }
 
 
   if(isANT){
-    fillHisto(m_trkpropANT_eta, eta);
-    fillHisto(m_trkpropANT_phi, phi);
-    fillHisto(m_trkpropANT_pt, pt);
-    fillHisto(m_trkpropANT_d0, d0);
-    fillHisto(m_trkpropANT_z0, z0);
+    fillHisto(m_trkpropANT_eta, eta, weight);
+    fillHisto(m_trkpropANT_phi, phi, weight);
+    fillHisto(m_trkpropANT_pt, pt, weight);
+    fillHisto(m_trkpropANT_d0, d0, weight);
+    fillHisto(m_trkpropANT_z0, z0, weight);
   }
   if(isBAT){
-    fillHisto(m_trkpropBAT_eta, eta);
-    fillHisto(m_trkpropBAT_phi, phi);
-    fillHisto(m_trkpropBAT_pt, pt);
-    fillHisto(m_trkpropBAT_d0, d0);
-    fillHisto(m_trkpropBAT_z0, z0);
+    fillHisto(m_trkpropBAT_eta, eta, weight);
+    fillHisto(m_trkpropBAT_phi, phi, weight);
+    fillHisto(m_trkpropBAT_pt, pt, weight);
+    fillHisto(m_trkpropBAT_d0, d0, weight);
+    fillHisto(m_trkpropBAT_z0, z0, weight);
   }
   if(isSTD){
-    fillHisto(m_trkpropSTD_eta, eta);
-    fillHisto(m_trkpropSTD_phi, phi);
-    fillHisto(m_trkpropSTD_pt, pt);
-    fillHisto(m_trkpropSTD_d0, d0);
-    fillHisto(m_trkpropSTD_z0, z0);
+    fillHisto(m_trkpropSTD_eta, eta, weight);
+    fillHisto(m_trkpropSTD_phi, phi, weight);
+    fillHisto(m_trkpropSTD_pt, pt, weight);
+    fillHisto(m_trkpropSTD_d0, d0, weight);
+    fillHisto(m_trkpropSTD_z0, z0, weight);
   }
 }
 
 void
-InDetPerfPlot_ANTracking::fill(const unsigned int nTrkANT, const unsigned int nTrkSTD, const unsigned int nTrkBAT, const float mu, const unsigned int nVtx) {
+InDetPerfPlot_ANTracking::fill(const unsigned int nTrkANT, const unsigned int nTrkSTD, const unsigned int nTrkBAT, const float mu, const unsigned int nVtx, const float weight) {
 
-  fillHisto(m_ntrkANT_mu, mu, nTrkANT);
-  fillHisto(m_ntrkSTD_mu, mu, nTrkSTD);
-  fillHisto(m_ntrkBAT_mu, mu, nTrkBAT);
+  fillHisto(m_ntrkANT_mu, mu, nTrkANT, weight);
+  fillHisto(m_ntrkSTD_mu, mu, nTrkSTD, weight);
+  fillHisto(m_ntrkBAT_mu, mu, nTrkBAT, weight);
 
-  fillHisto(m_ntrkANT_nvertices, nVtx, nTrkANT);
-  fillHisto(m_ntrkSTD_nvertices, nVtx, nTrkSTD);
-  fillHisto(m_ntrkBAT_nvertices, nVtx, nTrkBAT);
+  fillHisto(m_ntrkANT_nvertices, nVtx, nTrkANT, weight);
+  fillHisto(m_ntrkSTD_nvertices, nVtx, nTrkSTD, weight);
+  fillHisto(m_ntrkBAT_nvertices, nVtx, nTrkBAT, weight);
 
 }
 

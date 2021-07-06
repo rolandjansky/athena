@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -32,7 +32,7 @@ iFatras::MultipleScatteringSamplerHighland::MultipleScatteringSamplerHighland(co
   base_class(t,n,p),
   m_log_include(true),
   m_rndGenSvc("AtRndmGenSvc", n),
-  m_randomEngine(0),
+  m_randomEngine(nullptr),
   m_randomEngineName("TrkExRnd")
 {
   // multiple scattering parameters

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILECONDTOOLOFC_H
@@ -57,7 +57,8 @@ class TileCondToolOfc: public extends<AthAlgTool, ITileCondToolOfc> {
                                      unsigned int adc,
                                      float& phase,
                                      bool of2,
-                                     TileOfcWeightsStruct& weights) const override;
+                                     TileOfcWeightsStruct& weights,
+                                     const EventContext& ctx) const override;
 
   private:
     ToolHandle<TileCondToolPulseShape> m_tileToolPulseShape{this,

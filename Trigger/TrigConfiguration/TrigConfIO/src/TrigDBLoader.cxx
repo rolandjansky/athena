@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./TrigDBHelper.h"
@@ -40,12 +40,6 @@ TrigConf::TrigDBLoader::schemaVersion(coral::ISessionProxy* session) const {
 
    static const std::string versionTagPrefix("Trigger-Run3-Schema-v");
 
-   // if schema version has been set, then return it
-   if(m_schemaVersion>0) {
-      TRG_MSG_INFO("TriggerDB schema version: " << m_schemaVersion);
-      return m_schemaVersion;
-   }
-
    // if database has no schema version, then we return 0
    if(! session->nominalSchema().existsTable("TRIGGER_SCHEMA") ) {
       throw std::runtime_error( "Trigger schema has no schema version table" );
@@ -69,17 +63,18 @@ TrigConf::TrigDBLoader::schemaVersion(coral::ISessionProxy* session) const {
       throw std::runtime_error( "Tag format error: Trigger schema version tag " + versionTag + "does not start with " + versionTagPrefix);      
    }
    
-   std::string vstr = versionTag.substr(versionTagPrefix.size()); // the part of the string containing the version 
+   std::string vstr = versionTag.substr(versionTagPrefix.size()); // the part of the string containing the version
+   size_t schemaVersion{0};
    try {
-      m_schemaVersion = std::stoi(vstr);
+      schemaVersion = std::stoi(vstr);
    }
    catch (const std::invalid_argument& ia) {
       TRG_MSG_ERROR("Invalid argument when interpreting the version part " << vstr << " of schema tag " << versionTag << ". " << ia.what());
       throw;
    }
 
-   TRG_MSG_INFO("TriggerDB schema version: " << m_schemaVersion);
-   return m_schemaVersion;
+   TRG_MSG_INFO("TriggerDB schema version: " << schemaVersion);
+   return schemaVersion;
 }
 
 bool
@@ -125,21 +120,21 @@ TrigConf::TrigDBLoader::createDBSession() const {
 
 
 TrigConf::QueryDefinition
-TrigConf::TrigDBLoader::getQueryDefinition(coral::ISessionProxy* session, const std::map<size_t, TrigConf::QueryDefinition> & queries) const
+TrigConf::TrigDBLoader::getQueryDefinition(size_t schemaVersion,
+                                           const std::map<size_t, TrigConf::QueryDefinition> & queries) const
 {
-   size_t sv = schemaVersion( session );
-   // find the largest version key in the map of defined queries that is <= the schemaVersion 
+   // find the largest version key in the map of defined queries that is <= the schemaVersion
    size_t maxDefVersion = 0;
    for(auto & entry : queries) {
       size_t vkey = entry.first;
-      if(vkey>maxDefVersion and vkey<=sv) {
+      if(vkey>maxDefVersion and vkey<=schemaVersion) {
          maxDefVersion = vkey;
       }
    }
    // if nothing found, throw an error
    if( maxDefVersion==0 ) {
-      TRG_MSG_ERROR("No query for schema version " << sv << " defined" );
-      throw TrigConf::NoQueryException( "No query available for schema version" + std::to_string(sv) );      
+      TRG_MSG_ERROR("No query for schema version " << schemaVersion << " defined" );
+      throw TrigConf::NoQueryException( "No query available for schema version" + std::to_string(schemaVersion) );
    }
    return queries.at(maxDefVersion);
 }

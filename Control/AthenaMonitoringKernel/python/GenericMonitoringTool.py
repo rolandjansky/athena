@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.Logging import logging
@@ -68,6 +68,9 @@ class GenericMonitoringTool(_GenericMonitoringTool):
             duration = kwargs.pop('duration', self.defaultDuration)
             if duration is not None:
                 kwargs['convention'] = self.convention + ':' + duration
+        # if an overall path for tool is specified, can leave path argument empty
+        if getattr(self, 'HistPath', '') != '':
+            kwargs.setdefault('path', '')
         self.Histograms.append(deffunc(*args, **kwargs))
 
     def defineHistogram(self, *args, **kwargs):
@@ -232,6 +235,8 @@ def _options(opt):
         'kVec': False,                  # add content to each bin from each element of a vector
         'kVecUO': False,                # same as above, but use 0th(last) element for underflow(overflow)
         'kCumulative': False,           # fill bin of monitored object's value, and every bin below it
+        'kLive': 0,                     # plot only the last N lumiblocks on y_vs_LB plots
+        'kAlwaysCreate': False          # create the histogram, even if it is empty
     }
     if opt is None:
         # If no options are provided, skip any further checks.
@@ -417,6 +422,16 @@ def defineHistogram(varname, type='TH1F', path=None,
 
     # Finally, add all other options
     settings.update(_options(opt))
+
+    # Check that kLBNHistoryDepth and kLive are both non-negative
+    assert settings['kLBNHistoryDepth']>=0, f'Histogram "{alias}" has invalid kLBNHistoryDepth.'
+    assert settings['kLive']>=0, f'Histogram "{alias}" has invalid kLive.'
+    # kLBNHistoryDepth and kLive options are mutually exclusive. User may not specify both.
+    assert settings['kLBNHistoryDepth']==0 or settings['kLive']==0,\
+    f'Cannot use both kLBNHistoryDepth and kLive for histogram {alias}.'
+    # kLive histograms are only available for Online monitoring.
+    assert settings['kLive']==0 or athenaCommonFlags.isOnline(),\
+    f'Cannot use kLive with offline histogram {alias}.'
 
     return json.dumps(settings)
 

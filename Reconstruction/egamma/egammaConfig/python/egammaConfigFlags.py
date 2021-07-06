@@ -50,7 +50,7 @@ def createEgammaConfigFlags():
             return "AllCalo"
 
     egcf.addFlag("Egamma.Keys.Input.CaloCells", lambda prevFlags: _cellContainer(prevFlags))
-    egcf.addFlag("Egamma.Keys.Input.TopoClusters", 'CaloTopoCluster')  # input topoclusters
+    egcf.addFlag("Egamma.Keys.Input.TopoClusters", 'CaloTopoClusters')  # input topoclusters
     egcf.addFlag("Egamma.Keys.Input.TruthParticles", 'TruthParticles')
     egcf.addFlag("Egamma.Keys.Input.TruthEvents", 'TruthEvents')
     egcf.addFlag("Egamma.Keys.Input.TrackParticles", 'InDetTrackParticles')  # input to GSF
@@ -81,7 +81,7 @@ def createEgammaConfigFlags():
     egcf.addFlag("Egamma.Keys.Output.Electrons", 'Electrons')
     egcf.addFlag("Egamma.Keys.Output.ElectronsSuppESD", '')
     egcf.addFlag("Egamma.Keys.Output.ElectronsSuppAOD",
-                 '-e033.-e011.-e333.-e335.-e337.-e377.-isEMLHLoose.-isEMLHTight.-isEMLHMedium.-isEMLoose.-isEMMultiLepton.-isEMMedium.-isEMTight')
+                 '-e033.-e011.-e333.-e335.-e337.-e377.-EgammaCovarianceMatrix.-isEMLHLoose.-isEMLHTight.-isEMLHMedium.-isEMLoose.-isEMMultiLepton.-isEMMedium.-isEMTight')
 
     egcf.addFlag("Egamma.Keys.Input.ForwardTopoClusters", 'CaloCalTopoClusters')
     egcf.addFlag("Egamma.Keys.Output.ForwardElectrons", 'ForwardElectrons')
@@ -92,7 +92,12 @@ def createEgammaConfigFlags():
     egcf.addFlag("Egamma.Keys.Output.ForwardClusters", 'ForwardElectronClusters')
     egcf.addFlag("Egamma.Keys.Output.ForwardClustersSuppESD", '-SisterCluster')
     egcf.addFlag("Egamma.Keys.Output.ForwardClustersSuppAOD",
-                 '-SisterCluster.-CellLink')
+                 '-SisterCluster')
+
+    # These are the clusters that are used to determine which cells to write out to AOD
+    egcf.addFlag("Egamma.Keys.Output.EgammaLargeFWDClusters", 'egamma66FWDClusters')
+    egcf.addFlag("Egamma.Keys.Output.EgammaLargeFWDClustersSuppESD", '')
+    # don't define SuppAOD because the whole container is suppressed
 
     egcf.addFlag("Egamma.Keys.Output.Photons", 'Photons')
     egcf.addFlag("Egamma.Keys.Output.PhotonsSuppESD", '')

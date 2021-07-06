@@ -7,6 +7,7 @@
 
 // ROOT include(s):
 #include <TString.h>
+#include <optional>
 
 // Forward declaration(s):
 class TH1;
@@ -36,7 +37,7 @@ namespace CP {
     float getCorrectedEtaDirection(const float& zvertex,const float& eta,const float& phi,const bool& isData=true,const int& sampling = 1) const;
       
     /** Eta direction from samplings 1 and 2 (pointing) **/
-    float getCaloPointingEta(const float& etas1,const float& etas2,const float& phi,const bool& isData=true) const;
+    std::optional<float> getCaloPointingEta(const float& etas1,const float& etas2,const float& phi,const bool& isData=true) const;
 
     /** Shower depth (in mm) vs. eta on EM1 **/
     float getShowerDepthEM1(const float& etas1) const;

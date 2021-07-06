@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -418,11 +418,15 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::getTrack(const EventCon
 
   //Trk::ErrorMatrix* ie = tS.localErrorMatrix().clone();
   const AmgSymMatrix(5)& locCov = tS.localCovariance();
-  AmgSymMatrix(5)     * ie      = new AmgSymMatrix(5)(locCov);
+  AmgSymMatrix(5) ie  = locCov;
 
-
-  //const Trk::TrackParameters* newPerPar = new Trk::MeasuredAtaStraightLine(Vp(1),Vp(2),Vp(3),Vp(4),Vp(5),*surf,ie);
-  std::unique_ptr<const Trk::TrackParameters> newPerPar( surf->createTrackParameters(Vp.get(Trk::loc1),Vp.get(Trk::loc2),Vp.get(Trk::phi),Vp.get(Trk::theta),Vp.get(Trk::qOverP),ie) );
+  std::unique_ptr<Trk::TrackParameters> newPerPar =
+    surf->createUniqueTrackParameters(Vp.get(Trk::loc1),
+                                      Vp.get(Trk::loc2),
+                                      Vp.get(Trk::phi),
+                                      Vp.get(Trk::theta),
+                                      Vp.get(Trk::qOverP),
+                                      ie);
 
   if(newPerPar){
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initial Track Parameters created from TRT segment, " << endmsg;
@@ -456,7 +460,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::getTrack(const EventCon
   fieldCondObj->getInitializedCache (fieldCache);
 
   aSiTrack = findTrack(ctx, fieldCache, event_data, newPerPar.get(), tS);
-  if((aSiTrack.size()==0)&&(m_bremCorrect)){
+  if((aSiTrack.empty())&&(m_bremCorrect)){
     if(msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << "==============================================================" << endmsg;
       msg(MSG::DEBUG) << "Could not create track states on surface for this track!Try to add brem correction." << endmsg;
@@ -468,7 +472,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::getTrack(const EventCon
     }
     aSiTrack = findTrack(ctx, fieldCache, event_data, modTP, tS);
     delete modTP;
-    if(aSiTrack.size()==0){
+    if(aSiTrack.empty()){
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Could not create track states on surface for this track after all!"<<endmsg;
       return aSiTrack;
     }
@@ -500,7 +504,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
       SpE = m_seedmaker->find2Sp(ctx, *initTP,event_data.spacePointFinderEventData());                //Get a list of SP pairs
 
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "---------------> SP SEED LIST SIZE " << SpE.size() << endmsg;
-  if(SpE.size()==0){return associatedSiTrack;}
+  if(SpE.empty()){return associatedSiTrack;}
 
   //
   // --------------- loop over the found seeds
@@ -577,9 +581,8 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
     }
 
     const AmgSymMatrix(5) * vCM = initTP->covariance();
-    AmgSymMatrix(5) * nvCM = new AmgSymMatrix(5);
-
-    (*nvCM)<<
+    AmgSymMatrix(5) nvCM;
+     nvCM<<
       m_errorScale[0]*m_errorScale[0]*(*vCM)(0,0),0.,0.,0.,0.,
       0.,m_errorScale[1]*m_errorScale[1]*(*vCM)(1,1),0.,0.,0.,
       0.,0.,m_errorScale[2]*m_errorScale[2]*(*vCM)(2,2),0.,0.,
@@ -588,13 +591,14 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
 
 
     //New intial track parameters saved as MeasuredAtaStraightLine
-    //
-    const Trk::TrackParameters* niTP = initTP->associatedSurface().createTrackParameters(iv[0],iv[1],newPhi,newTheta,iv[4],nvCM);
+    const Trk::TrackParameters* niTP =
+      initTP->associatedSurface().createUniqueTrackParameters(
+        iv[0], iv[1], newPhi, newTheta, iv[4], nvCM).release();
 
-    if(niTP){
+    if (niTP) {
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initial Track Parameters created and scaled from TRT segment, " << endmsg;
       if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << (*niTP) << endmsg;
-    }else{
+    } else {
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not get initial TRT track parameters! " << endmsg;
       continue;
     }
@@ -651,10 +655,12 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
     const Trk::PerigeeSurface persurf (Amg::Vector3D(0,0,0));
 
     //Get track parameters at the end of SCT to start backwards propagation
-    const Trk::TrackParameters* per   = m_proptool->propagate(*upTP,persurf,Trk::oppositeMomentum,false,m_fieldprop,Trk::nonInteracting); //Propagate
+    auto per   = m_proptool->propagate(*upTP,persurf,Trk::oppositeMomentum,false,m_fieldprop,Trk::nonInteracting); //Propagate
     if(!per){
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"No extrapolated track parameters!"<<endmsg;
-      delete niTP; delete upTP; continue;
+      delete niTP;
+      delete upTP;
+      continue;
     }
 
     if(msgLvl(MSG::VERBOSE)) {
@@ -665,10 +671,12 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
     //Get list of InDet Elements
     std::list<const InDetDD::SiDetectorElement*> DE;
     m_roadmaker->detElementsRoad(ctx, fieldCache, *per,Trk::alongMomentum,DE,event_data.roadMakerData());
-    delete per;
+    //delete per;
     if( int(DE.size()) < m_nclusmin){ //Not enough detector elements to satisfy the minimum number of clusters requirement. Stop
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Too few detector elements, not expected" << endmsg;
-      delete niTP; delete upTP; continue;
+      delete niTP;
+      delete upTP;
+      continue;
     }
 
     //
@@ -677,30 +685,34 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
     const AmgVector(5)& piv = upTP->parameters();
 
     //Get the intial Error matrix, diagonalize it and scale the errors
-    const Trk::TrackParameters* mesTP = 0;
+    const Trk::TrackParameters* mesTP = nullptr;
     const AmgSymMatrix(5)* pvCM  = upTP->covariance();
 
     if(pvCM){
 
-      AmgSymMatrix(5)* pnvCM = new AmgSymMatrix(5);
+      AmgSymMatrix(5) pnvCM;
 
-      (*pnvCM)<<
-	m_errorScale[0]*m_errorScale[0]*(*pvCM)(0,0),0.,0.,0.,0.,
-	0.,m_errorScale[1]*m_errorScale[1]*(*pvCM)(1,1),0.,0.,0.,
-	0.,0.,m_errorScale[2]*m_errorScale[2]*(*pvCM)(2,2),0.,0.,
-	0.,0.,0.,m_errorScale[3]*m_errorScale[3]*(*pvCM)(3,3),0.,
-	0.,0.,0.,0.,m_errorScale[4]*m_errorScale[4]*(*pvCM)(4,4);
+      pnvCM<<
+        m_errorScale[0]*m_errorScale[0]*(*pvCM)(0,0),0.,0.,0.,0.,
+        0.,m_errorScale[1]*m_errorScale[1]*(*pvCM)(1,1),0.,0.,0.,
+        0.,0.,m_errorScale[2]*m_errorScale[2]*(*pvCM)(2,2),0.,0.,
+        0.,0.,0.,m_errorScale[3]*m_errorScale[3]*(*pvCM)(3,3),0.,
+        0.,0.,0.,0.,m_errorScale[4]*m_errorScale[4]*(*pvCM)(4,4);
 
-      mesTP = upTP->associatedSurface().createTrackParameters(piv[0],piv[1],piv[2],piv[3],piv[4],pnvCM);
+      mesTP = upTP->associatedSurface().createUniqueTrackParameters(piv[0],piv[1],piv[2],piv[3],piv[4],pnvCM).release();
 
       if(mesTP){
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initial Track Parameters at 1st SP created and scaled from TRT segment, " << endmsg;
 	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << (*mesTP) << endmsg;
       }else{
-	delete niTP; delete upTP; continue;
+        delete niTP;
+        delete upTP;
+        continue;
       }
     }else{
-      delete niTP; delete upTP; continue;
+      delete niTP;
+      delete upTP;
+      continue;
     }
 
     //
@@ -746,28 +758,28 @@ InDet::TRT_SeededTrackFinder_ATL::getTP(MagField::AtlasFieldCache& fieldCache, c
                                         bool& outl,
                                         InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) const
 {
-  const Trk::TrackParameters* iTP = 0;
+  const Trk::TrackParameters* iTP = nullptr;
 
   outl = false;
 
   const Trk::Surface&               surf  = SP->associatedSurface(); //Get the associated surface
   Trk::PropDirection                dir   = Trk::oppositeMomentum;   //Propagate backwards i.e. opposite momentum when filtering
   Trk::ParticleHypothesis           part  = Trk::nonInteracting;     //Choose a non interacting particle
-  const Trk::TrackParameters*       eTP   = m_proptool->propagate(*startTP,surf,dir,false,m_fieldprop,part); //Propagate
+  auto       eTP   = m_proptool->propagate(*startTP,surf,dir,false,m_fieldprop,part); //Propagate
 
   if(!eTP){
 
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Extrapolation to Si element failed"<< endmsg;
     if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << surf << endmsg;
-    return 0;
+    return nullptr;
 
   }else{
 
     //Based on the hit information update the track parameters and the error matrix
-    const Trk::TrackParameters* uTP         = 0;
-    Trk::FitQualityOnSurface*   sct_fitChi2 = 0;
+    const Trk::TrackParameters* uTP         = nullptr;
+    Trk::FitQualityOnSurface*   sct_fitChi2 = nullptr;
 
-    uTP = m_updatorTool->addToState(*eTP,SP->localParameters(),SP->localCovariance(),sct_fitChi2);
+    uTP = m_updatorTool->addToState(*eTP,SP->localParameters(),SP->localCovariance(),sct_fitChi2).release();
 
     if(!uTP) { //The updator failed
       if (sct_fitChi2) {
@@ -779,9 +791,9 @@ InDet::TRT_SeededTrackFinder_ATL::getTP(MagField::AtlasFieldCache& fieldCache, c
       double covPola=event_data.noise().covariancePola();
       double covIMom=event_data.noise().covarianceIMom();
       double corIMom=event_data.noise().correctionIMom();
-      iTP = addNoise(covAzim,covPola,covIMom,corIMom,eTP,0);
+      iTP = addNoise(covAzim,covPola,covIMom,corIMom,eTP.get(),0);
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"The updator failed! Count an outlier "<<endmsg;
-      delete eTP;
+      //delete eTP;
       //if (uTP) {delete uTP; delete sct_fitChi2;}
       outl = true;
 
@@ -804,12 +816,14 @@ InDet::TRT_SeededTrackFinder_ATL::getTP(MagField::AtlasFieldCache& fieldCache, c
 	double covPola=event_data.noise().covariancePola();
 	double covIMom=event_data.noise().covarianceIMom();
 	double corIMom=event_data.noise().correctionIMom();
-	iTP = addNoise(covAzim,covPola,covIMom,corIMom,eTP,0);
+	iTP = addNoise(covAzim,covPola,covIMom,corIMom,eTP.get(),0);
 	outl = true;
       }
 
       // Clean up
-      delete eTP; delete uTP; delete sct_fitChi2;
+      //delete eTP;
+      delete uTP;
+      delete sct_fitChi2;
     }
   }
   return iTP;
@@ -824,7 +838,7 @@ const Trk::TrackParameters* InDet::TRT_SeededTrackFinder_ATL::addNoise
     (double covAzim, double covPola, double covIMom, double corIMom, const Trk::TrackParameters* P1, int isSmooth) const
 {
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Adding noise to track parameters... " << endmsg;
-  const Trk::TrackParameters* noiseTP = 0;  //Initialize the sum of track parameters
+  const Trk::TrackParameters* noiseTP = nullptr;  //Initialize the sum of track parameters
 
   //Get the noise augmented parameters and the 15 lower half covariance matrix elements from the first input track parameters
 
@@ -840,12 +854,12 @@ const Trk::TrackParameters* InDet::TRT_SeededTrackFinder_ATL::addNoise
 
   if(C){
 
-    AmgSymMatrix(5)* nC = new AmgSymMatrix(5);
-    (*nC) = (*C);
-    (*nC)(2,2)+=covAzim;
-    (*nC)(3,3)+=covPola;
-    (*nC)(4,4)+=covIMom;
-    noiseTP = P1->associatedSurface().createTrackParameters(M[0],M[1],M[2],M[3],M[4],nC);
+    AmgSymMatrix(5) nC;
+    nC = (*C);
+    nC(2,2)+=covAzim;
+    nC(3,3)+=covPola;
+    nC(4,4)+=covIMom;
+    noiseTP = P1->associatedSurface().createUniqueTrackParameters(M[0],M[1],M[2],M[3],M[4],nC).release();
 
   }else{
     return noiseTP;
@@ -859,7 +873,7 @@ const Trk::TrackParameters* InDet::TRT_SeededTrackFinder_ATL::addNoise
 ///////////////////////////////////////////////////////////////////
 
 double
-InDet::TRT_SeededTrackFinder_ATL::getNewTheta(std::vector<const Trk::SpacePoint*>& vsp) const
+InDet::TRT_SeededTrackFinder_ATL::getNewTheta(std::vector<const Trk::SpacePoint*>& vsp)
 {
   double theta = 0.;
   std::vector<double> rad;
@@ -947,7 +961,7 @@ bool InDet::TRT_SeededTrackFinder_ATL::checkSeed
 ///////////////////////////////////////////////////////////////////
 
 const Trk::TrackParameters*
-InDet::TRT_SeededTrackFinder_ATL::modifyTrackParameters(const Trk::TrackParameters& TP, int mode) const
+InDet::TRT_SeededTrackFinder_ATL::modifyTrackParameters(const Trk::TrackParameters& TP, int mode)
 {
   ///The mode corresponds to whether the track parameters are modified before the seed (0) or before the pixel propagation (1)
 
@@ -965,17 +979,20 @@ InDet::TRT_SeededTrackFinder_ATL::modifyTrackParameters(const Trk::TrackParamete
   ip[4] *= correctionIMom;
 
   const AmgSymMatrix(5) * CM = TP.covariance();
-  AmgSymMatrix(5)*        nM = new AmgSymMatrix(5); (*nM) = (*CM);
+  AmgSymMatrix(5)        nM = (*CM);
 
   if(mode==0){ //Modification initiated before seed propagation
 
-    (*nM)(4,4) = 10.*(0.1*((*CM)(4,4))+covarianceIMom);
+    nM(4,4) = 10.*(0.1*((*CM)(4,4))+covarianceIMom);
   }
   if(mode==1){  //Modification initiated before pixel propagation
 
-    (*nM)(4,4)+=covarianceIMom;
+    nM(4,4)+=covarianceIMom;
   }
-  const Trk::TrackParameters* newInitTrackParameters = TP.associatedSurface().createTrackParameters(ip[0],ip[1],ip[2],ip[3],ip[4],nM);
+  const Trk::TrackParameters* newInitTrackParameters =
+    TP.associatedSurface()
+      .createUniqueTrackParameters(ip[0], ip[1], ip[2], ip[3], ip[4], nM)
+      .release();
   return newInitTrackParameters;
 }
 
@@ -1007,7 +1024,7 @@ void  InDet::TRT_SeededTrackFinder_ATL::setTrackQualityCuts()
 ///////////////////////////////////////////////////////////////////
 
 void  InDet::TRT_SeededTrackFinder_ATL::clusterTrackMap(Trk::Track* Tr,
-                                                        InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) const
+                                                        InDet::TRT_SeededTrackFinder_ATL::EventData &event_data)
 {
   DataVector<const Trk::MeasurementBase>::const_iterator
     m  = Tr->measurementsOnTrack()->begin(),
@@ -1025,7 +1042,7 @@ void  InDet::TRT_SeededTrackFinder_ATL::clusterTrackMap(Trk::Track* Tr,
 ///////////////////////////////////////////////////////////////////
 
 bool InDet::TRT_SeededTrackFinder_ATL::newClusters(const std::vector<const Trk::SpacePoint*>& Sp,
-                                                   InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) const
+                                                   InDet::TRT_SeededTrackFinder_ATL::EventData &event_data)
 {
   const Trk::PrepRawData* prd   [ 40];
   const Trk::Track*       trk[2][200];
@@ -1084,7 +1101,7 @@ bool InDet::TRT_SeededTrackFinder_ATL::newClusters(const std::vector<const Trk::
 ///////////////////////////////////////////////////////////////////
 
  bool InDet::TRT_SeededTrackFinder_ATL::newSeed(const std::vector<const Trk::SpacePoint*>& Sp,
-                                                InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) const
+                                                InDet::TRT_SeededTrackFinder_ATL::EventData &event_data)
 {
   const Trk::PrepRawData* prd   [ 40];
   const Trk::Track*       trk[2][200];
@@ -1144,8 +1161,7 @@ bool InDet::TRT_SeededTrackFinder_ATL::newClusters(const std::vector<const Trk::
       if((*tt).second->trackStateOnSurfaces()->size() >= 10) {++h; break;}
     }
   }
-  if(h) return false;
-  return true;
+  return h == 0;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -1153,7 +1169,7 @@ bool InDet::TRT_SeededTrackFinder_ATL::newClusters(const std::vector<const Trk::
 ///////////////////////////////////////////////////////////////////
 
 bool InDet::TRT_SeededTrackFinder_ATL::isNewTrack(Trk::Track* Tr,
-                                                  InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) const
+                                                  InDet::TRT_SeededTrackFinder_ATL::EventData &event_data)
 {
 
   const Trk::PrepRawData* prd   [100];
@@ -1212,12 +1228,12 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::cleanTrack
     const DataVector<const Trk::TrackStateOnSurface>* newtsos = (*it)->trackStateOnSurfaces();
     if(!newtsos) continue;
     DataVector<const Trk::TrackStateOnSurface>::const_iterator itp, itpe=newtsos->end();
-    for(itp=newtsos->begin(); itp!=itpe; itp++){
+    for(itp=newtsos->begin(); itp!=itpe; ++itp){
       ///Concentrate on the Si component of the track
       const InDet::SiClusterOnTrack* clus = dynamic_cast<const InDet::SiClusterOnTrack*>((*itp)->measurementOnTrack());
       if(clus && ((*itp)->type(Trk::TrackStateOnSurface::Measurement))){  //Count the number of hits used in the track
         const InDet::SiCluster* RawDataClus=dynamic_cast<const InDet::SiCluster*>(clus->prepRawData());
-        if(RawDataClus==0){
+        if(RawDataClus==nullptr){
 	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Si Cluster without PrepRawData!!!" << endmsg;
           continue;
         }
@@ -1235,17 +1251,17 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::cleanTrack
 
     ///Throw out any spurious pixel hits.Need to rebuild the vector of track states on surface from scratch, since it's const in EDM
     if(nPixHits==1 && (sctR-pixR)>200.){
-      DataVector<const Trk::TrackStateOnSurface>* cltsos = new DataVector<const Trk::TrackStateOnSurface>;
+      auto cltsos = DataVector<const Trk::TrackStateOnSurface>();
       const Trk::FitQuality* fq = (*it)->fitQuality()->clone();
       // copy track Si states into track
       DataVector<const Trk::TrackStateOnSurface>::const_iterator p_tsos;
       for(p_tsos=newtsos->begin()+nPixHits;p_tsos!=newtsos->end();++p_tsos){
-        cltsos->push_back( (*p_tsos)->clone() );
+        cltsos.push_back( (*p_tsos)->clone() );
       }
       ///Construct the new track
       Trk::TrackInfo info;
  //     info.setPatternRecognitionInfo(Trk::TrackInfo::TRTSeededTrackFinder);
-      Trk::Track* nTrack = new Trk::Track(info, cltsos, fq);
+      Trk::Track* nTrack = new Trk::Track(info, std::move(cltsos), fq);
       cleanSiTrack.push_back(nTrack);
       delete (*it);
     }else{

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ***************************************************************************
@@ -93,10 +93,10 @@ public:
 		  const std::string& name, 
 		  const IInterface* parent); 
 
-  ~TBExtrapolTrackToCaloTool();
+  virtual ~TBExtrapolTrackToCaloTool();
 
-  StatusCode initialize();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
 
   /** now return the variables needed to compare with CaloClusters: */
@@ -256,10 +256,6 @@ private:
 
   // Pre-configured extrapolator : will be choosen via jobOpt
   ToolHandle< Trk::IExtrapolator > m_extrapolator;
-  // Trk::IExtrapolator*  m_extrapolator;
-
-
-
 };
 
  

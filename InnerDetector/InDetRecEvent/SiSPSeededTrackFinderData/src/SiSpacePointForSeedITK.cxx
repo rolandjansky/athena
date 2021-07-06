@@ -2,6 +2,10 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <cmath>
+
+
+
 #include "SiSPSeededTrackFinderData/SiSpacePointForSeedITK.h"
 
 #include "InDetPrepRawData/SiCluster.h"
@@ -13,7 +17,7 @@ namespace InDet {
 
   SiSpacePointForSeedITK::SiSpacePointForSeedITK ()
   {
-    spacepoint = 0;
+    spacepoint = nullptr;
     m_x     = 0.;
     m_y     = 0.;
     m_z     = 0.;
@@ -22,8 +26,8 @@ namespace InDet {
     m_covz  = 0.;
     m_param = 0.;
     m_q     = 0.;
-    m_su    = 0 ;
-    m_sn    = 0 ;
+    m_su    = nullptr ;
+    m_sn    = nullptr ;
     for(int i=0; i!=3; ++i) {m_b0[i]=0.; m_b1[i]=0.; m_dr[i]=0.; m_r0[i]=0.;}
   }
 
@@ -89,7 +93,7 @@ namespace InDet {
     m_x        = r[0];
     m_y        = r[1];
     m_z        = r[2];
-    m_r        =sqrt(m_x*m_x+m_y*m_y);
+    m_r        =std::sqrt(m_x*m_x+m_y*m_y);
     m_q        = 100000.;
 
     const InDet::SiCluster*           c  = static_cast<const InDet::SiCluster*>(sp->clusterList().first);
@@ -103,7 +107,7 @@ namespace InDet {
       float cov = wid*wid*.08333; if(cov < f22) cov = f22;
       if(de->isBarrel()) {m_covz = 9.*cov; m_covr = .06;}
       else               {m_covr = 9.*cov; m_covz = .06;}
-      m_sn = 0;
+      m_sn = nullptr;
     }
     else                {
 
@@ -134,7 +138,7 @@ namespace InDet {
     m_x        = r[0];
     m_y        = r[1];
     m_z        = r[2];
-    m_r        =sqrt(m_x*m_x+m_y*m_y);
+    m_r        =std::sqrt(m_x*m_x+m_y*m_y);
     m_q        = 100000.;
 
     const InDet::SiCluster*           c  = static_cast<const InDet::SiCluster*>(sp->clusterList().first);
@@ -148,7 +152,7 @@ namespace InDet {
       float cov = wid*wid*.08333; if(cov < f22) cov = f22;
       if(de->isBarrel()) {m_covz = 9.*cov*sc[0]; m_covr = .06;}
       else               {m_covr = 9.*cov*sc[1]; m_covz = .06;}
-      m_sn = 0;
+      m_sn = nullptr;
     }
     else                {
 
@@ -179,7 +183,7 @@ namespace InDet {
   // true if cross point is inside detector elements 
   /////////////////////////////////////////////////////////////////////////////////
 
-  bool SiSpacePointForSeedITK::coordinates(float* d,float* r)
+  bool SiSpacePointForSeedITK::coordinates(const float* d,float* r)
   {
     float d0[3] = {m_b1[1]*d[2]-m_b1[2]*d[1],m_b1[2]*d[0]-m_b1[0]*d[2],m_b1[0]*d[1]-m_b1[1]*d[0]};
     float bd0   =  m_b0[0]*d0[0]+m_b0[1]*d0[1]+m_b0[2]*d0[2];       if(     bd0==0.          ) return false;

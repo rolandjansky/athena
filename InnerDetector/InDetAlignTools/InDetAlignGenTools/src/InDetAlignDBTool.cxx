@@ -29,7 +29,7 @@
 #include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
+#include "ReadoutGeometryBase/InDetDD_Defs.h"
 
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"

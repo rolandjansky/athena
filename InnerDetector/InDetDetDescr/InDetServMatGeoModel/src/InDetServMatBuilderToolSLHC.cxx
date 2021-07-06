@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/InDetServMatBuilderToolSLHC.h"
@@ -30,8 +30,8 @@ InDetServMatBuilderToolSLHC::InDetServMatBuilderToolSLHC(const std::string& t,
     m_rdbAccessSvc("RDBAccessSvc",name),
     m_geometryDBSvc("InDetGeometryDBSvc",name),
     m_init(false),
-    m_athenaComps(0),
-    m_geoMgr(0)
+    m_athenaComps(nullptr),
+    m_geoMgr(nullptr)
 {
   declareInterface<IInDetServMatBuilderTool>(this);
  

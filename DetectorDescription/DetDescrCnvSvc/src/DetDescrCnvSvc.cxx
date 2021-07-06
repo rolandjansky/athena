@@ -165,6 +165,8 @@ DetDescrCnvSvc::initialize()     {
     if (status != StatusCode::SUCCESS) return status;
     status =  addToDetStore(2518, "TRT_ID");
     if (status != StatusCode::SUCCESS) return status;
+    status =  addToDetStore(79264207, "HGTD_ID");
+    if (status != StatusCode::SUCCESS) return status;
     status =  addToDetStore(129452393, "SiliconID");
     if (status != StatusCode::SUCCESS) return status;
     status =  addToDetStore(163583365, "LArEM_ID");
@@ -226,6 +228,12 @@ DetDescrCnvSvc::initialize()     {
     status =  addToDetStore(167756483, "CaloDM_ID");
     if (status != StatusCode::SUCCESS) return status;
     status =  addToDetStore(190591643, "ZdcID");
+    if (status != StatusCode::SUCCESS) return status;
+
+    //for J/GTower
+    status =  addToDetStore(218674799, "JTower_ID");
+    if (status != StatusCode::SUCCESS) return status;
+    status =  addToDetStore(49678914, "GTower_ID");
     if (status != StatusCode::SUCCESS) return status;
 
     return status;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -10,37 +10,87 @@
 #ifndef DERIVATIONFRAMEWORK_EGTRANSVERSEMASSTOOL_H
 #define DERIVATIONFRAMEWORK_EGTRANSVERSEMASSTOOL_H
 
-#include <string>
-
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
-
-namespace ExpressionParsing {
-  class ExpressionParser;
-}
+//
+#include "ExpressionEvaluation/ExpressionParserUser.h"
+#include "GaudiKernel/EventContext.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODBase/IParticleContainer.h"
+#include "xAODMissingET/MissingETContainer.h"
+//
+#include <string>
+#include <vector>
 
 namespace DerivationFramework {
 
-  class EGTransverseMassTool : public AthAlgTool, public IAugmentationTool {
-    public: 
-      EGTransverseMassTool(const std::string& t, const std::string& n, const IInterface* p);
+class EGTransverseMassTool
+  : public ExpressionParserUser<AthAlgTool>
+  , public IAugmentationTool
+{
+public:
+  EGTransverseMassTool(
+    const std::string& t,
+    const std::string& n,
+    const IInterface* p);
 
-      StatusCode initialize();
-      StatusCode finalize();
-      virtual StatusCode addBranches() const;
+  virtual StatusCode initialize() override final;
+  virtual StatusCode addBranches() const override final;
 
-    private:
-      std::string m_expression1;
-      float m_METmin;
-      ExpressionParsing::ExpressionParser *m_parser1;
-      std::string m_sgName;
-      float m_mass1Hypothesis;
-      std::string m_container1Name;
-      std::string m_container2Name;
-      std::string m_pt1BranchName, m_phi1BranchName;
-      std::string m_pt2BranchName, m_phi2BranchName;
-      StatusCode getTransverseMasses(std::vector<float>*&) const;
-  }; 
+private:
+  StatusCode getTransverseMasses(const EventContext& ctx, std::vector<float>&)
+    const;
+
+  std::string m_expression1;
+  float m_METmin;
+  float m_mass1Hypothesis;
+
+  SG::WriteHandleKey<std::vector<float>> m_sgName{ this,
+                                                   "StoreGateEntryName",
+                                                   "",
+                                                   "SG key of output object" };
+
+  SG::ReadHandleKey<xAOD::IParticleContainer> m_container1Name{
+    this,
+    "ObjectContainerName",
+    "",
+    "SG key of first container"
+  };
+  SG::ReadHandleKey<xAOD::MissingETContainer> m_container2Name{
+    this,
+    "METContainerName",
+    "MET_LocHadTopo",
+    "SG key of second container"
+  };
+
+  SG::ReadHandleKey<std::vector<float>> m_pt1BranchName{
+    this,
+    "ObjectPtBranchName",
+    "",
+    "Pt1 if different than default"
+  };
+
+  SG::ReadHandleKey<std::vector<float>> m_phi1BranchName{
+    this,
+    "ObjectPhiBranchName",
+    "",
+    "Phi1 if different than default"
+  };
+
+  SG::ReadHandleKey<std::vector<float>> m_pt2BranchName{
+    this,
+    "METPtBranchName",
+    "",
+    "Pt2 if different than default"
+  };
+
+  SG::ReadHandleKey<std::vector<float>> m_phi2BranchName{
+    this,
+    "METPhiBranchName",
+    "",
+    "Phi2 if different than default"
+  };
+};
 }
 
 #endif // DERIVATIONFRAMEWORK_EGTRANSVERSEMASSTOOL_H

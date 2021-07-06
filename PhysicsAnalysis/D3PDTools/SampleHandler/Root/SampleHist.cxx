@@ -35,7 +35,6 @@ namespace SH
   void SampleHist ::
   testInvariant () const
   {
-    RCU_INVARIANT (this != 0);
     RCU_INVARIANT (!m_file.empty() || name() == "unnamed");    
   }
 

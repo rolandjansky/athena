@@ -11,6 +11,7 @@
 
 #include <EventLoop/Global.h>
 
+#include <AnaAlgorithm/Global.h>
 #include <TObject.h>
 #include <memory>
 #include <vector>
@@ -110,7 +111,7 @@ namespace EL
     ///   algorithm of same name already present
     /// \pre val_algorithm != nullptr
   public:
-    ::StatusCode addAlgorithm (std::unique_ptr<Algorithm> val_algorithm);
+    ::StatusCode addAlgorithm (std::unique_ptr<IAlgorithmWrapper>&& val_algorithm);
 
 
     /// \brief get the algorithm with the given name, or nullptr if
@@ -118,7 +119,7 @@ namespace EL
     /// \par Guarantee
     ///   no-fail
   public:
-    const Algorithm *getAlgorithm (const std::string& name) const noexcept;
+    const IAlgorithmWrapper *getAlgorithm (std::string_view name) const noexcept;
 
 
     /// \brief extract the list of algorithms from this object
@@ -131,7 +132,7 @@ namespace EL
     /// \par Failures
     ///   streaming errors
   public:
-    std::vector<std::unique_ptr<EL::Algorithm> > extractAlgorithms ();
+    std::vector<std::unique_ptr<EL::IAlgorithmWrapper> > extractAlgorithms ();
 
 
     /// \brief get the number of algorithms configured
@@ -159,7 +160,7 @@ namespace EL
     /// due to missing dictionaries/libraries).  All users of this
     /// member need to check it regularly.
   private:
-    std::vector<std::unique_ptr<EL::Algorithm> > m_algorithms;
+    std::vector<std::unique_ptr<EL::IAlgorithmWrapper> > m_algorithms;
 
     ClassDef (JobConfig, 1);
   };

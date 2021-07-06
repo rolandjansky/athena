@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CABLING_TGCDATABASEASDTOPP_HH
@@ -36,7 +36,9 @@ public:
   static const int ReverseIndexOut[DATABASESIZE]; 
 
   /** Constructor */
-  TGCDatabaseASDToPP(std::string filename, std::string blockname, bool v_isCommon=true);
+  TGCDatabaseASDToPP(const std::string& filename,
+                     const std::string& blockname,
+                     bool v_isCommon=true);
   /** Copy constructor */
   TGCDatabaseASDToPP(const TGCDatabaseASDToPP&, bool v_isCommon=true);
   /** Destructor */

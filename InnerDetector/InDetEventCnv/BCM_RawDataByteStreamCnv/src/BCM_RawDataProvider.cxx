@@ -25,7 +25,7 @@
 // constructor
 ////////////////////////
 BCM_RawDataProvider::BCM_RawDataProvider(const std::string& name, ISvcLocator* pSvcLocator):
-  AthAlgorithm         (name, pSvcLocator),
+  AthReentrantAlgorithm         (name, pSvcLocator),
   m_robDataProvider ("ROBDataProviderSvc",name),
   m_rawDataTool     ("BCM_RawDataProviderTool")
 {
@@ -67,7 +67,7 @@ StatusCode BCM_RawDataProvider::initialize() {
 ////////////////////////
 // execute() -
 ////////////////////////
-StatusCode BCM_RawDataProvider::execute() {
+StatusCode BCM_RawDataProvider::execute(const EventContext& ctx) const {
 
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Create BCM RDO Container" << endmsg;
   auto container = std::make_unique<BCM_RDO_Container>();
@@ -97,7 +97,7 @@ StatusCode BCM_RawDataProvider::execute() {
   
   //m_robDataProvider->getROBData(ROBIDs_all, listOfRobf_all);
   
-  m_robDataProvider->getROBData(ROBIDs, listOfRobf);
+  m_robDataProvider->getROBData(ctx,ROBIDs, listOfRobf);
   
   // For Run-1 if 4 fragment present select only the PRO BCM 
   /*
@@ -115,7 +115,7 @@ StatusCode BCM_RawDataProvider::execute() {
 
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of collections in container is " << container->size() << endmsg;
 
-  ATH_CHECK( SG::makeHandle (m_RDO_Key).record (std::move (container)) );
+  ATH_CHECK( SG::makeHandle (m_RDO_Key,ctx).record (std::move (container)) );
 
   return StatusCode::SUCCESS;
 }

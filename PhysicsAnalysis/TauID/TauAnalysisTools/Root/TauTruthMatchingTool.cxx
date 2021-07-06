@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s)
@@ -25,12 +25,6 @@ TauTruthMatchingTool::TauTruthMatchingTool( const std::string& name )
   , m_accMVis("m_vis")
 {
   declareProperty( "MaxDeltaR", m_dMaxDeltaR = .2);
-}
-
-//______________________________________________________________________________
-TauTruthMatchingTool::~TauTruthMatchingTool( )
-{
-
 }
 
 //______________________________________________________________________________
@@ -75,11 +69,23 @@ TauTruthMatchingTool::getTruth(const xAOD::TauJet& xTau,
 
   // if matched to a truth tau return its pointer, else return a null pointer
   static SG::AuxElement::ConstAccessor<char> accIsTruthMatched("IsTruthMatched");
+  static SG::AuxElement::ConstAccessor< ElementLink< xAOD::TruthParticleContainer >  > accTruthTau("truthParticleLink");
+
+  //derivations may drop IsTruthMatched, recalculate from truthParticleLink on the fly (this assumes truth links to leptons are preserved, i.e. TruthTaus, TruthElectron, TruthMuon)
+  if ( !(*m_bIsTruthMatchedAvailable.ptr()) && (*m_bIsTruthParticleLinkAvailable.ptr())){
+    ATH_MSG_DEBUG("TauJetContainer has truthParticleLink available while IsTruthMatched not available. Re-evaluate IsTruthMatched");
+    static SG::AuxElement::Decorator<char> decIsTruthMatched("IsTruthMatched");
+    if (accTruthTau(xTau)){
+      decIsTruthMatched(xTau) = (char)true;
+    }else{
+      decIsTruthMatched(xTau) = (char)false;
+    }
+  }
+  
   if ((bool)accIsTruthMatched(xTau))
-  {
+    {
     if (m_bWriteTruthTaus or m_bTruthTauAvailable)
     {
-      static SG::AuxElement::ConstAccessor< ElementLink< xAOD::TruthParticleContainer >  > accTruthTau("truthParticleLink");
       if (accTruthTau(xTau).isValid())
       {
         return *accTruthTau(xTau);
@@ -340,11 +346,18 @@ StatusCode TauTruthMatchingTool::findTruthTau(const xAOD::TauJet& xTau,
 {
   // check if decorations were already added to the first passed tau
   if (!m_bIsTruthMatchedAvailable.isValid()) {
-    bool avail = xTau.isAvailable<char>("IsTruthMatched");
+    bool avail = xTau.isAvailable<char>("IsTruthMatched") ;
     m_bIsTruthMatchedAvailable.set (avail);
   }
-  if (*m_bIsTruthMatchedAvailable.ptr())
+  // check if decorations were already added to the first passed tau
+  if (!m_bIsTruthParticleLinkAvailable.isValid()) {
+    bool avail =   xTau.isAvailable<ElementLink< xAOD::TruthParticleContainer >>("truthParticleLink");
+    m_bIsTruthParticleLinkAvailable.set (avail);
+  }
+
+  if (*m_bIsTruthMatchedAvailable.ptr() || *m_bIsTruthParticleLinkAvailable.ptr()){
     return StatusCode::SUCCESS;
+  }
 
   // only search for truth taus once
 
@@ -357,16 +370,16 @@ StatusCode TauTruthMatchingTool::findTruthTau(const xAOD::TauJet& xTau,
   // || (xTau.auxdata<char>("IsTruthMatched") && xTau.auxdata< ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink") == NULL ))
   // {
   if (m_bTruthTauAvailable)
-    return checkTruthMatch(xTau, *truthTausEvent.m_xTruthTauContainerConst);
+    return checkTruthMatch(xTau, *truthTausEvent.m_xTruthTauContainerConst,truthTausEvent);
   else
-    return checkTruthMatch(xTau, *truthTausEvent.m_xTruthTauContainer);
+    return checkTruthMatch(xTau, *truthTausEvent.m_xTruthTauContainer,truthTausEvent);
   // }
 
   // return StatusCode::SUCCESS;
 }
 
 //______________________________________________________________________________
-StatusCode TauTruthMatchingTool::checkTruthMatch (const xAOD::TauJet& xTau, const xAOD::TruthParticleContainer& xTruthTauContainer) const
+StatusCode TauTruthMatchingTool::checkTruthMatch (const xAOD::TauJet& xTau, const xAOD::TruthParticleContainer& xTruthTauContainer,const TruthTausEvent& truthTausEvent) const
 {
   const xAOD::TruthParticle* xTruthMatch = 0;
   const xAOD::Jet* xTruthJetMatch = 0;
@@ -398,10 +411,10 @@ StatusCode TauTruthMatchingTool::checkTruthMatch (const xAOD::TauJet& xTau, cons
     }
   }
 
-  if (!xTruthMatch and m_truthTausEvent.m_xTruthMuonContainerConst)
+  if (!xTruthMatch and truthTausEvent.m_xTruthMuonContainerConst)
   {
     double dPtMax = 0;
-    for (auto xTruthMuonIt : *m_truthTausEvent.m_xTruthMuonContainerConst)
+    for (auto xTruthMuonIt : *truthTausEvent.m_xTruthMuonContainerConst)
     {
       if (xTau.p4().DeltaR(xTruthMuonIt->p4()) <= m_dMaxDeltaR)
       {
@@ -415,10 +428,10 @@ StatusCode TauTruthMatchingTool::checkTruthMatch (const xAOD::TauJet& xTau, cons
     }
   }
 
-  if (!xTruthMatch and m_truthTausEvent.m_xTruthElectronContainerConst)
+  if (!xTruthMatch and truthTausEvent.m_xTruthElectronContainerConst)
   {
     double dPtMax = 0;
-    for (auto xTruthElectronIt : *m_truthTausEvent.m_xTruthElectronContainerConst)
+    for (auto xTruthElectronIt : *truthTausEvent.m_xTruthElectronContainerConst)
     {
       if (xTau.p4().DeltaR(xTruthElectronIt->p4()) <= m_dMaxDeltaR)
       {
@@ -431,10 +444,10 @@ StatusCode TauTruthMatchingTool::checkTruthMatch (const xAOD::TauJet& xTau, cons
     }
   }
 
-  if (m_truthTausEvent.m_xTruthJetContainerConst)
+  if (truthTausEvent.m_xTruthJetContainerConst)
   {
     double dPtMax = 0;
-    for (auto xTruthJetIt : *m_truthTausEvent.m_xTruthJetContainerConst)
+    for (auto xTruthJetIt : *truthTausEvent.m_xTruthJetContainerConst)
     {
       if (xTau.p4().DeltaR(xTruthJetIt->p4()) <= m_dMaxDeltaR)
       {
@@ -453,7 +466,7 @@ StatusCode TauTruthMatchingTool::checkTruthMatch (const xAOD::TauJet& xTau, cons
 
   if (xTruthJetMatch)
   {
-    ElementLink < xAOD::JetContainer > lTruthParticleLink(xTruthJetMatch, *m_truthTausEvent.m_xTruthJetContainerConst);
+    ElementLink < xAOD::JetContainer > lTruthParticleLink(xTruthJetMatch, *truthTausEvent.m_xTruthJetContainerConst);
     decTruthJetLink(xTau) = lTruthParticleLink;
   }
   else
@@ -475,7 +488,6 @@ StatusCode TauTruthMatchingTool::checkTruthMatch (const xAOD::TauJet& xTau, cons
   // create link to the original TruthParticle
   if (xTruthMatch)
   {
-    decIsTruthMatched(xTau) = (char)true;
     if (eTruthMatchedParticleType == TruthHadronicTau or eTruthMatchedParticleType == TruthLeptonicTau)
     {
       ElementLink < xAOD::TruthParticleContainer > lTruthParticleLink(xTruthMatch, xTruthTauContainer);
@@ -485,18 +497,17 @@ StatusCode TauTruthMatchingTool::checkTruthMatch (const xAOD::TauJet& xTau, cons
     }
     else if (eTruthMatchedParticleType == TruthMuon)
     {
-      ElementLink < xAOD::TruthParticleContainer > lTruthParticleLink(xTruthMatch, *m_truthTausEvent.m_xTruthMuonContainerConst);
+      ElementLink < xAOD::TruthParticleContainer > lTruthParticleLink(xTruthMatch, *truthTausEvent.m_xTruthMuonContainerConst);
       decTruthParticleLink(xTau) = lTruthParticleLink;
     }
     else if (eTruthMatchedParticleType == TruthElectron)
     {
-      ElementLink < xAOD::TruthParticleContainer > lTruthParticleLink(xTruthMatch, *m_truthTausEvent.m_xTruthElectronContainerConst);
+      ElementLink < xAOD::TruthParticleContainer > lTruthParticleLink(xTruthMatch, *truthTausEvent.m_xTruthElectronContainerConst);
       decTruthParticleLink(xTau) = lTruthParticleLink;
     }
   }
   else
   {
-    decIsTruthMatched(xTau) = (char)false;
     ElementLink < xAOD::TruthParticleContainer > lTruthParticleLink;
     decTruthParticleLink(xTau) = lTruthParticleLink;
   }

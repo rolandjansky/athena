@@ -10,11 +10,13 @@
 #define TRKMATERIALONTRACK_ENERGYLOSS_H
 
 #include <cmath>
-#include <iostream>
+#include <iosfwd>
+#include <cassert>
+
 class MsgStream;
 class TrackCollectionCnv;
 
-#include <cassert>
+
 
 namespace Trk {
 
@@ -155,7 +157,7 @@ class EnergyLoss {
    m_sig_ioni += sigi; 
    m_sig_rad  += sigr; 
    m_deltaE += mpv ? 0.9*ioni+0.15*rad : ioni+rad; 
-   m_sigmaDeltaE = sqrt( m_sig_ioni*m_sig_ioni + m_sig_rad*m_sig_rad);  
+   m_sigmaDeltaE = std::sqrt( m_sig_ioni*m_sig_ioni + m_sig_rad*m_sig_rad);  
  }
 
  inline void EnergyLoss::update(EnergyLoss& eloss, bool mpv) 
@@ -164,7 +166,7 @@ class EnergyLoss {
    m_sig_ioni += eloss.sigmaIoni(); 
    m_sig_rad  += eloss.sigmaRad(); 
    m_deltaE += mpv ? 0.9*eloss.meanIoni()+0.15*eloss.meanRad() : eloss.meanIoni()+eloss.meanRad(); 
-   m_sigmaDeltaE = sqrt( m_sig_ioni*m_sig_ioni + m_sig_rad*m_sig_rad);  
+   m_sigmaDeltaE = std::sqrt( m_sig_ioni*m_sig_ioni + m_sig_rad*m_sig_rad);  
  }
 
  inline void EnergyLoss::set(double eloss, double sigde, double ioni, double sigi, double rad, double sigr) 
@@ -173,7 +175,7 @@ class EnergyLoss {
    m_sig_ioni = sigi; 
    m_sig_rad  = sigr; 
    m_deltaE   = ioni + rad  + 0*eloss; 
-   m_sigmaDeltaE = sqrt( m_sig_ioni*m_sig_ioni + m_sig_rad*m_sig_rad + 0*sigde*sigde);
+   m_sigmaDeltaE = std::sqrt( m_sig_ioni*m_sig_ioni + m_sig_rad*m_sig_rad + 0*sigde*sigde);
  }
 
 //! Overload of << operator for MsgStream for debug output

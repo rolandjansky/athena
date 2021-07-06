@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -32,8 +32,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
-#include <memory> 
-#define AUTO_PTR  auto_ptr
+#include <memory>
 #include <stdexcept>
 
 using namespace std;
@@ -80,15 +79,15 @@ CollSplitByGUIDBase::execute( std::vector<std::string> argv_v )
    // Primary try block
    try {
       if( init( argv_v ) ) {
-	 //time(&m_starttime); 
+	 //time(&m_starttime);
 	 openSourceCollections();
 	 openDestCollections();
 	 copyRows();
-	 //time(&m_endtime); 
+	 //time(&m_endtime);
 	 copyMetadata();
 	 finalize();
       }
-      
+
       return 0;
    }
    catch( pool::Exception& poolException )
@@ -158,7 +157,7 @@ CollSplitByGUIDBase::init( std::vector<std::string> argv_v )
       if( !readGuidList(guidfile) ) {
          exit( -5 );
       }
-   }   
+   }
    // ---
    // EXPERT OPTIONS
    // For tuning purposes the number of events between commits can be specified
@@ -167,7 +166,7 @@ CollSplitByGUIDBase::init( std::vector<std::string> argv_v )
    (void)cmdLineArgs.getOpt("-nevtcached", m_numRowsCached);
 
    m_catinfo.setCatalogs( m_collectionService );
-   if( !m_collectionPool ) m_collectionPool = new CollectionPool(50, m_rowsCached); 
+   if( !m_collectionPool ) m_collectionPool = new CollectionPool(50, m_rowsCached);
 
    return true;
 }
@@ -205,7 +204,7 @@ CollSplitByGUIDBase::openDestCollections()
 
    for( unsigned int i=0; i<m_srcCollections.size(); i++ )
    {
-      ICollection* collection = m_srcCollections[i];      
+      ICollection* collection = m_srcCollections[i];
       pool::ICollectionQuery *collQuery = collection->newQuery();
       collQuery->setCondition( m_queryinfo.query() );
       if( m_queryinfo.queryOptions().size() ) {
@@ -344,7 +343,7 @@ CollSplitByGUIDBase::openDestCollections()
 	 std::string thisCollName = invCollIter->first;
 	 if (thisCollName == lastCollName)
 	    m_log << coral::Info << " " << invCollIter->second;
-	 else 
+	 else
 	 {
 	    if (invCollIter != invCollMap.begin())
 	       m_log << coral::Info << coral::MessageStream::endmsg;
@@ -372,7 +371,7 @@ CollSplitByGUIDBase::copyRows()
 	 collQuery->selectAll();
       }
       pool::ICollectionCursor& cursor = collQuery->execute();
-      
+
       const std::string srcRefName = collection->description().eventReferenceColumnName();
       const std::string dstRefName = m_collectionPool->getDstRefName();
       // Token name to split on (if not specified, use default for each source coll)
@@ -415,7 +414,7 @@ CollSplitByGUIDBase::copyMetadata()
 }
 
 
-    
+
 void
 CollSplitByGUIDBase::finalize()
 {

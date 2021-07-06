@@ -27,11 +27,11 @@ void KinematicsPlots::initializePlots(){
    lead_phi = Book1D("lead_phi", "#varphi of lead " + m_sParticleType +";#varphi;Events ",128 ,-3.2,3.2);
 }
 
-void KinematicsPlots::fill(const xAOD::IParticle* part){
+  void KinematicsPlots::fill(const xAOD::IParticle* part, const xAOD::EventInfo* evt){
 
-  et->Fill(part->pt()/GeV);
-  eta->Fill(part->eta());
-  phi->Fill(part->phi());
+    et->Fill(part->pt()/GeV,evt->beamSpotWeight());
+    eta->Fill(part->eta(),evt->beamSpotWeight());
+    phi->Fill(part->phi(),evt->beamSpotWeight());
 
   if (m_lead == nullptr) m_lead = part;
 
@@ -42,13 +42,13 @@ void KinematicsPlots::fill(const xAOD::IParticle* part){
   ++m_npart;  
 }
 
-void KinematicsPlots::fill(){
-  n->Fill(m_npart);
+  void KinematicsPlots::fill(const xAOD::EventInfo* evt){
+    n->Fill(m_npart,evt->beamSpotWeight());
 
   if (m_lead != nullptr) {
-    lead_et->Fill(m_lead->pt()/GeV);
-    lead_eta->Fill(m_lead->eta());
-    lead_phi->Fill(m_lead->phi());
+    lead_et->Fill(m_lead->pt()/GeV,evt->beamSpotWeight());
+    lead_eta->Fill(m_lead->eta(),evt->beamSpotWeight());
+    lead_phi->Fill(m_lead->phi(),evt->beamSpotWeight());
   }
 
   m_lead = nullptr;

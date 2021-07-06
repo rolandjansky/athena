@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -9,14 +9,15 @@ def ITkGeometryCfg (flags):
     acc = ComponentAccumulator()
     GeometryDBSvc=CompFactory.GeometryDBSvc
     acc.addService(GeometryDBSvc("InDetGeometryDBSvc")) #Beampipe builder expects "InDet" rather than "ITk" - can this be steered?
+
     if flags.Detector.GeometryITkPixel:
-        #Need new module in PixelGeoModelXml to import here once it exists...
-        #from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-        #acc.merge(PixelGeometryCfg( flags ))
-        print("ITk Pixel not yet supported in this release...")
+        from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
+        acc.merge(ITkPixelGeometryCfg( flags ))
+
     if flags.Detector.GeometryITkStrip:
         from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
         acc.merge(ITkStripGeometryCfg( flags ))
+
     return acc
 
 
@@ -34,8 +35,6 @@ if __name__ == "__main__":
   # Provide MC input
   ConfigFlags.Input.Files = defaultTestFiles.HITS
   ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
-  ConfigFlags.Detector.SimulateITkPixel = True
-  ConfigFlags.Detector.SimulateITkStrip   = True
   ConfigFlags.GeoModel.Align.Dynamic    = False
   # Provide data input
   ##from AthenaConfiguration.TestDefaults import defaultTestFiles

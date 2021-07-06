@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // MuonPhysValMonitoringTool.cxx 
@@ -10,7 +10,6 @@
 // PhysVal includes
 #include "MuonPhysValMonitoringTool.h"
 
-// FrameWork includes
 #include "GaudiKernel/IToolSvc.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/MuonAuxContainer.h"
@@ -18,7 +17,6 @@
 #include "xAODMuon/SlowMuonContainer.h"
 #include "xAODMuon/SlowMuonAuxContainer.h"
 #include "xAODMuon/SlowMuon.h"
-
 #include "xAODTrigger/MuonRoI.h"
 #include "xAODTrigger/MuonRoIContainer.h"
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
@@ -29,9 +27,6 @@
 #include "xAODTruth/TruthVertexContainer.h"
 #include "xAODTruth/TruthVertexAuxContainer.h"
 #include "MuonHistUtils/MuonEnumDefs.h"
-
-#include "MuonCombinedToolInterfaces/IMuonPrintingTool.h"
-
 #include "xAODCore/ShallowCopy.h"
 #include "xAODBase/IParticleHelpers.h"
 
@@ -66,13 +61,14 @@ MuonPhysValMonitoringTool::MuonPhysValMonitoringTool( const std::string& type,
 						      const IInterface* parent ):
   ManagedMonitorToolBase( type, name, parent ),
   m_MSTracks(nullptr),
-  m_isData(false),
+  m_counterBits(),
+  m_muonItems(),
+  m_L1Seed(),
+  m_SelectedAuthor(0),
   m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
   m_muonPrinter("Rec::MuonPrintingTool/MuonPrintingTool"),
   m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
   m_trackSelector("InDet::InDetDetailedTrackSelectorTool/MuonCombinedInDetDetailedTrackSelectorTool"),
-  // m_muonResonanceSelectionTool("MuonResonanceSelectionTool/MuonZSelectionTool"),
-  // m_muonResonancePairingTool("MuonResonancePairingTool/ZmumuResonancePairingTool"),
   m_oUnmatchedRecoMuonPlots(nullptr),
   m_oUnmatchedTruthMuonPlots(nullptr),
   m_oUnmatchedRecoMuonTrackPlots(nullptr),
@@ -82,48 +78,8 @@ MuonPhysValMonitoringTool::MuonPhysValMonitoringTool( const std::string& type,
   m_h_overview_Z_mass_ME(nullptr),
   m_h_overview_Z_mass_ID(nullptr)
 {
-  // default for muon chains
-
-  declareProperty( "IsData", m_isData = false );
-  declareProperty( "MuonContainerName", m_muonsName = "Muons" );
-  declareProperty( "SlowMuonContainerName", m_slowMuonsName = "SlowMuons" );
-  declareProperty( "MuonTruthParticleContainerName", m_muonsTruthName = "MuonTruthParticles" );
-
-  declareProperty( "TrackContainerName", m_tracksName);
-  declareProperty( "FwdTrackContainerName", m_fwdtracksName);
-  declareProperty( "MuonTrackContainerName", m_muonTracksName );
-  declareProperty( "MuonExtrapolatedTrackContainerName", m_muonExtrapolatedTracksName);
-  declareProperty( "MuonOnlyExtrapolatedTrackContainerName", m_muonMSOnlyExtrapolatedTracksName);
-  declareProperty( "MuonSegmentContainerName", m_muonSegmentsName);
-  declareProperty( "MuonTruthSegmentContainerName", m_muonSegmentsTruthName = "MuonTruthSegments" );
-  
   declareProperty( "TrackSelector", m_trackSelector);
-  declareProperty( "IsoTool", m_isoTool );
-  
-  declareProperty( "SelectMuonWorkingPoints", m_selectMuonWPs);
-  declareProperty( "SelectMuonAuthors", m_selectMuonAuthors);
-  declareProperty( "SelectHLTMuonItems", m_selectHLTMuonItems);
-  declareProperty( "SelectL1MuonItems", m_L1MuonItems);
-  declareProperty( "SelectMuonCategories", m_selectMuonCategories );
-  declareProperty( "DoBinnedResolutionPlots", m_doBinnedResolutionPlots = true);
-
-  declareProperty( "DoTrigMuonValidation", m_doTrigMuonValidation = false);
-  declareProperty( "DoTrigMuonL1Validation", m_doTrigMuonL1Validation = false);
-  declareProperty( "DoTrigMuonL2Validation", m_doTrigMuonL2Validation = false);
-  declareProperty( "DoTrigMuonEFValidation", m_doTrigMuonEFValidation = false);
-  declareProperty( "L1TrigMuonContainerName", m_muonL1TrigName = "LVL1MuonRoIs");
-  declareProperty( "L2SAMuonContainerName",m_muonL2SAName = "HLT_xAOD__L2StandAloneMuonContainer_MuonL2SAInfo");
-  declareProperty( "L2CBMuonContainerName",m_muonL2CBName = "HLT_xAOD__L2CombinedMuonContainer_MuonL2CBInfo");
-  declareProperty( "EFCombTrigMuonContainerName", m_muonEFCombTrigName = "HLT_xAOD__MuonContainer_MuonEFInfo");
-  declareProperty( "DoMuonTree", m_doMuonTree = false);
-
-  m_SelectedAuthor = 0;
 }
-
-// Destructor
-///////////////
-MuonPhysValMonitoringTool::~MuonPhysValMonitoringTool()
-{}
 
 // Athena algtool's Hooks
 ////////////////////////////
@@ -147,12 +103,6 @@ StatusCode MuonPhysValMonitoringTool::initialize()
     m_doTrigMuonL1Validation = false;
     m_doTrigMuonL2Validation = false;
     m_doTrigMuonEFValidation = false;
-  }
-  if (m_isData) {
-    m_selectMuonCategories.clear();
-    m_selectMuonCategories.push_back(ALL);
-    m_selectMuonCategories.push_back(PROMPT);
-    m_selectMuonCategories.push_back(REST);
   }
   
   ATH_CHECK(m_eventInfo.initialize());
@@ -210,22 +160,9 @@ StatusCode MuonPhysValMonitoringTool::bookHistograms()
 {
   ATH_MSG_INFO ("Booking hists " << name() << "...");
 
-  if (m_selectMuonWPs.size()==0) {       
-    int defaultWPList[]={xAOD::Muon::Loose,xAOD::Muon::Medium};
-    for (const auto wp : defaultWPList) m_selectMuonWPs.push_back(wp);
-  }
-  else if (m_selectMuonWPs.size()==1 && m_selectMuonWPs[0]<0 ) m_selectMuonWPs.clear();  
+  if (m_selectMuonWPs.size()==1 && m_selectMuonWPs[0]<0 ) m_selectMuonWPs.clear();  
 
-  if (m_selectMuonAuthors.size()==0) {
-    unsigned int defaultAuthorList[]={xAOD::Muon::MuidCo,xAOD::Muon::MuTagIMO,xAOD::Muon::MuidSA,xAOD::Muon::MuGirl,xAOD::Muon::CaloTag,xAOD::Muon::CaloLikelihood};
-    for (const auto author : defaultAuthorList) m_selectMuonAuthors.push_back(author);
-  }
-  else if (m_selectMuonAuthors.size()==1 && m_selectMuonAuthors[0]==0) m_selectMuonAuthors.clear();  
-
-  if (m_selectMuonCategories.size()==0) {
-    unsigned int defaultMuonCategories[]={ ALL, PROMPT, INFLIGHT, NONISO, REST };
-    for (const auto category: defaultMuonCategories) m_selectMuonCategories.push_back(category);
-  }
+  if (m_selectMuonAuthors.size()==1 && m_selectMuonAuthors[0]==0) m_selectMuonAuthors.clear();
 
   std::string theMuonCategories[5];
   theMuonCategories[ALL]="All";
@@ -238,12 +175,13 @@ StatusCode MuonPhysValMonitoringTool::bookHistograms()
 
   bool separateSAFMuons = true;
   if (m_slowMuonsName!="") separateSAFMuons = false; // no such muons in case of SlowMuon reco
-  
-  for (const auto category : m_selectMuonCategoriesStr) {
+
+  std::string muonContainerName = m_muonsName;  
+  for (const auto& category : m_selectMuonCategoriesStr) {
     std::string categoryPath = m_muonsName+"/"+category+"/";
     m_muonValidationPlots.push_back( new MuonValidationPlots(0, categoryPath,
               m_selectMuonWPs, m_selectMuonAuthors, m_isData,
-	      (category==theMuonCategories[ALL]? false : m_doBinnedResolutionPlots),
+	      (category==theMuonCategories[ALL]? false : m_doBinnedResolutionPlots.value()),
               separateSAFMuons,
 	      m_doMuonTree));
     m_slowMuonValidationPlots.push_back( new SlowMuonValidationPlots( 0, categoryPath, m_isData ) );
@@ -255,7 +193,7 @@ StatusCode MuonPhysValMonitoringTool::bookHistograms()
     }
     if (m_muonTracksName!="") {
       m_muonMSTrackValidationPlots.push_back(new MuonTrackValidationPlots(0, categoryPath, "MSTrackParticles", m_isData));
-      if (!m_isData) m_oUnmatchedRecoMuonTrackPlots = new Muon::RecoMuonTrackPlotOrganizer(0, Form("%s/UnmatchedRecoMuonTracks/",m_muonsName.c_str()));
+      if (!m_isData) m_oUnmatchedRecoMuonTrackPlots = new Muon::RecoMuonTrackPlotOrganizer(0, Form("%s/UnmatchedRecoMuonTracks/",muonContainerName.c_str()));
     }
     if (m_muonExtrapolatedTracksName!="") m_muonMETrackValidationPlots.push_back(new MuonTrackValidationPlots(0, categoryPath, "METrackParticles", m_isData));
     if (m_muonMSOnlyExtrapolatedTracksName!="") m_muonMSOnlyMETrackValidationPlots.push_back(new MuonTrackValidationPlots(0, categoryPath, "MSOnlyMETrackParticles", m_isData));
@@ -269,13 +207,13 @@ StatusCode MuonPhysValMonitoringTool::bookHistograms()
     if (m_muonSegmentsName!="") {
       if (category!=theMuonCategories[ALL]) continue; //cannot identify the truth origin of segments...
       m_muonSegmentValidationPlots.push_back(new MuonSegmentValidationPlots(0, categoryPath, m_isData));
-      if (!m_isData) m_oUnmatchedRecoMuonSegmentPlots = new Muon::MuonSegmentPlots(0, Form("%s/UnmatchedRecoMuonSegments/",m_muonsName.c_str()));	    
+      if (!m_isData) m_oUnmatchedRecoMuonSegmentPlots = new Muon::MuonSegmentPlots(0, Form("%s/UnmatchedRecoMuonSegments/",muonContainerName.c_str()));
     }
   }
 
   if (!m_isData) {
-    m_oUnmatchedRecoMuonPlots = new Muon::RecoMuonPlotOrganizer(0, Form("%s/UnmatchedRecoMuons/",m_muonsName.c_str()));
-    m_oUnmatchedTruthMuonPlots = new Muon::TruthMuonPlotOrganizer(0, Form("%s/UnmatchedTruthMuons/",m_muonsName.c_str()));
+    m_oUnmatchedRecoMuonPlots = new Muon::RecoMuonPlotOrganizer(0, Form("%s/UnmatchedRecoMuons/",muonContainerName.c_str()));
+    m_oUnmatchedTruthMuonPlots = new Muon::TruthMuonPlotOrganizer(0, Form("%s/UnmatchedTruthMuons/",muonContainerName.c_str()));
   }   
 
   for (const auto plots : m_muonValidationPlots)                 bookValidationPlots(*plots).ignore();
@@ -295,37 +233,37 @@ StatusCode MuonPhysValMonitoringTool::bookHistograms()
     if (m_oUnmatchedRecoMuonSegmentPlots) bookValidationPlots(*m_oUnmatchedRecoMuonSegmentPlots).ignore();
   }
   //book overview hists
-  m_h_overview_Z_mass = new TH1F(Form("%s_Overview_Z_mass",m_muonsName.c_str()),"",20,76,106);
-  ATH_CHECK(regHist(m_h_overview_Z_mass,Form("%s/Overview",m_muonsName.c_str()),all));
-  m_h_overview_Z_mass_ME = new TH1F(Form("%s_Overview_Z_mass_ME",m_muonsName.c_str()),"",20,76,106);
-  ATH_CHECK(regHist(m_h_overview_Z_mass_ME,Form("%s/Overview",m_muonsName.c_str()),all));
-  m_h_overview_Z_mass_ID = new TH1F(Form("%s_Overview_Z_mass_ID",m_muonsName.c_str()),"",20,76,106);
-  ATH_CHECK(regHist(m_h_overview_Z_mass_ID,Form("%s/Overview",m_muonsName.c_str()),all));
+  m_h_overview_Z_mass = new TH1F(Form("%s_Overview_Z_mass",muonContainerName.c_str()),"",20,76,106);
+  ATH_CHECK(regHist(m_h_overview_Z_mass,Form("%s/Overview",muonContainerName.c_str()),all));
+  m_h_overview_Z_mass_ME = new TH1F(Form("%s_Overview_Z_mass_ME",muonContainerName.c_str()),"",20,76,106);
+  ATH_CHECK(regHist(m_h_overview_Z_mass_ME,Form("%s/Overview",muonContainerName.c_str()),all));
+  m_h_overview_Z_mass_ID = new TH1F(Form("%s_Overview_Z_mass_ID",muonContainerName.c_str()),"",20,76,106);
+  ATH_CHECK(regHist(m_h_overview_Z_mass_ID,Form("%s/Overview",muonContainerName.c_str()),all));
   
   m_h_overview_nObjects.clear();
-  m_h_overview_nObjects.push_back(new TH1F(Form("%s_Overview_N_perevent_truth_muons",m_muonsName.c_str()), "Number of truth Muons per event", 20, -0.5, 19.5));
-  m_h_overview_nObjects.push_back(new TH1F(Form("%s_Overview_N_perevent_muons",m_muonsName.c_str()), "Number of Muons per event", 20, -0.5, 19.5));
-  m_h_overview_nObjects.push_back(new TH1F(Form("%s_Overview_N_perevent_tracks",m_muonsName.c_str()), "Number of Tracks per event", 50, -0.5, 49.5));
-  m_h_overview_nObjects.push_back(new TH1F(Form("%s_Overview_N_perevent_truth_segments",m_muonsName.c_str()), "Number of truth Segments per event", 200, -0.5, 199.5));
-  m_h_overview_nObjects.push_back(new TH1F(Form("%s_Overview_N_perevent_segments",m_muonsName.c_str()), "Number of Segments per event", 200, -0.5, 199.5));
+  m_h_overview_nObjects.push_back(new TH1F(Form("%s_Overview_N_perevent_truth_muons",muonContainerName.c_str()), "Number of truth Muons per event", 20, -0.5, 19.5));
+  m_h_overview_nObjects.push_back(new TH1F(Form("%s_Overview_N_perevent_muons",muonContainerName.c_str()), "Number of Muons per event", 20, -0.5, 19.5));
+  m_h_overview_nObjects.push_back(new TH1F(Form("%s_Overview_N_perevent_tracks",muonContainerName.c_str()), "Number of Tracks per event", 50, -0.5, 49.5));
+  m_h_overview_nObjects.push_back(new TH1F(Form("%s_Overview_N_perevent_truth_segments",muonContainerName.c_str()), "Number of truth Segments per event", 200, -0.5, 199.5));
+  m_h_overview_nObjects.push_back(new TH1F(Form("%s_Overview_N_perevent_segments",muonContainerName.c_str()), "Number of Segments per event", 200, -0.5, 199.5));
   for (const auto hist : m_h_overview_nObjects) {
-    if (hist) ATH_CHECK(regHist(hist,Form("%s/Overview",m_muonsName.c_str()),all));
+    if (hist) ATH_CHECK(regHist(hist,Form("%s/Overview",muonContainerName.c_str()),all));
   }
 
-  m_h_overview_reco_category = new TH1F(Form("%s_Overview_reco_category",m_muonsName.c_str()),"",4,0,4); //prompt/in-flight/non-isolated/other
+  m_h_overview_reco_category = new TH1F(Form("%s_Overview_reco_category",muonContainerName.c_str()),"",4,0,4); //prompt/in-flight/non-isolated/other
   for (int i=1; i<4; i++) { //skip 'All'
     m_h_overview_reco_category->GetXaxis()->SetBinLabel(i,theMuonCategories[i].c_str());
   } m_h_overview_reco_category->GetXaxis()->SetBinLabel(4,"Other"); //of some other origin or fakes
-  ATH_CHECK(regHist(m_h_overview_reco_category,Form("%s/Overview",m_muonsName.c_str()),all));
+  ATH_CHECK(regHist(m_h_overview_reco_category,Form("%s/Overview",muonContainerName.c_str()),all));
 
   int nAuth = xAOD::Muon::NumberOfMuonAuthors;
   for (int i=1; i<4; i++) {
-    m_h_overview_reco_authors.push_back(new TH1F((m_muonsName+"_"+theMuonCategories[i]+"_reco_authors").c_str(),(m_muonsName+"_"+theMuonCategories[i]+"_reco_authors").c_str(),nAuth+1,-0.5,nAuth+0.5));
+    m_h_overview_reco_authors.push_back(new TH1F((m_muonsName+"_"+theMuonCategories[i]+"_reco_authors").c_str(),(muonContainerName+"_"+theMuonCategories[i]+"_reco_authors").c_str(),nAuth+1,-0.5,nAuth+0.5));
   }
-  m_h_overview_reco_authors.push_back(new TH1F((m_muonsName+"_Overview_Other_reco_authors").c_str(),(m_muonsName+"_Other_reco_authors").c_str(),nAuth+1,-0.5,nAuth+0.5));
+  m_h_overview_reco_authors.push_back(new TH1F((m_muonsName+"_Overview_Other_reco_authors").c_str(),(muonContainerName+"_Other_reco_authors").c_str(),nAuth+1,-0.5,nAuth+0.5));
   
   for (const auto hist : m_h_overview_reco_authors) {
-    if (hist) ATH_CHECK(regHist(hist,Form("%s/Overview",m_muonsName.c_str()),all));
+    if (hist) ATH_CHECK(regHist(hist,Form("%s/Overview",muonContainerName.c_str()),all));
   }
 
   return StatusCode::SUCCESS;
@@ -391,6 +329,7 @@ StatusCode MuonPhysValMonitoringTool::fillHistograms()
   }
   const xAOD::EventInfo* eventInfo = eventInfoHandle.cptr();
   m_isData = !eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION );
+  float beamSpotWeight= eventInfo->beamSpotWeight();
 
   const xAOD::TruthParticleContainer* TruthMuons(0);
   
@@ -401,7 +340,7 @@ StatusCode MuonPhysValMonitoringTool::fillHistograms()
       return StatusCode::FAILURE;
     }
     ATH_MSG_DEBUG("Retrieved truth muons " << TruthMuons->size());
-    m_h_overview_nObjects[0]->Fill(TruthMuons->size());
+    m_h_overview_nObjects[0]->Fill(TruthMuons->size(), beamSpotWeight);
   }
 
   const xAOD::MuonContainer* Muons = nullptr;
@@ -413,7 +352,7 @@ StatusCode MuonPhysValMonitoringTool::fillHistograms()
       return StatusCode::SUCCESS;
     } 
     ATH_MSG_DEBUG("Retrieved slow muons " << SlowMuons->size());
-    m_h_overview_nObjects[1]->Fill(SlowMuons->size());
+    m_h_overview_nObjects[1]->Fill(SlowMuons->size(),beamSpotWeight);
   } else {
     Muons = evtStore()->retrieve< const xAOD::MuonContainer >( m_muonsName );
     if (!Muons) {
@@ -421,7 +360,7 @@ StatusCode MuonPhysValMonitoringTool::fillHistograms()
       return StatusCode::SUCCESS;
     } 
     ATH_MSG_DEBUG("Retrieved muons " << Muons->size());
-    m_h_overview_nObjects[1]->Fill(Muons->size());
+    m_h_overview_nObjects[1]->Fill(Muons->size(),beamSpotWeight);
   }
 
   /////////////////////////////////////////////////////////////////////// @@@
@@ -476,7 +415,7 @@ StatusCode MuonPhysValMonitoringTool::fillHistograms()
 
   if (m_vZmumuMuons.size()==2) {
     
-    m_h_overview_Z_mass->Fill( mZ/1000. );
+    m_h_overview_Z_mass->Fill( mZ/1000.,beamSpotWeight );
 
     const xAOD::TrackParticle* metr1(0);
     const xAOD::TrackParticle* metr2(0);
@@ -486,7 +425,7 @@ StatusCode MuonPhysValMonitoringTool::fillHistograms()
       TLorentzVector mu1ME,mu2ME;
       mu1ME.SetPtEtaPhiM( metr1->pt(), metr1->eta(), metr1->phi(), 105.77 );
       mu2ME.SetPtEtaPhiM( metr2->pt(), metr2->eta(), metr2->phi(), 105.77 );
-      m_h_overview_Z_mass_ME->Fill( (mu1ME+mu2ME).M()/1000. );
+      m_h_overview_Z_mass_ME->Fill( (mu1ME+mu2ME).M()/1000., beamSpotWeight );
       if (m_isData) {
       	m_vZmumuMETracks.clear();
       	m_vZmumuMETracks.push_back(metr1);
@@ -502,7 +441,7 @@ StatusCode MuonPhysValMonitoringTool::fillHistograms()
       TLorentzVector mu1ID,mu2ID;
       mu1ID.SetPtEtaPhiM( tr1->pt(), tr1->eta(), tr1->phi(), 105.77 );
       mu2ID.SetPtEtaPhiM( tr2->pt(), tr2->eta(), tr2->phi(), 105.77 );
-      m_h_overview_Z_mass_ID->Fill( (mu1ID+mu2ID).M()/1000. );
+      m_h_overview_Z_mass_ID->Fill( (mu1ID+mu2ID).M()/1000., beamSpotWeight );
       if (m_isData) {
 	m_vZmumuIDTracks.clear();
 	m_vZmumuIDTracks.push_back(tr1);
@@ -512,7 +451,7 @@ StatusCode MuonPhysValMonitoringTool::fillHistograms()
   }
 
   if (!m_isData) {
-    for (const auto truthMu: *TruthMuons) handleTruthMuon(truthMu);
+    for (const auto truthMu: *TruthMuons) handleTruthMuon(truthMu,beamSpotWeight);
   }
 
   if (SlowMuons) {
@@ -521,11 +460,11 @@ StatusCode MuonPhysValMonitoringTool::fillHistograms()
       const MuonLink link = smu->muonLink();
       if (!link.isValid()) continue;
       //handleSlowMuon( smu );
-      handleMuon( *link, smu);
+      handleMuon( *link, smu,beamSpotWeight);
     }
   }
   else if (Muons)	{
-    for (const auto mu: *Muons) handleMuon(mu);
+    for (const auto mu: *Muons) handleMuon(mu,0,beamSpotWeight);
   }
 
   if(m_doMuonTree) {
@@ -537,33 +476,33 @@ StatusCode MuonPhysValMonitoringTool::fillHistograms()
     auto IDTracks = getContainer<xAOD::TrackParticleContainer>( m_tracksName );
     if (!IDTracks) return StatusCode::FAILURE;
     ATH_MSG_DEBUG("handling " << IDTracks->size() << " " << m_tracksName);
-    for (const auto tp: *IDTracks) handleMuonTrack(tp,xAOD::Muon::InnerDetectorTrackParticle);
+    for (const auto tp: *IDTracks) handleMuonTrack(tp,xAOD::Muon::InnerDetectorTrackParticle,beamSpotWeight);
   }
   if (m_fwdtracksName!="") {
     auto FwdIDTracks = getContainer<xAOD::TrackParticleContainer>( m_fwdtracksName );
     if (!FwdIDTracks) return StatusCode::FAILURE;
     ATH_MSG_DEBUG("handling " << FwdIDTracks->size() << " " << m_fwdtracksName);
-    for (const auto tp: *FwdIDTracks) handleMuonTrack(tp,xAOD::Muon::InnerDetectorTrackParticle);
+    for (const auto tp: *FwdIDTracks) handleMuonTrack(tp,xAOD::Muon::InnerDetectorTrackParticle,beamSpotWeight);
   }
   if (m_muonTracksName!="") {
     auto MuonTracks = getContainer<xAOD::TrackParticleContainer>( m_muonTracksName );
     if (!MuonTracks) return StatusCode::FAILURE;
     ATH_MSG_DEBUG("handling " << MuonTracks->size() << " " << m_muonTracksName);
-    m_h_overview_nObjects[2]->Fill(MuonTracks->size());
-    for(const auto tp : *MuonTracks) handleMuonTrack(tp,xAOD::Muon::MuonSpectrometerTrackParticle);
+    m_h_overview_nObjects[2]->Fill(MuonTracks->size(),beamSpotWeight);
+    for(const auto tp : *MuonTracks) handleMuonTrack(tp,xAOD::Muon::MuonSpectrometerTrackParticle,beamSpotWeight);
   }
   if (m_muonExtrapolatedTracksName!="") {
     auto MuonExtrapolatedTracks = getContainer<xAOD::TrackParticleContainer>( m_muonExtrapolatedTracksName );
     if (!MuonExtrapolatedTracks) return StatusCode::FAILURE;
     ATH_MSG_DEBUG("handling " << MuonExtrapolatedTracks->size() << " " << m_muonExtrapolatedTracksName);
-    for(const auto tp : *MuonExtrapolatedTracks) handleMuonTrack(tp,xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle);
+    for(const auto tp : *MuonExtrapolatedTracks) handleMuonTrack(tp,xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle,beamSpotWeight);
   }
 
   if (m_muonMSOnlyExtrapolatedTracksName!="" && evtStore()->contains<xAOD::TrackParticleContainer>(m_muonMSOnlyExtrapolatedTracksName)) {
     auto MSOnlyMuonExtrapolatedTracks = getContainer<xAOD::TrackParticleContainer>( m_muonMSOnlyExtrapolatedTracksName );
     if (!MSOnlyMuonExtrapolatedTracks) return StatusCode::FAILURE;
     ATH_MSG_DEBUG("handling " << MSOnlyMuonExtrapolatedTracks->size() << " " << m_muonMSOnlyExtrapolatedTracksName);
-    for(const auto tp : *MSOnlyMuonExtrapolatedTracks) handleMuonTrack(tp,xAOD::Muon::MSOnlyExtrapolatedMuonSpectrometerTrackParticle);
+    for(const auto tp : *MSOnlyMuonExtrapolatedTracks) handleMuonTrack(tp,xAOD::Muon::MSOnlyExtrapolatedMuonSpectrometerTrackParticle,beamSpotWeight);
   }
 
   if (m_muonSegmentsName!="") {
@@ -574,9 +513,9 @@ StatusCode MuonPhysValMonitoringTool::fillHistograms()
 	ATH_MSG_WARNING ("Couldn't retrieve Truth Muon Segments container with key: " << m_muonSegmentsTruthName);
 	return StatusCode::SUCCESS;
       }
-      m_h_overview_nObjects[3]->Fill(TruthMuonSegments->size());
+      m_h_overview_nObjects[3]->Fill(TruthMuonSegments->size(),beamSpotWeight);
       ATH_MSG_DEBUG("handling " << TruthMuonSegments->size() << " " << m_muonSegmentsTruthName);
-      for (const auto truthMuSeg: *TruthMuonSegments) handleTruthMuonSegment(truthMuSeg,TruthMuons);
+      for (const auto truthMuSeg: *TruthMuonSegments) handleTruthMuonSegment(truthMuSeg,TruthMuons,beamSpotWeight);
     }
       
     const xAOD::MuonSegmentContainer* MuonSegments = evtStore()->retrieve< const xAOD::MuonSegmentContainer >( m_muonSegmentsName );
@@ -584,9 +523,9 @@ StatusCode MuonPhysValMonitoringTool::fillHistograms()
       ATH_MSG_WARNING ("Couldn't retrieve MuonSegments container with key: " << m_muonSegmentsName);
       return StatusCode::SUCCESS;
     } 
-    m_h_overview_nObjects[4]->Fill(MuonSegments->size());
+    m_h_overview_nObjects[4]->Fill(MuonSegments->size(),beamSpotWeight);
     ATH_MSG_DEBUG("handling " << MuonSegments->size() << " " << m_muonSegmentsName);
-    for(const auto muSeg : *MuonSegments) handleMuonSegment(muSeg);	
+    for(const auto muSeg : *MuonSegments) handleMuonSegment(muSeg,beamSpotWeight);	
   }
 
 
@@ -861,7 +800,7 @@ StatusCode MuonPhysValMonitoringTool::fillHistograms()
         }//m_vRecoMuons_EffDen
       }//m_muonItems
 //@@@@@ L1 items efficiency @@@@@
-      for (const auto L1MuonItem : m_L1MuonItems) { 
+      for (const auto& L1MuonItem : m_L1MuonItems) { 
         m_vRecoMuons_EffDen=m_vRecoMuons_EffDen_CB; m_SelectedAuthor=1;
         float treshold=0.;
         if(L1MuonItem=="L1_MU4") treshold=4000;
@@ -960,7 +899,7 @@ StatusCode MuonPhysValMonitoringTool::fillHistograms()
   return StatusCode::SUCCESS;
 }
 
-void MuonPhysValMonitoringTool::handleTruthMuonSegment(const xAOD::MuonSegment* truthMuSeg,const xAOD::TruthParticleContainer* /*muonTruthContainer*/)
+  void MuonPhysValMonitoringTool::handleTruthMuonSegment(const xAOD::MuonSegment* truthMuSeg,const xAOD::TruthParticleContainer* /*muonTruthContainer*/, float weight)
 {
   const xAOD::MuonSegment* muSeg = findRecoMuonSegment(truthMuSeg);
   ////if (msgLvl(MSG::DEBUG)) printTruthMuonDebug(truthMu, mu);
@@ -970,30 +909,30 @@ void MuonPhysValMonitoringTool::handleTruthMuonSegment(const xAOD::MuonSegment* 
 
   for (unsigned int i=0; i<m_selectMuonCategories.size(); i++) {    
     if ( m_selectMuonCategories[i]==ALL || m_selectMuonCategories[i]==thisMuonCategory ) {
-      m_muonSegmentValidationPlots[i]->fill(truthMuSeg, muSeg);   // if no reco muon segment is found a protection inside MuonSegmentValidationPlots will ensure, its plots won't be filled
+      m_muonSegmentValidationPlots[i]->fill(truthMuSeg, muSeg,weight);   // if no reco muon segment is found a protection inside MuonSegmentValidationPlots will ensure, its plots won't be filled
     }
   }
 
 }
 
-void MuonPhysValMonitoringTool::handleMuonSegment(const xAOD::MuonSegment* muSeg)
+  void MuonPhysValMonitoringTool::handleMuonSegment(const xAOD::MuonSegment* muSeg, float weight)
 {
   if( !muSeg ) {
     ATH_MSG_WARNING("No muon segment found");
     return;
   }
   if (std::find(std::begin(m_vMatchedMuonSegments), std::end(m_vMatchedMuonSegments), muSeg) != std::end(m_vMatchedMuonSegments)) return;
-  if (!m_isData) m_oUnmatchedRecoMuonSegmentPlots->fill(*muSeg);
+  if (!m_isData) m_oUnmatchedRecoMuonSegmentPlots->fill(*muSeg, weight);
   for (unsigned int i=0; i<m_selectMuonCategories.size(); i++) {
     if (m_selectMuonCategories[i]==ALL) { 
-      m_muonSegmentValidationPlots[i]->fill(muSeg);
+      m_muonSegmentValidationPlots[i]->fill(muSeg,weight);
       break;
     }
   }
 }
 
 
-void MuonPhysValMonitoringTool::handleMuon(const xAOD::Muon* mu, const xAOD::SlowMuon *smu)
+  void MuonPhysValMonitoringTool::handleMuon(const xAOD::Muon* mu, const xAOD::SlowMuon *smu, float weight)
 {
   if (!mu) return;
   if (msgLvl(MSG::DEBUG)) printMuonDebug(mu);
@@ -1025,8 +964,8 @@ void MuonPhysValMonitoringTool::handleMuon(const xAOD::Muon* mu, const xAOD::Slo
     for (unsigned int i=0; i<m_selectMuonCategories.size(); i++) {
       if (m_selectMuonCategories[i]==ALL || m_selectMuonCategories[i]==thisMuonCategory) {
 	//histos
-	m_muonValidationPlots[i]->fill(*mu_c);
-	if (smu && mu_c) m_slowMuonValidationPlots[i]->fill(*smu,*mu_c);
+	m_muonValidationPlots[i]->fill(*mu_c,weight);
+	if (smu && mu_c) m_slowMuonValidationPlots[i]->fill(*smu,*mu_c,weight);
 	//tree branches 
 	m_muonValidationPlots[i]->fillTreeBranches(*mu_c);
       }
@@ -1055,16 +994,16 @@ void MuonPhysValMonitoringTool::handleMuon(const xAOD::Muon* mu, const xAOD::Slo
   
   //unmatched reco muons (not matched with any kind of truth particle, fakes)
   if (!m_isData)
-    m_oUnmatchedRecoMuonPlots->fill(*mu_c);
+    m_oUnmatchedRecoMuonPlots->fill(*mu_c, weight);
   
-  m_h_overview_reco_category->Fill("Other",1);
-  m_h_overview_reco_authors[3]->Fill(mu->author());
+  m_h_overview_reco_category->Fill("Other",weight);
+  m_h_overview_reco_authors[3]->Fill(mu->author(),weight);
  
   for (unsigned int i=0; i<m_selectMuonCategories.size(); i++) {
     if (m_selectMuonCategories[i]==ALL) {
       //histos
 	 m_muonValidationPlots[i]->fill(*mu_c);
-      if (smu && mu_c) m_slowMuonValidationPlots[i]->fill(*smu,*mu_c);
+	 if (smu && mu_c) m_slowMuonValidationPlots[i]->fill(*smu,*mu_c,weight);
 	 //tree branches
 	 m_muonValidationPlots[i]->fillTreeBranches(*mu_c);
       break;
@@ -1073,7 +1012,7 @@ void MuonPhysValMonitoringTool::handleMuon(const xAOD::Muon* mu, const xAOD::Slo
   if (mu_c) delete mu_c;
 }
 
-void MuonPhysValMonitoringTool::handleSlowMuon(const xAOD::SlowMuon */*smu*/)
+  void MuonPhysValMonitoringTool::handleSlowMuon(const xAOD::SlowMuon */*smu*/,float /*weight*/)
 {
   // if (!smu) return;
   // const MuonLink muLink = smu->muonLink();
@@ -1112,7 +1051,7 @@ void MuonPhysValMonitoringTool::handleSlowMuon(const xAOD::SlowMuon */*smu*/)
   // if (mu_c) delete mu_c;
 }
 
-void MuonPhysValMonitoringTool::handleTruthMuon(const xAOD::TruthParticle* truthMu)
+  void MuonPhysValMonitoringTool::handleTruthMuon(const xAOD::TruthParticle* truthMu, float weight)
 {
   const xAOD::SlowMuon* smu = nullptr; 
   const xAOD::Muon* mu = nullptr;
@@ -1152,17 +1091,17 @@ void MuonPhysValMonitoringTool::handleTruthMuon(const xAOD::TruthParticle* truth
   for (unsigned int i=0; i<m_selectMuonCategories.size(); i++) {
     if (m_selectMuonCategories[i]==ALL || m_selectMuonCategories[i]==thisMuonCategory) {
       //histos
-	 m_muonValidationPlots[i]->fill(truthMu, mu_c, m_MSTracks); //if no muon is found a protection inside MuonValidationPlots will ensure, its plots won't be filled
-	 m_slowMuonValidationPlots[i]->fill(truthMu, smu, mu_c);
+      m_muonValidationPlots[i]->fill(truthMu, mu_c, m_MSTracks,weight); //if no muon is found a protection inside MuonValidationPlots will ensure, its plots won't be filled
+      m_slowMuonValidationPlots[i]->fill(truthMu, smu, mu_c,weight);
 	 //tree branches
 	 m_muonValidationPlots[i]->fillTreeBranches(truthMu, mu_c, m_MSTracks);
     }
   }
   if (mu_c) {    
-    m_h_overview_reco_category->Fill(thisMuonCategory-1);
-    m_h_overview_reco_authors[thisMuonCategory-1]->Fill(mu_c->author());
+    m_h_overview_reco_category->Fill(thisMuonCategory-1,weight);
+    m_h_overview_reco_authors[thisMuonCategory-1]->Fill(mu_c->author(),weight);
   }
-  else if (!m_isData) m_oUnmatchedTruthMuonPlots->fill(*truthMu);
+  else if (!m_isData) m_oUnmatchedTruthMuonPlots->fill(*truthMu,weight);
 
   if (mu_c) delete mu_c;
 }
@@ -1180,7 +1119,7 @@ void  MuonPhysValMonitoringTool::handleMuonTrees(const xAOD::EventInfo* eventInf
 	}
 }
 
-void MuonPhysValMonitoringTool::handleMuonTrack(const xAOD::TrackParticle* tp, xAOD::Muon::TrackParticleType type)
+  void MuonPhysValMonitoringTool::handleMuonTrack(const xAOD::TrackParticle* tp, xAOD::Muon::TrackParticleType type, float weight)
 {
   if( !tp ) {
     ATH_MSG_WARNING("No track particle found");    return;
@@ -1208,14 +1147,14 @@ void MuonPhysValMonitoringTool::handleMuonTrack(const xAOD::TrackParticle* tp, x
       
       for (unsigned int i=0; i<m_selectMuonCategories.size(); i++) {
 	if (m_selectMuonCategories[i]==ALL || m_selectMuonCategories[i]==thisTrkCategory) {
-	  m_muonIDTrackValidationPlots[i]->fill(*tp);
-	  if (passesMuonTrackSel) m_muonIDSelectedTrackValidationPlots[i]->fill(*tp);
+	  m_muonIDTrackValidationPlots[i]->fill(*tp, weight);
+	  if (passesMuonTrackSel) m_muonIDSelectedTrackValidationPlots[i]->fill(*tp, weight);
 	}
       }
     }
-    else if (type==xAOD::Muon::MuonSpectrometerTrackParticle) m_muonMSTrackValidationPlots[ALL]->fill(*tp);
-    else if (type==xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle) m_muonMETrackValidationPlots[ALL]->fill(*tp);
-    else if (type==xAOD::Muon::MSOnlyExtrapolatedMuonSpectrometerTrackParticle) m_muonMSOnlyMETrackValidationPlots[ALL]->fill(*tp);
+    else if (type==xAOD::Muon::MuonSpectrometerTrackParticle) m_muonMSTrackValidationPlots[ALL]->fill(*tp,weight);
+    else if (type==xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle) m_muonMETrackValidationPlots[ALL]->fill(*tp,weight);
+    else if (type==xAOD::Muon::MSOnlyExtrapolatedMuonSpectrometerTrackParticle) m_muonMSOnlyMETrackValidationPlots[ALL]->fill(*tp,weight);
     
     return;	
   }
@@ -1242,14 +1181,14 @@ void MuonPhysValMonitoringTool::handleMuonTrack(const xAOD::TrackParticle* tp, x
 	//   if (passesMuonTrackSel) m_muonIDSelectedTrackValidationPlots[i]->fill(*tp);
 	// } else
 	if (type==xAOD::Muon::MuonSpectrometerTrackParticle) {
-	  if (!m_isData) m_oUnmatchedRecoMuonTrackPlots->fill(*tp);
-	  m_muonMSTrackValidationPlots[i]->fill(*tp);
+	  if (!m_isData) m_oUnmatchedRecoMuonTrackPlots->fill(*tp,weight);
+	  m_muonMSTrackValidationPlots[i]->fill(*tp,weight);
 	}	
 	else if (type==xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle) {
-	  m_muonMETrackValidationPlots[i]->fill(*tp);
+	  m_muonMETrackValidationPlots[i]->fill(*tp,weight);
 	}
 	else if (type==xAOD::Muon::MSOnlyExtrapolatedMuonSpectrometerTrackParticle) {
-	  m_muonMSOnlyMETrackValidationPlots[i]->fill(*tp);
+	  m_muonMSOnlyMETrackValidationPlots[i]->fill(*tp,weight);
 	}
 	break;
       }
@@ -1269,20 +1208,20 @@ void MuonPhysValMonitoringTool::handleMuonTrack(const xAOD::TrackParticle* tp, x
       if (m_selectMuonCategories[i]==ALL || m_selectMuonCategories[i]==thisMuonCategory) {
 
 	if (type==xAOD::Muon::InnerDetectorTrackParticle) {
-	  if (m_fwdtracksName!="" && std::abs((*truthLink)->eta())>2.5) m_muonIDForwardTrackValidationPlots[i]->fill(*truthLink, tp);
+	  if (m_fwdtracksName!="" && std::abs((*truthLink)->eta())>2.5) m_muonIDForwardTrackValidationPlots[i]->fill(*truthLink, tp,weight);
 	  else if (m_tracksName!="") {
-	    m_muonIDTrackValidationPlots[i]->fill(*truthLink, tp);
-	    if (passesMuonTrackSel) m_muonIDSelectedTrackValidationPlots[i]->fill(*truthLink,tp);
+	    m_muonIDTrackValidationPlots[i]->fill(*truthLink, tp, weight);
+	    if (passesMuonTrackSel) m_muonIDSelectedTrackValidationPlots[i]->fill(*truthLink,tp,weight);
 	  }
 	}
 	else if (type==xAOD::Muon::MuonSpectrometerTrackParticle) {
-	  m_muonMSTrackValidationPlots[i]->fill(*truthLink, tp);
+	  m_muonMSTrackValidationPlots[i]->fill(*truthLink, tp,weight);
 	}
 	else if (type==xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle) {
-	  m_muonMETrackValidationPlots[i]->fill(*truthLink, tp);
+	  m_muonMETrackValidationPlots[i]->fill(*truthLink, tp,weight);
 	}
 	else if (type==xAOD::Muon::MSOnlyExtrapolatedMuonSpectrometerTrackParticle) {
-	  m_muonMSOnlyMETrackValidationPlots[i]->fill(*truthLink, tp);
+	  m_muonMSOnlyMETrackValidationPlots[i]->fill(*truthLink, tp,weight);
 	}
       }
     }

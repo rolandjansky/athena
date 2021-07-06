@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EVetoPlots.h"
@@ -44,37 +44,37 @@ void EVetoPlots::initializePlots(){
   m_pt_eleRNNtightHighPt = Book1D("Pt_eleRNNtightHighPt",m_sTauJetContainerName + " Tau pt; pt; # Taus",20,0.,1500.);
 }
 
-void EVetoPlots::fill(const xAOD::TauJet& tau) {
+  void EVetoPlots::fill(const xAOD::TauJet& tau, float weight) {
 
+  float avariable = 0.;
 
-  float avariable=0;
-
-  bool test=tau.detail(xAOD::TauJetParameters::hadRadius, avariable);
-  if(test)     m_HadRadius->Fill(avariable,1.);
+  bool test = tau.detail(xAOD::TauJetParameters::hadRadius, avariable);
+  if(test) m_HadRadius->Fill(avariable, weight);
  
-  test=tau.detail(xAOD::TauJetParameters::EMRadius, avariable);
-  if(test) m_EMRadius->Fill(avariable, 1.);
+  test = tau.detail(xAOD::TauJetParameters::EMRadius, avariable);
+  if(test) m_EMRadius->Fill(avariable, weight);
 
-  test=tau.detail(xAOD::TauJetParameters::isolFrac, avariable);
-  if (test) m_IsoFrac->Fill(avariable, 1.);
+  test = tau.detail(xAOD::TauJetParameters::isolFrac, avariable);
+  if(test) m_IsoFrac->Fill(avariable, weight);
 
-  test=tau.detail(xAOD::TauJetParameters::centFrac, avariable);
-  if (test) m_CentFrac->Fill(avariable,1.);
+  test = tau.detail(xAOD::TauJetParameters::centFrac, avariable);
+  if(test) m_CentFrac->Fill(avariable, weight);
 
-  if(tau.hasDiscriminant(xAOD::TauJetParameters::RNNEleScore) )m_id_RNNEleScore->Fill(tau.discriminant(xAOD::TauJetParameters::RNNEleScore));
-  if ( tau.isTau(xAOD::TauJetParameters::EleRNNLoose) ) {
-     m_pt_eleRNNloose      ->Fill(tau.pt()/1000.0, 1.0);
-     m_pt_eleRNNlooseHighPt->Fill(tau.pt()/1000.0, 1.0);
+  if(tau.isAvailable<float>("RNNEleScore")) {
+    m_id_RNNEleScore->Fill(tau.discriminant(xAOD::TauJetParameters::RNNEleScore), weight);
+    if ( tau.isTau(xAOD::TauJetParameters::EleRNNLoose) ) {
+      m_pt_eleRNNloose->Fill(tau.pt()/1000., weight);
+      m_pt_eleRNNlooseHighPt->Fill(tau.pt()/1000., weight);
+    }
+    if ( tau.isTau(xAOD::TauJetParameters::EleRNNMedium) ) {
+      m_pt_eleRNNmed->Fill(tau.pt()/1000., weight);
+      m_pt_eleRNNmedHighPt->Fill(tau.pt()/1000., weight);
+    }
+    if ( tau.isTau(xAOD::TauJetParameters::EleRNNTight) ) {
+      m_pt_eleRNNtight->Fill(tau.pt()/1000., weight);
+      m_pt_eleRNNtightHighPt->Fill(tau.pt()/1000., weight);
+    }
   }
-  if ( tau.isTau(xAOD::TauJetParameters::EleRNNMedium) ) {
-     m_pt_eleRNNmed      ->Fill(tau.pt()/1000.0, 1.0);
-     m_pt_eleRNNmedHighPt->Fill(tau.pt()/1000.0, 1.0);
-  }
-  if ( tau.isTau(xAOD::TauJetParameters::EleRNNTight) ) {
-     m_pt_eleRNNtight      ->Fill(tau.pt()/1000.0, 1.0);
-     m_pt_eleRNNtightHighPt->Fill(tau.pt()/1000.0, 1.0);
-  }
-
 }
 
 }

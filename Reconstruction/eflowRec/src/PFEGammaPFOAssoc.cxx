@@ -1,5 +1,5 @@
 /*  
- Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "eflowRec/PFEGammaPFOAssoc.h" 
@@ -14,8 +14,8 @@
 #include "xAODPFlow/PFO.h" 
 
 typedef ElementLink<xAOD::ElectronContainer> ElectronLink_t; 
-typedef ElementLink<xAOD::PhotonContainer> PhotonLink_t;
-typedef ElementLink<xAOD::PFOContainer> PFOLink_t; 
+using PhotonLink_t = ElementLink<xAOD::PhotonContainer>;
+using PFOLink_t = ElementLink<xAOD::PFOContainer>; 
 
 // ============================================================= 
 PFEGammaPFOAssoc::PFEGammaPFOAssoc(const std::string& name, 
@@ -115,7 +115,7 @@ StatusCode PFEGammaPFOAssoc::execute() {
 	      if (electronClusterIndex == pfoClusterIndex) { 
 	        // Add electron element link to a vector          
 	        // index() is the unique index of the electron in the electron container 
-	        pfoElectronLinks.push_back( ElectronLink_t(*electronReadHandle, electron->index()) ); 
+	        pfoElectronLinks.emplace_back(*electronReadHandle, electron->index() ); 
 	        // Add pfo element link to a vector 
 	        // index() is the unique index of the nPFO in the nPFO container 
 	        electronNeutralPFOVec.at(electron->index()).push_back( PFOLink_t(*neutralpfoReadHandle, pfo->index()) );       
@@ -136,7 +136,7 @@ StatusCode PFEGammaPFOAssoc::execute() {
         if (photonClusterIndex == pfoClusterIndex) {
           // Add photon element link to a vector
           // index() is the unique index of the nPFO in the nPFO container
-          pfoPhotonLinks.push_back( PhotonLink_t(*photonReadHandle, photon->index()) );
+          pfoPhotonLinks.emplace_back(*photonReadHandle, photon->index() );
           // Add pfo element link to a vector
           // index() is the unique index of the nPFO in the nPFO container
           photonNeutralPFOVec.at(photon->index()).push_back( PFOLink_t(*neutralpfoReadHandle, pfo->index()) );
@@ -174,7 +174,7 @@ StatusCode PFEGammaPFOAssoc::execute() {
 	      if (electronTrackIndex == pfoTrackIndex) { 
 	        // Add electron element link to a vector 
 	        // index() is the unique index of the electron in the electron container 
-	        pfoElectronLinks.push_back( ElectronLink_t(*electronReadHandle, electron->index()) ); 
+	        pfoElectronLinks.emplace_back(*electronReadHandle, electron->index() ); 
 	        // Add pfo element link to a vector 
 	        // index() is the unique index of the cPFO in the cPFO container 
 	        electronChargedPFOVec.at(electron->index()).push_back( PFOLink_t(*chargedpfoReadHandle, pfo->index()) );      
@@ -195,7 +195,7 @@ StatusCode PFEGammaPFOAssoc::execute() {
         if (photonTrackIndex == pfoTrackIndex) {
           // Add photon element link to a vector
           // index() is the unique index of the photon in the photon container
-          pfoPhotonLinks.push_back( PhotonLink_t(*photonReadHandle, photon->index()) );
+          pfoPhotonLinks.emplace_back(*photonReadHandle, photon->index() );
           // Add pfo element link to a vector
           // index() is the unique index of the cPFO in the cPFO container
           photonChargedPFOVec.at(photon->index()).push_back( PFOLink_t(*chargedpfoReadHandle, pfo->index()) );

@@ -59,11 +59,10 @@ ActsAdaptiveMultiPriVtxFinderTool::initialize()
 
     ATH_CHECK( m_extrapolationTool.retrieve() );
 
-    Acts::Navigator navigator(trackingGeometry);
+    Acts::Navigator navigator( Acts::Navigator::Config{ trackingGeometry } );
 
-    using BField_t = ATLASMagneticFieldWrapper;
-    BField_t bField;
-    auto stepper = Acts::EigenStepper<BField_t>(std::move(bField));
+    auto bField = std::make_shared<ATLASMagneticFieldWrapper>();
+    auto stepper = Acts::EigenStepper<>(bField);
     auto propagator = std::make_shared<Propagator>(std::move(stepper), 
       std::move(navigator));
     // IP Estimator
@@ -80,7 +79,7 @@ ActsAdaptiveMultiPriVtxFinderTool::initialize()
     // Create a custom std::function to extract BoundParameters 
     // from TrackWrapper
     std::function<Acts::BoundTrackParameters(TrackWrapper)> extractParameters =
-        [](TrackWrapper params) { return params.parameters(); };
+        [](const TrackWrapper& params) { return params.parameters(); };
 
     // Vertex fitter configuration
     VertexFitter::Config fitterCfg(ipEst);
@@ -107,7 +106,7 @@ ActsAdaptiveMultiPriVtxFinderTool::initialize()
     seedFinderConfig.trackDensityEstimator = trackDensity;
     VertexSeedFinder seedFinder(seedFinderConfig, extractParameters);
     VertexFinder::Config finderConfig(std::move(fitter), seedFinder,
-      ipEst, linearizer);
+      ipEst, linearizer, bField);
 
     // Vertex finder config
     finderConfig.useBeamSpotConstraint = m_useBeamConstraint;
@@ -126,7 +125,7 @@ ActsAdaptiveMultiPriVtxFinderTool::initialize()
     finderConfig.useVertexCovForIPEstimation = m_useVertexCovForIPEstimation;
     finderConfig.useSeedConstraint = m_useSeedConstraint;
     m_vertexFinder = std::make_shared<VertexFinder>(finderConfig, extractParameters);
-
+    
     ATH_MSG_INFO("ACTS AMVF tool successfully initialized");
     return StatusCode::SUCCESS;
 }
@@ -210,7 +209,7 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vect
     using namespace Acts::UnitLiterals;
 
     SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx};
-    const Acts::Vector3D& beamSpotPos = beamSpotHandle->beamVtx().position();
+    const Acts::Vector3& beamSpotPos = beamSpotHandle->beamVtx().position();
     Acts::Vertex<TrackWrapper> beamSpotConstraintVtx(beamSpotPos);
     beamSpotConstraintVtx.setCovariance(beamSpotHandle->beamVtx().covariancePosition());
 
@@ -218,7 +217,7 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vect
     Acts::MagneticFieldContext magFieldContext = m_extrapolationTool->getMagneticFieldContext(ctx);
 
     const auto& geoContext
-    = m_trackingGeometryTool->getGeometryContext(ctx).any();
+    = m_trackingGeometryTool->getGeometryContext(ctx).context();
 
     // The output vertex containers
     xAOD::VertexContainer* theVertexContainer = new xAOD::VertexContainer;
@@ -268,7 +267,9 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vect
     }
 
     std::vector<const TrackWrapper*> allTrackPtrs;
-    for(const auto& trk : allTracks){
+    allTrackPtrs.reserve(allTracks.size());
+
+for(const auto& trk : allTracks){
       allTrackPtrs.push_back(&trk);
     }
 
@@ -276,8 +277,8 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vect
        magFieldContext);
 
     if(!m_useBeamConstraint){
-      beamSpotConstraintVtx.setPosition(Acts::Vector3D::Zero());
-      beamSpotConstraintVtx.setCovariance(Acts::ActsSymMatrixD<3>::Zero());
+      beamSpotConstraintVtx.setPosition(Acts::Vector3::Zero());
+      beamSpotConstraintVtx.setCovariance(Acts::ActsSymMatrix<3>::Zero());
     }
 
     vertexingOptions.vertexConstraint = beamSpotConstraintVtx;
@@ -285,7 +286,7 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vect
     VertexFinder::State finderState;
 
     auto findResult = m_vertexFinder->find(allTrackPtrs, vertexingOptions, finderState);
-
+    
     if(!findResult.ok()){
       xAOD::Vertex* dummyxAODVertex = new xAOD::Vertex;
       theVertexContainer->push_back(dummyxAODVertex);
@@ -376,15 +377,15 @@ return std::make_pair(theVertexContainer, theVertexAuxContainer);
 
 
 Trk::Perigee* ActsAdaptiveMultiPriVtxFinderTool::actsBoundToTrkPerigee(
-  const Acts::BoundTrackParameters& bound, const Acts::Vector3D& surfCenter) const {
+  const Acts::BoundTrackParameters& bound, const Acts::Vector3& surfCenter) const {
   using namespace Acts::UnitLiterals;
-  AmgSymMatrix(5)* cov =  new AmgSymMatrix(5)(bound.covariance()->block<5,5>(0,0));
-  cov->col(Trk::qOverP) *= 1_MeV;
-  cov->row(Trk::qOverP) *= 1_MeV;
-  Acts::ActsVectorD<5> params = bound.parameters().head<5>();
+  AmgSymMatrix(5) cov =  AmgSymMatrix(5)(bound.covariance()->block<5,5>(0,0));
+  cov.col(Trk::qOverP) *= 1_MeV;
+  cov.row(Trk::qOverP) *= 1_MeV;
+  Acts::ActsVector<5> params = bound.parameters().head<5>();
   params[Trk::qOverP] *= 1_MeV;
 
-  return new Trk::Perigee(params, Trk::PerigeeSurface(surfCenter), cov);
+  return new Trk::Perigee(params, Trk::PerigeeSurface(surfCenter), std::move(cov));
 }
 
 double

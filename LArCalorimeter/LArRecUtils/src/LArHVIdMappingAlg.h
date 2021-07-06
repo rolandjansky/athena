@@ -16,9 +16,8 @@
 class LArHVIdMappingAlg: public AthAlgorithm {
 
 public:
-
-  LArHVIdMappingAlg(const std::string& name, ISvcLocator* pSvcLocator);
-  virtual ~LArHVIdMappingAlg();
+  using AthAlgorithm::AthAlgorithm;
+  virtual ~LArHVIdMappingAlg() = default;
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;
@@ -31,7 +30,7 @@ public:
 
   SG::ReadCondHandleKey<AthenaAttributeList>   m_readKey{this, "ReadKey", "/LAR/IdentifierOfl/HVLineToElectrodeMap", "Cool folder with HV mapping"};
   SG::WriteCondHandleKey<LArHVIdMapping>  m_writeKey{this, "WriteKey","LArHVIdMap", "Key for output mapping object"} ;
-  ServiceHandle<ICondSvc> m_condSvc;
+  ServiceHandle<ICondSvc> m_condSvc{this,"CondSvc","CondSvc"};
   //bool m_isSuperCell;
 
 };

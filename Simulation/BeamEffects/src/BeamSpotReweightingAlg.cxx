@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // class header
@@ -23,7 +23,6 @@ namespace Simulation
   BeamSpotReweightingAlg::BeamSpotReweightingAlg( const std::string& name, ISvcLocator* pSvcLocator )
     : AthReentrantAlgorithm( name, pSvcLocator )
   {
-    declareProperty( "Input_beam_sigma_z", m_input_beam_sigma_z, "Beam spot sigma of the input HIT file to be reweighted");
   }
 
   /** Athena algorithm's interface method initialize() */
@@ -69,7 +68,7 @@ namespace Simulation
     }
 
     // loop over the event in the mc collection
-    for (const auto& currentGenEvent : *h_inputMcEventCollection) {
+    for (const auto currentGenEvent : *h_inputMcEventCollection) {
       // skip empty events
       if ( !currentGenEvent ) {
         //the hard scatter event is always the first one. If not present, do nothing

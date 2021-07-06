@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JetMetExAlg.cxx 770492 2016-08-28 16:52:40Z rwhite $
 // Place holder for Jet Met trigger analysis for Trigger Tutorial
 //
 // Gaudi/Athena include(s):
@@ -267,7 +266,7 @@ StatusCode JetMetExAlg::EmulationAnalysis(){
 
     float l1_met(0.);
     bool overflow(false);
-    static LVL1::L1METvalue l1calc;
+    LVL1::L1METvalue l1calc;
     l1calc.calcL1MET(l1_mex, l1_mey, l1_met, overflow);
 
     bool L1_XE50 = overflow || l1_met * GeV > 50; // Either overflow or cut at 50 GeV

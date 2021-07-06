@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCStripDoubletSB_hh
@@ -11,7 +11,7 @@ namespace LVL1TGCTrigger {
 
 class TGCStripDoubletSB : public TGCDoubletSB {
 public:
-  TGCStripDoubletSB(const TGCArguments* tgcargs):TGCDoubletSB(tgcargs){
+  TGCStripDoubletSB():TGCDoubletSB(){
     m_maxDev=3;
     m_nChAdj=0;
     m_iChBase=1;

@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARBYTESTREAM_LARDIGITCONTRAWEVENTCNV_H
@@ -24,7 +24,7 @@ class LArDigitContainer;
 class LArRawDataContByteStreamTool ; 
 class IROBDataProviderSvc; 
 class ByteStreamCnvSvc;
-class LArABBADecoder;
+class LArLATOMEDecoder;
 
 /** This class is the coverter to read/write LArDigitContainer from/to ByteStream
    * @author W. Lampl, R. Lafaye
@@ -53,7 +53,7 @@ public:
 
 private: 
   ToolHandle<BYTESTREAMTOOL> m_tool ; 
-  ToolHandle<LArABBADecoder> m_scTool;
+  ToolHandle<LArLATOMEDecoder> m_scTool;
   ServiceHandle<IROBDataProviderSvc> m_rdpSvc;
   ServiceHandle<IByteStreamEventAccess> m_byteStreamEventAccess;
   ByteStreamCnvSvc* m_byteStreamCnvSvc;

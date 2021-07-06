@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # JetAlgorithm.py
 #
@@ -40,16 +40,16 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
   from JetRec.JetRecStandard import jtm
 
   # Set sequence and flags as needed.
-  if job == None:
+  if job is None:
     from AthenaCommon.AlgSequence import AlgSequence
     job = AlgSequence()
-  if useTruth == None:
+  if useTruth is None:
     useTruth = jetFlags.useTruth()
-  if eventShapeTools == None:
+  if eventShapeTools is None:
     eventShapeTools = jetFlags.eventShapeTools()
-    if eventShapeTools == None:
+    if eventShapeTools is None:
       eventShapeTools = []
-  if separateJetAlgs == None:
+  if separateJetAlgs is None:
     separateJetAlgs = jetFlags.separateJetAlgs()
 
 
@@ -59,9 +59,6 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
     "lctopo"   : ("LCTopoEventShape",   jtm.lcget),
     "empflow"  : ("EMPFlowEventShape",  jtm.empflowget),
   }
-
-  if jetFlags.usePFlowFE():
-    evsDict["empflow_fe"] = ("EMPFlowFEEventShape",  jtm.empflowget_fe)
 
   if jetFlags.useTracks():
     if jetFlags.useVertices():
@@ -136,7 +133,7 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
                                                             ThinNegativeEnergyCaloClusters = True,
                                                             CaloClustersKey = 'EMOriginTopoClusters',
                                                             StreamName = 'StreamAOD'))
-    if not IsInInputFile("xAOD::PFOContainer","CHSParticleFlowObjects"):
+    if not IsInInputFile("xAOD::FlowElementContainer","CHSParticleFlowObjects"):
       if not hasattr(job,"jetalgCHSPFlow"):
         ctools += [jtm.JetConstitSeq_PFlowCHS]
         if thinneg:
@@ -148,19 +145,6 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
             StreamName = 'StreamAOD'
             )
           postalgs.append(CHSnPFOsThinAlg)
-    if jetFlags.usePFlowFE() and not IsInInputFile("xAOD::FlowElementContainer","CHSFlowElements"):
-      if not hasattr(job,"jetalgCHSPFlowFE"):
-        ctools += [jtm.JetConstitSeq_PFlowCHS_FE]
-        if thinneg:
-          from ThinningUtils.ThinningUtilsConf import ThinNegativeEnergyNeutralPFOsAlg
-          CHSnFEsThinAlg = ThinNegativeEnergyNeutralPFOsAlg(
-            "ThinNegativeEnergyCHSNeutralFEsAlg",
-            NeutralPFOsKey="", # don't do the usual PFOs here
-            NeutralPFOsFEKey = "CHSNeutralFlowElements",
-            ThinNegativeEnergyNeutralPFOs = True,
-            StreamName = 'StreamAOD'
-            )
-          postalgs.append(CHSnFEsThinAlg)
 
   from JetRec.JetRecConf import JetToolRunner
   from JetRec.JetRecConf import JetAlgorithm
@@ -198,7 +182,7 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
     from JetRec.JetRecConf import JetToolRunner
     jtm += JetToolRunner("jetrun",
                          EventShapeTools=[],
-                         Tools=rtools+jtm.jetrecs,
+                         Tools=jtm.jetrecs,
                          Timer=jetFlags.timeJetToolRunner()
                          )
     runners += [jtm.jetrun]

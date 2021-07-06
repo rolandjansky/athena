@@ -1,4 +1,4 @@
-#include "TrigBphysMonitoring/HLTXAODBphysMonTool.h"
+#include "../HLTXAODBphysMonTool.h"
 
 #include "../BphysTrigDiMuDecoratorTool.h"
 #include "../BphysTrigDecoratorAlg.h"

@@ -5,21 +5,6 @@
 #ifndef EVENT_LOOP_ALGORITHM_HH
 #define EVENT_LOOP_ALGORITHM_HH
 
-//          - 2012.
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
-// Please feel free to contact me (krumnack@iastate.edu) for bug
-// reports, feature suggestions, praise and complaints.
-
-
-/// This module defines a base class for classes that implement an
-/// algorithm.  The interface provided in this module is intended for
-/// the general user.  The module is considered to be in the pre-alpha
-/// stage.
-
-
 
 #include <EventLoop/Global.h>
 
@@ -303,6 +288,7 @@ namespace EL
     //
 
 #if 1
+    friend class AlgorithmWrapper;
     friend class Job;
   private:
 #else
@@ -328,8 +314,7 @@ namespace EL
     /// rationale: the worker is essentially controlling the
     ///   algorithm.  this allows it to do it without having to
     ///   duplicate most of the interface.
-    friend class Worker;
-    friend class Detail::AlgorithmStateModule;
+    friend class AlgorithmWrapper;
 
     // description: members directly corresponding to accessors
   private:

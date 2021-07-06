@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -14,6 +14,7 @@
 
 #include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
 #include "Identifier/Identifier.h"
+#include "ReadoutGeometryBase/SiIntersect.h"
 
 namespace InDetDD {
 // Constructor with parameters:
@@ -63,6 +64,7 @@ SCT_ModuleSideDesign::SCT_ModuleSideDesign(const double thickness,
     m_swapStripReadout(swapStripReadout) {
 }
 
+
 void SCT_ModuleSideDesign::neighboursOfCell(const SiCellId &cellId,
                                             std::vector<SiCellId> &neighbours) const {
     neighbours.clear();
@@ -77,10 +79,10 @@ void SCT_ModuleSideDesign::neighboursOfCell(const SiCellId &cellId,
     int stripP = strip + 1;
 
     if (stripM >= m_scheme.shift()) {
-        neighbours.push_back(stripM);
+        neighbours.emplace_back(stripM);
     }
     if (stripP < m_scheme.diodes() + m_scheme.shift()) {
-        neighbours.push_back(stripP);
+        neighbours.emplace_back(stripP);
     }
 }
 
@@ -101,4 +103,59 @@ SiCellId SCT_ModuleSideDesign::cellIdInRange(const SiCellId &cellId) const {
     }
     return cellId;
 }
+
+  void SCT_ModuleSideDesign::setMother(SCT_ModuleSideDesign * mother){
+    if(m_motherDesign){
+      const std::string errMsg=std::string("SCT_ModuleSideDesign already has a mother set!");
+	throw std::runtime_error(errMsg);
+    } 
+    m_motherDesign = mother;
+
+  }
+
+void SCT_ModuleSideDesign::getStripRow(SiCellId /*id*/, int * /*strip */, int *row) const {
+   //For SCT sensors, return 0 as there should only be one row; derived versions for ITk strip implement specializations
+   *row = 0;
+ }
+
+  SiIntersect SCT_ModuleSideDesign::inDetector(const SiLocalPosition &localPosition, double phiTol, double etaTol, bool forceStringent) const {
+    
+    //if we are not doing a stringent check, we should first see if there is
+    //a motherDesign, and if so, do the check based on that instead
+    if(!forceStringent){
+      
+      const SCT_ModuleSideDesign * mother = getMother();
+      
+      //Stringent check on mother, to skip checking for "grandmother"
+      if(mother) return mother->inDetector(localPosition,phiTol,etaTol, true); 
+    
+    }
+
+    double etaDist = 0;
+    double phiDist = 0;
+
+    distanceToDetectorEdge(localPosition, etaDist, phiDist);
+
+    SiIntersect state;
+
+    if (phiDist < -phiTol || etaDist < -etaTol) {
+        state.setOut();
+        return state;
+    }
+
+    if (phiDist > phiTol && etaDist > etaTol) {
+        state.setIn();
+        return state;
+    }
+
+    // Near boundary.
+    state.setNearBoundary();
+    return state;
+}
+
+SiIntersect SCT_ModuleSideDesign::inDetector(const SiLocalPosition &localPosition, double phiTol, double etaTol) const {
+  //default check is not "stringent" - i.e it will use a mother if one exists
+  return inDetector(localPosition,phiTol,etaTol, false);
+}
+
 } // namespace InDetDD

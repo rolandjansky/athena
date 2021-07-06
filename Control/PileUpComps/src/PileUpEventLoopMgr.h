@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PILEUPEVENTLOOPMGR_H
@@ -30,7 +30,6 @@ class IBeamLuminosity;
 class IBkgStreamsCache;
 class IEvtSelector;
 class IIncidentSvc;
-class ITimeKeeper;
 class PileUpMergeSvc;
 class StoreGateSvc;
 class EventContext;
@@ -122,9 +121,6 @@ private:
   Gaudi::Property<int> m_firstXing;
   /// last xing to be simulated (0th xing is 1st after trigger)
   Gaudi::Property<int> m_lastXing;
-
-  /// property: TimeKeeper service instance
-  ServiceHandle<ITimeKeeper> m_timeKeeper;
 
   /// property: allow sub evts EOF condition when maxevt==-1
   Gaudi::Property<bool> m_allowSubEvtsEOF;

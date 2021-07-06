@@ -24,7 +24,6 @@
 #include "TrkSpacePoint/SpacePoint.h"
 #include "TrkSpacePoint/SpacePointContainer.h"
 #include "TrkSpacePoint/SpacePointOverlapCollection.h"
-#include "StoreGate/ReadCondHandleKey.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
 
 #include "GaudiKernel/ToolHandle.h"

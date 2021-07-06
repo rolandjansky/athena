@@ -5,7 +5,7 @@ Tools configurations for ISF for ISF_ParSimServicesConfig
 Miha Muskinja, 14/01/2015
 """
 
-from AthenaCommon.CfgGetter import getPublicTool, getService
+from AthenaCommon.CfgGetter import getPublicTool
 
 from ISF_ParSimServices.ISF_ParSimJobProperties import ISF_ParSimFlags
 from ISF_ParSimServices.ISF_ParSimTuning        import ISF_ParSimTuningFlags
@@ -61,7 +61,6 @@ def getParametricSimServiceID(name="ISF_ParametricSimSvc", **kwargs):
     kwargs.setdefault("Identifier"                       , "ParametricSim")
     kwargs.setdefault("OutputLevel"                      , ISF_ParSimFlags.OutputLevelGeneral() )
     kwargs.setdefault("ParticleSmearers"                 , [getPublicTool('ISF_TrackParticleSmearer')] )
-    kwargs.setdefault("TrackingGeometrySvc"              , getService("AtlasTrackingGeometrySvc") )
 
    
     from ISF_ParSimServices.ISF_ParSimServicesConf import iParSim__ParametricSimSvc

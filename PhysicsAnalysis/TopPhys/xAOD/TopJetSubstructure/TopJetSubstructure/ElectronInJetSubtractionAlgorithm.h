@@ -22,7 +22,8 @@ namespace top {
 
     void apply(xAOD::ElectronContainer* electrons, xAOD::JetContainer* jets, const bool useLooseElectrons = false);
   private:
-    bool m_doLooseCuts;
+    // commented out variables are unused.  experts please check and remove
+    // bool m_doLooseCuts;
     // Pass selection strings
     const std::string m_passPreORSelection;
     const std::string m_passPreORSelectionLoose;

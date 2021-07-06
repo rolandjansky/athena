@@ -16,7 +16,7 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/DataObject.h"
-#include "AthenaKernel/IClassIDSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "AthenaKernel/IDictLoaderSvc.h"
 #include "AthenaKernel/DataBucketBase.h"
 #include "AthenaKernel/BaseInfo.h"

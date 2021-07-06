@@ -1,13 +1,13 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// FPEAuditor.cxx 
+// FPEAuditor.cxx
 // Implementation file for class FPEAuditor
 // Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////////
 
 #include <stdexcept>
 #include <mutex>
@@ -45,23 +45,23 @@ namespace FPEAudit {
 }
 
 
-#ifdef __linux__
+#if defined(__linux__) && ( defined(__i386__) || defined(__x86_64__) )
 # include "FPEAudit_linux.icc"
 #else
 # include "FPEAudit_dummy.icc"
 #endif
 
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////////
+// Public methods:
+///////////////////////////////////////////////////////////////////
 
 thread_local FPEAuditor::FpeStack_t FPEAuditor::s_fpe_stack;
 
 // Constructors
 ////////////////
-FPEAuditor::FPEAuditor( const std::string& name, 
-			ISvcLocator* pSvcLocator ) : 
+FPEAuditor::FPEAuditor( const std::string& name,
+			ISvcLocator* pSvcLocator ) :
   AthCommonMsg<Auditor>     ( name, pSvcLocator  ),
   m_CountFPEs(),
   m_NstacktracesOnFPE(0),
@@ -81,7 +81,7 @@ FPEAuditor::FPEAuditor( const std::string& name,
 #include <fstream>
 #include <iomanip>
 FPEAuditor::~FPEAuditor()
-{ 
+{
   //m_msg << MSG::DEBUG << "Calling destructor" << endmsg;
 }
 
@@ -109,17 +109,17 @@ StatusCode FPEAuditor::finalize()
     if ( FPEAudit::s_handlerInstalled && !FPEAudit::s_handlerDisabled )
       UninstallHandler();
   }
-  
+
   return StatusCode::SUCCESS;
 }
 
 void FPEAuditor::InstallHandler()
 {
   struct sigaction act;
-  
+
   // Save the current FP environment.
   fegetenv (&m_env);
-  
+
   memset(&act, 0, sizeof act);
   act.sa_sigaction = FPEAudit::fpe_sig_action;
   act.sa_flags = SA_SIGINFO;
@@ -144,11 +144,11 @@ void FPEAuditor::UninstallHandler()
 {
   ATH_MSG_INFO("uninstalling SignalHandler");
   FPEAudit::s_handlerDisabled = true;
-  
+
   feclearexcept(FE_ALL_EXCEPT);
   fesetenv (&m_env);
   FPEAudit::mask_fpe();
-  
+
   // feenableexcept (0);
   // fedisableexcept (FE_ALL_EXCEPT);
 }
@@ -190,7 +190,7 @@ void FPEAuditor::before(CustomEventTypeRef /*evt*/,
   add_fpe_node();
 }
 
-void FPEAuditor::after(CustomEventTypeRef evt, 
+void FPEAuditor::after(CustomEventTypeRef evt,
 		       const std::string& caller,
 		       const StatusCode&)
 {
@@ -201,7 +201,7 @@ void FPEAuditor::after(CustomEventTypeRef evt,
 /** report fpes which happened during step 'step' on behalf of 'caller'
  */
 void
-FPEAuditor::report_fpe(const std::string& step, 
+FPEAuditor::report_fpe(const std::string& step,
 		       const std::string& caller)
 {
   // store current list of FPE flags which were raised before
@@ -215,7 +215,7 @@ FPEAuditor::report_fpe(const std::string& step,
     }
 
     if (raised & FE_OVERFLOW) {
-      ATH_MSG_WARNING("FPE OVERFLOW in [" << step << "] of [" << caller << "]" << evStr.str() << 
+      ATH_MSG_WARNING("FPE OVERFLOW in [" << step << "] of [" << caller << "]" << evStr.str() <<
                       " " << m_NstacktracesOnFPE << " " << FPEAudit::s_tlsdata.s_array_O[0]
                       );
       ++m_CountFPEs[FPEAUDITOR_OVERFLOW];
@@ -269,7 +269,7 @@ FPEAuditor::report_fpe(const std::string& step,
 	}
     }
 
-    
+
     FPEAudit::lock_t lock (FPEAudit::s_mutex);
     if ( --m_nexceptions == 0
          && FPEAudit::s_handlerInstalled &&
@@ -313,7 +313,7 @@ FPEAuditor::pop_fpe_node()
   // restore fpe stack info
   int raised = s_fpe_stack.back().first;
   s_fpe_stack.pop_back();
-  
+
   // consolidate
   if (!s_fpe_stack.empty()) {
     s_fpe_stack.back().second |= raised;

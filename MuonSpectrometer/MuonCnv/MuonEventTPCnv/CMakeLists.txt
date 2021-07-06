@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
 # $Id: CMakeLists.txt 730483 2016-03-16 16:03:14Z harkusha $
 ################################################################################
 # Package: MuonEventTPCnv
@@ -6,7 +8,7 @@
 # Declare the package name:
 atlas_subdir( MuonEventTPCnv )
 
-find_package( GeoModelCore )
+find_package( GeoModel COMPONENTS GeoModelKernel )
 
 # Component(s) in the package:
 atlas_add_tpcnv_library( MuonEventTPCnv
@@ -76,7 +78,7 @@ foreach( name CscMcDataCnv_p1_test CscSimDataCnv_p1_test
 
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx
-      LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} GaudiKernel TrkSurfaces TrkEventTPCnv TestTools
+      LINK_LIBRARIES ${GEOMODEL_LIBRARIES} GaudiKernel TrkSurfaces TrkEventTPCnv TestTools
       StoreGateLib TPTools AGDDKernel AtlasDetDescr 
       IdDict IdDictDetDescr IdDictParser InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry SCT_ReadoutGeometry TRT_ReadoutGeometry
       MuonAGDDDescription MuonReadoutGeometry MuonIdHelpersLib

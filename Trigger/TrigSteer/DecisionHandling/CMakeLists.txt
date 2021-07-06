@@ -11,7 +11,7 @@ atlas_add_library( DecisionHandlingLib
                    src/InputMakerBase.cxx
 		           src/ITestHypoTool.cxx
                    PUBLIC_HEADERS DecisionHandling
-                   LINK_LIBRARIES AthenaBaseComps AthenaMonitoringKernelLib GaudiKernel StoreGateLib TrigCompositeUtilsLib TrigCostMonitorMTLib TrigSteeringEvent TrigTimeAlgsLib
+                   LINK_LIBRARIES AthenaBaseComps AthenaMonitoringKernelLib GaudiKernel StoreGateLib TrigCompositeUtilsLib TrigCostMonitorLib TrigSteeringEvent TrigTimeAlgsLib
                    PRIVATE_LINK_LIBRARIES AthContainers AthViews xAODTrigger )
 
 # Component(s) in the package:
@@ -43,7 +43,7 @@ foreach(test emu_step_processing emu_step_menu_processing)
     file( MAKE_DIRECTORY ${rundir} )
     atlas_add_test( ${test}
         SCRIPT test/test_${test}.sh
-        LOG_SELECT_PATTERN "TrigSignatureMoniMT.*INFO HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*|TriggerSummaryStep.*+++ leg.*"
+        LOG_SELECT_PATTERN "TrigSignatureMoni.*INFO HLT_.*|TrigSignatureMoni.*-- #[0-9]+ (Events|Features).*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*|TriggerSummaryStep.*+++ leg.*"
     PROPERTIES WORKING_DIRECTORY ${rundir}
         )
 endforeach()

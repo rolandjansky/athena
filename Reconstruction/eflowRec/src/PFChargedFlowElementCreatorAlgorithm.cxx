@@ -29,7 +29,7 @@ StatusCode PFChargedFlowElementCreatorAlgorithm::execute(const EventContext& ctx
   
   /* Create Charged FlowElements from all eflowCaloObjects */
   SG::ReadHandle<eflowCaloObjectContainer> eflowCaloObjectContainerReadHandle(m_eflowCaloObjectContainerReadHandleKey,ctx);
-  for (const auto& thisEflowCaloObject : *eflowCaloObjectContainerReadHandle) createChargedFlowElements(*thisEflowCaloObject,true,chargedFlowElementContainerWriteHandle);
+  for (const auto *const thisEflowCaloObject : *eflowCaloObjectContainerReadHandle) createChargedFlowElements(*thisEflowCaloObject,true,chargedFlowElementContainerWriteHandle);
 
   std::sort(chargedFlowElementContainerWriteHandle->begin(), chargedFlowElementContainerWriteHandle->end(), [] (const xAOD::FlowElement* flowElement1, const xAOD::FlowElement* flowElement2) {return flowElement1->pt()>flowElement2->pt();});
 
@@ -110,7 +110,11 @@ void PFChargedFlowElementCreatorAlgorithm::createChargedFlowElements(const eflow
 
       std::vector<std::pair<eflowTrackClusterLink*,float> > trackClusterLinkPairs = energyFlowCaloObject.efRecLink();
 
+      ATH_MSG_DEBUG("Have got " << trackClusterLinkPairs.size() << " trackClusterLinkPairs");
+
       std::vector<eflowTrackClusterLink*> thisTracks_trackClusterLinks = efRecTrack->getClusterMatches();
+
+      ATH_MSG_DEBUG("Have got " << thisTracks_trackClusterLinks.size() << " cluster matches");
 
       /** Each eflowCaloObject has a list of clusters for all the tracks it represents.
        *  We only want the subset of the clusters matched to this track, and collect these in thisTracks_trackClusterLinksSubtracted.
@@ -121,17 +125,18 @@ void PFChargedFlowElementCreatorAlgorithm::createChargedFlowElements(const eflow
       //Create vector of pairs which map each CaloCluster to the ratio of its new energy to unstracted energy
       std::vector<std::pair<ElementLink<xAOD::CaloClusterContainer>, double> > vectorClusterToSubtractedEnergies;
 
-      for (auto& trackClusterLink : thisTracks_trackClusterLinks){
+      for (auto& trackClusterLink : thisTracks_trackClusterLinks){	
         for (auto& trackClusterLinkPair : trackClusterLinkPairs){
           if (!m_eOverPMode && trackClusterLinkPair.first == trackClusterLink && !std::isnan(trackClusterLinkPair.second)) {
             thisTracks_trackClusterLinksSubtracted.push_back(trackClusterLink);
             eflowRecCluster* efRecCluster = trackClusterLinkPair.first->getCluster();
             ElementLink<xAOD::CaloClusterContainer> theOriginalClusterLink = efRecCluster->getOriginalClusElementLink();
-              ElementLink<xAOD::CaloClusterContainer> theSisterClusterLink = (*theOriginalClusterLink)->getSisterClusterLink();
-            if (theSisterClusterLink.isValid()) vectorClusterToSubtractedEnergies.push_back(std::pair(theSisterClusterLink,trackClusterLinkPair.second));
-            else vectorClusterToSubtractedEnergies.push_back(std::pair(theOriginalClusterLink,trackClusterLinkPair.second));
+            ElementLink<xAOD::CaloClusterContainer> theSisterClusterLink = (*theOriginalClusterLink)->getSisterClusterLink();
+	          ATH_MSG_DEBUG("Will add cluster with E and ratio " << (*theOriginalClusterLink)->e() << " and " << trackClusterLinkPair.second);
+            if (theSisterClusterLink.isValid()) vectorClusterToSubtractedEnergies.emplace_back(std::pair(theSisterClusterLink,trackClusterLinkPair.second));
+            else vectorClusterToSubtractedEnergies.emplace_back(std::pair(theOriginalClusterLink,trackClusterLinkPair.second));
           }
-          else if (m_eOverPMode) thisTracks_trackClusterLinksSubtracted.push_back(trackClusterLink);
+          else if (m_eOverPMode && trackClusterLinkPair.first == trackClusterLink) thisTracks_trackClusterLinksSubtracted.push_back(trackClusterLink);
         }
       }
 

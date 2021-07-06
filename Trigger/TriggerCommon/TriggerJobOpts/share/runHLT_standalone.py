@@ -1,5 +1,5 @@
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 ################################################################################
 # TriggerJobOpts/runHLT_standalone.py
 #
@@ -20,7 +20,7 @@
 #
 class opt:
     setupForMC       = None           # force MC setup
-    setMenu          = 'LS2_v1'
+    setMenu          = None           # option to overwrite flags.Trigger.triggerMenuSetup
     setDetDescr      = None           # force geometry tag
     setGlobalTag     = None           # force global conditions tag
     useCONDBR2       = True           # if False, use run-1 conditions DB
@@ -39,10 +39,13 @@ class opt:
     doEmptyMenu      = False          # Disable all chains, except those re-enabled by specific slices
     createHLTMenuExternally = False   # Set to True if the menu is build manually outside runHLT_standalone.py
     endJobAfterGenerate = False       # Finish job after menu generation
-    failIfNoProxy     = False         # Sets the SGInputLoader.FailIfNoProxy property
+    strictDependencies = False        # Sets SGInputLoader.FailIfNoProxy=True and AlgScheduler.DataLoaderAlg=""
     forceEnableAllChains = False      # if True, all HLT chains will run even if the L1 item is false
-    enableL1Phase1   = False          # Enable Run-3 LVL1 simulation and/or decoding
+#    enableL1Phase1   = False          # Enable Run-3 LVL1 simulation and/or decoding
+    enableL1MuonPhase1   = False          # Enable Run-3 LVL1 muon simulation and/or decoding
+    enableL1CaloPhase1   = False          # Enable Run-3 LVL1 calo simulation and/or decoding
     enableL1CaloLegacy = True         # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
+    enableL1TopoDump = False          # Enable L1Topo simulation to write inputs to txt
 #Individual slice flags
     doCalibSlice        = True
     doTestSlice         = True
@@ -154,6 +157,7 @@ else:   # athenaHLT
     globalflags.InputFormat = 'bytestream'
     globalflags.DataSource = 'data' if not opt.setupForMC else 'data'
     ConfigFlags.Input.isMC = False
+    ConfigFlags.Input.Collections = []
     if '_run_number' not in dir():
         import PyUtils.AthFile as athFile
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -189,15 +193,28 @@ ConfigFlags.Common.isOnline = athenaCommonFlags.isOnline()
 log.info('Configured the following global flags:')
 globalflags.print_JobProperties()
 
+# Enable strict dependency checking for data by default
+if 'strictDependencies' not in globals():
+    opt.strictDependencies = not ConfigFlags.Input.isMC
+
 # Set default doL1Sim option depending on input type (if not set explicitly)
 if 'doL1Sim' not in globals():
     opt.doL1Sim = ConfigFlags.Input.isMC
     log.info('Setting default doL1Sim=%s because ConfigFlags.Input.isMC=%s', opt.doL1Sim, ConfigFlags.Input.isMC)
 
+# Set default enableL1CaloPhase1 option to True if running L1Sim on data (ATR-23703)
+if 'enableL1CaloPhase1' not in globals():
+    opt.enableL1CaloPhase1 = opt.doL1Sim and ConfigFlags.Input.Format == 'BS'
+    log.info('Setting default enableL1CaloPhase1=%s because doL1Sim=%s and ConfigFlags.Input.Format=%s',
+             opt.enableL1CaloPhase1, opt.doL1Sim, ConfigFlags.Input.Format)
+
 # Translate opts to flags for LVL1
 ConfigFlags.Trigger.doLVL1 = opt.doL1Sim
-ConfigFlags.Trigger.enableL1Phase1 = opt.enableL1Phase1
+#ConfigFlags.Trigger.enableL1Phase1 = opt.enableL1Phase1
+ConfigFlags.Trigger.enableL1MuonPhase1 = opt.enableL1MuonPhase1
+ConfigFlags.Trigger.enableL1CaloPhase1 = opt.enableL1CaloPhase1
 ConfigFlags.Trigger.enableL1CaloLegacy = opt.enableL1CaloLegacy
+ConfigFlags.Trigger.enableL1TopoDump = opt.enableL1TopoDump
 
 #-------------------------------------------------------------
 # Transfer flags into TriggerFlags
@@ -217,34 +234,22 @@ setModifiers = ['noLArCalibFolders',
                 'ForceMuonDataType',
                 'useNewRPCCabling',
                 'enableCostMonitoring',
-                #'enableCoherentPS',
                 'useOracle',
-                'enableHotIDMasking',
 ]
 
 if ConfigFlags.Input.isMC:  # MC modifiers
     setModifiers += ['BFieldFromDCS']
 else:           # More data modifiers
-    setModifiers += ['allowCOOLUpdates',
-                     'BFieldAutoConfig',
+    setModifiers += ['BFieldAutoConfig',
                      'useDynamicAlignFolders',
                      'useHLTMuonAlign',
                      #Check for beamspot quality flag
-                     'UseBeamSpotFlagForBjet',
-                     'UseParamFromDataForBjet',
-                     #Use online luminosity
                      'useOnlineLumi',
                      #for running with real data
                      'DisableMdtT0Fit',
-                     #Setup mufast tuning for data
-                     'UseLUTFromDataForMufast',
-                     'UseRPCTimeDelayFromDataForMufast',
                      #Set muComb/muIso Backextrapolator tuned for real data
-                     'UseBackExtrapolatorDataForMuIso',
                      #Monitoring for L1 muon group
-                     #'muCTPicheck',
                      #Monitoring L1Topo at ROB level
-                     #'L1TopoCheck',
                      'forceTileRODMap',
                      'enableSchedulerMon'
     ]
@@ -287,15 +292,27 @@ include.block("RecExCond/RecExCommon_flags.py")
 from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
 CAtoGlobalWrapper(IOVDbSvcCfg, ConfigFlags)
 
+# ---------------------------------------------------------------
+# Create main sequences
+# ---------------------------------------------------------------
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
+from AthenaCommon.CFElements import seqOR,parOR
+hltTop = seqOR("HLTTop")
+hltBeginSeq = parOR("HLTBeginSeq")
+hltTop += hltBeginSeq
+topSequence += hltTop
+
 #-------------------------------------------------------------
 # Setting DetFlags
 #-------------------------------------------------------------
-if ConfigFlags.Input.Format == 'BS':
-    ConfigFlags.Trigger.doLVL1 = False
 
 from AthenaCommon.DetFlags import DetFlags
-if ConfigFlags.Trigger.doLVL1:
+if not ConfigFlags.Input.Format == 'BS':
     DetFlags.detdescr.all_setOn()
+    #if not ConfigFlags.Input.isMC or ConfigFlags.Common.isOnline:
+    #    DetFlags.detdescr.ALFA_setOff()
+
 if ConfigFlags.Trigger.doID:
     DetFlags.detdescr.ID_setOn()
     DetFlags.makeRIO.ID_setOn()
@@ -332,10 +349,6 @@ rec.doTruth = False
 for mod in modifierList:
     mod.preSetup()
 
-
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
-
 #--------------------------------------------------------------
 # Increase scheduler checks and verbosity
 #--------------------------------------------------------------
@@ -346,12 +359,14 @@ AlgScheduler.ShowDataDependencies( True )
 AlgScheduler.EnableVerboseViews( True )
 
 #--------------------------------------------------------------
-# Set the FailIfNoProxy property of SGInputLoader
+# Enable strict enforcing of data dependencies
 #--------------------------------------------------------------
-if not hasattr(topSequence,"SGInputLoader"):
-    log.error('Cannot set FailIfNoProxy property because SGInputLoader not found in topSequence')
-    theApp.exit(1)
-topSequence.SGInputLoader.FailIfNoProxy = opt.failIfNoProxy
+if opt.strictDependencies:
+    AlgScheduler.setDataLoaderAlg("")
+    if not hasattr(topSequence,"SGInputLoader"):
+        log.error('Cannot set FailIfNoProxy property because SGInputLoader not found in topSequence')
+        theApp.exit(1)
+    topSequence.SGInputLoader.FailIfNoProxy = True
 
 # ----------------------------------------------------------------
 # Detector geometry
@@ -370,10 +385,13 @@ if ConfigFlags.Trigger.doID:
     include("InDetRecExample/InDetRecConditionsAccess.py")
 
 if ConfigFlags.Trigger.doCalo:
-    from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigDataAccess
-    svcMgr.ToolSvc += TrigDataAccess()
+    from TrigT2CaloCommon.CaloDef import setMinimalCaloSetup
+    setMinimalCaloSetup()
     if ConfigFlags.Input.Format == 'POOL':
-        ConfigFlags.Trigger.doTransientByteStream = True # enable transient BS if TrigDataAccess is used with pool data
+        # Enable transient BS if TrigCaloDataAccessSvc is used with pool data
+        ConfigFlags.Trigger.doTransientByteStream = True
+        from TriggerJobOpts.TriggerTransBSConfig import triggerTransBSCfg_Calo
+        CAtoGlobalWrapper(triggerTransBSCfg_Calo, ConfigFlags, seqName="HLTBeginSeq")
 
 if ConfigFlags.Trigger.doMuon:
     TriggerFlags.MuonSlice.doTrigMuonConfig=True
@@ -390,11 +408,6 @@ if ConfigFlags.Input.Format == 'POOL':
     import AthenaPoolCnvSvc.ReadAthenaPool   # noqa
     svcMgr.AthenaPoolCnvSvc.PoolAttributes = [ "DEFAULT_BUFFERSIZE = '2048'" ]
     svcMgr.PoolSvc.AttemptCatalogPatch=True
-    # enable transient BS
-    if ConfigFlags.Trigger.doTransientByteStream:
-        log.info("setting up transient BS")
-        include( "TriggerJobOpts/jobOfragment_TransBS_standalone.py" )
-
 
 # ----------------------------------------------------------------
 # ByteStream input
@@ -407,7 +420,9 @@ elif ConfigFlags.Input.Format == 'BS' and not ConfigFlags.Trigger.Online.isParti
 # ---------------------------------------------------------------
 # Trigger config
 # ---------------------------------------------------------------
-ConfigFlags.Trigger.triggerMenuSetup = TriggerFlags.triggerMenuSetup = opt.setMenu
+if opt.setMenu:
+    ConfigFlags.Trigger.triggerMenuSetup = opt.setMenu
+TriggerFlags.triggerMenuSetup = ConfigFlags.Trigger.triggerMenuSetup
 TriggerFlags.readLVL1configFromXML = True
 TriggerFlags.outputLVL1configFile = None
 
@@ -417,15 +432,6 @@ createL1PrescalesFileFromMenu(ConfigFlags)
 
 from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
 CAtoGlobalWrapper(L1ConfigSvcCfg,ConfigFlags)
-
-# ---------------------------------------------------------------
-# Create main sequences
-# ---------------------------------------------------------------
-from AthenaCommon.CFElements import seqOR,parOR
-hltTop = seqOR("HLTTop")
-hltBeginSeq = parOR("HLTBeginSeq")
-hltTop += hltBeginSeq
-topSequence += hltTop
 
 # ---------------------------------------------------------------
 # Event Info setup
@@ -451,6 +457,13 @@ from LumiBlockComps.LumiBlockMuWriterDefault import LumiBlockMuWriterDefault
 LumiBlockMuWriterDefault(sequence=hltBeginSeq)
 
 # ---------------------------------------------------------------
+# Level 1 simulation
+# ---------------------------------------------------------------
+if opt.doL1Sim:
+    from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
+    hltBeginSeq += Lvl1SimulationSequence(ConfigFlags)
+
+# ---------------------------------------------------------------
 # Add L1Decoder providing inputs to HLT
 # ---------------------------------------------------------------
 if opt.doL1Unpacking:
@@ -461,14 +474,6 @@ if opt.doL1Unpacking:
     else:
         from DecisionHandling.TestUtils import L1EmulationTest
         hltBeginSeq += L1EmulationTest()
-
-# ---------------------------------------------------------------
-# Level 1 simulation
-# ---------------------------------------------------------------
-if opt.doL1Sim:
-    from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
-    hltBeginSeq += Lvl1SimulationSequence(ConfigFlags)
-
 
 # ---------------------------------------------------------------
 # HLT generation
@@ -507,6 +512,13 @@ if not opt.createHLTMenuExternally:
 from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
 svcMgr += conf2toConfigurable( getHLTConfigSvc(ConfigFlags) )
 
+# ---------------------------------------------------------------
+# Tell the SGInputLoader about L1 and HLT menu in the DetectorStore
+# ---------------------------------------------------------------
+if hasattr(topSequence,"SGInputLoader"):
+    topSequence.SGInputLoader.Load += [
+        ('TrigConf::L1Menu','DetectorStore+L1TriggerMenu'),
+        ('TrigConf::HLTMenu','DetectorStore+HLTTriggerMenu')]
 
 # ---------------------------------------------------------------
 # Monitoring
@@ -515,17 +527,17 @@ if not hasattr(svcMgr, 'THistSvc'):
     from GaudiSvc.GaudiSvcConf import THistSvc
     svcMgr += THistSvc()
 if hasattr(svcMgr.THistSvc, "Output"):
-    from TriggerJobOpts.HLTTriggerGetter import setTHistSvcOutput
+    from TriggerJobOpts.TriggerHistSvcConfig import setTHistSvcOutput
     setTHistSvcOutput(svcMgr.THistSvc.Output)
 
 #-------------------------------------------------------------
 # Conditions overrides
 #-------------------------------------------------------------
 if len(opt.condOverride)>0:
-    for folder,tag in opt.condOverride.iteritems():
+    for folder,tag in iter(opt.condOverride.items()):
         log.warning('Overriding folder %s with tag %s', folder, tag)
         from IOVDbSvc.IOVDbSvcConfig import addOverride
-        addOverride(ConfigFlags,folder,tag)
+        CAtoGlobalWrapper(addOverride, ConfigFlags,folder=folder,tag=tag)
 
 if svcMgr.MessageSvc.OutputLevel < Constants.INFO:
     from AthenaCommon.JobProperties import jobproperties
@@ -545,7 +557,6 @@ if opt.doWriteRDOTrigger:
         ConfigFlags.Output.RDOFileName = 'RDO_TRIG.pool.root'  # new JO flag
 if opt.doWriteBS:
     rec.doWriteBS = True  # RecExCommon flag
-    TriggerFlags.writeBS = True  # RecExCommon flag
     ConfigFlags.Output.doWriteBS = True  # new JO flag
     ConfigFlags.Trigger.writeBS = True  # new JO flag
 
@@ -574,6 +585,10 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
     hypos = collectHypos(findSubSequence(topSequence, "HLTAllSteps"))
     filters = collectFilters(findSubSequence(topSequence, "HLTAllSteps"))
 
+    nfilters = sum(len(v) for v in filters.values())
+    nhypos = sum(len(v) for v in hypos.values())    
+    log.info( "Algorithms counting: Number of Filter algorithms: %d  -  Number of Hypo algoirthms: %d", nfilters , nhypos) 
+
     summaryMakerAlg = findAlgorithm(topSequence, "DecisionSummaryMakerAlg")
     l1decoder = findAlgorithm(topSequence, "L1Decoder")
 
@@ -592,14 +607,16 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
     TriggerEDMRun3.addHLTNavigationToEDMList(TriggerEDMRun3.TriggerHLTListRun3, decObj, decObjHypoOut)
 
     # Configure output writing
-    CAtoGlobalWrapper( triggerOutputCfg, ConfigFlags, summaryAlg=summaryMakerAlg)
+    CAtoGlobalWrapper(triggerOutputCfg, ConfigFlags, hypos=hypos)
 
 #-------------------------------------------------------------
 # Cost Monitoring
 #-------------------------------------------------------------
 
-from TrigCostMonitorMT.TrigCostMonitorMTConfig import TrigCostMonitorMTCfg
-CAtoGlobalWrapper(TrigCostMonitorMTCfg, ConfigFlags)
+from TrigCostMonitor.TrigCostMonitorConfig import TrigCostMonitorCfg, TrigCostMonitorPostSetup
+CAtoGlobalWrapper(TrigCostMonitorCfg, ConfigFlags)
+# TODO - how can TrigCostMonitorPostSetup be component-accumulator-ised?
+TrigCostMonitorPostSetup()
 
 #-------------------------------------------------------------
 # Debugging for view cross-dependencies
@@ -609,7 +626,8 @@ if opt.reverseViews or opt.filterViews:
     viewMakers = collectViewMakers( topSequence )
     theFilter = []
     if opt.filterViews:
-        theFilter = [ "Cache", "EventInfo", "HLT_IDVertex_FS" ]
+        # no idea why the FS vertex would be needed here, but I'll add the FSJet vertex also for good measure
+        theFilter = [ "Cache", "EventInfo", "HLT_IDVertex_FS", "HLT_IDVertex_FSJet" ]
     for alg in viewMakers:
         alg.ReverseViewsDebug = opt.reverseViews
         alg.FallThroughFilter = theFilter

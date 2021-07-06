@@ -24,7 +24,7 @@ namespace top {
   bool NMuonSelector::applyParticleLevel(const top::ParticleLevelEvent& event) const {
     // If any of the required collections is a nullptr (i.e. has not been
     // loaded) return false.
-    if (not event.m_muons) {
+    if (!event.m_muons) {
       return false;
     }
 

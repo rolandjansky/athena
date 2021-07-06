@@ -6,15 +6,11 @@
 
 namespace MuonGM {
 
-MicromegasComponent:: MicromegasComponent():StandardComponent(),subType("")
-{
-}
+    MicromegasComponent::MicromegasComponent() : StandardComponent(), subType("") {}
 
-
-std::ostream& operator<<(std::ostream& os,const MicromegasComponent& c)
-{
-  os << "Component " << c.name << std::endl;
-  return os;
-}
+    std::ostream &operator<<(std::ostream &os, const MicromegasComponent &c) {
+        os << "Component " << c.name << std::endl;
+        return os;
+    }
 
 } // namespace MuonGM

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #################
 ### Steering options
@@ -141,18 +141,18 @@ if (printIdTrkDxAODConf):
     print(DFTSOS)
     print(DFTSOS.properties())
 
-# Add BS error augmentation tool
-if dumpBytestreamErrors:
-    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EventInfoBSErrDecorator
-    DFEI = DerivationFramework__EventInfoBSErrDecorator(name = "DFEventInfoBSErrDecorator",
-                                                        ContainerName = "EventInfo",
-                                                        DecorationPrefix = prefixName,
-                                                        OutputLevel =INFO)
-    ToolSvc += DFEI
-    augmentationTools+=[DFEI]
-    if (printIdTrkDxAODConf):
-        print(DFEI)
-        print(DFEI.properties())
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EventInfoPixelModuleStatusMonitoring
+DFEI = DerivationFramework__EventInfoPixelModuleStatusMonitoring(name = "DFEventInfoPixelModuleStatusMonitoring",
+                                                                 ContainerName = "EventInfo",
+                                                                 DecorationPrefix = prefixName,
+                                                                 OutputLevel =INFO)
+ToolSvc += DFEI
+augmentationTools+=[DFEI]
+if (printIdTrkDxAODConf):
+    print(DFEI)
+    print(DFEI.properties())
+
+
 
 # Add decoration with truth parameters if running on simulation
 #if isIdTrkDxAODSimulation:
@@ -205,7 +205,7 @@ svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
 
 ## Steer output file
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-from D2PDMaker.D2PDHelpers import buildFileName
+from PrimaryDPDMaker.PrimaryDPDHelpers import buildFileName
 from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
 streamName = primDPD.WriteDAOD_PIXELVALIDStream.StreamName
 fileName   = buildFileName( primDPD.WriteDAOD_PIXELVALIDStream )

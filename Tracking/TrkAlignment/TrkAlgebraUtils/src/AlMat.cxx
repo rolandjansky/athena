@@ -10,17 +10,17 @@
 #include "TrkAlgebraUtils/AlSpaMat.h"
 
 #include <algorithm>
-#include <iomanip>
-#include <fstream>
-#include <sstream>
-#include <stdint.h>
+#include <cstdint>
 #include <exception>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
 
 namespace Trk {
 
 AlMat::AlMat() {
   m_ncol = 0; m_nrow = 0; m_nele = 0;
-  m_ptr_data = 0;  // set pointer to null
+  m_ptr_data = nullptr;  // set pointer to null
   m_transpose = false;
   m_pathbin="./";
   m_pathtxt="./";

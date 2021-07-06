@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuFastTrackFitter.h"
@@ -129,15 +129,14 @@ StatusCode TrigL2MuonSA::MuFastTrackFitter::setMCFlag(BooleanProperty use_mcLUT)
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigL2MuonSA::MuFastTrackFitter::findTracks(const LVL1::RecMuonRoI*     p_roi,
+StatusCode TrigL2MuonSA::MuFastTrackFitter::findTracks(const TrigRoiDescriptor* p_roids,
 						       TrigL2MuonSA::RpcFitResult& rpcFitResult,
-						       std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns)
+						       std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns) const
 {
 
    for (TrigL2MuonSA::TrackPattern& itTrack : v_trackPatterns) {
 
-     m_sagittaRadiusEstimate -> setUseEndcapInner( m_use_endcapInnerFromBarrel );
-     ATH_CHECK( m_sagittaRadiusEstimate->setSagittaRadius(p_roi, rpcFitResult, itTrack) );
+     ATH_CHECK( m_sagittaRadiusEstimate->setSagittaRadius(p_roids, rpcFitResult, itTrack) );
 
      ATH_CHECK( m_ptFromRadius->setPt(itTrack) );
      
@@ -149,18 +148,18 @@ StatusCode TrigL2MuonSA::MuFastTrackFitter::findTracks(const LVL1::RecMuonRoI*  
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigL2MuonSA::MuFastTrackFitter::findTracks(const LVL1::RecMuonRoI*     p_roi,
+StatusCode TrigL2MuonSA::MuFastTrackFitter::findTracks(const TrigRoiDescriptor* p_roids,
 						       TrigL2MuonSA::TgcFitResult& tgcFitResult,
 						       std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns,
-                                                       const TrigL2MuonSA::MuonRoad& muonRoad)
+                                                       const TrigL2MuonSA::MuonRoad& muonRoad) const
 {
 
    for (TrigL2MuonSA::TrackPattern& itTrack : v_trackPatterns) {
 
-     ATH_CHECK( m_alphaBetaEstimate->setAlphaBeta(p_roi, tgcFitResult, itTrack, muonRoad) );
+     ATH_CHECK( m_alphaBetaEstimate->setAlphaBeta(p_roids, tgcFitResult, itTrack, muonRoad) );
 
      if ( itTrack.etaBin < -1 ) {
-       itTrack.etaBin = (int)((fabs(muonRoad.extFtfMiddleEta)-1.)/0.05); // eta binning is the same as AlphaBetaEstimate
+       itTrack.etaBin = (int)((std::abs(muonRoad.extFtfMiddleEta)-1.)/0.05); // eta binning is the same as AlphaBetaEstimate
      }
 
      ATH_CHECK( m_ptFromAlphaBeta->setPt(itTrack,tgcFitResult) );

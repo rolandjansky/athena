@@ -23,16 +23,6 @@ try:
 except ImportError:
     print("WARNING PrimaryDPDFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project.")
 try:
-    from D2PDMaker.D2PDFlags import D2PDFlags
-    listOfFlags.append(D2PDFlags)
-except ImportError:
-    print("WARNING D2PDFlags not available. Requires D2PDMaker-00-00-50 in AtlasAnalysis.")
-try:
-    from TopPhysD2PDMaker.TopPhysD2PDFlags import topPhysDPD
-    listOfFlags.append(topPhysDPD)
-except ImportError:
-    print("WARNING TopPhysD2PDFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project.")
-try:
     from D3PDMakerConfig.D3PDProdFlags import prodFlags
     listOfFlags.append( prodFlags )
 except ImportError:

@@ -18,12 +18,12 @@
 #include "FooBar.h"
 #include "GaudiKernel/IAlgorithm.h"
 #include "GaudiKernel/IAlgManager.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IDataSelector.h"
 #include "GaudiKernel/SmartIF.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/errorcheck.h"
 #include "CxxUtils/ubsan_suppress.h"
 

@@ -210,7 +210,7 @@ if (printIdTrkDxAODConf):
 ### Steer output file content
 #################
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-from D2PDMaker.D2PDHelpers import buildFileName
+from PrimaryDPDMaker.PrimaryDPDHelpers import buildFileName
 from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
 streamName = primDPD.WriteDAOD_IDTRKLUMIStream.StreamName
 fileName   = buildFileName( primDPD.WriteDAOD_IDTRKLUMIStream )

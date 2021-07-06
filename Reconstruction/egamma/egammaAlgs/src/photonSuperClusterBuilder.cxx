@@ -1,33 +1,25 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "photonSuperClusterBuilder.h"
-//
+
 #include "CaloDetDescr/CaloDetDescrManager.h"
-#include "egammaRecEvent/egammaRecContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
-#include "xAODCaloEvent/CaloClusterKineHelper.h"
 #include "xAODEgamma/EgammaEnums.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
 #include "xAODEgamma/PhotonxAODHelpers.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
-//
-#include "FourMomUtils/P4Helpers.h"
 
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 
-//
-#include <vector>
+#include <memory>
+#include <cmath>
 
-//////////////////////////////////////////////////////////////////////////////
-// Athena interfaces.
-//////////////////////////////////////////////////////////////////////////////
 
-// Constructor.
 photonSuperClusterBuilder::photonSuperClusterBuilder(const std::string& name,
                                                      ISvcLocator* pSvcLocator)
   : egammaSuperClusterBuilder(name, pSvcLocator)
@@ -84,24 +76,23 @@ photonSuperClusterBuilder::execute(const EventContext& ctx) const
   const CaloDetDescrManager* calodetdescrmgr = nullptr;
   ATH_CHECK(detStore()->retrieve(calodetdescrmgr, "CaloMgr"));
 
+  // Reserve a vector to keep track of what is used
+  std::vector<bool> isUsed(egammaRecs->size(), false);
+  std::vector<bool> isUsedRevert(egammaRecs->size(), false);
   // Loop over input egammaRec objects, build superclusters.
-  std::vector<bool> isUsed(egammaRecs->size(), 0);
-
   for (std::size_t i = 0; i < egammaRecs->size(); ++i) {
-    // Used to revert status of topos
-    // in case we fail to make a supercluser.
-    std::vector<bool> isUsedRevert(isUsed);
-    const auto *const egRec = egammaRecs->at(i);
+    if (isUsed[i]) continue;
+
+    const auto *const egRec = (*egammaRecs)[i];
+
+    // Seed selections
     const auto *const clus = egRec->caloCluster();
-    // First some basic seed cuts
-    if (isUsed.at(i)) {
-      continue;
-    }
+
     // The seed should have 2nd sampling
     if (!clus->hasSampling(CaloSampling::EMB2) && !clus->hasSampling(CaloSampling::EME2)) {
       continue;
     }
-    const double eta2 = fabs(clus->etaBE(2));
+    const double eta2 = std::abs(clus->etaBE(2));
     if (eta2 > 10) {
       continue;
     }
@@ -115,32 +106,25 @@ photonSuperClusterBuilder::execute(const EventContext& ctx) const
     // Passed preliminary custs
     ATH_MSG_DEBUG("Creating supercluster egammaRec photon object "
                   << 'n' << "Using cluster Et = " << clus->et() << " EM Accordeon Et " << EMAccEt);
-    // So it is used
-    isUsed.at(i) = 1;
-    // Start accumulating
+    // Mark seed as used
+    isUsedRevert = isUsed;  // save status in case we fail to create supercluster
+    isUsed[i] = true;
+
+    // Start accumulating the clusters from the seed
     std::vector<const xAOD::CaloCluster*> accumulatedClusters;
     accumulatedClusters.push_back(clus);
 
-    // Core Logic goes here
-    ATH_MSG_DEBUG("Find secondary clusters");
 
-    // for stats
-    int nWindowClusters = 0;
-    int nExtraClusters = 0;
+    const std::vector<std::size_t> secondaryIndices =
+      searchForSecondaryClusters(i, egammaRecs.cptr(), isUsed);
 
-    const std::vector<std::size_t> secondaryClusters =
-      searchForSecondaryClusters(i, egammaRecs.cptr(), isUsed, nWindowClusters, nExtraClusters);
-
-    for (auto secClus : secondaryClusters) {
-      const auto *const secRec = egammaRecs->at(secClus);
+    for (const auto secClusIndex : secondaryIndices) {
+      const auto *const secRec = (*egammaRecs)[secClusIndex];
       accumulatedClusters.push_back(secRec->caloCluster());
       // no need to add vertices
     }
-    // End of core Logic
 
-    // Create the new cluster
-
-    ATH_MSG_DEBUG("Set up new Cluster");
+    // Create the new cluster: take the full list of cluster and add their cells together
     auto egType = (egRec->getNumberOfVertices() > 0) ? xAOD::EgammaParameters::convertedPhoton
                                                      : xAOD::EgammaParameters::unconvertedPhoton;
 
@@ -150,27 +134,22 @@ photonSuperClusterBuilder::execute(const EventContext& ctx) const
     if (!newCluster) {
       ATH_MSG_DEBUG("Creating a new cluster failed");
       // Revert status of constituent clusters.
-      isUsed = isUsedRevert;
+      isUsed.swap(isUsedRevert);
       continue;
     }
 
-    ATH_MSG_DEBUG("window clusters: " << nWindowClusters);
-    ATH_MSG_DEBUG("extra clusters: " << nExtraClusters);
-
-    // push back the new photon super cluster
+    // push back the new photon super cluster to the output container
     outputClusterContainer->push_back(std::move(newCluster));
 
     // Add the cluster link to the super cluster
     ElementLink<xAOD::CaloClusterContainer> clusterLink(*outputClusterContainer,
-                                                        outputClusterContainer->size() - 1);
+                                                        outputClusterContainer->size() - 1, ctx);
     std::vector<ElementLink<xAOD::CaloClusterContainer>> phCluster{ clusterLink };
 
-    ///////////////////////////////////////////////////////
-    // Now create the new eg Rec
+    // Make egammaRec object, and push it back into output container.
     auto newEgRec = std::make_unique<egammaRec>(*egRec);
     if (newEgRec) {
       newEgRec->setCaloClusters(phCluster);
-      // push it back
       newEgammaRecs->push_back(std::move(newEgRec));
       ATH_MSG_DEBUG("Finished making photon egammaRec object");
     } else {
@@ -192,39 +171,31 @@ photonSuperClusterBuilder::execute(const EventContext& ctx) const
   return StatusCode::SUCCESS;
 }
 
+// assume egammaRecs != 0, since the ReadHadler is valid
+// assume seed egammaRec has a valid cluster, since it has been already used
 std::vector<std::size_t>
-photonSuperClusterBuilder::searchForSecondaryClusters(std::size_t photonInd,
+photonSuperClusterBuilder::searchForSecondaryClusters(std::size_t seedIndex,
                                                       const EgammaRecContainer* egammaRecs,
-                                                      std::vector<bool>& isUsed,
-                                                      int& nWindowClusters,
-                                                      int& nExtraClusters) const
+                                                      std::vector<bool>& isUsed) const
 {
 
-  std::vector<std::size_t> secondaryClusters;
-  if (!egammaRecs) {
-    ATH_MSG_WARNING("photon egammaRec container is null! Returning an empty vector ...");
-    return secondaryClusters;
-  }
+  std::vector<std::size_t> secondaryIndices;
 
-  const auto *const seedPhoton = egammaRecs->at(photonInd);
-  const auto *const seedCaloClus = seedPhoton->caloCluster();
-  if (!seedCaloClus) {
-    ATH_MSG_WARNING("The seed egammaRec does not have a cluster");
-    return secondaryClusters;
-  }
+  const auto *const seedEgammaRec = (*egammaRecs)[seedIndex];
+  const xAOD::CaloCluster* const seedCaloClus = seedEgammaRec->caloCluster();
 
   // let's determine some things about the seed
   std::vector<const xAOD::Vertex*> seedVertices;
   std::vector<xAOD::EgammaParameters::ConversionType> seedVertexType;
   std::vector<const xAOD::TrackParticle*> seedVertexTracks; // tracks from conversion vertex
 
-  auto numVertices = seedPhoton->getNumberOfVertices();
+  auto numVertices = seedEgammaRec->getNumberOfVertices();
   if (m_useOnlyLeadingVertex && numVertices > 0) {
     numVertices = 1;
   }
 
   for (std::size_t vx = 0; vx < numVertices; ++vx) {
-    const auto *const vertex = seedPhoton->vertex(vx);
+    const auto *const vertex = seedEgammaRec->vertex(vx);
     const auto convType = xAOD::EgammaHelpers::conversionType(vertex);
     seedVertices.push_back(vertex);
     seedVertexType.push_back(convType);
@@ -237,42 +208,49 @@ photonSuperClusterBuilder::searchForSecondaryClusters(std::size_t photonInd,
     }
   }
 
+  // for stats
+  int nWindowClusters = 0;
+  int nExtraClusters = 0;
+
   // Now loop over the potential secondary clusters
   for (std::size_t i = 0; i < egammaRecs->size(); ++i) {
 
-    // First some basic seed cuts
-    if (isUsed.at(i)) {
-      continue;
-    }
+    // if already used continue
+    if (isUsed[i]) { continue; }
 
-    const auto *const egRec = egammaRecs->at(i);
-    const auto *const caloClus = egRec->caloCluster();
-    if (!caloClus) {
+    const auto *const secEgammaRec = (*egammaRecs)[i];
+    const xAOD::CaloCluster* const secClus = secEgammaRec->caloCluster();
+    if (!secClus) {
       ATH_MSG_WARNING("The potentially secondary egammaRec does not have a cluster");
       continue;
     }
-    // Now perform a number of tests to see if the cluster should be added
+
     bool addCluster = false;
-    if (m_addClustersInWindow && matchesInWindow(seedCaloClus, caloClus)) {
-      ATH_MSG_DEBUG("Cluster  with Et : " << caloClus->et() << " matched in window");
-      nWindowClusters++;
+
+    if (m_addClustersInWindow && matchesInWindow(seedCaloClus, secClus)) {
+      ATH_MSG_DEBUG("Cluster with Et: " << secClus->et() << " matched in window");
+      ++nWindowClusters;
       addCluster = true;
-    } else if (m_addClustersMatchingVtx && matchesVtx(seedVertices, seedVertexType, egRec)) {
+    } else if (m_addClustersMatchingVtx && matchesVtx(seedVertices, seedVertexType, secEgammaRec)) {
       ATH_MSG_DEBUG("conversion vertices match");
       addCluster = true;
-      nExtraClusters++;
-    } else if (m_addClustersMatchingVtxTracks && matchesVtxTrack(seedVertexTracks, egRec)) {
+      ++nExtraClusters;
+    } else if (m_addClustersMatchingVtxTracks && matchesVtxTrack(seedVertexTracks, secEgammaRec)) {
       ATH_MSG_DEBUG("conversion track match");
       addCluster = true;
-      nExtraClusters++;
+      ++nExtraClusters;
     }
+    // Add it to the list of secondary clusters if it matches.
     if (addCluster) {
-      secondaryClusters.push_back(i);
+      secondaryIndices.push_back(i);
       isUsed[i] = true;
     }
   }
-  ATH_MSG_DEBUG("Found: " << secondaryClusters.size() << " secondaries");
-  return secondaryClusters;
+  ATH_MSG_DEBUG("Found: " << secondaryIndices.size() << " secondaries");
+  ATH_MSG_DEBUG("window clusters: " << nWindowClusters);
+  ATH_MSG_DEBUG("extra clusters: " << nExtraClusters);
+
+  return secondaryIndices;
 }
 
 bool

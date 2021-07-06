@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -27,10 +27,10 @@ GeoPixelIBLFwdServices::GeoPixelIBLFwdServices(InDetDD::PixelDetectorManager* dd
   m_bFwdComplexGeometry_CAD(false),
   m_bFwdComplexGeometry_Mod1(false),
   m_section(section),
-  m_supportPhysA(0),
-  m_supportPhysC(0),
-  m_xformSupportA(0),
-  m_xformSupportC(0)
+  m_supportPhysA(nullptr),
+  m_supportPhysC(nullptr),
+  m_xformSupportA(nullptr),
+  m_xformSupportC(nullptr)
 {
 }
 
@@ -78,11 +78,11 @@ GeoVPhysVol* GeoPixelIBLFwdServices::Build()
     m_xformSupportA = fwdSvc.getSupportTrfA();
     m_xformSupportC = fwdSvc.getSupportTrfC();
 
-    if(m_supportPhysA==0) {
+    if(m_supportPhysA==nullptr) {
       m_gmt_mgr->msg(MSG::ERROR) <<"Build IBL fwd services - CAD tool design : the PixelGeoModel package is not meant to be used to build this design"<<endmsg;
       m_gmt_mgr->msg(MSG::ERROR) <<"                                         : check that the GeoTorus object is defined in GeoModelKernel/GeoModel"<<endmsg;
     }
-    return 0;
+    return nullptr;
   }
 
 
@@ -97,9 +97,9 @@ GeoVPhysVol* GeoPixelIBLFwdServices::Build()
     m_xformSupportA = fwdSvc.getSupportTrfA();
     m_xformSupportC = fwdSvc.getSupportTrfC();
 
-    return 0;
+    return nullptr;
   }
     
-  return 0;
+  return nullptr;
 
 }

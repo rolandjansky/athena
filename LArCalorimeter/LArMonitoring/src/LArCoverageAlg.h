@@ -26,7 +26,7 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "LArCabling/LArOnOffIdMapping.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
+#include "LArRecConditions/LArBadChannelMask.h"
 #include "LArRecConditions/LArBadChannelCont.h"
 #include "CaloConditions/CaloNoise.h"
 
@@ -87,7 +87,8 @@ class LArCoverageAlg: public AthMonitorAlgorithm
   SG::ReadCondHandleKey<CaloNoise> m_noiseCDOKey{this,"CaloNoiseKey","electronicNoise","SG Key of CaloNoise data object"};
 
   /** Handle to bad-channel tools */
-  ToolHandle<ILArBadChannelMasker> m_badChannelMask{this, "LArBadChannelMask", "BadLArRawChannelMask"} ;
+  Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{}, "Bad-Channel categories to mask"}; 
+  LArBadChannelMask m_bcMask;
 
   SG::ReadHandleKey<LArRawChannelContainer> m_rawChannelsKey{this, "LArRawChannelKey", "LArRawChannels", "SG Key of raw channels"};
   SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey{this, "BadChanKey", "LArBadChannel", "SG bad channels key"};
@@ -95,7 +96,7 @@ class LArCoverageAlg: public AthMonitorAlgorithm
 
 
   /** To retrieve bad channel DB keywords  */
-  int DBflag(HWIdentifier) const;
+  int DBflag(HWIdentifier,const LArBadChannelCont*) const;
 
   /** Properties */
   Gaudi::Property<EventContext::ContextEvt_t> m_nevents {this,"Nevents",50};
@@ -121,6 +122,8 @@ class LArCoverageAlg: public AthMonitorAlgorithm
   Gaudi::Property< std::vector<std::string> > m_CoverageEndcapPartitions {this, "CoverageEndcapPartitions", {"EMECA","EMECC","HECA","HECC","FCalA","FCalC"}};
   Gaudi::Property< std::vector<std::string> > m_Sides {this, "Sides", {"A","C"}};
   Gaudi::Property< std::vector<std::string> > m_availableErrorCodes {this, "AvailableErrorCodes", {"0","1","2","3","4"}};
+
+  
 
   /** for tools array */
   std::vector<int> m_CaloNoiseGroupArrEM;

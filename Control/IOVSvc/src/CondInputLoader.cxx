@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // CondInputLoader.cxx 
@@ -59,9 +59,9 @@ CondInputLoader::CondInputLoader( const std::string& name,
   m_condStore("StoreGateSvc/ConditionStore", name),
   m_condSvc("CondSvc",name),
   m_IOVSvc("IOVSvc",name),
+  m_IOVDbSvc("IOVDbSvc",name),
   m_clidSvc("ClassIDSvc",name),
   m_rcuSvc("Athena::RCUSvc",name)
-
 {
   //
   // Property declaration
@@ -88,47 +88,50 @@ CondInputLoader::initialize()
   ATH_CHECK( m_condStore.retrieve() );
   ATH_CHECK( m_clidSvc.retrieve() );
   ATH_CHECK( m_rcuSvc.retrieve() );
+  ATH_CHECK( m_dictLoader.retrieve() );
 
   // Trigger read of IOV database
   ServiceHandle<IIOVSvc> ivs("IOVSvc",name());
   ATH_CHECK( ivs.retrieve() );
 
   // Update the SG keys if different from Folder Names
-  ServiceHandle<IIOVDbSvc> idb("IOVDbSvc",name());
-  ATH_CHECK( idb.retrieve() );
-
-  std::vector<std::string> keys = idb->getKeyList();
+  ATH_CHECK( m_IOVDbSvc.retrieve() );
+  std::vector<std::string> keys =  m_IOVDbSvc->getKeyList();
   IIOVDbSvc::KeyInfo info;
   DataObjIDColl handles_to_load;
 
-  std::map<std::string,std::string> folderKeyMap;
   for (auto key : keys) {
-    if (idb->getKeyInfo(key, info)) {
-      folderKeyMap[info.folderName] = key;
+    if( m_IOVDbSvc->getKeyInfo(key, info) ) {
       m_keyFolderMap[key] = info.folderName;
     } else {
       ATH_MSG_WARNING("unable to retrieve keyInfo for " << key );
     }
   }
 
-  std::map<std::string,std::string>::const_iterator itr;
-  for (auto id : m_load) {
-    itr = folderKeyMap.find(id.key());
-    if (itr != folderKeyMap.end() && id.key() != itr->second) {
-      ATH_MSG_DEBUG(" mapping folder " << id.key() << " to SGkey " 
-                    << itr->second);
-      id.updateKey( itr->second );
-    // } else {
-    //   ATH_MSG_DEBUG(" not remapping folder " << id.key());
-    }
-    if (id.key() == "") {
-      ATH_MSG_INFO("ignoring blank key for " << id );
-      continue;
-    }
-    SG::VarHandleKey vhk(id.clid(),id.key(),Gaudi::DataHandle::Writer,
-                         StoreID::storeName(StoreID::CONDITION_STORE));
-    handles_to_load.emplace(vhk.fullKey());
-  }
+  // We can get warnings later if we don't get this defined first.
+  TClass::GetClass ("coral::AttributeList", true, false);
+
+  for (const auto& itr : m_keyFolderMap) { //loop over keys of IOVDbSvc
+    for (auto id : m_load) {
+      if (id.key() == itr.second) {//CondInputLoader deals with this folder
+	if (itr.second  != itr.first) {
+	  ATH_MSG_DEBUG(" mapping folder " << id.key() << " to SGkey " 
+			<< itr.first);
+	  id.updateKey( itr.first );
+	}//end if folder-name doesn't match SG key
+
+	SG::VarHandleKey vhk(id.clid(),id.key(),Gaudi::DataHandle::Writer,
+			       StoreID::storeName(StoreID::CONDITION_STORE));
+	handles_to_load.emplace(vhk.fullKey());
+
+        // Loading root dictionaries in a multithreaded environment
+        // is unreliable.
+        // So try to be sure all dictionaries are loaded now.
+        m_dictLoader->load_type (id.clid());
+	break; //quit loop over m_load
+      } // end if CondInputLoader deals with this folder
+    }//end loop over m_load
+  }//end loop over m_keyFolderMap
 
   m_load = handles_to_load;
   m_handlesToCreate = handles_to_load;
@@ -158,6 +161,8 @@ CondInputLoader::initialize()
           SG::VarHandleKey vhk(clid2,e->key(),Gaudi::DataHandle::Writer,
                                StoreID::storeName(StoreID::CONDITION_STORE));
           m_load.value().emplace(vhk.fullKey());
+          // Again, make sure all needed dictionaries are loaded.
+          m_dictLoader->load_type (clid2);
         }
       }
     }
@@ -355,7 +360,6 @@ CondInputLoader::execute()
     m_condSvc->dump(ost);
     ATH_MSG_DEBUG(ost.str());
   }
-  
   return sc;
 }
 

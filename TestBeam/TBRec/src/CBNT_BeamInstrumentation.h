@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_CBNT_BEAM_H
@@ -9,21 +9,19 @@
 #include <fstream>
 #include <string>
 
-class StoreGateSvc;
-
 class CBNT_BeamInstrumentation : public CBNT_TBRecBase
 {
  public:
   CBNT_BeamInstrumentation(const std::string & name, ISvcLocator * pSvcLocator);
 
-  ~CBNT_BeamInstrumentation();
+  virtual ~CBNT_BeamInstrumentation();
 
   //standart algorithm methods
-  virtual StatusCode CBNT_initialize();
-  virtual StatusCode CBNT_execute();
-  virtual StatusCode CBNT_finalize();
+  virtual StatusCode CBNT_initialize() override;
+  virtual StatusCode CBNT_execute() override;
+  virtual StatusCode CBNT_finalize() override;
 
-  virtual StatusCode CBNT_clear();
+  virtual StatusCode CBNT_clear() override;
  private:
 
   bool m_neverReturnFailure;   // controls when StatusCode::FAILURE can be issued in execute()
@@ -53,7 +51,7 @@ class CBNT_BeamInstrumentation : public CBNT_TBRecBase
 
   //Private function to build names for ntuple entries. Concatinates strings
   //but omitts characters that are problematic for root like -+:*/
-  std::string add_name(const char* base, const std::string extension);
+  std::string add_name(const char* base, const std::string& extension);
 };
 
 #endif

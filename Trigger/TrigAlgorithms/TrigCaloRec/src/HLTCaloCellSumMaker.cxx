@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  *   */
 
  /*
@@ -22,10 +22,6 @@ HLTCaloCellSumMaker::HLTCaloCellSumMaker(const std::string & name, ISvcLocator* 
     declareProperty("CellsVName", m_cellContainerVKey = std::string("CellsVClusters"), "Calo cluster container");
     declareProperty("CellsName", m_cellContainerKey = std::string("CellsClusters"), "Calo cluster container");
     declareProperty("roiMode",m_roiMode,"RoiMode roi->CaloCellCollection");
-}
-
-HLTCaloCellSumMaker::~HLTCaloCellSumMaker()
-{
 }
 
 StatusCode HLTCaloCellSumMaker::initialize() {

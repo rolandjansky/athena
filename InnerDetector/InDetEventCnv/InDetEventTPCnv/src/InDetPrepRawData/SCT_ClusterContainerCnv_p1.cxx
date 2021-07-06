@@ -67,7 +67,7 @@ void InDet::SCT_ClusterContainerCnv_p1::transToPers(const InDet::SCT_ClusterCont
         persCont->m_PRD.resize(chanEnd);
         for (unsigned int i = 0; i < collection.size(); ++i) {
             const InDet::SCT_Cluster* chan = collection[i];
-            persCont->m_PRD[i + chanBegin] = toPersistent((CONV**)0, chan, log );
+            persCont->m_PRD[i + chanBegin] = toPersistent((CONV**)nullptr, chan, log );
         }
     }
 //   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing SCT_ClusterContainer ***" << endmsg;
@@ -100,7 +100,7 @@ void  InDet::SCT_ClusterContainerCnv_p1::persToTrans(const InDet::InDetPRD_Conta
         }
     }
 
-    InDet::SCT_ClusterCollection* coll = 0;
+    InDet::SCT_ClusterCollection* coll = nullptr;
 
     SCT_ClusterCnv_p1  chanCnv;
     typedef ITPConverterFor<Trk::PrepRawData> CONV;
@@ -121,7 +121,7 @@ void  InDet::SCT_ClusterContainerCnv_p1::persToTrans(const InDet::InDetPRD_Conta
         // Fill with channels
         for (unsigned int ichan = 0; ichan < nchans; ++ ichan) {
             const TPObjRef pchan = persCont->m_PRD[ichan + pcoll.m_begin];
-            InDet::SCT_Cluster* chan = dynamic_cast<InDet::SCT_Cluster*>(createTransFromPStore((CONV**)0, pchan, log ) );
+            InDet::SCT_Cluster* chan = dynamic_cast<InDet::SCT_Cluster*>(createTransFromPStore((CONV**)nullptr, pchan, log ) );
             if (chan) {
                 chan->m_detEl = de;
                 (*coll)[ichan] = chan;

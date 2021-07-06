@@ -27,7 +27,7 @@
 // Base class
 #include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
 
-#include "InDetReadoutGeometry/SiCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
 #include "CLHEP/Geometry/Vector3D.h" // For unused phiMeasureSegment
 #include "CLHEP/Geometry/Transform3D.h"
 
@@ -56,7 +56,7 @@ public:
 
     ~StripAnnulusDesign() = default;
 
-    HepGeom::Point3D<double> sensorCenter() const;
+    Amg::Vector3D sensorCenter() const;
 
     // Copy constructor and assignment:
     StripAnnulusDesign(const StripAnnulusDesign &design);
@@ -139,7 +139,7 @@ public:
 
 
     // Transform from SiHit to GeoModel frame
-    const HepGeom::Transform3D SiHitToGeoModel() const;
+    const Amg::Transform3D SiHitToGeoModel() const;
     
     // ------------------------------------------------------------------------------------------
 

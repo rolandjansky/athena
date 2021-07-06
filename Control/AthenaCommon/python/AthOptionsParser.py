@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # @file AthenaCommon.AthOptionsParser
 # @purpose the central module to parse command line options of athena.py
@@ -30,7 +30,7 @@ _userlongopts = [
     "enable-ers-hdlr=",
     "keep-configuration","drop-configuration", "drop-and-reload", "config-only=",
     "dump-configuration=",
-    "tcmalloc", "stdcmalloc", "stdcmath", "imf", "preloadlib=",
+    "tcmalloc", "stdcmalloc", "stdcmath", "imf", "exctrace", "preloadlib=",
     "nprocs=",
     "debugWorker",
     "pycintex_minvmem=", "cppyy_minvmem",
@@ -94,6 +94,7 @@ Accepted command line options:
      --tcmalloc                       ...  use tcmalloc.so for memory allocation [DEFAULT]. This disables leak-check
      --stdcmalloc                     ...  use libc malloc for memory allocation
      --stdcmath                       ...  use glibc math functions [DEFAULT]
+     --exctrace                       ...  enable collecting tracebacks for exceptions
      --imf                            ...  use Intel Math Function library: faster, but may give different numerical results from --stdcmath
      --preloadlib=<lib>               ...  localized preload of library <lib>
      --nprocs=n                       ...  enable AthenaMP if n>=1 or n==-1

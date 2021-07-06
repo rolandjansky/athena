@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigBSExtraction/TrigHLTtoxAODConversion.h"
@@ -17,7 +17,6 @@ TrigHLTtoxAODConversion::TrigHLTtoxAODConversion(const std::string& name, ISvcLo
   declareProperty("BStoxAOD",m_xAODTool);
 }
 
-TrigHLTtoxAODConversion::~TrigHLTtoxAODConversion() {}
 
 StatusCode TrigHLTtoxAODConversion::initialize() {
 
@@ -27,9 +26,6 @@ StatusCode TrigHLTtoxAODConversion::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigHLTtoxAODConversion::finalize() {
-  return StatusCode::SUCCESS;
-}
 
 StatusCode TrigHLTtoxAODConversion::execute() {
   //convert all of the present AOD containers to xAOD

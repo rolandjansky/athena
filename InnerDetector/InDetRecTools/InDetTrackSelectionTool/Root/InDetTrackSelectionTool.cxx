@@ -1,14 +1,15 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
-#include "InDetTrackCut.h"
 
 #include "AsgMessaging/Check.h"
 #include "xAODTracking/TrackingPrimitives.h"
+#include "InDetAccessor.h"
 
 #ifndef XAOD_ANALYSIS
+#include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkTrack/Track.h"
 #include "VxVertex/Vertex.h"
 #include "TrkTrackSummary/TrackSummary.h"
@@ -16,6 +17,60 @@
 #endif
 
 #include <memory>
+#include <array>
+
+using namespace InDetAccessor;
+
+namespace {
+   template <unsigned int n_summary_types>
+   std::array<xAOD::SummaryType, n_summary_types> summaryArray( std::array<xAOD::SummaryType, n_summary_types> summary_types) {return summary_types; }
+
+   template <class Trk_Helper, unsigned int n_summary_types>
+   class  MinTRTHitsCut {
+   public:
+      MinTRTHitsCut( double maxTrtEtaAcceptance,
+                     double maxEtaForTrtHitCuts,
+                     int min_n_hits,
+                     std::array<xAOD::SummaryType, n_summary_types> summary_types)
+         : m_maxTrtEtaAcceptance(maxTrtEtaAcceptance),
+           m_maxEtaForTrtHitCuts(maxEtaForTrtHitCuts),
+           m_minNHits(min_n_hits),
+           m_summaryTypes(summary_types)
+      {}
+
+      uint8_t nHits(Trk_Helper helper, asg::AsgMessaging &msgHelper) const {
+         return getSummarySum(helper,msgHelper,m_summaryTypes);
+      }
+      bool operator()(Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+         double absEta = std::abs( helper.eta( msgHelper) );
+         return      (absEta <= m_maxTrtEtaAcceptance || absEta > m_maxEtaForTrtHitCuts) || nHits(helper,msgHelper) >=m_minNHits;
+      }
+   private:
+      double m_maxTrtEtaAcceptance;
+      double m_maxEtaForTrtHitCuts;
+      int m_minNHits;
+      std::array<xAOD::SummaryType, n_summary_types> m_summaryTypes;
+   };
+
+   // return the first bin whose value is lower or equal than the given value
+   // the bins have to be in ascending order;
+   template <typename T>
+   unsigned int findBin(const std::vector<T> &bins, T value) {
+      if (bins.empty() || bins[0]>value) return bins.size();
+      unsigned int bin_i=bins.size();
+      while ( value < bins[--bin_i]) {};
+      return bin_i;
+   }
+   // return true if the given bins are in ascending order
+   template <typename T>
+   bool checkOrder(const std::vector<T> &bins) {
+      if (bins.empty()) return true;
+      for (unsigned int bin_i=1; bin_i<bins.size(); ++bin_i) {
+         if (bins[bin_i-1]>=bins[bin_i]) return false;
+      }
+      return true;
+   }
+}
 
 InDet::InDetTrackSelectionTool::InDetTrackSelectionTool(const std::string& name, const std::string& cutLevel)
   : asg::AsgTool(name)
@@ -173,7 +228,7 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
 
   // if the CutLevel string is set to something recognizable,
   // then do a soft set on the cuts (i.e. not overwriting those already set)
-  if (m_cutLevel != "") {
+  if (!m_cutLevel.empty()) {
     std::unordered_map<std::string, InDet::CutLevel>::const_iterator it_mapCutLevel = s_mapCutLevel.find(m_cutLevel);
     if ( it_mapCutLevel == s_mapCutLevel.end() ) {
       ATH_MSG_ERROR( "The string \"" << m_cutLevel << "\" is not recognized as a cut level. No cuts will be changed." );
@@ -204,446 +259,17 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
   }
 #endif // XAOD_ANALYSIS
 
-  // local helper functions to determine if a maximum cut should be set.
-  // we want the user to be able to set a maximum cut to a negative number to unset it from a pre-defined cut level.
-  // this will break down if there is ever a legitimate reason to restrict a value to be negative.
-  const auto maxDoubleIsSet = [&](Double_t cutValue){return cutValue < LOCAL_MAX_DOUBLE && cutValue >= 0.;};
-  const auto maxIntIsSet = [&](Int_t cutValue){return cutValue < LOCAL_MAX_INT && cutValue >= 0;};
+  // Need messaging helper for cut functions
+  m_msgHelper = std::make_unique<asg::AsgMessaging>(this) ;
 
-  // create the cuts and initialize them (which will create the necessary accessors).
-  // tell the user which cuts are recognized.
-  if (m_minPt > 0.) {
-    ATH_MSG_INFO( "  Minimum Pt: " << m_minPt << " MeV" );
-    m_trackCuts["Pt"].push_back(std::make_unique<MinCut<double, &xAOD::TrackParticle::pt> >(this, m_minPt, "pt"));
-  }
-  if (maxDoubleIsSet(m_maxAbsEta)) {
-    ATH_MSG_INFO( "  Maximum |Eta|: " << m_maxAbsEta );
-    m_trackCuts["Eta"].push_back(std::make_unique< MaxAbsCut<double, &xAOD::TrackParticle::eta> >(this, m_maxAbsEta, "eta"));
-  }
-  if (m_minP > 0.) {
-    ATH_MSG_INFO( "  Minimum P: " << m_minP << " MeV" );
-    m_trackCuts["P"].push_back(std::make_unique< MaxAbsCut<float, &xAOD::TrackParticle::qOverP> >(this, 1./m_minP, "qOverP"));
-  }
-  if (maxDoubleIsSet(m_maxD0)) {
-    ATH_MSG_INFO( "  Maximum d0: " << m_maxD0 << " mm" );
-    m_trackCuts["D0"].push_back(std::make_unique<D0Cut>(this, m_maxD0));
-  }
-  if (maxDoubleIsSet(m_maxZ0)) {
-    ATH_MSG_INFO( "  Maximum z0: " << m_maxZ0 << " mm");
-    m_trackCuts["Z0"].push_back(std::make_unique<Z0Cut>(this, m_maxZ0));
-  }
-  if (maxDoubleIsSet(m_maxZ0SinTheta)) {
-    ATH_MSG_INFO( "  Maximum z0*sin(theta): " << m_maxZ0SinTheta << " mm" );
-    m_trackCuts["Z0SinTheta"].push_back(std::make_unique<Z0SinThetaCut>(this, m_maxZ0SinTheta));
-  }
-  if (maxDoubleIsSet(m_maxSigmaD0)) {
-    ATH_MSG_INFO( "  Maximum uncertainty on d0: " << m_maxSigmaD0 << " mm" );
-    m_trackCuts["D0"].push_back(std::make_unique<D0SigmaCut>(this, m_maxSigmaD0));
-  }
-  if (maxDoubleIsSet(m_maxSigmaZ0)) {
-    ATH_MSG_INFO( "  Maximum uncertainty on z0: " << m_maxSigmaZ0 << " mm" );
-    m_trackCuts["Z0"].push_back(std::make_unique<Z0SigmaCut>(this, m_maxSigmaZ0));
-  }
-  if (maxDoubleIsSet(m_maxSigmaZ0SinTheta)) {
-    ATH_MSG_INFO( "  Maximum uncertainty on z0*sin(theta): "
-		  << m_maxSigmaZ0SinTheta << " mm" );
-    m_trackCuts["Z0SinTheta"].push_back(std::make_unique<Z0SinThetaSigmaCut>(this, m_maxSigmaZ0SinTheta));
-  }
-  if (maxDoubleIsSet(m_maxD0overSigmaD0)) {
-    ATH_MSG_INFO( "  Maximum significance on d0: " << m_maxD0overSigmaD0 );
-    m_trackCuts["D0"].push_back(std::make_unique<D0SignificanceCut>(this, m_maxD0overSigmaD0));
-  }
-  if (maxDoubleIsSet(m_maxZ0overSigmaZ0)) {
-    ATH_MSG_INFO( "  Maximum significance on z0: " << m_maxZ0overSigmaZ0 );
-    m_trackCuts["Z0"].push_back(std::make_unique<Z0SignificanceCut>(this, m_maxZ0overSigmaZ0));
-  }
-  if (maxDoubleIsSet(m_maxZ0SinThetaoverSigmaZ0SinTheta)) {
-    ATH_MSG_INFO( "  Maximum significance on z0*sin(theta): "
-		  << m_maxZ0SinThetaoverSigmaZ0SinTheta );
-    m_trackCuts["Z0SinTheta"].push_back(std::make_unique<Z0SinThetaSignificanceCut>(this, m_maxZ0SinThetaoverSigmaZ0SinTheta));
-  }
-  if (m_minNInnermostLayerHits > 0) {
-    ATH_MSG_INFO( "  Minimum hits from innermost pixel layer: " << m_minNInnermostLayerHits );
-    ATH_MSG_INFO( "    (Track will pass if no hit is expected.)" );
-    auto minInnermostLayerHits = std::make_unique< FuncSummaryValueCut<2> >
-      (this, std::array<xAOD::SummaryType,2>{{xAOD::numberOfInnermostPixelLayerHits, xAOD::expectInnermostPixelLayerHit}});
-    minInnermostLayerHits->setFunction( [=](const std::array<uint8_t, 2> vals)
-					{return !vals[1] || vals[0] >= m_minNInnermostLayerHits;} );
-    m_trackCuts["InnermostLayersHits"].push_back(std::move(minInnermostLayerHits));
-  }
-  if (m_minNNextToInnermostLayerHits > 0) {
-    ATH_MSG_INFO( "  Minimum hits from next to innermost pixel layer: " << m_minNNextToInnermostLayerHits );
-    ATH_MSG_INFO( "    (Track will pass if no hit is expected.)" );
-    auto minNextToInnermostLayerHits = std::make_unique< FuncSummaryValueCut<2> >
-      (this, std::array<xAOD::SummaryType,2>{{xAOD::numberOfNextToInnermostPixelLayerHits,
-	    xAOD::expectNextToInnermostPixelLayerHit}} );
-    minNextToInnermostLayerHits->setFunction( [=] (std::array<uint8_t, 2> vals)
-					      {return !vals[1] || vals[0] >= m_minNNextToInnermostLayerHits;} );
-    m_trackCuts["InnermostLayersHits"].push_back(std::move(minNextToInnermostLayerHits));
-  }
-  if (m_minNBothInnermostLayersHits > 0) {
-    ATH_MSG_INFO( "  Minimum hits from both innermost pixel layers: " << m_minNBothInnermostLayersHits );
-    ATH_MSG_INFO( "    (If a layer has no hits but one is not expected, the" );
-    ATH_MSG_INFO( "     number of hits in that layer will be taken to be 1.)" );
-    if (m_minNBothInnermostLayersHits > 2) {
-      ATH_MSG_WARNING( "A value of minNBothInnermostLayersHits above 2 does not make sense." );
-      ATH_MSG_WARNING( "  Use 1 for \"or\" or 2 for \"and\"." );
-    }
-    auto minInnerHits = std::make_unique< FuncSummaryValueCut<4> >
-      (this, std::array<xAOD::SummaryType,4>
-      {{xAOD::numberOfInnermostPixelLayerHits, xAOD::numberOfNextToInnermostPixelLayerHits,
-	    xAOD::expectInnermostPixelLayerHit, xAOD::expectNextToInnermostPixelLayerHit}} );
-    minInnerHits->setFunction( [=](const std::array<uint8_t, 4>& vals)
-			       {return std::max(vals[0], (uint8_t) !vals[2])
-				   + std::max(vals[1], (uint8_t) !vals[3])
-				   >= m_minNBothInnermostLayersHits; } );
-    m_trackCuts["InnermostLayersHits"].push_back(std::move(minInnerHits));
-  }
-  if (m_useMinBiasInnermostLayersCut > 0 ) { // less than zero indicates this cut is manually turned off
-    ATH_MSG_INFO( "  An innermost layer hit is required if expected, otherwise" );
-    ATH_MSG_INFO( "    a next-to-innermost layer hit is required if it is expected." );
-    auto minInnerHits = std::make_unique< FuncSummaryValueCut<4> >
-      (this, std::array<xAOD::SummaryType,4>(  
-	{{xAOD::numberOfInnermostPixelLayerHits, xAOD::numberOfNextToInnermostPixelLayerHits,
-              xAOD::expectInnermostPixelLayerHit, xAOD::expectNextToInnermostPixelLayerHit}}) );
-    minInnerHits->setFunction( [=](const std::array<uint8_t,4>& vals)
-			       {return (vals[2] > 0 && vals[0] >= 1) ||
-				   (vals[2] == 0 && (vals[3] == 0 || vals[1] >= 1));} );
-    m_trackCuts["InnermostLayersHits"].push_back(std::move(minInnerHits));
-  }
-  if (maxIntIsSet(m_maxNInnermostLayerSharedHits)) {
-    ATH_MSG_INFO( "  Maximum shared hits in innermost pixel layer: " << m_maxNInnermostLayerSharedHits );
-    m_trackCuts["InnermostLayersHits"].push_back
-      (std::make_unique<MaxSummaryValueCut>
-       (this, m_maxNInnermostLayerSharedHits,
-	std::vector<xAOD::SummaryType>({xAOD::numberOfInnermostPixelLayerSharedHits}) ));
-  }
-  if (m_minNPixelHits > 0) {
-    ATH_MSG_INFO( "  Minimum pixel hits: " << m_minNPixelHits );
-    m_trackCuts["PixelHits"].push_back
-      (std::make_unique<MinSummaryValueCut>
-       (this, m_minNPixelHits, std::vector<xAOD::SummaryType>({xAOD::numberOfPixelHits, xAOD::numberOfPixelDeadSensors}) ));
-  }
-  if (m_minNPixelHitsPhysical > 0) {
-    ATH_MSG_INFO( "  Minimum physical pixel hits (i.e. dead sensors do not count): "
-  		  << m_minNPixelHitsPhysical );
-    auto minPixelPhysHits = std::make_unique<MinSummaryValueCut> (this, m_minNPixelHitsPhysical );
-    minPixelPhysHits->addSummaryType(xAOD::numberOfPixelHits);
-    m_trackCuts["PixelHits"].push_back(std::move(minPixelPhysHits));
-  }
-  if (maxIntIsSet(m_maxNPixelHoles)) {
-    ATH_MSG_INFO( "  Maximum pixel holes: " << m_maxNPixelHoles );
-    auto maxPixHoles = std::make_unique<MaxSummaryValueCut>(this, m_maxNPixelHoles);
-    maxPixHoles->addSummaryType(xAOD::numberOfPixelHoles);
-    m_trackCuts["PixelHits"].push_back(std::move(maxPixHoles));
-  }
-  if (maxIntIsSet(m_maxNPixelSharedHits)) {
-    ATH_MSG_INFO( "  Maximum pixel shared hits: " << m_maxNPixelSharedHits );
-    auto maxPixSharedHits = std::make_unique<MaxSummaryValueCut>(this, m_maxNPixelSharedHits);
-    maxPixSharedHits->addSummaryType(xAOD::numberOfPixelSharedHits);
-    m_trackCuts["PixelHits"].push_back(std::move(maxPixSharedHits));
-  }
-  if (m_minNSctHits > 0) {
-    ATH_MSG_INFO( "  Minimum SCT hits: " << m_minNSctHits );
-    m_trackCuts["SctHits"].push_back
-      (std::make_unique<MinSummaryValueCut>
-       (this, m_minNSctHits, std::vector<xAOD::SummaryType>({xAOD::numberOfSCTHits, xAOD::numberOfSCTDeadSensors}) ));
-  }
-  if (m_minNSctHitsPhysical > 0) {
-    ATH_MSG_INFO( "  Minimum physical SCT hits (i.e. dead sensors do not count): "
-  		  << m_minNSctHitsPhysical );
-    auto minSctPhysHits = std::make_unique<MinSummaryValueCut> (this, m_minNSctHitsPhysical );
-    minSctPhysHits->addSummaryType(xAOD::numberOfSCTHits);
-    m_trackCuts["SctHits"].push_back(std::move(minSctPhysHits));
-  }
-  if (maxIntIsSet(m_maxNSctHoles)) {
-    ATH_MSG_INFO( "  Maximum SCT holes: " << m_maxNSctHoles );
-    auto maxSctHoles = std::make_unique<MaxSummaryValueCut>(this, m_maxNSctHoles);
-    maxSctHoles->addSummaryType( xAOD::numberOfSCTHoles );
-    m_trackCuts["SctHits"].push_back(std::move(maxSctHoles));
-  }
-  if (maxIntIsSet(m_maxNSctSharedHits)) {
-    ATH_MSG_INFO( "  Maximum SCT shared hits: " << m_maxNSctSharedHits );
-    auto maxSctSharedHits = std::make_unique<MaxSummaryValueCut>(this, m_maxNSctSharedHits);
-    maxSctSharedHits->addSummaryType( xAOD::numberOfSCTSharedHits );
-    m_trackCuts["SctHits"].push_back(std::move(maxSctSharedHits));
-  }
-  if (maxIntIsSet(m_maxNSctDoubleHoles)) {
-    ATH_MSG_INFO( "  Maximum SCT double holes: " << m_maxNSctDoubleHoles );
-    auto maxSctDoubleHoles = std::make_unique<MaxSummaryValueCut>(this, m_maxNSctDoubleHoles);
-    maxSctDoubleHoles->addSummaryType( xAOD::numberOfSCTDoubleHoles );
-    m_trackCuts["SctHits"].push_back(std::move(maxSctDoubleHoles));
-  }
-  if (m_minNSiHits > 0) {
-    ATH_MSG_INFO( "  Minimum silicon (pixel + SCT) hits: " << m_minNSiHits );
-    auto minSiHits = std::make_unique<MinSummaryValueCut>(this, m_minNSiHits);
-    minSiHits->addSummaryType( xAOD::numberOfPixelHits );
-    minSiHits->addSummaryType( xAOD::numberOfSCTHits );
-    minSiHits->addSummaryType( xAOD::numberOfPixelDeadSensors );
-    minSiHits->addSummaryType( xAOD::numberOfSCTDeadSensors );
-    m_trackCuts["SiHits"].push_back(std::move(minSiHits));
-  }
-  if (m_minNSiHitsPhysical > 0) {
-    ATH_MSG_INFO( "  Minimum physical silicon hits (i.e. dead sensors do not count): "
-		  << m_minNSiHitsPhysical );
-    auto minSiHitsPhys = std::make_unique<MinSummaryValueCut>(this, m_minNSiHitsPhysical);
-    minSiHitsPhys->addSummaryType( xAOD::numberOfPixelHits );
-    minSiHitsPhys->addSummaryType( xAOD::numberOfSCTHits );
-    m_trackCuts["SiHits"].push_back(std::move(minSiHitsPhys));
-  }
-  if (maxIntIsSet(m_maxNSiHoles)) {
-    ATH_MSG_INFO( "  Maximum silicon holes: " << m_maxNSiHoles );
-    auto maxSiHoles = std::make_unique<MaxSummaryValueCut>(this, m_maxNSiHoles);
-    maxSiHoles->addSummaryType( xAOD::numberOfPixelHoles );
-    maxSiHoles->addSummaryType( xAOD::numberOfSCTHoles );
-    m_trackCuts["SiHits"].push_back(std::move(maxSiHoles));
-  }
-  if (maxIntIsSet(m_maxNSiSharedHits)) {
-    ATH_MSG_INFO( "  Maximum silicon shared hits: " << m_maxNSiSharedHits );
-    auto maxSiSharedHits = std::make_unique<MaxSummaryValueCut>(this, m_maxNSiSharedHits);
-    maxSiSharedHits->addSummaryType( xAOD::numberOfPixelSharedHits );
-    maxSiSharedHits->addSummaryType( xAOD::numberOfSCTSharedHits );
-    m_trackCuts["SiHits"].push_back(std::move(maxSiSharedHits));
-  }
-  if (m_maxOneSharedModule) {
-    ATH_MSG_INFO( "  No more than one shared module:" );
-    ATH_MSG_INFO( "    i.e. max 1 shared pixel hit or" );
-    ATH_MSG_INFO( "    2 shared SCT hits, and not both." );
-    auto oneSharedModule = std::make_unique< FuncSummaryValueCut<2> >
-      (this, std::array<xAOD::SummaryType, 2>{{xAOD::numberOfPixelSharedHits, xAOD::numberOfSCTSharedHits}} );
-    oneSharedModule->setFunction( [=] (const std::array<uint8_t, 2> vals) {return vals[0] + vals[1]/2 <= 1;} );
-    m_trackCuts["SiHits"].push_back(std::move(oneSharedModule));
-  }
-  if (m_minNSiHitsIfSiSharedHits > 0) {
-    ATH_MSG_INFO( "  Minimum silicon hits if the track has shared hits: "
-		  << m_minNSiHitsIfSiSharedHits );
-    auto siHits = std::make_unique< FuncSummaryValueCut<6> >
-      (this, std::array<xAOD::SummaryType, 6>
-       ({{xAOD::numberOfPixelHits,
-          xAOD::numberOfSCTHits,
-          xAOD::numberOfPixelDeadSensors,
-          xAOD::numberOfSCTDeadSensors,
-          xAOD::numberOfPixelSharedHits,
-          xAOD::numberOfSCTSharedHits}}) );
-    siHits->setFunction( [=] (const std::array<uint8_t, 6>& vals)
-			 {return (vals[4] + vals[5] == 0) ||
-			     (vals[0] + vals[1] + vals[2] + vals[3]
-			      >= m_minNSiHitsIfSiSharedHits);} );
-    m_trackCuts["SiHits"].push_back(std::move(siHits));
-  }
-  if (maxDoubleIsSet(m_minEtaForStrictNSiHitsCut)
-      && m_minNSiHitsAboveEtaCutoff > 0) {
-    ATH_MSG_INFO( "  Require " << m_minNSiHitsAboveEtaCutoff
-		  << " silicon hits above eta = " << m_minEtaForStrictNSiHitsCut );
-    m_trackCuts["SiHits"].push_back(std::make_unique<MinNSiHitsAboveEta>(this, m_minNSiHitsAboveEtaCutoff,
-    								    m_minEtaForStrictNSiHitsCut));
-  }
-  if (m_useExperimentalInnermostLayersCut) {
-    ATH_MSG_INFO( "  Zero pixel holes allowed, except one pix hole is allowed if there is a physical IBL hit and a BLayer hit is expected but there is no BLayer hit." );
-    auto pixHoles = std::make_unique< FuncSummaryValueCut<4> >
-      (this, std::array<xAOD::SummaryType, 4>({{xAOD::numberOfPixelHoles, xAOD::numberOfInnermostPixelLayerHits, xAOD::expectNextToInnermostPixelLayerHit, xAOD::numberOfNextToInnermostPixelLayerHits}}) );
-    pixHoles->setFunction( [=](const std::array<uint8_t, 4>& vals)
-			   {return (vals[0] == 0) || (vals[0] <= 1 && vals[1] >= 1 && vals[2] && vals[3] == 0);});
-    m_trackCuts["PixHits"].push_back(std::move(pixHoles));
-  }
+  // setup cut functions for xAOD::TrackParticles
+  ATH_CHECK( setupCuts<1>(m_trackParticleCuts) );
 #ifndef XAOD_ANALYSIS
-  if (m_minNSiHitsMod > 0) {
-    ATH_MSG_INFO( "  Minimum modified Si hits (2*pix + sct) (does not include dead sensors)= "
-		  << m_minNSiHitsMod );
-    auto siHits = std::make_unique<MinSummaryValueCut>(this, m_minNSiHitsMod);
-    siHits->addSummaryType(xAOD::numberOfPixelHits);
-    siHits->addSummaryType(xAOD::numberOfPixelHits); // pixel hits count twice in this definition
-    siHits->addSummaryType(xAOD::numberOfSCTHits);
-    m_trackCuts["SiHits"].push_back(std::move(siHits));
-  }
-  if (m_minNSiHitsModTop > 0 || m_minNSiHitsModBottom > 0) {
-    ATH_MSG_INFO( "  Minimum modified Si hits in top half = "
-		  << m_minNSiHitsModTop );
-    ATH_MSG_INFO( "  Minimum modified Si hits in bottom half = "
-		  << m_minNSiHitsModBottom );
-    m_trackCuts["SiHits"].push_back(std::make_unique<MinSiHitsModTopBottomCut>
-				    (this, m_minNSiHitsModTop, m_minNSiHitsModTop));
-  }
+  // setup cut functions for Trk::Tracks
+  ATH_CHECK( setupCuts<0>(m_trkTrackCuts) );
 #endif
-  if (m_maxEtaForTrtHitCuts > 0. && m_maxTrtEtaAcceptance < m_maxEtaForTrtHitCuts) {
-    ATH_MSG_INFO( "  -- TRT hit cuts applied above eta = " << m_maxTrtEtaAcceptance
-		  << " and below eta = " << m_maxEtaForTrtHitCuts << " --" );
-    if (m_minNTrtHits > 0) {
-      ATH_MSG_INFO( "    Minimum TRT hits outside eta acceptance: " << m_minNTrtHits );
-      auto minTrtHits = std::make_unique<MinTrtHitCut>(this, m_minNTrtHits, m_maxTrtEtaAcceptance,
-						  m_maxEtaForTrtHitCuts);
-      minTrtHits->addSummaryType( xAOD::numberOfTRTHits );
-      m_trackCuts["TrtHits"].push_back(std::move(minTrtHits));
-    }
-    if (m_minNTrtHitsPlusOutliers > 0) {
-      ATH_MSG_INFO( "    Minimum TRT hits outside eta acceptance including outliers: " << m_minNTrtHitsPlusOutliers );
-      auto minTrtHits = std::make_unique<MinTrtHitCut>(this, m_minNTrtHitsPlusOutliers, m_maxTrtEtaAcceptance,
-						  m_maxEtaForTrtHitCuts);
-      minTrtHits->addSummaryType( xAOD::numberOfTRTHits );
-      minTrtHits->addSummaryType( xAOD::numberOfTRTOutliers );
-      m_trackCuts["TrtHits"].push_back(std::move(minTrtHits));
-    }
-    if (m_minNTrtHighThresholdHits > 0) {
-      ATH_MSG_INFO( "    Minimum TRT hits outside eta acceptance above high energy threshold: "
-		    << m_minNTrtHighThresholdHits );
-      auto minTrtHits = std::make_unique<MinTrtHitCut>(this, m_minNTrtHighThresholdHits,
-						  m_maxTrtEtaAcceptance, m_maxEtaForTrtHitCuts);
-      minTrtHits->addSummaryType( xAOD::numberOfTRTHighThresholdHits );
-      m_trackCuts["TrtHits"].push_back(std::move(minTrtHits));
-    }
-    if (m_minNTrtHighThresholdHitsPlusOutliers > 0) {
-      ATH_MSG_INFO( "    Minimum TRT hits outside eta acceptance above high energy threshold including outliers: "
-		    << m_minNTrtHighThresholdHitsPlusOutliers );
-      auto minTrtHits = std::make_unique<MinTrtHitCut>(this, m_minNTrtHighThresholdHitsPlusOutliers,
-						  m_maxTrtEtaAcceptance, m_maxEtaForTrtHitCuts);
-      minTrtHits->addSummaryType( xAOD::numberOfTRTHighThresholdHits );
-      minTrtHits->addSummaryType( xAOD::numberOfTRTHighThresholdOutliers );
-      m_trackCuts["TrtHits"].push_back(std::move(minTrtHits));
-    }
-    if (maxDoubleIsSet(m_maxTrtHighEFraction)) { // I think this condition could be instead that it is between 0 and 1
-      ATH_MSG_INFO( "    Maximum ratio of high threshold to regular TRT hits outside eta acceptance: "
-		    << m_maxTrtHighEFraction);
-      auto maxTrtRatio = std::make_unique<MaxTrtHitRatioCut>(this, m_maxTrtHighEFraction,
-							m_maxTrtEtaAcceptance,
-							m_maxEtaForTrtHitCuts);
-      maxTrtRatio->addSummaryTypeNumerator( xAOD::numberOfTRTHighThresholdHits );
-      maxTrtRatio->addSummaryTypeDenominator( xAOD::numberOfTRTHits );
-      m_trackCuts["TrtHits"].push_back(std::move(maxTrtRatio));
-    }
-    if (maxDoubleIsSet(m_maxTrtHighEFractionWithOutliers)) {
-      ATH_MSG_INFO( "    Maximum ratio of high threshold to regular TRT hits above eta acceptance including outliers: "
-		    << m_maxTrtHighEFractionWithOutliers);
-      auto maxTrtRatio = std::make_unique<MaxTrtHitRatioCut>(this, m_maxTrtHighEFractionWithOutliers,
-							m_maxTrtEtaAcceptance,
-							m_maxEtaForTrtHitCuts);
-      maxTrtRatio->addSummaryTypeNumerator( xAOD::numberOfTRTHighThresholdHits );
-      maxTrtRatio->addSummaryTypeNumerator( xAOD::numberOfTRTHighThresholdOutliers );
-      maxTrtRatio->addSummaryTypeDenominator( xAOD::numberOfTRTHits );
-      maxTrtRatio->addSummaryTypeDenominator( xAOD::numberOfTRTOutliers );
-      m_trackCuts["TrtHits"].push_back(std::move(maxTrtRatio));
-    }
-    if (m_maxTrtOutlierFraction < 1. && m_maxTrtOutlierFraction >= 0.) {
-      ATH_MSG_INFO( "    Maximum fraction of TRT hits that are outliers: " << m_maxTrtOutlierFraction );
-      auto maxTrtRatio = std::make_unique<MaxTrtHitRatioCut>(this, m_maxTrtOutlierFraction,
-							m_maxTrtEtaAcceptance,
-							m_maxEtaForTrtHitCuts);
-      maxTrtRatio->addSummaryTypeNumerator( xAOD::numberOfTRTOutliers );
-      maxTrtRatio->addSummaryTypeDenominator( xAOD::numberOfTRTHits );
-      maxTrtRatio->addSummaryTypeDenominator( xAOD::numberOfTRTOutliers );
-      m_trackCuts["TrtHits"].push_back(std::move(maxTrtRatio));
-    }
-  }
-  if (m_useEtaDependentMaxChiSq) {
-    ATH_MSG_INFO( "  Using pre-defined eta-dependent maximum chi squared (no longer recommended)." );
-    m_trackCuts["FitQuality"].push_back(std::make_unique<EtaDependentChiSqCut>(this));
-  }
-  if (maxDoubleIsSet(m_maxChiSq)) {
-    ATH_MSG_INFO( "  Maximum chi squared: " << m_maxChiSq );
-    m_trackCuts["FitQuality"].push_back(std::make_unique<MaxChiSq>(this, m_maxChiSq));
-  }
-  if (maxDoubleIsSet(m_maxChiSqperNdf)) {
-    ATH_MSG_INFO( "  Maximum chi squared per degree of freedom: " << m_maxChiSqperNdf );
-    m_trackCuts["FitQuality"].push_back(std::make_unique<MaxChiSqPerNdf>(this, m_maxChiSqperNdf));
-  }
-  if (m_minProb > 0.) {
-    ATH_MSG_INFO( "  Minimum chi squared probability: " << m_minProb );
-    m_trackCuts["FitQuality"].push_back(std::make_unique<MinProb>(this, m_minProb));
-  }
-  if (maxDoubleIsSet(m_minPtForProbCut) && m_minProbAbovePtCutoff > 0.) {
-    ATH_MSG_INFO( "  Minimum chi-sq probability of " << m_minProbAbovePtCutoff
-		  << " above pt of " << m_minPtForProbCut*1e-3 << " GeV." );
-    auto lowPtOrAboveProb = std::make_unique< OrCut<2> >(this);
-    lowPtOrAboveProb->Cut(0) = std::make_unique< MaxCut<double, &xAOD::TrackParticle::pt> >(this, m_minPtForProbCut, "pt");
-    lowPtOrAboveProb->Cut(1) = std::make_unique<MinProb>(this, m_minProbAbovePtCutoff);
-    m_trackCuts["FitQuality"].push_back(std::move(lowPtOrAboveProb));
-  }
-  if (m_minNUsedHitsdEdx > 0) {
-    ATH_MSG_INFO( "  Minimum used hits for dEdx: " << m_minNUsedHitsdEdx );
-    m_trackCuts["dEdxHits"].push_back(std::make_unique< MinCut<uint8_t, &xAOD::TrackParticle::numberOfUsedHitsdEdx> >(this, m_minNUsedHitsdEdx, "usedHitsdEdx"));
-  }
-  if (m_minNOverflowHitsdEdx > 0) {
-    ATH_MSG_INFO( "  Minimum IBL overflow hits for dEdx: " << m_minNOverflowHitsdEdx );
-    m_trackCuts["dEdxHits"].push_back(std::make_unique< MinCut<uint8_t, &xAOD::TrackParticle::numberOfIBLOverflowsdEdx> >(this, m_minNOverflowHitsdEdx, "overflowHitsdEdx"));
-  }
-  if (m_minEProbabilityHT > 0) {
-    ATH_MSG_INFO( "  Minimum high threshold electron probability: " << m_minEProbabilityHT );
-    if (m_eProbHTonlyForXe) {
-      ATH_MSG_INFO( "    (only applied on tracks where all TRT hits are Xenon)" );
-      auto notAllXeOrEProb = std::make_unique< OrCut<2> >(this);
-      auto notAllXe = std::make_unique< FuncSummaryValueCut<3> >
-	(this, std::array<xAOD::SummaryType,3>{{xAOD::numberOfTRTHits, xAOD::numberOfTRTOutliers, xAOD::numberOfTRTXenonHits}});
-      notAllXe->setFunction( [=] (const std::array<uint8_t, 3>& vals)
-			     {return vals[0] + vals[1] > vals[2];} );
-      notAllXeOrEProb->setCut(0, std::move(notAllXe));
-      notAllXeOrEProb->Cut(1) = std::make_unique<MinEProbHTCut>(this, m_minEProbabilityHT);
-      m_trackCuts["eProbHT"].push_back(std::move(notAllXeOrEProb));
-    } else {
-      m_trackCuts["eProbHT"].push_back(std::make_unique<MinEProbHTCut>(this, m_minEProbabilityHT));
-    }
-  }
 
-  if (!m_vecEtaCutoffsForSiHitsCut.empty() || !m_vecMinNSiHitsAboveEta.empty()) {
-    auto cutSize = m_vecEtaCutoffsForSiHitsCut.size();
-    if (cutSize != m_vecMinNSiHitsAboveEta.size()) {
-      ATH_MSG_ERROR( "Eta cutoffs and Silicon hit cuts must be vectors of the same length." );
-      return StatusCode::FAILURE;
-    }
-    for (size_t i_cut=0; i_cut<cutSize-1; ++i_cut) {
-      ATH_MSG_INFO( "  for " << m_vecEtaCutoffsForSiHitsCut.at(i_cut)
-		    << " < eta < " << m_vecEtaCutoffsForSiHitsCut.at(i_cut+1)
-		    << " ,Silicon hits  >= " << m_vecMinNSiHitsAboveEta.at(i_cut) );
-    }
-    ATH_MSG_INFO( "  for eta > " << m_vecEtaCutoffsForSiHitsCut.at(cutSize-1)
-		    << " ,Silicon hits >= " << m_vecMinNSiHitsAboveEta.at(cutSize-1) );
-    auto siHitCut = std::make_unique<EtaDependentSiliconHitsCut>
-      (this, m_vecEtaCutoffsForSiHitsCut, m_vecMinNSiHitsAboveEta);
-    m_trackCuts["SiHits"].push_back(std::move(siHitCut));
-  }
-
-  if (!m_vecEtaCutoffsForPtCut.empty() || !m_vecMinPtAboveEta.empty()) {
-    auto cutSize = m_vecEtaCutoffsForPtCut.size();
-    if (cutSize != m_vecMinPtAboveEta.size()) {
-      ATH_MSG_ERROR( "Eta cutoffs and pT cuts must be vectors of the same length." );
-      return StatusCode::FAILURE;
-    }
-    for (size_t i_cut=0; i_cut<cutSize-1; ++i_cut) {
-      ATH_MSG_INFO( "  for " << m_vecEtaCutoffsForPtCut.at(i_cut)
-                    << " < eta < " << m_vecEtaCutoffsForPtCut.at(i_cut+1)
-                    << " ,transverse momentum >= " << m_vecMinPtAboveEta.at(i_cut) );
-    }
-    ATH_MSG_INFO( "  for eta > " << m_vecEtaCutoffsForPtCut.at(cutSize-1)
-		  << " ,transverse momentum >= " << m_vecMinPtAboveEta.at(cutSize-1) );
-    auto ptCut = std::make_unique<EtaDependentPtCut>
-      (this, m_vecEtaCutoffsForPtCut, m_vecMinPtAboveEta);
-    m_trackCuts["Pt"].push_back(std::move(ptCut));
-  }
-
-
-
-  if (!m_vecPtCutoffsForSctHitsCut.empty() || !m_vecMinNSctHitsAbovePt.empty()) {
-    auto cutSize = m_vecPtCutoffsForSctHitsCut.size();
-    if (cutSize != m_vecMinNSctHitsAbovePt.size()) {
-      ATH_MSG_ERROR( "Pt cutoffs and SCT hit cuts must be vectors of the same length." );
-      return StatusCode::FAILURE;
-    }
-    for (size_t i_cut=0; i_cut<cutSize-1; ++i_cut) {
-      ATH_MSG_INFO( "  for " << m_vecPtCutoffsForSctHitsCut.at(i_cut)
-		    << " < pt < " << m_vecPtCutoffsForSctHitsCut.at(i_cut+1)
-		    << " MeV,\tSCT hits >= " << m_vecMinNSctHitsAbovePt.at(i_cut) );
-    }
-    ATH_MSG_INFO( "  for pt > " << m_vecPtCutoffsForSctHitsCut.at(cutSize-1)
-		    << " MeV,\t\tSCT hits >= " << m_vecMinNSctHitsAbovePt.at(cutSize-1) );
-    auto sctCut = std::make_unique<PtDependentSctHitsCut>
-      (this, m_vecPtCutoffsForSctHitsCut, m_vecMinNSctHitsAbovePt);
-    m_trackCuts["SctHits"].push_back(std::move(sctCut));
-  }
-
-
-  // initialize the cuts and set up the TAccept object
-  for (const auto& cutFamily : m_trackCuts) {
-    for (const auto& cut : cutFamily.second) {
-      ATH_CHECK( cut->initialize() );
-    }
+  for (const auto& cutFamily : m_trackParticleCuts) {
     const std::string& cutFamilyName = cutFamily.first;
     // lock(m_mutex) is not needed because this is inside of non-const initialize method.
     m_numTracksPassedCuts.push_back(0);
@@ -655,10 +281,569 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
   }
 
   m_isInitialized = true;
-  
+
   return StatusCode::SUCCESS;
 }
-  
+
+namespace {
+  template <typename T>
+  inline T sqr(T a) { return a *a;}
+}
+template <int VERBOSE, class Trk_Helper>
+StatusCode InDet::InDetTrackSelectionTool::setupCuts(std::map< std::string, std::vector< std::function<bool(Trk_Helper helper, asg::AsgMessaging &msgHelper)> > > &trackCuts) {
+   // track parameter cuts
+  if (m_minPt > 0.) {
+     if (VERBOSE>0) ATH_MSG_INFO( "  Minimum Pt: " << m_minPt << " MeV" );
+     trackCuts["Pt"].push_back( [minPt = m_minPt](Trk_Helper helper, asg::AsgMessaging &msgHelper) -> bool { return helper.pt(msgHelper) >= minPt; } );
+  }
+  if (maxDoubleIsSet(m_maxAbsEta)) {
+     if (VERBOSE>0) ATH_MSG_INFO( "  Maximum |Eta|: " << m_maxAbsEta );
+     trackCuts["Eta"].push_back( [maxAbsEta = m_maxAbsEta](Trk_Helper helper, asg::AsgMessaging &msgHelper) { return std::abs(helper.eta(msgHelper)) <= maxAbsEta; } );
+  }
+  if (m_minP > 0.) {
+     if (VERBOSE>0) ATH_MSG_INFO( "  Minimum P: " << m_minP << " MeV" );
+     trackCuts["P"].push_back( [maxInvP = 1./m_minP](Trk_Helper helper, asg::AsgMessaging &msgHelper) { return std::abs(helper.qOverP(msgHelper)) <= maxInvP; } );
+  }
+  if (maxDoubleIsSet(m_maxD0)) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Maximum d0: " << m_maxD0 << " mm" );
+    trackCuts["D0"].push_back( [maxD0 = m_maxD0](Trk_Helper helper, asg::AsgMessaging &msgHelper) { return std::abs(helper.d0(msgHelper)) <= maxD0; } );
+  }
+  if (maxDoubleIsSet(m_maxZ0)) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Maximum z0: " << m_maxZ0 << " mm");
+    trackCuts["Z0"].push_back( [maxZ0 = m_maxZ0](Trk_Helper helper, asg::AsgMessaging &msgHelper) { return std::abs(helper.z0(msgHelper)) <= maxZ0; } );
+  }
+  if (maxDoubleIsSet(m_maxZ0SinTheta)) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Maximum z0*sin(theta): " << m_maxZ0SinTheta << " mm" );
+    trackCuts["Z0SinTheta"].push_back([maxZ0SinTheta = m_maxZ0SinTheta](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       return std::abs( helper.z0(msgHelper) * std::sin(helper.theta(msgHelper))) <= maxZ0SinTheta;
+    });
+  }
+  if (maxDoubleIsSet(m_maxSigmaD0)) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Maximum uncertainty on d0: " << m_maxSigmaD0 << " mm" );
+    trackCuts["D0"].push_back([maxSigmaD0Squared = sqr(m_maxSigmaD0)](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       return getDefiningParametersCov(helper,msgHelper, InDetAccessor::d0,InDetAccessor::d0) <= maxSigmaD0Squared;
+    });
+  }
+  if (maxDoubleIsSet(m_maxSigmaZ0)) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Maximum uncertainty on z0: " << m_maxSigmaZ0 << " mm" );
+    trackCuts["Z0"].push_back([maxSigmaZ0Squared = sqr(m_maxSigmaZ0)](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       return getDefiningParametersCov(helper,msgHelper, InDetAccessor::z0,InDetAccessor::z0) <= maxSigmaZ0Squared;
+    });
+  }
+  if (maxDoubleIsSet(m_maxSigmaZ0SinTheta)) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Maximum uncertainty on z0*sin(theta): "
+                                 << m_maxSigmaZ0SinTheta << " mm" );
+    trackCuts["Z0SinTheta"].push_back([maxSigmaZ0SinThetaSquared = sqr(m_maxSigmaZ0SinTheta)](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       double theta =    helper.theta(msgHelper);
+       double sinTheta = std::sin(theta);
+       double cosTheta = std::cos(theta);
+       double z0 =       helper.z0(msgHelper);
+
+       return (  sqr(z0)*sqr(cosTheta)     * getDefiningParametersCov(helper,msgHelper, InDetAccessor::theta,InDetAccessor::theta)
+               + 2*z0   *sinTheta*cosTheta * getDefiningParametersCov(helper,msgHelper, InDetAccessor::theta,InDetAccessor::z0)
+               + sqr(sinTheta)             * getDefiningParametersCov(helper,msgHelper, InDetAccessor::z0,   InDetAccessor::z0) ) <= maxSigmaZ0SinThetaSquared;
+    });
+  }
+  if (maxDoubleIsSet(m_maxD0overSigmaD0)) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Maximum significance on d0: " << m_maxD0overSigmaD0 );
+    trackCuts["D0"].push_back([maxD0overSigmaD0Squared = sqr(m_maxD0overSigmaD0)](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       return sqr(helper.d0(msgHelper)) <= maxD0overSigmaD0Squared * getDefiningParametersCov(helper,msgHelper, InDetAccessor::d0,InDetAccessor::d0);
+    });
+  }
+  if (maxDoubleIsSet(m_maxZ0overSigmaZ0)) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Maximum significance on z0: " << m_maxZ0overSigmaZ0 );
+    trackCuts["Z0"].push_back([maxZ0overSigmaZ0Squared = sqr(m_maxZ0overSigmaZ0)](Trk_Helper helper, asg::AsgMessaging &msgHelper) -> bool {
+       return sqr(helper.z0(msgHelper)) <= maxZ0overSigmaZ0Squared * getDefiningParametersCov(helper,msgHelper, InDetAccessor::z0,InDetAccessor::z0);
+    });
+  }
+  if (maxDoubleIsSet(m_maxZ0SinThetaoverSigmaZ0SinTheta)) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Maximum significance on z0*sin(theta): "
+                                 << m_maxZ0SinThetaoverSigmaZ0SinTheta );
+    trackCuts["Z0SinTheta"].push_back([maxZ0SinThetaoverSigmaZ0SinThetaSquared = sqr(m_maxZ0SinThetaoverSigmaZ0SinTheta)](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+
+       double theta =    helper.theta(msgHelper);
+       double sinTheta = std::sin(theta);
+       double cosTheta = std::cos(theta);
+       double z0 =       helper.z0(msgHelper);
+
+       return sqr(z0*sinTheta) <=
+          maxZ0SinThetaoverSigmaZ0SinThetaSquared * (  sqr(z0)*sqr(cosTheta)        * getDefiningParametersCov(helper,msgHelper, InDetAccessor::theta,InDetAccessor::theta)
+                                                     + 2*z0   *sinTheta*cosTheta    * getDefiningParametersCov(helper,msgHelper, InDetAccessor::theta,InDetAccessor::z0)
+                                                     + sqr(sinTheta)                * getDefiningParametersCov(helper,msgHelper, InDetAccessor::z0,   InDetAccessor::z0));
+    });
+  }
+
+  // hit cuts
+  if (m_minNInnermostLayerHits > 0) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Minimum hits from innermost pixel layer: " << m_minNInnermostLayerHits );
+    if (VERBOSE>0) ATH_MSG_INFO( "    (Track will pass if no hit is expected.)" );
+    trackCuts["InnermostLayersHits"].push_back([minNInnermostLayerHits = m_minNInnermostLayerHits](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       return (   getSummary(helper, msgHelper, xAOD::numberOfInnermostPixelLayerHits) >= minNInnermostLayerHits
+               || getSummary(helper, msgHelper, xAOD::expectInnermostPixelLayerHit)    == 0);
+    });
+  }
+  if (m_minNNextToInnermostLayerHits > 0) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Minimum hits from next to innermost pixel layer: " << m_minNNextToInnermostLayerHits );
+    if (VERBOSE>0) ATH_MSG_INFO( "    (Track will pass if no hit is expected.)" );
+    trackCuts["InnermostLayersHits"].push_back([minNNextToInnermostLayerHits = m_minNNextToInnermostLayerHits](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       return (   getSummary(helper, msgHelper, xAOD::numberOfNextToInnermostPixelLayerHits) >= minNNextToInnermostLayerHits
+               || getSummary(helper, msgHelper, xAOD::expectNextToInnermostPixelLayerHit)    == 0);
+    });
+  }
+  if (m_minNBothInnermostLayersHits > 0) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Minimum hits from both innermost pixel layers: " << m_minNBothInnermostLayersHits );
+    if (VERBOSE>0) ATH_MSG_INFO( "    (If a layer has no hits but one is not expected, the" );
+    if (VERBOSE>0) ATH_MSG_INFO( "     number of hits in that layer will be taken to be 1.)" );
+    if (m_minNBothInnermostLayersHits > 2) {
+      if (VERBOSE>0) ATH_MSG_WARNING( "A value of minNBothInnermostLayersHits above 2 does not make sense." );
+      if (VERBOSE>0) ATH_MSG_WARNING( "  Use 1 for \"or\" or 2 for \"and\"." );
+    }
+    trackCuts["InnermostLayersHits"].push_back([minNBothInnermostLayersHits = m_minNBothInnermostLayersHits](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       return (   std::max(  getSummary(helper, msgHelper, xAOD::numberOfInnermostPixelLayerHits),
+                             static_cast<uint8_t>( !getSummary(helper, msgHelper, xAOD::expectInnermostPixelLayerHit) ))
+                 +std::max(  getSummary(helper, msgHelper, xAOD::numberOfNextToInnermostPixelLayerHits),
+                             static_cast<uint8_t>( !getSummary(helper, msgHelper, xAOD::expectNextToInnermostPixelLayerHit )))
+                  >= minNBothInnermostLayersHits);
+    });
+  }
+  if (m_useMinBiasInnermostLayersCut > 0 ) { // less than zero indicates this cut is manually turned off
+    if (VERBOSE>0) ATH_MSG_INFO( "  An innermost layer hit is required if expected, otherwise" );
+    if (VERBOSE>0) ATH_MSG_INFO( "    a next-to-innermost layer hit is required if it is expected." );
+    trackCuts["InnermostLayersHits"].push_back([](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       uint8_t expected_innermost_pixel_layer_hit = getSummary(helper, msgHelper, xAOD::expectInnermostPixelLayerHit);
+       return    (expected_innermost_pixel_layer_hit >  0  && getSummary(helper, msgHelper, xAOD::numberOfInnermostPixelLayerHits)>=1)
+              || (expected_innermost_pixel_layer_hit == 0  && (   getSummary(helper, msgHelper, xAOD::expectNextToInnermostPixelLayerHit)==0
+                                                               || getSummary(helper, msgHelper, xAOD::numberOfNextToInnermostPixelLayerHits)>=1));
+    });
+  }
+  if (maxIntIsSet(m_maxNInnermostLayerSharedHits)) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Maximum shared hits in innermost pixel layer: " << m_maxNInnermostLayerSharedHits );
+    trackCuts["InnermostLayersHits"].push_back([maxNInnermostLayerSharedHits = m_maxNInnermostLayerSharedHits](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       return getSummary(helper, msgHelper, xAOD::numberOfInnermostPixelLayerSharedHits) <= maxNInnermostLayerSharedHits;
+    });
+  }
+  if (m_minNPixelHits > 0) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Minimum pixel hits: " << m_minNPixelHits );
+    trackCuts["PixelHits"].push_back( [minNPixelHits = m_minNPixelHits](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       return   getSummarySum<2,Trk_Helper>(helper, msgHelper, {xAOD::numberOfPixelHits,xAOD::numberOfPixelDeadSensors}) >= minNPixelHits;
+    });
+  }
+  if (m_minNPixelHitsPhysical > 0) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Minimum physical pixel hits (i.e. dead sensors do not count): "
+                                 << m_minNPixelHitsPhysical );
+    trackCuts["PixelHits"].push_back([minNPixelHitsPhysical = m_minNPixelHitsPhysical](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       return   getSummary(helper, msgHelper, xAOD::numberOfPixelHits) >= minNPixelHitsPhysical;
+    });
+  }
+  if (maxIntIsSet(m_maxNPixelHoles)) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Maximum pixel holes: " << m_maxNPixelHoles );
+    trackCuts["PixelHits"].push_back([maxNPixelHoles = m_maxNPixelHoles](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       return   getSummary(helper, msgHelper, xAOD::numberOfPixelHoles) <= maxNPixelHoles;
+    });
+  }
+  if (maxIntIsSet(m_maxNPixelSharedHits)) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Maximum pixel shared hits: " << m_maxNPixelSharedHits );
+    trackCuts["PixelHits"].push_back([maxNPixelSharedHits = m_maxNPixelSharedHits](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       return   getSummary(helper, msgHelper, xAOD::numberOfPixelSharedHits) <= maxNPixelSharedHits;
+    });
+  }
+  if (m_minNSctHits > 0) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Minimum SCT hits: " << m_minNSctHits );
+    trackCuts["SctHits"].push_back( [minNSctHits = m_minNSctHits](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       return   getSummarySum<2,Trk_Helper>(helper, msgHelper, {xAOD::numberOfSCTHits, xAOD::numberOfSCTDeadSensors}) >= minNSctHits;
+    });
+  }
+  if (m_minNSctHitsPhysical > 0) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Minimum physical SCT hits (i.e. dead sensors do not count): "
+                                 << m_minNSctHitsPhysical );
+    trackCuts["SctHits"].push_back([minNSctHitsPhysical = m_minNSctHitsPhysical](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       return   getSummary(helper, msgHelper, xAOD::numberOfSCTHits) >= minNSctHitsPhysical;
+    });
+  }
+  if (maxIntIsSet(m_maxNSctHoles)) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Maximum SCT holes: " << m_maxNSctHoles );
+    trackCuts["SctHits"].push_back([maxNSctHoles = m_maxNSctHoles](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       return   getSummary(helper, msgHelper, xAOD::numberOfSCTHoles) <= maxNSctHoles;
+    });
+  }
+  if (maxIntIsSet(m_maxNSctSharedHits)) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Maximum SCT shared hits: " << m_maxNSctSharedHits );
+    trackCuts["SctHits"].push_back([maxNSctSharedHits = m_maxNSctSharedHits](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       return   getSummary(helper, msgHelper, xAOD::numberOfSCTSharedHits) <= maxNSctSharedHits;
+    });
+  }
+  if (maxIntIsSet(m_maxNSctDoubleHoles)) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Maximum SCT double holes: " << m_maxNSctDoubleHoles );
+    trackCuts["SctHits"].push_back([maxNSctDoubleHoles = m_maxNSctDoubleHoles](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       return   getSummary(helper, msgHelper, xAOD::numberOfSCTDoubleHoles) <= maxNSctDoubleHoles ;
+    });
+  }
+  if (m_minNSiHits > 0) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Minimum silicon (pixel + SCT) hits: " << m_minNSiHits );
+    trackCuts["SiHits"].push_back([minNSiHits = m_minNSiHits](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       return getSummarySum<4,Trk_Helper>(helper, msgHelper, {xAOD::numberOfPixelHits,
+                                                              xAOD::numberOfSCTHits,
+                                                              xAOD::numberOfPixelDeadSensors,
+                                                              xAOD::numberOfSCTDeadSensors} )    >= minNSiHits ;
+    });
+  }
+  if (m_minNSiHitsPhysical > 0) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Minimum physical silicon hits (i.e. dead sensors do not count): "
+                                 << m_minNSiHitsPhysical );
+    trackCuts["SiHits"].push_back([minNSiHitsPhysical = m_minNSiHitsPhysical](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       return   getSummarySum<2,Trk_Helper>(helper, msgHelper,{xAOD::numberOfPixelHits, xAOD::numberOfSCTHits} )   >= minNSiHitsPhysical ;
+    });
+  }
+  if (maxIntIsSet(m_maxNSiHoles)) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Maximum silicon holes: " << m_maxNSiHoles );
+    trackCuts["SiHits"].push_back([maxNSiHoles = m_maxNSiHoles](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       return   getSummarySum<2,Trk_Helper>(helper, msgHelper,{xAOD::numberOfPixelHoles, xAOD::numberOfSCTHoles} )   <= maxNSiHoles ;
+    });
+  }
+  if (maxIntIsSet(m_maxNSiSharedHits)) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Maximum silicon shared hits: " << m_maxNSiSharedHits );
+    trackCuts["SiHits"].push_back([maxNSiSharedHits = m_maxNSiSharedHits](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       return   getSummarySum<2,Trk_Helper>(helper, msgHelper,{xAOD::numberOfPixelSharedHits, xAOD::numberOfSCTSharedHits} )   <= maxNSiSharedHits ;
+    });
+  }
+  if (m_maxOneSharedModule) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  No more than one shared module:" );
+    if (VERBOSE>0) ATH_MSG_INFO( "    i.e. max 1 shared pixel hit or" );
+    if (VERBOSE>0) ATH_MSG_INFO( "    2 shared SCT hits, and not both." );
+    trackCuts["SiHits"].push_back([](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       return   getSummary(helper, msgHelper,xAOD::numberOfPixelSharedHits )
+              + getSummary(helper, msgHelper,xAOD::numberOfSCTSharedHits )/2  <= 1  ;
+    });
+  }
+  if (m_minNSiHitsIfSiSharedHits > 0) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Minimum silicon hits if the track has shared hits: "
+                                 << m_minNSiHitsIfSiSharedHits );
+    trackCuts["SiHits"].push_back([minNSiHitsIfSiSharedHits = m_minNSiHitsIfSiSharedHits](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       return    getSummarySum<2,Trk_Helper>(helper, msgHelper,{xAOD::numberOfPixelSharedHits, xAOD::numberOfSCTSharedHits} ) == 0
+              || getSummarySum<4,Trk_Helper>(helper, msgHelper,{xAOD::numberOfPixelHits,
+                                                                xAOD::numberOfSCTHits,
+                                                                xAOD::numberOfPixelDeadSensors,
+                                                                xAOD::numberOfSCTDeadSensors}) >=minNSiHitsIfSiSharedHits;
+    });
+  }
+  if (maxDoubleIsSet(m_minEtaForStrictNSiHitsCut)
+      && m_minNSiHitsAboveEtaCutoff > 0) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Require " << m_minNSiHitsAboveEtaCutoff
+                                 << " silicon hits above eta = " << m_minEtaForStrictNSiHitsCut );
+    trackCuts["SiHits"].push_back([minEtaForStrictNSiHitsCut = m_minEtaForStrictNSiHitsCut,
+                                   minNSiHitsAboveEtaCutoff  = m_minNSiHitsAboveEtaCutoff](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       return    std::abs(helper.eta(msgHelper)) <= minEtaForStrictNSiHitsCut
+              || getSummarySum<4,Trk_Helper>(helper, msgHelper,{xAOD::numberOfPixelHits,
+                                                                xAOD::numberOfSCTHits,
+                                                                xAOD::numberOfPixelDeadSensors,
+                                                                xAOD::numberOfSCTDeadSensors})   >= minNSiHitsAboveEtaCutoff;
+    });
+  }
+  if (m_useExperimentalInnermostLayersCut) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Zero pixel holes allowed, except one pix hole is allowed if there is a physical IBL hit and a BLayer hit is expected but there is no BLayer hit." );
+    trackCuts["PixHits"].push_back([](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       uint8_t pixel_holes = getSummary(helper, msgHelper,xAOD::numberOfPixelHoles);
+       return  pixel_holes == 0 || ( pixel_holes<=1 && getSummary(helper, msgHelper,xAOD::numberOfInnermostPixelLayerHits)       >= 1
+                                                    && getSummary(helper, msgHelper,xAOD::expectNextToInnermostPixelLayerHit)    > 0
+                                                    && getSummary(helper, msgHelper,xAOD::numberOfNextToInnermostPixelLayerHits) == 0 );
+    });
+  }
+#ifndef XAOD_ANALYSIS
+  if (m_minNSiHitsMod > 0) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Minimum modified Si hits (2*pix + sct) (does not include dead sensors)= "
+                                 << m_minNSiHitsMod );
+    trackCuts["SiHits"].push_back([minNSiHitsMod = m_minNSiHitsMod](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       return   getSummarySum<3,Trk_Helper>(helper, msgHelper,{xAOD::numberOfPixelHits,
+                                                               xAOD::numberOfPixelHits, // pixel hits count twice in this definition
+                                                               xAOD::numberOfSCTHits})   >= minNSiHitsMod;
+    });
+  }
+  if (m_minNSiHitsModTop > 0 || m_minNSiHitsModBottom > 0) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Minimum modified Si hits in top half = "
+                                 << m_minNSiHitsModTop );
+    if (VERBOSE>0) ATH_MSG_INFO( "  Minimum modified Si hits in bottom half = "
+                                 << m_minNSiHitsModBottom );
+    trackCuts["SiHits"].push_back([minNSiHitsModTop    = m_minNSiHitsModTop,
+                                   minNSiHitsModBottom = m_minNSiHitsModBottom](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       auto [top,bottom] = getSiHitsTopBottom(helper, msgHelper);
+       return top  >= minNSiHitsModTop && bottom >= minNSiHitsModBottom;
+    });
+  }
+#endif
+  if (m_maxEtaForTrtHitCuts > 0. && m_maxTrtEtaAcceptance < m_maxEtaForTrtHitCuts) {
+    ATH_MSG_INFO( "  -- TRT hit cuts applied above eta = " << m_maxTrtEtaAcceptance
+		  << " and below eta = " << m_maxEtaForTrtHitCuts << " --" );
+    if (m_minNTrtHits > 0) {
+      ATH_MSG_INFO( "    Minimum TRT hits outside eta acceptance: " << m_minNTrtHits );
+      trackCuts["TrtHits"].push_back( MinTRTHitsCut<Trk_Helper,1>( m_maxTrtEtaAcceptance, m_maxEtaForTrtHitCuts, m_minNTrtHits,
+                                                                   {xAOD::numberOfTRTHits} ));
+    }
+    if (m_minNTrtHitsPlusOutliers > 0) {
+      ATH_MSG_INFO( "    Minimum TRT hits outside eta acceptance including outliers: " << m_minNTrtHitsPlusOutliers );
+      trackCuts["TrtHits"].push_back( MinTRTHitsCut<Trk_Helper,2>( m_maxTrtEtaAcceptance,m_maxEtaForTrtHitCuts, m_minNTrtHitsPlusOutliers,
+                                                                   {xAOD::numberOfTRTHits, xAOD::numberOfTRTOutliers} ));
+    }
+    if (m_minNTrtHighThresholdHits > 0) {
+      ATH_MSG_INFO( "    Minimum TRT hits outside eta acceptance above high energy threshold: "
+		    << m_minNTrtHighThresholdHits );
+      trackCuts["TrtHits"].push_back( MinTRTHitsCut<Trk_Helper,1>( m_maxTrtEtaAcceptance,m_maxEtaForTrtHitCuts, m_minNTrtHighThresholdHits,
+                                                                   {xAOD::numberOfTRTHighThresholdHits} ));
+    }
+    if (m_minNTrtHighThresholdHitsPlusOutliers > 0) {
+      ATH_MSG_INFO( "    Minimum TRT hits outside eta acceptance above high energy threshold including outliers: "
+		    << m_minNTrtHighThresholdHitsPlusOutliers );
+      trackCuts["TrtHits"].push_back( MinTRTHitsCut<Trk_Helper,2>( m_maxTrtEtaAcceptance,m_maxEtaForTrtHitCuts, m_minNTrtHighThresholdHitsPlusOutliers,
+                                                                   {xAOD::numberOfTRTHighThresholdHits, xAOD::numberOfTRTHighThresholdOutliers} ));
+    }
+    if (maxDoubleIsSet(m_maxTrtHighEFraction)) { // I think this condition could be instead that it is between 0 and 1
+      ATH_MSG_INFO( "    Maximum ratio of high threshold to regular TRT hits outside eta acceptance: "
+		    << m_maxTrtHighEFraction);
+      trackCuts["TrtHits"].push_back([maxTrtEtaAcceptance = m_maxTrtEtaAcceptance,
+                                      maxEtaForTrtHitCuts = m_maxEtaForTrtHitCuts,
+                                      maxTrtHighEFraction = m_maxTrtHighEFraction](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+         double absEta = std::abs( helper.eta( msgHelper) );
+         return      (absEta <= maxTrtEtaAcceptance || absEta > maxEtaForTrtHitCuts)
+                ||                            getSummary(helper, msgHelper,xAOD::numberOfTRTHighThresholdHits )
+                     <= maxTrtHighEFraction * getSummary(helper, msgHelper,xAOD::numberOfTRTHits );
+      });
+    }
+    if (maxDoubleIsSet(m_maxTrtHighEFractionWithOutliers)) {
+      ATH_MSG_INFO( "    Maximum ratio of high threshold to regular TRT hits above eta acceptance including outliers: "
+		    << m_maxTrtHighEFractionWithOutliers);
+      trackCuts["TrtHits"].push_back([maxTrtEtaAcceptance             = m_maxTrtEtaAcceptance,
+                                      maxEtaForTrtHitCuts             = m_maxEtaForTrtHitCuts,
+                                      maxTrtHighEFractionWithOutliers = m_maxTrtHighEFractionWithOutliers](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+         double absEta = std::abs( helper.eta( msgHelper) );
+         return      (absEta <= maxTrtEtaAcceptance || absEta > maxEtaForTrtHitCuts)
+            ||                                      (  getSummarySum<2,Trk_Helper>(helper, msgHelper,{xAOD::numberOfTRTHighThresholdHits, xAOD::numberOfTRTHighThresholdOutliers} ))
+               <= maxTrtHighEFractionWithOutliers * (  getSummarySum<2,Trk_Helper>(helper, msgHelper,{xAOD::numberOfTRTHits,              xAOD::numberOfTRTOutliers} ));
+      });
+    }
+    if (m_maxTrtOutlierFraction < 1. && m_maxTrtOutlierFraction >= 0.) {
+      ATH_MSG_INFO( "    Maximum fraction of TRT hits that are outliers: " << m_maxTrtOutlierFraction );
+      trackCuts["TrtHits"].push_back([maxTrtEtaAcceptance   = m_maxTrtEtaAcceptance,
+                                      maxEtaForTrtHitCuts   = m_maxEtaForTrtHitCuts,
+                                      maxTrtOutlierFraction = m_maxTrtOutlierFraction](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+         double absEta = std::abs( helper.eta( msgHelper) );
+         uint8_t trt_outliers = getSummary(helper, msgHelper,xAOD::numberOfTRTOutliers );
+         return     ( absEta <= maxTrtEtaAcceptance || absEta > maxEtaForTrtHitCuts)
+                 || trt_outliers <= maxTrtOutlierFraction  * (  trt_outliers + getSummary(helper, msgHelper,xAOD::numberOfTRTHits) );
+      });
+    }
+  }
+
+  // fit quality cuts
+  if (m_useEtaDependentMaxChiSq) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Using pre-defined eta-dependent maximum chi squared (no longer recommended)." );
+    trackCuts["FitQuality"].push_back([](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       double eta = helper.eta(msgHelper);
+       double fit_chi_square = getFitChiSquare(helper,msgHelper);
+       double fit_ndof = getFitNDoF(helper,msgHelper);
+       if (std::abs( eta) < 1.9) {
+          return fit_chi_square <= fit_ndof * ( 4.4 + 0.32*sqr(eta) );
+       }
+       else {
+          return fit_chi_square <= fit_ndof * ( 26.9 - 19.6978*std::abs(eta) + 4.4534*sqr(eta) );
+       }
+    });
+  }
+  if (maxDoubleIsSet(m_maxChiSq)) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Maximum chi squared: " << m_maxChiSq );
+    trackCuts["FitQuality"].push_back([maxChiSq = m_maxChiSq](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       return getFitChiSquare(helper,msgHelper) <= maxChiSq;
+    });
+  }
+  if (maxDoubleIsSet(m_maxChiSqperNdf)) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Maximum chi squared per degree of freedom: " << m_maxChiSqperNdf );
+    trackCuts["FitQuality"].push_back([maxChiSqperNdf = m_maxChiSqperNdf](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       return getFitChiSquare(helper,msgHelper)  <= maxChiSqperNdf * getFitNDoF(helper,msgHelper);
+    });
+  }
+  if (m_minProb > 0.) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Minimum chi squared probability: " << m_minProb );
+    trackCuts["FitQuality"].push_back([minProb = m_minProb](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       return TMath::Prob( getFitChiSquare(helper,msgHelper),getFitNDoF(helper,msgHelper))  >= minProb;
+    });
+  }
+  if (maxDoubleIsSet(m_minPtForProbCut) && m_minProbAbovePtCutoff > 0.) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Minimum chi-sq probability of " << m_minProbAbovePtCutoff
+                                 << " above pt of " << m_minPtForProbCut*1e-3 << " GeV." );
+    trackCuts["FitQuality"].push_back([minPtForProbCut      = m_minPtForProbCut,
+                                       minProbAbovePtCutoff = m_minProbAbovePtCutoff](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       return    helper.pt(msgHelper) <= minPtForProbCut
+              || TMath::Prob( getFitChiSquare(helper,msgHelper),getFitNDoF(helper,msgHelper))  >= minProbAbovePtCutoff;
+    });
+  }
+
+  // dE/dx cuts
+  if (m_minNUsedHitsdEdx > 0) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Minimum used hits for dEdx: " << m_minNUsedHitsdEdx );
+    trackCuts["dEdxHits"].push_back([minNUsedHitsdEdx = m_minNUsedHitsdEdx](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       return getNumberOfUsedHitsdEdx(helper,msgHelper) >= minNUsedHitsdEdx;
+    });
+  }
+  if (m_minNOverflowHitsdEdx > 0) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Minimum IBL overflow hits for dEdx: " << m_minNOverflowHitsdEdx );
+    trackCuts["dEdxHits"].push_back([minNOverflowHitsdEdx = m_minNOverflowHitsdEdx](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       return getNumberOfIBLOverflowsdEdx(helper,msgHelper) >= minNOverflowHitsdEdx;
+    });
+  }
+  if (m_minEProbabilityHT > 0) {
+    if (VERBOSE>0) ATH_MSG_INFO( "  Minimum high threshold electron probability: " << m_minEProbabilityHT );
+    if (m_eProbHTonlyForXe) {
+      if (VERBOSE>0) ATH_MSG_INFO( "    (only applied on tracks where all TRT hits are Xenon)" );
+      trackCuts["eProbHT"].push_back([minEProbabilityHT = m_minEProbabilityHT](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+         return     getSummarySum<2,Trk_Helper>(helper, msgHelper, {xAOD::numberOfTRTHits, xAOD::numberOfTRTOutliers})
+                  > getSummary(helper, msgHelper, xAOD::numberOfTRTXenonHits)
+               || getEProbabilityHT(helper,msgHelper) >= minEProbabilityHT;
+      });
+    } else {
+       trackCuts["eProbHT"].push_back([minEProbabilityHT = m_minEProbabilityHT](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+          return  getEProbabilityHT(helper,msgHelper) >= minEProbabilityHT;
+       });
+    }
+  }
+
+  if (!m_vecEtaCutoffsForSiHitsCut.empty() || !m_vecMinNSiHitsAboveEta.empty()) {
+    auto cutSize = m_vecEtaCutoffsForSiHitsCut.size();
+    if (cutSize != m_vecMinNSiHitsAboveEta.size()) {
+       if (VERBOSE>0) ATH_MSG_ERROR( "Eta cutoffs and Silicon hit cuts must be vectors of the same length." );
+       return StatusCode::FAILURE;
+    }
+    if (VERBOSE>0) {
+       for (size_t i_cut=0; i_cut<cutSize-1; ++i_cut) {
+          ATH_MSG_INFO( "  for " << m_vecEtaCutoffsForSiHitsCut.at(i_cut)
+                        << " < eta < " << m_vecEtaCutoffsForSiHitsCut.at(i_cut+1)
+                        << " ,Silicon hits  >= " << m_vecMinNSiHitsAboveEta.at(i_cut) );
+       }
+    }
+    if (!checkOrder(m_vecEtaCutoffsForSiHitsCut)) {
+       if (VERBOSE>0) ATH_MSG_ERROR( "Eta values not in ascending order." );
+       return StatusCode::FAILURE;
+    }
+    if (VERBOSE>0) ATH_MSG_INFO( "  for eta > " << m_vecEtaCutoffsForSiHitsCut.at(cutSize-1)
+                               << " ,Silicon hits >= " << m_vecMinNSiHitsAboveEta.at(cutSize-1) );
+
+    trackCuts["SiHits"].push_back([p_vecEtaCutoffsForSiHitsCut = &std::as_const(m_vecEtaCutoffsForSiHitsCut),
+                                   p_vecMinNSiHitsAboveEta     = &std::as_const(m_vecMinNSiHitsAboveEta)](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       double abs_eta = std::abs(helper.eta(msgHelper));
+       unsigned int bin_i = findBin(*p_vecEtaCutoffsForSiHitsCut, abs_eta);
+       return    bin_i >= p_vecMinNSiHitsAboveEta->size()
+              || abs_eta>5.0
+              || getSummarySum<4,Trk_Helper>(helper, msgHelper,{xAOD::numberOfPixelHits,
+                                                                xAOD::numberOfSCTHits,
+                                                                xAOD::numberOfPixelDeadSensors,
+                                                                xAOD::numberOfSCTDeadSensors})   >= (*p_vecMinNSiHitsAboveEta)[bin_i];
+    });
+  }
+
+  if (!m_vecEtaCutoffsForPtCut.empty() || !m_vecMinPtAboveEta.empty()) {
+    auto cutSize = m_vecEtaCutoffsForPtCut.size();
+    if (cutSize != m_vecMinPtAboveEta.size()) {
+       if (VERBOSE>0) ATH_MSG_ERROR( "Eta cutoffs and pT cuts must be vectors of the same length." );
+      return StatusCode::FAILURE;
+    }
+    if (VERBOSE>0) {
+       for (size_t i_cut=0; i_cut<cutSize-1; ++i_cut) {
+          ATH_MSG_INFO( "  for " << m_vecEtaCutoffsForPtCut.at(i_cut)
+                        << " < eta < " << m_vecEtaCutoffsForPtCut.at(i_cut+1)
+                        << " ,transverse momentum >= " << m_vecMinPtAboveEta.at(i_cut) );
+       }
+    }
+    if (!checkOrder(m_vecEtaCutoffsForPtCut)) {
+       if (VERBOSE>0) ATH_MSG_ERROR( "Eta values not in ascending order." );
+       return StatusCode::FAILURE;
+    }
+    if (VERBOSE>0) ATH_MSG_INFO( "  for eta > " << m_vecEtaCutoffsForPtCut.at(cutSize-1)
+                               << " ,transverse momentum >= " << m_vecMinPtAboveEta.at(cutSize-1) );
+    trackCuts["Pt"].push_back([p_vecEtaCutoffsForPtCut = &std::as_const(m_vecEtaCutoffsForPtCut),
+                               p_vecMinPtAboveEta = &std::as_const(m_vecMinPtAboveEta)](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       double abs_eta = std::abs(helper.eta(msgHelper));
+       unsigned int bin_i = findBin(*p_vecEtaCutoffsForPtCut, abs_eta);
+       return  bin_i >= p_vecMinPtAboveEta->size() || abs_eta > 5.0 || helper.pt(msgHelper)  >= (*p_vecMinPtAboveEta)[bin_i];
+    });
+  }
+
+
+
+  if (!m_vecPtCutoffsForSctHitsCut.empty() || !m_vecMinNSctHitsAbovePt.empty()) {
+    auto cutSize = m_vecPtCutoffsForSctHitsCut.size();
+    if (cutSize != m_vecMinNSctHitsAbovePt.size()) {
+       if (VERBOSE>0) ATH_MSG_ERROR( "Pt cutoffs and SCT hit cuts must be vectors of the same length." );
+       return StatusCode::FAILURE;
+    }
+    if (VERBOSE>0) {
+       for (size_t i_cut=0; i_cut<cutSize-1; ++i_cut) {
+          ATH_MSG_INFO( "  for " << m_vecPtCutoffsForSctHitsCut.at(i_cut)
+                        << " < pt < " << m_vecPtCutoffsForSctHitsCut.at(i_cut+1)
+                        << " MeV,\tSCT hits >= " << m_vecMinNSctHitsAbovePt.at(i_cut) );
+       }
+    }
+    if (!checkOrder(m_vecPtCutoffsForSctHitsCut)) {
+       if (VERBOSE>0) ATH_MSG_ERROR( "Pt values not in ascending order." );
+       return StatusCode::FAILURE;
+    }
+    if (VERBOSE>0) ATH_MSG_INFO( "  for pt > " << m_vecPtCutoffsForSctHitsCut.at(cutSize-1)
+                               << " MeV,\t\tSCT hits >= " << m_vecMinNSctHitsAbovePt.at(cutSize-1) );
+    trackCuts["SctHits"].push_back([p_vecPtCutoffsForSctHitsCut = &std::as_const(m_vecPtCutoffsForSctHitsCut),
+                                    p_vecMinNSctHitsAbovePt     = &std::as_const(m_vecMinNSctHitsAbovePt)](Trk_Helper helper, asg::AsgMessaging &msgHelper) {
+       double pt = helper.pt(msgHelper);
+       unsigned int bin_i = findBin(*p_vecPtCutoffsForSctHitsCut, pt);
+       return     bin_i >= p_vecPtCutoffsForSctHitsCut->size()
+               || getSummarySum<2,Trk_Helper>(helper, msgHelper,{xAOD::numberOfSCTHits,
+                                                                 xAOD::numberOfSCTDeadSensors}) >= (*p_vecMinNSctHitsAbovePt)[bin_i];
+    });
+  }
+  return StatusCode::SUCCESS;
+}
+
+template <class Trk_Helper>
+asg::AcceptData InDet::InDetTrackSelectionTool::accept(Trk_Helper helper,
+                                                       const std::map< std::string, std::vector< std::function<bool(Trk_Helper helper, asg::AsgMessaging &msgHelper)> > > &trackCuts) const {
+  if (!m_isInitialized) {
+    if (!m_warnInit) {
+      ATH_MSG_WARNING( "Tool is not initialized! Calling accept() will not be very helpful." );
+      m_warnInit = true;
+    }
+  }
+
+  asg::AcceptData acceptData(&m_acceptInfo);
+  bool passAll = true;
+
+  // loop over all cuts
+  UShort_t cutFamilyIndex = 0;
+  for ( const auto& cutFamily : trackCuts ) {
+    bool pass = true;
+
+    for ( const auto& cut : cutFamily.second ) {
+      if (! cut(helper, *m_msgHelper) ) {
+	pass = false;
+	break;
+      }
+    }
+
+    // @TODO really always run through all cuts even if passed is false ?
+    passAll &= pass;
+    acceptData.setCutResult( cutFamilyIndex, pass );
+    cutFamilyIndex++;
+  }
+
+  {
+     // lock access to m_numTracksPassedCuts
+     std::lock_guard<std::mutex> lock(m_mutex);
+     for (unsigned int idx=0; idx < trackCuts.size(); ++idx) {
+        assert(idx<m_numTracksPassedCuts.size());
+        m_numTracksPassedCuts[idx] += acceptData.getCutResult(idx);
+     }
+  }
+  if (passAll) m_numTracksPassed++;
+  m_numTracksProcessed++;
+
+  return acceptData;
+
+}
+
+
 StatusCode InDet::InDetTrackSelectionTool::finalize()
 {
   ATH_MSG_INFO("Finalizing track selection tool.");
@@ -671,12 +856,13 @@ StatusCode InDet::InDetTrackSelectionTool::finalize()
   }
   ATH_MSG_INFO( m_numTracksPassed << " / " << m_numTracksProcessed << " = "
 		<< m_numTracksPassed*100./m_numTracksProcessed << "% passed all cuts." );
-  for (const auto& cutFamily : m_trackCuts) {
+  for (const auto& cutFamily : m_trackParticleCuts) {
     // lock(m_mutex) is not needed because this is inside of non-const finalize method.
     ULong64_t numPassed = m_numTracksPassedCuts.at(m_acceptInfo.getCutPosition(cutFamily.first));
     ATH_MSG_INFO( numPassed << " = " << numPassed*100./m_numTracksProcessed << "% passed "
 		  << cutFamily.first << " cut." );
   }
+
   return StatusCode::SUCCESS;
 }
 
@@ -746,50 +932,17 @@ InDet::InDetTrackSelectionTool::accept( const xAOD::IParticle* p ) const
 ///          significance.
 /// 
 asg::AcceptData InDet::InDetTrackSelectionTool::accept( const xAOD::TrackParticle& trk,
-							     const xAOD::Vertex* vtx ) const
+                                                        const xAOD::Vertex* vtx ) const
 {
-  if (!m_isInitialized) {
-    if (!m_warnInit) {
-      ATH_MSG_WARNING( "Tool is not initialized! Calling accept() will not be very helpful." );
-      m_warnInit = true;
-    }
+  asg::AcceptData acceptData(&m_acceptInfo);
+  if (m_trackParticleCuts.empty()) {
+     m_numTracksPassed++;
+     m_numTracksProcessed++;
+     return acceptData;
   }
 
-
-  asg::AcceptData acceptData(&m_acceptInfo); 
-  bool passAll = true;
-  // access all the track properties we will need
-  for ( auto& accessor : m_trackAccessors ) {
-    if(!accessor.second->access( trk, vtx ).isSuccess()) {
-      ATH_MSG_WARNING("Track access for " << accessor.first << " unsuccessful.");
-    }
-  }
-  // loop over all cuts
-  UShort_t cutFamilyIndex = 0;
-  std::lock_guard<std::mutex> lock(m_mutex);
-  for ( const auto& cutFamily : m_trackCuts ) {
-    bool pass = true;
-    //    const std::string& cutFamilyName = cutFamily.first;
-    //const auto& cut1 = cutFamily.second;
-    //    ATH_MSG_INFO("cut/value "<<cutFamilyName<<": ");
-
-    for ( const auto& cut : cutFamily.second ) {
-      if (! cut->result() ) {
-	pass = false;
-	passAll = false;
-	break;
-      }
-    }
-    acceptData.setCutResult( cutFamilyIndex, pass );
-    // m_mutex is locked in this method.
-    if (pass) m_numTracksPassedCuts.at(cutFamilyIndex)++; // number of tracks that pass each cut family
-    cutFamilyIndex++;
-  }
-
-  if (passAll) m_numTracksPassed++;
-  m_numTracksProcessed++;
-  
-  return acceptData;
+  InDetAccessor::TrackParticleHelper track_helper(trk,vtx);
+  return accept( track_helper, m_trackParticleCuts);
 }
 
 #ifndef XAOD_ANALYSIS
@@ -807,6 +960,12 @@ InDet::InDetTrackSelectionTool::accept( const Trk::Track& track,
   if (!m_isInitialized) ATH_MSG_WARNING( "Tool is not initialized! Calling accept() will not be very helpful." );
 
   asg::AcceptData acceptData(&m_acceptInfo);
+  if (m_trkTrackCuts.empty()) {
+     m_numTracksPassed++;
+     m_numTracksProcessed++;
+     return acceptData;
+  }
+
   const Trk::TrackParameters* perigee = track.perigeeParameters();
 
   if ( perigee == nullptr || !perigee->covariance() ) {
@@ -830,13 +989,12 @@ InDet::InDetTrackSelectionTool::accept( const Trk::Track& track,
     return acceptData;
   }
 
+
+  std::unique_ptr<Trk::TrackSummary> cleanup_summary;
   const Trk::TrackSummary* summary = track.trackSummary();
-  Trk::Track tmpTrack;
   if (summary == nullptr && m_trackSumToolAvailable) {
-    tmpTrack = Trk::Track(track);
-    m_trackSumTool->updateTrack(tmpTrack);
-    // now get the summary from the tmpTrack (the tmpTrack has ownership)
-    summary = tmpTrack.trackSummary();
+     cleanup_summary = m_trackSumTool->summary(Gaudi::Hive::currentContext(),track);
+     summary = cleanup_summary.get();
   }
   if (summary == nullptr) {
     ATH_MSG_INFO( "Track preselection: cannot get a track summary. This track will not pass any cuts." );
@@ -845,37 +1003,8 @@ InDet::InDetTrackSelectionTool::accept( const Trk::Track& track,
     return acceptData;
   }
 
-  bool passAll = true;
-  // access all the track properties we will need
-  for ( auto& accessor : m_trackAccessors ) {
-    if(!accessor.second->access( track, perigee, summary ).isSuccess()) {
-      ATH_MSG_WARNING("Track access for " << accessor.first << " unsuccessful.");
-    }
-  }
-  // for faster lookup in setCutResult we will keep track of the index explicitly
-  UShort_t cutFamilyIndex = 0;
-  std::lock_guard<std::mutex> lock(m_mutex);
-  for ( const auto& cutFamily : m_trackCuts ) {
-    bool pass = true;
-    for ( const auto& cut : cutFamily.second ) {
-      if (! cut->result() ) {
-	pass = false;
-	passAll = false;
-	break;
-      }
-    }
-    acceptData.setCutResult( cutFamilyIndex, pass );
-    if (pass) {
-      // m_mutex is locked in this method.
-      m_numTracksPassedCuts.at(cutFamilyIndex)++; // increment the number of tracks that passed this cut family
-    }
-    cutFamilyIndex++;
-  }
-  
-  if (passAll)
-    m_numTracksPassed++;
-  m_numTracksProcessed++;
-
+  InDetAccessor::TrkTrackHelper track_helper(track,*summary, perigee);
+  acceptData = accept( track_helper, m_trkTrackCuts);
   return acceptData;
 }
 
@@ -906,7 +1035,7 @@ void InDet::InDetTrackSelectionTool::setCutLevel(InDet::CutLevel level, Bool_t o
   ATH_MSG_WARNING( "InDetTrackSelectionTool::setCutLevel() is not designed to be called manually in Athena." );
   ATH_MSG_WARNING( "It may not behave as intended. Instead, configure it in the job options through the CutLevel property." );
 #endif // XAOD_STANDALONE
-  if (m_cutLevel != "") {
+  if (!m_cutLevel.empty()) {
     ATH_MSG_WARNING( "Cut level already set to " << m_cutLevel << ".  Calling setCutLevel() is not expected." );
   }
   setCutLevelPrivate(level, overwrite);

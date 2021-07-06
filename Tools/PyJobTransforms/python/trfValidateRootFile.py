@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @Package PyJobTransforms.trfValidateRootFile
 # @brief Functionality to test a Root file for corruption
@@ -8,9 +8,6 @@
 # @todo The main() CLI should migrate to @c scripts and this module just implement functions
 
 
-
-from __future__ import print_function
-from builtins import range
 import sys
 import logging
 

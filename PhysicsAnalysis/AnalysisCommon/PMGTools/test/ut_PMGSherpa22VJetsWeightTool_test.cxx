@@ -5,7 +5,7 @@
 // $Id: ut_PMGSherpa22VJetsWeightTool_test.cxx 780506 2016-10-26 13:30:18Z krasznaa $
 
 // Tool include(s):
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/StandaloneToolHandle.h"
 
 // xAOD include(s):
 #ifdef ROOTCORE
@@ -39,9 +39,8 @@ int main() {
 #endif
 
 
-   asg::AnaToolHandle<IWeightTool> myTool;
-   ASG_SET_ANA_TOOL_TYPE(myTool, PMGTools::PMGSherpa22VJetsWeightTool);
-   myTool.setName("PMGSherpa22VJetsWeightTool");
+   asg::StandaloneToolHandle<IWeightTool> myTool;
+   myTool.setTypeAndName("PMGTools::PMGSherpa22VJetsWeightTool/PMGSherpa22VJetsWeightTool");
    ANA_CHECK( myTool.setProperty( "TruthJetContainer", "AntiKt4TruthWZJets" ) );  // default
    //   ANA_CHECK( myTool.setProperty( "TruthJetContainer", "AntiKt4TruthJets" ) );
    ANA_CHECK( myTool.retrieve() );

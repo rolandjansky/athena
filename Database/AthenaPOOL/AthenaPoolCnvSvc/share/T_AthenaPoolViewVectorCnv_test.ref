@@ -1,20 +1,19 @@
 
 
-Initializing Gaudi ApplicationMgr using job opts ../share/test.txt
-JobOptionsSvc        INFO Job options successfully read in from ../share/test.txt
+Initializing Gaudi ApplicationMgr using job opts /home/sss/atlas/dvtest/build/joboptions/AthenaPoolCnvSvc/test.txt
+JobOptionsSvc        INFO Job options successfully read in from /home/sss/atlas/dvtest/build/joboptions/AthenaPoolCnvSvc/test.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Mon Oct 10 19:17:16 2016
+                                          running on karma on Thu Mar 25 17:22:26 2021
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
-HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
 test1
-AthenaPoolConve...  ERROR Failed to convert persistent object to transient: AthenaPoolCnvSvc::::ExcUnsupported version: Unsupported persistent version of ViewVector<DataVector<AthenaPoolCnvSvcTest::Y_v2,DataModel_detail::NoBase> > found; guid: 79E2478D-C17F-45E9-848D-278240C2FED3
-AthenaPoolConve...  ERROR createObj PoolToDataObject() failed, Token = [DB=00000000-0000-0000-0000-000000000000][CNT=][CLID=79E2478D-C17F-45E9-848D-278240C2FED3][TECH=00000000][OID=FFFFFFFFFFFFFFFF-FFFFFFFFFFFFFFFF]
+Exception: AthenaPoolCnvSvc::::ExcUnsupportedVersion: Unsupported persistent version of ViewVector<DataVector<AthenaPoolCnvSvcTest::Y_v2,DataModel_detail::NoBase> > found; guid: 79E2478D-C17F-45E9-848D-278240C2FED3 (no backtrace available).
+AthenaPoolConve...  ERROR createObj - caught exception: AthenaPoolCnvSvc::::ExcCaughtException: Caught exception in StatusCode T_AthenaPoolCustomCnvWithKey<TRANS, PERS>::PoolToDataObject(DataObject*&, const Token*, const string&) [with TRANS = ViewVector<DataVector<AthenaPoolCnvSvcTest::Y_v2> >; PERS = ViewVector<DataVector<AthenaPoolCnvSvcTest::Y_v2> >; std::string = std::__cxx11::basic_string<char>] while creating transient objectViewVector<DataVector<AthenaPoolCnvSvcTest::Y_v2,DataModel_detail::NoBase> >/: AthenaPoolCnvSvc::ExcUnsupportedVersion: AthenaPoolCnvSvc::::ExcUnsupportedVersion: Unsupported persistent version of ViewVector<DataVector<AthenaPoolCnvSvcTest::Y_v2,DataModel_detail::NoBase> > found; guid: 79E2478D-C17F-45E9-848D-278240C2FED3
 AthenaPoolConve...  ERROR createObj failed to get DataObject, Token = [DB=00000000-0000-0000-0000-000000000000][CNT=][CLID=79E2478D-C17F-45E9-848D-278240C2FED3][TECH=00000000][OID=FFFFFFFFFFFFFFFF-FFFFFFFFFFFFFFFF]
 test2

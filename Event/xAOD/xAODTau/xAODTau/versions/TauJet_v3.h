@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TauJet_v3.h 725228 2016-02-19 22:59:42Z griffith $
@@ -462,7 +462,7 @@ namespace xAOD {
     /// @}
     
 
-    void dump();
+    void dump() const;
 
 
   }; // class TauJet

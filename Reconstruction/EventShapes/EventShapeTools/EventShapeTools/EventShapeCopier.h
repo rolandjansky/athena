@@ -1,7 +1,7 @@
 // EventDensityTool.h    -*- C++ -*- 
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -28,6 +28,8 @@
 
 #include "AsgTools/AsgTool.h"
 #include "EventShapeInterface/IEventShapeTool.h"
+#include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgDataHandles/WriteHandleKey.h"
 
 class EventShapeCopier :
   public asg::AsgTool,  

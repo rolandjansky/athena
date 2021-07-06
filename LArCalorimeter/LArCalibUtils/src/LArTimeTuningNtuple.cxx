@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArTimeTuningNtuple.h"
@@ -102,7 +102,7 @@ StatusCode LArTimeTuningNtuple::execute()
       std::vector<HWIdentifier>::const_iterator it=m_larOnlineHelper->feb_begin();
       std::vector<HWIdentifier>::const_iterator it_e=m_larOnlineHelper->feb_end();
       m_nFebNt=0;
-      for (;it!=it_e;it++) {
+      for (;it!=it_e;++it) {
 	m_febTimeNt[m_nFebNt] = larFebTimeOffset->TimeOffset(*it, -999);
 	m_febSlotNt[m_nFebNt] = m_larOnlineHelper->slot(*it);
 	m_febFTNt[m_nFebNt]   = m_larOnlineHelper->feedthrough(*it);
@@ -152,7 +152,7 @@ StatusCode LArTimeTuningNtuple::stop(){
       std::map <HWIdentifier,float>::const_iterator it=cellTimeOffset->begin();
       std::map <HWIdentifier,float>::const_iterator it_e=cellTimeOffset->end();
       m_nCellNt=0;
-      for (;it!=it_e;it++) {
+      for (;it!=it_e;++it) {
         
 	Identifier id = cabling->cnvToIdentifier(it->first);     
 

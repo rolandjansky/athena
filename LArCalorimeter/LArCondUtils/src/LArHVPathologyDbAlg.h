@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCONDUTILS_LARHVPATHOLOGYDBALG_H
@@ -9,10 +9,11 @@
 #include "LArRecConditions/LArHVIdMapping.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 class IIOVRegistrationSvc;
 class ILArHVPathologyDbTool;
-class LArCablingLegacyService ;
 class LArEM_ID;
 class LArHEC_ID;
 class LArFCAL_ID;
@@ -55,7 +56,6 @@ class LArHVPathologyDbAlg : public AthAlgorithm
 
   const DataHandle<CaloIdManager> m_caloIdMgr;
   const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
-  ToolHandle<LArCablingLegacyService> m_cablingService;
   const LArEM_ID*       m_larem_id;
   const LArHEC_ID*       m_larhec_id;
   const LArFCAL_ID*       m_larfcal_id;
@@ -63,6 +63,8 @@ class LArHVPathologyDbAlg : public AthAlgorithm
 
   SG::ReadCondHandleKey<LArHVIdMapping> m_hvCablingKey
     {this, "LArHVIdMapping", "LArHVIdMap", "SG key for HV ID mapping"};
+  SG::ReadCondHandleKey<LArOnOffIdMapping>  m_cablingKey
+     {this, "OnOffMap", "LArOnOffIdMap", "SG key for mapping object"};
 };
 
 #endif

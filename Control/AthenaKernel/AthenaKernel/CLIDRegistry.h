@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
  */
 
 #ifndef ATHENAKERNEL_CLIDREGISTRY_H
@@ -9,15 +9,14 @@
  * Use ClassIDSvc instead.
  *
  * @author Paolo Calafiura <pcalafiura@lbl.gov> - ATLAS Collaboration
- *$Id: CLIDRegistry.h,v 1.2 2009-01-15 19:07:29 binet Exp $
  */
 
-#include "AthenaKernel/tools/AthenaPackageInfo.h"
 #include "GaudiKernel/ClassID.h"
 
 #include <vector>
 #include <string>
 #include <tuple>
+#include <typeinfo>
 
 namespace CLIDdetail {
   /// @name allowed class id range
@@ -37,16 +36,14 @@ class CLIDRegistry {
 public:
   typedef std::tuple <unsigned long, 
                       std::string, 
-                      Athena::PackageInfo,
-		      std::string> tuple_t;
+                      std::string> tuple_t;
   typedef std::vector< tuple_t > CLIDVector_t;
 
   ///to be called by the CLASS_DEFS
   template <unsigned long CLID>
   static bool addEntry(const std::type_info& ti,
-                       const char* typeName, 
-		       const Athena::PackageInfo& pkgInfo,
-		       const std::string& typeInfoName); 
+                       const char* typeName,
+                       const std::string& typeInfoName);
 
   /// registry accessors (used by ClassIDSvc)
   //@{
@@ -65,8 +62,7 @@ public:
   /// Out-of-line part of addEntry().
   static bool addEntry (unsigned long clid,
                         const std::type_info& ti,
-                        const char* typeName, 
-                        const Athena::PackageInfo& pkgInfo,
+                        const char* typeName,
                         const std::string& typeInfoName);
 
 private:
@@ -77,12 +73,11 @@ private:
 template <unsigned long CLID>
 bool CLIDRegistry::addEntry(const std::type_info& ti,
                             const char* typeName, 
-			    const Athena::PackageInfo& pkgInfo,
-			    const std::string& typeInfoName) {
+                            const std::string& typeInfoName) {
   static_assert (CLIDdetail::MINCLID <= CLID && CLID <= CLIDdetail::MAXCLID,
                  "CLID out of CLIDRegistry range");
 
-  addEntry (CLID, ti, typeName, pkgInfo, typeInfoName);
+  addEntry (CLID, ti, typeName, typeInfoName);
   return true;
 }
 

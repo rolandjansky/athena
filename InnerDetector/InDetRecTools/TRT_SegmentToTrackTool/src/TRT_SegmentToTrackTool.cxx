@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_SegmentToTrackTool/TRT_SegmentToTrackTool.h"
@@ -14,6 +14,7 @@
 #include "TrkExInterfaces/IExtrapolator.h"
 //Scoring tool
 #include "TrkToolInterfaces/ITrackScoringTool.h"
+#include <cmath>
 
 using Amg::Vector3D;
 using CLHEP::mm;
@@ -148,14 +149,13 @@ namespace InDet {
 
   Trk::Track* TRT_SegmentToTrackTool::segToTrack(const EventContext& ctx, const Trk::TrackSegment& tS) const {
 
+    ATH_MSG_DEBUG("Transforming the TRT segment into a track...");
 
-    ATH_MSG_DEBUG ("Transforming the TRT segment into a track...");
-  
     //
     // Get the track segment fit quality. If not there drop segment
     //
     if (!tS.fitQuality()) {
-      ATH_MSG_DEBUG ("Segment has no fit quality ! Discard...");
+      ATH_MSG_DEBUG("Segment has no fit quality ! Discard...");
       return nullptr;
     }
     const Trk::FitQuality* fq = tS.fitQuality()->clone();
@@ -163,145 +163,171 @@ namespace InDet {
     //
     // Get the track segment information about the initial track parameters
     //
-    const AmgVector(5)&             par  = tS.localParameters();
-    AmgSymMatrix(5)*                ep   = new AmgSymMatrix(5)(tS.localCovariance());
-    const Trk::TrackParameters* segPar = tS.associatedSurface().createTrackParameters(par[Trk::loc1],
-										      par[Trk::loc2],
-										      par[Trk::phi],
-										      par[Trk::theta],
-										      par[Trk::qOverP], ep); 
+    const AmgVector(5)& par = tS.localParameters();
+    AmgSymMatrix(5) ep = AmgSymMatrix(5)(tS.localCovariance());
+    const Trk::TrackParameters* segPar =
+      tS.associatedSurface()
+        .createUniqueTrackParameters(par[Trk::loc1],
+                                     par[Trk::loc2],
+                                     par[Trk::phi],
+                                     par[Trk::theta],
+                                     par[Trk::qOverP],
+                                     std::move(ep))
+        .release();
 
-    if(segPar) {
-      ATH_MSG_VERBOSE ("Initial TRT Segment Parameters : " << (*segPar));
-    }else{
-      ATH_MSG_DEBUG ("Could not get initial TRT segment parameters! ");
+    if (segPar) {
+      ATH_MSG_VERBOSE("Initial TRT Segment Parameters : " << (*segPar));
+    } else {
+      ATH_MSG_DEBUG("Could not get initial TRT segment parameters! ");
       // clean up
-      delete fq; fq = 0;
-      delete ep; ep = 0;
+      delete fq;
+      fq = nullptr;
       return nullptr;
     }
 
     // --- create new track state on surface vector
-    DataVector<const Trk::TrackStateOnSurface>* ntsos = new DataVector<const Trk::TrackStateOnSurface>;
+    auto ntsos = DataVector<const Trk::TrackStateOnSurface>();
 
     //
     // if no refit, make it a perigee
     //
     if (!m_doRefit) {
 
-      const Trk::TrackStateOnSurface* par_tsos = 0;
+      const Trk::TrackStateOnSurface* par_tsos = nullptr;
 
       // --- create surface at perigee
-      Amg::Vector3D perigeePosition(0.,0.,0.);
+      Amg::Vector3D perigeePosition(0., 0., 0.);
       Trk::PerigeeSurface perigeeSurface(perigeePosition);
-      // --- turn parameters into perifgee... 
-      const Trk::Perigee* perParm = dynamic_cast<const Trk::Perigee*>( m_extrapolator->extrapolate(*segPar, perigeeSurface) );
-      if(perParm) {
-	ATH_MSG_VERBOSE ("Perigee version of Parameters : " << (*segPar));
+      // --- turn parameters into perifgee...
+      const Trk::Perigee* perParm = dynamic_cast<const Trk::Perigee*>(
+        m_extrapolator->extrapolate(*segPar, perigeeSurface));
+      if (perParm) {
+        ATH_MSG_VERBOSE("Perigee version of Parameters : " << (*segPar));
       } else {
-	ATH_MSG_DEBUG ("Failed to build perigee parameters.Discard...");
-	delete ntsos; ntsos = 0;
-	delete segPar; segPar = 0;
-	delete fq; fq = 0;
-	return nullptr;
+        ATH_MSG_DEBUG("Failed to build perigee parameters.Discard...");
+        ntsos.clear();
+        delete segPar;
+        segPar = nullptr;
+        delete fq;
+        fq = nullptr;
+        return nullptr;
       }
 
       // now create a perigee TSOS
-      std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
+      std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>
+        typePattern;
       typePattern.set(Trk::TrackStateOnSurface::Perigee);
-      par_tsos = new Trk::TrackStateOnSurface(0,perParm,0,0,typePattern);
+      par_tsos = new Trk::TrackStateOnSurface(
+        nullptr, perParm, nullptr, nullptr, typePattern);
       // push new TSOS into the list
-      ntsos->push_back(par_tsos);
+      ntsos.push_back(par_tsos);
     }
 
     //
     // now loop over the TSOS and copy them in
     //
 
-    // psuedo measurement information 
-    int                        npseudo     = 0;
-    double                     pseudotheta = 0;
-    const Trk::MeasurementBase *pseudo     = 0;
+    // psuedo measurement information
+    int npseudo = 0;
+    double pseudotheta = 0;
+    const Trk::MeasurementBase* pseudo = nullptr;
     // other measurement information
-    const Trk::Surface         *firstsurf=0,*firstecsurf=0,*lastsurf=0;
-    const Trk::MeasurementBase *firstmeas=0; 
+    const Trk::Surface *firstsurf = nullptr, *firstecsurf = nullptr,
+                       *lastsurf = nullptr;
+    const Trk::MeasurementBase* firstmeas = nullptr;
     // counters for barrel and endcap
-    int nbarrel=0,nendcap=0;
+    int nbarrel = 0, nendcap = 0;
     // some variables for endcaps
-    std::vector<std::pair<double,double> > points;
+    std::vector<std::pair<double, double>> points;
     points.reserve(40);
-    double oldphi=0;
-
+    double oldphi = 0;
 
     // loop over the measurements in track segment (tS)
-    for(int it=0; it<int(tS.numberOfMeasurementBases()); it++){
+    for (int it = 0; it < int(tS.numberOfMeasurementBases()); it++) {
 
       // the track state on service we like to constuct ...
-      const Trk::TrackStateOnSurface* seg_tsos = 0;
-    
-      // is this ROT a psuedo-measurement ?
-      if ( dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(tS.measurement(it)) ) {
-	// did we have a speudo-measurement before ?
-	if (pseudo) {
-	  // get theta from pseudo measurements
-	  pseudotheta=atan2(tS.measurement(it)->associatedSurface().center().perp(),
-			    tS.measurement(it)->associatedSurface().center().z());
-	}
-	// keep this pseudo measurement
-	pseudo=tS.measurement(it);
-	// update counter
-	npseudo++;
+      const Trk::TrackStateOnSurface* seg_tsos = nullptr;
 
-	if(m_doRefit) {
-	  // refit means we can simply copy the state, otherwise we skip it
-	  seg_tsos = new Trk::TrackStateOnSurface(tS.measurement(it)->clone(),0);
-	}
+      // is this ROT a psuedo-measurement ?
+      if (dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(
+            tS.measurement(it))) {
+        // did we have a speudo-measurement before ?
+        if (pseudo) {
+          // get theta from pseudo measurements
+          pseudotheta =
+            std::atan2(tS.measurement(it)->associatedSurface().center().perp(),
+                  tS.measurement(it)->associatedSurface().center().z());
+        }
+        // keep this pseudo measurement
+        pseudo = tS.measurement(it);
+        // update counter
+        npseudo++;
+
+        if (m_doRefit) {
+          // refit means we can simply copy the state, otherwise we skip it
+          seg_tsos =
+            new Trk::TrackStateOnSurface(tS.measurement(it)->uniqueClone(), nullptr);
+        }
 
       } else {
-	//
-	// normal measurement, not a pseudo measurement
-	//
-	// copy measurement
-	seg_tsos = new Trk::TrackStateOnSurface(tS.measurement(it)->clone(),0);
-    
-	//
-	// --- following is for the hack below
-	//
+        //
+        // normal measurement, not a pseudo measurement
+        //
+        // copy measurement
+        seg_tsos =
+          new Trk::TrackStateOnSurface(tS.measurement(it)->uniqueClone(), nullptr);
 
-	// remember first measurement
-	if (!firstmeas) firstmeas = tS.measurement(it);
-	if (!firstsurf) firstsurf = &tS.measurement(it)->associatedSurface();
-	// it is always the last one
-	lastsurf = &tS.measurement(it)->associatedSurface();
-      
-	// this is a rubbish way to find out it is endcap
-	if (fabs(tS.measurement(it)->associatedSurface().transform().rotation().col(2).z())<.5) {
-	  // increase counter and keep some information
-	  nendcap++;
-	  if (!firstecsurf) firstecsurf=&tS.measurement(it)->associatedSurface();
-        
-	  double tmpphi=tS.measurement(it)->associatedSurface().center().phi();
-	  if (!points.empty() && fabs(tmpphi-oldphi)>M_PI){ // correct for boundary at +/- pi
-	    if (tmpphi<0) tmpphi+=2*M_PI;
-	    else tmpphi-=2*M_PI;
-	  }
-	  // remember oldphi
-	  oldphi=tmpphi;
-	
-	  // copy the points
-	  points.push_back(std::make_pair(tS.measurement(it)->associatedSurface().center().z(),tmpphi));
-	
-	} else nbarrel++;
+        //
+        // --- following is for the hack below
+        //
 
-	//
-	// --- end of hack stuff  
-	//
-      
+        // remember first measurement
+        if (!firstmeas)
+          firstmeas = tS.measurement(it);
+        if (!firstsurf)
+          firstsurf = &tS.measurement(it)->associatedSurface();
+        // it is always the last one
+        lastsurf = &tS.measurement(it)->associatedSurface();
+
+        // this is a rubbish way to find out it is endcap
+        if (std::abs(tS.measurement(it)
+                   ->associatedSurface()
+                   .transform()
+                   .rotation()
+                   .col(2)
+                   .z()) < .5) {
+          // increase counter and keep some information
+          nendcap++;
+          if (!firstecsurf)
+            firstecsurf = &tS.measurement(it)->associatedSurface();
+
+          double tmpphi =
+            tS.measurement(it)->associatedSurface().center().phi();
+          if (!points.empty() &&
+              std::abs(tmpphi - oldphi) > M_PI) { // correct for boundary at +/- pi
+            if (tmpphi < 0)
+              tmpphi += 2 * M_PI;
+            else
+              tmpphi -= 2 * M_PI;
+          }
+          // remember oldphi
+          oldphi = tmpphi;
+
+          // copy the points
+          points.emplace_back(
+            tS.measurement(it)->associatedSurface().center().z(), tmpphi);
+
+        } else
+          nbarrel++;
+
+        //
+        // --- end of hack stuff
+        //
       }
 
       // push new TSOS into the list
-      if (seg_tsos) ntsos->push_back(seg_tsos);
-    
+      if (seg_tsos)
+        ntsos.push_back(seg_tsos);
     }
 
     // Construct the new track
@@ -309,301 +335,364 @@ namespace InDet {
     info.setPatternRecognitionInfo(Trk::TrackInfo::TRTStandalone);
 
     // create new track candidate
-    Trk::Track* newTrack = new Trk::Track(info, ntsos, fq);
-
+    Trk::Track* newTrack = new Trk::Track(info, std::move(ntsos), fq);
+    // We need to keep the tsos added. As later on we modify them
+    auto newTrackTSOS = newTrack->trackStateOnSurfaces();
     if (!m_doRefit) {
       return newTrack;
-
     } else {
+      //
+      // ----------------------------- this is a horrible hack to make the
+      // segments fittable
+      //
 
-      //
-      // ----------------------------- this is a horrible hack to make the segments fittable
-      //
-    
       // in case of only 1 pseudo measurement, use the theta from it.
-      if (npseudo==1) pseudotheta=pseudo->localParameters()[Trk::theta];
+      if (npseudo == 1)
+        pseudotheta = pseudo->localParameters()[Trk::theta];
 
       // we need new perigee parameters
-      double myqoverp=0,myphi=0,myd0=0,myz0=0, mytheta = pseudotheta;
+      double myqoverp = 0, myphi = 0, myd0 = 0, myz0 = 0, mytheta = pseudotheta;
 
-      if (nendcap<4) {
-	//
-	// --- are we in the barrel mostly
-	//
-    
-	// momentum
-	myqoverp=par[4]*sin(pseudotheta)/sin(par[3]);    
+      if (nendcap < 4) {
+        //
+        // --- are we in the barrel mostly
+        //
 
-	// --- create surface at perigee
-	Amg::Vector3D perigeePosition(0.,0.,0.);
-	Trk::PerigeeSurface perigeeSurface(perigeePosition);
-	// -- get perigee
-	const Trk::Perigee *tempper=dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolateDirectly(*segPar, perigeeSurface));
-	if (!tempper) {
-	  ATH_MSG_DEBUG ("Could not produce perigee");
-	  delete newTrack; newTrack = 0;
-	  delete segPar; segPar = 0;
-	  return nullptr;
-	}
-      
-	// keep some values
-	myd0   = tempper->parameters()[Trk::d0];
-	myphi  = tempper->parameters()[Trk::phi0];
+        // momentum
+        myqoverp = par[4] * std::sin(pseudotheta) / std::sin(par[3]);
 
-	// delete extrapolation
-	delete tempper; 
-	tempper = 0;
+        // --- create surface at perigee
+        Amg::Vector3D perigeePosition(0., 0., 0.);
+        Trk::PerigeeSurface perigeeSurface(perigeePosition);
+        // -- get perigee
+        const Trk::Perigee* tempper = dynamic_cast<const Trk::Perigee*>(
+          m_extrapolator->extrapolateDirectly(*segPar, perigeeSurface));
+        if (!tempper) {
+          ATH_MSG_DEBUG("Could not produce perigee");
+          delete newTrack;
+          newTrack = nullptr;
+          delete segPar;
+          segPar = nullptr;
+          return nullptr;
+        }
+
+        // keep some values
+        myd0 = tempper->parameters()[Trk::d0];
+        myphi = tempper->parameters()[Trk::phi0];
+
+        // delete extrapolation
+        delete tempper;
+        tempper = nullptr;
 
       } else {
-	//
-	// --- endcap or transition track
-	//
+        //
+        // --- endcap or transition track
+        //
 
-	// get estimate of parameters
-	double sx=0,sy=0,sxx=0,sxy=0,d=0;
-	float zmin=0, zmax=0;
-	// loop over all points 
-	for (unsigned int i=0;i<points.size();i++) {
-	  sx  += points[i].first;
-	  sy  += points[i].second;
-	  sxy += points[i].first*points[i].second;
-	  sxx += points[i].first*points[i].first;
-	  if (fabs(points[i].first)>fabs(zmax)){
-	    zmax = points[i].first;
-	  }
-	  if (fabs(points[i].first)<fabs(zmin)){
-	    zmin = points[i].first;
-	  }
-	}
+        // get estimate of parameters
+        double sx = 0, sy = 0, sxx = 0, sxy = 0, d = 0;
+        float zmin = 0, zmax = 0;
+        // loop over all points
+        for (unsigned int i = 0; i < points.size(); i++) {
+          sx += points[i].first;
+          sy += points[i].second;
+          sxy += points[i].first * points[i].second;
+          sxx += points[i].first * points[i].first;
+          if (fabs(points[i].first) > fabs(zmax)) {
+            zmax = points[i].first;
+          }
+          if (fabs(points[i].first) < fabs(zmin)) {
+            zmin = points[i].first;
+          }
+        }
 
-	if (fabs(pseudotheta)<1.e-6) {
-	  ATH_MSG_DEBUG("pseudomeasurements missing on the segment?");
-	  const float Rinn= 644., Rout=1004.;
-	  if (zmax*zmin>0.){
-	    pseudotheta = atan2(Rout-Rinn,zmax-zmin);
-	  }
-	  else if (std::abs(zmax*zmin)<1.e-6){
-	    if (std::abs(zmax)>1.e-6){
-	      pseudotheta = atan2(Rout, zmax) ;
-	    } else {
-	      ATH_MSG_DEBUG("no points in endcap?");
-	    }
-	  }
-	  else {
-	    pseudotheta = atan2(2.*Rout,zmax-zmin);
-	  }
-	}
+        if (std::abs(pseudotheta) < 1.e-6) {
+          ATH_MSG_DEBUG("pseudomeasurements missing on the segment?");
+          const float Rinn = 644., Rout = 1004.;
+          if (zmax * zmin > 0.) {
+            pseudotheta = std::atan2(Rout - Rinn, zmax - zmin);
+          } else if (std::abs(zmax * zmin) < 1.e-6) {
+            if (std::abs(zmax) > 1.e-6) {
+              pseudotheta = std::atan2(Rout, zmax);
+            } else {
+              ATH_MSG_DEBUG("no points in endcap?");
+            }
+          } else {
+            pseudotheta = std::atan2(2. * Rout, zmax - zmin);
+          }
+        }
 
-	// get q/p
-	d             = (points.size()*sxx-sx*sx);
-	double dphidz = ((points.size()*sxy-sy*sx)/d);
-	myqoverp      = (fabs(pseudotheta)>1e-6) ? -dphidz/(0.6*tan(pseudotheta)) : 1000.;
+        // get q/p
+        d = (points.size() * sxx - sx * sx);
+        double dphidz = ((points.size() * sxy - sy * sx) / d);
+        myqoverp = (std::abs(pseudotheta) > 1e-6)
+                     ? -dphidz / (0.6 * std::tan(pseudotheta))
+                     : 1000.;
 
-	// some geometry stuff to estimate further paramters...
-	double halfz  = 200.;
-	const Trk::CylinderBounds *cylb  = dynamic_cast<const Trk::CylinderBounds *>(&firstsurf->bounds());
-	if (!cylb) ATH_MSG_ERROR ("Cast of bounds failed, should never happen");
-	else halfz  = cylb->halflengthZ();
-	const Trk::CylinderBounds *cylb2 = dynamic_cast<const Trk::CylinderBounds *>(&lastsurf->bounds());
-	double halfz2 = 200.;
-	if (!cylb2) ATH_MSG_ERROR ("Cast of bounds failed, should never happen");
-	else halfz2 = cylb2->halflengthZ();
-	Amg::Vector3D strawdir1 = -firstsurf->transform().rotation().col(2);
-	Amg::Vector3D strawdir2 = -lastsurf->transform().rotation().col(2);
-	Amg::Vector3D pos1;
-	Amg::Vector3D pos2;
+        // some geometry stuff to estimate further paramters...
+        double halfz = 200.;
+        const Trk::CylinderBounds* cylb =
+          dynamic_cast<const Trk::CylinderBounds*>(&firstsurf->bounds());
+        if (!cylb)
+          ATH_MSG_ERROR("Cast of bounds failed, should never happen");
+        else
+          halfz = cylb->halflengthZ();
+        const Trk::CylinderBounds* cylb2 =
+          dynamic_cast<const Trk::CylinderBounds*>(&lastsurf->bounds());
+        double halfz2 = 200.;
+        if (!cylb2)
+          ATH_MSG_ERROR("Cast of bounds failed, should never happen");
+        else
+          halfz2 = cylb2->halflengthZ();
+        Amg::Vector3D strawdir1 = -firstsurf->transform().rotation().col(2);
+        Amg::Vector3D strawdir2 = -lastsurf->transform().rotation().col(2);
+        Amg::Vector3D pos1;
+        Amg::Vector3D pos2;
 
-	// ME: this is hardcoding, not nice and should be fixed
-	if (fabs(lastsurf->center().z())<2650*mm) {
-	  pos2 = lastsurf->center()+halfz2*strawdir2;
-	  if (nbarrel==0){
-	    double dr = fabs(tan(pseudotheta)*(lastsurf->center().z()-firstsurf->center().z()));
-	    pos1      = firstsurf->center()+(halfz-dr)*strawdir1; 
-	  } else {
-	    double dz = fabs((pos2.perp()-firstsurf->center().perp())/tan(pseudotheta));
-	    if (pos2.z()>0) dz = -dz;
-	    double z1 = pos2.z()+dz;
-	    pos1 = Amg::Vector3D(firstsurf->center().x(),firstsurf->center().y(),z1);
-	  }
-	} else {
-	  double dr = fabs(tan(pseudotheta)*(lastsurf->center().z()-firstsurf->center().z()));
-	  pos2      = lastsurf->center()+(dr-halfz2)*strawdir2;
-	  pos1      = firstsurf->center()-halfz*strawdir1;
-	}
+        // ME: this is hardcoding, not nice and should be fixed
+        if (std::abs(lastsurf->center().z()) < 2650 * mm) {
+          pos2 = lastsurf->center() + halfz2 * strawdir2;
+          if (nbarrel == 0) {
+            double dr = std::abs(std::tan(pseudotheta) * (lastsurf->center().z() -
+                                                 firstsurf->center().z()));
+            pos1 = firstsurf->center() + (halfz - dr) * strawdir1;
+          } else {
+            double dz = std::abs((pos2.perp() - firstsurf->center().perp()) /
+                             std::tan(pseudotheta));
+            if (pos2.z() > 0)
+              dz = -dz;
+            double z1 = pos2.z() + dz;
+            pos1 = Amg::Vector3D(
+              firstsurf->center().x(), firstsurf->center().y(), z1);
+          }
+        } else {
+          double dr = std::abs(std::tan(pseudotheta) *
+                           (lastsurf->center().z() - firstsurf->center().z()));
+          pos2 = lastsurf->center() + (dr - halfz2) * strawdir2;
+          pos1 = firstsurf->center() - halfz * strawdir1;
+        }
 
-	// ME: I don't understand this yet, why is this done only if barrel == 0, while above this nendcap < 4 ?
-	if (nbarrel==0 &&
-	    std::abs(tan(pseudotheta)*(firstsurf->center().z()-lastsurf->center().z())) < 250*mm &&
-	    std::abs(firstsurf->center().z()) > 1000*mm) {
+        // ME: I don't understand this yet, why is this done only if barrel ==
+        // 0, while above this nendcap < 4 ?
+        if (nbarrel == 0 &&
+            std::abs(std::tan(pseudotheta) * (firstsurf->center().z() -
+                                         lastsurf->center().z())) < 250 * mm &&
+            std::abs(firstsurf->center().z()) > 1000 * mm) {
 
-	  // ME: wow this is hacking the vector ... 
-	  const Trk::MeasurementBase *firstmeas = (**ntsos->begin()).measurementOnTrack();
-	  Amg::MatrixX newcov(2,2);
-	  newcov.setZero();
-	  newcov(0,0) = (firstmeas->localCovariance())(0,0);
-	  newcov(1,1) = (myqoverp!=0) ? .0001*myqoverp*myqoverp : 1.e-8;
-	  Trk::LocalParameters newpar(std::make_pair(0,Trk::locZ),std::make_pair(myqoverp,Trk::qOverP));
-	  Trk::PseudoMeasurementOnTrack *newpseudo=new Trk::PseudoMeasurementOnTrack(newpar,newcov,firstmeas->associatedSurface());
-	  // hack replace first measurement with pseudomeasurement
-	  ntsos->erase(ntsos->begin());
-	  ntsos->insert(ntsos->begin(),new Trk::TrackStateOnSurface(newpseudo,0));  
-	}
+          // ME: wow this is hacking the vector ...
+          const Trk::MeasurementBase* firstmeas =
+            (**newTrackTSOS->begin()).measurementOnTrack();
+          Amg::MatrixX newcov(2, 2);
+          newcov.setZero();
+          newcov(0, 0) = (firstmeas->localCovariance())(0, 0);
+          newcov(1, 1) = (myqoverp != 0) ? .0001 * myqoverp * myqoverp : 1.e-8;
+          Trk::LocalParameters newpar(std::make_pair(0, Trk::locZ),
+                                      std::make_pair(myqoverp, Trk::qOverP));
+          Trk::PseudoMeasurementOnTrack* newpseudo =
+            new Trk::PseudoMeasurementOnTrack(
+              newpar, newcov, firstmeas->associatedSurface());
+          // hack replace first measurement with pseudomeasurement
+          newTrackTSOS->erase(newTrackTSOS->begin());
+          newTrackTSOS->insert(newTrackTSOS->begin(),
+                        new Trk::TrackStateOnSurface(newpseudo, nullptr));
+        }
 
-	Amg::Vector3D field1;
+        Amg::Vector3D field1;
 
-        MagField::AtlasFieldCache    fieldCache;
+        MagField::AtlasFieldCache fieldCache;
 
         // Get field cache object
-        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
-        const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{
+          m_fieldCacheCondObjInputKey, ctx
+        };
+        const AtlasFieldCacheCondObj* fieldCondObj{ *readHandle };
         if (fieldCondObj == nullptr) {
-            ATH_MSG_ERROR("segToTrack: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
-            return nullptr;
+          ATH_MSG_ERROR(
+            "segToTrack: Failed to retrieve AtlasFieldCacheCondObj with key "
+            << m_fieldCacheCondObjInputKey.key());
+          return nullptr;
         }
-        fieldCondObj->getInitializedCache (fieldCache);
+        fieldCondObj->getInitializedCache(fieldCache);
 
         //   MT version uses cache
-        fieldCache.getField    (Amg::Vector3D(.5*(pos1+pos2)).data(),field1.data());
+        fieldCache.getField(Amg::Vector3D(.5 * (pos1 + pos2)).data(),
+                            field1.data());
 
-	field1 *= m_fieldUnitConversion; // field in Tesla
+        field1 *= m_fieldUnitConversion; // field in Tesla
 
-	double phideflection = -.3*(pos2-pos1).perp()*field1.z()*myqoverp/sin(pseudotheta);
-	double precisephi    = (nbarrel==0) ? (pos2-pos1).phi()-.5*phideflection : (pos2-pos1).phi()+.5*phideflection;
-	double radius        = (myqoverp!=0. && field1.z()!=0.) ? -sin(pseudotheta)/(.3*field1.z()*myqoverp) : 1.e6;
-	double precisetheta  = (myqoverp!=0.) ? atan2(std::abs(radius*phideflection),pos2.z()-pos1.z()) : pseudotheta;
-	if (precisetheta < 0)     precisetheta += M_PI; 
-	if (precisephi   < -M_PI) precisephi   += 2*M_PI;
-	if (precisephi   > M_PI)  precisephi   -= 2*M_PI;
+        double phideflection =
+          -.3 * (pos2 - pos1).perp() * field1.z() * myqoverp / std::sin(pseudotheta);
+        double precisephi = (nbarrel == 0)
+                              ? (pos2 - pos1).phi() - .5 * phideflection
+                              : (pos2 - pos1).phi() + .5 * phideflection;
+        double radius = (myqoverp != 0. && field1.z() != 0.)
+                          ? -std::sin(pseudotheta) / (.3 * field1.z() * myqoverp)
+                          : 1.e6;
+        double precisetheta =
+          (myqoverp != 0.)
+            ? std::atan2(std::abs(radius * phideflection), pos2.z() - pos1.z())
+            : pseudotheta;
+        if (precisetheta < 0)
+          precisetheta += M_PI;
+        if (precisephi < -M_PI)
+          precisephi += 2 * M_PI;
+        if (precisephi > M_PI)
+          precisephi -= 2 * M_PI;
 
-	// now extrapolate backwards from the first surface to get starting parameters
-	const Trk::StraightLineSurface* surfforpar=0;
-	if (nbarrel==0) surfforpar=dynamic_cast<const Trk::StraightLineSurface*>(firstsurf);
-	else surfforpar=dynamic_cast<const Trk::StraightLineSurface*>(lastsurf);
-	if (!surfforpar) ATH_MSG_ERROR ("Cast of surface failed, should never happen");
+        // now extrapolate backwards from the first surface to get starting
+        // parameters
+        const Trk::StraightLineSurface* surfforpar = nullptr;
+        if (nbarrel == 0)
+          surfforpar = dynamic_cast<const Trk::StraightLineSurface*>(firstsurf);
+        else
+          surfforpar = dynamic_cast<const Trk::StraightLineSurface*>(lastsurf);
+        if (!surfforpar)
+          ATH_MSG_ERROR("Cast of surface failed, should never happen");
 
-	Trk::AtaStraightLine ataline(((nbarrel==0) ? pos1 : pos2),precisephi,precisetheta,myqoverp,*surfforpar);
-	Trk::PerigeeSurface persurf;
-	const Trk::TrackParameters *extrappar=m_extrapolator->extrapolateDirectly(ataline,persurf);
+        Trk::AtaStraightLine ataline(((nbarrel == 0) ? pos1 : pos2),
+                                     precisephi,
+                                     precisetheta,
+                                     myqoverp,
+                                     *surfforpar);
+        Trk::PerigeeSurface persurf;
+        const Trk::TrackParameters* extrappar =
+          m_extrapolator->extrapolateDirectly(ataline, persurf);
 
-	// now get parameters
-	if (extrappar){
-	  if (nendcap>=4){
-	    myphi=extrappar->parameters()[Trk::phi0];
-	    myd0=extrappar->parameters()[Trk::d0];
-	  }
+        // now get parameters
+        if (extrappar) {
+          if (nendcap >= 4) {
+            myphi = extrappar->parameters()[Trk::phi0];
+            myd0 = extrappar->parameters()[Trk::d0];
+          }
 
-	  // construct theta again
-	  double z0 = extrappar->parameters()[Trk::z0];
-	  //mytheta=extrappar->parameters()[Trk::theta];
-	  if (nbarrel==0) mytheta=atan(tan(extrappar->parameters()[Trk::theta])*std::abs((z0-pos1.z())/pos1.z()));
-	  else mytheta=atan(tan(extrappar->parameters()[Trk::theta])*std::abs((z0-pos2.z())/pos2.z()));
+          // construct theta again
+          double z0 = extrappar->parameters()[Trk::z0];
+          if (nbarrel == 0)
+            mytheta = std::atan(std::tan(extrappar->parameters()[Trk::theta]) *
+                           std::abs((z0 - pos1.z()) / pos1.z()));
+          else
+            mytheta = std::atan(std::tan(extrappar->parameters()[Trk::theta]) *
+                           std::abs((z0 - pos2.z()) / pos2.z()));
 
-	  if (mytheta<0) mytheta+=M_PI;
+          if (mytheta < 0)
+            mytheta += M_PI;
 
-	  delete extrappar;
-	  extrappar = 0;
-	}
-    
+          delete extrappar;
+          extrappar = nullptr;
+        }
       }
-      while (myphi> M_PI) myphi-=2*M_PI;
-      while (myphi<-M_PI) myphi+=2*M_PI;
+      while (myphi > M_PI)
+        myphi -= 2 * M_PI;
+      while (myphi < -M_PI)
+        myphi += 2 * M_PI;
 
-      double P[5]={myd0, myz0, myphi, mytheta, myqoverp};
+      double P[5] = { myd0, myz0, myphi, mytheta, myqoverp };
 
       // create perigee TSOS and add as first (!) TSOS
-      Trk::Perigee *per=new Trk::Perigee(P[0],P[1],P[2],P[3],P[4],Trk::PerigeeSurface());
-      std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
+      Trk::Perigee* per =
+        new Trk::Perigee(P[0], P[1], P[2], P[3], P[4], Trk::PerigeeSurface());
+      std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>
+        typePattern;
       typePattern.set(Trk::TrackStateOnSurface::Perigee);
-      Trk::TrackStateOnSurface *seg_tsos = new Trk::TrackStateOnSurface(0,per,0,0,typePattern);
-      ntsos->insert(ntsos->begin(),seg_tsos);
+      Trk::TrackStateOnSurface* seg_tsos = new Trk::TrackStateOnSurface(
+        nullptr, per, nullptr, nullptr, typePattern);
+      newTrackTSOS->insert(newTrackTSOS->begin(), seg_tsos);
 
-      ATH_MSG_VERBOSE ("Constructed perigee at input to fit : " << (*per) );
+      ATH_MSG_VERBOSE("Constructed perigee at input to fit : " << (*per));
 
       //
-      // ------------------------------------------------------- now refit the track
+      // ------------------------------------------------------- now refit the
+      // track
       //
-    
-      // ME: this is a hack and should be replaced
 
-      //Trk::ParticleSwitcher partSwitch;
-      //Trk::ParticleHypothesis partHypothesis = partSwitch.particle[m_matEffects];
-      //Trk::Track* fitTrack = m_fitterTool->fit(*newTrack,true,partHypothesis);
+      Trk::Track* fitTrack =
+        m_fitterTool->fit(*newTrack, true, Trk::nonInteracting);
 
-      Trk::Track* fitTrack = m_fitterTool->fit(*newTrack,true,Trk::nonInteracting);
-    
-      //cleanup
-      delete newTrack; 
-      newTrack = 0;
-      if(segPar) {
-	delete segPar;
-	segPar = 0;
+      // cleanup
+      delete newTrack;
+      newTrack = nullptr;
+      if (segPar) {
+        delete segPar;
+        segPar = nullptr;
       }
 
-      if(!fitTrack){
-	ATH_MSG_DEBUG ("Refit of TRT track segment failed!");
-	return nullptr;
+      if (!fitTrack) {
+        ATH_MSG_DEBUG("Refit of TRT track segment failed!");
+        return nullptr;
       }
 
       //
-      // -------------------------------------- hack the covarinace back to something reasonable
+      // -------------------------------------- hack the covarinace back to
+      // something reasonable
       //
-      const Trk::TrackParameters *firstmeaspar=0;
-      DataVector<const Trk::TrackParameters>::const_iterator parit = fitTrack->trackParameters()->begin();
+      const Trk::TrackParameters* firstmeaspar = nullptr;
+      DataVector<const Trk::TrackParameters>::const_iterator parit =
+        fitTrack->trackParameters()->begin();
       do {
-	// skip pesudo measurements on perigee
-	if ( (*parit)->covariance() && ((*parit)->associatedSurface()  == tS.associatedSurface())) firstmeaspar = *parit;
-	++parit;
-      } while (firstmeaspar==0 && parit != fitTrack->trackParameters()->end());
+        // skip pesudo measurements on perigee
+        if ((*parit)->covariance() &&
+            ((*parit)->associatedSurface() == tS.associatedSurface()))
+          firstmeaspar = *parit;
+        ++parit;
+      } while (firstmeaspar == nullptr &&
+               parit != fitTrack->trackParameters()->end());
 
-      //Create new perigee starting from the modified first measurement that has a more reasonable covariance matrix
-      // const Trk::Perigee* perTrack=dynamic_cast<const Trk::Perigee*>(fitTrack->perigeeParameters());
+      // Create new perigee starting from the modified first measurement that
+      // has a more reasonable covariance matrix
+      // const Trk::Perigee* perTrack=dynamic_cast<const
+      // Trk::Perigee*>(fitTrack->perigeeParameters());
       const Trk::Perigee* perTrack = fitTrack->perigeeParameters();
 
-      if (!perTrack || !perTrack->covariance() ){
-	ATH_MSG_ERROR ("Cast of perigee fails, should never happen !");
-	return nullptr;
-      }else {
-	ATH_MSG_VERBOSE ("Perigee after refit with fudges to make it converge : " << (*perTrack) );
+      if (!perTrack || !perTrack->covariance()) {
+        ATH_MSG_ERROR("Cast of perigee fails, should never happen !");
+        return nullptr;
+      } else {
+        ATH_MSG_VERBOSE ("Perigee after refit with fudges to make it converge : " << (*perTrack) );
 
 	if(firstmeaspar && firstmeaspar->position().perp()<2000*mm && std::abs(firstmeaspar->position().z())<3000*mm){
 
 	  // Modify first measurement so that it has reasonable errors on z and theta
-	  AmgSymMatrix(5)* fcovmat = new AmgSymMatrix(5)(*(firstmeaspar->covariance()));
+	  AmgSymMatrix(5) fcovmat = AmgSymMatrix(5)(*(firstmeaspar->covariance()));
 	  // factors by which we like to scale the cov, this takes the original segment errors into account
-	  double scaleZ     = sqrt(tS.localCovariance()(1,1))/sqrt( (*fcovmat)(1,1));
-	  double scaleTheta = sqrt(tS.localCovariance()(3,3))/sqrt( (*fcovmat)(3,3));
+	  double scaleZ     = std::sqrt(tS.localCovariance()(1,1))/std::sqrt( (fcovmat)(1,1));
+	  double scaleTheta = std::sqrt(tS.localCovariance()(3,3))/std::sqrt( (fcovmat)(3,3));
 	  // now do it
-	  (*fcovmat)(1,0)=scaleZ*((*fcovmat)(1,0));
-	  (*fcovmat)(0,1) = (*fcovmat)(1,0);
-	  (*fcovmat)(1,1)=tS.localCovariance()(1,1);
-	  (*fcovmat)(2,1)=scaleZ*((*fcovmat)(2,1));
-	  (*fcovmat)(1,2) = (*fcovmat)(2,1);
-	  (*fcovmat)(3,1)=scaleZ*scaleTheta*((*fcovmat)(3,1));
-	  (*fcovmat)(1,3) = (*fcovmat)(3,1);
-	  (*fcovmat)(4,1)=scaleZ*((*fcovmat)(4,1));
-	  (*fcovmat)(1,4) = (*fcovmat)(4,1);
-	  (*fcovmat)(3,0)=scaleTheta*((*fcovmat)(3,0));
-	  (*fcovmat)(0,3) = (*fcovmat)(3,0);
-	  (*fcovmat)(3,2)=scaleTheta*((*fcovmat)(3,2));
-	  (*fcovmat)(2,3) = (*fcovmat)(3,2);
-	  (*fcovmat)(3,3)=tS.localCovariance()(3,3);
-	  (*fcovmat)(4,3)=scaleTheta*((*fcovmat)(4,3));
-	  (*fcovmat)(3,4) = (*fcovmat)(4,3);
+	  fcovmat(1,0)=scaleZ*((fcovmat)(1,0));
+	  fcovmat(0,1) = (fcovmat)(1,0);
+	  fcovmat(1,1)=tS.localCovariance()(1,1);
+	  fcovmat(2,1)=scaleZ*((fcovmat)(2,1));
+	  fcovmat(1,2) = (fcovmat)(2,1);
+	  fcovmat(3,1)=scaleZ*scaleTheta*((fcovmat)(3,1));
+	  fcovmat(1,3) = (fcovmat)(3,1);
+	  fcovmat(4,1)=scaleZ*((fcovmat)(4,1));
+	  fcovmat(1,4) = (fcovmat)(4,1);
+	  fcovmat(3,0)=scaleTheta*((fcovmat)(3,0));
+	  fcovmat(0,3) = (fcovmat)(3,0);
+	  fcovmat(3,2)=scaleTheta*((fcovmat)(3,2));
+	  fcovmat(2,3) = (fcovmat)(3,2);
+	  fcovmat(3,3)=tS.localCovariance()(3,3);
+	  fcovmat(4,3)=scaleTheta*((fcovmat)(4,3));
+	  fcovmat(3,4) = (fcovmat)(4,3);
 
 	  // const Amg::VectorX& par = firstmeaspar->parameters();
 	  const AmgVector(5)& par = firstmeaspar->parameters();
-	  const Trk::TrackParameters* updatedPars = firstmeaspar->associatedSurface().createTrackParameters(par[Trk::loc1],par[Trk::loc2],
-													    par[Trk::phi],par[Trk::theta],par[Trk::qOverP],fcovmat); 
+          const Trk::TrackParameters* updatedPars =
+            firstmeaspar->associatedSurface().createUniqueTrackParameters(
+              par[Trk::loc1],
+              par[Trk::loc2],
+              par[Trk::phi],
+              par[Trk::theta],
+              par[Trk::qOverP],
+              std::move(fcovmat)).release();
 
-
-	  // now take parameters at first measurement and exptrapolate to perigee
+          // now take parameters at first measurement and exptrapolate to perigee
 	  const Trk::TrackParameters *newperpar   = m_extrapolator->extrapolate(*updatedPars,perTrack->associatedSurface(),
 										Trk::anyDirection,false,Trk::nonInteracting);
-	  delete updatedPars; updatedPars = 0;
+	  delete updatedPars; updatedPars = nullptr;
 
 	  if (!newperpar || !newperpar->covariance()) {
 	    ATH_MSG_WARNING ("Can not hack perigee parameters, extrapolation failed");
-	    delete newperpar; newperpar = 0;
+	    delete newperpar; newperpar = nullptr;
 	  } else {
 	    // this is a HACK !!!
             // perTrack is owned by fitTrack which is not const here
@@ -611,7 +700,7 @@ namespace InDet {
 	    AmgSymMatrix(5)& errmat ATLAS_THREAD_SAFE = const_cast<AmgSymMatrix(5)&>(*perTrack->covariance());
 	    // overwrite cov in perTrack
 	    errmat = *newperpar->covariance();
-	    delete newperpar; newperpar = 0;
+	    delete newperpar; newperpar = nullptr;
 	    // check that new cov makes sense !
 	    const AmgSymMatrix(5)& CM = *perTrack->covariance();
 	    if( CM(1,1)==0.||CM(3,3)==0. ) {
@@ -625,8 +714,7 @@ namespace InDet {
       }
       // return fitted track
       return fitTrack;
-    }  
-
+    }
   }
 
 
@@ -642,25 +730,25 @@ namespace InDet {
     if (!m_assoTool.name().empty() && !prd_to_track_map) ATH_MSG_ERROR("PRDtoTrackMap to be used but not provided by the client");
     // loop over the track states
     for(int it=0; it<int(tS.numberOfMeasurementBases()); ++it){
-  
+
       // remove pseudo measurements
       if ( dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(tS.measurement(it)) )
         continue;
-   
+
       // get the measurment
       const InDet::TRT_DriftCircleOnTrack* trtcircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(tS.measurement(it));
       if (!trtcircle) continue;
-  
+
       // get PRD measurement
       const InDet::TRT_DriftCircle* RawDataClus=dynamic_cast<const InDet::TRT_DriftCircle*>(trtcircle->prepRawData());
       if(!RawDataClus) continue;
-   
+
       // count up number of hits
       nHits++;
-  
+
       if(!m_assoTool.name().empty() && prd_to_track_map && prd_to_track_map->isUsed(*RawDataClus)) nShared++;
     }
-  
+
     if(nShared >= int(m_sharedFrac * nHits)) {
       ATH_MSG_DEBUG ("Too many shared hits.Will drop the TRT segment");
       return true;
@@ -680,15 +768,15 @@ namespace InDet {
 
     // loop over the track states
     for(int it=0; it<int(tS.numberOfMeasurementBases()); ++it){
-    
+
       //test if it is a pseudo measurement
       if ( dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(tS.measurement(it)) )
 	continue;
-    
+
       // get measurement
       const InDet::TRT_DriftCircleOnTrack* trtcircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(tS.measurement(it));
       if(!trtcircle) continue;
-    
+
       // get identifier
       Identifier id = trtcircle->detectorElement()->identify();
       // barrel or endcap
@@ -702,17 +790,15 @@ namespace InDet {
 	nBRL++;
 	lastLayer  = m_trtId->layer_or_wheel(id);
       }
-     
+
     }
-    
+
     // now the logic
-    if((nEC>0  && nBRL>0) ||
+    return (nEC>0  && nBRL>0) ||
+
        (nEC==0 && nBRL>0  && lastLayer<2) ||
-       (nEC>0  && nBRL==0 && (firstWheel>10 || firstWheel<2))) {
-      return true;
-    } else {
-      return false;
-    }
+
+       (nEC>0  && nBRL==0 && (firstWheel>10 || firstWheel<2));
 
   }
 
@@ -737,9 +823,9 @@ namespace InDet {
       delete trk;
     } else {
       // add track to map, map is sorted small to big !
-      event_data.m_trackScores.push_back( std::make_pair(-score, trk) );
+      event_data.m_trackScores.emplace_back(-score, trk );
     }
-   
+
     return;
 
   }
@@ -770,40 +856,40 @@ namespace InDet {
                      {  return a.first < b.first; });
 
     for (std::pair< Trk::TrackScore, Trk::Track* > &track_score : event_data.m_trackScores) {
-   
+
       ATH_MSG_DEBUG ("--- Trying next track "<<track_score.second<<"\t with score "<<-track_score.first);
-   
+
       // some counters to be handled
       int nShared = 0;  // Shared drift circles in segment
       int nHits   = 0;  // Number of TRT measurements
-   
+
       // get vector of TSOS
       const DataVector<const Trk::TrackStateOnSurface>* tsos = (track_score.second)->trackStateOnSurfaces();
-   
+
       // loop over vector of TSOS
       for ( const Trk::TrackStateOnSurface *a_tsos : *tsos) {
-   
+
 	// get measurment from TSOS
 	const Trk::MeasurementBase* meas = a_tsos->measurementOnTrack();
 	if (!meas) continue;
-   
-	// make sure it is a TRT_DC and not a pseudo measurement 
+
+	// make sure it is a TRT_DC and not a pseudo measurement
 	const InDet::TRT_DriftCircleOnTrack* rot = dynamic_cast <const InDet::TRT_DriftCircleOnTrack*> (meas);
 	if( !rot ) continue;
-   
+
 	// get to the PRD object
 	const InDet::TRT_DriftCircle* RawDataClus=dynamic_cast<const InDet::TRT_DriftCircle*>(rot->prepRawData());
 	if(!RawDataClus) continue;
-   
+
 	// count up number of hits
 	nHits++;
-   
+
 	// count up number of shared hits
 	if(!m_assoTool.name().empty() && prd_to_track_map->isUsed(*RawDataClus)) nShared++;
       }
-   
+
       ATH_MSG_DEBUG ("TRT-only has " << nHits << " hits and " << nShared << " of them are shared");
-   
+
       // cut on the number of shared hits with the max fraction
       if(nShared >=  int(m_sharedFrac * nHits)) {
          // statistics
@@ -812,22 +898,22 @@ namespace InDet {
          delete track_score.second;
          continue;
       }
-    
+
       // ok, this seems like a useful track
       final_tracks->push_back(track_score.second);
-   
+
       event_data.m_counter[ITRT_SegmentToTrackTool::EventData::knTRTTrk]++;
       ATH_MSG_DEBUG ("TRT-only is accepted");
-   
+
       //Register the track with the association tool
       if(!m_assoTool.name().empty()) {
         if(m_assoTool->addPRDs(*prd_to_track_map,*(track_score.second)).isFailure()) {
 	  ATH_MSG_WARNING ("addPRDs() failed!");
 	}
       }
-   
+
     }
-   
+
     return final_tracks.release();
 
   }

@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#
 ## @file  CaloDigitization.py
 #  @brief include file to configure calorimeter digitization
 from AthenaCommon.Resilience import protectedInclude
@@ -17,7 +19,7 @@ if DetFlags.LAr_on():
     if DetFlags.digitize.LAr_on():
         job += CfgGetter.getAlgorithm("LArRawChannelBuilder", tryDefaultConfigurable=True)
 
-        if not digitizationFlags.PileUpPremixing():
+        if not digitizationFlags.PileUpPresampling() and 'AddCaloDigiThinned' in digitizationFlags.experimentalDigi():
             from LArROD.LArDigits import DefaultLArDigitThinner
             LArDigitThinner = DefaultLArDigitThinner('LArDigitThinner') # automatically added to topSequence
 

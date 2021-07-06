@@ -82,5 +82,5 @@ ActsObjWriterTool::write(const ActsGeometryContext& gctx, const Acts::TrackingGe
   auto tgObjWriter
     = std::make_shared<Acts::ObjTrackingGeometryWriter>(tgObjWriterConfig);
 
-  tgObjWriter->write(gctx.any(), tg);
+  tgObjWriter->write(gctx.context(), tg);
 }

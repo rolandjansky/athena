@@ -10,7 +10,7 @@ CaloNoiseCondAlg(noisetype="electronicNoise")
 from LArMonTools.LArMonToolsConf import LArCoverage
 theLArCoverage = LArCoverage(name="LArCoverage",
                              ProcessNEvents             = EventBlockSize,
-                             LArBadChannelMask          = theLArBadChannelsMasker,
+                             ProblemsToMask             = ProblemsToMask,
                              Nevents                    = 40
                          )
 LArMon.AthenaMonTools+=[ theLArCoverage ]

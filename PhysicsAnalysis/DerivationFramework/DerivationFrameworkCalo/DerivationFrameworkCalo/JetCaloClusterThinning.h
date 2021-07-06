@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -20,13 +20,11 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "StoreGate/ThinningHandleKey.h"
 
-namespace ExpressionParsing {
-  class ExpressionParser;
-}
+#include "ExpressionEvaluation/ExpressionParserUser.h"
 
 namespace DerivationFramework {
 
-  class JetCaloClusterThinning : public extends<AthAlgTool,IThinningTool> {
+  class JetCaloClusterThinning : public extends<ExpressionParserUser<AthAlgTool>,IThinningTool> {
     public: 
       JetCaloClusterThinning(const std::string& t, const std::string& n, const IInterface* p);
       virtual ~JetCaloClusterThinning();
@@ -45,7 +43,6 @@ namespace DerivationFramework {
 
       std::string m_selectionString;
       float m_coneSize;
-      ExpressionParsing::ExpressionParser *m_parser;
 
       void setJetClustersMask(std::vector<bool>&, const xAOD::JetContainer*, const xAOD::CaloClusterContainer*) const;
       void setJetClustersMask(std::vector<bool>&, std::vector<const xAOD::Jet*>&, const xAOD::CaloClusterContainer*) const;

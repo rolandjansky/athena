@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGLONGLIVEDPARTICLESHYPO_TRIGISOHPTTRACKTRIGGERHYPOTOOL_H
 #define TRIGLONGLIVEDPARTICLESHYPO_TRIGISOHPTTRACKTRIGGERHYPOTOOL_H 1
@@ -12,6 +12,7 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include <string>
 
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 /**
  * @class TrigIsoHPtTrackTriggerHypoTool
@@ -35,6 +36,7 @@ class TrigIsoHPtTrackTriggerHypoTool : virtual public ::AthAlgTool
     TrigCompositeUtils::Decision* decision;
     const xAOD::TrackParticle_v1* track;
     const xAOD::TrackParticleContainer* AllTracks;
+    const TrigCompositeUtils::DecisionIDContainer previousDecisionsIDs;
   };
 
   /**
@@ -71,8 +73,12 @@ class TrigIsoHPtTrackTriggerHypoTool : virtual public ::AthAlgTool
   HLT::Identifier m_decisionId;
   /* Gaudi::Property<bool>  m_acceptAll{ this, "AcceptAll", false, "Ignore selection" }; */
   Gaudi::Property< std::vector<float> > m_TrackPt{ this, "MinTrackPt",  { float( 50.0*Gaudi::Units::GeV ) }, "Track pT requirement" };
-  Gaudi::Property< std::vector<float> > m_Trackd0{ this,  "MaxTrackd0", {5.}, "Maximum Track d0 allowed"      }; //loose cut
-  Gaudi::Property< std::vector<unsigned> > m_TrackNPixHits{ this,  "MinTrackNPixHits", {2}, "Minimum number of pixel hits required from the trigger"     }; //loose cut
+  Gaudi::Property< std::vector<float> > m_TrackEta{ this, "MinTrackEta",  { float(2.5 ) }, "Track Eta requirement" };
+  Gaudi::Property< std::vector<float> > m_Trackd0{ this,  "MaxTrackd0", {5.}, "Maximum Track d0 allowed"      };
+  Gaudi::Property< std::vector<float> > m_Trackd0Sig{ this,  "MaxTrackd0Sig", {5.}, "Maximum Track d0 Sig allowed"      };
+  Gaudi::Property< std::vector<unsigned> > m_TrackNPixHits{ this,  "MinTrackNPixHits", {2}, "Minimum number of pixel hits required from the trigger"     }; 
+  Gaudi::Property< std::vector<unsigned> > m_TrackNSCTHits{ this,  "MinTrackNSCTHits", {5}, "Minimum number of SCT hits required from the trigger"     }; 
+
   Gaudi::Property< std::vector<bool> > m_doIso { this,  "EnableTrackIsolation", {false}, "If track based isolation should be applied or not? "};
   Gaudi::Property< std::vector<bool> > m_IsoCum { this,  "EnableCumalitiveIsolation", {false}, "Instead of checking if one track is above a certain pT threshold, add up all tracks for isolation"};
   Gaudi::Property< std::vector<float> > m_IsoDR{ this,  "TrackIsoCone", {0.3}, "Isolation requirment over the main track" };

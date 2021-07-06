@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
 import shutil, re
@@ -112,6 +112,17 @@ def _ProtectPostProcessing( funcinfo, outFileName, isIncremental ):
             os.unlink(tmpfilename)
     return success
 
+def rundir(fname):
+    import ROOT
+    f = ROOT.TFile.Open(fname)
+    lk = f.GetListOfKeys()
+    if len(lk) != 1:
+        return None
+    kn = lk[0].GetName()
+    if not kn.startswith('run_'):
+        return None
+    return kn
+
 def DQPostProcess( outFileName, isIncremental=False ):
     ## Import the ROOT library for reading han results
     from ROOT import gSystem
@@ -138,6 +149,23 @@ def DQPostProcess( outFileName, isIncremental=False ):
         if not isIncremental:
             from DataQualityUtils.doZLumi import go
             go(fname)
+
+    def newstyle(fname, isIncremental):
+        if not isIncremental:
+            print("New style postprocessing")
+            # do we have DataQualityUtils in the DATAPATH?
+            from ._resolve_data_path import resolve_data_path
+            dpath = resolve_data_path("DataQualityUtils")
+            if dpath is None:
+                print("Unable to resolve DataQualityUtils data path, not running new-style postprocessing")
+                return
+            import subprocess, glob, os.path
+            inputs = glob.glob(os.path.join(dpath,'postprocessing/*.yaml'))
+            print(f'Input configurations: {" ".join(inputs)}')
+            cmdline = (['histgrinder', '--prefix', f'/{rundir(fname)}/', fname, fname, '-c']
+                       + inputs
+                       )
+            subprocess.run(cmdline, check=True)
  
     funclist = [ 
                  (mf.fitMergedFile_IDPerfMonManager,
@@ -189,7 +217,9 @@ def DQPostProcess( outFileName, isIncremental=False ):
                  (mf.MuonTrackPostProcess,
                   ['baojia.tong@cern.ch', 'alexander.tuna@cern.ch']),
                  (zlumi,
-                  ['ponyisi@utexas.edu', 'harish.potti@utexas.edu']),
+                  ['ponyisi@utexas.edu']),
+                 (newstyle,
+                  ['ponyisi@utexas.edu']),
                ]
 
     # first try all at once

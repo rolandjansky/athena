@@ -16,7 +16,7 @@
 #ifndef CXXUTILS_CLOCK_H
 #define CXXUTILS_CLOCK_H
 
-#ifdef __APPLE__
+#if defined (__APPLE__) && __clang_major__ < 12
 #include <time.h>
 #define CLOCK_REALTIME           0
 #define CLOCK_MONOTONIC          1

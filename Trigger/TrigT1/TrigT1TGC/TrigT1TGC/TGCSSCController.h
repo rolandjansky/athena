@@ -1,21 +1,21 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TGCSSCController_hh
-#define TGCSSCController_hh
+#ifndef TrigT1TGC_TGCSSCController_h
+#define TrigT1TGC_TGCSSCController_h
 
 #include "TrigT1TGC/TGCHighPtChipOut.h"
 #include "TrigT1TGC/TGCSSCControllerOut.h"
 #include "TrigT1TGC/TGCArguments.h"
 
 namespace LVL1TGCTrigger {
+
 class TGCSectorLogic;
 
-// const int NumberOfWireHighPtBoard = 2;
-
-class TGCSSCController {
-public:
+class TGCSSCController
+{
+ public:
   TGCSSCController( const TGCArguments*, const TGCSectorLogic* sL=0 );
   virtual ~TGCSSCController(){} 
 
@@ -26,7 +26,7 @@ public:
 
   const TGCArguments* tgcArgs() const { return m_tgcArgs; }
 
-private:
+ private:
   const TGCSectorLogic* m_sectorLogic;
   int getSSCId(int nHPB, int chip, int block) const;
   int convertPhi(int chip, int block, int pos) const;
@@ -37,6 +37,6 @@ private:
   const TGCArguments* m_tgcArgs;
 };
 
-} //end of namespace bracket
+}   // end of namespace
 
 #endif

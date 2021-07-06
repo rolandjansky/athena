@@ -11,10 +11,9 @@ GetLCDM.HadDMCoeffInitFile = "CaloHadDMCoeff_init_v2.txt"
 GetLCDM.ClusterCollectionName = "CaloTopoCluster"
 GetLCDM.ClusterCollectionNameCalib = "CaloCalTopoCluster"
 GetLCDM.doSaveCalibClusInfo = False # to save additional info from collection with calibrated clusters
-if vars().has_key('outFileNameLCDM'):
+if 'outFileNameLCDM' in dir():
   GetLCDM.OutputFileName = outFileNameLCDM
 else:
   GetLCDM.OutputFileName = "DeadMaterialTree.root"
-
 
 topSequence += GetLCDM

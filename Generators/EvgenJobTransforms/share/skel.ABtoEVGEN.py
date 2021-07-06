@@ -58,8 +58,8 @@ svcMgr += AtRanluxGenSvc()
 jobproperties.AthenaCommonFlags.AllowIgnoreConfigError = False
 
 ## Compatibility with jets
-from RecExConfig.RecConfFlags import jobproperties
-jobproperties.RecConfFlags.AllowBackNavigation = True
+#from RecExConfig.RecConfFlags import jobproperties
+#jobproperties.RecConfFlags.AllowBackNavigation = True
 
 ## Set up a standard logger
 from AthenaCommon.Logging import logging
@@ -95,6 +95,8 @@ if not hasattr(runArgs, "randomSeed"):
 if not hasattr(runArgs, "firstEvent"):
     raise RuntimeError("No first number provided.")
 
+if hasattr(runArgs, "inputEVNT_PreFile"):
+   evgenLog.info("inputEVNT_PreFile = " + ','.join(runArgs.inputEVNT_PreFile))
 
 ##==============================================================
 ## Configure standard Athena and evgen services
@@ -129,10 +131,11 @@ svcMgr.EventSelector.FirstEvent = runArgs.firstEvent
 theApp.EvtMax = -1
 if not hasattr(postSeq, "CountHepMC"):
     postSeq += CountHepMC()
-postSeq.CountHepMC.RequestedOutput = evgenConfig.nEventsPerJob if runArgs.maxEvents == -1 else runArgs.maxEvents
+#postSeq.CountHepMC.RequestedOutput = evgenConfig.nEventsPerJob if runArgs.maxEvents == -1 else runArgs.maxEvents
 postSeq.CountHepMC.FirstEvent = runArgs.firstEvent
-postSeq.CountHepMC.CorrectHepMC = False
+postSeq.CountHepMC.CorrectHepMC = True
 postSeq.CountHepMC.CorrectEventID = True
+postSeq.CountHepMC.CorrectRunNumber = False
 
 ## Print out the contents of the first 5 events (after filtering)
 # TODO: Allow configurability from command-line/exec/include args
@@ -205,7 +208,7 @@ if joparts[0].startswith("mc"): #and all(c in string.digits for c in joparts[0][
     ## Check the length limit on the physicsShort portion of the filename
     jo_physshortpart = joparts[1]
     if len(jo_physshortpart) > 50:
-        evgenLog.error(jofile + " contains a physicsShort field of more than 60 characters: please rename.")
+        evgenLog.error(jofile + " contains a physicsShort field of more than 50 characters: please rename.")
         sys.exit(1)
     ## There must be at least 2 physicsShort sub-parts separated by '_': gens, (tune)+PDF, and process
     jo_physshortparts = jo_physshortpart.split("_")
@@ -284,38 +287,41 @@ if joparts[0].startswith("MC"): #< if this is an "official" JO
 ## Check that the evgenConfig.nEventsPerJob setting is acceptable
 ## nEventsPerJob defines the production event sizes and must be sufficiently "round"
 rounding = 0
-if hasattr(runArgs,'inputGeneratorFile') and ',' in runArgs.inputGeneratorFile:   
+if hasattr(runArgs,'inputGeneratorFile') and ',' in runArgs.inputGeneratorFile:
    multiInput = runArgs.inputGeneratorFile.count(',')+1
 else:
    multiInput = 0
+# check if default nEventsPErJob used
+if not evgenConfig.nEventsPerJob:
+    evgenLog.info('#############################################################')
+    evgenLog.info(' !!!! no nEventsPerJob set !!!  The default 10000 used. !!! ')
+    evgenLog.info('#############################################################')
+else:
+    evgenLog.info(' nEventsPerJob = ' + str(evgenConfig.nEventsPerJob)  )
+
+
+if evgenConfig.minevents > 0 :
+    raise RuntimeError("evgenConfig.minevents is obsolete and should be removed from the JOs")
+
 if evgenConfig.nEventsPerJob < 1:
-    raise RunTimeError("evgenConfig.nEventsPerJob must be at least 1")
+    raise RuntimeError("evgenConfig.nEventsPerJob must be at least 1")
+elif evgenConfig.nEventsPerJob > 100000:
+    raise RuntimeError("evgenConfig.nEventsPerJob can be max. 100000")
 else:
     allowed_nEventsPerJob_lt1000 = [1, 2, 5, 10, 20, 25, 50, 100, 200, 500, 1000]
     msg = "evgenConfig.nEventsPerJob = %d: " % evgenConfig.nEventsPerJob
-    if multiInput !=0 :
-        dummy_nEventsPerJob = evgenConfig.nEventsPerJob*(multiInput)
-        evgenLog.info('Replacing input nEventsPerJob '+str(evgenConfig.nEventsPerJob)+' with calculated '+str(dummy_nEventsPerJob) + ' rounded to ' + str(int(round(dummy_nEventsPerJob))))
-        evgenConfig.nEventsPerJob = dummy_nEventsPerJob
-        rest1000 = evgenConfig.nEventsPerJob % 1000
-        if multiInput !=0 :
-            rounding=1
-            if rest1000 < 1000-rest1000:
-                evgenLog.info('Replacing input nEventsPerJob '+str(evgenConfig.nEventsPerJob)+' with calculated '+str(evgenConfig.nEventsPerJob-rest1000))
-                evgenConfig.nEventsPerJob = evgenConfig.nEventsPerJob-rest1000
-            else:
-                evgenLog.info('Replacing input nEventsPerJob '+str(evgenConfig.nEventsPerJob)+' with calculated '+str(evgenConfig.nEventsPerJob-rest1000+1000))
-                evgenConfig.nEventsPerJob = evgenConfig.nEventsPerJob-rest1000+1000
-        else:    
-           msg += "nEventsPerJob in range >= 1000 must be a multiple of 1000"
+
+    if evgenConfig.nEventsPerJob >= 1000 and evgenConfig.nEventsPerJob <=10000 and (evgenConfig.nEventsPerJob % 1000 != 0 or 10000 % evgenConfig.nEventsPerJob != 0) :
+           msg += "nEventsPerJob in range [1K, 10K] must be a multiple of 1K and a divisor of 10K"
+           raise RuntimeError(msg)
+    elif evgenConfig.nEventsPerJob > 10000  and evgenConfig.nEventsPerJob % 10000 != 0:
+           msg += "nEventsPerJob >10K must be a multiple of 10K"
            raise RuntimeError(msg)
     elif evgenConfig.nEventsPerJob < 1000 and evgenConfig.nEventsPerJob not in allowed_nEventsPerJob_lt1000:
-        if multiInput !=0:
-           rounding=1 
-           evgenConfig.nEventsPerJob=min(allowed_nEventsPerJob_lt1000,key=lambda x:abs(x-evgenConfig.nEventsPerJob))
-        else:
            msg += "nEventsPerJob in range <= 1000 must be one of %s" % allowed_nEventsPerJob_lt1000
            raise RuntimeError(msg)
+    postSeq.CountHepMC.RequestedOutput = evgenConfig.nEventsPerJob if runArgs.maxEvents == -1  else runArgs.maxEvents
+    evgenLog.info('Requested output events = '+str(postSeq.CountHepMC.RequestedOutput))
 
 ## Check that the keywords are in the list of allowed words (and exit if processing an official JO)
 if evgenConfig.keywords:
@@ -331,6 +337,7 @@ if evgenConfig.keywords:
     ## Load the allowed keywords from the file
     allowed_keywords = []
     if kwpath:
+        evgenLog.info("evgenkeywords = " + kwpath)
         kwf = open(kwpath, "r")
         for l in kwf:
             allowed_keywords += l.strip().lower().split()
@@ -346,7 +353,7 @@ if evgenConfig.keywords:
             if officialJO:
                 sys.exit(1)
     else:
-        evgenLog.warning("Could not find evgenkeywords.txt file %s in $JOBOPTSEARCHPATH" % kwfile)
+        evgenLog.warning("evgenkeywords = not found ")
 
 ## Configure and schedule jet finding algorithms
 ## NOTE: This generates algorithms for jet containers defined in the user's JO fragment
@@ -356,7 +363,8 @@ if evgenConfig.findJets:
 ## Configure POOL streaming to the output EVNT format file
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
-svcMgr.AthenaPoolCnvSvc.CommitInterval = 10 #< tweak for MC needs
+# remove because it was removed from Database/AthenaPOOL/AthenaPoolCnvSvc
+#svcMgr.AthenaPoolCnvSvc.CommitInterval = 10 #< tweak for MC needs
 if hasattr(runArgs, "outputEVNTFile"):
   poolFile = runArgs.outputEVNTFile
 elif hasattr(runArgs, "outputEVNT_PreFile"):
@@ -364,10 +372,18 @@ elif hasattr(runArgs, "outputEVNT_PreFile"):
 else:
   raise RuntimeError("Output pool file, either EVNT or EVNT_Pre, is not known.")
 
-StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", poolFile)
+# The xAOD::EventInfo is required to build the EventInfoTag
+# which is scheduled by the output stream
+if not hasattr(topSeq, "EventInfoCnvAlg"):
+   from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+   topSeq += xAODMaker__EventInfoCnvAlg()
+   # intnetionally skip adding the xAOD::EventInfo to the ItemList
+
+StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", poolFile, asAlg=True, noTag=False )
 if hasattr(runArgs, "inputEVNT_PreFile") :
   svcMgr.EventSelector.InputCollections = runArgs.inputEVNT_PreFile
   StreamEVGEN.TakeItemsFromInput = True
+  postSeq.CountHepMC.CorrectRunNumber = True
 
 StreamEVGEN.ForceRead = True
 StreamEVGEN.ItemList += ["EventInfo#*", "McEventCollection#*"]
@@ -376,6 +392,10 @@ StreamEVGEN.RequireAlgs += ["EvgenFilterSeq"]
 if evgenConfig.saveJets:
     StreamEVGEN.ItemList += ["xAOD::JetContainer_v1#*"]
     StreamEVGEN.ItemList += ["xAOD::JetAuxContainer_v1#*.TruthLabelID.PartonTruthLabelID"]
+if evgenConfig.savePileupTruthParticles:
+   StreamEVGEN.ItemList += ["xAOD::TruthParticleContainer#TruthPileupParticles*"]
+   StreamEVGEN.ItemList += ["xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux.*"]
+
 
 ## Set the run numbers
 dsid = os.path.basename(runArgs.jobConfig[0])
@@ -383,12 +403,17 @@ if not dsid.isdigit():
     dsid = "999999"
 svcMgr.EventSelector.RunNumber = int(dsid)
 
+if postSeq.CountHepMC.CorrectRunNumber == True:
+    postSeq.CountHepMC.NewRunNumber = int(dsid)
+    evgenLog.info("Set new run number in skel NewRunNumber = " + str(postSeq.CountHepMC.NewRunNumber))
+else:
+    evgenLog.info("No new run number set in skel RunNumber = " + dsid)
 
 ## Handle beam info
 import EventInfoMgt.EventInfoMgtInit
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_energy", str(int(runArgs.ecmEnergy*Units.GeV/2.0))]
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_type", 'collisions']
-if hasattr( runArgs, "AMITag") and runArgs.AMITag != "NONE": svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag]
+svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"beam_energy": str(int(runArgs.ecmEnergy*Units.GeV/2.0))})
+svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"beam_type": 'collisions'})
+if hasattr( runArgs, "AMITag") and runArgs.AMITag != "NONE": svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag": runArgs.AMITag})
 
 ## Propagate energy argument to the generators
 # TODO: Standardise energy setting in the GenModule interface
@@ -398,7 +423,7 @@ include("EvgenJobTransforms/Generate_ecmenergies.py")
 include("EvgenJobTransforms/Generate_randomseeds.py")
 
 ## Add special config option (extended model info for BSM scenarios)
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["specialConfiguration", evgenConfig.specialConfig ]
+svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"specialConfiguration": evgenConfig.specialConfig})
 
 ## Remove TestHepMC if it's inappropriate for this generator combination
 # TODO: replace with direct del statements in the generator common JO fragments?
@@ -535,9 +560,9 @@ from PyJobTransformsCore.runargs import RunArguments
 runPars = RunArguments()
 runPars.nEventsPerJob = evgenConfig.nEventsPerJob
 runPars.maxeventsstrategy = evgenConfig.maxeventsstrategy
-with open("config.pickle", 'w') as f:
-    import cPickle
-    cPickle.dump(runPars, f)
+with open("config.pickle", "wb") as f:
+    import pickle
+    pickle.dump(runPars, f)
 
 
 ##==============================================================

@@ -7,9 +7,6 @@
 #include "../egammaClusterAssociationTool.h"
 #include "../egammaGenParticleAssociationTool.h"
 #include "../ElectronJetDRAssociator.h"
-#include "../egammaObjectDecisionFillerTool.h"
-#include "../xAODElectronObjectDecisionFillerTool.h"
-#include "../xAODPhotonObjectDecisionFillerTool.h"
 #include "../ConversionVertexAssociationTool.h"
 #include "../egammaTraversedMaterialFillerTool.h"
 
@@ -24,9 +21,6 @@ DECLARE_COMPONENT( D3PD::ElectronTrackParticleAssociationTool )
 DECLARE_COMPONENT( D3PD::egammaClusterAssociationTool )
 DECLARE_COMPONENT( D3PD::egammaGenParticleAssociationTool )
 DECLARE_COMPONENT( D3PD::ElectronJetDRAssociator )
-DECLARE_COMPONENT( D3PD::egammaObjectDecisionFillerTool )
-DECLARE_COMPONENT( D3PD::xAODElectronObjectDecisionFillerTool )
-DECLARE_COMPONENT( D3PD::xAODPhotonObjectDecisionFillerTool )
 DECLARE_COMPONENT( D3PD::ConversionVertexAssociationTool )
 DECLARE_COMPONENT( D3PD::egammaTraversedMaterialFillerTool )
 

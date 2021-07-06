@@ -36,6 +36,7 @@
 
 #include "TrigT1TGC/TGCArguments.h"
 #include "MuonDigitContainer/TgcDigitContainer.h"
+#include "MuonRDO/TgcRdoContainer.h"
 
 // Tile-Muon
 #include "TileEvent/TileMuContainer.h"
@@ -114,7 +115,7 @@ namespace LVL1TGCTrigger {
     void recordRdoInner(TGCSector *);
     
     // record bare-RDO for R-phi coincidences (on m_OutputTgcRDO=True):
-    void recordRdoSL(TGCSector *, unsigned int );
+    void recordRdoSL(TGCSector *);
     
     std::map<std::pair<int, int>, TgcRdo*>  m_tgcrdo;
     
@@ -130,7 +131,7 @@ namespace LVL1TGCTrigger {
     bool addRawData(TgcRawData *);
     int getLPTTypeInRawData(int type);
     void FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData* sldata,
-			     const TGCSLSelectorOut *selectorOut,
+			     const TGCSLSelectorOut* out,
 			     unsigned int subsystem);
     void FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicDataPhase1* sldata,
 			     const TGCTrackSelectorOut *trackSelectorOut);
@@ -141,9 +142,6 @@ namespace LVL1TGCTrigger {
     // Location of LVL1MUONIF::Lvl1MuSectorLogicData (output from SL)
     StringProperty m_keyMuCTPIInput_TGC{this,"MuCTPIInput_TGC","L1MuctpiStoreTGC"};
 
-    // Version of Coincidence Window
-    StringProperty m_VerCW{this,"VersionCW","00_07_0022"};// TILE_EIFI_BW
-    
     StringProperty    m_MaskFileName12{this,"MaskFileName12",""};   //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
     ShortProperty     m_CurrentBunchTag{this,"CurrentBunchTag",TgcDigit::BC_CURRENT};  //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
     BooleanProperty   m_ProcessAllBunches{this,"ProcessAllBunhes",true};
@@ -155,9 +153,12 @@ namespace LVL1TGCTrigger {
     BooleanProperty m_USEINNER  {this, "USEINNER",   true};  //< flag for using Inner Station for SL
     BooleanProperty   m_INNERVETO{this,"INNERVETO",true}; // flag for using VETO by Inner Station for SL
     BooleanProperty   m_FULLCW{this,"FULLCW",false};   // flag for using differne CW for each octant
-    BooleanProperty   m_TILEMU{this,"TILEMU",false};   // flag for using TileMu
+    BooleanProperty   m_TILEMU{this,"TILEMU",true};    // flag for using TileMu
     BooleanProperty   m_USENSW{this,"USENSW",false};     // flag for using NSW
     BooleanProperty   m_useRun3Config{this,"useRun3Config",false}; // flag for using switch between Run3 and Run2 algorithms
+
+   StringProperty     m_NSWSideInfo{this,"NSWSideInfo",""};// Information about NSW geometry. It should be "" or "AC" or "A" or "C"
+
     
     bool              m_firstTime{true};
     uint16_t          m_bctagInProcess;
@@ -180,6 +181,7 @@ namespace LVL1TGCTrigger {
     TGCArguments m_tgcArgs;
     TGCArguments* tgcArgs();
 
+    SG::ReadHandleKey<TgcRdoContainer> m_keyTgcRdo{this,"InputRDO","TGCRDO","Location of TgcRdoContainer"};
     SG::ReadHandleKey<TgcDigitContainer> m_keyTgcDigit{this,"InputData_perEvent","TGC_DIGITS","Location of TgcDigitContainer"};
     SG::ReadHandleKey<TileMuonReceiverContainer> m_keyTileMu{this,"TileMuRcv_Input","TileMuRcvCnt","Location of TileMuonReceiverContainer"};
     SG::ReadHandleKey<Muon::NSW_TrigRawDataContainer> m_keyNSWTrigOut{this,"NSWTrigger_Input","NSWTRGRDO","Location of NSW_TrigRawDataContainer"};

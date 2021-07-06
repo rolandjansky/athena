@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
 #
 # @file TruthD3PDMaker/python/TruthJetFilterConfig.py
 # @author Renaud Bruneliere <Renaud.Bruneliere@cern.ch>
@@ -8,11 +7,9 @@
 # @brief Build truth container to be used for parton-jet building
 #
 
-import EventCommonD3PDMaker
 from D3PDMakerConfig.D3PDMakerFlags           import D3PDMakerFlags
 from McParticleAlgs.JobOptCfg                 import createMcAodBuilder
 from RecExConfig.RecFlags                     import rec
-from AthenaCommon.AlgSequence                 import AlgSequence
 from RecExConfig.ObjKeyStore                  import cfgKeyStore
 from AthenaCommon                             import CfgMgr
 from TruthD3PDMaker.TruthD3PDMakerConf        import D3PD__TruthJetFilterTool

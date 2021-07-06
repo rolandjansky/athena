@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cmath>
@@ -69,15 +69,11 @@ MistimedStreamMon::~MistimedStreamMon()
 {
 }
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
-
 /*---------------------------------------------------------*/
 StatusCode MistimedStreamMon::initialize()
 /*---------------------------------------------------------*/
 {
-  ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
+  ATH_MSG_INFO("Initializing " << name());
 
   CHECK(ManagedMonitorToolBase::initialize());
   CHECK(m_errorTool.retrieve());

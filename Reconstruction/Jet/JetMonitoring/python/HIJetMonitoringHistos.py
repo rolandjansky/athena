@@ -1,9 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from JetMonitoring.HIJetHistoTools import jhm, selectionAndHistos
-from JetMonitoring.JetMonitoringConf import JetAttributeHisto, HistoDefinitionTool, JetMonitoringTool, HIJetUEMonitoring, JetKinematicHistos, JetContainerHistoFiller
+from JetMonitoring.JetMonitoringConf import JetMonitoringTool, JetKinematicHistos, JetContainerHistoFiller
 from AthenaCommon.AppMgr import ToolSvc
-from JetRec.JetRecFlags import jetFlags
 from JetSelectorTools.JetSelectorToolsConf import JetCleaningTool
 from RecExConfig.ObjKeyStore import cfgKeyStore
 #New AthenaMonitoring filter tool to be added to filter out events in non-filled BCIDs
@@ -39,7 +38,7 @@ def commonMonitoringTool(container, refcontainer="", pathSuffix=''):
         jhm.leadingjetrel,
         ]
 
-    if "HI" and not "Track" in container:
+    if "HI" in container and "Track" not in container:
         filler.HistoTools += [
             
             # jet states

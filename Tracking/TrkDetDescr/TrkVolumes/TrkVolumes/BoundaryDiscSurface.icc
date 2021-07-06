@@ -1,72 +1,59 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
 // BoundaryDiscSurface.icc, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-
-template <class Tvol> inline BoundaryDiscSurface<Tvol>& 
-          BoundaryDiscSurface<Tvol>::operator=(const BoundaryDiscSurface& bds)
+template<class Tvol>
+inline const Surface&
+BoundaryDiscSurface<Tvol>::surfaceRepresentation() const
 {
-  if (this!=&bds){
-    delete BoundarySurface<Tvol>::m_insideVolume;
-    delete BoundarySurface<Tvol>::m_outsideVolume;
-    delete Surface::m_transform;
-    delete Surface::m_center;
-    delete Surface::m_normal;
-    delete DiscSurface::m_bounds;
-    BoundarySurface<Tvol>::m_insideVolume = bds.m_insideVolume;
-    BoundarySurface<Tvol>::m_outsideVolume = bds.m_outsideVolume;
-    BoundarySurface<Tvol>::m_insideVolumeArray = bds.m_insideVolumeArray;
-    BoundarySurface<Tvol>::m_outsideVolumeArray  = bds.m_outsideVolumeArray;
-    Surface::m_transform = (bds.m_transform) ? new Amg::Transform3D(*bds.m_transform) : nullptr;
-    Surface::m_center     = (bds.m_center)    ? new Amg::Vector3D(*bds.m_center) : nullptr;
-    Surface::m_normal    = (bds.m_normal)    ? new Amg::Vector3D(*bds.m_normal) : nullptr ;
-    Surface::m_associatedDetElement = bds.m_associatedDetElement;        // copy by pointer as DiscSurface does not have ownership 
-    Surface::m_associatedDetElementId = bds.m_associatedDetElementId;
-    m_bounds =  bds.m_bounds;
-  }
   return *this;
-
 }
-
-template <class Tvol> inline const Tvol* BoundaryDiscSurface<Tvol>::attachedVolume(const TrackParameters& parms,
-                                                            PropDirection dir) const
-{  
+template<class Tvol>
+inline const Tvol*
+BoundaryDiscSurface<Tvol>::attachedVolume(const TrackParameters& parms,
+                                          PropDirection dir) const
+{
   const Tvol* attVolume = nullptr;
-  if ((this->surfaceRepresentation().normal()).dot(dir*parms.momentum()) > 0.){
+  if ((this->surfaceRepresentation().normal()).dot(dir * parms.momentum()) >
+      0.) {
     attVolume = BoundarySurface<Tvol>::m_outsideVolume;
-    if (BoundarySurface<Tvol>::m_outsideVolumeArray.get()){
-      attVolume = BoundarySurface<Tvol>::m_outsideVolumeArray.get()->object(parms.position());
-    } 
-  } else {
-    attVolume = BoundarySurface<Tvol>::m_insideVolume;
-    if (BoundarySurface<Tvol>::m_insideVolumeArray.get()){
-      attVolume = BoundarySurface<Tvol>::m_insideVolumeArray.get()->object(parms.position());
+    if (BoundarySurface<Tvol>::m_outsideVolumeArray.get()) {
+      attVolume = BoundarySurface<Tvol>::m_outsideVolumeArray.get()->object(
+        parms.position());
     }
-  }   
- return attVolume;  
-}
-
-template <class Tvol> inline const Tvol* BoundaryDiscSurface<Tvol>::attachedVolume(const Amg::Vector3D& pos,
-                                                              const Amg::Vector3D& mom,
-                                                              PropDirection dir) const
-{  
-  const Tvol* attVolume = nullptr;
-  if ( (this->surfaceRepresentation().normal()).dot(dir*mom) > 0.){
-    attVolume = BoundarySurface<Tvol>::m_outsideVolume;
-    if (BoundarySurface<Tvol>::m_outsideVolumeArray.get()){
-      attVolume = BoundarySurface<Tvol>::m_outsideVolumeArray.get()->object(pos);
-    } 
   } else {
     attVolume = BoundarySurface<Tvol>::m_insideVolume;
-    if (BoundarySurface<Tvol>::m_insideVolumeArray.get()){
+    if (BoundarySurface<Tvol>::m_insideVolumeArray.get()) {
+      attVolume = BoundarySurface<Tvol>::m_insideVolumeArray.get()->object(
+        parms.position());
+    }
+  }
+  return attVolume;
+}
+
+template<class Tvol>
+inline const Tvol*
+BoundaryDiscSurface<Tvol>::attachedVolume(const Amg::Vector3D& pos,
+                                          const Amg::Vector3D& mom,
+                                          PropDirection dir) const
+{
+  const Tvol* attVolume = nullptr;
+  if ((this->surfaceRepresentation().normal()).dot(dir * mom) > 0.) {
+    attVolume = BoundarySurface<Tvol>::m_outsideVolume;
+    if (BoundarySurface<Tvol>::m_outsideVolumeArray.get()) {
+      attVolume =
+        BoundarySurface<Tvol>::m_outsideVolumeArray.get()->object(pos);
+    }
+  } else {
+    attVolume = BoundarySurface<Tvol>::m_insideVolume;
+    if (BoundarySurface<Tvol>::m_insideVolumeArray.get()) {
       attVolume = BoundarySurface<Tvol>::m_insideVolumeArray.get()->object(pos);
     }
-  }   
- return attVolume;  
+  }
+  return attVolume;
 }
-
 

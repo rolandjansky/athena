@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaPoolCnvSvc )
@@ -49,22 +49,26 @@ atlas_add_test( T_AthenaPoolCreateFuncs_test
 atlas_add_test( T_AthenaPoolViewVectorCnv_test
    SOURCES test/T_AthenaPoolViewVectorCnv_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib TestTools )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib TestTools
+   LOG_IGNORE_PATTERN "basic_string|std::string" )
 
 atlas_add_test( T_AthenaPoolxAODCnv_test
    SOURCES test/T_AthenaPoolxAODCnv_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib TestTools )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib TestTools
+   LOG_IGNORE_PATTERN "basic_string|std::string" )
 
 atlas_add_test( T_AthenaPoolAuxContainerCnv_test
    SOURCES test/T_AthenaPoolAuxContainerCnv_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib TestTools )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib TestTools
+   LOG_IGNORE_PATTERN "basic_string|std::string" )
 
 atlas_add_test( T_AthenaPoolTPCnvCnv_test
    SOURCES test/T_AthenaPoolTPCnvCnv_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib TestTools )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib TestTools
+   LOG_IGNORE_PATTERN "basic_string|std::string" )
 
 atlas_add_test( T_AuxContainerCopyTPCnv_test
    SOURCES test/T_AuxContainerCopyTPCnv_test.cxx

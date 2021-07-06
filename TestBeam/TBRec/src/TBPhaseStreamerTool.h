@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBPHASESTREAMERTOOL_H
@@ -30,13 +30,13 @@ class TBPhaseStreamerTool : public TBEventStreamerTool
  public:
 
   TBPhaseStreamerTool(const std::string& type,
-			    const std::string& name,
-			    const IInterface* parent);
+                      const std::string& name,
+                      const IInterface* parent);
   virtual ~TBPhaseStreamerTool();
 
-  virtual StatusCode initializeTool();
+  virtual StatusCode initializeTool() override;
 
-  virtual StatusCode accept();
+  virtual StatusCode accept() override;
 
  protected:
 

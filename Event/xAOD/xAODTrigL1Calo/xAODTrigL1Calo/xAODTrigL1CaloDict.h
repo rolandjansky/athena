@@ -180,6 +180,24 @@
 #include "xAODTrigL1Calo/versions/L1TopoRawDataContainer_v1.h"
 #include "xAODTrigL1Calo/versions/L1TopoRawDataAuxContainer_v1.h"
 
+
+// Run 3
+
+#include "xAODTrigL1Calo/JGTower.h"
+#include "xAODTrigL1Calo/JGTowerContainer.h"
+#include "xAODTrigL1Calo/JGTowerAuxContainer.h"
+#include "xAODTrigL1Calo/versions/JGTower_v1.h"
+#include "xAODTrigL1Calo/versions/JGTowerContainer_v1.h"
+#include "xAODTrigL1Calo/versions/JGTowerAuxContainer_v1.h"
+
+#include "xAODTrigL1Calo/GBlock.h"
+#include "xAODTrigL1Calo/GBlockContainer.h"
+#include "xAODTrigL1Calo/GBlockAuxContainer.h"
+#include "xAODTrigL1Calo/versions/GBlock_v1.h"
+#include "xAODTrigL1Calo/versions/GBlockContainer_v1.h"
+#include "xAODTrigL1Calo/versions/GBlockAuxContainer_v1.h"
+
+
 // EDM include(s).
 #include "xAODCore/tools/DictHelpers.h"
 
@@ -246,6 +264,13 @@ namespace {
     XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, JetElementContainer_v2 );
     // L1TopoRawData
     XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, L1TopoRawDataContainer_v1 );
+
+    // Run 3  
+
+    // JGTower
+    XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, JGTowerContainer_v1 );
+    // GBlock
+    XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, GBlockContainer_v1 );
   };
 }
 

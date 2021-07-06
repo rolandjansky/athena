@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Header: /cvs/PF/pool/StorageSvc/StorageSvc/IStorageSvc.h,v 1.33 2008/05/13 14:39:31 witoldp Exp $
@@ -80,8 +80,8 @@ namespace pool  {
       * @param   pToken    [IN] Token to the persistent object.
       * @return                 std::string container name.
       */
-    virtual std::string getContName(const FileDescriptor& refDB,
-                                    const Token&          pToken) = 0;
+    virtual std::string getContName(FileDescriptor& refDB,
+                                    Token&          pToken) = 0;
 
     /// Register object for write
     /**
@@ -95,7 +95,7 @@ namespace pool  {
       *
       * @return                 DbStatus code indicating success or failure.
       */
-    virtual DbStatus allocate(    const FileDescriptor& refDB,
+    virtual DbStatus allocate(    FileDescriptor&       refDB,
                                   const std::string&    refCont,
                                   int                   technology,
                                   const void*           object,
@@ -127,10 +127,10 @@ namespace pool  {
       *
       * @return                 DbStatus code indicating success or failure.
       */
-    virtual DbStatus update(      const FileDescriptor& refDB,
+    virtual DbStatus update(      FileDescriptor&       refDB,
                                   const void*           object,
                                   ShapeH                shapeH,
-                                  const Token&          refToken) = 0;
+                                  Token&                refToken) = 0;
 
     /// Destroy an existing persistent object.
     /**
@@ -140,8 +140,8 @@ namespace pool  {
       *
       * @return                 DbStatus code indicating success or failure.
       */
-    virtual DbStatus destroy(     const FileDescriptor& refDB,
-                                  const Token&          refToken) = 0;
+    virtual DbStatus destroy(           FileDescriptor& refDB,
+                                        Token&          refToken) = 0;
 
     /// Retrieve persistent shape from Storage manager.
     /** The persistent shape is saved at write time to a Database.
@@ -156,7 +156,7 @@ namespace pool  {
       *
       * @return                 DbStatus code indicating success or failure.
       */
-    virtual DbStatus getShape(    const FileDescriptor& refDB,
+    virtual DbStatus getShape(    FileDescriptor&       refDB,
                                   const Guid&           objType,
                                   ShapeH&               shapeH) = 0;
 
@@ -310,7 +310,7 @@ namespace pool  {
     virtual DbStatus endTransaction( ConnectionH conn, Transaction::Action typ) = 0;
 
     /// DbStatus code definitions
-    enum   {
+    enum : unsigned {
       /// Error tag
       ISTORAGESVC_ERROR         = DbStatus::Error,
       /// Invalid Database session token

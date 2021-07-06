@@ -110,7 +110,6 @@ namespace xAOD {
       { "LCPFlow",               LCPFlow },
       { "EMPFlow",               EMPFlow },
       { "EMCPFlow",              EMCPFlow },
-      { "EMPFlowFE",             EMPFlowFE },
       { "TrackCaloCluster",      TrackCaloCluster },
       { "EMTopoOriginSK",        EMTopoOriginSK },
       { "EMTopoOriginCS",        EMTopoOriginCS },
@@ -134,6 +133,7 @@ namespace xAOD {
       { "EMPFlowVorSKTime",      EMPFlowVorSKTime },
       { "HI",                    HI },
       { "HIClusters", 		 HIClusters },
+      { "PFlowCustomVtx",        PFlowCustomVtx},
       { c_unCategorized,         Uncategorized }
     };
 
@@ -161,7 +161,6 @@ namespace xAOD {
       { LCPFlow,               "LCPFlow" },
       { EMPFlow,               "EMPFlow" },
       { EMCPFlow,              "EMCPFlow" },
-      { EMPFlowFE,             "EMPFlowFE" },
       { TrackCaloCluster,      "TrackCaloCluster" },
       { EMTopoOriginSK,        "EMTopoOriginSK" },
       { EMTopoOriginCS,        "EMTopoOriginCS" },
@@ -184,7 +183,8 @@ namespace xAOD {
       { EMPFlowCSSKTime,       "EMPFlowCSSKTime" },
       { EMPFlowVorSKTime,      "EMPFlowVorSKTime" },
       { HI,                    "HI" },
-      { HIClusters, 	       "HIClusters" },
+      { HIClusters, 	         "HIClusters" },
+      { PFlowCustomVtx,        "PFlowCustomVtx"},
       { Uncategorized,         c_unCategorized }
     };
 

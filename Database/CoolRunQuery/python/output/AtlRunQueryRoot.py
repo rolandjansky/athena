@@ -671,7 +671,7 @@ def InttypeTrf( tree, var, vlist, value, kcoord ):
     # fill tree
     try:
         vlist[kcoord][0] = int(value)
-    except ValueError:
+    except (ValueError, TypeError):
         vlist[kcoord][0] = -1
         
 def FloattypeTrf( tree, var, vlist, value, kcoord ):
@@ -684,21 +684,21 @@ def FloattypeTrf( tree, var, vlist, value, kcoord ):
     # fill tree
     try:
         vlist[kcoord][0] = float(value)
-    except ValueError:
+    except (ValueError, TypeError):
         vlist[kcoord][0] = -1
 
 def StringtypeTrf( tree, var, vlist, value, kcoord ):
     # initialisation
     if kcoord < 0:
-        vlist.append( array( 'c', 'ab\0' ) )
+        vlist.append( array( 'b', 'ab\0'.encode() ) )
         tree.Branch( var, vlist[-1], "%s/C" % var )
         return
     # fill tree
     try:
-        vlist[kcoord] = array( 'c', value + '\0' ) 
+        vlist[kcoord] = array( 'b', (value + '\0').encode() ) 
         tree.SetBranchAddress( var, vlist[kcoord] )
-    except ValueError:                    
-        vlist[kcoord] = array( 'c', 'unknown\0' ) 
+    except (ValueError, TypeError):                    
+        vlist[kcoord] = array( 'b', 'unknown\0'.encode() ) 
         tree.SetBranchAddress( var, vlist[kcoord] )
 
 def TimetypeTrf( tree, var, vlist, value, kcoord ):
@@ -721,7 +721,7 @@ def DurationtypeTrf( tree, var, vlist, value, kcoord ):
                 
             value = str( ( (int(d.replace('d','').strip())*24 + int(h.replace('h','').strip()))*60 + 
                            int(m.replace('m','').strip()) )*60 + int(s.replace('s','').strip()) )
-        except ValueError:
+        except (ValueError, TypeError):
             print (value)
             sys.exit(1)
             value = 0
@@ -816,7 +816,6 @@ def CreateRootFile( dic ):
 
     # loop over runs
     for ev in range(len(dic[DataKey('Run')])):
-
         for k,(data_key,var,function) in enumerate(keylist):
 
             val = dic[data_key][ev]

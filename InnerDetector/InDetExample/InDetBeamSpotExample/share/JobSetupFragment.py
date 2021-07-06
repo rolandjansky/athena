@@ -77,7 +77,7 @@ if 'GlobalTag' in jobConfig:
 
 
 # Configure beam spot service
-include("InDetBeamSpotService/BeamCondSvc.py")
+include("BeamSpotConditions/BeamCondAlgSetup.py")
 if jobConfig['beamspotfile']:
     db = jobConfig['beamspotdb'] if jobConfig['beamspotdb'] else 'BEAMSPOT'
     tag = jobConfig['beamspottag'] if jobConfig['beamspottag'] else 'nominal'

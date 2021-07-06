@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -60,11 +60,11 @@ const InDet::TRT_DriftCircleOnTrack* InDet::TRT_DriftCircleOnTrackNoDriftTimeToo
 (const Trk::PrepRawData& rio,const Trk::TrackParameters& TP) const
 {
   const InDet::TRT_DriftCircle* DC = dynamic_cast<const InDet::TRT_DriftCircle*>(&rio);
-  if(!DC) return 0;
+  if(!DC) return nullptr;
 
   // Straw identification
   //
-  const InDetDD::TRT_BaseElement* pE = DC->detectorElement(); if(!pE) return 0;
+  const InDetDD::TRT_BaseElement* pE = DC->detectorElement(); if(!pE) return nullptr;
 
   // Identifier     iD = DC->identify();
   // IdentifierHash iH = trt_id->straw_layer_hash(trt_id->layer_id(iD));

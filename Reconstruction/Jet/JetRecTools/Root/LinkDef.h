@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <JetRecTools/JetTrackSelectionTool.h>
 #include <JetRecTools/JetTrackSelectionTool2.h>
+#include <JetRecTools/JetUsedInFitTrackDecoratorTool.h>
 #include <JetRecTools/TrackVertexAssociationTool.h>
 #include <JetRecTools/TrackPseudoJetGetter.h>
 
@@ -27,6 +28,7 @@
 
 #pragma link C++ class JetTrackSelectionTool+;
 #pragma link C++ class JetTrackSelectionTool2+;
+#pragma link C++ class JetUsedInFitTrackDecoratorTool+;
 #pragma link C++ class TrackVertexAssociationTool+;
 #pragma link C++ class TrackPseudoJetGetter+;
 
@@ -43,6 +45,5 @@
 #pragma link C++ class PuppiWeightTool+;
 
 #pragma link C++ class PFlowPseudoJetGetter+;
-
 
 #endif

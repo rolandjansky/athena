@@ -3,6 +3,7 @@
 import re
 from copy import deepcopy
 from collections import OrderedDict as odict
+from functools import total_ordering
 
 from AthenaCommon.Logging import logging
 
@@ -11,10 +12,7 @@ from .ThresholdType import ThrType
 from .Limits import CaloLimits as CL
 from .TopoAlgorithms import AlgCategory
 
-from past.builtins import cmp
-
-
-log = logging.getLogger("Menu.L1.Base.Thresholds")
+log = logging.getLogger(__name__)
 
 
 class MenuThresholdsCollection( object ):
@@ -124,7 +122,7 @@ class Threshold( object ):
 
     def getVarName(self):
         """returns a string that can be used as a varname"""
-        return self.name.replace('.','')
+        return self.name.replace('p','')
 
     def isLegacy(self):
         return self.run == 2
@@ -348,6 +346,7 @@ class MuonThreshold( Threshold ):
         self.ecIdx = None
         self.fwIdx = None
         self.tgcFlags = ""
+        self.rpcFlags = ""
         self.region = "ALL"
         self.rpcExclROIList = None
 
@@ -368,8 +367,15 @@ class MuonThreshold( Threshold ):
         self.tgcFlags = flags
         return self
 
+    def setRPCFlags(self, flags):
+        """flags can be a logical expression like 'M'"""
+        self.rpcFlags = flags
+        return self
+
+
     def setExclusionList(self, exclusionList):
         self.rpcExclROIList = exclusionList
+        return self
 
     def setThrValue(self, thr = None, ba = None, ec = None, fw = None):
         """
@@ -392,19 +398,29 @@ class MuonThreshold( Threshold ):
 
         # set the threshold index from the pT value
         muonRoads = getTypeWideThresholdConfig(ThrType.MU)["roads"]
-        if self.baThr in muonRoads["rpc"]:
+        try:
             self.baIdx = muonRoads["rpc"][self.baThr]
-        else:
-            raise RuntimeError("Muon PT threshold %i does not have a defined road in the barrel" % self.baThr)
-        if self.ecThr in muonRoads["tgc"]:
+        except KeyError as ex:
+            log.error("Muon PT threshold %i does not have a defined road in the barrel", self.baThr)
+            log.error("Only these barrel roads are define (in L1/Config/TypeWideThresholdConfig.py): %s", ', '.join(['%i'%x for x in muonRoads["rpc"]]))
+            raise ex
+
+        try:
             self.ecIdx = muonRoads["tgc"][self.ecThr]
-        else:
-            raise RuntimeError("Muon PT threshold %i does not have a defined road in the endcap" % self.ecThr)
-        if self.fwThr in muonRoads["tgc"]:
+        except KeyError as ex:
+            log.error("Muon PT threshold %i does not have a defined road in the endcap", self.ecThr)
+            log.error("Only these endcaps roads are define (in L1/Config/TypeWideThresholdConfig.py): %s", ', '.join(['%i'%x for x in muonRoads["tgc"]]))
+            raise ex
+
+        try:
             self.fwIdx = muonRoads["tgc"][self.fwThr]
-        else:
-            raise RuntimeError("Muon PT threshold %i does not have a defined road in the endcap" % self.fwThr)
+        except KeyError as ex:
+            log.error("Muon PT threshold %i does not have a defined road in the endcap", self.ecThr)
+            log.error("Only these endcaps roads are define (in L1/Config/TypeWideThresholdConfig.py): %s", ', '.join(['%i'%x for x in muonRoads["tgc"]]))
+            raise ex
+
         return self
+
 
     def json(self):
         confObj = odict()
@@ -419,6 +435,7 @@ class MuonThreshold( Threshold ):
             confObj["ecIdx"] = self.ecIdx
             confObj["fwIdx"] = self.fwIdx
             confObj["tgcFlags"] = self.tgcFlags
+            confObj["rpcFlags"] = self.rpcFlags
             confObj["region"] = self.region
             if self.rpcExclROIList:
                 confObj["rpcExclROIList"] = self.rpcExclROIList
@@ -565,7 +582,7 @@ class ZeroBiasThreshold( Threshold ):
 
 
 
-
+@total_ordering
 class ThresholdValue(object):
 
     defaultThresholdValues = {}
@@ -631,13 +648,17 @@ class ThresholdValue(object):
         if self.use_relIso:
             self.had_veto=99
 
-    def __cmp__(self, o):
+    def __lt__(self, o):
         if(self.priority!=o.priority):
-            return cmp(self.priority,o.priority)
+            return self.priority < o.priority
         if(self.etamin!=o.etamin):
-            return cmp(self.etamin,o.etamin)
-        return cmp(self.name,o.name)
+            return self.etamin < o.etamin
+        return self.name < o.name
 
+    def __eq__(self, o):
+        return (self.priority == o.priority) and \
+               (self.etamin == o.etamin) and \
+               (self.name == o.name)
 
     def __str__(self):
         return "name=%s, value=%s, eta=(%s-%s)" % (self.name, self.value, self.etamin, self.etamax)

@@ -12,7 +12,13 @@ std::ostream& operator << (std::ostream& out, const HypoJetVector& hjv) {
     out << static_cast<const void*>(j.get())
 	<< " e " << j->e()
 	<< " et " << j->et()
-	<< " eta " << j->eta() << '\n';
+	<< " eta " << j->eta()
+	<< " phi " << j->phi()
+	<< " px " << (j->p4()).Px()
+	<< " py " << (j->p4()).Py()
+	<< " pz " << (j->p4()).Pz()
+	<< " pt " << j->pt()
+	<< '\n';
   }
   return out;
 }

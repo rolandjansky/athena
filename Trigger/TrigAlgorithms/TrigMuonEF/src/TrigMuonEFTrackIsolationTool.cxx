@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // local includes
@@ -253,8 +253,6 @@ StatusCode TrigMuonEFTrackIsolationTool::initialize() {
   if(m_debug) {
     msg() << MSG::DEBUG << "Initializing TrigMuonEFTrackIsolationTool[" << name() << "]" << endmsg;
     msg() << MSG::DEBUG
-	  << "package version = " << PACKAGE_VERSION << endmsg;
-    msg() << MSG::DEBUG
 	  << "Properties set as follows: " << endmsg;
     msg() << MSG::DEBUG
 	  << "removeSelf                     " << m_removeSelf << endmsg;
@@ -278,11 +276,6 @@ StatusCode TrigMuonEFTrackIsolationTool::initialize() {
       return StatusCode::FAILURE;
     }
   }//useAnnulus
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TrigMuonEFTrackIsolationTool::finalize() {
 
   return StatusCode::SUCCESS;
 }

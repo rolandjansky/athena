@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -176,9 +176,9 @@ namespace InDet
                                                                            JFseedDirection);
 
 
-    if (myJetCandidate == 0) {
+    if (myJetCandidate == nullptr) {
       ATH_MSG_DEBUG( "JetFitter multi stage fit returned 0" );
-      return 0;
+      return nullptr;
     }
     else {
       ATH_MSG_DEBUG( "USING JetFitterMultiStageFit return" );
@@ -215,7 +215,7 @@ namespace InDet
       //                                                  const Amg::Vector3D & vtxSeedDirection
 
     // return myOutputInfo
-    return 0;
+    return nullptr;
     
   }
 

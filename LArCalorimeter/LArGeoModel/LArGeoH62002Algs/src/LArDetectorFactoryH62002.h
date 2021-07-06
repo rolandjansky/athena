@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LArDetectorFactoryH62002_h
@@ -7,6 +7,7 @@
 #include "GeoModelKernel/GeoVDetectorFactory.h"
 #include "LArReadoutGeometry/LArDetectorManager.h"
 
+class MsgStream;
 class StoreGateSvc;
 class LArDetDescrManager;
 class LArMgrInitializer;

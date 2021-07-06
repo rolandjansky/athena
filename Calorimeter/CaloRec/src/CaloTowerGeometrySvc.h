@@ -171,7 +171,7 @@ protected:
   double       m_towerArea;     ///< Area of individual tower
   uint_t       m_towerBins;     ///< Maximum number of towers
   uint_t       m_maxCellHash;   ///< Maximum cell hash value
-  uint_t       m_numberOfCells; ///< Total number of cells 
+  uint_t       m_numberOfCells{}; ///< Total number of cells 
   ///@}
   
   ///@name Properties
@@ -207,9 +207,9 @@ protected:
 
   ///@name Stores
   ///@{
-  std::array<double,3> m_ndxFCal; ///< Stores number of fragments along x for each FCal module
-  std::array<double,3> m_ndyFCal; ///< Stores number of fragments along y for each FCal module
-  std::array<double,3> m_wgtFCal; ///< Stores geometrical weights
+  std::array<double,3> m_ndxFCal{}; ///< Stores number of fragments along x for each FCal module
+  std::array<double,3> m_ndyFCal{}; ///< Stores number of fragments along y for each FCal module
+  std::array<double,3> m_wgtFCal{}; ///< Stores geometrical weights
   ///@}
 };
 

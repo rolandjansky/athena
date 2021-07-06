@@ -292,7 +292,7 @@ testL1Menu_Extrainfo(const TrigConf::L1Menu & l1menu)
       cout << "  EM" << endl;
       cout << "    energy resolution (MeV) " << exEM.resolutionMeV() << endl;
       cout << "    ptMinToTopo " << exEM.ptMinToTopo() << endl;
-      for( const std::string & tt : {"HAIsoForEMthr", "EMIsoForEMthr"} ) {
+      for( const std::string tt : {"HAIsoForEMthr", "EMIsoForEMthr"} ) {
          cout << "    Isolation " << tt << endl;
          for(size_t bit = 1; bit <= 5; bit++) {
             auto & iso = exEM.isolation(tt, bit);

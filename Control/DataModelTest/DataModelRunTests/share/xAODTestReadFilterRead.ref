@@ -25,11 +25,11 @@ AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
 ClassIDSvc           INFO  getRegistryEntries: read 7169 CLIDRegistry entries for module ALL
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr
 ClassIDSvc           INFO  getRegistryEntries: read 6156 CLIDRegistry entries for module ALL
 PyComponentMgr       INFO Initializing PyComponentMgr...
 LoadReadDicts        INFO Initializing LoadReadDicts...
-MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
+MetaDataSvc          INFO Initializing MetaDataSvc
 AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5

@@ -7,7 +7,6 @@
 #include "TBranch.h"
 #include "TLegend.h"
 #include "TChain.h"
-#include "TCanvas.h"
 #include <stdio.h>
 #include <iostream.h>
 #include <fstream.h>

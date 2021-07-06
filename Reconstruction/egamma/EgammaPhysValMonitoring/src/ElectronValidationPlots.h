@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAPHYSVALMONITORING_ELECTRONVALIDATIONPLOTS_H
@@ -19,7 +19,7 @@
 class ElectronValidationPlots:public PlotBase {
     public:
       ElectronValidationPlots(PlotBase* pParent, const std::string& sDir);
-      void fill(const xAOD::Electron& electron, bool isPrompt);
+      void fill(const xAOD::Electron& electron, const xAOD::EventInfo& eventInfo, bool isPrompt);
 
       std::string m_sParticleType;
 
@@ -30,9 +30,12 @@ class ElectronValidationPlots:public PlotBase {
       Egamma::KinematicsPlots         m_oTruthIsoPlots;
        
       TH1* author;
+      TH1* mu_average;
+      TH1* mu_actual;
       TProfile* res_et;
       TProfile* res_eta;
-      TH1* pt_ratio;
+      TProfile* res_et_cut;
+      TProfile* res_eta_cut;
       TH2* matrix;
 
  private:

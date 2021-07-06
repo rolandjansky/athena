@@ -19,10 +19,10 @@ import re
 import os
 from time import time
 
-from utils.AtlRunQueryUtils              import coolDbConn, runsOnServer
+from CoolRunQuery.utils.AtlRunQueryUtils              import coolDbConn, runsOnServer
 
-from selector.AtlRunQuerySelectorRuntime import RunTimeSelector
-from selector.AtlRunQuerySelectorBase    import Selector, DataKey
+from CoolRunQuery.selector.AtlRunQuerySelectorRuntime import RunTimeSelector
+from CoolRunQuery.selector.AtlRunQuerySelectorBase    import Selector, DataKey
 
 from CoolRunQuery.AtlRunQueryRun         import Run
 from CoolRunQuery.AtlRunQueryQueryConfig import QC
@@ -196,7 +196,7 @@ class AtlRunQuery:
         elif self.cmdlineOptions.timelist is not None:
             # translate time into run-range
             if 'last' in self.cmdlineOptions.timelist[0]:
-                 # contains 'last'
+                # contains 'last'
                 from CoolRunQuery.utils.AtlRunQueryUtils import get_runs_last_dt
                 rlist = get_runs_last_dt(self.cmdlineOptions.timelist[0])
 
@@ -204,7 +204,7 @@ class AtlRunQuery:
 
             else:
                 # translate time into run-range
-                from utils.AtlRunQueryUtils import timeStringToSecondsUTC,secondsToTimeStringUTC,get_run_range2,GetTimeRanges
+                from CoolRunQuery.utils.AtlRunQueryUtils import timeStringToSecondsUTC,secondsToTimeStringUTC,get_run_range2,GetTimeRanges
                 timelist = ','.join(self.cmdlineOptions.timelist)
                 timeranges,timerangesHR = GetTimeRanges(timelist, intRepFnc=timeStringToSecondsUTC, maxval=time())
                 timerangesAsString = [ map(secondsToTimeStringUTC, tr) for tr in timeranges]
@@ -228,7 +228,7 @@ class AtlRunQuery:
         self.selectionOutput += ["%s" % rtSel]
 
 
-        from .AtlRunQuerySelectorWorker import SelectorWorker
+        from CoolRunQuery.AtlRunQuerySelectorWorker import SelectorWorker
 
         # create all selectors that are actively select
         SelectorWorker.parseSelectorOptions(self.cmdlineOptions)
@@ -260,7 +260,6 @@ class AtlRunQuery:
                 self.selectionOutput += ["%s" % s.__str__()]
             with timer("run AfterQuery for selector '%s'" % s.name):
                 s.runAfterQuery(runlist)
-            #print ([r.runNr for r in runlist])
 
         # reverse list for presentation: newest run on top
         runlist.reverse()
@@ -287,7 +286,7 @@ class AtlRunQuery:
             with timer('CreateXMLFile'):
                 print ("Producing XML file")
                 from CoolRunQuery.output.AtlRunQueryXML import CreateXMLFile
-                from .AtlRunQueryVersion import SvnVersion
+                from CoolRunQuery.AtlRunQueryVersion import SvnVersion
                 xmlhtmlstr = CreateXMLFile( runlist, self.cmdlineOptions, self.origQuery, self.datapath,
                                             self.xmlFileName, self.xmlFileLabel, SvnVersion )
         else:
@@ -311,11 +310,11 @@ class AtlRunQuery:
         if self.html:
 
             with timer('GetOKS link info'):
-                from AtlRunQuerySFO import SetOKSLinks
+                from CoolRunQuery.AtlRunQuerySFO import SetOKSLinks
                 SetOKSLinks(runlist)
 
             # create web page
-            from .html.AtlRunQueryHTML import ResultPageMaker
+            from CoolRunQuery.html.AtlRunQueryHTML import ResultPageMaker
             #try:
             pageinfo = { 'datapath'      : self.datapath,
                          'origQuery'     : self.origQuery,

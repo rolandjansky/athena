@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INCLUDE_PERSISTENCYSVC_MICROSESSIONMANAGER_H
@@ -59,22 +59,24 @@ namespace pool {
       std::string fidForPfn( const std::string& pfn );
 
     protected:
+      virtual
       bool attributeOfType( const std::string& attributeName,
                             void* data,
                             const std::type_info& typeInfo,
-                            const std::string& option ) const;
+                            const std::string& option ) override;
 
+      virtual
       bool setAttributeOfType( const std::string& attributeName,
                                const void* data,
                                const std::type_info& typeInfo,
-                               const std::string& option );
+                               const std::string& option ) override;
 
     private:
       DatabaseRegistry&          m_registry;
       ITransaction&              m_transaction;
       IStorageSvc*               m_storageSvc;
       IStorageExplorer*          m_storageExplorer;
-      mutable Session*           m_session;
+      Session*                   m_session;
       long                       m_technology;
       std::set<DatabaseHandler*> m_databaseHandlers;
     };

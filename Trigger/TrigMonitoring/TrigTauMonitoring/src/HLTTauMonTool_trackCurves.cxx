@@ -171,11 +171,22 @@ StatusCode HLTTauMonTool::trackCurves(const std::string & trigItem, const std::s
            
                 #ifndef XAODTAU_VERSIONS_TAUJET_V3_H
                 pstau_trk_clos = matchedTau->track(trackIndex);
-                #else
+                #else 
+                bool checklink = true;
+                std::vector<ElementLink< xAOD::TrackParticleContainer> > onlinetrackLinks;
+                onlinetrackLinks = matchedTau->track(trackIndex)->trackLinks(); 
+                for(const auto& onlinetrklink : onlinetrackLinks) {
+                   if(!onlinetrklink.isValid()){ checklink=false;}
+                }       
+                if (!checklink){
+                   continue;
+                }
                 pstau_trk_clos = matchedTau->track(trackIndex)->track();
                 #endif
-                pstau_trk_d0 = pstau_trk_clos->d0();
-                pstau_trk_z0 = pstau_trk_clos->z0();
+                if(pstau_trk_clos){
+                  pstau_trk_d0 = pstau_trk_clos->d0();
+                  pstau_trk_z0 = pstau_trk_clos->z0();
+                }
                 // TODO: these 6 plots below are biased because they are filled only for the online tracks matching an offline track.
                 // they should be fill for all the online tracks            
                 hist("hpstau_trk_pt")->Fill(pstau_trk_pt);

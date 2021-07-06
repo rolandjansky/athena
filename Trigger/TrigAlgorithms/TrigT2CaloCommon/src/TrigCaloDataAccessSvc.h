@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigT2CaloCommon_TrigCaloDataAccessSvc_h
@@ -18,17 +18,20 @@
 #include "TileEvent/TileL2Container.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "IRegionSelector/IRoiDescriptor.h"
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "TrigT2CaloCommon/ITrigCaloDataAccessSvc.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "CaloEvent/CaloBCIDAverage.h"
+#include "LArRawConditions/LArMCSym.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRecConditions/LArFebRodMapping.h"
 
 class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc> {
  public:
   TrigCaloDataAccessSvc(const std::string& name, ISvcLocator* pSvcLocator);
-  virtual ~TrigCaloDataAccessSvc();
-  
+
   using ITrigCaloDataAccessSvc::Status;
 
 
@@ -64,11 +67,21 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
   ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Tool to monitor performance of the service" };
 
   ServiceHandle<IROBDataProviderSvc>  m_robDataProvider{ this, "ROBDataProvider", "ROBDataProviderSvc/ROBDataProviderSvc", ""};
-  ServiceHandle<IRegSelSvc>         m_regionSelector{ this, "RegionSelector", "RegSelSvc/RegSelSvc", ""};
+  ToolHandle<IRegSelTool>           m_regionSelector_TTEM  { this, "RegSelToolEM",  "RegSelTool/RegSelTool_TTEM" };
+  ToolHandle<IRegSelTool>           m_regionSelector_TTHEC  { this, "RegSelToolHEC",  "RegSelTool/RegSelTool_TTHEC" };
+  ToolHandle<IRegSelTool>           m_regionSelector_FCALEM  { this, "RegSelToolFCALEM",  "RegSelTool/RegSelTool_FCALEM" };
+  ToolHandle<IRegSelTool>           m_regionSelector_FCALHAD  { this, "RegSelToolFCALHAD",  "RegSelTool/RegSelTool_FCALHAD" };
+  ToolHandle<IRegSelTool>           m_regionSelector_TILE  { this, "RegSelToolTILE",  "RegSelTool/RegSelTool_TILE" };
   
   Gaudi::Property<bool> m_applyOffsetCorrection { this, "ApplyOffsetCorrection", true, "Enable offset correction" };
 
   SG::ReadHandleKey<CaloBCIDAverage> m_bcidAvgKey ;
+  SG::ReadCondHandleKey<LArMCSym> m_mcsymKey 
+   {this, "MCSymKey", "LArMCSym", "SG Key of LArMCSym object"} ;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_onOffIdMappingKey
+   {this, "CablingKey", "LArOnOffIdMap", "SG Key for LArOnOffIdMapping"} ;
+  SG::ReadCondHandleKey<LArFebRodMapping> m_febRodMappingKey
+   {this, "RodFebKey", "LArFebRodMap", "SG Key for LArFebRodMapping"} ;
 
   void reset_LArCol ( LArCellCollection* coll ){
     for(LArCellCollection::iterator ii=coll->begin();ii!=coll->end();++ii)
@@ -121,7 +134,7 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
   std::mutex m_lardecoderProtect;  // protection for the larRodDecoder
   std::mutex m_tiledecoderProtect;  // protection for the tileRodDecoder
 
-  unsigned int lateInit();
+  unsigned int lateInit( const EventContext& context );
   bool m_lateInitDone = false;
 
   unsigned int convertROBs(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& robFrags, LArCellCont* larcell );
@@ -151,10 +164,9 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
 				DETID detector );
 
   unsigned int prepareTileCollections( const EventContext& context,
-				const IRoiDescriptor& roi, 
-				DETID detector );
+				const IRoiDescriptor& roi );
 
-  unsigned int prepareMBTSCollections( const EventContext& context );
+  unsigned int prepareMBTSCollections( const EventContext& context);
 
   unsigned int prepareFullCollections( const EventContext& context );
 

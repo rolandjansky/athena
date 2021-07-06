@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "NswStationFitter.h"
@@ -16,15 +16,15 @@ TrigL2MuonSA::NswStationFitter::NswStationFitter(const std::string& type,
 {
 }
 
-StatusCode TrigL2MuonSA::NswStationFitter::superPointFitter(const LVL1::RecMuonRoI* p_roi,
+StatusCode TrigL2MuonSA::NswStationFitter::superPointFitter(const TrigRoiDescriptor* p_roids,
                                                             TrigL2MuonSA::TrackPattern& trackPattern) const
 {
 
   ATH_MSG_DEBUG("NswStationFitter::findSuperPoints() was called.");
 
   // selection for sTGC hits, RoI matching based
-  ATH_CHECK( selectStgcHits(p_roi,trackPattern.stgcSegment) );
-  ATH_CHECK( selectMmHits(p_roi,trackPattern.mmSegment) );
+  ATH_CHECK( selectStgcHits(p_roids,trackPattern.stgcSegment) );
+  ATH_CHECK( selectMmHits(p_roids,trackPattern.mmSegment) );
 
   // calcurate weighted sum of hits, get superpoint information
   ATH_CHECK( calcWeightedSumHit(trackPattern) );
@@ -33,7 +33,7 @@ StatusCode TrigL2MuonSA::NswStationFitter::superPointFitter(const LVL1::RecMuonR
 
 }
 
-StatusCode TrigL2MuonSA::NswStationFitter::selectStgcHits(const LVL1::RecMuonRoI* p_roi,
+StatusCode TrigL2MuonSA::NswStationFitter::selectStgcHits(const TrigRoiDescriptor* p_roids,
                                                           TrigL2MuonSA::StgcHits& stgcHits) const
 {
 
@@ -41,10 +41,10 @@ StatusCode TrigL2MuonSA::NswStationFitter::selectStgcHits(const LVL1::RecMuonRoI
   selectedStgcHits.clear();
 
   // define region where RoI is near
-  double etaMin = p_roi->eta() - 1.;
-  double etaMax = p_roi->eta() + 1.;
-  double phiMin = p_roi->phi() - 1.;
-  double phiMax = p_roi->phi() + 1.;
+  double etaMin = p_roids->eta() - 1.;
+  double etaMax = p_roids->eta() + 1.;
+  double phiMin = p_roids->phi() - 1.;
+  double phiMax = p_roids->phi() + 1.;
   if( phiMin > M_PI ) phiMin -= 2*M_PI;
   if( phiMax > M_PI ) phiMax -= 2*M_PI;
   if( phiMin < -1.*M_PI ) phiMin += 2*M_PI;
@@ -79,7 +79,7 @@ StatusCode TrigL2MuonSA::NswStationFitter::selectStgcHits(const LVL1::RecMuonRoI
 
 }
 
-StatusCode TrigL2MuonSA::NswStationFitter::selectMmHits(const LVL1::RecMuonRoI* p_roi,
+StatusCode TrigL2MuonSA::NswStationFitter::selectMmHits(const TrigRoiDescriptor* p_roids,
                                                         TrigL2MuonSA::MmHits& mmHits) const
 {
 
@@ -87,10 +87,10 @@ StatusCode TrigL2MuonSA::NswStationFitter::selectMmHits(const LVL1::RecMuonRoI* 
   selectedMmHits.clear();
 
   // define region where RoI is near
-  double etaMin = p_roi->eta() - 1.;
-  double etaMax = p_roi->eta() + 1.;
-  double phiMin = p_roi->phi() - 1.;
-  double phiMax = p_roi->phi() + 1.;
+  double etaMin = p_roids->eta() - 1.;
+  double etaMax = p_roids->eta() + 1.;
+  double phiMin = p_roids->phi() - 1.;
+  double phiMax = p_roids->phi() + 1.;
   if( phiMin > M_PI ) phiMin -= 2*M_PI;
   if( phiMax > M_PI ) phiMax -= 2*M_PI;
   if( phiMin < -1.*M_PI ) phiMin += 2*M_PI;

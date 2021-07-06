@@ -9,17 +9,25 @@ find_package( CLHEP )
 
 # Component(s) in the package:
 atlas_add_library( TrigEgammaEmulationToolLib
-   TrigEgammaEmulationTool/*.h Root/*.cxx
-   PUBLIC_HEADERS TrigEgammaEmulationTool 
-   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
+   Root/*.cxx
+   PUBLIC_HEADERS TrigEgammaEmulationTool
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools AthContainers EgammaAnalysisInterfacesLib InDetTrackSelectionToolLib LumiBlockCompsLib PATCoreLib RecoToolInterfaces TrigConfHLTData TrigDecisionToolLib TrigEgammaMatchingToolLib TrigMultiVarHypoLib xAODBase xAODCaloEvent xAODCaloRings xAODEgamma xAODPrimitives xAODTracking xAODTrigCalo xAODTrigEgamma xAODTrigRinger xAODTrigger
-   PRIVATE_LINK_LIBRARIES StoreGateLib TrigSteeringEvent )
+   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} TrigSteeringEvent xAODRootAccess
+   LINK_LIBRARIES AsgTools AthContainers 
+   ElectronPhotonSelectorToolsLib
+   EgammaAnalysisInterfacesLib InDetTrackSelectionToolLib 
+   LumiBlockCompsLib PATCoreLib RecoToolInterfaces 
+   TrigNavStructure TrigDecisionToolLib TrigEgammaMatchingToolLib 
+   xAODBase xAODCaloEvent xAODEgamma xAODTracking xAODTrigCalo 
+   xAODTrigRinger xAODTrigger RingerSelectorToolsLib
+   AthOnnxruntimeServiceLib
+   )
 
 atlas_add_component( TrigEgammaEmulationTool
-   src/*.cxx src/components/*.cxx
+   src/*.cxx 
+   src/components/*.cxx
    LINK_LIBRARIES AthenaBaseComps GaudiKernel TrigEgammaEmulationToolLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/TrigEgamma*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
-atlas_install_joboptions( share/test*.py )
+# atlas_install_joboptions( share/test*.py )

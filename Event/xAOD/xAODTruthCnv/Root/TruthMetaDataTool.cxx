@@ -1,8 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s):
+#include <memory>
+
+
+
 #include "xAODTruthCnv/TruthMetaDataTool.h"
 
 namespace xAODMaker {
@@ -45,14 +49,14 @@ namespace xAODMaker {
       }
 
       // Retrieve the input container:
-      const Cont_t* input = 0;
+      const Cont_t* input = nullptr;
       ATH_CHECK( inputMetaStore()->retrieve( input, m_inputKey ) );
 
       // Create an output container if it doesn't exist yet:
       if( ( ! m_truthMeta.get() ) && ( ! m_truthMetaAux.get() ) ) {
          ATH_MSG_DEBUG( "Creating output container" );
-         m_truthMeta.reset( new xAOD::TruthMetaDataContainer() );
-         m_truthMetaAux.reset( new xAOD::TruthMetaDataAuxContainer() );
+         m_truthMeta = std::make_unique<xAOD::TruthMetaDataContainer>( );
+         m_truthMetaAux = std::make_unique<xAOD::TruthMetaDataAuxContainer>( );
          m_truthMeta->setStore( m_truthMetaAux.get() );
       }
 

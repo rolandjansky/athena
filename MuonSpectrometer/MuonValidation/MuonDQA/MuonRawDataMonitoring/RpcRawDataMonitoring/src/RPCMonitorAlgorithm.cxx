@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RpcRawDataMonitoring/RPCMonitorAlgorithm.h"
@@ -66,7 +66,7 @@ StatusCode RPCMonitorAlgorithm::fillHistograms(const EventContext& ctx) const
   //
   // fill muon Pt
   //
-  for(const auto& muonItr : *muons) {
+  for(const auto muonItr : *muons) {
     muPtVec.push_back(muonItr->pt());
   }
   auto muPtCollection = Collection("muPtCollection", muPtVec);
@@ -84,7 +84,7 @@ StatusCode RPCMonitorAlgorithm::fillHistograms(const EventContext& ctx) const
       return StatusCode::FAILURE;
     }
 
-    for(const auto& roi : *muonRoIs) {
+    for(const auto roi : *muonRoIs) {
       roiEtaVec.push_back(roi->eta());
       if(roi->getSource() != xAOD::MuonRoI::RoISource::Barrel) {
         continue;
@@ -107,7 +107,7 @@ StatusCode RPCMonitorAlgorithm::fillHistograms(const EventContext& ctx) const
   //
   // match muon and roi
   //
-  for(const auto& muon : *muons) {
+  for(const auto muon : *muons) {
 
     float pt  = muon->pt();
     float eta = muon->eta();

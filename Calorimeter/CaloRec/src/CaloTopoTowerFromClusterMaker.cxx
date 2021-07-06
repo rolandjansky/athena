@@ -76,6 +76,7 @@ CaloTopoTowerFromClusterMaker::CaloTopoTowerFromClusterMaker(const std::string& 
   declareProperty("DoCellIndexCheck",            m_doCellIndexCheck,                                                                  "Check cell hash indices for consistency");
   declareProperty("BuildCombinedTopoSignal",     m_buildCombinedSignal,                                                               "Build topo-clusters and topo-towers");
   declareProperty("TopoClusterRange",            m_clusterRange,                                                                      "Rapidity range for using topo-clusters in combined signal mode");
+  declareProperty("RemoveSamplingData",          m_removeSamplingData,                                                                "Remove the associated sampling data");
 }
 
 StatusCode CaloTopoTowerFromClusterMaker::initialize()
@@ -183,6 +184,7 @@ StatusCode CaloTopoTowerFromClusterMaker::initialize()
   ATH_MSG_INFO( CaloRec::Helpers::fmtMsg("BuildCombinedTopoSignal .... %s",             blu[m_buildCombinedSignal].c_str())      );
   ATH_MSG_INFO( CaloRec::Helpers::fmtMsg("TopoClusterRange ........... %.2f",           m_clusterRange)                          );
   ATH_MSG_INFO( CaloRec::Helpers::fmtMsg("ExcludedSamplings .......... %zu (number of)",m_excludedSamplingsName.size())          );
+  ATH_MSG_INFO( CaloRec::Helpers::fmtMsg("RemoveSamplingData ......... %s",             blu[m_removeSamplingData].c_str())       );
 
   return StatusCode::SUCCESS;
 }
@@ -256,20 +258,23 @@ StatusCode CaloTopoTowerFromClusterMaker::execute(const EventContext& ctx,
   // allocate sufficient space in vector
   pClusCont->reserve(cCtr);
   // pick up cluster size tag and set up counter
-  xAOD::CaloCluster::ClusterSize csize = this->getClusterSize(m_numberOfTowers);
+  xAOD::CaloCluster::ClusterSize csize = CaloTopoTowerFromClusterMaker::getClusterSize(m_numberOfTowers);
   // loop proto-clusters
   for ( uint_t ipc(0); ipc<pProtoCont.size(); ++ipc ) {
     CaloProtoCluster& pProto  = pProtoCont.at(ipc);                     // pick up proto-cluster
     CaloClusterCellLink* lptr = pProto.releaseCellLinks();              // take over CaloClusterCellLink object
     this->cleanupCells(lptr,ipc);                                       // clean up cell links 
-    if ( this->filterProtoCluster(*lptr) ) {                            // ignore empty proto-clusters (no cells assigned)
+    if ( CaloTopoTowerFromClusterMaker::filterProtoCluster(*lptr) ) {                            // ignore empty proto-clusters (no cells assigned)
       xAOD::CaloCluster* clptr = new xAOD::CaloCluster();               // new empty cluster
       pClusCont->push_back(clptr);                                      // put into container
       clptr->addCellLink(lptr);                                         // transfer cell links to CaloCluster
       clptr->setClusterSize(csize);                                     // set the cluster size spec
       CaloRec::Helpers::calculateKine(clptr,false);                     // calculate kinematics and other signals from cells
-      clptr->setEta0(m_towerGeometrySvc->towerEta(ipc));                // save the tower center eta
-      clptr->setPhi0(m_towerGeometrySvc->towerPhi(ipc));                // save the tower center phi
+      if ( m_removeSamplingData ) {                                     // remove sampling data and invalidate tower center 
+	clptr->clearSamplingData(); clptr->setEta0(0.);	clptr->setPhi0(0.); 
+      } else {                                                          // keep sampling data and valid tower center
+	clptr->setEta0(m_towerGeometrySvc->towerEta(ipc)); clptr->setPhi0(m_towerGeometrySvc->towerPhi(ipc));              
+      }
     } else {
       delete lptr;
     }
@@ -312,7 +317,7 @@ CaloTopoTowerFromClusterMaker::uint_t CaloTopoTowerFromClusterMaker::buildEMTopo
   // -- EM scale clusters
   if ( !m_buildCombinedSignal ) { 
     // topo-towers
-    for ( auto pClus : pClusCont ) { 
+    for ( const auto *pClus : pClusCont ) { 
       for ( auto fCell(pClus->cell_begin()); fCell != pClus->cell_end(); ++fCell ) { 
 	uint_t cidx(static_cast<uint_t>((*fCell)->caloDDE()->calo_hash()));
 	if ( cidx < cellTags.size() ) {
@@ -327,7 +332,7 @@ CaloTopoTowerFromClusterMaker::uint_t CaloTopoTowerFromClusterMaker::buildEMTopo
   } else { 
     // selected topo-towers for combined signal
     std::vector<std::tuple<const CaloCell*,double> > cellList(m_numberOfCells,std::tuple<const CaloCell*,double>(0,0.));
-    for ( auto pClus : pClusCont ) { 
+    for ( const auto *pClus : pClusCont ) { 
       if ( std::abs(pClus->eta()) > m_clusterRange ) { 
 	for ( auto fCell(pClus->cell_begin()); fCell != pClus->cell_end(); ++fCell ) { 
 	  uint_t cidx(static_cast<uint_t>((*fCell)->caloDDE()->calo_hash()));
@@ -364,7 +369,7 @@ CaloTopoTowerFromClusterMaker::uint_t CaloTopoTowerFromClusterMaker::buildLCWTop
   // project cells on tower grid
   if ( !m_buildCombinedSignal ) { 
     // loop original topo-cluster container
-    for ( auto pClus : pClusCont ) { 
+    for ( const auto *pClus : pClusCont ) { 
       // loop over cells in the original topo-cluster
       for ( auto fCell(pClus->cell_begin()); fCell != pClus->cell_end(); ++fCell ) {
 	// map to towers only once
@@ -375,7 +380,7 @@ CaloTopoTowerFromClusterMaker::uint_t CaloTopoTowerFromClusterMaker::buildLCWTop
     } // end cluster loop
   } else { 
     // loop topo-cluster
-    for ( auto pClus : pClusCont ) {
+    for ( const auto *pClus : pClusCont ) {
       // keep top-clusters in configured eta range
       if ( std::abs(pClus->eta()) > m_clusterRange ) { 
 	// loop over cells of topo-clusters for the forward towards 
@@ -404,8 +409,8 @@ CaloTopoTowerFromClusterMaker::uint_t CaloTopoTowerFromClusterMaker::buildInclTo
 {
   // loop cell container - counter icl replaces cell hash index for NULL pointers in cell container
   uint_t icl(0);
-  for ( auto cptr : pCellCont ) { 
-    if ( cptr == 0 ) { 
+  for ( const auto *cptr : pCellCont ) { 
+    if ( cptr == nullptr ) { 
       ATH_MSG_ERROR( CaloRec::Helpers::fmtMsg("CaloCellContainer[%6zu] contains invalid cell object pointer %p",icl,(void*)cptr) ); 
       return m_errorValueUINT;
     } else {
@@ -422,8 +427,8 @@ CaloTopoTowerFromClusterMaker::uint_t CaloTopoTowerFromClusterMaker::buildExclTo
 {
   // loop cell container
   uint_t icl(0);
-  for ( auto cptr : pCellCont ) {
-    if ( cptr == 0 ) { 
+  for ( const auto *cptr : pCellCont ) {
+    if ( cptr == nullptr ) { 
       ATH_MSG_ERROR( CaloRec::Helpers::fmtMsg("CaloCellContainer[%6zu] contains invalid cell object pointer %p",icl,(void*)cptr) ); 
       return m_errorValueUINT;
     } else {
@@ -439,7 +444,7 @@ CaloTopoTowerFromClusterMaker::uint_t CaloTopoTowerFromClusterMaker::buildExclTo
 bool CaloTopoTowerFromClusterMaker::addCellToProtoCluster(const CaloCell* cptr,protocont_t& pProtoCont,double weight) const
 {
   // invalid input
-  if ( cptr == 0 ) { return false; }
+  if ( cptr == nullptr ) { return false; }
 
   // get towers for cell from geometry service
   uint_t nctr(0);
@@ -459,10 +464,10 @@ bool CaloTopoTowerFromClusterMaker::addCellToProtoCluster(const CaloCell* cptr,p
 // Helpers //
 /////////////
 
-xAOD::CaloCluster::ClusterSize CaloTopoTowerFromClusterMaker::getClusterSize(uint_t etaBins,uint_t phiBins) const
-{ return this->getClusterSize(etaBins*phiBins); }
+xAOD::CaloCluster::ClusterSize CaloTopoTowerFromClusterMaker::getClusterSize(uint_t etaBins,uint_t phiBins) 
+{ return CaloTopoTowerFromClusterMaker::getClusterSize(etaBins*phiBins); }
 
-xAOD::CaloCluster::ClusterSize CaloTopoTowerFromClusterMaker::getClusterSize(uint_t nTowers) const
+xAOD::CaloCluster::ClusterSize CaloTopoTowerFromClusterMaker::getClusterSize(uint_t nTowers) 
 {
   // check for tower sizes
   return nTowers == 6400                    // known "standard" towers 0,1 x 0.1
@@ -483,8 +488,8 @@ int CaloTopoTowerFromClusterMaker::cleanupCells(CaloClusterCellLink* clk,uint_t 
   while ( fcell != clk->end() ) {
     const CaloCell* pCell = *fcell;
     auto nc(clk->getCellContainer()->size());
-    const CaloCell* aCell = fcell.index() < nc ? clk->getCellContainer()->at(fcell.index()) : (const CaloCell*)0;
-    if ( pCell == 0 ) {
+    const CaloCell* aCell = fcell.index() < nc ? clk->getCellContainer()->at(fcell.index()) : (const CaloCell*)nullptr;
+    if ( pCell == nullptr ) {
       ATH_MSG_WARNING( CaloRec::Helpers::fmtMsg("CaloCellContainer[%6zu/%6zu] - tower %5zu at (%6.3f,%6.3f) - cell pointer invalid (%p/%p) [removed %3i of %3zu cells]",
 						fcell.index(),nc-1,nclus,m_towerGeometrySvc->towerEta(nclus),m_towerGeometrySvc->towerPhi(nclus),
 						(void*)pCell,(void*)aCell,++nrc,clk->size()) );
@@ -515,7 +520,7 @@ int CaloTopoTowerFromClusterMaker::cleanupCells(CaloClusterCellLink* clk,uint_t 
   return nrc;
 }
 
-bool CaloTopoTowerFromClusterMaker::filterProtoCluster(const CaloClusterCellLink& clnk) const
+bool CaloTopoTowerFromClusterMaker::filterProtoCluster(const CaloClusterCellLink& clnk) 
 { return clnk.size() > 0; }
 
 bool CaloTopoTowerFromClusterMaker::checkCellIndices(const CaloCellContainer* pCellCont) const
@@ -525,7 +530,7 @@ bool CaloTopoTowerFromClusterMaker::checkCellIndices(const CaloCellContainer* pC
   ////////////////////////////
 
   // check argument
-  if ( pCellCont == 0 ) { 
+  if ( pCellCont == nullptr ) { 
     ATH_MSG_WARNING( CaloRec::Helpers::fmtMsg("Invalid pointer to CaloCellContainer (%p)",(void*)pCellCont) ); return false;
   } else if ( pCellCont->empty() ) { 
     ATH_MSG_WARNING( CaloRec::Helpers::fmtMsg("CaloCellContainer at %p is empty (size %zu)",(void*)pCellCont,pCellCont->size()) ); return false; 
@@ -559,21 +564,21 @@ bool CaloTopoTowerFromClusterMaker::checkCellIndices(const CaloCellContainer* pC
   // prepare tag store
   size_t ifc(0); std::bitset<200000> chkflg; chkflg.reset();
   for ( size_t i(0); i<pCellCont->size(); ++i ) { 
-    if ( pCellCont->at(i) != 0 ) { 
+    if ( pCellCont->at(i) != nullptr ) { 
       size_t chash((size_t)pCellCont->at(i)->caloDDE()->calo_hash());
       if ( chash != i ) {
 	std::string cni("UKNOWN");
 	double etai(0.); double phii(0.);
-	const CaloDetDescrElement* iel = i < CaloDetDescrManager::instance()->element_size() ? CaloDetDescrManager::instance()->get_element(i) : 0;
-	if ( iel != 0 ) {
+	const CaloDetDescrElement* iel = i < CaloDetDescrManager::instance()->element_size() ? CaloDetDescrManager::instance()->get_element(i) : nullptr;
+	if ( iel != nullptr ) {
 	  cni  = CaloRec::Lookup::getSamplingName(iel->getSampling());
 	  etai = iel->eta_raw();
 	  phii = iel->phi_raw();
 	}
 	std::string cnc("UNKNOWN");
 	double etac(0.); double phic(0.);
-	const CaloDetDescrElement* cel = chash < CaloDetDescrManager::instance()->element_size() ? CaloDetDescrManager::instance()->get_element(chash) : 0;
-	if ( cel != 0 ) { 
+	const CaloDetDescrElement* cel = chash < CaloDetDescrManager::instance()->element_size() ? CaloDetDescrManager::instance()->get_element(chash) : nullptr;
+	if ( cel != nullptr ) { 
 	  cnc  = CaloRec::Lookup::getSamplingName(cel->getSampling());
 	  etac = cel->eta_raw();
 	  phic = cel->phi_raw();

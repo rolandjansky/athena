@@ -35,7 +35,7 @@ MaterialStepCollectionCnv::createTransientWithKey (const std::string& key)
 
   static const pool::Guid p1_guid( "DF8A7FA8-693F-44E0-A5E5-F9907B8B429E" );
 
-  Trk::MaterialStepCollection* tCollection = 0;
+  Trk::MaterialStepCollection* tCollection = nullptr;
   if( compareClassGuid( p1_guid ) ) {
 
     std::unique_ptr< MaterialStepCollection_PERS >  p_coll( poolReadObject< MaterialStepCollection_PERS >() );

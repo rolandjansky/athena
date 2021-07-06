@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -44,7 +44,6 @@ class SCT_CalibLbTool : public extends<AthAlgTool, ISCT_CalibHistoTool>
       SCT_CalibLbTool(const std::string&, const std::string&, const IInterface*);
       virtual ~SCT_CalibLbTool() = default;
       virtual StatusCode initialize();
-      virtual StatusCode finalize();
       //@}
       //@name ISCT_CalibHistoTool methods, reimplemented
       //@{
@@ -53,7 +52,7 @@ class SCT_CalibLbTool : public extends<AthAlgTool, ISCT_CalibHistoTool>
       virtual bool read(const std::string& fileName);
       virtual bool fillFromData();
       //@}
-
+      
    private:
       ToolHandle<ISCT_CalibEvtInfo> m_evtInfo{this, "SCT_CalibEventInfo", "SCT_CalibEventInfo"};
 
@@ -64,8 +63,6 @@ class SCT_CalibLbTool : public extends<AthAlgTool, ISCT_CalibHistoTool>
       VecInt* m_sct_waferHash{nullptr};
       VecInt* m_sct_firstStrip{nullptr};
       VecInt* m_sct_rdoGroupSize{nullptr};
-
-      int m_lumiBlock{0};
 
       //private use in this class
       int m_LbRange{0};

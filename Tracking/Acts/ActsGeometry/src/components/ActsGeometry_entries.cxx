@@ -4,6 +4,7 @@
 
 #include "ActsGeometry/ActsGeantFollowerHelper.h"
 #include "ActsGeometry/ActsGeantFollowerTool.h"
+#include "ActsGeometry/ActsATLASConverterTool.h"
 
 #include "ActsGeometry/ActsExtrapolationAlg.h"
 #include "ActsGeometry/ActsWriteTrackingGeometry.h"
@@ -53,3 +54,5 @@ DECLARE_COMPONENT( ActsCaloTrackingVolumeBuilder )
 
 DECLARE_COMPONENT( ActsGeantFollowerTool )
 DECLARE_COMPONENT( ActsGeantFollowerHelper )
+
+DECLARE_COMPONENT( ActsATLASConverterTool )

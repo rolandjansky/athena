@@ -127,8 +127,7 @@ def ConstituentPileupIso(privateSeq):
                                   HadCaloNums                     = [],
                                   TopoClusterEDCentralContainer   = "LCTopoClusterIsoCentralEventShape",
                                   TopoClusterEDForwardContainer   = "LCTopoClusterIsoForwardEventShape",
-                                  UseEMScale                      = False,
-                                  addCaloExtensionDecoration      = False)
+                                  UseEMScale                      = False)
   ToolSvc += LCCaloIsolationTool
   
   OrigTimeCSCaloIsolationTool = xAOD__CaloIsolationTool(name = "OrigTimeCSCaloIsolationTool",
@@ -139,8 +138,7 @@ def ConstituentPileupIso(privateSeq):
                                   saveOnlyRequestedCorrections    = False,
                                   EMCaloNums                      = [],
                                   HadCaloNums                     = [],
-                                  UseEMScale                      = False,
-                                  addCaloExtensionDecoration      = False)
+                                  UseEMScale                      = False)
   ToolSvc += OrigTimeCSCaloIsolationTool
   OrigTimeSKCaloIsolationTool = xAOD__CaloIsolationTool(name = "OrigTimeSKCaloIsolationTool",
                                   CaloFillRectangularClusterTool  = None,
@@ -150,8 +148,7 @@ def ConstituentPileupIso(privateSeq):
                                   saveOnlyRequestedCorrections    = False,
                                   EMCaloNums                      = [],
                                   HadCaloNums                     = [],
-                                  UseEMScale                      = False,
-                                  addCaloExtensionDecoration      = False)
+                                  UseEMScale                      = False)
   ToolSvc += OrigTimeSKCaloIsolationTool
   OrigTimeCSSKCaloIsolationTool = xAOD__CaloIsolationTool(name = "OrigTimeCSSKCaloIsolationTool",
                                   CaloFillRectangularClusterTool  = None,
@@ -161,8 +158,7 @@ def ConstituentPileupIso(privateSeq):
                                   saveOnlyRequestedCorrections    = False,
                                   EMCaloNums                      = [],
                                   HadCaloNums                     = [],
-                                  UseEMScale                      = False,
-                                  addCaloExtensionDecoration      = False)
+                                  UseEMScale                      = False)
   ToolSvc += OrigTimeCSSKCaloIsolationTool
 
   TimePFCSCaloIsolationTool = xAOD__CaloIsolationTool(name = "TimePFCSCaloIsolationTool",
@@ -173,8 +169,7 @@ def ConstituentPileupIso(privateSeq):
                                   saveOnlyRequestedCorrections    = False,
                                   EMCaloNums                      = [],
                                   HadCaloNums                     = [],
-                                  UseEMScale                      = True,
-                                  addCaloExtensionDecoration      = False)
+                                  UseEMScale                      = True)
   ToolSvc += TimePFCSCaloIsolationTool
   TimePFSKCaloIsolationTool = xAOD__CaloIsolationTool(name = "TimePFSKCaloIsolationTool",
                                   CaloFillRectangularClusterTool  = None,
@@ -184,8 +179,7 @@ def ConstituentPileupIso(privateSeq):
                                   saveOnlyRequestedCorrections    = False,
                                   EMCaloNums                      = [],
                                   HadCaloNums                     = [],
-                                  UseEMScale                      = True,
-                                  addCaloExtensionDecoration      = False)
+                                  UseEMScale                      = True)
   ToolSvc += TimePFSKCaloIsolationTool
   TimePFCSSKCaloIsolationTool = xAOD__CaloIsolationTool(name = "TimePFCSSKCaloIsolationTool",
                                   CaloFillRectangularClusterTool  = None,
@@ -195,8 +189,7 @@ def ConstituentPileupIso(privateSeq):
                                   saveOnlyRequestedCorrections    = False,
                                   EMCaloNums                      = [],
                                   HadCaloNums                     = [],
-                                  UseEMScale                      = True,
-                                  addCaloExtensionDecoration      = False)
+                                  UseEMScale                      = True)
   ToolSvc += TimePFCSSKCaloIsolationTool
 
   # Import the xAOD isolation parameters.

@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
 #
 # @file TruthD3PDMaker/python/atlfast1D3PD.py
 # @author Renaud Bruneliere <Renaud.Bruneliere@cern.ch>
@@ -10,8 +9,6 @@
 
 
 import D3PDMakerCoreComps
-from D3PDMakerConfig.D3PDMakerFlags                  import D3PDMakerFlags
-
 
 from EventCommonD3PDMaker.EventInfoD3PDObject        import EventInfoD3PDObject
 from TruthD3PDMaker.Atlfast1ElectronD3PDObject       import Atlfast1ElectronD3PDObject
@@ -19,17 +16,11 @@ from TruthD3PDMaker.Atlfast1PhotonD3PDObject         import Atlfast1PhotonD3PDOb
 from MuonD3PDMaker.MuonD3PDObject                    import MuonD3PDObject
 from JetD3PDMaker.JetD3PDObject                      import JetD3PDObject
 from TruthD3PDMaker.TruthJetD3PDObject               import TruthJetD3PDObject
-#from TauD3PDMaker.TauD3PDObject                      import TauD3PDObject
-from MissingETD3PDMaker.MissingETD3PDMakerFlags      import MissingETD3PDMakerFlags
 from TruthD3PDMaker.Atlfast1MissingETD3PDObject      import Atlfast1MissingETD3PDObject
 from TruthD3PDMaker.Atlfast1MissingETD3PDObject      import TruthMETD3PDObject
-from EventCommonD3PDMaker.LBMetadataConfig           import LBMetadataConfig
-from HforD3PDObject                                  import HforD3PDObject
-
 
 from TruthD3PDMaker.GenEventD3PDObject               import GenEventD3PDObject
 from TruthD3PDAnalysis.truthParticleConfig           import truthParticleConfig
-#from TruthD3PDAnalysis.TruthJetFilterConfig          import TruthJetFilterConfig
 from TruthD3PDMaker.TruthParticleD3PDObject          import TruthParticleD3PDObject
 from TruthD3PDMaker.PartonJetConfig                  import PartonJetConfig
 from RecExConfig.RecFlags                            import rec
@@ -73,6 +64,5 @@ def atlfast1D3PD (file,
         alg += TruthMETD3PDObject (level=10)
         alg += TruthJetD3PDObject (level=10, sgkey='AntiKt4TruthJets', prefix='AntiKt4TruthJets_')
         alg += TruthJetD3PDObject (level=10, sgkey='AntiKt4TruthPartonJets', prefix='AntiKt4TruthPartonJets_')
-        alg += HforD3PDObject             (**_args (0, 'HforInfo', kw))    
 
     return alg

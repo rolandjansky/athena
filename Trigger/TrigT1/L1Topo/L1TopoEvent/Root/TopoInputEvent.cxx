@@ -4,30 +4,34 @@
 #include <fstream>
 #include <pthread.h>
 
-using namespace std;
 using namespace TCS;
 
-TopoInputEvent::TopoInputEvent(const string & clusterName,
-                               const string & tauName,
-                               const string & jetName,
-                               const string & muonName,
-                               const string & lateMuonName,
-                               const string & muonNextBCName,
-                               const string & metName) :
-   TrigConfMessaging("TopoInputEvent"),
-   m_clusters(clusterName,120),
-   m_taus(tauName,120),
-   m_jets(jetName,60),
-   m_muons(muonName,32),
-   m_lateMuons(lateMuonName,32),
-   m_muonsNextBC(muonNextBCName,32),
-   m_met(metName,1)
-{}
+TopoInputEvent::TopoInputEvent() :
+  TrigConfMessaging("TopoInputEvent"),
+  m_clusters("InputClusters",120),
+  m_eems("InputeEms",120),
+  m_taus("InputTaus",120),
+  m_jets("InputJets",60),
+  m_jTaus("InputjTaus",60),
+  m_jLargeRJets("InputjLargeRJets",60),
+  m_jJets("InputjJets",60),
+  m_muons("InputMuons",32),
+  m_lateMuons("InputLateMuons",32),
+  m_muonsNextBC("InputMuonsNextBC",32),
+  m_met("InputMet",1)
+
+{
+}
 
 TopoInputEvent::~TopoInputEvent() {}
 
 StatusCode TopoInputEvent::addCluster(const TCS::ClusterTOB & cluster) {
    m_clusters.push_back(cluster);
+   return StatusCode::SUCCESS;
+}
+
+StatusCode TopoInputEvent::addeEm(const TCS::eEmTOB & eem) {
+   m_eems.push_back(eem);
    return StatusCode::SUCCESS;
 }
 
@@ -38,6 +42,21 @@ StatusCode TopoInputEvent::addTau(const TCS::ClusterTOB & tau) {
 
 StatusCode TopoInputEvent::addJet(const TCS::JetTOB & jet) {
    m_jets.push_back(jet);
+   return StatusCode::SUCCESS;
+}
+
+StatusCode TopoInputEvent::addjTau(const TCS::jTauTOB & tau) {
+   m_jTaus.push_back(tau);
+   return StatusCode::SUCCESS;
+}
+
+StatusCode TopoInputEvent::addjLargeRJet(const TCS::jLargeRJetTOB & jet) {
+   m_jLargeRJets.push_back(jet);
+   return StatusCode::SUCCESS;
+}
+
+StatusCode TopoInputEvent::addjJet(const TCS::jJetTOB & jet) {
+   m_jJets.push_back(jet);
    return StatusCode::SUCCESS;
 }
 
@@ -80,6 +99,21 @@ void TopoInputEvent::setOverflowFromJetInput   (const bool &v)
     m_overflowFromJetInput = v;
 }
 
+void TopoInputEvent::setOverflowFromjTauInput   (const bool &v)
+{
+    m_overflowFromjTauInput = v;
+}
+
+void TopoInputEvent::setOverflowFromjJetInput   (const bool &v)
+{
+    m_overflowFromjJetInput = v;
+}
+
+void TopoInputEvent::setOverflowFromjLargeRJetInput   (const bool &v)
+{
+    m_overflowFromjLargeRJetInput = v;
+}
+
 void TopoInputEvent::setOverflowFromEnergyInput(const bool &v)
 {
     m_overflowFromEnergyInput = v;
@@ -95,7 +129,11 @@ const InputTOBArray *
 TopoInputEvent::inputTOBs(inputTOBType_t tobType) const {
    switch(tobType) {
    case CLUSTER: return &m_clusters;
+   case EEM: return &m_eems;
    case JET: return &m_jets;
+   case JTAU: return &m_jTaus;
+   case JJET: return &m_jJets;
+   case JLARGERJET: return &m_jLargeRJets;
    case MUON: return &m_muons;
    case LATEMUON: return &m_lateMuons;
    case MUONNEXTBC: return &m_muonsNextBC;
@@ -127,7 +165,11 @@ TCS::TopoInputEvent::clear() {
    // collected on the ClusterTOB::heap and reset by the
    // TopoSteering::reset
    m_clusters.clear();
+   m_eems.clear();
    m_jets.clear();
+   m_jTaus.clear();
+   m_jLargeRJets.clear();
+   m_jJets.clear();
    m_taus.clear();
    m_muons.clear();
    m_lateMuons.clear();
@@ -156,63 +198,83 @@ TopoInputEvent::dump() {
 
    if( ! m_dumpEnabled ) return;
 
-   ofstream file(m_inputDumpFile, ios_base::out | ios_base::app );
-   file << "<event>" << endl;
-   file << "<cluster>" << endl;
+   std::ofstream file(m_inputDumpFile, std::ios_base::out | std::ios_base::app );
+   file << "<event>" << std::endl;
+   file << "<cluster>" << std::endl;
    for(ClusterTOB* cluster : m_clusters) {
-      file << cluster->Et() << "  " << cluster->isolation() << "  " << cluster->eta() << "  " << cluster->phi() << "  " << cluster->etaDouble() << "  " << cluster->phiDouble() << endl;
+      file << cluster->Et() << "  " << cluster->isolation() << "  " << cluster->eta() << "  " << cluster->phi() << "  " << cluster->etaDouble() << "  " << cluster->phiDouble() << std::endl;
    }
-   file << "</cluster>" << endl;
-   file << "<tau>" << endl;
+   file << "</cluster>" << std::endl;
+   file << "<eem>" << std::endl;
+   for(eEmTOB* eem : m_eems) {
+      file << eem->Et() << "  " << eem->isolation() << "  " << eem->eta() << "  " << eem->phi() << "  " << eem->etaDouble() << "  " << eem->phiDouble() << std::endl;
+   }
+   file << "</eem>" << std::endl;
+   file << "<tau>" << std::endl;
    for(ClusterTOB* tau : m_taus) {
-      file << tau->Et() << "  " << tau->isolation() << "  " << tau->eta() << "  " << tau->phi() << "  " << tau->etaDouble() << "  " << tau->phiDouble() << endl;
+      file << tau->Et() << "  " << tau->isolation() << "  " << tau->eta() << "  " << tau->phi() << "  " << tau->etaDouble() << "  " << tau->phiDouble() << std::endl;
    }
-   file << "</tau>" << endl;
-   file << "<jet>" << endl;
+   file << "</tau>" << std::endl;
+   file << "<jet>" << std::endl;
    for(JetTOB* jet : m_jets) {
-      file << jet->Et1() << "  " << jet->Et2() << "  " << jet->eta() << "  " << jet->phi() << "  " << jet->etaDouble() << "  " << jet->phiDouble() << endl;
+      file << jet->Et1() << "  " << jet->Et2() << "  " << jet->eta() << "  " << jet->phi() << "  " << jet->etaDouble() << "  " << jet->phiDouble() << std::endl;
    }
-   file << "</jet>" << endl;
-   file << "<muon>" << endl;
+   file << "</jet>" << std::endl;
+   file << "<jTau>" << std::endl;
+   for(jTauTOB* tau : m_jTaus) {
+      file << tau->Et() << "  " << tau->eta() << "  " << tau->phi() << "  " << tau->etaDouble() << "  " << tau->phiDouble() << std::endl;
+   }
+   file << "</jTau>" << std::endl;
+   file << "<jLargeRJet>" << std::endl;
+   for(jLargeRJetTOB* jet : m_jLargeRJets) {
+      file << jet->Et() << "  " << jet->eta() << "  " << jet->phi() << "  " << jet->etaDouble() << "  " << jet->phiDouble() << std::endl;
+   }
+   file << "</jLargeRJet>" << std::endl;
+   file << "<jJet>" << std::endl;
+   for(jJetTOB* jet : m_jJets) {
+      file << jet->Et() << "  " << jet->eta() << "  " << jet->phi() << "  " << jet->etaDouble() << "  " << jet->phiDouble() << std::endl;
+   }
+   file << "</jJet>" << std::endl;
+   file << "<muon>" << std::endl;
    for(MuonTOB* muon : m_muons) {
-      file << muon->Et() << "  " << muon->eta() << "  " << muon->phi() << "  " << muon->EtaDouble() << "  " << muon->PhiDouble() << endl;
+      file << muon->Et() << "  " << muon->eta() << "  " << muon->phi() << "  " << muon->EtaDouble() << "  " << muon->PhiDouble() << std::endl;
    }
-   file << "</muon>" << endl;
-   file << "<lateMuon>" << endl;
+   file << "</muon>" << std::endl;
+   file << "<lateMuon>" << std::endl;
    for(LateMuonTOB* lateMuon : m_lateMuons) {
-      file << lateMuon->Et() << "  " << lateMuon->eta() << "  " << lateMuon->phi() << "  " << lateMuon->EtaDouble() << "  " << lateMuon->PhiDouble() << endl;
+      file << lateMuon->Et() << "  " << lateMuon->eta() << "  " << lateMuon->phi() << "  " << lateMuon->EtaDouble() << "  " << lateMuon->PhiDouble() << std::endl;
    }
-   file << "</lateMuon>" << endl;
-   file << "<muonNextBC>" << endl;
+   file << "</lateMuon>" << std::endl;
+   file << "<muonNextBC>" << std::endl;
    for(MuonNextBCTOB* muonNextBC : m_muonsNextBC) {
-      file << muonNextBC->Et() << "  " << muonNextBC->eta() << "  " << muonNextBC->phi() << "  " << muonNextBC->EtaDouble() << "  " << muonNextBC->PhiDouble() << endl;
+      file << muonNextBC->Et() << "  " << muonNextBC->eta() << "  " << muonNextBC->phi() << "  " << muonNextBC->EtaDouble() << "  " << muonNextBC->PhiDouble() << std::endl;
    }
-   file << "</muonNextBC>" << endl;   
-   file << "<met>" << endl;
+   file << "</muonNextBC>" << std::endl;   
+   file << "<met>" << std::endl;
    for(MetTOB* met : m_met) {
-      file << met->Ex() << "  " << met->Ey() << "  " << met->Et() << endl;
+      file << met->Ex() << "  " << met->Ey() << "  " << met->Et() << std::endl;
    }
-   file << "</met>" << endl;
-   file << "<info>" << endl;
-   file << m_runNo << "  " << m_evtNo << "  " << m_lumiB << "  " << m_BCID << endl;
-   file << "</info>" << endl;
-   file << "</event>" << endl;
+   file << "</met>" << std::endl;
+   file << "<info>" << std::endl;
+   file << m_runNo << "  " << m_evtNo << "  " << m_lumiB << "  " << m_BCID << std::endl;
+   file << "</info>" << std::endl;
+   file << "</event>" << std::endl;
    file.close();
 }
 
 void
 TopoInputEvent::dumpStart() {
    if( ! m_dumpEnabled ) return;
-   ofstream file(m_inputDumpFile);
-   file << "<file>" << endl;
+   std::ofstream file(m_inputDumpFile);
+   file << "<file>" << std::endl;
    file.close();
 }
 
 void
 TopoInputEvent::dumpFinish() {
    if( ! m_dumpEnabled ) return;
-   ofstream file(m_inputDumpFile, ios_base::out | ios_base::app);
-   file << "</file>" << endl;
+   std::ofstream file(m_inputDumpFile, std::ios_base::out | std::ios_base::app);
+   file << "</file>" << std::endl;
    file.close();
 }
 
@@ -222,30 +284,32 @@ namespace TCS {
 
 
 std::ostream & operator<<(std::ostream &o, const TCS::TopoInputEvent &evt) {
-   o << "Event:" << endl;
-   o << "  #clusters: " << evt.clusters().size() << " (capacity: " << evt.clusters().capacity() << ")" << endl;
-   o << "  #taus    : " << evt.taus().size() << " (capacity: " << evt.taus().capacity() << ")" << endl;
-   o << "  #jets    : " << evt.jets().size() << " (capacity: " << evt.jets().capacity() << ")" << endl;
-   o << "  #muons   : " << evt.muons().size() << " (capacity: " << evt.muons().capacity() << ")" << endl;
-   o << "  #latemuons   : " << evt.lateMuons().size() << " (capacity: " << evt.lateMuons().capacity() << ")" << endl;
-   o << "  #muonsNextBC : " << evt.muonsNextBC().size() << " (capacity: " << evt.muonsNextBC().capacity() << ")" << endl;
-   o << "  #met     : " << evt.m_met.size() << " (capacity: " << evt.m_met.capacity() << ")" << endl;
-   o << "  #info    : runNo, evtNo, lumiBlock and BCID" << endl;
+   o << "Event:" << std::endl;
+   o << "  #clusters: " << evt.clusters().size() << " (capacity: " << evt.clusters().capacity() << ")" << std::endl;
+   o << "  #eems    : " << evt.eems().size() << " (capacity: " << evt.eems().capacity() << ")" << std::endl;
+   o << "  #taus    : " << evt.taus().size() << " (capacity: " << evt.taus().capacity() << ")" << std::endl;
+   o << "  #jets    : " << evt.jets().size() << " (capacity: " << evt.jets().capacity() << ")" << std::endl;
+   o << "  #muons   : " << evt.muons().size() << " (capacity: " << evt.muons().capacity() << ")" << std::endl;
+   o << "  #latemuons   : " << evt.lateMuons().size() << " (capacity: " << evt.lateMuons().capacity() << ")" << std::endl;
+   o << "  #muonsNextBC : " << evt.muonsNextBC().size() << " (capacity: " << evt.muonsNextBC().capacity() << ")" << std::endl;
+   o << "  #met     : " << evt.m_met.size() << " (capacity: " << evt.m_met.capacity() << ")" << std::endl;
+   o << "  #info    : runNo, evtNo, lumiBlock and BCID" << std::endl;
    
-   o << "Details:" << endl;
-   o << "Cluster input vector (" << evt.clusters().name() << "):" << endl << evt.clusters();
-   o << "Tau input vector (" << evt.taus().name() << "):" << endl << evt.taus();
-   o << "Jet input vector (" << evt.jets().name() << "):" << endl << evt.jets();
-   o << "Muon input vector (" << evt.muons().name() << "):" << endl << evt.muons();
-   o << "LateMuon input vector (" << evt.lateMuons().name() << "):" << endl << evt.lateMuons();
-   o << "MuonNextBC input vector (" << evt.muonsNextBC().name() << "):" << endl << evt.muonsNextBC();
-   o << "MET input (" << evt.m_met.name() << "):" << endl << evt.m_met;
+   o << "Details:" << std::endl;
+   o << "Cluster input vector (" << evt.clusters().name() << "):" << std::endl << evt.clusters();
+   o << "eEm input vector (" << evt.eems().name() << "):" << std::endl << evt.eems();
+   o << "Tau input vector (" << evt.taus().name() << "):" << std::endl << evt.taus();
+   o << "Jet input vector (" << evt.jets().name() << "):" << std::endl << evt.jets();
+   o << "Muon input vector (" << evt.muons().name() << "):" << std::endl << evt.muons();
+   o << "LateMuon input vector (" << evt.lateMuons().name() << "):" << std::endl << evt.lateMuons();
+   o << "MuonNextBC input vector (" << evt.muonsNextBC().name() << "):" << std::endl << evt.muonsNextBC();
+   o << "MET input (" << evt.m_met.name() << "):" << std::endl << evt.m_met;
    o << "Overflow from:"
      <<" EmtauInput "<<evt.overflowFromEmtauInput()
      <<" JetInput "<<evt.overflowFromJetInput()
      <<" EnergyInput "<<evt.overflowFromEnergyInput()
      <<" MuonInput "<<evt.overflowFromMuonInput()
-     << endl;
+     << std::endl;
    o << "Event info: " << evt.run_number() << "  " << evt.event_number() << "  " << evt.lumi_block() << "  " << evt.bunch_crossing_id();
 
    return o;
@@ -258,6 +322,7 @@ void
 TopoInputEvent::print() const {
    TRG_MSG_INFO("Event:");
    TRG_MSG_INFO("  #clusters: " << clusters().size() << " (capacity: " << clusters().capacity() << ")");
+   TRG_MSG_INFO("  #eems    : " << eems().size() << " (capacity: " << eems().capacity() << ")");
    TRG_MSG_INFO("  #taus    : " << taus().size() << " (capacity: " << taus().capacity() << ")");
    TRG_MSG_INFO("  #jets    : " << jets().size() << " (capacity: " << jets().capacity() << ")");
    TRG_MSG_INFO("  #muons   : " << muons().size() << " (capacity: " << muons().capacity() << ")");
@@ -268,17 +333,19 @@ TopoInputEvent::print() const {
    TRG_MSG_DEBUG("Details:");
    TRG_MSG_DEBUG("Cluster input vector (" << clusters().name() << "):");
    for(auto * x : clusters()) TRG_MSG_DEBUG("      " << *x);
-   TRG_MSG_DEBUG("Tau input vector (" << taus().name() << "):");// << endl << taus();
+   TRG_MSG_DEBUG("eEm input vector (" << eems().name() << "):");
+   for(auto * x : eems()) TRG_MSG_DEBUG("      " << *x);
+   TRG_MSG_DEBUG("Tau input vector (" << taus().name() << "):");// << std::endl << taus();
    for(auto * x : taus()) TRG_MSG_DEBUG("      " << *x);
-   TRG_MSG_DEBUG("Jet input vector (" << jets().name() << "):");// << endl << jets();
+   TRG_MSG_DEBUG("Jet input vector (" << jets().name() << "):");// << std::endl << jets();
    for(auto * x : jets()) TRG_MSG_DEBUG("      " << *x);
-   TRG_MSG_DEBUG("Muon input vector (" << muons().name() << "):");// << endl << muons();
+   TRG_MSG_DEBUG("Muon input vector (" << muons().name() << "):");// << std::endl << muons();
    for(auto * x : muons()) TRG_MSG_DEBUG("      " << *x);
-   TRG_MSG_DEBUG("LateMuon input vector (" << lateMuons().name() << "):");// << endl << latemuons();
+   TRG_MSG_DEBUG("LateMuon input vector (" << lateMuons().name() << "):");// << std::endl << latemuons();
    for(auto * x : lateMuons()) TRG_MSG_DEBUG("      " << *x);
-   TRG_MSG_DEBUG("MuonsNextBC input vector (" << muonsNextBC().name() << "):");// << endl << muonsNextBC();
+   TRG_MSG_DEBUG("MuonsNextBC input vector (" << muonsNextBC().name() << "):");// << std::endl << muonsNextBC();
    for(auto * x : muonsNextBC()) TRG_MSG_DEBUG("      " << *x);
-   TRG_MSG_DEBUG("MET input (" << m_met.name() << "):");// << endl << m_met;
+   TRG_MSG_DEBUG("MET input (" << m_met.name() << "):");// << std::endl << m_met;
    for(auto * x : m_met) TRG_MSG_DEBUG("      " << *x);
    TRG_MSG_DEBUG("Overflow bits from:"
                  <<" emtau "<<m_overflowFromEmtauInput

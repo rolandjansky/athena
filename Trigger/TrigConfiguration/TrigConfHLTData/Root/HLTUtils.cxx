@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -69,7 +69,7 @@ namespace TrigConf {
                              const std::set<std::string>* veto = 0 )
    {
       if ( veto && veto->find(tename) != veto->end() ) return;
-      const TrigConf::HLTSequence* seq = sequenceList.getSequence(tename);
+      TrigConf::HLTSequence* seq = sequenceList.getSequence(tename);
       if ( seq==0 ) return;
 
       if(level==2) seq->setL2(); 
@@ -267,7 +267,7 @@ TrigConf::HLTTEUtils::allTEsProducedInL2Chain( const TrigConf::HLTChain& chain,
    // get the input TEs
    set<string> inputTEs;
    for(set<string>::iterator outTEIt = l2tes.begin(); outTEIt != l2tes.end(); ++outTEIt) {
-      const TrigConf::HLTSequence* seq = sequenceList.getSequence(*outTEIt);
+      TrigConf::HLTSequence* seq = sequenceList.getSequence(*outTEIt);
       if(seq==0) {
          std::stringstream str;
          str << "TE " << *outTEIt << " is not produced by any sequence " << std::endl;
@@ -311,7 +311,7 @@ TrigConf::HLTTEUtils::allTEsProducedInEFChain( const TrigConf::HLTChain& chain,
    // get the input TEs
    set<string> inputTEs;
    for(set<string>::iterator outTEIt = eftes.begin(); outTEIt != eftes.end(); ++outTEIt) {
-      const TrigConf::HLTSequence* seq = sequenceList.getSequence(*outTEIt);
+      TrigConf::HLTSequence* seq = sequenceList.getSequence(*outTEIt);
       if(seq==0) {
          std::stringstream str;
          str << "TE " << *outTEIt << " is not produced by any sequence " << std::endl;
@@ -561,7 +561,7 @@ TrigConf::HLTTEUtils::mergeHLTChainList2( HLTFrame& frame) {
    
    // we need to keep the steps in sync so first we find the last step in L2
    unsigned int lastL2step(0);
-   for( TrigConf::HLTChain* chain : frame.chains() ) {
+   for( TrigConf::HLTChain* chain : frame.getHLTChainList() ) {
       if(chain->level_enum() != L2) continue;
       lastL2step = max(lastL2step, chain->lastStep());
    }
@@ -574,7 +574,7 @@ TrigConf::HLTTEUtils::mergeHLTChainList2( HLTFrame& frame) {
    // 5. merge the prescales, streams
 
    vector<HLTChain*> newHLTchains; 
-   for( TrigConf::HLTChain* chain : frame.chains() ) {
+   for( TrigConf::HLTChain* chain : frame.getHLTChainList() ) {
       if( chain->level_enum() != EF ) continue;
 
 
@@ -600,7 +600,7 @@ TrigConf::HLTTEUtils::mergeHLTChainList2( HLTFrame& frame) {
 
 
       // find the lower chain
-      const HLTChain * l2Chain = frame.chains().chain( hltChain->lower_chain_name() );
+      const HLTChain * l2Chain = frame.getHLTChainList().chain( hltChain->lower_chain_name() );
 
       // if no seeding l2 chain is found, nothing needs to be done
       if(l2Chain) {

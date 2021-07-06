@@ -4,7 +4,7 @@
  **     @author  mark sutton
  **     @date    Fri 12 Oct 2012 13:39:05 BST 
  **
- **     Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -59,8 +59,12 @@ extern bool LINEF;
 extern bool LINES;
 
 
+
+
 TH1F* Rebin( TH1F* h, double f ) { 
   
+  std::cout << "\nREBIN: " << h->GetName() << " :: " << f << std::endl; 
+
   if ( int(f) == f ) { 
     TH1F* n = (TH1F*)h->Clone("foeda"); n->SetDirectory(0);
     n->Rebin(int(f));
@@ -197,9 +201,9 @@ public:
 
   bands() { } 
 
-  bands( const bands& b ) : m_limits(b.m_limits), m_labels(b.m_labels) { }  
+  bands( const bands& b ) = default;
 
-  bands( std::vector<double> limits, std::vector<std::string> labels ) 
+  bands( const std::vector<double>& limits, const std::vector<std::string>& labels ) 
   : m_limits(limits), m_labels(labels)
   {   }
 
@@ -262,15 +266,16 @@ int usage(const std::string& name, int status, const std::string& err_msg="" ) {
   s << "    -er, --effscaleref  value \t scale reference efficiencies to value\n";
   s << "    -nb  --nobayes            \t do not calculate Basyesian efficiency uncertaintiesr\n\n";
 
-  s << "    -r,  --refit              \t refit all test resplots\n";
-  s << "    -rr, --refitref           \t also refit all reference resplots\n";
-  s << "         --oldrms             \t use fast rms95 when refitting resplots\n\n";
+  s << "    -r,  --refit               \t refit all test resplots\n";
+  s << "    -rr, --refitref            \t also refit all reference resplots\n";
+  s << "         --oldrms              \t use fast rms95 when refitting resplots\n\n";
 
-  s << "    -as, --atlasstyle         \t use ATLAS style\n";
-  s << "    -l,  --labels       values\t use specified labels for key\n";
-  s << "         --taglabels    values\t use specified additional labels \n";
-  s << "    -al, --atlaslable   value \t set value for atlas label\n";
-  s << "    -ac, --addchains          \t if possible, add chain names histogram labels \n\n";   
+  s << "    -as, --atlasstyle          \t use ATLAS style\n";
+  s << "    -l,  --labels        values\t use specified labels for key\n";
+  s << "         --taglabels     values\t use specified additional labels \n";
+  s << "    -al, --atlaslable    value \t set value for atlas label\n";
+  s << "    -sx, --swapaxtitles  exp pattern\t swap the expression \"exp \" in the axis titles with \"pattern\"\n";
+  s << "    -ac, --addchains           \t if possible, add chain names histogram labels \n\n";   
 
   s << "    -m,  --mapfile            \t remap file for reference histograms \n\n";   
  
@@ -401,6 +406,7 @@ int main(int argc, char** argv) {
   double effmin =  90;
   double effmax = 102;
 
+  std::string defreflabel = "";
 
   /// control flags and labels
 
@@ -455,6 +461,9 @@ int main(int argc, char** argv) {
   std::string pattern = "";
   std::string regex   = "";
 
+  std::string xpattern = "";
+  std::string xregex   = "";
+
   std::vector<std::string> chains;
   std::vector<std::string> refchains;
 
@@ -472,6 +481,7 @@ int main(int argc, char** argv) {
 
     if ( arg.find("-")!=0 && addinglabels ) {
       std::string label = arg;
+      fullreplace( label, "__", " " );
       replace( label, "#", " " );
       usrlabels.push_back( label );
       continue;
@@ -638,6 +648,12 @@ int main(int argc, char** argv) {
       if ( ++i<argc ) regex=argv[i];
       else return usage(argv[0], -1, "no target pattern provided");
     }
+    else if ( arg=="-sx" || arg=="--swapaxtitles" ) { 
+      if ( ++i<argc ) xregex=argv[i];
+      else return usage(argv[0], -1, "no target pattern provided");
+      if ( ++i<argc ) xpattern=argv[i];
+      else return usage(argv[0], -1, "no patterns provided");
+    }
     else if ( arg.find("-")==0 ) {
       std::cerr << "unknown option: " << arg << "\n" << std::endl;
       return usage(argv[0], -4);
@@ -658,6 +674,7 @@ int main(int argc, char** argv) {
 
 	replace ( chain, ":", "_" );
 	replace ( chain, ";", "_" );
+	replace ( chain, "/", "_" );  // needed for Tag&Probe chains
 	chains.push_back(chain);
 
 	std::cout << "file: " << file << "\tchain: " << chain << std::endl;
@@ -698,7 +715,13 @@ int main(int argc, char** argv) {
   if ( noref==false ) { 
     if ( frefname=="" )  { 
       std::cerr << "main(): ref file not specified " << std::endl;
-      return -1;
+      Plotter::setplotref(false);
+      noref = true;
+      /// leave this commented here - now instead of bombing out if we don't 
+      /// specify the reference file, just carry on as if it was not specified 
+      /// at all, so as this changes the external behaviour 
+      /// of the code we want this retained
+      //       return -1;
     }
     
     if ( frefname==ftestname )    fref_ = ftest_;
@@ -713,10 +736,19 @@ int main(int argc, char** argv) {
   else fref_ = ftest_;
   
   if ( chainfiles.size()==0 ) { 
-
-    if ( ftest_==0 || ( noref==false && fref_==0 ) ) { 
-      std::cerr << "could not open files " << std::endl;
+    if ( ftest_==0 ) { 
+      std::cerr << "could not open test file " << ftestname << std::endl;
       return -1;
+    }
+
+    if ( noref==false && fref_==0 ) { 
+      std::cerr << "could not open files " << std::endl;
+      /// don't fail anymore if can't open the reference file, now 
+      /// continue without plotting the refereces, instead printing 
+      /// a warning on the plots
+      noref=true;
+      fref_=ftest_;
+      defreflabel = "failed to open reference file";
     }
     
   }
@@ -822,7 +854,7 @@ int main(int argc, char** argv) {
 	release += "  (" + release_data[0]+")"; 
       }
       else {
-	release += "  (" + nightly; 
+	release += " (" + nightly; 
 	chop( release_data[0], " " );
 	release += " " + chop(release_data[0], " " ) + ")";
       }
@@ -1079,11 +1111,26 @@ int main(int argc, char** argv) {
 
 	std::vector<std::string> panel_config = rc.GetStringVector( "panels" );
 	
+	std::vector<string> panel_columns;
+
+	if ( rc.isTagDefined("panel_columns") ) { 
+	  panel_columns = rc.GetStringVector( "panel_columns" );
+	  if ( panel_columns.size()%2 ) return usage( argv[0], -1, "incorrect panel settings" );  
+	}
+
+
 	for ( size_t ipanel=panel_config.size() ; ipanel-- ;  ) { 
 	  
 	  std::vector<std::string> raw_input = rc.GetStringVector( panel_config[ipanel] );
+
+	  int tncols = ncols;
 	  
-	  Panel p( panel_config[ipanel], ncols );
+	  if ( panel_columns.size() ) { 
+	    std::vector<string>::iterator itr = find( panel_columns.begin(), panel_columns.end(), panel_config[ipanel] );
+	    if ( itr!=panel_columns.end() ) tncols = std::atoi( (++itr)->c_str() );
+	  }
+  
+	  Panel p( panel_config[ipanel], tncols );
 	  
 	  if ( raw_input.empty() ) throw std::exception();
 	  for ( size_t iraw=0 ; iraw<raw_input.size() ; iraw += 6 ) p.push_back( HistDetails( &(raw_input[iraw]) ) );
@@ -1264,12 +1311,19 @@ int main(int argc, char** argv) {
     std::string plotname = ""; 
 
     for ( size_t i=0 ; i<panel.size() ; i++ ) {
-      
+
       HistDetails histo = panel[i];
 
       std::string xaxis = histo.xtitle();
       std::string yaxis = histo.ytitle();
       
+      if ( xregex!="" ) { 
+      	size_t pos = xaxis.find(xregex);
+	if ( pos!=std::string::npos ) xaxis.replace( pos, xregex.size(), xpattern );  
+	pos = yaxis.find(xregex);
+	if ( pos!=std::string::npos ) yaxis.replace( pos, xregex.size(), xpattern );  
+      }
+
       AxisInfo xinfo = histo.xaxis(); 
       AxisInfo yinfo = histo.yaxis(); 
 
@@ -1295,14 +1349,15 @@ int main(int argc, char** argv) {
       Plots plots( "", yinfo.trim() );
       plots.clear();
       
-      
-            
+      std::string noreflabel=defreflabel;
+	              
       double xpos  = 0.18;
-      double ypos  = 0.93;
+      double ypos  = 0.91;
       
-      if ( contains(histo.name(),"eff") || contains(histo.name(),"Eff_") ) ypos = 0.15;
+      if ( contains(histo.name(),"eff") || contains(histo.name(),"Eff_") ) ypos = 0.19;
 
-      if ( histo.name()=="pT" || histo.name()=="pT_rec" ) ypos = 0.15;
+      ///  leave this code commented here for the time being ...
+      ///      if ( histo.name()=="pT" || histo.name()=="pT_rec" ) ypos = 0.19;
       
       if ( atlasstyle ) { 
 	xpos  = 0.18;
@@ -1342,14 +1397,12 @@ int main(int argc, char** argv) {
       if ( ALLRANGEMAP || (RANGEMAP && xaxis.find("p_{T}")!=std::string::npos && ccolours.size() ) ) 
 	Nrows = ( Nrows < ccolours.size() ? Nrows : ccolours.size() );
       
-      std::cout << "\n\n\tNrows " << Nrows << std::endl;
-
       int Nlines = Nrows + taglabels.size();
       
       std::vector<double> ypositions;
       
       double deltay = (Nrows*0.055-0.005)/Nrows;
-      
+
       double ylo = ypos;
       double yhi = ypos;
       
@@ -1364,7 +1417,7 @@ int main(int argc, char** argv) {
       
       /// legends ....
 
-      Legend legend( xpos, xpos+0.1, ylo, ylo+Nrows*0.06-0.005 );
+      Legend legend(     xpos, xpos+0.1, ylo, ylo+Nrows*0.06-0.005 );
       Legend legend_eff( xpos, xpos+0.1, ylo, ylo+Nrows*0.06-0.005 );
             
       
@@ -1502,14 +1555,20 @@ int main(int argc, char** argv) {
 	    }
 	    else { 
 	      hreft = Get( *ffref, refchain[j]+"/"+histo.name(), rawrefrun, chainmap );
+	      if ( hreft==0 ) {
+		std::cerr << "ERROR: could not find " << (refchain[j]+"/"+histo.name()) << std::endl;
+	      }
 	    }
 	  }
 	      
 	  if ( !noreftmp && hreft==0 ) { 
 	    std::cerr << "missing ref histogram: " << (refchain[j]+" / "+histo.name()) << " " << htest << "(ref)" << std::endl; 
 	    noreftmp = true;
-	    std::exit(-1);
 	    Plotter::setplotref(!noreftmp);
+	    noreflabel="reference not found";
+	    /// leave this code commented here since we want to know where to change this in the future
+	    /// it was added for a reason, so is useful to keep for now  
+	    //	    std::exit(-1);
 	  }
 	      
 	  if ( !noreftmp ) { 
@@ -1571,8 +1630,12 @@ int main(int argc, char** argv) {
 	    if ( hreft==0 ) std::cerr << "missing ref histogram: " << (refchain[j]+" / "+reghist)  
 				      << " " << hreft << std::endl; 
 	    noreftmp = true;
-	    std::exit(-1);
 	    Plotter::setplotref(false);
+	    noreflabel="reference not found";
+	    /// leave this code commented here since we want to know where to change this in the future
+	    /// it was added for a reason, so useful to keep for now  
+	    //	    std::exit(-1);
+
 	  }
 	
 	  if ( hreft!=0 ) { 
@@ -1588,11 +1651,34 @@ int main(int argc, char** argv) {
 
 	  if ( fulldbg ) std::cout << __LINE__ << std::endl;
 	
-	  if ( histo.name().find("rdz_vs_zed")==std::string::npos && histo.name().find("1d")!=std::string::npos ) { 
+
+	  std::string hname = histo.name();
+
+	  double rebin = 1;
+
+	  if ( contains( hname, "+Rebin" ) ) { 
+	    rebin = std::atof( hname.substr( hname.find("+Rebin")+6, hname.size() ).c_str() ); 
+	    hname = hname.substr( 0, hname.find("+Rebin") ); 
+	  } 
+
+	  if ( contains( hname, "+rebin" ) ) { 
+	    rebin = std::atof( hname.substr( hname.find("+rebin")+6, hname.size() ).c_str() ); 
+	    hname = hname.substr( 0, hname.find("+rebin") ); 
+	  } 
+	      
+	  if ( rebin!=1 ) { 
+	    htest->Rebin(rebin);
+	    if ( href ) href->Rebin(rebin);
+	  }
+#if 0
+	  /// skip this for the time being - but leave the code in place
+	  if ( !contains( histo.name(), "rdz_vs_zed" ) && contains( histo.name(), "1d") ) {
 	    std::cout << "Rebinning histogram: " << histo.name() << std::endl;
 	    if (        htest->GetNbinsX()>500 ) htest->Rebin(10);
 	    if ( href && href->GetNbinsX()>500 ) href->Rebin(10);
 	  }
+#endif
+
 
 
 	  if ( histo.name().find("zed_eff")!=std::string::npos ) { 
@@ -1666,24 +1752,25 @@ int main(int argc, char** argv) {
 	    htestnum = Get( *fftest, chains[j]+"/"+effhist+"_n", testrun, 0, &savedhistos ) ;
 	    htestden = Get( *fftest, chains[j]+"/"+effhist+"_d", testrun, 0, &savedhistos ) ;
 
-	    if ( rebin!=0 ) { 
-    	      htestnum = Rebin(htestnum, rebin );
-	      htestden = Rebin(htestden, rebin );
-	    }
 
-	    std::cout << "test histogram name: : " << htestnum->GetName() << "\txaxis: " << xaxis << "\t" << std::endl;
-
-	    //	    if ( xaxis.find("p_{T}")!=std::string::npos || xaxis.find("pt")!=std::string::npos ) { 
 	    //    b.range( chains[j], htestnum );
-	    //   b.range( chains[j], htestden );
+	    //    b.range( chains[j], htestden );
 	    //  }
 
 	    std::cout << "1: Bayesian error calculation " << htestnum << " " << htestden << "\tscale " << scale_eff << std::endl;
 
 	    if ( htestnum && htestden ) { 
 
+	      if ( rebin!=0 ) { 
+		htestnum = Rebin(htestnum, rebin );
+		htestden = Rebin(htestden, rebin );
+	      }
+	      
+	      std::cout << "test histogram name: : " << htestnum->GetName() << "\txaxis: " << xaxis << "\t" << std::endl;
+	      
+	      //	if ( xaxis.find("p_{T}")!=std::string::npos || xaxis.find("pt")!=std::string::npos ) { 
 	      if ( std::string(htestnum->GetName()).find("ntrax_eff")!=std::string::npos ) {
-
+		
 		bool low = true;
 
 		//		if ( chains[j].find("j55")!=std::string::npos ) low = false;
@@ -1761,7 +1848,12 @@ int main(int argc, char** argv) {
 
 	if ( !noreftmp && href==0 ) { 
 	  std::cout << "       no ref histogram :    " << (chains[j]+"/"+histo.name()) << std::endl;
-	  continue;
+	  noreftmp = true;
+	  Plotter::setplotref(!noreftmp);
+	  noreflabel="reference not found";
+	  /// again, this changes the external behaviour so we want to leave this "continue" 
+	  /// in place, but commented
+	  //	  continue;
 	}
 
 
@@ -1871,9 +1963,12 @@ int main(int argc, char** argv) {
         actual_chain = std::regex_replace( actual_chain, std::regex( "_HLT_IDTrack.*" ), "" );
 	
         collection = std::regex_replace(  collection, std::regex(".*HLT_IDTrack_"), "IDTrack " );
+        collection = std::regex_replace(  collection, std::regex("IDTrack "), "" );
 	collection = std::regex_replace(  std::regex_replace( collection, rx, "" ), rx1, "" );
 	
 	if ( actual_chain.find("HLT_IDTrack_")!=std::string::npos )    actual_chain.erase( actual_chain.find("HLT_IDTrack_"), 12 );
+	if ( actual_chain.find("_IDTrack_")!=std::string::npos )    actual_chain.erase( actual_chain.find("_IDTrack_"), 9 );
+	if ( actual_chain.find("IDTrack")!=std::string::npos )    actual_chain.erase( actual_chain.find("IDTrack"), 7 );
 	if ( actual_chain.find("_idperf")!=std::string::npos )    actual_chain.erase( actual_chain.find("_idperf"), 7 );
 	if ( actual_chain.find("_bperf")!=std::string::npos )     actual_chain.erase( actual_chain.find("_bperf"), 6 );
 	if ( actual_chain.find("_boffperf")!=std::string::npos )  actual_chain.erase( actual_chain.find("_boffperf"), 9 );
@@ -1908,7 +2003,9 @@ int main(int argc, char** argv) {
 
 	std::cout << "userlabels.size() " << usrlabels.size() << std::endl; 
 
-	if ( usrlabels.size() < j+1 ) std::cerr << "userlabels not large enough - not using userlabels" << std::endl;
+	if ( usrlabels.size() < j+1 ) { 
+	  if ( usrlabels.size()!=0 ) std::cerr << "userlabels not large enough - not using userlabels" << std::endl;
+	}
 	else c = usrlabels[ j ]; 
 
 	std::cout << "use label: c: " << c << std::endl;
@@ -1964,10 +2061,11 @@ int main(int argc, char** argv) {
 	  std::cout << "test: " << chains[j] << "chains colour: " << htest->GetMarkerColor() << std::endl;
 
 	} 
-	
+       
      
-	  
 
+
+	 
 	std::cout << "movin' on ..." << std::endl;
 
 	std::cout << "chain: " << chains[j] << " \t marker colour: " << htest->GetMarkerColor() << std::endl;
@@ -2190,7 +2288,10 @@ int main(int argc, char** argv) {
 
 	    if ( yminset!=yminset ) { 
 	      std::cerr << " range error " << delta << " " << yminset << " " << ymaxset << "\t(" << rmin << " " << rmax << ")" << std::endl;
-	      std::exit(-1);
+	      /// leave this code commented here since we want to know where to change this in the future
+	      /// it was added for a reason, so it is useful to keep for now  
+	      /// std::exit(-1);
+	      continue;
 	    }
 
 	  }
@@ -2286,7 +2387,7 @@ int main(int argc, char** argv) {
 	/// actually draw the plot here ...
       
 	if ( fulldbg ) if ( fulldbg ) std::cout << __LINE__ << std::endl;
-
+	
 	plots.Draw( legend );
 
 	if ( fulldbg ) if ( fulldbg ) std::cout << __LINE__ << std::endl;
@@ -2346,7 +2447,9 @@ int main(int argc, char** argv) {
 	
 	  plots_eff.Draw( legend_eff );
 	}
-      
+
+	if ( noreflabel!="" ) DrawLabel(0.1, 0.06, noreflabel, kRed, 0.03 );
+
       } // no plots
     
     } /// loop over histograms in panel 

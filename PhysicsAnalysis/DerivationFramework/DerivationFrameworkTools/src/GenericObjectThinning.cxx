@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -9,10 +9,6 @@
 // Removes all ID tracks which do not pass a user-defined cut
 
 #include "DerivationFrameworkTools/GenericObjectThinning.h"
-#include "ExpressionEvaluation/ExpressionParser.h"
-#include "ExpressionEvaluation/SGxAODProxyLoader.h"
-#include "ExpressionEvaluation/SGNTUPProxyLoader.h"
-#include "ExpressionEvaluation/MultipleProxyLoader.h"
 #include "StoreGate/ThinningHandle.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include <vector>
@@ -23,7 +19,6 @@ DerivationFramework::GenericObjectThinning::GenericObjectThinning(const std::str
                                                                   const std::string& n,
                                                                   const IInterface* p ) :
 base_class(t,n,p),
-m_parser(0),
 m_selectionString(""),
 m_ntot(0),
 m_npass(0)
@@ -39,18 +34,14 @@ DerivationFramework::GenericObjectThinning::~GenericObjectThinning() {
 StatusCode DerivationFramework::GenericObjectThinning::initialize()
 {
     ATH_MSG_VERBOSE("initialize() ...");
-    if (m_selectionString=="") {
+    if (m_selectionString.empty()) {
         ATH_MSG_FATAL("No selection string provided!");
         return StatusCode::FAILURE;
     } else {ATH_MSG_INFO("Selection string: " << m_selectionString);}
     
     // Set up the text-parsing machinery for thinning the tracks directly according to user cuts
-    if (m_selectionString!="") {
-	    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-	    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
-	    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-	    m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
-	    m_parser->loadExpression(m_selectionString);
+    if (!m_selectionString.empty()) {
+       ATH_CHECK(initializeParser( m_selectionString) );
     }
 
     //check xAOD::InDetTrackParticle collection
@@ -64,10 +55,7 @@ StatusCode DerivationFramework::GenericObjectThinning::finalize()
 {
     ATH_MSG_VERBOSE("finalize() ...");
     ATH_MSG_INFO("Processed "<< m_ntot <<" objects, "<< m_npass<< " were retained ");
-    if (m_parser) {
-        delete m_parser;
-        m_parser = 0;
-    }
+    ATH_CHECK(finalizeParser());
     return StatusCode::SUCCESS;
 }
 

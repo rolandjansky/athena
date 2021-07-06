@@ -23,10 +23,17 @@ if not overlayFlags.isDataOverlay():
 
 if DetFlags.overlay.Truth_on():
    outStream.ItemList += [ "McEventCollection#*", "TrackRecordCollection#*" ]
+   outStream.ItemList += ["xAOD::TruthParticleContainer#TruthPileupParticles",
+                          "xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux."]
+
    outStream.ItemList += [ "xAOD::JetContainer#InTimeAntiKt4TruthJets" ]
    outStream.ItemList += [ "xAOD::JetAuxContainer#InTimeAntiKt4TruthJetsAux." ]
    outStream.ItemList += [ "xAOD::JetContainer#OutOfTimeAntiKt4TruthJets" ]
    outStream.ItemList += [ "xAOD::JetAuxContainer#OutOfTimeAntiKt4TruthJetsAux." ]
+   outStream.ItemList += [ "xAOD::JetContainer#InTimeAntiKt6TruthJets" ]
+   outStream.ItemList += [ "xAOD::JetAuxContainer#InTimeAntiKt6TruthJetsAux." ]
+   outStream.ItemList += [ "xAOD::JetContainer#OutOfTimeAntiKt6TruthJets" ]
+   outStream.ItemList += [ "xAOD::JetAuxContainer#OutOfTimeAntiKt6TruthJetsAux." ]
    if DetFlags.overlay.CSC_on():
       outStream.ItemList += [ "CscSimDataCollection#CSC_SDO" ]
    if DetFlags.overlay.MDT_on():
@@ -65,7 +72,7 @@ if DetFlags.overlay.LAr_on():
    outStream.ItemList+=["LArRawChannelContainer#*"]
    if 'AddCaloDigi' in digitizationFlags.experimentalDigi():
        outStream.ItemList+=["LArDigitContainer#*"]
-   else:
+   elif 'AddCaloDigiThinned' in digitizationFlags.experimentalDigi():
        outStream.ItemList+=["LArDigitContainer#LArDigitContainer_MC_Thinned"]
    outStream.ItemList+=["LArFebErrorSummary#*"]
 if DetFlags.overlay.Tile_on():

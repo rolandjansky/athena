@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/InDetServMatFactorySLHC.h"
@@ -43,7 +43,7 @@
 InDetServMatFactorySLHC::InDetServMatFactorySLHC(InDetServMatAthenaComps * athenaComps)
   :  InDetDD::DetectorFactoryBase(athenaComps),
      m_athenaComps(athenaComps),
-     m_manager(0)
+     m_manager(nullptr)
 {
    // create a new det manager
   m_manager = new InDetDD::InDetServMatManager();
@@ -67,8 +67,8 @@ void InDetServMatFactorySLHC::create(GeoPhysVol *world )
 
   fetchTables();
 
-  InDetDD::Zone * zone = 0;
-  const GeoShape * envelopeShape = 0;
+  InDetDD::Zone * zone = nullptr;
+  const GeoShape * envelopeShape = nullptr;
   if (simpleEnvelope() || oldEnvelope()) { 
     // tube 
 

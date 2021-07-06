@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -89,13 +89,13 @@ namespace Trk
       //store the plane...
       ATH_MSG_VERBOSE( "plane to which to extrapolate X " << DeltaRcorrected << " Y " << YDir << " Z " << momentumUnit);
 
-      auto thePlane = std::make_unique<Amg::Transform3D>(DeltaRcorrected, YDir, momentumUnit, *theVertex);
+      Amg::Transform3D thePlane(DeltaRcorrected, YDir, momentumUnit, *theVertex);
 
 #ifdef IMPACTPOINT3DESTIMATOR_DEBUG
       std::cout << "the translation is, directly from Transform3d: " << thePlane->getTranslation() << endmsg;
 #endif
 
-      return std::make_unique<PlaneSurface>(std::move (thePlane));
+      return std::make_unique<PlaneSurface>(thePlane);
 
   }
 
@@ -147,15 +147,15 @@ namespace Trk
 
     ATH_MSG_VERBOSE( " Now running ImpactPoint3dEstimator::Estimate3dIP" );
     double phi0=thePerigee->parameters()[Trk::phi0];
-    double cosphi0=-sin(phi0);
-    double sinphi0=cos(phi0);
+    double cosphi0=-std::sin(phi0);
+    double sinphi0=std::cos(phi0);
     double theta=thePerigee->parameters()[Trk::theta];
-    double cottheta=1./tan(thePerigee->parameters()[Trk::theta]);
+    double cottheta=1./std::tan(thePerigee->parameters()[Trk::theta]);
     double d0=thePerigee->parameters()[Trk::d0];
 
     //I need the radius (magnetic field...)
     double Bz=magnFieldVect[2]*299.792;
-    double Rt=sin(theta)/(Bz*thePerigee->parameters()[Trk::qOverP]);
+    double Rt=std::sin(theta)/(Bz*thePerigee->parameters()[Trk::qOverP]);
 
     double x0=thePerigee->associatedSurface().center().x()+(d0-Rt)*cosphi0;
     double y0=thePerigee->associatedSurface().center().y()+(d0-Rt)*sinphi0;
@@ -171,8 +171,8 @@ namespace Trk
     double zc=theVertex->z();
 
     double phiactual=phi0;
-    double cosphiactual=-sin(phiactual);
-    double sinphiactual=cos(phiactual);
+    double cosphiactual=-std::sin(phiactual);
+    double sinphiactual=std::cos(phiactual);
 
     double secderivative=0.;
     double derivative=0.;
@@ -210,8 +210,8 @@ namespace Trk
 #endif
 
       phiactual+=deltaphi;
-      cosphiactual=-sin(phiactual);
-      sinphiactual=cos(phiactual);
+      cosphiactual=-std::sin(phiactual);
+      sinphiactual=std::cos(phiactual);
 
 #ifdef IMPACTPOINT3DESTIMATOR_DEBUG            
       ATH_MSG_VERBOSE( "derivative is: " << derivative << " sec derivative is: " << secderivative  );
@@ -228,7 +228,7 @@ namespace Trk
       if (ncycle>m_maxiterations) throw error::ImpactPoint3dEstimatorProblem("Too many loops: could not find minimum distance to vertex");
 
       ncycle+=1;
-      if (ncycle>m_maxiterations||fabs(deltaphi)<m_precision) {
+      if (ncycle>m_maxiterations||std::abs(deltaphi)<m_precision) {
 #ifdef IMPACTPOINT3DESTIMATOR_DEBUG            
         ATH_MSG_VERBOSE( "found minimum at: " << phiactual  );
 #endif
@@ -274,17 +274,16 @@ namespace Trk
     //store the plane...
     ATH_MSG_VERBOSE( "plane to which to extrapolate X " << DeltaRcorrected << " Y " << YDir << " Z " << MomentumDir  );
 
-    auto thePlane = std::make_unique<Amg::Transform3D>(DeltaRcorrected, YDir, MomentumDir, *theVertex);
+    Amg::Transform3D thePlane(DeltaRcorrected, YDir, MomentumDir, *theVertex);
 
 #ifdef IMPACTPOINT3DESTIMATOR_DEBUG            
-    std::cout << "the translation is, directly from Transform3d: " << thePlane->getTranslation() << endmsg;
+    std::cout << "the translation is, directly from Transform3d: " << thePlane.getTranslation() << endmsg;
 #endif
-
-    return std::make_unique<PlaneSurface>(std::move(thePlane));
-
+    return std::make_unique<PlaneSurface>(thePlane);
   }//end of estimate 3dIP method
 
-  bool ImpactPoint3dEstimator::addIP3dAtaPlane(VxTrackAtVertex & vtxTrack,const Amg::Vector3D & vertex) const
+  bool 
+  ImpactPoint3dEstimator::addIP3dAtaPlane(VxTrackAtVertex & vtxTrack,const Amg::Vector3D & vertex) const
   {
     if (vtxTrack.initialPerigee()) {
       const AtaPlane* myPlane=IP3dAtaPlane(vtxTrack,vertex);
@@ -305,13 +304,12 @@ namespace Trk
   }
   
 
-  const Trk::AtaPlane * ImpactPoint3dEstimator::IP3dAtaPlane(VxTrackAtVertex & vtxTrack,const Amg::Vector3D & vertex) const
+  const Trk::AtaPlane * 
+  ImpactPoint3dEstimator::IP3dAtaPlane(VxTrackAtVertex & vtxTrack,const Amg::Vector3D & vertex) const
   {
     if (!vtxTrack.initialPerigee() && vtxTrack.initialNeutralPerigee())
       ATH_MSG_WARNING( "Calling ImpactPoint3dEstimator::IP3dAtaPlane cannot return NeutralAtaPlane"  );
-
     std::unique_ptr<PlaneSurface> theSurfaceAtIP;
-
     try
     {
       double distance = 0;
@@ -330,14 +328,18 @@ namespace Trk
     ATH_MSG_VERBOSE( "Original perigee was: " << *(vtxTrack.initialPerigee())  );
     ATH_MSG_VERBOSE( "The resulting surface is: " << *theSurfaceAtIP  );
 #endif
-
-   const Trk::AtaPlane* res = dynamic_cast<const Trk::AtaPlane *>
-                              (m_extrapolator->extrapolate(*(vtxTrack.initialPerigee()),*theSurfaceAtIP));
-   return res;
+   auto pTrackPar = m_extrapolator->extrapolate(*(vtxTrack.initialPerigee()),*theSurfaceAtIP);
+   if (const Trk::AtaPlane* res = dynamic_cast<const Trk::AtaPlane *>(pTrackPar); res){
+     return res;
+   }
+   delete pTrackPar;
+   ATH_MSG_WARNING("TrackParameters ptr returned from extrapolate could not be cast to Trk::AtaPlane* in IP3dAtaPlane(..)");
+   return nullptr;
   }
   
 
-  const Trk::NeutralAtaPlane * ImpactPoint3dEstimator::IP3dNeutralAtaPlane(const NeutralParameters * initNeutPerigee,const Amg::Vector3D & vertex) const
+  const Trk::NeutralAtaPlane * 
+  ImpactPoint3dEstimator::IP3dNeutralAtaPlane(const NeutralParameters * initNeutPerigee,const Amg::Vector3D & vertex) const
   {
     std::unique_ptr<PlaneSurface> theSurfaceAtIP;
 

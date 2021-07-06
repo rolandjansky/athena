@@ -1,14 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGJETCONDITIONCONFIG_ET_H
 #define TRIGJETCONDITIONCONFIG_ET_H
 
 #include "ITrigJetConditionConfig.h"
-#include "./ConditionsDefsMT.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "./ConditionsDefsMT.h"
+#include "./ConditionsDefs.h"
 
 class TrigJetConditionConfig_et:
 public extends<AthAlgTool, ITrigJetConditionConfig> {
@@ -20,10 +19,7 @@ public extends<AthAlgTool, ITrigJetConditionConfig> {
                           const IInterface* parent);
 
   virtual StatusCode initialize() override;
-  virtual ConditionMT getCondition() const override;
-
-  virtual bool addToCapacity(std::size_t) override;
-  virtual std::size_t capacity() const override;
+  virtual Condition getCondition() const override;
 
  private:
   

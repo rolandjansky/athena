@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CNVTOOLS_STGC_RAWDATAPROVIDERTOOL_H
@@ -21,7 +21,7 @@ namespace Muon
   /** @class STGC_RawDataProviderTool
    */
   
-  class STGC_RawDataProviderTool : virtual public IMuonRawDataProviderTool, public AthAlgTool
+  class STGC_RawDataProviderTool : public extends<AthAlgTool, IMuonRawDataProviderTool>
     {
     public:
       using IMuonRawDataProviderTool::convert; // Otherwise get a -Woverloaded-virtual warning about hiding convert(const std::vector<IdentifierHash>& rdoIdhVect)
@@ -36,14 +36,14 @@ namespace Muon
       virtual StatusCode finalize() override;
       
       /** Old decoding method which uses IROBDataProviderSvc in TgcRdoToPrepDataTool */
-      virtual StatusCode convert(const ROBFragmentList& vecRobs) override;
+      virtual StatusCode convert(const ROBFragmentList& vecRobs) const override;
       /** Old decoding method which uses IROBDataProviderSvc in TgcRdoToPrepDataTool with IdentifierHash vector */
       virtual StatusCode convert(const ROBFragmentList& vecRobs,
-				 const std::vector<IdentifierHash>& rdoIdhVect) override;
+				 const std::vector<IdentifierHash>& rdoIdhVect) const override;
       /** New decoding methods which do not use IROBDataProviderSvc in TgcRdoToPrepDataTool */
-      virtual StatusCode convert() override;
+      virtual StatusCode convert() const override;
       /** New decoding methods which do not use IROBDataProviderSvc in TgcRdoToPrepDataTool with ID Hash vector */
-      virtual StatusCode convert(const std::vector<IdentifierHash>& rdoIdhVect) override;
+      virtual StatusCode convert(const std::vector<IdentifierHash>& rdoIdhVect) const override;
 
     private:
 

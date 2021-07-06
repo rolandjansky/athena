@@ -2,6 +2,8 @@
 from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.doVtxBeamSpot.set_Value_and_Lock(True)
 InDetFlags.doTrackSegmentsDisappearing.set_Value_and_Lock(False)
+InDetFlags.doCaloSeededAmbi.set_Value_and_Lock(False)
+
 
 #Turn off all useless parts of the detector
 from AthenaCommon.DetFlags import DetFlags
@@ -27,11 +29,15 @@ rec.doTau.set_Value_and_Lock(False)
 rec.doWriteTAG.set_Value_and_Lock(False)
 rec.doTagRawSummary.set_Value_and_Lock(False)
 rec.doExpressProcessing.set_Value_and_Lock(True)
+rec.doHIP.set_Value_and_Lock(False)
 
 #Diable some additional algs which throw warnings
 from RecExConfig.RecAlgsFlags import recAlgs
 recAlgs.doTrackParticleCellAssociation.set_Value_and_Lock(False)
 recAlgs.doTrigger.set_Value_and_Lock(False)
+
+from ParticleBuilderOptions.AODFlags import AODFlags 
+AODFlags.ThinInDetForwardTrackParticles.set_Value_and_Lock(False)
 
 from AthenaMonitoring.DQMonFlags import DQMonFlags
 DQMonFlags.enableLumiAccess=False

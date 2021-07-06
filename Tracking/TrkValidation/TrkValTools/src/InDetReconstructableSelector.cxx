@@ -47,7 +47,7 @@ Trk::InDetReconstructableSelector::InDetReconstructableSelector(const std::strin
 StatusCode Trk::InDetReconstructableSelector::initialize() {
 
   // get the Particle Properties Service
-  IPartPropSvc* partPropSvc = 0;
+  IPartPropSvc* partPropSvc = nullptr;
   StatusCode sc =  service("PartPropSvc", partPropSvc, true);
   if (sc.isFailure()) {
     ATH_MSG_FATAL (" Could not initialize Particle Properties Service");
@@ -64,13 +64,13 @@ StatusCode Trk::InDetReconstructableSelector::finalize() {
   return StatusCode::SUCCESS;
 }
 
-std::vector<const HepMC::GenParticle*>*
+std::vector<HepMC::ConstGenParticlePtr>*
 Trk::InDetReconstructableSelector::selectGenSignal (const McEventCollection* SimTracks) const {
 
-  if (! SimTracks) return NULL;
+  if (! SimTracks) return nullptr;
 
-  std::vector<const HepMC::GenParticle *>* genSignal = 
-    new std::vector<const HepMC::GenParticle *>;
+  std::vector<HepMC::ConstGenParticlePtr>* genSignal = 
+    new std::vector<HepMC::ConstGenParticlePtr>;
 
   // pile-up: vector of MCEC has more than one entry
   DataVector<HepMC::GenEvent>::const_iterator itCollision = SimTracks->begin();
@@ -84,7 +84,7 @@ Trk::InDetReconstructableSelector::selectGenSignal (const McEventCollection* Sim
       // 1) require stable particle from generation or simulation
       if ((particle->status()%1000) != 1 )    continue;
 
-      if(particle->production_vertex() == NULL) {
+      if(particle->production_vertex() == nullptr) {
         ATH_MSG_WARNING ("GenParticle without production vertex - simulation corrupt? ");
         ATH_MSG_DEBUG   ("It's this one: " << particle);
         continue;

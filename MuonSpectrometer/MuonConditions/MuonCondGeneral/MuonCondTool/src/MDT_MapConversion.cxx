@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -15,10 +15,10 @@
 #include "MuonIdHelpers/MdtIdHelper.h"
 
 #include "PathResolver/PathResolver.h"
+#include <cstdio>
 #include <fstream>
-#include <string>
-#include <stdio.h>
 #include <map>
+#include <string>
 
 #include "MuonCondTool/MDT_MapConversion.h"
 
@@ -43,8 +43,8 @@ MDT_MapConversion::MDT_MapConversion (const std::string& type,
 				    const std::string& name,
 				    const IInterface* parent)
   : AthAlgTool(type, name, parent),
-    m_mdtIdHelper(0),
-    m_chronoSvc(0)
+    m_mdtIdHelper(nullptr),
+    m_chronoSvc(nullptr)
 {
   
   declareInterface< IMDT_MapConversion >(this);
@@ -137,19 +137,21 @@ StatusCode MDT_MapConversion::initialize()
   
 }
 
-const Identifier& MDT_MapConversion::ConvertToOffline(const std::string &OnlineId) const
+const Identifier& MDT_MapConversion::ConvertToOffline(const std::string &OnlineId,
+                                                      bool quiet /*=false */) const
 {
-  MsgStream log(msgSvc(), name());
 //  int size = m_Chamber_Map.size();
   //log << MSG::VERBOSE << "*************** size is\n" << size<< endmsg;
   std::map<std::string, Identifier>::iterator iter;
   
   //const Identifier m_Online_empty;
   
-  if (m_Chamber_Map.size()!=0){
+  if (!m_Chamber_Map.empty()){
     const auto& mapit = m_Chamber_Map.find(OnlineId);
-    if (ATH_UNLIKELY(mapit == m_Chamber_Map.end())) { 
-      log << MSG::ERROR << "Lookup of ID " << OnlineId << " in MDT_MapConversion::ConvertToOffline failed" << endmsg; 
+    if (ATH_UNLIKELY(mapit == m_Chamber_Map.end())) {
+      if (!quiet) {
+        ATH_MSG_ERROR( "Lookup of ID " << OnlineId << " in MDT_MapConversion::ConvertToOffline failed" );
+      }
       return m_Online_empty; // not quite right but should never get here
     }
     const Identifier & OfflineName = (mapit->second);

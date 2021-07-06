@@ -9,48 +9,42 @@
 //  The return collection is required to have a one-to-one correspondence
 //  to the input.
 //
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef MUIDINTERFACES_IMUIDBACKTRACKER_H
 #define MUIDINTERFACES_IMUIDBACKTRACKER_H
 
 #include <vector>
+
 #include "GaudiKernel/IAlgTool.h"
 #include "TrkTrack/TrackCollection.h"
 
-namespace Rec
-{
-    
-/** Interface ID for IMuidBackTracker*/  
-static const InterfaceID IID_IMuidBackTracker("IMuidBackTracker", 1, 0);
-  
-/**@class IMuidBackTracker
+namespace Rec {
 
-Base class for MuidBackTracker AlgTool
-     
-     
-@author Alan.Poppleton@cern.ch
-*/
-class IMuidBackTracker : virtual public IAlgTool
-{
-public:
+    /** Interface ID for IMuidBackTracker*/
+    static const InterfaceID IID_IMuidBackTracker("IMuidBackTracker", 1, 0);
 
-    /**Virtual destructor*/
-    virtual ~IMuidBackTracker(){}
-       
-    /** AlgTool and IAlgTool interface methods */
-    static const InterfaceID&	interfaceID() { return IID_IMuidBackTracker; }
+    /**@class IMuidBackTracker
 
-    /**IMuidBackTracker interface:
-       algorithmic code for back-tracking tracks in a muon spectrometer TrackCollection
-       to the beam intersection point */
-    virtual TrackCollection*	execute(const TrackCollection& spectrometerTracks) const = 0;
- 
-};
- 
-}	// end of namespace
-
-#endif // MUIDINTERFACES_IMUIDBACKTRACKER_H
+    Base class for MuidBackTracker AlgTool
 
 
+    @author Alan.Poppleton@cern.ch
+    */
+    class IMuidBackTracker : virtual public IAlgTool {
+    public:
+        /**Virtual destructor*/
+        virtual ~IMuidBackTracker() {}
+
+        /** AlgTool and IAlgTool interface methods */
+        static const InterfaceID& interfaceID() { return IID_IMuidBackTracker; }
+
+        /**IMuidBackTracker interface:
+           algorithmic code for back-tracking tracks in a muon spectrometer TrackCollection
+           to the beam intersection point */
+        virtual TrackCollection* execute(const TrackCollection& spectrometerTracks) const = 0;
+    };
+
+}  // namespace Rec
+
+#endif  // MUIDINTERFACES_IMUIDBACKTRACKER_H

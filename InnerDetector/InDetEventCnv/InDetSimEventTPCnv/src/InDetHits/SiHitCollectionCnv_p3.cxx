@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetSimEvent/SiHit.h"
@@ -266,6 +266,8 @@ SiHitCollection* SiHitCollectionCnv_p3::createTransient(const SiHitCollection_p3
 
 void SiHitCollectionCnv_p3::persToTrans(const SiHitCollection_p3* persCont, SiHitCollection* transCont, MsgStream &/*log*/)
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
   unsigned int hitCount = 0;
   unsigned int angleCount = 0;
   unsigned int idxBC = 0;
@@ -319,7 +321,7 @@ void SiHitCollectionCnv_p3::persToTrans(const SiHitCollection_p3* persCont, SiHi
         if (persCont->m_mcEvtIndex[idxBC] == 0) {
           flag = HepMcParticleLink::IS_POSITION;
         }
-        HepMcParticleLink partLink( persCont->m_barcode[idxBC], persCont->m_mcEvtIndex[idxBC], HepMcParticleLink::ExtendedBarCode::eventCollectionFromChar(persCont->m_evtColl[idxBC]), flag );
+        HepMcParticleLink partLink( persCont->m_barcode[idxBC], persCont->m_mcEvtIndex[idxBC], HepMcParticleLink::ExtendedBarCode::eventCollectionFromChar(persCont->m_evtColl[idxBC]), flag, ctx );
         transCont->Emplace( endLast, endThis, eneLoss, meanTime, partLink, persCont->m_id[idxId]);
 
         endLast = endThis;

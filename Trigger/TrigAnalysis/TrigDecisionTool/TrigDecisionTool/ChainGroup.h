@@ -204,7 +204,8 @@ namespace Trig {
 
       // update the configuration
       void update(const TrigConf::HLTChainList* confChains,
-                  const TrigConf::ItemContainer* confItems);
+                  const TrigConf::ItemContainer* confItems,
+                  const bool parseAsRegex = true);
 
       ChainGroup& operator= (const ChainGroup&);
 

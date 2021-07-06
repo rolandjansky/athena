@@ -72,9 +72,9 @@ StatusCode CscRdoToCscDigit::decodeCsc(const CscRawDataCollection *rdoColl, CscD
       continue;
     }
     const uint16_t width = data->width();
-    Identifier stationId = m_cscRdoDecoderTool->stationIdentifier(data);
+    Identifier stationId = m_cscRdoDecoderTool->stationIdentifier(data,&m_idHelperSvc->cscIdHelper());
     for (int j=0; j<width; ++j) {
-      Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(data, j);
+      Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(data,&m_idHelperSvc->cscIdHelper(),j);
       std::vector<uint16_t> samples;
       const bool extractSamples = data->samples(j, numSamples, samples);
       if (!extractSamples) {

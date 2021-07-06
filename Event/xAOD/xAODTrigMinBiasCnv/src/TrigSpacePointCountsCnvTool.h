@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id:$
 #ifndef xAODTrigMinBiasCNV_TrigSpacePointCountsCNVTOOL_H
 #define xAODTrigMinBiasCNV_TrigSpacePointCountsCNVTOOL_H
 
@@ -32,9 +31,6 @@ namespace xAODMaker {
       /// Regular AlgTool constructor
       TrigSpacePointCountsCnvTool( const std::string& type, const std::string& name,
                       const IInterface* parent );
-
-      /// Function initialising the tool
-      virtual StatusCode initialize() override;
 
       /// Function that fills an existing xAOD::TrigSpacePointCountsContainer
       virtual StatusCode convert( const TrigSpacePointCountsCollection* aod,

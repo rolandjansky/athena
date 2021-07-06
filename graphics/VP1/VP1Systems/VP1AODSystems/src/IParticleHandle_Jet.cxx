@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -149,7 +149,7 @@ IParticleHandle_Jet::~IParticleHandle_Jet()
 
 // Setter
 //____________________________________________________________________
-void IParticleHandle_Jet::setScale( const double& sc) { m_d->scale = sc; }
+void IParticleHandle_Jet::setScale( const double& sc, bool useEt) { m_d->scale = sc; m_d->considerTransverseEnergies= useEt;}
 
 //____________________________________________________________________
 void IParticleHandle_Jet::setMaxR(const double& maxR) { m_d->maxR = maxR * SYSTEM_OF_UNITS::m; }
@@ -345,7 +345,7 @@ void IParticleHandle_Jet::Imp::updateConeHeightParameters(SoCone*cone, SoTransla
 {
 	VP1Msg::messageVerbose("IParticleHandle_Jet::Imp::updateConeHeightParameters()");
 
-	double h(scale * energy);
+	double h( std::fabs(scale * energy) );
 
 	// FIXME: check this! when maxR is set, what should that do?? Here it's only used as "h", but maybe it should set the max length of the cone's bottom radius?? Check with Ed!
 	if (maxR > 0.0001) { // maxR > 0. is not univocally defined, because maxR is a floating point number
@@ -363,7 +363,7 @@ void IParticleHandle_Jet::Imp::updateConeHeightParameters(SoCone*cone, SoTransla
 	SbString strHeight, strRadius;
 	(cone->height).get(strHeight);
 	(cone->bottomRadius).get(strRadius);
-  // std::cout << "input - energy: " << energy << " - scale: " << scale << " - maxR: " << maxR << " - h: " << h << " --- updated cone - height: " << strHeight.getString() << " - bottom radius: " << strRadius.getString() << std::endl;
+//   std::cout << "input - energy: " << energy << " - scale: " << scale << " - maxR: " << maxR << " - h: " << h << " --- updated cone - height: " << strHeight.getString() << " - bottom radius: " << strRadius.getString() << std::endl;
 
 	// you can also use the 'writeField()' method, direct to std output
 	//SoDebug::writeField(&(cone->height));
@@ -765,9 +765,6 @@ double IParticleHandle_Jet::getBTaggingWeight(std::string tagger)
 		VP1Msg::message("Tagger '" + QString::fromStdString(tagger) + "' not found! Returning weight=0.0 ...");
 
 	return weight;
-
-
-
 }
 
 void IParticleHandle_Jet::dumpToJSON( std::ofstream& str) const {

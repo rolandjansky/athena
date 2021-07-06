@@ -2,7 +2,6 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: TGCSSCControllerOut.cxx,v 1.5 2005-11-29 08:12:40 nkanaya Exp $
 #include "TrigT1TGC/TGCSSCControllerOut.h"
 #include <iostream>
 

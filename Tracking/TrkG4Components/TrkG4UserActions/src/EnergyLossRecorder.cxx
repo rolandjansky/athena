@@ -68,8 +68,8 @@ namespace G4UA
     // the material information
     G4TouchableHistory* touchHist = (G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();
     // G4LogicalVolume
-    G4LogicalVolume *lv= touchHist ? touchHist->GetVolume()->GetLogicalVolume() : 0;
-    G4Material *mat    = lv ? lv->GetMaterial() : 0;
+    G4LogicalVolume *lv= touchHist ? touchHist->GetVolume()->GetLogicalVolume() : nullptr;
+    G4Material *mat    = lv ? lv->GetMaterial() : nullptr;
 
     // log the information // cut off air
     if (mat && mat->GetRadlen() < 200000.) {

@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #############################################################################################
 ##### NOTE!! this file is the one called when using the HIPs filter as part of the DESDM_RPVLL.
@@ -20,11 +21,7 @@ def HipTriggerSelectionString(flags):
         if flags.triggers.__len__() >1:
             for trigger in flags.triggers[1:]:
                 cutString+=" || "+trigger
-                pass
-            pass
-        pass
     return cutString
-    pass
 
 HipTriggerFilterTool = skimtool( name = "HipTriggerFilterTool",
                                  expression = HipTriggerSelectionString(primHIPsDESD.HipsTriggerFilterExpression) )

@@ -49,8 +49,8 @@ namespace InDetDD {
     
     private:
     
-      unsigned int m_nlayerBarrel[3];
-      unsigned int m_nlayerEndcap[18];
+      unsigned int m_nlayerBarrel[3]{};
+      unsigned int m_nlayerEndcap[18]{};
 
       unsigned int m_nringBarrel;
       unsigned int m_nphiBarrel;

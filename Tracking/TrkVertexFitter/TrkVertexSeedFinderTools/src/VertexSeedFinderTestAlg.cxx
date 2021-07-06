@@ -28,10 +28,10 @@ using Gaudi::Units::GeV;
 namespace {
 
 
-std::unique_ptr<AmgSymMatrix(5)> cov5()
+AmgSymMatrix(5) cov5()
 {
-  auto m = std::make_unique<AmgSymMatrix(5)>();
-  m->setIdentity();
+  AmgSymMatrix(5) m;
+  m.setIdentity();
   return m;
 }
 
@@ -154,9 +154,9 @@ StatusCode VertexSeedFinderTestAlg::execute()
   Amg::Vector3D pos1c { 1.2*mm, 1.3*mm, -7*mm };
   Amg::Vector3D mom1c { 300*MeV, 1000*MeV, 100*MeV };
 
-  auto p1a = std::make_unique<Trk::Perigee>(pos1a, mom1a,  1, pos0, cov5().release());
-  auto p1b = std::make_unique<Trk::Perigee>(pos1b, mom1b, -1, pos0, cov5().release());
-  auto p1c = std::make_unique<Trk::Perigee>(pos1c, mom1c, -1, pos0, cov5().release());
+  auto p1a = std::make_unique<Trk::Perigee>(pos1a, mom1a,  1, pos0, cov5());
+  auto p1b = std::make_unique<Trk::Perigee>(pos1b, mom1b, -1, pos0, cov5());
+  auto p1c = std::make_unique<Trk::Perigee>(pos1c, mom1c, -1, pos0, cov5());
 
   std::vector<const Trk::TrackParameters*> v1a { p1a.get(), p1b.get(), p1c.get() };
   std::vector<const Trk::TrackParameters*> v1b { p1c.get(), p1a.get(), p1b.get() };
@@ -248,7 +248,7 @@ StatusCode VertexSeedFinderTestAlg::execute()
     Amg::Vector3D mom { pt*cos(phi), pt*sin(phi), pt*sinh(eta) };
     double charge = etadist(rng) > 0 ? 1 : -1;
     perigees.emplace_back (std::make_unique<Trk::Perigee> (pos, mom, charge, pos0,
-                                                           cov5().release()));
+                                                           cov5()));
     pvec.push_back (perigees.back().get());
   }
 

@@ -23,7 +23,6 @@ def MultivariateTagManagerCfg(flags, name = 'MultivariateTagManager', TaggerList
     acc = ComponentAccumulator()
     mvtagtoollist = []
     MultivariateTagManagerAuxBranches = []
-    MultivariateTagManagerAuxBranches += ['SMT_discriminant'] #ATLASRECTS-5381
 
     if 'MV2c10rnn' in TaggerList:
         #RNNIP output variables are needed

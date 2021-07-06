@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileCellMonitorAlgorithm.h"
@@ -544,8 +544,8 @@ StatusCode TileCellMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
           bool fillEneAndTimeDiff(m_fillTimeAndEnergyDiffHistograms);
 
           // avoid double peak structure in energy and time balance histograms
-          if ((gain1 == 0 && gain2 == 1 && (energy1 < 2000 || std::abs(energy1 / energy2) > 5))
-              || (gain1 == 1 && gain2 == 0 && (energy2 < 2000 || std::abs(energy2 / energy1) > 5))) {
+          if ((gain1 == 0 && gain2 == 1 && (energy1 < 2000 || energy2 < 10 || std::abs(energy1 / energy2) > 5))
+              || (gain1 == 1 && gain2 == 0 && (energy2 < 2000 || energy1 < 10 || std::abs(energy2 / energy1) > 5))) {
 
             fillEneAndTimeDiff = false;
           }

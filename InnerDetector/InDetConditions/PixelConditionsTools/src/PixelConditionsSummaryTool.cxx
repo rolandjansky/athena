@@ -1,20 +1,20 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelConditionsSummaryTool.h"
+#include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 
 PixelConditionsSummaryTool::PixelConditionsSummaryTool(const std::string& type, const std::string& name, const IInterface* parent)
   :AthAlgTool(type, name, parent),
-  m_pixelID(nullptr),
-  m_useByteStream(false)
+  m_pixelID(nullptr)
 {
   m_isActiveStatus.push_back("OK");
   m_isActiveStates.push_back("READY");
 
   declareProperty("IsActiveStatus", m_isActiveStatus);
   declareProperty("IsActiveStates", m_isActiveStates);
-  declareProperty("UseByteStream", m_useByteStream, "Switch for usage of the ByteStream error service");
 }
 
 PixelConditionsSummaryTool::~PixelConditionsSummaryTool(){}
@@ -22,17 +22,19 @@ PixelConditionsSummaryTool::~PixelConditionsSummaryTool(){}
 StatusCode PixelConditionsSummaryTool::initialize(){
   ATH_MSG_DEBUG("PixelConditionsSummaryTool::initialize()");
 
-  ATH_CHECK(setProperties());
-
   ATH_CHECK(m_condDCSStateKey.initialize());
   ATH_CHECK(m_condDCSStatusKey.initialize());
-  ATH_CHECK(m_BSErrContReadKey.initialize(SG::AllowEmpty));
 
+//  const EventContext& ctx{Gaudi::Hive::currentContext()};
+//  bool useByteStream = (SG::ReadCondHandle<PixelModuleData>(m_configKey,ctx)->getUseByteStreamErrFEI4() || SG::ReadCondHandle<PixelModuleData>(m_configKey,ctx)->getUseByteStreamErrFEI3());
+  bool useByteStream = (m_useByteStreamFEI4 || m_useByteStreamFEI3);
+//  ATH_CHECK(m_BSErrContReadKey.initialize(useByteStream && !m_BSErrContReadKey.empty()));
+  ATH_CHECK(m_BSErrContReadKey.initialize(useByteStream && !m_BSErrContReadKey.empty()));
   ATH_CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
-
   ATH_CHECK(m_condTDAQKey.initialize( !m_condTDAQKey.empty() ));
   ATH_CHECK(m_condDeadMapKey.initialize());
   ATH_CHECK(m_pixelCabling.retrieve());
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
  
   for (unsigned int istate=0; istate<m_isActiveStates.size(); istate++) {
     if      (m_isActiveStates[istate]=="READY")      { m_activeState.push_back(PixelDCSStateData::DCSModuleState::READY); }
@@ -85,14 +87,34 @@ PixelConditionsSummaryTool::IDCCacheEntry* PixelConditionsSummaryTool::getCacheE
 }
 
 uint64_t PixelConditionsSummaryTool::getBSErrorWord(const IdentifierHash& moduleHash, const EventContext& ctx) const {
-  if (!m_useByteStream) { return 0; }
+  return getBSErrorWord(moduleHash, moduleHash, ctx);
+}
+
+uint64_t PixelConditionsSummaryTool::getBSErrorWord(const IdentifierHash& moduleHash, const int index, const EventContext& ctx) const {
+
+  if (moduleHash>=m_pixelID->wafer_hash_max()) {
+    ATH_MSG_WARNING("invalid moduleHash : " << moduleHash << " exceed maximum hash id: " << m_pixelID->wafer_hash_max());
+    return 0;
+  }
+
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey, ctx);
+  const InDetDD::SiDetectorElementCollection* elements(*pixelDetEleHandle);
+  if (not pixelDetEleHandle.isValid() or elements==nullptr) {
+    ATH_MSG_WARNING(m_pixelDetEleCollKey.fullKey() << " is not available.");
+    return 0;
+  }
+  const InDetDD::SiDetectorElement *element = elements->getDetectorElement(moduleHash);
+  const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+
+  if (!m_useByteStreamFEI4 && p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4) { return 0; }
+  if (!m_useByteStreamFEI3 && p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI3) { return 0; }
 
   std::scoped_lock<std::mutex> lock{*m_cacheMutex.get(ctx)};
   auto idcCachePtr = getCacheEntry(ctx)->IDCCache;
   if (idcCachePtr==nullptr) {
     ATH_MSG_ERROR("PixelConditionsSummaryTool No cache! " );
   }
-  uint64_t word = (uint64_t)idcCachePtr->retrieve(moduleHash);
+  uint64_t word = (uint64_t)idcCachePtr->retrieve(index);
   return word<m_missingErrorInfo ? word : 0;
 }
 
@@ -107,8 +129,6 @@ bool PixelConditionsSummaryTool::hasBSError(const IdentifierHash& moduleHash, Id
 }
 
 bool PixelConditionsSummaryTool::hasBSError(const IdentifierHash& moduleHash, const EventContext& ctx) const {
-  if (!m_useByteStream) { return false; }
-
   uint64_t word = getBSErrorWord(moduleHash,ctx);
   if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::TruncatedROB))      { return true; }
   if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::MaskedROB))         { return true; }
@@ -126,8 +146,6 @@ bool PixelConditionsSummaryTool::hasBSError(const IdentifierHash& moduleHash, co
 }
 
 bool PixelConditionsSummaryTool::hasBSError(const IdentifierHash& moduleHash, Identifier pixid, const EventContext& ctx) const {
-  if (!m_useByteStream) { return false; }
-
   if (hasBSError(moduleHash, ctx)) { return true; }
 
   int maxHash = m_pixelID->wafer_hash_max();
@@ -135,7 +153,7 @@ bool PixelConditionsSummaryTool::hasBSError(const IdentifierHash& moduleHash, Id
   int chFE = m_pixelCabling->getFE(&pixid,moduleID);
 
   int indexFE = (1+chFE)*maxHash+(int)moduleHash;    // (FE_channel+1)*2048 + moduleHash
-  uint64_t word = getBSErrorWord(indexFE,ctx);
+  uint64_t word = getBSErrorWord(moduleHash,indexFE,ctx);
   if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::Preamble))          { return true; }
   if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::TimeOut))           { return true; }
   if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::LVL1ID))            { return true; }
@@ -172,7 +190,8 @@ bool PixelConditionsSummaryTool::isActive(const IdentifierHash& moduleHash, cons
 
   // The index array is defined in PixelRawDataProviderTool::SizeOfIDCInDetBSErrContainer()
   // Here, 52736 is a separator beween error flags and isActive flags.
-  if (m_useByteStream && getBSErrorWord(moduleHash+52736,ctx)!=1) { return false; }
+  bool useByteStream = (m_useByteStreamFEI4 || m_useByteStreamFEI3);
+  if (useByteStream && getBSErrorWord(moduleHash,moduleHash+52736,ctx)!=1) { return false; }
 
   SG::ReadCondHandle<PixelDCSStateData> dcsstate_data(m_condDCSStateKey,ctx);
   bool isDCSActive = false;
@@ -183,7 +202,7 @@ bool PixelConditionsSummaryTool::isActive(const IdentifierHash& moduleHash, cons
 
   if (!m_condTDAQKey.empty() && SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey,ctx)->getModuleStatus(moduleHash)) { return false; }
 
-  if (SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey,ctx)->getModuleStatus(moduleHash)) { return false; }
+  if (SG::ReadCondHandle<PixelDeadMapCondData>(m_condDeadMapKey,ctx)->getModuleStatus(moduleHash)) { return false; }
 
   return true;
 }
@@ -192,7 +211,8 @@ bool PixelConditionsSummaryTool::isActive(const IdentifierHash& moduleHash, cons
 
   // The index array is defined in PixelRawDataProviderTool::SizeOfIDCInDetBSErrContainer()
   // Here, 52736 is a separator beween error flags and isActive flags.
-  if (m_useByteStream && getBSErrorWord(moduleHash+52736,ctx)!=1) { return false; }
+  bool useByteStream = (m_useByteStreamFEI4 || m_useByteStreamFEI3);
+  if (useByteStream && getBSErrorWord(moduleHash,moduleHash+52736,ctx)!=1) { return false; }
 
   SG::ReadCondHandle<PixelDCSStateData> dcsstate_data(m_condDCSStateKey,ctx);
   bool isDCSActive = false;
@@ -203,7 +223,7 @@ bool PixelConditionsSummaryTool::isActive(const IdentifierHash& moduleHash, cons
 
   if (!m_condTDAQKey.empty() && SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey,ctx)->getModuleStatus(moduleHash)) { return false; }
 
-  if (SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey,ctx)->getModuleStatus(moduleHash)) { return false; }
+  if (SG::ReadCondHandle<PixelDeadMapCondData>(m_condDeadMapKey,ctx)->getModuleStatus(moduleHash)) { return false; }
 
   return checkChipStatus(moduleHash, elementId);
 }
@@ -235,7 +255,7 @@ bool PixelConditionsSummaryTool::isGood(const Identifier& elementId, const InDet
   Identifier moduleID       = m_pixelID->wafer_id(elementId);
   IdentifierHash moduleHash = m_pixelID->wafer_hash(moduleID);
 
-  if (m_useByteStream && hasBSError(moduleHash, ctx)) { return false; }
+  if (hasBSError(moduleHash, ctx)) { return false; }
 
   SG::ReadCondHandle<PixelDCSStateData> dcsstate_data(m_condDCSStateKey, ctx);
   bool isDCSActive = false;
@@ -253,11 +273,11 @@ bool PixelConditionsSummaryTool::isGood(const Identifier& elementId, const InDet
 
   if (!m_condTDAQKey.empty() && SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey,ctx)->getModuleStatus(moduleHash)) { return false; }
 
-  if (SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey, ctx)->getModuleStatus(moduleHash)) { return false; }
+  if (SG::ReadCondHandle<PixelDeadMapCondData>(m_condDeadMapKey, ctx)->getModuleStatus(moduleHash)) { return false; }
 
   if (h==InDetConditions::PIXEL_CHIP) {
     if (!checkChipStatus(moduleHash, elementId)) { return false; }
-    if (m_useByteStream && hasBSError(moduleHash, elementId, ctx)) { return false; }
+    if (hasBSError(moduleHash, elementId, ctx)) { return false; }
   }
 
   return true;
@@ -265,7 +285,7 @@ bool PixelConditionsSummaryTool::isGood(const Identifier& elementId, const InDet
 
 bool PixelConditionsSummaryTool::isGood(const IdentifierHash& moduleHash, const EventContext& ctx) const {
 
-  if (m_useByteStream && hasBSError(moduleHash, ctx)) { return false; }
+  if (hasBSError(moduleHash, ctx)) { return false; }
 
   SG::ReadCondHandle<PixelDCSStateData> dcsstate_data(m_condDCSStateKey, ctx);
   bool isDCSActive = false;
@@ -283,14 +303,14 @@ bool PixelConditionsSummaryTool::isGood(const IdentifierHash& moduleHash, const 
 
   if (!m_condTDAQKey.empty() && SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey,ctx)->getModuleStatus(moduleHash)) { return false; }
 
-  if (SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey, ctx)->getModuleStatus(moduleHash)) { return false; }
+  if (SG::ReadCondHandle<PixelDeadMapCondData>(m_condDeadMapKey, ctx)->getModuleStatus(moduleHash)) { return false; }
 
   return true;
 }
 
 bool PixelConditionsSummaryTool::isGood(const IdentifierHash & moduleHash, const Identifier &elementId, const EventContext& ctx) const {
 
-  if (m_useByteStream && hasBSError(moduleHash, ctx)) { return false; }
+  if (hasBSError(moduleHash, ctx)) { return false; }
 
   SG::ReadCondHandle<PixelDCSStateData> dcsstate_data(m_condDCSStateKey, ctx);
   bool isDCSActive = false;
@@ -308,11 +328,11 @@ bool PixelConditionsSummaryTool::isGood(const IdentifierHash & moduleHash, const
 
   if (!m_condTDAQKey.empty() && SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey,ctx)->getModuleStatus(moduleHash)) { return false; }
 
-  if (SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey, ctx)->getModuleStatus(moduleHash)) { return false; }
+  if (SG::ReadCondHandle<PixelDeadMapCondData>(m_condDeadMapKey, ctx)->getModuleStatus(moduleHash)) { return false; }
 
   if (!checkChipStatus(moduleHash, elementId)) { return false; }
 
-  if (m_useByteStream && hasBSError(moduleHash, elementId, ctx)) { return false; }
+  if (hasBSError(moduleHash, elementId, ctx)) { return false; }
 
   return true;
 }
@@ -345,12 +365,7 @@ double PixelConditionsSummaryTool::goodFraction(const IdentifierHash & moduleHas
   for (int i=std::min(phiStart,phiEnd); i<=std::max(phiStart,phiEnd); i++) {
     for (int j=std::min(etaStart,etaEnd); j<=std::max(etaStart,etaEnd); j++) {
       if (checkChipStatus(moduleHash, m_pixelID->pixel_id(moduleID,i,j), ctx)) { 
-        if (m_useByteStream) {
-          if (!hasBSError(moduleHash, m_pixelID->pixel_id(moduleID,i,j), ctx)) { nGood++; }
-        }
-        else {
-          nGood++; 
-        }
+        if (!hasBSError(moduleHash, m_pixelID->pixel_id(moduleID,i,j), ctx)) { nGood++; }
       }
     }
   }

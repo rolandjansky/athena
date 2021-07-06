@@ -7,8 +7,8 @@
 namespace Trk {
   void
   TruthInfoPlots::init() {
-    truthType = NULL;
-    origin = NULL;
+    truthType = nullptr;
+    origin = nullptr;
   }
 
   void
@@ -18,12 +18,12 @@ namespace Trk {
   }
 
   void
-  TruthInfoPlots::fill(const xAOD::TruthParticle &truthprt) {
+  TruthInfoPlots::fill(const xAOD::TruthParticle &truthprt, float weight ) {
     if (truthprt.isAvailable<int>("truthType")) {
-      truthType->Fill(truthprt.auxdata< int >("truthType"));
+      truthType->Fill(truthprt.auxdata< int >("truthType"), weight);
     }
     if (truthprt.isAvailable<int>("truthOrigin")) {
-      origin->Fill(truthprt.auxdata< int >("truthOrigin"));
+      origin->Fill(truthprt.auxdata< int >("truthOrigin"), weight);
     }
   }
 }

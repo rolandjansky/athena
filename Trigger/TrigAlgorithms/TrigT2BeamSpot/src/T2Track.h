@@ -18,7 +18,6 @@
 /// Externals
 #include "TrkTrack/Track.h"
 #include "TrkTrackSummary/TrackSummary.h"
-#include "TrigInterfaces/IMonitoredAlgo.h"
 #include "GaudiKernel/SystemOfUnits.h"
 // Amg::error
 #include "EventPrimitives/EventPrimitivesHelpers.h"
@@ -29,8 +28,6 @@
 #include "TMath.h"
 
 namespace PESA {
-
-  class T2Track;
 
   class T2Track
   {
@@ -92,6 +89,9 @@ namespace PESA {
         }
     }
 
+    T2Track(const T2Track& track) = default;
+
+
     // Accessors
     double Pt      () const { return m_Pt      ; }
     double Eta     () const { return m_Eta     ; }
@@ -109,6 +109,9 @@ namespace PESA {
     int    TRTHits () const { return m_TRTHits ; }
 
   private:
+
+    static double trackChi2Prob(int ndf, double chi2);
+
     // Data members
     double m_Pt;
     double m_Eta;
@@ -126,55 +129,7 @@ namespace PESA {
     int    m_TRTHits;
   };
 
-
   std::ostream& operator<<( std::ostream& os, const T2Track& track );
-
-
-  class MonitoredTrack
-  {
-  public:
-    void init_track_monitoring( ){
-
-
-    }
-
-    // Update method
-    void push_back( const T2Track& track )
-    {
-      m_Pt      .push_back( track.Pt      () );
-      m_Eta     .push_back( track.Eta     () );
-      m_Phi     .push_back( track.Phi     () );
-      m_Z0      .push_back( track.Z0      () );
-      m_D0      .push_back( track.D0      () );
-      m_Z0err   .push_back( track.Z0err   () );
-      m_D0err   .push_back( track.D0err   () );
-      m_NDF     .push_back( track.NDF     () );
-      m_Qual    .push_back( track.Qual    () );
-      m_Chi2Prob.push_back( track.Chi2Prob() );
-      m_SiHits  .push_back( track.SiHits  () );
-      m_PIXHits .push_back( track.PIXHits () );
-      m_SCTHits .push_back( track.SCTHits () );
-      m_TRTHits .push_back( track.TRTHits () );
-    }
-
-  private:
-    // Data members
-    std::vector<double> m_Pt;
-    std::vector<double> m_Eta;
-    std::vector<double> m_Phi;
-    std::vector<double> m_Z0;
-    std::vector<double> m_D0;
-    std::vector<double> m_Z0err;
-    std::vector<double> m_D0err;
-    std::vector<double> m_NDF;
-    std::vector<double> m_Qual;
-    std::vector<double> m_Chi2Prob;
-    std::vector<int>    m_SiHits;
-    std::vector<int>    m_PIXHits;
-    std::vector<int>    m_SCTHits;
-    std::vector<int>    m_TRTHits;
-  };
-
 
 } // end namespace
 

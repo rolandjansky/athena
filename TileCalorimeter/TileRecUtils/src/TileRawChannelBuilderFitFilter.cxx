@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -154,8 +154,9 @@ StatusCode TileRawChannelBuilderFitFilter::initialize() {
       case 3:
         msg(MSG::DEBUG) << " noise for all channels from Conditions DB ";
         if (TileCablingService::getInstance()->getTestBeam()) {
-          msg(MSG::DEBUG) << " rmsLow(LBA01/0) = " << m_tileToolNoiseSample->getHfn(20, 0, TileID::LOWGAIN)
-                          << " rmsHi(LBA01/0) = " << m_tileToolNoiseSample->getHfn(20, 0, TileID::HIGHGAIN)
+          const EventContext &ctx = Gaudi::Hive::currentContext();
+          msg(MSG::DEBUG) << " rmsLow(LBA01/0) = " << m_tileToolNoiseSample->getHfn(20, 0, TileID::LOWGAIN, TileRawChannelUnit::ADCcounts, ctx)
+                          << " rmsHi(LBA01/0) = " << m_tileToolNoiseSample->getHfn(20, 0, TileID::HIGHGAIN, TileRawChannelUnit::ADCcounts, ctx)
                           << endmsg;
         } else {
           msg(MSG::DEBUG) << endmsg;
@@ -185,6 +186,8 @@ TileRawChannel* TileRawChannelBuilderFitFilter::rawChannel(const TileDigits* dig
 
   // ATH_MSG_ALWAYS((std::string) *digits);
 
+  const EventContext &ctx = Gaudi::Hive::currentContext();
+
   ++m_chCounter;
 
   const HWIdentifier adcId = digits->adc_HWID();
@@ -199,7 +202,7 @@ TileRawChannel* TileRawChannelBuilderFitFilter::rawChannel(const TileDigits* dig
   double pedestal = 0.0;
 
   // use fit filter
-  pulseFit(digits, amplitude, time, pedestal, chi2);
+  pulseFit(digits, amplitude, time, pedestal, chi2, ctx);
   
   unsigned int drawerIdx(0), channel(0), adc(0);
   m_tileIdTransforms->getIndices(adcId, drawerIdx, channel, adc);
@@ -257,7 +260,7 @@ TileRawChannel* TileRawChannelBuilderFitFilter::rawChannel(const TileDigits* dig
  * @param samples TileDigits
  */
 void TileRawChannelBuilderFitFilter::pulseFit(const TileDigits *digit
-    , double &amplitude, double &time, double &pedestal, double &chi2) {
+    , double &amplitude, double &time, double &pedestal, double &chi2, const EventContext &ctx) {
 
   amplitude = 0.0;
   time = 0.0;
@@ -279,7 +282,7 @@ void TileRawChannelBuilderFitFilter::pulseFit(const TileDigits *digit
   if (igain == 0) {
     switch (m_channelNoiseRMS) {
       case 3:
-        rms = m_tileToolNoiseSample->getHfn(drawerIdx, channel, igain);
+        rms = m_tileToolNoiseSample->getHfn(drawerIdx, channel, igain, TileRawChannelUnit::ADCcounts, ctx);
         if (rms > 0.0) break;
         /* FALLTHROUGH */
       case 2:
@@ -296,7 +299,7 @@ void TileRawChannelBuilderFitFilter::pulseFit(const TileDigits *digit
   } else if (igain == 1) {
     switch (m_channelNoiseRMS) {
       case 3:
-        rms = m_tileToolNoiseSample->getHfn(drawerIdx, channel, igain);
+        rms = m_tileToolNoiseSample->getHfn(drawerIdx, channel, igain, TileRawChannelUnit::ADCcounts, ctx);
         if (rms > 0.0) break;
         /* FALLTHROUGH */
       case 2:

@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_ATHENAOUTPUTSTREAM_H
@@ -36,6 +36,8 @@ class StoreGateSvc;
 class IAthenaOutputStreamTool;
 class IAthenaOutputTool;
 class IItemListSvc;
+class IDictLoaderSvc;
+class ITPCnvSvc;
 class MetaDataSvc;
 
 namespace SG {
@@ -68,6 +70,9 @@ protected:
    ServiceHandle<IItemListSvc>  m_itemSvc;
    ServiceHandle<MetaDataSvc>   m_metaDataSvc;
 
+   ServiceHandle<IDictLoaderSvc> m_dictLoader;
+   ServiceHandle<ITPCnvSvc>      m_tpCnvSvc;
+
    /// Name of the persistency service capable to write data from the store
    std::string              m_persName;
    /// Name of the OutputStreamTool used for writing
@@ -86,8 +91,6 @@ protected:
    StringArrayProperty      m_metadataItemList;
    /// Vector of item names
    StringArrayProperty      m_excludeList;
-   /// Number of commits after which to do a flush when using in memory files
-   IntegerProperty m_autoSend{this,"AutoSend",-1};
    /// Vector of item names
    StringArrayProperty      m_compressionListHigh;
    /// Vector of item names
@@ -228,6 +231,13 @@ private:
    std::set<std::string> buildCompressionSet (const ToolHandle<SG::IFolder>& handle,
                                               const CLID& item_id,
                                               const std::string& item_key) const;
+
+  /// Helper function to load dictionaries (both transient and persistent)
+  /// for a given type.
+  /// We want to to this explicitly during initialization to avoid sporadic
+  /// failures seen loading dictionaries while multiple threads are running.
+  /// See ATEAM-697 and ATEAM-749.
+  void loadDict (CLID clid);
 };
 
 #endif // ATHENASERVICES_OUTPUTSTREAM_H

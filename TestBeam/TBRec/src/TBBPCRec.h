@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBBPCREC_H
@@ -27,11 +27,11 @@ class TBBPCRec : public AthAlgorithm
  public:
 
   TBBPCRec(const std::string& name, ISvcLocator* pSvcLocator);
-  ~TBBPCRec();
+  virtual ~TBBPCRec();
 
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
 
   StatusCode getnewcalib();
 

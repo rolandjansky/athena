@@ -23,7 +23,7 @@ int main() {
 
 // FrameWork includes
 #include "AsgMessaging/MessageCheck.h"
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/StandaloneToolHandle.h"
 
 #include "xAODMissingET/MissingETAuxContainer.h"
 #include "xAODMissingET/MissingETAssociationMap.h"
@@ -104,22 +104,21 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
   // creation and set properties of the tools
   // if you need to set properties, you should do so before initialization
 
-  asg::AnaToolHandle<IJetCalibrationTool> jetCalibrationTool;
-  ANA_CHECK( ASG_MAKE_ANA_TOOL( jetCalibrationTool, JetCalibrationTool ) );
-  jetCalibrationTool.setName("jetCalibTool");
+  asg::StandaloneToolHandle<IJetCalibrationTool> jetCalibrationTool;
+  jetCalibrationTool.setTypeAndName("JetCalibrationTool/jetCalibTool");
   ANA_CHECK( jetCalibrationTool.setProperty("JetCollection", jetType) );
   ANA_CHECK( jetCalibrationTool.setProperty("ConfigFile", "JES_MC15cRecommendation_May2016_rel21.config") );
   ANA_CHECK( jetCalibrationTool.setProperty("CalibSequence", "JetArea_Residual_EtaJES_GSC") );
   ANA_CHECK( jetCalibrationTool.setProperty("IsData", false) );
   ANA_CHECK( jetCalibrationTool.retrieve() );
 
-  asg::AnaToolHandle<IMETSystematicsTool> metSystTool;
+  asg::StandaloneToolHandle<IMETSystematicsTool> metSystTool;
   metSystTool.setTypeAndName("met::METSystematicsTool/metSystTool");
   ANA_CHECK( metSystTool.setProperty("ConfigJetTrkFile","JetTrackSyst.config" ));//this is needed to do jet track systematics
   // ANA_CHECK( metSystTool.setProperty("UseDevArea"      ,true )); // To get the configs from GROUPDATA/dev/METUtilities
   ANA_CHECK( metSystTool.retrieve() );
 
-  asg::AnaToolHandle<IMETMaker> metMaker;
+  asg::StandaloneToolHandle<IMETMaker> metMaker;
   metMaker.setTypeAndName("met::METMaker/metMaker");
   ANA_CHECK( metMaker.setProperty("DoMuonEloss", true) );
   ANA_CHECK( metMaker.retrieve() );  
@@ -183,7 +182,7 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
       //Electrons
       ConstDataVector<xAOD::ElectronContainer> invisElectrons(SG::VIEW_ELEMENTS);
       ConstDataVector<xAOD::ElectronContainer> metElectrons(SG::VIEW_ELEMENTS);
-      for(const auto& el : *electrons) {
+      for(const auto *el : *electrons) {
 	if(el->pt()>20e3 && el->eta()<2.47) {
 	  if(invisEle) {
 	    invisElectrons.push_back(el);
@@ -193,26 +192,26 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
 	}
       }
       if(!invisElectrons.empty()){
-	ANA_CHECK( metMaker->markInvisible(invisElectrons.asDataVector(),&metHelper,newMetContainer) );
+	ANA_CHECK( metMaker->markInvisible(invisElectrons.asDataVector(),metHelper,newMetContainer) );
       }
 
       ANA_CHECK( metMaker->rebuildMET("TrkEle",                   //name of metElectrons in metContainer
 				 xAOD::Type::Electron,       //telling the rebuilder that this is electron met
 				 newMetContainer,            //filling this met container
 				 metElectrons.asDataVector(),//using these metElectrons that accepted our cuts
-				 &metHelper)                     //and this association map
+				 metHelper)                     //and this association map
 	     );
 
       //Muons
       ConstDataVector<xAOD::MuonContainer> metMuons(SG::VIEW_ELEMENTS);
-      for(const auto& mu : *muons) {
+      for(const auto *mu : *muons) {
 	if(mu->pt()>20e3 && mu->eta()<2.4) metMuons.push_back(mu);
       }
       ANA_CHECK( metMaker->rebuildMET("TrkMuons",
 				 xAOD::Type::Muon,
 				 newMetContainer,
 				 metMuons.asDataVector(),
-				 &metHelper)
+				 metHelper)
 	     );
 
       // for rebuilding track MET
@@ -221,7 +220,7 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
       				  newMetContainer,//adding to this new met container
       				  calibJets,	  //using this jet collection to calculate jet track met
       				  coreMet,	  //core met container
-      				  &metHelper,	  //with this association map
+      				  metHelper,	  //with this association map
       				  false		  //don't apply jet jvt cut
       				  )
       	 );
@@ -237,13 +236,13 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
 
       xAOD::MissingET * softTrkMet = (*newMetContainer)["PVSoftTrk"];
       ANA_CHECK( softTrkMet != nullptr); //check we retrieved the soft trk
-      ANA_CHECK( metSystTool->applyCorrection(*softTrkMet) );
+      ANA_CHECK( metSystTool->applyCorrection(*softTrkMet, metHelper) );
       if(debug) std::cout << "Soft track met: " << softTrkMet->met();
 
       // when doing track MET
       xAOD::MissingET * jetTrkMet = (*newMetContainer)["TrkJet"];
       ANA_CHECK( jetTrkMet != nullptr);
-      ANA_CHECK( metSystTool->applyCorrection(*jetTrkMet, &metHelper));//for jetTrkMet correction, we need the METAssociationMap
+      ANA_CHECK( metSystTool->applyCorrection(*jetTrkMet, metHelper));//for jetTrkMet correction, we need the METAssociationMap
       if(debug) std::cout << "Jet track met: " << jetTrkMet->met();
 
       //this builds the final track or cluster met sums, using systematic varied container
@@ -265,7 +264,7 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
   }
 
 #ifndef XAOD_STANDALONE // POOL::TEvent should handle this when changing events
-  app->finalize();
+  ANA_CHECK( app->finalize() );
 #endif
 
   xAOD::IOStats::instance().stats().printSmartSlimmingBranchList();

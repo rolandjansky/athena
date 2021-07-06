@@ -1,19 +1,24 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef __SUSYCROSSSECTION__
 #define __SUSYCROSSSECTION__
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
+// Member variables
+#include <cstdlib>
 #include <string>
 #include <map>
-#include <stdlib.h>
 
-//#include <ext/hash_map>
-//namespace std { using namespace __gnu_cxx; }
+// For PMG centralized tool's wrapper tool handles 
+#include "AsgTools/AnaToolHandle.h"
+
+// Lots of function inlining! 
+#include "PMGAnalysisInterfaces/IPMGCrossSectionTool.h"
+
+namespace PMGTools {
+  class IPMGCrossSectionTool;
+}
 
 namespace SUSY
 {
@@ -23,7 +28,7 @@ unsigned int finalState(const int SUSY_Spart1_pdgId, const int SUSY_Spart2_pdgId
 class CrossSectionDB
 {
 public:
-  CrossSectionDB(const std::string& txtfilenameOrDir = "SUSYTools/data/mc15_13TeV/", bool usePathResolver = false, bool isExtended = false);
+  CrossSectionDB(const std::string& txtfilename = "dev/PMGTools/PMGxsecDB_mc16.txt", bool usePathResolver = true, bool isExtended = false, bool usePMGTool = true);
 
   // Load all the information from a file
   void loadFile(const std::string&);
@@ -78,6 +83,7 @@ public:
 
   // set extended mode
   void setExtended(bool isExtended=true){ m_extended = isExtended; };
+  void setUsePMGTool(bool usePMGTool=true){ m_usePMGTool = usePMGTool; };
 
 
   // invalid ID returns a process with ID < 0
@@ -108,12 +114,15 @@ public:
 private:
   typedef std::map<Key, Process> xsDB_t; // Internal data format
   bool m_extended;
+  bool m_usePMGTool;
 public:
   typedef xsDB_t::const_iterator iterator; // External iterator format
   iterator begin() const { return m_xsectDB.begin(); }
   iterator end() const {return m_xsectDB.end(); }
 
 private:
+  //PMG tool
+  asg::AnaToolHandle<PMGTools::IPMGCrossSectionTool> m_pmgxs;
 
   xsDB_t::iterator my_find( const int proc );
   xsDB_t m_xsectDB;

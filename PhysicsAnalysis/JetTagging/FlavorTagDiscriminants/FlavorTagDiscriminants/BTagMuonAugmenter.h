@@ -6,7 +6,7 @@
 #ifndef BTAG_MUON_AUGMENTER_H
 #define BTAG_MUON_AUGMENTER_H
 
-#include "xAODJet/Jet.h"
+#include "xAODBTagging/BTagging.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "FlavorTagDiscriminants/FlipTagEnums.h"
@@ -28,8 +28,10 @@ namespace FlavorTagDiscriminants {
                       FlipTagConfig = FlipTagConfig::STANDARD);
     ~BTagMuonAugmenter();
     BTagMuonAugmenter(BTagMuonAugmenter&&);
-    void augment(const xAOD::Jet& jet) const;
+    void augment(const xAOD::BTagging& btag) const;
     std::set<std::string> getDecoratorKeys() const;
+    std::set<std::string> getAuxInputKeys() const;
+    std::set<std::string> getConstituentAuxInputKeys() const;
   private:
     // You'll probably have to add some accessors here
     BTagTrackIpAccessor m_btag_track_aug;
@@ -39,6 +41,9 @@ namespace FlavorTagDiscriminants {
     FlipTagConfig m_flip_config;
 
     typedef SG::AuxElement AE;
+
+    AE::ConstAccessor<ElementLink<xAOD::JetContainer>> m_jetLink;
+
     AE::Decorator<char>  m_dec_muon_isDefaults;
     AE::Decorator<float> m_dec_muon_pt;
     AE::Decorator<float> m_dec_muon_dR;

@@ -1,5 +1,5 @@
 /*                                                                                                                                                                                                                                        
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "eflowRec/PFOChargedCreatorAlgorithm.h"
@@ -35,7 +35,7 @@ StatusCode  PFOChargedCreatorAlgorithm::execute(const EventContext& ctx) const {
   
   /* Create Charged PFOs from all eflowCaloObjects */
   SG::ReadHandle<eflowCaloObjectContainer> eflowCaloObjectContainerReadHandle(m_eflowCaloObjectContainerReadHandleKey,ctx);
-  for (auto thisEflowCaloObject : *eflowCaloObjectContainerReadHandle) createChargedPFO(*thisEflowCaloObject,true,chargedPFOContainerWriteHandle);
+  for (const auto *thisEflowCaloObject : *eflowCaloObjectContainerReadHandle) createChargedPFO(*thisEflowCaloObject,true,chargedPFOContainerWriteHandle);
 
   std::sort(chargedPFOContainerWriteHandle->begin(), chargedPFOContainerWriteHandle->end(), [] (const xAOD::PFO* pfo1, const xAOD::PFO* pfo2) {return pfo1->pt()>pfo2->pt();});
 
@@ -107,11 +107,13 @@ void PFOChargedCreatorAlgorithm::createChargedPFO(const eflowCaloObject& energyF
     thisPFO->setAttribute<int>(myAttribute_isInDenseEnvironment, (efRecTrack->isInDenseEnvironment()));
 
     /* Optionally we add the links to clusters to the xAOD::PFO */
-    if (true == addClusters){
+    if (addClusters){
 
       std::vector<std::pair<eflowTrackClusterLink*,float> > trackClusterLinkPairs = energyFlowCaloObject.efRecLink();
 
       std::vector<eflowTrackClusterLink*> thisTracks_trackClusterLinks = efRecTrack->getClusterMatches();
+
+      ATH_MSG_DEBUG("Have retrieved " << thisTracks_trackClusterLinks.size() << " cluster matches");
 
       /** Each eflowCaloObject has a list of clusters for all the tracks it represents.
        *  We only want the subset of the clusters matched to this track, and collect these in thisTracks_trackClusterLinksSubtracted.
@@ -122,19 +124,21 @@ void PFOChargedCreatorAlgorithm::createChargedPFO(const eflowCaloObject& energyF
       //Create vector of pairs which map each CaloCluster to the ratio of its new energy to unstracted energy
       std::vector<std::pair<ElementLink<xAOD::CaloClusterContainer>, double> > vectorClusterToSubtractedEnergies;
 
-      for (auto trackClusterLink : thisTracks_trackClusterLinks){
+      for (auto *trackClusterLink : thisTracks_trackClusterLinks){
         for (auto trackClusterLinkPair : trackClusterLinkPairs){
           if (!m_eOverPMode && trackClusterLinkPair.first == trackClusterLink && !std::isnan(trackClusterLinkPair.second)) {
             thisTracks_trackClusterLinksSubtracted.push_back(trackClusterLink);
             eflowRecCluster* efRecCluster = trackClusterLinkPair.first->getCluster();
             ElementLink<xAOD::CaloClusterContainer> theOriginalClusterLink = efRecCluster->getOriginalClusElementLink();
     	      ElementLink<xAOD::CaloClusterContainer> theSisterClusterLink = (*theOriginalClusterLink)->getSisterClusterLink();
-            if (theSisterClusterLink.isValid()) vectorClusterToSubtractedEnergies.push_back(std::pair(theSisterClusterLink,trackClusterLinkPair.second));
-            else vectorClusterToSubtractedEnergies.push_back(std::pair(theOriginalClusterLink,trackClusterLinkPair.second));
+            if (theSisterClusterLink.isValid()) vectorClusterToSubtractedEnergies.emplace_back(std::pair(theSisterClusterLink,trackClusterLinkPair.second));
+            else vectorClusterToSubtractedEnergies.emplace_back(std::pair(theOriginalClusterLink,trackClusterLinkPair.second));
           }
-          else if (m_eOverPMode) thisTracks_trackClusterLinksSubtracted.push_back(trackClusterLink);
+          else if (m_eOverPMode && trackClusterLinkPair.first == trackClusterLink) thisTracks_trackClusterLinksSubtracted.push_back(trackClusterLink);
         }
       }
+
+      ATH_MSG_DEBUG("Have found " << thisTracks_trackClusterLinksSubtracted.size() << " subtracted and matched clusters");
 
       //sort the vectorClusterToSubtractedEnergies in order of subtracted energy ratio from low (most subtracted) to high (least subtracted)
       std::sort(vectorClusterToSubtractedEnergies.begin(),vectorClusterToSubtractedEnergies.end(), [](auto const& a, auto const&b){return a.second < b.second;});
@@ -142,7 +146,7 @@ void PFOChargedCreatorAlgorithm::createChargedPFO(const eflowCaloObject& energyF
 
       //Now loop over the list of eflowTrackClusterLink which correspond to subtracted clusters matched to this track.
       bool isFirstCluster = true;
-      for (auto trackClusterLink : thisTracks_trackClusterLinksSubtracted){	    
+      for (auto *trackClusterLink : thisTracks_trackClusterLinksSubtracted){	    
 
         eflowRecCluster* efRecCluster = trackClusterLink->getCluster();
         ElementLink<xAOD::CaloClusterContainer> theOriginalClusterLink = efRecCluster->getOriginalClusElementLink();

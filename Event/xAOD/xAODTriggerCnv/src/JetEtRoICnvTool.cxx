@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JetEtRoICnvTool.cxx 575028 2013-12-11 14:30:06Z krasznaa $
 
 // EDM include(s):
 #include "AnalysisTriggerEvent/LVL1_ROI.h"
@@ -23,15 +22,6 @@ namespace xAODMaker {
       declareInterface< IJetEtRoICnvTool >( this );
    }
 
-   StatusCode JetEtRoICnvTool::initialize() {
-
-      // Greet the user:
-      ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
-
-      // Return gracefully:
-      return StatusCode::SUCCESS;
-   }
-
    /**
     * This is the important function of the tool. It takes the jet-Et RoI object
     * from a LVL1_ROI container, and fills an xAOD::JetEtRoI with it.
@@ -45,7 +35,7 @@ namespace xAODMaker {
                                         xAOD::JetEtRoI* xaod ) {
 
       // If there is no RoI to convert:
-      if( ! aod->getJetEtROIs().size() ) {
+      if( aod->getJetEtROIs().empty() ) {
          // This happens unfortunately. Let's discuss with L1Calo about how
          // we should handle this...
          ATH_MSG_DEBUG( "No JetEt RoI received on the input" );

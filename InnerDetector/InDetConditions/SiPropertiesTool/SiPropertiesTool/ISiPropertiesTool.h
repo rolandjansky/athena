@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -11,6 +11,7 @@
 
 //Gaudi Includes
 #include "GaudiKernel/IAlgTool.h"
+#include "GaudiKernel/EventContext.h"
 #include "SiPropertiesTool/SiliconProperties.h"
 #include "Identifier/IdentifierHash.h"
 
@@ -29,7 +30,7 @@ class ISiPropertiesTool: virtual public IAlgTool
   DeclareInterfaceID(ISiPropertiesTool, 1, 0);
 
   /// Get Silicon properties for a given detector element.
-  virtual const InDet::SiliconProperties& getSiProperties(const IdentifierHash& elementHash) const = 0;
+  virtual const InDet::SiliconProperties& getSiProperties(const IdentifierHash& elementHash, const EventContext& ctx) const = 0;
 };
 
 #endif // ISiPropertiesTool_h

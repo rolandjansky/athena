@@ -1,12 +1,12 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from ..Menu.ChainDictTools import splitChainDict
-from .METChainConfiguration import METChainConfiguration
 from ..Menu.ChainMerging import mergeChainDefs
+from .METChainConfiguration import METChainConfiguration
 
 import pprint
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.MET.generateChainConfigs' )
+log = logging.getLogger(__name__)
 log.info("Importing %s",__name__)
 
 

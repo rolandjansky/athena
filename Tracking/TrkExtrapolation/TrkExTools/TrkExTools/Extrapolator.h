@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 ///////////////////////////////////////////////////////////////////
@@ -27,6 +27,7 @@
 #include "TrkExUtils/ExtrapolationCache.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkGeometry/TrackingVolume.h"
+#include "TrkGeometry/TrackingGeometry.h"
 #include "TrkNeutralParameters/NeutralParameters.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/BoundaryCheck.h"
@@ -362,8 +363,6 @@ private:
     ParametersNextVolume m_parametersAtBoundary;
     //!< Caches per MaterialUpdator
     std::vector<std::unique_ptr<Trk::IMaterialEffectsUpdator::ICache>> m_MaterialUpCache;
-    //!< garbage collection during extrapolation
-    std::map<const Trk::TrackParameters*, bool> m_garbageBin;
     //!<  internal switch for resolved configuration
     bool m_dense = false;
     //!< Flag the recall solution
@@ -399,6 +398,7 @@ private:
     // for active volumes
     std::unique_ptr<identifiedParameters_t> m_identifiedParameters;
 
+    const Trk::TrackingGeometry *m_trackingGeometry = nullptr;
     double m_path{};
 
     std::pair<unsigned int, unsigned int> m_denseResolved;
@@ -431,6 +431,18 @@ private:
       return ManagedTrackParmPtr(trackParmContainer(), parm);
     }
     ManagedTrackParmPtr manage() { return ManagedTrackParmPtr(trackParmContainer()); }
+
+    const Trk::TrackingGeometry *trackingGeometry( const Trk::INavigator &navigator, const EventContext &ctx) {
+       if (!m_trackingGeometry) {
+          m_trackingGeometry = navigator.trackingGeometry(ctx);
+       }
+       return m_trackingGeometry;
+    }
+
+    const Trk::TrackingVolume *volume(const EventContext&, const Amg::Vector3D& gp) const {
+       assert(m_trackingGeometry);
+       return m_trackingGeometry->lowestTrackingVolume(gp);
+    }
 
     Cache()
       : m_trackParmContainer(128)
@@ -757,8 +769,6 @@ private:
                      ParticleHypothesis particle = pion,
                      bool startingLayer = false) const;
 
-  /** Private method for chosing the propagator in the simple/full configured mode */
-  unsigned int propagatorType(const TrackingVolume& tvol) const;
 
   /** Private method for Initial Extrapolation setup
     -> overwrites the given pointers for the start and destination parameters
@@ -777,11 +787,6 @@ private:
                                      const Trk::Layer*& associatedLayer,
                                      const Trk::TrackingVolume*& associatedVolume,
                                      const Trk::TrackingVolume*& destinationVolume) const;
-
-  /** RadialDirection helper method
-    - inbound : -1
-    - outbound:  1  */
-  int radialDirection(const Trk::TrackParameters& pars, PropDirection dir) const;
 
   /** Check for punchThrough in case of radial (perpendicular) direction change,
     returns true if the radial direction change is actually ok (i.e. punch-through allowed)
@@ -817,24 +822,12 @@ private:
   /** Private method for resetting the recallInformation */
   void resetRecallInformation(Cache& cache) const;
 
-  /** Private method for throwing into the GarbageBin */
-  void throwIntoGarbageBin(Cache& cache, const Trk::TrackParameters* garbage) const;
-
-  /** Private method for emptying the GarbageBin */
-  void emptyGarbageBin(Cache& cache) const;
-  void emptyGarbageBin(Cache& cache, const Trk::TrackParameters*) const;
-
   /** Private method to return from extrapolate() main method,
       cleans up, calls model action or validation action, empties garbage bin and leaves */
   const Trk::TrackParameters* returnResult(Cache& cache, const Trk::TrackParameters* result) const;
 
-  /** For the output - layer */
-  std::string layerRZoutput(const Trk::Layer& lay) const;
-
   /** For the output - global position */
   std::string positionOutput(const Amg::Vector3D& pos) const;
-  /** For the output - global momentum */
-  std::string momentumOutput(const Amg::Vector3D& mom) const;
 
   /** helper method for MaterialEffectsOnTrack to be added */
   void addMaterialEffectsOnTrack(const EventContext& ctx,

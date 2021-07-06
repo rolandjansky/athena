@@ -29,7 +29,6 @@ namespace SH
   void SamplePtr ::
   testInvariant () const
   {
-    RCU_INVARIANT (this != 0);
   }
 
 

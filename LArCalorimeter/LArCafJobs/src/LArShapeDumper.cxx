@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCafJobs/LArShapeDumper.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "LArRawEvent/LArDigit.h"
-#include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/INTupleSvc.h"
-#include "GaudiKernel/MsgStream.h"
 #include "LArRawEvent/LArOFIterResultsContainer.h"
 #include "LArRawEvent/LArFebErrorSummary.h"
 #include "LArElecCalib/ILArPedestal.h"
@@ -16,13 +14,10 @@
 #include "LArRawConditions/LArPhysWave.h"
 #include "LArRawConditions/LArShapeComplete.h"
 #include "LArRawConditions/LArAutoCorrComplete.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
-#include "LArElecCalib/ILArADC2MeVTool.h"
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescriptor.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
-#include "CaloInterface/ICaloNoiseTool.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "LArRecConditions/LArBadChannel.h"
 #include "LArCafJobs/DataContainer.h"
@@ -36,14 +31,6 @@
 #include "TMath.h"
 
 #include "boost/regex.hpp"
-
-#include "TrigConfHLTData/HLTChain.h"
-#include "TrigConfHLTData/HLTChainList.h"
-#include "TrigConfHLTData/HLTSequence.h"
-#include "TrigConfHLTData/HLTSequenceList.h"
-
-// #include "LArCafJobs/HistoryContainer.h"
-// #include "LArCafJobs/TreeAccessor.h"
 
 
 #include <vector>
@@ -61,20 +48,14 @@ LArShapeDumper::LArShapeDumper(const std::string & name, ISvcLocator * pSvcLocat
   m_nPrescaledAway(0),
   m_nLArError(0),
   m_nNoDigits(0),
-  m_dumperTool("LArShapeDumperTool"),
-  m_badChannelMasker("BadChannelMasker", this),
-  m_adc2mevTool("LArADC2MeVTool"),
   m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
   m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
-  m_bcidTool("BunchCrossingTool"),
-  m_larPedestal(nullptr),
   m_caloDetDescrMgr(nullptr),
   m_onlineHelper(nullptr),
   m_doEM(false),
   m_doHEC(false),
   m_doFCAL(false),
-  m_samples(nullptr),
-  m_runData(0)
+  m_samples(nullptr)
 {
   declareProperty("FileName", m_fileName = "samples.root");
   declareProperty("MaxChannels", m_maxChannels = 200000);
@@ -87,9 +68,6 @@ LArShapeDumper::LArShapeDumper(const std::string & name, ISvcLocator * pSvcLocat
   declareProperty("MinADCMax", m_minADCMax = -1);
   declareProperty("Gains", m_gainSpec = "HIGH,MEDIUM,LOW");
   declareProperty("DumpDisconnected", m_dumpDisc = false);
-  declareProperty("BadChannelMasker", m_badChannelMasker);
-  declareProperty("ADC2MeVTool", m_adc2mevTool);
-  declareProperty("BunchCrossingTool",m_bcidTool);
   declareProperty("DoStream", m_doStream = false);
   declareProperty("DoTrigger", m_doTrigger = true);
   declareProperty("DoOFCIter", m_doOFCIter = true);
@@ -117,11 +95,16 @@ StatusCode LArShapeDumper::initialize()
   ATH_CHECK( m_cablingKey.initialize() );
   ATH_CHECK( m_BCKey.initialize() );
   ATH_CHECK( m_noiseCDOKey.initialize() );
+  ATH_CHECK( m_adc2mevKey.initialize() );
+  ATH_CHECK( m_pedestalKey.initialize() );
+  ATH_CHECK( m_bcDataKey.initialize() );
 
-  ATH_CHECK( m_badChannelMasker.retrieve() );
-  ATH_CHECK( m_adc2mevTool.retrieve() );
   ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
   ATH_CHECK( detStore()->retrieve(m_caloDetDescrMgr) );
+
+  /** Get bad-channel mask (only if jO IgnoreBadChannels is true)*/
+  ATH_CHECK(m_bcMask.buildBitMask(m_problemsToMask,msg()));
+
 
   if (m_doTrigger) {
     ATH_CHECK( m_trigDec.retrieve() );
@@ -144,8 +127,8 @@ StatusCode LArShapeDumper::initialize()
   m_gains[CaloGain::LARMEDIUMGAIN] = (m_gainSpec.find("MEDIUM") != std::string::npos);
   m_gains[CaloGain::LARLOWGAIN]    = (m_gainSpec.find("LOW")    != std::string::npos);
   
-  if (m_onlyEmptyBC)
-    ATH_CHECK(m_bcidTool.retrieve());
+  //if (m_onlyEmptyBC)
+  //ATH_CHECK(m_bcidTool.retrieve());
 
   return StatusCode::SUCCESS; 
 }
@@ -153,46 +136,32 @@ StatusCode LArShapeDumper::initialize()
 
 StatusCode LArShapeDumper::start()
 {
-  m_runData = new RunData(0);
-  static unsigned int i = 0;
+  m_runData = std::make_unique<RunData>(0);
 
   if (m_doTrigger) {
-    std::ofstream xmlfile(Form("frame_%d.xml", i++));
-    xmlfile << "      <SEQUENCE_LIST>" << std::endl; 
-    for(TrigConf::HLTSequence *seq : m_configSvc->sequences())
-       seq->writeXML(xmlfile);
-    xmlfile << "      </SEQUENCE_LIST>" << std::endl; 
-
-    //chains
-    xmlfile << "      <CHAIN_LIST>" << std::endl; 
-    for(TrigConf::HLTChain *ch: m_configSvc->chains() )
-       ch->writeXML(xmlfile);
-
-    xmlfile << "      </CHAIN_LIST>" << std::endl; 
-
     std::vector<boost::regex> regexs;
-    for (std::vector<std::string>::const_iterator name = m_triggerNames.begin(); 
-         name != m_triggerNames.end(); name++)
-      regexs.push_back(boost::regex(*name));
+    for (const std::string& name : m_triggerNames) {
+      regexs.push_back(boost::regex(name));
+    }
 
     std::vector<std::string> chains = m_trigDec->getListOfTriggers();
     std::vector<std::string> myChains;
     boost::cmatch match;
 
-    for (std::vector<std::string>::const_iterator chain = chains.begin(); chain != chains.end(); chain++) {
-      ATH_MSG_INFO ( "Configured chain : " << *chain );
-      for (std::vector<boost::regex>::const_iterator regex = regexs.begin(); regex != regexs.end(); regex++)
-        if (boost::regex_match(chain->c_str(), match, *regex)) myChains.push_back(*chain);
+    for (const std::string& chain : chains) {
+      ATH_MSG_INFO ( "Configured chain : " << chain );
+      for (const boost::regex& regex : regexs) {
+        if (boost::regex_match(chain.c_str(), match, regex)) myChains.push_back(chain);
+      }
     }
-    std::vector<std::string> groups = m_trigDec->getListOfGroups();
-    for (std::vector<std::string>::const_iterator group = groups.begin(); group != groups.end(); group++)
-      ATH_MSG_INFO ( "Configured group : " << *group );
+    for (const std::string& group : m_trigDec->getListOfGroups())
+      ATH_MSG_INFO ( "Configured group : " << group );
     const Trig::ChainGroup* calibStreamGroup = m_trigDec->getChainGroup("Calibration"); 
     if (calibStreamGroup) {
       std::vector<std::string> chains = calibStreamGroup->getListOfTriggers();
       ATH_MSG_INFO ( "Chains for Calibration group:" );
-      for (std::vector<std::string>::const_iterator chain = chains.begin(); chain != chains.end(); chain++)
-        ATH_MSG_INFO ( "Calib chain : " << *chain );
+      for (const std::string& chain : chains)
+        ATH_MSG_INFO ( "Calib chain : " << chain );
     }
 
     unsigned int idx = 0;
@@ -200,38 +169,36 @@ StatusCode LArShapeDumper::start()
     if (m_doAllLvl1) {
       m_trigDec->ExperimentalAndExpertMethods()->enable();
       const Trig::ChainGroup* group = m_trigDec->getChainGroup("L1_.*");
-      std::vector<std::string> l1Triggers = group->getListOfTriggers();
-      for (std::vector<std::string>::const_iterator l1Item = l1Triggers.begin(); 
-           l1Item != l1Triggers.end(); l1Item++) {
-        const TrigConf::TriggerItem* confItem = m_trigDec->ExperimentalAndExpertMethods()->getItemConfigurationDetails(*l1Item);
+      for (const std::string& l1Item : group->getListOfTriggers()) {
+        const TrigConf::TriggerItem* confItem = m_trigDec->ExperimentalAndExpertMethods()->getItemConfigurationDetails(l1Item);
         if (!confItem) {
-          ATH_MSG_WARNING ( "LVL1 item " << *l1Item << ", obtained from TrigConfig, cannot be retrieved!" );
+          ATH_MSG_WARNING ( "LVL1 item " << l1Item << ", obtained from TrigConfig, cannot be retrieved!" );
           continue;
         }
         int pos = confItem->ctpId();
         if (pos < 0 || pos >= 256) {
-          ATH_MSG_WARNING ( "LVL1 item " << *l1Item << "has out-of-range ctpId " << pos );
+          ATH_MSG_WARNING ( "LVL1 item " << l1Item << "has out-of-range ctpId " << pos );
           continue;
         }
-        m_runData->addBit(l1Item->c_str(), pos);
-        ATH_MSG_INFO ( "Adding LVL1 trigger bit for " << *l1Item << " at position " << pos );
+        m_runData->addBit(l1Item.c_str(), pos);
+        ATH_MSG_INFO ( "Adding LVL1 trigger bit for " << l1Item << " at position " << pos );
       }
       idx = 256;
     }
-  
-    for (std::vector<std::string>::const_iterator name = myChains.begin(); name != myChains.end(); name++) {
-      if (m_trigDec->getListOfTriggers(*name).empty()) {
-        ATH_MSG_WARNING ( "Requested trigger name " << *name << " is not configured in this run" );
+
+    for (const std::string& name : myChains) {
+      if (m_trigDec->getListOfTriggers(name).empty()) {
+        ATH_MSG_WARNING ( "Requested trigger name " << name << " is not configured in this run" );
         continue;
       }
-      const Trig::ChainGroup* group = m_trigDec->getChainGroup(*name);
+      const Trig::ChainGroup* group = m_trigDec->getChainGroup(name);
       if (!group) {
-        ATH_MSG_WARNING ( "Could not retrieve chain group for trigger " << *name );
+        ATH_MSG_WARNING ( "Could not retrieve chain group for trigger " << name );
         continue;
       }
-      m_runData->addBit(name->c_str(), idx++);
+      m_runData->addBit(name.c_str(), idx++);
       m_triggerGroups.push_back(group);
-      ATH_MSG_INFO ( "Adding trigger bit for " << *name << " at position " << idx-1 );
+      ATH_MSG_INFO ( "Adding trigger bit for " << name << " at position " << idx-1 );
     }
   }
   return StatusCode::SUCCESS;
@@ -241,7 +208,7 @@ StatusCode LArShapeDumper::start()
 StatusCode LArShapeDumper::execute()
 {    
   m_count++;
-
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   if ((m_prescale > 1 && m_random.Rndm() > 1.0/m_prescale) || m_prescale <= 0) {
     ATH_MSG_VERBOSE ( "======== prescaling event "<< m_count << " ========" );
     m_nPrescaledAway++;
@@ -259,20 +226,29 @@ StatusCode LArShapeDumper::execute()
   int bunchId   = eventInfo->bcid();
 
   
-  if (m_onlyEmptyBC) {
-    const Trig::IBunchCrossingTool::BunchCrossingType bcType=m_bcidTool->bcType(bunchId);
-    if (bcType!=Trig::IBunchCrossingTool::BunchCrossingType::Empty) {
-      ATH_MSG_DEBUG("Ignoring Event with bunch crossing type " << bcType);
-      m_nWrongBunchGroup++;
-      return StatusCode::SUCCESS;
-    }
-  }
-
   if (eventInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error) {
     ATH_MSG_DEBUG("Ignoring Event b/c of LAr ERROR");
     m_nLArError++;
     return StatusCode::SUCCESS;
   }
+
+
+  SG::ReadCondHandle<BunchCrossingCondData> bccd (m_bcDataKey,ctx);
+  const BunchCrossingCondData* bunchCrossing=*bccd;
+  if (!bunchCrossing) {
+    ATH_MSG_ERROR("Failed to retrieve Bunch Crossing obj");
+    return StatusCode::FAILURE;
+  }
+  
+
+  if (m_onlyEmptyBC) {
+    if (!bccd->isFilled(bunchId)) {
+      ATH_MSG_DEBUG("Ignoring Event with bunch crossing type ");
+      m_nWrongBunchGroup++;
+      return StatusCode::SUCCESS;
+    }
+   }
+
 
   EventData* eventData = 0;
   int eventIndex = -1;
@@ -296,8 +272,7 @@ StatusCode LArShapeDumper::execute()
   const LArRawChannelContainer* rawChannelContainer = 0;
   ATH_CHECK( evtStore()->retrieve(rawChannelContainer, m_channelsKey) );
   
-  ATH_CHECK( detStore()->retrieve(m_larPedestal) );
-
+  
   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
   const LArOnOffIdMapping* cabling=*cablingHdl;
   if(!cabling) {
@@ -305,6 +280,27 @@ StatusCode LArShapeDumper::execute()
      return StatusCode::FAILURE;
   }
 
+  SG::ReadCondHandle<LArADC2MeV> adc2mevHdl(m_adc2mevKey, ctx);
+  const LArADC2MeV* adc2MeV=*adc2mevHdl;
+  if(!adc2MeV) {
+     ATH_MSG_ERROR( "Failed to retreive ADC2MeV cond obj" );
+     return StatusCode::FAILURE;
+  }
+
+  SG::ReadCondHandle<ILArPedestal> pedHdl(m_pedestalKey, ctx);
+  const ILArPedestal* pedestals=*pedHdl;
+  if (!pedestals) {
+    ATH_MSG_ERROR("Failed to retrieve pedestal cond obj");
+     return StatusCode::FAILURE;
+  }
+
+  SG::ReadCondHandle<LArBadChannelCont> readHandle{m_BCKey};
+  const LArBadChannelCont *bcCont {*readHandle};
+  if(!bcCont) {
+     ATH_MSG_ERROR( "Do not have Bad chan container " << m_BCKey.key() );
+     return StatusCode::FAILURE;
+  }
+  
   const LArOFIterResultsContainer* ofIterResult = 0;
   if (m_doOFCIter) {
     ATH_CHECK( evtStore()->retrieve(ofIterResult, "LArOFIterResult") );
@@ -319,7 +315,7 @@ StatusCode LArShapeDumper::execute()
        channel != rawChannelContainer->end(); ++channel) 
   {
     if (m_energyCut > 0 && TMath::Abs(channel->energy()) < m_energyCut) continue;
-    if (m_badChannelMasker->cellShouldBeMasked(channel->channelID(), channel->gain())) continue;
+    if (m_bcMask.cellShouldBeMasked(bcCont,channel->channelID())) continue;
 
     IdentifierHash hash = m_onlineHelper->channel_Hash(channel->channelID());
     
@@ -353,13 +349,6 @@ StatusCode LArShapeDumper::execute()
                  << " " << (ofIterResult ? ofIterResult->size() : 0) << " " 
                  << rawChannelContainer->size() << " " << channelsToKeep.size() );
 
-  SG::ReadCondHandle<LArBadChannelCont> readHandle{m_BCKey};
-  const LArBadChannelCont *bcCont {*readHandle};
-  if(!bcCont) {
-     ATH_MSG_ERROR( "Do not have Bad chan container " << m_BCKey.key() );
-     return StatusCode::FAILURE;
-  }
-
   SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey};
   const CaloNoise* noiseCDO=*noiseHdl;
   
@@ -388,14 +377,13 @@ StatusCode LArShapeDumper::execute()
     if (!connected && !m_dumpDisc) continue;
    
     // Check ADCMax selection
-    float pedestal = m_larPedestal->pedestal(channelID, gain);
-    float pedestalRMS = m_larPedestal->pedestalRMS(channelID, gain);
+    float pedestal = pedestals->pedestal(channelID, gain);
+    float pedestalRMS = pedestals->pedestalRMS(channelID, gain);
     if (m_minADCMax > 0 || m_noiseSignifCut > 0) {
       const std::vector<short>& samples = (*digit)->samples();
       double maxValue = -1;
-      for (std::vector<short>::const_iterator sample = samples.begin(); 
-           sample != samples.end(); sample++)
-        if (*sample - pedestal > maxValue) maxValue = *sample - pedestal;
+      for (short sample : samples)
+        if (sample - pedestal > maxValue) maxValue = sample - pedestal;
       if (m_minADCMax > 0 && fabs(maxValue) < m_minADCMax) continue;
       if (m_noiseSignifCut > 0 && fabs(maxValue) < pedestalRMS*m_noiseSignifCut) continue;
     }
@@ -418,7 +406,7 @@ StatusCode LArShapeDumper::execute()
     unsigned int status = 0xFFFFFFFF;
     if (connected) {
       if (!caloDetElement) caloDetElement = m_caloDetDescrMgr->get_element(id);
-      noise = noiseCDO->getNoise(channelID,gain);
+      noise = noiseCDO->getNoise(id,gain);
       status = bcCont->status(channelID).packedData();
       HWIdentifier febId = m_onlineHelper->feb_Id(m_onlineHelper->feedthrough_Id(channelID), m_onlineHelper->slot(channelID));
       std::map<unsigned int,uint16_t>::const_iterator findError = febErrorMap.find(febId.get_identifier32().get_compact());
@@ -466,7 +454,7 @@ StatusCode LArShapeDumper::execute()
 //           << " not found. (size was " << ofcResultPosition.size() << ")" << endmsg;
     
    
-    const std::vector<float>& ramp=m_adc2mevTool->ADC2MEV(channelID,gain); //dudu
+    const auto ramp=adc2MeV->ADC2MEV(channelID,gain); //dudu
     data->setADCMax(rawChannel->energy()/ramp[1]); //pow(ADCPeak,i); //dudu
 	    
 
@@ -480,7 +468,7 @@ StatusCode LArShapeDumper::execute()
 
 StatusCode LArShapeDumper::stop()
 {
-  m_samples->addRun(m_runData);
+  m_samples->addRun(m_runData.release());
   return StatusCode::SUCCESS;
 }
 
@@ -541,15 +529,14 @@ int LArShapeDumper::makeEvent(EventData*& eventData,
       return -1;
     }
     const std::vector<ROIB::CTPRoI> tav = l1Result->cTPResult().TAV();
-    for (std::vector<ROIB::CTPRoI>::const_iterator word = tav.begin(); word != tav.end(); word++)    
-      triggerWords.push_back(word->roIWord());
+    for (const ROIB::CTPRoI& word : tav)
+      triggerWords.push_back(word.roIWord());
 
-    for (std::map<TString, unsigned int>::const_iterator bit = m_runData->triggerConfig().begin();
-	 bit != m_runData->triggerConfig().end(); bit++) {
-      while (triggerWords.size() <= bit->second/32) triggerWords.push_back(0);
-      if (m_trigDec->isPassed(bit->first.Data())) {
-	triggerWords[bit->second/32] |= (0x1 << (bit->second % 32));
-      //msg() << MSG::INFO << "Trigger line " << bit->first.Data() << " passed" << endmsg;
+    for (const std::pair<const TString, unsigned int>& p : m_runData->triggerConfig()) {
+      while (triggerWords.size() <= p.second/32) triggerWords.push_back(0);
+      if (m_trigDec->isPassed(p.first.Data())) {
+	triggerWords[p.second/32] |= (0x1 << (p.second % 32));
+      //msg() << MSG::INFO << "Trigger line " << p.first.Data() << " passed" << endmsg;
       }
     }
     //msg() << MSG::INFO << "Trigger words : ";
@@ -559,19 +546,18 @@ int LArShapeDumper::makeEvent(EventData*& eventData,
   
   eventData = new EventData(event, 0, lumiBlock, bunchXing);
   if (m_runData->run() == 0) m_runData->setRun(run);
-  eventData->setRunData(m_runData);
+  eventData->setRunData(m_runData.get());
   eventData->setTriggerData(triggerWords);
   if (m_doRoIs) {
     //msg() << MSG::INFO << "Filling RoI list" << endmsg;
-    for (std::vector<const Trig::ChainGroup*>::const_iterator group = m_triggerGroups.begin();
-	 group != m_triggerGroups.end(); group++) {
-      std::vector<Trig::Feature<TrigRoiDescriptor> > roIs = (*group)->features().get<TrigRoiDescriptor>();
-      for (std::vector<Trig::Feature<TrigRoiDescriptor> >::const_iterator roI = roIs.begin(); roI != roIs.end(); roI++) {
+    for (const Trig::ChainGroup* group : m_triggerGroups) {
+      std::vector<Trig::Feature<TrigRoiDescriptor> > roIs = group->features().get<TrigRoiDescriptor>();
+      for (const Trig::Feature<TrigRoiDescriptor>& roI : roIs) {
 	//msg() << MSG::INFO << "Found an roi for chain ";
-        //for (unsigned int i = 0; i < (*group)->getListOfTriggers().size(); i++) cout << (*group)->getListOfTriggers()[i] << " ";
-        //cout << "@ " << roI->cptr()->eta() << ", " << roI->cptr()->phi() << ", TE = " 
-	//	 << roI->te()->getId() << " " << Trig::getTEName(*roI->te()) << " with label " << roI->label() << endmsg;
-	eventData->addRoI(roI->cptr()->eta(), roI->cptr()->phi(), (*group)->getListOfTriggers()[0].c_str(), roI->label().c_str());
+        //for (unsigned int i = 0; i < group->getListOfTriggers().size(); i++) cout << group->getListOfTriggers()[i] << " ";
+        //cout << "@ " << roI.cptr()->eta() << ", " << roI.cptr()->phi() << ", TE = " 
+	//	 << roI.te()->getId() << " " << Trig::getTEName(*roI.te()) << " with label " << roI.label() << endmsg;
+	eventData->addRoI(roI.cptr()->eta(), roI.cptr()->phi(), group->getListOfTriggers()[0].c_str(), roI.label().c_str());
 	//msg() << MSG::INFO << "nRoIs so far = " << eventData->nRoIs() << endmsg;
       }
     }

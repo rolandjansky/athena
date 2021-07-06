@@ -105,7 +105,7 @@ namespace xAOD {
       objectLink( const std::string& name ) const;
       /// Get a bare pointer with the requested name
       template< class OBJECT >
-      const OBJECT* object( const std::string& name ) const;
+      const OBJECT* object( const std::string& name  ) const;
 
       /// Add a link to a single object within a collection. Performs de-duplication
       template< class CONTAINER >
@@ -138,7 +138,7 @@ namespace xAOD {
       bool typelessGetObjectLink( const std::string& name, 
                                   uint32_t& key,
                                   uint32_t& clid, 
-                                  uint16_t& index ) const;
+                                  uint16_t& index) const;
 
       /// Fetches a collection of links without type.
       /// @param[in] name Name of the stored link
@@ -149,7 +149,7 @@ namespace xAOD {
       bool typelessGetObjectCollectionLinks( const std::string& name, 
                                   std::vector<uint32_t>& keyVec,
                                   std::vector<uint32_t>& clidVec, 
-                                  std::vector<uint16_t>& indexVec ) const;
+                                  std::vector<uint16_t>& indexVec) const;
 
 
       /// Look up all links stored to objects of (container) type CONTAINER
@@ -161,6 +161,16 @@ namespace xAOD {
       /// @return Vector of names to all collections of links to objects
       template< class CONTAINER >
       std::vector<std::string> getObjectCollectionNames() const;
+
+      /// Delete any stored element link with the given name
+      /// @param[in] name Name of the stored link
+      /// @return True if a link of the given name was found and deleted
+      bool removeObjectLink(const std::string& name);
+
+      /// Delete any stored collection of element links with the given name
+      /// @param[in] name Name of the stored link collection
+      /// @return True if a collection of links of the given name was found and deleted
+      bool removeObjectCollectionLinks(const std::string& name);
 
       /// @}
 
@@ -200,9 +210,9 @@ namespace xAOD {
 
       /// Raw access to the persistent link names
       const std::vector< std::string >& linkColNames() const;
-      /// Raw access to the persistent link labels. Will use remapped data, if available.
+      /// Raw access to the persistent link labels. 
       const std::vector< uint32_t >& linkColKeys() const;
-      /// Raw access to the persistent link indices. Will use remapped data, if available.
+      /// Raw access to the persistent link indices. 
       const std::vector< uint16_t >& linkColIndices() const;
       /// Raw access to the persistent link CLIDs
       const std::vector< uint32_t >& linkColClids() const;
@@ -212,10 +222,10 @@ namespace xAOD {
       /// containers and into the global Trigger EDM containers.
       bool isRemapped() const;
 
-      /// Raw access to the persistent link labels. Will not attempt to access remapped link data.
-      const std::vector< uint32_t >& linkColKeysNoRemap() const;
-      /// Raw access to the persistent link indices. Will not attempt to access remapped link data.
-      const std::vector< uint16_t >& linkColIndicesNoRemap() const;
+      /// Raw access to the persistent link labels. Will attempt to access remapped link data.
+      const std::vector< uint32_t >& linkColKeysRemap() const;
+      /// Raw access to the persistent link indices. Will attempt to access remapped link data.
+      const std::vector< uint16_t >& linkColIndicesRemap() const;
 
       /// @}
 
@@ -234,6 +244,26 @@ namespace xAOD {
       static const std::string s_featureString;
       /// Constant used to identify a seed (parent)
       static const std::string s_seedString;
+
+      /// Constant used to identify a navigation graph node as being from the L1 Decoder
+      static const std::string s_l1DecoderNodeNameString;
+      /// Constant used to identify a navigation graph node as being from a Filter
+      static const std::string s_filterNodeNameString;
+      /// Constant used to identify a navigation graph node as being from a Input Maker
+      static const std::string s_inputMakerNodeNameString;
+      /// Constant used to identify a navigation graph node as being from a Hypo Alg
+      static const std::string s_hypoAlgNodeNameString;
+      /// Constant used to identify a navigation graph node as being from a Combo Hypo Alg
+      static const std::string s_comboHypoAlgNodeNameString;
+      /// Constant used to identify a navigation graph node as being from 
+      /// a final Filter created by the DecisionSummaryMaker algorithm
+      static const std::string s_summaryFilterNodeNameString;
+      /// Constant used to identify the single terminus graph node
+      /// the end point of all chains which accept the event
+      static const std::string s_summaryPassNodeNameString;
+      /// Constant used to identify the single prescaled graph node.
+      /// A record of all chains which did not execute due to HLT prescale.
+      static const std::string s_summaryPrescaledNodeNameString;
 
    private:
       /// Raw access to the persistent link names (non-const)

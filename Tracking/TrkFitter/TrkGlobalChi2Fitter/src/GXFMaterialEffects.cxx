@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkGlobalChi2Fitter/GXFMaterialEffects.h"
@@ -234,10 +234,10 @@ namespace Trk {
   }
 
   std::unique_ptr<MaterialEffectsBase> GXFMaterialEffects::makeMEOT() {
-    std::unique_ptr<ScatteringAngles> scatangles;
+    std::optional<ScatteringAngles> scatangles;
 
     if (m_sigmascattheta != 0) {
-      scatangles = std::make_unique<ScatteringAngles>(m_scatphi, m_scattheta, m_sigmascatphi, m_sigmascattheta);
+      scatangles = ScatteringAngles(m_scatphi, m_scattheta, m_sigmascatphi, m_sigmascattheta);
     }
     
     std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes> typePattern;
@@ -251,8 +251,9 @@ namespace Trk {
         neweloss = std::make_unique<Trk::EnergyLoss>(m_deltae, m_sigmadeltae, m_sigmadeltaeneg, m_sigmadeltaepos);
       }
     }
-    
-    return std::make_unique<MaterialEffectsOnTrack>(m_x0, scatangles.release(), neweloss.release(), *m_surf, typePattern);
+
+    return std::make_unique<MaterialEffectsOnTrack>(
+      m_x0, std::move(scatangles), neweloss.release(), *m_surf, typePattern);
   }
 
   const Trk::MaterialProperties * GXFMaterialEffects::materialProperties() const {

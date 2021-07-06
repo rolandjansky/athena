@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************
@@ -34,7 +34,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "TrigEgammaAnalysisTools/TrigEgammaAnalysisBaseTool.h"
 #include "TrigEgammaAnalysisTools/ValidationException.h"
-#include "TrigEgammaEmulationTool/TrigEgammaEmulationTool.h"
+//#include "TrigEgammaEmulationTool/TrigEgammaEmulationTool.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
@@ -55,7 +55,7 @@ TrigEgammaAnalysisBaseTool( const std::string& myname )
     declareProperty("ElectronIsEMSelector", m_electronIsEMTool);
     declareProperty("ElectronLikelihoodTool", m_electronLHTool);
     declareProperty("MatchTool",m_matchTool);
-    declareProperty("EmulationTool",m_emulationTool);
+    //declareProperty("EmulationTool",m_emulationTool);
     declareProperty("doEmulation", m_doEmulation=false)->declareUpdateHandler(&TrigEgammaAnalysisBaseTool::updateEmulation,this);
     declareProperty("PlotTool",m_plot);
     declareProperty("Tools", m_tools);
@@ -122,7 +122,7 @@ void TrigEgammaAnalysisBaseTool::updateEmulation(Gaudi::Details::PropertyBase& /
     for( auto& tool : m_tools) {
         tool->setEmulation(m_doEmulation);
         ATH_MSG_INFO("updateEmulation() property for tool with name: " << tool->name());
-        tool->setEmulationTool(m_emulationTool);
+        //tool->setEmulationTool(m_emulationTool);
     }
 }
 
@@ -189,12 +189,13 @@ StatusCode TrigEgammaAnalysisBaseTool::initialize() {
     }
 
     // propagate the emulation tool for all tools
+    m_doEmulation=false; // force disabe it for now
     BooleanProperty proptmp (m_doEmulation);
     updateEmulation (proptmp);
     if( m_doEmulation ){
       for( auto& tool : m_tools) {
         ATH_MSG_INFO("Propagate emulation tool handler to: " << tool->name() );
-        tool->setEmulationTool(m_emulationTool);  
+        //tool->setEmulationTool(m_emulationTool);  
       }
     }
 
@@ -429,7 +430,10 @@ void TrigEgammaAnalysisBaseTool::parseTriggerName(const std::string trigger, std
         else if( strs.at(1)== "etcut"){
             pidname = defaultPid;
             etcut=true;
-        }
+        } else{
+	     	pidname = getProbePid(strs.at(1));
+	    }
+	// }
 	// HI is not working in master any more. So commenting out untill fixed
         // else {
 	//     if (type == "electron" && boost::contains(trigger, "ion")){
@@ -958,22 +962,21 @@ GETTER(deltaPhiRescaled3)
 #undef GETTER    
 
 std::string TrigEgammaAnalysisBaseTool::getProbePid(const std::string pidtype){
-    static std::map<std::string,std::string> PidMap; //no longer class member but static
-    // Note vloose/lhvloose trigger mapped to Loose/LHLoose offline PID
-    if(PidMap.empty()){
-        PidMap["vloose"]="Loose";
-        PidMap["loose"]="Loose";
-        PidMap["medium"]="Medium";
-        PidMap["tight"]="Tight";
-        PidMap["loose1"]="Loose";
-        PidMap["medium1"]="Medium";
-        PidMap["tight1"]="Tight";
-        PidMap["lhvloose"]="LHLoose";
-        PidMap["lhloose"]="LHLoose";
-        PidMap["lhmedium"]="LHMedium";
-        PidMap["lhtight"]="LHTight";
-    }
-    return PidMap[pidtype];
+    static const std::map<std::string,std::string> PidMap = {
+      // Note vloose/lhvloose trigger mapped to Loose/LHLoose offline PID
+      {"vloose","Loose"},
+      {"loose","Loose"},
+      {"medium","Medium"},
+      {"tight","Tight"},
+      {"loose1","Loose"},
+      {"medium1","Medium"},
+      {"tight1","Tight"},
+      {"lhvloose","LHLoose"},
+      {"lhloose","LHLoose"},
+      {"lhmedium","LHMedium"},
+      {"lhtight","LHTight"}
+    };
+    return PidMap.at(pidtype);
 }
 
 std::string TrigEgammaAnalysisBaseTool::getL1Item(std::string trigger){
@@ -1097,7 +1100,7 @@ MonteCarlo::PDGID TrigEgammaAnalysisBaseTool::pdgid(const xAOD::Egamma *eg, cons
 
   if(truthContainer){
     TLorentzVector elp; elp.SetPtEtaPhiE(eg->pt(),eg->eta(),eg->phi(),eg->e());
-    for(const auto& mc : *truthContainer ){
+    for(const auto mc : *truthContainer ){
       Z = false;
       W = false;
       if(mc->isElectron()){

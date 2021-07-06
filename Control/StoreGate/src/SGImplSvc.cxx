@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
@@ -16,12 +16,12 @@
 #include "AthContainers/AuxVectorBase.h"
 #include "AthContainersInterfaces/IAuxStore.h"
 #include "AthContainersInterfaces/IConstAuxStore.h"
-#include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IProxyProviderSvc.h"
 #include "AthenaKernel/IIOVSvc.h"
 #include "AthenaKernel/CLIDRegistry.h"
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/StoreID.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/IHistorySvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IConversionSvc.h"
@@ -140,8 +140,7 @@ SGImplSvc::~SGImplSvc()  {
 /// Service initialization
 StatusCode SGImplSvc::initialize()    {
 
-  verbose() <<  "Initializing " << name() 
-            << " - package version " << PACKAGE_VERSION << endmsg;
+  verbose() << "Initializing " << name() << endmsg;
 
   CHECK( Service::initialize() );
 
@@ -310,8 +309,7 @@ StatusCode SGImplSvc::clearStore(bool forceRemove)
 //////////////////////////////////////////////////////////////
 /// Service finalization
 StatusCode SGImplSvc::finalize()    {
-  verbose() << "Finalizing " << name() 
-            << " - package version " << PACKAGE_VERSION << endmsg ;
+  verbose() << "Finalizing " << name() << endmsg ;
   
   // Incident service may not work in finalize.
   // Clear this, so that we won't try to send an incident from clearStore.
@@ -338,8 +336,7 @@ StatusCode SGImplSvc::finalize()    {
 //////////////////////////////////////////////////////////////
 /// Service reinitialization
 StatusCode SGImplSvc::reinitialize()    {
-  verbose() << "Reinitializing " << name() 
-            << " - package version " << PACKAGE_VERSION << endmsg ;
+  verbose() << "Reinitializing " << name() << endmsg ;
   const bool FORCEREMOVE(true);
   clearStore(FORCEREMOVE).ignore();
   //not in v20r2p2! return Service::reinitialize();
@@ -977,28 +974,9 @@ std::vector<const SG::DataProxy*>
 SGImplSvc::proxies() const
 {
   lock_t lock (m_mutex);
-  using std::distance;
-  DataStore::ConstStoreIterator s_iter, s_end;
-  store()->tRange(s_iter, s_end).ignore();
-
-  std::vector<const SG::DataProxy*> proxies;
-  proxies.reserve( distance( s_iter, s_end ) );
-
-  for (; s_iter != s_end; ++s_iter ) {
-
-    const CLID id = s_iter->first;
-    proxies.reserve( proxies.size() + store()->typeCount(id) );
-
-    // loop over each type:
-    SG::ConstProxyIterator p_iter = (s_iter->second).begin();
-    SG::ConstProxyIterator p_end =  (s_iter->second).end();
-
-    for ( ; p_iter != p_end; ++p_iter ) {
-      proxies.push_back( p_iter->second );
-    }
-  }
-
-  return proxies;
+  const std::vector<SG::DataProxy*>& proxies = store()->proxies();
+  std::vector<const SG::DataProxy*> ret (proxies.begin(), proxies.end());
+  return ret;
 }
 
 
@@ -1311,15 +1289,21 @@ SGImplSvc::removeProxy(DataProxy* proxy, const void* pTrans,
   }
 
   // remove all entries from t2p map
-  this->t2pRemove(pTrans);
-  SG::DataProxy::CLIDCont_t clids = proxy->transientID();
-  for (SG::DataProxy::CLIDCont_t::const_iterator i = clids.begin();
-       i != clids.end();
-       ++i)
+  //  --- only if the proxy actually has an object!
+  //      otherwise, we can trigger I/O.
+  //      besides being useless here, we can get deadlocks if we
+  //      call into the I/O code while holding the SG lock.
+  if (proxy->isValidObject()) {
+    this->t2pRemove(pTrans);
+    SG::DataProxy::CLIDCont_t clids = proxy->transientID();
+    for (SG::DataProxy::CLIDCont_t::const_iterator i = clids.begin();
+         i != clids.end();
+         ++i)
     {
       void* ptr = SG::DataProxy_cast (proxy, *i);
       this->t2pRemove(ptr);
     }
+  }
 
   // remove from store
   return m_pStore->removeProxy(proxy, forceRemove, true);
@@ -1902,10 +1886,10 @@ void SG_dump (SGImplSvc* sg, const char* fname)
  *
  *        The default version always returns an empty string.
  */
-SG::SourceID SGImplSvc::sourceID() const
+SG::SourceID SGImplSvc::sourceID (const std::string& key /*= "EventSelector"*/) const
 {
   lock_t lock (m_mutex);
-  SG::DataProxy* dp =proxy (ClassID_traits<DataHeader>::ID(), "EventSelector", true);
+  SG::DataProxy* dp =proxy (ClassID_traits<DataHeader>::ID(), key, true);
   if (dp) {
     const DataHeader* dh = SG::DataProxy_cast<DataHeader> (dp);
     if (dh) {

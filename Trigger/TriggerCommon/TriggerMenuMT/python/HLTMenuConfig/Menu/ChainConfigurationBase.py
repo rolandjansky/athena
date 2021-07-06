@@ -43,14 +43,15 @@ class ChainConfigurationBase(object):
         mySequence = RecoFragmentsPool.retrieve(mySequenceCfg, None) # the None will be used for flags in future
         return mySequence
 
-    def getStep(self, stepID, stepPartName, sequenceCfgArray, comboHypoCfg=ComboHypoCfg, comboTools=[]):
+    def getStep(self, stepID, stepPartName, sequenceCfgArray, comboHypoCfg=ComboHypoCfg, comboTools=[], **stepArgs):
         stepName = 'Step%d'%stepID + '_%d'%self.mult + stepPartName
+
         if self.mult >1 :
             stepName = 'Step%d'%stepID + '_N' + stepPartName
         log.debug("Configuring step %s", stepName)
         seqArray = []
         for sequenceCfg in sequenceCfgArray:
-            seqArray.append( RecoFragmentsPool.retrieve( sequenceCfg, None))
+            seqArray.append( RecoFragmentsPool.retrieve( sequenceCfg, None, **stepArgs ))
         return ChainStep(stepName, seqArray, [self.mult], [self.dict], comboHypoCfg=comboHypoCfg, comboToolConfs=comboTools)
 
     def getEmptyStep(self, stepID, stepPartName):

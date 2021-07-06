@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -244,7 +244,7 @@ bool SelectionCutNTracks::accept(const xAOD::TauJet& xTau,
   // check track multiplicity, if tau has one of the number of tracks requiered then return true; false otherwise
   for( size_t iNumTrack = 0; iNumTrack < m_tTST->m_vNTracks.size(); iNumTrack++ )
   {
-    if ( xTau.nTracks() == m_tTST->m_vNTracks.at(iNumTrack) )
+    if ( static_cast<unsigned> (xTau.nTracks()) == m_tTST->m_vNTracks.at(iNumTrack) )
     {
       acceptData.setCutResult( "NTrack", true );
       return true;
@@ -348,8 +348,8 @@ void SelectionCutRNNJetScoreSigTrans::fillHistogram(const xAOD::TauJet& xTau, TH
 //______________________________________________________________________________
 void SelectionCutRNNJetScoreSigTrans::setAcceptInfo(asg::AcceptInfo& info) const
 {
-  info.addCut( "JetBDTScore",
-               "Selection of taus according to their JetBDTScore" );
+  info.addCut( "JetRNNScoreSigTrans",
+               "Selection of taus according to their JetRNNScore" );
 }
 //______________________________________________________________________________
 bool SelectionCutRNNJetScoreSigTrans::accept(const xAOD::TauJet& xTau,
@@ -422,39 +422,6 @@ bool SelectionCutJetIDWP::accept(const xAOD::TauJet& xTau,
   case JETIDNONEUNCONFIGURED:
     bPass = true;
     break;
-  case JETIDBDTLOOSE:
-    if (xTau.isTau(xAOD::TauJetParameters::JetBDTSigLoose)) bPass = true;
-    break;
-  case JETIDBDTMEDIUM:
-    if (xTau.isTau(xAOD::TauJetParameters::JetBDTSigMedium)) bPass = true;
-    break;
-  case JETIDBDTTIGHT:
-    if (xTau.isTau(xAOD::TauJetParameters::JetBDTSigTight)) bPass = true;
-    break;
-  case JETIDBDTLOOSENOTMEDIUM:
-    if (xTau.isTau(xAOD::TauJetParameters::JetBDTSigLoose) and !xTau.isTau(xAOD::TauJetParameters::JetBDTSigMedium)) bPass = true;
-    break;
-  case JETIDBDTLOOSENOTTIGHT:
-    if (xTau.isTau(xAOD::TauJetParameters::JetBDTSigLoose) and !xTau.isTau(xAOD::TauJetParameters::JetBDTSigTight)) bPass = true;
-    break;
-  case JETIDBDTMEDIUMNOTTIGHT:
-    if (xTau.isTau(xAOD::TauJetParameters::JetBDTSigMedium) and !xTau.isTau(xAOD::TauJetParameters::JetBDTSigTight)) bPass = true;
-    break;
-  case JETIDBDTNOTLOOSE:
-    if (!xTau.isTau(xAOD::TauJetParameters::JetBDTSigLoose)) bPass = true;
-    break;
-  case JETIDBDTVERYLOOSE:
-    if (xTau.isTau(xAOD::TauJetParameters::JetBDTSigVeryLoose)) bPass = true;
-    break;
-  case JETBDTBKGLOOSE:
-    if (xTau.isTau(xAOD::TauJetParameters::JetBDTBkgLoose)) bPass = true;
-    break;
-  case JETBDTBKGMEDIUM:
-    if (xTau.isTau(xAOD::TauJetParameters::JetBDTBkgMedium)) bPass = true;
-    break;
-  case JETBDTBKGTIGHT:
-    if (xTau.isTau(xAOD::TauJetParameters::JetBDTBkgTight)) bPass = true;
-    break;
   case JETIDRNNVERYLOOSE:
     if (xTau.isTau(xAOD::TauJetParameters::JetRNNSigVeryLoose)) bPass = true;
     break;
@@ -476,7 +443,7 @@ bool SelectionCutJetIDWP::accept(const xAOD::TauJet& xTau,
     acceptData.setCutResult( "JetIDWP", true );
     return true;
   }
-  m_tTST->msg() << MSG::VERBOSE << "Tau failed JetBDTWP requirement, tau transformed BDT score: " << xTau.discriminant(xAOD::TauJetParameters::BDTJetScoreSigTrans) << endmsg;
+  m_tTST->msg() << MSG::VERBOSE << "Tau failed JetRNNWP requirement, tau transformed RNN score: " << xTau.discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans) << endmsg;
   return false;
 }
 
@@ -546,10 +513,8 @@ bool SelectionCutBDTEleScore::accept(const xAOD::TauJet& xTau,
 //______________________________________________________________________________
 SelectionCutEleBDTWP::SelectionCutEleBDTWP(TauSelectionTool* tTST)
   : SelectionCut("CutEleBDTWP", tTST),
-    m_sEleBDTDecorationName ("BDTEleScoreSigTrans")
+    m_sEleBDTDecorationName ("BDTEleScoreSigTrans_retuned")
 {
-  m_sEleBDTDecorationName = "BDTEleScoreSigTrans_retuned";
-
   if (m_tTST->m_iEleBDTWP == int(ELEIDBDTOLDLOOSE) ||
      m_tTST->m_iEleBDTWP == int(ELEIDBDTOLDMEDIUM))
   {

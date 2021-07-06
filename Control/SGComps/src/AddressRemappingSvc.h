@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SGCOMPS_ADDRESSREMAPPINGSVC_H
@@ -10,7 +10,6 @@
 /** @file AddressRemappingSvc.h
  *  @brief This file contains the class definition for the AddressRemappingSvc class.
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
- *  $Id: AddressRemappingSvc.h,v 1.4 2008-06-06 18:25:04 gemmeren Exp $
  **/
 
 #include "GaudiKernel/ClassID.h"
@@ -37,7 +36,7 @@ class IRCUSvc;
  *  @brief This class provides the interface to the LCG POOL persistency software.
  **/
 class AddressRemappingSvc
-  : public extends1<AthService, Athena::IInputRename>, public IAddressProvider
+  : public extends<AthService, Athena::IInputRename>, public IAddressProvider
 {
 
 public: 

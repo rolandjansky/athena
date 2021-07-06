@@ -4,7 +4,7 @@
  **     @author  mark sutton
  **     @date    Wed  4 Mar 2015 16:22:25 CET 
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  **/
 
 #include <cmath>
@@ -53,17 +53,6 @@ TIDARoiParameters::TIDARoiParameters(double eta,  double etaMinus,   double etaP
   m_zedMinus(zedMinus), m_zedPlus(zedPlus)
 { 
   //  std::cout << "TIDAParameters     phi: " << phiMinus << " -> " << m_phiMinus << " : " << phiPlus << " -> " <<  m_phiPlus << std::endl;  
-}
-
-
-TIDARoiParameters::TIDARoiParameters( const TIDARoiParameters& p ) 
-  : TObject(*this),
-  m_eta(p.eta()), m_phi(p.phi()), m_zed(p.zed()),
-  m_etaMinus(p.etaMinus()), m_etaPlus(p.etaPlus()),
-  m_phiMinus(p.phiMinus()), m_phiPlus(p.phiPlus()),
-  m_zedMinus(p.zedMinus()), m_zedPlus(p.zedPlus())
-{
-  //  std::cout << "TIDAParameters roi phi: " << p.phiMinus() << " -> " << m_phiMinus << " : " << p.phiPlus() <<  m_phiPlus << std::endl;  
 }
 
 

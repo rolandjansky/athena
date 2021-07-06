@@ -64,6 +64,8 @@ if rec.doTruth():
                                           "xAOD::TruthEventAuxContainer#TruthEventsAux.",
                                           "xAOD::TruthParticleContainer#TruthParticles",
                                           "xAOD::TruthParticleAuxContainer#TruthParticlesAux.-caloExtension",
+                                          "xAOD::TruthParticleContainer#TruthPileupParticles",
+                                          "xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux.",
                                           "xAOD::TruthVertexContainer#TruthVertices", 
                                           "xAOD::TruthVertexAuxContainer#TruthVerticesAux.",
                                           "xAOD::TruthPileupEventContainer#TruthPileupEvents",
@@ -142,7 +144,7 @@ except Exception:
 # Jet classes. 
 try:
    from JetRec.JetRecUtils import retrieveAODList
-   jetAODList = retrieveAODList()
+   jetAODList = retrieveAODList(True)
    fullESDList += CfgItemList( "jets", items = jetAODList )
 except Exception:
    treatException("Could not load jet item list")

@@ -84,9 +84,9 @@ topSequence += viewSequence
 # from TrigInDetConfig.InDetSetup import makeInDetAlgs
 #
 ## hypo
-# beamspotHypoAlg = TrigStreamerHypoAlgMT("BeamspotHypoAlg")
+# beamspotHypoAlg = TrigStreamerHypoAlg("BeamspotHypoAlg")
 # beamspotHypoAlg.RuntimeValidation = False #Needed to avoid the ERROR ! Decision has no 'feature' ElementLink
-# beamspotHypoToolGen= StreamerHypoToolMTgenerator
+# beamspotHypoToolGen= StreamerHypoToolGenerator
 # beamspotViewsSequence = seqAND("beamspotViewsSequence", [ inputMakerAlg, beamspotSequence ])
 #
 # return  MenuSequence( Sequence    = beamspotViewsSequence,

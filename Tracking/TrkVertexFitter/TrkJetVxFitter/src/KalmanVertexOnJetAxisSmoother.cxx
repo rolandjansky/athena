@@ -354,7 +354,7 @@ namespace Trk
 	trJac(1,1) = -sin(refTrackParametersToStore[Trk::phi0])/tan(refTrackParametersToStore[Trk::theta]);
 	trJac(1,2) = 1.;
 	
-	AmgSymMatrix(5)* perFullTrkCov = new AmgSymMatrix(5)(trJac*fullTrkCov*trJac.transpose());
+	AmgSymMatrix(5) perFullTrkCov = AmgSymMatrix(5)(trJac*fullTrkCov*trJac.transpose());
         Trk::PerigeeSurface pSurf(trk->linearizationPoint());
 	Trk::TrackParameters* refittedPerigee = new Perigee(refTrackParametersToStore[0], 
 							    refTrackParametersToStore[1], 
@@ -362,7 +362,7 @@ namespace Trk
 							    refTrackParametersToStore[3], 
 							    refTrackParametersToStore[4],
 							    pSurf,
-							    perFullTrkCov);
+							    std::move(perFullTrkCov));
 
 	//set the refitted track parameters
 	(*TracksIter)->setPerigeeAtVertex(refittedPerigee);

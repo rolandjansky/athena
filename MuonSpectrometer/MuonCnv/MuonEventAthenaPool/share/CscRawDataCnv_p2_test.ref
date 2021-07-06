@@ -3,15 +3,9 @@
 ApplicationMgr       INFO Application Manager Configured successfully
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
-HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
-AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
-AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
-AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
-AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
-AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
- AtlasDetectorID::initialize_from_dictionary - OK 
+AtlasDetectorID      INFO initialize_from_dictionary - OK
 RpcIdHelper          INFO MultiRange built successfully to doubletR: MultiRange size is 241
 RpcIdHelper          INFO MultiRange built successfully to detectorElement: DetectorElement MultiRange size is 241
 RpcIdHelper          INFO MultiRange built successfully to rpcStrip: MultiRange size is 241
@@ -19,12 +13,7 @@ RpcIdHelper          INFO Initializing RPC hash indices ...
 RpcIdHelper          INFO The element hash max is 600
 RpcIdHelper          INFO The detector element hash max is 1122
 RpcIdHelper          INFO Initializing RPC hash indices for finding neighbors ... 
-AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
-AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
-AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
-AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
-AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
- AtlasDetectorID::initialize_from_dictionary - OK 
+AtlasDetectorID      INFO initialize_from_dictionary - OK
 CscIdHelper          INFO MultiRange built successfully to Technology: MultiRange size is 210
 CscIdHelper          INFO MultiRange built successfully to detector element: Multilayer MultiRange size is 237
 CscIdHelper          INFO MultiRange built successfully to cscStrip: MultiRange size is 241
@@ -33,12 +22,7 @@ CscIdHelper          INFO The element hash max is 32
 CscIdHelper          INFO The detector element hash max is 64
 CscIdHelper          INFO The channel hash max is 61440
 CscIdHelper          INFO Initializing CSC hash indices for finding neighbors ... 
-AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
-AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
-AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
-AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
-AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
- AtlasDetectorID::initialize_from_dictionary - OK 
+AtlasDetectorID      INFO initialize_from_dictionary - OK
 MdtIdHelper          INFO MultiRange built successfully to Technology: MultiRange size is 210
 MdtIdHelper          INFO MultiRange built successfully to detector element: Multilayer MultiRange size is 241
 MdtIdHelper          INFO MultiRange built successfully to tube: MultiRange size is 241
@@ -46,12 +30,7 @@ MdtIdHelper          INFO Initializing MDT hash indices ...
 MdtIdHelper          INFO The element hash max is 1188
 MdtIdHelper          INFO The detector element hash max is 2328
 MdtIdHelper          INFO Initializing MDT hash indices for finding neighbors ... 
-AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
-AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
-AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
-AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
-AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
- AtlasDetectorID::initialize_from_dictionary - OK 
+AtlasDetectorID      INFO initialize_from_dictionary - OK
 TgcIdHelper          INFO MultiRange built successfully to Technology: MultiRange size is 210
 TgcIdHelper          INFO MultiRange built successfully to detector element: Multilayer MultiRange size is 210
 TgcIdHelper          INFO MultiRange built successfully to channel: MultiRange size is 241

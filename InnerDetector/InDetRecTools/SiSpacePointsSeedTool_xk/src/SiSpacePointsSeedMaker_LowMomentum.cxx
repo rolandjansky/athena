@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,6 +13,8 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "SiSpacePointsSeedTool_xk/SiSpacePointsSeedMaker_LowMomentum.h"
+
+#include <cmath>
 
 #include <iomanip>
 #include <limits>
@@ -176,7 +178,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
   buildBeamFrameWork(data);
 
   int   irmax  = m_r_size-1;
-  float irstep = 1./m_r_rstep;
+  float irstep = 1.f/m_r_rstep;
 
   SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
   const Trk::PRDtoTrackMap  *prd_to_track_map_cptr = nullptr;
@@ -190,14 +192,14 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
 
   // Get pixels space points containers from store gate 
   //
-  if (m_pixel && vPixel.size()) {
+  if (m_pixel && !vPixel.empty()) {
 
     SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel, ctx};
     if (spacepointsPixel.isValid()) {
       // Loop through all trigger collections
       //
       for (const IdentifierHash& l: vPixel) {
-        auto w = spacepointsPixel->indexFindPtr(l);
+        const auto *w = spacepointsPixel->indexFindPtr(l);
         if (w==nullptr) continue;
         for (const Trk::SpacePoint* sp: *w) {
           float r = sp->r();
@@ -219,14 +221,14 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
 
   // Get sct space points containers from store gate 
   //
-  if (m_sct && vSCT.size()) {
+  if (m_sct && !vSCT.empty()) {
 
     SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT, ctx};
     if (spacepointsSCT.isValid()) {
       // Loop through all trigger collections
       //
       for (const IdentifierHash& l: vSCT) {
-        auto w = spacepointsSCT->indexFindPtr(l);
+        const auto *w = spacepointsSCT->indexFindPtr(l);
         if (w==nullptr) continue;
         for (const Trk::SpacePoint* sp: *w) {
           float r = sp->r();
@@ -568,18 +570,18 @@ bool InDet::SiSpacePointsSeedMaker_LowMomentum::newVertices(EventData& data, con
 
 void InDet::SiSpacePointsSeedMaker_LowMomentum::buildFrameWork() 
 {
-  m_ptmin     = fabs(m_ptmin);
+  m_ptmin     = std::abs(m_ptmin);
   if (m_ptmin < 50.) m_ptmin = 50.;
-  m_iptmax  = 1./fabs(m_ptmax);
-  m_iptmin  = 1./fabs(m_ptmin);
-  m_rapcut    = fabs(m_rapcut);
-  m_dzdrmax   = 1./tan(2.*atan(exp(-m_rapcut)));
+  m_iptmax  = 1.f/std::abs(m_ptmax);
+  m_iptmin  = 1.f/std::abs(m_ptmin);
+  m_rapcut    = std::abs(m_rapcut);
+  m_dzdrmax   = 1.f/std::tan(2.f*std::atan(std::exp(-m_rapcut)));
   m_dzdrmin   =-m_dzdrmax;
   m_r3max     = m_r_rmax;
 
   // Build radius sorted containers
   //
-  m_r_size = static_cast<int>((m_r_rmax+.1)/m_r_rstep);
+  m_r_size = static_cast<int>((m_r_rmax+.1f)/m_r_rstep);
 
   // Build radius-azimuthal sorted containers
   //
@@ -587,7 +589,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::buildFrameWork()
   const int   NFmax = SizeRF;
   const float sFmax   = static_cast<float>(NFmax )/pi2;
   const float sFmin   = 100./60.;
-  m_sF = m_ptmin /60.;
+  m_sF = m_ptmin /60.f;
   if (m_sF > sFmax ) m_sF = sFmax;
   else if (m_sF < sFmin) m_sF = sFmin;
   m_fNmax = static_cast<int>(pi2*m_sF);
@@ -664,15 +666,15 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::buildBeamFrameWork(EventData& da
   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
 
   const Amg::Vector3D &cb =     beamSpotHandle->beamPos();
-  double     tx = tan(beamSpotHandle->beamTilt(0));
-  double     ty = tan(beamSpotHandle->beamTilt(1));
+  double     tx = std::tan(beamSpotHandle->beamTilt(0));
+  double     ty = std::tan(beamSpotHandle->beamTilt(1));
 
-  double ph   = atan2(ty,tx);
-  double th   = acos(1./sqrt(1.+tx*tx+ty*ty));
-  double sint = sin(th);
-  double cost = cos(th);
-  double sinp = sin(ph);
-  double cosp = cos(ph);
+  double ph   = std::atan2(ty,tx);
+  double th   = std::acos(1.f/std::sqrt(1.f+tx*tx+ty*ty));
+  double sint = std::sin(th);
+  double cost = std::cos(th);
+  double sinp = std::sin(ph);
+  double cosp = std::cos(ph);
   
   data.xbeam[0] =  static_cast<float>(cb.x());
   data.xbeam[1] =  static_cast<float>(cost*cosp*cosp+sinp*sinp);
@@ -911,7 +913,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp
         float dx = X-(*r)->x();
         float dy = Y-(*r)->y();
         float dZ = Z-(*r)->z();
-        data.Tz[Nb] = dZ/sqrt(dx*dx+dy*dy);
+        data.Tz[Nb] = dZ/std::sqrt(dx*dx+dy*dy);
         if (data.Tz[Nb]<m_dzdrmin || data.Tz[Nb]>m_dzdrmax) continue;
         data.Zo[Nb] = Z-R*data.Tz[Nb];
 
@@ -943,7 +945,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp
         float dx = X-(*r)->x();
         float dy = Y-(*r)->y();
         float dZ = (*r)->z()-Z;
-        data.Tz[Nt]   = dZ/sqrt(dx*dx+dy*dy);
+        data.Tz[Nt]   = dZ/std::sqrt(dx*dx+dy*dy);
         if (data.Tz[Nt]<m_dzdrmin || data.Tz[Nt]>m_dzdrmax) continue;
         data.Zo[Nt]   = Z-R*data.Tz[Nt];
 
@@ -969,8 +971,8 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp
       float dz = data.SP[i]->z()-Z;
       float x  = dx*ax+dy*ay;
       float y  =-dx*ay+dy*ax;
-      float r2 = 1./(x*x+y*y);
-      float dr  = sqrt(r2);
+      float r2 = 1.f/(x*x+y*y);
+      float dr  = std::sqrt(r2);
 
       i < Nb ?  data.Tz[i] = -dz*dr :  data.Tz[i] = dz*dr;
 
@@ -983,12 +985,12 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp
     // Three space points comparison
     //
     for (int b=Nb-1; b>=0; --b) {
-      float SA  = 1.+data.Tz[b]*data.Tz[b];
+      float SA  = 1.f+data.Tz[b]*data.Tz[b];
       for (int t=Nb;  t!=Nt; ++t) {
         float cof = COF;
         if (!data.SP[t]->spacepoint->clusterList().second) cof = COFP;
 
-        float Ts = .5*(data.Tz[b]+data.Tz[t]);
+        float Ts = .5f*(data.Tz[b]+data.Tz[t]);
         float dT =  data.Tz[b]-data.Tz[t];
         dT        = dT*dT-data.Er[b]-data.Er[t]-2.*data.R[b]*data.R[t]*(Ts*Ts*covr0+covz0);
 
@@ -997,13 +999,13 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp
         if (dU == 0.) continue;
         float A  = (data.V[t]-data.V[b])/dU;
         float B  =  data.V[t]-A*data.U[t];
-        float S2 = 1.+A*A;
-        float S  = sqrt(S2);
-        float BK = fabs(B*K);
+        float S2 = 1.f+A*A;
+        float S  = std::sqrt(S2);
+        float BK = std::abs(B*K);
         if (BK > m_iptmin*S || BK < m_iptmax*S) continue; // Momentum    cut
         if (dT > 0. && dT  > (BK*BK/S2)*cof*SA) continue; // Polar angle cut
 
-        float Im = fabs((A-B*R)*R);
+        float Im = std::abs((A-B*R)*R);
         if (Im > m_diver) continue;
 
         newOneSeed(data, data.SP[b]->spacepoint,(*r0)->spacepoint,data.SP[t]->spacepoint,data.Zo[b],Im);
@@ -1075,14 +1077,14 @@ bool InDet::SiSpacePointsSeedMaker_LowMomentum::isZCompatible
 {
   if (Zv < m_zmin || Zv > m_zmax) return false;
 
-  if (data.l_vertex.size()==0) return true;
+  if (data.l_vertex.empty()) return true;
 
   float dZmin = std::numeric_limits<float>::max();
   for (const float& v : data.l_vertex) {
-    float dZ = fabs(v-Zv);
+    float dZ = std::abs(v-Zv);
     if (dZ<dZmin) dZmin=dZ;
   }
-  return dZmin < (m_dzver+m_dzdrver*R)*sqrt(1.+T*T);
+  return dZmin < (m_dzver+m_dzdrver*R)*std::sqrt(1.f+T*T);
 }
   
 ///////////////////////////////////////////////////////////////////
@@ -1183,4 +1185,11 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::initializeEventData(EventData& d
                   SizeRFZ,
                   0, // sizeRFZV not used
                   false); // checkEta not used
+}
+
+void InDet::SiSpacePointsSeedMaker_LowMomentum::writeNtuple(const SiSpacePointsSeed*, const Trk::Track*, int, long) const{
+}
+
+bool InDet::SiSpacePointsSeedMaker_LowMomentum::getWriteNtupleBoolProperty() const{
+    return false;
 }

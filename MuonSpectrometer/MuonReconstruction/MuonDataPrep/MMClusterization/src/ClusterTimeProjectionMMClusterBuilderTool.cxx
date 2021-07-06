@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "ClusterTimeProjectionMMClusterBuilderTool.h"
 
@@ -10,7 +10,7 @@
 #include "GaudiKernel/SystemOfUnits.h"
 
 namespace {
-    static constexpr double halfGapWidth = 2.52;
+    constexpr double halfGapWidth = 2.52;
 }
 
 
@@ -40,8 +40,8 @@ StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::getClusters(
         if (sc.isFailure()) continue;
         for (uint i_cluster = 0; i_cluster < idxClusters.size(); i_cluster++) {
             double clusterPosition, clusterPositionErrorSq;
-            sc = getClusterPosition(prdsOfLayer, idxClusters.at(i_cluster),
-                                    clusterPosition, clusterPositionErrorSq);
+            sc = getClusterPositionPRD(prdsOfLayer, idxClusters.at(i_cluster),
+				       clusterPosition, clusterPositionErrorSq);
             if (sc.isFailure()) continue;
             sc = writeClusterPrd(prdsOfLayer, idxClusters.at(i_cluster),
                                  clusterPosition, clusterPositionErrorSq, clustersVec);
@@ -111,12 +111,12 @@ StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::clusterLayer(
     return StatusCode::SUCCESS;
 }  // end of cluster layer
 
-StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::getClusterPosition(
-                const std::vector<Muon::MMPrepData> &MMPrdsOfLayer,
-                const std::vector<uint> &idxCluster, double &clusterPosition,
-                double &clusterPositionErrorSq) const {
-    if (idxCluster.empty()) return StatusCode::FAILURE;
-    double qtot = 0;
+StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::getClusterPositionPRD(const std::vector<Muon::MMPrepData> &MMPrdsOfLayer,
+										  const std::vector<uint> &idxCluster, 
+										  double &clusterPosition,
+										  double &clusterPositionErrorSq) const {
+  if (idxCluster.empty()) return StatusCode::FAILURE;
+  double qtot = 0;
     double meanTheta = 0;
     double meanDriftDist = 0;
     double meanDriftDistError = 0;
@@ -209,7 +209,7 @@ StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::writeClusterPrd(
     stripDriftDists.reserve(idxCluster.size());
     stripDriftDistErrors.reserve(idxCluster.size());
 
-    for (auto &idx : idxCluster) {
+    for (const auto &idx : idxCluster) {
         Identifier id = MMPrdsOfLayer.at(idx).identify();
         rdoList.push_back(id);
         if(m_writeStripProperties) {
@@ -221,15 +221,15 @@ StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::writeClusterPrd(
         stripDriftDistErrors.push_back(MMPrdsOfLayer.at(idx).localCovariance());
     }
 
-    Amg::MatrixX* covN = new Amg::MatrixX(1, 1);
-    covN -> coeffRef(0, 0) = clusterPositionErrorSq;
+    auto covN =Amg::MatrixX(1, 1);
+    covN.coeffRef(0, 0) = clusterPositionErrorSq;
     Amg::Vector2D localClusterPositionV(clusterPosition,
             MMPrdsOfLayer.at(idxCluster.at(0)).localPosition().y());
     Identifier idStrip0 = MMPrdsOfLayer.at(idxCluster.at(0)).identify();
 
     std::unique_ptr<MMPrepData> prdN = std::make_unique<MMPrepData>(idStrip0,
                    MMPrdsOfLayer.at(idxCluster.at(0)).collectionHash(),
-                   localClusterPositionV, rdoList, covN,
+                   localClusterPositionV, rdoList, std::move(covN),
                    MMPrdsOfLayer.at(idxCluster.at(0)).detectorElement(),
                    (short int) 0,  // drift dist
                    std::accumulate(stripCharges.begin(), stripCharges.end(), 0),

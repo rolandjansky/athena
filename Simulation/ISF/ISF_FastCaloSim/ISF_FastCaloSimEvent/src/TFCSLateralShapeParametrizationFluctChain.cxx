@@ -5,7 +5,7 @@
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationFluctChain.h"
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
 
-#include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 
 #include "TMath.h"
 
@@ -84,7 +84,7 @@ FCSReturnCode TFCSLateralShapeParametrizationFluctChain::simulate(TFCSSimulation
     hit.reset();
     //hit.E()=Eavghit;
     do {
-      hit.E()=CLHEP::RandGauss::shoot(simulstate.randomEngine(), Eavghit, m_RMS*Eavghit);
+      hit.E()=CLHEP::RandGaussZiggurat::shoot(simulstate.randomEngine(), Eavghit, m_RMS*Eavghit);
     } while (std::abs(hit.E())<absEavghit_tenth);
     bool failed=false;
     if(debug) if(ihit==2) {

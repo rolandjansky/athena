@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////
@@ -1629,39 +1629,37 @@ int COOLCORALClient::GetTTCdummy(int ttc_id){
     if(m_verbose) std::cout << "TTCGROUP = " << ttcgr_condData[0].data<int>() << std::endl;
     if(m_verbose) std::cout << "TTCGROUP = " << ttcgr_condData[1].data<int>() << std::endl;
     int nRows1 = 0;
-    if (query1){
-			coral::ICursor& cursor1 = query1->execute();
+    coral::ICursor& cursor1 = query1->execute();
 
-			while ( cursor1.next() ) {
-				const coral::AttributeList &row1 = cursor1.currentRow();
+    while ( cursor1.next() ) {
+      const coral::AttributeList &row1 = cursor1.currentRow();
 
 			
 			
-				ttcgr_param.Group = row1[0].data<int>();
-				ttcgr_param.DutyCycle = row1[1].data<int>();
+      ttcgr_param.Group = row1[0].data<int>();
+      ttcgr_param.DutyCycle = row1[1].data<int>();
 			
-				std::vector <int> fbx;
-				std::vector <int> fdx;
-				std::vector <int> tdm;
-				std::vector <int> edge;
-				size_t k=0;
-				STRING2VECTOR(row1[2].data<std::string>(),edge);
-				STRING2VECTOR(row1[3].data<std::string>(),fbx);
-				STRING2VECTOR(row1[4].data<std::string>(),fdx);
-				STRING2VECTOR(row1[5].data<std::string>(),tdm);
-				for (k = 0; k < edge.size(); k ++) {
-					ttcgr_param.EdgeSelect[k]=edge[k];
-					ttcgr_param.finebx[k]=fbx[k];
-					ttcgr_param.finedx[k]=fdx[k];
-					ttcgr_param.TDMdelay[k]=tdm[k];
-				}
-				ttc_param->Groups.push_back(ttcgr_param);
+      std::vector <int> fbx;
+      std::vector <int> fdx;
+      std::vector <int> tdm;
+      std::vector <int> edge;
+      size_t k=0;
+      STRING2VECTOR(row1[2].data<std::string>(),edge);
+      STRING2VECTOR(row1[3].data<std::string>(),fbx);
+      STRING2VECTOR(row1[4].data<std::string>(),fdx);
+      STRING2VECTOR(row1[5].data<std::string>(),tdm);
+      for (k = 0; k < edge.size(); k ++) {
+        ttcgr_param.EdgeSelect[k]=edge[k];
+        ttcgr_param.finebx[k]=fbx[k];
+        ttcgr_param.finedx[k]=fdx[k];
+        ttcgr_param.TDMdelay[k]=tdm[k];
+      }
+      ttc_param->Groups.push_back(ttcgr_param);
 	
 
-				nRows1++;
+      nRows1++;
 	
-			}      
-    }
+    }      
     delete query1;query1=nullptr;
     printf("Total  %d    TTC GROUP records\n", nRows1);
 
@@ -1684,30 +1682,28 @@ int COOLCORALClient::GetTTCdummy(int ttc_id){
 	      << " to " << part_nr*100000+phi[phi.size()-1]*1000+nrdtmrocs 
 	      << std::endl;
     int nRows2 = 0;
-		if (query2){
-      coral::ICursor& cursor2 = query2->execute();
+    coral::ICursor& cursor2 = query2->execute();
 			
-			while ( cursor2.next() ) {
-				const coral::AttributeList &row2 = cursor2.currentRow();
-				dtmroc_param.ChipID = row2[0].data<int>();
-				dtmroc_param.Chip_Valid = row2[1].data<short>();
-				dtmroc_param.RODgroup = row2[2].data<short>();
-				dtmroc_param.RODinput = row2[3].data<int>();
-				dtmroc_param.TTC_Line_FE = row2[5].data<short>();
-				dtmroc_param.HW_addr_FE = row2[4].data<short>();
-				dtmroc_param.Thresh0_Low_FE = row2[6].data<short>();
-				dtmroc_param.Thresh0_High_FE = row2[7].data<short>();
-				dtmroc_param.Thresh1_Low_FE = row2[8].data<short>();
-				dtmroc_param.Thresh1_High_FE = row2[9].data<short>();
-				dtmroc_param.VT_DAC0_FE = row2[10].data<short>();
-				dtmroc_param.VT_DAC1_FE = row2[11].data<short>();
-				dtmroc_param.Mask_FE = row2[12].data<int>();
-				dtmroc_param.Pipe_Latency_FE = row2[13].data<short>();
-				dtmroc_param.Clock_FE = row2[14].data<std::string>();
-				ttc_param->dtmroc_params.push_back(dtmroc_param);
-				nRows2++;
-			}      
-    }
+    while ( cursor2.next() ) {
+      const coral::AttributeList &row2 = cursor2.currentRow();
+      dtmroc_param.ChipID = row2[0].data<int>();
+      dtmroc_param.Chip_Valid = row2[1].data<short>();
+      dtmroc_param.RODgroup = row2[2].data<short>();
+      dtmroc_param.RODinput = row2[3].data<int>();
+      dtmroc_param.TTC_Line_FE = row2[5].data<short>();
+      dtmroc_param.HW_addr_FE = row2[4].data<short>();
+      dtmroc_param.Thresh0_Low_FE = row2[6].data<short>();
+      dtmroc_param.Thresh0_High_FE = row2[7].data<short>();
+      dtmroc_param.Thresh1_Low_FE = row2[8].data<short>();
+      dtmroc_param.Thresh1_High_FE = row2[9].data<short>();
+      dtmroc_param.VT_DAC0_FE = row2[10].data<short>();
+      dtmroc_param.VT_DAC1_FE = row2[11].data<short>();
+      dtmroc_param.Mask_FE = row2[12].data<int>();
+      dtmroc_param.Pipe_Latency_FE = row2[13].data<short>();
+      dtmroc_param.Clock_FE = row2[14].data<std::string>();
+      ttc_param->dtmroc_params.push_back(dtmroc_param);
+      nRows2++;
+    }      
     delete query2; query2=nullptr;
     printf("Total  %d    DTMROC records\n", nRows2);
     ttc_params.push_back(ttc_param);
@@ -1948,38 +1944,36 @@ TTCobj_t* COOLCORALClient::GetTTC(int ttc_id){
 
     //      if(m_verbose) std::cout << "TTCGROUP = " << ttcgr_condData[0].data<int>() << std::endl;
     // if(m_verbose) std::cout << "TTCGROUP = " << ttcgr_condData[1].data<int>() << std::endl;
-    if (query1){
-			coral::ICursor& cursor1 = query1->execute();
-			while ( cursor1.next() ) {
-				const coral::AttributeList &row1 = cursor1.currentRow();
+    coral::ICursor& cursor1 = query1->execute();
+    while ( cursor1.next() ) {
+      const coral::AttributeList &row1 = cursor1.currentRow();
 
 			
 			
-				ttcgr_param.Group = row1[0].data<int>();
-				ttcgr_param.DutyCycle = row1[1].data<int>();
+      ttcgr_param.Group = row1[0].data<int>();
+      ttcgr_param.DutyCycle = row1[1].data<int>();
 			
-				std::vector <int> fbx;
-				std::vector <int> fdx;
-				std::vector <int> tdm;
-				std::vector <int> edge;
-				size_t k=0;
-				STRING2VECTOR(row1[2].data<std::string>(),edge);
-				STRING2VECTOR(row1[3].data<std::string>(),fbx);
-				STRING2VECTOR(row1[4].data<std::string>(),fdx);
-				STRING2VECTOR(row1[5].data<std::string>(),tdm);
-				for (k = 0; k < edge.size(); k ++) {
-					ttcgr_param.EdgeSelect[k]=edge[k];
-					ttcgr_param.finebx[k]=fbx[k];
-					ttcgr_param.finedx[k]=fdx[k];
-					ttcgr_param.TDMdelay[k]=tdm[k];
-				}
-				ttc_param->Groups.push_back(ttcgr_param);
+      std::vector <int> fbx;
+      std::vector <int> fdx;
+      std::vector <int> tdm;
+      std::vector <int> edge;
+      size_t k=0;
+      STRING2VECTOR(row1[2].data<std::string>(),edge);
+      STRING2VECTOR(row1[3].data<std::string>(),fbx);
+      STRING2VECTOR(row1[4].data<std::string>(),fdx);
+      STRING2VECTOR(row1[5].data<std::string>(),tdm);
+      for (k = 0; k < edge.size(); k ++) {
+        ttcgr_param.EdgeSelect[k]=edge[k];
+        ttcgr_param.finebx[k]=fbx[k];
+        ttcgr_param.finedx[k]=fdx[k];
+        ttcgr_param.TDMdelay[k]=tdm[k];
+      }
+      ttc_param->Groups.push_back(ttcgr_param);
 	
 
-				nRows1++;
+      nRows1++;
 	
-			}      
-    }
+    }      
     delete query1;query1=nullptr;
     
     //   was query 2    
@@ -2002,33 +1996,31 @@ TTCobj_t* COOLCORALClient::GetTTC(int ttc_id){
     
     
 
-    if (query2){
-    	coral::ICursor& cursor2 = query2->execute();
-			while ( cursor2.next() ) {
-				const coral::AttributeList &row2 = cursor2.currentRow();
+    coral::ICursor& cursor2 = query2->execute();
+    while ( cursor2.next() ) {
+      const coral::AttributeList &row2 = cursor2.currentRow();
 			
-				dtmroc_param.ChipID = row2[0].data<int>();
-				dtmroc_param.Chip_Valid = row2[1].data<short>();
-				dtmroc_param.RODgroup = row2[2].data<short>();
-				dtmroc_param.RODinput = row2[3].data<int>();
-				dtmroc_param.TTC_Line_FE = row2[5].data<short>();
-				dtmroc_param.HW_addr_FE = row2[4].data<short>();
-				dtmroc_param.Thresh0_Low_FE = row2[6].data<short>();
-				dtmroc_param.Thresh0_High_FE = row2[7].data<short>();
-				dtmroc_param.Thresh1_Low_FE = row2[8].data<short>();
-				dtmroc_param.Thresh1_High_FE = row2[9].data<short>();
-				dtmroc_param.VT_DAC0_FE = row2[10].data<short>();
-				dtmroc_param.VT_DAC1_FE = row2[11].data<short>();
-				dtmroc_param.Mask_FE = row2[12].data<int>();
-				dtmroc_param.Pipe_Latency_FE = row2[13].data<short>();
-				dtmroc_param.Clock_FE = row2[14].data<std::string>();
+      dtmroc_param.ChipID = row2[0].data<int>();
+      dtmroc_param.Chip_Valid = row2[1].data<short>();
+      dtmroc_param.RODgroup = row2[2].data<short>();
+      dtmroc_param.RODinput = row2[3].data<int>();
+      dtmroc_param.TTC_Line_FE = row2[5].data<short>();
+      dtmroc_param.HW_addr_FE = row2[4].data<short>();
+      dtmroc_param.Thresh0_Low_FE = row2[6].data<short>();
+      dtmroc_param.Thresh0_High_FE = row2[7].data<short>();
+      dtmroc_param.Thresh1_Low_FE = row2[8].data<short>();
+      dtmroc_param.Thresh1_High_FE = row2[9].data<short>();
+      dtmroc_param.VT_DAC0_FE = row2[10].data<short>();
+      dtmroc_param.VT_DAC1_FE = row2[11].data<short>();
+      dtmroc_param.Mask_FE = row2[12].data<int>();
+      dtmroc_param.Pipe_Latency_FE = row2[13].data<short>();
+      dtmroc_param.Clock_FE = row2[14].data<std::string>();
 
-				ttc_param->dtmroc_params.push_back(dtmroc_param);
+      ttc_param->dtmroc_params.push_back(dtmroc_param);
 			
-				nRows2++;
+      nRows2++;
 	
-			}      
-    }
+    }      
     delete query2;query2=nullptr;
  
 
@@ -2214,30 +2206,28 @@ RODobj_t* COOLCORALClient::GetROD(int rod_id){
     dtmroc_condData[1].data<int>() = part_nr*100000+phi_id*1000+
       (nrdtmrocs-1);
 
-    if (query2){
-			coral::ICursor& cursor2 = query2->execute();
-			while ( cursor2.next() ) {
-				const coral::AttributeList &row2 = cursor2.currentRow();
+    coral::ICursor& cursor2 = query2->execute();
+    while ( cursor2.next() ) {
+      const coral::AttributeList &row2 = cursor2.currentRow();
 			
-				dtmroc_param.ChipID = row2[0].data<int>();
-				dtmroc_param.Chip_Valid = row2[1].data<short>();
-				dtmroc_param.RODgroup = row2[2].data<short>();
-				dtmroc_param.RODinput = row2[3].data<int>();
-				dtmroc_param.TTC_Line_FE = row2[5].data<short>();
-				dtmroc_param.HW_addr_FE = row2[4].data<short>();
-				dtmroc_param.Thresh0_Low_FE = row2[6].data<short>();
-				dtmroc_param.Thresh0_High_FE = row2[7].data<short>();
-				dtmroc_param.Thresh1_Low_FE = row2[8].data<short>();
-				dtmroc_param.Thresh1_High_FE = row2[9].data<short>();
-				dtmroc_param.VT_DAC0_FE = row2[10].data<short>();
-				dtmroc_param.VT_DAC1_FE = row2[11].data<short>();
-				dtmroc_param.Mask_FE = row2[12].data<int>();
-				dtmroc_param.Pipe_Latency_FE = row2[13].data<short>();
-				dtmroc_param.Clock_FE = row2[14].data<std::string>();
-				rod_param->dtmroc_params.push_back(dtmroc_param);
-				nRows2++;
-			}      
-    }
+      dtmroc_param.ChipID = row2[0].data<int>();
+      dtmroc_param.Chip_Valid = row2[1].data<short>();
+      dtmroc_param.RODgroup = row2[2].data<short>();
+      dtmroc_param.RODinput = row2[3].data<int>();
+      dtmroc_param.TTC_Line_FE = row2[5].data<short>();
+      dtmroc_param.HW_addr_FE = row2[4].data<short>();
+      dtmroc_param.Thresh0_Low_FE = row2[6].data<short>();
+      dtmroc_param.Thresh0_High_FE = row2[7].data<short>();
+      dtmroc_param.Thresh1_Low_FE = row2[8].data<short>();
+      dtmroc_param.Thresh1_High_FE = row2[9].data<short>();
+      dtmroc_param.VT_DAC0_FE = row2[10].data<short>();
+      dtmroc_param.VT_DAC1_FE = row2[11].data<short>();
+      dtmroc_param.Mask_FE = row2[12].data<int>();
+      dtmroc_param.Pipe_Latency_FE = row2[13].data<short>();
+      dtmroc_param.Clock_FE = row2[14].data<std::string>();
+      rod_param->dtmroc_params.push_back(dtmroc_param);
+      nRows2++;
+    }      
     delete query2; query2=nullptr;
     ++nRows;
   }
@@ -3420,32 +3410,30 @@ TTCobj_t* COOLCORALClient::GetTTCOOL(int ttc_id){
       FromString(fk,obj.payloadValue("ttcgr_iovfk"));
     }
     ttcgr_condData[2].data<long long>() = fk;
-    if (query1){
-			coral::ICursor& cursor1 = query1->execute();
-			while ( cursor1.next() ) {
-				const coral::AttributeList &row1 = cursor1.currentRow();
-				ttcgr_param.Group = row1[0].data<int>();
-				ttcgr_param.DutyCycle = row1[1].data<int>();
+    coral::ICursor& cursor1 = query1->execute();
+    while ( cursor1.next() ) {
+      const coral::AttributeList &row1 = cursor1.currentRow();
+      ttcgr_param.Group = row1[0].data<int>();
+      ttcgr_param.DutyCycle = row1[1].data<int>();
 			
-				std::vector <int> fbx;
-				std::vector <int> fdx;
-				std::vector <int> tdm;
-				std::vector <int> edge;
-				size_t k=0;
-				STRING2VECTOR(row1[2].data<std::string>(),edge);
-				STRING2VECTOR(row1[3].data<std::string>(),fbx);
-				STRING2VECTOR(row1[4].data<std::string>(),fdx);
-				STRING2VECTOR(row1[5].data<std::string>(),tdm);
-				for (k = 0; k < edge.size(); k ++) {
-					ttcgr_param.EdgeSelect[k]=edge[k];
-					ttcgr_param.finebx[k]=fbx[k];
-					ttcgr_param.finedx[k]=fdx[k];
-					ttcgr_param.TDMdelay[k]=tdm[k];
-				}
-				ttc_param->Groups.push_back(ttcgr_param);
-				nRows1++;
-			}      
-    }
+      std::vector <int> fbx;
+      std::vector <int> fdx;
+      std::vector <int> tdm;
+      std::vector <int> edge;
+      size_t k=0;
+      STRING2VECTOR(row1[2].data<std::string>(),edge);
+      STRING2VECTOR(row1[3].data<std::string>(),fbx);
+      STRING2VECTOR(row1[4].data<std::string>(),fdx);
+      STRING2VECTOR(row1[5].data<std::string>(),tdm);
+      for (k = 0; k < edge.size(); k ++) {
+        ttcgr_param.EdgeSelect[k]=edge[k];
+        ttcgr_param.finebx[k]=fbx[k];
+        ttcgr_param.finedx[k]=fdx[k];
+        ttcgr_param.TDMdelay[k]=tdm[k];
+      }
+      ttc_param->Groups.push_back(ttcgr_param);
+      nRows1++;
+    }      
     delete query1;query1=nullptr;
     //   was query 2    
     int nrdtmrocs = 0;
@@ -3469,33 +3457,31 @@ TTCobj_t* COOLCORALClient::GetTTCOOL(int ttc_id){
       if(m_verbose) std::cout << "FK ROC = " << fkroc << std::endl;
     }
     dtmroc_condData[2].data<long long>() = fkroc;
-    if (query2){
-			coral::ICursor& cursor2 = query2->execute();
-			while ( cursor2.next() ) {
-				const coral::AttributeList &row2 = cursor2.currentRow();
+    coral::ICursor& cursor2 = query2->execute();
+    while ( cursor2.next() ) {
+      const coral::AttributeList &row2 = cursor2.currentRow();
 			
-				dtmroc_param.ChipID = row2[0].data<int>();
-				dtmroc_param.Chip_Valid = row2[1].data<short>();
-				dtmroc_param.RODgroup = row2[2].data<short>();
-				dtmroc_param.RODinput = row2[3].data<int>();
-				dtmroc_param.TTC_Line_FE = row2[5].data<short>();
-				dtmroc_param.HW_addr_FE = row2[4].data<short>();
-				dtmroc_param.Thresh0_Low_FE = row2[6].data<short>();
-				dtmroc_param.Thresh0_High_FE = row2[7].data<short>();
-				dtmroc_param.Thresh1_Low_FE = row2[8].data<short>();
-				dtmroc_param.Thresh1_High_FE = row2[9].data<short>();
-				dtmroc_param.VT_DAC0_FE = row2[10].data<short>();
-				dtmroc_param.VT_DAC1_FE = row2[11].data<short>();
-				dtmroc_param.Mask_FE = row2[12].data<int>();
-				dtmroc_param.Pipe_Latency_FE = row2[13].data<short>();
-				dtmroc_param.Clock_FE = row2[14].data<std::string>();
+      dtmroc_param.ChipID = row2[0].data<int>();
+      dtmroc_param.Chip_Valid = row2[1].data<short>();
+      dtmroc_param.RODgroup = row2[2].data<short>();
+      dtmroc_param.RODinput = row2[3].data<int>();
+      dtmroc_param.TTC_Line_FE = row2[5].data<short>();
+      dtmroc_param.HW_addr_FE = row2[4].data<short>();
+      dtmroc_param.Thresh0_Low_FE = row2[6].data<short>();
+      dtmroc_param.Thresh0_High_FE = row2[7].data<short>();
+      dtmroc_param.Thresh1_Low_FE = row2[8].data<short>();
+      dtmroc_param.Thresh1_High_FE = row2[9].data<short>();
+      dtmroc_param.VT_DAC0_FE = row2[10].data<short>();
+      dtmroc_param.VT_DAC1_FE = row2[11].data<short>();
+      dtmroc_param.Mask_FE = row2[12].data<int>();
+      dtmroc_param.Pipe_Latency_FE = row2[13].data<short>();
+      dtmroc_param.Clock_FE = row2[14].data<std::string>();
 
-				ttc_param->dtmroc_params.push_back(dtmroc_param);
+      ttc_param->dtmroc_params.push_back(dtmroc_param);
 			
-				nRows2++;
+      nRows2++;
 	
-			}      
-    }
+    }      
     delete query2; query2=nullptr;
     ++nRows;
   }

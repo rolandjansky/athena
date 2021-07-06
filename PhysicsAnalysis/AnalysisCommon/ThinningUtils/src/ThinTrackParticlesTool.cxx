@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /******************************************************************************
@@ -17,15 +17,6 @@ Created:     July 2013
 #include <vector>
 
 // FrameWork includes
-#include "ExpressionEvaluation/ExpressionParser.h"
-// AthAnalysisBase doesn't currently include the Trigger Service
-#ifndef XAOD_ANALYSIS
-#include "TrigDecisionTool/TrigDecisionTool.h"
-#endif
-#include "ExpressionEvaluation/TriggerDecisionProxyLoader.h"
-#include "ExpressionEvaluation/SGxAODProxyLoader.h"
-#include "ExpressionEvaluation/SGNTUPProxyLoader.h"
-#include "ExpressionEvaluation/MultipleProxyLoader.h"
 #include "ExpressionEvaluation/StackElement.h"
 #include "StoreGate/ThinningHandle.h"
 #include "StoreGate/ReadHandle.h"
@@ -62,12 +53,7 @@ Created:     July 2013
 ThinTrackParticlesTool::ThinTrackParticlesTool( const std::string& type,
                                                 const std::string& name,
                                                 const IInterface* parent ) :
-  ::AthAlgTool( type, name, parent ),
-// AthAnalysisBase doesn't currently include the Trigger Service
-#ifndef XAOD_ANALYSIS
-  m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"),
-#endif
-  m_parser(0),
+  ThinTrackParticlesToolBase( type, name, parent ),
   m_tauConversion(false),
   m_tauWide(false),
   m_tauOther(false),
@@ -113,18 +99,7 @@ StatusCode ThinTrackParticlesTool::initialize()
   ATH_CHECK( m_trackParticleKey.initialize (m_streamName) );
   ATH_CHECK( m_inCollKeyList.initialize() );
 
-  // initialize proxy loaders for expression parsing
-  ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-// AthAnalysisBase doesn't currently include the Trigger Service
-#ifndef XAOD_ANALYSIS
-  proxyLoaders->push_back(new ExpressionParsing::TriggerDecisionProxyLoader(m_trigDecisionTool));
-#endif
-  proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
-  proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-
-  // load the expressions
-  m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
-  m_parser->loadExpression( m_selection.value() );
+  ATH_CHECK( initializeParser( m_selection.value()) );
 
   // Initialize the counters
   m_nEventsProcessed = 0;
@@ -148,10 +123,7 @@ StatusCode ThinTrackParticlesTool::finalize()
   ATH_MSG_DEBUG ( " Number of processed TrackParticles:  " << m_nTrackPartsProcessed );
   ATH_MSG_DEBUG ( " Number of TrackParticles kept:       " << m_nTrackPartsKept );
 
-  if (m_parser) {
-    delete m_parser;
-    m_parser = 0;
-  }
+  ATH_CHECK( finalizeParser() );
 
   return StatusCode::SUCCESS;
 }

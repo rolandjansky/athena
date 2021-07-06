@@ -24,7 +24,7 @@ class LArRawChannelGetter_DigiHSTruth ( Configured )  :
         else:
             # MC Case
             try:
-                from LArRODConfig import getLArRawChannelBuilder_DigiHSTruth
+                from LArROD.LArRODConfig import getLArRawChannelBuilder_DigiHSTruth
                 theLArRawChannelBuilder_DigiHSTruth = getLArRawChannelBuilder_DigiHSTruth()
                 topSequence += theLArRawChannelBuilder_DigiHSTruth
             except Exception:

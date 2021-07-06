@@ -1,16 +1,16 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <cmath>
-
 #include <egammaMVACalib/egammaMVALayerDepth.h>
+
+#include <cmath>
 
 
 std::array<float, 4> get_MVAradius(float eta)
 {
   eta = std::abs(eta);
-  std::array<float, 4> radius;
+  std::array<float, 4> radius{};
   if (eta / 0.025 < 57)
   {
     static const float

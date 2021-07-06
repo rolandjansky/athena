@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./ConfigSvcBase.h"
@@ -51,13 +51,10 @@ ConfigSvcBase::declareCommonProperties() {
 
 
 StatusCode
-ConfigSvcBase::initialize() {
-
-   CHECK(AthService::initialize());
+ConfigSvcBase::initialize ATLAS_NOT_THREAD_SAFE () {
 
    ATH_MSG_INFO("=================================");
-   ATH_MSG_INFO("Initializing " << name() << " service");
-   ATH_MSG_INFO("Version: " << PACKAGE_VERSION);
+   ATH_MSG_INFO("Initializing " << name());
    ATH_MSG_INFO("=================================");
 
    string s(boost::to_lower_copy(m_configSourceString)); // lower case

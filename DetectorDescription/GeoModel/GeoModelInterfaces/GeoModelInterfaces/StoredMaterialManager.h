@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOMODELINTERFACES_STOREDMATERIALMANAGER_H
@@ -16,6 +16,8 @@
 
 #include "AthenaKernel/CLASS_DEF.h"
 #include <map>
+#include <string>
+#include <iostream>
 
 class GeoMaterial;
 class GeoElement;

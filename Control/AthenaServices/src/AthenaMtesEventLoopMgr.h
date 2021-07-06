@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_ATHENAMTESEVENTLOOPMGR_H
@@ -23,6 +23,7 @@
 #include "AthenaKernel/IEventSeek.h"
 #include "AthenaKernel/ICollectionSize.h"
 #include "AthenaKernel/IConditionsCleanerSvc.h"
+#include "AthenaKernel/IHybridProcessorHelper.h"
 #include "StoreGate/ActiveStoreSvc.h"
 
 #include <memory>
@@ -36,10 +37,9 @@
 
 // Forward declarations
 class IConversionSvc;
-class IDataManagerSvc;
+struct IDataManagerSvc;
 class IDataProviderSvc;
 class IIncidentSvc;
-class ITimeKeeper;
 class StoreGateSvc;
 class ISvcLocator;
 class OutputStreamSequencerSvc;
@@ -52,6 +52,7 @@ class AthenaMtesEventLoopMgr
   : virtual public IEventSeek,
     virtual public ICollectionSize,
     virtual public IIncidentListener,
+    virtual public IHybridProcessorHelper,
             public MinimalEventLoopMgr,
             public Athena::TimeoutMaster
 {
@@ -89,20 +90,12 @@ protected:
   /// @property histogram persistency technology to use: "ROOT", "HBOOK", "NONE". By default ("") get property value from ApplicationMgr
   StringProperty    m_histPersName;
 
-  /// the TimeKeeper service
-  ITimeKeeper*      m_pITK;
-
   typedef EventID::number_type number_type;
   /// current run number
   number_type m_currentRun;
   bool m_firstRun;
 
-  /// @property Name of TimeKeeper to use. NONE or empty string (default) means no time limit control on event loop
-  StringProperty    m_timeKeeperName;
-  /// @property update handler:sets up the time keeper
-  void setupTimeKeeper(Gaudi::Details::PropertyBase&);
-
-  /// @property Failure mode 
+  /// @property Failure mode
   IntegerProperty m_failureMode;
 
   /// @property Print event heartbeat printouts every m_eventPrintoutInterval events
@@ -167,10 +160,6 @@ protected:
   StatusCode clearWBSlot(int evtSlot);
   /// Declare the root address of the event
   int declareEventRootAddress(EventContext&);
-  /// Create event context
-  virtual EventContext createEventContext() override;
-  /// Drain the scheduler from all actions that may be queued
-  int drainScheduler(int& finishedEvents,yampl::ISocket* socket);
   /// Instance of the incident listener waiting for AbortEvent. 
   SmartIF< IIncidentListener >  m_abortEventListener;
   /// Name of the scheduler to be used
@@ -201,6 +190,8 @@ public:
   virtual StatusCode finalize() override;
   /// implementation of IAppMgrUI::nextEvent. maxevt==0 returns immediately
   virtual StatusCode nextEvent(int maxevt) override;
+  /// implementation of IEventProcessor::createEventContext()
+  virtual EventContext createEventContext() override;
   /// implementation of IEventProcessor::executeEvent(void* par)
   virtual StatusCode executeEvent( EventContext&& ctx ) override;
   /// implementation of IEventProcessor::executeRun(int maxevt)
@@ -219,6 +210,15 @@ public:
   virtual int size() override;
   /// IIncidentListenet interfaces
   virtual void handle(const Incident& inc) override;
+
+  /// Reset the application return code
+  virtual void resetAppReturnCode() override;
+  
+  virtual void setCurrentEventNum(int num) override;
+  virtual bool terminateLoop() override;
+
+  /// Drain the scheduler from all actions that may be queued
+  virtual int drainScheduler(int& finishedEvents, bool report) override;
 
   /// interface dispatcher
   virtual StatusCode queryInterface( const InterfaceID& riid, 
@@ -251,10 +251,12 @@ private:
   // from MinimalEventLoopMgr
 public:
   typedef std::list<SmartIF<IAlgorithm> >  ListAlg;
-  // typedef std::list<IAlgorithm*>  ListAlgPtrs;
-  // typedef std::list<std::string>   ListName;
-  // typedef std::vector<std::string> VectorName;
 
+  // Property to specify text messages with event ranges to simulate input from
+  // EventService pilot - use for standalone tests
+  StringArrayProperty m_testPilotMessages;
+  bool m_inTestMode { false };
+   
 private:
   StoreGateSvc* eventStore() const;
 
@@ -292,6 +294,9 @@ private:
   // Hopefully a temporary measurement. For the time being we cannot
   // support event ranges from different input files.
   std::string m_pfn{""};
+
+  // For the event service running:
+  yampl::ISocket* m_socket{nullptr};
 };
 
 #endif // ATHENASERVICES_ATHENAHIVEEVENTLOOPMGR_H

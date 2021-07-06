@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ITOOLBASE_TAU_H
-#define ITOOLBASE_TAU_H
+#ifndef TAURECTOOLS_ITAUTOOLBASE_H
+#define TAURECTOOLS_ITAUTOOLBASE_H
 
 #include "AsgTools/IAsgTool.h"
 #include "xAODTau/TauJet.h"
@@ -85,4 +85,4 @@ class ITauToolBase : virtual public asg::IAsgTool
 
 };
 
-#endif // TOOLBASE_TAU_H
+#endif // TAURECTOOLS_ITAUTOOLBASE_H

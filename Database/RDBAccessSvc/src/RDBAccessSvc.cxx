@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -25,6 +25,8 @@
 #include "RelationalAccess/ITable.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/IQuery.h"
+
+#include "DBLock/DBLock.h"
 
 #include "CxxUtils/checker_macros.h"
 
@@ -160,7 +162,9 @@ IRDBRecordset_ptr RDBAccessSvc::getRecordsetPtr(const std::string& node
 
   ATH_MSG_DEBUG("Getting RecordsetPtr with key " << key);
 
+  Athena::DBLock dblock;
   std::lock_guard<std::mutex> guard(m_recordsetMutex);
+
   if(!connect(connName)) {
     ATH_MSG_ERROR("Unable to open connection " << connName << ". Returning empty recordset");
     return IRDBRecordset_ptr(new RDBRecordset(this));
@@ -219,6 +223,7 @@ std::unique_ptr<IRDBQuery> RDBAccessSvc::getQuery(const std::string& node
 						  , const std::string& connName)
 {
   ATH_MSG_DEBUG("getQuery (" << node << "," << tag << "," << tag2node << "," << connName << ")");
+  Athena::DBLock dblock;
   std::lock_guard<std::mutex> guard(m_recordsetMutex);
 
   std::unique_ptr<IRDBQuery> query;
@@ -251,7 +256,7 @@ std::unique_ptr<IRDBQuery> RDBAccessSvc::getQuery(const std::string& node
       ATH_MSG_WARNING("Could not get the tag for " << node << " node. Returning 0 pointer to IRDBQuery");
     }
     else {
-      query = std::unique_ptr<IRDBQuery>(new RDBQuery(this,node,childTagId,connName));
+      query = std::unique_ptr<IRDBQuery>(new RDBQuery(dblock,this,node,childTagId,connName));
     }
   }
   catch(coral::SchemaException& se) {
@@ -287,6 +292,7 @@ std::string RDBAccessSvc::getChildTag(const std::string& childNode
 				      , bool force)
 {
   ATH_MSG_DEBUG("getChildTag for " << childNode << " " << parentTag << " " << parentNode);
+  Athena::DBLock dblock;
   std::lock_guard<std::mutex> guard(m_recordsetMutex);
 
   // Check lookup table first
@@ -338,6 +344,7 @@ void RDBAccessSvc::getTagDetails(RDBTagDetails& tagDetails
                                  , const std::string& connName)
 {
   ATH_MSG_DEBUG("getTagDetails for tag: " << tag);
+  Athena::DBLock dblock;
   std::lock_guard<std::mutex> guard(m_recordsetMutex);
 
   if(!connect(connName)) {

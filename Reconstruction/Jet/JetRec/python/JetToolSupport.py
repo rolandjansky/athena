@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # JetToolSupport.py
 #
@@ -40,12 +40,6 @@ jetlog = Logging.logging.getLogger('JetRec_jobOptions')
 # import the jet flags.
 from JetRec.JetRecFlags import jetFlags
 
-from GaudiKernel.Constants import (VERBOSE,
-                                   DEBUG,
-                                   INFO,
-                                   WARNING,
-                                   ERROR,
-                                   FATAL,)
 # The tool manager
 class JetToolManager:
   prefix = "JetToolManager: "
@@ -154,7 +148,7 @@ class JetToolManager:
   # If the argument is a list, a copy is returned directly.
   # Also configures any necessary container names in the copy.
   def getModifiers(self, modifiersin, altname =None):
-    if modifiersin == None:
+    if modifiersin is None:
       if altname in ["lctopo","emtopo"]:
         return self.modifiersMap[altname+"_ungroomed"]
       elif "pflow" in altname:
@@ -170,7 +164,6 @@ class JetToolManager:
   # the appropriate calibration tool.
   def buildModifiers(self, modifiersin, finder, getters, altname, output, calibOpt, constmods=[]):
     from GaudiKernel.Proxy.Configurable import ConfigurableAlgTool
-    from JetRec.JetRecConf import JetFinder
     outmods = []
     inmods = self.getModifiers(modifiersin, altname)
     ncalib = 0
@@ -240,11 +233,11 @@ class JetToolManager:
             jetlog.info( sinp, cname, output )
             raise TypeError
         # Check that the building of the association tool has been scheduled.
-        if not cname in self.jetcons:
+        if cname not in self.jetcons:
           jetlog.info( self.prefix + "Truth association skipped because container is missing: " + cname )
           jetlog.info( self.prefix + "Add to jetcons if input stream is expected to have this." )
         tname = mod + "_" + salg + srad
-        if not tname in self.tools:
+        if tname not in self.tools:
           from JetMomentTools.JetMomentToolsConf import JetPtAssociationTool
           self += JetPtAssociationTool(tname, JetContainer=output, MatchingJetContainer=cname, AssociationName="GhostTruth")
         outmods += [self.tools[tname]]
@@ -258,12 +251,12 @@ class JetToolManager:
             jetlog.info( sinp, cname, output )
             raise TypeError
         # Check that the building of the association tool has been scheduled.
-        if not cname in self.jetcons:
+        if cname not in self.jetcons:
           jetlog.info( self.prefix + "Track association skipped because container is missing: " + cname )
           jetlog.info( self.prefix + "Add to jetcons if input stream is expected to have this." )
         else:
           tname = mod + "_" + salg + srad
-          if not tname in self.tools:
+          if tname not in self.tools:
             from JetMomentTools.JetMomentToolsConf import JetPtAssociationTool
             self += JetPtAssociationTool(tname, JetContainer=output, MatchingJetContainer=cname, AssociationName="GhostTrack")
           outmods += [self.tools[tname]]
@@ -273,7 +266,7 @@ class JetToolManager:
           jetlog.info( self.prefix + "Jet filter requested without a threshold." )
           raise Exception
         tname = "jetpt" + str(self.ptminFilter)
-        if not tname in self.tools:
+        if tname not in self.tools:
           from JetRec.JetRecConf import JetFilterTool
           self.add( JetFilterTool(tname, PtMin=self.ptminFilter) ) 
         outmods += [self.tools[tname]]
@@ -292,7 +285,7 @@ class JetToolManager:
         self.add(btagger)
         outmods += [btagger]
       elif mod == "largeR":
-        outmods += jtm.modifiersMap["largeR"]
+        outmods += self.modifiersMap["largeR"]
       else:
         raise TypeError
     # Check calibration.
@@ -313,17 +306,13 @@ class JetToolManager:
   #   modifiersin = list of modifier tools (or name of such in modifiersMap)
   #                 If absent, the gettersin name is used.
   #   consumers = sequence of jet consumers to run after reco
-  #   ivtx = None: ordinary jet finding
-  #            -1: Separate finding for each vertex
-  #           >=0: Finding only for vertex ivtx.
   #   ghostArea: if > 0, then ghosts are found with this inverse density
   #   rndseed: RandomOption for the finder
   #   variableRMinRadius: Min radius for variable-R finding
   #   variableRMassScale: Mass scale for variable-R finding
   #   calibOpt: Calibration option, e.g. "ar". See JetRecCalibrationFinder.py.
-  # returns lofinder, hifinder where finder is the lowest-level finder and hifinder
-  #         is the highest.
-  def addJetFinderTool(self, toolname, alg, radius, ivtx =None,
+  # returns the created finder
+  def addJetFinderTool(self, toolname, alg, radius,
                        ghostArea =0.0, ptmin =0.0, rndseed =1,
                        variableRMinRadius =-1.0, variableRMassScale =-1.0, constmods=[]):
     myname = "JetToolManager:addJetFinderTool: "
@@ -336,12 +325,11 @@ class JetToolManager:
       self.m_jetBuilder = self.jetBuilderWithoutArea
     else:
       self.m_jetBuilder = self.jetBuilderWithArea
-    if self.m_jetBuilder == None:
+    if self.m_jetBuilder is None:
       self.msg(0, "Jet builder must be specified")
-      raise Error
+      raise Exception
     from JetRec.JetRecConf import JetFinder
-    areaSuffix= "Area" if ghostArea>0.0 else ""
-    finder = JetFinder(toolname);
+    finder = JetFinder(toolname)
     finder.JetAlgorithm = alg
     finder.JetRadius = radius
     finder.VariableRMinRadius = variableRMinRadius
@@ -355,18 +343,7 @@ class JetToolManager:
     finder.JetBuilder = self.m_jetBuilder
     self += finder
     self.finders += [finder]
-    hifinder = finder;
-    if type(ivtx) is int:
-      from JetRec.JetRecConf import JetByVertexFinder
-      vfinder = JetByVertexFinder(
-        toolname + "ByVertex",
-        JetFinder = finder,
-        Vertex = ivtx
-      )
-      self += vfinder
-      self.finders += [vfinder]
-      hifinder = vfinder;
-    return (finder, hifinder)
+    return finder
 
   # Create a jet finder and rectool.
   #   output = name for output container (and JetRecTool)
@@ -380,9 +357,6 @@ class JetToolManager:
   #   modifiersin = list of modifier tools (or name of such in modifiersMap)
   #                 If absent, the gettersin name is used.
   #   consumers = sequence of jet consumers to run after reco
-  #   ivtx = None: ordinary jet finding (unless gettersin = ztrack or pv0track)
-  #            -1: Separate finding fore each vertex
-  #           >=0: Finding only for vertex ivtx.
   #   ghostArea: if > 0, then ghosts are found with this inverse density
   #   ptminFilter: If > 0, then this is used as the pT threhold for filtering jets.
   #   rndseed: RandomOption for the finder
@@ -393,7 +367,7 @@ class JetToolManager:
   #   variableRMassScale: Mass scale for variable-R finding
   #   calibOpt: Calibration option, e.g. "ar". See JetRecCalibrationFinder.py.
   def addJetFinder(self, output, alg, radius, gettersin, modifiersin =None,
-                   consumers =None, ivtxin =None,
+                   consumers =None,
                    ghostArea =0.0, ptmin =0.0, ptminFilter =0.0, rndseed =1,
                    isTrigger =False, useTriggerStore =False,
                    variableRMinRadius =-1.0, variableRMassScale =-1.0,
@@ -407,31 +381,26 @@ class JetToolManager:
     
     # Accumulate all PseudoJetGetters such that we can schedule all
     # needed PseudoJetAlgorithms before jet building
-    self.allGetters += [getter for getter in getters if not getter in self.allGetters]
-    # If jet finding by vertex is not specified, check for special input type names
-    ivtx = ivtxin
-    if ivtx == None:
-      if gettersin == "ztrack": ivtx = -1        # Find tracs separatesly for each vertex
-      elif gettersin == "pv0track": ivtx = 0     # Find tracks only for 1st vertex
+    self.allGetters += [getter for getter in getters if getter not in self.allGetters]
+
     # Retrieve/build the jet finder.
-    lofinder,hifinder = self.addJetFinderTool(output+"Finder", alg, radius, ivtx, ghostArea, ptmin, rndseed, 
-                                              variableRMinRadius, variableRMassScale, constmods=constmods)
+    finder = self.addJetFinderTool(output+"Finder", alg, radius, ghostArea, ptmin, rndseed, 
+                                   variableRMinRadius, variableRMassScale, constmods=constmods)
     jetrec = JetRecTool(output)
     jetrec.InputPseudoJets = [str(getter.OutputContainer) for getter in getters]
-    jetrec.JetFinder = hifinder
+    jetrec.JetFinder = finder
     jetrec.OutputContainer = output
     ptminSave = self.ptminFilter
     if ptminFilter > 0.0: self.ptminFilter = ptminFilter
-    jetrec.JetModifiers = self.buildModifiers(modifiersin, lofinder, getters, gettersin, output, calibOpt, constmods=constmods)
+    jetrec.JetModifiers = self.buildModifiers(modifiersin, finder, getters, gettersin, output, calibOpt, constmods=constmods)
     self.autoconfigureModifiers(jetrec.JetModifiers, output)
-    if consumers != None:
+    if consumers is not None:
       jetrec.JetConsumers = consumers
     self.ptminFilter = ptminSave
     jetrec.Trigger = isTrigger or useTriggerStore
     jetrec.Timer = jetFlags.timeJetRecTool()
     #jetrec.WarnIfDuplicate = warnIfDuplicate
     #jetrec.Overwrite = overwrite
-    # JetRecTool.OutputLevel = VERBOSE
     self += jetrec
     if isTrigger:
       self.trigjetrecs += [jetrec]
@@ -688,9 +657,6 @@ class JetToolManager:
   #   modifiersin = list of modifier tools (or name of such in modifiersMap)
   #                 If absent, the gettersin name is used.
   #   consumers = sequence of jet consumers to run after reco
-  #   ivtx = None: ordinary jet finding (unless gettersin = ztrack or pv0track)
-  #            -1: Separate finding fore each vertex
-  #           >=0: Finding only for vertex ivtx.
   #   ghostArea: if > 0, then ghosts are found with this inverse density
   #   ptminFilter: If > 0, then this is used as the pT threhold for filtering jets.
   #   rndseed: RandomOption for the finder
@@ -701,7 +667,7 @@ class JetToolManager:
   #   variableRMassScale: Mass scale for variable-R finding
   #   calibOpt: Calibration option, e.g. "ar". See JetRecCalibrationFinder.py.
   def addJetReclusterer(self, output, alg, radius, input, modifiersin =None,
-                        consumers =None, ivtx =None,
+                        consumers =None,
                         ghostArea =0.0, ptmin =0.0, ptminFilter =0.0, rndseed =1,
                         isTrigger =False, useTriggerStore =False,
                         variableRMinRadius =-1.0, variableRMassScale =-1.0,
@@ -710,13 +676,13 @@ class JetToolManager:
     from JetRec.JetRecConf import JetRecTool
     from JetRec.JetRecConf import JetReclusterer
     # Retrieve/build the jet finder.
-    lofinder,hifinder = self.addJetFinderTool(output+"Finder", alg, radius, ivtx, ghostArea, ptmin, rndseed, 
-                                              variableRMinRadius, variableRMassScale, constmods=constmods)
+    finder = self.addJetFinderTool(output+"Finder", alg, radius, ghostArea, ptmin, rndseed, 
+                                   variableRMinRadius, variableRMassScale, constmods=constmods)
     reclname = output + "Reclusterer"
     groomer = JetReclusterer(
       reclname,
       JetConstituentsRetriever = self.tools["jconretriever"],
-      JetFinder = hifinder
+      JetFinder = finder
     )
     self += groomer
     jetrec = JetRecTool(output)
@@ -725,7 +691,7 @@ class JetToolManager:
     jetrec.JetGroomer = groomer
     jetrec.JetModifiers = self.getModifiers(modifiersin)
     self.autoconfigureModifiers(jetrec.JetModifiers, output)
-    if consumers != None:
+    if consumers is not None:
       jetrec.JetConsumers = consumers
     jetrec.Trigger = isTrigger or useTriggerStore
     jetrec.Timer = jetFlags.timeJetRecTool()
@@ -772,7 +738,6 @@ class JetToolManager:
 
   # Change the output level of a tool.
   def setOutputLevel(self, toolid, level):
-    from GaudiKernel.Proxy.Configurable import ConfigurableAlgTool
     if type(toolid) == str:
       tool = self[toolid]
     else:
@@ -780,11 +745,9 @@ class JetToolManager:
     locked = tool.isLocked()
     oldlevel = "undefined"
     if locked:
-      dbglvl = 0
       slock = "locked"
       tool.unlock()
     else:
-      dbglvl = 1
       slock = "unlocked"
     aname = "OutputLevel"
     if hasattr(tool, aname):
@@ -794,218 +757,3 @@ class JetToolManager:
       tool.lock()
     self.msg(0, "Changed output level of " + slock + " tool " + tool.name() + \
              " from " + str(oldlevel) + " to " + str(level) + ".")
-
-  def addTriggerJetBuildTool(self,
-                             name, # passed to modifiers- might be used for SG??
-                             alg, # jetFinderTool
-                             radius, # jetFinderTool
-                             # getter_label is  passed to modifiers,
-                             # and also labels ParticleExtractors
-                             getter_label,
-                             concrete_type,
-                             iParticleRejectionTool,
-                             modifiersin =None,
-                             ivtxin =None, # jetFinderTool
-                             ghostArea =0.0, # jetFinderTool
-                             ptmin =0.0, # jetFinderTool
-                             ptminFilter =0.0, # ?
-                             rndseed =1, # jetFinderTool
-                             variableRMinRadius =-1.0, # jetFinderTool
-                             variableRMassScale =-1.0, # jetFinderTool
-                             calibOpt ="",
-                             noNegE=False,
-                             OutputLevel=0):
-
-    self.msg(2, "Adding TriggerJetBuildTool")
-
-    #### TO BE REMOVED start
-    # lofinder,hifinder = self.addJetFinderTool(name+"Finder",
-    #                                           alg,
-    #                                           radius,
-    #                                           ivtxin,
-    #                                           ghostArea,
-    #                                           ptmin,
-    #                                           rndseed, 
-    #                                           variableRMinRadius,
-    #                                           variableRMassScale)
-
-    #  print 'called addJetFinderTool with arguments '  + ' ,'.join(
-    #   (
-    #     str(name+"Finder"),
-    #     str(alg),
-    #     str(radius),
-    #     str(ivtxin),
-    #     str(ghostArea),
-    #     str(ptmin),
-    #     str(rndseed),
-    #     str(variableRMinRadius),
-    #     str(variableRMassScale),
-    # )) +  ' class ' + hifinder.__class__.__name__
-    #### TO BE REMOVED end
-
-    from JetRec.JetRecConf import JetFromPseudojet
-    jetFromPseudoJet = JetFromPseudojet(name+'jFp')
-    
-    if ghostArea == 0.0:
-      jetFromPseudoJet.Attributes = []
-    else:
-      jetFromPseudoJet.Attributes = ["ActiveArea",
-                                     "ActiveArea4vec"]
-
-    jetFromPseudoJet.OutputLevel = OutputLevel
-  
-    self += jetFromPseudoJet
-    
-    from JetRec.JetRecConf import JetFinder
-    finder = JetFinder(name+'Finder')
-    finder.JetBuilder = jetFromPseudoJet
-    finder.OutputLevel = OutputLevel
-    finder.JetAlgorithm = alg
-    finder.VariableRMinRadius = variableRMinRadius
-    finder.VariableRMassScale = variableRMassScale
-    finder.GhostArea = ghostArea
-    finder.JetRadius = radius
-    finder.PtMin = ptmin
-    finder.RandomOption = 1  #  1: used run/evt number to make seed
-
-    # !!! note RandomOption not set FIXME
-    
-    self += finder
-
-    # self.ptminFilter used in self.buildModifiers
-    ptminSave = self.ptminFilter
-    if ptminFilter > 0.0: self.ptminFilter = ptminFilter
-
-    # getters supply a label to the modifiers.
-    class  Dummy(object):
-      def __init__(self):
-        pass
-
-    dummyGetter = Dummy()
-    dummyGetter.Label = getter_label
-    getters = [dummyGetter]
-
-    #class  DummyGetter(object):
-    #  def __init__(self, label):
-    #    self.Label = label
-    # getters = [DummyGetter(getter_label)]
-
-    gettersin = 'mymods'  # from Run2 code
-
-    dummyFinder = Dummy()
-    dummyFinder.JetAlgorithm = alg
-    dummyFinder.JetRadius = radius
-    
-
-    modifiers = self.buildModifiers(modifiersin=modifiersin,
-                                    # finder=lofinder,
-                                    finder=dummyFinder,
-                                    getters=getters,
-                                    altname=gettersin,
-                                    calibOpt=calibOpt,
-                                    output='',
-                                  )
-    for m in modifiers:
-      self.setOutputLevel(m, OutputLevel)
-
-    # Temporary hard-coded solution until this config is deprecated.
-    triggerPrefix = "HLT_xAOD__JetContainer_"
-
-    self.autoconfigureModifiers(modifiers, triggerPrefix + name.split('_')[1])
-
-    self.ptminFilter = ptminSave
-    
-
-    # Retrieve/build the jet finder.
-    from TrigHLTJetRec.TrigHLTJetRecConf import TriggerJetBuildTool
-
-    builder = TriggerJetBuildTool(name)
-    
-    # print ('setting builder name to ', name)
-    print ('adding new trigger jet finder ', name)
-
-    # self.setOutputLevel(hifinder, OutputLevel)
-    # builder.JetFinder = hifinder
-    builder.JetFinder = finder
-    builder.JetModifiers = modifiers
-    # builder.NoNegE = noNegE
-    # builder.label = getter_label
-    builder.OutputLevel = OutputLevel
-    builder.concrete_type = concrete_type
-    builder.iParticleRejecter = iParticleRejectionTool
-    self += builder
-    return builder
-
-  def addTriggerJetTrimmer(self,
-                           output,
-                           name,
-                           rclus,
-                           ptfrac,
-                           modifiersin="groomed",
-                           OutputLevel=0,
-                           ):
-    """Create a Trimmer and rectool.
-    output = name for output container (and JetRecTool)
-    rclus = RClus used in the trimming
-    ptfrac = PtFrac used in the trimming
-    input = name of the input jet container
-    modifiersin = list of modifier tools (or name of such in modifiersMap)"""
-  
-    
-    from JetRec.JetRecConf import JetTrimmer
-    
-    trimmerTool = JetTrimmer(name + "Groomer")
-    trimmerTool.RClus = rclus
-    trimmerTool.PtFrac = ptfrac
-    
-
-    if 'triggerjblda' not in self.tools:
-      from TrigHLTJetRec.TrigHLTJetRecConf import TrigJetFromPseudojet
-      triggerjblda = TrigJetFromPseudojet(
-        "triggerjblda",
-        Attributes = ["ActiveArea", "ActiveArea4vec"]
-      )
-      self += triggerjblda
-
-    # from TrigHLTJetRec.TrigHLTJetRecConf import TrigJetFromPseudojetMT
-    # if not hasattr(self, 'trigjblda'):
-    #  self.addJetBuilderWithArea(
-    #    TrigJetFromPseudojetMT(
-    #      "trigjblda",
-    #      Attributes = ["ActiveArea", "ActiveArea4vec"]
-    #    )
-    #  )
-      
-    trimmerTool.JetBuilder = self.triggerjblda
-    
-    # if doArea:
-    #  groomer.JetBuilder = self.jetBuilderWithArea
-    # else:
-    #   groomer.JetBuilder = self.jetBuilderWithoutArea
-    
-    trimmerTool.OutputLevel = OutputLevel
-    self += trimmerTool
-    
-    from TrigHLTJetRec.TrigHLTJetRecConf import TriggerJetGroomerTool
-
-    triggerGroomerTool = TriggerJetGroomerTool(name)
-    triggerGroomerTool.JetGroomer = trimmerTool
-    triggerGroomerTool.JetModifiers = self.getModifiers(modifiersin)
-    self.autoconfigureModifiers(triggerGroomerTool.JetModifiers, name.split('_')[1])
-    triggerGroomerTool.OutputLevel = OutputLevel
-
-    # TriggerJetGroomerTool obtains a TriggerJetGroomerTool, will pass it
-    # to its JetGroomer (!: historical)
-    try:
-      triggerGroomerTool.JetPseudojetRetriever = self.tools['jpjretriever']
-    except KeyError as e:
-      jetlog.info( "Requested jet pseudojet retriever is not a registered tool")
-      import traceback
-      traceback.print_exc()
-      raise e
-
-    self += triggerGroomerTool
-
-    self.trigjetrecs += [triggerGroomerTool]
-    return triggerGroomerTool
-

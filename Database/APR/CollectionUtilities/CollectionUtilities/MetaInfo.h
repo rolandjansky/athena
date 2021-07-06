@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef UTILITIES_COLLECTION_METAINFO
@@ -10,6 +10,7 @@
 #include "CollectionUtilities/ICollMetaHandler.h"
 
 #include "CollectionBase/ICollection.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <vector>
 #include <map>
@@ -44,7 +45,8 @@ namespace pool
      virtual bool       noMetadata() const;
 
      /// add metadata entry [key, value]
-     void 		addMetaEntry(ICollMetaHandler::MetaKey key, 
+     void 		addMetaEntry ATLAS_NOT_THREAD_SAFE
+                                    (ICollMetaHandler::MetaKey key, 
                                      ICollMetaHandler::MetaValue val, 
                                      ICollMetaHandler::ProvNode srcCollection="SELF");
  
@@ -59,10 +61,10 @@ namespace pool
 				       std::vector<pool::ICollection*> outputs );
 
      /// read metadata from source collections
-     virtual void       readMetadata( std::vector<pool::ICollection*> inputs );
+     virtual void       readMetadata ATLAS_NOT_THREAD_SAFE ( std::vector<pool::ICollection*> inputs );
 
      /// write metadata to destination collections
-     virtual void       writeMetadata(std::vector<pool::ICollection*> outputs);
+     virtual void       writeMetadata ATLAS_NOT_THREAD_SAFE (std::vector<pool::ICollection*> outputs);
    
      typedef  std::map< std::string, std::string >::const_iterator  MetaIterator;
      virtual MetaIterator       begin() const;
@@ -91,7 +93,7 @@ namespace pool
      /// options list
      QualList 	m_markers;
 
-     mutable coral::MessageStream m_log;
+     coral::MessageStream m_log;
    };
 
 

@@ -43,7 +43,7 @@ void Analysis_Tier0::initialise() {
   h_chain->GetXaxis()->SetBinLabel(2, "Nevents" );
   h_chain->GetXaxis()->SetBinLabel(3, "N ref tracks" );
   h_chain->GetXaxis()->SetBinLabel(4, "N matched tracks" );
-  h_chain->GetXaxis()->SetBinLabel(5, "" ); //  spare
+  h_chain->GetXaxis()->SetBinLabel(5, "N total test tracks" );
 
  
   /// archive the chain name
@@ -97,7 +97,10 @@ void Analysis_Tier0::initialise() {
   };
 
 
-  h_ntrk = new TH1F( "reftrk_N", "Reference tracks", 100, vnbins );
+  /// Limit the bins - to only the first 77 bins - so a range up to ~ 1000
+  /// leave the previous selection commented for the time being
+  // h_ntrk = new TH1F( "reftrk_N", "Reference tracks", 100, vnbins );
+  h_ntrk = new TH1F( "reftrk_N", "Reference tracks", 77, vnbins );
 
   addHistogram(h_ntrk);
 
@@ -123,12 +126,9 @@ void Analysis_Tier0::initialise() {
   h_trkd0  = new TH1F("reftrk_d0" , "Reference track d0", 101,   -5.0,     5.0 );
   h_trkz0  = new TH1F("reftrk_z0" , "Reference track z0",  50,   -225.,    225.);
 
-  h_trketaroi  = new TH1F("reftrk_etaroi",  "Reference track Eta - Roi Eta",      100,   -2.5,     2.5) ;
-  h_trketazroi = new TH1F("reftrk_etazroi", "Reference track (Eta - Roi Eta)*Dz", 100,   -2.5,     2.5) ;
-
-
-  h_trkdd0  = new TH1F("reftrk_dd0" , "Reference track sigma(d0)", 101,   -0.5,     0.5);
-  h_trkdz0  = new TH1F("reftrk_dz0" , "Reference track sigma(z0)", 101,   -2.5,     2.5);
+  /// the error estimates are always positive ...
+  h_trkdd0  = new TH1F("reftrk_dd0" , "Reference track sigma(d0)", 50,  0,     0.5);
+  h_trkdz0  = new TH1F("reftrk_dz0" , "Reference track sigma(z0)", 50,  0,     2.5);
 
   h_trkd0sig = new TH1F("reftrk_d0sig" , "Reference track d0 significance", 101,   -5.,     5.);
 
@@ -138,9 +138,6 @@ void Analysis_Tier0::initialise() {
   addHistogram(h_trkd0);
   addHistogram(h_trkz0);
 
-  addHistogram(h_trketaroi);
-  addHistogram(h_trketazroi);
-
 
   addHistogram(h_trkdd0);
   addHistogram(h_trkdz0);
@@ -149,7 +146,10 @@ void Analysis_Tier0::initialise() {
 
   /// test track distributions
 
-  h_ntrk_rec = new TH1F( "testtrk_N", "Test tracks", 100, vnbins );
+  /// Limit the bins - to only the first 77 bins - so a range up to ~ 1000
+  /// leave the previous selection commented for the time being
+  //  h_ntrk_rec = new TH1F( "testtrk_N", "Test tracks", 100, vnbins );
+  h_ntrk_rec = new TH1F( "testtrk_N", "Test tracks", 77, vnbins );
 
   addHistogram(h_ntrk_rec);
 
@@ -160,8 +160,8 @@ void Analysis_Tier0::initialise() {
   h_trkd0_rec  = new TH1F("testtrk_d0" , "Test track d0", 101,   -5.0,    5.0 );
   h_trkz0_rec  = new TH1F("testtrk_z0" , "Test track z0",  50,   -225.,   225.);
 
-  h_trkdd0_rec  = new TH1F("testtrk_dd0" , "Test track sigma(d0)", 101,   -0.5,     0.5);
-  h_trkdz0_rec  = new TH1F("testtrk_dz0" , "Test track sigma(z0)", 101,   -2.5,     2.5);
+  h_trkdd0_rec  = new TH1F("testtrk_dd0" , "Test track sigma(d0)", 50,   0,     0.5);
+  h_trkdz0_rec  = new TH1F("testtrk_dz0" , "Test track sigma(z0)", 50,   0,     2.5);
 
   h_trkd0sig_rec = new TH1F("testtrk_d0sig" , "Test track d0 significance", 101,   -5.0,     5.0);
 
@@ -435,6 +435,10 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
   h_ntrk->Fill( referenceTracks.size() );
   h_ntrk_rec->Fill( testTracks.size() );
 
+  /// fil the number of offline tracks
+  h_chain->Fill(4.5, testTracks.size() );
+
+
   for( ; reference!=referenceEnd ; reference++ ) {
     
     // Get reference parameters
@@ -501,7 +505,9 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
  
     h_d0vsphi->Fill(referencePhi, referenceD0 );
  
+    /// fil the number of offline tracks
     h_chain->Fill(2.5);
+
 
     for ( size_t ilayer=0 ; ilayer<32 ; ilayer++ ) { 
       if ( (*reference)->hitPattern()&(1<<ilayer) ) m_h_layer_rec->Fill( ilayer );
@@ -602,38 +608,6 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
       h_d0vsphi_rec->Fill( test->phi(), test->a0() );
 
     }
-    else { 
-      //  std::cout << "Analysis: " << name() << " " << roi();
-      //  if ( roi() ) std::cout << "\t" << *roi();
-      //  std::cout << std::endl; 
-
-      //      std::cout << "about to crash ? " << std::endl;
-
-      if ( roi() ) { 
-
-	double deta = 0.5*(roi()->etaPlus() - roi()->etaMinus()); 
-	
-	double Dzed = 0.5*(roi()->zedPlus() - roi()->zedMinus());
-	double dzed = referenceZ0 - roi()->zed();
-	
-	h_trketaroi->Fill( (referenceEta - roi()->eta())/deta );
-
-	h_trketazroi->Fill( (referenceEta - roi()->eta())*dzed/Dzed );
-      
-      }
-
-      //      std::cout << "not crashed yet" << std::endl;
-
-
-    }
-
-    //    else { 
-    //      if ( referencePT*0.001 > 10 ) { /// in GeV
-    // 	      m_debug = true;
-    //	      //	std::cout << "SUTT Event " << event_no << "\tlb " << lumi_block<< "\tMissing trigger track " << *(*reference) << std::endl;
-    //	     std::cout << "SUTT Event " << "\tMissing trigger track " << *(*reference) << std::endl;
-    //      }
-    //    }
     
   }
 }

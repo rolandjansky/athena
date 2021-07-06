@@ -1,10 +1,8 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: interpolate.h,v 1.4 2008-01-25 04:14:21 ssnyder Exp $
 /**
  * @file  interpolate.h
  * @author scott snyder <snyder@bnl.gov>
@@ -47,6 +45,8 @@ namespace CaloClusterCorr {
  *                leading up to the boundary.
  * @param n_points The number of interpolation points in the table to use.
  *                 If -1, then the entire table is used.
+ * @param fixZero If true, remove zeros among y-values by averaging adjacent
+ *                points.
  * @return The interpolated value.
  *
  * The method used is Newtonian interpolation.
@@ -57,7 +57,8 @@ float interpolate (const CaloRec::Array<2>& a,
 		   unsigned int degree,
 		   unsigned int ycol = 1,
                    const CaloRec::Array<1>& regions = CaloRec::Array<1>(),
-                   int n_points = -1);
+                   int n_points = -1,
+                   bool fixZero = false);
 
 
 } // namespace CaloClusterCorr

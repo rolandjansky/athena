@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger()
@@ -16,7 +16,6 @@ condSequence = AthSequencer("AthCondSeq")
 if DetFlags.MDT_on():
     condSequence += MuonMDT_CablingAlg("MuonMDT_CablingAlg")
 
-
 # defaults have to be re-set now since the jobproperties and trigger flags are now available # SS
 muonCnvFlags.setDefaults()
 
@@ -25,7 +24,6 @@ if globalflags.DataSource() == 'data':
     muonByteStreamFlags.TgcDataType = "atlas"
     muonByteStreamFlags.RpcDataType = "atlas"
     muonByteStreamFlags.MdtDataType = "atlas"
-    
     
 log.info("configuring Muon cabling in MuonCablingConfig")
 if DetFlags.readRDOBS.RPC_on() or DetFlags.readRDOPool.RPC_on() or DetFlags.readRIOPool.RPC_on() or DetFlags.digitize.RPC_on():
@@ -41,48 +39,51 @@ if DetFlags.readRDOBS.RPC_on() or DetFlags.readRDOPool.RPC_on() or DetFlags.read
     except KeyError:
         log.info("No metadata/Taginfo found. Using normal configuration for RPC")
     log.info("RPC cabling is using mode: %s",muonCnvFlags.RpcCablingMode())
-    from MuonCablingServers.MuonCablingServersConf import RPCcablingServerSvc
-    ServiceMgr += RPCcablingServerSvc()
-    theApp.CreateSvc += [ "RPCcablingServerSvc" ] # TODO: Remove once the C++ dependencies are fixed
-    ServiceMgr.RPCcablingServerSvc.Atlas=True
-    ServiceMgr.RPCcablingServerSvc.forcedUse=True
-    ServiceMgr.RPCcablingServerSvc.useMuonRPC_CablingSvc=True #Needed to switch to new cabling
 
-    # without the following line, the MuonRPC_CablingSvc is not part of the ServiceMgr, thus add flake8 ignore flag
-    import MuonRPC_Cabling.MuonRPC_CablingConfig # noqa: F401
-    ServiceMgr.MuonRPC_CablingSvc.RPCTriggerRoadsfromCool=True
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    enableL1MuonPhase1 = ConfigFlags.Trigger.enableL1MuonPhase1
+    ConfigFlags.Input.isMC = False if globalflags.DataSource() == 'data' else True
+    isMC = ConfigFlags.Input.isMC
+    doLVL1 = ConfigFlags.Trigger.doLVL1
+
+    rpcDbName = 'RPC_OFL' if isMC else 'RPC'
+    dbRepo="MuonRPC_Cabling/ATLAS.data"
+    rpcCabMap="/RPC/CABLING/MAP_SCHEMA"
+    rpcCabMapCorr="/RPC/CABLING/MAP_SCHEMA_CORR"
+    rpcTrigEta="/RPC/TRIGGER/CM_THR_ETA"
+    rpcTrigPhi="/RPC/TRIGGER/CM_THR_PHI"
+    if enableL1MuonPhase1:
+        # Run3 trigger roads are not avaialble in the global tag yet (OFLCOND-MC16-SDR-RUN3-01)
+        # Relevant folder tags are set for now, until new global tag (RUN3-02) becomes avaialble
+        rpcTrigEta="/RPC/TRIGGER/CM_THR_ETA <tag>RPCTriggerCMThrEta_RUN12_MC16_04</tag> <forceRunNumber>330000</forceRunNumber>"
+        rpcTrigPhi="/RPC/TRIGGER/CM_THR_PHI <tag>RPCTriggerCMThrPhi_RUN12_MC16_04</tag> <forceRunNumber>330000</forceRunNumber>"
+        if isMC:
+            rpcCabMap="/RPC/CABLING/MAP_SCHEMA <tag>RPCCablingMapSchema_2015-2018Run3-4</tag> <forceRunNumber>330000</forceRunNumber>"
+            rpcCabMapCorr="/RPC/CABLING/MAP_SCHEMA_CORR <tag>RPCCablingMapSchemaCorr_2015-2018Run3-4</tag> <forceRunNumber>330000</forceRunNumber>"
+
     from IOVDbSvc.CondDB import conddb
-    #
-    # Cabling maps folders from DB
-    # examples to connect to development db INTR
-    # notice this requires special authentication.xml file
-    # conddb.addFolder("","<db>oracle://INTR;schema=ATLAS_COOL_RPCDQ;dbname=RPC_DQA;user=ATLAS_COOL_RPCDQ_R</db> /RPC/CABLING/MAP_SCHEMA_NEW <tag>ver42</tag>")
-    # conddb.addFolder("","<db>oracle://INTR;schema=ATLAS_COOL_RPCDQ;dbname=RPC_DQA;user=ATLAS_COOL_RPCDQ_R</db> /RPC/CABLING/MAP_SCHEMA_CORR_2 <tag>ver10</tag>")
-    #
-    # for production DB when tags are not yet associated to global tags 
-    # conddb.addFolder("RPC","/RPC/CABLING/MAP_SCHEMA <tag>RPCCablingMapSchema_version42</tag>")
-    # conddb.addFolder("RPC","/RPC/CABLING/MAP_SCHEMA_CORR <tag>RPCCablingMapSchemaCorr_version10</tag>")
-    #
-    # for production DB
-    conddb.addFolderSplitMC("RPC","/RPC/CABLING/MAP_SCHEMA"     , "/RPC/CABLING/MAP_SCHEMA",className='CondAttrListCollection')
-    conddb.addFolderSplitMC("RPC","/RPC/CABLING/MAP_SCHEMA_CORR", "/RPC/CABLING/MAP_SCHEMA_CORR",className='CondAttrListCollection')
-
-    # Trigger Roads folders from DB
-    # for production DB when tags are not yet associated to global tags 
-    # conddb.addFolder("","<db>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_RPC;dbname=OFLP200</db>/RPC/TRIGGER/CM_THR_ETA<tag>EtaTrigRoads_MC_April2010</tag>")
-    # conddb.addFolder("","<db>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_RPC;dbname=OFLP200</db>/RPC/TRIGGER/CM_THR_PHI<tag>PhiTrigRoads_MC_April2010</tag>")
-    #
-    # for production DB
-    conddb.addFolderSplitMC("RPC","/RPC/TRIGGER/CM_THR_ETA", "/RPC/TRIGGER/CM_THR_ETA",className='CondAttrListCollection')
-    conddb.addFolderSplitMC("RPC","/RPC/TRIGGER/CM_THR_PHI", "/RPC/TRIGGER/CM_THR_PHI",className='CondAttrListCollection')
-    from RPC_CondCabling.RPC_CondCablingConf import RPCCablingDbTool
-    RPCCablingDbTool = RPCCablingDbTool()
-    RPCCablingDbTool.MapConfigurationFolder = "/RPC/CABLING/MAP_SCHEMA"
-    RPCCablingDbTool.MapCorrectionFolder    = "/RPC/CABLING/MAP_SCHEMA_CORR"
-    ToolSvc+=RPCCablingDbTool
+    conddb.addFolder(rpcDbName,rpcCabMap,className='CondAttrListCollection')
+    conddb.addFolder(rpcDbName,rpcCabMapCorr,className='CondAttrListCollection')
+    if doLVL1 and not isMC:
+        # RPC trigger roads in the online database are not up-to-dated
+        # Use offline database for now
+        # Will switch to online database once online database has been updated (ATR-23465)
+        conddb._SetAcc('RPC_OFL','COOLOFL_RPC')
+        conddb.blockFolder("/RPC/TRIGGER/CM_THR_ETA")
+        conddb.blockFolder("/RPC/TRIGGER/CM_THR_PHI")
+        if enableL1MuonPhase1:
+            conddb.addFolder('RPC_OFL',rpcTrigEta,className='CondAttrListCollection')
+            conddb.addFolder('RPC_OFL',rpcTrigPhi,className='CondAttrListCollection')
+        else:
+            conddbNameOffline = ConfigFlags.Trigger.L1MuonSim.CondDBOffline if ConfigFlags.Trigger.L1MuonSim.CondDBOffline != '' else "OFLCOND-MC16-SDR-RUN2-04"
+            conddb.addFolderWithTag('RPC_OFL',rpcTrigEta,conddbNameOffline,className='CondAttrListCollection',forceMC=True,force=True)
+            conddb.addFolderWithTag('RPC_OFL',rpcTrigPhi,conddbNameOffline,className='CondAttrListCollection',forceMC=True,force=True)
+    else:
+        conddb.addFolder(rpcDbName,rpcTrigEta,className='CondAttrListCollection')
+        conddb.addFolder(rpcDbName,rpcTrigPhi,className='CondAttrListCollection')
 
     from RPC_CondCabling.RPC_CondCablingConf import RpcCablingCondAlg
-    condSequence += RpcCablingCondAlg("RpcCablingCondAlg")
+    condSequence += RpcCablingCondAlg("RpcCablingCondAlg",DatabaseRepository=dbRepo)
 
 if DetFlags.readRDOBS.TGC_on() or DetFlags.readRDOPool.TGC_on() or DetFlags.readRIOPool.TGC_on() or DetFlags.digitize.TGC_on():
     log.info("TGC cabling is using mode: %s",muonCnvFlags.TgcCablingMode())
@@ -90,21 +91,11 @@ if DetFlags.readRDOBS.TGC_on() or DetFlags.readRDOPool.TGC_on() or DetFlags.read
     from MuonCablingServers.MuonCablingServersConf import TGCcablingServerSvc
     ServiceMgr += TGCcablingServerSvc()
     theApp.CreateSvc += [ "TGCcablingServerSvc" ]
-    if muonCnvFlags.TgcCablingMode =='auto':
-        ServiceMgr.TGCcablingServerSvc.Atlas=True
-        ServiceMgr.TGCcablingServerSvc.forcedUse=False
-    elif muonCnvFlags.TgcCablingMode =='12-fold':  
-        ServiceMgr.TGCcablingServerSvc.Atlas=True
-        ServiceMgr.TGCcablingServerSvc.useMuonTGC_CablingSvc=True 
-        ServiceMgr.TGCcablingServerSvc.forcedUse=True
-    elif muonCnvFlags.TgcCablingMode =='old 12-fold':  
-        ServiceMgr.TGCcablingServerSvc.Atlas=True
-        ServiceMgr.TGCcablingServerSvc.useMuonTGC_CablingSvc=False 
-        ServiceMgr.TGCcablingServerSvc.forcedUse=True
-    elif muonCnvFlags.TgcCablingMode =='8-fold':  
+
+    if muonCnvFlags.TgcCablingMode =='8-fold':  
         ServiceMgr.TGCcablingServerSvc.Atlas=False
-        ServiceMgr.TGCcablingServerSvc.forcedUse=True
-    else:
+    elif muonCnvFlags.TgcCablingMode not in ['auto', '12-fold']:
+        # No longer support 'old 12-fold' since it apparently relies on a service which is gone
         raise RuntimeError("TgcCablingMode=%r not supported" % muonCnvFlags.TgcCablingMode())
     
     # COOL setting for MuonTGC_Cabling 
@@ -120,46 +111,22 @@ if DetFlags.readRDOBS.TGC_on() or DetFlags.readRDOPool.TGC_on() or DetFlags.read
         TGCCablingDbTool.filename_ASD2PP_DIFF_12='ASD2PP_diff_12_ONL.db'
     ToolSvc+=TGCCablingDbTool
 
-    #if globalflags.DataSource() == 'geant4' and not DetFlags.digitize.TGC_on():
-        #conddb.addFolder("TGC_OFL","/TGC/TRIGGER/CW_EIFI")
-        #conddb.addFolder("TGC_OFL","/TGC/TRIGGER/CW_BW")
-        #conddb.addFolder("TGC_OFL","/TGC/TRIGGER/CW_TILE") 
-
 if DetFlags.readRDOBS.MDT_on() or DetFlags.readRDOPool.MDT_on()  or DetFlags.readRIOPool.MDT_on() or DetFlags.digitize.MDT_on():
     log.info("MDT cabling is using mode: %s",muonCnvFlags.MdtCablingMode())
 
-    #Set up new cabling.
-    from MuonMDT_Cabling.MuonMDT_CablingConf import MuonMDT_CablingSvc
-    ServiceMgr += MuonMDT_CablingSvc(name="MuonMDT_CablingSvc", UseOldCabling=muonCnvFlags.MdtCablingMode=='old', ForcedUse=muonCnvFlags.MdtCablingMode!='auto')
-    #ServiceMgr.MuonMDT_CablingSvc.OutputLevel=0 # Will be useful to have debug output in log for initial debugging.
-
-#    if recFlags.doTrigger() or muonCnvFlags.MdtCablingMode=='old' or muonCnvFlags.MdtCablingMode=='auto':
-#      # currently this is needed for the trigger and for reconstruction of old MC sample digitized with MDTcabling
-#      import MDTcabling.MDTcablingConfig # TODO: move config here?
-
     if muonCnvFlags.MdtCablingMode!='old':
       # new cabling service, access to COOL for cabling map
-      from MDT_CondCabling.MDT_CondCablingConf import MDTCablingDbTool
-            
-      MDTCablingDbTool = MDTCablingDbTool() 
       log.info("Adding MDT/CABLING folders to conddb") 
       from IOVDbSvc.CondDB import conddb 
       IOVDbSvc = ServiceMgr.IOVDbSvc 
       if globalflags.DataSource()=='data': 
           conddb.addFolder("MDT","/MDT/CABLING/MAP_SCHEMA",className='CondAttrListCollection') 
           conddb.addFolder("MDT","/MDT/CABLING/MEZZANINE_SCHEMA",className='CondAttrListCollection') 
-          MDTCablingDbTool.MapFolders = "/MDT/CABLING/MAP_SCHEMA" 
-          MDTCablingDbTool.MezzanineFolders    = "/MDT/CABLING/MEZZANINE_SCHEMA" 
           MuonMDT_CablingAlg.MapFolders = "/MDT/CABLING/MAP_SCHEMA" 
           MuonMDT_CablingAlg.MezzanineFolders    = "/MDT/CABLING/MEZZANINE_SCHEMA" 
       else: 
           conddb.addFolder("MDT_OFL","/MDT/Ofl/CABLING/MAP_SCHEMA",className='CondAttrListCollection') 
           conddb.addFolder("MDT_OFL","/MDT/Ofl/CABLING/MEZZANINE_SCHEMA",className='CondAttrListCollection')    
-          MDTCablingDbTool.MapFolders = "/MDT/Ofl/CABLING/MAP_SCHEMA" 
-          MDTCablingDbTool.MezzanineFolders    = "/MDT/Ofl/CABLING/MEZZANINE_SCHEMA" 
           MuonMDT_CablingAlg.MapFolders = "/MDT/Ofl/CABLING/MAP_SCHEMA" 
           MuonMDT_CablingAlg.MezzanineFolders    = "/MDT/Ofl/CABLING/MEZZANINE_SCHEMA"
-
-      ToolSvc += MDTCablingDbTool 
-       
        

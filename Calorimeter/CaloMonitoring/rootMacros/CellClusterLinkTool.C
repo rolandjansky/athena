@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
  //////////////////////////////////////////////////////////////////////////////////////
@@ -155,6 +155,8 @@ void ProcessByBinsDiffFromStripMedian(TH2F*& histo,vector<clusterbin>& problemat
       onebin.m_phi = phi;
       onebin.m_value = binvalue;
       onebin.m_OSRatio = outstandingRatio;
+      onebin.m_nx = 0;
+      onebin.m_ny = 0;
       if(fabs(outstandingRatio) > RedThreshold_cluster) {
        redbins.push_back(onebin);
      }
@@ -233,6 +235,8 @@ void ProcessByBinsDiffFromStripMedian(TH2F*& h1 ,TH2F*& h2){
       onebin.m_phi = phi;
       onebin.m_value = binvalue;
       onebin.m_OSRatio = outstandingRatio; 
+      onebin.m_nx = 0;
+      onebin.m_ny = 0;
       if(fabs(outstandingRatio) > RedThreshold_cell) {
        redbins.push_back(onebin);
      }
@@ -283,6 +287,10 @@ void ProcessInWindow(int MODE,TH2F*& h,TH2F*& h2,int ix,int iy,int ix_total,int 
        onebin.m_layer = layer;
        onebin.m_name = name;
        onebin.m_level = "normal";
+       onebin.m_nx = 0;
+       onebin.m_ny = 0;
+       onebin.m_side = 0;
+       onebin.m_OSRatio = 0;
        if(h2!=NULL) onebin.m_level = h2->GetBinContent(i,j)>0?"hot":"noisy";
        bool flag = false;
        for(int k=0;k<problemCellbinSummary.size();k++){
@@ -339,6 +347,10 @@ void boundaryProcess(int MODE,TH2F*& h,TH2F* h2,int ix,int iy,int ix_total,int i
        onebin.m_layer = layer;
        onebin.m_name = name;
        onebin.m_level = "noisy";
+       onebin.m_nx = 0;
+       onebin.m_ny = 0;
+       onebin.m_side = 0;
+       onebin.m_OSRatio = 0;
        if(h2!=NULL) onebin.m_level = h2->GetBinContent(i,j)>0?"hot":"noisy";
        bool flag = false;
        for(int k=0;k<problemCellbinSummary.size();k++){
@@ -397,7 +409,7 @@ void Maketag(string& info,cellbin bin,int index,string& webadd,list<string>& myw
  myweblist.unique();
 
 }
-void Output(clusterbin clb,vector<cellbin> problemCellbinSummary,int initial_pos,string& webadd,list<string>& myweblist){
+void Output(const clusterbin& clb,vector<cellbin> problemCellbinSummary,int initial_pos,string& webadd,list<string>& myweblist){
   if(problemCellbinSummary.size()==initial_pos) return;
   for(int i=initial_pos;i<problemCellbinSummary.size();i++){
     string info;
@@ -510,26 +522,20 @@ for(int i=EMBA;i<NbOfPartition;i++){
  }
 }
 if(problematicClusters.size()!=0){
-   vector<clusterbin>::iterator itb = problematicClusters.begin();
-   vector<clusterbin>::iterator ite = problematicClusters.end();
-   vector<clusterbin>::iterator it;
-   for(it=itb;it<ite;it++){
-    outputfile<<"<p class=\"no2\"><big>==>["<<(*it).m_level<<"]("<<(*it).m_eta<<","<<(*it).m_phi<<")["<<(*it).m_value<<"]"<<"</big></p>"<<endl;
+   for (const clusterbin& bin : problematicClusters) {
+    outputfile<<"<p class=\"no2\"><big>==>["<<bin.m_level<<"]("<<bin.m_eta<<","<<bin.m_phi<<")["<<bin.m_value<<"]"<<"</big></p>"<<endl;
     list<string> myweblist;
     for(int i=EMBA;i<NbOfPartition;i++){
      for(int j=Presampler;j<NbOflayers;j++){
       int initial_pos = problemCellbinSummary.size();
-      LinkClusterAndCell((*it),h2_cellStatus_Summary[i][j],h2_cellStatus_Summary_avgEnergy[i][j],MODE,problemCellbinSummary);
+      LinkClusterAndCell(bin,h2_cellStatus_Summary[i][j],h2_cellStatus_Summary_avgEnergy[i][j],MODE,problemCellbinSummary);
       string webAdd;
       webAdd ="https://atlasdqm.cern.ch/webdisplay/tier0/1/"+string(argv[3])+"/run_"+string(argv[1])+"/run/LAr/%s/Noise/Single_Cells/%s/%s.png";
-      Output((*it),problemCellbinSummary,initial_pos,webAdd,myweblist);
+      Output(bin,problemCellbinSummary,initial_pos,webAdd,myweblist);
      }
     }
-    list<string>::iterator listb = myweblist.begin();
-    list<string>::iterator liste = myweblist.end();
-    list<string>::iterator listit;
-    for(listit=listb;listit!=liste;listit++){
-      outputfile<<"<img src=\""<<*listit<<"\"/>"<<endl;
+    for (const std::string& s : myweblist) {
+      outputfile<<"<img src=\""<<s<<"\"/>"<<endl;
     }
     outputfile<<"<hr>"<<endl;
   }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -43,10 +43,8 @@
 #include "TTree.h"
 #include "GaudiKernel/ITHistSvc.h" 
 // STD
-#include <math.h>
+#include <cmath>
 
-// temporary
-#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/TrackingVolume.h"
 
@@ -64,10 +62,10 @@ iFatras::PhotonConversionTool::PhotonConversionTool(const std::string& t, const 
   m_processCode(14),
   m_referenceMaterial(true),
   m_minChildEnergy(50.*CLHEP::MeV),
-  m_childEnergyScaleFactor(2.),
+  m_childEnergyScaleFactor(1.),
   m_conversionProbScaleFactor(0.98),
   m_rndGenSvc("AtDSFMTGenSvc", n),
-  m_randomEngine(0),
+  m_randomEngine(nullptr),
   m_randomEngineName("FatrasRnd"),
   m_recordedConversions(0),
   m_droppedConversions(0),
@@ -75,7 +73,7 @@ iFatras::PhotonConversionTool::PhotonConversionTool(const std::string& t, const 
   m_validationTreeName("FatrasPhotonConversions"),
   m_validationTreeDescription("Validation output from the PhotonConversionTool"),
   m_validationTreeFolder("/val/FatrasPhotonConversions"),
-  m_validationTree(0),
+  m_validationTree(nullptr),
   m_validationTool(""),
   m_conversionPointX(0.),
   m_conversionPointY(0.),
@@ -93,6 +91,7 @@ iFatras::PhotonConversionTool::PhotonConversionTool(const std::string& t, const 
       // the steering - general things
       declareProperty("ReferenceMaterial"                   , m_referenceMaterial);
       declareProperty("MinimumChildEnergy"                  , m_minChildEnergy);
+      // NB: ChildEnergyScaling=1 corresponds to energy sharing formulas of GEANT4
       declareProperty("ChildEnergyScaling"                  , m_childEnergyScaleFactor);
       declareProperty("ConversionProbScaling"               , m_conversionProbScaleFactor);
       declareProperty("RandomNumberService"                 , m_rndGenSvc               , "Random number generator");
@@ -161,14 +160,14 @@ StatusCode iFatras::PhotonConversionTool::initialize()
       m_validationTree->Branch("ConversionChildAngle  " ,  &m_conversionChildAngle,   "convChildA/F");
     
       // now register the Tree
-      ITHistSvc* tHistSvc = 0;
+      ITHistSvc* tHistSvc = nullptr;
       if (service("THistSvc",tHistSvc).isFailure()){ 
 	ATH_MSG_ERROR( "initialize() Could not find Hist Service -> Switching ValidationMode Off !" );
-	delete m_validationTree; m_validationTree = 0;
+	delete m_validationTree; m_validationTree = nullptr;
       }
       if ((tHistSvc->regTree(m_validationTreeFolder, m_validationTree)).isFailure()) {
 	ATH_MSG_ERROR( "initialize() Could not register the validation Tree -> Switching ValidationMode Off !" );
-	delete m_validationTree; m_validationTree = 0;
+	delete m_validationTree; m_validationTree = nullptr;
       }
 
     } // ------------- end of validation mode -----------------------------------------------------------------
@@ -299,7 +298,7 @@ void iFatras::PhotonConversionTool::recordChilds(double time,
 
     // save info for validation
     if (m_validationMode && m_validationTool) {
-      Amg::Vector3D* nPrim=0;
+      Amg::Vector3D* nPrim=nullptr;
       m_validationTool->saveISFVertexInfo(14,vertex,*parent,parent->momentum(),nPrim,children);
     }
 
@@ -412,7 +411,6 @@ bool iFatras::PhotonConversionTool::pairProduction(const Trk::MaterialProperties
  double attenuation = exp( -7.777e-01*pathCorrection*mprop.thicknessInX0()*(1.-xi) );
 
   ATH_MSG_VERBOSE(  "[ conv ] Propability of conversion    = " << (1.-attenuation) * 100. << " %." );
-
   /* ST do when the actual conversion happens */
   /*
   // record for the validation mode
@@ -427,7 +425,7 @@ bool iFatras::PhotonConversionTool::pairProduction(const Trk::MaterialProperties
   }
   */
 
-  return (m_conversionProbScaleFactor*CLHEP::RandFlat::shoot(m_randomEngine) > attenuation) ? true : false;
+  return m_conversionProbScaleFactor*CLHEP::RandFlat::shoot(m_randomEngine) > attenuation;
 
 }
 
@@ -443,8 +441,9 @@ double iFatras::PhotonConversionTool::childEnergyFraction(const Trk::MaterialPro
   double alphaZsquare  = (s_alpha*s_alpha*Z*Z);
   // now f(Z) - from Z and s_alpha
   double fZ            = alphaZsquare*(1./(1.+alphaZsquare)+0.20206-0.0369*alphaZsquare+0.0083*alphaZsquare*alphaZsquare);
+  double FZ = (8./3)*log(Z)+8.*fZ;
   // delta_max
-  double deltaMax      = exp((42.24-fZ)*.1195)-0.952;
+  double deltaMax      = exp((42.24-FZ)*.1195)-0.952;
   // delta_min
   double deltaMin      = 4.*epsilon0*136.*oneOverZpow; 
   // the minimum fraction
@@ -454,19 +453,19 @@ double iFatras::PhotonConversionTool::childEnergyFraction(const Trk::MaterialPro
   double Phi1          = phi1(deltaMin);
   double Phi2          = phi2(deltaMin);
   // then calculate F10/F20
-  double F10           = 3.*Phi1 - Phi2 - fZ;
-  double F20           = 1.5*Phi1 - 0.5*Phi2 - fZ;
+  double F10           = 3.*Phi1 - Phi2 - FZ;
+  double F20           = 1.5*Phi1 + 0.5*Phi2 - FZ;
   // and finally calucate N1, N2
   double N1            = (0.25-epsilonMin+epsilonMin*epsilonMin)*F10;
   double N2            = 1.5*F20;
-  // ------------ decide wich one to take 
-  if ( N1/(N1+N2) < CLHEP::RandFlat::shoot(m_randomEngine) ) {  
+  // ------------ decide which one to take 
+  if ( CLHEP::RandFlat::shoot(m_randomEngine) <  N1/(N1+N2) ) {  
     // sample from f1,g1 distribution
     for ( ; ; ){
       double epsilon = 0.5 - (0.5 - epsilonMin)*pow(CLHEP::RandFlat::shoot(m_randomEngine),s_oneOverThree);
       // prepare for the rejection check
       double delta   = 136.*epsilon0*oneOverZpow/(epsilon-epsilon*epsilon);
-      double F1 = 3.*phi1(delta)-phi2(delta)-fZ;   
+      double F1 = 3.*phi1(delta)-phi2(delta)-FZ;   
       // reject ? - or redo the exercise 
       if (F1/F10 > CLHEP::RandFlat::shoot(m_randomEngine)) return m_childEnergyScaleFactor*epsilon;
     }
@@ -476,7 +475,7 @@ double iFatras::PhotonConversionTool::childEnergyFraction(const Trk::MaterialPro
       double epsilon = epsilonMin + (0.5-epsilonMin)*CLHEP::RandFlat::shoot(m_randomEngine);
       // prepare for the rejection check
       double delta   = 136.*epsilon0*oneOverZpow/(epsilon-epsilon*epsilon);
-      double F2 = 1.5*phi1(delta)-0.5*phi2(delta)-fZ;   
+      double F2 = 1.5*phi1(delta)-0.5*phi2(delta)-FZ;   
      // reject ? - or redo the exercise 
      if (F2/F20 > CLHEP::RandFlat::shoot(m_randomEngine)) return m_childEnergyScaleFactor*epsilon;  
     }
@@ -497,8 +496,9 @@ double iFatras::PhotonConversionTool::childEnergyFraction(double gammaMom) const
   double alphaZsquare  = (s_alpha*s_alpha*Z*Z);
   // now f(Z) - from Z and s_alpha
   double fZ            = alphaZsquare*(1./(1.+alphaZsquare)+0.20206-0.0369*alphaZsquare+0.0083*alphaZsquare*alphaZsquare);
+  double FZ = (8./3)*log(Z)+8.*fZ;
   // delta_max
-  double deltaMax      = exp((42.24-fZ)*.1195)-0.952;
+  double deltaMax      = exp((42.24-FZ)*.1195)-0.952;
   // delta_min
   double deltaMin      = 4.*epsilon0*136.*oneOverZpow; 
   // the minimum fraction
@@ -508,20 +508,20 @@ double iFatras::PhotonConversionTool::childEnergyFraction(double gammaMom) const
   double Phi1          = phi1(deltaMin);
   double Phi2          = phi2(deltaMin);
   // then calculate F10/F20
-  double F10           = 3.*Phi1 - Phi2 - fZ;
-  double F20           = 1.5*Phi1 - 0.5*Phi2 - fZ;
+  double F10           = 3.*Phi1 - Phi2 - FZ;
+  double F20           = 1.5*Phi1 + 0.5*Phi2 - FZ;
   // and finally calucate N1, N2
   double N1            = (0.25-epsilonMin+epsilonMin*epsilonMin)*F10;
   double N2            = 1.5*F20;
-  // ------------ decide wich one to take 
-  if ( N1/(N1+N2) < CLHEP::RandFlat::shoot(m_randomEngine) ) {  
+  // ------------ decide which one to take 
+  if ( CLHEP::RandFlat::shoot(m_randomEngine) <  N1/(N1+N2)) {  
     // sample from f1,g1 distribution
     for ( ; ; ){
       double epsilon = 0.5 - (0.5 - epsilonMin)*pow(CLHEP::RandFlat::shoot(m_randomEngine),s_oneOverThree);
       // prepare for the rejection check
       double delta   = 136.*epsilon0*oneOverZpow/(epsilon-epsilon*epsilon);
-      double F1 = 3.*phi1(delta)-phi2(delta)-fZ;   
-      // reject ? - or redo the exercise 
+      double F1 = 3.*phi1(delta)-phi2(delta)-FZ;   
+      // reject ? - or redo the exercise
       if (F1/F10 > CLHEP::RandFlat::shoot(m_randomEngine)) return m_childEnergyScaleFactor*epsilon;
     }
   } else {
@@ -530,7 +530,7 @@ double iFatras::PhotonConversionTool::childEnergyFraction(double gammaMom) const
       double epsilon = epsilonMin + (0.5-epsilonMin)*CLHEP::RandFlat::shoot(m_randomEngine);
       // prepare for the rejection check
       double delta   = 136.*epsilon0*oneOverZpow/(epsilon-epsilon*epsilon);
-      double F2 = 1.5*phi1(delta)-0.5*phi2(delta)-fZ;   
+      double F2 = 1.5*phi1(delta)-0.5*phi2(delta)-FZ;   
      // reject ? - or redo the exercise 
      if (F2/F20 > CLHEP::RandFlat::shoot(m_randomEngine)) return m_childEnergyScaleFactor*epsilon;  
     }
@@ -594,12 +594,16 @@ Amg::Vector3D iFatras::PhotonConversionTool::childDirection(const Amg::Vector3D&
 
 bool iFatras::PhotonConversionTool::doConversion(double time, const Trk::NeutralParameters& parm,
 						const Trk::ExtendedMaterialProperties* /*extMatProp*/) const {
+
   double p = parm.momentum().mag();
-  
+
   // get the energy
-  double childEnergy = p*childEnergyFraction(p);
+  double efrac = childEnergyFraction(p);
+  double childEnergy = p*efrac;
+
   // count the conversion 
   ++m_recordedConversions;
+
   // now get the deflection
   Amg::Vector3D childDir(childDirection(parm.momentum(), childEnergy));
   // verbose output
@@ -622,10 +626,12 @@ bool iFatras::PhotonConversionTool::doConversion(double time, const Trk::Neutral
 ISF::ISFParticleVector iFatras::PhotonConversionTool::doConversionOnLayer(const ISF::ISFParticle* parent, 
 									 double time, const Trk::NeutralParameters& parm,
 									 const Trk::ExtendedMaterialProperties* /*ematprop*/) const {
+  
   double p = parm.momentum().mag();
 
   // get the energy
-  double childEnergy = p*childEnergyFraction(p);
+  double efrac = childEnergyFraction(p);
+  double childEnergy = p*efrac;
 
   // count the conversion 
   ++m_recordedConversions;

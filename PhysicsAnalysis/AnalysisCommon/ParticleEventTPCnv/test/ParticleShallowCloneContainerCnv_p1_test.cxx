@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file ParticleEventTPCnv/test/ParticleShallowCloneContainerCnv_p1_test.cxx
@@ -17,6 +17,7 @@
 #include "SGTools/TestStore.h"
 #include "AthAllocators/DataPool.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include <cassert>
 #include <iostream>
 
@@ -49,6 +50,7 @@ void compare (const ParticleShallowCloneContainer& c1,
 void test1()
 {
   std::cout << "test1\n";
+  (void)Gaudi::Hive::currentContext();
 
   IParticleContainer* c = new IParticleContainer;
   c->push_back (std::make_unique<Neutrino>());

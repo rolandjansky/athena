@@ -42,12 +42,12 @@ void SegmentCollectionCnv::initializeOldExtConverters()
     
     IConverter	*converter =  m_athenaPoolCnvSvc->converter( CLID(17001567) );
     m_log << MSG::DEBUG << "SegmentCollectionCnv: InDetTrack converter=" << converter << endmsg;
-    if(converter != 0) registerExtendingCnv( converter );    
+    if(converter != nullptr) registerExtendingCnv( converter );    
     else doInDet=false;
     
     converter =  m_athenaPoolCnvSvc->converter( CLID(239128586) );
     m_log << MSG::DEBUG << "SegmentCollectionCnv: MuonMeasurements converter=" << converter << endmsg;
-    if(converter !=0 ) registerExtendingCnv( converter );
+    if(converter !=nullptr ) registerExtendingCnv( converter );
     else doMuon=false;
     
     //-------------------------------------------------------------------------
@@ -85,7 +85,7 @@ Trk::SegmentCollection *SegmentCollectionCnv::createTransient()
     static pool::Guid tlp1_guid( "03A83988-8E38-45E9-95A5-9CB17B98074C" );
     static pool::Guid p0_guid( "AAE2BF35-4971-4368-B0B1-BE209CC81538" );
 
-    Trk::SegmentCollection *p_collection = 0;
+    Trk::SegmentCollection *p_collection = nullptr;
 
     if( compareClassGuid( tlp4_guid ) ) {
        poolReadObject< SegmentCollection_PERS >( m_TPConverterForPER );

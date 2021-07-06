@@ -101,7 +101,7 @@ void compare (const Muon::MMClusterOnTrack& p1,
 
 void testit (const Muon::MMClusterOnTrack& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   MM_ClusterOnTrackCnv_p1 cnv;
   MuonMeasurementsCnv_tlp2 exttlcnv;
   cnv.setRuntimeTopConverter (&exttlcnv);

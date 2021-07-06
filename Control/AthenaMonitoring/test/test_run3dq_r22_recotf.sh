@@ -1,12 +1,12 @@
 #!/bin/bash
 # art-description: new DQ in Reco_tf, two-step, data q431
 # art-type: grid
-# art-memory: 3072
+# art-memory: 6144
 # art-include: master/Athena
 # art-output: myHIST.root
 # art-output: log*
 
-Reco_tf.py --athenaopts='--threads=1' --AMI=q431 --preExec="DQMonFlags.doNewMonitoring=True;DQMonFlags.doHLTMon=False" > log.HIST_Creation 2>&1
+Reco_tf.py --athenaopts='--threads=1' --AMI=q431 --imf False > log.HIST_Creation 2>&1
 
 echo "art-result: $? HIST_Creation"
 rm -rf ref-*

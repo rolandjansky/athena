@@ -399,7 +399,7 @@ StatusCode DQTDetSynchMonAlg::fillHistograms( const EventContext& ctx ) const
    auto solenoid_bz = Monitored::Scalar("solenoid_bz", f[2]*1000.);
 
    Amg::Vector3D  gP2(m_toroidPositionX, m_toroidPositionY, m_toroidPositionZ);
-   if (fieldCache.useNewBfieldCache()) fieldCache.getField(gP2.data(),f.data());
+   fieldCache.getField(gP2.data(),f.data());
 
    auto toroid_bx = Monitored::Scalar("toroid_bx", f[0]*1000.);
 

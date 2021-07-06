@@ -1,6 +1,5 @@
 #
-#Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration                                    
-        
+#Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -37,6 +36,15 @@ def MMMonitoringConfig(inputFlags):
     # Configure histograms
 
     # Overview histograms
+    mmGroup.defineHistogram('residual;Residuals',  type='TH1F',  title='Residuals;res[mm];Number of Entries',
+                        path='Overview',   xbins=200, xmin=-10, xmax=10.
+    )
+
+
+    mmGroup.defineHistogram('residual,eta_trk;Res_vs_eta', type='TH2F', title="Res vs Eta;Res;Eta;", path='Overview',xbins=100, xmin=-10, xmax=10., ybins=100, ymin=-3.,ymax=3.)
+    mmGroup.defineHistogram('residual,phi_trk;Res_vs_phi', type='TH2F', title="Res vs Eta;Res;Phi;", path='Overview',xbins=100, xmin=-10, xmax=10., ybins=16, ymin=-3.14,ymax=3.14)
+    mmGroup.defineHistogram('residual,stPhi_mon;Res_vs_stPhi', type='TH2F', title="Res vs Eta;Res;stPhi;", path='Overview',xbins=100, xmin=-10, xmax=10., ybins=16, ymin=0,ymax=16)
+    
     mmGroup.defineHistogram('charge_all;Charge',  type='TH1F',
                             title='Charge;Charge[fC];Number of Entries',
                         path='Overview',   xbins=120, xmin=0., xmax=1200.
@@ -148,6 +156,11 @@ def MMMonitoringConfig(inputFlags):
                             title_MMSummary_angle="uTPC angle "+iside+" "+isector+" stPhi"+str(phi)+" stEta"+str(eta)+" multiplet"+str(multi)+" gap"+str(gas_gap)
                             var3="mu_TPC_angle_"+iside+"_sector_"+isector+"_phi"+str(phi)+"_stationEta"+str(eta)+"_multiplet"+str(multi)+"_gas_gap"+str(gas_gap)+";uTPCangle_"+iside+"_"+isector+"_stPhi"+str(phi)+"_stEta"+str(eta)+"_multiplet"+str(multi)+"_gap"+str(gas_gap)
                             mmSideGroup.defineHistogram(var3,  type='TH1F', title=title_MMSummary_angle+"; #muTPC angle [degrees];Number of Entries",path='uTPC_angle_perLayer',    xbins=2000, xmin=-100, xmax=100)
+                            
+                            var_residual="residuals_"+iside+"_phi"+str(phi)+"_stationEta"+str(eta)+"_multiplet"+str(multi)+"_gas_gap"+str(gas_gap)
+                            print(var_residual)
+                            title_residual = "residuals "+iside+" "+isector+" stPhi"+str(phi)+" stEta"+str(eta)+" multiplet"+str(multi)+" gap"+str(gas_gap)
+                            mmSideGroup.defineHistogram(var_residual,  type='TH1F', title=title_residual+"; res [mm];Number of Entries",path='Residuals',    xbins=200, xmin=-10, xmax=10)
 
         for gas1 in range(1, 5):
             for multi1 in range(1, 3):
@@ -172,11 +185,25 @@ if __name__=='__main__':
     
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    #ConfigFlags.Input.Files = ['/afs/cern.ch/work/e/elrossi/DQ_Run3/WorkDir/group.det-muon/group.det-muon.21673292.EXT1._000048.ESD.pool.root']
-    #ConfigFlags.Input.Files = ['/afs/cern.ch/work/e/elrossi/DQ_Run3/WorkDir/group.det-muon_Sym/group.det-muon.21823259.EXT1._000045_uTPC.ESD.pool.root']
     #ConfigFlags.Input.Files = ["/afs/cern.ch/user/b/bigliett/work/DQ/group.det-muon.DiMuon10_100GeV.ESD.rel213_2020-06-18T2149_R3S_uTPC_v01_EXT1/group.det-muon.21673283.EXT1._000037.ESD.pool.root"]
-    #ConfigFlags.Input.Files = ['/afs/cern.ch/work/e/elrossi/DQ_updated_308/WorkDir/group.det-muon/group.det-muon.22415666.EXT1._000048.ESD.pool.root']
-    ConfigFlags.Input.Files = ['/afs/cern.ch/work/e/elrossi/DQ_Run3/WorkDir/group.det-muon_Sym/group.det-muon.21670802.EXT1._000006.ESD.pool.root','/afs/cern.ch/work/e/elrossi/DQ_updated/WorkDir/group.det-muon_Sym/group.det-muon.21670802.EXT1._000045.ESD.pool.root','/afs/cern.ch/work/e/elrossi/DQ_updated/WorkDir/group.det-muon_Sym/group.det-muon.21670802.EXT1._000030.ESD.pool.root','/afs/cern.ch/work/e/elrossi/DQ_updated/WorkDir/group.det-muon_Sym/group.det-muon.21670802.EXT1._000046.ESD.pool.root','/afs/cern.ch/work/e/elrossi/DQ_updated/WorkDir/group.det-muon_Sym/group.det-muon.21670802.EXT1._000014.ESD.pool.root']
+    ConfigFlags.Input.Files = ["/afs/cern.ch/user/b/bigliett/work/DQ/group.det-muon.DiMuon10_100GeV.ESD.rel213_2020-06-18T2149_R3S_v01_EXT1/group.det-muon.21670802.EXT1._000002.ESD.pool.root",
+                               "/afs/cern.ch/user/b/bigliett/work/DQ/group.det-muon.DiMuon10_100GeV.ESD.rel213_2020-06-18T2149_R3S_v01_EXT1/group.det-muon.21670802.EXT1._000006.ESD.pool.root",
+                               "/afs/cern.ch/user/b/bigliett/work/DQ/group.det-muon.DiMuon10_100GeV.ESD.rel213_2020-06-18T2149_R3S_v01_EXT1/group.det-muon.21670802.EXT1._000008.ESD.pool.root",
+                               "/afs/cern.ch/user/b/bigliett/work/DQ/group.det-muon.DiMuon10_100GeV.ESD.rel213_2020-06-18T2149_R3S_v01_EXT1/group.det-muon.21670802.EXT1._000009.ESD.pool.root",
+                               "/afs/cern.ch/user/b/bigliett/work/DQ/group.det-muon.DiMuon10_100GeV.ESD.rel213_2020-06-18T2149_R3S_v01_EXT1/group.det-muon.21670802.EXT1._000012.ESD.pool.root",
+                               "/afs/cern.ch/user/b/bigliett/work/DQ/group.det-muon.DiMuon10_100GeV.ESD.rel213_2020-06-18T2149_R3S_v01_EXT1/group.det-muon.21670802.EXT1._000015.ESD.pool.root",
+                               "/afs/cern.ch/user/b/bigliett/work/DQ/group.det-muon.DiMuon10_100GeV.ESD.rel213_2020-06-18T2149_R3S_v01_EXT1/group.det-muon.21670802.EXT1._000017.ESD.pool.root",
+                               "/afs/cern.ch/user/b/bigliett/work/DQ/group.det-muon.DiMuon10_100GeV.ESD.rel213_2020-06-18T2149_R3S_v01_EXT1/group.det-muon.21670802.EXT1._000018.ESD.pool.root",
+                               "/afs/cern.ch/user/b/bigliett/work/DQ/group.det-muon.DiMuon10_100GeV.ESD.rel213_2020-06-18T2149_R3S_v01_EXT1/group.det-muon.21670802.EXT1._000019.ESD.pool.root",
+                               "/afs/cern.ch/user/b/bigliett/work/DQ/group.det-muon.DiMuon10_100GeV.ESD.rel213_2020-06-18T2149_R3S_v01_EXT1/group.det-muon.21670802.EXT1._000020.ESD.pool.root",
+                               "/afs/cern.ch/user/b/bigliett/work/DQ/group.det-muon.DiMuon10_100GeV.ESD.rel213_2020-06-18T2149_R3S_v01_EXT1/group.det-muon.21670802.EXT1._000021.ESD.pool.root",
+                               "/afs/cern.ch/user/b/bigliett/work/DQ/group.det-muon.DiMuon10_100GeV.ESD.rel213_2020-06-18T2149_R3S_v01_EXT1/group.det-muon.21670802.EXT1._000023.ESD.pool.root",
+                               "/afs/cern.ch/user/b/bigliett/work/DQ/group.det-muon.DiMuon10_100GeV.ESD.rel213_2020-06-18T2149_R3S_v01_EXT1/group.det-muon.21670802.EXT1._000028.ESD.pool.root",
+                               "/afs/cern.ch/user/b/bigliett/work/DQ/group.det-muon.DiMuon10_100GeV.ESD.rel213_2020-06-18T2149_R3S_v01_EXT1/group.det-muon.21670802.EXT1._000032.ESD.pool.root",
+                               "/afs/cern.ch/user/b/bigliett/work/DQ/group.det-muon.DiMuon10_100GeV.ESD.rel213_2020-06-18T2149_R3S_v01_EXT1/group.det-muon.21670802.EXT1._000033.ESD.pool.root",
+                               "/afs/cern.ch/user/b/bigliett/work/DQ/group.det-muon.DiMuon10_100GeV.ESD.rel213_2020-06-18T2149_R3S_v01_EXT1/group.det-muon.21670802.EXT1._000041.ESD.pool.root",
+                               "/afs/cern.ch/user/b/bigliett/work/DQ/group.det-muon.DiMuon10_100GeV.ESD.rel213_2020-06-18T2149_R3S_v01_EXT1/group.det-muon.21670802.EXT1._000043.ESD.pool.root",
+                               "/afs/cern.ch/user/b/bigliett/work/DQ/group.det-muon.DiMuon10_100GeV.ESD.rel213_2020-06-18T2149_R3S_v01_EXT1/group.det-muon.21670802.EXT1._000050.ESD.pool.root"]
     #from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
   #  ConfigFlags.Input.isMC = True
     ConfigFlags.Output.HISTFileName = 'monitor.root'
@@ -198,4 +225,4 @@ if __name__=='__main__':
     cfg.merge(mmMonitorAcc)
     #cfg.printConfig(withDetails=True, summariseProps = True)  
     # number of events selected in the ESD
-    cfg.run(1000)
+    cfg.run(2000)

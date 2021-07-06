@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Include import include
 from AthenaCommon.Logging import logging
@@ -17,7 +17,6 @@ def LArAutoCorrTotalCondAlgDefault():
 
     mlog = logging.getLogger( 'LArAutoCorrTotalCondAlg::__init__ ' )
     mlog.info("entering LArAutoCorrTotalCondAlgDefault")
-
     LArOnOffIdMapping()
     condSeq = AthSequencer("AthCondSeq")
     if hasattr (condSeq,"LArAutoCorrTotalCondAlg"):

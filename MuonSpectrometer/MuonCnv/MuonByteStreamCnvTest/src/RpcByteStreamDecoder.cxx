@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonByteStreamCnvTest/RpcByteStreamDecoder.h"
-#include "RPCcablingInterface/CablingRPCBase.h"
 
 namespace {
   static constexpr unsigned int const& rpcRawHitWordLength = 7;
@@ -85,7 +84,7 @@ RpcPad* RpcByteStreamDecoder::decodePad(PADreadout& pad)
                                  << " Id " << pad_id << endmsg;
   
   // Retrieve the identifier elements from the map
-  const CablingRPCBase::RDOmap& pad_map = m_cabling->give_RDOs();
+  const RpcCablingCondData::RDOmap& pad_map = m_cabling->give_RDOs();
   RDOindex index = (*pad_map.find(key)).second;
 
   index.offline_indexes(name, eta, phi, doublet_r, doublet_z, doublet_phi, gas_gap, 

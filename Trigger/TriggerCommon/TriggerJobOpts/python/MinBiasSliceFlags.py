@@ -1,12 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """ MinBias slice specific flags  """
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from TriggerJobOpts.CommonSignatureHelper import CommonSignatureHelper
 
-
-__doc__="Minimum Bias slice specific flags  "
 
 #
 # This file should not be modified without consulting 
@@ -24,12 +22,8 @@ class signatures(JobProperty):
     """ signatures in MinBias slice """
     statusOn=True
     allowedTypes=['list']
+    StoredValue   = []
 
-    StoredValue   = [
-        ]
-
-
-    
     
 _flags.append(signatures)
 
@@ -40,17 +34,5 @@ class MinBiasSlice(JobPropertyContainer, CommonSignatureHelper):
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 TriggerFlags.add_Container(MinBiasSlice)
 
-# add add common slice flags
-#TriggerFlags.MinBiasSlice.import_JobProperties('TriggerJobOpts.CommonSignatureFlags')
-
 for flag in _flags:
     TriggerFlags.MinBiasSlice.add_JobProperty(flag)
-del _flags
-
-# make an alias
-MinBiasSliceFlags = TriggerFlags.MinBiasSlice
-
-# add MinBias algs cuts as sub-container
-
-#from TrigT2MinBias.TrigT2MinBiasProperties import TrigT2MinBiasProperties
-#from TrigMinBias.TrigMinBiasProperties import TrigMinBiasProperties

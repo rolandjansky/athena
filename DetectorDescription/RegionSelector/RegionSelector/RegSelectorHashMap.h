@@ -1,6 +1,6 @@
 // emacs: this is -*- c++ -*- 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef REGSELECTORHASHMAP_H
@@ -9,7 +9,7 @@
 // Includes --------------------------------------------------------------
 #include "RegSelectorMapElement.h"
 #include "RegionSelectorLUT.h"
-#include "RegionSelector/RegSelEnums.h"
+#include "IRegionSelector/RegSelEnums.h"
 #include "GaudiKernel/StatusCode.h"
 
 #include "IRegionSelector/IRegSelLUT.h"

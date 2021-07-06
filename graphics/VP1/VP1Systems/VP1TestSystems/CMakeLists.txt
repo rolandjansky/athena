@@ -24,6 +24,6 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 atlas_add_library( VP1TestSystems VP1TestSystems/*.h src/*.h src/*.cxx src/*.qrc  
                    PUBLIC_HEADERS VP1TestSystems
                    PRIVATE_INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES VP1Base VP1Utils GL StoreGateLib SGtests Qt5::Gui Qt5::Core
+                   LINK_LIBRARIES VP1Base VP1Utils GL StoreGateLib Qt5::Gui Qt5::Core
                    PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${EIGEN_LIBRARIES} GeoPrimitives GaudiKernel TrkSurfaces TrkParameters TrkTrack )
 

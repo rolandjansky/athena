@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -100,7 +100,7 @@ StatusCode TileCellNoiseFilter::process (CaloCellContainer* cellcoll,
   // common-mode shift calculation
   ATH_MSG_DEBUG("Calculating common-mode shift...");
   cmdata_t commonMode = {{{0}}};
-  int ncorr = this->calcCM(caloNoise, cellcoll, commonMode);
+  int ncorr = this->calcCM(caloNoise, cellcoll, commonMode, ctx);
   if (ncorr <= 0) {
     ATH_MSG_DEBUG( "Failed to calculate common-mode shift - no corrections applied");
     return StatusCode::SUCCESS;
@@ -191,7 +191,8 @@ void TileCellNoiseFilter::setCMSEnergy(const cmdata_t& commonMode,
 // calculate correction
 int TileCellNoiseFilter::calcCM(const CaloNoise* caloNoise,
                                 const CaloCellContainer* cellcoll,
-                                cmdata_t& commonMode) const
+                                cmdata_t& commonMode,
+                                const EventContext& ctx) const
 {
   int nEmptyChan[s_maxPartition][s_maxDrawer][s_maxMOB] = {{{0}}};
   int nGoodChan[s_maxPartition][s_maxDrawer][s_maxMOB] = {{{0}}};
@@ -259,7 +260,7 @@ int TileCellNoiseFilter::calcCM(const CaloNoise* caloNoise,
           if (m_useTwoGaussNoise) {
             // nothing for the moment - keep 1.5 ADC counts
           } else {
-            noise_sigma = m_tileToolNoiseSample->getHfn(drawerIdx, chan, gain1);
+            noise_sigma = m_tileToolNoiseSample->getHfn(drawerIdx, chan, gain1, TileRawChannelUnit::ADCcounts, ctx);
           }
           
           significance = 999.999;
@@ -312,7 +313,7 @@ int TileCellNoiseFilter::calcCM(const CaloNoise* caloNoise,
           if (m_useTwoGaussNoise) {
             // nothing for the moment - keep 1.5 ADC counts
           } else {
-            noise_sigma = m_tileToolNoiseSample->getHfn(drawerIdx, chan, gain2);
+            noise_sigma = m_tileToolNoiseSample->getHfn(drawerIdx, chan, gain2, TileRawChannelUnit::ADCcounts, ctx);
           }
 
           // use only empty channels with less significance

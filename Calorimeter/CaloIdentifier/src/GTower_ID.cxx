@@ -42,7 +42,7 @@ int  GTower_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
   }
 
   // init base object
-  if (JGTowerBase_ID::initialize_base_from_dictionary(dict_mgr, "positive_gTower_side", "GT"))
+  if (JGTowerBase_ID::initialize_base_from_dictionary(dict_mgr, "GT"))
     return (1);
 
 

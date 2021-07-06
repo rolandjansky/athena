@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrigMissingETCnvAlg.cxx 592539 2014-04-11 10:17:29Z krasznaa $
@@ -30,7 +30,7 @@ namespace xAODMaker {
    StatusCode TrigMissingETCnvAlg::initialize() {
 
       // Greet the user:
-      ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
+      ATH_MSG_INFO( "Initializing" );
       ATH_MSG_DEBUG( " AOD Key: " << m_aodKey );
       ATH_MSG_DEBUG( "xAOD Key: " << m_xaodKey );
 
@@ -51,7 +51,7 @@ namespace xAODMaker {
       }
 
       // Retrieve the AOD container:
-      const TrigMissingETContainer* aod = 0;
+      const TrigMissingETContainer* aod = nullptr;
       CHECK( evtStore()->retrieve( aod, m_aodKey ) );
 
       // Create the xAOD container and its auxiliary store:

@@ -44,8 +44,9 @@ StatusCode TrigInDetTrackMonitoringTool::finalize() {
 //void TrigInDetTrackMonitoringTool::monitor_tracks(std::string prefix, std::string suffix, DataVector<xAOD::TrackParticle> tracks ){
 //void TrigInDetTrackMonitoringTool::monitor_tracks( const std::string &prefix, const std::string &suffix, const xAOD::TrackParticleContainer &tracks ){
 void TrigInDetTrackMonitoringTool::monitor_tracks( const std::string &prefix, const std::string &suffix, const xAOD::TrackParticleContainer &tracks ) const {
-   auto  trackPt      = Monitored::Collection(  prefix + "Pt"       + suffix, tracks, [](const xAOD::TrackParticle *t){ return t->pt();});
-   auto  trackQOverP  = Monitored::Collection(  prefix + "QOverP"   + suffix, tracks, [](const xAOD::TrackParticle *t){ return t->qOverP();});
+   auto  trackPt      = Monitored::Collection(  prefix + "Pt"       + suffix, tracks, [](const xAOD::TrackParticle *t){ return t->pt() * 0.001;});
+   auto  trackQOverP  = Monitored::Collection(  prefix + "QOverP"   + suffix, tracks, [](const xAOD::TrackParticle *t){ return t->qOverP() * 1000;});
+   auto  trackQPt     = Monitored::Collection(  prefix + "QPt"      + suffix, tracks, [](const xAOD::TrackParticle *t){ return t->pt() * 0.001 * (t->qOverP() > 0 ? 1.0 : -1.0);});
    auto  trackEta     = Monitored::Collection(  prefix + "Eta"      + suffix, tracks, [](const xAOD::TrackParticle *t){ return t->eta();});
    auto  trackPhi     = Monitored::Collection(  prefix + "Phi"      + suffix, tracks, [](const xAOD::TrackParticle *t){ return t->phi();});
    auto  trackTheta   = Monitored::Collection(  prefix + "Theta"    + suffix, tracks, [](const xAOD::TrackParticle *t){ return t->theta();});
@@ -65,12 +66,16 @@ void TrigInDetTrackMonitoringTool::monitor_tracks( const std::string &prefix, co
 
    auto  trackTRTHits = Monitored::Collection(  prefix + "TRTHits"  + suffix, tracks, [](const xAOD::TrackParticle *t){ uint8_t nTRTHits = 0; t->summaryValue( nTRTHits,  xAOD::numberOfTRTHits); return nTRTHits ;});
 
+   // This track counting still doesn't fill histogram
+   auto trkCount  = Monitored::Scalar( prefix + "Counting" + suffix, tracks.size());
+
    //If needed add more monitored values from:
    //https://gitlab.cern.ch/atlas/athena/-/blob/master/Tracking/TrkTools/TrkParticleCreator/src/TrackParticleCreatorTool.cxx
 
    auto mon = Monitored::Group(m_monTool, 
-              trackPt, trackEta, trackQOverP, trackPhi, trackTheta, trackD0 ,trackZ0, trackNDF, trackChi2Prob, 
-              trackPiHits, trackSCTHits, trackTRTHits //Hits in the det layers
+              trackPt, trackEta, trackQOverP, trackQPt, trackPhi, trackTheta, trackD0 ,trackZ0, trackNDF, trackChi2Prob, 
+              trackPiHits, trackSCTHits, trackTRTHits, //Hits in the det layers
+              trkCount
               ); 
 }
 

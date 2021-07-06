@@ -60,8 +60,6 @@ namespace Trk {
 
         /** AlgTool initialize method */
         StatusCode initialize();
-        /** AlgTool finalize method */
-        StatusCode finalize();
 
         /** @copydoc ITrackingVolumeCreator::createTrackingVolume(const std::vector<const Layer*>&, Material&, VolumeBounds*, Amg::Transform3D*,bool, const std::string&) const;
          */

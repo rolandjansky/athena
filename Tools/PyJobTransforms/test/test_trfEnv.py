@@ -1,14 +1,11 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @Package test_trfEnv.py
 #  @brief Unittests for trfEnv.py
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: test_trfEnv.py 588222 2014-03-18 14:37:06Z graemes $
 
-from __future__ import print_function
-from builtins import str
 import sys
 import unittest
 

@@ -12,56 +12,32 @@
 //**********************************************************************
 
 JetConstitFourMomTool::JetConstitFourMomTool(std::string myname)
-  : asg::AsgTool(myname),
-    m_constitScale(0),
-    m_jetScaleNames({}),
-    m_altColls({}),
-    m_altConstitScales({}),
-    m_altJetScales({}),
-    m_altColls_keys {}  // calls default constructor 
+  : asg::AsgTool(myname)
 {
-
 #ifndef XAOD_STANDALONE
   declareInterface<IJetModifier>(this);
 #endif
-  // What cluster signal state to use for the jet constituents
-  declareProperty("ConstitScale",     m_constitScale     );
-  // The names of the jet scale
-  declareProperty("JetScaleNames",    m_jetScaleNames    );
-  // If an alternate collection should be used (e.g. origin-corrected or not)
-  declareProperty("AltConstitColls",  m_altColls         );
-  // What scales to use for the alternate constituent collections
-  declareProperty("AltConstitScales", m_altConstitScales );
-  // If an existing momentum scale should just be copied
-  declareProperty("AltJetScales",     m_altJetScales     );
 }
 
 //**********************************************************************
 
 StatusCode JetConstitFourMomTool::initialize() {
-  ATH_MSG_DEBUG("initializing version with data handles");
 
-  // load  data handle key array from a std::vector<std::string>
-  
-
-  // cannot use DataHandleKeyArray.assign(vector) as this sneakily removes
-  // empty strings...
-
+  // Workaround because configuring DataHandleKeyArray directly sneakily removes empty strings
   for(auto dhn : m_altColls){
     m_altColls_keys.emplace_back(SG::ReadHandleKey<xAOD::CaloClusterContainer>(dhn));
   }
+
   for(auto& dh : m_altColls_keys){ATH_CHECK(dh.initialize(!(dh.key() == "")));}
 
   // Check configuration consistency
   if( m_jetScaleNames.empty() ||
-      (m_jetScaleNames.size() != m_altColls.size()) ||
       (m_jetScaleNames.size() != m_altConstitScales.size()) ||
       (m_jetScaleNames.size() != m_altJetScales.size()) ||
       (m_jetScaleNames.size() != m_altColls_keys.size())
       ) {
     ATH_MSG_FATAL("Inconsistency in configuration -- all vector properties must have the same (nonzero) length! Sizes: " 
                   << m_jetScaleNames.size() << " "
-                  << m_altColls.size() << " "
                   << m_altConstitScales.size() << " "
                   << m_altJetScales.size() << " "
                   << m_altColls_keys.size());
@@ -73,7 +49,7 @@ StatusCode JetConstitFourMomTool::initialize() {
     if(m_jetScaleNames[iScale]=="DetectorEtaPhi") {
       m_isDetectorEtaPhi[iScale] = true;
     }
-    if(!m_altJetScales[iScale].empty() && !m_altColls[iScale].empty()) {
+    if(!m_altJetScales[iScale].empty() && !m_altColls_keys[iScale].key().empty()) {
       ATH_MSG_FATAL("Inconsistency in configuration -- Both AltJetScale and AltConstitColl set for scale " 
 		    << m_jetScaleNames[iScale] << "!");
       return StatusCode::FAILURE;      
@@ -92,7 +68,6 @@ StatusCode JetConstitFourMomTool::modify(xAOD::JetContainer& jets) const {
   std::vector<const xAOD::CaloClusterContainer*> altCollections(nScales,NULL);
   // Do some setup that doesn't have to be repeated for each jet
   for(size_t iScale=0; iScale<nScales; ++iScale) {
-    // if(!m_altColls[iScale].empty()) { // retrieve alternate constituent collections
     if(!m_altColls_keys[iScale].key().empty()) { // retrieve alternate constituent collections
       const xAOD::Jet& leadjet = *jets.front();
       if(isValidConstitType(leadjet.getInputType())) {
@@ -106,19 +81,19 @@ StatusCode JetConstitFourMomTool::modify(xAOD::JetContainer& jets) const {
 
         altCollections[iScale] = handle.cptr();
       } else {
-        ATH_MSG_WARNING("Alt collection " << m_altColls[iScale] << " and jet type " << leadjet.getInputType() << " not supported yet!");
+        ATH_MSG_WARNING("Alt collection " << m_altColls_keys[iScale].key() << " and jet type " << leadjet.getInputType() << " not supported yet!");
         return StatusCode::FAILURE;
       } // check that jet type/alt collection are implemented
     } // have an alt collection for this scale
   }
 
   // Limit ourselves to one loop over the constituents
-  for(const auto& jet : jets) {
+  for(xAOD::Jet *jet : jets) {
     std::vector<xAOD::JetFourMom_t> constitFourVecs(nScales);
     // Get the constituents of the jet
     const xAOD::JetConstituentVector constituents = jet->getConstituents();
     // Gets the constituent iter at the appropriate scale
-    xAOD::JetConstitScale constscale = (xAOD::JetConstitScale) m_constitScale;
+    xAOD::JetConstitScale constscale = (xAOD::JetConstitScale)(int(m_constitScale));
     for (auto citer = constituents.begin(constscale);
 	 citer != constituents.end(constscale); ++citer) {
       for (size_t iScale=0; iScale<nScales; ++iScale) {

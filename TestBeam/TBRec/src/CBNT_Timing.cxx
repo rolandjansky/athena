@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CBNT_Timing.h"
@@ -26,7 +26,6 @@ using Athena::Units::ns;
 CBNT_Timing::CBNT_Timing(const std::string & name, ISvcLocator * pSvcLocator)
   :CBNT_TBRecBase(name, pSvcLocator)
    , m_onlineHelper(0)
-   , m_emId(0)
    , m_energy_cut(2.*GeV)
    , m_first_event(true)
    , m_caloCellName("AllCalo")
@@ -64,10 +63,6 @@ StatusCode CBNT_Timing::CBNT_initialize() {
 
   ATH_MSG_DEBUG  ( "CBNT_Timing in initialize()" );
 
-  const CaloCell_ID* idHelper = nullptr;
-  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
-  m_emId=idHelper->em_idHelper();
-
   ATH_CHECK( m_cablingKey.initialize() );
   ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
 
@@ -95,20 +90,18 @@ StatusCode CBNT_Timing::CBNT_initialize() {
 
   // get calorimeter samplings ids for the requested samplings
   msg() << MSG::INFO << "Included calorimeter samplings: ";
-  for (std::vector<std::string>::const_iterator sampling = m_sampling_names.begin(); sampling != m_sampling_names.end(); sampling++) {
-    //    CaloSampling::CaloSample idSamp = CaloSamplingHelper::getSamplingId(*sampling);
-    CaloSampling::CaloSample idSamp = m_samplingFromNameLookup[*sampling];
+  for (const std::string& sampling : m_sampling_names) {
+    CaloSampling::CaloSample idSamp = m_samplingFromNameLookup[sampling];
     if (idSamp != CaloSampling::Unknown) {
       m_samplingIndices.push_back(idSamp);
-      msg() << MSG::INFO << "\042" << *sampling
+      msg() << MSG::INFO << "\042" << sampling
              << "\042 ";
     }
   }
   msg() << MSG::INFO << endmsg;
 
   // get an idCalo keyed map of vectors of idSample for the requested samplings
-  for (std::vector<CaloSampling::CaloSample>::iterator sample = m_samplingIndices.begin(); sample != m_samplingIndices.end(); sample++) {
-    CaloSampling::CaloSample idSample = *sample;
+  for (CaloSampling::CaloSample idSample : m_samplingIndices) {
     // find the idCalo 
     CaloCell_ID::SUBCALO idCalo = m_caloLookup[idSample];
     // build the vector of idSample
@@ -117,20 +110,17 @@ StatusCode CBNT_Timing::CBNT_initialize() {
     m_calosAndSamplings[idCalo] = samplingV;
   }
   // printout
-  std::map< CaloCell_ID::SUBCALO, std::vector<CaloSampling::CaloSample> >::iterator it = m_calosAndSamplings.begin();
-  for (; it != m_calosAndSamplings.end(); it++) {
-    CaloCell_ID::SUBCALO idCalo = it->first;
+  for (const auto& p : m_calosAndSamplings) {
+    CaloCell_ID::SUBCALO idCalo = p.first;
     msg() << MSG::INFO
            << "Included calorimeter : \042"
            << m_caloToNameLookup[idCalo]
            << "\042 samplings:";
-    std::vector<CaloSampling::CaloSample> samplingV = it->second;
-    std::vector<CaloSampling::CaloSample>::iterator sample     = samplingV.begin();
-    std::vector<CaloSampling::CaloSample>::iterator lastSample = samplingV.end();
-    for (; sample != lastSample; sample++) {
+    const std::vector<CaloSampling::CaloSample>& samplingV = p.second;
+    for (CaloSampling::CaloSample sample : samplingV) {
       msg() << MSG::INFO
              << " \042"
-             << m_samplingToNameLookup[*sample]
+             << m_samplingToNameLookup[sample]
              << "\042";
     }
     msg()  << MSG::INFO << endmsg;
@@ -174,14 +164,13 @@ StatusCode CBNT_Timing::CBNT_execute()
 
     // find all febID's related to the requested samplings
     // loop over desired calorimeter modules first, more efficient this way
-    std::map< CaloCell_ID::SUBCALO, std::vector<CaloSampling::CaloSample> >::iterator it = m_calosAndSamplings.begin();
-    for (; it != m_calosAndSamplings.end(); it++) {
-      CaloCell_ID::SUBCALO idCalo = it->first;
-      std::vector<CaloSampling::CaloSample> samplingV = it->second;
+    for (const auto& p : m_calosAndSamplings) {
+      CaloCell_ID::SUBCALO idCalo = p.first;
+      std::vector<CaloSampling::CaloSample> samplingV = p.second;
 
       // loop over the corresponding CaloCell's
       for (CaloCellContainer::const_iterator cell = cellContainer->beginConstCalo(idCalo);
-           cell != cellContainer->endConstCalo(idCalo); cell++) {
+           cell != cellContainer->endConstCalo(idCalo); ++cell) {
 
         // get the corresponding sample
         CaloSampling::CaloSample idSample;
@@ -209,9 +198,9 @@ StatusCode CBNT_Timing::CBNT_execute()
     }
     // print out
     msg() << MSG::INFO << "FEB IDs: ";
-    for (std::vector<HWIdentifier>::iterator it_febID = m_febIDs.begin(); it_febID != m_febIDs.end(); it_febID++) {
+    for (HWIdentifier febID : m_febIDs) {
       std::ostringstream os; 
-      os << std::hex << *it_febID;
+      os << std::hex << febID;
       msg() << MSG::INFO << " \042" << os.str() << "\042";
     }
     msg() << MSG::INFO << endmsg;
@@ -232,20 +221,19 @@ StatusCode CBNT_Timing::CBNT_execute()
 
   // fill energy weighted time stores
   // loop over desired calorimeter modules first, more efficient this way
-  std::map< CaloCell_ID::SUBCALO, std::vector<CaloSampling::CaloSample> >::iterator it = m_calosAndSamplings.begin();
   m_energy = 0;
 
-  for (; it != m_calosAndSamplings.end(); it++) {
-    CaloCell_ID::SUBCALO idCalo = it->first;
+  for (const auto& p : m_calosAndSamplings) {
+    CaloCell_ID::SUBCALO idCalo = p.first;
     ATH_MSG_DEBUG
       ( "Looping over CaloCells of calorimeter : \042"
         << m_caloToNameLookup[idCalo]
         << "\042" );
-    std::vector<CaloSampling::CaloSample> samplingV = it->second;
+    std::vector<CaloSampling::CaloSample> samplingV = p.second;
 
     // loop over the corresponding CaloCell's
     for (CaloCellContainer::const_iterator cell = cellContainer->beginConstCalo(idCalo);
-         cell != cellContainer->endConstCalo(idCalo); cell++) {
+         cell != cellContainer->endConstCalo(idCalo); ++cell) {
 
       // get the corresponding sample
       //CaloSampling::CaloSample idSample = CaloSampling::getSampling(**cell);
@@ -324,8 +312,7 @@ StatusCode CBNT_Timing::CBNT_execute()
   }
 
   // fill energy weighted cubic peaking time for each requested sampling
-  for (std::vector<CaloSampling::CaloSample>::iterator sample = m_samplingIndices.begin(); sample != m_samplingIndices.end(); sample++) {
-    CaloSampling::CaloSample idSample = *sample;
+  for (CaloSampling::CaloSample idSample : m_samplingIndices) {
     // go on only if there is data stored for this sample:
     //if (sumEPerSampling.find(idSample) != sumEPerSampling.end()) {
       double peakTime = (sumEPerSampling[idSample] > 0.) ? sumETimePerSampling[idSample]/sumEPerSampling[idSample] : NOTIME;
@@ -335,8 +322,7 @@ StatusCode CBNT_Timing::CBNT_execute()
   }
 
   // fill energy weighted cubic peaking time for each requested FEB
-  for (std::vector<HWIdentifier>::iterator it_febID = m_febIDs.begin(); it_febID != m_febIDs.end(); it_febID++) {
-      HWIdentifier febID = *it_febID;
+  for (HWIdentifier febID : m_febIDs) {
     // go on only if there is data stored for this febID
     //if (sumEPerFeb.find(febID) != sumEPerFeb.end()) {
       double peakTime = (sumEPerFeb[febID] > 0.) ? sumETimePerFeb[febID]/sumEPerFeb[febID] : NOTIME;

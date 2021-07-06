@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTest/DumpCaloBadChannels.h"
@@ -47,11 +47,7 @@ StatusCode  DumpCaloBadChannels::finalize() {
       ATH_MSG_ERROR ( "Failed to open file " << m_fileName );
   }
 
-  std::vector<Identifier>::const_iterator it=m_cellID->cell_begin();
-  std::vector<Identifier>::const_iterator it_e=m_cellID->cell_end();
-  
-  for (;it!=it_e;it++) {
-    const Identifier& id=*it;
+  for (const Identifier& id : m_cellID->cell_range()) {
     CaloBadChannel bc=m_caloBCT ->caloStatus(id); 
     (*out) << "Chan: 0x" << std::hex << id.get_compact() << ": " << bc.packedData() << std::dec << std::endl;
   }

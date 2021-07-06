@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetSimEvent/TRTUncompressedHit.h"
@@ -295,7 +295,8 @@ void TRT_HitCollectionCnv_p3::persToTrans(const TRT_HitCollection_p3* persCont, 
   unsigned int idxBC=0, idxId=0, endHit=0, endBC=0, endId=0;
 
   // Assume that all Hits should be linked to the hard-scatter GenEvent
-  const int event_number = HepMcParticleLink::getEventNumberAtPosition (0, EBC_MAINEVCOLL, SG::CurrentEventStore::store());
+  IProxyDict *sg = SG::CurrentEventStore::store();
+  const int event_number = HepMcParticleLink::getEventNumberAtPosition (0, EBC_MAINEVCOLL, sg);
 
   //
   // loop over strings - index [i]
@@ -481,7 +482,7 @@ void TRT_HitCollectionCnv_p3::persToTrans(const TRT_HitCollection_p3* persCont, 
         // - For charged particles kinEne is *zero*!
         //
 
-        HepMcParticleLink partLink(persCont->m_barcode[idxBC], event_number);
+        HepMcParticleLink partLink(persCont->m_barcode[idxBC], event_number, EBC_MAINEVCOLL, HepMcParticleLink::IS_INDEX, sg);
         transCont->Emplace( strawId, partLink, persCont->m_id[idxId],
                             kinEne, hitEne, startX, startY, startZ,
                             endX, endY, endZ, meanTime );

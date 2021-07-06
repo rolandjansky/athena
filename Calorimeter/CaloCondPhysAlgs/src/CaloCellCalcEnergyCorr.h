@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCONDPHYSALGS_CALOCELLCALCENERGYCORR_H
@@ -14,8 +14,11 @@
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
+#include "LArRecConditions/LArHVIdMapping.h"
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/CondHandleKeyArray.h"
 
-#include "CxxUtils/checker_macros.h"
 
 class CaloCellCalcEnergyCorr: public AthAlgorithm
 { 
@@ -34,13 +37,13 @@ class CaloCellCalcEnergyCorr: public AthAlgorithm
   virtual ~CaloCellCalcEnergyCorr(); 
 
   // Athena algorithm's Hooks
-  virtual StatusCode  initialize();
-  virtual StatusCode  execute();
-  virtual StatusCode  finalize();
-  virtual StatusCode  stop ATLAS_NOT_THREAD_SAFE /* Calls getData() method of HV managers */();
+  virtual StatusCode  initialize() override;
+  virtual StatusCode  execute() override;
+  virtual StatusCode  finalize() override;
+  virtual StatusCode  stop() override;
 
 private:
-  struct ATLAS_NOT_THREAD_SAFE HVData;
+  struct HVData;
 
   // Properties
   std::string m_folder;
@@ -48,6 +51,12 @@ private:
   std::vector<float> m_value;     // value to fill for every sample
   std::vector<int> m_hvlines;        // which hvlines should be changed in addition
   std::vector<float> m_hvvalue;    // value to fill for every hvline
+
+  SG::ReadCondHandleKey<LArHVIdMapping> m_hvCablingKey
+    {this, "LArHVIdMapping", "LArHVIdMap", "SG key for HV ID mapping"};
+  SG::ReadCondHandleKeyArray<CondAttrListCollection>  m_DCSFolderKeys
+    { this, "DCSFolderNames", {"/LAR/DCS/HV/BARREl/I16", "/LAR/DCS/HV/BARREL/I8"}, 
+      "DCS folders with HV values"};
 
   // Private members
   const CaloDetDescrManager* m_calodetdescrmgr;

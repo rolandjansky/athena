@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CalibCscStripFitter_H
@@ -21,18 +21,17 @@
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 class CalibCscStripFitter : virtual public ICscStripFitter, public AthAlgTool {
-
-  public:  // Ctors and dtor.
+public:  // Ctors and dtor.
     enum NoiseOption { rms = 0, sigma, f001 };
 
-    CalibCscStripFitter(std::string, std::string, const IInterface*);
+    CalibCscStripFitter(const std::string&, const std::string&, const IInterface*);
 
     ~CalibCscStripFitter() = default;
 
-  public:  // AlgTool methods
+public:  // AlgTool methods
     StatusCode initialize();
 
-  public:  // Interface methods
+public:  // Interface methods
     // Tell compiler not to hide other fit methods.
     using ICscStripFitter::fit;
 
@@ -42,14 +41,14 @@ class CalibCscStripFitter : virtual public ICscStripFitter, public AthAlgTool {
     //  Result fit(const ChargeList& charges, double samplingTime, Identifier& stripId ) const;
     Result fit(const ChargeList& ChargeList, double samplingTime, bool samplingPhase, Identifier& sid) const;
 
-  private:  // data
+private:  // data
     // Job options.
     //  double m_qerr;          // Charge error for a successful fit.
     double m_terr;  // Time error for a succcessful fit.
     //  double m_qerr_fail;     // Charge error for a failed fit.
     double m_terr_fail;          // Time error for a failed fit.
     double m_qerrprop;           // Charge calibration error
-    bool   m_doCorrection;       // Correction for para to bipolar
+    bool m_doCorrection;         // Correction for para to bipolar
     double m_chargeErrorScaler;  // Charge error scaler
 
     std::string m_noiseOptionStr;

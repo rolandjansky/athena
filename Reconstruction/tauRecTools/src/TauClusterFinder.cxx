@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ATHLYSIS
@@ -14,7 +14,7 @@
 
 
 TauClusterFinder::TauClusterFinder(const std::string& name) :
-TauRecToolBase(name) {
+  TauRecToolBase(name) {
 }
 
 
@@ -43,8 +43,8 @@ StatusCode TauClusterFinder::execute(xAOD::TauJet& tau) const {
 
     ElementLink<xAOD::IParticleContainer> linkToCluster;
     linkToCluster.toContainedElement(
-      *(static_cast<const xAOD::IParticleContainer*> (cluster->container())), 
-      static_cast<const xAOD::IParticle*>(cluster));
+				     *(static_cast<const xAOD::IParticleContainer*> (cluster->container())), 
+				     static_cast<const xAOD::IParticle*>(cluster));
     tau.addClusterLink(linkToCluster);
   }
 
@@ -62,9 +62,9 @@ std::vector<const xAOD::CaloCluster*> TauClusterFinder::getClusterList(const xAO
     ATH_MSG_DEBUG("eta: " << constituent->eta() << " phi: " << constituent->phi() << " e: " << constituent->e()); 
 
     if( constituent->type() == xAOD::Type::CaloCluster ) {
-	  const xAOD::CaloCluster* cluster = static_cast<const xAOD::CaloCluster*>(constituent->rawConstituent());
+      const xAOD::CaloCluster* cluster = static_cast<const xAOD::CaloCluster*>(constituent->rawConstituent());
       ATH_MSG_DEBUG("CaloCluster: ");
-	  ATH_MSG_DEBUG("eta: " << cluster->eta() << " phi: " << cluster->phi() << " e: " << cluster->e());
+      ATH_MSG_DEBUG("eta: " << cluster->eta() << " phi: " << cluster->phi() << " e: " << cluster->e());
 	  
       // If jet perfroms the vertex correction, then cluster in Topo jets is in a shallow copy of CaloCalTopoCluster. 
       // Since jets and the shallow copy may not be stored to AOD in R22, these clusters will be invalid with AOD as input. 
@@ -79,19 +79,19 @@ std::vector<const xAOD::CaloCluster*> TauClusterFinder::getClusterList(const xAO
       }
     }
     else if ( constituent->type() == xAOD::Type::ParticleFlow ) {
-	  const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>(constituent->rawConstituent());
+      const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>(constituent->rawConstituent());
 	  
       if (pfo->isCharged()) continue;
-	  if (pfo->nCaloCluster()!=1){
-	    ATH_MSG_WARNING("Neutral PFO has " << std::to_string(pfo->nCaloCluster()) << " clusters, expected exactly 1!\n");
+      if (pfo->nCaloCluster()!=1){
+	ATH_MSG_WARNING("Neutral PFO has " << std::to_string(pfo->nCaloCluster()) << " clusters, expected exactly 1!\n");
         continue;
       }
 	  
       clusterList.push_back(pfo->cluster(0));
     }
     else {
-	  ATH_MSG_WARNING("Seed jet constituent type not supported ! Skip");
-	  continue;
+      ATH_MSG_WARNING("Seed jet constituent type not supported ! Skip");
+      continue;
     }
   }
   
@@ -100,15 +100,15 @@ std::vector<const xAOD::CaloCluster*> TauClusterFinder::getClusterList(const xAO
     if (constituent->type() != xAOD::Type::ParticleFlow) break;
 	
     const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>( constituent->rawConstituent() );
-	if (! pfo->isCharged()) continue;
+    if (! pfo->isCharged()) continue;
 
-	for (u_int index=0; index<pfo->nCaloCluster(); index++){
-	  const xAOD::CaloCluster* cluster = pfo->cluster(index);
-	  // Check it is not duplicate of one in neutral list
-	  if ( std::find(clusterList.begin(), clusterList.end(), cluster) == clusterList.end() ) {
-	    clusterList.push_back(cluster);
-	  }
-	}
+    for (u_int index=0; index<pfo->nCaloCluster(); index++){
+      const xAOD::CaloCluster* cluster = pfo->cluster(index);
+      // Check it is not duplicate of one in neutral list
+      if ( std::find(clusterList.begin(), clusterList.end(), cluster) == clusterList.end() ) {
+	clusterList.push_back(cluster);
+      }
+    }
   }
  
   return clusterList;

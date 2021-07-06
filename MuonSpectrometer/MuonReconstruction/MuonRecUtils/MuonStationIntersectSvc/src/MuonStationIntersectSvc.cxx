@@ -1,6 +1,10 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
+
+#include <memory>
+
+
 
 #include "MuonStationIntersectSvc/MuonStationIntersectSvc.h"
 
@@ -48,7 +52,7 @@ const std::vector<std::unique_ptr<Muon::MdtIntersectGeometry> > MuonStationInter
 	continue;
       }
     }
-    stations.push_back(std::unique_ptr<Muon::MdtIntersectGeometry>(new Muon::MdtIntersectGeometry( chId, detMgr,dbData,&this->msgStream(),m_idHelperSvc.get())));
+    stations.push_back(std::make_unique<Muon::MdtIntersectGeometry>( chId, detMgr,dbData,&this->msgStream(),m_idHelperSvc.get()));
   }
   return stations;
 }

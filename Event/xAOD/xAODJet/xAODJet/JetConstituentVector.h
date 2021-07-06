@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODJET_JETCONSTITUENTSVECTOR_H
@@ -126,9 +126,9 @@ namespace xAOD {
       iterator(ELiterator it, JetConstitScale s) : m_index(it), m_sigState(s) {}
 
       iterator & operator++();
-      iterator & operator++(int);
+      iterator   operator++(int);
       iterator & operator--();
-      iterator & operator--(int);
+      iterator   operator--(int);
       bool operator==( const iterator & other);
       bool operator!=( const iterator & other);
 

@@ -1,11 +1,10 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
    */
 
 /** @file ByteStreamMetadataTool.cxx
  *  @brief This file contains the implementation for the ByteStreamMetadataTool class.
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
- *  $Id: ByteStreamMetadataTool.cxx,v 1.4 2009-05-13 22:06:51 cranshaw Exp $
  **/
 
 #include "ByteStreamMetadataTool.h"
@@ -36,7 +35,7 @@ ByteStreamMetadataTool::~ByteStreamMetadataTool()
 StatusCode
 ByteStreamMetadataTool::initialize()
 {
-  ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
+  ATH_MSG_INFO("Initializing");
 
   ATH_CHECK(::AthAlgTool::initialize());
   ATH_CHECK(m_metadataStore.retrieve());
@@ -110,7 +109,7 @@ ByteStreamMetadataTool::beginInputFile()
         ATH_MSG_DEBUG("Pre-existing ByteStreamMetadataContainer found");
         ATH_CHECK(m_metadataStore->retrieve(bsmdc, key));
 
-        for (const auto& bsmd : *bsmdc)
+        for (const auto bsmd : *bsmdc)
           transGuids.insert(bsmd->getGuid());
 
       } else {

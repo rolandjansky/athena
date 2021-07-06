@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // TrackVertexAssoTestAlg.cxx 
@@ -84,7 +84,7 @@ StatusCode TrackVertexAssoTestAlg::execute()
 
   // Test isCompitable
   ATH_MSG_INFO("Testing TrackVertexAssociationTool::isCompatible...");
-  if(trkCont->size()!=0 && vxCont->size()!=0)
+  if(!trkCont->empty() && !vxCont->empty())
   {
     bool isMatched = m_TVATool->isCompatible(*(trkCont->at(0)), *(vxCont->at(0)));
     ATH_MSG_INFO("Is the first track compatible with the first vertex (the PriVx)? "<< isMatched);
@@ -106,10 +106,10 @@ StatusCode TrackVertexAssoTestAlg::execute()
   ATH_MSG_INFO("Testing TrackVertexAssociationTool::getUniqueMatchVertex...");
   std::vector<const xAOD::Vertex* > v_vx;
   v_vx.clear();
-  for(auto *vertex : *vxCont) {
+  for(const auto *vertex : *vxCont) {
     v_vx.push_back(vertex);
   }
-  if(trkCont->size()!=0)
+  if(!trkCont->empty())
   {
     const xAOD::Vertex *vx=m_TVATool->getUniqueMatchVertex(*(trkCont->at(0)), v_vx);
     ATH_MSG_INFO("Unique match vertex for first track: " << vx);

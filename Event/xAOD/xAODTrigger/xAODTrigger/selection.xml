@@ -1,4 +1,4 @@
-<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
+<!-- Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
 
    <!-- xAOD::ByteStreamAuxContainer type(s). -->
@@ -122,10 +122,90 @@
    <typedef name="xAOD::eFexEMRoI" />
    <typedef name="xAOD::eFexEMRoIContainer" />
 
+   <class name="xAOD::eFexTauRoI_v1" />
+   <class name="xAOD::eFexTauRoIContainer_v1"
+          id="E8A905C3-B917-4F36-ADC3-33CF71F57851" />
+   <typedef name="xAOD::eFexTauRoI" />
+   <typedef name="xAOD::eFexTauRoIContainer" />
+
+   <class name="xAOD::jFexSRJetRoI_v1" />
+   <class name="xAOD::jFexSRJetRoIContainer_v1"
+          id="28BB97E5-642E-4BF5-AA2B-B9B33C1DC52E" />
+   <typedef name="xAOD::jFexSRJetRoI" />
+   <typedef name="xAOD::jFexSRJetRoIContainer" />
+
+   <class name="xAOD::jFexLRJetRoI_v1" />
+   <class name="xAOD::jFexLRJetRoIContainer_v1"
+	   id="5D81A8D3-A9AD-41DD-BE72-159C3D085DF4" />
+   <typedef name="xAOD::jFexLRJetRoI" />
+   <typedef name="xAOD::jFexLRJetRoIContainer" />
+
+   <class name="xAOD::jFexTauRoI_v1" />
+   <class name="xAOD::jFexTauRoIContainer_v1"
+          id="1053F9B3-9178-48E9-A135-82669B00E372" />
+   <typedef name="xAOD::jFexTauRoI" />
+   <typedef name="xAOD::jFexTauRoIContainer" />
+
+   <class name="xAOD::jFexSumETRoI_v1" />
+   <class name="xAOD::jFexSumETRoIContainer_v1"
+          id="950203D1-652B-40E6-AE53-9F6E27870A42" />
+   <typedef name="xAOD::jFexSumETRoI" />
+   <typedef name="xAOD::jFexSumETRoIContainer" />
+
+   <class name="xAOD::jFexMETRoI_v1" />
+   <class name="xAOD::jFexMETRoIContainer_v1"
+          id="A54FC0F8-7E79-487A-BEB9-DDE949C05A0A" />
+   <typedef name="xAOD::jFexMETRoI" />
+   <typedef name="xAOD::jFexMETRoIContainer" />
+
+   <class name="xAOD::gFexGlobalRoI_v1" />
+   <class name="xAOD::gFexGlobalRoIContainer_v1"
+          id="CD053646-F310-4EDA-9378-E1282C413A22" />
+   <typedef name="xAOD::gFexGlobalRoI" />
+   <typedef name="xAOD::gFexGlobalRoIContainer" />
+
+   <class name="xAOD::gFexJetRoI_v1" />
+   <class name="xAOD::gFexJetRoIContainer_v1"
+          id="4BFC5008-7A84-4A04-9E7D-ABF8B124CFEF" />
+   <typedef name="xAOD::gFexJetRoI" />
+   <typedef name="xAOD::gFexJetRoIContainer" />
+
   <!-- RoI auxilliary types --> 
    <class name="xAOD::eFexEMRoIAuxContainer_v1"
           id="6A1D7149-7476-4F23-8896-D88CB3BF6846" />
    <typedef name="xAOD::eFexEMRoIAuxContainer" />
+
+   <class name="xAOD::eFexTauRoIAuxContainer_v1"
+          id="65EBD869-7A69-4C02-977F-9421D67F71B8" />
+   <typedef name="xAOD::eFexTauRoIAuxContainer" />
+ 
+   <class name="xAOD::jFexSRJetRoIAuxContainer_v1"
+          id="45AADB27-2172-4F48-872A-42FC9F33F47F" />
+   <typedef name="xAOD::jFexSRJetRoIAuxContainer" />
+
+   <class name="xAOD::jFexLRJetRoIAuxContainer_v1"
+	   id="6401BE49-73BA-4FB3-B2BD-39CB60D7DE62" />
+   <typedef name="xAOD::jFexLRJetRoIAuxContainer" />
+
+   <class name="xAOD::jFexTauRoIAuxContainer_v1"
+          id="F5FD3587-4A02-456B-9A0D-02CC303E25A0" />
+   <typedef name="xAOD::jFexTauRoIAuxContainer" />
+
+   <class name="xAOD::jFexSumETRoIAuxContainer_v1"
+          id= "BF6CFD18-1A2B-419F-81A7-5E3F44086733" />
+   <typedef name="xAOD::jFexSumETRoIAuxContainer" />
+
+   <class name="xAOD::jFexMETRoIAuxContainer_v1"
+          id="DFB3DCF4-6C8F-4006-9682-D2F65C9DE755" />
+   <typedef name="xAOD::jFexMETRoIAuxContainer" />
+    
+   <class name="xAOD::gFexGlobalRoIAuxContainer_v1"
+          id="B73CF3F4-9E94-4F99-834D-A6AE68968B2D" />
+   <typedef name="xAOD::gFexGlobalRoIAuxContainer" />
+
+   <class name="xAOD::gFexJetRoIAuxContainer_v1"
+          id="6E01273B-FFF8-4D3C-95F9-7F0691DB85E8" />
+   <typedef name="xAOD::gFexJetRoIAuxContainer" />
 
    <!-- xAOD::TriggerMenu interface type(s). -->
    <class name="xAOD::TriggerMenu_v1" />
@@ -189,6 +269,7 @@
    <class name="xAOD::RoiDescriptorStore_v1"
           id="882822c8-906a-11e5-87f4-02163e010d8c" />
    <typedef name="xAOD::RoiDescriptorStore" />
+
 
    <!-- xAOD::RoiDescriptorStore auxiliary type(s). -->
    <class name="xAOD::RoiDescriptorStoreAuxInfo_v1"

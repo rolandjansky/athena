@@ -216,7 +216,7 @@ StatusCode LArWFParamTool::getLArWaveParams(const LArCaliWave& larCaliWave,
   if ( wfParams.tcal() == DoExtract ) {
     const double Tcal = expTail(gCali,waveTiming) ;
     if ( Tcal < 0 ) {
-      ATH_MSG_WARNING( "Could not extract Tcal for ChID=" << chid.get_compact() 
+      ATH_MSG_WARNING( "Could not extract Tcal for " << m_onlineHelper->channel_name(chid) 
 			<< " gain=" << (int)gain ) ;
       wfParams.setTcal(FailExtract);
       return StatusCode::FAILURE;
@@ -231,7 +231,7 @@ StatusCode LArWFParamTool::getLArWaveParams(const LArCaliWave& larCaliWave,
   if ( wfParams.fstep() == DoExtract ) {
     StatusCode sc = GetFstep(gCali,wfParams,waveTiming);
     if ( sc.isFailure() ) {
-      ATH_MSG_WARNING( "Could not extract Fstep for ChID=" << chid.get_compact() 
+      ATH_MSG_WARNING( "Could not extract Fstep for " << m_onlineHelper->channel_name(chid) 
 			<< " gain=" << (int)gain );
       wfParams.setFstep(FailExtract);
       return sc ;
@@ -244,7 +244,7 @@ StatusCode LArWFParamTool::getLArWaveParams(const LArCaliWave& larCaliWave,
   if ( wfParams.omega0() == DoExtract ) {
     StatusCode sc = RTM_Omega0(gCali,chid,wfParams,waveTiming,cabling,omegaScanWave);
     if ( sc.isFailure() ) {
-      ATH_MSG_WARNING( "Could not extract Omega0 for ChID=" << chid.get_compact() 
+      ATH_MSG_WARNING( "Could not extract Omega0 for " << m_onlineHelper->channel_name(chid)  
 			<< " gain=" << (int)gain ); 
       wfParams.setOmega0(FailExtract) ;
       return sc ;
@@ -258,7 +258,7 @@ StatusCode LArWFParamTool::getLArWaveParams(const LArCaliWave& larCaliWave,
   const unsigned layer=m_emId->sampling(id);
   if ( m_storeResOscill[ layer ] && resOscill0) {
     LArWave injres0 = injRespRes(gCali,wfParams.omega0(),0);
-    *resOscill0 = LArCaliWave(injres0.getWave(),gCali.getDt(),gCali.getDAC());
+    *resOscill0 = LArCaliWave(injres0.getWave(),gCali.getDt(),gCali.getDAC(), 0x1);
   }
 
   // find m_Taur using RTM
@@ -277,7 +277,7 @@ StatusCode LArWFParamTool::getLArWaveParams(const LArCaliWave& larCaliWave,
 
   if ( m_storeResOscill[ layer ] && resOscill1) {
     LArWave injres1 = injRespRes(gCali,wfParams.omega0(),wfParams.taur());
-    *resOscill1 = LArCaliWave(injres1.getWave(),gCali.getDt(),gCali.getDAC());  
+    *resOscill1 = LArCaliWave(injres1.getWave(),gCali.getDt(),gCali.getDAC(), 0x1);  
   }
 
   return( StatusCode::SUCCESS );

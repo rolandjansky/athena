@@ -46,7 +46,6 @@ StatusCode EnhancedBiasWeighter::initialize()
         ATH_MSG_FATAL("For MC rates, a cross section and filter efficiency must be supplied.");
         return StatusCode::FAILURE;
       }
-      m_bcTool.setTypeAndName("Trig::MCBunchCrossingTool/BunchCrossingTool");
       m_deadtime = 1.; // No deadtime for MC
       m_pairedBunches = FULL_RING; // Assume full-ring
       const float mcCrossSectionInSqCm = 1e-33 * m_mcCrossSection; // Convert nb -> cm^2 
@@ -62,11 +61,10 @@ StatusCode EnhancedBiasWeighter::initialize()
       ATH_MSG_INFO ("calculateWeightingData is TRUE. This job will read in EnhancedBias weighting data from CVMFS and COOL.");
       ATH_CHECK( loadWeights() );
       ATH_CHECK( loadLumi() );
-      m_bcTool.setTypeAndName("Trig::LHCBunchCrossingTool/BunchCrossingTool");
 
     } // end isData
 
-    if (m_useBunchCrossingTool) ATH_CHECK( m_bcTool.retrieve() );
+    if (m_useBunchCrossingTool) ATH_CHECK( m_bunchCrossingKey.initialize() );
 
   } else {
     ATH_MSG_INFO ("calculateWeightingData is FALSE. This job must be running over an EnhancedBias TRIG1 dAOD which has already been decorated with weighting data.");
@@ -222,6 +220,7 @@ StatusCode EnhancedBiasWeighter::loadLumi()
 
       XMLNodePointer_t node = xml->GetChild( listNode );
       while( node != 0) { 
+        m_bunches.push_back( std::atoi( xml->GetNodeContent(node) ) );
         if ( xml->GetNodeName(node) == std::string("bunchgroup") && xml->HasAttr(node, "name") &&
             (std::string(xml->GetAttr(node, "name")) == "Paired" || std::string(xml->GetAttr(node, "name")) == "Filled")) {
           m_pairedBunches = std::atoi( xml->GetNodeContent(node) );
@@ -708,6 +707,9 @@ bool EnhancedBiasWeighter::isMC() const {
   return m_isMC;
 }
 
+uint32_t EnhancedBiasWeighter::getRunNumber() const {
+  return m_runNumber;
+}
 
 double EnhancedBiasWeighter::getLBLumi(const xAOD::EventInfo* eventInfo) const
 {
@@ -776,18 +778,23 @@ uint32_t EnhancedBiasWeighter::getPairedBunches() const
   return m_pairedBunches;
 }
 
-uint32_t EnhancedBiasWeighter::getDistanceIntoTrain(const xAOD::EventInfo* eventInfo) const
+StatusCode EnhancedBiasWeighter::getDistanceIntoTrain(const xAOD::EventInfo* eventInfo, uint32_t& distance) const
 {
   if (m_calculateWeightingData) {
 
-    if (!m_useBunchCrossingTool) return 0;
-    return m_bcTool->distanceFromFront( eventInfo->bcid(), Trig::IBunchCrossingTool::BunchCrossings );
+    if (!m_useBunchCrossingTool) return StatusCode::SUCCESS;
+
+    const EventContext& context = Gaudi::Hive::currentContext();
+    SG::ReadCondHandle<BunchCrossingCondData> bunchCrossingTool (m_bunchCrossingKey, context);
+    ATH_CHECK( bunchCrossingTool.isValid() );
+    distance = bunchCrossingTool->distanceFromFront( eventInfo->bcid(), BunchCrossingCondData::BunchDistanceType::BunchCrossings );
 
   } else {
 
-    return eventInfo->auxdata<uint32_t>("BCIDDistanceFromFront");
+    distance = eventInfo->auxdata<uint32_t>("BCIDDistanceFromFront");
 
   }
+  return StatusCode::SUCCESS;
 }
 
 double EnhancedBiasWeighter::getAverageLumi() const
@@ -823,7 +830,9 @@ StatusCode EnhancedBiasWeighter::addBranches() const
   SG::AuxElement::Decorator< char >     decoratorGoodLBFlag("IsGoodLBFlag");  
 
   const xAOD::EventInfo* eventInfo(nullptr);
+  uint32_t distance = 0;
   ATH_CHECK( evtStore()->retrieve(eventInfo, "EventInfo") );
+  ATH_CHECK( getDistanceIntoTrain(eventInfo, distance) );
 
   decoratorEBWeight(*eventInfo) = getEBWeight(eventInfo);
   decoratorEBLivetime(*eventInfo) = getEBLiveTime(eventInfo);
@@ -831,7 +840,7 @@ StatusCode EnhancedBiasWeighter::addBranches() const
   decoratorUnbiasedFlag(*eventInfo) = isUnbiasedEvent(eventInfo);
   decoratorGoodLBFlag(*eventInfo) = isGoodLB(eventInfo);
   decoratorDeadtime(*eventInfo) = m_deadtime;
-  decoratorBCIDDistanceFromFront(*eventInfo) = getDistanceIntoTrain(eventInfo);
+  decoratorBCIDDistanceFromFront(*eventInfo) = distance;
 
   return StatusCode::SUCCESS;
 }

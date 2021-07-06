@@ -3,7 +3,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-def CaloRecoCfg(configFlags):
+def CaloRecoCfg(configFlags, clustersname=None,doLCCalib=None):
     
     result=ComponentAccumulator()
     if not configFlags.Input.isMC:
@@ -23,6 +23,9 @@ def CaloRecoCfg(configFlags):
         from TileRecUtils.TileRawChannelMakerConfig import TileRawChannelMakerCfg
         result.merge( TileRawChannelMakerCfg(configFlags) )
 
+        from LArCellRec.LArTimeVetoAlgConfig import LArTimeVetoAlgCfg
+        result.merge(LArTimeVetoAlgCfg(configFlags))
+
               
     #Configure cell-building
     from CaloRec.CaloCellMakerConfig import CaloCellMakerCfg
@@ -30,7 +33,7 @@ def CaloRecoCfg(configFlags):
     
     #Configure topo-cluster builder
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
-    result.merge(CaloTopoClusterCfg(configFlags))
+    result.merge(CaloTopoClusterCfg(configFlags, clustersname=clustersname, doLCCalib=doLCCalib))
 
     return result
 
@@ -44,6 +47,9 @@ if __name__=="__main__":
     log.setLevel(DEBUG)
 
     ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data17_13TeV.00330470.physics_Main.daq.RAW._lb0310._SFO-1._0001.data",]
+
+    ConfigFlags.fillFromArgs()
+
     ConfigFlags.lock()
 
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg 

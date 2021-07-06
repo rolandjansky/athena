@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -84,6 +84,12 @@ namespace InDet{
          bool                                                &,
          const EventContext&);
 
+      double pTseed
+	(const Trk::TrackParameters                          &,
+	 std::list<const InDet::SiCluster*>                  &,
+	 std::vector<const InDet::SiDetElementBoundaryLink_xk*>&,
+	 const EventContext&);
+
       bool trackParametersToClusters
         (const PixelClusterContainer*                             ,
          const SCT_ClusterContainer*                              ,
@@ -103,19 +109,38 @@ namespace InDet{
       bool backwardExtension(int);
       bool forwardExtension (bool,int);
       bool forwardFilter    ();
+      bool filterWithPreciseClustersError();
       bool backwardSmoother (bool);
       bool isLastPixel      ();
-      const Trk::TrackParameters* firstTrackParameters();
+      Trk::TrackParameters* firstTrackParameters();
       void getClusters(std::list<const InDet::SiCluster*>&);
 
-      DataVector<const Trk::TrackStateOnSurface>* convertToTrackStateOnSurface();
-      DataVector<const Trk::TrackStateOnSurface>* convertToTrackStateOnSurface(int);
-      DataVector<const Trk::TrackStateOnSurface>* convertToTrackStateOnSurfaceWithNewDirection();
-      DataVector<const Trk::TrackStateOnSurface>* convertToNextTrackStateOnSurface();
+      DataVector<const Trk::TrackStateOnSurface>
+      convertToTrackStateOnSurface();
 
-      DataVector<const Trk::TrackStateOnSurface>* convertToSimpleTrackStateOnSurface();
-      DataVector<const Trk::TrackStateOnSurface>* convertToSimpleTrackStateOnSurface(int);
-      DataVector<const Trk::TrackStateOnSurface>* convertToSimpleTrackStateOnSurfaceWithNewDirection();
+      DataVector<const Trk::TrackStateOnSurface>
+      convertToTrackStateOnSurface(int);
+
+      DataVector<const Trk::TrackStateOnSurface>
+      convertToTrackStateOnSurfaceWithNewDirection();
+
+      DataVector<const Trk::TrackStateOnSurface>
+      convertToNextTrackStateOnSurface();
+
+      DataVector<const Trk::TrackStateOnSurface>
+      convertToSimpleTrackStateOnSurface();
+
+      DataVector<const Trk::TrackStateOnSurface>
+      convertToSimpleTrackStateOnSurface(int);
+
+      DataVector<const Trk::TrackStateOnSurface>
+      convertToSimpleTrackStateOnSurfaceWithNewDirection();
+
+      DataVector<const Trk::TrackStateOnSurface>
+      convertToSimpleTrackStateOnSurfaceForDisTrackTrigger();
+
+      DataVector<const Trk::TrackStateOnSurface>
+      convertToSimpleTrackStateOnSurfaceForDisTrackTrigger(int);
 
       Trk::FitQuality* convertToFitQuality();
 
@@ -158,6 +183,7 @@ namespace InDet{
                                                             /// Each one corresponds to one detector element on
                                                             /// the search road 
       const InDet::SiTools_xk*          m_tools           ; //
+      std::unique_ptr<const Trk::Surface> m_surfacedead   ;
       PatternHoleSearchOutcome    m_patternHoleOutcome; 
 
       ///////////////////////////////////////////////////////////////////

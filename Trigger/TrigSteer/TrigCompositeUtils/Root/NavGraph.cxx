@@ -7,12 +7,21 @@
 
 namespace TrigCompositeUtils {
 
-  NavGraphNode::NavGraphNode(const Decision* me) : m_decisionObject(me){
+  NavGraphNode::NavGraphNode(const Decision* me) : m_decisionObject(me), 
+    m_filteredSeeds(), m_filteredChildren(), m_keepFlag(false)
+  {
   }
 
 
-  bool NavGraphNode::linksTo(const NavGraphNode* to) {
+  bool NavGraphNode::linksTo(NavGraphNode* to) {
+    to->m_filteredChildren.insert(this);
     return (m_filteredSeeds.insert(to)).second; // Return TRUE if a new edge is added
+  }
+
+
+  void NavGraphNode::dropLinks(NavGraphNode* node) {
+    m_filteredChildren.erase(node);
+    m_filteredSeeds.erase(node);
   }
 
 
@@ -21,8 +30,27 @@ namespace TrigCompositeUtils {
   }
 
 
-  const std::set<const NavGraphNode*>& NavGraphNode::seeds() const {
+  const std::set<NavGraphNode*>& NavGraphNode::seeds() const {
     return m_filteredSeeds;
+  }
+
+  const std::set<NavGraphNode*>& NavGraphNode::children() const {
+    return m_filteredChildren;
+  }
+
+
+  void NavGraphNode::keep() {
+    m_keepFlag = true;
+  }
+
+
+  void NavGraphNode::resetKeep() {
+    m_keepFlag = false;
+  }
+
+ 
+  bool NavGraphNode::getKeep() const {
+    return m_keepFlag;
   }
 
 
@@ -50,8 +78,17 @@ namespace TrigCompositeUtils {
   }
 
 
-  const std::set<NavGraphNode*>& NavGraph::finalNodes() const {
+  std::set<NavGraphNode*> NavGraph::finalNodes() const {
     return m_finalNodes;
+  }
+
+  std::set<NavGraphNode*> NavGraph::allNodes() {
+    std::set<NavGraphNode*> returnSet;
+    for (auto& entry : m_nodes) {
+      NavGraphNode& n = entry.second;
+      returnSet.insert( &n );
+    }
+    return returnSet;
   }
 
 
@@ -64,13 +101,54 @@ namespace TrigCompositeUtils {
     return m_edges;
   }
 
+  std::set<const Decision*> NavGraph::thin() {
+    std::set<const Decision*> returnSet;
+    std::map<const Decision*, NavGraphNode>::iterator it;
+    for (it = m_nodes.begin(); it != m_nodes.end(); /*noop*/) {
+      if (it->second.getKeep()) {
+        it->second.resetKeep();
+        ++it;
+      } else {
+        returnSet.insert(it->first);
+        rewireNodeForRemoval(it->second);
+        it = m_nodes.erase(it);
+      }
+    }
+    return returnSet;
+  }
+
+  void NavGraph::rewireNodeForRemoval(NavGraphNode& toBeDeleted) {
+    const std::set<NavGraphNode*> myParents = toBeDeleted.seeds();
+    const std::set<NavGraphNode*> myChildren = toBeDeleted.children();
+
+    // Perform the (potentially) many-to-many re-linking required to remove toBeDeleted from the graph
+    for (NavGraphNode* child : myChildren) {
+      for (NavGraphNode* parent : myParents) {
+        bool newEdge = child->linksTo(parent);
+        if (newEdge) {
+          ++m_edges;
+        }
+      }
+    }
+
+    // Remove the edges connecting to toBeDeleted from all of its children and all of parents
+    for (NavGraphNode* child : myChildren) {
+      child->dropLinks(&toBeDeleted);
+      --m_edges;
+    }
+    for (NavGraphNode* parent : myParents) {
+      parent->dropLinks(&toBeDeleted);
+      --m_edges;
+    }
+  }
+
 
   void NavGraph::printAllPaths(MsgStream& log, MSG::Level msgLevel) const {
     // finalNodes() is a set<NavGraphNode*>, so iteration over it
     // will not be in any well-defined order.  Sort the set of pointers
     // by name so that the output is predictable.
-    std::vector<const NavGraphNode*> nodes (finalNodes().begin(),
-                                            finalNodes().end());
+    std::vector<const NavGraphNode*> nodes (m_finalNodes.begin(),
+                                            m_finalNodes.end());
     std::sort (nodes.begin(), nodes.end(),
                [] (const NavGraphNode* a, const NavGraphNode* b)
                {
@@ -90,7 +168,23 @@ namespace TrigCompositeUtils {
     for (size_t i = 0; i < level; ++i) {
       ss << "  ";
     }
-    ss << "|-> " << nodeEL.dataID() << " #" << nodeEL.index() << " (" << node->name() << ")";
+
+    ss << "|-> " << nodeEL.dataID() << " #" << nodeEL.index() << " Name(" << node->name() << ") Passing(";
+    bool first = true;
+    for (DecisionID id : node->decisions()) {
+      if (!first) ss << ",";
+      first = false;
+      ss << id;
+    }
+    ss << ") IParticles(";
+    std::vector<std::string> links = node->getObjectNames<xAOD::IParticleContainer>();
+    first = true;
+    for (const std::string& link : links) {
+      if (!first) ss << ",";
+      first = false;
+      ss << link;
+    }
+    ss << ")";
     log << msgLevel << ss.str() << endmsg;
     for (const NavGraphNode* seed : nav.seeds()) {
       recursivePrintNavPath(*seed, level + 1, log, msgLevel);

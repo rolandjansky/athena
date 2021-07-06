@@ -1,12 +1,12 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
-from TriggerMenuMT.HLTMenuConfig.Egamma.PhotonDef import PhotonChainConfiguration as PhotonChainConfiguration
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
+from ..Menu.ChainDictTools import splitChainDict
+from ..Menu.ChainMerging import mergeChainDefs
+from .PhotonChainConfiguration import PhotonChainConfiguration
 
 import pprint
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Egamma.generateChainConfigs' )
+log = logging.getLogger(__name__)
 log.info("Importing %s",__name__)
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -15,22 +15,15 @@
 #ifndef TRIGBJETHYPO_TRIGBJETHYPOTOOL_H
 #define TRIGBJETHYPO_TRIGBJETHYPOTOOL_H 1
 
-// This is in current hypo, not sure if needed
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
-
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
 
 #include "xAODBTagging/BTaggingContainer.h"
 #include "xAODBTagging/BTaggingAuxContainer.h"
 
-// Are these new?
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
-#include "AthenaBaseComps/AthAlgTool.h" 
-#include "BeamSpotConditionsData/BeamSpotData.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 class TrigBjetBtagHypoTool : virtual public ::AthAlgTool {
 

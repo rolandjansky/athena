@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //#####################################################
@@ -19,11 +19,10 @@
 #include <ios>
 #include <algorithm>
 
-TBBeamQualityTrackingTool::TBBeamQualityTrackingTool(const std::string& name,
-						       const std::string& type,
-						       const IInterface* parent)
-  : TBBeamQualityTool(name,type,parent),
-    m_StoreGate(nullptr)
+TBBeamQualityTrackingTool::TBBeamQualityTrackingTool(const std::string& type,
+                                                     const std::string& name,
+                                                     const IInterface* parent)
+  : TBBeamQualityTool(type,name,parent)
 {  
 
   // defaults are 0, which means no cut.
@@ -49,50 +48,29 @@ StatusCode TBBeamQualityTrackingTool::initializeTool()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TBBeamQualityTrackingTool::accept(std::vector<std::string> m_particles)
+StatusCode TBBeamQualityTrackingTool::accept(const std::vector<std::string>& particles)
 {//accept
   
   MsgStream log(msgSvc(),name());
   
-  StatusCode sc = service("StoreGateSvc",m_StoreGate);
-  if ( sc.isFailure() )
-    {
-      log << MSG::ERROR
-          << "Cannot alllocate StoreGate service!"
-          << endmsg;
-    }
-   log << MSG::DEBUG << "Asked for : "<<m_particles.size()<<" particles"<<endmsg;
+   log << MSG::DEBUG << "Asked for : "<<particles.size()<<" particles"<<endmsg;
   
   // Retrieve Beam Track and select on chi2 values in x and y
 
   if (m_chi2cut_u>0. && m_chi2cut_v>0.) {
 
-    TBTrack *thisTBTrack;
-    sc = m_StoreGate->retrieve(thisTBTrack,"Track");
-    if (sc.isFailure()){
-      log << MSG::WARNING
-	  << "Retrieval of TBTrack failed"
-	  << endmsg;
+    TBTrack *thisTBTrack = nullptr;
+    ATH_CHECK( evtStore()->retrieve(thisTBTrack,"Track") );
+    if (thisTBTrack->getChi2_u() > m_chi2cut_u || thisTBTrack->getChi2_v() > m_chi2cut_v ) {
+      log << MSG::DEBUG
+          << "Rejecting event with chi2(u,v) = "
+          << thisTBTrack->getChi2_u()
+          << ", "
+          << thisTBTrack->getChi2_v()
+          << endmsg;
       return StatusCode::FAILURE;
     } else {
-      //          log << MSG::INFO
-      //    << "Retrieved track for quality check"
-      //    << "chi2(u,v) = "
-      //    << thisTBTrack->getChi2_u()
-      //    << ", "
-      //    << thisTBTrack->getChi2_v()
-      //    << endmsg;
-      if (thisTBTrack->getChi2_u() > m_chi2cut_u || thisTBTrack->getChi2_v() > m_chi2cut_v ) {
-	log << MSG::DEBUG
-	    << "Rejecting event with chi2(u,v) = "
-	    << thisTBTrack->getChi2_u()
-	    << ", "
-	    << thisTBTrack->getChi2_v()
-	    << endmsg;
-	return StatusCode::FAILURE;
-      } else {
-	return StatusCode::SUCCESS;
-      }
+      return StatusCode::SUCCESS;
     }
   } else { 	
     if (m_chi2cut_u==0. && m_chi2cut_v==0.) {

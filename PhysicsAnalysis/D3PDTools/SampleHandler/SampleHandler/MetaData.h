@@ -80,7 +80,6 @@ namespace SH
   template<class T> void MetaData<T> ::
   testInvariant () const
   {
-    RCU_INVARIANT (this != 0);
   }
 
 

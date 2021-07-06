@@ -136,7 +136,7 @@ class AtlasSimSkeleton(SimSkeleton):
         ## currently always switched on, else something like this will
         ## be required here.
         from G4AtlasApps.SimFlags import simFlags
-        include("InDetBeamSpotService/BeamCondSvc.py")
+        include("BeamSpotConditions/BeamCondAlgSetup.py")
 
         ## GeoModel stuff
         ## TODO: Tidy imports etc.

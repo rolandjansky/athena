@@ -60,8 +60,6 @@ namespace InDet {
       
       /** AlgTool initialize method */
       StatusCode initialize();
-      /** AlgTool finalize method */
-      StatusCode finalize();
        
       /** LayerBuilder interface method - returning Barrel-like layers */
       const std::vector< const Trk::CylinderLayer* >* cylindricalLayers() const; 

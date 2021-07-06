@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // METMaker.cxx
@@ -39,6 +39,9 @@
 
 // framework includes
 #include "AsgDataHandles/ReadHandle.h"
+#include "xAODPFlow/PFOAuxContainer.h"
+#include <xAODCore/AuxContainerBase.h>
+#include <AthContainers/AuxElement.h>
 
 namespace met {
 
@@ -65,7 +68,7 @@ namespace met {
   static const SG::AuxElement::ConstAccessor< iplink_t  > acc_originalObject("originalObjectLink");
   static const SG::AuxElement::ConstAccessor< std::vector<iplink_t > > acc_ghostMuons("GhostMuon");
   static const SG::AuxElement::ConstAccessor< std::vector<iplink_t > > acc_ghostElecs("GhostElec");
-  
+
   static const SG::AuxElement::ConstAccessor< std::vector<int> > acc_trkN("NumTrkPt500");
   static const SG::AuxElement::ConstAccessor< std::vector<float> > acc_trksumpt("SumPtTrkPt500");
   static const SG::AuxElement::ConstAccessor< std::vector<float> > acc_sampleE("EnergyPerSampling");
@@ -75,10 +78,9 @@ namespace met {
   static const SG::AuxElement::ConstAccessor<float> acc_width("Width");
   static const SG::AuxElement::ConstAccessor<float> acc_Eloss("EnergyLoss");
 
-  static const SG::AuxElement::Decorator< std::vector<iplink_t> > dec_constitObjLinks("ConstitObjectLinks");
-  static const SG::AuxElement::Decorator< std::vector<float> > dec_constitObjWeights("ConstitObjectWeights");
-  // Implement dphi as well if we start correcting the jet phi.
-  // static const SG::AuxElement::Decorator< std::vector<float> > dec_constitObjDphis("ConstitObjectDphis");
+  static const SG::AuxElement::Accessor< std::vector<iplink_t> > dec_constitObjLinks("ConstitObjectLinks");
+  static const SG::AuxElement::Accessor< std::vector<float> > dec_constitObjWeights("ConstitObjectWeights");
+
 
   ///////////////////////////////////////////////////////////////////
   // Public methods:
@@ -117,15 +119,19 @@ namespace met {
 
     declareProperty("DoMuonEloss",        m_muEloss            = false               );
     declareProperty("ORCaloTaggedMuons",  m_orCaloTaggedMuon   = true                );
-    
+    declareProperty("GreedyPhotons",      m_greedyPhotons      = false               );
+    declareProperty("VeryGreedyPhotons",  m_veryGreedyPhotons  = false               );
+
+
     declareProperty("UseGhostMuons",      m_useGhostMuons      = false               );
     declareProperty("DoRemoveMuonJets",   m_doRemoveMuonJets   = true                );
     declareProperty("DoSetMuonJetEMScale", m_doSetMuonJetEMScale = true              );
-    
+
     declareProperty("DoRemoveElecTrks",   m_doRemoveElecTrks   = true                );
-    declareProperty("DoRemoveElecTrksEM", m_doRemoveElecTrksEM = false               );    
+    declareProperty("DoRemoveElecTrksEM", m_doRemoveElecTrksEM = false               );
 
     declareProperty("TrackSelectorTool",  m_trkseltool                               );
+
   }
 
   // Destructor
@@ -138,19 +144,19 @@ namespace met {
   StatusCode METMaker::initialize()
   {
     ATH_MSG_INFO ("Initializing " << name() << "...");
-    
+
     //default jet selection i.e. pre-recommendation
     ATH_MSG_VERBOSE("Use jet selection criterion: " << m_jetSelection);
     if (m_jetSelection == "Default")     { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; m_JvtCut = 0.59; m_JvtPtMax = 60e3;}
     else if (m_jetSelection == "PFlow")  { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; m_JvtCut = 0.2; m_JvtPtMax = 60e3;}
     else if (m_jetSelection == "Tight")  { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 30e3; m_JvtCut = 0.59; m_JvtPtMax = 60e3;}
     else if (m_jetSelection == "Tier0")  { m_CenJetPtCut = 0;    m_FwdJetPtCut = 0;    m_JvtCut = -1;   m_JvtPtMax = 0;}
-    else if (m_jetSelection == "Expert")  { 
+    else if (m_jetSelection == "Expert")  {
       ATH_MSG_INFO("Custom jet selection configured. *** FOR EXPERT USE ONLY ***");
       m_CenJetPtCut = m_customCenJetPtCut;
       m_FwdJetPtCut = m_customFwdJetPtCut;
       m_JvtCut = m_customJvtCut;
-      m_JvtPtMax = m_customJvtPtMax; 
+      m_JvtPtMax = m_customJvtPtMax;
     }
     else { ATH_MSG_ERROR( "Error: No available jet selection found! Choose one: Default, Tight, PFlow, Expert" ); return StatusCode::FAILURE; }
 
@@ -170,19 +176,6 @@ namespace met {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode METMaker::finalize()
-  {
-    ATH_MSG_INFO ("Finalizing " << name() << "...");
-
-    return StatusCode::SUCCESS;
-  }
-
-  // StatusCode METMaker::execute()
-  // {
-  //   ATH_MSG_DEBUG ( name() << " in execute...");
-
-  //   return StatusCode::SUCCESS;
-  // }
 
   // **** Rebuild generic MET term ****
 
@@ -190,7 +183,7 @@ namespace met {
                                   xAOD::Type::ObjectType metType,
                                   xAOD::MissingETContainer* metCont,
                                   const xAOD::IParticleContainer* collection,
-                                  xAOD::MissingETAssociationHelper* helper,
+                                  xAOD::MissingETAssociationHelper& helper,
                                   MissingETBase::UsageHandler::Policy objScale)
   {
     MissingETBase::Types::bitmask_t metSource;
@@ -236,7 +229,7 @@ namespace met {
 
   StatusCode METMaker::rebuildMET(xAOD::MissingET* met,
                                   const xAOD::IParticleContainer* collection,
-                                  xAOD::MissingETAssociationHelper* helper,
+                                  xAOD::MissingETAssociationHelper& helper,
                                   MissingETBase::UsageHandler::Policy objScale)
   {
     MissingETBase::UsageHandler::Policy p = MissingETBase::UsageHandler::OnlyCluster;
@@ -255,18 +248,17 @@ namespace met {
 
   StatusCode METMaker::rebuildMET(xAOD::MissingET* met,
                                   const xAOD::IParticleContainer* collection,
-                                  xAOD::MissingETAssociationHelper* helper,
+                                  xAOD::MissingETAssociationHelper& helper,
                                   MissingETBase::UsageHandler::Policy p,
                                   bool removeOverlap,
                                   MissingETBase::UsageHandler::Policy objScale) {
-    if(!met || !collection || !helper) {
+    if(!met || !collection) {
       ATH_MSG_WARNING("Invalid pointer supplied for "
-                      << "MET (" << met << "), "
-                      << "collection (" << collection << "), "
-                      << "or helper (" << helper << ").");
+                      << "MET (" << met << ") or "
+                      << "collection (" << collection << ").");
       return StatusCode::SUCCESS;
     }
-    const xAOD::MissingETAssociationMap* map = helper->map();
+    const xAOD::MissingETAssociationMap* map = helper.map();
     if(!map){
       ATH_MSG_WARNING("MET Association Helper isn't associated with a MissingETAssociationMap!");
       return StatusCode::SUCCESS;
@@ -296,7 +288,7 @@ namespace met {
       } else {
         ATH_MSG_VERBOSE("Original inputs? " << originalInputs);
       }
-      for(const auto& obj : *collection) {
+      for(const auto *const obj : *collection) {
         const IParticle* orig = obj;
         bool selected = false;
         if(!originalInputs) { orig = *acc_originalObject(*obj); }
@@ -312,6 +304,21 @@ namespace met {
         ATH_MSG_VERBOSE(obj->type() << " (" << orig <<") with pt " << obj->pt()
                         << " is " << ( selected ? "non-" : "") << "overlapping");
 
+        // Greedy photon options: set selection flags
+        if ((m_greedyPhotons || m_veryGreedyPhotons) && selected && obj->type() == xAOD::Type::Photon){
+          for(const xAOD::MissingETAssociation* assoc : assocs){
+            std::vector<size_t> indices = assoc->overlapIndices(orig);
+            std::vector<const xAOD::IParticle*> allObjects = assoc->objects();
+            for (size_t index : indices){
+              const xAOD::IParticle* thisObj = allObjects[index];
+              if(!thisObj) continue;
+              if ((thisObj->type() == xAOD::Type::Jet && m_veryGreedyPhotons) ||
+                   thisObj->type() == xAOD::Type::Electron)
+                helper.setObjSelectionFlag(assoc, thisObj, true);
+            }
+          }
+        }
+
         //Do special overlap removal for calo tagged muons
         if(m_orCaloTaggedMuon && !removeOverlap && orig->type()==xAOD::Type::Muon && static_cast<const xAOD::Muon*>(orig)->muonType()==xAOD::Muon::CaloTagged) {
           for (size_t i = 0; i < assocs.size(); i++) {
@@ -319,7 +326,7 @@ namespace met {
             std::vector<const xAOD::IParticle*> allObjects = assocs[i]->objects();
             for (size_t indi = 0; indi < ind.size(); indi++) if (allObjects[ind[indi]]) {
                 if (allObjects[ind[indi]]->type()==xAOD::Type::Electron
-                    && helper->objSelected(assocs[i], ind[indi])) {
+                    && helper.objSelected(assocs[i], ind[indi])) {
                   selected = false;
                   break;
                 }
@@ -354,7 +361,7 @@ namespace met {
                                      xAOD::MissingETContainer* metCont,
                                      const xAOD::JetContainer* jets,
                                      const xAOD::MissingETContainer* metCoreCont,
-                                     xAOD::MissingETAssociationHelper* helper,
+                                     xAOD::MissingETAssociationHelper& helper,
                                      bool doJetJVT)
   {
     ATH_MSG_VERBOSE("Rebuild jet term: " << metJetKey << " and soft term: " << softKey);
@@ -365,8 +372,8 @@ namespace met {
       return StatusCode::FAILURE;
     }
 
-    const MissingET *coreSoftClus(0), *coreSoftTrk(0);
-    MissingET *metSoftClus(0), *metSoftTrk(0);
+    const MissingET *coreSoftClus(nullptr), *coreSoftTrk(nullptr);
+    MissingET *metSoftClus(nullptr), *metSoftTrk(nullptr);
 
     const MissingET* coreSoft = (*metCoreCont)[softKey+"Core"];
     if(!coreSoft) {
@@ -402,7 +409,7 @@ namespace met {
                                        xAOD::MissingETContainer* metCont,
                                        const xAOD::JetContainer* jets,
                                        const xAOD::MissingETContainer* metCoreCont,
-                                       xAOD::MissingETAssociationHelper* helper,
+                                       xAOD::MissingETAssociationHelper& helper,
                                        bool doJetJVT)
   {
     ATH_MSG_VERBOSE("Rebuild jet term: " << metJetKey << " and soft term: " << softKey);
@@ -413,8 +420,8 @@ namespace met {
       return StatusCode::FAILURE;
     }
 
-    const MissingET *coreSoftTrk(0);
-    MissingET *metSoftTrk(0);
+    const MissingET *coreSoftTrk(nullptr);
+    MissingET *metSoftTrk(nullptr);
 
     const MissingET* coreSoft = (*metCoreCont)[softKey+"Core"];
     if(!coreSoft) {
@@ -440,7 +447,7 @@ namespace met {
                                      xAOD::MissingETContainer* metCont,
                                      const xAOD::JetContainer* jets,
                                      const xAOD::MissingETContainer* metCoreCont,
-                                     xAOD::MissingETAssociationHelper* helper,
+                                     xAOD::MissingETAssociationHelper& helper,
                                      bool doJetJVT)
   {
 
@@ -482,7 +489,7 @@ namespace met {
 
   StatusCode METMaker::rebuildJetMET(xAOD::MissingET* metJet,
                                      const xAOD::JetContainer* jets,
-                                     xAOD::MissingETAssociationHelper* helper,
+                                     xAOD::MissingETAssociationHelper& helper,
                                      xAOD::MissingET* metSoftClus,
                                      const xAOD::MissingET* coreSoftClus,
                                      xAOD::MissingET* metSoftTrk,
@@ -490,14 +497,13 @@ namespace met {
                                      bool doJetJVT,
                                      bool tracksForHardJets,
                                      std::vector<const xAOD::IParticle*>* softConst) {
-    if(!metJet || !jets || !helper) {
+    if(!metJet || !jets) {
       ATH_MSG_WARNING("Invalid pointer supplied for "
-                      << "MET (" << metJet << "), "
-                      << "jet collection (" << jets << "), "
-                      << "or helper (" << helper << ").");
+                      << "MET (" << metJet << ") or "
+                      << "jet collection (" << jets << ").");
       return StatusCode::SUCCESS;
     }
-    const xAOD::MissingETAssociationMap* map = helper->map();
+    const xAOD::MissingETAssociationMap* map = helper.map();
     if(!map){
       ATH_MSG_WARNING("MET Association Helper isn't associated with a MissingETAssociationMap!");
       return StatusCode::SUCCESS;
@@ -505,7 +511,7 @@ namespace met {
     if(softConst && m_trkseltool.empty() && !m_doPFlow && !m_doSoftTruth) {
       ATH_MSG_WARNING( "Requested soft track element links, but no track selection tool supplied.");
     }
-    const xAOD::Vertex *pv = softConst?getPV():0;
+    const xAOD::Vertex *pv = softConst?getPV():nullptr;
 
     if(map->empty()) {
       ATH_MSG_WARNING("Incomplete association map received. Cannot rebuild MET.");
@@ -570,8 +576,8 @@ namespace met {
     std::vector<float> softJetWeights;
     bool originalInputs = jets->empty() ? false : !acc_originalObject.isAvailable(*jets->front());
 
-    for(const auto& jet : *jets) {
-      const MissingETAssociation* assoc = 0;
+    for(const auto *const jet : *jets) {
+      const MissingETAssociation* assoc = nullptr;
       if(originalInputs) {
         assoc = MissingETComposition::getAssociation(map,jet);
       } else {
@@ -583,7 +589,7 @@ namespace met {
         bool selected = (fabs(jet->eta())<2.4 && jet->pt()>m_CenJetPtCut) || (fabs(jet->eta())>=2.4 && jet->pt()>m_FwdJetPtCut );//jjj
         bool JVT_reject(false);
         bool isMuFSRJet(false);
-        
+
         if(doJetJVT) {
           if(jet->pt()<m_JvtPtMax && fabs(jet->eta())<2.4) {
             float jvt;
@@ -605,10 +611,14 @@ namespace met {
         ATH_MSG_DEBUG("Jet " << jet->index() << " is " << ( caloverlap ? "" : "non-") << "overlapping");
         if(caloverlap) {
           for(const auto& object : assoc->objects()) {
-            if(helper->objSelected(assoc, object)) {
-              ATH_MSG_VERBOSE("  Jet overlaps with " << object->type() << " " << object->index() 
+            if(helper.objSelected(assoc, object)) {
+              ATH_MSG_VERBOSE("  Jet overlaps with " << object->type() << " " << object->index()
                            << " with pt " << object->pt() << ", phi " << object->phi() );
             }
+
+            // Correctly handle this jet if we're using very greedy photons
+            if (object && object->type() == xAOD::Type::Photon && m_veryGreedyPhotons) hardJet = true;
+
           }
         }
 
@@ -629,7 +639,7 @@ namespace met {
         double opx = jpx - calvec.cpx();
         double opy = jpy - calvec.cpy();
 
-        MissingET* met_muonEloss(0);
+        MissingET* met_muonEloss(nullptr);
         if(m_muEloss || m_doSetMuonJetEMScale) {
           // Get a term to hold the Eloss corrections
           MissingETContainer* metCont = static_cast<MissingETContainer*>(metJet->container());
@@ -667,8 +677,8 @@ namespace met {
             ATH_MSG_VERBOSE("Muon " << mu_test->index() << " found in jet " << jet->index());
             if((m_doRemoveMuonJets || m_doSetMuonJetEMScale)) {
               if(acc_originalObject.isAvailable(*mu_test)) mu_test = static_cast<const xAOD::Muon*>(*acc_originalObject(*mu_test));
-              if(MissingETComposition::objSelected(helper,mu_test)) { // 
-                muons_in_jet.push_back(mu_test);                
+              if(MissingETComposition::objSelected(helper,mu_test)) { //
+                muons_in_jet.push_back(mu_test);
                 ATH_MSG_VERBOSE("Muon is selected by MET.");
               }
             }
@@ -676,7 +686,7 @@ namespace met {
             const xAOD::Electron* el_test(static_cast<const xAOD::Electron*>(obj));
             ATH_MSG_VERBOSE("Electron " << el_test->index() << " found in jet " << jet->index());
             if(acc_originalObject.isAvailable(*el_test)) el_test = static_cast<const xAOD::Electron*>(*acc_originalObject(*el_test));
-            if(helper->objSelected(assoc,el_test)){
+            if(helper.objSelected(assoc,el_test)){
               if(el_test->pt()>90.0e3) { // only worry about high-pt electrons?
                 electrons_in_jet.push_back(el_test);
                 ATH_MSG_VERBOSE("High-pt electron is selected by MET.");
@@ -810,8 +820,9 @@ namespace met {
         ATH_MSG_VERBOSE( "Jet constscale px, py, pt, E = " << jpx << ", " << jpy << ", " << jpt << ", " << constjet.E() );
         ATH_MSG_VERBOSE( "Jet overlap E = " << calvec.ce() - mu_calovec.ce() );
         ATH_MSG_VERBOSE( "Jet OR px, py, pt, E = " << opx << ", " << opy << ", " << opt << ", " << constjet.E() - calvec.ce() );
-          
+
         if(isMuFSRJet) {
+
           if(met_muonEloss) {
             met_muonEloss->add(opx,opy,opt);
           } else {
@@ -984,7 +995,7 @@ namespace met {
           if(obj->type()==xAOD::Type::Muon) {
             const xAOD::Muon* mu_test(static_cast<const xAOD::Muon*>(obj));
             if(acc_originalObject.isAvailable(*mu_test)) mu_test = static_cast<const xAOD::Muon*>(*acc_originalObject(*mu_test));
-            if(MissingETComposition::objSelected(helper,mu_test)) { // 
+            if(MissingETComposition::objSelected(helper,mu_test)) { //
               float mu_Eloss = acc_Eloss(*mu_test);
               switch(mu_test->energyLossType()) {
               case xAOD::Muon::Parametrized:
@@ -1034,17 +1045,17 @@ namespace met {
 
   StatusCode METMaker::rebuildTrackMET(xAOD::MissingET* metJet,
                                        const xAOD::JetContainer* jets,
-                                       xAOD::MissingETAssociationHelper* helper,
+                                       xAOD::MissingETAssociationHelper& helper,
                                        xAOD::MissingET* metSoftTrk,
                                        const xAOD::MissingET* coreSoftTrk,
                                        bool doJetJVT) {
-    return rebuildJetMET(metJet,jets,helper,NULL,NULL,metSoftTrk,coreSoftTrk,doJetJVT,true);
+    return rebuildJetMET(metJet,jets,helper,nullptr,nullptr,metSoftTrk,coreSoftTrk,doJetJVT,true);
   }
 
   // **** Remove objects and any overlaps from MET calculation ****
 
   StatusCode METMaker::markInvisible(const xAOD::IParticleContainer* collection,
-                                     xAOD::MissingETAssociationHelper* helper,
+                                     xAOD::MissingETAssociationHelper& helper,
                                      xAOD::MissingETContainer* metCont)
   {
 
@@ -1057,6 +1068,141 @@ namespace met {
     return rebuildMET(met,collection,helper,MissingETBase::UsageHandler::PhysicsObject);
   }
 
+
+
+  // Retrieve non overlapping constituents
+  ////////////////////////////////////////
+
+  // Fill OverlapRemovedCHSParticleFlowObjects
+  // and  OverlapRemovedCHSCharged/NeutralParticleFlowObjects
+  StatusCode METMaker::retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* cpfo, const xAOD::PFOContainer* npfo,
+			  xAOD::MissingETAssociationHelper& metHelper,
+			  xAOD::PFOContainer *OR_cpfos,
+			  xAOD::PFOContainer *OR_npfos,
+			  bool retainMuon,
+			  const xAOD::IParticleContainer* muonCollection)//,
+			  //MissingETBase::UsageHandler::Policy p); //
+  {
+
+    const xAOD::PFOContainer *OR_cpfos_tmp = retrieveOverlapRemovedConstituents(cpfo, metHelper,retainMuon,muonCollection);
+    const xAOD::PFOContainer *OR_npfos_tmp = retrieveOverlapRemovedConstituents(npfo, metHelper,retainMuon,muonCollection);
+
+    for (auto tmp_constit : static_cast<xAOD::PFOContainer>(*cpfo)){
+      xAOD::PFO* constit=new xAOD::PFO();
+      OR_cpfos->push_back(constit);
+      *constit=*tmp_constit;
+
+      bool keep=false;
+      for (const auto *const ORconstit : *OR_cpfos_tmp){
+	if (ORconstit->index()==tmp_constit->index() && ORconstit->charge()==tmp_constit->charge()) {keep=true;}
+      }
+      if (!keep){constit->setP4(0., 0., 0., 0.);}
+
+      ATH_MSG_VERBOSE("Constituent with index " << tmp_constit->index() << ", charge " << tmp_constit->charge()<< " pT " << tmp_constit->pt() << ((keep==true) ? "" : " not ") <<" in OverlapRemovedCHSParticleFlowObjects");
+    } // end cPFO loop
+
+    for (auto tmp_constit : static_cast<xAOD::PFOContainer>(*npfo)){
+      xAOD::PFO* constit=new xAOD::PFO();
+      OR_npfos->push_back(constit);
+      *constit=*tmp_constit;
+
+      bool keep=false;
+      for (const auto *const ORconstit : *OR_npfos_tmp){
+	if (ORconstit->index()==tmp_constit->index() && ORconstit->charge()==tmp_constit->charge()) {keep=true;}
+      }
+      if (!keep){ constit->setP4(0., 0., 0., 0.); }
+
+      ATH_MSG_VERBOSE("Constituent with index " << tmp_constit->index() << ", charge " << tmp_constit->charge()<< " pT " << tmp_constit->pt() << ((keep==true) ? "" : " not ") <<" in OverlapRemovedCHSParticleFlowObjects");
+    } // end nPFO loop/
+
+
+
+    return StatusCode::SUCCESS;
+  }
+
+  // Fill OverlapRemovedCHSParticleFlowObjects
+  StatusCode METMaker::retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* pfo,
+			  xAOD::MissingETAssociationHelper& metHelper,
+			  const xAOD::PFOContainer **OR_pfos,
+			  bool retainMuon,
+			  const xAOD::IParticleContainer* muonCollection)//,
+			  //MissingETBase::UsageHandler::Policy p); //
+  {
+     *OR_pfos=retrieveOverlapRemovedConstituents(pfo,metHelper,retainMuon,muonCollection);
+    return StatusCode::SUCCESS;
+  }
+
+
+  const xAOD::PFOContainer* METMaker::retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* signals,  xAOD::MissingETAssociationHelper& helper, bool retainMuon, const xAOD::IParticleContainer* muonCollection, MissingETBase::UsageHandler::Policy p)
+  {
+
+    ATH_MSG_VERBOSE("Policy " << p <<" " <<MissingETBase::UsageHandler::ParticleFlow);
+    const xAOD::MissingETAssociationMap* map = helper.map();
+
+
+    // If muon is selected, flag it as non selected to retain its constituents in OR jets (to recover std. muon-jet overlap)
+    std::vector<size_t> muon_index;
+    if (retainMuon){
+      bool originalInputs = !acc_originalObject.isAvailable(*muonCollection->front());
+
+      for(const auto *const obj : *muonCollection) {
+	const IParticle* orig = obj;
+	if(!originalInputs) { orig = *acc_originalObject(*obj); }
+	std::vector<const xAOD::MissingETAssociation*> assocs = xAOD::MissingETComposition::getAssociations(map,orig);
+	if(assocs.empty()) {
+	  ATH_MSG_WARNING("Object is not in association map. Did you make a deep copy but fail to set the \"originalObjectLinks\" decoration?");
+	  ATH_MSG_WARNING("If not, Please apply xAOD::setOriginalObjectLinks() from xAODBase/IParticleHelpers.h");
+	}
+	if(MissingETComposition::objSelected(helper,orig)) {
+	  ATH_MSG_DEBUG("Muon with index "<<orig->index() << " is selected. Flag it as non selected before getOverlapRemovedSignals");
+	  muon_index.push_back(orig->index());
+	  for(size_t i = 0; i < assocs.size(); i++) helper.setObjSelectionFlag(assocs[i],orig,false);
+	}
+      }
+
+      /*ATH_MSG_VERBOSE("Check selected muons before getOverlapRemovedSignals");
+      for(const auto& obj : *muonCollection) {
+	const IParticle* orig = obj;
+	if(!originalInputs) { orig = *acc_originalObject(*obj); }
+	ATH_MSG_VERBOSE("Muon with index "<<orig->index() << " is " << (MissingETComposition::objSelected(helper,orig) ? "" : "non-") << "selected" );
+      }*/
+    } // end retainMuon
+
+    const xAOD::PFOContainer* ORsignals =static_cast<const xAOD::PFOContainer*>(map->getOverlapRemovedSignals(helper,signals,p));
+
+    /*for (const auto tmp_const : *signals){ // printout overlap removed constituents
+      bool keep=false;
+      for (const auto constit : *ORsignals){
+	if (constit->index()==tmp_const->index() && constit->charge()==tmp_const->charge()){keep=true;}
+      }
+      if (keep==false){ANA_MSG_DEBUG("Retrieve OR constituents: DON'T keep " << tmp_const->index() << " with charge " <<  tmp_const->charge() << " and pt "<<tmp_const->pt());}
+    }*/
+
+    // Flag back muons as selected
+    if (retainMuon && !muon_index.empty()){
+      bool originalInputs = !acc_originalObject.isAvailable(*muonCollection->front());
+      for(const auto *const obj : *muonCollection) {
+	const IParticle* orig = obj;
+	if(!originalInputs) { orig = *acc_originalObject(*obj); }
+	std::vector<const xAOD::MissingETAssociation*> assocs = xAOD::MissingETComposition::getAssociations(map,orig);
+	for (size_t ind=0; ind<muon_index.size();ind++){
+	  if(orig->index()==muon_index.at(ind)) {
+	    for(size_t i = 0; i < assocs.size(); i++) helper.setObjSelectionFlag(assocs[i],orig,true);
+	  }
+	}
+      }
+      /*ATH_MSG_VERBOSE("Check selected muons after getOverlapRemovedSignals");
+      for(const auto& obj : *muonCollection) {
+	const IParticle* orig = obj;
+	if(!originalInputs) { orig = *acc_originalObject(*obj); }
+	ATH_MSG_VERBOSE("Muon with index "<<orig->index() << " is selected?" << MissingETComposition::objSelected(helper,orig));
+      }*/
+    }
+
+    return ORsignals;
+  }
+
+
   // Accept Track
   ////////////////
   bool METMaker::acceptTrack(const xAOD::TrackParticle* trk, const xAOD::Vertex* vx) const
@@ -1066,7 +1212,7 @@ namespace met {
 
   const xAOD::Vertex* METMaker::getPV() const {
 
-    const xAOD::Vertex *pv = 0;
+    const xAOD::Vertex *pv = nullptr;
 
     SG::ReadHandle<xAOD::VertexContainer> h_PV(m_PVkey);
 
@@ -1082,7 +1228,7 @@ namespace met {
 
       ATH_MSG_DEBUG("Successfully retrieved primary vertex container");
 
-      for(const auto& vx : *h_PV) {
+      for(const auto *const vx : *h_PV) {
 
          if(vx->vertexType()==xAOD::VxType::PriVtx) {
 

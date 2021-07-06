@@ -8,16 +8,7 @@
 # test below checks the Pythia8 release and also verifies that the Pythia_i
 # tag is recent enought to store the shower weights.
 
-if "PYTHIA8VER" in os.environ:
-  verph8str = str(os.environ['PYTHIA8VER'])[:3]
-  verph8 = int(verph8str)
-  print("verph8 ", verph8)
-else:
-  print("PYTHIA8VER not available !!! assuming version 2.44")
-  verph8 = 244
-
-if (verph8 >= 226):
-   if "ShowerWeightNames" in genSeq.Pythia8.__slots__.keys():
+if "ShowerWeightNames" in genSeq.Pythia8.__slots__.keys():
       print ("Initalizing Shower Weights from Pythia8_ShowerWeights.py")
       if("NNPDF" in evgenConfig.tune):
          genSeq.Pythia8.Commands += [
@@ -135,9 +126,5 @@ if (verph8 >= 226):
                              "hardHi",
                              "hardLo"
                              ]
-   else:
-      print ("Pythia8_i version too old for shower weights")
-else:
-   print ("No shower weights since not supported in Pythia8.",verph8)
 
 

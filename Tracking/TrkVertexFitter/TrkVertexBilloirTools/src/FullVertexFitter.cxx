@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -57,7 +57,7 @@ namespace
 		Trk::TrackParameters * perigee;
 		const Trk::TrackParameters * originalPerigee;
 		Trk::LinearizedTrack * linTrack;
-		double chi2;
+		double chi2{};
 		AmgMatrix(5,3) Di_mat;
 		AmgMatrix(5,3) Ei_mat;
 		AmgMatrix(3,3) Gi_mat;
@@ -77,8 +77,8 @@ namespace
                   BCB_mat.setZero();
                   BCU_vec.setZero();
                 };
-		double chi2;
-		unsigned int ndf;
+		double chi2{};
+		unsigned int ndf{};
 		AmgMatrix(3,3) A_mat;              // T  = sum{Di.T * Wi * Di}
 		Amg::Vector3D T_vec;              // A  = sum{Di.T * Wi * dqi}
 		AmgMatrix(3,3) BCB_mat;       // BCB = sum{Bi * Ci^-1 * Bi.T}
@@ -284,7 +284,7 @@ namespace Trk
 					locBilloirTrack.Ui_vec = Et_W_mat * locBilloirTrack.Dper; // Ei.T * Wi * dqi
 					locBilloirTrack.Ci_inv = Et_W_mat * E_mat ; // (Ei.T * Wi * Ei)^-1
 					// we need the inverse matrix here
-					locBilloirTrack.Ci_inv.inverse().eval();
+					locBilloirTrack.Ci_inv = locBilloirTrack.Ci_inv.inverse().eval();
 						// sum up over all tracks
 						billoirVertex.T_vec       += Dt_W_mat * locBilloirTrack.Dper; // sum{Di.T * Wi * dqi}
 						billoirVertex.A_mat = billoirVertex.A_mat + Dt_W_mat * D_mat ; // sum{Di.T * Wi * Di}
@@ -381,9 +381,9 @@ namespace Trk
 				// d(d0,z0,phi,theta,qOverP)/d(x,y,z,phi,theta,qOverP)-transformation matrix
 				AmgMatrix(5,6) trans_mat;
 				trans_mat.setZero();
-				trans_mat ( 1,1 ) = locP.Di_mat ( 1,1 ); trans_mat ( 1,2 ) = locP.Di_mat ( 1,2 );
-				trans_mat ( 2,1 ) = locP.Di_mat ( 2,1 ); trans_mat ( 2,2 ) = locP.Di_mat ( 2,2 ); trans_mat ( 2,3 ) = 1.;
-				trans_mat ( 3,4 ) = 1.; trans_mat ( 4,5 ) = 1.; trans_mat ( 5,6 ) = 1.;
+				trans_mat ( 0,0 ) = locP.Di_mat ( 0,0 ); trans_mat ( 0,1 ) = locP.Di_mat ( 0,1 );
+				trans_mat ( 1,0 ) = locP.Di_mat ( 1,0 ); trans_mat ( 1,1 ) = locP.Di_mat ( 1,1 ); trans_mat ( 1,2 ) = 1.;
+				trans_mat ( 2,3 ) = 1.; trans_mat ( 3,4 ) = 1.; trans_mat ( 4,5 ) = 1.;
 
 				//some intermediate calculations to get 5x5 matrix
 				//cov(V,V)
@@ -473,11 +473,10 @@ namespace Trk
 					//Covariance matrix does not need to be inverted:
 					//					AmgMatrix(5,5)  newTrackErrorMatrix = (AmgMatrix(5,5)) newTrackCovarianceMatrix->inverse().eval();
 					AmgMatrix(5,5)  newTrackErrorMatrix = (AmgMatrix(5,5)) newTrackCovarianceMatrix->eval();
-					refittedPerigee = new Trk::Perigee ( 0.,0.,mom_at_Origin[iter][0],mom_at_Origin[iter][1],mom_at_Origin[iter][2], Surface, &newTrackErrorMatrix );
+					refittedPerigee = new Trk::Perigee ( 0.,0.,mom_at_Origin[iter][0],mom_at_Origin[iter][1],mom_at_Origin[iter][2], 
+                                               Surface, std::move(newTrackErrorMatrix) );
 					Trk::VxTrackAtVertex* tmpVxTrkAtVtx = new Trk::VxTrackAtVertex ( ( *BTIter ).chi2, refittedPerigee, ( *BTIter ).originalPerigee );
 					tracksAtVertex.push_back ( *tmpVxTrkAtVtx );
-					// TODO: here is where the vxTracksAtVertex pointers are deleted
-					delete tmpVxTrkAtVtx; // TODO: is this ok?
 					iter ++;
 				}
 			}
@@ -530,7 +529,6 @@ namespace Trk
  		   xAOD::Vertex* fittedVertex = fit( measuredPerigees, constraint ); 
  		 
  		   //assigning the input tracks to the fitted vertex through VxTrackAtVertices
- 		   if(fittedVertex !=nullptr) 
  		   { 
  		    if( fittedVertex->vxTrackAtVertexAvailable() ) // TODO: I don't think vxTrackAtVertexAvailable() does the same thing as a null pointer check! 
  		    { 

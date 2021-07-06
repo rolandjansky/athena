@@ -163,7 +163,8 @@ TrigVertexCollection* TrigZFinder::findZ( const std::vector<TrigSiSpacePointBase
   ATH_MSG_DEBUG( "findZ() roi: " << roi );
  
   for ( unsigned int i=0 ; i<vertices->size() ; i++ ) { 
-    output->push_back( new TrigVertex( (*vertices)[i]._z, (*vertices)[i]._weight, TrigVertex::NULLID ) );
+    auto vtx = new TrigVertex((*vertices)[i]._z, (*vertices)[i]._weight, TrigVertex::NULLID);
+    output->push_back(vtx);
   }
 
   delete vertices;

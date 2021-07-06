@@ -29,8 +29,8 @@ Trk::CETmaterial::CETmaterial(const std::string& name, ISvcLocator* pSvcLocator)
   m_log(msgSvc(),name),
   m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
   m_extraprec("Trk::Extrapolator/MuonExtrapolator"),
-  m_gaussDist(0),
-  m_flatDist(0),
+  m_gaussDist(nullptr),
+  m_flatDist(nullptr),
   m_sigmaD0(17.*Gaudi::Units::micrometer),
   m_minZ0(0.),
   m_maxZ0(0.),
@@ -58,11 +58,11 @@ Trk::CETmaterial::CETmaterial(const std::string& name, ISvcLocator* pSvcLocator)
   m_ph(0.),
   m_id(0),
   m_matSaved(0.),
-  m_next(0),
-  m_err(0),
-  m_outerBoundary(0),
-  m_trackingGeometry(0),
-  m_msentry(0),
+  m_next(nullptr),
+  m_err(nullptr),
+  m_outerBoundary(nullptr),
+  m_trackingGeometry(nullptr),
+  m_msentry(nullptr),
   m_particleType(Trk::muon),
   m_chronoStatSvc( "ChronoStatSvc", name )
 {
@@ -409,7 +409,7 @@ void Trk::CETmaterial::printMat(double theta, double phi, double mat, double dth
 }
 
 
-void Trk::CETmaterial::printMatScan(double theta, double phi, double r, double z, double mat, std::string name) const {
+void Trk::CETmaterial::printMatScan(double theta, double phi, double r, double z, double mat, const std::string& name) const {
 
   std::ofstream myfilemat;
   myfilemat.open(m_matScanFile,std::ios::app);
@@ -417,7 +417,7 @@ void Trk::CETmaterial::printMatScan(double theta, double phi, double r, double z
   return;
 }
 
-void Trk::CETmaterial::printMatPrec(double theta, double phi, const Trk::TrackParameters* nextPar, const Trk::TrackParameters* mdest, double mat, int id, std::string name) const {
+void Trk::CETmaterial::printMatPrec(double theta, double phi, const Trk::TrackParameters* nextPar, const Trk::TrackParameters* mdest, double mat, int id, const std::string& name) const {
 
   if (name=="") {}; // dummy to get rid of warning message (unused variable name)
   std::ofstream myfilemat;
@@ -484,7 +484,7 @@ void Trk::CETmaterial::printMatPrec(double theta, double phi, const Trk::TrackPa
   return;
 }
 
-void Trk::CETmaterial::printMatComp(double theta, double phi, const Trk::TrackParameters* currPar, std::string name, double mat, double matApp,double dx, double dy) const
+void Trk::CETmaterial::printMatComp(double theta, double phi, const Trk::TrackParameters* currPar, const std::string& name, double mat, double matApp,double dx, double dy) const
 {
   std::ofstream myfilemat;
   myfilemat.open(m_matCompFile,std::ios::app);

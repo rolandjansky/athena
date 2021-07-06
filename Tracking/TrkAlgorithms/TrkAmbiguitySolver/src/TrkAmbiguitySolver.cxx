@@ -46,13 +46,16 @@ Trk::TrkAmbiguitySolver::execute(const EventContext& ctx) const
   const int nInput = scoredTracksHandle->size();
   m_trackInCount += nInput;
 
-  std::unique_ptr<TrackCollection> resolvedTracks;
+  std::unique_ptr<const TrackCollection> resolvedTracks;
   resolvedTracks.reset(m_ambiTool->process(scoredTracksHandle.cptr())); //note: take ownership and delete
   m_trackOutCount += resolvedTracks->size();
 
   SG::WriteHandle<TrackCollection> resolvedTracksHandle(m_resolvedTracksKey, ctx);
-  ATH_CHECK(resolvedTracksHandle.record(std::move(resolvedTracks)));
-  ATH_MSG_DEBUG ("Saved "<<resolvedTracksHandle->size()<<" tracks of " << nInput);
+  ATH_MSG_DEBUG ("Saving "<<resolvedTracks->size()<<" tracks of " << nInput);
+  if (!resolvedTracksHandle.put(std::move(resolvedTracks))) {
+    ATH_MSG_ERROR ("Can't record tracks as " << m_resolvedTracksKey.key());
+    return StatusCode::FAILURE;
+  }
   return StatusCode::SUCCESS;
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -9,8 +9,6 @@
 #include "LongLivedParticleDPDMaker/DVMeffFilterTool.h"
 #include <vector>
 #include <string>
-#include "xAODMissingET/MissingETContainer.h"
-#include "xAODJet/JetContainer.h"
 
 // Constructor
 DerivationFramework::DVMeffFilterTool::DVMeffFilterTool( const std::string& t,
@@ -19,8 +17,6 @@ DerivationFramework::DVMeffFilterTool::DVMeffFilterTool( const std::string& t,
   AthAlgTool(t,n,p),
   m_ntot(0),
   m_npass(0),
-  m_metSGKey("MET_Calo"),
-  m_jetSGKey("AntiKt4LCTopoJets"),
   m_MeffCut(1000000.),
   m_METoverMeffCutMin(0.3),
   m_METoverMeffCutMax(0.7),
@@ -29,14 +25,12 @@ DerivationFramework::DVMeffFilterTool::DVMeffFilterTool( const std::string& t,
   m_METCut(80000.)
   {
     declareInterface<DerivationFramework::ISkimmingTool>(this);
-    declareProperty("METContainerKey", m_metSGKey);
     declareProperty("MeffCut", m_MeffCut);
     declareProperty("jetPtCut", m_jetPtCut);
     declareProperty("jetEtaCut", m_jetEtaCut);
     declareProperty("METoverMeffCutMin", m_METoverMeffCutMin);
     declareProperty("METoverMeffCutMax", m_METoverMeffCutMax);
     declareProperty("METCut",m_METCut);
-    declareProperty("JetContainerKey", m_jetSGKey);
   }
   
 // Destructor
@@ -47,6 +41,8 @@ DerivationFramework::DVMeffFilterTool::~DVMeffFilterTool() {
 StatusCode DerivationFramework::DVMeffFilterTool::initialize()
 {
      ATH_MSG_VERBOSE("initialize() ...");
+     ATH_CHECK(m_metSGKey.initialize());
+     ATH_CHECK(m_jetSGKey.initialize());
      return StatusCode::SUCCESS;
 }
 StatusCode DerivationFramework::DVMeffFilterTool::finalize()
@@ -66,9 +62,8 @@ bool DerivationFramework::DVMeffFilterTool::eventPassesFilter() const
      double totalJetPT = 0.;
      bool passesEvent=false;
      
-     const xAOD::MissingETContainer* metContainer(0);
-     StatusCode sc=evtStore()->retrieve(metContainer,m_metSGKey);
-     if( sc.isFailure()  ||  !metContainer ) {
+     SG::ReadHandle<xAOD::MissingETContainer> metContainer(m_metSGKey);
+     if( !metContainer.isValid() ) {
        msg(MSG::WARNING) << "No MET container found, will skip this event" << endmsg;
        return false;
      } 
@@ -78,15 +73,14 @@ bool DerivationFramework::DVMeffFilterTool::eventPassesFilter() const
        MET = metContainer->at(0)->met();
      }
   
-     const xAOD::JetContainer* jetContainer(0);
-     sc=evtStore()->retrieve(jetContainer,m_jetSGKey);
-     if( sc.isFailure()  ||  !jetContainer ) {
+     SG::ReadHandle<xAOD::JetContainer> jetContainer(m_jetSGKey);
+     if( !jetContainer.isValid() ) {
        msg(MSG::WARNING) << "No jet container found, will skip this event" << endmsg;
        return false;
      }
      for (unsigned int i=0; i< jetContainer->size(); ++i) { 
        const xAOD::Jet* jet = jetContainer->at(i);
-       if (( jet->pt() < m_jetPtCut) || (fabs(jet->eta())>m_jetEtaCut))  continue;
+       if (( jet->pt() < m_jetPtCut) || (std::abs(jet->eta())>m_jetEtaCut))  continue;
        totalJetPT += jet->pt();
      }
      

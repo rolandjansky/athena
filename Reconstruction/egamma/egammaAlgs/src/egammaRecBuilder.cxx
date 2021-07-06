@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaRecBuilder.h"
@@ -15,7 +15,7 @@
 #include "egammaRecEvent/egammaRecContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
-// INCLUDE GAUDI HEADER FILES:
+#include <vector>
 #include <algorithm>
 #include <cmath>
 
@@ -30,7 +30,7 @@ egammaRecBuilder::initialize()
   // First the data handle keys
   ATH_CHECK(m_inputTopoClusterContainerKey.initialize());
   ATH_CHECK(m_egammaRecContainerKey.initialize());
-  //////////////////////////////////////////////////
+
   // retrieve track match builder
   CHECK(RetrieveEMTrackMatchBuilder());
   // retrieve conversion builder
@@ -83,8 +83,6 @@ egammaRecBuilder::RetrieveEMConversionBuilder()
 StatusCode
 egammaRecBuilder::execute(const EventContext& ctx) const
 {
-  // athena execute method
-
   ATH_MSG_DEBUG("Executing egammaRecBuilder");
 
   SG::ReadHandle<xAOD::CaloClusterContainer> topoclusters(
@@ -103,20 +101,20 @@ egammaRecBuilder::execute(const EventContext& ctx) const
   ATH_CHECK(egammaRecs.record(std::make_unique<EgammaRecContainer>()));
   const size_t nTopo = topoclusters->size();
   egammaRecs->reserve(nTopo);
-  for (size_t i(0); i < nTopo; i++) {
-    const ElementLink<xAOD::CaloClusterContainer> clusterLink(*topoclusters, i);
-    const std::vector<ElementLink<xAOD::CaloClusterContainer>> ClusterLink{
+  for (size_t i = 0; i < nTopo; ++i) {
+    const ElementLink<xAOD::CaloClusterContainer> clusterLink(*topoclusters, i, ctx);
+    const std::vector<ElementLink<xAOD::CaloClusterContainer>> clusterLinkVector {
       clusterLink
     };
     auto egRec = std::make_unique<egammaRec>();
-    egRec->setCaloClusters(ClusterLink);
+    egRec->setCaloClusters(clusterLinkVector);
     egammaRecs->push_back(std::move(egRec));
   }
-  /// Append track Matching information
+  // Append track Matching information
   if (m_doTrackMatching) {
     ATH_CHECK(m_trackMatchBuilder->executeRec(ctx, egammaRecs.ptr()));
   }
-  // Do the conversion matching
+  // Append conversion matching information
   if (m_doConversions) {
     for (auto egRec : *egammaRecs) {
       ATH_CHECK(m_conversionBuilder->executeRec(ctx, egRec));

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrkiPatFitterUtils )
@@ -23,3 +23,17 @@ atlas_add_library( TrkiPatFitterUtils
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES AthenaBaseComps AthContainers GeoPrimitives EventPrimitives GaudiKernel TrkEventPrimitives TrkGeometry TrkParameters
                    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} TrkSurfaces TrkMaterialOnTrack TrkMeasurementBase TrkTrack TrkExInterfaces TrkExUtils )
+
+
+# Code in this file makes heavy use of eigen and runs orders of magnitude
+# more slowly without optimization.  So force this to be optimized even
+# in debug builds.  If you need to debug it you might want to change this.
+# Specifying optimization via an attribute on the particular
+# function didn't work, because that still didn't allow inlining.
+if ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
+  set_source_files_properties(
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/FitMatrices.cxx
+     PROPERTIES
+     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}"
+     COMPILE_DEFINITIONS "FLATTEN" )
+endif()

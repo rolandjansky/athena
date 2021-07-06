@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,16 +15,11 @@
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkSurfaces/SurfaceBounds.h"
 //
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 
 class MsgStream;
 
-#ifdef TRKDETDESCR_USEFLOATPRECISON
-typedef float TDD_real_t;
-#else
-typedef double TDD_real_t;
-#endif
 
 namespace Trk {
 
@@ -56,23 +51,27 @@ public:
   /**Default Constructor*/
   EllipseBounds();
 
+  /**Copy constructor*/
+  EllipseBounds(const EllipseBounds& discbo) = default;
+
+  /**Assignment operator*/
+  EllipseBounds& operator=(const EllipseBounds& discbo) = default;
+
+  /**Move constructor*/
+  EllipseBounds(EllipseBounds&& discbo) noexcept = default;
+
+  /**Move assignment operator*/
+  EllipseBounds& operator=(EllipseBounds&& discbo) noexcept = default;
+
+  /**Destructor*/
+  virtual ~EllipseBounds() = default;
+
   /**Constructor for full of an ellipsoid disc around phi=0*/
   EllipseBounds(double minrad1, double minrad2, double maxrad1, double maxrad2, double hphisec = M_PI);
 
   /**Constructor for an ellipsoid disc around phi != 0*/
   EllipseBounds(double minrad1, double minrad2, double maxrad1, double maxrad2, double avephi, double hphisec);
 
-  /**Copy constructor*/
-  EllipseBounds(const EllipseBounds& discbo) = default;
-
-  /**Destructor*/
-  virtual ~EllipseBounds() = default;
-
-  /**Assignment operator*/
-  EllipseBounds& operator=(const EllipseBounds& discbo) = default;
-
-  /**Move assignment operator*/
-  EllipseBounds& operator=(EllipseBounds&& discbo) = default;
 
   /**Equality operator*/
   virtual bool operator==(const SurfaceBounds& sbo) const override;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ASGTOOLS_SGTEVENTMETA_H
@@ -9,7 +9,7 @@
 #include "AsgMessaging/StatusCode.h"
 
 // Complain if we try using this header in Athena:
-#ifndef XAOD_STANDALONE
+#if !defined(XAOD_STANDALONE) && !defined(__CPPCHECK__)
 #   error "This header should not be used in Athena"
 #endif // XAOD_STANDALONE
 

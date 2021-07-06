@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 from AthenaCommon.ConfiguredFactory import ConfigurationError
@@ -21,7 +21,7 @@ def getCopyCaloCalibrationHitContainer(name, collectionName="", **kwargs):
     return CfgMgr.CopyCaloCalibrationHitContainer(name, **kwargs)
 
 
-def getCopyInTimeJetTruthInfo(name="CopyInTimeJetTruthInfo", **kwargs):
+def getCopyInTimeAntiKt4JetTruthInfo(name="CopyInTimeAntiKt4JetTruthInfo", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
     if overlayFlags.isOverlayMT():
@@ -34,7 +34,7 @@ def getCopyInTimeJetTruthInfo(name="CopyInTimeJetTruthInfo", **kwargs):
     return CfgMgr.CopyJetTruthInfo(name, **kwargs)
 
 
-def getCopyOutOfTimeJetTruthInfo(name="CopyOutOfTimeJetTruthInfo", **kwargs):
+def getCopyOutOfTimeAntiKt4JetTruthInfo(name="CopyOutOfTimeAntiKt4JetTruthInfo", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
     if overlayFlags.isOverlayMT():
@@ -42,9 +42,48 @@ def getCopyOutOfTimeJetTruthInfo(name="CopyOutOfTimeJetTruthInfo", **kwargs):
         kwargs.setdefault("OutputKey", "OutOfTimeAntiKt4TruthJets")
     else:
         kwargs.setdefault("BkgInputKey", overlayFlags.dataStore() + "+OutOfTimeAntiKt4TruthJets")
-        kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+OutOfTimeAntiKt4TruthJets")        
+        kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+OutOfTimeAntiKt4TruthJets")
 
     return CfgMgr.CopyJetTruthInfo(name, **kwargs)
+
+
+def getCopyInTimeAntiKt6JetTruthInfo(name="CopyInTimeAntiKt6JetTruthInfo", **kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("BkgInputKey", overlayFlags.bkgPrefix() + "InTimeAntiKt6TruthJets")
+        kwargs.setdefault("OutputKey", "InTimeAntiKt6TruthJets")
+    else:
+        kwargs.setdefault("BkgInputKey", overlayFlags.dataStore() + "+InTimeAntiKt6TruthJets")
+        kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+InTimeAntiKt6TruthJets")
+
+    return CfgMgr.CopyJetTruthInfo(name, **kwargs)
+
+
+def getCopyOutOfTimeAntiKt6JetTruthInfo(name="CopyOutOfTimeAntiKt6JetTruthInfo", **kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("BkgInputKey", overlayFlags.bkgPrefix() + "OutOfTimeAntiKt6TruthJets")
+        kwargs.setdefault("OutputKey", "OutOfTimeAntiKt6TruthJets")
+    else:
+        kwargs.setdefault("BkgInputKey", overlayFlags.dataStore() + "+OutOfTimeAntiKt6TruthJets")
+        kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+OutOfTimeAntiKt6TruthJets")
+
+    return CfgMgr.CopyJetTruthInfo(name, **kwargs)
+
+
+def getCopyPileupParticleTruthInfo(name="CopyPileupParticleTruthInfo", **kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("BkgInputKey", overlayFlags.bkgPrefix() + "TruthPileupParticles")
+        kwargs.setdefault("OutputKey", "TruthPileupParticles")
+    else:
+        kwargs.setdefault("BkgInputKey", overlayFlags.dataStore() + "+TruthPileupParticles")
+        kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+TruthPileupParticles")
+
+    return CfgMgr.CopyPileupParticleTruthInfo(name, **kwargs)
 
 
 def getCopyMcEventCollection(name="CopyMcEventCollection", **kwargs):

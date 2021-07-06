@@ -18,6 +18,7 @@
 # art-output: prmon*
 # art-output: *.check*
 # art-athena-mt: 12
+# art-memory: 3000
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 

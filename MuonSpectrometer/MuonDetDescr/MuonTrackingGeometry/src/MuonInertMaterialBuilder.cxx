@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Muon
@@ -139,7 +139,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonInertMaterialBu
       // decide if object suitable for blending; does not concern shields
       double protMass=0.;
       for (unsigned int ic = 0; ic<(*msTypeIter).first->constituents()->size(); ic++) {         
-	protMass += calculateVolume((*((*msTypeIter).first->constituents()))[ic].first)
+	protMass += calculateVolume((*((*msTypeIter).first->constituents()))[ic].first.get())
 	  *(*((*msTypeIter).first->constituents()))[ic].second;
       }
      perm = msTypeName.substr(0,1)!="J" && m_blendLimit>0 && protMass > m_blendLimit;
@@ -244,6 +244,9 @@ const std::vector<std::pair<const Trk::DetachedTrackingVolume*,std::vector<Amg::
 	  input_shapes.resize(vols.size());             
 	  for (unsigned int i=0;i<vols.size();i++) input_shapes[i]=vols[i].first->getShape();
 
+    //reserve m_constituents to avoid having DetachedTrackingVolume.constituents() point to a Vector that was reallocated meanwhile
+    m_constituents.reserve(vols.size()+3);
+
 	  for (unsigned int ish=0; ish < vols.size(); ish++) { 
 	    
 	    std::string protoName = vname;
@@ -274,7 +277,7 @@ const std::vector<std::pair<const Trk::DetachedTrackingVolume*,std::vector<Amg::
 	    if (trObject) {  
 	      Trk::Material mat = m_materialConverter->convert( vols[ish].first->getMaterial() );
 	      const Trk::TrackingVolume* newType= new Trk::TrackingVolume( *trObject, mat, 0,0,protoName);
-              const Trk::TrackingVolume* simType = simplifyShape(newType,blend);
+        const Trk::TrackingVolume* simType = simplifyShape(newType,blend);
 	      const Trk::DetachedTrackingVolume* typeStat = new Trk::DetachedTrackingVolume(protoName,simType);
 	      if (blend) typeStat->saveConstituents(&(m_constituents.back()));
 	      objs.push_back(std::pair<const Trk::DetachedTrackingVolume*,std::vector<Amg::Transform3D> >(typeStat,vols[ish].second));
@@ -335,9 +338,6 @@ const std::vector<std::pair<const Trk::DetachedTrackingVolume*,std::vector<Amg::
 // finalize
 StatusCode Muon::MuonInertMaterialBuilder::finalize()
 {
-    for (unsigned int i=0;i<m_constituents.size();i++) {
-      for (unsigned int iv=0;iv<m_constituents[i].size();iv++) delete (m_constituents[i])[iv].first;
-    }
     ATH_MSG_INFO( name() <<" finalize() successful" );
     return StatusCode::SUCCESS;
 }
@@ -446,13 +446,13 @@ const Trk::TrackingVolume* Muon::MuonInertMaterialBuilder::simplifyShape(const T
     
   if (blend) {
     // save calculable volumes for blending
-    std::vector<std::pair<const Trk::Volume*,float> > confinedConst;
+    std::vector<std::pair<std::unique_ptr<const Trk::Volume>,float> > confinedConst;
     for (unsigned int ic=0;ic<constituents.size();ic++) {
       float scale = simpleMode==2 ? 1 : constituents[ic].second.first;
-      confinedConst.push_back(std::pair<const Trk::Volume*,float>
-			      ( new Trk::Volume(*(constituents[ic].first),newVol->transform().inverse()), scale ) );
+      confinedConst.push_back(std::pair<std::unique_ptr<const Trk::Volume>,float>
+			      ( std::make_unique<Trk::Volume>(*(constituents[ic].first),newVol->transform().inverse()), scale ) );
     }
-    m_constituents.push_back(std::vector<std::pair<const Trk::Volume*,float> >(confinedConst));
+    m_constituents.push_back(std::move(confinedConst));
   }
   
   delete envelope;

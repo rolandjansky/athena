@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -7,14 +7,10 @@
 
 #include "GaudiKernel/StatusCode.h"
 
-#include "./conditionsFactoryMT.h"
-
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/SingleJetGrouper.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/xAODJetAsIJetFactory.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerFactory.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoHelper2.h"
-#include "./groupsMatcherFactoryMT.h"
-#include "./CapacityCheckedCondition.h"
+#include "./RepeatedCondition.h"
+#include "./FastReductionMatcher.h"
+#include "./Tree.h"
+#include "./ConditionsDefs.h"
 
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 
@@ -34,6 +30,7 @@ TrigJetHypoToolConfig_fastreduction::~TrigJetHypoToolConfig_fastreduction(){
 }
 
 StatusCode TrigJetHypoToolConfig_fastreduction::initialize() {
+  ATH_MSG_INFO("initialising " << name());
 
   if(m_conditionMakers.size() != m_treeVec.size()){
     ATH_MSG_ERROR("No. of conditions mismatch with tree vector size");
@@ -41,98 +38,68 @@ StatusCode TrigJetHypoToolConfig_fastreduction::initialize() {
   }
   
   if(m_conditionMakers.size() < 2){ // first  node is root, need more
-    ATH_MSG_ERROR("No. of conditions < 2");
+    ATH_MSG_ERROR("No. of conditions " +
+		  std::to_string( m_conditionMakers.size()) + 
+		  " require at least 2" );
     return StatusCode::FAILURE;
   }
   
-  
-  /* set the capacity of the acceptAll nodes (or nay
-     nodes with modifiable capciity.
-
-     Algorithm:
-     initialise: create an bool array checked
-     with length the number of nodes in the tree
-     find the index of the last node whicih is not checked.
-
-    execute: while there are uncheckled nodes{
-		 do{
-                    find last unchecked node
-		    obtain its capacity.
-                    set node as checked.
-		    move index to parent node.
-		    attempt ot set its capacity with child's capacity.
-		    if ok: break 
-		    obtain the capacity of the current node
-		    set current node to checked
-		   }
-              }
-  */
-
-  
-
-  std::vector<bool> checked(m_treeVec.size(), false);
-  
-  const std::size_t start = checked.size() - 1;
-  while(true){
-
-    auto it = std::find(checked.rbegin(),
-			checked.rend(),
-			false);
-    
-    if (it == checked.rend()){
-      break;
-    }
-    (*it) = true;
-    
-    std::size_t ind = start - (it - checked.rbegin());
-    
-    std::size_t cap{0};
-    while(true){
-      cap = m_conditionMakers[ind]->capacity();
-      ind = m_treeVec[ind];
-      // path upwards already traversed from this point if checked = true
-      if (checked[ind]){break;}
-      if((m_conditionMakers[ind]->addToCapacity(cap))){
-	break;
-      } else {
-	cap = m_conditionMakers[ind]->capacity();
-	checked[ind] = true;
-      }
-    }
-  }
-
   return StatusCode::SUCCESS;
 }
 
 
-
-
-std::optional<ConditionPtrs>
-TrigJetHypoToolConfig_fastreduction::getCapacityCheckedConditions() const {
+ConditionPtrs
+TrigJetHypoToolConfig_fastreduction::getRepeatedConditions() const {
 
   ConditionPtrs conditions;
 
   // collect the Conditions objects from the various sources
-  // return an invalid optional if any src signals a problem
 
   for(const auto& cm : m_conditionMakers){
-    conditions.push_back(cm->getCapacityCheckedCondition());
+    conditions.push_back(cm->getRepeatedCondition());
   }
       
-  return std::make_optional<ConditionPtrs>(std::move(conditions));
+  return conditions;
 }
 
-std::optional<ConditionsMT>
-TrigJetHypoToolConfig_fastreduction::getConditions() const {
-  /* obtain an unchecked set of conditions */
+/*
+std::vector<std::unique_ptr<ConditionFilter>>
+TrigJetHypoToolConfig_fastreduction::getConditionFilters() const {
+
+  auto filters = std::vector<std::unique_ptr<ConditionFilter>>();
   
-  ConditionsMT conditions;
-  for(const auto& cm : m_conditionMakers){
-    conditions.push_back(cm->getCapacityCheckedCondition());
+  for(const auto& cm : m_filtConditionMakers){
+
+    ConditionPtrs filterConditions;  // will contain a single Condition
+    ConditionPtr repeatedCondition = cm->getRepeatedCondition();
+
+    // repeatedPtr is a nullptr is there are no contained conditions.
+    // this means the filter should act as pass-through.
+    if (repeatedCondition) {
+      filterConditions.push_back(std::move(repeatedCondition));
+    }
+    
+    auto cf = std::make_unique<ConditionFilter>(filterConditions);
+    filters.push_back(std::move(cf));
   }
   
-  return std::make_optional<ConditionsMT>(std::move(conditions));
+  return filters;
 }
+*/
+
+std::vector<FilterPtr>
+TrigJetHypoToolConfig_fastreduction::getFilters() const {
+
+  auto filters = std::vector<FilterPtr>();
+  filters.reserve(m_filterMakers.size());
+  
+  for(const auto& filterMaker : m_filterMakers) {
+    filters.push_back(filterMaker->getHypoJetVectorFilter());
+  }
+
+  return filters;
+}
+
 
 // following function not used for treeless hypos
 std::size_t
@@ -140,33 +107,28 @@ TrigJetHypoToolConfig_fastreduction::requiresNJets() const {
   return 0;
 }
 
- 
-std::unique_ptr<IJetGrouper>
-TrigJetHypoToolConfig_fastreduction::getJetGrouper() const {
-  return std::make_unique<SingleJetGrouper>();
-}
 
-std::unique_ptr<IGroupsMatcherMT>
+std::unique_ptr<IJetsMatcher>
 TrigJetHypoToolConfig_fastreduction::getMatcher () const {
 
-  auto opt_conds = getCapacityCheckedConditions();
+  auto repeatedConds = getRepeatedConditions();
 
-  if(!opt_conds.has_value()){
-    return std::unique_ptr<IGroupsMatcherMT>(nullptr);
+  if(repeatedConds.empty()){
+    return std::unique_ptr<IJetsMatcher>(nullptr);
   }
 
-  return groupsMatcherFactoryMT_FastReduction(std::move(*opt_conds),
-					      m_treeVec);
+  auto matcher =  std::unique_ptr<IJetsMatcher>();
+
+  auto conditions = std::move(repeatedConds);
+  auto filters = getFilters();
+  auto fpm = new FastReductionMatcher(conditions,
+				      filters,
+				      Tree(m_treeVec));
+  matcher.reset(fpm);
+  return matcher;
 }
 
 StatusCode TrigJetHypoToolConfig_fastreduction::checkVals() const {
   return StatusCode::SUCCESS;
 }
-
-std::vector<std::shared_ptr<ICleaner>> 
-TrigJetHypoToolConfig_fastreduction::getCleaners() const {
-  std::vector<std::shared_ptr<ICleaner>> v;
-  return v;
-}
-
 

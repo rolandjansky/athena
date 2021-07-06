@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // EDM include(s):
 #include "xAODMuon/MuonContainer.h"
+#include "xAODEgamma/PhotonContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
 
 // Local include(s):
 #include "ToolTester.h"
@@ -17,15 +19,18 @@ namespace FSR {
         //m_ntsvc("THistSvc/THistSvc", name),
         //m_hist (0){
 
-      declareProperty( "SGKey", m_sgKey = "Muons" );
+      declareProperty( "SGMuonKey",     m_sgMuonKey     = "Muons" );
+      declareProperty( "SGPhotonKey",   m_sgPhotonKey   = "Photons" );
+      declareProperty( "SGElectronKey", m_sgElectronKey = "Electrons" );
       declareProperty( "FsrPhotonTool", m_fsrTool );
    }
 
    StatusCode ToolTester::initialize() {
 
       // Greet the user:
-      ATH_MSG_INFO( "Initialising - Package version: " << PACKAGE_VERSION );
-      ATH_MSG_DEBUG( "SGKey = " << m_sgKey );
+      ATH_MSG_INFO( "SGMuonKey = "     << m_sgMuonKey );
+      ATH_MSG_INFO( "SGPhotonKey = "   << m_sgPhotonKey );
+      ATH_MSG_INFO( "SGElectronKey = " << m_sgElectronKey );
       ATH_MSG_INFO( "FsrPhotonTool = " << m_fsrTool );
 
       // Retrieve the tools:
@@ -39,10 +44,17 @@ namespace FSR {
 
       // Retrieve the muons:
       const xAOD::MuonContainer* muons = 0;
-      ATH_CHECK( evtStore()->retrieve( muons, m_sgKey ) );
+      ATH_CHECK( evtStore()->retrieve( muons, m_sgMuonKey ) );
 
-      //ATH_MSG_INFO( "Number of muons: " << muons->size() );
+      ATH_MSG_INFO( "Number of muons: " << muons->size() );
 
+      // Retrieve photons and electrons
+      const xAOD::PhotonContainer* phs = 0;
+      ATH_CHECK( evtStore()->retrieve( phs, m_sgPhotonKey ) );
+      ATH_MSG_DEBUG("retrieved photons");
+      const xAOD::ElectronContainer* els = 0;
+      ATH_CHECK( evtStore()->retrieve( els, m_sgElectronKey ) );
+      ATH_MSG_DEBUG("retrieved electrons");
 
       std::vector<const xAOD::Muon*> selectedMuons;
       double tmp_energy = -999.;
@@ -55,8 +67,8 @@ namespace FSR {
       for( ; mu_itr != mu_end; ++mu_itr ) {
 
           
-	if ( m_fsrTool->getFsrPhoton(*mu_itr, m_candidate) ==  CP::CorrectionCode::Ok){
-	  ATH_MSG_INFO( " FSR candidate found !!!!!!!! ");
+          if ( m_fsrTool->getFsrPhoton(*mu_itr, m_candidate, phs, els) ==  CP::CorrectionCode::Ok){
+	  ATH_MSG_INFO( " FSR m_candidate found !!!!!!!! ");
 	  ATH_MSG_INFO( " container = " << m_candidate.container
 			//const xAOD::IParticle* particle;
 			<< " deltaR = " << m_candidate.deltaR

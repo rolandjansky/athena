@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetTrackSelectorTool_InDetConversionTrackSelectorTool_H
@@ -8,7 +8,7 @@
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "xAODTracking/TrackParticle.h"
@@ -62,7 +62,11 @@ private:
     return val > 0 ? val : 0;
   }
 
-  Amg::Vector3D getPosOrBeamSpot(const xAOD::Vertex*) const;
+  // Get Eta bin for eta-dependent TRT-track cuts
+  unsigned int getEtaBin(const Trk::Perigee& perigee) const;
+
+  Amg::Vector3D getPosOrBeamSpot(const EventContext& ctx,
+                                 const xAOD::Vertex*) const;
 
   ToolHandle<Trk::IExtrapolator> m_extrapolator{ this,
                                                  "Extrapolator",
@@ -74,6 +78,7 @@ private:
     "BeamSpotData",
     "SG key for beam spot"
   };
+
   /** Properties for track selection:all cuts are ANDed */
   double m_maxSiD0;    //!< Maximal d0 at (0,0,0) for tracks with Si hits
   double m_maxTrtD0;   //!< Maximal d0 at (0,0,0) for standalone TRT tracks
@@ -84,6 +89,8 @@ private:
   double m_trRatio2;   //!< TR ratio for tracks with 20-25 TRT hits
   double m_trRatio3;   //!< TR ratio for tracks with >25 TRT hits
   double m_trRatioTRT; //!< TR ratio for TRT only tracks
+  std::vector<double> m_TRTTrksEtaBins; //!< Eta bins (10 expected) for TRT-only track cuts
+  std::vector<double> m_TRTTrksBinnedRatioTRT; //!< Eta-binned eProbabilityHT for TRT-only track cuts
   double m_trRatioV0;  //!< TR ratio for pion selection during V0 reconstruction
   double m_sD0_Si;     //!< Cut on D0 significance of Si tracks
   double m_sD0_Trt;    //!< Cut on D0 significance of TRT tracks

@@ -2,13 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//#define USE_OLD_TOOL
-
-#ifdef USE_OLD_TOOL
-#include "ElectronPhotonShowerShapeFudgeTool/FudgeMCTool.h"
-#else
 #include "ElectronPhotonShowerShapeFudgeTool/TPhotonMCShifterTool.h"
-#endif
 
 #include "TCanvas.h"
 #include "TGraphErrors.h"
@@ -20,11 +14,7 @@ int main() {
   float eta=0.3;
   int isConv = 0;
 
-#ifdef USE_OLD_TOOL
-  FudgeMCTool fftool;
-#else
   TPhotonMCShifterTool fftool;
-#endif
 
   TCanvas* c = new TCanvas("c","c",800,600);
 
@@ -35,6 +25,6 @@ int main() {
   gr->SetTitle(grtitle);
   c->Print(Form("%s.pdf",grtitle.Data()));
   delete c;
-  
+
   return 0;
 }

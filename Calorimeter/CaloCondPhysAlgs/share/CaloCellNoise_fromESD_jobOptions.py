@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 ###############################################################
 #
 # Job options file to run simple algorithm computing noise per cell
@@ -12,6 +12,7 @@ globalflags.DataSource.set_Value_and_Lock('data')
 
 DetFlags.detdescr.all_setOn()
 DetFlags.Muon_setOff()
+DetFlags.ALFA_setOff()
 
 include( "AthenaPoolCnvSvc/ReadAthenaPool_jobOptions.py" )
 include( "PartPropSvc/PartPropSvc.py" )
@@ -31,10 +32,13 @@ PoolESDInput= [
 svcMgr.EventSelector.InputCollections = PoolESDInput
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = PoolESDInput
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
+
 
 # the Tile, LAr and Calo detector description package
-from AthenaCommon.GlobalFlags import jobproperties
-jobproperties.Global.DetDescrVersion='ATLAS-GEO-16-00-00'
+#from AthenaCommon.GlobalFlags import jobproperties
+#jobproperties.Global.DetDescrVersion='ATLAS-GEO-16-00-00'
 
 
 from AtlasGeoModel import SetGeometryVersion
@@ -46,14 +50,12 @@ include( "LArDetDescr/LArDetDescr_joboptions.py" )
 include( "TileConditions/TileConditions_jobOptions.py" ) 
 include( "LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 
-from LArRecUtils.LArADC2MeVToolDefault import LArADC2MeVToolDefault
-theADC2MeVTool = LArADC2MeVToolDefault()
-ToolSvc += theADC2MeVTool
+from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
+LArADC2MeVCondAlgDefault()
 
-
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theNoiseTool = CaloNoiseToolDefault()
-ToolSvc += theNoiseTool
+from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+CaloNoiseCondAlg ('totalNoise')
+CaloNoiseCondAlg ('electronicNoise')
 
 # Trigger decision tool
 
@@ -72,13 +74,10 @@ myNoise = CaloCellNoiseAlg("CaloCellNoiseAlg")
 myNoise.doMC = False
 myNoise.readNtuple = False
 myNoise.doFit = True
-myNoise.ADC2MeVTool = theADC2MeVTool
 # uncomment to activate trigger decision-  example below is using L1_RD1_EMPTY, checked against 16.6.1 release
-myNoise.TrigDecisionTool = tdt
-myNoise.TriggerChain = "L1_RD1_EMPTY"
-myNoise.noiseTool = theNoiseTool
+#myNoise.TrigDecisionTool = tdt
+#myNoise.TriggerChain = "L1_RD1_EMPTY"
 myNoise.doLumiFit = False
-myNoise.noiseTool = theNoiseTool
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -17,6 +17,7 @@
 // DerivationFramework includes
 #include "DerivationFrameworkInterfaces/ISkimmingTool.h"
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
+#include "xAODMuon/MuonContainer.h"
 
 namespace DerivationFramework {
 
@@ -44,9 +45,10 @@ namespace DerivationFramework {
     virtual bool eventPassesFilter() const;
     
   private:
-    mutable unsigned int m_ntot;
-    mutable unsigned int m_npass;
-    std::string m_muonSGKey;
+    mutable std::atomic<unsigned int> m_ntot{0};
+    mutable std::atomic<unsigned int> m_npass{0};
+
+    SG::ReadHandleKey<xAOD::MuonContainer> m_muonSGKey{this,"MuonContainerKey","Muons"};
     ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
     unsigned int m_nMuons;
     double m_muonPtCut;

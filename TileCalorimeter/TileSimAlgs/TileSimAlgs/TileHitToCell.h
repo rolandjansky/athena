@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -53,13 +53,13 @@ class TileDetDescrManager;
 class TileHitToCell: public AthAlgorithm {
   public:
 
-    TileHitToCell(std::string name, ISvcLocator* pSvcLocator);  //!< Constructor
+    TileHitToCell(const std::string& name, ISvcLocator* pSvcLocator);  //!< Constructor
 
     virtual ~TileHitToCell(); //!< Destructor                         
 
-    StatusCode initialize(); //!< initialize method
-    StatusCode execute();    //!< execute method
-    StatusCode finalize();   //!< finalize method
+    virtual StatusCode initialize() override; //!< initialize method
+    virtual StatusCode execute() override;    //!< execute method
+    virtual StatusCode finalize() override;   //!< finalize method
 
   private:
 

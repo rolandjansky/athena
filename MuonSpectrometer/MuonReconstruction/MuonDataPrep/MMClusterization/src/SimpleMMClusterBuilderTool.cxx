@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "SimpleMMClusterBuilderTool.h"
 
@@ -11,7 +11,6 @@ Muon::SimpleMMClusterBuilderTool::SimpleMMClusterBuilderTool(const std::string& 
     AthAlgTool(t,n,p) {
   declareInterface<IMMClusterBuilderTool>(this);
   declareProperty("writeStripProperties", m_writeStripProperties = true ); // true  for debugging; needs to become false for large productions
-  declareProperty("useErrorParametrization", m_useErrorParametrization = true);
   declareProperty("maxHoleSize", m_maxHoleSize = 1);
 }
 
@@ -30,7 +29,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
   std::vector<int> MMflag;
   IdentifierHash hash;
 
-  if ( MMprds.size() > 0 ) {
+  if ( !MMprds.empty() ) {
     hash = MMprds.at(0).collectionHash();
   }
   else {
@@ -111,12 +110,12 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
 	    MMflag[j] = 1;
 	    mergeIndices.push_back(j);
 	    mergeStrips.push_back(stripN);
-      if(m_writeStripProperties) {
-        mergeStripsTime.push_back(MMprds[j].time());
-        mergeStripsCharge.push_back(MMprds[j].charge());
-      }
-      mergeStripsDriftDists.push_back(MMprds[j].driftDist());
-      mergeStripsDriftDistErrors.push_back(MMprds[j].localCovariance());
+	    if(m_writeStripProperties) {
+	      mergeStripsTime.push_back(MMprds[j].time());
+	      mergeStripsCharge.push_back(MMprds[j].charge());
+	    }
+	    mergeStripsDriftDists.push_back(MMprds[j].driftDist());
+	    mergeStripsDriftDistErrors.push_back(MMprds[j].localCovariance());
 	    nmergeStrips++;
 	  }
 	}
@@ -142,60 +141,44 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     ///
     /// get the local position from the cluster centroid
     ///
-    double weightedPosX = 0.0;
-    double posY = 0.0;
-    double totalCharge = 0.0;
-    double theta = 0.0;
-    if ( mergeStrips.size() > 0 ) { 
-      /// get the Y local position from the first strip ( it's the same for all strips in the cluster)
-      posY = MMprds[mergeIndices[0]].localPosition().y();
+    std::vector<Muon::MMPrepData> stripsVec;
+    Amg::Vector2D clusterLocalPosition;
+    double totalCharge=0.0;
+    if ( !mergeStrips.empty() ) {
       for ( unsigned int k=0 ; k<mergeStrips.size() ; ++k ) {
-	double posX = MMprds[mergeIndices[k]].localPosition().x();
-	double charge = MMprds[mergeIndices[k]].charge();
-	weightedPosX += posX*charge;
-	totalCharge += charge;
-  theta += std::atan(MMprds[mergeIndices[k]].globalPosition().perp()/std::abs(MMprds[mergeIndices[k]].globalPosition().z()))*charge;
-	ATH_MSG_VERBOSE("Adding a strip to the centroid calculation: charge=" << charge);
-      } 
-      weightedPosX = weightedPosX/totalCharge;
-      theta /= totalCharge;
+	stripsVec.push_back(MMprds[mergeIndices[k]]);
+	totalCharge += MMprds[mergeIndices[k]].charge();
+      }
+      ///
+      /// memory allocated dynamically for the PrepRawData is managed by Event Store
+      ///
+      auto covMatrix = Amg::MatrixX(1,1);
+      ATH_CHECK(getClusterPosition(stripsVec,clusterLocalPosition,&covMatrix));
+
+      ///
+      /// memory allocated dynamically for the PrepRawData is managed by Event Store
+      ///
+      std::unique_ptr<Muon::MMPrepData> prdN = std::make_unique<MMPrepData>(
+        MMprds[j].identify(),
+        hash,
+        clusterLocalPosition,
+        rdoList,
+        std::move(covMatrix),
+        MMprds[j].detectorElement(),
+        static_cast<short int>(0),
+        static_cast<int>(totalCharge),
+        static_cast<float>(0.0),
+        (m_writeStripProperties ? mergeStrips : std::vector<uint16_t>(0)),
+        mergeStripsTime,
+        mergeStripsCharge);
+      prdN->setDriftDist(mergeStripsDriftDists, mergeStripsDriftDistErrors);
+      prdN->setAuthor(Muon::MMPrepData::Author::SimpleClusterBuilder);
+      
+      
+      clustersVect.push_back(std::move(prdN));
     }
 
-    
-    Amg::Vector2D clusterLocalPosition(weightedPosX,posY);
-    
-    double covX = MMprds[j].localCovariance()(Trk::locX, Trk::locX);
 
-    ///
-    /// memory allocated dynamically for the PrepRawData is managed by Event Store
-    ///
-    Amg::MatrixX* covN = new Amg::MatrixX(1,1);
-    covN->setIdentity();
-    if(!m_useErrorParametrization) {
-      (*covN)(0,0) = 6.*(nmerge + 1.)*covX;
-      if(nmerge<=1) (*covN)(0,0) = covX;
-    } else {
-      double localUncertainty = 0.074+0.66*theta-0.15*theta*theta;
-      if ( m_idHelperSvc->mmIdHelper().isStereo(MMprds[i].identify()) ) {
-      	localUncertainty = 10.;
-      } 
-      (*covN)(0,0) = localUncertainty * localUncertainty;
-    }
-    ATH_MSG_VERBOSE(" make merged prepData at strip " << m_idHelperSvc->mmIdHelper().channel(MMprds[j].identify()) << " nmerge " << nmerge << " sqrt covX " << sqrt((*covN)(0,0)));
-    
-    ///
-    /// memory allocated dynamically for the PrepRawData is managed by Event Store
-    ///
-    std::unique_ptr<Muon::MMPrepData> prdN = std::make_unique<MMPrepData>(MMprds[j].identify(), hash, clusterLocalPosition,
-              rdoList, covN, MMprds[j].detectorElement(),
-              static_cast<short int> (0), static_cast<int>(totalCharge), static_cast<float>(0.0),
-              (m_writeStripProperties ? mergeStrips : std::vector<uint16_t>(0) ),
-              mergeStripsTime, mergeStripsCharge);
-    prdN->setDriftDist(mergeStripsDriftDists, mergeStripsDriftDistErrors);
-    prdN->setAuthor(Muon::MMPrepData::Author::SimpleClusterBuilder);
-
-
-    clustersVect.push_back(std::move(prdN));
   } // end loop MMprds[i]
   //clear vector and delete elements
   MMflag.clear();
@@ -204,3 +187,62 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
 
   return StatusCode::SUCCESS;
 }
+
+
+/// get cluster local position and covariance matrix
+StatusCode SimpleMMClusterBuilderTool::getClusterPosition(std::vector<Muon::MMPrepData>& stripsVec,
+							  Amg::Vector2D& clusterLocalPosition, Amg::MatrixX* covMatrix) const
+{  
+  double weightedPosX = 0.0;
+  double posY = 0.0;
+  double totalCharge = 0.0;
+  double theta = 0.0;
+
+  /// get the Y local position from the first strip ( it's the same for all strips in the cluster)
+  posY = stripsVec[0].localPosition().y();
+  for ( unsigned int k=0 ; k<stripsVec.size() ; ++k ) {
+    double posX = stripsVec[k].localPosition().x();
+    double charge = stripsVec[k].charge();
+    weightedPosX += posX*charge;
+    totalCharge += charge;
+    theta += std::atan(stripsVec[k].globalPosition().perp()/std::abs(stripsVec[k].globalPosition().z()))*charge;
+    ATH_MSG_VERBOSE("Adding a strip to the centroid calculation: charge=" << charge);
+  } 
+  weightedPosX = weightedPosX/totalCharge;
+  theta /= totalCharge;
+    
+  clusterLocalPosition = Amg::Vector2D(weightedPosX,posY);
+
+  covMatrix->setIdentity();
+  double localUncertainty = 5.*(0.074+0.66*theta-0.15*theta*theta);
+  (*covMatrix)(0,0) = localUncertainty * localUncertainty;
+    
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode SimpleMMClusterBuilderTool::getCalibratedClusterPosition(const Muon::MMPrepData* cluster, std::vector<NSWCalib::CalibratedStrip>& strips, 
+								    Amg::Vector2D& clusterLocalPosition, Amg::MatrixX& covMatrix) const
+  
+{
+
+  /// correct the precision coordinate of the local position based on the centroid calibration
+  double xPosCalib = 0.0;
+  double totalCharge = 0.0;
+  for ( auto it : strips ) {
+    xPosCalib += it.charge*it.dx;
+    totalCharge += it.charge;
+  }
+
+  xPosCalib=xPosCalib/totalCharge;
+
+  ATH_MSG_DEBUG("position before calibration and correction: " << clusterLocalPosition[Trk::locX] << " " << xPosCalib);
+
+  clusterLocalPosition[Trk::locX] = clusterLocalPosition[Trk::locX]+xPosCalib;
+
+  /// for the centroid, keep the covariance matrix as it is
+  covMatrix = cluster->localCovariance();
+
+  return StatusCode::SUCCESS;
+}
+

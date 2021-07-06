@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -137,18 +137,18 @@ private:
                                                                double& radius2,
                                                                Constants&   com,
                                                                const double endRadius) const;
-    bool					extrapolateToZ(TrackSurfaceIntersection& isect,
+    static bool					extrapolateToZ(TrackSurfaceIntersection& isect,
                                                                Constants&   com,
-                                                               const double endZ) const;
+                                                               const double endZ) ;
     const TrackSurfaceIntersection*		intersection(std::unique_ptr<TrackSurfaceIntersection> isect,
                                                              Constants&     com,
                                                              const Surface& surface) const;
 
-   std::unique_ptr<TrackSurfaceIntersection>
+   static std::unique_ptr<TrackSurfaceIntersection>
    newIntersection (const TrackSurfaceIntersection& oldIsect,
                     const SolenoidParametrization& solpar,
                     const double qOverP,
-                    Constants*& com) const;
+                    Constants*& com) ;
 
     SG::ReadCondHandleKey<SolenoidParametrization> m_solenoidParametrizationKey
        { this, "SolenoidParameterizationKey", "SolenoidParametrization",""};

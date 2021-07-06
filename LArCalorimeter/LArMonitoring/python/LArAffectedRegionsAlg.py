@@ -288,18 +288,18 @@ def LArAffectedRegionsConfigCore(helper, algoinstance, inputFlags):
                                          merge='weightedAverage'
     )
     
-    #FCAL0
-    group_name_ending="FCAL0"
-    larAffectedRegAlg.FCAL0name=group_name_ending
-    affectedRegGroupFCAL0 = helper.addGroup(
+    #FCal0
+    group_name_ending="FCal0"
+    larAffectedRegAlg.FCal0name=group_name_ending
+    affectedRegGroupFCal0 = helper.addGroup(
         larAffectedRegAlg,
         affectedRegGroupName+group_name_ending,
         '/LAr/',
         'run'
     )
     
-    affectedRegGroupFCAL0.defineHistogram('etaPOS,phi;RAW_LArAffectedRegionsFCALA0',
-                                          title='HV Affected Regions - FCALA - Layer 1;#eta;#phi',
+    affectedRegGroupFCal0.defineHistogram('etaPOS,phi;RAW_LArAffectedRegionsFCalA0',
+                                          title='HV Affected Regions - FCalA - Layer 1;#eta;#phi',
                                           type='TH2F',
                                           path=larAffReg_hist_path,
                                           weight='problem',
@@ -307,8 +307,8 @@ def LArAffectedRegionsConfigCore(helper, algoinstance, inputFlags):
                                           ybins=lArDQGlobals.HVphi_HECFcal["FCalA"][0],ymin=lArDQGlobals.HVphi_HECFcal["FCalA"][1],ymax=lArDQGlobals.HVphi_HECFcal["FCalA"][2],
                                           merge='weightedAverage'
     )
-    affectedRegGroupFCAL0.defineHistogram('etaNEG,phi;RAW_LArAffectedRegionsFCALC0',
-                                          title='HV Affected Regions - FCALC - Layer 1;#eta;#phi',
+    affectedRegGroupFCal0.defineHistogram('etaNEG,phi;RAW_LArAffectedRegionsFCalC0',
+                                          title='HV Affected Regions - FCalC - Layer 1;#eta;#phi',
                                           type='TH2F',
                                           path=larAffReg_hist_path,
                                           weight='problem',
@@ -317,18 +317,18 @@ def LArAffectedRegionsConfigCore(helper, algoinstance, inputFlags):
                                           merge='weightedAverage'
     )
 
-    #FCAL1
-    group_name_ending="FCAL1"
-    larAffectedRegAlg.FCAL1name=group_name_ending
-    affectedRegGroupFCAL1 = helper.addGroup(
+    #FCal1
+    group_name_ending="FCal1"
+    larAffectedRegAlg.FCal1name=group_name_ending
+    affectedRegGroupFCal1 = helper.addGroup(
         larAffectedRegAlg,
         affectedRegGroupName+group_name_ending,
         '/LAr/',
         'run'
     )
     
-    affectedRegGroupFCAL1.defineHistogram('etaPOS,phi;RAW_LArAffectedRegionsFCALA1',
-                                          title='HV Affected Regions - FCALA - Layer 2;#eta;#phi',
+    affectedRegGroupFCal1.defineHistogram('etaPOS,phi;RAW_LArAffectedRegionsFCalA1',
+                                          title='HV Affected Regions - FCalA - Layer 2;#eta;#phi',
                                           type='TH2F',
                                           path=larAffReg_hist_path,
                                           weight='problem',
@@ -336,8 +336,8 @@ def LArAffectedRegionsConfigCore(helper, algoinstance, inputFlags):
                                           ybins=lArDQGlobals.HVphi_HECFcal["FCalA"][0],ymin=lArDQGlobals.HVphi_HECFcal["FCalA"][1],ymax=lArDQGlobals.HVphi_HECFcal["FCalA"][2],
                                           merge='weightedAverage'
     )
-    affectedRegGroupFCAL1.defineHistogram('etaNEG,phi;RAW_LArAffectedRegionsFCALC1',
-                                          title='HV Affected Regions - FCALC - Layer 2;#eta;#phi',
+    affectedRegGroupFCal1.defineHistogram('etaNEG,phi;RAW_LArAffectedRegionsFCalC1',
+                                          title='HV Affected Regions - FCalC - Layer 2;#eta;#phi',
                                           type='TH2F',
                                           path=larAffReg_hist_path,
                                           weight='problem',
@@ -346,18 +346,18 @@ def LArAffectedRegionsConfigCore(helper, algoinstance, inputFlags):
                                           merge='weightedAverage'
     )
 
-    #FCAL2
-    group_name_ending="FCAL2"
-    larAffectedRegAlg.FCAL2name=group_name_ending
-    affectedRegGroupFCAL2 = helper.addGroup(
+    #FCal2
+    group_name_ending="FCal2"
+    larAffectedRegAlg.FCal2name=group_name_ending
+    affectedRegGroupFCal2 = helper.addGroup(
         larAffectedRegAlg,
         affectedRegGroupName+group_name_ending,
         '/LAr/',
         'run'
     )
         
-    affectedRegGroupFCAL2.defineHistogram('etaPOS,phi;RAW_LArAffectedRegionsFCALA2',
-                                          title='HV Affected Regions - FCALA - Layer 3;#eta;#phi',
+    affectedRegGroupFCal2.defineHistogram('etaPOS,phi;RAW_LArAffectedRegionsFCalA2',
+                                          title='HV Affected Regions - FCalA - Layer 3;#eta;#phi',
                                           type='TH2F',
                                           path=larAffReg_hist_path,
                                           weight='problem',
@@ -365,8 +365,8 @@ def LArAffectedRegionsConfigCore(helper, algoinstance, inputFlags):
                                           ybins=lArDQGlobals.HVphi_HECFcal["FCalA"][0],ymin=lArDQGlobals.HVphi_HECFcal["FCalA"][1],ymax=lArDQGlobals.HVphi_HECFcal["FCalA"][2],
                                           merge='weightedAverage'
     )
-    affectedRegGroupFCAL2.defineHistogram('etaNEG,phi;RAW_LArAffectedRegionsFCALC2',
-                                          title='HV Affected Regions - FCALC - Layer 3;#eta;#phi',
+    affectedRegGroupFCal2.defineHistogram('etaNEG,phi;RAW_LArAffectedRegionsFCalC2',
+                                          title='HV Affected Regions - FCalC - Layer 3;#eta;#phi',
                                           type='TH2F',
                                           path=larAffReg_hist_path,
                                           weight='problem',

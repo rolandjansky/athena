@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -20,9 +20,6 @@ reconstruction
   - ICaloCellSelector    : interface for generic cell selection tool
   - ICaloHVGeometryTool  : obsolete (for old HV correction)
   - ICaloHVScaleTool     : obsolete (for old HV corrections)
-  - ICaloMBAverageTool.h : interface to get average energy per cell from pileup (in simulation)
-  - ICalorimeterNoiseTool.h  : base interface for access to cell noise
-  - ICaloNoiseTool.h         : more refined interface (deriving from ICalorimeterNoiseTool) to access more noise informations
   - ICaloTowerBuilderToolBase.h  : interface for tower builder tools
   - ICellWeightTool.h            : interface base class for cell weight tools
   - IClusterCellWeightTool.h     : interface for tools weighting cells in cluster objects

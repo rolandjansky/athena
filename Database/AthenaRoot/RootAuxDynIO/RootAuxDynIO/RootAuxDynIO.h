@@ -29,9 +29,9 @@ namespace RootAuxDynIO {
    * @brief Crate RootAuxDynReader for a given TBranch
    * @param branch TBranch in which AuxStore objects are
 
-   Will return nullptr in case of problems
+   Will return null in case of problems
    */ 
-   IRootAuxDynReader*  getReaderForBranch(TBranch *branch);
+   std::unique_ptr<IRootAuxDynReader>  getReaderForBranch(TBranch *branch);
   
  /**
    * @brief Construct branch name for a given dynamic attribute

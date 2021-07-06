@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfData/L1Menu.h"
@@ -13,22 +13,25 @@ TrigConf::L1Menu::L1Menu()
 TrigConf::L1Menu::L1Menu(const boost::property_tree::ptree & data) 
    : DataStructure(data)
 {
-   update();
+   load();
 }
 
 TrigConf::L1Menu::~L1Menu()
 {}
 
 void
-TrigConf::L1Menu::update()
+TrigConf::L1Menu::load()
 {
    if(! isInitialized() || empty() ) {
       return;
    }
+
+   m_run = getAttribute_optional<int>("run").value_or(3);
+   
+   // thresholds
    try {
       m_name = getAttribute("name");
-      // thresholds
-      for( const std::string & path : {"thresholds", "thresholds.legacyCalo" } ) {
+      for( const std::string path : {"thresholds", "thresholds.legacyCalo" } ) {
          for( auto & thrByType : data().get_child( path ) ) {
             const std::string & thrType = thrByType.first;
             if (thrType == "legacyCalo")
@@ -52,6 +55,9 @@ TrigConf::L1Menu::update()
             for( auto & thr : v ) {
                m_thresholdsByName[ thr->name() ] = thr;
             }
+            for (auto &thr : v) {
+               m_thresholdsByTypeAndMapping[thrType][thr->mapping()] = thr;
+            }
          }
       }
    }
@@ -60,8 +66,8 @@ TrigConf::L1Menu::update()
       throw;
    }
 
+   // boards
    try {
-      // boards
       for( auto & board : data().get_child( "boards" ) ) {
          m_boards.emplace( std::piecewise_construct,
                            std::forward_as_tuple(board.first),
@@ -73,8 +79,8 @@ TrigConf::L1Menu::update()
       throw;
    }
 
+   // connectors
    try {
-      // connectors
       for( auto & conn : data().get_child( "connectors" ) ) {
          auto res = m_connectors.emplace( std::piecewise_construct,
                                           std::forward_as_tuple(conn.first),
@@ -91,51 +97,78 @@ TrigConf::L1Menu::update()
       throw;
    }
 
-   try {
-      // algorithms
-      for( const std::string & algoCategory : { "TOPO", "MULTTOPO", "MUTOPO", "R2TOPO" } ) {
-         auto & v = m_algorithmsByCategory[algoCategory] = std::vector<TrigConf::L1TopoAlgorithm>();
-         if(algoCategory == "MULTTOPO") {
-            for( auto & alg : data().get_child( "topoAlgorithms." + algoCategory + ".multiplicityAlgorithms" ) ) {
-               v.emplace_back( alg.first, L1TopoAlgorithm::AlgorithmType::MULTIPLICITY, algoCategory, alg.second );
-            }
-         } else {
-            for( L1TopoAlgorithm::AlgorithmType algoType : { L1TopoAlgorithm::AlgorithmType::DECISION, L1TopoAlgorithm::AlgorithmType::SORTING } ) {
-               std::string subpath = "topoAlgorithms." + algoCategory + (algoType==L1TopoAlgorithm::AlgorithmType::DECISION ? ".decisionAlgorithms" : ".sortingAlgorithms" );  
-               for( auto & algorithm : data().get_child( subpath ) ) {
-                  v.emplace_back( algorithm.first, algoType, algoCategory, algorithm.second );
+   // algorithms
+   if(m_run>1) {
+      try {
+         auto topoCategories = isRun2() ? std::vector<std::string> {"R2TOPO"} : std::vector<std::string> {"TOPO", "MUTOPO", "MULTTOPO", "R2TOPO"};
+         for( const std::string& algoCategory : topoCategories ) {
+            auto & v = m_algorithmsByCategory[algoCategory] = std::vector<TrigConf::L1TopoAlgorithm>();
+            if(algoCategory == "MULTTOPO") {
+               for( auto & alg : data().get_child( "topoAlgorithms." + algoCategory + ".multiplicityAlgorithms" ) ) {
+                  v.emplace_back( alg.first, L1TopoAlgorithm::AlgorithmType::MULTIPLICITY, algoCategory, alg.second );
+               }
+            } else {
+               for( L1TopoAlgorithm::AlgorithmType algoType : { L1TopoAlgorithm::AlgorithmType::DECISION, L1TopoAlgorithm::AlgorithmType::SORTING } ) {
+                  std::string subpath = "topoAlgorithms." + algoCategory + (algoType==L1TopoAlgorithm::AlgorithmType::DECISION ? ".decisionAlgorithms" : ".sortingAlgorithms" );  
+                  for( auto & algorithm : data().get_child( subpath ) ) {
+                     v.emplace_back( algorithm.first, algoType, algoCategory, algorithm.second );
+                  }
                }
             }
-         }
-         for( auto & algo : v ) {
-            if( m_algorithmsByName[algoCategory].count(algo.name()) > 0 ) {
-               std::cerr << "ERROR : Topo algorithm with name " << algo.name() << " and of type " << algoCategory << " already exists" << std::endl;
-               throw std::runtime_error("Found duplicate topo algorithm name " + algo.name() + " of type " + algoCategory);
-            }
-            m_algorithmsByName[ algoCategory ][ algo.name() ] = & algo;
-            for( const std::string & output : algo.outputs() ) {
-               if( m_algorithmsByOutput[algoCategory].count(output) > 0 ) {
-                  std::cerr << "ERROR : Topo algorithm output " << output << " already exists" << std::endl;
-                  throw std::runtime_error("Found duplicate topo algorithm output " + output + " of type " + algoCategory);
+            for( auto & algo : v ) {
+               if( m_algorithmsByName[algoCategory].count(algo.name()) > 0 ) {
+                  std::cerr << "ERROR : Topo algorithm with name " << algo.name() << " and of type " << algoCategory << " already exists" << std::endl;
+                  throw std::runtime_error("Found duplicate topo algorithm name " + algo.name() + " of type " + algoCategory);
                }
-               m_algorithmsByOutput[algoCategory][output] = & algo;
+               m_algorithmsByName[ algoCategory ][ algo.name() ] = & algo;
+               for( const std::string & output : algo.outputs() ) {
+                  if( m_algorithmsByOutput[algoCategory].count(output) > 0 ) {
+                     std::cerr << "ERROR : Topo algorithm output " << output << " already exists" << std::endl;
+                     throw std::runtime_error("Found duplicate topo algorithm output " + output + " of type " + algoCategory);
+                  }
+                  m_algorithmsByOutput[algoCategory][output] = & algo;
+               }
             }
          }
       }
-   }
-   catch(std::exception & ex) {
-      std::cerr << "ERROR: problem when building L1 menu structure (algorithms). " << ex.what() << std::endl;
-      throw;
+      catch(std::exception & ex) {
+         std::cerr << "ERROR: problem when building L1 menu structure (algorithms). " << ex.what() << std::endl;
+         throw;
+      }
    }
 
+   // CTP
    try {
-      // CTP
       m_ctp.setData(data().get_child("ctp"));
    }
    catch(std::exception & ex) {
       std::cerr << "ERROR: problem when building L1 menu structure (CTP). " << ex.what() << std::endl;
       throw;
    }
+}
+
+void
+TrigConf::L1Menu::clear()
+{
+   DataStructure::clear();
+
+   m_smk = 0;
+   m_run = 3;
+   m_connectors.clear();
+   m_threshold2ConnectorName.clear();
+   m_boards.clear();
+   m_thresholdsByType.clear();
+   m_thresholdsByName.clear();
+   m_thresholdsByTypeAndMapping.clear();
+
+   m_thrExtraInfo.clear();
+
+   m_algorithmsByCategory.clear();
+   m_algorithmsByName.clear();
+   m_algorithmsByOutput.clear(); 
+
+   m_ctp.clear();
+
 }
 
 unsigned int 
@@ -252,6 +285,22 @@ TrigConf::L1Menu::threshold(const std::string & thresholdName) const
    }
    catch(std::exception & ex) {
       std::cerr << "No threshold '" << thresholdName << "' defined in the thresholds section of the L1 menu" << std::endl;
+      throw;
+   }
+}
+
+/** Access to L1Threshold by type and mapping index */
+const TrigConf::L1Threshold &
+TrigConf::L1Menu::threshold(const std::string &typeName, unsigned int mapping) const
+{
+   try
+   {
+      return *m_thresholdsByTypeAndMapping.at(typeName).at(mapping);
+   }
+   catch (std::exception &ex)
+   {
+      std::cerr << "No threshold of type '" << typeName << "' with mapping " << mapping
+                << " defined in the thresholds section of the L1 menu" << std::endl;
       throw;
    }
 }
@@ -425,11 +474,13 @@ TrigConf::L1Menu::printMenu(bool full) const
          }
       }
    }
-   cout << "Topo algorithms: " << endl;
-   cout << "    new   : " << data().get_child("topoAlgorithms.TOPO.decisionAlgorithms").size() << endl;
-   cout << "    muon  : " << data().get_child("topoAlgorithms.MUTOPO.decisionAlgorithms").size() << endl;
-   cout << "    mult  : " << data().get_child("topoAlgorithms.MULTTOPO.multiplicityAlgorithms").size() << endl;
-   cout << "    legacy: " << data().get_child("topoAlgorithms.R2TOPO.decisionAlgorithms").size() << endl;
+   if(m_run>1) {
+      cout << "Topo algorithms: " << endl;
+      cout << "    new   : " << data().get_child("topoAlgorithms.TOPO.decisionAlgorithms").size() << endl;
+      cout << "    muon  : " << data().get_child("topoAlgorithms.MUTOPO.decisionAlgorithms").size() << endl;
+      cout << "    mult  : " << data().get_child("topoAlgorithms.MULTTOPO.multiplicityAlgorithms").size() << endl;
+      cout << "    legacy: " << data().get_child("topoAlgorithms.R2TOPO.decisionAlgorithms").size() << endl;
+   }
    cout << "Boards: " << data().get_child("boards").size() << endl;
    cout << "Connectors: " << data().get_child("connectors").size() << endl;
    unsigned int ctpinputs = data().get_child("ctp.inputs.optical").size();

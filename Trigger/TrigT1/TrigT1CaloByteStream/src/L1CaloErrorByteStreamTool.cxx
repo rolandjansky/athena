@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -44,8 +44,7 @@ L1CaloErrorByteStreamTool::~L1CaloErrorByteStreamTool()
 
 StatusCode L1CaloErrorByteStreamTool::initialize()
 {
-  msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endmsg;
+  msg(MSG::INFO) << "Initializing " << name() << endmsg;
 
   return StatusCode::SUCCESS;
 }

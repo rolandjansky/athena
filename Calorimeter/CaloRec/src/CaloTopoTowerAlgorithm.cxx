@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -18,7 +18,6 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloTopoTowerContainer.h"
-#include "CaloInterface/ICalorimeterNoiseTool.h"
 #include "CaloTopoTowerAlgorithm.h"
 
 #include <string>
@@ -59,8 +58,6 @@ CaloTopoTowerAlgorithm::CaloTopoTowerAlgorithm(const std::string& name,
 
   // Noise Tool stuff
   declareProperty("DefaultNoiseSigma",      m_noiseSigma           = 10.0);
-  declareProperty("UseCaloNoiseTool",       m_useNoiseTool         = false);
-  declareProperty("UsePileUpNoise",         m_usePileUpNoise       = true);
   declareProperty("CellEnergySignificance", m_cellESignificanceThreshold = -1);
 
   // Calo from which to use cells
@@ -96,13 +93,6 @@ StatusCode CaloTopoTowerAlgorithm::initialize()
   ATH_CHECK(m_cellToClusterMapKey.initialize());
   ATH_CHECK(m_towerContainerKey.initialize());
   ATH_CHECK(m_newTowerContainerKey.initialize());
-
-  // Report some information regarding the noise tool
-  if ( m_useNoiseTool && m_usePileUpNoise) {
-    ATH_MSG_DEBUG( "Pile-Up Noise from Noise Tool "
-         << " is selected! The noise sigma will be the"
-                   << " quadratic sum of the electronics noise and the pile up!"  );
-  }
 
   m_caloIndices.clear();
   for ( unsigned int iCalos=0; iCalos< m_includedCalos.size(); iCalos++ )
@@ -151,9 +141,6 @@ StatusCode CaloTopoTowerAlgorithm::initialize()
 
   // find tools
   
-  ToolHandleArray<ICaloTopoTowerBuilderToolBase>::const_iterator firstITool = m_ptools.begin();
-  ToolHandleArray<ICaloTopoTowerBuilderToolBase>::const_iterator lastITool  = m_ptools.end();
-
   unsigned int toolCtr = 0;
   ATH_MSG_INFO( " "  );
   ATH_MSG_INFO( "List of tools in execution sequence:" );
@@ -166,7 +153,7 @@ StatusCode CaloTopoTowerAlgorithm::initialize()
       return StatusCode::FAILURE;
     }
 
-  for ( ; firstITool != lastITool; firstITool++ )
+  for (ToolHandle<ICaloTopoTowerBuilderToolBase>& tool : m_ptools)
     {
       toolCtr++;
       /*      ATH_MSG_INFO( "retrieving tool"  );
@@ -182,15 +169,15 @@ StatusCode CaloTopoTowerAlgorithm::initialize()
 
 
       ATH_MSG_INFO( std::setw(2) << toolCtr << ".) "
-	  << (*firstITool)->type()
+	  << tool->type()
 	  << "::name() = \042"
-	  << (*firstITool)->name()
+	  << tool->name()
 	  << "\042" );
 
       ATH_MSG_INFO( "------------------------------------" );
       ATH_MSG_INFO( " "  );
 
-	/*if ( (*firstITool)->initializeTool().isFailure() ) {
+	/*if ( tool->initializeTool().isFailure() ) {
 
 	  ATH_MSG_WARNING( " Tool failed to initialize"  );
 	  }*/
@@ -268,8 +255,6 @@ StatusCode CaloTopoTowerAlgorithm::execute (const EventContext& ctx) const
   theTowers->SetUseCellWeights(m_useCellWeights);
 
   // Noise tool stuff
-  theTowers->SetUseNoiseTool(m_useNoiseTool);
-  theTowers->SetUsePileUpNoise(m_usePileUpNoise);
   theTowers->SetNoiseSigma(m_noiseSigma);
   theTowers->SetCellESignificanceThreshold(m_cellESignificanceThreshold);
 
@@ -327,7 +312,7 @@ StatusCode CaloTopoTowerAlgorithm::execute (const EventContext& ctx) const
 	  ATH_MSG_DEBUG( (*firstITool)->name()
 	      << ": CaloTopoTowerContainer::size() = "
 	      << theTowers->size() );
-	  firstITool++;
+	  ++firstITool;
 	}
       else
 	{
@@ -336,7 +321,7 @@ StatusCode CaloTopoTowerAlgorithm::execute (const EventContext& ctx) const
 	      << (*firstITool)->name()
 	      << "\042 - cross-check CaloTopoTowerContainer::size() = "
 	      << theTowers->size() );
-	  firstITool++;
+	  ++firstITool;
 	}
     }
 

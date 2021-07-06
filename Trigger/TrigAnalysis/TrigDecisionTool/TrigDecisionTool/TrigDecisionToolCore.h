@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigDecision_TrigDecisionToolCore_h
@@ -72,7 +72,10 @@ namespace Trig {
     Trig::ExpertMethods* m_expertMethods;
     TrigDecisionToolCore (const TrigDecisionToolCore&);
     TrigDecisionToolCore& operator= (const TrigDecisionToolCore&);
-    
+
+  protected:
+    // Set by TrigDecisionTool.
+    HLT::TrigNavStructure* m_navigation = nullptr;
   };
   
 } // End of namespace

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
@@ -136,34 +136,28 @@ StatusCode BSFilter::execute()
       //ATH_MSG_INFO(myChain);
       chains[myChain.getChainCounter()]=chainsData[i];
     }
-    const TrigConf::HLTChainList* hltchains = m_trigConf->chainList();
+
     int passed_noalg=-1,passed_j40=-1,prescale_noalg=-1,prescale_j40=-1;
-    if( hltchains ) {
-      for (auto itr = hltchains->begin(); itr != hltchains->end(); ++itr ) {
-	TrigConf::HLTChain* c=*itr;
-	auto it=chains.find(c->chain_counter());
-	if (it!=chains.end()){
-	  const std::string& name =c->chain_name();
-	  std::size_t found = name.find("L1ZB");
-	  if (found!=std::string::npos){
-	    Chain myChain(it->second);
-	    ATH_MSG_INFO("chain :"<<name<<", level:"<<c->level()<<", counter:"<<c->chain_counter()<<", prescale:"<<c->prescale()<<", passed:"<<myChain.chainPassed());
-	    if (name=="HLT_noalg_zb_L1ZB"){
-	      ATH_MSG_INFO("HLT_noalg_zb_L1ZB passed? " << myChain.chainPassed());
-	      passed_noalg=myChain.chainPassed();
-	      prescale_noalg=c->prescale();
-	    }
-	    else if (name=="HLT_j40_L1ZB"){
-	      ATH_MSG_INFO("HLT_j40_L1ZB passed? " << myChain.chainPassed());
-	      passed_j40=myChain.chainPassed();
-	      prescale_j40=c->prescale();
-	    }
-	  }
-	}
+    for (const TrigConf::HLTChain* c : m_trigConf->chains() ){
+      auto it=chains.find(c->chain_counter());
+      if (it!=chains.end()){
+        const std::string& name =c->chain_name();
+        std::size_t found = name.find("L1ZB");
+        if (found!=std::string::npos){
+          Chain myChain(it->second);
+          ATH_MSG_INFO("chain :"<<name<<", level:"<<c->level()<<", counter:"<<c->chain_counter()<<", prescale:"<<c->prescale()<<", passed:"<<myChain.chainPassed());
+          if (name=="HLT_noalg_zb_L1ZB"){
+            ATH_MSG_INFO("HLT_noalg_zb_L1ZB passed? " << myChain.chainPassed());
+            passed_noalg=myChain.chainPassed();
+            prescale_noalg=c->prescale();
+          }
+          else if (name=="HLT_j40_L1ZB"){
+            ATH_MSG_INFO("HLT_j40_L1ZB passed? " << myChain.chainPassed());
+            passed_j40=myChain.chainPassed();
+            prescale_j40=c->prescale();
+          }
+        }
       }
-    }
-    else{
-      ATH_MSG_WARNING("No trig chains?!");
     }
     //////////////////////////////////////////////////////////////////////
 

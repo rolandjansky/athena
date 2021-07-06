@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file ParticleEventTPCnv/test/CompositeParticleCnv_p1_test.cxx
@@ -15,6 +15,7 @@
 #include "SGTools/TestStore.h"
 #include "AthAllocators/DataPool.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include <cassert>
 #include <iostream>
 
@@ -77,10 +78,15 @@ void compare (const CompositeParticleContainer& c1,
 void test1()
 {
   std::cout << "test1\n";
+  (void)Gaudi::Hive::currentContext();
   AthenaBarCodeImpl dumbc; // Get services created.
   dumbc.getVersion();
   ElementLink<VxContainer> origlink ("orig", 10);
-  INav4MomLink dum ("part", 19);
+  {
+    CompositeParticle tdum;
+    tdum.navigableBase().insertElement (INav4MomLink ("part", 12));
+    *tdum.navigableBase().begin();
+  }
   MsgStream log (0, "test");
   {
     // Need to instantiate an instance of this before Leakcheck,

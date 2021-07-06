@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 ## Get the logger
-from AthenaCommon.Logging import *
+from AthenaCommon.Logging import logging
 isfoplog = logging.getLogger('ISF_Output')
 
 def getHITSStreamItemList():
@@ -23,6 +23,9 @@ def getHITSStreamItemList():
     else:
         hitsItemList += ["xAOD::JetContainer#*",
                            "xAOD::JetAuxContainer#*"]
+    ## pile-up truth particles
+    hitsItemList += ["xAOD::TruthParticleContainer#TruthPileupParticles",
+                     "xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux."]
     ## Detectors
     from AthenaCommon.DetFlags import DetFlags
     ## Inner Detector

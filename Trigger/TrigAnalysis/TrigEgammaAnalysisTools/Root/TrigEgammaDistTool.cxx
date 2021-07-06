@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************
@@ -99,7 +99,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                     cd(dir+"HLT");
                     if(ancestorPassed<xAOD::ElectronContainer>(feat.te()))
                         hist1("rejection")->Fill("HLT",1);
-                    for(const auto& obj : *cont){
+                    for(const auto obj : *cont){
                         if(!obj) continue;
                         if(bits==nullptr){
                             fillShowerShapes(dir+"HLT",obj); // Fill HLT shower shapes
@@ -166,7 +166,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                 if(ancestorPassed<xAOD::CaloClusterContainer>(feat.te(),"TrigEFCaloCalibFex"))
                     hist1("rejection")->Fill("EFCalo",1);
                 ATH_MSG_DEBUG("analyze clusters");
-                for(const auto& clus : *cont){
+                for(const auto clus : *cont){
                     if(clus==nullptr) continue;
                     if(!bits->isPassing(clus,cont)) continue;
                     fillEFCalo(dir+"EFCalo",clus);           
@@ -186,7 +186,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                     cd(dir+"HLT");
                     if(ancestorPassed<xAOD::TrigElectronContainer>(feat.te()))
                         hist1("rejection")->Fill("L2",1);
-                    for(const auto& obj : *cont){
+                    for(const auto obj : *cont){
                         // Only consider passing objects
                         if(!obj) continue;
                         if(!bits->isPassing(obj,cont)) continue;
@@ -203,7 +203,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                     cd(dir+"HLT");
                     if(ancestorPassed<xAOD::ElectronContainer>(feat.te()))
                         hist1("rejection")->Fill("HLT",1);
-                    for(const auto& obj : *cont){
+                    for(const auto obj : *cont){
                         if(!obj) continue;
                         if(bits==nullptr){
                             fillShowerShapes(dir+"HLT",obj); // Fill HLT shower shapes
@@ -227,7 +227,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                     cd(dir+"HLT");
                     if(ancestorPassed<xAOD::PhotonContainer>(feat.te()))
                         hist1("rejection")->Fill("HLT",1);
-                    for(const auto& obj : *cont){
+                    for(const auto obj : *cont){
                         // Only consider passing objects
                         if(!obj) continue;
                         if(bits==nullptr){

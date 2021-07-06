@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -7,7 +7,7 @@
  */
 #include "TrigJetConditionConfig_moment.h"
 #include "GaudiKernel/StatusCode.h"
-#include "./MomentConditionMT.h"
+#include "./MomentCondition.h"
 #include "./ArgStrToDouble.h"
 
 
@@ -24,9 +24,9 @@ StatusCode TrigJetConditionConfig_moment::initialize() {
 }
 
 
-ConditionMT TrigJetConditionConfig_moment::getCondition() const {
+Condition TrigJetConditionConfig_moment::getCondition() const {
   auto a2d = ArgStrToDouble();
-  return std::make_unique<MomentConditionMT>(a2d(m_min),
+  return std::make_unique<MomentCondition>(a2d(m_min),
 					     a2d(m_max),
 					     m_moment
 					     );
@@ -37,10 +37,3 @@ StatusCode TrigJetConditionConfig_moment::checkVals() const {
   return StatusCode::SUCCESS;
 }
 
-bool TrigJetConditionConfig_moment::addToCapacity(std::size_t) {
-  return false;
-}
-
-std::size_t TrigJetConditionConfig_moment::capacity() const {
-  return getCondition()->capacity();
-}

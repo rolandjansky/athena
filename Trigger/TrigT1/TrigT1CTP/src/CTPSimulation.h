@@ -132,7 +132,7 @@ namespace LVL1CTP {
 
       // Needed services and tools
       ServiceHandle<ITHistSvc> m_histSvc { this, "THistSvc", "THistSvc/THistSvc", "Histogramming svc" };
-      ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc { this, "TrigConfigSvc", "TrigConf::TrigConfigSvc/TrigConfigSvc", "Trigger configuration service" };
+      ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc { this, "TrigConfigSvc", "LVL1ConfigSvc", "Trigger configuration service" };
       // ServiceHandle<StoreGateSvc> m_detStore { this, "DetectorStore", "StoreGateSvc/DetectorStore", "Detector store to get the menu" };
       ToolHandle<LVL1CTP::ResultBuilder> m_resultBuilder { this, "ResultBuilder", "LVL1CTP__ResultBuilder/ResultBuilder", "Builds the CTP result" };
 
@@ -161,8 +161,8 @@ namespace LVL1CTP {
       // gFEX
       SG::ReadHandleKey< xAOD::JetRoIContainer >  m_iKeyGFexJets    {  this, "gFexJetInput", "gL1Jets", "Input list of gFEX jets" };
       SG::ReadHandleKey< xAOD::EnergySumRoI >     m_iKeyGFexMETPufit{  this, "gFexMETPufitInput", "gXEPUFIT_MET", "Input list of gFEX MET Pufit" };
-      SG::ReadHandleKey< xAOD::EnergySumRoI >     m_iKeyGFexMETRho  {  this, "gFexMETRhoInput", "gXERHO_MET", "Input list of gFEX MET Rho" };
-      SG::ReadHandleKey< xAOD::EnergySumRoI >     m_iKeyGFexMETJwoJ {  this, "gFexMETJwoJInput", "gXEJWOJ_MET", "Input list of gFEX MET JwoJ" };
+      SG::ReadHandleKey< xAOD::EnergySumRoI >     m_iKeyGFexMETRho  {  this, "gFexMETRhoInput", "gXERHOPerf", "Input list of gFEX MET Rho" };
+      SG::ReadHandleKey< xAOD::EnergySumRoI >     m_iKeyGFexMETJwoJ {  this, "gFexMETJwoJInput", "gXEJWOJPerf", "Input list of gFEX MET JwoJ" };
       // eFEX
       SG::ReadHandleKey< xAOD::TrigEMClusterContainer >  m_iKeyEFexCluster{  this, "eFexClusterInput", "SClusterCl", "Input list of eFEX cluster" };
       SG::ReadHandleKey< xAOD::EmTauRoIContainer >       m_iKeyEFexTau    {  this, "eFexTauInput", "SClusterTau", "Input list of eFEX tau" };
@@ -178,6 +178,11 @@ namespace LVL1CTP {
       Gaudi::Property<bool> m_useNewConfig { this, "UseNewConfig", false, "When true, read the menu from detector store, when false use the L1ConfigSvc" };
       Gaudi::Property<bool> m_forceBunchGroupPattern { this, "ForceBunchGroupPattern", true, "When true, ignore the bunchgroups and use the provided BunchGroupPattern" };
       Gaudi::Property<unsigned int> m_bunchGroupPattern { this, "BunchGroupPattern", 0x0003, "Bunchgroup pattern applied at every event, useful for simulation. Bit x corresponds to bunchgroup x" };
+
+      Gaudi::Property<bool> m_doL1CaloLegacy { this, "DoL1CaloLegacy", false, "Use L1Calo legacy" };
+
+      Gaudi::Property<bool> m_muonRun2Format { this, "MuonMultiplicityRun2Format", false, "Interpret muon multiplicity in Run 2 format (bit 0 unused)" };
+
 
       // to decode the L1 Run-2 hardware ROIs from data
       LVL1::CPRoIDecoder * m_decoder { nullptr };

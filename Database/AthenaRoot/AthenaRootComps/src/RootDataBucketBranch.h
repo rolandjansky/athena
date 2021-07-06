@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // RootDataBucketBranch.h 
@@ -41,7 +41,7 @@ public:
     m_ptr(ptr)
   {}
 
-  DataBucketBranch(CLID clid, RootType type, void* ptr) :
+  DataBucketBranch(CLID clid, const RootType& type, void* ptr) :
     m_clid(clid),
     m_type(type),
     m_ptr(ptr)

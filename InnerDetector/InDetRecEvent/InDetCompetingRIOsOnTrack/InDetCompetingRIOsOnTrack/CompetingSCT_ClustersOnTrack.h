@@ -139,7 +139,7 @@ inline const InDet::SCT_ClusterOnTrack& CompetingSCT_ClustersOnTrack::rioOnTrack
 
 inline const Amg::Vector3D& CompetingSCT_ClustersOnTrack::globalPosition() const {
     if (not m_globalPosition) {
-        m_globalPosition.set(std::unique_ptr<const Amg::Vector3D>(associatedSurface().localToGlobal(localParameters())));
+        m_globalPosition.set(std::make_unique<const Amg::Vector3D>(associatedSurface().localToGlobal(localParameters())));
     }
     return *m_globalPosition;
 }

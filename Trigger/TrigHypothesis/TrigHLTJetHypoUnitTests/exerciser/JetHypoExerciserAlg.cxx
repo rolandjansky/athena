@@ -3,7 +3,7 @@
 */
 
 #include "TrigHLTJetHypoUnitTests/JetHypoExerciserAlg.h"
-#include "TrigHLTJetHypo/ITrigJetHypoToolHelperMT.h"
+#include "TrigHLTJetHypo/ITrigJetHypoToolHelper.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 #include "TrigHLTJetHypoUnitTests/../src/TLorentzVectorFactory.h"
 #include "TrigHLTJetHypoUnitTests/../src/TLorentzVectorAsIJet.h"

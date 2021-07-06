@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RDBQuery.h"
@@ -21,11 +21,13 @@
 
 #include "CxxUtils/checker_macros.h"
 
-RDBQuery::RDBQuery(RDBAccessSvc* accessSvc
+RDBQuery::RDBQuery(const Athena::DBLock& dblock
+                   , RDBAccessSvc* accessSvc
 		   , const std::string& nodeName
 		   , const std::string& tagId
 		   , const std::string& connName)
   : IRDBQuery()
+  , m_dblock (dblock)
   , m_query(nullptr)
   , m_queryCount(nullptr)
   , m_accessSvc(accessSvc)

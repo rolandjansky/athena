@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODMissingET/versions/MissingETAssociation_v1.h"
@@ -8,6 +8,7 @@
 #include "xAODTruth/TruthParticle.h"
 #include "xAODPFlow/PFO.h"
 #include "xAODPFlow/FlowElement.h"
+#include "xAODPFlow/FEHelpers.h"
 
 #include <iterator>
 #include <cstdio>
@@ -16,6 +17,25 @@ using namespace MissingETBase::Types;
 using std::vector;
 
 namespace xAOD {
+
+    // Static accessors
+    const SG::AuxElement::Accessor<std::vector<float> > MissingETAssociation_v1::m_acc_calpx("calpx");
+    const SG::AuxElement::Accessor<std::vector<float> > MissingETAssociation_v1::m_acc_calpy("calpy");
+    const SG::AuxElement::Accessor<std::vector<float> > MissingETAssociation_v1::m_acc_calpz("calpz");
+    const SG::AuxElement::Accessor<std::vector<float> > MissingETAssociation_v1::m_acc_cale("cale");
+    const SG::AuxElement::Accessor<std::vector<float> > MissingETAssociation_v1::m_acc_calsumpt("calsumpt");
+
+    const SG::AuxElement::Accessor<std::vector<float> > MissingETAssociation_v1::m_acc_trkpx("trkpx");
+    const SG::AuxElement::Accessor<std::vector<float> > MissingETAssociation_v1::m_acc_trkpy("trkpy");
+    const SG::AuxElement::Accessor<std::vector<float> > MissingETAssociation_v1::m_acc_trkpz("trkpz");
+    const SG::AuxElement::Accessor<std::vector<float> > MissingETAssociation_v1::m_acc_trke("trke");
+    const SG::AuxElement::Accessor<std::vector<float> > MissingETAssociation_v1::m_acc_trksumpt("trksumpt");
+
+    const SG::AuxElement::Accessor<float> MissingETAssociation_v1::m_acc_jettrkpx("jettrkpx");
+    const SG::AuxElement::Accessor<float> MissingETAssociation_v1::m_acc_jettrkpy("jettrkpy");
+    const SG::AuxElement::Accessor<float> MissingETAssociation_v1::m_acc_jettrkpz("jettrkpz");
+    const SG::AuxElement::Accessor<float> MissingETAssociation_v1::m_acc_jettrke("jettrke");
+    const SG::AuxElement::Accessor<float> MissingETAssociation_v1::m_acc_jettrksumpt("jettrksumpt");
 
   MissingETBase::Types::bitmask_t getObjMask(size_t objIndex)
   { 
@@ -92,7 +112,7 @@ namespace xAOD {
   }
 
   MissingETAssociation_v1::MissingETAssociation_v1(const MissingETAssociation_v1& assocDescr)
-    : SG::AuxElement()
+    : SG::AuxElement(assocDescr)
   {
     this->makePrivateStore(&assocDescr);
     initCache();
@@ -161,8 +181,8 @@ namespace xAOD {
           linklist.push_back(el);
         }
         m_objConstLinks.push_back(linklist);
-        this->f_overlapIndices().push_back(vector<size_t>(0));
-        this->f_overlapTypes().push_back(vector<unsigned char>(0));
+        this->f_overlapIndices().emplace_back(0);
+        this->f_overlapTypes().emplace_back(0);
         bool linkset = f_setLink<MissingETBase::Types::objlink_t>(oLnk);
         return linkset;
       }
@@ -415,21 +435,21 @@ namespace xAOD {
 
   bool MissingETAssociation_v1::setRefJet(const Jet* pJet)
   { 
-    bool wasSet(this->f_jetLink().getStorableObjectPointer() != 0);
+    bool wasSet(this->f_jetLink().getStorableObjectPointer() != nullptr);
     f_setObject<Jet,MissingETBase::Types::jetlink_t>(pJet,this->f_jetLink());
     return wasSet;
   }
 
   bool MissingETAssociation_v1::setRefJet(const JetContainer* pJetCont, size_t pJetIdx)
   {
-    bool wasSet(this->f_jetLink().getStorableObjectPointer() != 0);
+    bool wasSet(this->f_jetLink().getStorableObjectPointer() != nullptr);
     this->f_jetLink().toIndexedElement(*pJetCont,pJetIdx);
     return wasSet;
   }
 
   bool MissingETAssociation_v1::setJetLink(const MissingETBase::Types::jetlink_t& jetLnk)
   {
-    bool wasSet(this->f_jetLink().getStorableObjectPointer() != 0);
+    bool wasSet(this->f_jetLink().getStorableObjectPointer() != nullptr);
     this->f_jetLink() = jetLnk;
     return wasSet;
   }
@@ -485,14 +505,14 @@ namespace xAOD {
   std::vector<const IParticle*> MissingETAssociation_v1::objects() const
   { 
     vector<const IParticle*> pVec;
-    for ( objlink_vector_t::const_iterator fLnk(this->objectLinks().begin()); fLnk != this->objectLinks().end(); ++fLnk) {pVec.push_back((*fLnk).isValid()?*(*fLnk):NULL); }
+    for ( objlink_vector_t::const_iterator fLnk(this->objectLinks().begin()); fLnk != this->objectLinks().end(); ++fLnk) {pVec.push_back((*fLnk).isValid()?*(*fLnk):nullptr); }
     return pVec;
   }
 
   std::vector<const IParticle*> MissingETAssociation_v1::objects(std::vector<constvec_t>& calVecs,std::vector<constvec_t>& trkVecs) const
   {
     size_t nEnt(this->objectLinks().size());
-    vector<const IParticle*> pVec(nEnt,(const IParticle*)0);
+    vector<const IParticle*> pVec(nEnt,(const IParticle*)nullptr);
     calVecs.clear(); calVecs.resize(this->sizeCal(),constvec_t()); 
     trkVecs.clear(); trkVecs.resize(this->sizeTrk(),constvec_t()); 
     for ( size_t idx(0); idx < nEnt; ++idx ) pVec[idx] = *(this->objectLinks().at(idx));
@@ -679,6 +699,7 @@ namespace xAOD {
           if(mine == target) {
             if((*mine)->type()==xAOD::Type::TruthParticle) overlapTypes |= 1;
             else if((*mine)->type()==xAOD::Type::Other) overlapTypes |= 1 << xAOD::Type::NeutralParticle;
+            else if((*mine)->type()==xAOD::Type::FlowElement) overlapTypes |= 1 << FEHelpers::signalToXAODType(static_cast<const xAOD::FlowElement&>(**mine));
             else overlapTypes |= 1 << (*mine)->type();
           }
         }
@@ -689,17 +710,16 @@ namespace xAOD {
         this->addOverlap(iTargetObj,objIdx,overlapTypes);
       }
     }
-    return overlapIndices(objIdx).size()>0;
+    return !overlapIndices(objIdx).empty();
   }
 
-  bool MissingETAssociation_v1::hasOverlaps(const MissingETAssociationHelper* helper, size_t objIdx,MissingETBase::UsageHandler::Policy p) const
+  bool MissingETAssociation_v1::hasOverlaps(const MissingETAssociationHelper& helper, size_t objIdx,MissingETBase::UsageHandler::Policy p) const
   {
-    if(!helper) throw std::runtime_error("MissingETAssociation::hasOverlaps received a null pointer");
     if ( objIdx == MissingETBase::Numerical::invalidIndex() ) return false;
     vector<size_t> indices = this->overlapIndices(objIdx);
     vector<unsigned char> types = this->overlapTypes(objIdx);
     for(size_t iOL=0; iOL<indices.size(); ++iOL) {
-      if(helper->objSelected(this, indices[iOL])) {
+      if(helper.objSelected(this, indices[iOL])) {
         // printf("Test object %lu for overlaps: OL type %i\n",indices[iOL],(int)types[iOL]);
         switch(p) {
         case MissingETBase::UsageHandler::TrackCluster:      
@@ -713,8 +733,6 @@ namespace xAOD {
           else {continue;}
         case MissingETBase::UsageHandler::ParticleFlow:
           if(types[iOL] & 1<<xAOD::Type::ParticleFlow) {break;}
-          //TODO: Check with TJ that this is OK
-          if(types[iOL] & 1<<xAOD::Type::FlowElement) {break;}
           else {continue;}
         case MissingETBase::UsageHandler::TruthParticle:
           if(types[iOL] & 1) {break;}
@@ -748,23 +766,21 @@ namespace xAOD {
     return newvec; 
   }
 
-  constvec_t MissingETAssociation_v1::overlapCalVec(const MissingETAssociationHelper* helper) const
+  constvec_t MissingETAssociation_v1::overlapCalVec(const MissingETAssociationHelper& helper) const
   {
-    if(!helper) throw std::runtime_error("MissingETAssociation::overlapCalVec received a null pointer");
     constvec_t calvec;
     for (size_t iKey = 0; iKey < this->sizeCal(); iKey++) {
-      bool selector = (helper->getObjSelectionFlags(this) & this->calkey()[iKey]) ? !this->isMisc() : this->isMisc();
+      bool selector = (helper.getObjSelectionFlags(this) & this->calkey()[iKey]) ? !this->isMisc() : this->isMisc();
       if (selector) calvec+=this->calVec(iKey);
     }
     return calvec;
   }
 
-  constvec_t MissingETAssociation_v1::overlapTrkVec(const MissingETAssociationHelper* helper) const
+  constvec_t MissingETAssociation_v1::overlapTrkVec(const MissingETAssociationHelper& helper) const
   {
-    if(!helper) throw std::runtime_error("MissingETAssociation::overlapTrkVec received a null pointer");
     constvec_t trkvec;
     for (size_t iKey = 0; iKey < this->sizeTrk(); iKey++) {
-      bool selector = (helper->getObjSelectionFlags(this) & this->trkkey()[iKey]) ? !this->isMisc() : this->isMisc();
+      bool selector = (helper.getObjSelectionFlags(this) & this->trkkey()[iKey]) ? !this->isMisc() : this->isMisc();
       if (selector) trkvec+=ConstVec(this->trkpx()[iKey],this->trkpy()[iKey],this->trkpz()[iKey],this->trke()[iKey],this->trksumpt()[iKey]);
     }
     return trkvec;
@@ -796,14 +812,13 @@ namespace xAOD {
     return false;
   }
 
-  bool MissingETAssociation_v1::checkUsage(const MissingETAssociationHelper* helper, const IParticle* pSig, MissingETBase::UsageHandler::Policy p) const
+  bool MissingETAssociation_v1::checkUsage(const MissingETAssociationHelper& helper, const IParticle* pSig, MissingETBase::UsageHandler::Policy p) const
   {
-    if(!helper) throw std::runtime_error("MissingETAssociation::checkUsage received a null pointer");
-    if(MissingETAssociation_v1::testPolicy(pSig->type(),p)) {
+    if(MissingETAssociation_v1::testPolicy(*pSig,p)) {
       const IParticleContainer* pCont = static_cast<const IParticleContainer*>(pSig->container());
       MissingETBase::Types::objlink_t el(*pCont,pSig->index());
       for(size_t iObj=0; iObj<this->objectLinks().size(); ++iObj) {
-        if(helper->objSelected(this,iObj)) {
+        if(helper.objSelected(this,iObj)) {
           for(const auto& link : m_objConstLinks[iObj]) {
             if(el == link) return true;
           }
@@ -854,25 +869,25 @@ namespace xAOD {
     m_objConstLinks.reserve(50);
   }
 
-  bool MissingETAssociation_v1::testPolicy(unsigned int type,MissingETBase::UsageHandler::Policy p) {
+  bool MissingETAssociation_v1::testPolicy(const xAOD::IParticle& part, MissingETBase::UsageHandler::Policy p) {
+    xAOD::Type::ObjectType objType = part.type();
+    if(objType == xAOD::Type::FlowElement) objType = FEHelpers::signalToXAODType(static_cast<const xAOD::FlowElement&>(part));
+    return testPolicy(objType, p);
+  }
+
+  bool MissingETAssociation_v1::testPolicy(xAOD::Type::ObjectType type, MissingETBase::UsageHandler::Policy p) {
     switch(p) {
     case MissingETBase::UsageHandler::TrackCluster:      
-      if(type==xAOD::Type::CaloCluster
-         || type==xAOD::Type::TrackParticle) {return true;}
-      else {return false;}
+      return type==xAOD::Type::CaloCluster
+          || type==xAOD::Type::TrackParticle;
     case MissingETBase::UsageHandler::OnlyCluster:
-      if(type==xAOD::Type::CaloCluster) {return true;}
-      else {return false;}
+      return type==xAOD::Type::CaloCluster;
     case MissingETBase::UsageHandler::OnlyTrack:
-      if(type==xAOD::Type::TrackParticle) {return true;}
-      else {return false;}
+      return type==xAOD::Type::TrackParticle;
     case MissingETBase::UsageHandler::ParticleFlow:
-      if(type==xAOD::Type::ParticleFlow) {return true;}
-      if(type==xAOD::Type::FlowElement) {return true;}
-      else {return false;}
+      return type==xAOD::Type::ParticleFlow;
     case MissingETBase::UsageHandler::AllCalo:
-      if(type!=xAOD::Type::TrackParticle) {return true;}
-      else {return false;}
+      return type!=xAOD::Type::TrackParticle;
     default: break;
     }
     return false;

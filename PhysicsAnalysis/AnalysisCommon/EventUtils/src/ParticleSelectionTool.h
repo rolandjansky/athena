@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ParticleSelectionTool.h
@@ -18,24 +18,17 @@
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
-#include "TrigDecisionTool/TrigDecisionTool.h"
 
 // EDM includes
 #include "AthContainers/OwnershipPolicy.h"
 #include "xAODBase/IParticleContainer.h"
 #include "xAODParticleEvent/IParticleLinkContainer.h"
 
-
-// Forward declarations
-namespace ExpressionParsing {
-  class ExpressionParser;
-}
-
-
+#include "ExpressionEvaluation/ExpressionParserUserWithTrigSupport.h"
 
 class ParticleSelectionTool
-  : virtual public ::DerivationFramework::IAugmentationTool,
-            public ::AthAlgTool
+  : public ExpressionParserUserWithTrigSupport<::AthAlgTool>,
+    virtual public ::DerivationFramework::IAugmentationTool
 {
 
   ///////////////////////////////////////////////////////////////////
@@ -64,7 +57,6 @@ public:
   virtual StatusCode addBranches() const final override;
 
 
-
 // Private methods
 private:
 
@@ -89,13 +81,6 @@ private:
   // Private data:
   ///////////////////////////////////////////////////////////////////
 private:
-  /// The trigger decision tool
-  ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
-
-  /// The expression parser
-  ExpressionParsing::ExpressionParser *m_parser;
-
-
   /// Input container name
   StringProperty m_inCollKey;
 

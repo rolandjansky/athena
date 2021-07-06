@@ -1,7 +1,9 @@
 #include "../HLTMinBiasMonTool.h"
-#include "../HLTMinBiasMonAlgMT.h"
-
+#include "../HLTMinBiasTrkMonAlg.h"
+#include "../HLTMBTSMonitoringAlgMT.h"
+#include "../HLTEfficiencyMonitoringAlg.h"
 
 DECLARE_COMPONENT( HLTMinBiasMonTool )
-DECLARE_COMPONENT( HLTMinBiasMonAlgMT )
-
+DECLARE_COMPONENT( HLTMinBiasTrkMonAlg )
+DECLARE_COMPONENT( HLTMBTSMonitoringAlgMT )
+DECLARE_COMPONENT( HLTEfficiencyMonitoringAlg )

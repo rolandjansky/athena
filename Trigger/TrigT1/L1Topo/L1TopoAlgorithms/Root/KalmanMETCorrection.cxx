@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * KalmanMETCorrection.cpp
@@ -16,6 +16,7 @@
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
 #include "L1TopoSimulationUtils/KFLUT.h"
+#include "L1TopoSimulationUtils/Kinematics.h"
 // Bitwise implementation utils
 #include "L1TopoSimulationUtils/L1TopoDataTypes.h"
 #include "L1TopoSimulationUtils/Trigo.h"
@@ -23,8 +24,6 @@
 //
 
 REGISTER_ALG_TCS(KalmanMETCorrection)
-
-using namespace std;
 
 TCS::KalmanMETCorrection::KalmanMETCorrection(const std::string & name) : DecisionAlg(name)
 {
@@ -106,15 +105,24 @@ TCS::KalmanMETCorrection::processBitCorrect( const std::vector<TCS::TOBArray con
 
        corrfactor = LUTobj.getcorrKF(ipt,jeta);   
 
-       auto cosphi = TSU::L1TopoDataTypes<9,7>(TSU::Trigo::Cos.at(/*abs*/(parType_t((*tob)->phi()))));
-       auto sinphi = TSU::L1TopoDataTypes<9,7>(TSU::Trigo::Sin.at(/*abs*/(parType_t((*tob)->phi()))));
+       // This part of the code has to be reviewed again for phase1 BW simulation
+       float cosphi;
+       float sinphi;
+       if (isLegacyTopo()){
+	 cosphi = TSU::Kinematics::calcCosLegacy((*tob)->phi());
+	 sinphi = TSU::Kinematics::calcSinLegacy((*tob)->phi());
+       }
+       else {
+	 cosphi = TSU::Kinematics::calcCos((*tob)->phi());
+	 sinphi = TSU::Kinematics::calcSin((*tob)->phi());
+       }
 
-       summetx += (-1.)*(*tob)->Et()*float(cosphi)*corrfactor ;
-       summety += (-1.)*(*tob)->Et()*float(sinphi)*corrfactor ;
+       summetx += (-1.)*(*tob)->Et()*cosphi*corrfactor ;
+       summety += (-1.)*(*tob)->Et()*sinphi*corrfactor ;
             
 
         TRG_MSG_DEBUG("corr  " << corrfactor);
-         TRG_MSG_DEBUG("metsumx " << summetx << "metsumy " << summety );
+	TRG_MSG_DEBUG("metsumx " << summetx << "metsumy " << summety );
 
        corrfactor = 0;
   }
@@ -122,7 +130,7 @@ TCS::KalmanMETCorrection::processBitCorrect( const std::vector<TCS::TOBArray con
    
    KFmet = sqrt(summetx*summetx + summety*summety);
 
-   if (KFmet > 0 ) KFmetphi= TSU::Trigo::atan2(summetx,summety);
+   if (KFmet > 0 ) KFmetphi=isLegacyTopo()?TSU::Trigo::atan2leg(summetx,summety):TSU::Trigo::atan2(summetx,summety);
 
    for(unsigned int i=0; i<numberOutputBits(); ++i) {
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -32,8 +32,6 @@
 #include <TH2I.h>
 #include <TH1I.h>
 #include <inttypes.h>
-
-class IRPCcablingSvc;
  
 template <class ConcreteAlgorithm> class AlgFactory;
 
@@ -106,9 +104,6 @@ class RpcRawDataValAlg: public ManagedMonitorToolBase {
       "Key of input MuonDetectorManager condition data"};    
 
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-  
-  const IRPCcablingSvc* m_cabling;
-   
 
   //Declare Properties  
   std::string m_chamberName		;

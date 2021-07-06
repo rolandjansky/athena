@@ -30,7 +30,7 @@ namespace ElectronSelectorHelpers{
   bool passBLayerRequirement(const xAOD::TrackParticle *tp);
 
   ///@brief return true if the ambiguity type is one of several that are stored in a bitmask
-  bool passAmbiguity(xAOD::AmbiguityTool::AmbiguityType type, const uint8_t criterion);
+  bool passAmbiguity(xAOD::AmbiguityTool::AmbiguityType type, const uint16_t criterion);
 
   struct ROOT6_NamespaceAutoloadHook{};
 }

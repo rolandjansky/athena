@@ -88,7 +88,7 @@ class ConfiguredStagedTrackingGeometryBuilder( InDet__StagedTrackingGeometryBuil
             SCT_LayerBuilder.Identification                  = 'SCT'
             SCT_LayerBuilder.SiDetManagerLocation            = 'SCT'
             # additionall layers - handle with care !
-            SCT_LayerBuilder.EndcapAdditionalLayerPositionsZ = [ -2850 , 2850 ] 
+            SCT_LayerBuilder.EndcapAdditionalLayerPositionsZ = [ -2850. , 2850. ] 
             SCT_LayerBuilder.EndcapAdditionalLayerType       = [  0 , 0 ] 
             # SCT barrel specifications
             SCT_LayerBuilder.BarrelLayerBinsZ                = TrkDetFlags.SCT_BarrelLayerMaterialBinsZ()

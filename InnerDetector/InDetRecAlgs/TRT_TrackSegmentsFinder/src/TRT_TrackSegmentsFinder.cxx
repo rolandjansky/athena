@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -41,7 +41,7 @@ StatusCode InDet::TRT_TrackSegmentsFinder::initialize()
   ////////////////////////////////////////////////////////////////////////////////
   ATH_CHECK( m_fieldCondObjInputKey.initialize());
   ////////////////////////////////////////////////////////////////////////////////
-  
+
   // Get output print level
   //
   if (msgLvl(MSG::DEBUG)) {
@@ -61,49 +61,33 @@ StatusCode InDet::TRT_TrackSegmentsFinder::initialize()
 StatusCode InDet::TRT_TrackSegmentsFinder::execute(const EventContext &ctx) const
 {
   std::unique_ptr<Trk::SegmentCollection> found_segments(std::make_unique<Trk::SegmentCollection>());
-
   std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData> event_data_p;
   if(!m_useCaloSeeds) {
-
     event_data_p = m_segmentsMakerTool->newEvent(ctx);
     m_segmentsMakerTool->find    (ctx, *event_data_p);
-
     // Loop through all segments and reconsrtucted segments collection preparation
     //
     Trk::Segment* segment = nullptr;
     while((segment = m_segmentsMakerTool->next(*event_data_p))) {
       found_segments->push_back(segment);
     }
-  }
-  else   {
-
+  } else   {
     Amg::Vector3D PSV(0.,0.,0.); Trk::PerigeeSurface PS(PSV);
-
     std::vector<IdentifierHash>      vTR;
-
     SG::ReadHandle calo(m_caloKey,ctx);
     if(calo.isValid()) {
-       //      CaloClusterROI_Collection::const_iterator c = m_calo->begin(), ce = m_calo->end();
-       //      for(; c!=ce; ++c) {
-
       for (const Trk::CaloClusterROI *c: *calo) {
-        if ( c->energy()/cosh(c->globalPosition().eta()) < m_ClusterEt) {
+        if ( c->energy()/std::cosh(c->globalPosition().eta()) < m_ClusterEt) {
           continue;
         }
-
-	std::vector<const InDetDD::TRT_BaseElement*> DE;
-        {
         Amg::Vector3D global_pos(c->globalPosition());
         double x = global_pos.x();
         double y = global_pos.y();
         double z = global_pos.z();
-
-        std::unique_ptr<const Trk::TrackParameters>
-           par(PS.createTrackParameters(0.,0.,atan2(y,x), atan2(1.,z/sqrt(x*x+y*y)),0.,0));
-
+        std::unique_ptr<Trk::TrackParameters> par = PS.createUniqueTrackParameters(
+          0., 0., std::atan2(y, x), std::atan2(1., z / std::sqrt(x * x + y * y)), 0., std::nullopt);
         // Get AtlasFieldCache
         MagField::AtlasFieldCache fieldCache;
-
         SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
         const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
         if (fieldCondObj == nullptr) {
@@ -111,30 +95,24 @@ StatusCode InDet::TRT_TrackSegmentsFinder::execute(const EventContext &ctx) cons
             return StatusCode::FAILURE;
         }
         fieldCondObj->getInitializedCache (fieldCache);
-  
-	// TRT detector elements road builder
-	//
-	m_roadtool->detElementsRoad(ctx, fieldCache, *par, Trk::alongMomentum, DE);
-        }
-	if(int(DE.size()) < m_minNumberDCs) continue;
-
-	vTR.clear();
+        // TRT detector elements road builder
+        //
+        const auto & DE = m_roadtool->detElementsRoad(ctx, fieldCache, *par, Trk::alongMomentum);
+	      if(int(DE.size()) < m_minNumberDCs) continue;
+	      vTR.clear();
         vTR.reserve(DE.size());
         for (const InDetDD::TRT_BaseElement*d: DE) {
            vTR.push_back(d->identifyHash());
         }
-
-	event_data_p = m_segmentsMakerTool->newRegion(ctx, vTR);
-	m_segmentsMakerTool->find(ctx, *event_data_p);
-
-	// Loop through all segments and reconsrtucted segments collection preparation
-	//
+        event_data_p = m_segmentsMakerTool->newRegion(ctx, vTR);
+	      m_segmentsMakerTool->find(ctx, *event_data_p);
+	      // Loop through all segments and reconsrtucted segments collection preparation
         Trk::Segment* segment = nullptr;
-	while((segment = m_segmentsMakerTool->next(*event_data_p))) {
-	  found_segments->push_back(segment);
-	}
-      }
-    }else{
+	      while((segment = m_segmentsMakerTool->next(*event_data_p))) {
+	        found_segments->push_back(segment);
+	      }
+      }//end of loopover *calo
+    } else {
         ATH_MSG_WARNING("Could not find calo cluster seeds in container " << m_caloKey.key());
         return StatusCode::SUCCESS; // @TODO correct ?
     }

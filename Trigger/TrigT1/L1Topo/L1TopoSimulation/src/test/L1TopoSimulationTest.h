@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1Topo_LVL1_L1TopoSimulationTest_h
@@ -21,10 +21,6 @@ class ITHistSvc;
 
 namespace TCS {
   class TopoSteering;
-}
-
-namespace TrigConf {
-   class IL1TopoConfigSvc;
 }
 
 namespace LVL1 {

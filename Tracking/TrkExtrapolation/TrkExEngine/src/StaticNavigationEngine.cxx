@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,17 +15,12 @@
 Trk::StaticNavigationEngine::StaticNavigationEngine(const std::string& t, const std::string& n, const IInterface* p)
 : AthAlgTool(t,n,p),
   m_propagationEngine(""),
-  m_materialEffectsEngine(""),
-  m_trackingGeometry(0),
-  m_trackingGeometryName("AtlasTrackingGeometry")
-  
+  m_materialEffectsEngine("")
 {
     declareInterface<Trk::INavigationEngine>(this);
     // Tools needed
     declareProperty("PropagationEngine"                     , m_propagationEngine);
     declareProperty("MaterialEffectsEngine"                 , m_materialEffectsEngine);
-    // The TrackingGeometry
-    declareProperty("TrackingGeometry"                      , m_trackingGeometryName);
     // steering of the screen outoput (SOP)
     declareProperty("OutputPrefix"                          , m_sopPrefix);
     declareProperty("OutputPostfix"                         , m_sopPostfix);
@@ -39,6 +34,12 @@ Trk::StaticNavigationEngine::~StaticNavigationEngine()
 StatusCode Trk::StaticNavigationEngine::initialize()
 {
     
+#ifdef LEGACY_TRKGEOM
+    if (!m_trackingGeometrySvc.empty()) {
+       ATH_CHECK( m_trackingGeometrySvc.retrieve());
+    }
+#endif
+    ATH_CHECK( m_trackingGeometryReadKey.initialize(!m_trackingGeometryReadKey.key().empty()) );
     if (m_propagationEngine.retrieve().isFailure()){
         EX_MSG_FATAL("", "initialize", "", "failed to retrieve propagation engine '"<< m_propagationEngine << "'. Aborting." );
         return StatusCode::FAILURE;
@@ -77,13 +78,8 @@ Trk::ExtrapolationCode Trk::StaticNavigationEngine::resolvePosition(Trk::ExCellC
 Trk::ExtrapolationCode Trk::StaticNavigationEngine::resolvePosition(Trk::ExCellNeutral& ecNeutral, PropDirection dir, bool noLoop) const
 { return resolvePositionT<Trk::NeutralParameters>(ecNeutral,dir, noLoop); }
 
-StatusCode Trk::StaticNavigationEngine::updateTrackingGeometry() const {
-    // retrieve the TrackingGeometry from the detector store 
-    if (detStore()->retrieve(m_trackingGeometry, m_trackingGeometryName).isFailure()){
-        EX_MSG_FATAL( "", "updateGeo", "", "Could not retrieve TrackingGeometry '" << m_trackingGeometryName << "' from DetectorStore." );
-        EX_MSG_FATAL( "", "updateGeo", "", "  - probably the chosen layout is not supported / no cool tag exists. "                     );
-        return StatusCode::FAILURE;
-    }
-    return StatusCode::SUCCESS;
+void Trk::StaticNavigationEngine::throwFailedToGetTrackingGeomtry() const {
+   std::stringstream msg;
+   msg << "Failed to get conditions data " << m_trackingGeometryReadKey.key() << ".";
+   throw std::runtime_error(msg.str());
 }
-

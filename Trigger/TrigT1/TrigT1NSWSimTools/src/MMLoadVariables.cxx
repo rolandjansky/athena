@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1NSWSimTools/MMLoadVariables.h"
@@ -17,6 +17,7 @@
 #include "EventInfo/EventID.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "MuonIdHelpers/MmIdHelper.h"
+#include "AthenaBaseComps/AthCheckMacros.h"
 #include "AthenaKernel/getMessageSvc.h"
 
 #include "TVector3.h"
@@ -35,26 +36,26 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
       m_MmIdHelper = idhelper;
 }
 
-    void MMLoadVariables::getMMDigitsInfo(vector<digitWrapper>& entries, map<hitData_key,hitData_entry>& Hits_Data_Set_Time, map<int,evInf_entry>& Event_Info){
+    StatusCode MMLoadVariables::getMMDigitsInfo(vector<digitWrapper>& entries, map<hitData_key,hitData_entry>& Hits_Data_Set_Time, map<int,evInf_entry>& Event_Info){
       //*******Following MuonPRD code to access all the variables**********
 
       histogramVariables fillVars;
 
       //Get truth variables, vertex
       const McEventCollection *truthContainer = nullptr;
-      StatusCode sc1 = m_evtStore->retrieve(truthContainer,"TruthEvent");
+      ATH_CHECK( m_evtStore->retrieve(truthContainer,"TruthEvent") );
 
       //Get MuEntry variables TBD if still necessary
       const TrackRecordCollection* trackRecordCollection = nullptr;
-      StatusCode sc2 = m_evtStore->retrieve(trackRecordCollection,"MuonEntryLayer") ;
+      ATH_CHECK( m_evtStore->retrieve(trackRecordCollection,"MuonEntryLayer") );
 
       //Get truth information container of digitization
       const MuonSimDataCollection* nsw_MmSdoContainer = nullptr;
-      StatusCode sc3 = m_evtStore->retrieve(nsw_MmSdoContainer,"MM_SDO");
+      ATH_CHECK( m_evtStore->retrieve(nsw_MmSdoContainer,"MM_SDO") );
 
       // get digit container (a container corresponds to a multilayer of a module)
       const MmDigitContainer *nsw_MmDigitContainer = nullptr;
-      StatusCode sc4 = m_evtStore->retrieve(nsw_MmDigitContainer,"MM_DIGITS");
+      ATH_CHECK( m_evtStore->retrieve(nsw_MmDigitContainer,"MM_DIGITS") );
 
       std::string wedgeType = getWedgeType(nsw_MmDigitContainer);
 
@@ -111,7 +112,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
         } //end particle loop
       } //end container loop (should be only 1 container per event)
       const EventInfo* pevt = 0;
-      StatusCode sc = m_evtStore->retrieve(pevt);
+      ATH_CHECK( m_evtStore->retrieve(pevt) );
 
       int event = pevt->event_ID()->event_number();
       int TruthParticle_n = j;
@@ -124,7 +125,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
 
       //get hits container
       const MMSimHitCollection *nswContainer = nullptr;
-      StatusCode sc5 = m_evtStore->retrieve(nswContainer,"MicromegasSensitiveDetector");
+      ATH_CHECK( m_evtStore->retrieve(nswContainer,"MicromegasSensitiveDetector") );
 
       for(auto digitCollectionIter : *nsw_MmDigitContainer) {
         // a digit collection is instanciated for each container, i.e. holds all digits of a multilayer
@@ -132,7 +133,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
         // loop on all digits inside a collection, i.e. multilayer
         int digit_count =0;
 
-        for (const auto & item:*digitCollection) {
+        for (const auto item:*digitCollection) {
             // get specific digit and identify it
             const MmDigit* digit = item;
             Identifier id = digit->identify();
@@ -474,6 +475,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
       Event_Info[event]=particle_info;
       histVars = fillVars;
 
+      return StatusCode::SUCCESS;
       }
 
   double MMLoadVariables::phi_shift(double athena_phi,const std::string& wedgeType, int stationPhi) const{

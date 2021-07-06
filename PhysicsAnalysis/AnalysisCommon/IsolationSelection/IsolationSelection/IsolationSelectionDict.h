@@ -10,8 +10,12 @@
 #include "IsolationSelection/IsolationSelectionTool.h"
 #include "IsolationSelection/IsolationCondition.h"
 #include "IsolationSelection/IsolationConditionFormula.h"
+#include "IsolationSelection/IsolationConditionCombined.h"
 #include "IsolationSelection/IsolationConditionHist.h"
 #include "IsolationSelection/IsolationWP.h"
 #include "IsolationSelection/Interp3D.h"
-
+#include "IsolationSelection/IsolationCloseByCorrectionTool.h"
+#include "IsolationSelection/IIsolationCloseByCorrectionTool.h"
+#include "IsolationSelection/IsolationLowPtPLVTool.h"
+#include "IsolationSelection/IIsolationLowPtPLVTool.h"
 #endif // IsolationSelectionDict_H

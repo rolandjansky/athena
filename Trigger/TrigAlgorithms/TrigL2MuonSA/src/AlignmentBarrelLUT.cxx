@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AlignmentBarrelLUT.h"
@@ -100,7 +100,7 @@ double TrigL2MuonSA::AlignmentBarrelLUT::GetDeltaZ(int&    saddress,
     int iEta = bins.first;
     int iPhi = bins.second;
     
-    int iChamber=( fabs(MFphi)>90*TMath::DegToRad() )  ? 1:0;
+    int iChamber=( std::abs(MFphi)>90*TMath::DegToRad() )  ? 1:0;
     
     int iEta_inv=29-iEta;
     int iPhi_inv=29-iPhi;

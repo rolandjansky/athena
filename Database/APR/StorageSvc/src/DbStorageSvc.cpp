@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //  ====================================================================
@@ -50,6 +50,7 @@ namespace pool  {
   typedef DbObjectHandle<DbObject> ObjHandle;
   typedef const DbTypeInfo    *DbTypeInfoH;
   typedef const DbDatabaseObj *DbDatabaseH;
+  typedef       DbDatabaseObj *DbDatabaseHNC;
 
   class DbClassMap : public map<TypeH, Guid> {};
 
@@ -129,9 +130,9 @@ DbStatus DbStorageSvc::finalize()   {
   return Success;
 }
 
-std::string DbStorageSvc::getContName(const FileDescriptor& refDB, const Token& persToken)  {
+std::string DbStorageSvc::getContName(FileDescriptor& refDB, Token& persToken)  {
   if ( m_domH.isValid() )   {
-    DbDatabase dbH(DbDatabaseH(refDB.dbc()->handle()));
+    DbDatabase dbH(DbDatabaseHNC(refDB.dbc()->handle()));
     if ( dbH.isValid() )  {
       return dbH.cntName(persToken);
     }
@@ -140,13 +141,13 @@ std::string DbStorageSvc::getContName(const FileDescriptor& refDB, const Token& 
 }
 
 /// Retrieve persistent shape from Storage manager.
-DbStatus DbStorageSvc::getShape( const FileDescriptor& fDesc,
+DbStatus DbStorageSvc::getShape( FileDescriptor&       fDesc,
                                  const Guid&           objType,
                                  ShapeH&               shape)
 {
   shape = 0;
   if ( /*0 != &fDesc &&*/ m_domH.isValid() )   {
-    DbDatabase dbH(DbDatabaseH(fDesc.dbc()->handle()));
+    DbDatabase dbH(DbDatabaseHNC(fDesc.dbc()->handle()));
     if ( !dbH.isValid() )  {
       DbStatus sc = dbH.open(m_domH, fDesc.PFN(), fDesc.FID(), pool::READ);
       if ( !sc.isSuccess() )    {
@@ -196,7 +197,7 @@ DbStatus DbStorageSvc::createShape( const FileDescriptor&  /*fDesc   */,
 }
 
 /// Register object for write
-DbStatus DbStorageSvc::allocate( const FileDescriptor& fDesc,
+DbStatus DbStorageSvc::allocate( FileDescriptor&       fDesc,
                                  const string&         refCont,
                                  int                   technology,
                                  const void*           object,
@@ -207,8 +208,8 @@ DbStatus DbStorageSvc::allocate( const FileDescriptor& fDesc,
    refpToken = 0;
 
    if( shape && object ) {
-      const void* handle = fDesc.dbc()->handle();
-      DbDatabase dbH((DbDatabaseH)handle);
+      void* handle = fDesc.dbc()->handle();
+      DbDatabase dbH((DbDatabaseHNC)handle);
       DbContainer cntH(dbH.type());
       sc = cntH.open( dbH, 
                       refCont,
@@ -241,15 +242,15 @@ DbStatus DbStorageSvc::allocate( const FileDescriptor& fDesc,
 }
 
 /// In place update of an existing object.
-DbStatus DbStorageSvc::update( const FileDescriptor& fDesc,
+DbStatus DbStorageSvc::update( FileDescriptor&       fDesc,
                                const void*           object,
                                ShapeH                shape,
-                               const Token&          refToken )
+                               Token&                refToken )
 {
    DbStatus sc = Error;
    if( shape && object ) {
-      const void* handle = fDesc.dbc()->handle();
-      DbDatabase dbH((DbDatabaseH)handle);
+      void* handle = fDesc.dbc()->handle();
+      DbDatabase dbH((DbDatabaseHNC)handle);
       if ( dbH.isValid() ) {
          DbContainer cntH(dbH.find(dbH.cntName(refToken)));
          if ( !cntH.isValid() )  {
@@ -282,10 +283,10 @@ DbStatus DbStorageSvc::update( const FileDescriptor& fDesc,
 
 /// Destroy an existing persistent object.
 DbStatus 
-DbStorageSvc::destroy( const FileDescriptor& refDB, const Token& refToken )
+DbStorageSvc::destroy( FileDescriptor& refDB, Token& refToken )
 {
-   const void* handle = refDB.dbc()->handle();
-   DbDatabase dbH((DbDatabaseH)handle);
+   void* handle = refDB.dbc()->handle();
+   DbDatabase dbH((DbDatabaseHNC)handle);
    if ( dbH.isValid() )  {
       DbContainer cntH(dbH.find(dbH.cntName(refToken)));
       if ( !cntH.isValid() )  {
@@ -436,7 +437,7 @@ DbStatus DbStorageSvc::connect(const SessionH session,int mod,FileDescriptor& fD
 DbStatus DbStorageSvc::reconnect(FileDescriptor& refDb, int mode)  {
   DbConnection* dbc = dynamic_cast<DbConnection*>(refDb.dbc());
   if ( dbc )   {
-    DbDatabase dbH(DbDatabaseH(dbc->handle()));
+    DbDatabase dbH(DbDatabaseHNC(dbc->handle()));
     return dbH.reopen(mode);
   }
   return Error;
@@ -445,10 +446,14 @@ DbStatus DbStorageSvc::reconnect(FileDescriptor& refDb, int mode)  {
 /// Disconnect from a logical Database unit.
 DbStatus DbStorageSvc::disconnect(FileDescriptor& fDesc) {
   DbConnection* dbc = dynamic_cast<DbConnection*>(fDesc.dbc());
+  DbPrint log( name());
+  log << DbPrintLvl::Debug << "Disconnect request for database: FID=" << fDesc.FID()
+      << " PFN=" << fDesc.PFN() << DbPrint::endmsg;
   if ( dbc )   {
-    DbDatabase  dbH(DbDatabaseH(dbc->handle()));
+    DbDatabase  dbH(DbDatabaseHNC(dbc->handle()));
     dbc->release();
     fDesc.setDbc(0);
+    log << DbPrintLvl::Debug << "Closing database: FID=" << fDesc.FID() << DbPrint::endmsg;
     return dbH.close();
   }
   return Error;
@@ -458,7 +463,7 @@ DbStatus DbStorageSvc::disconnect(FileDescriptor& fDesc) {
 DbStatus DbStorageSvc::openMode(FileDescriptor& refDB, int& mode) {
   DbConnection* dbc = dynamic_cast<DbConnection*>(refDB.dbc());
   if ( dbc )   {
-    DbDatabase  dbH(DbDatabaseH(dbc->handle()));
+    DbDatabase  dbH(DbDatabaseHNC(dbc->handle()));
     if ( dbH.isOpen() )  {
       mode = dbH.openMode();
       return Success;

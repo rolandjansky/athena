@@ -1,52 +1,27 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// std
-#include <sys/stat.h>
-#include <cstring>
-#include <fstream>
-#include <iostream>
-#include <string>
-
-// other packages
-#include "GaudiKernel/GaudiException.h"
-#include "GaudiKernel/MsgStream.h"
-#include "Identifier/Identifier.h"
-#include "MuonCablingData/MuonMDT_CablingMap.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "PathResolver/PathResolver.h"
-#include "StoreGate/DataHandle.h"
-#include "StoreGate/StoreGateSvc.h"
-
-// this package
 #include "MdtCalibSvc/MdtCalibrationShiftMapBase.h"
+#include "PathResolver/PathResolver.h"
 
-#include "TTree.h"
+#include <sys/stat.h>
+#include <fstream>
+
 // TRandom3 for random shifting
 // should later be replaced with std
 #include "TRandom3.h"
 
-//
-// private helper functions
-//
-
-MdtCalibrationShiftMapBase::MdtCalibrationShiftMapBase(const std::string &name,
-                                                       ISvcLocator *pSvcLocator)
-    : base_class(name, pSvcLocator),
-      m_cablingSvc("MuonMDT_CablingSvc", name),
-      m_mapIsInitialized(false),
-      m_mapFileName(""),
-      m_centralValue(0),
-      m_sigma(10),
-      m_forceMapRecreate(false) {
-  declareProperty("MapFile", m_mapFileName);
-  declareProperty("CentralValue", m_centralValue = 0);
-  declareProperty("Sigma", m_sigma = 10);
-  declareProperty("ForceMapRecreate", m_forceMapRecreate = false);
+MdtCalibrationShiftMapBase::MdtCalibrationShiftMapBase(const std::string& type, const std::string& name, const IInterface* parent)
+    : base_class (type, name, parent),
+      m_mapIsInitialized(false) {
 }
 
-MdtCalibrationShiftMapBase::~MdtCalibrationShiftMapBase() { ; }
+StatusCode MdtCalibrationShiftMapBase::initialize() {
+  ATH_CHECK(m_idHelperSvc.retrieve());
+  ATH_CHECK(m_mdtCab.initialize());
+  return StatusCode::SUCCESS;
+}
 
 // return failure if not overloaded
 StatusCode MdtCalibrationShiftMapBase::initializeMap() {
@@ -61,14 +36,14 @@ StatusCode MdtCalibrationShiftMapBase::dumpMapAsFile() {
 
   /* write the map to a file */
   {
-    std::ofstream file(m_mapFileName.c_str(), std::ios::out | std::ios::trunc);
+    std::ofstream file(m_mapFileName.value().c_str(), std::ios::out | std::ios::trunc);
 
     /* see if opening the file was successful */
     if (!file.is_open()) {
       ATH_MSG_FATAL(
           "Cannot open map output file for writing. Tried accessing file at "
           "\"./"
-          << m_mapFileName.c_str() << "\"");
+          << m_mapFileName.value().c_str() << "\"");
       return StatusCode::FAILURE;
     }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ISF_Algs includes
@@ -472,7 +472,7 @@ StatusCode ISF::SimKernel::execute()
 
   // Step 4a: Remove QS patch if required
   if(!m_qspatcher.empty()) {
-    for (const auto& currentGenEvent : *m_outputHardScatterTruth ) {
+    for (HepMC::GenEvent* currentGenEvent : *m_outputHardScatterTruth ) {
       ATH_CHECK(m_qspatcher->removeWorkaround(*currentGenEvent));
     }
   }
@@ -529,7 +529,7 @@ StatusCode ISF::SimKernel::prepareInput(SG::ReadHandle<McEventCollection>& input
 
   // Apply QS patch if required
   if(!m_qspatcher.empty()) {
-    for (const auto& currentGenEvent : *outputTruth ) {
+    for (HepMC::GenEvent* currentGenEvent : *outputTruth ) {
       ATH_CHECK(m_qspatcher->applyWorkaround(*currentGenEvent));
     }
   }

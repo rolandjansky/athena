@@ -10,6 +10,7 @@ import random
 RUN2016 = 297730l
 RUN2015 = 252604l
 
+
 def arange(xmin, xmax, delta):
     # just to don't inject dep from numpy
     result = []
@@ -35,7 +36,8 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
     def setUpClass(cls):
         cls.event = ROOT.xAOD.TEvent()
         cls.factory = ROOT.EgammaFactory()
-        cls.tool_es2012c = ROOT.CP.EgammaCalibrationAndSmearingTool("tool_es2012c")
+        cls.tool_es2012c = ROOT.CP.EgammaCalibrationAndSmearingTool(
+            "tool_es2012c")
 
     def test_initialization(self):
         tool = ROOT.CP.EgammaCalibrationAndSmearingTool("tool")
@@ -48,14 +50,19 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
         self.assertTrue(tool.setProperty("ESModel", "es2010").isSuccess())
         self.assertTrue(tool.initialize().isSuccess())
 
-    def generator_kinematics(self, eta_range=None, e_range=None, phi_range=None):
+    def generator_kinematics(self, eta_range=None,
+                             e_range=None,
+                             phi_range=None):
         eta_range = eta_range or arange(-2.49, 2.49, 0.05)
         e_range = e_range or arange(5E3, 1000E3, 100E3)
         phi_range = phi_range or [0.]
         from itertools import product
         return product(e_range, eta_range, phi_range)
 
-    def generator_photon(self, eta_range=None, e_range=None, phi_range=None):
+    def generator_photon(self,
+                         eta_range=None,
+                         e_range=None,
+                         phi_range=None):
         random.seed(10)
         factory = self.factory
         for e, eta, phi in self.generator_kinematics(eta_range, e_range, phi_range):
@@ -66,21 +73,34 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
                 yield factory.create_unconverted_photon(eta, phi, e)
         factory.clear()
 
-    def generator_converted(self, eta_range=None, e_range=None, phi_range=None):
+    def generator_converted(self, eta_range=None,
+                            e_range=None,
+                            phi_range=None):
         factory = self.factory
-        for e, eta, phi in self.generator_kinematics(eta_range, e_range, phi_range):
+        for e, eta, phi in self.generator_kinematics(eta_range,
+                                                     e_range,
+                                                     phi_range):
             yield factory.create_converted_photon(eta, phi, e)
         factory.clear()
 
-    def generator_unconverted(self, eta_range=None, e_range=None, phi_range=None):
+    def generator_unconverted(self, eta_range=None,
+                              e_range=None,
+                              phi_range=None):
         factory = self.factory
-        for e, eta, phi in self.generator_kinematics(eta_range, e_range, phi_range):
+        for e, eta, phi in self.generator_kinematics(eta_range,
+                                                     e_range,
+                                                     phi_range):
             yield factory.create_unconverted_photon(eta, phi, e)
         factory.clear()
 
-    def generator_electron(self, eta_range=None, e_range=None, phi_range=None):
+    def generator_electron(self,
+                           eta_range=None,
+                           e_range=None,
+                           phi_range=None):
         factory = self.factory
-        for e, eta, phi in self.generator_kinematics(eta_range, e_range, phi_range):
+        for e, eta, phi in self.generator_kinematics(eta_range,
+                                                     e_range,
+                                                     phi_range):
             yield factory.create_electron(eta, phi, e)
         factory.clear()
 
@@ -96,7 +116,8 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
         """
         tool = ROOT.CP.EgammaCalibrationAndSmearingTool("tool")
         self.assertTrue(tool.setProperty("ESModel", "es2012c").isSuccess())
-        self.assertTrue(tool.setProperty("int")("randomRunNumber", RUN2015).isSuccess())
+        self.assertTrue(tool.setProperty("int")(
+            "randomRunNumber", RUN2015).isSuccess())
         self.assertTrue(tool.setProperty("int")("doSmearing", 0).isSuccess())
         tool.msg().setLevel(ROOT.MSG.WARNING)
 
@@ -118,7 +139,8 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
         tool = ROOT.CP.EgammaCalibrationAndSmearingTool("tool_2015PRE")
         self.assertTrue(tool.setProperty("ESModel", "es2015PRE").isSuccess())
         self.assertTrue(tool.setProperty("int")("doSmearing", 0).isSuccess())
-        self.assertTrue(tool.setProperty("decorrelationModel", "1NP_v1"). isSuccess())
+        self.assertTrue(tool.setProperty(
+            "decorrelationModel", "1NP_v1"). isSuccess())
         tool.msg().setLevel(ROOT.MSG.WARNING)
         self.assertTrue(tool.initialize().isSuccess())
         ei = self.factory.create_eventinfo(True, 100000)   # simulation
@@ -141,12 +163,15 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
         ei = self.factory.create_eventinfo(True, 100000)   # simulation
         for el in self.generator_electron():
             e_before = el.e()
-            e_cluster = el.caloCluster().energyBE(0) + el.caloCluster().energyBE(1) + el.caloCluster().energyBE(2) + el.caloCluster().energyBE(3)
+            e_cluster = el.caloCluster().energyBE(0) + el.caloCluster().energyBE(1) + \
+                el.caloCluster().energyBE(2) + el.caloCluster().energyBE(3)
             tool.applyCorrection(el, ei)
             e_after = el.e()
             if e_before > 7E3:
                 self.assertTrue(abs(e_before / e_after - 1) < 0.5,
-                                msg="energy cluser/calibrated very different at eta = %f: %f/%f, e0=%.2f, e1=%.2f, e2=%.2f, e3=%.2f" % (el.eta(), e_cluster, e_after, el.caloCluster().energyBE(0), el.caloCluster().energyBE(1), el.caloCluster().energyBE(2), el.caloCluster().energyBE(3)))
+                                msg="energy cluser/calibrated very different at eta = %f: %f/%f, e0=%.2f, e1=%.2f, e2=%.2f, e3=%.2f" % (el.eta(),
+                                                                                                                                        e_cluster, e_after, el.caloCluster().energyBE(0), el.caloCluster().energyBE(1),
+                                                                                                                                        el.caloCluster().energyBE(2), el.caloCluster().energyBE(3)))
             self.assertGreater(e_after, 0)
 
     def test_es2012XX(self):
@@ -264,11 +289,14 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
         import random
         import csv
         with open("testmva_%s_%s_%s.csv" % (esmodel, particle, "data" if isdata else "fullsim"), 'wb') as csvfile:
-            spamwriter = csv.writer(csvfile, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            spamwriter = csv.writer(
+                csvfile, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
             if particle == "photon":
-                spamwriter.writerow(('eta', 'phi', 'e0', 'e1', 'e2', 'e3', 'e', 'rconv', 'zconv', 'output'))
+                spamwriter.writerow(
+                    ('eta', 'phi', 'e0', 'e1', 'e2', 'e3', 'e', 'rconv', 'zconv', 'output'))
             elif particle == "electron":
-                spamwriter.writerow(('eta', 'phi', 'e0', 'e1', 'e2', 'e3', 'e', 'output'))
+                spamwriter.writerow(
+                    ('eta', 'phi', 'e0', 'e1', 'e2', 'e3', 'e', 'output'))
 
             for eta in arange(-3.0, 3.0, 0.05):
                 phi = 0
@@ -321,11 +349,13 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
 
         import os
         basedir = os.path.dirname(os.path.abspath(__file__))
-        filename = os.path.join(basedir, "testmva_%s_%s_%s.csv" % (esmodel, particle, "data" if isdata else "fullsim"))
+        filename = os.path.join(basedir, "testmva_%s_%s_%s.csv" % (
+            esmodel, particle, "data" if isdata else "fullsim"))
 
         import csv
         with open(filename, 'rb') as csvfile:
-            reader = csv.reader(csvfile, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            reader = csv.reader(csvfile, delimiter=' ',
+                                quotechar='|', quoting=csv.QUOTE_MINIMAL)
             next(reader, None)  # skip header
             for row in reader:
                 args = map(float, row[:-1])
@@ -333,7 +363,8 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
                      'photon': self.factory.create_photon}[particle](*args)
                 tool.applyCorrection(p, ei)
                 calibrated_energy = p.e()
-                self.assertAlmostEqual(calibrated_energy, float(row[-1]), delta=0.1)
+                self.assertAlmostEqual(
+                    calibrated_energy, float(row[-1]), delta=0.1)
         self.factory.clear()
 
     def test_list_syst(self):
@@ -347,56 +378,84 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
             """
             tool = ROOT.CP.EgammaCalibrationAndSmearingTool("tool")
             tool.msg().setLevel(ROOT.MSG.WARNING)
-            self.assertTrue(tool.setProperty("int")("useMVACalibration", 0).isSuccess())
+            self.assertTrue(tool.setProperty("int")(
+                "useMVACalibration", 0).isSuccess())
             self.assertTrue(tool.setProperty("ESModel", model).isSuccess())
             if decorrelation is not None:
-                self.assertTrue(tool.setProperty("decorrelationModel", decorrelation).isSuccess())
+                self.assertTrue(tool.setProperty(
+                    "decorrelationModel", decorrelation).isSuccess())
             if decorrelation_scale is not None:
-                self.assertTrue(tool.setProperty("decorrelationModelScale", decorrelation_scale).isSuccess())
+                self.assertTrue(tool.setProperty(
+                    "decorrelationModelScale", decorrelation_scale).isSuccess())
             if decorrelation_resolution is not None:
-                self.assertTrue(tool.setProperty("decorrelationModelResolution", decorrelation_resolution).isSuccess())
+                self.assertTrue(tool.setProperty(
+                    "decorrelationModelResolution", decorrelation_resolution).isSuccess())
 
             tool.msg().setLevel(ROOT.MSG.WARNING)
             if success:
-                self.assertTrue(tool.initialize().isSuccess(), msg='cannot initialize tool with %s' % model)
+                self.assertTrue(tool.initialize().isSuccess(),
+                                msg='cannot initialize tool with %s' % model)
             else:
-                self.assertFalse(tool.initialize().isSuccess(), msg='should not possible to initialize tool with %s' % model)
+                self.assertFalse(tool.initialize().isSuccess(
+                ), msg='should not possible to initialize tool with %s' % model)
                 return
             sys_list = get_names_sys(tool)
             if type(allsyst) is int:
-                self.assertEqual(len(sys_list), allsyst, msg='actual (expected) number of sys %d(%d): %s' % (len(sys_list), allsyst, sys_list))
+                self.assertEqual(len(sys_list), allsyst, msg='actual (expected) number of sys %d(%d): %s' % (
+                    len(sys_list), allsyst, sys_list))
             else:
                 self.assertItemsEqual(sys_list, allsyst)
             return sys_list
 
-
         list_1NP_scale = ['EG_SCALE_ALL__1down', 'EG_SCALE_ALL__1up']
-        list_1NP_resolution = ['EG_RESOLUTION_ALL__1down', 'EG_RESOLUTION_ALL__1up']
-        list_FULL_resolution = ['EG_RESOLUTION_MATERIALCALO__1down', 'EG_RESOLUTION_MATERIALCALO__1up',
-                                'EG_RESOLUTION_MATERIALCRYO__1down', 'EG_RESOLUTION_MATERIALCRYO__1up',
-                                'EG_RESOLUTION_MATERIALGAP__1down', 'EG_RESOLUTION_MATERIALGAP__1up',
-                                'EG_RESOLUTION_MATERIALID__1down', 'EG_RESOLUTION_MATERIALID__1up',
-                                'EG_RESOLUTION_PILEUP__1down', 'EG_RESOLUTION_PILEUP__1up',
-                                'EG_RESOLUTION_SAMPLINGTERM__1down', 'EG_RESOLUTION_SAMPLINGTERM__1up',
-                                'EG_RESOLUTION_ZSMEARING__1down', 'EG_RESOLUTION_ZSMEARING__1up']
-        list_1NPCOR_PLUS_UNCOR_scale = ['EG_SCALE_ALLCORR__1down', 'EG_SCALE_ALLCORR__1up',
-                                        'EG_SCALE_E4SCINTILLATOR__1down', 'EG_SCALE_E4SCINTILLATOR__1up',
-                                        'EG_SCALE_LARCALIB_EXTRA2015PRE__1down', 'EG_SCALE_LARCALIB_EXTRA2015PRE__1up',
-                                        'EG_SCALE_LARTEMPERATURE_EXTRA2015PRE__1down', 'EG_SCALE_LARTEMPERATURE_EXTRA2015PRE__1up',
-                                        'EG_SCALE_LARTEMPERATURE_EXTRA2016PRE__1down', 'EG_SCALE_LARTEMPERATURE_EXTRA2016PRE__1up']
-        _test_list_syst("es2015PRE", "1NP_v1", None, None, list_1NP_scale + list_1NP_resolution)
-        _test_list_syst("es2012c", "1NP_v1", None, None, list_1NP_scale + list_1NP_resolution)
-        _test_list_syst("es2016PRE", None, "1NP_v1", "1NP_v1", list_1NP_scale + list_1NP_resolution)
-        _test_list_syst("es2016PRE", None, "1NP_v1", "FULL_v1", list_1NP_scale + list_FULL_resolution)
-        _test_list_syst("es2015PRE", "1NPCOR_PLUS_UNCOR", None, None, list_1NP_resolution + list_1NPCOR_PLUS_UNCOR_scale)
-        _test_list_syst("es2015PRE", "1NP_v1", "1NPCOR_PLUS_UNCOR", None, list_1NP_resolution + list_1NPCOR_PLUS_UNCOR_scale)
-        _test_list_syst("es2015c_summer", "1NP_v1", None, None, list_1NP_scale + list_1NP_resolution)
+        list_1NP_resolution = [
+            'EG_RESOLUTION_ALL__1down', 'EG_RESOLUTION_ALL__1up']
+        list_FULL_resolution = ['EG_RESOLUTION_MATERIALCALO__1down',
+                                'EG_RESOLUTION_MATERIALCALO__1up',
+                                'EG_RESOLUTION_MATERIALCRYO__1down',
+                                'EG_RESOLUTION_MATERIALCRYO__1up',
+                                'EG_RESOLUTION_MATERIALGAP__1down',
+                                'EG_RESOLUTION_MATERIALGAP__1up',
+                                'EG_RESOLUTION_MATERIALID__1down',
+                                'EG_RESOLUTION_MATERIALID__1up',
+                                'EG_RESOLUTION_PILEUP__1down',
+                                'EG_RESOLUTION_PILEUP__1up',
+                                'EG_RESOLUTION_SAMPLINGTERM__1down',
+                                'EG_RESOLUTION_SAMPLINGTERM__1up',
+                                'EG_RESOLUTION_ZSMEARING__1down',
+                                'EG_RESOLUTION_ZSMEARING__1up']
+        list_1NPCOR_PLUS_UNCOR_scale = ['EG_SCALE_ALLCORR__1down',
+                                        'EG_SCALE_ALLCORR__1up',
+                                        'EG_SCALE_E4SCINTILLATOR__1down',
+                                        'EG_SCALE_E4SCINTILLATOR__1up',
+                                        'EG_SCALE_LARCALIB_EXTRA2015PRE__1down',
+                                        'EG_SCALE_LARCALIB_EXTRA2015PRE__1up',
+                                        'EG_SCALE_LARTEMPERATURE_EXTRA2015PRE__1down',
+                                        'EG_SCALE_LARTEMPERATURE_EXTRA2015PRE__1up',
+                                        'EG_SCALE_LARTEMPERATURE_EXTRA2016PRE__1down',
+                                        'EG_SCALE_LARTEMPERATURE_EXTRA2016PRE__1up']
+        _test_list_syst("es2015PRE", "1NP_v1", None, None,
+                        list_1NP_scale + list_1NP_resolution)
+        _test_list_syst("es2012c", "1NP_v1", None, None,
+                        list_1NP_scale + list_1NP_resolution)
+        _test_list_syst("es2016PRE", None, "1NP_v1", "1NP_v1",
+                        list_1NP_scale + list_1NP_resolution)
+        _test_list_syst("es2016PRE", None, "1NP_v1", "FULL_v1",
+                        list_1NP_scale + list_FULL_resolution)
+        _test_list_syst("es2015PRE", "1NPCOR_PLUS_UNCOR", None,
+                        None, list_1NP_resolution + list_1NPCOR_PLUS_UNCOR_scale)
+        _test_list_syst("es2015PRE", "1NP_v1", "1NPCOR_PLUS_UNCOR",
+                        None, list_1NP_resolution + list_1NPCOR_PLUS_UNCOR_scale)
+        _test_list_syst("es2015c_summer", "1NP_v1", None, None,
+                        list_1NP_scale + list_1NP_resolution)
 
         _test_list_syst("es2015PRE", "FULL_ETACORRELATED_v1", None, None, 58)
         _test_list_syst("es2012c", "FULL_ETACORRELATED_v1", None, None, 54)
         _test_list_syst("es2016PRE", "FULL_ETACORRELATED_v1", None, None, 62)
-        _test_list_syst("es2015c_summer", "FULL_ETACORRELATED_v1", None, None, 60)
-        _test_list_syst("es2016data_mc15c",  "FULL_ETACORRELATED_v1", None, None, 68)
+        _test_list_syst("es2015c_summer",
+                        "FULL_ETACORRELATED_v1", None, None, 60)
+        _test_list_syst("es2016data_mc15c",
+                        "FULL_ETACORRELATED_v1", None, None, 68)
         _test_list_syst("es2012c", "FULL_v1", None, None, 148)
         _test_list_syst("es2012c", None, "FULL_v1", "FULL_v1", 148)
         _test_list_syst("es2015PRE", "FULL_v1", None, None, 158)
@@ -404,9 +463,8 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
         _test_list_syst("es2015PRE", None, None, None, 158)
 
         # these works, but generate FATALS, as expected
-        _test_list_syst("es2016PRE", "1NP_v1", "1NP_v1", "1NP_v1", [], success=False)
-
-
+        _test_list_syst("es2016PRE", "1NP_v1", "1NP_v1",
+                        "1NP_v1", [], success=False)
 
     def test_same_smearing(self):
         tool = ROOT.CP.EgammaCalibrationAndSmearingTool("tool")
@@ -462,7 +520,8 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
             tool.applySystematicVariation(sys_set).ignore()
             e_zee_syst = tool.getEnergy(ph, ei)
             sys_set = ROOT.CP.SystematicSet()
-            sys_set.insert(ROOT.CP.SystematicVariation("EG_SCALE_LARCALIB__ETABIN0", 1.))
+            sys_set.insert(ROOT.CP.SystematicVariation(
+                "EG_SCALE_LARCALIB__ETABIN0", 1.))
             tool.applySystematicVariation(sys_set).ignore()
             e_larcalib__bin0 = tool.getEnergy(ph, ei)
             if abs(ph.eta()) < 2.47:
@@ -478,9 +537,11 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
     def test_intermodule_correction_working(self):
         tool = ROOT.CP.EgammaCalibrationAndSmearingTool("tool")
         self.assertTrue(tool.setProperty("ESModel", "es2012c").isSuccess())
-        tool_no_correction = ROOT.CP.EgammaCalibrationAndSmearingTool("tool_no_correction")
+        tool_no_correction = ROOT.CP.EgammaCalibrationAndSmearingTool(
+            "tool_no_correction")
         tool_no_correction.setProperty("ESModel", "es2012c").ignore()
-        tool_no_correction.setProperty("int")("useIntermoduleCorrection", 0).ignore()
+        tool_no_correction.setProperty("int")(
+            "useIntermoduleCorrection", 0).ignore()
 
         self.assertTrue(tool.initialize().isSuccess())
         self.assertTrue(tool_no_correction.initialize().isSuccess())
@@ -493,7 +554,8 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
             energy.append(tool.getEnergy(ph, ei))
             energy_no_correction.append(tool_no_correction.getEnergy(ph, ei))
 
-        self.assertFalse(all([x == y for x, y in zip(energy, energy_no_correction)]))
+        self.assertFalse(
+            all([x == y for x, y in zip(energy, energy_no_correction)]))
 
     def test_idempotence(self):
         tool = ROOT.CP.EgammaCalibrationAndSmearingTool("tool_es2015PRE")
@@ -516,23 +578,26 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
 
     def test_1NP_vs_FULL_es2017(self):
         """ check that the 1NP model is the squared sum of the single systematics """
-        tool_1NP = ROOT.CP.EgammaCalibrationAndSmearingTool("tool_es2016data_mc15c_1NP")
+        tool_1NP = ROOT.CP.EgammaCalibrationAndSmearingTool(
+            "tool_es2016data_mc15c_1NP")
         tool_1NP.setProperty("ESModel", "es2016data_mc15c").ignore()
         tool_1NP.setProperty("decorrelationModel", "1NP_v1").ignore()
         tool_1NP.setProperty("int")("randomRunNumber", RUN2015).ignore()
-        #tool_1NP.setProperty("int")("doSmearing", 0).ignore()   # remove
-        #tool_1NP.msg().setLevel(ROOT.MSG.DEBUG)
+        # tool_1NP.setProperty("int")("doSmearing", 0).ignore()   # remove
+        # tool_1NP.msg().setLevel(ROOT.MSG.DEBUG)
 
         tool_1NP.initialize().ignore()
 
-        tool_FULL = ROOT.CP.EgammaCalibrationAndSmearingTool("tool_es2016data_mc15c_FULL")
+        tool_FULL = ROOT.CP.EgammaCalibrationAndSmearingTool(
+            "tool_es2016data_mc15c_FULL")
         tool_FULL.setProperty("ESModel", "es2016data_mc15c").ignore()
         tool_FULL.setProperty("int")("randomRunNumber", RUN2015).ignore()
         # use ETACORRELATED to compare. FULL_v1 will differ (very small difference) since by default
         # FULL_v1 divide the ZEESTAT by the sqrt(#bins)
-        tool_FULL.setProperty("decorrelationModel", "FULL_ETACORRELATED_v1").ignore()
-        #tool_FULL.setProperty("int")("doSmearing", 0).ignore()    # remove
-        #tool_FULL.msg().setLevel(ROOT.MSG.DEBUG)
+        tool_FULL.setProperty("decorrelationModel",
+                              "FULL_ETACORRELATED_v1").ignore()
+        # tool_FULL.setProperty("int")("doSmearing", 0).ignore()    # remove
+        # tool_FULL.msg().setLevel(ROOT.MSG.DEBUG)
         tool_FULL.initialize().ignore()
 
         ei = self.factory.create_eventinfo(True, 100000)  # MC
@@ -550,9 +615,11 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
                 all_syst_FULL = tool_FULL.recommendedSystematics()
                 all_syst_1NP = tool_1NP.recommendedSystematics()
 
-                self.assertTrue('EG_SCALE_ALL__1up' in [s.name() for s in list(all_syst_1NP)])
+                self.assertTrue('EG_SCALE_ALL__1up' in [
+                                s.name() for s in list(all_syst_1NP)])
 
-                all_syst_FULL_scale_up = [s for s in all_syst_FULL if ('SCALE' in s.name() and '__1up' in s.name())]
+                all_syst_FULL_scale_up = [s for s in all_syst_FULL if (
+                    'SCALE' in s.name() and '__1up' in s.name())]
 
                 all_biases = []
                 for sys in all_syst_FULL_scale_up:
@@ -561,12 +628,11 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
                     tool_FULL.applySystematicVariation(sys_set).ignore()
                     e = tool_FULL.getEnergy(particle, ei)
                     bias = e - e_full
-                    #print "{:<40} {:10.5f} {:10.5f}".format(sys.name(), e, bias)
+                    # print "{:<40} {:10.5f} {:10.5f}".format(sys.name(), e, bias)
                     all_biases.append(bias)
 
                 sum_quadrature = math.sqrt(sum([b * b for b in all_biases]))
-                #print "bias sum quadrature: ", sum_quadrature
-
+                # print "bias sum quadrature: ", sum_quadrature
 
                 bias_up, bias_down = None, None
                 for sys in all_syst_1NP:
@@ -581,12 +647,13 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
                         bias_up = bias
                     elif sys.name() == 'EG_SCALE_ALL__1down':
                         bias_down = bias
-                    #print sys.name() + "\t" + str(bias)
+                    # print sys.name() + "\t" + str(bias)
 
-
-                self.assertAlmostEqual(sum_quadrature, bias_up, delta=1, msg="sum of errors not equal to 1NP (up) %.7f!=%.7f" % (sum_quadrature, bias_up))
+                self.assertAlmostEqual(sum_quadrature, bias_up, delta=1,
+                                       msg="sum of errors not equal to 1NP (up) %.7f!=%.7f" % (sum_quadrature, bias_up))
                 # TODO: check why fails
-                #self.assertAlmostEqual(sum_quadrature, -bias_down, delta=1, msg="sum of errors not equal to 1NP (down) %.7f!=%.7f" % (sum_quadrature, bias_down))
+                # self.assertAlmostEqual(sum_quadrature, -bias_down, delta=1, 
+                # msg="sum of errors not equal to 1NP (down) %.7f!=%.7f" % (sum_quadrature, bias_down))
 
     def test_1NP_100GeV_electron_es2015PRE(self):
         """
@@ -595,7 +662,8 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
         """
         tool = ROOT.CP.EgammaCalibrationAndSmearingTool("tool_es2015PRE")
         self.assertTrue(tool.setProperty("ESModel", "es2015PRE").isSuccess())
-        self.assertTrue(tool.setProperty("decorrelationModel", "1NP_v1").isSuccess())
+        self.assertTrue(tool.setProperty(
+            "decorrelationModel", "1NP_v1").isSuccess())
         tool.msg().setLevel(ROOT.MSG.WARNING)
         tool.initialize().ignore()
         ei = self.factory.create_eventinfo(False, 100000)  # data
@@ -632,13 +700,15 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
         check that es2015cPRE == es2015PRE for electron except for crack region [1.4-1.6]
         check that es2015cPRE == es2015PRE for photons
         """
-        tool_es2015PRE = ROOT.CP.EgammaCalibrationAndSmearingTool("tool_es2015PRE")
+        tool_es2015PRE = ROOT.CP.EgammaCalibrationAndSmearingTool(
+            "tool_es2015PRE")
         tool_es2015PRE.setProperty("ESModel", "es2015PRE").ignore()
         tool_es2015PRE.setProperty("decorrelationModel", "1NP_v1").ignore()
         tool_es2015PRE.setProperty("int")("doSmearing", 0).ignore()
         tool_es2015PRE.initialize().ignore()
 
-        tool_es2015cPRE = ROOT.CP.EgammaCalibrationAndSmearingTool("tool_es2015cPRE")
+        tool_es2015cPRE = ROOT.CP.EgammaCalibrationAndSmearingTool(
+            "tool_es2015cPRE")
         tool_es2015cPRE.setProperty("ESModel", "es2015cPRE").ignore()
         tool_es2015cPRE.setProperty("decorrelationModel", "1NP_v1").ignore()
         tool_es2015cPRE.setProperty("int")("doSmearing", 0).ignore()
@@ -651,7 +721,7 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
             e_es2015PRE = tool_es2015PRE.getEnergy(el, ei)
             e_es2015cPRE = tool_es2015cPRE.getEnergy(el, ei)
 
-            #print el.eta(), el.e(), e_es2015PRE, e_es2015cPRE
+            # print el.eta(), el.e(), e_es2015PRE, e_es2015cPRE
             if 1.4 < abs(el.eta()) < 1.6:
                 self.assertNotAlmostEqual(e_es2015PRE, e_es2015cPRE)
             else:
@@ -670,16 +740,20 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
         check that es2015c_summer == es2015cPRE for electrons
                                   !=            for photons
         """
-        tool_es2015c_summer = ROOT.CP.EgammaCalibrationAndSmearingTool("tool_es2015c_summer")
+        tool_es2015c_summer = ROOT.CP.EgammaCalibrationAndSmearingTool(
+            "tool_es2015c_summer")
         tool_es2015c_summer.setProperty("ESModel", "es2015c_summer").ignore()
-        tool_es2015c_summer.setProperty("decorrelationModel", "1NPCOR_PLUS_UNCOR").ignore()
+        tool_es2015c_summer.setProperty(
+            "decorrelationModel", "1NPCOR_PLUS_UNCOR").ignore()
         tool_es2015c_summer.setProperty("int")("doSmearing", 0).ignore()
         tool_es2015c_summer.msg().setLevel(ROOT.MSG.WARNING)
         tool_es2015c_summer.initialize().ignore()
 
-        tool_es2015cPRE = ROOT.CP.EgammaCalibrationAndSmearingTool("tool_es2015cPRE")
+        tool_es2015cPRE = ROOT.CP.EgammaCalibrationAndSmearingTool(
+            "tool_es2015cPRE")
         tool_es2015cPRE.setProperty("ESModel", "es2015cPRE").ignore()
-        tool_es2015cPRE.setProperty("decorrelationModel", "1NPCOR_PLUS_UNCOR").ignore()
+        tool_es2015cPRE.setProperty(
+            "decorrelationModel", "1NPCOR_PLUS_UNCOR").ignore()
         tool_es2015cPRE.setProperty("int")("doSmearing", 0).ignore()
         tool_es2015cPRE.msg().setLevel(ROOT.MSG.WARNING)
         tool_es2015cPRE.initialize().ignore()
@@ -701,15 +775,18 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
             e_es2015cPRE = tool_es2015cPRE.getEnergy(ph, ei)
             self.assertGreater(e_es2015cPRE, 0)
             self.assertNotAlmostEqual(e_es2015c_summer, e_es2015cPRE,
-                                      msg="e_es2015c_summer == e_es2015cPRE == %.2f at eta=%.2f for photons" % (e_es2015c_summer, ph.eta()))
+                                      msg="e_es2015c_summer == e_es2015cPRE == %.2f at eta=%.2f for photons" % (e_es2015c_summer, 
+                                      ph.eta()))
 
     def test_es2015c_summer_data(self):
         """
         check that energy > 0
         """
-        tool_es2015c_summer = ROOT.CP.EgammaCalibrationAndSmearingTool("tool_es2015c_summer")
+        tool_es2015c_summer = ROOT.CP.EgammaCalibrationAndSmearingTool(
+            "tool_es2015c_summer")
         tool_es2015c_summer.setProperty("ESModel", "es2015c_summer").ignore()
-        tool_es2015c_summer.setProperty("decorrelationModel", "1NPCOR_PLUS_UNCOR").ignore()
+        tool_es2015c_summer.setProperty(
+            "decorrelationModel", "1NPCOR_PLUS_UNCOR").ignore()
         tool_es2015c_summer.msg().setLevel(ROOT.MSG.WARNING)
         tool_es2015c_summer.initialize().ignore()
 
@@ -728,5 +805,5 @@ if __name__ == '__main__':
     ROOT.gROOT.ProcessLine(".x $ROOTCOREDIR/scripts/load_packages.C")
 #    from ROOT import EgammaCalibPeriodRunNumbersExample
 
-    #ROOT.xAOD.TReturnCode.enableFailure()
+    # ROOT.xAOD.TReturnCode.enableFailure()
     unittest.main()

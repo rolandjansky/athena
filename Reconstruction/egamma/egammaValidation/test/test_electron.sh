@@ -29,7 +29,7 @@ case $ArtProcess in
         echo "Unsetting ATHENA_NUM_PROC=${ATHENA_NUM_PROC}"
         unset  ATHENA_NUM_PROC
 
-	AODMerge_tf.py --inputAODFile=art_core_*/Nightly_AOD_electron.pool.root --outputAOD_MRGFile=Nightly_AOD_electron.pool.root --preExec "from RecExConfig.RecAlgsFlags import recAlgs; recAlgs.doTrigger=False" --postInclude "all:egammaValidation/egammaArtCaloCalPostInclude.py"
+	AODMerge_tf.py --inputAODFile=art_core_*/Nightly_AOD_electron.pool.root --outputAOD_MRGFile=Nightly_AOD_electron.pool.root --preExec "from egammaValidation.egammaOnlyPreExec import setRunEgammaOnlyMergeFlags; setRunEgammaOnlyMergeFlags()" --postInclude "all:egammaValidation/egammaArtCaloCalPostInclude.py"
 	
 	echo  "art-result: $? AODMerge"
 
@@ -67,7 +67,8 @@ case $ArtProcess in
 	echo "Unsetting ATHENA_NUM_PROC=${ATHENA_NUM_PROC}"
 	unset  ATHENA_NUM_PROC
 	
-	Reco_tf.py --inputRDOFile=$x --outputAODFile=Nightly_AOD_electron.pool.root --maxEvents=2000 --autoConfiguration="everything" --preExec="from ParticleBuilderOptions.AODFlags import AODFlags; AODFlags.ThinGeantTruth.set_Value_and_Lock(False);AODFlags.egammaTrackSlimmer.set_Value_and_Lock(False);AODFlags.ThinInDetForwardTrackParticles.set_Value_and_Lock(False); AODFlags.ThinNegativeEnergyNeutralPFOs.set_Value_and_Lock(False); rec.doTrigger=False; rec.doTau=False ; rec.doMuon=False; rec.doBTagging=False ; from RecExConfig.RecAlgsFlags import recAlgs; recAlgs.doMuonSpShower=False ; recAlgs.doEFlow=False ; recAlgs.doEFlowJet=False ; recAlgs.doMissingET=False ; recAlgs.doMissingETSig=False ; recAlgs.doTrigger=False ; from JetRec.JetRecFlags import jetFlags ; jetFlags.Enabled=False ; " --postInclude "ESDtoAOD:egammaValidation/egammaArtCaloCalPostInclude.py" "POOLMergeAthenaMPAOD0:egammaValidation/egammaArtCaloCalPostInclude.py"
+    Reco_tf.py --inputRDOFile=$x --outputAODFile=Nightly_AOD_electron.pool.root --maxEvents=2000 --autoConfiguration="everything" --preExec="from egammaValidation.egammaOnlyPreExec import setRunEgammaOnlyRecoFlags; setRunEgammaOnlyRecoFlags()" --postInclude "ESDtoAOD:egammaValidation/egammaArtCaloCalPostInclude.py" "POOLMergeAthenaMPAOD0:egammaValidation/egammaArtCaloCalPostInclude.py"
+
 	
 	echo  "art-result: $? reconstruction"
 

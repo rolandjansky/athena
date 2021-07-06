@@ -1,20 +1,18 @@
+/**
+ * @file DiTauEfficiencyCorrectionsTool.h
+ * @author Guillermo Hamity (ghamity@cern.ch)
+ * @author David Kirchmeier
+ * @brief Efficiency scale factors and uncertainties for ditau jets
+ * @date 2021-02-18
+ * 
+ * @copyright Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ * 
+ */
 // Dear emacs, this is -*- c++ -*-
-
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
 
 #ifndef TAUANALYSISTOOLS_DITAUEFFICIENCYTOOL_H
 #define TAUANALYSISTOOLS_DITAUEFFICIENCYTOOL_H
 
-/*
-  author: David Kirchmeier
-  mail: davd.kirchmeier@cern.ch
-  documentation in: 
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/doc/README-DiTauEfficiencyCorrectionsTool.rst
-        or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-DiTauEfficiencyCorrectionsTool.rst
-*/
 
 // Framework include(s):
 #include "AsgTools/AsgMetadataTool.h"
@@ -36,34 +34,67 @@ class DiTauEfficiencyCorrectionsTool
   ASG_TOOL_CLASS( DiTauEfficiencyCorrectionsTool, TauAnalysisTools::IDiTauEfficiencyCorrectionsTool )
 
 public:
-  /// Create a constructor for standalone usage
+  /* Create a constructor for standalone usage*/
   DiTauEfficiencyCorrectionsTool( const std::string& sName );
 
   ~DiTauEfficiencyCorrectionsTool();
 
-  /// Function initialising the tool
+  /** Function initialising the tool*/
   virtual StatusCode initialize();
 
-  /// Print tool configuration
+  /** Print tool configuration*/
   virtual void printConfig(bool bAlways = true);
 
-  /// Get the "tau efficiency" as a return value
+  /**
+   * @brief Get the ditau Efficiency Scale Factor as a return value
+   * 
+   * @param xDiTau : reco DiTauJet
+   * @param eff : reference to output variable where efficiency is returned
+   * @param iRunNumber : run number
+   * @param iMu : number of interactions
+   * @return CP::CorrectionCode 
+   */
   virtual CP::CorrectionCode getEfficiencyScaleFactor( const xAOD::DiTauJet& xDiTau,
-      double& eff );
-  /// Decorate the tau with its efficiency
-  virtual CP::CorrectionCode applyEfficiencyScaleFactor( const xAOD::DiTauJet& xDiTau );
+      double& eff, unsigned int iRunNumber = 0, unsigned int iMu = 0);
 
-  /// returns: whether this tool is affected by the given systematis
+
+  /**
+   * @brief decorate the ditau jet with eff scale factor
+   * 
+   * @param xDiTau : reco DiTauJet
+   * @param iRunNumber : run number
+   * @param iMu : number of interactions
+   * @return CP::CorrectionCode 
+   */
+  virtual CP::CorrectionCode applyEfficiencyScaleFactor( const xAOD::DiTauJet& xDiTau,
+      unsigned int iRunNumber = 0, unsigned int iMu = 0);
+
+
+  /**
+   * @brief returns whether this tool is affected by the given systematic
+   * 
+   * @param systematic 
+   * @return true 
+   * @return false 
+   */
   virtual bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const;
 
-  /// returns: the list of all systematics this tool can be affected by
+  /** returns: the list of all systematics this tool can be affected by*/
   virtual CP::SystematicSet affectingSystematics() const;
 
-  /// returns: the list of all systematics this tool recommends to use
+  /** returns: the list of all systematics this tool recommends to use*/
   virtual CP::SystematicSet recommendedSystematics() const;
 
+  /** apply systematic variations */
   virtual StatusCode applySystematicVariation( const CP::SystematicSet& systConfig );
-
+  
+  /**
+   * @brief check if run number is supperted in recommendations
+   * 
+   * @param iRunNumber 
+   * @return true if ditau recommendations support this run
+   * @note currently no implementaion exists, alwasys returns true
+   */
   virtual bool isSupportedRunNumber( int iRunNumber )
   {
     (void) iRunNumber;
@@ -75,6 +106,7 @@ private:
 
   std::string ConvertJetIDToString(const int& iLevel);
 
+  /** Initialize Moriond 2017 recommendations*/
   StatusCode initializeTools_2017_moriond();
 
 private:
@@ -91,6 +123,8 @@ private:
   bool m_bIsData;
   bool m_bIsConfigured;
   int m_iIDLevel;
+
+  // unsigned int m_iRunNumber;
 
   std::string m_sEventInfoName;
 }; // class DiTauEfficiencyCorrectionsTool

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -98,31 +98,26 @@ StatusCode LArPedestalBuilder::execute()
 
 
 
-  std::vector<std::string>::const_iterator key_it=m_keylist.begin();
-  std::vector<std::string>::const_iterator key_it_e=m_keylist.end();
   const LArAccumulatedDigitContainer* container;
   
   //Outermost loop goes over all gains (different containers).
-  for (;key_it!=key_it_e;key_it++) {
+  for (const std::string& key : m_keylist) {
     
-    StatusCode sc= evtStore()->retrieve(container,*key_it);
+    StatusCode sc= evtStore()->retrieve(container,key);
     if (sc.isFailure() || !container) {
-      ATH_MSG_DEBUG("Cannot read LArAccumulatedDigitContainer from StoreGate! key=" << *key_it);
+      ATH_MSG_DEBUG("Cannot read LArAccumulatedDigitContainer from StoreGate! key=" << key);
       return StatusCode::SUCCESS; 
     }
     
     // check that container is not empty
     if(container->size()==0 ) {
-      ATH_MSG_DEBUG("LArAccumulatedDigitContainer (key=" << *key_it << ") is empty ");
+      ATH_MSG_DEBUG("LArAccumulatedDigitContainer (key=" << key << ") is empty ");
       continue;
     }
     
     HWIdentifier  lastFailedFEB(0);
     //Inner loop goes over the cells.
-    LArAccumulatedDigitContainer::const_iterator it=container->begin();
-    LArAccumulatedDigitContainer::const_iterator it_end=container->end();
-    for (;it!=it_end;it++) {  //Loop over all cells
-      const LArAccumulatedDigit* dg = *it;
+    for (const LArAccumulatedDigit* dg : *container) {  //Loop over all cells
       if (dg->nTrigger()==0) continue; //Don't care about empty digits
       const HWIdentifier chid=dg->hardwareID();
       const HWIdentifier febid=m_onlineHelper->feb_Id(chid);

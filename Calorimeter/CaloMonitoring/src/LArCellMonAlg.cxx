@@ -31,7 +31,6 @@
 ////////////////////////////////////////////
 LArCellMonAlg::LArCellMonAlg(const std::string& name, ISvcLocator* pSvcLocator) 
   :CaloMonAlgBase(name, pSvcLocator),
-   m_badChannelMask("BadLArRawChannelMask",this),
    m_LArOnlineIDHelper(nullptr),
    m_calo_id(nullptr)
 {    
@@ -43,10 +42,6 @@ LArCellMonAlg::LArCellMonAlg(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("metTriggerNames",m_triggerNames[MET]);
   declareProperty("miscTriggerNames",m_triggerNames[MISC]);
   
-  // Bad channel masking options 
-  declareProperty("LArBadChannelMask",m_badChannelMask,"Tool handle for LArBadChanelMasker");
-
-
   // LAr Thresholdsd
   // Em Barrel
   declareProperty("EMBP_Thresh",m_thresholdsProp[EMBPNS]);
@@ -88,23 +83,12 @@ StatusCode LArCellMonAlg::initialize() {
   ATH_CHECK( detStore()->retrieve(m_calo_id) );
 
   // Bad channel masker tool 
-  if(m_maskKnownBadChannels){
-    ATH_CHECK(m_badChannelMask.retrieve());
-  }
-  else {
-    m_badChannelMask.disable();
-  }
+  ATH_CHECK(m_BCKey.initialize(m_ignoreKnownBadChannels || m_doKnownBadChannelsVsEtaPhi));
+  ATH_CHECK(m_bcMask.buildBitMask(m_problemsToMask,msg()));
 
   ATH_CHECK( m_cellContainerKey.initialize() );
   ATH_CHECK( m_cablingKey.initialize() );
   ATH_CHECK( m_noiseCDOKey.initialize() );
-
-  // Bad channels key
-  //(used for building eta phi map of known bad channels)
-  if( m_doKnownBadChannelsVsEtaPhi) {
-    ATH_CHECK(m_BCKey.initialize());
-  }
-
 
   //JobO consistency check:
   if (m_useTrigger && std::all_of(m_triggerNames.begin(),m_triggerNames.end(),[](const std::string& trigName){return trigName.empty();})) {
@@ -121,7 +105,7 @@ StatusCode LArCellMonAlg::initialize() {
   }
 
   //retrieve trigger decision tool and chain groups
-  if( m_useTrigger) {
+  if( m_useTrigger && !getTrigDecisionTool().empty() ) {
     const ToolHandle<Trig::TrigDecisionTool> trigTool=getTrigDecisionTool();
     ATH_MSG_INFO("TrigDecisionTool retrieved");
     for (size_t i=0;i<NOTA;++i) {
@@ -466,6 +450,12 @@ StatusCode LArCellMonAlg::fillHistograms(const EventContext& ctx) const{
      return StatusCode::FAILURE;
   }
 
+  const LArBadChannelCont* bcCont=nullptr;
+  if (m_ignoreKnownBadChannels) {
+    SG::ReadCondHandle<LArBadChannelCont> bcContHdl{m_BCKey,ctx};
+    bcCont=(*bcContHdl);
+  }
+
   SG::ReadHandle<CaloCellContainer> cellHdl{m_cellContainerKey, ctx};
   const CaloCellContainer* cellCont = cellHdl.cptr();
 	    
@@ -525,7 +515,7 @@ StatusCode LArCellMonAlg::fillHistograms(const EventContext& ctx) const{
     const bool celltqavailable = ( cellprovenance & 0x2000 );
     
     // No more filling if we encounter a bad channel ....
-    if (m_maskKnownBadChannels && m_badChannelMask->cellShouldBeMasked(id,gain)) continue;
+    if (m_ignoreKnownBadChannels && m_bcMask.cellShouldBeMasked(bcCont,id)) continue;
 
     // ...or a channel w/o conditions
     if (m_maskNoCondChannels && (cellprovenance & 0x00FF) != 0x00A5) continue; //FIXME, I think that cut is wrong

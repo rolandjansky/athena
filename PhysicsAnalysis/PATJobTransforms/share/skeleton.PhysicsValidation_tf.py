@@ -134,7 +134,7 @@ if hasattr(runArgs,"preExec"):
 if hasattr(runArgs,"preInclude"): 
     for fragment in runArgs.preInclude:
         include(fragment)
-    
+
 # Now, include the master top options from RecExCommon.
 include ("RecExCommon/RecExCommon_topOptions.py")
 

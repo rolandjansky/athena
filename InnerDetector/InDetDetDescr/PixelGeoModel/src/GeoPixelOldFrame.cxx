@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -29,7 +29,7 @@ GeoPixelOldFrame::GeoPixelOldFrame(InDetDD::PixelDetectorManager* ddmgr,
 
 GeoVPhysVol* GeoPixelOldFrame::Build() 
 {
-  return 0;
+  return nullptr;
 }
 
 GeoVPhysVol* GeoPixelOldFrame::BuildBox() {

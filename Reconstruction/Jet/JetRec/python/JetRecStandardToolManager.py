@@ -15,8 +15,6 @@
 from AthenaCommon import Logging
 jetlog = Logging.logging.getLogger('JetRec_jobOptions')
 
-import copy
-
 myname = "JetRecStandardToolManager.py: "
 
 jetlog.info( myname + "Defining standard tools" )
@@ -73,13 +71,13 @@ jtm.ptminFinder = 2000
 jtm.ptminFilter =    0
 
 # Add standard tool definitions to the tool manager.
-import JetRec.JetRecStandardTools
+import JetRec.JetRecStandardTools as JetRecStandardTools
+jetlog.verbose("Use trigger store? %s", JetRecStandardTools.UseTriggerStore)
 
 # Function to filter out skipped tools.
 def filterout(skiptoolnames, tools):
   outtools = []
   remtoolnames = []
-  nrem = 0
   for tool in tools:
     keep = True
     for toolname in skiptoolnames:
@@ -99,9 +97,9 @@ def filterout(skiptoolnames, tools):
 
 # Pseudojet getters
 empfgetters =  [jtm.empflowget]
-empfgetters_fe = [jtm.empflowget_fe]
 
 trackgetters = [jtm.trackget]
+pv0trackgetters = [jtm.pv0trackget]
 # Add track ghosts
 emgetters = [jtm.emget]
 lcgetters = [jtm.lcget]
@@ -115,13 +113,11 @@ if jetFlags.useTracks():
   emgetters += [jtm.gtrackget]
   lcgetters += [jtm.gtrackget]
   empfgetters += [jtm.gtrackget]
-  empfgetters_fe += [jtm.gtrackget]
 
 if jetFlags.useMuonSegments():
   emgetters += [jtm.gmusegget]
   lcgetters += [jtm.gmusegget]
   empfgetters  += [jtm.gmusegget]
-  empfgetters_fe  += [jtm.gmusegget]
 # Add jet ghosts.
 if 1:
   for gettername in jetFlags.additionalTopoGetters():
@@ -133,10 +129,10 @@ if jetFlags.useTruth():
   truthgetters = [jtm.truthget]
   truthwzgetters = [jtm.truthwzget]
   trackgetters += [jtm.gtruthget]
+  pv0trackgetters += [jtm.gtruthget]
   emgetters += [jtm.gtruthget]
   lcgetters += [jtm.gtruthget]
   empfgetters += [jtm.gtruthget]
-  empfgetters_fe += [jtm.gtruthget]
   # Add truth cone matching and truth flavor ghosts.
   flavorgetters = []
   for ptype in jetFlags.truthFlavorTags():
@@ -146,27 +142,26 @@ if jetFlags.useTruth():
   truthgetters   += flavorgetters
   truthwzgetters += flavorgetters
   trackgetters   += flavorgetters
+  pv0trackgetters += flavorgetters
   empfgetters    += flavorgetters
-  empfgetters_fe += flavorgetters
 # Add track jet ghosts.
 if jetFlags.useTracks():
   trackjetgetters = []
   trackjetgetters += [jtm.gakt2trackget]
 #  trackjetgetters += [jtm.gakt3trackget]
   trackjetgetters += [jtm.gakt4trackget]
+#  trackjetgetters += [jtm.gvrtrackget]
   emgetters += trackjetgetters
   lcgetters += trackjetgetters
   empfgetters += trackjetgetters
-  empfgetters_fe += trackjetgetters
 
 
 # Add getter lists to jtm indexed by input type name.
 jtm.gettersMap["emtopo"]    = list(emgetters)
 jtm.gettersMap["lctopo"]    = list(lcgetters)
 jtm.gettersMap["empflow"]   = list(empfgetters)
-jtm.gettersMap["empflowfe"] = list(empfgetters_fe)
 jtm.gettersMap["track"]     = list(trackgetters)
-jtm.gettersMap["pv0track"]  = list(trackgetters)
+jtm.gettersMap["pv0track"]  = list(pv0trackgetters)
 if jetFlags.useTruth():
   jtm.gettersMap["truth"]   = list(truthgetters)
   jtm.gettersMap["truthwz"] = list(truthwzgetters)
@@ -174,7 +169,6 @@ if jetFlags.useTruth():
 jtm.gettersMap["emtopo_reduced"]  = filterout(["gakt2trackget","gakt4trackget"],emgetters)
 jtm.gettersMap["lctopo_reduced"]  = filterout(["gakt2trackget","gakt4trackget"],lcgetters)
 jtm.gettersMap["empflow_reduced"] = filterout(["gakt2trackget","gakt4trackget"],empfgetters)
-jtm.gettersMap["empflowfe_reduced"] = filterout(["gakt2trackget","gakt4trackget"],empfgetters_fe)
 
 
 #########################################################

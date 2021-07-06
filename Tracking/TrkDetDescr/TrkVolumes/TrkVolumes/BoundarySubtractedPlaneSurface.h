@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -9,99 +9,91 @@
 #ifndef TRKVOLUMES_BOUNDARYSUBTRACTEDPLANESURFACE_H
 #define TRKVOLUMES_BOUNDARYSUBTRACTEDPLANESURFACE_H
 
-//Trk
-#include "TrkGeometrySurfaces/SubtractedPlaneSurface.h"
-#include "TrkVolumes/BoundarySurface.h"
-#include "TrkParameters/TrackParameters.h"
-#include "TrkEventPrimitives/PropDirection.h"
-
+// Trk
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "TrkEventPrimitives/PropDirection.h"
+#include "TrkGeometrySurfaces/SubtractedPlaneSurface.h"
+#include "TrkParameters/TrackParameters.h"
+#include "TrkVolumes/BoundarySurface.h"
 
 namespace Trk {
 
-//class TrackParameters;
+// class TrackParameters;
 class Volume;
 
-  /** 
-   @class BoundarySubtractedPlaneSurface
+/**
+ @class BoundarySubtractedPlaneSurface
 
-   BoundarySubtractedPlaneSurface description inside the tracking realm,
-   it extends the SubtractedPlaneSurface description to make a surface being a boundary of a
-   Trk::Volume (used for all volume shapes).
-   It inherits from BoundarySurface to get the interface of boundaries. 
-    
-   @author Sarka.Todorova@cern.ch 
-  */
-  
-  template <class Tvol> class BoundarySubtractedPlaneSurface final: 
-                               virtual public BoundarySurface<Tvol>, public SubtractedPlaneSurface {
+ BoundarySubtractedPlaneSurface description inside the tracking realm,
+ it extends the SubtractedPlaneSurface description to make a surface being a
+ boundary of a Trk::Volume (used for all volume shapes). It inherits from
+ BoundarySurface to get the interface of boundaries.
 
-    /** typedef the BinnedArray */
-    typedef BinnedArray<Tvol> VolumeArray;                            
+ @author Sarka.Todorova@cern.ch
+ @author Christos Anastopoulos (Athena  MT modifications)
+*/
 
-    public:
-     /** Default Constructor - needed for pool and inherited classes */
-     BoundarySubtractedPlaneSurface() :
-       BoundarySurface<Tvol>(),
-       SubtractedPlaneSurface()
-     {}
-     
-     /** Copy constructor */                            
-     BoundarySubtractedPlaneSurface(const BoundarySubtractedPlaneSurface<Tvol>& bps) :
-       BoundarySurface<Tvol>(bps),
-       SubtractedPlaneSurface(bps)
-     {}
-     
-     /** Constructor for a Boundary with exact two Volumes attached to it*/
-     BoundarySubtractedPlaneSurface(const Tvol* inside, const Tvol* outside, const SubtractedPlaneSurface& psf) :
-       BoundarySurface<Tvol>(inside, outside),
-       SubtractedPlaneSurface(psf)
-     {}
-     
-     /** Constructor for a Boundary with two VolumeArrays attached to it*/
-     BoundarySubtractedPlaneSurface(SharedObject<VolumeArray> insideArray, SharedObject<VolumeArray> outsideArray, const SubtractedPlaneSurface& psf) :
-       BoundarySurface<Tvol>(insideArray, outsideArray),
-       SubtractedPlaneSurface(psf)
-     {}        
-     
-     /** Copy constructor with a shift */
-     BoundarySubtractedPlaneSurface(const Tvol* inside, const Tvol* outside, const SubtractedPlaneSurface& psf, const Amg::Transform3D& tr) :
-       BoundarySurface<Tvol>(inside,outside),
-       SubtractedPlaneSurface(psf,tr)
-     {}
+template <class Tvol>
+class BoundarySubtractedPlaneSurface final
+    : virtual public BoundarySurface<Tvol>,
+      public SubtractedPlaneSurface {
+  /** typedef the BinnedArray */
+  typedef BinnedArray<Tvol> VolumeArray;
 
-     /** Get the next Volume depending on the TrackParameters and the requested
-      direction, gives back 0 if there's no volume attached to the requested
-      direction
-      */
-     virtual const Tvol* attachedVolume(const TrackParameters& parms,
-                                        PropDirection dir) const override final;
+ public:
+  /** Default Constructor - needed for pool and inherited classes */
+  BoundarySubtractedPlaneSurface() = default;
 
-     /** Get the next Volume depending on GlobalPosition, GlobalMomentum, dir
-      on the TrackParameters and the requested direction */
-     virtual const Tvol* attachedVolume(const Amg::Vector3D& pos,
-                                        const Amg::Vector3D& mom,
-                                        PropDirection dir) const override final;
+  /** Copy constructor */
+  BoundarySubtractedPlaneSurface(
+      const BoundarySubtractedPlaneSurface<Tvol>& bps) = default;
 
-     /** The Surface Representation of this */
-     virtual const Surface& surfaceRepresentation() const override final;
+  /**Assignment operator*/
+  BoundarySubtractedPlaneSurface& operator=(
+      const BoundarySubtractedPlaneSurface& vol) = default;
 
-     /**Virtual Destructor*/
-     virtual ~BoundarySubtractedPlaneSurface() = default;
+  virtual ~BoundarySubtractedPlaneSurface() = default;
 
-     /**Assignment operator*/
-     BoundarySubtractedPlaneSurface& operator=(const BoundarySubtractedPlaneSurface& vol);
-         
-   protected:
-                             
-  };
+  /** Constructor for a Boundary with exact two Volumes attached to it*/
+  BoundarySubtractedPlaneSurface(const Tvol* inside, const Tvol* outside,
+                                 const SubtractedPlaneSurface& psf)
+      : BoundarySurface<Tvol>(inside, outside), SubtractedPlaneSurface(psf) {}
 
-template <class Tvol> inline const Surface& BoundarySubtractedPlaneSurface<Tvol>::surfaceRepresentation() const { return *this; }
+  /** Constructor for a Boundary with two VolumeArrays attached to it*/
+  BoundarySubtractedPlaneSurface(SharedObject<VolumeArray> insideArray,
+                                 SharedObject<VolumeArray> outsideArray,
+                                 const SubtractedPlaneSurface& psf)
+      : BoundarySurface<Tvol>(insideArray, outsideArray),
+        SubtractedPlaneSurface(psf) {}
+
+  /** Copy constructor with a shift */
+  BoundarySubtractedPlaneSurface(const Tvol* inside, const Tvol* outside,
+                                 const SubtractedPlaneSurface& psf,
+                                 const Amg::Transform3D& tr)
+      : BoundarySurface<Tvol>(inside, outside),
+        SubtractedPlaneSurface(psf, tr) {}
+
+  /** Get the next Volume depending on the TrackParameters and the requested
+   direction, gives back 0 if there's no volume attached to the requested
+   direction
+   */
+  virtual const Tvol* attachedVolume(const TrackParameters& parms,
+                                     PropDirection dir) const override final;
+
+  /** Get the next Volume depending on GlobalPosition, GlobalMomentum, dir
+   on the TrackParameters and the requested direction */
+  virtual const Tvol* attachedVolume(const Amg::Vector3D& pos,
+                                     const Amg::Vector3D& mom,
+                                     PropDirection dir) const override final;
+
+  /** The Surface Representation of this */
+  virtual const Surface& surfaceRepresentation() const override final;
+};
 
 // Hash include inline functions
 #include "TrkVolumes/BoundarySubtractedPlaneSurface.icc"
-  
-} // end of namespace Trk
 
-#endif // TRKVOLUMES_BOUNDARYSUBTRACTEDPLANESURFACE_H
+}  // end of namespace Trk
+
+#endif  // TRKVOLUMES_BOUNDARYSUBTRACTEDPLANESURFACE_H
 

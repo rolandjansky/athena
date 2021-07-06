@@ -110,10 +110,6 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
 
  private: 
 
-  TH2* m_mdthitspermultilayerLumi[4][4];
-  TH2* m_mdthitsperchamber_InnerMiddleOuterLumi[2];
-  TH2* m_mdthitsperML_byLayer[3];//These are alternative Global hit coverage plots
-
   MDTNoisyTubes* m_masked_tubes;
 
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
@@ -126,8 +122,8 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
 
   virtual void  fillMDTOverviewVects(const Muon::MdtPrepData*, bool &isNoiseBurstCandidate, MDTOverviewHistogramStruct& vects) const;
   virtual void  fillMDTOverviewHistograms(const MDTOverviewHistogramStruct& vects) const;
-  virtual StatusCode  fillMDTSummaryVects( const Muon::MdtPrepData*, const std::set<std::string>&, bool &isNoiseBurstCandidate, bool trig_barrel, bool trig_endcap, MDTSummaryHistogramStruct (&vects)[4][4][16][4][4] ) const;
-  virtual StatusCode  fillMDTSummaryHistograms( const MDTSummaryHistogramStruct (&vects)[4][4][16][4][4], int lb) const;
+  virtual StatusCode  fillMDTSummaryVects( const Muon::MdtPrepData*, const std::set<std::string>&, bool &isNoiseBurstCandidate, bool trig_barrel, bool trig_endcap, std::array<MDTSummaryHistogramStruct,4096>* ) const;
+  virtual StatusCode  fillMDTSummaryHistograms( std::array<MDTSummaryHistogramStruct,4096>  *  vects, int lb) const;
   virtual StatusCode  fillMDTHistograms( const Muon::MdtPrepData* ) const;//fill chamber by chamber histos
 
 
@@ -136,8 +132,8 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
 
   //MDTRawDataUtils_cxx
   bool AinB( int A, std::vector<int> & B ) const;
-  virtual StatusCode  binMdtGlobal( TH2* &, char ecap );
-  virtual StatusCode  binMdtRegional( TH2* &, std::string &xAxis);
+  virtual StatusCode  binMdtGlobal( TH2*, char ecap );
+  virtual StatusCode  binMdtRegional( TH2*, std::string &xAxis );
   virtual StatusCode  binMdtGlobal_byLayer( TH2*, TH2*, TH2*);
   virtual StatusCode binMdtOccVsLB(TH2* &h, int region, int layer);
   virtual StatusCode binMdtOccVsLB_Crate(TH2* &h, int region, int crate);
@@ -160,7 +156,7 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
 
   bool m_atlas_ready;
 
-  SG::ReadHandleKey<Trk::SegmentCollection> m_segm_type{this,"Eff_segm_type","MuonSegments","muon segments"};
+  SG::ReadHandleKey<Trk::SegmentCollection> m_segm_type{this,"Eff_segm_type","TrackMuonSegments","muon segments"};
 
   std::string returnString(int i) const{
     std::stringstream ss;

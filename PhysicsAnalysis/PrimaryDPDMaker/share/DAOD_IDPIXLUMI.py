@@ -67,7 +67,7 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 # SET UP STREAM  
 #====================================================================
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-from D2PDMaker.D2PDHelpers import buildFileName
+from PrimaryDPDMaker.PrimaryDPDHelpers import buildFileName
 from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
 streamName = primDPD.WriteDAOD_IDPIXLUMIStream.StreamName
 fileName   = buildFileName( primDPD.WriteDAOD_IDPIXLUMIStream )
@@ -139,9 +139,10 @@ if (printIdTrkDxAODConf):
 
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 IDPIXLUMISlimmingHelper = SlimmingHelper("IDPIXLUMISlimmingHelper")
+excludedVtxAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
 IDPIXLUMISlimmingHelper.AppendToDictionary = {'PixelClusters': 'xAOD::TrackMeasurementValidationContainer', 'PixelClustersAux': 'xAOD::TrackMeasurementValidationAuxContainer'}
 IDPIXLUMISlimmingHelper.ExtraVariables = [ "PixelClusters.bec.layer.phi_module.eta_module.sizePhi.sizeZ.nRDO.charge.ToT.LVL1A.isFake.gangedPixel.isSplit" ]
-IDPIXLUMISlimmingHelper.AllVariables = [ "InDetTrackParticles", "PrimaryVertices" ]
+IDPIXLUMISlimmingHelper.AllVariables = [ "InDetTrackParticles", "PrimaryVertices."+excludedVtxAuxData ]
 IDPIXLUMISlimmingHelper.SmartCollections = [ "InDetTrackParticles", "PrimaryVertices" ]
 IDPIXLUMISlimmingHelper.AppendContentToStream(IDPIXLUMIStream)
 

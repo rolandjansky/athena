@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Test of P1+Tier0 workflow, runs athenaHLT with PhysicsP1_pp_run3_v1 menu followed by offline reco and monitoring
 # art-type: build
@@ -12,9 +12,12 @@ from TrigValTools.TrigValSteering.Common import find_file
 hlt = ExecStep.ExecStep()
 hlt.type = 'athenaHLT'
 hlt.job_options = 'TriggerJobOpts/runHLT_standalone.py'
+hlt.forks = 1
+hlt.threads = 4
+hlt.concurrent_events = 4
 hlt.input = 'data'
 hlt.max_events = 50
-hlt.args = '-c "setMenu=\'PhysicsP1_pp_run3_v1\';"'
+hlt.args = '-c "setMenu=\'PhysicsP1_pp_run3_v1\';doL1Sim=True;rewriteLVL1=True;"'
 hlt.args += ' -o output'
 
 # Extract the physics_Main stream out of the BS file with many streams
@@ -30,13 +33,13 @@ tzrecoPreExec = ' '.join([
   "ConfigFlags.Trigger.triggerMenuSetup=\'PhysicsP1_pp_run3_v1\';",
   "from TriggerJobOpts.TriggerFlags import TriggerFlags;",
   "TriggerFlags.configForStartup=\'HLToffline\';",
-  "TriggerFlags.inputHLTconfigFile.set_Value_and_Lock(\'NONE\');",
   "TriggerFlags.AODEDMSet.set_Value_and_Lock(\'AODFULL\');"
 ])
 
 tzreco = ExecStep.ExecStep('Tier0Reco')
 tzreco.type = 'Reco_tf'
-tzreco.threads = 1
+tzreco.threads = 4
+tzreco.concurrent_events = 4
 tzreco.input = ''
 tzreco.explicit_input = True
 tzreco.max_events = 50

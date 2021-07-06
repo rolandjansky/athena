@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -13,7 +13,7 @@ ATLAS Collaboration
 #include "SiSpacePointFormation/SiTrackerSpacePointFinder.h"
 
 // For processing clusters
-#include "InDetReadoutGeometry/SiLocalPosition.h"
+#include "ReadoutGeometryBase/SiLocalPosition.h"
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
@@ -126,10 +126,8 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
   
   auto nReceivedClustersSCT = Monitored::Scalar<int>( "numSctClusters" , 0 );
   auto nReceivedClustersPIX = Monitored::Scalar<int>( "numPixClusters" , 0 );
-  auto nSCTspacePoints = Monitored::Scalar<int>( "numSctSpacePoints"   , 0 );
-  auto nPIXspacePoints = Monitored::Scalar<int>( "numPixSpacePoints"   , 0 );
 
-  auto mon = Monitored::Group( m_monTool, nReceivedClustersPIX,nReceivedClustersSCT, nPIXspacePoints, nSCTspacePoints );
+  auto mon = Monitored::Group( m_monTool, nReceivedClustersPIX,nReceivedClustersSCT );
 
   if (m_selectSCTs) {
     SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey, ctx);
@@ -236,7 +234,6 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
       }
 
       size_t size = spacepointCollection->size();
-      nSCTspacePoints = size;
       if (size == 0){
         ATH_MSG_VERBOSE( "SiTrackerSpacePointFinder algorithm found no space points" );
       } else {
@@ -249,6 +246,7 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
         ATH_MSG_VERBOSE( size << " SpacePoints successfully added to Container !" );
       }
     }
+    m_numberOfSCT+= sct_clcontainer->size();
   }
 
   if (m_selectPixels)
@@ -284,7 +282,7 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
       auto spacepointCollection = std::make_unique< SpacePointCollection >(idHash);
       spacepointCollection->setIdentifier(elementID);
 
-      if ((*colNext)->size() != 0)
+      if (!(*colNext)->empty())
       {
         m_SiSpacePointMakerTool->fillPixelSpacePointCollection(*colNext,spacepointCollection.get());
       }
@@ -293,7 +291,6 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
         ATH_MSG_DEBUG( "Empty pixel cluster collection" );
       }
       size_t size = spacepointCollection->size();
-      nPIXspacePoints = spacepointCollection->size();
       if (size == 0)
       {
         ATH_MSG_DEBUG( "SiTrackerSpacePointFinder algorithm found no space points" );
@@ -310,11 +307,12 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
             << " SpacePoints successfully added to Container !" );
       }
     }
+    m_numberOfPixel+= pixel_clcontainer->size();
   }
 
   // store the overlap space points.
   // check that the set isn't empty.
-  if (spacepointoverlapCollection->size()==0)
+  if (spacepointoverlapCollection->empty())
   {
     ATH_MSG_DEBUG( "No overlap space points found" );
   }
@@ -322,14 +320,7 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
   {
     ATH_MSG_DEBUG( spacepointoverlapCollection->size() <<" overlap space points registered." );
   }
-  if (m_selectPixels) {
-    auto c = spacePointContainerPixel->numberOfCollections();
-    m_numberOfPixel += c;
-  }
-  if (m_selectSCTs) {
-    auto c = spacePointContainer_SCT->numberOfCollections();
-    m_numberOfSCT   += c;
-  }
+
   if(m_cachemode)//Prevent unnecessary atomic counting
   {
      m_sctCacheHits  += sctCacheCount;
@@ -412,7 +403,7 @@ void SiTrackerSpacePointFinder::addSCT_SpacePoints(const SCT_ClusterCollection* 
 
   // Retrieve the neighbours of the detector element
   const std::vector<IdentifierHash>* others(properties->neighbours(triggerIdHash));
-  if (others==0 || others->empty() ) return;
+  if (others==nullptr || others->empty() ) return;
 
   // Save the current detector element and clusters
   neighbourElements[0]  = triggerElement;

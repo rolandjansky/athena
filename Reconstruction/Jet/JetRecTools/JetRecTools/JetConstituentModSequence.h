@@ -1,7 +1,7 @@
 // this file is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //JetConstituentModSequence.h
@@ -14,12 +14,6 @@
 // February, 2016
 
 #include <string>
-#include "AsgTools/AsgTool.h"
-#include "JetInterface/IJetExecuteTool.h"
-#include "JetInterface/IJetConstituentModifier.h"
-#include "AsgTools/ToolHandleArray.h"
-#include "xAODCore/ShallowCopy.h"
-
 #include "xAODBase/IParticleHelpers.h"
 #include "xAODBase/IParticleContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
@@ -28,7 +22,19 @@
 #include "xAODPFlow/PFOContainer.h"
 #include "xAODPFlow/FlowElementContainer.h"
 
+#include "AsgTools/AsgTool.h"
+#include "JetInterface/IJetExecuteTool.h"
+#include "JetInterface/IJetConstituentModifier.h"
+#include "AsgTools/ToolHandleArray.h"
+#include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgDataHandles/WriteHandleKey.h"
+#include "AsgDataHandles/ReadHandle.h"
+#include "xAODCore/ShallowCopy.h"
+#include "AsgTools/PropertyWrapper.h"
+
+#ifndef XAOD_ANALYSIS
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+#endif
 
 class JetConstituentModSequence: public asg::AsgTool, virtual public IJetExecuteTool {
   // Changed from IJetExecute
@@ -41,8 +47,8 @@ class JetConstituentModSequence: public asg::AsgTool, virtual public IJetExecute
   xAOD::IParticleContainer* getOutputClusterCollection();
   
 protected:
-  std::string m_inputContainer = "";
-  std::string m_outputContainer = "";
+  Gaudi::Property<std::string> m_inputContainer {this, "InputContainer", "", "The input container for the sequence"};
+  Gaudi::Property<std::string> m_outputContainer = {this, "OutputContainer", "", "The output container for the sequence"};
 
   const xAOD::IParticleContainer* m_trigInputConstits; // used in trigger context only
   mutable xAOD::IParticleContainer* m_trigOutputConstits;
@@ -54,10 +60,12 @@ protected:
   unsigned short m_inputType; // 
   
   
-  ToolHandleArray<IJetConstituentModifier> m_modifiers;
+  ToolHandleArray<IJetConstituentModifier> m_modifiers{this , "Modifiers" , {} , "List of constit modifier tools."};
 
+#ifndef XAOD_ANALYSIS
   ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
-
+#endif
+  
   bool m_saveAsShallow = true;
 
   // note: not all keys will be used for a particular instantiation

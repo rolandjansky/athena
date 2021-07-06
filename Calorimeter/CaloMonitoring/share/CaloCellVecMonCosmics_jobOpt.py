@@ -1,4 +1,4 @@
-#Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 # CaloCell Monitoring for Collisions,
 # Evan Wulf, 12/10/09 - earwulf@nevis.columbia.edu
 #
@@ -16,19 +16,8 @@ from AthenaCommon.GlobalFlags  import globalflags
 from AthenaMonitoring.BadLBFilterTool import GetLArBadLBFilterTool
 from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
 
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theCaloNoiseTool=CaloNoiseToolDefault()
-
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-theLArChanMasker=LArBadChannelMasker("LArChanMasker")
-theLArChanMasker.DoMasking=True
-theLArChanMasker.ProblemsToMask=[
-     "deadReadout","deadPhys","short",
-     "sporadicBurstNoise",
-     "highNoiseHG","highNoiseMG","highNoiseLG"
-]
-ToolSvc+=theLArChanMasker
-
+from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+CaloNoiseCondAlg ('totalNoise')
 
 LArCellMon = LArCellMonTool(
     name = "LArCellMonCosmics",
@@ -41,10 +30,7 @@ LArCellMon = LArCellMonTool(
 
     ReadyFilterTool = GetAtlasReadyFilterTool(),
 
-    useElectronicNoiseOnly = False,
     #useTwoGaus = True, Tile-only
-
-    CaloNoiseTool=theCaloNoiseTool,
 
     useTrigger          =  DQMonFlags.useTrigger(),
     rndmTriggerNames    = "L1_RD0, L1_RD0_FILLED, L1_RD0_EMPTY, L1_RD1, L1_RD1_NOISE, L1_RD1_HIST, L1_RD1_BGRP4, L1_RD1_BGRP5",
@@ -52,7 +38,12 @@ LArCellMon = LArCellMonTool(
     minBiasTriggerNames = "L1_RD0_FILLED, L1_MBTS_1, L1_MBTS_2, L1_MBTS_1_1",
     metTriggerNames     = "EF_xe[0-9]+.*",
     miscTriggerNames    = "",
-    LArBadChannelMask=theLArChanMasker,
+    ProblemsToMask=[
+       "deadReadout","deadPhys","short",
+       "sporadicBurstNoise",
+       "highNoiseHG","highNoiseMG","highNoiseLG"
+    ],
+
     MaskBadChannels    = False,
     MaskNoCondChannels = False,
 
@@ -157,7 +148,6 @@ LArCellMon = LArCellMonTool(
 #Tile monitoring:
 from CaloMonitoring.CaloMonitoringConf import TileCalCellMonTool
 TileCalCellMon=TileCalCellMonTool("TileCalCellMonCosmics",
-                                  CaloNoiseTool=theCaloNoiseTool,
                                   BadLBTool = GetLArBadLBFilterTool(),
                                   useReadyFilterTool = False,
                                   useBeamBackgroundRemoval = False

@@ -105,6 +105,7 @@ for(int iCS = 0; iCS < maxcs; iCS++){
 	if(sum) index = maxcs-1-iCS;
 	int color = index+2;
 	if(color == 10) color = 1;
+        // cppcheck-suppress arrayIndexOutOfBoundsCond; false positive
 	TH1F *swap = histo[index];
 	if(sum) swap->Scale(1/first->GetEntries());
 	swap->Draw(options.c_str());

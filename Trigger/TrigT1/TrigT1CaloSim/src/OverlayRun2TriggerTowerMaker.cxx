@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 // ================================================
 // OverlayRun2TriggerTowerMaker class Implementation
@@ -32,8 +32,11 @@
 
 // For the Athena-based random numbers.
 #include "PathResolver/PathResolver.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
+#include "AthenaKernel/RNGWrapper.h"
 #include "GaudiKernel/IIncidentSvc.h"
+
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/Randomize.h"
@@ -75,7 +78,7 @@ namespace LVL1 {
   OverlayRun2TriggerTowerMaker::OverlayRun2TriggerTowerMaker(const std::string& name, ISvcLocator* pSvcLocator)
     : AthAlgorithm(name, pSvcLocator),
       m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
-      m_rndGenSvc("AtRndmGenSvc", name),
+      m_rngSvc("AthRNGSvc", name),
       m_condSvc("L1CaloCondSvc", name), 
       m_rndmADCs(0),
       m_TTtool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
@@ -91,7 +94,7 @@ namespace LVL1 {
       m_isDataReprocessing(false),
       m_doOverlay(false), m_isReco(false)
   {
-    declareProperty("RndmSvc", m_rndGenSvc, "Random number service");
+    declareProperty("RngSvc", m_rngSvc, "Random number service");
     declareProperty("DigiEngine", m_digiEngine = "TrigT1CaloSim_Digitization");
 
     declareProperty("LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
@@ -163,12 +166,12 @@ namespace LVL1 {
     CHECK(m_configSvc.retrieve());
     CHECK(m_mappingTool.retrieve());
     CHECK(m_TTtool.retrieve());
-    CHECK(m_rndGenSvc.retrieve());
+    CHECK(m_rngSvc.retrieve());
     CHECK(m_lumiBlockMuTool.retrieve());
     CHECK(m_condSvc.retrieve());
     CHECK(m_bstowertool.retrieve());
 
-    m_rndmADCs = m_rndGenSvc->GetEngine(m_digiEngine);
+    m_rndmADCs = m_rngSvc->getEngine(this, m_digiEngine);
     if(!m_rndmADCs) {
       ATH_MSG_ERROR("Failed to retrieve random engine");
       return StatusCode::FAILURE;
@@ -300,6 +303,9 @@ namespace LVL1 {
     ATH_MSG_VERBOSE("Executing");
 
     if (m_isReco && m_doOverlay) return StatusCode::SUCCESS; // nothing to to, since we did overlay and made towers during digi
+
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    m_rndmADCs->setSeed (m_digiEngine, ctx);
 
     m_xaodTowers.reset(new xAOD::TriggerTowerContainer);
     m_xaodTowersAux.reset(new xAOD::TriggerTowerAuxContainer);
@@ -904,7 +910,7 @@ namespace LVL1 {
     CHECK(evtStore()->retrieve(inputTTs, m_inputTTLocation));
     ATH_MSG_INFO("Found " << inputTTs->size() << " input TriggerTowers");
 
-    for(const auto& tower : *inputTTs) {
+    for(const xAOD::TriggerTower* tower : *inputTTs) {
       xAOD::TriggerTower* t = (*m_xaodTowers)[m_curIndex++] = new xAOD::TriggerTower;
       *t = *tower;
     }
@@ -995,7 +1001,7 @@ namespace LVL1 {
   void OverlayRun2TriggerTowerMaker::processLArTowers(const LArTTL1Container * towers)
   {
     int towerNumber=0;
-    for(const auto& tower : *towers){
+    for(const LArTTL1* tower : *towers){
       ATH_MSG_VERBOSE("Looking at retrieved tower number "<<towerNumber++<<" ***********");
 
       // Obtain identifier
@@ -1041,7 +1047,7 @@ namespace LVL1 {
   {
     // Step over all towers
     int towerNumber=0;
-    for(const auto& tower : *towers) {
+    for(const TileTTL1* tower : *towers) {
       ATH_MSG_VERBOSE("Looking at retrieved tower number "<<towerNumber++<<" ***********");
 
       // Obtain identifier
@@ -1101,31 +1107,35 @@ namespace LVL1 {
   /** Digitize pulses and store results back in xAOD::TriggerTowers */
   void OverlayRun2TriggerTowerMaker::digitize()
   {
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    CLHEP::HepRandomEngine* rndmADCs = m_rndmADCs->getEngine (ctx);
+
     // Loop over all existing towers and digitize pulses
     for(auto tower : *m_xaodTowers) {
       // First process EM layer
       L1CaloCoolChannelId id(tower->coolId());
-      std::vector<int> digits = ADC(id, m_xaodTowersAmps[tower->index()]); // ADC simulation
+      std::vector<int> digits = ADC(rndmADCs, id, m_xaodTowersAmps[tower->index()]); // ADC simulation
       tower->setAdc(std::vector<uint16_t>(std::begin(digits), std::end(digits)));
       tower->setAdcPeak(digits.size()/2);
     }
   }
 
-  std::vector<int> OverlayRun2TriggerTowerMaker::ADC(L1CaloCoolChannelId channel, const std::vector<double>& amps) const
+  std::vector<int> OverlayRun2TriggerTowerMaker::ADC(CLHEP::HepRandomEngine* rndmADCs,
+                                                     L1CaloCoolChannelId channel, const std::vector<double>& amps) const
   {
     auto* chanCalib = m_chanCalibContainer->pprChanCalib(channel);
     if(!chanCalib) { ATH_MSG_WARNING("No database entry for tower " << channel.id()); return {}; }
     double ped = chanCalib->pedMean();
 
     // dice the calibration uncertainty if requested
-    double adcCal = (m_gainCorr > 0.) ? CLHEP::RandGaussZiggurat::shoot(m_rndmADCs, 1., m_gainCorr) : 1.;  
+    double adcCal = (m_gainCorr > 0.) ? CLHEP::RandGaussZiggurat::shoot(rndmADCs, 1., m_gainCorr) : 1.;  
 
     std::vector<int> digits;
     const int nSamples = amps.size();
     digits.reserve(nSamples);
     for(int i = 0; i < nSamples; ++i) {
       // dice the adc noise if requested
-      double adcNoise = (m_adcVar > 0.) ? CLHEP::RandGaussZiggurat::shoot(m_rndmADCs,0.,m_adcVar) : 0.;
+      double adcNoise = (m_adcVar > 0.) ? CLHEP::RandGaussZiggurat::shoot(rndmADCs,0.,m_adcVar) : 0.;
 
       int digit = int((amps[i]*adcCal/m_adcStep) + ped + adcNoise);
       if(digit > ADCMAX) digit = ADCMAX;

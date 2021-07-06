@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """Define methods to configure beam effects with the ComponentAccumulator"""
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 # Compiled beam effects methods
 # for documentation of method X, see Simulation__X._propertyDocDct
 Simulation__GenEventValidityChecker=CompFactory.Simulation.GenEventValidityChecker
@@ -139,13 +140,24 @@ def BeamSpotFixerAlgCfg(ConfigFlags, **kwargs):
 
     kwargs.setdefault('InputKey', 'Input_EventInfo')
 
-    if ConfigFlags.Digitization.PileUpPremixing:
+    if ConfigFlags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault('OutputKey', ConfigFlags.Overlay.BkgPrefix + 'EventInfo')
     else:
         kwargs.setdefault('OutputKey', 'EventInfo')
 
     alg = CompFactory.Simulation.BeamSpotFixerAlg(name="BeamSpotFixerAlg", **kwargs)
     acc.addEventAlgo(alg, sequenceName="AthAlgSeq", primary=True)
+    return acc
+
+
+def BeamSpotReweightingAlgCfg(ConfigFlags, **kwargs):
+    from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
+    acc = BeamSpotCondAlgCfg(ConfigFlags)
+
+    kwargs.setdefault('Input_beam_sigma_z', ConfigFlags.Digitization.InputBeamSigmaZ)
+
+    alg = CompFactory.Simulation.BeamSpotReweightingAlg(name="BeamSpotReweightingAlg", **kwargs)
+    acc.addEventAlgo(alg)
     return acc
 
 

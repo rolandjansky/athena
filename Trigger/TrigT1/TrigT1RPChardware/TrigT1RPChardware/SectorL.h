@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "NOBXS.h"
-#ifndef SectorL_H
-#define SectorL_H
+#ifndef TrigT1RPChardware_SectorL_H
+#define TrigT1RPChardware_SectorL_H
 
+#include "NOBXS.h"
 #include "TrigT1RPChardware/Lvl1Def.h"
 #include "MuonCablingTools/BaseObject.h"
 

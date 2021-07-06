@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELDETAILEDSTAVESUPPORT_H
@@ -10,6 +10,7 @@
 #include "GeoModelKernel/GeoDefinitions.h"
 #include "GeoModelKernel/GeoPhysVol.h"
 
+#include "InDetGeoModelUtils/GeoNodePtr.h"
 
 class GeoPixelDetailedStaveSupport : public GeoPixelStaveSupport {
 
@@ -22,8 +23,8 @@ public:
   virtual double thicknessP() const override {return m_thicknessP;}
   virtual double thicknessN() const override {return m_thicknessN;}
   virtual GeoSimplePolygonBrep* computeStaveEnvelopShape( double safetyMargin) override;
-  virtual GeoPhysVol* getEndblockEnvelopShape( int ) const override;
-  virtual GeoTransform* getEndblockEnvelopShapeTrf( int ) const override;
+  virtual GeoPhysVol* getEndblockEnvelopShape( int ) override;
+  virtual GeoTransform* getEndblockEnvelopShapeTrf( int ) override;
   virtual double getEndblockZpos() const override { return m_endblockZpos; };
   virtual double getServiceZpos() const override { return m_serviceZpos; };
   virtual double getEndblockLength() const override { return m_endblockLength+m_endblockSrvLength; };
@@ -34,19 +35,19 @@ public:
   virtual int PixelN3DModule() const override { return m_3DModuleNumber; }
 
 private:
-  GeoVPhysVol* m_physVol;
-  GeoSimplePolygonBrep* m_staveEnvelopShape;
-  GeoSimplePolygonBrep* m_basicStaveEnvelopShape;
+  GeoNodePtr<GeoVPhysVol> m_physVol;
+  GeoNodePtr<GeoSimplePolygonBrep> m_staveEnvelopShape;
+  GeoNodePtr<GeoSimplePolygonBrep> m_basicStaveEnvelopShape;
 
   GeoPhysVol* m_endblockAPhysVol;
   GeoPhysVol* m_endblockCPhysVol;
   double m_endblockZpos, m_endblockLength, m_serviceZpos;
   double m_endblockSrvLength;
   GeoPhysVol* m_endblockFlexPhysVol;
-  GeoTransform* m_endblockFlexTrf;
+  GeoNodePtr<GeoTransform> m_endblockFlexTrf;
   GeoPhysVol* m_serviceCoolPipePhysVol;
-  GeoTransform* m_serviceCoolPipeTrfA;
-  GeoTransform* m_serviceCoolPipeTrfC;
+  GeoNodePtr<GeoTransform> m_serviceCoolPipeTrfA;
+  GeoNodePtr<GeoTransform> m_serviceCoolPipeTrfC;
 
   GeoTrf::Transform3D m_transform;
   double m_thicknessP;

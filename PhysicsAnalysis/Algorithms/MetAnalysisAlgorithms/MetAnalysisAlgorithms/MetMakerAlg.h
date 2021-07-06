@@ -14,6 +14,7 @@
 #include <SystematicsHandles/SysWriteHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <METInterface/IMETMaker.h>
+#include <METInterface/IMETSystematicsTool.h>
 
 #include <xAODBase/IParticleContainer.h>
 #include <xAODMissingET/MissingETContainer.h>
@@ -47,9 +48,13 @@ namespace CP
     
 
 
-    /// \brief the smearing tool
+    /// \brief the maker tool
   private:
     ToolHandle<IMETMaker> m_makerTool;
+
+    /// \brief the systematics tool
+  private:
+    ToolHandle<IMETSystematicsTool> m_systematicsTool;
 
     /// \brief the name of the core MissingETContainer
   private:

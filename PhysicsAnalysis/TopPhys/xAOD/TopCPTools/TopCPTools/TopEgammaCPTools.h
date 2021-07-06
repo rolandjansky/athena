@@ -38,6 +38,7 @@ namespace top {
   private:
     std::shared_ptr<top::TopConfig> m_config;
 
+    std::string m_egammaCalibrationModel;
     std::string m_electronEffTriggerFile;
     std::string m_electronEffTriggerLooseFile;
     std::string m_electronEffSFTriggerFile;

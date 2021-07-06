@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_CBNTAA_TBTPVALIDATION_H
@@ -12,7 +12,6 @@
 #include <string>
 #include <vector>
 
-class StoreGateSvc;
 
 /** @class CBNTAA_TBTPValidation CBNTAA_TBTPValidation.h "TBRec/CBNTAA_TBTPValidation.h"
 ntpl-dumper for all persistified TB classes.
@@ -126,7 +125,7 @@ class CBNTAA_TBTPValidation : public CBNT_TBRecBase
 
   //Private function to build names for ntuple entries. Concatinates strings
   //but omitts characters that are problematic for root like -+:*/
-  std::string add_name(const char* base, const std::string extension);
+  std::string add_name(const char* base, const std::string& extension);
 
   StatusCode CBNT_clear();
 };

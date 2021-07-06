@@ -1,10 +1,8 @@
-from builtins import object
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @Package PyJobTransforms.trfArgs
 #  @brief Standard arguments supported by trf infrastructure
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfArgs.py 764176 2016-07-25 16:07:54Z mavogel $
 
 import logging
 msg = logging.getLogger(__name__)
@@ -112,14 +110,18 @@ def addAthenaArguments(parser, maxEventsDefaultSubstep='first', addValgrind=True
     parser.add_argument('--sharedWriter', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=False),
                         metavar='BOOL', group='Athena',
                         help='SharedWriter mode active')
+    parser.add_argument('--parallelCompression',
+                        type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=False),
+                        metavar='BOOL', group='Athena',
+                        help='Delegate event data compression to the workers while using SharedWriter')
     parser.add_argument('--eventService', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         metavar='BOOL', group='Athena',
                         help='Switch AthenaMP to the Event Service configuration')
     parser.add_argument('--multithreaded', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=False),
-                        metavar='BOOL', group='Athena', nargs='?', const=True,
+                        metavar='BOOL', group='Athena', nargs='?', const=trfArgClasses.argBool('True'),
                         help='Multithreaded mode active')
     parser.add_argument('--multiprocess', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=False),
-                        metavar='BOOL', group='Athena', nargs='?', const=True,
+                        metavar='BOOL', group='Athena', nargs='?', const=trfArgClasses.argBool('True'),
                         help='Multiprocess mode active')
 
     if addValgrind:
@@ -244,25 +246,6 @@ def addPrimaryDPDArguments(parser, pick = None, transform = None, multipleOK=Fal
 
     except ImportError:
         msg.warning('PrimaryDPDFlags not available - cannot add primary DPD arguments')
-            
-## @brief Add top DAOD arguments
-# @details Get the list of current top ADODs and add then to the parser
-# optionally only some DPDs may be added, using the @c pick list.
-# @param @c parser Argument parser object to add arguments to
-# @param @c pick Optional list of DPD types to add (use short names, e.g., @c D2AODM_TOPJET)
-def addTopPhysDAODArguments(parser, pick = None):
-    parser.defineArgGroup('Top DAODs', 'Top Physics DAOD File Options')
-    # TopPhysAllDAODs is a list of JobProperty type objects
-    try:
-        from TopPhysD2PDMaker.TopPhysD2PDFlags import TopPhysAllDAODs
-        for dpdWriter in TopPhysAllDAODs:
-            dpdName = dpdWriter.StreamName.replace('Stream', '')
-            if pick is None or dpdName in pick: 
-                parser.add_argument('--output' + dpdName + 'File', 
-                                      type=argFactory(trfArgClasses.argFile, substep=['a2d']), group='Top DAODs',
-                                      metavar=dpdName.upper(), help='Top ADOD output %s file (substep [a2d])' % (dpdName,))
-    except ImportError:
-        msg.warning('TopPhysD2PDFlags not available - cannot add D2PD arguments')
 
         
 ## @brief Add D3PD arguments
@@ -442,9 +425,8 @@ def getExtraDPDList(NTUPOnly = False):
 
     # Trigger NTUPs (for merging only!)
     if NTUPOnly:
-        extraDPDs.append(dpdType('NTUP_TRIGCOST', treeNames=['trig_cost']))
-        extraDPDs.append(dpdType('NTUP_TRIGRATE', treeNames=['trig_cost']))
-        extraDPDs.append(dpdType('NTUP_TRIGEBWGHT', treeNames=['trig_cost']))
+        extraDPDs.append(dpdType('NTUP_TRIGCOST'))
+        extraDPDs.append(dpdType('NTUP_TRIGRATE', treeNames=['metadata']))
     else:
         extraDPDs.append(dpdType('DAOD_HSG2'))
         extraDPDs.append(dpdType('DESDM_ZMUMU'))

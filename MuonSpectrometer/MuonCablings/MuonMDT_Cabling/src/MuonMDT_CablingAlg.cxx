@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonMDT_Cabling/MuonMDT_CablingAlg.h"
@@ -44,10 +44,10 @@ StatusCode MuonMDT_CablingAlg::initialize(){
 StatusCode MuonMDT_CablingAlg::execute(){
   
   ATH_MSG_DEBUG( "execute " << name() );  
-  
+  const auto ctx = Gaudi::Hive::currentContext();
   // Write Cond Handle
 
-  SG::WriteCondHandle<MuonMDT_CablingMap> writeHandle{m_writeKey};
+  SG::WriteCondHandle<MuonMDT_CablingMap> writeHandle{m_writeKey, ctx};
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
 		  << ". In theory this should not be called, but may happen"
@@ -58,7 +58,7 @@ StatusCode MuonMDT_CablingAlg::execute(){
 
   // Read Cond Handle
   
-  SG::ReadCondHandle<CondAttrListCollection> readHandleMez{ m_readKeyMez };
+  SG::ReadCondHandle<CondAttrListCollection> readHandleMez{ m_readKeyMez, ctx };
   const CondAttrListCollection* readCdoMez{*readHandleMez}; 
   if(readCdoMez==nullptr){
     ATH_MSG_ERROR("Null pointer to the read conditions object");
@@ -72,7 +72,7 @@ StatusCode MuonMDT_CablingAlg::execute(){
   ATH_MSG_INFO("Size of CondAttrListCollection " << readHandleMez.fullKey() << " readCdoMez->size()= " << readCdoMez->size());
   ATH_MSG_INFO("Range of input is " << rangeMez);
 
-  SG::ReadCondHandle<CondAttrListCollection> readHandleMap{ m_readKeyMap };
+  SG::ReadCondHandle<CondAttrListCollection> readHandleMap{ m_readKeyMap, ctx };
   const CondAttrListCollection* readCdoMap{*readHandleMap}; 
   if(readCdoMap==nullptr){
     ATH_MSG_ERROR("Null pointer to the read conditions object");
@@ -108,7 +108,7 @@ StatusCode MuonMDT_CablingAlg::execute(){
     sequence=*(static_cast<const int*>((atr["Sequence"]).addressOfData()));    
     ATH_MSG_VERBOSE( "Sequence load is " << sequence << " for the mezzanine type =  "<< mezzanine_type<< " for the layer  number  = " <<layer  );        
     // here add the mezzanine type to the cabling class
-    bool addLine = writeCdo->addMezzanineLine(mezzanine_type, layer, sequence);
+    bool addLine = writeCdo->addMezzanineLine(mezzanine_type, layer, sequence, msgStream());
     if (!addLine) {
       ATH_MSG_ERROR( "Could not add the mezzanine sequence to the map " );
     }
@@ -118,9 +118,6 @@ StatusCode MuonMDT_CablingAlg::execute(){
   }
     
   // access to Map Schema Table to obtained the Map
-  
-  bool BMGchamberadded = false;
-  
   CondAttrListCollection::const_iterator itrMap;
   for (itrMap = readCdoMap->begin(); itrMap != readCdoMap->end(); ++itrMap) {
     const coral::AttributeList& atr=itrMap->second;
@@ -152,7 +149,6 @@ StatusCode MuonMDT_CablingAlg::execute(){
     if (stationNameString == "BOE") {
       stationNameString = "BOL";
     }
-    if (stationNameString == "BMG") BMGchamberadded = true;    
     int stationIndex = m_idHelperSvc->mdtIdHelper().stationNameIndex(stationNameString);
     ATH_MSG_VERBOSE( "station name: " << stationNameString << " index: " << stationIndex  );
     // convert the subdetector id to integer
@@ -187,88 +183,29 @@ StatusCode MuonMDT_CablingAlg::execute(){
       // this is a tube id that must be unpacked
       else if (index==3) {
 	// unpack the tube Id
+  // this will for sure not work for BIS78, multilayer2, since there, we have 108 tubes per tubeLayer (cf. ATLASRECTS-5961)
 	tube = info%100;
 	layer = ((info-tube)/100)%10;
 	multilayer = (((info-tube)/100)-layer)/10 ;
 	index = 0;
+  // the stationIndex is later on passed to the MdtIdHelper, thus, it must be a reasonable station name, i.e. not < 0
+  if (stationIndex<0) {
+    static std::atomic<bool> stWarningPrinted = false;
+    if (!stWarningPrinted) {
+      ATH_MSG_WARNING("Found stationIndex="<<stationIndex<<" which is not reasonable, maybe related to ATLASRECTS-5961, continuing...");
+      stWarningPrinted.store(true, std::memory_order_relaxed);
+    }
+    continue;
+  }
 	ATH_MSG_VERBOSE( "Adding new mezzanine: tdcId " << tdcId << " channel " << channelId
                          << " station " << stationIndex << " multilayer " << multilayer << " layer " << layer << " tube " << tube  );
 	// now this mezzanine can be added to the map:
 	writeCdo->addMezzanine(mezzanine_type, stationIndex, eta, phi, multilayer,
-				    layer, tube, subdetectorId, mrod, csm, tdcId, channelId);				    
-      }	
-    }
+				    layer, tube, subdetectorId, mrod, csm, tdcId, channelId, msgStream());				    
+      }
+    } // end of info_map loop
 
-  }
-
-  if(m_idHelperSvc->mdtIdHelper().stationNameIndex("BMG") != -1 && !BMGchamberadded) {
-    ATH_MSG_WARNING( "Running a layout including BMG chambers, but missing them in cabling from conditions --> hard-coding BMG cabling."  );
-    int stationIndex = m_idHelperSvc->mdtIdHelper().stationNameIndex("BMG");
-
-    // BMG1A12 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
-    for(int i=0; i<9; i++) // ML1
-       writeCdo->addMezzanine(         60, stationIndex,   1,   6,          1,     4,(i*6)+1,            97,   50,   0, 16-2*i+1,         0);
-    for(int i=0; i<9; i++) // ML2
-       writeCdo->addMezzanine(         60, stationIndex,   1,   6,          2,     4,(i*6)+1,            97,   50,   0,   16-2*i,         0);
-    // BMG2A12 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
-    for(int i=0; i<9; i++) // ML1
-       writeCdo->addMezzanine(         60, stationIndex,   2,   6,          1,     4,(i*6)+1,            97,   50,   1, 16-2*i+1,         0);
-    for(int i=0; i<9; i++) // ML2
-       writeCdo->addMezzanine(         60, stationIndex,   2,   6,          2,     4,(i*6)+1,            97,   50,   1,   16-2*i,         0);
-    // BMG3A12 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
-    for(int i=0; i<9; i++) // ML1
-       writeCdo->addMezzanine(         60, stationIndex,   3,   6,          1,     4,(i*6)+1,            97,   50,   2, 16-2*i+1,         0);
-    for(int i=0; i<9; i++) // ML2
-       writeCdo->addMezzanine(         60, stationIndex,   3,   6,          2,     4,(i*6)+1,            97,   50,   2,   16-2*i,         0);
-
-    // BMG1C12 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
-    for(int i=0; i<9; i++) // ML1
-       writeCdo->addMezzanine(         60, stationIndex,  -1,   6,          1,     4,(i*6)+6,            98,   50,   0,    2*i+1,         0);
-    for(int i=0; i<9; i++) // ML2
-       writeCdo->addMezzanine(         60, stationIndex,  -1,   6,          2,     4,(i*6)+6,            98,   50,   0,      2*i,         0);
-    // BMG2C12 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
-    for(int i=0; i<9; i++) // ML1
-       writeCdo->addMezzanine(         60, stationIndex,  -2,   6,          1,     4,(i*6)+6,            98,   50,   1,    2*i+1,         0);
-    for(int i=0; i<9; i++) // ML2
-       writeCdo->addMezzanine(         60, stationIndex,  -2,   6,          2,     4,(i*6)+6,            98,   50,   1,      2*i,         0);
-    // BMG3C12 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
-    for(int i=0; i<9; i++) // ML1
-       writeCdo->addMezzanine(         60, stationIndex,  -3,   6,          1,     4,(i*6)+6,            98,   50,   2,    2*i+1,         0);
-    for(int i=0; i<9; i++) // ML2
-       writeCdo->addMezzanine(         60, stationIndex,  -3,   6,          2,     4,(i*6)+6,            98,   50,   2,      2*i,         0);
-
-    // BMG1A14 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
-    for(int i=0; i<9; i++) // ML1
-       writeCdo->addMezzanine(         60, stationIndex,   1,   7,          1,     4,(i*6)+6,            97,   51,   0,    2*i+1,         0);
-    for(int i=0; i<9; i++) // ML2
-       writeCdo->addMezzanine(         60, stationIndex,   1,   7,          2,     4,(i*6)+6,            97,   51,   0,      2*i,         0);
-    // BMG2A14 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
-    for(int i=0; i<9; i++) // ML1
-       writeCdo->addMezzanine(         60, stationIndex,   2,   7,          1,     4,(i*6)+6,            97,   51,   1,    2*i+1,         0);
-    for(int i=0; i<9; i++) // ML2
-       writeCdo->addMezzanine(         60, stationIndex,   2,   7,          2,     4,(i*6)+6,            97,   51,   1,      2*i,         0);
-    // BMG3A14 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
-    for(int i=0; i<9; i++) // ML1
-       writeCdo->addMezzanine(         60, stationIndex,   3,   7,          1,     4,(i*6)+6,            97,   51,   2,    2*i+1,         0);
-    for(int i=0; i<9; i++) // ML2
-       writeCdo->addMezzanine(         60, stationIndex,   3,   7,          2,     4,(i*6)+6,            97,   51,   2,      2*i,         0);
-
-    // BMG1C14 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
-    for(int i=0; i<9; i++) // ML1
-       writeCdo->addMezzanine(         60, stationIndex,  -1,   7,          1,     4,(i*6)+1,            98,   51,   0, 16-2*i+1,         0);
-    for(int i=0; i<9; i++) // ML2
-       writeCdo->addMezzanine(         60, stationIndex,  -1,   7,          2,     4,(i*6)+1,            98,   51,   0,   16-2*i,         0);
-    // BMG2C14 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
-    for(int i=0; i<9; i++) // ML1
-       writeCdo->addMezzanine(         60, stationIndex,  -2,   7,          1,     4,(i*6)+1,            98,   51,   1, 16-2*i+1,         0);
-    for(int i=0; i<9; i++) // ML2
-       writeCdo->addMezzanine(         60, stationIndex,  -2,   7,          2,     4,(i*6)+1,            98,   51,   1,   16-2*i,         0);
-    // BMG3C14 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
-    for(int i=0; i<9; i++) // ML1
-       writeCdo->addMezzanine(         60, stationIndex,  -3,   7,          1,     4,(i*6)+1,            98,   51,   2, 16-2*i+1,         0);
-    for(int i=0; i<9; i++) // ML2
-       writeCdo->addMezzanine(         60, stationIndex,  -3,   7,          2,     4,(i*6)+1,            98,   51,   2,   16-2*i,         0);
-  }
+  } // end of CondAttrListCollection loop
     
   ATH_MSG_VERBOSE( "Collection CondAttrListCollection CLID "
 		   << readCdoMap->clID()  );
@@ -284,12 +221,5 @@ StatusCode MuonMDT_CablingAlg::execute(){
   }
   ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " << rangeIntersection << " into Conditions Store");
   
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode MuonMDT_CablingAlg::finalize(){
-  
-  ATH_MSG_DEBUG( "finalize " << name() );
   return StatusCode::SUCCESS;
 }

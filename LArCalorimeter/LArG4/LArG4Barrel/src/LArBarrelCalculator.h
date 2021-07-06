@@ -40,6 +40,8 @@ public:
   LArBarrelCalculator (const LArBarrelCalculator&) = delete;
   LArBarrelCalculator& operator= (const LArBarrelCalculator&) = delete;
 
+  void initializeForSDCreation() override final { m_geometry->initializeForSDCreation(); };
+
   virtual G4bool Process(const G4Step* a_step, std::vector<LArHitData>& hdata) const override final;
 
   // Check if the current hitTime is in-time

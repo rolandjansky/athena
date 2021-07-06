@@ -1,16 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-/***************************************************************************
- 
- -----------------------------------------
- ***************************************************************************/
-
-//<doc><file>	$Id: AtlasDetectorIDHelper.cxx,v 1.6 2006-01-11 09:24:23 schaffer Exp $
-//<version>	$Name: not supported by cvs2svn $
-
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include "AtlasDetectorIDHelper.h"
 #include "IdDict/IdDictDefs.h"  
@@ -18,70 +8,32 @@
 #include "GaudiKernel/MsgStream.h"
 #include <iostream>
 
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
-
-AtlasDetectorIDHelper::AtlasDetectorIDHelper(void)
-	:
-	m_isSLHC(false),
-	m_pixel_region_index(UNDEFINED),
-	m_sct_region_index(UNDEFINED),
-	m_trt_region_index(UNDEFINED),
-	m_lar_em_region_index(UNDEFINED),
-	m_lar_hec_region_index(UNDEFINED),
-	m_lar_fcal_region_index(UNDEFINED),
-        m_lvl1_region_index(UNDEFINED),
-        m_dm_region_index(UNDEFINED),
-	m_tile_region_index(UNDEFINED),
-	m_mdt_region_index(UNDEFINED),
-	m_csc_region_index(UNDEFINED),
-	m_rpc_region_index(UNDEFINED),
-	m_tgc_region_index(UNDEFINED),
-	m_mm_region_index(UNDEFINED),
-	m_stgc_region_index(UNDEFINED),
-	m_muon_station_index(UNDEFINED),
-        m_alfa_region_index(UNDEFINED),
-        m_bcm_region_index(UNDEFINED),
-        m_lucid_region_index(UNDEFINED),
-        m_zdc_region_index(UNDEFINED),
-	m_initialized(false),
-	m_station_field(0),
-        m_msgSvc(0)
-{}
-
-AtlasDetectorIDHelper::~AtlasDetectorIDHelper(void)
-{
+AtlasDetectorIDHelper::AtlasDetectorIDHelper(void) :
+    m_isSLHC(false),
+    m_pixel_region_index(UNDEFINED),
+    m_sct_region_index(UNDEFINED),
+    m_trt_region_index(UNDEFINED),
+    m_lar_em_region_index(UNDEFINED),
+    m_lar_hec_region_index(UNDEFINED),
+    m_lar_fcal_region_index(UNDEFINED),
+    m_lvl1_region_index(UNDEFINED),
+    m_dm_region_index(UNDEFINED),
+    m_tile_region_index(UNDEFINED),
+    m_mdt_region_index(UNDEFINED),
+    m_csc_region_index(UNDEFINED),
+    m_rpc_region_index(UNDEFINED),
+    m_tgc_region_index(UNDEFINED),
+    m_mm_region_index(UNDEFINED),
+    m_stgc_region_index(UNDEFINED),
+    m_muon_station_index(UNDEFINED),
+    m_alfa_region_index(UNDEFINED),
+    m_bcm_region_index(UNDEFINED),
+    m_lucid_region_index(UNDEFINED),
+    m_zdc_region_index(UNDEFINED),
+    m_initialized(false),
+    m_station_field(nullptr),
+    m_msgSvc(nullptr) {
 }
-
-// AtlasDetectorIDHelper::AtlasDetectorIDHelper (const AtlasDetectorIDHelper &)
-// {
-// }
-
-//  AtlasDetectorIDHelper & AtlasDetectorIDHelper::operator= (const AtlasDetectorIDHelper & other)
-//  {
-//      return other;
-//  }
-
-
-//  AtlasDetectorIDHelper * 
-//  AtlasDetectorIDHelper::instance()
-//  {
-
-//      static AtlasDetectorIDHelper* instance = 0;
-
-//      if (instance == 0) {
-//  	instance = new AtlasDetectorIDHelper;
-//      }
-//      return instance;
-//  }
-
 
 int         
 AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr,

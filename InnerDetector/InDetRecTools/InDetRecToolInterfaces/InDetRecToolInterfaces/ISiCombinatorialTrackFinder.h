@@ -94,6 +94,11 @@ namespace InDet {
 	 bool,
    const EventContext&) const =0;
 
+      virtual double pTseed(SiCombinatorialTrackFinderData_xk& data,
+			    const Trk::TrackParameters&,
+			    const std::vector<const Trk::SpacePoint*>&,
+			    const EventContext&) const =0;
+
       virtual void newEvent(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& data) const =0;
 
       virtual void newEvent(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& data,

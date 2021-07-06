@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDPerfMonWenu_H
@@ -24,6 +24,7 @@
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
+#include "InDetPerformanceMonitoring/PerfMonServices.h"
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 
 class TH1;

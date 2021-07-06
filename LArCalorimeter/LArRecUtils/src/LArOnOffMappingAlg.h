@@ -18,19 +18,20 @@
 class LArOnOffMappingAlg: public AthAlgorithm {
 
 public:
-
-  LArOnOffMappingAlg(const std::string& name, ISvcLocator* pSvcLocator);
-  virtual ~LArOnOffMappingAlg();
+  //Delegate constructor:
+  using AthAlgorithm::AthAlgorithm;
+  
+  virtual ~LArOnOffMappingAlg() = default;
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;
 
 
  private:
-  SG::ReadCondHandleKey<AthenaAttributeList> m_readKey;
-  SG::WriteCondHandleKey<LArOnOffIdMapping>  m_writeKey;
-  ServiceHandle<ICondSvc> m_condSvc;
-  bool m_isSuperCell;
+  SG::ReadCondHandleKey<AthenaAttributeList> m_readKey {this,"ReadKey","/LAr/Identifier/OnOnffMap"};
+  SG::WriteCondHandleKey<LArOnOffIdMapping>  m_writeKey{this,"WriteKey","LArOnOffIdMap"};
+  ServiceHandle<ICondSvc> m_condSvc{this,"CondSvc","CondSvc"};
+  Gaudi::Property<bool> m_isSuperCell{this,"isSuperCell",false};
 
 };
 

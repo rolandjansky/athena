@@ -118,6 +118,7 @@ class EvgenConfig(TransformConfig):
     specialConfig = String("Special configuration for subsequent prod steps")
     tune = String("Generator shower/hadronisation/MPI tune name")
     saveJets = Boolean("Save truth jet collections in the output file if they are available", False)
+    savePileupTruthParticles = Boolean("Save truth particle collections, if available, for pileup-overlay output", False)
     findJets = Boolean("Schedule jet finding algorithms for each defined jet container", False)
     doNotSaveItems = ListOfStrings("List of StreamEVGEN items to NOT save in output file - note occurs BEFORE extraSaveItems are added")
     extraSaveItems = ListOfStrings("List of extra StreamEVGEN items to save in output file - note occurs AFTER doNotSaveItems are removed")

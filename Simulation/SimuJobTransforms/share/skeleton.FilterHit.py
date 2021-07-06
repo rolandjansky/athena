@@ -151,6 +151,10 @@ else:
     Stream1.ItemList += ["xAOD::JetContainer#*",
                          "xAOD::JetAuxContainer#*"]
 
+# pile-up truth particles
+Stream1.ItemList += ["xAOD::TruthParticleContainer#TruthPileupParticles",
+                     "xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux."]
+
 #BLM
 #Stream1.ItemList += ["SiHitCollection#BLMHits"] # not used in digi
 #BCM

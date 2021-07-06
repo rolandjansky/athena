@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -20,9 +20,6 @@
 // ISF includes
 #include "ISF_Interfaces/BaseSimulationSvc.h"
 #include "ISF_Interfaces/IParticleProcessor.h"
-
-// Trk
-#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 
 // Random Number Generation
 #include "AthenaKernel/IAthRNGSvc.h"
@@ -71,9 +68,6 @@ namespace iParSim {
       /** xAOD::Particle creation - given by jobOptions  */
       ToolHandleArray<ISF::IParticleProcessor>     m_particleSmearers;   //!< the multiple particle smearers
 
-      /** Trk Tracking Geometry Service   */
-      ServiceHandle<Trk::ITrackingGeometrySvc>  m_trackingGeometrySvc;  //!< ServiceHandle to the TrackingGeometrySvc
-      
       /** Random Service and Engine */
       ServiceHandle<IAthRNGSvc>  m_randomSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service
       ATHRNG::RNGWrapper*        m_randomEngineWrapper;                          //!< Random number engine wrapper

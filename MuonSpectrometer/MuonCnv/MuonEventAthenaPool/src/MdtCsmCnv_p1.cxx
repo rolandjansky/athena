@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonRDO/MdtCsm.h"
@@ -15,6 +15,10 @@ MdtCsmCnv_p1::persToTrans(const MdtCsm_p1* persColl, MdtCsm* transColl, MsgStrea
                        persColl->m_SubDetId,
                        persColl->m_MrodId,
                        persColl->m_CsmId);
+  // The assignment above will leave *transColl as a view container.
+  // But it should own it's elements, so convert it back
+  // to an owning container.
+  transColl->clear (SG::OWN_ELEMENTS);
   
   // Invoke vector converter from the base template
   MdtCsm_Cnvp1_base_t::persToTrans( persColl, transColl, log );

@@ -192,7 +192,7 @@ void McVtxFilterTool::stats() const
   return;
 }
 
-bool McVtxFilterTool::isAccepted( const HepMC::GenVertex* vtx ) const
+bool McVtxFilterTool::isAccepted( HepMC::ConstGenVertexPtr vtx ) const
 {
   for( DataVector<McVtxFilter>::const_iterator filter = m_filters.begin();
        filter != m_filters.end();
@@ -228,32 +228,16 @@ McVtxFilterTool::filterMcEventCollection( const McEventCollection* mcColl,
   
   /// Create the event container, with Signal Process 
   /// and event number from the GenEvent source
-  HepMC::GenEvent * evt = new HepMC::GenEvent( evtSrc->signal_process_id(), 
-					       evtSrc->event_number() );
-  evt->set_event_scale( evtSrc->event_scale() );
-  evt->set_alphaQCD( evtSrc->alphaQCD() );
-  evt->set_alphaQED( evtSrc->alphaQED() );
-  evt->weights() =   evtSrc->weights();
-  evt->set_random_states( evtSrc->random_states() );
-  if ( 0 != evtSrc->heavy_ion() ) {
-    evt->set_heavy_ion    ( *evtSrc->heavy_ion() );
-  }
-  if ( 0 != evtSrc->pdf_info() ) {
-    evt->set_pdf_info     ( *evtSrc->pdf_info() );
-  }
+  HepMC::GenEvent * evt = HepMC::copyemptyGenEvent(evtSrc);
 
-  for ( HepMC::GenEvent::particle_const_iterator itrPart=evtSrc->particles_begin();
-	itrPart != evtSrc->particles_end();
-	++itrPart ) {
-    const HepMC::GenVertex * dcyVtx = (*itrPart)->end_vertex();
+  for ( auto itrPart: *evtSrc) {
+    auto dcyVtx = itrPart->end_vertex();
     if ( dcyVtx ) {
-      int vtxBC = dcyVtx->barcode();
+      int vtxBC = HepMC::barcode(dcyVtx);
       ATH_MSG_VERBOSE("Doing vtx: " << vtxBC);
 
       int i = 0;
-      for( DataVector<McVtxFilter>::const_iterator filter = m_filters.begin();
-	   filter != m_filters.end();
-	   ++filter,++i ) {
+      for( DataVector<McVtxFilter>::const_iterator filter = m_filters.begin(); filter != m_filters.end(); ++filter,++i ) {
 	ATH_MSG_VERBOSE("Processing with filter[" << i << "]...");
 	if ( (*filter)->isAccepted( dcyVtx ) ) {
 	  m_counter[i] += 1;
@@ -261,7 +245,7 @@ McVtxFilterTool::filterMcEventCollection( const McEventCollection* mcColl,
 
 	  /// Check if this vertex has already been recorded 
 	  /// in the new GenEvent
-	  if ( 0 != evt->barcode_to_vertex(vtxBC) ) {
+	  if ( HepMC::barcode_to_vertex(evt,vtxBC) ) {
 	    //
 	    // nothing to do
 	    //
@@ -269,8 +253,7 @@ McVtxFilterTool::filterMcEventCollection( const McEventCollection* mcColl,
 	  } else {
 	    /// this is a whole new GenVertex which has to added
 	    /// so we add it in the list of barcodes
-	    bcToFullVtx.insert(std::pair<int,bool>( vtxBC,
-						    (*filter)->isFullVtx() ) );
+	    bcToFullVtx.insert(std::pair<int,bool>( vtxBC,(*filter)->isFullVtx() ) );
 	    addVertex( dcyVtx, evt, VtxType::IsRootVertex );
 	  }//> (part of the) vertex has already been recorded
 
@@ -287,16 +270,16 @@ McVtxFilterTool::filterMcEventCollection( const McEventCollection* mcColl,
     /// So first we check it is present in the original GenEvent, and then
     /// we check if it as not already added by any previous McVtxFilter (by 
     /// chance or because it was just meant to be)
-    const HepMC::GenVertex * sigProcVtx = evtSrc->signal_process_vertex();
-    if ( 0 != sigProcVtx ) {
-      if ( evt->barcode_to_vertex(sigProcVtx->barcode()) ) {
+    auto sigProcVtx = HepMC::signal_process_vertex(evtSrc);
+    if ( sigProcVtx ) {
+      if ( HepMC::barcode_to_vertex(evt,HepMC::barcode(sigProcVtx)) ) {
 	/// it has already been copied
       } else {
 	/// copy it
 	addVertex( sigProcVtx, evt );
 
-	HepMC::GenVertex * vtx = evt->barcode_to_vertex(sigProcVtx->barcode());
-	evt->set_signal_process_vertex( vtx );
+	auto vtx = HepMC::barcode_to_vertex(evt,HepMC::barcode(sigProcVtx));
+	HepMC::set_signal_process_vertex(evt, vtx );
 
       }//> signal process vertex has to be added
     } else {
@@ -312,19 +295,83 @@ McVtxFilterTool::filterMcEventCollection( const McEventCollection* mcColl,
   return;
 }
 
-/////////////////////////////////////////////////////////////////// 
-/// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
 
 /////////////////////////////////////////////////////////////////// 
 /// Const methods: 
 ///////////////////////////////////////////////////////////////////
 
-void McVtxFilterTool::addVertex( const HepMC::GenVertex* srcVtx, 
+void McVtxFilterTool::addVertex( HepMC::ConstGenVertexPtr srcVtx, 
 				 HepMC::GenEvent * evt,
 				 const VtxType::Flag vtxType ) const
 {
   ATH_MSG_VERBOSE("In McVtxFilterTool::addVertex( vtxType= "<<vtxType<< " )");
+#ifdef HEPMC3
+  HepMC::GenVertexPtr vtx = HepMC::barcode_to_vertex(evt,HepMC::barcode(srcVtx));
+  if ( !vtx ) {
+    vtx = HepMC::newGenVertexPtr();
+    evt->add_vertex(vtx);
+    vtx->set_position( srcVtx->position() );
+    vtx->set_status( srcVtx->status() );
+    HepMC::suggest_barcode(vtx, HepMC::barcode(srcVtx) );
+    //AV: here should be code to copy the weights, but these are never used. Skip. Please don't remove this comment.  vtx->weights() = srcVtx->weights();
+  }
+  
+  /// Fill the parent branch
+  for ( auto parent:  srcVtx->particles_in()) {
+    HepMC::GenParticlePtr  mother = HepMC::barcode_to_particle(evt, HepMC::barcode(parent) );
+    if ( ! mother ) {
+      mother = HepMC::newGenParticlePtr();
+      vtx->add_particle_in( mother );
+      mother->set_momentum( parent->momentum() );
+      mother->set_generated_mass( parent->generated_mass() );
+      mother->set_pdg_id( parent->pdg_id() );
+      mother->set_status( parent->status() );
+      HepMC::set_flow(mother, HepMC::flow(parent) );
+      HepMC::set_polarization(mother, HepMC::polarization(parent) );
+	  HepMC::suggest_barcode(mother,HepMC::barcode(parent) );
+
+    } else {
+    // set the mother's decay to our (new) vertex
+    vtx->add_particle_in( mother );
+    }
+  }//> loop over ingoing particles
+  
+  /// Fill the children branch
+  for ( auto child: srcVtx->particles_out()) {
+    HepMC::GenParticlePtr daughter = HepMC::barcode_to_particle(evt, HepMC::barcode(child) );
+    if ( !daughter ) {
+      if ( !keepParticle( vtxType, child ) ) {
+	// only include selected particles via the "ParticlesToKeep" property
+	ATH_MSG_VERBOSE("Skipping outgoing particle id|bc: ["
+			<< child->pdg_id() << "|" 
+			<< HepMC::barcode(child) << "]");
+      } else {
+	daughter = HepMC::newGenParticlePtr();
+      // set the daughter's production vertex to our new vertex
+        vtx->add_particle_out( daughter );
+	daughter->set_momentum( child->momentum() );
+        daughter->set_generated_mass( child->generated_mass() );
+	daughter->set_pdg_id( child->pdg_id() );
+	daughter->set_status( child->status() );
+    HepMC::set_flow(daughter, HepMC::flow(child) );
+    HepMC::set_polarization(daughter, HepMC::polarization(child) );
+	HepMC::suggest_barcode(daughter,HepMC::barcode(child) );
+
+      }
+    }
+  
+    if ( m_fillTree && keepParticle( vtxType, child ) ) {
+      auto decayVertex = child->end_vertex();
+      if ( decayVertex ) {
+	// recursively fill the tree with all decay vertices and final state
+	// particles of selected outgoing particles lines
+	// => We are no longer sitting at the decay vertex so we tell it
+	// via the IsNotRootVertex flag
+	addVertex( decayVertex, evt, VtxType::IsNotRootVertex );
+      }
+    }
+  }//> loop over outgoing particles
+#else
   HepMC::GenVertex * vtx = evt->barcode_to_vertex(srcVtx->barcode());
   if ( 0 == vtx ) {
     vtx = HepMC::newGenVertexPtr();
@@ -395,12 +442,13 @@ void McVtxFilterTool::addVertex( const HepMC::GenVertex* srcVtx,
       }
     }
   }//> loop over outgoing particles
+#endif
 
   return;
 }
 
 bool McVtxFilterTool::keepParticle( const VtxType::Flag vtxType, 
-				    const HepMC::GenParticle* part ) const 
+				    HepMC::ConstGenParticlePtr part ) const 
 {
   // no particle, so no particle to keep. Simple, isn't ?
   if ( 0 == part ) {

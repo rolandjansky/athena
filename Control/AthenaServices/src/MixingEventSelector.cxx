@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MixingEventSelector.h"
@@ -73,8 +73,8 @@ MixingEventSelector::~MixingEventSelector() {
 
 StatusCode
 MixingEventSelector::initialize() {
-  ATH_MSG_INFO ("Initializing " << name()
-		<< " - package version " << PACKAGE_VERSION);
+  ATH_MSG_INFO ("Initializing " << name());
+
 // defer this (it triggers a init loop via PPS 
 //   if (!m_pEventStore.retrieve().isSuccess()) 
 //     return StatusCode::FAILURE;
@@ -98,8 +98,7 @@ MixingEventSelector::initialize() {
 
 StatusCode
 MixingEventSelector::finalize() {
-  ATH_MSG_DEBUG ("Finalizing " << name()
-		 << " - package version " << PACKAGE_VERSION);
+  ATH_MSG_DEBUG ("Finalizing " << name());
 
   StatusCode sc(StatusCode::SUCCESS);
   std::vector<ToolHandle<IAthenaSelectorTool> >::iterator 

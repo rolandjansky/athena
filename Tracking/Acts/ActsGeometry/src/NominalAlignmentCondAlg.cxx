@@ -18,7 +18,7 @@
 #include "ActsGeometry/ActsGeometryContext.h"
 
 // ACTS
-#include "Acts/Utilities/Definitions.hpp"
+#include "Acts/Definitions/Algebra.hpp"
 #include "Acts/Geometry/TrackingGeometry.hpp"
 #include "Acts/Surfaces/Surface.hpp"
 

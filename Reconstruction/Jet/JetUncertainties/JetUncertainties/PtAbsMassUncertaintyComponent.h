@@ -28,6 +28,10 @@ class PtAbsMassUncertaintyComponent : public UncertaintyComponent
     private:
         PtAbsMassUncertaintyComponent(const std::string& name = "");
         const CompMassDef::TypeEnum m_massDef;
+
+        // In rare cases, this may only be applied for a given truth label
+        std::string m_truthLabelName;
+        std::vector<LargeRJetTruthLabel::TypeEnum> m_truthLabels;
 };
 
 } // end jet namespace

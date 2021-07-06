@@ -21,7 +21,6 @@
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
-#include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
 
 static const InterfaceID IID_MuonEDMPrinterTool("Muon::MuonEDMPrinterTool", 1, 0);
 
@@ -142,11 +141,6 @@ class MuonEDMPrinterTool : public AthAlgTool {
         "Handle to the service providing the IMuonEDMHelperSvc interface",
     };
 
-    ToolHandle<Trk::ITrackSummaryHelperTool> m_summaryHelper{
-        this,
-        "MuonTrackSummaryHelperTool",
-        "Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool",
-    };
     ToolHandle<Trk::IResidualPullCalculator> m_pullCalculator{
         this,
         "ResidualPullCalculator",

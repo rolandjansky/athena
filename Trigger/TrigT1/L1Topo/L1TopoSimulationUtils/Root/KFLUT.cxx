@@ -83,6 +83,10 @@ void TCS::KFLUT::fillLUT(){
     LUTKF.push_back(v3);
     LUTKF.push_back(v4);
 
-
-
+    //Correction for rounding when 7 decimal bit applied
+    for (auto &vet : LUTKF){
+      for (auto &veta : vet){
+	veta = std::round(veta*std::pow(2,7))/std::pow(2,7);
+      }
+    }
 }

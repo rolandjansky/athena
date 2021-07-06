@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigBjetMonitorAlgorithm.h"
@@ -14,8 +14,6 @@
 #include "xAODBTagging/BTaggingAuxContainer.h"
 #include "xAODBTagging/BTaggingContainer.h"
 #include "xAODBTagging/BTagging.h"
-
-#include "EventPrimitives/EventPrimitivesHelpers.h"
 
 #include "Particle/TrackParticleContainer.h"
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -214,7 +212,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	    // Fetch and plot PV
 	    
 	    std::string vtxname = m_onlineVertexContainerKey.key();
-	    if ( vtxname.find("HLT_")==0 ) vtxname.erase(0,4);
+	    if ( vtxname.compare(0, 4, "HLT_")==0 ) vtxname.erase(0,4);
 	    auto vertexLinkInfo = TrigCompositeUtils::findLink<xAOD::VertexContainer>(jetLinkInfo.source, vtxname ); // CV 200120 & MS 290620
 	    ATH_CHECK( vertexLinkInfo.isValid() ) ; // TM 200120
 	    const xAOD::Vertex* vtx = *(vertexLinkInfo.link);
@@ -240,7 +238,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	    // Fetch and plot BTagging information
 	    
 	    std::string btagname = m_onlineBTaggingContainerKey.key();
-	    if ( btagname.find("HLT_")==0 ) btagname.erase(0,4);
+	    if ( btagname.compare(0, 4, "HLT_")==0 ) btagname.erase(0,4);
 	    auto btaggingLinkInfo = TrigCompositeUtils::findLink<xAOD::BTaggingContainer>(jetLinkInfo.source, btagname );
 	    ATH_CHECK( btaggingLinkInfo.isValid() ) ;
 	    const xAOD::BTagging* btag = *(btaggingLinkInfo.link);
@@ -313,12 +311,14 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	    ATH_MSG_DEBUG("        svp_mass in GeV: " << svp_mass );
 	    fill("TrigBjetMonitor",svp_mass);
 	    
-	    NameH = "xEVtx_tr_"+trigName;
-	    ATH_MSG_DEBUG( " NameH: " << NameH  );
-	    auto svp_efrc = Monitored::Scalar<float>(NameH,0.0);
-	    btag->variable<float>("SV1", "efracsvx", svp_efrc);
-	    ATH_MSG_DEBUG("        svp_efrc: " << svp_efrc);
-	    fill("TrigBjetMonitor",svp_efrc);
+		if (svp_mass > 0) {
+			NameH = "xEVtx_tr_"+trigName;
+			ATH_MSG_DEBUG( " NameH: " << NameH  );
+			auto svp_efrc = Monitored::Scalar<float>(NameH,0.0);
+			btag->variable<float>("SV1", "efracsvx", svp_efrc);
+			ATH_MSG_DEBUG("        svp_efrc: " << svp_efrc);
+			fill("TrigBjetMonitor",svp_efrc);
+		}
 	    
 	    // Run-3 discriminators
 	    

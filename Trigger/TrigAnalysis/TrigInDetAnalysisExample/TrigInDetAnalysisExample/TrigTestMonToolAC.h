@@ -13,8 +13,6 @@
 #define TIDAEXAMPLE_TRIGTESTMONTOOLAC_H
 
 
-#include "InDetBeamSpotService/IBeamCondSvc.h"
-
 #include "TrigHLTMonitoring/IHLTMonTool.h"
 
 #include "TrigInDetAnalysis/TrackFilter.h"
@@ -65,6 +63,27 @@ public:
     msg(MSG::INFO) << "TrigTestMonToolAC::addHistogram() " << endmsg;
     IHLTMonTool::addHistogram( h ); 
   }
+
+  /// leave this stuff in, as I am currently trying to develop the code, but need this in quickly
+  
+  //  ReadCondHandleKey<InDet::BeamSpotData>& beamspot_key()       const { return m_beamspot_key; }
+  //  ReadCondHandleKey<InDet::BeamSpotData>& beamspot_key_online() const { return m_beamspot_key)_online; }
+
+  ///  Amg::Vector3D&  beamspot() { 
+  ///    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamspot_key, ctx };
+  ///    Amg::Vector3D beamspot = beamSpotHandle->beamPos();
+  ///    ATH_MSG_VERBOSE("Beam spot position " << beamspot );
+  ///    return beamspot;
+  /// }
+
+  //  Amg::Vector3D&  beamspot_online() { 
+  //     SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamspot_key_online, ctx };
+  //    Amg::Vector3D beamspot = beamSpotHandle->beamPos();
+  //    ATH_MSG_VERBOSE("Beam spot position " << beamspot );
+  //    return beamspot;
+  // }
+
+protected:
 
   // track selector cuts
 
@@ -145,6 +164,13 @@ public:
   bool m_filter_on_roi;
 
   bool m_legacy;
+
+  double m_fiducial_radius;
+
+  /// same here - currently trying to get this stuff working, but commented here, so that it will compile and work already ...
+  ///  ReadCondHandleKey<InDet::BeamSpotData> m_beamspot_key { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
+  ///  ReadCondHandleKey<InDet::BeamSpotData> m_beamspot_Key_online { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
+
 };
 
 

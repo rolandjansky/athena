@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -48,7 +48,7 @@ std::string typeinfoName (const std::type_info& ti);
 #include "GaudiKernel/System.h"
 
 #define ATHCONTAINERS_ERROR(ctx, msg) \
-  errorcheck::ReportMessage(MSG::ERROR, __LINE__, __FILE__, "", PACKAGE_VERSION, ctx).msgstream() << msg
+  errorcheck::ReportMessage(MSG::ERROR, __LINE__, __FILE__, "", ATLAS_PACKAGE_NAME, ctx).msgstream() << msg
 
 namespace AthContainers_detail {
 

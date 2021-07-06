@@ -1,6 +1,6 @@
 // this is -*- C++ -*-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Any modifications to this file may be copied to lwtnn[1] without
@@ -11,7 +11,7 @@
 #include "LwtnnUtils/FastGraph.h"
 #include "LwtnnUtils/FastInputPreprocessor.h"
 #include "LwtnnUtils/InputOrder.h"
-#include "lwtnn/Graph.hh"
+
 #include <Eigen/Dense>
 
 namespace {

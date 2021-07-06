@@ -12,7 +12,7 @@
 
 #include <EventLoop/JobConfig.h>
 
-#include <EventLoop/Algorithm.h>
+#include <AnaAlgorithm/IAlgorithmWrapper.h>
 #include <EventLoop/MessageCheck.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/ThrowMsg.h>
@@ -52,11 +52,7 @@ namespace EL
     {
       if (algorithm != nullptr)
       {
-        std::unique_ptr<Algorithm> myalgorithm
-          (dynamic_cast<Algorithm*>(algorithm->Clone ()));
-        if (myalgorithm == nullptr)
-          RCU_THROW_MSG ("failed to clone algorithm " + std::string (algorithm->GetName()));
-        m_algorithms.push_back (std::move (myalgorithm));
+        m_algorithms.push_back (algorithm->makeClone ());
       } else
       {
         m_algorithms.emplace_back (nullptr);
@@ -122,16 +118,16 @@ namespace EL
 
 
   ::StatusCode JobConfig ::
-  addAlgorithm (std::unique_ptr<Algorithm> val_algorithm)
+  addAlgorithm (std::unique_ptr<IAlgorithmWrapper>&& val_algorithm)
   {
     using namespace msgEventLoop;
 
     RCU_CHANGE_INVARIANT (this);
     RCU_REQUIRE (val_algorithm != nullptr);
 
-    if (getAlgorithm (val_algorithm->GetName()) != nullptr)
+    if (getAlgorithm (val_algorithm->getName()) != nullptr)
     {
-      ANA_MSG_ERROR ("can't have two algorithms with the same name: " << val_algorithm->GetName());
+      ANA_MSG_ERROR ("can't have two algorithms with the same name: " << val_algorithm->getName());
       return ::StatusCode::FAILURE;
     }
 
@@ -142,13 +138,13 @@ namespace EL
 
 
 
-  const Algorithm *JobConfig ::
-  getAlgorithm (const std::string& name) const noexcept
+  const IAlgorithmWrapper *JobConfig ::
+  getAlgorithm (std::string_view name) const noexcept
   {
     RCU_READ_INVARIANT (this);
     for (const auto& algorithm : m_algorithms)
     {
-      if (algorithm != nullptr && algorithm->GetName() == name)
+      if (algorithm != nullptr && algorithm->getName() == name)
         return algorithm.get();
     }
     return nullptr;
@@ -156,7 +152,7 @@ namespace EL
 
 
 
-  std::vector<std::unique_ptr<EL::Algorithm> > JobConfig ::
+  std::vector<std::unique_ptr<EL::IAlgorithmWrapper>> JobConfig ::
   extractAlgorithms ()
   {
     RCU_CHANGE_INVARIANT (this);

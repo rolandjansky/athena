@@ -66,11 +66,18 @@ namespace D3PD {
       McEventCollection::const_iterator m_evtItr;
       /// Iterator pointing at the last GenEvent object
       McEventCollection::const_iterator m_evtEnd;
+#ifdef HEPMC3
+      /// Iterator pointing at the current GenVertex object
+      std::vector<HepMC::ConstGenVertexPtr>::const_iterator m_vtxItr;
+      /// Iterator pointing at the lst GenVertex object
+      std::vector<HepMC::ConstGenVertexPtr>::const_iterator m_vtxEnd;
 
+#else
       /// Iterator pointing at the current GenVertex object
       HepMC::GenEvent::vertex_const_iterator m_vtxItr;
       /// Iterator pointing at the lst GenVertex object
       HepMC::GenEvent::vertex_const_iterator m_vtxEnd;
+#endif
 
       /// Tool used to select "good" GenVertex objects
       ToolHandle< IGenObjectsFilterTool > m_selector;

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // EventQualityFilterAlg.h
@@ -17,6 +17,7 @@
 
 // FrameWork includes
 #include "AthenaBaseComps/AthFilterAlgorithm.h"
+#include "AsgDataHandles/ReadHandleKey.h"
 
 
 
@@ -68,6 +69,9 @@ class EventQualityFilterAlg
 
   // /// Flag to turn on/off checking of tile trip information
   // BooleanProperty m_useTileTripReader;
+
+  /// EventInfo read handle
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo {this, "EventInfo", "EventInfo", "EventInfo key"};
 
 
 };

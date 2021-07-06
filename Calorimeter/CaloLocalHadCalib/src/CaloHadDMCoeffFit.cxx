@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -968,51 +968,44 @@ void CaloHadDMCoeffFit::make_report(std::string &sreport)
 **************************************************************************** */
 void CaloHadDMCoeffFit::clear()
 {
-  for(std::vector<PrepData *>::iterator it = m_engClus.begin(); it!=m_engClus.end(); it++){
-    if( (*it) ) delete (*it);
-    (*it)=0;
+  for (PrepData* h : m_engClus) {
+    delete h;
   }
   m_engClus.clear();
 
-  for(std::vector<PrepData *>::iterator it = m_engPrep.begin(); it!=m_engPrep.end(); it++){
-    if( (*it) ) delete (*it);
-    (*it)=0;
+  for (PrepData* h : m_engPrep) {
+    delete h;
   }
   m_engPrep.clear();
 
-  for(std::vector<PrepData *>::iterator it = m_engDm.begin(); it!=m_engDm.end(); it++){
-    if( (*it) ) delete (*it);
-    (*it)=0;
+  for (PrepData* h : m_engDm) {
+    delete h;
   }
   m_engDm.clear();
 
-  for(std::vector<PrepData *>::iterator it = m_engDmOverClus.begin(); it!=m_engDmOverClus.end(); it++){
-    if( (*it) ) delete (*it);
-    (*it)=0;
+  for (PrepData* h : m_engDmOverClus) {
+    delete h;
   }
   m_engDmOverClus.clear();
 
-  for(std::vector<TProfile *>::iterator it = m_hp_DmVsPrep.begin(); it!=m_hp_DmVsPrep.end(); it++){
-    if( (*it) ) delete (*it);
-    (*it)=0;
+  for (TProfile* h : m_hp_DmVsPrep) {
+    delete h;
   }
   m_hp_DmVsPrep.clear();
 
-  for(std::vector<TH2F *>::iterator it = m_h2_DmVsPrep.begin(); it!=m_h2_DmVsPrep.end(); it++){
-    if( (*it) ) delete (*it);
-    (*it)=0;
+  for (TH2F* h : m_h2_DmVsPrep) {
+    delete h;
   }
   m_h2_DmVsPrep.clear();
 
-  for(std::vector<TH1F *>::iterator it = m_h1_engDmOverClus.begin(); it!=m_h1_engDmOverClus.end(); it++){
-    if( (*it) ) delete (*it);
-    (*it)=0;
+  for (TH1F* h : m_h1_engDmOverClus) {
+    delete h;
   }
   m_h1_engDmOverClus.clear();
 
   int i_size=0;
-  for(std::vector<TProfile2D *>::iterator it = m_hp2_DmWeight.begin(); it!=m_hp2_DmWeight.end(); it++, i_size++){
-    if( (*it) && i_size==getFirstEnerLambdaBin(i_size) ) delete (*it);
+  for (TProfile2D* h : m_hp2_DmWeight) {
+    if( i_size==getFirstEnerLambdaBin(i_size) ) delete h;
   }
   m_hp2_DmWeight.clear();
 

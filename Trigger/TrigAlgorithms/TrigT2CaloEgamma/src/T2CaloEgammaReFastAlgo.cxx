@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -16,7 +16,6 @@
 #include "AthLinks/ElementLink.h"
 #include "T2CaloEgammaReFastAlgo.h"
 #include "TrigT2CaloCommon/IReAlgToolCalo.h"
-#include "TrigT2CaloCommon/ITrigDataAccess.h"
 #include "CxxUtils/phihelper.h"
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
@@ -25,14 +24,12 @@
 class ISvcLocator;
 
 T2CaloEgammaReFastAlgo::T2CaloEgammaReFastAlgo(const std::string& name, ISvcLocator* pSvcLocator) :
-    AthReentrantAlgorithm(name, pSvcLocator),
-    m_regionSelector("RegSelSvc", name)
+    AthReentrantAlgorithm(name, pSvcLocator)
 {}
 
 StatusCode T2CaloEgammaReFastAlgo::initialize()
 {
   m_emAlgTools.retrieve().ignore();
-  ATH_CHECK(m_regionSelector.retrieve());
   ATH_CHECK(m_clusterContainerKey.initialize());
   ATH_CHECK(m_roiCollectionKey.initialize());
   ATH_CHECK( m_bcidAvgKey.initialize() );
@@ -55,19 +52,28 @@ StatusCode T2CaloEgammaReFastAlgo::execute(const EventContext& context) const
   ATH_CHECK( trigEmClusterCollection.record(std::make_unique<xAOD::TrigEMClusterContainer>(),
                                             std::make_unique<xAOD::TrigEMClusterAuxContainer>()) );
 
+
   auto roisHandle = SG::makeHandle(m_roiCollectionKey, context);
   if (!roisHandle.isValid()) {
     ATH_MSG_DEBUG("no RoI");
     return StatusCode::SUCCESS;
   }
 
+
   trigEmClusterCollection->reserve(roisHandle->size());
+  
+  ATH_MSG_DEBUG("RoI descriptor size is " << roisHandle->size() );
+
   for (const TrigRoiDescriptor* roiDescriptor : *roisHandle) {
     float etaL1, phiL1;
     double etamin, etamax, phimin, phimax;
+
+    ATH_MSG_DEBUG( "RoI eta = " << roiDescriptor->eta() << " RoI phi = " << roiDescriptor->phi());
+
     if ((m_l1eta < -9.9) && (m_l1phi < -9.9)) {
+      
       etamin = std::max(-2.5, roiDescriptor->eta() - m_etaWidth);
-      etamax = std::min(2.5, roiDescriptor->eta() + m_etaWidth);
+      etamax = std::min( 2.5, roiDescriptor->eta() + m_etaWidth);
 
       phimin = CxxUtils::wrapToPi(roiDescriptor->phi() - m_phiWidth);
       phimax = CxxUtils::wrapToPi(roiDescriptor->phi() + m_phiWidth);
@@ -77,7 +83,7 @@ StatusCode T2CaloEgammaReFastAlgo::execute(const EventContext& context) const
     }
     else {
       etamin = std::max(-2.5, m_l1eta - m_etaWidth);
-      etamax = std::min(2.5, static_cast<double>(m_l1eta) + m_etaWidth);
+      etamax = std::min( 2.5, static_cast<double>(m_l1eta) + m_etaWidth);
 
       phimin = CxxUtils::wrapToPi(m_l1phi - m_phiWidth);
       phimax = CxxUtils::wrapToPi(static_cast<double>(m_l1phi) + m_phiWidth);
@@ -88,6 +94,7 @@ StatusCode T2CaloEgammaReFastAlgo::execute(const EventContext& context) const
 
     TrigRoiDescriptor newroi(roiDescriptor->eta(), etamin, etamax,
                              roiDescriptor->phi(), phimin, phimax);
+
 
     ATH_MSG_DEBUG(" etamin = " << etamin << " etamax = " << etamax <<
                   " phimin = " << phimin << " phimax = " << phimax);

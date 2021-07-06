@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIG_TrigBmumuxComboHypo_H
@@ -57,7 +57,7 @@ class TrigBmumuxState: public ::ITrigBphysState {
   std::vector<ElementLink<xAOD::TrackParticleContainer>> tracks;
   xAOD::VertexContainer dimuons;
   xAOD::VertexAuxContainer dimuonsStore;
-
+  std::vector<std::array<size_t, 2>> trigBphysMuonIndices;
   StatusCode addTriggerObject(xAOD::TrigBphys* triggerObject) {
     if (!triggerObject) {
       return StatusCode::FAILURE;
@@ -81,7 +81,6 @@ class TrigBmumuxComboHypo: public ::ComboHypo {
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute(const EventContext& context) const override;
-  virtual StatusCode finalize() override;
 
   enum Decay : size_t {
     kPsi_2mu,      // psi -> mu+ mu-
@@ -99,7 +98,8 @@ class TrigBmumuxComboHypo: public ::ComboHypo {
   StatusCode findDimuonCandidates(TrigBmumuxState&) const;
   StatusCode findBmumuxCandidates(TrigBmumuxState&) const;
   StatusCode createDecisionObjects(TrigBmumuxState&) const;
-  xAOD::Vertex* fit(const std::vector<ElementLink<xAOD::TrackParticleContainer>>& tracklist, Decay = kPsi_2mu, const xAOD::TrigBphys* dimuon = nullptr) const;
+  xAOD::Vertex* fit(const EventContext* context, const std::vector<ElementLink<xAOD::TrackParticleContainer>>& tracklist,
+                                     Decay = kPsi_2mu, const xAOD::TrigBphys* dimuon = nullptr) const;
   xAOD::TrigBphys* makeTriggerObject(const xAOD::Vertex*,
                                      xAOD::TrigBphys::pType type = xAOD::TrigBphys::MULTIMU,
                                      const std::vector<double>& trkMass = {PDG::mMuon, PDG::mMuon},
@@ -107,7 +107,7 @@ class TrigBmumuxComboHypo: public ::ComboHypo {
 
   bool isIdenticalTracks(const xAOD::TrackParticle* lhs, const xAOD::TrackParticle* rhs) const;
   bool isIdenticalTracks(const xAOD::Muon* lhs, const xAOD::Muon* rhs) const;
-  bool passDimuonTrigger(const std::vector<const DecisionIDContainer*>& previousDecisionIDs) const;
+  bool passDimuonTrigger(const std::vector<const TrigCompositeUtils::DecisionIDContainer*>& previousDecisionIDs) const;
   bool isInMassRange(double mass, const std::pair<double, double>& range) const { return (mass > range.first && mass < range.second); }
 
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleContainerKey {this,
@@ -217,12 +217,8 @@ class TrigBmumuxComboHypo: public ::ComboHypo {
 
   TrigCompositeUtils::DecisionIDContainer m_allowedIDs;
 
-  const std::vector<std::vector<double>> m_trkMass{
-    {PDG::mMuon, PDG::mMuon},
-    {PDG::mMuon, PDG::mMuon, PDG::mKaon},
-    {PDG::mMuon, PDG::mMuon, PDG::mKaon, PDG::mKaon}
-  };
-
+  const static std::vector<std::vector<double>> s_trkMass;
+  
 };
 
 #endif  // TRIG_TrigBmumuxComboHypo_H

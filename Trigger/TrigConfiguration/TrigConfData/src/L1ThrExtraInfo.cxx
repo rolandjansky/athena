@@ -41,6 +41,13 @@ TrigConf::L1ThrExtraInfo::createExtraInfo(const std::string & thrTypeName, const
    return std::make_unique<L1ThrExtraInfoBase>(thrTypeName, data);
 }
 
+void
+TrigConf::L1ThrExtraInfo::clear()
+{
+   m_thrExtraInfo.clear();
+}
+
+
 std::weak_ptr<TrigConf::L1ThrExtraInfoBase>
 TrigConf::L1ThrExtraInfo::addExtraInfo(const std::string & thrTypeName, const boost::property_tree::ptree & data) {
    try {
@@ -138,7 +145,7 @@ TrigConf::L1ThrExtraInfo_EMTAULegacy::isolation(const std::string & thrType, siz
       return m_isolation.at(thrType)[bit-1];
    }
    catch(std::exception & ex) {
-      std::cerr << "Threshold type EM does not have isolation parameters for type " << thrType << endl;
+      std::cerr << "Threshold type " << name() << " does not have isolation parameters for type " << thrType << endl;
       throw;
    }
 }
@@ -151,8 +158,7 @@ TrigConf::L1ThrExtraInfo_EMTAULegacy::load()
          m_ptMinToTopoMeV = std::lround( 1000 * x.second.getValue<float>() );
       } else if( x.first == "isolation" ) {
          for( auto & y : x.second.data() ) {
-            auto & isoV = m_isolation[y.first] = std::vector<IsolationLegacy>();
-            isoV.resize(5);
+            auto & isoV = m_isolation[y.first] = std::vector<IsolationLegacy>(5);
             for(auto & c : y.second.get_child("Parametrization") ) {
                auto iso = IsolationLegacy(c.second);
                isoV[iso.isobit()-1] = iso;

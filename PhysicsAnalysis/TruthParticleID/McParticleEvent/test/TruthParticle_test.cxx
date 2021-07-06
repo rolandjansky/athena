@@ -88,7 +88,7 @@ make_map_t_pair(const HepMC::GenParticlePtr &p,
                 const TruthParticle &tp)
 {
   const std::size_t genEventIdx = 0;
-  HepMcParticleLink link(HepMC::barcode(p), genEventIdx);
+  HepMcParticleLink link(HepMC::barcode(p), genEventIdx, EBC_MAINEVCOLL, HepMcParticleLink::IS_POSITION);
   return Map_t::value_type(link.compress(), &tp);
 }
 bool operator==(TruthParticle a, HepMC::GenParticlePtr b)
@@ -152,7 +152,7 @@ TruthParticleTest* makeTestData()
   test->m_evt = evt;
 
 #ifdef HEPMC3
-// This is how the attribute can be set. But in HepMC3 meaningless attributes hsould be avoided.
+// This is how the attribute can be set. But in HepMC3 meaningless attributes should be avoided.
 //  evt->add_attribute("alphaQCD",std::make_shared<HepMC3::DoubleAttribute>(-1));
 
   std::vector<double> weights(3);
@@ -527,6 +527,8 @@ void test( TruthParticleTest* tp )
 
 int main()
 {
+  setlinebuf(stdout);
+  setlinebuf(stderr);
   // First instantiates a stripped version of Gaudi
   ISvcLocator* pSvcLoc;
   if (!Athena_test::initGaudi("TruthParticle_test.txt", pSvcLoc)) {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -8,59 +8,35 @@
 
 // Trk
 #include "TrkExUtils/IntersectionSolution.h"
-//Gaudi
+#include "TrkExUtils/TrackSurfaceIntersection.h"
+// Gaudi
 #include "GaudiKernel/MsgStream.h"
-//STD
-#include <iostream>
-#include <iomanip>
+// STD
+#include <ostream>
+#include <sstream>
 
-// default constructor
-Trk::IntersectionSolution::IntersectionSolution()
-= default;
-
-// constructor
-Trk::IntersectionSolution::IntersectionSolution(int dim) :
-  std::vector<const Trk::TrackSurfaceIntersection* >(dim)
-{}
-
-// destructor
-Trk::IntersectionSolution::~IntersectionSolution(){
-  this->freeMemory();  
+// Overload of << operator for both, MsgStream and std::ostream for debug output
+MsgStream&
+Trk::operator<<(MsgStream& sl, const Trk::IntersectionSolution& isol)
+{
+  std::ostringstream out;
+  out << isol;
+  sl << out.str();
+  return sl;
 }
 
-// free memory method for destructor
-void Trk::IntersectionSolution::freeMemory(){
-  Trk::IntersectionSolutionIter free_iter = this->begin();
-  for ( ; free_iter != this->end(); free_iter++){
-    delete(*free_iter);
+std::ostream&
+Trk::operator<<(std::ostream& sl, const Trk::IntersectionSolution& isol)
+{
+  sl << "Trk::IntersectionSolution  \n";
+  int isl = 0;
+  for (const auto & entry:isol) {
+    isl++;
+    if (entry)
+      sl << "  " << isl << ".entry : " << *entry << "\n";
+    else
+      sl << "  " << isl << ".entry : not filled " << "\n";
   }
+  return sl;
 }
-
-//Overload of << operator for both, MsgStream and std::ostream for debug output 
-MsgStream& Trk::operator << ( MsgStream& sl, const Trk::IntersectionSolution& isol)
-{
-    sl << "Trk::IntersectionSolution  " << std::endl;
-    Trk::IntersectionSolutionIter output_iter = isol.begin();
-    int isl = 0;
-    for ( ; output_iter != isol.end(); output_iter++){
-     isl++;
-     if (*output_iter) sl << "  "<< isl << ".entry : "  << **output_iter << std::endl;
-     else              sl << "  "<< isl << ".entry : not filled " << std::endl;
-    }
-    return sl;
-}
-
-std::ostream& Trk::operator << ( std::ostream& sl, const Trk::IntersectionSolution& isol)
-{
-    sl << "Trk::IntersectionSolution  " << std::endl;
-    Trk::IntersectionSolutionIter output_iter = isol.begin();
-    int isl = 0;
-    for ( ; output_iter != isol.end(); output_iter++){
-     isl++;
-     if (*output_iter) sl << "  "<< isl << ".entry : "  << **output_iter << std::endl;
-     else              sl << "  "<< isl << ".entry : not filled " << std::endl;
-    }
-    return sl;
-}   
-
 

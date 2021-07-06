@@ -1,11 +1,10 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from collections import OrderedDict as odict
+from functools import total_ordering
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger('Menu.L1.Base.MonCounters')
-
-from past.builtins import cmp
+log = logging.getLogger(__name__)
 
 class MenuMonCountersCollection(object):
 
@@ -27,22 +26,27 @@ class MenuMonCountersCollection(object):
         return confObj
 
 
+@total_ordering
 class MonCounter(object):
 
-    def __init__(self, name, multiplicity, montype):
-        self.name = name
+    def __init__(self, threshold, multiplicity, montype):
+        self.name = "%i%s" % (multiplicity, threshold)
+        self.threshold = threshold
         self.multiplicity = int(multiplicity)
         self.montype = montype
         pass
 
-    def __cmp__(self, o):
-        if(self.name!=o.name):
-            return cmp(self.name,o.name)
-        return cmp(self.multiplicity,o.multiplicity)
+    def __lt__(self, o):
+        if(self.threshold!=o.threshold):
+            return self.threshold < o.threshold
+        return self.multiplicity < o.multiplicity
+
+    def __eq__(self, o):
+        return self.name == o.name
 
     def json(self):
         confObj = odict()
-        confObj["thr"] = self.name
+        confObj["thr"] = self.threshold
         confObj["multiplicity"] = self.multiplicity
         return confObj
 
@@ -51,13 +55,13 @@ class CtpinCounter(MonCounter):
     """
     These monitor the CTP Item counts
     """
-    def __init__(self, name, multiplicity):
-        super(CtpinCounter, self).__init__(name, multiplicity, 'ctpin')
+    def __init__(self, threshold, multiplicity):
+        super(CtpinCounter, self).__init__(threshold, multiplicity, 'ctpin')
 
 class CtpmonCounter(MonCounter):
     """
     These monitor the CTPInput signal counts
     """
-    def __init__(self, name, multiplicity):
-        super(CtpmonCounter, self).__init__(name, multiplicity, 'ctpmon')
+    def __init__(self, threshold, multiplicity):
+        super(CtpmonCounter, self).__init__(threshold, multiplicity, 'ctpmon')
 

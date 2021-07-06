@@ -1,6 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
+
+// Caution: This version of the MMC is planned to phased out around 2020/06/30, see README
 
 // Asg wrapper around the MissingMassCalculator
 // author Quentin Buat <quentin.buat@no.spam.cern.ch>
@@ -13,7 +15,7 @@
 //Local includes
 #include "DiTauMassTools/IMissingMassTool.h"
 #include "DiTauMassTools/MissingMassCalculator.h"
-
+#include "DiTauMassTools/HelperFunctions.h"
 
 class MissingMassTool : virtual public IMissingMassTool, virtual public asg::AsgTool
 {
@@ -58,12 +60,17 @@ class MissingMassTool : virtual public IMissingMassTool, virtual public asg::Asg
 
 
   virtual MissingMassCalculator* get() {return m_MMC;}
-  virtual double GetFitStatus(const int & method) {(void) method; return m_MMC->GetFitStatus();}
-  virtual double GetFittedMass(const int& method) {return m_MMC->GetFittedMass(method);}
-  virtual TLorentzVector GetResonanceVec(const int& method) {return m_MMC->GetResonanceVec(method);}
-  virtual TVector2 GetFittedMetVec(const int& method) {return m_MMC->GetFittedMetVec(method);}
-  virtual TLorentzVector GetNeutrino4vec(const int& method, const int & index) {return m_MMC->GetNeutrino4vec(method, index);}
-  virtual TLorentzVector GetTau4vec(const int& method, const int & index) {return m_MMC->GetTau4vec(method, index);}
+  virtual double GetFitStatus(int method) {(void) method; return m_MMC->GetFitStatus();}
+  virtual double GetFittedMass(int method) {return m_MMC->GetFittedMass(method);}
+  virtual double GetFittedMassErrorUp(int method) {DiTauMassTools::ignore(method); ATH_MSG_WARNING("Only implemented for MMC V2"); return 0.;}
+  virtual double GetFittedMassErrorLow(int method) {DiTauMassTools::ignore(method); ATH_MSG_WARNING("Only implemented for MMC V2"); return 0.;}
+  virtual TLorentzVector GetResonanceVec(int method) {return m_MMC->GetResonanceVec(method);}
+  virtual TVector2 GetFittedMetVec(int method) {return m_MMC->GetFittedMetVec(method);}
+  virtual TLorentzVector GetNeutrino4vec(int method, int index) {return m_MMC->GetNeutrino4vec(method, index);}
+  virtual TLorentzVector GetTau4vec(int method, int index) {return m_MMC->GetTau4vec(method, index);}
+  virtual int GetNNoSol() {ATH_MSG_WARNING("Only implemented for MMC V2"); return 0;}
+  virtual int GetNMetroReject() {ATH_MSG_WARNING("Only implemented for MMC V2"); return 0;}
+  virtual int GetNSol() {ATH_MSG_WARNING("Only implemented for MMC V2"); return 0;}
 
   int mmcType(const xAOD::IParticle* part) const; // returns particle type as required by MMC
   CP::CorrectionCode setLFVMode(const xAOD::IParticle* p1, const xAOD::IParticle* p2, int mmcType1=-1, int mmcType2=-1);

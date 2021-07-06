@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cstdio>
@@ -21,7 +21,7 @@ pool::PersistencySvc::DatabaseRegistry::registerDbHandler( pool::PersistencySvc:
     iDatabase = m_databases.insert( dbHandler ).first;
     m_fidToDb.insert( std::make_pair( dbHandler->fid(), dbHandler ) );
     const pool::DbDatabase::Redirections& redirections = dbHandler->redirections();
-    for (pool::DbDatabase::Redirections::const_iterator iter = redirections.begin(), iterEnd = redirections.end(); iter != iterEnd; iter++) {
+    for (pool::DbDatabase::Redirections::const_iterator iter = redirections.begin(), iterEnd = redirections.end(); iter != iterEnd; ++iter) {
         m_fidToDb.insert( std::make_pair( iter->first, dbHandler ) );
     }
     m_pfnToDb.insert( std::make_pair( dbHandler->pfn(), dbHandler ) );
@@ -56,7 +56,7 @@ pool::PersistencySvc::DatabaseRegistry::deregisterDatabaseHandler( pool::Persist
   if ( idb != m_databases.end() ) {
     m_fidToDb.erase( (*idb)->fid() );
     const pool::DbDatabase::Redirections& redirections = dbHandler->redirections();
-    for (pool::DbDatabase::Redirections::const_iterator iter = redirections.begin(), iterEnd = redirections.end(); iter != iterEnd; iter++) {
+    for (pool::DbDatabase::Redirections::const_iterator iter = redirections.begin(), iterEnd = redirections.end(); iter != iterEnd; ++iter) {
         m_fidToDb.erase( iter->first );
     }
     m_pfnToDb.erase( (*idb)->pfn() );

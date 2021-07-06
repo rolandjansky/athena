@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -47,7 +47,7 @@ class ITGCcablingSvc : public AthService, virtual public IInterface
 				    void** ppvInterface) =0;
 
  public:
-  virtual TGCCablingBase* getTGCCabling() const=0;  
+  virtual const TGCCablingBase* getTGCCabling() const=0;  
 
  public:
   //  TGCcablingSvc Interface

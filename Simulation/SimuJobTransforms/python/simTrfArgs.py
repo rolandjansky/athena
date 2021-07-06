@@ -1,9 +1,9 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import logging
 msg = logging.getLogger(__name__)
 
-from PyJobTransforms.trfArgClasses import argFactory, argFile, argInt, argFloat, argString, argBool, argPOOLFile, argEVNT_TRFile, argHITSFile, argRDOFile, argSubstepInt, argSubstepBool, argSubstepString
+from PyJobTransforms.trfArgClasses import argFactory, argFile, argInt, argFloat, argList, argString, argBool, argPOOLFile, argEVNT_TRFile, argHITSFile, argRDOFile, argSubstepInt, argSubstepBool, argSubstepString
 #from PyJobTransforms.trfLogger import stdLogLevels
 #from PyJobTransforms.trfDecorators import silent
 #from PyJobTransforms.trfExitCodes import trfExit
@@ -65,9 +65,9 @@ def addBasicDigiArgs(parser):
     parser.add_argument('--AddCaloDigi',
                         type=argFactory(argBool),
                         help='Save Calo Digits too, not just RawChannels.', group='Digi')
-    parser.add_argument('--PileUpPremixing',
+    parser.add_argument('--PileUpPresampling', '--PileUpPremixing',
                         type=argFactory(argBool),
-                        help='Run digitization with pile-up premixing configuration.', group='Digi')
+                        help='Run digitization with pile-up presampling configuration.', group='Digi')
 
 ## Add Pile-up related transform arguments to an argparse ArgumentParser
 def addPileUpTrfArgs(parser):
@@ -197,6 +197,9 @@ def addCommonSimDigTrfArgs(parser):
     parser.add_argument('--jobNumber',
                         type=argFactory(argInt),
                         help='The number of this job in the current RunDependentSimulation task.', group='SimDigi')
+    parser.add_argument('--detectors', nargs='*',
+                        type=argFactory(argList),
+                        help='Detectors autoconfiguration string', group='SimDigi')
 
 def addHITSMergeArgs(parser):
     # Use arggroup to get these arguments in their own sub-section (of --help)

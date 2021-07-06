@@ -50,9 +50,11 @@ topSequence += JpsiAlg(JpsiCandidatesOutputName = "JpsiCandidates",
 # Set up the decorators and the alg to do the work
 from TrigBphysMonitoring.TrigBphysMonitoringConf import BphysTrigDiMuDecoratorTool
 from TrigBphysMonitoring.TrigBphysMonitoringConf import BphysTrigDecoratorAlg
+from InDetRecExample import TrackingCommon
 
 dimuDeco = BphysTrigDiMuDecoratorTool(name = "BphysTrigDiMuDecoratorTool",
-                                  OutputLevel=INFO)
+                                      V0Tools = TrackingCommon.getV0Tools(),
+                                      OutputLevel=INFO)
 
 ToolSvc += dimuDeco
 printfunc (dimuDeco)

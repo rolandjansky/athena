@@ -11,7 +11,6 @@ if( NOT XAOD_ANALYSIS )
 endif()
 
 # External dependencies:
-find_package( Eigen )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
@@ -20,7 +19,6 @@ atlas_add_library( MuonHistUtils
                    src/*.cxx
                    PUBLIC_HEADERS MuonHistUtils
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   PRIVATE_INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} xAODMuon xAODTracking xAODTrigMuon xAODTrigger xAODTruth TrkValHistUtils MuonStationIndexLib
-                   PRIVATE_LINK_LIBRARIES ${EIGEN_LIBRARIES} GeoPrimitives ${extra_libs} )
+                   PRIVATE_LINK_LIBRARIES GeoPrimitives ${extra_libs} )
 

@@ -25,11 +25,15 @@
 **/
 
 #include <vector>
+#include "LArRawConditions/LArConditionsContainerBase.h" //For groupingType enum
 
 /// Size of channel vector, per FEB
+// This enum is only used by legacy _pN persistent versions! 
+// The recent versions use the subsetSize() method for compatibilty with SuperCells
 enum Subset_size {
     NCHANNELPERFEB = 128
 };
+
 
 class LArConditionsSubset_p1
 {
@@ -74,6 +78,10 @@ public:
     unsigned int               m_gain; 
     unsigned int               m_channel;
     unsigned int               m_groupingType;
+
+    unsigned int               subsetSize() const {
+      return  m_groupingType == LArConditionsContainerBase::SuperCells ? 312 : 128;}
+    
 };
 
 

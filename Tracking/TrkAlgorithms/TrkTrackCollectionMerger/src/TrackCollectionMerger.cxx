@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -136,7 +136,7 @@ StatusCode Trk::TrackCollectionMerger::mergeTrack(const TrackCollection* trackCo
     ATH_MSG_DEBUG("Size of track collection " << trackCol->size());
     if (not pPrdToTrackMap) ATH_MSG_WARNING("No valid PRD to Track Map; was the association tool name missing?");
     // loop over tracks
-    for(const auto& rf: *trackCol){
+    for(const auto rf: *trackCol){
       // add track into output
       // FIXME: const_cast
       // These objects are modified in the `Update summaries' section

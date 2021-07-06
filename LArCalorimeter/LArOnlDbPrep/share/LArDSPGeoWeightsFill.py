@@ -46,20 +46,6 @@ fileName="DSPGeoWeigths"
 from CaloTools.CaloNoiseFlags import jobproperties
 jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(1.45*30/8)
 
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theCaloNoiseTool = CaloNoiseToolDefault()
-theCaloNoiseTool.OutputLevel=INFO
-ToolSvc+=theCaloNoiseTool
-
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-theLArBadChannelMasker=LArBadChannelMasker("LArBadChannelMasker")
-theLArBadChannelMasker.DoMasking=True
-theLArBadChannelMasker.ProblemsToMask=[
-    "highNoiseHG","highNoiseMG","highNoiseLG"
-    ]
-##    "deadReadout","deadPhys","deadCalib","short","almostDead",
-ToolSvc+=theLArBadChannelMasker
-
 from LArOnlDbPrep.LArOnlDbPrepConf import LArGeoWeightsFill
 theLArGeoWeightsFill=LArGeoWeightsFill()
 theLArGeoWeightsFill.OutFile="dumpFile.txt"

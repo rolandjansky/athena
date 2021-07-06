@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -17,8 +17,9 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "Identifier/Identifier.h"
 #include "CaloIdentifier/CaloIdManager.h"
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LumiBlockData/BunchCrossingCondData.h"
 
 class CaloBaselineMonAlg : public CaloMonAlgBase {
  public:
@@ -35,6 +36,8 @@ class CaloBaselineMonAlg : public CaloMonAlgBase {
    
    // CaloCellContainer name 
    SG::ReadHandleKey<CaloCellContainer> m_cellContainerKey{this,"CellContainer","AllCalo","Input CaloCellContainer key"};
+
+   SG::ReadCondHandleKey<BunchCrossingCondData> m_bcDataKey {this, "BunchCrossingCondDataKey", "BunchCrossingData" ,"SG Key of BunchCrossing CDO"};
 
    Gaudi::Property<std::string> m_MonGroupName  {this, "MonGroupName", "CaloBaselineGroup"};
    // LHC BCID caracteristics. Do not change it
@@ -64,7 +67,6 @@ class CaloBaselineMonAlg : public CaloMonAlgBase {
 
    
    const CaloCell_ID*   m_calo_id;
-   ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool{this, "BunchCrossingTool",""};
 
    /* Histogram grouping (part)(ieta) */
    std::vector<std::vector<int> >m_histoGroups;

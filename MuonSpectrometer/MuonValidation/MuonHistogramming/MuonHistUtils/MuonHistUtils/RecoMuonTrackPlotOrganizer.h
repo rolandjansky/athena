@@ -27,7 +27,7 @@ namespace Muon {
     std::vector<PlotBase*> m_allPlots;
     std::vector<int> m_selPlots;  
     
-    void fill(const xAOD::TrackParticle& tp);
+    void fill(const xAOD::TrackParticle& tp, float weight=1.0);
     
     // Reco only information
     Trk::ParamPlots                 *m_oTrkParamPlots;

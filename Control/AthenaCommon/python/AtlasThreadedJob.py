@@ -21,7 +21,7 @@ def _setupAtlasThreadedJob():
         theApp.MessageSvcType = "MessageSvc"
 
     svcMgr.MessageSvc.defaultLimit = 0
-    svcMgr.MessageSvc.Format = "% F%40W%S%4W%R%e%s%8W%R%T %0W%M"
+    svcMgr.MessageSvc.Format = "% F%50W%C%6W%R%e%s%8W%R%T %0W%M"
 
     numStores = jps.ConcurrencyFlags.NumConcurrentEvents()
 
@@ -48,15 +48,16 @@ def _setupAtlasThreadedJob():
     topSequence += SGInputLoader (FailIfNoProxy = False)
     AlgScheduler.setDataLoaderAlg ('SGInputLoader' )
 
-    if theApp._opts.mtes :
-        # Multi-threaded Event Service
+    if (theApp._opts.mtes or jps.ConcurrencyFlags.NumProcs()>0):
+        # Either multi-threaded Event Service or hybrid MP+MT
         from AthenaServices.AthenaServicesConf import AthenaMtesEventLoopMgr
         
         svcMgr += AthenaMtesEventLoopMgr()
         svcMgr.AthenaMtesEventLoopMgr.WhiteboardSvc = "EventDataSvc"
         svcMgr.AthenaMtesEventLoopMgr.SchedulerSvc = AlgScheduler.getScheduler().getName()
+
+    if theApp._opts.mtes:
         svcMgr.AthenaMtesEventLoopMgr.EventRangeChannel = theApp._opts.mtes_channel
-        
         theApp.EventLoop = "AthenaMtesEventLoopMgr"
     else:
         from AthenaServices.AthenaServicesConf import AthenaHiveEventLoopMgr

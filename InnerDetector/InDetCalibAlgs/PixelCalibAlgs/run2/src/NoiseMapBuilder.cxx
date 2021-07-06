@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // PixelCalibAlgs
@@ -221,10 +221,10 @@ StatusCode NoiseMapBuilder::registerHistograms(){
   }
 
   m_nEventsHist = new TH1D("NEvents", "NEvents", 1, 0, 1);
-  m_tHistSvc->regHist("/histfile/NEvents", m_nEventsHist).setChecked();
+  m_tHistSvc->regHist("/histfile/NEvents", m_nEventsHist).ignore();
   
   m_nEventsLBHist = new TH1D("NEventsLB", "NEventsLB", m_hist_lbMax, -0.5, m_hist_lbMax+0.5);
-  m_tHistSvc->regHist("/histfile/NEventsLB", m_nEventsLBHist).setChecked();
+  m_tHistSvc->regHist("/histfile/NEventsLB", m_nEventsLBHist).ignore();
 
   for (PixelID::const_id_iterator wafer_it=m_pixelID->wafer_begin(); wafer_it!=m_pixelID->wafer_end(); ++wafer_it) {
     Identifier ident = *wafer_it;
@@ -253,20 +253,20 @@ StatusCode NoiseMapBuilder::registerHistograms(){
     else
       m_hitMaps[modHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 144, 0, 144, 328, 0, 328);    
     name << "/histfile/hitMaps_" << histoSuffix(bec,layer) << "/" << onlineID;
-    m_tHistSvc->regHist(name.str().c_str(), m_hitMaps[modHash]).setChecked();
+    m_tHistSvc->regHist(name.str().c_str(), m_hitMaps[modHash]).ignore();
     name.str(""); name.clear();
 
 
     // LB dependence
     m_LBdependence[modHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
     name  << "/histfile/LBdep_" << histoSuffix(bec,layer) << "/" << onlineID;
-    m_tHistSvc->regHist(name.str().c_str(), m_LBdependence[modHash]).setChecked();
+    m_tHistSvc->regHist(name.str().c_str(), m_LBdependence[modHash]).ignore();
     name.str(""); name.clear();
     
     // BCID dependence
     m_BCIDdependence[modHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 301, -0.5, 300.5);
     name << "/histfile/BCIDdep_" << histoSuffix(bec,layer) << "/" << onlineID;
-    m_tHistSvc->regHist(name.str().c_str(), m_BCIDdependence[modHash]).setChecked();
+    m_tHistSvc->regHist(name.str().c_str(), m_BCIDdependence[modHash]).ignore();
     name.str(""); name.clear();
     
     // TOT
@@ -275,7 +275,7 @@ StatusCode NoiseMapBuilder::registerHistograms(){
     else
       m_TOTdistributions[modHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 256, -0.5, 255.5);
     name << "/histfile/TOT_" << histoSuffix(bec,layer) << "/" << onlineID;
-    m_tHistSvc->regHist(name.str().c_str(), m_TOTdistributions[modHash]).setChecked();
+    m_tHistSvc->regHist(name.str().c_str(), m_TOTdistributions[modHash]).ignore();
     name.str(""); name.clear();
     
     // noisemap
@@ -287,23 +287,23 @@ StatusCode NoiseMapBuilder::registerHistograms(){
       else
 	m_noiseMaps[modHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 144, 0, 144, 328, 0, 328);
       name << "/histfile/noiseMaps_" << histoSuffix(bec,layer) << "/" << onlineID;
-      m_tHistSvc->regHist(name.str().c_str(), m_noiseMaps[modHash]).setChecked();
+      m_tHistSvc->regHist(name.str().c_str(), m_noiseMaps[modHash]).ignore();
       name.str(""); name.clear();
     }
   } // end loop in detector elements 
   
   m_disabledModules = new TH1D("DisabledModules", "Number of events disabled vs. IdentifierHash", 2048, 0, 2048);
-  m_tHistSvc->regHist("/histfile/DisabledModules", m_disabledModules).setChecked();
+  m_tHistSvc->regHist("/histfile/DisabledModules", m_disabledModules).ignore();
   
   if (m_calculateNoiseMaps) {
     m_overlayedPixelNoiseMap = new TH2D("overlayedPixelNoiseMap", "Noisy pixel map overlayed all Pixel modules", 144, 0, 144, 328, 0, 328);
-    m_tHistSvc->regHist("/histfile/overlayedPixelNoiseMap", m_overlayedPixelNoiseMap).setChecked();
+    m_tHistSvc->regHist("/histfile/overlayedPixelNoiseMap", m_overlayedPixelNoiseMap).ignore();
     
     m_overlayedIBLDCNoiseMap = new TH2D("overlayedIBLDCNoiseMap", "Noisy pixel map overlayed all IBL Planar modules", 160, 0, 160, 336, 0, 336);
-    m_tHistSvc->regHist("/histfile/overlayedIBLDCNoiseMap", m_overlayedIBLDCNoiseMap).setChecked();
+    m_tHistSvc->regHist("/histfile/overlayedIBLDCNoiseMap", m_overlayedIBLDCNoiseMap).ignore();
     
     m_overlayedIBLSCNoiseMap = new TH2D("overlayedIBLSCNoiseMap", "Noisy pixel map overlayed all IBL 3D modules", 80, 0, 80, 336, 0, 336);
-    m_tHistSvc->regHist("/histfile/overlayedIBLSCNoiseMap", m_overlayedIBLSCNoiseMap).setChecked();
+    m_tHistSvc->regHist("/histfile/overlayedIBLSCNoiseMap", m_overlayedIBLSCNoiseMap).ignore();
   }  
   
   return StatusCode::SUCCESS;
@@ -411,7 +411,7 @@ StatusCode NoiseMapBuilder::finalize() {
   const double minOccupancy = pow(10.,-minLogOccupancy);
   
   TH1D* globalOccupancy= new TH1D("occupancy", "Pixel occupancy", minLogOccupancy*10, -minLogOccupancy, 0.);
-  m_tHistSvc->regHist("/histfile/occupancy",globalOccupancy).setChecked();
+  m_tHistSvc->regHist("/histfile/occupancy",globalOccupancy).ignore();
 
   std::map<std::string, TH1D*> h_occupancy;
 
@@ -434,7 +434,7 @@ StatusCode NoiseMapBuilder::finalize() {
     const std::string comp = (*cit);
     h_occupancy[comp] = new TH1D( ("occupancy"+comp).c_str(), ("Pixel occupancy "+comp).c_str(),
 				  minLogOccupancy*10, -minLogOccupancy, 0);    
-    m_tHistSvc->regHist(("/histfile/occupancy"+comp).c_str(), h_occupancy[comp]).setChecked();
+    m_tHistSvc->regHist(("/histfile/occupancy"+comp).c_str(), h_occupancy[comp]).ignore();
   }
   vcomponent.clear();
   
@@ -451,7 +451,7 @@ StatusCode NoiseMapBuilder::finalize() {
     h_occupancy[type] = 
       new TH1D( ("occupancy"+type).c_str(), ("Pixel occupancy "+type).c_str(), 
 		minLogOccupancy*10, -minLogOccupancy, 0);
-    m_tHistSvc->regHist(("/histfile/occupancy"+type).c_str(), h_occupancy[type]).setChecked();
+    m_tHistSvc->regHist(("/histfile/occupancy"+type).c_str(), h_occupancy[type]).ignore();
   }
   vtype.clear();
 
@@ -461,27 +461,27 @@ StatusCode NoiseMapBuilder::finalize() {
 
   // IBL
   TH2F* nhitsPlotBI=new TH2F("nhitsPlotBI", "Number of hits BI;module_eta;module_phi", 20, -10, 10, 14, -0.5, 13.5); 
-  m_tHistSvc->regHist("/histfile/nhitsPlotBI",nhitsPlotBI).setChecked();
+  m_tHistSvc->regHist("/histfile/nhitsPlotBI",nhitsPlotBI).ignore();
 
   // B-layer
   TH2F* nhitsPlotB0=new TH2F("nhitsPlotB0", "Number of hits B0;module_eta;module_phi", 13, -6.5, 6.5, 22, -0.5, 21.5);
-  m_tHistSvc->regHist("/histfile/nhitsPlotB0",nhitsPlotB0).setChecked();
+  m_tHistSvc->regHist("/histfile/nhitsPlotB0",nhitsPlotB0).ignore();
 
   // barrel layer 1
   TH2F* nhitsPlotB1=new TH2F("nhitsPlotB1", "Number of hits B1;module_eta;module_phi", 13, -6.5, 6.5, 38, -0.5, 37.5);
-  m_tHistSvc->regHist("/histfile/nhitsPlotB1",nhitsPlotB1).setChecked();
+  m_tHistSvc->regHist("/histfile/nhitsPlotB1",nhitsPlotB1).ignore();
 
   // barrel layer 2
   TH2F* nhitsPlotB2=new TH2F("nhitsPlotB2", "Number of hits B2;module_eta;module_phi", 13,- 6.5, 6.5, 52, -0.5, 51.5);
-  m_tHistSvc->regHist("/histfile/nhitsPlotB2",nhitsPlotB2).setChecked();
+  m_tHistSvc->regHist("/histfile/nhitsPlotB2",nhitsPlotB2).ignore();
 
   // endcap
   TH2F* nhitsPlotEC=new TH2F("nhitsPlotEC", "Number of hits Endcap;Disk;module_phi", 7, -3.5, 3.5, 48, -0.5, 47.5);
-  m_tHistSvc->regHist("/histfile/nhitsPlotEC",nhitsPlotEC).setChecked();
+  m_tHistSvc->regHist("/histfile/nhitsPlotEC",nhitsPlotEC).ignore();
   
   // DBM
   TH2F* nhitsPlotDBM=new TH2F("nhitsPlotDBM", "Number of hits DBM;Layer;module_phi",7,-3.5,3.5,4,-0.5,3.5);
-  m_tHistSvc->regHist("/histfile/nhitsPlotDBM",nhitsPlotDBM).setChecked();
+  m_tHistSvc->regHist("/histfile/nhitsPlotDBM",nhitsPlotDBM).ignore();
 
   //------------------------
   // hits w/o noise
@@ -489,19 +489,19 @@ StatusCode NoiseMapBuilder::finalize() {
 
   // IBL
   TH2F* nhitsNoNoisePlotBI=new TH2F("nhitsNoNoisePlotBI","Number of hits without Noise BI;module_eta;module_phi", 20, -10, 10, 14, -0.5, 13.5); 
-  m_tHistSvc->regHist("/histfile/nhitsNoNoisePlotBI",nhitsNoNoisePlotBI).setChecked();
+  m_tHistSvc->regHist("/histfile/nhitsNoNoisePlotBI",nhitsNoNoisePlotBI).ignore();
 
   // B-layer
   TH2F* nhitsNoNoisePlotB0=new TH2F("nhitsNoNoisePlotB0","Number of hits without Noise B0;module_eta;module_phi", 13, -6.5, 6.5, 22, -0.5, 21.5);
-  m_tHistSvc->regHist("/histfile/nhitsNoNoisePlotB0",nhitsNoNoisePlotB0).setChecked();
+  m_tHistSvc->regHist("/histfile/nhitsNoNoisePlotB0",nhitsNoNoisePlotB0).ignore();
 
   // barrel layer 1
   TH2F* nhitsNoNoisePlotB1=new TH2F("nhitsNoNoisePlotB1","Number of hits without Noise B1;module_eta;module_phi", 13, -6.5, 6.5, 38, -0.5, 37.5);
-  m_tHistSvc->regHist("/histfile/nhitsNoNoisePlotB1",nhitsNoNoisePlotB1).setChecked();
+  m_tHistSvc->regHist("/histfile/nhitsNoNoisePlotB1",nhitsNoNoisePlotB1).ignore();
 
   // barrel layer 2
   TH2F* nhitsNoNoisePlotB2=new TH2F("nhitsNoNoisePlotB2","Number of hits without Noise B2;module_eta;module_phi", 13, -6.5, 6.5, 52, -0.5, 51.5);
-  m_tHistSvc->regHist("/histfile/nhitsNoNoisePlotB2",nhitsNoNoisePlotB2).setChecked();
+  m_tHistSvc->regHist("/histfile/nhitsNoNoisePlotB2",nhitsNoNoisePlotB2).ignore();
 
   //------------------------
   // disabled pixels
@@ -509,30 +509,30 @@ StatusCode NoiseMapBuilder::finalize() {
 
   // IBL
   TH2F* disablePlotBI=new TH2F("disablePlotBI", "Disabled pixels BI;module_eta;module_phi", 20, -10, 10, 14, -0.5, 13.5); 
-  m_tHistSvc->regHist("/histfile/disablePlotBI",disablePlotBI).setChecked();
+  m_tHistSvc->regHist("/histfile/disablePlotBI",disablePlotBI).ignore();
 
   // B-layer
   TH2F* disablePlotB0=new TH2F("disablePlotB0", "Disabled pixels B0;module_eta;module_phi", 13,- 6.5, 6.5, 22, -0.5, 21.5);
-  m_tHistSvc->regHist("/histfile/disablePlotB0",disablePlotB0).setChecked();
+  m_tHistSvc->regHist("/histfile/disablePlotB0",disablePlotB0).ignore();
 
   // barrel layer 1
   TH2F* disablePlotB1=new TH2F("disablePlotB1", "Disabled pixels B1;module_eta;module_phi", 13, -6.5, 6.5, 38, -0.5, 37.5);
-  m_tHistSvc->regHist("/histfile/disablePlotB1",disablePlotB1).setChecked();
+  m_tHistSvc->regHist("/histfile/disablePlotB1",disablePlotB1).ignore();
 
   // barrel layer 2
   TH2F* disablePlotB2=new TH2F("disablePlotB2", "Disabled pixels B2;module_eta;module_phi", 13, -6.5, 6.5, 52, -0.5, 51.5);
-  m_tHistSvc->regHist("/histfile/disablePlotB2",disablePlotB2).setChecked();
+  m_tHistSvc->regHist("/histfile/disablePlotB2",disablePlotB2).ignore();
 
   // endcap
   TH2F* disablePlotEC=new TH2F("disablePlotEC", "Disabled pixels Endcap;Disk;module_phi", 7, -3.5, 3.5, 48, -0.5, 47.5);
-  m_tHistSvc->regHist("/histfile/disablePlotEC",disablePlotEC).setChecked();
+  m_tHistSvc->regHist("/histfile/disablePlotEC",disablePlotEC).ignore();
 
   // DBM
   TH2F* disablePlotDBM=new TH2F("disablePlotDBM", "Disabled pixels DBM;Layer;module_phi", 7, -3.5, 3.5, 4, -0.5, 3.5);
-  m_tHistSvc->regHist("/histfile/disablePlotDBM",disablePlotDBM).setChecked();
+  m_tHistSvc->regHist("/histfile/disablePlotDBM",disablePlotDBM).ignore();
 
   TH1D* maskedPlot= new TH1D("maskedPlot","Disabled pixel per module",50,0.5,50.5);
-  m_tHistSvc->regHist("/histfile/maskedPlot",maskedPlot).setChecked();
+  m_tHistSvc->regHist("/histfile/maskedPlot",maskedPlot).ignore();
 
   int totalDisabledPixels=0;
   int totalDisabledModules=0;

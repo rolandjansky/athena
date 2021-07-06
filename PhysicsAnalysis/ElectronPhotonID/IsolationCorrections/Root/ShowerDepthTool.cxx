@@ -8,9 +8,11 @@
 #include <TH1.h>
 #include <TSystem.h>
 
-#include <string>
 #include <cmath>
-#include <stdlib.h>
+
+#include <cmath>
+#include <cstdlib>
+#include <string>
 
 
 #include <map>
@@ -45,10 +47,7 @@ namespace CP{
     m_hData = getHistoFromFile( Tfilename , m_dataHistoName );
     m_hMC = getHistoFromFile( Tfilename , m_mcHistoName );   
     
-    if( m_hData == nullptr || m_hMC == nullptr ){
-      return false;
-    }
-    return true;
+    return !(m_hData == nullptr || m_hMC == nullptr);
   }      
    
   /** Shower depth (in mm) on EM1 vs. eta, considering misalignments **/
@@ -67,7 +66,7 @@ namespace CP{
   https://svnweb.cern.ch/trac/atlasoff/browser/Calorimeter/CaloDetDescr/trunk/src/CaloDepthTool.cxx#L347 **/
   float ShowerDepthTool::getShowerDepthEM1(const float& etas1) const
   {
-    float radius, aetas1 = fabs(etas1);
+    float radius, aetas1 = std::fabs(etas1);
     if (aetas1 < 0.8)
       radius = (1558.859292 - 4.990838*aetas1 - 21.144279*aetas1*aetas1);
     else if (aetas1<1.5)
@@ -83,7 +82,7 @@ namespace CP{
   https://svnweb.cern.ch/trac/atlasoff/browser/Calorimeter/CaloDetDescr/trunk/src/CaloDepthTool.cxx#L347 **/
   float ShowerDepthTool::getShowerDepthEM2(const float& etas2) const
   {
-    float radius, aetas2 = fabs(etas2);
+    float radius, aetas2 = std::fabs(etas2);
     if (aetas2 < 1.425) // Barrel, my definition
       radius = (1698.990944 - 49.431767*aetas2 - 24.504976*aetas2*aetas2);
     else if (aetas2 < 1.5) // EME2 in tool
@@ -108,25 +107,28 @@ namespace CP{
 
   std::pair<float,float> ShowerDepthTool::getRZ(const float& eta,const int& sampling) const
   {
-    if ((sampling != 1 && sampling != 2) || (fabs(eta)>10))
+    if ((sampling != 1 && sampling != 2) || (std::fabs(eta)>10))
     {
 //       ATH_MSG_INFO( "Invalid sampling: " << sampling );
       return std::make_pair(0., 0.);
     }
     float depth = (sampling == 1 ? getShowerDepthEM1(eta) : getShowerDepthEM2(eta) );
-    if (fabs(eta) <  1.5)
-      return std::make_pair( depth, depth*sinh(eta) );
-    return std::make_pair( depth/sinh(eta), depth );
+    if (std::fabs(eta) <  1.5)
+      return std::make_pair( depth, depth*std::sinh(eta) );
+    return std::make_pair( depth/std::sinh(eta), depth );
   }
 
 
-  float ShowerDepthTool::getCaloPointingEta(const float& etas1,const float& etas2,const float& phi,const bool& isData) const
+  std::optional<float> ShowerDepthTool::getCaloPointingEta(const float& etas1,const float& etas2,const float& phi,const bool& isData) const
   {
     std::pair<float, float> RZ1 = getCorrectedRZ(etas1, phi, isData, 1);
     std::pair<float, float> RZ2 = getCorrectedRZ(etas2, phi, isData, 2);
 
-    if (RZ1.first == 0. || RZ2.first == 0.) return -9999.;
-    return asinh( (RZ2.second - RZ1.second) / (RZ2.first - RZ1.first) );
+    //Sanity check
+    constexpr float epsilon=1e-6;
+    if (std::fabs(RZ2.first - RZ1.first) < epsilon) return std::nullopt;
+
+    return std::optional<float>(std::asinh( (RZ2.second - RZ1.second) / (RZ2.first - RZ1.first)));
   }
 
 
@@ -136,16 +138,16 @@ namespace CP{
                                                           const bool& isData,
                                                           const int& sampling) const 
   {
-    if ((sampling != 1 && sampling != 2) || (fabs(eta)>10))
+    if ((sampling != 1 && sampling != 2) || (std::fabs(eta)>10))
     {
 //       ATH_MSG_INFO( "Invalid sampling: " << sampling );
       return std::make_pair(0., 0.);
     }
     float depth = (sampling == 1 ? getCorrectedShowerDepthEM1(eta, phi, isData) :
       getCorrectedShowerDepthEM2(eta, phi, isData) );
-    if (fabs(eta) <  1.5)
-      return std::make_pair( depth, depth*sinh(eta) );
-    return std::make_pair( depth/sinh(eta), depth );
+    if (std::fabs(eta) <  1.5)
+      return std::make_pair( depth, depth*std::sinh(eta) );
+    return std::make_pair( depth/std::sinh(eta), depth );
   }
 
 
@@ -160,7 +162,7 @@ namespace CP{
   
   float ShowerDepthTool::getEtaDirection(const float& zvertex,const float& R,const float& z) const
   {
-    return asinh( (z- zvertex)/R );
+    return std::asinh( (z- zvertex)/R );
   }  
 
 
@@ -168,15 +170,15 @@ namespace CP{
   {
     std::unique_ptr<TFile> f(TFile::Open(fileName));
     if (!f.get()){
-      return 0;
+      return nullptr;
     }
     TH1 *h = dynamic_cast<TH1*>( f->Get(histoName) );
     if (!h){
       f.get()->Close();
-      return 0;
+      return nullptr;
     }
     //The file we be deleted so use SetDirectory
-    h->SetDirectory(0);
+    h->SetDirectory(nullptr);
     f.get()->Close();
     return h;
   }

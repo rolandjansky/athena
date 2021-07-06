@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -33,12 +33,13 @@ void TrackParametersCovarianceCnv<PARMS>::setCovariance (PARMS* p,
                                                          const Trk::ErrorMatrix& mat)
 {
    if (!p->m_covariance || p->m_covariance->size() != PARMS::dim) {
-     p->m_covariance = std::make_unique<AmgSymMatrix(PARMS::dim)>();
+     p->m_covariance.emplace();
    }
-   if (mat.values.size() == PARMS::dim*(PARMS::dim+1)/2)
-     EigenHelpers::vectorToEigenMatrix(mat.values, *p->m_covariance, "TrackParametersCovarianceCnv");
+   if (mat.values.size() == PARMS::dim*(PARMS::dim+1)/2){
+     EigenHelpers::vectorToEigenMatrix(mat.values, *(p->m_covariance), "TrackParametersCovarianceCnv");
+   }
    else if (mat.values.size() == 6) {
-     auto& cov = *p->m_covariance;
+     auto& cov = *(p->m_covariance);
      cov.setZero();
      unsigned int pos = 0;
      for (unsigned int i=0; i < 3; i++)

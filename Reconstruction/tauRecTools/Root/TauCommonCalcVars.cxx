@@ -68,7 +68,7 @@ StatusCode TauCommonCalcVars::execute(xAOD::TauJet& pTau) const {
   // invariant mass of track system
   std::vector<const xAOD::TauTrack*> tauTracks = pTau.tracks(xAOD::TauJetParameters::TauTrackFlag::classifiedCharged);
   for( const xAOD::TauTrack* trk : pTau.tracks((xAOD::TauJetParameters::TauTrackFlag) m_isolationTrackType) ) tauTracks.push_back(trk);
-  if (tauTracks.size()> 0) {
+  if (!tauTracks.empty()) {
 
     TLorentzVector sumOfTrackVector;
 
@@ -79,7 +79,7 @@ StatusCode TauCommonCalcVars::execute(xAOD::TauJet& pTau) const {
     pTau.setDetail( xAOD::TauJetParameters::massTrkSys, static_cast<float>( sumOfTrackVector.M() ) );
   }
 
-  if (tauTracks.size()> 0 && pTau.nTracks()>1) {
+  if (!tauTracks.empty() && pTau.nTracks()>1) {
     // BUG?
     // this is equivalent to: if (pTau.nTracks()>1)
     // shouldn't it be: if (tauTracks.size()> 1 && pTau.nTracks()>0) ?
@@ -104,7 +104,7 @@ StatusCode TauCommonCalcVars::execute(xAOD::TauJet& pTau) const {
     else pTau.setDetail( xAOD::TauJetParameters::trkWidth2, (float) 0. );
   }
 
-  if (tauTracks.size()> 0) {
+  if (!tauTracks.empty()) {
 
     double ptSum = 0;
     double innerPtSum = 0;

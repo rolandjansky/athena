@@ -65,7 +65,7 @@ int main() {
    // The auxiliary variable to access later on. Tried to select something
    // that should be a dynamic variable in any type of input file.
    static const SG::auxid_t auxid =
-      SG::AuxTypeRegistry::instance().getAuxID< float >( "ptcone20" );
+      SG::AuxTypeRegistry::instance().getAuxID< float >( "ptvarcone20" );
    // The clid for the auxiliary stores.
    static const CLID auxClid = ClassID_traits< SG::IConstAuxStore >::ID();
 

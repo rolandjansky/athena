@@ -9,7 +9,7 @@
  * Masahiro Morii, Harvard University
  */
 // class include
-#include "MagFieldUtils/SolenoidTest.h"
+#include "SolenoidTest.h"
 
 // Framework
 #include "GaudiKernel/ITHistSvc.h"

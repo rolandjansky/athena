@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DITAUREC_CELLFINDER_H
@@ -11,38 +11,30 @@
 
 
 class CellFinder : public DiTauToolBase {
-public:
+ public:
 
- //-------------------------------------------------------------
- //! Constructor
- //-------------------------------------------------------------
- CellFinder(const std::string& type,
-         const std::string& name,
-         const IInterface * parent);
+  CellFinder(const std::string& type,
+	     const std::string& name,
+	     const IInterface * parent);
 
- //-------------------------------------------------------------
- //! Destructor
- //-------------------------------------------------------------
- virtual ~CellFinder();
+  virtual ~CellFinder();
 
- virtual StatusCode initialize() override;
+  virtual StatusCode initialize() override;
 
- virtual StatusCode execute(DiTauCandidateData * data,
-                            const EventContext& ctx) const override;
+  virtual StatusCode execute(DiTauCandidateData * data,
+			     const EventContext& ctx) const override;
 
-
- virtual void cleanup(DiTauCandidateData *) override { }
+  virtual void cleanup(DiTauCandidateData *) override { }
  
 
-private:
+ private:
   bool m_bWriteJetCells;
   bool m_bWriteSubjetCells;
   std::string m_ClusterContainerName;
   std::string m_CellContainerName;
   float m_Rsubjet;
 
-
 };
 
-#endif  /* CELLFINDER_H */
+#endif  // DITAUREC_CELLFINDER_H
 

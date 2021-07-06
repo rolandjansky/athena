@@ -32,8 +32,6 @@ public:
   HypoJetVector hypoJets() const;
   HypoJetVector hypoJets(int chainPartInd) const;
 
-  void addOneJet(const pHypoJet jet, int ind = -1);
-
 
   std::size_t size() const;
   bool empty() const;

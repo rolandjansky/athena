@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODTRACKING_VERSIONS_NEUTRALPARTICLE_V1_H
@@ -15,15 +15,15 @@
 
 // xAOD include(s):
 #include "xAODBase/IParticle.h"
-#include "xAODTracking/TrackingPrimitives.h" 
-#include "xAODTracking/VertexContainerFwd.h" 
+#include "xAODTracking/TrackingPrimitives.h"
+#include "xAODTracking/VertexContainerFwd.h"
 
 #include <bitset>
 #include <stdint.h>
 
-#ifndef XAOD_STANDALONE
+#ifndef XAOD_ANALYSIS
 #include "TrkNeutralParameters/NeutralParameters.h"
-#endif // not XAOD_STANDALONE
+#endif // not XAOD_ANALYSIS
 
 // ROOT include(s):
 #include "Math/Vector4D.h"
@@ -36,7 +36,7 @@ namespace xAOD {
   ///
   /// @author Andreas Salzburger <Andreas.Salzburger@cern.ch>
   /// @nosubgrouping
-  
+
   class NeutralParticle_v1 : public IParticle {
 
     public:
@@ -49,7 +49,7 @@ namespace xAOD {
       NeutralParticle_v1(const NeutralParticle_v1& o );
       /// Assignment operator. This can involve creating and copying an Auxilary store, and so should be used sparingly.
       NeutralParticle_v1& operator=(const NeutralParticle_v1& tp );
-      
+
       /// @name xAOD::IParticle functions
       /// @{
       /// The transverse momentum (\f$p_T\f$) of the particle.
@@ -64,10 +64,10 @@ namespace xAOD {
       virtual double           e() const;
       /// The true rapidity (y) of the particle.
       virtual double           rapidity() const;
-      
+
       /// Definition of the 4-momentum type.
       typedef IParticle::FourMom_t FourMom_t;
-      
+
       /// The full 4-momentum of the particle.
       virtual FourMom_t p4() const;
 
@@ -76,11 +76,11 @@ namespace xAOD {
 
       /// The full 4-momentum of the particle : GenVector form
       GenVecFourMom_t genvecP4() const;
-      
+
       /// The type of the object as a simple enumeration
       virtual Type::ObjectType type() const;
       /// @}
-      
+
       /// @name Defining parameters functions
       /// The 'defining parameters' are key to the concept of a NeutralParticle, and give the values for the IParticle interface
       /// ( pt(), phi(), eta() etc.).
@@ -89,7 +89,7 @@ namespace xAOD {
       /// The parameters are expressed with respect to an origin (returned by vx(), vy() and vy() ), currently intended to be the 'beamspot'.
       /// This origin is expected to be the same for all track particles in a collection (and this may be be enforced).
       /// @{
-      
+
       /// Returns the \f$d_0\f$ parameter
       float d0() const;
       /// Returns the \f$z_0\f$ parameter
@@ -100,22 +100,22 @@ namespace xAOD {
       float theta() const;
       /// Returns the \f$q/p\f$  parameter
       float oneOverP() const;
-      /// @brief Returns a SVector of the Perigee track parameters. 
+      /// @brief Returns a SVector of the Perigee track parameters.
       /// i.e. a vector of
       ///  \f$\left(\begin{array}{c}d_0\\z_0\\\phi_0\\\theta\\q/p\end{array}\right)\f$
       const DefiningParameters_t definingParameters() const;
       /// Returns the 5x5 symmetric matrix containing the defining parameters covariance matrix.
-      const ParametersCovMatrix_t definingParametersCovMatrix() const;  
+      const ParametersCovMatrix_t definingParametersCovMatrix() const;
       /// Returns the vector of the covariance values - 15 elements
       const std::vector<float>& definingParametersCovMatrixVec() const;
-      
-      /// Set the defining parameters.     
+
+      /// Set the defining parameters.
       void setDefiningParameters(float d0, float z0, float phi0, float theta, float qOverP);
       /// Set the defining parameters covariance matrix.
       void setDefiningParametersCovMatrix(const ParametersCovMatrix_t& cov);
       /// Set the defining parameters covariance matrix using a length 15 vector.
       void setDefiningParametersCovMatrixVec(const std::vector<float>& cov);
-      
+
       /// The x origin for the parameters.
       float vx() const;
       /// The y origin for the parameters.
@@ -125,24 +125,24 @@ namespace xAOD {
       /// Set the origin for the parameters.
       void setParametersOrigin(float x, float y, float z);
 
-#ifndef XAOD_STANDALONE
+#ifndef XAOD_ANALYSIS
       /// @brief Returns the Trk::NeutralPerigee track parameters.
       ///
       /// These are defined as:
       ///  \f$\left(\begin{array}{c}d_0\\z_0\\\phi_0\\\theta\\1/p\\\end{array}\right)\f$
-      /// @note This is only available in Athena. 
+      /// @note This is only available in Athena.
       const Trk::NeutralPerigee& perigeeParameters() const;
-#endif // not XAOD_STANDALONE
+#endif // not XAOD_ANALYSIS
 
       /// Reset the internal cache of the object
       void resetCache();
- 
+
   private:
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(__CLING__) )
+#if ( ! defined(XAOD_ANALYSIS) ) && ( ! defined(__CLING__) )
       /// @brief Cached NeutralPerigee, built from this object.
       /// @note This is only available in Athena.
       CxxUtils::CachedValue<Trk::NeutralPerigee> m_perigeeParameters;
-#endif // not XAOD_STANDALONE and not __CLING__
+#endif // not XAOD_ANALYSIS and not __CLING__
 
     }; // class NeutralParticle_v1
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LArHECNoise_H
@@ -18,10 +18,6 @@
 //LAr services:
 #include "Identifier/Range.h" 
 #include "Identifier/IdentifierHash.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
-#include "CaloInterface/ICaloNoiseTool.h"
-#include "CaloInterface/ICalorimeterNoiseTool.h"
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArIdentifier/LArOnlineID.h"
@@ -32,6 +28,7 @@
 
 // Trigger
 #include "TrigDecisionTool/TrigDecisionTool.h"
+
 
 //STL:
 #include <string>
@@ -65,9 +62,8 @@ class LArHECNoise : public AthAlgorithm  {
    TTree* m_tree;
 
    SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+   SG::ReadCondHandleKey<ILArPedestal> m_pedKey{this,"PedestalKey","LArPedestal","SG Key of Pedestal obj"};
    /*Tools*/
-   ToolHandle<ICaloNoiseTool> m_calo_noise_tool;
-   ToolHandle<Trig::IBunchCrossingTool> m_bc_tool;
 
    ToolHandle< Trig::TrigDecisionTool > m_trigDec;
 
@@ -112,7 +108,7 @@ class LArHECNoise : public AthAlgorithm  {
    std::vector<std::string> m_TriggerLines;
    int m_MinDigitADC;
    int m_MaxDeltaT;
-   const ILArPedestal* m_ped;
+
 
 };
 

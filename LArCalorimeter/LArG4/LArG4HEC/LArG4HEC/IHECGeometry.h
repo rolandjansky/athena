@@ -30,6 +30,7 @@ namespace LArG4
 
       DeclareInterfaceID(IHECGeometry,1,0);
 
+      virtual void initializeForSDCreation() = 0;
       virtual LArG4Identifier CalculateIdentifier( const G4Step* a_step, const eHECGeometryType type = kWheelActive, int *subgap=NULL) const = 0;
 
     };

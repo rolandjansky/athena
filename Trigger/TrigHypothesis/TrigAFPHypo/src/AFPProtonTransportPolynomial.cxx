@@ -2,7 +2,7 @@
    Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
  */
 
-#include "TrigAFPHypo/AFPProtonTransportPolynomial.h"
+#include "AFPProtonTransportPolynomial.h"
 
 AFPProtonTransportPolynomial::AFPProtonTransportPolynomial(int n, double c0, double c1, double c2, double c3, double c4,
                                                            double c5, double c6, double c7, double c8, double c9) {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUDQA_EFFICIENCYPTPLOTS_H
@@ -16,7 +16,8 @@ class EfficiencyPtPlots: public PlotBase {
     EfficiencyPtPlots(PlotBase *pParent, std::string sDir, std::string sTauJetContainerName);
     virtual ~EfficiencyPtPlots();
 
-    void fill(const xAOD::TauJet& tau);
+    void fill(const xAOD::TauJet& tau, float weight);
+
     TProfile* m_eff_pt_jetRNNloose;
     TProfile* m_eff_pt_jetRNNmed;
     TProfile* m_eff_pt_jetRNNtight;

@@ -1,7 +1,7 @@
 //  -*- c++ -*- 
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETMONITORING_JETHISTOGROUP_H
@@ -36,8 +36,8 @@ class JetHistoBase :  public HistoGroupBase {
   virtual StatusCode initialize() ;
 
   
-  virtual int fillHistosFromContainer(const xAOD::JetContainer & cont);
-  virtual int fillHistosFromJet(const xAOD::Jet &j);
+  virtual int fillHistosFromContainer(const xAOD::JetContainer & cont, float weight);
+  virtual int fillHistosFromJet(const xAOD::Jet &j, float /*weight*/);
 
   virtual int finalizeHistos();
 

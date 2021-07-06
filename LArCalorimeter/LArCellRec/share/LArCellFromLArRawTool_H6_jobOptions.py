@@ -3,9 +3,6 @@
 # Properties of LArCellRec:
 theApp.Dlls += [ "LArCellRec" ]
 
-# For Nova database (needed by CaloNoiseTool)
-#include( "LArCondCnv/LArCondCnv_G3_jobOptions.py" )
-
 theApp.Dlls += [ "LArTools","LArCalibUtils" ]
 
 #add cell maker tools to top cell maker alg (defined elsewhere)

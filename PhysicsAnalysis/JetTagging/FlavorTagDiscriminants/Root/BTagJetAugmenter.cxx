@@ -62,6 +62,7 @@ namespace {
 }
 
 BTagJetAugmenter::BTagJetAugmenter(std::string associator, FlavorTagDiscriminants::FlipTagConfig f):
+  m_jetLink("jetLink"),
   m_pt_uncalib("pt_btagJes"),
   m_eta_uncalib("eta_btagJes"),
   m_abs_eta_uncalib("absEta_btagJes"),
@@ -116,11 +117,11 @@ BTagJetAugmenter::BTagJetAugmenter(std::string associator, FlavorTagDiscriminant
 BTagJetAugmenter::~BTagJetAugmenter() = default;
 BTagJetAugmenter::BTagJetAugmenter(BTagJetAugmenter&&) = default;
 
-std::vector<std::string> BTagJetAugmenter::getDecoratorKeys() const {
+std::set<std::string> BTagJetAugmenter::getDecoratorKeys() const {
   const auto& type_registry = SG::AuxTypeRegistry::instance();
-  std::vector<std::string> keys;
+  std::set<std::string> keys;
   for (const auto& auxid: {
-      m_pt_uncalib.auxid(),
+        m_pt_uncalib.auxid(),
         m_eta_uncalib.auxid(),
         m_abs_eta_uncalib.auxid(),
         m_ip2d_nTrks.auxid(),
@@ -150,12 +151,23 @@ std::vector<std::string> BTagJetAugmenter::getDecoratorKeys() const {
         m_max_trk_flightDirRelEta.auxid(),
         m_avg_trk_flightDirRelEta.auxid(),
         m_rnnip_isDefaults.auxid()}) {
-    keys.push_back(type_registry.getName(auxid));
+    keys.insert(type_registry.getName(auxid));
   }
   return keys;
 }
 
-void BTagJetAugmenter::augment(const xAOD::Jet &jet, const xAOD::Jet &uncalibrated_jet) {
+std::set<std::string> BTagJetAugmenter::getAuxInputKeys() const {
+  const auto& type_registry = SG::AuxTypeRegistry::instance();
+  std::set<std::string> keys;
+  for (const auto& auxid: {
+      m_jetLink.auxid()}) {
+    keys.insert(type_registry.getName(auxid));
+  }
+  return keys;
+}
+
+void BTagJetAugmenter::augment(const xAOD::BTagging &jet,
+                               const xAOD::BTagging &uncalibrated_jet) {
 
   augmentBtagJes(jet, uncalibrated_jet);
 
@@ -204,12 +216,14 @@ void BTagJetAugmenter::augmentIpRatios(const xAOD::BTagging& btag) {
   m_ip3d_bc(btag) = safelog_prob(m_ip3d_pb(btag) , m_ip3d_pc(btag));
 
 }
-void BTagJetAugmenter::augmentBtagJes(const xAOD::Jet &target,
-                                      const xAOD::Jet &uncalib) {
+void BTagJetAugmenter::augmentBtagJes(const xAOD::BTagging &btag,
+                                      const xAOD::BTagging &uncalib_tag) {
 
-  const xAOD::BTagging* btag_ptr = xAOD::BTaggingUtilities::getBTagging( target );
-  if (!btag_ptr) throw std::runtime_error("No b-tagging object found!");
-  const xAOD::BTagging& btag = *btag_ptr;
+  auto uncalib_link = m_jetLink(uncalib_tag);
+  if (!uncalib_link.isValid()) {
+    throw std::runtime_error("missing jetLink");
+  }
+  const xAOD::Jet& uncalib = **uncalib_link;
 
   m_pt_uncalib(btag) = uncalib.pt();
   m_eta_uncalib(btag) = uncalib.eta();
@@ -217,10 +231,7 @@ void BTagJetAugmenter::augmentBtagJes(const xAOD::Jet &target,
 
 }
 
-void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
-  const xAOD::BTagging *btag_ptr = xAOD::BTaggingUtilities::getBTagging( jet );
-  if (!btag_ptr) throw std::runtime_error("No b-tagging object found!");
-  const xAOD::BTagging& btag = *btag_ptr;
+void BTagJetAugmenter::augment(const xAOD::BTagging &btag) {
 
   if (m_ip2d_weightBOfTracks(btag).size() > 0) {
     m_ip2d_isDefaults(btag) = 0;
@@ -359,7 +370,7 @@ void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
     if (secondaryVtx_track_number >= 0) {
       m = secondaryVtx_4momentum_total.M();
       E = secondaryVtx_4momentum_total.E();
-      EFrac = secondaryVtx_4momentum_total.E() / track_E_total;
+      EFrac = E / track_E_total;
     }
     m_secondaryVtx_m(btag) = m;
     m_secondaryVtx_E(btag) = E;

@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CMMEtSumsCnvTool.h 575995 2013-12-17 16:56:45Z morrisj $
 #ifndef XAODTRIGL1CALOCNV_CMMETSUMSCNVTOOL_H
 #define XAODTRIGL1CALOCNV_CMMETSUMSCNVTOOL_H
 
@@ -24,8 +23,6 @@ namespace xAODMaker {
     *
     * @author John Morris <john.morris@cern.ch>
     *
-    * $Revision: 575995 $
-    * $Date: 2013-12-17 17:56:45 +0100 (Tue, 17 Dec 2013) $
     */
    class CMMEtSumsCnvTool : public AthAlgTool,
                             public virtual ICMMEtSumsCnvTool {
@@ -35,12 +32,9 @@ namespace xAODMaker {
       CMMEtSumsCnvTool( const std::string& type, const std::string& name,
                         const IInterface* parent );
 
-      /// Function initialising the tool
-      virtual StatusCode initialize();
-
       /// Function that fills an existing xAOD::EmTauRoIContainer
       virtual StatusCode convert( const DataVector<LVL1::CMMEtSums>* esd,
-                                  xAOD::CMMEtSumsContainer* xaod );
+                                  xAOD::CMMEtSumsContainer* xaod ) override;
 
    }; // class CMMEtSumsCnvTool
 

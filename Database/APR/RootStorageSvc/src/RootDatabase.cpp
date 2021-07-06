@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -27,6 +27,7 @@
 
 // Root include files
 #include "TFile.h"
+#include "TFileCacheWrite.h"
 #include "TTree.h"
 #include "TSystem.h"
 #include "TTreeCache.h"
@@ -37,6 +38,7 @@ using namespace std;
 /// Standard Constuctor
 RootDatabase::RootDatabase() :
         m_file(nullptr), 
+        m_version ("1.1"),
         m_defCompression(1),
         m_defCompressionAlg(1),
         m_defSplitLevel(99),
@@ -47,7 +49,6 @@ RootDatabase::RootDatabase() :
         m_defTreeCacheLearnEvents(-1),
         m_fileMgr(nullptr)
 {
-  m_version = "1.1";
   m_counters[READ_COUNTER] = m_counters[WRITE_COUNTER] = m_counters[OTHER_COUNTER] = 0;
 }
 
@@ -69,7 +70,7 @@ long long int RootDatabase::size()  const   {
 }
 
 /// Callback after successful open of a database object
-DbStatus RootDatabase::onOpen(const DbDatabase& dbH, DbAccessMode mode)  {
+DbStatus RootDatabase::onOpen(DbDatabase& dbH, DbAccessMode mode)  {
   std::string par_val;
   DbPrint log("RootDatabase.onOpen");
   if ( !dbH.param("FORMAT_VSN", par_val).isSuccess() )  {
@@ -565,6 +566,13 @@ DbStatus RootDatabase::setOption(const DbOption& opt)  {
         opt._getValue(val);
         Long64_t v = (Long64_t)val;
         m_file->SetFileBytesRead(v);
+        return Success;
+      }
+      else if ( !strcasecmp(n,"FILECACHE_WRITE") )  {
+        double val = 0;
+        opt._getValue(val);
+        Long64_t v = (Long64_t)val;
+        new TFileCacheWrite(m_file, v); //TFile will take ownership and delete its TFileCacheWrite
         return Success;
       }
       else if ( !strcasecmp(n,"FILE_FLUSH") )  {

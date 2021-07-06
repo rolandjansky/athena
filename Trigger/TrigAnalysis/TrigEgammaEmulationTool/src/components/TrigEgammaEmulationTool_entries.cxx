@@ -1,31 +1,28 @@
 
 
-#include "TrigEgammaEmulationTool/TrigEgammaEmulationTool.h"
-#include "TrigEgammaEmulationTool/TrigEgammaSelectorBaseTool.h"
-#include "TrigEgammaEmulationTool/TrigEgammaL1SelectorTool.h"
-#include "TrigEgammaEmulationTool/TrigEgammaL2CaloSelectorTool.h"
-#include "TrigEgammaEmulationTool/TrigEgammaL2CaloRingerSelectorTool.h"
-#include "TrigEgammaEmulationTool/TrigEgammaL2ElectronSelectorTool.h"
-#include "TrigEgammaEmulationTool/TrigEgammaL2SelectorTool.h"
-#include "TrigEgammaEmulationTool/TrigEgammaEFCaloSelectorTool.h"
-#include "TrigEgammaEmulationTool/TrigEgammaEFElectronSelectorTool.h"
-#include "TrigEgammaEmulationTool/TrigEgammaEFPhotonSelectorTool.h"
-#include "TrigEgammaEmulationTool/TrigEgammaIsolationSelectorTool.h"
-#include "../TrigEgammaEmulationToolTest.h"
-#include "../TrigEgammaEmulationToolAlg.h"
+#include "TrigEgammaEmulationTool/TrigEgammaEmulationToolMT.h"
+#include "TrigEgammaEmulationTool/TrigEgammaEmulationChain.h"
+#include "TrigEgammaEmulationTool/TrigEgammaEmulationBaseHypoTool.h"
+#include "TrigEgammaEmulationTool/TrigEgammaEmulationL1CaloHypoTool.h"
+#include "TrigEgammaEmulationTool/TrigEgammaEmulationFastCaloHypoTool.h"
+#include "TrigEgammaEmulationTool/TrigEgammaEmulationFastElectronHypoTool.h"
+#include "TrigEgammaEmulationTool/TrigEgammaEmulationFastPhotonHypoTool.h"
+#include "TrigEgammaEmulationTool/TrigEgammaEmulationPrecisionCaloHypoTool.h"
+#include "TrigEgammaEmulationTool/TrigEgammaEmulationPrecisionElectronHypoTool.h"
+#include "TrigEgammaEmulationTool/TrigEgammaEmulationPrecisionPhotonHypoTool.h"
+#include "TrigEgammaEmulationTool/TrigEgammaEmulationPrecisionTrackingHypoTool.h"
 
-DECLARE_COMPONENT( Trig::TrigEgammaEmulationTool )   
-DECLARE_COMPONENT( Trig::TrigEgammaSelectorBaseTool )   
-DECLARE_COMPONENT( Trig::TrigEgammaL1SelectorTool )   
-DECLARE_COMPONENT( Trig::TrigEgammaL2SelectorTool ) 
-DECLARE_COMPONENT( Trig::TrigEgammaL2ElectronSelectorTool ) 
-DECLARE_COMPONENT( Trig::TrigEgammaL2CaloSelectorTool ) 
-DECLARE_COMPONENT( Trig::TrigEgammaL2CaloRingerSelectorTool ) 
-DECLARE_COMPONENT( Trig::TrigEgammaEFCaloSelectorTool )   
-DECLARE_COMPONENT( Trig::TrigEgammaEFElectronSelectorTool )   
-DECLARE_COMPONENT( Trig::TrigEgammaEFPhotonSelectorTool )   
-DECLARE_COMPONENT( Trig::TrigEgammaIsolationSelectorTool )   
-DECLARE_COMPONENT( Trig::TrigEgammaEmulationToolTest ) 
-DECLARE_COMPONENT( Trig::TrigEgammaEmulationToolAlg ) 
-DECLARE_COMPONENT( Trig::TrigEgammaIsolationSelectorTool ) 
+DECLARE_COMPONENT( Trig::TrigEgammaEmulationToolMT )
+
+DECLARE_COMPONENT( Trig::TrigEgammaEmulationChain )
+DECLARE_COMPONENT( Trig::TrigEgammaEmulationBaseHypoTool )
+DECLARE_COMPONENT( Trig::TrigEgammaEmulationL1CaloHypoTool )
+DECLARE_COMPONENT( Trig::TrigEgammaEmulationFastCaloHypoTool )
+DECLARE_COMPONENT( Trig::TrigEgammaEmulationFastElectronHypoTool )
+DECLARE_COMPONENT( Trig::TrigEgammaEmulationFastPhotonHypoTool )
+DECLARE_COMPONENT( Trig::TrigEgammaEmulationPrecisionCaloHypoTool )
+DECLARE_COMPONENT( Trig::TrigEgammaEmulationPrecisionElectronHypoTool )
+DECLARE_COMPONENT( Trig::TrigEgammaEmulationPrecisionPhotonHypoTool )
+DECLARE_COMPONENT( Trig::TrigEgammaEmulationPrecisionTrackingHypoTool )
+
 

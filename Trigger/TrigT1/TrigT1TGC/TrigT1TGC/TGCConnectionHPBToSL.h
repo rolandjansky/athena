@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //  table of connection between High-Pt Board and Sector Logic
@@ -7,11 +7,9 @@
 #define TGCConnectionHPBToSL_hh
 
 #include "TrigT1TGC/TGCBoardConnection.h"
+#include "TrigT1TGC/TGCSector.h"
 
 namespace LVL1TGCTrigger {
-
-enum TGCHighPtBoardType { WHPB=0, SHPB, TotalNumHighPtBoardType};
-enum{ NumberOfHighPtBoardType = 2 };
 
 class TGCConnectionHPBToSL : public TGCBoardConnection
 {
@@ -26,7 +24,7 @@ class TGCConnectionHPBToSL : public TGCBoardConnection
   TGCConnectionHPBToSL& operator=(const TGCConnectionHPBToSL& right);
 
  private:
-  int* m_SLPortToHPB[NumberOfHighPtBoardType];
+  int* m_SLPortToHPB[TGCSector::NumberOfHighPtBoardType];
 };
 
 inline

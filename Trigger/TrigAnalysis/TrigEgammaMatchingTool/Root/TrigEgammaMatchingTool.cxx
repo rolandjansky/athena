@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigEgammaMatchingTool/TrigEgammaMatchingTool.h"
@@ -70,7 +70,7 @@ namespace Trig {
                     ATH_MSG_DEBUG("Electron container from TE nullptr");
                     continue;
                 }
-                for(const auto& el : *cont){
+                for(const auto el : *cont){
                     if(el == nullptr) {
                         ATH_MSG_DEBUG("Electron from TE nullptr");
                         continue;
@@ -93,7 +93,7 @@ namespace Trig {
                     ATH_MSG_DEBUG("Photon Container from TE nullptr");
                     continue;
                 }
-                for(const auto& ph : *cont){
+                for(const auto ph : *cont){
                     if(ph == nullptr) {
                         ATH_MSG_DEBUG("Photon from TE nullptr");
                         continue;
@@ -132,7 +132,7 @@ namespace Trig {
                     ATH_MSG_DEBUG("Electron container from TE nullptr");
                     continue;
                 }
-                for(const auto& el : *cont){
+                for(const auto el : *cont){
                     if(el == nullptr) {
                         ATH_MSG_WARNING("Electron from TE nullptr");
                         continue;
@@ -161,7 +161,7 @@ namespace Trig {
                     ATH_MSG_DEBUG("Photon Container from TE nullptr");
                     continue;
                 }
-                for(const auto& ph : *cont){
+                for(const auto ph : *cont){
                     if(ph == nullptr) {
                         ATH_MSG_DEBUG("Photon from TE nullptr");
                         continue;
@@ -200,7 +200,7 @@ namespace Trig {
                 continue;
             }
             ATH_MSG_DEBUG("EF Size " << cont->size());
-            for(const auto& ph : *cont){
+            for(const auto ph : *cont){
                 if(ph == nullptr) {
                     ATH_MSG_DEBUG("Photon from TE nullptr");
                     continue;
@@ -235,7 +235,7 @@ namespace Trig {
                 continue;
             }
             ATH_MSG_DEBUG("EF Size " << cont->size());
-            for(const auto& el : *cont){
+            for(const auto el : *cont){
                 if(el == nullptr) {
                     ATH_MSG_DEBUG("Electron from TE nullptr");
                     continue;
@@ -271,7 +271,7 @@ namespace Trig {
                 ATH_MSG_DEBUG("CaloCluster Container from TE nullptr");
                 continue;
             }
-            for(const auto& clus : *cont){
+            for(const auto clus : *cont){
                 if(clus == nullptr) {
                     ATH_MSG_DEBUG("CaloCluster from TE nullptr");
                     continue;
@@ -306,7 +306,7 @@ namespace Trig {
                 continue;
             }
             ATH_MSG_DEBUG("L2 Size " << cont->size());
-            for(const auto& l2 : *cont){
+            for(const auto l2 : *cont){
                 if(l2 == nullptr) {
                     ATH_MSG_DEBUG("TrigElectron from TE nullptr");
                     continue;
@@ -339,7 +339,7 @@ namespace Trig {
                 continue;
             }
             ATH_MSG_DEBUG("L2 Size " << cont->size());
-            for(const auto& l2 : *cont){
+            for(const auto l2 : *cont){
                 if(l2 == nullptr) {
                     ATH_MSG_DEBUG("TrigElectron from TE nullptr");
                     continue;

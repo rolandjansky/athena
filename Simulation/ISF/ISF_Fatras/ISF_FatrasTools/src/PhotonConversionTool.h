@@ -35,7 +35,6 @@ namespace Trk {
   class CylinderVolumeBounds;
   class PdgToParticleHypothesis;
   class TrackingGeometry;
-  class ITrackingGeometrySvc;
 }
 
 namespace ISF {
@@ -177,7 +176,7 @@ inline double PhotonConversionTool::phi1(double delta) const {
 
 inline double PhotonConversionTool::phi2(double delta) const {
   if (delta <= 1.)
-     return 20.209 - 1.930 * delta  - 0.086*delta*delta;
+     return 20.209 - 1.930 * delta  + 0.086*delta*delta;
    return 21.12 - 4.184*log(delta+0.952);
 }
 

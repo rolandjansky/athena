@@ -1,7 +1,7 @@
 //  -*- c++ -*- 
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETMONITORING_JETSELECTORATTRIBUTE_H
@@ -30,10 +30,10 @@ class JetSelectorAttribute : public asg::AsgTool , virtual public IJetSelector
 
  protected:
    
-   float m_min;
-   float m_max;
+   std::vector<float> m_min;
+   std::vector<float> m_max;
 
-   ToolHandle<IJetHistoVarTool> m_var;
+   ToolHandleArray<IJetHistoVarTool> m_var;
 
 };
 

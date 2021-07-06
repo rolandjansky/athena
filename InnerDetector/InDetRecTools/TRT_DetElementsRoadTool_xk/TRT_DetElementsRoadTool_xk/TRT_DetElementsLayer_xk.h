@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -65,8 +65,8 @@ namespace InDet{
         * @param array with size matching number of elements, which tells which elements are already used.
         */
       void getBarrelDetElementsATL
-	(float*,
-         float*,
+	(const float*,
+         const float*,
          std::vector<std::pair<const InDet::TRT_DetElementLink_xk*,float> >&,
          std::vector<InDet::TRT_DetElementLink_xk::Used_t> &used) const;
        /**
@@ -76,8 +76,8 @@ namespace InDet{
         * @param array with size matching number of elements, which tells which elements are already used.
         */
       void getBarrelDetElementsCTB
-        (float*,
-         float*,
+        (const float*,
+         const float*,
          std::vector<std::pair<const InDet::TRT_DetElementLink_xk*,float> >&,
          std::vector<InDet::TRT_DetElementLink_xk::Used_t> &used) const;
        /**
@@ -87,8 +87,8 @@ namespace InDet{
         * @param array with size matching number of elements, which tells which elements are already used.
         */
       void getEndcapDetElements
-	(float*,
-         float*,
+	(const float*,
+         const float*,
          std::vector<std::pair<const InDet::TRT_DetElementLink_xk*,float> >&,
          std::vector<InDet::TRT_DetElementLink_xk::Used_t> &used) const;
 

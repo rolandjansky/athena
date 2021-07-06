@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 // ================================================
 // OverlayRun2TriggerTowerMaker class description
@@ -50,7 +50,6 @@
 #include "xAODTrigL1Calo/TriggerTowerAuxContainer.h"
 
 // forward decl(s)
-class IAtRndmGenSvc;
 class ILumiBlockMuTool;
 class CaloLVL1_ID;
 class CaloTriggerTowerService;
@@ -62,6 +61,12 @@ class L1CaloDisabledTowersContainer;
 class L1CaloDisabledTowers;
 class L1CaloPpmDeadChannelsContainer;
 class L1CaloPpmDeadChannels;
+
+class IAthRNGSvc;
+class ILumiBlockMuTool;
+namespace ATHRNG {
+  class RNGWrapper;
+}
 
 namespace CLHEP { class HepRandomEngine; }
 namespace TrigConf { class ILVL1ConfigSvc; }
@@ -152,9 +157,9 @@ private:
 
   // Tools/Services
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
-  ServiceHandle<IAtRndmGenSvc> m_rndGenSvc;
+  ServiceHandle <IAthRNGSvc> m_rngSvc;
   ServiceHandle<L1CaloCondSvc> m_condSvc;
-  CLHEP::HepRandomEngine* m_rndmADCs; // non owning ptr
+  ATHRNG::RNGWrapper* m_rndmADCs; // non owning ptr
 
   ToolHandle<IL1TriggerTowerTool> m_TTtool;
   ToolHandle<IL1CaloMappingTool> m_mappingTool;
@@ -255,7 +260,8 @@ private:
   double IDphi(const Identifier& id, const CaloLVL1_ID* caloId);
 
   /** Functions to simulate processing of tower signals **/
-  std::vector<int> ADC(L1CaloCoolChannelId channel, const std::vector<double>& amps) const;
+  std::vector<int> ADC(CLHEP::HepRandomEngine* rndmADCs,
+                       L1CaloCoolChannelId channel, const std::vector<double>& amps) const;
   int EtRange(int et, unsigned short bcidEnergyRangeLow, unsigned short bcidEnergyRangeHigh) const;
 
   // void preProcessLayer(int layer, int m_eventBCID, InternalTriggerTower* tower, std::vector<int>& etResultVector, std::vector<int>& bcidResultVector);

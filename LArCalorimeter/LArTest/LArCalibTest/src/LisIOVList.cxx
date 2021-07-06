@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // LisIOVList.exe
@@ -26,12 +26,12 @@
 
 class LisIOVList {
  public:
-  LisIOVList(const std::string lisdb, const std::string lisfolder,
-	    const std::string filename, const std::string tagprefix);
+  LisIOVList(const std::string& lisdb, const std::string& lisfolder,
+	    const std::string& filename, const std::string& tagprefix);
   int execute();
 
  private:
-  bool getLisDB(const std::string lisdbstr, ICondDBMgr*& dbPtr,
+  bool getLisDB(const std::string& lisdbstr, ICondDBMgr*& dbPtr,
                 ICondDBDataAccess*& dbAcc, ICondDBFolderMgr*& dbFold,
                 ICondDBTagMgr*& dbTag);
   bool extractFolderInfo();//const std::string folder);
@@ -53,8 +53,8 @@ class LisIOVList {
 
 };
 
-LisIOVList::LisIOVList(const std::string lisdb, const std::string lisfolder, 
-		     const std::string filename, const std::string tagprefix) :
+LisIOVList::LisIOVList(const std::string& lisdb, const std::string& lisfolder, 
+		     const std::string& filename, const std::string& tagprefix) :
   m_lisdbstr(lisdb), m_lisfolder(lisfolder), m_filename(filename), m_tagprefix(tagprefix),
   m_lisdb(nullptr),
   m_lisacc(nullptr),
@@ -88,7 +88,7 @@ int LisIOVList::execute() {
   return 0; 
 }
 
-bool LisIOVList::getLisDB(const std::string lisdbstr, ICondDBMgr*& dbPtr,
+bool LisIOVList::getLisDB(const std::string& lisdbstr, ICondDBMgr*& dbPtr,
                      ICondDBDataAccess*& dbAcc, ICondDBFolderMgr*& dbFold,
                      ICondDBTagMgr*& dbTag) {
   dbPtr=CondDBMySQLMgrFactory::createCondDBMgr();

@@ -1,110 +1,1188 @@
+Wed Feb 24 18:01:21 CET 2021
+Preloading tcmalloc_minimal.so
+Py:Athena            INFO including file "AthenaCommon/Preparation.py"
+Py:Athena            INFO using release [WorkDir-22.0.28] [x86_64-centos7-gcc8-opt] [atlas-work3/bd26e0545271] -- built on [2021-02-24T1555]
+Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
+Py:Athena            INFO executing ROOT6Setup
+Py:Athena            INFO including file "AthenaCommon/Execution.py"
+Py:Athena            INFO including file "AthenaPoolTest/EventInfoWriteStep2.py"
+Py:ConfigurableDb    INFO Read module info for 5269 configurables from 41 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
+Py:Athena            INFO including file "RecExCond/RecExCommon_flags.py"
+Py:RecExCommon_flags    INFO starting the migration to JobProperties. WILL SOON BE DISABLED.
+Py:Athena            INFO Importing MuonRecExample.MuonRecUtils
+Py:Athena            INFO Importing module MuonCnvExample.MuonCalibFlags
+Py:Athena            INFO Importing MuonCnvExample.MuonCnvUtils
+Py:MuonCnvExample.MuonCalibFlags    INFO Changing default mdtPropagationSpeedBeta = 1.0
+Py:MuonRec           INFO Importing MuonRecExample.MuonRecFlags
+Py:MuonRec           INFO Changing default applyResilience = True
+Py:MuonRec           INFO Changing default doMSVertex = True
+Py:MuonRec           INFO Changing default enableErrorTuning = True
+Py:MuonRec           INFO Changing default writeSDOs = True
+Py:MuonRec           INFO Changing default calibNtupleTrigger = False
+Py:RecExCommon_flags    INFO Synchronising  old flags to new flags
+Py:RecExCommon_flags    INFO Modified value for flag PoolRDOInput new flag: ['LFN:top_default.pool.root'] old flag:['RDO.pool.root']
+Py:RecExCommon_flags    INFO inconsistency: for flag doWriteTAG new flag: False old flag:True
+Py:RecExCommon_flags    INFO inconsistency: for flag doDPD new flag: True old flag:False
+Py:RecExCommon_flags    INFO inconsistency: for flag doAOD new flag: False old flag:True
+Py:RecExCommon_flags    INFO inconsistency: for flag doAOD new flag: False old flag:True
+Py:RecExCommon_flags    INFO inconsistency: for flag doFloatingPointException new flag: False old flag:True
+Py:RecExCommon_flags    INFO inconsistency: for flag doCBNT new flag: False old flag:True
+Py:RecExCommon_flags    INFO Modified value for flag EvtMax new flag: unset, old flag 5
+Py:RecExCommon_flags    INFO Modified value for flag SkipEvents new flag: unset, old flag 0
+Py:RecExCommon_flags    INFO inconsistency: for flag doEmCluster new flag: False old flag:True
+Py:RecExCommon_flags    INFO inconsistency: for flag doMuonSpShower new flag: False old flag:True
+Py:RecExCommon_flags    INFO inconsistency: for flag doEFlow new flag: True old flag:False
+Py:RecExCommon_flags    INFO inconsistency: for flag doTrigger new flag: False old flag:True
+Py:RecExCommon_flags    INFO inconsistency: for flag doTrigger new flag: False old flag:True
+oldFlagCompatibility==True : Deleting all standalone flags!
+Py:RecExCommon_flags    INFO athenaCommonFlags.FilesInput override input file specification
+Py:RecExCommon_flags    INFO done the mapping in between the old flags and JobProperties
+Py:Athena            INFO including file "RecExCond/RecExCommon_DetFlags.py"
+Py:Athena            INFO including file "RecExCond/RecExCommon_GlobalFlags.py"
+Py:AutoConfiguration    INFO in IsInInputFile...
+Py:MetaReader        INFO Current mode used: peeker
+Py:MetaReader        INFO Current filenames: ['LFN:top_default.pool.root']
+Py:AutoConfiguration WARNING Could not run IsInInputFile. input file maybe not specified at this point
+Py:AutoConfiguration    INFO looks like object of name PixelClusters is NOT in input file. Returning False
+Py:AutoConfiguration    INFO in IsInInputFile...
+Py:MetaReader        INFO Current mode used: peeker
+Py:MetaReader        INFO Current filenames: ['LFN:top_default.pool.root']
+Py:AutoConfiguration WARNING Could not run IsInInputFile. input file maybe not specified at this point
+Py:AutoConfiguration    INFO looks like object of name SCT_Clusters is NOT in input file. Returning False
+Py:AutoConfiguration    INFO in IsInInputFile...
+Py:MetaReader        INFO Current mode used: peeker
+Py:MetaReader        INFO Current filenames: ['LFN:top_default.pool.root']
+Py:AutoConfiguration WARNING Could not run IsInInputFile. input file maybe not specified at this point
+Py:AutoConfiguration    INFO looks like object of name TRT_DriftCircles is NOT in input file. Returning False
+Py:MuonRec           INFO Changing default useAlignmentCorrections = True
+Py:MuonRec           INFO DetFlags.writeRIOPool.MDT_setOn()
+Py:MuonRec           INFO DetFlags.writeRIOPool.RPC_setOn()
+Py:MuonRec           INFO DetFlags.writeRIOPool.CSC_setOn()
+Py:MuonRec           INFO DetFlags.writeRIOPool.TGC_setOn()
+Py:MuonRec           INFO DetFlags.writeRIOPool.sTGC_setOn()
+Py:MuonRec           INFO DetFlags.writeRIOPool.Micromegas_setOn()
+Py:JobProperty ::    INFO AODFlags:: now uses JobProperty mechanisms
+Py:RecExCommon_flags WARNING doAOD False and doWriteAOD True and readAOD False. Most likely meaninglesss !! 
+Py:JobProperty ::    INFO  --> JobProperties.AODFlagsContainer.AddEgammaMuonTracksInAOD = False 
+Py:JobProperty ::    INFO  --> JobProperties.AODFlagsContainer.AddEgammaTracksInMCAOD = False 
+Py:JobProperty ::    INFO  --> JobProperties.AODFlagsContainer.Electron = True 
+Py:JobProperty ::    INFO  --> JobProperties.AODFlagsContainer.FastSimulation = False 
+Py:JobProperty ::    INFO  --> JobProperties.AODFlagsContainer.FastTrackParticle = False 
+Py:JobProperty ::    INFO  --> JobProperties.AODFlagsContainer.JetTag = False 
+Py:JobProperty ::    INFO  --> JobProperties.AODFlagsContainer.McEventKeyStr = 'TruthEvent' 
+Py:JobProperty ::    INFO  --> JobProperties.AODFlagsContainer.MissingEtTruth = False 
+Py:JobProperty ::    INFO  --> JobProperties.AODFlagsContainer.Muon = True 
+Py:JobProperty ::    INFO  --> JobProperties.AODFlagsContainer.ParticleJet = True 
+Py:JobProperty ::    INFO  --> JobProperties.AODFlagsContainer.Photon = True 
+Py:JobProperty ::    INFO  --> JobProperties.AODFlagsContainer.SpclMC = True 
+Py:JobProperty ::    INFO  --> JobProperties.AODFlagsContainer.Streaming = False 
+Py:JobProperty ::    INFO  --> JobProperties.AODFlagsContainer.Tau = True 
+Py:JobProperty ::    INFO  --> JobProperties.AODFlagsContainer.Tau1p3p = True 
+Py:JobProperty ::    INFO  --> JobProperties.AODFlagsContainer.TauRec = True 
+Py:JobProperty ::    INFO  --> JobProperties.AODFlagsContainer.ThinGeantTruth = True 
+Py:JobProperty ::    INFO  --> JobProperties.AODFlagsContainer.ThinInDetForwardTrackParticles = True 
+Py:JobProperty ::    INFO  --> JobProperties.AODFlagsContainer.ThinNegativeEnergyCaloClusters = True 
+Py:JobProperty ::    INFO  --> JobProperties.AODFlagsContainer.ThinNegativeEnergyNeutralPFOs = True 
+Py:JobProperty ::    INFO  --> JobProperties.AODFlagsContainer.TrackParticleLastHitAndPerigeeSlimmer = False 
+Py:JobProperty ::    INFO  --> JobProperties.AODFlagsContainer.TrackParticleSlimmer = True 
+Py:JobProperty ::    INFO  --> JobProperties.AODFlagsContainer.Trigger = False 
+Py:JobProperty ::    INFO  --> JobProperties.AODFlagsContainer.TruthParticleJet = True 
+Py:JobProperty ::    INFO  --> JobProperties.AODFlagsContainer.egammaTrackSlimmer = True 
+oldFlagCompatibility==True : Deleting all standalone flags! and forbidding use of old flags
+Py:Athena            INFO including file "RecExCond/AllDet_detDescr.py"
+Py:Athena            INFO including file "IdDictDetDescrCnv/IdDictDetDescrCnv_joboptions.py"
+EventInfoMgtInit: Got release version  Athena-22.0.28
+Py:IOVDbSvc.CondDB    INFO Setting up conditions DB access to instance OFLP200
+Py:Athena            INFO SetGeometryVersion.py obtained major release version 22
+Py:Athena            INFO including file "TileConditions/TileConditions_jobOptions.py"
+Py:TileInfoConf.     INFO Adding TileCablingSvc to ServiceMgr
+Py:MetaReader        INFO Current mode used: peeker
+Py:MetaReader        INFO Current filenames: ['LFN:top_default.pool.root']
+Py:TileConditions_jobOptions.py    INFO No Run Number available - assume latest cabling
+Py:TileConditions_jobOptions.py    INFO Forcing RUN2a (2018) cabling for run None with geometry ATLAS-R2-2016-01-00-01
+Py:TileConditions_jobOptions.py    INFO Adjusting TileInfo for 7 samples
+Py:TileConditions_jobOptions.py    INFO setting up COOL for TileCal conditions data
+Py:TileInfoConf.     INFO Changing default TileBadChanTool configuration to COOL source
+Py:TileInfoConf.     INFO Changing default TileCondToolEmscale configuration to COOL source
+Py:TileInfoConf.     INFO Changing default TileCondToolNoiseSample configuration to COOL source
+Py:TileInfoConf.     INFO Changing default TileCondToolTiming configuration to COOL source
+Py:TileConditions_jobOptions.py    INFO Adjusting TileInfo to return cell noise for Opt.Filter without iterations
+Py:TileConditions_jobOptions.py    INFO Setting 10-bit ADC configuration
+Py:TileInfoConf.     INFO Setting 10-bit Tile ADC
+Py:Athena            INFO including file "CaloIdCnv/CaloIdCnv_joboptions.py"
+Py:Athena            INFO including file "CaloConditions/CaloConditions_jobOptions.py"
+Py:Athena            INFO including file "CaloConditions/LArTTCellMap_ATLAS_jobOptions.py"
+Py:Athena            INFO including file "CaloConditions/CaloTTIdMap_ATLAS_jobOptions.py"
+Py:Athena            INFO including file "TileIdCnv/TileIdCnv_jobOptions.py"
+Py:Athena            INFO including file "LArDetDescr/LArDetDescr_joboptions.py"
+now initializing the LAr readout geometry : standard Atlas flavour
+Py:Athena            INFO including file "LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py"
+Py:JobPropertyContainer::    INFO ATLAS-R2-2016-01-00-01
+Py:JobPropertyContainer::    INFO  use global tag for all LArElecCalibMC constants 
+Py:Athena            INFO including file "LArConditionsCommon/LArIdMap_MC_jobOptions.py"
+Py:JobPropertyContainer::    INFO  setting folder /LAR/Identifier/OnOffIdMap with tag LARIdentifierOnOffIdMap-012
+Py:JobPropertyContainer::    INFO  setting folder /LAR/Identifier/CalibIdMap with tag LARIdentifierCalibIdMap-012
+Py:JobPropertyContainer::    INFO  setting folder /LAR/Identifier/FebRodMap with tag LARIdentifierFebRodMap-005
+Py:Athena            INFO including file "IOVDbSvc/IOVRecExCommon.py"
+Py:Athena         WARNING IOVDbSvc/IOVRecExCommon.py - This file is obselete; conditions DB access should automatically be configured from detector geometry
+Py:Athena            INFO including file "EventAthenaPool/EventAthenaPoolItemList_joboptions.py"
+['EventInfo#*', 'EventStreamInfo#*', 'MergedEventInfo#*', 'PileUpEventInfo#*']
+Py:Athena            INFO including file "AthenaPoolTest/NoStats_jobOptions.py"
+Py:Athena            INFO including file "AthenaCommon/runbatch.py"
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v35r1)
+                                          running on lxplus717.cern.ch on Wed Feb 24 18:01:35 2021
+====================================================================================================================================
+ApplicationMgr       INFO Application Manager Configured successfully
+AthDictLoaderSvc     INFO in initialize...
+AthDictLoaderSvc     INFO acquired Dso-registry
+ClassIDSvc           INFO  getRegistryEntries: read 6695 CLIDRegistry entries for module ALL
+CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
+MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
+PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
+PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
+PoolSvc              INFO Frontier compression level set to 5
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy-atlas.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2021-02-23T2101/Athena/22.0.28/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus717.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+PoolSvc              INFO Successfully setup replica sorting algorithm
+PoolSvc              INFO Setting up APR FileCatalog and Streams
+PoolSvc           WARNING Unable to locate catalog for prfile:poolcond/PoolCat_oflcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
+PoolSvc           WARNING Unable to locate catalog for apcfile:poolcond/PoolCat_oflcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
+PoolSvc              INFO Resolved path (via ATLAS_POOLCOND_PATH) is /cvmfs/atlas-condb.cern.ch/repo/conditions/poolcond/PoolFileCatalog.xml
+PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
+DbSession            INFO     Open     DbSession    
+Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
+MetaDataSvc          INFO Found MetaDataTools = PublicToolHandleArray(['IOVDbMetaDataTool'])
+EventSelector        INFO EventSelection with query 
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 31DE0B3D-AFB0-F440-859A-6F1190556366
+Domain[ROOT_All]     INFO                           /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/atlas/offline/ReleaseData/v20/testfile/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_10evt.pool.root
+RootDatabase.open    INFO /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/atlas/offline/ReleaseData/v20/testfile/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_10evt.pool.root File version:53409
+ClassIDSvc           INFO  getRegistryEntries: read 8499 CLIDRegistry entries for module ALL
+EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
+ClassIDSvc           INFO  getRegistryEntries: read 8 CLIDRegistry entries for module ALL
+OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
+MetaDataSvc          INFO   AlgTool: ToolSvc.IOVDbMetaDataTool
+IOVDbSvc             INFO Only 5 POOL conditions files will be open at once
+IOVDbSvc             INFO Cache alignment will be done in 3 slices
+IOVDbSvc             INFO Folder /LAR/Identifier/OnOffIdMap, adding new key tag with value LARIdentifierOnOffIdMap-012
+IOVDbSvc             INFO Folder /LAR/Identifier/CalibIdMap, adding new key tag with value LARIdentifierCalibIdMap-012
+IOVDbSvc             INFO Folder /LAR/Identifier/FebRodMap, adding new key tag with value LARIdentifierFebRodMap-005
+IOVDbFolder          INFO Read from meta data only for folder /TagInfo
+IOVDbSvc             INFO Initialised with 4 connections and 35 folders
+IOVDbSvc             INFO Service IOVDbSvc initialised successfully
+IOVDbSvc             INFO   AlgTool: ToolSvc.IOVDbMetaDataTool
+ClassIDSvc           INFO  getRegistryEntries: read 240 CLIDRegistry entries for module ALL
+IOVDbSvc             INFO Folder /TagInfo will be taken from file metadata
+IOVDbSvc             INFO Found 5 metadata containers in input file, 1 will be used
+TagInfoMgr          DEBUG Property update for OutputLevel : new value = 2
+TagInfoMgr          DEBUG Service base class initialized successfully
 TagInfoMgr          DEBUG initialize()
 TagInfoMgr          DEBUG ExtraTagValuePairs 
+TagInfoMgr          DEBUG  Value/tag pair: AtlasRelease Athena-22.0.28
 TagInfoMgr          DEBUG in queryInterface()
 TagInfoMgr          DEBUG in queryInterface()
 TagInfoMgr          DEBUG in queryInterface()
+TagInfoMgr.IOVD...  DEBUG Property update for OutputLevel : new value = 2
 TagInfoMgr.IOVD...  DEBUG in initialize()
 TagInfoMgr.IOVD...  DEBUG initialize(): need to modify folders
 TagInfoMgr          DEBUG Adding private ToolHandle tool TagInfoMgr.IOVDbMetaDataTool (IOVDbMetaDataTool)
+TagInfoMgr           INFO   AlgTool: TagInfoMgr.IOVDbMetaDataTool
 TagInfoMgr          DEBUG in queryInterface()
 TagInfoMgr          DEBUG matched ITagInfoMgr
+IOVSvc               INFO No IOVSvcTool associated with store "StoreGateSvc"
+IOVSvc.IOVSvcTool    INFO IOVRanges will be checked at every Event
+IOVDbSvc             INFO Opening COOL connection for COOLOFL_LAR/OFLP200
+ClassIDSvc           INFO  getRegistryEntries: read 386 CLIDRegistry entries for module ALL
+IOVDbSvc             INFO Opening COOL connection for COOLOFL_TILE/OFLP200
+IOVDbSvc             INFO Disconnecting from COOLOFL_LAR/OFLP200
+IOVDbSvc             INFO Opening COOL connection for COOLOFL_CALO/OFLP200
+IOVDbSvc             INFO Disconnecting from COOLOFL_TILE/OFLP200
+IOVDbSvc             INFO Disconnecting from COOLOFL_CALO/OFLP200
 TagInfoMgr          DEBUG addTag - adding name/value pairs: /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/Identifier/CalibIdMap
+IOVDbSvc             INFO Added taginfo remove for /LAR/Identifier/CalibIdMap
 TagInfoMgr          DEBUG addTag - adding name/value pairs: /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/Identifier/FebRodMap
+IOVDbSvc             INFO Added taginfo remove for /LAR/Identifier/FebRodMap
 TagInfoMgr          DEBUG addTag - adding name/value pairs: /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
 TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/Identifier/OnOffIdMap
+IOVDbSvc             INFO Added taginfo remove for /LAR/Identifier/OnOffIdMap
 TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /TagInfo
+IOVDbSvc             INFO Added taginfo remove for /TagInfo
+ClassIDSvc           INFO  getRegistryEntries: read 20 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 11 CLIDRegistry entries for module ALL
+DetDescrCnvSvc       INFO  initializing 
+DetDescrCnvSvc       INFO Found DetectorStore service
+DetDescrCnvSvc       INFO  filling proxies for detector managers 
+DetDescrCnvSvc       INFO  filling address for CaloTTMgr with CLID 117659265 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloMgr with CLID 4548337 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloSuperCellMgr with CLID 241807251 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloIdManager with CLID 125856940 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArIdManager with CLID 79554919 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for IdDict with CLID 2411 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for AtlasID with CLID 164875623 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for PixelID with CLID 2516 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for SCT_ID with CLID 2517 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for TRT_ID with CLID 2518 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for SiliconID with CLID 129452393 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArEM_ID with CLID 163583365 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArEM_SuperCell_ID with CLID 99488227 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArHEC_ID with CLID 3870484 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArHEC_SuperCell_ID with CLID 254277678 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArFCAL_ID with CLID 45738051 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArFCAL_SuperCell_ID with CLID 12829437 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArMiniFCAL_ID with CLID 79264204 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArOnlineID with CLID 158698068 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for TTOnlineID with CLID 38321944 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArOnline_SuperCellID with CLID 115600394 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArHVLineID with CLID 27863673 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArElectrodeID with CLID 80757351 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for TileID with CLID 2901 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for Tile_SuperCell_ID with CLID 49557789 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for TileHWID with CLID 2902 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for TileTBID with CLID 2903 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for MDTIDHELPER with CLID 4170 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CSCIDHELPER with CLID 4171 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for RPCIDHELPER with CLID 4172 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for TGCIDHELPER with CLID 4173 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloLVL1_ID with CLID 108133391 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloCell_ID with CLID 123500438 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloCell_SuperCell_ID with CLID 128365736 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloDM_ID with CLID 167756483 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for ZdcID with CLID 190591643 and storage type 68 to detector store 
 TagInfoMgr          DEBUG in queryInterface()
 TagInfoMgr          DEBUG matched ITagInfoMgr
+GeoModelSvc::RD...WARNING  Getting PixTBMatComponents with default tag
+GeoModelSvc::RD...WARNING  Getting PixTBMaterials with default tag
+GeoModelSvc::RD...WARNING  Getting InDetMatComponents with default tag
+GeoModelSvc::RD...WARNING  Getting InDetMaterials with default tag
+EventPersistenc...   INFO Added successfully Conversion service:DetDescrCnvSvc
+LArElectrodeIDD...   INFO in createObj: creating a LArElectrodeID helper object in the detector store
+IdDictDetDescrCnv    INFO in initialize
+IdDictDetDescrCnv    INFO in createObj: creating a IdDictManager object in the detector store
+IdDictDetDescrCnv    INFO IdDictName:  IdDictParser/ATLAS_IDS.xml
+IdDictDetDescrCnv    INFO Reading InnerDetector    IdDict file InDetIdDictFiles/IdDictInnerDetector_IBL3D25-03.xml
+IdDictDetDescrCnv    INFO Reading LArCalorimeter   IdDict file IdDictParser/IdDictLArCalorimeter_DC3-05-Comm-01.xml
+IdDictDetDescrCnv    INFO Reading TileCalorimeter  IdDict file IdDictParser/IdDictTileCalorimeter.xml
+IdDictDetDescrCnv    INFO Reading Calorimeter      IdDict file IdDictParser/IdDictCalorimeter_L1Onl.xml
+IdDictDetDescrCnv    INFO Reading MuonSpectrometer IdDict file IdDictParser/IdDictMuonSpectrometer_R.03.xml
+IdDictDetDescrCnv    INFO Reading ForwardDetectors IdDict file IdDictParser/IdDictForwardDetectors_2010.xml
+IdDictDetDescrCnv    INFO Found id dicts:
+IdDictDetDescrCnv    INFO Using dictionary tag: null
+IdDictDetDescrCnv    INFO Dictionary ATLAS                version default              DetDescr tag (using default) file 
+IdDictDetDescrCnv    INFO Dictionary Calorimeter          version default              DetDescr tag CaloIdentifier-LVL1-02 file IdDictParser/IdDictCalorimeter_L1Onl.xml
+IdDictDetDescrCnv    INFO Dictionary ForwardDetectors     version default              DetDescr tag ForDetIdentifier-01       file IdDictParser/IdDictForwardDetectors_2010.xml
+IdDictDetDescrCnv    INFO Dictionary InnerDetector        version IBL-DBM              DetDescr tag InDetIdentifier-IBL3D25-02 file InDetIdDictFiles/IdDictInnerDetector_IBL3D25-03.xml
+IdDictDetDescrCnv    INFO Dictionary LArCalorimeter       version fullAtlas            DetDescr tag LArIdentifier-DC3-05-Comm file IdDictParser/IdDictLArCalorimeter_DC3-05-Comm-01.xml
+IdDictDetDescrCnv    INFO Dictionary LArElectrode         version fullAtlas            DetDescr tag (using default) file 
+IdDictDetDescrCnv    INFO Dictionary LArHighVoltage       version fullAtlas            DetDescr tag (using default) file 
+IdDictDetDescrCnv    INFO Dictionary MuonSpectrometer     version R.03                 DetDescr tag MuonIdentifier-08         file IdDictParser/IdDictMuonSpectrometer_R.03.xml
+IdDictDetDescrCnv    INFO Dictionary TileCalorimeter      version fullAtlasAndTestBeam DetDescr tag TileIdentifier-00         file IdDictParser/IdDictTileCalorimeter.xml
+LArElectrodeID       INFO  => initialize_from_dictionary()
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+LArHVLineIDDetD...   INFO in createObj: creating a LArHVLineID helper object in the detector store
+LArHVLineID          INFO  => initialize_from_dictionary()
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+LArHVLineID          INFO  => initialize_from_dictionary(dict_mgr) =0
+LArHVLineID          INFO Register_dict_tag of LArHighVoltage is OK
+LArHVLineID          INFO setDictVersion of LArHighVoltage is OK
+LArHVLineID          INFO [initLevelsFromDict] m_dict OK ... 
+LArHVLineID          INFO [initialize_from_dictionary] >  HV line range -> 11/1/48:79/0:15 | 11/1/148:179/0:15 | 11/1/80:93/0:7 | 11/1/180:193/0:7 | 11/1/200:231/0:15 | 11/1/232:263/0:15 | 11/1/296,297,306,307/0:15 | 11/1/299,304,305,308,309/0:15 | 11/1/264:279/0:15 | 11/1/280:295/0:15 | 11/1/0:47/0:15 | 11/1/320:322/0:15 | 11/1/100:147/0:15 | 11/1/324,325/0:15 | 11/1/312:315/0:15 | 11/1/316:319/0:15 | 11/1/300:303/0:15 | 11/1/310,311/0:15 | 11/1/323/0:15 | 11/1/326,327/0:15 | 11/1/94:99/0:15 | 11/1/194:199/0:15
+LArHVLineID          INFO [init_hashes()] > Hvline_size= 5008
+GeoModelSvc.LAr...   INFO Keys for LAr are ATLAS-R2-2016-01-00-01  ATLAS
+GeoModelSvc.LAr...   INFO Building LAr version LAr-Revised-17-01 while ATLAS version is ATLAS-R2-2016-01-00-01
+GeoModelSvc.LAr...   INFO LAr Geometry Options:
+GeoModelSvc.LAr...   INFO   Sagging           = false
+GeoModelSvc.LAr...   INFO   Barrel            = ON
+GeoModelSvc.LAr...   INFO   Endcap            = ON
+BarrelConstruction   INFO Getting primary numbers for ATLAS, ATLAS-R2-2016-01-00-01
+BarrelConstruction   INFO   Makes detailed absorber sandwich  ? 1 1
+BarrelConstruction   INFO   Use sagging in geometry  ? 0
+EMECConstruction     INFO multi-layered version of absorbers activated, parameter value is 1
+EMECConstruction     INFO activating LAr::EMEC::Pos::InnerWheel
+EMECConstruction     INFO activating LAr::EMEC::Pos::OuterWheel
+ClassIDSvc           INFO  getRegistryEntries: read 2852 CLIDRegistry entries for module ALL
+CaloIDHelper_ID...   INFO in createObj: creating a TileTBID helper object in the detector store
+TileTBID             INFO initialize_from_dictionary 
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+EndcapDMConstru...   INFO Start building EC electronics geometry
+EMECConstruction     INFO multi-layered version of absorbers activated, parameter value is 1
+EMECConstruction     INFO activating LAr::EMEC::Neg::InnerWheel
+EMECConstruction     INFO activating LAr::EMEC::Neg::OuterWheel
+EndcapDMConstru...   INFO Start building EC electronics geometry
+GeoModelSvc          INFO GeoModelSvc.LArDetectorToolNV	 SZ= 25372Kb 	 Time = 0.48S
+GeoModelSvc.Til...   INFO  Entering TileDetectorTool::create()
+TileDddbManager      INFO m_tag = ATLAS-R2-2016-01-00-01
+TileDddbManager      INFO n_tiglob = 5
+TileDddbManager      INFO n_timod = 320
+TileDddbManager      INFO n_cuts = 9
+TileDddbManager      INFO n_saddle = 1
+TileDddbManager      INFO n_tilb = 21
+TileDddbManager      INFO n_tileSwitches = 1
+CaloIDHelper_ID...   INFO in createObj: creating a TileID helper object in the detector store
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+TileNeighbour        INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2021-02-23T2101/Athena/22.0.28/InstallArea/x86_64-centos7-gcc8-opt/share/TileNeighbour_reduced.txt
+TileHWIDDetDesc...   INFO in createObj: creating a TileHWID helper object in the detector store
+TileHWID             INFO initialize_from_dictionary 
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+ClassIDSvc           INFO  getRegistryEntries: read 55 CLIDRegistry entries for module ALL
+CaloIDHelper_ID...   INFO in createObj: creating a CaloCell_ID helper object in the detector store
+CaloIDHelper_ID...   INFO in createObj: creating a LArEM_ID helper object in the detector store
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+CaloIDHelper_ID...   INFO in createObj: creating a LArHEC_ID helper object in the detector store
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+CaloIDHelper_ID...   INFO in createObj: creating a LArFCAL_ID helper object in the detector store
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2021-02-23T2101/Athena/22.0.28/InstallArea/x86_64-centos7-gcc8-opt/share/FCal2DNeighbors-April2011.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2021-02-23T2101/Athena/22.0.28/InstallArea/x86_64-centos7-gcc8-opt/share/FCal3DNeighborsNext-April2011.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2021-02-23T2101/Athena/22.0.28/InstallArea/x86_64-centos7-gcc8-opt/share/FCal3DNeighborsPrev-April2011.txt
+CaloIDHelper_ID...   INFO in createObj: creating a LArMiniFCAL_ID helper object in the detector store
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+LArMiniFCAL_ID       INFO  initialize_from_dict - LArCalorimeter dictionary does NOT contain miniFCAL description. Unable to initialize LArMiniFCAL_ID.
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+GeoModelSvc.Til...   INFO  U-shape parameter from database is: 1
+GeoModelSvc.Til...   INFO  Glue parameter from database is: 1
+GeoModelSvc.Til...   INFO  Cs Tube parameter from database is: 0
+GeoModelSvc.Til...   INFO  Entering TileAtlasFactory::create()
+GeoModelSvc.Til...   INFO  Tile Geometry with Saddle supports, starting from TileCal-CSC-02 xxx
+GeoModelSvc.Til...   INFO  => New BFingerLengthPos 430.5
+GeoModelSvc.Til...   INFO  => New BFingerLengthNeg 420.5
+GeoModelSvc.Til...   INFO  Positioning barrel with translation 0
+GeoModelSvc.Til...   INFO  Positioning positive barrel finger with translation 3035.25
+GeoModelSvc.Til...   INFO  Positioning negative barrel finger with translation -3030.25
+GeoModelSvc.Til...   INFO  Positioning positive ext.barrel with translation 4854.75
+GeoModelSvc.Til...   INFO  Positioning positive ext.barrel finger with translation ztrans= 6338.5
+GeoModelSvc.Til...   INFO  Positioning positive ext.barrel saddle with translation ztrans= 6192.5
+GeoModelSvc.Til...   INFO  Positive ITC envelope parameters: PLUG1  Rmin= 3438.85 Rmax= 4250 dzITC1= 154.5
+GeoModelSvc.Til...   INFO                                    PLUG2  Rmin= 2981 Rmax= 3440 dzITC2= 47.425
+GeoModelSvc.Til...   INFO  Positioning positive ITC with translation 3405
+GeoModelSvc.Til...   INFO  Positioning positive Gap with translation 3552
+GeoModelSvc.Til...   INFO  Positioning positive Crack with translation 3536
+GeoModelSvc.Til...   INFO  Positioning negative ext.barrel with translation ztrans -4854.75
+GeoModelSvc.Til...   INFO  Positioning negative ext.barrel finger with translation ztrans= -6338.5
+GeoModelSvc.Til...   INFO  Positioning negative ext.barrel saddle with translation ztrans= -6192.5
+GeoModelSvc.Til...   INFO  Negative ITC envelope parameters: PLUG1  Rmin= 3438.85 Rmax= 4250 dzITC1= 154.5
+GeoModelSvc.Til...   INFO                                    PLUG2  Rmin= 2981 Rmax= 3440 dzITC2= 47.425
+GeoModelSvc.Til...   INFO  Positioning negative ITC with translation -3405
+GeoModelSvc.Til...   INFO  Positioning negative Gap with translation -3552
+GeoModelSvc.Til...   INFO  Positioning negative Crack with translation -3536
+GeoModelSvc.Til...   INFO  Global positioning of barrel with rotation (0,0,0)) and translation (0,0,0) Gaudi::Units::cm
+GeoModelSvc.Til...   INFO  Global positioning of positive ext.barrel with rotation (0,0,0)) and translation (0,0,0) Gaudi::Units::cm
+GeoModelSvc.Til...   INFO  Global positioning of negative ext.barrel with rotation (0,0,0)) and translation (0,0,1) Gaudi::Units::cm
+TileDetDescrMan...   INFO Entering create_elements()
+GeoModelSvc          INFO GeoModelSvc.TileDetectorTool	 SZ= 3576Kb 	 Time = 0.15S
+ClassIDSvc           INFO  getRegistryEntries: read 67 CLIDRegistry entries for module ALL
 TagInfoMgr          DEBUG adding IOV callback object to DetStore
 TagInfoMgr          DEBUG Registered IOV callback for TagInfo changes
+TagInfoMgr          DEBUG addTag - adding name/value pairs: GeoAtlas ATLAS-R2-2016-01-00-01
+GeoModelSvc          INFO   AlgTool: GeoModelSvc.LArDetectorToolNV
+GeoModelSvc          INFO   AlgTool: GeoModelSvc.TileDetectorTool
+TileInfoLoader       INFO Changing TTL1 calib from 4.1 to 6.9
+TileInfoLoader       INFO Changing TTL1 noise sigma from 2.5 to 2.8
+CaloIDHelper_ID...   INFO in createObj: creating a CaloLVL1_ID helper object in the detector store
+CaloLVL1_ID          INFO initialize_from_dictionary
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+TileCablingSvc       INFO RUN2 ATLAS geometry flag detected for geometry: ATLAS-R2-2016-01-00-01
+TileCablingSvc       INFO Cabling for RUN2a (2018) ATLAS geometry is set via jobOptions 
+TileCablingSvc       INFO Setting Cabling type to 5
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
+ClassIDSvc           INFO  getRegistryEntries: read 270 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 4760 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 618 CLIDRegistry entries for module ALL
+CondInputLoader      INFO Initializing CondInputLoader...
+CondInputLoader      INFO Adding base classes:
+  +  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/BadChannels/MissingFEBs' )   ->
+  +  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/Identifier/CalibIdMap' )   ->
+  +  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/Identifier/FebRodMap' )   ->
+  +  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/Identifier/OnOffIdMap' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/LAR/BadChannels/BadChannels' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/CALIB/CES' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/CALIB/CIS/FIT/LIN' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/CALIB/CIS/FIT/NLN' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/CALIB/EMS' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/CALIB/LAS/FIBER' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/CALIB/LAS/LIN' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/CALIB/LAS/NLN' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/NOISE/SAMPLE' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/STATUS/ADC' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/TIME/CHANNELOFFSET/PHY' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/ONL01/STATUS/ADC' )   ->
+  +  ( 'LArAutoCorrMC' , 'ConditionStore+LArAutoCorr' )   -> ILArAutoCorr (8124)
+  +  ( 'LArDAC2uAMC' , 'ConditionStore+LArDAC2uA' )   -> ILArDAC2uA (579584)
+  +  ( 'LArHVScaleCorrComplete' , 'ConditionStore+LArHVScaleCorr' )   -> ILArHVScaleCorr (93397263)
+  +  ( 'LArMinBiasAverageMC' , 'ConditionStore+LArMinBiasAverage' )   -> ILArMinBiasAverage (112216056)
+  +  ( 'LArMinBiasMC' , 'ConditionStore+LArMinBias' )   -> ILArMinBias (197482938)
+  +  ( 'LArMphysOverMcalMC' , 'ConditionStore+LArMphysOverMcal' )   -> ILArMphysOverMcal (128308807)
+  +  ( 'LArNoiseMC' , 'ConditionStore+LArNoise' )   -> ILArNoise (8125)
+  +  ( 'LArPedestalMC' , 'ConditionStore+LArPedestal' )   -> ILArPedestal (8122)
+  +  ( 'LArRampMC' , 'ConditionStore+LArRamp' )   -> ILArRamp (8123)
+  +  ( 'LArShape32MC' , 'ConditionStore+LArShape' )   -> ILArShape (245731716)
+  +  ( 'LArfSamplMC' , 'ConditionStore+LArfSampl' )   -> ILArfSampl (128126607)
+  +  ( 'LAruA2MeVMC' , 'ConditionStore+LAruA2MeV' )   -> ILAruA2MeV (154639332)
+CondInputLoader      INFO Will create WriteCondHandle dependencies for the following DataObjects:
+    +  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/BadChannels/MissingFEBs' ) 
+    +  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/Identifier/CalibIdMap' ) 
+    +  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/Identifier/FebRodMap' ) 
+    +  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/Identifier/OnOffIdMap' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/LAR/BadChannels/BadChannels' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/CALIB/CES' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/CALIB/CIS/FIT/LIN' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/CALIB/CIS/FIT/NLN' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/CALIB/EMS' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/CALIB/LAS/FIBER' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/CALIB/LAS/LIN' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/CALIB/LAS/NLN' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/NOISE/SAMPLE' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/STATUS/ADC' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/TIME/CHANNELOFFSET/PHY' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/ONL01/STATUS/ADC' ) 
+    +  ( 'ILArAutoCorr' , 'ConditionStore+LArAutoCorr' ) 
+    +  ( 'ILArDAC2uA' , 'ConditionStore+LArDAC2uA' ) 
+    +  ( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorr' ) 
+    +  ( 'ILArMinBias' , 'ConditionStore+LArMinBias' ) 
+    +  ( 'ILArMinBiasAverage' , 'ConditionStore+LArMinBiasAverage' ) 
+    +  ( 'ILArMphysOverMcal' , 'ConditionStore+LArMphysOverMcal' ) 
+    +  ( 'ILArNoise' , 'ConditionStore+LArNoise' ) 
+    +  ( 'ILArPedestal' , 'ConditionStore+LArPedestal' ) 
+    +  ( 'ILArRamp' , 'ConditionStore+LArRamp' ) 
+    +  ( 'ILArShape' , 'ConditionStore+LArShape' ) 
+    +  ( 'ILArfSampl' , 'ConditionStore+LArfSampl' ) 
+    +  ( 'ILAruA2MeV' , 'ConditionStore+LAruA2MeV' ) 
+    +  ( 'LArAutoCorrMC' , 'ConditionStore+LArAutoCorr' ) 
+    +  ( 'LArDAC2uAMC' , 'ConditionStore+LArDAC2uA' ) 
+    +  ( 'LArHVScaleCorrComplete' , 'ConditionStore+LArHVScaleCorr' ) 
+    +  ( 'LArMinBiasAverageMC' , 'ConditionStore+LArMinBiasAverage' ) 
+    +  ( 'LArMinBiasMC' , 'ConditionStore+LArMinBias' ) 
+    +  ( 'LArMphysOverMcalMC' , 'ConditionStore+LArMphysOverMcal' ) 
+    +  ( 'LArNoiseMC' , 'ConditionStore+LArNoise' ) 
+    +  ( 'LArPedestalMC' , 'ConditionStore+LArPedestal' ) 
+    +  ( 'LArRampMC' , 'ConditionStore+LArRamp' ) 
+    +  ( 'LArShape32MC' , 'ConditionStore+LArShape' ) 
+    +  ( 'LArfSamplMC' , 'ConditionStore+LArfSampl' ) 
+    +  ( 'LAruA2MeVMC' , 'ConditionStore+LAruA2MeV' ) 
+TileBadChannels...   INFO Creating TileCondProxyCool(TileBadChannelsCondAlg.TileCondProxyCool_OnlBch) for folder: "/TILE/ONL01/STATUS/ADC"
+TileBadChannels...   INFO Creating TileCondProxyCool(TileBadChannelsCondAlg.TileCondProxyCool_OflBch) for folder: "/TILE/OFL02/STATUS/ADC"
+TileBadChannels...   INFO ProxyOnlBch and ProxyOflBch will be used for bad channel status
+TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OflCisLin) for folder: "/TILE/OFL02/CALIB/CIS/FIT/LIN"
+TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OflCisNln) for folder: "/TILE/OFL02/CALIB/CIS/FIT/NLN"
+TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OflLasLin) for folder: "/TILE/OFL02/CALIB/LAS/LIN"
+TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OflLasNln) for folder: "/TILE/OFL02/CALIB/LAS/NLN"
+TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OflLasFib) for folder: "/TILE/OFL02/CALIB/LAS/FIBER"
+TileEMScaleCondAlg   INFO ProxyOflLasFib is set up and can be used
+TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OflCes) for folder: "/TILE/OFL02/CALIB/CES"
+TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OflEms) for folder: "/TILE/OFL02/CALIB/EMS"
+TileEMScaleCondAlg   INFO Undoing online calibration is not requested, since OnlCacheUnit= 'OnlCacheUnit':'Invalid'
+TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OnlCis) for folder: "/TILE/OFL02/CALIB/CIS/FIT/LIN"
+TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OnlLas) for folder: "/TILE/OFL02/CALIB/LAS/LIN"
+TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OnlCes) for folder: "/TILE/OFL02/CALIB/CES"
+TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OnlEms) for folder: "/TILE/OFL02/CALIB/EMS"
+TileSampleNoise...   INFO Creating TileCondProxyCool(TileSampleNoiseCondAlg.TileCondProxyCool_NoiseSample) for folder: "/TILE/OFL02/NOISE/SAMPLE"
+TileTimingCondA...   INFO Creating TileCondProxyCool(TileTimingCondAlg.TileCondProxyCool_AdcOffset) for folder: "/TILE/OFL02/TIME/CHANNELOFFSET/PHY"
+EventInfoWriter     DEBUG Property update for OutputLevel : new value = 2
 EventInfoWriter     DEBUG EventInfoWriter::initialize()
 EventInfoWriter     DEBUG CreateDummyTags          'CreateDummyTags':False
 EventInfoWriter     DEBUG RemoveDummyTags          'RemoveDummyTags':False
 EventInfoWriter     DEBUG CreateDummyOverrideTags  'CreateDummyOverrideTags':False
 TagInfoMgr          DEBUG in queryInterface()
 TagInfoMgr          DEBUG matched ITagInfoMgr
+TagInfoMgr          DEBUG addTag - adding name/value pairs: EventInfoWriterTag EIW-00-00-01
 EventInfoWriter     DEBUG Added tag to TagInfoMgr
 EventInfoWriter     DEBUG EventInfoWriter::fillTagInfo()
 EventInfoWriter     DEBUG Called fillTagInfo
+EventInfoWriter     DEBUG input handles: 0
+EventInfoWriter     DEBUG output handles: 0
+EventInfoWriter     DEBUG Data Deps for EventInfoWriter
+ClassIDSvc           INFO  getRegistryEntries: read 1488 CLIDRegistry entries for module ALL
+DecisionSvc          INFO Inserting stream: Stream1 with no Algs
+Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version AthenaServices-00-00-00
+Stream1.Stream1...   INFO Initializing Stream1.Stream1_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
+Stream1              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream1_MakeEventStreamInfo','xAODMaker::EventFormatStreamHelperTool/Stream1_MakeEventFormat','xAODMaker::FileMetaDataCreatorTool/FileMetaDataCreatorTool','Athena::ThinningCacheTool/ThinningCacheTool_Stream1'])
+Stream1              INFO Data output: EventInfoPoolFile1.root
+Stream1              INFO I/O reinitialization...
+AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
+ApplicationMgr       INFO Application Manager Initialized successfully
+/cvmfs/atlas-ni...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 31DE0B3D-AFB0-F440-859A-6F1190556366
+Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
+DbSession            INFO     Open     DbSession    
+Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 31DE0B3D-AFB0-F440-859A-6F1190556366
+Domain[ROOT_All]     INFO                           /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/atlas/offline/ReleaseData/v20/testfile/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_10evt.pool.root
+RootDatabase.open    INFO /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/atlas/offline/ReleaseData/v20/testfile/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_10evt.pool.root File version:53409
 TagInfoMgr          DEBUG start()
+ClassIDSvc           INFO  getRegistryEntries: read 1011 CLIDRegistry entries for module ALL
 TagInfoMgr          DEBUG Registered checkTagInfo callback for  /TagInfo 
+CondInputLoader      INFO created CondCont<AthenaAttributeList> with key 'ConditionStore+/LAR/BadChannels/MissingFEBs'
+CondInputLoader      INFO created CondCont<AthenaAttributeList> with key 'ConditionStore+/LAR/Identifier/CalibIdMap'
+CondInputLoader      INFO created CondCont<AthenaAttributeList> with key 'ConditionStore+/LAR/Identifier/FebRodMap'
+CondInputLoader      INFO created CondCont<AthenaAttributeList> with key 'ConditionStore+/LAR/Identifier/OnOffIdMap'
+CondInputLoader      INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/LAR/BadChannels/BadChannels'
+CondInputLoader      INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/TILE/OFL02/CALIB/CES'
+CondInputLoader      INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/TILE/OFL02/CALIB/CIS/FIT/LIN'
+CondInputLoader      INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/TILE/OFL02/CALIB/CIS/FIT/NLN'
+CondInputLoader      INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/TILE/OFL02/CALIB/EMS'
+CondInputLoader      INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/TILE/OFL02/CALIB/LAS/FIBER'
+CondInputLoader      INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/TILE/OFL02/CALIB/LAS/LIN'
+CondInputLoader      INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/TILE/OFL02/CALIB/LAS/NLN'
+CondInputLoader      INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/TILE/OFL02/NOISE/SAMPLE'
+CondInputLoader      INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/TILE/OFL02/STATUS/ADC'
+CondInputLoader      INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/TILE/OFL02/TIME/CHANNELOFFSET/PHY'
+CondInputLoader      INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/TILE/ONL01/STATUS/ADC'
+CondInputLoader      INFO created CondCont<LArAutoCorrMC> with key 'ConditionStore+LArAutoCorr'
+CondInputLoader      INFO created CondCont<LArDAC2uAMC> with key 'ConditionStore+LArDAC2uA'
+CondInputLoader      INFO created CondCont<LArHVScaleCorrComplete> with key 'ConditionStore+LArHVScaleCorr'
+CondInputLoader      INFO created CondCont<LArMinBiasAverageMC> with key 'ConditionStore+LArMinBiasAverage'
+CondInputLoader      INFO created CondCont<LArMinBiasMC> with key 'ConditionStore+LArMinBias'
+CondInputLoader      INFO created CondCont<LArMphysOverMcalMC> with key 'ConditionStore+LArMphysOverMcal'
+CondInputLoader      INFO created CondCont<LArNoiseMC> with key 'ConditionStore+LArNoise'
+CondInputLoader      INFO created CondCont<LArPedestalMC> with key 'ConditionStore+LArPedestal'
+CondInputLoader      INFO created CondCont<LArRampMC> with key 'ConditionStore+LArRamp'
+CondInputLoader      INFO created CondCont<LArShape32MC> with key 'ConditionStore+LArShape'
+CondInputLoader      INFO created CondCont<LArfSamplMC> with key 'ConditionStore+LArfSampl'
+CondInputLoader      INFO created CondCont<LAruA2MeVMC> with key 'ConditionStore+LAruA2MeV'
+ApplicationMgr       INFO Application Manager Started successfully
 TagInfoMgr          DEBUG handle: entering handle(), incidence type BeginInputFile from EventSelector
+AlgResourcePool      INFO TopAlg list empty. Recovering the one of Application Manager
+ClassIDSvc           INFO  getRegistryEntries: read 2 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 40 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 78 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 6 CLIDRegistry entries for module ALL
+AthenaEventLoopMgr   INFO   ===>>>  start of run 195847    <<<===
 TagInfoMgr          DEBUG handle: entering handle(), incidence type BeginRun from AthenaEventLoopMgr
-TagInfoMgr          DEBUG handle: BeginRun incident - Event ID: [1,1:0] 
-TagInfoMgr          DEBUG handle: currentRun = 1
-TagInfoMgr          DEBUG Signaled begin run to IOVDbSvc [1,1:0]
+TagInfoMgr          DEBUG handle: BeginRun incident - Event ID: [195847,16:1328040006] 
+TagInfoMgr          DEBUG handle: currentRun = 195847
+TagInfoMgr          DEBUG Signaled begin run to IOVDbSvc [195847,16:1328040006000000000]
 TagInfoMgr          DEBUG updateTagInfo: getting /TagInfo
+IOVDbSvc             INFO Opened read transaction for POOL PersistencySvc
 TagInfoMgr          DEBUG updateTagInfo: Retrieved TagInfo meta data from detStore. size 1
 TagInfoMgr          DEBUG fillTagInfo: 
 TagInfoMgr          DEBUG fillTagInfo: - tags coming from COOL file meta data
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
 TagInfoMgr          DEBUG fillTagInfo: Did NOT add tag - on remove list: name/tag: /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo /LAR/Identifier/FebRodAtlas FebRodAtlas-005
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag /LAR/Identifier/FebRodAtlas FebRodAtlas-005
 TagInfoMgr          DEBUG fillTagInfo: Did NOT add tag - on remove list: name/tag: /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
 TagInfoMgr          DEBUG fillTagInfo: Did NOT add tag - on remove list: name/tag: /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
 TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo AMITag d700
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag AMITag d700
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo AtlasRelease AtlasProduction-rel_1
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag AtlasRelease AtlasProduction-rel_1
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo AtlasRelease_ AtlasProduction-rel_1
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag AtlasRelease_ AtlasProduction-rel_1
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo BAR_Toroid BAR_Toroid
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag BAR_Toroid BAR_Toroid
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo ECT_Toroids ECT_Toroids
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag ECT_Toroids ECT_Toroids
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo Feet Feet
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag Feet Feet
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo GeoAtlas ATLAS-GEO-20-00-01
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag GeoAtlas ATLAS-GEO-20-00-01
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo HFTruckRail HFTruckRail
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag HFTruckRail HFTruckRail
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo IOVDbGlobalTag OFLCOND-MC12-SDR-06
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag IOVDbGlobalTag OFLCOND-MC12-SDR-06
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo JDSH_Shield JDSH_Shield
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag JDSH_Shield JDSH_Shield
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo JFSH_Shield JFSH_Shield
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag JFSH_Shield JFSH_Shield
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo JTSH_Shield JTSH_Shield
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag JTSH_Shield JTSH_Shield
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo MBAP_AccessPlatform MBAP_AccessPlatform
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag MBAP_AccessPlatform MBAP_AccessPlatform
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo MBWH_BigWheels MBWH_BigWheels
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag MBWH_BigWheels MBWH_BigWheels
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo MDTRail MDTRail
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag MDTRail MDTRail
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo MDT_CablingType NewMDT_Cabling
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag MDT_CablingType NewMDT_Cabling
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo RPC_CablingType MuonRPC_Cabling
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag RPC_CablingType MuonRPC_Cabling
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo RailAssembly RailAssembly
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag RailAssembly RailAssembly
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo TBWH_BigWheels TBWH_BigWheels
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag TBWH_BigWheels TBWH_BigWheels
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo TGC1_BigWheels TGC1_BigWheels
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag TGC1_BigWheels TGC1_BigWheels
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo TGC3_BigWheels TGC3_BigWheels
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag TGC3_BigWheels TGC3_BigWheels
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo TGC_CablingType TGCcabling12Svc
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag TGC_CablingType TGCcabling12Svc
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo beam_energy 4000000.0
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag beam_energy 4000000.0
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo beam_type collisions
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag beam_type collisions
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo pp2 pp2
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag pp2 pp2
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo project_name IS_SIMULATION
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag project_name IS_SIMULATION
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo servicesAtZ0 servicesAtZ0
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag servicesAtZ0 servicesAtZ0
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo specialConfiguration NONE
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag specialConfiguration NONE
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo triggerStreamOfFile 
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag triggerStreamOfFile 
 TagInfoMgr          DEBUG fillTagInfo: print out tags before adding extra tags
 TagInfoMgr          DEBUG TagInfo tag: 
+Current tags: 
+    /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
+    /LAR/Identifier/FebRodAtlas FebRodAtlas-005
+    /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
+    AMITag d700
+    AtlasRelease AtlasProduction-rel_1
+    AtlasRelease_ AtlasProduction-rel_1
+    BAR_Toroid BAR_Toroid
+    ECT_Toroids ECT_Toroids
+    Feet Feet
+    GeoAtlas ATLAS-GEO-20-00-01
+    HFTruckRail HFTruckRail
+    IOVDbGlobalTag OFLCOND-MC12-SDR-06
+    JDSH_Shield JDSH_Shield
+    JFSH_Shield JFSH_Shield
+    JTSH_Shield JTSH_Shield
+    MBAP_AccessPlatform MBAP_AccessPlatform
+    MBWH_BigWheels MBWH_BigWheels
+    MDTRail MDTRail
+    MDT_CablingType NewMDT_Cabling
+    RPC_CablingType MuonRPC_Cabling
+    RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+    RailAssembly RailAssembly
+    SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+    TBWH_BigWheels TBWH_BigWheels
+    TGC1_BigWheels TGC1_BigWheels
+    TGC3_BigWheels TGC3_BigWheels
+    TGC_CablingType TGCcabling12Svc
+    beam_energy 4000000.0
+    beam_type collisions
+    pp2 pp2
+    project_name IS_SIMULATION
+    servicesAtZ0 servicesAtZ0
+    specialConfiguration NONE
+    triggerStreamOfFile 
+Input tags: 
+    /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
+    /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+    /LAR/Identifier/FebRodAtlas FebRodAtlas-005
+    /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+    /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
+    /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+    AMITag d700
+    AtlasRelease AtlasProduction-rel_1
+    AtlasRelease_ AtlasProduction-rel_1
+    BAR_Toroid BAR_Toroid
+    ECT_Toroids ECT_Toroids
+    Feet Feet
+    GeoAtlas ATLAS-GEO-20-00-01
+    HFTruckRail HFTruckRail
+    IOVDbGlobalTag OFLCOND-MC12-SDR-06
+    JDSH_Shield JDSH_Shield
+    JFSH_Shield JFSH_Shield
+    JTSH_Shield JTSH_Shield
+    MBAP_AccessPlatform MBAP_AccessPlatform
+    MBWH_BigWheels MBWH_BigWheels
+    MDTRail MDTRail
+    MDT_CablingType NewMDT_Cabling
+    RPC_CablingType MuonRPC_Cabling
+    RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+    RailAssembly RailAssembly
+    SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+    TBWH_BigWheels TBWH_BigWheels
+    TGC1_BigWheels TGC1_BigWheels
+    TGC3_BigWheels TGC3_BigWheels
+    TGC_CablingType TGCcabling12Svc
+    beam_energy 4000000.0
+    beam_type collisions
+    pp2 pp2
+    project_name IS_SIMULATION
+    servicesAtZ0 servicesAtZ0
+    specialConfiguration NONE
+    triggerStreamOfFile 
+
 TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: AtlasRelease Athena-22.0.28
+TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: EventInfoWriterTag EIW-00-00-01
+TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: GeoAtlas ATLAS-R2-2016-01-00-01
 TagInfoMgr          DEBUG fillTagInfo: print out tags
 TagInfoMgr          DEBUG TagInfo tag: 
+Current tags: 
+    /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
+    /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+    /LAR/Identifier/FebRodAtlas FebRodAtlas-005
+    /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+    /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
+    /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+    AMITag d700
+    AtlasRelease Athena-22.0.28
+    AtlasRelease_ AtlasProduction-rel_1
+    BAR_Toroid BAR_Toroid
+    ECT_Toroids ECT_Toroids
+    EventInfoWriterTag EIW-00-00-01
+    Feet Feet
+    GeoAtlas ATLAS-R2-2016-01-00-01
+    HFTruckRail HFTruckRail
+    IOVDbGlobalTag OFLCOND-MC12-SDR-06
+    JDSH_Shield JDSH_Shield
+    JFSH_Shield JFSH_Shield
+    JTSH_Shield JTSH_Shield
+    MBAP_AccessPlatform MBAP_AccessPlatform
+    MBWH_BigWheels MBWH_BigWheels
+    MDTRail MDTRail
+    MDT_CablingType NewMDT_Cabling
+    RPC_CablingType MuonRPC_Cabling
+    RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+    RailAssembly RailAssembly
+    SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+    TBWH_BigWheels TBWH_BigWheels
+    TGC1_BigWheels TGC1_BigWheels
+    TGC3_BigWheels TGC3_BigWheels
+    TGC_CablingType TGCcabling12Svc
+    beam_energy 4000000.0
+    beam_type collisions
+    pp2 pp2
+    project_name IS_SIMULATION
+    servicesAtZ0 servicesAtZ0
+    specialConfiguration NONE
+    triggerStreamOfFile 
+Input tags: 
+    /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
+    /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+    /LAR/Identifier/FebRodAtlas FebRodAtlas-005
+    /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+    /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
+    /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+    AMITag d700
+    AtlasRelease AtlasProduction-rel_1
+    AtlasRelease_ AtlasProduction-rel_1
+    BAR_Toroid BAR_Toroid
+    ECT_Toroids ECT_Toroids
+    Feet Feet
+    GeoAtlas ATLAS-GEO-20-00-01
+    HFTruckRail HFTruckRail
+    IOVDbGlobalTag OFLCOND-MC12-SDR-06
+    JDSH_Shield JDSH_Shield
+    JFSH_Shield JFSH_Shield
+    JTSH_Shield JTSH_Shield
+    MBAP_AccessPlatform MBAP_AccessPlatform
+    MBWH_BigWheels MBWH_BigWheels
+    MDTRail MDTRail
+    MDT_CablingType NewMDT_Cabling
+    RPC_CablingType MuonRPC_Cabling
+    RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+    RailAssembly RailAssembly
+    SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+    TBWH_BigWheels TBWH_BigWheels
+    TGC1_BigWheels TGC1_BigWheels
+    TGC3_BigWheels TGC3_BigWheels
+    TGC_CablingType TGCcabling12Svc
+    beam_energy 4000000.0
+    beam_type collisions
+    pp2 pp2
+    project_name IS_SIMULATION
+    servicesAtZ0 servicesAtZ0
+    specialConfiguration NONE
+    triggerStreamOfFile 
+
 TagInfoMgr          DEBUG updateTagInfo: Filled TagInfo from file meta data 
 TagInfoMgr          DEBUG entering fillMetaData
 TagInfoMgr          DEBUG fillMetaData: Adding value/tag pairs to file meta data: 
+TagInfoMgr          DEBUG /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
 TagInfoMgr          DEBUG /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+TagInfoMgr          DEBUG /LAR/Identifier/FebRodAtlas FebRodAtlas-005
 TagInfoMgr          DEBUG /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+TagInfoMgr          DEBUG /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
 TagInfoMgr          DEBUG /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-TagInfoMgr          DEBUG IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-TagInfoMgr          DEBUG IOV minRange from IOVMetaData: {[1,0] - [3,0]}
-TagInfoMgr          DEBUG fillMetaData: run number is in previous IOVRange: 1 {[1,0] - [3,0]}
-TagInfoMgr          DEBUG fillMetaData: start, stop: [1,0] [3,0]
+TagInfoMgr          DEBUG AMITag d700
+TagInfoMgr          DEBUG AtlasRelease Athena-22.0.28
+TagInfoMgr          DEBUG AtlasRelease_ AtlasProduction-rel_1
+TagInfoMgr          DEBUG BAR_Toroid BAR_Toroid
+TagInfoMgr          DEBUG ECT_Toroids ECT_Toroids
+TagInfoMgr          DEBUG EventInfoWriterTag EIW-00-00-01
+TagInfoMgr          DEBUG Feet Feet
+TagInfoMgr          DEBUG GeoAtlas ATLAS-R2-2016-01-00-01
+TagInfoMgr          DEBUG HFTruckRail HFTruckRail
+TagInfoMgr          DEBUG IOVDbGlobalTag OFLCOND-MC12-SDR-06
+TagInfoMgr          DEBUG JDSH_Shield JDSH_Shield
+TagInfoMgr          DEBUG JFSH_Shield JFSH_Shield
+TagInfoMgr          DEBUG JTSH_Shield JTSH_Shield
+TagInfoMgr          DEBUG MBAP_AccessPlatform MBAP_AccessPlatform
+TagInfoMgr          DEBUG MBWH_BigWheels MBWH_BigWheels
+TagInfoMgr          DEBUG MDTRail MDTRail
+TagInfoMgr          DEBUG MDT_CablingType NewMDT_Cabling
+TagInfoMgr          DEBUG RPC_CablingType MuonRPC_Cabling
+TagInfoMgr          DEBUG RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+TagInfoMgr          DEBUG RailAssembly RailAssembly
+TagInfoMgr          DEBUG SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+TagInfoMgr          DEBUG TBWH_BigWheels TBWH_BigWheels
+TagInfoMgr          DEBUG TGC1_BigWheels TGC1_BigWheels
+TagInfoMgr          DEBUG TGC3_BigWheels TGC3_BigWheels
+TagInfoMgr          DEBUG TGC_CablingType TGCcabling12Svc
+TagInfoMgr          DEBUG beam_energy 4000000.0
+TagInfoMgr          DEBUG beam_type collisions
+TagInfoMgr          DEBUG pp2 pp2
+TagInfoMgr          DEBUG project_name IS_SIMULATION
+TagInfoMgr          DEBUG servicesAtZ0 servicesAtZ0
+TagInfoMgr          DEBUG specialConfiguration NONE
+TagInfoMgr          DEBUG triggerStreamOfFile 
+TagInfoMgr          DEBUG IOV minRange from IOVMetaData: {[195847,0] - [195848,0]}
+TagInfoMgr          DEBUG fillMetaData: run number is in previous IOVRange: 195847 {[195847,0] - [195848,0]}
+TagInfoMgr          DEBUG fillMetaData: start, stop: [195847,0] [195848,0]
 TagInfoMgr.IOVD...  DEBUG begin registerFolder 
 TagInfoMgr.IOVD...  DEBUG begin getMetaDataContainer 
 TagInfoMgr.IOVD...  DEBUG IOVMetaDataContainer already in MetaDataStore for folder /TagInfo
 TagInfoMgr.IOVD...  DEBUG IOVMetaDataContainer  for folder /TagInfo has been registered 
 TagInfoMgr.IOVD...  DEBUG begin addPayload 
 TagInfoMgr.IOVD...  DEBUG Retrieved IOVMetaDataContainer from MetaDataStore for folder /TagInfo
-TagInfoMgr.IOVD...  DEBUG Could not add new payload for folder /TagInfo (may be duplicate payload).
+TagInfoMgr.IOVD...  DEBUG Added new payload for folder /TagInfo
+TagInfoMgr.IOVD...  DEBUG {[195847,0] - [195848,0]} iov size 0
+chan, attr: 0
+[/GLOBAL/TrackingGeo/LayerMaterial (string) : TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas], [/LAR/Identifier/CalibIdMap (string) : LARIdentifierCalibIdMap-012], [/LAR/Identifier/FebRodAtlas (string) : FebRodAtlas-005], [/LAR/Identifier/FebRodMap (string) : LARIdentifierFebRodMap-005], [/LAR/Identifier/OnOffIdAtlas (string) : OnOffIdAtlas-012], [/LAR/Identifier/OnOffIdMap (string) : LARIdentifierOnOffIdMap-012], [AMITag (string) : d700], [AtlasRelease (string) : Athena-22.0.28], [AtlasRelease_ (string) : AtlasProduction-rel_1], [BAR_Toroid (string) : BAR_Toroid], [ECT_Toroids (string) : ECT_Toroids], [EventInfoWriterTag (string) : EIW-00-00-01], [Feet (string) : Feet], [GeoAtlas (string) : ATLAS-R2-2016-01-00-01], [HFTruckRail (string) : HFTruckRail], [IOVDbGlobalTag (string) : OFLCOND-MC12-SDR-06], [JDSH_Shield (string) : JDSH_Shield], [JFSH_Shield (string) : JFSH_Shield], [JTSH_Shield (string) : JTSH_Shield], [MBAP_AccessPlatform (string) : MBAP_AccessPlatform], [MBWH_BigWheels (string) : MBWH_BigWheels], [MDTRail (string) : MDTRail], [MDT_CablingType (string) : NewMDT_Cabling], [RPC_CablingType (string) : MuonRPC_Cabling], [RPC_TimeSchema (string) : Datalike_TOFoff_TimeShift5nsec], [RailAssembly (string) : RailAssembly], [SADL_CalorimeterSaddle (string) : SADL_CalorimeterSaddle], [TBWH_BigWheels (string) : TBWH_BigWheels], [TGC1_BigWheels (string) : TGC1_BigWheels], [TGC3_BigWheels (string) : TGC3_BigWheels], [TGC_CablingType (string) : TGCcabling12Svc], [beam_energy (string) : 4000000.0], [beam_type (string) : collisions], [pp2 (string) : pp2], [project_name (string) : IS_SIMULATION], [servicesAtZ0 (string) : servicesAtZ0], [specialConfiguration (string) : NONE], [triggerStreamOfFile (string) : ]
+
 TagInfoMgr          DEBUG updateTagInfo: Wrote TagInfo to MetaDataStore 
+IOVDbSvc             INFO Global tag: OFLCOND-MC12-SDR-06 set from input file
 TagInfoMgr          DEBUG handle: TagInfo successfully processed by IOVDbSvc to register callback
+ClassIDSvc           INFO  getRegistryEntries: read 15 CLIDRegistry entries for module ALL
+IOVDbSvc             INFO Opening COOL connection for COOLOFL_LAR/OFLP200
+IOVDbFolder          INFO HVS tag OFLCOND-MC12-SDR-06 resolved to LARAlign-mc11-00 for folder /LAR/Align
+IOVDbFolder          INFO HVS tag OFLCOND-MC12-SDR-06 resolved to LArBadChannelsBadChannels-IOVDEP-04 for folder /LAR/BadChannels/BadChannels
+IOVDbFolder          INFO HVS tag OFLCOND-MC12-SDR-06 resolved to LArBadChannelsMissingFEBs-IOVDEP-03 for folder /LAR/BadChannels/MissingFEBs
+IOVDbFolder          INFO HVS tag OFLCOND-MC12-SDR-06 resolved to LARElecCalibMCAutoCorr-Apr2010 for folder /LAR/ElecCalibMC/AutoCorr
+IOVDbFolder          INFO HVS tag OFLCOND-MC12-SDR-06 resolved to LArCellPositionShift-ideal for folder /LAR/LArCellPositionShift
+IOVDbFolder          INFO HVS tag OFLCOND-MC12-SDR-06 resolved to LARElecCalibMCDAC2uA-CSC02-J for folder /LAR/ElecCalibMC/DAC2uA
+IOVDbFolder          INFO HVS tag OFLCOND-MC12-SDR-06 resolved to LARElecCalibMCHVScaleCorr-183391 for folder /LAR/ElecCalibMC/HVScaleCorr
+IOVDbFolder          INFO HVS tag OFLCOND-MC12-SDR-06 resolved to LARElecCalibMCMinBias-CSC02-E for folder /LAR/ElecCalibMC/MinBias
+IOVDbFolder          INFO HVS tag OFLCOND-MC12-SDR-06 resolved to LARElecCalibMCMinBiasAverage-CSC02-I2 for folder /LAR/ElecCalibMC/MinBiasAverage
+IOVDbFolder          INFO HVS tag OFLCOND-MC12-SDR-06 resolved to LARElecCalibMCMphysOverMcal-CSC02-I for folder /LAR/ElecCalibMC/MphysOverMcal
+IOVDbFolder          INFO HVS tag OFLCOND-MC12-SDR-06 resolved to LARElecCalibMCNoise-Apr2010 for folder /LAR/ElecCalibMC/Noise
+IOVDbFolder          INFO HVS tag OFLCOND-MC12-SDR-06 resolved to LARElecCalibMCPedestal-DC3-B-IdFix7 for folder /LAR/ElecCalibMC/Pedestal
+IOVDbFolder          INFO HVS tag OFLCOND-MC12-SDR-06 resolved to LARElecCalibMCRamp-CSC02-K for folder /LAR/ElecCalibMC/Ramp
+IOVDbFolder          INFO HVS tag OFLCOND-MC12-SDR-06 resolved to LARElecCalibMCShape-Apr2010 for folder /LAR/ElecCalibMC/Shape
+IOVDbFolder          INFO HVS tag OFLCOND-MC12-SDR-06 resolved to LARIdentifierLArTTCellMapAtlas-HadFcalFix2 for folder /LAR/Identifier/LArTTCellMapAtlas
+IOVDbFolder          INFO HVS tag OFLCOND-MC12-SDR-06 resolved to LARElecCalibMCfSampl-G494-DetailedAbs-QGSP_BERT_BIRK for folder /LAR/ElecCalibMC/fSampl
+IOVDbFolder          INFO HVS tag OFLCOND-MC12-SDR-06 resolved to LARuA2MeV-Feb2011 for folder /LAR/ElecCalibMC/uA2MeV
+IOVDbSvc             INFO Disconnecting from COOLOFL_LAR/OFLP200
 TagInfoMgr          DEBUG updateAddress
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 06C9EAE8-6F5B-E011-BAAA-003048F0E7AC
+Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000029.gen.COND/cond09_mc.000029.gen.COND._0002.pool.root
+RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000029.gen.COND/cond09_mc.000029.gen.COND._0002.pool.root File version:52200
 TagInfoMgr          DEBUG IOV callback
 TagInfoMgr          DEBUG notifyListeners  (1 registered)
+GeoModelSvc         ERROR *** *** Geometry configured through jobOptions does not match TagInfo tags! *** ***
+GeoModelSvc          INFO ** Job Option configuration: 
+GeoModelSvc          INFO * ATLAS tag: ATLAS-R2-2016-01-00-01
+GeoModelSvc          INFO * InDet tag: 
+GeoModelSvc          INFO * Pixel tag: 
+GeoModelSvc          INFO * SCT   tag: 
+GeoModelSvc          INFO * TRT   tag: 
+GeoModelSvc          INFO * LAr   tag: 
+GeoModelSvc          INFO * Tile  tag: 
+GeoModelSvc          INFO * Muon  tag: 
+GeoModelSvc          INFO * Calo  tag: 
+GeoModelSvc          INFO * MagField  tag: 
+GeoModelSvc          INFO * CavernInfra  tag: 
+GeoModelSvc          INFO * ForwardDetectors  tag: 
+GeoModelSvc          INFO ** TAG INFO configuration: 
+GeoModelSvc          INFO * ATLAS tag: ATLAS-GEO-20-00-01
+GeoModelSvc          INFO *** *** Please fix geometry tag settings *** ***
 TagInfoMgr          DEBUG checkTagInfo IOV callback
 TagInfoMgr          DEBUG updateTagInfo: getting /TagInfo
 TagInfoMgr          DEBUG updateTagInfo: Retrieved TagInfo meta data from detStore. size 1
 TagInfoMgr          DEBUG fillTagInfo: 
 TagInfoMgr          DEBUG fillTagInfo: - tags coming from COOL file meta data
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
 TagInfoMgr          DEBUG fillTagInfo: Did NOT add tag - on remove list: name/tag: /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo /LAR/Identifier/FebRodAtlas FebRodAtlas-005
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag /LAR/Identifier/FebRodAtlas FebRodAtlas-005
 TagInfoMgr          DEBUG fillTagInfo: Did NOT add tag - on remove list: name/tag: /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
 TagInfoMgr          DEBUG fillTagInfo: Did NOT add tag - on remove list: name/tag: /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
 TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo AMITag d700
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag AMITag d700
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo AtlasRelease AtlasProduction-rel_1
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag AtlasRelease AtlasProduction-rel_1
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo AtlasRelease_ AtlasProduction-rel_1
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag AtlasRelease_ AtlasProduction-rel_1
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo BAR_Toroid BAR_Toroid
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag BAR_Toroid BAR_Toroid
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo ECT_Toroids ECT_Toroids
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag ECT_Toroids ECT_Toroids
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo Feet Feet
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag Feet Feet
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo GeoAtlas ATLAS-GEO-20-00-01
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag GeoAtlas ATLAS-GEO-20-00-01
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo HFTruckRail HFTruckRail
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag HFTruckRail HFTruckRail
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo IOVDbGlobalTag OFLCOND-MC12-SDR-06
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag IOVDbGlobalTag OFLCOND-MC12-SDR-06
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo JDSH_Shield JDSH_Shield
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag JDSH_Shield JDSH_Shield
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo JFSH_Shield JFSH_Shield
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag JFSH_Shield JFSH_Shield
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo JTSH_Shield JTSH_Shield
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag JTSH_Shield JTSH_Shield
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo MBAP_AccessPlatform MBAP_AccessPlatform
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag MBAP_AccessPlatform MBAP_AccessPlatform
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo MBWH_BigWheels MBWH_BigWheels
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag MBWH_BigWheels MBWH_BigWheels
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo MDTRail MDTRail
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag MDTRail MDTRail
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo MDT_CablingType NewMDT_Cabling
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag MDT_CablingType NewMDT_Cabling
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo RPC_CablingType MuonRPC_Cabling
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag RPC_CablingType MuonRPC_Cabling
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo RailAssembly RailAssembly
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag RailAssembly RailAssembly
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo TBWH_BigWheels TBWH_BigWheels
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag TBWH_BigWheels TBWH_BigWheels
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo TGC1_BigWheels TGC1_BigWheels
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag TGC1_BigWheels TGC1_BigWheels
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo TGC3_BigWheels TGC3_BigWheels
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag TGC3_BigWheels TGC3_BigWheels
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo TGC_CablingType TGCcabling12Svc
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag TGC_CablingType TGCcabling12Svc
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo beam_energy 4000000.0
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag beam_energy 4000000.0
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo beam_type collisions
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag beam_type collisions
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo pp2 pp2
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag pp2 pp2
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo project_name IS_SIMULATION
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag project_name IS_SIMULATION
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo servicesAtZ0 servicesAtZ0
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag servicesAtZ0 servicesAtZ0
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo specialConfiguration NONE
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag specialConfiguration NONE
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo triggerStreamOfFile 
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag triggerStreamOfFile 
 TagInfoMgr          DEBUG fillTagInfo: print out tags before adding extra tags
 TagInfoMgr          DEBUG TagInfo tag: 
+Current tags: 
+    /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
+    /LAR/Identifier/FebRodAtlas FebRodAtlas-005
+    /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
+    AMITag d700
+    AtlasRelease AtlasProduction-rel_1
+    AtlasRelease_ AtlasProduction-rel_1
+    BAR_Toroid BAR_Toroid
+    ECT_Toroids ECT_Toroids
+    Feet Feet
+    GeoAtlas ATLAS-GEO-20-00-01
+    HFTruckRail HFTruckRail
+    IOVDbGlobalTag OFLCOND-MC12-SDR-06
+    JDSH_Shield JDSH_Shield
+    JFSH_Shield JFSH_Shield
+    JTSH_Shield JTSH_Shield
+    MBAP_AccessPlatform MBAP_AccessPlatform
+    MBWH_BigWheels MBWH_BigWheels
+    MDTRail MDTRail
+    MDT_CablingType NewMDT_Cabling
+    RPC_CablingType MuonRPC_Cabling
+    RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+    RailAssembly RailAssembly
+    SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+    TBWH_BigWheels TBWH_BigWheels
+    TGC1_BigWheels TGC1_BigWheels
+    TGC3_BigWheels TGC3_BigWheels
+    TGC_CablingType TGCcabling12Svc
+    beam_energy 4000000.0
+    beam_type collisions
+    pp2 pp2
+    project_name IS_SIMULATION
+    servicesAtZ0 servicesAtZ0
+    specialConfiguration NONE
+    triggerStreamOfFile 
+Input tags: 
+    /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
+    /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+    /LAR/Identifier/FebRodAtlas FebRodAtlas-005
+    /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+    /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
+    /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+    AMITag d700
+    AtlasRelease AtlasProduction-rel_1
+    AtlasRelease_ AtlasProduction-rel_1
+    BAR_Toroid BAR_Toroid
+    ECT_Toroids ECT_Toroids
+    Feet Feet
+    GeoAtlas ATLAS-GEO-20-00-01
+    HFTruckRail HFTruckRail
+    IOVDbGlobalTag OFLCOND-MC12-SDR-06
+    JDSH_Shield JDSH_Shield
+    JFSH_Shield JFSH_Shield
+    JTSH_Shield JTSH_Shield
+    MBAP_AccessPlatform MBAP_AccessPlatform
+    MBWH_BigWheels MBWH_BigWheels
+    MDTRail MDTRail
+    MDT_CablingType NewMDT_Cabling
+    RPC_CablingType MuonRPC_Cabling
+    RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+    RailAssembly RailAssembly
+    SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+    TBWH_BigWheels TBWH_BigWheels
+    TGC1_BigWheels TGC1_BigWheels
+    TGC3_BigWheels TGC3_BigWheels
+    TGC_CablingType TGCcabling12Svc
+    beam_energy 4000000.0
+    beam_type collisions
+    pp2 pp2
+    project_name IS_SIMULATION
+    servicesAtZ0 servicesAtZ0
+    specialConfiguration NONE
+    triggerStreamOfFile 
+
 TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: AtlasRelease Athena-22.0.28
+TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: EventInfoWriterTag EIW-00-00-01
+TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: GeoAtlas ATLAS-R2-2016-01-00-01
 TagInfoMgr          DEBUG fillTagInfo: print out tags
 TagInfoMgr          DEBUG TagInfo tag: 
+Current tags: 
+    /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
+    /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+    /LAR/Identifier/FebRodAtlas FebRodAtlas-005
+    /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+    /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
+    /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+    AMITag d700
+    AtlasRelease Athena-22.0.28
+    AtlasRelease_ AtlasProduction-rel_1
+    BAR_Toroid BAR_Toroid
+    ECT_Toroids ECT_Toroids
+    EventInfoWriterTag EIW-00-00-01
+    Feet Feet
+    GeoAtlas ATLAS-R2-2016-01-00-01
+    HFTruckRail HFTruckRail
+    IOVDbGlobalTag OFLCOND-MC12-SDR-06
+    JDSH_Shield JDSH_Shield
+    JFSH_Shield JFSH_Shield
+    JTSH_Shield JTSH_Shield
+    MBAP_AccessPlatform MBAP_AccessPlatform
+    MBWH_BigWheels MBWH_BigWheels
+    MDTRail MDTRail
+    MDT_CablingType NewMDT_Cabling
+    RPC_CablingType MuonRPC_Cabling
+    RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+    RailAssembly RailAssembly
+    SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+    TBWH_BigWheels TBWH_BigWheels
+    TGC1_BigWheels TGC1_BigWheels
+    TGC3_BigWheels TGC3_BigWheels
+    TGC_CablingType TGCcabling12Svc
+    beam_energy 4000000.0
+    beam_type collisions
+    pp2 pp2
+    project_name IS_SIMULATION
+    servicesAtZ0 servicesAtZ0
+    specialConfiguration NONE
+    triggerStreamOfFile 
+Input tags: 
+    /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
+    /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+    /LAR/Identifier/FebRodAtlas FebRodAtlas-005
+    /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+    /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
+    /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+    AMITag d700
+    AtlasRelease AtlasProduction-rel_1
+    AtlasRelease_ AtlasProduction-rel_1
+    BAR_Toroid BAR_Toroid
+    ECT_Toroids ECT_Toroids
+    Feet Feet
+    GeoAtlas ATLAS-GEO-20-00-01
+    HFTruckRail HFTruckRail
+    IOVDbGlobalTag OFLCOND-MC12-SDR-06
+    JDSH_Shield JDSH_Shield
+    JFSH_Shield JFSH_Shield
+    JTSH_Shield JTSH_Shield
+    MBAP_AccessPlatform MBAP_AccessPlatform
+    MBWH_BigWheels MBWH_BigWheels
+    MDTRail MDTRail
+    MDT_CablingType NewMDT_Cabling
+    RPC_CablingType MuonRPC_Cabling
+    RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+    RailAssembly RailAssembly
+    SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+    TBWH_BigWheels TBWH_BigWheels
+    TGC1_BigWheels TGC1_BigWheels
+    TGC3_BigWheels TGC3_BigWheels
+    TGC_CablingType TGCcabling12Svc
+    beam_energy 4000000.0
+    beam_type collisions
+    pp2 pp2
+    project_name IS_SIMULATION
+    servicesAtZ0 servicesAtZ0
+    specialConfiguration NONE
+    triggerStreamOfFile 
+
 TagInfoMgr          DEBUG updateTagInfo: Filled TagInfo from file meta data 
 TagInfoMgr          DEBUG entering fillMetaData
 TagInfoMgr          DEBUG fillMetaData: Adding value/tag pairs to file meta data: 
+TagInfoMgr          DEBUG /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
 TagInfoMgr          DEBUG /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+TagInfoMgr          DEBUG /LAR/Identifier/FebRodAtlas FebRodAtlas-005
 TagInfoMgr          DEBUG /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+TagInfoMgr          DEBUG /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
 TagInfoMgr          DEBUG /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-TagInfoMgr          DEBUG IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-TagInfoMgr          DEBUG fillMetaData: run number is in previous IOVRange: 1 {[1,0] - [3,0]}
-TagInfoMgr          DEBUG fillMetaData: start, stop: [1,0] [3,0]
+TagInfoMgr          DEBUG AMITag d700
+TagInfoMgr          DEBUG AtlasRelease Athena-22.0.28
+TagInfoMgr          DEBUG AtlasRelease_ AtlasProduction-rel_1
+TagInfoMgr          DEBUG BAR_Toroid BAR_Toroid
+TagInfoMgr          DEBUG ECT_Toroids ECT_Toroids
+TagInfoMgr          DEBUG EventInfoWriterTag EIW-00-00-01
+TagInfoMgr          DEBUG Feet Feet
+TagInfoMgr          DEBUG GeoAtlas ATLAS-R2-2016-01-00-01
+TagInfoMgr          DEBUG HFTruckRail HFTruckRail
+TagInfoMgr          DEBUG IOVDbGlobalTag OFLCOND-MC12-SDR-06
+TagInfoMgr          DEBUG JDSH_Shield JDSH_Shield
+TagInfoMgr          DEBUG JFSH_Shield JFSH_Shield
+TagInfoMgr          DEBUG JTSH_Shield JTSH_Shield
+TagInfoMgr          DEBUG MBAP_AccessPlatform MBAP_AccessPlatform
+TagInfoMgr          DEBUG MBWH_BigWheels MBWH_BigWheels
+TagInfoMgr          DEBUG MDTRail MDTRail
+TagInfoMgr          DEBUG MDT_CablingType NewMDT_Cabling
+TagInfoMgr          DEBUG RPC_CablingType MuonRPC_Cabling
+TagInfoMgr          DEBUG RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+TagInfoMgr          DEBUG RailAssembly RailAssembly
+TagInfoMgr          DEBUG SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+TagInfoMgr          DEBUG TBWH_BigWheels TBWH_BigWheels
+TagInfoMgr          DEBUG TGC1_BigWheels TGC1_BigWheels
+TagInfoMgr          DEBUG TGC3_BigWheels TGC3_BigWheels
+TagInfoMgr          DEBUG TGC_CablingType TGCcabling12Svc
+TagInfoMgr          DEBUG beam_energy 4000000.0
+TagInfoMgr          DEBUG beam_type collisions
+TagInfoMgr          DEBUG pp2 pp2
+TagInfoMgr          DEBUG project_name IS_SIMULATION
+TagInfoMgr          DEBUG servicesAtZ0 servicesAtZ0
+TagInfoMgr          DEBUG specialConfiguration NONE
+TagInfoMgr          DEBUG triggerStreamOfFile 
+TagInfoMgr          DEBUG fillMetaData: run number is in previous IOVRange: 195847 {[195847,0] - [195848,0]}
+TagInfoMgr          DEBUG fillMetaData: start, stop: [195847,0] [195848,0]
 TagInfoMgr.IOVD...  DEBUG begin registerFolder 
 TagInfoMgr.IOVD...  DEBUG begin getMetaDataContainer 
 TagInfoMgr.IOVD...  DEBUG IOVMetaDataContainer already in MetaDataStore for folder /TagInfo
@@ -113,419 +1191,1100 @@ TagInfoMgr.IOVD...  DEBUG begin addPayload
 TagInfoMgr.IOVD...  DEBUG Retrieved IOVMetaDataContainer from MetaDataStore for folder /TagInfo
 TagInfoMgr.IOVD...  DEBUG Could not add new payload for folder /TagInfo (may be duplicate payload).
 TagInfoMgr          DEBUG updateTagInfo: Wrote TagInfo to MetaDataStore 
+CaloMgrDetDescrCnv   INFO in createObj: creating a Calo Detector Manager object in the detector store
+CaloIdMgrDetDes...   INFO in createObj: creating a CaloDescrManager object in the detector store
+ClassIDSvc           INFO  getRegistryEntries: read 196 CLIDRegistry entries for module ALL
+CaloIDHelper_ID...   INFO in createObj: creating a CaloDM_ID helper object in the detector store
+CaloDM_ID            INFO initialize_from_dictionary
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+CaloIDHelper_ID...   INFO in createObj: creating a TTOnlineID helper object in the detector store
+TTOnlineID           INFO initialize_from_dictionary
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+CaloIDHelper_ID...   INFO in createObj: creating a CaloCell_SuperCell_ID helper object in the detector store
+CaloIDHelper_ID...   INFO in createObj: creating a LArEM_SuperCell_ID helper object in the detector store
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+CaloIDHelper_ID...   INFO in createObj: creating a LArHEC_SuperCell_ID helper object in the detector store
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+CaloIDHelper_ID...   INFO in createObj: creating a LArFCAL_SuperCell_ID helper object in the detector store
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2021-02-23T2101/Athena/22.0.28/InstallArea/x86_64-centos7-gcc8-opt/share/FCalSuperCells2DNeighborsNew-April2014.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2021-02-23T2101/Athena/22.0.28/InstallArea/x86_64-centos7-gcc8-opt/share/FCalSuperCells3DNeighborsNextNew-April2014.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2021-02-23T2101/Athena/22.0.28/InstallArea/x86_64-centos7-gcc8-opt/share/FCalSuperCells3DNeighborsPrevNew-April2014.txt
+CaloIDHelper_ID...   INFO in createObj: creating a Tile_SuperCell_ID helper object in the detector store
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+TileNeighbour        INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2021-02-23T2101/Athena/22.0.28/InstallArea/x86_64-centos7-gcc8-opt/share/TileSuperCellNeighbour.txt
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+CaloIdMgrDetDes...   INFO  Finished 
+CaloIdMgrDetDes...   INFO Initializing CaloIdMgr from values in CaloIdMgrDetDescrCnv 
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 8667C6F2-1559-DE11-A611-000423D9A21A
+Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond08/cond08_mc.000003.gen.COND/cond08_mc.000003.gen.COND._0064.pool.root
+RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond08/cond08_mc.000003.gen.COND/cond08_mc.000003.gen.COND._0064.pool.root File version:52200
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #195847 0 events processed so far  <<<===
+IOVDbSvc             INFO Opening COOL connection for COOLOFL_TILE/OFLP200
+IOVDbFolder          INFO HVS tag OFLCOND-MC12-SDR-06 resolved to TileOfl02CalibCes-SIM-04 for folder /TILE/OFL02/CALIB/CES
+IOVDbFolder          INFO HVS tag OFLCOND-MC12-SDR-06 resolved to TileOfl02CalibCisFitLin-COM-00 for folder /TILE/OFL02/CALIB/CIS/FIT/LIN
+IOVDbFolder          INFO HVS tag OFLCOND-MC12-SDR-06 resolved to TileOfl02CalibCisFitNln-COM-00 for folder /TILE/OFL02/CALIB/CIS/FIT/NLN
+IOVDbFolder          INFO HVS tag OFLCOND-MC12-SDR-06 resolved to TileOfl02CalibEms-COM-00 for folder /TILE/OFL02/CALIB/EMS
+IOVDbFolder          INFO HVS tag OFLCOND-MC12-SDR-06 resolved to TileOfl02CalibLasFiber-000-00 for folder /TILE/OFL02/CALIB/LAS/FIBER
+IOVDbFolder          INFO HVS tag OFLCOND-MC12-SDR-06 resolved to TileOfl02CalibLasLin-COM-00 for folder /TILE/OFL02/CALIB/LAS/LIN
+IOVDbFolder          INFO HVS tag OFLCOND-MC12-SDR-06 resolved to TileOfl02CalibLasNln-COM-00 for folder /TILE/OFL02/CALIB/LAS/NLN
+IOVDbFolder          INFO HVS tag OFLCOND-MC12-SDR-06 resolved to TileOfl02NoiseSample-TwoGauss-13 for folder /TILE/OFL02/NOISE/SAMPLE
+IOVDbFolder          INFO HVS tag OFLCOND-MC12-SDR-06 resolved to TileOfl02StatusAdc-SDR-BS8T-05 for folder /TILE/OFL02/STATUS/ADC
+IOVDbFolder          INFO HVS tag OFLCOND-MC12-SDR-06 resolved to TileOfl02TimeChanneloffsetPhy-000-00 for folder /TILE/OFL02/TIME/CHANNELOFFSET/PHY
+IOVDbSvc             INFO Disconnecting from COOLOFL_TILE/OFLP200
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 9229AE70-AC4C-DF11-A934-003048D2BC4A
+Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000009.gen.COND/cond09_mc.000009.gen.COND._0011.pool.root
+RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000009.gen.COND/cond09_mc.000009.gen.COND._0011.pool.root File version:52200
+/cvmfs/atlas-ni...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 31DE0B3D-AFB0-F440-859A-6F1190556366
+LArOnlineIDDetD...   INFO in createObj: creating a LArOnlineID helper object in the detector store
+LArOnlineID          INFO initialize_from_dictionary
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 64ADE389-CABD-DD11-8D4C-000423D950B0
+Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond08/cond08_mc.000001.gen.COND/cond08_mc.000001.gen.COND._0053.pool.root
+Warning in <TClass::Init>: no dictionary for class DataHeader_p2 is available
+Warning in <TClass::Init>: no dictionary for class DataHeaderElement_p2 is available
+Warning in <TClass::Init>: no dictionary for class PoolToken_p1 is available
+RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond08/cond08_mc.000001.gen.COND/cond08_mc.000001.gen.COND._0053.pool.root File version:51800
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 06C9EAE8-6F5B-E011-BAAA-003048F0E7AC
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 7C42BC12-BD96-E011-B8EC-003048F0E01C
+Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000032.gen.COND/cond09_mc.000032.gen.COND._0001.pool.root
+RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000032.gen.COND/cond09_mc.000032.gen.COND._0001.pool.root File version:52600
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 8667C6F2-1559-DE11-A611-000423D9A21A
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 687EA080-E4B6-DD11-A149-000423D9907C
+Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond08/cond08_mc.000001.gen.COND/cond08_mc.000001.gen.COND._0067.pool.root
+RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond08/cond08_mc.000001.gen.COND/cond08_mc.000001.gen.COND._0067.pool.root File version:51800
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 9229AE70-AC4C-DF11-A934-003048D2BC4A
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] FE8535CE-AD50-DC11-952F-000423D67862
+Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/oflcond/oflcond.000003.conditions.simul.pool.v0000/oflcond.000003.conditions.simul.pool.v0000._0040.pool.root
+RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/oflcond/oflcond.000003.conditions.simul.pool.v0000/oflcond.000003.conditions.simul.pool.v0000._0040.pool.root File version:51400
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 64ADE389-CABD-DD11-8D4C-000423D950B0
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 3CE29BA7-A6DC-DC11-BF61-000423D65662
+Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/comcond/comcond.000004.lar_conditions.recon.pool.v0000/oflcond.000003.conditions.simul.pool.v0000._0044.pool.root
+RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/comcond/comcond.000004.lar_conditions.recon.pool.v0000/oflcond.000003.conditions.simul.pool.v0000._0044.pool.root File version:51400
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 7C42BC12-BD96-E011-B8EC-003048F0E01C
+RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000009.gen.COND/cond09_mc.000009.gen.COND._0011.pool.root File version:52200
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 687EA080-E4B6-DD11-A149-000423D9907C
+LArPedestalMCCnv     INFO Reading LArPedestalMC (original)
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 180A4AF2-F47E-DB11-9E8F-000E0C4DEA2D
+Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cmccond/cmccond.000001.conditions.simul.pool.v0000/oflcond.000002.conditions.simul.pool.v0000._0053.pool.root__DQ2-1250193473
+Warning in <TClass::Init>: no dictionary for class DataHeader_p1 is available
+Warning in <TClass::Init>: no dictionary for class DataHeaderElement_p1 is available
+RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cmccond/cmccond.000001.conditions.simul.pool.v0000/oflcond.000002.conditions.simul.pool.v0000._0053.pool.root__DQ2-1250193473 File version:51000
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] FE8535CE-AD50-DC11-952F-000423D67862
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 303FCBD8-653E-DD11-ABBD-000423D99862
+Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/oflcond/oflcond.000003.conditions.simul.pool.v0000/oflcond.000003.conditions.simul.pool.v0000._0061.pool.root
+RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/oflcond/oflcond.000003.conditions.simul.pool.v0000/oflcond.000003.conditions.simul.pool.v0000._0061.pool.root File version:51800
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 3CE29BA7-A6DC-DC11-BF61-000423D65662
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] F4885664-6C4D-DF11-A94A-00304867340C
+Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000009.gen.COND/cond09_mc.000009.gen.COND._0013.pool.root
+RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000009.gen.COND/cond09_mc.000009.gen.COND._0013.pool.root File version:52200
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 9229AE70-AC4C-DF11-A934-003048D2BC4A
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 526CDDE9-9B6A-E011-963A-003048F0E514
+Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000030.gen.COND/cond09_mc.000030.gen.COND._0004.pool.root
+RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000030.gen.COND/cond09_mc.000030.gen.COND._0004.pool.root File version:52600
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 180A4AF2-F47E-DB11-9E8F-000E0C4DEA2D
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] D27D07D4-C135-E011-84A9-003048F0E01E
+Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000027.gen.COND/cond09_mc.000027.gen.COND._0001.pool.root
+RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000027.gen.COND/cond09_mc.000027.gen.COND._0001.pool.root File version:52600
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 303FCBD8-653E-DD11-ABBD-000423D99862
+TileBadChannels...   INFO Updating TileBchStatus::isBad() definition from DB
+TileBadChannels...   INFO Updating TileBchStatus::isNoisy() definition from DB
+TileBadChannels...   INFO No TileBchStatus::isNoGainL1() definition found in DB, using defaults
+TileBadChannels...   INFO No TileBchStatus::isBadTiming() definition found in DB, using defaults
+TileBadChannels...   INFO No TileBchStatus::isWrongBCID() definition found in DB, using defaults
+TileBadChannels...   INFO TileBchStatus::isBad() is defined by: ADC masked (unspecified); ADC dead; Very large HF noise; No data; Wrong DSP configuration; Severe stuck bit; Severe data corruption; Channel masked (unspecified); No PMT connected; No HV; Wrong HV; 
+TileBadChannels...   INFO TileBchStatus::isNoisy() is defined by: Large HF noise; Correlated noise; Large LF noise; 
+TileBadChannels...   INFO TileBchStatus::isNoGainL1() is defined by: ADC dead; No PMT connected; No HV; Channel masked for LV1 (unspecified); LV1 channel no gain; LV1 channel noisy; Channel disabled for LV1; 
+TileBadChannels...   INFO TileBchStatus::isBadTiming() is defined by: Bad timing; Online bad timing; 
+TileBadChannels...   INFO TileBchStatus::isWrongBCID() is defined by: Wrong BCID; Online wrong BCID; 
+TileBadChannels...   INFO No drawer trips probabilities found in DB
+LArOnOffMappingAlg   INFO Done reading online/offline identifier mapping
+LArOnOffMappingAlg   INFO Found 195072 online identifier and 182468 offline identifier. 12604 disconnected channels.
+LArOnOffMappingAlg   INFO recorded new LArOnOffIdMap with range {[0,l:0] - [INVALID]} into Conditions Store
+LArCalibLineMap...   INFO Done reading readout/calibration line mapping.
+LArCalibLineMap...   INFO recorded new LArCalibLineMap with range {[0,l:0] - [INVALID]} into Conditions Store
+LArFebRodMappin...   INFO Done reading Feb/Rod mapping. Found 1524 Febs and 762 Rods
+LArFebRodMappin...   INFO recorded new LArFebRodMap with range {[0,l:0] - [INVALID]} into Conditions Store
+LArBadChannelCo...   INFO Read a total of 1480 problematic channels from database
+LArBadChannelCo...   INFO Recorded LArRawChannelCont object with key LArBadChannel with EventRange {[195700,t:0,l:0] - [INVALID]} into Conditions Store
+LArBadFebCondAlg     INFO Read a total of 1 problematic febs from database
+LArBadFebCondAlg     INFO Recorded LArBadFebCont object with LArBadFeb with EventRange {[195700,l:0] - [INVALID]} into Conditions Store
+LArKnownBadFebAlg    INFO Read a total of 0 problematic febs from database
+LArKnownBadFebAlg    INFO Recorded LArBadFebCont object with LArKnownBadFEBs with EventRange {[0,l:0] - [4294967294,l:4294967294]} into Conditions Store
+LArKnownMNBFebAlg    INFO Read a total of 0 problematic febs from database
+LArKnownMNBFebAlg    INFO Recorded LArBadFebCont object with LArKnownMNBFEBs with EventRange {[0,l:0] - [4294967294,l:4294967294]} into Conditions Store
+LArMCSymCondAlg      INFO recorded new LArMCSym with range {[0,l:0] - [INVALID]} into Conditions Store
+LArSymCondition...   INFO recorded new LArRampSym with range {[0,t:0,l:0] - [INVALID]} into Conditions Store
+LArSymCondition...   INFO recorded new LArAutoCorrSym with range {[0,t:0,l:0] - [INVALID]} into Conditions Store
+LArSymCondition...   INFO recorded new LArDAC2uASym with range {[0,t:0,l:0] - [INVALID]} into Conditions Store
+LArSymCondition...   INFO recorded new LArNoiseSym with range {[0,t:0,l:0] - [INVALID]} into Conditions Store
+LArSymCondition...   INFO recorded new LArfSamplSym with range {[0,t:0,l:0] - [INVALID]} into Conditions Store
+LArSymCondition...   INFO recorded new LAruA2MeVSym with range {[0,t:0,l:0] - [INVALID]} into Conditions Store
+LArSymCondition...   INFO recorded new LArMinBiasSym with range {[0,t:0,l:0] - [INVALID]} into Conditions Store
+LArSymCondition...   INFO recorded new LArMinBiasAverageSym with range {[0,t:0,l:0] - [INVALID]} into Conditions Store
+LArSymCondition...   INFO recorded new LArShapeSym with range {[0,t:0,l:0] - [INVALID]} into Conditions Store
+LArSymCondition...   INFO recorded new LArMphysOverMcalSym with range {[0,t:0,l:0] - [INVALID]} into Conditions Store
 EventInfoWriter     DEBUG EventInfoWriter::execute()
-EventInfoWriter     DEBUG Event ID: [1,4294967296:0] 
-EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Event ID: [195847,1:1328040006] 
+EventInfoWriter     DEBUG Event type: user type Overlaid
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodAtlas FebRodAtlas-005
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG     AMITag d700
+EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.28
+EventInfoWriter     DEBUG     AtlasRelease_ AtlasProduction-rel_1
+EventInfoWriter     DEBUG     BAR_Toroid BAR_Toroid
+EventInfoWriter     DEBUG     ECT_Toroids ECT_Toroids
+EventInfoWriter     DEBUG     EventInfoWriterTag EIW-00-00-01
+EventInfoWriter     DEBUG     Feet Feet
+EventInfoWriter     DEBUG     GeoAtlas ATLAS-R2-2016-01-00-01
+EventInfoWriter     DEBUG     HFTruckRail HFTruckRail
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-MC12-SDR-06
+EventInfoWriter     DEBUG     JDSH_Shield JDSH_Shield
+EventInfoWriter     DEBUG     JFSH_Shield JFSH_Shield
+EventInfoWriter     DEBUG     JTSH_Shield JTSH_Shield
+EventInfoWriter     DEBUG     MBAP_AccessPlatform MBAP_AccessPlatform
+EventInfoWriter     DEBUG     MBWH_BigWheels MBWH_BigWheels
+EventInfoWriter     DEBUG     MDTRail MDTRail
+EventInfoWriter     DEBUG     MDT_CablingType NewMDT_Cabling
+EventInfoWriter     DEBUG     RPC_CablingType MuonRPC_Cabling
+EventInfoWriter     DEBUG     RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+EventInfoWriter     DEBUG     RailAssembly RailAssembly
+EventInfoWriter     DEBUG     SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+EventInfoWriter     DEBUG     TBWH_BigWheels TBWH_BigWheels
+EventInfoWriter     DEBUG     TGC1_BigWheels TGC1_BigWheels
+EventInfoWriter     DEBUG     TGC3_BigWheels TGC3_BigWheels
+EventInfoWriter     DEBUG     TGC_CablingType TGCcabling12Svc
+EventInfoWriter     DEBUG     beam_energy 4000000.0
+EventInfoWriter     DEBUG     beam_type collisions
+EventInfoWriter     DEBUG     pp2 pp2
+EventInfoWriter     DEBUG     project_name IS_SIMULATION
+EventInfoWriter     DEBUG     servicesAtZ0 servicesAtZ0
+EventInfoWriter     DEBUG     specialConfiguration NONE
+EventInfoWriter     DEBUG     triggerStreamOfFile 
 EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG     /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodAtlas FebRodAtlas-005
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG     AMITag d700
+EventInfoWriter     DEBUG     AtlasRelease AtlasProduction-rel_1
+EventInfoWriter     DEBUG     AtlasRelease_ AtlasProduction-rel_1
+EventInfoWriter     DEBUG     BAR_Toroid BAR_Toroid
+EventInfoWriter     DEBUG     ECT_Toroids ECT_Toroids
+EventInfoWriter     DEBUG     Feet Feet
+EventInfoWriter     DEBUG     GeoAtlas ATLAS-GEO-20-00-01
+EventInfoWriter     DEBUG     HFTruckRail HFTruckRail
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-MC12-SDR-06
+EventInfoWriter     DEBUG     JDSH_Shield JDSH_Shield
+EventInfoWriter     DEBUG     JFSH_Shield JFSH_Shield
+EventInfoWriter     DEBUG     JTSH_Shield JTSH_Shield
+EventInfoWriter     DEBUG     MBAP_AccessPlatform MBAP_AccessPlatform
+EventInfoWriter     DEBUG     MBWH_BigWheels MBWH_BigWheels
+EventInfoWriter     DEBUG     MDTRail MDTRail
+EventInfoWriter     DEBUG     MDT_CablingType NewMDT_Cabling
+EventInfoWriter     DEBUG     RPC_CablingType MuonRPC_Cabling
+EventInfoWriter     DEBUG     RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+EventInfoWriter     DEBUG     RailAssembly RailAssembly
+EventInfoWriter     DEBUG     SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+EventInfoWriter     DEBUG     TBWH_BigWheels TBWH_BigWheels
+EventInfoWriter     DEBUG     TGC1_BigWheels TGC1_BigWheels
+EventInfoWriter     DEBUG     TGC3_BigWheels TGC3_BigWheels
+EventInfoWriter     DEBUG     TGC_CablingType TGCcabling12Svc
+EventInfoWriter     DEBUG     beam_energy 4000000.0
+EventInfoWriter     DEBUG     beam_type collisions
+EventInfoWriter     DEBUG     pp2 pp2
+EventInfoWriter     DEBUG     project_name IS_SIMULATION
+EventInfoWriter     DEBUG     servicesAtZ0 servicesAtZ0
+EventInfoWriter     DEBUG     specialConfiguration NONE
+EventInfoWriter     DEBUG     triggerStreamOfFile 
+EventInfoWriter     DEBUG Found Release version from TagInfoMgr: Athena-22.0.28
+ClassIDSvc           INFO  getRegistryEntries: read 1077 CLIDRegistry entries for module ALL
+DbSession            INFO     Open     DbSession    
+Domain[ROOT_All]     INFO >   Access   DbDomain     UPDATE    [ROOT_All] 
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   CREATE    [ROOT_All] E265D26F-ABE0-4945-9C4B-C0278D6759D7
+Domain[ROOT_All]     INFO                           EventInfoPoolFile1.root
+RootDatabase.open    INFO EventInfoPoolFile1.root File version:62200
+StorageSvc           INFO Building shape according to reflection information using shape ID for:
+StorageSvc           INFO PileUpEventInfo_p5 [F53A1735-F61A-4CA4-B25F-DB0E277E2DDC]
+StorageSvc           INFO Building shape according to reflection information using shape ID for:
+StorageSvc           INFO DataHeader_p6 [4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D]
+StorageSvc           INFO Building shape according to reflection information using shape ID for:
+StorageSvc           INFO DataHeaderForm_p6 [7BE56CEF-C866-4BEE-9348-A5F34B5F1DAD]
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #195847 1 events processed so far  <<<===
+RootDatabase.open    INFO /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/atlas/offline/ReleaseData/v20/testfile/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_10evt.pool.root File version:53409
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] F4885664-6C4D-DF11-A94A-00304867340C
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #195847 1 events processed so far  <<<===
 EventInfoWriter     DEBUG EventInfoWriter::execute()
-EventInfoWriter     DEBUG Event ID: [1,4294967297:5] 
-EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Event ID: [195847,2:1328040006] 
+EventInfoWriter     DEBUG Event type: user type Overlaid
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodAtlas FebRodAtlas-005
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG     AMITag d700
+EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.28
+EventInfoWriter     DEBUG     AtlasRelease_ AtlasProduction-rel_1
+EventInfoWriter     DEBUG     BAR_Toroid BAR_Toroid
+EventInfoWriter     DEBUG     ECT_Toroids ECT_Toroids
+EventInfoWriter     DEBUG     EventInfoWriterTag EIW-00-00-01
+EventInfoWriter     DEBUG     Feet Feet
+EventInfoWriter     DEBUG     GeoAtlas ATLAS-R2-2016-01-00-01
+EventInfoWriter     DEBUG     HFTruckRail HFTruckRail
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-MC12-SDR-06
+EventInfoWriter     DEBUG     JDSH_Shield JDSH_Shield
+EventInfoWriter     DEBUG     JFSH_Shield JFSH_Shield
+EventInfoWriter     DEBUG     JTSH_Shield JTSH_Shield
+EventInfoWriter     DEBUG     MBAP_AccessPlatform MBAP_AccessPlatform
+EventInfoWriter     DEBUG     MBWH_BigWheels MBWH_BigWheels
+EventInfoWriter     DEBUG     MDTRail MDTRail
+EventInfoWriter     DEBUG     MDT_CablingType NewMDT_Cabling
+EventInfoWriter     DEBUG     RPC_CablingType MuonRPC_Cabling
+EventInfoWriter     DEBUG     RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+EventInfoWriter     DEBUG     RailAssembly RailAssembly
+EventInfoWriter     DEBUG     SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+EventInfoWriter     DEBUG     TBWH_BigWheels TBWH_BigWheels
+EventInfoWriter     DEBUG     TGC1_BigWheels TGC1_BigWheels
+EventInfoWriter     DEBUG     TGC3_BigWheels TGC3_BigWheels
+EventInfoWriter     DEBUG     TGC_CablingType TGCcabling12Svc
+EventInfoWriter     DEBUG     beam_energy 4000000.0
+EventInfoWriter     DEBUG     beam_type collisions
+EventInfoWriter     DEBUG     pp2 pp2
+EventInfoWriter     DEBUG     project_name IS_SIMULATION
+EventInfoWriter     DEBUG     servicesAtZ0 servicesAtZ0
+EventInfoWriter     DEBUG     specialConfiguration NONE
+EventInfoWriter     DEBUG     triggerStreamOfFile 
 EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG     /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodAtlas FebRodAtlas-005
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG     AMITag d700
+EventInfoWriter     DEBUG     AtlasRelease AtlasProduction-rel_1
+EventInfoWriter     DEBUG     AtlasRelease_ AtlasProduction-rel_1
+EventInfoWriter     DEBUG     BAR_Toroid BAR_Toroid
+EventInfoWriter     DEBUG     ECT_Toroids ECT_Toroids
+EventInfoWriter     DEBUG     Feet Feet
+EventInfoWriter     DEBUG     GeoAtlas ATLAS-GEO-20-00-01
+EventInfoWriter     DEBUG     HFTruckRail HFTruckRail
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-MC12-SDR-06
+EventInfoWriter     DEBUG     JDSH_Shield JDSH_Shield
+EventInfoWriter     DEBUG     JFSH_Shield JFSH_Shield
+EventInfoWriter     DEBUG     JTSH_Shield JTSH_Shield
+EventInfoWriter     DEBUG     MBAP_AccessPlatform MBAP_AccessPlatform
+EventInfoWriter     DEBUG     MBWH_BigWheels MBWH_BigWheels
+EventInfoWriter     DEBUG     MDTRail MDTRail
+EventInfoWriter     DEBUG     MDT_CablingType NewMDT_Cabling
+EventInfoWriter     DEBUG     RPC_CablingType MuonRPC_Cabling
+EventInfoWriter     DEBUG     RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+EventInfoWriter     DEBUG     RailAssembly RailAssembly
+EventInfoWriter     DEBUG     SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+EventInfoWriter     DEBUG     TBWH_BigWheels TBWH_BigWheels
+EventInfoWriter     DEBUG     TGC1_BigWheels TGC1_BigWheels
+EventInfoWriter     DEBUG     TGC3_BigWheels TGC3_BigWheels
+EventInfoWriter     DEBUG     TGC_CablingType TGCcabling12Svc
+EventInfoWriter     DEBUG     beam_energy 4000000.0
+EventInfoWriter     DEBUG     beam_type collisions
+EventInfoWriter     DEBUG     pp2 pp2
+EventInfoWriter     DEBUG     project_name IS_SIMULATION
+EventInfoWriter     DEBUG     servicesAtZ0 servicesAtZ0
+EventInfoWriter     DEBUG     specialConfiguration NONE
+EventInfoWriter     DEBUG     triggerStreamOfFile 
+EventInfoWriter     DEBUG Found Release version from TagInfoMgr: Athena-22.0.28
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #195847 2 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #195847 2 events processed so far  <<<===
 EventInfoWriter     DEBUG EventInfoWriter::execute()
-EventInfoWriter     DEBUG Event ID: [1,4294967298:10] 
-EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Event ID: [195847,3:1328040006] 
+EventInfoWriter     DEBUG Event type: user type Overlaid
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodAtlas FebRodAtlas-005
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG     AMITag d700
+EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.28
+EventInfoWriter     DEBUG     AtlasRelease_ AtlasProduction-rel_1
+EventInfoWriter     DEBUG     BAR_Toroid BAR_Toroid
+EventInfoWriter     DEBUG     ECT_Toroids ECT_Toroids
+EventInfoWriter     DEBUG     EventInfoWriterTag EIW-00-00-01
+EventInfoWriter     DEBUG     Feet Feet
+EventInfoWriter     DEBUG     GeoAtlas ATLAS-R2-2016-01-00-01
+EventInfoWriter     DEBUG     HFTruckRail HFTruckRail
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-MC12-SDR-06
+EventInfoWriter     DEBUG     JDSH_Shield JDSH_Shield
+EventInfoWriter     DEBUG     JFSH_Shield JFSH_Shield
+EventInfoWriter     DEBUG     JTSH_Shield JTSH_Shield
+EventInfoWriter     DEBUG     MBAP_AccessPlatform MBAP_AccessPlatform
+EventInfoWriter     DEBUG     MBWH_BigWheels MBWH_BigWheels
+EventInfoWriter     DEBUG     MDTRail MDTRail
+EventInfoWriter     DEBUG     MDT_CablingType NewMDT_Cabling
+EventInfoWriter     DEBUG     RPC_CablingType MuonRPC_Cabling
+EventInfoWriter     DEBUG     RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+EventInfoWriter     DEBUG     RailAssembly RailAssembly
+EventInfoWriter     DEBUG     SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+EventInfoWriter     DEBUG     TBWH_BigWheels TBWH_BigWheels
+EventInfoWriter     DEBUG     TGC1_BigWheels TGC1_BigWheels
+EventInfoWriter     DEBUG     TGC3_BigWheels TGC3_BigWheels
+EventInfoWriter     DEBUG     TGC_CablingType TGCcabling12Svc
+EventInfoWriter     DEBUG     beam_energy 4000000.0
+EventInfoWriter     DEBUG     beam_type collisions
+EventInfoWriter     DEBUG     pp2 pp2
+EventInfoWriter     DEBUG     project_name IS_SIMULATION
+EventInfoWriter     DEBUG     servicesAtZ0 servicesAtZ0
+EventInfoWriter     DEBUG     specialConfiguration NONE
+EventInfoWriter     DEBUG     triggerStreamOfFile 
 EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG     /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodAtlas FebRodAtlas-005
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG     AMITag d700
+EventInfoWriter     DEBUG     AtlasRelease AtlasProduction-rel_1
+EventInfoWriter     DEBUG     AtlasRelease_ AtlasProduction-rel_1
+EventInfoWriter     DEBUG     BAR_Toroid BAR_Toroid
+EventInfoWriter     DEBUG     ECT_Toroids ECT_Toroids
+EventInfoWriter     DEBUG     Feet Feet
+EventInfoWriter     DEBUG     GeoAtlas ATLAS-GEO-20-00-01
+EventInfoWriter     DEBUG     HFTruckRail HFTruckRail
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-MC12-SDR-06
+EventInfoWriter     DEBUG     JDSH_Shield JDSH_Shield
+EventInfoWriter     DEBUG     JFSH_Shield JFSH_Shield
+EventInfoWriter     DEBUG     JTSH_Shield JTSH_Shield
+EventInfoWriter     DEBUG     MBAP_AccessPlatform MBAP_AccessPlatform
+EventInfoWriter     DEBUG     MBWH_BigWheels MBWH_BigWheels
+EventInfoWriter     DEBUG     MDTRail MDTRail
+EventInfoWriter     DEBUG     MDT_CablingType NewMDT_Cabling
+EventInfoWriter     DEBUG     RPC_CablingType MuonRPC_Cabling
+EventInfoWriter     DEBUG     RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+EventInfoWriter     DEBUG     RailAssembly RailAssembly
+EventInfoWriter     DEBUG     SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+EventInfoWriter     DEBUG     TBWH_BigWheels TBWH_BigWheels
+EventInfoWriter     DEBUG     TGC1_BigWheels TGC1_BigWheels
+EventInfoWriter     DEBUG     TGC3_BigWheels TGC3_BigWheels
+EventInfoWriter     DEBUG     TGC_CablingType TGCcabling12Svc
+EventInfoWriter     DEBUG     beam_energy 4000000.0
+EventInfoWriter     DEBUG     beam_type collisions
+EventInfoWriter     DEBUG     pp2 pp2
+EventInfoWriter     DEBUG     project_name IS_SIMULATION
+EventInfoWriter     DEBUG     servicesAtZ0 servicesAtZ0
+EventInfoWriter     DEBUG     specialConfiguration NONE
+EventInfoWriter     DEBUG     triggerStreamOfFile 
+EventInfoWriter     DEBUG Found Release version from TagInfoMgr: Athena-22.0.28
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #195847 3 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #195847 3 events processed so far  <<<===
 EventInfoWriter     DEBUG EventInfoWriter::execute()
-EventInfoWriter     DEBUG Event ID: [1,4294967299:15] 
-EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Event ID: [195847,4:1328040006] 
+EventInfoWriter     DEBUG Event type: user type Overlaid
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodAtlas FebRodAtlas-005
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG     AMITag d700
+EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.28
+EventInfoWriter     DEBUG     AtlasRelease_ AtlasProduction-rel_1
+EventInfoWriter     DEBUG     BAR_Toroid BAR_Toroid
+EventInfoWriter     DEBUG     ECT_Toroids ECT_Toroids
+EventInfoWriter     DEBUG     EventInfoWriterTag EIW-00-00-01
+EventInfoWriter     DEBUG     Feet Feet
+EventInfoWriter     DEBUG     GeoAtlas ATLAS-R2-2016-01-00-01
+EventInfoWriter     DEBUG     HFTruckRail HFTruckRail
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-MC12-SDR-06
+EventInfoWriter     DEBUG     JDSH_Shield JDSH_Shield
+EventInfoWriter     DEBUG     JFSH_Shield JFSH_Shield
+EventInfoWriter     DEBUG     JTSH_Shield JTSH_Shield
+EventInfoWriter     DEBUG     MBAP_AccessPlatform MBAP_AccessPlatform
+EventInfoWriter     DEBUG     MBWH_BigWheels MBWH_BigWheels
+EventInfoWriter     DEBUG     MDTRail MDTRail
+EventInfoWriter     DEBUG     MDT_CablingType NewMDT_Cabling
+EventInfoWriter     DEBUG     RPC_CablingType MuonRPC_Cabling
+EventInfoWriter     DEBUG     RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+EventInfoWriter     DEBUG     RailAssembly RailAssembly
+EventInfoWriter     DEBUG     SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+EventInfoWriter     DEBUG     TBWH_BigWheels TBWH_BigWheels
+EventInfoWriter     DEBUG     TGC1_BigWheels TGC1_BigWheels
+EventInfoWriter     DEBUG     TGC3_BigWheels TGC3_BigWheels
+EventInfoWriter     DEBUG     TGC_CablingType TGCcabling12Svc
+EventInfoWriter     DEBUG     beam_energy 4000000.0
+EventInfoWriter     DEBUG     beam_type collisions
+EventInfoWriter     DEBUG     pp2 pp2
+EventInfoWriter     DEBUG     project_name IS_SIMULATION
+EventInfoWriter     DEBUG     servicesAtZ0 servicesAtZ0
+EventInfoWriter     DEBUG     specialConfiguration NONE
+EventInfoWriter     DEBUG     triggerStreamOfFile 
 EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG     /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodAtlas FebRodAtlas-005
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG     AMITag d700
+EventInfoWriter     DEBUG     AtlasRelease AtlasProduction-rel_1
+EventInfoWriter     DEBUG     AtlasRelease_ AtlasProduction-rel_1
+EventInfoWriter     DEBUG     BAR_Toroid BAR_Toroid
+EventInfoWriter     DEBUG     ECT_Toroids ECT_Toroids
+EventInfoWriter     DEBUG     Feet Feet
+EventInfoWriter     DEBUG     GeoAtlas ATLAS-GEO-20-00-01
+EventInfoWriter     DEBUG     HFTruckRail HFTruckRail
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-MC12-SDR-06
+EventInfoWriter     DEBUG     JDSH_Shield JDSH_Shield
+EventInfoWriter     DEBUG     JFSH_Shield JFSH_Shield
+EventInfoWriter     DEBUG     JTSH_Shield JTSH_Shield
+EventInfoWriter     DEBUG     MBAP_AccessPlatform MBAP_AccessPlatform
+EventInfoWriter     DEBUG     MBWH_BigWheels MBWH_BigWheels
+EventInfoWriter     DEBUG     MDTRail MDTRail
+EventInfoWriter     DEBUG     MDT_CablingType NewMDT_Cabling
+EventInfoWriter     DEBUG     RPC_CablingType MuonRPC_Cabling
+EventInfoWriter     DEBUG     RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+EventInfoWriter     DEBUG     RailAssembly RailAssembly
+EventInfoWriter     DEBUG     SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+EventInfoWriter     DEBUG     TBWH_BigWheels TBWH_BigWheels
+EventInfoWriter     DEBUG     TGC1_BigWheels TGC1_BigWheels
+EventInfoWriter     DEBUG     TGC3_BigWheels TGC3_BigWheels
+EventInfoWriter     DEBUG     TGC_CablingType TGCcabling12Svc
+EventInfoWriter     DEBUG     beam_energy 4000000.0
+EventInfoWriter     DEBUG     beam_type collisions
+EventInfoWriter     DEBUG     pp2 pp2
+EventInfoWriter     DEBUG     project_name IS_SIMULATION
+EventInfoWriter     DEBUG     servicesAtZ0 servicesAtZ0
+EventInfoWriter     DEBUG     specialConfiguration NONE
+EventInfoWriter     DEBUG     triggerStreamOfFile 
+EventInfoWriter     DEBUG Found Release version from TagInfoMgr: Athena-22.0.28
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #195847 4 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #195847 4 events processed so far  <<<===
 EventInfoWriter     DEBUG EventInfoWriter::execute()
-EventInfoWriter     DEBUG Event ID: [1,4294967300:20] 
-EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Event ID: [195847,5:1328040006] 
+EventInfoWriter     DEBUG Event type: user type Overlaid
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodAtlas FebRodAtlas-005
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG     AMITag d700
+EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.28
+EventInfoWriter     DEBUG     AtlasRelease_ AtlasProduction-rel_1
+EventInfoWriter     DEBUG     BAR_Toroid BAR_Toroid
+EventInfoWriter     DEBUG     ECT_Toroids ECT_Toroids
+EventInfoWriter     DEBUG     EventInfoWriterTag EIW-00-00-01
+EventInfoWriter     DEBUG     Feet Feet
+EventInfoWriter     DEBUG     GeoAtlas ATLAS-R2-2016-01-00-01
+EventInfoWriter     DEBUG     HFTruckRail HFTruckRail
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-MC12-SDR-06
+EventInfoWriter     DEBUG     JDSH_Shield JDSH_Shield
+EventInfoWriter     DEBUG     JFSH_Shield JFSH_Shield
+EventInfoWriter     DEBUG     JTSH_Shield JTSH_Shield
+EventInfoWriter     DEBUG     MBAP_AccessPlatform MBAP_AccessPlatform
+EventInfoWriter     DEBUG     MBWH_BigWheels MBWH_BigWheels
+EventInfoWriter     DEBUG     MDTRail MDTRail
+EventInfoWriter     DEBUG     MDT_CablingType NewMDT_Cabling
+EventInfoWriter     DEBUG     RPC_CablingType MuonRPC_Cabling
+EventInfoWriter     DEBUG     RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+EventInfoWriter     DEBUG     RailAssembly RailAssembly
+EventInfoWriter     DEBUG     SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+EventInfoWriter     DEBUG     TBWH_BigWheels TBWH_BigWheels
+EventInfoWriter     DEBUG     TGC1_BigWheels TGC1_BigWheels
+EventInfoWriter     DEBUG     TGC3_BigWheels TGC3_BigWheels
+EventInfoWriter     DEBUG     TGC_CablingType TGCcabling12Svc
+EventInfoWriter     DEBUG     beam_energy 4000000.0
+EventInfoWriter     DEBUG     beam_type collisions
+EventInfoWriter     DEBUG     pp2 pp2
+EventInfoWriter     DEBUG     project_name IS_SIMULATION
+EventInfoWriter     DEBUG     servicesAtZ0 servicesAtZ0
+EventInfoWriter     DEBUG     specialConfiguration NONE
+EventInfoWriter     DEBUG     triggerStreamOfFile 
 EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG     /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodAtlas FebRodAtlas-005
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG     AMITag d700
+EventInfoWriter     DEBUG     AtlasRelease AtlasProduction-rel_1
+EventInfoWriter     DEBUG     AtlasRelease_ AtlasProduction-rel_1
+EventInfoWriter     DEBUG     BAR_Toroid BAR_Toroid
+EventInfoWriter     DEBUG     ECT_Toroids ECT_Toroids
+EventInfoWriter     DEBUG     Feet Feet
+EventInfoWriter     DEBUG     GeoAtlas ATLAS-GEO-20-00-01
+EventInfoWriter     DEBUG     HFTruckRail HFTruckRail
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-MC12-SDR-06
+EventInfoWriter     DEBUG     JDSH_Shield JDSH_Shield
+EventInfoWriter     DEBUG     JFSH_Shield JFSH_Shield
+EventInfoWriter     DEBUG     JTSH_Shield JTSH_Shield
+EventInfoWriter     DEBUG     MBAP_AccessPlatform MBAP_AccessPlatform
+EventInfoWriter     DEBUG     MBWH_BigWheels MBWH_BigWheels
+EventInfoWriter     DEBUG     MDTRail MDTRail
+EventInfoWriter     DEBUG     MDT_CablingType NewMDT_Cabling
+EventInfoWriter     DEBUG     RPC_CablingType MuonRPC_Cabling
+EventInfoWriter     DEBUG     RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+EventInfoWriter     DEBUG     RailAssembly RailAssembly
+EventInfoWriter     DEBUG     SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+EventInfoWriter     DEBUG     TBWH_BigWheels TBWH_BigWheels
+EventInfoWriter     DEBUG     TGC1_BigWheels TGC1_BigWheels
+EventInfoWriter     DEBUG     TGC3_BigWheels TGC3_BigWheels
+EventInfoWriter     DEBUG     TGC_CablingType TGCcabling12Svc
+EventInfoWriter     DEBUG     beam_energy 4000000.0
+EventInfoWriter     DEBUG     beam_type collisions
+EventInfoWriter     DEBUG     pp2 pp2
+EventInfoWriter     DEBUG     project_name IS_SIMULATION
+EventInfoWriter     DEBUG     servicesAtZ0 servicesAtZ0
+EventInfoWriter     DEBUG     specialConfiguration NONE
+EventInfoWriter     DEBUG     triggerStreamOfFile 
+EventInfoWriter     DEBUG Found Release version from TagInfoMgr: Athena-22.0.28
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #195847 5 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #6, run #195847 5 events processed so far  <<<===
 EventInfoWriter     DEBUG EventInfoWriter::execute()
-EventInfoWriter     DEBUG Event ID: [1,4294967301:25] 
-EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Event ID: [195847,6:1328040006] 
+EventInfoWriter     DEBUG Event type: user type Overlaid
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodAtlas FebRodAtlas-005
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG     AMITag d700
+EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.28
+EventInfoWriter     DEBUG     AtlasRelease_ AtlasProduction-rel_1
+EventInfoWriter     DEBUG     BAR_Toroid BAR_Toroid
+EventInfoWriter     DEBUG     ECT_Toroids ECT_Toroids
+EventInfoWriter     DEBUG     EventInfoWriterTag EIW-00-00-01
+EventInfoWriter     DEBUG     Feet Feet
+EventInfoWriter     DEBUG     GeoAtlas ATLAS-R2-2016-01-00-01
+EventInfoWriter     DEBUG     HFTruckRail HFTruckRail
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-MC12-SDR-06
+EventInfoWriter     DEBUG     JDSH_Shield JDSH_Shield
+EventInfoWriter     DEBUG     JFSH_Shield JFSH_Shield
+EventInfoWriter     DEBUG     JTSH_Shield JTSH_Shield
+EventInfoWriter     DEBUG     MBAP_AccessPlatform MBAP_AccessPlatform
+EventInfoWriter     DEBUG     MBWH_BigWheels MBWH_BigWheels
+EventInfoWriter     DEBUG     MDTRail MDTRail
+EventInfoWriter     DEBUG     MDT_CablingType NewMDT_Cabling
+EventInfoWriter     DEBUG     RPC_CablingType MuonRPC_Cabling
+EventInfoWriter     DEBUG     RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+EventInfoWriter     DEBUG     RailAssembly RailAssembly
+EventInfoWriter     DEBUG     SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+EventInfoWriter     DEBUG     TBWH_BigWheels TBWH_BigWheels
+EventInfoWriter     DEBUG     TGC1_BigWheels TGC1_BigWheels
+EventInfoWriter     DEBUG     TGC3_BigWheels TGC3_BigWheels
+EventInfoWriter     DEBUG     TGC_CablingType TGCcabling12Svc
+EventInfoWriter     DEBUG     beam_energy 4000000.0
+EventInfoWriter     DEBUG     beam_type collisions
+EventInfoWriter     DEBUG     pp2 pp2
+EventInfoWriter     DEBUG     project_name IS_SIMULATION
+EventInfoWriter     DEBUG     servicesAtZ0 servicesAtZ0
+EventInfoWriter     DEBUG     specialConfiguration NONE
+EventInfoWriter     DEBUG     triggerStreamOfFile 
 EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG     /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodAtlas FebRodAtlas-005
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG     AMITag d700
+EventInfoWriter     DEBUG     AtlasRelease AtlasProduction-rel_1
+EventInfoWriter     DEBUG     AtlasRelease_ AtlasProduction-rel_1
+EventInfoWriter     DEBUG     BAR_Toroid BAR_Toroid
+EventInfoWriter     DEBUG     ECT_Toroids ECT_Toroids
+EventInfoWriter     DEBUG     Feet Feet
+EventInfoWriter     DEBUG     GeoAtlas ATLAS-GEO-20-00-01
+EventInfoWriter     DEBUG     HFTruckRail HFTruckRail
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-MC12-SDR-06
+EventInfoWriter     DEBUG     JDSH_Shield JDSH_Shield
+EventInfoWriter     DEBUG     JFSH_Shield JFSH_Shield
+EventInfoWriter     DEBUG     JTSH_Shield JTSH_Shield
+EventInfoWriter     DEBUG     MBAP_AccessPlatform MBAP_AccessPlatform
+EventInfoWriter     DEBUG     MBWH_BigWheels MBWH_BigWheels
+EventInfoWriter     DEBUG     MDTRail MDTRail
+EventInfoWriter     DEBUG     MDT_CablingType NewMDT_Cabling
+EventInfoWriter     DEBUG     RPC_CablingType MuonRPC_Cabling
+EventInfoWriter     DEBUG     RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+EventInfoWriter     DEBUG     RailAssembly RailAssembly
+EventInfoWriter     DEBUG     SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+EventInfoWriter     DEBUG     TBWH_BigWheels TBWH_BigWheels
+EventInfoWriter     DEBUG     TGC1_BigWheels TGC1_BigWheels
+EventInfoWriter     DEBUG     TGC3_BigWheels TGC3_BigWheels
+EventInfoWriter     DEBUG     TGC_CablingType TGCcabling12Svc
+EventInfoWriter     DEBUG     beam_energy 4000000.0
+EventInfoWriter     DEBUG     beam_type collisions
+EventInfoWriter     DEBUG     pp2 pp2
+EventInfoWriter     DEBUG     project_name IS_SIMULATION
+EventInfoWriter     DEBUG     servicesAtZ0 servicesAtZ0
+EventInfoWriter     DEBUG     specialConfiguration NONE
+EventInfoWriter     DEBUG     triggerStreamOfFile 
+EventInfoWriter     DEBUG Found Release version from TagInfoMgr: Athena-22.0.28
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #195847 6 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #7, run #195847 6 events processed so far  <<<===
 EventInfoWriter     DEBUG EventInfoWriter::execute()
-EventInfoWriter     DEBUG Event ID: [1,4294967302:30] 
-EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Event ID: [195847,7:1328040006] 
+EventInfoWriter     DEBUG Event type: user type Overlaid
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodAtlas FebRodAtlas-005
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG     AMITag d700
+EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.28
+EventInfoWriter     DEBUG     AtlasRelease_ AtlasProduction-rel_1
+EventInfoWriter     DEBUG     BAR_Toroid BAR_Toroid
+EventInfoWriter     DEBUG     ECT_Toroids ECT_Toroids
+EventInfoWriter     DEBUG     EventInfoWriterTag EIW-00-00-01
+EventInfoWriter     DEBUG     Feet Feet
+EventInfoWriter     DEBUG     GeoAtlas ATLAS-R2-2016-01-00-01
+EventInfoWriter     DEBUG     HFTruckRail HFTruckRail
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-MC12-SDR-06
+EventInfoWriter     DEBUG     JDSH_Shield JDSH_Shield
+EventInfoWriter     DEBUG     JFSH_Shield JFSH_Shield
+EventInfoWriter     DEBUG     JTSH_Shield JTSH_Shield
+EventInfoWriter     DEBUG     MBAP_AccessPlatform MBAP_AccessPlatform
+EventInfoWriter     DEBUG     MBWH_BigWheels MBWH_BigWheels
+EventInfoWriter     DEBUG     MDTRail MDTRail
+EventInfoWriter     DEBUG     MDT_CablingType NewMDT_Cabling
+EventInfoWriter     DEBUG     RPC_CablingType MuonRPC_Cabling
+EventInfoWriter     DEBUG     RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+EventInfoWriter     DEBUG     RailAssembly RailAssembly
+EventInfoWriter     DEBUG     SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+EventInfoWriter     DEBUG     TBWH_BigWheels TBWH_BigWheels
+EventInfoWriter     DEBUG     TGC1_BigWheels TGC1_BigWheels
+EventInfoWriter     DEBUG     TGC3_BigWheels TGC3_BigWheels
+EventInfoWriter     DEBUG     TGC_CablingType TGCcabling12Svc
+EventInfoWriter     DEBUG     beam_energy 4000000.0
+EventInfoWriter     DEBUG     beam_type collisions
+EventInfoWriter     DEBUG     pp2 pp2
+EventInfoWriter     DEBUG     project_name IS_SIMULATION
+EventInfoWriter     DEBUG     servicesAtZ0 servicesAtZ0
+EventInfoWriter     DEBUG     specialConfiguration NONE
+EventInfoWriter     DEBUG     triggerStreamOfFile 
 EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG     /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodAtlas FebRodAtlas-005
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG     AMITag d700
+EventInfoWriter     DEBUG     AtlasRelease AtlasProduction-rel_1
+EventInfoWriter     DEBUG     AtlasRelease_ AtlasProduction-rel_1
+EventInfoWriter     DEBUG     BAR_Toroid BAR_Toroid
+EventInfoWriter     DEBUG     ECT_Toroids ECT_Toroids
+EventInfoWriter     DEBUG     Feet Feet
+EventInfoWriter     DEBUG     GeoAtlas ATLAS-GEO-20-00-01
+EventInfoWriter     DEBUG     HFTruckRail HFTruckRail
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-MC12-SDR-06
+EventInfoWriter     DEBUG     JDSH_Shield JDSH_Shield
+EventInfoWriter     DEBUG     JFSH_Shield JFSH_Shield
+EventInfoWriter     DEBUG     JTSH_Shield JTSH_Shield
+EventInfoWriter     DEBUG     MBAP_AccessPlatform MBAP_AccessPlatform
+EventInfoWriter     DEBUG     MBWH_BigWheels MBWH_BigWheels
+EventInfoWriter     DEBUG     MDTRail MDTRail
+EventInfoWriter     DEBUG     MDT_CablingType NewMDT_Cabling
+EventInfoWriter     DEBUG     RPC_CablingType MuonRPC_Cabling
+EventInfoWriter     DEBUG     RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+EventInfoWriter     DEBUG     RailAssembly RailAssembly
+EventInfoWriter     DEBUG     SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+EventInfoWriter     DEBUG     TBWH_BigWheels TBWH_BigWheels
+EventInfoWriter     DEBUG     TGC1_BigWheels TGC1_BigWheels
+EventInfoWriter     DEBUG     TGC3_BigWheels TGC3_BigWheels
+EventInfoWriter     DEBUG     TGC_CablingType TGCcabling12Svc
+EventInfoWriter     DEBUG     beam_energy 4000000.0
+EventInfoWriter     DEBUG     beam_type collisions
+EventInfoWriter     DEBUG     pp2 pp2
+EventInfoWriter     DEBUG     project_name IS_SIMULATION
+EventInfoWriter     DEBUG     servicesAtZ0 servicesAtZ0
+EventInfoWriter     DEBUG     specialConfiguration NONE
+EventInfoWriter     DEBUG     triggerStreamOfFile 
+EventInfoWriter     DEBUG Found Release version from TagInfoMgr: Athena-22.0.28
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #195847 7 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #8, run #195847 7 events processed so far  <<<===
 EventInfoWriter     DEBUG EventInfoWriter::execute()
-EventInfoWriter     DEBUG Event ID: [1,4294967303:35] 
-EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Event ID: [195847,8:1328040006] 
+EventInfoWriter     DEBUG Event type: user type Overlaid
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodAtlas FebRodAtlas-005
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG     AMITag d700
+EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.28
+EventInfoWriter     DEBUG     AtlasRelease_ AtlasProduction-rel_1
+EventInfoWriter     DEBUG     BAR_Toroid BAR_Toroid
+EventInfoWriter     DEBUG     ECT_Toroids ECT_Toroids
+EventInfoWriter     DEBUG     EventInfoWriterTag EIW-00-00-01
+EventInfoWriter     DEBUG     Feet Feet
+EventInfoWriter     DEBUG     GeoAtlas ATLAS-R2-2016-01-00-01
+EventInfoWriter     DEBUG     HFTruckRail HFTruckRail
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-MC12-SDR-06
+EventInfoWriter     DEBUG     JDSH_Shield JDSH_Shield
+EventInfoWriter     DEBUG     JFSH_Shield JFSH_Shield
+EventInfoWriter     DEBUG     JTSH_Shield JTSH_Shield
+EventInfoWriter     DEBUG     MBAP_AccessPlatform MBAP_AccessPlatform
+EventInfoWriter     DEBUG     MBWH_BigWheels MBWH_BigWheels
+EventInfoWriter     DEBUG     MDTRail MDTRail
+EventInfoWriter     DEBUG     MDT_CablingType NewMDT_Cabling
+EventInfoWriter     DEBUG     RPC_CablingType MuonRPC_Cabling
+EventInfoWriter     DEBUG     RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+EventInfoWriter     DEBUG     RailAssembly RailAssembly
+EventInfoWriter     DEBUG     SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+EventInfoWriter     DEBUG     TBWH_BigWheels TBWH_BigWheels
+EventInfoWriter     DEBUG     TGC1_BigWheels TGC1_BigWheels
+EventInfoWriter     DEBUG     TGC3_BigWheels TGC3_BigWheels
+EventInfoWriter     DEBUG     TGC_CablingType TGCcabling12Svc
+EventInfoWriter     DEBUG     beam_energy 4000000.0
+EventInfoWriter     DEBUG     beam_type collisions
+EventInfoWriter     DEBUG     pp2 pp2
+EventInfoWriter     DEBUG     project_name IS_SIMULATION
+EventInfoWriter     DEBUG     servicesAtZ0 servicesAtZ0
+EventInfoWriter     DEBUG     specialConfiguration NONE
+EventInfoWriter     DEBUG     triggerStreamOfFile 
 EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG     /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodAtlas FebRodAtlas-005
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG     AMITag d700
+EventInfoWriter     DEBUG     AtlasRelease AtlasProduction-rel_1
+EventInfoWriter     DEBUG     AtlasRelease_ AtlasProduction-rel_1
+EventInfoWriter     DEBUG     BAR_Toroid BAR_Toroid
+EventInfoWriter     DEBUG     ECT_Toroids ECT_Toroids
+EventInfoWriter     DEBUG     Feet Feet
+EventInfoWriter     DEBUG     GeoAtlas ATLAS-GEO-20-00-01
+EventInfoWriter     DEBUG     HFTruckRail HFTruckRail
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-MC12-SDR-06
+EventInfoWriter     DEBUG     JDSH_Shield JDSH_Shield
+EventInfoWriter     DEBUG     JFSH_Shield JFSH_Shield
+EventInfoWriter     DEBUG     JTSH_Shield JTSH_Shield
+EventInfoWriter     DEBUG     MBAP_AccessPlatform MBAP_AccessPlatform
+EventInfoWriter     DEBUG     MBWH_BigWheels MBWH_BigWheels
+EventInfoWriter     DEBUG     MDTRail MDTRail
+EventInfoWriter     DEBUG     MDT_CablingType NewMDT_Cabling
+EventInfoWriter     DEBUG     RPC_CablingType MuonRPC_Cabling
+EventInfoWriter     DEBUG     RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+EventInfoWriter     DEBUG     RailAssembly RailAssembly
+EventInfoWriter     DEBUG     SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+EventInfoWriter     DEBUG     TBWH_BigWheels TBWH_BigWheels
+EventInfoWriter     DEBUG     TGC1_BigWheels TGC1_BigWheels
+EventInfoWriter     DEBUG     TGC3_BigWheels TGC3_BigWheels
+EventInfoWriter     DEBUG     TGC_CablingType TGCcabling12Svc
+EventInfoWriter     DEBUG     beam_energy 4000000.0
+EventInfoWriter     DEBUG     beam_type collisions
+EventInfoWriter     DEBUG     pp2 pp2
+EventInfoWriter     DEBUG     project_name IS_SIMULATION
+EventInfoWriter     DEBUG     servicesAtZ0 servicesAtZ0
+EventInfoWriter     DEBUG     specialConfiguration NONE
+EventInfoWriter     DEBUG     triggerStreamOfFile 
+EventInfoWriter     DEBUG Found Release version from TagInfoMgr: Athena-22.0.28
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #195847 8 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #9, run #195847 8 events processed so far  <<<===
 EventInfoWriter     DEBUG EventInfoWriter::execute()
-EventInfoWriter     DEBUG Event ID: [1,4294967304:40] 
-EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Event ID: [195847,9:1328040006] 
+EventInfoWriter     DEBUG Event type: user type Overlaid
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodAtlas FebRodAtlas-005
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG     AMITag d700
+EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.28
+EventInfoWriter     DEBUG     AtlasRelease_ AtlasProduction-rel_1
+EventInfoWriter     DEBUG     BAR_Toroid BAR_Toroid
+EventInfoWriter     DEBUG     ECT_Toroids ECT_Toroids
+EventInfoWriter     DEBUG     EventInfoWriterTag EIW-00-00-01
+EventInfoWriter     DEBUG     Feet Feet
+EventInfoWriter     DEBUG     GeoAtlas ATLAS-R2-2016-01-00-01
+EventInfoWriter     DEBUG     HFTruckRail HFTruckRail
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-MC12-SDR-06
+EventInfoWriter     DEBUG     JDSH_Shield JDSH_Shield
+EventInfoWriter     DEBUG     JFSH_Shield JFSH_Shield
+EventInfoWriter     DEBUG     JTSH_Shield JTSH_Shield
+EventInfoWriter     DEBUG     MBAP_AccessPlatform MBAP_AccessPlatform
+EventInfoWriter     DEBUG     MBWH_BigWheels MBWH_BigWheels
+EventInfoWriter     DEBUG     MDTRail MDTRail
+EventInfoWriter     DEBUG     MDT_CablingType NewMDT_Cabling
+EventInfoWriter     DEBUG     RPC_CablingType MuonRPC_Cabling
+EventInfoWriter     DEBUG     RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+EventInfoWriter     DEBUG     RailAssembly RailAssembly
+EventInfoWriter     DEBUG     SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+EventInfoWriter     DEBUG     TBWH_BigWheels TBWH_BigWheels
+EventInfoWriter     DEBUG     TGC1_BigWheels TGC1_BigWheels
+EventInfoWriter     DEBUG     TGC3_BigWheels TGC3_BigWheels
+EventInfoWriter     DEBUG     TGC_CablingType TGCcabling12Svc
+EventInfoWriter     DEBUG     beam_energy 4000000.0
+EventInfoWriter     DEBUG     beam_type collisions
+EventInfoWriter     DEBUG     pp2 pp2
+EventInfoWriter     DEBUG     project_name IS_SIMULATION
+EventInfoWriter     DEBUG     servicesAtZ0 servicesAtZ0
+EventInfoWriter     DEBUG     specialConfiguration NONE
+EventInfoWriter     DEBUG     triggerStreamOfFile 
 EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG     /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodAtlas FebRodAtlas-005
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG     AMITag d700
+EventInfoWriter     DEBUG     AtlasRelease AtlasProduction-rel_1
+EventInfoWriter     DEBUG     AtlasRelease_ AtlasProduction-rel_1
+EventInfoWriter     DEBUG     BAR_Toroid BAR_Toroid
+EventInfoWriter     DEBUG     ECT_Toroids ECT_Toroids
+EventInfoWriter     DEBUG     Feet Feet
+EventInfoWriter     DEBUG     GeoAtlas ATLAS-GEO-20-00-01
+EventInfoWriter     DEBUG     HFTruckRail HFTruckRail
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-MC12-SDR-06
+EventInfoWriter     DEBUG     JDSH_Shield JDSH_Shield
+EventInfoWriter     DEBUG     JFSH_Shield JFSH_Shield
+EventInfoWriter     DEBUG     JTSH_Shield JTSH_Shield
+EventInfoWriter     DEBUG     MBAP_AccessPlatform MBAP_AccessPlatform
+EventInfoWriter     DEBUG     MBWH_BigWheels MBWH_BigWheels
+EventInfoWriter     DEBUG     MDTRail MDTRail
+EventInfoWriter     DEBUG     MDT_CablingType NewMDT_Cabling
+EventInfoWriter     DEBUG     RPC_CablingType MuonRPC_Cabling
+EventInfoWriter     DEBUG     RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+EventInfoWriter     DEBUG     RailAssembly RailAssembly
+EventInfoWriter     DEBUG     SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+EventInfoWriter     DEBUG     TBWH_BigWheels TBWH_BigWheels
+EventInfoWriter     DEBUG     TGC1_BigWheels TGC1_BigWheels
+EventInfoWriter     DEBUG     TGC3_BigWheels TGC3_BigWheels
+EventInfoWriter     DEBUG     TGC_CablingType TGCcabling12Svc
+EventInfoWriter     DEBUG     beam_energy 4000000.0
+EventInfoWriter     DEBUG     beam_type collisions
+EventInfoWriter     DEBUG     pp2 pp2
+EventInfoWriter     DEBUG     project_name IS_SIMULATION
+EventInfoWriter     DEBUG     servicesAtZ0 servicesAtZ0
+EventInfoWriter     DEBUG     specialConfiguration NONE
+EventInfoWriter     DEBUG     triggerStreamOfFile 
+EventInfoWriter     DEBUG Found Release version from TagInfoMgr: Athena-22.0.28
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #9, run #195847 9 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #10, run #195847 9 events processed so far  <<<===
 EventInfoWriter     DEBUG EventInfoWriter::execute()
-EventInfoWriter     DEBUG Event ID: [1,4294967305:45] 
-EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Event ID: [195847,10:1328040006] 
+EventInfoWriter     DEBUG Event type: user type Overlaid
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodAtlas FebRodAtlas-005
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG     AMITag d700
+EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.28
+EventInfoWriter     DEBUG     AtlasRelease_ AtlasProduction-rel_1
+EventInfoWriter     DEBUG     BAR_Toroid BAR_Toroid
+EventInfoWriter     DEBUG     ECT_Toroids ECT_Toroids
+EventInfoWriter     DEBUG     EventInfoWriterTag EIW-00-00-01
+EventInfoWriter     DEBUG     Feet Feet
+EventInfoWriter     DEBUG     GeoAtlas ATLAS-R2-2016-01-00-01
+EventInfoWriter     DEBUG     HFTruckRail HFTruckRail
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-MC12-SDR-06
+EventInfoWriter     DEBUG     JDSH_Shield JDSH_Shield
+EventInfoWriter     DEBUG     JFSH_Shield JFSH_Shield
+EventInfoWriter     DEBUG     JTSH_Shield JTSH_Shield
+EventInfoWriter     DEBUG     MBAP_AccessPlatform MBAP_AccessPlatform
+EventInfoWriter     DEBUG     MBWH_BigWheels MBWH_BigWheels
+EventInfoWriter     DEBUG     MDTRail MDTRail
+EventInfoWriter     DEBUG     MDT_CablingType NewMDT_Cabling
+EventInfoWriter     DEBUG     RPC_CablingType MuonRPC_Cabling
+EventInfoWriter     DEBUG     RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+EventInfoWriter     DEBUG     RailAssembly RailAssembly
+EventInfoWriter     DEBUG     SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+EventInfoWriter     DEBUG     TBWH_BigWheels TBWH_BigWheels
+EventInfoWriter     DEBUG     TGC1_BigWheels TGC1_BigWheels
+EventInfoWriter     DEBUG     TGC3_BigWheels TGC3_BigWheels
+EventInfoWriter     DEBUG     TGC_CablingType TGCcabling12Svc
+EventInfoWriter     DEBUG     beam_energy 4000000.0
+EventInfoWriter     DEBUG     beam_type collisions
+EventInfoWriter     DEBUG     pp2 pp2
+EventInfoWriter     DEBUG     project_name IS_SIMULATION
+EventInfoWriter     DEBUG     servicesAtZ0 servicesAtZ0
+EventInfoWriter     DEBUG     specialConfiguration NONE
+EventInfoWriter     DEBUG     triggerStreamOfFile 
 EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG     /GLOBAL/TrackingGeo/LayerMaterial TagInfoMajor/AtlasLayerMat_v15_/GeoAtlas
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodAtlas FebRodAtlas-005
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdAtlas OnOffIdAtlas-012
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-EventInfoWriter     DEBUG EventInfoWriter::execute()
-EventInfoWriter     DEBUG Event ID: [1,4294967306:50] 
-EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Tags from TagInfoMgr:
-EventInfoWriter     DEBUG TagInfo tag: 
-EventInfoWriter     DEBUG Current tags: 
-EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-EventInfoWriter     DEBUG Input tags: 
-EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-EventInfoWriter     DEBUG EventInfoWriter::execute()
-EventInfoWriter     DEBUG Event ID: [1,4294967307:55] 
-EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Tags from TagInfoMgr:
-EventInfoWriter     DEBUG TagInfo tag: 
-EventInfoWriter     DEBUG Current tags: 
-EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-EventInfoWriter     DEBUG Input tags: 
-EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-EventInfoWriter     DEBUG EventInfoWriter::execute()
-EventInfoWriter     DEBUG Event ID: [1,4294967308:60] 
-EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Tags from TagInfoMgr:
-EventInfoWriter     DEBUG TagInfo tag: 
-EventInfoWriter     DEBUG Current tags: 
-EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-EventInfoWriter     DEBUG Input tags: 
-EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-EventInfoWriter     DEBUG EventInfoWriter::execute()
-EventInfoWriter     DEBUG Event ID: [1,4294967309:65] 
-EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Tags from TagInfoMgr:
-EventInfoWriter     DEBUG TagInfo tag: 
-EventInfoWriter     DEBUG Current tags: 
-EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-EventInfoWriter     DEBUG Input tags: 
-EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-EventInfoWriter     DEBUG EventInfoWriter::execute()
-EventInfoWriter     DEBUG Event ID: [1,4294967310:70] 
-EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Tags from TagInfoMgr:
-EventInfoWriter     DEBUG TagInfo tag: 
-EventInfoWriter     DEBUG Current tags: 
-EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-EventInfoWriter     DEBUG Input tags: 
-EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-EventInfoWriter     DEBUG EventInfoWriter::execute()
-EventInfoWriter     DEBUG Event ID: [1,4294967311:75] 
-EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Tags from TagInfoMgr:
-EventInfoWriter     DEBUG TagInfo tag: 
-EventInfoWriter     DEBUG Current tags: 
-EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-EventInfoWriter     DEBUG Input tags: 
-EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-EventInfoWriter     DEBUG EventInfoWriter::execute()
-EventInfoWriter     DEBUG Event ID: [1,4294967312:80] 
-EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Tags from TagInfoMgr:
-EventInfoWriter     DEBUG TagInfo tag: 
-EventInfoWriter     DEBUG Current tags: 
-EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-EventInfoWriter     DEBUG Input tags: 
-EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-TagInfoMgr          DEBUG handle: entering handle(), incidence type BeginRun from AthenaEventLoopMgr
-TagInfoMgr          DEBUG handle: BeginRun incident - Event ID: [2,1:85] 
-TagInfoMgr          DEBUG handle: currentRun = 2
-TagInfoMgr          DEBUG updateTagInfo: getting /TagInfo
-TagInfoMgr          DEBUG updateTagInfo: Retrieved TagInfo meta data from detStore. size 1
-TagInfoMgr          DEBUG fillTagInfo: 
-TagInfoMgr          DEBUG fillTagInfo: - tags coming from COOL file meta data
-TagInfoMgr          DEBUG fillTagInfo: Did NOT add tag - on remove list: name/tag: /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-TagInfoMgr          DEBUG fillTagInfo: Did NOT add tag - on remove list: name/tag: /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-TagInfoMgr          DEBUG fillTagInfo: Did NOT add tag - on remove list: name/tag: /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-TagInfoMgr          DEBUG fillTagInfo: print out tags before adding extra tags
-TagInfoMgr          DEBUG TagInfo tag: 
-TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-TagInfoMgr          DEBUG fillTagInfo: print out tags
-TagInfoMgr          DEBUG TagInfo tag: 
-TagInfoMgr          DEBUG updateTagInfo: Filled TagInfo from file meta data 
-TagInfoMgr          DEBUG entering fillMetaData
-TagInfoMgr          DEBUG fillMetaData: Adding value/tag pairs to file meta data: 
-TagInfoMgr          DEBUG /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-TagInfoMgr          DEBUG /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-TagInfoMgr          DEBUG /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-TagInfoMgr          DEBUG IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-TagInfoMgr          DEBUG fillMetaData: run number is in previous IOVRange: 2 {[1,0] - [3,0]}
-TagInfoMgr          DEBUG fillMetaData: start, stop: [2,0] [3,0]
-TagInfoMgr.IOVD...  DEBUG begin registerFolder 
-TagInfoMgr.IOVD...  DEBUG begin getMetaDataContainer 
-TagInfoMgr.IOVD...  DEBUG IOVMetaDataContainer already in MetaDataStore for folder /TagInfo
-TagInfoMgr.IOVD...  DEBUG IOVMetaDataContainer  for folder /TagInfo has been registered 
-TagInfoMgr.IOVD...  DEBUG begin addPayload 
-TagInfoMgr.IOVD...  DEBUG Retrieved IOVMetaDataContainer from MetaDataStore for folder /TagInfo
-TagInfoMgr.IOVD...  DEBUG Could not add new payload for folder /TagInfo (may be duplicate payload).
-TagInfoMgr          DEBUG updateTagInfo: Wrote TagInfo to MetaDataStore 
-EventInfoWriter     DEBUG EventInfoWriter::execute()
-EventInfoWriter     DEBUG Event ID: [2,1:85] 
-EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Tags from TagInfoMgr:
-EventInfoWriter     DEBUG TagInfo tag: 
-EventInfoWriter     DEBUG Current tags: 
-EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-EventInfoWriter     DEBUG Input tags: 
-EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-EventInfoWriter     DEBUG EventInfoWriter::execute()
-EventInfoWriter     DEBUG Event ID: [2,2:90] 
-EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Tags from TagInfoMgr:
-EventInfoWriter     DEBUG TagInfo tag: 
-EventInfoWriter     DEBUG Current tags: 
-EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-EventInfoWriter     DEBUG Input tags: 
-EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-EventInfoWriter     DEBUG EventInfoWriter::execute()
-EventInfoWriter     DEBUG Event ID: [2,3:95] 
-EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Tags from TagInfoMgr:
-EventInfoWriter     DEBUG TagInfo tag: 
-EventInfoWriter     DEBUG Current tags: 
-EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-EventInfoWriter     DEBUG Input tags: 
-EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-EventInfoWriter     DEBUG EventInfoWriter::execute()
-EventInfoWriter     DEBUG Event ID: [2,4:100] 
-EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Tags from TagInfoMgr:
-EventInfoWriter     DEBUG TagInfo tag: 
-EventInfoWriter     DEBUG Current tags: 
-EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-EventInfoWriter     DEBUG Input tags: 
-EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-EventInfoWriter     DEBUG EventInfoWriter::execute()
-EventInfoWriter     DEBUG Event ID: [2,5:105] 
-EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Tags from TagInfoMgr:
-EventInfoWriter     DEBUG TagInfo tag: 
-EventInfoWriter     DEBUG Current tags: 
-EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-EventInfoWriter     DEBUG Input tags: 
-EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-EventInfoWriter     DEBUG EventInfoWriter::execute()
-EventInfoWriter     DEBUG Event ID: [2,6:110] 
-EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Tags from TagInfoMgr:
-EventInfoWriter     DEBUG TagInfo tag: 
-EventInfoWriter     DEBUG Current tags: 
-EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-EventInfoWriter     DEBUG Input tags: 
-EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-EventInfoWriter     DEBUG EventInfoWriter::execute()
-EventInfoWriter     DEBUG Event ID: [2,7:115] 
-EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Tags from TagInfoMgr:
-EventInfoWriter     DEBUG TagInfo tag: 
-EventInfoWriter     DEBUG Current tags: 
-EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-EventInfoWriter     DEBUG Input tags: 
-EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-EventInfoWriter     DEBUG EventInfoWriter::execute()
-EventInfoWriter     DEBUG Event ID: [2,8:120] 
-EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Tags from TagInfoMgr:
-EventInfoWriter     DEBUG TagInfo tag: 
-EventInfoWriter     DEBUG Current tags: 
-EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-EventInfoWriter     DEBUG Input tags: 
-EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG     AMITag d700
+EventInfoWriter     DEBUG     AtlasRelease AtlasProduction-rel_1
+EventInfoWriter     DEBUG     AtlasRelease_ AtlasProduction-rel_1
+EventInfoWriter     DEBUG     BAR_Toroid BAR_Toroid
+EventInfoWriter     DEBUG     ECT_Toroids ECT_Toroids
+EventInfoWriter     DEBUG     Feet Feet
+EventInfoWriter     DEBUG     GeoAtlas ATLAS-GEO-20-00-01
+EventInfoWriter     DEBUG     HFTruckRail HFTruckRail
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-MC12-SDR-06
+EventInfoWriter     DEBUG     JDSH_Shield JDSH_Shield
+EventInfoWriter     DEBUG     JFSH_Shield JFSH_Shield
+EventInfoWriter     DEBUG     JTSH_Shield JTSH_Shield
+EventInfoWriter     DEBUG     MBAP_AccessPlatform MBAP_AccessPlatform
+EventInfoWriter     DEBUG     MBWH_BigWheels MBWH_BigWheels
+EventInfoWriter     DEBUG     MDTRail MDTRail
+EventInfoWriter     DEBUG     MDT_CablingType NewMDT_Cabling
+EventInfoWriter     DEBUG     RPC_CablingType MuonRPC_Cabling
+EventInfoWriter     DEBUG     RPC_TimeSchema Datalike_TOFoff_TimeShift5nsec
+EventInfoWriter     DEBUG     RailAssembly RailAssembly
+EventInfoWriter     DEBUG     SADL_CalorimeterSaddle SADL_CalorimeterSaddle
+EventInfoWriter     DEBUG     TBWH_BigWheels TBWH_BigWheels
+EventInfoWriter     DEBUG     TGC1_BigWheels TGC1_BigWheels
+EventInfoWriter     DEBUG     TGC3_BigWheels TGC3_BigWheels
+EventInfoWriter     DEBUG     TGC_CablingType TGCcabling12Svc
+EventInfoWriter     DEBUG     beam_energy 4000000.0
+EventInfoWriter     DEBUG     beam_type collisions
+EventInfoWriter     DEBUG     pp2 pp2
+EventInfoWriter     DEBUG     project_name IS_SIMULATION
+EventInfoWriter     DEBUG     servicesAtZ0 servicesAtZ0
+EventInfoWriter     DEBUG     specialConfiguration NONE
+EventInfoWriter     DEBUG     triggerStreamOfFile 
+EventInfoWriter     DEBUG Found Release version from TagInfoMgr: Athena-22.0.28
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #10, run #195847 10 events processed so far  <<<===
+EventSelector        INFO Disconnecting input sourceID: 31DE0B3D-AFB0-F440-859A-6F1190556366
+/cvmfs/atlas-ni...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 31DE0B3D-AFB0-F440-859A-6F1190556366
+AthenaEventLoopMgr   INFO No more events in event selection 
+StorageSvc           INFO Building shape according to reflection information using shape ID for:
+StorageSvc           INFO xAOD::FileMetaDataAuxInfo_v1 [BEE2BECF-A936-4078-9FDD-AD703C9ADF9F]
+StorageSvc           INFO Building shape according to reflection information using shape ID for:
+StorageSvc           INFO EventStreamInfo_p3 [11DF1B8C-0DEE-4687-80D7-E74B520ACBB4]
+StorageSvc           INFO Building shape according to reflection information using shape ID for:
+StorageSvc           INFO xAOD::FileMetaData_v1 [C87E3828-4A7A-480A-95DE-0339539F6A0F]
+StorageSvc           INFO Building shape according to reflection information using shape ID for:
+StorageSvc           INFO xAOD::EventFormat_v1 [0EFE2D2C-9E78-441D-9A87-9EE2B908AC81]
+StorageSvc           INFO Building shape according to reflection information using shape ID for:
+StorageSvc           INFO IOVMetaDataContainer_p1 [6C2DE6DF-6D52-43F6-B435-9F29812F40C0]
+ClassIDSvc           INFO  getRegistryEntries: read 37 CLIDRegistry entries for module ALL
+Stream1              INFO Metadata records written: 11
+/cvmfs/atlas-co...   INFO Database being retired...
+/cvmfs/atlas-co...   INFO Database being retired...
+/cvmfs/atlas-co...   INFO Database being retired...
+/cvmfs/atlas-co...   INFO Database being retired...
+/cvmfs/atlas-co...   INFO Database being retired...
+/cvmfs/atlas-co...   INFO Database being retired...
+/cvmfs/atlas-co...   INFO Database being retired...
+/cvmfs/atlas-co...   INFO Database being retired...
+/cvmfs/atlas-co...   INFO Database being retired...
+/cvmfs/atlas-co...   INFO Database being retired...
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 526CDDE9-9B6A-E011-963A-003048F0E514
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] D27D07D4-C135-E011-84A9-003048F0E01E
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
+EventInfoPoolFi...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] E265D26F-ABE0-4945-9C4B-C0278D6759D7
+Domain[ROOT_All]     INFO >   Deaccess DbDomain     UPDATE    [ROOT_All] 
+ApplicationMgr       INFO Application Manager Stopped successfully
+CondInputLoader      INFO Finalizing CondInputLoader...
 EventInfoWriter     DEBUG EventInfoWriter::finalize()
+DecisionSvc          INFO Finalized successfully.
+IdDictDetDescrCnv    INFO in finalize
 TagInfoMgr          DEBUG finalize()
+IOVDbFolder          INFO Folder /LAR/Align (PoolRef) db-read 1/1 objs/chan/bytes 1/1/170 ((     0.03 ))s
+IOVDbFolder          INFO Folder /LAR/BadChannels/BadChannels (AttrListColl) db-read 1/1 objs/chan/bytes 8/8/11968 ((     0.02 ))s
+IOVDbFolder          INFO Folder /LAR/BadChannels/MissingFEBs (AttrList) db-read 1/1 objs/chan/bytes 1/1/24 ((     0.02 ))s
+IOVDbFolder          INFO Folder /LAR/Identifier/CalibIdMap (AttrList) db-read 1/1 objs/chan/bytes 1/1/1520148 ((     0.01 ))s
+IOVDbFolder          INFO Folder /LAR/Identifier/FebRodMap (AttrList) db-read 1/1 objs/chan/bytes 1/1/6100 ((     0.01 ))s
+IOVDbFolder          INFO Folder /LAR/Identifier/OnOffIdMap (AttrList) db-read 1/1 objs/chan/bytes 1/1/780292 ((     0.02 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/CES (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/103344 ((     0.03 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/CIS/FIT/LIN (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/80 ((     0.02 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/CIS/FIT/NLN (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/80 ((     0.02 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/EMS (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/92 ((     0.02 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/LAS/FIBER (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/940 ((     0.02 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/LAS/LIN (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/72 ((     0.02 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/LAS/NLN (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/76 ((     0.02 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/NOISE/SAMPLE (AttrListColl) db-read 1/1 objs/chan/bytes 554/277/1283008 ((     0.04 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/STATUS/ADC (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/93060 ((     0.03 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/TIME/CHANNELOFFSET/PHY (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/96 ((     0.02 ))s
+IOVDbFolder          INFO Folder /TILE/ONL01/STATUS/ADC (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/76 ((     0.01 ))s
+IOVDbFolder          INFO Folder /TagInfo (AttrListColl) db-read 0/2 objs/chan/bytes 2/0/0 ((     0.00 ))s
+IOVDbFolder          INFO Folder /CALO/Ofl/Identifier/CaloTTOnAttrIdMapAtlas (PoolRef) db-read 0/0 objs/chan/bytes 0/1/0 ((     0.00 ))s
+IOVDbFolder          INFO Folder /CALO/Ofl/Identifier/CaloTTOnOffIdMapAtlas (PoolRef) db-read 0/0 objs/chan/bytes 0/1/0 ((     0.00 ))s
+IOVDbFolder          INFO Folder /CALO/Ofl/Identifier/CaloTTPpmRxIdMapAtlas (PoolRef) db-read 0/0 objs/chan/bytes 0/1/0 ((     0.00 ))s
+IOVDbFolder          INFO Folder /LAR/ElecCalibMC/AutoCorr (PoolRefColl) db-read 1/1 objs/chan/bytes 3/3/486 ((     0.02 ))s
+IOVDbFolder          INFO Folder /LAR/LArCellPositionShift (PoolRef) db-read 1/1 objs/chan/bytes 1/1/195 ((     0.01 ))s
+IOVDbFolder          INFO Folder /LAR/ElecCalibMC/DAC2uA (PoolRefColl) db-read 1/1 objs/chan/bytes 1/1/170 ((     0.03 ))s
+IOVDbFolder          INFO Folder /LAR/ElecCalibMC/HVScaleCorr (PoolRefColl) db-read 1/1 objs/chan/bytes 12/12/1980 ((     0.01 ))s
+IOVDbFolder          INFO Folder /LAR/ElecCalibMC/MinBias (PoolRefColl) db-read 1/1 objs/chan/bytes 1/1/174 ((     0.01 ))s
+IOVDbFolder          INFO Folder /LAR/ElecCalibMC/MinBiasAverage (PoolRefColl) db-read 1/1 objs/chan/bytes 1/1/181 ((     0.01 ))s
+IOVDbFolder          INFO Folder /LAR/ElecCalibMC/MphysOverMcal (PoolRefColl) db-read 1/1 objs/chan/bytes 3/3/516 ((     0.01 ))s
+IOVDbFolder          INFO Folder /LAR/ElecCalibMC/Noise (PoolRefColl) db-read 1/1 objs/chan/bytes 3/3/516 ((     0.02 ))s
+IOVDbFolder          INFO Folder /LAR/ElecCalibMC/Pedestal (PoolRef) db-read 1/1 objs/chan/bytes 1/1/167 ((     0.01 ))s
+IOVDbFolder          INFO Folder /LAR/ElecCalibMC/Ramp (PoolRefColl) db-read 1/1 objs/chan/bytes 3/3/489 ((     0.01 ))s
+IOVDbFolder          INFO Folder /LAR/ElecCalibMC/Shape (PoolRefColl) db-read 1/1 objs/chan/bytes 3/3/477 ((     0.01 ))s
+IOVDbFolder          INFO Folder /LAR/Identifier/LArTTCellMapAtlas (PoolRef) db-read 1/0 objs/chan/bytes 1/1/173 ((     0.01 ))s
+IOVDbFolder       WARNING Folder /LAR/Identifier/LArTTCellMapAtlas is requested but no data retrieved
+IOVDbFolder          INFO Folder /LAR/ElecCalibMC/fSampl (PoolRefColl) db-read 1/1 objs/chan/bytes 1/1/173 ((     0.01 ))s
+IOVDbFolder          INFO Folder /LAR/ElecCalibMC/uA2MeV (PoolRefColl) db-read 1/1 objs/chan/bytes 1/1/165 ((     0.01 ))s
+IOVDbSvc             INFO  bytes in ((      0.54 ))s
+IOVDbSvc             INFO Connection sqlite://;schema=mycool.db;dbname=OFLP200 : nConnect: 0 nFolders: 0 ReadTime: ((     0.00 ))s
+IOVDbSvc             INFO Connection COOLOFL_LAR/OFLP200 : nConnect: 2 nFolders: 20 ReadTime: ((     0.30 ))s
+IOVDbSvc             INFO Connection COOLOFL_TILE/OFLP200 : nConnect: 2 nFolders: 11 ReadTime: ((     0.25 ))s
+IOVDbSvc             INFO Connection COOLOFL_CALO/OFLP200 : nConnect: 1 nFolders: 3 ReadTime: ((     0.00 ))s
+AthDictLoaderSvc     INFO in finalize...
+ToolSvc              INFO Removing all tools created by ToolSvc
+ChronoStatSvc.f...   INFO  Service finalized successfully 
+ApplicationMgr       INFO Application Manager Finalized successfully
+ApplicationMgr       INFO Application Manager Terminated successfully
+Py:Athena            INFO leaving with code 0: "successful run"

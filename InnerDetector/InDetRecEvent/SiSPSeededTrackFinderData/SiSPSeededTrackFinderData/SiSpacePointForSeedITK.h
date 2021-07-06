@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -47,7 +47,7 @@ namespace InDet {
     void setQuality(float);
     void setParam(const float&);
 
-    const Trk::SpacePoint* spacepoint              ; 
+    const Trk::SpacePoint* spacepoint{}              ; 
     const float&          x() const {return m_x;}
     const float&          y() const {return m_y;}
     const float&          z() const {return m_z;}
@@ -60,26 +60,26 @@ namespace InDet {
     const Trk::Surface* sur() const {return m_su;}
     const Trk::Surface* sun() const {return m_sn;}
 
-    bool coordinates(float*,float*);
+    bool coordinates(const float*,float*);
 
   private:
     
-    float m_x   ; // x-coordinate in beam system coordinates  
-    float m_y   ; // y-coordinate in beam system coordinates
-    float m_z   ; // z-coordinate in beam system coordinetes
-    float m_r   ; // radius       in beam system coordinates
-    float m_covr; //
-    float m_covz; //
-    float m_param;
-    float m_q   ;
+    float m_x{}   ; // x-coordinate in beam system coordinates  
+    float m_y{}   ; // y-coordinate in beam system coordinates
+    float m_z{}   ; // z-coordinate in beam system coordinetes
+    float m_r{}   ; // radius       in beam system coordinates
+    float m_covr{}; //
+    float m_covz{}; //
+    float m_param{};
+    float m_q{}   ;
 
-    float m_b0[3];
-    float m_b1[3];
-    float m_dr[3];
-    float m_r0[3];
+    float m_b0[3]{};
+    float m_b1[3]{};
+    float m_dr[3]{};
+    float m_r0[3]{};
 
-    const Trk::Surface* m_su;
-    const Trk::Surface* m_sn;
+    const Trk::Surface* m_su{};
+    const Trk::Surface* m_sn{};
   };
 
 } // end of name space

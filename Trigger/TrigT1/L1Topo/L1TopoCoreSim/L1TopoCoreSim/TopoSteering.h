@@ -33,10 +33,13 @@ namespace TCS {
    class InputConnector;
    class SortingConnector;
    class DecisionConnector;
+   class CountingConnector;
    class ConfigurableAlg;
    class SortingAlg;
    class Decision;
    class DecisionAlg;
+   class Count;
+   class CountingAlg;
 
    class TopoSteering : public TrigConf::TrigConfMessaging {
    public:
@@ -88,6 +91,8 @@ namespace TCS {
 
       void setAlgMsgLevel( TrigConf::MSGTC::Level lvl );
 
+      void setLegacyMode(bool isLegacyTopo) {m_isLegacyTopo=isLegacyTopo;}
+
       /**
        * @brief enables the histogramming service
        */
@@ -132,6 +137,8 @@ namespace TCS {
       StatusCode executeSortingConnector(TCS::SortingConnector *conn);
 
       StatusCode executeDecisionConnector(TCS::DecisionConnector *conn);
+
+      StatusCode executeCountingConnector(TCS::CountingConnector *conn);
       
       StatusCode executeAlgorithm(ConfigurableAlg *alg, Connector* connector);
       
@@ -139,11 +146,15 @@ namespace TCS {
       
       StatusCode executeDecisionAlgorithm(TCS::DecisionAlg *alg, const std::vector<Connector*> & inputConnectors, const std::vector<TCS::TOBArray *> & output, Decision & decsion);
       
+      StatusCode executeCountingAlgorithm(TCS::CountingAlg *alg, TCS::InputConnector* inputConnector, Count & count);
+
 
 
    private:
       bool m_useBitwise{false};                  // Using bitwise algorithms? Disabled by default. Needs a menu global flag.
 
+      bool m_isLegacyTopo{false};
+     
       TopoInputEvent         m_inputEvent;       // the input event
 
       TopoCoreSimResult      m_simulationResult; // the result of the execution

@@ -1,5 +1,3 @@
-
-
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
@@ -8,24 +6,12 @@ from TrigEgammaAnalysisTools import TrigEgammaAnalysisToolsConf
 from AthenaCommon import CfgMgr
 from AthenaCommon.AppMgr import ToolSvc
 
-from egammaRec.Factories import PublicToolFactory,FcnWrapper,AlgFactory, getPropertyValue 
+from egammaRec.Factories import PublicToolFactory
 
 import PyUtils.RootUtils as ru
 ROOT = ru.import_root()
 import cppyy
 cppyy.load_library('libElectronPhotonSelectorToolsDict')
-from ROOT import LikeEnum
-from ROOT import egammaPID
-
-# Following loads the online selectors
-from TrigEgammaHypo.TrigEgammaPidTools import ElectronPidTools
-from TrigEgammaHypo.TrigEgammaPidTools import PhotonPidTools
-from TrigEgammaHypo.TrigEgammaPidTools import ElectronToolName
-ElectronPidTools()
-PhotonPidTools()
-
-from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgElectronIsEMSelector, AsgElectronLikelihoodTool
-from ElectronPhotonSelectorTools.ElectronIsEMSelectorMapping import ElectronIsEMMap,electronPIDmenu
 
 # Offline selectors -- taken from latest conf
 LooseElectronSelector             = CfgMgr.AsgElectronIsEMSelector("T0HLTLooseElectronSelector")
@@ -42,10 +28,10 @@ LooseElectronSelector.ConfigFile  = "ElectronPhotonSelectorTools/offline/mc15_20
 MediumElectronSelector.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronIsEMMediumSelectorCutDefs.conf"
 TightElectronSelector.ConfigFile  = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronIsEMTightSelectorCutDefs.conf"
 # 2018 (vtest)
-LooseLHSelector.ConfigFile        = "ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodLooseOfflineConfig2017_CutBL_Smooth.conf"
-MediumLHSelector.ConfigFile       = "ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodMediumOfflineConfig2017_Smooth.conf"
-TightLHSelector.ConfigFile        = "ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodTightOfflineConfig2017_Smooth.conf"
-VeryLooseLHSelector.ConfigFile    = "ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodVeryLooseOfflineConfig2017_Smooth.conf"
+LooseLHSelector.ConfigFile        = "ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodLooseOfflineConfig2017_CutBL_Smooth.conf"
+MediumLHSelector.ConfigFile       = "ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodMediumOfflineConfig2017_Smooth.conf"
+TightLHSelector.ConfigFile        = "ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodTightOfflineConfig2017_Smooth.conf"
+VeryLooseLHSelector.ConfigFile    = "ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodVeryLooseOfflineConfig2017_Smooth.conf"
 # MediumLHHISelector.ConfigFile     = "ElectronPhotonSelectorTools/offline/mc15_20160907_HI/ElectronLikelihoodMediumOfflineConfig2016_HI.conf"
 
 
@@ -67,7 +53,7 @@ LuminosityCondAlgOnlineDefault (suffix = 'Online')
 IneffLabels=["ClusterEtaRange","ConversionMatch","ClusterHadronicLeakage","ClusterMiddleEnergy","ClusterMiddleEratio37","ClusterMiddleEratio33","ClusterMiddleWidth","f3","ClusterStripsEratio","ClusterStripsDeltaEmax2","ClusterStripsDeltaE","ClusterStripsWtot","ClusterStripsFracm","ClusterStripsWeta1c","empty14","ClusterStripsDEmaxs1","TrackBlayer","TrackPixel","TrackSi","TrackA0","TrackMatchEta","TrackMatchPhi","TrackMatchEoverP","TrackTRTeProbabilityHT_Electron","TrackTRThits","TrackTRTratio","TrackTRTratio90","TrackA0Tight","TrackMatchEtaTight","Isolation","ClusterIsolation","TrackIsolation","No Track","No Cluster","No Object"]
 
 from TrigEgammaAnalysisTools.TrigEgammaProbelist import monitoring_mam, monitoring_electron, monitoring_photon 
-from TrigEgammaAnalysisTools.TrigEgammaProbelist import monitoringTP_electron, monitoringTP_electronZee, monitoringTP_electronJpsiee 
+from TrigEgammaAnalysisTools.TrigEgammaProbelist import monitoringTP_electron,  monitoringTP_electronJpsiee 
 
 from TrigEgammaMatchingTool.TrigEgammaMatchingToolConf import Trig__TrigEgammaMatchingTool
 
@@ -197,9 +183,6 @@ TrigEgammaNavAnalysisTool = PublicToolFactory(TrigEgammaAnalysisToolsConf.TrigEg
 #############################################################################################
 # Functions
 
-# Function to return triggerlist tools
-def getAllTools():
-    return [TrigEgammaNavZeeTPCounts(),TrigEgammaNavZeeTPEff(),TrigEgammaNavZeeTPIneff(),TrigEgammaNavZeeTPRes(),]
 
 
 def setRunFlag( runFlag ):
@@ -210,10 +193,10 @@ def setRunFlag( runFlag ):
     TightElectronSelector.ConfigFile  = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronIsEMTightSelectorCutDefs.conf"
 
     # 2018 (vtest)
-    LooseLHSelector.ConfigFile        = "ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodLooseOfflineConfig2017_CutBL_Smooth.conf"
-    MediumLHSelector.ConfigFile       = "ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodMediumOfflineConfig2017_Smooth.conf"
-    TightLHSelector.ConfigFile        = "ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodTightOfflineConfig2017_Smooth.conf"
-    VeryLooseLHSelector.ConfigFile    = "ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodVeryLooseOfflineConfig2017_Smooth.conf"
+    LooseLHSelector.ConfigFile        = "ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodLooseOfflineConfig2017_CutBL_Smooth.conf"
+    MediumLHSelector.ConfigFile       = "ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodMediumOfflineConfig2017_Smooth.conf"
+    TightLHSelector.ConfigFile        = "ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodTightOfflineConfig2017_Smooth.conf"
+    VeryLooseLHSelector.ConfigFile    = "ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodVeryLooseOfflineConfig2017_Smooth.conf"
   elif runFlag == '2017':
     # cut based
     LooseElectronSelector.ConfigFile  = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronIsEMLooseSelectorCutDefs.conf"
@@ -228,94 +211,6 @@ def setRunFlag( runFlag ):
   else:
     print ('Wrong run flag configuration')
 
-
-
-# The main algorithm
-# Add triggerlist tools to ToolHandleArray 
-TrigEgammaAnalysisAlg = AlgFactory(TrigEgammaAnalysisToolsConf.TrigEgammaAnalysisAlg, 
-        name='TrigEgammaAnalysisAlg',
-        Tools = FcnWrapper(getAllTools),
-        )
-
-
-
-# This function will be used to collect events from Zee,JF17 and PhysicsMain samples.
-# Use this if you really know. (for experts)
-def getEventSelectionTool(runFlag):
-
-  from TrigEgammaEmulationTool.TrigEgammaEmulationPidToolsConfig import getEgammaIsEMSelectorCaloOnly, \
-                                                                        getElectronIsEMSelector,\
-                                                                        getEgammaLikelihoodSelectorCaloOnly, \
-                                                                        getElectronLikelihoodSelector2015,\
-                                                                        getElectronLikelihoodSelectorNoD0
-  from AthenaCommon import CfgMgr
-  from AthenaCommon.AppMgr import ToolSvc
-  # create all selector list. Here, the order is matter. Please check the 
-  
-  setRunFlag(runFlag)
-  if runFlag == '2017':
-
-    # trigger configuration
-    EFCaloIsEMSelectorList       = getEgammaIsEMSelectorCaloOnly( "ElectronPhotonSelectorTools/trigger/rel21_20170217")
-    HLTIsEMSelectorList          = getElectronIsEMSelector( "ElectronPhotonSelectorTools/trigger/rel21_20170217")
-    EFCaloLikelihoodSelectorList = getEgammaLikelihoodSelectorCaloOnly( "ElectronPhotonSelectorTools/trigger/rel21_20170217")
-    HLTLikelihoodSelectorList    = getElectronLikelihoodSelectorNoD0( "ElectronPhotonSelectorTools/trigger/rel21_20170217")
-
-  elif runFlag == '2018':
-    # trigger configuration
-    EFCaloIsEMSelectorList       = getEgammaIsEMSelectorCaloOnly( "ElectronPhotonSelectorTools/trigger/rel21_20180312")
-    HLTIsEMSelectorList          = getElectronIsEMSelector( "ElectronPhotonSelectorTools/trigger/rel21_20180312")
-    EFCaloLikelihoodSelectorList = getEgammaLikelihoodSelectorCaloOnly( "ElectronPhotonSelectorTools/trigger/rel21_20180312")
-    HLTLikelihoodSelectorList    = getElectronLikelihoodSelectorNoD0( "ElectronPhotonSelectorTools/trigger/rel21_20180312")
-
-  else:
-    print ('Wrong run flag configuration')
- 
-  # create the event selection tool
-  TrigEgammaEventSelection = PublicToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaEventSelection, name ="TrigEgammaEventSelection",
-          Analysis='EventsSelection',
-          ElectronKey = 'Electrons',
-          MatchTool = EgammaMatchTool,
-          PlotTool=TrigEgammaPlotTool,
-          EmulationTool=EmulationTool, # The emulation must be on in this tool.
-          doEmulation=True,
-          Tools=[],
-          isEMResultNames=["Tight","Medium","Loose"],
-          LHResultNames=["LHTight","LHMedium","LHLoose"],
-          ElectronLHVLooseTool=VeryLooseLHSelector,
-          ZeeLowerMass=80,
-          ZeeUpperMass=100,
-          OfflineTagSelector='Tight', # 1=tight, 2=medium, 3=loose 
-          OfflineProbeSelector='Loose', 
-          ForceProbePid=False, 
-          OppositeCharge=True,
-          RemoveCrack=False,
-          OfflineTagMinEt=25,
-          OfflineProbeMinEt=4,
-          CutLabels=["Events","LAr","RetrieveElectrons","TwoElectrons","PassTrigger","EventWise","Success"],
-          TagTriggerList=["e24_tight_iloose"],
-          TriggerList=monitoringTP_electron,
-          ApplyMinimalTrigger = False,
-          SelectionZ=True,
-          SelectionW=False,
-          SelectionJpsi=False,
-          SelectionFakes=False,
-          SelectionMC=False,
-          ForceTrigAttachment=True,
-          DetailedDataLevel=0, # 0 = VerySlim, 1 = Slim and 2 = Full
-          # Asg selectors to decorate my final skimmed ntuple.
-          EFCaloElectronLikelihoodSelector=EFCaloLikelihoodSelectorList,
-          EFCaloElectronIsEMSelector=EFCaloIsEMSelectorList,
-          HLTElectronLikelihoodSelector=HLTLikelihoodSelectorList,
-          HLTElectronIsEMSelector=HLTIsEMSelectorList,
-          ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector],
-          ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector], 
- 
-          )
-  
-  
-  # Return the template
-  return TrigEgammaEventSelection
 
 
 

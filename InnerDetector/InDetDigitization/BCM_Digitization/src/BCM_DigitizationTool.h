@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BCM_DIGITIZATION_BCM_DIGITIZATIONTOOL_H
@@ -52,7 +52,7 @@ class BCM_DigitizationTool : public PileUpToolBase {
  private:
   /** Create the RDO and SDO containers */
   StatusCode createOutputContainers(const EventContext& ctx);
-  void processSiHit(const SiHit &currentHit, double eventTime, unsigned int evtIndex);
+  void processSiHit(const SiHit &currentHit, double eventTime, unsigned int evtIndex, const EventContext& ctx);
   void createRDOsAndSDOs(const EventContext& ctx);
 
   /** Compute energy deposit depending on hit position */

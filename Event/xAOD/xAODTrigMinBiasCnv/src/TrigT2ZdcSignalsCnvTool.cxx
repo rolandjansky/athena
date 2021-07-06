@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigT2ZdcSignalsCnvTool.cxx 608072 2014-07-23 00:27:40Z azemla $
 
 // EDM include(s):
 #include "xAODTrigMinBias/TrigT2ZdcSignalsContainer.h"
@@ -23,15 +22,6 @@ namespace xAODMaker {
     declareInterface< ITrigT2ZdcSignalsCnvTool >( this );
   }
   
-  StatusCode TrigT2ZdcSignalsCnvTool::initialize() {
-    
-    // Greet the user:
-    ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
-    
-    // Return gracefully:
-    return StatusCode::SUCCESS;
-  }
-  
   /**
    * This is the important function of the tool. It takes the old EDM objects
    * from a TrigT2ZdcSignalsContainer, and fills an xAOD::TrigT2ZdcSignalsContainer with them.
@@ -45,7 +35,7 @@ namespace xAODMaker {
 					     xAOD::TrigT2ZdcSignalsContainer* xaod ) {
     
     // A small sanity check. The output container should really be empty...
-    if( xaod->size() ) {
+    if( !xaod->empty() ) {
       ATH_MSG_WARNING( "The output xAOD container is not empty (size=="
       << xaod->size() << ")" );
     }

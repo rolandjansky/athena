@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigHLTMonitorAlgorithm.h"
@@ -31,14 +31,21 @@ StatusCode TrigHLTMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
   using namespace Monitored;
   StatusCode sc = StatusCode::FAILURE;
 
+  //Fetch the tools 
   auto tool = getGroup("TrigHLTMonitor");
+  auto toolAll = getGroup("TrigHLTAllMonitor");
+  auto toolEle = getGroup("TrigHLTEleMonitor");
+  auto toolGam = getGroup("TrigHLTGamMonitor");
+  auto toolMuo = getGroup("TrigHLTMuoMonitor");
+  auto toolMET = getGroup("TrigHLTMETMonitor");
+  auto toolTau = getGroup("TrigHLTTauMonitor");
+  auto toolJet = getGroup("TrigHLTJetMonitor");
+
 
   ////////////////////////////////////////
   // Declare the quantities which should be monitored
   // NB! The variables and histograms defined here must match the ones in the py file exactly!
 
-  auto HLT_ElectronsRAW = Monitored::Scalar<int>("HLT_ElectronsRAW",0);
-  auto HLT_AllChainsRAW = Monitored::Scalar<std::string>("HLT_AllChainsRAW");
   auto L1Events = Monitored::Scalar<std::string>("L1Events");
 
 
@@ -52,11 +59,10 @@ StatusCode TrigHLTMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
   // all others are the variables to be saved.
   // Alternative fill method. Get the group yourself, and pass it to the fill function.
 
-  ATH_MSG_INFO("Filling L1Events histogram");
+  ATH_MSG_DEBUG("Filling L1Events histogram");
   for(unsigned int it=0; it<nL1Items; ++it) {
     if( L1items[it] != "" ) {
-      
-      ATH_MSG_DEBUG("L1Item " << it << " " << L1items << m_trigDecTool->isPassed(L1items[it]));
+      ATH_MSG_DEBUG("L1Item " << it << " " << L1items[it] );
       if(m_trigDecTool->isPassed(L1items[it])) {
 	
 	/// Fill L1 histogram
@@ -70,57 +76,140 @@ StatusCode TrigHLTMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 
   ////////////////////////////////////
   // HLT chain monitoring
+  ATH_MSG_DEBUG( "HLT chain monitoring" );
 
+  ATH_MSG_DEBUG( "Setting up the regex map..." );
+  std::map<std::string,std::string> streams;
+  streams.insert(std::make_pair("AllChains", "HLT_.*"));
+  streams.insert(std::make_pair("Electrons", "HLT_e[0-9]+.*"));
+  streams.insert(std::make_pair("Gamma",     "HLT_g[0-9]+.*"));
+  streams.insert(std::make_pair("Muons",     "HLT_[0-9]*mu[0-9]+.*"));
+  streams.insert(std::make_pair("MissingET", "HLT_(t|x)e[0-9]+.*")); 
+  streams.insert(std::make_pair("Taus",      "HLT_(tau[0-9]*|trk.*Tau).*"));
+  streams.insert(std::make_pair("Jets",      "HLT_(FJ|j)[0-9]+.*"));
+  streams.insert(std::make_pair("MinBias",   "HLT_mb.*"));
+
+		 
   //// Set the values of the monitored variables for the event		
-  HLT_ElectronsRAW = GetEventInfo(ctx)->runNumber(); //DUMMY; to be updated.
 
-  ATH_MSG_INFO( "Filling HLT_AllChains and RoI information" );
-  std::vector< std::string > chainNames = m_trigDecTool->getChainGroup("HLT_.*")->getListOfTriggers();
-  unsigned int nHLTChains = chainNames.size();
+  ATH_MSG_DEBUG( "Iterating over the regex map...");
+  std::map<std::string,std::string>::const_iterator strItr;
+  for (strItr=streams.begin();strItr!=streams.end(); ++strItr){     
+    std::string signaturename = strItr->first;
+    std::string thisregex = strItr->second;
+    std::string histname_raw = "HLT_"+signaturename+"RAW";
+    std::string histname_ps = "HLT_"+signaturename+"PS";
+    auto HLT_RAW = Monitored::Scalar<std::string>(histname_raw);
+    auto HLT_PS  = Monitored::Scalar<std::string>(histname_ps);
+    ATH_MSG_DEBUG( "Filling HLT" << signaturename << " and RoI information for " << thisregex );
 
-  for(unsigned int ith=0; ith<nHLTChains; ++ith) {
-    if( chainNames[ith] != "" ) {
+    std::vector< std::string > chainNames = m_trigDecTool->getChainGroup(thisregex)->getListOfTriggers();
+    unsigned int nHLTChains = chainNames.size();
 
-      ATH_MSG_DEBUG("HLTChain " << ith << " " << chainNames << m_trigDecTool->isPassed(chainNames[ith]));
-      if(m_trigDecTool->isPassed(chainNames[ith])) {
-	ATH_MSG_DEBUG( "    Chain " << chainNames[ith] << " IS passed");
+    for(unsigned int ith=0; ith<nHLTChains; ++ith) {
+      if( chainNames[ith] != "" ) {
 
-	/// Fill plain chains histogram
-	HLT_AllChainsRAW = chainNames[ith];
-	ATH_MSG_DEBUG( "Fill HLT_AllChainsRAW" ); // with " << HLT_AllChainsRAW );
-	fill(tool,HLT_AllChainsRAW);
+	ATH_MSG_DEBUG("HLTChain " << ith << " " << chainNames[ith] );
+	if(m_trigDecTool->isPassed(chainNames[ith])) {
+	  ATH_MSG_DEBUG( "    Chain " << chainNames[ith] << " IS passed");
+
+	  /// Fill plain chains histogram
+	  HLT_RAW = chainNames[ith];
+	  ATH_MSG_DEBUG( "Fill HLT_RAW for " << signaturename << " and " << chainNames[ith]); 
+	  fill(tool,HLT_RAW);
 	
-	/// Fill RoIs histogram
-	ATH_MSG_DEBUG("Fill RoI histograms for chain " << chainNames[ith] );
-	std::vector<LinkInfo<TrigRoiDescriptorCollection>> fvec = m_trigDecTool->features<TrigRoiDescriptorCollection>(chainNames[ith], TrigDefs::Physics, "", TrigDefs::lastFeatureOfType, "initialRoI"); //initialRoiString()
-
-	//Loop over RoIs
-	for (const LinkInfo<TrigRoiDescriptorCollection>& li : fvec) {
-
-	  if( li.isValid() ) {
-	    auto phi = Monitored::Scalar("phi", 0.0);
-	    auto eta = Monitored::Scalar("eta", 0.0);
-	    auto HLT_AllChainsRoIs = Monitored::Group(tool, eta, phi); //filled when going out of scope
-
-	    const TrigRoiDescriptor* roi = *(li.link).cptr();
-    	    eta = roi->eta();
-	    phi = roi->phi();
-	    ATH_MSG_DEBUG( "RoI: eta = " << eta << ", phi = " << phi ); 
+	  //If the chain is prescaled
+	  ATH_MSG_DEBUG( "Prescale: " << m_trigDecTool->getPrescale(chainNames[ith]) );
+	  if(m_trigDecTool->getPrescale(chainNames[ith])!=1) {
+	    //NB! Right now very few chains are prescaled, so this histogram is seldom filled
+	    HLT_PS = chainNames[ith];
+	    ATH_MSG_DEBUG( "Fill HLT_PS for " << signaturename << " and " << chainNames[ith]); 
+	    fill(tool,HLT_PS);
 	  }
 
-	  else {
-	    ATH_MSG_WARNING( "TrigRoiDescriptorCollection for chain " << chainNames[ith] << " is not valid");
-	  }
-
-	}//end for (const LinkInfo<TrigRoiDescriptorCollection>& li : fvec)
-      }// end if(m_trigDecTool->isPassed(chainNames[ith]))
-    }// end if( chainNames[ith] != "" )
-  }//end for(unsigned int ith=0; ith<nHLTChains; ++ith)
+	  /// Fill RoIs histogram
+	  ATH_MSG_DEBUG("Fill RoI histograms for chain " << chainNames[ith] );
+	  std::vector<LinkInfo<TrigRoiDescriptorCollection>> fvec = m_trigDecTool->features<TrigRoiDescriptorCollection>(chainNames[ith], TrigDefs::Physics, "", TrigDefs::lastFeatureOfType, initialRoIString()); 
 
 
-  //Placeholder   
-  ATH_MSG_DEBUG( "Fill HLT_ElectronsRAW with " << HLT_ElectronsRAW );
-  fill(tool,HLT_ElectronsRAW);
+	  //Loop over RoIs
+	  for (const LinkInfo<TrigRoiDescriptorCollection>& li : fvec) {
+	    if( li.isValid() ) {
+	      auto phi = Monitored::Scalar("phi",0.0);
+	      auto eta = Monitored::Scalar("eta",0.0);
+	      if(signaturename=="AllChains") {
+		ATH_MSG_DEBUG( "RoI: filling for " << signaturename );
+		auto HLT_RoIs = Monitored::Group(toolAll, eta, phi);
+		const TrigRoiDescriptor* roi = *(li.link).cptr();
+		eta = roi->eta();
+		phi = roi->phi();
+		ATH_MSG_DEBUG( "RoI: eta = " << eta << ", phi = " << phi ); 
+	      }
+
+	      //Check signatures
+	      if(signaturename=="Electrons") {
+		ATH_MSG_DEBUG( "RoI: filling for " << signaturename );
+		auto HLT_RoIs = Monitored::Group(toolEle, eta, phi);
+		const TrigRoiDescriptor* roi = *(li.link).cptr();
+		eta = roi->eta();
+		phi = roi->phi();
+		ATH_MSG_DEBUG( "RoI: eta = " << eta << ", phi = " << phi ); 
+	      }
+	      else if(signaturename=="Gamma") {
+		ATH_MSG_DEBUG( "RoI: filling for " << signaturename );
+		auto HLT_RoIs = Monitored::Group(toolGam, eta, phi);
+		const TrigRoiDescriptor* roi = *(li.link).cptr();
+		eta = roi->eta();
+		phi = roi->phi();
+		ATH_MSG_DEBUG( "RoI: eta = " << eta << ", phi = " << phi ); 
+	      }
+	      else if(signaturename=="Muons") {
+		ATH_MSG_DEBUG( "RoI: filling for " << signaturename );
+		auto HLT_RoIs = Monitored::Group(toolMuo, eta, phi);
+		const TrigRoiDescriptor* roi = *(li.link).cptr();
+		eta = roi->eta();
+		phi = roi->phi();
+		ATH_MSG_DEBUG( "RoI: eta = " << eta << ", phi = " << phi ); 
+	      }
+	      else if(signaturename=="MissingET") {
+		ATH_MSG_DEBUG( "RoI: filling for " << signaturename );
+		auto HLT_RoIs = Monitored::Group(toolMET, eta, phi);
+		const TrigRoiDescriptor* roi = *(li.link).cptr();
+		eta = roi->eta();
+		phi = roi->phi();
+		ATH_MSG_DEBUG( "RoI: eta = " << eta << ", phi = " << phi ); 
+	      }
+	      else if(signaturename=="Taus") {
+		ATH_MSG_DEBUG( "RoI: filling for " << signaturename );
+		auto HLT_RoIs = Monitored::Group(toolTau, eta, phi);
+		const TrigRoiDescriptor* roi = *(li.link).cptr();
+		eta = roi->eta();
+		phi = roi->phi();
+		ATH_MSG_DEBUG( "RoI: eta = " << eta << ", phi = " << phi ); 
+	      }
+	      else if(signaturename=="Jets") {
+		ATH_MSG_DEBUG( "RoI: filling for " << signaturename );
+		auto HLT_RoIs = Monitored::Group(toolJet, eta, phi);
+		const TrigRoiDescriptor* roi = *(li.link).cptr();
+		eta = roi->eta();
+		phi = roi->phi();
+		ATH_MSG_DEBUG( "RoI: eta = " << eta << ", phi = " << phi ); 
+	      }
+
+
+
+	    }//end if(li.isValid())
+
+	    else {
+	      ATH_MSG_WARNING( "TrigRoiDescriptorCollection for chain " << chainNames[ith] << " is not valid");
+	    }
+
+	  }//end for (const LinkInfo<TrigRoiDescriptorCollection>& li : fvec)
+	}// end if(m_trigDecTool->isPassed(chainNames[ith]))
+      }// end if( chainNames[ith] != "" )
+    }//end for(unsigned int ith=0; ith<nHLTChains; ++ith)
+  }//end loop over streams
+
   
 
   //////////////////////////////////////
@@ -131,7 +220,7 @@ StatusCode TrigHLTMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
   
   //////////////////////////////////////
   // End
-  ATH_MSG_INFO( "Finalizing the TrigHLTMonitorAlgorithm..." );
+  ATH_MSG_DEBUG( "Finalizing the TrigHLTMonitorAlgorithm..." );
   return StatusCode::SUCCESS;
 }
 
@@ -139,7 +228,6 @@ StatusCode TrigHLTMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 StatusCode TrigHLTMonitorAlgorithm::fillResultAndConsistencyHistograms( const EventContext& ctx ) const {
 
   using namespace Monitored;
-  StatusCode sc_trigDec = StatusCode::FAILURE; 
   StatusCode sc_hltResult = StatusCode::FAILURE; 
 
   // Declare the quantities which should be monitored
@@ -168,11 +256,11 @@ StatusCode TrigHLTMonitorAlgorithm::fillResultAndConsistencyHistograms( const Ev
     //THIS IS NOT IMPLEMENTED YET IN Run3
     //bskeys_1 = HLTResult->getConfigSuperMasterKey();
     //bskeys_2 = HLTResult->getConfigPrescalesKey();
-    ATH_MSG_INFO("sc_hltResult should not be SUCCESS");
+    ATH_MSG_DEBUG("sc_hltResult should not be SUCCESS");
   }
   else {
     //For now, this will always happen    
-    ATH_MSG_INFO("No HLTResult monitored (because it has not been implemented yet)");
+    ATH_MSG_DEBUG("====> No HLTResult monitored (because it has not been implemented yet)");
     //FIXME: When the HLTResult IS implemented this should be a WARNING // ebergeas Sept 2020
     //ATH_MSG_WARNING("No HLTResult found"); //Prints a warning message in the log file
     ConfigConsistency_HLT=7;

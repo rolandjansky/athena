@@ -13,7 +13,6 @@
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/ITrigNavigationThinningSvc.h"
 
-
 namespace HLT {
   class NavigationCore;
 }

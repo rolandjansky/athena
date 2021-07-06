@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Header: /cvs/PF/pool/StorageSvc/StorageSvc/DbBlob.h,v 1.14 2010/08/19 14:02:41 trentad Exp $
@@ -345,7 +345,7 @@ namespace pool    {
   DbBlob& operator << (DbBlob& s, const std::vector<T>& v)  {
     int len = (int)v.size();
     s << len;
-    for ( typename std::vector<T>::const_iterator i = v.begin(); i != v.end(); i++ )  {
+    for ( typename std::vector<T>::const_iterator i = v.begin(); i != v.end(); ++i )  {
       s << (*i);
     }
     return s;
@@ -370,7 +370,7 @@ namespace pool    {
   DbBlob& operator << (DbBlob& s, const std::list<T>& l)  {
     int len = (int)l.size();
     s << len;
-    for ( typename std::list<T>::const_iterator i = l.begin(); i != l.end(); i++ )  {
+    for ( typename std::list<T>::const_iterator i = l.begin(); i != l.end(); ++i )  {
       s << (*i);
     }
     return s;

@@ -64,10 +64,10 @@ Trk::TrackValidationNtupleWriter::TrackValidationNtupleWriter(const std::string&
     m_useExternalEventLinkTree(false),
     m_doTruth(true),
     m_doTrackParticle(false),
-    m_visibleParticleWithoutTruth(0),
+    m_visibleParticleWithoutTruth(nullptr),
     m_nTrackTreeRecords(0),
     m_trees(0),
-    m_eventLinkTree(0)
+    m_eventLinkTree(nullptr)
     
 {
     m_ValidationNtupleTools.push_back("Trk::TrackInformationNtupleTool/TrackInformationNtupleTool");
@@ -78,8 +78,8 @@ Trk::TrackValidationNtupleWriter::TrackValidationNtupleWriter(const std::string&
     m_eventPropertyNtupleHandles.push_back("Trk::EventPropertyNtupleTool/EventPropertyNtupleTool");
     m_eventPropertyNtupleHandles.push_back("Trk::EventToTrackLinkNtupleTool/EventToTrackLinkNtupleTool");
 
-    m_inputTrackCollection.push_back("Tracks");
-    m_trackTruthCollectionName.push_back("TrackTruthCollection");
+    m_inputTrackCollection.emplace_back("Tracks");
+    m_trackTruthCollectionName.emplace_back("TrackTruthCollection");
 
     declareProperty("TrackCollection",      m_inputTrackCollection,     "Names of the track collections");
     declareProperty("TrackParticleCollection", m_inputTrackParticleCollection, "Names of the track particle collections");
@@ -219,7 +219,7 @@ StatusCode Trk::TrackValidationNtupleWriter::initialize() {
         sc = m_truthNtupleTool->initBranches(m_trackTruthClassifiers, include_jets, m_inputTrackCollection);
         if (sc.isFailure()) return sc;
 
-        m_visibleParticleWithoutTruth = new HepMC::GenParticle(HepLorentzVector(), 0);
+        m_visibleParticleWithoutTruth = HepMC::newGenParticlePtr(HepMC::FourVector(), 0);
 
     } // if truth is activated
 
@@ -328,14 +328,14 @@ StatusCode Trk::TrackValidationNtupleWriter::execute() {
       if (m_eventPropertyNtupleTools[toolIndex]->resetVariables( ).isFailure()){};
     }
 
-    const McEventCollection*                 mcEventColl = 0;
+    const McEventCollection*                 mcEventColl = nullptr;
 
     unsigned int nTruthTreeRecordsAtCurrentEvent = 0;
     std::vector<Trk::ValidationTrackTruthData>  truthData;
-    std::vector<const HepMC::GenParticle*>*  selecParticles = 0;
+    std::vector<HepMC::ConstGenParticlePtr>*  selecParticles = nullptr;
     //std::vector<const Trk::TrackParameters*> extrapolatedTruthPerigees;
     //std::vector<std::vector<unsigned int> >  classifications;
-    std::vector< Trk::GenParticleJet >*      genParticleJets = 0;
+    std::vector< Trk::GenParticleJet >*      genParticleJets = nullptr;
     //std::map<HepMC::GenParticle*, unsigned int>  particleToIndexMap;
     if (m_doTruth) 
     {
@@ -373,11 +373,11 @@ StatusCode Trk::TrackValidationNtupleWriter::execute() {
                 Trk::ValidationTrackTruthData partData;
                 partData.genParticle = genParticle;
                 // Perform extrapolation to generate perigee parameters
-                const Trk::TrackParameters* generatedTrackPerigee(0);
+                const Trk::TrackParameters* generatedTrackPerigee(nullptr);
                 if ( genParticle->production_vertex() )
                   {
                     generatedTrackPerigee = m_truthToTrack->makePerigeeParameters( genParticle );
-                    if (generatedTrackPerigee == NULL && genParticle->barcode() > 1000000 ) {
+                    if (generatedTrackPerigee == nullptr && HepMC::barcode(genParticle) > 1000000 ) {
                       ATH_MSG_DEBUG ("No perigee available for interacting truth particle."
                                      <<" -> This is OK for particles from the TrackRecord, but probably"
                                      <<" a bug for production vertex particles.");
@@ -389,7 +389,7 @@ StatusCode Trk::TrackValidationNtupleWriter::execute() {
                 partData.classifications.reserve(m_trackTruthClassifiers.size());
                 for (unsigned int toolIndex = 0 ; toolIndex < m_trackTruthClassifiers.size(); ++toolIndex ) 
                   {
-                    partData.classifications.push_back(m_trackTruthClassifiers[toolIndex]->classify(*genParticle));
+                    partData.classifications.push_back(m_trackTruthClassifiers[toolIndex]->classify(genParticle));
                   }
                 // resize the truth to track vectors to the number of input track collections:
                 partData.truthToTrackIndices.resize(m_inputTrackCollection.size());
@@ -416,7 +416,7 @@ StatusCode Trk::TrackValidationNtupleWriter::execute() {
 //    std::cout<<"Finished working with truth part"<<std::endl;
    
     // get vertex collection so that the track selector is able to make a correct d0, z0 cut
-    const VxContainer* primaryVertexContainer = 0;
+    const VxContainer* primaryVertexContainer = nullptr;
     if (!m_trackSelector.empty() && m_inputPrimaryVertexCollection != "") {
         sc = evtStore()->retrieve(primaryVertexContainer, m_inputPrimaryVertexCollection);
         if ( !primaryVertexContainer || sc.isFailure() ) {
@@ -425,7 +425,7 @@ StatusCode Trk::TrackValidationNtupleWriter::execute() {
             return StatusCode::FAILURE;
         }
     }
-    const Trk::Vertex* vertex = 0;
+    const Trk::Vertex* vertex = nullptr;
     if (primaryVertexContainer) {
         if (primaryVertexContainer->size() > 0) vertex = &((*primaryVertexContainer)[0]->recVertex());
     }
@@ -519,7 +519,7 @@ StatusCode Trk::TrackValidationNtupleWriter::execute() {
     std::vector<Trk::ValidationTrackTruthData>::iterator truthDataIter = truthData.begin();
     for (; truthDataIter != truthData.end(); truthDataIter++) {
         delete (*truthDataIter).truthPerigee;
-        (*truthDataIter).truthPerigee = 0;
+        (*truthDataIter).truthPerigee = nullptr;
     }
     return StatusCode::SUCCESS;
 }
@@ -529,7 +529,7 @@ StatusCode Trk::TrackValidationNtupleWriter::writeTrackData(unsigned int trackCo
                                                             const Trk::Vertex* primaryVertex ) {
     StatusCode sc = StatusCode::SUCCESS; if (sc.isFailure()) { /* mute sc*/ }
     // retrieve reconstructed tracks
-    const TrackCollection* tracks = 0;
+    const TrackCollection* tracks = nullptr;
     if (m_inputTrackCollection[trackColIndex] != "" && evtStore()->contains<TrackCollection>(m_inputTrackCollection[trackColIndex])) {
         sc = evtStore()->retrieve(tracks, m_inputTrackCollection[trackColIndex]);
         if (sc.isFailure()) {
@@ -543,7 +543,7 @@ StatusCode Trk::TrackValidationNtupleWriter::writeTrackData(unsigned int trackCo
         return StatusCode::SUCCESS;
     }
 
-    const TrackTruthCollection* trackTruthCollection = 0;
+    const TrackTruthCollection* trackTruthCollection = nullptr;
     if (m_doTruth) {
         // retrieve track truth collection
         if (m_trackTruthCollectionName[trackColIndex] != "" && evtStore()->contains<TrackTruthCollection>(m_trackTruthCollectionName[trackColIndex])) {
@@ -565,9 +565,6 @@ StatusCode Trk::TrackValidationNtupleWriter::writeTrackData(unsigned int trackCo
 
     const unsigned int nTruthTreeRecordsAtCurrentEvent = 
       (m_doTruth ? m_truthNtupleTool->getNumberOfTreeRecords() : 0 );
-    //truthData.truthToTrackIndices
-    //std::vector< std::vector<unsigned int> >    truthToTrackIndices(selecParticles ? selecParticles->size() : 0);
-    //std::vector< std::vector<float> >           truthToTrackMatchingProbabilities(selecParticles ? selecParticles->size() : 0);
 
     int trackTreeIndexBegin = m_trees[trackColIndex]->GetEntries();
     int nTracksPerEvent = 0;
@@ -593,8 +590,8 @@ StatusCode Trk::TrackValidationNtupleWriter::writeTrackData(unsigned int trackCo
 
             if (m_doTruth){
                 // find matching truth particle
-                const TrackTruth* trackTruth = 0;
-                const HepMC::GenParticle* genParticle = 0;
+                const TrackTruth* trackTruth = nullptr;
+                HepMC::ConstGenParticlePtr genParticle{nullptr};
                 TrackTruthCollection::const_iterator truthIterator = trackTruthCollection->find( trackIterator - (*tracks).begin() );
                 if ( truthIterator == trackTruthCollection->end() ){
                   ATH_MSG_DEBUG ("No matching truth particle found for track");
@@ -604,23 +601,25 @@ StatusCode Trk::TrackValidationNtupleWriter::writeTrackData(unsigned int trackCo
                     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Link to generated particle information is not there - assuming a lost G4 particle ('fake fake')." << endmsg;
                     genParticle = m_visibleParticleWithoutTruth; // with pdg_id 0
                   } else {
+#ifdef HEPMC3
+                    genParticle = trackTruth->particleLink().scptr();
+#else
                     genParticle = trackTruth->particleLink().cptr();
-                    if ( genParticle!=NULL && genParticle->pdg_id() == 0 ) {
+#endif
+                    if ( genParticle!=nullptr && genParticle->pdg_id() == 0 ) {
                       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Associated Particle ID " << genParticle->pdg_id()
                             << " does not conform to PDG requirements... ignore it!" << endmsg;
-                      genParticle = 0;
+                      genParticle = nullptr;
                     } 
                   }
                 }
                 if (genParticle) {
                   ATH_MSG_VERBOSE("Associated Particle ID: " << genParticle->pdg_id());
                   // Perform extrapolation to generate perigee parameters
-                  const Trk::TrackParameters* generatedTrackPerigee(0);
-                  const Trk::TrackParameters* newTrackPerigee(0);
+                  const Trk::TrackParameters* generatedTrackPerigee(nullptr);
+                  const Trk::TrackParameters* newTrackPerigee(nullptr);
                   // fill the truth data in the track tree
-                  //unsigned int truthIndex = particleToIndexMap[genParticle];
                   int truthIndex = -1;
-                  //std::vector<const HepMC::GenParticle*>::const_iterator matchedPartIter = find(selecParticles->begin(), selecParticles->end(), genParticle);
                   // TODO: do the search somehow better:
                   std::vector<Trk::ValidationTrackTruthData>::iterator matchedPartIter = truthData.begin();
                   for (; matchedPartIter != truthData.end(); matchedPartIter++) {
@@ -636,7 +635,6 @@ StatusCode Trk::TrackValidationNtupleWriter::writeTrackData(unsigned int trackCo
                       generatedTrackPerigee = newTrackPerigee;
                     }
                   } else {
-                    //truthIndex = int(matchedPartIter - selecParticles->begin());
                     // store the index in the track tree of the current track (establish link from truth to track)
                     (*matchedPartIter).truthToTrackIndices[trackColIndex].push_back(m_nTrackTreeRecords[trackColIndex]);
                     (*matchedPartIter).truthToTrackMatchingProbabilities[trackColIndex].push_back(trackTruth->probability());
@@ -683,7 +681,7 @@ StatusCode Trk::TrackValidationNtupleWriter::writeTrackParticleData(unsigned int
  msg(MSG::DEBUG) << "writeTrackParticleData method started" << endmsg;
  
   // retrieve Trk::TrackParticleBaseCollection from the SG
- const Trk::TrackParticleBaseCollection* trackParticles = 0;
+ const Trk::TrackParticleBaseCollection* trackParticles = nullptr;
 
  if (m_inputTrackParticleCollection[trackParticleColIndex] != "" && 
      evtStore()->contains<Trk::TrackParticleBaseCollection>(m_inputTrackParticleCollection[trackParticleColIndex])) {
@@ -737,7 +735,11 @@ StatusCode Trk::TrackValidationNtupleWriter::finalize() {
 
     msg(MSG::INFO)  << "TrackValidationNtupleWriter finalize()" << endmsg;
 
+#ifdef HEPMC3
+    //This is smart pointer in HepMC3
+#else
     delete m_visibleParticleWithoutTruth;
+#endif
     for (unsigned int toolIndex = 0 ; toolIndex < m_eventPropertyNtupleTools.size(); ++toolIndex ){
       if (m_eventPropertyNtupleTools[toolIndex]->resetVariables( ).isFailure()){};
     }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -38,7 +38,7 @@ StatusCode TileRawChannelCorrectionAlg::execute(const EventContext& ctx) const {
   ATH_CHECK( outputRawChannels->status() );
 
   for (const ToolHandle<ITileRawChannelTool>& noiseFilterTool : m_noiseFilterTools) {
-    if (noiseFilterTool->process(*outputRawChannels.get()).isFailure()) {
+    if (noiseFilterTool->process(*outputRawChannels.get(), ctx).isFailure()) {
       ATH_MSG_ERROR( " Error status returned from " << noiseFilterTool.name() );
     } else {
       ATH_MSG_DEBUG( noiseFilterTool.name() << " applied to the container" );

@@ -14,9 +14,9 @@ namespace Trk{
 
 class MSHitDiffPlots: public PlotBase {
   public:
-    MSHitDiffPlots(PlotBase *pParent, std::string sDir);
-    void fill(const xAOD::TrackParticle& trkprt, const xAOD::TruthParticle& truthprt);
-    void fillPlot(HitTypePlots& hitPlots, const xAOD::SummaryType& info, const std::string& sInfo, const xAOD::TrackParticle& trkprt, const xAOD::TruthParticle& truthprt);
+    MSHitDiffPlots(PlotBase *pParent, const std::string& sDir);
+    void fill(const xAOD::TrackParticle& trkprt, const xAOD::TruthParticle& truthprt, float weight=1.0);
+    void fillPlot(HitTypePlots& hitPlots, const xAOD::SummaryType& info, const std::string& sInfo, const xAOD::TrackParticle& trkprt, const xAOD::TruthParticle& truthprt, float weight=1.0);
 
     Trk::HitTypePlots nprecLayers;
     Trk::HitTypePlots nphiLayers;

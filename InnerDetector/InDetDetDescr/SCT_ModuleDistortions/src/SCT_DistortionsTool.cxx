@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_DistortionsTool.h"
@@ -312,7 +312,7 @@ bool SCT_DistortionsTool::loadData()
   
   // ***** Jap1 *****
   std::string file_name =  PathResolver::find_file(m_textFileNameJ1, "DATAPATH");
-  if (file_name.size()==0) {
+  if (file_name.empty()) {
     msg(MSG::WARNING) << "Hash file " << m_textFileNameJ1   << " not found! " << endmsg; 
     return false;
   }
@@ -328,7 +328,7 @@ bool SCT_DistortionsTool::loadData()
 
   // ***** Jap2 *****  
   std::string file_name2 =  PathResolver::find_file(m_textFileNameJ2, "DATAPATH");
-  if (file_name2.size()==0) {
+  if (file_name2.empty()) {
     msg(MSG::WARNING) <<"Hash file " << m_textFileNameJ2   << " not found! "  << endmsg;
     return false;
   }
@@ -345,7 +345,7 @@ bool SCT_DistortionsTool::loadData()
 
   // ***** UK *****
   std::string file_name3 =  PathResolver::find_file(m_textFileNameUK, "DATAPATH");
-  if (file_name3.size()==0) {
+  if (file_name3.empty()) {
     msg(MSG::WARNING) << "Hash file " << m_textFileNameUK   << " not found! " << endmsg;
     return false;
   }
@@ -362,7 +362,7 @@ bool SCT_DistortionsTool::loadData()
 
   // ***** USA *****
   std::string file_name4 =  PathResolver::find_file(m_textFileNameUSA, "DATAPATH");
-  if (file_name4.size()==0) {
+  if (file_name4.empty()) {
     msg(MSG::WARNING)<< "Hash file " << m_textFileNameUSA   << " not found! " << endmsg;
     return false;
   }
@@ -378,7 +378,7 @@ bool SCT_DistortionsTool::loadData()
   
   // ***** Scand *****
   std::string file_name5 =  PathResolver::find_file(m_textFileNameScand, "DATAPATH");
-  if (file_name5.size()==0) {
+  if (file_name5.empty()) {
      msg(MSG::WARNING) << "Hash file " << m_textFileNameScand   << " not found! " << endmsg;
     return false;
   }
@@ -393,7 +393,7 @@ bool SCT_DistortionsTool::loadData()
   input5.close();
 
   std::string pro_file_name =  PathResolver::find_file(m_textFileNameProfiles, "DATAPATH");
-  if (pro_file_name.size()==0) {
+  if (pro_file_name.empty()) {
     msg(MSG::WARNING) << "Profile file " << m_textFileNameProfiles   << " not found! "  << endmsg;
   }
   std::ifstream inputProfile(pro_file_name.c_str());

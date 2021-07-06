@@ -2,15 +2,19 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <utility>
+
+
+
 #include "TrkValHistUtils/HitTypePlots.h"
 
 namespace Trk {
   HitTypePlots::HitTypePlots(PlotBase *pParent, std::string sHitType, std::string sHitLabel, int iMin,
                              int iMax) : PlotBase(pParent, ""),
-    m_sHitType(sHitType), m_sHitLabel(sHitLabel), m_iMin(iMin), m_iMax(iMax) {
-    Hits = NULL;
-    HitsVsEta = NULL;
-    HitsVsPhi = NULL;
+    m_sHitType(std::move(sHitType)), m_sHitLabel(std::move(sHitLabel)), m_iMin(iMin), m_iMax(iMax) {
+    Hits = nullptr;
+    HitsVsEta = nullptr;
+    HitsVsPhi = nullptr;
   }
 
   void
@@ -25,9 +29,9 @@ namespace Trk {
   }
 
   void
-  HitTypePlots::fill(int iHits, float fEta, float fPhi) {
-    Hits->Fill(iHits);
-    HitsVsEta->Fill(iHits, fEta);
-    HitsVsPhi->Fill(iHits, fPhi);
+  HitTypePlots::fill(int iHits, float fEta, float fPhi, float weight) {
+    Hits->Fill(iHits, weight);
+    HitsVsEta->Fill(iHits, fEta, weight);
+    HitsVsPhi->Fill(iHits, fPhi, weight);
   }
 }

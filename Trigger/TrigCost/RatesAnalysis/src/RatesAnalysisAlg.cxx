@@ -9,6 +9,10 @@
 #include "xAODEventInfo/EventInfo.h"
 
 #include "TrigConfL1Data/BunchGroupSet.h"
+#include "TrigConfData/HLTMenu.h"
+#include "TrigConfData/L1Menu.h"
+#include "TrigConfData/HLTPrescalesSet.h"
+#include "TrigConfData/L1PrescalesSet.h"
 //uncomment the line below to use the HistSvc for outputting trees and histograms
 #include "GaudiKernel/ITHistSvc.h"
 #include "TH1.h"
@@ -21,6 +25,7 @@ RatesAnalysisAlg::RatesAnalysisAlg( const std::string& name, ISvcLocator* pSvcLo
   m_targetMu(0.),
   m_targetBunches(0.),
   m_targetLumi(0.),
+  m_runNumber(0.),
   m_ratesDenominator(0),
   m_eventCounter(0),
   m_weightedEventCounter(0),
@@ -145,6 +150,8 @@ StatusCode RatesAnalysisAlg::newTrigger(const std::string& name,
   // Add this trigger to its groups
   if (m_doTriggerGroups) {
     for (const std::string& group : groups) {
+      // Ignore BW and PS groups
+      if (group.find("BW") == 0 || group.find("PS") == 0) continue;
       if (m_groups.count(group) == 0) {
         m_groups.emplace(group, std::make_unique<RatesGroup>(group, msg(), m_doHistograms, m_enableLumiExtrapolation));
         // As the group is formed from at least one active trigger - it must be active itself (counter example - CPS group of a PS=-1 trigger)
@@ -191,6 +198,21 @@ StatusCode RatesAnalysisAlg::addExisting(const std::string pattern) {
   const auto& triggers = m_tdt->getListOfTriggers(pattern);
   ATH_MSG_INFO("Read " << triggers.size() << " triggers from AOD.");
 
+  // Check if chain was disabled in athena job
+  const TrigConf::HLTPrescalesSet& hltPrescalesSet = m_configSvc->hltPrescalesSet(Gaudi::Hive::currentContext());
+  for( auto & p : hltPrescalesSet.data().get_child("prescales") ) {
+    if (!m_prescalesJSON.value().count(p.first) || hltPrescalesSet.prescale(p.first).prescale < 0){
+      m_prescalesJSON[p.first] = hltPrescalesSet.prescale(p.first).prescale;
+    }
+  }
+
+  const TrigConf::L1PrescalesSet& l1PrescalesSet = m_configSvc->l1PrescalesSet(Gaudi::Hive::currentContext());
+  for( auto & p : l1PrescalesSet.prescales() ) {
+    if (!m_prescalesJSON.value().count(p.first) || p.second.prescale < 0){
+      m_prescalesJSON[p.first] = p.second.prescale;
+    }
+  }
+
   // Iterate over the triggers and add them
   for (const auto& trigger : triggers) {
     ATH_MSG_DEBUG("Considering " << trigger );
@@ -201,9 +223,7 @@ StatusCode RatesAnalysisAlg::addExisting(const std::string pattern) {
       continue;
     }
     const std::string lowerName = (isHLT ? trigConf->lower_chain_name() : "");
-    const std::set<std::string> groups = (isHLT ? trigConf->groups() : std::set<std::string>());
-
-    ATH_MSG_DEBUG(" chain " << trigger << " has "  << groups.size() << " groups");
+    std::set<std::string> groups = std::set<std::string>(); // To be filled later from the HLTMenu
 
     if (isHLT) {
       // If this is a HLT item, we require it to be seeded by at most one item. This allows us to use a factorising rates algorithm
@@ -212,25 +232,35 @@ StatusCode RatesAnalysisAlg::addExisting(const std::string pattern) {
         continue;
       }
 
+      if (lowerName.empty()) {
+        ATH_MSG_DEBUG("Can not add " << trigger << " due to multiple L1 seeds: L1All" );
+        continue;
+      }
+      
       // Check it also wasn't disabled in the reprocessing (e.g. auto prescaled out in a perf or tightperf menu)
       if (trigConf->prescale() < 1.) { // Note this prescale is from ATHENA
         ATH_MSG_DEBUG("Will not add " << trigger << ", it was disabled in the reprocessing.");
         continue;
       }
 
-      // TODO the fetching of stream information is not working at present
-      //bool isMain = false;
-      for (const auto& stream : trigConf->streams()) {
-        ATH_MSG_WARNING("stream:" << stream->stream() );
-        // if (stream->stream() == "Main") {
-        //   isMain = true;
-        //   break;
-        // }
+      ATH_CHECK(m_configSvc.isValid());
+      const TrigConf::HLTMenu& hltMenu = m_configSvc->hltMenu(Gaudi::Hive::currentContext());
+
+      TrigConf::HLTMenu::const_iterator chain = std::find_if(hltMenu.begin(), hltMenu.end(), [&] (const TrigConf::Chain& c) {return c.name() == trigger;});
+      if (chain == hltMenu.end()){
+        ATH_MSG_WARNING("Chain " << trigger << " not found in the menu!");
+        continue;
       }
-      // if (isMain == false) {
-      //   ATH_MSG_WARNING("Will not add " << trigger << " due to non-Main stream." );
-      //   continue;
-      // }
+
+      std::vector<std::string> chainGroups = (*chain).groups();
+      std::vector<std::string> chainStreams = (*chain).streams();
+
+      ATH_MSG_DEBUG(" chain " << trigger << " has "  << chainGroups.size() << " groups and " << chainStreams.size() << " streams");
+
+      groups.insert(chainGroups.begin(), chainGroups.end());
+      for (const std::string& stream : chainStreams){
+        groups.insert("STREAM:" + stream );
+      }
     }
 
     // Get the prescale, express prescale and lower prescale. Note these prescales are from SUPPLIED JSON. 
@@ -393,6 +423,61 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
     }
   }
 
+  ATH_MSG_INFO("Retrieving HLT chain's ID and Group from HLT menu.");
+
+  m_hltChainIDGroup.resize(m_triggers.size());
+  for (size_t i = 0; i < m_triggers.size(); i++)
+    m_hltChainIDGroup.at(i).resize(3);
+
+  if(m_configSvc.isValid()) {
+    const TrigConf::HLTMenu& hltmenu = m_configSvc->hltMenu( Gaudi::Hive::currentContext() );
+    
+    TrigConf::HLTMenu::const_iterator chain_itr = hltmenu.begin();
+    TrigConf::HLTMenu::const_iterator chain_end = hltmenu.end();
+    size_t c = 0;
+
+    for( ; chain_itr != chain_end; ++chain_itr ) {
+      std::string chainName = ( *chain_itr ).name() ;
+      unsigned int chainID = ( *chain_itr ).counter();
+      std::vector<std::string> chainGroups = ( *chain_itr ).groups();
+      for (std::string& stream : (*chain_itr).streams()){
+        chainGroups.push_back("STREAM:" + stream);
+      }
+      std::string singlechainGroups = "";
+      for (unsigned int j=0; j < chainGroups.size(); ++j){
+        if (j==0) singlechainGroups += chainGroups[j];
+        else singlechainGroups += ", "+chainGroups[j];
+      }
+            
+      m_hltChainIDGroup.at(c).at(0) = chainName;
+      m_hltChainIDGroup.at(c).at(1) = std::to_string(chainID);
+      m_hltChainIDGroup.at(c).at(2) = singlechainGroups;
+      ++c;
+    }
+  }
+
+  ATH_MSG_INFO("Retrieving L1 item's ID from L1 menu.");
+
+  if(m_configSvc.isValid()) {
+    const TrigConf::L1Menu& l1menu = m_configSvc->l1Menu( Gaudi::Hive::currentContext() );
+
+    m_l1ItemID.resize(l1menu.size());
+    for (size_t i = 0; i < l1menu.size(); i++) {
+      // No groups for items
+      m_l1ItemID.at(i).resize(2);
+    }
+    
+    TrigConf::L1Menu::const_iterator item_itr = l1menu.begin();
+    TrigConf::L1Menu::const_iterator item_end = l1menu.end();
+
+    size_t c = 0;
+    for( ; item_itr != item_end; ++item_itr ) {
+      m_l1ItemID.at(c).at(0) =  (*item_itr).name();
+      m_l1ItemID.at(c).at(1) = std::to_string((*item_itr).ctpId());
+      ++c;
+    }
+  }
+
   // Print all triggers
   if (msgLevel(MSG::DEBUG)) {
     if (m_triggers.size()) {
@@ -426,9 +511,15 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
     ATH_MSG_DEBUG("################## Registering trigger histograms:");
       for (const auto& trigger : m_triggers) {
         if (!trigger.second->doHistograms()) continue; // Not all may be doing histograming
-        ATH_CHECK( trigger.second->giveDataHist(histSvc(), std::string("/RATESTREAM/Triggers/" + trigger.first + "/data")) );
-        ATH_CHECK( trigger.second->giveMuHist(histSvc(), std::string("/RATESTREAM/Triggers/" + trigger.first + "/rateVsMu")) );
-        if (m_useBunchCrossingTool) ATH_CHECK( trigger.second->giveTrainHist(histSvc(), std::string("/RATESTREAM/Triggers/" + trigger.first + "/rateVsTrain")) );
+        std::string lvlSubdir = "";
+        if (trigger.second->getName().find("L1") == 0){
+          lvlSubdir = "Rate_ChainL1_HLT/";
+        } else if (trigger.second->getName().find("HLT") == 0) {
+          lvlSubdir = "Rate_ChainHLT_HLT/";
+        }
+        ATH_CHECK( trigger.second->giveDataHist(histSvc(), std::string("/RATESTREAM/All/" + lvlSubdir + trigger.first + "/data")) );
+        ATH_CHECK( trigger.second->giveMuHist(histSvc(), std::string("/RATESTREAM/All/" + lvlSubdir + trigger.first + "/rateVsMu")) );
+        if (m_useBunchCrossingTool) ATH_CHECK( trigger.second->giveTrainHist(histSvc(), std::string("/RATESTREAM/All/" + lvlSubdir + trigger.first + "/rateVsTrain")) );
         else trigger.second->clearTrainHist();
       }
     }
@@ -442,9 +533,11 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
       ATH_MSG_DEBUG("################## Registering group histograms:");
       for (const auto& group : m_groups) {
         if (!group.second->doHistograms()) continue;
-        ATH_CHECK( group.second->giveDataHist(histSvc(), std::string("/RATESTREAM/Groups/" + group.first + "/data")) );
-        ATH_CHECK( group.second->giveMuHist(histSvc(), std::string("/RATESTREAM/Groups/" + group.first + "/rateVsMu")) );
-        if (m_useBunchCrossingTool) ATH_CHECK( group.second->giveTrainHist(histSvc(), std::string("/RATESTREAM/Groups/" + group.first + "/rateVsTrain")) );
+        std::string groupName = group.first;
+        std::replace( groupName.begin(), groupName.end(), ':', '_');
+        ATH_CHECK( group.second->giveDataHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/" + groupName + "/data")) );
+        ATH_CHECK( group.second->giveMuHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/" + groupName + "/rateVsMu")) );
+        if (m_useBunchCrossingTool) ATH_CHECK( group.second->giveTrainHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/" + groupName + "/rateVsTrain")) );
         else group.second->clearTrainHist();
       }
     }
@@ -452,9 +545,9 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
       ATH_MSG_DEBUG("################## Registering global group histograms:");
       for (const auto& group : m_globalGroups) {
         if (!group.second->doHistograms()) continue;
-        ATH_CHECK( group.second->giveDataHist(histSvc(), std::string("/RATESTREAM/Globals/" + group.first + "/data")) );
-        ATH_CHECK( group.second->giveMuHist(histSvc(), std::string("/RATESTREAM/Globals/" + group.first + "/rateVsMu")) );
-        if (m_useBunchCrossingTool) ATH_CHECK( group.second->giveTrainHist(histSvc(), std::string("/RATESTREAM/Globals/" + group.first + "/rateVsTrain")) );
+        ATH_CHECK( group.second->giveDataHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/RATE_GLOBAL_" + group.first + "/data")) );
+        ATH_CHECK( group.second->giveMuHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/RATE_GLOBAL_" + group.first + "/rateVsMu")) );
+        if (m_useBunchCrossingTool) ATH_CHECK( group.second->giveTrainHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/RATE_GLOBAL_" + group.first + "/rateVsTrain")) );
         else group.second->clearTrainHist();
       }
     }
@@ -479,14 +572,16 @@ StatusCode RatesAnalysisAlg::execute() {
 
   // Get event characteristics
   const xAOD::EventInfo* eventInfo(nullptr);
+  uint32_t distance = 0;
   ATH_CHECK( evtStore()->retrieve(eventInfo, "EventInfo") );
+  ATH_CHECK( m_enhancedBiasRatesTool->getDistanceIntoTrain(eventInfo, distance) );
 
   // Get the weighting & scaling characteristics
   m_weightingValues.m_enhancedBiasWeight = m_enhancedBiasRatesTool->getEBWeight(eventInfo);
   m_weightingValues.m_eventMu = std::ceil(eventInfo->actualInteractionsPerCrossing()); // This always seems to be a half integer
   m_weightingValues.m_eventLumi = m_enhancedBiasRatesTool->getLBLumi(eventInfo);
   m_weightingValues.m_isUnbiased = m_enhancedBiasRatesTool->isUnbiasedEvent(eventInfo);
-  m_weightingValues.m_distanceInTrain = m_enhancedBiasRatesTool->getDistanceIntoTrain(eventInfo); 
+  m_weightingValues.m_distanceInTrain = distance;
   m_weightingValues.m_eventLiveTime = m_enhancedBiasRatesTool->getEBLiveTime(eventInfo); 
 
   if (m_useBunchCrossingTool && m_vetoStartOfTrain > 0 && m_weightingValues.m_distanceInTrain < m_vetoStartOfTrain) return StatusCode::SUCCESS;
@@ -696,6 +791,9 @@ void RatesAnalysisAlg::writeMetadata() {
     return;
   }
 
+  m_runNumber = m_enhancedBiasRatesTool->getRunNumber();
+  m_metadataTree->Branch("runNumber", &m_runNumber);
+  
   m_metadataTree->Branch("targetMu", &m_targetMu);
   m_metadataTree->Branch("targetBunches", &m_targetBunches);
   m_metadataTree->Branch("targetLumi", &m_targetLumi);
@@ -712,12 +810,25 @@ void RatesAnalysisAlg::writeMetadata() {
     prescales.push_back(trigger.second->getPrescale() );
   }
 
+  for (const auto& group : m_groups) {
+    triggers.push_back(group.first);
+    lowers.push_back("-");
+    prescales.push_back(-1);
+  }
+
+  for (const auto& group : m_globalGroups) {
+    triggers.push_back("RATE_GLOBAL_" + group.first);
+    lowers.push_back("-");
+    prescales.push_back(-1);
+  }
+
   m_metadataTree->Branch("triggers", &triggers);
   m_metadataTree->Branch("lowers", &lowers);
   m_metadataTree->Branch("prescales", &prescales);
 
   std::vector<int32_t> bunchGroups;
   bunchGroups.reserve(16);
+
   uint32_t masterKey = 0;
   uint32_t hltPrescaleKey = 0;
   uint32_t lvl1PrescaleKey = 0;
@@ -732,12 +843,14 @@ void RatesAnalysisAlg::writeMetadata() {
     lvl1PrescaleKey = m_configSvc->lvl1PrescaleKey();
   }
 
-  if (bunchGroups.size() == 0) {
-    for (size_t i = 0; i < 16; ++i) {
-      bunchGroups.push_back(0);
-    }
+  if (bunchGroups.size() == 0 || std::all_of(bunchGroups.begin(), bunchGroups.end(), [](int i) { return i==0; })) {
+    bunchGroups = m_enhancedBiasRatesTool->getBunchGroups();
   }
+
   m_metadataTree->Branch("bunchGroups", &bunchGroups);
+
+  m_metadataTree->Branch("hltChainIDGroup", &m_hltChainIDGroup);
+  m_metadataTree->Branch("l1ItemID", &m_l1ItemID);
 
   m_metadataTree->Branch("masterKey", &masterKey);
   m_metadataTree->Branch("lvl1PrescaleKey", &lvl1PrescaleKey);

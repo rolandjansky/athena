@@ -6,47 +6,40 @@
 #define MUON_IMUONTRACKFINDER_H
 
 #include <vector>
+
 #include "GaudiKernel/IAlgTool.h"
 #include "TrkTrack/TrackCollection.h"
 
-static const InterfaceID IID_IMuonTrackFinder
-    ("Muon::IMuonTrackFinder",1,0);
+static const InterfaceID IID_IMuonTrackFinder("Muon::IMuonTrackFinder", 1, 0);
 
 namespace Muon {
 
-  class MuonSegment;
-  
-  /** @brief The IMuonTrackFinder is a pure virtual interface for tools to find track in the muon system
-      starting from a vector of segments
+    class MuonSegment;
 
-      The following interface is available.
-      @code
-        std::vector<const Trk::Track*>* find( const std::vector<const MuonSegment*>& segments );
-      @endcode					      
+    /** @brief The IMuonTrackFinder is a pure virtual interface for tools to find track in the muon system
+        starting from a vector of segments
 
-  */  
-  class IMuonTrackFinder : virtual public IAlgTool 
-  {      
-    public:
-    /** access to tool interface */
-    static const InterfaceID& interfaceID();
+        The following interface is available.
+        @code
+          std::vector<const Trk::Track*>* find( const std::vector<const MuonSegment*>& segments );
+        @endcode
 
-    /** @brief interface for tools to find track in the muon system starting from a vector of segments
-	@param segments a vector of input segments 
-        @return a pointer to a vector of Trk::Track objects, zero if no tracks are found.
-	        The ownership of the tracks is passed to the client calling the tool.
-	
     */
-    virtual TrackCollection* find( const std::vector<const MuonSegment*>& segments ) const = 0;
+    class IMuonTrackFinder : virtual public IAlgTool {
+    public:
+        /** access to tool interface */
+        static const InterfaceID& interfaceID();
 
-    virtual void cleanUp() const = 0;
+        /** @brief interface for tools to find track in the muon system starting from a vector of segments
+            @param segments a vector of input segments
+            @return a pointer to a vector of Trk::Track objects, zero if no tracks are found.
+                    The ownership of the tracks is passed to the client calling the tool.
 
-  };
-  
-  inline const InterfaceID& IMuonTrackFinder::interfaceID()
-  {
-    return IID_IMuonTrackFinder;
-  }
-} // end of name space
+        */
+        virtual TrackCollection* find(const std::vector<const MuonSegment*>& segments) const = 0;
+    };
 
-#endif // IMuonTrackFinder_H
+    inline const InterfaceID& IMuonTrackFinder::interfaceID() { return IID_IMuonTrackFinder; }
+}  // namespace Muon
+
+#endif  // IMuonTrackFinder_H

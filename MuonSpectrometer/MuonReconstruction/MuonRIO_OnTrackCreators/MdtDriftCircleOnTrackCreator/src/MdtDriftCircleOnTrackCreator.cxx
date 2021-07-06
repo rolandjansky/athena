@@ -175,7 +175,7 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::createRIO_OnTra
 
 
   // Local position for calculation of postion along the tube, used for wire sag treatment
- const Amg::Vector2D* tempLocOnWire = nominalSurf->Trk::Surface::globalToLocal(GP,m_globalToLocalTolerance);
+  std::optional<Amg::Vector2D> tempLocOnWire = nominalSurf->Trk::Surface::globalToLocal(GP,m_globalToLocalTolerance);
   if( !tempLocOnWire ){
     ATH_MSG_WARNING( "globalToLocal failed! " );
     return 0;
@@ -191,8 +191,7 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::createRIO_OnTra
     }
     
     //set large value for tolerance, to make sure that global position including drift radius is taken to the wire.
-    const Amg::Vector2D* tempLocOnSaggedWire = saggedSurf->Trk::Surface::globalToLocal(GP,m_globalToLocalTolerance);
-    delete tempLocOnWire; 
+    std::optional<Amg::Vector2D> tempLocOnSaggedWire = saggedSurf->Trk::Surface::globalToLocal(GP,m_globalToLocalTolerance);
     if( !tempLocOnSaggedWire ){
       ATH_MSG_WARNING( "globalToLocal failed for sagged surface, not applying sagging! " );
       return 0;
@@ -204,7 +203,6 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::createRIO_OnTra
   }
   
   double positionAlongWire = (*tempLocOnWire)[Trk::locZ];
-  delete tempLocOnWire;
   // set driftcirclestatus, NODRIFTTIME if creating tube hits else UNDECIDED
   Trk::DriftCircleStatus dcstatus = m_doMdt ? Trk::UNDECIDED : Trk::NODRIFTTIME;
   
@@ -231,7 +229,7 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::createRIO_OnTra
     // calculate sign using surface
     
     const Trk::StraightLineSurface& surf = saggedSurf ? *saggedSurf : *nominalSurf;
-    const Amg::Vector2D* pos = surf.Trk::Surface::globalToLocal( GP, *GD);
+    std::optional<Amg::Vector2D> pos = surf.Trk::Surface::globalToLocal( GP, *GD);
     
     // check this might still fail....
     if( !pos ){
@@ -253,7 +251,6 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::createRIO_OnTra
                                     positionAlongWire,
                                     *myStrategy,
                                     saggedSurf );  
-    delete pos;
     // @todo - improve simplistic test below. EJWM.
     // double tolerance=0.01;
     // if ( m_debug && (GP.x()-rot->globalPosition().x())>tolerance
@@ -388,10 +385,9 @@ Muon::MdtDriftCircleOnTrackCreator::getLocalMeasurement(const MdtPrepData& DC,
     radius    = calibHit->driftRadius();  // copy new values
     errRadius=radius; // Use same value      
     if ( myStrategy->creationParameter(MuonDriftCircleErrorStrategy::ErrorAtPredictedPosition)){
-      const Amg::Vector2D* myLocalPosition = DC.detectorElement()->surface(DC.identify()).Trk::Surface::globalToLocal(gpos);
+      std::optional<Amg::Vector2D> myLocalPosition = DC.detectorElement()->surface(DC.identify()).Trk::Surface::globalToLocal(gpos);
 	  if (myLocalPosition) {
         errRadius = (*myLocalPosition)[Trk::driftRadius];
-         delete myLocalPosition;
 	  } else {
         ATH_MSG_WARNING("ErrorAtPredictedPosition failed because local position transformation didn't succeed. Using measured radius instead.");
         errRadius=radius; 

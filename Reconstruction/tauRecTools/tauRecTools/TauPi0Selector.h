@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUREC_TAUPI0SELECTOR_H
-#define	TAUREC_TAUPI0SELECTOR_H
+#ifndef TAURECTOOLS_TAUPI0SELECTOR_H
+#define	TAURECTOOLS_TAUPI0SELECTOR_H
 
 #include "tauRecTools/TauRecToolBase.h"
 
@@ -37,4 +37,4 @@ private:
   std::vector<double> m_clusterBDTCut_mprong;
 };
 
-#endif	/* TAUPI0SELECTOR_H */
+#endif	// TAURECTOOLS_TAUPI0SELECTOR_H

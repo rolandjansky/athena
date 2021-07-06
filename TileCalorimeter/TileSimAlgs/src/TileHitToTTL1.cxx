@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -56,36 +56,7 @@
 
 using CLHEP::RandGaussQ;
 
-//
-// Constructor
-//
-TileHitToTTL1::TileHitToTTL1(std::string name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
-  , m_cosmicsType(false)
-  , m_tileID(nullptr)
-  , m_tileTBID(nullptr)
-  , m_tileHWID(nullptr)
-  , m_tileInfo(nullptr)
-  , m_TT_ID(nullptr)
-  , m_cabling(nullptr)
-  , m_nSamples(0)
-  , m_iTrig(0)
-  , m_MBTSnSamples(0)
-  , m_MBTSiTrig(0)
-  , m_lastTower(0)
-  , m_tileNoise(false)
-  , m_tileThresh(false)
-{
-  m_infoName = "TileInfo";
-  m_TileTTL1Type = "Standard";
 
-  declareProperty("TileInfoName", m_infoName);
-  declareProperty("TileTTL1Type", m_TileTTL1Type);
-  declareProperty("maskBadChannels", m_maskBadChannels = true);
-}
-
-TileHitToTTL1::~TileHitToTTL1() {
-}
 
 //
 // Alg standard initialize function
@@ -163,16 +134,13 @@ StatusCode TileHitToTTL1::initialize() {
   m_nSamples = m_tileInfo->NdigitSamples(); // number of time slices for each chan
   m_iTrig = m_tileInfo->ItrigSample();   // index of the triggering time slice
   double phase = 0.0;
-  m_TTL1Shape.resize(m_nSamples, 0.);
-  m_tileInfo->ttl1Shape(m_nSamples, m_iTrig, phase, m_TTL1Shape);
+  std::vector<double> ttl1Shape(m_nSamples, 0.);
+  m_tileInfo->ttl1Shape(m_nSamples, m_iTrig, phase, ttl1Shape);
   if (msgLvl(MSG::DEBUG)) {
     for (int jsamp = 0; jsamp < m_nSamples; ++jsamp) {
-      msg(MSG::DEBUG) << "jsamp=" << jsamp << " ttl1shape=" << m_TTL1Shape[jsamp] << endmsg;
+      msg(MSG::DEBUG) << "jsamp=" << jsamp << " ttl1shape=" << ttl1Shape[jsamp] << endmsg;
     } // end of pulse shape loading
   }
-
-  // total number of towers in TileCal
-  m_lastTower = 15;
 
   // Data for MBTS
   // The MBTS have a special hardware configuration. The trigger uses the tower
@@ -186,7 +154,7 @@ StatusCode TileHitToTTL1::initialize() {
   m_tileThresh = m_tileInfo->TileZeroSuppress();
 
   if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << " TTL1Shape[" << m_iTrig << "]=" << m_TTL1Shape[m_iTrig] << endmsg;
+    msg(MSG::DEBUG) << " TTL1Shape[" << m_iTrig << "]=" << ttl1Shape[m_iTrig] << endmsg;
 
     msg(MSG::DEBUG) << " nSamples=" << m_nSamples
                     << ", iTrig=" << m_iTrig
@@ -205,7 +173,7 @@ StatusCode TileHitToTTL1::initialize() {
 //
 // Begin Execution Phase.
 //
-StatusCode TileHitToTTL1::execute() {
+StatusCode TileHitToTTL1::execute(const EventContext &ctx) const {
 
   ATH_MSG_DEBUG( "Executing TileHitToTTL1" );
 
@@ -214,7 +182,7 @@ StatusCode TileHitToTTL1::execute() {
 
   // Prepare RNG Service
   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this, m_randomStreamName);
-  rngWrapper->setSeed( m_randomStreamName, Gaudi::Hive::currentContext() );
+  rngWrapper->setSeed( m_randomStreamName, ctx );
 
   /*........................................................................*/
   // Get hit container from TES and create TTL1 and MBTS container
@@ -222,10 +190,10 @@ StatusCode TileHitToTTL1::execute() {
   // but TTL1 container has no collections and no structure
   /*........................................................................*/
 
-  SG::ReadHandle<TileHitContainer> hitContainer(m_hitContainerKey);
+  SG::ReadHandle<TileHitContainer> hitContainer(m_hitContainerKey, ctx);
   ATH_CHECK( hitContainer.isValid() );
 
-  SG::WriteHandle<TileTTL1Container> ttl1Container(m_ttl1ContainerKey);
+  SG::WriteHandle<TileTTL1Container> ttl1Container(m_ttl1ContainerKey, ctx);
   // Register the TTL1 container in the TES
   ATH_CHECK( ttl1Container.record(std::make_unique<TileTTL1Container>()) );
   ATH_MSG_DEBUG( "TileTTL1Container registered successfully (" << m_ttl1ContainerKey.key() << ")" );
@@ -269,6 +237,8 @@ StatusCode TileHitToTTL1::execute() {
   else ttL1samples.resize(m_nSamples);
   MBTSsamples.resize(m_MBTSnSamples);
 
+  std::vector<double> ttl1Shape(m_nSamples, 0.);
+  std::vector<double> ttl1MBTSShape(m_MBTSnSamples, 0.);
   /*........................................................................*/
   // Begin loop over all collections (collection = electronic drawer). 
   /*........................................................................*/
@@ -385,11 +355,11 @@ StatusCode TileHitToTTL1::execute() {
             // Need to pass the negative of t_hit, this is because ttl1Shape returns the amplitude at 
             // a given phase, whereas the t_hit from t=0 when the hit took place
             double t_hit = -(tile_hit->time(ihit));
-            m_tileInfo->ttl1Shape(m_MBTSnSamples, m_MBTSiTrig, t_hit, m_TTL1Shape);
+            m_tileInfo->ttl1Shape(m_MBTSnSamples, m_MBTSiTrig, t_hit, ttl1MBTSShape);
 
             double e_hit = tile_hit->energy(ihit);
             for (int js = 0; js < m_MBTSnSamples; ++js) {
-              hitSamples[js] += e_hit * m_TTL1Shape[js];
+              hitSamples[js] += e_hit * ttl1MBTSShape[js];
             } // end of loop over MBTS samples
           }  // end loop over sub-hits 
 
@@ -443,11 +413,11 @@ StatusCode TileHitToTTL1::execute() {
         // Need to pass the negative of t_hit, this is because ttl1Shape returns the amplitude at 
         // a given phase, whereas the t_hit from t=0 when the hit took place
         double t_hit = -(tile_hit->time(ihit));
-        m_tileInfo->ttl1Shape(m_nSamples, m_iTrig, t_hit, m_TTL1Shape);
+        m_tileInfo->ttl1Shape(m_nSamples, m_iTrig, t_hit, ttl1Shape);
 
         double e_hit = tile_hit->energy(ihit);
         for (int js = 0; js < m_nSamples; ++js) {
-          hitSamples[js] += e_hit * m_TTL1Shape[js];
+          hitSamples[js] += e_hit * ttl1Shape[js];
         } // end of loop over samples
       } // end loop over sub-hits
 
@@ -542,7 +512,7 @@ StatusCode TileHitToTTL1::execute() {
           double ttL1Max = m_tileInfo->MBTSL1Max(MBTS_id);
 
           if (m_tileNoise)
-            RandGaussQ::shootArray(*rngWrapper, m_MBTSnSamples, Rndm);
+            RandGaussQ::shootArray(rngWrapper->getEngine(ctx), m_MBTSnSamples, Rndm);
           for (int jsamp = 0; jsamp < m_MBTSnSamples; ++jsamp) {
             MBTSAmp[jsamp] *= ttL1Calib; // convert pCb to mV
             MBTSsamples[jsamp] = MBTSAmp[jsamp] + ttL1Ped;
@@ -598,7 +568,7 @@ StatusCode TileHitToTTL1::execute() {
           }  // end loop over samples
 
           if (m_tileNoise)
-            peakAmp += ttL1NoiseSigma * RandGaussQ::shoot(*rngWrapper);
+            peakAmp += ttL1NoiseSigma * RandGaussQ::shoot(rngWrapper->getEngine(ctx));
           ttL1samples[0] = peakAmp;
           if (m_tileThresh) {
             if (ttL1samples[0] - ttL1Ped < ttL1Thresh)
@@ -624,7 +594,7 @@ StatusCode TileHitToTTL1::execute() {
           double ttL1Max = m_tileInfo->TTL1Max(ttId[ieta]);
 
           if (m_tileNoise)
-            RandGaussQ::shootArray(*rngWrapper, m_nSamples, Rndm);
+            RandGaussQ::shootArray(rngWrapper->getEngine(ctx), m_nSamples, Rndm);
           for (int jsamp = 0; jsamp < m_nSamples; ++jsamp) {
             ttAmp[ieta][jsamp] *= ttL1Calib; // convert pCb to mV
             ttL1samples[jsamp] = ttAmp[ieta][jsamp] + ttL1Ped;
@@ -671,7 +641,7 @@ StatusCode TileHitToTTL1::execute() {
   }
 
   if (mbtsTTL1Container) {
-    SG::WriteHandle<TileTTL1Container> mbtsContainer(m_mbtsTTL1ContainerKey);
+    SG::WriteHandle<TileTTL1Container> mbtsContainer(m_mbtsTTL1ContainerKey, ctx);
     ATH_CHECK( mbtsContainer.record(std::move(mbtsTTL1Container)));
 
     ATH_MSG_DEBUG( "MBTS TileTTL1Container registered successfully (" << m_mbtsTTL1ContainerKey.key() << ")" );

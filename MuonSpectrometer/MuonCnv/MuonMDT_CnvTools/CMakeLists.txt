@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name.
 atlas_subdir( MuonMDT_CnvTools )
@@ -20,4 +20,4 @@ atlas_add_component( MuonMDT_CnvTools
    AthenaBaseComps StoreGateLib AtlasDetDescr Identifier ByteStreamCnvSvcBaseLib
    MdtCalibSvcLib MuonCalibEvent MuonReadoutGeometry MuonDigitContainer
    MuonIdHelpersLib MuonRDO MuonPrepRawData MuonCablingData GeoModelUtilities
-   MuonCnvToolInterfacesLib MuonMDT_CnvToolsLib )
+   MuonCnvToolInterfacesLib MuonMDT_CnvToolsLib ByteStreamCnvSvcLib )

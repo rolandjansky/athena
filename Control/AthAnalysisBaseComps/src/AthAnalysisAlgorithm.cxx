@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthAnalysisAlgorithm.cxx 
@@ -23,9 +23,7 @@ AthAnalysisAlgorithm::AthAnalysisAlgorithm( const std::string& name )
   addRef();
 }
 
-AthAnalysisAlgorithm::AthAnalysisAlgorithm( const std::string& name
-					    , ISvcLocator* pSvcLocator
-					    , const std::string& )
+AthAnalysisAlgorithm::AthAnalysisAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
   : AthHistogramAlgorithm(name,pSvcLocator)
   , m_inputMetaStore( "StoreGateSvc/InputMetaDataStore", name )
   , m_outputMetaStore( "StoreGateSvc/MetaDataStore", name )

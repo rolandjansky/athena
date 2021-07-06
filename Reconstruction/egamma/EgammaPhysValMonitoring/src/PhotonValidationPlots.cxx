@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PhotonValidationPlots.h"
 #include "xAODEgamma/EgammaDefs.h"
+
+using CLHEP::GeV;
 
 PhotonValidationPlots::PhotonValidationPlots(PlotBase* pParent, const std::string& sDir):PlotBase(pParent, sDir),
 										  m_oAllPlots(this, "PhotAll/", "Reco All"),
@@ -50,16 +52,19 @@ void PhotonValidationPlots::initializePlots(){
   res_eta_cut = BookTProfile("res_eta_cut"," IsoPhoton;#eta;(E_{T} - E_{T}^{truth})/E_{T}^{truth}",60, -3., 3.);
 }
 
-void PhotonValidationPlots::fill(const xAOD::Photon& photon, bool isPrompt){
+void PhotonValidationPlots::fill(const xAOD::Photon& photon, const xAOD::EventInfo& eventInfo, bool isPrompt) const{
   
-  author->Fill(photon.author());
-  m_oAllPlots.fill(photon, isPrompt);
+  float weight = 1.;
+  weight = !eventInfo.beamSpotWeight() ? eventInfo.beamSpotWeight() : 1.;
+    
+  author->Fill(photon.author(),weight);
+  m_oAllPlots.fill(photon, eventInfo, isPrompt);
 
-  double photon_pt = photon.pt()*0.001;
-  if (photon.author()&xAOD::EgammaParameters::AuthorPhoton&&photon_pt>7.) m_oPhotPlots.fill(photon, isPrompt); 
-  if (photon_pt<7.) m_oTopoPhotPlots.fill(photon, isPrompt);    
-  if (photon.author()&xAOD::EgammaParameters::AuthorAmbiguous&&photon_pt>7.) m_oAmbPhotPlots.fill(photon, isPrompt); 
+  double photon_pt = photon.pt()/GeV;
+  if (photon.author()&xAOD::EgammaParameters::AuthorPhoton&&photon_pt>7.) m_oPhotPlots.fill(photon, eventInfo, isPrompt); 
+  if (photon_pt<7.) m_oTopoPhotPlots.fill(photon, eventInfo, isPrompt);    
+  if (photon.author()&xAOD::EgammaParameters::AuthorAmbiguous&&photon_pt>7.) m_oAmbPhotPlots.fill(photon, eventInfo, isPrompt); 
 
   //Select converted photons 
-  if (photon_pt>7.)m_oConvPhotPlots.fill(photon,isPrompt);
+  if (photon_pt>7.)m_oConvPhotPlots.fill(photon, eventInfo, isPrompt);
 }

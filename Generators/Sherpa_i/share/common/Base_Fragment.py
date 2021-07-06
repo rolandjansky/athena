@@ -125,7 +125,8 @@ genSeq.Sherpa_i.Parameters += [
     ]
 
 ## OpenLoops parameters
+_sh_par="OL_PREFIX="+str(os.environ['OPENLOOPSPATH'])
 genSeq.Sherpa_i.Parameters += [
-    "OL_PREFIX=/cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/openloops/2.0.0/x86_64-slc6-gcc62-opt",
     "OL_PARAMETERS=preset=2 write_parameters=1",
 ]
+genSeq.Sherpa_i.Parameters.append(_sh_par)

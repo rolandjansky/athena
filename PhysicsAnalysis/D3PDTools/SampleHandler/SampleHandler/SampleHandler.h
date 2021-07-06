@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SAMPLE_HANDLER_SAMPLE_HANDLER_HH
 #define SAMPLE_HANDLER_SAMPLE_HANDLER_HH
 
-//          
+//
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
@@ -16,6 +16,7 @@
 
 
 #include <SampleHandler/Global.h>
+#include <SampleHandler/SamplePtr.h>
 
 #include <memory>
 #include <iosfwd>

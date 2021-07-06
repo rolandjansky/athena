@@ -2,6 +2,7 @@
 
 ### This module contains functions which may need to peek at the input file metadata
 
+from AthenaKernel.EventIdOverrideConfig import getMinMaxRunNumbers
 ## Get the logger
 from AthenaCommon.Logging import logging
 simMDlog = logging.getLogger('Sim_Metadata')
@@ -26,7 +27,6 @@ def fillAtlasMetadata(ConfigFlags, dbFiller):
 
     #---------  
     ## Simulated detector flags: add each enabled detector to the simulatedDetectors list
-    from AthenaCommon.DetFlags import DetFlags  # noqa: F401
     simDets = []
     for det in ['Pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','MM','sTGC','Truth','LVL1']:
         attrname = "Detector.Geometry"+det
@@ -50,22 +50,10 @@ def fillISFMetadata(dbFiller):
     dbFiller.addSimParam('Simulator', ISF_Flags.Simulator())
 
 
-def getRunNumberRangeForOutputMetadata(ConfigFlags):
-    myRunNumber = ConfigFlags.Input.RunNumber[0]
-    myEndRunNumber = 2147483647 # the max run number
-
-    #if myRunNumber > 0 :
-    #    simMDlog.info('Found Run Number %s in hits file metadata.', str(myRunNumber) )
-    #    myEndRunNumber = myRunNumber+1 # got a reasonable run number so set end run to be the next run after this one.
-    #else :
-    #    simMDlog.info('Found unexpected Run Number %s in hits file metadata. Not overriding RunNumber to match hits file for this job.', str(myRunNumber) )
-    #    myRunNumber = 0
-    return myRunNumber, myEndRunNumber
-
 def writeSimulationParametersMetadata(ConfigFlags):
     from IOVDbMetaDataTools import ParameterDbFiller
     dbFiller = ParameterDbFiller.ParameterDbFiller()
-    myRunNumber, myEndRunNumber = getRunNumberRangeForOutputMetadata(ConfigFlags)
+    myRunNumber, myEndRunNumber = getMinMaxRunNumbers(ConfigFlags)
     simMDlog.debug('ParameterDbFiller BeginRun = %s', str(myRunNumber) )
     dbFiller.setBeginRun(myRunNumber)
     simMDlog.debug('ParameterDbFiller EndRun   = %s', str(myEndRunNumber) )

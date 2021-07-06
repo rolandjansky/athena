@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCONFDATA_L1MENU_H
@@ -90,6 +90,9 @@ namespace TrigConf {
       /** Access to L1Threshold by name */
       const TrigConf::L1Threshold & threshold(const std::string & thresholdName) const;
 
+      /** Access to L1Threshold by type and mapping index */
+      const TrigConf::L1Threshold & threshold(const std::string & typeName, unsigned int mapping) const;
+
       /** Access to extra info for threshold types */
       const L1ThrExtraInfo & thrExtraInfo() const;
 
@@ -129,7 +132,6 @@ namespace TrigConf {
       /** Board names */
       std::vector<std::string> boardNames() const;
 
-
       /** Access to connector by name */
       const TrigConf::L1Connector & connector(const std::string & connectorName) const;
 
@@ -145,13 +147,23 @@ namespace TrigConf {
       /** print overview of L1 Menu */
       void printMenu(bool full = false) const;
 
+      bool isRun2() const { return m_run == 2; }
+
+      unsigned int run() const { return m_run; }
+
+      /** Clearing the configuration data */
+      virtual void clear() override;
+
    private:
 
       /** Update the internal data after modification of the data object */
-      virtual void update() override;
+      virtual void update() override { load(); };
+      void load();
 
       /** the supermasterkey */
       unsigned int m_smk {0};
+
+      unsigned int m_run{3}; // this variable is set to 2 for L1 menus from Run 2 which have a much reduced content 
 
       /** connector by name */ 
       std::map<std::string, TrigConf::L1Connector> m_connectors{};
@@ -165,6 +177,7 @@ namespace TrigConf {
       /** threshold maps */
       std::map<std::string, std::vector<std::shared_ptr<TrigConf::L1Threshold>>> m_thresholdsByType{};
       std::map<std::string, std::shared_ptr<TrigConf::L1Threshold>> m_thresholdsByName{};
+      std::map<std::string, std::map<unsigned int, std::shared_ptr<TrigConf::L1Threshold>>> m_thresholdsByTypeAndMapping{};
 
       TrigConf::L1ThrExtraInfo m_thrExtraInfo;
 

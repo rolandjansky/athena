@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AFP_Raw2DigiTool.h"
@@ -33,19 +33,21 @@ StatusCode AFP_Raw2DigiTool::initialize()
   ATH_CHECK( m_rawDataContainerName.initialize() );
   ATH_CHECK( m_AFPSiHitsContainerName.initialize() );
   ATH_CHECK( m_AFPHitsContainerNameToF.initialize() );
+  
+  m_totToChargeTransformation=TF1(m_totToChargeTransfName.toString().c_str(), m_totToChargeTransfExpr.toString().c_str());
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode AFP_Raw2DigiTool::recoAll()
+StatusCode AFP_Raw2DigiTool::recoAll(const EventContext &ctx) const
 {
-  ATH_CHECK( recoSiHits() );
-  ATH_CHECK( recoToFHits() );
+  ATH_CHECK( recoSiHits(ctx) );
+  ATH_CHECK( recoToFHits(ctx) );
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode AFP_Raw2DigiTool::recoSiHits()
+StatusCode AFP_Raw2DigiTool::recoSiHits(const EventContext &ctx) const
 {
   ATH_MSG_DEBUG("AFP_Raw2DigiTool recoSiHits ");
 
@@ -55,7 +57,7 @@ StatusCode AFP_Raw2DigiTool::recoSiHits()
   siHitContainer->setStore(siHitAuxContainer.get());
 
   // retrieve raw data
-  SG::ReadHandle<AFP_RawContainer> container{m_rawDataContainerName};
+  SG::ReadHandle<AFP_RawContainer> container{m_rawDataContainerName, ctx};
   if (!container.isValid()) {
     ATH_MSG_WARNING("AFP_Raw2DigiTool: Could not find raw data container");
     return StatusCode::SUCCESS;
@@ -67,13 +69,13 @@ StatusCode AFP_Raw2DigiTool::recoSiHits()
     for (const AFP_SiRawData& data : collection.dataRecords())
       newXAODHitSi (siHitContainer.get(), collection, data);
 
-  SG::WriteHandle<xAOD::AFPSiHitContainer> writeHandle{m_AFPSiHitsContainerName};
+  SG::WriteHandle<xAOD::AFPSiHitContainer> writeHandle{m_AFPSiHitsContainerName, ctx};
   ATH_CHECK( writeHandle.record(std::move(siHitContainer), std::move(siHitAuxContainer)) );
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode AFP_Raw2DigiTool::recoToFHits()
+StatusCode AFP_Raw2DigiTool::recoToFHits(const EventContext &ctx) const
 {
   ATH_MSG_DEBUG("AFP_Raw2DigiTool recoToFHits ");
 
@@ -83,7 +85,7 @@ StatusCode AFP_Raw2DigiTool::recoToFHits()
   tofHitContainer->setStore(tofHitAuxContainer.get());
 
   // retrieve raw data
-  SG::ReadHandle<AFP_RawContainer> container{m_rawDataContainerName};
+  SG::ReadHandle<AFP_RawContainer> container{m_rawDataContainerName, ctx};
   if (!container.isValid()) {
     ATH_MSG_WARNING("AFP_Raw2DigiTool: Could not find raw data container");
     return StatusCode::SUCCESS;
@@ -96,7 +98,7 @@ StatusCode AFP_Raw2DigiTool::recoToFHits()
       if (data.hitDiscConfig() == 3 && data.header() == 2) 
 	newXAODHitToF (tofHitContainer.get(), collection, data);
 
-  SG::WriteHandle<xAOD::AFPToFHitContainer> writeHandle{m_AFPHitsContainerNameToF};
+  SG::WriteHandle<xAOD::AFPToFHitContainer> writeHandle{m_AFPHitsContainerNameToF, ctx};
   ATH_CHECK( writeHandle.record(std::move(tofHitContainer), std::move(tofHitAuxContainer)) );
 
   return StatusCode::SUCCESS;

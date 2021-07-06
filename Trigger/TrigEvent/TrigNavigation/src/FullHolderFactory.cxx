@@ -1,7 +1,7 @@
 // Emacs -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -37,13 +37,19 @@ HLT::BaseHolder* HLT::FullHolderFactory::fromSerialized(int version, const std::
 
   BaseHolder::enquireSerialized(blobIt,end, clid, label, idx);
 
+  auto itr = m_ignore.find(clid);
+  if ( itr!=m_ignore.end() && (itr->second.empty() || itr->second.find(label)!=itr->second.end()) ) {
+    ATH_MSG_DEBUG( "deserialize: skipping " << clid << "#" << label );
+    return nullptr;
+  }
+
   ATH_MSG_VERBOSE("deserialize: extracted blob CLID: " << clid << " of size: " << blobsize << " SubTypeIndex: " << idx << " Label: " << label);
   
   BaseHolder* baseholder = createHolder(clid, label, idx);
   if (! baseholder) {
     ATH_MSG_ERROR("deserialize: Could not create holder for CLID " << clid
 		  << " this probably means that the package holding the class for this CLID was not compiled against the TrigNavigation package in use!");
-    return 0;
+    return nullptr;
   }
 
   // now we have the blobIt pointing to the place where objects may start

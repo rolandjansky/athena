@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,93 +11,86 @@
 
 class MsgStream;
 
-#include "TrkGeometry/PlaneLayer.h"
-#include "TrkSurfaces/PlaneSurface.h"
-#include "TrkGeometrySurfaces/SubtractedPlaneSurface.h"
 #include "TrkEventPrimitives/PropDirection.h"
-
+#include "TrkGeometry/PlaneLayer.h"
+#include "TrkGeometrySurfaces/SubtractedPlaneSurface.h"
+#include "TrkSurfaces/PlaneSurface.h"
 
 namespace Trk {
 
-  class LayerMaterialProperties;
+class LayerMaterialProperties;
 
-  /** 
-   @class SubtractedPlaneLayer
-   
-   Class to describe a planar detector layer for tracking, with subtraction 
-       
-   @author Sarka.Todorova@cern.ch 
-   */
+/**
+ @class SubtractedPlaneLayer
 
-  class SubtractedPlaneLayer : virtual public SubtractedPlaneSurface, public Layer {
-      
-      public:
-        /**Default Constructor*/
-        SubtractedPlaneLayer(){}
-        
-        /**Constructor with SubtractedPlaneSurface 
-           and MaterialProperties  */
-        SubtractedPlaneLayer(const SubtractedPlaneSurface* subtrPlaneSurf,
-                   const LayerMaterialProperties& laymatprop,
-                   double thickness = 0.,
-                   OverlapDescriptor* od = nullptr,
-                   int laytyp=int(Trk::active));
-                           
-       /**Copy constructor of SubtractedPlaneLayer*/
-        SubtractedPlaneLayer(const SubtractedPlaneLayer& pla);
+ Class to describe a planar detector layer for tracking, with subtraction
 
-       /**Copy constructor with shift*/
-        SubtractedPlaneLayer(const SubtractedPlaneLayer& pla, const Amg::Transform3D& tr);
-        
-        /**Assignment operator for PlaneLayers */
-        SubtractedPlaneLayer& operator=(const SubtractedPlaneLayer&);
-                                          
-        /**Destructor*/
-        ~SubtractedPlaneLayer() override{}   
-    
-        /** Transforms the layer into a Surface representation for extrapolation */
-        const SubtractedPlaneSurface& surfaceRepresentation() const override;            
+ @author Sarka.Todorova@cern.ch
+ */
 
-        /** getting the MaterialProperties back - for pre-update*/ 
-        double preUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                       Trk::PropDirection dir) const override;
+class SubtractedPlaneLayer final : virtual public SubtractedPlaneSurface,
+                                   public Layer {
+ public:
+  /**Default Constructor*/
+  SubtractedPlaneLayer() {}
 
-        /** getting the MaterialProperties back - for post-update*/ 
-        double  postUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                         Trk::PropDirection dir) const override;
-        /** move the Layer */
-        virtual void moveLayer(Amg::Transform3D& shift) override final;
+  /**Constructor with SubtractedPlaneSurface
+     and MaterialProperties  */
+  SubtractedPlaneLayer(const SubtractedPlaneSurface* subtrPlaneSurf,
+                       const LayerMaterialProperties& laymatprop,
+                       double thickness = 0., OverlapDescriptor* od = nullptr,
+                       int laytyp = int(Trk::active));
 
-        /** move the Layer */
-        virtual void moveLayer
-        ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& shift) const override final
-        {
-          const_cast<SubtractedPlaneLayer*>(this)->moveLayer(shift);
-        }
+  /**Copy constructor of SubtractedPlaneLayer*/
+  SubtractedPlaneLayer(const SubtractedPlaneLayer& pla);
 
-    private:
-      /** Resize the layer to the tracking volume - not implemented*/
-      virtual void resizeLayer(const VolumeBounds&, double) override final {}
-      /** Resize the layer to the tracking volume - not implemented*/
-      virtual void resizeLayer
-      ATLAS_NOT_THREAD_SAFE(const VolumeBounds&, double) const override final
-      {}
+  /**Copy constructor with shift*/
+  SubtractedPlaneLayer(const SubtractedPlaneLayer& pla,
+                       const Amg::Transform3D& tr);
 
-      /** Resize the layer to the tracking volume - not implemented */
-      virtual void resizeAndRepositionLayer(const VolumeBounds&,
-                                            const Amg::Vector3D&,
-                                            double) override final
-      {}
+  /**Assignment operator for PlaneLayers */
+  SubtractedPlaneLayer& operator=(const SubtractedPlaneLayer&);
 
-      /** Resize the layer to the tracking volume - not implemented */
-      virtual void resizeAndRepositionLayer
-      ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
-                            const Amg::Vector3D&,
-                            double) const override final
-      {}
-  };
+  /**Destructor*/
+  ~SubtractedPlaneLayer() override {}
 
-} // end of namespace
+  /** Transforms the layer into a Surface representation for extrapolation */
+  const SubtractedPlaneSurface& surfaceRepresentation() const override final;
 
-#endif // TRKGEOMETY_SUBTRACTEDPLANELAYER_H
+  /** getting the MaterialProperties back - for pre-update*/
+  double preUpdateMaterialFactor(const Trk::TrackParameters& par,
+                                 Trk::PropDirection dir) const override final;
+
+  /** getting the MaterialProperties back - for post-update*/
+  double postUpdateMaterialFactor(const Trk::TrackParameters& par,
+                                  Trk::PropDirection dir) const override final;
+  /** move the Layer */
+  virtual void moveLayer(Amg::Transform3D& shift) override final;
+
+  /** move the Layer */
+  virtual void moveLayer
+  ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& shift) const override final {
+    const_cast<SubtractedPlaneLayer*>(this)->moveLayer(shift);
+  }
+
+ private:
+  /** Resize the layer to the tracking volume - not implemented*/
+  virtual void resizeLayer(const VolumeBounds&, double) override final {}
+  /** Resize the layer to the tracking volume - not implemented*/
+  virtual void resizeLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
+                                                 double) const override final {}
+
+  /** Resize the layer to the tracking volume - not implemented */
+  virtual void resizeAndRepositionLayer(const VolumeBounds&,
+                                        const Amg::Vector3D&,
+                                        double) override final {}
+
+  /** Resize the layer to the tracking volume - not implemented */
+  virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE(
+      const VolumeBounds&, const Amg::Vector3D&, double) const override final {}
+};
+
+}  // namespace Trk
+
+#endif  // TRKGEOMETY_SUBTRACTEDPLANELAYER_H
 

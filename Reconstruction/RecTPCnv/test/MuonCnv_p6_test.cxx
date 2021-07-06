@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file RecTPCnv/test/MuonCnv_p6_test.cxx
@@ -15,6 +15,7 @@
 #include "TestTools/leakcheck.h"
 #include "TestTools/FLOATassert.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include <cassert>
 #include <iostream>
 
@@ -110,6 +111,7 @@ void test1()
   {
     Analysis::Muon xx (MuonParameters::highPt);
   }
+  (void)Gaudi::Hive::currentContext();
   ElementLink<Rec::TrackParticleContainer> el1 ("cont1", 1);
   ElementLink<Rec::TrackParticleContainer> el2 ("cont2", 2);
   ElementLink<Rec::TrackParticleContainer> el3 ("cont3", 3);

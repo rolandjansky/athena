@@ -162,6 +162,22 @@ namespace top {
       }
     }
 
+    // List of Nominal branches to be removed
+    inline std::vector<std::string> filterNominalBranches() const {return m_filterNominalBranches;}
+    inline void setFilterNominalBranches(const std::vector<std::string>& value) {
+      if (!m_configFixed) {
+        m_filterNominalBranches = value;
+      }
+    }
+
+    // Generators name
+    inline std::string getGenerators() const {return m_generators;}
+    inline void setGenerators(const std::string value) {
+      if (!m_configFixed) {
+        m_generators = value;
+      }
+    }
+
     // AMITag
     inline std::string getAMITag() const {return m_AMITag;}
     inline void setAMITag(const std::string& value) {
@@ -407,6 +423,7 @@ namespace top {
     inline bool doParticleLevelOverlapRemovalMuJet() const {return m_doParticleLevelOverlapRemovalMuJet;}
     inline bool doParticleLevelOverlapRemovalElJet() const {return m_doParticleLevelOverlapRemovalElJet;}
     inline bool doParticleLevelOverlapRemovalJetPhoton() const {return m_doParticleLevelOverlapRemovalJetPhoton;}
+    inline bool useParticleLevelOverlapRemovalWithRapidity() const {return m_useParticleLevelOverlapRemovalWithRapidity;}
     inline void setParticleLevelOverlapRemovalMuJet(bool value) {
       if (!m_configFixed) {
         m_doParticleLevelOverlapRemovalMuJet = value;
@@ -425,7 +442,13 @@ namespace top {
       }
     }
 
-    // KLFitter
+    inline void setParticleLevelOverlapRemovalWithRapidity(bool value){
+      if(!m_configFixed){
+        m_useParticleLevelOverlapRemovalWithRapidity = value;
+      }
+    }
+
+      // KLFitter
     inline bool doKLFitter() const {return m_doKLFitter;}
     inline void setKLFitter() {
       if (!m_configFixed) {
@@ -453,71 +476,87 @@ namespace top {
 
     // Triggers
     inline virtual void allTriggers_Tight(std::shared_ptr<std::unordered_map<std::string,
-                                                                             std::vector<std::string> > > triggers) {
+                                                                             std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_allTriggers_Tight = triggers;
       }
     }
 
     inline virtual void electronTriggers_Tight(std::shared_ptr<std::unordered_map<std::string,
-                                                                                  std::vector<std::string> > > triggers) {
+                                                                                  std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_electronTriggers_Tight = triggers;
       }
     }
 
     inline virtual void muonTriggers_Tight(std::shared_ptr<std::unordered_map<std::string,
-                                                                              std::vector<std::string> > > triggers) {
+                                                                              std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_muonTriggers_Tight = triggers;
       }
     }
 
     inline virtual void tauTriggers_Tight(std::shared_ptr<std::unordered_map<std::string,
-                                                                             std::vector<std::string> > > triggers) {
+                                                                             std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_tauTriggers_Tight = triggers;
       }
     }
 
+    inline virtual void photonTriggers_Tight(std::shared_ptr<std::unordered_map<std::string,
+                                                                             std::vector<std::pair<std::string, int> > > > triggers) {
+      if (!m_configFixed) {
+        m_photonTriggers_Tight = triggers;
+      }
+    }
+
     inline virtual void allTriggers_Loose(std::shared_ptr<std::unordered_map<std::string,
-                                                                             std::vector<std::string> > > triggers) {
+                                                                             std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_allTriggers_Loose = triggers;
       }
     }
 
     inline virtual void electronTriggers_Loose(std::shared_ptr<std::unordered_map<std::string,
-                                                                                  std::vector<std::string> > > triggers) {
+                                                                                  std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_electronTriggers_Loose = triggers;
       }
     }
 
     inline virtual void muonTriggers_Loose(std::shared_ptr<std::unordered_map<std::string,
-                                                                              std::vector<std::string> > > triggers) {
+                                                                              std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_muonTriggers_Loose = triggers;
       }
     }
 
     inline virtual void tauTriggers_Loose(std::shared_ptr<std::unordered_map<std::string,
-                                                                             std::vector<std::string> > > triggers) {
+                                                                             std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_tauTriggers_Loose = triggers;
       }
     }
 
-    inline std::shared_ptr<std::vector<std::string> > allSelectionNames() const {return m_allSelectionNames;}
-    virtual const std::vector<std::string>& allTriggers_Tight(const std::string& selection) const;
-    virtual const std::vector<std::string>& electronTriggers_Tight(const std::string& selection) const;
-    virtual const std::vector<std::string>& muonTriggers_Tight(const std::string& selection) const;
-    virtual const std::vector<std::string>& tauTriggers_Tight(const std::string& selection) const;
+    inline virtual void photonTriggers_Loose(std::shared_ptr<std::unordered_map<std::string,
+                                                                             std::vector<std::pair<std::string, int> > > > triggers) {
+      if (!m_configFixed) {
+        m_photonTriggers_Loose = triggers;
+      }
+    }
 
-    virtual const std::vector<std::string>& allTriggers_Loose(const std::string& selection) const;
-    virtual const std::vector<std::string>& electronTriggers_Loose(const std::string& selection) const;
-    virtual const std::vector<std::string>& muonTriggers_Loose(const std::string& selection) const;
-    virtual const std::vector<std::string>& tauTriggers_Loose(const std::string& selection) const;
+    inline std::shared_ptr<std::vector<std::string> > allSelectionNames() const {return m_allSelectionNames;}
+    virtual const std::vector<std::pair<std::string, int> >& allTriggers_Tight(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& electronTriggers_Tight(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& muonTriggers_Tight(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& tauTriggers_Tight(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& photonTriggers_Tight(const std::string& selection) const;
+
+    virtual const std::vector<std::pair<std::string, int> >& allTriggers_Loose(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& electronTriggers_Loose(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& muonTriggers_Loose(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& tauTriggers_Loose(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& photonTriggers_Loose(const std::string& selection) const;
 
     // StoreGate Keys
     virtual void sgKeyMCParticle(const std::string& s);
@@ -1118,6 +1157,12 @@ namespace top {
       }
     }
 
+    inline virtual void largeRJetMasscut(const float m) {
+      if (!m_configFixed) {
+        m_largeRJetMasscut = m;
+      }
+    }
+
     inline virtual void largeRJetEtacut(const float eta) {
       if (!m_configFixed) {
         m_largeRJetEtacut = eta;
@@ -1129,7 +1174,13 @@ namespace top {
         m_largeRJetUncertainties_NPModel = largeR_config;
       }
     }
-    
+ 
+    inline virtual void largeRJetUncertainties_JMR_NPModel(const std::string& largeR_JMR_config) {
+      if (!m_configFixed) {
+        m_largeRJetUncertainties_JMR_NPModel = largeR_JMR_config;
+      }
+    }
+   
     inline virtual void largeRJetUncertaintiesConfigDir(const std::string& largeRConfigDir) {
       if (!m_configFixed) {
         m_largeRJetUncertaintiesConfigDir = largeRConfigDir;
@@ -1143,9 +1194,11 @@ namespace top {
     }
 
     inline virtual float largeRJetPtcut()  const {return m_largeRJetPtcut;}
+    inline virtual float largeRJetMasscut()  const {return m_largeRJetMasscut;}
     inline virtual float largeRJetEtacut() const {return m_largeRJetEtacut;}
     inline virtual const std::map<std::string,std::string> largeRJetSubstructureVariables() const {return m_largeRJetSubstructureVariables;}
     inline virtual const std::string& largeRJetUncertainties_NPModel() const {return m_largeRJetUncertainties_NPModel;}
+    inline virtual const std::string& largeRJetUncertainties_JMR_NPModel() const {return m_largeRJetUncertainties_JMR_NPModel;}
     inline virtual const std::string& largeRJetUncertaintiesConfigDir() const {return m_largeRJetUncertaintiesConfigDir;}
     inline virtual const std::string& largeRJESJMSConfig() const {return m_largeRJESJMSConfig;}
 
@@ -1312,9 +1365,7 @@ namespace top {
     inline bool doMultipleJES() const {return m_doMultipleJES;}
     inline virtual const std::string& jetUncertainties_NPModel() const {return m_jetUncertainties_NPModel;}
     inline virtual const std::string& jetUncertainties_QGFracFile() const {return m_jetUncertainties_QGFracFile;}
-    inline virtual const std::vector<std::string>& jetUncertainties_QGHistPatterns() const {
-                                                                                            return m_jetUncertainties_QGHistPatterns;
-                                                                                                                                     }
+    inline virtual const std::vector<std::string>& jetUncertainties_QGHistPatterns() const {return m_jetUncertainties_QGHistPatterns;}
 
     inline virtual void jetJERSmearingModel(const std::string& s) {
       if (!m_configFixed) {
@@ -1324,6 +1375,14 @@ namespace top {
 
     inline virtual const std::string& jetJERSmearingModel() const {return m_jetJERSmearingModel;}
 
+    inline virtual void largeRSysts_TreatMCasPseudodata(const bool& b) {
+      if (!m_configFixed) {
+        m_largeRSysts_TreatMCasPseudodata = b;
+      }
+    }
+
+    inline virtual bool largeRSysts_TreatMCasPseudodata() const {return m_largeRSysts_TreatMCasPseudodata;}
+
     inline virtual void jetCalibSequence(const std::string& s) {
       if (!m_configFixed) {
         m_jetCalibSequence = s;
@@ -1331,6 +1390,14 @@ namespace top {
     }
 
     inline virtual const std::string& jetCalibSequence() const {return m_jetCalibSequence;}
+
+    inline virtual void allowSmallRJMSforAFII(const bool setting) {
+      if (!m_configFixed) {
+        m_allowSmallRJMSforAFII = setting;
+      }
+    }
+
+    inline virtual bool allowSmallRJMSforAFII() const {return m_allowSmallRJMSforAFII;}
 
     inline virtual void jetStoreTruthLabels(bool b) {
       if (!m_configFixed) {
@@ -1418,12 +1485,12 @@ namespace top {
       if (!m_configFixed) m_tau_configuration_loose.eleBDTWP = s;
     }
 
-    inline virtual void tauEleOLR(bool do_tau_ele_olr) {
-      if (!m_configFixed) m_tau_configuration.eleOLR = do_tau_ele_olr;
+    inline virtual void tauMuOLR(bool do_tau_ele_olr) {
+      if (!m_configFixed) m_tau_configuration.muOLR = do_tau_ele_olr;
     }
 
-    inline virtual void tauEleOLRLoose(bool do_tau_ele_olr) {
-      if (!m_configFixed) m_tau_configuration_loose.eleOLR = do_tau_ele_olr;
+    inline virtual void tauMuOLRLoose(bool do_tau_ele_olr) {
+      if (!m_configFixed) m_tau_configuration_loose.muOLR = do_tau_ele_olr;
     }
 
     inline virtual void tauSFDoRNNID(bool do_tau_rnn_id) {
@@ -1475,12 +1542,12 @@ namespace top {
       return m_tau_configuration_loose.eleBDTWP;
     }
 
-    inline virtual bool tauEleOLR() {
-      return m_tau_configuration.eleOLR;
+    inline virtual bool tauMuOLR() {
+      return m_tau_configuration.muOLR;
     }
 
-    inline virtual bool tauEleOLRLoose() {
-      return m_tau_configuration_loose.eleOLR;
+    inline virtual bool tauMuOLRLoose() {
+      return m_tau_configuration_loose.muOLR;
     }
 
     inline const std::string& tauJetConfigFile() {
@@ -1706,9 +1773,12 @@ namespace top {
     inline virtual unsigned int trkjet_btagging_num_Light_eigenvars(std::string WP) const {return bTag_eigen_light_trkJet.at(WP);}
 
 
-    const std::vector<std::pair<std::string, std::string> > boostedJetTaggers() const {return m_chosen_boostedJetTaggers;}
-    const std::unordered_map<std::string, std::string> boostedTaggerSFnames() const {return m_boostedTaggerSFnames;}
+    const std::vector<std::pair<std::string, std::string> >& boostedJetTaggers() const {return m_chosen_boostedJetTaggers;}
+    const std::unordered_map<std::string, std::string>& boostedTaggerSFnames() const {return m_boostedTaggerSFnames;}
+    const std::unordered_map<std::string, std::vector<std::string>>& boostedTaggersSFSysNames() const {return m_boostedTaggersSFSysNames;}
     void setCalibBoostedJetTagger(const std::string& WP, const std::string& SFname);
+    void setBoostedTaggersSFSysNames(const std::unordered_map<std::string, std::vector<std::string>>& sysNames) {m_boostedTaggersSFSysNames=sysNames;}
+
     // B-tagging WPs requested by user (updated to pair of strings to hold algorithm and WP)
     const std::vector<std::pair<std::string, std::string> > bTagWP() const {return m_chosen_btaggingWP_caloJet;}
     const std::vector<std::pair<std::string, std::string> > bTagWP_trkJet() const {return m_chosen_btaggingWP_trkJet;}
@@ -1759,6 +1829,14 @@ namespace top {
     {return m_btagging_calibration_C;};
     const std::string& bTaggingCalibration_Light() const
     {return m_btagging_calibration_Light;};
+
+    // egamma calibration
+    bool printEgammaCalibModelWarning() const
+    {return m_egamma_calibmodel_warning;}
+    void setPrintEgammaCalibModelWarning(bool flag)
+    {m_egamma_calibmodel_warning = flag;}
+    const std::string& egammaCalibration() const
+    {return m_egamma_calibration_model;};
 
     // LHAPDF settings
 
@@ -1960,7 +2038,8 @@ namespace top {
     inline bool isNominalAvailable() const {return m_isNominalAvailable;}
 
     // Function to set the options for global trigger tool
-    void setGlobalTriggerConfiguration(std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>);
+    void setGlobalTriggerConfiguration(std::vector<std::string>, std::vector<std::string>, std::vector<std::string>,
+                                       std::vector<std::string>, std::vector<std::string>, std::vector<std::string>);
     inline bool useGlobalTrigger() const {return m_trigGlobalConfiguration.isActivated;} // Was this requested by the
                                                                                          // user
     inline auto const& getGlobalTriggers() const {return m_trigGlobalConfiguration.trigger;}
@@ -1970,8 +2049,10 @@ namespace top {
                                                                                                        // configured
     inline std::vector<std::string> getGlobalTriggerElectronSystematics() const {return m_trigGlobalConfiguration.electron_trigger_systematics;}
     inline std::vector<std::string> getGlobalTriggerMuonSystematics()     const {return m_trigGlobalConfiguration.muon_trigger_systematics;}
+    inline std::vector<std::string> getGlobalTriggerPhotonSystematics()   const {return m_trigGlobalConfiguration.photon_trigger_systematics;}
     inline std::vector<std::string> getGlobalTriggerElectronTools()       const {return m_trigGlobalConfiguration.electron_trigger_tool_names;}
     inline std::vector<std::string> getGlobalTriggerMuonTools()           const {return m_trigGlobalConfiguration.muon_trigger_tool_names;}
+    inline std::vector<std::string> getGlobalTriggerPhotonTools()         const {return m_trigGlobalConfiguration.photon_trigger_tool_names;}
     
     inline const TreeFilter* getTreeFilter() const { return m_treeFilter.get();}
 
@@ -2052,7 +2133,8 @@ namespace top {
     bool m_isMC;
     bool m_isAFII;
     bool m_isDataOverlay;
-    std::vector<std::string> m_filterBranches, m_filterPartonLevelBranches, m_filterParticleLevelBranches, m_filterNominalLooseBranches;
+    std::vector<std::string> m_filterBranches, m_filterPartonLevelBranches, m_filterParticleLevelBranches, m_filterNominalLooseBranches, m_filterNominalBranches;
+    std::string m_generators;
     std::string m_AMITag;
     bool m_isPrimaryxAOD;
     bool m_isTruthDxAOD = false;
@@ -2140,6 +2222,7 @@ namespace top {
     bool m_doParticleLevelOverlapRemovalMuJet;
     bool m_doParticleLevelOverlapRemovalElJet;
     bool m_doParticleLevelOverlapRemovalJetPhoton;
+    bool m_useParticleLevelOverlapRemovalWithRapidity;
 
     // KLFitter
     bool m_doKLFitter;
@@ -2277,7 +2360,9 @@ namespace top {
                                                                 // more flexibility
     bool m_doMultipleJES;
     std::string m_jetJERSmearingModel; // Full or Simple
+    bool m_largeRSysts_TreatMCasPseudodata; // True or False
     std::string m_jetCalibSequence; // GCC or JMS
+    bool m_allowSmallRJMSforAFII; // JMS is not supported on AFII so we crash, unless people override this option
     bool m_jetStoreTruthLabels; // True or False
     bool m_doJVTInMETCalculation;
     bool m_saveFailJVTJets;
@@ -2295,10 +2380,12 @@ namespace top {
     std::string m_ghostTracksQuality;
 
     // Large R jet configuration
-    float m_largeRJetPtcut; // large R jet object selection pT cut
+    float m_largeRJetPtcut; // large R jet object selection lower pT cut
+    float m_largeRJetMasscut; // large R jet object selection lower mass cut
     float m_largeRJetEtacut; // large R jet object selection (abs) eta cut
     std::map<std::string,std::string> m_largeRJetSubstructureVariables;
     std::string m_largeRJetUncertainties_NPModel; //large R JES/(plus old JMS, JMR, JER) uncertainties configuration
+    std::string m_largeRJetUncertainties_JMR_NPModel; //large R JMR uncertainties configuration
     std::string m_largeRJetUncertaintiesConfigDir; //Relative path to directory with large R JES config
                                                   // file
     //See https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2019LargeR
@@ -2353,8 +2440,8 @@ namespace top {
       // the electron BDTWP
       std::string eleBDTWP = "Medium";
       bool substructureSF = false;
-      // Whether to perform electron overlap removal
-      bool eleOLR = false;
+      // Whether to perform muon overlap removal
+      bool muOLR = true;
       // pT cut on taus
       float pt = 20000;
       std::string etaRegions="[0., 1.37, 1.52, 2.5]";
@@ -2448,6 +2535,7 @@ namespace top {
     // Boosted jet taggers requested by user
     std::vector<std::pair<std::string, std::string> > m_chosen_boostedJetTaggers;
     std::unordered_map<std::string, std::string> m_boostedTaggerSFnames;
+    std::unordered_map<std::string, std::vector<std::string>> m_boostedTaggersSFSysNames;
 
     // B-tagging WPs requested by the user (updated to pair of string to hold algorithm and WP)
     std::vector<std::pair<std::string, std::string> > m_chosen_btaggingWP;
@@ -2477,6 +2565,10 @@ namespace top {
     std::string m_btagging_calibration_B = "default";
     std::string m_btagging_calibration_C = "default";
     std::string m_btagging_calibration_Light = "default";
+
+    // EGamma calibration to be used
+    bool m_egamma_calibmodel_warning = false;
+    std::string m_egamma_calibration_model = "es2018_R21_v0";
 
     // b-tag SF helpers - one of each per WP
     // will be set in the BTagScaleFactorCalculator
@@ -2543,7 +2635,7 @@ namespace top {
     // manage systematic variations through this tool
 
     struct {
-      typedef std::unordered_map<std::string, std::vector<std::string> > triggermap_t;
+      typedef std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > triggermap_t;
       // -- Set from cutfile --//
       // Boolean to be set to true if the user activates a flag
       bool isActivated = false;
@@ -2558,10 +2650,14 @@ namespace top {
       std::vector<std::string> electron_trigger_systematics;
       // Names of CP::SystematicSet from muon trigger tools
       std::vector<std::string> muon_trigger_systematics;
+      // Names of CP::SystematicSet from photon trigger tools
+      std::vector<std::string> photon_trigger_systematics;
       // Name of the underlying electron tools, to be accessed and passes CP::SystematicSet
       std::vector<std::string> electron_trigger_tool_names;
       // Name of the underlying muon tools, to be accessed and passes CP::SystematicSet
       std::vector<std::string> muon_trigger_tool_names;
+      // Name of the underlying photon tools, to be accessed and passes CP::SystematicSet
+      std::vector<std::string> photon_trigger_tool_names;
     } m_trigGlobalConfiguration;
 
     // Muon Trigger SF configuration
@@ -2572,15 +2668,17 @@ namespace top {
     std::shared_ptr<std::vector<std::string> > m_allSelectionNames;
     // Trigger configuration
     // First string is the selection name, second string is the trigger
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_allTriggers_Tight;
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_electronTriggers_Tight;
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_muonTriggers_Tight;
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_tauTriggers_Tight;
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_allTriggers_Loose;
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_electronTriggers_Loose;
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_muonTriggers_Loose;
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_tauTriggers_Loose;
-    std::vector<std::string> m_dummyTrigger;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_allTriggers_Tight;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_electronTriggers_Tight;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_muonTriggers_Tight;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_tauTriggers_Tight;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_photonTriggers_Tight;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_allTriggers_Loose;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_electronTriggers_Loose;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_muonTriggers_Loose;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_tauTriggers_Loose;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_photonTriggers_Loose;
+    std::vector<std::pair<std::string, int> > m_dummyTrigger;
 
     // Where the sum of event weights
     // before derivation framework is kept

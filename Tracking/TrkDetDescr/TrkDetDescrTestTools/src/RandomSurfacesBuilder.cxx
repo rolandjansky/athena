@@ -131,14 +131,14 @@ const Trk::Surface* Trk::RandomSurfaceBuilder::surface() const
      switch (sType) {
          // create a cone surface - cone does not exist for old EDM as Measured
          case 0 :  {   
-             surface = new Trk::ConeSurface(transform.release(), m_flatDist->shoot()*0.7*M_PI); 
+             surface = new Trk::ConeSurface(*transform, m_flatDist->shoot()*0.7*M_PI); 
          } break;
          case 1 : {   
-             surface = new Trk::CylinderSurface(transform.release(), 50.+m_worldDimensions[0]*m_flatDist->shoot(), m_worldDimensions[2]);
+             surface = new Trk::CylinderSurface(*transform, 50.+m_worldDimensions[0]*m_flatDist->shoot(), m_worldDimensions[2]);
          } break;
          // create a disc surface
          case 2 : {   
-             surface = new Trk::DiscSurface(transform.release(), 0., m_worldDimensions[1]);
+             surface = new Trk::DiscSurface(*transform, 0., m_worldDimensions[1]);
          } break;
          // create a perigee surface
          case 3 : {   
@@ -146,11 +146,11 @@ const Trk::Surface* Trk::RandomSurfaceBuilder::surface() const
          } break;
          // create a plane surface
          case 4 : {
-             surface = new Trk::PlaneSurface(transform.release(), m_worldDimensions[0], m_worldDimensions[0]);
+             surface = new Trk::PlaneSurface(*transform, m_worldDimensions[0], m_worldDimensions[0]);
          } break;
          // create a straight line surface
          case 5 : {
-             surface = new Trk::StraightLineSurface(transform.release(), 50., m_worldDimensions[2]);
+             surface = new Trk::StraightLineSurface(*transform, 50., m_worldDimensions[2]);
          } break;
          default : break;    
      }

@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 #
 # ##########################################################################################
@@ -24,17 +25,14 @@ def DVSelectionString(flags, container):
     cutList = []
     try:  
         cutList.append('%s.pt > %s'%(container,flags.cutEtMin))
-        pass
     except:
         pass
     try:
         cutList.append('abs(%s.eta) < %s'%(container,flags.cutEtaMax))
-        pass
     except:
         pass
     try:   
         cutList.append("DV%s%s"%(container,flags.cutIsEM))
-        pass
     except:
         pass
     cutString = 'count(' + ' && '.join(cutList) + ') > %i'%(flags.nPassed-1)
@@ -50,11 +48,7 @@ def DVTriggerSelectionString(flags):
         if flags.triggers.__len__() >1:
             for trigger in flags.triggers[1:]:
                 cutString+=" || "+trigger
-                pass
-            pass
-        pass
     return cutString
-    pass
 
 ############################################################
 ## Tools for combining filters
@@ -207,9 +201,9 @@ ToolSvc += DVPhotonTriggerFilter
 
 from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__RpvEgammaIDTool
 DVPhotonSelection = DerivationFramework__RpvEgammaIDTool( name               = "DVPhotonSelection",
-                                                             SelectionVariables = ["Loose", "Tight"],
-                                                             CollectionName     =photonContainer ,
-                                                             SGPrefix           = "DV" + photonContainer,
+                                                             SelectionVariable = primRPVLLDESDM.DV_PhotonFilterFlags.cutIsEM,
+                                                             CollectionName     = photonContainer,
+                                                             EGammaSelectionKey = "DV"+photonContainer+primRPVLLDESDM.DV_PhotonFilterFlags.cutIsEM,
                                                            )
 ToolSvc += DVPhotonSelection
 topSequence += DerivationFramework__DerivationKernel( "DVPhotonAugmentationKernel",

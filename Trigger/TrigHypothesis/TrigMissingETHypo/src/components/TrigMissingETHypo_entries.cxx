@@ -1,8 +1,5 @@
-//#include "TrigMissingETHypo/TrigL2MissingETHypo.h"
-#include "../TrigEFMissingETHypo.h"
-#include "../TrigMissingETHypoAlgMT.h"
-#include "../TrigMissingETHypoToolMT.h"
+#include "../TrigMissingETHypoAlg.h"
+#include "../TrigMissingETHypoTool.h"
 
-DECLARE_COMPONENT( TrigEFMissingETHypo )
-DECLARE_COMPONENT( TrigMissingETHypoAlgMT )
-DECLARE_COMPONENT( TrigMissingETHypoToolMT )
+DECLARE_COMPONENT( TrigMissingETHypoAlg )
+DECLARE_COMPONENT( TrigMissingETHypoTool )

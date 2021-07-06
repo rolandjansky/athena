@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ByteStreamAuxContainer_v1.cxx 793760 2017-01-25 02:02:33Z ssnyder $
@@ -121,7 +121,7 @@ namespace xAOD {
       guard_t guard (m_mutex);
 
       // Does this variable already exist?
-      void* ret = 0;
+      void* ret = nullptr;
       if( ( auxid < m_staticVecs.size() ) && ( m_staticVecs[ auxid ] ) ) {
         ret = m_staticVecs[ auxid ]->toPtr();
       }
@@ -180,7 +180,7 @@ namespace xAOD {
      for (auxid_t auxid : m_decorations) {
        if (m_dynamicVecs[auxid]) {
          delete m_dynamicVecs[auxid];
-         m_dynamicVecs[auxid] = 0;
+         m_dynamicVecs[auxid] = nullptr;
          m_auxids.erase( auxid );
          anycleared = true;
 
@@ -459,7 +459,7 @@ namespace xAOD {
                        << "Variable with unknown name (" << name << ") requested"
                        << std::endl;
            }
-           return 0;
+           return nullptr;
          }
 
          if (m_locked && !forDecor)
@@ -535,7 +535,7 @@ namespace xAOD {
                 << SG::AuxTypeRegistry::instance().getType( auxid )->name()
                 << ") requested" << std::endl;
 
-      return 0;
+      return nullptr;
    }
 
 } // namespace xAOD

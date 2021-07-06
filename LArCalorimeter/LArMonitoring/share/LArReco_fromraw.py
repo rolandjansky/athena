@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
 if not 'skipEvents' in dir():
    skipEvents=0
 
@@ -48,10 +50,6 @@ rec.doDPD.set_Value_and_Lock(False)
 rec.doTile.set_Value_and_Lock(True)
 
 rec.doTrigger.set_Value_and_Lock(True)
-
-# switch off failint L1Topo stuff
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-TriggerFlags.writeL1TopoValData.set_Value_and_Lock(False)
 
 ConfigureTriggerStream()
 
@@ -159,13 +157,8 @@ tf.readBS.set_Value_and_Lock(True)
 tf.doLVL1.set_Value_and_Lock(False)
 tf.doHLT.set_Value_and_Lock(False)
 tf.doL1Topo.set_Value_and_Lock(False)
-tf.enableMonitoring.set_Value_and_Lock(False)
 tf.doID.set_Value_and_Lock(False)
 tf.doMuon.set_Value_and_Lock(False)
-tf.doBcm.set_Value_and_Lock(False)
-tf.doTrt.set_Value_and_Lock(False)
-tf.configForStartup="HLTonline"
-tf.configForStartup.lock()
 
 include("TriggerJobOpts/BStoESD_Tier0_HLTConfig_jobOptions.py")
 
@@ -176,15 +169,9 @@ EventCnvSuperTool.DoMuons = False
 EventCnvSuperTool.DoID = False
 ToolSvc += EventCnvSuperTool
 
-# --- BunchCrossing Tool configuration ---
-from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-theBCTool = BunchCrossingTool()
-ToolSvc += theBCTool
-
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theCaloNoiseTool = CaloNoiseToolDefault()
-ToolSvc+=theCaloNoiseTool
-
+# BunchCrossing info
+from LumiBlockComps.BunchCrossingCondAlgDefault import BunchCrossingCondAlgDefault
+BunchCrossingCondAlgDefault()
 
 # variable for testing on ESD
 try:

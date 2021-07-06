@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODPhotonAuxContainerCnv_v2.cxx 621103 2014-10-10 12:30:01Z christos $
@@ -46,7 +46,7 @@ persToTrans( const xAOD::PhotonAuxContainer_v2* oldObj,
 
    // Copy the payload of the v2 object into the latest one by misusing
    // the thinning code a bit...
-   SG::copyAuxStoreThinned( *oldObj, *newObj, 0 );
+   SG::copyAuxStoreThinned( *oldObj, *newObj, nullptr );
    // Set up interface containers on top of them:
 
    //The old is using the v_

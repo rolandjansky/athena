@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************
@@ -117,7 +117,7 @@ bool TrigEgammaNavBaseTool::EventWiseSelection( ){
     }
 
 
-    for(const auto& eg : *m_offElectrons ){
+    for(const auto eg : *m_offElectrons ){
         ATH_MSG_DEBUG("ApplyElectronPid...");
         if(ApplyElectronPid(eg,"Loose")) hist1(m_anatype+"_electrons")->AddBinContent(1);
         if(ApplyElectronPid(eg,"Medium")) hist1(m_anatype+"_electrons")->AddBinContent(2);
@@ -196,7 +196,7 @@ StatusCode TrigEgammaNavBaseTool::executeElectronNavigation( std::string trigIte
 
 
   const std::string decor="is"+pidname;
-  for(const auto& eg : *m_offElectrons ){
+  for(const auto eg : *m_offElectrons ){
       const HLT::TriggerElement *te = nullptr;
       if(!eg->trackParticle()){
           ATH_MSG_DEBUG("No track Particle");
@@ -235,20 +235,20 @@ StatusCode TrigEgammaNavBaseTool::executeElectronNavigation( std::string trigIte
       xAOD::Electron *el = new xAOD::Electron(*eg);
       el->auxdecor<bool>(decor)=static_cast<bool>(true);
 
-      bool isEmulation = getTrigInfo(trigItem).trigIsEmulation;
-      if(isEmulation && getEmulation()){
+      //bool isEmulation = getTrigInfo(trigItem).trigIsEmulation;
+      /*if(isEmulation && getEmulation()){
         emulation()->match(el,te);
         std::pair< const xAOD::Electron*, const HLT::TriggerElement* > pair(el,te);
         m_objTEList.push_back(pair);
-      }else{
-        if (match()->match(el, trigItem, te)){
-           std::pair< const xAOD::Electron*, const HLT::TriggerElement* > pair(el,te);
-           m_objTEList.push_back(pair);
-        }else {
-           std::pair< const xAOD::Electron*, const HLT::TriggerElement* > pair(el,nullptr);
-           m_objTEList.push_back(pair);
-        }
+      }else{*/
+      if (match()->match(el, trigItem, te)){
+         std::pair< const xAOD::Electron*, const HLT::TriggerElement* > pair(el,te);
+         m_objTEList.push_back(pair);
+      }else {
+         std::pair< const xAOD::Electron*, const HLT::TriggerElement* > pair(el,nullptr);
+         m_objTEList.push_back(pair);
       }
+      //}
 
   }
 
@@ -263,7 +263,7 @@ StatusCode TrigEgammaNavBaseTool::executePhotonNavigation( std::string trigItem,
  
   const std::string decor="is"+m_photonPid;
 
-  for(const auto& eg : *m_offPhotons ){
+  for(const auto eg : *m_offPhotons ){
       const HLT::TriggerElement *te = nullptr;
       if(!eg->caloCluster()){
           ATH_MSG_DEBUG("No caloCluster");
@@ -279,20 +279,20 @@ StatusCode TrigEgammaNavBaseTool::executePhotonNavigation( std::string trigItem,
       }
       xAOD::Photon *ph = new xAOD::Photon(*eg);
       ph->auxdecor<bool>(decor)=static_cast<bool>(true);
-      bool isEmulation = getTrigInfo(trigItem).trigIsEmulation;
-      if(isEmulation && getEmulation()){
+      //bool isEmulation = getTrigInfo(trigItem).trigIsEmulation;
+      /*if(isEmulation && getEmulation()){
         emulation()->match(ph,te);
         std::pair< const xAOD::Photon*, const HLT::TriggerElement* > pair(ph,te);
         m_objTEList.push_back(pair);
-      }else{
-        if (match()->match(ph, trigItem, te)){
-           std::pair< const xAOD::Photon*, const HLT::TriggerElement* > pair(ph,te);
-           m_objTEList.push_back(pair);
-        }else {
-            std::pair< const xAOD::Photon*, const HLT::TriggerElement* > pair(ph,nullptr);
-            m_objTEList.push_back(pair);
-        }
+      }else{*/
+      if (match()->match(ph, trigItem, te)){
+         std::pair< const xAOD::Photon*, const HLT::TriggerElement* > pair(ph,te);
+         m_objTEList.push_back(pair);
+      }else {
+          std::pair< const xAOD::Photon*, const HLT::TriggerElement* > pair(ph,nullptr);
+          m_objTEList.push_back(pair);
       }
+      //}
 
   }
 

@@ -2,7 +2,7 @@
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.CalibCosmicMon.CosmicChainConfiguration")
+log = logging.getLogger(__name__)
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 
@@ -23,8 +23,6 @@ class CosmicChainConfiguration(ChainConfigurationBase):
         # define here the names of the steps and obtain the chainStep configuration 
         # --------------------
         stepDictionary = {
-            "sct_noise":[],
-            "tilecalib_laser" : []
         }
 
         key = self.chainPart['chainPartName']

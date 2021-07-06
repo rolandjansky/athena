@@ -36,7 +36,10 @@ def getTriggerEDMList(key, runVersion):
     additionally for Run 3 the key can be 'AODSMALL' and 'AODLARGE'
     run can be: '1 (Run1)', '2 (Run2)', '3' (Run 3)
     """
-    if runVersion == 2:
+    if runVersion == 1:
+        return getTriggerObjList(key,[TriggerL2List,TriggerEFList, TriggerResultsRun1List])
+
+    elif runVersion == 2:
         if 'SLIM' in key:
             return getTriggerEDMSlimList(key)
         else:
@@ -53,7 +56,7 @@ def getTriggerEDMList(key, runVersion):
             return getRun3TrigObjList(key, [TriggerHLTListRun3])
 
     else:
-        return getTriggerObjList(key,[TriggerL2List,TriggerEFList, TriggerResultsRun1List])
+        raise RuntimeError("Invalid runVersion=%s supplied to getTriggerEDMList" % runVersion)
 
 
 
@@ -379,8 +382,10 @@ def getPreregistrationList(version=2):
     l=[]
     if version==2:
         l = getHLTPreregistrationList()
-    else:
+    elif version==1:
         l=list(set(getL2PreregistrationList()+getEFPreregistrationList()+getHLTPreregistrationList()))
+    else:
+        raise RuntimeError("Invalid version=%s supplied to getPreregistrationList" % version)
     return l
 
 
@@ -511,8 +516,10 @@ def getTPList(version=2):
     l = {}
     if version==2:
         bslist = getHLTBSTypeList()
-    else:
+    elif version==1:
         bslist = list(set(getL2BSTypeList() + getEFBSTypeList()))
+    else:
+        raise RuntimeError("Invalid version=%s supplied to getTPList" % version)
         
     for t,d in six.iteritems (EDMDetails):
         colltype = t

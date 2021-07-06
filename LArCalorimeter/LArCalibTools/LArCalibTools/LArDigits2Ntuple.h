@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARDIGITS2NTUPLE_H
@@ -54,7 +54,7 @@ class LArDigits2Ntuple : public LArCond2NtupleBase
   NTuple::Array<unsigned short> m_bcidVec_ET_ID;
   NTuple::Array<bool> m_saturVec_ET_ID;
 
-  bool m_isSC;
+  bool m_isSCFlag;
   bool m_fillBCID;
   bool m_overwriteEventNumber;
 

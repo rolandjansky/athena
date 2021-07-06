@@ -10,6 +10,7 @@
 
 # Stop on errors:
 set -e
+set -o pipefail
 
 # Function printing the usage information for the script
 usage() {
@@ -82,7 +83,7 @@ if [ "$AtlasExternals_URL" != "" ]; then
 	if [ "$AtlasExternals_URL" = "current" ]; then
 		echo "Leaving current checkout in place for build"
 		exit 0
-	fi 
+	fi
 fi
 
 if [ "$AtlasExternals_REF" != "" ]; then

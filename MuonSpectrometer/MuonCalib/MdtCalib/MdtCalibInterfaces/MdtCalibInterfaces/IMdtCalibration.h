@@ -18,45 +18,45 @@
 
 namespace MuonCalib {
 
-  class IMdtCalibrationOutput;
-  class MuonCalibSegment;
+    class IMdtCalibrationOutput;
+    class MuonCalibSegment;
 
-  /**
-     @class IMdtCalibration
-     Interface to Mdt calibration algortihms.
-   
-     @author Niels.Van.Eldik@cern.ch
-  */
+    /**
+       @class IMdtCalibration
+       Interface to Mdt calibration algortihms.
 
-  class IMdtCalibration {
-  public:
-    typedef std::vector<MuonCalibSegment*>                MuonSegVec;
-    typedef std::vector<MuonCalibSegment*>::iterator      MuonSegIt;
-    typedef std::vector<MuonCalibSegment*>::const_iterator MuonSegCit;
+       @author Niels.Van.Eldik@cern.ch
+    */
 
-  public:
-    /** constructor, string used to identify the instance */
-    IMdtCalibration(std::string name) : m_name(name) {}
+    class IMdtCalibration {
+    public:
+        typedef std::vector<MuonCalibSegment*> MuonSegVec;
+        typedef std::vector<MuonCalibSegment*>::iterator MuonSegIt;
+        typedef std::vector<MuonCalibSegment*>::const_iterator MuonSegCit;
 
-    /** destructor */
-    virtual ~IMdtCalibration() {}
+    public:
+        /** constructor, string used to identify the instance */
+        IMdtCalibration(std::string name) : m_name(name) {}
 
-    /** initialize algoritm */
-    virtual void  setInput( const IMdtCalibrationOutput* input) = 0;
+        /** destructor */
+        virtual ~IMdtCalibration() {}
 
-    /** final analyse results */
-    virtual const IMdtCalibrationOutput* analyseSegments( const MuonSegVec& segs ) = 0;
+        /** initialize algoritm */
+        virtual void setInput(const IMdtCalibrationOutput* input) = 0;
 
-    /** retrieve results from calibration */
-    virtual const IMdtCalibrationOutput* getResults() const = 0;
+        /** final analyse results */
+        virtual const IMdtCalibrationOutput* analyseSegments(const MuonSegVec& segs) = 0;
 
-    /** returns name (region) of instance */
-    virtual const std::string& name() { return m_name; }
+        /** retrieve results from calibration */
+        virtual const IMdtCalibrationOutput* getResults() const = 0;
 
-  private:
-    std::string m_name;
-  };
+        /** returns name (region) of instance */
+        virtual const std::string& name() { return m_name; }
 
-}
+    private:
+        std::string m_name;
+    };
+
+}  // namespace MuonCalib
 
 #endif

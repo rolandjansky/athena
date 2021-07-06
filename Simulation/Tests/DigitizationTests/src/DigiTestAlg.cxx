@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DigitizationTests/DigiTestAlg.h"
@@ -15,7 +15,7 @@ DigiTestAlg::DigiTestAlg(const std::string& name, ISvcLocator* pSvcLocator)
 
 StatusCode DigiTestAlg::initialize() 
 {
-  ATH_MSG_INFO ( "Initializing " << name() << " - package version " << PACKAGE_VERSION );
+  ATH_MSG_INFO ( "Initializing" );
   //initialize  the digi test tools
   CHECK(m_testTools.retrieve());
   return StatusCode::SUCCESS;

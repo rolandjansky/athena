@@ -1,5 +1,5 @@
-#include "../egammaMVASvc.h"
-#include "../egammaMVACalibTool.h"
+#include "egammaMVACalib/egammaMVASvc.h"
+#include "egammaMVACalib/egammaMVACalibTool.h"
 
 DECLARE_COMPONENT( egammaMVASvc )
 DECLARE_COMPONENT( egammaMVACalibTool )

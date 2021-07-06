@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # art-description: athenaHLT test of the Dev_pp_run3_v1 menu
 # art-type: grid
@@ -17,6 +17,7 @@
 # art-output: *perfmon*
 # art-output: prmon*
 # art-output: *.check*
+# art-memory: 7000
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 
@@ -24,7 +25,8 @@ ex = ExecStep.ExecStep()
 ex.type = 'athenaHLT'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
-ex.args = '-c "setMenu=\'LS2_v1\';"'  # LS2_v1 to be renamed to Dev_pp_run3_v1
+ex.args = '-c "setMenu=\'LS2_v1_TriggerValidation_prescale\';doL1Sim=True;"'  # LS2_v1 to be renamed to Dev_pp_run3_v1
+ex.args += ' --dump-config-reload'
 
 test = Test.Test()
 test.art_type = 'grid'

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -14,11 +14,11 @@ class MsgStream;
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"
 // Trk
-#include "TrkGeometry/Layer.h"
-#include "TrkSurfaces/CylinderSurface.h"
 #include "TrkDetDescrUtils/BinnedArray.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkGeometry/ApproachDescriptor.h"
+#include "TrkGeometry/Layer.h"
+#include "TrkSurfaces/CylinderSurface.h"
 // STL sorting
 #include <algorithm>
 
@@ -28,186 +28,177 @@ class CylinderBounds;
 class LayerMaterialProperties;
 class OverlapDescriptor;
 
-  /**
-   @class CylinderLayer
-   
-   Class to describe a cylindrical detector layer for tracking, it inhertis from both, 
-   Layer base class and CylinderSurface class
-       
-   @author Andreas.Salzburger@cern.ch
-  */
+/**
+ @class CylinderLayer
 
-  class CylinderLayer : public CylinderSurface, public Layer {
-                   
-      public:
-        /**Default Constructor*/
-        CylinderLayer(){}
-        
-        /**Constructor with CylinderSurface components and  MaterialProperties */
-        CylinderLayer(Amg::Transform3D* transform,
-                      CylinderBounds* cbounds,
-                      const LayerMaterialProperties& laymatprop,
-                      double thickness = 0.,
-                      OverlapDescriptor* od = nullptr,
-                      int laytyp=int(Trk::active));
+ Class to describe a cylindrical detector layer for tracking, it inhertis from
+ both, Layer base class and CylinderSurface class
 
-        /**Constructor with CylinderSurface and  MaterialProperties */
-        CylinderLayer(CylinderSurface* cyl,
-                      const LayerMaterialProperties& laymatprop,
-                      double thickness = 0.,
-                      OverlapDescriptor* od = nullptr,
-                      int laytyp=int(Trk::active));
-                              
-        /**Constructor with CylinderSurface components and pointer to SurfaceArray (passing ownership) 
-            - has optionally an OverlapDescriptor and ApproachDescriptor for the surfaceArray          
-            */
-        CylinderLayer(Amg::Transform3D* transform,
-                      CylinderBounds* cbounds,
-                      SurfaceArray* surfaceArray,
-                      double thickness = 0.,
-                      OverlapDescriptor* od = nullptr,
-                      IApproachDescriptor* ad = nullptr,
-                      int laytyp=int(Trk::active));
-                
-        /**Constructor with CylinderSurface components,
-           MaterialProperties and pointer SurfaceArray (passing ownership) */
-        CylinderLayer(Amg::Transform3D* transform,
-                      CylinderBounds* cbounds,
-                      SurfaceArray* surfaceArray,
-                      const LayerMaterialProperties& laymatprop,
-                      double thickness = 0.,
-                      OverlapDescriptor* od = nullptr,
-                      IApproachDescriptor* ad = nullptr,
-                      int laytyp=int(Trk::active));
-                      
-        /**Concentric Layer: Constructor with CylinderSurface components and  MaterialProperties */
-        CylinderLayer(CylinderBounds* cbounds,
-                      const LayerMaterialProperties& laymatprop,
-                      double thickness = 0.,
-                      OverlapDescriptor* od = nullptr,
-                      int laytyp=int(Trk::active));
+ @author Andreas.Salzburger@cern.ch
+*/
 
-        /**Concentric Layer: Constructor with CylinderSurface components and pointer to SurfaceArray (passing ownership) */
-        CylinderLayer(CylinderBounds* cbounds,
-                      SurfaceArray* surfaceArray,
-                      double thickness = 0.,
-                      OverlapDescriptor* od = nullptr,
-                      IApproachDescriptor* ad = nullptr,
-                      int laytyp=int(Trk::active));
-                
-        /**Concentric Layer: Constructor with CylinderSurface components,
-           MaterialProperties and pointer SurfaceArray (passing ownership) */
-        CylinderLayer(CylinderBounds* cbounds,
-                      SurfaceArray* surfaceArray,
-                      const LayerMaterialProperties& laymatprop,
-                      double thickness = 0.,
-                      OverlapDescriptor* od = nullptr,
-                      IApproachDescriptor* ad = nullptr,
-                      int laytyp=int(Trk::active));
-                              
-        /**Copy constructor of CylinderLayer*/
-        CylinderLayer(const CylinderLayer& cla);
+class CylinderLayer : public CylinderSurface, public Layer {
+ public:
+  /**Default Constructor*/
+  CylinderLayer() {}
 
-        /**Copy constructor with shift*/
-        CylinderLayer(const CylinderLayer& cla, const Amg::Transform3D& tr);
-        
-        /**Assignment operator for CylinderLayers */
-        CylinderLayer& operator=(const CylinderLayer&);
-                      
-        /**Destructor*/
-        virtual ~CylinderLayer() = default;
-                
-        /** Transforms the layer into a Surface representation for extrapolation */
-        virtual const CylinderSurface& surfaceRepresentation() const override;
-        
-        /** getting the MaterialProperties back - for pre-update*/ 
-        virtual double preUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                               Trk::PropDirection dir) const override;
+  /**Constructor with CylinderSurface components and  MaterialProperties */
+  CylinderLayer(const Amg::Transform3D& transform,
+                CylinderBounds* cbounds,
+                const LayerMaterialProperties& laymatprop,
+                double thickness = 0.,
+                OverlapDescriptor* od = nullptr,
+                int laytyp = int(Trk::active));
 
-        /** getting the MaterialProperties back - for post-update*/ 
-        virtual double  postUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                                 Trk::PropDirection dir) const override;
-                                         
-        /** Surface seen on approach - if not defined differently, it is the surfaceRepresentation() */
-        virtual const Surface& surfaceOnApproach(const Amg::Vector3D& pos,
-                                                 const Amg::Vector3D& dir,
-                                                 PropDirection pdir,
-                                                 const BoundaryCheck& bcheck,
-                                                 bool resolveSubSurfaces = 0,
-                                                 const ICompatibilityEstimator* ice = nullptr) const override;
+  /**Constructor with CylinderSurface and  MaterialProperties */
+  CylinderLayer(CylinderSurface* cyl,
+                const LayerMaterialProperties& laymatprop,
+                double thickness = 0.,
+                OverlapDescriptor* od = nullptr,
+                int laytyp = int(Trk::active));
 
-        /** move the Layer */
-        virtual void moveLayer(Amg::Transform3D& shift) override final;
+  /**Constructor with CylinderSurface components and pointer to SurfaceArray
+     (passing ownership)
+      - has optionally an OverlapDescriptor and ApproachDescriptor for the
+     surfaceArray
+      */
+  CylinderLayer(const Amg::Transform3D& transform,
+                CylinderBounds* cbounds,
+                SurfaceArray* surfaceArray,
+                double thickness = 0.,
+                OverlapDescriptor* od = nullptr,
+                IApproachDescriptor* ad = nullptr,
+                int laytyp = int(Trk::active));
 
-        /** move the Layer */
-        virtual void moveLayer
-        ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& shift) const override final
-        {
-          const_cast<CylinderLayer*>(this)->moveLayer(shift);
-        }
+  /**Constructor with CylinderSurface components,
+     MaterialProperties and pointer SurfaceArray (passing ownership) */
+  CylinderLayer(const Amg::Transform3D& transform,
+                CylinderBounds* cbounds,
+                SurfaceArray* surfaceArray,
+                const LayerMaterialProperties& laymatprop,
+                double thickness = 0.,
+                OverlapDescriptor* od = nullptr,
+                IApproachDescriptor* ad = nullptr,
+                int laytyp = int(Trk::active));
 
-     private:
-       /** Resize the layer to the tracking volume - only works for
-        * CylinderVolumeBouns */
-       virtual void resizeLayer(const VolumeBounds& vBounds,
-                                double envelope) override final;
+  /**Concentric Layer: Constructor with CylinderSurface components and
+   * MaterialProperties */
+  CylinderLayer(CylinderBounds* cbounds,
+                const LayerMaterialProperties& laymatprop,
+                double thickness = 0., OverlapDescriptor* od = nullptr,
+                int laytyp = int(Trk::active));
 
-       /** Resize the layer to the tracking volume - only works for
-        * CylinderVolumeBouns */
-       virtual void resizeLayer
-       ATLAS_NOT_THREAD_SAFE(const VolumeBounds& vBounds,
-                             double envelope) const override final
-       {
-         const_cast<CylinderLayer*>(this)->resizeLayer(vBounds, envelope);
-       }
+  /**Concentric Layer: Constructor with CylinderSurface components and pointer
+   * to SurfaceArray (passing ownership) */
+  CylinderLayer(CylinderBounds* cbounds, SurfaceArray* surfaceArray,
+                double thickness = 0., OverlapDescriptor* od = nullptr,
+                IApproachDescriptor* ad = nullptr,
+                int laytyp = int(Trk::active));
 
-       /** Resize the layer to the tracking volume */
-       virtual void resizeAndRepositionLayer(const VolumeBounds& vBounds,
-                                             const Amg::Vector3D& cCenter,
-                                             double envelope) override final;
+  /**Concentric Layer: Constructor with CylinderSurface components,
+     MaterialProperties and pointer SurfaceArray (passing ownership) */
+  CylinderLayer(CylinderBounds* cbounds, SurfaceArray* surfaceArray,
+                const LayerMaterialProperties& laymatprop,
+                double thickness = 0., OverlapDescriptor* od = nullptr,
+                IApproachDescriptor* ad = nullptr,
+                int laytyp = int(Trk::active));
 
-       /** Resize the layer to the tracking volume */
-       virtual void resizeAndRepositionLayer
-       ATLAS_NOT_THREAD_SAFE(const VolumeBounds& vBounds,
-                             const Amg::Vector3D& cCenter,
-                             double envelope) const override final
-       {
-         const_cast<CylinderLayer*>(this)->resizeAndRepositionLayer(
-           vBounds, cCenter, envelope);
-       }
+  /**Copy constructor of CylinderLayer*/
+  CylinderLayer(const CylinderLayer& cla);
 
-       /** Surface seen on approach - if not defined differently, it is the
-        * surfaceRepresentation() */
-       const Surface& approachSurface(
-         const Amg::Vector3D& pos,
-         const Amg::Vector3D& dir,
-         const BoundaryCheck& bcheck) const;
+  /**Copy constructor with shift*/
+  CylinderLayer(const CylinderLayer& cla, const Amg::Transform3D& tr);
 
-       /** build approach surfaces */
-       void buildApproachDescriptor();
+  /**Assignment operator for CylinderLayers */
+  CylinderLayer& operator=(const CylinderLayer&);
 
+  /**Destructor*/
+  virtual ~CylinderLayer() = default;
 
-     protected:
-       /** surfaces on approach to the layer */
-       std::unique_ptr<IApproachDescriptor>  m_approachDescriptor;
-       
-       
-  };
+  /** Transforms the layer into a Surface representation for extrapolation */
+  virtual const CylinderSurface& surfaceRepresentation() const override;
 
-  /** @class CylinderLayerSorterR
-       Functor for CylinderLayer R-Sorting */
-  
-  class CylinderLayerSorterR {
-     public:       
-      /** Default Constructor */
-      CylinderLayerSorterR(){}
-      
-      bool operator() (const CylinderLayer* one, const CylinderLayer* two) const 
-      { return ( one->surfaceRepresentation().bounds().r() <  two->surfaceRepresentation().bounds().r() ); }
-  };
+  /** getting the MaterialProperties back - for pre-update*/
+  virtual double preUpdateMaterialFactor(
+      const Trk::TrackParameters& par,
+      Trk::PropDirection dir) const override final;
 
- 
-} // end of namespace
+  /** getting the MaterialProperties back - for post-update*/
+  virtual double postUpdateMaterialFactor(
+      const Trk::TrackParameters& par,
+      Trk::PropDirection dir) const override final;
 
-#endif // TRKGEOMETY_CYLINDERLAYER_H
+  /** Surface seen on approach - if not defined differently, it is the
+   * surfaceRepresentation() */
+  virtual const Surface& surfaceOnApproach(
+      const Amg::Vector3D& pos, const Amg::Vector3D& dir, PropDirection pdir,
+      const BoundaryCheck& bcheck, bool resolveSubSurfaces = 0,
+      const ICompatibilityEstimator* ice = nullptr) const override final;
+
+  /** move the Layer */
+  virtual void moveLayer(Amg::Transform3D& shift) override final;
+
+  /** move the Layer */
+  virtual void moveLayer
+  ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& shift) const override final {
+    const_cast<CylinderLayer*>(this)->moveLayer(shift);
+  }
+
+ private:
+  /** Resize the layer to the tracking volume - only works for
+   * CylinderVolumeBouns */
+  virtual void resizeLayer(const VolumeBounds& vBounds,
+                           double envelope) override final;
+
+  /** Resize the layer to the tracking volume - only works for
+   * CylinderVolumeBouns */
+  virtual void resizeLayer ATLAS_NOT_THREAD_SAFE(
+      const VolumeBounds& vBounds, double envelope) const override final {
+    const_cast<CylinderLayer*>(this)->resizeLayer(vBounds, envelope);
+  }
+
+  /** Resize the layer to the tracking volume */
+  virtual void resizeAndRepositionLayer(const VolumeBounds& vBounds,
+                                        const Amg::Vector3D& cCenter,
+                                        double envelope) override final;
+
+  /** Resize the layer to the tracking volume */
+  virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE(
+      const VolumeBounds& vBounds, const Amg::Vector3D& cCenter,
+      double envelope) const override final {
+    const_cast<CylinderLayer*>(this)->resizeAndRepositionLayer(vBounds, cCenter,
+                                                               envelope);
+  }
+
+  /** Surface seen on approach - if not defined differently, it is the
+   * surfaceRepresentation() */
+  const Surface& approachSurface(const Amg::Vector3D& pos,
+                                 const Amg::Vector3D& dir,
+                                 const BoundaryCheck& bcheck) const;
+
+  /** build approach surfaces */
+  void buildApproachDescriptor();
+
+ protected:
+  /** surfaces on approach to the layer */
+  std::unique_ptr<IApproachDescriptor> m_approachDescriptor;
+};
+
+/** @class CylinderLayerSorterR
+     Functor for CylinderLayer R-Sorting */
+
+class CylinderLayerSorterR {
+ public:
+  /** Default Constructor */
+  CylinderLayerSorterR() {}
+
+  bool operator()(const CylinderLayer* one, const CylinderLayer* two) const {
+    return (one->surfaceRepresentation().bounds().r() <
+            two->surfaceRepresentation().bounds().r());
+  }
+};
+
+}  // namespace Trk
+
+#endif  // TRKGEOMETY_CYLINDERLAYER_H
 

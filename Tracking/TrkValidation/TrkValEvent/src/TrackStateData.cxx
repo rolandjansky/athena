@@ -11,13 +11,17 @@
 // Sebastian.Fleischmann@cern.ch
 ///////////////////////////////////////////////////////////////////
 
+#include <utility>
+
+
+
 #include "TrkValEvent/TrackStateData.h"
 
 // default constructor
 Trk::TrackStateData::TrackStateData():
-m_trackStateOnSurface(0),
-m_rot(0),
-m_surface(0),
+m_trackStateOnSurface(nullptr),
+m_rot(nullptr),
+m_surface(nullptr),
 m_detTypeName("unidentified"),
 m_detType(Trk::TrackState::unidentified) {}
 
@@ -32,7 +36,7 @@ Trk::TrackStateData::TrackStateData(const Trk::TrackStateOnSurface* trackStateOn
             m_trackStateOnSurface(trackStateOnSurface),
             m_rot(rot),
             m_surface(surface),
-            m_detTypeName(detTypeName),
+            m_detTypeName(std::move(detTypeName)),
             m_detType(detType)
 {}
 

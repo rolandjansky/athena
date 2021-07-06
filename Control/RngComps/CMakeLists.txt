@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( RngComps )
@@ -37,7 +37,7 @@ atlas_add_test( AtDSFMT_test
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES ${CLHEP_LIBRARIES} TestTools AthenaKernel StoreGateLib
    GaudiKernel
-   LOG_IGNORE_PATTERN "^ServiceManager *DEBUG Initializing service"
+   LOG_IGNORE_PATTERN "Initializing"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"  )
 set_property( TEST RngComps_AtDSFMT_test_ctest APPEND PROPERTY
               ENVIRONMENT "ATLAS_REFERENCE_TAG=${RNGCOMPS_REFERENCE_TAG}" )

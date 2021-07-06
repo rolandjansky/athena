@@ -2,6 +2,7 @@
 
 # this file do not work out of the box
 
+import shutil
 import ROOT
 from array import array
 import numpy as np
@@ -27,7 +28,8 @@ assert old_ct_sys
 file_christophe = ROOT.TFile("~/ElectronEnergyScaleFactor.root")
 scales_christophe = file_christophe.Get("alpha68")
 ct_christophe = file_christophe.Get("sigma24")
-scales_sys_christophe = file_christophe.Get("systAlpha")  # sum of 8 / 13 TeV diff + 64 / 32 bins diff
+# sum of 8 / 13 TeV diff + 64 / 32 bins diff
+scales_sys_christophe = file_christophe.Get("systAlpha")
 ct_sys_christophe = file_christophe.Get("systSigma")  # 8 / 13 TeV diff
 
 assert scales_christophe
@@ -39,7 +41,7 @@ assert ct_sys_christophe
 def qsum_histograms(histo1, histo2):
     new_histo = histo1.Clone()
     new_histo.Reset()
-    for ibin in xrange(histo1.GetNbinsX() + 2):
+    for ibin in range(histo1.GetNbinsX() + 2):
         value1 = histo1.GetBinContent(ibin)
         central_value = histo1.GetBinCenter(ibin)
         ibin2 = histo2.FindBin(central_value)
@@ -127,23 +129,23 @@ def merge_histograms(old, new, merge_error=True):
     UNDERFLOW = 0
     OVERFLOW = new.GetNbinsX() + 1
 
-    for iold in xrange(1, old.GetNbinsX()):
-        l = old.GetBinLowEdge(iold)
-        r = l + old.GetBinWidth(iold)
+    for iold in range(1, old.GetNbinsX()):
+        low = old.GetBinLowEdge(iold)
+        r = low + old.GetBinWidth(iold)
 
-        il_new = new.FindFixBin(l)
+        il_new = new.FindFixBin(low)
         ir_new = new.FindFixBin(r)
         remainer = None
 
         if il_new == UNDERFLOW and ir_new == UNDERFLOW:
-            new_binning.append((l, r))
+            new_binning.append((low, r))
             new_values.append(old.GetBinContent(iold))
             new_errors.append(old.GetBinError(iold))
 
         elif il_new == UNDERFLOW and ir_new > UNDERFLOW and ir_new < OVERFLOW:
-            if abs(new.GetBinLowEdge(1) - l) < 1E-100:
+            if abs(new.GetBinLowEdge(1) - low) < 1E-100:
                 continue
-            new_binning.append((l, new.GetBinLowEdge(1)))
+            new_binning.append((low, new.GetBinLowEdge(1)))
             new_values.append(old.GetBinContent(iold))
             new_errors.append(old.GetBinError(iold))
             if ir_new == OVERFLOW:
@@ -151,27 +153,29 @@ def merge_histograms(old, new, merge_error=True):
             break
     last_old = iold
 
-    for inew in xrange(1, new.GetNbinsX() + 1):
-        l = new.GetBinLowEdge(inew)
-        r = l + new.GetBinWidth(inew)
-        new_binning.append((l, r))
+    for inew in range(1, new.GetNbinsX() + 1):
+        low = new.GetBinLowEdge(inew)
+        r = low + new.GetBinWidth(inew)
+        new_binning.append((low, r))
         new_values.append(new.GetBinContent(inew))
         new_errors.append(new.GetBinError(inew))
 
     if remainer is not None:
-        new_binning.append((new.GetBinLowEdge(new.GetNbinsX()), old.GetBinLowEdge(remainer) + old.GetBinWidth(remainer)))
+        new_binning.append((new.GetBinLowEdge(new.GetNbinsX()),
+                            old.GetBinLowEdge(remainer)
+                            + old.GetBinWidth(remainer)))
         new_values.append(old.GetBinContent(remainer))
         new_errors.append(old.GetBinError(remainer))
 
-    for iold in xrange(last_old, old.GetNbinsX() + 1):
-        l = old.GetBinLowEdge(iold)
-        r = l + old.GetBinWidth(iold)
+    for iold in range(last_old, old.GetNbinsX() + 1):
+        low = old.GetBinLowEdge(iold)
+        r = low + old.GetBinWidth(iold)
 
-        il_new = new.FindFixBin(l)
+        il_new = new.FindFixBin(low)
         ir_new = new.FindFixBin(r)
 
         if il_new == OVERFLOW and ir_new == OVERFLOW:
-            new_binning.append((l, r))
+            new_binning.append((low, r))
             new_values.append(old.GetBinContent(iold))
             new_errors.append(old.GetBinError(iold))
         elif il_new < OVERFLOW and ir_new == OVERFLOW:
@@ -183,7 +187,8 @@ def merge_histograms(old, new, merge_error=True):
 
     new_edges = array('f', [x[0] for x in new_binning] + [new_binning[-1][1]])
     histo_type = type(new)
-    result = histo_type(new.GetName(), new.GetTitle(), len(new_edges) - 1, new_edges)
+    result = histo_type(new.GetName(), new.GetTitle(),
+                        len(new_edges) - 1, new_edges)
     for i, (v, e) in enumerate(zip(new_values, new_errors), 1):
         result.SetBinContent(i, v)
         if merge_error:
@@ -223,15 +228,16 @@ histo_scale.SetName("alphaZee_errStat")
 histo_ct.SetName("ctZee_errStat")
 
 # this created a file structured as the official one, with empty directories
-#output_file = create_structured_file("calibration_constants_run2.root")
-import shutil
+# output_file = create_structured_file("calibration_constants_run2.root")
 print(old_filename)
 shutil.copy2(old_filename, "xxx.root")
 output_file = ROOT.TFile("xxx.root", "update")
 create_new_directories(output_file)
 
-output_file.GetDirectory("Scales").GetDirectory("es2015PRE").WriteObject(histo_scale, "alphaZee_errStat")
-output_file.GetDirectory("Resolution").GetDirectory("es2015PRE").WriteObject(histo_ct, "ctZee_errStat")
+output_file.GetDirectory("Scales").GetDirectory(
+    "es2015PRE").WriteObject(histo_scale, "alphaZee_errStat")
+output_file.GetDirectory("Resolution").GetDirectory(
+    "es2015PRE").WriteObject(histo_ct, "ctZee_errStat")
 
 # systematics
 
@@ -239,10 +245,13 @@ new_scale_sys = qsum_histograms(scales_sys_christophe, old_scale_sys)
 new_ct_sys = qsum_histograms(ct_sys_christophe, old_ct_sys)
 new_scale_sys = merge_histograms(old_scale_sys, new_scale_sys, False)
 new_ct_sys = merge_histograms(old_ct_sys, new_ct_sys, False)
-new_scale_sys.SetTitle("es2015PRE scales sys = es2012c sys + 7/13 TeV diff + 34/68 bin diff")
+new_scale_sys.SetTitle(
+    "es2015PRE scales sys = es2012c sys + 7/13 TeV diff + 34/68 bin diff")
 new_ct_sys.SetTitle("es2015 ct sys = es2012c sys + 7/13 TeV diff")
-output_file.GetDirectory("Scales").GetDirectory("es2015PRE").WriteObject(new_scale_sys, "alphaZee_errSyst")
-output_file.GetDirectory("Resolution").GetDirectory("es2015PRE").WriteObject(new_ct_sys, "ctZee_errSyst")
+output_file.GetDirectory("Scales").GetDirectory(
+    "es2015PRE").WriteObject(new_scale_sys, "alphaZee_errSyst")
+output_file.GetDirectory("Resolution").GetDirectory(
+    "es2015PRE").WriteObject(new_ct_sys, "ctZee_errSyst")
 
 legend3 = ROOT.TLegend(0.6, 0.7, 0.9, 0.9)
 legend3.SetBorderSize(0)
@@ -277,8 +286,10 @@ legend4.Draw()
 # stefano input for sensitivity
 
 stefano_file = ROOT.TFile("egammaEnergyCorrectionDataMC15.root")
-copy_dir(stefano_file.GetDirectory("PSRecalibration"), output_file.GetDirectory("PSRecalibration").GetDirectory("es2015PRE"))
-copy_dir(stefano_file.GetDirectory("S1Recalibration"), output_file.GetDirectory("S1Recalibration").GetDirectory("es2015PRE"))
+copy_dir(stefano_file.GetDirectory("PSRecalibration"),
+         output_file.GetDirectory("PSRecalibration").GetDirectory("es2015PRE"))
+copy_dir(stefano_file.GetDirectory("S1Recalibration"),
+         output_file.GetDirectory("S1Recalibration").GetDirectory("es2015PRE"))
 
 # correction for uA2MeV first week 2015
 
@@ -286,4 +297,4 @@ f_ua2mev = ROOT.TFile.Open("~/uA2MeV.root")
 histo_ua2mev = f_ua2mev.Get("histo_uA2MeV_week12")
 output_file.Get("Scales").Get("es2015PRE").WriteTObject(histo_ua2mev)
 
-raw_input()
+input("Press Key")

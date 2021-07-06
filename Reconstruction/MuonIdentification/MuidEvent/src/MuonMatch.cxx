@@ -9,7 +9,6 @@
    and information on the match quality
 	 
    @author Alan.Poppleton@cern.ch
-  (c) ATLAS Combined Muon software
 */
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -26,7 +25,7 @@ MuonMatch::MuonMatch (const Trk::Track*			combinedTrack,
 		      const Trk::Track*			extrapolatedTrack,
 		      const Trk::Track*			indetTrack,
 		      const Trk::Track*			spectrometerTrack,
-		      FieldIntegral			fieldIntegral,
+		      const FieldIntegral&			fieldIntegral,
 		      double   				innerMatchChi2,
 		      int				innerMatchDoF,
 		      double   				innerMatchProb,
@@ -34,15 +33,15 @@ MuonMatch::MuonMatch (const Trk::Track*			combinedTrack,
 		      double   				outerMatchChi2,
 		      int				outerMatchDoF,
 		      double   				outerMatchProb,
-		      ScatteringAngleSignificance	scatteringAngleSignificance)
+		      const ScatteringAngleSignificance&	scatteringAngleSignificance)
     :	m_combinedTrack				(combinedTrack),
-	m_extrapolatedRefit			(0),
+	m_extrapolatedRefit			(nullptr),
 	m_extrapolatedTrack			(extrapolatedTrack),
-	m_indetParticle				(0),
+	m_indetParticle				(nullptr),
 	m_indetTrack				(indetTrack),
-	m_spectrometerParticle			(0),
+	m_spectrometerParticle			(nullptr),
 	m_spectrometerTrack			(spectrometerTrack),
-	m_vertex				(0),
+	m_vertex				(nullptr),
 	m_bestMatch				(false),
 	m_fieldIntegral				(fieldIntegral),
 	m_innerMatchChi2			(innerMatchChi2),
@@ -63,15 +62,15 @@ MuonMatch::MuonMatch (const Trk::Track*			combinedTrack,
 		      const TrackParticle*		indetParticle,
 		      const TrackParticle*		spectrometerParticle,
 		      const Trk::RecVertex*		vertex,
-		      FieldIntegral			fieldIntegral,
-		      ScatteringAngleSignificance	scatteringAngleSignificance)
+		      const FieldIntegral&			fieldIntegral,
+		      const ScatteringAngleSignificance&	scatteringAngleSignificance)
     :	m_combinedTrack				(combinedTrack),
-	m_extrapolatedRefit			(0),
-	m_extrapolatedTrack			(0),
+	m_extrapolatedRefit			(nullptr),
+	m_extrapolatedTrack			(nullptr),
 	m_indetParticle				(indetParticle),
-	m_indetTrack				(0),
+	m_indetTrack				(nullptr),
 	m_spectrometerParticle			(spectrometerParticle),
-	m_spectrometerTrack			(0),
+	m_spectrometerTrack			(nullptr),
 	m_vertex				(vertex),
 	m_bestMatch				(false),
 	m_fieldIntegral				(fieldIntegral),
@@ -116,8 +115,8 @@ MuonMatch::MuonMatch (MuonMatch& match)
 	m_simpleMatch				(match.m_simpleMatch)
 {
     // steal combined track
-    if (match.m_combinedTrack)		match.m_combinedTrack		= 0;
-    if (match.m_extrapolatedRefit)	match.m_extrapolatedRefit	= 0;
+    if (match.m_combinedTrack)		match.m_combinedTrack		= nullptr;
+    if (match.m_extrapolatedRefit)	match.m_extrapolatedRefit	= nullptr;
 }
 
 // assign and steal operator
@@ -147,11 +146,11 @@ MuonMatch& MuonMatch::operator= (MuonMatch& match)
 
 	if(m_combinedTrack)			delete m_combinedTrack;
 	m_combinedTrack				=match.m_combinedTrack;
-	if (match.m_combinedTrack)		match.m_combinedTrack		= 0;
+	if (match.m_combinedTrack)		match.m_combinedTrack		= nullptr;
 
 	if(m_extrapolatedRefit)			delete m_extrapolatedRefit;
 	m_extrapolatedRefit			=match.m_extrapolatedRefit;
-	if (match.m_extrapolatedRefit)		match.m_extrapolatedRefit	= 0;
+	if (match.m_extrapolatedRefit)		match.m_extrapolatedRefit	= nullptr;
     }
     return *this;
 }
@@ -176,26 +175,8 @@ MuonMatch::extrapolatedTrack (const Trk::Track* extrapolatedTrack)
     m_extrapolatedTrack	= extrapolatedTrack;
 }
  
-Trk::Track*
-MuonMatch::stealCombinedTrack (void)
-{
-    // give up ownership of combined track
-    const Trk::Track* combinedTrack = m_combinedTrack;
-    m_combinedTrack = 0;
-    return const_cast<Trk::Track*>(combinedTrack);
-}
-
-Trk::Track*
-MuonMatch::stealExtrapolatedRefit (void)
-{
-    // give up ownership of combined track
-    const Trk::Track* extrapolatedRefit = m_extrapolatedRefit;
-    m_extrapolatedRefit = 0;
-    return const_cast<Trk::Track*>(extrapolatedRefit);
-}
- 
 void
-MuonMatch::fieldIntegral (FieldIntegral value)
+MuonMatch::fieldIntegral (const FieldIntegral& value)
 { m_fieldIntegral = value; }
  
 void
@@ -207,7 +188,7 @@ MuonMatch::momentumBalanceSignificance (double value)
 { m_momentumBalanceSignificance = value; }
   
 void
-MuonMatch::scatteringAngleSignificance (ScatteringAngleSignificance value)
+MuonMatch::scatteringAngleSignificance (const ScatteringAngleSignificance& value)
 { m_scatteringAngleSignificance = value; }
     
 }	// end of namespace

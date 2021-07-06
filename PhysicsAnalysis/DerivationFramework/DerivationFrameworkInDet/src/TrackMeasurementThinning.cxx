@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -10,10 +10,6 @@
 
 #include "DerivationFrameworkInDet/TrackMeasurementThinning.h"
 #include "StoreGate/ThinningHandle.h"
-#include "ExpressionEvaluation/ExpressionParser.h"
-#include "ExpressionEvaluation/SGxAODProxyLoader.h"
-#include "ExpressionEvaluation/SGNTUPProxyLoader.h"
-#include "ExpressionEvaluation/MultipleProxyLoader.h"
 #include "xAODTracking/TrackMeasurementValidationContainer.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include <vector>
@@ -46,11 +42,7 @@ StatusCode DerivationFramework::TrackMeasurementThinning::initialize()
 
     // Set up the text-parsing machinery for thinning the tracks directly according to user cuts
     if (!m_selectionString.empty()) {
-	    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-	    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
-	    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-	    m_parser = std::make_unique<ExpressionParsing::ExpressionParser>(proxyLoaders);
-	    m_parser->loadExpression(m_selectionString);
+       ATH_CHECK( initializeParser(m_selectionString) );
     }
     return StatusCode::SUCCESS;
 }
@@ -58,7 +50,7 @@ StatusCode DerivationFramework::TrackMeasurementThinning::finalize()
 {
     ATH_MSG_VERBOSE("finalize() ...");
     ATH_MSG_INFO("Processed "<< m_ntot <<" measurements, "<< m_npass<< " were retained ");
-    m_parser.reset();
+    ATH_CHECK( finalizeParser());
     return StatusCode::SUCCESS;
 }
 

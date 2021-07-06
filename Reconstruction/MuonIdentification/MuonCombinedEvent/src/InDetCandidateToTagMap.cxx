@@ -25,7 +25,7 @@ namespace MuonCombined{
   
   const TagBase* InDetCandidateToTagMap::getTag(const InDetCandidate* idcand) const{
     auto pos=m_tagMap.find(idcand);
-    if(pos==m_tagMap.end()) return 0;
+    if(pos==m_tagMap.end()) return nullptr;
     else return pos->second.get();
   }
   

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -23,10 +23,10 @@
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoPVConstLink.h"
 #include "GeoModelUtilities/StoredPhysVol.h"
+#include "GeoModelUtilities/GeoVisitVolumes.h"
 // Trk
 #include "TrkDetDescrInterfaces/ITrackingVolumeHelper.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumeCreator.h"
-//#include "TrkDetDescrInterfaces/IMaterialEffectsOnTrackProvider.h"
 #include "TrkDetDescrUtils/GeometryStatics.h"
 #include "TrkDetDescrUtils/BinnedArray.h"
 #include "TrkDetDescrUtils/GeometrySignature.h"
@@ -56,8 +56,6 @@ LAr::LArVolumeBuilder::LArVolumeBuilder(const std::string& t, const std::string&
   m_lArMgrLocation("LArMgr"),
   m_lArTrackingVolumeHelper("Trk::TrackingVolumeHelper/LArTrackingVolumeHelper"),
   m_trackingVolumeCreator("Trk::CylinderVolumeCreator/TrackingVolumeCreator"),
-  //m_meotProviders(),
-  //m_materialEffectsOnTrackProviders(),
   m_lArBarrelEnvelope(25.*mm),
   m_lArEndcapEnvelope(25.*mm),
   m_useCaloSurfBuilder(true),
@@ -102,14 +100,14 @@ StatusCode LAr::LArVolumeBuilder::initialize()
       ATH_MSG_FATAL( "Failed to retrieve tool " << m_lArTrackingVolumeHelper );
       return StatusCode::FAILURE;
     } else
-    ATH_MSG_INFO( "Retrieved tool " << m_lArTrackingVolumeHelper );
+    ATH_MSG_DEBUG( "Retrieved tool " << m_lArTrackingVolumeHelper );
 
   // Retrieve the volume creator
   if (m_trackingVolumeCreator.retrieve().isFailure()){
     ATH_MSG_FATAL( "Failed to retrieve tool " << m_trackingVolumeCreator );
     return StatusCode::FAILURE;
   } else
-    ATH_MSG_INFO( "Retrieved tool " << m_trackingVolumeCreator );
+    ATH_MSG_DEBUG( "Retrieved tool " << m_trackingVolumeCreator );
   
   if(m_useCaloSurfBuilder){
     if(m_calosurf.retrieve().isFailure())
@@ -117,17 +115,17 @@ StatusCode LAr::LArVolumeBuilder::initialize()
         ATH_MSG_FATAL( "Failed to retrieve tool " << m_calosurf );
         return StatusCode::FAILURE;
       } else
-      ATH_MSG_INFO( "Retrieved tool " << m_calosurf );
+      ATH_MSG_DEBUG( "Retrieved tool " << m_calosurf );
   }
   
-  ATH_MSG_INFO( name() << " initialize() successful" );
+  ATH_MSG_DEBUG( name() << " initialize() successful" );
   return StatusCode::SUCCESS;
 }
 
 // finalize
 StatusCode LAr::LArVolumeBuilder::finalize()
 {
-  ATH_MSG_INFO( "finalize() successful" );
+  ATH_MSG_DEBUG( "finalize() successful" );
 
   // empty the material garbage 
   std::map<const Trk::Material*, bool>::iterator garbageIter  = m_materialGarbage.begin();
@@ -263,10 +261,7 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
       ATH_MSG_VERBOSE( " -> Positive Barrel Bounds: " << *lArBarrelPosBounds );
     if (lArBarrelNegBounds)
       ATH_MSG_VERBOSE( " -> Negative Barrel Bounds: " << *lArBarrelNegBounds );
-    
-    // assing the material
-    //lArBarrelPosMaterial = lArBarrelPosLogVol->getMaterial();
-    //lArBarrelNegMaterial = lArBarrelNegLogVol->getMaterial();
+  
     
   }
   // conversion of PreSamplers done -> make one out of two
@@ -292,30 +287,29 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
     // layer entry/exit    
 
     // binned material for LAr : steering in binEta
-    std::vector<const Trk::IdentifiedMaterial*> matID;
+    std::vector<Trk::IdentifiedMaterial> matID;
     // layer material can be adjusted here
     int baseID = Trk::GeometrySignature(Trk::Calo)*1000;
-    matID.push_back(new std::pair<const Trk::Material*,int>(lArBarrelMaterial,0));
-    matID.push_back(new std::pair<const Trk::Material*,int>(lArBarrelMaterial,baseID+1));
-    matID.push_back(new std::pair<const Trk::Material*,int>(lArBarrelMaterial,baseID+2));
-    matID.push_back(new std::pair<const Trk::Material*,int>(lArBarrelMaterial,baseID+3));
+    matID.emplace_back(lArBarrelMaterial,0);
+    matID.emplace_back(lArBarrelMaterial,baseID+1);
+    matID.emplace_back(lArBarrelMaterial,baseID+2);
+    matID.emplace_back(lArBarrelMaterial,baseID+3);
     // scaling factors refer to avZ(avA) change
-    matID.push_back(new std::pair<const Trk::Material*,int>(lArBarrelMaterial->scale(1.3),baseID+1));
-    throwIntoGarbage(matID.back()->first);
-    matID.push_back(new std::pair<const Trk::Material*,int>(lArBarrelMaterial->scale(1.3),baseID+2));
-    throwIntoGarbage(matID.back()->first);
-    matID.push_back(new std::pair<const Trk::Material*,int>(lArBarrelMaterial->scale(0.6),baseID+3));
-    throwIntoGarbage(matID.back()->first);
-    matID.push_back(new std::pair<const Trk::Material*,int>(lArBarrelMaterial->scale(0.7),baseID+3));
-    throwIntoGarbage(matID.back()->first);
-    matID.push_back(new std::pair<const Trk::Material*,int>(lArBarrelMaterial->scale(0.8),baseID+3));
-    throwIntoGarbage(matID.back()->first);
-    matID.push_back(new std::pair<const Trk::Material*,int>(lArBarrelMaterial->scale(0.9),baseID+3));
-    throwIntoGarbage(matID.back()->first);
-    matID.push_back(new std::pair<const Trk::Material*,int>(lArBarrelMaterial->scale(1.1),baseID+3));
-    throwIntoGarbage(matID.back()->first);
+    matID.emplace_back(lArBarrelMaterial->scale(1.3),baseID+1);
+    throwIntoGarbage(matID.back().first);
+    matID.emplace_back(lArBarrelMaterial->scale(1.3),baseID+2);
+    throwIntoGarbage(matID.back().first);
+    matID.emplace_back(lArBarrelMaterial->scale(0.6),baseID+3);
+    throwIntoGarbage(matID.back().first);
+    matID.emplace_back(lArBarrelMaterial->scale(0.7),baseID+3);
+    throwIntoGarbage(matID.back().first);
+    matID.emplace_back(lArBarrelMaterial->scale(0.8),baseID+3);
+    throwIntoGarbage(matID.back().first);
+    matID.emplace_back(lArBarrelMaterial->scale(0.9),baseID+3);
+    throwIntoGarbage(matID.back().first);
+    matID.emplace_back(lArBarrelMaterial->scale(1.1),baseID+3);
+    throwIntoGarbage(matID.back().first);
 
-    //std::cout <<"matID:"<< matID[3]->second<< std::endl;
     //
     Trk::BinUtility* bubn = new Trk::BinUtility(30,-1.5,0.,Trk::open,Trk::binEta);
     Trk::BinUtility* bubp = new Trk::BinUtility(30, 0.,1.5,Trk::open,Trk::binEta);
@@ -329,12 +323,11 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
     double r1 = entrySurf[CaloCell_ID::EMB1].second->bounds().r();     // first layer has no modulations
     double r2 = entrySurf[CaloCell_ID::EMB2].second->bounds().r();     // base value
     double r3 = entrySurf[CaloCell_ID::EMB3].second->bounds().r();     // base value
-    //std::cout <<"base r for EMB entries:"<< r1<<","<<r2<<","<<r3<< std::endl;
 
-    const std::vector<float>* offset2 = 0;
+    std::vector<float> offset2{};
     const Trk::SlidingCylinderSurface* scyl2 = dynamic_cast<const Trk::SlidingCylinderSurface* > (entrySurf[CaloCell_ID::EMB2].second);
     if (scyl2) offset2 = scyl2->offset();
-    const std::vector<float>* offset3 = 0;
+    std::vector<float> offset3{};
     const Trk::SlidingCylinderSurface* scyl3 = dynamic_cast<const Trk::SlidingCylinderSurface* > (entrySurf[CaloCell_ID::EMB3].second);
     if (scyl3) offset3 = scyl3->offset();
     // construct bin utilities symmetrically
@@ -346,9 +339,9 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
       indx.push_back(0);
       steps.push_back(r1);
       indx.push_back( i<14 ? 1:4 );
-      steps.push_back(r2 + ( offset2 ? (*offset2)[i] : 0.) );
+      steps.push_back(r2 + offset2[i] );
       indx.push_back( i<14 ? 2:5 );
-      steps.push_back(r3 + ( offset3 ? (*offset3)[i] : 0.) );
+      steps.push_back(r3 + offset3[i]);
       // 3rd layer complicated
       if (i>19) indx.push_back(7);
       else if (i>17) indx.push_back(8);
@@ -412,7 +405,6 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
     }
   GeoFullPhysVol* solenoidPhysVol = storedPV ? storedPV->getPhysVol() : 0;
   
-  //if (solenoidPhysVol) printInfo(solenoidPhysVol);
 
   const GeoLogVol* solenoidLogVol = solenoidPhysVol ? solenoidPhysVol->getLogVol() : 0;
     
@@ -463,7 +455,6 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
     }
   GeoFullPhysVol* lArBarrelPresamplerPosPhysVol = storedPV ? storedPV->getPhysVol() : 0;
 
-  //if (lArBarrelPresamplerPosPhysVol) printInfo(lArBarrelPresamplerPosPhysVol);
   
   
   if(detStore()->contains<StoredPhysVol>("PRESAMPLER_B_NEG"))
@@ -476,7 +467,6 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
     }
   GeoFullPhysVol* lArBarrelPresamplerNegPhysVol = storedPV ? storedPV->getPhysVol() : 0;
 
-  //if (lArBarrelPresamplerNegPhysVol) printInfo(lArBarrelPresamplerNegPhysVol);
   
   const GeoLogVol* lArBarrelPresamplerPosLogVol = lArBarrelPresamplerPosPhysVol ? lArBarrelPresamplerPosPhysVol->getLogVol() : 0;
   const GeoLogVol* lArBarrelPresamplerNegLogVol = lArBarrelPresamplerNegPhysVol ? lArBarrelPresamplerNegPhysVol->getLogVol() : 0;
@@ -492,12 +482,6 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
     ATH_MSG_VERBOSE( " -> Retrieved GeoModel Volume " 
 		     << lArBarrelPresamplerNegPhysVol->getAbsoluteName() << " (" << negchilds << " childs) ." );
     
-    // get the transforms -> use for alignment
-    //const Amg::Transform3D& lArBarrelPresamplerPosTransform = Amg::CLHEPTransformToEigen(lArBarrelPresamplerPosPhysVol->getAbsoluteTransform());
-    //const Amg::Transform3D& lArBarrelPresamplerNegTransform = Amg::CLHEPTransformToEigen(lArBarrelPresamplerNegPhysVol->getAbsoluteTransform());
-    //Amg::Vector3D lArBarrelPresamplerPosPosition = lArBarrelPresamplerPosTransform.translation();
-    //Amg::Vector3D lArBarrelPresamplerNegPosition = lArBarrelPresamplerNegTransform.translation();
-
     Amg::Vector3D lArBPos(0.,0.,0.5*lArBarrelHalflength);
     Amg::Vector3D lArBNeg(0.,0.,-0.5*lArBarrelHalflength);
     Amg::Transform3D* lArPBPosTransform = new Amg::Transform3D(Amg::Translation3D(lArBPos));
@@ -536,10 +520,10 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
 
     std::vector<size_t> dummylay (1,0);
     // binned material for Presampler : 
-    std::vector<const Trk::IdentifiedMaterial*> matBP;
+    std::vector<Trk::IdentifiedMaterial> matBP;
     // layer material can be adjusted here
     int baseID = Trk::GeometrySignature(Trk::Calo)*1000;
-    matBP.push_back(new Trk::IdentifiedMaterial(lArBarrelPresamplerMaterial,baseID));
+    matBP.emplace_back(lArBarrelPresamplerMaterial,baseID);
 
     const Trk::BinnedMaterial* lArBarrelPresamplerMaterialBinPos = new Trk::BinnedMaterial(lArBarrelPresamplerMaterial,rBU,dummylay,matBP);
     const Trk::BinnedMaterial* lArBarrelPresamplerMaterialBinNeg = new Trk::BinnedMaterial(lArBarrelPresamplerMaterial,rBUc,dummylay,matBP);
@@ -730,13 +714,6 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
     lArEndcapInnerRadius = lArPositiveEndcapBounds->innerRadius();
     lArEndcapOuterRadius = lArPositiveEndcapBounds->outerRadius();
 
-    // endcap presampler ?
-    //std::cout  <<"e presampler entry:"<< entrySurf[CaloCell_ID::PreSamplerE].first->center().z()<<std::endl;
-    //std::cout  <<"e presampler entry:"<< entrySurf[CaloCell_ID::PreSamplerE].second->center().z()<<std::endl;
-    //std::cout  <<"e presampler exit:"<< exitSurf[CaloCell_ID::PreSamplerE].first->center().z()<<std::endl;
-    //std::cout  <<"e presampler exit:"<< exitSurf[CaloCell_ID::PreSamplerE].second->center().z()<<std::endl;    
-    //std::cout <<"lAr endcap position:"<< lArEndcapZmin <<","<<lArEndcapZmax << std::endl;
-    
     Amg::Vector3D lArEndcapPositionPos(0.,0.,lArEndcapZpos);
     Amg::Vector3D lArEndcapPositionNeg(0.,0.,-lArEndcapZpos);
     Amg::Transform3D* lArPositiveEndcapTransform = new Amg::Transform3D(Amg::Translation3D(lArEndcapPositionPos));
@@ -748,68 +725,68 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
     Trk::BinUtility* bun = new Trk::BinUtility(37,-3.2,-1.35,Trk::open,Trk::binEta);
 
     // binned material for LAr : steering in binEta
-    std::vector<const Trk::IdentifiedMaterial*> matEID;
+    std::vector<Trk::IdentifiedMaterial> matEID;
     // layer material can be adjusted here
     int baseID = Trk::GeometrySignature(Trk::Calo)*1000 + 4;
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial,0));
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial,baseID+1));
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial,baseID+2));
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial,baseID+3));
+    matEID.emplace_back(lArEndcapMaterial,0);
+    matEID.emplace_back(lArEndcapMaterial,baseID+1);
+    matEID.emplace_back(lArEndcapMaterial,baseID+2);
+    matEID.emplace_back(lArEndcapMaterial,baseID+3);
     // scaled
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.05),baseID+1));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.1),baseID+1));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.15),baseID+1));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.2),baseID+1));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.25),baseID+1));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.3),baseID+1));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.35),baseID+1));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.4),baseID+1));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.05),baseID+2));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.1),baseID+2));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.15),baseID+2));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.2),baseID+2));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.25),baseID+2));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.3),baseID+2));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.35),baseID+2));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.4),baseID+2));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.45),baseID+2));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(0.7),baseID+3));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(0.75),baseID+3));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(0.8),baseID+3));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(0.85),baseID+3));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(0.9),baseID+3));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(0.95),baseID+3));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.05),baseID+3));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.1),baseID+3));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.15),baseID+3));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.2),baseID+3));
-    throwIntoGarbage(matEID.back()->first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.05),baseID+1);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.1),baseID+1);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.15),baseID+1);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.2),baseID+1);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.25),baseID+1);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.3),baseID+1);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.35),baseID+1);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.4),baseID+1);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.05),baseID+2);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.1),baseID+2);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.15),baseID+2);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.2),baseID+2);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.25),baseID+2);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.3),baseID+2);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.35),baseID+2);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.4),baseID+2);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.45),baseID+2);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(0.7),baseID+3);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(0.75),baseID+3);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(0.8),baseID+3);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(0.85),baseID+3);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(0.9),baseID+3);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(0.95),baseID+3);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.05),baseID+3);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.1),baseID+3);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.15),baseID+3);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.2),baseID+3);
+    throwIntoGarbage(matEID.back().first);
 
     // binned material for LAr : layer depth per eta bin
     std::vector< Trk::BinUtility*> layEUP(bup->bins());
@@ -819,15 +796,13 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
     float z1 = entrySurf[CaloCell_ID::EME1].first->center().z();     // first layer has no modulations
     float z2 = entrySurf[CaloCell_ID::EME2].first->center().z();     // base value
     float z3 = entrySurf[CaloCell_ID::EME3].first->center().z();     // base value
-    //std::cout <<"base z for EME entries:"<< z1<<","<<z2<<","<<z3<< std::endl;
 
-    const std::vector<float>* offset2 = 0;
+    std::vector<float> offset2;
     const Trk::SlidingDiscSurface* sd2 = dynamic_cast<const Trk::SlidingDiscSurface* > (entrySurf[CaloCell_ID::EME2].first);
     if (sd2) offset2 = sd2->offset();
-    const std::vector<float>* offset3 = 0;
+    std::vector<float>offset3;
     const Trk::SlidingDiscSurface* sd3 = dynamic_cast<const Trk::SlidingDiscSurface* > (entrySurf[CaloCell_ID::EME3].first);
     if (sd3) offset3 = sd3->offset();
-    //if (sd2 && sd3 && (bup->bins()!=(*offset2).size() || bup->bins()!=(*offset3).size())  ) std::cout <<"size of bin utility for lAr EC does not match"<< std::endl;
     // construct bin utilities 
     std::vector<float> steps;
     for (unsigned int i=0; i< bup->bins(); i++) {
@@ -847,7 +822,7 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
       else if (i<23) indx.push_back(11);
       else indx.push_back(1);
 
-      float z2c = z2 + ( offset2 ? (*offset2)[i] : 0.); 
+      float z2c = z2 + offset2[i]; 
       if (z2c!= steps.back()) { steps.push_back(z2c); indx.push_back(2);}
       else { indx.back()=2; }
       if (i<4) {}
@@ -868,7 +843,7 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
       else if (i<35) indx.back()=19;
       else if (i<37) indx.back()=20;
       
-      steps.push_back(z3 + ( offset3 ? (*offset3)[i] : 0.) );
+      steps.push_back(z3 + offset3[i] );
       if (i<6) indx.push_back(21);
       else if (i<8) indx.push_back(22);
       else if (i<10) indx.push_back(23);
@@ -905,21 +880,19 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
     z1 = entrySurf[CaloCell_ID::EME1].second->center().z();     // first layer has no modulations
     z2 = entrySurf[CaloCell_ID::EME2].second->center().z();     // base value
     z3 = entrySurf[CaloCell_ID::EME3].second->center().z();     // base value
-    //std::cout <<"base z for EC entries:"<< z1<<","<<z2<<","<<z3<< std::endl;
 
-    offset2 = 0;
+    offset2.clear();
     sd2 = dynamic_cast<const Trk::SlidingDiscSurface* > (entrySurf[CaloCell_ID::EME2].second);
     if (sd2) offset2 = sd2->offset();
-    offset3 = 0;
+    offset3.clear();
     sd3 = dynamic_cast<const Trk::SlidingDiscSurface* > (entrySurf[CaloCell_ID::EME3].second);
     if (sd3) offset3 = sd3->offset();
-    //if (sd2 && sd3 && (bun->bins()!=(*offset2).size() || bun->bins()!=(*offset3).size() ) ) std::cout <<"size of bin utility for lAr barrel does not match"<< std::endl;
     // construct bin utilities ( in increasing ordering )
     for (unsigned int i=0; i< bun->bins(); i++) {
       steps.clear();
       steps.push_back(-lArEndcapZmax);
-      steps.push_back(z3 + ( offset3 ? (*offset3)[i] : 0.) );
-      steps.push_back(z2 + ( offset2 ? (*offset2)[i] : 0.) );
+      steps.push_back(z3 + offset3[i] );
+      steps.push_back(z2 + offset2[i] );
       if (z1!= steps.back()) { steps.push_back(z1); }
       steps.push_back(-lArEndcapZmin);
       Trk::BinUtility* zBU = new Trk::BinUtility(steps, Trk::open, Trk::binZ);
@@ -963,7 +936,7 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
   const GeoLogVol* lArECPresamplerLogVol = lArECPresamplerPhysVol ? lArECPresamplerPhysVol->getLogVol() : 0;
 
   // binned material for EC Presampler : layers only
-   std::vector<const Trk::IdentifiedMaterial*> matECP;
+   std::vector<Trk::IdentifiedMaterial> matECP;
    const Trk::Material* mAr = new Trk::Material(140., 1170./1.4, 40., 18., 0.0014);
    const Trk::Material* mAl = new Trk::Material(88.93, 388.8, 27., 13., 0.0027);
    throwIntoGarbage(mAr);
@@ -971,8 +944,8 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
 
    // layer material can be adjusted here
    int baseID = Trk::GeometrySignature(Trk::Calo)*1000 + 4;
-   matECP.push_back(new std::pair<const Trk::Material*,int>(mAl,0));
-   matECP.push_back(new std::pair<const Trk::Material*,int>(mAr,baseID));
+   matECP.emplace_back(mAl,0);
+   matECP.emplace_back(mAr,baseID);
 
   if (  lArECPresamplerLogVol ) {
   
@@ -1089,13 +1062,6 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
   const GeoLogVol* lArPositiveHec2LogVol = lArPositiveHec2PhysVol ? lArPositiveHec2PhysVol->getLogVol() : 0;
   const GeoLogVol* lArNegativeHec1LogVol = lArNegativeHec1PhysVol ? lArNegativeHec1PhysVol->getLogVol() : 0;
   const GeoLogVol* lArNegativeHec2LogVol = lArNegativeHec2PhysVol ? lArNegativeHec2PhysVol->getLogVol() : 0;
-  
-  // get the material
-  //const GeoMaterial* lArPositiveHec1Material = 0;
-  //const GeoMaterial* lArPositiveHec2Material = 0;
-  //const GeoMaterial* lArNegativeHec1Material = 0;
-  //const GeoMaterial* lArNegativeHec2Material = 0;
-
 
   std::vector<double> positiveEndcapZboundariesHec1;
   std::vector<double> positiveEndcapZboundariesHec2;
@@ -1172,13 +1138,7 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
     
     ATH_MSG_VERBOSE( "   Negative parts located at: " <<   negativeHec1Zpos + lArNegativeHec1NomPosition.z()
 		     << " / " <<   negativeHec2Zpos + lArNegativeHec2NomPosition.z() );
-    
-    // assing the material
-    //lArPositiveHec1Material = lArPositiveHec1LogVol->getMaterial();
-    //lArPositiveHec2Material = lArPositiveHec2LogVol->getMaterial();
-    //lArNegativeHec1Material = lArNegativeHec1LogVol->getMaterial();
-    //lArNegativeHec2Material = lArNegativeHec2LogVol->getMaterial();
-    
+
   }
   
   // (3) Browser the FCAL, we construct some things
@@ -1258,7 +1218,6 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
      }
    GeoFullPhysVol* lArNegativeFcal3PhysVol = storedPV ? storedPV->getPhysVol() : 0;
    
-   
    const GeoLogVol* lArPositiveFcal1LogVol = lArPositiveFcal1PhysVol ? lArPositiveFcal1PhysVol->getLogVol() : 0;
    const GeoLogVol* lArPositiveFcal2LogVol = lArPositiveFcal2PhysVol ? lArPositiveFcal2PhysVol->getLogVol() : 0;
    const GeoLogVol* lArPositiveFcal3LogVol = lArPositiveFcal3PhysVol ? lArPositiveFcal3PhysVol->getLogVol() : 0;
@@ -1266,15 +1225,6 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
    const GeoLogVol* lArNegativeFcal1LogVol = lArNegativeFcal1PhysVol ? lArNegativeFcal1PhysVol->getLogVol() : 0;
    const GeoLogVol* lArNegativeFcal2LogVol = lArNegativeFcal2PhysVol ? lArNegativeFcal2PhysVol->getLogVol() : 0;
    const GeoLogVol* lArNegativeFcal3LogVol = lArNegativeFcal3PhysVol ? lArNegativeFcal3PhysVol->getLogVol() : 0;
-
-   // get the material
-   //const GeoMaterial* lArPositiveFcal1Material = 0;
-   //const GeoMaterial* lArPositiveFcal2Material = 0;
-   //const GeoMaterial* lArPositiveFcal3Material = 0;
-
-   //const GeoMaterial* lArNegativeFcal1Material = 0;
-   //const GeoMaterial* lArNegativeFcal2Material = 0;
-   //const GeoMaterial* lArNegativeFcal3Material = 0;
 
     // z position - force to be symmetric
    double lArFcalHalflength = 0.;
@@ -1390,15 +1340,6 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
      lArFcalZposition  = lArPositiveFcal3NomPosition.z() + lArPositiveFcal3Bounds->halflengthZ();
      lArFcalZposition += lArPositiveFcal1NomPosition.z() - lArNegativeFcal1Bounds->halflengthZ();
      lArFcalZposition *= 0.5;
-
-     // assing the material
-     //lArPositiveFcal1Material = lArPositiveFcal1LogVol->getMaterial();
-     //lArPositiveFcal2Material = lArPositiveFcal2LogVol->getMaterial();
-     //lArPositiveFcal3Material = lArPositiveFcal2LogVol->getMaterial();
-
-     //lArNegativeFcal1Material = lArNegativeFcal1LogVol->getMaterial();
-     //lArNegativeFcal2Material = lArNegativeFcal2LogVol->getMaterial();
-     //lArNegativeFcal3Material = lArPositiveFcal2LogVol->getMaterial();
    }
 
    //Building section, we start with the HEC
@@ -1441,7 +1382,7 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
    lArFcalZposition = hecFcalCoverZpos;
 
    // binned material for HEC : layers only
-   std::vector<const Trk::IdentifiedMaterial*> matHEC;
+   std::vector<Trk::IdentifiedMaterial> matHEC;
    //Trk::MaterialProperties lArHecFcalCoverMaterial = geoMaterialToMaterialProperties.convert(lArPositiveHec1Material);
    //Trk::MaterialProperties lArHecFcalCoverMaterial = Trk::MaterialProperties(1., 18.6, 0.00345, 27.);
    const Trk::Material* lArHecFcalCoverMaterial=new Trk::Material(18.4, 201.9, 57.2, 26.1, 0.0071);
@@ -1451,14 +1392,16 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
 
    // layer material can be adjusted here
    baseID = Trk::GeometrySignature(Trk::Calo)*1000 + 8;
-   matHEC.push_back(new std::pair<const Trk::Material*,int>(lArHecFcalCoverMaterial->scale(0.13*m_scale_HECmaterial),0));
-   matHEC.push_back(new std::pair<const Trk::Material*,int>(lArHecMaterial->scale(m_scale_HECmaterial),baseID));
-   matHEC.push_back(new std::pair<const Trk::Material*,int>(lArHecFcalCoverMaterial->scale(0.93*m_scale_HECmaterial),baseID+1));
-   throwIntoGarbage(matHEC.back()->first);
-   matHEC.push_back(new std::pair<const Trk::Material*,int>(lArHecFcalCoverMaterial->scale(1.09*m_scale_HECmaterial),baseID+2));
-   throwIntoGarbage(matHEC.back()->first);
-   matHEC.push_back(new std::pair<const Trk::Material*,int>(lArHecFcalCoverMaterial->scale(1.12*m_scale_HECmaterial),baseID+3));
-   throwIntoGarbage(matHEC.back()->first);
+   matHEC.emplace_back(lArHecFcalCoverMaterial->scale(0.13*m_scale_HECmaterial),0);
+   throwIntoGarbage(matHEC.back().first);
+   matHEC.emplace_back(lArHecMaterial->scale(m_scale_HECmaterial),baseID);
+   throwIntoGarbage(matHEC.back().first);
+   matHEC.emplace_back(lArHecFcalCoverMaterial->scale(0.93*m_scale_HECmaterial),baseID+1);
+   throwIntoGarbage(matHEC.back().first);
+   matHEC.emplace_back(lArHecFcalCoverMaterial->scale(1.09*m_scale_HECmaterial),baseID+2);
+   throwIntoGarbage(matHEC.back().first);
+   matHEC.emplace_back(lArHecFcalCoverMaterial->scale(1.12*m_scale_HECmaterial),baseID+3);
+   throwIntoGarbage(matHEC.back().first);
 
    // divide the HEC into two parts per EC :
    // -  fit one around the FCAL - and adopt to LAr Endcap outer radius
@@ -1600,9 +1543,8 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
    
    // Now the FCAL
    // binned material for FCAL : layers only
-   std::vector<const Trk::IdentifiedMaterial*> matFCAL;
+   std::vector<Trk::IdentifiedMaterial> matFCAL;
    // convert the Material 
-   //Trk::MaterialProperties lArFcalMaterial = geoMaterialToMaterialProperties.convert(lArPositiveEndcapMaterial);
    const Trk::Material* lArFcalMaterial =new Trk::Material(8.4, 175.5, 100.8, 42.1, 0.0097);
    const Trk::Material* lArFcalMaterial0 =new Trk::Material(96., 560., 30.3, 14.3, 0.0025);
    throwIntoGarbage(lArFcalMaterial);
@@ -1610,13 +1552,13 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
 
    // layer material can be adjusted here
    baseID = Trk::GeometrySignature(Trk::Calo)*1000 + 20;
-   matFCAL.push_back(new std::pair<const Trk::Material*,int>(lArFcalMaterial0,0));
-   matFCAL.push_back(new std::pair<const Trk::Material*,int>(lArFcalMaterial->scale(0.5),baseID+1));
-   throwIntoGarbage(matFCAL.back()->first);
-   matFCAL.push_back(new std::pair<const Trk::Material*,int>(lArFcalMaterial->scale(1.5),baseID+2));
-   throwIntoGarbage(matFCAL.back()->first);
-   matFCAL.push_back(new std::pair<const Trk::Material*,int>(lArFcalMaterial->scale(1.4),baseID+3));
-   throwIntoGarbage(matFCAL.back()->first);
+   matFCAL.emplace_back(lArFcalMaterial0,0);
+   matFCAL.emplace_back(lArFcalMaterial->scale(0.5),baseID+1);
+   throwIntoGarbage(matFCAL.back().first);
+   matFCAL.emplace_back(lArFcalMaterial->scale(1.5),baseID+2);
+   throwIntoGarbage(matFCAL.back().first);
+   matFCAL.emplace_back(lArFcalMaterial->scale(1.4),baseID+3);
+   throwIntoGarbage(matFCAL.back().first);
 
    // smooth the FCal to Tube form
    if (lArPositiveFcal1Bounds && lArPositiveFcal2Bounds && lArPositiveFcal3Bounds &&
@@ -1733,10 +1675,6 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
   
   if (m_mbtsZ>0. && m_mbts_rmin>0. && m_mbts_rmax>0.){
     // create the dummy volume to pass on the MBTS position 
-    //Trk::CylinderVolumeBounds* lArNegativeEndcapInnerGapBounds = new Trk::CylinderVolumeBounds(
-    //								       lArPositiveFcalBounds->innerRadius(),
-    // 								       lArEndcapInnerRadius,
-    //								       10. );
     Trk::CylinderVolumeBounds* lArNegativeMBTSBounds = new Trk::CylinderVolumeBounds(
 								       m_mbts_rmin,
 								       m_mbts_rmax,
@@ -1752,7 +1690,6 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
     Amg::Transform3D* lArNegativeMBTSTransform = new Amg::Transform3D(Amg::Translation3D(lArEndcapInnerGapNeg));
 
     // building dense volume here
-    
     lArPositiveEndcapInnerGap = new Trk::TrackingVolume(lArPositiveMBTSTransform,
 							lArNegativeMBTSBounds->clone(),
 							dummyMaterial,
@@ -1983,24 +1920,22 @@ void LAr::LArVolumeBuilder::associateCylVolumeToLayer(const std::vector<const Tr
 void LAr::LArVolumeBuilder::printInfo(const PVConstLink pv, int gen) const
 {
   const GeoLogVol* lv = pv->getLogVol();
-  std::cout << "New LAr Object:"<<lv->getName()<<", made of"<<lv->getMaterial()->getName()<<","<<lv->getShape()->type()<<std::endl;
-  //m_geoShapeConverter->decodeShape(lv->getShape());
+    ATH_MSG_VERBOSE( "New LAr Object:"<<lv->getName()<<", made of"<<lv->getMaterial()->getName()<<","<<lv->getShape()->type());
     const GeoTrd* trd=dynamic_cast<const GeoTrd*> (lv->getShape());
-    if (trd) std::cout<<"trddim:"<< trd->getXHalfLength1()<<","<<trd->getXHalfLength2()<<","<<trd->getYHalfLength1()<<","<<trd->getYHalfLength2()<<","<<trd->getZHalfLength()<< std::endl;
+    if (trd) ATH_MSG_VERBOSE("trddim:"<< trd->getXHalfLength1()<<","<<trd->getXHalfLength2()<<","<<trd->getYHalfLength1()<<","<<trd->getYHalfLength2()<<","<<trd->getZHalfLength());
     const GeoTubs* tub=dynamic_cast<const GeoTubs*> (lv->getShape());
-    if (tub) std::cout<<"tubdim:"<< tub->getRMin()<<","<<tub->getRMax()<<","<<tub->getZHalfLength()<< std::endl;
+    if (tub) ATH_MSG_VERBOSE("tubdim:"<< tub->getRMin()<<","<<tub->getRMax()<<","<<tub->getZHalfLength());
     const GeoTube* tube=dynamic_cast<const GeoTube*> (lv->getShape());
-    if (tube) std::cout<<"tubdim:"<< tube->getRMin()<<","<<tube->getRMax()<<","<<tube->getZHalfLength()<< std::endl;
+    if (tube) ATH_MSG_VERBOSE("tubdim:"<< tube->getRMin()<<","<<tube->getRMax()<<","<<tube->getZHalfLength());
     const GeoPcon* con=dynamic_cast<const GeoPcon*> (lv->getShape());
     if (con) {
       const unsigned int nPlanes=con->getNPlanes();
       for (unsigned int i=0; i<nPlanes; i++) {
-	std::cout<<"polycone:"<<i<<":"<< con->getRMinPlane(i)<<","<<con->getRMaxPlane(i)<<","<<con->getZPlane(i)<< std::endl;
+	      ATH_MSG_VERBOSE("polycone:"<<i<<":"<< con->getRMinPlane(i)<<","<<con->getRMaxPlane(i)<<","<<con->getZPlane(i));
       }
     }
     Amg::Transform3D transf =  pv->getX();
-    std::cout << "position:"<< "R:"<<transf.translation().perp()<<",phi:"<< transf.translation().phi()<<",x:"<<transf.translation().x()<<",y:"<<transf.translation().y()<<",z:"<<transf.translation().z()<<std::endl;
-
+    ATH_MSG_VERBOSE( "position:"<< "R:"<<transf.translation().perp()<<",phi:"<< transf.translation().phi()<<",x:"<<transf.translation().x()<<",y:"<<transf.translation().y()<<",z:"<<transf.translation().z());
     int igen = 0;
     printChildren(pv,gen,igen,transf);
 }
@@ -2014,36 +1949,26 @@ void LAr::LArVolumeBuilder::printChildren(const PVConstLink pv,int gen, int igen
   std::string cname; 
   for (unsigned int ic=0; ic<nc; ic++) {
     Amg::Transform3D transf = trIn*pv->getXToChildVol(ic);
- 
-    //
-    //std::cout << " dumping transform to subcomponent" << std::endl;
-    //std::cout << transf.rotation()<< std::endl; 
-    //std::cout << transf[0][0]<<"," <<transf[0][1]<<"," <<transf[0][2]<<","<<transf[0][3] << std::endl;
-    //std::cout << transf[1][0]<<"," <<transf[1][1]<<"," <<transf[1][2]<<","<<transf[1][3] << std::endl;
-    //std::cout << transf[2][0]<<"," <<transf[2][1]<<"," <<transf[2][2]<<","<<transf[2][3] << std::endl;
-    //
     const PVConstLink cv = pv->getChildVol(ic);
     const GeoLogVol* clv = cv->getLogVol();
-    std::cout << "  ";
-    std::cout << "subcomponent:"<<igen<<":"<<ic<<":"<<clv->getName()<<", made of"<<clv->getMaterial()->getName()<<","<<clv->getShape()->type()
-	      <<std::endl;
-    std::cout << "position:"<< "R:"<<transf.translation().perp()<<",phi:"<< transf.translation().phi()<<",x:"<<transf.translation().x()<<",y:"<<transf.translation().y()<<",z:"<<transf.translation().z()<<std::endl;
+    ATH_MSG_VERBOSE("  ");
+    ATH_MSG_VERBOSE( "subcomponent:"<<igen<<":"<<ic<<":"<<clv->getName()<<", made of"<<clv->getMaterial()->getName()<<","<<clv->getShape()->type());
+    ATH_MSG_VERBOSE( "position:"<< "R:"<<transf.translation().perp()<<",phi:"<< transf.translation().phi()<<",x:"<<transf.translation().x()<<",y:"<<transf.translation().y()<<",z:"<<transf.translation().z());
     const GeoTrd* trd=dynamic_cast<const GeoTrd*> (clv->getShape());
-    if (trd) std::cout<<"trddim:"<< trd->getXHalfLength1()<<","<<trd->getXHalfLength2()<<","<<trd->getYHalfLength1()<<","<<trd->getYHalfLength2()<<","<<trd->getZHalfLength()<< std::endl;
+    if (trd) ATH_MSG_VERBOSE("trddim:"<< trd->getXHalfLength1()<<","<<trd->getXHalfLength2()<<","<<trd->getYHalfLength1()<<","<<trd->getYHalfLength2()<<","<<trd->getZHalfLength());
     const GeoTubs* tub=dynamic_cast<const GeoTubs*> (clv->getShape());
-    if (tub) std::cout<<"tubdim:"<< tub->getRMin()<<","<<tub->getRMax()<<","<<tub->getZHalfLength()<< std::endl;
+    if (tub) ATH_MSG_VERBOSE("tubdim:"<< tub->getRMin()<<","<<tub->getRMax()<<","<<tub->getZHalfLength());
     const GeoTube* tube=dynamic_cast<const GeoTube*> (clv->getShape());
-    if (tube) std::cout<<"tubdim:"<< tube->getRMin()<<","<<tube->getRMax()<<","<<tube->getZHalfLength()<< std::endl;
+    if (tube) ATH_MSG_VERBOSE("tubdim:"<< tube->getRMin()<<","<<tube->getRMax()<<","<<tube->getZHalfLength());
     const GeoPcon* con=dynamic_cast<const GeoPcon*> (clv->getShape());
     if (con) {
       const unsigned int nPlanes=con->getNPlanes();
       for (unsigned int i=0; i<nPlanes; i++) {
-	std::cout<<"polycone:"<<i<<":"<< con->getRMinPlane(i)<<","<<con->getRMaxPlane(i)<<","<<con->getZPlane(i)<< std::endl;
+	      ATH_MSG_VERBOSE("polycone:"<<i<<":"<< con->getRMinPlane(i)<<","<<con->getRMaxPlane(i)<<","<<con->getZPlane(i));
       }
     }
 
     if (ic==0 || cname != clv->getName() ) {  
-      //m_geoShapeConverter->decodeShape(clv->getShape()); 	 
       printChildren(cv,gen,igen,transf);
       cname = clv->getName();
     }
@@ -2054,10 +1979,10 @@ void LAr::LArVolumeBuilder::printChildren(const PVConstLink pv,int gen, int igen
 GeoPVConstLink LAr::LArVolumeBuilder::getChild(GeoPVConstLink mother, std::string name, Amg::Transform3D& trIn) const
 {
   // subcomponents
-  unsigned int nc = mother->getNChildVols();
-  for (unsigned int ic=0; ic<nc; ic++) {
-    Amg::Transform3D transf = trIn*mother->getXToChildVol(ic);
-    GeoPVConstLink cv = mother->getChildVol(ic);
+  for (const GeoVolumeVec_t::value_type& p : geoGetVolumes (&*mother))
+  {
+    Amg::Transform3D transf = trIn*p.second;
+    GeoPVConstLink cv = p.first;
     const GeoLogVol* clv = cv->getLogVol();
     if (clv->getName().substr(0,name.size())==name) { trIn = transf; return cv; } 
     GeoPVConstLink next=getChild(cv,name,transf);

@@ -21,10 +21,10 @@
 #include <algorithm>
 
 PlotBase::PlotBase(PlotBase *pParent, const std::string &sDir) {
-  if (pParent != 0) {
+  if (pParent != nullptr) {
     pParent->RegisterSubPlot(this);
   }
-  std::string sParentDirectory = (pParent != 0) ? pParent->getDirectory() : "";
+  std::string sParentDirectory = (pParent != nullptr) ? pParent->getDirectory() : "";
   m_sDirectory = sParentDirectory + sDir;
   m_iDetailLevel = 0;
 }
@@ -94,7 +94,7 @@ PlotBase::Book1D(const std::string &name, const std::string &labels, int nBins, 
   TH1::AddDirectory(oldstat);
 
   hist->Sumw2();
-  m_vBookedHistograms.push_back(HistData(hist, m_sDirectory));
+  m_vBookedHistograms.emplace_back(hist, m_sDirectory);
   return hist;
 }
 
@@ -109,7 +109,7 @@ PlotBase::Book1D(const std::string &name, TH1 *refHist, const std::string &label
   TH1::AddDirectory(oldstat);
 
 
-  m_vBookedHistograms.push_back(HistData(hist, m_sDirectory));
+  m_vBookedHistograms.emplace_back(hist, m_sDirectory);
   return hist;
 }
 
@@ -124,7 +124,7 @@ PlotBase::Book2D(const std::string &name, const std::string &labels, int nBinsX,
   TH2::AddDirectory(oldstat);
 
 
-  m_vBookedHistograms.push_back(HistData(hist, m_sDirectory));
+  m_vBookedHistograms.emplace_back(hist, m_sDirectory);
   return hist;
 }
 
@@ -143,7 +143,7 @@ PlotBase::Book2D(const std::string &name, const std::string &labels, int nBinsX,
   TH2F *hist = new TH2F((prefix + name).c_str(), labels.c_str(), nBinsX, binsX, nBinsY, startY, endY);
   hist->Sumw2();
   TH2::AddDirectory(oldstat);
-  m_vBookedHistograms.push_back(HistData(hist, m_sDirectory));
+  m_vBookedHistograms.emplace_back(hist, m_sDirectory);
   return hist;
 }
 
@@ -157,7 +157,7 @@ PlotBase::Book3D(const std::string &name, const std::string &labels, int nBinsX,
                         labels.c_str(), nBinsX, startX, endX, nBinsY, startY, endY, nBinsZ, startZ, endZ);
   hist->Sumw2();
   TH3::AddDirectory(oldstat);
-  m_vBookedHistograms.push_back(HistData(hist, m_sDirectory));
+  m_vBookedHistograms.emplace_back(hist, m_sDirectory);
   return hist;
 }
 
@@ -172,7 +172,7 @@ PlotBase::Book3D(const std::string &name, TH3 *refHist, const std::string &label
                         refHist->GetZaxis()->GetXbins()->GetArray());
   TH3::AddDirectory(oldstat);
 
-  m_vBookedHistograms.push_back(HistData(hist, m_sDirectory));
+  m_vBookedHistograms.emplace_back(hist, m_sDirectory);
   return hist;
 }
 
@@ -180,7 +180,7 @@ TProfile *
 PlotBase::BookTProfile(const std::string &name, const std::string &labels, int nBinsX, float startX, float endX,
                        float startY, float endY, bool prependDir, bool useRMS) {
   std::string prefix = constructPrefix(m_sDirectory, prependDir);
-  TProfile *hist(0);
+  TProfile *hist(nullptr);
   Bool_t oldstat = TProfile::AddDirectoryStatus();
   TProfile::AddDirectory(false);
   std::string opt = useRMS ? "S" : "";
@@ -190,20 +190,20 @@ PlotBase::BookTProfile(const std::string &name, const std::string &labels, int n
     hist = new TProfile((prefix + name).c_str(), labels.c_str(), nBinsX, startX, endX, startY, endY, opt.c_str());
   }
   TProfile::AddDirectory(oldstat);
-  m_vBookedHistograms.push_back(HistData(hist, m_sDirectory));
+  m_vBookedHistograms.emplace_back(hist, m_sDirectory);
   return hist;
 }
 
 TProfile *
 PlotBase::BookTProfile(const std::string &name, const std::string &labels, int nBinsX, float *binsX, bool prependDir) {
   std::string prefix = constructPrefix(m_sDirectory, prependDir);
-  TProfile *hist(0);
+  TProfile *hist(nullptr);
   Bool_t oldstat = TProfile::AddDirectoryStatus();
   TProfile::AddDirectory(false);
 
   hist = new TProfile((prefix + name).c_str(), labels.c_str(), nBinsX, binsX);
   TProfile::AddDirectory(oldstat);
-  m_vBookedHistograms.push_back(HistData(hist, m_sDirectory));
+  m_vBookedHistograms.emplace_back(hist, m_sDirectory);
   return hist;
 }
 
@@ -211,13 +211,13 @@ TProfile *
 PlotBase::BookTProfileRangeY(const std::string &name, const std::string &labels, int nBinsX, double *binsX,
                              double startY, double endY, bool prependDir) {
   std::string prefix = constructPrefix(m_sDirectory, prependDir);
-  TProfile *hist(0);
+  TProfile *hist(nullptr);
   Bool_t oldstat = TProfile::AddDirectoryStatus();
   TProfile::AddDirectory(false);
 
   hist = new TProfile((prefix + name).c_str(), labels.c_str(), (Int_t) nBinsX, binsX, startY, endY);
   TProfile::AddDirectory(oldstat);
-  m_vBookedHistograms.push_back(HistData(hist, m_sDirectory));
+  m_vBookedHistograms.emplace_back(hist, m_sDirectory);
   return hist;
 }
 
@@ -231,7 +231,7 @@ PlotBase::BookTProfile2D(const std::string &name, const std::string &labels, con
   std::string opt = useRMS ? "S" : "";
   TProfile2D *hist = new TProfile2D((prefix + name).c_str(), labels.c_str(), nBinsX, xlo, xhi, nBinsY, ylo, yhi, opt.c_str());
   TProfile2D::AddDirectory(oldstat);
-  m_vBookedHistograms.push_back(HistData(hist, m_sDirectory));
+  m_vBookedHistograms.emplace_back(hist, m_sDirectory);
   return hist;
 }
 
@@ -243,7 +243,7 @@ PlotBase::BookTProfile2D(const std::string &name, const std::string &labels, con
   std::string opt = useRMS ? "S" : "";
   TProfile2D *hist = new TProfile2D((prefix + name).c_str(), labels.c_str(), nBinsX, binsX, nBinsY, binsY, opt.c_str());
   TProfile2D::AddDirectory(oldstat);
-  m_vBookedHistograms.push_back(HistData(hist, m_sDirectory));
+  m_vBookedHistograms.emplace_back(hist, m_sDirectory);
   return hist;
 }
 
@@ -254,8 +254,8 @@ PlotBase::BookTEfficiency(const std::string &name, const std::string & labels, c
   TEfficiency *hist = new TEfficiency((prefix + name).c_str(), labels.c_str(), nBinsX, xlo, xhi);
   //hist->SetAutoSave(0);
   //hist->SetAtoFlush(0);
-  hist->SetDirectory(0);
-  m_vBookedEfficiencies.push_back(EfficiencyData(hist, m_sDirectory));
+  hist->SetDirectory(nullptr);
+  m_vBookedEfficiencies.emplace_back(hist, m_sDirectory);
   //TEfficiency::AddDirectory(oldstat);
   return hist;
 }
@@ -267,8 +267,8 @@ PlotBase::BookTree(const std::string &name, bool prependDir) {
 
   tree->SetAutoSave(0);
   tree->SetAutoFlush(0);
-  tree->SetDirectory(0);
-  m_vBookedTrees.push_back(TreeData(tree, m_sDirectory));
+  tree->SetDirectory(nullptr);
+  m_vBookedTrees.emplace_back(tree, m_sDirectory);
   return tree;
 }
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigConfL1Data )
@@ -11,4 +11,4 @@ atlas_add_library( TrigConfL1Data
   TrigConfL1Data/*.h Root/*.cxx
   PUBLIC_HEADERS TrigConfL1Data
   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-  LINK_LIBRARIES ${Boost_LIBRARIES} )
+  LINK_LIBRARIES ${Boost_LIBRARIES} CxxUtils )

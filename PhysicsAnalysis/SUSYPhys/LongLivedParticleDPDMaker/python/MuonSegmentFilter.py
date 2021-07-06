@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        Single Muon Skimmer
@@ -91,11 +91,9 @@ class MuonSegmentFilter( PyAthena.AthFilterAlgorithm ):
             self.nEventPassed += 1
             self.msg.debug( '%s event passed', self.name() )
             self.setFilterPassed(True)
-            pass
         else :
             self.msg.debug( '%s event failed', self.name() )
             self.setFilterPassed(False)
-            pass
 
         return StatusCode.Success
 
@@ -116,7 +114,6 @@ class MuonSegmentFilter( PyAthena.AthFilterAlgorithm ):
 
         except ZeroDivisionError :
             self.msg.warning( 'Division by zero error when calculating the uncertainties on the pass efficiencies...' )
-            pass
 
         
         self.msg.info( '==> finalize %s...', self.name() )

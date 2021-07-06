@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, ConfigurationError
 import os
@@ -34,12 +34,10 @@ def IOVDbSvcCfg(configFlags):
 
     # Set up IOVDbSvc
     iovDbSvc=IOVDbSvc()
-    dbname=configFlags.IOVDb.DatabaseInstance
-
-    localfile="sqlite://;schema=mycool.db;dbname="
-    iovDbSvc.dbConnection=localfile+dbname
+    
+    iovDbSvc.dbConnection=configFlags.IOVDb.DBConnection
     # setup knowledge of dbinstance in IOVDbSvc, for global tag x-check
-    iovDbSvc.DBInstance=dbname
+    iovDbSvc.DBInstance=configFlags.IOVDb.DatabaseInstance
 
     if 'FRONTIER_SERVER' in os.environ.keys() and os.environ['FRONTIER_SERVER']!="":
         iovDbSvc.CacheAlign=3
@@ -56,14 +54,11 @@ def IOVDbSvcCfg(configFlags):
     poolSvc=PoolSvc()
     poolSvc.MaxFilesOpen=0
     poolSvc.ReadCatalog=["apcfile:poolcond/PoolFileCatalog.xml",
-                         "prfile:poolcond/PoolCat_oflcond.xml",
                          "apcfile:poolcond/PoolCat_oflcond.xml",
                          ]
 
     if not isMC:
-         poolSvc.ReadCatalog+=["prfile:poolcond/PoolCat_comcond.xml",
-                               "apcfile:poolcond/PoolCat_comcond.xml",
-                               ]
+         poolSvc.ReadCatalog+=["apcfile:poolcond/PoolCat_comcond.xml",]
     result.addService(poolSvc)
     result.addService(CondSvc())
     result.addService(ProxyProviderSvc(ProviderNames=["IOVDbSvc",]))
@@ -132,10 +127,15 @@ def addFolderList(configFlags,listOfFolderInfoTuple,extensible=False,db=None):
                 dbname=db
             else:
                 dbname=configFlags.IOVDb.DatabaseInstance
-            if detDb not in _dblist.keys():
-                raise ConfigurationError("Error, db shorthand %s not known" % detDb)
+            if detDb in _dblist.keys():
+                fs = "<db>"+_dblist[detDb]+"/"+dbname+"</db> " + fs
+            elif os.access(detDb,os.R_OK):
+                #Assume slqite file
+                fs = "<db>sqlite://;schema="+detDb+";dbname="+dbname+"</db> " + fs
+            else:
+                raise ConfigurationError("Error, db shorthand %s not known, nor found as sqlite file" % detDb)
             #Append database string to folder-name
-            fs+="<db>"+_dblist[detDb]+"/"+dbname+"</db>"
+
     
         if extensible:
             fs = fs + '<extensible/>'
@@ -228,6 +228,7 @@ def addOverride(configFlags,folder,tag):
   result=IOVDbSvcCfg(configFlags)
   iovDbSvc=result.getPrimary()
   iovDbSvc.overrideTags+=['<prefix>%s</prefix> <tag>%s</tag>' % (folder,tag)]
+  return result
 
 
 def _extractFolder(folderstr):

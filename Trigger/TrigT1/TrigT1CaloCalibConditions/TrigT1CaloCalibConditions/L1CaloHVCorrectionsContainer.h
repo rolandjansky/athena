@@ -53,8 +53,8 @@ class L1CaloHVCorrectionsContainer: public DataObject,
     
     const L1CaloHVCorrections* hvCorrections(unsigned int channelId) const;
     const L1CaloHVCorrections* hvCorrections(const L1CaloRxCoolChannelId& channelId) const;
-    void addHVCorrections(unsigned int channelId, const L1CaloHVCorrections& hvCorrections);
-    void addHVCorrections(const L1CaloRxCoolChannelId& channelId, const L1CaloHVCorrections& hvCorrections);
+    void addHVCorrections(unsigned int channelId, L1CaloHVCorrections&& hvCorrections);
+    void addHVCorrections(const L1CaloRxCoolChannelId& channelId, L1CaloHVCorrections&& hvCorrections);
     
     inline const_iterator begin() const { return m_mHVCorrectionsMap.begin(); };
     inline const_iterator end()   const { return m_mHVCorrectionsMap.end(); };

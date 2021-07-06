@@ -1,12 +1,12 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import sys
 
 from PyJobTransforms.CommonRunArgsToFlags import commonRunArgsToFlags
-from OverlayConfiguration.OverlayHelpers import setupOverlayDetectorFlags, OverlayMessageSvcCfg
+from PyJobTransforms.TransformUtils import processPreExec, processPreInclude, processPostExec, processPostInclude
 
 
-def defaultOverlayFlags(configFlags, detectors):
+def defaultOverlayFlags(configFlags):
     """Fill default overlay flags"""
     # TODO: how to autoconfigure those
     configFlags.GeoModel.Align.Dynamic = False
@@ -21,8 +21,6 @@ def defaultOverlayFlags(configFlags, detectors):
     configFlags.Tile.BestPhaseFromCOOL = False
     configFlags.Tile.correctTime = False
     configFlags.Tile.zeroAmplitudeWithoutDigits = False
-
-    setupOverlayDetectorFlags(configFlags, detectors)
 
 
 def fromRunArgs(runArgs):
@@ -50,6 +48,9 @@ def fromRunArgs(runArgs):
         raise RuntimeError('Both RDO_BKG and BS_SKIM are defined')
     if not hasRDO_BKGInput and not hasBS_SKIMInput:
         raise RuntimeError('Define one of RDO_BKG and BS_SKIM file types')
+
+    from AthenaConfiguration.Enums import ProductionStep
+    ConfigFlags.Common.ProductionStep = ProductionStep.Overlay
 
     if hasRDO_BKGInput:
         logOverlay.info('Running MC+MC overlay')
@@ -86,40 +87,43 @@ def fromRunArgs(runArgs):
     digitizationRunArgsToFlags(runArgs, ConfigFlags)
 
     # Setup common overlay flags
-    defaultOverlayFlags(ConfigFlags, detectors)
+    defaultOverlayFlags(ConfigFlags)
 
-    # Pre-exec
-    if hasattr(runArgs, 'preExec') and runArgs.preExec != 'NONE' and runArgs.preExec:
-        for cmd in runArgs.preExec:
-            exec(cmd)
+    # Setup detector flags
+    if detectors:
+        from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
+        setupDetectorsFromList(ConfigFlags, detectors)
+
+    # Disable LVL1 trigger if triggerConfig explicitly set to 'NONE'
+    if hasattr(runArgs, 'triggerConfig') and runArgs.triggerConfig == 'NONE':
+        ConfigFlags.Detector.EnableL1Calo = False
 
     # Pre-include
-    if hasattr(runArgs, 'preInclude') and runArgs.preInclude:
-        raise ValueError('preInclude not supported')
+    processPreInclude(runArgs, ConfigFlags)
+
+    # Pre-exec
+    processPreExec(runArgs, ConfigFlags)
 
     # TODO not parsed yet:
     # '--fSampltag'
-    # '--triggerConfig'
 
     # Lock flags
     ConfigFlags.lock()
 
     # Main overlay steering
     from OverlayConfiguration.OverlaySteering import OverlayMainCfg
-    acc = OverlayMainCfg(ConfigFlags)
-    acc.merge(OverlayMessageSvcCfg(ConfigFlags))
+    cfg = OverlayMainCfg(ConfigFlags)
+
+    # Special message service configuration
+    from Digitization.DigitizationSteering import DigitizationMessageSvcCfg
+    cfg.merge(DigitizationMessageSvcCfg(ConfigFlags))
 
     # Post-include
-    if hasattr(runArgs, 'postInclude') and runArgs.postInclude:
-        from OverlayConfiguration.OverlayHelpers import accFromFragment
-        for fragment in runArgs.postInclude:
-            acc.merge(accFromFragment(fragment, ConfigFlags))
+    processPostInclude(runArgs, ConfigFlags, cfg)
 
     # Post-exec
-    if hasattr(runArgs, 'postExec') and runArgs.postExec != 'NONE' and runArgs.postExec:
-        for cmd in runArgs.postExec:
-            exec(cmd)
+    processPostExec(runArgs, ConfigFlags, cfg)
 
-    # Run the final accumulator
-    sc = acc.run()
+    # Run the final configuration
+    sc = cfg.run()
     sys.exit(not sc.isSuccess())

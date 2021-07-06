@@ -86,14 +86,6 @@ StatusCode CscCalibTool::initialize() {
   m_messageCnt_t0base=0;
   m_messageCnt_t0phase=0;
 
-  std::lock_guard<std::mutex> lock(m_mutex);
-  if (m_addedfunc == nullptr) {
-    m_addedfunc   = std::make_unique<TF1>("addedfunc", dualbipfunc,    0, 500, 10, 1, TF1::EAddToList::kNo);
-  }
-  if (m_bipolarFunc == nullptr) {
-    m_bipolarFunc = std::make_unique<TF1>("bipolarFunc",   bipfunc, -500, 500,  5, 1, TF1::EAddToList::kNo);
-  }
-
   return StatusCode::SUCCESS;
 }
 
@@ -633,14 +625,14 @@ std::vector<float> CscCalibTool::getSamplesFromBipolarFunc(const double driftTim
     return result;
   }
 
-  std::lock_guard<std::mutex> lock(m_mutex);
-  m_bipolarFunc->SetParameters(stripCharge0, driftTime0,
+  std::unique_ptr<TF1> bipolarFunc = std::make_unique<TF1>("bipolarFunc", bipfunc, -500, 500, 5, 1, TF1::EAddToList::kNo);
+  bipolarFunc->SetParameters(stripCharge0, driftTime0,
                                m_integrationNumber,m_integrationNumber2,m_signalWidth);
 
 
   for (unsigned int i=0; i<m_nSamples; ++i) {
 
-    float sampleCharge = m_bipolarFunc->Eval(m_latency + i*m_samplingTime);
+    float sampleCharge = bipolarFunc->Eval(m_latency + i*m_samplingTime);
     result.push_back( sampleCharge );
 
   }
@@ -668,19 +660,19 @@ std::pair<double,double> CscCalibTool::addBipfunc(const double driftTime0,
     return result;
   }
   
-  std::lock_guard<std::mutex> lock(m_mutex);
-  m_addedfunc->SetParameters(stripCharge0, driftTime0,
+  std::unique_ptr<TF1> addedfunc = std::make_unique<TF1>("addedfunc", dualbipfunc, 0, 500, 10, 1, TF1::EAddToList::kNo);
+  addedfunc->SetParameters(stripCharge0, driftTime0,
                              m_integrationNumber,m_integrationNumber2,m_signalWidth,
                              stripCharge1, driftTime1,
                              m_integrationNumber,m_integrationNumber2,m_signalWidth);
-  result.second =m_addedfunc->GetMaximum(); // ==>stripCharges of added bipolars
-  float tmax =m_addedfunc->GetX(result.second);
+  result.second =addedfunc->GetMaximum(); // ==>stripCharges of added bipolars
+  float tmax =addedfunc->GetX(result.second);
   result.first = tmax - getZ0()*m_signalWidth;
 
   if (stripCharge0>0.0 && stripCharge1>0.0) return result;
 
-  float bipmin = m_addedfunc->GetMinimum(); // ==>stripCharges of added bipolars
-  float tmin = m_addedfunc->GetX(bipmin);
+  float bipmin = addedfunc->GetMinimum(); // ==>stripCharges of added bipolars
+  float tmin = addedfunc->GetX(bipmin);
   if (tmin<tmax) {
     result.first = tmin-getZ0()*m_signalWidth;
     result.second = bipmin;

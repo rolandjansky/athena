@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VolumeDebugger.h"
@@ -10,6 +10,8 @@
 #include "G4LogicalVolumeStore.hh"
 #include "G4TransportationManager.hh"
 #include "G4Navigator.hh"
+#include "G4NistManager.hh"
+#include "G4PVPlacement.hh"
 
 #include <iostream>
 #include <vector>
@@ -37,7 +39,7 @@ namespace G4UA
   {
     if (v==0) return;
     std::vector<G4VPhysicalVolume*> pv_to_remove;
-    for (int i=0;i<v->GetNoDaughters();++i){
+    for (unsigned int i=0;i<v->GetNoDaughters();++i){
       G4VPhysicalVolume * n_v = v->GetDaughter(i);
       if ( n_v->GetName() == "LArMgr::LAr::EMEC::Pos::InnerWheel" ||
 	   n_v->GetName() == "LArMgr::LAr::EMEC::Neg::InnerWheel" ||
@@ -67,9 +69,17 @@ namespace G4UA
     if(m_config.targetVolume!=""){
       G4LogicalVolumeStore *lvs = G4LogicalVolumeStore::GetInstance();
       for (unsigned int i=0;i<lvs->size();++i){
-        for (int j=0;j<(*lvs)[i]->GetNoDaughters();++j){
+        for (unsigned int j=0;j<(*lvs)[i]->GetNoDaughters();++j){
           if ( (*lvs)[i]->GetDaughter(j)->GetName().c_str()==m_config.targetVolume ){
-            W = (*lvs)[i]->GetDaughter(j);
+             //Create a World volume for the sub-tree that will be dumped in the GDML file
+             //NB: without a world volume, the dumped geometry will not be properly defined
+             //in Geant4 and in simulation this will lead to segfaults
+             G4NistManager* nist = G4NistManager::Instance();
+             G4Material* world_mat = nist->FindOrBuildMaterial("G4_AIR");
+             G4VSolid* vBox = W->GetLogicalVolume()->GetSolid();
+             G4LogicalVolume* logicWorld = new G4LogicalVolume(vBox,world_mat,"World");
+             W  = new G4PVPlacement(0,G4ThreeVector(),logicWorld,"World",0,false,0,false);
+             new G4PVPlacement(0,G4ThreeVector(),(*lvs)[i]->GetDaughter(j)->GetLogicalVolume(),m_config.targetVolume,logicWorld,false,0,false);
             // FIXME: Remove this goto!!!
             goto exitLoop;
           } // If we found the volume
@@ -80,7 +90,7 @@ namespace G4UA
       ATH_MSG_FATAL("Did not find the volume named " << m_config.targetVolume << ". Please set parameter TargetVolume to one of:\n\n");
 
       for (unsigned int i = 0; i < lvs->size(); ++i) {
-	for (int j = 0; j < (*lvs)[i]->GetNoDaughters(); ++j) {
+	for (unsigned int j = 0; j < (*lvs)[i]->GetNoDaughters(); ++j) {
 	  ATH_MSG_FATAL( (*lvs)[i]->GetDaughter(j)->GetName());
 	} // Loop over PVs in the LV
       } // Loop over volumes
@@ -128,8 +138,8 @@ namespace G4UA
     //
     std::multimap<G4LogicalVolume *, G4VPhysicalVolume *> lv2pvMap;
     G4LogicalVolume *lv = topPV->GetLogicalVolume();
-    int nDaughters = lv->GetNoDaughters();
-    for (int i = 0; i < nDaughters; ++i) {
+    unsigned int nDaughters = lv->GetNoDaughters();
+    for (unsigned int i = 0; i < nDaughters; ++i) {
       G4VPhysicalVolume *daughterPV = lv->GetDaughter(i);
       G4LogicalVolume *daughterLV = daughterPV->GetLogicalVolume();
       lv2pvMap.insert(std::pair<G4LogicalVolume *, G4VPhysicalVolume *>(daughterLV, daughterPV));

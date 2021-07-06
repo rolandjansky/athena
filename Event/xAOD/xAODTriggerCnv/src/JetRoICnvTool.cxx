@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JetRoICnvTool.cxx 575028 2013-12-11 14:30:06Z krasznaa $
 
 // EDM include(s):
 #include "AnalysisTriggerEvent/LVL1_ROI.h"
@@ -24,15 +23,6 @@ namespace xAODMaker {
       declareInterface< IJetRoICnvTool >( this );
    }
 
-   StatusCode JetRoICnvTool::initialize() {
-
-      // Greet the user:
-      ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
-
-      // Return gracefully:
-      return StatusCode::SUCCESS;
-   }
-
    /**
     * This is the important function of the tool. It takes the jet RoI objects
     * from a LVL1_ROI container, and fills an xAOD::JetRoIContainer with them.
@@ -46,7 +36,7 @@ namespace xAODMaker {
                                       xAOD::JetRoIContainer* xaod ) {
 
       // A small sanity check. The output container should really be empty...
-      if( xaod->size() ) {
+      if( !xaod->empty() ) {
          ATH_MSG_WARNING( "The output xAOD container is not empty (size=="
                           << xaod->size() << ")" );
       }

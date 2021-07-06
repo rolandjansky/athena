@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -128,7 +128,7 @@ double InDet::InDetDNASeparator::breakpointSignificance
       // insert one (innermost) TRT hit to allow analysing brem at last SCT layer
       if (rxy_old == 0.0 && (innermostTrtHit != trajectory.rend()) ) {
         meanPars.addTrackParsToFloor(*(innermostTrtHit->smoothedTrackParameters()),
-                                     innermostTrtHit->dnaMaterialEffects(), 0);
+                                     innermostTrtHit->dnaMaterialEffects(), nullptr);
         rxy_old = innermostTrtHit->smoothedTrackParameters()->position().perp();
       }
       // define new floor if there was previous one and distance to current large enough
@@ -139,7 +139,7 @@ double InDet::InDetDNASeparator::breakpointSignificance
       }
       // create-new-floor or add-to-average of existing floor
       meanPars.addTrackParsToFloor(*(rvit->smoothedTrackParameters()),
-                                   rvit->dnaMaterialEffects(), 0);
+                                   rvit->dnaMaterialEffects(), nullptr);
       rxy_old = rvit->smoothedTrackParameters()->position().perp();
     }
   }
@@ -160,7 +160,7 @@ Trk::TrackBreakpointType InDet::InDetDNASeparator::confirmBreakpoint(const Trk::
 
 double InDet::InDetDNASeparator::breakpointSignificance(const Trk::Track& track) const
 { 
-  if (track.trackStateOnSurfaces() == NULL ||
+  if (track.trackStateOnSurfaces() == nullptr ||
       track.trackStateOnSurfaces()->size() < 2) return s_sigmaNoDna;
 
   /* prepare trajectory information in layers or 'floor levels', averaging
@@ -186,7 +186,7 @@ double InDet::InDetDNASeparator::breakpointSignificance(const Trk::Track& track)
       if (rxy_old == 0.0 && (innermostTrt != tsos.rend()) ) {
         const Trk::EstimatedBremOnTrack* ebr = dynamic_cast<const Trk::EstimatedBremOnTrack*>
           ((*innermostTrt)->materialEffectsOnTrack());
-        meanPars.addTrackParsToFloor(*((*innermostTrt)->trackParameters()),0,ebr);
+        meanPars.addTrackParsToFloor(*((*innermostTrt)->trackParameters()),nullptr,ebr);
         rxy_old = (*innermostTrt)->trackParameters()->position().perp();
       }
       // define new floor if there was previous one and distance to current large enough
@@ -198,7 +198,7 @@ double InDet::InDetDNASeparator::breakpointSignificance(const Trk::Track& track)
       // create-new-floor or add-to-average of existing floor
       const Trk::EstimatedBremOnTrack* ebr = dynamic_cast<const Trk::EstimatedBremOnTrack*>
         ((*rvit)->materialEffectsOnTrack());
-      meanPars.addTrackParsToFloor(*((*rvit)->trackParameters()), 0, ebr);
+      meanPars.addTrackParsToFloor(*((*rvit)->trackParameters()), nullptr, ebr);
       rxy_old = (*rvit)->trackParameters()->position().perp();
     }
   }
@@ -212,7 +212,7 @@ double InDet::InDetDNASeparator::breakpointSignificance(const Trk::Track& track)
 
 // *********************************************************************************************
 std::vector<double> InDet::InDetDNASeparator::calculateSignificance
-(const std::vector<Trk::MeanTrackParsAtFloor> MTPF ) const
+(const std::vector<Trk::MeanTrackParsAtFloor>& MTPF ) const
 {
   double sigmax=s_sigmaNoDna, dphmax=-9.0, rasmax=0.0, dnamax=0.0;
   double sigf,sigb,sigm,dphb,dphf,dphm,rasf,rasb,rasm,dnam=0.0;

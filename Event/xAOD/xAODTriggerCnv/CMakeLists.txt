@@ -59,8 +59,9 @@ else()
    atlas_add_component( xAODTriggerCnv
       xAODTriggerCnv/*.h src/*.cxx Root/*.cxx src/components/*.cxx
       LINK_LIBRARIES xAODTriggerCnvLib AsgTools xAODTrigger GaudiKernel AthenaBaseComps
-      AthenaKernel StoreGateLib SGtests EventInfo AnalysisTriggerEvent
-      TrigConfHLTData TrigDecisionEvent TrigSteeringEvent TrigConfInterfaces TrigDecisionInterface TrigAnalysisInterfaces )
+      AthenaKernel StoreGateLib EventInfo AnalysisTriggerEvent
+      TrigConfHLTData TrigDecisionEvent TrigSteeringEvent TrigConfInterfaces TrigDecisionInterface TrigAnalysisInterfaces
+      TrigOutputHandlingLib )
 
 endif()
 

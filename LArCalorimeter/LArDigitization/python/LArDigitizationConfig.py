@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 
@@ -115,7 +115,7 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
     else:
         kwargs.setdefault("LArHitFloatContainers",[])
 
-    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+    if digitizationFlags.PileUpPresampling and 'LegacyOverlay' not in digitizationFlags.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         kwargs.setdefault('DigitContainer', overlayFlags.bkgPrefix() + 'LArDigitContainer_MC')
     else:
@@ -150,13 +150,7 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
         LArAutoCorrNoiseCondAlgDefault()
 
     # bad channel masking
-    from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-    theLArRCBMasker=LArBadChannelMasker("LArRCBMasker")
-    theLArRCBMasker.DoMasking=True
-    theLArRCBMasker.ProblemsToMask=[
-         "deadReadout","deadPhys"]
-    kwargs.setdefault('MaskingTool', theLArRCBMasker )
-    
+    kwargs.setdefault('ProblemsToMask',["deadReadout","deadPhys"])
     # CosmicTriggerTimeTool for cosmics digitization
     from AthenaCommon.BeamFlags import jobproperties
     if jobproperties.Beam.beamType == "cosmics" :

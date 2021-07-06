@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ReadoutGeometry/StripStereoAnnulusDesign.h"
 #include "Identifier/Identifier.h"
+#include  "GeoPrimitives/GeoPrimitivesHelpers.h"
 
 #include <stdexcept>
 #include <algorithm> // For upper_bound
@@ -33,8 +34,10 @@ StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis 
   m_stereo(stereoAngle),
   m_R(centreR),
   m_lengthBF(2. * centreR * std::sin(stereoAngle*0.5)),// Eq. 5 p. 7
-  m_sinStereo(std::sin(-m_stereo)),
-  m_cosStereo(std::cos(-m_stereo))
+  m_sinStereo(std::sin(m_stereo)),
+  m_cosStereo(std::cos(m_stereo)),
+  m_sinNegStereo(std::sin(-m_stereo)),
+  m_cosNegStereo(std::cos(-m_stereo))
 {
     if (nRows < 0) {
         throw std::runtime_error(
@@ -72,8 +75,8 @@ StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis 
 
 }
 
-HepGeom::Point3D<double> StripStereoAnnulusDesign::sensorCenter() const {
-    return HepGeom::Point3D<double>(m_R, 0., 0.);
+Amg::Vector3D StripStereoAnnulusDesign::sensorCenter() const {
+  return Amg::Vector3D(m_R, 0., 0.);
 }
 
 double StripStereoAnnulusDesign::sinStripAngleReco(double phiCoord, double etaCoord) const {
@@ -83,8 +86,8 @@ double StripStereoAnnulusDesign::sinStripAngleReco(double phiCoord, double etaCo
     double x = etaCoord;
     double y = phiCoord;
     
-    double xSF = m_cosStereo * (x - m_R) - m_sinStereo * y + m_R;
-    double ySF = m_sinStereo * (x - m_R) + m_cosStereo * y;
+    double xSF = m_cosNegStereo * (x - m_R) - m_sinNegStereo * y + m_R;
+    double ySF = m_sinNegStereo * (x - m_R) + m_cosNegStereo * y;
     double phiPrime = std::atan2(ySF, xSF);
 
     // The minus sign below is because this routine is called by tracking software, which swaps x and y, then measures angles from y 
@@ -121,10 +124,10 @@ void StripStereoAnnulusDesign::neighboursOfCell(const SiCellId &cellId, std::vec
     int stripP = strip + 1;
 
     if (stripM >= m_firstStrip[row]) {
-        neighbours.push_back(stripM);
+        neighbours.emplace_back(stripM);
     }
     if (stripP < m_firstStrip[row] + m_nStrips[row]) {
-        neighbours.push_back(stripP);
+        neighbours.emplace_back(stripP);
     }
 
     return;
@@ -144,37 +147,36 @@ SiCellId StripStereoAnnulusDesign::cellIdOfPosition(SiLocalPosition const &pos) 
         return SiCellId(); // return an invalid id
     }
 
-    std::vector<double>::const_iterator endPtr = upper_bound(m_stripStartRadius.begin(), m_stripStartRadius.end(), r);
-    int row = distance(m_stripStartRadius.begin(), endPtr) - 1;
-    // Following should never happen, check is done on r above
-    if (row < 0 || row >= m_nRows) {
-        std::cout << "ERROR! cellIdOfPosition: bad row = " << row << " for r = " << r << std::endl;
+      std::vector<double>::const_iterator endPtr = upper_bound(m_stripStartRadius.begin(), m_stripStartRadius.end(), r);
+      int row = distance(m_stripStartRadius.begin(), endPtr) - 1;
+      // Following should never happen, check is done on r above
+      if (row < 0 || row >= m_nRows) {
         return SiCellId(); // return an invalid id
-    }
-//
-//    Find the strip
-//
+      }
+    //
+    //    Find the strip
+    //
     double x = pos.xEta();
     double y = pos.xPhi();
-//
-//    Transform to strip frame SF (eq. 36 in ver G, combined with eq. 2 since we are in beam frame)
-//
-    double xSF = m_cosStereo * (x - m_R) - m_sinStereo * y + m_R;
-    double ySF = m_sinStereo * (x - m_R) + m_cosStereo * y;
+    //
+    //    Transform to strip frame SF (eq. 36 in ver G, combined with eq. 2 since we are in beam frame)
+    //
+    double xSF = m_cosNegStereo * (x - m_R) - m_sinNegStereo * y + m_R;
+    double ySF = m_sinNegStereo * (x - m_R) + m_cosNegStereo * y;
     double phiPrime = std::atan2(ySF, xSF); 
     int strip = std::floor(phiPrime / m_pitch[row]) + m_nStrips[row] *0.5;
     if (strip < 0) { // Outside
-        return SiCellId(); // return an invalid id
+      return SiCellId(); // return an invalid id
     }
     if (strip >= m_nStrips[row]) { // Outside
-        return SiCellId(); // return an invalid id
+      return SiCellId(); // return an invalid id
     }
-
+    
     int strip1D = strip1Dim(strip, row);
     return SiCellId(strip1D, 0);
 }
-
-SiLocalPosition StripStereoAnnulusDesign::localPositionOfCell(SiCellId const &cellId) const {
+  
+  SiLocalPosition StripStereoAnnulusDesign::localPositionOfCell(SiCellId const &cellId) const {
     int strip, row;
     getStripRow(cellId, &strip, &row);
     double r = (m_stripEndRadius[row] + m_stripStartRadius[row])*0.5;
@@ -285,16 +287,16 @@ double StripStereoAnnulusDesign::scaledDistanceToNearestDiode(SiLocalPosition co
   
 //    Get phiPrime of pos
 //
-  double posxP = m_cosStereo * (pos.xEta() - m_R) - m_sinStereo * pos.xPhi() + m_R;
-  double posyP = m_sinStereo * (pos.xEta() - m_R) + m_cosStereo * pos.xPhi();
+  double posxP = m_cosNegStereo * (pos.xEta() - m_R) - m_sinNegStereo * pos.xPhi() + m_R;
+  double posyP = m_sinNegStereo * (pos.xEta() - m_R) + m_cosNegStereo * pos.xPhi();
   double posphiP = std::atan2(posyP, posxP);
   //
   //    Get phiPrime of strip
   //
   SiCellId cellId = cellIdOfPosition(pos);
   SiLocalPosition posStrip = localPositionOfCell(cellId);
-  double posStripxP = m_cosStereo * (posStrip.xEta() - m_R) - m_sinStereo * posStrip.xPhi() + m_R;
-  double posStripyP = m_sinStereo * (posStrip.xEta() - m_R) + m_cosStereo * posStrip.xPhi();
+  double posStripxP = m_cosNegStereo * (posStrip.xEta() - m_R) - m_sinNegStereo * posStrip.xPhi() + m_R;
+  double posStripyP = m_sinNegStereo * (posStrip.xEta() - m_R) + m_cosNegStereo * posStrip.xPhi();
   double posStripphiP = std::atan2(posStripyP, posStripxP);
   int strip, row;
   getStripRow(cellId, &strip, &row);
@@ -340,21 +342,21 @@ double StripStereoAnnulusDesign::length() const {
 
 double StripStereoAnnulusDesign::width() const {
 // Return approximate width between the two central rows
-    int middleRow = m_stripStartRadius.size()*0.5 - 1;
-    if (middleRow < 0) {
-        throw std::runtime_error(
-         "StripStereoAnnulusDesign::width: the sensor had one or less rows of strips. Code assumes two or more.");
-    }
+float middleRow = m_stripStartRadius.size() * 0.5 - 1;
+if (middleRow < 0) {
+  //single-row version
+  return 2. * tan((m_pitch[0] * m_nStrips[0])*0.5) * ((m_stripStartRadius[0] + m_stripEndRadius[0])*0.5);
+  }
+else return 2. * tan((m_pitch[middleRow] * m_nStrips[middleRow]) * 0.5) * m_stripEndRadius[middleRow];
 
-    return 2. * tan((m_pitch[middleRow] * m_nStrips[middleRow])*0.5) * m_stripEndRadius[middleRow];
 }
 
 double StripStereoAnnulusDesign::minWidth() const {
-    return 2. * tan((m_pitch[0] * m_nStrips[0]) *0.5) * m_stripStartRadius[0];
+    return 2. * tan((m_pitch[0] * m_nStrips[0]) * 0.5 ) * m_stripStartRadius[0];
 }
 
 double StripStereoAnnulusDesign::maxWidth() const {
-    return 2. * tan((m_pitch.back() * m_nStrips.back()) *0.5) * m_stripEndRadius.back();
+    return 2. * tan((m_pitch.back() * m_nStrips.back()) * 0.5) * m_stripEndRadius.back();
 }
 
 double StripStereoAnnulusDesign::etaPitch() const {
@@ -383,8 +385,8 @@ void StripStereoAnnulusDesign::distanceToDetectorEdge(SiLocalPosition const & po
     etaDist = std::min(rOuter - r, r - rInner);
  
 // For phi, we use the Strip frame. Transform to Strip-frame:
-  double etaStrip = m_cosStereo * (xEta - m_R) - m_sinStereo * xPhi + m_R;
-  double phiStrip = m_sinStereo * (xEta - m_R) + m_cosStereo * xPhi;
+  double etaStrip = m_cosNegStereo * (xEta - m_R) - m_sinNegStereo * xPhi + m_R;
+  double phiStrip = m_sinNegStereo * (xEta - m_R) + m_cosNegStereo * xPhi;
 // Put these into polar coordinates
   double rStrip = std::sqrt(etaStrip * etaStrip + phiStrip * phiStrip);
   double phiAngleStrip = std::atan2(phiStrip, etaStrip);
@@ -407,8 +409,8 @@ DetectorShape StripStereoAnnulusDesign::shape() const
    return InDetDD::Annulus;
  }
 
-const HepGeom::Transform3D StripStereoAnnulusDesign::SiHitToGeoModel() const {
-   return HepGeom::RotateY3D(90.*CLHEP::deg) ;
+const Amg::Transform3D StripStereoAnnulusDesign::SiHitToGeoModel() const {
+   return Amg::getRotateY3D(90.*CLHEP::deg) ;
 }
 
 double StripStereoAnnulusDesign::stripLength(const InDetDD::SiCellId &cellId) const

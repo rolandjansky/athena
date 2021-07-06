@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -33,7 +33,7 @@ namespace MatchingStrategy {
 class MatchingImplementation : public asg::AsgMessaging {
 public:
   MatchingImplementation(MatchingTool& mt, double threshold=0.4);
-  Trig::TrigDecisionTool* tdt();
+  const Trig::TrigDecisionTool* tdt() const;
   bool matchDistanceMatrix(const std::vector<std::vector<double> >& matrix, const Trig::MatchingStrategy::Strategy strategy = Trig::MatchingStrategy::MinimalSum, double threshold = 0.0) const ;
   inline void setThreshold(double in) { m_threshold=in; }
 private:

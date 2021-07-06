@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * Hyperbolic.h
@@ -15,11 +15,13 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include "L1TopoSimulationUtils/L1TopoDataTypes.h"
 
 namespace TSU {
    struct Hyperbolic{
-       static const std::vector<std::string> Cosh;
+     static const std::vector<std::string> Coshleg;
+     static const std::vector<std::string> Cosh;
    };
 }
 #endif

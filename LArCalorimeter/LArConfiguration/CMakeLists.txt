@@ -12,3 +12,5 @@ if( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "AthSimulation" )
                   LOG_SELECT_PATTERN "ComponentAccumulator|^---" )
 endif()
 
+# Install files from the package:
+atlas_install_joboptions( share/*.py )

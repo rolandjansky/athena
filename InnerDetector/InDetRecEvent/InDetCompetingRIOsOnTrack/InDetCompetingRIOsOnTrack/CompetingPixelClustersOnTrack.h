@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -14,6 +14,7 @@
 #include "CxxUtils/CachedUniquePtr.h"
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h" // cannot forward declare
 #include <iosfwd>
+#include <memory>
 
 class MsgStream;
 
@@ -54,7 +55,7 @@ public:
     CompetingPixelClustersOnTrack(const CompetingPixelClustersOnTrack& compROT);
     /** Assignment operator */
     CompetingPixelClustersOnTrack& operator=(const CompetingPixelClustersOnTrack& compROT);
-    CompetingPixelClustersOnTrack& operator=(CompetingPixelClustersOnTrack&& compROT);
+    CompetingPixelClustersOnTrack& operator=(CompetingPixelClustersOnTrack&& compROT) noexcept;
 
     /** Constructor with all parameters: PLEASE do not use directly,
     but call InDet::CompetingPixelClustersOnTrackTool, otherwise inconsistency of
@@ -70,6 +71,11 @@ public:
 
     /** needed to avoid excessive RTTI*/
     CompetingPixelClustersOnTrack* clone() const;
+    
+    /** NVI method returning unique_ptr clone */
+    std::unique_ptr<CompetingPixelClustersOnTrack> uniqueClone() const {
+      return std::unique_ptr<CompetingPixelClustersOnTrack>(clone());
+    }
 
     /** returns the surface for the local to global transformation .
         - interface from MeasurementBase */

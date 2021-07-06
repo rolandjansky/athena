@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeneratorFilters/TTbarPlusJetsFilter.h"
@@ -116,10 +116,8 @@ StatusCode TTbarPlusJetsFilter::filterEvent() {
   int ijetindet = 0, ijet = 0;
   bool firstInEvent = true;
   ATH_MSG_VERBOSE("Total number of jets = " << jetTES->size() << "  Selected:");
-  xAOD::JetContainer::const_iterator jiter = jetTES->begin();
-  for (;jiter != jetTES->end();jiter++) {
-    const xAOD::Jet* aJet = *jiter;    
-    const TLorentzVector jet_tlv = (*jiter)->p4();
+  for (const xAOD::Jet* aJet : *jetTES) {
+    const TLorentzVector jet_tlv = aJet->p4();
     const CLHEP::HepLorentzVector jet_hlv(jet_tlv.Px(), jet_tlv.Py(), jet_tlv.Pz(), jet_tlv.E());
 
     if (jet_tlv.Et() >= m_ptMinJet && std::abs(aJet->eta())<= m_etaMaxJet) {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDTCALIBSVC_MDTCALIBRATIONTOOL_H
@@ -91,8 +91,8 @@ public:
   */
   bool driftRadiusFromTime( MdtCalibHit &hit, const MdtCalibrationSvcInput &inputData, bool resolFromRtrack=false  ) const;
 
-  /** TDC bin size. 25/32 ns for all MDT/sMDT, except BMG=0.2ns */
-  double tdcBinSize(const Identifier &id) const;
+  /** TDC bin size. 25/32 ns for all MDT/sMDT */
+  double tdcBinSize() const;
 
   /** Convert the raw MDT times of two twin hits into a Twin position (coordinate along tube)
       It returns whether the conversion was successful. */
@@ -126,7 +126,6 @@ private:
   SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-  bool m_hasBISsMDT;
 };
 
 #endif

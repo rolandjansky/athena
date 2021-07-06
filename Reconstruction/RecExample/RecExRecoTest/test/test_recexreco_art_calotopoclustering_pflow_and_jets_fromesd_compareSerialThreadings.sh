@@ -6,9 +6,8 @@
 # art-athena-mt: 8
 # art-output: serial
 # art-output: threadOne
-# art-output: threadTwo
-# art-output: threadFive
+# art-output: threadEight
 
 export ATHENA_CORE_NUMBER=8
 
-test_compare_SerialAndThreadedAthenas.sh eflowRec/run_ESDStandardReco.py 
+test_compare_SerialAndThreadedAthenas.sh eflowRec/run_ESDPFlowRecoR22_withLinking.py

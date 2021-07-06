@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonLayerHough/LayerAnalysis.h"
@@ -202,7 +202,7 @@ namespace MuonHough {
 		      if(recoMaximumFound){
             m_hMaximaHeightPerChIndex[chIndex]->Reco->Fill( maximum.theta, maximum.max);
             plotRegion.insert(sit->first.key());
-            if(plotMaximum_roi.size() > 0 && plotMaximum_roi.back().refchIndex ==  maximum.refchIndex && plotMaximum_roi.back().max <=  maximum.max) {
+            if(!plotMaximum_roi.empty() && plotMaximum_roi.back().refchIndex ==  maximum.refchIndex && plotMaximum_roi.back().max <=  maximum.max) {
               plotMaximum_roi.pop_back();//save only the largest maximum
             }
             plotMaximum_roi.push_back(maximum);
@@ -210,7 +210,7 @@ namespace MuonHough {
           if(truthMaximumFound ){
 	   	      maxset.insert(sit->first.sector());
             m_hMaximaHeightPerChIndex[chIndex]->Truth->Fill( truthMaximum.theta, truthMaximum.max);
-            if(plotMaximum_roi_truth.size() > 0 && plotMaximum_roi_truth.back().refchIndex ==  truthMaximum.refchIndex && plotMaximum_roi_truth.back().max <=  truthMaximum.max) {
+            if(!plotMaximum_roi_truth.empty() && plotMaximum_roi_truth.back().refchIndex ==  truthMaximum.refchIndex && plotMaximum_roi_truth.back().max <=  truthMaximum.max) {
               plotMaximum_roi_truth.pop_back();
             }
             plotMaximum_roi_truth.push_back(truthMaximum);            
@@ -359,13 +359,13 @@ namespace MuonHough {
   }
 
 
-  void LayerAnalysis::drawSector( int region, int sector, SectorData& data, MuonDetectorHough& detectorHough, MuonDetectorHough& detectorHoughTruth ) {
+  void LayerAnalysis::drawSector( int region, int sector, SectorData& data, MuonDetectorHough& detectorHough, MuonDetectorHough& detectorHoughTruth ) const {
  
     TString canvasName = Form("event_%i_sector_%i,_display_%i", m_ncalls, sector, region);
     TCanvas canvas0(canvasName,canvasName,1500,1100);
     canvas0.cd();
     TString histName = Form("hist_%s", canvasName.Data());
-    TH1F* hist = 0;
+    TH1F* hist = nullptr;
     if( region == 1 )       hist = new TH1F(histName,histName,100,-13000,13000);
     else if( region == 0 )  hist = new TH1F(histName,histName,100,-25000,-6500);
     else if( region == 2 )  hist = new TH1F(histName,histName,100,6500,25000);
@@ -465,8 +465,8 @@ namespace MuonHough {
   }
 
   void LayerAnalysis::finalize(){
-    for (auto Plot : m_hMaximaHeightPerChIndex){
-      if (Plot == 0) continue;
+    for (auto *Plot : m_hMaximaHeightPerChIndex){
+      if (Plot == nullptr) continue;
         calculateVariables(Plot);//for calculation efficiencies
         delete Plot->Reco; delete Plot->Truth; delete Plot->Matched;
         delete Plot->Efficiency; delete Plot->FakeEfficiency; delete Plot->Diff;
@@ -576,7 +576,7 @@ namespace MuonHough {
     gStyle->SetPadTickY(1);
   }
 
-  void LayerAnalysis::finishplot(TH1F* h){
+  void LayerAnalysis::finishplot(TH1F* h) const{
     TCanvas c1("c1","c1",700,600);
     c1.cd();
 
@@ -591,7 +591,7 @@ namespace MuonHough {
   }
 
 
-  float LayerAnalysis::linear_extrapolate(MuonLayerHough::Maximum ref, MuonLayerHough::Maximum ex){
+  float LayerAnalysis::linear_extrapolate(const MuonLayerHough::Maximum& ref, const MuonLayerHough::Maximum& ex){
     //z is always the precision plane. r is the reference plane, simple and robust
     double ref_z = ref.getGlobalZ();
     double ref_r = ref.getGlobalR();
@@ -605,7 +605,7 @@ namespace MuonHough {
     }
   }
 
-  float LayerAnalysis::parab_extrapolate(MuonLayerHough::Maximum ref, MuonLayerHough::Maximum ex){
+  float LayerAnalysis::parab_extrapolate(const MuonLayerHough::Maximum& ref, const MuonLayerHough::Maximum& ex) const{
     //z is always the precision plane. r is the reference plane, simple and robust
     int    ex_region = ex.refregion;
     int    ref_region = ref.refregion;

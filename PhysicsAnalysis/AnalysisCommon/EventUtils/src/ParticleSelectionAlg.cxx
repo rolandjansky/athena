@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ParticleSelectionAlg.cxx
@@ -12,17 +12,9 @@
 // EventUtils includes
 #include "ParticleSelectionAlg.h"
 
-// STL includes
-
 // FrameWork includes
 #include "Gaudi/Property.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
-#include "ExpressionEvaluation/ExpressionParser.h"
-#include "ExpressionEvaluation/SGxAODProxyLoader.h"
-#include "ExpressionEvaluation/MultipleProxyLoader.h"
-#include "ExpressionEvaluation/StackElement.h"
-// #include "TrigDecisionTool/TrigDecisionTool.h"
-// #include "ExpressionEvaluation/TriggerDecisionProxyLoader.h"
 
 // EDM includes
 #include "EventInfo/EventStreamInfo.h"
@@ -57,7 +49,6 @@
 #include "xAODCutFlow/CutBookkeeperContainer.h"
 #include "xAODCutFlow/CutBookkeeperAuxContainer.h"
 
-
 ///////////////////////////////////////////////////////////////////
 // Public methods:
 ///////////////////////////////////////////////////////////////////
@@ -66,9 +57,9 @@
 ////////////////
 ParticleSelectionAlg::ParticleSelectionAlg( const std::string& name,
                                             ISvcLocator* pSvcLocator ) :
-  ::AthAnalysisAlgorithm( name, pSvcLocator ),
+  ExpressionParserUser< ::AthAnalysisAlgorithm>( name, pSvcLocator ),
+  m_selTools(),     // makes these tools public
   m_evtInfoName("EventInfo"),
-  m_inPrimVtxCont("PrimaryVertices"),
   m_inCollKey(""),
   m_outCollKey(""),
   m_writeSplitAux(true),
@@ -76,18 +67,15 @@ ParticleSelectionAlg::ParticleSelectionAlg( const std::string& name,
   m_selection(""),
   m_doCutFlow(false),
   m_cutBKCName(name),
-  m_parser(nullptr),
   // m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"),
   m_nEventsProcessed(0),
   m_outOwnPolicy(SG::VIEW_ELEMENTS),
   m_contType(UNKNOWN),
   m_cutBKStartIdx(0),
   m_selToolIdxOffset(),
-  m_selWPVToolIdxOffset(),
   m_idxSelParster(0)
 {
   declareProperty("EventInfo",                 m_evtInfoName,   "Input container name");
-  declareProperty("PrimaryVertexContainer",    m_inPrimVtxCont, "The input primary vertex container name");
   declareProperty("InputContainer",            m_inCollKey,     "Input container name");
   declareProperty("OutputContainer",           m_outCollKey,
                   "The name of the output container with the deep copy of selected xAOD::IParticles");
@@ -96,6 +84,7 @@ ParticleSelectionAlg::ParticleSelectionAlg( const std::string& name,
   declareProperty("OutputContainerOwnershipPolicy", m_outOwnPolicyName,
                   "Defines the ownership policy of the output container (default: 'OWN_ELEMENTS'; also allowed: 'VIEW_ELEMENTS')");
 
+  declareProperty("SelectionToolList",       m_selTools,     "The list of IAsgSelectionTools");
   declareProperty("Selection",               m_selection,
                   "The selection string that defines which xAOD::IParticles to select from the container");
 
@@ -121,22 +110,20 @@ StatusCode ParticleSelectionAlg::initialize()
   ATH_MSG_DEBUG ("Initializing " << name() << "...");
 
   // Print out the used configuration
-  ATH_MSG_DEBUG ( " using = " << m_inCollKey );
-  ATH_MSG_DEBUG ( " using = " << m_outCollKey );
-  ATH_MSG_DEBUG ( " using = " << m_writeSplitAux );
-  ATH_MSG_DEBUG ( " using = " << m_outOwnPolicyName );
-  ATH_MSG_DEBUG ( " using = " << m_selection );
+  ATH_MSG_DEBUG ( " using EventInfo = " << m_evtInfoName );
+  ATH_MSG_DEBUG ( " using InputContainer = " << m_inCollKey );
+  ATH_MSG_DEBUG ( " using OutputContainer = " << m_outCollKey );
+  ATH_MSG_DEBUG ( " using WriteSplitOutputContainer = " << m_writeSplitAux );
+  ATH_MSG_DEBUG ( " using OutputContainerOwnershipPolicy = " << m_outOwnPolicyName );
+  ATH_MSG_DEBUG ( " using SelectionToolList = " << m_selTools );
+  ATH_MSG_DEBUG ( " using Selection = " << m_selection );
   ATH_MSG_DEBUG ( " using DoCutBookkeeping = " << m_doCutFlow );
-  ATH_MSG_DEBUG ( " using = " << m_cutBKCName );
+  ATH_MSG_DEBUG ( " using CutBookkeeperContainer = " << m_cutBKCName );
 
+  
   // initialize proxy loaders for expression parsing
   if ( !(m_selection.value().empty()) ){
-    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-    // proxyLoaders->push_back(new ExpressionParsing::TriggerDecisionProxyLoader(m_trigDecisionTool));
-    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
-    // load the expressions
-    m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
-    m_parser->loadExpression( m_selection.value() );
+     ATH_CHECK( initializeParser(m_selection.value()));
   }
 
   // initialize the counters
@@ -154,6 +141,9 @@ StatusCode ParticleSelectionAlg::initialize()
     return StatusCode::FAILURE;
   }
 
+  // Retrieve all tools
+  ATH_CHECK( m_selTools.retrieve() );
+
   ATH_MSG_DEBUG ( "==> done with initialize " << name() << "..." );
   return StatusCode::SUCCESS;
 }
@@ -164,11 +154,10 @@ StatusCode ParticleSelectionAlg::finalize()
 {
   ATH_MSG_DEBUG ("Finalizing " << name() << "...");
 
-  // Clean up the memory
-  if (m_parser) {
-    delete m_parser;
-    m_parser = 0;
-  }
+  // Release all tools and services
+  ATH_CHECK( m_selTools.release() );
+
+  ATH_CHECK( finalizeParser() );
 
   return StatusCode::SUCCESS;
 }
@@ -216,6 +205,34 @@ StatusCode ParticleSelectionAlg::start()
     ATH_CHECK( outputMetaStore()->record( cutBKCont, m_cutBKCName.value() ) );
     ATH_CHECK( outputMetaStore()->record( cutBKAuxCont, m_cutBKCName.value()+"Aux." ) );
     ATH_MSG_VERBOSE( "Recorded xAOD::CutBookkeeperContainer " << m_cutBKCName.value() << "Aux." );
+  }
+
+  //------------- for the AsgSelectionTools --------------
+  // Now, register one CutBookkeeper per cut that will be applied.
+  // For each of the registered tools, get the TAccept and ask it for all known cuts.
+  for ( std::size_t toolIdx=0; toolIdx < m_selTools.size(); ++toolIdx ){
+    const ToolHandle<IAsgSelectionTool>& tool = m_selTools[toolIdx];
+    // Fill the index bookkeeping at what index in the CutBookkeeperContainer
+    // the CutBookkeepers for this tool start.
+    m_selToolIdxOffset.push_back( cutBKCont->size() );
+    // Get some needed quantities
+    const std::string toolName = tool->name();
+    const asg::AcceptInfo& acceptInfo = tool->getAcceptInfo();
+    const unsigned int nCuts = acceptInfo.getNCuts();
+    for ( unsigned int iCut=0; iCut<nCuts; ++iCut ){
+      // Get the name and description of this cut
+      const std::string cutName  = acceptInfo.getCutName(iCut);
+      const std::string cutDescr = acceptInfo.getCutDescription(iCut);
+      // Create a new xAOD::CutBookkeeper and add it to the container
+      xAOD::CutBookkeeper* cutBK = new xAOD::CutBookkeeper();
+      cutBKCont->push_back(cutBK);
+      // Now, set its properties
+      cutBK->setName(toolName+"_"+cutName);
+      cutBK->setDescription(cutDescr);
+      cutBK->setCutLogic(xAOD::CutBookkeeper::CutLogic::REQUIRE); // Each cut must be passed, thus REQUIRE, i.e, logical AND
+      cutBK->setInputStream(inputStreamName);
+      cutBK->setCycle(maxInputCycle);
+    }
   }
 
   //------------- for the ExpressionParsing in this algorithm --------------

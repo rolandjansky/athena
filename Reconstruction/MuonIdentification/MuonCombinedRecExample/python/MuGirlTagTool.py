@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ### JobOptions to run MuGirlTag in xAOD
 
@@ -13,8 +13,8 @@ from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 
 from MuonRecExample.MooreTools import MuonSeededSegmentFinder, MuonChamberHoleRecoveryTool
 from MuonRecExample.MuonRecTools import DCMathSegmentMaker
-
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+from MuonRecExample.MuonRecFlags import muonRecFlags
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
@@ -27,6 +27,11 @@ def MuonInsideOutRecoTool( name="MuonInsideOutRecoTool", **kwargs ):
    kwargs.setdefault("MuonLayerSegmentFinderTool", getPublicTool("MuonLayerSegmentFinderTool"))
    return CfgMgr.MuonCombined__MuonInsideOutRecoTool(name,**kwargs )
 
+def MuonRecoValidationTool( name="MuonRecoValidationTool",**kwargs):
+   if globalflags.DataSource() != 'data':
+      kwargs.setdefault("isMC",True)
+   return CfgMgr.Muon__MuonRecoValidationTool(name,**kwargs)
+
 def MuonCandidateTrackBuilderTool( name="MuonCandidateTrackBuilderTool",**kwargs):
    return CfgMgr.Muon__MuonCandidateTrackBuilderTool(name,**kwargs)
 
@@ -36,18 +41,15 @@ def MuonLayerSegmentMatchingTool( name="MuonLayerSegmentMatchingTool",**kwargs):
 def MuonLayerAmbiguitySolverTool( name="MuonLayerAmbiguitySolverTool",**kwargs):
    return CfgMgr.Muon__MuonLayerAmbiguitySolverTool(name,**kwargs)
 
-def MuonRecoValidationTool( name="MuonRecoValidationTool",**kwargs):
-   if globalflags.DataSource() != 'data':
-      kwargs.setdefault("isMC",True)
-   return CfgMgr.Muon__MuonRecoValidationTool(name,**kwargs)
-
 def DCMathStauSegmentMaker( name="DCMathStauSegmentMaker", **kwargs ):
    kwargs.setdefault("MdtCreator", getPublicTool("MdtDriftCircleOnTrackCreatorStau") )
    return DCMathSegmentMaker(name,**kwargs)
 
 def MuonStauChamberHoleRecoveryTool(name="MuonStauChamberHoleRecoveryTool",**kwargs):
    kwargs.setdefault("MdtRotCreator", getPublicTool("MdtDriftCircleOnTrackCreatorStau") )
-   if not MuonGeometryFlags.hasCSC():
+   reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
+  
+   if not reco_cscs:
       kwargs.setdefault("CscRotCreator", "" )
       kwargs.setdefault("CscPrepDataContainer", "" )
    return MuonChamberHoleRecoveryTool(name,**kwargs)
@@ -56,9 +58,12 @@ def MuonStauSeededSegmentFinder( name="MuonStauSeededSegmentFinder", **kwargs ):
     kwargs.setdefault("MdtRotCreator", getPublicTool("MdtDriftCircleOnTrackCreatorStau") )
     kwargs.setdefault("SegmentMaker", getPublicTool("DCMathStauSegmentMaker") )
     kwargs.setdefault("SegmentMakerNoHoles", getPublicTool("DCMathStauSegmentMaker") )
-    if not MuonGeometryFlags.hasCSC(): kwargs.setdefault("CscPrepDataContainer","")
-    if not MuonGeometryFlags.hasSTGC(): kwargs.setdefault("sTgcPrepDataContainer","")
-    if not MuonGeometryFlags.hasMM(): kwargs.setdefault("MMPrepDataContainer","")
+    reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
+    reco_stgcs = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
+    reco_mm =  muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()  
+    if not reco_cscs: kwargs.setdefault("CscPrepDataContainer","")
+    if not reco_stgcs: kwargs.setdefault("sTgcPrepDataContainer","")
+    if not reco_mm: kwargs.setdefault("MMPrepDataContainer","")
 
     return MuonSeededSegmentFinder(name,**kwargs)
 

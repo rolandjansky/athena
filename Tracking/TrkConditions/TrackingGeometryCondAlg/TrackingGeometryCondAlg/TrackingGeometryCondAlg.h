@@ -37,7 +37,7 @@ public:
 private:
 
   /// Output conditions object.
-  SG::WriteCondHandleKey<TrackingGeometry> m_trackingGeometryWriteKey{this, "TrackingGeometryWriteKey", "AlignedTrackingGeometry", "Key of output of TrackingGeometry for ID"};
+  SG::WriteCondHandleKey<TrackingGeometry> m_trackingGeometryWriteKey{this, "TrackingGeometryWriteKey", "AtlasTrackingGeometry", "Key of output of TrackingGeometry for ID"};
   ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
   ToolHandle<Trk::IGeometryBuilderCond>           m_trackingGeometryBuilder {this, "GeometryBuilder", ""};
   ToolHandleArray<Trk::IGeometryProcessor>    m_geometryProcessors ;

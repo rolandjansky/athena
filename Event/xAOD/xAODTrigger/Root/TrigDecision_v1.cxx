@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrigDecision_v1.cxx 581968 2014-02-06 16:08:52Z krasznaa $
 
-#include <limits.h>
 #include <algorithm>
+#include <climits>
 
 // xAOD include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -121,8 +121,8 @@ std::ostream& operator<<(std::ostream& s, const xAOD::TrigDecision_v1& td) {
    s << " EF/HLTErr=" << td.efErrorBits() << " EF/HLTTrucated=" << td.efTruncated() << std::endl;
    // Run 1 
    bool r1 = false;
-   if (td.lvl2Prescaled().size() || td.lvl2PassedPhysics().size() || td.lvl2PassedRaw().size() 
-    || td.lvl2Resurrected().size() || td.lvl2PassedThrough().size() ) {
+   if (!td.lvl2Prescaled().empty() || !td.lvl2PassedPhysics().empty() || !td.lvl2PassedRaw().empty() 
+    || !td.lvl2Resurrected().empty() || !td.lvl2PassedThrough().empty() ) {
       r1 = true;
       s << " L2 Prescaled: ";
       writeBits(s, td.lvl2Prescaled());
@@ -138,8 +138,8 @@ std::ostream& operator<<(std::ostream& s, const xAOD::TrigDecision_v1& td) {
       s << " No L2 Bits" << std::endl;
    }
    const std::string level = (r1 ? " EF" : " HLT");
-   if (td.efPrescaled().size() || td.efPassedPhysics().size() || td.efPassedRaw().size() 
-    || td.efResurrected().size() || td.efPassedThrough().size() ) { // Run 1: EF, Runs 2, 3: HLT
+   if (!td.efPrescaled().empty() || !td.efPassedPhysics().empty() || !td.efPassedRaw().empty() 
+    || !td.efResurrected().empty() || !td.efPassedThrough().empty() ) { // Run 1: EF, Runs 2, 3: HLT
       s << level << " Prescaled: ";
       writeBits(s, td.efPrescaled());
       s << level << " Passed Physics: ";

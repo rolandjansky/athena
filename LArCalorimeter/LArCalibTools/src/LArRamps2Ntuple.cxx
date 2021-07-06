@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArRamps2Ntuple.h"
@@ -74,17 +74,15 @@ StatusCode LArRamps2Ntuple::stop() {
   NTuple::Item<float> RampRMS;
 
  if (m_rawRamp && m_contKey.size() > 0) {
-   //Retrieve Raw Ramp Container  
-   std::vector<std::string>::const_iterator key_it=m_contKey.begin();
-   std::vector<std::string>::const_iterator key_it_e=m_contKey.end();
-   for (;key_it!=key_it_e;key_it++) {
+   //Retrieve Raw Ramp Container
+   for (const std::string& key : m_contKey) {
        LArRawRampContainer* rawRampContainer=NULL;
-       sc=m_detStore->retrieve(rawRampContainer,*key_it);
+       sc=m_detStore->retrieve(rawRampContainer,key);
        if (sc!=StatusCode::SUCCESS || !rawRampContainer) {
-         ATH_MSG_WARNING( "Unable to retrieve LArRawRampContainer with key " << *key_it );
+         ATH_MSG_WARNING( "Unable to retrieve LArRawRampContainer with key " << key );
        } 
        else {
-         ATH_MSG_DEBUG( "Got LArRawRampContainer with key " << *key_it );
+         ATH_MSG_DEBUG( "Got LArRawRampContainer with key " << key );
          hasRawRampContainer = true;
        }
    }
@@ -113,31 +111,6 @@ StatusCode LArRamps2Ntuple::stop() {
    return StatusCode::FAILURE;
  }
 
- /*
- LArConditionsContainer<LArRampP1>* myramp = NULL;
- if(m_applyCorr) {
-    const LArRampComplete *rampComplete=NULL;
-    if(dynamic_cast<const LArRampComplete*>(ramp)) {
-        sc=m_detStore->retrieve(rampComplete,m_rampKey);
-        if (sc!=StatusCode::SUCCESS) {
-           ATH_MSG_WARNING( "Unable to retrieve LArRampComplete with key: "<<m_rampKey << " from DetectorStore" );
-        }
-       
-       myramp=(LArConditionsContainer<LArRampP1>*) rampComplete;
-    }
-    if( myramp) {
-      if(!myramp->correctionsApplied()) { 
-        sc = myramp->applyCorrections();
-        if (sc!=StatusCode::SUCCESS) {
-          ATH_MSG_ERROR( "Applying corrections failed" );
-        }
-      } else {
-       ATH_MSG_WARNING( "Corrections already applied. Can't apply twice!" );
-      }
-    }
- }
- */
- 
  sc=m_nt->addItem("cellIndex",cellIndex,0,2000);
  if (sc!=StatusCode::SUCCESS) {
    ATH_MSG_ERROR( "addItem 'Cell Index' failed" );
@@ -314,22 +287,17 @@ StatusCode LArRamps2Ntuple::stop() {
  if (hasRawRampContainer) { //Loop over raw ramp container and fill ntuple
 
    //Retrieve Raw Ramp Container
-   std::vector<std::string>::const_iterator key_it=m_contKey.begin();
-   std::vector<std::string>::const_iterator key_it_e=m_contKey.end();
-   for (;key_it!=key_it_e;key_it++) {
+   for (const std::string& key : m_contKey) {
        LArRawRampContainer* rawRampContainer=NULL;
-       sc=m_detStore->retrieve(rawRampContainer,*key_it);
+       sc=m_detStore->retrieve(rawRampContainer,key);
        if (sc!=StatusCode::SUCCESS || !rawRampContainer) {
-         ATH_MSG_WARNING( "Unable to retrieve LArRawRampContainer with key " << *key_it );
+         ATH_MSG_WARNING( "Unable to retrieve LArRawRampContainer with key " << key );
          continue;
        }
-       LArRawRampContainer::const_iterator cont_it=rawRampContainer->begin();
-       LArRawRampContainer::const_iterator cont_it_e=rawRampContainer->end();
-       for (;cont_it!=cont_it_e;cont_it++) {
-         const std::vector<LArRawRamp::RAMPPOINT_t>& singleRamp=(*cont_it)->theRamp();
+       for (const LArRawRamp* rawramp : *rawRampContainer) {
+         const std::vector<LArRawRamp::RAMPPOINT_t>& singleRamp=rawramp->theRamp();
 
          for (DACIndex=0;DACIndex<singleRamp.size();DACIndex++) {
-	   
            SampleMax[DACIndex] = singleRamp[DACIndex].iMaxSample;
            TimeMax[DACIndex]   = singleRamp[DACIndex].TimeMax;
            ADC[DACIndex]       = singleRamp[DACIndex].ADC;
@@ -362,8 +330,8 @@ StatusCode LArRamps2Ntuple::stop() {
 
          }    
 
-        HWIdentifier chid=(*cont_it)->channelID();
-	unsigned igain = (unsigned)(*cont_it)->gain();
+        HWIdentifier chid=rawramp->channelID();
+	unsigned igain = (unsigned)rawramp->gain();
 	gain = igain;
 	if (m_addCorrUndo) corrUndo=0;
 	if (ramp && cabling->isOnlineConnected(chid)) {
@@ -412,11 +380,9 @@ StatusCode LArRamps2Ntuple::stop() {
 
    //Iterate over gains and cells
    for ( unsigned igain=CaloGain::LARHIGHGAIN; 
-	 igain<CaloGain::LARNGAIN ; ++igain ) {
-     std::vector<HWIdentifier>::const_iterator it = m_onlineId->channel_begin();
-     std::vector<HWIdentifier>::const_iterator it_e = m_onlineId->channel_end();
-     for (;it!=it_e;it++) {
-       const HWIdentifier chid=*it;
+	 igain<CaloGain::LARNGAIN ; ++igain )
+   {
+     for (HWIdentifier chid : m_onlineId->channel_range()) {
        if (cabling->isOnlineConnected(chid)) {
 	 gain  = (long)igain;
 	 if (m_addCorrUndo) corrUndo = 0;
@@ -439,7 +405,6 @@ StatusCode LArRamps2Ntuple::stop() {
 
  } //end else have only fitted ramp
 
- //if ((rampComplete||rampMC) && m_addCorrUndo) {
  if (ramp && m_addCorrUndo) {
    //Now loop over undoCorrections:
    for ( unsigned igain=CaloGain::LARHIGHGAIN; 
@@ -474,15 +439,6 @@ StatusCode LArRamps2Ntuple::stop() {
      }
    }//end loop over gains
  }//end if add corrections
-
- /*
- if(m_applyCorr && myramp) {
-    sc = myramp->undoCorrections();
-    if (sc!=StatusCode::SUCCESS) {
-	   ATH_MSG_ERROR( "Undo corrections failed" );
-    }
- }
- */
 
 
  ATH_MSG_INFO( "LArRamps2Ntuple has finished." );

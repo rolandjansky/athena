@@ -17,7 +17,7 @@ mcc = PyTruthTools.getMcEvents('GEN_AOD')
 mc = mcc[0]
 
 # call a normal method
-print mc.alphaQCD()
+print (mc.alphaQCD())
 
 # get particle-iterators
 # GenEvent::particles_begin() and _end() give ietrators
@@ -32,7 +32,7 @@ while (it != itE):
     # dereference and increment the iterator
     # this corresponds to "p = *it++" 
     p = it.next()
-    print p.pdg_id()
+    print (p.pdg_id())
 
 # get vertex-iterator
 it = mc.vertices_begin()
@@ -49,5 +49,5 @@ itpE = v.particles_end(0)
 itp.end = v.particles_end
 
 while (itp != itpE):
-    print itp.next().pdg_id()
+    print (itp.next().pdg_id())
 

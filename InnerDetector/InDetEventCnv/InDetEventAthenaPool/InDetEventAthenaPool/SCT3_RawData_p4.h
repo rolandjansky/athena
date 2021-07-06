@@ -4,7 +4,7 @@
 
 /** S.Oda, Oct 2018
  * replace unsigned int by unsigned short for
-   for the premixing samples for Overlay MC. */
+   for the presampling samples for Overlay MC. */
 
 #ifndef SCT3_RAWDATA_P4_H
 #define SCT3_RAWDATA_P4_H

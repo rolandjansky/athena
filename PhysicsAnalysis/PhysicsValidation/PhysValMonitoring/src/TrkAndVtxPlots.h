@@ -9,15 +9,16 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
+#include "xAODEventInfo/EventInfo.h"
 
 namespace PhysVal{
   
 class TrkAndVtxPlots:public PlotBase {
     public:
       TrkAndVtxPlots(PlotBase* pParent, std::string sDir);
-      void fill(const xAOD::TrackParticle* trk);
-      void fill(const xAOD::Vertex* vtx);
-      void fill(unsigned int ntrack, unsigned int nvertex, float pileup = 0);
+      void fill(const xAOD::TrackParticle* trk,const xAOD::EventInfo* evt);
+      void fill(const xAOD::Vertex* vtx,const xAOD::EventInfo* evt);
+      void fill(unsigned int ntrack, unsigned int nvertex, float pileup = 0,const xAOD::EventInfo* evt=NULL);
       
       // Reco only information
       TH1* ntrk;

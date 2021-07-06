@@ -8,8 +8,11 @@
 #include "TrkSurfaces/Surface.h"
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
+#include "Identifier/IdentifierHash.h"
 
 #include <memory>
+#include <ostream>
+#include <sstream>
 
 namespace InDet
 {
@@ -31,10 +34,7 @@ namespace InDet
     assert (clus!=nullptr);
     Trk::MeasurementBase::m_localParams = Trk::LocalParameters(clus->localPosition());
     Trk::MeasurementBase::m_localCovariance = clus->localCovariance();
-
-    std::unique_ptr<const Amg::Vector3D> tmpPos{clus->detectorElement()->surface().localToGlobal(clus->localPosition())};
-    assert (tmpPos) ;
-    m_position = *tmpPos;
+    m_position = clus->detectorElement()->surface().localToGlobal(clus->localPosition());
 
     m_clusList = {clus,nullptr};
     m_elemIdList.first = elementId ;
@@ -73,14 +73,9 @@ namespace InDet
   
   MsgStream&    PixelSpacePoint::dump( MsgStream& out ) const
   {
-    out << "PixelSpacePoint  contains: " << std::endl;
-    out << "Identifier Hash " << int(this->elementIdList().first) << std::endl; 
-    out << "Global Position:  " << Amg::toString(this->globalPosition(),3) << std::endl;
-    out << "Global Covariance Matrix " <<  Amg::toString(this->globCovariance(),3) << std::endl;
-    out << "Local Parameters " << this->localParameters() << std::endl;
-    out << "Local Covariance " << Amg::toString(this->localCovariance()) << std::endl; 
-    out << "Cluster 1 :" << std::endl << (*this->clusterList().first) << std::endl;
-    
+    std::ostringstream os;
+    dump(os);
+    out << os.str();
     return out;
   }
   
@@ -88,13 +83,14 @@ namespace InDet
   
   std::ostream& PixelSpacePoint::dump( std::ostream& out ) const
   {
-    out << "PixelSpacePoint  contains: " << std::endl;
-    out << "Identifier Hash " << int(this->elementIdList().first) << std::endl; 
-    out << "Global Position:  " << Amg::toString(this->globalPosition(),3) << std::endl;
-    out << "Global Covariance Matrix " <<  Amg::toString(this->globCovariance(),3) << std::endl;
-    out << "Local Parameters " << this->localParameters() << std::endl;
-    out << "Local Covariance " << Amg::toString(this->localCovariance()) << std::endl; 
-    out << "Cluster 1 :" << std::endl << (*this->clusterList().first) << std::endl;
+    const std::string lf{"\n"};//linefeed
+    out << "PixelSpacePoint  contains: " << lf;
+    out << "Identifier Hash " << int(this->elementIdList().first) << lf; 
+    out << "Global Position:  " << Amg::toString(this->globalPosition(),3) << lf;
+    out << "Global Covariance Matrix " <<  Amg::toString(this->globCovariance(),3) << lf;
+    out << "Local Parameters " << this->localParameters() << lf;
+    out << "Local Covariance " << Amg::toString(this->localCovariance()) << lf; 
+    out << "Cluster 1 :" << lf << (*this->clusterList().first) << std::endl;
     
     return out;
   }

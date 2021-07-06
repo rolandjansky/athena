@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -180,8 +180,7 @@ StatusCode TBPhaseRec::execute()
   // Loop over TDC's
   int tdcFound = 0;
   int tdcFoundAndOK = 0;
-  for (TBTDCRawCont::const_iterator it_tdc = tdcRawCont->begin(); it_tdc != tdcRawCont->end(); it_tdc++) {
-    const TBTDCRaw* tdcRaw = (*it_tdc);
+  for (const TBTDCRaw* tdcRaw : *tdcRawCont) {
     std::string tdcName = tdcRaw->getDetectorName();
     int tdcIndex = 0;
     for (; tdcIndex < m_nTDC; tdcIndex++) {

@@ -29,7 +29,7 @@ namespace xAODReader {
 
   StatusCode BTaggingReader::initialize() {
 
-    ATH_MSG_DEBUG( "Initialising - Package version: " << PACKAGE_VERSION );
+    ATH_MSG_DEBUG( "Initialising" );
     ATH_MSG_DEBUG( "  ContainerName = \"" << m_containerName << "\"" );
 
     // Return gracefully:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -87,7 +87,7 @@ class GeoPixelCable : public GeoVPixelFactory {
     : GeoVPixelFactory (ddmgr, mgr),
       m_moduleNumber(0) {}
   virtual GeoVPhysVol* Build() override;
-  double Thickness();
+  double Thickness() const;
   double Length();
   void SetModuleNumber(int moduleNumber) {m_moduleNumber = moduleNumber;}
   int GetModuleNumber() {return m_moduleNumber;}
@@ -294,7 +294,7 @@ class GeoPixelServices : public GeoVPixelFactory {
   int NCylinders(){return m_rmin.size();}
   void SetCylinder(int n) {m_nframe = n;}
   double ZPos() {return m_zpos[m_nframe];}
-  void initialize(std::string);
+  void initialize(const std::string&);
  private:
   std::vector<double> m_rmin,m_rmax,m_halflength,m_zpos;
   std::vector<std::string> m_material;
@@ -341,6 +341,8 @@ class GeoPixelSubDisk : public GeoVPixelFactory {
                   PixelGeometryManager* mgr,
                   GeoPixelSiCrystal &theSensor);
   virtual ~GeoPixelSubDisk();
+  GeoPixelSubDisk (const GeoPixelSubDisk&) = delete;
+  GeoPixelSubDisk& operator= (const GeoPixelSubDisk&) = delete;
   virtual GeoVPhysVol* Build() override;
   double Thickness();
   double RMax();
@@ -361,6 +363,8 @@ class GeoPixelTubeCables : public GeoVPixelFactory {
   GeoPixelTubeCables(InDetDD::PixelDetectorManager* ddmgr,
                      PixelGeometryManager* mgr);
   virtual ~GeoPixelTubeCables();
+  GeoPixelTubeCables (const GeoPixelTubeCables&) = delete;
+  GeoPixelTubeCables& operator= (const GeoPixelTubeCables&) = delete;
   virtual GeoVPhysVol* Build() override;
   double Thickness();
  private:
@@ -701,7 +705,7 @@ class OraclePixGeoManager : public PixelGeometryManager {
 
  private:
 
-  double CalculateThickness(double,std::string);
+  double CalculateThickness(double,const std::string&);
 
  public:
 

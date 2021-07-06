@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -23,7 +23,7 @@ namespace DerivationFramework {
   EventInfoPixelDecorator::EventInfoPixelDecorator(const std::string& type,
       const std::string& name,
       const IInterface* parent) : 
-    AthAlgTool(type,name,parent)
+    ExpressionParserUser<AthAlgTool>(type,name,parent)
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
   }
@@ -53,11 +53,7 @@ namespace DerivationFramework {
 
     // Set up the text-parsing machinery
     if (!m_selectionString.empty()) {
-	    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-	    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
-	    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-	    m_parser = std::make_unique<ExpressionParsing::ExpressionParser>(proxyLoaders);
-	    m_parser->loadExpression(m_selectionString);
+       ATH_CHECK( initializeParser(m_selectionString));
     }
 
     {
@@ -77,7 +73,7 @@ namespace DerivationFramework {
   {
     ATH_MSG_VERBOSE("finalize() ...");
     ATH_MSG_INFO("Processed "<< m_ntot <<" measurements, "<< m_npass<< " were used for the per-module summary");
-    m_parser.reset();
+    ATH_CHECK( finalizeParser() );
     return StatusCode::SUCCESS;
   }
 

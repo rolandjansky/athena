@@ -8,7 +8,7 @@
 
 namespace MuonCombined {
 
-  MuGirlTag::MuGirlTag( ElementLink<TrackCollection> comblink, const std::vector<ElementLink<Trk::SegmentCollection> >& segments ) :
+  MuGirlTag::MuGirlTag( const ElementLink<TrackCollection>& comblink, const std::vector<ElementLink<Trk::SegmentCollection> >& segments ) :
     TagBase(TagBase::Author::MuGirl,TagBase::Type::Combined), m_combLink(comblink), m_meLink(ElementLink<TrackCollection>()), m_segments(segments) {}
 
   MuGirlTag::MuGirlTag( const std::vector<ElementLink<Trk::SegmentCollection> >& segments ) :

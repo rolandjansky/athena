@@ -37,7 +37,7 @@ StatusCode TauTrackClassifier::initialize()
 {
   ATH_MSG_DEBUG("intialize classifiers");
 
-  for (auto cClassifier : m_vClassifier){
+  for (const auto& cClassifier : m_vClassifier){
     ATH_MSG_INFO("TauTrackClassifier tool : " << cClassifier );
     ATH_CHECK(cClassifier.retrieve());
   }
@@ -123,7 +123,7 @@ StatusCode TrackMVABDT::initialize()
 StatusCode TrackMVABDT::classifyTrack(xAOD::TauTrack& xTrack, const xAOD::TauJet& xTau) const
 {
   /// If TT/IT gives TT, only run TT/CR; otherwise, run IT/FT 
-  if (xTrack.flag((xAOD::TauJetParameters::TauTrackFlag) m_iExpectedFlag)==false)
+  if (!xTrack.flag((xAOD::TauJetParameters::TauTrackFlag) m_iExpectedFlag))
     return StatusCode::SUCCESS;
   
   std::vector<float> values;
@@ -257,7 +257,7 @@ StatusCode TrackMVABDT::calculateVariables(const xAOD::TauTrack& xTrack, const x
 
   values.clear();
   values.reserve(m_inputVariableNames.size());
-  for (auto varName : m_inputVariableNames) {
+  for (const auto& varName : m_inputVariableNames) {
     values.push_back(valueMap[varName]);
   }
 

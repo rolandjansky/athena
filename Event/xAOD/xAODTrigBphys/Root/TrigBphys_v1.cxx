@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -188,7 +188,7 @@ namespace xAOD {
     const TrigBphys_v1* TrigBphys_v1::secondaryDecay() const {
         static const Accessor< ElementLink< TrigBphysContainer_v1 > > acc( "secondaryDecayLink" );
         if( ! acc.isAvailable( *this ) ) {
-           return 0;
+           return nullptr;
         }
         const ElementLink< TrigBphysContainer_v1 > & sd = acc( *this );
         if (sd.isValid()) {
@@ -217,13 +217,13 @@ namespace xAOD {
     const TrackParticle* TrigBphys_v1::trackParticle( size_t i ) const {
 
        if( ! trackAcc.isAvailable( *this ) ) {
-          return 0;
+          return nullptr;
        }
        if( i >= nTrackParticles() ) {
-          return 0;
+          return nullptr;
        }
        if( ! trackAcc( *this )[ i ].isValid() ) {
-          return 0;
+          return nullptr;
        }
        return *( trackAcc( *this )[ i ] );
     }
@@ -237,8 +237,8 @@ namespace xAOD {
     bool TrigBphys_v1::operator==(const TrigBphys_v1& rhs) const {
         const double epsilon = 1e-5;
 
-        int aHasSD = (secondaryDecay()    !=NULL)?1:0;
-        int bHasSD = (rhs.secondaryDecay()!=NULL)?1:0;
+        int aHasSD = (secondaryDecay()    !=nullptr)?1:0;
+        int bHasSD = (rhs.secondaryDecay()!=nullptr)?1:0;
         if((aHasSD+bHasSD)==1)
             return false;
 
@@ -307,13 +307,13 @@ namespace xAOD {
     const IParticle * TrigBphys_v1::particle( size_t i ) const {
         
         if( ! particleAcc.isAvailable( *this ) ) {
-            return 0;
+            return nullptr;
         }
         if( i >= nParticles() ) {
-            return 0;
+            return nullptr;
         }
         if( ! particleAcc( *this )[ i ].isValid() ) {
-            return 0;
+            return nullptr;
         }
         return *( particleAcc( *this )[ i ] );
     }

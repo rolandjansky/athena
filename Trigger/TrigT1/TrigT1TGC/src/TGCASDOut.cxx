@@ -1,13 +1,6 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// ====================================================================
-/*
-        TGCASDOut.cc
-                                      QCJP, 1999
-*/
-// ====================================================================
 
 #include <iostream>
 #include <iomanip>
@@ -17,43 +10,22 @@
 
 namespace LVL1TGCTrigger {
 
-// ====================================================================
-//
-//      constants and globals
-//
-// ====================================================================
-
-const char* const strsig[3]= { "N/A", "WireGroup", "Strip" };
-
-// ====================================================================
-//
-// class description
-//
-// ====================================================================
-
-
-///////////////////////////////////////////////////////////////
 TGCASDOut::TGCASDOut(TGCIndex tgcindex, int ilyr,
 		     TGCSignalType sigtype, int id, double tof)
-  : m_tgcReadoutIndex(tgcindex, ilyr),
-    m_signalType(sigtype), m_hitID(id), m_hitToF(tof)
-///////////////////////////////////////////////////////////////
+ : m_tgcReadoutIndex(tgcindex, ilyr),
+   m_signalType(sigtype), m_hitID(id), m_hitToF(tof)
 {
 }
 
-///////////////////////////////////////////////////////////////
 TGCASDOut::TGCASDOut(TGCReadoutIndex tgcrindex, 
 		     TGCSignalType sigtype, int id, double tof)
   : m_tgcReadoutIndex(tgcrindex),
     m_signalType(sigtype), m_hitID(id), m_hitToF(tof)
-///////////////////////////////////////////////////////////////
 {
 }
 
 
-////////////////////////////////////////////////////////////////////////
 void TGCASDOut::SetParams(TGCSignalType signal_type, int id, double tof)
-////////////////////////////////////////////////////////////////////////
 {
   m_signalType= signal_type;
   m_hitID= id;
@@ -61,10 +33,10 @@ void TGCASDOut::SetParams(TGCSignalType signal_type, int id, double tof)
 }
 
 
-/////////////////////////////
 void TGCASDOut::Print() const
-/////////////////////////////
 {
+  const char* const strsig[3]= { "N/A", "WireGroup", "Strip" };
+
   m_tgcReadoutIndex.Print(); 
   std::cout << "::" << std::setw(9) << strsig[m_signalType] 
             << ":: ID=" << std::setw(3) << m_hitID

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // METTrackFilterTool.cxx 
@@ -150,7 +150,7 @@ namespace met {
         }
         isolfrac = ptcone20 / trk->pt();
         // etcone
-        for(const auto& clus : *clusters) {
+        for(const auto clus : *clusters) {
           if (xAOD::P4Helpers::isInDeltaR(*clus,*trk,0.1,m_useRapidity)) {
             etcone10 += clus->pt();
           }
@@ -267,7 +267,7 @@ namespace met {
     if(m_trk_doPVsel) {
       if(vxCont->size()>0) {
 	vertices.reserve(vxCont->size());
-	for(const auto& vx : *vxCont) {
+	for(const auto vx : *vxCont) {
 	  if(vx->vertexType()==VxType::PriVtx) {pv = vx;}
 	  vertices.push_back(vx);
 	}
@@ -290,7 +290,7 @@ namespace met {
 
       bool firstVx(true);
       std::string basename = metTerm->name()+"_vx";
-      for(const auto& vx : *vxCont){
+      for(const auto vx : *vxCont){
 	if(vx->vertexType()==VxType::PriVtx || vx->vertexType()==VxType::PileUp) {
 	  MissingET *met_vx = metTerm;
 	  if(!firstVx) {

@@ -17,46 +17,41 @@
 #include "xAODTracking/TrackParticleContainer.h"
 
 class MuonCombinedInDetCandidateAlg : public AthReentrantAlgorithm {
-  public:
+public:
     MuonCombinedInDetCandidateAlg(const std::string& name, ISvcLocator* pSvcLocator);
     ~MuonCombinedInDetCandidateAlg() = default;
 
     StatusCode initialize();
     StatusCode execute(const EventContext& ctx) const;
 
-  private:
-    bool m_doSiliconForwardMuons;
-
-    float m_extThreshold;
-
-    SG::ReadHandleKeyArray<xAOD::TrackParticleContainer> m_indetTrackParticleLocation;
-    SG::ReadHandleKey<xAOD::TrackParticleContainer>      m_indetForwardTrackParticleLocation;
-    SG::WriteHandleKey<InDetCandidateCollection>         m_candidateCollectionName;
-    ToolHandle<Trk::ITrackSelectorTool>                  m_trackSelector{
-        this, "TrackSelector", "InDet::InDetDetailedTrackSelectorTool/MuonCombinedInDetDetailedTrackSelectorTool",
-        "Track selector tool"};
+private:
+    SG::ReadHandleKeyArray<xAOD::TrackParticleContainer> m_indetTrackParticleLocation{
+        this, "TrackParticleLocation", {"InDetTrackParticles"}};
+    SG::ReadHandleKey<xAOD::TrackParticleContainer> m_indetForwardTrackParticleLocation{this, "ForwardParticleLocation",
+                                                                                        "InDetForwardTrackParticles"};
+    SG::WriteHandleKey<InDetCandidateCollection> m_candidateCollectionName{this, "InDetCandidateLocation", "InDetCandidates"};
+    ToolHandle<Trk::ITrackSelectorTool> m_trackSelector{
+        this, "TrackSelector", "InDet::InDetDetailedTrackSelectorTool/MuonCombinedInDetDetailedTrackSelectorTool", "Track selector tool"};
     ToolHandle<Trk::ITrackSelectorTool> m_forwardTrackSelector{
-        this, "InDetForwardTrackSelector",
-        "InDet::InDetDetailedTrackSelectorTool/MuonCombinedInDetDetailedForwardTrackSelectorTool",
+        this, "InDetForwardTrackSelector", "InDet::InDetDetailedTrackSelectorTool/MuonCombinedInDetDetailedForwardTrackSelectorTool",
         "Forward track selector tool"};
     ToolHandle<Muon::IMuonSystemExtensionTool> m_muonSystemExtensionTool{
-        this, "MuonSystemExtensionTool", "Muon::MuonSystemExtensionTool/MuonSystemExtensionTool",
-        "Muon system extension tool"};
+        this, "MuonSystemExtensionTool", "Muon::MuonSystemExtensionTool/MuonSystemExtensionTool", "Muon system extension tool"};
 
-    void       create(const ToolHandle<Trk::ITrackSelectorTool>& currentTrackSelector,
-                      const xAOD::TrackParticleContainer& indetTrackParticles, InDetCandidateCollection& outputContainer,
-                      bool flagCandidateAsSiAssociated = false) const;
+    void create(const ToolHandle<Trk::ITrackSelectorTool>& currentTrackSelector, const xAOD::TrackParticleContainer& indetTrackParticles,
+                InDetCandidateCollection& outputContainer, bool flagCandidateAsSiAssociated = false) const;
     StatusCode create(const EventContext& ctx, const ToolHandle<Trk::ITrackSelectorTool>& currentTrackSelector,
                       const SG::ReadHandleKey<xAOD::TrackParticleContainer>& location,
-                      std::unique_ptr<InDetCandidateCollection>&             collection,
-                      bool                                                   flagCandidateAsSiAssociate = false) const;
+                      std::unique_ptr<InDetCandidateCollection>& collection, bool flagCandidateAsSiAssociate = false) const;
 
-    bool isValidTrackParticle(const ToolHandle<Trk::ITrackSelectorTool>& currentTrackSelector,
-                              const xAOD::TrackParticle* const           tp) const;
+    bool isValidTrackParticle(const ToolHandle<Trk::ITrackSelectorTool>& currentTrackSelector, const xAOD::TrackParticle* const tp) const;
     void printTrackParticleInfo(const xAOD::TrackParticle* const tp, const std::string& what) const;
 
     int getCount(const xAOD::TrackParticle& tp, xAOD::SummaryType type) const;
-};
 
+    Gaudi::Property<bool> m_doSiliconForwardMuons{this, "DoSiliconAssocForwardMuons", false};
+
+    Gaudi::Property<float> m_extThreshold{this, "ExtensionPtThreshold", 2500};
+};
 
 #endif

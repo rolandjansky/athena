@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///
@@ -43,6 +43,10 @@
 // Gaudi includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+
+//Remove in boost > 1.76 when the boost iterator issue
+//is solved see ATLASRECTS-6358
+#define BOOST_ALLOW_DEPRECATED_HEADERS
 #include "boost/graph/adjacency_list.hpp"
 //
 #include "xAODTracking/TrackParticleContainer.h"
@@ -425,12 +429,12 @@ namespace InDet {
       double fitCommonVrt(std::vector<const Trk*>& listSecondTracks,
                           std::vector<float>   & trkRank,
                           const xAOD::Vertex   & primVrt,
- 	                  const TLorentzVector & jetDir,
+                          const TLorentzVector & jetDir,
                           std::vector<double>  & inpMass, 
-	                  Amg::Vector3D        & fitVertex,
+                          Amg::Vector3D        & fitVertex,
                           std::vector<double>  & errorMatrix,
-	                  TLorentzVector       & momentum,
-		     std::vector< std::vector<double> >  & trkAtVrt) const; 
+                          TLorentzVector       & momentum,
+           std::vector< std::vector<double> >  & trkAtVrt) const; 
 
       template <class Trk>
       void removeEntryInList(std::vector<const Trk*>& , std::vector<float>&, int) const;
@@ -464,19 +468,19 @@ namespace InDet {
 
      int   selGoodTrkParticle( const std::vector<const xAOD::TrackParticle*>& inpPart,
                                 const xAOD::Vertex                           & primVrt,
-	                        const TLorentzVector                         & jetDir,
+                                const TLorentzVector                         & jetDir,
                                       std::vector<const xAOD::TrackParticle*>& selPart) const;
 
 
       template <class Trk>
-      void select2TrVrt(std::vector<const Trk*>  & SelectedTracks,
+      int select2TrVrt(std::vector<const Trk*>  & SelectedTracks,
                         std::vector<const Trk*>  & TracksForFit,
                         const xAOD::Vertex       & primVrt,
- 	                const TLorentzVector     & JetDir,
+                        const TLorentzVector     & JetDir,
                         std::vector<double>      & InpMass, 
-			int                      & nRefPVTrk,
-	                std::vector<const Trk*>  & TrkFromV0,
-	                std::vector<const Trk*>  & ListSecondTracks) const;
+                        int                      & nRefPVTrk,
+                        std::vector<const Trk*>  & TrkFromV0,
+                        std::vector<const Trk*>  & ListSecondTracks) const;
 
      Amg::MatrixX  makeVrtCovMatrix( std::vector<double> & ErrorMatrix ) const;
 
@@ -552,40 +556,40 @@ namespace InDet {
    bool InDetVKalVxInJetTool::check1TrVertexInPixel( const Track* p1, Amg::Vector3D &FitVertex, std::vector<double> &VrtCov)
    const
    {
-	int blTrk=0, blP=0, l1Trk=0, l1P=0, l2Trk=0, nLays=0; 
+        int blTrk=0, blP=0, l1Trk=0, l1P=0, l2Trk=0, nLays=0; 
         getPixelLayers( p1, blTrk , l1Trk, l2Trk, nLays );
         getPixelProblems(p1, blP, l1P );
         double radiusError=vrtRadiusError(FitVertex, VrtCov);
-	double xvt=FitVertex.x();
-	double yvt=FitVertex.y();
-	double Dist2DBL=std::hypot( xvt-m_xLayerB, yvt-m_yLayerB);
+        double xvt=FitVertex.x();
+        double yvt=FitVertex.y();
+        double Dist2DBL=std::hypot( xvt-m_xLayerB, yvt-m_yLayerB);
         if      (Dist2DBL < m_rLayerB-radiusError){       //----------------------------------------- Inside B-layer
           if( blTrk<1  && l1Trk<1  )  return false;
           if(  nLays           <2 )   return false;  // Less than 2 layers on track 0
-	  return true;
+          return true;
         }else if(Dist2DBL > m_rLayerB+radiusError){      //----------------------------------------- Outside b-layer
           if( blTrk>0 && blP==0 ) return false;  // Good hit in b-layer is present
        }
 // 
 // L1 and L2 are considered only if vertex is in acceptance
 //
-	if(fabs(FitVertex.z())<400.){
-	  double Dist2DL1=std::hypot( xvt-m_xLayer1, yvt-m_yLayer1);
-	  double Dist2DL2=std::hypot( xvt-m_xLayer2, yvt-m_yLayer2);
+        if(fabs(FitVertex.z())<400.){
+          double Dist2DL1=std::hypot( xvt-m_xLayer1, yvt-m_yLayer1);
+          double Dist2DL2=std::hypot( xvt-m_xLayer2, yvt-m_yLayer2);
           if      (Dist2DL1 < m_rLayer1-radiusError) {   //------------------------------------------ Inside 1st-layer
              if( l1Trk<1  && l2Trk<1  )     return false;  // Less than 1 hits on track 0
              return true;
           }else if(Dist2DL1 > m_rLayer1+radiusError) {  //------------------------------------------- Outside 1st-layer
-	     if( l1Trk>0 && l1P==0 )       return false;  //  Good L1 hit is present
+             if( l1Trk>0 && l1P==0 )       return false;  //  Good L1 hit is present
           }
           
           if      (Dist2DL2 < m_rLayer2-radiusError) {  //------------------------------------------- Inside 2nd-layer
-	     if( l2Trk==0 )  return false;           // At least one L2 hit must be present
+             if( l2Trk==0 )  return false;           // At least one L2 hit must be present
           }else if(Dist2DL2 > m_rLayer2+radiusError) {  
-	  //   if( l2Trk>0  )  return false;           // L2 hits are present
-	  }           
+          //   if( l2Trk>0  )  return false;           // L2 hits are present
+          }           
         } else {
-	  int d0Trk=0, d1Trk=0, d2Trk=0; 
+          int d0Trk=0, d1Trk=0, d2Trk=0; 
           getPixelDiscs( p1, d0Trk , d1Trk, d2Trk );
           if( d0Trk+d1Trk+d2Trk ==0 )return false;
         }

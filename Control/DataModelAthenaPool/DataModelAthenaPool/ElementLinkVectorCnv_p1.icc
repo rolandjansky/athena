@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file ElementLinkVectorCnv_p1.icc
@@ -165,7 +165,7 @@ void ElementLinkVectorCnv_p1< LINK_TYPE >::persToTrans(const PersLinkVect_t& per
 	  << ", IDX=" << link_iter->m_elementIndex 
 	  << endmsg;
       #endif
-      link_iter++;
+      ++link_iter;
    }
 }
 

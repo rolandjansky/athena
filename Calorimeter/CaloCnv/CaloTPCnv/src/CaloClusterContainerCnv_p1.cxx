@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTPCnv/CaloClusterContainerCnv_p1.h" 
@@ -11,12 +11,10 @@ void CaloClusterContainerCnv_p1::persToTrans (const CaloClusterContainer_p1* per
                                               CaloClusterContainer* trans,
                                               MsgStream &log) const
 {
-  CaloClusterContainer_p1::const_iterator it=pers->m_vec.begin();
-  CaloClusterContainer_p1::const_iterator it_e=pers->m_vec.end();
-  for(;it!=it_e;it++) {
-    CaloCluster* transCluster=new CaloCluster();
-    persToTrans(&(*it),transCluster,log);
-    trans->push_back(transCluster);
+  for (const CaloClusterContainer_p1::CaloCluster_p& pcl : pers->m_vec) {
+    auto transCluster = std::make_unique<CaloCluster>();
+    persToTrans(&pcl,transCluster.get(),log);
+    trans->push_back(std::move(transCluster));
   }
 
   CaloTowerSeg towerSeg;
@@ -32,10 +30,8 @@ void CaloClusterContainerCnv_p1::transToPers (const CaloClusterContainer* trans,
   pers->m_vec.resize(trans->size());
   CaloClusterContainer_p1::iterator itp=pers->m_vec.begin();
 
-  CaloClusterContainer::const_iterator it=trans->begin();
-  CaloClusterContainer::const_iterator it_e=trans->end();
-  for(;it!=it_e;it++,itp++) {
-    transToPers(*it,&(*itp),log);
+  for (const CaloCluster* cl : *trans) {
+    transToPers(cl,&(*itp++),log);
    }
    m_caloTowerSegCnv.transToPers(&(trans->getTowerSeg()),&(pers->m_towerSeg));
 }

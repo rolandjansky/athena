@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -20,21 +20,12 @@
 
 // InDet
 #include "InDetCompetingRIOsOnTrackTool/ICompetingTRT_DriftCirclesOnTrackCreator.h"
-//#include "InDetCompetingRIOsOnTrack/CompetingTRT_DriftCirclesOnTrack.h"
-// once this tool is interfaced: #include "TRT_DriftCircleOnTrackTool/TRT_DriftCircleOnTrackTool.h"
-
-//#include "TrkRIO_OnTrack/RIO_OnTrack.h"
 
 // Trk
-//#include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "TrkParameters/TrackParameters.h"
-//#include "TrkToolInterfaces/IWeightCalculator.h"
 // STL
 #include <list>
-//#include <vector>
 #include <string>
-// propagation
-//#include "TrkGeometry/MagneticFieldProperties.h"
 
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -43,9 +34,7 @@ namespace Trk {
   class LocalParameters;
   class Surface;
   class PrepRawData;
-  //class IPropagator;
   class IRIO_OnTrackCreator;
-  //class IMagneticFieldTool;
   class IWeightCalculator;
   class IExtrapolator;
 }
@@ -133,10 +122,6 @@ public:
                                      const Trk::TrackState::MeasurementType
                                      = Trk::TrackState::unidentified) const;
 
-//     virtual StatusCode updateCompetingROT(
-//         Trk::CompetingRIOsOnTrack&,
-//         const std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >&
-//     ) const;
 
 private:
 
@@ -145,8 +130,6 @@ private:
     ///////////////////////////////////////////////////////////////////
 
     ToolHandle< Trk::IRIO_OnTrackCreator >  m_TRT_ROTCreator;   //!< Det-specific ROT creation for TRT
-    // TODO: change TRT_DriftCircleOnTrackTool to interface class (eg. ITRT_DriftCircleOnTrackTool)
-    //       once it exists some time
 
     ToolHandle< Trk::IWeightCalculator >    m_weightCalculator; //!< Weight calculator tool for assignment probabilities
 
@@ -167,7 +150,6 @@ private:
         const std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >*,
         const Trk::TrackParameters*,
         const Trk::Surface* surf,
-        //const InDet::TRT_DriftCircleOnTrack* mostProbableROT,
         bool nonVanishingROTsHaveCommonSurface
     )const;
 
@@ -176,11 +158,8 @@ private:
         const Amg::MatrixX* &effectiveErrMat,
         const std::vector< const InDet::TRT_DriftCircleOnTrack* >*,
         const std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >*,
-        //const Trk::TrackParameters*,
         const Amg::Vector2D& localTrack,
         const Trk::Surface* surf
-        //const InDet::TRT_DriftCircleOnTrack* mostProbableROT,
-        //const bool nonVanishingROTsHaveCommonSurface
     )const;
 
     void testCompetingROT(const InDet::CompetingTRT_DriftCirclesOnTrack&)const;

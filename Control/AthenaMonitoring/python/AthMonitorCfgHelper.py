@@ -30,10 +30,11 @@ class AthMonitorCfgHelper(object):
         self.inputFlags = inputFlags
         self.monName = monName
         self.monSeq = AthSequencer('AthMonSeq_' + monName)
+        self.monSeq.StopOverride=True
         self.resobj = ComponentAccumulator()
-        if inputFlags.DQ.useTrigger:
-            from .TriggerInterface import getTrigDecisionTool
-            self.resobj.merge(getTrigDecisionTool(inputFlags))
+        self.resobj.addSequence(self.monSeq)
+        from .TriggerInterface import getTrigDecisionTool
+        self.resobj.merge(getTrigDecisionTool(inputFlags))
 
     def addAlgorithm(self, algClassOrObj, name = None, *args, **kwargs):
         '''
@@ -63,9 +64,8 @@ class AthMonitorCfgHelper(object):
         # configure these properties; users really should have no reason to override them
         algObj.Environment = self.inputFlags.DQ.Environment
         algObj.DataType = self.inputFlags.DQ.DataType
-        if self.inputFlags.DQ.useTrigger:
-            algObj.TrigDecisionTool = self.resobj.getPublicTool("TrigDecisionTool")
-            algObj.TriggerTranslatorTool = self.resobj.popToolsAndMerge(getTriggerTranslatorToolSimple(self.inputFlags))
+        algObj.TrigDecisionTool = self.resobj.getPublicTool("TrigDecisionTool")
+        algObj.TriggerTranslatorTool = self.resobj.popToolsAndMerge(getTriggerTranslatorToolSimple(self.inputFlags))
 
         if not self.inputFlags.Input.isMC and self.inputFlags.DQ.enableLumiAccess:
             algObj.EnableLumi = True
@@ -77,8 +77,7 @@ class AthMonitorCfgHelper(object):
             self.resobj.merge (TrigLiveFractionCondAlgCfg (self.inputFlags))
         else:
             algObj.EnableLumi = False
-
-        self.monSeq.Members.append(algObj)
+        self.resobj.addEventAlgo(algObj, sequenceName=self.monSeq.name)
         return algObj
 
     def addGroup(self, alg, name, topPath='', defaultDuration='run'):
@@ -138,6 +137,7 @@ class AthMonitorCfgHelper(object):
         convention = 'ONLINE' if self.inputFlags.Common.isOnline else 'OFFLINE'
         array.broadcast('convention', convention)
         array.broadcast('defaultDuration',defaultDuration)
+        array.broadcast('RegisterHandler', not self.inputFlags.Common.isOnline)
         alg.GMTools += array.toolList()
         return array
 
@@ -148,7 +148,6 @@ class AthMonitorCfgHelper(object):
         Returns:
         resobj -- a ComponentAccumulator 
         '''
-        self.resobj.addSequence(self.monSeq)
         return self.resobj
 
 class AthMonitorCfgHelperOld(object):
@@ -277,6 +276,7 @@ class AthMonitorCfgHelperOld(object):
         array.broadcast('UseCache',True)
         array.broadcast('convention',conventionName)
         array.broadcast('defaultDuration',defaultDuration)
+        array.broadcast('RegisterHandler', not athenaCommonFlags.isOnline())        
         alg.GMTools += array.toolList()
         return array
 

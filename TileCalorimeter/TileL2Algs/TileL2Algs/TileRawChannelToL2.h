@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -23,7 +23,7 @@
 #include "TileEvent/TileContainer.h"
 
 // Athena includes
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/WriteHandleKey.h"
 
 // Gaudi includes
@@ -47,7 +47,7 @@ class TileL2Builder;
  * are stored in a TileL2Container in StoreGate.
  */
 
-class TileRawChannelToL2: public AthAlgorithm {
+class TileRawChannelToL2: public AthReentrantAlgorithm {
 
   public:
 
@@ -57,9 +57,8 @@ class TileRawChannelToL2: public AthAlgorithm {
     /** Destructor */
     virtual ~TileRawChannelToL2();
 
-    StatusCode initialize();
-    StatusCode execute();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute(const EventContext& ctx) const override;
 
   private:
 

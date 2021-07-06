@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigSerializeResult )
@@ -13,7 +13,7 @@ atlas_add_library( TrigSerializeResultLib
                    PUBLIC_HEADERS TrigSerializeResult
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CxxUtils DataModelRoot PathResolver )
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CxxUtils DataModelRoot PathResolver RootUtils )
 
 atlas_add_component( TrigSerializeResult
                      src/components/*.cxx

@@ -4,12 +4,9 @@
 
 #include "MuonLayerEvent/MuonCandidate.h"
 
-
 namespace Muon {
-  MuonCandidate::MuonCandidate(){}
+    MuonCandidate::MuonCandidate() {}
 
-  MuonCandidate::MuonCandidate( std::vector<MuonLayerIntersection>&& layerIntersections_) :
-    layerIntersections(layerIntersections_) {}
+    MuonCandidate::MuonCandidate(std::vector<MuonLayerIntersection>&& layerIntersections_) : layerIntersections(layerIntersections_) {}
 
-
-}
+}  // namespace Muon

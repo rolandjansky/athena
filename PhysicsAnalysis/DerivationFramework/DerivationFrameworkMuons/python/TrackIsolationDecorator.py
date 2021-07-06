@@ -34,7 +34,6 @@ CaloIsoTool.HadCaloNums = [SUBCALO.LARHEC, SUBCALO.TILE]
 CaloIsoTool.UseEMScale  = True
 CaloIsoTool.UseCaloExtensionCaching = False
 CaloIsoTool.saveOnlyRequestedCorrections = True
-CaloIsoTool.addCaloExtensionDecoration = False
 # if hasattr(CaloIsoTool, 'addCaloExtensionDecoration'): ### somehow does not work
 #     CaloIsoTool.addCaloExtensionDecoration = False
 # CaloIsoTool.OutputLevel = 2

@@ -36,7 +36,7 @@ void VxTrackAtVertexCnv_p1::persToTrans(const Trk::VxTrackAtVertex_p1 * persObj,
  Trk::FitQuality fitq;
  fillTransFromPStore( &m_fqCnv, persObj->m_fitQuality, &fitq, log );
 
- ITPConverterFor<Trk::TrackParameters> * paramsCnv = 0;
+ ITPConverterFor<Trk::TrackParameters> * paramsCnv = nullptr;
  Trk::TrackParameters* perigeeAtVertex      = dynamic_cast<Trk::TrackParameters*>(createTransFromPStore(&paramsCnv, persObj->m_perigeeAtVertex,log ));
 
  *transObj = Trk::VxTrackAtVertex(fitq.chiSquared(),
@@ -57,18 +57,18 @@ void  VxTrackAtVertexCnv_p1::transToPers(const Trk::VxTrackAtVertex * transObj, 
  persObj->m_trkWeight	         = transObj->weight(); 
  persObj->m_VertexCompatibility  = transObj->vtxCompatibility();
 
- ITPConverterFor<Trk::TrackParameters> * paramsCnv = 0; 
+ ITPConverterFor<Trk::TrackParameters> * paramsCnv = nullptr; 
  persObj->m_perigeeAtVertex   = toPersistent(&paramsCnv, transObj->perigeeAtVertex(), log );
  
  Trk::LinkToTrack* trLink = dynamic_cast<Trk::LinkToTrack*>(const_cast<Trk::ITrackLink*>(transObj->trackOrParticleLink()));
- if (trLink!=0){
+ if (trLink!=nullptr){
    persObj->m_typeOfLink = 0;
    m_elementLinkConverterForTrack.resetForCnv(persObj->m_origTrackNames);
    ElementLink< TrackCollection >* el = dynamic_cast< ElementLink< TrackCollection >* >(trLink);
    m_elementLinkConverterForTrack.transToPers(el,&persObj->m_origTrack,log);
  } else {
    Trk::LinkToTrackParticleBase *trPBLink = dynamic_cast<Trk::LinkToTrackParticleBase*>(const_cast<Trk::ITrackLink*>(transObj->trackOrParticleLink()));
-   if (trPBLink!=0) {
+   if (trPBLink!=nullptr) {
     persObj->m_typeOfLink = 1;
     m_elementLinkConverterForTrackParticle.resetForCnv(persObj->m_origTrackNames);
     ElementLink< Trk::TrackParticleBaseCollection >* el = dynamic_cast< ElementLink< Trk::TrackParticleBaseCollection >* >(trPBLink);

@@ -1,16 +1,18 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
 // ParametersT.icc, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
+
+// Trk
+#include "TrkEventPrimitives/ParamDefs.h"
+#include <cmath>
 // STD
 #include <limits>
 #include <utility>
-// Trk
-#include "TrkEventPrimitives/ParamDefs.h"
 
 namespace Trk {
 
@@ -22,17 +24,16 @@ ParametersT<DIM, T, S>::ParametersT(double loc1,
                                     double theta,
                                     double qop,
                                     const S& surface,
-                                    AmgSymMatrix(DIM) * cov)
+                                    std::optional<AmgSymMatrix(DIM)> cov)
   : ParametersBase<DIM, T>(AmgVector(DIM)::Zero(), cov, sgn(qop))
+  , SurfaceUniqHolderImpl<S>(surface)
   , m_position(Amg::Vector3D::Zero())
   , m_momentum(Amg::Vector3D::Zero())
-  , m_surface(nullptr)
 {
-  m_surface.reset((surface.isFree() ? surface.clone() : &surface));
   // check qoverp is physical
   double p = 0.;
   if (qop != 0) {
-    p = fabs(1. / qop);
+    p = std::abs(1. / qop);
   } else {
     // qop is unphysical. No momentum measurement.
     p = InvalidParam::INVALID_P;
@@ -44,30 +45,31 @@ ParametersT<DIM, T, S>::ParametersT(double loc1,
   m_parameters << loc1, loc2, phi, theta, qop;
 
   // now calculate the momentum
-  m_momentum = Amg::Vector3D(
-    p * cos(phi) * sin(theta), p * sin(phi) * sin(theta), p * cos(theta));
+  m_momentum = Amg::Vector3D(p * std::cos(phi) * std::sin(theta),
+                             p * std::sin(phi) * std::sin(theta),
+                             p * std::cos(theta));
 
-  m_surface->localToGlobal(this->localPosition(), m_momentum, m_position);
+  m_associatedSurface->localToGlobal(
+    this->localPosition(), m_momentum, m_position);
 }
 
 // Constructor with local arguments - uses global <-> local for parameters
 template<int DIM, class T, class S>
 ParametersT<DIM, T, S>::ParametersT(const AmgVector(DIM) & parameters,
                                     const S& surface,
-                                    AmgSymMatrix(DIM) * cov)
+                                    std::optional<AmgSymMatrix(DIM)> cov)
   : ParametersBase<DIM, T>(parameters, cov, sgn(parameters[Trk::qOverP]))
+  , SurfaceUniqHolderImpl<S>(surface)
   , m_position(Amg::Vector3D::Zero())
   , m_momentum(Amg::Vector3D::Zero())
-  , m_surface(nullptr)
 {
-  m_surface.reset((surface.isFree() ? surface.clone() : &surface));
   // decide the sign of the charge
   double qop = m_parameters[Trk::qOverP];
 
   // check qoverp is physical
   double p = 0.;
   if (qop != 0.) {
-    p = fabs(1. / qop);
+    p = std::abs(1. / qop);
   } else {
     // qop is unphysical. No momentum measurement.
     p = InvalidParam::INVALID_P;
@@ -76,11 +78,12 @@ ParametersT<DIM, T, S>::ParametersT(const AmgVector(DIM) & parameters,
 
   // fill momentum & then position using the surface
   m_momentum = Amg::Vector3D(
-    p * cos(m_parameters[Trk::phi]) * sin(m_parameters[Trk::theta]),
-    p * sin(m_parameters[Trk::phi]) * sin(m_parameters[Trk::theta]),
-    p * cos(m_parameters[Trk::theta]));
+    p * std::cos(m_parameters[Trk::phi]) * std::sin(m_parameters[Trk::theta]),
+    p * std::sin(m_parameters[Trk::phi]) * std::sin(m_parameters[Trk::theta]),
+    p * std::cos(m_parameters[Trk::theta]));
 
-  m_surface->localToGlobal(this->localPosition(), m_momentum, m_position);
+  m_associatedSurface->localToGlobal(
+    this->localPosition(), m_momentum, m_position);
 }
 
 // Constructor with global arguments - uses global <-> local for parameters */
@@ -89,16 +92,16 @@ ParametersT<DIM, T, S>::ParametersT(const Amg::Vector3D& pos,
                                     const Amg::Vector3D& mom,
                                     double charge,
                                     const S& surface,
-                                    AmgSymMatrix(DIM) * cov)
+                                    std::optional<AmgSymMatrix(DIM)> cov)
   : ParametersBase<DIM, T>(AmgVector(DIM)::Zero(), cov, charge)
+  , SurfaceUniqHolderImpl<S>(surface)
   , m_position(pos)
   , m_momentum(mom)
-  , m_surface(surface.isFree() ? surface.clone() : &surface)
 {
   // get the local parameters via the surface
   Amg::Vector2D lPosition;
-  const bool ok =
-    m_surface->globalToLocal(this->position(), this->momentum(), lPosition);
+  const bool ok = m_associatedSurface->globalToLocal(
+    this->position(), this->momentum(), lPosition);
   if (not ok) {
     lPosition = Amg::Vector2D(InvalidParam::INVALID, InvalidParam::INVALID);
   }
@@ -122,11 +125,11 @@ Trk::ParametersT<DIM, T, S>::ParametersT(const Amg::Vector3D& pos,
                                          double theta,
                                          double qop,
                                          const S& surface,
-                                         AmgSymMatrix(DIM) * cov)
-  : ParametersBase<DIM, T>(AmgVector(DIM)::Zero(), cov, 1.)
+                                         std::optional<AmgSymMatrix(DIM)> cov)
+  : ParametersBase<DIM, T>(AmgVector(DIM)::Zero(), std::move(cov), 1.)
+  , SurfaceUniqHolderImpl<S>(surface)
   , m_position(pos)
   , m_momentum(Amg::Vector3D::Zero())
-  , m_surface(surface.isFree() ? surface.clone() : &surface)
 {
   // decide the sign of the charge
   if (qop < 0.) {
@@ -136,19 +139,20 @@ Trk::ParametersT<DIM, T, S>::ParametersT(const Amg::Vector3D& pos,
   // fill momentum & then position using the surface
   double p = 0.0;
   if (qop != 0.) {
-    p = fabs(1. / qop);
+    p = std::abs(1. / qop);
   } else {
     // qop is unphysical. No momentum measurement.
     p = InvalidParam::INVALID_P;
     qop = InvalidParam::INVALID_QOP;
   }
-  m_momentum = Amg::Vector3D(
-    p * cos(phi) * sin(theta), p * sin(phi) * sin(theta), p * cos(theta));
+  m_momentum = Amg::Vector3D(p * std::cos(phi) * std::sin(theta),
+                             p * std::sin(phi) * std::sin(theta),
+                             p * std::cos(theta));
 
   // get the local parameters via the surface
   Amg::Vector2D lPosition;
-  const bool ok =
-    m_surface->globalToLocal(this->position(), this->momentum(), lPosition);
+  const bool ok = m_associatedSurface->globalToLocal(
+    this->position(), this->momentum(), lPosition);
   if (not ok) {
     lPosition = Amg::Vector2D(InvalidParam::INVALID, InvalidParam::INVALID);
   }
@@ -159,39 +163,13 @@ Trk::ParametersT<DIM, T, S>::ParametersT(const Amg::Vector3D& pos,
 
 // Copy constructor
 template<int DIM, class T, class S>
-ParametersT<DIM, T, S>::ParametersT(const ParametersT<DIM, T, S>& rhs)
-  : ParametersBase<DIM, T>(rhs.parameters(), nullptr, rhs.charge())
-  , m_position(rhs.position())
-  , m_momentum(rhs.momentum())
-  , m_surface(nullptr)
-{
-  m_surface.reset((rhs.m_surface && rhs.m_surface->isFree()
-                     ? rhs.m_surface->clone()
-                     : rhs.m_surface.get()));
-  if (rhs.covariance()) {
-    m_covariance = std::make_unique<AmgSymMatrix(DIM)>(*rhs.covariance());
-  }
-}
+ParametersT<DIM, T, S>::ParametersT(const ParametersT<DIM, T, S>& rhs) =
+  default;
 
 // assignment operator
 template<int DIM, class T, class S>
 ParametersT<DIM, T, S>&
-ParametersT<DIM, T, S>::operator=(const ParametersT<DIM, T, S>& rhs)
-{
-  if (this != &rhs) {
-    m_parameters = rhs.m_parameters;
-    m_covariance = rhs.covariance()
-                     ? std::make_unique<AmgSymMatrix(DIM)>(*rhs.covariance())
-                     : nullptr;
-    m_position = rhs.position();
-    m_momentum = rhs.momentum();
-    m_surface.reset((rhs.m_surface && rhs.m_surface->isFree())
-                      ? rhs.m_surface->clone()
-                      : rhs.m_surface.get());
-    m_chargeDef = rhs.m_chargeDef;
-  }
-  return *this;
-}
+ParametersT<DIM, T, S>::operator=(const ParametersT<DIM, T, S>& rhs) = default;
 
 template<int DIM, class T, class S>
 double
@@ -219,7 +197,7 @@ template<int DIM, class T, class S>
 bool
 ParametersT<DIM, T, S>::hasSurface() const
 {
-  return m_surface != nullptr;
+  return (m_associatedSurface != nullptr);
 }
 
 /** Access to the Surface method */
@@ -227,7 +205,7 @@ template<int DIM, class T, class S>
 const S&
 ParametersT<DIM, T, S>::associatedSurface() const
 {
-  return *m_surface;
+  return *m_associatedSurface;
 }
 
 /** equality operator */
@@ -262,6 +240,14 @@ ParametersT<DIM, T, S>::clone() const
   return new ParametersT<DIM, T, S>(*this);
 }
 
+/** clone */
+template<int DIM, class T, class S>
+std::unique_ptr<ParametersT<DIM, T, S>>
+ParametersT<DIM, T, S>::uniqueClone() const
+{
+  return std::unique_ptr<ParametersT<DIM, T, S>>(clone());
+}
+
 /** Return the ParametersType enum */
 template<int DIM, class T, class S>
 ParametersType
@@ -272,7 +258,7 @@ ParametersT<DIM, T, S>::type() const
 
 /** Return the Surface Type (check SurfaceType enums)*/
 template<int DIM, class T, class S>
-int
+SurfaceType
 ParametersT<DIM, T, S>::surfaceType() const
 {
   return S::staticType;
@@ -303,8 +289,8 @@ ParametersT<DIM, T, S>::updateParametersHelper(const AmgVector(DIM) &
     (updatedParameters[Trk::theta] != m_parameters[Trk::theta]) ||
     (updatedParameters[qOverP] != m_parameters[qOverP]);
 
-  if constexpr (S::staticType == Trk::Surface::Line ||
-                S::staticType == Trk::Surface::Perigee) {
+  if constexpr (S::staticType == Trk::SurfaceType::Line ||
+                S::staticType == Trk::SurfaceType::Perigee) {
     updatePosition |= updateMomentum;
   }
 
@@ -318,17 +304,19 @@ ParametersT<DIM, T, S>::updateParametersHelper(const AmgVector(DIM) &
     double p = InvalidParam::INVALID_P;
     if (m_parameters[Trk::qOverP] != 0) {
       m_chargeDef = sgn(m_parameters[Trk::qOverP]);
-      p = fabs(1. / m_parameters[Trk::qOverP]);
+      p = std::abs(1. / m_parameters[Trk::qOverP]);
     }
-    double sinTheta = sin(theta);
-    m_momentum = Amg::Vector3D(
-      p * cos(phi) * sinTheta, p * sin(phi) * sinTheta, p * cos(theta));
+    double sinTheta = std::sin(theta);
+    m_momentum = Amg::Vector3D(p * std::cos(phi) * sinTheta,
+                               p * std::sin(phi) * sinTheta,
+                               p * std::cos(theta));
   }
 
   // position or momentum update needed
   if (updatePosition) {
-    if (m_surface) {
-      m_surface->localToGlobal(this->localPosition(), m_momentum, m_position);
+    if (m_associatedSurface) {
+      m_associatedSurface->localToGlobal(
+        this->localPosition(), m_momentum, m_position);
     } else {
       m_position.setZero();
     }
@@ -337,11 +325,11 @@ ParametersT<DIM, T, S>::updateParametersHelper(const AmgVector(DIM) &
 
 // Protected Constructor with local arguments - persistency only
 template<int DIM, class T, class S>
-Trk::ParametersT<DIM, T, S>::ParametersT(const AmgVector(DIM) & pars,
+ParametersT<DIM, T, S>::ParametersT(const AmgVector(DIM) & pars,
                                          const S* surface,
-                                         AmgSymMatrix(DIM) * cov)
+                                         std::optional<AmgSymMatrix(DIM)> cov)
   : ParametersBase<DIM, T>(pars, cov)
-  , m_surface(surface)
+  , SurfaceUniqHolderImpl<S>(surface)
 {
   float qop = m_parameters[Trk::qOverP];
   // decide the sign of the charge
@@ -350,19 +338,20 @@ Trk::ParametersT<DIM, T, S>::ParametersT(const AmgVector(DIM) & pars,
   }
   double p = 0.0;
   if (qop != 0.) {
-    p = fabs(1. / qop);
+    p = std::abs(1. / qop);
   } else {
     // qop is unphysical. No momentum measurement.
     p = InvalidParam::INVALID_P;
     qop = InvalidParam::INVALID_QOP;
   }
-  if (m_surface) {
+  if (m_associatedSurface) {
     // fill momentum & then position using the surface
     m_momentum = Amg::Vector3D(
-      p * cos(m_parameters[Trk::phi]) * sin(m_parameters[Trk::theta]),
-      p * sin(m_parameters[Trk::phi]) * sin(m_parameters[Trk::theta]),
-      p * cos(m_parameters[Trk::theta]));
-    m_surface->localToGlobal(this->localPosition(), m_momentum, m_position);
+      p * std::cos(m_parameters[Trk::phi]) * std::sin(m_parameters[Trk::theta]),
+      p * std::sin(m_parameters[Trk::phi]) * std::sin(m_parameters[Trk::theta]),
+      p * std::cos(m_parameters[Trk::theta]));
+    m_associatedSurface->localToGlobal(
+      this->localPosition(), m_momentum, m_position);
   } else {
     m_momentum.setZero();
     m_position.setZero();

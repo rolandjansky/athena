@@ -20,6 +20,12 @@ inline GenVertexPtr newGenVertexPtr(const HepMC3::FourVector &pos = HepMC3::Four
     v->set_status(i);
     return v;
 }
+
+inline int particles_in_size(GenVertexPtr v) { return v->particles_in().size();}
+inline int particles_out_size(GenVertexPtr v) { return v->particles_out().size();}
+inline int particles_in_size(ConstGenVertexPtr v) { return v->particles_in().size();}
+inline int particles_out_size(ConstGenVertexPtr v) { return v->particles_out().size();}
+
 inline int barcode(GenVertexPtr p) {
     if (!p) return 0;
     std::shared_ptr<HepMC3::IntAttribute> barcode=p->attribute<HepMC3::IntAttribute>("barcode");
@@ -47,6 +53,9 @@ typedef const HepMC::GenVertex* ConstGenVertexPtr;
 inline GenVertex::particles_out_const_iterator  begin(const HepMC::GenVertex& v) { return v.particles_out_const_begin(); }
 inline GenVertex::particles_out_const_iterator  end(const HepMC::GenVertex& v) { return v.particles_out_const_end(); }
 
+inline int particles_in_size(const HepMC::GenVertex* v) { return v->particles_in_size();}
+inline int particles_out_size(const HepMC::GenVertex* v) { return v->particles_out_size();}
+
 inline GenVertexPtr newGenVertexPtr(const HepMC::FourVector &pos = HepMC::FourVector(0.0,0.0,0.0,0.0), const int i=0) {
     return new HepMC::GenVertex(pos,i);
 }
@@ -55,6 +64,7 @@ inline void line(std::ostream& os,const GenVertex& v) {v.print(os);}
 inline void line(std::ostream& os,const GenVertex* v) {v->print(os);}
 }
 inline int barcode(ConstGenVertexPtr p) { return p->barcode();}
+inline int barcode(const GenVertex p) { return p.barcode();}
 inline void* raw_pointer(GenVertexPtr p) { return p;}
 inline const void* raw_pointer(ConstGenVertexPtr p) { return p;}
 inline std::ostream& operator<<( std::ostream& os, const GenVertex* v ) { if (v) return os<<(*v); else return os;}

@@ -5,12 +5,12 @@
 ###########################################################################
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Tau.generateChainConfigs' )
+log = logging.getLogger(__name__)
 logging.getLogger().info("Importing %s",__name__)
 
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
-from TriggerMenuMT.HLTMenuConfig.Tau.TauChainConfiguration import TauChainConfiguration as TauChainConfiguration
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
+from ..Menu.ChainDictTools import splitChainDict
+from ..Menu.ChainMerging import mergeChainDefs
+from .TauChainConfiguration import TauChainConfiguration
 
 
 def generateChainConfigs(chainDict):

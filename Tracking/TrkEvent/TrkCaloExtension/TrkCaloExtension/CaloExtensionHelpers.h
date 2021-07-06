@@ -143,11 +143,11 @@ namespace CaloExtensionHelpers {
     auto prev = cur;
     for( ; cur != extension.caloLayerIntersections().end() ; ++cur ){
       // check that prev and cur are not the same, if not fill if the previous was an entry layer
-      if( prev != cur && parsIdHelper.isEntryToVolume((*prev)->cIdentifier()) ) {
+      if( prev != cur && parsIdHelper.isEntryToVolume((*prev).cIdentifier()) ) {
 
         // apply selection
-        if( !selection || selection->count(parsIdHelper.caloSample((*prev)->cIdentifier())) ){
-          oper(result,**prev,**cur);
+        if( !selection || selection->count(parsIdHelper.caloSample((*prev).cIdentifier())) ){
+          oper(result,*prev,*cur);
         }
       }
       prev=cur;

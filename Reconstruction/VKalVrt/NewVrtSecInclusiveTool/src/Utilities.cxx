@@ -9,6 +9,7 @@
 #include "TrkNeutralParameters/NeutralParameters.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include  "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
+#include "CxxUtils/sincos.h"
 //-------------------------------------------------
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/TrackingVolume.h"
@@ -38,7 +39,7 @@ namespace Rec{
       for(int kk=0; kk<(int)(*WrkVrtSet)[iv].selTrk.size(); kk++) {
                 msg(MSG::INFO)<<", "<<(*WrkVrtSet)[iv].selTrk[kk];}
       for(int kk=0; kk<(int)(*WrkVrtSet)[iv].selTrk.size(); kk++) {
-                msg(MSG::INFO)<<", "<<MomAtVrt((*WrkVrtSet)[iv].trkAtVrt[kk]).Perp();}
+                msg(MSG::INFO)<<", "<<momAtVrt((*WrkVrtSet)[iv].trkAtVrt[kk]).Perp();}
       msg(MSG::INFO)<<endmsg;
       if((*WrkVrtSet)[iv].Good)nGoodV++;
     }
@@ -47,98 +48,96 @@ namespace Rec{
   }
 
                /*  Technicalities */
-  double NewVrtSecInclusiveTool::ProjSV_PV(const Amg::Vector3D & SV, const xAOD::Vertex & PV, const TLorentzVector & Direction) const
+  double NewVrtSecInclusiveTool::projSV_PV(const Amg::Vector3D & SV, const xAOD::Vertex & PV, const TLorentzVector & Direction) const
   {  
      TVector3 SV_PV( SV.x()-PV.x(), SV.y()-PV.y(), SV.z()-PV.z() );
      return Direction.Vect().Unit()*SV_PV.Unit();
   }
 
-  
-  double NewVrtSecInclusiveTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                          const std::vector<double> SecVrtErr, double& signif)
+  double NewVrtSecInclusiveTool::vrtVrtDist(const xAOD::Vertex & primVrt, const Amg::Vector3D & secVrt, 
+                                          const std::vector<double>& secVrtErr, double& signif)
   const
   {
-    double distx =  PrimVrt.x()- SecVrt.x();
-    double disty =  PrimVrt.y()- SecVrt.y();
-    double distz =  PrimVrt.z()- SecVrt.z();
+    double distx =  primVrt.x()- secVrt.x();
+    double disty =  primVrt.y()- secVrt.y();
+    double distz =  primVrt.z()- secVrt.z();
 
 
-    AmgSymMatrix(3)  PrimCovMtx=PrimVrt.covariancePosition();  //Create
-    PrimCovMtx(0,0) += SecVrtErr[0];
-    PrimCovMtx(0,1) += SecVrtErr[1];
-    PrimCovMtx(1,0) += SecVrtErr[1];
-    PrimCovMtx(1,1) += SecVrtErr[2];
-    PrimCovMtx(0,2) += SecVrtErr[3];
-    PrimCovMtx(2,0) += SecVrtErr[3];
-    PrimCovMtx(1,2) += SecVrtErr[4];
-    PrimCovMtx(2,1) += SecVrtErr[4];
-    PrimCovMtx(2,2) += SecVrtErr[5];
+    AmgSymMatrix(3)  primCovMtx=primVrt.covariancePosition();  //Create
+    primCovMtx(0,0) += secVrtErr[0];
+    primCovMtx(0,1) += secVrtErr[1];
+    primCovMtx(1,0) += secVrtErr[1];
+    primCovMtx(1,1) += secVrtErr[2];
+    primCovMtx(0,2) += secVrtErr[3];
+    primCovMtx(2,0) += secVrtErr[3];
+    primCovMtx(1,2) += secVrtErr[4];
+    primCovMtx(2,1) += secVrtErr[4];
+    primCovMtx(2,2) += secVrtErr[5];
 
-    AmgSymMatrix(3)  WgtMtx = PrimCovMtx.inverse();
+    AmgSymMatrix(3)  wgtMtx = primCovMtx.inverse();
 
-    signif = distx*WgtMtx(0,0)*distx
-            +disty*WgtMtx(1,1)*disty
-            +distz*WgtMtx(2,2)*distz
-         +2.*distx*WgtMtx(0,1)*disty
-         +2.*distx*WgtMtx(0,2)*distz
-         +2.*disty*WgtMtx(1,2)*distz;
+    signif = distx*wgtMtx(0,0)*distx
+            +disty*wgtMtx(1,1)*disty
+            +distz*wgtMtx(2,2)*distz
+         +2.*distx*wgtMtx(0,1)*disty
+         +2.*distx*wgtMtx(0,2)*distz
+         +2.*disty*wgtMtx(1,2)*distz;
     signif=std::sqrt(std::abs(signif));
     if( signif!=signif ) signif = 0.;
     return std::sqrt(distx*distx+disty*disty+distz*distz);
   }
 
-  double NewVrtSecInclusiveTool::VrtVrtDist2D(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                          const std::vector<double> SecVrtErr, double& signif)
+  double NewVrtSecInclusiveTool::vrtVrtDist2D(const xAOD::Vertex & primVrt, const Amg::Vector3D & secVrt, 
+                                          const std::vector<double>& secVrtErr, double& signif)
   const
   {
-    double distx =  PrimVrt.x()- SecVrt.x();
-    double disty =  PrimVrt.y()- SecVrt.y();
+    double distx =  primVrt.x()- secVrt.x();
+    double disty =  primVrt.y()- secVrt.y();
 
 
-    AmgSymMatrix(3)  PrimCovMtx=PrimVrt.covariancePosition();  //Create
-    AmgSymMatrix(2)  CovMtx;
-    CovMtx(0,0) = PrimCovMtx(0,0) + SecVrtErr[0];
-    CovMtx(0,1) = PrimCovMtx(0,1) + SecVrtErr[1];
-    CovMtx(1,0) = PrimCovMtx(1,0) + SecVrtErr[1];
-    CovMtx(1,1) = PrimCovMtx(1,1) + SecVrtErr[2];
+    AmgSymMatrix(3)  primCovMtx=primVrt.covariancePosition();  //Create
+    AmgSymMatrix(2)  covMtx;
+    covMtx(0,0) = primCovMtx(0,0) + secVrtErr[0];
+    covMtx(0,1) = primCovMtx(0,1) + secVrtErr[1];
+    covMtx(1,0) = primCovMtx(1,0) + secVrtErr[1];
+    covMtx(1,1) = primCovMtx(1,1) + secVrtErr[2];
 
-    AmgSymMatrix(2)  WgtMtx = CovMtx.inverse();
+    AmgSymMatrix(2)  wgtMtx = covMtx.inverse();
 
-    signif = distx*WgtMtx(0,0)*distx
-            +disty*WgtMtx(1,1)*disty
-         +2.*distx*WgtMtx(0,1)*disty;
+    signif = distx*wgtMtx(0,0)*distx
+            +disty*wgtMtx(1,1)*disty
+         +2.*distx*wgtMtx(0,1)*disty;
     signif=std::sqrt(std::abs(signif));
     if( signif!=signif ) signif = 0.;
     return std::sqrt(distx*distx+disty*disty);
   }
 
 
-  double NewVrtSecInclusiveTool::VrtVrtDist(const Amg::Vector3D & Vrt1, const std::vector<double>  & VrtErr1,
-                                            const Amg::Vector3D & Vrt2, const std::vector<double>  & VrtErr2)
+  double NewVrtSecInclusiveTool::vrtVrtDist(const Amg::Vector3D & vrt1, const std::vector<double>  & vrtErr1,
+                                            const Amg::Vector3D & vrt2, const std::vector<double>  & vrtErr2)
   const
   {
-    double distx =  Vrt1.x()- Vrt2.x();
-    double disty =  Vrt1.y()- Vrt2.y();
-    double distz =  Vrt1.z()- Vrt2.z();
+    double distx =  vrt1.x()- vrt2.x();
+    double disty =  vrt1.y()- vrt2.y();
+    double distz =  vrt1.z()- vrt2.z();
 
-    AmgSymMatrix(3)  PrimCovMtx;  //Create
-    PrimCovMtx(0,0) =                   VrtErr1[0]+VrtErr2[0];
-    PrimCovMtx(0,1) = PrimCovMtx(1,0) = VrtErr1[1]+VrtErr2[1];
-    PrimCovMtx(1,1) =                   VrtErr1[2]+VrtErr2[2];
-    PrimCovMtx(0,2) = PrimCovMtx(2,0) = VrtErr1[3]+VrtErr2[3];
-    PrimCovMtx(1,2) = PrimCovMtx(2,1) = VrtErr1[4]+VrtErr2[4];
-    PrimCovMtx(2,2) =                   VrtErr1[5]+VrtErr2[5];
+    AmgSymMatrix(3)  primCovMtx;  //Create
+    primCovMtx(0,0) =                   vrtErr1[0]+vrtErr2[0];
+    primCovMtx(0,1) = primCovMtx(1,0) = vrtErr1[1]+vrtErr2[1];
+    primCovMtx(1,1) =                   vrtErr1[2]+vrtErr2[2];
+    primCovMtx(0,2) = primCovMtx(2,0) = vrtErr1[3]+vrtErr2[3];
+    primCovMtx(1,2) = primCovMtx(2,1) = vrtErr1[4]+vrtErr2[4];
+    primCovMtx(2,2) =                   vrtErr1[5]+vrtErr2[5];
 
-    AmgSymMatrix(3)  WgtMtx = PrimCovMtx.inverse();
-
+    AmgSymMatrix(3)  wgtMtx = primCovMtx.inverse();
 
     double signif = 
-               distx*WgtMtx(0,0)*distx
-              +disty*WgtMtx(1,1)*disty
-              +distz*WgtMtx(2,2)*distz
-           +2.*distx*WgtMtx(0,1)*disty
-           +2.*distx*WgtMtx(0,2)*distz
-           +2.*disty*WgtMtx(1,2)*distz;
+               distx*wgtMtx(0,0)*distx
+              +disty*wgtMtx(1,1)*disty
+              +distz*wgtMtx(2,2)*distz
+           +2.*distx*wgtMtx(0,1)*disty
+           +2.*distx*wgtMtx(0,2)*distz
+           +2.*disty*wgtMtx(1,2)*distz;
     signif=std::sqrt(std::abs(signif));
     if(signif != signif)  signif = 0.;
     return signif;
@@ -151,48 +150,11 @@ namespace Rec{
     double dz =  Vrt1.z()- Vrt2.z();
     return std::sqrt(dx*dx+dy*dy*dz*dz);
   }
-//--------------------------------------------------
-// significance along some direction
-//--------------------------------------------------
-double NewVrtSecInclusiveTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                           const std::vector<double> SecVrtErr, const TLorentzVector & Dir)
-   const
-   {
-     Amg::Vector3D dir(Dir.Vect().Unit().X(), Dir.Vect().Unit().Y(), Dir.Vect().Unit().Z());
-     double projDist=(SecVrt-PrimVrt.position()).dot(dir);
-     double distx =  dir.x()*projDist;
-     double disty =  dir.y()*projDist;
-     double distz =  dir.z()*projDist;
-
-     AmgSymMatrix(3)  PrimCovMtx=PrimVrt.covariancePosition();  //Create
-     PrimCovMtx(0,0) += SecVrtErr[0];
-     PrimCovMtx(0,1) += SecVrtErr[1];
-     PrimCovMtx(1,0) += SecVrtErr[1];
-     PrimCovMtx(1,1) += SecVrtErr[2];
-     PrimCovMtx(0,2) += SecVrtErr[3];
-     PrimCovMtx(2,0) += SecVrtErr[3];
-     PrimCovMtx(1,2) += SecVrtErr[4];
-     PrimCovMtx(2,1) += SecVrtErr[4];
-     PrimCovMtx(2,2) += SecVrtErr[5];
- 
-     AmgSymMatrix(3)  WgtMtx = PrimCovMtx.inverse();
- 
-     double signif = distx*WgtMtx(0,0)*distx
-                    +disty*WgtMtx(1,1)*disty
-                    +distz*WgtMtx(2,2)*distz
-                 +2.*distx*WgtMtx(0,1)*disty
-                 +2.*distx*WgtMtx(0,2)*distz
-                 +2.*disty*WgtMtx(1,2)*distz;
-     signif=std::sqrt(std::abs(signif));
-     if( signif!=signif ) signif = 0.;
-     if(projDist<0)signif=-signif;
-     return signif;
-   }
 
 //----------------------------
 //   Vertex error along radius
 //----------------------------
-  double NewVrtSecInclusiveTool::VrtRadiusError(const Amg::Vector3D & SecVrt, const std::vector<double>  & VrtErr) const
+  double NewVrtSecInclusiveTool::vrtRadiusError(const Amg::Vector3D & SecVrt, const std::vector<double>  & VrtErr) const
   {
     double DirX=SecVrt.x(), DirY=SecVrt.y(); 
     double Covar =    DirX*VrtErr[0]*DirX
@@ -214,12 +176,16 @@ double NewVrtSecInclusiveTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Am
    const
    {
         double ap1i=std::abs(TrkAtVrt[0][2]); double ap2i=std::abs(TrkAtVrt[1][2]);
-        double px = cos(TrkAtVrt[0][0])*sin(TrkAtVrt[0][1])*ap1i 
-                  + cos(TrkAtVrt[1][0])*sin(TrkAtVrt[1][1])*ap2i;
-        double py = sin(TrkAtVrt[0][0])*sin(TrkAtVrt[0][1])*ap1i 
-                  + sin(TrkAtVrt[1][0])*sin(TrkAtVrt[1][1])*ap2i;
-        double pz =                     cos(TrkAtVrt[0][1])*ap1i 
-                  +                     cos(TrkAtVrt[1][1])*ap2i;
+        CxxUtils::sincos   phi1(TrkAtVrt[0][0]);
+        CxxUtils::sincos theta1(TrkAtVrt[0][1]);
+        CxxUtils::sincos   phi2(TrkAtVrt[1][0]);
+        CxxUtils::sincos theta2(TrkAtVrt[1][1]);
+        double px = phi1.cs * theta1.sn * ap1i 
+                  + phi2.cs * theta2.sn * ap2i;
+        double py = phi1.sn * theta1.sn * ap1i 
+                  + phi2.sn * theta2.sn * ap2i;
+        double pz =           theta1.cs * ap1i 
+                  +           theta2.cs * ap2i;
         double ee= (ap1i > ap2i) ? 
             (std::sqrt(ap1i*ap1i+massP*massP)+std::sqrt(ap2i*ap2i+massPi*massPi)):
             (std::sqrt(ap2i*ap2i+massP*massP)+std::sqrt(ap1i*ap1i+massPi*massPi));
@@ -229,13 +195,15 @@ double NewVrtSecInclusiveTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Am
 
 
 
-  TLorentzVector NewVrtSecInclusiveTool::MomAtVrt(const std::vector< double >& inpTrk) 
+  TLorentzVector NewVrtSecInclusiveTool::momAtVrt(const std::vector< double >& inpTrk) 
   const
   {
      double api=1./std::abs(inpTrk[2]);
-     double px = cos ( inpTrk[0]) * sin(inpTrk[1])*api;
-     double py = sin ( inpTrk[0]) * sin(inpTrk[1])*api;
-     double pz =                    cos(inpTrk[1])*api;
+     CxxUtils::sincos   phi(inpTrk[0]);
+     CxxUtils::sincos theta(inpTrk[1]);
+     double px = phi.cs  * theta.sn * api;
+     double py = phi.sn  * theta.sn * api;
+     double pz =           theta.cs * api;
      double ee = std::sqrt( px*px + py*py + pz*pz + m_massPi*m_massPi);
      return TLorentzVector(px,py,pz,ee); 
    }
@@ -246,27 +214,27 @@ double NewVrtSecInclusiveTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Am
   {
         uint8_t IBLhit,IBLexp;
         if(!Part->summaryValue( IBLexp,  xAOD::expectInnermostPixelLayerHit) )           IBLexp = 0;
-	if( IBLexp==0 ) return -1;
+        if( IBLexp==0 ) return -1;
         if(!Part->summaryValue( IBLhit,  xAOD::numberOfInnermostPixelLayerHits) )        IBLhit = 0;
         if(IBLhit) return 1;
-	else       return 0;
+        else       return 0;
   }
   int   NewVrtSecInclusiveTool::getBLHit(const xAOD::TrackParticle* Part) const
   {
         uint8_t BLhit,BLexp;
         if(!Part->summaryValue( BLexp,  xAOD::expectNextToInnermostPixelLayerHit) )           BLexp = 0;
-	if( BLexp==0 ) return -1;
+        if( BLexp==0 ) return -1;
         if(!Part->summaryValue( BLhit,  xAOD::numberOfNextToInnermostPixelLayerHits) )        BLhit = 0;
         if(BLhit) return 1;
-	else      return 0;
+        else      return 0;
   }
 
   void   NewVrtSecInclusiveTool::getPixelDiscs(const xAOD::TrackParticle* Part, int &d0Hit, int &d1Hit, int &d2Hit) const
   {
         uint32_t HitPattern=Part->hitPattern();
-	d0Hit=0; if( HitPattern&((1<<Trk::pixelEndCap0)) ) d0Hit=1;
-	d1Hit=0; if( HitPattern&((1<<Trk::pixelEndCap1)) ) d1Hit=1;
-	d2Hit=0; if( HitPattern&((1<<Trk::pixelEndCap2)) ) d2Hit=1;
+        d0Hit=0; if( HitPattern&((1<<Trk::pixelEndCap0)) ) d0Hit=1;
+        d1Hit=0; if( HitPattern&((1<<Trk::pixelEndCap1)) ) d1Hit=1;
+        d2Hit=0; if( HitPattern&((1<<Trk::pixelEndCap2)) ) d2Hit=1;
   }
 /*************************************************************************************************************/
 
@@ -280,13 +248,14 @@ double NewVrtSecInclusiveTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Am
         if( (*tplink)->hasProdVtx()){
           if( (*tplink)->prodVtx()->nIncomingParticles()==1){
              int PDGID1=0, PDGID2=0, PDGID3=0;
-	     const xAOD::TruthParticle * parTP1=getPreviousParent(*tplink, PDGID1);
-	     const xAOD::TruthParticle * parTP2=0;
-	     int noBC1=notFromBC(PDGID1);
+             const xAOD::TruthParticle * parTP1=getPreviousParent(*tplink, PDGID1);
+             const xAOD::TruthParticle * parTP2=0;
+             int noBC1=notFromBC(PDGID1);
              if(noBC1)  parTP2 = getPreviousParent(parTP1, PDGID2);
-	     int noBC2=notFromBC(PDGID2);
+             int noBC2=notFromBC(PDGID2);
              if(noBC2 && parTP2) getPreviousParent(parTP2, PDGID3);
-	     int noBC3=notFromBC(PDGID3);
+             int noBC3=notFromBC(PDGID3);
+             if((*tplink)->prodVtx()->perp()>1.)return 1.; //For SUSY studies
              if(noBC1 && noBC2 && noBC3)return 0;
              return 1;  //This is a reconstructed track from B/C decays
       } } }
@@ -312,7 +281,7 @@ double NewVrtSecInclusiveTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Am
             return *(child->prodVtx()->incomingParticleLinks())[0];
        }
     }
-    return 0;
+    return nullptr;
   }
 
 
@@ -375,15 +344,28 @@ double NewVrtSecInclusiveTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Am
 
      double signif=1.e9;
      std::vector<double> pntCovar={1.e-2,0.,1.e-2,0.,0.,4.e-2};
-     if(distanceP<distanceN)signif=VrtVrtDist(Vrt.fitVertex, Vrt.errorMatrix, extrapParP->position(), pntCovar);
-     else                   signif=VrtVrtDist(Vrt.fitVertex, Vrt.errorMatrix, extrapParN->position(), pntCovar);
+     if(distanceP<distanceN)signif=vrtVrtDist(Vrt.fitVertex, Vrt.errorMatrix, extrapParP->position(), pntCovar);
+     else                   signif=vrtVrtDist(Vrt.fitVertex, Vrt.errorMatrix, extrapParN->position(), pntCovar);
      delete extrapParP;
      delete extrapParN;
      return signif;
   }
 
- 
-
- 
+  std::vector<double> NewVrtSecInclusiveTool::estimVrtPos( int nTrk, std::deque<long int> &selTrk, std::map<long int, std::vector<double>> & vrt) const
+  {
+    std::vector<double> estimation(3,0.);
+    int ntsel=selTrk.size();
+    for( int i=0; i<ntsel-1; i++){
+       for( int j=i+1; j<ntsel; j++){
+          int k = selTrk[i]<selTrk[j] ? selTrk[i]*nTrk+selTrk[j] : selTrk[j]*nTrk+selTrk[i];
+          estimation[0]+=vrt.at(k)[0];
+          estimation[1]+=vrt[k][1];
+          estimation[2]+=vrt[k][2];
+    }  }
+    estimation[0] /= ntsel*(ntsel-1)/2;
+    estimation[1] /= ntsel*(ntsel-1)/2;
+    estimation[2] /= ntsel*(ntsel-1)/2;
+    return estimation;
+  }
 
 }  //end namespace

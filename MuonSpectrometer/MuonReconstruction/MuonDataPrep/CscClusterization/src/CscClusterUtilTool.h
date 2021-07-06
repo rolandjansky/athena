@@ -19,22 +19,21 @@
 #include "GaudiKernel/ToolHandle.h"
 class CscIdHelper;
 namespace Muon {
-class CscClusterOnTrack;
-class CscPrepData;
-class CscStripPrepData;
-}
+    class CscClusterOnTrack;
+    class CscPrepData;
+    class CscStripPrepData;
+}  // namespace Muon
 namespace Trk {
-class RIO_OnTrack;
+    class RIO_OnTrack;
 }
 
 class CscClusterUtilTool : virtual public ICscClusterUtilTool, public AthAlgTool {
-
-  public:  // Ctors and dtor.
+public:  // Ctors and dtor.
     // Constructor.
     CscClusterUtilTool(const std::string&, const std::string&, const IInterface*);
 
     // Destructor.
-    ~CscClusterUtilTool()=default;
+    ~CscClusterUtilTool() = default;
 
     StatusCode initialize();
 
@@ -46,7 +45,7 @@ class CscClusterUtilTool : virtual public ICscClusterUtilTool, public AthAlgTool
 
     std::vector<const Muon::CscStripPrepData*> getStrips(const Muon::CscPrepData* MClus) const;
 
-  private:
+private:
     const CscIdHelper* m_phelper;
 
     // Strip fitter.

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
@@ -17,6 +17,9 @@ AthMonitorAlgorithm::~AthMonitorAlgorithm() {}
 
 StatusCode AthMonitorAlgorithm::initialize() {
     StatusCode sc;
+
+    // ROOT global histogram flag: off (not thread-safe to have it on)
+    TH1::AddDirectory(kFALSE);
 
     // Retrieve the generic monitoring tools (a ToolHandleArray)
     if ( !m_tools.empty() ) {
@@ -173,12 +176,13 @@ ToolHandle<GenericMonitoringTool> AthMonitorAlgorithm::getGroup( const std::stri
 	  ATH_MSG_FATAL("It seems that the AthMonitorAlgorithm::initialize was not called in derived class initialize method");
 	} else {
 	  std::string available = std::accumulate( m_toolLookupMap.begin(), m_toolLookupMap.end(),
-						   std::string(""), [](std::string s, auto h){return s + "," + h.first;} );
+						   std::string(""), [](const std::string& s, auto h){return s + "," + h.first;} );
 	  ATH_MSG_FATAL( "The tool " << name << " could not be found in the tool array of the " <<
 			 "monitoring algorithm " << m_name << ". This probably reflects a discrepancy between " <<
 			 "your python configuration and c++ filling code. Note: your available groups are {" <<
 			 available << "}." );
 	}
+        return ToolHandle<GenericMonitoringTool>();
     }
     const ToolHandle<GenericMonitoringTool> toolHandle = *toolPtr;
     if ( ATH_UNLIKELY(toolHandle.empty()) ) {

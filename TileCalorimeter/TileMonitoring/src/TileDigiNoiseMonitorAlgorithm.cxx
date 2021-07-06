@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileDigiNoiseMonitorAlgorithm.h"
@@ -171,7 +171,7 @@ StatusCode TileDigiNoiseMonitorAlgorithm::fillHistograms( const EventContext& ct
 
           if(m_fillPedestalDifference) {
             if (!m_cabling->isDisconnected(ros, drawer, channel)) {
-              pedestal -= m_tileCondToolNoiseSample->getPed(drawerIdx, channel, adc);
+              pedestal -= m_tileCondToolNoiseSample->getPed(drawerIdx, channel, adc, TileRawChannelUnit::ADCcounts, ctx);
             } else {
               pedestal = 0.0;
             }

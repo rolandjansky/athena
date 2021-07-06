@@ -1,5 +1,5 @@
 #
-#Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from .CscMonUtils import getCSCLabelx
@@ -59,14 +59,14 @@ def CscMonitoringRAW_AlgConfig(inputFlags):
                                  path='Overview/CSCEC/RDO',xbins=242,xmin=-49.,xmax=193.,ybins=85,ymin=-17.,ymax=0.)
     cscRdoGroup.defineHistogram('tmp_xVals_signal_mon;h1csc_rdo_hitmap_signal_EC_count',cutmask='sideC_signal',type='TH1F',title='EndCap C: Signal Occupancy;channel;entries/channel',
                                  path='Overview/CSCEC/RDO',xbins=242,xmin=-49.,xmax=193.)
-    thisLabelx=getCSCLabelx("labels_rdo_occupancy_signal_EC")
+    thisLabelx=getCSCLabelx("labels_occupancy_signal_EC")
     cscRdoGroup.defineHistogram('tmp_secLayer_sig_mon;h1csc_rdo_hitmap_signal_EC_occupancy',cutmask='sideC_signal',type='TH1F',title='EndCap C: Signal Occupancy;;entries/layer',
                                  path='Overview/CSCEC/RDO',xbins=85,xmin=-17.,xmax=0.,xlabels=thisLabelx)
     cscRdoGroup.defineHistogram('tmp_xVals_signal_mon,tmp_secLayer_sig_mon;h2csc_rdo_hitmap_signal_EA',cutmask='sideA_signal',type='TH2F',title='EndCap A: Signal Occupancy;channel;[sector] + [0.2 #times layer]',
                                  path='Overview/CSCEA/RDO',xbins=242,xmin=-49.,xmax=193.,ybins=90,ymin=0.,ymax=18.)
     cscRdoGroup.defineHistogram('tmp_xVals_signal_mon;h1csc_rdo_hitmap_signal_EA_count',cutmask='sideA_signal',type='TH1F',title='EndCap A: Signal Occupancy;channel;entries/channel',
                                  path='Overview/CSCEA/RDO',xbins=242,xmin=-49.,xmax=193.)
-    thisLabelx=getCSCLabelx("labels_rdo_occupancy_signal_EA")
+    thisLabelx=getCSCLabelx("labels_occupancy_signal_EA")
     cscRdoGroup.defineHistogram('tmp_secLayer_sig_mon;h1csc_rdo_hitmap_signal_EA_occupancy',cutmask='sideA_signal',type='TH1F',title='EndCap A: Signal Occupancy;;[sector] + [0.2 #times layer];',
                                  path='Overview/CSCEA/RDO',xbins=90,xmin=0.,xmax=18.,xlabels=thisLabelx)
     cscRdoGroup.defineHistogram('raw_clus_width,secLayer;h2csc_rdo_etacluswidth_signal',cutmask='signal_measuresEta',type='TH2F',title='ROD precision-cluster width;no.of strips;[sector] + [0.2 #times layer]',
@@ -75,14 +75,14 @@ def CscMonitoringRAW_AlgConfig(inputFlags):
                                  path='Overview/CSCEC/RDO',xbins=192,xmin=0.,xmax=192.,ybins=85,ymin=-17.,ymax=0.)
     cscRdoGroup.defineHistogram('raw_clus_width;h1csc_rdo_etacluswidth_signal_EC_count',cutmask='signal_measuresEta_sideC',type='TH1F',title='EndCap C: ROD precision-cluster width;width(no.of strips);entries',
                                  path='Overview/CSCEC/RDO',xbins=192,xmin=0.,xmax=192.)
-    thisLabelx=getCSCLabelx("labels_rdo_occupancy_signal_EC")
+    thisLabelx=getCSCLabelx("labels_occupancy_signal_EC")
     cscRdoGroup.defineHistogram('secLayer;h1csc_rdo_etacluswidth_signal_EC_occupancy',cutmask='signal_measuresEta_sideC',type='TH1F',title='EndCap C: ROD precision-cluster width;;entries/layer',
                                  path='Overview/CSCEC/RDO',xbins=85,xmin=-17.,xmax=0.,xlabels=thisLabelx)
     cscRdoGroup.defineHistogram('raw_clus_width,secLayer;h2csc_rdo_etacluswidth_signal_EA',cutmask='signal_measuresEta_sideA',type='TH2F',title='EndCap A: ROD precision-cluster width;no.of strips;',
                                  path='Overview/CSCEA/RDO',xbins=192,xmin=0.,xmax=192.,ybins=90,ymin=0.,ymax=18.)
     cscRdoGroup.defineHistogram('raw_clus_width;h1csc_rdo_etacluswidth_signal_EA_count',cutmask='signal_measuresEta_sideA',type='TH1F',title='EndCap A: ROD precision-cluster width;width(no.of strips);entries',
                                  path='Overview/CSCEA/RDO',xbins=192,xmin=0.,xmax=192.)
-    thisLabelx=getCSCLabelx("labels_rdo_occupancy_signal_EA")
+    thisLabelx=getCSCLabelx("labels_occupancy_signal_EA")
     cscRdoGroup.defineHistogram('secLayer;h1csc_rdo_etacluswidth_signal_EA_occupancy',cutmask='signal_measuresEta_sideA',type='TH1F',title='EndCap A: ROD precision-cluster width;;entries/layer',
                                  path='Overview/CSCEA/RDO',xbins=90,xmin=0.,xmax=18.,xlabels=thisLabelx)
     cscRdoGroup.defineHistogram('raw_clus_width,secLayer;h2csc_rdo_phicluswidth_signal',cutmask='signal_measuresPhi',type='TH2F',title='ROD transverse-cluster width;width(no.of strips);',
@@ -91,14 +91,14 @@ def CscMonitoringRAW_AlgConfig(inputFlags):
                                  path='Overview/CSCEC/RDO',xbins=48,xmin=0.,xmax=48.,ybins=85,ymin=-17.,ymax=0.)
     cscRdoGroup.defineHistogram('raw_clus_width;h1csc_rdo_phicluswidth_signal_EC_count',cutmask='signal_measuresPhi_sideC',type='TH1F',title='EndCap C: ROD transverse-cluster width;width(no.of strips);entries',
                                  path='Overview/CSCEC/RDO',xbins=48,xmin=0.,xmax=48.)
-    thisLabelx=getCSCLabelx("labels_rdo_occupancy_signal_EC")
+    thisLabelx=getCSCLabelx("labels_occupancy_signal_EC")
     cscRdoGroup.defineHistogram('secLayer;h1csc_rdo_phicluswidth_signal_EC_occupancy',cutmask='signal_measuresPhi_sideC',type='TH1F',title='EndCap C: ROD transverse-cluster width;;entries/layer',
                                  path='Overview/CSCEC/RDO',xbins=85,xmin=-17.,xmax=0.,xlabels=thisLabelx)
     cscRdoGroup.defineHistogram('raw_clus_width,secLayer;h2csc_rdo_phicluswidth_signal_EA',cutmask='signal_measuresPhi_sideA',type='TH2F',title='EndCap A: ROD transverse-cluster width;width(no.of strips);[sector] + [0.2 #times layer]',
                                  path='Overview/CSCEA/RDO',xbins=48,xmin=0.,xmax=48.,ybins=90,ymin=0.,ymax=18.)
     cscRdoGroup.defineHistogram('raw_clus_width;h1csc_rdo_phicluswidth_signal_EA_count',cutmask='signal_measuresPhi_sideA',type='TH1F',title='EndCap A: ROD transverse-cluster width;width(no.of strips);entries',
                                  path='Overview/CSCEA/RDO',xbins=48,xmin=0.,xmax=48.)
-    thisLabelx=getCSCLabelx("labels_rdo_occupancy_signal_EA")
+    thisLabelx=getCSCLabelx("labels_occupancy_signal_EA")
     cscRdoGroup.defineHistogram('secLayer;h1csc_rdo_phicluswidth_signal_EA_occupancy',cutmask='signal_measuresPhi_sideA',type='TH1F',title='EndCap A: ROD transverse-cluster width;;entries/layer',
                                  path='Overview/CSCEA/RDO',xbins=90,xmin=0.,xmax=18.,xlabels=thisLabelx)
     cscRdoGroup.defineHistogram('tmp_xVals_noise_mon,tmp_secLayer_noise_mon;h2csc_rdo_hitmap_noise',cutmask='isNoise',type='TH2F',title='Noise Occupancy;channel;[sector] + [0.2 #times layer]',

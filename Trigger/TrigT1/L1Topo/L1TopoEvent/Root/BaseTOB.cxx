@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #include "L1TopoEvent/BaseTOB.h"
 #include "L1TopoCommon/Exception.h"
@@ -8,8 +8,9 @@
 
 using namespace std;
 
-TCS::BaseTOB::BaseTOB(int roiWord) :
-   m_roiWord(roiWord)
+TCS::BaseTOB::BaseTOB(uint32_t roiWord, const std::string& tobName) :
+  m_roiWord(roiWord),
+  m_tobName(tobName)
 {}
 
 TCS::BaseTOB::~BaseTOB() = default;
@@ -21,7 +22,7 @@ TCS::BaseTOB::sizeCheckM(int value, unsigned int size) const
    int min(~max + 1);
    --max;
    if( (-value)>max || (-value)<min) {
-      TCS_EXCEPTION("Integer value " << -value << " outside firmware specifications. Maximum number of bits is " << size << " -> range ["<<min<<" - "<<max<<"]");
+     TCS_EXCEPTION("Integer value " << -value << " outside firmware specifications. Maximum number of bits is " << size << " -> range ["<<min<<" - "<<max<<"]" << ", for " << m_tobName);
    }
    return value;
 }
@@ -34,7 +35,7 @@ TCS::BaseTOB::sizeCheck(int value, unsigned int size) const
    int min(~max + 1);
    --max;
    if(value>max || value<min) {
-      TCS_EXCEPTION("Integer value " << value << " outside firmware specifications. Maximum number of bits is " << size << " -> range ["<<min<<" - "<<max<<"]");
+      TCS_EXCEPTION("Integer value " << value << " outside firmware specifications. Maximum number of bits is " << size << " -> range ["<<min<<" - "<<max<<"]" << ", for " << m_tobName);
    }
    return value;
 }
@@ -44,7 +45,7 @@ TCS::BaseTOB::sizeCheck(unsigned int value, unsigned int size) const
 {
    unsigned int max( (0x1 << size)-1 );
    if(value>max) {
-      TCS_EXCEPTION("Unsigned integer value " << value << " outside firmware specifications. Maximum number of bits is " << size << " -> range [0"<<" - "<<max<<"]");
+      TCS_EXCEPTION("Unsigned integer value " << value << " outside firmware specifications. Maximum number of bits is " << size << " -> range [0"<<" - "<<max<<"]" << ", for " << m_tobName);
    }
    return value;
 }

@@ -37,7 +37,7 @@ const CscRawDataCollectionIdHash&
 CscRawDataContainer::hashFcn()
 {
 
-    static CscRawDataCollectionIdHash hashFcn;
+    static const CscRawDataCollectionIdHash hashFcn;
     return (hashFcn);
 }
 

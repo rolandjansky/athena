@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PhotonVertexSelection_PhotonPointingTool_h
@@ -10,6 +10,14 @@
 
 // Local includes
 #include "PhotonVertexSelection/IPhotonPointingTool.h"
+
+// EDM includes
+#include "xAODEgamma/EgammaContainer.h"
+
+// Data handles
+#include "AsgTools/CurrentContext.h"
+#include "AsgDataHandles/WriteDecorHandle.h"
+#include "AsgDataHandles/ReadHandleKey.h"
 
 // Forward declarations
 class TH1F;
@@ -37,17 +45,33 @@ namespace CP {
     /// Correction histogram
     TH1F *m_zCorrection;
 
-    /// Static Decorators
-    static const SG::AuxElement::Decorator<float> s_zvertex;
-    static const SG::AuxElement::Decorator<float> s_errz;
-    static const SG::AuxElement::Decorator<float> s_HPV_zvertex;
-    static const SG::AuxElement::Decorator<float> s_HPV_errz;
+    SG::ReadHandleKey<xAOD::EventInfo> m_evtInfo{
+      this,
+      "EventInfo",
+      "EventInfo",
+      "SG key of xAOD::EventInfo"
+    };
+
+    //Write decoration handle keys
+    SG::WriteDecorHandleKey<xAOD::EgammaContainer> m_zvertex{
+      "Photons.zvertex"
+    };
+    SG::WriteDecorHandleKey<xAOD::EgammaContainer> m_errz{
+      "Photons.errz"
+    };
+    SG::WriteDecorHandleKey<xAOD::EgammaContainer> m_HPV_zvertex{
+      "Photons.HPV_zvertex"
+    };
+    SG::WriteDecorHandleKey<xAOD::EgammaContainer> m_HPV_errz{
+      "Photons.HPV_errz"
+    };
 
   private:
     ///
     float getCorrectedZ(float zPointing, float etas2) const;
-    bool m_isMC;
+    bool m_isMC{};
     std::string m_zOscFileMC, m_zOscFileData;
+    std::string m_ContainerName;
 
   public:
     PhotonPointingTool(const std::string &name);

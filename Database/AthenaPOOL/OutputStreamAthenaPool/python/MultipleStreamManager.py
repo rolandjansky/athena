@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ########################################################
 ##  AugmentedStreams & MultipleStreamManager classes  ##
@@ -284,12 +284,14 @@ class AugmentedByteStream( AugmentedStreamBase ):
         self.bsCopyTool.ByteStreamOutputSvc=self.bsOutputSvc
         self.bsCopyTool.ByteStreamInputSvc=svcMgr.ByteStreamInputSvc
 
-        # create AthenaOutputStream for BS Copy and add it to topSequence
+        # create AthenaOutputStream for BS Copy
         from AthenaServices.AthenaServicesConf import AthenaOutputStream
         self.Stream = AthenaOutputStream( StreamName, WritingTool=self.bsCopyTool )
 
-        #topSequence += self.Stream #<-- coherent with asAlg=False in OutputStreamAthenaPool.py
-        theApp.addOutputStream( self.Stream )
+        # add the stream to the output sequence
+        from AthenaCommon.AlgSequence import AthSequencer
+        outSequence = AthSequencer("AthOutSeq")
+        outSequence += self.Stream
         return
 
     def SetOutputFileName(self, name):
@@ -557,17 +559,24 @@ class MultipleStreamManager:
     def NewPoolRootStream(self,StreamName,FileName="default", asAlg=False):
         theStream = self.NewStream(StreamName,FileName,type='pool',asAlg=asAlg)
         from AthenaCommon.AppMgr import theApp
+        from AthenaPoolCnvSvc import PoolAttributeHelper as pah
         svcMgr = theApp.serviceMgr()
 
         theStream.Stream.WritingTool.SubLevelBranchName = "<key>"
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + FileName + "'; COMPRESSION_LEVEL = '5'" ]
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + FileName + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '-20000000'" ]
+        # Use ZSTD w/ Level 5 for DAODs
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompAlg( FileName, "5" ) ]
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompLvl( FileName, "5" ) ]
+        # By default use 20 MB AutoFlush for event data except for DAOD_PHYS which uses 1k events
+        TREE_AUTO_FLUSH = -20000000
+        if StreamName in ["StreamDAOD_PHYS"]:
+            TREE_AUTO_FLUSH = 1000
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( FileName, "CollectionTree", str(TREE_AUTO_FLUSH) ) ]
+        # By default use split-level 0 except for DAOD_PHYSLITE which is maximally split
         CONTAINER_SPLITLEVEL = 0
-        # stream names come from PhysicsAnalysis/DerivationFramework/DerivationFrameworkCore/python/DerivationFrameworkProdFlags.py
         if StreamName in ["StreamDAOD_PHYSLITE"]:
             CONTAINER_SPLITLEVEL = 99
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + FileName + "'; ContainerName = 'TTree=CollectionTree'; CONTAINER_SPLITLEVEL = '" + str(CONTAINER_SPLITLEVEL) + "'" ]
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + FileName + "'; ContainerName = 'TTree=Aux.'; CONTAINER_SPLITLEVEL = '" + str(CONTAINER_SPLITLEVEL) + "'"]
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setContainerSplitLevel( FileName, "CollectionTree", str(CONTAINER_SPLITLEVEL) ) ]
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setContainerSplitLevel( FileName, "Aux.", str(CONTAINER_SPLITLEVEL) ) ]
         return theStream
 
 

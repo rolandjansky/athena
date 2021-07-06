@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -102,13 +102,15 @@ CpByteStreamV2Tool::~CpByteStreamV2Tool()
 
 StatusCode CpByteStreamV2Tool::initialize()
 {
-    ATH_MSG_INFO ("Initializing " << name() << " - package version "
-                  << PACKAGE_VERSION);
+    ATH_MSG_INFO( "Initializing " << name() );
 
     CHECK(m_cpmMaps.retrieve());
     CHECK(m_errorTool.retrieve());
     CHECK(m_robDataProvider.retrieve());
-    ATH_CHECK( m_byteStreamCnvSvc.retrieve() );
+    if (m_enableEncoding.value()) {
+        m_byteStreamCnvSvc = serviceLocator()->service("ByteStreamCnvSvc");
+        ATH_CHECK(m_byteStreamCnvSvc.isValid());
+    }
     
     return StatusCode::SUCCESS;
 }
@@ -183,6 +185,11 @@ StatusCode CpByteStreamV2Tool::convert(
 
 StatusCode CpByteStreamV2Tool::convert(const LVL1::CPBSCollectionV2 *const cp) const
 {
+    if (not m_enableEncoding.value()) {
+        ATH_MSG_ERROR("Encoding method called while " << m_enableEncoding.name() << "=False");
+        return StatusCode::FAILURE;
+    }
+
     const bool debug = msgLvl(MSG::DEBUG);
     if (debug) msg(MSG::DEBUG);
 

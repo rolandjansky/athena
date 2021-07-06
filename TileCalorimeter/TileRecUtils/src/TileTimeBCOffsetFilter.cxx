@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -45,8 +45,10 @@ TileTimeBCOffsetFilter::TileTimeBCOffsetFilter(const std::string& type,
   declareProperty("EneThreshold3", m_ene_threshold_3chan = 1000);
   declareProperty("EneThreshold1", m_ene_threshold_1chan = 3000);
   declareProperty("TimeThreshold", m_time_threshold_diff = 15);
-  declareProperty("RefEneThreshold", m_ene_threshold_ref_ch = 500);
+  declareProperty("AverTimeEneThreshold", m_ene_threshold_aver_time = 500);
   declareProperty("RefTimeThreshold", m_time_threshold_ref_ch = 10);
+  declareProperty("SampleDiffMaxMin_HG", m_sample_diffmaxmin_threshold_hg = 15);
+  declareProperty("SampleDiffMaxMin_LG", m_sample_diffmaxmin_threshold_lg = -1);
 
   declareProperty("CheckDCS", m_checkDCS = false);
 }
@@ -61,10 +63,14 @@ StatusCode TileTimeBCOffsetFilter::initialize() {
                       << m_ene_threshold_1chan << endmsg;
       msg(MSG::DEBUG) << "TimeThreshold = " 
                       << m_time_threshold_diff << endmsg;
-      msg(MSG::DEBUG) << "RefEneThreshold = "
-                      << m_ene_threshold_ref_ch << endmsg;
+      msg(MSG::DEBUG) << "AverTimeEneThreshold = "
+                      << m_ene_threshold_aver_time << endmsg;
       msg(MSG::DEBUG) << "RefTimeThreshold = "
                       << m_time_threshold_ref_ch << endmsg;
+      msg(MSG::DEBUG) << "SampleDiffMaxMin_HG = "
+                      << m_sample_diffmaxmin_threshold_hg << endmsg;
+      msg(MSG::DEBUG) << "SampleDiffMaxMin_LG = "
+                      << m_sample_diffmaxmin_threshold_lg << endmsg;
       msg(MSG::DEBUG) << "CheckDCS = " 
                       << ((m_checkDCS)?"true":"false") << endmsg;
   }
@@ -84,6 +90,8 @@ StatusCode TileTimeBCOffsetFilter::initialize() {
 
   ATH_CHECK( m_DQstatusKey.initialize() );
 
+  ATH_CHECK(m_digitsContainerKey.initialize());
+
   return StatusCode::SUCCESS;
 }
 
@@ -92,9 +100,8 @@ StatusCode TileTimeBCOffsetFilter::finalize() {
 }
 
 StatusCode
-TileTimeBCOffsetFilter::process (TileMutableRawChannelContainer& rchCont) const
+TileTimeBCOffsetFilter::process (TileMutableRawChannelContainer& rchCont, const EventContext& ctx) const
 {
-  const EventContext& ctx = Gaudi::Hive::currentContext();
   ATH_MSG_DEBUG("in TileTimeBCOffsetFilter::process()");
 
   // Now retrieve the TileDQstatus
@@ -119,13 +126,13 @@ TileTimeBCOffsetFilter::process (TileMutableRawChannelContainer& rchCont) const
     int drawer = m_tileHWID->drawer(drawer_id);
 
     unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
-    std::vector<bool> channel_time_ok(TileCalibUtils::MAX_CHAN,true);
+    std::vector<int> channel_time_ok(TileCalibUtils::MAX_CHAN,0);
     std::vector<int> bad_dmu;
     if (drawer_ok(drawerIdx,channel_time_ok,bad_dmu)) continue;
     if (msgLvl(MSG::VERBOSE)) {
       for (unsigned int ch=0; ch<TileCalibUtils::MAX_CHAN; ++ch) {
-        if (!channel_time_ok[ch]) {
-          ATH_MSG_VERBOSE( "Checking timing jump in module " << part[ros]
+        if (channel_time_ok[ch]!=0) {
+          ATH_MSG_VERBOSE( "Checking BCOffset in module " << part[ros]
                            << std::setw(2) << std::setfill('0') << drawer+1
                            << " channel " << std::setw(2) << std::setfill(' ') << ch );
         }
@@ -165,7 +172,7 @@ TileTimeBCOffsetFilter::process (TileMutableRawChannelContainer& rchCont) const
             continue;
           }
           int gain = m_tileHWID->adc(adc_id);
-          if (channel_time_ok[ch_p_tmp] &&
+          if (channel_time_ok[ch_p_tmp]==0 &&
               (! ch_masked_or_empty(ros,drawer,ch_p_tmp,gain,DQstatus))) {
             float amp = rch->amplitude();
             if (rchUnit != TileRawChannelUnit::OnlineMegaElectronVolts) {
@@ -220,7 +227,7 @@ TileTimeBCOffsetFilter::process (TileMutableRawChannelContainer& rchCont) const
           }
           ch_time[i]   = rch->time();
           ch_mask[i]   = false;
-          if ((i > 0) && (! ch_status[i])) ++nprob;
+          if ((i > 0) && (ch_status[i]!=0)) ++nprob;
         }
       }
 
@@ -239,34 +246,74 @@ TileTimeBCOffsetFilter::process (TileMutableRawChannelContainer& rchCont) const
          should be above 15 ns. */
       bool ene_above = false;
       for(int i=0; i <= nchan_dmu; ++i) {
-        ene_above = ene_above || ((ch_number[i] >= 0) && (ch_amp[i] > ene_threshold));
+        ene_above = ene_above || ((ch_number[i] >= 0) && (std::abs(ch_amp[i]) > ene_threshold));
       }
-      ene_above = ene_above && (ch_amp[0] > m_ene_threshold_ref_ch);  // reference energy above threshold
       if (ene_above) { // at least 1 channel above the threshold
-        ATH_MSG_VERBOSE( "Energy above threshold");
+        ATH_MSG_VERBOSE("Absolute energy above threshold in at least one relevant channel");
         /* first check whether the times of 1-3 channels on the DMU are within
-           15 ns, also calculate the average time */
+           15 ns, also calculate the average time, use only channels with energy above threshold) */
         bool time_dmu_same = true;
         float time_dmu_aver = 0;
         int n_dmu_aver = 0;
-        for(int i=1; (i <= nchan_dmu) && time_dmu_same; ++i) { //
-          if (ch_number[i] < 0) continue;
+        for(int i=1; (i <= nchan_dmu) && time_dmu_same; ++i) {
+          if (ch_number[i] < 0 || std::abs(ch_amp[i]) < m_ene_threshold_aver_time) continue;
           time_dmu_aver += ch_time[i];
           ++n_dmu_aver;
           for(int j=i+1; (j <= nchan_dmu) && time_dmu_same; ++j) {
-            if (ch_number[j] >= 0) {
+            if (ch_number[j] >= 0 && std::abs(ch_amp[j]) > m_ene_threshold_aver_time) {
               time_dmu_same = time_dmu_same &&
-                (fabs(ch_time[i]-ch_time[j]) < m_time_threshold_diff);
+                (std::abs(ch_time[i]-ch_time[j]) < m_time_threshold_diff);
             }
           }
         }
-        if (time_dmu_same) {
+        if (time_dmu_same && (n_dmu_aver != 0)) {
           time_dmu_aver /= n_dmu_aver;
           ATH_MSG_VERBOSE( "Average time "<< time_dmu_aver);
-          if ((fabs(ch_time[0]-time_dmu_aver) > m_time_threshold_diff)    // reference time far from average DMU time
-                      && (fabs(ch_time[0]) < m_time_threshold_ref_ch)) {  // reference time ~0 ns
-            for(int i=1; i <= nchan_dmu; ++i) {
-              if (ch_number[i] >= 0) ch_mask[i] = true;
+          
+          int expected_sign = 0;
+          for(int i=1; i <= nchan_dmu; ++i) {
+            if (ch_number[i] >= 0) {
+              expected_sign = channel_time_ok[ch_number[i]];
+              ATH_MSG_VERBOSE("Expected BCOffset sign in " << part[ros]
+                              << std::setw(2) << std::setfill('0') << drawer+1
+                              << ": " << expected_sign);
+              break;
+            }
+          }
+          bool time_offset = false; // if reference time is far from average DMU time
+          switch (expected_sign) // correct bool expression for given expected sign of BCOffset in given DMU
+          {
+          case +1:
+            time_offset = time_dmu_aver - ch_time[0] > m_time_threshold_diff;
+            break;
+          case -1:
+            time_offset = ch_time[0] - time_dmu_aver > m_time_threshold_diff;
+            break;
+          }
+          // masking channels with BCOffset
+          if (time_offset && (std::abs(ch_time[0]) < m_time_threshold_ref_ch)) {  // BCOffset && reference time ~0 ns
+            // calculate difference between maximal and minimal sample value in reference channel
+            ATH_MSG_VERBOSE("Retrieving digits in " << part[ros]
+                            << std::setw(2) << std::setfill('0') << drawer+1
+                            << " ch " << std::setw(2) << std::setfill(' ') << ch_number[0]
+                            << " run " << ctx.eventID().run_number()
+                            << " evt " <<  ctx.eventID().event_number());
+            float ref_maxmindiff = ref_digits_maxmindiff(ros, drawer, ch_number[0]);
+            // set threshold for high and low gain
+            float sample_threshold;
+            const TileRawChannel * rch = coll->at(ch_number[0]);
+            HWIdentifier adc_id = rch->adc_HWID();
+            int gain = m_tileHWID->adc(adc_id);
+            if (gain == 1) {
+              sample_threshold = m_sample_diffmaxmin_threshold_hg;
+            } else {
+              sample_threshold = m_sample_diffmaxmin_threshold_lg;
+            }
+            sample_threshold = sample_threshold - 0.5; // samples are integers in float data type -> '-0.5' for float comparison
+            if (ref_maxmindiff > sample_threshold) { // max - min sample should be above threshold
+              for(int i=1; i <= nchan_dmu; ++i) {
+                if (ch_number[i] >= 0) ch_mask[i] = true;
+              }
             }
           }
         } else {
@@ -295,7 +342,7 @@ TileTimeBCOffsetFilter::process (TileMutableRawChannelContainer& rchCont) const
 }
 
 bool TileTimeBCOffsetFilter::drawer_ok(int drawerIdx,
-                                       std::vector<bool> & channel_time_ok,
+                                       std::vector<int> & channel_time_ok,
                                        std::vector<int> & bad_dmu) const {
   /* checks whether the whole drawer is ok, i.e. none of its channel
      is potentially suffering from the +/-25 ns (or +/-50 ns) time shifts
@@ -312,7 +359,11 @@ bool TileTimeBCOffsetFilter::drawer_ok(int drawerIdx,
         bad_dmu.push_back(dmu);
         last_dmu=dmu;
       }
-      channel_time_ok[ch] = false;
+      if (chStatus.isTimingDmuBcOffsetNeg()) {
+        channel_time_ok[ch] = -1;
+      } else {
+        channel_time_ok[ch] = +1;
+      }
       status = false;
     }
   }
@@ -382,4 +433,43 @@ int TileTimeBCOffsetFilter::find_partner(int ros, int ch) const {
     return lbcells[ch];
   else         // EB
     return ebcells[ch];
+}
+
+float TileTimeBCOffsetFilter::ref_digits_maxmindiff(int ros, int drawer, int ref_channel) const {
+  /* Retrieve digits in reference channel of bad DMUs for calculation of
+     sample_max - sample_min used later in loop over raw channel collections
+     if samples are not in the collection the return value is set to -10. */
+  float max_min_diff = 0.;
+  // get named TileDigitsContaner from TES
+  SG::ReadHandle<TileDigitsContainer> digitsContainer(m_digitsContainerKey);
+  // Iterate over all collections (drawers) with digits
+  for (const TileDigitsCollection *digitsCollection : *digitsContainer) {
+    // Get drawer ID and build drawer index.
+    HWIdentifier drawer_id = m_tileHWID->drawer_id(digitsCollection->identify());
+    int digits_ros = m_tileHWID->ros(drawer_id);
+    int digits_drawer = m_tileHWID->drawer(drawer_id);
+    // retrieve reference channel digits
+    if (digits_ros == ros && digits_drawer == drawer) {
+      bool ref_ch_is_in_coll = false;
+      for (uint i_ch = 0; i_ch < digitsCollection->size(); i_ch++) {
+        const TileDigits * tdig = digitsCollection->at(i_ch);
+        HWIdentifier adc_id = tdig->adc_HWID();
+        int ch_number = m_tileHWID->channel(adc_id);
+        if (ch_number == ref_channel) {
+          std::vector<float> ref_samples = tdig->samples();
+
+          float max_sample = *max_element(ref_samples.begin(), ref_samples.end());             
+          float min_sample = *min_element(ref_samples.begin(), ref_samples.end());               
+          max_min_diff = max_sample - min_sample;               
+          ATH_MSG_VERBOSE("Reference channel: max - min sample = " << max_min_diff);
+          ref_ch_is_in_coll = true;
+        } 
+      }
+      if (!ref_ch_is_in_coll) {
+        ATH_MSG_VERBOSE("Reference channel is not in the digits collection");
+        max_min_diff = -10.;
+      }
+    }
+  } // end of loop over drawers
+  return max_min_diff;
 }

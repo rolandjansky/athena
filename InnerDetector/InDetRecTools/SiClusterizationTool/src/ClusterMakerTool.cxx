@@ -14,7 +14,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "SiClusterizationTool/ClusterMakerTool.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SiLocalPosition.h"
+#include "ReadoutGeometryBase/SiLocalPosition.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetPrepRawData/SCT_Cluster.h"
@@ -154,17 +154,21 @@ PixelCluster* ClusterMakerTool::pixelCluster(
 // ask for Lorentz correction, get global position
 
   double shift = m_pixelLorentzAngleTool->getLorentzShift(element->identifyHash());
-  const InDetDD::SiLocalPosition& localPosition = 
-          InDetDD::SiLocalPosition(localPos[Trk::locY],
-                          localPos[Trk::locX]+shift,0);
   Amg::Vector2D locpos(localPos[Trk::locX]+shift, localPos[Trk::locY]);
   // find global position of element
-  Amg::Vector3D globalPos = element->globalPosition(localPosition);
+  const Amg::Transform3D& T = element->surface().transform();
+  double Ax[3] = {T(0,0),T(1,0),T(2,0)};
+  double Ay[3] = {T(0,1),T(1,1),T(2,1)};
+  double R [3] = {T(0,3),T(1,3),T(2,3)};
+
+  const Amg::Vector2D&    M = locpos;
+  Amg::Vector3D globalPos(M[0]*Ax[0]+M[1]*Ay[0]+R[0],M[0]*Ax[1]+M[1]*Ay[1]+R[1],M[0]*Ax[2]+M[1]*Ay[2]+R[2]);
+
   // error matrix
   const Amg::Vector2D& colRow = width.colRow();// made ref to avoid 
                                              // unnecessary copy EJWM
-  std::unique_ptr<Amg::MatrixX> errorMatrix{std::make_unique<Amg::MatrixX>(2,2)};
-  errorMatrix->setIdentity();
+  auto errorMatrix = Amg::MatrixX(2,2);
+  errorMatrix.setIdentity();
 
   // switches are more readable **OPT**
   // actually they're slower as well (so I'm told) so perhaps
@@ -180,12 +184,12 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   int phimod = pid->phi_module(clusterID);
   switch (errorStrategy){
   case 0:
-    errorMatrix->fillSymmetric(0,0,square(width.phiR())*ONE_TWELFTH);
-    errorMatrix->fillSymmetric(1,1,square(width.z())*ONE_TWELFTH);
+    errorMatrix.fillSymmetric(0,0,square(width.phiR())*ONE_TWELFTH);
+    errorMatrix.fillSymmetric(1,1,square(width.z())*ONE_TWELFTH);
     break;
   case 1:
-    errorMatrix->fillSymmetric(0,0,square(width.phiR()/colRow.x())*ONE_TWELFTH);
-    errorMatrix->fillSymmetric(1,1,square(width.z()/colRow.y())*ONE_TWELFTH);
+    errorMatrix.fillSymmetric(0,0,square(width.phiR()/colRow.x())*ONE_TWELFTH);
+    errorMatrix.fillSymmetric(1,1,square(width.z()/colRow.y())*ONE_TWELFTH);
     break;
   case 2:                  
     // use parameterization only if the cluster does not 
@@ -197,36 +201,36 @@ PixelCluster* ClusterMakerTool::pixelCluster(
         int ibin = offlineCalibData->getPixelClusterErrorData()->getBarrelBin(eta,int(colRow.y()),int(colRow.x()));
         double phiError = offlineCalibData->getPixelClusterErrorData()->getPixelBarrelPhiError(ibin);
         double etaError = offlineCalibData->getPixelClusterErrorData()->getPixelBarrelEtaError(ibin);
-	      errorMatrix->fillSymmetric(0,0,square(phiError));
-	      errorMatrix->fillSymmetric(1,1,square(etaError));
+	      errorMatrix.fillSymmetric(0,0,square(phiError));
+	      errorMatrix.fillSymmetric(1,1,square(etaError));
       }
       else {
         int ibin = offlineCalibData->getPixelClusterErrorData()->getEndcapBin(int(colRow.y()),int(colRow.x()));
         double phiError = offlineCalibData->getPixelClusterErrorData()->getPixelEndcapPhiError(ibin);
         double etaError = offlineCalibData->getPixelClusterErrorData()->getPixelEndcapRError(ibin);
-	      errorMatrix->fillSymmetric(0,0,square(phiError));
-	      errorMatrix->fillSymmetric(1,1,square(etaError));
+	      errorMatrix.fillSymmetric(0,0,square(phiError));
+	      errorMatrix.fillSymmetric(1,1,square(etaError));
 			}
     }else{// cluster with ganged and/or long pixels
-      errorMatrix->fillSymmetric(0,0,square(width.phiR()/colRow.x())*ONE_TWELFTH);
-      errorMatrix->fillSymmetric(1,1,square(zPitch)*ONE_TWELFTH);
+      errorMatrix.fillSymmetric(0,0,square(width.phiR()/colRow.x())*ONE_TWELFTH);
+      errorMatrix.fillSymmetric(1,1,square(zPitch)*ONE_TWELFTH);
     }
     break;
     
   case 10:
-    errorMatrix->fillSymmetric(0,0,square( getPixelCTBPhiError(layer,phimod,int(colRow.x()))));
-    errorMatrix->fillSymmetric(1,1,square(width.z()/colRow.y())*ONE_TWELFTH);
+    errorMatrix.fillSymmetric(0,0,square( getPixelCTBPhiError(layer,phimod,int(colRow.x()))));
+    errorMatrix.fillSymmetric(1,1,square(width.z()/colRow.y())*ONE_TWELFTH);
     break;
     
   default:
-    errorMatrix->fillSymmetric(0,0,square(width.phiR()/colRow.x())*ONE_TWELFTH);
-    errorMatrix->fillSymmetric(1,1,square(width.z()/colRow.y())*ONE_TWELFTH);
+    errorMatrix.fillSymmetric(0,0,square(width.phiR()/colRow.x())*ONE_TWELFTH);
+    errorMatrix.fillSymmetric(1,1,square(width.z()/colRow.y())*ONE_TWELFTH);
     break;
   }
  PixelCluster* newCluster = 
-   new PixelCluster(clusterID, locpos, 
+   new PixelCluster(clusterID, locpos, globalPos,
                     rdoList, lvl1a, totList,chargeList, 
-                    width, element, errorMatrix.release(), omegax, omegay,
+                    width, element, std::move(errorMatrix), omegax, omegay,
                     split,
                     splitProb1,
                     splitProb2);
@@ -356,18 +360,21 @@ PixelCluster* ClusterMakerTool::pixelCluster(
 
 // ask for Lorentz correction, get global position
   double shift = m_pixelLorentzAngleTool->getLorentzShift(element->identifyHash());
-  const InDetDD::SiLocalPosition& localPosition = 
-    InDetDD::SiLocalPosition(localPos[Trk::locY],
-			     localPos[Trk::locX]+shift,0);
   Amg::Vector2D locpos(localPos[Trk::locX]+shift, localPos[Trk::locY]);
 // find global position of element
-  Amg::Vector3D globalPos = element->globalPosition(localPosition);
+  const Amg::Transform3D& T = element->surface().transform();
+  double Ax[3] = {T(0,0),T(1,0),T(2,0)};
+  double Ay[3] = {T(0,1),T(1,1),T(2,1)};
+  double R [3] = {T(0,3),T(1,3),T(2,3)};
+
+  const Amg::Vector2D&    M = locpos;
+  Amg::Vector3D globalPos(M[0]*Ax[0]+M[1]*Ay[0]+R[0],M[0]*Ax[1]+M[1]*Ay[1]+R[1],M[0]*Ax[2]+M[1]*Ay[2]+R[2]);
 
   // error matrix
   const Amg::Vector2D& colRow = width.colRow();// made ref to avoid 
                                              // unnecessary copy EJWM
-  std::unique_ptr<Amg::MatrixX> errorMatrix{std::make_unique<Amg::MatrixX>(2,2)};
-  errorMatrix->setIdentity();
+  auto errorMatrix = Amg::MatrixX(2,2);
+  errorMatrix.setIdentity();
 	
   // switches are more readable **OPT**
   // actually they're slower as well (so I'm told) so perhaps
@@ -385,12 +392,12 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   int phimod = pid->phi_module(clusterID);
   switch (errorStrategy){
   case 0:
-    errorMatrix->fillSymmetric(0,0,square(width.phiR())*ONE_TWELFTH);
-    errorMatrix->fillSymmetric(1,1,square(width.z())*ONE_TWELFTH);
+    errorMatrix.fillSymmetric(0,0,square(width.phiR())*ONE_TWELFTH);
+    errorMatrix.fillSymmetric(1,1,square(width.z())*ONE_TWELFTH);
     break;
   case 1:
-    errorMatrix->fillSymmetric(0,0,square(width.phiR()/colRow.x())*ONE_TWELFTH);
-    errorMatrix->fillSymmetric(1,1,square(width.z()/colRow.y())*ONE_TWELFTH);
+    errorMatrix.fillSymmetric(0,0,square(width.phiR()/colRow.x())*ONE_TWELFTH);
+    errorMatrix.fillSymmetric(1,1,square(width.z()/colRow.y())*ONE_TWELFTH);
     break;
   case 2:                  
     // use parameterization only if the cluster does not 
@@ -403,42 +410,43 @@ PixelCluster* ClusterMakerTool::pixelCluster(
         int ibin = offlineCalibData->getPixelClusterErrorData()->getBarrelBin(eta,int(colRow.y()),int(colRow.x()));
         double phiError = offlineCalibData->getPixelClusterErrorData()->getPixelBarrelPhiError(ibin);
         double etaError = offlineCalibData->getPixelClusterErrorData()->getPixelBarrelEtaError(ibin);
-				errorMatrix->fillSymmetric(0,0,pow(phiError,2));  
-				errorMatrix->fillSymmetric(1,1,pow(etaError,2)); 
+				errorMatrix.fillSymmetric(0,0,pow(phiError,2));  
+				errorMatrix.fillSymmetric(1,1,pow(etaError,2)); 
       }
       else {
         int ibin = offlineCalibData->getPixelClusterErrorData()->getEndcapBin(int(colRow.y()),int(colRow.x()));
         double phiError = offlineCalibData->getPixelClusterErrorData()->getPixelEndcapPhiError(ibin);
         double etaError = offlineCalibData->getPixelClusterErrorData()->getPixelEndcapRError(ibin);
-				errorMatrix->fillSymmetric(0,0,square(phiError)); 
-				errorMatrix->fillSymmetric(1,1,square(etaError)); 
+				errorMatrix.fillSymmetric(0,0,square(phiError)); 
+				errorMatrix.fillSymmetric(1,1,square(etaError)); 
 			}
     }else{// cluster with ganged and/or long pixels
-      errorMatrix->fillSymmetric(0,0,square(width.phiR()/colRow.x())*ONE_TWELFTH);
-      errorMatrix->fillSymmetric(1,1,square(zPitch)*ONE_TWELFTH);
+      errorMatrix.fillSymmetric(0,0,square(width.phiR()/colRow.x())*ONE_TWELFTH);
+      errorMatrix.fillSymmetric(1,1,square(zPitch)*ONE_TWELFTH);
     }
     break;
     
   case 10:
-    errorMatrix->fillSymmetric(0,0,square( getPixelCTBPhiError(layer,phimod,int(colRow.x()))));
-    errorMatrix->fillSymmetric(1,1,square(width.z()/colRow.y())*ONE_TWELFTH);
+    errorMatrix.fillSymmetric(0,0,square( getPixelCTBPhiError(layer,phimod,int(colRow.x()))));
+    errorMatrix.fillSymmetric(1,1,square(width.z()/colRow.y())*ONE_TWELFTH);
     break;
     
   default:
-    errorMatrix->fillSymmetric(0,0,square(width.phiR()/colRow.x())*ONE_TWELFTH);
-    errorMatrix->fillSymmetric(1,1,square(width.z()/colRow.y())*ONE_TWELFTH);
+    errorMatrix.fillSymmetric(0,0,square(width.phiR()/colRow.x())*ONE_TWELFTH);
+    errorMatrix.fillSymmetric(1,1,square(width.z()/colRow.y())*ONE_TWELFTH);
     break;
   }
  PixelCluster* newCluster = 
    new PixelCluster(newClusterID, 
                     locpos,
+                    globalPos,
                     rdoList,
                     lvl1a,
                     totList,
                     chargeList,
                     width,
                     element,
-                    errorMatrix.release(),
+                    std::move(errorMatrix),
                     omegax,
                     omegay,
                     split,
@@ -465,26 +473,28 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   // The scale factors were derived by the study reported on 25th September 2006.
   // https://indico.cern.ch/event/430391/contributions/1066157/attachments/929942/1317007/SCTSoft_25Sept06_clusters.pdf
 
-SCT_Cluster* ClusterMakerTool::sctCluster(
-                         const Identifier& clusterID,
-			 const Amg::Vector2D& localPos,
-                         const std::vector<Identifier>& rdoList,
-                         const SiWidth& width,
-                         const InDetDD::SiDetectorElement* element,
-                         int errorStrategy) const{
+SCT_Cluster*
+ClusterMakerTool::sctCluster(const Identifier& clusterID,
+                             const Amg::Vector2D& localPos,
+                             const std::vector<Identifier>& rdoList,
+                             const SiWidth& width,
+                             const InDetDD::SiDetectorElement* element,
+                             int errorStrategy) const
+{
 
-        double shift = m_sctLorentzAngleTool->getLorentzShift(element->identifyHash());
-//        const InDetDD::SiLocalPosition& localPosition = 
-//                        InDetDD::SiLocalPosition(localPos[Trk::locY),
-//                                        localPos[Trk::locX)+shift,0);
-        Amg::Vector2D locpos(localPos[Trk::locX]+shift, localPos[Trk::locY]);
+  double shift =
+    m_sctLorentzAngleTool->getLorentzShift(element->identifyHash());
+  //        const InDetDD::SiLocalPosition& localPosition =
+  //                        InDetDD::SiLocalPosition(localPos[Trk::locY),
+  //                                        localPos[Trk::locX)+shift,0);
+  Amg::Vector2D locpos(localPos[Trk::locX] + shift, localPos[Trk::locY]);
 
-	// error matrix
-	const Amg::Vector2D& colRow = width.colRow();// made ref to avoid 
-	// unnecessary copy EJWM
+  // error matrix
+  const Amg::Vector2D& colRow = width.colRow(); // made ref to avoid
+                                                // unnecessary copy EJWM
 
-        std::unique_ptr<Amg::MatrixX> errorMatrix{std::make_unique<Amg::MatrixX>(2,2)};
-	errorMatrix->setIdentity();
+  auto errorMatrix = Amg::MatrixX(2,2);
+	errorMatrix.setIdentity();
 
 	// switches are more readable **OPT**
 	// actually they're slower as well (so I'm told) so perhaps
@@ -492,37 +502,37 @@ SCT_Cluster* ClusterMakerTool::sctCluster(
     
 	switch (errorStrategy){
 	case 0:
-	  errorMatrix->fillSymmetric(0,0,square(width.phiR())*ONE_TWELFTH);
-	  errorMatrix->fillSymmetric(1,1,square(width.z())*ONE_TWELFTH);
+	  errorMatrix.fillSymmetric(0,0,square(width.phiR())*ONE_TWELFTH);
+	  errorMatrix.fillSymmetric(1,1,square(width.z())*ONE_TWELFTH);
 	  break;
 	case 1:
 	  // mat(1,1) = pow(width.phiR()/colRow.x(),2)/12;
 	  // single strip - resolution close to pitch/sqrt(12)
 	  // two-strip hits: better resolution, approx. 40% lower
 	  if(colRow.x() == 1){
-	    errorMatrix->fillSymmetric(0,0,square(1.05*width.phiR())*ONE_TWELFTH);
+	    errorMatrix.fillSymmetric(0,0,square(1.05*width.phiR())*ONE_TWELFTH);
 	  }
 	  else if(colRow.x() == 2){
-	    errorMatrix->fillSymmetric(0,0,square(0.27*width.phiR())*ONE_TWELFTH);
+	    errorMatrix.fillSymmetric(0,0,square(0.27*width.phiR())*ONE_TWELFTH);
 	  }
 	  else{
-	    errorMatrix->fillSymmetric(0,0,square(width.phiR())*ONE_TWELFTH);
+	    errorMatrix.fillSymmetric(0,0,square(width.phiR())*ONE_TWELFTH);
 	  }
-	  errorMatrix->fillSymmetric(1,1,square(width.z()/colRow.y())*ONE_TWELFTH);
+	  errorMatrix.fillSymmetric(1,1,square(width.z()/colRow.y())*ONE_TWELFTH);
 	  break;
 	default:
 	  // single strip - resolution close to pitch/sqrt(12)
 	  // two-strip hits: better resolution, approx. 40% lower
 	  if(colRow.x() == 1){
-	    errorMatrix->fillSymmetric(0,0,square(width.phiR())*ONE_TWELFTH);
+	    errorMatrix.fillSymmetric(0,0,square(width.phiR())*ONE_TWELFTH);
 	  }
 	  else if(colRow.x() == 2){
-	    errorMatrix->fillSymmetric(0,0,square(0.27*width.phiR())*ONE_TWELFTH);
+	    errorMatrix.fillSymmetric(0,0,square(0.27*width.phiR())*ONE_TWELFTH);
 	  }
 	  else{
-	    errorMatrix->fillSymmetric(0,0,square(width.phiR())*ONE_TWELFTH);
+	    errorMatrix.fillSymmetric(0,0,square(width.phiR())*ONE_TWELFTH);
 	  }
-	  errorMatrix->fillSymmetric(1,1,square(width.z()/colRow.y())*ONE_TWELFTH);
+	  errorMatrix.fillSymmetric(1,1,square(width.z()/colRow.y())*ONE_TWELFTH);
 	  break;
 	}
 
@@ -532,20 +542,17 @@ SCT_Cluster* ClusterMakerTool::sctCluster(
           double sn2     = sn*sn;
           double cs2     = 1.-sn2;
           double w       = element->phiPitch(localPos)/element->phiPitch(); 
-          double v0      = (*errorMatrix)(0,0)*w*w;
-          double v1      = (*errorMatrix)(1,1);
-	  errorMatrix->fillSymmetric(0,0,cs2*v0+sn2*v1);
-	  errorMatrix->fillSymmetric(0,1,sn*sqrt(cs2)*(v0-v1));
-	  errorMatrix->fillSymmetric(1,1,sn2*v0+cs2*v1);
+          double v0      = (errorMatrix)(0,0)*w*w;
+          double v1      = (errorMatrix)(1,1);
+          errorMatrix.fillSymmetric(0,0,cs2*v0+sn2*v1);
+          errorMatrix.fillSymmetric(0,1,sn*sqrt(cs2)*(v0-v1));
+          errorMatrix.fillSymmetric(1,1,sn2*v0+cs2*v1);
 	}
 
-	SCT_Cluster* newCluster = new SCT_Cluster(clusterID, locpos, rdoList , width, element, errorMatrix.release());
-	return newCluster;
-
+        SCT_Cluster* newCluster = new SCT_Cluster(
+          clusterID, locpos, rdoList, width, element, std::move(errorMatrix));
+        return newCluster;
 }
-
-
-
 
 //---------------------------------------------------------------------------
 // CTB parameterization, B field off

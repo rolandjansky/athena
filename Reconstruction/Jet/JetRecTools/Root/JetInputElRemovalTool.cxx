@@ -1,7 +1,7 @@
 //-*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////
@@ -12,6 +12,7 @@
 #include "xAODEgamma/EgammaContainer.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "AsgDataHandles/WriteHandle.h"
 
 
 

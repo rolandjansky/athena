@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKALIGNEVENT_ALIGNTRACK_H
@@ -219,7 +219,7 @@ namespace Trk {
     int m_nAlignTSOSMeas;
 
     /** collection of alignTSOS that make up the alignTrack */
-    AlignTSOSCollection * m_alignTSOSCollection;
+    AlignTSOSCollection * m_alignTSOSCollection{};
 
     /** matrix containing local error matrices along diagonal */
     Amg::SymMatrixX * m_localErrorMat;               //Symmetric Matrix

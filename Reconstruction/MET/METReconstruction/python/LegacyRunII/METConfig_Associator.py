@@ -65,28 +65,9 @@ if metFlags.DoPFlow() and metFlags.UseTracks():
                    AssocConfig('Soft')]
     cfg_akt4pf = METAssocConfig('AntiKt4EMPFlow',
                                 associators,
-                                doPFlow=True
+                                doPFlow=True,
+                                usePFOLinks=metFlags.UseFELinks() 
                                 )
 
     metFlags.METAssocConfigs()[cfg_akt4pf.suffix] = cfg_akt4pf
     metFlags.METAssocOutputList().append(cfg_akt4pf.suffix)
-
-
-############################################################################
-# PFlow (FlowElement)
-if metFlags.DoPFlow() and metFlags.UseTracks() and metFlags.UseFlowElements():
-    JetType = 'PFlowFEJet'
-    
-    associators = [AssocConfig(JetType),
-                   AssocConfig('Muon'),
-                   AssocConfig('Ele'),
-                   AssocConfig('Gamma'),
-                   AssocConfig('Tau'),
-                   AssocConfig('Soft')]
-    cfg_akt4pffe = METAssocConfig('AntiKt4EMPFlowFE',
-                                  associators,
-                                  doPFlow=True
-                                  )
-
-    metFlags.METAssocConfigs()[cfg_akt4pffe.suffix] = cfg_akt4pffe
-    metFlags.METAssocOutputList().append(cfg_akt4pffe.suffix)

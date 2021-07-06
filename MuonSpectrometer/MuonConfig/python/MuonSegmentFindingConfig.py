@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # This file configures the Muon segment finding. It is based on a few files in the old configuration system:
 # Tools, which are configured here: 
@@ -485,7 +485,7 @@ def MooSegmentFinderCfg(flags, name='MooSegmentFinder', **kwargs):
     
     # Use the MuonLayerHoughTool for collisions, MuonHoughPatternFinderTool for everything else.
     # This is based on https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonRecTools.py#L428
-    muon_pattern_finder_tool = Muon__MuonLayerHoughTool("MuonLayerHoughTool", DoTruth= flags.Input.isMC) \
+    muon_pattern_finder_tool = Muon__MuonLayerHoughTool("MuonLayerHoughTool", DoTruth=False if flags.Muon.MuonTrigger else flags.Input.isMC) \
                               if flags.Beam.Type=="collisions" else MuonHoughPatternFinderTool(flags)
     result.addPublicTool(muon_pattern_finder_tool)
     
@@ -517,7 +517,7 @@ def MooSegmentFinderCfg(flags, name='MooSegmentFinder', **kwargs):
     kwargs.setdefault('Csc2dSegmentMaker', csc_2d_segment_maker)
     kwargs.setdefault('Csc4dSegmentMaker', csc_4d_segment_maker)
     kwargs.setdefault('DoSummary', flags.Muon.printSummary)
-    
+
     segment_finder_tool = Muon__MooSegmentCombinationFinder(name=name, **kwargs)
     
     result.setPrivateTools(segment_finder_tool)
@@ -610,7 +610,9 @@ def MooSegmentFinderAlgCfg(flags, name = "MuonSegmentMaker",  **kwargs):
     # FIXME - this really shouldn't be set here! 
     kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC and not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
         
-    kwargs.setdefault('MuonSegmentOutputLocation', "ThirdChainSegments" if flags.Muon.segmentOrigin=="TruthTracking" else "MuonSegments")
+    kwargs.setdefault('MuonSegmentOutputLocation', "ThirdChainSegments" if flags.Muon.segmentOrigin=="TruthTracking" else "TrackMuonSegments")
+    if flags.Beam.Type != 'collisions':
+        kwargs.setdefault("Key_MuonLayerHoughToolHoughDataPerSectorVec", "")
 
     moo_segment_finder_alg = MooSegmentFinderAlg( name=name, **kwargs )
     moo_segment_finder_alg.Cardinality=10
@@ -645,7 +647,8 @@ def MooSegmentFinderAlg_NCBCfg(flags, name = "MuonSegmentMaker_NCB", **kwargs):
 
     # Now set other NCB properties
     kwargs.setdefault('MuonPatternCombinationLocation', "NCB_MuonHoughPatternCombinations" )
-    kwargs.setdefault('MuonSegmentOutputLocation', "NCB_MuonSegments" )
+    kwargs.setdefault('MuonSegmentOutputLocation', "NCB_TrackMuonSegments" )
+    kwargs.setdefault('Key_MuonLayerHoughToolHoughDataPerSectorVec', '')
     kwargs.setdefault('UseCSC', flags.Muon.doCSCs)
     kwargs.setdefault('UseMDT', False)
     kwargs.setdefault('UseRPC', False)
@@ -654,7 +657,7 @@ def MooSegmentFinderAlg_NCBCfg(flags, name = "MuonSegmentMaker_NCB", **kwargs):
     kwargs.setdefault('UseTGCNextBC', False)
     kwargs.setdefault('doTGCClust', False)
     kwargs.setdefault('doRPCClust', False)
-    
+        
     acc = MooSegmentFinderAlgCfg(flags, name=name, **kwargs)
     result.merge(acc)
     return result
@@ -670,16 +673,21 @@ def MuonSegmentFindingCfg(flags, cardinality=1):
     Muon__MuonEDMHelperSvc=CompFactory.Muon.MuonEDMHelperSvc
     muon_edm_helper_svc = Muon__MuonEDMHelperSvc("MuonEDMHelperSvc")
     result.addService( muon_edm_helper_svc )
+    
+    if flags.Input.Format == 'BS':
+        from MuonConfig.MuonBytestreamDecodeConfig import MuonByteStreamDecodersCfg
+        result.merge( MuonByteStreamDecodersCfg(flags) )
+        from MuonConfig.MuonRdoDecodeConfig import MuonRDOtoPRDConvertorsCfg
+        result.merge( MuonRDOtoPRDConvertorsCfg(flags) )
+
 
     # We need to add two algorithms - one for normal collisions, one for NCB
-    acc = MooSegmentFinderAlgCfg(flags, Cardinality=cardinality)
-    result.merge(acc)
+    result.merge( MooSegmentFinderAlgCfg(flags, Cardinality=cardinality) )
+    result.merge( MooSegmentFinderAlg_NCBCfg(flags, Cardinality=cardinality) )
 
-    acc = MooSegmentFinderAlg_NCBCfg(flags, Cardinality=cardinality)
-    result.merge(acc)
     return result
 
-if __name__=="__main__":                        
+if __name__=="__main__":
     # To run this, do e.g. 
     # python -m MuonConfig.MuonSegmentFindingConfig --run --threads=1
     from MuonConfig.MuonConfigUtils import SetupMuonStandaloneArguments, SetupMuonStandaloneConfigFlags, SetupMuonStandaloneOutput, SetupMuonStandaloneCA
@@ -707,13 +715,13 @@ if __name__=="__main__":
     pps = ProxyProviderSvc()
     ars=AddressRemappingSvc()
     pps.ProviderNames += [ 'AddressRemappingSvc' ]
-    ars.TypeKeyRenameMaps += [ '%s#%s->%s' % ("Trk::SegmentCollection", "MuonSegments", "MuonSegments_old") ]
-    ars.TypeKeyRenameMaps += [ '%s#%s->%s' % ("Trk::SegmentCollection", "MuonSegments_NCB", "MuonSegments_NCB_old") ]
-    
+    ars.TypeKeyRenameMaps += [ '%s#%s->%s' % ("Trk::SegmentCollection", "TrackMuonSegments", "TrackMuonSegments_old") ]
+    ars.TypeKeyRenameMaps += [ '%s#%s->%s' % ("Trk::SegmentCollection", "NCB_TrackMuonSegments", "NCB_TrackMuonSegments_old") ]
+
     cfg.addService(pps)
     cfg.addService(ars)
-    
-    itemsToRecord = ["Trk::SegmentCollection#MuonSegments", "Trk::SegmentCollection#NCB_MuonSegments"]
+
+    itemsToRecord = ["Trk::SegmentCollection#TrackMuonSegments", "Trk::SegmentCollection#NCB_TrackMuonSegments"]
     SetupMuonStandaloneOutput(cfg, ConfigFlags, itemsToRecord)
 
     # cfg.getService("StoreGateSvc").Dump = True
@@ -727,4 +735,3 @@ if __name__=="__main__":
         if not sc.isSuccess():
             import sys
             sys.exit("Execution failed")
-    

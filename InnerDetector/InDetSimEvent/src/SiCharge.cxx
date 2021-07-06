@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@ SiCharge::SiCharge(const double& charge,const double& time,
   m_charge(charge),
   m_time(time),
   m_processType(processType),
-  m_partLink(HepMcParticleLink((unsigned int) 0, 0))
+  m_partLink(HepMcParticleLink())
 {}
 
 

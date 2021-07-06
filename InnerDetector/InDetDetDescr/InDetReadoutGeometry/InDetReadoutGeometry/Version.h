@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////
@@ -28,14 +28,6 @@ namespace InDetDD {
       /** Constructor.  */
       Version(const std::string & tag, 
 	  const std::string & name, 
-	  const std::string & layout, 
-	  const std::string & description, 
-	  int major,
-	  int minor,
-	  int patch);
-
-     /** Constructor. DEPRECATED */
-      Version(const std::string & name, 
 	  const std::string & layout, 
 	  const std::string & description, 
 	  int major,

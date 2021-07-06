@@ -1,23 +1,25 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONREADOUTGEOMETRY_TGCREADOUTELEMENT_H
 #define MUONREADOUTGEOMETRY_TGCREADOUTELEMENT_H
 
 #include "MuonReadoutGeometry/MuonClusterReadoutElement.h"
+
+#include "Identifier/Identifier.h"
+#include "Identifier/IdentifierHash.h"
+#include "MuonIdHelpers/TgcIdHelper.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/TgcReadoutParams.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
+
+#include <string>
+
+class GeoVFullPhysVol;
 
 //<<<<<< PUBLIC DEFINES >>>>>>
 #define maxwpl   3
 #define maxstrp  3
-
-namespace Trk{
-  class TrapezoidBounds;
-  class RotatedTrapezoidBounds;
-}
 
 namespace Muon {
   class TgcAlignModule;
@@ -27,30 +29,30 @@ namespace Muon {
 namespace MuonGM {
   /**
      A TgcReadoutElement corresponds to a single TGC chamber; therefore typically
-     a TGC station contains several TgcReadoutElements.  TgcReadoutElements are 
-     identified by StationName, StationEta, StationPhi, Technology=3. Therefore 
-     the granularity of the data-collections is equal to the granularity of the 
-     geometry description (1 collection -> 1 TgcReadoutElement). 
-   
-     Pointers to all TgcReadoutElements are created in the build() method of the 
-     MuonChamber class, and are held in arrays by the MuonDetectorManager, which
-     is responsible for storing, deleting and provide access to these objects. 
+     a TGC station contains several TgcReadoutElements.  TgcReadoutElements are
+     identified by StationName, StationEta, StationPhi, Technology=3. Therefore
+     the granularity of the data-collections is equal to the granularity of the
+     geometry description (1 collection -> 1 TgcReadoutElement).
 
-     A TgcReadoutElement holds properties related to its internal structure 
-     (i.e. number of strip panels) and general geometrical properties (size); 
-     it implements tracking interfaces and provide access to typical 
-     readout-geometry information: i.e. number of strips, strip and wire-gang 
+     Pointers to all TgcReadoutElements are created in the build() method of the
+     MuonChamber class, and are held in arrays by the MuonDetectorManager, which
+     is responsible for storing, deleting and provide access to these objects.
+
+     A TgcReadoutElement holds properties related to its internal structure
+     (i.e. number of strip panels) and general geometrical properties (size);
+     it implements tracking interfaces and provide access to typical
+     readout-geometry information: i.e. number of strips, strip and wire-gang
      positions, etc.
 
-     The globalToLocalCoords and globalToLocalTransform methods (+ their 
-     opposite) define the link between the ATLAS global reference frame and the 
-     internal (geo-model defined) local reference frame of any gas gap volume 
-     (which is the frame where local coordinates of SimHits, in output from G4, 
+     The globalToLocalCoords and globalToLocalTransform methods (+ their
+     opposite) define the link between the ATLAS global reference frame and the
+     internal (geo-model defined) local reference frame of any gas gap volume
+     (which is the frame where local coordinates of SimHits, in output from G4,
      are expressed).
-  */    
+  */
 
 
-  class TgcReadoutElement: public MuonClusterReadoutElement 
+  class TgcReadoutElement final: public MuonClusterReadoutElement
   {
 
     friend class Muon::TgcAlignModule;
@@ -61,31 +63,31 @@ namespace MuonGM {
 
     TgcReadoutElement(GeoVFullPhysVol* pv, std::string stName,
 		      int zi, int fi, bool is_mirrored, MuonDetectorManager* mgr);
-                      
-    virtual ~TgcReadoutElement();
-                      
 
-    /** distance to readout. 
+    virtual ~TgcReadoutElement();
+
+
+    /** distance to readout.
 	If the local position is outside the active volume, the function first shift the position back into the active volume */
     virtual inline double distanceToReadout( const Amg::Vector2D& pos, const Identifier& id ) const override;
 
-    /** strip number corresponding to local position. 
+    /** strip number corresponding to local position.
 	If the local position is outside the active volume, the function first shift the position back into the active volume */
-    virtual inline int stripNumber( const Amg::Vector2D& pos, const Identifier& id ) const override;
+    virtual int stripNumber( const Amg::Vector2D& pos, const Identifier& id ) const override final;
 
-    /** strip position 
+    /** strip position
 	If the strip number is outside the range of valid strips, the function will return false */
-    virtual inline bool stripPosition( const Identifier& id, Amg::Vector2D& pos ) const override;
+    virtual bool stripPosition( const Identifier& id, Amg::Vector2D& pos ) const override;
 
     /** returns the hash function to be used to look up the center and the normal of the tracking surface for a given identifier */
-    virtual inline int  layerHash(const Identifier& id)   const override; 
+    virtual inline int  layerHash(const Identifier& id)   const override;
 
     /** returns the hash function to be used to look up the surface and surface transform for a given identifier */
     virtual inline int  surfaceHash(const Identifier& id) const override;
-  
+
     /** returns the hash function to be used to look up the surface boundary for a given identifier */
     virtual inline int  boundaryHash(const Identifier& id) const override;
-  
+
     /** returns whether the given identifier measures phi or not */
     virtual inline bool measuresPhi(const Identifier& id) const override;
 
@@ -96,12 +98,18 @@ namespace MuonGM {
     virtual inline int numberOfStrips( const Identifier& layerId )   const override;
     virtual inline int numberOfStrips( int layer, bool ) const override;
 
-    /** space point position for a given pair of phi and eta identifiers 
+    /** TrkDetElementInterface */
+    virtual Trk::DetectorElemType detectorType() const override final
+    {
+      return Trk::DetectorElemType::Tgc;
+    }
+
+    /** space point position for a given pair of phi and eta identifiers
 	The LocalPosition is expressed in the reference frame of the phi projection.
 	If one of the identifiers is outside the valid range, the function will return false */
     virtual inline bool spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector2D& pos ) const override;
 
-    /** Global space point position for a given pair of phi and eta identifiers 
+    /** Global space point position for a given pair of phi and eta identifiers
 	If one of the identifiers is outside the valid range, the function will return false */
     virtual inline bool spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector3D& pos ) const override;
 
@@ -126,7 +134,7 @@ namespace MuonGM {
     // strip pitch
     double StripPitch(int plane, int strip, float zlocal) const;
 
-    // local to global 
+    // local to global
     const Amg::Vector3D localToGlobalCoords(Amg::Vector3D x, Identifier id) const;
     const Amg::Transform3D localToGlobalTransf(Identifier id) const;
     const Amg::Transform3D localToGlobalTransf(int gasGap) const;
@@ -157,10 +165,10 @@ namespace MuonGM {
     double localWireRCoord(int gasgap, int wire) const;
     double localWireGangRCoord(int gasgap, int wiregang) const;
 
-    const Amg::Vector3D localGasGapPos(Identifier id) const; 
-    const Amg::Vector3D localGasGapPos(int gg) const; 
-    const Amg::Vector3D gasGapPos(Identifier id) const; 
-    const Amg::Vector3D gasGapPos(int gg) const; 
+    const Amg::Vector3D localGasGapPos(Identifier id) const;
+    const Amg::Vector3D localGasGapPos(int gg) const;
+    const Amg::Vector3D gasGapPos(Identifier id) const;
+    const Amg::Vector3D gasGapPos(int gg) const;
 
     const std::string stationType() const;
     int   chamberType() const;
@@ -226,17 +234,17 @@ namespace MuonGM {
     inline void set_nwireplanes(int );
     inline void set_nstripsperpanel(int, int );
     inline void set_nwiresperpanel(int, int );
-    inline void set_nwiregangsperpanel(int, int );    
+    inline void set_nwiregangsperpanel(int, int );
     inline void set_stripwidth(double, int );
     inline void set_strippitch(double, int );
     inline void set_wirepitch(double, int );
-    inline void set_stripoffset(double x, int ip); 
-    inline void set_wireoffset(double x, int ip);  
-    inline void set_stripplanez(double x, int ip); 
+    inline void set_stripoffset(double x, int ip);
+    inline void set_wireoffset(double x, int ip);
+    inline void set_stripplanez(double x, int ip);
     inline void set_wireplanez(double x, int ip);
 
     double sinStereo(const Identifier & id) const;
-    
+
     //Access to readout parameters
     inline int getReadoutType() const;
     inline const std::string getReadoutName() const;
@@ -263,11 +271,11 @@ namespace MuonGM {
     virtual void         fillCache() override;
     virtual void         refreshCache() override {clearCache(); fillCache();}
 
-    
+
   private:
 
     int m_ngasgaps;
-    int m_nstripplanes;                
+    int m_nstripplanes;
     int m_nwireplanes;
     int m_nstrips_per_plane[maxstrp];
     int m_nwires_per_plane[maxwpl];
@@ -318,7 +326,7 @@ namespace MuonGM {
   void TgcReadoutElement::set_wireplanez(double x, int ip)      {m_wireplanez[ip-1] = x;}
 
   // readout Parameters go though TgcReadoutParams
-  int TgcReadoutElement::getReadoutType() const 
+  int TgcReadoutElement::getReadoutType() const
   {return m_readout_type;}
   const std::string TgcReadoutElement::getReadoutName() const
   {return m_readoutParams->GetName();}
@@ -361,16 +369,16 @@ namespace MuonGM {
   {return m_readoutParams;}
 
   int  TgcReadoutElement::layerHash(const Identifier& id)   const { return manager()->tgcIdHelper()->gasGap(id)-1; }
-  
-  int  TgcReadoutElement::surfaceHash(const Identifier& id) const { 
-    return 2*(manager()->tgcIdHelper()->gasGap(id)-1)+ (manager()->tgcIdHelper()->isStrip(id)?0:1); 
+
+  int  TgcReadoutElement::surfaceHash(const Identifier& id) const {
+    return 2*(manager()->tgcIdHelper()->gasGap(id)-1)+ (manager()->tgcIdHelper()->isStrip(id)?0:1);
   }
-  
-  int  TgcReadoutElement::boundaryHash(const Identifier& id) const { 
-    return ( measuresPhi(id)? 0:1 ); 
+
+  int  TgcReadoutElement::boundaryHash(const Identifier& id) const {
+    return ( measuresPhi(id)? 0:1 );
   }
-  
-  bool TgcReadoutElement::measuresPhi(const Identifier& id) const { return manager()->tgcIdHelper()->isStrip(id); } 
+
+  bool TgcReadoutElement::measuresPhi(const Identifier& id) const { return manager()->tgcIdHelper()->isStrip(id); }
 
   inline int TgcReadoutElement::numberOfLayers( bool measuresPhi ) const { return measuresPhi? NstripPlanes() : NwirePlanes(); }
 
@@ -378,7 +386,7 @@ namespace MuonGM {
     return numberOfStrips(manager()->tgcIdHelper()->gasGap(id),manager()->tgcIdHelper()->isStrip(id));
   }
   inline int TgcReadoutElement::numberOfStrips( int layer, bool measuresPhi ) const {
-    return measuresPhi ? Nstrips(layer) : NwireGangs(layer); 
+    return measuresPhi ? Nstrips(layer) : NwireGangs(layer);
   }
 
 
@@ -386,7 +394,7 @@ namespace MuonGM {
   // get orientation angle of strip to rotate back from local frame to strip
     int stripNo = manager()->tgcIdHelper()->channel(phiId);
     int gasGap = manager()->tgcIdHelper()->gasGap(phiId);
-	
+
     // calculate local position of endpoint of strip
     Amg::Vector3D lEtapos = localChannelPos(etaId);
     double localEtaY = stripCtrX(gasGap, stripNo, lEtapos.z() );
@@ -394,12 +402,12 @@ namespace MuonGM {
       localEtaY *= -1.;
     }
     lEtapos[1]= localEtaY;
-	
+
     // transform to global
     pos = absTransform()*lEtapos;
-    
+
     return true;
-  }  
+  }
 
 } // namespace MuonGM
 

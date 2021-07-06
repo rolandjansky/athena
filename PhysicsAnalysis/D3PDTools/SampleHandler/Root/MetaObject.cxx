@@ -235,7 +235,6 @@ namespace SH
   void MetaObject ::
   testInvariant () const
   {
-    RCU_INVARIANT (this != 0);
     RCU_INVARIANT (m_dataList != 0);
  }
 

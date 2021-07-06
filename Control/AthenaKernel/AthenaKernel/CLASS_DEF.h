@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_CLASS_DEF_H
@@ -8,12 +8,10 @@
  *  @brief macros to associate a CLID to a type
  *
  *  @author Paolo Calafiura <pcalafiura@lbl.gov>
- *  $Id: CLASS_DEF.h,v 1.3 2009-01-15 19:07:29 binet Exp $
  */
 
 #include "AthenaKernel/ClassID_traits.h"
 #include "CxxUtils/checker_macros.h"
-#include <boost/preprocessor/stringize.hpp>
 
 #ifdef __CLING__
 # define CLIDREGISTRY_ADDENTRY(CID, NAME)                               \
@@ -22,8 +20,7 @@
     const bool clidEntry_ ## CID =                                      \
       CLIDRegistry::addEntry(CID, typeid(NAME),                         \
                                   ClassID_traits< NAME >::typeNameString(), \
-				  ClassID_traits< NAME >::packageInfo(), \
-				  ClassName< NAME >::name());		\
+                                  ClassName< NAME >::name());       \
   } 
 # define CLIDREGISTRY_ADDENTRY2(CID, ARG1, ARG2)                        \
   namespace detail {							\
@@ -32,7 +29,6 @@
       CLIDRegistry::addEntry                                            \
       (CID, typeid(ARG1,ARG2),                                          \
        ClassID_traits< ARG1,ARG2 >::typeNameString(),                   \
-       ClassID_traits< ARG1,ARG2 >::packageInfo(),			\
        ClassName< ARG1,ARG2 >::name());					\
   } 
 #else
@@ -42,8 +38,7 @@
     const bool clidEntry_ ## CID =                                      \
       CLIDRegistry::addEntry<CID>(typeid(NAME),                         \
                                   ClassID_traits< NAME >::typeNameString(), \
-				  ClassID_traits< NAME >::packageInfo(), \
-				  ClassName< NAME >::name());		\
+                                  ClassName< NAME >::name());       \
   } 
 # define CLIDREGISTRY_ADDENTRY2(CID, ARG1, ARG2)                        \
   namespace detail {							\
@@ -52,7 +47,6 @@
       CLIDRegistry::addEntry<CID>                                       \
       (typeid(ARG1,ARG2),                                               \
        ClassID_traits< ARG1,ARG2 >::typeNameString(),                   \
-       ClassID_traits< ARG1,ARG2 >::packageInfo(),			\
        ClassName< ARG1,ARG2 >::name());					\
   } 
 #endif
@@ -81,10 +75,6 @@
     static const std::string& typeName ATLAS_CHECK_THREAD_SAFETY () {   \
       static const std::string name = typeNameString();                 \
       return name;		 					\
-    }									\
-    static  Athena::PackageInfo packageInfo() {				\
-      static const Athena::PackageInfo pi( BOOST_PP_STRINGIZE(PACKAGE_VERSION_UQ)  ); \
-      return pi;							\
     }									\
     static const std::type_info& typeInfo() {				\
       return typeid (NAME);						\
@@ -126,9 +116,6 @@
     }									\
     static const std::type_info& typeInfo() {				\
       return typeid (ARG1,ARG2);					\
-    }									\
-    static  Athena::PackageInfo packageInfo() {				\
-      return Athena::PackageInfo("Package-00-00-00");			\
     }									\
     typedef std::true_type has_version_tag;                             \
     static const int s_version = VERSION;                               \

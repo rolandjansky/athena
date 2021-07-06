@@ -31,14 +31,6 @@
 #include "../CpReadByteStreamV1V2Cnv.h"
 #include "../JepReadByteStreamV1V2Cnv.h"
 
-
-// #include "TrigT1CaloEvent/CMXEtSums.h"
-// #include "TrigT1CaloEvent/CMXJetTob.h"
-// #include "TrigT1CaloEvent/CMXJetHits.h"
-// #include "TrigT1CaloEvent/CMXRoI.h"
-// #include "TrigT1CaloEvent/JEMTobRoI.h"
-
-
 // ============================================================================
 // RUN1 & RUN2
 // ============================================================================

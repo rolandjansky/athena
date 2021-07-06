@@ -2,11 +2,11 @@
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.CalibCosmicMon.StreamingChainConfiguration")
+log = logging.getLogger(__name__)
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
-from TrigStreamerHypo.TrigStreamerHypoConfigMT import StreamerHypoToolMTgenerator
-from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlgMT
+from TrigStreamerHypo.TrigStreamerHypoConfig import StreamerHypoToolGenerator
+from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlg
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorInitialROITool
 from AthenaCommon.CFElements import seqAND
@@ -28,9 +28,9 @@ def StreamingMenuSequence():
     streamingSequence = seqAND("streamerSequence", [inputMakerAlg])
 
     #hypo
-    streamerHypoAlg = TrigStreamerHypoAlgMT("StreamerHypoAlg")
+    streamerHypoAlg = TrigStreamerHypoAlg("StreamerHypoAlg")
     streamerHypoAlg.RuntimeValidation = False #Needed to avoid the ERROR ! Decision has no 'feature' ElementLink
-    streamerHypoToolGen= StreamerHypoToolMTgenerator
+    streamerHypoToolGen= StreamerHypoToolGenerator
     
     return  MenuSequence( Sequence    = streamingSequence,
                           Maker       = inputMakerAlg,

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -85,6 +85,112 @@ void InDet::SiDetElementsLayer_xk::getBarrelDetElements
 
 }
 
+
+void InDet::SiDetElementsLayer_xk::getITkBarrelDetElements
+(const std::array<float,6> & startingPoint,
+ const std::array<float,3> & searchDirection,
+ std::vector<InDet::SiDetElementLink_xk::ElementWay> &lDE,
+ std::vector<bool>   &used) const
+{
+  constexpr float pi = M_PI;
+  constexpr float pi2 = 2.*pi;
+
+  /// In the following, identify where we cross the layer in r
+  /// by solving the quadratic equation
+  /// ( startingPoint_xy + s * searchDirection_xy )² = r_layer²
+  float minusB  =2*( searchDirection[0]*startingPoint[0]
+                    +searchDirection[1]*startingPoint[1]);
+  float C  = (m_r-startingPoint[0]-startingPoint[1])
+            *(m_r+startingPoint[0]+startingPoint[1])
+            +2.*startingPoint[0]*startingPoint[1];
+  float twoA  = 2.*( searchDirection[0]*searchDirection[0]
+                    +searchDirection[1]*searchDirection[1]);
+  if(twoA == 0.) return;
+  float sq = minusB*minusB+2.*C*twoA;
+  if (sq > 0){
+    sq=std::sqrt(sq);
+  }
+  else {
+    sq=0.;
+  }
+  /// solutions of our equation
+  float s1 =-(minusB+sq)/twoA;
+  float s2 =-(minusB-sq)/twoA;
+  float s;
+  /// pick one:
+  /// if both solution occur for the same direction,
+  /// we pick the crossing that occurs first
+  if((s1*s2) > 0.) {
+    s = (std::abs(s1) < std::abs(s2) ? s1 : s2);
+  }
+  /// otherwise, pick the one in the positive direction
+  else{
+    s = (s1  > 0. ? s1 : s2);
+  }
+  /// Z-coordinate of the layer crossing
+  float zc   = startingPoint[2]+searchDirection[2]*s;
+  /// radial component of the search direction
+  float At   = std::sqrt(1.-searchDirection[2]*searchDirection[2]);
+  float Sz = (m_dr+startingPoint[4])*std::abs(searchDirection[2])/At + 70.;
+  //ID uses instead
+  //float Sz = (m_dr*std::abs(searchDirection[2])+startingPoint[4])/At;
+  //Not clear why the algebra is different
+
+  /// Check if we miss the layer completely:
+  /// If the distance of our crossing point to the layer centre along z exceeds the half width
+  /// in z of the layer by more than a tolerance obtained as
+  /// the z movement expected when traversing along the layer radial half-width (dr_half / tan(theta_searchDirection))
+  /// plus the road width divided by sin(theta)
+  if(At != 0. && std::abs(zc-m_z) > (m_dz+Sz)) return;
+  /// road width divided by the radius of the layer
+  float reducedRoadWidth = startingPoint[4]/m_r + m_dfe;
+  /// Phi coordinate of the crossing
+  float phiCrossing = std::atan2(startingPoint[1]+searchDirection[1]*s,startingPoint[0]+searchDirection[0]*s) - reducedRoadWidth;
+  if(phiCrossing<-pi) phiCrossing += pi2;
+
+  int   ie   = m_elements.size();
+  int   i1   = ie-1;
+
+  if     (phiCrossing <= m_elements[ 0].phi()) i1 = 0 ;
+  else if(phiCrossing >  m_elements[i1].phi()) i1 = ie;
+  else  {
+    int i0=0;
+    while((i1-i0)>1) {
+      int i = (i0+i1)/2;
+      if (m_elements[i].phi() > phiCrossing) i1=i;
+      else i0=i;
+    }
+  }
+
+  phiCrossing += 2.*reducedRoadWidth;
+
+  for(int i = i1; i!=ie; ++i) {
+
+    if( m_elements[i].phi() > phiCrossing ) return;
+
+    if(std::abs(zc-m_elements[i].z()) < (m_elements[i].dz()+Sz)
+       &&  m_elements[i].intersectITk(&(startingPoint[0]),&(searchDirection[0]),s)) {
+      lDE.emplace_back(&m_elements[i],s,0); //distance not used for ITk?
+      used[i]=true;
+    }
+  }
+
+  phiCrossing -= pi2;
+
+  for(int i=0; i!=i1; ++i)  {
+
+    if( m_elements[i].phi() > phiCrossing) return;
+
+    if(std::abs(zc-m_elements[i].z()) < (m_elements[i].dz()+Sz)
+       &&  m_elements[i].intersectITk(&(startingPoint[0]),&(searchDirection[0]),s)) {
+      lDE.emplace_back(&m_elements[i],s,0);
+      used[i]=true;
+    }
+  }
+
+}
+
+
 ///////////////////////////////////////////////////////////////////
 // Get endcap detector elements
 // Input parameters: startingPoint[0] - X     searchDirection[0] - Ax 
@@ -120,6 +226,75 @@ void InDet::SiDetElementsLayer_xk::getEndcapDetElements
   getDetElements(startingPoint,searchDirection,phiCrossing,reducedRoadWidth,lDE,used);
 
 }
+
+
+void InDet::SiDetElementsLayer_xk::getITkEndcapDetElements
+(const std::array<float,6> & startingPoint,
+ const std::array<float,3> & searchDirection,
+ std::vector<InDet::SiDetElementLink_xk::ElementWay> &lDE,
+ std::vector<bool>   &used) const
+{
+  constexpr float pi = M_PI;
+  constexpr float pi2 = 2.*pi;
+
+  /// solve the linear equation
+  /// z_layer = z_startingPont + s * z_searchDirection
+  float s   =(m_z-startingPoint[2])/searchDirection[2];
+  /// obtain x,y,r coordinates of the layer crossing in z
+  float xc  = startingPoint[0]+searchDirection[0]*s;
+  float yc  = startingPoint[1]+searchDirection[1]*s;
+  float rc  = std::sqrt(xc*xc+yc*yc);
+  /// search direction z (== cos(theta_search)) * radius of starting point
+  float A23 = searchDirection[2]*startingPoint[3];
+  /// Kick out cases where we do not expect to cross the layer at all.
+  /// Do this by checking if the distance of the radial location of the z-crossing
+  /// from the layer centre in r exceeds the r-half-width by more than
+  /// the r-movement expected when traversing the half-width in z + the search road width
+  if(A23 != 0. && std::abs(rc-m_r) > m_dr+std::abs(2.*(startingPoint[0]*searchDirection[0]+startingPoint[1]*searchDirection[1])*m_dz/A23)+startingPoint[4]) return;
+  float reducedRoadWidth  = startingPoint[4]/rc + m_dfe;
+  float phiCrossing  = std::atan2(yc,xc)-reducedRoadWidth;
+  if(phiCrossing<-pi) phiCrossing += pi2;
+
+  int   ie   = m_elements.size();
+  int   i1   = ie-1;
+
+  if     (phiCrossing <= m_elements[ 0].phi()) i1 = 0 ;
+  else if(phiCrossing >  m_elements[i1].phi()) i1 = ie;
+  else  {
+    int i0=0;
+    while((i1-i0)>1) {
+      int i = (i0+i1)/2;
+      if (m_elements[i].phi() > phiCrossing) i1=i;
+      else i0=i;
+    }
+  }
+
+  phiCrossing += 2.*reducedRoadWidth;
+
+  for(int i = i1; i!=ie; ++i) {
+
+    if( m_elements[i].phi() > phiCrossing ) return;
+
+    if(m_elements[i].intersectITk(&(startingPoint[0]),&(searchDirection[0]),s)) {
+      lDE.emplace_back(&m_elements[i],s,0); //distance not used for ITk?
+      used[i]=true;
+    }
+  }
+
+  phiCrossing -= pi2;
+
+  for(int i=0; i!=i1; ++i)  {
+
+    if( m_elements[i].phi() > phiCrossing) return;
+
+    if(m_elements[i].intersectITk(&(startingPoint[0]),&(searchDirection[0]),s)) {
+      lDE.emplace_back(&m_elements[i],s,0);
+      used[i]=true;
+    }
+  }
+
+}
+
 
 ///////////////////////////////////////////////////////////////////
 // Get detector elements
@@ -160,7 +335,7 @@ void InDet::SiDetElementsLayer_xk::getDetElements
     i0 = i1;
   }
   //
-  std::array<float,3> intersectionOutcome;
+  std::array<float,3> intersectionOutcome{};
   int i = i0;
   /// first, rotate in the positive phi direction
   while(1) {
@@ -186,7 +361,7 @@ void InDet::SiDetElementsLayer_xk::getDetElements
             && (intersectionOutcome[1]<=startingPoint[4])
           ) {
          /// we found a compatible detector element - add to our list  
-         lDE.push_back(InDet::SiDetElementLink_xk::ElementWay(&m_elements[i],startingPoint[5]+intersectionOutcome[2],std::max(intersectionOutcome[0],intersectionOutcome[1]))); 
+         lDE.emplace_back(&m_elements[i],startingPoint[5]+intersectionOutcome[2],std::max(intersectionOutcome[0],intersectionOutcome[1])); 
          used[i]=true;
       }
     }
@@ -211,7 +386,7 @@ void InDet::SiDetElementsLayer_xk::getDetElements
       m_elements[i].intersect(&(startingPoint[0]),&(searchDirection[0]),&(intersectionOutcome[0]));
 
       if((intersectionOutcome[0]-startingPoint[4])<=0 && (intersectionOutcome[1]-startingPoint[4])<=0.) {
-         lDE.push_back(InDet::SiDetElementLink_xk::ElementWay(&m_elements[i],startingPoint[5]+intersectionOutcome[2],std::max(intersectionOutcome[0],intersectionOutcome[1]))); 
+         lDE.emplace_back(&m_elements[i],startingPoint[5]+intersectionOutcome[2],std::max(intersectionOutcome[0],intersectionOutcome[1])); 
          used[i]=true;
       }
     }

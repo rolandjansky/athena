@@ -44,7 +44,7 @@ class BTaggingTruthTaggingTool: public asg::AsgTool,
   //typedef double (xAOD::BTagging::* tagWeight_member_t)() const;
 
   /// Create a proper constructor for Athena
-  ASG_TOOL_CLASS2( BTaggingTruthTaggingTool , IBTaggingTruthTaggingTool, ISystematicsTool )
+  ASG_TOOL_CLASS3( BTaggingTruthTaggingTool , IBTaggingTruthTaggingTool, ISystematicsTool, CP::IReentrantSystematicsTool )
 
     private:
       struct jetVariable{

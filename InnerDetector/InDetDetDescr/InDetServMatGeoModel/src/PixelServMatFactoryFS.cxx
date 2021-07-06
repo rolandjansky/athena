@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/PixelServMatFactoryFS.h"
@@ -23,19 +23,21 @@
 // StoreGate includes
 #include "StoreGate/StoreGateSvc.h"
 
-#include "RDBAccessSvc/IRDBRecord.h"
-#include "RDBAccessSvc/IRDBRecordset.h"
-#include "RDBAccessSvc/IRDBAccessSvc.h"
-#include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/SystemOfUnits.h"
+#include "GeoModelUtilities/DecodeVersionKey.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
+#include "RDBAccessSvc/IRDBRecord.h"
+#include "RDBAccessSvc/IRDBRecordset.h"
 #include <iostream>
+#include <utility>
+
 
 
 PixelServMatFactoryFS::PixelServMatFactoryFS(StoreGateSvc *detStore,
 					     ServiceHandle<IRDBAccessSvc> pRDBAccess) :
   m_detStore(detStore),
-  m_rdbAccess(pRDBAccess),
+  m_rdbAccess(std::move(pRDBAccess)),
   m_msg("PixelServMatFactoryFS")
 { 
 }

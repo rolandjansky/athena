@@ -1,14 +1,14 @@
 #
-#  Copyright (C) 2002-2010 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 def l2CaloRecoCfg( flags ):
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewRecoCA
 
-    reco = InViewReco('FastCaloEMReco', roisKey='EMCaloRoIs')
+    reco = InViewRecoCA('FastCaloEMReco', roisKey='EMCaloRoIs')
     #    algAcc, alg = l2CaloAlgCfg( flags, roisKey = reco.name+'RoIs' )
     from TrigT2CaloEgamma.TrigT2CaloEgammaMTConfig import fastL2EgammaClusteringAlg
     ca = ComponentAccumulator()
@@ -20,7 +20,7 @@ def l2CaloRecoCfg( flags ):
     return reco
 
 def l2CaloHypoCfg( flags, name='UNSPECIFIED', CaloClusters='UNSPECIFIED' ):
-    l2CaloHypo                     = CompFactory.TrigEgammaFastCaloHypoAlgMT( name )
+    l2CaloHypo                     = CompFactory.TrigEgammaFastCaloHypoAlg( name )
     l2CaloHypo.CaloClusters        = CaloClusters
     return l2CaloHypo
 

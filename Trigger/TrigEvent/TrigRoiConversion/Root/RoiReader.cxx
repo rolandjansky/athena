@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 //
 //   @file    RoiReader.cxx         
@@ -8,12 +8,10 @@
 //   @author M.Sutton
 // 
 //
-//   $Id: RoiReader.cxx, v0.0   Wed 18 Nov 2015 12:22:35 CET sutt $
 
 
 /// class header
-#include "TrigRoiConversion/RoiReader.h"
-
+#include "RoiReader.h"
 
 /// xAOD storage class
 #include "xAODTrigger/RoiDescriptorStore.h"
@@ -27,10 +25,7 @@ RoiReader::RoiReader( const std::string& name  ) : asg::AsgTool( name ) { }
 
 
 
-StatusCode RoiReader::initialize() { return StatusCode::SUCCESS; }
-
-
-void RoiReader::execute( std::vector<std::string>& keys ) { 
+void RoiReader::execute( std::vector<std::string>& keys ) {
 
   ATH_MSG_DEBUG( "RoiReader::execute() in" );
 

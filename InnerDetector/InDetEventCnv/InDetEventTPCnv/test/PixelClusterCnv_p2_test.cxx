@@ -69,7 +69,7 @@ void compare (const InDet::PixelCluster& p1,
 
 void testit (const InDet::PixelCluster& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   PixelClusterCnv_p2 cnv;
   InDet::PixelCluster_p2 pers;
   cnv.transToPers (&trans1, &pers, log);
@@ -107,7 +107,7 @@ void test1 ATLAS_NOT_THREAD_SAFE ()
                               chargeList,
                               width,
                               nullptr,
-                              new Amg::MatrixX(cov),
+                              Amg::MatrixX(cov),
                               10.5,
                               11.5,
                               true,
@@ -125,7 +125,7 @@ void test1 ATLAS_NOT_THREAD_SAFE ()
                               chargeList,
                               width,
                               nullptr,
-                              new Amg::MatrixX(cov),
+                              Amg::MatrixX(cov),
                               10.5,
                               11.5,
                               true,

@@ -430,20 +430,20 @@ LuminosityCondAlg::updatePerBunchLumiRun1 (const EventContext& ctx,
 
   // Nothing to do if we don't have the ingredients
   if (m_onlineLumiCalibrationInputKey.empty()) {
-    ATH_MSG_ERROR( "OnlineLumiCalibrationInputKey.empty() is TRUE, skipping..." );
-    return StatusCode::FAILURE;
+    ATH_MSG_DEBUG( "OnlineLumiCalibrationInputKey.empty() is TRUE, skipping..." );
+    return StatusCode::SUCCESS;
   }
   if (m_bunchLumisInputKey.empty()) {
     ATH_MSG_DEBUG( "BunchLumisInputKey.empty() is TRUE, skipping..." );
-    return StatusCode::FAILURE;
+    return StatusCode::SUCCESS;
   }
   if (m_bunchGroupInputKey.empty()) {
     ATH_MSG_DEBUG( "BunchGroupTool.empty() is TRUE, skipping..." );
-    return StatusCode::FAILURE;
+    return StatusCode::SUCCESS;
   }
   if (m_fillParamsInputKey.empty()) {
-    ATH_MSG_ERROR( "FillParamsInputKey.empty() is TRUE, skipping..." );
-    return StatusCode::FAILURE;
+    ATH_MSG_DEBUG( "FillParamsInputKey.empty() is TRUE, skipping..." );
+    return StatusCode::SUCCESS;
   }
 
   SG::ReadCondHandle<OnlineLumiCalibrationCondData> onlineLumiCalibration

@@ -43,19 +43,15 @@ InDetPerfPlot_nTracks::initializePlots() {
 }
 
 void
-InDetPerfPlot_nTracks::fill(const unsigned int freq, const CounterCategory counter) {
+InDetPerfPlot_nTracks::fill(const unsigned int freq, const CounterCategory counter, float weight) {
   if (counter < N_COUNTERS) {
-    fillHisto((m_counters[counter]), freq);
+    fillHisto((m_counters[counter]), freq, weight);
   }
 }
 
-void InDetPerfPlot_nTracks::fill(const unsigned int ntracks, const unsigned int muu, const unsigned int nvertices) {
+void InDetPerfPlot_nTracks::fill(const unsigned int ntracks, const unsigned int muu, const unsigned int nvertices, const float weight) {
 
-  fillHisto(m_ntracks_vs_mu, muu, ntracks);
-  fillHisto(m_ntracks_vs_nvertices, nvertices, ntracks);
- // fillHisto(m_ntracks_vs_nmatchedvertices,nvertices, ntracks);
- // fillHisto(m_ntracks_vs_nmergedvertices,nvertices, ntracks);
- // fillHisto(m_ntracks_vs_nsplitvertices,nvertices, ntracks);
- // fillHisto(m_ntracks_vs_nfakevertices,nvertices, ntracks);
+  fillHisto(m_ntracks_vs_mu, muu, ntracks, weight);
+  fillHisto(m_ntracks_vs_nvertices, nvertices, ntracks, weight);
 
 }

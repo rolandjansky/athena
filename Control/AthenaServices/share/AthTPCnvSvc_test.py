@@ -4,14 +4,13 @@ theApp.EvtMax = 1
 theApp.initialize()
 tpsvc=PyAthena.py_svc('AthTPCnvSvc',True,'ITPCnvSvc')
 
-pi=PyAthena.Athena.PackageInfo('AthenaServicesTest-00-00-00')
 clidsvc=PyAthena.py_svc('ClassIDSvc',True,'IClassIDSvc')
-clidsvc.setTypePackageForID(20394829,'AthenaServicesTestConverters::TA',pi,'AthenaServicesTestConverters::TA')
-clidsvc.setTypePackageForID(20394828,'xxx',pi,'AthenaServicesTestConverters::TA')
-clidsvc.setTypePackageForID(20394827,'AthenaServicesTestConverters::TB',pi,'AthenaServicesTestConverters::TB')
-clidsvc.setTypePackageForID(20394826,'yyy',pi,'AthenaServicesTestConverters::TB')
-clidsvc.setTypePackageForID(20394825,'AthenaServicesTestConverters::TBTRIG',pi,'AthenaServicesTestConverters::TBTRIG')
-clidsvc.setTypePackageForID(20394824,'zzz',pi,'AthenaServicesTestConverters::TBTRIG')
+clidsvc.setTypeForID(20394829,'AthenaServicesTestConverters::TA','AthenaServicesTestConverters::TA')
+clidsvc.setTypeForID(20394828,'xxx','AthenaServicesTestConverters::TA')
+clidsvc.setTypeForID(20394827,'AthenaServicesTestConverters::TB','AthenaServicesTestConverters::TB')
+clidsvc.setTypeForID(20394826,'yyy','AthenaServicesTestConverters::TB')
+clidsvc.setTypeForID(20394825,'AthenaServicesTestConverters::TBTRIG','AthenaServicesTestConverters::TBTRIG')
+clidsvc.setTypeForID(20394824,'zzz','AthenaServicesTestConverters::TBTRIG')
 
 def getname(cnv):
     if not cnv:

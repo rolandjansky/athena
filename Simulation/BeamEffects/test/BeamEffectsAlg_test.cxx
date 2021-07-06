@@ -51,7 +51,6 @@ namespace SimTesting {
   protected:
     virtual void SetUp() override {
       m_alg = new Simulation::BeamEffectsAlg{"BeamEffectsAlg", g_svcLoc};
-      ASSERT_TRUE( m_alg->setProperties().isSuccess() );
       ASSERT_TRUE( g_svcLoc->service("StoreGateSvc", m_sg) );
     }
 
@@ -175,10 +174,11 @@ namespace SimTesting {
     SG::ReadHandle<McEventCollection>     outputTestDataHandle{outputTestDataKey,ctx};
     ASSERT_TRUE( outputTestDataHandle.isValid() );
 #ifdef HEPMC3
-    ASSERT_EQ(HepMC::signal_process_vertex(outputTestDataHandle->at(0)), HepMC::signal_process_vertex(inputTestDataHandle->at(0)));
-    ASSERT_EQ(outputTestDataHandle->at(0)->vertices().begin(), ((const HepMC::GenEvent*)inputTestDataHandle->at(0))->vertices().begin());
-    ASSERT_EQ(outputTestDataHandle->at(0)->beams().at(0), inputTestDataHandle->at(0)->beams().at(0));
-    ASSERT_EQ(outputTestDataHandle->at(0)->beams().at(1),inputTestDataHandle->at(0)->beams().at(1));
+//This should compare the content 
+    ASSERT_EQ(*(HepMC::signal_process_vertex(outputTestDataHandle->at(0))), *(HepMC::signal_process_vertex((const HepMC::GenEvent*)inputTestDataHandle->at(0))));
+    ASSERT_EQ(**(outputTestDataHandle->at(0)->vertices().begin()), **(((const HepMC::GenEvent*)inputTestDataHandle->at(0))->vertices().begin()));
+    ASSERT_EQ(*(outputTestDataHandle->at(0)->beams().at(0)),*(inputTestDataHandle->at(0)->beams().at(0)));
+    ASSERT_EQ(*(outputTestDataHandle->at(0)->beams().at(1)),*(inputTestDataHandle->at(0)->beams().at(1)));
 #else
     ASSERT_EQ(*(outputTestDataHandle->at(0)->signal_process_vertex()), *(inputTestDataHandle->at(0)->signal_process_vertex()));
     ASSERT_EQ(**(outputTestDataHandle->at(0)->vertices_begin()), **(inputTestDataHandle->at(0)->vertices_begin()));

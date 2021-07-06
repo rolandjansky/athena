@@ -18,7 +18,7 @@
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/SlotSpecificObj.h"
 #include "AthenaMonitoringKernel/Monitored.h"
-#include "TrigCostMonitorMT/ITrigCostMTSvc.h"
+#include "TrigCostMonitor/ITrigCostSvc.h"
 #include "TrigDataAccessMonitoring/ROBDataMonitor.h"
 
 // STL includes
@@ -26,6 +26,7 @@
 #include <string_view>
 #include <vector>
 #include <map>
+#include <mutex>
 
 // TBB includes
 #include "tbb/concurrent_unordered_map.h"
@@ -124,6 +125,8 @@ private:
     uint32_t eventStatus       = 0;    
     bool     isEventComplete   = false;    
     ROBMAP   robmap;
+    /// mutex for ROB cache updates
+    std::mutex eventCache_mtx;
   };
 
   /// An event cache for each slot
@@ -170,8 +173,8 @@ private:
   Gaudi::Property<bool> m_doCostMonitoring{
     this, "doCostMonitoring", false, "Enables start-of-event cost monitoring behavior."};
 
-  ServiceHandle<ITrigCostMTSvc> m_trigCostSvcHandle{ 
-    this, "TrigCostMTSvc", "TrigCostMTSvc", "The trigger cost service" };
+  ServiceHandle<ITrigCostSvc> m_trigCostSvcHandle{ 
+    this, "TrigCostSvc", "TrigCostSvc", "The trigger cost service" };
 
   /*------------------------+
    * Methods acting on ROBs |
@@ -214,7 +217,7 @@ private:
   ///     vector of ROB fragments to add to the cache
   /// output:
   ///     set of ignored ROBs
-  void eventCache_addRobData(EventCache*, const std::vector<ROBF>&,
+  void eventCache_addRobData(EventCache*, std::vector<ROBF>&&,
               std::optional<std::reference_wrapper<std::set<uint32_t>>> robIds_ignored = std::nullopt) ;
 
   /// Monitoring tool

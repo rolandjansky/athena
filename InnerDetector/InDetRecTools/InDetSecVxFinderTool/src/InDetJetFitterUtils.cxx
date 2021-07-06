@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -141,7 +141,7 @@ namespace InDet
                                                               const Trk::RecVertex & vertex) const 
   {
     
-    if (m_linearizedTrackFactoryIsAvailable==false)
+    if (!m_linearizedTrackFactoryIsAvailable)
     {
       msg(MSG::ERROR) << " No LinearizedTrackFactory defined. Cannot calculate compatibility. 0 compatibility returned" << endmsg;
       return std::pair<double,double>(0,0);
@@ -181,7 +181,7 @@ namespace InDet
     double returnv2= paramsReduced.transpose() * weightReduced.inverse() * paramsReduced; 
 
     delete myLinearizedTrack;
-    myLinearizedTrack=0;
+    myLinearizedTrack=nullptr;
     
     return std::pair<double,double>(returnv2,0);
   }
@@ -190,7 +190,7 @@ namespace InDet
                                                               const Trk::RecVertex & vertex) const
   {
 
-    if (m_linearizedTrackFactoryIsAvailable==false)
+    if (!m_linearizedTrackFactoryIsAvailable)
     {
       msg(MSG::ERROR) << " No LinearizedTrackFactory defined. Cannot calculate compatibility. 0 compatibility returned" << endmsg;
       return std::pair<double,double>(0,0);
@@ -226,7 +226,7 @@ namespace InDet
     
 
     delete myLinearizedTrack;
-    myLinearizedTrack=0;
+    myLinearizedTrack=nullptr;
     
     return std::pair<double,double>(returnv2,0);
   }
@@ -267,7 +267,7 @@ namespace InDet
     //second
     const Trk::TrackParameters* secondTrackPerigee=secondTrack->perigeeAtVertex();
     
-    if (firstTrackPerigee==0 ||secondTrackPerigee==0)
+    if (firstTrackPerigee==nullptr ||secondTrackPerigee==nullptr)
     {
       msg(MSG::WARNING) <<  " No Perigee in one of the two tracks at vertex. No sensible charge returned." << endmsg;
       return -100;
@@ -302,7 +302,7 @@ namespace InDet
     //second
     const Trk::TrackParameters* secondTrackPerigee=secondTrack.perigeeAtVertex();
     
-    if (firstTrackPerigee==0 ||secondTrackPerigee==0)
+    if (firstTrackPerigee==nullptr ||secondTrackPerigee==nullptr)
     {
       msg(MSG::WARNING) <<  " No Perigee in one of the two tracks at vertex. No sensible charge returned." << endmsg;
       return -100;
@@ -340,7 +340,7 @@ namespace InDet
     //second
     const Trk::TrackParameters* secondTrackPerigee=secondTrack->perigeeAtVertex();
     
-    if (firstTrackPerigee==0 ||secondTrackPerigee==0)
+    if (firstTrackPerigee==nullptr ||secondTrackPerigee==nullptr)
     {
       msg(MSG::WARNING) <<  " No Perigee in one of the two tracks at vertex. No sensible mass returned." << endmsg;
       return -100;
@@ -392,7 +392,7 @@ namespace InDet
     //second
     const Trk::TrackParameters* secondTrackPerigee=secondTrack.perigeeAtVertex();
     
-    if (firstTrackPerigee==0 ||secondTrackPerigee==0)
+    if (firstTrackPerigee==nullptr ||secondTrackPerigee==nullptr)
     {
       msg(MSG::WARNING) <<  " No Perigee in one of the two tracks at vertex. No sensible mass returned." << endmsg;
       return -100;
@@ -471,7 +471,7 @@ namespace InDet
                                                              const Trk::Vertex & vertexToExtrapolateTo) const
   {
     
-    if (m_linearizedTrackFactoryIsAvailable==false)
+    if (!m_linearizedTrackFactoryIsAvailable)
     {
       msg(MSG::ERROR) << "Cannot perform requested extrapolation. No extrapolator defined...Returning 0 compatibility..." << endmsg;
       return std::pair<double,double>(0,0);
@@ -480,7 +480,7 @@ namespace InDet
 
     Trk::PerigeeSurface mySurface(vertexToExtrapolateTo.position());
     const Trk::TrackParameters* newMeasPerigee= m_extrapolator->extrapolateDirectly(trackPerigee,mySurface);
-    if (newMeasPerigee==0)
+    if (newMeasPerigee==nullptr)
     {
       msg(MSG::WARNING) <<  " Extrapolation failed. Wrong d0 and z0 returned " << endmsg;
       return std::pair<double,double>
@@ -493,7 +493,7 @@ namespace InDet
         sin(newMeasPerigee->parameters()[Trk::theta]);
 
     delete newMeasPerigee;
-    newMeasPerigee=0;
+    newMeasPerigee=nullptr;
     
     return std::pair<double,double>(IPd0,IPz0);
   }
@@ -503,7 +503,7 @@ namespace InDet
 								const Trk::RecVertex & vertex) const
   {
     
-    if (m_linearizedTrackFactoryIsAvailable==false)
+    if (!m_linearizedTrackFactoryIsAvailable)
     {
       ATH_MSG_ERROR( "Cannot perform requested extrapolation. No extrapolator defined...Returning 0 compatibility..." );
       return std::pair<double,double>(0,0);
@@ -532,7 +532,7 @@ namespace InDet
     */    
 
     delete myLinearizedTrack;
-    myLinearizedTrack=0;
+    myLinearizedTrack=nullptr;
         
     return std::pair<double,double>(IPd0Sig,IPz0Sig);
   }
@@ -557,7 +557,7 @@ namespace InDet
     }
     //if not found, returns 0
     */
-    return 0;
+    return nullptr;
   }
   
   bool InDetJetFitterUtils::checkIfTrackIsInVector(const Trk::ITrackLink * trackToCheck,
@@ -711,7 +711,7 @@ namespace InDet
          clustersOfTrackIter!=clustersOfTrackEnd;
          ++clustersOfTrackIter)
     {
-      if (dynamic_cast<const Trk::Perigee*>((*clustersOfTrackIter)->perigeeAtVertex())!=0)
+      if (dynamic_cast<const Trk::Perigee*>((*clustersOfTrackIter)->perigeeAtVertex())!=nullptr)
       {
         
         const Trk::TrackParameters* aMeasPer=(*clustersOfTrackIter)->perigeeAtVertex();

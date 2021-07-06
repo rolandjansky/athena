@@ -141,7 +141,7 @@ void  Muon::RpcCoinDataContainerCnv_p1::persToTrans(const RpcCoinDataContainerCn
       // from the vector.
 
 
-      Muon::MuonCoinDataCollection<RpcCoinData>* coll = 0;
+      Muon::MuonCoinDataCollection<RpcCoinData>* coll = nullptr;
 
       RpcCoinDataCnv_p1  chanCnv;
       unsigned int pchanIndex(0); // position within persCont->m_prds. Incremented inside innermost loop 
@@ -201,7 +201,7 @@ Muon::RpcCoinDataContainerCnv_p1::TRANS* Muon::RpcCoinDataContainerCnv_p1::creat
     if(!m_isInitialized) {
         if (this->initialize(log) != StatusCode::SUCCESS) {
             log << MSG::FATAL << "Could not initialize RpcCoinDataContainerCnv_p1 " << endmsg;
-            return 0;
+            return nullptr;
         } 
     }
     std::unique_ptr<Muon::RpcCoinDataContainer> trans(new Muon::RpcCoinDataContainer(m_RpcId->module_hash_max()));

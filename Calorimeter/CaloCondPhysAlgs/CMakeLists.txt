@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CaloCondPhysAlgs )
@@ -15,7 +15,7 @@ atlas_add_component( CaloCondPhysAlgs
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} ${COOL_LIBRARIES} ${CLHEP_LIBRARIES} CaloCondBlobObjs CaloDetDescrLib CaloGeoHelpers 
-		             CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib GaudiKernel LArCablingLib LArElecCalib LArIdentifier TrigDecisionToolLib LArRawConditions
+		             CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib GaudiKernel LArCablingLib LArElecCalib LArIdentifier TrigDecisionToolLib LArRawConditions LArRecConditions
 		             CaloConditions CaloEvent CaloInterfaceLib CaloUtilsLib AthenaPoolUtilities Identifier xAODEventInfo LArHV LArReadoutGeometry LArSimEvent CxxUtils)
 
 # Install files from the package:

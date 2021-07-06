@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.JobProperties import JobProperty
 from AthenaCommon.JobProperties import jobproperties
@@ -26,7 +26,6 @@ class HV_MuvtxTriggerFlags(JobProperty):
     ]
     if rpvllTrig.doRPVLLTriggerAPI:
         TriggerNames += apitriggers.getHVMuvtxTriggers() ## TriggerAPI
-    pass
 primRPVLLDESDM.add_JobProperty(HV_MuvtxTriggerFlags)
 
 class HV_prescaledMuvtxTriggerFlags(JobProperty):
@@ -39,7 +38,6 @@ class HV_prescaledMuvtxTriggerFlags(JobProperty):
     if rpvllTrig.doRPVLLTriggerAPI:
         TriggerNames += apitriggers.getHVprescaledMuvtxTriggers() ## TriggerAPI
     Prescale = 1
-    pass
 primRPVLLDESDM.add_JobProperty(HV_prescaledMuvtxTriggerFlags)
 
 class HV_JetMETFilterFlags(JobProperty):
@@ -51,7 +49,6 @@ class HV_JetMETFilterFlags(JobProperty):
         "HLT_j120_xe80"
     ]
     cutMetMin = 120.0*Units.GeV  # MET cut, currently placed on MET_Reference_AntiKt4TopoEM
-    pass
 primRPVLLDESDM.add_JobProperty(HV_JetMETFilterFlags)
 
 class HV_CalRatioTriggerFlags(JobProperty):
@@ -76,5 +73,4 @@ class HV_CalRatioTriggerFlags(JobProperty):
     if rpvllTrig.doRPVLLTriggerAPI:
         TriggerNames += apitriggers.getHVCalRatioTriggers() ## TriggerAPI
 
-    pass
 primRPVLLDESDM.add_JobProperty(HV_CalRatioTriggerFlags)

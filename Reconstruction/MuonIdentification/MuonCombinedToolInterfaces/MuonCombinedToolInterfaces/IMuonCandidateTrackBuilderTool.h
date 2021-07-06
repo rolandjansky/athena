@@ -1,43 +1,33 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_IMUONCANDIDATETRACKBUILDERTOOL
 #define MUON_IMUONCANDIDATETRACKBUILDERTOOL
 
-#include "GaudiKernel/IAlgTool.h"
 #include <vector>
 
-#include "MuonLayerEvent/MuonLayerRecoData.h"
+#include "GaudiKernel/IAlgTool.h"
 #include "MuonLayerEvent/MuonCandidate.h"
-
-static const InterfaceID IID_IMuonCandidateTrackBuilderTool("Muon::IMuonCandidateTrackBuilderTool",1,0);
-
-namespace Trk{
-  class Track;
-}
+#include "MuonLayerEvent/MuonLayerRecoData.h"
+#include "TrkTrack/Track.h"
 
 namespace Muon {
 
-  /** Interface for a tool to build tracks out of a MuonCandidate  */
-  class IMuonCandidateTrackBuilderTool : virtual public IAlgTool {     
-  public:
-    /** IAlgTool interface */
-    static const InterfaceID& interfaceID();
+    /** Interface for a tool to build tracks out of a MuonCandidate  */
+    class IMuonCandidateTrackBuilderTool : virtual public IAlgTool {
+    public:
+        /** IAlgTool interface */
+        static const InterfaceID& interfaceID() {
+            static const InterfaceID IID_IMuonCandidateTrackBuilderTool("Muon::IMuonCandidateTrackBuilderTool", 1, 0);
+            return IID_IMuonCandidateTrackBuilderTool;
+        }
+        /** @brief build a track out of a MuonCandidate */
+        virtual std::unique_ptr<Trk::Track> buildCombinedTrack(const EventContext& ctx, const Trk::Track& idTrack, const MuonCandidate& candidate) const = 0;
 
-    /** @brief build a track out of a MuonCandidate */
-    virtual Trk::Track* buildCombinedTrack( const Trk::Track& idTrack, const MuonCandidate& candidate ) const = 0;
+        virtual ~IMuonCandidateTrackBuilderTool() = default;
+    };
 
-    virtual void cleanUp() const {};
+}  // namespace Muon
 
-  };
- 
-  inline const InterfaceID& IMuonCandidateTrackBuilderTool::interfaceID()
-  {
-    return IID_IMuonCandidateTrackBuilderTool;
-  }
-
-
-} // end of name space
-
-#endif // IMuonCandidateTrackBuilderTool_H
+#endif  // IMuonCandidateTrackBuilderTool_H

@@ -83,9 +83,10 @@ StatusCode TileOFC2DBAlg::initialize() {
 //
 //_________________________________________________________________________  
 StatusCode TileOFC2DBAlg::execute() {
+  const EventContext &ctx = Gaudi::Hive::currentContext();
 
   //=== print run/evt/lbn/time info for each event
-  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey, ctx);
   ATH_CHECK( eventInfo.isValid() );
 
   ATH_MSG_DEBUG( "Event: ["
@@ -123,7 +124,7 @@ StatusCode TileOFC2DBAlg::execute() {
 
   float zeroPhase(0.0);
   TileOfcWeightsStruct weights;
-  ATH_CHECK( m_tileCondToolOfc->getOfcWeights(0, 0, 0, zeroPhase, true, weights) );
+  ATH_CHECK( m_tileCondToolOfc->getOfcWeights(0, 0, 0, zeroPhase, true, weights, ctx) );
   int ndig = weights.n_samples;
 
   // ---------- create fixed phases
@@ -168,7 +169,7 @@ StatusCode TileOFC2DBAlg::execute() {
         for (unsigned int gain = 0; gain < TileCalibUtils::MAX_GAIN; ++gain) {
 
           for (float phase : phases) {
-            ATH_CHECK( m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, phase, m_of2, weights) );
+            ATH_CHECK( m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, phase, m_of2, weights, ctx) );
             for (int isam = 0; isam < ndig; isam++) {
               drawerOfc->setOfc(TileCalibDrawerOfc::FieldA, channel, gain, phase, isam, weights.w_a[isam]);
               drawerOfc->setOfc(TileCalibDrawerOfc::FieldB, channel, gain, phase, isam, weights.w_b[isam]);
@@ -270,7 +271,7 @@ StatusCode TileOFC2DBAlg::execute() {
                            << " gain " << gain
                            << " phase " << phase );
 
-            ATH_CHECK( m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, phase, m_of2, weights) );
+            ATH_CHECK( m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, phase, m_of2, weights, ctx) );
             ATH_MSG_DEBUG( " N Samples " << ndig
                            << " ros " << ros
                            << " drawer " << drawer

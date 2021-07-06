@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file TrigTruthEventTPCnv/test/TrigInDetTrackTruthCnv_p1_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -17,6 +15,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "TestTools/leakcheck.h"
 #include <cassert>
+#include <sstream>
 #include <iostream>
 
 #include "GeneratorObjectsTPCnv/initMcEventCollection.h"
@@ -95,10 +94,13 @@ void test1(std::vector<HepMC::GenParticlePtr>& genPartVector)
   auto particle = genPartVector.at(0);
   // Create HepMcParticleLink outside of leak check.
   HepMcParticleLink dummyHMPL(HepMC::barcode(particle),particle->parent_event()->event_number());
+  // Make sure HepMcParticleLink::getLastEventCollectionName is called.
+  std::ostringstream ss;
+  ss << dummyHMPL;
 
   assert(dummyHMPL.cptr()==particle);
-  Athena_test::Leakcheck check;
 
+  Athena_test::Leakcheck check;
   TrigInDetTrackTruth trans1;
   TrigInDetTrackTruthCnv_p1_test::set (trans1, genPartVector);
 

@@ -15,26 +15,25 @@
 
 namespace MuonCalib {
 
-  class MuonCalibPattern;
+    class MuonCalibPattern;
 
-  /**
-     @class ICalibPatternSelector
-     Interface to MuonCalibPatternSelectors.
-     Method select returns true if a pattern satisfies the selection criteria.
-   
-     @author Niels.Van.Eldik@cern.ch
-  */
+    /**
+       @class ICalibPatternSelector
+       Interface to MuonCalibPatternSelectors.
+       Method select returns true if a pattern satisfies the selection criteria.
 
-  class ICalibPatternSelector {
-  public:
-    /** destructor */
-    virtual ~ICalibPatternSelector() {};
+       @author Niels.Van.Eldik@cern.ch
+    */
 
-    /** return true if pattern satisfies selection criteria */
-    virtual bool   select(const MuonCalibPattern& pat) const = 0;
+    class ICalibPatternSelector {
+    public:
+        /** destructor */
+        virtual ~ICalibPatternSelector(){};
 
-  };
+        /** return true if pattern satisfies selection criteria */
+        virtual bool select(const MuonCalibPattern& pat) const = 0;
+    };
 
-}
+}  // namespace MuonCalib
 
 #endif

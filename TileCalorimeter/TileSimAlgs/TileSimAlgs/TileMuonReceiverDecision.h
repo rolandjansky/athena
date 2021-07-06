@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -40,7 +40,7 @@
 #include "TileConditions/TileCablingSvc.h"
 
 // Atlas includes
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
@@ -56,19 +56,20 @@ class TileInfo;
 class TileCablingService;
 
 
-class TileMuonReceiverDecision: public AthAlgorithm {
+class TileMuonReceiverDecision: public AthReentrantAlgorithm {
 
  public:
   // constructor
-  TileMuonReceiverDecision(std::string name, ISvcLocator* pSvcLocator);
+  TileMuonReceiverDecision(const std::string& name, ISvcLocator* pSvcLocator);
   // destructor
   virtual ~TileMuonReceiverDecision();
   // Gaudi hooks
-  StatusCode initialize(); //!< initialize method
-  StatusCode execute();    //!< execute method
-  StatusCode finalize();   //!< finalize method
+  virtual StatusCode initialize() override; //!< initialize method
+  virtual StatusCode execute(const EventContext &ctx) const override; //!< execute method
 
  private:
+
+  IntegerProperty m_manualRunPeriod{this,"ManualRunPeriod",-1};
 
   SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this,"TileRawChannelContainer",
                                                                       "MuRcvRawChCnt",

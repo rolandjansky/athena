@@ -1,14 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
+#include <time.h>
 
+#include "TimeDivider.h"
 
-#include "TrigRateMoni.h"
-
-
-TimeDivider::TimeDivider(unsigned int intervals, unsigned int duration, unit u ) 
+TimeDivider::TimeDivider(unsigned int intervals, unsigned int duration, unit u )
   : m_intervals(intervals),
     m_duration(duration), 
     m_unit(u),
@@ -19,10 +18,11 @@ TimeDivider::TimeDivider(unsigned int intervals, unsigned int duration, unit u )
   isPassed(temp_time, temp_iv, temp_iv);
 }
 
-bool TimeDivider::isPassed(time_t time, unsigned int& newinterval,  unsigned int& oldinterval) const {
+bool TimeDivider::isPassed(time_t time, unsigned int& newinterval,  unsigned int& oldinterval) {
 
   // convert to tm structure for seconds & minutes
-  tm t = *gmtime(&time);
+  struct tm t;
+  gmtime_r(&time, &t);
   unsigned count = 0;
   if (m_unit == seconds) {
     count  = t.tm_sec;

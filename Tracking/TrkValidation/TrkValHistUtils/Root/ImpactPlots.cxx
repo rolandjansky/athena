@@ -7,11 +7,11 @@
 namespace Trk {
   void
   ImpactPlots::init() {
-    z0 = NULL;
-    z0sig = NULL;
-    d0 = NULL;
-    d0sig = NULL;
-    d0_small = NULL;
+    z0 = nullptr;
+    z0sig = nullptr;
+    d0 = nullptr;
+    d0sig = nullptr;
+    d0_small = nullptr;
   }
 
   void
@@ -24,9 +24,9 @@ namespace Trk {
   }
 
   void
-  ImpactPlots::fill(const xAOD::TrackParticle &trkprt) {
-    d0->Fill(trkprt.d0());
-    d0_small->Fill(trkprt.d0());
-    z0->Fill(trkprt.z0());
+  ImpactPlots::fill(const xAOD::TrackParticle &trkprt, float weight) {
+    d0->Fill(trkprt.d0(),weight);
+    d0_small->Fill(trkprt.d0(),weight);
+    z0->Fill(trkprt.z0(),weight);
   }
 }

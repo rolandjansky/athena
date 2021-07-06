@@ -57,10 +57,14 @@ namespace TrigConf {
 
       void printPrescaleSet(bool full) const;
 
+      /** Clearing the configuration data */
+      virtual void clear() override;
+
    private:
 
       /** Update the internal prescale map after modification of the data object */
-      virtual void update() override;
+      virtual void update() override { load(); };
+      void load();
 
       /** the prescale key */
       unsigned int m_psk {0};

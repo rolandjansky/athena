@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -87,7 +87,7 @@ namespace Trk {
 
     declareProperty("StoreLocalDerivOnly", m_storeLocalDerivOnly = false);
 
-    m_logStream = 0;
+    m_logStream = nullptr;
   }
 
   //_______________________________________________________________________
@@ -182,9 +182,9 @@ namespace Trk {
     // check if the track belongs to a vertex. If yes, retrieve the relevant objects:
     bool                                  fullVertex   = false;
     AlignVertex                         * ptrVertex    = alignTrack->getVtx();
-    Amg::Vector3D                       * ptrPosition  = 0;
-    AmgSymMatrix(3)                     * ptrCovariance = 0;
-    std::vector<AlignModuleVertexDerivatives>   * ptrX = 0;
+    Amg::Vector3D                       * ptrPosition  = nullptr;
+    AmgSymMatrix(3)                     * ptrCovariance = nullptr;
+    std::vector<AlignModuleVertexDerivatives>   * ptrX = nullptr;
     AlignVertex::AlignVertexType          vtxType      = AlignVertex::Unknown;
     if( ptrVertex )  {
       fullVertex       = true;
@@ -456,9 +456,9 @@ namespace Trk {
           std::cout <<"accumulate: Q inversion failed. CLHEP status flag = "<<ierr<< std::endl;
           return false;
         }
-        vtemp(1) =   -ptrVertex->originalPosition()->x()+(*(ptrVertex->Vvector()))(1);
-        vtemp(2) =   -ptrVertex->originalPosition()->y()+(*(ptrVertex->Vvector()))(2);
-        vtemp(3) =   -ptrVertex->originalPosition()->z()+(*(ptrVertex->Vvector()))(3);
+        vtemp(0) =   -ptrVertex->originalPosition()->x()+(*(ptrVertex->Vvector()))(0);
+        vtemp(1) =   -ptrVertex->originalPosition()->y()+(*(ptrVertex->Vvector()))(1);
+        vtemp(2) =   -ptrVertex->originalPosition()->z()+(*(ptrVertex->Vvector()))(2);
       }
 
 

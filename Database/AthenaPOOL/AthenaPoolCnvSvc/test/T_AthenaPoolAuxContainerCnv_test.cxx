@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -49,7 +49,7 @@ public:
       m_pers2 (nullptr)
   {}
 
-  virtual void setObjPtr(void*& obj, const Token* /*token*/) const override
+  virtual void setObjPtr(void*& obj, const Token* /*token*/) override
   {
     if (m_pers2) {
       obj = new YAuxCont_v2 (*m_pers2);
@@ -61,7 +61,6 @@ public:
       std::abort();
   }
 
-  std::string m_name;
   YAuxCont_v1* m_pers1;
   YAuxCont_v2* m_pers2;
 };

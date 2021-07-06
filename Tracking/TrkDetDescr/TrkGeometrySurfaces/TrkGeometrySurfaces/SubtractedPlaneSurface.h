@@ -38,10 +38,13 @@ public:
   SubtractedPlaneSurface(const SubtractedPlaneSurface& psf);
 
   /** Copy Constructor with shift*/
-  SubtractedPlaneSurface(const SubtractedPlaneSurface& psf, const Amg::Transform3D& transf);
+  SubtractedPlaneSurface(const SubtractedPlaneSurface& psf,
+                         const Amg::Transform3D& transf);
 
   /** Constructor */
-  SubtractedPlaneSurface(const PlaneSurface& ps, AreaExcluder* vol, bool shared);
+  SubtractedPlaneSurface(const PlaneSurface& ps,
+                         AreaExcluder* vol,
+                         bool shared);
 
   /**Destructor*/
   virtual ~SubtractedPlaneSurface();

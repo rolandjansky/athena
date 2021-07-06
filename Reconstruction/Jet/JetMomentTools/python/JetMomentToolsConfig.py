@@ -17,8 +17,8 @@ from AthenaCommon import Logging
 jetmomentlog = Logging.logging.getLogger('JetMomentToolsConfig')
 
 from JetRecTools import JetRecToolsConfig
-from JetRecTools.JetRecToolsConfig import trackcollectionmap
 from AthenaConfiguration.ComponentFactory import CompFactory
+from JetRecConfig.StandardJetContext import jetContextDic
 
 from xAODBase.xAODType import xAODType
 
@@ -39,7 +39,8 @@ def getEMScaleMomTool(jetdef, modspec=""):
 
     emscalemom = CompFactory.JetEMScaleMomTool(
         "emscalemom_{}".format(jetdef.basename),
-        UseUncalibConstits = useUncalibConstits
+        UseUncalibConstits = useUncalibConstits,
+        JetContainer = jetdef.fullname(),
     )
 
     return emscalemom
@@ -57,18 +58,6 @@ def getConstitFourMomTool(jetdef, modspec=""):
       "NSTATES"       :  3
       }
 
-    ### Workaround for inability of Gaudi to parse single-element tuple
-    try:
-        import GaudiPython.Bindings as GPB
-        _old_setattr = GPB.iProperty.__setattr__
-        def _new_setattr(self, name, value):
-           if type(value) == tuple:
-               value = list(value)
-           return _old_setattr(self, name, value)
-        GPB.iProperty.__setattr__ = _new_setattr
-    except Exception:
-        pass
-    ###
     cfourmom = CompFactory.JetConstitFourMomTool("constitfourmom_{0}".format(jetdef.basename))
     if "LCTopo" in jetdef.basename or "EMTopo" in jetdef.basename:
         cfourmom.JetScaleNames = ["DetectorEtaPhi"]
@@ -77,8 +66,9 @@ def getConstitFourMomTool(jetdef, modspec=""):
             cfourmom.AltConstitScales = [0]
             cfourmom.AltJetScales = ["JetConstitScaleMomentum"]
         else:
+            clstate = "CALIBRATED" if "LCTopo" in jetdef.basename else "UNCALIBRATED"
             cfourmom.AltConstitColls = ["CaloCalTopoClusters"]
-            cfourmom.AltConstitScales = [CaloClusterStates["CALIBRATED"]]
+            cfourmom.AltConstitScales = [CaloClusterStates[clstate]]
             cfourmom.AltJetScales = [""]
     # Drop the LC-calibrated four-mom for EMTopo jets as we only wanted it as a possibility
     # in MET CST calculations but never used it
@@ -91,10 +81,10 @@ def getConstitFourMomTool(jetdef, modspec=""):
     return cfourmom
 
 # Jet vertex fraction with selection.
-def getJVFTool(jetdec, modspec):
-    jettrackselloose = JetRecToolsConfig.getTrackSelTool(modspec)
-    # retrieve the tracking keys to be used with modspec : 
-    trackingKeys = trackcollectionmap[modspec]
+def getJVFTool(jetdef, modspec):
+    jettrackselloose = JetRecToolsConfig.getTrackSelTool(modspec or jetdef.context)
+    # retrieve the tracking keys to be used with modspec :
+    trackingKeys = jetContextDic[modspec or jetdef.context]
     jvf = CompFactory.JetVertexFractionTool(
         "jvf",
         VertexContainer = trackingKeys["Vertices"],
@@ -110,15 +100,15 @@ def getJVFTool(jetdec, modspec):
 def getJVTTool(jetdef, modspec):
     jvt = CompFactory.JetVertexTaggerTool(
         "jvt",
-        VertexContainer = trackcollectionmap[modspec]["Vertices"],
+        VertexContainer = jetContextDic[modspec or jetdef.context]["Vertices"],
     )
     return jvt
 
 
 def getTrackMomentsTool(jetdef, modspec):
-    jettrackselloose = JetRecToolsConfig.getTrackSelTool(modspec)
+    jettrackselloose = JetRecToolsConfig.getTrackSelTool(modspec or jetdef.context)
     # retrieve the tracking keys to be used with modspec : 
-    trackingKeys = trackcollectionmap[modspec]
+    trackingKeys = jetContextDic[modspec or jetdef.context]
 
     trackmoments = CompFactory.JetTrackMomentsTool(
         "trkmoms",
@@ -126,14 +116,15 @@ def getTrackMomentsTool(jetdef, modspec):
         AssociatedTracks = trackingKeys["GhostTracksLabel"],
         TrackVertexAssociation = trackingKeys["TVA"],
         TrackMinPtCuts = [500, 1000],
-        TrackSelector = jettrackselloose
+        TrackSelector = jettrackselloose,
+        DoPFlowMoments = 'PFlow' in jetdef.fullname() ,
     )
     return trackmoments
 
 def getTrackSumMomentsTool(jetdef, modspec):
     jettrackselloose = JetRecToolsConfig.getTrackSelTool(modspec)
     # retrieve the tracking keys to be used with modspec : 
-    trackingKeys = trackcollectionmap[modspec]
+    trackingKeys = jetContextDic[modspec or jetdef.context]
     tracksummoments = CompFactory.JetTrackSumMomentsTool(
         "trksummoms",
         VertexContainer = trackingKeys["Vertices"],
@@ -149,7 +140,7 @@ def getTrackSumMomentsTool(jetdef, modspec):
 def getOriginCorrVxTool(jetdef, modspec):
     origin_setpv = CompFactory.JetOriginCorrectionTool(
       "jetorigin_setpv",
-      VertexContainer = trackcollectionmap[modspec]["Vertices"],
+      VertexContainer = jetContextDic[modspec or jetdef.context]["Vertices"],
       OriginCorrectedName = "",
       OnlyAssignPV = True,
     )

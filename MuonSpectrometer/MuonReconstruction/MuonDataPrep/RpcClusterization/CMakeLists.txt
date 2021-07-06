@@ -9,7 +9,7 @@ atlas_subdir( RpcClusterization )
 atlas_add_component( RpcClusterization
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests Identifier EventPrimitives GaudiKernel MuonReadoutGeometry MuonDigitContainer MuonPrepRawData MuonIdHelpersLib )
+                     LINK_LIBRARIES AthenaBaseComps StoreGateLib Identifier EventPrimitives GaudiKernel MuonReadoutGeometry MuonDigitContainer MuonPrepRawData MuonIdHelpersLib )
 
 # Install files from the package:
 atlas_install_headers( RpcClusterization )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_FwdRing.h"
@@ -242,7 +242,7 @@ SCT_FwdRing::build(SCT_Identifier id)
     
     double zModuleServices = 0;
     double rModuleServices = 0;
-    GeoVPhysVol * moduleServices = 0;
+    GeoVPhysVol * moduleServices = nullptr;
     if (staggerUpperLower > 0){ // Upper 
       zModuleServices =  m_moduleServicesHiZPos * m_ringSide;
       rModuleServices =  m_moduleServicesHiRPos;

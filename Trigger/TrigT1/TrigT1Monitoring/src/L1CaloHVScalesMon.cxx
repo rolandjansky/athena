@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -98,16 +98,11 @@ L1CaloHVScalesMon::~L1CaloHVScalesMon()
 {
 }
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
-
 /*---------------------------------------------------------*/
 StatusCode L1CaloHVScalesMon:: initialize()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endmsg;
+  msg(MSG::INFO) << "Initializing " << name() << endmsg;
 
   ATH_CHECK( ManagedMonitorToolBase::initialize() );
   ATH_CHECK( m_cells2tt.retrieve() );

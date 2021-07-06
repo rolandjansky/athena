@@ -20,7 +20,7 @@
 
 #include "TRT_Cabling/ITRT_CablingSvc.h"
 
-#include "PixelConditionsData/PixelCablingCondData.h"
+#include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
 
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
@@ -45,13 +45,10 @@ public:
 
  private:
 
-  std::string m_managerName;
   bool        m_printTable;
 
-  /// Sadly still load the pixel cabling service to get the EventIDRange
-
-  SG::ReadCondHandleKey<PixelCablingCondData> m_condCablingKey
-    {this, "PixelCablingCondData", "PixelCablingCondData", "Pixel cabling key"};
+  SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> m_trtDetEleContKey
+    {this, "TRTDetEleContKey", "TRT_DetElementContainer", "Key of TRT_DetElementContainer"};
 
   /// Output conditions object
   SG::WriteCondHandleKey<IRegSelLUTCondData> m_tableKey  

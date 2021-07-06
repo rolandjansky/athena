@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cassert>
@@ -341,7 +341,7 @@ void egammaMVACalib::getReaders(const TString & folder)
 
   TSystemFile *file;
   TIter next(list_of_files);
-  egammaMVACalib::ReaderID key;
+  egammaMVACalib::ReaderID key{};
 
   while ((file=(TSystemFile*)next()))
   {
@@ -384,13 +384,12 @@ void egammaMVACalib::getBDTs(const std::string & folder)
 
 void egammaMVACalib::setupBDT(const TString& fileName)
 {
-  egammaMVACalib::ReaderID key;
+  egammaMVACalib::ReaderID key{};
   if (!parseFileName(fileName, key.particleType)) return;
   ATH_MSG_DEBUG("Setup BDT for particle " << key.particleType);
 
-  TString filePath = PathResolverFindCalibFile(fileName.Data());
-  std::unique_ptr<TFile> f(TFile::Open(filePath));
-  CHECK_SETUPBDT( f.get() && f->IsZombie() );
+  std::unique_ptr<TFile> f(TFile::Open(fileName));
+  CHECK_SETUPBDT( f.get() && !f->IsZombie() );
 
   // Load hPoly
   auto hPoly = loadFromFile<TH2Poly>(f.get(), "hPoly");

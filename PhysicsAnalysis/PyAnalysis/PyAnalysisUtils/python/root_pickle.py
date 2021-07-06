@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #
 # File: root_pickle.py
@@ -79,7 +79,10 @@ from six.moves import intern
 
 def _getdir():
     if hasattr (ROOT.TDirectory, 'CurrentDirectory'):
-        return ROOT.TDirectory.CurrentDirectory()
+        d = ROOT.TDirectory.CurrentDirectory()
+        if hasattr (d, 'load'):
+            # Handle case of CurrentDirectory() returning an atomic.
+            d = d.load()
     return ROOT.gDirectory
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -12,7 +12,7 @@
 //
 // ********************************************************************
 
-#include <ctime>
+#include <time.h>
 #include <sstream>
 
 #include "TAxis.h"
@@ -94,16 +94,11 @@ OverviewMon::~OverviewMon()
 /*---------------------------------------------------------*/
 {}
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
-
 /*---------------------------------------------------------*/
 StatusCode OverviewMon::initialize()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endmsg;
+  msg(MSG::INFO) << "Initializing " << name() << endmsg;
 
   StatusCode sc;
 
@@ -686,10 +681,11 @@ StatusCode OverviewMon::fillHistograms()
       const EventInfo *evtInfo = 0;
       StatusCode sc = evtStore()->retrieve(evtInfo);
       if (sc.isSuccess()) {
-        time_t timeStamp = evtInfo->event_ID()->time_stamp();
-        std::tm *local = localtime(&timeStamp);
+        const time_t timeStamp = evtInfo->event_ID()->time_stamp();
+        struct tm local;
+        localtime_r(&timeStamp, &local);
         int itime =
-            local->tm_hour * 10000 + local->tm_min * 100 + local->tm_sec;
+            local.tm_hour * 10000 + local.tm_min * 100 + local.tm_sec;
         if (itime == 0)
           itime = 1;
         double time = itime / 10000.;

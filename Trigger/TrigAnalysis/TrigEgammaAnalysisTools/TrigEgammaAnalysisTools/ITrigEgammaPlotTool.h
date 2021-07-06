@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ITrigEgammaPlotTool.h
@@ -8,19 +8,15 @@
 #define ITrigEgammaPlotTool_H
 
 #include "AsgTools/IAsgTool.h"
-#include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/IInterface.h"
 #include "TrigHLTMonitoring/IHLTMonTool.h"
 #include "TrigEgammaAnalysisTools/TrigEgammaInfo.h"
-//#include "StoreGate/StoreGateSvc.h"
-
-#include "xAODEgamma/Egamma.h"
-#include "TrigConfHLTData/HLTTriggerElement.h"
 
 #include "TH1.h"
 #include "TH2.h"
 #include "TTree.h"
-#include <utility>
+
+#include <string>
+#include <map>
 
 class ITrigEgammaPlotTool : virtual public asg::IAsgTool {
   ASG_TOOL_INTERFACE(ITrigEgammaPlotTool)

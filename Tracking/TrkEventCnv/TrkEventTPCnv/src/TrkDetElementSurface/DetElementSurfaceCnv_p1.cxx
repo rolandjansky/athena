@@ -13,7 +13,7 @@ Trk::DetElementSurface* DetElementSurfaceCnv_p1::createTransient( const Trk::Det
     //std::cout<<"DetElementSurfaceCnv_p1::createTransient persObj->m_id:"<<persObj->m_id<<std::endl;
    
     m_id = persObj->m_id; // store Id, and then use in createSurface
-    return 0;
+    return nullptr;
 }
 
 const Trk::Surface* DetElementSurfaceCnv_p1::createSurface( MsgStream & /*log*/ )

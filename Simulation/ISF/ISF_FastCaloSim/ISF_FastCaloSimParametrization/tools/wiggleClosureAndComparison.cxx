@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FCS_Cell.h"
@@ -326,16 +326,18 @@ void wiggleClosureAndComparison(TString sampling="Sampling_0"){
 	if(hitSampling<21)someCell=geo->getDDE(hitSampling,hitVec->Eta(),hitVec->Phi());
 	else if (hitSampling<24)someCell=geo->getFCalDDE(hitSampling,x,y,z);
 	else someCell=0;
-	Long64_t someCellID = someCell->identify();
+        if (someCell) {
+          Long64_t someCellID = someCell->identify();
 	
-	if (Eoriginal.find(someCellID) != Eoriginal.end()){
-	  std::map<Long64_t, double>::iterator someit = Eoriginal.find(someCellID);
-	  someit->second+=((FCS_matchedcell)(*vec)[j]).hit[ihit].hit_energy;
-	} //end cells exist
+          if (Eoriginal.find(someCellID) != Eoriginal.end()){
+            std::map<Long64_t, double>::iterator someit = Eoriginal.find(someCellID);
+            someit->second+=((FCS_matchedcell)(*vec)[j]).hit[ihit].hit_energy;
+          } //end cells exist
 	
-	else {
-	  Eoriginal.insert(std::pair<Long64_t, double>(someCellID, ((FCS_matchedcell)(*vec)[j]).hit[ihit].hit_energy));
-	}//end of else creating new cell	
+          else {
+            Eoriginal.insert(std::pair<Long64_t, double>(someCellID, ((FCS_matchedcell)(*vec)[j]).hit[ihit].hit_energy));
+          }//end of else creating new cell
+        }
       } //end hit loop
       
       //Eoriginal.insert(std::pair<Long64_t, double>(((FCS_matchedcell)(*vec)[j]).cell.cell_identifier, sum_energy_hit));
@@ -415,16 +417,18 @@ void wiggleClosureAndComparison(TString sampling="Sampling_0"){
 		else foundCell=0;
 
 	  //deposit energy in specific cell
-	  Long64_t foundCellID = foundCell->identify();
-	  if (Eclosure.find(foundCellID) != Eclosure.end()){
-	    std::map<Long64_t, double>::iterator it = Eclosure.find(foundCellID);
-	    // found cell iD: foundCell->identify()
-	    it->second+=((FCS_matchedcell)(*vec)[j]).hit[ihit].hit_energy;
-	  } //end cells exist
-	  else {
-	    //create the cell --> OK assigned probabilistically although not really in terms of cell IDs
-	    Eclosure.insert(std::pair<Long64_t, double>(foundCellID, ((FCS_matchedcell)(*vec)[j]).hit[ihit].hit_energy));
-	  }//end of else creating new cell
+          if (foundCell) {
+            Long64_t foundCellID = foundCell->identify();
+            if (Eclosure.find(foundCellID) != Eclosure.end()){
+              std::map<Long64_t, double>::iterator it = Eclosure.find(foundCellID);
+              // found cell iD: foundCell->identify()
+              it->second+=((FCS_matchedcell)(*vec)[j]).hit[ihit].hit_energy;
+            } //end cells exist
+            else {
+              //create the cell --> OK assigned probabilistically although not really in terms of cell IDs
+              Eclosure.insert(std::pair<Long64_t, double>(foundCellID, ((FCS_matchedcell)(*vec)[j]).hit[ihit].hit_energy));
+            }//end of else creating new cell
+          }
 	} //end if cell ok
       } //end loop over hits
       
@@ -538,7 +542,10 @@ void wiggleClosureAndComparison(TString sampling="Sampling_0"){
 
   for (int i=0; i<11; i++){
     //    c2[i]= new TCanvas();
-    c2[i] = new TCanvas("c2"+i,"c2"+i,2);
+    {
+      std::string hname = "c2_" + std::to_string(i);
+      c2[i] = new TCanvas(hname.c_str(),hname.c_str(),2);
+    }
 
     c2[i]->Divide(2,2);
     c2[i]->cd(1);
@@ -554,7 +561,10 @@ void wiggleClosureAndComparison(TString sampling="Sampling_0"){
 
 
     //c3[i]= new TCanvas();
-    c3[i] = new TCanvas("c3"+i,"c3"+i,2);
+    {
+      std::string hname = "c3_" + std::to_string(i);
+      c3[i] = new TCanvas(hname.c_str(),hname.c_str(),2);
+    }
 
     c3[i]->Divide(2,2);
     c3[i]->cd(1);
@@ -577,7 +587,10 @@ void wiggleClosureAndComparison(TString sampling="Sampling_0"){
     c3[i]->Print("wiggle_plots_ClosureTest"+sampling+".pdf");
 
     //cc2[i] = new TCanvas();
-    cc2[i] = new TCanvas("cc22"+i,"cc22"+i,2);
+    {
+      std::string hname = "cc22_" + std::to_string(i);
+      cc2[i] = new TCanvas(hname.c_str(),hname.c_str(),2);
+    }
 
 
     //cc2[i]->Divide(2,1);
@@ -612,7 +625,10 @@ void wiggleClosureAndComparison(TString sampling="Sampling_0"){
 
 
     //ccc2[i] = new TCanvas();
-    ccc2[i] = new TCanvas("cc2"+i,"cc2"+i,2);
+    {
+      std::string hname = "cc2_" + std::to_string(i);
+      ccc2[i] = new TCanvas(hname.c_str(),hname.c_str(),2);
+    }
 
     //ccc2[i]->SetLogz();
     //dEta_dPhi_FCS_matched_overAvg[i]->GetZaxis()->SetRangeUser(0.1,10);
@@ -624,7 +640,10 @@ void wiggleClosureAndComparison(TString sampling="Sampling_0"){
     ccc2[i]->Print("wiggle_plots_ClosureTest"+sampling+".pdf");
 
     //   ccc3[i] = new TCanvas();
-    ccc3[i] = new TCanvas("cc3"+i,"cc3"+i,2);
+    {
+      std::string hname = "cc3_" + std::to_string(i);
+      ccc3[i] = new TCanvas(hname.c_str(),hname.c_str(),2);
+    }
 
     subtraction[i] = (TProfile2D*)dEta_dPhi_FCS_orig_overAvg[i]->Clone("subtraction_"+sampling);
     subtraction[i]->Add(dEta_dPhi_FCS_matched_overAvg[i],-1);
@@ -634,7 +653,10 @@ void wiggleClosureAndComparison(TString sampling="Sampling_0"){
 
 
     //    ccc4[i] = new TCanvas();
-    ccc4[i] = new TCanvas("cc4"+i,"cc4"+i,2);
+    {
+      std::string hname = "cc4_" + std::to_string(i);
+      ccc4[i] = new TCanvas(hname.c_str(),hname.c_str(),2);
+    }
 
     //ccc4[i]->SetLogz();
     dEta_dPhi_FCS_orig_overAvg[i]->GetXaxis()->SetRangeUser(-0.1,0.1);
@@ -644,7 +666,10 @@ void wiggleClosureAndComparison(TString sampling="Sampling_0"){
     ccc4[i]->Print("wiggle_plots_ClosureTest"+sampling+".pdf");
 
     //ccc5[i] = new TCanvas();
-    ccc5[i] = new TCanvas("cc5"+i,"cc5"+i,2);
+    {
+      std::string hname = "cc5_" + std::to_string(i);
+      ccc5[i] = new TCanvas(hname.c_str(),hname.c_str(),2);
+    }
 
     //ccc5[i]->SetLogz();
     dEta_dPhi_FCS_matched_overAvg[i]->GetXaxis()->SetRangeUser(-0.1,0.1);
@@ -653,7 +678,10 @@ void wiggleClosureAndComparison(TString sampling="Sampling_0"){
     dEta_dPhi_FCS_matched_overAvg[i]->Draw("colz");
     ccc5[i]->Print("wiggle_plots_ClosureTest"+sampling+".pdf");
 
-    ccc6[i] = new TCanvas("cc6"+i,"cc6"+i,2);
+    {
+      std::string hname = "cc6_" + std::to_string(i);
+      ccc6[i] = new TCanvas(hname.c_str(),hname.c_str(),2);
+    }
     subtraction[i]->GetXaxis()->SetRangeUser(-0.1,0.1);
     subtraction[i]->GetYaxis()->SetRangeUser(-0.1,0.1);
     subtraction[i]->Draw("colz");

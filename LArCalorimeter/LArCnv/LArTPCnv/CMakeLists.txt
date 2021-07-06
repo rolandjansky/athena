@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( LArTPCnv )
@@ -68,4 +68,14 @@ atlas_add_test( LArRawChannelContainerCnv_p4_test
 atlas_add_test( LArLATOMEHeaderContainerCnv_p1_test
                 SOURCES
                 test/LArLATOMEHeaderContainerCnv_p1_test.cxx
-                LINK_LIBRARIES GaudiKernel LArTPCnv TestTools )
+                LINK_LIBRARIES AthenaPoolCnvSvcLib LArRawEvent LArRecEvent TestTools CaloIdentifier AthenaKernel Identifier LArTPCnv )
+
+atlas_add_test( LArSCDigitContainerCnv_p1_test
+                SOURCES
+                test/LArSCDigitContainerCnv_p1_test.cxx
+                LINK_LIBRARIES AthenaPoolCnvSvcLib LArRawEvent LArRecEvent TestTools CaloIdentifier AthenaKernel Identifier LArTPCnv )
+
+atlas_add_test( LArRawSCContainerCnv_p1_test
+                SOURCES
+                test/LArRawSCContainerCnv_p1_test.cxx
+                LINK_LIBRARIES AthenaPoolCnvSvcLib LArRawEvent LArRecEvent TestTools CaloIdentifier AthenaKernel Identifier LArTPCnv )

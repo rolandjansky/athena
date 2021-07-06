@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMATOOLS_EMCONVERSIONBUILDER_H
@@ -56,10 +56,6 @@ public:
   /** @brief execute method*/
   virtual StatusCode executeRec(const EventContext& ctx,
                                 egammaRec* egRec) const override final;
-  /** @brief execute method*/
-  virtual StatusCode hltExecute(
-    egammaRec* egRec,
-    const xAOD::VertexContainer* conversions) const override final;
 
 private:
   /** @brief actual  implementation method*/

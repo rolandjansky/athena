@@ -5,6 +5,8 @@ def CaloCellPedestalCorrDefault(name='CaloCellPedestalCorr'):
    from AthenaCommon.Logging import logging 
    mlog = logging.getLogger( 'CaloCellPedestalCorrDefault' )
    from AthenaCommon.GlobalFlags import globalflags
+   from AthenaCommon.AlgSequence import AthSequencer
+   condSeq = AthSequencer ('AthCondSeq')
 
    try:
       from CaloCellCorrection.CaloCellCorrectionConf import CaloCellPedestalCorr
@@ -21,7 +23,8 @@ def CaloCellPedestalCorrDefault(name='CaloCellPedestalCorr'):
        else:
            folder= '/CALO/Ofl/Pedestal/CellPedestal'
            conddb.addFolder('CALO_OFL',folder,className="CondAttrListCollection")
-       theCaloCellPedestalCorr.PedestalShiftFolder = folder
+       from CaloCellCorrection.CaloCellCorrectionConf import CaloCellPedCorrCondAlg
+       condSeq+=CaloCellPedCorrCondAlg(PedestalShiftFolder=folder)
        theCaloCellPedestalCorr.isMC=False
    else:
        theCaloCellPedestalCorr.isMC=True
@@ -31,8 +34,8 @@ def CaloCellPedestalCorrDefault(name='CaloCellPedestalCorr'):
    if globalflags.DataSource()=='data' and (not jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr()) and (not athenaCommonFlags.isOnline()):
       lumiFolder = '/TRIGGER/LUMI/LBLESTONL'
       conddb.addFolder('TRIGGER_ONL',lumiFolder,className="CondAttrListCollection")
-      theCaloCellPedestalCorr.Luminosity = -1
-      theCaloCellPedestalCorr.LumiFolderName = lumiFolder
+      condSeq.CaloCellPedCorrCondAlg.Luminosity = -1
+      condSeq.CaloCellPedCorrCondAlg.LumiFolderName = lumiFolder
 
    if jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr() and (not athenaCommonFlags.isOnline()):
       from CaloRec.CaloBCIDAvgAlgDefault import CaloBCIDAvgAlgDefault

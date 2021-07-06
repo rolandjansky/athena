@@ -222,3 +222,84 @@ class LArExtendedSubDetGrouping:
         return partCounter
 
 
+    #Create COOL-channel selection string for partitions/gain strings as use by by the
+    #Automatic Processing of LAr Elec Calib runs
+
+    
+_lArExtendedSubDetGrouping = LArExtendedSubDetGrouping()
+def channelSelectionFromString(Partition,PartitionType, PartitionTypeGeneric, GainList):
+    print('LArExtendedSubDetGrouping')
+    print('Partition: ',Partition)
+    print('PGen: ',PartitionTypeGeneric)
+
+
+       
+
+    ## defined gain :
+        
+    ## HIGH
+    if ( GainList[0]=="HIGH" ):
+        gain= [0]
+        
+    ## MEDIUM    
+    elif  ( GainList[0]=="MEDIUM" ) :
+        gain= [1]
+
+    ## LOW    
+    elif  ( GainList[0]=="LOW" ) :
+        gain= [2]
+        
+    else:
+        gain=[0,1,2]
+
+    ## defined partition
+
+    ## EMB  A+C    
+    if ( Partition=='EB-EMBA' and ( PartitionTypeGeneric!='EMBPS' ) ) :
+        partition =['EMBA']
+        print('EMBA partition')
+    elif ( Partition=='EB-EMBC' and ( PartitionTypeGeneric!='EMBPS' ) ) :
+        partition =['EMBC']
+        print('EMBC partition')
+    elif ( Partition=='EB-EMB' and ( PartitionTypeGeneric!='EMBPS' ) ) :
+        partition =['EMBA','EMBC']
+        print('EMB partition')
+        
+    ## EMBPS  A+C     
+    if ( Partition=='EB-EMBA' and ( PartitionTypeGeneric=='EMBPS' ) ) :
+        partition =['EMBAPS']
+        print('EMBAPS partition')
+    elif ( Partition=='EB-EMBC' and ( PartitionTypeGeneric=='EMBPS' ) ) :
+        partition =['EMBCPS']
+        print('EMBCPS partition')
+    elif ( Partition=='EB-PS' and ( PartitionTypeGeneric=='EMBPS' ) ) :
+        partition =['EMBAPS','EMBCPS']
+        print('EMBAPS and EMBCPS partition')
+        
+    if ( Partition=='EB-EM' ) :
+        partition =['EMBAPS','EMBCPS','EMBA','EMBC','EMECAPS','EMECA','EMECCPS','EMECC']
+        print('EM partition')
+        
+    ## EMEC + PS A  44    
+    if ( Partition=='EB-EMECA' ) :
+        partition =['EMECAPS','EMECA']
+    elif ( Partition=='EB-EMECC' ) :
+        partition =['EMECCPS','EMECC']
+    elif ( Partition=='EB-EMEC' ) :
+        partition =['EMECAPS','EMECA','EMECCPS','EMECC']
+        ## HEC A + C   8 (4+4)  
+    elif ( PartitionType=='HEC'):
+        partition =['HECA','HECC']
+        
+        ## FCAL A + C   2 (1+1)
+    elif ( PartitionType=='FCAL') :   
+        partition =['FCALA','FCALC']
+        
+    elif ( Partition=='HECFCALC') :   
+        partition =['HECC','FCALC']
+
+    selection = _lArExtendedSubDetGrouping.getChannelSelection(partition,gain)
+    ChannelSelection='<channelSelection>'+selection+'</channelSelection>'
+    print(ChannelSelection)
+    print("CoolChannel Selection for ", partition, " and ",gain, " gain. ")
+    return ChannelSelection

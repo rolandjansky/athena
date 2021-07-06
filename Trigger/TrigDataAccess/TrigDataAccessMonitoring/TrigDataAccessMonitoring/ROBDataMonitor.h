@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -25,13 +25,12 @@ namespace robmonitor {
    */
   enum ROBHistory { 
     UNCLASSIFIED      = 0,  // ROB was requested but never arrived at processor. History unknown. 
-    SCHEDULED         = 1,  // ROB was scheduled before retrieveing
-    RETRIEVED         = 2,  // ROB was retrieved from ROS by DataCollector
-    HLT_CACHED        = 4,  // ROB was found already in the internal cache of the ROBDataProviderSvc
-    DCM_CACHED        = 8,  // ROB was found already in the internal cache of the DCM
-    IGNORED           = 16,  // ROB was on the "ignore" list and therefore not retrieved 
-    DISABLED          = 32,  // ROB was disabled in OKS and therefore not retrieved
-    NUM_ROBHIST_CODES = 7   // number of different history codes
+    RETRIEVED         = 1,  // ROB was retrieved from ROS by DataCollector
+    HLT_CACHED        = 2,  // ROB was found already in the internal cache of the ROBDataProviderSvc
+    DCM_CACHED        = 4,  // ROB was found already in the internal cache of the DCM
+    IGNORED           = 8,  // ROB was on the "ignore" list and therefore not retrieved 
+    UNDEFINED         = 16, // ROB was not on the "enabled" list, should not happen
+    NUM_ROBHIST_CODES = 6   // number of different history codes
   };
 
   /**
@@ -66,10 +65,8 @@ namespace robmonitor {
     bool isRetrieved() const;
     /** @brief ROB was ignored */
     bool isIgnored() const;
-    /** @brief ROB was disabled in OKS */
-    bool isDisabled() const;
-    /** @brief ROB was scheduled over network */
-    bool isScheduled() const;
+    /** @brief ROB was not enabled */
+    bool isUndefined() const;
     /** @brief ROB has no status words set */
     bool isStatusOk() const;
 
@@ -134,10 +131,8 @@ namespace robmonitor {
     unsigned retrievedROBs() const;
     /** @brief number of ignored ROBs in structure */
     unsigned ignoredROBs() const;
-    /** @brief number of disabled ROBs in structure */
-    unsigned disabledROBs() const;
-    /** @brief number of scheduled ROBs in structure */
-    unsigned scheduledROBs() const;
+    /** @brief number of undefined ROBs in structure */
+    unsigned undefinedROBs() const;
     /** @brief number of ROBs with no status words set in structure */
     unsigned statusOkROBs() const;
 
@@ -165,11 +160,8 @@ namespace robmonitor {
       os << "DCM_CACHED";
     }else if (rhs.rob_history == robmonitor::IGNORED) {
       os << "IGNORED";
-    } else if (rhs.rob_history == robmonitor::DISABLED) {
-      os << "DISABLED";
-   } else if (rhs.rob_history == robmonitor::SCHEDULED) {
-      os << "SCHEDULED";
-
+    } else if (rhs.rob_history == robmonitor::UNDEFINED) {
+      os << "UNDEFINED";
     } else {
       os << "invalid code";
     }
@@ -207,8 +199,7 @@ namespace robmonitor {
     os << "\n" << prefix << prefix2 << "DCM Cached   " << rhs.DCMcachedROBs()    ;
     os << "\n" << prefix << prefix2 << "Retrieved    " << rhs.retrievedROBs()    ;
     os << "\n" << prefix << prefix2 << "Ignored      " << rhs.ignoredROBs()      ;
-    os << "\n" << prefix << prefix2 << "Disabled     " << rhs.disabledROBs()     ;
-    os << "\n" << prefix << prefix2 << "Scheduled     " << rhs.scheduledROBs()     ;
+    os << "\n" << prefix << prefix2 << "Undefined    " << rhs.undefinedROBs()    ;
     os << "\n" << prefix << prefix2 << "Status OK    " << rhs.statusOkROBs()     ;
     for (std::map<const uint32_t,robmonitor::ROBDataStruct>::const_iterator it=rhs.requested_ROBs.begin();
 	 it != rhs.requested_ROBs.end(); ++it) {

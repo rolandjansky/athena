@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file MetaDataSvc.cxx
@@ -62,6 +62,9 @@ MetaDataSvc::MetaDataSvc(const std::string& name, ISvcLocator* pSvcLocator) : ::
    m_persToClid.insert(std::pair<std::string, CLID>("xAOD::TriggerMenuContainer_v1", 1107011239));
    m_persToClid.insert(std::pair<std::string, CLID>("DataVector<xAOD::TriggerMenu_v1>", 1107011239));
    m_persToClid.insert(std::pair<std::string, CLID>("xAOD::TriggerMenuAuxContainer_v1", 1212409402));
+   m_persToClid.insert(std::pair<std::string, CLID>("xAOD::TriggerMenuJsonContainer_v1", 1221262614));
+   m_persToClid.insert(std::pair<std::string, CLID>("DataVector<xAOD::TriggerMenuJson_v1>", 1221262614));
+   m_persToClid.insert(std::pair<std::string, CLID>("xAOD::TriggerMenuJsonAuxContainer_v1", 373045213));
    m_persToClid.insert(std::pair<std::string, CLID>("xAOD::LumiBlockRangeContainer_v1", 1115934851));
    m_persToClid.insert(std::pair<std::string, CLID>("DataVector<xAOD::LumiBlockRange_v1>", 1115934851));
    m_persToClid.insert(std::pair<std::string, CLID>("xAOD::LumiBlockRangeAuxContainer_v1", 1251061086));
@@ -78,6 +81,7 @@ MetaDataSvc::MetaDataSvc(const std::string& name, ISvcLocator* pSvcLocator) : ::
    m_toolForClid.insert(std::pair<CLID, std::string>(243004407, "xAODMaker::EventFormatMetaDataTool"));
    m_toolForClid.insert(std::pair<CLID, std::string>(1234982351, "BookkeeperTool"));
    m_toolForClid.insert(std::pair<CLID, std::string>(1107011239, "xAODMaker::TriggerMenuMetaDataTool"));
+   m_toolForClid.insert(std::pair<CLID, std::string>(1221262614, "xAODMaker::TriggerMenuMetaDataTool"));
    m_toolForClid.insert(std::pair<CLID, std::string>(1115934851, "LumiBlockMetaDataTool"));
    m_toolForClid.insert(std::pair<CLID, std::string>(178309087, "xAODMaker::FileMetaDataTool"));
    m_toolForClid.insert(std::pair<CLID, std::string>(1188015687, "xAODMaker::TruthMetaDataTool"));
@@ -87,27 +91,15 @@ MetaDataSvc::~MetaDataSvc() {
 }
 //__________________________________________________________________________
 StatusCode MetaDataSvc::initialize() {
-   ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
-   if (!::AthService::initialize().isSuccess()) {
-      ATH_MSG_FATAL("Cannot initialize AthService base class.");
-      return(StatusCode::FAILURE);
-   }
+   ATH_MSG_INFO("Initializing " << name());
 
    // Retrieve InputMetaDataStore
-   if (!m_inputDataStore.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get InputMetaDataStore.");
-      return(StatusCode::FAILURE);
-   }
+   ATH_CHECK( m_inputDataStore.retrieve() );
    // Retrieve OutputMetaDataStore
-   if (!m_outputDataStore.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get OutputMetaDataStore.");
-      return(StatusCode::FAILURE);
-   }
+   ATH_CHECK( m_outputDataStore.retrieve() );
    // Retrieve AddressCreator
-   if (!m_addrCrtr.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get AddressCreator.");
-      return(StatusCode::FAILURE);
-   }
+   ATH_CHECK( m_addrCrtr.retrieve() );
+
    AthCnvSvc* cnvSvc = dynamic_cast<AthCnvSvc*>(m_addrCrtr.operator->());
    if (cnvSvc) {
       m_storageType = cnvSvc->repSvcType();
@@ -115,19 +107,12 @@ StatusCode MetaDataSvc::initialize() {
       ATH_MSG_WARNING("Cannot get ConversionSvc Interface.");
    }
    // Get FileMgr
-   if (!m_fileMgr.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get FileMgr.");
-      return(StatusCode::FAILURE);
-   }
+   ATH_CHECK( m_fileMgr.retrieve() );
+
    // Set to be listener for end of event
-   if (!m_incSvc.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get IncidentSvc.");
-      return(StatusCode::FAILURE);
-   }
-   if (m_metaDataTools.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Cannot get " << m_metaDataTools);
-      return(StatusCode::FAILURE);
-   }
+   ATH_CHECK( m_incSvc.retrieve() );
+
+   ATH_CHECK( m_metaDataTools.retrieve() );
    ATH_MSG_INFO("Found " << m_metaDataTools);
 
    m_incSvc->addListener(this, "FirstInputFile", 80);
@@ -136,14 +121,9 @@ StatusCode MetaDataSvc::initialize() {
 
    // Register this service for 'I/O' events
    ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", this->name());
-   if (!iomgr.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get IoComponentMgr.");
-      return(StatusCode::FAILURE);
-   }
-   if (!iomgr->io_register(this).isSuccess()) {
-      ATH_MSG_FATAL("Cannot register myself with the IoComponentMgr.");
-      return(StatusCode::FAILURE);
-   }
+   ATH_CHECK( iomgr.retrieve() );
+   ATH_CHECK( iomgr->io_register(this) );
+
    ServiceHandle<Gaudi::Interfaces::IOptionsSvc> joSvc("JobOptionsSvc", name());
    if (!joSvc.retrieve().isSuccess()) {
       ATH_MSG_WARNING("Cannot get JobOptionsSvc.");
@@ -183,7 +163,7 @@ StatusCode MetaDataSvc::finalize() {
    if (!m_inputDataStore.release().isSuccess()) {
       ATH_MSG_WARNING("Cannot release InputMetaDataStore.");
    }
-   return(::AthService::finalize());
+   return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
 StatusCode MetaDataSvc::stop() {
@@ -467,14 +447,23 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
          if ((*iter)->name() == "ToolSvc.CopyEventStreamInfo") foundTool = true;
       }
       if (!foundTool) {
-         ServiceHandle<IIncidentListener> cfSvc("CutFlowSvc", this->name()); // Disable CutFlowSvc by stopping its incidents.
-         if (cfSvc.retrieve().isSuccess()) {
-            m_incSvc->removeListener(cfSvc.get(), IncidentType::BeginInputFile);
-            m_incSvc->removeListener(cfSvc.get(), IncidentType::EndInputFile);
-            m_incSvc->removeListener(cfSvc.get(), IncidentType::EndRun);
-            m_incSvc->removeListener(cfSvc.get(), "StoreCleared");
-            m_incSvc->removeListener(cfSvc.get(), "MetaDataStop");
-            cfSvc.release().ignore();
+         if (serviceLocator()->existsService("CutFlowSvc")) {
+            ServiceHandle<IIncidentListener> cfSvc("CutFlowSvc", this->name()); // Disable CutFlowSvc by stopping its incidents.
+            if (cfSvc.retrieve().isSuccess()) {
+               ATH_MSG_INFO("Disabling incidents for: " << cfSvc.name());
+               m_incSvc->removeListener(cfSvc.get(), IncidentType::BeginInputFile);
+               m_incSvc->removeListener(cfSvc.get(), "MetaDataStop");
+               cfSvc.release().ignore();
+            }
+         }
+         if (serviceLocator()->existsService("xAODConfigSvc")) {
+            ServiceHandle<IIncidentListener> xcSvc("xAODConfigSvc", this->name()); // Disable xAODConfigSvc, fails for merging
+            if (xcSvc.retrieve().isSuccess()) {
+               ATH_MSG_INFO("Disabling incidents for: " << xcSvc.name());
+               m_incSvc->removeListener(xcSvc.get(), IncidentType::BeginInputFile);
+               m_incSvc->removeListener(xcSvc.get(), IncidentType::BeginEvent);
+               xcSvc.release().ignore();
+            }
          }
       }
    }
@@ -487,7 +476,7 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
       } else {
          toolInstName = toolName;
       }
-      if (clid == 178309087) { // Some MetaData have multiple objects needing seperate tools for propagation
+      if (clid == 178309087 || clid == 243004407) { // Some MetaData have multiple objects needing seperate tools for propagation
          toolInstName += "_" + keyName;
       }
       bool foundTool = false;
@@ -505,7 +494,7 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
             ATH_MSG_FATAL("Cannot get " << toolInstName);
             return(StatusCode::FAILURE);
          }
-         if (clid == 178309087) { // Set keys for FileMetaDataTool
+         if (clid == 178309087 || clid == 243004407) { // Set keys for FileMetaDataTool and EventFormatMetaDataTool
             IProperty* property = dynamic_cast<IProperty*>(metadataTool.get());
             if (property == nullptr) {
                ATH_MSG_FATAL("addProxyToInputMetaDataStore: Cannot set input key " << tokenStr);
@@ -649,40 +638,23 @@ void MetaDataSvc::recordHook(const std::type_info& typeInfo) {
 
   CLID itemID = 0;
   if (m_classIDSvc->getIDOfTypeInfoName(typeName, itemID).isSuccess()) {
-
-    ATH_MSG_DEBUG("MetaDataSvc will handle ClassID " << itemID);
-    auto it =  m_handledClasses.find(itemID);
-
-    if (it == m_handledClasses.end())
-      m_handledClasses[itemID] = 1;
-    else
-      (it->second)++;
-
+    auto result =  m_handledClasses.insert(itemID);
+    if (result.second)
+      ATH_MSG_DEBUG("MetaDataSvc will handle " << typeName
+                    << " ClassID: " << itemID);
   }
-
 }
 
 void MetaDataSvc::removeHook(const std::type_info& typeInfo) {
   const std::string& typeName = System::typeinfoName(typeInfo);
-  ATH_MSG_VERBOSE("Handling removal of event of type " << typeName);
+  ATH_MSG_VERBOSE("Handling removal event of type " << typeName);
 
   CLID itemID = 0;
-  // use Gaudi::System to get type name
   if (m_classIDSvc->getIDOfTypeInfoName(typeName, itemID).isSuccess()) {
-
-    ATH_MSG_DEBUG("MetaDataSvc will handle ClassID " << itemID);
-    auto it =  m_handledClasses.find(itemID);
-
-    if (it == m_handledClasses.end())
-      return;
-
-    (it->second)--;
-
-    if (it->second == 0)
-      m_handledClasses.erase(it);
-
+    if (0 < m_handledClasses.erase(itemID))
+      ATH_MSG_DEBUG("MetaDataSvc will no longer handle " << typeName
+                    << " ClassID: " << itemID);
   }
-
 }
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -19,7 +19,7 @@
 // default constructor
 Trk::CylinderSurface::CylinderSurface()
   : Trk::Surface()
-  , m_bounds()
+  , m_bounds(nullptr)
   , m_referencePoint(nullptr)
   , m_rotSymmetryAxis(nullptr)
 {}
@@ -33,31 +33,38 @@ Trk::CylinderSurface::CylinderSurface(const CylinderSurface& csf)
 {}
 
 // copy constructor with shift
-Trk::CylinderSurface::CylinderSurface(const CylinderSurface& csf, const Amg::Transform3D& transf)
+Trk::CylinderSurface::CylinderSurface(const CylinderSurface& csf,
+                                      const Amg::Transform3D& transf)
   : Trk::Surface(csf, transf)
   , m_bounds(csf.m_bounds)
   , m_referencePoint(nullptr)
   , m_rotSymmetryAxis(nullptr)
 {}
 
-// constructor by radius and halflength
-Trk::CylinderSurface::CylinderSurface(Amg::Transform3D* htrans, double radius, double hlength)
+// constructor by radius and halflenght
+Trk::CylinderSurface::CylinderSurface(const Amg::Transform3D& htrans,
+                                      double radius,
+                                      double hlength)
   : Trk::Surface(htrans)
-  , m_bounds(new Trk::CylinderBounds(radius, hlength))
+  , m_bounds(std::make_shared<Trk::CylinderBounds>(radius, hlength))
   , m_referencePoint(nullptr)
   , m_rotSymmetryAxis(nullptr)
 {}
 
 // constructor by radius, halflenght and phisector
-Trk::CylinderSurface::CylinderSurface(Amg::Transform3D* htrans, double radius, double hphi, double hlength)
+Trk::CylinderSurface::CylinderSurface(const Amg::Transform3D& htrans,
+                                      double radius,
+                                      double hphi,
+                                      double hlength)
   : Trk::Surface(htrans)
-  , m_bounds(new Trk::CylinderBounds(radius, hphi, hlength))
+  , m_bounds(std::make_shared<Trk::CylinderBounds>(radius, hphi, hlength))
   , m_referencePoint(nullptr)
   , m_rotSymmetryAxis(nullptr)
 {}
 
 // constructor by CylinderBounds
-Trk::CylinderSurface::CylinderSurface(Amg::Transform3D* htrans, Trk::CylinderBounds* cbounds)
+Trk::CylinderSurface::CylinderSurface(const Amg::Transform3D& htrans,
+                                      Trk::CylinderBounds* cbounds)
   : Trk::Surface(htrans)
   , m_bounds(cbounds)
   , m_referencePoint(nullptr)
@@ -66,9 +73,9 @@ Trk::CylinderSurface::CylinderSurface(Amg::Transform3D* htrans, Trk::CylinderBou
   assert(cbounds);
 }
 
-// constructor from transform by unique_ptr
-Trk::CylinderSurface::CylinderSurface(std::unique_ptr<Amg::Transform3D> htrans)
-  : Trk::Surface(std::move(htrans))
+// constructor from transform
+Trk::CylinderSurface::CylinderSurface(const Amg::Transform3D& htrans)
+  : Trk::Surface(htrans)
   , m_bounds(nullptr)
   , m_referencePoint(nullptr)
   , m_rotSymmetryAxis(nullptr)
@@ -76,16 +83,18 @@ Trk::CylinderSurface::CylinderSurface(std::unique_ptr<Amg::Transform3D> htrans)
 
 // constructor by radius and halflength
 Trk::CylinderSurface::CylinderSurface(double radius, double hlength)
-  : Trk::Surface(nullptr)
-  , m_bounds(new Trk::CylinderBounds(radius, hlength))
+  : Trk::Surface()
+  , m_bounds(std::make_shared<Trk::CylinderBounds>(radius, hlength))
   , m_referencePoint(nullptr)
   , m_rotSymmetryAxis(nullptr)
 {}
 
-// constructor by radius, halflenght and phisector
-Trk::CylinderSurface::CylinderSurface(double radius, double hphi, double hlength)
-  : Trk::Surface(nullptr)
-  , m_bounds(new Trk::CylinderBounds(radius, hphi, hlength))
+// constructor by radius, halflength and phisector
+Trk::CylinderSurface::CylinderSurface(double radius,
+                                      double hphi,
+                                      double hlength)
+  : Trk::Surface()
+  , m_bounds(std::make_shared<Trk::CylinderBounds>(radius, hphi, hlength))
   , m_referencePoint(nullptr)
   , m_rotSymmetryAxis(nullptr)
 {}
@@ -99,9 +108,6 @@ Trk::CylinderSurface::CylinderSurface(Trk::CylinderBounds* cbounds)
 {
   assert(cbounds);
 }
-
-// destructor (will call destructor from base class which deletes objects)
-Trk::CylinderSurface::~CylinderSurface() = default;
 
 Trk::CylinderSurface&
 Trk::CylinderSurface::operator=(const CylinderSurface& csf)
@@ -131,7 +137,8 @@ bool
 Trk::CylinderSurface::operator==(const Trk::Surface& sf) const
 {
   // first check the type not to compare apples with oranges
-  const Trk::CylinderSurface* csf = dynamic_cast<const Trk::CylinderSurface*>(&sf);
+  const Trk::CylinderSurface* csf =
+    dynamic_cast<const Trk::CylinderSurface*>(&sf);
   if (!csf)
     return false;
   if (this == csf)
@@ -144,14 +151,18 @@ Trk::CylinderSurface::operator==(const Trk::Surface& sf) const
 
 // return the measurement frame: it's the tangential plane
 Amg::RotationMatrix3D
-Trk::CylinderSurface::measurementFrame(const Amg::Vector3D& pos, const Amg::Vector3D&) const
+Trk::CylinderSurface::measurementFrame(const Amg::Vector3D& pos,
+                                       const Amg::Vector3D&) const
 {
   Amg::RotationMatrix3D mFrame;
   // construct the measurement frame
-  Amg::Vector3D measY(transform().rotation().col(2)); // measured Y is the z axis
+  Amg::Vector3D measY(
+    transform().rotation().col(2)); // measured Y is the z axis
   Amg::Vector3D measDepth =
-    Amg::Vector3D(pos.x(), pos.y(), 0.).unit();       // measured z is the position transverse normalized
-  Amg::Vector3D measX(measY.cross(measDepth).unit()); // measured X is what comoes out of it
+    Amg::Vector3D(pos.x(), pos.y(), 0.)
+      .unit(); // measured z is the position transverse normalized
+  Amg::Vector3D measX(
+    measY.cross(measDepth).unit()); // measured X is what comoes out of it
   // the columnes
   mFrame.col(0) = measX;
   mFrame.col(1) = measY;
@@ -171,28 +182,34 @@ Trk::CylinderSurface::rotSymmetryAxis() const
 }
 
 void
-Trk::CylinderSurface::localToGlobal(const Amg::Vector2D& locpos, const Amg::Vector3D&, Amg::Vector3D& glopos) const
+Trk::CylinderSurface::localToGlobal(const Amg::Vector2D& locpos,
+                                    const Amg::Vector3D&,
+                                    Amg::Vector3D& glopos) const
 {
   // create the position in the local 3d frame
   double r = bounds().r();
   double phi = locpos[Trk::locRPhi] / r;
   glopos = Amg::Vector3D(r * cos(phi), r * sin(phi), locpos[Trk::locZ]);
-  // transform it to the globalframe: CylinderSurfaces are allowed to have 0 pointer transform
-  if (Trk::Surface::m_transform)
+  // transform it to the globalframe: CylinderSurfaces are allowed to have 0
+  // pointer transform
+  if (Trk::Surface::m_transforms)
     glopos = transform() * glopos;
 }
 
 bool
-Trk::CylinderSurface::globalToLocal(const Amg::Vector3D& glopos, const Amg::Vector3D&, Amg::Vector2D& locpos) const
+Trk::CylinderSurface::globalToLocal(const Amg::Vector3D& glopos,
+                                    const Amg::Vector3D&,
+                                    Amg::Vector2D& locpos) const
 {
   // get the transform & transform global position into cylinder frame
-  // transform it to the globalframe: CylinderSurfaces are allowed to have 0 pointer transform
+  // transform it to the globalframe: CylinderSurfaces are allowed to have 0
+  // pointer transform
   double radius = 0.;
   double inttol = bounds().r() * 0.0001;
   if (inttol < 0.01)
     inttol = 0.01;
   // do the transformation or not
-  if (Trk::Surface::m_transform) {
+  if (Trk::Surface::m_transforms) {
     const Amg::Transform3D& surfaceTrans = transform();
     Amg::Transform3D inverseTrans(surfaceTrans.inverse());
     Amg::Vector3D loc3Dframe(inverseTrans * glopos);
@@ -207,10 +224,17 @@ Trk::CylinderSurface::globalToLocal(const Amg::Vector3D& glopos, const Amg::Vect
 }
 
 bool
-Trk::CylinderSurface::isOnSurface(const Amg::Vector3D& glopo, Trk::BoundaryCheck bchk, double tol1, double tol2) const
+Trk::CylinderSurface::isOnSurface(const Amg::Vector3D& glopo,
+                                  const Trk::BoundaryCheck& bchk,
+                                  double tol1,
+                                  double tol2) const
 {
-  Amg::Vector3D loc3Dframe = Trk::Surface::m_transform ? (transform().inverse()) * glopo : glopo;
-  return (bchk ? bounds().inside3D(loc3Dframe, tol1 + s_onSurfaceTolerance, tol2 + s_onSurfaceTolerance) : true);
+  Amg::Vector3D loc3Dframe =
+    Trk::Surface::m_transforms ? (transform().inverse()) * glopo : glopo;
+  return (bchk ? bounds().inside3D(loc3Dframe,
+                                   tol1 + s_onSurfaceTolerance,
+                                   tol2 + s_onSurfaceTolerance)
+               : true);
 }
 
 Trk::Intersection
@@ -219,7 +243,7 @@ Trk::CylinderSurface::straightLineIntersection(const Amg::Vector3D& pos,
                                                bool forceDir,
                                                Trk::BoundaryCheck bchk) const
 {
-  bool needsTransform = m_transform || m_associatedDetElement;
+  bool needsTransform = m_transforms || m_associatedDetElement;
   // create the hep points
   Amg::Vector3D point1 = pos;
   Amg::Vector3D direction = dir;
@@ -271,7 +295,8 @@ Trk::CylinderSurface::straightLineIntersection(const Amg::Vector3D& pos,
   // first check the validity of the direction
   bool isValid = true;
 
-  // both solutions are of same sign, take the smaller, but flag as false if not forward
+  // both solutions are of same sign, take the smaller, but flag as false if not
+  // forward
   if (t1 * t2 > 0 || !forceDir) {
     // asign validity
     isValid = forceDir ? (t1 > 0.) : true;
@@ -293,19 +318,31 @@ Trk::CylinderSurface::straightLineIntersection(const Amg::Vector3D& pos,
     }
   }
   // the solution is still in the local 3D frame, direct check
-  isValid = bchk
-              ? (isValid &&
-                 m_bounds->inside3D(solution, Trk::Surface::s_onSurfaceTolerance, Trk::Surface::s_onSurfaceTolerance))
-              : isValid;
+  isValid =
+    bchk ? (isValid && m_bounds->inside3D(solution,
+                                          Trk::Surface::s_onSurfaceTolerance,
+                                          Trk::Surface::s_onSurfaceTolerance))
+         : isValid;
 
   // now return
-  return needsTransform ? Intersection(transform() * solution, path, isValid) : Intersection(solution, path, isValid);
+  return needsTransform ? Intersection(transform() * solution, path, isValid)
+                        : Intersection(solution, path, isValid);
 }
 
 /** distance to surface */
 
+#if defined(FLATTEN) && defined(__GNUC__)
+// We compile this function with optimization, even in debug builds; otherwise,
+// the heavy use of Eigen makes it too slow.  However, from here we may call
+// to out-of-line Eigen code that is linked from other DSOs; in that case,
+// it would not be optimized.  Avoid this by forcing all Eigen code
+// to be inlined here if possible.
+__attribute__((flatten))
+#endif
 Trk::DistanceSolution
-Trk::CylinderSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, const Amg::Vector3D& dir) const
+Trk::CylinderSurface::straightLineDistanceEstimate(
+  const Amg::Vector3D& pos,
+  const Amg::Vector3D& dir) const
 {
   double tol = 0.001;
 
@@ -327,48 +364,52 @@ Trk::CylinderSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, con
   if (A == 0.) { // direction parallel to cylinder axis
     if (fabs(currDist) < tol) {
       return Trk::DistanceSolution(1, 0., true, 0.); // solution at surface
-    } 
-      return Trk::DistanceSolution(0, currDist, true, 0.); // point of closest approach without intersection
-    
+    }
+    return Trk::DistanceSolution(
+      0, currDist, true, 0.); // point of closest approach without intersection
   }
 
   // minimal distance to cylinder axis
-  // The [[maybe_unused]] declaration is to suppress redundant division checking here.
-  // Even a tiny change in rmin (~1e-13) can cause huge changes in the
+  // The [[maybe_unused]] declaration is to suppress redundant division checking
+  // here. Even a tiny change in rmin (~1e-13) can cause huge changes in the
   // reconstructed output, so don't change how it's evaluated.
-  [[maybe_unused]]
-  const double rmin_tmp = B * B / A;
+  [[maybe_unused]] const double rmin_tmp = B * B / A;
   const double rmin2 = C - rmin_tmp;
   const double rmin = rmin2 < 0 ? 0 : sqrt(rmin2);
 
   if (rmin > radius) { // no intersection
     double first = B / A;
-    return Trk::DistanceSolution(0, currDist, true, first); // point of closest approach without intersection
-  } 
-    if (fabs(rmin - radius) < tol) { // tangential 'intersection' - return double solution
-      double first = B / A;
-      return Trk::DistanceSolution(2, currDist, true, first, first);
-    } 
-      // The [[maybe_unused]] declaration here suppresses redundant division checking.
-      // We don't want to rewrite how this is evaluated due to instabilities.
-      [[maybe_unused]]
-      const double b_a = B / A;
-      const double x = sqrt((radius - rmin) * (radius + rmin) / A);
-      double first = b_a - x;
-      double second = b_a + x;
-      if (first >= 0.) {
-        return Trk::DistanceSolution(2, currDist, true, first, second);
-      } if (second <= 0.) {
-        return Trk::DistanceSolution(2, currDist, true, second, first);
-      } // inside cylinder
-        return Trk::DistanceSolution(2, currDist, true, second, first);
-      
-    
-  
+    return Trk::DistanceSolution(
+      0,
+      currDist,
+      true,
+      first); // point of closest approach without intersection
+  }
+  if (fabs(rmin - radius) <
+      tol) { // tangential 'intersection' - return double solution
+    double first = B / A;
+    return Trk::DistanceSolution(2, currDist, true, first, first);
+  }
+  // The [[maybe_unused]] declaration here suppresses redundant division
+  // checking. We don't want to rewrite how this is evaluated due to
+  // instabilities.
+  [[maybe_unused]] const double b_a = B / A;
+  const double x = sqrt((radius - rmin) * (radius + rmin) / A);
+  double first = b_a - x;
+  double second = b_a + x;
+  if (first >= 0.) {
+    return Trk::DistanceSolution(2, currDist, true, first, second);
+  }
+  if (second <= 0.) {
+    return Trk::DistanceSolution(2, currDist, true, second, first);
+  } // inside cylinder
+  return Trk::DistanceSolution(2, currDist, true, second, first);
 }
 
 Trk::DistanceSolution
-Trk::CylinderSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, const Amg::Vector3D& dir, bool bound) const
+Trk::CylinderSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos,
+                                                   const Amg::Vector3D& dir,
+                                                   bool bound) const
 {
   const double tolb = .01;
 

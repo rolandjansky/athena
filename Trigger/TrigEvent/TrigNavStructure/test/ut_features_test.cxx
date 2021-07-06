@@ -5,6 +5,12 @@
 #include <stdexcept>
 #include <stdint.h>
 
+#include "StoreGate/StoreGateSvc.h"
+#include "GaudiKernel/EventContext.h"
+#include "AthenaKernel/ExtendedEventContext.h"
+#include "SGTools/TestStore.h"
+#include "TestTools/initGaudi.h"
+
 #include "TrigNavStructure/StandaloneNavigation.h"
 #include "TrigNavStructure/TypelessHolder.h"
 #include "testutils.h"
@@ -16,13 +22,15 @@ struct TestTNS : public StandaloneNavigation {
   BaseHolder* addHolder(class_id_type clid, sub_index_type sub, const std::string& label) {
     auto th = std::make_shared<TypelessHolder>(clid, label, sub);
     MSG("DEBUG","added holder for clid/label/sub: " << clid << "/" << label << "/" << sub);
-    m_holderstorage.registerHolder(th);
+    TrigHolderStructure& holderstorage = getHolderStorage();
+    holderstorage.registerHolder(th);
     return th.get();      
   }
   
   bool addFeature(TriggerElement* te, class_id_type clid, const std::string& label, index_type begin, index_type end) {
     sub_index_type sub = invalid_sub_index;
-    for ( auto holder: m_holderstorage.getAllHolders() ) {
+    TrigHolderStructure& holderstorage = getHolderStorage();
+    for ( auto holder: holderstorage.getAllHolders() ) {
       if ( clid == holder->typeClid() and label == holder->label() ) {
 	sub = holder->subTypeIndex();
       }
@@ -36,7 +44,8 @@ struct TestTNS : public StandaloneNavigation {
 
   void dumpHolders() {
     MSG("DEBUG", "dumpHolders");
-    for (auto holder: m_holderstorage.getAllHolders()) {
+    TrigHolderStructure& holderstorage = getHolderStorage();
+    for (auto holder: holderstorage.getAllHolders()) {
       MSG("DEBUG", "Holder CLID:" << holder->typeClid() << " label: " << holder->label() << " sub: " << holder->subTypeIndex() );
     }
   }
@@ -293,6 +302,19 @@ bool ser() {
 
 
 int main() {
+
+  // initialize Gaudi, SG
+  ISvcLocator* pSvcLoc;
+  Athena_test::initGaudi(pSvcLoc); 
+  StoreGateSvc* pSG(nullptr);
+  assert( pSvcLoc->service("StoreGateSvc", pSG, true).isSuccess() );
+
+  // Create a context
+  IProxyDict* xdict = &*pSG;
+  xdict = pSG->hiveProxyDict();
+  EventContext ctx(0,0);
+  ctx.setExtension( Atlas::ExtendedEventContext(xdict) );
+  Gaudi::Hive::setCurrentContext (ctx);
 
   if ( build() == false ) 
     ABORT("not strictly a test but pre-conditions, nonetheless fails");

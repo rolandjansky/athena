@@ -80,7 +80,8 @@ std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const
   if (m_useOldCalo) {
     /* If CaloExtensionBuilder is unavailable, use the calo extension tool */
     ATH_MSG_VERBOSE("Using the CaloExtensionTool");
-    uniqueExtension = m_theTrackExtrapolatorTool->caloExtension(*track);
+    uniqueExtension = m_theTrackExtrapolatorTool->caloExtension(
+      Gaudi::Hive::currentContext(), *track);
     extension = uniqueExtension.get();
   } else {
     /*get the CaloExtension object*/
@@ -90,7 +91,8 @@ std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const
     ATH_MSG_VERBOSE("Getting element " << index << " from the particleCache");
     if( not extension ){
       ATH_MSG_VERBOSE("Cache does not contain a calo extension -> Calculating with the a CaloExtensionTool" );
-      uniqueExtension = m_theTrackExtrapolatorTool->caloExtension(*track);
+      uniqueExtension = m_theTrackExtrapolatorTool->caloExtension(
+        Gaudi::Hive::currentContext(), *track);
       extension = uniqueExtension.get();
     }
   }
@@ -98,15 +100,15 @@ std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const
   if (extension != nullptr) {
 
     /*extract the CurvilinearParameters*/
-    const std::vector<const Trk::CurvilinearParameters*>& clParametersVector = extension->caloLayerIntersections();
+    const std::vector<Trk::CurvilinearParameters>& clParametersVector = extension->caloLayerIntersections();
 
-     /*The parameters are owned by the CaloExtension so are handlel by it the eflowTrackCaloPoints does
+     /*The parameters are owned by the CaloExtension so are handled by it the eflowTrackCaloPoints does
      * not take ownership */
-    for ( const Trk::CurvilinearParameters * clParameter : clParametersVector) {
-      if (parametersMap[getLayer(clParameter)] == nullptr) {
-        parametersMap[getLayer(clParameter)] = clParameter;
-      } else if (m_trackParametersIdHelper->isEntryToVolume(clParameter->cIdentifier())) {
-        parametersMap[getLayer(clParameter)] = clParameter;
+    for ( const Trk::CurvilinearParameters& clParameter : clParametersVector) {
+      if (parametersMap[getLayer(&clParameter)] == nullptr) {
+        parametersMap[getLayer(&clParameter)] = &clParameter;
+      } else if (m_trackParametersIdHelper->isEntryToVolume(clParameter.cIdentifier())) {
+        parametersMap[getLayer(&clParameter)] = &clParameter;
       }
     }
     /*

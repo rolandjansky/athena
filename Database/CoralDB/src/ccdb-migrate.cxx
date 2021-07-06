@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <string>
@@ -20,17 +20,16 @@
 
 #include <ctime>
 
-// Suppress a gcc8 warning from boost.
+// Suppress a warning from boost.
 // (Binaries apparently include boost with -I rather than -isystem.)
-// Fixed in boost 1.68 (see https://github.com/boostorg/mpl/issues/31)
-#ifdef __GNUC__
-# pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wparentheses"
+#ifdef __clang__
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wc11-extensions"
 #endif
 #include "boost/program_options.hpp"
 namespace po = boost::program_options;
-#ifdef __GNUC__
-# pragma GCC diagnostic pop
+#ifdef __clang__
+# pragma clang diagnostic pop
 #endif
 
 #include "CoralDB/CoralDB.h"
@@ -523,8 +522,8 @@ void dump_idtag(const string& idTagDir, CoralDB::CoralDB& db) {
     db.getObjectDictionary(od, tags);
 
     // A map is guaranteed to be sorted, so this part of a dump is reproducable.
-    for(CoralDB::ObjectDictionaryMap::const_iterator i = od.begin(); i != od.end(); i++) {
-      of<<i->first<<"\t"<<i->second<<"\n";
+    for(const CoralDB::ObjectDictionaryMap::value_type& p : od) {
+      of<<p.first<<"\t"<<p.second<<"\n";
     }
 
     cout<<"\t"<<od.size()<<" objects dumped"<<endl;
@@ -539,7 +538,7 @@ void dump_idtag(const string& idTagDir, CoralDB::CoralDB& db) {
     TagList tags;
     db.getExistingConnectivityTags(tags);
 
-    for(TagList::const_iterator itag = tags.begin(); itag != tags.end(); itag++) {
+    for(TagList::const_iterator itag = tags.begin(); itag != tags.end(); ++itag) {
       if(gOpt.fullIdTag() || (gOpt.onlyCTag() == itag->tag())) {
 	cout<<*itag<<" "<<flush;
 	db.setConnectivityTag(itag->tag());
@@ -556,8 +555,8 @@ void dump_idtag(const string& idTagDir, CoralDB::CoralDB& db) {
 	
 	  // Sort so that dumps are reproducable
 	  std::sort(ml.begin(), ml.end());
-	  for(vector<string>::const_iterator i = ml.begin(); i != ml.end(); i++) {
-	    of<<*i<<"\n";
+          for (const std::string& s : ml) {
+	    of<<s<<"\n";
 	  }
 	}
 
@@ -575,7 +574,7 @@ void dump_idtag(const string& idTagDir, CoralDB::CoralDB& db) {
 	  // Sort so that dumps are reproducable
 	  std::sort(ct.begin(), ct.end());
 	
-	  for(CoralDB::ConnectionTableMap::const_iterator i=ct.begin(); i!=ct.end(); i++) {
+	  for(CoralDB::ConnectionTableMap::const_iterator i=ct.begin(); i!=ct.end(); ++i) {
 	    of<<i->fromId()<<"\t"<<i->fromSlot()<<"\t"<<i->toId()<<"\t"<<i->toSlot()<<"\n";
 	  }
 	}
@@ -595,7 +594,7 @@ void dump_idtag(const string& idTagDir, CoralDB::CoralDB& db) {
     TagList tags;
     db.getExistingAliasTags(tags);
 
-    for(TagList::const_iterator itag = tags.begin(); itag != tags.end(); itag++) {
+    for(TagList::const_iterator itag = tags.begin(); itag != tags.end(); ++itag) {
       if(gOpt.fullIdTag() || (gOpt.onlyATag() == itag->tag())) {
 
 	cout<<*itag<<" "<<flush;
@@ -614,7 +613,7 @@ void dump_idtag(const string& idTagDir, CoralDB::CoralDB& db) {
 	  db.getAliasesTable(data);
 
 	  // aliases are already sorted
-	  for(CoralDB::AliasesTable::const_iterator i=data.begin(); i!=data.end(); i++) {
+	  for(CoralDB::AliasesTable::const_iterator i=data.begin(); i!=data.end(); ++i) {
 	    of<<i->alias()<<"\t"<<i->convention()<<"\t"<<i->id()<<"\n";
 	  }
 	}
@@ -634,7 +633,7 @@ void dump_idtag(const string& idTagDir, CoralDB::CoralDB& db) {
     TagList tags;
     db.getExistingDataTags(tags);
 
-    for(TagList::const_iterator itag = tags.begin(); itag != tags.end(); itag++) {
+    for(TagList::const_iterator itag = tags.begin(); itag != tags.end(); ++itag) {
       if(gOpt.fullIdTag() || (gOpt.onlyDTag() == itag->tag())) {
 
 	cout<<*itag<<" "<<flush;
@@ -652,7 +651,7 @@ void dump_idtag(const string& idTagDir, CoralDB::CoralDB& db) {
 	  db.getClobNames(cn);
 	
 	  // std::set is guaranteed to be sorted
-	  for(CoralDB::ClobNameContainer::const_iterator i=cn.begin(); i!=cn.end(); i++) {
+	  for(CoralDB::ClobNameContainer::const_iterator i=cn.begin(); i!=cn.end(); ++i) {
 	    Encodable clob = db.findCLOB(i->first, i->second);
 	    of<<i->first<<"\t"<<i->second<<"\t"<<clob<<"\n";
 	  }
@@ -704,7 +703,7 @@ void ccdb_migrate_dump(const string& dirname, CoralDB::CoralDB& db) {
     db.getHistoryTable(hh);
 
     // Alredy sorted
-    for(CoralDB::HistoryTable::const_iterator i = hh.begin(); i != hh.end(); i++) {
+    for(CoralDB::HistoryTable::const_iterator i = hh.begin(); i != hh.end(); ++i) {
       of<<i->first
 	<<"\t"<<i->second.objectDictionaryTag()
 	<<"\t"<<i->second.connectivityTag()
@@ -744,8 +743,8 @@ void restore_idtag(const DumpStructure& ver, const string& idTagDir, CoralDB::Co
   
   //----------------------------------------------------------------
   cout<<"Restoring connectivity data:"<<endl;
-  for(vector<string>::const_iterator i=dirList.begin(); i!=dirList.end(); i++) {
-    TagStatus ts = getTagStatusFromFileName(ver, connectivityFilePrefix, *i);
+  for (const std::string& dir : dirList) {
+    TagStatus ts = getTagStatusFromFileName(ver, connectivityFilePrefix, dir);
     const string tag = ts.tag();
 
     //cerr<<"file = "<<*i<<", tag = "<<tag<<endl;
@@ -754,7 +753,7 @@ void restore_idtag(const DumpStructure& ver, const string& idTagDir, CoralDB::Co
       db.makeNewConnectivityTag(tag);
       db.setConnectivityTag(tag);
 
-      const string pathname(idTagDir+"/"+*i);
+      const string pathname(idTagDir+"/"+dir);
       ifstream ff(pathname.c_str());
       ff.exceptions(ios_base::badbit);
       if(!ff) {
@@ -787,8 +786,8 @@ void restore_idtag(const DumpStructure& ver, const string& idTagDir, CoralDB::Co
   // Iterate over alias tags
 
   cout<<"Restoring aliases:"<<endl;
-  for(vector<string>::const_iterator i=dirList.begin(); i!=dirList.end(); i++) {
-    TagStatus ts = getTagStatusFromFileName(ver, aliasFilePrefix, *i);
+  for (const std::string& dir : dirList) {
+    TagStatus ts = getTagStatusFromFileName(ver, aliasFilePrefix, dir);
     const string tag = ts.tag();
     //cerr<<"Alias file = "<<*i<<", tag = "<<tag<<endl;
     if(!tag.empty()) {
@@ -796,7 +795,7 @@ void restore_idtag(const DumpStructure& ver, const string& idTagDir, CoralDB::Co
       db.makeNewAliasTag(tag);
       db.setAliasTag(tag);
 
-      const string pathname(idTagDir+"/"+*i);
+      const string pathname(idTagDir+"/"+dir);
       ifstream ff(pathname.c_str());
       ff.exceptions(ios_base::badbit);
       if(!ff) {
@@ -812,8 +811,8 @@ void restore_idtag(const DumpStructure& ver, const string& idTagDir, CoralDB::Co
   // Iterate over data tags
 
   cout<<"Restoring payloads:"<<endl;
-  for(vector<string>::const_iterator i=dirList.begin(); i!=dirList.end(); i++) {
-    TagStatus ts = getTagStatusFromFileName(ver, clobFilePrefix, *i);
+  for (const std::string& dir : dirList) {
+    TagStatus ts = getTagStatusFromFileName(ver, clobFilePrefix, dir);
     const string tag = ts.tag();
     //cerr<<"Data file = "<<*i<<", tag = "<<tag<<endl;
     if(!tag.empty()) {
@@ -821,7 +820,7 @@ void restore_idtag(const DumpStructure& ver, const string& idTagDir, CoralDB::Co
       db.makeNewDataTag(tag);
       db.setDataTag(tag);
 
-      const string pathname(idTagDir+"/"+*i);
+      const string pathname(idTagDir+"/"+dir);
       ifstream ff(pathname.c_str());
       ff.exceptions(ios_base::badbit);
       if(!ff) {
@@ -945,8 +944,8 @@ void ccdb_migrate_restore(const string& dirname, CoralDB::CoralDB& db) {
 
   string idTagForHistory;
   vector<string> topDir = readDir(dirname);
-  for(vector<string>::const_iterator entry=topDir.begin(); entry!=topDir.end(); entry++) {
-    TagStatus idTagStatus = getTagStatusFromFileName(ver, idTagDirPrefix, *entry);
+  for (const std::string& dir : topDir) {
+    TagStatus idTagStatus = getTagStatusFromFileName(ver, idTagDirPrefix, dir);
     if(!idTagStatus.tag().empty()) {
 
       cout<<"Working on IDTAG = "<<idTagStatus.tag()<<endl;
@@ -971,7 +970,7 @@ void ccdb_migrate_restore(const string& dirname, CoralDB::CoralDB& db) {
       }
       db.setObjectDictionaryTag(idTagStatus.tag());
 
-      restore_idtag(ver, dirname + "/" + *entry, db);
+      restore_idtag(ver, dirname + "/" + dir, db);
       
       if(idTagStatus.locked()) {
 	db.lockObjectDictionaryTag(idTagStatus.tag());

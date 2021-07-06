@@ -17,7 +17,7 @@ atlas_add_library( TrackWriteFastSimLib
                    INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} StoreGateLib SGtests G4AtlasToolsLib TrackRecordLib
+                   LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} StoreGateLib G4AtlasToolsLib TrackRecordLib
                    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} GaudiKernel G4AtlasInterfaces MCTruth )
 
 atlas_add_component( TrackWriteFastSim
@@ -25,5 +25,5 @@ atlas_add_component( TrackWriteFastSim
                      LINK_LIBRARIES TrackWriteFastSimLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 

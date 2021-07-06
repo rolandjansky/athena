@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -17,9 +17,7 @@ class InDetTrigTrackingCuts :
     self.__set_indetflags()     #pointer to InDetFlags, don't use them directly
                                 #to allow sharing this code with the trigger
 
-    from AthenaCommon.GlobalFlags import globalflags
     from AthenaCommon.DetFlags import DetFlags
-    from AthenaCommon.BeamFlags import jobproperties
     from RecExConfig.RecFlags import rec
 
     # --- put defaults to run Pixel/SCT/TRT
@@ -304,6 +302,7 @@ class InDetTrigTrackingCuts :
       self.__Xi2max           = 60.0
       self.__Xi2maxNoAdd      = 100.0
       self.__nWeightedClustersMin = 8
+
     # --- changes for heavy ion
     if mode == "HeavyIon":
       self.__minPT            = 0.500 * Units.GeV
@@ -471,6 +470,12 @@ class InDetTrigTrackingCuts :
   def minPTBrem( self ) :
     return self.__minPTBrem
 
+  def phiWidthBrem( self ) :
+    return self.__phiWidthBrem
+
+  def etaWidthBrem( self ) :
+    return self.__etaWidthBrem
+
   def maxPrimaryImpact( self ) :
     return self.__maxPrimaryImpact
 
@@ -602,6 +607,10 @@ class InDetTrigTrackingCuts :
 
   def RegSelZmax( self ) :
     return self.__RegSelZmax
+
+  def doZBoundary( self ) :
+    return self.__doZBoundary
+
 
   def setRegSelZmax( self, val):
     self.__RegSelZmax = val

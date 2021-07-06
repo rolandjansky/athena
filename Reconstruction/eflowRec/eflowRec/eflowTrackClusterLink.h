@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -13,10 +13,10 @@
 #define EFLOWTRACKCLUSTERLINK_H_
 
 #include <utility>
-#include <map>
+#include <unordered_map>
 #include <vector>
 #include <iostream>
-#include <mutex>  
+#include <mutex>
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -27,39 +27,26 @@ class eflowRecTrack;
 class eflowRecCluster;
 
 /**
- Stores pointers to an eflowRecTrack and an eflowRecCluster. These pointers are inserted in the InstanceMap stored. We also store a vector of energy density, around the track impact point in each calorimeter layer, corresponding to the layers in the calorimeter.
+ Stores pointers to an eflowRecTrack and an eflowRecCluster.
+ These pointers kept in a cache internal to the getInstance function.
+ We also store a vector of energy density, around the track impact point
+ in each calorimeter layer, corresponding to the layers in the calorimeter.
 */
 class eflowTrackClusterLink {
-private:
-  typedef std::map<std::pair<eflowRecTrack*, eflowRecCluster*>, std::unique_ptr<eflowTrackClusterLink> > InstanceMap;
-  
 public:
   eflowTrackClusterLink(eflowRecTrack* track, eflowRecCluster* cluster) :
       m_track(track), m_cluster(cluster) { }
 
   virtual ~eflowTrackClusterLink() { }
 
-  static eflowTrackClusterLink* getInstance(eflowRecTrack* track, eflowRecCluster* cluster){
-    std::pair<eflowRecTrack*, eflowRecCluster*> thisPair(std::make_pair(track, cluster));    
+  static eflowTrackClusterLink* getInstance(eflowRecTrack* track,
+                                            eflowRecCluster* cluster,
+                                            const EventContext& ctx = Gaudi::Hive::currentContext());
 
-    //Read and write from the map is not thread-safe - therefore we get a mutex and pass it to a lock-guard
-    //The lock is released automatically when getInstance returns
-    //The mutex is static so that all threads check the status of the *same* mutex
-    static std::mutex mutex_instance;
-    std::lock_guard<std::mutex> lock(mutex_instance);
-    /* The find returns a valid iterator. If there is no existing entry it returns the end iterator */
-    InstanceMap::iterator mapIterator = m_instances.find(thisPair);
-    
-    if (m_instances.end() == mapIterator){
-      /* If no existing entry we create a new unique_ptr and add an entry into the map */
-      m_instances[thisPair] = std::make_unique<eflowTrackClusterLink>(track,cluster);
-      return m_instances[thisPair].get();
-    }
-    else return (*mapIterator).second.get();
-  }
-
-  eflowRecCluster* getCluster() const { return m_cluster; }
-  eflowRecTrack* getTrack() const { return m_track; }
+  eflowRecCluster* getCluster() { return m_cluster; }
+  const eflowRecCluster* getCluster() const { return m_cluster; }
+  eflowRecTrack* getTrack() { return m_track; }
+  const eflowRecTrack* getTrack() const { return m_track; }
 
   void setClusterIntegral(const std::vector<double>& clusterIntegral) {
     m_clusterIntegral = clusterIntegral;
@@ -67,13 +54,26 @@ public:
   const std::vector<double>& getClusterIntegral() const { return m_clusterIntegral; }
 
 private:
+  using key_t = std::pair<eflowRecTrack*, eflowRecCluster*>;
+  struct Hasher
+  {
+    size_t operator() (const key_t& k) const
+    {
+      return std::hash<eflowRecTrack*>()(k.first) ^
+        std::hash<eflowRecCluster*>()(k.second);
+    }
+  };
+  struct Cache
+  {
+    std::mutex m_mutex;
+    std::unordered_map<key_t, std::unique_ptr<eflowTrackClusterLink>, Hasher > m_map;
+    EventContext::ContextEvt_t m_evt = static_cast<EventContext::ContextEvt_t>(-1);
+  };
+
   eflowRecTrack* m_track;
   eflowRecCluster* m_cluster;
 
   std::vector<double> m_clusterIntegral;
-
-  static InstanceMap m_instances;
-
 };
 
 #endif /* EFLOWTRACKCLUSTERLINK_H_ */

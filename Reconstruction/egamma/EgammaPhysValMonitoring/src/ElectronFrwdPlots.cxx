@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ElectronFrwdPlots.h"
@@ -15,28 +15,30 @@ ElectronFrwdPlots::ElectronFrwdPlots(PlotBase* pParent, const std::string& sDir,
 												     m_oClustMomAllRecoPlots(this, "All/ClusMomentPlots/", sParticleType ),
 												     m_oClustMomIsoRecoPlots(this, "Iso/ClusMomentPlots/", sParticleType ),
 												     nParticles(nullptr),
+												     nParticles_weighted(nullptr),
 												     m_sParticleType(sParticleType)
 
 {}	
 
 void ElectronFrwdPlots::initializePlots(){
   nParticles = Book1D("n", "Number of"+ m_sParticleType + "s;#" + m_sParticleType + " electrons;Events", 15, 0., 15.);
+  nParticles_weighted = Book1D("n_weighted", "Number of"+ m_sParticleType + "s;#" + m_sParticleType + " electrons;Events", 15, 0., 15.);
 }
 
-  void ElectronFrwdPlots::fill(const xAOD::Electron& electron, bool isPrompt) {
+  void ElectronFrwdPlots::fill(const xAOD::Electron& electron, const xAOD::EventInfo& eventInfo, bool isPrompt) const {
  
  
-  m_oKinFrwdAllRecoPlots.fill(electron);
-  m_oClustMomAllRecoPlots.fill(electron);
+  m_oKinFrwdAllRecoPlots.fill(electron,eventInfo);
+  m_oClustMomAllRecoPlots.fill(electron,eventInfo);
    
   if(!isPrompt) return;
 
-  m_oKinFrwdIsoRecoPlots.fill(electron);
-  m_oClustMomIsoRecoPlots.fill(electron);
+  m_oKinFrwdIsoRecoPlots.fill(electron,eventInfo);
+  m_oClustMomIsoRecoPlots.fill(electron,eventInfo);
  
   bool val_tight=false;    
   if(electron.passSelection(val_tight, "Tight")) {
-    m_oKinFrwdTightPlots.fill(electron);
+    m_oKinFrwdTightPlots.fill(electron,eventInfo);
   }
 
 

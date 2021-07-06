@@ -1,35 +1,34 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAURECTOOLSDEV_MVATESVARIABLEDECORATOR_H
-#define TAURECTOOLSDEV_MVATESVARIABLEDECORATOR_H
+#ifndef TAURECTOOLS_MVATESVARIABLEDECORATOR_H
+#define TAURECTOOLS_MVATESVARIABLEDECORATOR_H
 
 #include "tauRecTools/TauRecToolBase.h"
-#include "tauRecTools/ITauVertexCorrection.h"
 
 #include "xAODEventInfo/EventInfo.h"
+#include "xAODEventShape/EventShape.h"
 #include "AsgDataHandles/ReadHandleKey.h"
 #include "AsgDataHandles/ReadDecorHandleKey.h"
-#include "AsgTools/ToolHandle.h"
 
-
-class MvaTESVariableDecorator
-: public TauRecToolBase
-{
- public:
+class MvaTESVariableDecorator : public TauRecToolBase {
+ 
+public:
   
   ASG_TOOL_CLASS2( MvaTESVariableDecorator, TauRecToolBase, ITauToolBase )
     
   MvaTESVariableDecorator(const std::string& name="MvaTESVariableDecorator");
-  virtual ~MvaTESVariableDecorator();
+  
+  virtual ~MvaTESVariableDecorator() = default;
     
   virtual StatusCode initialize() override;
+  
   virtual StatusCode execute(xAOD::TauJet& xTau) const override;
 
- private:
+private:
 
-  bool m_useSubtractedCluster;
+  bool m_doVertexCorrection;
 
   SG::ReadDecorHandleKey<xAOD::EventInfo> m_aveIntPerXKey {this, 
       "averageInteractionsPerCrossingKey", 
@@ -41,9 +40,11 @@ class MvaTESVariableDecorator
       "PrimaryVertices",
       "input vertex container key"};
 
-  ToolHandle<ITauVertexCorrection> m_tauVertexCorrection { this, 
-      "TauVertexCorrection", "TauVertexCorrection", "Tool to perform the vertex correction"};
+  SG::ReadHandleKey<xAOD::EventShape> m_eventShapeKey {this,
+      "EventShapeKey",
+      "Kt4LCTopoOriginEventShape",
+      "EventShape key"};
+
 };
 
-
-#endif // TAURECTOOLSDEV_MVATESVARIABLEDECORATOR_H
+#endif // TAURECTOOLS_MVATESVARIABLEDECORATOR_H

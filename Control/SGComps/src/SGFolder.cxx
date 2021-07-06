@@ -12,7 +12,7 @@
 #include "GaudiKernel/ISvcLocator.h"
 
 #include "AthenaKernel/DefaultKey.h"
-#include "AthenaKernel/IClassIDSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "AthenaKernel/ClassID_traits.h"
 
 #include "SGFolder.h"

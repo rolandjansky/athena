@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TriggerTower_v1.cxx 638578 2015-01-09 17:00:15Z morrisj $
@@ -111,10 +111,7 @@ namespace xAOD{
     // i.e. it has an energy greater than the saturation threshold
     // otherwise, return false;
     
-    if( emEnergy() >= m_saturation ){
-      return true;
-    }
-    return false;
+    return emEnergy() >= m_saturation;
   }
   
   /// Is HAD saturated?
@@ -124,10 +121,7 @@ namespace xAOD{
     // i.e. it has an energy greater than the saturation threshold
     // otherwise, return false;
     
-    if( hadEnergy() >= m_saturation ){
-      return true;
-    }
-    return false;    
+    return hadEnergy() >= m_saturation;    
   }
 
 } // namespace xAOD

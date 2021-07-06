@@ -1,7 +1,7 @@
 //Dear emacs, this is  -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -9,7 +9,6 @@
 #define LARCALIBUTILS_LARTIMETUNING_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "LArElecCalib/ILArOFCTool.h"
 #include "LArRawUtils/LArRoI_Map.h"
 #include "LArRawUtils/LArRawOrdering.h"
 #include "LArCabling/LArOnOffIdMapping.h"

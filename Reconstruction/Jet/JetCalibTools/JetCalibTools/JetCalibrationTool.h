@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetCalibrationTool.h 
@@ -28,6 +28,7 @@
 #include "JetCalibTools/JetCalibrationToolBase.h"
 #include "JetCalibTools/CalibrationMethods/JetPileupCorrection.h"
 #include "JetCalibTools/CalibrationMethods/ResidualOffsetCorrection.h"
+#include "JetCalibTools/CalibrationMethods/BcidOffsetCorrection.h"
 #include "JetCalibTools/CalibrationMethods/EtaJESCorrection.h"
 #include "JetCalibTools/CalibrationMethods/GlobalSequentialCorrection.h"
 #include "JetCalibTools/CalibrationMethods/InsituDataCorrection.h"
@@ -36,6 +37,7 @@
 
 class JetPileupCorrection;
 class ResidualOffsetCorrection;
+class BcidOffsetCorrection;
 class EtaJESCorrection;
 class GlobalSequentialCorrection;
 class InsituDataCorrection;
@@ -110,18 +112,27 @@ private:
   bool m_timeDependentCalib;
   bool m_originCorrectedClusters;
   std::string m_rhoKey;
+  bool m_useNjetInResidual;
+  float m_nJetThreshold;
+  std::string m_nJetContainerName;
   std::string m_dir;
   std::string m_eInfoName;
   std::vector<TString> m_timeDependentInsituConfigs;
   std::vector<double>  m_runBins;
   bool m_doSetDetectorEta;
+  std::string m_vertexContainerName;
+  bool m_insituCombMassCalib;
+  std::vector<TString> m_insituCombMassConfig;
+  std::string m_rhoKey_config;
 
   //TEnv to hold the global text config
   TEnv * m_globalConfig;
   std::vector<TEnv*> m_globalTimeDependentConfigs;
+  std::vector<TEnv*> m_globalInsituCombMassConfig;
 
   //Bools/enums to avoid string comparisons at run time
   jetScale m_jetScale;
+  bool m_doBcid;
   bool m_doJetArea;
   bool m_doResidual;
   bool m_doOrigin;
@@ -134,6 +145,7 @@ private:
 
   //Class objects for each calibration step
   std::vector<JetCalibrationToolBase*> m_calibClasses;
+  BcidOffsetCorrection * m_bcidCorr;
   JetPileupCorrection * m_jetPileupCorr;
   EtaJESCorrection * m_etaJESCorr;
   GlobalSequentialCorrection * m_globalSequentialCorr;
@@ -141,6 +153,8 @@ private:
   std::vector<JetCalibrationToolBase*> m_insituTimeDependentCorr;
   JMSCorrection * m_jetMassCorr;
   JetSmearingCorrection* m_jetSmearCorr;
+  JMSCorrection *m_insituCombMassCorr_tmp;
+  std::vector<JetCalibrationToolBase*> m_insituCombMassCorr;
 
 }; 
 

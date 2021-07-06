@@ -1,6 +1,5 @@
-// Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 //
 //
@@ -8,7 +7,7 @@
 #define ANALYSISTRIGGERALGS_ROIBRESULTTOXAOD_H
 
 // Gaudi/Athena include(s):
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadHandleKey.h"
@@ -16,7 +15,7 @@
 
 // Tool/service include(s):
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
-#include "TrigT1Interfaces/RecMuonRoiSvc.h"
+#include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigT1CaloToolInterfaces/IL1CPMTools.h"
 #include "TrigT1CaloToolInterfaces/IL1JEMJetTools.h"
@@ -42,7 +41,7 @@
  * @author Alan Watson <Alan.Watson@cern.ch>
  * @author Wolfgang Ehrenfeld <Wolfgang.Menges@desy.de>
  */
-class RoIBResultToxAOD : public AthAlgorithm {
+class RoIBResultToxAOD : public AthReentrantAlgorithm {
 
 public:
    /// Algorithm constructor
@@ -58,17 +57,17 @@ public:
    virtual StatusCode initialize() override;
 
    /// Function executing the algorithm
-   virtual StatusCode execute() override;
+   virtual StatusCode execute(const EventContext& ctx) const override;
 
    /// @}
 
 private:
    /// Create the EmTau RoI objects
    StatusCode createEmTauRoI( const ROIB::RoIBResult& roib,
-                              const EventContext& ctx );
+                              const EventContext& ctx ) const;
    /// Create the JetEnergy RoI object
    StatusCode createJetEnergyRoI( const ROIB::RoIBResult& roib,
-                                  const EventContext& ctx );
+                                  const EventContext& ctx ) const;
    /// Create the Muon RoI objects
    StatusCode createMuonRoI( const ROIB::RoIBResult& roib,
                              const EventContext& ctx ) const;
@@ -81,13 +80,11 @@ private:
       this, "LVL1ConfigSvc", "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc",
       "Service providing the LVL1 trigger configuration" };
 
-   /// The RPC RoI reconstruction service
-   ServiceHandle< LVL1::RecMuonRoiSvc > m_recRPCRoiSvc {
-      this, "RecRpcRoiSvc", LVL1::ID_RecRpcRoiSvc,
-      "RPC RoI reconstruction service" };
+   /// The RPC RoI reconstruction tool
+   ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_recRPCRoiTool { this, "RecRpcRoiTool", "LVL1::TrigT1RPCRecRoiTool/TrigT1RPCRecRoiTool"};
    /// The TGC RoI reconstruction service
-   ServiceHandle< LVL1::RecMuonRoiSvc > m_recTGCRoiSvc {
-      this, "RecTgcRoiSvc", LVL1::ID_RecTgcRoiSvc,
+   ToolHandle< LVL1::ITrigT1MuonRecRoiTool > m_recTGCRoiTool {
+      this, "RecTgcRoiTool", "LVL1::TrigT1TGCRecRoiTool/TrigT1TGCRecRoiTool",
       "TGC RoI reconstruction service" };
 
    /// @}
@@ -153,6 +150,8 @@ private:
 
    /// @name Other properties
    /// @{
+   /// Use new-style menu
+   Gaudi::Property<bool> m_useNewConfig { this, "UseNewConfig", true, "When true, read the menu from detector store, when false use the L1ConfigSvc" };
 
    /// Use inputs from the Calo system
    Gaudi::Property< bool > m_doCalo {

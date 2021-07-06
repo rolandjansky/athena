@@ -62,7 +62,7 @@
 #include "AsgDataHandles/WriteHandleKey.h"
 #include "JetEDM/PseudoJetVector.h"
 #include "JetRec/PseudoJetContainer.h"
-#if !defined(GENERATIONBASE) && !defined(XAOD_STANDALONE)
+#if !defined(GENERATIONBASE) && !defined(XAOD_ANALYSIS)
   #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #endif
 
@@ -101,7 +101,7 @@ public:
   /// Default returns 0 and adds no names.
   int outputContainerNames(std::vector<std::string>& connames) override;
 
-  
+
   /// For trigger usage in grooming mode only : give the input ungroomed jet container.
   void setInputJetContainer(const xAOD::JetContainer* cont);
 
@@ -117,7 +117,7 @@ private:
   std::unique_ptr<xAOD::JetContainer> groomJets() const;
   std::unique_ptr<xAOD::JetContainer> copyJets() const;
 
-  
+
   // Properties.
   SG::WriteHandleKey<xAOD::JetContainer> m_outcoll {this, "OutputContainer", ""};
   SG::ReadHandleKey<xAOD::JetContainer> m_incoll {this, "InputContainer", ""};
@@ -158,10 +158,14 @@ private:
   mutable std::vector<TStopwatch> m_modclocks;
   mutable std::vector<TStopwatch> m_conclocks;
 
-#if !defined (GENERATIONBASE) && !defined (XAOD_STANDALONE)
+#if !defined (GENERATIONBASE) && !defined (XAOD_ANALYSIS)
   ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
 #endif
 
+  // not used in AnalysisBase
+#ifdef __clang__
+  [[maybe_unused]]
+#endif
   const double m_mevtogev = 0.001;
 
 };

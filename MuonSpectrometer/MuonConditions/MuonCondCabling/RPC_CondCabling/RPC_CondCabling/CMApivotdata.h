@@ -7,70 +7,53 @@
 
 #include <iostream>
 #include <list>
-#include "MuonCablingTools/ShowRequest.h"
+
 #include "MuonCablingTools/RPCdef.h"
+#include "MuonCablingTools/ShowRequest.h"
 #include "MuonCablingTools/dbline.h"
 #include "RPC_CondCabling/EtaCMA.h"
 #include "RPC_CondCabling/EvenPhiCMA.h"
 #include "RPC_CondCabling/OddPhiCMA.h"
 
-
 namespace RPC_CondCabling {
 
-class CMApivotdata : BaseObject
-{
+    class CMApivotdata : BaseObject {
     private:
-    typedef std::list < EtaCMA > ETAlist;
-    typedef std::list < EvenPhiCMA > EvenPHIlist;
-    typedef std::list < OddPhiCMA >  OddPHIlist;
+        typedef std::list<EtaCMA> ETAlist;
+        typedef std::list<EvenPhiCMA> EvenPHIlist;
+        typedef std::list<OddPhiCMA> OddPHIlist;
 
-    bool m_fail;
+        bool m_fail{true};
 
-    int m_number;
-    int m_station;
-    int m_type;
-    std::string m_layout;
+        std::string m_layout;
 
-    int m_eta_index;
-    int m_phi_index;
-    int m_PAD_index;
-    int m_Ixx_index;
-    int m_start_ch;
-    int m_start_st;
-    int m_stop_ch;
-    int m_stop_st;
-    int m_pivot_station;
-    int m_lowPt_station;
-    int m_highPt_station;
-    ViewType m_view;
-    CMAcoverage m_coverage;
-    std::string m_covtag;
+        ViewType m_view{ViewType::NoView};
+        CMAcoverage m_coverage{CMAcoverage::AllSectors};
+        std::string m_covtag{};
 
-    ETAlist m_etaCMA;
-    EvenPHIlist m_evenphiCMA;
-    OddPHIlist m_oddphiCMA;
+        ETAlist m_etaCMA;
+        EvenPHIlist m_evenphiCMA;
+        OddPHIlist m_oddphiCMA;
 
-    void reset_data(void);
-    bool get_data(DBline&);
-    bool confirm_data(ViewType);
+        void reset_data(void);
+        bool get_data(DBline&, CMAparameters::parseParams& parser);
+        bool confirm_data(ViewType, CMAparameters::parseParams& parser);
 
     public:
-    CMApivotdata();
-    CMApivotdata(DBline&,int,std::string);
-    ~CMApivotdata();
+        CMApivotdata(DBline&, int, const std::string&, IMessageSvc*);
+        virtual ~CMApivotdata() = default;
 
-    std::unique_ptr<EtaCMA> give_eta_cma(void);
-    std::unique_ptr<EvenPhiCMA> give_evenphi_cma(void);
-    std::unique_ptr<OddPhiCMA>  give_oddphi_cma(void);
+        std::unique_ptr<EtaCMA> give_eta_cma();
+        std::unique_ptr<EvenPhiCMA> give_evenphi_cma();
+        std::unique_ptr<OddPhiCMA> give_oddphi_cma();
 
-    void Print(std::ostream&,bool) const;
-};
+        void Print(std::ostream&, bool) const;
+    };
 
-template <class X> X& operator<< (X& stream, CMApivotdata& data)
-{
-    data.Print(stream,false);
-    return stream;
-}
+    template <class X> X& operator<<(X& stream, CMApivotdata& data) {
+        data.Print(stream, false);
+        return stream;
+    }
 
-}
+}  // namespace RPC_CondCabling
 #endif

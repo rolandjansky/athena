@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -175,7 +175,7 @@ Amg::Vector3D CscRegDict::nomalVector(int module) const{
     
   double phi=m_reg_dict[module].phiCen;
   double theta=m_reg_dict[module].idealAtanNormal;
-  Amg::Vector3D nomvec( sin(theta)*cos(phi), sin(theta)*sin(phi), cos(theta));
+  Amg::Vector3D nomvec( std::sin(theta)*std::cos(phi), std::sin(theta)*std::sin(phi), std::cos(theta));
   
   return nomvec;
   
@@ -206,18 +206,18 @@ double CscRegDict :: posCorrectionZ(int module, int charge/*0 or 1*/){
 
 double UtilTools :: calc_phi(double x, double y) const{
   
-  double /*abs_x=fabs(x),*/ abs_y=fabs(y);
-  double abs_sine=abs_y/sqrt(x*x+y*y);
+  double /*abs_x=std::abs(x),*/ abs_y=std::abs(y);
+  double abs_sine=abs_y/std::sqrt(x*x+y*y);
     //std::cout << "convert " << ASin(abssin) << std::endl;
   
   if (x>0 && y>=0) {
-    return asin(abs_sine);
+    return std::asin(abs_sine);
   }else if(x<=0 && y>0){
-    return M_PI-asin(abs_sine);
+    return M_PI-std::asin(abs_sine);
   }else if(x<0 && y<=0){
-    return M_PI+asin(abs_sine)-2*M_PI;
+    return M_PI+std::asin(abs_sine)-2*M_PI;
   }else if(x>=0 && y<0){
-    return 2*M_PI-asin(abs_sine)-2*M_PI;
+    return 2*M_PI-std::asin(abs_sine)-2*M_PI;
   }else{
       //std::cout<< "UtilTools::calc_phi, sin=cos=0" << std::endl;
     return 0.;
@@ -244,7 +244,7 @@ double UtilTools :: average_phi(double phi1, double phi2) const
 {  
   double phi = 0.;
   
-  if (phi1*phi2<0. && fabs(phi1)>M_PI/2.){
+  if (phi1*phi2<0. && std::abs(phi1)>M_PI/2.){
     
     double tmp1 = (phi1>0.) ? phi1 - M_PI : phi1 + M_PI;
     double tmp2 = (phi2>0.) ? phi2 - M_PI : phi2 + M_PI;

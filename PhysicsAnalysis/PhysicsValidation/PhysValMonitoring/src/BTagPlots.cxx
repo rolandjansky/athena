@@ -16,10 +16,11 @@ void BTagPlots::initializePlots(){
   n  = Book1D("n", "Number of b jets from "+ m_sParticleType +"; n ;Events", 10, 0., 10);
 }
 
-  void BTagPlots::fill(const xAOD::BTagging* /*btag*/){
+  void BTagPlots::fill(const xAOD::BTagging* /*btag*/, const xAOD::EventInfo* evt){
+    std::cout << "filling b-tagging plots with BS weight: " << evt->beamSpotWeight();
 }
 
-void BTagPlots::fill(unsigned int nbtag){
-  n->Fill(nbtag);
+  void BTagPlots::fill(unsigned int nbtag,const xAOD::EventInfo* evt){
+    n->Fill(nbtag,evt->beamSpotWeight());
 }
 }

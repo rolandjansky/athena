@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetEvent/JetMomentMapManager.h"
@@ -28,7 +28,7 @@ void JetMomentMapManager::clear(){
   std::set<JetMomentMap*>::iterator itE= m_maps.end();  
 
   m_noRemoveMode = true; // we don't remove anything now (be sure itE doesn't get wrong)
-  for(;it !=itE;it++) {
+  for(;it !=itE;++it) {
     delete *it;
   }
   m_noRemoveMode = false; 

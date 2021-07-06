@@ -95,6 +95,11 @@ EventInfoReader.OutputLevel   = DEBUG
 svcMgr.TagInfoMgr.OutputLevel = DEBUG
 
 
+# Change output file catalog to avoid races.
+from PoolSvc import PoolSvcConf
+PoolSvc = PoolSvcConf.PoolSvc()
+PoolSvc.WriteCatalog = 'file:EventInfoTests_catalog.xml'
+
 # No stats printout
 include( "AthenaPoolTest/NoStats_jobOptions.py" )
 

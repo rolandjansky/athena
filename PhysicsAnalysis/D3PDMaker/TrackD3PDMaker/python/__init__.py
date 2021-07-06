@@ -5,10 +5,6 @@ for k, v in TrackD3PDMakerConf.__dict__.items():
     if k.startswith ('D3PD__'):
         globals()[k[6:]] = v
 
-# Backwards compatibility.
-TrackPerigeeFillerTool = PerigeeFillerTool
-
-
 # Copy these here from TrackSummary.h so that we don't need to load
 # all the EDM libraries to get these during configuration.
 # (FIXME: The enums should be split into a separate dictionary

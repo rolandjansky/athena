@@ -19,7 +19,7 @@ DebugInfoCollector::~DebugInfoCollector(){write();}
 
 void DebugInfoCollector::collect(const std::string& key,
                                  const std::string& info){
-  m_info[key].emplace_back(m_timer.elapsed(), info);
+  m_info[key].emplace_back(m_timer.elapsed_to_now(), info);
 }
 
 std::string DebugInfoCollector::toStringByMsgKey() const {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_IIOVDBSVC_H
@@ -71,6 +71,9 @@ public:
 
     /// Signal that callback has been fired
     virtual void signalEndProxyPreload() = 0;
+
+    /// May be called once conditions are loaded to let IOVDbSvc release resources
+    virtual void       postConditionsLoad() = 0;
 
     /// Process TagInfo
     virtual StatusCode processTagInfo() = 0;

@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-/********************************************************************
-
-********************************************************************/
 
 #include "LArROD/LArFebErrorSummaryMaker.h"
 
@@ -14,38 +10,11 @@
 #include <bitset>
 
 
-/////////////////////////////////////////////////////////////////////
-// CONSTRUCTOR:
-/////////////////////////////////////////////////////////////////////
-
-LArFebErrorSummaryMaker::LArFebErrorSummaryMaker(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),m_missingFebsWarns(0),
-  m_isHec(false), m_isFcal(false), m_isEmb(false), m_isEmec(false),
-  m_isEmPS(false), m_isAside(false), m_isCside(false),
-  m_onlineHelper(nullptr),
-  m_bfKey("LArBadFeb")
-{ declareProperty("BFKey",m_bfKey,"Key of the BadChannelContainer in the conditions store");
-  declareProperty ("ReadKey", m_readKey = "LArFebHeader"); 
-  declareProperty ("WriteKey", m_writeKey = "StoreGateSvc+LArFebErrorSummary");
-}
-
-/////////////////////////////////////////////////////////////////////
-// DESTRUCTOR:
-/////////////////////////////////////////////////////////////////////
-
-LArFebErrorSummaryMaker::~LArFebErrorSummaryMaker()
-{  }
-
-
-
 StatusCode LArFebErrorSummaryMaker::initialize()
 {
   ATH_MSG_DEBUG(" initialize " );
 
   ATH_CHECK(detStore()->retrieve( m_onlineHelper ) );
-
-  m_errors.resize(LArFebErrorSummary::N_LArFebErrorType,0 ); 
-
 
   if (m_checkAllFeb)
     {
@@ -101,27 +70,33 @@ StatusCode LArFebErrorSummaryMaker::initialize()
   }
   ATH_MSG_INFO("Number of expected FEB's: "<<m_all_febs.size() );
 
-  ATH_MSG_INFO(" initialized "  );
-
   ATH_CHECK( m_readKey.initialize() );
   ATH_CHECK( m_writeKey.initialize() );
   ATH_CHECK( m_bfKey.initialize());
+
+
+  //Set error counters to 0
+  for (unsigned int i=0;i<LArFebErrorSummary::N_LArFebErrorType;++i){
+    m_errors[i]=0;
+  }
+
+  ATH_MSG_INFO(" initialized "  );
 
   return StatusCode::SUCCESS ; 
 
 } 
 
 
-StatusCode LArFebErrorSummaryMaker::execute()
+StatusCode LArFebErrorSummaryMaker::execute(const EventContext& ctx) const 
 {
   ATH_MSG_DEBUG(" execute " );
 
-  SG::ReadHandle<LArFebHeaderContainer> hdrCont{m_readKey};
+  SG::ReadHandle<LArFebHeaderContainer> hdrCont{m_readKey,ctx};
   
-  SG::WriteHandle<LArFebErrorSummary> febErrorSummary = SG::makeHandle(m_writeKey);
+  SG::WriteHandle<LArFebErrorSummary> febErrorSummary = SG::makeHandle(m_writeKey,ctx);
   ATH_CHECK(  febErrorSummary.record (std::make_unique<LArFebErrorSummary>()) );
 
-  SG::ReadCondHandle<LArBadFebCont> h_bf{m_bfKey};
+  SG::ReadCondHandle<LArBadFebCont> h_bf{m_bfKey,ctx};
   const LArBadFebCont* badFebs{*h_bf};
 
   unsigned int nbSamplesFirst=0;
@@ -137,7 +112,7 @@ StatusCode LArFebErrorSummaryMaker::execute()
   }
     
 
-  for (const auto& it : *hdrCont) {
+  for (const auto it : *hdrCont) {
       HWIdentifier febid= it->FEBId();
       unsigned int int_id =  febid.get_identifier32().get_compact();
    
@@ -282,34 +257,30 @@ StatusCode LArFebErrorSummaryMaker::execute()
   if (m_checkAllFeb || m_isHec || m_isFcal || m_isEmb || m_isEmec || m_isEmPS){
     const uint16_t errw = 1<< LArFebErrorSummary::MissingHeader; 
     bool warn=false;
-    std::set<unsigned int>::const_iterator it =  all_febs.begin();
-    std::set<unsigned int>::const_iterator it_e =  all_febs.end();
-    for(;it!=it_e;++it){
-    
-      const HWIdentifier febid =  HWIdentifier( Identifier32(*it) ) ; 
+    for (auto it : all_febs) { 
+      const HWIdentifier febid =  HWIdentifier( Identifier32(it) ) ; 
       const LArBadFeb febStatus = badFebs->status(febid);
       if ( febStatus.deadReadout() || febStatus.deadAll() || febStatus.deactivatedInOKS() ) {
-	ATH_MSG_DEBUG( " This FEB is not read out  "<< std::hex << *it << std::dec  );
+	ATH_MSG_DEBUG( " This FEB is not read out  0x"<< std::hex << it << std::dec  );
       }
       else {
 	//Print warning only for first couple of events and if we have at least one FEB read out
 	//(dont' flood log with useless message is LAr is not in the run)
 	//if (this->outputLevel()<=MSG::WARNING && m_missingFebsWarns < m_warnLimit &&  hdrCont->size()>0) {
-	if (msgLvl(MSG::WARNING) && m_missingFebsWarns < m_warnLimit &&  hdrCont->size()>0) {
+	if (msgLvl(MSG::WARNING) && m_missingFebsWarns.load() < m_warnLimit &&  hdrCont->size()>0) {
 	  warn=true;
 	  const std::string bec= m_onlineHelper->barrel_ec(febid)==0 ? "BARREL/" : "ENDCAP/";
 	  const std::string side=m_onlineHelper->pos_neg(febid)==0 ? "C/" : "A/";
 	  ATH_MSG_WARNING( "FEB [" <<bec<<side<<m_onlineHelper->feedthrough(febid)<<"/"<<m_onlineHelper->slot(febid)<<"] not read out!"  );
 	}	
 
-	febErrorSummary->set_feb_error((*it),errw); 
+	febErrorSummary->set_feb_error(it,errw); 
 	m_errors[LArFebErrorSummary::MissingHeader]+=1; 
       }//end else missing FEB to report 
 	    
     }//end loop over febs
     if (warn) {
-      ++m_missingFebsWarns;
-      if (m_missingFebsWarns==m_warnLimit)
+      if ((++m_missingFebsWarns)==m_warnLimit)
 	ATH_MSG_WARNING( "No more warnings about FEBs not read out!"  );
     }
   }//end if checkCompletness
@@ -342,7 +313,7 @@ StatusCode LArFebErrorSummaryMaker::finalize()
 
   for (unsigned int i=0;i<LArFebErrorSummary::N_LArFebErrorType;++i){
     uint16_t err = 1<<i; 
-    ATH_MSG_INFO( " type, name, count = " << i << " " << LArFebErrorSummary::error_to_string(err) << " " << m_errors[i]  );
+    ATH_MSG_INFO( " type, name, count = " << i << " " << LArFebErrorSummary::error_to_string(err) << " " << m_errors[i].load()  );
   }
   
   return StatusCode::SUCCESS;

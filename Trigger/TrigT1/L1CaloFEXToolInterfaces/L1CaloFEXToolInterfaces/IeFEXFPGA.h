@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -40,7 +40,7 @@ Interface definition for eFEXFPGA
     
     virtual void SetIsoWP(std::vector<unsigned int> &, std::vector<unsigned int> &, unsigned int &) = 0;
 
-    virtual uint32_t formEmTOB(int &, int &) = 0;
+    virtual uint32_t formEmTOB(int &, int &, int &, unsigned int &, unsigned int &, unsigned int &, unsigned int &, unsigned int &, unsigned int &)  = 0;
 
     virtual std::vector<uint32_t> getEmTOBs() = 0; 
 

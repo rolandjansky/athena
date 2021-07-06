@@ -285,9 +285,9 @@ int  CaloLVL1_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
     reg_id.add(caloValue);
     reg_id.add(lvl1CaloValue); 
     Range prefix;
-    m_full_region_range = m_dict->build_multirange(reg_id, prefix, "region");
-    m_full_tower_range = m_dict->build_multirange(reg_id, prefix, "phi");
-    m_full_layer_range = m_dict->build_multirange(reg_id, prefix);
+    m_full_region_range = m_dict->build_multirange(reg_id, "Reg_Lvl1", prefix, "region");
+    m_full_tower_range = m_dict->build_multirange(reg_id, "Reg_Lvl1", prefix, "phi");
+    m_full_layer_range = m_dict->build_multirange(reg_id, "Reg_Lvl1", prefix);
 
     // Setup the hash tables
     if(init_hashes()) return (1);

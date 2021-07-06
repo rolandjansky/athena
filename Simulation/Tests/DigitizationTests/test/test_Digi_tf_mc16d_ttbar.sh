@@ -10,18 +10,13 @@
 
 DigiOutFileName="mc16d_ttbar.RDO.pool.root"
 
-
-
-
+InputHitsFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000425.pool.root.1"
 HighPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.361239.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_high.merge.HITS.e4981_s3087_s3089/*"
 LowPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.361238.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_low.merge.HITS.e4981_s3087_s3089/*"
 
 
-
-#--digiSteeringConf "StandardSignalOnlyTruth"
-
 Digi_tf.py \
---inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000425.pool.root.1 \
+--inputHITSFile ${InputHitsFile} \
 --conditionsTag default:OFLCOND-MC16-SDR-20 \
 --digiSeedOffset1 170 --digiSeedOffset2 170 \
 --geometryVersion default:ATLAS-R2-2016-01-00-01 \
@@ -29,19 +24,14 @@ Digi_tf.py \
 --inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles} \
 --jobNumber 1 \
 --maxEvents 25 \
---numberOfCavernBkg 0 \
---numberOfHighPtMinBias 0.2099789464 \
---numberOfLowPtMinBias 80.290021063135 \
 --outputRDOFile ${DigiOutFileName} \
 --digiSteeringConf "StandardSignalOnlyTruth" \
---postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' 'condSeq.LArAutoCorrTotalCondAlg.deltaBunch=1' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
---pileupFinalBunch 6 \
---preExec 'all:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True); from LArDigitization.LArDigitizationFlags import jobproperties;jobproperties.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(False)' \
---preInclude 'HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInlcude.PileUpBunchTrainsMC16c_2017_Config1.py,RunDependentSimData/configLumi_run300000_mc16d.py' \
+--preInclude 'all:Campaigns/MC16d.py' 'HITtoRDO:Campaigns/PileUpMC16d.py' \
 --skipEvents 0
 
 rc=$?
+status=$rc
 echo  "art-result: $rc Digi_tf.py"
 rc1=-9999
 rc2=-9999
@@ -57,6 +47,7 @@ then
     # Do reference comparisons
     art.py compare ref --diff-pool $DigiOutFileName   /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigiOutFileName
     rc1=$?
+    status=$rc1
 fi
 echo  "art-result: $rc1 diff-pool"
 #
@@ -66,6 +57,7 @@ if [ $rc -eq 0 ]
 then
     art.py compare ref --mode=semi-detailed --diff-root $DigiOutFileName /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigiOutFileName
     rc2=$?
+    status=$rc2
 fi
 echo  "art-result: $rc2 diff-root"
 #
@@ -73,6 +65,7 @@ if [ $rc -eq 0 ]
 then
     checkFile ./$DigiOutFileName
     rc3=$?
+    status=$rc3
 fi
 echo "art-result: $rc3 checkFile"
 #
@@ -83,5 +76,8 @@ then
     ArtJobName=$2
     art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=semi-detailed
     rc4=$?
+    status=$rc4
 fi
 echo  "art-result: $rc4 regression"
+
+exit $status

@@ -1,24 +1,26 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONREADOUTGEOMETRY_MUONCLUSTERREADOUTELEMENT_H
 #define MUONREADOUTGEOMETRY_MUONCLUSTERREADOUTELEMENT_H
 
-#include "GeoPrimitives/GeoPrimitives.h"
 #include "MuonReadoutGeometry/MuonReadoutElement.h"
-#include "TrkSurfaces/Surface.h"
+
+#include <GaudiKernel/IMessageSvc.h>
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "Identifier/Identifier.h"
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/SurfaceBounds.h"
-#include "GaudiKernel/MsgStream.h"
-#include "AthenaKernel/getMessageSvc.h"
-#include <vector>
-#include <TString.h> // for Form
 
-namespace Trk {
-  class Surface;
-  class SurfaceBounds;
-}
+#include <TString.h>
+#include <stdexcept>
+#include <string>
+#include <vector>
+
+class GeoVFullPhysVol;
 
 namespace MuonGM {
 

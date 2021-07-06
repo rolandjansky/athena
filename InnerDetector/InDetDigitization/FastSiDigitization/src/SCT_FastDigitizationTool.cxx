@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FastSiDigitization/SCT_FastDigitizationTool.h"
@@ -20,7 +20,7 @@
 #include "SCT_ReadoutGeometry/SCT_ForwardModuleSideDesign.h"
 
 // FATRAS
-#include "InDetReadoutGeometry/SiCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkSurfaces/SurfaceBounds.h"
 #include "TrkExUtils/LineIntersection2D.h"
@@ -300,13 +300,7 @@ StatusCode SCT_FastDigitizationTool::mergeEvent(const EventContext& ctx)
   //-----------------------------------------------------------------------
   // Clean up temporary containers
   delete m_thpcsi;
-  std::list<SiHitCollection*>::iterator siHitColl(m_siHitCollList.begin());
-  std::list<SiHitCollection*>::iterator siHitCollEnd(m_siHitCollList.end());
-  while(siHitColl!=siHitCollEnd)
-    {
-      delete (*siHitColl);
-      ++siHitColl;
-    }
+  for(SiHitCollection* ptr : m_siHitCollList) delete ptr;
   m_siHitCollList.clear();
   //-----------------------------------------------------------------------
 
@@ -769,7 +763,7 @@ StatusCode SCT_FastDigitizationTool::digitize(const EventContext& ctx)
                   // create the smdar parameter
                   const double sPar = m_sctSmearLandau ?
                     m_sctSmearPathLength*CLHEP::RandLandau::shoot(m_randomEngine) :
-                    m_sctSmearPathLength*CLHEP::RandGauss::shoot(m_randomEngine);
+                    m_sctSmearPathLength*CLHEP::RandGaussZiggurat::shoot(m_randomEngine);
                   chargeWeight *=  (1.+sPar);
                 }
 
@@ -827,7 +821,7 @@ StatusCode SCT_FastDigitizationTool::digitize(const EventContext& ctx)
                 if(isNeighbour)
                   {
                     //Merge the clusters
-                    std::vector<Identifier> existingClusterRDOList = existingCluster->rdoList();
+                    const std::vector<Identifier> &existingClusterRDOList = existingCluster->rdoList();
                     potentialClusterRDOList.insert(potentialClusterRDOList.end(), existingClusterRDOList.begin(), existingClusterRDOList.end() );
                     Amg::Vector2D existingClusterPosition(existingCluster->localPosition());
                     potentialClusterPosition = (potentialClusterPosition + existingClusterPosition)/2;
@@ -918,11 +912,14 @@ StatusCode SCT_FastDigitizationTool::digitize(const EventContext& ctx)
                   mat(Trk::locY,Trk::locX) = (Sn*sqrt(Cs2)*(V0-V1));
                   mat(Trk::locY,Trk::locY) = (Sn2*V0+Cs2*V1);
                 }
-              // covariance matrix && error description
-              const Amg::MatrixX *potentialClusterErr = new Amg::MatrixX(mat);
 
               // create a custom cluster
-              potentialCluster = new InDet::SCT_Cluster(potentialClusterId,lcorrectedPosition,potentialClusterRDOList,siWidth,hitSiDetElement,potentialClusterErr);
+              potentialCluster = new InDet::SCT_Cluster(potentialClusterId,
+                                                        lcorrectedPosition,
+                                                        potentialClusterRDOList,
+                                                        siWidth,
+                                                        hitSiDetElement,
+                                                        Amg::MatrixX(mat));
             }
 
           (void) SCT_DetElClusterMap.insert(SCT_detElement_RIO_map::value_type(waferID, potentialCluster));
@@ -1048,7 +1045,7 @@ bool SCT_FastDigitizationTool::NeighbouringClusters(const std::vector<Identifier
   //---------------------------------------------------------------------------------
   bool isNeighbour = false;
   unsigned int countR(0);
-  std::vector<Identifier> existingClusterRDOList = existingCluster->rdoList();
+  const std::vector<Identifier> &existingClusterRDOList = existingCluster->rdoList();
   std::vector<Identifier>::const_iterator potentialClusterRDOIter = potentialClusterRDOList.begin();
   for ( ; potentialClusterRDOIter != potentialClusterRDOList.end(); ++potentialClusterRDOIter)
     {

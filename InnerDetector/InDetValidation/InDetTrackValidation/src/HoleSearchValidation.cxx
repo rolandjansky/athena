@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -28,11 +28,11 @@ using namespace InDet;
 
 HoleSearchValidation::HoleSearchValidation(const std::string& name, ISvcLocator* pSvcLocator):
     AthReentrantAlgorithm(name, pSvcLocator),
-	m_idHelper(0),
-	m_pixelID(0),
-	m_sctID(0),
-	m_trtID(0),
-	m_siliconID(0),
+	m_idHelper(nullptr),
+	m_pixelID(nullptr),
+	m_sctID(nullptr),
+	m_trtID(nullptr),
+	m_siliconID(nullptr),
     m_holeSearchTool("InDet::InDetTrackHoleSearchTool"),
     m_trackCollectionKey("Tracks"),
 	m_saveNewTracksInSG(false),
@@ -42,7 +42,7 @@ HoleSearchValidation::HoleSearchValidation(const std::string& name, ISvcLocator*
 	m_randomRemovalMode(false),
     m_maxNumberOfHoles(3),
   	m_rndmGenSvc("AtRndmGenSvc", name),
-  	m_randomEngine(0),
+  	m_randomEngine(nullptr),
   	m_randomEngineName("HoleSearchRnd")
 
 {
@@ -156,7 +156,7 @@ StatusCode HoleSearchValidation::initialize() {
 
 StatusCode HoleSearchValidation::execute(const EventContext& ctx) const {
 
-  std::array<bool,Parts::kNParts> remove_parts;
+  std::array<bool,Parts::kNParts> remove_parts{};
   for (unsigned int part_i=0; part_i<Parts::kNParts; ++part_i) {
     remove_parts[part_i]=( !m_randomRemovalMode ? m_removeParts[part_i] : false );
   }
@@ -187,13 +187,8 @@ StatusCode HoleSearchValidation::execute(const EventContext& ctx) const {
     // perform hole search
     unsigned int oldHoles = doHoleSearch( *trackIterator );
 
+    auto vecTsos = DataVector<const Trk::TrackStateOnSurface>();
 
-
-    // remve some hits from track
-    //msg(MSG::VERBOSE)<<"Copying all but "<<m_numberHitsToRemove <<" into new track"<<endmsg;    
-    DataVector<const Trk::TrackStateOnSurface>* vecTsos 
-      = new DataVector<const Trk::TrackStateOnSurface>();
-    
     // loop over TSOS, copy TSOS and push into vector
     DataVector<const Trk::TrackStateOnSurface>::const_iterator iTsos    = tsos->begin();
     DataVector<const Trk::TrackStateOnSurface>::const_iterator iTsosEnd = tsos->end();
@@ -312,7 +307,7 @@ StatusCode HoleSearchValidation::execute(const EventContext& ctx) const {
         }
 
 	// hits, outliers
-	if (mesb != 0 && mesb->associatedSurface().associatedDetectorElement() != NULL) {
+	if (mesb != nullptr && mesb->associatedSurface().associatedDetectorElement() != nullptr) {
 	  surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify(); 
           // the pixel case	  
 	  if ( m_idHelper->is_pixel( surfaceID ) ) {
@@ -412,13 +407,12 @@ StatusCode HoleSearchValidation::execute(const EventContext& ctx) const {
       } // end TSoS is of type measurement
 
       const Trk::TrackStateOnSurface* newTsos = new Trk::TrackStateOnSurface(**iTsos);
-      vecTsos->push_back(newTsos);
+      vecTsos.push_back(newTsos);
     } // end loop over all TSoS
     
     ATH_MSG_DEBUG(  "Removed total of " << nRemoved << " TSoS on track." ) ;
 
-    Trk::Track* newTrack = new Trk::Track(track.info(), vecTsos, 0 );
-    msg(MSG::VERBOSE)<<"New Track ("<< newTrack <<") has "<< vecTsos->size() <<"\t track states"<<endmsg;
+    Trk::Track* newTrack = new Trk::Track(track.info(), std::move(vecTsos), nullptr );
     ATH_MSG_VERBOSE(  "Perform hole search on new track:" ) ;
     // perform hole search
     unsigned int newHoles = doHoleSearch( newTrack );
@@ -434,7 +428,7 @@ StatusCode HoleSearchValidation::execute(const EventContext& ctx) const {
     {
       std::lock_guard<std::mutex> lock(m_trackStatsMutex);
       while (m_trackStats.size() < nRemoved+1) {
-        m_trackStats.push_back( std::vector< unsigned int >(0) );
+        m_trackStats.emplace_back(0 );
       }
       while (m_trackStats[nRemoved].size() < foundHoles+1) {
         m_trackStats[nRemoved].push_back( 0 );
@@ -521,7 +515,7 @@ void HoleSearchValidation::printInfoTSoS( const Trk::TrackStateOnSurface* tsos) 
   Identifier surfaceID;
   const Trk::MeasurementBase* mesb = tsos->measurementOnTrack();
   // hits, outliers
-  if (mesb != 0 && mesb->associatedSurface().associatedDetectorElement() != NULL) {
+  if (mesb != nullptr && mesb->associatedSurface().associatedDetectorElement() != nullptr) {
     surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify(); 
     if ( m_siliconID->is_barrel( surfaceID ) ) {
       ATH_MSG_VERBOSE(  " -- Barrel:");

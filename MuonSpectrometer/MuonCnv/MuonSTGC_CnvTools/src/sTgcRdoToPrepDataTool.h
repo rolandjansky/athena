@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CNVTOOLS_STGCRDOTOPREPDATATOOL
 #define MUONTGC_CNVTOOLS_STGCRDOTOPREPDATATOOL
 
 #include "sTgcRdoToPrepDataToolCore.h"
+#include "CxxUtils/checker_macros.h"
 
 namespace Muon 
 {
@@ -13,7 +14,7 @@ namespace Muon
    *  This is the algorithm that convert STGC Raw data  To STGC PRD  as a tool.
    */  
 
-  class sTgcRdoToPrepDataTool : virtual public sTgcRdoToPrepDataToolCore
+  class ATLAS_NOT_THREAD_SAFE sTgcRdoToPrepDataTool : public extends<sTgcRdoToPrepDataToolCore, IMuonRdoToPrepDataTool>
     {
     public:
       /** Constructor */
@@ -26,7 +27,10 @@ namespace Muon
       virtual StatusCode initialize() override;
 
     protected:
-      virtual SetupSTGC_PrepDataContainerStatus setupSTGC_PrepDataContainer() override;
+      virtual Muon::sTgcPrepDataContainer* setupSTGC_PrepDataContainer() const override;
+
+    private:
+      mutable Muon::sTgcPrepDataContainer* m_stgcPrepDataContainer = nullptr;
    }; 
 } // end of namespace
 

@@ -9,12 +9,15 @@
 
 
 namespace LVL1TGCTrigger {
-const int NHitInTrackSelector = 2;
+
 enum { FirstCandidate, SecondCandidate, NCandidate };
 
-class TGCHighPtChipOut {
+class TGCHighPtChipOut
+{
+ public:
+  static constexpr int s_NHitInTrackSelector = 2;
 
-public:
+ public:
   TGCHighPtChipOut(TGCHighPtBoard* hpt, int bidIn);
   TGCHighPtChipOut();
   TGCHighPtChipOut(const TGCHighPtChipOut& );
@@ -46,11 +49,11 @@ private:
   const TGCHighPtBoard* m_origin;
   int m_bid;
 
-  int m_pt[NumberOfChip][NHitInTrackSelector]; //[chip][iCandidate]
-  int m_pos[NumberOfChip][NHitInTrackSelector];
-  int m_hitID[NumberOfChip][NHitInTrackSelector];
-  int m_dev[NumberOfChip][NHitInTrackSelector];
-  int m_select[NumberOfChip][NHitInTrackSelector];
+  int m_pt[NumberOfChip][s_NHitInTrackSelector]; //[chip][iCandidate]
+  int m_pos[NumberOfChip][s_NHitInTrackSelector];
+  int m_hitID[NumberOfChip][s_NHitInTrackSelector];
+  int m_dev[NumberOfChip][s_NHitInTrackSelector];
+  int m_select[NumberOfChip][s_NHitInTrackSelector];
 };
 
 inline

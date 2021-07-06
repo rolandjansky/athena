@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
                           jFEXCompression.h  -  description
@@ -41,9 +41,9 @@ public:
  
 private: 
   /** Maximum ET value that can be encoded */
-  static const int s_maxET = 1019200;
+  static const int s_maxET = 800000;
   /** Number of ranges */
-  static const unsigned int s_nRanges = 6;
+  static const unsigned int s_nRanges = 5;
   /** Step sizes in each range, MeV */
   static const int s_steps[s_nRanges];
   /** Minimum ET values in each range, MeV */
@@ -55,15 +55,11 @@ private:
   /** LAr underflow code */
   static const unsigned int s_LArUnderflow = 1;
   /** LAr overflow code */
-  static const unsigned int s_LArOverflow  = 1020;
-  /** Reserved code value */
-  static const unsigned int s_LArReserved  = 1021;
+  static const unsigned int s_LArOverflow  = 4048;
+  /** Maximum code value, values 4049 to 4094 reserved */
+  static const unsigned int s_LArMaxCode   = 4095;
   /** Invalid code value */
-  static const unsigned int s_LArInvalid   = 1022;
-  /** LAr saturated code */
-  static const unsigned int s_LArSaturated = 1023;
-  /** Maximum code value */
-  static const unsigned int s_LArMaxCode   = 1023;
+  static const unsigned int s_LArInvalid   = 4095;
   /** L1Calo ET digit step */
   static const unsigned int s_jFEXstep     = 25;
   /** L1Calo saturated/overflow */

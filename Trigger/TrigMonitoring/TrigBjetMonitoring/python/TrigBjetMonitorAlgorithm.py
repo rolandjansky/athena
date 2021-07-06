@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file TrigBjetMonitorAlgorithm.py
@@ -76,15 +76,7 @@ def TrigBjetMonConfig(inputFlags):
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
     # standard one that is included with AthMonitorAlgorithm.
 
-    # # First, add a tool that's set up by a different configuration function. 
-    # # In this case, CaloNoiseToolCfg returns its own component accumulator, 
-    # # which must be merged with the one from this function.
-    # from CaloTools.CaloNoiseToolConfig import CaloNoiseToolCfg
-    # caloNoiseAcc, caloNoiseTool = CaloNoiseToolCfg(inputFlags)
-    # result.merge(caloNoiseAcc)
-    # trigBjetMonAlg.CaloNoiseTool = caloNoiseTool
-
-    # # Then, add a tool that doesn't have its own configuration function. In
+    # # Add a tool that doesn't have its own configuration function. In
     # # this example, no accumulator is returned, so no merge is necessary.
     # from MyDomainPackage.MyDomainPackageConf import MyDomainTool
     # trigBjetMonAlg.MyDomainTool = MyDomainTool()
@@ -330,26 +322,26 @@ def TrigBjetMonConfig(inputFlags):
             HistName = 'wIP3D_Rbu_tr_' + chain[2:]
             if chain[0:1] == "E" :
                 BjetMonGroup.defineHistogram(HistName, title='LogLH IP3D_pb/IP3D_pu probability ratio distribution;LogLH IP3D_pb/IP3D_pu;Events',
-                                             path='Expert/'+chain[2:],xbins=200,xmin=-4.0,xmax=6.0)
+                                             path='Expert/'+chain[2:],xbins=200,xmin=-50.,xmax=50.)
             if chain[0:1] == "S" :
                 BjetMonGroup.defineHistogram(HistName, title='LogLH IP3D_pb/IP3D_pu probability ratio distribution;LogLH IP3D_pb/IP3D_pu;Events',
-                                             path='Shifter/'+chain[2:],xbins=200,xmin=-4.0,xmax=6.0)
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=-50.,xmax=50.)
 
             HistName = 'wSV1_Rbu_tr_' + chain[2:]
             if chain[0:1] == "E" :
                 BjetMonGroup.defineHistogram(HistName, title='LogLH SV1_pb/SV1_pu probability ratio distribution;LogLH SV1_pb/SV1_pu;Events',
-                                             path='Expert/'+chain[2:],xbins=200,xmin=-4.0,xmax=6.0)
+                                             path='Expert/'+chain[2:],xbins=200,xmin=-50.,xmax=50.)
             if chain[0:1] == "S" :
                 BjetMonGroup.defineHistogram(HistName, title='LogLH SV1_pb/SV1_pu probability ratio distribution;LogLH SV1_pb/SV1_pu;Events',
-                                             path='Shifter/'+chain[2:],xbins=200,xmin=-4.0,xmax=6.0)
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=-50.,xmax=50.)
 
             HistName = 'wCOMB_Rbu_tr_' + chain[2:]
             if chain[0:1] == "E" :
                 BjetMonGroup.defineHistogram(HistName, title='LogLH IP3D+SV1 probability ratio distribution;LogLH IP3D+SV1 probability ratio;Events',
-                                             path='Expert/'+chain[2:],xbins=200,xmin=-4.0,xmax=6.0)
+                                             path='Expert/'+chain[2:],xbins=200,xmin=-50.,xmax=50.)
             if chain[0:1] == "S" :
                 BjetMonGroup.defineHistogram(HistName, title='LogLH IP3D+SV1 probability ratio distribution;LogLH IP3D+SV1 probability ratio;Events',
-                                             path='Shifter/'+chain[2:],xbins=200,xmin=-4.0,xmax=6.0)
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=-50.,xmax=50.)
 
             HistName = 'wMV2c10_tr_' + chain[2:]
             if chain[0:1] == "E" :
@@ -436,10 +428,10 @@ def TrigBjetMonConfig(inputFlags):
             HistName = 'DL1_mv_tr_' + chain[2:]
             if chain[0:1] == "E" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1_mv LLR;DL1_mv;Events',
-                                             path='Expert/'+chain[2:],xbins=200,xmin=-20.,xmax=10.)
+                                             path='Expert/'+chain[2:],xbins=200,xmin=-50.,xmax=50.)
             if chain[0:1] == "S" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1_mv LLR;DL1_mv;Events',
-                                             path='Shifter/'+chain[2:],xbins=200,xmin=-20.,xmax=10.)
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=-50.,xmax=50.)
 
 
             HistName = 'DL1r_pu_tr_' + chain[2:]
@@ -469,10 +461,10 @@ def TrigBjetMonConfig(inputFlags):
             HistName = 'DL1r_mv_tr_' + chain[2:]
             if chain[0:1] == "E" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1r_mv LLR;DL1r_mv;Events',
-                                             path='Expert/'+chain[2:],xbins=200,xmin=-20.,xmax=10.)
+                                             path='Expert/'+chain[2:],xbins=200,xmin=-50.,xmax=50.)
             if chain[0:1] == "S" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1r_mv LLR;DL1r_mv;Events',
-                                             path='Shifter/'+chain[2:],xbins=200,xmin=-20.,xmax=10.)
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=-50.,xmax=50.)
 
 
             continue
@@ -518,7 +510,7 @@ if __name__=='__main__':
     #ConfigFlags.Input.isMC = False
 
     # AOD file to be run w/ MT access
-    file = '/afs/cern.ch/work/e/enagy/public/ARTfiles/MCtest310720.AOD.pool.root'
+    file = '/afs/cern.ch/work/e/enagy/public/ARTfiles/MCtest230621.AOD.pool.root'
 
     ConfigFlags.Input.Files = [file]
     ConfigFlags.Input.isMC = True

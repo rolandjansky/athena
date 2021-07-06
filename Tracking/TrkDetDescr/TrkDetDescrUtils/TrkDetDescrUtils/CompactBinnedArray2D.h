@@ -103,6 +103,12 @@ public:
     return new CompactBinnedArray2DT(m_arrayObjects, m_array, m_binUtility->clone(), m_buVec);
   }
 
+  CompactBinnedArray2DT* clone(const std::vector<T*>& ptrs) const
+  {
+    assert (ptrs.size() == m_arrayObjects.size());
+    return new CompactBinnedArray2DT(ptrs, m_array, m_binUtility->clone(), m_buVec);
+  }
+
   /**Virtual Destructor*/
   ~CompactBinnedArray2DT()
   {

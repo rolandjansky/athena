@@ -1,6 +1,6 @@
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include <iostream>
 
@@ -25,6 +25,8 @@
 #include "../src/TriggerEDMSerialiserTool.h"
 #include "../src/TriggerEDMDeserialiserAlg.h"
 
+#include "CxxUtils/ubsan_suppress.h"
+#include "TInterpreter.h"
 
 void testTrigEMContainer(  const EventContext &ctx );
 void testTrigCompositeContainer(  const EventContext &ctx );
@@ -40,6 +42,7 @@ void testRoIDescriptorReadAndCheck(StoreGateSvc*);
 
 
 int main() {
+  CxxUtils::ubsan_suppress ( []() { TInterpreter::Instance(); } );
   using namespace std;
   ISvcLocator* pSvcLoc;
   if( !Athena_test::initGaudi("test.txt",  pSvcLoc) ) {
@@ -109,7 +112,7 @@ void testTrigEMContainerInsert(StoreGateSvc* pStore) {
   auto em = new xAOD::TrigEMClusterContainer();
   auto emAux = new xAOD::TrigEMClusterAuxContainer();
   em->setStore( emAux );
-  SG::AuxElement::Accessor< int >   viewIndex( "viewIndex" );
+  SG::AuxElement::Accessor< int >   testInt( "testInt" );
   SG::AuxElement::Accessor< float > testFloat( "testFloat" );
   SG::AuxElement::Accessor< float > testSmallFloat( "testSmallFloat" );
   SG::AuxElement::Accessor< ElementLink<xAOD::BTaggingContainer> > testTypedElementLink( "testTypedElementLink" );
@@ -135,7 +138,7 @@ void testTrigEMContainerInsert(StoreGateSvc* pStore) {
       cluster->setNCells( x );
       cluster->setRawEta(-999);
       cluster->setRawPhi(-999);
-      viewIndex( *cluster ) = x+1; // for sake of change add 1
+      testInt( *cluster ) = x+1; // for sake of change add 1
       testFloat( *cluster ) = float(x)+0.1; // for sake of change add 0.1
       testSmallFloat( *cluster ) = float(x);
       testTypedElementLink( *cluster ) = ElementLink<xAOD::BTaggingContainer>(123, 456);
@@ -165,7 +168,7 @@ void testTrigEMContainerReadAndCheck(StoreGateSvc* pStore) {
   VALUE( emback ) NOT_EXPECTED ( nullptr );
 
 
-  SG::AuxElement::ConstAccessor< int > viewIndexReader( "viewIndex" );
+  SG::AuxElement::ConstAccessor< int > testIntReader( "testInt" );
   SG::AuxElement::ConstAccessor< float > testFloatReader( "testFloat" );
   SG::AuxElement::ConstAccessor< float > testSmallFloatReader( "testSmallFloat" );
   SG::AuxElement::ConstAccessor< ElementLink<xAOD::BTaggingContainer> > testTypedElementLinkReader( "testTypedElementLink" );
@@ -176,7 +179,7 @@ void testTrigEMContainerReadAndCheck(StoreGateSvc* pStore) {
     const xAOD::TrigEMCluster* cl = emback->at( i );
     VALUE( cl ) NOT_EXPECTED ( nullptr );
     VALUE( cl->nCells() ) EXPECTED( i ); // test regular Aux content
-    int vi = viewIndexReader( *cl );
+    int vi = testIntReader( *cl );
     float fl = testFloatReader( *cl );
     float smallFl = testSmallFloatReader( *cl );
     float rawEt = cl->rawEt();

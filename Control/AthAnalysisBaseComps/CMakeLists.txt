@@ -4,14 +4,14 @@
 atlas_subdir( AthAnalysisBaseComps )
 
 # External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread IOVDbDataModel )
 
 # Component(s) in the package:
 atlas_add_library( AthAnalysisBaseCompsLib
                    src/*.cxx
                    PUBLIC_HEADERS AthAnalysisBaseComps
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthenaBaseComps IOVDbDataModel GaudiKernel StoreGateLib SGtests AthContainers
+                   LINK_LIBRARIES AthenaBaseComps IOVDbDataModel GaudiKernel StoreGateLib AthContainers
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_component( AthAnalysisBaseComps

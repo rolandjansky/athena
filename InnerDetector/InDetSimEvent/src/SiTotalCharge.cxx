@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,17 +15,17 @@
 #include <iterator>
 
 // Implicit constructor:
-SiTotalCharge::SiTotalCharge(const alloc_t& alloc) :
+SiTotalCharge::SiTotalCharge() :
   m_charge(0),
-  m_chargeComposition(alloc),
-  m_emptyLink((unsigned int) 0, 0)
+  m_chargeComposition(),
+  m_emptyLink()
 {}
 
 // Copy constructor:
 SiTotalCharge::SiTotalCharge(const SiTotalCharge &totalCharge) :
   m_charge(totalCharge.m_charge),
   m_chargeComposition(totalCharge.m_chargeComposition),
-  m_emptyLink((unsigned int) 0, 0)
+  m_emptyLink()
 {}
 
 // Assignment operator:
@@ -42,22 +42,16 @@ SiTotalCharge &SiTotalCharge::operator=(const SiTotalCharge &totalCharge)
 // give main single process charge:
 const SiCharge& SiTotalCharge::mainCharge() const
 {
-  // start with the first charge
-  list_t::const_iterator p_charge=m_chargeComposition.begin();
-
-  // main charge to be determined, initialized to the first one
-  list_t::const_iterator main_charge = p_charge;
-  ++p_charge;
-  // look for the biggest amount of charge in the remaining charges
-  for( ; p_charge!=m_chargeComposition.end() ; ++p_charge) {
-    if (p_charge->charge()>main_charge->charge()) main_charge=p_charge;
-  }
-  return *main_charge;
+  auto max_element = std::max_element(m_chargeComposition.cbegin(), m_chargeComposition.cend(),
+		                      [](SiCharge const & lhs, SiCharge const & rhs)
+                                      { return lhs.charge() < rhs.charge(); }
+				     );
+  return *max_element;
 }
 
 bool SiTotalCharge::fromTrack() const 
 {
-  if(m_chargeComposition.size()==0)
+  if(m_chargeComposition.empty())
     {
       return false;
     }
@@ -72,7 +66,6 @@ void SiTotalCharge::add(const SiCharge &charge)
 {
   // increase the total deposited charge
   m_charge+=charge.charge();
-
   // add the SiCharge to the list of charges
   addSiCharge(charge);
 }
@@ -83,12 +76,10 @@ void SiTotalCharge::add(const SiTotalCharge &totalCharge)
   // increase the total deposited charge
   m_charge+=totalCharge.charge();
 
-  // add the new list of charges to the present list of charges
-  for(list_t::const_iterator p_charge=
-	totalCharge.chargeComposition().begin() ;
-      p_charge!=totalCharge.chargeComposition().end() ; ++p_charge) {
-    addSiCharge(*p_charge);
-  }
+  std::for_each(totalCharge.chargeComposition().begin(),
+                totalCharge.chargeComposition().end(),
+                [this](const SiCharge & c) { addSiCharge(c); }
+               );
 }
 
 // remove time information of the SiCharge objects:
@@ -110,31 +101,25 @@ void SiTotalCharge::removeTimeInformation()
 // remove small SiCharge objects:
 void SiTotalCharge::removeSmallCharges(const double minimumCharge)
 {
-  // loop on all charges
-  for(list_t::iterator p_charge=m_chargeComposition.begin() ;
-      p_charge!=m_chargeComposition.end() ; ) { 
-    // !!! p_charge is changed in the loop !!!
-
-    // if the charge is too small remove it from list
-    if (p_charge->charge()>-minimumCharge && 
-	p_charge->charge()<minimumCharge) {
-      p_charge=m_chargeComposition.erase(p_charge);
-    } else {
-      ++p_charge;
-    }
-  }
+  //erase-remove idiom to remove small charges
+  auto new_end = std::remove_if(m_chargeComposition.begin(), m_chargeComposition.end(),
+		  [&minimumCharge](const SiCharge& c){ return (c.charge() > -minimumCharge) && 
+		                                              (c.charge() < minimumCharge); });
+  m_chargeComposition.erase(new_end, m_chargeComposition.end());
 }
 
 // add another SiCharge to the charge composition (not the total value):
 void SiTotalCharge::addSiCharge(const SiCharge &charge)
 {
-  // try to merge the SiCharge in the list of existing charges
-  for(list_t::iterator p_charge=m_chargeComposition.begin() ;
-      p_charge!=m_chargeComposition.end() ; ++p_charge) {
-    if (p_charge->add(charge)) return;
-  }
+  auto element = std::find_if(m_chargeComposition.begin(), m_chargeComposition.end(),
+		     [&charge](const SiCharge & other) {
+                       return (charge.time() == other.time()) &&
+		              (charge.processType() == other.processType()) &&
+			      (charge.particleLink() == other.particleLink());
+		     } );
+  if(element != m_chargeComposition.end()) element->add(charge);
   // add the charge to the list if not merged in existing one
-  m_chargeComposition.push_back(charge);
+  else m_chargeComposition.push_back(charge);
 }
 
 ///////////////////////////////////////////////////////////////////

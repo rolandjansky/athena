@@ -14,11 +14,15 @@
 #include "L1CaloFEXSim/jSuperCellTowerMapper.h"
 #include "L1CaloFEXToolInterfaces/IjFEXSysSim.h"
 #include "L1CaloFEXSim/jFEXSim.h"
-#include "L1CaloFEXSim/jTowerContainer.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
-//#include "L1CaloFEXSim/jFEXOutputCollection.h"
+#include "L1CaloFEXSim/jFEXOutputCollection.h"
+#include "xAODTrigger/jFexSRJetRoIContainer.h" 
+#include "xAODTrigger/jFexLRJetRoIContainer.h"
+#include "xAODTrigger/jFexTauRoIContainer.h" 
+
+
 
 class CaloIdManager;
 
@@ -36,15 +40,24 @@ class jFEXDriver : public AthAlgorithm
   virtual StatusCode execute(/*const EventContext& ctx*/);// const;
   StatusCode finalize();
 
- private:
+  virtual StatusCode testSRJetEDM();
+  virtual StatusCode testLRJetEDM();
+  virtual StatusCode testTauEDM();
+
+ private: 
 
   int m_numberOfEvents = 0;
 
   SG::WriteHandleKey<LVL1::jTowerContainer> m_jTowerContainerSGKey {this, "MyETowers", "jTowerContainer", "MyETowers"};
 
-  //SG::WriteHandleKey<jFEXOutputCollection> m_jFEXOutputCollectionSGKey {this, "MyOutputs", "jFEXOutputCollection", "MyOutputs"};
+  SG::WriteHandleKey<jFEXOutputCollection> m_jFEXOutputCollectionSGKey {this, "MyOutputs", "jFEXOutputCollection", "MyOutputs"};
 
   SG::ReadHandleKey<CaloCellContainer> m_scellsCollectionSGKey {this, "SCell", "SCell", "SCell"};
+
+  SG::ReadHandleKey<xAOD::jFexSRJetRoIContainer> m_jFexSRJetEDMKey {this, "myEDMSR", "L1_jFexSRJetRoI", "Reading container of jFexSRRoIs"};
+  SG::ReadHandleKey<xAOD::jFexLRJetRoIContainer> m_jFexLRJetEDMKey {this, "myEDMLR", "L1_jFexLRJetRoI", "Reading container of jFexLRRoIs"};
+  SG::ReadHandleKey<xAOD::jFexTauRoIContainer> m_jFexTauEDMKey {this, "myEDMTau", "L1_jFexTauRoI", "Reading container of jFexTauRoIs"};
+
 
   ToolHandle<IjTowerBuilder> m_jTowerBuilderTool {this, "jTowerBuilderTool", "LVL1::jTowerBuilder", "Tool that builds jTowers for simulation"};
   ToolHandle<IjSuperCellTowerMapper> m_jSuperCellTowerMapperTool {this, "jSuperCellTowerMapperTool", "LVL1::jSuperCellTowerMapper", "Tool that maps supercells to jTowers"};

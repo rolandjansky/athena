@@ -30,7 +30,7 @@ CopyEventStreamInfo::~CopyEventStreamInfo() {
 }
 //___________________________________________________________________________
 StatusCode CopyEventStreamInfo::initialize() {
-   ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
+   ATH_MSG_INFO("Initializing " << name());
    // Locate the MetaDataSvc and InputMetaDataStore
    if (!m_metaDataSvc.retrieve().isSuccess()) {
       ATH_MSG_FATAL("Could not find MetaDataSvc");

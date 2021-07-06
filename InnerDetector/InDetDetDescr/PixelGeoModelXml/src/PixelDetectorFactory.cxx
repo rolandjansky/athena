@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelGeoModelXml/PixelDetectorFactory.h"
@@ -16,7 +16,7 @@
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 
-#include "InDetReadoutGeometry/SiCommonItems.h"
+#include "ReadoutGeometryBase/SiCommonItems.h"
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/Version.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
@@ -47,23 +47,19 @@ namespace InDetDDSLHC {
     //    Create the detector manager... should allow the name to be set
     //
     m_detectorManager = new InDetDD::PixelDetectorManager(detStore(),m_options->detectorName());
+
+    //TODO - For now this is always assuemd to be present as a default.
+    //To be revisited once the ITk alignment scheme is a bit clearer
+    m_detectorManager->addFolder("/Indet/Align");
     //
     //   Set Detector Manager pixel version information
     //
-    //At some point we may want to decouple also this DB stuff, and make this ITkStrip specific?
+    // No database is used at the moment and reasonable defaults are used
     DecodeVersionKey versionKey(geoDbTagSvc(), "Pixel");
-    IRDBRecordset_ptr switchSet = rdbAccessSvc()->getRecordsetPtr("PixelSwitches", versionKey.tag(), versionKey.node());
-    const IRDBRecord *switches = (*switchSet)[0];
-    string layout = "SLHC";
-    if (!switches->isFieldNull("LAYOUT")) {
-      layout = switches->getString("LAYOUT");
-    }
-    string description = "Test geometry";
-    if (!switches->isFieldNull("DESCRIPTION")) {
-      description = switches->getString("DESCRIPTION");
-    }
     string versionTag = rdbAccessSvc()->getChildTag("Pixel", versionKey.tag(), versionKey.node());
-    string versionName = switches->getString("VERSIONNAME");
+    string versionName = "SLHC";
+    string layout = "SLHC";
+    string description = "SLHC Geometry";
     int versionMajorNumber = 0;
     int versionMinorNumber = 0;
     int versionPatchNumber = 0;
@@ -80,7 +76,7 @@ namespace InDetDDSLHC {
     ATH_MSG_INFO( "C R E A T E   W O R L D" );
    
     ATH_MSG_INFO( m_detectorManager->getVersion().fullDescription() );
-    PixelGmxInterface gmxInterface(m_detectorManager, m_commonItems, &m_moduleTree);
+    ITk::PixelGmxInterface gmxInterface(m_detectorManager, m_commonItems, &m_moduleTree);
     //    To set up solid geometry only, without having to worry about sensitive detectors etc., and get loads of debug output,
     //    comment out above line and uncomment the following line; also, switch header files above.
     //    GmxInterface gmxInterface;
@@ -88,7 +84,7 @@ namespace InDetDDSLHC {
     int flags(0);
     string gmxInput;
     
-    if (m_options->gmxFilename() == "") {
+    if (m_options->gmxFilename().empty()) {
       ATH_MSG_INFO( "gmxFilename not set; getting .gmx from Geometry database Blob"
 		     );
       flags = 0x1; // Lowest bit ==> string; next bit implies gzip'd but we decided not to gzip
@@ -106,7 +102,7 @@ namespace InDetDDSLHC {
     else {
       flags = 0;
       gmxInput = PathResolver::find_file(m_options->gmxFilename(), "DATAPATH");
-      if (gmxInput == "") { // File not found
+      if (gmxInput.empty()) { // File not found
 	string errMessage("PixelDetectorFactory::create: Unable to find file " + m_options->gmxFilename() +
                                    " with PathResolver; check filename and DATAPATH environment variable");
 	throw runtime_error(errMessage);
@@ -121,15 +117,22 @@ namespace InDetDDSLHC {
     
     //
     unsigned int nChildren = world->getNChildVols();
+    bool foundVolume = false;
 
     for (int iChild = nChildren - 1; iChild>=0; --iChild) {
-      if (world->getNameOfChildVol(iChild) == "Pixel") {
-	// The * converts from a ConstPVLink to a reference to a GeoVPhysVol;
-	// the & takes its address.
-	m_detectorManager->addTreeTop(&*world->getChildVol(iChild));
-	break;
+      //stop if you find a volume for pixel plus PP1...
+      if( world->getNameOfChildVol(iChild) == "ITkPixelplusPP1") foundVolume  = true;
+      //otherwise, continue looking for a volume just for the pixel
+      if (foundVolume  == true || world->getNameOfChildVol(iChild) == "ITkPixel") {
+	      // The * converts from a ConstPVLink to a reference to a GeoVPhysVol;
+	      // the & takes its address.
+	      foundVolume  = true;
+	      m_detectorManager->addTreeTop(&*world->getChildVol(iChild));
+	      break;
       }
     }
+  
+    if(!foundVolume) ATH_MSG_ERROR("Could not find a logicalVolume named \"ITkPixel\" or \"ITkPixelplusPP1\" - this is required to provide the Envelope!");
 
     doNumerology();
 
@@ -139,14 +142,14 @@ namespace InDetDDSLHC {
   
   string PixelDetectorFactory::getBlob() {
     DecodeVersionKey versionKey(geoDbTagSvc(), "Pixel");
-    std::string versionTag  = versionKey.tag();
-    std::string versionNode = versionKey.node();
+    const std::string& versionTag  = versionKey.tag();
+    const std::string& versionNode = versionKey.node();
     ATH_MSG_INFO( "getBlob: versionTag = " << versionTag );
     ATH_MSG_INFO( "getBlob: versionNode = " << versionNode );
 
     IRDBAccessSvc *accessSvc = m_athenaComps->rdbAccessSvc();
     //   ADA  accessSvc->connect();
-    IRDBRecordset_ptr recordSetPixel = accessSvc->getRecordsetPtr("ITKXDD", versionTag, versionNode);
+    IRDBRecordset_ptr recordSetPixel = accessSvc->getRecordsetPtr("PIXXDD", versionTag, versionNode);
     if (!recordSetPixel || recordSetPixel->size() == 0) {
       ATH_MSG_FATAL( "getBlob: Unable to obtain Pixel recordSet" );
       throw runtime_error("getBlob: Unable to obtain Pixel recordSet");

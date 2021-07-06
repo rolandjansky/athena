@@ -126,17 +126,6 @@ if doTopoClusterAgain:
                                                              "TileExt0", "TileExt1", "TileExt2",
                                                              "TileGap1", "TileGap2", "TileGap3",
                                                              "FCAL0", "FCAL1"] 
-  # simple noise tool
-  SimpleNoiseFile = "sigmas_all.dat"
-  from CaloTools.CaloToolsConf import SimpleNoiseToolFromTextFile
-  SimpleNoiseTool = SimpleNoiseToolFromTextFile("SimpleNoiseTool")
-  SimpleNoiseTool.CellNoiseFileName = SimpleNoiseFile
-  ToolSvc += SimpleNoiseTool
-
-  topSequence.CaloTopoCluster.TopoMaker.CaloNoiseTool           = SimpleNoiseTool
-  topSequence.CaloTopoCluster.LocalCalib.LCWeight.CaloNoiseTool = SimpleNoiseTool
-  topSequence.CaloTopoCluster.DMCalib.LCDeadMaterial.CaloNoiseTool = SimpleNoiseTool
-
   # remove annoying BadChannel tool
   tlist=[]
   for x in topSequence.CaloTopoCluster.ClusterCorrectionTools:

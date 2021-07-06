@@ -1,3 +1,4 @@
+from InDetRecExample import TrackingCommon
 useNewAlgs = True # Use new AthenaMT friendly DQ algorithms instead of DQ tools
 
 if useNewAlgs:
@@ -95,7 +96,7 @@ else:
   InDetSCTHitEffMonTool = SCTHitEffMonTool(name = "InDetSCTHitEffMonTool",
                                            OutputLevel             = 4,
                                            IsCosmic                = InDetFlags.doCosmics(),
-                                           HoleSearch              = InDetHoleSearchTool,
+                                           HoleSearch              = TrackingCommon.getInDetHoleSearchTool(),
                                            ROTCreator              = SCT_ClusterOnTrackTool,
                                            BunchCrossingTool       = SCT_BunchCrossingTool,
                                            TrackName               = tracksName)

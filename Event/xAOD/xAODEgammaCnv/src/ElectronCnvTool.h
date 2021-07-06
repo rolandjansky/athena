@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -30,9 +30,6 @@ namespace xAODMaker {
     *         egamma (Electron) Container into an xAOD::ElectronContainer.
     *
     * @author Jovan Mitrevski <Jovan.Mitrevski@cern.ch>
-    *
-    * $Revision$
-    * $Date$
     */
   class ElectronCnvTool : public AthAlgTool,
 			  public virtual IElectronCnvTool {
@@ -42,17 +39,14 @@ namespace xAODMaker {
     ElectronCnvTool( const std::string& type, const std::string& name,
 		     const IInterface* parent );
 
-    /// Function initializing the tool
-    virtual StatusCode initialize();
-
     /// Function that fills an existing xAOD::ElectronContainer (xaod or xaodForward can be NULL)
     virtual StatusCode convert( const egammaContainer* aod,
-				xAOD::ElectronContainer* xaod ) const;
+				xAOD::ElectronContainer* xaod ) const override;
 
     /// Function that fills an existing xAOD::ElectronContainer (xaod or xaodForward can be NULL)
     virtual StatusCode convert( const egammaContainer* aod,
 				xAOD::ElectronContainer* xaod,
-				xAOD::ElectronContainer* xaodFrwd) const;
+				xAOD::ElectronContainer* xaodFrwd) const override;
   private:
     
     ///@brief  Fills in the shower shape variables 

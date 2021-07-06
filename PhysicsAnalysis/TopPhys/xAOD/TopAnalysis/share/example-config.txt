@@ -33,12 +33,15 @@ UseAodMetaData True
 ############GRL and PRW#############
 #here Good Run List and Pileup Reweighting settings are provided, see https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/TopGroupDataDerivationList#Lumicalc_GRL_and_PRW_files for the most update settings
 
-##these are the settings for MC16a
+##these are the settings for MC16e
 GRLDir GoodRunsLists
-GRLFile data15_13TeV/20170619/physics_25ns_21.0.19.xml data16_13TeV/20180129/physics_25ns_21.0.19.xml
-PRWConfigFiles_FS dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16a.FS.v2/prw.merged.root
-PRWConfigFiles_AF dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16a.AF.v2/prw.merged.root
-PRWLumiCalcFiles GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_25ns_276262-284484_OflLumi-13TeV-008.root GoodRunsLists/data16_13TeV/20180129/PHYS_StandardGRL_All_Good_25ns_297730-311481_OflLumi-13TeV-009.root
+GRLFile data18_13TeV/20190219/physics_25ns_Triggerno17e33prim.xml
+
+PRWConfigFiles_FS dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16e.FS.v2/prw.merged.root
+PRWConfigFiles_AF dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16e.AF.v2/prw.merged.root
+PRWActualMu_FS GoodRunsLists/data18_13TeV/20190318/physics_25ns_Triggerno17e33prim.actualMu.OflLumi-13TeV-010.root
+PRWActualMu_AF GoodRunsLists/data18_13TeV/20190318/physics_25ns_Triggerno17e33prim.actualMu.OflLumi-13TeV-010.root
+PRWLumiCalcFiles GoodRunsLists/data18_13TeV/20190318/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-010.root
 
 ###########Reco-level object definitions (i.e. object-level selection)##########
 
@@ -50,7 +53,7 @@ GlobalTriggersLoose 2015@e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose,m
 ### Object container names
 ElectronCollectionName Electrons
 MuonCollectionName Muons
-JetCollectionName AntiKt4EMPFlowJets_BTagging201903
+JetCollectionName AntiKt4EMPFlowJets
 LargeJetCollectionName None # can be e.g. AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets 
 TauCollectionName None #can be e.g. TauJets
 PhotonCollectionName None #can be e.g. Photons
@@ -87,14 +90,14 @@ JetJERSmearingModel Simple #JER
 
 ###########Truth-level settings##########
 #see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TopxAODStartGuideR21#Truth_options for more info
-TruthCollectionName TruthParticles
+TruthCollectionName None # has to be set to None for DAOD_PHYS
 TruthJetCollectionName AntiKt4TruthDressedWZJets
 TruthLargeRJetCollectionName None # can be AntiKt10TruthTrimmedPtFrac5SmallR20Jets
 TopPartonHistory False # can be e.g. ttbar
 TopPartonLevel False #this option only exists for recent releases; it switches on/off writing the "truth" partol-level tree
 TopParticleLevel False #this switches on/off writing the "particleLevel" tree
 TruthBlockInfo False
-PDFInfo True
+PDFInfo False
 
 ##############################################
 #############Event-level selections###########

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRDOTOPREPDATA_RPCRDOTOPREPDATATOOLCORE_H
@@ -31,48 +31,77 @@ namespace Muon {
 
 /////////////////////////////////////////////////////////////////////////////
 
-class RpcRdoToPrepDataToolCore : virtual public IMuonRdoToPrepDataTool, virtual public AthAlgTool {
+class RpcRdoToPrepDataToolCore
+  : public extends<AthAlgTool, IMuonRdoToPrepDataTool>
+{
 public:
 
+  using getPrepCollection_func = std::function<RpcPrepDataCollection* (Identifier)>;
+  using getCoinCollection_func = std::function<RpcCoinDataCollection* (Identifier)>;
+       
   RpcRdoToPrepDataToolCore( const std::string&, const std::string&, const IInterface* );
 
-  // to allow access to the IMuonRdoToPrepDataTool interface
-  StatusCode queryInterface( const InterfaceID& riid, void** ppvIf );
-
   // setup/teardown functions, similar like those for Algorithm/Service
-  StatusCode initialize();
-
-  // decoding method 
-  StatusCode decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect );
-  StatusCode decode( const std::vector<uint32_t>& robIds );
+  virtual StatusCode initialize() override;
 
   // debugging 
-  void printInputRdo();
-  void printPrepData();
-  void printCoinData();
-
-  // to resolve possible conflicts with IProperty::interfaceID()
-  static const InterfaceID& interfaceID() { return IMuonRdoToPrepDataTool::interfaceID(); }
+  virtual void printInputRdo() const override;
+  void printPrepDataImpl(const Muon::RpcPrepDataContainer& rpcPrepDataContainer,
+                         const Muon::RpcCoinDataContainer& rpcCoinDataContainer) const;
+  void printCoinDataImpl(const Muon::RpcCoinDataContainer& rpcCoinDataContainer) const;
 
 
 protected:
-  StatusCode processPad(const RpcPad *rdoColl, bool& processingetaview, bool& processingphiview, int& nPrepRawData, 
-                        std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& idWithDataVect, IdContext& rpcContext);
+  struct State;
+  
+  // decoding method 
+  StatusCode decodeImpl( State& state,
+                         getPrepCollection_func& getPrepCollection,
+                         getCoinCollection_func& getCoinCollection,
+                         std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect,
+                         bool firstTimeInTheEvent ) const;
+  StatusCode decodeImpl( State& state,
+                         getPrepCollection_func& getPrepCollection,
+                         getCoinCollection_func& getCoinCollection,
+                         const std::vector<uint32_t>& robIds,
+                         bool firstTimeInTheEvent ) const;
 
-  // Overridden by subclasses to handle legacy and MT cases
-  virtual StatusCode manageOutputContainers(bool& firstTimeInTheEvent);
+  StatusCode processPad(State& state,
+                        getPrepCollection_func& getPrepCollection,
+                        getCoinCollection_func& getCoinCollection,
+                        const RpcPad *rdoColl, bool& processingetaview, bool& processingphiview, int& nPrepRawData, 
+                        std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& idWithDataVect, IdContext& rpcContext,
+                        bool doingSecondLoopAmbigColls,
+                        std::set<IdentifierHash>& ambiguousCollections) const;
 
   void processTriggerHitHypothesis(RpcCoinMatrix::const_iterator itD, RpcCoinMatrix::const_iterator itD_end, bool highptpad, // these are inputs 
                                    bool& triggerHit,
                                    unsigned short& threshold,
                                    unsigned short& overlap,
-                                   bool& toSkip);
+                                   bool& toSkip) const;
+
+  struct State
+  {
+    //keepTrackOfFullEventDecoding
+    bool m_fullEventDone = false;
+
+    //the set of already requested and decoded offline (PrepRawData) collections
+    std::set<IdentifierHash> m_decodedOfflineHashIds;
+
+    //the set of unrequested collections with phi hits stored with ambiguityFlag > 1
+    std::set<IdentifierHash> m_ambiguousCollections;
+
+    //the set of already requested and decoded ROBs
+    std::set<uint32_t> m_decodedRobIds;
+
+    Muon::RpcPrepDataContainer* m_rpcPrepDataContainer = nullptr;
+    Muon::RpcCoinDataContainer* m_rpcCoinDataContainer = nullptr;
+  };
 
   float m_etaphi_coincidenceTime;       //!< time for phi*eta coincidence 
   float m_overlap_timeTolerance;        //!< tolerance of the timing calibration 
   bool  m_producePRDfromTriggerWords;   //!< if 1 store as prd the trigger hits 
   bool  m_solvePhiAmbiguities;          //!< toggle on/off the removal of phi ambiguities 
-  bool  m_doingSecondLoopAmbigColls;    //!< true if running a second loop over ambiguous collections in RoI-based mode
   bool  m_reduceCablingOverlap;         //!< toggle on/off the overlap removal
   float m_timeShift;                    //!< any global time shift ?!
   bool m_decodeData;                    //!< toggle on/off the decoding of RPC RDO into RpcPerpData
@@ -84,10 +113,8 @@ protected:
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
  
   /// RpcPrepData containers
-  Muon::RpcPrepDataContainer* m_rpcPrepDataContainer;
   SG::WriteHandleKey<Muon::RpcPrepDataContainer> m_rpcPrepDataContainerKey;
   /// RpcCoinData containers
-  Muon::RpcCoinDataContainer* m_rpcCoinDataContainer;
   SG::WriteHandleKey<Muon::RpcCoinDataContainer> m_rpcCoinDataContainerKey;
   
   SG::ReadHandleKey<RpcPadContainer>             m_rdoContainerKey;
@@ -98,19 +125,6 @@ protected:
   SG::ReadCondHandleKey<RpcCondDbData> m_readKey{this, "ReadKey", "RpcCondDbData", "Key of RpcCondDbData"};
   SG::ReadCondHandleKey<RpcCablingCondData> m_rpcReadKey{this, "RpcCablingKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this, "EventInfoContName", "EventInfo", "event info key"};
-
-  //keepTrackOfFullEventDecoding
-  bool m_fullEventDone;
-  
-  //the set of already requested and decoded offline (PrepRawData) collections
-  std::set<IdentifierHash> m_decodedOfflineHashIds;
-  
-  //the set of already requested and decoded ROBs
-  std::set<uint32_t> m_decodedRobIds;
-  
-  //the set of unrequested collections with phi hits stored with ambiguityFlag > 1
-  std::set<IdentifierHash> m_ambiguousCollections;
-    
 };
 }
 

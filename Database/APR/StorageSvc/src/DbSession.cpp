@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -16,11 +16,12 @@
 #include "StorageSvc/DbSession.h"
 #include "DbDomainObj.h"
 #include "DbSessionObj.h"
+#include "CxxUtils/checker_macros.h"
 
 using namespace pool;
 
 /// Object constructor
-DbSession::DbSession(const DbSessionObj* pSession) {
+DbSession::DbSession(DbSessionObj* pSession) {
   setType(POOL_StorageType);
   switchPtr(pSession);
 }
@@ -44,12 +45,12 @@ DbSession::~DbSession() {
 }
 
 /// Attach session to handle
-void DbSession::switchPtr(const DbSessionObj* obj) const {
+void DbSession::switchPtr(DbSessionObj* obj) {
   if (   obj ) obj->addRef();
   if ( m_ptr ) {
     if (m_ptr->release() == 0) m_ptr = 0;
   }
-  m_ptr = const_cast<DbSessionObj*>(obj);
+  m_ptr = obj;
   if ( m_ptr )   {
     setType(m_ptr->type());
   }
@@ -64,7 +65,7 @@ DbStatus DbSession::open()  {
 }
 
 /// Close session by handle
-DbStatus DbSession::close()   const   {
+DbStatus DbSession::close() {
   if ( m_ptr )       {
     m_ptr->clearEntries();
     m_ptr->close();
@@ -86,7 +87,7 @@ DbStatus DbSession::add(DbDomainObj* dom)  const   {
 }
 
 /// Remove domain from current session
-DbStatus DbSession::remove(const DbDomainObj* dom)  const {
+DbStatus DbSession::remove(const DbDomainObj* dom) {
   DbStatus sc = Error;
   if ( isValid() && dom )    {
     sc = m_ptr->remove(dom);

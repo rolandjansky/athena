@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration */
+/* Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration */
 
 #ifndef TRIGCONFIO_TRIGDBHELPER_H
 #define TRIGCONFIO_TRIGDBHELPER_H
@@ -9,6 +9,7 @@
 #include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/IQuery.h"
 
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS // Needed to silence Boost pragma message
 #include "boost/property_tree/ptree.hpp"
 #include "boost/property_tree/json_parser.hpp"
 #include "boost/iostreams/stream.hpp"
@@ -50,7 +51,7 @@ namespace TrigConf {
       const std::string & dataName() {
          return m_dataName;
       }
- 
+
    private:
       std::vector<std::pair<std::string,std::string>> m_tables{}; // tables needed in the query
       std::string m_condition{""};  // where clause
@@ -64,12 +65,12 @@ namespace TrigConf {
    void QueryDefinition::extendOutput(const std::string & fieldName) {
       m_attList.extend<T>( fieldName );
    }
-   
+
    template<typename T>
    void QueryDefinition::extendBinding(const std::string & fieldName) {
       m_bindList.extend<T>( fieldName );
    }
-   
+
    template<typename T>
    void QueryDefinition::setBoundValue(const std::string & fieldName, const T & value) {
       m_bindList[fieldName].setValue(value);

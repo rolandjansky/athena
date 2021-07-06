@@ -116,8 +116,7 @@ MuonPatternCalibration::createRegionMap(const MuonPatternCombination& pat, Regio
     else
         ATH_MSG_DEBUG("No phi measurements using center tubes");
 
-    retrieveTriggerHitContainers(ctx);
-
+    MuonPatternCalibration::Containers containers = retrieveTriggerHitContainers(ctx);
 
     std::vector<MuonPatternChamberIntersect>::const_iterator it = pat.chamberData().begin();
     for (; it != pat.chamberData().end(); ++it) {
@@ -216,9 +215,9 @@ MuonPatternCalibration::createRegionMap(const MuonPatternCombination& pat, Regio
             for (; chit != chit_end; ++chit) {
                 EtaPhiHits& hits = chit->second;
                 if ((hits.neta > 0 && hits.nphi == 0) || (hits.nphi > 0 && hits.neta == 0)) {
-                    if (m_idHelperSvc->isRpc(id) && m_rpcPrdContainer) {
+                    if (m_idHelperSvc->isRpc(id) && containers.m_rpcPrdContainer) {
 
-                        auto pos = m_rpcPrdContainer->indexFindPtr(chit->first);
+                        auto pos = containers.m_rpcPrdContainer->indexFindPtr(chit->first);
                         if (pos == nullptr)
                             ATH_MSG_DEBUG("RpcPrepDataCollection not found in container!!");
                         else {
@@ -231,8 +230,8 @@ MuonPatternCalibration::createRegionMap(const MuonPatternCombination& pat, Regio
                                 clusterIds.insert(clus->identify());
                             }
                         }
-                    } else if (m_idHelperSvc->isTgc(id) && m_tgcPrdContainer) {
-                        auto pos = m_tgcPrdContainer->indexFindPtr(chit->first);
+                    } else if (m_idHelperSvc->isTgc(id) && containers.m_tgcPrdContainer) {
+                        auto pos = containers.m_tgcPrdContainer->indexFindPtr(chit->first);
                         if (pos == nullptr)
                             ATH_MSG_DEBUG("TgcPrepDataCollection not found in container!!");
                         else {
@@ -582,23 +581,24 @@ MuonPatternCalibration::calibrateRegionMap(const RegionMap&                     
     }
 }
 
-void
+MuonPatternCalibration::Containers
 MuonPatternCalibration::retrieveTriggerHitContainers(const EventContext& ctx) const
 {
-
-    m_rpcPrdContainer = 0;
+    MuonPatternCalibration::Containers containers;
     SG::ReadHandle<Muon::RpcPrepDataContainer> RpcCont(m_keyRpc, ctx);
     if (!RpcCont.isValid()) {
         ATH_MSG_DEBUG(" Failed to retrieve RpcPrepDataContainer, will not recover rpc trigger hits ");
-    } else
-        m_rpcPrdContainer = RpcCont.cptr();
-
-    m_tgcPrdContainer = 0;
+    } else{
+        containers.m_rpcPrdContainer = RpcCont.cptr();
+    }
     SG::ReadHandle<Muon::TgcPrepDataContainer> TgcCont(m_keyTgc, ctx);
     if (!TgcCont.isValid()) {
         ATH_MSG_DEBUG(" Failed to retrieve TgcPrepDataContainer, will not recover tgc trigger hits ");
-    } else
-        m_tgcPrdContainer = TgcCont.cptr();
+    } else{
+        containers.m_tgcPrdContainer = TgcCont.cptr();
+    }
+
+    return containers;
 }
 
 }  // namespace Muon

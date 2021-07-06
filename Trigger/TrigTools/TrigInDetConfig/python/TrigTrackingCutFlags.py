@@ -3,70 +3,93 @@ import AthenaCommon.SystemOfUnits as Units
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from InDetConfig.TrackingCutsFlags import createTrackingFlags
 
+# for the time when the two config systems coexist we reuse -flags 
+from TrigInDetConfig.ConfigSettings import (
+    _ConfigSettings_electron, _ConfigSettings_muon, _ConfigSettings_muonLRT, _ConfigSettings_fullScan, _ConfigSettings_muonIso, _ConfigSettings_tau, _ConfigSettings_tauCore, _ConfigSettings_tauIso
+)
 
-def __sliceFlags():
+
+def __flagsFromConfigSettings(settings):
     flags = createTrackingFlags()
-    flags.addFlag("seedRadBinWidth", 2)
-    flags.addFlag("d0SeedMax", 4.0)
-    flags.addFlag("d0SeedPPSMax", 1.7)
-    flags.addFlag("doCloneRemoval", True)
-    flags.addFlag("doResMon", False)
-    flags.addFlag("checkRedundantSeeds", False)
+    for setting, value in settings.__dict__.items():
+        setting = setting.lstrip("_")
+        if value is None:
+            flags.addFlag(setting, lambda pf: None)
+        else:
+            flags.addFlag(setting, value)
+
+    flags.addFlag("trkTracks_FTF", f'HLT_IDTrkTrack_{flags.suffix}_FTF')
+    flags.addFlag("tracks_FTF", f'HLT_IDTrack_{flags.suffix}_FTF')
+    flags.addFlag("trkTracks_IDTrig", f'HLT_IDTrkTrack_{flags.suffix}_IDTrig')
+    flags.addFlag("tracks_IDTrig", f"HLT_IDTrack_{flags.suffix}_IDTrig")
+    flags.input_name = flags.name
+    flags.minPT = flags.pTmin # hack to sync pT threshold used in offline and trigger
     return flags
 
 def __electronFlags():
-    flags = __sliceFlags()
-    flags.minPT = Units.GeV * 1.0
-    flags.checkRedundantSeeds=True
-    return flags
+    return __flagsFromConfigSettings(_ConfigSettings_electron())
 
 def __muonFlags():
-    flags = __sliceFlags()
-    flags.minPT=Units.GeV * 1.0
-    flags.d0SeedMax = 10.0
-    flags.checkRedundantSeeds=True
-    flags.doResMon = True
-    return flags
+    return __flagsFromConfigSettings(_ConfigSettings_muon())
 
-def _lrtFlags():
-    flags = __sliceFlags()
-    flags.maxHoles = 2
-    flags.minClusters = 8
-    flags.minSiNotShared = 6
-    flags.maxShared = 1
-    flags.maxPixelHoles = 1
-    flags.maxSctHoles = 1
-    flags.maxDoubleHoles = 0
-    flags.maxPrimaryImpact = 300.0 * Units.mm # highlumi
-    flags.maxZImpact = 500.0 * Units.mm
-    flags.roadWidth = 5.
-    flags.seedFilterLevel = 1
-    flags.nHolesMax = flags.maxHoles #fix them together as in the code being ported from. Should be safer if values are adjusted
-    flags.nHolesGapMax = 1
-    flags.Xi2max = 9.
-    flags.Xi2maxNoAdd =25.0
-    flags.nWeightedClustersMin = 8
-    flags.doZBoundary = True
-    flags.maxdImpactSSSSeeds = 300.0
+def __muonIsoFlags():
+    return __flagsFromConfigSettings(_ConfigSettings_muonIso())
 
-    return flags
+def _muonLRTFlags():
+    return __flagsFromConfigSettings(_ConfigSettings_muonLRT())
+
+def __tauFlags():
+    return __flagsFromConfigSettings(_ConfigSettings_tau())
+
+def __tauCoreFlags():
+    return __flagsFromConfigSettings(_ConfigSettings_tauCore())
+
+def __tauIsoFlags():
+    return __flagsFromConfigSettings(_ConfigSettings_tauIso())
+
+def __tauIsoBDTFlags():
+    return __flagsFromConfigSettings(_ConfigSettings_tauIso())
+
+def __jetFlags():
+    return __flagsFromConfigSettings(_ConfigSettings_fullScan())
 
 def createTrigTrackingFlags():
     flags = AthConfigFlags()
     flags.addFlagsCategory('Trigger.InDetTracking.Electron', __electronFlags, prefix=True)
     flags.addFlagsCategory('Trigger.InDetTracking.Muon', __muonFlags, prefix=True)
-    flags.addFlagsCategory('Trigger.InDetTracking.LRT', _lrtFlags, prefix=True)
+    flags.addFlagsCategory('Trigger.InDetTracking.MuonIso', __muonIsoFlags, prefix=True)
+    flags.addFlagsCategory('Trigger.InDetTracking.MuonFS', __muonFlags, prefix=True)
+    flags.addFlagsCategory('Trigger.InDetTracking.MuonLRT', _muonLRTFlags, prefix=True)
+    flags.addFlagsCategory('Trigger.InDetTracking.Tau', __tauFlags, prefix=True)
+    flags.addFlagsCategory('Trigger.InDetTracking.TauCore', __tauCoreFlags, prefix=True)
+    flags.addFlagsCategory('Trigger.InDetTracking.TauIso', __tauIsoFlags, prefix=True)
+    flags.addFlagsCategory('Trigger.InDetTracking.TauIsoBDT', __tauIsoBDTFlags, prefix=True)
+    flags.addFlagsCategory('Trigger.InDetTracking.jet', __jetFlags, prefix=True)
     return flags
 
-if __name__ == "__main__":
-    from AthenaCommon.Logging import logging
-    _msg = logging.getLogger('AthConfigFlags')
-    _msg.setLevel(2)
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
-    flags.Trigger.doID
-    flags.dump(".*Trig")
 
-    flags.Trigger.InDetTracking.Electron.minPT = 2.0 * Units.GeV
-    newflags = flags.cloneAndReplace('InDet.Tracking', 'Trigger.InDetTracking.Electron')
-    assert newflags.InDet.Tracking.minPT == 2.0 * Units.GeV
-    flags.dump()
+import unittest
+
+class FlagsCopiedTest(unittest.TestCase):
+    def setUp(self):
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+        flags.Trigger.doID
+        flags.Trigger.InDetTracking.Muon
+        flags.Trigger.InDetTracking.Electron.minPT = 2.0 * Units.GeV
+        flags.loadAllDynamicFlags()
+        self.newflags = flags.cloneAndReplace('InDet.Tracking', 'Trigger.InDetTracking.Electron')
+
+        self.newflags.dump(".*InDet")
+
+    def runTest(self):
+        self.assertEqual(self.newflags.InDet.Tracking.minPT, 2.0 * Units.GeV, msg="Flags are not copied")
+
+
+
+class UnsetFlagsTest(FlagsCopiedTest):
+    def runTest(self):
+        self.assertEqual(self.newflags.InDet.Tracking.vertex_jet, None)
+
+
+if __name__ == "__main__":
+    unittest.main()

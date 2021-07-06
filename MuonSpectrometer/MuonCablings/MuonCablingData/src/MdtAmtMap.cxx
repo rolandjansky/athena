@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCablingData/MdtAmtMap.h"
@@ -14,9 +14,7 @@ MdtAmtMap::MdtAmtMap(uint8_t tdcId) :
   m_phi(0),
   m_multiLayer(0),
   m_mezType(0),
-  m_debug(false),
-  m_log(0),
-  m_mdtIdHelper(0)
+  m_mdtIdHelper(nullptr)
 { }
 
 
@@ -25,23 +23,22 @@ MdtAmtMap::MdtAmtMap(uint8_t tdcId) :
 MdtAmtMap::MdtAmtMap(const MdtMezzanineType* mezType, uint8_t tdcId, uint8_t channel, 
 		     int station, 
 		     int eta, int phi, int multiLayer, int layer, int tube, 
-		     const MdtIdHelper* helper, MsgStream* ext_log) :
+		     const MdtIdHelper* helper, MsgStream& ext_log) :
   m_moduleId(tdcId),
   m_station(station),
   m_eta(eta),
   m_phi(phi),
   m_multiLayer(multiLayer),
   m_mezType(mezType->type()),
-  m_log(ext_log),
   m_mdtIdHelper(helper)
 {
 
 
   //std::cout<<" Here we are "<<std::endl;
-  m_debug = (m_log->level() <= MSG::VERBOSE);
+  bool debug = (ext_log.level() <= MSG::VERBOSE);
 
-  if (m_debug) { 
-    *m_log << MSG::VERBOSE << "Adding Tdc number: " << (int) tdcId << endmsg;
+  if (debug) { 
+    ext_log << MSG::VERBOSE << "Adding Tdc number: " << (int) tdcId << endmsg;
   }
 
 
@@ -52,38 +49,31 @@ MdtAmtMap::MdtAmtMap(const MdtMezzanineType* mezType, uint8_t tdcId, uint8_t cha
   }
   
   // call the function that initializes the actual map
-  if ( initMap(mezType, channel, layer, tube) ) {
+  if ( initMap(mezType, channel, layer, tube, ext_log) ) {
 
-    if (m_debug) {
-      *m_log << MSG::VERBOSE << "Map initialized successfully for tdc number: " << MSG::hex 
+    if (debug) {
+      ext_log << MSG::VERBOSE << "Map initialized successfully for tdc number: " << MSG::hex 
 	     << (int) tdcId << MSG::dec << endmsg;
     }
 
   }
   else {
-    if (m_debug) {
-      *m_log << MSG::VERBOSE << "Could not initialize completely the TDC map" << endmsg;
+    if (debug) {
+      ext_log << MSG::VERBOSE << "Could not initialize completely the TDC map" << endmsg;
     }
   }
 
 }
 
-
-// destructor
-MdtAmtMap::~MdtAmtMap() 
-{ 
-}
-
-
 /** initialize the channel-to-tube map */
 /** channel, layer, tube, contain the channel and position of the first tube */
-bool MdtAmtMap::initMap(const MdtMezzanineType* mezType, uint8_t chanZero, int layerZero, int tubeZero)
+bool MdtAmtMap::initMap(const MdtMezzanineType* mezType, uint8_t chanZero, int layerZero, int tubeZero, MsgStream& log)
 {
 
   bool successful = true;
-
-  if (m_debug) {
-    *m_log << MSG::VERBOSE << "Initializing the map, the mezzanine type is " 
+  bool debug = (log.level() <= MSG::VERBOSE);
+  if (debug) {
+    log << MSG::VERBOSE << "Initializing the map, the mezzanine type is " 
 	   << (int) m_mezType << " with " << (int) mezType->nOfTubesInLayer() << " tubes per layer and " << (int) mezType->nOfLayers() << " layers"  
 	   << endmsg;
   }
@@ -164,10 +154,10 @@ bool MdtAmtMap::initMap(const MdtMezzanineType* mezType, uint8_t chanZero, int l
     }
 
 
-    bool setChan = setChannel(chan,layer,tube);
+    bool setChan = setChannel(chan,layer,tube, log);
 
     if (!setChan) {
-      *m_log << MSG::ERROR << "Could not set the channel " << (int) chan << endmsg;
+      log << MSG::ERROR << "Could not set the channel " << (int) chan << endmsg;
       successful = false;
     }
 
@@ -180,7 +170,7 @@ bool MdtAmtMap::initMap(const MdtMezzanineType* mezType, uint8_t chanZero, int l
 }
 
 /** setting the single channel in the map */
-bool MdtAmtMap::setChannel(uint8_t channel, uint8_t layer, uint8_t tube)
+bool MdtAmtMap::setChannel(uint8_t channel, uint8_t layer, uint8_t tube, MsgStream& log)
 {
 
   bool channelSet = false;
@@ -205,9 +195,9 @@ bool MdtAmtMap::setChannel(uint8_t channel, uint8_t layer, uint8_t tube)
 					       m_multiLayer,layer,tube);
 
       if ( tube > m_mdtIdHelper->tubeMax(id) || tube < m_mdtIdHelper->tubeMin(id) ) {
-	
-	if (m_debug) {
-	  *m_log << MSG::VERBOSE << "The tube is invalid (as expected) ! not adding it..." 
+	bool debug = (log.level() <= MSG::VERBOSE);
+	if (debug) {
+	  log << MSG::VERBOSE << "The tube is invalid (as expected) ! not adding it..." 
 		 << endmsg;
 	}
 
@@ -225,8 +215,8 @@ bool MdtAmtMap::setChannel(uint8_t channel, uint8_t layer, uint8_t tube)
   /** otherwise return an error */
   else {
 
-    *m_log << MSG::ERROR << "Error in TDC number " << m_moduleId << endmsg;
-    *m_log << MSG::ERROR << "The channel: " << channel << " has been already assigned to tube: "
+    log << MSG::ERROR << "Error in TDC number " << m_moduleId << endmsg;
+    log << MSG::ERROR << "The channel: " << channel << " has been already assigned to tube: "
 	   << m_tube[channel] << " layer: " << m_layer[channel] << endmsg;
 
     channelSet = false;
@@ -237,11 +227,11 @@ bool MdtAmtMap::setChannel(uint8_t channel, uint8_t layer, uint8_t tube)
 
 // get the offlineId
 bool MdtAmtMap::offlineId(uint8_t channel, int& station, int& eta, int& phi, 
-			  int& multilayer, int& layer, int& tube) 
+			  int& multilayer, int& layer, int& tube, MsgStream& log) 
 {
 
   if ( channel >= CHANMAX ) {
-    *m_log << MSG::WARNING << "Error in tdc " << MSG::hex << (int) m_moduleId << MSG::dec    
+    log << MSG::WARNING << "Error in tdc " << MSG::hex << (int) m_moduleId << MSG::dec    
 	   << " channel: " << MSG::hex << (int) channel << MSG::dec << " not defined!!" << endmsg;  
     return false;
   }

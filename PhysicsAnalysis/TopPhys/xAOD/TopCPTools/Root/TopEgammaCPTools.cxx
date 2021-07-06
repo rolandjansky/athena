@@ -27,6 +27,7 @@
 namespace top {
   EgammaCPTools::EgammaCPTools(const std::string& name) :
     asg::AsgTool(name),
+    m_egammaCalibrationModel("es2018_R21_v0"),
     m_electronEffTriggerFile("SetMe"),
     m_electronEffTriggerLooseFile("SetMe"),
     m_electronEffSFTriggerFile("SetMe"),
@@ -87,6 +88,10 @@ namespace top {
 
     if (m_config->usePhotons() || m_config->useElectrons() || m_config->useFwdElectrons()) {
       if (m_config->makeAllCPTools()) {// skiping calibrations on mini-xAODs
+        if(m_config->egammaCalibration() != m_egammaCalibrationModel){
+          m_config->setPrintEgammaCalibModelWarning(true);
+          m_egammaCalibrationModel = m_config->egammaCalibration();
+        }
         top::check(setupCalibration(), "Failed to setup Egamma calibration tools");
       }
       if (m_config->useFwdElectrons() && m_config->makeAllCPTools()) {
@@ -120,15 +125,6 @@ namespace top {
 //                 "Failed to set config for AsgElectronFwdLikelihoodTool");
 //      top::check(m_fwdElectronSelectorLoose->initialize(), "Couldn't initialise Forward Electron LH ID Loose Tool");
 
-      if (!m_config->isMC()) {
-        ATH_MSG_INFO("top::EgammaCPTools setting up web bunch crossing tool");
-//        m_webBunchCrossingTool = new Trig::WebBunchCrossingTool("CP::WebBunchCrossingTool");
-//        top::check(m_webBunchCrossingTool->setProperty("OutputLevel",
-//                                                       MSG::INFO), "failed to set propert for WebBunchCrossingTool");
-//        top::check(m_webBunchCrossingTool->setProperty("ServerAddress",
-//                                                       "atlas-trigconf.cern.ch"),
-//                   "failed to set propert for WebBunchCrossingTool");
-      }
     }
     return StatusCode::SUCCESS;
   }
@@ -141,13 +137,13 @@ namespace top {
     // - Photon shower shape fudge tool
     // - Photon efficiency correction tool
     using IEgammaCalibTool = CP::IEgammaCalibrationAndSmearingTool;
-    const std::string egamma_calib_name = "CP::EgammaCalibrationAndSmearingTool";
+    const std::string egamma_calib_name = "EgammaCalibrationAndSmearingTool";
     if (asg::ToolStore::contains<IEgammaCalibTool>(egamma_calib_name)) {
       m_egammaCalibrationAndSmearingTool = asg::ToolStore::get<IEgammaCalibTool>(egamma_calib_name);
     } else {
       IEgammaCalibTool* egammaCalibrationAndSmearingTool = new CP::EgammaCalibrationAndSmearingTool(egamma_calib_name);
       top::check(asg::setProperty(egammaCalibrationAndSmearingTool,
-                                  "ESModel", "es2018_R21_v0"),
+                                  "ESModel", m_egammaCalibrationModel),
                  "Failed to set ESModel for " + egamma_calib_name);
       top::check(asg::setProperty(egammaCalibrationAndSmearingTool,
                                   "decorrelationModel",
@@ -346,6 +342,7 @@ namespace top {
 	electronIsolation == "PLVLoose") {
       m_electronEffSFIso = setupElectronSFTool(elSFPrefix + "Iso", inPLViso, dataType);
     }
+    else if(electronIsolation == "None" || electronIsolation == "") m_electronEffSFIso = nullptr;
     else {
       m_electronEffSFIso = setupElectronSFToolWithMap(elSFPrefix + "Iso", m_electronEffSFIsoFile, "", electronID,
 						      electronIsolation, "", dataType, "TOTAL", "", "");
@@ -354,6 +351,7 @@ namespace top {
 	electronIsolationLoose == "PLVLoose") {
       m_electronEffSFIsoLoose = setupElectronSFTool(elSFPrefix + "IsoLoose", inPLVisoLoose, dataType);
     }
+    else if(electronIsolationLoose == "None" || electronIsolationLoose == "") m_electronEffSFIsoLoose = nullptr;
     else {
       m_electronEffSFIsoLoose = setupElectronSFToolWithMap(elSFPrefix + "IsoLoose", m_electronEffSFIsoLooseFile, "",
 							   electronIDLoose, electronIsolationLoose, "", dataType, "TOTAL", "",
@@ -421,6 +419,7 @@ namespace top {
 							  m_config->electronEfficiencySystematicModelEtaBinning(),
 							  m_config->electronEfficiencySystematicModelEtBinning());
       }
+      else if(electronIsolation == "None" || electronIsolation == "") m_electronEffSFIsoCorrModel = nullptr;
       else {
 	m_electronEffSFIsoCorrModel = setupElectronSFToolWithMap(elSFPrefixCorrModel + "Iso", m_electronEffSFIsoFile, "",
 								 electronID, electronIsolation, "", dataType,
@@ -436,6 +435,7 @@ namespace top {
 							       m_config->electronEfficiencySystematicModelEtBinning());
 
       }
+      else if(electronIsolationLoose == "None" || electronIsolationLoose == "") m_electronEffSFIsoLooseCorrModel = nullptr;
       else {
 	m_electronEffSFIsoLooseCorrModel = setupElectronSFToolWithMap(elSFPrefixCorrModel + "IsoLoose",
 								      m_electronEffSFIsoLooseFile, "", electronIDLoose,
@@ -733,7 +733,6 @@ namespace top {
     }
     if (type == "FwdLoose" || type == "FwdMedium" || type == "FwdTight") working_point = type;
 
-    // Temporary ISO map to handle the mess that is EGamma+IFF right now...
     if (type.find("Pflow") != std::string::npos) {
       ATH_MSG_WARNING("You selected a Pflow isolation WP for at least one of your electron collections - BE WARNED THAT THESE ARE NOT YET READY TO BE RELEASED FOR USE IN PHYSICS ANALYSES AND OF COURSE DON'T HAVE ASSOCIATED SCALE FACTORS YET!!!");
       if (type == "PflowLoose") working_point = "FCLoose";
@@ -742,8 +741,14 @@ namespace top {
     if (type == "Tight") working_point = "FCTight";
     if (type == "Loose") working_point = "FCLoose";
     if (type == "HighPtCaloOnly") working_point = "FCHighPtCaloOnly";
-    if (type == "TightTrackOnly") working_point = "Gradient";
-    if (type == "TightTrackOnly_FixedRad") working_point = "Gradient";
+    if (type == "TightTrackOnly") {
+      ATH_MSG_WARNING("You selected the TightTrackOnly isolation WP for at least one of your electron collections - BE WARNED THAT THESE ARE NOT YET READY TO BE RELEASED FOR USE IN PHYSICS ANALYSES AND OF COURSE DON'T HAVE ASSOCIATED SCALE FACTORS YET!!! Setting to \"Gradient\" SFs to allow the code to run");
+      working_point = "Gradient";
+    }
+    if (type == "TightTrackOnly_FixedRad") {
+      ATH_MSG_WARNING("You selected the TightTrackOnly_FixedRad isolation WP for at least one of your electron collections - BE WARNED THAT THESE ARE NOT YET READY TO BE RELEASED FOR USE IN PHYSICS ANALYSES AND OF COURSE DON'T HAVE ASSOCIATED SCALE FACTORS YET!!! Setting to \"Gradient\" SFs to allow the code to run");
+      working_point = "Gradient";
+    }
     if (type == "FCTight" || type == "FCLoose" || type == "FCHighPtCaloOnly" || type == "Gradient" || type == "PLVTight" || type == "PLVLoose") working_point = type;
 
     return working_point;

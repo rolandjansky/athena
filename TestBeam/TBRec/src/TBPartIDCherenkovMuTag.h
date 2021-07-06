@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBPARTICLEIDCHERENKOVMUTAG_H
@@ -13,10 +13,10 @@ class TBPartIDCherenkovMuTag : public AthAlgorithm
 {
  public:
   TBPartIDCherenkovMuTag(const std::string& name, ISvcLocator* pSvcLocator);
-  ~TBPartIDCherenkovMuTag();
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  virtual ~TBPartIDCherenkovMuTag();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
   
  private:
   std::string m_SGkeyscint,m_muonTagName,m_CherenkovName,m_particleKey;

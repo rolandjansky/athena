@@ -14,10 +14,6 @@
 
 namespace MuonGM {
 
-DED::DED(std::string s)
-    :Technology(s), AlThickness(0.), HoneyCombThickness(0.)
-{
-}
+    DED::DED(std::string s) : Technology(s), AlThickness(0.), HoneyCombThickness(0.) {}
 
 } // namespace MuonGM
-   

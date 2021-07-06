@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -76,7 +76,7 @@ def getTopoClusterLocalCalibTools(configFlags):
     LCDeadMaterial   = CaloLCDeadMaterialTool("LCDeadMaterial")
     LCDeadMaterial.HadDMCoeffKey       = "HadDMCoeff2"
     LCDeadMaterial.ClusterRecoStatus   = 0
-    LCDeadMaterial.WeightModeDM        = 2 
+    LCDeadMaterial.WeightModeDM        = 2
     LCDeadMaterial.UseHadProbability   = True
     LCDeadMaterial.WeightingOfNegClusters = configFlags.Calo.TopoCluster.doTreatEnergyCutAsAbsolute
 
@@ -94,6 +94,7 @@ def getTopoClusterLocalCalibTools(configFlags):
     return lccalibtools
 
 def getTopoMoments(configFlags):
+    result=ComponentAccumulator()
     CaloClusterMomentsMaker=CompFactory.CaloClusterMomentsMaker
     TopoMoments = CaloClusterMomentsMaker ("TopoMoments")
     TopoMoments.WeightingOfNegClusters = configFlags.Calo.TopoCluster.doTreatEnergyCutAsAbsolute
@@ -101,13 +102,13 @@ def getTopoMoments(configFlags):
     TopoMoments.MaxAxisAngle = 20*deg
     TopoMoments.TwoGaussianNoise = configFlags.Calo.TopoCluster.doTwoGaussianNoise
     TopoMoments.MinBadLArQuality = 4000
-    TopoMoments.MomentsNames = ["FIRST_PHI" 
+    TopoMoments.MomentsNames = ["FIRST_PHI"
                                 ,"FIRST_ETA"
-                                ,"SECOND_R" 
+                                ,"SECOND_R"
                                 ,"SECOND_LAMBDA"
                                 ,"DELTA_PHI"
                                 ,"DELTA_THETA"
-                                ,"DELTA_ALPHA" 
+                                ,"DELTA_ALPHA"
                                 ,"CENTER_X"
                                 ,"CENTER_Y"
                                 ,"CENTER_Z"
@@ -115,12 +116,12 @@ def getTopoMoments(configFlags):
                                 ,"CENTER_LAMBDA"
                                 ,"LATERAL"
                                 ,"LONGITUDINAL"
-                                ,"FIRST_ENG_DENS" 
-                                ,"ENG_FRAC_EM" 
-                                ,"ENG_FRAC_MAX" 
-                                ,"ENG_FRAC_CORE" 
-                                ,"FIRST_ENG_DENS" 
-                                ,"SECOND_ENG_DENS" 
+                                ,"FIRST_ENG_DENS"
+                                ,"ENG_FRAC_EM"
+                                ,"ENG_FRAC_MAX"
+                                ,"ENG_FRAC_CORE"
+                                ,"FIRST_ENG_DENS"
+                                ,"SECOND_ENG_DENS"
                                 ,"ISOLATION"
                                 ,"ENG_BAD_CELLS"
                                 ,"N_BAD_CELLS"
@@ -135,32 +136,28 @@ def getTopoMoments(configFlags):
                                 ,"AVG_TILE_Q"
                                 ,"PTD"
                                 ,"MASS"
+                                ,"SECOND_TIME"
+                                ,"NCELL_SAMPLING"
                                 ]
 
-    # Disable for now, as broken on MC
-    if False:
-        # *****
-        # Is this still right?
-        # only add HV related moments if it is offline.
-        # from IOVDbSvc.CondDB import conddb
-        # if not conddb.isOnline:
-        LArHVFraction=CompFactory.LArHVFraction
+
+    if not configFlags.Common.isOnline:
+        from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
+        result.merge(LArElecCalibDbCfg(configFlags,["HVScaleCorr"]))
         if configFlags.Input.isMC:
-            TopoMoments.LArHVFraction=LArHVFraction(HVScaleCorrKey="LArHVScaleCorr")
+            TopoMoments.LArHVFraction=CompFactory.LArHVFraction(HVScaleCorrKey="LArHVScaleCorr")
         else:
-            TopoMoments.LArHVFraction=LArHVFraction(HVScaleCorrKey="LArHVScaleCorrRecomputed")
+            TopoMoments.LArHVFraction=CompFactory.LArHVFraction(HVScaleCorrKey="LArHVScaleCorrRecomputed")
         TopoMoments.MomentsNames += ["ENG_BAD_HV_CELLS"
                                      ,"N_BAD_HV_CELLS"
                                      ]
-
-    return TopoMoments
+    result.setPrivateTools(TopoMoments)
+    return result
 
 # a.k.a. DigiTruth
 def getTopoTruthMoments(configFlags):
     CaloClusterMomentsMaker_DigiHSTruth=CompFactory.CaloClusterMomentsMaker_DigiHSTruth
     TopoMoments_Truth = CaloClusterMomentsMaker_DigiHSTruth ("TopoMoments_Truth")
-    LArHVFraction=CompFactory.LArHVFraction
-    TopoMoments_Truth.LArHVFraction=LArHVFraction(HVScaleCorrKey="LArHVScaleCorr")
     TopoMoments_Truth.WeightingOfNegClusters = configFlags.Calo.TopoCluster.doTreatEnergyCutAsAbsolute
     from AthenaCommon.SystemOfUnits import deg
     TopoMoments_Truth.MaxAxisAngle = 20*deg
@@ -222,7 +219,7 @@ def getTopoCalibMoments(configFlags):
                                      ,"ENG_CALIB_FRAC_EM"
                                      ,"ENG_CALIB_FRAC_HAD"
                                      ,"ENG_CALIB_FRAC_REST"]
-    
+
     TopoCalibMoments.CalibrationHitContainerNames = ["LArCalibrationHitInactive"
                                                      ,"LArCalibrationHitActive"
                                                      ,"TileCalibHitActiveCell"
@@ -231,43 +228,11 @@ def getTopoCalibMoments(configFlags):
                                                        ,"TileCalibHitDeadMaterial"]
     return TopoCalibMoments
 
-# Steering options for trigger
-# Maybe offline reco options should be extracted from flags elsewhere
-def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="",doLCCalib=None,sequenceName='AthAlgSeq'):
+def CaloTopoClusterToolCfg(configFlags, cellsname):
     result=ComponentAccumulator()
-    if (sequenceName != 'AthAlgSeq'):
-        from AthenaCommon.CFElements import seqAND
-        #result.mainSeq( seqAND( sequenceName ) )
-        result.addSequence( seqAND(sequenceName) )
-
-    if not clustersname:
-        clustersname = "CaloTopoClusters"
-
-    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
-    from TileGeoModel.TileGMConfig import TileGMCfg
-    from CaloTools.CaloNoiseCondAlgConfig import CaloNoiseCondAlgCfg
-    # Schedule total noise cond alg
-    result.merge(CaloNoiseCondAlgCfg(configFlags,"totalNoise"))
-    # Schedule electronic noise cond alg (needed for LC weights)
-    result.merge(CaloNoiseCondAlgCfg(configFlags,"electronicNoise"))
-    
-    CaloTopoClusterMaker, CaloTopoClusterSplitter, CaloClusterMaker, CaloClusterSnapshot=CompFactory.getComps("CaloTopoClusterMaker","CaloTopoClusterSplitter","CaloClusterMaker","CaloClusterSnapshot",)
-
-    result.merge(LArGMCfg(configFlags))
-
-    from LArCalibUtils.LArHVScaleConfig import LArHVScaleCfg
-    result.merge(LArHVScaleCfg(configFlags))
-
-    result.merge(TileGMCfg(configFlags))
-
-    if not doLCCalib:
-        theCaloClusterSnapshot=CaloClusterSnapshot(OutputName=clustersname+"snapshot",SetCrossLinks=True)
-    else:
-        theCaloClusterSnapshot=CaloClusterSnapshot(OutputName=clustersname,SetCrossLinks=True)
-         
     # maker tools
-    TopoMaker = CaloTopoClusterMaker("TopoMaker")
-        
+    TopoMaker = CompFactory.CaloTopoClusterMaker("TopoMaker")
+
     TopoMaker.CellsName = cellsname
     TopoMaker.CalorimeterNames=["LAREM",
                                 "LARHEC",
@@ -281,7 +246,7 @@ def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="",doLCCalib
                                    "TileBar0", "TileBar1", "TileBar2",
                                    "TileExt0", "TileExt1", "TileExt2",
                                    "TileGap1", "TileGap2", "TileGap3",
-                                   "FCAL0", "FCAL1", "FCAL2"] 
+                                   "FCAL0", "FCAL1", "FCAL2"]
     TopoMaker.NeighborOption = "super3D"
     TopoMaker.RestrictHECIWandFCalNeighbors  = False
     TopoMaker.RestrictPSNeighbors  = True
@@ -294,18 +259,22 @@ def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="",doLCCalib
     TopoMaker.CutOOTseed = configFlags.Calo.TopoCluster.extendTimeCut and configFlags.Calo.TopoCluster.doTimeCut
     TopoMaker.UseTimeCutUpperLimit = configFlags.Calo.TopoCluster.useUpperLimitForTimeCut
     TopoMaker.TimeCutUpperLimit = 20.0
-    
-    # note E or AbsE 
+
+    # note E or AbsE
     #
     # the following property must be set to TRUE in order to make double
-    # sided cuts on the seed and the cluster level 
+    # sided cuts on the seed and the cluster level
     #
     TopoMaker.SeedCutsInAbsE                 = True
     TopoMaker.ClusterEtorAbsEtCut            = 0.0*MeV
     # use 2-gaussian or single gaussian noise for TileCal
     TopoMaker.TwoGaussianNoise = configFlags.Calo.TopoCluster.doTwoGaussianNoise
-        
-    TopoSplitter = CaloTopoClusterSplitter("TopoSplitter")
+    result.setPrivateTools(TopoMaker)
+    return result
+
+def CaloTopoClusterSplitterToolCfg(configFlags):
+    result=ComponentAccumulator()
+    TopoSplitter = CompFactory.CaloTopoClusterSplitter("TopoSplitter")
     # cells from the following samplings will be able to form local
     # maxima. The excluded samplings are PreSamplerB, EMB1,
     # PreSamplerE, EME1, all Tile samplings, all HEC samplings and the
@@ -326,6 +295,44 @@ def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="",doLCCalib
     TopoSplitter.ShareBorderCells = True
     TopoSplitter.RestrictHECIWandFCalNeighbors  = False
     TopoSplitter.WeightingOfNegClusters = configFlags.Calo.TopoCluster.doTreatEnergyCutAsAbsolute
+    result.setPrivateTools(TopoSplitter)
+    return result
+
+def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname=None,doLCCalib=None):
+    """
+    Configures topo clustering
+
+    If output writing is enabled (ESD,AOD) the topo clusters are added to them
+    """
+
+    if doLCCalib is None:
+        doLCCalib = configFlags.Calo.TopoCluster.doTopoClusterLocalCalib
+        
+    if clustersname is None:
+        clustersname="CaloCalTopoClusters" if doLCCalib else "CaloTopoClusters"
+
+
+    if clustersname=="CaloTopoClusters" and doLCCalib is True: 
+        raise RuntimeError("Inconistent arguments: Name must not be 'CaloTopoClusters' if doLCCalib is True")
+
+    result=ComponentAccumulator()
+
+    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
+    from TileGeoModel.TileGMConfig import TileGMCfg
+    from CaloTools.CaloNoiseCondAlgConfig import CaloNoiseCondAlgCfg
+    # Schedule total noise cond alg
+    result.merge(CaloNoiseCondAlgCfg(configFlags,"totalNoise"))
+    # Schedule electronic noise cond alg (needed for LC weights)
+    result.merge(CaloNoiseCondAlgCfg(configFlags,"electronicNoise"))
+
+    CaloClusterMaker, CaloClusterSnapshot=CompFactory.getComps("CaloClusterMaker","CaloClusterSnapshot",)
+
+    result.merge(LArGMCfg(configFlags))
+
+    result.merge(TileGMCfg(configFlags))
+
+    TopoMaker = result.popToolsAndMerge( CaloTopoClusterToolCfg(configFlags, cellsname=cellsname))
+    TopoSplitter = result.popToolsAndMerge( CaloTopoClusterSplitterToolCfg(configFlags) )
     #
     # the following options are not set, since these are the default
     # values
@@ -333,33 +340,40 @@ def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="",doLCCalib
     # NeighborOption                = "super3D",
     # NumberOfCellsCut              = 4,
     # EnergyCut                     = 500*MeV,
-        
 
-    CaloTopoCluster=CaloClusterMaker(clustersname)
+    CaloTopoCluster=CaloClusterMaker(clustersname+"Maker")
     CaloTopoCluster.ClustersOutputName=clustersname
 
     CaloTopoCluster.ClusterMakerTools = [TopoMaker, TopoSplitter]
-    
+
     from CaloBadChannelTool.CaloBadChanToolConfig import CaloBadChanToolCfg
     caloBadChanTool = result.popToolsAndMerge( CaloBadChanToolCfg(configFlags) )
     CaloClusterBadChannelList=CompFactory.CaloClusterBadChannelList
     BadChannelListCorr = CaloClusterBadChannelList(badChannelTool = caloBadChanTool)
     CaloTopoCluster.ClusterCorrectionTools += [BadChannelListCorr]
 
-    CaloTopoCluster.ClusterCorrectionTools += [getTopoMoments(configFlags)]
-
-    if doLCCalib is None:
-        doLCCalib = configFlags.Calo.TopoCluster.doTopoClusterLocalCalib
+    momentsMaker=result.popToolsAndMerge(getTopoMoments(configFlags))
+    CaloTopoCluster.ClusterCorrectionTools += [momentsMaker]
+    CaloTopoCluster.ClustersOutputName=clustersname
+    
     if doLCCalib:
+        theCaloClusterSnapshot=CaloClusterSnapshot(OutputName="CaloTopoClusters",SetCrossLinks=True)        
         CaloTopoCluster.ClusterCorrectionTools += [theCaloClusterSnapshot]
         #if not clustersname:
-        CaloTopoCluster.ClustersOutputName="CaloCalTopoClusters"
         CaloTopoCluster.ClusterCorrectionTools += getTopoClusterLocalCalibTools(configFlags)
 
         from CaloRec.CaloTopoClusterConfig import caloTopoCoolFolderCfg
         result.merge(caloTopoCoolFolderCfg(configFlags))
 
-    result.addEventAlgo(CaloTopoCluster,primary=True,sequenceName=sequenceName)
+    result.addEventAlgo(CaloTopoCluster,primary=True)
+
+    from OutputStreamAthenaPool.OutputStreamConfig import addToAOD, addToESD
+    toAOD = [f"xAOD::CaloClusterContainer#{CaloTopoCluster.ClustersOutputName}", 
+            f"xAOD::CaloClusterAuxContainer#{CaloTopoCluster.ClustersOutputName}Aux."]
+    toESD = []
+    result.merge(addToESD(configFlags, toAOD+toESD))
+    result.merge(addToAOD(configFlags, toAOD))
+
     return result
 
 
@@ -370,25 +384,23 @@ if __name__=="__main__":
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root"]
+    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/PFlowTests/mc16_13TeV/mc16_13TeV.361021.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ1W.recon.ESD.e3569_s3170_r12310_r12253_r12310/ESD.23850840._000295.pool.root.1"]  
     ConfigFlags.Output.ESDFileName="esdOut.pool.root"
 
     ConfigFlags.lock()
 
-    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 
     cfg=MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
-    # from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
-    # cfg.mergeAll(IOVDbSvcCfg(ConfigFlags))
-    
+
     theKey="CaloCalTopoClustersNew"
 
     topoAcc=CaloTopoClusterCfg(ConfigFlags)
     topoAlg = topoAcc.getPrimary()
     topoAlg.ClustersOutputName=theKey
-    
+
     cfg.merge(topoAcc)
 
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
@@ -405,11 +417,14 @@ if __name__=="__main__":
         StreamName = 'StreamAOD'
     )
     cfg.addEventAlgo(theNegativeEnergyCaloClustersThinner,"AthAlgSeq")
-  
+
+    
+    cfg.addEventAlgo(CompFactory.ClusterDumper("TopoDumper",ContainerName=theKey,FileName="NewTopoClusters.txt"))
+
 #    cfg.getService("StoreGateSvc").Dump=True
 
     cfg.run(10)
     #f=open("CaloTopoCluster.pkl","wb")
     #cfg.store(f)
     #f.close()
-    
+

@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file StoreGateSvc.icc
@@ -363,19 +363,17 @@ StatusCode StoreGateSvc::retrieve(T*& ptr) const
 
 //////////////////////////////////////////////////////////////////
 // Retrieve the keyed object as a const pointer
+// Overload for std::string key type
 //////////////////////////////////////////////////////////////////
-template <typename T, typename TKEY>
-StatusCode StoreGateSvc::retrieve(const T*& ptr, const TKEY& key) const
+template <typename T>
+StatusCode StoreGateSvc::retrieve(const T*& ptr, const std::string& key) const
 {
   if (m_storeID == StoreID::EVENT_STORE && s_pSlot != nullptr) {
     rememberBadRetrieve (ClassID_traits<T>::ID(), key);
   }
 
-#ifndef __clang__
-  BOOST_CONCEPT_ASSERT( (KeyConcept<TKEY>) );
-#endif
   SG::DataProxy* dp =proxy (ClassID_traits<T>::ID(),
-                            static_cast<std::string> (key),
+                            key,
                             false);
   if (!dp || !dp->isValid()) {
     warning() 
@@ -401,24 +399,34 @@ StatusCode StoreGateSvc::retrieve(const T*& ptr, const TKEY& key) const
 }
 
 //////////////////////////////////////////////////////////////////
-// Retrieve the keyed object as a non-const pointer
+// Retrieve the keyed object as a const pointer
 //////////////////////////////////////////////////////////////////
 template <typename T, typename TKEY>
-StatusCode StoreGateSvc::retrieve(T*& ptr, const TKEY& key) const
+StatusCode StoreGateSvc::retrieve(const T*& ptr, const TKEY& key) const
+{
+#ifndef __clang__
+  BOOST_CONCEPT_ASSERT( (KeyConcept<TKEY>) );
+#endif
+  return this->retrieve(ptr, static_cast<std::string>(key));
+}
+
+//////////////////////////////////////////////////////////////////
+// Retrieve the keyed object as a non-const pointer
+// Overload for std::string key type
+//////////////////////////////////////////////////////////////////
+template <typename T>
+StatusCode StoreGateSvc::retrieve(T*& ptr, const std::string& key) const
 {
   if (m_storeID == StoreID::EVENT_STORE && s_pSlot != nullptr) {
     rememberBadRetrieve (ClassID_traits<T>::ID(), key);
   }
 
-#ifndef __clang__
-  BOOST_CONCEPT_ASSERT( (KeyConcept<TKEY>) );
-#endif
   SG::DataProxy* dp =proxy (ClassID_traits<T>::ID(),
-                            static_cast<std::string> (key),
+                            key,
                             false);
   if (!dp || !dp->isValid() || dp->isConst()) {
     SG_MSG_WARNING("retrieve(non-const): No valid proxy for object "
-                   << (std::string)key  << ' ' 
+                   << key  << ' '
                    << " of type "  << ClassID_traits<T>::typeName() << "(CLID "
                    << ClassID_traits<T>::ID() 
                    << ") \n Try to use a const retrieve" );
@@ -438,6 +446,18 @@ StatusCode StoreGateSvc::retrieve(T*& ptr, const TKEY& key) const
 #endif
 
   return StatusCode::SUCCESS;
+}
+
+//////////////////////////////////////////////////////////////////
+// Retrieve the keyed object as a non-const pointer
+//////////////////////////////////////////////////////////////////
+template <typename T, typename TKEY>
+StatusCode StoreGateSvc::retrieve(T*& ptr, const TKEY& key) const
+{
+#ifndef __clang__
+  BOOST_CONCEPT_ASSERT( (KeyConcept<TKEY>) );
+#endif
+  return this->retrieve(ptr, static_cast<std::string>(key));
 }
 
 /// Retrieve all objects of type T: returns an SG::ConstIterator range
@@ -864,14 +884,15 @@ StoreGateSvc::proxyProviderSvc() {
 
 /**
  * @brief Return the metadata source ID for the current event slot.
+ * @param key SG key of the DataHeader to query.
  *        Returns an empty string if no source has been set.
  *
  *        The default version always returns an empty string.
  */
 inline
 SG::SourceID
-StoreGateSvc::sourceID() const {
-  _SGXCALL(sourceID, (), "");
+StoreGateSvc::sourceID (const std::string& key /*= "EventSelector"*/) const {
+  _SGXCALL(sourceID, (key), "");
 }
 
 

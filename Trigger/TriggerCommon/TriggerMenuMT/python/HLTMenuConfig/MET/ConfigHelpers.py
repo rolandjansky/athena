@@ -4,24 +4,42 @@
 """
 
 from AthenaCommon.CFElements import seqAND
+from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
+from AthenaConfiguration.ComponentFactory import CompFactory
 from ..Menu.SignatureDicts import METChainParts_Default
-from ..Menu.MenuComponents import RecoFragmentsPool, ChainStep, MenuSequence
+from ..Menu.MenuComponents import (
+    RecoFragmentsPool,
+    ChainStep,
+    MenuSequence,
+    InEventRecoCA,
+    SelectionCA,
+    MenuSequenceCA,
+)
 from copy import copy
 from ..CommonSequences.FullScanDefs import caloFSRoI, trkFSRoI
 from AthenaCommon.Logging import logging
 from TrigEFMissingET.TrigEFMissingETMTConfig import getMETMonTool
 from abc import ABC, abstractmethod
 from string import ascii_uppercase
+from TrigMissingETHypo.TrigMissingETHypoConfig import (
+    TrigMETCellHypoToolFromDict,
+)
+
+
+def streamer_hypo_tool(chainDict):
+    return CompFactory.TrigStreamerHypoTool(chainDict["chainName"])
+
 
 log = logging.getLogger(__name__)
 
 # The keys from the MET chain dict that directly affect reconstruction
 # The order here is important as it also controls the dict -> string conversion
-recoKeys = ["EFrecoAlg", "calib", "jetDataType", "constitmod", "jetCalib", "addInfo"]
+recoKeys = ["EFrecoAlg", "calib", "constitType", "constitmod", "jetCalib", "addInfo"]
 metFSRoIs = [caloFSRoI, trkFSRoI]
 
+
 def metRecoDictToString(recoDict, skipDefaults=True):
-    """ Convert a dictionary containing reconstruction keys to a string
+    """Convert a dictionary containing reconstruction keys to a string
 
     Any key (from recoKeys) missing will just be skipped.
     If skipDefaults is True then any key whose value is the default one will
@@ -36,7 +54,7 @@ def metRecoDictToString(recoDict, skipDefaults=True):
 
 
 class AlgConfig(ABC):
-    """ Base class to describe algorithm configurations
+    """Base class to describe algorithm configurations
 
     Each individual 'EFrecoAlg' should be described by *one* AlgConfig subclass.
     It must provide its list of required inputs to the constructor and override
@@ -52,7 +70,7 @@ class AlgConfig(ABC):
 
     @classmethod
     def algType(cls):
-        """ The algorithm that this object configures - this corresponds to the
+        """The algorithm that this object configures - this corresponds to the
         EFrecoAlg in the METChainParts dictionary
 
         Note that no two subclasses of AlgConfig can describe the same algorithm
@@ -61,7 +79,7 @@ class AlgConfig(ABC):
         raise NotImplementedError("algType not implemented by subclass!")
 
     def __init__(self, inputs=[], inputRegistry=None, **recoDict):
-        """ Initialise the base class
+        """Initialise the base class
 
         =========
         Arguments
@@ -74,7 +92,7 @@ class AlgConfig(ABC):
             different set of input objects
         recoDict: Pass *all* the keys required for the recoDict
         """
-                   
+
         # Make sure that we got *all* the keys (i.e. the subclass didn't
         # inadvertently steal one of them from us)
         alg_type = self.algType()
@@ -91,9 +109,15 @@ class AlgConfig(ABC):
         self._registry = inputRegistry
         self._inputs = inputs
 
-    @abstractmethod
     def make_fex(self, name, inputs):
         """ Create the fex from its name and the inputs dict """
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
+        return conf2toConfigurable(self.make_fex_accumulator(ConfigFlags, name, inputs))
+
+    @abstractmethod
+    def make_fex_accumulator(self, flags, name, inputs):
+        """ Create the CA for the fex from its name and the inputs dict """
         pass
 
     @property
@@ -143,27 +167,21 @@ class AlgConfig(ABC):
         return self._athSequences
 
     def menuSequences(self):
+        
         """ Get the menu sequences (split by step) """
         if hasattr(self, "_menuSequences"):
             return self._menuSequences
-
-        from TrigMissingETHypo.TrigMissingETHypoConfigMT import (
-            TrigMETCellHypoToolFromDict,
-        )
-        from TrigStreamerHypo.TrigStreamerHypoConfigMT import (
-            StreamerHypoToolMTgenerator,
-        )
 
         sequences = []
         inputMakers = self.inputMakers()
         ath_sequences = self.athSequences()
         for idx, seq in enumerate(ath_sequences):
             if idx == len(ath_sequences) - 1:
-                hypo = self.make_hypo_alg()
+                hypo = conf2toConfigurable(self.make_hypo_alg())
                 hypo_tool = TrigMETCellHypoToolFromDict
             else:
-                hypo = self.make_passthrough_hypo_alg(idx)
-                hypo_tool = StreamerHypoToolMTgenerator
+                hypo = conf2toConfigurable(self.make_passthrough_hypo_alg(idx))
+                hypo_tool = streamer_hypo_tool
             sequences.append(
                 MenuSequence(
                     Sequence=seq,
@@ -175,6 +193,9 @@ class AlgConfig(ABC):
         self._menuSequences = sequences
         return self._menuSequences
 
+    def name_step(self, idx):
+        return f"step{ascii_uppercase[idx]}_{self._suffix}"
+
     def make_steps(self, chainDict):
         """ Create the actual chain steps """
         # NB - we index the steps using uppercase letters 'A', 'B', etc
@@ -184,7 +205,7 @@ class AlgConfig(ABC):
         # shouldn't be a problem to change it
         return [
             ChainStep(
-                f"step{ascii_uppercase[idx]}_{self._suffix}",
+                self.name_step(idx),
                 [seq],
                 multiplicity=[1],
                 chainDicts=[chainDict],
@@ -192,21 +213,92 @@ class AlgConfig(ABC):
             for idx, seq in enumerate(self.menuSequences())
         ]
 
+    def make_reco_ca(self, flags):
+        """ Make the reconstruction sequences for the new JO style """
+        # Retrieve the inputs
+        log.verbose("Create inputs for %s", self._suffix)
+        steps, inputs = self.inputRegistry.build_steps(
+            self._inputs, metFSRoIs, self.recoDict, return_ca=True, flags=flags
+        )
+        # Create the FEX and add it to the last input sequence
+        fex = self.make_fex_accumulator(flags, self.fexName, inputs)
+        fex.MonTool = self.getMonTool()
+        fex.METContainerKey = self.outputKey
+        steps[-1].addEventAlgo(fex)
+        return steps
+
+    def make_accumulator_steps(self, flags, chainDict):
+        """ Make the full accumulator steps """
+        # Get the reco sequences
+        reco_sequences = self.make_reco_ca(flags)
+        output_steps = []
+        # build up the output steps
+        # We have to merge together the CAs containing the reconstruction sequences
+        # and the InEventRecoCAs that contain the input makers
+        for step_idx, reco_sequence in enumerate(reco_sequences):
+            reco_acc = self.inputMakerCA(step_idx)
+            if step_idx == len(reco_sequences) - 1:
+                # If this is the last step we have to add the hypo alg
+                hypo_alg = self.make_hypo_alg()
+                hypo_tool = TrigMETCellHypoToolFromDict
+            else:
+                # Otherwise, we add a passthrough hypo
+                hypo_alg = self.make_passthrough_hypo_alg(step_idx)
+                hypo_tool = streamer_hypo_tool
+
+            # Now merge the reco sequence into the InEventRecoCA
+            reco_acc.merge(reco_sequence)
+
+            # Create a selection CA
+            sel_acc = SelectionCA(self.name_step(step_idx))
+            # Merge in the reconstruction sequence
+            sel_acc.mergeReco(reco_acc)
+            # Add its hypo alg
+            sel_acc.addHypoAlgo(hypo_alg)
+
+            # Build the menu sequence and create the actual chainStep
+            output_steps.append(
+                ChainStep(
+                    name=sel_acc.name,
+                    multiplicity=[1],
+                    chainDicts=[chainDict],
+                    Sequences=[MenuSequenceCA(sel_acc, HypoToolGen=hypo_tool)],
+                )
+            )
+
+        return output_steps
+
     def make_hypo_alg(self):
         """ The hypo alg used for this configuration """
-
-        from TrigMissingETHypo.TrigMissingETHypoConf import TrigMissingETHypoAlgMT
-
-        return TrigMissingETHypoAlgMT(
-            name="METHypoAlg_{}".format(self._suffix), METContainerKey=self.outputKey
+        return CompFactory.TrigMissingETHypoAlg(
+            f"METHypoAlg_{self._suffix}", METContainerKey=self.outputKey
         )
 
     def make_passthrough_hypo_alg(self, step):
-        from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlgMT
-
-        return TrigStreamerHypoAlgMT(
-            f"METPassThroughHypo_{self._suffix}_step{step}", SetInitialRoIAsFeature=True
+        return CompFactory.TrigStreamerHypoAlg(
+            "METPassThroughHypo_" + self.name_step(step)
         )
+
+    def inputMakerCA(self, idx):
+        """ Get the InEventRecoCA for the given step index """
+        from TrigT2CaloCommon.CaloDef import clusterFSInputMaker
+        from AthenaConfiguration.ComponentFactory import CompFactory
+        from ..CommonSequences.FullScanDefs import trkFSRoI
+
+        name = self.name_step(idx) + "Reco"
+        if idx == 0:
+            return InEventRecoCA(name, inputMaker=clusterFSInputMaker())
+        elif idx == 1:
+            return InEventRecoCA(
+                name,
+                inputMaker=CompFactory.InputMakerForRoI(
+                    "IM_Jet_TrackingStep",
+                    RoITool=CompFactory.ViewCreatorInitialROITool(),
+                    RoIs=trkFSRoI,
+                ),
+            )
+        else:
+            raise KeyError(f"No input maker for step {idx}")
 
     def inputMakers(self):
         """ The input makers for each step """
@@ -227,7 +319,7 @@ class AlgConfig(ABC):
 
     @classmethod
     def _makeCls(cls, dummyFlags, **kwargs):
-        """ This is a rather horrible work-around.
+        """This is a rather horrible work-around.
 
         The RecoFragmentsPool approach wants a function that takes a set of
         dummy flags. However our class constructors don't do this (and passing

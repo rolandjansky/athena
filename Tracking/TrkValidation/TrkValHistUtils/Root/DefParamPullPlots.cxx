@@ -10,17 +10,17 @@
 namespace Trk {
   void
   DefParamPullPlots::init() {
-    Pull_d0 = NULL;
-    Pull_z0 = NULL;
-    Pull_theta = NULL;
-    Pull_phi = NULL;
-    Pull_qOverP = NULL;
+    Pull_d0 = nullptr;
+    Pull_z0 = nullptr;
+    Pull_theta = nullptr;
+    Pull_phi = nullptr;
+    Pull_qOverP = nullptr;
 
-    Pull_d0_vs_pt = NULL;
-    Pull_z0_vs_pt = NULL;
-    Pull_theta_vs_pt = NULL;
-    Pull_phi_vs_pt = NULL;
-    Pull_qOverP_vs_pt = NULL;
+    Pull_d0_vs_pt = nullptr;
+    Pull_z0_vs_pt = nullptr;
+    Pull_theta_vs_pt = nullptr;
+    Pull_phi_vs_pt = nullptr;
+    Pull_qOverP_vs_pt = nullptr;
   }
 
   void
@@ -53,7 +53,7 @@ namespace Trk {
   }
 
   void
-  DefParamPullPlots::fill(const xAOD::TrackParticle &trkprt, const xAOD::TruthParticle &truthprt) {
+  DefParamPullPlots::fill(const xAOD::TrackParticle &trkprt, const xAOD::TruthParticle &truthprt, float weight) {
     const double d0_trk = trkprt.d0();
     const double z0_trk = trkprt.z0();
     const double phi_trk = trkprt.phi0();
@@ -93,18 +93,18 @@ namespace Trk {
     if (truthprt.hasProdVtx()) {
       const double z0_truth = truthprt.prodVtx()->z() - trkprt.vz();
       const double z0_pull = (z0_trk - z0_truth) / err_z0;
-      Pull_z0->Fill(z0_pull);
-      Pull_z0_vs_pt->Fill(pt_truth, z0_pull);
+      Pull_z0->Fill(z0_pull,weight);
+      Pull_z0_vs_pt->Fill(pt_truth, z0_pull,weight);
     }
 
-    Pull_d0->Fill(d0_pull);
-    Pull_phi->Fill(phi_pull);
-    Pull_theta->Fill(theta_pull);
-    Pull_qOverP->Fill(qoverp_pull);
+    Pull_d0->Fill(d0_pull,weight);
+    Pull_phi->Fill(phi_pull,weight);
+    Pull_theta->Fill(theta_pull,weight);
+    Pull_qOverP->Fill(qoverp_pull,weight);
 
-    Pull_d0_vs_pt->Fill(pt_truth, d0_pull);
-    Pull_phi_vs_pt->Fill(pt_truth, phi_pull);
-    Pull_theta_vs_pt->Fill(pt_truth, theta_pull);
-    Pull_qOverP_vs_pt->Fill(pt_truth, qoverp_pull);
+    Pull_d0_vs_pt->Fill(pt_truth, d0_pull,weight);
+    Pull_phi_vs_pt->Fill(pt_truth, phi_pull,weight);
+    Pull_theta_vs_pt->Fill(pt_truth, theta_pull,weight);
+    Pull_qOverP_vs_pt->Fill(pt_truth, qoverp_pull,weight);
   }
 }

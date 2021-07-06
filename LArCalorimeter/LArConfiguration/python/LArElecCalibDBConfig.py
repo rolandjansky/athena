@@ -111,13 +111,13 @@ def LArElecCalibDBRun2Cfg(ConfigFlags,condObjs):
 def LArElecCalibDBRun1Cfg(ConfigFlags,condObjs):
 
     _larCondDBFoldersDataR1 = {"Ramp":("/LAR/ElecCalibOnl/Ramp","LAR_ONL","LArRampComplete",None),
-                               "DAC2uA":("/LAR/ElecCalibOfl/DAC2uA","LAr_ONL","LArDAC2uAMC",LArDAC2uASymAlg),
+                               "DAC2uA":("/LAR/ElecCalibOfl/DAC2uA","LAR_ONL","LArDAC2uAMC",LArDAC2uASymAlg),
                                "Pedestal":("/LAR/ElecCalibOnl/Pedestal<key>LArPedestal</key>","LAR_ONL","LArPedestalComplete",None),
-                               "uA2MeV":("/LAR/ElecCalibOfl/uA2MeV/Symmetry","LAr_OFL", "LAruA2MeVMC",LAruA2MeVSymAlg),
-                               "MphysOverMcal":("/LAR/ElecCalibOfl/MphysOverMcal/RTM","LAr_OFL","LArMphysOverMcalComplete",None),
-                               "HVScale":("/LAR/ElecCalibOnl/HVScaleCorr","LAR_ONL","LArHVScaleCorrComplete",None),
-                               "OFC":("/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+ ConfigFlags.LAr.OFCShapeFolder if len(ConfigFlags.LAr.OFCShapeFolder)>0 else "5samples1phase","LAr_OFL","LArOFCComplete",None),
-                               "Shape":("/LAR/ElecCalibOfl/Shape/RTM/"+ ConfigFlags.LAr.OFCShapeFolder if len(ConfigFlags.LAr.OFCShapeFolder)>0 else "5samples1phase","LAr_OFL","LArShapeComplete",None),
+                               "uA2MeV":("/LAR/ElecCalibOfl/uA2MeV/Symmetry","LAR_OFL", "LAruA2MeVMC",LAruA2MeVSymAlg),
+                               "MphysOverMcal":("/LAR/ElecCalibOfl/MphysOverMcal/RTM","LAR_OFL","LArMphysOverMcalComplete",None),
+                               "HVScaleCorr":("/LAR/ElecCalibOnl/HVScaleCorr","LAR_ONL","LArHVScaleCorrComplete",None),
+                               "OFC":("/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+ ConfigFlags.LAr.OFCShapeFolder if len(ConfigFlags.LAr.OFCShapeFolder)>0 else "5samples1phase","LAR_OFL","LArOFCComplete",None),
+                               "Shape":("/LAR/ElecCalibOfl/Shape/RTM/"+ ConfigFlags.LAr.OFCShapeFolder if len(ConfigFlags.LAr.OFCShapeFolder)>0 else "5samples1phase","LAR_OFL","LArShapeComplete",None),
                            }
 
 

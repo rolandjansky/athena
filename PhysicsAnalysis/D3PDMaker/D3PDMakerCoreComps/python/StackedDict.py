@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-# $Id: StackedDict.py 529131 2012-12-06 10:45:33Z ssnyder $
 #
 # @file D3PDMakerCoreComps/python/StackedDict.py
 # @author scott snyder <snyder@bnl.gov>
@@ -24,7 +23,7 @@ class StackedDict (collections.Mapping):
     len() and __iter__ will process them all.  __delitem__ is not implemented.
 
     Examples:
-    >>> from test.test_support import sortdict
+    >>> from pprint import pprint
     >>> d1 = {'a':'b'}
     >>> d2 = {'c':'d'}
     >>> d3 = {'e':'f'}
@@ -53,9 +52,9 @@ class StackedDict (collections.Mapping):
     >>> d['x'] = 20
     >>> d['x']
     20
-    >>> print sortdict(d3)
+    >>> pprint(d3)
     {'e': 'f', 'x': 20}
-    >>> print sortdict(d.copy())
+    >>> pprint(d.copy())
     {'a': 'b', 'c': 10, 'e': 'f', 'x': 20}
 """
 
@@ -91,6 +90,14 @@ class StackedDict (collections.Mapping):
 
 
     def has_key (self, k):
+        """Some code still uses this.
+        >>> d1 = {'a':'b'}
+        >>> d = StackedDict (d1)
+        >>> d.has_key ('a')
+        True
+        >>> d.has_key ('z')
+        False
+        """
         return k in self
 
 

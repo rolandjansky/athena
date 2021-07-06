@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MergeCalibHitsTool.h"
@@ -43,7 +43,7 @@ StatusCode MergeCalibHitsTool::initialize() {
 
 
 StatusCode MergeCalibHitsTool::prepareEvent(const EventContext& /*ctx*/,unsigned int nInputEvents) {
-  ATH_MSG_VERBOSE ( "Calling prepareEvent(): " << name() << " - package version " << PACKAGE_VERSION );
+  ATH_MSG_VERBOSE ( "Calling prepareEvent()" );
   ATH_MSG_VERBOSE( "prepareEvent: there are " << nInputEvents << " subevents in this event.");
   m_firstSubEvent = true;
   //clean up pointers from the last event

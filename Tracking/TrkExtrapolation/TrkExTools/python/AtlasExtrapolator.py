@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ######################################################
 # AtlasExtrapolator module
@@ -18,7 +18,6 @@ class AtlasExtrapolator( Trk__Extrapolator ):
        
        # get the correct TrackingGeometry setup
        from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc  # noqa: F401
-       from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
        # import the ToolSvc
        from AthenaCommon.AppMgr import ToolSvc
@@ -58,10 +57,8 @@ class AtlasExtrapolator( Trk__Extrapolator ):
        self.AtlasUpdators    += [ AtlasMaterialEffectsUpdatorLandau ]
                      
        # the UNIQUE NAVIGATOR ( === UNIQUE GEOMETRY) --------------------------------------------------------------
-       from TrkExTools.TrkExToolsConf import Trk__Navigator
-       AtlasNavigator = Trk__Navigator(name = 'AtlasNavigator')
-       AtlasNavigator.TrackingGeometrySvc = svcMgr.AtlasTrackingGeometrySvc
-       ToolSvc += AtlasNavigator
+       from InDetRecExample import TrackingCommon
+       AtlasNavigator = TrackingCommon.getAtlasNavigator()
 
        # CONFIGURE PROPAGATORS/UPDATORS ACCORDING TO GEOMETRY SIGNATURE
        

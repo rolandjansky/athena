@@ -21,11 +21,6 @@ try:
 except ImportError:
     print("WARNING PrimaryDPDFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project.")
 try:
-    from D2PDMaker.D2PDFlags import D2PDFlags
-    listOfFlags.append(D2PDFlags)
-except ImportError:
-    print("Unable to import listAODtoD2PD. This requires D2PDMaker-00-00-55-08 or D2PDMaker-00-00-62")
-try:
     from D3PDMakerConfig.D3PDProdFlags import prodFlags
     listOfFlags.append( prodFlags )
 except ImportError:
@@ -38,19 +33,25 @@ rec.DPDMakerScripts.append(SetupOutputDPDs(runArgs,listOfFlags))
 
 rec.OutputFileNameForRecoStep="ESDtoDPD"
 
+# New-style config
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
 ## Input
 if hasattr(runArgs,"inputFile"): athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputFile )
 if hasattr(runArgs,"inputBSFile"):
     globalflags.InputFormat.set_Value_and_Lock('bytestream')
     athenaCommonFlags.BSRDOInput.set_Value_and_Lock( runArgs.inputBSFile )
+    ConfigFlags.Input.Files = athenaCommonFlags.BSRDOInput()
 if hasattr(runArgs,"inputRDOFile"):
     rec.readRDO.set_Value_and_Lock( True )
     globalflags.InputFormat.set_Value_and_Lock('pool')
     athenaCommonFlags.PoolRDOInput.set_Value_and_Lock( runArgs.inputRDOFile )
+    ConfigFlags.Input.Files = athenaCommonFlags.PoolRDOInput()
 if hasattr(runArgs,"inputESDFile"):
     globalflags.InputFormat.set_Value_and_Lock('pool')
     rec.readESD.set_Value_and_Lock( True )
     athenaCommonFlags.PoolESDInput.set_Value_and_Lock( runArgs.inputESDFile )
+    ConfigFlags.Input.Files = athenaCommonFlags.PoolESDInput()
 if hasattr(runArgs,"inputTAGFile"):
     rec.readTAG.set_Value_and_Lock( True )
     rec.readESD.set_Value_and_Lock( True )

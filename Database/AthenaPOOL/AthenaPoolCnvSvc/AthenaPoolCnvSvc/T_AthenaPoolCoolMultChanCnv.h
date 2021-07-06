@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAPOOLCNVSVC_T_ATHENAPOOLCOOLMULTCHANCNV_H
@@ -42,17 +42,17 @@ protected:
     /// Create a transient object from a POOL persistent representation.
     /// @param pAddr [IN] IOpaqueAddress of POOL persistent representation.
     /// @param pObj [OUT] pointer to the transient object.
-    virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj);
+    virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj) override;
 
     /// Create a POOL persistent representation for a transient object.
     /// @param pObj [IN] pointer to the transient object.
     /// @param pAddr [OUT] IOpaqueAddress of POOL persistent representation.
-    virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr);
+    virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr) override;
 
     /// Create a POOL persistent representation for a transient object.
     /// @param pAddr [IN] IOpaqueAddress of POOL persistent representation.
     /// @param pObj [IN] pointer to the transient object.
-    virtual StatusCode fillRepRefs(IOpaqueAddress* pAddr, DataObject* pObj);
+    virtual StatusCode fillRepRefs(IOpaqueAddress* pAddr, DataObject* pObj) override;
 
     /// Write out objects stored in "obj" into POOL and save the tokens
     /// in a CondAttrListCollection, as well write out "obj" i.e. CondMultChanCollImpl
@@ -102,6 +102,9 @@ protected:
     //-------------------------------------------------------------------
     // Helper methods intended to by used when implementing createTransient()
 
+    /// specialized version that adds persistency contextID to tokens (for reading)
+    virtual void setToken(const std::string& token) override final;
+
     /** Read object of type P.  This is an exception-throwing version of poolToObject()
         plus reading of all extending objects.
         Version 1 - (see createTransient() above)
@@ -113,8 +116,13 @@ protected:
     ELEM_T*            poolReadObject();
 
     /// Dummy methods not needed here
-    virtual StatusCode transToPers(COLL_T* obj, ELEM_T*& persObj);
-    virtual StatusCode persToTrans(COLL_T*& transObj, ELEM_T* obj);
+    virtual StatusCode transToPers(COLL_T* obj, ELEM_T*& persObj) override;
+    virtual StatusCode persToTrans(COLL_T*& transObj, ELEM_T* obj) override;
+
+protected:
+
+    /// Persistency context in which to read all objects (extracted from the Collection Address)
+    int  m_persCtx { 0 };
 
 };
 

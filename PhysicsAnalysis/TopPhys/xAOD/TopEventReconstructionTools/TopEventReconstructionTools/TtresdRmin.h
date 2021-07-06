@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef TtresdRmin_H
@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "TLorentzVector.h"
+#include "TString.h"
 
 using namespace std;
 

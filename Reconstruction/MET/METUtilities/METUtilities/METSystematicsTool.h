@@ -111,9 +111,9 @@ namespace met {
     //required correction tool functions
     //we don't inherit from CorrectionTool directly, since we don't want to implement applyContainerCorrection
     CP::CorrectionCode applyCorrection(xAOD::MissingET& inputMet,
-				       const xAOD::MissingETAssociationHelper * helper = nullptr ) const;
+				       const xAOD::MissingETAssociationHelper& helper) const;
     CP::CorrectionCode correctedCopy(const xAOD::MissingET& met, xAOD::MissingET*& outputmet,
-				     const xAOD::MissingETAssociationHelper * helper = nullptr) const;
+				     const xAOD::MissingETAssociationHelper& helper) const;
     //We don't want these for MET since we only apply systematics to the soft term, and this may be unclear
     //virtual CP::CorrectionCode applyContainerCorrection(xAOD::MissingETContainer& inputs, const CP::xAOD::EventInfo& eInfo) const;
     //virtual CP::CorrectionCode applyContainerCorrection(xAOD::MissingETContainer& inputs, const CP::xAOD::EventInfo& eInfo) const;
@@ -140,9 +140,9 @@ namespace met {
 						       xAOD::MissingETContainer const * METcont,
 						       xAOD::EventInfo          const & eInfo
 						       ) const;
-    CP::CorrectionCode calcJetTrackMETWithSyst(xAOD::MissingET& jettrkmet, const xAOD::MissingETAssociationHelper* helper) const;
-    CP::CorrectionCode calcJetTrackMETWithSyst(xAOD::MissingET& jettrkmet, const xAOD::MissingETAssociationHelper* helper, const xAOD::Jet* jet) const;
-    CP::CorrectionCode getCorrectedJetTrackMET(xAOD::MissingET& jettrkmet, const xAOD::MissingETAssociationHelper* helper) const;
+    CP::CorrectionCode calcJetTrackMETWithSyst(xAOD::MissingET& jettrkmet, const xAOD::MissingETAssociationHelper& helper) const;
+    CP::CorrectionCode calcJetTrackMETWithSyst(xAOD::MissingET& jettrkmet, const xAOD::MissingETAssociationHelper& helper, const xAOD::Jet* jet) const;
+    CP::CorrectionCode getCorrectedJetTrackMET(xAOD::MissingET& jettrkmet, const xAOD::MissingETAssociationHelper& helper) const;
 
     //declared properties
     std::string m_configPrefix;

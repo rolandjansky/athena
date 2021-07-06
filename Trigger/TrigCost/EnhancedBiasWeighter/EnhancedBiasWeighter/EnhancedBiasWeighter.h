@@ -12,7 +12,7 @@
 #include "EnhancedBiasWeighter/ReadLumiBlock.h"
 
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
+#include "LumiBlockData/BunchCrossingCondData.h"
 
 #include <unordered_map>
 #include <mutex>
@@ -124,7 +124,12 @@ class EnhancedBiasWeighter: public asg::AsgTool, public virtual IEnhancedBiasWei
    * @return How far into the current train this BCID is.
    * Retrieved from the database using the BunchCrossingTool or fetched from TRIG1 dAOD
    */
-   virtual uint32_t getDistanceIntoTrain(const xAOD::EventInfo* eventInfo) const override;
+   virtual StatusCode getDistanceIntoTrain(const xAOD::EventInfo* eventInfo, uint32_t& distance) const override;
+
+   /**
+   * @return the RunNumber.
+   */
+   virtual uint32_t getRunNumber() const override;
 
   /**
    * @return If the current event was selected online by a fully unbiased trigger 
@@ -156,6 +161,11 @@ class EnhancedBiasWeighter: public asg::AsgTool, public virtual IEnhancedBiasWei
    */
    virtual std::unordered_map<std::string, ChainDetail> parsePrescaleXML(const std::string& prescaleXML) const override;
 
+  /**
+   * @return The number of BCIDs in each bunch group
+   */
+   virtual const std::vector<int32_t>& getBunchGroups() const override { return m_bunches; }
+
  private: 
     StatusCode loadWeights(); //!< Read into memory from XML event weights for this EnhancedBias run.
     StatusCode loadLumi(); //!< Read into memory this EnhancedBias run's XML
@@ -168,7 +178,7 @@ class EnhancedBiasWeighter: public asg::AsgTool, public virtual IEnhancedBiasWei
     int32_t getEventEBID(const xAOD::EventInfo* eventInfo) const; 
     int32_t getEventEBID(const EventContext& context) const; 
 
-    ToolHandle<Trig::IBunchCrossingTool> m_bcTool; //!< Tool to get distance into bunch train
+    SG::ReadCondHandleKey<BunchCrossingCondData> m_bunchCrossingKey{this, "BunchCrossingKey", "BunchCrossingData", "Key BunchCrossing CDO" }; //!< Tool to get distance into bunch train
 
     Gaudi::Property<uint32_t> m_runNumber{this, "RunNumber", 0, "Run we're processing (if data), needed at initialize to locate and read in extra configuration."};
     Gaudi::Property<bool> m_errorOnMissingEBWeights{this, "ErrorOnMissingEBWeights", false, "If true, Throws error if EB weights are missing."};
@@ -199,6 +209,8 @@ class EnhancedBiasWeighter: public asg::AsgTool, public virtual IEnhancedBiasWei
     std::unordered_map<uint32_t, uint32_t> m_eventsPerLB; //!< Map of how many EnhancedBias events were recorded per LB 
     std::unordered_map<uint32_t, double>   m_lumiPerLB; //!< Map of instantaneous luminosity per LB 
     std::unordered_map<uint32_t, uint8_t>  m_goodLB;  //!< Like a Good Run List flag for EnhancedBias runs.
+
+    std::vector<int32_t> m_bunches; //!< Number of BCIDs in each bunch group
 
     ReadLumiBlock m_readLumiBlock; //!< Cache lumi block lengths. Get this from COOL.
 }; 

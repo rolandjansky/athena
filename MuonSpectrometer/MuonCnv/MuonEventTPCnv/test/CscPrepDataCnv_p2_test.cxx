@@ -52,7 +52,7 @@ void compare (const Muon::CscPrepData& p1,
 
 void testit (const Muon::CscPrepData& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   CscPrepDataCnv_p2 cnv;
   Muon::CscPrepData_p2 pers;
   cnv.transToPers (&trans1, &pers, log);
@@ -83,7 +83,7 @@ void test1()
                             567,
                             locpos,
                             rdoList,
-                            new Amg::MatrixX(cov),
+                            cov,
                             nullptr,
                             2,
                             3.5,

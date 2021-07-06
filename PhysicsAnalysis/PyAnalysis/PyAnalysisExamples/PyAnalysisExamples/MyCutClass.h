@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PYANALYSISEXAMPLES_MYCUTCLASS_H
@@ -9,6 +9,8 @@
 #include "AthenaKernel/getMessageSvc.h"
 
 #include "egammaEvent/Electron.h"
+
+namespace AthPyEx {
 
 class MyCutClass
 {
@@ -27,5 +29,7 @@ public:
 private:
   double m_Thr;
 };
+
+} // namespace AthPyEx
 
 #endif

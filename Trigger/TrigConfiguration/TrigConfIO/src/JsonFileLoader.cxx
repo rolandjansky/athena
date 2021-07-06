@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfIO/JsonFileLoader.h"
 
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS // Needed to silence Boost pragma message
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
@@ -15,7 +16,7 @@
 using ptree = boost::property_tree::ptree;
 
 
-TrigConf::JsonFileLoader::JsonFileLoader() : 
+TrigConf::JsonFileLoader::JsonFileLoader() :
    TrigConfMessaging( "JsonFileLoader")
 {}
 
@@ -24,9 +25,7 @@ TrigConf::JsonFileLoader::~JsonFileLoader()
 
 /*
   File will be search first absolute (when starting with "/" or
-  relative to the current path
-
-  If not found it will be searched in XMLPATH
+  relative to the current path.
 */
 std::string
 TrigConf::JsonFileLoader::findFile(const std::string & filename) const {
@@ -39,46 +38,20 @@ TrigConf::JsonFileLoader::findFile(const std::string & filename) const {
    // check if absolute location has been specified
    if (filename.find("/")==0) {
       TRG_MSG_WARNING("Can not find file with absolute location " << filename);
-      return "";
-   } 
-
-   // check if environment DATAPATH exists
-   const char * dp = std::getenv("XMLPATH");
-   if( dp == nullptr ) {
-      TRG_MSG_WARNING("Path environment $DATAPATH has not been defined");
-      return "";
-   }
-         
-   // resolve location using XMLPATH
-   std::string fnCopy(filename);
-   char *token = std::strtok( &*fnCopy.begin(), ":");
-   while ( token != nullptr ) {
-      std::filesystem::path fullname(token); 
-      fullname /= filename;
-      if( std::filesystem::exists( fullname ) ) {
-         return filename;
-      }
-      // go to the next 
-      token = std::strtok( nullptr, " ");
+      return {};
    }
 
-   return "";
+   return {};
 }
 
 bool
 TrigConf::JsonFileLoader::loadFile( const std::string & filename,
                                     boost::property_tree::ptree & data,
-                                    const std::string & pathToChild ) const 
+                                    const std::string & pathToChild ) const
 {
 
-   /*
-    * resolution of the file location happens in three steps
-    1) ckeck if file exists under the absolute or relative path location
-    2) if not and the path is not an absolute one, use the DATAPATH
-   */
-
    std::string file = findFile(filename); // resolved file name
-   if ( file == "" ) {
+   if ( file.empty() ) {
       return false;
    }
    TRG_MSG_INFO("Reading information from " << file);
@@ -89,7 +62,7 @@ TrigConf::JsonFileLoader::loadFile( const std::string & filename,
    }
    catch (const boost::property_tree::json_parser_error& e) {
       TRG_MSG_WARNING("Could either not locate or parse the file " << file);
-      return false; 
+      return false;
    }
 
    if( ! pathToChild.empty() ) {

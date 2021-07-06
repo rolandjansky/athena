@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from .CTP import CTP
 from .Items import MenuItemsCollection
@@ -10,7 +10,7 @@ from .MenuUtils import get_smk_psk_Name
 from .Limits import Limits
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger("Menu.L1.Base.L1Menu")
+log = logging.getLogger(__name__)
 
 class L1Menu(object):
     """
@@ -81,7 +81,7 @@ class L1Menu(object):
 
 
     def setupCTPMonitoring(self):
-        self.ctp.setupMonitoring(self.items, self.thresholds)
+        self.ctp.setupMonitoring(self.items, self.thresholds, self.connectors)
         
     def check(self):
         from collections import defaultdict as dd
@@ -103,4 +103,23 @@ class L1Menu(object):
             log.info("EM: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("EM")]))
             log.info("HA: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("HA")]))
             log.info("J: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("J")]))
-        
+
+    def checkLegacyThresholds(self):
+        from collections import defaultdict as dd 
+        from ..Menu.LegacyMenuThresholds import legacyThresholds
+        extraThresholds = dd(list)
+        for item in self.items:
+            for thrName in item.thresholdNames():
+                if thrName[0] not in ('e','j','g') and "TOPO" not in thrName and "MU" not in thrName and "MBTS" not in thrName and "ZB" not in thrName and "ALFA" not in thrName and "ZDC" not in thrName and "AFP" not in thrName and "BCM" not in thrName:
+                    if thrName not in legacyThresholds:
+                        extraThresholds[thrName].append(item.name)
+
+        for thrName in sorted(extraThresholds.keys()):
+            log.warning("Threshold %s (used by %s) should not be used!", thrName,",".join(extraThresholds[thrName]))
+
+
+
+
+
+
+       

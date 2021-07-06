@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #include "./L1PrescaleCondAlg.h"
@@ -25,6 +25,7 @@ TrigConf::L1PrescaleCondAlg::createFromFile( const std::string & filename ) cons
    psLoader.setLevel(TrigConf::MSGTC::WARNING); 
    ATH_MSG_DEBUG( "Going to load prescales" );
    if( psLoader.loadFile( filename, *pss) ) {
+      pss->setPSK(m_psk);
       ATH_MSG_INFO( "L1 prescales set successfully loaded from file " << filename );
    } else {
       ATH_MSG_WARNING( "Failed loading L1 prescales set from file " << filename ); // will be made an error later
@@ -145,7 +146,7 @@ TrigConf::L1PrescaleCondAlg::execute(const EventContext& ctx) const {
 
    }
 
-   std::shared_ptr<L1PrescalesSet> pss;
+   std::shared_ptr<const L1PrescalesSet> pss;
 
    if( m_configSource == "FILE" ) {
 
@@ -181,7 +182,7 @@ TrigConf::L1PrescaleCondAlg::execute(const EventContext& ctx) const {
       ATH_MSG_INFO("Recording empty L1 prescales set with range " << range);
       ATH_CHECK( writeCondHandle.record( range, new L1PrescalesSet ) );
    } else {
-      ATH_MSG_INFO("Recording L1 prescales set with range " << range);
+      ATH_MSG_INFO("Recording L1 prescales set with range " << range << " (key = " << pss->psk() << ")");
       ATH_CHECK( writeCondHandle.record( range, new L1PrescalesSet(*pss) ) );
    }
 

@@ -1,10 +1,9 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file AthenaPoolCnvSvc/exceptions.h
  * @author scott snyder <snyder@bnl.gov>
@@ -73,9 +72,52 @@ public:
  * @brief Throw a AthenaPoolCnvSvc::ExcUnsupportedVersion exception.
  * @param ti The class being read.
  * @param guid The GUID of the persistent class.
-o */
+ */
 [[noreturn]]
 void throwExcUnsupportedVersion (const std::type_info& ti, const Guid& guid);
+
+  
+/**
+ * @brief Exception --- Caught an exception during conversion.
+ *
+ * Encountered an exception during conversion.
+ */
+class ExcCaughtException
+  : public std::runtime_error
+{
+public:
+  /**
+   * @brief Constructor.
+   * @param fnname Name of the function being executed.
+   * @param action What we were doing when we caught the exception.
+   * @param ex The caught exception.
+   * @param ti The class being thinned.
+   * @param key Key of the class being thinned.
+   */
+  ExcCaughtException (const char* fnname,
+                      const char* action,
+                      const std::exception& ex,
+                      const std::type_info& ti,
+                      const std::string& key);
+};
+
+
+/**
+ * @brief Throw a AthenaPoolCnvSvc::ExcCaughtException exception.
+ * @param fnname Name of the function being executed.
+ * @param action What we were doing when we caught the exception.
+ * @param ex The caught exception.
+ * @param ti The class being thinned.
+ * @param key Key of the class being thinned.
+ *
+ * Will also print a stack trace if exctrace is enabled.
+ */
+[[noreturn]]
+void throwExcCaughtException (const char* fnname,
+                              const char* action,
+                              const std::exception& ex,
+                              const std::type_info& ti,
+                              const std::string& key);
 
   
 } // namespace AthenaPoolCnvSvc

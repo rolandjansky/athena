@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // TrigEgammaTDToolTest.cxx 
@@ -73,7 +73,7 @@ StatusCode TrigEgammaTDToolTest::execute() {
       ATH_MSG_ERROR("Failed to retrieve offline Electrons ");
   }
   ATH_MSG_INFO("Offline Electron container size " << offElectrons->size());
-  for(const auto& eg : *offElectrons){
+  for(const auto eg : *offElectrons){
       if (eg) {
           ATH_MSG_INFO(" REGTEST: egamma energy: " << eg->e());
           ATH_MSG_INFO(" REGTEST: egamma eta: " << eg->eta() );
@@ -103,7 +103,7 @@ StatusCode TrigEgammaTDToolTest::execute() {
       ATH_MSG_ERROR("Failed to retrieve offline Electrons ");
   }
   ATH_MSG_INFO("Online Electron container size " << onlElectrons->size());
-  for(const auto& eg : *onlElectrons){
+  for(const auto eg : *onlElectrons){
       if (eg) {
           ATH_MSG_INFO(" REGTEST: egamma energy: " << eg->e());
           ATH_MSG_INFO(" REGTEST: egamma eta: " << eg->eta() );

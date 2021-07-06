@@ -9,6 +9,8 @@
 #include "LArCondTPCnv/LArCaliWaveSubset_p1.h"
 #include "LArCondTPCnv/LArCaliWaveSubsetCnv_p2.h"
 #include "LArCondTPCnv/LArCaliWaveSubset_p2.h"
+#include "LArCondTPCnv/LArCaliWaveSubsetCnv_p3.h"
+#include "LArCondTPCnv/LArCaliWaveSubset_p3.h"
 #include "LArCondTPCnv/LArPhysWaveSubsetCnv_p1.h"
 #include "LArCondTPCnv/LArPhysWaveSubset_p1.h"
 #include "LArCondTPCnv/LArAutoCorrSubsetCnv_p1.h"
@@ -47,6 +49,11 @@ DECLARE_TPCNV_FACTORY(LArCaliWaveSubsetCnv_p1,
 DECLARE_TPCNV_FACTORY(LArCaliWaveSubsetCnv_p2,
                       LArConditionsSubset<LArCaliWaveVec>,
                       LArCaliWaveSubset_p2,
+                      Athena::TPCnvVers::Old)
+                      
+DECLARE_TPCNV_FACTORY(LArCaliWaveSubsetCnv_p3,
+                      LArConditionsSubset<LArCaliWaveVec>,
+                      LArCaliWaveSubset_p3,
                       Athena::TPCnvVers::Current)
                       
 DECLARE_TPCNV_FACTORY(LArDSPThresholdsSubsetCnv_p1,

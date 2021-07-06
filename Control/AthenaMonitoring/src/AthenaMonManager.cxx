@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaMonitoring/AthenaMonManager.h"
@@ -29,6 +29,8 @@
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "EventInfo/EventID.h"
 
+#include "TrigNavTools/TrigNavigationThinningSvcMutex.h"
+
 #include "SGAudCore/ISGAudSvc.h"
 
 #include <limits.h>
@@ -57,6 +59,7 @@ public:
         m_nActiveLWHists(0),
 	m_forkedProcess(false),
 	m_lastPID(0),
+    m_rootBackend(false),
 	m_doResourceMon(false)
  {}
   
@@ -103,6 +106,8 @@ public:
 
     bool m_forkedProcess;
     pid_t m_lastPID;
+
+    bool m_rootBackend;
 
     //NB: The LW hist leak checker is now also looking for
     //inappropriate usage of MonGroup copy constructors (temporary
@@ -234,6 +239,7 @@ AthenaMonManager( const std::string& name, ISvcLocator* pSvcLocator )
     declareProperty( "ManualRunLBSetup", m_d->m_manualRunLBProp );
     declareProperty( "Run", m_d->m_runProp );
     declareProperty( "LumiBlock", m_d->m_lumiBlockProp );
+    declareProperty( "ROOTBackend", m_d->m_rootBackend );
 
     if( Imp::s_svcLocator==0 )
         Imp::s_svcLocator = pSvcLocator;
@@ -407,7 +413,6 @@ initialize()
     m_d->m_doResourceMon = msgLvl(AthMonBench::s_resourceMonThreshold);
 
     StatusCode sc;
-    sc.setChecked();
 
     sc = service( "THistSvc", m_THistSvc, true );
     if( !sc.isSuccess() ) {
@@ -482,12 +487,9 @@ initialize()
     joSvc->set( client + ".DataType", m_d->m_dataTypeProp );
     joSvc->set( client + ".Environment", m_d->m_environmentProp );
 
-    //Determine (globally for now), whether or not LW histograms use a
-    //ROOT backend (necessary for online monitoring, and perhaps for
-    //debugging):
-    bool root_backend_for_lwhists = (environment()==AthenaMonManager::online);
-    if( root_backend_for_lwhists != LWHistControls::hasROOTBackend() )
-        LWHistControls::setROOTBackend(root_backend_for_lwhists);
+    // LWHists not thread-safe. Use alg property to use ROOT backend in MT mode.
+    ATH_MSG_DEBUG("Setting LWHist ROOT backend flag to " << m_d->m_rootBackend);
+    LWHistControls::setROOTBackend(m_d->m_rootBackend);
 
     if( m_monTools.size() > 0 ) {
       sc = m_monTools.retrieve();
@@ -537,8 +539,17 @@ execute()
     Imp::LWHistLeakChecker lc(m_d);
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "AthenaMonManager::execute():" << endmsg;
 
+    // This is legacy R2 monitoring.
+    // We only permit serial access (over all slots) to both HLT monitoring AND navigation thinning, as both use the same underlying thread un-safe navigation tool
+    // All of these elements are deprecated for R3 and are in the process of being replaced. 
+    std::unique_lock<std::mutex> hltLock(TrigNavigationThinningSvcMutex::s_mutex, std::defer_lock);
+    if (name() == "HLTMonManager") {
+        ATH_MSG_DEBUG("HLTMonManager is obtaining the TrigNavigationThinningSvc lock in slot " 
+            << Gaudi::Hive::currentContext().slot() << " for event " << Gaudi::Hive::currentContext().eventID().event_number() );
+        hltLock.lock();
+    }
+
     StatusCode sc;
-    sc.setChecked();
 
     ToolHandleArray<IMonitorToolBase>::iterator monToolsEnd = m_monTools.end();
     for( ToolHandleArray<IMonitorToolBase>::iterator i = m_monTools.begin(); i != monToolsEnd; ++i ) {
@@ -595,6 +606,7 @@ execute()
     }
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  --> Exiting successfully" << endmsg;
 
+    ATH_MSG_DEBUG(name() << " is releasing the TrigNavigationThinningSvc lock");
     return StatusCode::SUCCESS;
 }
 
@@ -614,7 +626,6 @@ stop()
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "AthenaMonManager::finalize():" << endmsg;
 
     StatusCode sc;
-    sc.setChecked();
 
     ToolHandleArray<IMonitorToolBase>::iterator monToolsEnd = m_monTools.end();
     for( ToolHandleArray<IMonitorToolBase>::iterator i = m_monTools.begin(); i != monToolsEnd; ++i ) {
@@ -671,7 +682,6 @@ start()
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "AthenaMonManager::start():" << endmsg;
 
     StatusCode sc;
-    sc.setChecked();
 
     ToolHandleArray<IMonitorToolBase>::iterator monToolsEnd = m_monTools.end();
     for( ToolHandleArray<IMonitorToolBase>::iterator i = m_monTools.begin(); i != monToolsEnd; ++i ) {

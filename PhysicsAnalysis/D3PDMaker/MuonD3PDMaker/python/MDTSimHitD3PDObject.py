@@ -1,13 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-# $Id: MDTSimHitD3PDObject.py 508173 2012-06-29 11:47:55Z ssnyder $
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Import all needed modules:
 import MuonD3PDMaker
-import D3PDMakerCoreComps
 from D3PDMakerCoreComps.D3PDObject  import make_SGDataVector_D3PDObject
-from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
-from D3PDMakerCoreComps.D3PDObject  import D3PDObject
 
 # Create the configurable:
 MDTSimHitD3PDObject = \

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRPCRAWDATAPROVIDERTOOL_H
@@ -22,8 +22,8 @@ namespace Muon
     class IRpcROD_Decoder;
 
 /// This class is only used in a single-thread mode
-class ATLAS_NOT_THREAD_SAFE RPC_RawDataProviderTool : virtual public IMuonRawDataProviderTool, 
-                                        public RPC_RawDataProviderToolCore
+class ATLAS_NOT_THREAD_SAFE RPC_RawDataProviderTool
+  : public extends<RPC_RawDataProviderToolCore, IMuonRawDataProviderTool>
 {
     public:
     
@@ -37,12 +37,12 @@ class ATLAS_NOT_THREAD_SAFE RPC_RawDataProviderTool : virtual public IMuonRawDat
     virtual StatusCode initialize() override;
 
     /** Decoding method. - current methods: let's keep them! */
-    virtual StatusCode convert(const ROBFragmentList& vecRobs) override;
-    virtual StatusCode convert(const ROBFragmentList& vecRobs, const std::vector<IdentifierHash>& coll) override; 
+    virtual StatusCode convert(const ROBFragmentList& vecRobs) const override;
+    virtual StatusCode convert(const ROBFragmentList& vecRobs, const std::vector<IdentifierHash>& coll) const override; 
     /** the new ones */
-    virtual StatusCode convert() override; //!< for the entire event 
-    virtual StatusCode convert(const std::vector<IdentifierHash>&) override; //!< for a selection of rdo collections
-    virtual StatusCode convert(const std::vector<uint32_t>&) override;
+    virtual StatusCode convert() const override; //!< for the entire event 
+    virtual StatusCode convert(const std::vector<IdentifierHash>&) const override; //!< for a selection of rdo collections
+    virtual StatusCode convert(const std::vector<uint32_t>&) const override;
     /** EventContext ones **/
     virtual StatusCode convert(const ROBFragmentList&, const EventContext&) const override;
     virtual StatusCode convert(const ROBFragmentList&, const std::vector<IdentifierHash>&, const EventContext&) const override;

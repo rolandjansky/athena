@@ -1,42 +1,40 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// IMuonCandidateTool.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 #ifndef MUONCOMBINED_IMUONCANDIDATETOOL_H
 #define MUONCOMBINED_IMUONCANDIDATETOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
-#include "xAODTracking/TrackParticleContainer.h"
 #include "TrkTrack/TrackCollection.h"
+#include "xAODTracking/TrackParticleContainer.h"
 
 namespace MuonCombined {
 
-  static const InterfaceID IID_IMuonCandidateTool("MuonCombined::IMuonCandidateTool", 1, 0);
+    /** @class IMuonCandidateTool
+        @brief interface for tools building MuonCandidateCollection from a TrackParticleCollection of spectrometer tracks
 
-  /** @class IMuonCandidateTool
-      @brief interface for tools building MuonCandidateCollection from a TrackParticleCollection of spectrometer tracks
- 
-      @author Niels van Eldik
-   */
+        @author Niels van Eldik
+     */
 
-  class IMuonCandidateTool : virtual public IAlgTool {
-  public:
-    static const InterfaceID& interfaceID( ) ;
+    class IMuonCandidateTool : virtual public IAlgTool {
+    public:
+        static const InterfaceID& interfaceID() {
+            static const InterfaceID IID_IMuonCandidateTool("MuonCombined::IMuonCandidateTool", 1, 0);
+            return IID_IMuonCandidateTool;
+        }
 
+        /**IMuonCandidateTool interface: build a MuonCandidateCollection from a TrackCollection of spectrometer tracks */
+        virtual void create(const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection,
+                            TrackCollection& outputTracks, const EventContext& ctx) const = 0;
 
-    /**IMuonCandidateTool interface: build a MuonCandidateCollection from a TrackCollection of spectrometer tracks */
-    virtual void create( const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection, TrackCollection& outputTracks ) = 0;
+        /// Old method to maintain backwards compabilitiy
+        virtual void create(const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection,
+                            TrackCollection& outputTracks) const = 0;
 
-  };
+        virtual ~IMuonCandidateTool() = default;
+    };
 
-  inline const InterfaceID& IMuonCandidateTool::interfaceID() { 
-    return IID_IMuonCandidateTool; 
-  }
+}  // namespace MuonCombined
 
-} // end of namespace
-
-#endif 
+#endif

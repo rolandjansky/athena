@@ -16,7 +16,7 @@
 #include "MuonTrigCoinData/TgcCoinDataContainer.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "MuonPrepRawData/TgcPrepDataContainer.h"
-
+#include <memory>
 class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
  public:
   TgcRawDataMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator );
@@ -24,24 +24,26 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   virtual StatusCode initialize() override;
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
   
-  struct TagDef{
-    TString eventTrig;
-    TString tagTrig;
-  };
   struct MyMuon{
     const xAOD::Muon* muon;
-    TLorentzVector fourvec;
+    std::vector<double> extPosZ;
     std::vector<TVector3> extPos;
     std::vector<TVector3> extVec;
-    bool tagged;
-    bool isolated;
-    bool probeOK_any;
-    bool probeOK_Z;
-    bool probeOK;
     std::set<int> matchedL1ThrExclusive;
     std::set<int> matchedL1ThrInclusive;
+    bool matchedL1Charge;
+    bool passBW3Coin;
+    bool passInnerCoin;
+    bool passGoodMF;
+    bool passIsMoreCandInRoI;
+    void clear(){
+      extPosZ.clear();
+      extPos.clear();
+      extVec.clear();
+      matchedL1ThrExclusive.clear();
+      matchedL1ThrInclusive.clear();
+    }
   };
-
   struct TgcHit{
     float x;
     float y;
@@ -70,12 +72,17 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
     TString side;
   };
   struct TgcTrig{
+    int lb;
     float x_In;
     float y_In;
     float z_In;
     float x_Out;
     float y_Out;
     float z_Out;
+    float eta;
+    float phi;
+    float etain;
+    float etaout;
     float width_In;
     float width_Out;
     float width_R;
@@ -88,7 +95,7 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
     int type;
     int trackletId;
     int trackletIdStrip;
-    int phi;
+    int sector;
     int roi;
     int pt;
     int delta;
@@ -96,6 +103,24 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
     int veto;
     int bunch;
     int inner;
+  };
+  struct CtpDecMonObj{
+    TString trigItem;
+    TString title;
+    long unsigned int multiplicity;
+    int rpcThr;
+    int tgcThr;
+    int sys;//system: 1 for barrel, 2 for endcap, 3 for forward
+    int threshold;
+    int charge;
+    bool tgcF; // full-station flag
+    bool tgcC; // inner-coincidence flag
+    bool tgcH; // hot roi mask flag
+    bool rpcR; // masking feet trigger
+    bool rpcM; // isMoreCand
+    double eta;
+    double phi;
+    unsigned int roiWord;
   };
   
  private:
@@ -110,13 +135,14 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   SG::ReadHandleKey<Muon::TgcCoinDataContainer> m_TgcCoinDataContainerPrevBCKey{this,"TgcCoinDataContainerPrevBCName","TrigT1CoinDataCollectionPriorBC","TGC Coin Data Container PrevBC"};
   
   StringProperty m_packageName{this,"PackageName","TgcRawDataMonitor","group name for histograming"};
-  StringProperty m_trigTagList{this,"TagTrigList","HLT_mu26_ivarmedium_L1MU20","list of triggers to be used for trigger matching"};
-  BooleanProperty m_TagAndProbe{this,"TagAndProbe",false,"switch to perform tag-and-probe method"};
+  StringProperty m_ctpDecMonList{this,"CtpDecisionMoniorList","Tit:L1_2MU4,Mul:2,HLT:HLT_2mu4,RPC:1,TGC:1;","list of L1MU items to be monitored for before/after CTP decision"};
+  BooleanProperty m_printAvailableMuonTriggers{this,"PrintAvailableMuonTriggers",false,"debugging purpose. print out all available muon triggers in the event"};
+  BooleanProperty m_useNonMuonTriggers{this,"UseNonMuonTriggers",true,"muon-orthogonal triggers for muon-unbiased measurement"};
+  BooleanProperty m_TagAndProbe{this,"TagAndProbe",true,"switch to perform tag-and-probe method"};
   BooleanProperty m_TagAndProbeZmumu{this,"TagAndProbeZmumu",false,"switch to perform tag-and-probe method Z->mumu"};
   BooleanProperty m_anaTgcPrd{this,"AnaTgcPrd",false,"switch to perform analysis on TGC PRD/Coin"};
   BooleanProperty m_anaOfflMuon{this,"AnaOfflMuon",true,"switch to perform analysis on xAOD::Muon"};
   BooleanProperty m_anaMuonRoI{this,"AnaMuonRoI",true,"switch to perform analysis on xAOD::LVL1MuonRoI"};
-  StringProperty m_MuonEFContainerName{this,"MuonEFContainerName","HLT_MuonsCB_RoI","HLT RoI-based muon track container"};
   DoubleProperty m_trigMatchWindow{this,"TrigMatchingWindow",0.005,"Window size in R for trigger matching"};
   DoubleProperty m_l1trigMatchWindow1{this,"L1TrigMatchingWindow1",0.15,"Window size in R for L1 trigger matching: param 1"};
   DoubleProperty m_l1trigMatchWindow2{this,"L1TrigMatchingWindow2",0.3,"Window size in R for L1 trigger matching: param 2"};
@@ -124,6 +150,7 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   DoubleProperty m_l1trigMatchWindow4{this,"L1TrigMatchingWindow4",0.36,"Window size in R for L1 trigger matching: param 4"};
   DoubleProperty m_l1trigMatchWindow5{this,"L1TrigMatchingWindow5",-0.0016,"Window size in R for L1 trigger matching: param 5"};
   DoubleProperty m_isolationWindow{this,"IsolationWindow",0.1,"Window size in R for isolation with other muons"};
+  BooleanProperty m_requireIsolated{this,"RequireIsolated",true,"Probe muon should be isolated from other muons"};
   DoubleProperty m_M1_Z{this,"M1_Z",13605.0,"z-position of TGC M1-station in mm for track extrapolate"};
   DoubleProperty m_M2_Z{this,"M2_Z",14860.0,"z-position of TGC M2-station in mm for track extrapolate"};
   DoubleProperty m_M3_Z{this,"M3_Z",15280.0,"z-position of TGC M3-station in mm for track extrapolate"};
@@ -136,10 +163,11 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   DoubleProperty m_endcapPivotPlaneMaximumRadius{this,"endcapPivotPlaneMaximumRadius", 11977.,"maximum radius of pivot plane in endcap region"};
   DoubleProperty m_barrelPivotPlaneHalfLength{this,"barrelPivotPlaneHalfLength", 9500.,"half length of pivot plane in barrel region"};
   
-  std::vector<TagDef> m_trigTagDefs;
   std::vector<double> m_extZposition;
-  
-  StatusCode triggerMatching(const xAOD::Muon* , const std::vector<TagDef>& ) const;
+  std::vector<CtpDecMonObj> m_CtpDecMonObj;
+
+  using MonVariables=std::vector < std::reference_wrapper < Monitored::IMonitoredVariable >>;
+  void fillTgcCoin(const std::vector<TgcTrig>&, const std::string ) const;
 
   /* track extrapolator tool */
   enum TargetDetector { UNDEF, TGC, RPC };
@@ -150,11 +178,11 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
 		   Amg::Vector2D& eta,
 		   Amg::Vector2D& phi,
 		   Amg::Vector3D& mom) const;
-  const Trk::TrackParameters*
+  std::unique_ptr<const Trk::TrackParameters>
     extrapolateToTGC(const Trk::TrackStateOnSurface* tsos,
 		     const Amg::Vector3D& pos,
 		     Amg::Vector2D& distance) const;
-  const Trk::TrackParameters*
+  std::unique_ptr<const Trk::TrackParameters>  
     extrapolateToRPC(const Trk::TrackStateOnSurface* tsos,
 		     const Amg::Vector3D& pos,
 		     Amg::Vector2D& distance) const;

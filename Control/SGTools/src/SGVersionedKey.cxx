@@ -41,11 +41,6 @@ VersionedKey::VersionedKey(const std::string& versionedKey) {
 VersionedKey::VersionedKey(const char* versionedKey) {
   copyVK(std::string(versionedKey));
 }
-VersionedKey::VersionedKey(const VersionedKey& versionedKey) :
-  m_versionKey(versionedKey.m_versionKey),
-  m_baseKey (versionedKey.m_baseKey)
-{
-}
 
 void VersionedKey::decode(std::string& outKey, unsigned char& version) const {
   outKey = this->key();

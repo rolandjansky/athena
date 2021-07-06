@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************
@@ -43,7 +43,9 @@ TrigEgammaMonitorTagAndProbeAlgorithm::~TrigEgammaMonitorTagAndProbeAlgorithm()
 
 StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::initialize() {
     
-    ATH_CHECK(TrigEgammaMonitorBaseAlgorithm::initialize() );
+    ATH_MSG_INFO("TrigEgammaMonitorTagAndProbeAlgorithm::initialize()...");
+    ATH_CHECK(TrigEgammaMonitorBaseAlgorithm::initialize());
+
     ATH_CHECK(m_offElectronKey.initialize());
     ATH_CHECK(m_jetKey.initialize());
    
@@ -68,15 +70,12 @@ StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::initialize() {
 
 
 StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::fillHistograms( const EventContext& ctx ) const  {
-
-    auto monGroup         = getGroup( m_anatype );
-    auto totalTime        = Monitored::Timer("TIME_TotalTime");
-     
-
-    std::vector<const xAOD::Electron*> probes;
+   
+    std::vector<std::shared_ptr<const xAOD::Electron>> probes;
 
     // Select TP Pairs
     ATH_MSG_DEBUG("Execute TP selection");
+    
     if( !executeTandP(ctx, probes) ){
         ATH_MSG_WARNING("Tag and Probe event failed.");
         return StatusCode::SUCCESS;
@@ -107,6 +106,7 @@ StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::fillHistograms( const EventCon
         ATH_MSG_DEBUG("Trigger " << probeTrigger << " pidword " << info.trigPidDecorator << " threshold " << info.trigThrHLT);
         matchObjects(trigName, probes, pairObjs);
 
+
         // Just for counting
         ATH_MSG_DEBUG("Probes " << probes.size() << " Pairs " << pairObjs.size() );
 
@@ -115,21 +115,14 @@ StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::fillHistograms( const EventCon
         fillEfficiencies( pairObjs, info );
         fillResolutions( pairObjs, info );
 
-
     } // End loop over trigger list
 
-    
     return StatusCode::SUCCESS;
 }
 
 
 
-
-
-
-
-
-bool TrigEgammaMonitorTagAndProbeAlgorithm::executeTandP( const EventContext& ctx, std::vector<const xAOD::Electron*> &probeElectrons) const
+bool TrigEgammaMonitorTagAndProbeAlgorithm::executeTandP( const EventContext& ctx, std::vector<std::shared_ptr<const xAOD::Electron>> &probeElectrons) const
 {
    
 
@@ -206,17 +199,17 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::executeTandP( const EventContext& ct
 
     
     ATH_MSG_DEBUG("Execute TandP BaseTool " << offElectrons->size());
-    for(const auto& elTag : *offElectrons)
+    for(const auto elTag : *offElectrons)
     {
         if( ! isTagElectron( monGroup, elTag) ) continue;
         
-        for(const auto& elProbe : *offElectrons)
+        for(const auto elProbe : *offElectrons)
         {  // Dress the probes with updated Pid decision
            
             fillLabel(monGroup, "ProbeCutCounter", "Electrons");
 
             if(elProbe==elTag) continue;
-            fillLabel(monGroup, "ProbeCutCounter", "NotTags");
+            fillLabel(monGroup, "ProbeCutCounter", "NotTag");
             // Check opposite charge
             if(m_oppositeCharge && (elProbe->charge() == elTag->charge()) ) continue;
             fillLabel(monGroup, "ProbeCutCounter", "OS");
@@ -259,8 +252,8 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::executeTandP( const EventContext& ct
                 if(!isGoodProbeElectron(monGroup, elProbe, jets.cptr())) continue;
                 //fill( monGroup, m_anatype+"_ProbeCutCounter", "GoodProbe");
                 
-                xAOD::Electron *selProbe = new xAOD::Electron(*elProbe);              
-                dressPid(selProbe);
+                const auto selProbe = std::make_shared<const xAOD::Electron>(*elProbe);              
+                dressPid(selProbe.get());
                 
                 probeElectrons.push_back(selProbe);
 
@@ -294,16 +287,15 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::minimalTriggerRequirement() const {
 
 
 void TrigEgammaMonitorTagAndProbeAlgorithm::matchObjects(const std::string probeTrigItem, 
-                                           std::vector<const xAOD::Electron*> probeElectrons,
+                                           std::vector<std::shared_ptr<const xAOD::Electron>>& probeElectrons,
                                            std::vector<std::pair<const xAOD::Egamma*, const TrigCompositeUtils::Decision *>> &pairObj ) const
 {
-    for( const auto *el : probeElectrons)
+    for( const auto& el : probeElectrons)
     {
         const TrigCompositeUtils::Decision *dec=nullptr;
-        match()->match(el, probeTrigItem, dec, TrigDefs::includeFailedDecisions);
+        match()->match(el.get(), probeTrigItem, dec, TrigDefs::includeFailedDecisions);
         //match()->match(el, probeTrigItem, dec);
-        std::pair<const xAOD::Egamma*, const TrigCompositeUtils::Decision *> pairProbe(el,dec);
-        pairObj.push_back(pairProbe);
+        pairObj.emplace_back(el.get(), dec);
     }
 }
 
@@ -403,7 +395,7 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::isTagElectron( ToolHandle<GenericMon
             if(fabs(p1trigger.find("tight"))<14) tag=p1trigger;
             if(fabs(p2trigger.find("tight"))<14) tag=p2trigger;
           }
-          if( match()->match(el,tag, TrigDefs::includeFailedDecisions) )
+          if( match()->isPassed(el,tag) )
             tagPassed=true;
         }
         else{
@@ -423,7 +415,7 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::isTagElectron( ToolHandle<GenericMon
     bool tagMatched=false;
     for(unsigned int ilist = 0; ilist != m_tagTrigList.size(); ilist++) {
         std::string tag = m_tagTrigList[ilist];
-        if( match()->match(el,tag) )
+        if( match()->isPassed(el,tag) )
             tagMatched=true;
     }
     
@@ -486,7 +478,7 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::isGoodProbeElectron( ToolHandle<Gene
         TLorentzVector probeCandidate;
         probeCandidate.SetPtEtaPhiE(el->pt(), el->trackParticle()->eta(), el->trackParticle()->phi(), el->e());
         Int_t jetsAroundProbeElectron = 0; 
-        for(const auto &i_jet : *jets){
+        for(const auto i_jet : *jets){
             TLorentzVector jet;
             jet.SetPtEtaPhiE(i_jet->pt(), i_jet->eta(), i_jet->phi(), i_jet->e());
             if( (jet.Et() > 20*Gaudi::Units::GeV) && (jet.DeltaR(probeCandidate) < 0.4)) jetsAroundProbeElectron++;
@@ -512,9 +504,14 @@ void TrigEgammaMonitorTagAndProbeAlgorithm::dressPid(const xAOD::Electron *eg) c
         const std::string pidname="is"+m_isemname[ipid];
         eg->auxdecor<bool>(pidname)=static_cast<bool>(accept);
     }
-    for(int ipid=0;ipid<2;ipid++){
+    for(int ipid=0;ipid<4;ipid++){
         bool accept = (bool) this->m_electronLHTool[ipid]->accept(ctx,eg);
         const std::string pidname="is"+m_lhname[ipid];
+        eg->auxdecor<bool>(pidname)=static_cast<bool>(accept);
+    }
+    for(int ipid=0;ipid<3;ipid++){
+        bool accept = (bool) this->m_electronDNNTool[ipid]->accept(ctx,eg);
+        const std::string pidname="is"+m_dnnname[ipid];
         eg->auxdecor<bool>(pidname)=static_cast<bool>(accept);
     }
     eg->auxdecor<bool>("Isolated")=isIsolated(eg, m_offProbeIsolation);

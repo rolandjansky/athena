@@ -138,7 +138,7 @@ private:
       "Pileup and/or noise added by overlaying random events (default=false)"}; //!< If true => overlay with random event (zero-luminosity pile-up)
   Gaudi::Property<bool> m_useTriggerTime{this, "UseTriggerTime", false,
       "Take trigger time from external tool (default=false)"}; //!< if true => take trigger time from external tool or from m_triggerTime
-  Gaudi::Property<bool> m_doDigiTruth{this, "DoHSTruthReconstruction", true,
+  Gaudi::Property<bool> m_doDigiTruth{this, "DoHSTruthReconstruction", false,
       "DigiTruth reconstruction"};                       //!
   PublicToolHandle<ITriggerTime> m_triggerTimeTool{this, "TriggerTimeTool", "",
       "Name of trigger time tool (default='')"}; //!< tool to take the time from

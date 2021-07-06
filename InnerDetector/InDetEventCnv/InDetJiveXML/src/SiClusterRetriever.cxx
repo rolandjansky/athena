@@ -13,7 +13,7 @@
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SiLocalPosition.h"
+#include "ReadoutGeometryBase/SiLocalPosition.h"
 
 #include "InDetIdentifier/SCT_ID.h"
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file EventSelectorAthenaPool.cxx
@@ -166,6 +166,12 @@ StatusCode EventSelectorAthenaPool::initialize() {
    if (!m_eventStreamingTool.empty() && !m_eventStreamingTool.retrieve().isSuccess()) {
       ATH_MSG_FATAL("Cannot get " << m_eventStreamingTool.typeAndName() << "");
       return(StatusCode::FAILURE);
+   } else if (m_makeStreamingToolClient.value() == -1) {
+      std::string dummyStr;
+      if (!m_eventStreamingTool->makeClient(m_makeStreamingToolClient.value(), dummyStr).isSuccess()) {
+         ATH_MSG_ERROR("Could not make AthenaPoolCnvSvc a Share Client");
+         return(StatusCode::FAILURE);
+      }
    }
 
    // Ensure the xAODCnvSvc is listed in the EventPersistencySvc
@@ -478,6 +484,15 @@ StatusCode EventSelectorAthenaPool::createContext(IEvtSelector::Context*& ctxt) 
 StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
    std::lock_guard<CallMutex> lockGuard(m_callLock);
    if (!m_eventStreamingTool.empty() && m_eventStreamingTool->isClient()) {
+      if (m_makeStreamingToolClient.value() == -1) {
+         StatusCode sc = m_eventStreamingTool->lockEvent(m_evtCount);
+         while (sc.isRecoverable()) {
+            usleep(1000);
+            sc = m_eventStreamingTool->lockEvent(m_evtCount);
+         }
+      }
+      // Increase event count
+      ++m_evtCount;
       void* tokenStr = nullptr;
       unsigned int status = 0;
       if (!m_eventStreamingTool->getLockedEvent(&tokenStr, status).isSuccess()) {
@@ -766,6 +781,7 @@ StatusCode EventSelectorAthenaPool::seek(Context& /*ctxt*/, int evtNum) const {
          m_inputCollectionsIterator += m_curCollection;
          m_poolCollectionConverter = new PoolCollectionConverter(m_collectionType.value() + ":" + m_collectionTree.value(),
 	         m_inputCollectionsProp.value()[m_curCollection],
+	         IPoolSvc::kInputStream,
 	         m_query.value(),
 	         m_athenaPoolCnvSvc->getPoolSvc());
          if (!m_poolCollectionConverter->initialize().isSuccess()) {
@@ -813,6 +829,7 @@ int EventSelectorAthenaPool::findEvent(int evtNum) const {
       if (m_numEvt[i] == -1) {
          PoolCollectionConverter pcc(m_collectionType.value() + ":" + m_collectionTree.value(),
 	         m_inputCollectionsProp.value()[i],
+	         IPoolSvc::kInputStream,
 	         m_query.value(),
 	         m_athenaPoolCnvSvc->getPoolSvc());
          if (!pcc.initialize().isSuccess()) {
@@ -858,7 +875,7 @@ StatusCode EventSelectorAthenaPool::makeServer(int num) {
    }
    m_processMetadata = false;
    ATH_MSG_DEBUG("makeServer: " << m_eventStreamingTool << " = " << num);
-   return(m_eventStreamingTool->makeServer(1));
+   return(m_eventStreamingTool->makeServer(1, ""));
 }
 
 //________________________________________________________________________________
@@ -871,7 +888,8 @@ StatusCode EventSelectorAthenaPool::makeClient(int num) {
       return(StatusCode::SUCCESS);
    }
    ATH_MSG_DEBUG("makeClient: " << m_eventStreamingTool << " = " << num);
-   return(m_eventStreamingTool->makeClient(0));
+   std::string dummyStr;
+   return(m_eventStreamingTool->makeClient(0, dummyStr));
 }
 
 //________________________________________________________________________________
@@ -967,6 +985,7 @@ PoolCollectionConverter* EventSelectorAthenaPool::getCollectionCnv(bool throwInc
       ATH_MSG_DEBUG("Try item: \"" << *m_inputCollectionsIterator << "\" from the collection list.");
       PoolCollectionConverter* pCollCnv = new PoolCollectionConverter(m_collectionType.value() + ":" + m_collectionTree.value(),
 	      *m_inputCollectionsIterator,
+	      IPoolSvc::kInputStream,
 	      m_query.value(),
 	      m_athenaPoolCnvSvc->getPoolSvc());
       StatusCode status = pCollCnv->initialize();
@@ -1114,9 +1133,16 @@ StatusCode EventSelectorAthenaPool::io_finalize() {
 void EventSelectorAthenaPool::handle(const Incident& inc)
 {
    SG::SourceID fid;
-   if ( Atlas::hasExtendedEventContext(inc.context()) ) {
-     fid = Atlas::getExtendedEventContext(inc.context()).proxy()->sourceID();
+   if (inc.type() == IncidentType::BeginProcessing) {
+     if ( Atlas::hasExtendedEventContext(inc.context()) ) {
+       fid = Atlas::getExtendedEventContext(inc.context()).proxy()->sourceID();
+     }
+     *m_sourceID.get(inc.context()) = fid;
    }
+   else {
+     fid = *m_sourceID.get(inc.context());
+   }
+
    if( fid.empty() ) {
       ATH_MSG_WARNING("could not read event source ID from incident event context");
       return;
@@ -1129,6 +1155,7 @@ void EventSelectorAthenaPool::handle(const Incident& inc)
    } else if( inc.type() == IncidentType::EndProcessing ) {
       m_activeEventsPerSource[fid]--;
       disconnectIfFinished( fid );
+      *m_sourceID.get(inc.context()) = "";
    }
    if( msgLvl(MSG::DEBUG) ) {
       for( auto& source: m_activeEventsPerSource )

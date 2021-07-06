@@ -1,9 +1,12 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
 #include <fstream>
 #include <sstream>
 #include <iomanip>
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
+#include <cstdlib>
+#include <cstdio>
+#include <cmath>
 #include <iostream>
 #include <exception>
 #include <TNtuple.h>
@@ -19,7 +22,6 @@
 #include <TLine.h>
 #include <TLegend.h>
 #include <TLegendEntry.h>
-#include <THStack.h>
 #include <TEventList.h>
 #include <TPad.h>
 #include <TPaveText.h>
@@ -268,9 +270,8 @@ XYMaps::XYMaps(char* infile, char* variable, bool isAr = false) throw(string){
 
   char selectionA[500];  sprintf(selectionA,"%s*(det==1)",variable);
   char selectionC[500];  sprintf(selectionC,"%s*(det==-1)",variable);
-  if (variable=="nt0") variable = "Nhits";
+  if (strcmp(variable,"nt0")==0) variable = "Nhits";
   TFile* file = new TFile(infile);
-  //cout << infile << endl;
   file->cd();
   TNtuple* Chiptuple    =       NULL;
   TNtuple* Boardtuple   =       NULL;
@@ -303,24 +304,23 @@ XYMaps::XYMaps(char* infile, char* variable, bool isAr = false) throw(string){
   Moduletuple->Draw("y:x>>reshist10(40,-1200,1200,40,-1200,1200)",selectionA,"colz");
   TH2F *reshist10 = (TH2F*)gPad->GetPrimitive("reshist10");
   if (!reshist10) throw string("Variable not found!");
-  if (variable == "res"){
+  if (strcmp(variable ,"res")==0){
     reshist10->GetZaxis()->SetRangeUser(0.135, 0.150);
   }
-  else if (variable == "abs(resMean)"){
+  else if (strcmp(variable ,"abs(resMean)")==0){
     reshist10->GetZaxis()->SetRangeUser(0.0, 0.007);
   }
-  else if (variable == "t0"){
+  else if (strcmp(variable , "t0")==0){
     reshist10->GetZaxis()->SetRangeUser(9.2, 10.8); 
   }
-  else if (variable == "abs(t0-oldt0)"){
+  else if (strcmp(variable , "abs(t0-oldt0)")==0){
     reshist10->GetZaxis()->SetRangeUser(0.0, 0.5);
   }
-  else if (variable == "(tres)"){
+  else if (strcmp(variable , "(tres)")==0){
     reshist10->GetZaxis()->SetRangeUser(3.1, 3.5);
   }
   this->Update();
   if(reshist10->GetEntries()>1)   ResizePalette(reshist10);
-  //SetZAxis(reshist10);
   char title1[500];  sprintf(title1,"Module %s (barrel side A)",variable);
   if (isAr) 	sprintf(title1,"Argon Module %s (barrel side A)",variable);
   reshist10->SetTitle(title1);
@@ -333,24 +333,23 @@ XYMaps::XYMaps(char* infile, char* variable, bool isAr = false) throw(string){
   TH2F *reshist0 = (TH2F*)gPad->GetPrimitive("reshist0");
   if (!reshist0) throw string("Variable not found!");
 
- if (variable == "res"){
+  if (strcmp(variable ,"res")==0){
     reshist0->GetZaxis()->SetRangeUser(0.130, 0.160);
   }
-  else if (variable == "abs(resMean)"){
+  else if (strcmp(variable ,"abs(resMean)")==0){
     reshist0->GetZaxis()->SetRangeUser(0.0, 0.010);
   }
-  else if (variable == "t0"){
+  else if (strcmp(variable , "t0")==0){
     reshist0->GetZaxis()->SetRangeUser(9.0, 11); 
   }
-  else if (variable == "abs(t0-oldt0)"){
+  else if (strcmp(variable , "abs(t0-oldt0)")==0){
     reshist0->GetZaxis()->SetRangeUser(0.0, 0.7);
   }
-  else if (variable == "(tres)"){
+  else if (strcmp(variable , "(tres)")==0){
     reshist0->GetZaxis()->SetRangeUser(2.9, 4);
   }
   this->Update();
   if(reshist0->GetEntries()>1)   ResizePalette(reshist0);
-  //SetZAxis(reshist0);
   char title2[500];  sprintf(title2,"Board %s (barrel side A)",variable);
   if(isAr) sprintf(title2,"Argon Board %s (barrel side A)",variable);
   reshist0->SetTitle(title2);
@@ -366,24 +365,23 @@ XYMaps::XYMaps(char* infile, char* variable, bool isAr = false) throw(string){
   if(isAr) 	sprintf(title3,"Argon Chip %s (barrel side A)",variable);
   t0hist0->SetTitle(title3);
 
- if (variable == "res"){
+  if (strcmp(variable ,"res")==0){
     t0hist0->GetZaxis()->SetRangeUser(0.115, 0.190);
   }
-  else if (variable == "abs(resMean)"){
+  else if (strcmp(variable ,"abs(resMean)")==0){
     t0hist0->GetZaxis()->SetRangeUser(0.0, 0.02);
   }
-  else if (variable == "t0"){
+  else if (strcmp(variable , "t0")==0){
     t0hist0->GetZaxis()->SetRangeUser(5.0, 13); 
   }
-  else if (variable == "abs(t0-oldt0)"){
+  else if (strcmp(variable , "abs(t0-oldt0)")==0){
     t0hist0->GetZaxis()->SetRangeUser(0.0, 1.5);
   }
-  else if (variable == "(tres)"){
+  else if (strcmp(variable , "(tres)")==0){
     t0hist0->GetZaxis()->SetRangeUser(2.5, 4.5);
   }
   this->Update();
   if(t0hist0->GetEntries()>1)   ResizePalette(t0hist0);
-  //SetZAxis(t0hist0);
   t0hist0->SetStats(0);
   t0hist0->GetXaxis()->SetLabelOffset(1000);
   t0hist0->GetYaxis()->SetLabelOffset(1000);
@@ -392,24 +390,23 @@ XYMaps::XYMaps(char* infile, char* variable, bool isAr = false) throw(string){
   Moduletuple->Draw("y:x>>reshist11(40,-1200,1200,40,-1200,1200)",selectionC,"colz");
   TH2F *reshist11 = (TH2F*)gPad->GetPrimitive("reshist11");
   if (!reshist11) throw string("Variable not found!");
-  if (variable == "res"){
+  if (strcmp(variable ,"res")==0){
     reshist11->GetZaxis()->SetRangeUser(0.135, 0.150);
   }
-  else if (variable == "abs(resMean)"){
+  else if (strcmp(variable ,"abs(resMean)")==0){
     reshist11->GetZaxis()->SetRangeUser(0.0, 0.007);
   }
-  else if (variable == "t0"){
+  else if (strcmp(variable , "t0")==0){
     reshist11->GetZaxis()->SetRangeUser(9.2, 10.8); 
   }
-  else if (variable == "abs(t0-oldt0)"){
+  else if (strcmp(variable , "abs(t0-oldt0)")==0){
     reshist11->GetZaxis()->SetRangeUser(0.0, 0.5);
   }
-  else if (variable == "(tres)"){
+  else if (strcmp(variable , "(tres)")==0){
     reshist11->GetZaxis()->SetRangeUser(3.1, 3.5);
   }
   this->Update();
   if(reshist11->GetEntries()>1)   ResizePalette(reshist11);
-  //SetZAxis(reshist11);
   char title4[500];  sprintf(title4,"Module %s (barrel side C)",variable);
   if(isAr) sprintf(title4,"Argon Module %s (barrel side C)",variable);
   reshist11->SetTitle(title4);
@@ -421,24 +418,23 @@ XYMaps::XYMaps(char* infile, char* variable, bool isAr = false) throw(string){
   Boardtuple->Draw("y:x>>reshist1(100,-1200,1200,100,-1200,1200)",selectionC,"colz");
   TH2F *reshist1 = (TH2F*)gPad->GetPrimitive("reshist1");
   if (!reshist1) throw string("Variable not found!");
- if (variable == "res"){
+ if (strcmp(variable , "res")==0){
     reshist1->GetZaxis()->SetRangeUser(0.130, 0.160);
   }
-  else if (variable == "abs(resMean)"){
+  else if (strcmp(variable , "abs(resMean)")==0){
     reshist1->GetZaxis()->SetRangeUser(0.0, 0.01);
   }
-  else if (variable == "t0"){
+  else if (strcmp(variable , "t0")==0){
     reshist1->GetZaxis()->SetRangeUser(9.0, 11); 
   }
-  else if (variable == "abs(t0-oldt0)"){
+  else if (strcmp(variable , "abs(t0-oldt0)")==0){
     reshist1->GetZaxis()->SetRangeUser(0.0, 0.7);
   }
-  else if (variable == "(tres)"){
+  else if (strcmp(variable,"(tres)")==0){
     reshist1->GetZaxis()->SetRangeUser(2.9, 4.0);
   }
   this->Update();
   if(reshist1->GetEntries()>1)   ResizePalette(reshist1);
-  //SetZAxis(reshist1);
   char title5[500];  sprintf(title5,"Board %s (barrel side C)",variable);
   if(isAr)	sprintf(title5,"Argon Board %s (barrel side C)",variable);
   reshist1->SetTitle(title5);
@@ -450,24 +446,23 @@ XYMaps::XYMaps(char* infile, char* variable, bool isAr = false) throw(string){
   Chiptuple->Draw("y:x>>t0hist1(300,-1200,1200,300,-1200,1200)",selectionC,"colz");
   TH2F *t0hist1 = (TH2F*)gPad->GetPrimitive("t0hist1");
   if (!t0hist1) throw string("Variable not found!");
- if (variable == "res"){
+ if (strcmp(variable,"res")==0){
     t0hist1->GetZaxis()->SetRangeUser(0.115, 0.190);
   }
-  else if (variable == "abs(resMean)"){
+  else if (strcmp(variable,"abs(resMean)")==0){
     t0hist1->GetZaxis()->SetRangeUser(0.0, 0.020);
   }
-  else if (variable == "t0"){
+  else if (strcmp(variable,"t0")==0){
     t0hist1->GetZaxis()->SetRangeUser(5.0, 13); 
   }
-  else if (variable == "abs(t0-oldt0)"){
+  else if (strcmp(variable,"abs(t0-oldt0)")==0){
     t0hist1->GetZaxis()->SetRangeUser(0.0, 1.5);
   }
-  else if (variable == "(tres)"){
+  else if (strcmp(variable ,"(tres)")==0){
     t0hist1->GetZaxis()->SetRangeUser(2.5, 4.5);
   }
   this->Update();
   if(t0hist1->GetEntries()>1)   ResizePalette(t0hist1);
-  //SetZAxis(t0hist1);
   char title6[500];  sprintf(title6,"Chip %s (barrel side C)",variable);
   if(isAr)	 sprintf(title6,"Argon Chip %s (barrel side C)",variable);
   t0hist1->SetTitle(title6);
@@ -483,16 +478,19 @@ XYMaps::XYMaps(char* infile, char* variable, bool isAr = false) throw(string){
 class T0CalTypeXY{
 public:
   T0CalTypeXY(TNtuple*, int, float);
+  
   void Draw(char*,bool);
   TGraph** graph;  
   TEventList** elist;
 };
 
 T0CalTypeXY::T0CalTypeXY(TNtuple* Levtuple, int detector, float markersize){
-  
+  T0CalTypeXY(const & T0CalTypeXY) = delete;
+  T0CalTypeXY & operator=(const T0CalTypeXY & ) = delete;
   float x,y,nt0,chp,brd,lay,mod,det;
   int color[7]={0,46,38,8,16,1,2};
-
+  //cppcheck-suppress noCopyConstructor
+  //cppcheck-suppress noOperatorEq
   graph = new TGraph*[6];
   elist = new TEventList*[6];
 
@@ -548,11 +546,7 @@ void T0CalTypeXY::Draw(char* title, bool plotleg){
   if (graph[4]->GetN()>0) graph[4]->Draw("p");
   if (graph[5]->GetN()>0) graph[5]->Draw("p");
   if (graph[6]->GetN()>0) graph[6]->Draw("p");
-  //cout << graph[0]->GetN() << endl;
-  //cout << graph[1]->GetN() << endl;
-  //cout << graph[2]->GetN() << endl;
-  //cout << graph[3]->GetN() << endl;
-  //cout << graph[4]->GetN() << endl;
+
   graph[0]->Clear();
   graph[0]->SetTitle(title);
 
@@ -667,7 +661,6 @@ ChipVariations::ChipVariations(char* infile, int detector){
   this->SetName(Form("ChipT0Var_%i",detector));
 
   TFile* file = new TFile(infile);
-  //cout << infile << endl;
   file->cd();
   TNtuple* Chiptuple=(TNtuple*)file->Get("Chiptuple");
 
@@ -676,8 +669,6 @@ ChipVariations::ChipVariations(char* infile, int detector){
   Chiptuple->SetBranchAddress("chp",&chip);
   Chiptuple->SetBranchAddress("dt0",&dt0);
 
-  //TGraphErrors* chg = new TGraphErrors();
-  //pro = new TProfile("","",104,0.5,104.5);
 
   int ic=0;
   for (int ibrd=0;ibrd<9;ibrd++){
@@ -689,13 +680,10 @@ ChipVariations::ChipVariations(char* infile, int detector){
     for (int ib=0;ib<elist->GetN();ib++){
       ic++;
       Chiptuple->GetEntry(elist->GetEntry(ib));
-      //cout << elist->GetEntry(ib) << " " << t0o << " " << mchip << endl;
       if (ibrd<2) mchip=(int)chip;
       if (ibrd>=2 && ibrd<5) mchip=(int)chip+21;
       if (ibrd>=5) mchip=(int)chip+21+33;
-      //chg->SetPoint(ic,mchip,t0o);
-      //chg->SetPointError(ic,0, sqrt((2*dt0)*(2*dt0)+(2*0.05)*(2*0.05)) );
-      //cout << mchip << " " << t0o << endl;
+   
       this->Fill(mchip,t0o);
     }
   }
@@ -937,7 +925,6 @@ BoardVariationsOldT0::BoardVariationsOldT0(char* infile, int det){
   this->SetName(Form("BoardOldT0Var_%i",det));
 
   TFile* file = new TFile(infile);
-  //cout << infile << endl;
   file->cd();
   TNtuple* Boardtuple=(TNtuple*)file->Get("Boardtuple");
 
@@ -955,7 +942,6 @@ BoardVariationsOldT0::BoardVariationsOldT0(char* infile, int det){
       for (int ib=0;ib<elist->GetN();ib++){
 	ipnt++;      
 	Boardtuple->GetEntry(elist->GetEntry(ib));
-	//cout << bindex+1 << " " << oldt0 << " " << dt0 << endl;
 	if (oldt0<miny) miny = oldt0;
         if (oldt0>maxy) maxy = oldt0;
 	this->SetPoint(ipnt,bindex+1,oldt0);
@@ -1258,7 +1244,6 @@ public:
   TGraph* rtgraph;
 };
 
-//DvGraph::DvGraph(char* infile, char* path,int det, int lay, bool isinverted){
 DvGraph::DvGraph(char* infile, char* path, char* folder, int det, int lay, bool isinverted){
   
   this->SetName(Form("Dv_%i_%i",det,lay));
@@ -1266,22 +1251,20 @@ DvGraph::DvGraph(char* infile, char* path, char* folder, int det, int lay, bool 
   vector<string> levels;
   string dum=string(path);
   while (true){
+    //cppcheck-suppress stlIfStrFind
     if((int)dum.find(",")<0) break;
     levels.push_back(dum.substr(0,dum.find(",")));
     dum=dum.substr(dum.find(",")+1,dum.size());
   }
   levels.push_back(dum.substr(0,dum.find(",")));
-  //for (int i=0; i<levels.size(); i++) cout << " " << levels.at(i);
-  //cout << endl;
+  
   
   TFile* file = new TFile(infile);
-  //cout << infile << endl;
   file->cd();
   
   TDirectory* trt = (TDirectory*) file->FindKey("TRT_all")->ReadObj();
-  if (folder!=""){
+  if (strcmp(folder,"")==0){
     TDirectory* det = (TDirectory*) trt->FindKey(folder)->ReadObj();
-    //cout << "PLOT FOR "<< folder <<endl;
     if (det->FindKey("rtgraph")){
       rtgraph= (TGraphErrors*) det  ->FindKey("rtgraph")->ReadObj();
     }
@@ -1296,53 +1279,21 @@ DvGraph::DvGraph(char* infile, char* path, char* folder, int det, int lay, bool 
     rtgraph=NULL;
   }
   
-  /*
-    TDirectory* trt = (TDirectory*) file->FindKey("TRT_all")->ReadObj();
-    TDirectory* det1 = (TDirectory*) trt->FindKey("Detector_-1")->ReadObj();
-    TDirectory* det2 = (TDirectory*) trt->FindKey("Detector_1")->ReadObj();
-    TDirectory* lay10 = (TDirectory*) det1->FindKey("Layer_-1_0")->ReadObj();
-    TDirectory* lay11 = (TDirectory*) det1->FindKey("Layer_-1_1")->ReadObj();
-    TDirectory* lay12 = (TDirectory*) det1->FindKey("Layer_-1_2")->ReadObj();
-    TDirectory* lay20 = (TDirectory*) det2->FindKey("Layer_1_0")->ReadObj();
-    TDirectory* lay21 = (TDirectory*) det2->FindKey("Layer_1_1")->ReadObj();
-    TDirectory* lay22 = (TDirectory*) det2->FindKey("Layer_1_2")->ReadObj();
-    
-    TGraph* trgraph=NULL;
-    if (det==-2 && lay==-1) {
-    if (trt  ->FindKey("rtgraph")) trgraph = (TGraph*) trt->FindKey("trgraph")->ReadObj(); 
-    }
-    
-    if (det==-2 && lay==-1) {if (trt  ->FindKey("rtgraph")) rtgraph= (TGraph*) trt  ->FindKey("rtgraph")->ReadObj(); else rtgraph=NULL;}
-    if (det==-1 && lay==-1) {if (det1 ->FindKey("rtgraph")) rtgraph= (TGraph*) det1 ->FindKey("rtgraph")->ReadObj(); else rtgraph=NULL;}
-    if (det== 1 && lay==-1) {if (det2 ->FindKey("rtgraph")) rtgraph= (TGraph*) det2 ->FindKey("rtgraph")->ReadObj(); else rtgraph=NULL;}
-    if (det==-1 && lay== 0) {if (lay10->FindKey("rtgraph")) rtgraph= (TGraph*) lay10->FindKey("rtgraph")->ReadObj(); else rtgraph=NULL;}
-    if (det==-1 && lay== 1) {if (lay11->FindKey("rtgraph")) rtgraph= (TGraph*) lay11->FindKey("rtgraph")->ReadObj(); else rtgraph=NULL;}
-    if (det==-1 && lay== 2) {if (lay12->FindKey("rtgraph")) rtgraph= (TGraph*) lay12->FindKey("rtgraph")->ReadObj(); else rtgraph=NULL;}
-    if (det== 1 && lay== 0) {if (lay20->FindKey("rtgraph")) rtgraph= (TGraph*) lay20->FindKey("rtgraph")->ReadObj(); else rtgraph=NULL;}
-    if (det== 1 && lay== 1) {if (lay21->FindKey("rtgraph")) rtgraph= (TGraph*) lay21->FindKey("rtgraph")->ReadObj(); else rtgraph=NULL;}
-    if (det== 1 && lay== 2) {if (lay22->FindKey("rtgraph")) rtgraph= (TGraph*) lay22->FindKey("rtgraph")->ReadObj(); else rtgraph=NULL;}
-  */
   if(rtgraph){
     
     TF1* rtfunc;
-    if (rtgraph) rtfunc = (TF1*)rtgraph->GetListOfFunctions()->First();
+    rtfunc = (TF1*)rtgraph->GetListOfFunctions()->First();
     
     double p0=rtfunc->GetParameter(0);
     double p1=rtfunc->GetParameter(1);
     double p2=rtfunc->GetParameter(2);
     double p3=rtfunc->GetParameter(3);
     
-    //cout << "  R-t PARAMETERS: " << p0 << " " << p1 << " " << p2 << " " << p3 << endl; 
     
     bool isdines=false;
-    //bool isdines=(string(trgraph->GetTitle()).find("Dines")!=string::npos);
-    //cout << string(trgraph->GetTitle()) << endl;
+
     
     if(isdines){
-      //cout << "  USING DINES R-t RELATION" << endl;  
-      //char* trrelation = "[1] - abs([2]*[0]) + [2] * sqrt([0]*[0] + x*x)";
-      //char* rtrelation = "sqrt( ( (x-([1]-abs([2]*[0])))*(x-([1]-abs([2]*[0])))/([2]*[2]) ) - [0]*[0])";
-      //char* vtrelation = "(x-[1]+abs([2]*[0]))/( [2]*[2]*sqrt( ( (x-([1]-abs([2]*[0])))*(x-([1]-abs([2]*[0])))/([2]*[2]) ) - [0]*[0])  )";
       char* vrrelation;
       if (isinverted) vrrelation = "x*[2]/sqrt([0]*[0]+x*x)";
       else vrrelation = "sqrt([0]*[0]+x*x)/(x*[2])";
@@ -1354,13 +1305,11 @@ DvGraph::DvGraph(char* infile, char* path, char* folder, int det, int lay, bool 
 	float r=0.1+(2.0-0.1)*(float)i/100;
 	float v1=vr1->Eval(r,0,0,0);
 	this->SetPoint(i,r,v1);
-	//cout << i << " " << r << " " << v1 << endl; 
       }
       
       vr1->Delete();
       
     } else {
-      //cout << "  USING POLYNOMIAL R-t RELATION" << endl;  
       
       char* rtrelation="[0]+x*([1]+x*([2]+x*[3]))";
       char* vtrelation;
@@ -1377,7 +1326,6 @@ DvGraph::DvGraph(char* infile, char* path, char* folder, int det, int lay, bool 
 	float t1=rt1->GetX(r,-10000,10000); 
 	float v1=vt1->Eval(t1,0,0,0);
 	this->SetPoint(i,r,v1);
-	//cout << i << " " << r << " " << t1 << " " << v1 << endl; 
       }
       
       rt1->Delete();  
@@ -1405,6 +1353,7 @@ DGraph::DGraph(char* infile, char* path, char* folder, int det, int lay, bool is
   vector<string> levels;
   string dum=string(path);
   while (true){
+    // cppcheck-suppress stlIfStrFind
     if((int)dum.find(",")<0) break;
     levels.push_back(dum.substr(0,dum.find(",")));
     dum=dum.substr(dum.find(",")+1,dum.size());
@@ -1415,9 +1364,8 @@ DGraph::DGraph(char* infile, char* path, char* folder, int det, int lay, bool is
   file->cd();
 
 TDirectory* trt = (TDirectory*) file->FindKey("TRT_all")->ReadObj();
-if (folder!=""){
+if (strcmp(folder,"")==0){
   TDirectory* det = (TDirectory*) trt->FindKey(folder)->ReadObj();
-  //cout << "PLOT FOR "<< folder <<endl;
                         if (det->FindKey("rtgraph")){
                                 rtgraph= (TGraphErrors*) det  ->FindKey("rtgraph")->ReadObj();
                         }
@@ -1434,25 +1382,19 @@ else{
 
   if(rtgraph){
 
-    TF1* rtfunc;
-    if (rtgraph) rtfunc = (TF1*)rtgraph->GetListOfFunctions()->First();
+    TF1* rtfunc = (TF1*)rtgraph->GetListOfFunctions()->First();
     
     double p0=rtfunc->GetParameter(0);
     double p1=rtfunc->GetParameter(1);
     double p2=rtfunc->GetParameter(2);
     double p3=rtfunc->GetParameter(3);
     
-    //cout << "  R-t PARAMETERS: " << p0 << " " << p1 << " " << p2 << " " << p3 << endl; 
     
     bool isdines=false;
-    //bool isdines=(string(trgraph->GetTitle()).find("Dines")!=string::npos);
-    //cout << string(trgraph->GetTitle()) << endl;
+
     
     if(isdines){
-      //cout << "  USING DINES R-t RELATION" << endl;  
-      //char* trrelation = "[1] - abs([2]*[0]) + [2] * sqrt([0]*[0] + x*x)";
-      //char* rtrelation = "sqrt( ( (x-([1]-abs([2]*[0])))*(x-([1]-abs([2]*[0])))/([2]*[2]) ) - [0]*[0])";
-      //char* vtrelation = "(x-[1]+abs([2]*[0]))/( [2]*[2]*sqrt( ( (x-([1]-abs([2]*[0])))*(x-([1]-abs([2]*[0])))/([2]*[2]) ) - [0]*[0])  )";
+      
       char* vrrelation;
       if (isinverted) vrrelation = "x*[2]/sqrt([0]*[0]+x*x)";
       else vrrelation = "sqrt([0]*[0]+x*x)/(x*[2])";
@@ -1464,7 +1406,6 @@ else{
 	float r=0.1+(2.0-0.1)*(float)i/100;
 	float v1=vr1->Eval(r,0,0,0);
 	this->SetPoint(i,r,v1);
-	//cout << i << " " << r << " " << v1 << endl; 
       }
       
       vr1->Delete();
@@ -1481,16 +1422,7 @@ else{
       rt1->SetParameters(p0,p1,p2,p3);
       TF1* vt1 = new TF1("vt-relation",vtrelation,-10000,10000);
       vt1->SetParameters(p1,p2,p3);
-     /* 
-      for (int i=0; i<=100; i++) {
-	float r=0.1+(2.0-0.1)*(float)i/100;      
-	float t1=rt1->GetX(r,-10000,10000); 
-	float v1=vt1->Eval(t1,0,0,0);
-	this->SetPoint(i,r,v1);
-	//this->SetPoint(i,r,rt1);
-	//cout << i << " " << r << " " << t1 << " " << v1 << endl; 
-      }
-*/
+
       for (int i=0; i<=1000; i++) {
        	float t1= -5+ i * 0.05 ; 
         float r1=rt1->Eval(t1,0,0,0);
@@ -1551,8 +1483,7 @@ RtGraphs::RtGraphs(char* infile, char* folder, bool isAr = false) throw(string){
   }
 
 
-  if (folder!=""){
-    //cout << "  PLOT FOR "<< folder <<endl;
+  if (strcmp(folder,"")==0){
     TDirectory* det = (TDirectory*) trt->FindKey(folder)->ReadObj();
     if (det->FindKey("rt-relation")){
       rthist= (TH2F*) det->FindKey("rt-relation")->ReadObj();
@@ -1582,7 +1513,6 @@ RtGraphs::RtGraphs(char* infile, char* folder, bool isAr = false) throw(string){
 
   }
   else if (trt->FindKey("rt-relation")){
-    //cout << "  PLOT FOR TRT"<< endl;
     rthist= (TH2F*) trt->FindKey("rt-relation")->ReadObj();
     this->cd();
     rthist->GetXaxis()->SetRangeUser(0,40);
@@ -1610,49 +1540,6 @@ RtGraphs::RtGraphs(char* infile, char* folder, bool isAr = false) throw(string){
   }
   
 
-  /*
-    TDirectory* trt = (TDirectory*) file->FindKey("TRT_all")->ReadObj();
-    TDirectory* det1 = (TDirectory*) trt->FindKey("Detector_-1")->ReadObj();
-  TDirectory* det2 = (TDirectory*) trt->FindKey("Detector_1")->ReadObj();
-  TDirectory* lay10 = (TDirectory*) det1->FindKey("Layer_-1_0")->ReadObj();
-  TDirectory* lay11 = (TDirectory*) det1->FindKey("Layer_-1_1")->ReadObj();
-  TDirectory* lay12 = (TDirectory*) det1->FindKey("Layer_-1_2")->ReadObj();
-  TDirectory* lay20 = (TDirectory*) det2->FindKey("Layer_1_0")->ReadObj();
-  TDirectory* lay21 = (TDirectory*) det2->FindKey("Layer_1_1")->ReadObj();
-  TDirectory* lay22 = (TDirectory*) det2->FindKey("Layer_1_2")->ReadObj();
-  
-  if (det==-2 && lay==-1) {if (trt  ->FindKey("rt-relation")) rthist= (TH1F*) trt  ->FindKey("rt-relation")->ReadObj(); else rthist=NULL;}
-  if (det==-1 && lay==-1) {if (det1 ->FindKey("rt-relation")) rthist= (TH1F*) det1 ->FindKey("rt-relation")->ReadObj(); else rthist=NULL;}
-  if (det== 1 && lay==-1) {if (det2 ->FindKey("rt-relation")) rthist= (TH1F*) det2 ->FindKey("rt-relation")->ReadObj(); else rthist=NULL;}
-  if (det==-1 && lay== 0) {if (lay10->FindKey("rt-relation")) rthist= (TH1F*) lay10->FindKey("rt-relation")->ReadObj(); else rthist=NULL;}
-  if (det==-1 && lay== 1) {if (lay11->FindKey("rt-relation")) rthist= (TH1F*) lay11->FindKey("rt-relation")->ReadObj(); else rthist=NULL;}
-  if (det==-1 && lay== 2) {if (lay12->FindKey("rt-relation")) rthist= (TH1F*) lay12->FindKey("rt-relation")->ReadObj(); else rthist=NULL;}
-  if (det== 1 && lay== 0) {if (lay20->FindKey("rt-relation")) rthist= (TH1F*) lay20->FindKey("rt-relation")->ReadObj(); else rthist=NULL;}
-  if (det== 1 && lay== 1) {if (lay21->FindKey("rt-relation")) rthist= (TH1F*) lay21->FindKey("rt-relation")->ReadObj(); else rthist=NULL;}
-  if (det== 1 && lay== 2) {if (lay22->FindKey("rt-relation")) rthist= (TH1F*) lay22->FindKey("rt-relation")->ReadObj(); else rthist=NULL;}  
-
-  if (det==-2 && lay==-1) {if (trt  ->FindKey("rtgraph")) rtgraph= (TGraphErrors*) trt  ->FindKey("rtgraph")->ReadObj(); else rtgraph=NULL;}
-  if (det==-1 && lay==-1) {if (det1 ->FindKey("rtgraph")) rtgraph= (TGraphErrors*) det1 ->FindKey("rtgraph")->ReadObj(); else rtgraph=NULL;}
-  if (det== 1 && lay==-1) {if (det2 ->FindKey("rtgraph")) rtgraph= (TGraphErrors*) det2 ->FindKey("rtgraph")->ReadObj(); else rtgraph=NULL;}
-  if (det==-1 && lay== 0) {if (lay10->FindKey("rtgraph")) rtgraph= (TGraphErrors*) lay10->FindKey("rtgraph")->ReadObj(); else rtgraph=NULL;}
-  if (det==-1 && lay== 1) {if (lay11->FindKey("rtgraph")) rtgraph= (TGraphErrors*) lay11->FindKey("rtgraph")->ReadObj(); else rtgraph=NULL;}
-  if (det==-1 && lay== 2) {if (lay12->FindKey("rtgraph")) rtgraph= (TGraphErrors*) lay12->FindKey("rtgraph")->ReadObj(); else rtgraph=NULL;}
-  if (det== 1 && lay== 0) {if (lay20->FindKey("rtgraph")) rtgraph= (TGraphErrors*) lay20->FindKey("rtgraph")->ReadObj(); else rtgraph=NULL;}
-  if (det== 1 && lay== 1) {if (lay21->FindKey("rtgraph")) rtgraph= (TGraphErrors*) lay21->FindKey("rtgraph")->ReadObj(); else rtgraph=NULL;}
-  if (det== 1 && lay== 2) {if (lay22->FindKey("rtgraph")) rtgraph= (TGraphErrors*) lay22->FindKey("rtgraph")->ReadObj(); else rtgraph=NULL;}  
-
-  if (det==-2 && lay==-1) {if (trt  ->FindKey("trgraph")) trgraph= (TGraphErrors*) trt  ->FindKey("trgraph")->ReadObj(); else trgraph=NULL;}
-  if (det==-1 && lay==-1) {if (det1 ->FindKey("trgraph")) trgraph= (TGraphErrors*) det1 ->FindKey("trgraph")->ReadObj(); else trgraph=NULL;}
-  if (det== 1 && lay==-1) {if (det2 ->FindKey("trgraph")) trgraph= (TGraphErrors*) det2 ->FindKey("trgraph")->ReadObj(); else trgraph=NULL;}
-  if (det==-1 && lay== 0) {if (lay10->FindKey("trgraph")) trgraph= (TGraphErrors*) lay10->FindKey("trgraph")->ReadObj(); else trgraph=NULL;}
-  if (det==-1 && lay== 1) {if (lay11->FindKey("trgraph")) trgraph= (TGraphErrors*) lay11->FindKey("trgraph")->ReadObj(); else trgraph=NULL;}
-  if (det==-1 && lay== 2) {if (lay12->FindKey("trgraph")) trgraph= (TGraphErrors*) lay12->FindKey("trgraph")->ReadObj(); else trgraph=NULL;}
-  if (det== 1 && lay== 0) {if (lay20->FindKey("trgraph")) trgraph= (TGraphErrors*) lay20->FindKey("trgraph")->ReadObj(); else trgraph=NULL;}
-  if (det== 1 && lay== 1) {if (lay21->FindKey("trgraph")) trgraph= (TGraphErrors*) lay21->FindKey("trgraph")->ReadObj(); else trgraph=NULL;}
-  if (det== 1 && lay== 2) {if (lay22->FindKey("trgraph")) trgraph= (TGraphErrors*) lay22->FindKey("trgraph")->ReadObj(); else trgraph=NULL;}  
-
-  if (det==-2 && lay==-1) {if (trt  ->FindKey("oldrtfunc")) oldrtfunc= (TF1*) trt  ->FindKey("oldrtfunc")->ReadObj(); else trgraph=NULL;}
-*/
   
   this->cd();
   this->Divide(2,1,0.01,0.01);
@@ -1671,21 +1558,14 @@ RtGraphs::RtGraphs(char* infile, char* folder, bool isAr = false) throw(string){
   if(rtgraph){
     
     double rgraph,tgraph;
-    //for (int ipnt=0; ipnt<=rtgraph->GetN(); ipnt++){
-    //  rtgraph->GetPoint(ipnt,rgraph,tgraph);
-    //  rtmap[tgraph]=rgraph;
-    //}
-
   
-    //gStyle->SetOptFit(0);    
-    if (folder == "" )    rtgraph->SetTitle("r(t) fit (whole TRT)");
+    if (strcmp(folder,"")==0 )    rtgraph->SetTitle("r(t) fit (whole TRT)");
     else{
       char name[500];  sprintf(name,"r(t) (%s)",titlemap[string(folder)].data());
       rtgraph->SetTitle(name);
     }
     rtgraph->GetXaxis()->SetTitle("t-T0/ns");
     rtgraph->GetYaxis()->SetTitle("|r|_{track}/mm");
-    //rtgraph->GetYaxis()->SetRangeUser(0,2.7);
     rtgraph->GetXaxis()->SetTitleSize(0.06);
     rtgraph->GetXaxis()->SetLabelSize(0.06);
     
@@ -1741,7 +1621,6 @@ RtGraphs::RtGraphs(char* infile, char* folder, bool isAr = false) throw(string){
       
       for (Int_t i=0; i<n; i++) {
 	x[i] = Xmin+i*dx;
-	//y[i] = (newRT->Eval(x[i]) - oldrtfunc->Eval(x[i]));
 	y[i] = ( oldrtfunc->Eval(x[i]) - newRT->Eval(x[i]));
 	if (y[i] > Ymax ) Ymax = y[i];
 	if (y[i] < Ymin ) Ymin = y[i];
@@ -1749,13 +1628,11 @@ RtGraphs::RtGraphs(char* infile, char* folder, bool isAr = false) throw(string){
       
       TGraph *gr1 = new TGraph (n, x, y);
       
-      //gStyle->SetOptTitle(0);
       gr1->SetTitle("");
       gr1->GetXaxis()->SetTitle("t-T0/ns");
       gr1->GetXaxis()->SetRangeUser(Xmin,Xmax);
       gr1->GetYaxis()->SetTitle("Old r(t) - New r(t) /mm");
       gr1->GetYaxis()->SetRangeUser(-0.1,0.1);
-      //gr1->GetYaxis()->SetRangeUser(1.1*Ymin,1.1*Ymax);
       gr1->GetYaxis()->SetNdivisions(5);
       gr1->GetXaxis()->SetTitleSize(0.06);
       gr1->GetXaxis()->SetLabelSize(0.06);
@@ -1775,7 +1652,6 @@ RtGraphs::RtGraphs(char* infile, char* folder, bool isAr = false) throw(string){
 	Y = 0;
 	rtgraph->GetPoint(i, X, Y) ;
 	x1[i] = X;
-	//y1[i] = newRT->Eval(X)  - Y;
 	y1[i] = Y - newRT->Eval(X);
 	ex1[i] = 0;
 	ey1[i] = rtgraph->GetErrorY(i);
@@ -1783,7 +1659,6 @@ RtGraphs::RtGraphs(char* infile, char* folder, bool isAr = false) throw(string){
 	if (y1[i] < Ymin ) Ymin = y1[i];
 	
       }
-      //gr1->Draw("APL");
       
       
       TGraphErrors *gr2 = new TGraphErrors (n1, x1, y1, ex1,ey1);
@@ -1792,7 +1667,6 @@ RtGraphs::RtGraphs(char* infile, char* folder, bool isAr = false) throw(string){
       gr2->SetTitle("");
       gr2->GetYaxis()->SetTitle("Old r(t) - New r(t) /mm");
 
-      //gr2->GetYaxis()->SetRangeUser(1.1*Ymin,1.1*Ymax);
       gr2->GetYaxis()->SetRangeUser(-0.2,0.2);
       gr2->GetXaxis()->SetRangeUser(-5,50);
 
@@ -1803,43 +1677,28 @@ RtGraphs::RtGraphs(char* infile, char* folder, bool isAr = false) throw(string){
 
       
     }
-    //TPaveStats *st = (TPaveStats*)rtgraph->GetListOfFunctions()->FindObject("stats");
-    //cout << "stat " << st << endl;
-    //st->SetX1NDC(0.5);
-    //st->SetX2NDC(0.5);
+   
   }
   
 
   this->cd(2);
   if(trgraph){
     //gStyle->SetOptFit(0001);    
-    if (folder == "" )    trgraph->SetTitle("t(r) fit (whole TRT)");
+    if (strcmp(folder,"")==0 )    trgraph->SetTitle("t(r) fit (whole TRT)");
     else{
       char name[500];  sprintf(name,"t(r) fit (%s)",titlemap[string(folder)].data());
       trgraph->SetTitle(name);
     }
     
     
-    //trgraph->SetTitle("t(r) fit (whole TRT)");
     trgraph->GetYaxis()->SetTitle("t-T0/ns");
     trgraph->GetXaxis()->SetTitle("|r|_{track}/mm");
-    //trgraph->GetYaxis()->SetRangeUser(0,32);
     trgraph->SetMarkerStyle(20);
     trgraph->SetMarkerSize(0.5);
     trgraph->Draw("ap");
-    
-    //TPaveStats *st = (TPaveStats*)rtgraph->GetListOfFunctions()->FindObject("stats");
-    //cout << "stat " << st << endl;
-    //st->SetX1NDC(0.5);
-    //st->SetX2NDC(0.5);
-    
-  }
   
-  //  if(rthist){
-  //    gStyle->SetPalette(1);
-  //    rthist->GetXaxis()->SetRangeUser(-10,50);
-  //    rthist->Draw("colz");
-  //  }
+  }
+
 
   gStyle->SetOptStat(1);
 
@@ -1857,9 +1716,8 @@ XYMapsEC::XYMapsEC(char* infile, char* variable,bool isAr = false){
 
   char selectionA[500];  sprintf(selectionA,"%s*(det==2)",variable);
   char selectionC[500];  sprintf(selectionC,"%s*(det==-2)",variable);
-  if (variable=="nt0") variable = "n hits";
+  if (strcmp(variable,"nt0")==0) variable = "n hits";
   TFile* file = new TFile(infile);
-  //cout << infile << endl;
   file->cd();
   TNtuple* Chiptuple    =       NULL;
   TNtuple* Boardtuple   =       NULL;
@@ -1887,7 +1745,6 @@ XYMapsEC::XYMapsEC(char* infile, char* variable,bool isAr = false){
   gStyle->SetPalette(1);
 
   this->cd(1);
-  //Moduletuple->Draw("y:x>>reshist10(40,-1200,1200,40,-1200,1200)",selectionA,"colz");
   Moduletuple->Draw("mod:lay>>reshist10(14,0,14,32,0,32)",selectionA,"colz");
   TH2F *reshist10 = (TH2F*)gPad->GetPrimitive("reshist10");
   this->Update();
@@ -1901,23 +1758,23 @@ XYMapsEC::XYMapsEC(char* infile, char* variable,bool isAr = false){
   reshist10->GetYaxis()->SetLabelOffset(1000);
   reshist10->GetXaxis()->SetTitle("Wheel (Z)");
   reshist10->GetYaxis()->SetTitle("Phi sector");
-  if (variable == "ftype"){
+  if (strcmp(variable,"ftype")==0){
     reshist10->GetZaxis()->SetRangeUser(1,6);
     reshist10->GetZaxis()->SetNdivisions(6);
   }
-  else if (variable == "res"){
+  else if (strcmp(variable,"res")==0){
     reshist10->GetZaxis()->SetRangeUser(0.125, 0.180);
   }
-  else if (variable == "abs(resMean)"){
+  else if (strcmp(variable,"abs(resMean)")==0){
     reshist10->GetZaxis()->SetRangeUser(0.0, 0.010);
   }
-  else if (variable == "t0"){
+  else if (strcmp(variable,"t0") ==0){
     reshist10->GetZaxis()->SetRangeUser(9.0, 11.0); 
   }
-  else if (variable == "abs(t0-oldt0)"){
+  else if (strcmp(variable,"abs(t0-oldt0)")==0){
     reshist10->GetZaxis()->SetRangeUser(0.0, 0.6);
   }
-  else if (variable == "tres"){
+  else if (strcmp(variable,"tres")==0){
     reshist10->GetZaxis()->SetRangeUser(2.9, 3.9);
   }
 
@@ -1939,23 +1796,23 @@ XYMapsEC::XYMapsEC(char* infile, char* variable,bool isAr = false){
   histC->GetYaxis()->SetLabelOffset(1000);
   histC->GetXaxis()->SetTitle("Chip number");
   histC->GetYaxis()->SetTitle("Phi sector");
-    if (variable == "ftype"){
+    if (strcmp(variable,"ftype")==0){
     histC->GetZaxis()->SetRangeUser(1,6);
     histC->GetZaxis()->SetNdivisions(6);
   }
-  else if (variable == "res"){
+  else if (strcmp(variable,"res")){
     histC->GetZaxis()->SetRangeUser(0.120, 0.200);
   }
-  else if (variable == "abs(resMean)"){
+  else if (strcmp(variable,"abs(resMean)")==0){
     histC->GetZaxis()->SetRangeUser(0.0, 0.05);
   }
-  else if (variable == "t0"){
+  else if (strcmp(variable,"t0")==0){
     histC->GetZaxis()->SetRangeUser(5, 18.0); 
   }
-  else if (variable == "abs(t0-oldt0)"){
+  else if (strcmp(variable,"abs(t0-oldt0)")==0){
     histC->GetZaxis()->SetRangeUser(0.0, 1.6);
   }
-  else if (variable == "(tres)"){
+  else if (strcmp(variable ,"(tres)")==0){
     histC->GetZaxis()->SetRangeUser(2.5, 4.5);
   }
   
@@ -1987,15 +1844,10 @@ XYMapsEC::XYMapsEC(char* infile, char* variable,bool isAr = false){
   reshist11->GetYaxis()->SetLabelOffset(1000);
   reshist11->GetXaxis()->SetTitle("Layer (Z)");
   reshist11->GetYaxis()->SetTitle("Phi sector");
-  if (variable == "ftype"){
+  if (strcmp(variable,"ftype")==0){
     reshist11->GetZaxis()->SetRangeUser(1,6);
     reshist11->GetZaxis()->SetNdivisions(6);
 
-//   TH2F *reshist121 = (TH2F*)gPad->GetPrimitive("reshist11");
-//   TH2F *reshist131 = (TH2F*)gPad->GetPrimitive("reshist11");
-//   TH2F *reshist141 = (TH2F*)gPad->GetPrimitive("reshist11");
-//   TH2F *reshist151 = (TH2F*)gPad->GetPrimitive("reshist11");
-//   TH2F *reshist161 = (TH2F*)gPad->GetPrimitive("reshist11");
 
     TLegend* leg = new TLegend(0.99,0.35,0.55,0.01,"T0 fit type");    
 
@@ -2033,19 +1885,19 @@ XYMapsEC::XYMapsEC(char* infile, char* variable,bool isAr = false){
     leg->SetTextSize(0.04);
     leg->Draw();
   }
-  else if (variable == "res"){
+  else if (strcmp(variable,"res")==0){
     reshist11->GetZaxis()->SetRangeUser(0.125, 0.180);
   }
-  else if (variable == "abs(resMean)"){
+  else if (strcmp(variable,"abs(resMean)")==0){
     reshist11->GetZaxis()->SetRangeUser(0.0, 0.010);
   }
-  else if (variable == "t0"){
+  else if (strcmp(variable, "t0")==0){
     reshist11->GetZaxis()->SetRangeUser(9.0, 11.0); 
   }
-  else if (variable == "abs(t0-oldt0)"){
+  else if (strcmp(variable,"abs(t0-oldt0)")==0){
     reshist11->GetZaxis()->SetRangeUser(0.0, 0.6);
   }
-  else if (variable == "tres"){
+  else if (strcmp(variable,"tres")==0){
     reshist11->GetZaxis()->SetRangeUser(2.9, 3.9);
   }
 
@@ -2064,23 +1916,23 @@ XYMapsEC::XYMapsEC(char* infile, char* variable,bool isAr = false){
   histC1->GetYaxis()->SetLabelOffset(1000);
   histC1->GetXaxis()->SetTitle("Chip number");
   histC1->GetYaxis()->SetTitle("Phi sector");
-  if (variable == "ftype"){
+  if (strcmp(variable, "ftype")==0){
     histC1->GetZaxis()->SetRangeUser(1,6);
     histC1->GetZaxis()->SetNdivisions(6);
   }
-  else if (variable == "res"){
+  else if (strcmp(variable, "res") == 0){
     histC1->GetZaxis()->SetRangeUser(0.120, 0.200);
   }
-  else if (variable == "abs(resMean)"){
+  else if (strcmp(variable, "abs(resMean)") == 0){
     histC1->GetZaxis()->SetRangeUser(0.0, 0.05);
   }
-  else if (variable == "t0"){
+  else if (strcmp(variable, "t0") == 0){
     histC1->GetZaxis()->SetRangeUser(5, 18.0); 
   }
-  else if (variable == "abs(t0-oldt0)"){
+  else if (strcmp(variable,"abs(t0-oldt0)") == 0){
     histC1->GetZaxis()->SetRangeUser(0.0, 1.6);
   }
-  else if (variable == "(tres)"){
+  else if (strcmp(variable, "(tres)") == 0){
     histC1->GetZaxis()->SetRangeUser(2.5, 4.5);
   }
 
@@ -2128,7 +1980,6 @@ RtColor::RtColor(char* infile, char* folder, bool isAr = false) throw(string){
   titlemap["Detector_Ar-2"]="end-cap A";
 
   TFile* file = new TFile(infile);
-  //cout << infile << endl;
 
   TPad*  c1_3 = new TPad("c1_3", "newpad",0.01,0.33,0.99,0.99);
   c1_3->Draw();
@@ -2141,17 +1992,14 @@ RtColor::RtColor(char* infile, char* folder, bool isAr = false) throw(string){
 
   file->cd();
   
-  //gStyle->SetOptFit(0001);    
   TDirectory* trt = NULL;
   if (!isAr)    trt = (TDirectory*) file->FindKey("TRT_all")->ReadObj();
   else          trt = (TDirectory*) file->FindKey("TRT_Ar_all")->ReadObj();
   
-  if (folder!=""){
+  if (strcmp(folder,"")==0){
     TDirectory* det = (TDirectory*) trt->FindKey(folder)->ReadObj();
-    //cout << "  PLOT FOR "<< folder <<endl;
     if (det->FindKey("rt-relation")){
       hist= (TH2F*) det->FindKey("rt-relation")->ReadObj();
-//      this->cd();
       hist->GetXaxis()->SetRangeUser(0,40);
       hist->GetYaxis()->SetRangeUser(0,2.4);
       char name[500];  sprintf(name,"r(t) for %s",titlemap[(string)folder].data());
@@ -2180,9 +2028,7 @@ RtColor::RtColor(char* infile, char* folder, bool isAr = false) throw(string){
     }  
   }
   else if (trt->FindKey("rt-relation")){
-    //cout << "  PLOT FOR TRT"<< endl;
     hist= (TH2F*) trt->FindKey("rt-relation")->ReadObj(); 
-    //this->cd();
     hist->GetXaxis()->SetRangeUser(0,40);
     hist->SetTitle("r(t) for whole TRT");
     if(isAr) hist->SetTitle("Argon r(t) for whole TRT");
@@ -2327,17 +2173,20 @@ ResidualPlots::ResidualPlots(TFile* file, bool isAr = false)  throw(string){
 
   if(!isAr){
    trt = (TDirectory*) file->FindKey("TRT_all")->ReadObj();
-   det1 = (TDirectory*) trt->FindKey("Detector_-1")->ReadObj();
-   det2 = (TDirectory*) trt->FindKey("Detector_1")->ReadObj();
-   det3 = (TDirectory*) trt->FindKey("Detector_-2")->ReadObj();
-   det4 = (TDirectory*) trt->FindKey("Detector_2")->ReadObj();
-  }
-  else {
+   if (trt){
+     det1 = (TDirectory*) trt->FindKey("Detector_-1")->ReadObj();
+     det2 = (TDirectory*) trt->FindKey("Detector_1")->ReadObj();
+     det3 = (TDirectory*) trt->FindKey("Detector_-2")->ReadObj();
+     det4 = (TDirectory*) trt->FindKey("Detector_2")->ReadObj();
+   }
+  } else {
    if (file->FindKey("TRT_Ar_all"))     trt  = (TDirectory*) file->FindKey("TRT_Ar_all")->ReadObj();
-   if (trt ->FindKey("Detector_Ar_-1")) det1 = (TDirectory*) trt->FindKey("Detector_Ar_-1")->ReadObj();
-   if (trt ->FindKey("Detector_Ar_1"))  det2 = (TDirectory*) trt->FindKey("Detector_Ar_1")->ReadObj();
-   if (trt ->FindKey("Detector_Ar_-2")) det3 = (TDirectory*) trt->FindKey("Detector_Ar_-2")->ReadObj();
-   if (trt ->FindKey("Detector_Ar_2"))  det4 = (TDirectory*) trt->FindKey("Detector_Ar_2")->ReadObj();
+   if (trt){
+     if (trt ->FindKey("Detector_Ar_-1")) det1 = (TDirectory*) trt->FindKey("Detector_Ar_-1")->ReadObj();
+     if (trt ->FindKey("Detector_Ar_1"))  det2 = (TDirectory*) trt->FindKey("Detector_Ar_1")->ReadObj();
+     if (trt ->FindKey("Detector_Ar_-2")) det3 = (TDirectory*) trt->FindKey("Detector_Ar_-2")->ReadObj();
+     if (trt ->FindKey("Detector_Ar_2"))  det4 = (TDirectory*) trt->FindKey("Detector_Ar_2")->ReadObj();
+   }
   }
 
   TH2F* reshist1=NULL;
@@ -2350,37 +2199,15 @@ ResidualPlots::ResidualPlots(TFile* file, bool isAr = false)  throw(string){
   TH2F* treshist3=NULL;
   TH2F* treshist4=NULL;
   TH2F* treshist5=NULL;
-/*
-  if (trt->FindKey("residual")) reshist1 = (TH2F*) trt->FindKey("residual")->ReadObj();
-  else throw(string("residual histograms not found!"));
-  if (det1->FindKey("residual")) reshist2 = (TH2F*) det1->FindKey("residual")->ReadObj();
-  else throw(string("residual histograms not found!"));
-  if (det2->FindKey("residual")) reshist3 = (TH2F*) det2->FindKey("residual")->ReadObj();
-  else throw(string("residual histograms not found!"));
-  if (det3->FindKey("residual")) reshist4 = (TH2F*) det3->FindKey("residual")->ReadObj();
-  else throw(string("residual histograms not found!"));
-  if (det4->FindKey("residual")) reshist5 = (TH2F*) det4->FindKey("residual")->ReadObj();
-  else throw(string("residual histograms not found!"));
 
-  if (trt->FindKey("timeresidual")) treshist1 = (TH2F*) trt->FindKey("timeresidual")->ReadObj();
-  else throw(string("timeresidual histograms not found!"));
-  if (det1->FindKey("timeresidual")) treshist2 = (TH2F*) det1->FindKey("timeresidual")->ReadObj();
-  else throw(string("timeresidual histograms not found!"));
-  if (det2->FindKey("timeresidual")) treshist3 = (TH2F*) det2->FindKey("timeresidual")->ReadObj();
-  else throw(string("timeresidual histograms not found!"));
-  if (det3->FindKey("timeresidual")) treshist4 = (TH2F*) det3->FindKey("timeresidual")->ReadObj();
-  else throw(string("timeresidual histograms not found!"));
-  if (det4->FindKey("timeresidual")) treshist5 = (TH2F*) det4->FindKey("timeresidual")->ReadObj();
-  else throw(string("timeresidual histograms not found!"));
-*/
 
- if (trt->FindKey("residual")) reshist1 = (TH2F*) trt->FindKey("residual")->ReadObj();
+ if (trt and trt->FindKey("residual")) reshist1 = (TH2F*) trt->FindKey("residual")->ReadObj();
  if(det1)  {if (det1->FindKey("residual")) reshist2 = (TH2F*) det1->FindKey("residual")->ReadObj();}
  if(det2)  {if (det2->FindKey("residual")) reshist3 = (TH2F*) det2->FindKey("residual")->ReadObj();}
  if(det3)  {if (det3->FindKey("residual")) reshist4 = (TH2F*) det3->FindKey("residual")->ReadObj();}
  if(det4)  {if (det4->FindKey("residual")) reshist5 = (TH2F*) det4->FindKey("residual")->ReadObj();}
 
-  if (trt->FindKey("timeresidual")) treshist1 = (TH2F*) trt->FindKey("timeresidual")->ReadObj();
+  if (trt and trt->FindKey("timeresidual")) treshist1 = (TH2F*) trt->FindKey("timeresidual")->ReadObj();
   if(det1)   {if (det1->FindKey("timeresidual")) treshist2 = (TH2F*) det1->FindKey("timeresidual")->ReadObj();}
   if(det2)   {if (det2->FindKey("timeresidual")) treshist3 = (TH2F*) det2->FindKey("timeresidual")->ReadObj();}
   if(det3)   {if (det3->FindKey("timeresidual")) treshist4 = (TH2F*) det3->FindKey("timeresidual")->ReadObj();}
@@ -2447,15 +2274,6 @@ ResidualPlots::ResidualPlots(TFile* file, bool isAr = false)  throw(string){
   mintxt->SetNDC(kTRUE);
 
   this->Divide(4,2);
-//  this->SetLogy();
-  // ((TPad*) this->GetPrimitive("resplots_1"))->SetLogy();  
-
-  //gStyle->SetOptFit(10);    
-  //gStyle->SetOptFit(0000);    
-
-  //TF1* test = (TF1*)treshist2->FindObject("gaus");
-  //test->SetParNames("C","M","S");
-
   this->cd(1);
 if(reshist2){
   reshist2->Draw();
@@ -2545,12 +2363,7 @@ TRTPlots::TRTPlots(TFile* file, bool isAr = false) throw(string){
 
   this->Divide(1,2,0.01,0.01);
   this->SetLogy();
-  // ((TPad*) this->GetPrimitive("resplots_1"))->SetLogy();  
-
-  //gStyle->SetOptFit(1011);    
-  //gStyle->SetOptStat(11);    
-  //gStyle->SetOptFit(0);    
-  //gStyle->SetOptStat(0);    
+ 
 
   this->cd(1);
   reshist1->Draw();
@@ -2566,25 +2379,19 @@ class TBinnedRes: public TCanvas{
 public: 
   TBinnedRes(TFile*,vector<TH1D*>);
 private:
-  TH1F* hist2;
+  TH1F* hist2{};
 };
 
 TBinnedRes::TBinnedRes(TFile* file, vector<TH1D*> reshists){
 
   this->Divide(((int)reshists.size())/5,5);
-  for (int ihist=0; ihist<(int)reshists.size(); ihist++){
+  for (int ihist=0; ihist<(int)reshists.size(); ++ihist){
     this->cd(ihist+1);
     reshists[ihist]->SetTitle("");
     reshists[ihist]->Draw();
     reshists[ihist]->GetYaxis()->SetRangeUser(0,1.1*reshists[ihist]->GetMaximum());
     TLine* zlin = new TLine(0,0,0,reshists[ihist]->GetMaximum()); zlin->SetLineStyle(2); zlin->SetLineColor(4); zlin->Draw();
   }
-
-   
-     
-  //gStyle->SetOptFit(0);    
-  //gStyle->SetOptStat(0);    
-
   this->SetGrid();
 }
 
@@ -2610,9 +2417,6 @@ RtBinning::RtBinning(TDirectory* file, char* detector){
     hist2->SetTitle("");
     hist2->Draw();
   }
-
-  //gStyle->SetOptFit(0);    
-  //gStyle->SetOptStat(0);    
 
   this->SetGrid();
 }
@@ -2649,12 +2453,7 @@ TDirectory* detdir = (TDirectory*) trt->FindKey(detname)->ReadObj();
   
   if(binhist){
 
-
     TVectorD* tbins = (TVectorD*)file->FindKey("tbins")->ReadObj();
-    //TVectorD* rbins = (TVectorD*)binhist->Get("rbins");
-
-    //cout << tbins << endl;
-    //tbins->Print();
     
     if(tbins){
 
@@ -2672,10 +2471,8 @@ TDirectory* detdir = (TDirectory*) trt->FindKey(detname)->ReadObj();
 	if (det==4) reshist = (TH1D*)binhist->Get(Form("res_tbin%i_bar",ihist));
 	else if (det==5) reshist = (TH1D*)binhist->Get(Form("res_tbin%i_trt",ihist));
 	else  reshist = (TH1D*)binhist->Get(Form("res_tbin%i_%i",ihist,det));
-	//double maxbin = reshist->GetBinCenter(reshist->GetMaximumBin());
 	double lolim = -0.1;//reshist->GetBinCenter(reshist->GetMaximumBin()-10);
 	double hilim = 0.1;//reshist->GetBinCenter(reshist->GetMaximumBin()+10);
-	//reshist->Fit("gaus","Q","",lolim,hilim);
 	
 	if (reshist->Fit(&ff,"Q","",lolim,hilim)+1) {
 	  rdata[ipoint]=ff.GetParameter(1);
@@ -2683,7 +2480,6 @@ TDirectory* detdir = (TDirectory*) trt->FindKey(detname)->ReadObj();
 	  tdata[ipoint]=(*tbins)[ihist];
 
 	  etdata[ipoint]=0;
-	  //printf("%f %f\n",ff.GetParameter(1),ff.GetParError(1));
 	  ipoint++;
 
 
@@ -2694,20 +2490,11 @@ TDirectory* detdir = (TDirectory*) trt->FindKey(detname)->ReadObj();
       }
       
       for (int ip=0; ip<ipoint; ip++){
-	//cout << rdata[ip]  << " ";
-	resmap[tdata[ip]]=rdata[ip];
+	      resmap[tdata[ip]]=rdata[ip];
       }
-      //cout << endl;
 
       thegraph = new TGraphErrors(ipoint,tdata,rdata,etdata,erdata);
 
-      //thegraph->Fit(ff2,"Q","",0,45);
-
-      //for (int ip=0; ip<=3; ip++){
-      //cout << ff2->GetParameter(ip) << endl;
-      //resmap[(double)ip]=ff2->GetParameter(ip);
-      //}
-      
       string detstr[8]={"endcap A","barrel A","","barrel C","endcap C","","whole barrel","whole TRT"};
 
       thegraph->SetMarkerStyle(20);
@@ -2733,8 +2520,8 @@ TDirectory* detdir = (TDirectory*) trt->FindKey(detname)->ReadObj();
 class FirstPage: public TCanvas{
 public: 
   FirstPage(char*, TFile*) throw(string);
-  float runnumber,t0offset;
-  int iter;
+  float runnumber{},t0offset{};
+  int iter{};
 private:
 };
 
@@ -2753,7 +2540,6 @@ FirstPage::FirstPage(char* filename, TFile* file) throw(string){
   if (!Tracktuple) throw(string("tracktuple not found!"));
 
   pt->AddText(" ");
-  //pt->AddText(Form("Dataset: %s",tag));
 
   if (string(filename).find("_histograms.root")!=string::npos) iter = atoi(string(filename).substr(string(filename).find("_histograms.root")-2,2).data());
   else iter=99;
@@ -2772,7 +2558,6 @@ FirstPage::FirstPage(char* filename, TFile* file) throw(string){
   pt->AddText(Form("Total no. tracks: %i",Tracktuple->GetEntries()));
 	
   if (!TRTtuple) throw(string("TRTtuple not found!"));
-  if (!TRTtuple) throw(string("Detectortuple not found!"));
 
   float tothits,bhits,bhits1,bhits2,bhits3,bhits4;
   float res, res1,res2,res3,res4;
@@ -2889,15 +2674,15 @@ SettingsInfo::SettingsInfo(char* filename) throw(string){
   if (myfile.is_open()){
     while (! myfile.eof() ){
       getline (myfile,line);
+      //cppcheck-suppress stlIfStrFind
       if (line.find("#") && line.find("Clean") && line.find("Submit") && line.find("Relink") && line.find("JobPrefix")  && line.find("Tag") && line.find("WWW")  )  {
 	int space = line.find_first_of(" ");
 	if (space!=-1){
-	  //pt->AddText(line.c_str());
 	  set[trim(line.substr(0,line.find("=")-1))]=trim(line.substr(line.find("=")+1,line.size()));
 	}
       }
     }
-    for (map<string,string>::iterator is = set.begin(); is != set.end(); is++){
+    for (map<string,string>::iterator is = set.begin(); is != set.end(); ++is){
       pt->AddText( (string(is->first + " . . . . . . . . . . . . " + is->second)).c_str() );
     }
     myfile.close();
@@ -4172,19 +3957,18 @@ int itersum(int argc, char* argv[]) {
   TBinnedRes* tbinnedres2=NULL;
   TBinnedRes* tbinnedres3=NULL;
   TBinnedRes* tbinnedres4=NULL;
-  //if (datafile->FindKey("binhist")){
-  cout << "MAKING Binned Residual" << endl; 
+  
+   cout << "MAKING Binned Residual" << endl; 
   binres_bar=new RresTbin(datafile,"WholeBarrel_1",4);
-  tbinnedres_bar=new TBinnedRes(datafile,binres_bar->reshists);
+  if (binres_bar) tbinnedres_bar=new TBinnedRes(datafile,binres_bar->reshists);
   binres1=new RresTbin(datafile,"Detector_-1",-1);
-  tbinnedres1=new TBinnedRes(datafile,binres1->reshists);
+  if (binres1 ) tbinnedres1=new TBinnedRes(datafile,binres1->reshists);
   binres2=new RresTbin(datafile,"Detector_1",1);
-  tbinnedres2=new TBinnedRes(datafile,binres2->reshists);
+  if (binres2) tbinnedres2=new TBinnedRes(datafile,binres2->reshists);
   binres3=new RresTbin(datafile,"Detector_-2",-2);
-  tbinnedres3=new TBinnedRes(datafile,binres3->reshists);
+  if (binres3) tbinnedres3=new TBinnedRes(datafile,binres3->reshists);
   binres4=new RresTbin(datafile,"Detector_2",2);
-  tbinnedres4=new TBinnedRes(datafile,binres4->reshists);
-  //}
+  if (binres4) tbinnedres4=new TBinnedRes(datafile,binres4->reshists);
   
   RtColor* rtcol=NULL;
   RtColor* rtcol1=NULL;
@@ -4288,22 +4072,9 @@ int itersum(int argc, char* argv[]) {
   TBinnedRes* tbinnedArres4=NULL;
 
    cout << "MAKING RT Binned Residual" << endl;
-/*
-  TDirectory* trtAr = (TDirectory*) datafile->FindKey("TRT_Ar_all")->ReadObj();
-  if (trtAr->FindKey("WholeBarrel_Ar_1"))       binresAr_bar_bar        =       new RresTbin(datafile,"WholeBarrel_Ar_1",4, true);
-  if (trtAr->FindKey("Detector_Ar_-1"))         binresAr_bar1           =       new RresTbin(datafile,"Detector_Ar_-1",-1, true);
-  if (trtAr->FindKey("Detector_Ar_1"))          binresAr_bar2           =       new RresTbin(datafile,"Detector_Ar_1",1,true);
-  if (trtAr->FindKey("Detector_Ar_-2"))         binresAr_bar3           =       new RresTbin(datafile,"Detector_Ar_-2",-2,true);
-  if (trtAr->FindKey("Detector_Ar_2"))          binresAr_bar4           =       new RresTbin(datafile,"Detector_Ar_2",2,true);
-*/
+
   cout << "MAKING RT Binned Abs Residual" << endl;
-/*
-  tbinnedArres_bar      =       new TBinnedRes(datafile,binresAr_bar_bar->reshists);
-  tbinnedArres1         =       new TBinnedRes(datafile,binresAr_bar1->reshists);
-  tbinnedArres2         =       new TBinnedRes(datafile,binresAr_bar2->reshists);
-  tbinnedArres3         =       new TBinnedRes(datafile,binresAr_bar3->reshists);
-  tbinnedArres4         =       new TBinnedRes(datafile,binresAr_bar4->reshists);
-*/
+
 
   RtColor* rtArcol=NULL;
   RtColor* rtArcol1=NULL;
@@ -4584,12 +4355,6 @@ if(do_expert){
 
   textpage = new TextPage(" RT PLOTS "); textpage->Print("itersum.ps"); c1->Clear();	
 
-  //rtrelation11->Print("itersum.ps");
-  //c1->Clear();
-
-
-
-
   gStyle->SetOptStat(1);
   gStyle->SetOptFit(0);
 if(do_expert)    if (rtrelation_bar) 	rtrelation_bar->Print("itersum.ps"); 	c1->Clear();
@@ -4651,19 +4416,20 @@ if(do_expert)  if (rtcol1) rtcol1->Print("itersum.ps"); c1->Clear();
     if(trt->FindKey("Detector_2"))        dgraph3 = new DGraph(argv[2],"-2,-1","Detector_2",1,-1,isinverted);
     if(trt->FindKey("Detector_-2"))        dgraph4 = new DGraph(argv[2],"-2,-1","Detector_-2",1,-1,isinverted);
     
+    if (not dgraph0) throw string("dgraph pointer is null at this point");
     dgraph0->GetXaxis()->SetRangeUser(-5,45);
     TLegend* leg = new TLegend(0.8,0.8,0.98,0.95);
-    if (dgraph0!=NULL){
-      dgraph0->SetLineWidth(3);
-      dgraph0->SetLineColor(1);
-      if (isinverted) dgraph0->SetTitle("r(t)");
-      else dgraph0->SetTitle("r(t)");
-      dgraph0->GetXaxis()->SetTitle("t/ns");
-      if (isinverted) dgraph0->GetYaxis()->SetTitle("R / (mm)");
-      else dgraph0->GetYaxis()->SetTitle("R / (mm)");
-      if (dgraph0->rtgraph) dgraph0->Draw("apl");
-      if (dgraph0->rtgraph) leg->AddEntry(dgraph0,"Whole TRT","l");
-    }
+    
+    dgraph0->SetLineWidth(3);
+    dgraph0->SetLineColor(1);
+    if (isinverted) dgraph0->SetTitle("r(t)");
+    else dgraph0->SetTitle("r(t)");
+    dgraph0->GetXaxis()->SetTitle("t/ns");
+    if (isinverted) dgraph0->GetYaxis()->SetTitle("R / (mm)");
+    else dgraph0->GetYaxis()->SetTitle("R / (mm)");
+    if (dgraph0->rtgraph) dgraph0->Draw("apl");
+    if (dgraph0->rtgraph) leg->AddEntry(dgraph0,"Whole TRT","l");
+  
     if (dgraph1!=NULL){
       dgraph1->SetLineWidth(3);
       dgraph1->SetLineColor(3);
@@ -4728,6 +4494,7 @@ if(do_expert)  if (rtcol1) rtcol1->Print("itersum.ps"); c1->Clear();
     if(trt->FindKey("Detector_2"))        dvgraph3 = new DvGraph(argv[2],"-2,-1","Detector_2",1,-1,isinverted);
     if(trt->FindKey("Detector_-2"))        dvgraph4 = new DvGraph(argv[2],"-2,-1","Detector_-2",1,-1,isinverted);
     
+    if (not dvgraph0) throw string("dvgraph0 ptr is null");
     dvgraph0->GetXaxis()->SetRangeUser(0,2);
     TLegend* leg = new TLegend(0.8,0.8,0.98,0.95);
     if (dvgraph0!=NULL){

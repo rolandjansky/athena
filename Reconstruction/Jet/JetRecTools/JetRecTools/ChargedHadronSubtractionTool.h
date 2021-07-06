@@ -24,6 +24,9 @@
 #include "xAODPFlow/PFOContainer.h"
 #include "xAODPFlow/FlowElementContainer.h"
 
+#include "AsgDataHandles/ReadHandleKey.h"
+
+
 class ChargedHadronSubtractionTool : public JetConstituentModifierBase{
   ASG_TOOL_CLASS(ChargedHadronSubtractionTool, IJetConstituentModifier)
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #==============================================================
 #
 # Job options file for Digitization
@@ -137,10 +137,6 @@ if DetFlags.LAr_on():
     from LArG4H6SD.LArG4H6SDToolsConf import LArTBH6TriggerTimeTool
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += LArTBH6TriggerTimeTool()
-    from LArRecUtils.LArOFCToolDefault import LArOFCToolDefault
-    theLArOFCTool = LArOFCToolDefault()
-    theLArOFCTool.FromDatabase=False
-    ToolSvc += theLArOFCTool
     ToolSvc.LArTBH6TriggerTimeTool.isFixed=True
     ToolSvc.LArTBH6TriggerTimeTool.FixedTime = 83.  #maybe this one
     ToolSvc.LArTBH6TriggerTimeTool.OutputLevel = 4
@@ -192,5 +188,4 @@ MessageSvc.verboseLimit  = 100000000
 MessageSvc.debugLimit  = 100000000
 AthenaEventLoopMgr = Service( "AthenaEventLoopMgr" )
 AthenaEventLoopMgr.OutputLevel = 5 #get event printout
-ToolSvc.LArOFCToolDefault.OutputLevel = 5
 

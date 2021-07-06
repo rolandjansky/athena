@@ -6,7 +6,7 @@
 
 @page MuonAlignExample_page MuonAlignExample
 
-@author Robert Harrington 
+@author Robert Harrington
 
 
 */

@@ -167,7 +167,7 @@ Trk::BoundaryCheckResult InDet::InDetBoundaryCheckTool::boundaryCheckSiElement(
     } else if (m_useSCT.value() && m_atlasId->is_sct(id)) {
         alive = isAliveSCT(siElement, parameters);
     } else {
-        ATH_MSG_WARNING("Unsupported identifier type!");
+        ATH_MSG_WARNING("Unsupported identifier type! "+m_atlasId->print_to_string(id));
         return Trk::BoundaryCheckResult::Error;
     }
 

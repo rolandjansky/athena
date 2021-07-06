@@ -1,12 +1,13 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // PhysValBTag.h
 // Header file for class PhysValBTag
 // Author: E.Schopf<elisabeth.schopf@cern.ch>
+// Updates: J.Hoefer <judith.hoefer@cern.ch>
 ///////////////////////////////////////////////////////////////////
 #ifndef JETTAGDQA_PHYSVALBTag_H
 #define JETTAGDQA_PHYSVALBTag_H 1
@@ -22,6 +23,8 @@
 #include "TrkValHistUtils/PlotBase.h"
 #include "BTaggingValidationPlots.h"
 
+#include "InDetTrackSystematicsTools/InDetTrackTruthOriginTool.h"
+
 // Root includes
 #include "TH1.h"
 
@@ -36,9 +39,9 @@ namespace JetTagDQA {
     // Public methods:
     ///////////////////////////////////////////////////////////////////
   public:
-    double PV_x;
-    double PV_y;
-    double PV_z;
+    double m_PV_x = -999.;
+    double m_PV_y = -999.;
+    double m_PV_z = -999.;
     // Copy constructor:
 
     /// Constructor with parameters:
@@ -59,6 +62,7 @@ namespace JetTagDQA {
     ///////////////////////////////////////////////////////////////////
     // Const methods:
     ///////////////////////////////////////////////////////////////////
+    std::map<const xAOD::TrackParticle*, int> getTrackTruthAssociations(const xAOD::BTagging* btag) const;
 
     ///////////////////////////////////////////////////////////////////
     // Non-const methods:
@@ -73,34 +77,42 @@ namespace JetTagDQA {
     /// Default constructor:
     PhysValBTag();
 
+    ToolHandle<InDet::IInDetTrackTruthOriginTool> m_trackTruthOriginTool{this, "trackTruthOriginTool", "InDet::InDetTrackTruthOriginTool"};
+
     // isData flag
     bool m_isData;
+    bool m_doTrackTruth = true;
 
     // Containers
     std::string m_jetName1;
     std::string m_jetName2;
     std::string m_jetName3;
-    std::string m_jetName4;
-    std::string m_jetName5;
 
     std::string m_trackName;
     std::string m_vertexName;
 
-    // Hists
-    //  JetTagDQA::BTaggingValidationPlots m_jetPlots;
-    //  PhysVal::TrkAndVtxPlots m_trkvtxPlots;
-
     std::map<std::string, JetTagDQA::BTaggingValidationPlots> m_btagplots;
+    
+    // histogram definitions
+    // the first one is a vector because I can only pass vectors from the joboptions to the algs (and no maps)
+    Gaudi::Property< std::vector< std::vector< std::string > > > m_HistogramDefinitionsVector {this, "HistogramDefinitions", {}, "Map with histogram definitions"};
+    // have a useful map nevertheless
+    std::map< std::string, std::vector< std::string > > m_HistogramDefinitionsMap;
 
-    JetTagDQA::BTaggingValidationPlots m_antiKt2PV0TrackJetPlots;
-    JetTagDQA::BTaggingValidationPlots m_antiKt4PV0TrackJetPlots;
+    float m_jetPtCut = -1;
+    bool m_onZprime = false;
+    float m_jetPtCutTtbar;
+    float m_jetPtCutZprime;
+    float m_JVTCutAntiKt4EMTopoJets;
+    float m_JVTCutLargerEtaAntiKt4EMTopoJets;
+    float m_JVTCutAntiKt4EMPFlowJets;
+    float m_truthMatchProbabilityCut;
+
     JetTagDQA::BTaggingValidationPlots m_antiKt4EMTopoPlots;
-    JetTagDQA::BTaggingValidationPlots m_antiKtVR30Rmax4Rmin02TrackJetsPlots;
     JetTagDQA::BTaggingValidationPlots m_antiKt4EMPFlowJetsPlots;
+    JetTagDQA::BTaggingValidationPlots m_antiKtVR30Rmax4Rmin02PV0TrackJetsPlots;
 
     int m_nevents;
-    //int m_nTruthB;
-    //int m_nTruthNonB;
 
     StatusCode book(PlotBase& plots);
   };

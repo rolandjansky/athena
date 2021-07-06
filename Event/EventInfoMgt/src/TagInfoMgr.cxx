@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -55,8 +55,6 @@ TagInfoMgr::~TagInfoMgr()
 StatusCode
 TagInfoMgr::queryInterface( const InterfaceID& riid, void** ppvInterface ) 
 {
-    ATH_MSG_DEBUG("in queryInterface()");
-
     if ( ITagInfoMgr::interfaceID().versionMatch(riid) ) {
         ATH_MSG_DEBUG("matched ITagInfoMgr");
         *ppvInterface = (ITagInfoMgr*)this;
@@ -65,7 +63,6 @@ TagInfoMgr::queryInterface( const InterfaceID& riid, void** ppvInterface )
         // Interface is not directly available: try out a base class
         return(::AthService::queryInterface(riid, ppvInterface));
     }
-
     return StatusCode::SUCCESS;
 }
 
@@ -617,7 +614,12 @@ void
 TagInfoMgr::notifyListeners() const
 {
    ATH_MSG_DEBUG( "notifyListeners  (" << m_listeners.size() <<" registered)");
-   for( auto listener : m_listeners ) {
+
+   m_mutex.lock_shared();
+   const auto listeners = m_listeners;
+   m_mutex.unlock_shared();
+
+   for( auto listener : listeners ) {
       listener->tagInfoUpdated();
    }
 }
@@ -631,6 +633,7 @@ TagInfoMgr::updateTagInfo() {
     //   the currently available EventInfo object
 
     ATH_MSG_DEBUG( "updateTagInfo: getting /TagInfo");
+    std::unique_lock guard(m_mutex);
 
     // Check whether TagInfo is coming from file meta data or the
     // input event
@@ -676,10 +679,8 @@ StatusCode
 TagInfoMgr::addTag(const std::string& tagName, const std::string& tagValue)
 {
     // Add name/value to input vector
-    ATH_MSG_DEBUG("addTag - adding name/value pairs: "
-          << tagName << " " << tagValue);
-
-    //FIXME: Add a mutex here!
+    ATH_MSG_DEBUG("addTag - adding name/value pairs: " << tagName << " " << tagValue);
+    std::unique_lock  guard( m_mutex );
     m_extraTagValuePairsViaInterface[tagName]=tagValue;
     return StatusCode::SUCCESS;
 }
@@ -691,8 +692,8 @@ StatusCode
 TagInfoMgr::removeTagFromInput(const std::string& tagName)
 {
     // Add name/value to input vector
-    ATH_MSG_DEBUG( "removeTagFromInput - adding tag name to be removed: "
-          << tagName);
+    ATH_MSG_DEBUG( "removeTagFromInput - adding tag name to be removed: " << tagName);
+    std::unique_lock  guard( m_mutex );
     m_tagsToBeRemoved.insert(tagName);
     return StatusCode::SUCCESS;
 }
@@ -700,6 +701,7 @@ TagInfoMgr::removeTagFromInput(const std::string& tagName)
 //______________________________________________________________________________
 std::string TagInfoMgr::findTag(const std::string & name) const
 {
+   std::shared_lock guard(m_mutex);
    const auto iter = m_extraTagValuePairsViaInterface.find(name);
    if( iter != m_extraTagValuePairsViaInterface.end() ) {
       return iter->second;
@@ -710,6 +712,7 @@ std::string TagInfoMgr::findTag(const std::string & name) const
 //______________________________________________________________________________
 std::string TagInfoMgr::findInputTag(const std::string & name) const
 {
+   std::shared_lock guard(m_mutex);
    return m_tagInfo.findInputTag(name);
 }
 
@@ -717,6 +720,7 @@ std::string TagInfoMgr::findInputTag(const std::string & name) const
 ITagInfoMgr::NameTagPairVec
 TagInfoMgr::getInputTags() const
 {
+   std::shared_lock guard(m_mutex);
    return m_tagInfo.getInputTags();
 }
 
@@ -724,6 +728,7 @@ TagInfoMgr::getInputTags() const
 std::string 
 TagInfoMgr::dumpTagInfoToStr() const
 {
+   std::shared_lock guard(m_mutex);
    return m_tagInfo.str();
 }
 
@@ -731,6 +736,7 @@ TagInfoMgr::dumpTagInfoToStr() const
 void
 TagInfoMgr::printTags(MsgStream& log) const
 {
+   std::shared_lock guard(m_mutex);
    m_tagInfo.printTags(log);
 }
 
@@ -746,6 +752,7 @@ TagInfoMgr::iovCallback(IOVSVC_CALLBACK_ARGS)
 //______________________________________________________________________________
 void TagInfoMgr::addListener(Listener* listener)
 {
+   std::unique_lock guard(m_mutex);
    if( not m_detStore->contains<std::string>(IOVCbkObjKey)  ) {
       ATH_MSG_DEBUG("adding IOV callback object to DetStore");
       auto alignObj = std::make_unique<std::string>("Geometry aligment callbck trigger object");
@@ -778,6 +785,7 @@ void TagInfoMgr::addListener(Listener* listener)
 //______________________________________________________________________________
 void TagInfoMgr::removeListener(Listener* listener)
 {
+   std::unique_lock guard(m_mutex);
    m_listeners.erase( listener );
 }
 

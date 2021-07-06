@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_SUITE(SCT_ID_Test)
     const int nWafersUsingIterator = std::accumulate(sctId.wafer_begin(), sctId.wafer_end(), 0,[](int s, Identifier ){return s+1;});
     BOOST_TEST(nWafersUsingIterator == 8176);
     //expanded iterator usage
-    const int nStripsUsingIterator = std::accumulate(sctId.strip_begin(), sctId.strip_end(), 0,[](int s, ExpandedIdentifier ){return s+1;});
+    const int nStripsUsingIterator = std::accumulate(sctId.strip_begin(), sctId.strip_end(), 0,[](int s, const ExpandedIdentifier& ){return s+1;});
     BOOST_TEST(nStripsUsingIterator == 8176 * 6 * 128);
     //complete test, more-or-less equivalent to "test wafer packing" in original code
     auto context = sctId.wafer_context();

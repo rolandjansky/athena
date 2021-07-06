@@ -2,30 +2,29 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <iostream>
-#include <cstdlib>
-
 #include <AsgMessaging/MessageCheck.h>
 
-int main()
-{
-  using namespace asg::msgUserCode;
+#include <cstdlib>
+#include <iostream>
 
-  ATH_MSG_INFO ("Unit test for MuonSelectorTools on data");
+int main() {
+    using namespace asg::msgUserCode;
 
-  // Full `env` makes log file diffs useless.  Check if the input file changed, though - points us quickly to an issue.
-  ATH_MSG_INFO ("Test files");
-  system("env | grep ASG_TEST_FILE_ | sort");
+    ATH_MSG_INFO("Unit test for MuonSelectorTools on data");
 
-  std::string cmd("MuonSelectorToolsTester $ASG_TEST_FILE_DATA");
-  ATH_MSG_INFO ("Will now run this command: " << cmd);
-  int ret = system(cmd.c_str());
+    // Full `env` makes log file diffs useless.  Check if the input file changed, though - points us quickly to an issue.
+    ATH_MSG_INFO("Test files");
+    system("env | grep ASG_TEST_FILE_ | sort");
 
-  if (ret != 0) {
-    ATH_MSG_ERROR ("Test failed (return code was " << ret << ")");
-    return 1;
-  }
+    std::string cmd("MuonSelectorToolsTester $ASG_TEST_FILE_DATA");
+    ATH_MSG_INFO("Will now run this command: " << cmd);
+    int ret = system(cmd.c_str());
 
-  ATH_MSG_INFO ("Finished (return code was " << ret << ")");
-  return 0;
+    if (ret != 0) {
+        ATH_MSG_ERROR("Test failed (return code was " << ret << ")");
+        return 1;
+    }
+
+    ATH_MSG_INFO("Finished (return code was " << ret << ")");
+    return 0;
 }

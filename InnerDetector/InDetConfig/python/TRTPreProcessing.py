@@ -82,7 +82,7 @@ def InDetTRT_DriftFunctionToolCfg(flags, useTimeInfo, usePhase, name = "InDetTRT
                             -0.328962, -0.403399, -0.663656, -1.029428, -1.46008, -1.919092, -2.151582, -2.285481, -2.036822, -2.15805])
                     
     # Second calibration DB Service in case pile-up and physics hits have different calibrations
-    if flags.Detector.RecoTRT:
+    if flags.Detector.EnableTRT:
         from InDetOverlay.TRT_ConditionsConfig import TRT_CalDbToolCfg
         InDetTRTCalDbTool2 = acc.popToolsAndMerge(TRT_CalDbToolCfg(flags))
         acc.addPublicTool(InDetTRTCalDbTool2)
@@ -251,10 +251,11 @@ def InDetTRT_RIO_MakerPUCfg(flags, useTimeInfo, usePhase, prefix, collectionPU, 
 def TRTPreProcessingCfg(flags, useTimeInfo = True, usePhase = False, **kwargs):
     acc = ComponentAccumulator()
 
-    from PixelConditionsAlgorithms.PixelConditionsConfig import (PixelChargeCalibCondAlgCfg, PixelConfigCondAlgCfg, PixelCablingCondAlgCfg, PixelReadoutSpeedAlgCfg)
+    from PixelConditionsAlgorithms.PixelConditionsConfig import (PixelChargeCalibCondAlgCfg, PixelConfigCondAlgCfg, PixelDeadMapCondAlgCfg, PixelCablingCondAlgCfg, PixelReadoutSpeedAlgCfg)
 
-    acc.merge(PixelChargeCalibCondAlgCfg(flags))
     acc.merge(PixelConfigCondAlgCfg(flags))
+    acc.merge(PixelDeadMapCondAlgCfg(flags))
+    acc.merge(PixelChargeCalibCondAlgCfg(flags))
     acc.merge(PixelCablingCondAlgCfg(flags))
     acc.merge(PixelReadoutSpeedAlgCfg(flags))
 
@@ -301,7 +302,7 @@ if __name__ == "__main__":
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files=defaultTestFiles.RDO
 
-    ConfigFlags.Detector.RecoTRT = True
+    # TODO: TRT only?
 
     numThreads=1
     ConfigFlags.Concurrency.NumThreads=numThreads
@@ -318,9 +319,6 @@ if __name__ == "__main__":
 
     from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
     top_acc.merge(TRT_GeometryCfg( ConfigFlags ))
-
-    msgService = top_acc.getService('MessageSvc')
-    msgService.Format = "S:%s E:%e % F%138W%S%7W%R%T  %0W%M"
 
     from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
     from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg

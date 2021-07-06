@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaOutputStream.h"
@@ -11,14 +11,17 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/IProperty.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/AlgTool.h"
 
-#include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IAthenaOutputTool.h"
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
 #include "AthenaKernel/IItemListSvc.h"
+#include "AthenaKernel/IDictLoaderSvc.h"
+#include "AthenaKernel/ITPCnvSvc.h"
+#include "AthenaKernel/ITPCnvBase.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/WriteHandle.h"
@@ -159,6 +162,8 @@ AthenaOutputStream::AthenaOutputStream(const string& name, ISvcLocator* pSvcLoca
         m_currentStore(&m_dataStore),
         m_itemSvc("ItemListSvc", name),
 	m_metaDataSvc("MetaDataSvc", name),
+	m_dictLoader("AthDictLoaderSvc", name),
+        m_tpCnvSvc("AthTPCnvSvc", name),
 	m_outputAttributes(),
         m_pCLIDSvc("ClassIDSvc", name),
         m_outSeqSvc("OutputStreamSequencerSvc", name),
@@ -225,6 +230,9 @@ StatusCode AthenaOutputStream::initialize() {
    // set up the CLID service:
    ATH_CHECK( m_pCLIDSvc.retrieve() );
 
+   ATH_CHECK( m_dictLoader.retrieve() );
+   ATH_CHECK( m_tpCnvSvc.retrieve() );
+
    // set up the ItemListSvc service:
    assert(static_cast<bool>(m_pCLIDSvc));
    ATH_CHECK( m_itemSvc.retrieve() );
@@ -267,6 +275,9 @@ StatusCode AthenaOutputStream::initialize() {
      ATH_CHECK (pAsIProp->setProperty("ItemList", m_transientItems.toString()));
 
      for (const SG::FolderItem& item : *m_p2BWritten) {
+       // Load ROOT dictionaries now.
+       loadDict (item.id());
+       
        const std::string& k = item.key();
        if (k.find('*') != std::string::npos) continue;
        if (k.find('.') != std::string::npos) continue;
@@ -278,7 +289,25 @@ StatusCode AthenaOutputStream::initialize() {
          }
        }
      }
+     m_transient->clear();
    }
+
+   // Also load dictionaries for metadata classes.
+   if (!m_metadataItemList.value().empty()) {
+     IProperty *pAsIProp = dynamic_cast<IProperty*> (&*m_transient);
+     if (!pAsIProp) {
+       ATH_MSG_FATAL ("Bad folder interface");
+       return StatusCode::FAILURE;
+     }
+     ATH_CHECK (pAsIProp->setProperty("ItemList", m_metadataItemList.toString()));
+     for (const SG::FolderItem& item : *m_transient) {
+       loadDict (item.id());
+     }
+     m_transient->clear();
+   }
+
+   // Also make sure we have the dictionary for Token.
+   m_dictLoader->load_type ("Token");
 
    // listen to event range incidents if incident name is configured
    if( !m_outSeqSvc->incidentName().empty() ) {
@@ -609,10 +638,6 @@ StatusCode AthenaOutputStream::write() {
       }
    }
    bool doCommit = false;
-   if (m_autoSend.value() > 0 && m_events % m_autoSend.value() == 0) {
-      doCommit = true;
-      ATH_MSG_DEBUG("commitOutput sending data.");
-   }
    if (!streamer->commitOutput(doCommit).isSuccess()) {
       ATH_MSG_FATAL("commitOutput failed.");
       failed = true;
@@ -741,8 +766,21 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item,
    // For MetaData objects of type T that are kept in MetaContainers get the MetaCont<T> ID
    const CLID remapped_item_id = m_metaDataSvc->remapMetaContCLID( item_id );
    SG::ConstProxyIterator iter, end;
+   SG::ProxyMap map;
+   bool gotProxies = false;
    // Look for the clid in storegate
-   if (((*m_currentStore)->proxyRange(remapped_item_id, iter, end)).isSuccess()) {
+   SG::DataProxy* match = (*m_currentStore)->proxy(remapped_item_id, item_key, true);
+   if (match != nullptr) {
+      map.insert({item_key, match});
+      iter = map.begin();
+      end = map.end();
+      gotProxies = true;
+   }
+   // Look for the clid in storegate
+   if (!gotProxies && ((*m_currentStore)->proxyRange(remapped_item_id, iter, end)).isSuccess()) {
+      gotProxies = true;
+   }
+   if (gotProxies) {
       bool added = false, removed = false;
       // For item list entry
       // Check for wildcard within string, i.e. 'xxx*yyy', and save the matching parts
@@ -851,7 +889,10 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item,
                }
 
                /// Handle variable selections.
-               if (item_key.find( "Aux." ) == ( item_key.size() - 4 )) {
+               /// Both variable selection and lossy float compression
+               /// are limited to event data for the time being
+               if ((*m_currentStore)->storeID() == StoreID::EVENT_STORE &&
+                   item_key.find( "Aux." ) == ( item_key.size() - 4 )) {
 
                   const SG::IConstAuxStore* auxstore( nullptr );
                   try {
@@ -1160,4 +1201,21 @@ StatusCode AthenaOutputStream::io_finalize() {
    }
    incSvc->removeListener(this, "MetaDataStop");
    return StatusCode::SUCCESS;
+}
+
+
+/// Helper function to load dictionaries (both transient and persistent)
+/// for a given type.
+/// We want to to this explicitly during initialization to avoid sporadic
+/// failures seen loading dictionaries while multiple threads are running.
+/// See ATEAM-697 and ATEAM-749.
+void AthenaOutputStream::loadDict (CLID clid)
+{
+  m_dictLoader->load_type (clid);
+
+  // Also load the persistent class dictionary, if applicable.
+  std::unique_ptr<ITPCnvBase> tpcnv = m_tpCnvSvc->t2p_cnv_unique (clid);
+  if (tpcnv) {
+    m_dictLoader->load_type (tpcnv->persistentTInfo());
+  }
 }

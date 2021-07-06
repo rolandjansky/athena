@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @file EventInfoMgtInit.py
 ## @brief Configurable for TagInfoMgr service initialization
@@ -68,13 +68,18 @@ def _loadBasicEventInfoMgt():
 
     #from EventInfoMgt.EventInfoMgtConf import TagInfoMgr
     from EventInfoMgt.EventInfoMgtConf import TagInfoMgr
-    svcMgr += TagInfoMgr()
+    tagInfoMgr = TagInfoMgr()
+    svcMgr += tagInfoMgr
 
     # Add in extra tag for the release number:
     evtMgt  = EventInfoMgtInit()
     release = evtMgt.release
     print ("EventInfoMgtInit: Got release version ",release)
     svcMgr.TagInfoMgr.ExtraTagValuePairs = {"AtlasRelease" : release }
+
+    # Add TagInfoMgr to services activated by the framework 
+    from AthenaCommon.AppMgr import theApp
+    theApp.CreateSvc += [ tagInfoMgr.name() ]
 
     msg.debug( "Loading basic services for EventInfoMgt... [DONE]" )
     return

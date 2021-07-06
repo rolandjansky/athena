@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -56,23 +56,26 @@ public:
   /**Default Constructor*/
   DiscBounds();
 
+  /**Default copy constructor*/
+  DiscBounds(const DiscBounds&) = default;
+
+  /**Default assignment operator*/
+  DiscBounds& operator=(const DiscBounds& discbo) = default;
+
+  /**Default move constructor*/
+  DiscBounds(DiscBounds&& discbo) noexcept = default;
+
+  /**Default move assignment operator*/
+  DiscBounds& operator=(DiscBounds&& discbo) noexcept = default;
+
+  /**Destructor*/
+  virtual ~DiscBounds() = default;
+
   /**Constructor for full disc of symmetric disc around phi=0*/
   DiscBounds(double minrad, double maxrad, double hphisec = M_PI);
 
   /**Constructor for a symmetric disc around phi != 0*/
   DiscBounds(double minrad, double maxrad, double avephi, double hphisec);
-
-  /**Default copy constructor*/
-  DiscBounds(const DiscBounds&) = default;
-
-  /**Destructor*/
-  virtual ~DiscBounds();
-
-  /**Default move constructor*/
-  DiscBounds(DiscBounds&& discbo) = default;
-
-  /**Default move assignment operator*/
-  DiscBounds& operator=(DiscBounds&& discbo) = default;
 
   /**Equality operator*/
   virtual bool operator==(const SurfaceBounds& sbo) const override;

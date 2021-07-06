@@ -33,6 +33,9 @@ def OutputConditionsAlg(name='OutputConditionsAlg',outputFile='condobjs.root',
     condstream=AthenaOutputStreamTool(toolname)
     condstream.OutputFile=outputFile
     condstream.PoolContainerPrefix="ConditionsContainer"
+    condstream.TopLevelContainerName = "<type>"
+    condstream.SubLevelBranchName = "<key>"
+
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc+=condstream
     # return reference to algorithm so can configure further parameters

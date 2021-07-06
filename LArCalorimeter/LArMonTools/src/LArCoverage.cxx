@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -45,7 +45,6 @@ LArCoverage::LArCoverage(const std::string& type,
 			 const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent), 
     m_larCablingService("LArCablingLegacyService"),
-    m_badChannelMask("BadLArRawChannelMask"),
     m_hCoverageEMBA(),
     m_hCoverageEMBC(),
     m_hCoverageEMECA(),
@@ -62,11 +61,10 @@ LArCoverage::LArCoverage(const std::string& type,
     m_hCoverageHWHECC(NULL),
     m_hCoverageHWFCALA(NULL),
     m_hCoverageHWFCALC(NULL),
-    m_hCaloNoiseToolEM(),
-    m_hCaloNoiseToolHEC(),
-    m_hCaloNoiseToolFCAL()
+    m_hCaloNoiseEM(),
+    m_hCaloNoiseHEC(),
+    m_hCaloNoiseFCAL()
 {
-  declareProperty("LArBadChannelMask",m_badChannelMask);
   declareProperty("Nevents",m_nevents = 50);
 
   m_eventsCounter = 0;
@@ -80,7 +78,6 @@ LArCoverage::LArCoverage(const std::string& type,
   m_hBadChannelsBarrelC = NULL;
   m_hBadChannelsEndcapA = NULL;
   m_hBadChannelsEndcapC = NULL;
-  m_strHelper		= NULL;
   m_rootStore		= NULL;
  }
 
@@ -103,11 +100,11 @@ LArCoverage::initialize()
   ATH_CHECK( detStore()->retrieve(m_LArOnlineIDHelper, "LArOnlineID") );
   ATH_CHECK( m_BCKey.initialize() );
   ATH_CHECK( m_BFKey.initialize() );
-  ATH_CHECK( m_badChannelMask.retrieve() );
+  ATH_CHECK( m_bcMask.buildBitMask(m_problemsToMask,msg()));
   ATH_CHECK( m_larCablingService.retrieve() );
    
   // LArOnlineIDStrHelper
-  m_strHelper = new  LArOnlineIDStrHelper(m_LArOnlineIDHelper);
+  m_strHelper = std::make_unique<LArOnlineIDStrHelper>(m_LArOnlineIDHelper);
   m_strHelper->setDefaultNameType(LArOnlineIDStrHelper::LARONLINEID);
   
   ATH_CHECK( m_EventInfoKey.initialize() );
@@ -468,39 +465,39 @@ LArCoverage::bookHistograms()
     CovGroupShift.regHist(m_hCoverageHWFCALC).ignore();
  
     //
-    // CaloNoiseTool histograms - per FT/Slot
+    // CaloNoise histograms - per FT/Slot
     //
 
     MonGroup CaloNoiseGroupShift( this, "/LAr/CoverageOldTool/CaloNoiseTool", run, ATTRIB_MANAGED, "", "lowerLB");
 
     // EM histos
     for (int i=0; i<4;i++){
-      m_hCaloNoiseToolEM[i] = TProfile_LW::create(Form("CaloNoiseEMSampling%i",i),
-					   Form("DBNoise in EM Sampling %i - LB %4d",i,lb1),
-					   320, -3.2,3.2);
-      m_hCaloNoiseToolEM[i]->GetXaxis()->SetTitle("#eta");
-      m_hCaloNoiseToolEM[i]->GetYaxis()->SetTitle("[MeV]");
-      CaloNoiseGroupShift.regHist(m_hCaloNoiseToolEM[i]).ignore();
+      m_hCaloNoiseEM[i] = TProfile_LW::create(Form("CaloNoiseEMSampling%i",i),
+                                              Form("DBNoise in EM Sampling %i - LB %4d",i,lb1),
+                                              320, -3.2,3.2);
+      m_hCaloNoiseEM[i]->GetXaxis()->SetTitle("#eta");
+      m_hCaloNoiseEM[i]->GetYaxis()->SetTitle("[MeV]");
+      CaloNoiseGroupShift.regHist(m_hCaloNoiseEM[i]).ignore();
     }
   
     // HEC histos
     for (int i=0; i<4;i++){
-      m_hCaloNoiseToolHEC[i] = TProfile_LW::create(Form("CaloNoiseHECSampling%i",i),
-					   Form("DBNoise in HEC Sampling %i - LB %4d",i,lb1),
-					   320, -3.2,3.2);
-      m_hCaloNoiseToolHEC[i]->GetXaxis()->SetTitle("#eta");
-      m_hCaloNoiseToolHEC[i]->GetYaxis()->SetTitle("[MeV]");
-      CaloNoiseGroupShift.regHist(m_hCaloNoiseToolHEC[i]).ignore();
+      m_hCaloNoiseHEC[i] = TProfile_LW::create(Form("CaloNoiseHECSampling%i",i),
+                                               Form("DBNoise in HEC Sampling %i - LB %4d",i,lb1),
+                                               320, -3.2,3.2);
+      m_hCaloNoiseHEC[i]->GetXaxis()->SetTitle("#eta");
+      m_hCaloNoiseHEC[i]->GetYaxis()->SetTitle("[MeV]");
+      CaloNoiseGroupShift.regHist(m_hCaloNoiseHEC[i]).ignore();
     }  
 
     // FCAL histos
     for (int i=1; i<4;i++){
-      m_hCaloNoiseToolFCAL[i] = TProfile_LW::create(Form("CaloNoiseFCALSampling%i",i),
-					   Form("DBNoise in FCAL Sampling %i - LB %4d",i,lb1),
-					   500, -5.0,5.0);
-      m_hCaloNoiseToolFCAL[i]->GetXaxis()->SetTitle("#eta");
-      m_hCaloNoiseToolFCAL[i]->GetYaxis()->SetTitle("[MeV]");
-      CaloNoiseGroupShift.regHist(m_hCaloNoiseToolFCAL[i]).ignore();
+      m_hCaloNoiseFCAL[i] = TProfile_LW::create(Form("CaloNoiseFCALSampling%i",i),
+                                                Form("DBNoise in FCAL Sampling %i - LB %4d",i,lb1),
+                                                500, -5.0,5.0);
+      m_hCaloNoiseFCAL[i]->GetXaxis()->SetTitle("#eta");
+      m_hCaloNoiseFCAL[i]->GetYaxis()->SetTitle("[MeV]");
+      CaloNoiseGroupShift.regHist(m_hCaloNoiseFCAL[i]).ignore();
     }  
 
     //
@@ -562,6 +559,10 @@ LArCoverage::fillHistograms()
     return StatusCode::FAILURE;
    }
 
+  
+  SG::ReadCondHandle<LArBadChannelCont> bch{m_BCKey};
+  const LArBadChannelCont* bcCont{*bch};
+
   SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey};
   const CaloNoise* noiseCDO=*noiseHdl;
 
@@ -598,22 +599,21 @@ LArCoverage::fillHistograms()
     
     // Retrieve expected noise
     float noise = noiseCDO->getNoise(offlineID,m_highestGain[caloDetElement->getSubCalo()]); 
-    //->getNoise(caloDetElement,ICalorimeterNoiseTool::ELECTRONICNOISE);
     
     if(m_eventsCounter == 1){
       
       // Plot the average expected noise vs eta for reference
       if(m_LArOnlineIDHelper->isEMBchannel(id) || m_LArOnlineIDHelper->isEMECchannel(id)){
 	int sampling = m_LArEM_IDHelper->sampling(offlineID);
-	m_hCaloNoiseToolEM[sampling]->Fill(etaChan, noise);
+	m_hCaloNoiseEM[sampling]->Fill(etaChan, noise);
       }
       if(m_LArOnlineIDHelper->isHECchannel(id)){
 	int sampling = m_LArHEC_IDHelper->sampling(offlineID);
-	m_hCaloNoiseToolHEC[sampling]->Fill(etaChan, noise);
+	m_hCaloNoiseHEC[sampling]->Fill(etaChan, noise);
       }
       if(m_LArOnlineIDHelper->isFCALchannel(id)){
 	int sampling = m_LArFCAL_IDHelper->module(offlineID);
-	m_hCaloNoiseToolFCAL[sampling]->Fill(etaChan, noise);
+	m_hCaloNoiseFCAL[sampling]->Fill(etaChan, noise);
       }
 
       // Fill Bad Channels histograms  
@@ -649,7 +649,7 @@ LArCoverage::fillHistograms()
     // provenance&0x1000 == 0x1000 : raw channels from DSP. If no constant loaded in DSP, energy==0
     if ( (provenanceChan&0x00ff) == 0x00a5 || (provenanceChan&0x1000) == 0x1000 ){
 
-      if(m_badChannelMask->cellShouldBeMasked(id)) cellContent=2;
+      if(m_bcMask.cellShouldBeMasked(bcCont,id)) cellContent=2;
       else if(energyChan != 0) cellContent=3;
 
     }

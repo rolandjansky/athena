@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CMMRoICnvAlg.cxx 576052 2013-12-18 09:13:50Z morrisj $
@@ -30,7 +30,7 @@ namespace xAODMaker {
    StatusCode CMMRoICnvAlg::initialize() {
 
       // Greet the user:
-      ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
+      ATH_MSG_INFO( "Initializing" );
       ATH_MSG_DEBUG( " ESD Key: " << m_esdKey );
       ATH_MSG_DEBUG( "xAOD Key: " << m_xaodKey );
 
@@ -44,7 +44,7 @@ namespace xAODMaker {
    StatusCode CMMRoICnvAlg::execute() {
       
       // Retrieve the ESD container:
-      const LVL1::CMMRoI* esd = 0;
+      const LVL1::CMMRoI* esd = nullptr;
       CHECK( evtStore()->retrieve( esd, m_esdKey ) );
       
       // Create the xAOD container and its auxiliary store:

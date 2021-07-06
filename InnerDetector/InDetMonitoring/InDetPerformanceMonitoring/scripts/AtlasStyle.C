@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -92,15 +92,7 @@ TStyle * AtlasStyle()
 
 
 
-#include <iostream>
 #include <cmath>
-
-
-#include "TLine.h"
-#include "TLatex.h"
-#include "TMarker.h"
-#include "TPave.h"
-#include "TH1.h"
 
 void ATLAS_LABEL(Double_t x,Double_t y,Color_t color) 
 {

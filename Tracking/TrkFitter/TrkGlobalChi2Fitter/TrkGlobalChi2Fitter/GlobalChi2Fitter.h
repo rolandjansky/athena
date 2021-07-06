@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GLOBALCHI2FITTER_H
 #define GLOBALCHI2FITTER_H
 //#define GXFDEBUGCODE
-
+#define LEGACY_TRKGEOM
 #include "TrkDetDescrInterfaces/IMaterialEffectsOnTrackProvider.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -34,6 +34,12 @@
 #include "TrkEventPrimitives/PropDirection.h"
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MagFieldElements/AtlasFieldCache.h"
+
+#include "StoreGate/ReadCondHandleKey.h"
+#include "TrkGeometry/TrackingGeometry.h"
+#ifdef LEGACY_TRKGEOM
+#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
+#endif
 
 #include <memory>
 #include <mutex>
@@ -147,7 +153,6 @@ namespace Trk {
   class CylinderLayer;
   class DiscLayer;
   class MagneticFieldProperties;
-  class TrackingGeometry;
   class TrackingVolume;
   class Volume;
 
@@ -185,6 +190,7 @@ namespace Trk {
         }
       }
 
+      const TrackingGeometry *m_trackingGeometry = nullptr;
       const TrackingVolume *m_caloEntrance = nullptr;
       const TrackingVolume *m_msEntrance = nullptr;
 
@@ -240,6 +246,7 @@ namespace Trk {
 
       Cache & operator=(const Cache &) = delete;
     };
+  private:
 
     enum FitterStatusType {
       S_FITS,
@@ -326,11 +333,11 @@ namespace Trk {
     ) const override;
 
   private:
-    void calculateJac(
+    static void calculateJac(
       Eigen::Matrix<double, 5, 5> &,
       Eigen::Matrix<double, 5, 5> &,
       int, int
-    ) const;
+    ) ;
 
     Track * fitIm(
       const EventContext& ctx,
@@ -421,13 +428,13 @@ namespace Trk {
      * @note This method can probably be replaced entirely by the straight line
      * intersection method of the appropriate Surface subclass.
      */
-    std::optional<std::pair<Amg::Vector3D, double>> addMaterialFindIntersectionDisc(
+    static std::optional<std::pair<Amg::Vector3D, double>> addMaterialFindIntersectionDisc(
       Cache & cache,
       const DiscSurface & surface,
       const TrackParameters & param1,
       const TrackParameters & param2,
       const ParticleHypothesis mat
-    ) const;
+    ) ;
 
     /**
      * @brief Find the intersection of a set of track parameters onto a
@@ -438,13 +445,13 @@ namespace Trk {
      * @note This method can probably be replaced entirely by the straight line
      * intersection method of the appropriate Surface subclass.
      */
-    std::optional<std::pair<Amg::Vector3D, double>> addMaterialFindIntersectionCyl(
+    static std::optional<std::pair<Amg::Vector3D, double>> addMaterialFindIntersectionCyl(
       Cache & cache,
       const CylinderSurface & surface,
       const TrackParameters & param1,
       const TrackParameters & param2,
       const ParticleHypothesis mat
-    ) const;
+    ) ;
 
     /**
      * @brief Given layer information, probe those layers for scatterers and
@@ -497,7 +504,7 @@ namespace Trk {
      * @param[in] refpar Reference parameters from which to extrapolate.
      * @param[in] hasmat Are there any existing materials on this track?
      */
-    void addMaterialGetLayers(
+    static void addMaterialGetLayers(
       Cache & cache,
       std::vector<std::pair<const Layer *, const Layer *>> & layers,
       std::vector<std::pair<const Layer *, const Layer *>> & uplayers,
@@ -506,7 +513,7 @@ namespace Trk {
       GXFTrackState & last,
       const TrackParameters * refpar,
       bool hasmat
-    ) const;
+    ) ;
 
     /**
      * @brief A faster strategy for adding scatter material to tracks, works
@@ -539,6 +546,7 @@ namespace Trk {
     ) const;
 
     void addMaterial(
+      const EventContext& ctx,
       Cache &,
       GXFTrajectory &,
       const TrackParameters *,
@@ -572,10 +580,10 @@ namespace Trk {
       const ParticleHypothesis
     ) const;
 
-    void makeTrackFillDerivativeMatrix(
+    static void makeTrackFillDerivativeMatrix(
       Cache &,
       GXFTrajectory &
-    ) const;
+    ) ;
 
     std::unique_ptr<const TrackParameters> makeTrackFindPerigeeParameters(
       const EventContext &,
@@ -831,7 +839,7 @@ namespace Trk {
       int
     ) const;
 
-    void calculateDerivatives(GXFTrajectory &) const;
+    static void calculateDerivatives(GXFTrajectory &) ;
 
     void calculateTrackErrors(GXFTrajectory &, Amg::SymMatrixX &, bool) const;
 
@@ -847,7 +855,7 @@ namespace Trk {
 
     virtual void setMinIterations(int);
 
-    bool correctAngles(double &, double &) const;
+    static bool correctAngles(double &, double &) ;
 
     bool isMuonTrack(const Track &) const;
 
@@ -884,7 +892,28 @@ namespace Trk {
     ToolHandle<IMaterialEffectsOnTrackProvider> m_calotoolparam {this, "MuidToolParam", "", ""};
     ToolHandle<IBoundaryCheckTool> m_boundaryCheckTool {this, "BoundaryCheckTool", "", "Boundary checking tool for detector sensitivities" };
 
-    ServiceHandle<ITrackingGeometrySvc> m_trackingGeometrySvc;
+#ifdef LEGACY_TRKGEOM
+     ServiceHandle<ITrackingGeometrySvc> m_trackingGeometrySvc {this, "TrackingGeometrySvc", "",""};
+#endif
+    void throwFailedToGetTrackingGeomtry() const;
+    const TrackingGeometry* trackingGeometry(Cache &cache, const EventContext& ctx) const {
+       if (!cache.m_trackingGeometry)
+          cache.m_trackingGeometry=retrieveTrackingGeometry(ctx);
+       return cache.m_trackingGeometry;
+    }
+    const TrackingGeometry* retrieveTrackingGeometry(const EventContext& ctx) const {
+#ifdef LEGACY_TRKGEOM
+       if (m_trackingGeometryReadKey.key().empty()) {
+          return m_trackingGeometrySvc->trackingGeometry();
+       }
+#endif
+       SG::ReadCondHandle<TrackingGeometry>  handle(m_trackingGeometryReadKey,ctx);
+       if (!handle.isValid()) {throwFailedToGetTrackingGeomtry(); }
+       return handle.cptr();
+    }
+
+    SG::ReadCondHandleKey<TrackingGeometry>   m_trackingGeometryReadKey
+       {this, "TrackingGeometryReadKey", "", "Key of the TrackingGeometry conditions data."};
 
     SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_field_cache_key{
       this,

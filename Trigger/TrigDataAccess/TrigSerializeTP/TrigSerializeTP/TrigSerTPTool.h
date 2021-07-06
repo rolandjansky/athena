@@ -21,7 +21,7 @@
 #include "AthenaKernel/IDictLoaderSvc.h"
 #include "AthenaKernel/ITPCnvSvc.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-
+#include "CxxUtils/checker_macros.h"
 /**
  * @class  TrigSerTPTool
  * @author Jiri Masik <Jiri.Masik@cern.ch>
@@ -42,7 +42,7 @@ public:
                   const IInterface* parent );
 
    /// Function initialising the tool
-   virtual StatusCode initialize();
+   virtual StatusCode initialize() override;
 
    /// Convert a transient object to its persistent self
    void* convertTP( const std::string& transName, void* trans,
@@ -66,6 +66,10 @@ private:
    bool                                     m_useAthDictLoader;
    bool                                     m_online;
    ServiceHandle< ITPCnvSvc >               m_tpcnvsvc;
+   mutable std::mutex                               m_convertersCacheMutex;
+   mutable std::map<std::string, ITPCnvBase*>       m_convertesCache ATLAS_THREAD_SAFE; 
+
+   ITPCnvBase* getConverter( const std::string& persistent ) const;
 
 }; // class TrigSerTPTool
 

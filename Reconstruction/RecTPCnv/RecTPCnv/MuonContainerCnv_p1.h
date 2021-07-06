@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // MuonContainerCnv_p1.h 
@@ -44,7 +44,7 @@ class MuonContainerCnv_p1 : public MuonContainerCnvBase_p1
     typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
     MuonContainerCnv_p1(){}
     virtual void  persToTrans(const MuonContainer_p1* persColl, Analysis::MuonContainer* transColl, MsgStream &log) const;
-    void setKey ( const std::string key) { m_cnv.setKey( key ); }
+    void setKey ( const std::string& key) { m_cnv.setKey( key ); }
     void setEventStore( const StoreGateSvc_t storeGate ) { m_cnv.setEventStore( storeGate ); }  
   private:
     MuonCnv_p1 m_cnv;

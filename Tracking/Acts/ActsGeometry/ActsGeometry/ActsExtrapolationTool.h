@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ACTSGEOMETRY_ACTSEXTRAPOLATIONTOOL_H
@@ -11,6 +11,8 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "Gaudi/Property.h"
 #include "GaudiKernel/EventContext.h"
+#include "TrkEventPrimitives/ParticleHypothesis.h"
+#include "TrkEventPrimitives/PdgToParticleHypothesis.h"
 
 // Need to include this early; otherwise, we run into errors with
 // ReferenceWrapperAnyCompat in clang builds due the is_constructable
@@ -29,7 +31,7 @@
 #include "Acts/Propagator/StandardAborters.hpp"
 #include "Acts/Propagator/SurfaceCollector.hpp"
 #include "Acts/Utilities/Result.hpp"
-#include "Acts/Utilities/Units.hpp"
+#include "Acts/Definitions/Units.hpp"
 #include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Utilities/Logger.hpp"
 
@@ -70,14 +72,16 @@ public:
   propagationSteps(const EventContext& ctx,
                    const Acts::BoundTrackParameters& startParameters,
                    Acts::NavigationDirection navDir = Acts::forward,
-                   double pathLimit = std::numeric_limits<double>::max()) const override;
+                   double pathLimit = std::numeric_limits<double>::max(),
+                   Trk::ParticleHypothesis particleHypo = Trk::pion) const override;
 
   virtual
   std::unique_ptr<const Acts::CurvilinearTrackParameters>
   propagate(const EventContext& ctx,
             const Acts::BoundTrackParameters& startParameters,
             Acts::NavigationDirection navDir = Acts::forward,
-            double pathLimit = std::numeric_limits<double>::max()) const override;
+            double pathLimit = std::numeric_limits<double>::max(),
+            Trk::ParticleHypothesis particleHypo = Trk::pion) const override;
 
   virtual
   ActsPropagationOutput
@@ -85,7 +89,8 @@ public:
                    const Acts::BoundTrackParameters& startParameters,
                    const Acts::Surface& target,
                    Acts::NavigationDirection navDir = Acts::forward,
-                   double pathLimit = std::numeric_limits<double>::max()) const override;
+                   double pathLimit = std::numeric_limits<double>::max(),
+                   Trk::ParticleHypothesis particleHypo = Trk::pion) const override;
 
   virtual
   std::unique_ptr<const Acts::BoundTrackParameters>
@@ -93,7 +98,8 @@ public:
             const Acts::BoundTrackParameters& startParameters,
             const Acts::Surface& target,
             Acts::NavigationDirection navDir = Acts::forward,
-            double pathLimit = std::numeric_limits<double>::max()) const override;
+            double pathLimit = std::numeric_limits<double>::max(),
+            Trk::ParticleHypothesis particleHypo = Trk::pion) const override;
 
   virtual
   const IActsTrackingGeometryTool*
@@ -127,8 +133,10 @@ private:
   Gaudi::Property<bool> m_interactionMultiScatering{this, "InteractionMultiScatering", false, "Whether to consider multiple scattering in the interactor"};
   Gaudi::Property<bool> m_interactionEloss{this, "InteractionEloss", false, "Whether to consider energy loss in the interactor"};
   Gaudi::Property<bool> m_interactionRecord{this, "InteractionRecord", false, "Whether to record all material interactions"};
+  // Particle masses
+  Trk::ParticleMasses m_particlemasses;
+  // Hypothesis to pdg converter
+  Trk::PdgToParticleHypothesis m_pdgToParticleHypothesis;
 };
-
-
 
 #endif

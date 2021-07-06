@@ -14,6 +14,7 @@
 #include "PFOHistUtils/FlowElement_LinkerPlots.h"
 #include "xAODPFlow/PFO.h"
 #include "xAODPFlow/FlowElement.h"
+#include "xAODEventInfo/EventInfo.h"
 
 class PFONeutralValidationPlots : public PlotBase {
 
@@ -23,8 +24,8 @@ class PFONeutralValidationPlots : public PlotBase {
   PFONeutralValidationPlots(PlotBase* pParent, std::string sDir, std::string sPFOContainerName, std::string sFEContainerName);
 
   /** fill the histograms up */
-  void fill(const xAOD::PFO& thePFO);
-  void fill(const xAOD::FlowElement& theFE);
+  void fill(const xAOD::PFO& thePFO,const xAOD::EventInfo& eventInfo);
+  void fill(const xAOD::FlowElement& theFE, const xAOD::EventInfo& eventInfo);
 
  private:
   // objects for PFOs

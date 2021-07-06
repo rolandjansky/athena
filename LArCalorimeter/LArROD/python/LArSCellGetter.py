@@ -14,7 +14,6 @@ class LArSCellGetter ( Configured )  :
 
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-        from AthenaCommon.AppMgr import ToolSvc
 
 
         # get LArDigitGetter in MC case
@@ -32,89 +31,11 @@ class LArSCellGetter ( Configured )  :
                 mlog.error("LArSCL1Getter unusable. Quite")
                 return False
 
-        # ADC2MeV tool
-        from LArRecUtils.LArADC2MeVSCToolDefault import LArADC2MeVSCToolDefault
-        theADC2MeVSCTool = LArADC2MeVSCToolDefault('LArADC2MeVSCTool')
-        ToolSvc += theADC2MeVSCTool
-
-
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-
 # Only MC case
 
-        if True :
-                from LArROD.LArRODConf import LArSuperCellBuilderDriver
-                theLArSCellBuilder=LArSuperCellBuilderDriver("LArSuperCellBuilder")
-
-                theLArSCellBuilder.LArRawChannelContainerName="LArSuperCells"
-                theLArSCellBuilder.DataLocation="LArDigitSCL1"
-                self._LArSCellBuilder = theLArSCellBuilder
-                topSequence += theLArSCellBuilder
-                from LArRecUtils.LArRecUtilsConf import LArFlatConditionSvc
-                if not hasattr(svcMgr,"LArFlatConditionSvc"):
-                   svcMgr+=LArFlatConditionSvc()
-                   svcMgr.ProxyProviderSvc.ProviderNames += [ "LArFlatConditionSvc" ]
-                svcMgr.LArFlatConditionSvc.DoSuperCells=True
-
-                # Pulse reconstruction
-                # main method: OFC iteration
-                from LArRecUtils.LArOFCSCToolDefault import LArOFCSCToolDefault
-                theLArOFCSCTool = LArOFCSCToolDefault('LArOFCSCToolDefault')
-                ToolSvc+=theLArOFCSCTool
-                from LArROD.LArRODConf import LArRawChannelBuilderToolOFC
-                theLArRawChannelBuilderToolOFC=LArRawChannelBuilderToolOFC('LArRawChannelBuilderSCToolOFC')
-                theLArRawChannelBuilderToolOFC.OFCTool=theLArOFCSCTool
-                theLArRawChannelBuilderToolOFC.ECut=-99999.0
-                theLArRawChannelBuilderToolOFC.KeyShape = "LArShapeSC"
-                ToolSvc+=theLArRawChannelBuilderToolOFC 
-                theLArSCellBuilder.BuilderTools += [theLArRawChannelBuilderToolOFC]
-                theLArSCellBuilder+=theLArRawChannelBuilderToolOFC 
-
-                # no fallback when emulating exactly DSP computation
-                # fallback(1): cubic method
-                from LArROD.LArRODConf import LArRawChannelBuilderToolCubic
-                theLArRawChannelBuilderToolCubic=LArRawChannelBuilderToolCubic('LArRawChannelBuilderSCToolCubic')
-                theLArRawChannelBuilderToolCubic.minADCforCubic=2 
-                ToolSvc+=theLArRawChannelBuilderToolCubic
-                theLArSCellBuilder.BuilderTools  += [theLArRawChannelBuilderToolCubic]
-                theLArSCellBuilder += theLArRawChannelBuilderToolCubic 
-
-
-                # Pedestal
-                # main method from database
-                from LArROD.LArRODConf import LArRawChannelBuilderPedestalDataBase
-                theLArRawChannelBuilderPedestalDataBase=LArRawChannelBuilderPedestalDataBase('LArRawChannelBuilderPedestalSCDataBase')
-                theLArRawChannelBuilderPedestalDataBase.LArPedestalKey = "LArPedestalSC"
-                ToolSvc+=theLArRawChannelBuilderPedestalDataBase
-                theLArSCellBuilder.PedestalTools  = [theLArRawChannelBuilderPedestalDataBase]
-                theLArSCellBuilder += theLArRawChannelBuilderPedestalDataBase 
-                
-                # no fallback when emulating exactly DSP computation
-                # fallback. sample 0
-                from LArROD.LArRODConf import LArRawChannelBuilderPedestalSampleZero
-                theLArRawChannelBuilderPedestalSampleZero=LArRawChannelBuilderPedestalSampleZero()
-                ToolSvc+= theLArRawChannelBuilderPedestalSampleZero
-                theLArSCellBuilder.PedestalTools  += [theLArRawChannelBuilderPedestalSampleZero]
-                theLArSCellBuilder += theLArRawChannelBuilderPedestalSampleZero
-
-                # ADC to energy
-                # main method from database
-                from LArROD.LArRODConf import LArRawChannelBuilderADC2EDataBase
-                theLArRawChannelBuilderADC2EDataBase=LArRawChannelBuilderADC2EDataBase(name='LArRawChannelBuilderADC2ESCDataBase',IsSuperCell=True)
-                theLArRawChannelBuilderADC2EDataBase.RampMaxHighGain=6000
-                theLArRawChannelBuilderADC2EDataBase.RampMaxMediumGain=49000
-                ToolSvc += theLArRawChannelBuilderADC2EDataBase 
-                theLArSCellBuilder.ADCtoEnergyTools  = [theLArRawChannelBuilderADC2EDataBase]
-                theLArRawChannelBuilderADC2EDataBase.ADC2MeVTool = theADC2MeVSCTool
-                theLArSCellBuilder += theLArRawChannelBuilderADC2EDataBase 
-
-                # no fallback when emulating exactly DSP computation
-                # fallback, constant conversion factors
-                from LArROD.LArRODConf import LArRawChannelBuilderADC2EConstants
-                theLArRawChannelBuilderADC2EConstants=LArRawChannelBuilderADC2EConstants()
-                ToolSvc+=theLArRawChannelBuilderADC2EConstants
-                theLArSCellBuilder.ADCtoEnergyTools += [theLArRawChannelBuilderADC2EConstants]
-                theLArSCellBuilder += theLArRawChannelBuilderADC2EConstants
+        from LArROD.LArSuperCellBuilderAlgDefault import LArSuperCellBuilderAlgDefault,LArSuperCellBCIDAlgDefault
+        topSequence+=LArSuperCellBuilderAlgDefault()
+        topSequence+=LArSuperCellBCIDAlgDefault()
 
 
         return True

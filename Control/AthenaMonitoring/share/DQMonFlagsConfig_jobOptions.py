@@ -111,6 +111,17 @@ if not DQMonFlags.doMonitoring():
 else:
    local_logger.info("monitoring environment set to %s", DQMonFlags.monManEnvironment())
 
+   # while we're in mixed mode for the following packages, drive these even if in new-style monitoring
+   # AOD monitoring
+   if DQMonFlags.monManEnvironment == 'AOD':
+      DQMonFlags.histogramFile='MonitorAOD.root'
+      DQMonFlags.doCTPMon=False
+      DQMonFlags.doLVL1CaloMon=False
+   # ESD monitoring: switch off DQ monitoring packages which are not yet migrated:
+   elif DQMonFlags.monManEnvironment == 'tier0ESD':
+      DQMonFlags.histogramFile='MonitorESD.root'
+      DQMonFlags.doCTPMon=False
+
    # new-style monitoring drives this internally so skip this section
    if not DQMonFlags.doNewMonitoring:
 
@@ -128,9 +139,7 @@ else:
          DQMonFlags.doInDetGlobalMon=False
          DQMonFlags.doInDetAlignMon=False
 
-         DQMonFlags.doGlobalMon=False
          DQMonFlags.doLVL1CaloMon=False
-         DQMonFlags.doHLTMon=False
          DQMonFlags.doEgammaMon=False
          DQMonFlags.doMuonRawMon=False
          DQMonFlags.doLucidMon=False
@@ -159,6 +168,10 @@ else:
          DQMonFlags.doLucidMon=False
          DQMonFlags.doJetTagMon=False
          DQMonFlags.doJetMon=False
+   
+   # no HLT monitoring if new monitoring and input is Run 2 EDM
+   if DQMonFlags.doNewMonitoring() and ConfigFlags.Trigger.EDMVersion == 2:
+      DQMonFlags.doHLTMon = False
       
    # switch off monitoring if reco is off during BS reading
    if rec.readRDO() and not 'DetFlags' in dir():

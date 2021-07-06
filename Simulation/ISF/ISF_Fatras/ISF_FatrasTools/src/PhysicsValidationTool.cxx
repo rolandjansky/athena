@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -21,6 +21,8 @@
 // ROOT includes
 #include "TTree.h"
  
+#include <cmath>
+
 #include <iostream>
 
 /*=========================================================================
@@ -75,7 +77,7 @@ iFatras::PhysicsValidationTool::PhysicsValidationTool( const std::string& t,
  *=======================================================================*/
 iFatras::PhysicsValidationTool::~PhysicsValidationTool()
 {
-  m_interactions = 0;
+  m_interactions = nullptr;
   delete(m_interactions);
 }
 
@@ -340,7 +342,7 @@ void iFatras::PhysicsValidationTool::saveISFVertexInfo(int process,Amg::Vector3D
 
   m_vtx_p_diff = pbal.mag();
   m_vtx_plong_diff = pbal.dot(primIn)/m_p_mother;
-  m_vtx_pperp_diff = sqrt(m_vtx_p_diff*m_vtx_p_diff-m_vtx_plong_diff*m_vtx_plong_diff);
+  m_vtx_pperp_diff = std::sqrt(m_vtx_p_diff*m_vtx_p_diff-m_vtx_plong_diff*m_vtx_plong_diff);
 
   m_interactions->Fill(); 
 }

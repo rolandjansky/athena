@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file TrigMuonEventTPCnv/test/TrigMuonEFInfoTrackCnv_p1_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -18,6 +16,7 @@
 #include "TestTools/FLOATassert.h"
 #include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include <cassert>
 #include <iostream>
 
@@ -110,6 +109,7 @@ void testit (const TrigMuonEFInfoTrack& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  (void)Gaudi::Hive::currentContext();
   // Get proxy created outside of leak checking.
   ElementLink<Rec::TrackParticleContainer>foo("foo", 10);
   Athena_test::Leakcheck check;

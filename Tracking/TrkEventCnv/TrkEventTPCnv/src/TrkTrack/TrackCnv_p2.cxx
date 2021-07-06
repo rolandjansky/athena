@@ -146,8 +146,12 @@ void TrackCnv_p2::persToTrans( const Trk::Track_p1 *persObj,
       info.setPatternRecognitionInfo(static_cast<Trk::TrackInfo::TrackPatternRecoInfo>(patternReco[i]));  
       
   transObj->m_trackInfo = info;
-  transObj->m_fitQuality = createTransFromPStore( &m_fqCnv, persObj->m_fitQuality, log );
-  transObj->m_trackStateVector = m_trackStateVectorCnv.createTransient( &persObj->m_trackState, log );
+  transObj->m_fitQuality.reset(createTransFromPStore( &m_fqCnv, persObj->m_fitQuality, log ));
+  //ensure we delete the ptr
+  std::unique_ptr<DataVector<const Trk::TrackStateOnSurface>> sink(
+    m_trackStateVectorCnv.createTransient(&persObj->m_trackState, log));
+  //move copy
+  transObj->m_trackStateVector = std::move(*sink);
 }
 
 //-----------------------------------------------------------------------------

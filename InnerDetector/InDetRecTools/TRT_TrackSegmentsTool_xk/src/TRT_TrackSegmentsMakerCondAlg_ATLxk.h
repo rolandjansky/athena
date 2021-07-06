@@ -56,17 +56,17 @@ namespace InDet {
     // Private Data
     ///////////////////////////////////////////////////////////////////
 
-    const TRT_ID                         * m_trtid           ;
+    const TRT_ID                         * m_trtid{}           ;
     
     std::string                            m_fieldmode       ; // jobOption: Magnetic field mode
     ToolHandle<Trk::IPropagator>           m_propTool        ; // Propagator            tool
     Trk::MagneticFieldProperties           m_fieldprop       ; // Magnetic field properties
     float                                  m_pTmin           ;
-    float                                  m_Psi128          ;
+    float                                  m_Psi128{}          ;
     int                                    m_nMom            ; // number momentum  channel
-    float                                  m_A               ;
-    float                                  m_Psi             ;
-    int                                    m_nPhi            ; // number azimuthal channel
+    float                                  m_A{}               ;
+    float                                  m_Psi{}             ;
+    int                                    m_nPhi{}            ; // number azimuthal channel
 
     void magneticFieldInit();
 

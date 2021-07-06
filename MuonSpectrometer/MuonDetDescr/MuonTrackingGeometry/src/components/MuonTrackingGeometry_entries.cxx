@@ -4,6 +4,8 @@
 #include "MuonTrackingGeometry/MuonInertMaterialBuilder.h"
 
 #include "MuonTrackingGeometry/MuonTrackingGeometryBuilderCond.h"
+#include "MuonTrackingGeometry/MuonStationBuilderCond.h"
+#include "MuonTrackingGeometry/MuonInertMaterialBuilderCond.h"
 
 using namespace Muon;
 
@@ -13,3 +15,6 @@ DECLARE_COMPONENT( MuonStationTypeBuilder )
 DECLARE_COMPONENT( MuonInertMaterialBuilder )
 
 DECLARE_COMPONENT( MuonTrackingGeometryBuilderCond )
+DECLARE_COMPONENT( MuonStationBuilderCond )
+DECLARE_COMPONENT( MuonInertMaterialBuilderCond )
+

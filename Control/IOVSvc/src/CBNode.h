@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IOVSVC_CBNODE_H
@@ -21,6 +21,7 @@
 
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "SGTools/CallBackID.h"
+#include <atomic>
 
 namespace SG {
   class DataProxy;
@@ -80,7 +81,8 @@ public:
   const SG::DataProxy* proxy() const { return m_proxy; }
   void setProxy(const SG::DataProxy* p);
 
-  BFCN* fcn() const { return m_fcn; }
+  BFCN* fcn() { return m_fcn; }
+  const BFCN* fcn() const { return m_fcn; }
 
   unsigned int serial() const { return m_serial; }
 
@@ -99,7 +101,7 @@ private:
   bool m_flag;
 
   unsigned int m_serial;
-  static unsigned int s_serial;
+  static std::atomic<unsigned int> s_serial;
 };
 
 #endif

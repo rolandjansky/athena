@@ -1,51 +1,39 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PrimaryDPDMaker_CaloTimeFilterTool_H
 #define PrimaryDPDMaker_CaloTimeFilterTool_H
 
-/** @file CaloTimeFilterTool.h
- *  @brief This file contains the class definition for the CaloTimeFilterTool class.
- *  @author Max Baak <mbaak@cern.ch>
- **/
+#include "AsgTools/AsgTool.h"
+#include "PrimaryDPDMaker/ICaloTimeFilterTool.h"
 
-#include "AthenaBaseComps/AthAlgTool.h"
 
-// Gaudi includes
-#include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 
-/** @class CaloTimeFilterTool
- *  @brief This file contains the class definition for the CaloTimeFilterTool class.
- **/
-
-static const InterfaceID IID_CaloTimeFilterTool("CaloTimeFilterTool", 1, 0);
-
-class CaloTimeFilterTool : public AthAlgTool
-{
+class CaloTimeFilterTool : public asg::AsgTool, virtual public ICaloTimeFilterTool {
+    
  public:    
-  CaloTimeFilterTool( const std::string&, const std::string&, const IInterface* );
-  virtual ~CaloTimeFilterTool();
+    CaloTimeFilterTool( const std::string& tool_name);
 
-  /** AlgTool and IAlgTool interface methods */
-  static const InterfaceID& interfaceID( ) { return IID_CaloTimeFilterTool; };
+    ASG_TOOL_CLASS( CaloTimeFilterTool, ICaloTimeFilterTool )
 
-  /** Overriding initialize and finalize */
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
-
-  virtual StatusCode getTimeDifference(bool& passCut, double& timeDiff, double& timeA, double&timeC, int& ncellA, int& ncellC);
-
+    virtual ~CaloTimeFilterTool() = default;
+    
+  
+  virtual
+  StatusCode getTimeDifference(TimingFilterInformation& time_info, const SG::ReadHandleKey<LArCollisionTime>& read_key,
+                                         const EventContext& ctx) const override;
+ 
+  virtual StatusCode getTimeDifference(TimingFilterInformation& time_info) override;
+ 
  protected:
-
-  //---------------------------------------------------
-  // Member variables
-  //---------------------------------------------------
-
+  
+  void fillTimeDifference(TimingFilterInformation& time_info, const LArCollisionTime* larCollisionTime ) const;
+  Gaudi::Property<float> m_timeCut{this, "timeDiffCut", 5.};
+  Gaudi::Property<int>  m_mincellsperside{this, "MinCellsPerSide", 9.};
+  Gaudi::Property<std::string> m_containerName{this,"ContainerName", "LArCollisionTime"};
   int   m_nevt;
-  float m_timeCut;
-  int   m_mincellsperside;
+ 
 };
 
 #endif

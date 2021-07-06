@@ -34,10 +34,6 @@ StatusCode Trk::LayerMaterialConverter::initialize()
     return StatusCode::SUCCESS;
 }
 
-StatusCode Trk::LayerMaterialConverter::finalize()
-{
-    return StatusCode::SUCCESS;
-}
 
 
 /** process the layer material - after material creation and before loading */

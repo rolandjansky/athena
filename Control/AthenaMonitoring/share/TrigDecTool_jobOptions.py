@@ -24,11 +24,9 @@ if DQMonFlags.useTrigger():
       if rec.doTrigger():
          tdt_local_logger.error('DQ Monitoring is being asked to set up the TrigDecisionTool for some reason.  THIS IS A TERRIBLE IDEA AND SHOULD BE CONSIDERED A BUG!')
       from AthenaMonitoring.TriggerInterface import getTrigDecisionTool
-      from AthenaConfiguration.AllConfigFlags import ConfigFlags
-      if globalflags.InputFormat() == 'bytestream':
-         ConfigFlags.Input.Files=athenaCommonFlags.BSRDOInput()
-      elif globalflags.InputFormat() == 'pool':
-         ConfigFlags.Input.Files=svcMgr.EventSelector.InputCollections
+      from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
+      # Translate all needed flags from old jobProperties to a new AthConfigFlag Container
+      ConfigFlags = getNewConfigFlags()
 
       from AthenaConfiguration import ComponentAccumulator
       ComponentAccumulator.CAtoGlobalWrapper(getTrigDecisionTool, ConfigFlags)

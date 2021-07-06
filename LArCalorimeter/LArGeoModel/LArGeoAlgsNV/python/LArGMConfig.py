@@ -1,7 +1,8 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AtlasGeoModel.GeoModelConfig import GeoModelCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 
 def LArGMCfg(configFlags):
@@ -9,11 +10,12 @@ def LArGMCfg(configFlags):
     result=GeoModelCfg(configFlags)
 
     doAlignment=configFlags.LAr.doAlign
-    
-    LArDetectorToolNV=CompFactory.LArDetectorToolNV
-    result.getPrimary().DetectorTools += [ LArDetectorToolNV(ApplyAlignments=doAlignment) ]
-    if not configFlags.Detector.SimulateCalo:
-        result.getPrimary().DetectorTools["LArDetectorToolNV"].GeometryConfig = "RECO"
+
+    tool = CompFactory.LArDetectorToolNV(ApplyAlignments=doAlignment, EnableMBTS=configFlags.Detector.GeometryMBTS)
+    if configFlags.Common.ProductionStep != ProductionStep.Simulation:
+        tool.GeometryConfig = "RECO"
+
+    result.getPrimary().DetectorTools += [ tool ]
 
     if doAlignment:
         if configFlags.Input.isMC:

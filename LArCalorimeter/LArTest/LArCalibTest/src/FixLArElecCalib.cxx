@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -840,7 +840,7 @@ StatusCode FixLArElecCalib::fix5() {
      while ( infile>>str_id >>vol>>noise_p>>noise_h>>noise_m>>noise_l )
      {
        const char* ch_id = str_id.c_str();
-       if(str_id.find("A")!=0){
+       if (str_id.empty() || str_id[0] != 'A') {
 	 ATH_MSG_DEBUG(" skipping string"<<str_id);
          continue;  
        }

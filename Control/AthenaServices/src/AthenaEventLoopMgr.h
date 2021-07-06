@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_ATHENAEVENTLOOPMGR_H
@@ -37,9 +37,8 @@
 
 // Forward declarations
 class IConversionSvc;
-class IDataManagerSvc;
+struct IDataManagerSvc;
 class IIncidentSvc;
-class ITimeKeeper;
 class StoreGateSvc;
 class EventContext;
 ////class ActiveStoreSvc;
@@ -98,20 +97,12 @@ protected:
   /// @property histogram persistency technology to use: "ROOT", "HBOOK", "NONE". By default ("") get property value from ApplicationMgr
   StringProperty    m_histPersName;
 
-  /// the TimeKeeper service
-  ITimeKeeper*      m_pITK;
-
   typedef EventID::number_type number_type;
   /// current run number
   number_type m_currentRun;
   bool m_firstRun;
 
-  /// @property Name of TimeKeeper to use. NONE or empty string (default) means no time limit control on event loop
-  StringProperty    m_timeKeeperName;
-  /// @property update handler:sets up the time keeper
-  void setupTimeKeeper(Gaudi::Details::PropertyBase&);
-
-  /// @property Failure mode 
+  /// @property Failure mode
   IntegerProperty m_failureMode;
 
   /// @property Print event heartbeat printouts every m_eventPrintoutInterval events
@@ -128,9 +119,12 @@ protected:
   tool_stats m_toolReject; ///< tool returns StatusCode::FAILURE counter
   tool_stats m_toolAccept; ///< tool returns StatusCode::SUCCESS counter
   tool_store m_tools;         ///< internal tool store
-  
+
+  /// require input attribute list
+  bool m_requireInputAttributeList{};
+
   /// read event number from secondary input
-  bool m_useSecondaryEventNumber;
+  bool m_useSecondaryEventNumber{};
 
   /// property update handler:sets up the Pre-selection tools
   void setupPreSelectTools(Gaudi::Details::PropertyBase&);

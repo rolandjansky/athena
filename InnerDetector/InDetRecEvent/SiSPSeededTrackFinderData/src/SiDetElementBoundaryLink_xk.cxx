@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -22,9 +22,10 @@
 ///////////////////////////////////////////////////////////////////
 
 InDet::SiDetElementBoundaryLink_xk::SiDetElementBoundaryLink_xk
-( const InDetDD::SiDetectorElement*& Si)
+( const InDetDD::SiDetectorElement*& Si, bool isITk)
 {
-  m_detelement = 0;
+  m_ITkGeometry = isITk;
+  m_detelement = nullptr;
   const Trk::PlaneSurface* pla = dynamic_cast<const Trk::PlaneSurface*>(& Si->surface());
   if(!pla) return;
   m_detelement = Si;
@@ -97,16 +98,33 @@ int InDet::SiDetElementBoundaryLink_xk::intersect(const Trk::PatternTrackParamet
 
   const AmgSymMatrix(5) & cov = *Tp.covariance();
 
-  if(a > 20. ) return 1;
-  double D  = (m_bound[n][0]*m_bound[n][0]* cov(0, 0)+
-	       m_bound[n][1]*m_bound[n][1]* cov(1, 1)+
-	       m_bound[n][0]*m_bound[n][1]*(cov(0, 1)*2.))*100.;
+  if(!m_ITkGeometry){
+    if(a > 20. ) return 1;
+    double D  = (m_bound[n][0]*m_bound[n][0]* cov(0, 0)+
+		 m_bound[n][1]*m_bound[n][1]* cov(1, 1)+
+		 m_bound[n][0]*m_bound[n][1]*(cov(0, 1)*2.))*100.;
 
-  if((a*a) <= D) return 0;
+    if((a*a) <= D) return 0;
 
-  if(a >  2.) return 1;
-  if(a < -2.) {
-    if(!m_detelement->nearBondGap(Tp.localPosition(), 3.*sqrt(cov(1, 1)))) return -1;
+    if(a >  2.) return 1;
+    if(a < -2.) {
+      if(!m_detelement->nearBondGap(Tp.localPosition(), 3.*sqrt(cov(1, 1)))) return -1;
+    }
   }
+
+  else{
+    if(     a > 20. ) return 1;
+    if(fabs(a) <=3. ) return 0;
+
+    // Not clear why this is different for ITk
+    double D = (m_bound[n][0]*m_bound[n][0]* cov(0, 0)*100.+
+		m_bound[n][1]*m_bound[n][1]* cov(1, 1)*100.+
+		m_bound[n][0]*m_bound[n][1]*(cov(0, 1)*2.))*100.;
+
+    if     ((a*a) <= D) return  0;
+    else if(   a >  0.) return  1;
+    else                return -1;
+  }
+
   return 0;
 }

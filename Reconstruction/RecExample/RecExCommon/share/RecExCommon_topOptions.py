@@ -42,36 +42,25 @@ excludeTracePattern.append("*/RecExConfig/Resilience.py")
 excludeTracePattern.append("*/AthenaCommmon/Resilience.py")
 excludeTracePattern.append("*/OutputStreamAthenaPool/MultipleStreamManager.py")
 excludeTracePattern.append("*/GaudiKernel/GaudiHandles.py")
-excludeTracePattern.append ("*/TriggerMenu/menu/HLTObjects.py")
 excludeTracePattern.append ( "*/MuonRecExample/MuonRecUtils.py")
 excludeTracePattern.append ("athfile-cache.ascii")
 excludeTracePattern.append ("*/IOVDbSvc/CondDB.py")
 excludeTracePattern.append("*/TrigConfigSvcConfig.py")
 excludeTracePattern.append("*/LArCalib.py")
 excludeTracePattern.append("*/_xmlplus/*")
-excludeTracePattern.append("*/InDetTrigRecExample/EFInDetConfig.py")
 excludeTracePattern.append("*/CaloClusterCorrection/CaloSwEtaoff*")
 excludeTracePattern.append("*/PyUtils/Helpers.py")
 excludeTracePattern.append("*/RecExConfig/RecoFunctions.py")
-excludeTracePattern.append("*/TrigEgammaHypo/TrigEFElectronHypoMonitoring.py")
 excludeTracePattern.append("*/PerfMonComps/DomainsRegistry.py")
 excludeTracePattern.append("*/CaloClusterCorrection/common.py")
-excludeTracePattern.append("*/TrigIDSCAN/TrigIDSCAN_Config.py")
-excludeTracePattern.append("*/TrigSiTrack/TrigSiTrack_Config.py")
-excludeTracePattern.append("*/TrigEgammaHypo/TrigEFElectronHypoConfig.py")
-excludeTracePattern.append("*/TrigEgammaHypo/TrigL2CaloHypoMonitoring.py")
-excludeTracePattern.append("*/TrigBphysHypo/TrigL2BMuMuFexMonitoring.py")
-excludeTracePattern.append("*/TrigBphysHypo/TrigL2TrkMassFexMonitoring.py")
-excludeTracePattern.append("*/TrigL2TrkMassFexMonitoring.py")
-excludeTracePattern.append("*/TrigBphysHypo/TrigL2TrkMassFexMonitoring.py")
-excludeTracePattern.append("*/TrigmuComb/TrigmuCombConfig.py")
 excludeTracePattern.append("*/D3PDMakerCoreComps/MakerAlg.py")
 excludeTracePattern.append("*/D3PDMakerCoreComps/D3PDObject.py")
 excludeTracePattern.append("*/RecExConfig/RecoFunctions.py")
 excludeTracePattern.append("*/DQDefects/virtual*")
 excludeTracePattern.append("*/TrigEDMConfig/TriggerEDM.py")
-excludeTracePattern.append("*/TrigL2MissingET/TrigL2MissingETMonitoring.py")
 excludeTracePattern.append("*AthFile/impl.py")
+excludeTracePattern.append("*/AthenaConfiguration/*")
+excludeTracePattern.append("*ROOT/_facade.py")
 #####################
 # Flags (separated) #
 #####################
@@ -147,6 +136,9 @@ amitag = ""
 from PyUtils.MetaReaderPeeker import metadata
 try:
     amitag = metadata['AMITag']
+    # In some cases AMITag can be a list, just take the last one
+    if type(amitag) == list:
+        amitag=amitag[-1]
 except:
     logRecExCommon_topOptions.info("Cannot access TagInfo/AMITag")
 
@@ -427,13 +419,13 @@ if rec.doJiveXML() and DetFlags.detdescr.ID_on() :
 # put quasi empty first algorithm so that the first real
 # algorithm does not see the memory change due to event manipulation
 #from AthenaPoolTools.AthenaPoolToolsConf import EventCounter
-from GaudiAlg.GaudiAlgConf import EventCounter
-
+#from GaudiAlg.GaudiAlgConf import EventCounter
+from GaudiSequencer.GaudiSequencerConf import AthEventCounter as EventCounter
 
 import PerfMonComps.DomainsRegistry as pdr
 pdr.flag_domain('admin')
 # one print every 100 event
-topSequence+=EventCounter(Frequency=100)
+topSequence+=EventCounter("EventCounter",Frequency=100)
 
 #Temporary: Schedule conversion algorithm for EventInfo object:
 # Note that we need to check whether the HLT already added this algorithm to the
@@ -477,16 +469,6 @@ if globalflags.InputFormat.is_bytestream():
             svcMgr.EventSelector.Input=athenaCommonFlags.FilesInput()
         elif len(athenaCommonFlags.BSRDOInput())>0:
             svcMgr.EventSelector.Input=athenaCommonFlags.BSRDOInput()
-
-    if globalflags.DataSource()=='geant4':
-        logRecExCommon_topOptions.info("DataSource is 'geant4'")
-        #Special add-ons for simulation based bytestream
-        from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
-        tf.configurationSourceList = ['ds']
-        tf.readLVL1configFromXML = True
-        tf.readHLTconfigFromXML = True
-        svcMgr.ByteStreamCnvSvc.IsSimulation = True
-
 
     #Set TypeNames of ByteStreamInputService according to global flags:
     protectedInclude("RecExCommon/BSRead_config.py")
@@ -551,38 +533,59 @@ if rec.readESD() and rec.doESD():
     rec.doTrigger=False
     recAlgs.doTrigger=False
     logRecExCommon_topOptions.info("detected re-reconstruction from ESD, will switch trigger OFF !")
-#try:
+
+# Disable Trigger output reading in MC if there is none, unless running Trigger selection algorithms
+if not globalflags.InputFormat.is_bytestream() and not recAlgs.doTrigger:
+    try:
+        from RecExConfig.ObjKeyStore import cfgKeyStore
+        from PyUtils.MetaReaderPeeker import convert_itemList
+        cfgKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
+        # Check for Run-1, Run-2 or Run-3 Trigger content in the input file
+        from TrigDecisionTool.TrigDecisionToolConfig import getRun3NavigationContainerFromInput
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        if not cfgKeyStore.isInInputFile("HLT::HLTResult", "HLTResult_EF") \
+                and not cfgKeyStore.isInInputFile("xAOD::TrigNavigation", "TrigNavigation") \
+                and not cfgKeyStore.isInInputFile("xAOD::TrigCompositeContainer", getRun3NavigationContainerFromInput(ConfigFlags) ):
+            logRecExCommon_topOptions.info('Disabled rec.doTrigger because recAlgs.doTrigger=False and there is no Trigger content in the input file')
+            rec.doTrigger = False
+    except Exception:
+        logRecExCommon_topOptions.warning('Failed to check input file for Trigger content, leaving rec.doTrigger value unchanged (%s)', rec.doTrigger)
+
 if rec.doTrigger:
-    if globalflags.DataSource() == 'data'and globalflags.InputFormat == 'bytestream':
+    if globalflags.DataSource() == 'data' and globalflags.InputFormat == 'bytestream':
         try:
             include("TriggerJobOpts/BStoESD_Tier0_HLTConfig_jobOptions.py")
         except Exception:
             treatException("Could not import TriggerJobOpts/BStoESD_Tier0_HLTConfig_jobOptions.py . Switching trigger off !" )
-            recAlgs.doTrigger=False
+            rec.doTrigger = recAlgs.doTrigger = False
     else:
         try:
-            from TriggerJobOpts.TriggerGetter import TriggerGetter
-            triggerGetter = TriggerGetter()
+            from TriggerJobOpts.T0TriggerGetter import T0TriggerGetter
+            triggerGetter = T0TriggerGetter()
         except Exception:
-            treatException("Could not import TriggerJobOpts.TriggerGetter . Switched off !" )
-            recAlgs.doTrigger=False
+            treatException("Could not import TriggerJobOpts.T0TriggerGetter . Switched off !" )
+            rec.doTrigger = recAlgs.doTrigger = False
 
-# Run-3 Trigger Outputs
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
-if ConfigFlags.Trigger.EDMVersion == 3 and rec.readESD() and rec.doAOD():
-    # Don't run any trigger - only pass the HLT contents from ESD to AOD
-    # Add HLT output
-    from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
-    hltOutput = HLTTriggerResultGetter()
-    # Add Trigger menu metadata
-    if rec.doFileMetaData():
-        from RecExConfig.ObjKeyStore import objKeyStore
-        metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
-                          "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
-        objKeyStore.addManyTypesMetaData( metadataItems )
-    # Add L1 output (to be consistent with R2)
-    from TrigEDMConfig.TriggerEDM import getLvl1AODList
-    objKeyStore.addManyTypesStreamAOD(getLvl1AODList())        
+    # ESDtoAOD Run-3 Trigger Outputs: Don't run any trigger - only pass the HLT contents from ESD to AOD
+    if rec.readESD() and rec.doAOD():
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        # The simplest protection in case ConfigFlags.Input.Files is not set, doesn't cover all cases:
+        if ConfigFlags.Input.Files == ['_ATHENA_GENERIC_INPUTFILE_NAME_'] and athenaCommonFlags.FilesInput():
+            ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
+
+        if ConfigFlags.Trigger.EDMVersion == 3:
+            # Add HLT output
+            from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
+            hltOutput = HLTTriggerResultGetter()
+            # Add Trigger menu metadata
+            if rec.doFileMetaData():
+                from RecExConfig.ObjKeyStore import objKeyStore
+                metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
+                                "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
+                objKeyStore.addManyTypesMetaData( metadataItems )
+            # Add L1 output (to be consistent with R2)
+            from TrigEDMConfig.TriggerEDM import getLvl1AODList
+            objKeyStore.addManyTypesStreamAOD(getLvl1AODList())
 
 AODFix_postTrigger()
 
@@ -1174,16 +1177,6 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
                                   )
         pass
 
-    # Schedule the AODSelect setup
-    if rec.doAODSelect():
-        try:
-            include("AODSelect/AODSelect_setupOptions.py")
-        except Exception:
-            treatException("Could not load AODSelect/AODSelect_setupOptions.py !")
-            rec.doAODSelect = False
-            pass
-        pass
-
     #This block may not be needed... something to check if somebody has time!
     if rec.DPDMakerScripts()!=[]:
         if globalflags.InputFormat()=='pool':
@@ -1197,16 +1190,6 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
         DPDMakerName = str(DPDMaker)
         logRecExCommon_topOptions.info( "Including %s...",DPDMakerName )
         include(DPDMaker)
-        pass
-
-    # Schedule the AODSelect algorithms
-    if rec.doAODSelect():
-        try:
-            include("AODSelect/AODSelect_mainOptions.py")
-        except Exception:
-            treatException("Could not load AODSelect/AODSelect_mainOptions.py !")
-            rec.doAODSelect = False
-            pass
         pass
 
     #SkimDecision objects may once migrate to CutFlowSvc or DecisionSvc, but not yet
@@ -1263,6 +1246,8 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
             if ( rec.readESD() or jobproperties.egammaRecFlags.Enabled ) and not rec.ScopingLevel()==4 and rec.doEgamma :
                 from egammaRec import egammaKeys
                 addClusterToCaloCellAOD(egammaKeys.outputClusterKey())
+                addClusterToCaloCellAOD(egammaKeys.outputFwdClusterKey())
+                addClusterToCaloCellAOD(egammaKeys.outputEgammaLargeFWDClustersKey())
                 if "itemList" in metadata:
                     if ('xAOD::CaloClusterContainer', egammaKeys.EgammaLargeClustersKey()) in metadata["itemList"]:
                         # check first for priority if both keys are in metadata
@@ -1282,29 +1267,13 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
                 addClusterToCaloCellAOD("InDetTrackParticlesAssociatedClusters")
 
             from tauRec.tauRecFlags import tauFlags
-            if ( rec.readESD() or tauFlags.Enabled() ) and rec.doTau:                
-                from CaloRec.CaloRecConf import CaloThinCellsByClusterAlg
-                tauCellAlg1 = CaloThinCellsByClusterAlg('CaloThinCellsByClusterAlg_TauPi0Clusters',
-                                                        StreamName = 'StreamAOD',
-                                                        Clusters = 'TauPi0Clusters',
-                                                        Cells = 'AllCalo')
-                topSequence += tauCellAlg1
+            if ( rec.readESD() or tauFlags.Enabled() ) and rec.doTau:
+                # TauThinningAlg takes care of all tau-related thinning operations (taus, clusters, cells, cell links, PFOs, tracks, vertices)
+                from tauRec.tauRecConf import TauThinningAlg
+                tauThinningAlg = TauThinningAlg('TauThinningAlg',
+                                                MinTauPt = tauFlags.tauRecMinPt())
+                topSequence += tauThinningAlg
 
-                tauCellAlg2 = CaloThinCellsByClusterAlg('CaloThinCellsByClusterAlg_TauShotClusters',
-                                                        StreamName = 'StreamAOD',
-                                                        Clusters = 'TauShotClusters',
-                                                        Cells = 'AllCalo')
-                topSequence += tauCellAlg2
-
-                from tauRec.tauRecConf import TauCellThinningAlg
-                tauCellAlg3 = TauCellThinningAlg('TauCellThinningAlg',
-                                                 StreamName = 'StreamAOD',
-                                                 Cells = 'AllCalo',
-                                                 CellLinks = 'CaloCalTopoClusters_links',
-                                                 Taus = "TauJets",
-                                                 UseSubtractedCluster = tauFlags.useSubtractedCluster())
-                topSequence += tauCellAlg3
-                
         except Exception:
             treatException("Could not make AOD cells" )
 
@@ -1355,10 +1324,10 @@ if rec.doWriteAOD():
             from ThinningUtils.ThinGeantTruth import ThinGeantTruth
             ThinGeantTruth()
 
-        if AODFlags.ThinNegativeEnergyCaloClusters:
+        if rec.doCalo and AODFlags.ThinNegativeEnergyCaloClusters:
             from ThinningUtils.ThinNegativeEnergyCaloClusters import ThinNegativeEnergyCaloClusters
             ThinNegativeEnergyCaloClusters()            
-        if AODFlags.ThinNegativeEnergyNeutralPFOs:
+        if rec.doCalo and AODFlags.ThinNegativeEnergyNeutralPFOs:
             from ThinningUtils.ThinNegativeEnergyNeutralPFOs import ThinNegativeEnergyNeutralPFOs
             ThinNegativeEnergyNeutralPFOs()
         if (AODFlags.ThinInDetForwardTrackParticles() and
@@ -1557,69 +1526,6 @@ if not rec.oldFlagCompatibility:
     except Exception:
         printfunc ("WARNING RecExCommonFlags not available, cannot check")
 
-
-
-
-
-# -------------------------------------------------------------
-# TAG and TAGCOMM making+writing
-# -------------------------------------------------------------
-pdr.flag_domain('tag')
-if rec.doWriteTAGCOM():
-    logRecExCommon_topOptions.warning( "TAGCOM has been retired !! Please use doWriteTAG instead !!" )
-
-try:
-    if rec.doWriteTAG():
-        from RegistrationServices.RegistrationServicesConf import RegistrationStream
-
-
-        try:
-            from RegistrationServices.RegistrationServicesConf import RegistrationStreamTagTool
-            TagTool = RegistrationStreamTagTool("TagTool")
-            StreamTAG = RegistrationStream("StreamTAG",
-                                        CollectionType="ExplicitROOT",
-                                       Tool=TagTool)
-            StreamTAG.ItemList += tagmetadatalist
-            logRecExCommon_topOptions.info( "StreamTAG set up the new way (with StreamTagTool" )
-        except Exception:
-            # if not new tag
-            StreamTAG = RegistrationStream("StreamTAG",
-                                           CollectionType="ExplicitROOT")
-            StreamTAG.ItemList += [ "AthenaAttributeList#SimpleTag" ]
-            logRecExCommon_topOptions.info( "StreamTAG set up the old way (with StreamTagTool" )
-
-        from AthenaCommon.AlgSequence import AthSequencer
-        regSequence = AthSequencer( "AthRegSeq" )
-        regSequence   += StreamTAG
-
-        TagStreamName="*"
-
-        # Default is that TAG will point at an output file
-        StreamTAG.WriteInputDataHeader = False
-        # ... unless nothing is written out
-        if (rec.readRDO() or rec.readESD()) and (not rec.doWriteESD() and not rec.doWriteAOD()):
-            StreamTAG.WriteInputDataHeader = True
-        elif rec.readAOD() and not rec.doWriteAOD():
-            StreamTAG.WriteInputDataHeader = True
-
-        # and then specify which output dataheader to take
-
-        if rec.doWriteAOD() and (rec.readRDO() or rec.readESD() or rec.readAOD()):
-            TagStreamName="StreamAOD"
-        elif not rec.readAOD() and (rec.readRDO() or rec.readESD()) and rec.doWriteESD():
-            TagStreamName="StreamESD"
-
-        logRecExCommon_topOptions.info( "TAG primary ref points to "+ TagStreamName)
-        StreamTAG.ItemList += [ "DataHeader#"+TagStreamName ]
-
-        pdr.flag_domain('output')
-        # Define the output file name
-        StreamTAG.OutputCollection = athenaCommonFlags.PoolTAGOutput()
-        logRecExCommon_topOptions.info("StreamTAG Itemlist dump:")
-        printfunc (StreamTAG.ItemList)
-
-except Exception:
-    treatException ("problem setting up TAG output")
 
 
 if rec.readAOD():

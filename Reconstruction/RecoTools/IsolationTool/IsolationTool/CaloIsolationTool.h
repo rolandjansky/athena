@@ -13,11 +13,12 @@
 #ifndef XAOD_ANALYSIS
 // #include "GaudiKernel/ToolHandle.h"
 #include "ParticlesInConeTools/ICaloClustersInConeTool.h"
-#include "ParticlesInConeTools/IPFlowObjectsInConeTool.h"
+#include "ParticlesInConeTools/IFlowElementsInConeTool.h"
 #include "RecoToolInterfaces/IParticleCaloCellAssociationTool.h"
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
 #include "CaloRec/CaloClusterProcessor.h"
+#include "TrkCaloExtension/CaloExtensionCollection.h"
 #endif // XAOD_ANALYSIS
 
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
@@ -33,10 +34,13 @@
 #include "xAODEgamma/Egamma.h"
 #include "xAODMuon/Muon.h"
 #include "xAODEventShape/EventShape.h"
-#include "xAODPFlow/PFO.h"
-#include "xAODPFlow/PFOContainer.h"
+#include "xAODPFlow/FlowElement.h"
+#include "xAODPFlow/FlowElementContainer.h"
 
 #include <vector>
+
+#include <map>
+#include <TGraph.h>
 
 namespace xAOD {
   
@@ -205,7 +209,7 @@ namespace xAOD {
                               float phi,
                               std::vector<float>& m_coneSizes,
                               bool coreEMonly,
-                              const PFOContainer* container,
+                              const FlowElementContainer* container,
                               double coneCoreSize) const;
 
       // sum of pt of pflow objects in a cone
@@ -213,7 +217,7 @@ namespace xAOD {
                          float eta,
                          float phi,
                          std::vector<float>& m_coneSizes,
-                         const std::vector<const PFO*>& clusts) const;
+                         const std::vector<const FlowElement*>& clusts) const;
 
       /// Correct the pflow isolation using sum of pflow objects in core region.
       bool correctIsolationEnergy_pflowCore(
@@ -223,7 +227,7 @@ namespace xAOD {
         float detaMax,
         float dphiMax,
         float dR2Max,
-        const std::vector<const PFO*>& clusts,
+        const std::vector<const FlowElement*>& clusts,
         bool onlyEM = false) const;
 
       // core eg 5x7 egamma subtraction
@@ -277,8 +281,8 @@ namespace xAOD {
 	  "xAOD::CaloClustersInConeTool/CaloClustersInConeTool"}; 
       
       // pflow objects in cone tool
-      ToolHandle<IPFlowObjectsInConeTool> m_pflowObjectsInConeTool {this,
-	  "PFlowObjectsInConeTool", ""}; 
+      ToolHandle<IFlowElementsInConeTool> m_pflowObjectsInConeTool {this,
+	  "FlowElementsInConeTool", ""}; 
       
       /** @brief  Property: calo cluster filling tool */
       ToolHandle<CaloClusterProcessor> m_caloFillRectangularTool {this,
@@ -289,6 +293,10 @@ namespace xAOD {
       Gaudi::Property<bool> m_useCaloExtensionCaching {this, 
 	  "UseCaloExtensionCaching", true, 
 	  "Use cached caloExtension if avaliable."};
+
+      /** The input calorimeter extensions */
+      SG::ReadHandleKey<CaloExtensionCollection> m_caloExtensionKey{
+        this, "InputCaloExtension", "", "The calorimeter extensions of the tracks"};
 #endif // XAOD_ANALYSIS
 
       /** @brief Tool for pt-corrected isolation calculation (new)*/
@@ -363,21 +371,34 @@ namespace xAOD {
 
       /** map to the orignal particle */
       std::map<const IParticle*, const IParticle*> m_derefMap;
-
-      /** Property: Turn on/off the calo extension decoration. */
-      // JM: set to false since I am not sure it's thread-safe
-      Gaudi::Property<bool> m_addCaloDeco {this,
-	  "addCaloExtensionDecoration", false, "Add the calo decorations"}; 
       
       /** Property: Initialize read Handles. Default True. For HLT these need to be off. */
       Gaudi::Property<bool> m_InitializeReadHandles {this,
-	  "InitializeReadHandles", true,
-	  "Initialize all ReadHandles."};
+        "InitializeReadHandles", true,
+        "Initialize all ReadHandles."};
 
+      /** Property: need to know if this is MC (from rec.doTruth) for eta dep pileup corr */
+      Gaudi::Property<bool> m_isMC {this, "isMC", false, "is MC"};
+
+      /** Property: use pileup dependent correction*/
+      Gaudi::Property<bool> m_useEtaDepPU {this,
+	  "UseEtaDepPUCorr", true, "Use the eta dependent pileup correction"};
+
+      /** name of the root file for the eta dependant pileup correction */
+      Gaudi::Property<std::string> m_puZetaCorrectionFileName {this,
+	  "EtaDependentPileupCorrectionFileName", "IsolationCorrections/v4/zetas.root",
+	  "File name for the eta dependant pileup correction to isolation"};
+      Gaudi::Property<std::string> m_puZetaMCCorrectionFileName {this,
+	  "EtaDependentPileupMCCorrectionFileName", "IsolationCorrections/v4/zetas_correction.root",
+	  "File name for the eta dependant pileup correction to isolation, small mc correction"};
+
+      /** map of the zeta corrections (one / cone size) */
+      std::map<Iso::IsolationType,std::unique_ptr<TGraph>> m_puZetaCorrection;
+      std::map<Iso::IsolationType,std::unique_ptr<TGraph>> m_puZetaMCCorrection;
 
 #ifdef XAOD_ANALYSIS // particlesInCone tool will not be avaible. Write our own...
       bool particlesInCone( float eta, float phi, float dr, std::vector<const CaloCluster*>& clusts ) const;
-      bool particlesInCone( float eta, float phi, float dr, std::vector<const PFO*>& clusts ) const;
+      bool particlesInCone( float eta, float phi, float dr, std::vector<const FlowElement*>& clusts ) const;
 #endif // XAOD_ANALYSIS
       float Phi_mpi_pi(float x) const { 
         while (x >= M_PI) x -= 2.*M_PI;

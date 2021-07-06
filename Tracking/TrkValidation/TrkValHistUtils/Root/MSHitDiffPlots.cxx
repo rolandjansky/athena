@@ -7,7 +7,7 @@
 // #include "TrkValHistUtils/TrkValHistUtilities.h"
 
 namespace Trk {
-  MSHitDiffPlots::MSHitDiffPlots(PlotBase *pParent, std::string sDir) :
+  MSHitDiffPlots::MSHitDiffPlots(PlotBase *pParent, const std::string& sDir) :
     PlotBase(pParent, sDir),
     nprecLayers(this, "nprecLayers", "Precision Layers", -5, 5),
     nphiLayers(this, "nphiLayers", "Phi Layers", -5, 5),
@@ -15,15 +15,15 @@ namespace Trk {
   }
 
   void
-  MSHitDiffPlots::fill(const xAOD::TrackParticle &trkprt, const xAOD::TruthParticle &truthprt) {
-    fillPlot(nprecLayers, xAOD::numberOfPrecisionLayers, "nprecLayers", trkprt, truthprt);
-    fillPlot(nphiLayers, xAOD::numberOfPhiLayers, "nphiLayers", trkprt, truthprt);
-    fillPlot(ntrigEtaLayers, xAOD::numberOfTriggerEtaLayers, "ntrigEtaLayers", trkprt, truthprt);
+  MSHitDiffPlots::fill(const xAOD::TrackParticle &trkprt, const xAOD::TruthParticle &truthprt, float weight) {
+    fillPlot(nprecLayers, xAOD::numberOfPrecisionLayers, "nprecLayers", trkprt, truthprt, weight);
+    fillPlot(nphiLayers, xAOD::numberOfPhiLayers, "nphiLayers", trkprt, truthprt, weight);
+    fillPlot(ntrigEtaLayers, xAOD::numberOfTriggerEtaLayers, "ntrigEtaLayers", trkprt, truthprt, weight);
   }
 
   void
   MSHitDiffPlots::fillPlot(HitTypePlots &hitPlots, const xAOD::SummaryType &info, const std::string &sInfo,
-                           const xAOD::TrackParticle &trkprt, const xAOD::TruthParticle &truthprt) {
+                           const xAOD::TrackParticle &trkprt, const xAOD::TruthParticle &truthprt, float weight) {
     uint8_t hitval = 0;
 
     if (!trkprt.summaryValue(hitval, info)) {
@@ -33,6 +33,6 @@ namespace Trk {
       return;
     }
     uint8_t truthhitval = truthprt.auxdata<uint8_t>(sInfo);
-    hitPlots.fill(truthhitval - hitval, trkprt.eta(), trkprt.phi());
+    hitPlots.fill(truthhitval - hitval, trkprt.eta(), trkprt.phi(), weight);
   }
 }

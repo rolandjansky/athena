@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -23,51 +23,51 @@ const Trk::NoBounds Trk::StraightLineSurface::s_boundless;
 Trk::StraightLineSurface::StraightLineSurface()
   : Surface()
   , m_lineDirection{}
-  , m_bounds()
+  , m_bounds(nullptr)
 {}
 
 // constructors by arguments: boundless surface
-Trk::StraightLineSurface::StraightLineSurface(Amg::Transform3D* htrans)
+Trk::StraightLineSurface::StraightLineSurface(const Amg::Transform3D& htrans)
   : Surface(htrans)
   , m_lineDirection{}
-  , m_bounds()
-{}
-
-// constructors by arguments: boundless surface
-Trk::StraightLineSurface::StraightLineSurface(std::unique_ptr<Amg::Transform3D> htrans)
-  : Surface(std::move(htrans))
-  , m_lineDirection{}
-  , m_bounds()
+  , m_bounds(nullptr)
 {}
 
 // constructors by arguments
-Trk::StraightLineSurface::StraightLineSurface(Amg::Transform3D* htrans, double radius, double halez)
+Trk::StraightLineSurface::StraightLineSurface(
+  const Amg::Transform3D& htrans,
+  double radius,
+  double halez)
   : Surface(htrans)
   , m_lineDirection{}
-  , m_bounds(new Trk::CylinderBounds(radius, halez))
+  , m_bounds(std::make_shared<Trk::CylinderBounds>(radius, halez))
 {}
 
 // dummy implementation
-Trk::StraightLineSurface::StraightLineSurface(const Trk::TrkDetElementBase& detelement, const Identifier& id)
+Trk::StraightLineSurface::StraightLineSurface(
+  const Trk::TrkDetElementBase& detelement,
+  const Identifier& id)
   : Surface(detelement, id)
   , m_lineDirection{}
-  , m_bounds()
+  , m_bounds(nullptr)
 {}
 
 // copy constructor
-Trk::StraightLineSurface::StraightLineSurface(const Trk::StraightLineSurface& slsf)
+Trk::StraightLineSurface::StraightLineSurface(
+  const Trk::StraightLineSurface& slsf)
   : Surface(slsf)
   , m_lineDirection{}
   , m_bounds(slsf.m_bounds)
 {}
 
 // copy constructor with shift
-Trk::StraightLineSurface::StraightLineSurface(const StraightLineSurface& csf, const Amg::Transform3D& transf)
+Trk::StraightLineSurface::StraightLineSurface(
+  const StraightLineSurface& csf,
+  const Amg::Transform3D& transf)
   : Surface(csf, transf)
   , m_lineDirection{}
   , m_bounds(csf.m_bounds)
 {}
-
 
 // assignment operator
 Trk::StraightLineSurface&
@@ -107,8 +107,8 @@ Trk::StraightLineSurface::localToGlobal(const Amg::Vector2D& locpos,
   glopos = Amg::Vector3D(locZinGlobal + locpos[Trk::locR] * radiusAxisGlobal.normalized());
 }
 
-// specialized version for providing different Z -  local to global method - from LocalParameters/
-Amg::Vector3D*
+
+Amg::Vector3D
 Trk::StraightLineSurface::localToGlobal(const Trk::LocalParameters& locpars,
                                         const Amg::Vector3D& glomom,
                                         double locZ) const
@@ -118,21 +118,11 @@ Trk::StraightLineSurface::localToGlobal(const Trk::LocalParameters& locpars,
   return Surface::localToGlobal(locPos, glomom);
 }
 
-Amg::Vector3D
-Trk::StraightLineSurface::localToGlobalPos(const Trk::LocalParameters& locpars,
-                                           const Amg::Vector3D& glomom,
-                                           double locZ) const
-{
-  // create a local Position
-  Amg::Vector2D locPos(locpars[Trk::driftRadius], locZ);
-  return Surface::localToGlobalPos(locPos, glomom);
-}
-
 
 // true global to local method - fully defined
 bool
 Trk::StraightLineSurface::globalToLocal(const Amg::Vector3D& glopos,
-                                        const Amg::Vector3D& glomom,
+                                        const Amg::Vector3D&  glomom,
                                         Amg::Vector2D& locpos) const
 {
   Amg::Vector3D loc3Dframe = (transform().inverse()) * glopos;
@@ -145,9 +135,19 @@ Trk::StraightLineSurface::globalToLocal(const Amg::Vector3D& glopos,
   return true;
 }
 
+#if defined(FLATTEN) && defined(__GNUC__)
+// We compile this function with optimization, even in debug builds; otherwise,
+// the heavy use of Eigen makes it too slow.  However, from here we may call
+// to out-of-line Eigen code that is linked from other DSOs; in that case,
+// it would not be optimized.  Avoid this by forcing all Eigen code
+// to be inlined here if possible.
+__attribute__ ((flatten))
+#endif
 // isOnSurface check
 bool
-Trk::StraightLineSurface::isOnSurface(const Amg::Vector3D& glopo, BoundaryCheck bchk, double tol1, double tol2) const
+Trk::StraightLineSurface::isOnSurface(const Amg::Vector3D& glopo, 
+                                      const BoundaryCheck& bchk, 
+                                      double tol1, double tol2) const
 {
   if (!bchk)
     return true;
@@ -182,7 +182,7 @@ Trk::StraightLineSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos,
 
 // return the measurement frame
 Amg::RotationMatrix3D
-Trk::StraightLineSurface::measurementFrame(const Amg::Vector3D&, const Amg::Vector3D& glomom) const
+Trk::StraightLineSurface::measurementFrame(const Amg::Vector3D&, const Amg::Vector3D&  glomom) const
 {
   Amg::RotationMatrix3D mFrame;
   // construct the measurement frame

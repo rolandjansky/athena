@@ -13,6 +13,7 @@
 #include "TruthParticleFakerTool.h"
 #include "AtlasHepMC/GenParticle.h"
 #include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/SimpleVector.h"
 #include "AthenaKernel/errorcheck.h"
 
 #include "GaudiKernel/SystemOfUnits.h"
@@ -25,7 +26,7 @@ TruthParticleFakerTool::TruthParticleFakerTool (const std::string& type,
                                                 const std::string& name,
                                                 const IInterface* parent)
   : BlockFillerTool<HepMC::GenParticle> (type, name, parent)
-    //m_n(0)
+
 {
   // Avoid coverity warnings
   m_do_E = true;
@@ -70,15 +71,13 @@ StatusCode TruthParticleFakerTool::book()
 
 StatusCode TruthParticleFakerTool::fill (const HepMC::GenParticle& p)
 {
-  if ( abs(p.pdg_id())!=m_filterID ||
-       p.momentum().perp()<m_minPt ) return StatusCode(IBlockFillerTool::EMPTY);
-
-  bool last = abs(p.pdg_id())==15;
-  if ( abs(p.pdg_id())==15 && p.status()!=1 && p.end_vertex() ){
+  if ( std::abs(p.pdg_id())!=m_filterID || p.momentum().perp()<m_minPt ) return StatusCode(IBlockFillerTool::EMPTY);
+  auto endvertex=p.end_vertex();
+  bool last = std::abs(p.pdg_id())==15;
+  if ( std::abs(p.pdg_id())==15 && p.status()!=1 && endvertex ){
     // Special handling for taus - take the ones that are last in the tau chain
-    for (HepMC::GenVertex::particles_out_const_iterator pit=p.end_vertex()->particles_out_const_begin(); pit!=p.end_vertex()->particles_out_const_end();++pit){
-      if (!(*pit) ||
-          abs((*pit)->pdg_id())!=15) continue;
+    for (auto pit: *endvertex){
+      if (!pit || std::abs(pit->pdg_id())!=15) continue;
       last=false;
       break;
     }
@@ -88,13 +87,17 @@ StatusCode TruthParticleFakerTool::fill (const HepMC::GenParticle& p)
   if ( !last &&
        p.status()%1000 != 1 &&
        !(p.status()%1000 == 2 && p.status()>1000) &&
-       !(p.status()==2 && (!p.end_vertex() || p.end_vertex()->barcode()<-200000) ) ) {
+       !(p.status()==2 && (!endvertex || HepMC::barcode(endvertex)<-200000) ) ) {
     return StatusCode(IBlockFillerTool::EMPTY);
   }
 
   HepMC::FourVector v = p.momentum();
   if (m_do_E)        *m_E     = static_cast<float> (v.e());
+#ifdef HEPMC3
+  if (m_do_p)        *m_p     = static_cast<float> (v.length());
+#else
   if (m_do_p)        *m_p     = static_cast<float> (v.rho());
+#endif
   if (m_do_pt)       *m_pt    = static_cast<float> (v.perp());
   if (m_do_m)        *m_m     = static_cast<float> (v.m());
   if (m_do_pn){
@@ -106,7 +109,7 @@ StatusCode TruthParticleFakerTool::fill (const HepMC::GenParticle& p)
   *m_phi = static_cast<float> (v.phi());
 
   *m_status = p.status();
-  *m_barcode = p.barcode();
+  *m_barcode = HepMC::barcode(p);
   if (m_do_chg)     *m_charge = p.pdg_id()<0?1:-1;
 
   return StatusCode::SUCCESS;

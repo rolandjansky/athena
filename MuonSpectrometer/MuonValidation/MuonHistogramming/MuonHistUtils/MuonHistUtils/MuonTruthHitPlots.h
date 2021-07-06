@@ -13,10 +13,10 @@ namespace Muon{
 class MuonTruthHitPlots:public PlotBase {
  public:
   MuonTruthHitPlots(PlotBase* pParent, std::string sDir);  
-  void fill(const xAOD::Muon& muon);
-  void fillPlot(TH1* hitPlots, const std::string& sInfo, const Muon::MuonStationIndex::ChIndex& index, const xAOD::Muon& muon);
-  void fillPlot(TH1* hitPlots, const std::string& sInfo, const Muon::MuonStationIndex::PhiIndex& index, const xAOD::Muon& muon);
-  void fillPlot(TH1* hitPlots, const std::string& sInfo, const xAOD::Muon& muon);
+  void fill(const xAOD::Muon& muon, float weight=1.0);
+  void fillPlot(TH1* hitPlots, const std::string& sInfo, const Muon::MuonStationIndex::ChIndex& index, const xAOD::Muon& muon, float weight=1.0);
+  void fillPlot(TH1* hitPlots, const std::string& sInfo, const Muon::MuonStationIndex::PhiIndex& index, const xAOD::Muon& muon, float weight=1.0);
+  void fillPlot(TH1* hitPlots, const std::string& sInfo, const xAOD::Muon& muon, float weight=1.0);
  
   TH1* precMatchedHitsSummed;
   TH1* precMatchedHitsBIS;

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 '''@file TrigEgammaMonitoringConfigRun3.py
 @author D. Maximov (histograms), Joao victor Pinto (core)
@@ -6,10 +6,7 @@
 @brief Run 3 configuration builder. Histograms definitions taken from TrigEgammaPlotTool
 '''
 
-
 from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefPhoton
-from TrigEgammaHypo.TrigEgammaPidTools import ElectronPidTools
-from TrigEgammaHypo.TrigEgammaPidTools import PhotonPidTools
 import cppyy
 import functools
  
@@ -19,8 +16,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory as CfgMgr
 
 if 'DQMonFlags' not in dir():
     from AthenaMonitoring.DQMonFlags import DQMonFlags as dqflags
-
-
 
 
 class TrigEgammaMonAlgBuilder:
@@ -53,15 +48,17 @@ class TrigEgammaMonAlgBuilder:
 
   
   # Add a flag to enable emulation
-  __acceptable_keys_list=['derivation','emulation','detailedHistograms','basePath']
+  __acceptable_keys_list=['derivation','emulation','detailedHistograms','basePath','emulation']
   emulation = False
   derivation = False
   detailedHistograms = False
   basePath = 'HLT/EgammaMon'
 
 
-  isemnames = ["Tight", "Medium", "Loose"]
-  lhnames   = ["LHTight", "LHMedium", "LHLoose"]
+  isemnames = ["tight", "medium", "loose"]
+  lhnames   = ["lhtight", "lhmedium", "lhloose","lhvloose"]
+  dnnnames   = ["dnntight", "dnnmedium", "dnnloose"]
+
  
 
   def __init__(self, helper, runflag, **kwargs):
@@ -107,6 +104,7 @@ class TrigEgammaMonAlgBuilder:
       self.activate_electron=True
       self.activate_photon=True
 
+ 
 
 
   def configure(self):
@@ -172,8 +170,17 @@ class TrigEgammaMonAlgBuilder:
             'HLT_e5_etcut_L1EM3',
             'HLT_e5_lhtight_noringer_L1EM3',
             'HLT_e5_lhtight_L1EM3',
-
+            'HLT_e5_lhtight_gsf_L1EM3',
+            'HLT_e5_lhtight_noringer',
+            'HLT_e9_lhtight_noringer_EM7',
+            'HLT_e14_lhtight_noringer_EM12'
             ]
+    monitoring_jpsi = [
+            'HLT_e4_etcut_Jpsiee_L1JPSI-1M5',
+            'HLT_e9_etcut_Jpsiee_L1JPSI-1M5-EM7',
+            'HLT_e14_etcut_Jpsiee_L1JPSI-1M5-EM12',
+            ]
+
 
     monitoring_photon = [
             'HLT_g20_loose_L1EM15VHI',
@@ -193,12 +200,22 @@ class TrigEgammaMonAlgBuilder:
             'HLT_g25_loose_L1EM20VH',
             'HLT_g25_medium_L1EM20VH',
             'HLT_g25_tight_L1EM20VH',
+            'HLT_g35_medium_L1EM20VH',
+            'HLT_g50_medium_L1EM20VH',
             'HLT_g120_loose_L1EM22VHI',
-            'HLT_g140_loose_L1EM22VH'
+            'HLT_g140_loose_L1EM22VH',
+            'HLT_g300_etcut_L1EM22VHI',
+            'HLT_g15_tight_dPhi15_L1DPHI-M70-EM12I'
             ]
 
     monitoringTP_electron = [
+            'HLT_e20_lhtight_ivarloose_L1ZAFB-25DPHI-EM18I',
+            'HLT_e12_lhvloose_L1EM10VH',
+            'HLT_e15_etcut_Zee',
+            'HLT_e15_idperf_Zee',
             'HLT_e17_lhvloose_L1EM15VHI', 
+            'HLT_e17_lhvloose_gsf_L1EM15VHI', 
+            'HLT_e24_lhvloose_gsf_L1EM20VH', 
             'HLT_e24_lhvloose_L1EM20VH', 
             'HLT_e26_lhloose_L1EM15VH',
             'HLT_e26_lhmedium_L1EM15VH',
@@ -208,12 +225,14 @@ class TrigEgammaMonAlgBuilder:
             'HLT_e26_lhtight_ivartight_L1EM15VH',
             'HLT_e26_lhloose_L1EM22VHI',
             'HLT_e26_lhmedium_L1EM22VHI',
-            'HLT_e26_lhtight_L1EM22VHI',
+            'HLT_e26_lhtight_gsf_L1EM22VHI',
+            'HLT_e26_lhtight_gsf_ivarloose_L1EM22VHI',
             'HLT_e26_lhtight_ivarloose_L1EM22VHI',
             'HLT_e26_lhtight_ivarmedium_L1EM22VHI',
             'HLT_e26_lhtight_ivartight_L1EM22VHI',
             'HLT_e60_lhmedium_L1EM22VHI',
-            'HLT_e140_lhloose_L1EM22VHI'
+            'HLT_e140_lhloose_L1EM22VHI',
+            'HLT_e300_etcut_L1EM22VHI',
             ]
 
     #monitoring_tags = ['HLT_e24_lhtight_nod0_ivarloose', 'HLT_e26_lhtight_nod0_ivarloose']
@@ -223,7 +242,7 @@ class TrigEgammaMonAlgBuilder:
     self.photonList   = monitoring_photon
     self.tpList       = monitoringTP_electron
     
-    self.jpsiList     = []
+    self.jpsiList     = monitoring_jpsi
     self.tagItems     = [] #monitoring_tags 
     self.jpsitagItems = [] #monitoring_jpsitags
 
@@ -243,10 +262,6 @@ class TrigEgammaMonAlgBuilder:
     cppyy.load_library('libElectronPhotonSelectorToolsDict')
     # Following loads the online selectors
   
-    # setup all pid tools
-    ElectronPidTools()
-    PhotonPidTools()
-  
     # Offline selectors -- taken from latest conf
     LooseElectronSelector             = CfgMgr.AsgElectronIsEMSelector("T0HLTLooseElectronSelector")
     MediumElectronSelector            = CfgMgr.AsgElectronIsEMSelector("T0HLTMediumElectronSelector")
@@ -256,6 +271,11 @@ class TrigEgammaMonAlgBuilder:
     TightLHSelector                   = CfgMgr.AsgElectronLikelihoodTool("T0HLTTightLHSelector")
     VeryLooseLHSelector               = CfgMgr.AsgElectronLikelihoodTool("T0HLTVeryLooseLHSelector")
  
+    # DNN selectors 
+    LooseDNNElectronSelector          = CfgMgr.AsgElectronSelectorTool("T0HLTLooseElectronDNNSelector")
+    MediumDNNElectronSelector         = CfgMgr.AsgElectronSelectorTool("T0HLTMediumElectronDNNSelector")
+    TightDNNElectronSelector          = CfgMgr.AsgElectronSelectorTool("T0HLTTightElectronDNNSelector")
+
     LoosePhotonSelector               = CfgMgr.AsgPhotonIsEMSelector( "T0HLTLoosePhotonSelector" )
     MediumPhotonSelector              = CfgMgr.AsgPhotonIsEMSelector( "T0HLTMediumPhotonSelector" )
     TightPhotonSelector               = CfgMgr.AsgPhotonIsEMSelector( "T0HLTTightPhotonSelector" )
@@ -275,6 +295,10 @@ class TrigEgammaMonAlgBuilder:
     acc.addPublicTool(MediumLHSelector)
     acc.addPublicTool(TightLHSelector)
     acc.addPublicTool(VeryLooseLHSelector)
+    acc.addPublicTool(LooseDNNElectronSelector)
+    acc.addPublicTool(MediumDNNElectronSelector)
+    acc.addPublicTool(TightDNNElectronSelector)
+
   
     if self.runFlag == '2018':
       # cut based
@@ -282,11 +306,15 @@ class TrigEgammaMonAlgBuilder:
       MediumElectronSelector.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronIsEMMediumSelectorCutDefs.conf"
       TightElectronSelector.ConfigFile  = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronIsEMTightSelectorCutDefs.conf"
       # 2018 (vtest)
-      LooseLHSelector.ConfigFile        = "ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodLooseOfflineConfig2017_CutBL_Smooth.conf"
-      MediumLHSelector.ConfigFile       = "ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodMediumOfflineConfig2017_Smooth.conf"
-      TightLHSelector.ConfigFile        = "ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodTightOfflineConfig2017_Smooth.conf"
-      VeryLooseLHSelector.ConfigFile    = "ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodVeryLooseOfflineConfig2017_Smooth.conf"
-    
+      LooseLHSelector.ConfigFile        = "ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodLooseOfflineConfig2017_CutBL_Smooth.conf"
+      MediumLHSelector.ConfigFile       = "ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodMediumOfflineConfig2017_Smooth.conf"
+      TightLHSelector.ConfigFile        = "ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodTightOfflineConfig2017_Smooth.conf"
+      VeryLooseLHSelector.ConfigFile    = "ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodVeryLooseOfflineConfig2017_Smooth.conf"
+      # DNN
+      LooseDNNElectronSelector.ConfigFile   = "ElectronPhotonSelectorTools/offline/mc16_20210430/ElectronDNNMulticlassLoose.conf"
+      MediumDNNElectronSelector.ConfigFile  = "ElectronPhotonSelectorTools/offline/mc16_20210430/ElectronDNNMulticlassMedium.conf"
+      TightDNNElectronSelector.ConfigFile   = "ElectronPhotonSelectorTools/offline/mc16_20210430/ElectronDNNMulticlassTight.conf"
+
       # cutbased for photons
       TightPhotonSelector.ConfigFile    = "ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMTightSelectorCutDefs.conf"
       MediumPhotonSelector.ConfigFile   = "ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMMediumSelectorCutDefs.conf"
@@ -302,7 +330,11 @@ class TrigEgammaMonAlgBuilder:
       MediumLHSelector.ConfigFile       = "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodMediumOfflineConfig2016_Smooth.conf"
       TightLHSelector.ConfigFile        = "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodTightOfflineConfig2016_Smooth.conf"
       VeryLooseLHSelector.ConfigFile    = "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodVeryLooseOfflineConfig2016_Smooth.conf"
-    
+      # DNN
+      LooseDNNElectronSelector.ConfigFile   = "ElectronPhotonSelectorTools/offline/mc16_20210430/ElectronDNNMulticlassLoose.conf"
+      MediumDNNElectronSelector.ConfigFile  = "ElectronPhotonSelectorTools/offline/mc16_20210430/ElectronDNNMulticlassMedium.conf"
+      TightDNNElectronSelector.ConfigFile   = "ElectronPhotonSelectorTools/offline/mc16_20210430/ElectronDNNMulticlassTight.conf"
+
       # cut based for photons 
       TightPhotonSelector.ConfigFile    = "ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMTightSelectorCutDefs.conf"
       MediumPhotonSelector.ConfigFile   = "ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMMediumSelectorCutDefs.conf"
@@ -311,6 +343,9 @@ class TrigEgammaMonAlgBuilder:
     else:
       # raise since the configuration its not defined
       raise RuntimeError( 'Wrong run flag configuration' )
+    
+
+
     
 
     if self.activate_zee:
@@ -323,18 +358,21 @@ class TrigEgammaMonAlgBuilder:
       self.zeeMonAlg.ElectronKey = 'Electrons'
       self.zeeMonAlg.isEMResultNames=self.isemnames
       self.zeeMonAlg.LHResultNames=self.lhnames
+      self.zeeMonAlg.DNNResultNames=self.dnnnames
       self.zeeMonAlg.ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector]
-      self.zeeMonAlg.ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector]
+      self.zeeMonAlg.ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector,VeryLooseLHSelector]
+      self.zeeMonAlg.ElectronDNNSelectorTool =[LooseDNNElectronSelector,MediumDNNElectronSelector,TightDNNElectronSelector]
       self.zeeMonAlg.ZeeLowerMass=80
       self.zeeMonAlg.ZeeUpperMass=100
       self.zeeMonAlg.OfflineTagMinEt=25
-      self.zeeMonAlg.OfflineTagSelector='LHTight'
-      self.zeeMonAlg.OfflineProbeSelector='LHLoose'
+      self.zeeMonAlg.OfflineTagSelector='lhtight'
+      self.zeeMonAlg.OfflineProbeSelector='lhloose'
       self.zeeMonAlg.OppositeCharge=True
       self.zeeMonAlg.RemoveCrack=False
       self.zeeMonAlg.TagTriggerList=self.tagItems
       self.zeeMonAlg.TriggerList=self.tpList
       self.zeeMonAlg.DetailedHistograms=self.detailedHistograms
+      self.zeeMonAlg.DoEmulation = False
 
 
     if self.activate_jpsiee:
@@ -348,18 +386,21 @@ class TrigEgammaMonAlgBuilder:
       self.jpsieeMonAlg.ElectronKey = 'Electrons'
       self.jpsieeMonAlg.isEMResultNames=self.isemnames
       self.jpsieeMonAlg.LHResultNames=self.lhnames
+      self.jpsieeMonAlg.DNNResultNames=self.dnnnames
       self.jpsieeMonAlg.ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector]
-      self.jpsieeMonAlg.ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector]
+      self.jpsieeMonAlg.ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector,VeryLooseLHSelector]
+      self.jpsieeMonAlg.ElectronDNNSelectorTool =[LooseDNNElectronSelector,MediumDNNElectronSelector,TightDNNElectronSelector]
       self.jpsieeMonAlg.ZeeLowerMass=2
       self.jpsieeMonAlg.ZeeUpperMass=5
       self.jpsieeMonAlg.OfflineTagMinEt=5
-      self.jpsieeMonAlg.OfflineTagSelector='LHTight'
-      self.jpsieeMonAlg.OfflineProbeSelector='LHLoose'
+      self.jpsieeMonAlg.OfflineTagSelector='lhtight'
+      self.jpsieeMonAlg.OfflineProbeSelector='lhloose'
       self.jpsieeMonAlg.OppositeCharge=True
       self.jpsieeMonAlg.RemoveCrack=False
       self.jpsieeMonAlg.TagTriggerList=self.jpsitagItems
       self.jpsieeMonAlg.TriggerList=self.jpsiList
       self.jpsieeMonAlg.DetailedHistograms=self.detailedHistograms
+      self.jpsieeMonAlg.DoEmulation = False
 
 
     if self.activate_electron:
@@ -371,13 +412,15 @@ class TrigEgammaMonAlgBuilder:
       self.elMonAlg.ElectronKey = 'Electrons'
       self.elMonAlg.isEMResultNames=self.isemnames
       self.elMonAlg.LHResultNames=self.lhnames
+      self.elMonAlg.DNNResultNames=self.dnnnames
       self.elMonAlg.ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector]
       self.elMonAlg.ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector]
-      self.elMonAlg.ForcePidSelection=False
+      self.elMonAlg.ForcePidSelection=True
       self.elMonAlg.ForceProbeIsolation=False
       self.elMonAlg.ForceEtThreshold=True
       self.elMonAlg.TriggerList=self.electronList
       self.elMonAlg.DetailedHistograms=self.detailedHistograms
+      self.elMonAlg.DoEmulation = False
 
     if self.activate_photon:
 
@@ -391,6 +434,8 @@ class TrigEgammaMonAlgBuilder:
       self.phMonAlg.PhotonIsEMSelector =[TightPhotonSelector,MediumPhotonSelector,LoosePhotonSelector]
       self.phMonAlg.TriggerList=self.photonList
       self.phMonAlg.DetailedHistograms=self.detailedHistograms
+      self.phMonAlg.ForcePidSelection=True
+      self.phMonAlg.DoEmulation = False
 
 
 
@@ -430,6 +475,7 @@ class TrigEgammaMonAlgBuilder:
 
     self.__logger.info( "Booking all histograms for alg: %s", monAlg.name )
 
+
     for trigger in triggers:
    
       info = self.getTrigInfo(trigger)
@@ -451,42 +497,51 @@ class TrigEgammaMonAlgBuilder:
         self.bookL1CaloResolutions( monAlg, trigger )
         self.bookL1CaloAbsResolutions( monAlg, trigger )
         self.bookL2CaloResolutions( monAlg, trigger )
-        self.bookHLTResolutions( monAlg, trigger )
         
         if info.isElectron():
           self.bookL2ElectronDistributions( monAlg, trigger )
           # Offline and HLT
-          self.bookShowerShapesDistributions( monAlg, trigger, online=True )
-          self.bookShowerShapesDistributions( monAlg, trigger, online=False )
+          self.bookShowerShapesDistributions( monAlg, trigger, "HLT" ,online=True)
+          self.bookShowerShapesDistributions( monAlg, trigger, "HLT" ,online=False)
           self.bookTrackingDistributions( monAlg, trigger, online=True )
           self.bookTrackingDistributions( monAlg, trigger, online=False )
+          self.bookHLTResolutions( monAlg, trigger,"HLT" )
           self.bookHLTElectronResolutions( monAlg, trigger, info.isIsolated() )
 
         elif info.isPhoton():
           # Should we include L2 for photon in the future?
-          self.bookShowerShapesDistributions( monAlg, trigger, online=True )
-          self.bookShowerShapesDistributions( monAlg, trigger, online=False )
+          self.bookShowerShapesDistributions( monAlg, trigger, "HLT", online=True )
+          self.bookShowerShapesDistributions( monAlg, trigger, "HLT", online=False)
+          self.bookHLTResolutions( monAlg, trigger,"HLT" )
           self.bookHLTPhotonResolutions( monAlg, trigger, info.isIsolated() )
 
         
         #
         # Efficiecies
         #
+
         self.bookEfficiencies( monAlg, trigger, "L1Calo" )
-        self.bookEfficiencies( monAlg, trigger, "L2Calo" )
-        self.bookEfficiencies( monAlg, trigger, "L2"     )
-        self.bookEfficiencies( monAlg, trigger, "EFCalo" )
-        self.bookEfficiencies( monAlg, trigger, "HLT"    )
-        
+        self.bookEfficiencies( monAlg, trigger, "FastCalo" )
+        self.bookEfficiencies( monAlg, trigger, "FastPhoton" if info.isPhoton() else "FastElectron")             
+        self.bookEfficiencies( monAlg, trigger, "PrecisionCalo" )
+        self.bookEfficiencies( monAlg, trigger, "HLT")
         if self.detailedHistograms:
           for pid in self.isemnames + self.lhnames:
             self.bookEfficiencies( monAlg, trigger, "HLT", pid )
             self.bookEfficiencies( monAlg, trigger, "HLT", pid+"Iso" )
 
-        
+        #
+        # Emulation
+        #
+        if self.emulation:
+          self.bookEfficiencies( monAlg, trigger, "L1Calo" , doEmulation=True)
+          self.bookEfficiencies( monAlg, trigger, "FastCalo" , doEmulation=True)
+          self.bookEfficiencies( monAlg, trigger, "PrecisionCalo" , doEmulation=True)
+          self.bookEfficiencies( monAlg, trigger, "FastPhoton" if info.isPhoton() else "FastElectron", doEmulation=True)         
+          self.bookEfficiencies( monAlg, trigger, "HLT" , doEmulation=True)
 
 
-    
+
 
   def bookEvent(self, monAlg, analysis, tap=False):
 
@@ -495,16 +550,16 @@ class TrigEgammaMonAlgBuilder:
 
     if tap:
       cutLabels = ["Events","LAr","RetrieveElectrons","TwoElectrons","PassTrigger","EventWise","Success"]
-      probeLabels=["Electrons","NotTag","OS","SS","ZMass","HasTrack","HasCluster","Eta","Et","IsGoodOQ","GoodPid","NearbyJet","Isolated"]
+      probeLabels=["Electrons","NotTag","OS","SS","ZMass","HasTrack","HasCluster","Eta","Et","IsGoodOQ","GoodPid","NearbyJet","Isolated","GoodProbe"]
       tagLabels=["Electrons","HasTrack","HasCluster","GoodPid","Et","Eta","IsGoodOQ","PassTrigger","MatchTrigger"]
 
-      monGroup.defineHistogram("CutCounter", type='TH1I', path='/', title="Event Selection; Cut ; Count",
+      monGroup.defineHistogram("CutCounter", type='TH1I', path='', title="Event Selection; Cut ; Count",
           xbins=len(cutLabels), xmin=0, xmax=len(cutLabels), xlabels=cutLabels)
       monGroup.defineHistogram("TagCutCounter", type='TH1F', path='', title="Number of Probes; Cut ; Count",
           xbins=len(tagLabels), xmin=0, xmax=len(tagLabels), xlabels=tagLabels)
       monGroup.defineHistogram("ProbeCutCounter", type='TH1F', path='', title="Number of Probes; Cut ; Count",
           xbins=len(probeLabels), xmin=0, xmax=len(probeLabels), xlabels=probeLabels)
-      monGroup.defineHistogram("Mee", type='TH1F', path='/', title="Offline M(ee); m_ee [GeV] ; Count",xbins=50, 
+      monGroup.defineHistogram("Mee", type='TH1F', path='', title="Offline M(ee); m_ee [GeV] ; Count",xbins=50, 
           xmin=monAlg.ZeeLowerMass, xmax=monAlg.ZeeUpperMass)
 
 
@@ -531,7 +586,7 @@ class TrigEgammaMonAlgBuilder:
   def bookL2CaloDistributions( self , monAlg, trigger ):
 
     from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F
-    monGroup = self.addGroup( monAlg, trigger+'_Distributions_L2Calo', self.basePath+'/'+trigger+'/Distributions/L2Calo' )
+    monGroup = self.addGroup( monAlg, trigger+'_Distributions_L2Calo', self.basePath+'/'+trigger+'/Distributions/FastCalo' )
     
     self.addHistogram(monGroup, TH1F("et", "ET; ET [GeV] ; Count", 100, 0., 100.))
     self.addHistogram(monGroup, TH1F("eta", "eta; eta ; Count", self._nEtabins, self._etabins))
@@ -544,7 +599,7 @@ class TrigEgammaMonAlgBuilder:
   def bookL2ElectronDistributions( self, monAlg, trigger ):
 
     from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F
-    monGroup = self.addGroup( monAlg, trigger+'_Distributions_L2Electron', self.basePath+'/'+trigger+'/Distributions/L2' )
+    monGroup = self.addGroup( monAlg, trigger+'_Distributions_L2Electron', self.basePath+'/'+trigger+'/Distributions/FastElectron' )
     
     self.addHistogram(monGroup, TH1F("et", "ET; ET [GeV] ; Count", 100, 0., 100.))
     self.addHistogram(monGroup, TH1F("eta", "eta; eta ; Count", self._nEtabins, self._etabins))
@@ -557,7 +612,7 @@ class TrigEgammaMonAlgBuilder:
   def bookEFCaloDistributions( self, monAlg, trigger ):
     
     from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F
-    monGroup = self.addGroup( monAlg, trigger+'_Distributions_EFCalo', self.basePath+'/'+trigger+'/Distributions/EFCalo' )
+    monGroup = self.addGroup( monAlg, trigger+'_Distributions_EFCalo', self.basePath+'/'+trigger+'/Distributions/PrecisionCalo' )
     
     self.addHistogram(monGroup, TH1F("et", "ET; ET [GeV] ; Count", 100, 0., 100.))
     self.addHistogram(monGroup, TH1F("eta", "eta; eta ; Count", self._nEtabins, self._etabins))
@@ -575,22 +630,24 @@ class TrigEgammaMonAlgBuilder:
   #
   # Book Shower shapes
   #
-  def bookShowerShapesDistributions( self, monAlg, trigger, online=True ):
-    
-    from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F
-    monGroup = self.addGroup( monAlg, trigger+'_Distributions_' + ("HLT" if online else "Offline"), 
-                              self.basePath+'/'+trigger+'/Distributions/' + ("HLT" if online else "Offline") )
+  def bookShowerShapesDistributions( self, monAlg, trigger, level, online=True):
 
-    self.addHistogram(monGroup, TH1F("ethad", "ethad; ethad ; Count", 20, -10, 10))
-    self.addHistogram(monGroup, TH1F("ethad1", "ethad1; ehad1 ; Count", 20, -10, 10))
+    from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F
+
+    monGroup = self.addGroup( monAlg, trigger+'_Distributions_' + ("HLT" if online else "Offline"), 
+                              self.basePath+'/'+trigger+'/Distributions/' + (level if online else "Offline") )
+    
+
+    self.addHistogram(monGroup, TH1F("ethad", "ethad; ethad ; Count", 20, -1, 1))
+    self.addHistogram(monGroup, TH1F("ethad1", "ethad1; ethad1 ; Count", 20, -1, 1))
     self.addHistogram(monGroup, TH1F("Rhad", "Rhad; Rhad ; Count", 35, -0.3, 0.3))
     self.addHistogram(monGroup, TH1F("Rhad1", "Rhad1; Rhad1 ; Count", 30, -0.3, 0.3))
-    self.addHistogram(monGroup, TH1F("Reta", "Reta; Reta ; Count", 15, 0., 1.5))
-    self.addHistogram(monGroup, TH1F("Rphi", "Rphi; Rphi ; Count", 15, 0., 1.5))
+    self.addHistogram(monGroup, TH1F("Reta", "Reta; Reta ; Count", 15, 0.4, 1.2))
+    self.addHistogram(monGroup, TH1F("Rphi", "Rphi; Rphi ; Count", 15, 0.4, 1.2))
     self.addHistogram(monGroup, TH1F("weta1", "weta1; weta1 ; Count", 12, 0.4, 1.))
     self.addHistogram(monGroup, TH1F("weta2", "weta2; weta2 ; Count", 20, 0., 0.02))
-    self.addHistogram(monGroup, TH1F("f1", "f1; f1 ; Count", 11, -0.1, 1.))
-    self.addHistogram(monGroup, TH1F("f3", "f3; f3 ; Count", 21, -0.1, 0.2))
+    self.addHistogram(monGroup, TH1F("f1", "f1; f1 ; Count", 11, 0, 1.))
+    self.addHistogram(monGroup, TH1F("f3", "f3; f3 ; Count", 21, -0.05, 0.1))
     self.addHistogram(monGroup, TH1F("eratio","eratio; eratio; Count",20, 0, 2))
     self.addHistogram(monGroup, TH1F("et", "ET; ET [GeV] ; Count", 100, 0., 100.))
     self.addHistogram(monGroup, TH1F("highet", "Offline E_{T}; E_{T} [GeV] ; Count", 100, 0., 2000.))
@@ -605,9 +662,11 @@ class TrigEgammaMonAlgBuilder:
   #
   # Book Tracking
   #
-  def bookTrackingDistributions( self, monAlg, trigger, online=True ):
+  def bookTrackingDistributions( self, monAlg, trigger,online=True ):
     
+
     from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F
+
     monGroup = self.addGroup( monAlg, trigger+'_Distributions_' + ("HLT" if online else "Offline"), 
                               self.basePath+'/'+trigger+'/Distributions/' + ("HLT" if online else "Offline") )
 
@@ -637,13 +696,15 @@ class TrigEgammaMonAlgBuilder:
   #
   # Book efficiencies
   #
-  def bookEfficiencies(self, monAlg, trigger, level, subgroup=None ):
+  def bookEfficiencies(self, monAlg, trigger, level, subgroup=None, doEmulation=False ):
 
     from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F, TProfile
+
+    dirname = 'Emulation' if doEmulation else 'Efficiency'
     if subgroup:
-      monGroup = self.addGroup( monAlg, trigger+'_Efficiency_'+level+'_'+subgroup, self.basePath+'/'+trigger+'/Efficiency/'+level+'/'+subgroup )
+      monGroup = self.addGroup( monAlg, trigger+'_'+dirname+'_'+level+'_'+subgroup, self.basePath+'/'+trigger+'/'+dirname+'/'+level+'/'+subgroup )
     else:
-      monGroup = self.addGroup( monAlg, trigger+'_Efficiency_'+level, self.basePath+'/'+trigger+'/Efficiency/'+level )
+      monGroup = self.addGroup( monAlg, trigger+'_'+dirname+'_'+level, self.basePath+'/'+trigger+'/'+dirname+'/'+level )
 
     # Numerator
     self.addHistogram(monGroup, TH1F("match_pt", "Trigger Matched Offline p_{T}; p_{T} [GeV] ; Count", self._nEtbins, self._etbins))
@@ -700,7 +761,7 @@ class TrigEgammaMonAlgBuilder:
   def bookL2CaloResolutions(self, monAlg, trigger):
 
     from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F, TH2F
-    monGroup = self.addGroup( monAlg, trigger+'_Resolutions_L2Calo', self.basePath+'/'+trigger+'/Resolutions/L2Calo' )
+    monGroup = self.addGroup( monAlg, trigger+'_Resolutions_L2Calo', self.basePath+'/'+trigger+'/Resolutions/FastCalo' )
     
     # online values used to fill all 2d histograms
     self.addHistogram(monGroup, TH1F("et", "E_{T}; E_{T}[GeV] ; Count", 50, 0.0, 100.))
@@ -787,10 +848,12 @@ class TrigEgammaMonAlgBuilder:
 
 
 
-  def bookHLTResolutions(self, monAlg, trigger):
+  def bookHLTResolutions(self, monAlg, trigger,level):
 
+    
     from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F, TH2F
-    monGroup = self.addGroup( monAlg, trigger+'_Resolutions_HLT', self.basePath+'/'+trigger+'/Resolutions/HLT' )
+    # monGroup = self.addGroup( monAlg, trigger+'_Resolutions_HLT', self.basePath+'/'+trigger+'/Resolutions/HLT' )
+    monGroup = self.addGroup( monAlg, trigger+'_Resolutions_HLT', self.basePath+'/'+trigger+'/Resolutions/'+level )
      
     # online values used to fill all 2d histograms
     self.addHistogram(monGroup, TH1F("et", "E_{T}; E_{T}[GeV] ; Count", 50, 0.0, 100.))
@@ -829,7 +892,8 @@ class TrigEgammaMonAlgBuilder:
 
 
     from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F, TH2F
-    monGroup = self.addGroup( monAlg, trigger+'_Resolutions_HLT', self.basePath+'/'+trigger+'/Resolutions/HLT' )
+    # monGroup = self.addGroup( monAlg, trigger+'_Resolutions_HLT', self.basePath+'/'+trigger+'/Resolutions/HLT' )
+    monGroup = self.addGroup( monAlg, trigger+'_Resolutions_HLT', self.basePath+'/'+trigger+'/Resolutions/HLT')
 
     self.addHistogram(monGroup, TH1F("res_pt", "p_{T} resolution; (p_{T}(on)-p_{T}(off))/p_{T}(off) ; Count", 120, -1.5, 1.5))
     self.addHistogram(monGroup, TH1F("res_deta1", "deta1; deta1 ; (deta1(on)-deta1(off))/deta1(off)", 100, -1., 1.))
@@ -887,6 +951,7 @@ class TrigEgammaMonAlgBuilder:
 
 
     from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F, TH2F
+    # monGroup = self.addGroup( monAlg, trigger+'_Resolutions_HLT', self.basePath+'/'+trigger+'/Resolutions/HLT' )
     monGroup = self.addGroup( monAlg, trigger+'_Resolutions_HLT', self.basePath+'/'+trigger+'/Resolutions/HLT' )
 
     self.addHistogram(monGroup, TH1F("res_et_cnv", "HLT E_{T} resolution for converted Photons; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1))

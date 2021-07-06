@@ -10,8 +10,8 @@ find_package( ROOT COMPONENTS Core RIO Hist Tree TreePlayer )
 # Component(s) in the package:
 atlas_add_root_dictionary( EventLoop
    EventLoopDictSource
-   ROOT_HEADERS EventLoop/Algorithm.h EventLoop/AnaAlgorithmWrapper.h 
-   EventLoop/BatchDriver.h
+   ROOT_HEADERS EventLoop/Algorithm.h EventLoop/AlgorithmWrapper.h
+   EventLoop/AsgServiceWrapper.h EventLoop/AsgToolWrapper.h EventLoop/BatchDriver.h
    EventLoop/BatchJob.h EventLoop/BatchSegment.h EventLoop/BatchSample.h
    EventLoop/CondorDriver.h EventLoop/DirectDriver.h
    EventLoop/GEDriver.h EventLoop/Job.h EventLoop/KubernetesDriver.h
@@ -27,7 +27,7 @@ atlas_add_library( EventLoop
    PUBLIC_HEADERS EventLoop
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AnaAlgorithmLib AsgMessagingLib AsgTools SampleHandler
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AnaAlgorithmLib AsgServicesLib AsgMessagingLib AsgTools SampleHandler
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} PathResolver RootCoreUtils xAODCore xAODRootAccess )
 
 target_compile_definitions (EventLoop PUBLIC USE_CMAKE)

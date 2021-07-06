@@ -82,7 +82,7 @@ namespace InDet {
       /** Select charged,stable particles which pass pt and eta cuts for analysis*/
       /** Classify truth tracks as primary, secondary or truncated */
       void          selectGenSignal     (const McEventCollection*,
-					 std::vector <std::pair<HepMC::GenParticle *,int> > &,
+					 std::vector <std::pair<HepMC::ConstGenParticlePtr,int> > &,
 					 unsigned int,
                                          unsigned int,
                                          CounterLocal &counter) const;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -101,16 +101,11 @@ L1CaloCTPMon::~L1CaloCTPMon()
 {
 }
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
-
 /*---------------------------------------------------------*/
 StatusCode L1CaloCTPMon::initialize()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endmsg;
+  msg(MSG::INFO) << "Initializing " << name() << endmsg;
   m_debug = msgLvl(MSG::DEBUG);
 
   StatusCode sc = ManagedMonitorToolBase::initialize();

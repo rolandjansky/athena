@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -78,12 +78,14 @@ namespace iFatras
   private:
      /** templated Tool retrieval - gives unique handling & look and feel */
      template <class T> StatusCode retrieveTool(ToolHandle<T>& thandle){
-        if (!thandle.empty() && thandle.retrieve().isFailure()){
-              ATH_MSG_FATAL( "[ fatras setup ] Cannot retrieve " << thandle << ". Abort.");
-              return StatusCode::FAILURE;
-          } else
-              ATH_MSG_DEBUG("[ fatras setup ] Successfully retrieved " << thandle);
-              return StatusCode::SUCCESS;
+       if (!thandle.empty() && thandle.retrieve().isFailure()){
+         ATH_MSG_FATAL( "[ fatras setup ] Cannot retrieve " << thandle << ". Abort.");
+         return StatusCode::FAILURE;
+       }
+       else {
+         ATH_MSG_DEBUG("[ fatras setup ] Successfully retrieved " << thandle);
+       }
+       return StatusCode::SUCCESS;
      }
      
      void saveInfo(const ISF::ISFParticle& isp) const; 

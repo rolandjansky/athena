@@ -11,7 +11,7 @@ from .MenuUtils import binstr
 from past.builtins import cmp
 
 
-log = logging.getLogger("Menu.L1.Base.Items")
+log = logging.getLogger(__name__)
 
 
 class MenuItemsCollection(object):

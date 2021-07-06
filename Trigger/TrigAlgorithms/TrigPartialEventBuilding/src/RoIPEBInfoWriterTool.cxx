@@ -34,6 +34,12 @@ PEBInfoWriterToolBase::PEBInfo RoIPEBInfoWriterTool::createPEBInfo(const PEBInfo
   PEBInfo pebi = m_extraPebInfo;
 
   ATH_MSG_DEBUG("Processing RoI " << **(input.roiEL));
+  // Assert we're not being passed a full-scan RoI which makes no sense for RoI-based PEB
+  if ((*input.roiEL)->isFullscan()) {
+    ATH_MSG_ERROR("Full-scan RoI passed as input to RoIPEBInfoWriterTool");
+    return {};
+  }
+
   float eta = (*input.roiEL)->eta();
   float etaMin = eta - m_etaWidth;
   float etaMax = eta + m_etaWidth;

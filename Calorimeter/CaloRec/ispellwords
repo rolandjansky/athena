@@ -654,7 +654,6 @@ TileCalibrationCellHitCnt
 TileCalibHitActiveCell
 TileCalibHitInactiveCell
 TileCalibHitDeadMaterial
-CellDetailsNoiseTool
 DetStore
 AuditInitialize
 doLArHitToCellDirect
@@ -908,12 +907,10 @@ const
 CPUTimeRef
 LArClusterCopier
 larClusterCopier
-CaloNoiseTool
 TopoClusterMapperGetter
 SRT
 sizep
 stl
-useNoiseTool
 AuditBeginRun
 theCaloCellContainerCheckerTool
 EMCellContainerName
@@ -932,7 +929,6 @@ momentsNames
 CaloClusterLockVars
 copierName
 HECCellsMergerTool
-CaloCellMBAverageCorr
 swin
 SigmaPerRegion
 NSUBCALO
@@ -952,7 +948,6 @@ AuditFinalize
 CopyCell
 leakRSS
 gapscin
-UseCaloNoiseTool
 MeVTool
 PreSampE
 TWOPI
@@ -1018,7 +1013,6 @@ jetrec
 makeinfo
 jobProperty
 CaloTopoSplitterClusterCell
-theCaloNoiseTool
 laplace
 ThresholdGeVCells
 thresholdGeVCells
@@ -1036,7 +1030,6 @@ EvtMax
 CaloTopoSplitterHashCluster
 CaloClusterStoreHelper
 DMCalib
-LArNoiseTool
 MinBias
 AuditRestart
 maxima
@@ -1048,7 +1041,6 @@ CellContainers
 maxEt
 LArCmbTwrBldr
 CaloTowerCmbGetter
-ICalorimeterNoiseTool
 LArCmbTwrBldrChronobuild
 ClusterContainer
 memexe
@@ -1087,7 +1079,6 @@ AthenaKernel
 CaloCellsName
 MyPackage
 TileCells
-CaloNoiseToolDefault
 lastEvForLeak
 LArRawChannels
 efcal
@@ -1232,7 +1223,6 @@ ntileb
 enums
 CellCorrections
 MonitorService
-ICaloNoiseTool
 iCalo
 EMTopo
 ntileg
@@ -1259,7 +1249,6 @@ eng
 Unal
 enum
 endif
-noiseTool
 MinLLongitudinal
 endcap
 EndCap

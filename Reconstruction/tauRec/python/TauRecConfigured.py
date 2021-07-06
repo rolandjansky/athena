@@ -14,8 +14,6 @@
 ################################################################################
 
 from RecExConfig.Configured import Configured
-from AthenaCommon.BeamFlags import jobproperties
-from AthenaCommon.SystemOfUnits import mm
 
 ################################################################################
 ## @class TauRecConfigured
@@ -56,29 +54,6 @@ class TauRecConfigured ( Configured ) :
         from AthenaCommon.AlgSequence import AlgSequence
 
         topSequence = AlgSequence()
-
-        if jobproperties.Beam.beamType()!="cosmics":
-            # Can I move this to different script?
-            from AthenaCommon.AppMgr import ToolSvc
-            from JetRec.JetRecConf import JetAlgorithm
-            jetTrackAlg = JetAlgorithm("JetTrackAlg_forTaus")
-            from JetRecTools.JetRecToolsConf import TrackVertexAssociationTool
-            TauTVATool = TrackVertexAssociationTool(TrackParticleContainer = "InDetTrackParticles",
-                                                    TrackVertexAssociation="JetTrackVtxAssoc_forTaus",
-                                                    VertexContainer= "PrimaryVertices",
-                                                    MaxTransverseDistance = 2.5 *mm,
-                                                    #MaxLongitudinalDistance = 2 *mm,
-                                                    MaxZ0SinTheta = 3.0 *mm,
-                                                    #OutputLevel=2
-                                                    )
-            ToolSvc += TauTVATool
-            jetTrackAlg.Tools = [ TauTVATool ]
-            topSequence += jetTrackAlg
-
-            # import tauRec.TauAlgorithmsHolder as taualgs
-            # add tauJVF tool to topSequence
-            # taualgs.setupTauJVFTool
-
         topSequence += self.TauProcessorAlgHandle()
 
     # No longer used?

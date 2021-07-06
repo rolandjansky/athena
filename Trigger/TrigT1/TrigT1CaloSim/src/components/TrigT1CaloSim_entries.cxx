@@ -16,7 +16,8 @@
 #include "../EnergyCMX.h"
 #include "../OverlayRun2TriggerTowerMaker.h"
 #include "../TransientDatabaseOverride.h"
-#include "../OverlayTTL1.h"
+#include "../LArTTL1Overlay.h"
+#include "../TileTTL1Overlay.h"
 
 
 using namespace LVL1;
@@ -39,4 +40,5 @@ DECLARE_COMPONENT( JetCMX )
 DECLARE_COMPONENT( EnergyCMX )
 DECLARE_COMPONENT( TransientDatabaseOverride )
 DECLARE_COMPONENT( OverlayRun2TriggerTowerMaker )
-DECLARE_COMPONENT( OverlayTTL1 )
+DECLARE_COMPONENT( LArTTL1Overlay )
+DECLARE_COMPONENT( TileTTL1Overlay )

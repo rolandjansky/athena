@@ -27,9 +27,9 @@ topSequence += CaloHitAnalysis
 CaloHitAnalysis.HistPath = '/CaloHitAnalysis/histos/'
 CaloHitAnalysis.NtupleFileName = '/CaloHitAnalysis/ntuple/'
 #ExpertMode adds more histograms to the output. Default mode is off
-CaloHitAnalysis.ExpertMode = "off"
+# CaloHitAnalysis.ExpertMode = "off"
 #CalibHits adds Calibrated hits histograms to the output. Default mode is off
-CaloHitAnalysis.CalibHits = "off"
+# CaloHitAnalysis.CalibHits = "off"
 
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
@@ -50,4 +50,3 @@ AthenaPoolCnvSvc.UseDetailChronoStat = TRUE
 from RecExConfig.AutoConfiguration import *
 ConfigureFieldAndGeo() # Configure the settings for the geometry
 include("RecExCond/AllDet_detDescr.py") # Actually load the geometry
-#include("TrkDetDescrSvc/AtlasTrackingGeometrySvc.py" ) # Tracking geometry, handy for ID work

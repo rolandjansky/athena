@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -29,7 +29,6 @@
 #include "xAODTrigL1Calo/RODHeaderContainer.h"
 
 #include "xAODTrigL1Calo/TriggerTowerAuxContainer.h"
-#include "xAODTrigL1Calo/JetElementAuxContainer.h"
 #include "xAODTrigL1Calo/CMXJetTobAuxContainer.h"
 #include "xAODTrigL1Calo/CMXJetHitsAuxContainer.h"
 #include "xAODTrigL1Calo/JEMEtSumsAuxContainer.h"
@@ -162,16 +161,11 @@ JEPSimMon::~JEPSimMon()
 {
 }
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
-
 /*---------------------------------------------------------*/
 StatusCode JEPSimMon::initialize()
 /*---------------------------------------------------------*/
 {
-    msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                   << PACKAGE_VERSION << endmsg;
+    msg(MSG::INFO) << "Initializing " << name() << endmsg;
     m_debug = msgLvl(MSG::DEBUG);
 
     StatusCode sc;

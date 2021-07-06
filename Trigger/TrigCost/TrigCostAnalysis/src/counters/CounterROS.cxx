@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODTrigger/TrigCompositeContainer.h"
@@ -14,8 +14,8 @@
 CounterROS::CounterROS(const std::string& name, const MonitorBase* parent) 
   : CounterBase(name, parent) {
 
-  regHistogram("Request_perEvent", "Number of requests/Event;Number of requests;Events", VariableType::kPerEvent, LogType::kLinear, -0.5, 10.5, 11);
-  regHistogram("NetworkRequest_perEvent", "Number of network requests/Event;Number of requests;Events", VariableType::kPerEvent, LogType::kLinear, -0.5, 10.5, 11);
+  regHistogram("Request_perEvent", "Number of requests/Event;Number of requests;Events", VariableType::kPerEvent, LogType::kLinear, -0.5, 49.5, 50);
+  regHistogram("NetworkRequest_perEvent", "Number of network requests/Event;Number of requests;Events", VariableType::kPerEvent, LogType::kLinear, -0.5, 20.5, 21);
   regHistogram("CachedROBSize_perEvent", "Total ROB Size/Event;ROB size;Events", VariableType::kPerEvent, LogType::kLinear, 0, 1024, 50);
   regHistogram("NetworkROBSize_perEvent", "Total ROB Size/Event;ROB size;Events", VariableType::kPerEvent, LogType::kLinear, 0, 1024, 50);
   regHistogram("Time_perEvent", "ROB Elapsed Time/Event;Elapsed Time [ms];Events", VariableType::kPerEvent);
@@ -29,19 +29,29 @@ StatusCode CounterROS::newEvent(const CostData& data, size_t index, const float 
   const std::vector<uint32_t> robIdsPerRequest = tc->getDetail<std::vector<uint32_t>>("robs_id");
   const std::vector<uint32_t> robs_size = tc->getDetail<std::vector<uint32_t>>("robs_size");
   const std::vector<unsigned> robs_history = tc->getDetail<std::vector<unsigned>>("robs_history");
-  const std::vector<uint8_t> robs_status = tc->getDetail<std::vector<uint8_t>>("robs_status");
+  const std::vector<unsigned short> robs_status = tc->getDetail<std::vector<unsigned short>>("robs_status");
 
   if (m_robIdsPerROS.size() == 0) {
     m_robIdsPerROS = data.rosToRobMap().at(getName());
   }
+
+  // Set lables of status histogram
+  ATH_CHECK( getVariable("ROBStatus_perCall").setBinLabel(1, "Unclassified"));
+  ATH_CHECK( getVariable("ROBStatus_perCall").setBinLabel(2, "Retrieved"));
+  ATH_CHECK( getVariable("ROBStatus_perCall").setBinLabel(3, "HLT Cached"));
+  ATH_CHECK( getVariable("ROBStatus_perCall").setBinLabel(4, "DCM Cached"));
+  ATH_CHECK( getVariable("ROBStatus_perCall").setBinLabel(5, "Ignored"));
+  ATH_CHECK( getVariable("ROBStatus_perCall").setBinLabel(6, "Disabled"));
+  ATH_CHECK( getVariable("ROBStatus_perCall").setBinLabel(7, "IsNotOK"));
 
   // Find all ROB requests that are both in request and correspond to this ROS
   bool networkRequestIncremented = false;
   for (size_t i = 0; i < robIdsPerRequest.size(); ++i) {
     if (std::find(m_robIdsPerROS.begin(), m_robIdsPerROS.end(), robIdsPerRequest[i]) != m_robIdsPerROS.end()) {
       ATH_CHECK( fill("ROBStatus_perCall", getROBHistoryBin(robs_history[i]), weight) );
-      if (robs_status[i]) {
-        // The last bin of ROBStatus_perCall histogram store isStatusOk bool value
+      // Status is ok when no status words are set
+      if (robs_status[i] != 0) {
+        // The last bin of ROBStatus_perCall histogram store isStatusNotOk bool value
         ATH_CHECK( fill("ROBStatus_perCall", robmonitor::NUM_ROBHIST_CODES, weight) );
       }
 
@@ -72,23 +82,20 @@ StatusCode CounterROS::newEvent(const CostData& data, size_t index, const float 
 int CounterROS::getROBHistoryBin(const unsigned history){
   int history_bin;
   switch (history) {
-    case robmonitor::SCHEDULED:
+    case robmonitor::RETRIEVED:
       history_bin = 1;
       break;
-    case robmonitor::RETRIEVED:
+    case robmonitor::HLT_CACHED:
       history_bin = 2;
       break;
-    case robmonitor::HLT_CACHED:
+    case robmonitor::DCM_CACHED:
       history_bin = 3;
       break;
-    case robmonitor::DCM_CACHED:
+    case robmonitor::IGNORED:
       history_bin = 4;
       break;
-    case robmonitor::IGNORED:
+    case robmonitor::UNDEFINED:
       history_bin = 5;
-      break;
-    case robmonitor::DISABLED:
-      history_bin = 6;
       break;
     default: // UNCLASSIFIED 
       history_bin = 0;

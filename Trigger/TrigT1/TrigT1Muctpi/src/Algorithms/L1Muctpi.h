@@ -17,9 +17,13 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "TrigT1Interfaces/MuCTPICTP.h"
 #include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
+#include "TrigT1Interfaces/MuCTPIToRoIBSLink.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "TrigT1Result/MuCTPI_RDO.h"
+#include "TrigT1Interfaces/Lvl1MuCTPIInput.h"
+#include "TrigT1Interfaces/MuCTPIL1Topo.h"
+#include "TrigT1Interfaces/NimCTP.h"
 
 // Forward declaration(s):
 namespace TrigConf {
@@ -108,9 +112,25 @@ namespace LVL1MUCTPI {
       static const std::string m_DEFAULT_AODLocID;
       static const std::string m_DEFAULT_RDOLocID;
 
+
+      SG::ReadHandleKey<LVL1MUONIF::Lvl1MuCTPIInput>  m_rpcInputKey{ this, "RPCLocID", "L1MuctpiStoreRPC", "Input from RPC" };
+      SG::ReadHandleKey<LVL1MUONIF::Lvl1MuCTPIInput>  m_tgcInputKey{ this, "TGCLocID", "L1MuctpiStoreTGC", "Input from TGC" };
       
-      SG::WriteHandleKey<LVL1::MuCTPICTP> m_muctpi2CtpKey { LVL1MUCTPI::DEFAULT_MuonCTPLocation };
-    SG::WriteHandleKey<MuCTPI_RDO> m_rdoOutputLocId{this, "RDOOutputLocID", "MUCTPI_RDO", "Location of MUCTPI RDOs"};
+     SG::WriteHandleKey<LVL1::MuCTPICTP> m_muctpi2CtpKey { this, "CTPOutputLocID", LVL1MUCTPI::DEFAULT_MuonCTPLocation, "Output to CTPO" };
+     SG::WriteHandleKey<MuCTPI_RDO> m_rdoOutputLocId{this, "RDOOutputLocID", "MUCTPI_RDO", "Location of MUCTPI RDOs"};
+     SG::WriteHandleKey<L1MUINT::MuCTPIToRoIBSLink> m_muctpi2RoibKey { this, "MuCTPISLinkLocation", LVL1MUCTPI::DEFAULT_MuonRoIBLocation, "StoreGate location for outpput to RoIBuilder" };
+     SG::WriteHandleKey<LVL1::NimCTP> m_nimctpKey { this, "NIMOutputLocID", LVL1::DEFAULT_NimCTPLocation, "StoreGate location for output LVL1::NimCTP" };
+     SG::WriteHandleKey<LVL1::MuCTPIL1Topo> m_topoOutputLocId{this, "L1TopoOutputLocID", LVL1MUCTPI::DEFAULT_MuonL1TopoLocation, "Output to L1Topo"};
+     SG::WriteHandleKeyArray<LVL1::MuCTPIL1Topo> m_topoOutputOffsetLocId{this, "L1TopoOutputOffsetLocID",
+        {  // Corresponds to m_bcidOffsetList
+           LVL1MUCTPI::DEFAULT_MuonL1TopoLocation+"-2",
+           LVL1MUCTPI::DEFAULT_MuonL1TopoLocation+"-1",
+           LVL1MUCTPI::DEFAULT_MuonL1TopoLocation+"1",
+           LVL1MUCTPI::DEFAULT_MuonL1TopoLocation+"2"
+        },
+        "Output to L1Topo for offset BCIDs"};
+
+
       // These properties control the way the overlap handling functions:
       std::string m_overlapStrategyName;
       std::string m_lutXMLFile;
@@ -129,11 +149,11 @@ namespace LVL1MUCTPI {
       std::string m_inputSource;
       std::string m_aodLocId;
       std::string m_rdoLocId;
-      std::string m_roiOutputLocId;
-      std::string m_ctpOutputLocId;
-      std::string m_l1topoOutputLocId;
-      std::string m_tgcLocId;
-      std::string m_rpcLocId;
+      // std::string m_roiOutputLocId;
+      // std::string m_tgcLocId;
+      // std::string m_rpcLocId;
+
+
 
       /// Property telling if the LUTs should be printed:
       bool m_dumpLut;
@@ -143,7 +163,6 @@ namespace LVL1MUCTPI {
 
       // Properties controlling the NIM outputs provided by the simulation
       bool m_doNimOutput;
-      std::string m_nimOutputLocId;
       unsigned int m_nimBarrelBit;
       unsigned int m_nimEndcapBit;
       

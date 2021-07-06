@@ -42,9 +42,9 @@ public:
    StatusCode stop();
    StatusCode finalize();
 
-   StatusCode makeServer(int num);
+   StatusCode makeServer(int num, const std::string& streamPortSuffix);
    bool isServer() const;
-   StatusCode makeClient(int num);
+   StatusCode makeClient(int num, std::string& streamPortSuffix);
    bool isClient() const;
 
    StatusCode putEvent(long eventNumber, const void* source, size_t nbytes, unsigned int status) const;
@@ -53,7 +53,7 @@ public:
 
    StatusCode putObject(const void* source, size_t nbytes, int num = 0) const;
    StatusCode getObject(void** target, size_t& nbytes, int num = 0) const;
-   StatusCode clearObject(char** tokenString, int& num) const;
+   StatusCode clearObject(const char** tokenString, int& num) const;
    StatusCode lockObject(const char* tokenString, int num = 0) const;
 
 private:

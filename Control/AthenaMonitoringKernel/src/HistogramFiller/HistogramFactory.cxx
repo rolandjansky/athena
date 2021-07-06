@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "CxxUtils/checker_macros.h"
 
@@ -15,13 +15,6 @@
 
 using namespace Monitored;
 
-// this mutex is used to prevent instantiating more than one new histogram at a time, to avoid
-// potential name clashes in the gDirectory namespace
-// alternative would be to set TH1::AddDirectory but that has potential side effects
-namespace {
-  static std::mutex s_histDirMutex;
-}
-
 HistogramFactory::HistogramFactory(const ServiceHandle<ITHistSvc>& histSvc,
                                    std::string histoPath)
 : m_histSvc(histSvc)
@@ -29,6 +22,19 @@ HistogramFactory::HistogramFactory(const ServiceHandle<ITHistSvc>& histSvc,
   size_t split = histoPath.find('/');
   m_streamName = histoPath.substr(0,split);
   m_groupName = split!=std::string::npos ? histoPath.substr(split) : "";
+
+  // Infrequently, loading a ROOT class in a MT context can fail.
+  // So try to load the classes we'll need early.
+  TClass::GetClass("TH1F");
+  TClass::GetClass("TH1D");
+  TClass::GetClass("TH1I");
+  TClass::GetClass("TH2F");
+  TClass::GetClass("TH2D");
+  TClass::GetClass("TH2I");
+  TClass::GetClass("TProfile");
+  TClass::GetClass("TProfile2D");
+  TClass::GetClass("TEfficiency");
+  TClass::GetClass("TTree");
 }
 
 
@@ -137,7 +143,7 @@ TEfficiency* HistogramFactory::createEfficiency(const HistogramDef& def) {
   // Otherwise, create the efficiency and register it
   // Hold global lock until we have detached object from gDirectory
   {
-    std::scoped_lock<std::mutex> dirLock(s_histDirMutex);
+    std::scoped_lock<std::mutex> dirLock(globalROOTMutex());
     if (def.ybins==0 && def.zbins==0) { // 1D TEfficiency
       e = new TEfficiency(def.alias.c_str(), def.title.c_str(),
         def.xbins, def.xmin, def.xmax);
@@ -181,8 +187,9 @@ HBASE* HistogramFactory::create(const HistogramDef& def, Types&&... hargs) {
   // Hold global lock until we have detached object from gDirectory
   H* h = nullptr;
   { 
-    std::scoped_lock<std::mutex> dirLock(s_histDirMutex);
+    std::scoped_lock<std::mutex> dirLock(globalROOTMutex());
     h = new H(def.alias.c_str(), def.title.c_str(), std::forward<Types>(hargs)...);
+    // cppcheck-suppress nullPointer; false positive
     h->SetDirectory(0);
   }
   if ( !m_histSvc->regHist( fullName, static_cast<TH1*>(h) ) ) {
@@ -213,13 +220,14 @@ TTree* HistogramFactory::createTree(const HistogramDef& def) {
   // Otherwise, create the tree and register it
   // branches will be created by HistogramFillerTree
   {
-    std::scoped_lock<std::mutex> dirLock(s_histDirMutex);
+    std::scoped_lock<std::mutex> dirLock(globalROOTMutex());
     t = new TTree(def.alias.c_str(),def.title.c_str());
     t->SetDirectory(0);
   }
   if ( !m_histSvc->regTree(fullName,std::unique_ptr<TTree>(t) ) ) {
     throw HistogramException("Tree >"+ fullName + "< can not be registered in THistSvc");
   }
+  // cppcheck-suppress deallocret; false positive
   return t;
 }
 

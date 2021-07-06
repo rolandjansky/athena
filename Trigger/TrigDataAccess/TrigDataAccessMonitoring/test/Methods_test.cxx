@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -34,7 +34,7 @@ int main() {
   r.rob_history = robmonitor::RETRIEVED;
   r.rob_status_word = 0x04;
   ROBDataStruct d(0x730001);
-  d.rob_history = robmonitor::DISABLED;
+  d.rob_history = robmonitor::UNDEFINED;
 
   // fill ROBDataMonitorStruct with ROB requests
   req.requested_ROBs[u.rob_id]  = u;

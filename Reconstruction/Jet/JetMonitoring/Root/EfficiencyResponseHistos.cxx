@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetMonitoring/EfficiencyResponseHistos.h"
@@ -53,7 +53,7 @@ int EfficiencyResponseHistos::buildHistos(){
 }
 
 
-int EfficiencyResponseHistos::fillHistosFromContainer(const xAOD::JetContainer &cont){
+int EfficiencyResponseHistos::fillHistosFromContainer(const xAOD::JetContainer &cont, float weight){
 
   const xAOD::JetContainer* refContainer = 0;
   CHECK( evtStore()->retrieve( refContainer, m_refContainerName), 1 );
@@ -77,17 +77,18 @@ int EfficiencyResponseHistos::fillHistosFromContainer(const xAOD::JetContainer &
     double dr = sqrt(dr2min);
     double refPt = refjet->pt() * toGeV;
 
-    m_eff1->Fill(refPt, dr<0.1 ?  1 : 0 ); // 0 weight if not matching close enough
-    m_eff2->Fill(refPt, dr<0.2 ?  1 : 0 ); // 0 weight if not matching close enough
-    m_eff3->Fill(refPt, dr<0.3 ?  1 : 0 ); // 0 weight if not matching close enough
+    m_eff1->Fill(refPt, dr<0.1 ?  weight : 0 ); // 0 weight if not matching close enough
+    m_eff2->Fill(refPt, dr<0.2 ?  weight : 0 ); // 0 weight if not matching close enough
+    m_eff3->Fill(refPt, dr<0.3 ?  weight : 0 ); // 0 weight if not matching close enough
     
-    m_deltaRclosest->Fill( dr );
+    m_deltaRclosest->Fill( dr, weight );
 
     if( dr < 0.3) {
-      double relDiff = ( matched->pt()* toGeV - refPt )/refPt;
-      m_etres->Fill( relDiff );
-      m_etres_eta->Fill( refjet->eta(), relDiff);
-      m_etres_pt->Fill( refPt, relDiff);
+      double relDiff = -999;
+      if (refPt > 0.) relDiff = ( matched->pt()* toGeV - refPt )/refPt;
+      m_etres->Fill( relDiff, weight );
+      m_etres_eta->Fill( refjet->eta(), relDiff, weight);
+      m_etres_pt->Fill( refPt, relDiff, weight);
 
     }
 

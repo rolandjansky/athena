@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 The SCT 24h Calibration Loop.
 This transformation will run the SCT 24 hours calibration loop.
@@ -137,7 +137,7 @@ def main():
 def getTransform():
 
     exeSet = set()
-    exeSet.add(SCTCalibExecutor('/afs/cern.ch/user/c/csander/testarea/Athena-master/InnerDetector/athena/InDetCalibAlgs/SCT_CalibAlgs/share/skeleton.sct_calib.py'))
+    exeSet.add(SCTCalibExecutor('/afs/cern.ch/user/c/csander/testarea/Athena-latest/athena/InnerDetector/InDetCalibAlgs/SCT_CalibAlgs/share/skeleton.sct_calib.py'))
 #    exeSet.add(SCTCalibExecutor('/afs/cern.ch/user/s/sctcalib/testarea/latest/athena/InnerDetector/InDetCalibAlgs/SCT_CalibAlgs/share/skeleton.sct_calib.py'))
 
     trf = transform(executor=exeSet) 
@@ -163,7 +163,7 @@ def addSCTCalibArgs(parser):
                         help = 'Specifies if runSelector.py is executed',group='Calibration')
     parser.add_argument('--doRunInfo', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help = 'Specifies if runInfo.py is executed',group='Calibration')
-    parser.add_argument('--splitNoisyStrip', type=trfArgClasses.argFactory(trfArgClasses.argInt,runarg=True),      
+    parser.add_argument('--splitHitMap', type=trfArgClasses.argFactory(trfArgClasses.argInt,runarg=True),      
                         help = 'Split task or not',group='Calibration')
 
 def addOutputArgs(parser,dict):
@@ -173,10 +173,10 @@ def addOutputArgs(parser,dict):
     else:
         checkPart = dict['part']._value
         
-    if not 'splitNoisyStrip' in dict:
+    if not 'splitHitMap' in dict:
         checkSplit= 0
     else:
-        checkSplit = dict['splitNoisyStrip']._value
+        checkSplit = dict['splitHitMap']._value
         
     if not 'prefix' in dict:
         checkPrefix=''
@@ -218,26 +218,88 @@ def addOutputArgs(parser,dict):
                             help = 'Bad Modules file',group='Calibration',default=trfArgClasses.argFile([checkPrefix+'BadModulesFile.xml'],runarg=True))
 
     #DEAD CHIP OUTPUT FILES
-    if 'doDeadChip' in checkPart:
+    if 'doDeadChip' in checkPart and checkSplit == 1:
         parser.add_argument('--outputHITMapFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
                             help = 'HitMap output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTHitMaps.root'],runarg=True))
+        parser.add_argument('--outputLBFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
+                            help = 'LB output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTLB.root'],runarg=True))
+        parser.add_argument('--outputBSErrorsFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
+                            help = 'BS Errors file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTBSErrors.root'],runarg=True))
+
+    if 'doDeadChip' in checkPart and checkSplit != 1:
+        parser.add_argument('--outputHITMapFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
+                            help = 'HitMap output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTHitMaps.root'],runarg=True))
+        parser.add_argument('--outputLBFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
+                            help = 'LB output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTLB.root'],runarg=True))
+        parser.add_argument('--outputBSErrorsFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
+                            help = 'BS Errors file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTBSErrors.root'],runarg=True))
         parser.add_argument('--outputDeadChipFile', type=trfArgClasses.argFactory(trfArgClasses.argFile, runarg=True,io='output'),
                             help = 'Dead Chip file',group='Calibration',default=trfArgClasses.argFile([checkPrefix+'DeadChipsFile.xml'],runarg=True))
         parser.add_argument('--outputDeadSummaryFile', type=trfArgClasses.argFactory(trfArgClasses.argFile, runarg=True,io='output'),
                             help = 'Dead Chip Summary file',group='Calibration',default=trfArgClasses.argFile([checkPrefix+'DeadSummaryFile.xml'],runarg=True))
+
+    #DEAD STRIP OUTPUT FILES
+    if 'doDeadStrip' in checkPart and checkSplit == 1:
+        parser.add_argument('--outputHITMapFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
+                            help = 'HitMap output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTHitMaps.root'],runarg=True))
+        parser.add_argument('--outputLBFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
+                            help = 'LB output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTLB.root'],runarg=True))
         parser.add_argument('--outputBSErrorsFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
                             help = 'BS Errors file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTBSErrors.root'],runarg=True))
 
-    #DEAD STRIP OUTPUT FILES
-    if 'doDeadStrip' in checkPart:
+    if 'doDeadStrip' in checkPart and checkSplit != 1:
         parser.add_argument('--outputHITMapFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
                             help = 'HitMap output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTHitMaps.root'],runarg=True))
+        parser.add_argument('--outputLBFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
+                            help = 'LB output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTLB.root'],runarg=True))
+        parser.add_argument('--outputBSErrorsFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
+                            help = 'BS Errors file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTBSErrors.root'],runarg=True))
         parser.add_argument('--outputDeadStripFile', type=trfArgClasses.argFactory(trfArgClasses.argFile, runarg=True,io='output'),
                             help = 'Dead Strip file',group='Calibration',default=trfArgClasses.argFile([checkPrefix+'DeadStripsFile.xml'],runarg=True))
         parser.add_argument('--outputDeadSummaryFile', type=trfArgClasses.argFactory(trfArgClasses.argFile, runarg=True,io='output'),
                             help = 'Dead Strip Summary file',group='Calibration',default=trfArgClasses.argFile([checkPrefix+'DeadSummaryFile.xml'],runarg=True))
+
+    #QUIET CHIP OUTPUT FILES
+    if 'doQuietChip' in checkPart and checkSplit == 1:
+        parser.add_argument('--outputHITMapFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
+                            help = 'HitMap output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTHitMaps.root'],runarg=True))
+        parser.add_argument('--outputLBFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
+                            help = 'LB output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTLB.root'],runarg=True))
         parser.add_argument('--outputBSErrorsFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
                             help = 'BS Errors file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTBSErrors.root'],runarg=True))
+
+    if 'doQuietChip' in checkPart and checkSplit != 1:
+        parser.add_argument('--outputHITMapFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
+                            help = 'HitMap output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTHitMaps.root'],runarg=True))
+        parser.add_argument('--outputLBFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
+                            help = 'LB output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTLB.root'],runarg=True))
+        parser.add_argument('--outputBSErrorsFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
+                            help = 'BS Errors file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTBSErrors.root'],runarg=True))
+        parser.add_argument('--outputDeadChipFile', type=trfArgClasses.argFactory(trfArgClasses.argFile, runarg=True,io='output'),
+                            help = 'Dead Chip file',group='Calibration',default=trfArgClasses.argFile([checkPrefix+'QuietChipsFile.xml'],runarg=True))
+        parser.add_argument('--outputDeadSummaryFile', type=trfArgClasses.argFactory(trfArgClasses.argFile, runarg=True,io='output'),
+                            help = 'Dead Chip Summary file',group='Calibration',default=trfArgClasses.argFile([checkPrefix+'QuietSummaryFile.xml'],runarg=True))
+
+    #QUIET STRIP OUTPUT FILES
+    if 'doQuietStrip' in checkPart and checkSplit == 1:
+        parser.add_argument('--outputHITMapFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
+                            help = 'HitMap output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTHitMaps.root'],runarg=True))
+        parser.add_argument('--outputLBFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
+                            help = 'LB output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTLB.root'],runarg=True))
+        parser.add_argument('--outputBSErrorsFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
+                            help = 'BS Errors file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTBSErrors.root'],runarg=True))
+
+    if 'doQuietStrip' in checkPart and checkSplit != 1:
+        parser.add_argument('--outputHITMapFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
+                            help = 'HitMap output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTHitMaps.root'],runarg=True))
+        parser.add_argument('--outputLBFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
+                            help = 'LB output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTLB.root'],runarg=True))
+        parser.add_argument('--outputBSErrorsFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
+                            help = 'BS Errors file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTBSErrors.root'],runarg=True))
+        parser.add_argument('--outputDeadStripFile', type=trfArgClasses.argFactory(trfArgClasses.argFile, runarg=True,io='output'),
+                            help = 'Dead Strip file',group='Calibration',default=trfArgClasses.argFile([checkPrefix+'QuietStripsFile.xml'],runarg=True))
+        parser.add_argument('--outputDeadSummaryFile', type=trfArgClasses.argFactory(trfArgClasses.argFile, runarg=True,io='output'),
+                            help = 'Dead Strip Summary file',group='Calibration',default=trfArgClasses.argFile([checkPrefix+'QuietSummaryFile.xml'],runarg=True))
 
     #NOISE OCCUPANCY OUTPUT FILES
     if 'doNoiseOccupancy' in checkPart:
@@ -276,7 +338,7 @@ class SCTCalibExecutor( athenaExecutor ):
     def __init__(self, skeleton):
         athenaExecutor.__init__(self,
                                 name = 'sctcalib',
-                                skeletonFile='/afs/cern.ch/user/c/csander/testarea/Athena-master/athena/InnerDetector/InDetCalibAlgs/SCT_CalibAlgs/share/skeleton.sct_calib.py')
+                                skeletonFile='/afs/cern.ch/user/c/csander/testarea/Athena-latest/athena/InnerDetector/InDetCalibAlgs/SCT_CalibAlgs/share/skeleton.sct_calib.py')
 #                                skeletonFile='/afs/cern.ch/user/s/sctcalib/testarea/latest/athena/InnerDetector/InDetCalibAlgs/SCT_CalibAlgs/share/skeleton.sct_calib.py')
 
     def preExecute(self, input=set(), output=set()):
@@ -308,8 +370,8 @@ class SCTCalibExecutor( athenaExecutor ):
                 print ("RunNumber for the runInfo = ", str(RunNumber), " ", Stream)
                 runInfo.main(RunNumber, projectName)
 
-        if not 'splitNoisyStrip' in runArgs:
-            self.conf.addToArgdict('splitNoisyStrip', trfArgClasses.argInt(0))
+        if not 'splitHitMap' in runArgs:
+            self.conf.addToArgdict('splitHitMap', trfArgClasses.argInt(0))
         if not 'doRunSelector' in runArgs:
             self.conf.addToArgdict('doRunSelector', trfArgClasses.argBool(False))
 
@@ -333,7 +395,7 @@ class SCTCalibExecutor( athenaExecutor ):
         part=runArgs['part']._value
 
         for ipart in part:
-            if not ipart in ['doNoisyStrip','doNoiseOccupancy','doDeadChip','doDeadStrip','doHV','doBSErrorDB','doRawOccupancy','doEfficiency','doLorentzAngle','doNoisyLB']:
+            if not ipart in ['doNoisyStrip','doNoiseOccupancy','doDeadChip','doDeadStrip','doQuietChip','doQuietStrip','doHV','doBSErrorDB','doRawOccupancy','doEfficiency','doLorentzAngle','doNoisyLB']:
                 self._errMsg = 'Argument part=%s does not match any of the possible candidates' % ipart
                 raise trfExceptions.TransformValidationException(trfExit.nameToCode('TRF_ARG_ERRO'), self._errMsg)
 
@@ -381,10 +443,10 @@ class SCTCalibExecutor( athenaExecutor ):
         # next run being indefinitely on hold
         # print 'Number of events: ', NumberOfEvents
 
-        if 'doNoisyStrip' in part and runArgs['splitNoisyStrip']._value==2 and NumberOfEvents<10000:
+        if ('doNoisyStrip' in part or 'doDeadStrip' in part or 'doDeadChip' in part or 'doQuietStrip' in part or 'doQuietChip' in part) and runArgs['splitHitMap']._value==2 and NumberOfEvents<1:
             self._isValidated = True
             self._trf._exitCode = 0
-            self._trf._exitMsg = 'Noisy strips trying to read root files with 0 events. Gracefully exit and update lastRun counter to %s' %(RunNumber)
+            self._trf._exitMsg = 'Noisy/dead/quiet strips/chips trying to read root files with 0 events. Gracefully exit and update lastRun counter to %s' %(RunNumber)
 
             updateLastRun(RunNumber)
             emptyDic = {}
@@ -413,7 +475,7 @@ class SCTCalibExecutor( athenaExecutor ):
         if runArgs['doRunSelector']._value:
             import SCT_CalibAlgs.runSelector as runSelector
             part=runArgs['part']._value
-            if runArgs['splitNoisyStrip']._value == 1 :
+            if runArgs['splitHitMap']._value == 1 :
               skipQueue = 1
             else:
               skipQueue = 0
@@ -433,14 +495,52 @@ class SCTCalibExecutor( athenaExecutor ):
 
         rootHitmapFiles = []
         rootLbFiles = []
+        rootBSerrFiles = []
         for inputFileName in runArgs['input'] :
             if inputFileName.find("SCTHitMaps") != -1:
                 rootHitmapFiles.append(inputFileName)
             if inputFileName.find("SCTLB") != -1:
                 rootLbFiles.append(inputFileName)
+            if inputFileName.find("SCTBSErrors") != -1:
+                rootBSerrFiles.append(inputFileName)
 
-        if runArgs['splitNoisyStrip']._value ==2 :
-            if len(rootLbFiles) == len(rootHitmapFiles) and len(rootHitmapFiles) > 0 :
+        if runArgs['splitHitMap']._value ==2 :
+            if len(rootBSerrFiles) == len(rootHitmapFiles) and len(rootHitmapFiles) > 0 :
+
+                fileutil.remove('SCTHitMaps.root')
+                fileutil.remove('SCTLB.root')
+                fileutil.remove('SCTBSErrors.root')
+
+                cmd = "cp -v $ROOTSYS/bin/hadd . \n"
+                cmd += "hadd SCTHitMaps.root " 
+                for inputFileName in rootHitmapFiles :
+                    cmd += "%s " %(inputFileName)
+                cmd += "\n"
+#                cmd += " >> /dev/null 2>&1 \n"
+                cmd += "hadd SCTLB.root "
+                for inputFileName in rootLbFiles :
+                    cmd += "%s " %(inputFileName)
+                cmd += "\n"
+#                cmd += " >> /dev/null 2>&1 \n"
+                cmd += "hadd SCTBSErrors.root "
+                for inputFileName in rootBSerrFiles :
+                    cmd += "%s " %(inputFileName)
+                cmd += "\n"
+#                cmd += " >> /dev/null 2>&1 \n"
+            
+                print (cmd)
+                self._echologger.info('Merging Hitmap, LB and BSerr files!')
+                retcode=1
+                try:
+                    retcode = os.system(cmd)
+                except (OSError, e):
+                    retcode = 1
+                if retcode == 0:
+                    self._echologger.info('Root merge successful')
+                else:
+                    self._echologger.error("FAILED to merge root files")
+
+            elif len(rootLbFiles) == len(rootHitmapFiles) and len(rootHitmapFiles) > 0 :
 
                 fileutil.remove('SCTHitMaps.root')
                 fileutil.remove('SCTLB.root')
@@ -485,11 +585,11 @@ class SCTCalibExecutor( athenaExecutor ):
         runArgs=self.conf._argdict
         prefix=runArgs['prefix']._value
 
-        #After processing Hitmaps, change Metadata of SCTHitMaps and SCTLB files so
+        #After processing Hitmaps, change Metadata of SCTHitMaps and SCTLB (and SCTBSErrors) files so
         #they contain the number of events. This value can be used when processing
         #noisy strips to avoid running over empty files
 
-        if 'doNoisyStrip' in runArgs['part']._value and runArgs['splitNoisyStrip']._value == 1:
+        if 'doNoisyStrip' in runArgs['part']._value and runArgs['splitHitMap']._value == 1:
             outInstance0 = self.conf.dataDictionary[list(self._output)[0]]
             outTFile0 = TFile(outInstance0._value[0])
             print (outTFile0.GetName())
@@ -502,11 +602,30 @@ class SCTCalibExecutor( athenaExecutor ):
             outNentries1 = int(outTFile1.Get('GENERAL/events').GetEntries())
             outInstance1._setMetadata(outInstance1._value,{'nentries': outNentries1})
 
-        if 'doDeadStrip' in runArgs['part']._value:
+        if ('doDeadStrip' in runArgs['part']._value or 'doDeadChip' in runArgs['part']._value or 'doQuietStrip' in runArgs['part']._value or 'doQuietChip' in runArgs['part']._value ) and runArgs['splitHitMap']._value == 1:
+            outInstance0 = self.conf.dataDictionary[list(self._output)[0]]
+            outTFile0 = TFile(outInstance0._value[0])
+            print (outTFile0.GetName())
+            outNentries0 = int(outTFile0.Get('GENERAL/events').GetEntries())
+            outInstance0._setMetadata(outInstance0._value,{'nentries': outNentries0})
+            
+            outInstance1 = self.conf.dataDictionary[list(self._output)[1]]
+            outTFile1 = TFile(outInstance1._value[0])
+            print (outTFile1.GetName())
+            outNentries1 = int(outTFile1.Get('GENERAL/events').GetEntries())
+            outInstance1._setMetadata(outInstance1._value,{'nentries': outNentries1})
+
+            outInstance2 = self.conf.dataDictionary[list(self._output)[2]]
+            outTFile2 = TFile(outInstance2._value[0])
+            print (outTFile2.GetName())
+            outNentries2 = int(outTFile2.Get('GENERAL/events').GetEntries())
+            outInstance2._setMetadata(outInstance2._value,{'nentries': outNentries2})
+
+        if 'doDeadStrip' in runArgs['part']._value and runArgs['splitHitMap']._value != 1:
             pwd=os.getcwd()
             deadFile=pwd+'/'+prefix+'.DeadStripsFile.xml'
             deadSummary=pwd+'/'+prefix+'.DeadSummaryFile.xml'
-            
+                            
             numLinesFile = 0
             numLinesSummary = 0
             if os.path.exists(deadFile):
@@ -515,7 +634,7 @@ class SCTCalibExecutor( athenaExecutor ):
                 numLinesSummary = sum(1 for line in open(deadSummary))
                     
             #if the files exist, but there were no dead strips there won't be COOL file, making the job fail                         
-             #remove the COOL file of the list of output files. Clunky, but temporal fix                                                   
+            #remove the COOL file of the list of output files. Clunky, but temporal fix                                                   
                 
             if ( numLinesFile == 2  and  numLinesSummary == 20 ):
                 dataDic =  self._trf.dataDictionary
@@ -528,7 +647,7 @@ class SCTCalibExecutor( athenaExecutor ):
                 redDict = {key:dataDic[key] for key in listOfKeys}
                 self._trf._dataDictionary = redDict
 
-        if 'doDeadChip' in runArgs['part']._value:
+        if 'doDeadChip' in runArgs['part']._value and runArgs['splitHitMap']._value != 1:
             pwd=os.getcwd()
             deadFile=pwd+'/'+prefix+'.DeadChipsFile.xml'
             deadSummary=pwd+'/'+prefix+'.DeadSummaryFile.xml'
@@ -554,22 +673,77 @@ class SCTCalibExecutor( athenaExecutor ):
                 redDict = {key:dataDic[key] for key in listOfKeys}
                 self._trf._dataDictionary = redDict
 
-        if 'JobNumber' in runArgs and runArgs['splitNoisyStrip']._value == 1:
+        if 'doQuietStrip' in runArgs['part']._value and runArgs['splitHitMap']._value != 1:
+            pwd=os.getcwd()
+            deadFile=pwd+'/'+prefix+'.QuietStripsFile.xml'
+            deadSummary=pwd+'/'+prefix+'.QuietSummaryFile.xml'
+                            
+            numLinesFile = 0
+            numLinesSummary = 0
+            if os.path.exists(deadFile):
+                numLinesFile = sum(1 for line in open(deadFile))
+            if os.path.exists(deadSummary):
+                numLinesSummary = sum(1 for line in open(deadSummary))
+                    
+            #if the files exist, but there were no dead strips there won't be COOL file, making the job fail                         
+            #remove the COOL file of the list of output files. Clunky, but temporal fix                                                   
+                
+            if ( numLinesFile == 2  and  numLinesSummary == 20 ):
+                dataDic =  self._trf.dataDictionary
+                listOfKeys = []
+
+                for key in dataDic:
+                    if key != 'COOL':
+                        listOfKeys.append(key)
+
+                redDict = {key:dataDic[key] for key in listOfKeys}
+                self._trf._dataDictionary = redDict
+
+        if 'doQuietChip' in runArgs['part']._value and runArgs['splitHitMap']._value != 1:
+            pwd=os.getcwd()
+            deadFile=pwd+'/'+prefix+'.QuietChipsFile.xml'
+            deadSummary=pwd+'/'+prefix+'.QuietSummaryFile.xml'
+
+            numLinesFile = 0
+            numLinesSummary = 0
+            if os.path.exists(deadFile):
+                numLinesFile = sum(1 for line in open(deadFile))
+            if os.path.exists(deadSummary):
+                numLinesSummary = sum(1 for line in open(deadSummary))
+
+            #if the files exist, but there were no dead strips there won't be COOL file, making the job fail              
+            #remove the COOL file of the list of output files. Clunky, but temporal fix                                                      
+
+            if ( numLinesFile == 2 and numLinesSummary == 20 ):
+                dataDic =  self._trf.dataDictionary
+                listOfKeys = []
+
+                for key in dataDic:
+                    if key != 'COOL':
+                        listOfKeys.append(key)
+
+                redDict = {key:dataDic[key] for key in listOfKeys}
+                self._trf._dataDictionary = redDict
+
+
+        if 'JobNumber' in runArgs and runArgs['splitHitMap']._value == 1:
             jobnb=runArgs['JobNumber']._value
         else:
             jobnb=''
 
         if prefix is not '':
             try:
-                if runArgs['splitNoisyStrip']._value !=1:
+                if runArgs['splitHitMap']._value !=1:
                     os.rename('mycool.db',prefix+'.mycool.db')                
                 if jobnb is not '':
                     prefixTmp = prefix + "."+ jobnb
                 else :
                     prefixTmp = prefix
-                if runArgs['splitNoisyStrip']._value == 2:
+                if runArgs['splitHitMap']._value == 2:
                     os.rename('SCTHitMaps.root',prefix+'.SCTHitMaps.root')
                     os.rename('SCTLB.root',prefix+'.SCTLB.root')
+                    if ('doDeadStrip' in runArgs['part']._value or 'doDeadChip' in runArgs['part']._value or 'doQuietStrip' in runArgs['part']._value or 'doQuietChip' in runArgs['part']._value ):
+                        os.rename('SCTBSErrors.root',prefix+'.SCTBSErrors.root')
             except:
                 self._echologger.warning('failed to rename DB, ROOT or LOG file.' )
             

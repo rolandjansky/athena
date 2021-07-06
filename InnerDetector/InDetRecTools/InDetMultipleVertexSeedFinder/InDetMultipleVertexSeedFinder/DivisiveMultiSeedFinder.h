@@ -8,8 +8,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "InDetRecToolInterfaces/IMultiPVSeedFinder.h"
-
-class IBeamCondSvc;
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 namespace Trk
 {
@@ -41,11 +40,11 @@ namespace InDet
 /**
  * Clustering method itself
  */   
-   std::vector< std::vector<const Trk::Track *> > seeds(const std::vector<const Trk::Track*>& tracks )const; 
+   virtual std::vector< std::vector<const Trk::Track *> > seeds(const std::vector<const Trk::Track*>& tracks )const override;
 
-   std::vector< std::vector<const Trk::TrackParticleBase *> > seeds(const std::vector<const Trk::TrackParticleBase*>& tracks )const;
+   virtual std::vector< std::vector<const Trk::TrackParticleBase *> > seeds(const std::vector<const Trk::TrackParticleBase*>& tracks )const override;
 
-   std::vector< std::vector<const Trk::TrackParameters *> > seeds(const std::vector<const xAOD::TrackParticle*>& tracks )const;
+   virtual std::vector< std::vector<const Trk::TrackParameters *> > seeds(const std::vector<const xAOD::TrackParticle*>& tracks )const override;
     
   private:
 
@@ -71,7 +70,8 @@ namespace InDet
   ToolHandle<InDetTrackClusterCleaningTool> m_cleaningTool;
   
 //beam spot finder
-  ServiceHandle< IBeamCondSvc > m_beamService; 
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
+
   ToolHandle<Trk::IExtrapolator> m_extrapolator; //<! Extrapolator tool
    
    //vertex seed finder

@@ -1,13 +1,14 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigBSExtraction/TrigBStoxAODTool.h"
 
 #include "TrigSteeringEvent/HLTResult.h"
 #include "TrigNavigation/NavigationCore.h"
+#include "TrigNavStructure/TrigHolderStructure.h"
 
 #include "TrigNavigation/Holder.h"
 #include "GaudiKernel/ClassID.h"
@@ -15,9 +16,9 @@
 #include "TrigStorageDefinitions/EDM_TypeInfo.h"
 
 #include "TrigSerializeCnvSvc/TrigStreamAddress.h"
-#include "Particle/TrackParticleContainer.h"
 
 #include "TrigNavigation/TriggerElement.h"
+
 
 #include "JetEvent/JetCollection.h"
 #include "xAODJet/JetContainer.h"
@@ -26,12 +27,6 @@
 #include "TrigMissingEtEvent/TrigMissingETContainer.h"
 #include "xAODTrigMissingET/TrigMissingETContainer.h"
 #include "xAODTrigMissingET/TrigMissingETAuxContainer.h"
-
-// #include "TrigParticle/TrigPhotonContainer.h"
-// #include "xAODTrigEgamma/TrigPhotonContainer.h"
-// #include "xAODTrigEgamma/TrigPhotonAuxContainer.h"
-
-#include "TrigNavigation/Holder.h"
 
 #include "TrigCaloEvent/TrigCaloClusterContainer.h"
 #include "TrigCaloEvent/TrigEMClusterContainer.h"
@@ -87,8 +82,6 @@
 
 #include "TrkTrack/TrackCollection.h"
 #include "Particle/TrackParticleContainer.h"
-#include "xAODTracking/TrackParticleContainer.h"
-#include "xAODTracking/TrackParticleAuxContainer.h"
 
 #include "tauEvent/TauJetContainer.h"
 #include "xAODTau/TauJetContainer.h"
@@ -369,23 +362,16 @@ namespace BStoXAODHelper{
   
 TrigBStoxAODTool::TrigBStoxAODTool(const std::string& type, const std::string& name, const IInterface* parent)
   : AthAlgTool(type,name,parent),
-    // needs newer pkg tag
     m_tauJetTool(      "xAODMaker::TauJetCnvTool/TauJetCnvTool",this),
     m_combMuonTool(    "xAODMaker::CombinedMuonFeatureContainerCnvTool/CombinedMuonFeatureContainerCnvTool",this),
     m_isoMuonTool(     "xAODMaker::IsoMuonFeatureContainerCnvTool/IsoMuonFeatureContainerCnvTool",this),
     m_trigMuonTool(    "TrigMuonEFInfoToMuonCnvTool/TrigMuonEFInfoToMuonCnvTool",this),
     m_jetCnvTool(      "xAODMaker::JetCnvTool/JetCnvTool",this),
-    // not configurable algtool
-    // m_ringerRingsTool( "xAODMaker::TrigRingerRingsCnvTool/TrigRingerRingsCnvTool",this),
-    // m_trigRNNTool(     "xAODMaker::TrigRNNOutputCnvTool/TrigRNNOutputCnvTool",this),
     m_trigCaloClusterTool( "xAODMaker::TrigCaloClusterCnvTool/TrigCaloClusterCnvTool",this),
     m_emClusterTool(   "xAODMaker::TrigEMClusterCnvTool/TrigEMClusterCnvTool",this),
     m_bjetTool(        "xAODMaker::TrigBjetCnvTool/TrigBjetCnvTool",this),
     m_efBphysTool(     "xAODMaker::TrigEFBphysContainerCnvTool/TrigEFBphysContainerCnvTool",this),
     m_l2BphysTool(     "xAODMaker::TrigL2BphysContainerCnvTool/TrigL2BphysContainerCnvTool",this),
-    // not in devval yet 
-    // m_trigElectronTool("xAODMaker::TrigElectronCnvTool/TrigElectronCnvTool",this),
-    // m_trigPhotonTool(  "xAODMaker::TrigPhotonCnvTool/TrigPhotonCnvTool",this),
     m_trigMetTool(     "xAODMaker::TrigMissingETCnvTool/TrigMissingETCnvTool",this),
     m_trigSpacePtsTool("xAODMaker::TrigSpacePointCountsCnvTool/TrigSpacePointCountsCnvTool",this),
     m_trigMbtsBitsTool("xAODMaker::TrigT2MbtsBitsCnvTool/TrigT2MbtsBitsCnvTool",this),
@@ -399,9 +385,6 @@ TrigBStoxAODTool::TrigBStoxAODTool(const std::string& type, const std::string& n
     m_trigPassBitsTool( "xAODMaker::TrigPassBitsCnvTool/TrigPassBitsCnvTool", this )
 {
   declareInterface<ITrigBStoxAODTool>( this );
-  declareProperty("L2ResultKey",     m_l2ResultKey = "HLTResult_L2");
-  declareProperty("EFResultKey",     m_efResultKey = "HLTResult_EF");
-  declareProperty("HLTResultKey",    m_hltResultKey = "HLTResult_HLT");
   declareProperty("ContainersToConvert",m_containersToConvert);
   declareProperty("NewContainers",   m_newContainers);
 
@@ -411,18 +394,12 @@ TrigBStoxAODTool::TrigBStoxAODTool(const std::string& type, const std::string& n
   declareProperty("trigMuonTool", m_trigMuonTool);
   declareProperty("jetCnvTool", m_jetCnvTool);
 
-  // not configurable algtools
-  // declareProperty("ringerRingsTool", m_ringerRingsTool);
-  // declareProperty("trigRNNTool", m_trigRNNTool);
-
   declareProperty("trigCaloClusterTool", m_trigCaloClusterTool);
   declareProperty("emClusterTool", m_emClusterTool);
   declareProperty("bjetTool", m_bjetTool);
   declareProperty("efBphysTool", m_efBphysTool);
   declareProperty("l2BphysTool", m_l2BphysTool);
-  // not in devval yet
-  // declareProperty("trigElectronTool", m_trigElectronTool);
-  // declareProperty("trigPhotonTool", m_trigPhotonTool);
+
   declareProperty("trigMetTool", m_trigMetTool);
   declareProperty("trigSpacePtsTool", m_trigSpacePtsTool);
   declareProperty("trigMbtsBitsTool", m_trigMbtsBitsTool);
@@ -447,87 +424,6 @@ TrigBStoxAODTool::~TrigBStoxAODTool() {
 }
 
 StatusCode TrigBStoxAODTool::initialize(){
-  // m_helpers[ClassID_traits<IsoMuonFeatureContainer>::ID()] = 
-  //   new BStoXAODHelper::DefaultHelper<
-  //     IsoMuonFeatureContainer,xAOD::L2IsoMuonContainer,xAODMaker::IIsoMuonFeatureContainerCnvTool>(m_isoMuonTool);
-  /*
-  m_helpers[ClassID_traits<CombinedMuonFeatureContainer>::ID()] = 
-    new BStoXAODHelper::DefaultHelper<
-      CombinedMuonFeatureContainer,xAOD::L2CombinedMuonContainer,xAODMaker::ICombinedMuonFeatureContainerCnvTool>(m_combMuonTool);
-
-  m_helpers[ClassID_traits<TrigMuonEFInfoContainer>::ID()] = new BStoXAODHelper::MuonHelper(m_trigMuonTool);
-
-  m_helpers[ClassID_traits<TrigCaloClusterContainer>::ID()] = 
-    new BStoXAODHelper::DefaultHelper<
-      TrigCaloClusterContainer,xAOD::TrigCaloClusterContainer,xAODMaker::ITrigCaloClusterCnvTool>(m_trigCaloClusterTool);
-
-  m_helpers[ClassID_traits<TrigEMClusterContainer>::ID()] = 
-    new BStoXAODHelper::DefaultHelper<
-      TrigEMClusterContainer,xAOD::TrigEMClusterContainer,xAODMaker::ITrigEMClusterCnvTool>(m_emClusterTool);
-
-  m_helpers[ClassID_traits<TrigEFBphysContainer>::ID()] = 
-    new BStoXAODHelper::DefaultHelper<
-      TrigEFBphysContainer,xAOD::TrigBphysContainer,xAODMaker::ITrigEFBphysContainerCnvTool>(m_efBphysTool);
-
-  m_helpers[ClassID_traits<TrigL2BphysContainer>::ID()] = 
-    new BStoXAODHelper::DefaultHelper<
-      TrigL2BphysContainer,xAOD::TrigBphysContainer,xAODMaker::ITrigL2BphysContainerCnvTool>(m_l2BphysTool);
-
-  m_helpers[ClassID_traits<JetCollection>::ID()] = 
-    new BStoXAODHelper::DefaultHelper<JetCollection,xAOD::JetContainer,xAODMaker::IJetCnvTool>(m_jetCnvTool);
-
-  m_helpers[ClassID_traits<TrigMissingETContainer>::ID()] = 
-    new BStoXAODHelper::DefaultHelper<
-      TrigMissingETContainer,xAOD::TrigMissingETContainer,xAODMaker::ITrigMissingETCnvTool>(m_trigMetTool);
-
-  m_helpers[ClassID_traits<TrigSpacePointCountsCollection>::ID()] = 
-    new BStoXAODHelper::DefaultHelper<
-      TrigSpacePointCountsCollection,xAOD::TrigSpacePointCountsContainer,xAODMaker::ITrigSpacePointCountsCnvTool>(m_trigSpacePtsTool);
-
-  m_helpers[ClassID_traits<TrigT2MbtsBitsContainer>::ID()] = 
-    new BStoXAODHelper::DefaultHelper<
-      TrigT2MbtsBitsContainer,xAOD::TrigT2MbtsBitsContainer,xAODMaker::ITrigT2MbtsBitsCnvTool>(m_trigMbtsBitsTool);
-
-  m_helpers[getCLID<TrigTrackCountsCollection>::ID()] = 
-    new BStoXAODHelper::DefaultHelper<
-      TrigTrackCountsCollection,xAOD::TrigTrackCountsContainer,xAODMaker::ITrigTrackCountsCnvTool>(m_trigTrackCtsTool);
-
-  m_helpers[ClassID_traits<TrigVertexCountsCollection>::ID()] = 
-    new BStoXAODHelper::DefaultHelper<
-      TrigVertexCountsCollection,xAOD::TrigVertexCountsContainer,xAODMaker::ITrigVertexCountsCnvTool>(m_trigVtxCtsTool);
-
-  m_helpers[ClassID_traits<TrackCollection>::ID()] =
-    new BStoXAODHelper::DefaultHelper<
-  TrackCollection,xAOD::TrackParticleContainer,xAODMaker::ITrackCollectionCnvTool>(m_trackCollectionTool);
-  
-  m_helpers[ClassID_traits<Rec::TrackParticleContainer>::ID()] =
-    new BStoXAODHelper::DefaultHelper<
-  Rec::TrackParticleContainer,xAOD::TrackParticleContainer,xAODMaker::IRecTrackParticleContainerCnvTool>(m_recTrackParticleContTool);
-  
-  m_helpers[ClassID_traits<Analysis::TauJetContainer>::ID()] =
-    new BStoXAODHelper::DefaultHelper<
-  Analysis::TauJetContainer,xAOD::TauJetContainer,xAODMaker::ITauJetCnvTool>(m_tauJetTool);
-
-  m_helpers[ClassID_traits<CaloClusterContainer>::ID()] =
-    new BStoXAODHelper::DefaultHelper<
-  CaloClusterContainer,xAOD::CaloClusterContainer,xAODMaker::ICaloClusterCnvTool>(m_caloClusterTool);
-
-  m_helpers[ClassID_traits<egammaContainer>::ID()] =
-    new BStoXAODHelper::DefaultHelper<
-    egammaContainer,xAOD::ElectronContainer,xAODMaker::IElectronCnvTool>(m_electronTool);
-
-  m_helpers[ClassID_traits<egammaContainer>::ID()] =
-    new BStoXAODHelper::DefaultHelper<
-  egammaContainer,xAOD::PhotonContainer,xAODMaker::IPhotonCnvTool>(m_photonTool);
-
-  m_helpers[ClassID_traits<TrigPassBitsCollection>::ID()] =
-    new BStoXAODHelper::DefaultHelper<
-  TrigPassBitsCollection,xAOD::TrigPassBitsContainer,xAODMaker::ITrigPassBitsCnvTool>(m_trigPassBitsTool);
-
-  m_helpers[ClassID_traits<TrigEFBjetContainer>::ID()] = 
-    new BStoXAODHelper::DefaultHelper<
-  TrigEFBjetContainer,xAOD::BTaggingContainer,xAODMaker::ITrigBjetCnvTool>(m_bjetTool);
-  */
 
   m_helpers.insert( std::pair<CLID,BStoXAODHelper::DefaultHelper<
 		    CombinedMuonFeatureContainer,
@@ -766,7 +662,10 @@ StatusCode TrigBStoxAODTool::rewireNavigation(HLT::Navigation* nav) {
 	if(iselement)   newTypeClid = it->second->xAODElementClid();
 	if(iscontainer) newTypeClid = it->second->xAODContainerClid();
 
-	HLTNavDetails::IHolder* newholder = nav->m_holderstorage.getHolder<HLTNavDetails::IHolder>(newTypeClid,oldholder->label());
+  std::lock_guard<std::recursive_mutex> lock(nav->getMutex());
+  HLT::TrigHolderStructure& holderstorage = nav->getHolderStorage();
+
+	HLTNavDetails::IHolder* newholder = holderstorage.getHolder<HLTNavDetails::IHolder>(newTypeClid,oldholder->label());
 	
        	if(!newholder){
 	  ATH_MSG_WARNING("could not find new holder for xAOD clid " <<  newTypeClid << " and label " << oldholder->label());

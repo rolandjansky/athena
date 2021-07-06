@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -7,10 +7,6 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "DerivationFrameworkCalo/MaxCellDecorator.h"
-#include "ExpressionEvaluation/ExpressionParser.h"
-#include "ExpressionEvaluation/SGxAODProxyLoader.h"
-#include "ExpressionEvaluation/SGNTUPProxyLoader.h"
-#include "ExpressionEvaluation/MultipleProxyLoader.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/EgammaContainer.h"

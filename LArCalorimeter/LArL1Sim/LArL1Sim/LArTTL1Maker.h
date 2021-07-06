@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARL1SIM_LARTTL1MAKER_H
@@ -62,20 +62,21 @@ class LArTTL1Maker : public AthAlgorithm,
   LArTTL1Maker(const std::string& name, ISvcLocator* pSvcLocator);
 
   /** destructor */
-  ~LArTTL1Maker();
+  virtual ~LArTTL1Maker();
 //
 // ..... Gaudi algorithm hooks
 //
   /**  Read ascii files for auxiliary data (puslse shapes, noise, etc...) */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   /**       Create  LArTTL1  object
       save in TES (2 containers: 1 EM, 1 hadronic)
   */
-  virtual StatusCode execute();
+  virtual StatusCode execute() override;
 
-  virtual StatusCode finalize();
-  virtual void handle(const Incident&);
+  virtual StatusCode finalize() override;
+  virtual void handle(const Incident&) override;
 
+  virtual bool isClonable() const override final { return true; }
 
  private:
 

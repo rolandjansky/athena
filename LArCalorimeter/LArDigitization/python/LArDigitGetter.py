@@ -38,7 +38,8 @@ class LArDigitGetter (Configured) :
                 # if pileup or overlay
                 from AthenaCommon.DetFlags import DetFlags
                 from LArDigitization.LArDigitizationConfig import isOverlay
-                if DetFlags.pileup.LAr_on() or isOverlay():
+                from OverlayCommonAlgs.OverlayFlags import overlayFlags
+                if DetFlags.pileup.LAr_on() or (isOverlay() and not overlayFlags.isOverlayMT()):
                     from AthenaCommon.AppMgr import ServiceMgr
                     # Defined in LArDigitizationConfig.py
                     ServiceMgr.PileUpMergeSvc.Intervals += [ CfgGetter.getPrivateTool("LArRangeEM", checkType=True) ]

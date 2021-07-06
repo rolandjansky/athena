@@ -95,6 +95,9 @@ theApp.Dlls += [ "LArRawUtils","LArROD","LArCalibUtils", "LArTools","LArEventTes
 
 # ---------------------------------------------------------
 
+from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
+LArADC2MeVCondAlgDefault()
+
 theApp.TopAlg += [ "LArRawChannelSimpleBuilder/LArRawChannelBuilder" ]
 LArRawChannelBuilder = Algorithm("LArRawChannelBuilder")
 LArRawChannelBuilder.DataLocation    = LArMonFlags.LArDigitKey()

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -15,8 +15,7 @@
 #include "TrigT1Result/CTP_RDO.h"
 
 // Local include(s):
-#include "TrigT1ResultByteStream/CTPByteStreamCnv.h"
-#include "TrigT1ResultByteStream/CTPSrcIdMap.h"
+#include "CTPByteStreamCnv.h"
 
 /**
  * The constructor sets up all the ToolHandle and ServiceHandle objects and initialises the
@@ -24,22 +23,9 @@
  */
 CTPByteStreamCnv::CTPByteStreamCnv( ISvcLocator* svcloc )
   : Converter( storageType(), classID(), svcloc ),
-    m_tool( "CTPByteStreamTool" ), m_srcIdMap( 0 ),
+    m_tool( "CTPByteStreamTool" ),
     m_robDataProvider( "ROBDataProviderSvc", "CTPByteStreamCnv" ),
     m_ByteStreamEventAccess( "ByteStreamCnvSvc", "CTPByteStreamCnv" ) {
-
-}
-
-/**
- * The destructor actually does some cleanup, it deletes the CTPSrcIdMap
- * object that is created in the initialize() function.
- */
-CTPByteStreamCnv::~CTPByteStreamCnv() {
-
-  if( m_srcIdMap ) {
-    delete m_srcIdMap;
-    m_srcIdMap = 0;
-  }
 
 }
 
@@ -92,11 +78,6 @@ StatusCode CTPByteStreamCnv::initialize() {
     log << MSG::DEBUG << "Connected to ROBDataProviderSvc" << endmsg;
   }
 
-  //
-  // Create CTPSrcIdMap:
-  //
-  m_srcIdMap = new CTPSrcIdMap();
-
   return StatusCode::SUCCESS;
 }
 
@@ -122,7 +103,7 @@ StatusCode CTPByteStreamCnv::createObj( IOpaqueAddress* pAddr, DataObject*& pObj
   //
   // Get the SourceID:
   //
-  const uint32_t robId = m_srcIdMap->getRobID( m_srcIdMap->getRodID() );
+  const uint32_t robId = m_srcIdMap.getRobID( m_srcIdMap.getRodID() );
 
   log << MSG::DEBUG << "expected ROB sub-detector ID: " << std::hex 
       << robId << std::dec << endmsg;  

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelAthHitMonAlg.h"
@@ -45,6 +45,8 @@ StatusCode PixelAthHitMonAlg::fillHistograms( const EventContext& ctx ) const {
   auto rdocontainer = SG::makeHandle(m_pixelRDOName, ctx);
   if ( !(rdocontainer.isValid()) ) {
     ATH_MSG_ERROR("Pixel Monitoring: Pixel RDO container "<< m_pixelRDOName << " could not be found.");
+    auto dataread_err = Monitored::Scalar<int>( "hitdataread_err", DataReadErrors::ContainerInvalid );
+    fill(hitGroup, dataread_err);
     return StatusCode::RECOVERABLE;
   } else {
     ATH_MSG_DEBUG("Pixel Monitoring: Pixel RDO container "<< rdocontainer.name() <<" is found.");
@@ -115,7 +117,7 @@ StatusCode PixelAthHitMonAlg::fillHistograms( const EventContext& ctx ) const {
     }
   }
 
-  const int nChannels_mod[PixLayers::COUNT] = {46080, 46080, 46080, 46080, 46080, 26880, 26880, 26880};
+  const int nChannels_mod[PixLayers::COUNT] = {46080, 46080, 46080, 46080, 46080, 26880};
   float nGoodChannels_total = 0.;
   float nGoodChannels_layer[PixLayers::COUNT];
   float nActiveChannels_layer[PixLayers::COUNT];
@@ -148,6 +150,8 @@ StatusCode PixelAthHitMonAlg::fillHistograms( const EventContext& ctx ) const {
     const InDetRawDataCollection<PixelRDORawData>* PixelCollection(*colNext);
     if (!PixelCollection) {
       ATH_MSG_DEBUG("Pixel Monitoring: Pixel Hit container is empty.");
+      auto dataread_err = Monitored::Scalar<int>( "hitdataread_err", DataReadErrors::CollectionInvalid );
+      fill(hitGroup, dataread_err);
       continue;
     }
 
@@ -156,7 +160,7 @@ StatusCode PixelAthHitMonAlg::fillHistograms( const EventContext& ctx ) const {
       int pixlayer = getPixLayersID(m_pixelid->barrel_ec(rdoID), m_pixelid->layer_disk(rdoID) );
       if (pixlayer == 99) continue;
       HitMap.add(pixlayer, rdoID, m_pixelid, 1.0);
-      if (m_doFEPlots && !m_doOnline) HitFEMap.add(pixlayer, rdoID, m_pixelid, m_pixelCablingSvc->getFE(&rdoID, rdoID), 1.0);
+      if (m_doFEPlots) HitFEMap.add(pixlayer, rdoID, m_pixelid, m_pixelCablingSvc->getFE(&rdoID, rdoID), 1.0);
       nhits++;
       nhits_layer[pixlayer]++;
       hitLvl1a.push_back( (*p_rdo)->getLVL1A() );
@@ -187,7 +191,7 @@ StatusCode PixelAthHitMonAlg::fillHistograms( const EventContext& ctx ) const {
   }
 
   fill2DProfLayerAccum( HitMap );
-  if (m_doFEPlots && !m_doOnline) fill2DProfLayerAccum( HitFEMap );
+  if (m_doFEPlots) fill2DProfLayerAccum( HitFEMap );
 
   auto vals = Monitored::Collection( "Hit_LVL1A_pixel", hitLvl1a );
   fill( hitGroup, vals);
@@ -218,11 +222,16 @@ StatusCode PixelAthHitMonAlg::fillHistograms( const EventContext& ctx ) const {
   fill1DProfLumiLayers( "AvgOccActivePerLumi", lb, avgocc_active_layer );
   fill1DProfLumiLayers( "AvgOccGoodPerLumi", lb, avgocc_good_layer );
 
-  if (m_doOnline && avgocc_good_layer[PixLayers::kIBL]>0) {
+  if (avgocc_good_layer[PixLayers::kIBL]>0) {
     for (int i = 0; i < PixLayers::COUNT; i++) {
       avgocc_ratio_toIBL_layer[i] = avgocc_good_layer[i] / avgocc_good_layer[PixLayers::kIBL];
     }
     fill1DProfLumiLayers( "AvgOccRatioToIBLPerLumi", lb, avgocc_ratio_toIBL_layer );
+  }
+
+  if (nhits==0) {
+    auto dataread_err = Monitored::Scalar<int>( "hitdataread_err", DataReadErrors::EmptyContainer );
+    fill(hitGroup, dataread_err);
   }
   //*******************************************************************************
   //************************** End of filling Hit Histograms **********************

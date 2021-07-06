@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -8,7 +7,7 @@ AthSequencer=CompFactory.AthSequencer
 
 def MainServicesMiniCfg(loopMgr='AthenaEventLoopMgr', masterSequence='AthAlgSeq'):
     #Mininmal basic config, just good enough for HelloWorld and alike
-    cfg=ComponentAccumulator(masterSequence)
+    cfg=ComponentAccumulator(AthSequencer(masterSequence,Sequential=True))
     cfg.setAsTopLevel()
     cfg.setAppProperty('TopAlg',['AthSequencer/'+masterSequence])
     cfg.setAppProperty('MessageSvcType', 'MessageSvc')
@@ -45,13 +44,13 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
     if cfgFlags.Concurrency.NumThreads==0:
         # For serial execution, we need the CondAlgs to execute first.
         cfg.addSequence(AthSequencer('AthCondSeq',StopOverride=True),parentName='AthAllAlgSeq')
-        cfg.addSequence(AthSequencer('AthAlgSeq',IgnoreFilterPassed=True,StopOverride=True),parentName='AthAllAlgSeq')
+        cfg.addSequence(AthSequencer('AthAlgSeq',IgnoreFilterPassed=True,StopOverride=True, ProcessDynamicDataDependencies=True, ExtraDataForDynamicConsumers=[] ),parentName='AthAllAlgSeq')
     else:
         # In MT, the order of execution is irrelevant (determined by data deps).
         # We add the conditions sequence later such that the CondInputLoader gets
         # initialized after all other user Algorithms for MT, so the base classes
         # of data deps can be correctly determined. 
-        cfg.addSequence(AthSequencer('AthAlgSeq',IgnoreFilterPassed=True,StopOverride=True),parentName='AthAllAlgSeq')
+        cfg.addSequence(AthSequencer('AthAlgSeq', IgnoreFilterPassed=True, StopOverride=True, ProcessDynamicDataDependencies=True, ExtraDataForDynamicConsumers=[]), parentName='AthAllAlgSeq')
         cfg.addSequence(AthSequencer('AthCondSeq',StopOverride=True),parentName='AthAllAlgSeq')
 
     cfg.addSequence(AthSequencer('AthEndSeq',Sequential=True),parentName='AthAlgEvtSeq') 
@@ -67,6 +66,10 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
     cfg.addEventAlgo(AthIncFirerAlg('EndIncFiringAlg',FireSerial=False,Incidents=['EndEvent']), sequenceName="AthEndSeq")
     cfg.addEventAlgo(IncidentProcAlg('IncidentProcAlg2'),sequenceName="AthEndSeq")
 
+    # Should be after all other algorithms.
+    cfg.addEventAlgo(AthIncFirerAlg('EndAlgorithmsFiringAlg',FireSerial=False,Incidents=['EndAlgorithms']), sequenceName="AthMasterSeq")
+    cfg.addEventAlgo(IncidentProcAlg('IncidentProcAlg3'),sequenceName="AthMasterSeq")
+
     #Basic services:
     ClassIDSvc=CompFactory.ClassIDSvc
     cfg.addService(ClassIDSvc(CLIDDBFiles= ['clid.db',"Gaudi_clid.db" ]))
@@ -76,7 +79,7 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
     cfg.addService(StoreGateSvc("DetectorStore"))
     cfg.addService(StoreGateSvc("HistoryStore"))
     cfg.addService(StoreGateSvc("ConditionStore"))
-    cfg.addService(CompFactory.CoreDumpSvc(), create=True)
+    cfg.addService(CompFactory.CoreDumpSvc(FastStackTrace=True), create=True)
 
     cfg.setAppProperty('InitializationLoopCheck',False)
 
@@ -98,7 +101,7 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
         # Migrated code from AtlasThreadedJob.py
         AuditorSvc=CompFactory.AuditorSvc
         msgsvc.defaultLimit = 0
-        msgsvc.Format = "% F%{:d}W%C%4W%R%e%s%8W%R%T %0W%M".format(cfgFlags.Common.MsgSourceLength)
+        msgsvc.Format = "% F%{:d}W%C%6W%R%e%s%8W%R%T %0W%M".format(cfgFlags.Common.MsgSourceLength)
 
         SG__HiveMgrSvc=CompFactory.SG.HiveMgrSvc
         hivesvc = SG__HiveMgrSvc("EventDataSvc")
@@ -121,13 +124,15 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
         scheduler.ThreadPoolSize       = cfgFlags.Concurrency.NumThreads
         cfg.addService(scheduler)
 
-        SGInputLoader=CompFactory.SGInputLoader
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
         # FailIfNoProxy=False makes it a warning, not an error, if unmet data
         # dependencies are not found in the store.  It should probably be changed
         # to True eventually.
-        inputloader = SGInputLoader (FailIfNoProxy = False)
-        cfg.addEventAlgo( inputloader, "AthAlgSeq" )
-        scheduler.DataLoaderAlg = inputloader.getName()
+        inputloader_ca = SGInputLoaderCfg(cfgFlags, FailIfNoProxy=False)
+        cfg.merge(inputloader_ca, sequenceName="AthAlgSeq")
+        # Specifying DataLoaderAlg makes the Scheduler automatically assign
+        # all unmet data dependencies to that algorithm
+        scheduler.DataLoaderAlg = inputloader_ca.getPrimary().getName()
 
         AthenaHiveEventLoopMgr=CompFactory.AthenaHiveEventLoopMgr
 
@@ -149,3 +154,8 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
 
     return cfg
     
+
+if __name__=="__main__":
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    cfg = MainServicesCfg(ConfigFlags)
+    cfg._wasMerged = True   # to avoid errror that CA was not merged

@@ -1,3 +1,3 @@
 xAOD::Init                INFO    Environment initialised for data access
-el_hist->GetMaximumBin() = 70
+el_hist->GetMaximumBin() = 71
 mu_hist->GetMaximumBin() = 64

@@ -5,6 +5,7 @@
 # art-output: *.pool.root
 # art-include: 21.0/Athena
 # art-include: master/Athena
+# art-athena-mt: 2
 
 set -e
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ActsGeantFollowerHelper_H
@@ -10,6 +10,8 @@
 #include "TrkParameters/TrackParameters.h" //typedef, can't fwd declare
 #include "ActsGeometry/IActsGeantFollowerHelper.h"
 #include "G4ThreeVector.hh" //typedef, can't fwd declare
+#include "TrkEventPrimitives/ParticleHypothesis.h"
+#include "TrkEventPrimitives/PdgToParticleHypothesis.h"
 
 #include "Acts/Surfaces/Surface.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
@@ -60,7 +62,8 @@ class ActsGeantFollowerHelper : public extends<AthAlgTool, IActsGeantFollowerHel
     mutable std::unique_ptr<const Acts::BoundTrackParameters> m_actsParameterCache;
     mutable std::unique_ptr<std::vector<Acts::SurfaceHit>> m_actsSurfaceCache;
     mutable std::vector<Acts::SurfaceHit>::iterator m_actsSurfaceIterator;
-
+    // Hypothesis to pdg converter
+    Trk::PdgToParticleHypothesis m_pdgToParticleHypothesis;
     mutable float m_tX0Cache;
     mutable float m_tX0CacheActs;
 
@@ -86,7 +89,7 @@ class ActsGeantFollowerHelper : public extends<AthAlgTool, IActsGeantFollowerHel
         mutable int                    m_t_pdg {0};
         /** Ntuple variables : g4 step parameters */
         mutable int                    m_g4_steps {0};
-        mutable float                  m_g4_p[MAXPROBES] {0};
+        mutable float                  m_g4_pt[MAXPROBES] {0};
         mutable float                  m_g4_eta[MAXPROBES] {0};
         mutable float                  m_g4_theta[MAXPROBES] {0};
         mutable float                  m_g4_phi[MAXPROBES] {0};
@@ -99,7 +102,7 @@ class ActsGeantFollowerHelper : public extends<AthAlgTool, IActsGeantFollowerHel
         mutable float                  m_g4_X0[MAXPROBES] {0};
         /** Ntuple variables : trk follow up parameters */
         mutable int                    m_trk_status[MAXPROBES] {0};
-        mutable float                  m_trk_p[MAXPROBES] {0};
+        mutable float                  m_trk_pt[MAXPROBES] {0};
         mutable float                  m_trk_eta[MAXPROBES] {0};
         mutable float                  m_trk_theta[MAXPROBES] {0};
         mutable float                  m_trk_phi[MAXPROBES] {0};
@@ -111,7 +114,7 @@ class ActsGeantFollowerHelper : public extends<AthAlgTool, IActsGeantFollowerHel
         /** Ntuple variables : acts follow up parameters */
         mutable int                    m_acts_status[MAXPROBES] {0};
         mutable int                    m_acts_volumeID[MAXPROBES] {0};
-        mutable float                  m_acts_p[MAXPROBES] {0};
+        mutable float                  m_acts_pt[MAXPROBES] {0};
         mutable float                  m_acts_eta[MAXPROBES] {0};
         mutable float                  m_acts_theta[MAXPROBES] {0};
         mutable float                  m_acts_phi[MAXPROBES] {0};

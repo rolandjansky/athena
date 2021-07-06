@@ -1,27 +1,23 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ALFA_EDGEMETHOD_H
 #define ALFA_EDGEMETHOD_H
 
 
-//#include "ReadGeometry.h"
-//#include "FullActivateTree.h"
+
 
 #include <utility>
-#include <algorithm>
+
 #include <vector>
 
 #include "Rtypes.h"
-#include "TMath.h"
 
 
 #include "AthenaKernel/MsgStreamMember.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
-//#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
 #include "AthenaKernel/getMessageSvc.h"
 
 #include "ALFA_LocRec/ALFA_UserObjects.h"

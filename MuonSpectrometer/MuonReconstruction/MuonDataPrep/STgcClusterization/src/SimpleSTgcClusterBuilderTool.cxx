@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SimpleSTgcClusterBuilderTool.h"
@@ -39,7 +39,7 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
 
   double resolution=0.;
   bool isStrip = false;
-  if ( stripsVect.size()>0 ) {
+  if ( !stripsVect.empty() ) {
     resolution = stripsVect.at(0).localCovariance()(0,0);
     Identifier chanId = stripsVect.at(0).identify();
     if ( m_idHelperSvc->stgcIdHelper().channelType(chanId)==1 ) isStrip = true;
@@ -130,20 +130,30 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
         else {
           sigmaSq = resolution;
         }
-        sigmaSq = sigmaSq/(totalCharge*totalCharge*12);
+        sigmaSq = sigmaSq/(totalCharge*totalCharge);
         ATH_MSG_DEBUG("Uncertainty on cluster position is: " << sqrt(sigmaSq));         
-        Amg::MatrixX* covN = new Amg::MatrixX(1,1);
-        (*covN)(0,0) = sigmaSq + m_addError*m_addError;
+        auto covN = Amg::MatrixX(1,1);
+        covN(0,0) = sigmaSq + m_addError*m_addError;
 
         //
         // memory allocated dynamically for the PrepRawData is managed by Event Store in the converters
         //
-        ATH_MSG_DEBUG("error on cluster " << sqrt((*covN)(0,0)) << " added error " <<  m_addError); 
-        
-        sTgcPrepData* prdN = new sTgcPrepData(clusterId,hash,localPosition,
-            rdoList, covN, cluster.at(0).detectorElement(),
-            std::accumulate(elementsCharge.begin(),elementsCharge.end(),0),(short int)0,(uint16_t) 0,elementsChannel,elementsTime,elementsCharge);
-        clustersVect.push_back(prdN);   
+        ATH_MSG_DEBUG("error on cluster " << sqrt((covN)(0,0)) << " added error " <<  m_addError);
+
+        sTgcPrepData* prdN = new sTgcPrepData(
+          clusterId,
+          hash,
+          localPosition,
+          rdoList,
+          covN,
+          cluster.at(0).detectorElement(),
+          std::accumulate(elementsCharge.begin(), elementsCharge.end(), 0),
+          (short int)0,
+          (uint16_t)0,
+          elementsChannel,
+          elementsTime,
+          elementsCharge);
+        clustersVect.push_back(prdN);
       }
     }
   }
@@ -169,7 +179,7 @@ bool Muon::SimpleSTgcClusterBuilderTool::addStrip(const Muon::sTgcPrepData& stri
       << gasGap << " " << stripNum);
   
   // if no cluster is present start creating a new one
-  if (clustersStripNum[multilayer][gasGap].size()==0 ) {
+  if (clustersStripNum[multilayer][gasGap].empty() ) {
 
     ATH_MSG_DEBUG( ">>> No strip present in this gap: adding it as first cluster " );
     std::set<unsigned int> clusterStripNum;
@@ -245,7 +255,7 @@ void SimpleSTgcClusterBuilderTool::dumpStrips( std::vector<Muon::sTgcPrepData>& 
   }
 
   ATH_MSG_INFO("Dumping all clusters:  ");
-  for ( auto it : clustersVect ) {
+  for ( auto *it : clustersVect ) {
     Identifier clusterId = it->identify(); 
     ATH_MSG_INFO("***> New cluster identifier: " << m_idHelperSvc->stgcIdHelper().show_to_string(clusterId) ); 
     ATH_MSG_INFO("Cluster size: " << it->rdoList().size() );

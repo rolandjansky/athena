@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonRIO_OnTrack/MMClusterOnTrack.h"
@@ -12,14 +12,18 @@ namespace Muon
   MMClusterOnTrack::MMClusterOnTrack():
     MuonClusterOnTrack(), // call base class ctor
     m_rio(),
-    m_detEl(0)
+    m_detEl(nullptr),
+    m_stripDriftDists(std::vector<float>(0)),
+    m_stripDriftDistErrors(std::vector<Amg::MatrixX>(0))
   {}
 
   // copy constructor:
   MMClusterOnTrack::MMClusterOnTrack( const MMClusterOnTrack& rot):
     MuonClusterOnTrack(rot), // base clas ctor
     m_rio(rot.m_rio),
-    m_detEl(rot.m_detEl)
+    m_detEl(rot.m_detEl),
+    m_stripDriftDists(rot.m_stripDriftDists),
+    m_stripDriftDistErrors(rot.m_stripDriftDistErrors)
   {}
 
   // Constructor with parameters
@@ -28,8 +32,8 @@ namespace Muon
            const Trk::LocalParameters& locpos,
            const Amg::MatrixX& locerr,
            double positionAlongStrip,
-           std::vector<float> stripDriftDists,
-           std::vector<Amg::MatrixX> stripDriftDistErrors) :
+           const std::vector<float>& stripDriftDists,
+           const std::vector<Amg::MatrixX>& stripDriftDistErrors) :
     MuonClusterOnTrack(locpos, locerr, RIO->identify(), positionAlongStrip), //call base class constructor
     m_detEl( RIO->detectorElement() ),
     m_stripDriftDists(stripDriftDists),
@@ -47,8 +51,8 @@ namespace Muon
            const Identifier& id,
            const MuonGM::MMReadoutElement* detEl,
            double positionAlongStrip,
-           std::vector<float> stripDriftDists,
-           std::vector<Amg::MatrixX> stripDriftDistErrors) :
+           const std::vector<float>& stripDriftDists,
+           const std::vector<Amg::MatrixX>& stripDriftDistErrors) :
     MuonClusterOnTrack(locpos, locerr, id, positionAlongStrip),  // call base class constructor
     m_rio( RIO ),
     m_detEl( detEl ),
@@ -71,6 +75,9 @@ namespace Muon
         MuonClusterOnTrack::operator=(rot);//base class ass. op.
         m_rio = rot.m_rio;
         m_detEl = rot.m_detEl;
+        m_stripDriftDists = rot.m_stripDriftDists;
+        m_stripDriftDistErrors = rot.m_stripDriftDistErrors;
+
       }
     return *this;
   }

@@ -21,6 +21,10 @@
 #ifndef TRIGT2BEAMSPOT_T2TRACKCLUSTERER_H
 #define TRIGT2BEAMSPOT_T2TRACKCLUSTERER_H
 
+#include <string>
+#include <vector>
+#include <utility>
+
 /// Externals
 #include "AthContainers/ConstDataVector.h"
 #include "TrkTrack/Track.h"
@@ -28,10 +32,6 @@
 #include "GaudiKernel/SystemOfUnits.h"
 //using Gaudi::Units::GeV;
 //using Gaudi::Units::mm;
-
-#include <string>
-#include <vector>
-#include <cmath>
 
 namespace InDet { class BeamSpotData; }
 
@@ -41,6 +41,8 @@ namespace PESA
   class T2TrackClusterer
   {
   public:
+
+    using TrackVector = std::vector<const Trk::Track*>;
 
     // option for calculating track perigee parameters
     enum TrackPerigee {
@@ -54,31 +56,41 @@ namespace PESA
     static TrackPerigee trackPerigeeFromString(const std::string& perigeeStr);
 
     // Constructor
-    // clusterPerigee is one of '0'=origin, 's'=beamspot, 'l'=beamline
-    T2TrackClusterer( double deltaZ = 10.*Gaudi::Units::mm, double minPT = 1.*Gaudi::Units::GeV, bool weightedZ = true, unsigned maxSize = 10000.,
-                      TrackPerigee trackPerigee = perigee_original)
+    T2TrackClusterer(double deltaZ = 10.*Gaudi::Units::mm, double minPT = 1.*Gaudi::Units::GeV,
+                     bool weightedZ = true, unsigned maxSize = 10000.,
+                     TrackPerigee trackPerigee = perigee_original)
       : m_deltaZ    ( deltaZ    )
       , m_minPT     ( minPT     )
       , m_weightedZ ( weightedZ )
       , m_maxSize   ( maxSize   )
-      , m_seedZ0    ( 0. )
-      , m_totalZ0Err( 0. )
       , m_trackPerigee( trackPerigee )
       {}
 
-    // Accessors
+    /**
+     * Find one cluster in a set of tracks.
+     *
+     * If beamspot is nullptr then clustering is done with "perigee_original"
+     * option, otherwise perigee option provided in a constructor is used.
+     */
+    const TrackVector& cluster(const TrackVector& tracks, const InDet::BeamSpotData* beamspot = nullptr);
+
+    /// Z0 position of a seed track that was used for clustering.
     double     seedZ0() const { return m_seedZ0    ; }
+
+    /// Uncertainty of Z0 position of a cluster.
     double totalZ0Err() const { return m_totalZ0Err; }
 
-    const TrackCollection&               cluster() const { return *m_cluster.asDataVector();      }
-    const TrackCollection&          unusedTracks() const { return *m_unusedTracks.asDataVector(); }
+    /// This is the same vector as returned from clustering method,
+    /// have to be called after return from a clustering method.
+    const TrackVector& clusterTracks() const { return m_cluster; }
 
-    // Methods
-    double trackWeight( const Trk::Track& track ) const;
-
-    const TrackCollection& cluster( const TrackCollection& tracks, const InDet::BeamSpotData* beamspot = nullptr );
+    /// Tracks that were not included into cluster,
+    /// have to be called after return from a clustering method.
+    const TrackVector& unusedTracks() const { return m_unusedTracks; }
 
   private:
+
+    double trackWeight(const Trk::Track& track) const;
 
     // return perigee z0 for a track
     double trackPerigeeZ0(const Trk::Track& track, const InDet::BeamSpotData* beamspot) const;
@@ -88,14 +100,13 @@ namespace PESA
     const double   m_minPT;
     const bool     m_weightedZ;
     const unsigned m_maxSize;
-
-    double m_seedZ0;
-    double m_totalZ0Err;
-
     const TrackPerigee m_trackPerigee = perigee_original;
 
-    ConstDataVector<TrackCollection> m_cluster;
-    ConstDataVector<TrackCollection> m_unusedTracks;
+    double m_seedZ0 = 0.;
+    double m_totalZ0Err = 0.;
+
+    TrackVector m_cluster;
+    TrackVector m_unusedTracks;
   };
 
 } // end namespace

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -15,10 +15,10 @@
 #include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
 #include "SCT_ReadoutGeometry/SCT_BarrelModuleSideDesign.h"
 #include "SCT_ReadoutGeometry/SCT_ForwardModuleSideDesign.h"
-#include "InDetReadoutGeometry/SiCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
-#include "InDetReadoutGeometry/SiLocalPosition.h"
+#include "ReadoutGeometryBase/SiLocalPosition.h"
 #include "InDetPrepRawData/SiWidth.h"
 #include "Identifier/IdentifierHash.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -106,8 +106,8 @@ namespace InDet {
 
     bool pass(true);
     const std::bitset<3> timePattern(static_cast<unsigned long>(timeBin));
-    if (timePattern.test(2) != false) pass=false;
-    if (timePattern.test(1) != true) pass=false;
+    if (timePattern.test(2)) pass=false;
+    if (!timePattern.test(1)) pass=false;
     return pass;
   } 
   
@@ -118,7 +118,7 @@ namespace InDet {
     
     bool pass(true);
     const std::bitset<3> timePattern(static_cast<unsigned long>(timeBin));
-    if (timePattern.test(1) != true) pass=false;
+    if (!timePattern.test(1)) pass=false;
     return pass;
   }  
 
@@ -471,7 +471,7 @@ namespace InDet {
       const SiWidth siWidth(Amg::Vector2D(nStrips, 1), Amg::Vector2D(clusterDim.width, stripLength));
       
       SCT_Cluster* cluster = (m_clusterMaker) ? (m_clusterMaker->sctCluster(clusterId, localPos, stripGroup, siWidth, element, m_errorStrategy))
-        : (new SCT_Cluster(clusterId, localPos, stripGroup, siWidth, element, 0));
+        : (new SCT_Cluster(clusterId, localPos, stripGroup, siWidth, element,{}));
       cluster->setHashAndIndex(clusterCollection->identifyHash(), clusterCollection->size());
       if (tbinIter != tbinGroups.end()) {
         cluster->setHitsInThirdTimeBin(*tbinIter);
@@ -701,12 +701,12 @@ namespace InDet {
         V[3]           = sn2*v0+cs2*v1;
       }
 
-      Amg::MatrixX* errorMatrix(new Amg::MatrixX(2,2));
-      *errorMatrix<<V[0],V[1],V[2],V[3];
+      auto errorMatrix = Amg::MatrixX(2,2);
+      errorMatrix<<V[0],V[1],V[2],V[3];
 
       SiWidth siWidth{Amg::Vector2D(dnStrips,1.), Amg::Vector2D(width,stripL)};
 
-      SCT_Cluster* cluster = new SCT_Cluster{clusterId, locpos, *pGroup , siWidth, element, errorMatrix};
+      SCT_Cluster* cluster = new SCT_Cluster{clusterId, locpos, *pGroup , siWidth, element, std::move(errorMatrix)};
 
       cluster->setHashAndIndex(idHash, clusterNumber);
 

@@ -1,8 +1,5 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
-
 #########################################################################
 # ConfiguredNewtrackingCuts class
 #########################################################################
@@ -22,10 +19,7 @@ class ConfiguredNewTrackingCuts :
     self.__set_indetflags()     #pointer to InDetFlags, don't use them directly
                                 #to allow sharing this code with the trigger
 
-    from AthenaCommon.GlobalFlags import globalflags
     from AthenaCommon.DetFlags import DetFlags
-    from AthenaCommon.BeamFlags import jobproperties
-    from RecExConfig.RecFlags import rec
 
     # --- put defaults to run Pixel/SCT/TRT
     self.__usePixel = DetFlags.haveRIO.pixel_on()
@@ -61,7 +55,7 @@ class ConfiguredNewTrackingCuts :
 
     # --- this is for the TRT-extension
     self.__minTRTonTrk             = 9
-    self.__minTRTPrecFrac          = 0.4 # old: 0.3
+    self.__minTRTPrecFrac          = 0.3
 
     # --- general pattern cuts for NewTracking
     self.__radMax                  = 600. * Units.mm # default R cut for SP in SiSpacePointsSeedMaker
@@ -137,6 +131,9 @@ class ConfiguredNewTrackingCuts :
     self.__maxTRTonlyShared          = 0.7
     self.__useTRTonlyParamCuts       = False
     self.__useTRTonlyOldLogic        = True
+    self.__TrkSel_TRTTrksEtaBins                  = [ 999, 999, 999, 999, 999, 999, 999, 999, 999, 999] # eta bins (10) for eta-dep cuts on TRT conversion tracks
+    self.__TrkSel_TRTTrksMinTRTHitsThresholds     = [   0,   0,   0,   0,   0,   0,   0,   0,   0,   0] # eta-dep nTRT for TRT conversion tracks (> 15 is applied elsewhere)
+    self.__TrkSel_TRTTrksMinTRTHitsMuDependencies = [   0,   0,   0,   0,   0,   0,   0,   0,   0,   0] # eta-dep nTRT, mu dependence for TRT conversion tracks
 
     #
     # --------------------------------------
@@ -179,7 +176,7 @@ class ConfiguredNewTrackingCuts :
       self.__maxSecondaryPixelHoles    = 1                # tighten hole cuts
       self.__maxSecondarySCTHoles      = 1                # tighten hole cuts
       self.__maxSecondaryDoubleHoles   = 0                # tighten hole cuts
-      self.__minSecondaryTRTPrecFrac   = 0.3              # default for all tracking now, as well for BackTracking
+      self.__minSecondaryTRTPrecFrac   = 0.3              # default for all tracking now, as well for BackTracking. See "TRTStandalone" for standalone TRT tracks.
       self.__rejectShortExtensions     = True             # fall back onto segment if TRT extension is short
       self.__SiExtensionCuts           = True             # use cuts from ambi scoring already early
       # self.__maxSecondaryTRTShared     = 0.2              # tighen shared hit cut for segment maker ?
@@ -763,6 +760,16 @@ class ConfiguredNewTrackingCuts :
       self.__minTRTonly              = 15
       self.__maxTRTonlyShared        = 0.7
 
+    # --- TRT Standalone tracks (used by conversion finding)
+    if mode == "TRTStandalone":
+      # minSecondaryTRTPrecFrac is fed into ConfiguredTRTStandalone and eventually
+      # into InDet__InDetTrtTrackScoringTool:
+      self.__minSecondaryTRTPrecFrac = 0.15
+      # Mu- and eta- dependent cuts on nTRT
+      self.__TrkSel_TRTTrksEtaBins                  = [  0.7,   0.8,   0.9,  1.2,  1.3,  1.6,  1.7,  1.8,  1.9,  999] # eta bins (10) for eta-dep cuts on TRT conversion tracks
+      self.__TrkSel_TRTTrksMinTRTHitsThresholds     = [   27,    18,    18,   18,   26,   28,   26,   24,   22,    0] # eta-dep nTRT for TRT conversion tracks (> 15 is applied elsewhere)
+      self.__TrkSel_TRTTrksMinTRTHitsMuDependencies = [  0.2,  0.05,  0.05, 0.05, 0.15, 0.15, 0.15, 0.15, 0.15,    0] # eta-dep nTRT, mu dependence for TRT conversion tracks
+
     # --- mode for SCT and TRT
     if mode == "SCTandTRT":
       self.__extension        = "SCTandTRT" # this runs parallel to NewTracking
@@ -936,6 +943,15 @@ class ConfiguredNewTrackingCuts :
 
   def minTRTonTrk( self ) :
     return self.__minTRTonTrk
+
+  def TrkSel_TRTTrksEtaBins( self ) :
+    return self.__TrkSel_TRTTrksEtaBins
+
+  def TrkSel_TRTTrksMinTRTHitsThresholds( self ) :
+    return self.__TrkSel_TRTTrksMinTRTHitsThresholds
+
+  def TrkSel_TRTTrksMinTRTHitsMuDependencies( self ) :
+    return self.__TrkSel_TRTTrksMinTRTHitsMuDependencies
 
   def minTRTPrecFrac( self ) :
     return self.__minTRTPrecFrac
@@ -1140,6 +1156,9 @@ class ConfiguredNewTrackingCuts :
     if self.__useTRT:
       print('* useParameterizedTRTCuts     :  ', self.__useParameterizedTRTCuts)
       print('* useNewParameterizationTRT   :  ', self.__useNewParameterizationTRT)
+      print('* - TRT Trks Eta Bins                 : ',self.__TrkSel_TRTTrksEtaBins                 )
+      print('* - TRT Trks MinTRTHits Thresholds    : ',self.__TrkSel_TRTTrksMinTRTHitsThresholds    )
+      print('* - TRT Trks MinTRTHits Mu Dependency : ',self.__TrkSel_TRTTrksMinTRTHitsMuDependencies)
       print('* excludeUsedTRToutliers      :  ', self.__excludeUsedTRToutliers)
       print('*')
       print('* TRT only cuts:')

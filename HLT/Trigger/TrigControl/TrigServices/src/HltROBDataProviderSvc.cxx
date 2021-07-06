@@ -297,7 +297,7 @@ void HltROBDataProviderSvc::setNextEvent(const EventContext& context, const RawE
     rob_fragments.push_back(ROBF(robF[irob]));
   }
   // add the ROBs to the cache/rob map
-  eventCache_addRobData(cache, rob_fragments) ;
+  eventCache_addRobData(cache, std::move(rob_fragments)) ;
 
   ATH_MSG_DEBUG(" ---> setNextEvent for                " << name() );
   ATH_MSG_DEBUG("      current [global id, LVL1 id] = [" << cache->globalEventNumber << "," << cache->currentLvl1ID << "]" );
@@ -320,11 +320,15 @@ void HltROBDataProviderSvc::getROBData(const EventContext& context,
 				       const std::vector<uint32_t>& robIds, std::vector<const ROBF*>& robFragments, 
 				       const std::string_view callerName)
 {
+  EventCache* cache = m_eventsCache.get( context );
+
+  // lock for event cache update with DCM
+  std::lock_guard<std::mutex> lock( cache->eventCache_mtx );
+
   TrigTimeStamp rosStartTime;
 
   ATH_MSG_VERBOSE("start of " << __FUNCTION__ << ": Number of ROB Ids to get = " << robIds.size() 
 		  << " caller name = " << callerName);
-  EventCache* cache = m_eventsCache.get( context );
 
   // allocate vector of missing ROB Ids
   std::vector<uint32_t> robIds_missing ;
@@ -384,7 +388,7 @@ void HltROBDataProviderSvc::getROBData(const EventContext& context,
 
     // Add the ROBs to the cache/rob map and collect ignored robs
     std::set<uint32_t> robIds_ignored;
-    eventCache_addRobData(cache, robFragments_missing, robIds_ignored);
+    eventCache_addRobData(cache, std::move(robFragments_missing), robIds_ignored);
 
     // Monitor DCM ROBs
     for (const hltinterface::DCM_ROBInfo& robInfo : vRobInfos) {
@@ -405,15 +409,15 @@ void HltROBDataProviderSvc::getROBData(const EventContext& context,
     std::set<uint32_t> robIds_disabled;
     eventCache_checkRobListToCache(cache, robIds, robFragments, robIds_missing, robIds_disabled);
 
-    // Fill disabled ROBs
+    // Fill undefined (not enabled) ROBs
     for (uint32_t robId : robIds_disabled) {
         monitorData.requested_ROBs[robId] = robmonitor::ROBDataStruct(robId);
-        monitorData.requested_ROBs[robId].rob_history = robmonitor::DISABLED;
+        monitorData.requested_ROBs[robId].rob_history = robmonitor::UNDEFINED;
     }
   }
   else {
     // add the ROBs to the cache/rob map
-    eventCache_addRobData(cache, robFragments_missing) ;
+    eventCache_addRobData(cache, std::move(robFragments_missing)) ;
 
     // return all the requested ROB fragments from the cache
     eventCache_checkRobListToCache(cache, robIds, robFragments, robIds_missing) ;
@@ -489,6 +493,9 @@ int HltROBDataProviderSvc::collectCompleteEventData(const EventContext& context,
 
   EventCache* cache = m_eventsCache.get( context );
 
+  // lock for event cache update with DCM
+  std::lock_guard<std::mutex> lock( cache->eventCache_mtx );
+
   // return if event is already complete 
   if (cache->isEventComplete) return 0;
 
@@ -530,7 +537,7 @@ int HltROBDataProviderSvc::collectCompleteEventData(const EventContext& context,
     robFragments_missing.push_back( it->robFragment );
   }
   // add the ROBs to the cache/rob map
-  eventCache_addRobData(cache, robFragments_missing) ;
+  eventCache_addRobData(cache, std::move(robFragments_missing)) ;
 
   // update event complete flag
   cache->isEventComplete = true;
@@ -656,12 +663,12 @@ void HltROBDataProviderSvc::eventCache_checkRobListToCache(EventCache* cache, co
   } // end loop over input ROB Ids to check
 }
 
-void HltROBDataProviderSvc::eventCache_addRobData(EventCache* cache, const std::vector<ROBF>& robFragments,
+void HltROBDataProviderSvc::eventCache_addRobData(EventCache* cache, std::vector<ROBF>&& robFragments,
               std::optional<std::reference_wrapper<std::set<uint32_t>>> robIds_ignored)
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__ << " number of ROB fragments to add = " << robFragments.size());
 
-  for (auto rob : robFragments) {
+  for (const ROBF& rob : robFragments) {
 
     // Source ID
     uint32_t id = rob.source_id();
@@ -715,7 +722,7 @@ void HltROBDataProviderSvc::eventCache_addRobData(EventCache* cache, const std::
     }
 
     // add ROB to map
-    { cache->robmap[id] = rob; }
+    { cache->robmap.insert(std::make_pair(id,std::move(rob))); }
   }
 }
 

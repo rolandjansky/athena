@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -21,11 +21,11 @@
 namespace Trk {
 
   /**
-     @class KalmanUpdator_xk 
-  
+     @class KalmanUpdator_xk
+
      Trk::KalmanUpdator_xk is a set of tools for adding and removing
      measurements to/from the state vector using xKalman algorithms
-     @author Igor.Gavrilenko@cern.ch     
+     @author Igor.Gavrilenko@cern.ch
   */
 
   class LocalParameters       ;
@@ -34,13 +34,13 @@ namespace Trk {
   class KalmanUpdator_xk : virtual public IUpdator,
     virtual public IPatternParametersUpdator,
     public AthAlgTool
-    { 
+    {
       ///////////////////////////////////////////////////////////////////
       // Public methods:
       ///////////////////////////////////////////////////////////////////
- 
-    public:	
-      
+
+    public:
+
       ///////////////////////////////////////////////////////////////////
       // Standard Athena tool methods
       ///////////////////////////////////////////////////////////////////
@@ -54,28 +54,28 @@ namespace Trk {
       // /////////////////////////////////////////////////////////////////
       // Main public methods for kalman filter updator tool
       // /////////////////////////////////////////////////////////////////
- 
+
       // /////////////////////////////////////////////////////////////////
       // Add and remove without Xi2 calculation
       // /////////////////////////////////////////////////////////////////
-    
+
       //! add without chi2 calculation, PRD-level, EDM track parameters
-      virtual TrackParameters* addToState 
+      virtual std::unique_ptr<TrackParameters> addToState
         (const TrackParameters&,const Amg::Vector2D&  ,const Amg::MatrixX&) const override final;
       //! add without chi2 calculation, ROT-level, EDM track parameters
-      virtual TrackParameters* addToState 
+      virtual std::unique_ptr<TrackParameters> addToState
         (const TrackParameters&,const LocalParameters&,const Amg::MatrixX&) const override final;
 
       //! add without chi2 calculation, PRD-level, pattern track parameters
-      virtual bool                   addToState 
+      virtual bool                   addToState
         (PatternTrackParameters&,const Amg::Vector2D&  ,const Amg::MatrixX&,
          PatternTrackParameters&) const override final;
       //! add without chi2 calculation, ROT-level, pattern track parameters
-      virtual bool                   addToState 
+      virtual bool                   addToState
         (PatternTrackParameters&,const LocalParameters&,const Amg::MatrixX&,
          PatternTrackParameters&) const override final;
       //! add without chi2 calculation, PRD-level, pattern track parameters, specifically 1D
-      virtual bool                   addToStateOneDimension 
+      virtual bool                   addToStateOneDimension
         (PatternTrackParameters&,const Amg::Vector2D&  ,const Amg::MatrixX&,
          PatternTrackParameters&) const override final;
 
@@ -83,15 +83,15 @@ namespace Trk {
       // Remove without Xi2 calculation
       ///////////////////////////////////////////////////////////////////
 
-      virtual TrackParameters* removeFromState 
+      virtual std::unique_ptr<TrackParameters> removeFromState
 	(const TrackParameters&,const Amg::Vector2D&  ,const Amg::MatrixX&) const override final;
-      virtual TrackParameters* removeFromState 
+      virtual std::unique_ptr<TrackParameters> removeFromState
 	(const TrackParameters&,const LocalParameters&,const Amg::MatrixX&) const override final;
 
-      virtual bool removeFromState 
+      virtual bool removeFromState
 	(PatternTrackParameters&,const Amg::Vector2D&  ,const Amg::MatrixX&,
 	 PatternTrackParameters&) const override final;
-      virtual bool removeFromState 
+      virtual bool removeFromState
 	(PatternTrackParameters&,const LocalParameters&,const Amg::MatrixX&,
 	 PatternTrackParameters&) const override final;
 
@@ -99,23 +99,23 @@ namespace Trk {
       // Add  with Xi2 calculation
       ///////////////////////////////////////////////////////////////////
 
-      virtual TrackParameters* addToState 
+      virtual std::unique_ptr<TrackParameters> addToState
 	(const TrackParameters&,const Amg::Vector2D&  ,const Amg::MatrixX&,
 	 FitQualityOnSurface*&) const override final;
-      virtual TrackParameters* addToState 
+      virtual std::unique_ptr<TrackParameters> addToState
 	(const TrackParameters&,const LocalParameters&,const Amg::MatrixX&,
 	 FitQualityOnSurface*&) const override final;
-      virtual std::pair<AmgVector(5),AmgSymMatrix(5)>* updateParameterDifference 
-	(const AmgVector(5)&,const AmgSymMatrix(5)&, const Amg::VectorX&, const Amg::MatrixX&, 
-	 const int&,Trk::FitQualityOnSurface*&,bool) const override final; 
-  
-      virtual bool addToState 
+      virtual std::pair<AmgVector(5),AmgSymMatrix(5)>* updateParameterDifference
+	(const AmgVector(5)&,const AmgSymMatrix(5)&, const Amg::VectorX&, const Amg::MatrixX&,
+	 const int&,Trk::FitQualityOnSurface*&,bool) const override final;
+
+      virtual bool addToState
 	(PatternTrackParameters&,const Amg::Vector2D&  ,const Amg::MatrixX&,
 	 PatternTrackParameters&,double&,int&) const override final;
-      virtual bool addToState 
+      virtual bool addToState
 	(PatternTrackParameters&,const LocalParameters&,const Amg::MatrixX&,
 	 PatternTrackParameters&,double&,int&) const override final;
-      virtual bool                   addToStateOneDimension 
+      virtual bool                   addToStateOneDimension
 	(PatternTrackParameters&,const Amg::Vector2D&  ,const Amg::MatrixX&,
 	 PatternTrackParameters&,double&,int&) const override final;
 
@@ -123,17 +123,17 @@ namespace Trk {
       // Remove with Xi2 calculation
       ///////////////////////////////////////////////////////////////////
 
-      virtual TrackParameters* removeFromState 
+      virtual std::unique_ptr<TrackParameters> removeFromState
 	(const TrackParameters&,const Amg::Vector2D&  ,const Amg::MatrixX&,
 	 FitQualityOnSurface*&) const override final;
-      virtual TrackParameters* removeFromState 
+      virtual std::unique_ptr<TrackParameters> removeFromState
 	(const TrackParameters&,const LocalParameters&,const Amg::MatrixX&,
 	 FitQualityOnSurface*&) const override final;
 
-      virtual bool removeFromState 
+      virtual bool removeFromState
 	(PatternTrackParameters&,const Amg::Vector2D&  ,const Amg::MatrixX&,
 	 PatternTrackParameters&,double&,int&) const override final;
-      virtual bool removeFromState 
+      virtual bool removeFromState
 	(PatternTrackParameters&,const LocalParameters&,const Amg::MatrixX&,
 	 PatternTrackParameters&,double&,int&) const override;
 
@@ -141,43 +141,43 @@ namespace Trk {
       // Combine two state with or without Xi2 calculation
       ///////////////////////////////////////////////////////////////////
 
-      virtual TrackParameters* combineStates   
+      virtual std::unique_ptr<TrackParameters> combineStates
 	(const TrackParameters&, const TrackParameters&) const override final;
-      virtual TrackParameters* combineStates   
-	(const TrackParameters&, const TrackParameters&, 
+      virtual std::unique_ptr<TrackParameters> combineStates
+	(const TrackParameters&, const TrackParameters&,
 	 FitQualityOnSurface*&) const override final;
 
-      virtual bool combineStates   
+      virtual bool combineStates
 	(PatternTrackParameters&,PatternTrackParameters&,PatternTrackParameters&) const override final;
-      virtual bool combineStates   
+      virtual bool combineStates
 	(PatternTrackParameters&,PatternTrackParameters&,PatternTrackParameters&,
 	 double&) const override final;
 
       ///////////////////////////////////////////////////////////////////
       // Xi2 calculation
       ///////////////////////////////////////////////////////////////////
-      
-      virtual const FitQualityOnSurface* predictedStateFitQuality  
+
+      virtual const FitQualityOnSurface* predictedStateFitQuality
 	(const TrackParameters&,const Amg::Vector2D&  ,const Amg::MatrixX&) const override final;
-      virtual const FitQualityOnSurface* predictedStateFitQuality  
+      virtual const FitQualityOnSurface* predictedStateFitQuality
 	(const TrackParameters&,const LocalParameters&,const Amg::MatrixX&) const override final;
-      virtual const FitQualityOnSurface* fullStateFitQuality 
+      virtual const FitQualityOnSurface* fullStateFitQuality
 	(const TrackParameters&,const Amg::Vector2D&,  const Amg::MatrixX&) const override final;
-      virtual const FitQualityOnSurface* fullStateFitQuality 
+      virtual const FitQualityOnSurface* fullStateFitQuality
 	(const TrackParameters&,const LocalParameters&,const Amg::MatrixX&) const override final;
       virtual const FitQualityOnSurface*  predictedStateFitQuality
 	(const TrackParameters&,const TrackParameters&) const override final;
 
-      virtual bool predictedStateFitQuality  
-	(const PatternTrackParameters&,const Amg::Vector2D&  ,const Amg::MatrixX&,int&,double&) 
+      virtual bool predictedStateFitQuality
+	(const PatternTrackParameters&,const Amg::Vector2D&  ,const Amg::MatrixX&,int&,double&)
 	const override final;
-      virtual bool predictedStateFitQuality  
-	(const PatternTrackParameters&,const LocalParameters&,const Amg::MatrixX&,int&,double&) 
+      virtual bool predictedStateFitQuality
+	(const PatternTrackParameters&,const LocalParameters&,const Amg::MatrixX&,int&,double&)
 	const override final;
-      virtual bool fullStateFitQuality 
+      virtual bool fullStateFitQuality
 	(const PatternTrackParameters&,const Amg::Vector2D&,  const Amg::MatrixX&,int&,double&)
 	const override final;
-      virtual bool fullStateFitQuality 
+      virtual bool fullStateFitQuality
 	(const PatternTrackParameters&,const LocalParameters&,const Amg::MatrixX&,int&,double&)
 	const override final;
       virtual bool  predictedStateFitQuality
@@ -185,13 +185,13 @@ namespace Trk {
 
       ///////////////////////////////////////////////////////////////////
       // let the client tools know how the assumptions on the initial
-      // precision for non-measured track parameters are configured 
+      // precision for non-measured track parameters are configured
       ///////////////////////////////////////////////////////////////////
-      
+
       virtual std::vector<double> initialErrors() const override final;
 
     protected:
- 
+
       ///////////////////////////////////////////////////////////////////
       // Protected methods
       ///////////////////////////////////////////////////////////////////
@@ -199,12 +199,12 @@ namespace Trk {
       ///////////////////////////////////////////////////////////////////
       // Updators
       ///////////////////////////////////////////////////////////////////
-      
-      TrackParameters* update 
+
+      std::unique_ptr<TrackParameters> update
 	(const TrackParameters&,const Amg::Vector2D&,const Amg::MatrixX&,
 	 FitQualityOnSurface*&,int,bool) const;
 
-      TrackParameters* update 
+      std::unique_ptr<TrackParameters> update
 	(const TrackParameters&,const LocalParameters&,const Amg::MatrixX&,
 	 FitQualityOnSurface*&,int,bool) const;
 
@@ -223,60 +223,60 @@ namespace Trk {
       ///////////////////////////////////////////////////////////////////
       // Xi2 calculation
       ///////////////////////////////////////////////////////////////////
-      
-      bool predictedStateFitQuality  
-	(const double*,const Amg::Vector2D&,const Amg::MatrixX&,int&,double&) const;
 
-      bool fullStateFitQuality
-	(const double*,const Amg::Vector2D&,const Amg::MatrixX&,int&,double&) const;
+      static bool predictedStateFitQuality
+	(const double*,const Amg::Vector2D&,const Amg::MatrixX&,int&,double&) ;
+
+      static bool fullStateFitQuality
+	(const double*,const Amg::Vector2D&,const Amg::MatrixX&,int&,double&) ;
 
       ///////////////////////////////////////////////////////////////////
       // Converters
       ///////////////////////////////////////////////////////////////////
- 
-      bool trackParametersToUpdator
-	(const        TrackParameters&,double*,double*) const;
 
-      bool trackParametersToUpdator
-	(const PatternTrackParameters&,double*,double*) const;
+      static bool trackParametersToUpdator
+	(const        TrackParameters&,double*,double*) ;
 
-      bool localParametersToUpdator
-	(const LocalParameters&,const Amg::MatrixX&,int&,int&,double*,double*) const;
-      
-     TrackParameters* updatorToTrackParameters
-	(const TrackParameters&,double*,double*) const; 
+      static bool trackParametersToUpdator
+	(const PatternTrackParameters&,double*,double*) ;
+
+      static bool localParametersToUpdator
+	(const LocalParameters&,const Amg::MatrixX&,int&,int&,double*,double*) ;
+
+    static std::unique_ptr<TrackParameters> updatorToTrackParameters
+	(const TrackParameters&,double*,double*) ;
 
       ///////////////////////////////////////////////////////////////////
       // Update no measured track parameters
       ///////////////////////////////////////////////////////////////////
-      
+
       bool updateNoMeasuredWithOneDim
-	(double*,double*,double*,double*) const;
+	(const double*,const double*,double*,double*) const;
 
       bool updateNoMeasuredWithTwoDim
-	(double*,double*,double*,double*) const;
+	(const double*,const double*,double*,double*) const;
 
       bool updateNoMeasuredWithAnyDim
-	(double*,double*,double*,double*,int) const;
+	(const double*,const double*,double*,double*,int) const;
 
       ///////////////////////////////////////////////////////////////////
       // Update measured track parameters
       ///////////////////////////////////////////////////////////////////
 
-      bool updateWithOneDim
-	(int,bool,double*,double*,double*,double*,double&) const;
+      static bool updateWithOneDim
+	(int,bool,const double*,const double*,double*,double*,double&) ;
 
-      bool updateWithTwoDim
-	(int,bool,double*,double*,double*,double*,double&) const;
+      static bool updateWithTwoDim
+	(int,bool,const double*,const double*,double*,double*,double&) ;
 
-      bool updateWithTwoDimParameters
-	(int,bool,double*,double*,double*,double*,double&) const;
+      static bool updateWithTwoDimParameters
+	(int,bool,const double*,const double*,double*,const double*,double&) ;
 
-      bool updateWithFiveDim
-	(    bool,double*,double*,double*,double*,double&) const;
+      static bool updateWithFiveDim
+	(    bool,double*,double*,double*,double*,double&) ;
 
       bool updateWithAnyDim
-	(int,bool,double*,double*,double*,double*,double&,
+	(int,bool,double*,const double*,double*,double*,double&,
 	 int,int) const;
 
       bool updateWithOneDimWithBoundary
@@ -285,22 +285,22 @@ namespace Trk {
       bool updateWithTwoDimWithBoundary
 	(int,bool,double*,double*,double*,double*,double&) const;
 
-      bool invert (int,double*,double*) const;
-      bool invert2(    double*,double*) const;
-      bool invert3(    double*,double*) const;
-      bool invert4(    double*,double*) const;
-      bool invert5(    double*,double*) const;
+      static bool invert (int,double*,double*) ;
+      static bool invert2(    const double*,double*) ;
+      static bool invert3(    const double*,double*) ;
+      static bool invert4(    const double*,double*) ;
+      static bool invert5(    const double*,double*) ;
 
-      double Xi2    (int,double*,double*) const;
-      double Xi2for1(    double*,double*) const;
-      double Xi2for2(    double*,double*) const;
-      double Xi2for3(    double*,double*) const;
-      double Xi2for4(    double*,double*) const;
-      double Xi2for5(    double*,double*) const;
+      static double Xi2    (int,double*,double*) ;
+      static double Xi2for1(    const double*,const double*) ;
+      static double Xi2for2(    const double*,const double*) ;
+      static double Xi2for3(    const double*,const double*) ;
+      static double Xi2for4(    const double*,const double*) ;
+      static double Xi2for5(    const double*,const double*) ;
 
-      int  differenceParLoc(int,double*,double*,double*) const;
-      void differenceLocPar(int,double*,double*,double*) const;
-      void testAngles(double*,double*) const;
+      static int  differenceParLoc(int,const double*,const double*,double*) ;
+      static void differenceLocPar(int,const double*,const double*,double*) ;
+      static void testAngles(double*,double*) ;
 
       void mapKeyProduction();
 
@@ -309,8 +309,8 @@ namespace Trk {
       ///////////////////////////////////////////////////////////////////
 
       std::vector<double> m_cov0;
-      unsigned int m_key[ 33];
-      unsigned int m_map[160];
+      unsigned int m_key[ 33]{};
+      unsigned int m_map[160]{};
       double   m_covBoundary;
     };
 

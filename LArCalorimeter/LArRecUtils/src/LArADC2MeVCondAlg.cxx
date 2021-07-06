@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -142,6 +142,7 @@ StatusCode LArADC2MeVCondAlg::execute(const EventContext& ctx) const{
   std::vector<HWIdentifier>::const_iterator it_e= m_larOnlineID->channel_end();
   while (rampPolyDeg==0 && it!=it_e) {
     rampPolyDeg=larRamp->ADC2DAC(*it,0).size();
+    ++it;
   }
 
   ATH_MSG_INFO("Working with a ramp polynom of degree " << rampPolyDeg);
@@ -159,14 +160,13 @@ StatusCode LArADC2MeVCondAlg::execute(const EventContext& ctx) const{
       //uA2MeV and DAC2uA are gain-less and always needed:
       const float& uA2MeV=laruA2MeV->UA2MEV(chid);
       if (uA2MeV == (float)ILAruA2MeV::ERRORCODE) {
-	//msg(MSG::ERROR) << "No uA2MeV value found for channel " << m_larOnlineID->channel_name(chid) << endmsg;
 	++nNouA2MeV;
 	continue;
       }
 
       const float& DAC2uA=larDAC2uA->DAC2UA(chid);
       if (DAC2uA == (float)ILArDAC2uA::ERRORCODE) {
-	msg(MSG::ERROR) << "No DAC2uA value for for channel " << m_larOnlineID->channel_name(chid) << endmsg;
+	ATH_MSG_ERROR( "No DAC2uA value for for channel " << m_larOnlineID->channel_name(chid) );
 	++nNoDAC2uA;
 	continue;
       }
@@ -177,7 +177,7 @@ StatusCode LArADC2MeVCondAlg::execute(const EventContext& ctx) const{
       if (larHVScaleCorr) { //Have HVScaleCorr (remember, it's optional)
 	const float&  HVScaleCorr = larHVScaleCorr->HVScaleCorr(chid);
 	if (HVScaleCorr == (float)ILAruA2MeV::ERRORCODE) {
-	  //That's a bit unusual but not a desaster, go ahead w/o HV Scale correction
+	  //That's a bit unusual but not a disaster, go ahead w/o HV Scale correction
 	  ATH_MSG_DEBUG("No HVScaleCorr value for for channel " << m_larOnlineID->channel_name(chid));
 	  ++nNoHVScaleCorr;
 	}
@@ -234,7 +234,7 @@ StatusCode LArADC2MeVCondAlg::execute(const EventContext& ctx) const{
 	//Now we are done with this channel and gain. Add it to the output container
 	bool stat=lArADC2MeVObj->set(hid,igain,ADC2MeV);
 	if (!stat) { //fails only if hash or gain are out-of-range
-	  msg(MSG::ERROR) << "LArADC2MeV::set fails for gain " << igain << ", hash " << hid << endmsg;
+	  ATH_MSG_ERROR( "LArADC2MeV::set fails for gain " << igain << ", hash " << hid );
 	}
 	assert(stat); 
 
@@ -245,9 +245,9 @@ StatusCode LArADC2MeVCondAlg::execute(const EventContext& ctx) const{
 
   ATH_CHECK(writeHandle.record(std::move(lArADC2MeVObj)));
   
-  if (nNouA2MeV) msg(MSG::ERROR) << "No uA2MeV values for " << nNouA2MeV << " channels" << endmsg;
-  if (nNoDAC2uA) msg(MSG::ERROR) << "No DAC2uA values for " << nNouA2MeV << " channels" << endmsg;
-  if (nNoRamp) msg(MSG::ERROR) << "No Ramp values for " << nNoRamp << " channels * gains " << endmsg;
+  if (nNouA2MeV) ATH_MSG_ERROR( "No uA2MeV values for " << nNouA2MeV << " channels" );
+  if (nNoDAC2uA) ATH_MSG_ERROR( "No DAC2uA values for " << nNouA2MeV << " channels" );
+  if (nNoRamp) ATH_MSG_ERROR( "No Ramp values for " << nNoRamp << " channels * gains " );
   
   if (nNoMphysOverMcal) ATH_MSG_INFO("No MphysOverMcal values for " << nNoMphysOverMcal << " channels * gains");
   if (nNoHVScaleCorr) ATH_MSG_WARNING("No HVScaleCorr values for " << nNoHVScaleCorr << " channels");

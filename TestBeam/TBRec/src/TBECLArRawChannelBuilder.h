@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBECLARRAWCHANNELBUILDER_H
@@ -7,8 +7,9 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "LArElecCalib/ILArOFCTool.h"
-#include "LArElecCalib/ILArADC2MeVTool.h"
+#include "LArRawConditions/LArADC2MeV.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArElecCalib/ILArOFC.h"
 
 // sandrine
 //#include "CaloIdentifier/LArEM_ID.h"
@@ -31,14 +32,12 @@ class TBECLArRawChannelBuilder : public AthAlgorithm
 {
 public:
   TBECLArRawChannelBuilder (const std::string& name, ISvcLocator* pSvcLocator);
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
 
 private:
   //Services & Tools 
-  ToolHandle<ILArOFCTool> m_OFCTool;
-  ToolHandle<ILArADC2MeVTool> m_adc2mevTool;
   const LArOnlineID* m_onlineHelper;
   const CaloCell_ID* m_calo_id;
   const CaloDetDescrManager* m_calo_dd_man; 
@@ -48,7 +47,7 @@ private:
 
   //Algo-properties 
   std::string m_DataLocation, m_ChannelContainerName;
-  bool m_useTDC, m_useRamp, m_useShape, m_useOFCTool;
+  bool m_useTDC, m_useRamp, m_useShape;
   bool m_ConvertADCToHighGain;
   float m_Ecut;
   int m_initialTimeSampleShift;
@@ -105,6 +104,13 @@ private:
 
   // For useRamp = False
   float m_adc2mev[30];
+
+  /// Property: OFC coefficients (conditions input).
+  SG::ReadCondHandleKey<ILArOFC> m_ofcKey
+    {this, "OFCKey", "LArOFC", "SG Key of OFC conditions object" };
+
+  SG::ReadCondHandleKey<LArADC2MeV> m_adc2mevKey
+    { this, "ADC2MeVKey", "LArADC2MeV", "SG Key of the LArADC2MeV CDO" };
 };
 
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -146,14 +146,14 @@ StatusCode ZdcRec::execute()
 
 	//Create the containers to hold the reconstructed information
 	m_rawCollection = new ZdcRawChannelCollection (static_cast<SG::OwnershipPolicy>(m_ownPolicy));
-	ZdcRawChannelCollection *tmpCollection  = new ZdcRawChannelCollection (static_cast<SG::OwnershipPolicy>(SG::VIEW_ELEMENTS));
+	ZdcRawChannelCollection tmpCollection  (static_cast<SG::OwnershipPolicy>(SG::VIEW_ELEMENTS));
 
 	ncha = m_ChannelTool->makeRawFromDigits(*m_digitsCollection, tmpCollection);
 
 
 	// SG has the ownership of m_rawCollection, and it should be copyed intead of just
 	// being passed around.
-	for (iter=tmpCollection->begin();iter!=tmpCollection->end();++iter) {
+	for (iter=tmpCollection.begin();iter!=tmpCollection.end();++iter) {
 	    m_rawCollection->push_back(*iter);
 	}
 
@@ -190,13 +190,6 @@ StatusCode ZdcRec::execute()
 				<< endmsg;
 
 		return StatusCode::SUCCESS;
-	}
-
-	if (tmpCollection != NULL) {
-		mLog << MSG::DEBUG
-				<< "--> ZDC: Deleting tmpCollection"
-				<< endmsg;
-		delete tmpCollection;
 	}
 
 	return StatusCode::SUCCESS;

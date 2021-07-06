@@ -32,14 +32,14 @@ class LUCID_DetectorFactory : public GeoVDetectorFactory {
   virtual const LUCID_DetectorManager* getDetectorManager() const;
 
   void buildMaterials();
-  void calcTubeParams();
 
-  void addVJcone   (GeoFullPhysVol*);
-  void addCooling  (GeoFullPhysVol*);
-  void addVessel   (GeoFullPhysVol*);
-  void addVesselGas(GeoPhysVol*);
-  void addBulkHeads(GeoPhysVol*);
-  void addTubes    (GeoPhysVol*);
+  void addVJcone              (GeoFullPhysVol*);
+  void addVJconeFrontRing     (GeoFullPhysVol*);
+  void addVJconeBackRing      (GeoFullPhysVol*);
+  void addLucidSupportCylinder(GeoFullPhysVol*);
+  void addPmtSupportCylinder  (GeoFullPhysVol*);
+  void addPmtTubes            (GeoFullPhysVol*);
+  void addPmtSupport          (GeoFullPhysVol*);
   
  private:  
 
@@ -52,15 +52,8 @@ class LUCID_DetectorFactory : public GeoVDetectorFactory {
   IRDBAccessSvc*               m_access;
   LUCID_RDBAccess*             m_lp;
 
-  const GeoMaterial*        m_air;
-  const GeoMaterial*        m_alu;
-  const GeoMaterial*        m_cop;
-  GeoExtendedMaterial*      m_gas;
   GeoExtendedMaterial*      m_quartz;
-  GeoOpticalSurface*        m_optSur;
-  
-  double m_tubeTheta   [nLayers];
-  double m_tubePosition[nLayers][nPmtTubesPerLayer][2];
+  GeoMaterial*              m_peek;
 };
 
 #endif

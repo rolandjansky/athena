@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -138,7 +138,7 @@ StatusCode TrigEgammaMatchingToolMTTest::fillHistograms( const EventContext& ctx
     ATH_MSG_INFO("Offline Electron container size " << el_cont->size());
     
     for(const auto &trigger : m_triggerList){
-        for(const auto& eg : *el_cont){
+        for(const auto eg : *el_cont){
             ATH_MSG_INFO("REGTEST:: Electron offline (eta="<<eg->eta()<<",phi="<<eg->phi()<<")");
             inspect(trigger,eg);
 

@@ -1,13 +1,14 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1Decoder_FakeCTP_h
 #define L1Decoder_FakeCTP_h
+
 #include <vector>
-#include "TrigConfHLTData/HLTUtils.h"
+#include "TrigConfHLTUtils/HLTUtils.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "xAODTrigger/TrigCompositeContainer.h"
@@ -23,7 +24,7 @@ public:
 private:
   
   typedef std::vector< std::vector<TrigConf::HLTHash> > ChainsInTheEvent;
-  // @brief returns names oc the chains (iner vector) to activate for each event (outer vector)	
+  // @brief returns names of the chains (inner vector) to activate for each event (outer vector)
   StatusCode parseInputFile();
   
   std::string m_inputFileName;

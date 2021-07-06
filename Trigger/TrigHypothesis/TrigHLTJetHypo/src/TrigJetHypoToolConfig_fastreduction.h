@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGJETHYPOTOOLCONFIG_FASTREDUCTION_H
@@ -13,22 +13,21 @@
  *********************************************************************/
 
 
-#include "ITrigJetHypoToolConfig.h"
-#include "./CapacityCheckedConditionsDefs.h"
+#include "ITrigJetHypoToolNoGrouperConfig.h"
+#include "./RepeatedConditionsDefs.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
-#include "./ConditionsDefsMT.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ICleaner.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJetGrouper.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerBridge.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
-#include "./ITrigJetCapacityCheckedConditionConfig.h"
+#include "./IJetsMatcher.h"
+#include "./ConditionsDefs.h"
+#include "./ITrigJetRepeatedConditionConfig.h"
+#include "./ITrigHypoJetVectorFilterConfig.h"
+
 
 class TrigJetHypoToolConfig_fastreduction:
-public extends<AthAlgTool, ITrigJetHypoToolConfig> {
+public extends<AthAlgTool, ITrigJetHypoToolNoGrouperConfig> {
 
  public:
   
@@ -38,17 +37,19 @@ public extends<AthAlgTool, ITrigJetHypoToolConfig> {
   virtual ~TrigJetHypoToolConfig_fastreduction();
 
   virtual StatusCode initialize() override;
-  virtual std::vector<std::shared_ptr<ICleaner>> getCleaners() const override;
-  virtual std::unique_ptr<IJetGrouper> getJetGrouper() const override;
-  virtual std::unique_ptr<IGroupsMatcherMT> getMatcher() const override;
-  virtual std::optional<ConditionsMT> getConditions() const override;
+  virtual std::unique_ptr<IJetsMatcher> getMatcher() const override;
+
   virtual std::size_t requiresNJets() const override;
   virtual StatusCode checkVals() const override;
 
 
  private:
-  ToolHandleArray<ITrigJetCapacityCheckedConditionConfig> m_conditionMakers{
-    this, "conditionMakers", {}, "hypo tree node to conditiionMaker map"};
+  ToolHandleArray<ITrigJetRepeatedConditionConfig> m_conditionMakers{
+    this, "conditionMakers", {}, "hypo tree Condition builder AlgTools"};
+  
+  ToolHandleArray<ITrigHypoJetVectorFilterConfig> m_filterMakers{
+    this, "filterMakers", {}, "AlgTools that construct Condition filters"
+  };
 
   Gaudi::Property<std::vector<std::size_t>> m_treeVec{
     this, "treeVector", {}, "integer sequence representation of jet hypo tree"};
@@ -56,7 +57,11 @@ public extends<AthAlgTool, ITrigJetHypoToolConfig> {
   Gaudi::Property<std::vector<int>> m_leafNodes{
     this, "leafVector", {}, "node ids for leaf nodes"};
 
-  std::optional<ConditionPtrs> getCapacityCheckedConditions() const;
+  ConditionPtrs getRepeatedConditions() const;
+
+  // function to obtain the filters associated with the leaf conditions
+  std::vector<FilterPtr> getFilters() const;
+
 
 };
 #endif

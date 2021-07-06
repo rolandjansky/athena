@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -12,7 +12,7 @@
 
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
-#include "InDetReadoutGeometry/SiLocalPosition.h" 
+#include "ReadoutGeometryBase/SiLocalPosition.h" 
 
 namespace InDet{
 
@@ -25,7 +25,7 @@ SiElementPropertiesTable::SiElementPropertiesTable(const SCT_ID&  idHelper,
   for (size_t i = 0; i < maxSCT; ++i){
      IdentifierHash hash(i);
      const InDetDD::SiDetectorElement* element = elements[hash]; 
-     if (element != 0){ 
+     if (element != nullptr){ 
        m_properties.emplace_back(hash, idHelper,*element,epsilonWidth);
      }
   }

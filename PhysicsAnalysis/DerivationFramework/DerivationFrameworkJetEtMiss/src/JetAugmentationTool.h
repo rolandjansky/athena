@@ -43,6 +43,7 @@ namespace DerivationFramework {
   private:
     std::string m_momentPrefix;
     std::string m_containerName;
+    SG::ReadHandleKey<xAOD::JetContainer> m_container_key {this, "InputJetsKey", "", "Accessor for input JetContainer"};
     //
     // implement augmentations explicitly to avoid need to parse lists of moments to copy
     //
@@ -63,10 +64,15 @@ namespace DerivationFramework {
     ToolHandle<CP::IJetJvtEfficiency> m_jetJvtEfficiencyTool;
     std::string m_jvtMomentKey;
     bool m_dojvt;
+    std::unique_ptr< SG::AuxElement::ConstAccessor<float> > m_acc_JVT;
+    std::unique_ptr< SG::AuxElement::ConstAccessor<char> > m_acc_passJVT;
 
     //PFlow fJVT
-    std::unique_ptr< SG::AuxElement::ConstAccessor<float> > m_acc_fjvt;
+    SG::WriteDecorHandleKey<xAOD::JetContainer> m_fjvt_key {this, "fJVTKey", "", "Decoration for fJVT"};
+    ToolHandle<IJetModifier> m_fjvtTool;
     std::string m_fjvtMomentKey;
+    bool m_dofjvt;
+    std::unique_ptr< SG::AuxElement::ConstAccessor<float> > m_acc_fJVT;
 
     // b-tagging       @author tripiana@cern.ch
     std::vector<std::string> m_btagWP;
@@ -83,6 +89,15 @@ namespace DerivationFramework {
     std::unique_ptr< SG::AuxElement::ConstAccessor<float> > m_acc_tracksumpt;
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_tracksummass_key {this,"TrackSumMassKey", "", "Decoration for mass calculated from associated tracks"};
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_tracksumpt_key {this,"TrackSumPtKey", "","Decoration for pt calculated from associated tracks"};
+
+    // Origin correction
+    ToolHandle<IJetModifier> m_jetOriginCorrectionTool{this, "JetOriginCorrectionTool", "", "Origin correction tool"};
+    bool m_decorateorigincorrection;
+    SG::WriteDecorHandleKey<xAOD::JetContainer> m_origincorrection_key{this, "OriginVertex", "", "Origin vertex (Autoconfigured)"};
+    SG::WriteDecorHandleKey<xAOD::JetContainer> m_originpt_key{this, "OriginPt", "", "Origin corrected pt (Autoconfigured)"};
+    SG::WriteDecorHandleKey<xAOD::JetContainer> m_origineta_key{this, "OriginEta", "", "Origin corrected eta (Autoconfigured)"};
+    SG::WriteDecorHandleKey<xAOD::JetContainer> m_originphi_key{this, "OriginPhi", "", "Origin corrected phi (Autoconfigured)"};
+    SG::WriteDecorHandleKey<xAOD::JetContainer> m_originm_key{this, "OriginM", "", "Origin corrected mass (Autoconfigured)"};
 
     // GhostTruthAssociation for derivations, @author jeff.dandoy@cern.ch
     ToolHandle<IJetModifier> m_jetPtAssociationTool;

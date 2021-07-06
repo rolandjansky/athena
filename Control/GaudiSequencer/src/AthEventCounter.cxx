@@ -10,26 +10,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "AthEventCounter.h"
-
-/**
- ** Constructor(s)
- **/
-AthEventCounter::AthEventCounter(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm( name, pSvcLocator ),
-  m_skip ( 0 ),
-  m_total( 0 )
-{
-  declareProperty( "Frequency", m_frequency=1,
-                   "The frequency with which the number of events should be "
-                   "reported. The default is 1, corresponding to every event" );
-  m_frequency.verifier().setBounds( 0, 1000 );
-}
-
-/**
- ** Destructor
- **/
-AthEventCounter::~AthEventCounter( )
-{}
+#include <cstdlib>
 
 StatusCode
 AthEventCounter::initialize()
@@ -39,16 +20,17 @@ AthEventCounter::initialize()
 }
 
 StatusCode
-AthEventCounter::execute()
+AthEventCounter::execute(const EventContext& ) const 
 {
-  m_total++;
-  int freq = m_frequency;
-  if ( freq > 0 ) {
-    m_skip++;
-    if ( m_skip >= freq ) {
-      ATH_MSG_INFO ("execute ==> seen events: " << m_total);
-      m_skip = 0;
-    }
+  int currTotal=(m_total++); 
+  if (m_frequency==0) {
+    return StatusCode::SUCCESS;
+  }
+
+  int rem=std::div(currTotal,m_frequency).rem;
+
+  if (rem==0) {
+      ATH_MSG_INFO ("execute ==> seen events: " << currTotal);
   }
   return StatusCode::SUCCESS;
 }

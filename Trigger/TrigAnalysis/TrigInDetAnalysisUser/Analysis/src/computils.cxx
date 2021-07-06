@@ -75,6 +75,30 @@ void Norm( TH1* h, double scale ) {
 
 
 
+true_mean::true_mean( TH1F* h ) : 
+  m_mean(0), m_error(0) { 
+  
+  double f   = 0;
+  double fx  = 0;
+  double fx2 = 0;
+
+  for ( int i=0 ; i<h->GetNbinsX() ; i++ ) {
+    double w = h->GetBinLowEdge(i+2)-h->GetBinLowEdge(i+1);
+    f   += h->GetBinContent(i+1)*w;
+    fx  += h->GetBinContent(i+1)*w*h->GetBinCenter(i+1);
+    fx2 += h->GetBinContent(i+1)*w*h->GetBinCenter(i+1)*h->GetBinCenter(i+1);
+  }
+
+  if ( f!=0 ) {   
+    m_mean  = fx/f;
+    m_error = std::sqrt( (fx2/f - m_mean*m_mean )/f );
+  }    
+
+}
+
+
+
+
 
 
  
@@ -287,11 +311,21 @@ std::string head( std::string s, const std::string& pattern ) {
 
 void contents( std::vector<std::string>&  keys, TDirectory* td, 
 	       const std::string& directory, const std::string& pattern, const std::string& path ) { 
+  std::vector<std::string> patterns;
+  patterns.push_back(pattern);
+  contents( keys, td, directory, patterns, path );
+}
+
+
+
+
+void contents( std::vector<std::string>&  keys, TDirectory* td, 
+	       const std::string& directory, const std::vector<std::string>& patterns, const std::string& path ) { 
+
+  bool print = false;
   
   TList* tl  = td->GetListOfKeys();
   
-  bool print = true;
-
   for ( int i=tl->GetSize() ; i-- ; ) {
 
     TKey* tobj = (TKey*)tl->At(i);
@@ -306,7 +340,7 @@ void contents( std::vector<std::string>&  keys, TDirectory* td,
       std::string dname = tnd->GetName();
       
       std::string newpath = path+dname+"/";
-      contents( keys, tnd, directory, pattern, newpath );
+      contents( keys, tnd, directory, patterns, newpath );
     
     }
     else { 
@@ -314,13 +348,17 @@ void contents( std::vector<std::string>&  keys, TDirectory* td,
       /// not a directory so include this ...
       if ( directory == "" || contains( path, directory ) ) {
 	
-	if ( print ) std::cout << "will process " << td->GetName() << " \t:: " << tobj->GetName() << std::endl;
-	print = false;
 	
-	if ( pattern == "" || contains(std::string(tobj->GetName()), pattern ) ) { 
+	bool matched = true;
+	for ( size_t i=patterns.size() ; i-- ; ) { 
+	  std::string pattern = patterns[i];  
+	  if ( contains(std::string(tobj->GetName()), pattern ) )  matched &=true;
+	  else matched = false;
+	}
+	if ( matched ) { 
+	  if ( print ) std::cout << "will process " << td->GetName() << " \t:: " << tobj->GetName() << "\tpatterns: " << patterns.size() << std::endl;
+	  print = false;
 	  keys.push_back( path+tobj->GetName() );
-	  // keys.push_back( tobj->GetName() );
-	  //	std::cout << "object:    " << tobj->GetName() << " : \t" << path+tobj->GetName() << std::endl;
 	}
       }
     }
@@ -442,7 +480,6 @@ std::vector<int>  findxrange(TH1* h, bool symmetric ) {
   int delta_lo = ilo-1;
   int delta_hi = h->GetNbinsX()-ihi;
 
-
   if ( symmetric ) { 
     if ( delta_hi<delta_lo ) { 
       limits[0] = 1+delta_hi; 
@@ -462,8 +499,6 @@ std::vector<int>  findxrange(TH1* h, bool symmetric ) {
     limits[1] = ihi;
   }
 
-  //  std::cout << "::xrange " << h->GetName() << "\t" << limits[0] << " " << limits[1] << std::endl;
-
   return limits; 
 
 }
@@ -478,7 +513,8 @@ void xrange(TH1* h, bool symmetric ) {
 
 
 
-std::vector<double>  findxrangeuser(TH1* h, bool symmetric ) { 
+std::vector<double>  findxrangeuser(TH1* h, bool symmetric ) {
+  
   std::vector<int> limits = findxrange( h, symmetric );
 
   std::vector<double> dlimits(2,0);

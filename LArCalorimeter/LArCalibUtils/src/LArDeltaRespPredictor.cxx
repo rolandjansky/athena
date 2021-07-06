@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArDeltaRespPredictor.h"
@@ -67,16 +67,13 @@ StatusCode LArDeltaRespPredictor::stop()
   keyCali += "_delta" ;
   ATH_CHECK( detStore()->record(larDeltaRespContainer,keyCali) );
   
-  // get the waveforms from the detector store 
-  std::vector<std::string>::const_iterator key_it=m_keylist.begin();
-  std::vector<std::string>::const_iterator key_it_e=m_keylist.end();
-  
-  for (;key_it!=key_it_e;key_it++) { //Loop over all containers that are to be processed (e.g. different gains)
-    
+  // get the waveforms from the detector store
+  for (const std::string& key : m_keylist) { //Loop over all containers that are to be processed (e.g. different gains)
+
     // Set gain from key value
     int gain = CaloGain::LARHIGHGAIN;
-    if      ((*key_it) == "MEDIUM") gain = CaloGain::LARMEDIUMGAIN;
-    else if ((*key_it) == "LOW")    gain = CaloGain::LARLOWGAIN;
+    if      (key == "MEDIUM") gain = CaloGain::LARMEDIUMGAIN;
+    else if (key == "LOW")    gain = CaloGain::LARLOWGAIN;
     
     // Create new LArWFParamsContainer
     //LArWFParamsContainer* larWFParamsContainer=new LArWFParamsContainer();
@@ -89,15 +86,11 @@ StatusCode LArDeltaRespPredictor::stop()
       
     for (; itVec != itVec_e; ++itVec) {
 		
-      LArCaliWaveContainer::LArCaliWaves::const_iterator cont_it   = (*itVec).begin();
-      LArCaliWaveContainer::LArCaliWaves::const_iterator cont_it_e = (*itVec).end();
-
       // Get the vector of waves for this chid,gain
       LArCaliWaveContainer::LArCaliWaves& dacWaves = 
 	  larDeltaRespContainer->get(itVec.channelId(), gain);
 
-      for (;cont_it!=cont_it_e;cont_it++) { 
-        const LArCaliWave& larCaliWave=*cont_it;
+      for (const LArCaliWave& larCaliWave : *itVec) {
 	if ( larCaliWave.getFlag() != LArWave::dac0 ) { // skip dac0 waves
 	  // Get the waveform parameters
           LArWFParams wfParams;

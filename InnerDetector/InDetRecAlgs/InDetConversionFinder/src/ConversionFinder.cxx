@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -195,7 +195,7 @@ namespace InDet
 
       bool isTrt1 = false; bool isSi1 = false; bool isTrt2 = false; bool isSi2 = false;
       for (unsigned int i = 0; i < fz->nTrackParticles() ; ++i) {
-        auto trackParticle = fz->trackParticle( i );
+        const auto *trackParticle = fz->trackParticle( i );
         if(!trackParticle) continue;
         uint8_t temp(0);
         uint8_t ncl(0);

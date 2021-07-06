@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <mutex>
@@ -10,9 +10,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "G4Types.hh"
-#ifdef G4MULTITHREADED
-#  include "GaudiKernel/ContextSpecificPtr.h"
-#endif
 
 //
 // private constructor
@@ -21,38 +18,32 @@ SiHitIdHelper::SiHitIdHelper() :HitIdHelper() {
 }
 
 const SiHitIdHelper* SiHitIdHelper::GetHelper() {
-  #ifdef G4MULTITHREADED
-  // Context-specific singleton
-  static Gaudi::Hive::ContextSpecificPtr<const SiHitIdHelper> helperPtr ATLAS_THREAD_SAFE;
-  if (!helperPtr) helperPtr = new SiHitIdHelper();
-  return helperPtr.get();
-  #else
   static const SiHitIdHelper helper;
   return &helper;
-  #endif
 }
 
 void SiHitIdHelper::Initialize() {
 
-  // determine whether hits were created with an SLHC dictionary
-  // in which case eta module field is expanded.
   const PixelID* pix = nullptr;
   ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "SiHitIdHelper");
   if (detStore.retrieve().isSuccess()) {
     if (detStore->retrieve(pix, "PixelID").isFailure()) { pix = 0; }
   }
-  bool isSLHC = (pix != 0 && pix->dictionaryVersion() == "SLHC");
-  bool isDBM  = (pix != 0 && pix->dictionaryVersion() == "IBL-DBM");
 
+  bool isDBM  = (pix != 0 && pix->dictionaryVersion() == "IBL-DBM");
+  //Run4 includes ITk and HGTD
+  bool isRun4 = (pix !=0 &&  pix->dictionaryVersion() == "ITkHGTD");
+  
   InitializeField("PixelSCT",0,1);
+  if (isRun4) InitializeField("Part",0,2);
   if (isDBM) InitializeField("BarrelEndcap",-4,4);
   else InitializeField("BarrelEndcap",-2,2);
-  if(!isSLHC)InitializeField("LayerDisk",0,20);
-  else InitializeField("LayerDisk",0,50);
-  if (isSLHC) InitializeField("EtaModule",-100,100);
+  InitializeField("LayerDisk",0,20);
+  if (isRun4) InitializeField("EtaModule",-100,100);
   else InitializeField("EtaModule",-20,20);
   InitializeField("PhiModule",0,200);
   InitializeField("Side",0,3);
+
 }
 
 // Info retrieval:

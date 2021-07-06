@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDENTIFIER_RANGE_H
@@ -617,7 +617,7 @@ Range::field::get_value_index (element_type value) const
 	if (m_indexes.size()) {
 	    // Table has been created, do simple lookup
             assert (value >= m_minimum && value - m_minimum < (int)m_indexes.size());
-	    return (m_indexes[value - m_minimum]);
+	    return (m_indexes.at(value - m_minimum));
 	}
 	else {
 	    for (size_type i = 0; i < m_values.size (); ++i) { 

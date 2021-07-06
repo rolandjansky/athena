@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEO2G4_VolumeBuilder_H
@@ -21,7 +21,7 @@ typedef std::map< const GeoOpticalPhysVol*, G4VPhysicalVolume*,std::less< const 
 class VolumeBuilder
 {
  public:
-  VolumeBuilder(std::string k): m_paramOn(false), m_key(k)
+  VolumeBuilder(const std::string& k): m_paramOn(false), m_key(k)
   {}
 
   virtual ~VolumeBuilder()

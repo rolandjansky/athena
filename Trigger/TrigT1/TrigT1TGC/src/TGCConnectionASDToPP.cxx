@@ -17,9 +17,6 @@
 
 namespace LVL1TGCTrigger {
 
-//   Strip backwardLayer  ->                      0  1  2  3  4  5  6  7  8
-const int TGCConnectionASDToPP::s_forwardLayer[] = {2, 1, 0, 4, 3, 6, 5, 8, 7};
-
 int TGCConnectionASDToPP::getConnection(const int /*sideId*/, const int layer, const int chamber,
 					const int line, int* pp, int* connector, int* channel) const
 {

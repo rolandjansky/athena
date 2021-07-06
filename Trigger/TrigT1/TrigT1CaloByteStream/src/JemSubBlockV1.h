@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOBYTESTREAM_JEMSUBBLOCKV1_H
@@ -76,7 +76,7 @@ class JemSubBlockV1 : public L1CaloSubBlock {
    static const int      s_jetIndicator    = 0x0;
    static const int      s_mainThreshId    = 20;
    static const int      s_mainFwdThreshId = 21;
-   static const int      s_threshWordId    = 0x2;
+   static const uint32_t s_threshWordId    = 0x2;
    static const uint32_t s_threshMask      = 0xffffff;
    static const uint32_t s_sourceIdMask    = 0x1f;
    //  Energy subsum data bit positions and masks

@@ -50,7 +50,7 @@ StatusCode PileUpEventInfoWriter::execute()
 
     // Write a PileupEventInfo
 
-    const EventInfo * evt = 0;
+    const EventInfo * evt = nullptr;
     ATH_CHECK( evtStore()->retrieve( evt, "McEventInfo" ) );
     ATH_MSG_DEBUG( "Event ID: ["
                    << evt->event_ID()->run_number()   << ","
@@ -120,7 +120,7 @@ void PileUpEventInfoWriter::handle(const Incident& inc) {
     // Get proxy for PileUpEventInfo and remove it 
 
     // PileupEventInfo as itself
-    const PileUpEventInfo* pevt = 0;
+    const PileUpEventInfo* pevt = nullptr;
     if (evtStore()->retrieve( pevt ).isFailure() ) {
  	ATH_MSG_ERROR("  Could not get pileup event info" );      
 	throw GaudiException("PileUpEventInfoWriter::handle Could not get pileup event info", 

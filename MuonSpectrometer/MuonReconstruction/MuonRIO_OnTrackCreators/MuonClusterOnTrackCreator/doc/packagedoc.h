@@ -4,7 +4,7 @@
 
 /**
 
-@page MuonClusterOnTrackCreator_page 
+@page MuonClusterOnTrackCreator_page
 
 @section MuonClusterOnTrackCreator_MuonClusterOnTrackToolDocIntro Overview
 

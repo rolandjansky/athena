@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -10,13 +10,13 @@
 #include "StoreGate/StoreGateSvc.h" 
 #include "LArIdentifier/LArOnlineID.h" 
 #include "LArIdentifier/LArOnline_SuperCellID.h" 
+#include "StoreGate/ReadCondHandle.h"
 
 
 LArRawChannelBuilderADC2EDataBase::LArRawChannelBuilderADC2EDataBase(const std::string& type,
 								     const std::string& name,
 								     const IInterface* parent):
   LArRawChannelBuilderADC2EToolBase(type,name,parent),
-  m_adc2mevTool("LArADC2MeVTool"),
   m_onlineHelper(0)
 {
   m_helper = new LArRawChannelBuilderStatistics( 3,      // number of possible errors
@@ -35,17 +35,11 @@ LArRawChannelBuilderADC2EDataBase::LArRawChannelBuilderADC2EDataBase(const std::
   declareProperty("UseHighGainRampIntercept",  m_useIntercept_high   = false);
   declareProperty("UseMedGainRampIntercept",   m_useIntercept_medium = true);
   declareProperty("UseLowGainRampIntercept",   m_useIntercept_low    = true);
-  declareProperty("ADC2MeVTool",               m_adc2mevTool);
 }
 
-StatusCode LArRawChannelBuilderADC2EDataBase::initialize() {
-
-   if( m_adc2mevTool.retrieve().isFailure() ){
-    msg(MSG::ERROR) << "Could not retrieve LArADC2MeVTool" << endmsg;
-    return StatusCode::FAILURE;
-  }
-   else 
-     msg(MSG::DEBUG) << "Retrieved LArADC2MeVTool" << endmsg;
+StatusCode LArRawChannelBuilderADC2EDataBase::initialize()
+{
+  ATH_CHECK( m_adc2mevKey.initialize() );
   return StatusCode::SUCCESS;
 }
   
@@ -69,10 +63,12 @@ StatusCode LArRawChannelBuilderADC2EDataBase::initTool()
 }
 
 bool
-LArRawChannelBuilderADC2EDataBase::ADC2E(std::vector<float>& Ramps, MsgStream* /*pLog*/)
+LArRawChannelBuilderADC2EDataBase::ADC2E(const EventContext& ctx,
+                                         std::vector<float>& Ramps, MsgStream* /*pLog*/)
 {
-  //ADC2MeV (a.k.a. Ramp)   
-  Ramps=m_adc2mevTool->ADC2MEV(m_parent->curr_chid,m_parent->curr_gain);
+  //ADC2MeV (a.k.a. Ramp)
+  SG::ReadCondHandle<LArADC2MeV> adc2mev (m_adc2mevKey, ctx);
+  Ramps = adc2mev->ADC2MEV(m_parent->curr_chid,m_parent->curr_gain).asVector();
   
   //Check ramp coefficents
   if (Ramps.size()==0) {

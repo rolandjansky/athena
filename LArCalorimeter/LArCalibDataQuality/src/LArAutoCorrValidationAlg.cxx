@@ -4,6 +4,8 @@
 
 #include "LArCalibDataQuality/LArAutoCorrValidationAlg.h"
 #include <cmath>
+#include "CaloIdentifier/CaloCell_ID.h"
+
 LArAutoCorrValidationAlg::LArAutoCorrValidationAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   LArAutoCorrValidationBase(name,pSvcLocator) {
 

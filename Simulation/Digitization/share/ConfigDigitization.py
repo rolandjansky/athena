@@ -75,6 +75,11 @@ if DetFlags.pileup.any_on() or digitizationFlags.doXingByXingPileUp():
     # protection for SteppingCache usage - currently incompatible with PileUpTools
     if digitizationFlags.SignalPatternForSteppingCache.statusOn and digitizationFlags.doXingByXingPileUp():
         raise RuntimeError("SteppingCache is incompatible with PileUpTools. Please switch off either digitizationFlags.SignalPatternForSteppingCache or digitizationFlags.doXingByXingPileUp.")
+    from AthenaCommon.ConcurrencyFlags import jobproperties as jp
+    if jp.ConcurrencyFlags.NumThreads() > 0:
+        logConfigDigitization.error("Attempting to run pile-up digitization AthenaMT using %s threads!", str(jp.ConcurrencyFlags.NumThreads()))
+        logConfigDigitization.error("Running pile-up digitization with AthenaMT is not supported. Please update your configuration. The job will fail now.")
+        raise RuntimeError("Running pile-up digitization with AthenaMT is not supported. Please update your configuration.")
     include( "Digitization/ConfigPileUpEventLoopMgr.py" )
 if DetFlags.pileup.any_on():
     logConfigDigitization.info("PILEUP CONFIGURATION:")
@@ -113,17 +118,34 @@ if digitizationFlags.readSeedsFromFile.get_Value():
 printNameAuditor=False
 
 from AthenaCommon.AppMgr import theAuditorSvc
+theApp.AuditAlgorithms=True  
+theApp.AuditServices=True
+theApp.AuditTools=True  
+
 from GaudiAud.GaudiAudConf import ChronoAuditor, MemStatAuditor, NameAuditor
-if not 'ChronoAuditor/ChronoAuditor' in theAuditorSvc.Auditors:
+if 'ChronoAuditor/ChronoAuditor' not in theAuditorSvc.Auditors:
     theAuditorSvc += ChronoAuditor()
-if not 'MemStatAuditor/MemStatAuditor' in theAuditorSvc.Auditors:
+if 'MemStatAuditor/MemStatAuditor' not in theAuditorSvc.Auditors:
     theAuditorSvc += MemStatAuditor()
 if printNameAuditor:
   from AthenaCommon.AppMgr import ServiceMgr
   ServiceMgr.MessageSvc.infoLimit = 0
-  if not 'MemStatAuditor/NameAuditor' in theAuditorSvc.Auditors:
+  if 'MemStatAuditor/NameAuditor' not in theAuditorSvc.Auditors:
       theAuditorSvc += NameAuditor()
+if 'FPEAuditor/FPEAuditor' not in theAuditorSvc.Auditors:
+    from AthenaAuditors.AthenaAuditorsConf import FPEAuditor
+    theAuditorSvc += FPEAuditor()
+    import signal
+    try:
+        ServiceMgr.CoreDumpSvc.Signals.remove (signal.SIGFPE)
+    except ValueError:
+        pass
 
+# Disable LOG printing
+if hasattr(ServiceMgr, 'ChronoStatSvc'):
+    ServiceMgr.ChronoStatSvc.ChronoPrintOutTable = False
+    ServiceMgr.ChronoStatSvc.PrintUserTime       = False
+    ServiceMgr.ChronoStatSvc.StatPrintOutTable   = False
 
 # LSFTimeLimi. Temporary disable
 # include( "LSFTimeKeeper/LSFTimeKeeperOptions.py" )

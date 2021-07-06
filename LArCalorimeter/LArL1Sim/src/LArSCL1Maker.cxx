@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // +======================================================================+
@@ -12,7 +12,7 @@
 // 
 // ........ includes
 //
-#include "LArL1Sim/LArSCL1Maker.h"
+#include "LArSCL1Maker.h"
 // .......... utilities
 //
 #include <math.h>
@@ -22,8 +22,6 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "LArRawEvent/LArDigit.h"
-#include "LArRawEvent/LArDigitContainer.h"
 #include "LArSimEvent/LArHitContainer.h"
 #include "LArDigitization/LArHitList.h"
 
@@ -53,13 +51,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "PathResolver/PathResolver.h"
 
-#include "LArElecCalib/ILArfSampl.h"
-#include "LArElecCalib/ILArShape.h"
-#include "LArElecCalib/ILArPedestal.h"
-#include "LArElecCalib/ILArNoise.h"
-#include "LArElecCalib/ILArAutoCorrNoiseTool.h"
-#include "LArElecCalib/ILArADC2MeVTool.h"
-
 // trigger time
 #include "AthenaKernel/ITriggerTime.h"
 
@@ -70,30 +61,17 @@ using CLHEP::RandGaussZiggurat;
 
 
 LArSCL1Maker::LArSCL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator)
+  AthReentrantAlgorithm(name, pSvcLocator)
   , m_atRndmGenSvc("AtRndmGenSvc",name)
   , m_rndmEngineName("LArSCL1Maker")
   , m_rndmEngine(0)
-  , p_triggerTimeTool()
+  //, p_triggerTimeTool()
   , m_scidtool("CaloSuperCellIDTool")
   , m_scHelper(0)
   , m_OnlSCHelper(0)
   , m_incSvc("IncidentSvc",name)
-  , m_shapes(0), m_fracS(0), m_PedestalSC(0), m_NoiseSC(0)
-  , m_autoCorrNoiseTool("LArAutoCorrNoiseTool")
-  , m_adc2mevTool("LArADC2MeVTool")
-  , m_fSamplKey("LARfSamplSC")
-  , m_shapesKey("LArShapeSC")
-  , m_noiseKey("LArNoiseSC")
-  , m_pedestalKey("LArPedestalSC")
   , m_sem_mgr(nullptr)
-// + -------------------------------------------------------------------- +
-// + Author ........: Denis O. Damazio                                    +
-// + Creation date .: 18/11/2013                                          +
-// + Subject: SCL1 Maker constructor                                     +
-// + -------------------------------------------------------------------- +
 {
-  m_first=true;
 //
 // ........ default values of private data
 //
@@ -124,17 +102,12 @@ LArSCL1Maker::LArSCL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
 
   declareProperty("SubDetectors",m_SubDetectors);
   declareProperty("RndmSvc", m_atRndmGenSvc);
-  declareProperty("AutoCorrNoiseTool",m_autoCorrNoiseTool,"Tool handle for electronic noise covariance");
-  declareProperty("ADC2MeVTool",m_adc2mevTool,"Tool handle for ADC2MeV Conversion");
-
-
-  declareProperty("SCL1ContainerName",m_SCL1ContainerName);
 
   declareProperty("NoiseOnOff",m_NoiseOnOff);
 
   declareProperty("PileUp",m_PileUp);
   declareProperty("UseTriggerTime",m_useTriggerTime);
-  declareProperty("TriggerTimeTool",p_triggerTimeTool);
+  //declareProperty("TriggerTimeTool",p_triggerTimeTool);
 
   declareProperty("FirstSample",m_firstSample=-1);
   declareProperty("NSamples",m_nSamples=7);
@@ -187,8 +160,8 @@ StatusCode LArSCL1Maker::initialize()
 //
 // ......... print the trigger time flag
 //
-  if (m_useTriggerTime) { ATH_MSG_INFO("use Trigger Time service " <<  p_triggerTimeTool.name()); }
-  else { ATH_MSG_INFO("no Trigger Time used"); } 
+//  if (m_useTriggerTime) { ATH_MSG_INFO("use Trigger Time service " <<  p_triggerTimeTool.name()); }
+//  else { ATH_MSG_INFO("no Trigger Time used"); } 
 
 //
 // .........retrieve tool computing trigger time if requested
@@ -199,12 +172,14 @@ StatusCode LArSCL1Maker::initialize()
        m_useTriggerTime = false;
   }
 
+/*
   if (m_useTriggerTime) {
    if( p_triggerTimeTool.retrieve().isFailure() ) {
       ATH_MSG_ERROR("Unable to retrieve trigger time tool. Disabling Trigger time");
       m_useTriggerTime=false;
    }
   }
+*/
 
   //
   // ..... need LAr and CaloIdManager to retrieve all needed helpers
@@ -231,14 +206,18 @@ StatusCode LArSCL1Maker::initialize()
   //
 
   CHECK( m_cablingKeySC.initialize() );
+  CHECK( m_shapesKey.initialize() );
+  CHECK( m_fracSKey.initialize() );
+  CHECK( m_pedestalSCKey.initialize() );
+  CHECK( m_noiseSCKey.initialize() );
+  CHECK( m_autoCorrNoiseSCKey.initialize() );
+  CHECK( m_adc2mevSCKey.initialize() );
   CHECK( m_scidtool.retrieve() );
+  CHECK( m_sLArDigitsContainerKey.initialize() );
+  CHECK( m_hitMapKey.initialize() );
 
   
   // Incident Service: 
-  CHECK( m_incSvc.retrieve() );
-  //start listening to "BeginRun"
-  m_incSvc->addListener(this, "BeginRun",  m_BeginRunPriority);
-
   ATH_MSG_DEBUG( "Initialization completed successfully" );
 
   CHECK( m_atRndmGenSvc.retrieve() );
@@ -249,9 +228,6 @@ StatusCode LArSCL1Maker::initialize()
     return StatusCode::FAILURE ;
   }
 
-  CHECK( m_autoCorrNoiseTool.retrieve() );
-  CHECK( m_adc2mevTool.retrieve() );
-
   CHECK( detStore()->retrieve (m_sem_mgr, "CaloSuperCellMgr") );
 
   return StatusCode::SUCCESS;
@@ -259,15 +235,7 @@ StatusCode LArSCL1Maker::initialize()
 }
 
 
-
-void LArSCL1Maker::handle(const Incident& /* inc*/ )
-{
-  ATH_MSG_DEBUG("LArSCL1Maker handle()");
-  if( this->updateConditions().isFailure()) ATH_MSG_ERROR("Failure in updating Conditions");
-  return;
-}
-
-StatusCode LArSCL1Maker::execute()
+StatusCode LArSCL1Maker::execute(const EventContext& context) const
 {
 
 
@@ -276,49 +244,55 @@ StatusCode LArSCL1Maker::execute()
   //
   // ....... fill the LArHitEMap
   //
-  SG::ReadHandle<LArHitEMap> hitmap(m_hitMapKey);
+  SG::ReadHandle<LArHitEMap> hitmap(m_hitMapKey,context);
+  const LArHitEMap* hitmapPtr = hitmap.cptr();
 
   //
   // .....get the trigger time if requested
   //
-  double trigtime=0;
+  //double trigtime=0;
+/*
   if (m_useTriggerTime && !p_triggerTimeTool.empty()) {
      trigtime = p_triggerTimeTool->time();
   }
   ATH_MSG_DEBUG("Trigger time used : " << trigtime);
+*/
+
+  auto fracS = this->retrieve(context,m_fracSKey);
+  auto pedestal = this->retrieve(context,m_pedestalSCKey);
+  auto larnoise = this->retrieve(context,m_noiseSCKey);
+  auto autoCorrNoise = this->retrieve(context,m_autoCorrNoiseSCKey);
+  auto adc2mev = this->retrieve(context,m_adc2mevSCKey);
 
 
-  LArDigitContainer *scContainer = new LArDigitContainer();
-  if ( scContainer == 0 ) {
-    ATH_MSG_ERROR("Could not allocate a new LArSCDigitContainer" );
-    return StatusCode::FAILURE;	  
-  }
+  SG::WriteHandle<LArDigitContainer> scContainerHandle( m_sLArDigitsContainerKey, context);
+  auto scContainer = std::make_unique<LArDigitContainer> (SG::VIEW_ELEMENTS);
+
+  unsigned int nbSC = (unsigned int)m_scHelper->calo_cell_hash_max() ;
+  scContainer->reserve(nbSC);
 
   // .... get SC cabling map
   //
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKeySC};
-  const LArOnOffIdMapping* cabling = *cablingHdl;
+  const LArOnOffIdMapping* cabling = this->retrieve(context, m_cablingKeySC);
   if(!cabling) {
      ATH_MSG_ERROR("Do not have SC cabling map !!!");
      return StatusCode::FAILURE;	  
   }
 
-  // ...... register the TTL1 containers into the TES 
-  //
-  CHECK( evtStore()->record( scContainer ,  m_SCL1ContainerName) );
 
 
+/* Disable HIT recording for the moment
    CaloCellContainer *scHitContainer = 0;
    if(m_saveHitsContainer.size()>0) {
       scHitContainer = new CaloCellContainer;
       ATH_CHECK( evtStore()->record(scHitContainer, m_saveHitsContainer) );
    }
+*/
 
 
   //
   // ... initialise vectors for sums of energy in each TT
   //
-  unsigned int nbSC = (unsigned int)m_scHelper->calo_cell_hash_max() ;
   ATH_MSG_DEBUG("Max number of LAr Super-Cell= " << nbSC);
 
   std::vector<std::vector<float> > sumEnergy ;   // inner index = time slot (from 0 to visEvecSize-1)
@@ -332,9 +306,10 @@ StatusCode LArSCL1Maker::execute()
   std::vector< std::vector < float> > scFloatContainerTmp;
 
   int it = 0;
-  int it_end = hitmap->GetNbCells();
+  int it_end = hitmapPtr->GetNbCells();
   scContainer->reserve( nbSC ); //container ordered by hash
-  scFloatContainerTmp.assign( nbSC, std::vector<float>(0) ); //container ordered by hash
+  const std::vector<float> base_vec(0);
+  scFloatContainerTmp.assign( nbSC, base_vec ); //container ordered by hash
   std::vector<bool> alreadyThere;
   alreadyThere.resize( nbSC );
   alreadyThere.assign( nbSC, false );
@@ -357,7 +332,7 @@ StatusCode LArSCL1Maker::execute()
   CaloGain::CaloGain scGain = CaloGain::LARHIGHGAIN;
 
   for( ; it!=it_end;++it) {
-    const LArHitList& hitlist = hitmap->GetCell(it);
+    const LArHitList& hitlist = hitmapPtr->GetCell(it);
     const std::vector<std::pair<float,float> >& timeE = hitlist.getData();
     if (timeE.size() > 0 ) {
       Identifier cellId = m_OflHelper->cell_id(IdentifierHash(it));
@@ -367,31 +342,27 @@ StatusCode LArSCL1Maker::execute()
       HWIdentifier hwSC = cabling->createSignalChannelID(scId);
       IdentifierHash scHWHash = m_OnlSCHelper->channel_Hash(hwSC);
 
-      if(m_saveHitsContainer.size()>0) {
-	for(auto itr = timeE.begin(); itr!= timeE.end(); ++itr) {
-	  if(fabs(itr->second) > 12.5) continue; //out of time energy deposit
-	  truthE[scHWHash] += itr->first/m_fracS->FSAMPL(hwSC);
-	}
-      }
-
       hwid[scHWHash] = hwSC;
 
       float factor = 1.0;
-      if ( m_first ) {
-	printConditions(hwSC);
+      if ( (adc2mev->ADC2MEV(hwSC,scGain)).size() < 2 ) {
+	continue;
       }
-      factor = (m_adc2mevTool->ADC2MEV(hwSC,(CaloGain::CaloGain)1))[1] ;
-      factor = 1.0/m_fracS->FSAMPL(hwSC)/factor;
+      factor = (adc2mev->ADC2MEV(hwSC,scGain))[1] ;
+      factor = 1.0/fracS->FSAMPL(hwSC)/factor;
 
-      ConvertHits2Samples(hwSC, scGain, timeE, samples);
+      ConvertHits2Samples(context,hwSC, scGain, timeE, samples);
+
       std::vector< float >& vec = scFloatContainerTmp.at(scHWHash);
       if ( !alreadyThere[scHWHash] ){
 	alreadyThere[scHWHash]=true;
-	for(unsigned int i=0; i< samples.size(); i++)
+	for(unsigned int i=0; i< samples.size(); i++){
 	  vec.push_back( factor * samples[i] );
+	}
       } else {
-	for(unsigned int i=0; i< samples.size(); i++)
+	for(unsigned int i=0; i< samples.size(); i++){
 	  vec[i]+= ( factor * samples[i] );
+	}
       }
     }
   } // it end
@@ -410,29 +381,17 @@ StatusCode LArSCL1Maker::execute()
       else {  cc++;  }
       std::vector<float>& vec = *vecPtr;
 
-      HWIdentifier id = hwid[it];
+      const HWIdentifier id = hwid[it];
        if ( id == 0 ) { dd++; continue; } 
-		
-
-      //record the truth hit information
-      if(m_saveHitsContainer.size()>0) {
-            Identifier soft_id = cabling->cnvToIdentifier(id);
-            IdentifierHash idhash = m_sem_mgr->getCaloCell_ID()->calo_cell_hash(soft_id);
-            const CaloDetDescrElement* dde = m_sem_mgr->get_element(idhash);
-            CaloGain::CaloGain gain = (CaloGain::CaloGain)1;
-            
-            CaloCell* cell = new CaloCell( dde, (float)truthE[it], 0, (uint16_t)0, (uint16_t)0, gain );
-            scHitContainer->push_back(cell);
-      }
 
          // reset noise
          noise.assign(m_nSamples,0);
 
          // noise definition
          if ( m_NoiseOnOff ) {
-         float SigmaNoise = (m_NoiseSC->noise(id,0));
+         float SigmaNoise = (larnoise->noise(id,0));
          int index;
-         const std::vector<float>* CorrGen = &(m_autoCorrNoiseTool->autoCorrSqrt(id,0,m_nSamples));
+         const std::vector<float>& CorrGen = (autoCorrNoise->autoCorrSqrt(id,0));
 
          RandGaussZiggurat::shootArray(m_rndmEngine,m_nSamples,Rndm,0.,1.);
 
@@ -440,13 +399,13 @@ StatusCode LArSCL1Maker::execute()
          noise[i]=0.;
          for(int j=0;j<=i;j++){
                index = i* m_nSamples + j;
-               noise[i] += Rndm[j] * (*CorrGen)[index];
+               noise[i] += Rndm[j] * (CorrGen)[index];
          }
          noise[i]=noise[i]*SigmaNoise;
          }
          }
 
-         int ped = m_PedestalSC->pedestal(id,0);
+         int ped = pedestal->pedestal(id,0);
          samplesInt.assign( m_nSamples, 0 );
          for(unsigned int i=0; i< vec.size(); i++) {
                samplesInt[i]=rint(vec[i]+ped+noise[i]);
@@ -457,6 +416,8 @@ StatusCode LArSCL1Maker::execute()
          scContainer->push_back(dig);
 
   }
+  // record final output container
+  ATH_CHECK( scContainerHandle.record( std::move(scContainer) ) );
 
   if(m_chronoTest) {
     m_chronSvc->chronoStop( "LArSCL1Mk hit loop " );
@@ -464,7 +425,6 @@ StatusCode LArSCL1Maker::execute()
     m_chronSvc->chronoStart( "LArSCL1Mk SC loop " );
   }
 
-  m_first = false;
   return StatusCode::SUCCESS;
 }
 
@@ -480,56 +440,12 @@ StatusCode LArSCL1Maker::finalize()
 
 }
 
-
-
-StatusCode LArSCL1Maker::updateConditions(){
-
-  ATH_MSG_DEBUG( "Updating conditions" );
-
-  CHECK( detStore()->retrieve(m_fracS,m_fSamplKey) );
-  CHECK( detStore()->retrieve(m_shapes,m_shapesKey) );
-  CHECK( detStore()->retrieve(m_NoiseSC,m_noiseKey) );
-  CHECK( detStore()->retrieve(m_PedestalSC,m_pedestalKey) );
-
-  return StatusCode::SUCCESS;
-
+void LArSCL1Maker::printConditions(const HWIdentifier& /*hwSC*/){
+	// will keep it for future implementation
 }
 
-void LArSCL1Maker::printConditions(const HWIdentifier& hwSC){
-
-	  ATH_MSG_VERBOSE("HW Identifier : " << hwSC.get_identifier32().get_compact() );
-          if ( m_shapes ) {
-                ILArShape::ShapeRef_t shape = m_shapes->Shape(hwSC,0);
-                ILArShape::ShapeRef_t shapeder = m_shapes->ShapeDer(hwSC,0);
-                ATH_MSG_VERBOSE( "shape0.size() : " << shape.size() );
-                for(unsigned int i=0;i<shape.size();i++)
-                   ATH_MSG_VERBOSE("shape[" << i << "]=" << shape[i] << " - " << shapeder[i] << "; ");
-          }
-          if ( m_fracS  ) {
-                ATH_MSG_VERBOSE("fSample : " << m_fracS->FSAMPL(hwSC) );
-          }
-          if ( m_adc2mevTool ) {
-                ATH_MSG_VERBOSE("Ramp (gain0) : " << (m_adc2mevTool->ADC2MEV(hwSC,(CaloGain::CaloGain)0))[1] );
-                ATH_MSG_VERBOSE("Ramp (gain1) : " << (m_adc2mevTool->ADC2MEV(hwSC,(CaloGain::CaloGain)1))[1] );
-                ATH_MSG_VERBOSE("Ramp (gain2) : " << (m_adc2mevTool->ADC2MEV(hwSC,(CaloGain::CaloGain)2))[1] );
-          }
-          if ( m_PedestalSC ) {
-                ATH_MSG_VERBOSE("Pedestal : " << m_PedestalSC->pedestal(hwSC,0) );
-          }
-          if ( m_NoiseSC ) {
-                ATH_MSG_VERBOSE("Noise : " << m_NoiseSC->noise(hwSC,0) );
-          }
-          if ( m_autoCorrNoiseTool ) {
-		const std::vector<float>* CorrGen = &(m_autoCorrNoiseTool->autoCorrSqrt(hwSC,0,m_nSamples));
-                std::stringstream ss; ss << "Auto : ";
-		for(size_t ii=0;ii<m_nSamples;++ii) ss << CorrGen->at(ii) << " ";
-                ATH_MSG_VERBOSE(ss.str()) ;
-
-	  }
-}
-
-void LArSCL1Maker::ConvertHits2Samples(const HWIdentifier & hwSC, CaloGain::CaloGain igain,
-                   const std::vector<std::pair<float,float> >& TimeE, std::vector<float>& samples)
+void LArSCL1Maker::ConvertHits2Samples(const EventContext& context, const HWIdentifier & hwSC, CaloGain::CaloGain igain,
+                   const std::vector<std::pair<float,float> >& TimeE, std::vector<float>& samples) const
 {
 // Converts  hits of a particular LAr cell into energy samples
 // declarations
@@ -543,8 +459,9 @@ void LArSCL1Maker::ConvertHits2Samples(const HWIdentifier & hwSC, CaloGain::Calo
 
 // ........ retrieve data (1/2) ................................
 //
-   ILArShape::ShapeRef_t Shape = m_shapes->Shape(hwSC,igain);
-   ILArShape::ShapeRef_t ShapeDer = m_shapes->ShapeDer(hwSC,igain);
+   auto shapes = this->retrieve(context,m_shapesKey);
+   ILArShape::ShapeRef_t Shape = shapes->Shape(hwSC,igain);
+   ILArShape::ShapeRef_t ShapeDer = shapes->ShapeDer(hwSC,igain);
 
   nsamples = Shape.size();
   nsamples_der = ShapeDer.size();

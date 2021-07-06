@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkTrack/Track.h"
@@ -57,7 +57,7 @@ namespace Trk {
 
     declareProperty("StoreDerivatives", m_storeDerivatives, "store derivatives dr/da on AlignTSOS to be filled into ntuple");
 
-    m_logStream = 0;
+    m_logStream = nullptr;
   }
 
   //________________________________________________________________________
@@ -301,7 +301,7 @@ namespace Trk {
     // q0 = number of tsos measurements
     // p = number perigee params+2*nscat+nbrem
 
-    if( H0==0 || C==0) {
+    if( H0==nullptr || C==nullptr) {
       ATH_MSG_ERROR("no derivative matrix or cov matrix stored on AlignTrack!"
                     << "This should have been done in AlignTrackPreProcessor!"
                     << H0 << " " << C );
@@ -431,7 +431,7 @@ namespace Trk {
         if (!rio && crio)
           rio=&crio->rioOnTrack(0);
 
-        if (rio==0)
+        if (rio==nullptr)
           continue;
 
         ++imeas;
@@ -526,7 +526,7 @@ namespace Trk {
     for (; itAtsos != alignTrack->lastAtsos(); ++itAtsos) {      
 
       std::vector<Residual>::const_iterator itRes=(**itAtsos).firstResidual();
-      for (; itRes!=(**itAtsos).lastResidual(); itRes++,index++) {
+      for (; itRes!=(**itAtsos).lastResidual(); ++itRes,index++) {
         
         V(index,index) = itRes->errSq();
       }
@@ -616,7 +616,7 @@ namespace Trk {
     for (; iatsos != alignTrack->lastAtsos(); ++iatsos) {
       
       AlignTSOS * alignTSOS = *iatsos;
-      if (!alignTSOS->isValid() || 0==alignTSOS->module()) 
+      if (!alignTSOS->isValid() || nullptr==alignTSOS->module()) 
         continue;
 
       // we only calculate the derivatives if the AlignTSOS belongs to the align module
@@ -627,8 +627,8 @@ namespace Trk {
       }
 
       // derivatives to be stored on the AlignTSOS
-      std::vector<Amg::VectorX> * atsosDerivs = 0;
-      std::vector<Amg::VectorX> * atsosDerVtx = 0;
+      std::vector<Amg::VectorX> * atsosDerivs = nullptr;
+      std::vector<Amg::VectorX> * atsosDerVtx = nullptr;
       if (m_storeDerivatives) {
         atsosDerivs = new std::vector<Amg::VectorX>(nResDim,Amg::VectorX(nAlignPar));
         atsosDerVtx = new std::vector<Amg::VectorX>(nResDim,Amg::VectorX(3));
@@ -692,7 +692,7 @@ namespace Trk {
       // z --> perpendicular to x and y (but not parallel to track!)
 
       // now 'correct' for the track angle in the measurement frame.
-      const TrackParameters * trkpars = 0;
+      const TrackParameters * trkpars = nullptr;
       if(m_residualType == HitOnly) {
         ATH_MSG_DEBUG("using BIASED track parameters");
         trkpars = alignTSOS->trackParameters();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELATHMONITORINGBASE_H
@@ -14,15 +14,18 @@ class PixelID;
 
 class PixLayers {
  public:
-  enum PixLayersID {kECA = 0, kECC, kB0, kB1, kB2, kIBL, NFEI3LAYERS=kIBL, kDBMA, kDBMC, COUNT};
+  enum PixLayersID {kECA = 0, kECC, kB0, kB1, kB2, kIBL, NFEI3LAYERS=kIBL, COUNT};
 };
-const std::string pixLayersLabel[PixLayers::COUNT] = {"ECA", "ECC", "B0", "B1", "B2", "IBL", "DBMA", "DBMC"};
-const float inv_nmod_per_layer[PixLayers::COUNT] = {1./144., 1./144., 1./286., 1./494., 1./676., 1./448., 1./12., 1./12.};
-const int clusterToTMinCut[PixLayers::COUNT] = {15, 15, 15, 15, 15, 4, 4, 4};
+class DataReadErrors {
+ public:
+  enum DataReadErrorsID {ContainerInvalid = 0, CollectionInvalid, EmptyContainer, COUNT};
+};
+const std::string pixLayersLabel[PixLayers::COUNT] = {"ECA", "ECC", "B0", "B1", "B2", "IBL"};
+const float inv_nmod_per_layer[PixLayers::COUNT] = {1./144., 1./144., 1./286., 1./494., 1./676., 1./448.};
+const int clusterToTMinCut[PixLayers::COUNT] = {15, 15, 15, 15, 15, 4};
 
 namespace PixMon {
   const unsigned int kNumLayersDisk{3};
-  const unsigned int kNumLayersDBM{3};
   const unsigned int kNumStavesIBL{14};
   const unsigned int kNumStavesL0{22};
   const unsigned int kNumStavesL1{38};
@@ -34,7 +37,6 @@ namespace PixMon {
   const unsigned int kNumModulesIBL3D{8};
   const unsigned int kNumModulesBarrel{13};
   const unsigned int kNumModulesDisk{48};
-  const unsigned int kNumModulesDBM{4};
   const unsigned int kNumPP0sEC{24};
 }
 

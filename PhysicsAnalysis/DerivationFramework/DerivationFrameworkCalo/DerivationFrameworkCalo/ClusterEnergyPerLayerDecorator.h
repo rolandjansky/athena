@@ -17,9 +17,7 @@
 #include "xAODEgamma/EgammaFwd.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ToolHandle.h"
-
-class CaloFillRectangularCluster;
-class CaloClusterCollectionProcessor;
+#include "CaloRec/CaloClusterProcessor.h"
 
 namespace DerivationFramework {
   
@@ -41,8 +39,9 @@ namespace DerivationFramework {
       int m_phi_size;
       std::vector<unsigned int> m_layers;
 
-      ToolHandle<CaloClusterCollectionProcessor> m_caloFillRectangularTool;
-      CaloFillRectangularCluster *m_tool;
+      ToolHandle<CaloClusterProcessor> m_caloFillRectangularTool {this,
+	  "CaloFillRectangularClusterTool", "",
+	  "Handle of the CaloFillRectangularClusterTool"};
       std::string m_CellCollectionName;
 
       void decorateObject(const EventContext& ctx,

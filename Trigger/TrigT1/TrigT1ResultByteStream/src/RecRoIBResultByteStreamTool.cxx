@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local includes:
-#include "TrigT1ResultByteStream/RecRoIBResultByteStreamTool.h"
+#include "RecRoIBResultByteStreamTool.h"
 
 // Trigger includes:
 #include "TrigConfL1Data/CTPConfig.h"
@@ -43,8 +43,8 @@ StatusCode RecRoIBResultByteStreamTool::initialize() {
   // Initialise service handles
   // ---------------------------------------------------------------------------
   ATH_CHECK(m_configSvc.retrieve());
-  ATH_CHECK(m_rpcRoISvc.retrieve());
-  ATH_CHECK(m_tgcRoISvc.retrieve());
+  ATH_CHECK(m_rpcRoITool.retrieve());
+  ATH_CHECK(m_tgcRoITool.retrieve());
 
   // ---------------------------------------------------------------------------
   // Load the threshold vectors
@@ -140,8 +140,8 @@ StatusCode RecRoIBResultByteStreamTool::convert(const std::vector<const ROBFragm
         const uint32_t ndata = robf.rod_ndata();
         for (uint32_t i=0; i<ndata; ++i, ++it_data) {
           muonContent.emplace_back(static_cast<uint32_t>(*it_data),
-                                   m_rpcRoISvc.get(),
-                                   m_tgcRoISvc.get(),
+                                   m_rpcRoITool.get(),
+                                   m_tgcRoITool.get(),
                                    &m_muonConfig);
         }
         break;

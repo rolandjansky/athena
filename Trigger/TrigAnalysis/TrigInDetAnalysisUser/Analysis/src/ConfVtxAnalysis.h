@@ -20,10 +20,6 @@
 
 #include "Resplot.h"
 
-#include "Resplot.h"
-// #include "Contour.h"
-
-
 class ConfVtxAnalysis : public VertexAnalysis {
 
 public:
@@ -63,6 +59,8 @@ private:
   Resplot* rdz_vs_ntrax;
   Resplot* rdz_vs_nvtx;
   Resplot* rdz_vs_mu;
+
+  Resplot* rnvtxrec_nvtx;
 
   Efficiency* eff_zed;
   Efficiency* eff_ntrax;

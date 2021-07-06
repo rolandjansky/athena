@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "JetRec/MuonSegmentPseudoJetAlgorithm.h"
 #include "JetRec/MuonSegmentExtractor.h"
-#include "MuonSegmentPseudoJetAlgorithm.h"
+#include "AsgDataHandles/ReadHandle.h"
+#include "AsgDataHandles/WriteHandle.h"
 
 //**********************************************************************
 
@@ -43,7 +45,7 @@ StatusCode MuonSegmentPseudoJetAlgorithm::execute(const EventContext& ctx) const
   ATH_MSG_DEBUG("Created extractor: "  << extractor->toString(0));
 
   // Put the PseudoJetContainer together
-  auto pjcont = std::make_unique<PseudoJetContainer>(extractor.release(), vpj);
+  auto pjcont = std::make_unique<PseudoJetContainer>(std::move(extractor), vpj);
   
   auto outcoll = SG::makeHandle<PseudoJetContainer>(m_outcoll,ctx);
   ATH_MSG_DEBUG("New PseudoJetContainer size " << pjcont->size());

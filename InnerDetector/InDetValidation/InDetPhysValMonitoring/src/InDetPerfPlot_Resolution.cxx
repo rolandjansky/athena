@@ -221,7 +221,7 @@ InDetPerfPlot_Resolution::initializePlots() {
 }
 
 void
-InDetPerfPlot_Resolution::fill(const xAOD::TrackParticle& trkprt, const xAOD::TruthParticle& truthprt) {
+InDetPerfPlot_Resolution::fill(const xAOD::TrackParticle& trkprt, const xAOD::TruthParticle& truthprt, float weight) {
   // Check whether the track is primary or secondary
   int trueBC = -9999;
 
@@ -251,42 +251,42 @@ InDetPerfPlot_Resolution::fill(const xAOD::TrackParticle& trkprt, const xAOD::Tr
   getTrackParameters(trkprt);
   getTrackParameters(truthprt);
   getPlotParameters();
-  getPlots();
+  getPlots(weight);
 
 }
 
 void
-InDetPerfPlot_Resolution::getPlots() {
+InDetPerfPlot_Resolution::getPlots(float weight) {
   const float tanHalfTheta = std::tan(m_truetrkP[THETA] * 0.5);
   const bool tanThetaIsSane = std::abs(tanHalfTheta) > smallestAllowableTan;
   float eta = undefinedValue;
   if (tanThetaIsSane) eta = -std::log(tanHalfTheta);
   for (unsigned int iparam = 0; iparam < NPARAMS; iparam++) {    
     if(iparam == PT) continue;
-    m_pull[iparam]->Fill(m_pullP[iparam]);
-    m_res[iparam]->Fill(m_resP[iparam]);
+    m_pull[iparam]->Fill(m_pullP[iparam], weight);
+    m_res[iparam]->Fill(m_resP[iparam], weight);
     if(iparam == QOVERPT){
-      m_sigma[iparam]->Fill(m_sigP[iparam]);
-      m_sigma_vs_eta[iparam]->Fill(eta,  m_sigP[iparam]);
-      m_sigma_vs_pt[iparam]->Fill(m_truetrkP[PT], m_sigP[iparam]);
+      m_sigma[iparam]->Fill(m_sigP[iparam], weight);
+      m_sigma_vs_eta[iparam]->Fill(eta,  m_sigP[iparam], weight);
+      m_sigma_vs_pt[iparam]->Fill(m_truetrkP[PT], m_sigP[iparam], weight);
     } else {
-      m_sigma[iparam]->Fill(m_sigP[iparam]);
-      m_sigma_vs_eta[iparam]->Fill(eta, m_sigP[iparam]);
-      m_sigma_vs_pt[iparam]->Fill(m_truetrkP[PT], m_sigP[iparam]);
+      m_sigma[iparam]->Fill(m_sigP[iparam], weight);
+      m_sigma_vs_eta[iparam]->Fill(eta, m_sigP[iparam], weight);
+      m_sigma_vs_pt[iparam]->Fill(m_truetrkP[PT], m_sigP[iparam], weight);
     }
-    m_resHelpereta[iparam]->Fill(eta, m_resP[iparam]);
-    m_resHelperpt[iparam]->Fill(m_truetrkP[PT], m_resP[iparam]);
-    m_pullHelperpt[iparam]->Fill(m_truetrkP[PT], m_pullP[iparam]);
-    m_pullHelpereta[iparam]->Fill(eta, m_pullP[iparam]);
+    m_resHelpereta[iparam]->Fill(eta, m_resP[iparam], weight);
+    m_resHelperpt[iparam]->Fill(m_truetrkP[PT], m_resP[iparam], weight);
+    m_pullHelperpt[iparam]->Fill(m_truetrkP[PT], m_pullP[iparam], weight);
+    m_pullHelpereta[iparam]->Fill(eta, m_pullP[iparam], weight);
     
     if(m_iDetailLevel >= 200){
       if (m_trkP[QOVERPT] >= 0.) {
-        m_resHelpereta_pos[iparam]->Fill(eta, m_resP[iparam]);
-        m_resHelperpt_pos[iparam]->Fill(m_truetrkP[PT], m_resP[iparam]);
+        m_resHelpereta_pos[iparam]->Fill(eta, m_resP[iparam], weight);
+        m_resHelperpt_pos[iparam]->Fill(m_truetrkP[PT], m_resP[iparam], weight);
       }
       if (m_trkP[QOVERPT] < 0.) {
-        m_resHelpereta_neg[iparam]->Fill(eta, m_resP[iparam]);
-        m_resHelperpt_neg[iparam]->Fill(m_truetrkP[PT], m_resP[iparam]);
+        m_resHelpereta_neg[iparam]->Fill(eta, m_resP[iparam], weight);
+        m_resHelperpt_neg[iparam]->Fill(m_truetrkP[PT], m_resP[iparam], weight);
       }
     }
 

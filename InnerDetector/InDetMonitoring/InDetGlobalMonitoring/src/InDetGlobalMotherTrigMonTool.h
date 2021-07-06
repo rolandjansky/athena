@@ -67,7 +67,7 @@ class InDetGlobalMotherTrigMonTool : public InDetGlobalMotherMonTool
     bool m_doTrigger;
     
  private:
-    int m_firedTriggers[8];
+    int m_firedTriggers[8]{};
     std::vector<unsigned int> m_activeMenuItems;
     SG::ReadHandleKey<EventInfo> m_eventInfoKey{this,"EventInfoKey","ByteStreamEventInfo","Event Info Key for Global Trigger Montioring"};
 };

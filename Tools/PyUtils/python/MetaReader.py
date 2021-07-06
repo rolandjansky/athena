@@ -15,6 +15,8 @@ regexByteStreamMetadataContainer = re.compile(r'^ByteStreamMetadataContainer(_p\
 regexXAODEventFormat = re.compile(r'^xAOD::EventFormat(_v\d+)?$')
 regexXAODTriggerMenu = re.compile(r'^DataVector<xAOD::TriggerMenu(_v\d+)?>$')
 regexXAODTriggerMenuAux = re.compile(r'^xAOD::TriggerMenuAuxContainer(_v\d+)?$')
+regexXAODTriggerMenuJson = re.compile(r'^DataVector<xAOD::TriggerMenuJson(_v\d+)?>$')
+regexXAODTriggerMenuJsonAux = re.compile(r'^xAOD::TriggerMenuJsonAuxContainer(_v\d+)?$')
 regex_cppname = re.compile(r'^([\w:]+)(<.*>)?$')
 # regex_persistent_class = re.compile(r'^([a-zA-Z]+_p\d+::)*[a-zA-Z]+_p\d+$')
 regex_persistent_class = re.compile(r'^([a-zA-Z]+(_[pv]\d+)?::)*[a-zA-Z]+_[pv]\d+$')
@@ -148,8 +150,18 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                         '/Simulation/Parameters': 'IOVMetaDataContainer_p1',
                         '/Digitization/Parameters': 'IOVMetaDataContainer_p1',
                         '/EXT/DCS/MAGNETS/SENSORDATA': 'IOVMetaDataContainer_p1',
-                        'TriggerMenu': 'DataVector<xAOD::TriggerMenu_v1>',
+                        'TriggerMenu': 'DataVector<xAOD::TriggerMenu_v1>', # R2 trigger metadata format AOD (deprecated)
                         'TriggerMenuAux.': 'xAOD::TriggerMenuAuxContainer_v1',
+                        'DataVector<xAOD::TriggerMenu_v1>_TriggerMenu': 'DataVector<xAOD::TriggerMenu_v1>', # R2 trigger metadata format ESD (deprecated)
+                        'xAOD::TriggerMenuAuxContainer_v1_TriggerMenuAux.': 'xAOD::TriggerMenuAuxContainer_v1',
+                        'TriggerMenuJson_HLT': 'DataVector<xAOD::TriggerMenuJson_v1>', # R3 trigger metadata format AOD
+                        'TriggerMenuJson_HLTAux.': 'xAOD::TriggerMenuJsonAuxContainer_v1',
+                        'TriggerMenuJson_L1': 'DataVector<xAOD::TriggerMenuJson_v1>',
+                        'TriggerMenuJson_L1Aux.': 'xAOD::TriggerMenuJsonAuxContainer_v1',
+                        'DataVector<xAOD::TriggerMenuJson_v1>_TriggerMenuJson_HLT': 'DataVector<xAOD::TriggerMenuJson_v1>', # R3 trigger metadata format ESD
+                        'xAOD::TriggerMenuJsonAuxContainer_v1_TriggerMenuJson_HLTAux.': 'xAOD::TriggerMenuJsonAuxContainer_v1',
+                        'DataVector<xAOD::TriggerMenuJson_v1>_TriggerMenuJson_L1': 'DataVector<xAOD::TriggerMenuJson_v1>',
+                        'xAOD::TriggerMenuJsonAuxContainer_v1_TriggerMenuJson_L1Aux.': 'xAOD::TriggerMenuJsonAuxContainer_v1',
                         '*': 'EventStreamInfo_p*'
                     }
 
@@ -161,7 +173,6 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                 for i in range(0, nr_of_branches):
                     branch = metadata_branches.At(i)
                     name = branch.GetName()
-
 
                     class_name = branch.GetClassName()
 
@@ -203,6 +214,10 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                         persistent_instances[name] = ROOT.xAOD.TriggerMenuContainer_v1()
                     elif regexXAODTriggerMenuAux.match(class_name) and _check_project() not in ['AthGeneration']:
                         persistent_instances[name] = ROOT.xAOD.TriggerMenuAuxContainer_v1()
+                    elif regexXAODTriggerMenuJson.match(class_name) and _check_project() not in ['AthGeneration']:
+                        persistent_instances[name] = ROOT.xAOD.TriggerMenuJsonContainer_v1()
+                    elif regexXAODTriggerMenuJsonAux.match(class_name) and _check_project() not in ['AthGeneration']:
+                        persistent_instances[name] = ROOT.xAOD.TriggerMenuJsonAuxContainer_v1()
 
                     if name in persistent_instances:
                         branch.SetAddress(ROOT.AddressOf(persistent_instances[name]))
@@ -220,17 +235,37 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                     if hasattr(content, 'm_folderName'):
                         key = getattr(content, 'm_folderName')
 
-                    aux = None
-                    if key == 'TriggerMenu' and 'TriggerMenuAux.' in persistent_instances:
-                        aux = persistent_instances['TriggerMenuAux.']
-                    elif key == 'DataVector<xAOD::TriggerMenu_v1>_TriggerMenu' and 'xAOD::TriggerMenuAuxContainer_v1_TriggerMenuAux.' in persistent_instances:
-                        aux = persistent_instances['xAOD::TriggerMenuAuxContainer_v1_TriggerMenuAux.']
-                    elif key == 'TriggerMenuAux.':
-                        continue
-                    elif key == 'xAOD::TriggerMenuAuxContainer_v1_TriggerMenuAux.':
-                        continue
+                    # Some transition AODs contain both the Run2 and Run3 metadata formats. We only wish to read the Run3 format if such a file is encountered.
+                    has_r3_trig_meta = ('TriggerMenuJson_HLT' in persistent_instances or 'DataVector<xAOD::TriggerMenuJson_v1>_TriggerMenuJson_HLT' in persistent_instances)
 
-                    meta_dict[filename][key] = _convert_value(content, aux)
+                    aux = None
+                    if key == 'TriggerMenuJson_HLT' and 'TriggerMenuJson_HLTAux.' in persistent_instances: # AOD case (HLT menu)
+                        aux = persistent_instances['TriggerMenuJson_HLTAux.']
+                    elif key == 'DataVector<xAOD::TriggerMenuJson_v1>_TriggerMenuJson_HLT' and 'xAOD::TriggerMenuJsonAuxContainer_v1_TriggerMenuJson_HLTAux.' in persistent_instances: # ESD case (HLT menu)
+                        aux = persistent_instances['xAOD::TriggerMenuJsonAuxContainer_v1_TriggerMenuJson_HLTAux.']
+                    elif key == 'TriggerMenuJson_L1' and 'TriggerMenuJson_L1Aux.' in persistent_instances: # AOD case (L1 menu)
+                        aux = persistent_instances['TriggerMenuJson_L1Aux.']
+                    elif key == 'DataVector<xAOD::TriggerMenuJson_v1>_TriggerMenuJson_L1' and 'xAOD::TriggerMenuJsonAuxContainer_v1_TriggerMenuJson_L1Aux.' in persistent_instances: # ESD case (L1 menu)
+                        aux = persistent_instances['xAOD::TriggerMenuJsonAuxContainer_v1_TriggerMenuJson_L1Aux.']
+                    elif key == 'TriggerMenu' and 'TriggerMenuAux.' in persistent_instances and not has_r3_trig_meta: # AOD case (legacy support, HLT and L1 menus)
+                        aux = persistent_instances['TriggerMenuAux.']
+                    elif key == 'DataVector<xAOD::TriggerMenu_v1>_TriggerMenu' and 'xAOD::TriggerMenuAuxContainer_v1_TriggerMenuAux.' in persistent_instances and not has_r3_trig_meta: # ESD case (legacy support, HLT and L1 menus)
+                        aux = persistent_instances['xAOD::TriggerMenuAuxContainer_v1_TriggerMenuAux.']
+                    elif key == 'TriggerMenuAux.' or key == 'xAOD::TriggerMenuAuxContainer_v1_TriggerMenuAux.':
+                        continue # Extracted using the interface object
+                    elif key == 'TriggerMenuJson_HLTAux.' or key == 'xAOD::TriggerMenuJsonAuxContainer_v1_TriggerMenuJson_HLTAux.':
+                        continue # Extracted using the interface object
+                    elif key == 'TriggerMenuJson_L1Aux.' or key == 'xAOD::TriggerMenuJsonAuxContainer_v1_TriggerMenuJson_L1Aux.':
+                        continue # Extracted using the interface object
+
+                    return_obj = _convert_value(content, aux)
+
+                    if 'TriggerMenuJson_HLT' in key or 'TriggerMenuJson_L1' in key or ('TriggerMenu' in key and not has_r3_trig_meta):
+                        if 'TriggerMenu' not in meta_dict[filename]:
+                            meta_dict[filename]['TriggerMenu'] = {}
+                        meta_dict[filename]['TriggerMenu'].update(return_obj)
+                    else:
+                        meta_dict[filename][key] = return_obj
 
 
             # This is a required workaround which will temporarily be fixing ATEAM-560 originated from  ATEAM-531
@@ -272,8 +307,16 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
             data_reader = eformat.EventStorage.pickDataReader(filename)
             assert data_reader, 'problem picking a data reader for file [%s]' % filename
 
+            # set auto flush equivalent, which for BS is always 1
+            meta_dict[filename]['auto_flush'] = 1
+
             if hasattr(data_reader, 'GUID'):
                 meta_dict[filename]['file_guid'] = getattr(data_reader, 'GUID')()
+
+            # compression level and algorithm, for BS always ZLIB
+            meta_dict[filename]['file_comp_alg'] = 1
+            meta_dict[filename]['file_comp_level'] = 1
+
 
             # if the flag full is set to true then grab all metadata
             # ------------------------------------------------------------------------------------------------------#
@@ -489,6 +532,9 @@ def _convert_value(value, aux = None):
             elif cl.__cpp_name__ == 'DataVector<xAOD::TriggerMenu_v1>' :
                 return _extract_fields_triggermenu(interface=value, aux=aux)
 
+            elif cl.__cpp_name__ == 'DataVector<xAOD::TriggerMenuJson_v1>' :
+                return _extract_fields_triggermenujson(interface=value, aux=aux)
+
             elif (cl.__cpp_name__ == 'EventStreamInfo_p1' or
                   cl.__cpp_name__ == 'EventStreamInfo_p2' or
                   cl.__cpp_name__ == 'EventStreamInfo_p3'):
@@ -615,8 +661,12 @@ def _extract_fields_ef(value):
 
     return result
 
-
+""" Note: Deprecated. Legacy support for Run 2 AODs produced in release 21 or in release 22 prior to April 2021
+"""
 def _extract_fields_triggermenu(interface, aux):
+    if aux is None:
+        return {}
+
     L1Items = []
     HLTChains = []
 
@@ -634,6 +684,30 @@ def _extract_fields_triggermenu(interface, aux):
     result = {}
     result['L1Items'] = L1Items
     result['HLTChains'] = HLTChains
+
+    return result
+
+def _extract_fields_triggermenujson(interface, aux):
+    result = {}
+
+    try:
+        interface.setStore( aux )
+        if interface.size() > 0:
+            # We make the assumption that the first stored SMK is
+            # representative of all events in the input collection.
+            firstMenu = interface.at(0)
+            import json
+            decoded = json.loads(firstMenu.payload())
+            if decoded['filetype'] == 'hltmenu':
+                result['HLTChains'] = [ _convert_value(chain) for chain in decoded['chains'] ] 
+            elif decoded['filetype'] == 'l1menu':
+                result['L1Items'] = [ _convert_value(item) for item in decoded['items'] ] 
+            else:
+                msg.warn('Got an xAOD::TriggerMenuJson called {0} but only expecting hltmenu or l1menu'.format(decoded['filetype']))
+                return {}
+                
+    except Exception as err: # noqa: F841
+        msg.warn('Problem reading xAOD::TriggerMenuJson')
 
     return result
 
@@ -680,14 +754,14 @@ def make_lite(meta_dict):
     for filename, file_content in meta_dict.items():
         for key in file_content:
             if key in meta_dict[filename]['metadata_items'] and regexEventStreamInfo.match(meta_dict[filename]['metadata_items'][key]):
-                keys_to_keep = ['lumiBlockNumbers', 'runNumbers', 'mc_event_number', 'mc_channel_number', 'eventTypes', 'processingTags']
+                keys_to_keep = ['lumiBlockNumbers', 'runNumbers', 'mc_event_number', 'mc_channel_number', 'eventTypes', 'processingTags', 'itemList']
 
                 for item in list(meta_dict[filename][key]):
                     if item not in keys_to_keep:
                         meta_dict[filename][key].pop(item)
 
         if '/TagInfo' in file_content:
-            keys_to_keep = ['beam_energy', 'beam_type', 'GeoAtlas', 'IOVDbGlobalTag', 'AODFixVersion']
+            keys_to_keep = ['beam_energy', 'beam_type', 'GeoAtlas', 'IOVDbGlobalTag', 'AODFixVersion', 'project_name']
 
             for item in list(meta_dict[filename]['/TagInfo']):
                 if item not in keys_to_keep:
@@ -730,6 +804,7 @@ def make_peeker(meta_dict):
 
         if '/Simulation/Parameters' in file_content:
             keys_to_keep = [
+                'G4Version',
                 'TruthStrategy',
                 'SimBarcodeOffset',
                 'TRTRangeCut',
@@ -814,7 +889,7 @@ def convert_itemList(metadata, layout):
         current_key = None
 
         for key in metadata:
-            if key in metadata['metadata_items'] and metadata['metadata_items'][key] == 'EventStreamInfo_p3':
+            if 'metadata_items' in metadata and key in metadata['metadata_items'] and metadata['metadata_items'][key] == 'EventStreamInfo_p3':
                 current_key = key
                 break
         if current_key is not None:

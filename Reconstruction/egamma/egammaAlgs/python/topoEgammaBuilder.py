@@ -7,7 +7,7 @@ __author__ = "Jovan Mitrevski"
 from egammaAlgs import egammaAlgsConf
 from egammaRec.Factories import AlgFactory
 from egammaRec import egammaKeys
-
+from RecExConfig.RecFlags import rec
 from egammaTools.egammaToolsFactories import EGammaAmbiguityTool
 
 topoEgammaBuilder = AlgFactory(
@@ -17,5 +17,6 @@ topoEgammaBuilder = AlgFactory(
     SuperPhotonRecCollectionName=egammaKeys.PhotonSuperRecKey(),
     ElectronOutputName=egammaKeys.outputElectronKey(),
     PhotonOutputName=egammaKeys.outputPhotonKey(),
-    AmbiguityTool=EGammaAmbiguityTool
+    AmbiguityTool=EGammaAmbiguityTool,
+    isTruth=rec.doTruth()
 )

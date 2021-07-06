@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthContainers/ViewVector.h
@@ -19,7 +19,6 @@
 #include "AthContainers/exceptions.h"
 #include "AthContainers/ViewVectorBase.h"
 #include "AthLinks/ElementLink.h"
-#include "boost/preprocessor/stringize.hpp"
 #include <atomic>
 
 
@@ -313,10 +312,6 @@ struct ClassID_traits< ViewVector<DV> >
   }
   static const std::type_info& typeInfo() {
     return typeid (ViewVector<DV>);
-  }
-  static  Athena::PackageInfo packageInfo() {
-    static Athena::PackageInfo pi( BOOST_PP_STRINGIZE(PACKAGE_VERSION_UQ)  );
-    return pi;
   }
   typedef std::false_type has_version_tag;
   static const bool s_isConst = false;

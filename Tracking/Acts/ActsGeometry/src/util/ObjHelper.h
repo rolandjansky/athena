@@ -8,7 +8,7 @@
 
 #include <fstream>
 #include <vector>
-#include "Acts/Utilities/Definitions.hpp"
+#include "Acts/Definitions/Algebra.hpp"
 
 
 namespace ObjHelper {
@@ -29,7 +29,7 @@ namespace ObjHelper {
   writeVTN(std::ofstream&        stream,
            VtnCounter&           vtnCounter,
            double                scalor,
-           const Acts::Vector3D& vertex,
+           const Acts::Vector3& vertex,
            const std::string&    vtntype = "v",
            bool                  point   = false);
 
@@ -51,7 +51,7 @@ namespace ObjHelper {
   writePlanarFace(std::ofstream&                     stream,
                   VtnCounter&                        vtnCounter,
                   double                             scalor,
-                  const std::vector<Acts::Vector3D>& vertices,
+                  const std::vector<Acts::Vector3>& vertices,
                   double                             thickness = 0.,
                   const std::vector<unsigned int>&   vsides    = {});
 
@@ -63,7 +63,7 @@ namespace ObjHelper {
             VtnCounter&              vtnCounter,
             double                   scalor,
             unsigned int             nSegments,
-            const Acts::Transform3D& transform,
+            const Acts::Transform3& transform,
             double                   r,
             double                   hZ,
             double                   thickness = 0.);

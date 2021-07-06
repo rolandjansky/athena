@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //********************************************************************
@@ -46,18 +46,18 @@ template <typename TELEMENT> class TileRawDataCollection
     typedef TELEMENT OBJECT;
 
     // construct a container for a given super-drawer (fragment)
-    TileRawDataCollection<TELEMENT> ( ID id, SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS )
+    TileRawDataCollection ( ID id, SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS )
       : DataVector <TELEMENT> (ownPolicy), 
         m_id(id), m_lvl1Id(0), m_lvl1Type(0), m_detEvType(0), m_rodBCID(0) { this->reserve(48); }
-    TileRawDataCollection<TELEMENT> ( SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS )
+    TileRawDataCollection ( SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS )
       : DataVector < TELEMENT > (ownPolicy),
         m_id(0), m_lvl1Id(0), m_lvl1Type(0), m_detEvType(0), m_rodBCID(0) { this->reserve(48); }
 
-    TileRawDataCollection<TELEMENT> (const TileRawDataCollection<TELEMENT>& rhs) = default;
-    TileRawDataCollection<TELEMENT> (TileRawDataCollection<TELEMENT>&& rhs) = default;
+    TileRawDataCollection (const TileRawDataCollection<TELEMENT>& rhs) = default;
+    TileRawDataCollection (TileRawDataCollection<TELEMENT>&& rhs) = default;
 
     // destructor               
-    virtual ~TileRawDataCollection<TELEMENT> () = default;
+    virtual ~TileRawDataCollection () = default;
 
     // clear everything for next event
     virtual void clear ();

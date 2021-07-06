@@ -34,8 +34,11 @@ class EvgenAlg(PyAthena.Alg):
 
 
     def execute(self):
-        from AthenaPython.PyAthena import McEventCollection, HepMC
-
+        from AthenaPython.PyAthena import McEventCollection
+        try:
+          from AthenaPython.PyAthena import HepMC3  as HepMC
+        except ImportError:
+          from AthenaPython.PyAthena import HepMC   as HepMC
         self.msg.debug("Executing [%s]", self.getName())
 
         ## Retrieve MC event collection or create a new one

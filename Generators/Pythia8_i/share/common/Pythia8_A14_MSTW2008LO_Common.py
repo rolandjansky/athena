@@ -18,19 +18,7 @@ genSeq.Pythia8.Commands += [
 
 rel = os.popen("echo $AtlasVersion").read()
 
-if rel[:2].isdigit() and int(rel[:2])<20:
-  ver =  os.popen("cmt show versions External/Pythia8").read()
-  print ("Pythia8 version: " + ver)
-  if ('Pythia8-01' in ver[:50]) or ('Pythia8_i-00-11' in ver):
-   genSeq.Pythia8.Commands += [
-    "PDF:useLHAPDF = on",
-    "PDF:LHAPDFset = MSTW2008lo68cl",
-    "BeamRemnants:reconnectRange = 1.87" ]
-  else:
-   genSeq.Pythia8.Commands += ["PDF:pSet=LHAPDF6:MSTW2008lo68cl",
-   "ColourReconnection:range = 1.87"]                            
-else:
-   genSeq.Pythia8.Commands += ["PDF:pSet=LHAPDF6:MSTW2008lo68cl",
+genSeq.Pythia8.Commands += ["PDF:pSet=LHAPDF6:MSTW2008lo68cl",
    "ColourReconnection:range = 1.87"]                            
 
 evgenConfig.tune = "A14 MSTW2008LO"

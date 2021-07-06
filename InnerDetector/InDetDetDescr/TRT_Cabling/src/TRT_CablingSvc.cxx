@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -53,7 +53,7 @@ TRT_CablingSvc::~TRT_CablingSvc()
 StatusCode TRT_CablingSvc::initialize( )
 {
   StatusCode sc;
-  ATH_MSG_INFO( "TRT_CablingSvc::initialize, version " << PACKAGE_VERSION ); 
+  ATH_MSG_INFO( "TRT_CablingSvc::initialize" );
 
   // Retrieve Detector Store
   ServiceHandle<StoreGateSvc> detStore("DetectorStore",name());

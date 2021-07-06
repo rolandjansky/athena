@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARDSPTHRESHOLDSFILLINGINLINE_H
@@ -8,21 +8,21 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CaloIdentifier/CaloCellGroup.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
+#include "LArRecConditions/LArBadChannelMask.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "CaloConditions/CaloNoise.h"
 
 class LArOnlineID;
-class ICaloNoiseTool;
-class ILArBadChannelMasker;
 
 class LArDSPThresholdFillInline:public AthAlgorithm {
  public:
   LArDSPThresholdFillInline(const std::string& name, ISvcLocator* pSvcLocator);
-  ~LArDSPThresholdFillInline();
-  StatusCode initialize();
-  StatusCode execute() {return StatusCode::SUCCESS;}
-  StatusCode stop();
+  virtual ~LArDSPThresholdFillInline();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override {return StatusCode::SUCCESS;}
+  virtual StatusCode stop() override;
 
  private:
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
@@ -40,8 +40,16 @@ class LArDSPThresholdFillInline:public AthAlgorithm {
   std::string m_outFileName, m_inFileName;
   bool m_fill;
 
-  ToolHandle < ICaloNoiseTool > m_noisetool;
-  ToolHandle < ILArBadChannelMasker > m_badChannelMasker;
+  SG::ReadCondHandleKey<CaloNoise> m_totalNoiseKey
+    { this, "TotalNoiseKey", "totalNoise", "SG key for total noise" };
+  SG::ReadCondHandleKey<CaloNoise> m_elecNoiseKey
+    { this, "ElecNoiseKey", "electronicNoise", "SG key for electronic noise" };
+
+  /** Handle to bad-channel mask */
+  LArBadChannelMask m_bcMask;
+  SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
+  Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{}, "Bad-Channel categories to mask"};
+ 
 
   enum mode_t{
     FIXED,GROUP,NOISE

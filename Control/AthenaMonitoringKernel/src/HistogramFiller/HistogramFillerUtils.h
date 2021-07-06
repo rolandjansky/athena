@@ -10,6 +10,7 @@
 
 #include "AthenaMonitoringKernel/IMonitoredVariable.h"
 #include "AthenaMonitoringKernel/OHLockedHist.h"
+#include "HistogramFactory.h"
 #include "CxxUtils/AthUnlikelyMacros.h"
 
 #include "TH1.h"
@@ -90,8 +91,15 @@ namespace Monitored {
 
       // Rebinning requires to take OH lock in online (no-op offline)
       oh_scoped_lock_histogram lock;
+      // Rebinning requires a lock on the global ROOT directory state
+      std::scoped_lock<std::mutex> dirLock(HistogramFactory::globalROOTMutex());
       do {
+        // need to unset cleanup bit of parent histogram during this operation
+        // since it gets copied to a hidden temporary (probably unintentionally)
+        bool curcleanup = hist->TestBit(TObject::kMustCleanup);
+        hist->ResetBit(TObject::kMustCleanup);
         hist->LabelsInflate(axis_name[AXIS]);
+        hist->SetBit(TObject::kMustCleanup, curcleanup);
       } while (shouldRebinHistogram(a, value));
     }
 
@@ -173,6 +181,8 @@ namespace Monitored {
         if ( ATH_UNLIKELY(fillWillRebinHistogram(hist, std::index_sequence_for<M, Ms...>{},
                                                  m1, m...)) ){
           oh_scoped_lock_histogram lock;
+          // Rebinning requires a lock on the global ROOT directory state
+          std::scoped_lock<std::mutex> dirLock(HistogramFactory::globalROOTMutex());
           hist->Fill(m1, m..., weight(i));
         }
         else hist->Fill(m1, m..., weight(i));

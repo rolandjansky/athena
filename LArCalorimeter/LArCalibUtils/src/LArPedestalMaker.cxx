@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -78,25 +78,21 @@ StatusCode LArPedestalMaker::execute()
     ATH_MSG_ERROR ( "Key list is empty! No containers to process!" );
     return StatusCode::FAILURE;
   } 
-  std::vector<std::string>::const_iterator key_it=m_keylist.begin();
-  std::vector<std::string>::const_iterator key_it_e=m_keylist.end();
   const LArDigitContainer* larDigitContainer = nullptr;
 
-  for (;key_it!=key_it_e;key_it++) {
-    StatusCode sc= evtStore()->retrieve(larDigitContainer,*key_it);
+  for (const std::string& key : m_keylist) {
+    StatusCode sc= evtStore()->retrieve(larDigitContainer,key);
     if (sc.isFailure() || !larDigitContainer) {
-      ATH_MSG_DEBUG ( "Cannot read LArCalibDigitContainer from StoreGate! key=" << *key_it );
+      ATH_MSG_DEBUG ( "Cannot read LArCalibDigitContainer from StoreGate! key=" << key );
       continue;
     }
     if(larDigitContainer->size()==0) {
-      ATH_MSG_DEBUG ( "Got empty LArDigitContainer (key=" << *key_it << ")." );
+      ATH_MSG_DEBUG ( "Got empty LArDigitContainer (key=" << key << ")." );
       continue;
     }
-    LArDigitContainer::const_iterator it=larDigitContainer->begin();
-    LArDigitContainer::const_iterator it_end=larDigitContainer->end();
-    for (;it!=it_end;it++) {  //Loop over all cells
-      const HWIdentifier chid=(*it)->hardwareID();
-      const CaloGain::CaloGain gain=(*it)->gain();
+    for (const LArDigit* digit : *larDigitContainer) {
+      const HWIdentifier chid=digit->hardwareID();
+      const CaloGain::CaloGain gain=digit->gain();
       //LArPedestal& thisPed=m_pedestal[gain][chid];
       LArPedestal& thisPed=m_pedestal.get(chid,gain);
       //log << MSG::DEBUG << "Cell: " << icell << " with gain " << gain << endmsg;
@@ -104,14 +100,14 @@ StatusCode LArPedestalMaker::execute()
 	ATH_MSG_ERROR ( "Found odd gain number ("<< (int)gain <<")" );
 	return StatusCode::FAILURE;
       }
-      const std::vector<short> & samples = (*it)->samples();
+      const std::vector<short> & samples = digit->samples();
       if (thisPed.get_max()!=-1) //Have already boundaries set
 	{//Check samples are in range
 	  std::vector<short>::const_iterator s_it=samples.begin();
 	  std::vector<short>::const_iterator s_it_e=samples.end();
 	  const short& min=thisPed.get_min();
 	  const short& max=thisPed.get_max();
-	  for (;s_it!=s_it_e && *s_it>=min && *s_it<=max;s_it++)
+	  for (;s_it!=s_it_e && *s_it>=min && *s_it<=max;++s_it)
             ; //Loop over samples to check....
 	  if (s_it==s_it_e) //Reached end of loop?
 	    thisPed.add(samples);

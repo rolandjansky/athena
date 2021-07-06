@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -52,7 +52,7 @@ TileDigitsMonTool::TileDigitsMonTool(const std::string & type, const std::string
   : TilePaterMonTool(type, name, parent)
   , m_tileToolNoiseSample("TileCondToolNoiseSample")
   , m_cispar(0)
-  , m_nEvents(0)
+  , m_nEventsTileMon(0)
   , m_nSamples(0)
   , m_allHistsFilled(false)
   //, hp(-1)
@@ -94,7 +94,7 @@ StatusCode TileDigitsMonTool::initialize()
 
   if (m_fillPedestalDifference) CHECK(m_tileToolNoiseSample.retrieve());
 
-  m_nEvents = 0;
+  m_nEventsTileMon = 0;
   m_allHistsFilled = false;
   m_data = std::make_unique<Data>();
   memset(m_data->m_sumPed1, 0, sizeof(m_data->m_sumPed1));
@@ -342,7 +342,7 @@ StatusCode TileDigitsMonTool::fillHists()
 
   // array of 16 CIS parameters
   m_cispar = dqStatus->cispar();
-  ++m_nEvents;
+  ++m_nEventsTileMon;
 
   //  std::cout << "Calib Mode=" << dqStatus->calibMode() << "\n";
 
@@ -581,6 +581,8 @@ StatusCode TileDigitsMonTool::finalHists()
   if (m_allHistsFilled) return StatusCode::SUCCESS;
   m_allHistsFilled = true;
 
+  const EventContext &ctx = Gaudi::Hive::currentContext();
+
   const char *part[5] = { "AUX", "LBA", "LBC", "EBA", "EBC" };
   const char *gain[6] = { "_lo", "_hi", "", " low gain", " high gain", "" };
 
@@ -646,10 +648,10 @@ StatusCode TileDigitsMonTool::finalHists()
             int nevents = int(m_data->m_hist1[ros][drawer][channel][adc][0]->GetEntries()); //ROOT GetEntries return a Double_t.
             bool fillPedAndRms = (nevents > 0);
 
-            if ((nevents != 0) && (nevents != m_nEvents)) {
+            if ((nevents != 0) && (nevents != m_nEventsTileMon)) {
               /// LF: when we have a monogain run, like Laser, it might happen
               /// that occasionally some entries have not the expected gain.
-              /// In this case we cannot use m_nEvents to calculate average and
+              /// In this case we cannot use m_nEventsTileMon to calculate average and
               /// RMS. The most simple minded solution would be to use the
               /// a counter for each single chan (5x64x48x2 counters!).
               /// I prefered the following 'escamotage': the pedestal
@@ -662,10 +664,10 @@ StatusCode TileDigitsMonTool::finalHists()
               ATH_MSG_VERBOSE( "Number of entries in histo " << m_data->m_hist1[ros][drawer][channel][adc][0]->GetTitle()
                               << " doesnt match n. of events! Using the first one in mean and RMS calculation" );
 
-              ATH_MSG_VERBOSE( "Number of entries in histo =" << nevents << "\tNumber of events= " << m_nEvents );
+              ATH_MSG_VERBOSE( "Number of entries in histo =" << nevents << "\tNumber of events= " << m_nEventsTileMon );
 
             } else {	      //all ok
-              nevents = m_nEvents;
+              nevents = m_nEventsTileMon;
             }
 
             if (fillPedAndRms) {
@@ -681,7 +683,7 @@ StatusCode TileDigitsMonTool::finalHists()
               }
               
               //	    if ( (pmt==24)&&(ros==1)&&(drawer==18)&&(adc==0)) {
-              //std::cout << "Evt = " << m_nEvents << "\t channel=" << channel << "  pmt=" << pmt << "\n";
+              //std::cout << "Evt = " << m_nEventsTileMon << "\t channel=" << channel << "  pmt=" << pmt << "\n";
               //std::cout << "Ped = " << Ped << "\n";
               //std::cout << "E(x^2) = " << m_data->m_sumPed2[ros][drawer][channel][adc] << "\n";
               //std::cout << "PedRMS = " << PedRMS << "\n";
@@ -691,7 +693,7 @@ StatusCode TileDigitsMonTool::finalHists()
               if (m_fillPedestalDifference) {
 
                 if (!isDisconnected(ros, drawer, channel)) {
-                  m_data->m_final_hist1[ros][drawer][adc][0]->SetBinContent(channel + 1, Ped - m_tileToolNoiseSample->getPed(drawerIdx, channel, adc));
+                  m_data->m_final_hist1[ros][drawer][adc][0]->SetBinContent(channel + 1, Ped - m_tileToolNoiseSample->getPed(drawerIdx, channel, adc, TileRawChannelUnit::ADCcounts, ctx));
                   m_data->m_final_hist1[ros][drawer][adc][0]->SetBinError(channel + 1, PedRMS);
                 }
 
@@ -779,7 +781,7 @@ StatusCode TileDigitsMonTool::finalHists()
                 } else if (bin1 == 0) {
                   weight = 1.0; // all OK
                 } else {
-                  weight = 1.0 - (double) bin1 / m_nEvents; // percentage of good events
+                  weight = 1.0 - (double) bin1 / m_nEventsTileMon; // percentage of good events
                   if (weight > 0.8) weight = 0.8; // to see clearly even one event with zeros
                 }
               }
@@ -802,7 +804,7 @@ StatusCode TileDigitsMonTool::finalHists()
               m_data->m_final_hist2[ros][drawer][adc].push_back(book2F(subDir, histName, histTitle, 48, 0.0, 48.0, 48, 0.0, 48.0));
             }
 
-            if (m_nEvents * m_nSamples > 0) {
+            if (m_nEventsTileMon * m_nSamples > 0) {
 
               for (int ch_i = 0; ch_i < 48; ++ch_i) {
 		if (m_data->m_nEvents_i[ros][drawer][adc][ch_i] > 0)
@@ -855,7 +857,7 @@ StatusCode TileDigitsMonTool::finalHists()
                   m_data->m_final_hist2[ros][drawer][adc][1]->SetBinContent(i + 1, j + 1, corr[i][j]);
                 }
               }
-            } // end if m_nEvents > 0
+            } // end if m_nEventsTileMon > 0
 
           } // end if PedRun
         } // end of loop over gn
@@ -952,7 +954,7 @@ int TileDigitsMonTool::define_palette(int ncolors, int *colors) {
 }
 
 /*---------------------------------------------------------*/
-void TileDigitsMonTool::drawHists(int ros, int drawer, std::string moduleName)
+void TileDigitsMonTool::drawHists(int ros, int drawer, const std::string& moduleName)
 /*---------------------------------------------------------*/
 {
 

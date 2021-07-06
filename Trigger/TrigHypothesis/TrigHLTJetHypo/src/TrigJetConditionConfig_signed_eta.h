@@ -1,14 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGJETCONDITIONCONFIG_SIGNED_ETA_H
 #define TRIGJETCONDITIONCONFIG_SIGNED_ETA_H
 
 #include "ITrigJetConditionConfig.h"
-#include "./ConditionsDefsMT.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "./ConditionsDefsMT.h"
+#include "./ConditionsDefs.h"
 #include "./ArgStrToDouble.h"
 
 class TrigJetConditionConfig_signed_eta:
@@ -21,18 +20,15 @@ public extends<AthAlgTool, ITrigJetConditionConfig> {
 				    const IInterface* parent);
 
   virtual StatusCode initialize() override;
-  virtual ConditionMT getCondition() const override;
+  virtual Condition getCondition() const override;
 
-  virtual bool addToCapacity(std::size_t) override;
-  virtual std::size_t capacity() const override;
-  
  private:
   
   Gaudi::Property<std::string>
-    m_min{this, "min", {}, "Abs eta min for eta region"};
+    m_min{this, "min", {"-inf"}, "Abs eta min for eta region"};
   
   Gaudi::Property<std::string>
-    m_max{this, "max", {}, "Abs eta max for eta region"};
+    m_max{this, "max", {"inf"}, "Abs eta max for eta region"};
 
   StatusCode checkVals()  const;
  

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -114,18 +114,12 @@ InDet::PixelClusterOnTrackTool::initialize() {
   ATH_CHECK(m_clusterSplitProbContainer.initialize( !m_clusterSplitProbContainer.key().empty()));
 
   // get the error scaling tool
-  if (!m_pixelErrorScalingKey.key().empty()) {
-    ATH_CHECK(m_pixelErrorScalingKey.initialize());
-    ATH_MSG_DEBUG("Detected need for scaling Pixel errors.");
-  }
-
+  ATH_CHECK(m_pixelErrorScalingKey.initialize(!m_pixelErrorScalingKey.key().empty()));
+  if (!m_pixelErrorScalingKey.key().empty()) ATH_MSG_DEBUG("Detected need for scaling Pixel errors.");
 
   // get the module distortions tool
-  if (!m_disableDistortions) {
-    ATH_CHECK(m_distortionKey.initialize());
-  } else {
-    ATH_MSG_INFO("No PixelDistortions will be simulated.");
-  }
+  ATH_CHECK(m_distortionKey.initialize(!m_disableDistortions));
+  if (m_disableDistortions) ATH_MSG_INFO("No PixelDistortions will be simulated.");
 
   ATH_CHECK (detStore()->retrieve(m_pixelid, "PixelID"));
 
@@ -170,19 +164,19 @@ const InDet::PixelClusterOnTrack *
 InDet::PixelClusterOnTrackTool::correct
   (const Trk::PrepRawData &rio, const Trk::TrackParameters &trackPar) const {
 
-  auto element= dynamic_cast<const InDetDD::SiDetectorElement *>(rio.detectorElement());
+  const auto *element= dynamic_cast<const InDetDD::SiDetectorElement *>(rio.detectorElement());
   if ((not m_applyNNcorrection) or (element and element->isBlayer() and (not m_NNIBLcorrection) and (not m_IBLAbsent))){
         return correctDefault(rio, trackPar);
   }else {
     if (m_errorStrategy == 0 || m_errorStrategy == 1) {
       // version from Giacinto
       if (m_noNNandBroadErrors) {
-        return 0;
+        return nullptr;
       }
       // if we try broad errors, get Pixel Cluster to test if it is split
       const InDet::PixelCluster *pix = dynamic_cast<const InDet::PixelCluster *>(&rio);
       if (!pix) {
-        return 0;
+        return nullptr;
       }
       const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo &splitProb = getClusterSplittingProbability(pix);
       if (splitProb.isSplit()) {
@@ -212,7 +206,7 @@ InDet::PixelClusterOnTrackTool::correctDefault
   const InDet::PixelCluster *pix = nullptr;
 
   if (!(pix = dynamic_cast<const InDet::PixelCluster *>(&rio))) {
-    return 0;
+    return nullptr;
   }
 
   ATH_MSG_VERBOSE("Correct called with Error strategy " << m_errorStrategy);
@@ -226,7 +220,7 @@ InDet::PixelClusterOnTrackTool::correctDefault
   // Get pointer to detector element
   const InDetDD::SiDetectorElement *element = pix->detectorElement();
   if (!element) {
-    return 0;
+    return nullptr;
   }
   bool blayer = element->isBlayer();
   IdentifierHash iH = element->identifyHash();
@@ -236,16 +230,16 @@ InDet::PixelClusterOnTrackTool::correctDefault
 
   if (pix->rdoList().empty()) {
     ATH_MSG_WARNING("Pixel RDO-list size is 0, check integrity of pixel clusters! stop ROT creation.");
-    return NULL;
+    return nullptr;
   } else {
     const InDetDD::PixelModuleDesign *design =
       dynamic_cast<const InDetDD::PixelModuleDesign *>(&element->design());
 
     // get candidate track angle in module local frame
     Amg::Vector3D my_track = trackPar.momentum();
-    Amg::Vector3D my_normal = element->normal();
-    Amg::Vector3D my_phiax = element->phiAxis();
-    Amg::Vector3D my_etaax = element->etaAxis();
+    const Amg::Vector3D& my_normal = element->normal();
+    const Amg::Vector3D& my_phiax = element->phiAxis();
+    const Amg::Vector3D& my_etaax = element->etaAxis();
     float trkphicomp = my_track.dot(my_phiax);
     float trketacomp = my_track.dot(my_etaax);
     float trknormcomp = my_track.dot(my_normal);
@@ -367,7 +361,7 @@ InDet::PixelClusterOnTrackTool::correctDefault
         if (m_IBLAbsent || !blayer) {
           delta = offlineCalibData->getPixelChargeInterpolationParameters()->getDeltaYbarrel(ncol, etaloc, 1);
         } else {     // special calibration for IBL
-          etaloc = std::fabs(etaloc);
+          etaloc = std::abs(etaloc);
           if (etaloc < m_etax[0] || etaloc > m_etax[s_nbineta]) {
             delta = 0.;
           } else {
@@ -390,7 +384,7 @@ InDet::PixelClusterOnTrackTool::correctDefault
             }
           }
           if (offlineCalibData->getPixelChargeInterpolationParameters()->getVersion()<-1) {
-            delta = offlineCalibData->getPixelChargeInterpolationParameters()->getDeltaYbarrel(ncol, std::fabs(etaloc), 0);
+            delta = offlineCalibData->getPixelChargeInterpolationParameters()->getDeltaYbarrel(ncol, std::abs(etaloc), 0);
           }
         }
         localeta += delta * (omegaeta - 0.5);
@@ -419,7 +413,7 @@ InDet::PixelClusterOnTrackTool::correctDefault
       localeta = meanpos.xEta();
     }
 
-    InDet::SiWidth width = pix->width();
+    const InDet::SiWidth& width = pix->width();
 
     // Error strategies
 
@@ -428,10 +422,10 @@ InDet::PixelClusterOnTrackTool::correctDefault
     // In this case, an error equal to the geometrical projection
     // of the track path in silicon onto the module surface seems
     // appropriate
-    if (std::fabs(angle) > 1) {
-      errphi = 250 * micrometer * std::tan(std::fabs(angle)) * TOPHAT_SIGMA;
-      erreta = width.z() > 250 * micrometer * std::tan(std::fabs(boweta)) ?
-               width.z() * TOPHAT_SIGMA : 250 * micrometer * std::tan(std::fabs(boweta)) * TOPHAT_SIGMA;
+    if (std::abs(angle) > 1) {
+      errphi = 250 * micrometer * std::tan(std::abs(angle)) * TOPHAT_SIGMA;
+      erreta = width.z() > 250 * micrometer * std::tan(std::abs(boweta)) ?
+               width.z() * TOPHAT_SIGMA : 250 * micrometer * std::tan(std::abs(boweta)) * TOPHAT_SIGMA;
       ATH_MSG_VERBOSE("Shallow track with tanl = " << tanl << " bowphi = " <<
                       bowphi << " angle = " << angle << " width.z = " << width.z() <<
                       " errphi = " << errphi << " erreta = " << erreta);
@@ -472,10 +466,10 @@ InDet::PixelClusterOnTrackTool::correctDefault
           int ibin = offlineCalibData->getPixelClusterErrorData()->getBarrelBin(eta, ncol, nrows);
           erreta = offlineCalibData->getPixelClusterErrorData()->getPixelBarrelEtaError(ibin);
         }else if (m_IBLAbsent || !blayer) {
-          int ibin = offlineCalibData->getPixelClusterOnTrackErrorData()->getBarrelBinEta(std::fabs(etatrack), ncol, nrows);
+          int ibin = offlineCalibData->getPixelClusterOnTrackErrorData()->getBarrelBinEta(std::abs(etatrack), ncol, nrows);
           erreta = offlineCalibData->getPixelClusterOnTrackErrorData()->getPixelBarrelEtaError(ibin);
         } else {    // special calibration for IBL
-          double etaloc = std::fabs(etatrack);
+          double etaloc = std::abs(etatrack);
           if (etaloc < m_etax[0] || etaloc > m_etax[s_nbineta]) {
             erreta = width.z() * TOPHAT_SIGMA;
           } else {
@@ -539,7 +533,7 @@ InDet::PixelClusterOnTrackTool::correctDefault
     SG::ReadCondHandle<RIO_OnTrackErrorScaling> error_scaling( m_pixelErrorScalingKey );
     cov = check_cast<PixelRIO_OnTrackErrorScaling>(*error_scaling)->getScaledCovariance( cov,  *m_pixelid, element->identify() );
   }
-  bool isbroad = (m_errorStrategy == 0) ? true : false;
+  bool isbroad = m_errorStrategy == 0;
   return new InDet::PixelClusterOnTrack(pix, locpar, cov, iH, glob, pix->gangedPixel(), isbroad);
 }
 
@@ -583,15 +577,15 @@ InDet::PixelClusterOnTrackTool::correctNN
    const Trk::TrackParameters &trackPar) const {
   const InDet::PixelCluster *pixelPrepCluster = dynamic_cast<const InDet::PixelCluster *>(&rio);
 
-  if (pixelPrepCluster == 0) {
+  if (pixelPrepCluster == nullptr) {
     ATH_MSG_WARNING("This is not a pixel cluster, return 0.");
-    return 0;
+    return nullptr;
   }
 
   const InDetDD::SiDetectorElement *element = pixelPrepCluster->detectorElement();
   if (!element) {
     ATH_MSG_WARNING("Cannot access detector element. Aborting cluster correction...");
-    return 0;
+    return nullptr;
   }
 
   IdentifierHash iH = element->identifyHash();
@@ -600,9 +594,9 @@ InDet::PixelClusterOnTrackTool::correctNN
     Amg::Vector3D glob(pixelPrepCluster->globalPosition());
 
     Amg::Vector3D my_track = trackPar.momentum();
-    Amg::Vector3D my_normal = element->normal();
-    Amg::Vector3D my_phiax = element->phiAxis();
-    Amg::Vector3D my_etaax = element->etaAxis();
+    const Amg::Vector3D& my_normal = element->normal();
+    const Amg::Vector3D& my_phiax = element->phiAxis();
+    const Amg::Vector3D& my_etaax = element->etaAxis();
     float trkphicomp = my_track.dot(my_phiax);
     float trketacomp = my_track.dot(my_etaax);
     float trknormcomp = my_track.dot(my_normal);
@@ -710,7 +704,7 @@ InDet::PixelClusterOnTrackTool::getErrorsDefaultAmbi(const InDet::PixelCluster *
         numberOfSubclusters += 1;
         const SiCluster *otherOne = second;
         const InDet::PixelCluster *pixelAddCluster = dynamic_cast<const InDet::PixelCluster *>(otherOne);
-        if (pixelAddCluster == 0) {
+        if (pixelAddCluster == nullptr) {
           ATH_MSG_WARNING("Pixel ambiguity map has empty pixel cluster. Please DEBUG!");
           continue;
         }
@@ -724,7 +718,7 @@ InDet::PixelClusterOnTrackTool::getErrorsDefaultAmbi(const InDet::PixelCluster *
 
   // now you have numberOfSubclusters and the vectorOfPositions (Amg::Vector2D)
 
-  if (trackPar.surfaceType() != Trk::Surface::Plane ||
+  if (trackPar.surfaceType() != Trk::SurfaceType::Plane ||
       trackPar.type() != Trk::AtaSurface) {
     ATH_MSG_WARNING(
       "Parameters are not at a plane ! Aborting cluster correction... ");
@@ -855,7 +849,7 @@ InDet::PixelClusterOnTrackTool::getErrorsTIDE_Ambi(const InDet::PixelCluster *pi
   }
 
   // now you have numberOfSubclusters and the vectorOfPositions (Amg::Vector2D)
-  if (trackPar.surfaceType() != Trk::Surface::Plane ||
+  if (trackPar.surfaceType() != Trk::SurfaceType::Plane ||
       trackPar.type() != Trk::AtaSurface) {
     ATH_MSG_WARNING("Parameters are not at a plane surface ! Aborting cluster "
                     "correction... ");

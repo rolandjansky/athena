@@ -14,9 +14,6 @@
 #include "TEnv.h"
 #include "THashList.h"
 
-// EDM include(s)
-#include "xAODMetaData/FileMetaData.h"
-
 
 using namespace TauAnalysisTools;
 

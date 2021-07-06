@@ -54,12 +54,12 @@ RecoMuonTrackPlotOrganizer::~RecoMuonTrackPlotOrganizer()
   m_allPlots.clear();
 }
   
-void RecoMuonTrackPlotOrganizer::fill(const xAOD::TrackParticle& tp) {
-  if (m_oTrkParamPlots) m_oTrkParamPlots->fill(tp);
-  if (m_oTrkRecoInfoPlots) m_oTrkRecoInfoPlots->fill(tp);
-  if (m_oImpactPlots) m_oImpactPlots->fill(tp);  
-  if (m_oMSHitPlots) m_oMSHitPlots->fill(tp);
-  if (m_oIDHitPlots) m_oIDHitPlots->fill(tp);
+  void RecoMuonTrackPlotOrganizer::fill(const xAOD::TrackParticle& tp, float weight) {
+    if (m_oTrkParamPlots) m_oTrkParamPlots->fill(tp, weight);
+    if (m_oTrkRecoInfoPlots) m_oTrkRecoInfoPlots->fill(tp,weight);
+    if (m_oImpactPlots) m_oImpactPlots->fill(tp,weight);  
+    if (m_oMSHitPlots) m_oMSHitPlots->fill(tp,weight);
+    if (m_oIDHitPlots) m_oIDHitPlots->fill(tp,weight);
 }
 
 }

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigT1ResultByteStream )
@@ -8,16 +8,16 @@ find_package( tdaq-common COMPONENTS CTPfragment eformat )
 
 # Component(s) in the package:
 atlas_add_library( TrigT1ResultByteStreamLib
-                   src/*.cxx
+                   TrigT1ResultByteStream/*.h
+                   INTERFACE
                    PUBLIC_HEADERS TrigT1ResultByteStream
-                   INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthenaBaseComps AthenaKernel ByteStreamCnvSvcBaseLib ByteStreamCnvSvcLib ByteStreamData GaudiKernel L1TopoRDO TrigConfInterfaces TrigConfL1Data TrigT1Interfaces TrigT1Result xAODTrigger
-                   PRIVATE_LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} )
+                   LINK_LIBRARIES ByteStreamData GaudiKernel )
 
 atlas_add_component( TrigT1ResultByteStream
+                     src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES TrigT1ResultByteStreamLib )
+                     INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaKernel ByteStreamCnvSvcBaseLib ByteStreamCnvSvcLib ByteStreamData GaudiKernel L1TopoRDO StoreGateLib TrigConfInterfaces TrigConfL1Data TrigT1Interfaces TrigT1Result TrigT1ResultByteStreamLib xAODTrigger )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
-atlas_install_joboptions( share/*.py )

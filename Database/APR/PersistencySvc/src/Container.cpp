@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Container.h"
@@ -8,7 +8,7 @@
 #include "StorageSvc/DbOption.h"
 #include "TokenIterator.h"
 
-pool::PersistencySvc::Container::Container( const FileDescriptor& fileDescriptor,
+pool::PersistencySvc::Container::Container( FileDescriptor& fileDescriptor,
                                             IStorageExplorer& storageExplorer,
                                             long technology,
                                             const std::string& name ):
@@ -58,7 +58,7 @@ bool
 pool::PersistencySvc::Container::attributeOfType( const std::string& attributeName,
                                                   void* data,
                                                   const std::type_info& typeInfo,
-                                                  const std::string& option ) const
+                                                  const std::string& option )
 {
   pool::DbOption containerOption( attributeName, option );
   pool::DbStatus sc = m_storageExplorer.getContainerOption( m_fileDescriptor,

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaKernel/errorcheck.h"
@@ -23,7 +23,6 @@ HepMCTruthReader::HepMCTruthReader(const string& name, ISvcLocator* svcLoc)
 
 
 StatusCode HepMCTruthReader::initialize() {
-  ATH_MSG_INFO("Initializing; package version = " << PACKAGE_VERSION );
   ATH_MSG_INFO("HepMC container name = " << m_hepMCContainerName );
   return StatusCode::SUCCESS;
 }
@@ -32,7 +31,7 @@ StatusCode HepMCTruthReader::initialize() {
 StatusCode HepMCTruthReader::execute() {
 
   // Retrieve the HepMC truth:
-  const McEventCollection* mcColl = 0;
+  const McEventCollection* mcColl = nullptr;
   CHECK( evtStore()->retrieve( mcColl, m_hepMCContainerName ) );
   ATH_MSG_INFO("Number of pile-up events in this Athena event: " << mcColl->size()-1);
 

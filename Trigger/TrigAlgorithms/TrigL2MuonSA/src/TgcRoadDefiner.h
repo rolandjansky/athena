@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_TGCROADDEFINER_H
@@ -15,12 +15,9 @@
 #include "TgcFit.h"
 #include "TgcData.h"
 #include "MuonRoad.h"
-#include "MdtRegion.h"
-#include "TrigT1Interfaces/RecMuonRoI.h"
-#include "RegionSelector/IRegSelSvc.h"
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
-
-#include <string>
 
 namespace TrigL2MuonSA {
 
@@ -36,13 +33,12 @@ class TgcRoadDefiner: public AthAlgTool
   
   virtual StatusCode initialize() override;
 
-  StatusCode defineRoad(const LVL1::RecMuonRoI*      p_roi,
+  StatusCode defineRoad(const TrigRoiDescriptor*     p_roids,
                         const bool                   insideOut,
                         const TrigL2MuonSA::TgcHits& tgcHits,
                         TrigL2MuonSA::MuonRoad&      muonRoad,
                         TrigL2MuonSA::TgcFitResult&  tgcFitResult) const;
 
-  void setMdtGeometry(const ServiceHandle<IRegSelSvc>& regionSelector) { m_regionSelector = regionSelector; };
   void setPtLUT(const TrigL2MuonSA::PtEndcapLUTSvc* ptEndcapLUTSvc) { m_ptEndcapLUT = ptEndcapLUTSvc->ptEndcapLUT(); };
   void setRoadWidthForFailure(double rWidth_TGC_Failed) { m_rWidth_TGC_Failed = rWidth_TGC_Failed; };
   void setExtrapolatorTool(ToolHandle<ITrigMuonBackExtrapolator>* backExtrapolator) { m_backExtrapolatorTool = backExtrapolator; };
@@ -63,7 +59,7 @@ class TgcRoadDefiner: public AthAlgTool
 
   double m_rWidth_TGC_Failed {0};
   
-  ServiceHandle<IRegSelSvc> m_regionSelector;
+  ToolHandle<IRegSelTool> m_regionSelector{this, "RegionSelectionTool", "RegSelTool/RegSelTool_MDT", "MDT Region Selector Tool"};
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
 };

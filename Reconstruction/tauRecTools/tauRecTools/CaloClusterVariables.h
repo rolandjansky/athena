@@ -1,14 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef CALOCLUSTERVARIABLES_H
-#define CALOCLUSTERVARIABLES_H
-
-#include "tauRecTools/ITauVertexCorrection.h"
+#ifndef TAURECTOOLS_CALOCLUSTERVARIABLES_H
+#define TAURECTOOLS_CALOCLUSTERVARIABLES_H
 
 #include "xAODTau/TauJet.h"
-#include "AsgTools/ToolHandle.h"
 #include "CxxUtils/fpcompare.h"
 
 #include "TLorentzVector.h"
@@ -78,4 +75,4 @@ struct DefCaloClusterCompare {
   }
 };
 
-#endif
+#endif // TAURECTOOLS_CALOCLUSTERVARIABLES_H

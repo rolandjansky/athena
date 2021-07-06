@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -82,7 +82,7 @@ std::string timeit(const F& func, size_t N = 10000)
  * Time function f1 and f2, cross-check #fills on histogram h
  */
 template <typename F1, typename F2>
-void timeboth(const F1& f1, const F2& f2, const TH1* h, const std::string title)
+void timeboth(const F1& f1, const F2& f2, const TH1* h, const std::string& title)
 {
   auto t1 = timeit(f1);
   int fills = h->GetEntries();

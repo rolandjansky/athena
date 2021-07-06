@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetSimEvent/TRTUncompressedHit.h"
@@ -305,6 +305,7 @@ TRTUncompressedHitCollection* TRT_HitCollectionCnv_p4::createTransient(const TRT
 // Persistent(Disk) to Transient
 void TRT_HitCollectionCnv_p4::persToTrans(const TRT_HitCollection_p4* persCont, TRTUncompressedHitCollection* transCont, MsgStream& /*log*/)
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
 
   //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "In TRT_HitCollectionCnv_p4::persToTrans()" << endmsg;
 
@@ -500,7 +501,7 @@ void TRT_HitCollectionCnv_p4::persToTrans(const TRT_HitCollection_p4* persCont, 
         if (persCont->m_mcEvtIndex[idxBC] == 0) {
           flag = HepMcParticleLink::IS_POSITION;
         }
-        HepMcParticleLink partLink( persCont->m_barcode[idxBC], persCont->m_mcEvtIndex[idxBC], HepMcParticleLink::ExtendedBarCode::eventCollectionFromChar(persCont->m_evtColl[idxBC]), flag );
+        HepMcParticleLink partLink( persCont->m_barcode[idxBC], persCont->m_mcEvtIndex[idxBC], HepMcParticleLink::ExtendedBarCode::eventCollectionFromChar(persCont->m_evtColl[idxBC]), flag, ctx );
         transCont->Emplace( strawId, partLink, persCont->m_id[idxId],
                             kinEne, hitEne, startX, startY, startZ,
                             endX, endY, endZ, meanTime );

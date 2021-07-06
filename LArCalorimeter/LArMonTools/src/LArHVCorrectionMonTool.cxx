@@ -43,7 +43,6 @@ LArHVCorrectionMonTool::LArHVCorrectionMonTool(const std::string& type,
     m_LArFCAL_IDHelper(0),
     m_LArHEC_IDHelper(0),
     m_caloIdMgr(0),
-    m_strHelper(0),
     m_rootStore(0),
     m_larCablingService("LArCablingLegacyService"),
     m_eventsCounter(0)
@@ -95,7 +94,7 @@ StatusCode LArHVCorrectionMonTool::initialize()
   ATH_CHECK( m_channelKey.initialize() );
 
   // LArOnlineIDStrHelper
-  m_strHelper = new  LArOnlineIDStrHelper(m_LArOnlineIDHelper);
+  m_strHelper = std::make_unique<LArOnlineIDStrHelper>(m_LArOnlineIDHelper);
   m_strHelper->setDefaultNameType(LArOnlineIDStrHelper::LARONLINEID);
   
   // End Initialize

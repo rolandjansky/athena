@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PANTAUALGS_TOOL_DETAILSARRANGER_H
@@ -17,6 +17,8 @@
 #include "PanTauAlgs/ITool_DetailsArranger.h"
 #include "PanTauAlgs/ITool_InformationStore.h"
 #include "PanTauAlgs/TauConstituent.h"
+
+#include <TString.h>
 
 namespace PanTau {
     class PanTauSeed;

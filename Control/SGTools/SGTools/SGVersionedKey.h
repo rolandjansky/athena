@@ -54,11 +54,13 @@ namespace SG {
     /// VersionedKey format (;NN;key), it is simply copied, otherwise
     /// it is taken to be the real key, and default version is assigned
     explicit VersionedKey(const std::string& vkey);
-    
-    VersionedKey(const VersionedKey& rhs);
 
-    //no assignment
-    VersionedKey& operator= (const VersionedKey&) = delete;
+    //Defaulted copy and move constructors and assignment operators
+    //since the class only holds strings.
+    VersionedKey(const VersionedKey& rhs) = default;    
+    VersionedKey(VersionedKey&& rhs) = default;
+    VersionedKey& operator= (const VersionedKey& rhs) = default;
+    VersionedKey& operator= (VersionedKey&& rhs) = default;
 
     ~VersionedKey();
 

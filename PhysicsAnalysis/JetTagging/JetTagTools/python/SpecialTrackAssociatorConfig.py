@@ -1,10 +1,9 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.ComponentFactory import CompFactory
 
-# import the TrackToVertexIPEstimator configurable
-CP__TrackVertexAssociationTool=CompFactory.CP.TrackVertexAssociationTool
+# Import a reco TTVA tool
+from TrackVertexAssociationTool.getTTVAToolForReco import getTTVAToolForReco
 
 def SpecialTrackAssociatorCfg( name = 'SpecialTrackAssociator', PrimaryVertexCollectionName="", useBTagFlagsDefaults = True, **options ):
     """Sets up a SpecialTrackAssociator tool and returns it.
@@ -17,12 +16,10 @@ def SpecialTrackAssociatorCfg( name = 'SpecialTrackAssociator', PrimaryVertexCol
     output: The actual tool."""
     acc = ComponentAccumulator()
     if useBTagFlagsDefaults:
-        defaults = { 'WorkingPoint'           : 'Loose',
-                   }
+        defaults = { 'WorkingPoint': 'Loose' }
     for option in defaults:
         options.setdefault(option, defaults[option])
     options['name'] = name
-    options['VertexContainer'] = PrimaryVertexCollectionName
-    acc.setPrivateTools(CP__TrackVertexAssociationTool( **options))
- 
+    acc.setPrivateTools(getTTVAToolForReco(returnCompFactory=True, **options))
+
     return acc

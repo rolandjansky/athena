@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkMultiComponentStateOnSurface/MultiComponentStateOnSurface.h"
@@ -8,7 +8,6 @@
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkMaterialOnTrack/MaterialEffectsBase.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
-#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include <iostream>
 #include <string>
 
@@ -18,49 +17,50 @@ Trk::MultiComponentStateOnSurface::MultiComponentStateOnSurface()
       nullptr,
       nullptr,
       nullptr,
-      std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>(1 << (int)TrackStateOnSurface::Measurement))
+      std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>(
+        1 << (int)TrackStateOnSurface::Measurement))
   , m_multiComponentState(nullptr)
   , m_mixtureModeQoverP(0.)
 {}
 
-Trk::MultiComponentStateOnSurface::MultiComponentStateOnSurface(const Trk::MeasurementBase* measurementBase,
-                                                                const Trk::MultiComponentState* multiComponentState,
-                                                                const Trk::FitQualityOnSurface* fitQualityOnSurface,
-                                                                const MaterialEffectsBase* materialEffectsOnTrack,
-                                                                double modeQoverP)
+Trk::MultiComponentStateOnSurface::MultiComponentStateOnSurface(
+  const Trk::MeasurementBase* measurementBase,
+  std::unique_ptr<MultiComponentState> multiComponentState,
+  const Trk::FitQualityOnSurface* fitQualityOnSurface,
+  const MaterialEffectsBase* materialEffectsOnTrack,
+  double modeQoverP)
   : TrackStateOnSurface(
       measurementBase,
       multiComponentState->front().first->clone(),
       fitQualityOnSurface,
       materialEffectsOnTrack,
-      std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>(1 << (int)TrackStateOnSurface::Measurement))
-  ,
-
-  m_multiComponentState(multiComponentState)
-  , m_mixtureModeQoverP(modeQoverP)
-{}
-
-Trk::MultiComponentStateOnSurface::MultiComponentStateOnSurface(const Trk::MeasurementBase* measurementBase,
-                                                                const Trk::TrackParameters* trackParameters,
-                                                                const Trk::MultiComponentState* multiComponentState,
-                                                                const Trk::FitQualityOnSurface* fitQualityOnSurface,
-                                                                const MaterialEffectsBase* materialEffectsOnTrack,
-                                                                double modeQoverP)
-  : TrackStateOnSurface(
-      measurementBase,
-      trackParameters,
-      fitQualityOnSurface,
-      materialEffectsOnTrack,
-      std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>(1 << (int)TrackStateOnSurface::Measurement))
-  ,
-
-  m_multiComponentState(multiComponentState)
+      std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>(
+        1 << (int)TrackStateOnSurface::Measurement))
+  , m_multiComponentState(std::move(multiComponentState))
   , m_mixtureModeQoverP(modeQoverP)
 {}
 
 Trk::MultiComponentStateOnSurface::MultiComponentStateOnSurface(
   const Trk::MeasurementBase* measurementBase,
-  const Trk::MultiComponentState* multiComponentState,
+  const Trk::TrackParameters* trackParameters,
+  std::unique_ptr<MultiComponentState> multiComponentState,
+  const Trk::FitQualityOnSurface* fitQualityOnSurface,
+  const MaterialEffectsBase* materialEffectsOnTrack,
+  double modeQoverP)
+  : TrackStateOnSurface(
+      measurementBase,
+      trackParameters,
+      fitQualityOnSurface,
+      materialEffectsOnTrack,
+      std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>(
+        1 << (int)TrackStateOnSurface::Measurement))
+  , m_multiComponentState(std::move(multiComponentState))
+  , m_mixtureModeQoverP(modeQoverP)
+{}
+
+Trk::MultiComponentStateOnSurface::MultiComponentStateOnSurface(
+  const Trk::MeasurementBase* measurementBase,
+  std::unique_ptr<MultiComponentState> multiComponentState,
   const Trk::FitQualityOnSurface* fitQualityOnSurface,
   const MaterialEffectsBase* materialEffectsOnTrack,
   const std::bitset<NumberOfTrackStateOnSurfaceTypes>& types,
@@ -70,34 +70,40 @@ Trk::MultiComponentStateOnSurface::MultiComponentStateOnSurface(
                         fitQualityOnSurface,
                         materialEffectsOnTrack,
                         types)
-  , m_multiComponentState(multiComponentState)
+  , m_multiComponentState(std::move(multiComponentState))
   , m_mixtureModeQoverP(modeQoverP)
 {}
 
 Trk::MultiComponentStateOnSurface::MultiComponentStateOnSurface(
   const Trk::MeasurementBase* measurementBase,
   const Trk::TrackParameters* trackParameters,
-  const Trk::MultiComponentState* multiComponentState,
+  std::unique_ptr<MultiComponentState> multiComponentState,
   const Trk::FitQualityOnSurface* fitQualityOnSurface,
   const MaterialEffectsBase* materialEffectsOnTrack,
   const std::bitset<NumberOfTrackStateOnSurfaceTypes>& types,
   double modeQoverP)
-  : TrackStateOnSurface(measurementBase, trackParameters, fitQualityOnSurface, materialEffectsOnTrack, types)
+  : TrackStateOnSurface(measurementBase,
+                        trackParameters,
+                        fitQualityOnSurface,
+                        materialEffectsOnTrack,
+                        types)
   ,
 
-  m_multiComponentState(multiComponentState)
+  m_multiComponentState(std::move(multiComponentState))
   , m_mixtureModeQoverP(modeQoverP)
 {}
 
-Trk::MultiComponentStateOnSurface::MultiComponentStateOnSurface(const Trk::MeasurementBase* measurementBase,
-                                                                const Trk::MultiComponentState* multiComponentState)
+Trk::MultiComponentStateOnSurface::MultiComponentStateOnSurface(
+  const Trk::MeasurementBase* measurementBase,
+  std::unique_ptr<MultiComponentState> multiComponentState)
   : TrackStateOnSurface(
       measurementBase,
       multiComponentState->front().first->clone(),
       nullptr,
       nullptr,
-      std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>(1 << (int)TrackStateOnSurface::Measurement))
-  , m_multiComponentState(multiComponentState)
+      std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>(
+        1 << (int)TrackStateOnSurface::Measurement))
+  , m_multiComponentState(std::move(multiComponentState))
   , m_mixtureModeQoverP(0.)
 {}
 
@@ -105,39 +111,40 @@ Trk::MultiComponentStateOnSurface::MultiComponentStateOnSurface(
   const Trk::MultiComponentStateOnSurface& other)
   : TrackStateOnSurface(other)
   , m_multiComponentState(
-      other.components() ? Trk::MultiComponentStateHelpers::clone(*(other.components())).release()
-                         : nullptr)
+      other.components()
+        ? Trk::MultiComponentStateHelpers::clone(*(other.components()))
+        : nullptr)
   , m_mixtureModeQoverP(other.mixtureModeQoverP())
 {}
 
-Trk::MultiComponentStateOnSurface::~MultiComponentStateOnSurface()
+Trk::MultiComponentStateOnSurface&
+Trk::MultiComponentStateOnSurface::operator=(
+  const MultiComponentStateOnSurface& other)
 {
-  delete m_multiComponentState;
+  if (this != &other) {
+    TrackStateOnSurface::operator=(other);
+    m_mixtureModeQoverP = other.m_mixtureModeQoverP;
+    m_multiComponentState =
+      (other.components()
+         ? Trk::MultiComponentStateHelpers::clone(*(other.components()))
+         : nullptr);
+  }
+  return *this;
 }
+
+Trk::MultiComponentStateOnSurface::MultiComponentStateOnSurface(
+  MultiComponentStateOnSurface&& other) noexcept = default;
+
+Trk::MultiComponentStateOnSurface&
+Trk::MultiComponentStateOnSurface::operator=(
+  MultiComponentStateOnSurface&& other) noexcept = default;
+
+Trk::MultiComponentStateOnSurface::~MultiComponentStateOnSurface() = default;
 
 Trk::TrackStateOnSurface*
 Trk::MultiComponentStateOnSurface::clone() const
 {
-
-  const Trk::MeasurementBase* measurementBase =
-    this->measurementOnTrack() ? this->measurementOnTrack()->clone() : nullptr;
-  const Trk::TrackParameters* trackParameters = this->trackParameters() ? this->trackParameters()->clone() : nullptr;
-  const Trk::MultiComponentState* multiComponentState =
-    this->components() ? Trk::MultiComponentStateHelpers::clone(*(this->components())).release()
-                       : nullptr;
-  const Trk::FitQualityOnSurface* fitQualityOnSurface =
-    this->fitQualityOnSurface() ? new Trk::FitQualityOnSurface(*(this->fitQualityOnSurface())) : nullptr;
-  const Trk::MaterialEffectsBase* materialEffectsOnTrack =
-    this->materialEffectsOnTrack() ? this->materialEffectsOnTrack()->clone() : nullptr;
-  double modeQoverP = this->mixtureModeQoverP();
-
-  return new Trk::MultiComponentStateOnSurface(measurementBase,
-                                               trackParameters,
-                                               multiComponentState,
-                                               fitQualityOnSurface,
-                                               materialEffectsOnTrack,
-                                               this->types(),
-                                               modeQoverP);
+  return new MultiComponentStateOnSurface(*this);
 }
 
 MsgStream&

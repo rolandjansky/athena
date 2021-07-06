@@ -25,6 +25,8 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 // STD
 #include <map>
+//Athena
+#include "AthenaKernel/IOVInfiniteRange.h"
 // Gaudi
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/SystemOfUnits.h"
@@ -117,13 +119,6 @@ StatusCode Trk::GeometryBuilderCond::initialize()
     return StatusCode::SUCCESS;
 }
 
-// finalize
-StatusCode Trk::GeometryBuilderCond::finalize()
-{
-    ATH_MSG_DEBUG( "finalize() successful." );
-    return StatusCode::SUCCESS;
-}
-
 
 std::pair<EventIDRange, const Trk::TrackingGeometry*> Trk::GeometryBuilderCond::trackingGeometry(const EventContext& ctx, std::pair<EventIDRange, const Trk::TrackingVolume*> /*tVolPair*/) const
 {
@@ -145,7 +140,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Trk::GeometryBuilderCond::
                                                                    (const TrackingVolumeArray*) nullptr,
                                                                    "EmptyWorldVolume");
         //dummy infinite IOV range
-        EventIDRange range;
+        EventIDRange range=IOVInfiniteRange::infiniteMixed();
 
         // create a new geometry
         tGeometry = std::make_pair(range, new Trk::TrackingGeometry(worldVolume));
@@ -163,7 +158,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Trk::GeometryBuilderCond::
     // the return geometry
     std::pair<EventIDRange, const Trk::TrackingGeometry*> atlasTrackingGeometry;
     //Set IOV range covering 0 - inf
-    EventIDRange range;
+    EventIDRange range=IOVInfiniteRange::infiniteMixed();
 
     // A ------------- INNER DETECTOR SECTION --------------------------------------------------------------------------------
     // get the Inner Detector and/or Calorimeter trackingGeometry

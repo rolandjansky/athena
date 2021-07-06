@@ -58,394 +58,145 @@
 //
 // ******************************************************************************
 
-class MdtIdHelper : public MuonIdHelper
-{
- public:
+class MdtIdHelper : public MuonIdHelper {
+public:
+    // Constructor
 
+    MdtIdHelper();
 
-  // Constructor
+    // Destructor
 
-  MdtIdHelper();
+    virtual ~MdtIdHelper() = default;
 
-  // Destructor
+    ////////////// compact identifier stuff begins //////////////////////////////////////
 
-  virtual ~MdtIdHelper()=default;
+    /// Initialization from the identifier dictionary
+    virtual int initialize_from_dictionary(const IdDictMgr& dict_mgr);
+    virtual int get_module_hash(const Identifier& id, IdentifierHash& hash_id) const;
+    virtual int get_detectorElement_hash(const Identifier& id, IdentifierHash& hash_id) const;
 
+    ///////////// compact identifier stuff ends   //////////////////////////////////////
 
-  ////////////// compact identifier stuff begins ////////////////////////////////////// 
+    // Atlas Identifier builders
 
-  /// Initialization from the identifier dictionary
-  virtual int initialize_from_dictionary(const IdDictMgr& dict_mgr);
-  virtual int get_module_hash(const Identifier& id, IdentifierHash& hash_id ) const;
-  virtual int get_detectorElement_hash (const Identifier& id, IdentifierHash& hash_id ) const;
+    Identifier elementID(int stationName, int stationEta, int stationPhi, bool check = false, bool* isValid = 0) const;
+    Identifier elementID(const std::string& stationNameStr, int stationEta, int stationPhi, bool check = false, bool* isValid = 0) const;
+    Identifier elementID(const Identifier& channelID) const;
+    Identifier channelID(int stationName, int stationEta, int stationPhi, int multilayer, int tubeLayer, int tube, bool check = false,
+                         bool* isValid = 0) const;
+    Identifier channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int multilayer, int tubeLayer, int tube,
+                         bool check = false, bool* isValid = 0) const;
+    Identifier channelID(const Identifier& id, int multilayer, int tubeLayer, int tube, bool check = false, bool* isValid = 0) const;
 
-  ///////////// compact identifier stuff ends   ////////////////////////////////////// 
+    Identifier parentID(const Identifier& id) const;
 
-  // Atlas Identifier builders
+    Identifier multilayerID(const Identifier& channeldID) const;
+    Identifier multilayerID(const Identifier& moduleID, int multilayer, bool check = false, bool* isValid = 0) const;
 
-  Identifier elementID(int stationName, int stationEta, int stationPhi, bool check=false, bool* isValid=0) const;
-  Identifier elementID(const std::string& stationNameStr, int stationEta, int stationPhi, bool check=false, bool* isValid=0) const;
-  Identifier elementID(const Identifier& channelID) const;
-  Identifier channelID(int stationName, int stationEta, int stationPhi, int multilayer, int tubeLayer, int tube, bool check=false, bool* isValid=0) const;
-  Identifier channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int multilayer, int tubeLayer, int tube, bool check=false, bool* isValid=0) const;
-  Identifier channelID(const Identifier& id, int multilayer, int tubeLayer, int tube, bool check=false, bool* isValid=0) const;
+    // for an Identifier id, get the list of the daughter readout channel ids
+    void idChannels(const Identifier& id, std::vector<Identifier>& vect) const;
 
-  Identifier parentID (const Identifier& id) const;
+    // Access to levels: missing field returns 0
 
-  Identifier multilayerID(const Identifier& channeldID) const;
-  Identifier multilayerID(const Identifier& moduleID, int multilayer, bool check=false, bool* isValid=0) const;
-    
-  //for an Identifier id, get the list of the daughter readout channel ids
-  void idChannels (const Identifier& id, std::vector<Identifier>& vect) const;
+    int channel(const Identifier& id) const;
 
-  // Access to levels: missing field returns 0 
+    int multilayer(const Identifier& id) const;
+    int tubeLayer(const Identifier& id) const;
+    int tube(const Identifier& id) const;
 
-  int channel(const Identifier& id) const;
+    int numberOfMultilayers(const Identifier& id) const;
 
-  int multilayer(const Identifier& id) const;
-  int tubeLayer (const Identifier& id) const;
-  int tube      (const Identifier& id) const;
+    // Access to min and max of level ranges
 
-  int numberOfMultilayers(const Identifier& id) const;
+    int stationEtaMin(bool barrel) const;
+    int stationEtaMax(bool barrel) const;
+    int stationPhiMin() const;
+    int stationPhiMax() const;
+    int multilayerMin() const;
+    int multilayerMax() const;
+    int tubeLayerMin() const;
+    int tubeLayerMax() const;
+    int tubeMin() const;
+    int tubeMax() const;
 
-  // Access to min and max of level ranges
+    // Access to min and max of level ranges
 
-  int stationEtaMin(bool barrel) const;
-  int stationEtaMax(bool barrel) const;
-  int stationPhiMin() const;
-  int stationPhiMax() const;
-  int multilayerMin() const;
-  int multilayerMax() const;
-  int tubeLayerMin() const;
-  int tubeLayerMax() const;
-  int tubeMin() const;
-  int tubeMax() const;
+    int stationEtaMin(const Identifier& id) const;
+    int stationEtaMax(const Identifier& id) const;
+    int stationPhiMin(const Identifier& id) const;
+    int stationPhiMax(const Identifier& id) const;
+    int multilayerMin(const Identifier& id) const;
+    int multilayerMax(const Identifier& id) const;
+    int tubeLayerMin(const Identifier& id) const;
+    int tubeLayerMax(const Identifier& id) const;
+    int tubeMin(const Identifier& id) const;
+    int tubeMax(const Identifier& id) const;
 
-  // Access to min and max of level ranges
+    // Public validation of levels
 
-  int stationEtaMin(const Identifier& id) const;
-  int stationEtaMax(const Identifier& id) const;
-  int stationPhiMin(const Identifier& id) const;
-  int stationPhiMax(const Identifier& id) const;
-  int multilayerMin(const Identifier& id) const;
-  int multilayerMax(const Identifier& id) const;
-  int tubeLayerMin (const Identifier& id) const;
-  int tubeLayerMax (const Identifier& id) const;
-  int tubeMin      (const Identifier& id) const;
-  int tubeMax      (const Identifier& id) const;
+    bool valid(const Identifier& id) const;
+    bool validElement(const Identifier& id) const;
 
-  // Public validation of levels
+    /// the gas-gap function for the MDT's returns the tube layer
+    int gasGap(const Identifier& id) const;
+    /// always false for MDTs
+    bool measuresPhi(const Identifier& id) const;
+    /// is this a BMG chamber
+    bool isBMG(const Identifier& id) const;
+    /// is this a BME chamber
+    bool isBME(const Identifier& id) const;
 
-  bool valid(const Identifier& id) const;
-  bool validElement(const Identifier& id) const;
+private:
+    int init_id_to_hashes();
+    unsigned int m_module_hashes[60][20][8];
+    unsigned int m_detectorElement_hashes[60][20][8][3];
 
+    // compact id indices
+    size_type m_TUBELAYER_INDEX;
 
-  /// the gas-gap function for the MDT's returns the tube layer 
-  int gasGap(const Identifier& id) const; 
-  /// always false for MDTs 
-  bool measuresPhi(const Identifier& id) const; 
-  /// is this a BMG chamber
-  bool isBMG(const Identifier& id) const;
-  /// is this a BME chamber
-  bool isBME(const Identifier& id) const;
+    IdDictFieldImplementation m_mla_impl;
+    IdDictFieldImplementation m_lay_impl;
+    IdDictFieldImplementation m_tub_impl;
 
- private:
+    // Private validation of levels
 
-  int init_id_to_hashes();
-  unsigned int m_module_hashes[60][20][8];
-  unsigned int m_detectorElement_hashes[60][20][8][3];
+    bool validElement(const Identifier& id, int stationName, int stationEta, int stationPhi) const;
+    bool validChannel(const Identifier& id, int stationName, int stationEta, int stationPhi, int multilayer, int tubeLayer, int tube) const;
 
-  // compact id indices
-  size_type   m_TUBELAYER_INDEX;
+    // Utility method
 
-  IdDictFieldImplementation   m_mla_impl;
-  IdDictFieldImplementation   m_lay_impl;
-  IdDictFieldImplementation   m_tub_impl;
+    int mdtTechnology() const;
+    bool barrelChamber(int stationName) const;
 
-  // Private validation of levels
+    // Level indices
 
-  bool validElement(const Identifier& id, int stationName, int stationEta, int stationPhi) const;
-  bool validChannel(const Identifier& id, int stationName, int stationEta, int stationPhi,int multilayer, int tubeLayer, int tube) const;
+    enum MdtIndices { MultilayerIndex = 5, TubeLayerIndex = 6, TubeIndex = 7 };
 
-  // Utility method
+    // Level ranges
 
-  int  mdtTechnology() const;
-  bool barrelChamber(int stationName) const;
-
-  // Level indices
-
-  enum MdtIndices
-    {
-      MultilayerIndex = 5,
-      TubeLayerIndex  = 6,
-      TubeIndex       = 7
+    enum MdtRanges {
+        StationEtaBarrelMin = -8,
+        StationEtaBarrelMax = 8,
+        StationEtaEndcapMin = -6,
+        StationEtaEndcapMax = 6,
+        StationPhiMin = 1,
+        StationPhiMax = 8,
+        MultilayerMin = 1,
+        MultilayerMax = 2,
+        TubeLayerMin = 1,
+        TubeLayerMax = 4,
+        TubeMin = 1,
+        TubeMax = 78
     };
-
-  // Level ranges
-
-  enum MdtRanges
-    {
-      StationEtaBarrelMin = -8,
-      StationEtaBarrelMax =  8,
-      StationEtaEndcapMin = -6,
-      StationEtaEndcapMax =  6,
-      StationPhiMin       =  1,
-      StationPhiMax       =  8,
-      MultilayerMin       =  1,
-      MultilayerMax       =  2,
-      TubeLayerMin        =  1,
-      TubeLayerMax        =  4,
-      TubeMin             =  1,
-      TubeMax             = 78
-    };
-  unsigned int m_tubesMax; // maximum number of tubes in any chamber
+    unsigned int m_tubesMax;  // maximum number of tubes in any chamber
 };
 
 // For backwards compatibility
 
-typedef MdtIdHelper  MDT_ID;
+typedef MdtIdHelper MDT_ID;
 
 CLASS_DEF(MdtIdHelper, 4170, 1)
 
 // Construct Atlas Identifiers from components
 
-inline Identifier MdtIdHelper::elementID(int stationName,
-					 int stationEta, int stationPhi, bool check, bool* isValid) const
-{
-  bool val = false;
-  if (stationName<0) {
-      if (check && isValid) *isValid = val;
-      return (Identifier(-1));
-  }
-  // pack fields independently
-  Identifier result((Identifier::value_type)0);
-  m_muon_impl.pack(muon_field_value(),result);
-  m_sta_impl.pack (stationName,result);
-  m_eta_impl.pack (stationEta,result);
-  m_phi_impl.pack (stationPhi,result);
-  m_tec_impl.pack (mdt_field_value(),result);
-  if ( check ) { 
-    val = this->validElement(result, stationName, stationEta, stationPhi);
-    if ( isValid ) *isValid = val;
-  }
-  return result;
-}
-
-inline Identifier MdtIdHelper::elementID(const std::string& stationNameStr,
-					 int stationEta, int stationPhi, bool check, bool* isValid) const
-{
-  Identifier id;
-  int stationName = stationNameIndex(stationNameStr);
-  id =  elementID(stationName, stationEta, stationPhi, check, isValid);
-  return id;
-}
-
-inline Identifier MdtIdHelper::elementID(const Identifier& id) const
-{
-  return parentID(id);
-}
-
-inline Identifier MdtIdHelper::channelID(int stationName,
-					 int stationEta, int stationPhi,
-					 int multilayer, int tubeLayer, int tube,
-					 bool check, bool* isValid) const
-{
-
-  // pack fields independently
-  Identifier result((Identifier::value_type)0);
-  bool val = false;
-  m_muon_impl.pack(muon_field_value(),result);
-  m_sta_impl.pack (stationName,result);
-  m_eta_impl.pack (stationEta,result);
-  m_phi_impl.pack (stationPhi,result);
-  m_tec_impl.pack (mdt_field_value(),result);
-  m_mla_impl.pack (multilayer,result);
-  m_lay_impl.pack (tubeLayer,result);
-  m_tub_impl.pack (tube,result);
-  if ( check ) { 
-    val = this->validChannel(result, stationName, stationEta, stationPhi, 
-			     multilayer, tubeLayer, tube);
-    if ( isValid ) *isValid = val;
-  }
-  return result;
-}
-
-inline Identifier MdtIdHelper::channelID(const std::string& stationNameStr,
-					 int stationEta, int stationPhi,
-					 int multilayer, int tubeLayer, int tube,
-					 bool check, bool* isValid) const
-{
-  Identifier id;
-  int stationName = stationNameIndex(stationNameStr);
-  id = channelID(stationName, stationEta, stationPhi, multilayer,
-		 tubeLayer, tube, check, isValid);
-  return id;
-}
-
-inline Identifier MdtIdHelper::channelID(const Identifier& id,
-					 int multilayer, int tubeLayer, int tube,
-					 bool check, bool* isValid) const
-{
-  Identifier result(id);
-  bool val = false;
-  m_mla_impl.pack (multilayer,result);
-  m_lay_impl.pack (tubeLayer,result);
-  m_tub_impl.pack (tube,result);
-  if ( check ) {
-    val = this->valid(result);
-    if ( isValid ) *isValid = val;
-  }
-  return result;
-}
-
-/// get parent id from channel id
-
-inline Identifier MdtIdHelper::parentID(const Identifier& id) const
-{
-  assert(is_mdt(id));
-  Identifier result(id);
-  m_mla_impl.reset(result);
-  m_lay_impl.reset(result);
-  m_tub_impl.reset(result);
-  return result;
-}
-
-/// Access to components of the ID
-
-inline int MdtIdHelper::multilayer(const Identifier& id) const
-{
-
-  return m_mla_impl.unpack(id);
-
-}
-
-inline int MdtIdHelper::tubeLayer(const Identifier& id) const
-{
- 
-  return m_lay_impl.unpack(id);
-
-}
-
-inline int MdtIdHelper::tube(const Identifier& id) const
-{
-
-  return m_tub_impl.unpack(id);
-
-}
-
-inline  int MdtIdHelper::gasGap(const Identifier& id) const 
-{
-
- return tubeLayer(id); 
-
-}
-
-inline bool MdtIdHelper::measuresPhi(const Identifier& /*id*/) const 
-{
-
- return false; 
-
-} 
-
-inline bool MdtIdHelper::isBME(const Identifier& id) const
-{
-  int index=stationName(id);
-  if(stationNameIndex("BME")==index) return true;
-  else return false;
-}
-
-inline bool MdtIdHelper::isBMG(const Identifier& id) const
-{
-  int index=stationName(id);
-  if(stationNameIndex("BMG")==index) return true;
-  else return false;
-}
-
-inline int MdtIdHelper::channel(const Identifier& id) const
-{
-
-  return tube(id);
-
-}
-
-/// Access to min and max of level ranges
-
-inline int MdtIdHelper::stationEtaMin(bool barrel) const
-{
-  if (barrel)
-    {
-      return StationEtaBarrelMin;
-    }
-  else
-    {
-      return StationEtaEndcapMin;
-    }
-}
-
-inline int MdtIdHelper::stationEtaMax(bool barrel) const
-{
-  if (barrel)
-    {
-      return StationEtaBarrelMax;
-    }
-  else
-    {
-      return StationEtaEndcapMax;
-    }
-}
-
-inline int MdtIdHelper::stationPhiMin() const
-{
-  return StationPhiMin;
-}
-
-inline int MdtIdHelper::stationPhiMax() const
-{
-  return StationPhiMax;
-}
-
-inline int MdtIdHelper::multilayerMin() const
-{
-  return MultilayerMin;
-}
-
-inline int MdtIdHelper::multilayerMax() const
-{
-  return MultilayerMax;
-}
-
-inline int MdtIdHelper::tubeLayerMin() const
-{
-  return TubeLayerMin;
-}
-
-inline int MdtIdHelper::tubeLayerMax() const
-{
-  return TubeLayerMax;
-}
-
-inline int MdtIdHelper::tubeMin() const
-{
-  return TubeMin;
-}
-
-inline int MdtIdHelper::tubeMax() const
-{
-  return m_tubesMax;
-}
-/// Utility methods
-
-inline int MdtIdHelper::mdtTechnology() const
-{
-  
-  int mdtField = technologyIndex("MDT");
-  if (m_dict)
-    {
-      mdtField =  mdt_field_value(); 
-    }
-  return mdtField;
-}
-
-#endif // MUONIDHELPERS_MDTIDHELPER_H
-
-
+#endif  // MUONIDHELPERS_MDTIDHELPER_H

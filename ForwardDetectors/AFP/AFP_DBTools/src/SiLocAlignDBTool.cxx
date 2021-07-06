@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
  * @file   SiLocAlignDBTool.cxx
  * @author Grzegorz Gach <grzegorz.gach@cern.ch>
  * @date   2017-12-03
- * 
+ *
  * @brief  File with implementation of SiLocAlignDBTool
  */
 
@@ -14,6 +14,7 @@
 #include "../AFP_DBTools/SiLocAlignDataBuilder.h"
 #include "../AFP_DBTools/SiLocAlignData.h"
 
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS // Needed to silence Boost pragma message
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
@@ -25,10 +26,10 @@
 namespace AFP
 {
   const int SiLocAlignDBTool::s_numberOfStations = 4;
-  
+
   SiLocAlignDBTool::SiLocAlignDBTool(const std::string& type,
 				     const std::string& name,
-				     const IInterface* parent) : 
+				     const IInterface* parent) :
     AthAlgTool  (type, name, parent),
     m_alignments (s_numberOfStations)
   {
@@ -48,7 +49,7 @@ namespace AFP
   const SiLocAlignData* SiLocAlignDBTool::alignment (const int stationID, const int planeID) const
   {
     assert (stationID < s_numberOfStations);
-    
+
     try {
       return m_alignments[stationID].at(planeID).get();
     }
@@ -96,13 +97,13 @@ namespace AFP
 	std::unique_ptr<const SiLocAlignData> newAlignment = std::make_unique<const SiLocAlignData> (builder.build(nodeData));
 	const int stationID = newAlignment->stationID();
 	const int layerID = newAlignment->layerID();
-	
+
 	// find highest stationID and highest layerID for a given station
 	if (maxStationID < stationID) {
 	  maxStationID = stationID;
 	  maxLayers.resize(maxStationID + 1, 0);
 	}
-				  
+
 	if (layerID >= maxLayers[stationID])
 	  maxLayers[stationID] = layerID+1;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthAlgorithm.h 
@@ -48,9 +48,7 @@ class AthAlgorithm
  public: 
 
   /// Constructor with parameters: 
-  AthAlgorithm(const std::string& name, 
-               ISvcLocator* pSvcLocator,
-               const std::string& version=PACKAGE_VERSION);
+  AthAlgorithm(const std::string& name, ISvcLocator* pSvcLocator);
 
   /// Destructor: 
   virtual ~AthAlgorithm(); 

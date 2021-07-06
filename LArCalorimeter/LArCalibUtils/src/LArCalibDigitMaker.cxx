@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArCalibDigitMaker.h"
@@ -83,8 +83,8 @@ StatusCode LArCalibDigitMaker::initialize()
 
     //void LArCalibParams::set(const HWIdentifier CalibModuleID, const unsigned nTrigger,
     //		 const  std::vector<unsigned>& Pattern, const std::vector<unsigned>& DAC, const std::vector<unsigned>& Delay)
-    for (std::vector<unsigned>::const_iterator it=m_vBoardIDs.begin();it!=m_vBoardIDs.end();it++) {
-      const HWIdentifier calibBoardHWID(*it);
+    for (unsigned idval : m_vBoardIDs) {
+      const HWIdentifier calibBoardHWID(idval);
       calibParams->set(calibBoardHWID,m_nTrigger,m_vPattern,m_vDAC,m_vDelay);
     }
     ATH_CHECK( detStore()->record(std::move(calibParams),"LArCalibParams") );
@@ -128,36 +128,32 @@ StatusCode LArCalibDigitMaker::execute() {
  ATH_CHECK( evtStore()->retrieve(thisEventInfo) );
  // Modif J. Labbe from JF. Marchand - Nov. 2009
  //  const unsigned eventNb=thisEventInfo->event_ID()->event_number();
- const unsigned eventNb=(ctx.eventID().event_number())&0xffffff ;
+ const unsigned eventNb=(ctx.eventID().event_number())&0xffffff ;        // Are we sure?
  ATH_MSG_DEBUG ( "======== executing event "<< eventNb << " ========" );
  
  const LArCalibParams* calibParams = nullptr;
  ATH_CHECK( detStore()->retrieve(calibParams,"LArCalibParams") );
 
- std::vector<std::string>::const_iterator key_it=m_keylist.begin();
- std::vector<std::string>::const_iterator key_it_e=m_keylist.end();
- for (;key_it!=key_it_e;key_it++) { //Loop over all containers that are to be processed (e.g. different gains)
-   ATH_MSG_DEBUG ( "Retrieving LArDigitContainer. Key= " << (*key_it) );
+ for (const std::string& key : m_keylist) { //Loop over all containers that are to be processed (e.g. different gains)
+   ATH_MSG_DEBUG ( "Retrieving LArDigitContainer. Key= " << key );
    const LArDigitContainer* larDigitCont;
-   StatusCode sc = evtStore()->retrieve(larDigitCont,*key_it);
+   StatusCode sc = evtStore()->retrieve(larDigitCont,key);
    if (sc.isFailure())  {
-     ATH_MSG_DEBUG ( "Cannot read LArDigitContainer from StoreGate! key=" << *key_it );
+     ATH_MSG_DEBUG ( "Cannot read LArDigitContainer from StoreGate! key=" << key );
      continue; //Try next container
    }
    if (larDigitCont->size()==0) {
-     ATH_MSG_DEBUG ( "LArDigitContainer with key '" << *key_it << "' is empty. Ignored." );
+     ATH_MSG_DEBUG ( "LArDigitContainer with key '" << key << "' is empty. Ignored." );
      continue; //Try next container
    }
    //Iterate over LArDigitContainer and build LArCalibDigitContainer
    LArCalibDigitContainer* calibDigitContainer=new LArCalibDigitContainer();
    calibDigitContainer->setDelayScale(m_delayScale);
-   LArDigitContainer::const_iterator it=larDigitCont->begin();
-   LArDigitContainer::const_iterator it_end=larDigitCont->end();
-   for (;it!=it_end;it++) {
-     HWIdentifier chid=(*it)->hardwareID();
+   for (const LArDigit* digit : *larDigitCont) {
+     HWIdentifier chid=digit->hardwareID();
      //Get data members of LArDigit
-     const std::vector<short>& samples=(*it)->samples();
-     CaloGain::CaloGain gain=(*it)->gain();
+     const std::vector<short>& samples=digit->samples();
+     CaloGain::CaloGain gain=digit->gain();
      const std::vector<HWIdentifier>& calibChannelIDs=clcabling->calibSlotLine(chid);
      if (calibChannelIDs.size()==0) {
        continue; //Disconnected channel
@@ -174,8 +170,8 @@ StatusCode LArCalibDigitMaker::execute() {
      LArCalibDigit* calibDigit=new LArCalibDigit(chid,gain, samples, dac, delay, ispulsed);
      calibDigitContainer->push_back(calibDigit);
    } //End iteration to build calibDigits
-   ATH_CHECK( evtStore()->record(calibDigitContainer,*key_it) );
-   ATH_MSG_DEBUG ("LArCalibDigitContainer recorded to StoreGate. key=" << *key_it );
+   ATH_CHECK( evtStore()->record(calibDigitContainer,key) );
+   ATH_MSG_DEBUG ("LArCalibDigitContainer recorded to StoreGate. key=" << key );
  } //End loop key list
  return StatusCode::SUCCESS;
 }

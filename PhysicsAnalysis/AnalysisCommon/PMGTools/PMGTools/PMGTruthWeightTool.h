@@ -17,9 +17,6 @@
 
 namespace PMGTools
 {
-  /// \brief the systematics prefix for generator weights
-  constexpr char generatorSystematicsPrefix[] {"GEN_"};
-
   /// Implementation for the xAOD truth meta data weight tool
   ///
   /// @author James Robinson <james.robinson@cern.ch>
@@ -101,9 +98,6 @@ namespace PMGTools
 
     /// Clear caches
     void clearWeightLocationCaches();
-
-    /// Process the weight name to be used for systematics
-    std::string weightNameToSys(const std::string &name) const;
 
     /// Stores the meta data record name
     std::string m_metaName;

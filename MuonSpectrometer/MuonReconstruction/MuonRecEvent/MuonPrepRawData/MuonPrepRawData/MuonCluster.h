@@ -56,12 +56,17 @@ namespace Muon
        @param rdoList List of channels associated with cluster
        @param locErrMat The measurement errors. Ownership passes to this object!
     */
-    MuonCluster( const Identifier& RDOId,
-                 const IdentifierHash& collectionHash,
-                 const Amg::Vector2D& locpos,
-                 const std::vector<Identifier>& rdoList,
-                 const Amg::MatrixX* locErrMat
-         );
+    MuonCluster(const Identifier& RDOId,
+                const IdentifierHash& collectionHash,
+                const Amg::Vector2D& locpos,
+                const std::vector<Identifier>& rdoList,
+                const Amg::MatrixX& locErrMat);
+
+    MuonCluster(const Identifier& RDOId,
+                const IdentifierHash& collectionHash,
+                const Amg::Vector2D& locpos,
+                std::vector<Identifier>&& rdoList,
+                Amg::MatrixX&& locErrMat);
 
     /** @brief Destructor*/
     virtual ~MuonCluster();
@@ -77,7 +82,7 @@ namespace Muon
     virtual const MuonGM::MuonClusterReadoutElement* detectorElement() const override = 0;
 
     /** Interface method checking the type*/
-    virtual bool type(Trk::PrepRawDataType::Type type) const override = 0;
+    virtual bool type(Trk::PrepRawDataType type) const override = 0;
 
     /** @brief Dumps information about the PRD*/
     virtual MsgStream&    dump( MsgStream&    stream) const override;

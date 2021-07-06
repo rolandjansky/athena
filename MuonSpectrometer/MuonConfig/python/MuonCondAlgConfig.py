@@ -96,7 +96,8 @@ def RpcCondDbAlgCfg(flags, **kwargs):
 
 def CscCondDbAlgCfg(flags, **kwargs):
     result  = ComponentAccumulator()
-    folders = ["/CSC/FTHOLD", "/CSC/NOISE", "/CSC/PED", "/CSC/PSLOPE", "/CSC/RMS", "/CSC/STAT", "/CSC/T0BASE", "/CSC/T0PHASE"]
+    pslope_from_db = False
+    folders = ["/CSC/FTHOLD", "/CSC/NOISE", "/CSC/PED", "/CSC/RMS", "/CSC/STAT", "/CSC/T0BASE", "/CSC/T0PHASE"]
     scheme  = "CSC_OFL"
     kwargs['ReadKey_HV'] = '' # Never used at present 
     if flags.Common.isOnline:
@@ -105,22 +106,26 @@ def CscCondDbAlgCfg(flags, **kwargs):
         kwargs['ReadKey_FT'] = '/CSC/FTHOLD' # 'ConditionsStore+' prefix not necessarily needed in ReadKey
         kwargs['ReadKey_NO'] = '/CSC/NOISE'
         kwargs['ReadKey_PD'] = '/CSC/PED'
-        kwargs['ReadKey_PS'] = '/CSC/PSLOPE'
+        if pslope_from_db:
+            kwargs['ReadKey_PS'] = '/CSC/PSLOPE'
         kwargs['ReadKey_RM'] = '/CSC/RMS'
         kwargs['ReadKey_ST'] = '/CSC/STAT'
         kwargs['ReadKey_TB'] = ''
         kwargs['ReadKey_TP'] = ''
-        folders = ["/CSC/ONL/FTHOLD", "/CSC/ONL/NOISE", "/CSC/ONL/PED", "/CSC/ONL/PSLOPE", "/CSC/ONL/RMS", "/CSC/ONL/STAT"]
+        folders = ["/CSC/ONL/FTHOLD", "/CSC/ONL/NOISE", "/CSC/ONL/PED", "/CSC/ONL/RMS", "/CSC/ONL/STAT"]
+        if pslope_from_db:
+            folders.append("/CSC/PSLOPE")
         scheme  = "CSC_ONL"
     else:
+        if pslope_from_db:
+            folders.append("/CSC/PSLOPE")
+
         kwargs["isOnline"] = False
         if flags.Input.isMC:
             kwargs['isData'] = False
-            kwargs['ReadKey_HV'] = ''
         else:
             kwargs['isData'] = True
             kwargs['isRun1'] = flags.IOVDb.DatabaseInstance == 'COMP200'
-            kwargs['ReadKey_HV'] = ''  # TODO: probably this should be removed once this folder is available
     alg = CscCondDbAlg(**kwargs)
     result.merge( addFolders(flags, folders , detDb=scheme, className='CondAttrListCollection') )
     result.addCondAlgo(alg)

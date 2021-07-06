@@ -209,14 +209,14 @@ void prepareDCSFolder(const std::string& key, const FolderData<T>& folderData) {
 
   std::unique_ptr<CondAttrListCollection> data = std::make_unique<CondAttrListCollection>(true);
 
-  for (const auto coolChannelData : folderData) {
+  for (const auto& coolChannelData : folderData) {
 
     unsigned int coolChannel = coolChannelData.first;
     const auto nameValuePairs = coolChannelData.second;
 
     coral::AttributeList attributeList;
 
-    for (const std::pair<std::string, T> nameValuePair : nameValuePairs) {
+    for (const std::pair<std::string, T>& nameValuePair : nameValuePairs) {
       std::string name = nameValuePair.first;
       T value = nameValuePair.second;
       attributeList.extend<T>(name);

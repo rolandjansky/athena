@@ -81,7 +81,7 @@ class PhysValWebStep(Step):
         self.sig = None
         self.args = '--ratio --drawopt HISTPE --refdrawopt HIST --title Test '
         self.auto_report_result = True
-        self.timeout = 30*60
+        self.timeout = 70*60
         self.required = True  # whether the full test should fail if physval_make_web_display fails
         self.required_no_red = False  # whether the full test should fail if red histograms are found
 

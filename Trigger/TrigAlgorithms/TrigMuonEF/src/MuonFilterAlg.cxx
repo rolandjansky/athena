@@ -1,7 +1,7 @@
 /*
   Filter algorithms for muon trigger
   
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonFilterAlg.h"
@@ -9,20 +9,11 @@
 MuonFilterAlg::MuonFilterAlg(const std::string& name, ISvcLocator* pSvcLocator )
 :AthReentrantAlgorithm(name, pSvcLocator)
 {
-
-
 }
 
 StatusCode MuonFilterAlg::initialize(){
 
   ATH_CHECK(m_muonContainerKey.initialize());
-  return StatusCode::SUCCESS;
-}
-
-StatusCode MuonFilterAlg::finalize()
-{
-  ATH_MSG_DEBUG("Finalization");
-
   return StatusCode::SUCCESS;
 }
 

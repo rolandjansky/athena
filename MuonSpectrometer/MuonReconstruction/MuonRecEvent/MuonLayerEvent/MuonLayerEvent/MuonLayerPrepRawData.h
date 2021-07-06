@@ -7,28 +7,27 @@
 
 #include <vector>
 
+#include "MuonPrepRawData/CscPrepDataCollection.h"
+#include "MuonPrepRawData/MMPrepDataCollection.h"
 #include "MuonPrepRawData/MdtPrepDataCollection.h"
 #include "MuonPrepRawData/RpcPrepDataCollection.h"
 #include "MuonPrepRawData/TgcPrepDataCollection.h"
-#include "MuonPrepRawData/CscPrepDataCollection.h"
 #include "MuonPrepRawData/sTgcPrepDataCollection.h"
-#include "MuonPrepRawData/MMPrepDataCollection.h"
-
 
 namespace Muon {
-  
-  /**
-      Struct to hold all PrepRawData collections in a given layer 
-   */
-  struct MuonLayerPrepRawData {
-    std::vector< const MdtPrepDataCollection* >  mdts;
-    std::vector< const RpcPrepDataCollection* >  rpcs;
-    std::vector< const TgcPrepDataCollection* >  tgcs;
-    std::vector< const CscPrepDataCollection* >  cscs;
-    std::vector< const sTgcPrepDataCollection* > stgcs;
-    std::vector< const MMPrepDataCollection* >   mms;
-  };
 
-}
+    /**
+        Struct to hold all PrepRawData collections in a given layer
+     */
+    struct MuonLayerPrepRawData {
+        std::vector<const MdtPrepDataCollection*> mdts;
+        std::vector<const RpcPrepDataCollection*> rpcs;
+        std::vector<const TgcPrepDataCollection*> tgcs;
+        std::vector<const CscPrepDataCollection*> cscs;
+        std::vector<const sTgcPrepDataCollection*> stgcs;
+        std::vector<const MMPrepDataCollection*> mms;
+    };
+
+}  // namespace Muon
 
 #endif

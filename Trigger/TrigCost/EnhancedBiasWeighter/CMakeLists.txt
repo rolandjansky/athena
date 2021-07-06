@@ -15,7 +15,7 @@ atlas_add_library( EnhancedBiasWeighterLib
                    PUBLIC_HEADERS EnhancedBiasWeighter
                    INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${LIBXML2_INCLUDE_DIR}
                    PRIVATE_INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${COOL_LIBRARIES} ${LIBXML2_LIBRARIES} AsgTools DerivationFrameworkInterfaces GaudiKernel TrigAnalysisInterfaces xAODEventInfo
+                   LINK_LIBRARIES ${COOL_LIBRARIES} ${LIBXML2_LIBRARIES} AsgTools DerivationFrameworkInterfaces GaudiKernel TrigAnalysisInterfaces xAODEventInfo LumiBlockData
                    PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} PathResolver )
 
 atlas_add_component( EnhancedBiasWeighter

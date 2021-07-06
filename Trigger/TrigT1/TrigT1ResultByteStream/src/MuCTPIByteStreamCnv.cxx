@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -14,14 +14,14 @@
 #include "TrigT1Result/MuCTPI_RDO.h"
 
 // Local include(s):
-#include "TrigT1ResultByteStream/MuCTPIByteStreamCnv.h"
-#include "TrigT1ResultByteStream/MuCTPIByteStreamTool.h"
+#include "MuCTPIByteStreamCnv.h"
+#include "MuCTPIByteStreamTool.h"
 
 // Hack for early data, where CTP and MuCTPI were plugged into the
 // same ROS PC
 #ifdef CTP_MUCTPI_HAVE_SAME_ROS
-#  include "TrigT1ResultByteStream/CTPByteStreamTool.h"
-#  include "TrigT1ResultByteStream/RecCTPByteStreamTool.h"
+#  include "CTPByteStreamTool.h"
+#  include "RecCTPByteStreamTool.h"
 #  include "TrigT1Result/CTP_RDO.h"
 #  include "TrigT1Result/CTP_RIO.h"
 #endif
@@ -32,7 +32,7 @@
  */
 MuCTPIByteStreamCnv::MuCTPIByteStreamCnv( ISvcLocator* svcloc )
   : Converter( storageType(), classID(), svcloc ),
-    m_tool( "MuCTPIByteStreamTool" ), m_srcIdMap( 0 ),
+    m_tool( "MuCTPIByteStreamTool" ),
 #ifdef CTP_MUCTPI_HAVE_SAME_ROS
     m_ctp_tool( "CTPByteStreamTool" ),
     m_ctp_rec_tool( "RecCTPByteStreamTool" ),
@@ -40,19 +40,6 @@ MuCTPIByteStreamCnv::MuCTPIByteStreamCnv( ISvcLocator* svcloc )
 #endif
     m_robDataProvider( "ROBDataProviderSvc", "MuCTPIByteStreamCnv" ),
     m_ByteStreamEventAccess( "ByteStreamCnvSvc", "MuCTPIByteStreamCnv" ) {
-
-}
-
-/**
- * The destructor actually does some cleanup, it deletes the CTPSrcIdMap
- * object that is created in the initialize() function.
- */
-MuCTPIByteStreamCnv::~MuCTPIByteStreamCnv() {
-
-  if( m_srcIdMap ) {
-    delete m_srcIdMap;
-    m_srcIdMap = 0;
-  }
 
 }
 
@@ -118,11 +105,6 @@ StatusCode MuCTPIByteStreamCnv::initialize() {
     log << MSG::DEBUG << "Connected to ROBDataProviderSvc" << endmsg;
   }
 
-  //
-  // Create MuCTPISrcIdMap:
-  //
-  m_srcIdMap = new MuCTPISrcIdMap();
-
   return StatusCode::SUCCESS;
 }
 
@@ -148,7 +130,7 @@ StatusCode MuCTPIByteStreamCnv::createObj( IOpaqueAddress* pAddr, DataObject*& p
   //
   // Get SourceID:
   //
-  const uint32_t robId = m_srcIdMap->getRobID( m_srcIdMap->getRodID() );
+  const uint32_t robId = m_srcIdMap.getRobID( m_srcIdMap.getRodID() );
 
   log << MSG::DEBUG << " expected ROB sub-detector ID: " << std::hex 
       << robId << std::dec << endmsg;  

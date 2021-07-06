@@ -1,10 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT2CaloCommon/LArRodIdHash.h" 
-#include "LArCabling/LArCablingLegacyService.h" 
-#include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
 #include <iostream>
@@ -18,42 +16,16 @@ using eformat::helper::SourceIdentifier;
 // This class converts a LArReadoutModuleID into an integer, 
 // 
 
-// default contructor 
-LArRodIdHash::LArRodIdHash( ) 
-  : m_size(0), m_offset(0)
-{
 
-}
-
-
-void LArRodIdHash::initialize( int offset )  {
+void LArRodIdHash::initialize( int offset, const std::vector<HWIdentifier>& roms )  {
 
 // 
 
   m_offset = offset; 
 
-  ISvcLocator* svcLoc = Gaudi::svcLocator( );
-  IToolSvc* toolSvc;
-  StatusCode sc = svcLoc->service( "ToolSvc",toolSvc);
-
-  //StatusCode sc = svcLoc->service( "ToolSvc",toolSvc );
-  if(sc.isFailure())
-    {std::cerr << "LArRawChannelContainer::add ERROR: Can not retrieve ToolSvc" << std::endl;
-     return;
-    }
-
-  LArCablingLegacyService *larCablingSvc;
-  sc = toolSvc->retrieveTool("LArCablingLegacyService",larCablingSvc);
-  if(sc.isFailure())
-    {std::cerr << "LArRawChannelContainer::add ERROR: Can not retrieve LArCablingLegacyService" << std::endl;
-     return;
-    }
-
-  //LArCablingService* larCablingSvc = LArCablingService::getInstance(); 
   LArReadoutModuleService larROMService;
    eformat::SubDetector detid ;
    std::vector<ID>  rmod;
-   const std::vector<HWIdentifier>& roms = larCablingSvc->getLArRoModIDvec();
    std::vector<HWIdentifier>::const_iterator tit =  roms.begin(); 
    std::vector<HWIdentifier>::const_iterator tit_end =  roms.end(); 
  
@@ -70,28 +42,6 @@ void LArRodIdHash::initialize( int offset )  {
        
      }
 
-/*
-  std::vector<ID>  rmod;
-	for(unsigned int i=0x410000;i<=0x4100df;i++)
-		rmod.push_back(i);
-	for(unsigned int i=0x420000;i<=0x4200df;i++)
-		rmod.push_back(i);
-	for(unsigned int i=0x430000;i<=0x430089;i++)
-		rmod.push_back(i);
-	for(unsigned int i=0x440000;i<=0x440089;i++)
-		rmod.push_back(i);
-	for(unsigned int i=0x450000;i<=0x45000b;i++)
-		rmod.push_back(i);
-	//for(unsigned int i=0x46000c;i<=0x460017;i++)
-	for(unsigned int i=0x460000;i<=0x46000b;i++)
-		rmod.push_back(i);
-	for(unsigned int i=0x470000;i<=0x470006;i++)
-		rmod.push_back(i);
-	//for(unsigned int i=0x480007;i<=0x48000d;i++)
-	for(unsigned int i=0x480000;i<=0x480007;i++)
-		rmod.push_back(i);
-*/
-  
   std::vector<ID>::const_iterator 
     it = rmod.begin(); 
   std::vector<ID>::const_iterator 
@@ -109,16 +59,6 @@ void LArRodIdHash::initialize( int offset )  {
 
   // cout << " Number of LArReadoutModuleID valid ID  "<< n <<endl; 
   m_size = n; 
-/*
-  std::vector<LArReadoutModuleID> vec = larCablingSvc->getLArRoModIDvec();
-  for(int i=0;i<vec.size();i++){
-	std::cout << i << " " << std::hex <<vec[i].id() << " 0x"
-        << larCablingSvc->robFragId(vec[i].id()) << " 0x"
-        << larCablingSvc->rosId(vec[i].id()) << " 0x"
-        << larCablingSvc->rol(vec[i].id()) << " 0x"
-        << larCablingSvc->rodCrate(vec[i].id()) << std::dec << std::endl;
-  }
-*/
 
 }
 

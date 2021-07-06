@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkSurfaces/RectangleBounds.h"
@@ -39,7 +39,7 @@ void InDet::TRT_TrajectoryElement_xk::set
 ///////////////////////////////////////////////////////////////////
 
 bool InDet::TRT_TrajectoryElement_xk::initiateForPrecisionSeed
-(bool st,const InDetDD::TRT_BaseElement*&          de,
+(bool st,const InDetDD::TRT_BaseElement*           de,
  InDet::TRT_DriftCircleCollection::const_iterator& sb,
  InDet::TRT_DriftCircleCollection::const_iterator& se,
  std::pair<Amg::Vector3D,double>&                  gp,
@@ -63,7 +63,7 @@ bool InDet::TRT_TrajectoryElement_xk::initiateForPrecisionSeed
 ///////////////////////////////////////////////////////////////////
 
 bool InDet::TRT_TrajectoryElement_xk::initiateForTRTSeed
-(bool st,const InDetDD::TRT_BaseElement*&          de,
+(bool st,const InDetDD::TRT_BaseElement*          de,
  InDet::TRT_DriftCircleCollection::const_iterator& sb,
  InDet::TRT_DriftCircleCollection::const_iterator& se,
  std::pair<Amg::Vector3D,double>&            gp,
@@ -100,8 +100,8 @@ bool InDet::TRT_TrajectoryElement_xk::boundaryTest
 
   // Test track position
   //
-  const Trk::RectangleBounds* rb = 0;
-  const Trk::DiscBounds*      db = 0;
+  const Trk::RectangleBounds* rb = nullptr;
+  const Trk::DiscBounds*      db = nullptr;
 
   if     ((rb=dynamic_cast<const Trk::RectangleBounds*>(&m_detelement->bounds()))) {
 
@@ -498,7 +498,7 @@ double InDet::TRT_TrajectoryElement_xk::findCloseLink
 
 const Trk::RIO_OnTrack* InDet::TRT_TrajectoryElement_xk::rioOnTrack()
 {
-  if(m_bestlink < 0 || m_status<=0) return 0;
+  if(m_bestlink < 0 || m_status<=0) return nullptr;
 
   int l = m_bestlink;
 
@@ -517,7 +517,7 @@ const Trk::RIO_OnTrack* InDet::TRT_TrajectoryElement_xk::rioOnTrack()
 
 const Trk::RIO_OnTrack* InDet::TRT_TrajectoryElement_xk::rioOnTrackSimple()
 {
-  if(m_bestlink < 0 || m_status<=0) return 0;
+  if(m_bestlink < 0 || m_status<=0) return nullptr;
 
   int l = m_bestlink;
   Amg::Vector3D dir(1.,0.,0.);
@@ -802,7 +802,7 @@ bool  InDet::TRT_TrajectoryElement_xk::trackParametersEstimation
 		 0.,0.,0.,c3,
 		 0.,0.,0.,0.,c4};
 
-  Tp.setParametersWithCovariance(0,P,V);
+  Tp.setParametersWithCovariance(nullptr,P,V);
   return true;
 }
 
@@ -815,7 +815,7 @@ bool  InDet::TRT_TrajectoryElement_xk::trackParametersEstimation
 ///////////////////////////////////////////////////////////////////
 
 void InDet::TRT_TrajectoryElement_xk::polarAngleEstimation
-(TRT_TrajectoryElement_xk* E,Amg::Vector3D& G0,Amg::Vector3D& G1,double C,double VZ,double* Tp)
+(TRT_TrajectoryElement_xk* E,Amg::Vector3D& G0,Amg::Vector3D& G1,double C,double VZ,double* Tp) const
 {
   double dx = G1[0]-G0[0]           ;
   double dy = G1[1]-G0[1]           ;

@@ -37,7 +37,7 @@ namespace xAOD {
       eFexEMRoI_v1();
 
       /// Initialise the object with its most important properties
-      void initialize( uint8_t eFexNumber, uint32_t Word0, uint32_t Word1 = 0 );
+      void initialize( uint8_t eFexNumber, uint8_t shelf, uint32_t Word0, uint32_t Word1 = 0 );
 
       /// Object types
       enum ObjectType {
@@ -57,23 +57,29 @@ namespace xAOD {
       /// Set the eFEX number
       void seteFexNumber( uint8_t value );
 
+      /// The shelf number
+      uint8_t shelfNumber() const;
+      /// Set the shelf number
+      void setShelfNumber( uint8_t value );
+
       /// TOB ET (decoded from TOB, stored for convenience)
-      uint16_t tobEt() const;    /// getter for integer ET on TOB scale (100 MeV/count)
-      void     setTobEt( uint16_t value); /// setter for the above
       float    et() const; /// floating point value (MeV, TOB scale)
+      void     setEt( float value); /// setter for the above
 
-
-      /// Eta Coordinates (decoded from TOB, stored for convenience)
-      uint8_t iEta() const;  /// getter for integer eta index (0-49)
-      void    setEta( uint8_t value); /// setter for the above 
+      /// Eta Coordinates (decoded from TOB, float stored for convenience)
+      float   eta() const; /// Getter for floating point, full precision (0.025) eta
+      void    setEta(float value); /// setter for the above 
+      int     iEta() const;  /// getter for integer eta index (-25->+24)
       unsigned int seed() const; /// Seed supercell index within central tower (0 -> 3)
-      float eta() const; /// Floating point, full precision (0.025)
 
-      /// Phi coordinates
-      uint8_t iPhi() const; /// Getter for integer phi index (0-63)
-      void  setPhi( uint8_t value); /// Setter for the above
-      float phi() const; /// Floating point, ATLAS phi convention (-pi -> pi)
+      /// Phi coordinates (as for eta)
+      float   phi() const; /// Floating point, ATLAS phi convention (-pi -> pi)
+      void    setPhi( float value); /// Setter for the above
+      int     iPhi() const; /// Getter for integer phi index (0-63)
 
+      /// Getters for Topo coordinate indices
+      int iEtaTopo() const;
+      int iPhiTopo() const;
       
       /// Jet Discriminants
       /// Derived floating point values (not used in actual algorithm)
@@ -98,10 +104,6 @@ namespace xAOD {
       /// Is this one a TOB (or xTOB partner of a TOB)?
       char isTOB() const;
       void setIsTOB( char value);
-
-      /// Pattern of thresholds passed
-      uint32_t thrPattern() const;
-      void     setThrPattern( uint32_t value);
    
       /// Return TOB word corresponding to this TOB or xTOB
       uint32_t tobWord() const;
@@ -152,7 +154,6 @@ namespace xAOD {
       static const float s_tobEtScale;
       static const float s_xTobEtScale;
       static const float s_towerEtaWidth;
-      static const float s_minEta;
 
 
       /** Constants used in decoding TOB words
@@ -196,17 +197,11 @@ namespace xAOD {
       static const int s_eFexPhiOffset   =  2;
       static const int s_eFexEtaMask     = 0xf;
       static const int s_eFexEtaBit      =  4;
+      static const int s_eFexEtaWidth    = 16;
       static const int s_fpgaEtaWidth    =  4;
-      static const int s_EtaCOffset      =  0;
-      static const int s_EtaBOffset      = 17;
-      static const int s_EtaAOffset      = 33;
+      static const int s_shelfPhiWidth   =  4;
+      static const int s_minEta          = -25;
 
-      /// eFEX numbering (eta, 3 locations)
-      enum eFEXTypes {eFexC = 0xc, eFexB = 0xb, eFexA = 0xa};
-
-      /// Compute eta & phi indices from TOB word
-      int etaIndex() const;
-      int phiIndex() const;
 
    }; // class eFexEMRoI_v1
 

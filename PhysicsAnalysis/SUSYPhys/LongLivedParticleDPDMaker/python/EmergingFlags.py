@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.JobProperties import JobProperty
 from AthenaCommon.JobProperties import jobproperties
@@ -35,7 +35,6 @@ class Emerging_containerFlags(JobProperty):
     statusOn          = True
     jetCollectionName = "AntiKt4EMTopoJets"
     hltJetCollectionName = "HLT_xAOD__JetContainer_a4tcemsubjesFS"
-    pass
 primRPVLLDESDM.add_JobProperty(Emerging_containerFlags)
 
 

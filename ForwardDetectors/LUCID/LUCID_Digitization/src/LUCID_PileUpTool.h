@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LUCID_DIGITIZATION_TOOL_H
@@ -15,6 +15,7 @@
 #include "xAODEventInfo/EventInfo.h"   // SubEventIterator
 #include "xAODEventInfo/EventAuxInfo.h"// SubEventIterator
 
+#include "AthenaKernel/IAthRNGSvc.h"
 #include "PileUpTools/PileUpMergeSvc.h"
 
 #include "Gaudi/Property.h"
@@ -23,10 +24,9 @@
 #include <vector>
 #include <utility> /* pair */
 
-class StoreGateSvc;
-class IAtRndmGenSvc;
-//class PileUpMergeSvc;
-class IHistSvc;
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class LUCID_PileUpTool: public PileUpToolBase, public LUCID_DigitizationToolBox {
 
@@ -58,8 +58,9 @@ public:
 
 private:
 
-  ServiceHandle<IAtRndmGenSvc>  m_atRndmGenSvc;
-  ServiceHandle<PileUpMergeSvc> m_mergeSvc;
+  ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "mergeSvc", "PileUpMergeSvc", ""};
+  ServiceHandle<IAthRNGSvc> m_randomSvc{this, "RndmSvc", "AthRNGSvc", ""};
+  Gaudi::Property<std::string> m_randomStreamName{this, "RandomStreamName", "LUCIDRndEng", ""};
 
   std::string m_dataObjectName;
   std::string m_SimHitCollectionName;
@@ -68,8 +69,6 @@ private:
 
   LUCID_DigitizationToolBox *m_digitToolBox;
 
-  CLHEP::HepRandomEngine      *m_rndEngine;
-  //LUCID_DigitContainer *m_digitContainer;
   ITHistSvc  *m_digitHistSvc;
 
   LUCID_SimHitCollection* m_mergedhitList;

@@ -33,7 +33,6 @@
 
 #include "AtlasHepMC/GenVertex.h"
 #include "AtlasHepMC/SimpleVector.h"
-#include "AtlasHepMC/Units.h"
 
 #include <iostream>
 #include <sstream>
@@ -42,9 +41,9 @@
 
 EvtPhotosEngine::EvtPhotosEngine(std::string photonType, bool useEvtGenRandom) {
 
-  _photonType = photonType;
-  _gammaId = EvtId(-1,-1);
-  _mPhoton = 0.0;
+  m_photonType = photonType;
+  m_gammaId = EvtId(-1,-1);
+  m_mPhoton = 0.0;
 
   EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Setting up PHOTOS."<<std::endl;
 
@@ -65,7 +64,7 @@ EvtPhotosEngine::EvtPhotosEngine(std::string photonType, bool useEvtGenRandom) {
   Photospp::Photos::setInterference(true);
   Photospp::Photos::setExponentiation(true);
 
-  _initialised = false;
+  m_initialised = false;
 
 }
 
@@ -75,19 +74,19 @@ EvtPhotosEngine::~EvtPhotosEngine() {
 
 void EvtPhotosEngine::initialise() {
 
-  if (_initialised == false) {
+  if (m_initialised == false) {
 
-    _gammaId = EvtPDL::getId(_photonType);
+    m_gammaId = EvtPDL::getId(m_photonType);
 
-    if (_gammaId == EvtId(-1,-1)) {
+    if (m_gammaId == EvtId(-1,-1)) {
       EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Error in EvtPhotosEngine. Do not recognise the photon type "
-			   <<_photonType<<". Setting this to \"gamma\". "<<std::endl;
-      _gammaId = EvtPDL::getId("gamma");
+			   <<m_photonType<<". Setting this to \"gamma\". "<<std::endl;
+      m_gammaId = EvtPDL::getId("gamma");
     }
 
-    _mPhoton = EvtPDL::getMeanMass(_gammaId);
+    m_mPhoton = EvtPDL::getMeanMass(m_gammaId);
 
-    _initialised = true;
+    m_initialised = true;
  
   }
 
@@ -95,7 +94,7 @@ void EvtPhotosEngine::initialise() {
 
 bool EvtPhotosEngine::doDecay(EvtParticle* theMother) {
 
-  if (_initialised == false) {this->initialise();}
+  if (m_initialised == false) {this->initialise();}
 
   if (theMother == 0) {return false;}
 
@@ -188,12 +187,12 @@ bool EvtPhotosEngine::doDecay(EvtParticle* theMother) {
       } else {
 
 	// Extra photon particle. Setup the four-momentum object.
-	double energy = std::sqrt(_mPhoton*_mPhoton + px*px + py*py + pz*pz);
+	double energy = std::sqrt(m_mPhoton*m_mPhoton + px*px + py*py + pz*pz);
 	newP4.set(energy, px, py, pz);
 
 	// Create a new photon particle and add it to the list of daughters
 	EvtPhotonParticle* gamma = new EvtPhotonParticle();
-	gamma->init(_gammaId, newP4);
+	gamma->init(m_gammaId, newP4);
 	gamma->setFSRP4toZero();
 	gamma->addDaug(theMother); // Let the mother know about this new particle
 	// Set its particle attribute to specify it is a FSR photon.

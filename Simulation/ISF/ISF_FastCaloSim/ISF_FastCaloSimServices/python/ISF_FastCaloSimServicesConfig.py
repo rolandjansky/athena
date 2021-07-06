@@ -48,7 +48,7 @@ def getFastCaloSimPileupOTSvc(name="ISF_FastCaloSimPileupOTSvc", **kwargs):
     kwargs.setdefault("Identifier"                       , 'FastCaloSim'                                     )
     kwargs.setdefault("CaloCellsOutputName"              , ISF_FastCaloSimFlags.CaloCellsName()+'PileUp'     )
     kwargs.setdefault("PunchThroughTool"                 , 'ISF_PunchThroughTool'             )
-    kwargs.setdefault("DoPunchThroughSimulation"         , False                                             )
+    kwargs.setdefault("DoPunchThroughSimulation"         , ISF_FastCaloSimFlags.DoPunchThroughSimulation())
     #kwargs.setdefault("PUWeights"                        , FastChain_Flags.FastChainPUWeights()  )
     kwargs.setdefault("PUWeights_lar_bapre"              , FastChain_Flags.FastChainPUWeights_lar_bapre()  )
     kwargs.setdefault("PUWeights_lar_hec"                , FastChain_Flags.FastChainPUWeights_lar_hec()  )

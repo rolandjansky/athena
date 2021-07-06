@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef NN_h
@@ -17,12 +17,12 @@ private:
   double m_input3 = 0;
   double m_input4 = 0;
   double m_input5 = 0;
-  double neuron0x8eed3f8();
-  double neuron0x8f0ea18();
-  double neuron0x8f0ec10();
-  double neuron0x8f0ee08();
-  double neuron0x8f0f030();
-  double neuron0x8f1d488();
+  double neuron0x8eed3f8() const;
+  double neuron0x8f0ea18() const;
+  double neuron0x8f0ec10() const;
+  double neuron0x8f0ee08() const;
+  double neuron0x8f0f030() const;
+  double neuron0x8f1d488() const;
   double input0x8f1d6a0();
   double neuron0x8f1d6a0();
   double input0x8f1d8f0();

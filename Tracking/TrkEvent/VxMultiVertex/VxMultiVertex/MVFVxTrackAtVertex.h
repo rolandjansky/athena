@@ -143,7 +143,7 @@ protected:
    * Pointer to the TrackToVtxLink object, which contains the association of
    * this track with all the other vertices (multi vertex fit)
    */
-  TrackToVtxLink* m_linkToVertices;
+  TrackToVtxLink* m_linkToVertices{};
 };
 
 inline Trk::MVFVxTrackAtVertex*

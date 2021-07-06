@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -313,14 +313,14 @@ private:
 # define ERRORCHECK_FNAME ""
 #endif
 
-// Define dummy package (version) in case there is none defined already
-#ifndef PACKAGE_VERSION
-# define PACKAGE_VERSION 0
+// Define empty package name in case there is none defined already
+#ifndef ATLAS_PACKAGE_NAME
+# define ATLAS_PACKAGE_NAME nullptr
 #endif
 
 // Collect all the arguments describing the source location:
 // line number, file name, function name, package.
-#define ERRORCHECK_ARGS __LINE__, __FILE__, ERRORCHECK_FNAME, PACKAGE_VERSION
+#define ERRORCHECK_ARGS __LINE__, __FILE__, ERRORCHECK_FNAME, ATLAS_PACKAGE_NAME
 
 
 /**

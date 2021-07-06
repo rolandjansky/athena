@@ -34,7 +34,6 @@ namespace SH
   void DiskListXRD :: 
   testInvariant () const
   {
-    RCU_INVARIANT (this != 0);
   }
 
 

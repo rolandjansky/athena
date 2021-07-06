@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -33,16 +33,9 @@ namespace Trk
   NeutralParticleParameterCalculator::~NeutralParticleParameterCalculator() = default;
   
   StatusCode NeutralParticleParameterCalculator::initialize() 
-  { 
-    if (!m_LinearizedTrackFactory.empty()) {
-      StatusCode sc=m_LinearizedTrackFactory.retrieve();
-      if (sc.isFailure()) {
-        msg(MSG::WARNING) << "Could not find TrackLinearizer tool." << endmsg;
-        m_linearizedTrackFactoryIsAvailable=false;
-      } else {
-        m_linearizedTrackFactoryIsAvailable=true;
-      }
-    }
+  {
+    ATH_CHECK(m_LinearizedTrackFactory.retrieve( DisableTool{ m_LinearizedTrackFactory.empty() } ));
+    m_linearizedTrackFactoryIsAvailable = !m_LinearizedTrackFactory.empty();
 
     return StatusCode::SUCCESS;
   }
@@ -201,9 +194,9 @@ namespace Trk
     // no mechanism in new EDM: symFullTrkCov.assign(fullTrkCov);
 
     Trk::PerigeeSurface perSurface(myVertex.position());
-    AmgSymMatrix(5)* covNeutral = new AmgSymMatrix(5)(globalNeutralJacobian*fullTrkCov*globalNeutralJacobian.transpose());
+    AmgSymMatrix(5) covNeutral = AmgSymMatrix(5)(globalNeutralJacobian*fullTrkCov*globalNeutralJacobian.transpose());
 
-    return new Trk::NeutralPerigee(0,0,phi,theta,qOverP,perSurface,covNeutral);
+    return new Trk::NeutralPerigee(0,0,phi,theta,qOverP,perSurface,std::move(covNeutral));
   }
   
   

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -18,6 +18,27 @@ from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts
 InDetTrigCutValues = EFIDTrackingCuts
 
 
+from InDetRecExample.TrackingCommon import makePublicTool,makeName
+@makePublicTool
+def getInDetTrigFullLinearizedTrackFactory(name='InDetTrigFullLinearizedTrackFactory', **kwargs) :
+    the_name                    = makeName( name, kwargs)
+    if 'Extrapolator' not in kwargs :
+      from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator
+      kwargs.setdefault('Extrapolator', InDetTrigExtrapolator) # @TODO AtlasExtrapolator ?
+
+    from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__FullLinearizedTrackFactory
+    return Trk__FullLinearizedTrackFactory(the_name, **kwargs)
+
+@makePublicTool
+def getInDetTrigTrackToVertexIPEstimator(name='InDetTrigTrackToVertexIPEstimator', **kwargs) :
+    the_name                    = makeName( name, kwargs)
+    if 'Extrapolator' not in kwargs :
+      from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator
+      kwargs.setdefault('Extrapolator', InDetTrigExtrapolator) # @TODO AtlasExtrapolator ?
+    if 'LinearizedTrackFactory' not in kwargs :
+        kwargs.setdefault('LinearizedTrackFactory', getInDetTrigFullLinearizedTrackFactory() )
+    from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__TrackToVertexIPEstimator
+    return Trk__TrackToVertexIPEstimator( the_name, **kwargs)
 
 #move from the TrigVxPrimary
 if InDetTrigFlags.doNewTracking():
@@ -40,7 +61,8 @@ if InDetTrigFlags.doNewTracking():
                                                              trackdistexppower = 2)
     else:
       from TrkVertexSeedFinderTools.TrkVertexSeedFinderToolsConf import Trk__ZScanSeedFinder
-      InDetTrigVtxSeedFinder = Trk__ZScanSeedFinder(name = "InDetTrigZScanSeedFinder"
+      InDetTrigVtxSeedFinder = Trk__ZScanSeedFinder(name = "InDetTrigZScanSeedFinder",
+                                                    IPEstimator = getInDetTrigTrackToVertexIPEstimator()
                                                     #Mode1dFinder = # default, no setting needed
                                                     )
     ToolSvc += InDetTrigVtxSeedFinder
@@ -114,7 +136,7 @@ if InDetTrigFlags.doNewTracking():
                                        ImpactPoint3dEstimator   = InDetTrigImpactPoint3dEstimator,
 
                                        AnnealingMaker           = InDetTrigAnnealingMaker,
-                                       VertexSmoother           = InDetTrigSequentialVertexSmoother,
+                                       VertexSmoother           = InDetTrigVertexSmoother,
                                        DoSmoothing              = True) # false is default
 
   else:
@@ -229,7 +251,7 @@ if InDetTrigFlags.doNewTracking():
     # if jobproperties.Beam.zeroLuminosity():
     #    InDetTrigPriVxFinderTool.enableMultipleVertices = 0;
     # else:
-    InDetTrigPriVxFinderTool.enableMultipleVertices = 1;
+    InDetTrigPriVxFinderTool.enableMultipleVertices = 1
     #    InDetTrigPriVxFinderTool.useBeamConstraint = InDetTrigFlags.useBeamConstraint()
     if InDetTrigFlags.vertexSeedFinder() == 'SlidingWindowMultiSeedFinder':
       InDetTrigPriVxFinderTool.PriVxSeedFinder = InDetTrigMultiSeedFinder

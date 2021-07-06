@@ -4,7 +4,7 @@
 
 #include "ZDC_DetTool.h"
 #include "ZDC_DetFactory.h" 
-#include "ZDC_GeoM/ZDC_DetManager.h" 
+#include "ZDC_DetManager.h" 
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/ISvcLocator.h"

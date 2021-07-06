@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //*************************************************************************
@@ -221,7 +221,8 @@ float LVL1::eFEXtauAlgo::getIso()
   isoOuter += m_em2cells[m_seed + 4][m_offPhi];
   isoOuter += m_em2cells[m_seed - 4][m_offPhi];
 
-  float out = (float)isoInner / (float)isoOuter;
+  float out = isoOuter ? (float)isoInner / (float)isoOuter : (float)isoInner;
+
   return out;
 }
 

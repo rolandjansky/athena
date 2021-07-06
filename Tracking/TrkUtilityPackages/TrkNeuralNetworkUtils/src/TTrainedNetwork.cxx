@@ -107,7 +107,7 @@ TTrainedNetwork::TTrainedNetwork(std::vector<TTrainedNetwork::Input> inputs,
        itr++) { 
     m_input_node_offset.push_back(itr->offset); 
     m_input_node_scale.push_back(itr->scale); 
-    if (itr->name.size() > 0) { 
+    if (!itr->name.empty()) { 
       m_inputStringToNode[itr->name] = node_n; 
     }
     node_n++; 

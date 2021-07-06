@@ -880,7 +880,7 @@ TgcLv1RawDataValAlg::fillTriggerTimingAssociatedWithTrack( int ms,// 0:Muid 1:St
         if( tptmin > 1 )
           m_tgclv1sltimingptcuttrack[ac][ms]->Fill(pcn);
 
-        if( m_found_express_stream && m_found_nonmuon_express_chain ){
+        if( m_found_nonmuon_express_chain ){
 
           int sect12=phi2sector(slphi48, !slisForward);//[0:11] 
 
@@ -931,7 +931,7 @@ TgcLv1RawDataValAlg::fillTriggerTimingAssociatedWithTrack( int ms,// 0:Muid 1:St
               m_tgclv1lpttimingptcuttrack[ac][ms]->Fill(pcn);
             
             // Fill Express Stream, "Current Fraction" histograms
-            if(m_found_express_stream&&m_found_nonmuon_express_chain){
+            if(m_found_nonmuon_express_chain){
               int sect12=phi2sector(slphi48, !slisForward);//[0:11] 
               m_tgclv1_LPT_trigger_timing_denom_ES[ac]->Fill( sect12 );
               if( pcn == 1 )

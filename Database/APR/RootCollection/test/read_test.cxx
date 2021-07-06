@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cstdio> // For sprintf on gcc45
@@ -24,6 +24,8 @@
 #include <cstdlib>
 #include <memory>
 #include "CoralBase/Attribute.h"
+
+#include "CxxUtils/checker_macros.h"
 
 #include "TInterpreter.h"
 #include "TClass.h"
@@ -158,9 +160,9 @@ public:
 
   ~TestDriver() {}
 
-  void write();
+  void write ATLAS_NOT_THREAD_SAFE ();
 
-  void read();
+  void read ATLAS_NOT_THREAD_SAFE ();
 
 
 private:
@@ -184,7 +186,7 @@ TestDriver::TestDriver( const std::string& name,
 
 
 void
-TestDriver::write()
+TestDriver::write ATLAS_NOT_THREAD_SAFE ()
 {
    cout << "Creating CollectionService" << endl;
    unique_ptr<CollectionService> serviceHandle(new CollectionService());
@@ -267,7 +269,7 @@ TestDriver::write()
    
 
 void
-TestDriver::read()
+TestDriver::read ATLAS_NOT_THREAD_SAFE ()
 {
    cout << "Creating CollectionService" << endl;
    unique_ptr<CollectionService> serviceHandle(new CollectionService());
@@ -418,7 +420,7 @@ TestDriver::read()
 
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   TClass::GetClass("map<string,string>");
 

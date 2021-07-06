@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 # TODO: clean up flags, should only contain general settings but no alg config
@@ -29,7 +29,7 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doMinimalReco", False) # Turn running of minimal reconstruction on and off
   icf.addFlag("InDet.doDVRetracking", False) # Turn running of large-d0 retracking mode on and off. This flag assumes that the processing is done from a (D)ESD file
   icf.addFlag("InDet.postProcessing", True) # Turn running of post processing on and off
-  icf.addFlag("InDet.doTruth", True) # Turn running of truth matching on and off
+  icf.addFlag("InDet.doTruth", lambda f: f.Input.isMC) # Turn running of truth matching on and off (by default on for MC off for data)
   icf.addFlag("InDet.loadTools", True) # Turn loading of tools on and off
   icf.addFlag("InDet.doBackTracking", True) # Turn running of backtracking on and off
   icf.addFlag("InDet.doLowPt",True) # Turn running of doLowPt second pass on and off
@@ -70,7 +70,8 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.magField", 'None') # control which field tool to use ("None"/"fast") 
   icf.addFlag("InDet.propagatorType", 'RungeKutta') # control which propagator to use ('RungeKutta'/'STEP') 
   icf.addFlag("InDet.trackFitterType", 'GlobalChi2Fitter') # control which fitter to be used: 'KalmanFitter', 'KalmanDNAFitter', 'DistributedKalmanFilter', 'GlobalChi2Fitter', 'GaussianSumFilter' 
-  icf.addFlag("InDet.doHolesOnTrack", True) # do holes search from now on in summry tool 
+  icf.addFlag("InDet.doHolesOnTrack", True) # do holes search from now on in summry tool
+  icf.addFlag("InDet.useHolesFromPattern", False) 
   icf.addFlag("InDet.useZvertexTool", False) # start with Zvertex finding 
   icf.addFlag("InDet.doSiSPSeededTrackFinder", False) # use track finding in silicon 
   icf.addFlag("InDet.doTRTExtensionNew", True) # turn on / off TRT extensions 
@@ -124,10 +125,9 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doVtxMonitoringD3PD", False) # fills the D3PD parts for the unconstrained PV and the split vtx, works only with iterative finder 
   icf.addFlag("InDet.doConvVtxD3PD", False)
   icf.addFlag("InDet.doV0VtxD3PD", False)
-  icf.addFlag("InDet.doTriggerD3PD", False)
   icf.addFlag("InDet.removeTRTNoise", False)
   icf.addFlag("InDet.noTRTTiming", False)
-  icf.addFlag("InDet.InDet25nsec", False )
+  icf.addFlag("InDet.InDet25nsec", True ) # in most of the cases this is True
   icf.addFlag("InDet.selectSCTIntimeHits", True) # defines if the X1X mode is used for the offline or not 
   icf.addFlag("InDet.cutSCTOccupancy", True )
   icf.addFlag("InDet.useDCS", True)
@@ -140,8 +140,8 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.disableInDetReco", False) # Disable all ID reconstruction: pre-processing,tracking, post-processing etc. Still does the configuration: job porperties, cuts, loaign of tools and conditions
   icf.addFlag("InDet.doPixelClusterSplitting", True) # Try to split pixel clusters 
   icf.addFlag("InDet.pixelClusterSplittingType", 'NeuralNet') # choose splitter type: NeuralNet or AnalogClus
-  icf.addFlag("InDet.pixelClusterSplitProb1", 0.6) # Cut value for splitting clusters into two parts 
-  icf.addFlag("InDet.pixelClusterSplitProb2", 0.2) # Cut value for splitting clusters into three parts 
+  icf.addFlag("InDet.pixelClusterSplitProb1", 0.55) # Cut value for splitting clusters into two parts 
+  icf.addFlag("InDet.pixelClusterSplitProb2", 0.45) # Cut value for splitting clusters into three parts 
   icf.addFlag("InDet.pixelClusterSplitProb1_run1", 0.5) # Cut value for splitting clusters into two parts 
   icf.addFlag("InDet.pixelClusterSplitProb2_run1", 0.5) # Cut value for splitting clusters into three parts 
   icf.addFlag("InDet.pixelClusterSplitMinPt", 1000) # Min pt for tracks to try and split hits 
@@ -180,8 +180,8 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doHIP300", False) # Switch for running MinBias settings with a 300 MeV pT cut (for Heavy Ion Proton)
   icf.addFlag("InDet.checkDeadElementsOnTrack", True) # Enable check for dead modules and FEs 
   icf.addFlag("InDet.doDigitalROTCreation",False) # use PixelClusterOnTrackToolDigital during ROT creation to save CPU 
-  icf.addFlag("InDet.usePixelDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.RecoPixel))
-  icf.addFlag("InDet.useSctDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.RecoSCT))
+  icf.addFlag("InDet.usePixelDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.EnablePixel))
+  icf.addFlag("InDet.useSctDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.EnableSCT))
 
   from InDetConfig.TrackingCutsFlags import createTrackingFlags, createSLHCTrackingFlags, createIBLTrackingFlags, createHighPileupTrackingFlags, createMinBiasTrackingFlags, createLargeD0TrackingFlags, createR3LargeD0TrackingFlags, createLowPtLargeD0TrackingFlags, createLowPtTrackingFlags, createSLHCConversionFindingTrackingFlags, createVeryLowPtTrackingFlags, createForwardTracksTrackingFlags, createForwardSLHCTracksTrackingFlags, createVeryForwardSLHCTracksTrackingFlags, createBeamGasTrackingFlags, createVtxLumiTrackingFlags, createVtxBeamSpotTrackingFlags, createCosmicsTrackingFlags, createHeavyIonTrackingFlags, createPixelTrackingFlags, createDisappearingTrackingFlags, createSCTTrackingFlags, createTRTTrackingFlags, createSCTandTRTTrackingFlags, createDBMTrackingFlags
 

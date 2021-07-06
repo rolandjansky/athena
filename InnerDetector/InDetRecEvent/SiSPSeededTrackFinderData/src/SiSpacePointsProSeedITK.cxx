@@ -10,9 +10,9 @@
 namespace InDet {
   SiSpacePointsProSeedITK::SiSpacePointsProSeedITK ()
     {
-      m_s0 = 0 ;
-      m_s1 = 0 ;
-      m_s2 = 0 ;
+      m_s0 = nullptr ;
+      m_s1 = nullptr ;
+      m_s2 = nullptr ;
       m_z  = 0.;
       m_q  = 0.;
     }
@@ -120,8 +120,7 @@ namespace InDet {
 	m_s2->setQuality(q);
 	return true;
       }
-      if(q < m_s0->quality() || q < m_s1->quality() || q < m_s2->quality()) return true;
-      return false;
+      return q < m_s0->quality() || q < m_s1->quality() || q < m_s2->quality();
     }
 
 } // end of name space

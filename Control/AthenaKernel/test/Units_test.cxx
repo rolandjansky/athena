@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file  Units_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -53,6 +51,7 @@ void test1()
 void divcheck()
 {
   std::cout << "divcheck\n";
+  bool fail = false;
   pid_t pid = getpid();
   char cmd[128];
   snprintf (cmd, sizeof(cmd), "objdump -d /proc/%d/exe", pid);
@@ -72,6 +71,7 @@ void divcheck()
                         strstr (linebuf, "tfdiv") != 0))
     {
       printf ("Unexpected div: %s\n", linebuf);
+      fail = true;
     }
 
     if (linebuf[0] != '0') continue;
@@ -85,6 +85,13 @@ void divcheck()
   }
 
   pclose (fdump);
+
+  if (fail) {
+    printf ("%s\n", cmd);
+    system (cmd);
+    snprintf (cmd, sizeof(cmd), "ls -l /proc/%d/exe", pid);
+    system (cmd);
+  }
 }
 
 

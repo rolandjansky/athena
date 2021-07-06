@@ -15,7 +15,7 @@ string( REPLACE "-Wl,--as-needed" "" CMAKE_EXE_LINKER_FLAGS
 atlas_add_library( L1TopoAlgorithms
    L1TopoAlgorithms/*.h Root/*.cxx
    PUBLIC_HEADERS L1TopoAlgorithms
-   LINK_LIBRARIES L1TopoEvent L1TopoInterfaces
+   LINK_LIBRARIES L1TopoEvent L1TopoInterfaces TrigConfBase TrigConfIO TrigConfData
    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} L1TopoCommon L1TopoSimulationUtils )
 
 atlas_add_executable( TrigConfL1TopoGenPyAlg

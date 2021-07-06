@@ -1,7 +1,7 @@
 // Emacs -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -20,8 +20,6 @@
 #include "TrigNavigation/RoICacheHistory.h"
 #include "CxxUtils/no_sanitize_undefined.h"
 
-#undef  MLOG
-#define MLOG(x)   if (m_log->level()<=MSG::x) *m_log << MSG::x
 
 /*****************************************************************************
  *
@@ -38,19 +36,19 @@ bool HLT::Navigation::attachFeature NO_SANITIZE_UNDEFINED
   // Get clid
   CLID clid = ClassID_traits<T>::ID();
 
-  MLOG(DEBUG) << "attachFeature: of clid: " << clid << "(" << ClassID_traits<T>::typeName() << ")"
-	      << " to TE: " << te->getId()
-	      << " label: \"" << label << "\""
-	      << " memory management: " << mmanagement <<  endmsg;
+  ATH_MSG_DEBUG("attachFeature: of clid: " << clid << "(" << ClassID_traits<T>::typeName() << ")"
+                << " to TE: " << te->getId()
+                << " label: \"" << label << "\""
+                << " memory management: " << mmanagement);
 
   // get a holder for this type --- if that's new it will be created
 
-  MLOG(VERBOSE) << "getting Holder for label: " << label << endmsg;
+  ATH_MSG_VERBOSE("getting Holder for label: " << label);
   HLTNavDetails::Holder<T>* holder = getHolder<T>(label, nextSubTypeIndex(clid,label));
-  MLOG(VERBOSE) << "got Holder: " << holder << endmsg;
+  ATH_MSG_VERBOSE("got Holder: " << holder);
 
   if ( ! holder ) {
-    MLOG(WARNING) << "attachFeature: Holder missing for CLID: " << clid << endmsg;
+    ATH_MSG_WARNING("attachFeature: Holder missing for CLID: " << clid);
     return false;
   }
 
@@ -78,11 +76,11 @@ __attribute__((__used__))
 bool HLT::Navigation::associateExternalCollection(const std::string& label) {
   CLID clid = ClassID_traits<T>::ID();
   
-  MLOG(DEBUG) << "associateExternalCollection: of clid: " << clid << "(" << ClassID_traits<T>::typeName() << ")"
-	      << " label: \"" << label << "\"" <<  endmsg;
+  ATH_MSG_DEBUG("associateExternalCollection: of clid: " << clid << "(" << ClassID_traits<T>::typeName() << ")"
+                << " label: \"" << label << "\"");
   HLTNavDetails::Holder<T>* holder = getHolder<T>(label, nextSubTypeIndex(clid,label));    
   if ( ! holder ) { 
-    MLOG(WARNING) << "associateExternalCollection: Holder missing for CLID: " << clid << endmsg;
+    ATH_MSG_WARNING("associateExternalCollection: Holder missing for CLID: " << clid);
     return false;
   }
   return true;
@@ -93,49 +91,47 @@ bool HLT::Navigation::associateExternalCollection(const std::string& label) {
 template<class T>
 __attribute__((__used__))
 bool HLT::Navigation::findOwners(const T* obj, std::vector<const TriggerElement*>& owners, unsigned int id) {
-  std::vector<TriggerElement*>::const_iterator it      = m_factory.listOfProduced().begin();
-  std::vector<TriggerElement*>::const_iterator itEnd   = m_factory.listOfProduced().end();
+  std::lock_guard<std::recursive_mutex> lock(getMutex());
+  TriggerElementFactory& factory = getFactory();
+  TrigHolderStructure& holderstorage = getHolderStorage();
+
+  std::vector<TriggerElement*>::const_iterator it      = factory.listOfProduced().begin();
+  std::vector<TriggerElement*>::const_iterator itEnd   = factory.listOfProduced().end();
   if ( id != 0 ) {
-    it      = m_factory.listOfProduced(id).begin();
-    itEnd   = m_factory.listOfProduced(id).end();
-    MLOG(VERBOSE) << "findOwners will scann TEs of ID : " << id << " #: " << itEnd-it << endmsg;
+    it      = factory.listOfProduced(id).begin();
+    itEnd   = factory.listOfProduced(id).end();
+    ATH_MSG_VERBOSE("findOwners will scann TEs of ID : " << id << " #: " << itEnd-it);
   } else {
-    MLOG(VERBOSE) << "findOwners will scann ALL TEs (slow):" << itEnd-it << endmsg;
+    ATH_MSG_VERBOSE("findOwners will scann ALL TEs (slow):" << itEnd-it);
   }
 
   CLID clid = ClassID_traits<T>::ID();
 
-  auto holders_of_clid = m_holderstorage.getHoldersOfClid<HLTNavDetails::Holder<T> >(clid); 
+  auto holders_of_clid = holderstorage.getHoldersOfClid<HLTNavDetails::Holder<T> >(clid); 
   
   if(holders_of_clid.empty())
     return true;
 
-  MLOG(VERBOSE) << "findOwners features of this CLID present " << endmsg;
+  ATH_MSG_VERBOSE("findOwners features of this CLID present");
   bool holderFound = false;
   HLT::TriggerElement::ObjectIndex idx;
   for(auto holder : holders_of_clid ) {
     if ( holder->contains(obj, idx) ) {
       holderFound = true;
-      MLOG(VERBOSE) << "findOwners found holder owning the object " << *holder << " and index: " << idx << endmsg;
+      ATH_MSG_VERBOSE("findOwners found holder owning the object " << *holder << " and index: " << idx);
       break;
     }
   }
   if ( !holderFound ) 
     return true;
 
-  // tmp vec
-  //  std::vector<const T*> tmp;
   for (; it != itEnd; ++it ) {
-    //    tmp.clear();
-    std::vector< TriggerElement::FeatureAccessHelper >::const_iterator featureAccessIt = (*it)-> getFeatureAccessHelpers().begin();
-    std::vector< TriggerElement::FeatureAccessHelper >::const_iterator featureAccessEnd = (*it)-> getFeatureAccessHelpers().end();
-
-    for ( ; featureAccessIt != featureAccessEnd ; ++featureAccessIt ) {
-      if ( featureAccessIt->getCLID() == clid &&
-	   featureAccessIt->getIndex().isSameOrWithin(&idx) ) {
-	owners.push_back(*it);
-	MLOG(VERBOSE) << "findOwners while looking in TE(id): " << *it <<"(" << (*it)->getId() << ")" << " and access helper " << featureAccessIt->getIndex() << " found owner " << endmsg;	
-	break;
+    for ( const TriggerElement::FeatureAccessHelper& f : (*it)->getFeatureAccessHelpers() ) {
+      if ( f.getCLID() == clid && f.getIndex().isSameOrWithin(&idx) ) {
+        owners.push_back(*it);
+        ATH_MSG_VERBOSE("findOwners while looking in TE(id): " << *it <<"(" << (*it)->getId() << ")" <<
+                        " and access helper " << f.getIndex() << " found owner");
+        break;
       }
     }
   }
@@ -164,6 +160,4 @@ const std::string HLT::Navigation::getUniqueKey( const std::string& label ) {
 }
 
 
-#undef MLOG
-//EOF
 #endif // TRIGNAVIGATION_HLTNAVIGATION_ICC

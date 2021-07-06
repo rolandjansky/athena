@@ -1,14 +1,22 @@
-#include "../TrigTrackCounter.h"
-#include "../TrigTrackCounterHypo.h"
-#include "../TrigVertexCounter.h"
-#include "../TrigVertexCounterHypo.h"
-#include "../TrackCountHypoAlgMT.h"
+#include "../TrigCountSpacePoints.h"
+#include "../SPCountHypoAlg.h"
+#include "../SPCountHypoTool.h"
+#include "../MbtsFex.h"
+#include "../MbtsHypoAlg.h"
+#include "../MbtsHypoTool.h"
+#include "../TrackCountHypoAlg.h"
 #include "../TrackCountHypoTool.h"
+#include "../TrigZVertexHypoAlg.h"
+#include "../TrigZVertexHypoTool.h"
 
 
-DECLARE_COMPONENT( TrigTrackCounter )
-DECLARE_COMPONENT( TrigTrackCounterHypo )
-DECLARE_COMPONENT( TrigVertexCounter )
-DECLARE_COMPONENT( TrigVertexCounterHypo )
-DECLARE_COMPONENT( TrackCountHypoAlgMT )
+DECLARE_COMPONENT( TrigCountSpacePoints )
+DECLARE_COMPONENT( SPCountHypoAlg )
+DECLARE_COMPONENT( SPCountHypoTool )
+DECLARE_COMPONENT( MbtsFex )
+DECLARE_COMPONENT( MbtsHypoAlg )
+DECLARE_COMPONENT( MbtsHypoTool )
+DECLARE_COMPONENT( TrackCountHypoAlg )
 DECLARE_COMPONENT( TrackCountHypoTool )
+DECLARE_COMPONENT( TrigZVertexHypoAlg )
+DECLARE_COMPONENT( TrigZVertexHypoTool )

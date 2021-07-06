@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
 #include <cmath>
 #include <iostream>
 #include <array>
+#include <numeric>
 
 // EDM include(s):
 #include "CaloGeoHelpers/CaloPhiRange.h"
@@ -16,7 +17,6 @@
 #include "xAODCaloEvent/versions/CaloCluster_v1.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "CaloClusterAccessors_v1.h"
-
 
 namespace xAOD {
 
@@ -33,7 +33,8 @@ namespace xAOD {
     : IParticle(other),
       m_samplingPattern(other.samplingPattern()),
       m_cellLinks(nullptr),
-      m_recoStatus(other.m_recoStatus) {
+      m_recoStatus(other.m_recoStatus),
+      m_secondTime(other.m_secondTime) {
     setSignalState(other.signalState());
     this->makePrivateStore(other);
 #if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
@@ -58,6 +59,7 @@ namespace xAOD {
     m_recoStatus=other.m_recoStatus;
     setSignalState(other.signalState());
     m_samplingPattern=other.m_samplingPattern;
+    m_secondTime = other.m_secondTime;
 
 #if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
      const CaloClusterCellLink* links=other.getCellLinks();
@@ -91,7 +93,7 @@ namespace xAOD {
       static const std::array< const Accessor< std::vector< float > >*, 8 > allAcc = {
          { &etaAcc, &phiAcc, &eAcc, &emaxAcc, &phimaxAcc, &etamaxAcc, &etasizeAcc,
            &phisizeAcc } };
-      for( auto a : allAcc ) {
+      for( const auto *a : allAcc ) {
          if( a->isAvailable( *this ) ) {
            if (!(*a)(*this).empty()) {
              if (clearSamplingVars){
@@ -716,7 +718,7 @@ namespace xAOD {
       static const std::array< const Accessor< std::vector< float > >*, 8 > allAcc = {
         { &etaAcc, &phiAcc, &eAcc, &emaxAcc, &phimaxAcc, &etamaxAcc,
           &etasizeAcc, &phisizeAcc } };
-      for (auto a : allAcc) {
+      for (const auto *a : allAcc) {
         if (a->isAvailableWritable(*this)) {
           (*a)(*this).clear();
         }
@@ -739,11 +741,25 @@ namespace xAOD {
       return true;
    }
 
+  void CaloCluster_v1::insertMoment( MomentType type, double value ) {
+    const Accessor<float>* acc = momentAccessorV1(type); 
+    if ( acc != nullptr ) { (*acc)(*this) = value; } // new protection needed non-scalar moment type!
+  }
 
- void CaloCluster_v1::insertMoment( MomentType type, double value ) {
-   ( *( momentAccessorV1( type ) ) )( *this ) = value;
- }
+  void CaloCluster_v1::insertMoment( MomentType type, const ncells_store_t& values) {  
+    const Accessor<ncells_store_t>* acc = momentContainerAccessorV1(type);
+    // only implemented for one moment
+    if ( acc != nullptr ) { (*acc)(*this) = values; }
+  }
 
+  bool CaloCluster_v1::retrieveMoment( MomentType type, ncells_store_t& values ) const { 
+    const Accessor<ncells_store_t>* acc = momentContainerAccessorV1(type); 
+    // only known moments of this type
+    if ( acc == nullptr || !acc->isAvailable(*this)  ) { return false; }
+    // retrieve data
+    values = (*acc)(*this); 
+    return true; 
+  }
 
   /** for debugging only ...
   std::vector<std::pair<std::string,float> > CaloCluster_v1::getAllMoments() {
@@ -759,6 +775,40 @@ namespace xAOD {
     return retval;
   }
   **/
+
+  // Set the number of cells in a given sampling
+  void CaloCluster_v1::setNumberCellsInSampling(CaloSampling::CaloSample samp,int ncells,bool isInnerWheel) { 
+    const Accessor<ncells_store_t>* acc = momentContainerAccessorV1(NCELL_SAMPLING); // should always be valid!
+    // cast to cell counter type and limit value range
+    ncells_t nc(adjustToRange<int,ncells_t>(ncells)); 
+    // check index and extend store if needed
+    size_t idx((size_t)samp); 
+    if ( idx >= (*acc)(*this).size() ) { (*acc)(*this).resize(idx+1,0); }
+    // set counts
+    (*acc)(*this)[idx] = isInnerWheel ? setUpperCount<ncells_t>((*acc)(*this)[idx],nc) : setLowerCount<ncells_t>((*acc)(*this)[idx],nc);   
+  }
+
+  // Retrieve the number of cells in a given sampling
+  int CaloCluster_v1::numberCellsInSampling(CaloSampling::CaloSample samp,bool isInnerWheel) const { 
+    const Accessor<ncells_store_t>* acc = momentContainerAccessorV1(NCELL_SAMPLING); 
+    //
+    if ( acc != nullptr && acc->isAvailable(*this) ) { 
+      size_t idx((size_t)samp); 
+      return ( idx < (*acc)(*this).size() )             // valid sampling 
+	? isInnerWheel                                  // check if inner wheel cell count is requested
+	? extractUpperCount<int>((*acc)(*this)[idx])
+	: extractLowerCount<int>((*acc)(*this)[idx])
+	: 0; 
+    } else { 
+      return 0;
+    }
+  }
+
+  // Get number of all cells
+  int CaloCluster_v1::numberCells() const { 
+    std::vector<int> ncells; 
+    return getNumberCellsInSampling<std::vector<int> >(ncells) ? std::accumulate(ncells.begin(),ncells.end(),0) : 0; 
+  }
 
   unsigned int CaloCluster_v1::getClusterEtaSize() const{
     const unsigned clustersize=clusterSize();
@@ -821,6 +871,23 @@ namespace xAOD {
     const CaloClusterCellLinkContainer& ref=*cccl;
     ElementLink<CaloClusterCellLinkContainer> el(ref,idx,sg);
     accCellLinks(*this)=el;
+    return true;
+  }
+  bool
+  CaloCluster_v1::setLink(CaloClusterCellLinkContainer* cccl,
+                          const EventContext& ctx)
+  {
+    if (!m_cellLinks || !cccl) {
+      return false;
+    }
+    // The links are now owned by the container
+    cccl->push_back(m_cellLinks.release());
+    const size_t idx = cccl->size() - 1; // Use index for speed
+    static const Accessor<ElementLink<CaloClusterCellLinkContainer>>
+      accCellLinks("CellLink");
+    const CaloClusterCellLinkContainer& ref = *cccl;
+    ElementLink<CaloClusterCellLinkContainer> el(ref, idx, ctx);
+    accCellLinks(*this) = el;
     return true;
   }
 
@@ -905,6 +972,15 @@ namespace xAOD {
     return true;
   }
 
+  void  CaloCluster_v1::setSecondTime(CaloCluster_v1::flt_t stime) { m_secondTime = stime; }
+
+  CaloCluster_v1::flt_t CaloCluster_v1::secondTime() const {
+    if ( m_secondTime < 0. ) { 
+      double stime(0.); return this->retrieveMoment(SECOND_TIME,stime) ? stime : 0.; 
+    } else { 
+      return m_secondTime; 
+    }
+  }
 
 #if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
 size_t CaloCluster_v1::size() const {

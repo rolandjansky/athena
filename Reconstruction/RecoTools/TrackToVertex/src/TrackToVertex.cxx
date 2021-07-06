@@ -63,9 +63,9 @@ const InDet::BeamSpotData* Reco::TrackToVertex::GetBeamSpotData(const EventConte
 // incident listener waiting for BeginEvent
 std::unique_ptr<Trk::StraightLineSurface> Reco::TrackToVertex::GetBeamLine(const InDet::BeamSpotData* beamSpotHandle) const {
     // get the transform
-    Amg::Transform3D* beamTransform = new Amg::Transform3D(Amg::AngleAxis3D(beamSpotHandle->beamTilt(0),Amg::Vector3D(0.,1.,0.)));
-    (*beamTransform) *= Amg::AngleAxis3D(beamSpotHandle->beamTilt(1),Amg::Vector3D(1.,0.,0.));
-    beamTransform->pretranslate(beamSpotHandle->beamPos());
+    Amg::Transform3D beamTransform = Amg::Transform3D(Amg::AngleAxis3D(beamSpotHandle->beamTilt(0),Amg::Vector3D(0.,1.,0.)));
+    beamTransform *= Amg::AngleAxis3D(beamSpotHandle->beamTilt(1),Amg::Vector3D(1.,0.,0.));
+    beamTransform.pretranslate(beamSpotHandle->beamPos());
     // create the new beam line
     return std::make_unique< Trk::StraightLineSurface >(beamTransform);
 }
@@ -112,7 +112,7 @@ const Trk::Perigee* Reco::TrackToVertex::perigeeAtVertex(const xAOD::TrackPartic
   } else {
     const Trk::TrackParameters* extrapResult =
       m_extrapolator->extrapolateDirectly(trackparPerigee, persf);
-    if (extrapResult && extrapResult->surfaceType() == Trk::Surface::Perigee) {
+    if (extrapResult && extrapResult->surfaceType() == Trk::SurfaceType::Perigee) {
       vertexPerigee = static_cast<const Trk::Perigee*>(extrapResult);
     }
   }
@@ -138,7 +138,7 @@ const Trk::Perigee* Reco::TrackToVertex::perigeeAtVertex(const Rec::TrackParticl
        const Trk::TrackParameters* extrapResult =
          m_extrapolator->extrapolateDirectly(*trackparPerigee, persf);
        if (extrapResult &&
-           extrapResult->surfaceType() == Trk::Surface::Perigee) {
+           extrapResult->surfaceType() == Trk::SurfaceType::Perigee) {
          vertexPerigee = static_cast<const Trk::Perigee*>(extrapResult);
        }
      }
@@ -161,7 +161,7 @@ const Trk::Perigee* Reco::TrackToVertex::perigeeAtVertex(const Trk::Track& track
   const Trk::Perigee* vertexPerigee = nullptr;
   const Trk::TrackParameters* extrapResult =
     m_extrapolator->extrapolate(track, persf);
-  if (extrapResult && extrapResult->surfaceType() == Trk::Surface::Perigee) {
+  if (extrapResult && extrapResult->surfaceType() == Trk::SurfaceType::Perigee) {
     vertexPerigee = static_cast<const Trk::Perigee*>(extrapResult);
   }
   if (!vertexPerigee) {
@@ -196,8 +196,11 @@ const Trk::Perigee* Reco::TrackToVertex::perigeeAtBeamspot(const Trk::Track& tra
   return perigeeAtVertex(track, beamspot ? beamspot->beamVtx().position() : s_origin);
 }
 
-
-const Trk::Perigee* Reco::TrackToVertex::perigeeAtBeamline(const Trk::Track& track, const InDet::BeamSpotData* beamspotptr) const
+const Trk::Perigee*
+Reco::TrackToVertex::perigeeAtBeamline(
+  const EventContext& ctx,
+  const Trk::Track& track,
+  const InDet::BeamSpotData* beamspotptr) const
 {
 
   Amg::Vector3D beamspot(s_origin);
@@ -208,18 +211,18 @@ const Trk::Perigee* Reco::TrackToVertex::perigeeAtBeamline(const Trk::Track& tra
     tiltx =  beamspotptr->beamTilt(0);
     tilty =  beamspotptr->beamTilt(1);
   }
-  Amg::Transform3D * amgTransf = new Amg::Transform3D();
   Amg::Translation3D amgtranslation(beamspot);
-  *amgTransf = amgtranslation * Amg::RotationMatrix3D::Identity();
-  *amgTransf *= Amg::AngleAxis3D(tilty, Amg::Vector3D(0.,1.,0.));
-  *amgTransf *= Amg::AngleAxis3D(tiltx, Amg::Vector3D(1.,0.,0.));
+  Amg::Transform3D pAmgTransf =
+    amgtranslation * Amg::RotationMatrix3D::Identity();
+  pAmgTransf *= Amg::AngleAxis3D(tilty, Amg::Vector3D(0., 1., 0.));
+  pAmgTransf *= Amg::AngleAxis3D(tiltx, Amg::Vector3D(1., 0., 0.));
   // preparation
-  Trk::PerigeeSurface persf(amgTransf);
+  Trk::PerigeeSurface persf(std::move(pAmgTransf));
 
   const Trk::Perigee* vertexPerigee = nullptr;
   const Trk::TrackParameters* extrapResult =
-    m_extrapolator->extrapolate(track, persf);
-  if (extrapResult && extrapResult->surfaceType() == Trk::Surface::Perigee) {
+    m_extrapolator->extrapolate(ctx,track, persf);
+  if (extrapResult && extrapResult->surfaceType() == Trk::SurfaceType::Perigee) {
     vertexPerigee = static_cast<const Trk::Perigee*>(extrapResult);
   }
   if (!vertexPerigee) {
@@ -227,16 +230,15 @@ const Trk::Perigee* Reco::TrackToVertex::perigeeAtBeamline(const Trk::Track& tra
     // try again using the first track parameter set, since the current extrapolator will
     // use "the closest" track parameterset which is not necessarily the mostuseful one to
     // start the extrapolation with.
-    // @TODO should try to improve the extrapolator to pick the correct start parameters.
     const DataVector<const Trk::TrackParameters> *track_parameter_list= track.trackParameters();
     if (track_parameter_list) {
       for(const Trk::TrackParameters *trk_params: *track_parameter_list) {
         if (!trk_params) {
           continue;
         }
-        extrapResult = m_extrapolator->extrapolate(*trk_params, persf);
+        extrapResult = m_extrapolator->extrapolate(ctx,*trk_params, persf);
         if (extrapResult &&
-            extrapResult->surfaceType() == Trk::Surface::Perigee) {
+            extrapResult->surfaceType() == Trk::SurfaceType::Perigee) {
           vertexPerigee = static_cast<const Trk::Perigee*>(extrapResult);
         }
         break;
@@ -276,11 +278,11 @@ const Trk::TrackParameters* Reco::TrackToVertex::trackAtBeamline(const xAOD::Tra
     tiltx =  beamspotptr->beamTilt(0);
     tilty =  beamspotptr->beamTilt(1);
   }
-  Amg::Transform3D * amgTransf = new Amg::Transform3D();
+  Amg::Transform3D amgTransf;
   Amg::Translation3D amgtranslation(beamspot);
-  *amgTransf = amgtranslation * Amg::RotationMatrix3D::Identity();
-  *amgTransf *= Amg::AngleAxis3D(tilty, Amg::Vector3D(0.,1.,0.));
-  *amgTransf *= Amg::AngleAxis3D(tiltx, Amg::Vector3D(1.,0.,0.));
+  amgTransf = amgtranslation * Amg::RotationMatrix3D::Identity();
+  amgTransf *= Amg::AngleAxis3D(tilty, Amg::Vector3D(0.,1.,0.));
+  amgTransf *= Amg::AngleAxis3D(tiltx, Amg::Vector3D(1.,0.,0.));
  // preparation
   Trk::PerigeeSurface persf(amgTransf);
   const Trk::TrackParameters* vertexPerigee = nullptr;
@@ -288,13 +290,11 @@ const Trk::TrackParameters* Reco::TrackToVertex::trackAtBeamline(const xAOD::Tra
   const Trk::Perigee& trackparPerigee = tp.perigeeParameters();
   if ( trackparPerigee.associatedSurface() == persf) {
        ATH_MSG_DEBUG("Perigee of TrackParticle is already expressed to given vertex, a copy is returned.");
-       delete amgTransf;
        return(trackparPerigee.clone());
   } else
       vertexPerigee = m_extrapolator->extrapolateDirectly(trackparPerigee, persf);
   if (!vertexPerigee){
      ATH_MSG_DEBUG("Extrapolation to Beam Line failed, a NULL pointer is returned.");
-     delete amgTransf;
   }
   return vertexPerigee;
 

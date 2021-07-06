@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """ToolFactory to instantiate  egammaBremCollectionBuilder
 with default configuration"""
@@ -11,13 +11,16 @@ from AthenaCommon.Logging import logging
 from egammaAlgs import egammaAlgsConf
 from egammaRec import egammaKeys
 from egammaRec.Factories import AlgFactory
-from egammaTools.egammaExtrapolators import (AtlasPublicExtrapolator,
-                                             egammaExtrapolator)
+from egammaTools.egammaExtrapolators import egammaExtrapolator,AtlasPublicExtrapolator
 # default configuration of the EMBremCollectionBuilder
 from InDetRecExample.InDetJobProperties import InDetFlags
 from InDetRecExample.InDetKeys import InDetKeys
 from RecExConfig.RecFlags import rec
 
+def AtlasTrackToVertexTool(name="AtlasTrackToVertexTool",**kwargs) :
+    # @TODO switch to egammaExtrapolator ?
+    kwargs.setdefault("Extrapolator",AtlasPublicExtrapolator())
+    return TrackingCommon.getInDetTrackToVertexTool(name, **kwargs)
 
 class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
     __slots__ = ()
@@ -30,10 +33,10 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
 
         import egammaRec.EMCommonRefitter
 
-        # Extrapolator to be used for GSF (private)
+        # Extrapolator to be used for GSF
         GSFBuildInDetExtrapolator = egammaExtrapolator()
 
-        # GsfReffiter (private not in ToolSvc)
+        # GsfReffiter
         from egammaTrackTools.egammaTrackToolsConf import egammaTrkRefitterTool
         GSFRefitterTool = egammaTrkRefitterTool(
             name='GSFRefitterTool',
@@ -43,7 +46,7 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
             ReintegrateOutliers=True)
 
         #
-        #  BLayer and Pixel Related Tools (private = True)
+        #  BLayer and Pixel Related Tools
         #
         GSFBuildTestBLayerTool = None
         GSFBuildPixelToTPIDTool = None
@@ -66,7 +69,7 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
                 name="GSFBuildPixelToTPIDTool",
                 private=True)
         #
-        #  TRT_ElectronPidTool (private =True)
+        #  TRT_ElectronPidTool
         #
         GSFBuildTRT_ElectronPidTool = None
         if DetFlags.haveRIO.TRT_on() and not InDetFlags.doSLHC(
@@ -74,13 +77,13 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
             GSFBuildTRT_ElectronPidTool = (
                 TrackingCommon.getInDetTRT_ElectronPidTool(
                     name="GSFBuildTRT_ElectronPidTool",
-                    CalculateNNPid=True,
+                    CalculateNNPid=False,
                     MinimumTrackPtForNNPid=0.,
                     private=True))
 
         #
         #  InDet Track Summary Helper, no Association and no hole
-        #  as we do not redo them (private = true)
+        #  as we do not redo them
         #
         GSFBuildTrackSummaryHelperTool = TrackingCommon.getInDetSummaryHelper(
             name="GSFBuildTrackSummaryHelperTool",
@@ -107,8 +110,7 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
         )
 
         #
-        #  Track Particle Creator tool (private not in ToolSvc)
-        #  But needs a public extrapolator
+        #  Track Particle Creator tool
         #
         from TrkParticleCreator.TrkParticleCreatorConf import (
             Trk__TrackParticleCreatorTool)
@@ -116,10 +118,10 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
         GSFBuildInDetParticleCreatorTool = Trk__TrackParticleCreatorTool(
             name="GSFBuildInDetParticleCreatorTool",
             KeepParameters=True,
-            Extrapolator=AtlasPublicExtrapolator(),
+            TrackToVertex=AtlasTrackToVertexTool(),
             UseTrackSummaryTool=False)
         #
-        #  Track slimming (private not in ToolSvc)
+        #  Track slimming
         #
         from TrkTrackSlimmingTool.TrkTrackSlimmingToolConf import (
             Trk__TrackSlimmingTool as ConfigurableTrackSlimmingTool)

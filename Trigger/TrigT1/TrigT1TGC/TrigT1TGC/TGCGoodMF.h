@@ -1,12 +1,7 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// ====================================================================
-/*
-        TGCGoodMF.h
-*/
-// ====================================================================
 #ifndef TGCGoodMF_h
 #define TGCGoodMF_h
 
@@ -21,12 +16,6 @@
 namespace LVL1TGCTrigger {
 
 class TGCArguments;
-
-// ====================================================================
-//
-// class definition
-//
-// ====================================================================
 
 class TGCGoodMF {
 public:

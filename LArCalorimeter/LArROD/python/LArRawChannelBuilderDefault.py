@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from LArROD.LArRODFlags import larRODFlags
 from AthenaCommon.GlobalFlags import globalflags
 from LArByteStream.LArByteStreamConf import LArRawDataReadingAlg
 
-def LArRawChannelBuilderDefault():
+def LArRawChannelBuilderDefault(forceIter=False):
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
 
@@ -17,8 +17,30 @@ def LArRawChannelBuilderDefault():
 
         LArADC2MeVCondAlgDefault()
 
-        from LArROD.LArRODConf import LArRawChannelBuilderAlg
-        theLArRawChannelBuilder=LArRawChannelBuilderAlg()
+        if not forceIter:
+            from LArConditionsCommon.LArRunFormat import getLArFormatForRun
+            from RecExConfig.AutoConfiguration import GetRunNumber
+            runNum = GetRunNumber()
+            if runNum is not None:
+               lri=getLArFormatForRun(runNum)
+            else:
+               lri=None
+            if lri is not None and lri.runType() is not None and lri.runType()==0:
+                forceIter=True
+                
+        if forceIter:
+           from LArROD.LArRODConf import LArRawChannelBuilderIterAlg
+           theLArRawChannelBuilder=LArRawChannelBuilderIterAlg()
+           theLArRawChannelBuilder.minSample=2
+           theLArRawChannelBuilder.maxSample=12
+           theLArRawChannelBuilder.minADCforIterInSigma=4
+           theLArRawChannelBuilder.minADCforIter=15
+           theLArRawChannelBuilder.defaultPhase=12
+           #from AthenaCommon.Constants import DEBUG
+           #theLArRawChannelBuilder.OutputLevel=DEBUG
+        else:
+           from LArROD.LArRODConf import LArRawChannelBuilderAlg
+           theLArRawChannelBuilder=LArRawChannelBuilderAlg()
         if larRODFlags.keepDSPRaw():
             theLArRawChannelBuilder.LArRawChannelKey=larRODFlags.RawChannelFromDigitsContainerName()
 
@@ -47,8 +69,3 @@ def LArRawChannelBuilderDefault():
 
         topSequence += theLArRawChannelBuilder
 
-        #Useless here but for backward compatiblity
-        #from AthenaCommon.AppMgr import ToolSvc
-        #from LArRecUtils.LArADC2MeVToolDefault import LArADC2MeVToolDefault
-        #theADC2MeVTool = LArADC2MeVToolDefault()
-        #ToolSvc += theADC2MeVTool

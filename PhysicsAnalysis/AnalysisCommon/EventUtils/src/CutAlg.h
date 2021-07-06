@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // CutAlg.h
@@ -17,18 +17,12 @@
 // FrameWork includes
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthFilterAlgorithm.h"
-#include "TrigDecisionTool/TrigDecisionTool.h"
 
-// Forward declarations
-namespace ExpressionParsing {
-  class ExpressionParser;
-}
-
-
+#include "ExpressionEvaluation/ExpressionParserUserWithTrigSupport.h"
 
 
 class CutAlg
-  : public ::AthFilterAlgorithm
+  : public ExpressionParserUserWithTrigSupport<::AthFilterAlgorithm>
 {
 
   ///////////////////////////////////////////////////////////////////
@@ -53,18 +47,10 @@ class CutAlg
   /// Athena algorithm's finalize hook
   virtual StatusCode  finalize();
 
-
-
   ///////////////////////////////////////////////////////////////////
   // Private data:
   ///////////////////////////////////////////////////////////////////
  private:
-  /// The trigger decision tool
-  ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
-
-  /// The expression parser
-  ExpressionParsing::ExpressionParser *m_parser;
-
 
   /// The cut string
   StringProperty m_cut;

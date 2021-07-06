@@ -114,24 +114,13 @@ if doObj("OFC"):
   conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/HVScaleCorr"))
   conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/Noise"))
   conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/AutoCorr"))
-  from LArRecUtils.LArADC2MeVToolDefault import LArADC2MeVToolDefault
-  from LArRecUtils.LArAutoCorrNoiseToolDefault import LArAutoCorrNoiseToolDefault
-  theLArADC2MeVToolDefault = LArADC2MeVToolDefault()
-  ToolSvc += theLArADC2MeVToolDefault
-  theLArAutoCorrNoiseToolDefault = LArAutoCorrNoiseToolDefault()
-  theLArAutoCorrNoiseToolDefault.NSamples = 5
-  ToolSvc += theLArAutoCorrNoiseToolDefault
-  from LArRecUtils.LArOFCToolDefault import LArOFCToolDefault
-  theOFCTool = LArOFCToolDefault()
-  theOFCTool.Dump=True
-  ToolSvc += theOFCTool
+
+  from LArRecUtils.LArOFCCondAlgDefault import LArOFCCondAlgDefault
+  LArOFCCondAlgDefault()
   
   from LArCalibTools.LArCalibToolsConf import LArOFC2Ntuple
   LArOFC2Ntuple = LArOFC2Ntuple("LArOFC2Ntuple")
-  LArOFC2Ntuple.ContainerKey = "LArOFC"
   LArOFC2Ntuple.AddFEBTempInfo=False
-  LArOFC2Ntuple.IsMC = True
-  LArOFC2Ntuple.OFCTool = theOFCTool
   topSequence+=LArOFC2Ntuple
 
 if (doObj("SHAPE")):
@@ -154,8 +143,8 @@ if doObj("RAMP"):
   topSequence+=LArRamps2Ntuple
 
 if (doObj("UA2MEV")):
-  print 'DAC2uA check : ',getDBFolderAndTag("/LAR/ElecCalibMC/DAC2uA")
-  print 'uA2MeV check : ',getDBFolderAndTag("/LAR/ElecCalibMC/uA2MeV")
+  print ('DAC2uA check : ',getDBFolderAndTag("/LAR/ElecCalibMC/DAC2uA"))
+  print ('uA2MeV check : ',getDBFolderAndTag("/LAR/ElecCalibMC/uA2MeV"))
   conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/DAC2uA"))
   conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/uA2MeV"))
   from LArCalibTools.LArCalibToolsConf import LAruA2MeV2Ntuple

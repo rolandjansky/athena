@@ -1,15 +1,13 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file:    PerfMonComps/python/PyComps.py
 # @purpose: a set of python components to perform performance monitoring
 # @author:  Sebastien Binet <binet@cern.ch>
-from __future__ import print_function
 
 __doc__     = 'a set of python components to perform performance monitoring'
 __version__ = '$Revision: 298807 $'
 __author__  = 'Sebastien Binet <binet@cern.ch>'
 
-import AthenaCommon.SystemOfUnits as Units
 import AthenaPython.PyAthena as PyAthena
 from AthenaPython.PyAthena import StatusCode
 
@@ -105,8 +103,8 @@ class PyStorePayloadMon (PyAthena.Svc):
             tp_name = clid2name(p.clID())
             print(fmt, (mem_0, mem_1, mem_0 - mem_1, tp_name, p.name()), file=fd)
             pass
-        mem_store_0 = long(mem_store_0)
-        mem_store_1 = long(mem_store_1)
+        mem_store_0 = int(mem_store_0)
+        mem_store_1 = int(mem_store_1)
         
         print(fmt, (
             mem_store_0, mem_store_1, mem_store_0 - mem_store_1,
@@ -133,7 +131,7 @@ class PyStorePayloadMon (PyAthena.Svc):
         ##     mem_0, mem_1, mem_1 - mem_0, ncalls_0, ncalls_1,
         ##     p.clID(), p.name()
         ##     ))
-        return (p, long(mem_0), long(mem_1))
+        return (p, int(mem_0), int(mem_1))
     
     def finalize(self):
         self.msg.info('==> finalize...')

@@ -3,7 +3,6 @@
 Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 
-#TODO: Do we need this to be function or can it just be an array?
 def AdditionalParticleParametrizationFileNames():
     return [
       "DB=/GLOBAL/AtlfastII/FastCaloSimParam:2:EnergyResults/pdgid_211/EN_1000/eta_central",

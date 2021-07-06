@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -71,16 +71,17 @@ namespace pool  {
       *
       * @return Status code indicating success or failure.
       */
-    DbContainerObj( const DbDatabase&  dbH,
+    DbContainerObj( DbDatabase&        dbH,
                     const std::string& nam,
                     const DbType&      dbtyp,
                     DbAccessMode       mod);
     /// Standard destructor
     virtual ~DbContainerObj();
     /// Access to internals
-    IDbContainer* info()  const             {  return m_info;         }
+    const IDbContainer* info()  const       {  return m_info;         }
+    IDbContainer* info()                    {  return m_info;         }
     /// Retrieve persistent type information by name
-    const DbTypeInfo* objectShape(const Guid& nam) const;
+    const DbTypeInfo* objectShape(const Guid& nam);
     /// Add persistent type. Returns error if the type is not supported.
     DbStatus addShape(const DbTypeInfo* typ);
     /// Handle to Database (CONST)
@@ -116,7 +117,7 @@ namespace pool  {
     /// Destroy an existing persistent object identified by its handle
     DbStatus destroy(const Token::OID_t& linkH);
     /// Add an object to the container identified by its handle
-    DbStatus save(const DbObjectHandle<DbObject>& objH,
+    DbStatus save(DbObjectHandle<DbObject>& objH,
                   const DbTypeInfo* typ);
 
 

@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 #jobOptions fragment to fill LAr error bit during duration of noise burts
 
 from IOVDbSvc.CondDB import conddb

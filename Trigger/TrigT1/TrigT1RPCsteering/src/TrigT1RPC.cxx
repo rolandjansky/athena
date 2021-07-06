@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1RPC.h"
@@ -25,9 +25,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 TrigT1RPC::TrigT1RPC(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_cabling_getter("RPCcablingServerSvc/RPCcablingServerSvc","TrigT1RPC"),
-  m_cabling(nullptr) {
+  AthAlgorithm(name, pSvcLocator) {
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -35,12 +33,11 @@ TrigT1RPC::TrigT1RPC(const std::string& name, ISvcLocator* pSvcLocator) :
 StatusCode TrigT1RPC::initialize(){
     ATH_MSG_INFO("Initializing");
     ATH_CHECK(m_idHelperSvc.retrieve());
-    ATH_CHECK(m_cabling_getter.retrieve());
-    ATH_CHECK(m_cabling_getter->giveCabling(m_cabling));
     ATH_CHECK(m_readKey.initialize());
     ATH_CHECK(m_rpcDigitKey.initialize());
     ATH_CHECK(m_muctpiPhase1Key.initialize(m_useRun3Config));
     ATH_CHECK(m_muctpiKey.initialize(!m_useRun3Config));
+    ATH_CHECK(m_bis78TrigKey.initialize());
     ATH_CHECK(m_muDetMgrKey.initialize());
     return StatusCode::SUCCESS;
 }
@@ -78,7 +75,7 @@ StatusCode TrigT1RPC::execute() {
     
     ///// Creates the CMA patterns from RPC digits /////////////////////////
   debug = (m_hardware_emulation)? m_cma_debug : m_fast_debug;           //
-  CMAdata patterns(&data, m_cabling, debug);                              //
+  CMAdata patterns(&data, readCdo, debug);                              //
                                                                         //
   ATH_MSG_DEBUG ( "CMApatterns created from RPC digits:" << std::endl //
                   << ShowData<CMAdata>(patterns,"",m_data_detail) );      //
@@ -251,6 +248,22 @@ StatusCode TrigT1RPC::execute() {
 
   }
 
+  // ******************* Start of BIS78 section *****************
+
+  // Now BIS78 Trigger 
+  uint8_t dstrip_phi=1; // Delta phi for BIS78 coincidence
+  uint8_t dstrip_eta=1; // Delta eta for BIS78 coincidence
+  uint16_t bcid=0;
+  
+  Muon::RpcBis78_TrigRawDataContainer* bis78RpcTrigData = nullptr;
+  SG::WriteHandle<Muon::RpcBis78_TrigRawDataContainer> wh_bis78RpcTrigData(m_bis78TrigKey);
+  ATH_CHECK(wh_bis78RpcTrigData.record(std::make_unique<Muon::RpcBis78_TrigRawDataContainer>()));
+  bis78RpcTrigData = wh_bis78RpcTrigData.ptr();
+
+  m_BIS78TrigSim.build_trigRawData(bis78RpcTrigData, dstrip_phi, dstrip_eta, bcid);
+  ATH_MSG_DEBUG ("put bis78TrgContainer into SG" ); //
+
+  
   ATH_MSG_DEBUG ( "TrigT1RPC terminated succesfully!" );
 
   return StatusCode::SUCCESS;
@@ -272,13 +285,17 @@ StatusCode TrigT1RPC::fill_RPCdata(RPCsimuData& data, const RpcCablingCondData* 
     }
     const RpcDigitContainer* container = rh_rpcDigits.cptr();
 
+    // Cleanup the BIS78 strip data 
+    CHECK( m_BIS78TrigSim.clear() );
+
+    int bisStationIndex=m_idHelperSvc->rpcIdHelper().stationNameIndex("BIS");
 
     collection_iterator it1_coll= container->begin(); 
     collection_iterator it2_coll= container->end(); 
 
     for (  ; it1_coll!=it2_coll; ++it1_coll) 
     {
-        const  RpcDigitCollection* rpcCollection = *it1_coll; 
+        const  RpcDigitCollection* rpcCollection = *it1_coll;
  
         Identifier moduleId = rpcCollection->identify();
 
@@ -315,8 +332,7 @@ StatusCode TrigT1RPC::fill_RPCdata(RPCsimuData& data, const RpcCablingCondData* 
 		    unsigned long int strip_code_cab = readCdo->strip_code_fromOffId(StationName,StationEta,StationPhi,
 						       DoubletR,DoubletZ,DoubletP,GasGap,MeasuresPhi,Strip);
 		    
-
-                    if(strip_code_cab) {
+		    if(strip_code_cab) {
 		      // Fill data for the Level-1 RPC digit
                         float xyz[4];
 			xyz[1] = pos.x()/10.;//coo[0];            //RPC strip x coordinate 
@@ -353,6 +369,17 @@ StatusCode TrigT1RPC::fill_RPCdata(RPCsimuData& data, const RpcCablingCondData* 
                                        << std::setw(11) << pos.z() );
                         
                     }
+		    
+		    // This section fills the BIS strip data 
+		    if (stationType == bisStationIndex) {
+        	      ATH_MSG_DEBUG (  "Filling BIS strip data: StationName=" << StationName << " StationEta=" << StationEta 
+        		      << " StationPhi=" << StationPhi<< " MeasuresPhi=" << MeasuresPhi
+        		      << " Strip=" << Strip<< " GasGap=" << GasGap 
+			      << " Time=" <<rpcDigit->time() );
+		    
+		      m_BIS78TrigSim.AddStrip(StationEta, StationPhi, GasGap, MeasuresPhi, Strip);
+		    }
+  
                 }
             }
             std::string id = m_idHelperSvc->rpcIdHelper().show_to_string(moduleId);

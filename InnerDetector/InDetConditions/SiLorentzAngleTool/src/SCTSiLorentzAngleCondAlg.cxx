@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -135,9 +135,9 @@ StatusCode SCTSiLorentzAngleCondAlg::execute(const EventContext& ctx) const
       deplVoltage = m_deplVoltage.value() * CLHEP::volt;
       biasVoltage = m_biasVoltage.value() * CLHEP::volt;
     } else {
-      temperatureC = m_siConditionsTool->temperature(elementHash);
-      deplVoltage = m_siConditionsTool->depletionVoltage(elementHash) * CLHEP::volt;
-      biasVoltage = m_siConditionsTool->biasVoltage(elementHash) * CLHEP::volt;
+      temperatureC = m_siConditionsTool->temperature(elementHash, ctx);
+      deplVoltage = m_siConditionsTool->depletionVoltage(elementHash, ctx) * CLHEP::volt;
+      biasVoltage = m_siConditionsTool->biasVoltage(elementHash, ctx) * CLHEP::volt;
       ATH_MSG_DEBUG("SCT Hash = " << elementHash << " Temperature = " << temperatureC << " [deg C], BiasV = " << biasVoltage << " DeplV = " << deplVoltage);
     }
 

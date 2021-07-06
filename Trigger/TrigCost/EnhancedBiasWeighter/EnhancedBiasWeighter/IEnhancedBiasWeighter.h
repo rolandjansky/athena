@@ -33,12 +33,14 @@ class IEnhancedBiasWeighter : public virtual DerivationFramework::IAugmentationT
       virtual double   getAverageMu() const = 0;
       virtual double   getDeadtime() const = 0;
       virtual uint32_t getPairedBunches() const = 0;
-      virtual uint32_t getDistanceIntoTrain(const xAOD::EventInfo* eventInfo) const = 0;
+      virtual StatusCode getDistanceIntoTrain(const xAOD::EventInfo* eventInfo, uint32_t& distance) const = 0;
+      virtual uint32_t getRunNumber() const = 0;
       virtual bool     isUnbiasedEvent(const xAOD::EventInfo* eventInfo) const = 0;
       virtual bool     isGoodLB(const xAOD::EventInfo* eventInfo) const = 0;
       virtual bool     isGoodLB(const EventContext& context) const = 0;
       virtual bool     isMC() const = 0;
       virtual std::unordered_map<std::string, ChainDetail> parsePrescaleXML(const std::string& prescaleXML) const = 0;
+      virtual const std::vector<int32_t>& getBunchGroups() const = 0;
 
 };
 

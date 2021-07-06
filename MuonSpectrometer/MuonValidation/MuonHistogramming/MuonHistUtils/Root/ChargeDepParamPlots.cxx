@@ -27,23 +27,23 @@ void ChargeDepParamPlots::initializePlots() {
 }
 
 
-void ChargeDepParamPlots::fill(const xAOD::Muon& mu)
+  void ChargeDepParamPlots::fill(const xAOD::Muon& mu, float weight)
 {
   const xAOD::TrackParticle* trkprt = mu.trackParticle(xAOD::Muon::Primary);
   if (!trkprt) return;
     
-  q_times_eta->Fill(trkprt->charge()*trkprt->eta());
-  q_over_pt->Fill(trkprt->charge()/trkprt->pt()/0.001);
-  q_over_p->Fill(trkprt->qOverP()/0.001);
+  q_times_eta->Fill(trkprt->charge()*trkprt->eta(),weight);
+  q_over_pt->Fill(trkprt->charge()/trkprt->pt()/0.001, weight);
+  q_over_p->Fill(trkprt->qOverP()/0.001, weight);
      
   const xAOD::TrackParticle* trkprtID = mu.trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
   const xAOD::TrackParticle* trkprtMS = mu.trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle);
 
   if (trkprtID)
-    qID_times_qCB->Fill(trkprtID->charge()*trkprt->charge());
+    qID_times_qCB->Fill(trkprtID->charge()*trkprt->charge(),weight);
   
   if (trkprtMS) 
-    qMS_times_qCB->Fill(trkprtMS->charge()*trkprt->charge());  
+    qMS_times_qCB->Fill(trkprtMS->charge()*trkprt->charge(),weight);  
 }
 
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: DbOption.h 726071 2016-02-25 09:23:05Z krasznaa $
@@ -60,7 +60,7 @@ namespace pool  {
     std::string       m_opt;
 
     /// Set the option value
-    DbStatus i_setValue(const std::type_info& typ, void* value);
+    DbStatus i_setValue(const std::type_info& typ, const void* value);
     /// Set the option value
     DbStatus i_getValue(const std::type_info& typ, void* value) const;
 
@@ -91,7 +91,7 @@ namespace pool  {
     /// Access to OS independent type name
     std::string typeName() const;
     /// Set the option value
-    DbStatus setValue(DbColumn::Type typ, void* value);
+    DbStatus setValue(DbColumn::Type typ, const void* value);
     /// Set the option value
     DbStatus getValue(DbColumn::Type typ, void* value) const;
   };

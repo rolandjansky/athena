@@ -7,11 +7,11 @@
 #########################################################################
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Tau.TauChainConfiguration")
+log = logging.getLogger(__name__)
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 
-from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSeq, tauCaloMVAMenuSeq, tauFTFTauSeq, tauFTFTauCoreSeq, tauFTFTauIsoSeq, tauFTFTauIsoBDTSeq, tauIDPrecSeq, tauTrackPrecSeq, tauTrackTwoPrecSeq, tauTrackTwoEFSeq, tauTrackTwoMVASeq, tauPreSelSeq, tauPreSelTTSeq, tauPrecTrackSeq, tauPrecTrackIsoSeq
+from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSeq, tauCaloMVAMenuSeq, tauFTFTauSeq, tauFTFTauCoreSeq, tauFTFTauIsoSeq, tauFTFTauIsoBDTSeq, tauTrackPrecSeq, tauTrackTwoPrecSeq, tauTrackTwoMVASeq, tauTrackTwoLLPSeq, tauPreSelSeq, tauPreSelTTSeq, tauPrecTrackSeq, tauPrecTrackIsoSeq
 
 #--------------------------------------------------------
 # fragments generating config will be functions in new JO
@@ -34,20 +34,17 @@ def getFTFIsoCfg(flags):
 def getFTFIsoBDTCfg(flags):
     return tauFTFTauIsoBDTSeq()
 
-def getIDPrecCfg(flags):
-    return tauIDPrecSeq()
-
 def getTrackPrecCfg(flags):
     return tauTrackPrecSeq()
 
 def getTrackTwoPrecCfg(flags):
     return tauTrackTwoPrecSeq()
 
-def getTrackTwoEFCfg(flags):
-    return tauTrackTwoEFSeq()
-
 def getTrackTwoMVACfg(flags):
     return tauTrackTwoMVASeq()
+
+def getTrackTwoLLPCfg(flags):
+    return tauTrackTwoLLPSeq()
 
 def getPreSelCfg(flags):
     return tauPreSelSeq()
@@ -81,12 +78,12 @@ class TauChainConfiguration(ChainConfigurationBase):
         # define here the names of the steps and obtain the chainStep configuration 
         # --------------------
         stepDictionary = {
-            "ptonly"        :['getCaloSeq'   , 'getFTFTau'  , 'getTrkEmpty' , 'getTauEmpty'  , 'getPrecTrack'    , 'getIDPrec'      ], 
+            "ptonly"        :['getCaloSeq'   , 'getFTFEmpty', 'getTrkEmpty' , 'getTauEmpty'  , 'getPTEmpty'      , 'getIDEmpty'      ], 
             "track"         :['getCaloSeq'   , 'getFTFTau'  , 'getTrkEmpty' , 'getPreSel'    , 'getPrecTrack'    , 'getTrackPrec'   ], 
             "tracktwo"      :['getCaloSeq'   , 'getFTFCore' , 'getFTFIso'   , 'getPreSelTT'  , 'getPrecTrackIso' , 'getTrackTwoPrec'],
-            "tracktwoEF"    :['getCaloSeq'   , 'getFTFCore' , 'getFTFIso'   , 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoEF'  ],
             "tracktwoMVA"   :['getCaloMVASeq', 'getFTFCore' , 'getFTFIso'   , 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoMVA' ],
             "tracktwoMVABDT":['getCaloMVASeq', 'getFTFCore' , 'getFTFIsoBDT', 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoMVA' ],
+            "tracktwoLLP":['getCaloMVASeq', 'getFTFCore' , 'getFTFIsoBDT', 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoLLP' ],
         }
 
         # this should be extended by the signature expert to make full use of the dictionary!
@@ -119,6 +116,11 @@ class TauChainConfiguration(ChainConfigurationBase):
     def getFTFCore(self):
         stepName = 'FTFCore_tau'
         return self.getStep(2,stepName, [getFTFCoreCfg])
+
+    # --------------------                                                                                                                                   
+    def getFTFEmpty(self):
+        stepName = 'FTFEmpty_tau'
+        return self.getEmptyStep(2,stepName)
 
     # --------------------                                                                                                      
     def getFTFIso(self):
@@ -160,10 +162,10 @@ class TauChainConfiguration(ChainConfigurationBase):
         stepName = 'PrecTrkIso_tau'
         return self.getStep(5,stepName,[getPrecTrackIsoCfg])
 
-    # --------------------                                                                                                       
-    def getIDPrec(self):
-        stepName = 'IDPrec_tau'
-        return self.getStep(6,stepName, [getIDPrecCfg])
+    # --------------------                                                                                                                                   
+    def getPTEmpty(self):
+        stepName = 'PTEmpty_tau'
+        return self.getEmptyStep(5,stepName)
 
     # --------------------                                                                                                       
     def getTrackPrec(self):
@@ -175,12 +177,17 @@ class TauChainConfiguration(ChainConfigurationBase):
         stepName = 'TrkTwo_tau'
         return self.getStep(6,stepName, [getTrackTwoPrecCfg])
 
-    # --------------------                                                                                                     
-    def getTrackTwoEF(self):
-        stepName = 'TrkTwoEF_tau'
-        return self.getStep(6, stepName, [getTrackTwoEFCfg])
-
     # --------------------                                                                                                      
     def getTrackTwoMVA(self):
-        stepName = 'TrkTwoMVA_tau'
-        return self.getStep(6, stepName, [getTrackTwoMVACfg])
+        stepName = "TrkTwoMVA_tau"
+        return self.getStep(6,stepName,[getTrackTwoMVACfg])
+
+    # --------------------                                                                                                      
+    def getTrackTwoLLP(self):
+        stepName = "TrkTwoLLP_tau"
+        return self.getStep(6,stepName,[getTrackTwoLLPCfg])
+
+    # --------------------                                                                                                                                   
+    def getIDEmpty(self):
+        stepName = 'IDEmpty_tau'
+        return self.getEmptyStep(6,stepName)

@@ -23,8 +23,10 @@
 //Event classes
 class LArDigitContainer;
 class LArRawChannelContainer;
+class CaloCellContainer;
+class CaloSuperCellDetDescrManager;
 
-class LArOnlineID;
+class LArOnlineID_Base;
 
 class LArRawChannelBuilderAlg : public AthReentrantAlgorithm {
 
@@ -42,7 +44,9 @@ class LArRawChannelBuilderAlg : public AthReentrantAlgorithm {
       "SG Key of LArDigitContaiiner"};
   //Event output:
   SG::WriteHandleKey<LArRawChannelContainer> m_rawChannelKey{this,"LArRawChannelKey","LArRawChannels",
-      "SG key of the LArRawChannelContainer"};
+      "SG key of the output LArRawChannelContainer"};
+  SG::WriteHandleKey<CaloCellContainer> m_cellKey{this,"CaloCellKey","SCellnoBCID",
+      "SG key of the output CaloCellContainer"};
 
   //Conditions input:
   SG::ReadCondHandleKey<ILArPedestal> m_pedestalKey{this,"PedestalKey","LArPedestal","SG Key of Pedestal conditions object"};
@@ -67,10 +71,15 @@ class LArRawChannelBuilderAlg : public AthReentrantAlgorithm {
   //The following matters only in the MC case, when we have a 32 sample shapes
   Gaudi::Property<int> m_firstSample{this,"firstSample",0,"first of the 32 sampels of the MC shape to be used"};
 
+  // Use the code for SuperCells
+  Gaudi::Property<bool> m_isSC{this,"IsSuperCell",false,"code should produce SuperCells"};
   
 
   //Identifier helper
-  const LArOnlineID* m_onlineId;
+  const LArOnlineID_Base* m_onlineId;
+
+  /// Geometry manager.
+  const CaloSuperCellDetDescrManager* m_sem_mgr;
 
 };
 

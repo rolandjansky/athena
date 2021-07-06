@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AlphaBetaEstimate.h"
@@ -34,7 +34,7 @@ void TrigL2MuonSA::AlphaBetaEstimate::setMCFlag(BooleanProperty use_mcLUT,
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*   p_roi,
+StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const TrigRoiDescriptor*   p_roids,
 							 TrigL2MuonSA::TgcFitResult& tgcFitResult,
 							 TrigL2MuonSA::TrackPattern& trackPattern,
                                                          const TrigL2MuonSA::MuonRoad& /*muonRoad*/) const
@@ -134,13 +134,13 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
     double etaInner = 0.;
     double etaMiddle = 0.;
     if ( !isZero(MiddleZ) ) {
-      double theta = atan(MiddleR/fabsf(MiddleZ));
-      etaMiddle = -log(tan(theta/2.))*MiddleZ/fabsf(MiddleZ);
+      double theta = std::atan(MiddleR/std::abs(MiddleZ));
+      etaMiddle = -std::log(std::tan(theta/2.))*MiddleZ/std::abs(MiddleZ);
     }
 
     if ( !isZero(InnerZ) ) {
-      double theta = atan(InnerR/fabsf(InnerZ));
-      etaInner = -log(tan(theta/2.))*InnerZ/fabsf(InnerZ);
+      double theta = std::atan(InnerR/std::abs(InnerZ));
+      etaInner = -std::log(std::tan(theta/2.))*InnerZ/std::abs(InnerZ);
     }
     
     if ( !isZero(MiddleZ) ) trackPattern.etaMap = etaMiddle;  
@@ -148,20 +148,20 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
     if ( !isZero(tgcFitResult.tgcInn[3]) ) phi = tgcFitResult.tgcInn[1];
 
     if ( phim > M_PI+0.1 ) phim = phim - 2*M_PI;
-    if ( phim >= 0 ) trackPattern.phiMap = (phi>=0.)? phi - phim : phim - fabs(phi);
+    if ( phim >= 0 ) trackPattern.phiMap = (phi>=0.)? phi - phim : phim - std::abs(phi);
     else trackPattern.phiMap = phi - phim;
     
     int Octant = (int)(tgcFitResult.tgcMid1[1] / (M_PI/4.));
-    double PhiInOctant = fabs(tgcFitResult.tgcMid1[1] - Octant * (M_PI/4.));
+    double PhiInOctant = std::abs(tgcFitResult.tgcMid1[1] - Octant * (M_PI/4.));
     if (PhiInOctant > (M_PI/8.)) PhiInOctant = (M_PI/4.) - PhiInOctant;
     
     trackPattern.endcapBeta = 0.0;
     trackPattern.phiMS      = phi;
-    trackPattern.pt         = fabs(tgcFitResult.tgcPT);
-    trackPattern.charge     = (tgcFitResult.tgcPT!=0.0)? tgcFitResult.tgcPT/fabs(tgcFitResult.tgcPT) : +1;
+    trackPattern.pt         = std::abs(tgcFitResult.tgcPT);
+    trackPattern.charge     = (tgcFitResult.tgcPT!=0.0)? tgcFitResult.tgcPT/std::abs(tgcFitResult.tgcPT) : +1;
     
     trackPattern.phiBin = static_cast<int>(PhiInOctant * PHI_RANGE);
-    trackPattern.etaBin = static_cast<int>((fabs(tgcFitResult.tgcMid1[0])-1.)/0.05);
+    trackPattern.etaBin = static_cast<int>((std::abs(tgcFitResult.tgcMid1[0])-1.)/0.05);
 
     double phiEE = (tgcFitResult.tgcMid1[1]>0) ? tgcFitResult.tgcMid1[1] : tgcFitResult.tgcMid1[1] + 2*M_PI;
     trackPattern.phiBinEE = static_cast<int> (phiEE*96/M_PI);
@@ -169,15 +169,15 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
   } else {
     // TGC data readout problem -> use RoI (eta, phi) and assume straight track
 
-    trackPattern.etaMap = p_roi->eta();
-    phi = p_roi->phi();
+    trackPattern.etaMap = p_roids->eta();
+    phi = p_roids->phi();
 
     if ( phim > M_PI+0.1 ) phim = phim - 2*M_PI;
-    if ( phim >= 0 ) trackPattern.phiMap = (phi>=0.)? phi - phim : phim - fabs(phi);
+    if ( phim >= 0 ) trackPattern.phiMap = (phi>=0.)? phi - phim : phim - std::abs(phi);
     else trackPattern.phiMap = phi - phim;
 
-    int Octant = (int)(p_roi->phi() / (M_PI/4.));
-    double PhiInOctant = fabs(p_roi->phi() - Octant * (M_PI/4.));
+    int Octant = (int)(p_roids->phi() / (M_PI/4.));
+    double PhiInOctant = std::abs(p_roids->phi() - Octant * (M_PI/4.));
     if (PhiInOctant > (M_PI/8.)) PhiInOctant = (M_PI/4.) - PhiInOctant;
 
     trackPattern.endcapBeta = 0.0;
@@ -186,9 +186,9 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
     trackPattern.charge     = 0;
     
     trackPattern.phiBin = static_cast<int>(PhiInOctant * PHI_RANGE);
-    trackPattern.etaBin = static_cast<int>((fabs(p_roi->eta())-1.)/0.05);
+    trackPattern.etaBin = static_cast<int>((std::abs(p_roids->eta())-1.)/0.05);
 
-    double phiEE = (p_roi->phi()>0) ? p_roi->phi() : p_roi->phi() + 2*M_PI;
+    double phiEE = (p_roids->phi()>0) ? p_roids->phi() : p_roids->phi() + 2*M_PI;
     trackPattern.phiBinEE = static_cast<int> (phiEE*96/M_PI);
     
   }
@@ -201,27 +201,27 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
     trackPattern.slope       = slope; 
     trackPattern.intercept   = inter;    
     if (InnerR) {
-      trackPattern.endcapBeta   = std::abs( atan(InnerSlope) - atan(slope) ); 
+      trackPattern.endcapBeta   = std::abs( std::atan(InnerSlope) - std::atan(slope) ); 
       trackPattern.deltaR       = slope * InnerZ + MiddleIntercept - InnerR;
-      double sign               = trackPattern.deltaR / fabs(trackPattern.deltaR);
+      double sign               = trackPattern.deltaR / std::abs(trackPattern.deltaR);
       trackPattern.endcapRadius = computeRadius(InnerSlope, InnerR,  InnerZ,
 		                              slope,      MiddleR, MiddleZ,
 					      sign);
     } 
     if (CSCZ) {
       if(trackPattern.large_dPhidZ && (6==trackPattern.phiBin || 7==trackPattern.phiBin) ){
-	trackPattern.cscGamma = std::abs( atan( (MiddleR-CSCR)/(MiddleZ-CSCZ) ) - atan(MiddleSlope) );
+	trackPattern.cscGamma = std::abs( std::atan( (MiddleR-CSCR)/(MiddleZ-CSCZ) ) - std::atan(MiddleSlope) );
       }else{     
 	double OuterR_modified=OuterR*trackPattern.outerCorFactor;//assume dphidz=0
 	double slope_modified=(OuterR_modified-MiddleR)/(OuterZ-MiddleZ);
-	trackPattern.cscGamma = std::abs( atan( (MiddleR-CSCR)/(MiddleZ-CSCZ) ) - atan(slope_modified) );
+	trackPattern.cscGamma = std::abs( std::atan( (MiddleR-CSCR)/(MiddleZ-CSCZ) ) - std::atan(slope_modified) );
 	ATH_MSG_DEBUG("OuterR_modified=" << OuterR_modified << " slope_modified=" << slope_modified);
       }
     }
   } else {    
     if( trackPattern.pt >= 8. || !tgcFitResult.isSuccess) {
       if(MiddleZ) {
-	double Ze = MiddleZ+(fabsf(MiddleZ)/MiddleZ)*1000.;
+	double Ze = MiddleZ+(std::abs(MiddleZ)/MiddleZ)*1000.;
 	double Re = MiddleSlope*(Ze) + MiddleIntercept;
 	
 	trackPattern.endcapAlpha = (*m_ptEndcapLUT)->alpha(MiddleZ,MiddleR,Ze,Re);
@@ -231,26 +231,26 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
     } 
     
     if (MiddleZ && InnerZ) {
-      trackPattern.endcapBeta   = std::abs( atan(InnerSlope) - atan(MiddleSlope) );
+      trackPattern.endcapBeta   = std::abs( std::atan(InnerSlope) - std::atan(MiddleSlope) );
       trackPattern.deltaR       = MiddleSlope*InnerZ + MiddleIntercept - InnerR;
-      double sign               = trackPattern.deltaR / fabs(trackPattern.deltaR);
+      double sign               = trackPattern.deltaR / std::abs(trackPattern.deltaR);
       trackPattern.endcapRadius = computeRadius(InnerSlope,  InnerR,  InnerZ,
 						MiddleSlope, MiddleR, MiddleZ,
 						sign);
     }
     if(MiddleZ && CSCZ){
-      trackPattern.cscGamma = std::abs( atan( (MiddleR-CSCR)/(MiddleZ-CSCZ) ) - atan(MiddleSlope) );
+      trackPattern.cscGamma = std::abs( std::atan( (MiddleR-CSCR)/(MiddleZ-CSCZ) ) - std::atan(MiddleSlope) );
     }
   }
 
   double distance=9999;//distance between track and IP
-  if (fabs(EEZ)>10000 && fabs(EEZ)<10600){//Small
+  if (std::abs(EEZ)>10000 && std::abs(EEZ)<10600){//Small
       if ( (EBIZ && EEZ) && MiddleZ ){
         trackPattern.endcapRadius3P = computeRadius3Points(EBIZ, EBIR, EEZ, EER, MiddleZ, MiddleR);
         distance = calcDistance(EBIZ, EBIR, EEZ, EER, MiddleZ, MiddleR);
       }
     }
-  if (fabs(EEZ)>10600 && fabs(EEZ)<12000){//Large
+  if (std::abs(EEZ)>10600 && std::abs(EEZ)<12000){//Large
     if ( (InnerZ && EEZ) && MiddleZ ){
       trackPattern.endcapRadius3P = computeRadius3Points(InnerZ, InnerR, EEZ, EER, MiddleZ, MiddleR);
       distance = calcDistance(InnerZ, InnerR, EEZ, EER, MiddleZ, MiddleR);
@@ -275,13 +275,13 @@ double TrigL2MuonSA::AlphaBetaEstimate::computeRadius(double InnerSlope, double 
   double cr1 = 0.080/400;
   double cr2 = cr1;
   double x1 = InnerZ;
-  if (fabs(x1)>=0.1) {
+  if (std::abs(x1)>=0.1) {
     double x2 = MiddleZ;
     double y1 = InnerR;
     double y2 = MiddleR;
     double A1 = InnerSlope;
     double A2 = MiddleSlope;
-    if (!(fabs(MiddleSlope+999)<0.1)) {
+    if (!(std::abs(MiddleSlope+999)<0.1)) {
       A2 = MiddleSlope;
       cr2 = cr1/10;
     }
@@ -299,7 +299,7 @@ double TrigL2MuonSA::AlphaBetaEstimate::computeRadius(double InnerSlope, double 
     
     double xR = ((1./cr1)*xR1+(1./cr2)*xR2)/((1./cr1)+(1./cr2));
     double yR = ((1./cr1)*yR1+(1./cr2)*yR2)/((1./cr1)+(1./cr2));
-    double radius = 0.5*(sqrt((xR-x1)*(xR-x1)+(yR-y1)*(yR-y1))+sqrt((xR-x2)*(xR-x2)+(yR-y2)*(yR-y2)));
+    double radius = 0.5*(std::sqrt((xR-x1)*(xR-x1)+(yR-y1)*(yR-y1))+std::sqrt((xR-x2)*(xR-x2)+(yR-y2)*(yR-y2)));
     return sign * radius;    
   }
   
@@ -322,7 +322,7 @@ const {
   a3 = ( MiddleZ - InnerZ ) / ( MiddleR - InnerR );
     
   m = a3;
-  cost = cos(atan(m));
+  cost = std::cos(std::atan(m));
   x2 = EER - InnerR;
   y2 = EEZ - InnerZ;
   x3 = MiddleR - InnerR;
@@ -339,7 +339,7 @@ const {
   x0 = x3/2.;
   y0 = (y2*y2 + x2*x2 -x2*x3)/(2*y2);
     
-  radius_EE = sqrt(x0*x0 + y0*y0);
+  radius_EE = std::sqrt(x0*x0 + y0*y0);
   return radius_EE;
 }
 
@@ -354,6 +354,6 @@ double TrigL2MuonSA::AlphaBetaEstimate::calcDistance(double x1,double y1,double 
   double y0=a1*(x0-xm1)+ym1;//center of circle
   double a = (x0-x1)/(y1-y0);//slope of sessen
   double b = y1+x1*(x1-x0)/(y1-y0);//intercept of sessen
-  double d=fabs(b)/sqrt(a*a+1);
+  double d=std::abs(b)/std::sqrt(a*a+1);
   return d;
 }

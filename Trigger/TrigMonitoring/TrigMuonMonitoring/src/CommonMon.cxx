@@ -4034,7 +4034,7 @@ StatusCode HLTMuonMonTool::fillRecMuon()
   const xAOD::MuonContainer* muonCont;
 
   std::string muonKey = "Muons"; // MuidMuonCollection
-  StatusCode sc = m_storeGate->retrieve(muonCont, muonKey);
+  StatusCode sc = evtStore()->retrieve(muonCont, muonKey); //MT: Scheduler informed of data dependency in TrigHLTMonitoring/addMonTools.py
   if(sc.isFailure()){
     ATH_MSG_WARNING("Container of muon particle with key " << muonKey << " not found in Store Gate");
     return StatusCode::SUCCESS;
@@ -4045,7 +4045,7 @@ StatusCode HLTMuonMonTool::fillRecMuon()
   // get vertex
   const std::string vxKey = "PrimaryVertices";
   const xAOD::VertexContainer* vxCont = 0;
-  sc = m_storeGate->retrieve(vxCont, vxKey);
+  sc = evtStore()->retrieve(vxCont, vxKey); //MT: Scheduler informed of data dependency in TrigHLTMonitoring/addMonTools.py
   if (sc.isFailure()) {
     ATH_MSG_WARNING("Container of vertex container with key " << vxKey << " not found in Store Gate");
     return StatusCode::SUCCESS;
@@ -4293,7 +4293,7 @@ std::vector<std::string> HLTMuonMonTool::getESbits()
   // Process current event
   //
 
-  const xAOD::EventInfo* eventInfo = nullptr;
+  const xAOD::EventInfo* eventInfo = nullptr; //MT: Scheduler informed of data dependency in TrigHLTMonitoring/addMonTools.py
   if (evtStore()->retrieve(eventInfo, "EventInfo").isFailure()) {
     if (errcnt < 1) {
       ATH_MSG_DEBUG("Failed to read EventInfo");
@@ -4320,8 +4320,8 @@ std::vector<std::string> HLTMuonMonTool::getESbits()
 
   //const std::string key = "HLT_EXPRESS_OPI_HLT";
   const std::string key = "HLT_TrigOperationalInfoCollection_EXPRESS_OPI_HLT";
-
-  if (!m_storeGate->contains<TrigOperationalInfoCollection>(key)) {
+  
+  if (!evtStore()->contains<TrigOperationalInfoCollection>(key)) {  //MT: Scheduler informed of data dependency in TrigHLTMonitoring/addMonTools.py
     if (errcnt < 1) {
       ATH_MSG_INFO("Missing TrigOperationalInfoCollection with key=" << key);
       errcnt++;
@@ -4330,7 +4330,7 @@ std::vector<std::string> HLTMuonMonTool::getESbits()
   }
 
   const TrigOperationalInfoCollection *opi = 0;
-  if (!m_storeGate->retrieve<TrigOperationalInfoCollection>(opi, key).isSuccess()) {
+  if (!evtStore()->retrieve<TrigOperationalInfoCollection>(opi, key).isSuccess()) {
     if (errcnt < 1) {
       ATH_MSG_INFO("Failed to retreive TrigOperationalInfoCollection with key=" << key);
       return retvect;
@@ -4477,7 +4477,7 @@ StatusCode HLTMuonMonTool::fillL1MuRoI()
 
   std::string muonKey = "LVL1MuonRoIs"; // MuidMuonCollection
 
-  sc = evtStore()->retrieve(lvl1Roi, muonKey);
+  sc = evtStore()->retrieve(lvl1Roi, muonKey); //MT: Scheduler informed of data dependency in TrigHLTMonitoring/addMonTools.py
   if ( sc.isFailure() ) {
     ATH_MSG_DEBUG(" Cannot retrieve LVL1 Muon container");
     return StatusCode::FAILURE;

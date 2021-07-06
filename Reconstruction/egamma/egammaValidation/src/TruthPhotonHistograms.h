@@ -1,3 +1,4 @@
+
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
@@ -28,6 +29,7 @@ namespace egammaMonitoring {
     using ParticleHistograms::fill;
 
     void fill(const xAOD::IParticle&);
+    void fill(const xAOD::IParticle&, float mu);
 
   private:
 

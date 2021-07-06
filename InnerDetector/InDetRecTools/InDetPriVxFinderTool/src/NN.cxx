@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "NN.h"
@@ -23,32 +23,32 @@ NN::value(int index, double in0, double in1, double in2, double in3, double in4,
 }
 
 double
-NN::neuron0x8eed3f8() {
+NN::neuron0x8eed3f8() const {
   return m_input0;
 }
 
 double
-NN::neuron0x8f0ea18() {
+NN::neuron0x8f0ea18() const {
   return m_input1;
 }
 
 double
-NN::neuron0x8f0ec10() {
+NN::neuron0x8f0ec10() const {
   return m_input2;
 }
 
 double
-NN::neuron0x8f0ee08() {
+NN::neuron0x8f0ee08() const {
   return m_input3;
 }
 
 double
-NN::neuron0x8f0f030() {
+NN::neuron0x8f0f030() const {
   return m_input4;
 }
 
 double
-NN::neuron0x8f1d488() {
+NN::neuron0x8f1d488() const {
   return m_input5;
 }
 

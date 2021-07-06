@@ -29,6 +29,7 @@ if l1caloRawMon:
     triggerConfigService = "TrigConf::TrigConfigSvc/TrigConfigSvc"
 
     #================================= Monitoring configuration ==============
+    from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
     L1CaloMan = AthenaMonManager("L1CaloMonManager")
@@ -361,5 +362,13 @@ if l1caloRawMon:
     L1CaloMan.ManualDataTypeSetup = DQMonFlags.monManManualDataTypeSetup()
     L1CaloMan.DataType = DQMonFlags.monManDataType()
     topSequence += L1CaloMan
+
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaCommon.Logging import logging
+    _log = logging.getLogger("TrigT1CaloMonitoring_forRecExCommission_Run2")
+    for monTool in L1CaloMan.AthenaMonTools:
+        if 'UseNewConfig' in monTool.getProperties():
+            _log.info("Setting %s.UseNewConfig to %s", monTool.name(), ConfigFlags.Trigger.readLVL1FromJSON)
+            monTool.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
 
     #====

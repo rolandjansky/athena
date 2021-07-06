@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JEMEtSumsCnvTool.cxx 645494 2015-02-10 10:42:39Z morrisj $
 
 // EDM include(s):
 #include "TrigT1CaloEvent/JEMEtSumsCollection.h"
@@ -27,7 +26,9 @@ namespace {
   template <typename T>
   std::vector<T> convertVector(const std::vector<unsigned int>& in) {
     std::vector<T> result;
-    for(auto i : in) {
+    result.reserve(in.size());
+
+for(auto i : in) {
       result.push_back(static_cast<T>(i));
     }
     return result;
@@ -45,14 +46,6 @@ namespace xAODMaker {
       declareInterface< IJEMEtSumsCnvTool >( this );
    }
 
-   StatusCode JEMEtSumsCnvTool::initialize() {
-
-      // Greet the user:
-      ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
-
-      // Return gracefully:
-      return StatusCode::SUCCESS;
-   }
 
    /**
     * This is the important function of the tool. It takes the JEMEtSums object
@@ -67,7 +60,7 @@ namespace xAODMaker {
                                          xAOD::JEMEtSumsContainer* xaod) {
 
       // A small sanity check. The output container should really be empty...
-      if( xaod->size() ) {
+      if( !xaod->empty() ) {
          ATH_MSG_WARNING( "The output xAOD container is not empty (size=="
                           << xaod->size() << ")" );
       }

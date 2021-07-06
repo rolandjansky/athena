@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -7,7 +7,7 @@
  */
 #include "TrigJetConditionConfig_dijet_mass.h"
 #include "GaudiKernel/StatusCode.h"
-#include "./DijetMassConditionMT.h"
+#include "./DijetMassCondition.h"
 #include "./ArgStrToDouble.h"
 
 TrigJetConditionConfig_dijet_mass::TrigJetConditionConfig_dijet_mass(const std::string& type,
@@ -25,9 +25,9 @@ StatusCode TrigJetConditionConfig_dijet_mass::initialize() {
 }
 
 
-ConditionMT TrigJetConditionConfig_dijet_mass::getCondition() const {
+Condition TrigJetConditionConfig_dijet_mass::getCondition() const {
   auto a2d = ArgStrToDouble();
-  return std::make_unique<DijetMassConditionMT>(a2d(m_min), a2d(m_max));
+  return std::make_unique<DijetMassCondition>(a2d(m_min), a2d(m_max));
 }
 
  
@@ -38,12 +38,4 @@ StatusCode TrigJetConditionConfig_dijet_mass::checkVals() const {
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
-}
-
-bool TrigJetConditionConfig_dijet_mass::addToCapacity(std::size_t) {
-  return false;
-}
-
-std::size_t TrigJetConditionConfig_dijet_mass::capacity() const {
-  return getCondition()->capacity();
 }

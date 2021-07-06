@@ -26,7 +26,7 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Algorithm.h"
-#include "AthenaKernel/IClassIDSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 
 #include "SGAudCore/ISGAudSvc.h"
 

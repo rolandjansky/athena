@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -16,13 +16,14 @@
 
 #include "SiDetElementsRoadUtils_xk.h"
 
-#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
+#include "GaudiKernel/ContextSpecificPtr.h"
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "SiDetElementsRoadTool_xk/SiDetElementsComparison.h"
-#include "SiDetElementsRoadUtils_xk.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "TrkPrepRawData/PrepRawData.h"
-#include "GaudiKernel/ContextSpecificPtr.h"
+#include <cmath>
+
 #include <ostream>
 #include <iomanip>
 
@@ -145,9 +146,9 @@ MsgStream& InDet::SiDetElementsRoadMaker_xk::dumpConditions(MsgStream& out) cons
   const SiDetElementsLayerVectors_xk &layer = *getLayers(ctx);
 
   int maps = 0;
-  if (layer[0].size()) ++maps;
-  if (layer[1].size()) ++maps;
-  if (layer[2].size()) ++maps;
+  if (!layer[0].empty()) ++maps;
+  if (!layer[1].empty()) ++maps;
+  if (!layer[2].empty()) ++maps;
   out<<"|----------------------------------------------------------------------"
      <<"-------------------|"
      <<"\n";
@@ -168,7 +169,7 @@ MsgStream& InDet::SiDetElementsRoadMaker_xk::dumpConditions(MsgStream& out) cons
 
   if (!maps || m_outputlevel==0) return out;
 
-  if (layer[1].size()) {
+  if (!layer[1].empty()) {
     int nl = layer[1].size();
     int nc = 0;
     for (unsigned int i=0; i!=layer[1].size(); ++i) nc+=layer[1].at(i).nElements();
@@ -200,7 +201,7 @@ MsgStream& InDet::SiDetElementsRoadMaker_xk::dumpConditions(MsgStream& out) cons
        <<"\n";
 
   }
-  if (layer[0].size()) {
+  if (!layer[0].empty()) {
     int nl = layer[0].size();
     int nc = 0;
     for (unsigned int i=0; i!=layer[0].size(); ++i) nc+=layer[0].at(i).nElements();
@@ -232,7 +233,7 @@ MsgStream& InDet::SiDetElementsRoadMaker_xk::dumpConditions(MsgStream& out) cons
     out<<"|------|-----------|------------|------------|------------|------|"
        <<"\n";
   }
-  if (layer[2].size()) {
+  if (!layer[2].empty()) {
     int nl = layer[2].size();
     int nc = 0;
     for (unsigned int i=0; i!=layer[2].size(); ++i) nc+=layer[2].at(i).nElements();
@@ -386,7 +387,7 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
     float dx = par_targetPoint[0]-par_startingPoint[0];         /// dx between the current and the first position
     float dy = par_targetPoint[1]-par_startingPoint[1];         /// dy between the current and the first position 
     float dz = par_targetPoint[2]-par_startingPoint[2];         /// dz between the current and the first position 
-    float dist3D = sqrt(dx*dx+dy*dy+dz*dz);   /// 3D distance between the current and the first position
+    float dist3D = std::sqrt(dx*dx+dy*dy+dz*dz);   /// 3D distance between the current and the first position
     if (dist3D <=0.) {                    /// if geometry breaks down or two points are duplicates, 
       ++currentPosition;                  /// we whistle innocently and make a point of looking somewhere else 
       continue;
@@ -416,7 +417,7 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
         par_targetPoint[0] = par_startingPoint[0]+searchDirection[0]*sm;
         par_targetPoint[1] = par_startingPoint[1]+searchDirection[1]*sm;
         par_targetPoint[2] = par_startingPoint[2]+searchDirection[2]*sm;
-        par_targetPoint[3] = sqrt(par_targetPoint[0]*par_targetPoint[0]+par_targetPoint[1]*par_targetPoint[1]);
+        par_targetPoint[3] = std::sqrt(par_targetPoint[0]*par_targetPoint[0]+par_targetPoint[1]*par_targetPoint[1]);
         /// now, the target point is the perigee estimate, while 
         /// the reference point for this round stays unchanged.
 	      dr    = 20.;  /// allow 2cm on top of the perigee location when extrapolating inward. 
@@ -439,7 +440,8 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
 	      if (par_targetPoint[3] < layer[1][n1].r()) break;
         assert( roadMakerData.elementUsageTracker[1].size() > static_cast<unsigned int>(n1) );
         /// collect all compatible detector elements from the current layer
-	      layer[1][n1].getBarrelDetElements(par_startingPoint, searchDirection, lDE, roadMakerData.elementUsageTracker[1][n1]);
+        if(m_ITkGeometry) layer[1][n1].getITkBarrelDetElements(par_startingPoint, searchDirection, lDE, roadMakerData.elementUsageTracker[1][n1]);
+        else layer[1][n1].getBarrelDetElements(par_startingPoint, searchDirection, lDE, roadMakerData.elementUsageTracker[1][n1]);
       }
       /// if we are moving inward in R, iterate the other way for the barrel
     } else {
@@ -447,8 +449,9 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
         /// stop if we moved past the test point in R
 	      if (par_targetPoint[3] > layer[1][n1].r()+dr) break;
         assert( roadMakerData.elementUsageTracker[1].size() > static_cast<unsigned int>(n1) );
-        /// collect all compatible detector elements        
-	      layer[1][n1].getBarrelDetElements(par_startingPoint, searchDirection, lDE, roadMakerData.elementUsageTracker[1][n1]);
+        /// collect all compatible detector elements
+        if(m_ITkGeometry) layer[1][n1].getITkBarrelDetElements(par_startingPoint, searchDirection, lDE, roadMakerData.elementUsageTracker[1][n1]);
+        else layer[1][n1].getBarrelDetElements(par_startingPoint, searchDirection, lDE, roadMakerData.elementUsageTracker[1][n1]);
 
       }
       ++n1;
@@ -460,15 +463,17 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
       for (; n2<static_cast<int>(layer[2].size()); ++n2) {
 	      if (par_targetPoint[2] < layer[2][n2].z()) break;
         assert( roadMakerData.elementUsageTracker[2].size() > static_cast<unsigned int>(n2) );
-        /// collect all compatible detector elements        
-	      layer[2][n2].getEndcapDetElements(par_startingPoint, searchDirection, lDE,roadMakerData.elementUsageTracker[2][n2]);
+        /// collect all compatible detector elements
+        if(m_ITkGeometry) layer[2][n2].getITkEndcapDetElements(par_startingPoint, searchDirection, lDE,roadMakerData.elementUsageTracker[2][n2]);
+        else layer[2][n2].getEndcapDetElements(par_startingPoint, searchDirection, lDE,roadMakerData.elementUsageTracker[2][n2]);
       }
     } else {
       for (--n2; n2>=0; --n2) {
 	      if (par_targetPoint[2] > layer[2][n2].z()) break;
         assert( roadMakerData.elementUsageTracker[2].size() > static_cast<unsigned int>(n2) );
-        /// collect all compatible detector elements        
-	      layer[2][n2].getEndcapDetElements(par_startingPoint, searchDirection, lDE, roadMakerData.elementUsageTracker[2][n2]);
+        /// collect all compatible detector elements
+        if(m_ITkGeometry) layer[2][n2].getITkEndcapDetElements(par_startingPoint, searchDirection, lDE, roadMakerData.elementUsageTracker[2][n2]);
+        else layer[2][n2].getEndcapDetElements(par_startingPoint, searchDirection, lDE, roadMakerData.elementUsageTracker[2][n2]);
       }
       ++n2;
     }
@@ -479,15 +484,17 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
       for (; n0<static_cast<int>(layer[0].size()); ++n0) {
 	      if (par_targetPoint[2] > layer[0][n0].z()) break;
         assert( roadMakerData.elementUsageTracker[0].size() > static_cast<unsigned int>(n0) );
-        /// collect all compatible detector elements        
-	      layer[0][n0].getEndcapDetElements(par_startingPoint, searchDirection, lDE,roadMakerData.elementUsageTracker[0][n0]);
+        /// collect all compatible detector elements
+        if(m_ITkGeometry) layer[0][n0].getITkEndcapDetElements(par_startingPoint, searchDirection, lDE,roadMakerData.elementUsageTracker[0][n0]);
+        else layer[0][n0].getEndcapDetElements(par_startingPoint, searchDirection, lDE,roadMakerData.elementUsageTracker[0][n0]);
       }
     } else {
       for (--n0; n0>=0; --n0) {
 	      if (par_targetPoint[2] < layer[0][n0].z()) break;
         assert( roadMakerData.elementUsageTracker[0].size() > static_cast<unsigned int>(n0) );
-        /// collect all compatible detector elements        
-	      layer[0][n0].getEndcapDetElements(par_startingPoint, searchDirection, lDE,roadMakerData.elementUsageTracker[0][n0]);
+        /// collect all compatible detector elements
+        if(m_ITkGeometry) layer[0][n0].getITkEndcapDetElements(par_startingPoint, searchDirection, lDE,roadMakerData.elementUsageTracker[0][n0]);
+        else layer[0][n0].getEndcapDetElements(par_startingPoint, searchDirection, lDE,roadMakerData.elementUsageTracker[0][n0]);
       }
       ++n0;
     }

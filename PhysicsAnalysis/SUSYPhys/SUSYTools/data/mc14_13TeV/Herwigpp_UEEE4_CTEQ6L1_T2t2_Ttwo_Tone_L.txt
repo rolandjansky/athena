@@ -1,5 +1,0 @@
-# date: 23 March 2015
-# used https://svnweb.cern.ch/trac/atlasphys/browser/Physics/SUSY/Tools/SignalUncertaintiesUtils/trunk
-# command: python SUSYCrossSectoinsSubmit.py --tev 13 --dir (input_dir) --outputdir (output_dir) --processes tb --ipart1 2 --local
-# format : datasetID   finalState   XS(pb)   K-factor   filterEff   relUncertainty
-204945     62      0.0670475635   1.00000000    1.00000000   0.13342874

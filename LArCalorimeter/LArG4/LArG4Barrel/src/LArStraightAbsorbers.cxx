@@ -12,11 +12,11 @@ LArStraightAbsorbers* LArStraightAbsorbers::s_instance=nullptr;
 
 PhysicalVolumeAccessor* LArStraightAbsorbers::s_theAbsorbers=nullptr;
 
+std::once_flag LArStraightAbsorbers::s_flag;
+
 LArStraightAbsorbers*  LArStraightAbsorbers::GetInstance(const std::string& strDetector)
 {
-  if (s_instance==nullptr) {
-    s_instance = new LArStraightAbsorbers(strDetector);
-  }
+  std::call_once( s_flag, [&](){ s_instance = new LArStraightAbsorbers(strDetector); } );
   return s_instance;
 }
 

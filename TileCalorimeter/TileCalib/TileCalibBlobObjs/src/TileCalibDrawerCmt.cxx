@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileCalibBlobObjs/TileCalibDrawerCmt.h"
@@ -34,6 +34,15 @@ TileCalibDrawerCmt::getInstance(const coral::Blob& blob)
 //__________________________________________________________________
 TileCalibDrawerCmt::TileCalibDrawerCmt(const coral::Blob& blob)
   
+  : TileCalibDrawerBase(blob)
+{
+  //=== no type check here
+}
+
+//
+//__________________________________________________________________
+TileCalibDrawerCmt::TileCalibDrawerCmt(coral::Blob& blob)
+
   : TileCalibDrawerBase(blob)
 {
   //=== no type check here

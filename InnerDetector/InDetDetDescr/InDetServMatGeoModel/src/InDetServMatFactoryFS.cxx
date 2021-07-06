@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/InDetServMatFactoryFS.h"
@@ -35,11 +35,13 @@
 #include "GaudiKernel/PhysicalConstants.h"
 
 #include <iostream>
+#include <utility>
+
 
 InDetServMatFactoryFS::InDetServMatFactoryFS(StoreGateSvc *detStore,ServiceHandle<IRDBAccessSvc> pRDBAccess) :
   m_detStore(detStore),
-  m_rdbAccess(pRDBAccess),
-  m_manager(0),
+  m_rdbAccess(std::move(pRDBAccess)),
+  m_manager(nullptr),
   m_msg("InDetServMatFactoryFS")
 {
   
@@ -140,8 +142,8 @@ void InDetServMatFactoryFS::create(GeoPhysVol *world )
   // Create the envelope for the Pixel Services:
   // Only need if join1 if false.
 
-  GeoPcon* pixServP = 0;
-  GeoPcon* pixServM = 0;
+  GeoPcon* pixServP = nullptr;
+  GeoPcon* pixServM = nullptr;
     
   if (!join1) { 
     pixServP = new GeoPcon(0.,2*Gaudi::Units::pi);
@@ -234,11 +236,11 @@ void InDetServMatFactoryFS::create(GeoPhysVol *world )
     sctTrtServP->addPlane(ZMaxIDet, RMaxFwdTRTC, RMaxIDet);
   }
 
-  const GeoShape * ServVolP = 0;
-  const GeoShape * ServVolM = 0;
+  const GeoShape * ServVolP = nullptr;
+  const GeoShape * ServVolM = nullptr;
 
 
-  if (pixServP == 0) {
+  if (pixServP == nullptr) {
     ServVolP = sctTrtServP;
     ServVolM = sctTrtServM;
   } else {

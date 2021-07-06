@@ -53,7 +53,7 @@ void compare (const Muon::STGC_RawDataContainer& p1,
 
 void testit (const STGC_RawDataContainer& trans1, const MuonGM::MuonDetectorManager& muon_dd)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   Muon::STGC_RawDataContainerCnv_p1 cnv;
   cnv.initialize(muon_dd.stgcIdHelper());
   Muon::STGC_RawDataContainer_p1 pers;

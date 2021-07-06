@@ -1,6 +1,6 @@
 // Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGT1INTERFACES_MUCTPIL1TOPOCANDIDATE_H
 #define TRIGT1INTERFACES_MUCTPIL1TOPOCANDIDATE_H
@@ -48,6 +48,9 @@ namespace LVL1 {
 			   int ieta,
 			   int iphi);
 
+     void setTGCFlags(bool bw2or3, bool innerCoin, bool goodMF, int charge);
+     void setRPCFlags(bool is2cand, bool phiOvl);
+
      // set the RoI word (done at a differnt stage of the simulation, hence the separate function
      void setRoiWord( unsigned int roi);
 
@@ -77,9 +80,15 @@ namespace LVL1 {
      float getphimin() const { return m_phimin; }  
      float getphimax() const { return m_phimax; }  
      unsigned int getRoiWord() const { return m_roiWord; }  
-     unsigned int getMioctID() const { return m_mioctID; }  
+     unsigned int getMioctID() const { return m_mioctID; }  // <= run-2 only
      int getieta() const { return m_ieta; }  
      int getiphi() const { return m_iphi; }  
+     int getphiOvl() const { return m_phiOvl; } // >= run-3, RPC only
+     int getis2cand() const { return m_is2cand; } // >= run-3, RPC only
+     int getcharge() const { return m_charge; } // >= run-3, TGC only
+     bool getbw2or3() const {return m_bw2or3;} // >= run-3, TGC only
+     bool getinnerCoin() const {return m_innerCoin;} // >= run-3, TGC only
+     bool getgoodMF() const {return m_goodMF;} // >= run-3, TGC only
 
      // formatted print for debugging 
      void print() const ;
@@ -105,6 +114,12 @@ namespace LVL1 {
      unsigned int m_mioctID; // ID of the Octant board (MIOCT) that sent this candidate
      int m_ieta;             // ieta code for L1Topo
      int m_iphi;             // iphi code for L1Topo
+     bool m_phiOvl;          // candidate phi overlap in RPC
+     bool m_is2cand;         // >1 cand for the cand RoI in RPC
+     int m_charge;           // charge (valid for EC/FWD)
+     bool m_bw2or3;          // 3-station coincidence with big wheel
+     bool m_innerCoin;       // Coincidence with inner detector for TGC
+     bool m_goodMF;          // Good magnetic field in TGC
 
    }; // class MuCTPIL1Topo
 

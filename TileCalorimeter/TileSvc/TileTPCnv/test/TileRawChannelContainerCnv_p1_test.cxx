@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file TileTPCnv/test/TileRawChannelContainerCnv_p1_test.cxx
@@ -24,13 +24,12 @@
 TileHWID hwid;
 TileTBID tbid;
 TileID   tileid;
-IdDictParser parser;
 
 class TileCablingSvc
 {
 public:
   static
-  void init_idhelpers()
+  void init_idhelpers (IdDictParser& parser)
   {
     tileid.set_do_neighbours (false);
     IdDictMgr& idd = parser.parse ("IdDictParser/ATLAS_IDS.xml");
@@ -122,7 +121,7 @@ makecont()
                                                        TileFragHash::Default,
                                                        TileRawChannelUnit::ADCcounts);
 
-  std::vector<std::unique_ptr<TileRawChannelCollection> > colls;
+  std::vector<std::unique_ptr<TileRawChannelCollection> > colls (100);
   for (int hi=2; hi <= 3; hi++) {
     auto coll = std::make_unique<TileRawChannelCollection>(IdentifierHash(hi));
     coll->setLvl1Id (hi + 10);
@@ -182,7 +181,8 @@ void test1()
 int main()
 {
   std::cout << "TileTPCnv/TileRawChannelContainerCnv_p1_test\n";
-  TileCablingSvc::init_idhelpers();
+  IdDictParser parser;
+  TileCablingSvc::init_idhelpers(parser);
   test1();
   return 0;
 }

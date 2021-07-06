@@ -31,7 +31,6 @@ namespace SH
   void DiskListSRM :: 
   testInvariant () const
   {
-    RCU_INVARIANT (this != 0);
   }
 
 

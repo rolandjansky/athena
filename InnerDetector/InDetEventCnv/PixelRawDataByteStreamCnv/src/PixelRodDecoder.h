@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELRAWDATABYTESTREAM_PIXEL_RODDECODER_H
@@ -107,7 +107,7 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
 
     uint32_t treatmentFEFlagInfo(unsigned int serviceCode, unsigned int serviceCodeCounter) const;
 
-
+    constexpr static size_t ERROR_CONTAINER_MAX = 56506;  // see explanation in PixelRawDataProviderTool.cxx. Increased to accommodate space for the SvcCounter
   private:
     mutable std::atomic_uint m_masked_errors{};
     mutable std::atomic_uint m_numGenWarnings{};

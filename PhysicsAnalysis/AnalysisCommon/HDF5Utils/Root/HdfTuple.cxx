@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "HDF5Utils/HdfTuple.h"
 #include "HDF5Utils/common.h"
@@ -8,6 +8,7 @@ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 #include <cassert>
 #include <set>
+#include <stdexcept>
 
 namespace H5Utils {
 

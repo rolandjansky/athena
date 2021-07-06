@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -20,7 +20,7 @@ using namespace std;
 using namespace xercesc;
 
 void AssemblyrefProcessor::process(const DOMElement *element, GmxUtil &gmxUtil, GeoNodeList &toAdd) {
-const XMLCh *ref = XMLString::transcode("ref");
+XMLCh *ref = XMLString::transcode("ref");
 const XMLCh *idref;
 DOMDocument *doc = element->getOwnerDocument();
 char *toRelease;
@@ -44,10 +44,13 @@ char *toRelease;
 //
 //    Process it
 //
-    const XMLCh *zeroid = element->getAttribute(XMLString::transcode("zeroid"));
+    XMLCh * zeroid_tmp = XMLString::transcode("zeroid");
+    const XMLCh *zeroid = element->getAttribute(zeroid_tmp);
     if (XMLString::equals(zeroid, XMLString::transcode("true"))) {
         gmxUtil.tagHandler.assembly.zeroId(elem);
     }
     gmxUtil.tagHandler.assembly.process(elem, gmxUtil, toAdd);
+    XMLString::release(&ref);
+    XMLString::release(&zeroid_tmp);
     return;
 }

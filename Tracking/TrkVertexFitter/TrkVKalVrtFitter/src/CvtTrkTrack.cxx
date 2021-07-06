@@ -146,15 +146,12 @@ namespace Trk{
     const Trk::Perigee*	perigee = CreatePerigee(0., 0., 0., VKPerigee, VKCov, state);
 				      
     const Trk::FitQuality* fitQuality = new Trk::FitQuality(10.,1);
-    DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces 
-	= new DataVector<const Trk::TrackStateOnSurface>;
+    auto trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
     const Trk::TrackStateOnSurface* trackSOS =
-	    new Trk::TrackStateOnSurface(nullptr, perigee, nullptr,  nullptr);
-	trackStateOnSurfaces->push_back(trackSOS);
-	
-//    Trk::Track::TrackAuthor author = Trk::Track::unknown;
+      new Trk::TrackStateOnSurface(nullptr, perigee, nullptr, nullptr);
+    trackStateOnSurfaces.push_back(trackSOS);
     Trk::TrackInfo info;
-    return new Trk::Track( info, trackStateOnSurfaces, fitQuality) ;
+    return new Trk::Track( info, std::move(trackStateOnSurfaces), fitQuality) ;
   }
 
 
@@ -181,7 +178,7 @@ namespace Trk{
     TrkP2= VKPerigee[1];
     TrkP5=-TrkP5;                  /*!!!! Change of sign of charge!!!!*/
 
-    AmgSymMatrix(5) *CovMtx =new AmgSymMatrix(5);
+    AmgSymMatrix(5) CovMtx;
     double Deriv[5][5],CovMtxOld[5][5];
     int i,j,ik,jk;
     for(i=0;i<5;i++){ for(j=0;j<5;j++) {Deriv[i][j]=0.; CovMtxOld[i][j]=0.;}}
@@ -217,12 +214,12 @@ namespace Trk{
            if(Deriv[j][jk]==0.)continue;
            tmp += Deriv[i][ik]*CovMtxOld[ik][jk]*Deriv[j][jk];
        }}
-       (*CovMtx)(i,j)=(*CovMtx)(j,i)=tmp;
+       (CovMtx)(i,j)=(CovMtx)(j,i)=tmp;
     }}
 
     return  new Perigee( TrkP1,TrkP2,TrkP3,TrkP4,TrkP5, 
                                   PerigeeSurface(Amg::Vector3D(state.m_refFrameX+vX, state.m_refFrameY+vY, state.m_refFrameZ+vZ)),
-                                  CovMtx  );
+                                  std::move(CovMtx)  );
   }
 
 

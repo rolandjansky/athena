@@ -22,12 +22,12 @@ CompetingMuonClustersOnTrackCnv_p1::persToTrans( const Muon::CompetingMuonCluste
   auto containedChildRots = std::make_unique<std::vector< const Muon::MuonClusterOnTrack * > >();
 
   for (const TPObjRef& ref : persObj->m_containedChildRots) {
-    ITPConverterFor<Trk::MeasurementBase>  *rotCnv = 0;
+    ITPConverterFor<Trk::MeasurementBase>  *rotCnv = nullptr;
     const Muon::MuonClusterOnTrack* mcot = dynamic_cast<const Muon::MuonClusterOnTrack*>(createTransFromPStore(&rotCnv, ref, log));
     containedChildRots->push_back( mcot );
   }
    
-  ITPConverterFor<Trk::Surface>  *surfaceCnv = 0;
+  ITPConverterFor<Trk::Surface>  *surfaceCnv = nullptr;
   Trk::Surface* associatedSurface    = createTransFromPStore(&surfaceCnv, persObj->m_associatedSurface, log);
   
   *transObj = Muon::CompetingMuonClustersOnTrack (Trk::LocalParameters(),

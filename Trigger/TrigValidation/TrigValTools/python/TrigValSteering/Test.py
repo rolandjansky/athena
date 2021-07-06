@@ -88,8 +88,8 @@ class Test(object):
         self.run_steps(self.exec_steps, commands['exec_steps'])
 
         # Make a summary result code for all exec steps if there are multiple
+        exec_summary = 0
         if len(self.exec_steps) > 1:
-            exec_summary = 0
             for step in self.exec_steps:
                 if step.result > exec_summary:
                     exec_summary = step.result
@@ -98,9 +98,11 @@ class Test(object):
             else:
                 self.log.info('All exec steps succeeded')
             art_result(exec_summary, 'ExecSummary')
+        elif len(self.exec_steps) == 1:
+            exec_summary = self.exec_steps[0].result
 
         # Run the check steps
-        self.run_steps(self.check_steps, commands['check_steps'])
+        self.run_steps(self.check_steps, commands['check_steps'], exec_status=exec_summary)
 
         # Dump all commands to JSON
         with open('commands.json', 'w') as outfile:
@@ -123,10 +125,11 @@ class Test(object):
         self.log.info(exit_msg)
         return exit_code
 
-    def run_steps(self, steps, commands_list):
+    def run_steps(self, steps, commands_list, exec_status=0):
         previous_code = 0
         for step in steps:
-            if previous_code != 0 and step.depends_on_previous:
+            if (previous_code != 0 and step.depends_on_previous) or \
+               (exec_status != 0 and step.depends_on_exec):
                     self.log.error('Skipping step %s because previous step(s) failed', step.name)
                     step.result = 1
                     code, cmd = step.result, '# Skipped {} because of earlier failure'.format(step.name)
@@ -141,7 +144,7 @@ class Test(object):
         '''Set default timeout values for steps which don't have it set'''
         for exec_step in self.exec_steps:
             if exec_step.timeout is None:
-                # 3h for grid tests, 1h for build tests
+                # 12h for grid tests, 1h for build tests
                 exec_step.timeout = 12*3600 if self.art_type == 'grid' else 3600
         for check_step in self.check_steps:
             if check_step.timeout is None:
@@ -160,11 +163,20 @@ class Test(object):
         for package_name, package_prefix in package_prefix_dict.items():
             if filename.startswith(prefix+package_prefix):
                 self.package_name = package_name
+                this_package_prefix = package_prefix
         if self.package_name is None:
             self.configuration_error(
                 'Test file name {} could not be matched '.format(filename) +
                 'to any of the required package prefixes: {}'.format(
                     package_prefix_dict.values()))
+        if not self.art_type or self.art_type not in ['build', 'grid']:
+            self.configuration_error(
+                'Incorrect test art_type = {:s}, only "build" and "grid" are supported'.format(self.art_type))
+        if not filename.endswith('_' + self.art_type + suffix) and \
+           self.package_name != "TrigInDetValidation":  # TIDV is exempt from this rule
+            self.configuration_error(
+                'Test file name does not match the art_type="{:s}". '.format(self.art_type) +
+                'Expected name {:s}'.format(prefix+this_package_prefix+'*_'+self.art_type+suffix))
         max_len = 50
         if len(filename) > max_len:
             self.configuration_error(

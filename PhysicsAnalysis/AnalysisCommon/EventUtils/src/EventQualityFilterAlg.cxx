@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // EventQualityFilterAlg.cxx
@@ -15,6 +15,10 @@
 
 // EDM includes
 #include "xAODEventInfo/EventInfo.h"
+
+// FrameWork includes
+#include "AsgDataHandles/ReadHandle.h"
+#include "AsgTools/CurrentContext.h"
 
 
 ///////////////////////////////////////////////////////////////////
@@ -62,6 +66,7 @@ StatusCode EventQualityFilterAlg::initialize()
   ATH_MSG_DEBUG( "Using: " << m_useSCTError );
   ATH_MSG_DEBUG( "Using: " << m_useCoreError );
   // ATH_MSG_DEBUG( "Using: " << m_useTileTripReader );
+  ATH_CHECK(m_eventInfo.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -79,10 +84,15 @@ StatusCode EventQualityFilterAlg::execute()
 {
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
 
   // Get the EventInfo object
-  const xAOD::EventInfo* eventInfo = nullptr;
-  ATH_CHECK( evtStore()->retrieve(eventInfo) );
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfo, ctx);
+  if (!eventInfo.isValid()) {
+    ATH_MSG_ERROR("Could not retrieve EventInfo!");
+    return StatusCode::FAILURE;
+  }
+
 
 
   // Only do the event vetoing on data

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // MuonCnv_p2.h 
@@ -56,7 +56,7 @@ class MuonCnv_p2 : public T_AthenaPoolTPCnvConstBase<Analysis::Muon, Muon_p2>
                             Muon_p2* persObj, 
                             MsgStream& msg ) const override;
 
-  void setKey ( const std::string key ) { m_muonCaloEnergyContainerName=key; }
+  void setKey ( const std::string& key ) { m_muonCaloEnergyContainerName=key; }
   void setEventStore( const StoreGateSvc_t storeGate ) { m_storeGate=storeGate; }
 
  protected: 

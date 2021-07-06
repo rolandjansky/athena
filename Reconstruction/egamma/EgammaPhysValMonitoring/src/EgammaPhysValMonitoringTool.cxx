@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // EgammaPhysValMonitoringTool.cxx 
@@ -30,6 +30,8 @@
 #include "StoreGate/ReadHandle.h"
 
 #include <iostream>
+
+using CLHEP::GeV;
 using namespace std;
 using namespace MCTruthPartClassifier;
 
@@ -64,6 +66,7 @@ StatusCode EgammaPhysValMonitoringTool::initialize()
   ATH_CHECK(ManagedMonitorToolBase::initialize());
   ATH_CHECK(m_truthClassifier.retrieve());  
 
+  ATH_CHECK(m_EventInfoContainerKey.initialize());
   ATH_CHECK(m_photonContainerKey.initialize());
   ATH_CHECK(m_electronContainerKey.initialize());
   ATH_CHECK(m_electronContainerFrwdKey.initialize());
@@ -105,6 +108,15 @@ StatusCode EgammaPhysValMonitoringTool::fillHistograms()
 {
   ATH_MSG_DEBUG ("Filling hists " << name() << "...");
 
+  SG::ReadHandle< xAOD::EventInfo> eventInfo( m_EventInfoContainerKey );
+  if (!eventInfo.isValid()) {
+    ATH_MSG_ERROR ("Couldn't retrieve EventInfo container with key: " << m_EventInfoContainerKey.key());
+    return StatusCode::FAILURE;
+  }
+
+  float weight=1.;
+  weight = !eventInfo->beamSpotWeight() ? eventInfo->beamSpotWeight() : 1.;
+
   SG::ReadHandle< xAOD::TruthParticleContainer> truthParticles;
   
   if(m_isMC){// return StatusCode::SUCCESS;
@@ -118,16 +130,16 @@ StatusCode EgammaPhysValMonitoringTool::fillHistograms()
       return StatusCode::FAILURE;
     }
     
-    for(const auto truthParticle : *truthParticles){
+    for(const auto *const truthParticle : *truthParticles){
       
       //--electrons
-      if (abs(truthParticle->pdgId()) == 11 && truthParticle->status() == 1  && truthParticle->barcode() < 1000000) {
-	m_oElectronValidationPlots.m_oTruthIsoPlots.fill(*truthParticle);     	
+      if (std::abs(truthParticle->pdgId()) == 11 && truthParticle->status() == 1  && truthParticle->barcode() < 1000000) {
+	m_oElectronValidationPlots.m_oTruthIsoPlots.fill(*truthParticle,*eventInfo);     	
       } //-- end electrons
       
 	//--photons 	   
-      if (abs(truthParticle->pdgId()) == 22 && truthParticle->status() == 1 && truthParticle->barcode() < 1000000){
-	m_oPhotonValidationPlots.m_oTruthIsoPlots.fill(*truthParticle);
+      if (std::abs(truthParticle->pdgId()) == 22 && truthParticle->status() == 1 && truthParticle->barcode() < 1000000){
+	m_oPhotonValidationPlots.m_oTruthIsoPlots.fill(*truthParticle,*eventInfo);
 	//-- filling conversions
 	const xAOD::TruthParticle* tmp = xAOD::TruthHelpers::getTruthParticle( *truthParticle ); //20.7.0.1
 	//      const xAOD::TruthParticle* tmp = xAOD::EgammaHelpers::getTruthParticle( truthParticle ); 
@@ -137,7 +149,7 @@ StatusCode EgammaPhysValMonitoringTool::fillHistograms()
 	if( tmp && tmp->hasDecayVtx() ){
 	  float x = tmp->decayVtx()->x();
 	  float y = tmp->decayVtx()->y();
-	  trueR = sqrt( x*x + y*y );
+	  trueR = std::sqrt( x*x + y*y );
 	}
 	
 	if (tmp != nullptr ) {
@@ -145,42 +157,42 @@ StatusCode EgammaPhysValMonitoringTool::fillHistograms()
 	  isTrueConv = xAOD::EgammaHelpers::isTrueConvertedPhoton(tmp);//rel20
 	} 
 	
-	m_oPhotonValidationPlots.convTruthR->Fill(trueR);
-	m_oPhotonValidationPlots.convTruthRvsEta->Fill(trueR,truthEta);
-	if(isTrueConv) m_oPhotonValidationPlots.m_oTruthIsoConvPlots.fill(*truthParticle);
-	if(!isTrueConv) m_oPhotonValidationPlots.m_oTruthIsoUncPlots.fill(*truthParticle);
+	m_oPhotonValidationPlots.convTruthR->Fill(trueR,weight);
+	m_oPhotonValidationPlots.convTruthRvsEta->Fill(trueR,truthEta,weight);
+	if(isTrueConv) m_oPhotonValidationPlots.m_oTruthIsoConvPlots.fill(*truthParticle,*eventInfo);
+	if(!isTrueConv) m_oPhotonValidationPlots.m_oTruthIsoUncPlots.fill(*truthParticle,*eventInfo);
 	
 	
 	
 	const xAOD::Photon* recoPhoton = xAOD::EgammaHelpers::getRecoPhoton( truthParticle ); 
 	if( recoPhoton ){
-	  m_oPhotonValidationPlots.convTruthMatchedR->Fill(trueR);
-	  m_oPhotonValidationPlots.convTruthMatchedRvsEta->Fill(trueR,truthEta);
+	  m_oPhotonValidationPlots.convTruthMatchedR->Fill(trueR,weight);
+	  m_oPhotonValidationPlots.convTruthMatchedRvsEta->Fill(trueR,truthEta,weight);
 	  
-	  m_oPhotonValidationPlots.m_oTruthRecoPlots.fill(*truthParticle);
+	  m_oPhotonValidationPlots.m_oTruthRecoPlots.fill(*truthParticle,*eventInfo);
 	  if(isTrueConv){
-	    m_oPhotonValidationPlots.m_oTruthRecoConvPlots.fill(*truthParticle);
+	    m_oPhotonValidationPlots.m_oTruthRecoConvPlots.fill(*truthParticle,*eventInfo);
 	  }else{
-	    m_oPhotonValidationPlots.m_oTruthRecoUncPlots.fill(*truthParticle);
+	    m_oPhotonValidationPlots.m_oTruthRecoUncPlots.fill(*truthParticle,*eventInfo);
 	  }
 	  bool val_loose=false;    
 	  recoPhoton->passSelection(val_loose, "Loose");
 	  if(val_loose) {
-	    m_oPhotonValidationPlots.m_oTruthRecoLoosePlots.fill(*truthParticle);
+	    m_oPhotonValidationPlots.m_oTruthRecoLoosePlots.fill(*truthParticle,*eventInfo);
 	    if(isTrueConv){
-	      m_oPhotonValidationPlots.m_oTruthRecoLooseConvPlots.fill(*truthParticle);
+	      m_oPhotonValidationPlots.m_oTruthRecoLooseConvPlots.fill(*truthParticle,*eventInfo);
 	    }else{
-	      m_oPhotonValidationPlots.m_oTruthRecoLooseUncPlots.fill(*truthParticle);
+	      m_oPhotonValidationPlots.m_oTruthRecoLooseUncPlots.fill(*truthParticle,*eventInfo);
 	    }
 	  }//--  end truth loose
 	  bool val_tight=false;    
 	  recoPhoton->passSelection(val_tight, "Tight");
 	  if(val_tight) {
-	    m_oPhotonValidationPlots.m_oTruthRecoTightPlots.fill(*truthParticle);
+	    m_oPhotonValidationPlots.m_oTruthRecoTightPlots.fill(*truthParticle,*eventInfo);
 	    if(isTrueConv){
-	      m_oPhotonValidationPlots.m_oTruthRecoTightConvPlots.fill(*truthParticle);
+	      m_oPhotonValidationPlots.m_oTruthRecoTightConvPlots.fill(*truthParticle,*eventInfo);
 	    }else{
-	      m_oPhotonValidationPlots.m_oTruthRecoTightUncPlots.fill(*truthParticle);
+	      m_oPhotonValidationPlots.m_oTruthRecoTightUncPlots.fill(*truthParticle,*eventInfo);
 	    }
 	  }//--  end truth tight
 	}//--  end recoPhoton
@@ -195,41 +207,61 @@ StatusCode EgammaPhysValMonitoringTool::fillHistograms()
       return StatusCode::FAILURE;
     }         
     
-    
+#ifdef MCTRUTHCLASSIFIER_CONST
+    IMCTruthClassifier::Info info;
+#else
     std::pair<ParticleType,ParticleOrigin>  partClass;
     MCTruthPartClassifier::ParticleType type;
+#endif
+    bool elecPrompt=false;
+    bool photonPrompt=false;
     
-    for(const auto truthallParticle : *truthallParticles){// Electrons and photons from standard TruthParticle container
+    for(const auto *const truthallParticle : *truthallParticles){// Electrons and photons from standard TruthParticle container      
       
       //--electrons
-      if (abs(truthallParticle->pdgId()) == 11 && truthallParticle->status() == 1  && truthallParticle->barcode() < 1000000) {
+      if (std::abs(truthallParticle->pdgId()) == 11 && truthallParticle->status() == 1  && truthallParticle->barcode() < 1000000) {
+
+#ifdef MCTRUTHCLASSIFIER_CONST
+	auto type = m_truthClassifier->particleTruthClassifier(truthallParticle, &info);
+	if(type.first==IsoElectron) elecPrompt=true;
+#else
 	partClass=std::make_pair(Unknown,NonDefined);
 	type = Unknown;
-	
+      
 	if(truthallParticle->isAvailable <int>("truthType")) {
 	  MCTruthPartClassifier::ParticleType type   = (MCTruthPartClassifier::ParticleType) truthallParticle->auxdata< int >("truthType");
-	  if(type==IsoElectron) m_oElectronValidationPlots.m_oTruthAllIsoPlots.fill(*truthallParticle);
-	} else m_oElectronValidationPlots.m_oTruthAllPlots.fill(*truthallParticle); 
+	}
+	if(type==IsoElectron) elecPrompt=true;
+#endif
+
+	
+	m_oElectronValidationPlots.m_oTruthAllPlots.fill(*truthallParticle,*eventInfo);
+	if(elecPrompt) m_oElectronValidationPlots.m_oTruthAllIsoPlots.fill(*truthallParticle,*eventInfo);
+	 
       } //-- end electrons
       
 	//--photons 	   
-      if (abs(truthallParticle->pdgId()) == 22 && truthallParticle->status() == 1 && truthallParticle->barcode() < 1000000){
+      if (std::abs(truthallParticle->pdgId()) == 22 && truthallParticle->status() == 1 && truthallParticle->barcode() < 1000000){
 	
+#ifdef MCTRUTHCLASSIFIER_CONST
+	auto type = m_truthClassifier->particleTruthClassifier(truthallParticle, &info);
+	if(type.first==IsoPhoton) photonPrompt=true;
+#else
 	partClass=std::make_pair(Unknown,NonDefined);
 	type = Unknown;
-	
-	m_oPhotonValidationPlots.m_oTruthAllPlots.fill(*truthallParticle);
-	
+      
 	if(truthallParticle->isAvailable <int>("truthType")) {
-	  type   = (MCTruthPartClassifier::ParticleType) truthallParticle->auxdata< int >("truthType");
-	  
-	} 
+	  MCTruthPartClassifier::ParticleType type   = (MCTruthPartClassifier::ParticleType) truthallParticle->auxdata< int >("truthType");
+	}
+	if(type==IsoPhoton) photonPrompt=true;
+#endif
 	
-	if(type!=IsoPhoton) continue;
-	if(truthallParticle->pt()*0.001>20. && fabs(truthallParticle->eta())<2.47){
-	  m_oPhotonValidationPlots.m_oTruthAllIsoPlots.fill(*truthallParticle);
+	m_oPhotonValidationPlots.m_oTruthAllPlots.fill(*truthallParticle,*eventInfo);
+	
+	if(!photonPrompt) continue;
+	if(truthallParticle->pt()/GeV>20. && fabs(truthallParticle->eta())<2.47){
+	  m_oPhotonValidationPlots.m_oTruthAllIsoPlots.fill(*truthallParticle,*eventInfo);
 #ifdef MCTRUTHCLASSIFIER_CONST
-	  IMCTruthClassifier::Info info;
 	  m_truthClassifier->particleTruthClassifier (truthallParticle, &info);
 	  ParticleOutCome photOutCome = info.particleOutCome;
 #else
@@ -243,9 +275,9 @@ StatusCode EgammaPhysValMonitoringTool::fillHistograms()
       
 	  //fill only iso photon for conv and not converted
 	  if (photOutCome == Converted&&convTruthR<800.)   
-	    m_oPhotonValidationPlots.m_oTruthAllIsoConvPlots.fill(*truthallParticle);
+	    m_oPhotonValidationPlots.m_oTruthAllIsoConvPlots.fill(*truthallParticle,*eventInfo);
 	  else 
-	    m_oPhotonValidationPlots.m_oTruthAllIsoUncPlots.fill(*truthallParticle);
+	    m_oPhotonValidationPlots.m_oTruthAllIsoUncPlots.fill(*truthallParticle,*eventInfo);
 	}//end cuts on truth
       } // -- end photons
  
@@ -254,17 +286,17 @@ StatusCode EgammaPhysValMonitoringTool::fillHistograms()
 
 
   //---------Electrons----------------------
-  if(!fillRecoElecHistograms(truthParticles.ptr())) {
+  if(!fillRecoElecHistograms(truthParticles.ptr(), eventInfo.ptr())) {
     ATH_MSG_ERROR ("Filling reco elecectron hists  failed " << name() << "...");
     return StatusCode::FAILURE;
   }
   //---------Frwd Electrons----------------------  
-  if(!fillRecoFrwdElecHistograms(truthParticles.ptr())) {
+  if(!fillRecoFrwdElecHistograms(truthParticles.ptr(), eventInfo.ptr())) {
     ATH_MSG_ERROR ("Filling reco frwd elecectron hists  failed " << name() << "...");
     return StatusCode::FAILURE;
   }
   //----------Photons
-  if(!fillRecoPhotHistograms(truthParticles.ptr())) {
+  if(!fillRecoPhotHistograms(truthParticles.ptr(), eventInfo.ptr())) {
     ATH_MSG_ERROR ("Filling reco photon  hists  failed " << name() << "...");
     return StatusCode::FAILURE;
   }
@@ -274,7 +306,7 @@ StatusCode EgammaPhysValMonitoringTool::fillHistograms()
 }
 
 //-------------------------------------------------------------------
-StatusCode EgammaPhysValMonitoringTool::fillRecoElecHistograms(const xAOD::TruthParticleContainer* truthParticles)
+StatusCode EgammaPhysValMonitoringTool::fillRecoElecHistograms(const xAOD::TruthParticleContainer* truthParticles, const xAOD::EventInfo* eventInfo)
 //-------------------------------------------------------------------
 {
   ATH_MSG_DEBUG ("Filling reco electron hists " << name() << "...");
@@ -286,9 +318,11 @@ StatusCode EgammaPhysValMonitoringTool::fillRecoElecHistograms(const xAOD::Truth
   } 
   
   int numofele=0;
+
+  float weight=1.;
+  weight = !eventInfo->beamSpotWeight() ? eventInfo->beamSpotWeight() : 1.;
   
-  
-  for(const auto electron : *Electrons){
+  for(const auto *const electron : *Electrons){
     bool isElecPrompt=false;
 
     if(!(electron->isGoodOQ (xAOD::EgammaParameters::BADCLUSELECTRON))) continue;
@@ -301,10 +335,13 @@ StatusCode EgammaPhysValMonitoringTool::fillRecoElecHistograms(const xAOD::Truth
 //	const xAOD::TruthParticle* thePart = xAOD::EgammaHelpers::getTruthParticle(electron);
 	  if(thePart) {
             float EtLin = (electron->pt()-thePart->pt())/thePart->pt();
-	    m_oElectronValidationPlots.res_et->Fill(thePart->pt()*0.001,EtLin);
-	    m_oElectronValidationPlots.res_eta->Fill(thePart->eta(),EtLin);
-	    m_oElectronValidationPlots.matrix->Fill(electron->pt()*0.001,thePart->pt()*0.001);
-	    m_oElectronValidationPlots.pt_ratio->Fill(thePart->pt()*0.001,electron->pt()/thePart->pt());
+	    m_oElectronValidationPlots.res_et->Fill(thePart->pt()/GeV,EtLin,weight);
+	    m_oElectronValidationPlots.res_eta->Fill(thePart->eta(),EtLin,weight);
+	    if (electron->pt()/GeV>20.) {
+	      m_oElectronValidationPlots.res_et_cut->Fill(thePart->pt()/GeV,EtLin,weight);
+	      m_oElectronValidationPlots.res_eta_cut->Fill(thePart->eta(),EtLin,weight);
+	    }
+	    m_oElectronValidationPlots.matrix->Fill(electron->pt()/GeV,thePart->pt()/GeV);
            }else {
 	cout<<"Truth particle associated not in egamma truth collection"<<endl;
              }
@@ -313,18 +350,22 @@ StatusCode EgammaPhysValMonitoringTool::fillRecoElecHistograms(const xAOD::Truth
     } else if(m_isMC){ if(Match(electron,11, truthParticles)!=nullptr ) isElecPrompt=true;}
     
     
-    m_oElectronValidationPlots.fill(*electron,isElecPrompt);
+    m_oElectronValidationPlots.fill(*electron,*eventInfo,isElecPrompt);
     if(electron->author()&xAOD::EgammaParameters::AuthorElectron||
        electron->author()&xAOD::EgammaParameters::AuthorAmbiguous)   numofele++;
     
   } 
   
   m_oElectronValidationPlots.m_oCentralElecPlots.nParticles->Fill(numofele);
+  m_oElectronValidationPlots.m_oCentralElecPlots.nParticles_weighted->Fill(numofele,weight);
+  
+  m_oElectronValidationPlots.mu_average->Fill(eventInfo->averageInteractionsPerCrossing(), weight);
+  m_oElectronValidationPlots.mu_actual->Fill(eventInfo->actualInteractionsPerCrossing(), weight);
   
   return StatusCode::SUCCESS;
 }
 //-------------------------------------------------------------------
-StatusCode EgammaPhysValMonitoringTool::fillRecoFrwdElecHistograms(const xAOD::TruthParticleContainer* truthParticles)
+StatusCode EgammaPhysValMonitoringTool::fillRecoFrwdElecHistograms(const xAOD::TruthParticleContainer* truthParticles, const xAOD::EventInfo* eventInfo)
 //-------------------------------------------------------------------
 {
   ATH_MSG_DEBUG ("Filling reco frwd electron hists " << name() << "...");
@@ -336,24 +377,27 @@ StatusCode EgammaPhysValMonitoringTool::fillRecoFrwdElecHistograms(const xAOD::T
   }
   
   int numoffrwdele=0;
+  float weight=1.;
+  weight = !eventInfo->beamSpotWeight() ? eventInfo->beamSpotWeight() : 1.;
   
-  for(const auto frwdelectron : *ElectronsFrwd){
+  for(const auto *const frwdelectron : *ElectronsFrwd){
     if(!(frwdelectron->isGoodOQ (xAOD::EgammaParameters::BADCLUSELECTRON))) continue;
     bool isElecPrompt=false;
     if (m_isMC) {
       if((Match(frwdelectron,11, truthParticles)!=nullptr )) isElecPrompt=true;
     }
-    m_oElectronValidationPlots.fill(*frwdelectron,isElecPrompt);
+    m_oElectronValidationPlots.fill(*frwdelectron,*eventInfo,isElecPrompt);
     numoffrwdele++;
     isElecPrompt=false;
   }
   
   m_oElectronValidationPlots.m_oFrwdElecPlots.nParticles->Fill(numoffrwdele);
+  m_oElectronValidationPlots.m_oFrwdElecPlots.nParticles_weighted->Fill(numoffrwdele,weight);
   
   return StatusCode::SUCCESS;
 }
 //-------------------------------------------------------------------
-StatusCode EgammaPhysValMonitoringTool::fillRecoPhotHistograms(const xAOD::TruthParticleContainer* truthParticles)
+StatusCode EgammaPhysValMonitoringTool::fillRecoPhotHistograms(const xAOD::TruthParticleContainer* truthParticles, const xAOD::EventInfo* eventInfo)
 //-------------------------------------------------------------------
 {
   ATH_MSG_DEBUG ("Filling reco photon  hists " << name() << "...");
@@ -369,8 +413,10 @@ StatusCode EgammaPhysValMonitoringTool::fillRecoPhotHistograms(const xAOD::Truth
   int numofAmb=0; 
   int numPhotAll=0; 
   int numofCnv=0;
+  float weight=1.;
+  weight = !eventInfo->beamSpotWeight() ? eventInfo->beamSpotWeight() : 1.;
 
-  for(auto photon : *Photons){
+  for(const auto *photon : *Photons){
     bool isPhotPrompt=false;
     if (photon->author()&xAOD::EgammaParameters::AuthorCaloTopo35) continue;//21.0.>7
     if(!(photon->isGoodOQ (xAOD::EgammaParameters::BADCLUSPHOTON))) continue;
@@ -381,26 +427,26 @@ StatusCode EgammaPhysValMonitoringTool::fillRecoPhotHistograms(const xAOD::Truth
 	//fill energy scale
  	const xAOD::TruthParticle* thePart = xAOD::TruthHelpers::getTruthParticle(*photon);//20.7.X.Y.I
 	//	const xAOD::TruthParticle* thePart = xAOD::EgammaHelpers::getTruthParticle(photon);
-	if(thePart&&thePart->pt()*0.001>20.) {
-            float EtLin = (photon->pt()-thePart->pt())/thePart->pt();
-	    m_oPhotonValidationPlots.res_et->Fill(thePart->pt()*0.001,EtLin);
-	    m_oPhotonValidationPlots.res_eta->Fill(thePart->eta(),EtLin);
-	    if (abs(EtLin)<0.2){
-		m_oPhotonValidationPlots.res_et_cut->Fill(thePart->pt()*0.001,EtLin);
-	        m_oPhotonValidationPlots.res_eta_cut->Fill(thePart->eta(),EtLin);
-	    }
-          }else {
-	    cout<<"Truth particle associated not in egamma truth collection"<<endl;
+	if(thePart&&thePart->pt()/GeV>20.) {
+	  float EtLin = (photon->pt()-thePart->pt())/thePart->pt();
+	  m_oPhotonValidationPlots.res_et->Fill(thePart->pt()/GeV,EtLin,weight);
+	  m_oPhotonValidationPlots.res_eta->Fill(thePart->eta(),EtLin,weight);
+	  if (std::abs(EtLin)<0.2){
+	    m_oPhotonValidationPlots.res_et_cut->Fill(thePart->pt()/GeV,EtLin,weight);
+	    m_oPhotonValidationPlots.res_eta_cut->Fill(thePart->eta(),EtLin,weight);
+	  }
+	}else {
+	  cout<<"Truth particle associated not in egamma truth collection"<<endl;
           }
-       }
-
-    } else if(m_isMC){if(Match(photon,22, truthParticles)!=nullptr ) isPhotPrompt=true;}    
-
-    m_oPhotonValidationPlots.fill(*photon, isPhotPrompt);
-    if(photon->author()&xAOD::EgammaParameters::AuthorPhoton&&photon->pt()*0.001>7.)           numofPhot++;
-    else if(photon->pt()*0.001<7.)  numofTopo++;  
-    else if(photon->author()&xAOD::EgammaParameters::AuthorAmbiguous&&photon->pt()*0.001>7.)   numofAmb++; 
-    if(xAOD::EgammaHelpers::isConvertedPhoton(photon)&&photon->pt()*0.001>7.)                  numofCnv++;
+      }
+      
+      } else if(m_isMC){if(Match(photon,22, truthParticles)!=nullptr ) isPhotPrompt=true;}    
+      
+      m_oPhotonValidationPlots.fill(*photon,*eventInfo, isPhotPrompt);
+      if(photon->author()&xAOD::EgammaParameters::AuthorPhoton&&photon->pt()/GeV>7.)           numofPhot++;
+      else if(photon->pt()*0.001<7.)  numofTopo++;  
+      else if(photon->author()&xAOD::EgammaParameters::AuthorAmbiguous&&photon->pt()/GeV>7.)   numofAmb++; 
+      if(xAOD::EgammaHelpers::isConvertedPhoton(photon)&&photon->pt()/GeV>7.)                  numofCnv++;
   }
   numPhotAll = numofPhot+numofTopo+numofAmb;
   m_oPhotonValidationPlots.m_oAllPlots.m_nParticles->Fill(numPhotAll);
@@ -408,6 +454,12 @@ StatusCode EgammaPhysValMonitoringTool::fillRecoPhotHistograms(const xAOD::Truth
   m_oPhotonValidationPlots.m_oTopoPhotPlots.m_nParticles->Fill(numofTopo);    
   m_oPhotonValidationPlots.m_oAmbPhotPlots.m_nParticles->Fill(numofAmb);
   m_oPhotonValidationPlots.m_oConvPhotPlots.m_nParticles->Fill(numofCnv);
+
+  m_oPhotonValidationPlots.m_oAllPlots.m_nParticles_weighted->Fill(numPhotAll,weight);
+  m_oPhotonValidationPlots.m_oPhotPlots.m_nParticles_weighted->Fill(numofPhot,weight);
+  m_oPhotonValidationPlots.m_oTopoPhotPlots.m_nParticles_weighted->Fill(numofTopo,weight);    
+  m_oPhotonValidationPlots.m_oAmbPhotPlots.m_nParticles_weighted->Fill(numofAmb,weight);
+  m_oPhotonValidationPlots.m_oConvPhotPlots.m_nParticles_weighted->Fill(numofCnv,weight);
  
 
   return StatusCode::SUCCESS;
@@ -429,8 +481,8 @@ const xAOD::TruthParticle* EgammaPhysValMonitoringTool::Match(const xAOD::Egamma
 //-------------------------------------------------------------------------------------------
   float currentdr = 0.05;
   const xAOD::TruthParticle* matchedTruthParticle = nullptr;
-  for (auto truthParticle: *truthParticles){
-    if (abs(truthParticle->pdgId()) != pdg || truthParticle->status() != 1) continue;
+  for (const auto *truthParticle: *truthParticles){
+    if (std::abs(truthParticle->pdgId()) != pdg || truthParticle->status() != 1) continue;
     float dr = particle->p4().DeltaR(truthParticle->p4());
     if (dr < currentdr){
       currentdr = dr;

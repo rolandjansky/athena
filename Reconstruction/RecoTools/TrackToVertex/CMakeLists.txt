@@ -14,7 +14,7 @@ atlas_add_component( TrackToVertex
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                      LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives EventPrimitives GaudiKernel ITrackToVertex 
-		     TrkNeutralParameters StoreGateLib SGtests Particle TrkDetDescrUtils TrkSurfaces TrkEventPrimitives TrkParameters 
+		     TrkNeutralParameters StoreGateLib Particle TrkDetDescrUtils TrkSurfaces TrkEventPrimitives TrkParameters 
 		     TrkParticleBase TrkTrack VxVertex TrkExInterfaces BeamSpotConditionsData CxxUtils)
 
 # Install files from the package:

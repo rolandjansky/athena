@@ -11,9 +11,6 @@
 #ifndef GENERATOROBJECTSATHENAPOOL_MCEVENTCOLLECTIONCNV_H 
 #define GENERATOROBJECTSATHENAPOOL_MCEVENTCOLLECTIONCNV_H 
 
-// STL includes
-
-// HepMC / CLHEP includes
 #include "GeneratorObjects/McEventCollection.h"
 
 // AthenaPoolCnvSvc includes
@@ -36,11 +33,6 @@ class McEventCollectionCnv: public T_AthenaPoolCustomCnv<
 
   // make the factory for this converter our friend
   friend class CnvFactory<McEventCollectionCnv>;
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected methods: 
-  /////////////////////////////////////////////////////////////////// 
- protected:
 
   /** Create the converter from the service locator
    */

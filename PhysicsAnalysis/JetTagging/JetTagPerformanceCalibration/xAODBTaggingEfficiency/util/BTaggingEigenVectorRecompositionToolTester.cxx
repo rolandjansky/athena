@@ -3,7 +3,7 @@
 */
 
 
-#include <AsgTools/AnaToolHandle.h>
+#include <AsgTools/StandaloneToolHandle.h>
 #include <AsgTools/ToolHandle.h>
 #include "FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h"
 #include "FTagAnalysisInterfaces/IBTaggingEigenVectorRecompositionTool.h"
@@ -15,7 +15,7 @@ int main() {
   std::string taggerName = "MV2c10";
   std::string workingPointName = "Continuous";
   
-  asg::AnaToolHandle<IBTaggingEfficiencyTool> btag_eff_tool("BTaggingEfficiencyTool/BTagEffTest");
+  asg::StandaloneToolHandle<IBTaggingEfficiencyTool> btag_eff_tool("BTaggingEfficiencyTool/BTagEffTest");
   StatusCode code1 = btag_eff_tool.setProperty("ScaleFactorFileName","xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2019-07-30_v1.root" );
   StatusCode code2 = btag_eff_tool.setProperty("TaggerName",    taggerName  );
   StatusCode code3 = btag_eff_tool.setProperty("OperatingPoint", workingPointName);
@@ -40,7 +40,7 @@ int main() {
     std::cout << "Initialization of tool " << btag_eff_tool->name() << " finished." << std::endl;
   } 
 
-  asg::AnaToolHandle<IBTaggingEigenVectorRecompositionTool> evr_tool("BTaggingEigenVectorRecompositionTool/BTagEVRTest");
+  asg::StandaloneToolHandle<IBTaggingEigenVectorRecompositionTool> evr_tool("BTaggingEigenVectorRecompositionTool/BTagEVRTest");
   StatusCode code7 = evr_tool.setProperty("BTaggingEfficiencyTool", btag_eff_tool);
   StatusCode code8 = evr_tool.initialize();
   if (code7 != StatusCode::SUCCESS

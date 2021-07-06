@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // TRTTrackHoleSearchTool.cxx
@@ -42,8 +42,8 @@ TRTTrackHoleSearchTool::TRTTrackHoleSearchTool(const std::string& type, const st
 	  m_extrapolator("Trk::Extrapolator"),
 	  m_conditions_svc("TRT_ConditionsSummarySvc", name),
 	  m_has_been_called(false),
-	  m_TRT_ID(0),
-	  m_trt_outer_surf(0)
+	  m_TRT_ID(nullptr),
+	  m_trt_outer_surf(nullptr)
 {
 	declareInterface<ITrackHoleSearchTool>(this);
 
@@ -76,7 +76,7 @@ StatusCode TRTTrackHoleSearchTool::initialize() {
 	// retrieve ConditionsSummarySvc
 	ATH_CHECK(m_conditions_svc.retrieve());
 
-	m_trt_outer_surf = new Trk::CylinderSurface(new Amg::Transform3D(Amg::Transform3D::Identity()),
+	m_trt_outer_surf = new Trk::CylinderSurface(Amg::Transform3D(Amg::Transform3D::Identity()),
 	 m_outer_radius, m_max_z);
 	// note: HepGeom::Translate3D is deleted by Trk::Surface destructor
 
@@ -135,12 +135,12 @@ const DataVector<const Trk::TrackStateOnSurface>* TRTTrackHoleSearchTool::getHol
 		ATH_MSG_DEBUG( "  This track has " << track_states->size() << " track states on surface." );
 	} else {
 		ATH_MSG_WARNING( "  This track has null track states on surface. Returning 0." );
-		return 0;
+		return nullptr;
 	}
 
 	if (track_states->size() < 2) {
 		ATH_MSG_WARNING( "  Fewer than 2 TrackStatesOnSurface. Returning 0." );
-		return 0;
+		return nullptr;
 	}
 
 	// set beginning point of extrapolation
@@ -160,7 +160,7 @@ const DataVector<const Trk::TrackStateOnSurface>* TRTTrackHoleSearchTool::getHol
 
 	if (beginning_track_state == track_states->end()) {
 		ATH_MSG_WARNING( "  beginning_track_state == track_states->end(). No where to extrapolate to. Returning 0." );
-		return 0;
+		return nullptr;
 	}
 
 	// to be returned:
@@ -357,7 +357,7 @@ int TRTTrackHoleSearchTool::extrapolateBetweenHits(const Trk::TrackParameters* s
 			
 			std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
 			typePattern.set(Trk::TrackStateOnSurface::Hole);
-			holes->push_back( new Trk::TrackStateOnSurface(0, (*step)->clone(), 0, 0, typePattern) );
+			holes->push_back( new Trk::TrackStateOnSurface(nullptr, (*step)->clone(), nullptr, nullptr, typePattern) );
 			hole_count++;
 			previous_id = id;
 		} // end loop over parameters from extrapolation
@@ -433,60 +433,71 @@ TRTTrackHoleSearchTool::find_last_hit_before_trt(const DataVector<const Trk::Tra
 	return track_state;
 }
 
-
 //____________________________________________________________________________
-const Trk::Track* TRTTrackHoleSearchTool::addHolesToTrack(const Trk::Track& track,
-                                                          const DataVector<const Trk::TrackStateOnSurface>* holes) const {
-	ATH_MSG_DEBUG( "TRTTrackHoleSearchTool::addHolesToTrack" );
-	/*
-	  This method was basically coppied from here:
-	  http://alxr.usatlas.bnl.gov/lxr-stb4/source/atlas/InnerDetector/InDetRecTools/InDetTrackHoleSearch/src/InDetTrackHoleSearchTool.cxx#931
-	*/
+const Trk::Track*
+TRTTrackHoleSearchTool::addHolesToTrack(
+  const Trk::Track& track,
+  const DataVector<const Trk::TrackStateOnSurface>* holes) const
+{
+  ATH_MSG_DEBUG("TRTTrackHoleSearchTool::addHolesToTrack");
+  /*
+    This method was basically coppied from here:
+    http://alxr.usatlas.bnl.gov/lxr-stb4/source/atlas/InnerDetector/InDetRecTools/InDetTrackHoleSearch/src/InDetTrackHoleSearchTool.cxx#931
+  */
 
-	// get states from track
-	DataVector<const Trk::TrackStateOnSurface>* tsos = new DataVector<const Trk::TrackStateOnSurface>;
-	for(DataVector<const Trk::TrackStateOnSurface>::const_iterator it = track.trackStateOnSurfaces()->begin();
-	    it != track.trackStateOnSurfaces()->end(); ++it) {
-		// veto old holes
-		if ( !(*it)->type(Trk::TrackStateOnSurface::Hole) ) {
-			tsos->push_back(new Trk::TrackStateOnSurface(**it));
-		}
-	}
+  // get states from track
+  auto tsos = DataVector<const Trk::TrackStateOnSurface>();
+  for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it =
+         track.trackStateOnSurfaces()->begin();
+       it != track.trackStateOnSurfaces()->end();
+       ++it) {
+    // veto old holes
+    if (!(*it)->type(Trk::TrackStateOnSurface::Hole)) {
+      tsos.push_back(new Trk::TrackStateOnSurface(**it));
+    }
+  }
 
-	// if we have no holes on the old track and no holes found by search, then we just copy the track
-	if(track.trackStateOnSurfaces()->size() == tsos->size() && holes->size() == 0) {
-		// create copy of track
-		const Trk::Track* new_track = new Trk::Track(track.info(), tsos, track.fitQuality() ? track.fitQuality()->clone() : 0);
-		return new_track;
-	}
+  // if we have no holes on the old track and no holes found by search, then we
+  // just copy the track
+  if (track.trackStateOnSurfaces()->size() == tsos.size() && holes->empty()) {
+    // create copy of track
+    const Trk::Track* new_track = new Trk::Track(
+      track.info(),
+      std::move(tsos),
+      track.fitQuality() ? track.fitQuality()->clone() : nullptr);
+    return new_track;
+  }
 
-	// add new holes
-        tsos->insert (tsos->end(), holes->begin(), holes->end());
+  // add new holes
+  tsos.insert(tsos.end(), holes->begin(), holes->end());
 
-	// sort
-	const Trk::TrackParameters* perigee = track.perigeeParameters();
-	if (!perigee) perigee = (*(track.trackStateOnSurfaces()->begin()))->trackParameters();
+  // sort
+  const Trk::TrackParameters* perigee = track.perigeeParameters();
+  if (!perigee)
+    perigee = (*(track.trackStateOnSurfaces()->begin()))->trackParameters();
 
-	if (perigee) {
-		Trk::TrackStateOnSurfaceComparisonFunction CompFunc( perigee->momentum() );
+  if (perigee) {
+    Trk::TrackStateOnSurfaceComparisonFunction CompFunc(perigee->momentum());
 
-		if (fabs(perigee->parameters()[Trk::qOverP]) > 0.002) {
-			/* invest n*(logN)**2 sorting time for lowPt, coping with a possibly
-			   not 100% transitive comparison functor. */
-			if (msgLvl(MSG::DEBUG)) {
-				msg() << "sorting vector with stable_sort" << endmsg;
-			}
-			std::stable_sort( tsos->begin(), tsos->end(), CompFunc );
-		} else {
-			tsos->sort( CompFunc ); // respects DV object ownership
-		}
+    if (fabs(perigee->parameters()[Trk::qOverP]) > 0.002) {
+      /* invest n*(logN)**2 sorting time for lowPt, coping with a possibly
+         not 100% transitive comparison functor. */
+      if (msgLvl(MSG::DEBUG)) {
+        msg() << "sorting vector with stable_sort" << endmsg;
+      }
+      std::stable_sort(tsos.begin(), tsos.end(), CompFunc);
+    } else {
+      tsos.sort(CompFunc); // respects DV object ownership
+    }
+  }
 
-	}
+  // create copy of track
+  const Trk::Track* new_track =
+    new Trk::Track(track.info(),
+                   std::move(tsos),
+                   track.fitQuality() ? track.fitQuality()->clone() : nullptr);
 
-	// create copy of track
-	const Trk::Track* new_track = new Trk::Track( track.info(),tsos,track.fitQuality() ? track.fitQuality()->clone() : 0);
-
-	return new_track;
+  return new_track;
 }
 
 // EOF

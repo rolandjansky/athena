@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // -----------------------------------------------------------------------------------------------
@@ -62,11 +62,16 @@ BSignalFilter::BSignalFilter(const std::string& name, ISvcLocator* pSvcLocator) 
   declareProperty("B_PDGCode"                ,m_B_pdgid = 0);
   //
   // ** Declare properties for mass filter **
-  declareProperty("InvMass_switch" , m_InvMass_switch = false               );
-  declareProperty("InvMass_PartId1", m_InvMass_PartId1 = 13                 );
-  declareProperty("InvMass_PartId2", m_InvMass_PartId2 = -m_InvMass_PartId1 );
-  declareProperty("InvMassMin"     , m_InvMassMin = 0.0                     );
-  declareProperty("InvMassMax"     , m_InvMassMax = 14000000.0              );
+  declareProperty("InvMass_switch"       , m_InvMass_switch = false               );
+  declareProperty("InvMass_PartId1"      , m_InvMass_PartId1 = 13                 );
+  declareProperty("InvMass_PartId2"      , m_InvMass_PartId2 = -m_InvMass_PartId1 );
+  declareProperty("InvMass_PartFakeMass1", m_InvMass_PartFakeMass1 = -1.          );
+  declareProperty("InvMass_PartFakeMass2", m_InvMass_PartFakeMass2 = -1.          );
+  declareProperty("InvMassMin"           , m_InvMassMin = 0.0                     );
+  declareProperty("InvMassMax"           , m_InvMassMax = 14000000.0              );
+  declareProperty("TotalInvMass_switch"  , m_TotalInvMass_switch = false          );
+  declareProperty("TotalInvMassMin"      , m_TotalInvMassMin = 0.0                );
+  declareProperty("TotalInvMassMax"      , m_TotalInvMassMax = 14000000.0         );
 
   // ** Initialise event counter **
   m_EventCnt      = 0;
@@ -235,11 +240,13 @@ StatusCode BSignalFilter::filterEvent()
 		  ATH_MSG_DEBUG(" *** BSignalFilter.cxx: B-signal found ***  ");
 		  ATH_MSG_DEBUG(" ------------------------------------------ ");
 		  ATH_MSG_DEBUG("");
+                  // cppcheck-suppress shiftNegative; false positive
 		  ATH_MSG_DEBUG(" Event " << m_EventCnt << " --> B-hadron/B-meson id " << particleID << " (" << HadronName << ") , status " << part->status());
 		  ATH_MSG_DEBUG("");
 
 		  // ** Looping on all children checking if they have passed the selection cuts defined by the user **
-		  if ( m_cuts_f_e_on || m_cuts_f_mu_on || m_cuts_f_had_on || m_cuts_f_gam_on || m_cuts_f_K0_on )
+		  if ( m_cuts_f_e_on || m_cuts_f_mu_on || m_cuts_f_had_on || m_cuts_f_gam_on || m_cuts_f_K0_on
+                       || m_InvMass_switch || m_TotalInvMass_switch  )
 		    {
 		      ATH_MSG_DEBUG(" *** KINEMATIC CUTS ON PARTICLES ACTIVATED *** ");
 		      ATH_MSG_DEBUG("");
@@ -250,9 +257,9 @@ StatusCode BSignalFilter::filterEvent()
 		      //
 		      bool isSignal=false;
 		      bool havePassedCuts=true;
-		      TLorentzVector CandPart1, CandPart2;
+		      TLorentzVector CandPart1, CandPart2, total_4mom;
 		      //
-		      FindAllChildren(part,"",false,isSignal,havePassedCuts,CandPart1,CandPart2,false);
+		      FindAllChildren(part,"",false,isSignal,havePassedCuts,CandPart1,CandPart2,false,total_4mom);
 		      //
 		      ATH_MSG_DEBUG("");
 		      ATH_MSG_DEBUG(" ------------------------------- ");
@@ -268,28 +275,48 @@ StatusCode BSignalFilter::filterEvent()
 			{
 			  if ( SignalPassedCuts )
 			    {
-			      bool accept_mass = false;
+                              bool accept_mass = false;
+                              bool accept_total_mass = false;
 			      ATH_MSG_DEBUG("");
 			      ATH_MSG_DEBUG(" *** INVARIANT MASS CUTS ON PARTICLES ACTIVATED! *** ");
 			      ATH_MSG_DEBUG("");
-			      ATH_MSG_DEBUG("     -- Mass cuts -->>  " << m_InvMassMin << " < mass < " << m_InvMassMax << " MeV");
+                              if (m_InvMass_switch     ) ATH_MSG_DEBUG("     -- Mass cuts -->>  " << m_InvMassMin      << " < mass < "       << m_InvMassMax      << " MeV");
 			      //
 			      double invMass = ( CandPart1 + CandPart2 ).M();
+                              double invMass_total = total_4mom.M();
 			      //
-			      ATH_MSG_DEBUG("     -- Invariant mass of the couple of particles = " << invMass << " MeV");
-			      if ( m_InvMassMin < invMass && invMass < m_InvMassMax )
-				{
-				  ATH_MSG_DEBUG("        ==>> Event has passed the mass filter!");
-				  ATH_MSG_DEBUG("");
-				  accept_mass = true;
-				}else
-				{
-				  ATH_MSG_DEBUG("        ==>> Event has NOT passed the mass filter!");
-				  ATH_MSG_DEBUG("");
-				}
-			      SignalPassedCuts = SignalPassedCuts && accept_mass;
-			    }else{
-			    ATH_MSG_DEBUG("");
+
+                              if ( m_InvMass_switch )
+                                {
+			        ATH_MSG_DEBUG("     -- Invariant mass of the couple of particles = " << invMass << " MeV");
+			        if ( m_InvMassMin < invMass && invMass < m_InvMassMax )
+			          {
+			            ATH_MSG_DEBUG("        ==>> Event has passed the mass filter!");
+			            ATH_MSG_DEBUG("");
+			            accept_mass = true;
+			          }else
+			          {
+			            ATH_MSG_DEBUG("        ==>> Event has NOT passed the mass filter!");
+			            ATH_MSG_DEBUG("");
+			          }
+			        SignalPassedCuts = SignalPassedCuts && accept_mass;
+                                }
+                              if ( m_TotalInvMass_switch )
+                                {
+			        ATH_MSG_DEBUG("     -- Total invariant mass of the final-state particles = " << invMass_total << " MeV");
+                                if ( m_TotalInvMassMin < invMass_total && invMass_total < m_TotalInvMassMax )
+                                  {
+			          ATH_MSG_DEBUG("        ==>> Event has passed the total mass filter!");
+			          ATH_MSG_DEBUG("");
+                                  accept_total_mass = true;
+                                  } else {
+			          ATH_MSG_DEBUG("        ==>> Event has NOT passed the total mass filter!");
+			          ATH_MSG_DEBUG("");
+                                  }
+                                SignalPassedCuts = SignalPassedCuts && accept_total_mass;
+		      }
+		    }else{
+                            ATH_MSG_DEBUG("");
 			    ATH_MSG_DEBUG(" *** INVARIANT MASS CUTS ON PARTICLES NOT APPLIED (since the event is not a signal that passed cuts)! *** ");
 			    ATH_MSG_DEBUG("");
 			  }
@@ -355,8 +382,7 @@ StatusCode BSignalFilter::filterEvent()
 }
 
 
-bool BSignalFilter::test_cuts(const double myPT, const double testPT,
-			      const double myEta, const double testEta) const
+bool BSignalFilter::test_cuts(const double myPT, const double testPT, const double myEta, const double testEta) const
 {
   return ( (myPT >= testPT) && (std::abs(myEta) <= testEta) );
 }
@@ -395,11 +421,11 @@ bool BSignalFilter::LVL2_eMu_Trigger(HepMC::ConstGenParticlePtr child) const
 
 void BSignalFilter::FindAllChildren(HepMC::ConstGenParticlePtr mother,std::string treeIDStr,
 				    bool fromFinalB, bool &foundSignal, bool &passedAllCuts,
-				    TLorentzVector &p1, TLorentzVector &p2, bool fromSelectedB) const
+				    TLorentzVector &p1, TLorentzVector &p2, bool fromSelectedB, TLorentzVector &total_4mom) const
 {
   int pID = mother->pdg_id();
   //
-  if ( !(mother->end_vertex()) && (mother->status() != 2) )  // i.e. this is a final state
+  if ( !(mother->end_vertex()) && (mother->status() == 1) )  // i.e. this is a final state
     {
       bool hasChildGoodParent = fromFinalB && (fromSelectedB || m_B_pdgid==0);
       //
@@ -413,17 +439,28 @@ void BSignalFilter::FindAllChildren(HepMC::ConstGenParticlePtr mother,std::strin
 	  if ( m_cuts_f_gam_on && std::abs(pID)==22 )                                      passedAllCuts = passedAllCuts && passedCut;
 	  if ( m_cuts_f_K0_on  && std::abs(pID)==311 )                                     passedAllCuts = passedAllCuts && passedCut;
 	  //
-	  if ( m_InvMass_switch && m_InvMass_PartId1==pID )
-	    p1.SetPxPyPzE(mother->momentum().x(),mother->momentum().y(),mother->momentum().z(),mother->momentum().e());
-	  if ( m_InvMass_switch && m_InvMass_PartId2==pID )
-	    p2.SetPxPyPzE(mother->momentum().x(),mother->momentum().y(),mother->momentum().z(),mother->momentum().e());
+          if ( (m_InvMass_switch || m_TotalInvMass_switch) && m_InvMass_PartId1==pID )
+      {
+      if (m_InvMass_PartFakeMass1 < 0.) p1.SetPxPyPzE(mother->momentum().x(),mother->momentum().y(),mother->momentum().z(),mother->momentum().e() );
+      else  p1.SetXYZM(mother->momentum().x(),mother->momentum().y(),mother->momentum().z(),m_InvMass_PartFakeMass1);
+      total_4mom = total_4mom + p1;
+    } else if ( (m_InvMass_switch || m_TotalInvMass_switch) && m_InvMass_PartId2==pID ) {
+	    if (m_InvMass_PartFakeMass2 < 0.) p2.SetPxPyPzE(mother->momentum().x(),mother->momentum().y(),mother->momentum().z(),mother->momentum().e() );
+      else  p2.SetXYZM(mother->momentum().x(),mother->momentum().y(),mother->momentum().z(),m_InvMass_PartFakeMass2);
+      total_4mom = total_4mom + p2;
+    } else if (m_TotalInvMass_switch) {
+      TLorentzVector current_4p;
+      current_4p.SetPxPyPzE(mother->momentum().x(),mother->momentum().y(),mother->momentum().z(),mother->momentum().e());
+      total_4mom = total_4mom + current_4p;
+      }
 	}
       return;
     }
   else{
     if ( !(mother->end_vertex()) )  // i.e. something is wrong in HepMC
       {
-	ATH_MSG_DEBUG(" Inconsistent entry in HepMC (status 2 particle not decayed), chain rejected!");
+        if (mother->status() == 2)
+        	ATH_MSG_DEBUG(" Inconsistent entry in HepMC (status 2 particle not decayed), chain rejected!");
 	return;
       }
   }
@@ -458,7 +495,7 @@ void BSignalFilter::FindAllChildren(HepMC::ConstGenParticlePtr mother,std::strin
       std::stringstream childCntSS; childCntSS << childCnt;
       childIDStr = treeIDStr + childCntSS.str();
       PrintChild( (*thisChild), childIDStr, fromFinalB );
-      FindAllChildren( (*thisChild),childIDStr,fromFinalB,foundSignal,passedAllCuts,p1,p2,(pID==m_B_pdgid) || fromSelectedB);
+      FindAllChildren( (*thisChild),childIDStr,fromFinalB,foundSignal,passedAllCuts,p1,p2,(pID==m_B_pdgid) || fromSelectedB,total_4mom);
     }
 
   return;
@@ -600,7 +637,7 @@ bool BSignalFilter::FinalStatePassedCuts(HepMC::ConstGenParticlePtr child) const
 
 
 void BSignalFilter::PrintChild(HepMC::ConstGenParticlePtr child,
-			       const std::string treeIDStr, const bool fromFinalB) const
+			       const std::string& treeIDStr, const bool fromFinalB) const
 {
   int pID = child->pdg_id();
   // ** Find name **

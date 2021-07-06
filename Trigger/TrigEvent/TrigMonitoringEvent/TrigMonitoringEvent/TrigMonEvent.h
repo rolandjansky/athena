@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMON_EVENT_H
@@ -119,7 +119,6 @@ class TrigMonEvent
 };
 
 unsigned getTrigMonEventVersion();
-void setTrigMonEventVersion(unsigned version);
 
 // Include template code: specialization of member templates
 #include "TrigMonitoringEvent/TrigMonEvent.icc"

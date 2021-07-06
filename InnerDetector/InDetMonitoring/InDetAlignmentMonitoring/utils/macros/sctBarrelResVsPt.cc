@@ -15,8 +15,9 @@ void sctBarrelResidualsVsPt(TString trkCol, TCanvas *cSCTBarrelResVsPt){
 }
 
 void sctBarrelResidualsVsPt(TString trkCol, TCanvas *cSCTBarrelResVsPt, TString trkCol2) {
-	TProfile *hSCTBarrelResVsPt[3];
-	TProfile *hSCTBarrelResVsPt_2[3];
+  constexpr size_t nLayers{4};
+	TProfile *hSCTBarrelResVsPt[nLayers];
+	TProfile *hSCTBarrelResVsPt_2[nLayers];
 	
 	float ProfMax = 0;
 	float max,min;
@@ -34,7 +35,7 @@ void sctBarrelResidualsVsPt(TString trkCol, TCanvas *cSCTBarrelResVsPt, TString 
 			      CanvasSizeX4[0],CanvasSizeX4[1]);
 	}
 	cSCTBarrelResVsPt->Divide(2,2);
-	for(int layer=0; layer<4; layer++){
+	for(int layer=0; layer<nLayers; layer++){
 		cSCTBarrelResVsPt->cd(layer+1);
 		
 		histname = "IDAlignMon/"+trkCol+"/Residuals/sct_b";

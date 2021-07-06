@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -17,12 +17,14 @@
 #include "TrkSurfaces/CylinderBounds.h"
 #include "TrkSurfaces/RectangleBounds.h"
 #include "TrkSurfaces/DiscBounds.h"
+#include "TrkEventPrimitives/FitQuality.h"
 #include "GeoModelInterfaces/IGeoModelTool.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "TRT_ReadoutGeometry/TRT_Numerology.h"
 #include "InDetRecToolInterfaces/ITRT_TrackExtensionTool.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "StoreGate/ReadHandle.h"
+#include <cmath>
 ///////////////////////////////////////////////////////////////////
 // Constructor
 ///////////////////////////////////////////////////////////////////
@@ -214,7 +216,7 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::newEvent(const EventContext &ctx) const
 
       int               ns = m_trtid->straw((*c)->identify());
       const Amg::Vector3D& sc = (*c)->detectorElement()->strawCenter(ns);
-      float             Fs = atan2(sc.y(),sc.x()); if(Fs<0.) Fs+=pi2;
+      float             Fs = std::atan2(sc.y(),sc.x()); if(Fs<0.) Fs+=pi2;
       event_data->m_circles[n].set((*c),Fs,ad);
       
       // Loop through all dz/dr for given cluster 
@@ -271,7 +273,7 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::newRegion
   int n = 0;
   for(; d!=de; ++d) {
 
-    auto w = trtcontainer->indexFindPtr((*d));
+    const auto *w = trtcontainer->indexFindPtr((*d));
 
     if(w!=nullptr) {
 
@@ -298,7 +300,7 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::newRegion
 	
 	int               ns = m_trtid->straw((*c)->identify());
 	const Amg::Vector3D& sc = (*c)->detectorElement()->strawCenter(ns);
-	float             Fs = atan2(sc.y(),sc.x()); if(Fs<0.) Fs+=pi2;
+	float             Fs = std::atan2(sc.y(),sc.x()); if(Fs<0.) Fs+=pi2;
 	event_data->m_circles[n].set((*c),Fs,ad);
 	
 	// Loop through all dz/dr for given cluster 
@@ -421,7 +423,7 @@ Trk::TrackSegment* InDet::TRT_TrackSegmentsMaker_ATLxk::next(InDet::ITRT_TrackSe
       event_data = TRT_TrackSegmentsMaker_ATLxk::EventData::getPrivateEventData(virt_event_data);
 
   if(event_data.m_segiterator!=event_data.m_segments.end()) return (*event_data.m_segiterator++);
-  return 0;
+  return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -690,14 +692,14 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::findLocaly(const EventContext &ctx,
 
   double pT = m_pTmin/(double(m)*m_Psi-1.);
 
-  double pin = 1./(pT*sqrt((1.+condData.m_dzdr[ndzdr]*condData.m_dzdr[ndzdr])));
+  double pin = 1./(pT*std::sqrt((1.+condData.m_dzdr[ndzdr]*condData.m_dzdr[ndzdr])));
 
   Amg::Vector3D PSV(0.,0.,0.); Trk::PerigeeSurface PS(PSV);
-  const Trk::TrackParameters* Tp = PS.createTrackParameters(0.,0.,fm,atan2(1.,condData.m_dzdr[ndzdr]),pin,0);
-    ++event_data.m_nlocal;
+  auto Tp = PS.createUniqueTrackParameters(
+    0., 0., fm, std::atan2(1., condData.m_dzdr[ndzdr]), pin, std::nullopt);
+  ++event_data.m_nlocal;
 
-  Trk::TrackSegment* seg = m_extensionTool->findSegment(ctx, *Tp, *(event_data.m_extEventData) );
-  delete Tp;
+  Trk::TrackSegment* seg = m_extensionTool->findSegment(ctx, Tp.get(), *(event_data.m_extEventData) );
   if(!seg) return;
 
   // Momentum cut
@@ -706,7 +708,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::findLocaly(const EventContext &ctx,
   double iP = seg->localParameters().get(Trk::qOverP);
 
   // ME: let's not use a soft cut here
-  if(sin(T) < 0.9*m_pTmin*fabs(iP)) {delete seg; return;}
+  if(std::sin(T) < 0.9*m_pTmin*std::abs(iP)) {delete seg; return;}
 
 
   ++event_data.m_nsegments;

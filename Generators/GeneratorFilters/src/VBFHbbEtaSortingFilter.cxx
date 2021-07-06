@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // -------------------------------------------------------------
@@ -73,13 +73,8 @@ StatusCode VBFHbbEtaSortingFilter::filterEvent() {
   // step (1)
   // require four jets
   std::multimap<double, const xAOD::Jet*, std::greater<double> > jets_ptordering; // high pT to small pT
-  
-  xAOD::JetContainer::const_iterator it_cur = (*truthjetTES).begin(); 
-  xAOD::JetContainer::const_iterator it_end = (*truthjetTES).end();
-  
-  for (; it_cur!=it_end; it_cur++) {
-    const xAOD::Jet* jet = (*it_cur);
-    
+
+  for (const xAOD::Jet* jet : *truthjetTES) {
     if (TMath::Abs( jet->eta() ) > m_MaxJetEta) continue;
     if (jet->pt() < m_MinJetPt)  continue;
     
@@ -103,15 +98,15 @@ StatusCode VBFHbbEtaSortingFilter::filterEvent() {
   ite_c = jets_ptordering.begin();
   ite_e = jets_ptordering.end();
   
-  for (int iJet=0; ite_c!=ite_e and iJet<4; ite_c++, iJet++) {
+  for (int iJet=0; ite_c!=ite_e and iJet<4; ++ite_c, ++iJet) {
     four_jets_etaordering.insert(std::pair<double, const xAOD::Jet*> ( (ite_c->second)->eta(), (ite_c->second)));
     if (m_debug) printf("dbg> ijet=%2d %10.1f @ %d \n", iJet, (ite_c->second)->pt(), __LINE__);
   }
   
   ite_c = four_jets_etaordering.begin();
-  const xAOD::Jet* forward_jet_1 = (ite_c)->second; ite_c++; // 1st jet in eta ordering
-  const xAOD::Jet* central_jet_1 = (ite_c)->second; ite_c++; // 2nd jet in eta ordering
-  const xAOD::Jet* central_jet_2 = (ite_c)->second; ite_c++; // 3rd jet in eta ordering
+  const xAOD::Jet* forward_jet_1 = (ite_c)->second; ++ite_c; // 1st jet in eta ordering
+  const xAOD::Jet* central_jet_1 = (ite_c)->second; ++ite_c; // 2nd jet in eta ordering
+  const xAOD::Jet* central_jet_2 = (ite_c)->second; ++ite_c; // 3rd jet in eta ordering
   const xAOD::Jet* forward_jet_2 = (ite_c)->second;          // 4th jet in eta ordering
 
   int forward_jet_truth_label_1 = 0;

@@ -46,6 +46,7 @@ namespace LVL1MUONIF {
 
       bool is2candidatesInSector() const { return m_2candidatesInSector; } // MORE than two candidates per sector
       int bcid() const { return m_bcid;  }
+      int nsw() const {return m_nsw; } // NSW monitoring bit
       int roi( size_t id ) const { return m_roi[ id ]; }
       int ovl( size_t id ) const { return m_ovl[ id ]; }
       int pt( size_t id ) const { return m_pt[ id ]; }
@@ -54,10 +55,12 @@ namespace LVL1MUONIF {
       int goodmf( size_t id) const { return m_goodmf[ id ]; }
       int innercoin( size_t id) const { return m_innercoin[ id ]; }
       int bw2or3( size_t id) const { return m_bw2or3[ id ]; }
+      int veto( size_t id) const {return m_veto[ id ]; } // veto candidate for multiplicity counting due to overlap removal
 
       void set2candidatesInSector() { m_2candidatesInSector = true; }
       void clear2candidatesInSector() { m_2candidatesInSector = false;}
       void bcid( int value ) { m_bcid = value; }
+      void nsw( int value) {m_nsw = value; }
       void roi( size_t id, int value ) { m_roi[ id ] = value; }
       void ovl( size_t id, int value ) { m_ovl[ id ] = value; }
       void pt( size_t id, int value ) { m_pt[ id ] = value; }
@@ -67,6 +70,7 @@ namespace LVL1MUONIF {
       void goodmf( size_t id, int value) {m_goodmf[ id ] = value; }
       void innercoin( size_t id, int value) {m_innercoin[ id ] = value; }
       void bw2or3( size_t id, int value) {m_bw2or3[ id ] = value; }
+      void veto( size_t id, int value) {m_veto[ id ] = value; }
 
       void clear();
 
@@ -90,11 +94,13 @@ namespace LVL1MUONIF {
       std::vector<int> m_pt; //[m_ncand]
       std::vector<bool> m_2candidates; //[m_ncand]
       int m_bcid;
+      int m_nsw;
       std::vector<int> m_charge; //[m_ncand]
       int m_id_system;
       std::vector<int> m_goodmf; //[m_ncand]
       std::vector<int> m_innercoin; //[m_ncand]
       std::vector<int> m_bw2or3; //[m_ncand]
+      std::vector<int> m_veto; //[m_ncand]
 
    }; // class Lvl1MuSectorLogicDataPhase1
 

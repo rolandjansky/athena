@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -28,7 +28,7 @@
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
-#include "InDetReadoutGeometry/SiLocalPosition.h"
+#include "ReadoutGeometryBase/SiLocalPosition.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "DetDescrCondTools/ICoolHistSvc.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -294,14 +294,14 @@ namespace InDet {
 
   std::vector<double> 
   NnClusterizationFactory::estimateNumberOfParticlesTTN(const TTrainedNetworkCollection &nn_collection,
-                                                        std::vector<double> inputData) const{
+                                                        const std::vector<double>& inputData) const{
     ATH_MSG_DEBUG("Using TTN number network");
     std::vector<double> resultNN_TTN{};
     if (not (m_nParticleNNId < nn_collection.size())){ //note: m_nParticleNNId is unsigned
       ATH_MSG_FATAL("NnClusterizationFactory::estimateNumberOfParticlesTTN: Index "<<m_nParticleNNId<< "is out of range.");
       return resultNN_TTN;
     }
-    const auto pNetwork = nn_collection[m_nParticleNNId].get();
+    auto *const pNetwork = nn_collection[m_nParticleNNId].get();
     if (not pNetwork){
       ATH_MSG_FATAL("NnClusterizationFactory::estimateNumberOfParticlesTTN: nullptr returned for TrainedNetwork");
       return resultNN_TTN;
@@ -425,7 +425,7 @@ namespace InDet {
         ATH_MSG_FATAL("estimatePositionsTTN: Requested collection index, "<< networkIndex << " is out of range.");
         return allPositions;
       }
-      const auto pNetwork = nn_collection[networkIndex].get();
+      auto *const pNetwork = nn_collection[networkIndex].get();
       std::vector<double> position1P = (*pNetwork.*m_calculateOutput)(inputData);
       std::vector<Amg::Vector2D> myPosition1=getPositionsFromOutput(position1P,input,pCluster);
       assert( position1P.size() % 2 == 0);
@@ -447,8 +447,8 @@ namespace InDet {
         ATH_MSG_FATAL("estimatePositionsTTN: A requested collection index, "<< xNetworkIndex << " or "<< yNetworkIndex << "is out of range.");
         return allPositions;
       }
-      auto pxNetwork = nn_collection.at(xNetworkIndex).get();
-      auto pyNetwork = nn_collection.at(yNetworkIndex).get();
+      auto *pxNetwork = nn_collection.at(xNetworkIndex).get();
+      auto *pyNetwork = nn_collection.at(yNetworkIndex).get();
       //call the selected member function of the TTrainedNetwork
       std::vector<double> errors1PX = (*pxNetwork.*m_calculateOutput)(inputDataNew);
       std::vector<double> errors1PY = (*pyNetwork.*m_calculateOutput)(inputDataNew);
@@ -724,7 +724,7 @@ namespace InDet {
         ATH_MSG_WARNING(" Corrected out of boundary cluster from  x(phi): " << siLocalPositionDiscrete.xPhi()+pitchX*(posXid-(double)posXid_int)
                         << " to: " << -halfWidth+1e-6);
       }
-      positions.push_back(Amg::Vector2D(siLocalPosition));
+      positions.emplace_back(siLocalPosition);
     }//iterate over all particles
     return positions;
   }

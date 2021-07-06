@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file GeneratorObjects/HepMcParticleLink.icc
@@ -306,7 +306,7 @@ HepMcParticleLink::ExtendedBarCode::setIndex (index_type idx,
  * @param sg Optional specification of a specific store to reference.
  */
 inline
-HepMcParticleLink::HepMcParticleLink (IProxyDict* sg /*= SG::CurrentEventStore::store()*/)
+HepMcParticleLink::HepMcParticleLink (IProxyDict* sg /*= nullptr*/)
   : m_ptrs (sg)
 {
 }
@@ -318,7 +318,7 @@ HepMcParticleLink::HepMcParticleLink (IProxyDict* sg /*= SG::CurrentEventStore::
  */
 inline
 HepMcParticleLink::HepMcParticleLink (const EventContext& ctx)
-  : HepMcParticleLink (ctx.getExtension<Atlas::ExtendedEventContext>().proxy())
+  : HepMcParticleLink (Atlas::getExtendedEventContext(ctx).proxy())
 {
 }
 
@@ -391,7 +391,7 @@ HepMcParticleLink::HepMcParticleLink (barcode_type barCode,
                                       PositionFlag positionFlag,
                                       const EventContext& ctx)
   : HepMcParticleLink (barCode, eventIndex, evColl, positionFlag,
-                       ctx.getExtension<Atlas::ExtendedEventContext>().proxy())
+                       Atlas::getExtendedEventContext(ctx).proxy())
 {
 }
 
@@ -440,7 +440,7 @@ HepMcParticleLink::HepMcParticleLink (const HepMC::GenParticle* part,
                                       PositionFlag positionFlag,
                                       const EventContext& ctx)
   : HepMcParticleLink (part, eventIndex, evColl, positionFlag,
-                       ctx.getExtension<Atlas::ExtendedEventContext>().proxy())
+                       Atlas::getExtendedEventContext(ctx).proxy())
 {
 }
 
@@ -599,4 +599,18 @@ HepMcParticleLink::barcode_type HepMcParticleLink::compress() const
 {
   return ( ((m_extBarcode.barcode()&0xFFFF) << 16) |
            eventIndex() );
+}
+
+
+/**
+ * @brief Comparison with GenParticle*.
+ * Needed with c++20 to break an ambiguity between the built-in GenParticle*
+ * equality and operator== defined above, arising due to the conversions
+ * back and forth between HepMcParticleLink and GenParticle*.
+ */
+inline
+bool operator== (const HepMC::GenParticle* a,
+                 const HepMcParticleLink& b)
+{
+  return a == b.cptr();
 }

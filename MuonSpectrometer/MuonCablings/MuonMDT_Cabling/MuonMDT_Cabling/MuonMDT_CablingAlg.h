@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -13,11 +13,9 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include "GaudiKernel/AlgTool.h"
-#include "MuonCondInterface/IMDTCablingDbTool.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "MuonCablingData/MuonMDT_CablingMap.h"
 #include "AthenaKernel/IIOVDbSvc.h"
@@ -36,7 +34,6 @@ class MuonMDT_CablingAlg: public AthAlgorithm {
   virtual ~MuonMDT_CablingAlg() = default;
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;
-  virtual StatusCode finalize() override;
   
  private:
 

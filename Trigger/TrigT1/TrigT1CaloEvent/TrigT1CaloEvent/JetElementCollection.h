@@ -7,7 +7,6 @@
 #include "AthContainers/DataVector.h"
 #include "TrigT1CaloEvent/JetElement.h"
 
-using namespace LVL1;
-typedef DataVector<JetElement> JetElementCollection;
+typedef DataVector<LVL1::JetElement> JetElementCollection;
 
 #endif

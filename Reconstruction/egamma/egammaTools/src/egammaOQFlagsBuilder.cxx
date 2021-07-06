@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // INCLUDE HEADER FILES:
@@ -11,11 +11,11 @@
 #include <cmath>
 #include <vector>
 
-#include "GaudiKernel/SystemOfUnits.h"
 #include "CaloConditions/CaloAffectedRegionInfoVec.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "FourMomUtils/P4Helpers.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "Identifier/HWIdentifier.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -44,6 +44,40 @@ isbadtilecell(CaloCellList& ccl,
   }
   return isbadtilecell;
 }
+bool
+findCentralCell(const xAOD::CaloCluster* cluster, Identifier& cellCentrId)
+{
+
+  bool thereIsACentrCell = false;
+
+  // LOOP OVER CLUSTER TO FIND THE CENTRAL CELL IN S2
+  xAOD::CaloCluster::const_cell_iterator cellIter = cluster->cell_begin();
+  xAOD::CaloCluster::const_cell_iterator cellIterEnd = cluster->cell_end();
+  float clusEta = cluster->eta();
+  float clusPhi = cluster->phi();
+  float energymax = -999999.;
+
+  for (; cellIter != cellIterEnd; cellIter++) {
+    const CaloCell* cell = (*cellIter);
+    if (!cell) {
+      continue;
+    }
+    float eta = cell->eta();
+    float phi = cell->phi();
+    float energy = cell->energy();
+    CaloSampling::CaloSample layer = cell->caloDDE()->getSampling();
+    if (fabs(eta - clusEta) < 0.025 &&
+        fabs(P4Helpers::deltaPhi(phi, clusPhi)) < 0.025 &&
+        (layer == CaloSampling::EMB2 || layer == CaloSampling::EME2) &&
+        (energy > energymax)) {
+      energymax = energy;
+      cellCentrId = cellIter->ID();
+      thereIsACentrCell = true;
+    }
+  }
+  return thereIsACentrCell;
+}
+
 }
 
 egammaOQFlagsBuilder::egammaOQFlagsBuilder(const std::string& type,
@@ -91,41 +125,6 @@ StatusCode
 egammaOQFlagsBuilder::finalize()
 {
   return StatusCode::SUCCESS;
-}
-
-bool
-egammaOQFlagsBuilder::findCentralCell(const xAOD::CaloCluster* cluster,
-                                      Identifier& cellCentrId) const
-{
-
-  bool thereIsACentrCell = false;
-
-  // LOOP OVER CLUSTER TO FIND THE CENTRAL CELL IN S2
-  xAOD::CaloCluster::const_cell_iterator cellIter = cluster->cell_begin();
-  xAOD::CaloCluster::const_cell_iterator cellIterEnd = cluster->cell_end();
-  float clusEta = cluster->eta();
-  float clusPhi = cluster->phi();
-  float energymax = -999999.;
-
-  for (; cellIter != cellIterEnd; cellIter++) {
-    const CaloCell* cell = (*cellIter);
-    if (!cell){
-      continue;
-    }
-    float eta = cell->eta();
-    float phi = cell->phi();
-    float energy = cell->energy();
-    CaloSampling::CaloSample layer = cell->caloDDE()->getSampling();
-    if (fabs(eta - clusEta) < 0.025 &&
-        fabs(P4Helpers::deltaPhi(phi, clusPhi)) < 0.025 &&
-        (layer == CaloSampling::EMB2 || layer == CaloSampling::EME2) &&
-        (energy > energymax)) {
-      energymax = energy;
-      cellCentrId = cellIter->ID();
-      thereIsACentrCell = true;
-    }
-  }
-  return thereIsACentrCell;
 }
 
 bool
@@ -186,11 +185,6 @@ egammaOQFlagsBuilder::execute(const EventContext& ctx,
 
   unsigned int iflag = 0;
 
-  // Find the central cell in the middle layer
-  Identifier cellCentrId;
-  bool foundCentralCell =
-    egammaOQFlagsBuilder::findCentralCell(cluster, cellCentrId);
-
   // Set timing bit
   const double absEnergyGeV = fabs(cluster->e() * (1. / Gaudi::Units::GeV));
   if (absEnergyGeV != 0 &&
@@ -202,11 +196,12 @@ egammaOQFlagsBuilder::execute(const EventContext& ctx,
   double totE = 0;
   double badE = 0;
   double energyCellMax = 0;
-
+  // Find the central cell in the middle layer
+  Identifier cellCentrId;
+  bool foundCentralCell = findCentralCell(cluster, cellCentrId);
   if (foundCentralCell) {
     // Find the list of neighbours cells, to define the 3x3 cluster core
     std::vector<IdentifierHash> neighbourList = findNeighbours(cellCentrId);
-
     // Get Bad-channel info for this event
     SG::ReadCondHandle<LArBadChannelCont> larBadChanHdl{ m_bcContKey, ctx };
     const LArBadChannelCont* larBadChanCont = *larBadChanHdl;
@@ -224,21 +219,34 @@ egammaOQFlagsBuilder::execute(const EventContext& ctx,
         continue;
       }
       // Find cell parameters and properties
-      float eta = cell->eta();
+      const float eta = cell->eta();
       // float phi = cell->phi(); // no longer used
-      float qual = cell->quality();
-      CaloSampling::CaloSample layer = cell->caloDDE()->getSampling();
+      const float qual = cell->quality();
+      const bool isHighQ = qual >= 4000;
+      const CaloSampling::CaloSample layer = cell->caloDDE()->getSampling();
+
+      const bool isMissing = ((cell->provenance() & 0x0A00) == 0x0A00);
+      const bool isMasked = ((cell->provenance() & 0x0A00) == 0x0800);
+      const bool isPresampler = (layer == CaloSampling::PreSamplerB ||
+                                 layer == CaloSampling::PreSamplerE);
+      const bool isL1 =
+        (layer == CaloSampling::EMB1 || layer == CaloSampling::EME1);
+      const bool isL2 =
+        (layer == CaloSampling::EMB2 || layer == CaloSampling::EME2);
+      const bool isL3 =
+        (layer == CaloSampling::EMB3 || layer == CaloSampling::EME3);
 
       // Calculate badE et totE
       if ((cell->provenance() & 0x2000) && !(cell->provenance() & 0x0800)) {
         totE += cell->e();
-        if (cell->e() > energyCellMax)
+        if (cell->e() > energyCellMax) {
           energyCellMax = cell->e();
-        if (cell->quality() > m_QCellCut)
+        }
+        if (qual > m_QCellCut) {
           badE += cell->e();
+        }
       }
-      bool isACoreCell = false;
-      isACoreCell = isCore(cell->ID(), neighbourList);
+      const bool isACoreCell = isCore(cell->ID(), neighbourList);
 
       bool isStripCoreCell = false;
       if ((layer == CaloSampling::EMB1 || layer == CaloSampling::EME1) &&
@@ -254,90 +262,74 @@ egammaOQFlagsBuilder::execute(const EventContext& ctx,
 
       // Set LAr bits
       const LArBadChannel bc = larBadChanCont->offlineStatus(cell->ID());
-      //
+      const bool isAffected =
+        (bc.deadCalib() || bc.lowNoiseHG() || bc.lowNoiseMG() ||
+         bc.lowNoiseLG() || bc.distorted() || bc.unstable() ||
+         bc.unstableNoiseHG() || bc.unstableNoiseMG() || bc.unstableNoiseLG() ||
+         bc.peculiarCalibrationLine() || bc.almostDead() || bc.shortProblem());
+
       if (isACoreCell) {
-        if ((cell->provenance() & 0x0A00) == 0x0A00) {
+        if (isMissing) {
           iflag |= (0x1 << xAOD::EgammaParameters::MissingFEBCellCore);
         }
-        if ((cell->provenance() & 0x0A00) == 0x0800) {
+        if (isMasked) {
           iflag |= (0x1 << xAOD::EgammaParameters::MaskedCellCore);
         }
         if (bc.sporadicBurstNoise() && qual < m_QCellSporCut) {
           iflag |= (0x1 << xAOD::EgammaParameters::SporadicNoiseLowQCore);
         }
-        if (bc.deadCalib() || bc.lowNoiseHG() || bc.lowNoiseMG() ||
-            bc.lowNoiseLG() || bc.distorted() || bc.unstable() ||
-            bc.unstableNoiseHG() || bc.unstableNoiseMG() ||
-            bc.unstableNoiseLG() || bc.peculiarCalibrationLine() ||
-            bc.almostDead() || bc.shortProblem()) {
+        if (isAffected) {
           iflag |= (0x1 << xAOD::EgammaParameters::AffectedCellCore);
         }
-        if (qual >= 4000) {
+        if (isHighQ) {
           iflag |= (0x1 << xAOD::EgammaParameters::HighQCore);
         }
-      } else {
-        if ((cell->provenance() & 0x0A00) == 0x0A00) {
-
-          if (layer == CaloSampling::PreSamplerB ||
-              layer == CaloSampling::PreSamplerE) {
+      } // end if isACoreCell
+      else {
+        if (isMissing) {
+          if (isPresampler) {
             iflag |= (0x1 << xAOD::EgammaParameters::MissingFEBCellEdgePS);
-          } else if (layer == CaloSampling::EMB1 ||
-                     layer == CaloSampling::EME1) {
+          } else if (isL1) {
             iflag |= (0x1 << xAOD::EgammaParameters::MissingFEBCellEdgeS1);
-            if (isStripCoreCell)
+            if (isStripCoreCell){
               iflag |= (0x1 << xAOD::EgammaParameters::BadS1Core);
-          } else if (layer == CaloSampling::EMB2 ||
-                     layer == CaloSampling::EME2) {
+            }
+          } else if (isL2) {
             iflag |= (0x1 << xAOD::EgammaParameters::MissingFEBCellEdgeS2);
-          } else if (layer == CaloSampling::EMB3 ||
-                     layer == CaloSampling::EME3) {
+          } else if (isL3) {
             iflag |= (0x1 << xAOD::EgammaParameters::MissingFEBCellEdgeS3);
           }
-        }
-        if ((cell->provenance() & 0x0A00) == 0x0800) {
-
-          if (layer == CaloSampling::PreSamplerB ||
-              layer == CaloSampling::PreSamplerE) {
+        } // isMissing
+        if (isMasked) {
+          if (isPresampler) {
             iflag |= (0x1 << xAOD::EgammaParameters::MaskedCellEdgePS);
-          } else if (layer == CaloSampling::EMB1 ||
-                     layer == CaloSampling::EME1) {
+          } else if (isL1) {
             iflag |= (0x1 << xAOD::EgammaParameters::MaskedCellEdgeS1);
             if (isStripCoreCell) {
               iflag |= (0x1 << xAOD::EgammaParameters::BadS1Core);
             }
-          } else if (layer == CaloSampling::EMB2 ||
-                     layer == CaloSampling::EME2) {
+          } else if (isL2) {
             iflag |= (0x1 << xAOD::EgammaParameters::MaskedCellEdgeS2);
-          } else if (layer == CaloSampling::EMB3 ||
-                     layer == CaloSampling::EME3) {
+          } else if (isL3) {
             iflag |= (0x1 << xAOD::EgammaParameters::MaskedCellEdgeS3);
           }
-        }
+        } // isMasked
         if (bc.sporadicBurstNoise() && qual < m_QCellSporCut) {
           iflag |= (0x1 << xAOD::EgammaParameters::SporadicNoiseLowQEdge);
         }
 
-        if (bc.deadCalib() || bc.lowNoiseHG() || bc.lowNoiseMG() ||
-            bc.lowNoiseLG() || bc.distorted() || bc.unstable() ||
-            bc.unstableNoiseHG() || bc.unstableNoiseMG() ||
-            bc.unstableNoiseLG() || bc.peculiarCalibrationLine() ||
-            bc.almostDead() || bc.shortProblem()) {
-
-          if (layer == CaloSampling::PreSamplerB ||
-              layer == CaloSampling::PreSamplerE) {
+        if (isAffected) {
+          if (isPresampler) {
             iflag |= (0x1 << xAOD::EgammaParameters::AffectedCellEdgePS);
-          } else if (layer == CaloSampling::EMB1 ||
-                     layer == CaloSampling::EME1) {
+          } else if (isL1) {
             iflag |= (0x1 << xAOD::EgammaParameters::AffectedCellEdgeS1);
-          } else if (layer == CaloSampling::EMB2 ||
-                     layer == CaloSampling::EME2) {
+          } else if (isL2) {
             iflag |= (0x1 << xAOD::EgammaParameters::AffectedCellEdgeS2);
-          } else if (layer == CaloSampling::EMB3 ||
-                     layer == CaloSampling::EME3) {
+          } else if (isL3) {
             iflag |= (0x1 << xAOD::EgammaParameters::AffectedCellEdgeS3);
           }
-        }
-        if (qual >= 4000) {
+        } // is affected
+        if (isHighQ) {
           iflag |= (0x1 << xAOD::EgammaParameters::HighQEdge);
         }
       }
@@ -345,15 +337,17 @@ egammaOQFlagsBuilder::execute(const EventContext& ctx,
 
     // Set LArQCleaning bit
     double egammaLArQCleaning = 0;
-    if (totE != 0)
+    if (totE != 0) {
       egammaLArQCleaning = badE / totE;
+    }
     if (egammaLArQCleaning > m_LArQCut) {
       iflag |= (0x1 << xAOD::EgammaParameters::LArQCleaning);
     }
     // Set HighRcell bit//
     double ratioCell = 0;
-    if (totE != 0)
+    if (totE != 0) {
       ratioCell = energyCellMax / totE;
+    }
     if (ratioCell > m_RcellCut) {
       iflag |= (0x1 << xAOD::EgammaParameters::HighRcell);
     }
@@ -413,20 +407,20 @@ egammaOQFlagsBuilder::execute(const EventContext& ctx,
   //---------------> SAMPLING 2 : CLUSTER CORE
   deta = 0.5 * 0.025 * 3.;
   dphi = 0.5 * 0.025 * 3.;
-  bool isDeadHVS2Core = (m_affectedTool->isAffected(cluster,
-                                                    affCont,
-                                                    deta,
-                                                    dphi,
-                                                    CaloSampling::EMB2,
-                                                    CaloSampling::EMB2,
-                                                    2) ||
-                         m_affectedTool->isAffected(cluster,
-                                                    affCont,
-                                                    deta,
-                                                    dphi,
-                                                    CaloSampling::EME2,
-                                                    CaloSampling::EME2,
-                                                    2));
+  const bool isDeadHVS2Core = (m_affectedTool->isAffected(cluster,
+                                                          affCont,
+                                                          deta,
+                                                          dphi,
+                                                          CaloSampling::EMB2,
+                                                          CaloSampling::EMB2,
+                                                          2) ||
+                               m_affectedTool->isAffected(cluster,
+                                                          affCont,
+                                                          deta,
+                                                          dphi,
+                                                          CaloSampling::EME2,
+                                                          CaloSampling::EME2,
+                                                          2));
 
   if (isDeadHVS2Core) {
     iflag |= (0x1 << xAOD::EgammaParameters::DeadHVS1S2S3Core);
@@ -435,94 +429,96 @@ egammaOQFlagsBuilder::execute(const EventContext& ctx,
   deta = 0.5 * 0.025 * etaSize;
   dphi = 0.5 * 0.025 * phiSize;
 
-  bool isNonNominalHVS1S2S3 = (m_affectedTool->isAffected(cluster,
-                                                          affCont,
-                                                          deta,
-                                                          dphi,
-                                                          CaloSampling::EMB1,
-                                                          CaloSampling::EMB1,
-                                                          1) ||
-                               m_affectedTool->isAffected(cluster,
-                                                          affCont,
-                                                          deta,
-                                                          dphi,
-                                                          CaloSampling::EMB2,
-                                                          CaloSampling::EMB2,
-                                                          1) ||
-                               m_affectedTool->isAffected(cluster,
-                                                          affCont,
-                                                          deta,
-                                                          dphi,
-                                                          CaloSampling::EMB3,
-                                                          CaloSampling::EMB3,
-                                                          1) ||
-                               m_affectedTool->isAffected(cluster,
-                                                          affCont,
-                                                          deta,
-                                                          dphi,
-                                                          CaloSampling::EME1,
-                                                          CaloSampling::EME1,
-                                                          1) ||
-                               m_affectedTool->isAffected(cluster,
-                                                          affCont,
-                                                          deta,
-                                                          dphi,
-                                                          CaloSampling::EME2,
-                                                          CaloSampling::EME2,
-                                                          1) ||
-                               m_affectedTool->isAffected(cluster,
-                                                          affCont,
-                                                          deta,
-                                                          dphi,
-                                                          CaloSampling::EME3,
-                                                          CaloSampling::EME3,
-                                                          1));
+  const bool isNonNominalHVS1S2S3 =
+    (m_affectedTool->isAffected(cluster,
+                                affCont,
+                                deta,
+                                dphi,
+                                CaloSampling::EMB1,
+                                CaloSampling::EMB1,
+                                1) ||
+     m_affectedTool->isAffected(cluster,
+                                affCont,
+                                deta,
+                                dphi,
+                                CaloSampling::EMB2,
+                                CaloSampling::EMB2,
+                                1) ||
+     m_affectedTool->isAffected(cluster,
+                                affCont,
+                                deta,
+                                dphi,
+                                CaloSampling::EMB3,
+                                CaloSampling::EMB3,
+                                1) ||
+     m_affectedTool->isAffected(cluster,
+                                affCont,
+                                deta,
+                                dphi,
+                                CaloSampling::EME1,
+                                CaloSampling::EME1,
+                                1) ||
+     m_affectedTool->isAffected(cluster,
+                                affCont,
+                                deta,
+                                dphi,
+                                CaloSampling::EME2,
+                                CaloSampling::EME2,
+                                1) ||
+     m_affectedTool->isAffected(cluster,
+                                affCont,
+                                deta,
+                                dphi,
+                                CaloSampling::EME3,
+                                CaloSampling::EME3,
+                                1));
   if (isNonNominalHVS1S2S3) {
     iflag |= (0x1 << xAOD::EgammaParameters::NonNominalHVS1S2S3);
   }
 
-  bool isDeadHVS1S2S3Edge = (m_affectedTool->isAffected(cluster,
-                                                        affCont,
-                                                        deta,
-                                                        dphi,
-                                                        CaloSampling::EMB1,
-                                                        CaloSampling::EMB1,
-                                                        2) ||
-                             m_affectedTool->isAffected(cluster,
-                                                        affCont,
-                                                        deta,
-                                                        dphi,
-                                                        CaloSampling::EMB2,
-                                                        CaloSampling::EMB2,
-                                                        2) ||
-                             m_affectedTool->isAffected(cluster,
-                                                        affCont,
-                                                        deta,
-                                                        dphi,
-                                                        CaloSampling::EMB3,
-                                                        CaloSampling::EMB3,
-                                                        2) ||
-                             m_affectedTool->isAffected(cluster,
-                                                        affCont,
-                                                        deta,
-                                                        dphi,
-                                                        CaloSampling::EME1,
-                                                        CaloSampling::EME1,
-                                                        2) ||
-                             m_affectedTool->isAffected(cluster,
-                                                        affCont,
-                                                        deta,
-                                                        dphi,
-                                                        CaloSampling::EME2,
-                                                        CaloSampling::EME2,
-                                                        2) ||
-                             m_affectedTool->isAffected(cluster,
-                                                        affCont,
-                                                        deta,
-                                                        dphi,
-                                                        CaloSampling::EME3,
-                                                        CaloSampling::EME3,
-                                                        2));
+  const bool isDeadHVS1S2S3Edge =
+    (m_affectedTool->isAffected(cluster,
+                                affCont,
+                                deta,
+                                dphi,
+                                CaloSampling::EMB1,
+                                CaloSampling::EMB1,
+                                2) ||
+     m_affectedTool->isAffected(cluster,
+                                affCont,
+                                deta,
+                                dphi,
+                                CaloSampling::EMB2,
+                                CaloSampling::EMB2,
+                                2) ||
+     m_affectedTool->isAffected(cluster,
+                                affCont,
+                                deta,
+                                dphi,
+                                CaloSampling::EMB3,
+                                CaloSampling::EMB3,
+                                2) ||
+     m_affectedTool->isAffected(cluster,
+                                affCont,
+                                deta,
+                                dphi,
+                                CaloSampling::EME1,
+                                CaloSampling::EME1,
+                                2) ||
+     m_affectedTool->isAffected(cluster,
+                                affCont,
+                                deta,
+                                dphi,
+                                CaloSampling::EME2,
+                                CaloSampling::EME2,
+                                2) ||
+     m_affectedTool->isAffected(cluster,
+                                affCont,
+                                deta,
+                                dphi,
+                                CaloSampling::EME3,
+                                CaloSampling::EME3,
+                                2));
 
   if (isDeadHVS1S2S3Edge) {
     iflag |= (0x1 << xAOD::EgammaParameters::DeadHVS1S2S3Edge);

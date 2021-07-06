@@ -1,13 +1,13 @@
 """Configuration for POOL file writing
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 AthenaPoolCnvSvc=CompFactory.AthenaPoolCnvSvc
 
 
-def PoolWriteCfg(flags, **kwargs):
+def PoolWriteCfg(flags):
     """Return ComponentAccumulator configured to Write POOL files"""
     # based on WriteAthenaPool._configureWriteAthenaPool
     acc = ComponentAccumulator()
@@ -24,6 +24,7 @@ def PoolWriteCfg(flags, **kwargs):
 
     # Set POOLContainerForm(DataHeaderForm) split level to 0
     PoolAttributes += ["ContainerName = 'TTree=POOLContainerForm(DataHeaderForm)'; CONTAINER_SPLITLEVEL = '0'"]
+    PoolAttributes += ["TREE_BRANCH_OFFSETTAB_LEN ='100'"]
 
     # Kept in sync with RecoUtils.py
     from AthenaPoolCnvSvc import PoolAttributeHelper as pah
@@ -39,16 +40,18 @@ def PoolWriteCfg(flags, **kwargs):
 
     if flags.Output.RDOFileName:
         # Use LZMA w/ Level 1
-        PoolAttributes += [ pah.setFileCompAlg( flags.Output.RDOFileName, 2 ) ]
+        comp_alg = 1 if '_000' in flags.Output.RDOFileName or 'tmp.' in flags.Output.RDOFileName else 2
+        PoolAttributes += [ pah.setFileCompAlg( flags.Output.RDOFileName, comp_alg ) ]
         PoolAttributes += [ pah.setFileCompLvl( flags.Output.RDOFileName, 1 ) ]
-        # Flush the CollectionTree, POOLContainer, and POOLContainerForm to disk at every 1 events
-        PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.RDOFileName, "CollectionTree", 1 ) ]
-        PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.RDOFileName, "POOLContainer", 1 ) ]
-        PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.RDOFileName, "POOLContainerForm", 1 ) ]
+        # Flush the CollectionTree, POOLContainer, and POOLContainerForm to disk at every 10 events
+        PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.RDOFileName, "CollectionTree", 10 ) ]
+        PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.RDOFileName, "POOLContainer", 10 ) ]
+        PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.RDOFileName, "POOLContainerForm", 10 ) ]
 
     if flags.Output.ESDFileName:
         # Use LZMA w/ Level 1
-        PoolAttributes += [ pah.setFileCompAlg( flags.Output.ESDFileName, 2 ) ]
+        comp_alg = 1 if '_000' in flags.Output.ESDFileName or 'tmp.' in flags.Output.ESDFileName else 2
+        PoolAttributes += [ pah.setFileCompAlg( flags.Output.ESDFileName, comp_alg ) ]
         PoolAttributes += [ pah.setFileCompLvl( flags.Output.ESDFileName, 1 ) ]
         # Flush the CollectionTree, POOLContainer, and POOLContainerForm to disk at every 10 events
         PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.ESDFileName, "CollectionTree", 10 ) ]
@@ -57,15 +60,14 @@ def PoolWriteCfg(flags, **kwargs):
 
     if flags.Output.AODFileName:
         # Use LZMA w/ Level 1
-        PoolAttributes += [ pah.setFileCompAlg( flags.Output.AODFileName, 2 ) ]
+        comp_alg = 1 if '_000' in flags.Output.AODFileName or 'tmp.' in flags.Output.AODFileName else 2
+        PoolAttributes += [ pah.setFileCompAlg( flags.Output.AODFileName, comp_alg ) ]
         PoolAttributes += [ pah.setFileCompLvl( flags.Output.AODFileName, 1 ) ]
         # Flush the CollectionTree, POOLContainer, and POOLContainerForm to disk at every 100 events
         PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.AODFileName, "CollectionTree", 100 ) ]
         PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.AODFileName, "POOLContainer", 100 ) ]
         PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.AODFileName, "POOLContainerForm", 100 ) ]
 
-    kwargs.setdefault("PoolAttributes", PoolAttributes)
-
-    acc.addService(AthenaPoolCnvSvc(**kwargs))
-
+    acc.addService(AthenaPoolCnvSvc(PoolAttributes = PoolAttributes))
+    acc.addService(CompFactory.EvtPersistencySvc(CnvServices=["AthenaPoolCnvSvc"]))
     return acc

@@ -142,7 +142,7 @@ namespace InDet{
          {this, "TrackExtensionTool", "InDet::TRT_TrackExtensionTool_xk"} ; // TRT track extension   tool
 
       Trk::MagneticFieldProperties           m_fieldprop       ; // Magnetic field properties
-      const TRT_ID                         * m_trtid           ; 
+      const TRT_ID                         * m_trtid{}           ; 
       SG::ReadHandleKey<InDet::TRT_DriftCircleContainer> m_trtname{this,"TRT_ClustersContainer","TRT_DriftCircles","RHK to retrieve TRT_DriftCircles"}; // TRTs   container ; // Name  TRT container
       SG::ReadCondHandleKey<InDet::TRT_TrackSegmentsToolCondData_xk> m_condDataKey{this, "CondDataKey","TRT_TrackSegmentsToolCondData_xk", "Key of TRT_TrackSegmentsToolCondData"};
       SG::ReadHandleKey<Trk::PRDtoTrackMap>          m_prdToTrackMap
@@ -151,19 +151,19 @@ namespace InDet{
       bool                                   m_build           ;
       bool                                   m_gupdate         ;
       bool                                   m_removeNoise     ;
-      int                                    m_outputlevel     ;
+      int                                    m_outputlevel{}     ;
       int                                    m_clustersCut     ;
-      int                                    m_Ts              ;
-      int                                    m_Ns128           ;
+      int                                    m_Ts{}              ;
+      int                                    m_Ns128{}           ;
       float                                  m_pTmin           ;
       float                                  m_sharedfrac      ;
-      float                                  m_Psi             ;
-      float                                  m_Psi128          ;
-      float                                  m_A               ;
-      float                                  m_Ai              ;
+      float                                  m_Psi{}             ;
+      float                                  m_Psi128{}          ;
+      float                                  m_A{}               ;
+      float                                  m_Ai{}              ;
       int                                    m_nPhi            ; // number azimuthal channel
       int                                    m_nMom            ; // number momentum  channel
-      int                                    m_histsize        ; // histogram size
+      int                                    m_histsize{}        ; // histogram size
 
 
       ///////////////////////////////////////////////////////////////////

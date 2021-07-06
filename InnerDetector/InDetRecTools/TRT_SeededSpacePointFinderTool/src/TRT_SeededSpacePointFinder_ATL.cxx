@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -253,7 +253,7 @@ std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData> InDet::TRT_Seede
 
   double irstep = 1./m_r_rstep;
 
-  if(m_loadFull && vPixel.size()){
+  if(m_loadFull && !vPixel.empty()){
     // Get pixel space points containers from store gate
     //
     SG::ReadHandle<SpacePointContainer> spacepointsPix(m_spacepointsPixname);
@@ -283,7 +283,7 @@ std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData> InDet::TRT_Seede
 
   // Get sct space points containers from store gate
   //
-  if(vSCT.size()) {
+  if(!vSCT.empty()) {
 
     SG::ReadHandle<SpacePointContainer> spacepointsSCT(m_spacepointsSCTname);
     if (spacepointsSCT.isValid()) {
@@ -579,7 +579,7 @@ void InDet::TRT_SeededSpacePointFinder_ATL::fillLists(std::vector< std::vector<c
       // the upper 28 bits for isBRL (including sign)
       DD = ((isBRL+3) << 4) + (isLYR & 15);
 
-      event_data.m_rf_Sorted[f].push_back(std::make_pair(space_point,DD));
+      event_data.m_rf_Sorted[f].emplace_back(space_point,DD);
       if(!event_data.m_rf_map[f]++) event_data.m_rf_index[event_data.m_nrf++] = f;
 
     }
@@ -693,7 +693,7 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const EventContext& ctx,
 
   double ipdelta = sqrt(xiC*sp);
 
-  invar_bypass_struct tmp_invar_bypass;
+  invar_bypass_struct tmp_invar_bypass{};
   tmp_invar_bypass.invp_min = pTS[4] - ipdelta;
   tmp_invar_bypass.invp_max = pTS[4] + ipdelta;
 
@@ -736,7 +736,7 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const EventContext& ctx,
   H[2] *= 10000;
 
   std::list<std::pair<const Trk::SpacePoint*,int> >::iterator r0,r0e,r,re, rb;
-  const Trk::SpacePoint* SpToPair = 0;
+  const Trk::SpacePoint* SpToPair = nullptr;
 
   int nri = 0;
 
@@ -828,7 +828,7 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const EventContext& ctx,
 	  double a = X*invR;
 	  double b = Y*invR;
 
-	  tmp_prod_bypass.push_back(bypass_struct());
+	  tmp_prod_bypass.emplace_back();
 	  tmp_prod_bypass.back().X = X;
 	  tmp_prod_bypass.back().Y = Y;
 	  tmp_prod_bypass.back().Z = Z;
@@ -846,21 +846,21 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const EventContext& ctx,
 
   if (m_doCosmics) { // no need to check this every time in the loop
 	  for (long i = 0; i < (long)spcount; i++) {
-		  SpToPair = 0;
+		  SpToPair = nullptr;
 		  const Trk::SpacePoint *up = vrp[i];
 		  for (long j = i + 1; j < (long)spcount; j++) {
 			  const Trk::SpacePoint *bp = vrp[j];
 			  SpToPair = bp;
-			  outputListBuffer.push_back(std::make_pair(up, SpToPair));
+			  outputListBuffer.emplace_back(up, SpToPair);
 		  }
 		  if(!SpToPair) {
-			  outputListBuffer.push_back(std::make_pair(up, up));
+			  outputListBuffer.emplace_back(up, up);
 		  }
 	  }
   }
   else { // (!m_doCosmics)
 	  for (long i = 0; i < (long)spcount; i++) {
-		  SpToPair = 0;
+		  SpToPair = nullptr;
 		  const Trk::SpacePoint *up = vrp[i];
 		  double R = rk[i];
 		  if(R<m_r12min) {
@@ -909,10 +909,10 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const EventContext& ctx,
 				  }
 			  }
 			  SpToPair = bp;
-			  outputListBuffer.push_back(std::make_pair(up, SpToPair));
+			  outputListBuffer.emplace_back(up, SpToPair);
 		  }
 		  if(!SpToPair) {
-			  outputListBuffer.push_back(std::make_pair(up, up));
+			  outputListBuffer.emplace_back(up, up);
 		  }
 	  }
   }
@@ -1047,11 +1047,7 @@ InDet::TRT_SeededSpacePointFinder_ATL::cutTPb(const invar_bypass_struct  &tmp_in
 #endif
   }
 
-  if (phi_rating < pmin || phi_rating > pmax) {
-    return false;
-  }
-
-  return true;
+  return !(phi_rating < pmin || phi_rating > pmax);
 }
 
 // // // // // // // // // // // // // // // // // // // // // // // // // //

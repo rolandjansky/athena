@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuFastTrackExtrapolator.h"
@@ -115,8 +115,8 @@ double TrigL2MuonSA::MuFastTrackExtrapolator::getMuFastRes(std::vector<double> v
   
   if (pt == 0) return 1.0e30;
   
-  double AbsPtInv = fabs(1./pt);
-  double AbsEta   = fabs(eta);
+  double AbsPtInv = std::abs(1./pt);
+  double AbsEta   = std::abs(eta);
   
   if ( add != -1) {
     if (AbsPtInv < 0.186) {
@@ -169,45 +169,9 @@ double TrigL2MuonSA::MuFastTrackExtrapolator::getMuFastRes(std::vector<double> v
       + vpar[3]*AbsPtInv*AbsPtInv*AbsPtInv
       + vpar[4]*AbsPtInv*AbsPtInv*AbsPtInv*AbsPtInv;
     
-    return fabs(fracRes * AbsPtInv);
+    return std::abs(fracRes * AbsPtInv);
   }
 }
         
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
-
-// Original author: Stefano Giagu
-// Copied from TrigmuComb/muCombUtil.cxx
-/*
-int TrigL2MuonSA::MuFastTrackExtrapolator::whichECRegion( const double eta, const double phi ) {
-  // 0: bulk
-  // 1: WeakBfield A
-  // 2: WeakBfield B
-  
-  float absEta = fabs(eta);
-  
-  if ( ( 1.3 <= absEta && absEta < 1.45) &&
-       ( (0          <= fabs(phi) && fabs(phi) < M_PI/48. )     ||
-       (M_PI*11./48. <= fabs(phi) && fabs(phi) < M_PI*13./48. ) ||
-       (M_PI*23./48. <= fabs(phi) && fabs(phi) < M_PI*25./48. ) ||
-       (M_PI*35./48. <= fabs(phi) && fabs(phi) < M_PI*37./48. ) ||
-       (M_PI*47./48. <= fabs(phi) && fabs(phi) < M_PI )
-             )
-       ) return 1;
-  
-  else if ( ( 1.5 <= absEta && absEta < 1.65 ) &&
-            ( (M_PI*3./32.  <= fabs(phi) && fabs(phi) < M_PI*5./32. ) ||
-              (M_PI*11./32. <= fabs(phi) && fabs(phi) < M_PI*13./32.) ||
-              (M_PI*19./32. <= fabs(phi) && fabs(phi) < M_PI*21./32.) ||
-              (M_PI*27./32. <= fabs(phi) && fabs(phi) < M_PI*29./32.)
-              )
-            ) return 2;
-  
-  else return 0;
-}
-*/
-
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-

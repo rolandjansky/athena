@@ -107,7 +107,7 @@ class InputDependentStep(Step):
                 self.report_result()
             return self.result, '# (internal) {} -> failed'.format(self.name)
 
-        if not os.path.isfile(self.input_file):
+        if not dry_run and not os.path.isfile(self.input_file):
             self.log.debug('Skipping %s because %s does not exist',
                            self.name, self.input_file)
             self.result = 0
@@ -476,7 +476,7 @@ class ChainDumpStep(InputDependentStep):
         super(ChainDumpStep, self).configure(test)
 
 
-class ChainCompStep(Step):
+class ChainCompStep(RefComparisonStep):
     '''
     Execute chainComp.py to compare counts from chainDump.py to a reference
     '''
@@ -484,17 +484,21 @@ class ChainCompStep(Step):
     def __init__(self, name='ChainComp'):
         super(ChainCompStep, self).__init__(name)
         self.input_file = 'chainDump.yml'
-        self.reference = None
+        self.reference_from_release = False
         self.executable = 'chainComp.py'
         self.args = ''
         self.auto_report_result = True
         self.output_stream = Step.OutputStream.FILE_AND_STDOUT
+        self.depends_on_exec = True  # skip if ExecSteps failed
 
     def configure(self, test):
-        if self.reference:
-            self.args += ' -r ' + self.reference
+        if not self.reference_from_release:
+            RefComparisonStep.configure(self, test)
+            if self.reference:
+                self.args += ' -r ' + self.reference
+        # else chainComp.py finds the reference in DATAPATH on its own
         self.args += ' ' + self.input_file
-        super(ChainCompStep, self).configure(test)
+        Step.configure(self, test)
 
 
 class TrigTestJsonStep(Step):
@@ -622,6 +626,7 @@ class MessageCountStep(Step):
         self.print_on_fail = None
         self.thresholds = {}
         self.auto_report_result = True
+        self.depends_on_exec = True  # skip if ExecSteps failed
 
     def configure(self, test):
         self.args += ' -s "{:s}"'.format(self.start_pattern)
@@ -648,6 +653,12 @@ class MessageCountStep(Step):
         files = os.listdir('.')
         r = re.compile(self.log_regex)
         log_files = [f for f in filter(r.match, files) if f not in self.skip_logs]
+        if not log_files and not dry_run:
+            self.log.error('%s found no log files matching the pattern %s', self.name, self.log_regex)
+            self.result = 1
+            if self.auto_report_result:
+                self.report_result()
+            return self.result, '# (internal) {} -> failed'.format(self.name)
         self.args += ' ' + ' '.join(log_files)
         auto_report = self.auto_report_result
         self.auto_report_result = False
@@ -739,7 +750,8 @@ def default_check_steps(test):
         reco_tf_logmerge = LogMergeStep('LogMerge_Reco_tf')
         reco_tf_logmerge.warn_if_missing = False
         tf_names = ['HITtoRDO', 'RDOtoRDOTrigger', 'RAWtoESD', 'ESDtoAOD',
-                    'PhysicsValidation', 'RAWtoALL', 'BSRDOtoRAW']
+                    'PhysicsValidation', 'RAWtoALL',
+                    'BSRDOtoRAW', 'DRAWCOSTtoNTUPCOST', 'AODtoNTUPRATE']
         reco_tf_logmerge.log_files = ['log.'+tf_name for tf_name in tf_names]
         if not get_step_from_list('LogMerge', check_steps):
             for step in reco_tf_steps:

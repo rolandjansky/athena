@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -39,9 +39,9 @@ namespace Trk {
     virtual TrkPlanarSurface* getSurface();
     virtual const PrepRawData* getPrepRawData();
     virtual void serialize(char fileName[]) = 0;
-    double getChi2();
+    double getChi2() const;
     virtual double getChi2Distance(TrkTrackState*)=0;
-    int getNdof();
+    int getNdof() const;
     virtual int getKalmanGain(double[5][2]) = 0;
     virtual int getResiduals(double[2]) = 0;
     virtual int getInverseResidualVariance(double[2][2]) = 0;

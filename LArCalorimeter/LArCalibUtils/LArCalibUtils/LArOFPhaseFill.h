@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCALIBUTILS_LArOFPhaseFill_H
@@ -9,7 +9,6 @@
 
 NAME:     LArOFPhaseFill.h 
 AUTHORS:  P. Strizenec
-used LArFill  by S. Laplace
 CREATED:  Mar. 2008
 
 Used to fill a list of picked OFC phases from text file - default is 0 

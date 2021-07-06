@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BLM_GeoModel/BLM_Builder.h"
@@ -144,7 +144,7 @@ StatusCode InDetDD::BLM_Builder::build(GeoVPhysVol* pv)
       // Print the BLM version tag:
       std::string BLMVersionTag;
       BLMVersionTag = accessSvc->getChildTag("BLM", versionKey.tag(), versionKey.node());
-      ATH_MSG_INFO("BLM Version: " << BLMVersionTag <<  "  Package Version: " << PACKAGE_VERSION);
+      ATH_MSG_INFO("BLM Version: " << BLMVersionTag);
 
       // Check if version is empty. If so, then the BLM cannot be built. This may or may not be intentional. We just issue an INFO message.
       if (BLMVersionTag.empty())
@@ -200,7 +200,7 @@ StatusCode InDetDD::BLM_Builder::build(GeoVPhysVol* pv)
       ATH_MSG_DEBUG(" --> BLM parameters via jobOptions or default");
       //parameters via jobOptions
       int moduleNo;
-      const std::vector<double>* module_property = NULL;
+      const std::vector<double>* module_property = nullptr;
       for(moduleNo = 0; moduleNo < 12; moduleNo++)
 	{
 	  unsigned int mask = (1 << moduleNo);
@@ -253,7 +253,7 @@ StatusCode InDetDD::BLM_Builder::build(GeoVPhysVol* pv)
       GeoNameTag* tag = new GeoNameTag("BLM Module");
       tag->ref();
       if (materialManager){
-        GeoVPhysVol* blmModPhys = blm.Build(materialManager, parameters, (msgLvl(MSG::INFO) ? &msg(MSG::INFO) : NULL));
+        GeoVPhysVol* blmModPhys = blm.Build(materialManager, parameters, (msgLvl(MSG::INFO) ? &msg(MSG::INFO) : nullptr));
         Phys->add(tag);
         Phys->add(new GeoIdentifierTag(k));
         Phys->add(xform);

@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: AuxTypeRegistry.icc 602003 2014-06-16 17:07:01Z ssnyder $
 /**
  * @file AthContainers/AuxTypeRegistry.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -38,7 +36,7 @@ AuxTypeRegistry::getAuxID (const std::string& name,
  * @brief Return the vector factory for a given auxid.
  * @param auxid The desired aux data item.
  *
- * Returns 0 if the type is not known.
+ * Returns nullptr if the type is not known.
  * (Use @c addFactory to add new mappings.)
  */
 inline

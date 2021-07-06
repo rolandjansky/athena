@@ -13,12 +13,17 @@ from DerivationFrameworkInDet import InDetCommon
 from DerivationFrameworkEGamma import EGammaCommon
 from DerivationFrameworkEGamma import ElectronsCPDetailedContent
 from DerivationFrameworkMuons import MuonsCommon
+# Common augmentations ("DFCommon")
+InDetCommon.makeInDetDFCommon()
+EGammaCommon.makeEGammaDFCommon()
+MuonsCommon.makeMuonsDFCommon()
 from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets, addDefaultTrimmedJets, addJetTruthLabel, addQGTaggerTool
-from DerivationFrameworkJetEtMiss import METCommon
-from TriggerMenu.api.TriggerAPI import TriggerAPI
-from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDAODJets, addDefaultTrimmedJets, addJetTruthLabel, addQGTaggerTool, getPFlowfJVT, addEventCleanFlags
+from DerivationFrameworkJetEtMiss.METCommon import scheduleStandardMETContent
+from TriggerMenuMT.TriggerAPI.TriggerAPI import TriggerAPI
+from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerPeriod, TriggerType
 from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
+from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 
 #====================================================================
 # SET UP STREAM   
@@ -113,14 +118,21 @@ trigmatching_helper_tau = TriggerMatchingHelper(name='PHYSVALTriggerMatchingTool
 #====================================================================
 
 OutputJets["PHYSVAL"] = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
-reducedJetList = ["AntiKt2PV0TrackJets","AntiKt4PV0TrackJets","AntiKt10PV0TrackJets","AntiKt10LCTopoJets"]
+jetList = ["AntiKt4EMTopoJets",
+           "AntiKt4LCTopoJets",
+           "AntiKt4EMPFlowJets",
+           "AntiKt2PV0TrackJets",
+           "AntiKt4PV0TrackJets",
+           "AntiKt10PV0TrackJets",
+           "AntiKtVR30Rmax4Rmin02PV0TrackJets",
+           "AntiKt10LCTopoJets"]
 
 if (DerivationFrameworkIsMonteCarlo):
    OutputJets["PHYSVAL"].append("AntiKt10TruthTrimmedPtFrac5SmallR20Jets")
 
-replaceAODReducedJets(reducedJetList,SeqPHYSVAL,"PHYSVAL")
+addDAODJets(jetList,SeqPHYSVAL,"PHYSVAL")
 add_largeR_truth_jets = DerivationFrameworkIsMonteCarlo and not hasattr(SeqPHYSVAL,'jetalgAntiKt10TruthTrimmedPtFrac5SmallR20')
-addDefaultTrimmedJets(SeqPHYSVAL,"PHYSVAL",dotruth=add_largeR_truth_jets)
+addDefaultTrimmedJets(SeqPHYSVAL,"PHYSVAL",dotruth=add_largeR_truth_jets,linkVRGhosts=True)
 
 # Add large-R jet truth labeling
 if (DerivationFrameworkIsMonteCarlo):
@@ -130,7 +142,12 @@ addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=SeqPHYSVAL,algname="QGTaggerTool
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYSVAL,algname="QGTaggerToolPFAlg")
 
 # fJVT
-# getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqPHYSVAL, algname='PHYSVALJetForwardPFlowJvtToolAlg')
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqPHYSVAL, algname='PHYSVALJetForwardPFlowJvtToolAlg')
+
+# Event cleaning flags
+addEventCleanFlags()
+
+scheduleStandardMETContent(sequence=SeqPHYSVAL, algname="METAssociationAlg")
 
 #====================================================================
 # EGAMMA
@@ -161,9 +178,8 @@ SeqPHYSVAL += CfgMgr.DerivationFramework__DerivationKernel("PHYSVALKernel")
 # FLAVOUR TAGGING   
 #====================================================================
 
-from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollection
-FtagJetCollection('AntiKt4EMPFlowJets',SeqPHYSVAL)
-
+from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollections
+FtagJetCollections(['AntiKt4EMPFlowJets','AntiKtVR30Rmax4Rmin02TrackJets'],SeqPHYSVAL)
 
 #====================================================================
 # TC-LVT Vertices 
@@ -188,12 +204,15 @@ PHYSVALSlimmingHelper.SmartCollections = ["Electrons",
                                        "AntiKt4EMTopoJets",
                                        "AntiKt4EMPFlowJets",
                                        "BTagging_AntiKt4EMPFlow",
+                                       "BTagging_AntiKt4EMTopo",
+                                       "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                        "MET_Reference_AntiKt4EMTopo",
                                        "MET_Reference_AntiKt4EMPFlow",
                                        "TauJets",
                                        "DiTauJets",
                                        "DiTauJetsLowPt",
                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                       "AntiKtVR30Rmax4Rmin02PV0TrackJets",
                                       ]
 
 PHYSVALSlimmingHelper.AllVariables =  ["Electrons", "ForwardElectrons",
@@ -205,6 +224,8 @@ PHYSVALSlimmingHelper.AllVariables =  ["Electrons", "ForwardElectrons",
                                        "AntiKt4EMTopoJets",
                                        "AntiKt4EMPFlowJets",
                                        "BTagging_AntiKt4EMPFlow",
+                                       "BTagging_AntiKt4EMTopo",
+                                       "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                        "MET_Reference_AntiKt4EMTopo",
                                        "MET_Reference_AntiKt4EMPFlow",
                                        "MET_Reference_AntiKt4LCTopo",
@@ -216,7 +237,8 @@ PHYSVALSlimmingHelper.AllVariables =  ["Electrons", "ForwardElectrons",
                                        "MuonTruthSegments",
                                        "MET_Truth","MET_TruthRegions",
                                        "TruthElectrons","TruthMuons","TruthPhotons","TruthTaus","TruthNeutrinos","TruthBSM","TruthTop","TruthBoson",
-                                       "CaloCalTopoClusters"
+                                       "CaloCalTopoClusters", "EMOriginTopoClusters","LCOriginTopoClusters",
+                                       "JetETMissChargedParticleFlowObjects", "JetETMissNeutralParticleFlowObjects"
                                      ]
 
 excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
@@ -271,12 +293,16 @@ if DerivationFrameworkIsMonteCarlo:
                                             'TruthPrimaryVertices':'xAOD::TruthVertexContainer','TruthPrimaryVerticesAux':'xAOD::TruthVertexAuxContainer',
                                             'AntiKt10TruthTrimmedPtFrac5SmallR20Jets':'xAOD::JetContainer', 'AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux':'xAOD::JetAuxContainer',
                                             'AntiKt10LCTopoJets':'xAOD::JetContainer', 'AntiKt10LCTopoJetsAux':'xAOD::JetAuxContainer',
-                                            'AntiKt10PV0TrackJets':'xAOD::JetContainer','AntiKt10PV0TrackJetsAux':'xAOD::JetAuxContainer'
+                                            'AntiKt10PV0TrackJets':'xAOD::JetContainer','AntiKt10PV0TrackJetsAux':'xAOD::JetAuxContainer',
+                                            'BTagging_AntiKtVR30Rmax4Rmin02Track':'xAOD::BTaggingContainer','BTagging_AntiKtVR30Rmax4Rmin02TrackAux':'xAOD::BTaggingAuxContainer',
+                                            'EMOriginTopoClusters':'xAOD::CaloClusterContainer', 'EMOriginTopoClustersAux':'xAOD::ShallowAuxContainer',
+                                            'LCOriginTopoClusters':'xAOD::CaloClusterContainer', 'LCOriginTopoClustersAux':'xAOD::ShallowAuxContainer',
                                            }
 
    from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTool
    addTruth3ContentToSlimmerTool(PHYSVALSlimmingHelper)
    PHYSVALSlimmingHelper.AllVariables += ['TruthHFWithDecayParticles','TruthHFWithDecayVertices','TruthCharm']
+   PHYSVALSlimmingHelper.SmartCollections += ['AntiKt4TruthJets']
 
 PHYSVALSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.Tau1_wta.Tau2_wta.Tau3_wta.D2.GhostBHadronsFinalCount",
                                       "Electrons.TruthLink",
@@ -288,7 +314,8 @@ PHYSVALSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jet
                                       "TruthPrimaryVertices.t.x.y.z",
                                       "TauNeutralParticleFlowObjects.pt.eta.phi.m.bdtPi0Score.nPi0Proto",
                                       "TauChargedParticleFlowObjects.pt.eta.phi.m.bdtPi0Score",
-                                      "MET_Track.sumet"
+                                      "MET_Track.sumet",
+                                      "GSFTrackParticles.eProbabilityHT.parameterX.parameterPX.parameterPY.parameterPZ.parameterPosition"
 ]
 
 # Add trigger matching

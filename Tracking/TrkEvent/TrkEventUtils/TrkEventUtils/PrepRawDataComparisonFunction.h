@@ -62,19 +62,19 @@ public:
     //
     double path1 = 0;
     const Trk::Surface& sf1 = one->detectorElement()->surface(one->identify());
-    const Trk::Surface::SurfaceType surfType1  = sf1.type();
+    const Trk::SurfaceType surfType1  = sf1.type();
     switch (surfType1) {
-      case Trk::Surface::Plane: {
+      case Trk::SurfaceType::Plane: {
         const Trk::PlaneSurface& opsf =
           static_cast<const Trk::PlaneSurface&>(sf1);
         path1 = this->pathIntersectWithPlane(opsf);
       } break;
-      case Trk::Surface::Line: {
+      case Trk::SurfaceType::Line: {
         const Trk::StraightLineSurface& ossf =
           static_cast<const Trk::StraightLineSurface&>(sf1);
         path1 = this->pathIntersectWithLine(ossf);
       } break;
-      case Trk::Surface::Disc: {
+      case Trk::SurfaceType::Disc: {
         const Trk::DiscSurface& odsf =
           static_cast<const Trk::DiscSurface&>(sf1);
         path1 = this->pathIntersectWithDisc(odsf);
@@ -89,19 +89,19 @@ public:
     //
     double path2 = 0;
     const Trk::Surface& sf2 = two->detectorElement()->surface(two->identify());
-    const Trk::Surface::SurfaceType surfType2 = sf2.type();
+    const Trk::SurfaceType surfType2 = sf2.type();
     switch (surfType2) {
-      case Trk::Surface::Plane: {
+      case Trk::SurfaceType::Plane: {
         const Trk::PlaneSurface& opsf =
           static_cast<const Trk::PlaneSurface&>(sf2);
         path2 = this->pathIntersectWithPlane(opsf);
       } break;
-      case Trk::Surface::Line: {
+      case Trk::SurfaceType::Line: {
         const Trk::StraightLineSurface& ossf =
           static_cast<const Trk::StraightLineSurface&>(sf2);
         path2 = this->pathIntersectWithLine(ossf);
       } break;
-      case Trk::Surface::Disc: {
+      case Trk::SurfaceType::Disc: {
         const Trk::DiscSurface& odsf =
           static_cast<const Trk::DiscSurface&>(sf2);
         path2 = this->pathIntersectWithDisc(odsf);

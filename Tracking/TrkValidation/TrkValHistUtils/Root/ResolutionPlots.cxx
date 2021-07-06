@@ -7,9 +7,9 @@
 namespace Trk {
   void
   ResolutionPlots::init() {
-    Res_pT = NULL;
-    Res_eta = NULL;
-    Res_phi = NULL;
+    Res_pT = nullptr;
+    Res_eta = nullptr;
+    Res_phi = nullptr;
   }
 
   void
@@ -20,9 +20,9 @@ namespace Trk {
   }
 
   void
-  ResolutionPlots::fill(const xAOD::TrackParticle &trkprt, const xAOD::TruthParticle &truthprt) {
-    Res_pT->Fill((trkprt.pt() - truthprt.pt()) / truthprt.pt());
-    Res_eta->Fill(trkprt.eta() - truthprt.eta());
-    Res_phi->Fill(trkprt.phi() - truthprt.phi());
+  ResolutionPlots::fill(const xAOD::TrackParticle &trkprt, const xAOD::TruthParticle &truthprt, float weight) {
+    Res_pT->Fill((trkprt.pt() - truthprt.pt()) / truthprt.pt(), weight);
+    Res_eta->Fill(trkprt.eta() - truthprt.eta(),weight);
+    Res_phi->Fill(trkprt.phi() - truthprt.phi(),weight);
   }
 }

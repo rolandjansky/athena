@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHVPathologyDbCondAlg.h" 
@@ -63,7 +63,9 @@ StatusCode LArHVPathologyDbCondAlg::initialize()
  else
    ATH_MSG_DEBUG ( "Got TClass LArHVPathologiesDb" );
     
-  return StatusCode::SUCCESS;
+ m_klass->GetStreamerInfo();
+
+ return StatusCode::SUCCESS;
 }
 
 StatusCode LArHVPathologyDbCondAlg::finalize()

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -27,7 +27,7 @@ SCT_CalibEventInfo::SCT_CalibEventInfo(const std::string& type, const std::strin
 
 StatusCode
 SCT_CalibEventInfo::initialize() {
-   ATH_MSG_INFO("Initialize of evtInfo in " << PACKAGE_VERSION);
+   ATH_MSG_INFO("Initialize of evtInfo");
    return StatusCode::SUCCESS;
 }
 

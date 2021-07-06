@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkTrack/Track.h"
@@ -103,7 +103,7 @@ namespace Trk {
 
     declareProperty("RemoveScatteringBeforeRefit",   m_removeScatteringBeforeRefit=false);
 
-    m_logStream = 0;
+    m_logStream = nullptr;
 
   }
 
@@ -300,7 +300,7 @@ namespace Trk {
     for (; atsosItr != alignTrack->lastAtsos(); ++atsosItr) {
       if (!(**atsosItr).isValid()) continue;
       for (std::vector<Residual>::const_iterator itRes=(**atsosItr).firstResidual();
-        itRes!=(**atsosItr).lastResidual();itRes++,imeas++) {
+        itRes!=(**atsosItr).lastResidual();++itRes,++imeas) {
           double residual = itRes->residual();
           double errSq    = itRes->errSq();
           (*m_unshiftedResiduals)[imeas]=residual;
@@ -316,7 +316,7 @@ namespace Trk {
     }
     alignTrack->setResidualVector(m_unshiftedResiduals);
 
-    delete refittedTrack; refittedTrack=0;
+    delete refittedTrack; refittedTrack=nullptr;
 
     return true;
   }
@@ -650,7 +650,7 @@ Amg::VectorX ShiftingDerivCalcTool::getDerivatives(
     for (; atsosItr != alignTrack->lastAtsos(); ++atsosItr) {
       if (!(*atsosItr)->isValid()) continue;
       for (vector<Residual>::const_iterator itRes=(**atsosItr).firstResidual();
-           itRes!=(**atsosItr).lastResidual();itRes++,imeas++) {
+           itRes!=(**atsosItr).lastResidual();++itRes,++imeas) {
 
         if (refittedTrack) {
           residuals[jfit][imeas]=itRes->residual();
@@ -664,7 +664,7 @@ Amg::VectorX ShiftingDerivCalcTool::getDerivatives(
       }
     }
 
-    delete refittedTrack; refittedTrack=0;
+    delete refittedTrack; refittedTrack=nullptr;
     ATH_MSG_VERBOSE("calling restoreModule");
     m_alignModuleTool->restoreModule(module);
   } // NFITS
@@ -674,7 +674,7 @@ Amg::VectorX ShiftingDerivCalcTool::getDerivatives(
   for (; aatsosItr != alignTrack->lastAtsos(); ++aatsosItr) {
     if (!(*aatsosItr)->isValid()) continue;
     for (vector<Residual>::const_iterator itRes=(**aatsosItr).firstResidual();
-         itRes!=(**aatsosItr).lastResidual();itRes++,iimeas++) {
+         itRes!=(**aatsosItr).lastResidual();++itRes,++iimeas) {
       for (int ifit=0;ifit<NFITS;ifit++) {
         ATH_MSG_DEBUG("["<<ifit<<"]["<<iimeas<<"]   res="<<residuals[ifit][iimeas]<<
           ",   resErr="<<resErrors[ifit][iimeas]);
@@ -747,7 +747,7 @@ Amg::VectorX ShiftingDerivCalcTool::getDerivatives(
   }
 
   int imeas(0);
-  TCanvas* canv(0);
+  TCanvas* canv(nullptr);
   std::vector<TGraph*> vecGraphs;
   AlignTSOSCollection::const_iterator atsosItr=alignTrack->firstAtsos();
   for (; atsosItr != alignTrack->lastAtsos(); ++atsosItr) {
@@ -923,14 +923,14 @@ bool ShiftingDerivCalcTool::setResidualCovMatrix(AlignTrack* alignTrack) const
 void ShiftingDerivCalcTool::deleteChi2VAlignParam()
 {
   for (int i=0;i<(int)m_chi2VAlignParamVec.size();i++) {
-    delete [] m_chi2VAlignParamVec[i];  m_chi2VAlignParamVec[i]=0;
-    delete [] m_chi2VAlignParamXVec[i]; m_chi2VAlignParamXVec[i]=0;
+    delete [] m_chi2VAlignParamVec[i];  m_chi2VAlignParamVec[i]=nullptr;
+    delete [] m_chi2VAlignParamXVec[i]; m_chi2VAlignParamXVec[i]=nullptr;
   }
   m_chi2VAlignParamVec.clear();
   m_chi2VAlignParamXVec.clear();
 
   for (int i=0;i<(int)m_chi2VAlignParamVecMeasType.size();i++) {
-    delete [] m_chi2VAlignParamVecMeasType[i];  m_chi2VAlignParamVecMeasType[i]=0;
+    delete [] m_chi2VAlignParamVecMeasType[i];  m_chi2VAlignParamVecMeasType[i]=nullptr;
   }
   m_chi2VAlignParamVecMeasType.clear();
 

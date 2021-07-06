@@ -1,9 +1,10 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
+from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TrackingCommon')
+
+use_tracking_geometry_cond_alg = False
 
 def createAndAddCondAlg(creator, the_name, **kwargs) :
     from AthenaCommon.AlgSequence import AlgSequence
@@ -14,8 +15,10 @@ def createAndAddCondAlg(creator, the_name, **kwargs) :
         if hasattr(seq,the_name) :
             if seq.getName() != "AthCondSeq" :
                 raise Exception('Algorithm already in a sequnece but not the conditions seqence')
-            return
-    cond_seq += creator(**kwargs)
+            return getattr(seq,the_name)
+    alg = creator(**kwargs)
+    cond_seq += alg
+    return alg
 
 def createAndAddEventAlg(creator, the_name, **kwargs) :
     from AthenaCommon.AlgSequence import AlgSequence
@@ -95,7 +98,7 @@ def makePublicTool(tool_creator) :
             if the_name != tool.name() :
                 raise Exception('Tool has not the exepected name %s but %s' % (the_name, tool.name()))
             if private is False :
-                log.debug ('Add to ToolSvc %s' % (tool.name()))
+                log.debug ('Add to ToolSvc %s' % (tool.name()) )
                 ToolSvc += tool
             return tool
         else :
@@ -104,7 +107,6 @@ def makePublicTool(tool_creator) :
     createPublicTool.__name__   = tool_creator.__name__
     createPublicTool.__module__ = tool_creator.__module__
     return createPublicTool
-
 
 def getInDetNewTrackingCuts() :
     from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
@@ -211,7 +213,6 @@ def getRIO_OnTrackErrorScalingCondAlg( **kwargs) :
 
 
 def getEventInfoKey() :
-    from AthenaCommon.GlobalFlags import globalflags
     from AthenaCommon.DetFlags    import DetFlags
 
     isData = (globalflags.DataSource == 'data')
@@ -327,6 +328,10 @@ def getNnClusterizationFactory(name='NnClusterizationFactory', **kwargs) :
     useTTrainedNetworks = InDetFlags.useNNTTrainedNetworks()
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
     do_runI = geoFlags.Run() not in ["RUN2", "RUN3"]
+
+    if do_runI and not useTTrainedNetworks:
+      log.debug("useNNTTrainedNetworks must be True for Run I. Contact CTIDE for questions.")
+      useTTrainedNetworks = True
     
     if useTTrainedNetworks :
       log.debug("Setting up TTrainedNetworks")
@@ -623,16 +628,28 @@ def getInDetUpdator(name = 'InDetUpdator', **kwargs) :
     return Updator(name = the_name, **kwargs)
 
 
+def getTrackingGeometryCondAlg(name="AtlasTrackingGeometryCondAlg",**kwargs) :
+    the_name = makeName( name, kwargs )
+    from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
+    alg = ConfiguredTrackingGeometryCondAlg(the_name)
+    return alg
+
+
 @makePublicTool
-def getInDetNavigator(name='InDetNavigator', **kwargs) :
+def getAtlasNavigator(name='AtlasNavigator', **kwargs) :
     the_name = makeName( name, kwargs)
-    if 'TrackingGeometrySvc' not in kwargs :
+    if use_tracking_geometry_cond_alg and 'TrackingGeometryKey' not in kwargs :
+        cond_alg = createAndAddCondAlg(getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
+        kwargs = setDefaults(kwargs, TrackingGeometryKey=cond_alg.TrackingGeometryWriteKey)
+    elif 'TrackingGeometrySvc' not in kwargs :
         from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
         kwargs = setDefaults(kwargs, TrackingGeometrySvc = AtlasTrackingGeometrySvc)
 
     from TrkExTools.TrkExToolsConf import Trk__Navigator
-    return Trk__Navigator(name=the_name,**kwargs )
+    return Trk__Navigator(name=the_name,**kwargs)
 
+def getInDetNavigator(name='InDetNavigator', **kwargs) :
+    return getAtlasNavigator(name,**kwargs)
 
 @makePublicTool
 def getInDetMaterialEffectsUpdator(name = "InDetMaterialEffectsUpdator", **kwargs) :
@@ -714,6 +731,22 @@ def getInDetGsfExtrapolator(name='InDetGsfExtrapolator', **kwargs) :
                                                                SurfaceBasedMaterialEffects   = False ))
 
 @makePublicTool
+def getTrkMaterialProviderTool(name='TrkMaterialProviderTool',**kwargs) :
+    the_name = makeName(name,kwargs)
+    if use_tracking_geometry_cond_alg and 'TrackingGeometryReadKey' not in kwargs :
+        cond_alg = createAndAddCondAlg(getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
+        kwargs = setDefaults(kwargs, TrackingGeometryReadKey=cond_alg.TrackingGeometryWriteKey)
+    else :
+        from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
+        kwargs = setDefaults(kwargs, TrackingGeometrySvc = AtlasTrackingGeometrySvc)
+
+    from TrkMaterialProvider.TrkMaterialProviderConf import Trk__TrkMaterialProviderTool
+    return Trk__TrkMaterialProviderTool( name = the_name, **kwargs)
+
+def getInDetTrkMaterialProviderTool(name='InDetTrkMaterialProviderTool',**kwargs) :
+    return getTrkMaterialProviderTool(name,**kwargs)
+
+@makePublicTool
 def getPRDtoTrackMapTool(name='PRDtoTrackMapTool',**kwargs) :
     the_name = makeName( name, kwargs)
     from TrkAssociationTools.TrkAssociationToolsConf import Trk__PRDtoTrackMapTool
@@ -792,11 +825,11 @@ def getInDetPrdAssociationTool_setup(name='InDetPrdAssociationTool_setup',**kwar
     return getInDetPrdAssociationTool(name, **setDefaults(kwargs, SetupCorrect                   = True) )
 
 def getInDetPixelConditionsSummaryTool() :
-    from AthenaCommon.GlobalFlags import globalflags
     from InDetRecExample.InDetJobProperties import InDetFlags
     from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
     pixelConditionsSummaryToolSetup = PixelConditionsSummaryTool("PixelConditionsSummaryTool",
-                                                                 UseByteStream=(globalflags.DataSource=='data'))
+                                                                 UseByteStreamFEI4=(globalflags.DataSource=='data'),
+                                                                 UseByteStreamFEI3=(globalflags.DataSource=='data'))
     if InDetFlags.usePixelDCS():
         pixelConditionsSummaryToolSetup.IsActiveStates = [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ]
         pixelConditionsSummaryToolSetup.IsActiveStatus = [ 'OK', 'WARNING', 'ERROR', 'FATAL' ]
@@ -870,6 +903,15 @@ def getInDetExtrapolator(name='InDetExtrapolator', **kwargs) :
     from TrkExTools.TrkExToolsConf import Trk__Extrapolator
     return Trk__Extrapolator(name = the_name, **kwargs)
 
+@makePublicTool
+def getInDetTrackToVertexTool(name='TrackToVertex', **kwargs) :
+    the_name = makeName( name, kwargs)
+    if 'Extrapolator' not in kwargs :
+        from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+        kwargs=setDefaults(kwargs,Extrapolator = AtlasExtrapolator())
+
+    from TrackToVertex.TrackToVertexConf import Reco__TrackToVertex
+    return Reco__TrackToVertex(the_name,**kwargs)
 
 # @TODO move configuration of InDetSCT_ConditionsSummaryTool to a function
 def_InDetSCT_ConditionsSummaryTool=None
@@ -880,7 +922,6 @@ def getInDetSCT_ConditionsSummaryTool() :
 def getInDetBoundaryCheckTool(name="InDetBoundarySearchTool", **kwargs):
     the_name = makeName(name, kwargs)
     from AthenaCommon.DetFlags import DetFlags
-    from InDetRecExample.InDetJobProperties import InDetFlags
 
     if 'SctSummaryTool' not in kwargs :
         kwargs = setDefaults( kwargs, SctSummaryTool   = getInDetSCT_ConditionsSummaryTool()  if DetFlags.haveRIO.SCT_on()   else None)
@@ -900,7 +941,6 @@ def getInDetBoundaryCheckTool(name="InDetBoundarySearchTool", **kwargs):
 @makePublicTool
 def getInDetHoleSearchTool(name = 'InDetHoleSearchTool', **kwargs) :
     the_name = makeName( name, kwargs)
-    from AthenaCommon.DetFlags    import DetFlags
     from InDetRecExample.InDetJobProperties import InDetFlags
 
     if 'Extrapolator' not in kwargs :
@@ -945,7 +985,6 @@ def getInDetRecTestBLayerTool(name='InDetRecTestBLayerTool', **kwargs) :
 @makePublicTool
 def getInDetTRTStrawStatusSummaryTool(name = "InDetTRT_StrawStatusSummaryTool", **kwargs) :
     the_name = makeName( name, kwargs)
-    from AthenaCommon.GlobalFlags import globalflags
     kwargs = setDefaults( kwargs, isGEANT4 = (globalflags.DataSource == 'geant4'))
     from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
     return TRT_StrawStatusSummaryTool(name = the_name, **kwargs )
@@ -965,8 +1004,11 @@ def getInDetTRT_LocalOccupancy(name ="InDet_TRT_LocalOccupancy", **kwargs) :
     if 'TRTStrawStatusSummaryTool' not in kwargs :
         kwargs = setDefaults( kwargs, TRTStrawStatusSummaryTool = getInDetTRTStrawStatusSummaryTool() )
 
+    if 'isTrigger' not in kwargs :
+        kwargs = setDefaults( kwargs, isTrigger = False )
+
     from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
-    return InDet__TRT_LocalOccupancy(name=the_name, **setDefaults( kwargs, isTrigger = False) )
+    return InDet__TRT_LocalOccupancy(name = the_name, **kwargs)
 
 @makePublicTool
 def getInDetTRT_dEdxTool(name = "InDetTRT_dEdxTool", **kwargs) :
@@ -977,7 +1019,6 @@ def getInDetTRT_dEdxTool(name = "InDetTRT_dEdxTool", **kwargs) :
             or  InDetFlags.useExistingTracksAsInput(): # TRT_RDOs (used by the TRT_LocalOccupancy tool) are not present in ESD
         return None
 
-    from AthenaCommon.GlobalFlags import globalflags
     kwargs = setDefaults( kwargs, TRT_dEdx_isData = (globalflags.DataSource == 'data'))
 
     if 'TRT_LocalOccupancyTool' not in kwargs :
@@ -1540,7 +1581,7 @@ def combinedClusterSplitProbName() :
       ClusterSplitProbContainer = 'InDetTRT_SeededAmbiguityProcessorSplitProb'+InDetNewTrackingCuts.extension()
       CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
     ClusterSplitProbContainerLargeD0=''
-    if InDetFlags.doLargeD0() or InDetFlags.doR3LargeD0() or InDetFlags.doLowPtLargeD0():
+    if InDetFlags.doLargeD0() or InDetFlags.runLRTReco() or InDetFlags.doLowPtLargeD0():
       if ('InDetNewTrackingCutsLargeD0' not in dir()):
         if InDetFlags.doLowPtLargeD0():
           InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("LowPtLargeD0")
@@ -1607,3 +1648,30 @@ def pixelClusterSplitProbName() :
       ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsDisappearing.extension()
     return ClusterSplitProbContainer if hasSplitProb(ClusterSplitProbContainer) else ''
 
+@makePublicTool
+def getInDetFullLinearizedTrackFactory(name='InDetFullLinearizedTrackFactory', **kwargs) :
+    the_name                    = makeName( name, kwargs)
+    if 'Extrapolator' not in kwargs :
+        kwargs=setDefaults(kwargs,Extrapolator           = getInDetExtrapolator()) # @TODO AtlasExtrapolator ? 
+
+    from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__FullLinearizedTrackFactory
+    return Trk__FullLinearizedTrackFactory(the_name, **kwargs)
+
+@makePublicTool
+def getTrackToVertexIPEstimator(name='TrackToVertexIPEstimator', **kwargs) :
+    the_name                    = makeName( name, kwargs)
+    if 'Extrapolator' not in kwargs :
+        kwargs=setDefaults(kwargs,Extrapolator           = getInDetExtrapolator()) # @TODO AtlasExtrapolator ? 
+    if 'LinearizedTrackFactory' not in kwargs :
+        kwargs=setDefaults(kwargs, LinearizedTrackFactory = getInDetFullLinearizedTrackFactory() )
+    from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__TrackToVertexIPEstimator
+    return Trk__TrackToVertexIPEstimator( the_name, **kwargs)
+
+@makePublicTool
+def getV0Tools(name='V0Tools', **kwargs) :
+    the_name                    = makeName( name, kwargs)
+    if 'Extrapolator' not in kwargs :
+        from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+        kwargs=setDefaults(kwargs,Extrapolator = AtlasExtrapolator())
+    from TrkVertexAnalysisUtils.TrkVertexAnalysisUtilsConf import Trk__V0Tools
+    return Trk__V0Tools(the_name, **kwargs)

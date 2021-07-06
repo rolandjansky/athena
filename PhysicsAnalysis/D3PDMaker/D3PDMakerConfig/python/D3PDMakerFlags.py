@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # $Id$
 #
@@ -103,14 +103,6 @@ A positive number gives the number of entries after which to flush."""
     allowedTypes = ['int', 'long']
     StoredValue  = -30000000
 jobproperties.D3PDMakerFlags.add_JobProperty(AutoFlush)
-
-
-class DoTrigger (JobProperty):
-    """If true, put trigger information in D3PD."""
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = True
-jobproperties.D3PDMakerFlags.add_JobProperty(DoTrigger)
 
 
 class AllowTrigExtend (JobProperty):

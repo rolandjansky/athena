@@ -132,8 +132,6 @@ class RDBAccessSvc final : public AthService, virtual public IRDBAccessSvc
 
   coral::ISessionProxy* getSession(const std::string& connName = "ATLASDD");
 
-  inline MsgStream& msgStream() { return msg(); }
-
 private:
   SessionMap m_sessions;
   std::map<std::string, unsigned int> m_openConnections;

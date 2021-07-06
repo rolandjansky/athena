@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_DIGITIZATION_TOOL_H
@@ -13,7 +13,7 @@
 #include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 #include "AFP_SimEv/AFP_TDSimHitCollection.h"
 #include "AFP_SimEv/AFP_SIDSimHitCollection.h"
 #include "HitManagement/TimedHitCollection.h"
@@ -32,15 +32,13 @@
 #include <vector>
 #include <utility> /* pair */
 
-class IAtRndmGenSvc;
-// class PileUpMergeSvc;
-
-static const InterfaceID IID_IAFP_PileUpTool ("AFP_PileUpTool",1,0); //Temporary for back-compatibility with 17.3.X.Y
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class AFP_PileUpTool: public PileUpToolBase {
 
  public:
-  static const InterfaceID& interfaceID(); //Temporary for back-compatibility with 17.3.X.Y
   AFP_PileUpTool(const std::string& type,
 		 const std::string& name,
 		 const IInterface* parent);
@@ -88,9 +86,9 @@ class AFP_PileUpTool: public PileUpToolBase {
   double SignalFun(double Time, double RiseTime, double FallTime);
 //  double SiSignalFun(double Time, double RiseTime, double FallTime);
 
-  ServiceHandle<PileUpMergeSvc> m_mergeSvc;
-  ServiceHandle<IAtRndmGenSvc>  m_atRndmGenSvc;
-  CLHEP::HepRandomEngine       *m_rndEngine;
+  ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "mergeSvc", "PileUpMergeSvc", ""};
+  ServiceHandle<IAthRNGSvc> m_randomSvc{this, "RndmSvc", "AthRNGSvc", ""};
+  Gaudi::Property<std::string> m_randomStreamName{this, "RandomStreamName", "AFPRndEng", ""};
 
   std::string m_TDSimHitCollectionName;
   std::string m_TDDigiCollectionName;
@@ -123,9 +121,4 @@ class AFP_PileUpTool: public PileUpToolBase {
 
 };
 
-inline const InterfaceID& AFP_PileUpTool::interfaceID() //Temporary for back-compatibility with 17.3.X.Y
-{ //Temporary for back-compatibility with 17.3.X.Y
-  return IID_IAFP_PileUpTool; //Temporary for back-compatibility with 17.3.X.Y
-} //Temporary for back-compatibility with 17.3.X.Y
- 
 #endif

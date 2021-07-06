@@ -39,6 +39,9 @@ private:
   SG::ReadCondHandleKey<CaloBCIDLumi> m_bcidLumiKey
   {this, "BCIDLumiKey", "CaloBCIDLumi", "SG Key of input CaloBCIDLumi conditions object"};
 
+  /// Property: m_isSC
+  Gaudi::Property<bool> m_isSC { this, "IsSuperCell",false,"Is SuperCell" };
+
   //Tool Handles:
   // For online monitoring purposes
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };

@@ -257,109 +257,109 @@ namespace PFO {
     } 
   }
 
-  void PFOClusterMomentPlots::fill(const xAOD::PFO& PFO){
+  void PFOClusterMomentPlots::fill(const xAOD::PFO& PFO, const xAOD::EventInfo& eventInfo){
 
     float moment_SECOND_R = -1.0;
     PFO.getClusterMoment(moment_SECOND_R,xAOD::CaloCluster::SECOND_R);
-    m_PFO_SECOND_R->Fill(moment_SECOND_R);
+    m_PFO_SECOND_R->Fill(moment_SECOND_R,eventInfo.beamSpotWeight());
         
     float moment_CENTER_LAMBDA = -1.0;
     PFO.getClusterMoment(moment_CENTER_LAMBDA,xAOD::CaloCluster::CENTER_LAMBDA);
-    m_PFO_CENTER_LAMBDA->Fill(moment_CENTER_LAMBDA);
+    m_PFO_CENTER_LAMBDA->Fill(moment_CENTER_LAMBDA,eventInfo.beamSpotWeight());
     
     float moment_ISOLATION = -1.0;
     PFO.getClusterMoment(moment_ISOLATION,xAOD::CaloCluster::ISOLATION);
-    m_PFO_ISOLATION->Fill(moment_ISOLATION);
+    m_PFO_ISOLATION->Fill(moment_ISOLATION,eventInfo.beamSpotWeight());
 
     float moment_ENG_BAD_CELLS = -1.0;
     PFO.getClusterMoment(moment_ENG_BAD_CELLS,xAOD::CaloCluster::ENG_BAD_CELLS);
-    m_PFO_ENG_BAD_CELLS->Fill(moment_ENG_BAD_CELLS);
+    m_PFO_ENG_BAD_CELLS->Fill(moment_ENG_BAD_CELLS,eventInfo.beamSpotWeight());
 
     float moment_N_BAD_CELLS = -1.0;
     PFO.getClusterMoment(moment_N_BAD_CELLS,xAOD::CaloCluster::N_BAD_CELLS);
-    m_PFO_N_BAD_CELLS->Fill(moment_N_BAD_CELLS);
+    m_PFO_N_BAD_CELLS->Fill(moment_N_BAD_CELLS,eventInfo.beamSpotWeight());
 
     float moment_BADLARQ_FRAC = -1.0;
     PFO.getClusterMoment(moment_BADLARQ_FRAC,xAOD::CaloCluster::BADLARQ_FRAC);
-    m_PFO_BADLARQ_FRAC->Fill(moment_BADLARQ_FRAC);
+    m_PFO_BADLARQ_FRAC->Fill(moment_BADLARQ_FRAC,eventInfo.beamSpotWeight());
 
     float moment_ENG_POS = -1.0;
     PFO.getClusterMoment(moment_ENG_POS,xAOD::CaloCluster::ENG_POS);
-    m_PFO_ENG_POS->Fill(moment_ENG_POS);
+    m_PFO_ENG_POS->Fill(moment_ENG_POS,eventInfo.beamSpotWeight());
 
     float moment_AVG_LAR_Q = -1.0;
     PFO.getClusterMoment(moment_AVG_LAR_Q,xAOD::CaloCluster::AVG_LAR_Q);
-    m_PFO_AVG_LAR_Q->Fill(moment_AVG_LAR_Q);
+    m_PFO_AVG_LAR_Q->Fill(moment_AVG_LAR_Q,eventInfo.beamSpotWeight());
 
     float moment_AVG_TILE_Q = -1.0;
     PFO.getClusterMoment(moment_AVG_TILE_Q,xAOD::CaloCluster::AVG_TILE_Q);
-    m_PFO_AVG_TILE_Q->Fill(moment_AVG_TILE_Q);
+    m_PFO_AVG_TILE_Q->Fill(moment_AVG_TILE_Q,eventInfo.beamSpotWeight());
 
     float moment_EM_PROBABILITY = -1.0;
     PFO.getClusterMoment(moment_EM_PROBABILITY,xAOD::CaloCluster::EM_PROBABILITY);
-    m_PFO_EM_PROBABILITY->Fill(moment_EM_PROBABILITY);
+    m_PFO_EM_PROBABILITY->Fill(moment_EM_PROBABILITY,eventInfo.beamSpotWeight());
     
     float moment_SECOND_LAMBDA = -1.0;
     PFO.getClusterMoment(moment_SECOND_LAMBDA,xAOD::CaloCluster::SECOND_LAMBDA);
-    m_PFO_SECOND_LAMBDA->Fill(moment_SECOND_LAMBDA);
+    m_PFO_SECOND_LAMBDA->Fill(moment_SECOND_LAMBDA,eventInfo.beamSpotWeight());
 
     float PFOEta = PFO.eta();
     
     if (fabs(PFOEta) < 1.5){
-      m_PFO_SECOND_R_etaBinA->Fill(moment_SECOND_R);
-      m_PFO_CENTER_LAMBDA_etaBinA->Fill(moment_CENTER_LAMBDA);
-      m_PFO_ISOLATION_etaBinA->Fill(moment_ISOLATION);
-      m_PFO_ENG_BAD_CELLS_etaBinA->Fill(moment_ENG_BAD_CELLS);
-      m_PFO_N_BAD_CELLS_etaBinA->Fill(moment_N_BAD_CELLS);
-      m_PFO_BADLARQ_FRAC_etaBinA->Fill(moment_BADLARQ_FRAC);
-      m_PFO_ENG_POS_etaBinA->Fill(moment_ENG_POS);
-      m_PFO_AVG_LAR_Q_etaBinA->Fill(moment_AVG_LAR_Q);
-      m_PFO_AVG_TILE_Q_etaBinA->Fill(moment_AVG_TILE_Q);
-      m_PFO_EM_PROBABILITY_etaBinA->Fill(moment_EM_PROBABILITY);
-      m_PFO_SECOND_LAMBDA_etaBinA->Fill(moment_SECOND_LAMBDA);
+      m_PFO_SECOND_R_etaBinA->Fill(moment_SECOND_R,eventInfo.beamSpotWeight());
+      m_PFO_CENTER_LAMBDA_etaBinA->Fill(moment_CENTER_LAMBDA,eventInfo.beamSpotWeight());
+      m_PFO_ISOLATION_etaBinA->Fill(moment_ISOLATION,eventInfo.beamSpotWeight());
+      m_PFO_ENG_BAD_CELLS_etaBinA->Fill(moment_ENG_BAD_CELLS,eventInfo.beamSpotWeight());
+      m_PFO_N_BAD_CELLS_etaBinA->Fill(moment_N_BAD_CELLS,eventInfo.beamSpotWeight());
+      m_PFO_BADLARQ_FRAC_etaBinA->Fill(moment_BADLARQ_FRAC,eventInfo.beamSpotWeight());
+      m_PFO_ENG_POS_etaBinA->Fill(moment_ENG_POS,eventInfo.beamSpotWeight());
+      m_PFO_AVG_LAR_Q_etaBinA->Fill(moment_AVG_LAR_Q,eventInfo.beamSpotWeight());
+      m_PFO_AVG_TILE_Q_etaBinA->Fill(moment_AVG_TILE_Q,eventInfo.beamSpotWeight());
+      m_PFO_EM_PROBABILITY_etaBinA->Fill(moment_EM_PROBABILITY,eventInfo.beamSpotWeight());
+      m_PFO_SECOND_LAMBDA_etaBinA->Fill(moment_SECOND_LAMBDA,eventInfo.beamSpotWeight());
     }//|eta| < 1.5
     else if (fabs(PFOEta) < 2.5){
-      m_PFO_SECOND_R_etaBinB->Fill(moment_SECOND_R);
-      m_PFO_CENTER_LAMBDA_etaBinB->Fill(moment_CENTER_LAMBDA);
-      m_PFO_ISOLATION_etaBinB->Fill(moment_ISOLATION);
-      m_PFO_ENG_BAD_CELLS_etaBinB->Fill(moment_ENG_BAD_CELLS);
-      m_PFO_N_BAD_CELLS_etaBinB->Fill(moment_N_BAD_CELLS);
-      m_PFO_BADLARQ_FRAC_etaBinB->Fill(moment_BADLARQ_FRAC);
-      m_PFO_ENG_POS_etaBinB->Fill(moment_ENG_POS);
-      m_PFO_AVG_LAR_Q_etaBinB->Fill(moment_AVG_LAR_Q);
-      m_PFO_AVG_TILE_Q_etaBinB->Fill(moment_AVG_TILE_Q);
-      m_PFO_EM_PROBABILITY_etaBinB->Fill(moment_EM_PROBABILITY);
-      m_PFO_SECOND_LAMBDA_etaBinB->Fill(moment_SECOND_LAMBDA);
+      m_PFO_SECOND_R_etaBinB->Fill(moment_SECOND_R,eventInfo.beamSpotWeight());
+      m_PFO_CENTER_LAMBDA_etaBinB->Fill(moment_CENTER_LAMBDA,eventInfo.beamSpotWeight());
+      m_PFO_ISOLATION_etaBinB->Fill(moment_ISOLATION,eventInfo.beamSpotWeight());
+      m_PFO_ENG_BAD_CELLS_etaBinB->Fill(moment_ENG_BAD_CELLS,eventInfo.beamSpotWeight());
+      m_PFO_N_BAD_CELLS_etaBinB->Fill(moment_N_BAD_CELLS,eventInfo.beamSpotWeight());
+      m_PFO_BADLARQ_FRAC_etaBinB->Fill(moment_BADLARQ_FRAC,eventInfo.beamSpotWeight());
+      m_PFO_ENG_POS_etaBinB->Fill(moment_ENG_POS,eventInfo.beamSpotWeight());
+      m_PFO_AVG_LAR_Q_etaBinB->Fill(moment_AVG_LAR_Q,eventInfo.beamSpotWeight());
+      m_PFO_AVG_TILE_Q_etaBinB->Fill(moment_AVG_TILE_Q,eventInfo.beamSpotWeight());
+      m_PFO_EM_PROBABILITY_etaBinB->Fill(moment_EM_PROBABILITY,eventInfo.beamSpotWeight());
+      m_PFO_SECOND_LAMBDA_etaBinB->Fill(moment_SECOND_LAMBDA,eventInfo.beamSpotWeight());
     }
     else if (fabs(PFOEta) < 3.2){
-      m_PFO_SECOND_R_etaBinC->Fill(moment_SECOND_R);
-      m_PFO_CENTER_LAMBDA_etaBinC->Fill(moment_CENTER_LAMBDA);
-      m_PFO_ISOLATION_etaBinC->Fill(moment_ISOLATION);
-      m_PFO_ENG_BAD_CELLS_etaBinC->Fill(moment_ENG_BAD_CELLS);
-      m_PFO_N_BAD_CELLS_etaBinC->Fill(moment_N_BAD_CELLS);
-      m_PFO_BADLARQ_FRAC_etaBinC->Fill(moment_BADLARQ_FRAC);
-      m_PFO_ENG_POS_etaBinC->Fill(moment_ENG_POS);
-      m_PFO_AVG_LAR_Q_etaBinC->Fill(moment_AVG_LAR_Q);
-      m_PFO_AVG_TILE_Q_etaBinC->Fill(moment_AVG_TILE_Q);
-      m_PFO_EM_PROBABILITY_etaBinC->Fill(moment_EM_PROBABILITY);
-      m_PFO_SECOND_LAMBDA_etaBinC->Fill(moment_SECOND_LAMBDA);
+      m_PFO_SECOND_R_etaBinC->Fill(moment_SECOND_R,eventInfo.beamSpotWeight());
+      m_PFO_CENTER_LAMBDA_etaBinC->Fill(moment_CENTER_LAMBDA,eventInfo.beamSpotWeight());
+      m_PFO_ISOLATION_etaBinC->Fill(moment_ISOLATION,eventInfo.beamSpotWeight());
+      m_PFO_ENG_BAD_CELLS_etaBinC->Fill(moment_ENG_BAD_CELLS,eventInfo.beamSpotWeight());
+      m_PFO_N_BAD_CELLS_etaBinC->Fill(moment_N_BAD_CELLS,eventInfo.beamSpotWeight());
+      m_PFO_BADLARQ_FRAC_etaBinC->Fill(moment_BADLARQ_FRAC,eventInfo.beamSpotWeight());
+      m_PFO_ENG_POS_etaBinC->Fill(moment_ENG_POS,eventInfo.beamSpotWeight());
+      m_PFO_AVG_LAR_Q_etaBinC->Fill(moment_AVG_LAR_Q,eventInfo.beamSpotWeight());
+      m_PFO_AVG_TILE_Q_etaBinC->Fill(moment_AVG_TILE_Q,eventInfo.beamSpotWeight());
+      m_PFO_EM_PROBABILITY_etaBinC->Fill(moment_EM_PROBABILITY,eventInfo.beamSpotWeight());
+      m_PFO_SECOND_LAMBDA_etaBinC->Fill(moment_SECOND_LAMBDA,eventInfo.beamSpotWeight());
     }
     else{
-      m_PFO_SECOND_R_etaBinD->Fill(moment_SECOND_R);
-      m_PFO_CENTER_LAMBDA_etaBinD->Fill(moment_CENTER_LAMBDA);
-      m_PFO_ISOLATION_etaBinD->Fill(moment_ISOLATION);
-      m_PFO_ENG_BAD_CELLS_etaBinD->Fill(moment_ENG_BAD_CELLS);
-      m_PFO_N_BAD_CELLS_etaBinD->Fill(moment_N_BAD_CELLS);
-      m_PFO_BADLARQ_FRAC_etaBinD->Fill(moment_BADLARQ_FRAC);
-      m_PFO_ENG_POS_etaBinD->Fill(moment_ENG_POS);
-      m_PFO_AVG_LAR_Q_etaBinD->Fill(moment_AVG_LAR_Q);
-      m_PFO_AVG_TILE_Q_etaBinD->Fill(moment_AVG_TILE_Q);
-      m_PFO_EM_PROBABILITY_etaBinD->Fill(moment_EM_PROBABILITY);
-      m_PFO_SECOND_LAMBDA_etaBinD->Fill(moment_SECOND_LAMBDA);
+      m_PFO_SECOND_R_etaBinD->Fill(moment_SECOND_R,eventInfo.beamSpotWeight());
+      m_PFO_CENTER_LAMBDA_etaBinD->Fill(moment_CENTER_LAMBDA,eventInfo.beamSpotWeight());
+      m_PFO_ISOLATION_etaBinD->Fill(moment_ISOLATION,eventInfo.beamSpotWeight());
+      m_PFO_ENG_BAD_CELLS_etaBinD->Fill(moment_ENG_BAD_CELLS,eventInfo.beamSpotWeight());
+      m_PFO_N_BAD_CELLS_etaBinD->Fill(moment_N_BAD_CELLS,eventInfo.beamSpotWeight());
+      m_PFO_BADLARQ_FRAC_etaBinD->Fill(moment_BADLARQ_FRAC,eventInfo.beamSpotWeight());
+      m_PFO_ENG_POS_etaBinD->Fill(moment_ENG_POS,eventInfo.beamSpotWeight());
+      m_PFO_AVG_LAR_Q_etaBinD->Fill(moment_AVG_LAR_Q,eventInfo.beamSpotWeight());
+      m_PFO_AVG_TILE_Q_etaBinD->Fill(moment_AVG_TILE_Q,eventInfo.beamSpotWeight());
+      m_PFO_EM_PROBABILITY_etaBinD->Fill(moment_EM_PROBABILITY,eventInfo.beamSpotWeight());
+      m_PFO_SECOND_LAMBDA_etaBinD->Fill(moment_SECOND_LAMBDA,eventInfo.beamSpotWeight());
     }
     
   }
-  void PFOClusterMomentPlots::fill(const xAOD::FlowElement& FE){
+  void PFOClusterMomentPlots::fill(const xAOD::FlowElement& FE, const xAOD::EventInfo& eventInfo){
      float moment_SECOND_R = -1.0;
      float moment_CENTER_LAMBDA = -1.0;
      float moment_ISOLATION = -1.0;
@@ -373,17 +373,17 @@ namespace PFO {
      float moment_SECOND_LAMBDA = -1.0;
 
      //as opposed to PFO which uses specific functions to grab the cluster moments, the auxdata is used
-     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_SECOND_R("moment_SECOND_R");
-     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_CENTER_LAMBDA("moment_CENTER_LAMBDA");
-     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_ISOLATION("moment_ISOLATION");
-     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_ENG_BAD_CELLS("moment_ENG_BAD_CELLS");
-     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_N_BAD_CELLS("moment_N_BAD_CELLS");
-     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_BADLARQ_FRAC("moment_BADLARQ_FRAC");
-     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_ENG_POS("moment_ENG_POS");
-     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_AVG_LAR_Q("moment_AVG_LAR_Q");
-     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_AVG_TILE_Q("moment_AVG_TILE_Q");
-     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_EM_PROBABILITY("moment_EM_PROBABILITY");
-     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_SECOND_LAMBDA("moment_SECOND_LAMBDA");
+     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_SECOND_R("SECOND_R");
+     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_CENTER_LAMBDA("CENTER_LAMBDA");
+     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_ISOLATION("ISOLATION");
+     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_ENG_BAD_CELLS("ENG_BAD_CELLS");
+     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_N_BAD_CELLS("N_BAD_CELLS");
+     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_BADLARQ_FRAC("BADLARQ_FRAC");
+     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_ENG_POS("ENG_POS");
+     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_AVG_LAR_Q("AVG_LAR_Q");
+     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_AVG_TILE_Q("AVG_TILE_Q");
+     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_EM_PROBABILITY("EM_PROBABILITY");
+     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_SECOND_LAMBDA("SECOND_LAMBDA");
      
      //use accessors to retrieve the auxvars
      if(acc_FE_moment_SECOND_R.isAvailable(FE))
@@ -420,69 +420,69 @@ namespace PFO {
        moment_SECOND_LAMBDA=acc_FE_moment_SECOND_LAMBDA(FE);
      
      float FE_eta=FE.eta();
-     m_FE_SECOND_R->Fill(moment_SECOND_R);     
-     m_FE_CENTER_LAMBDA->Fill(moment_CENTER_LAMBDA);
-     m_FE_ISOLATION->Fill(moment_ISOLATION);     
-     m_FE_ENG_BAD_CELLS->Fill(moment_ENG_BAD_CELLS);
-     m_FE_N_BAD_CELLS->Fill(moment_N_BAD_CELLS);
-     m_FE_BADLARQ_FRAC->Fill(moment_BADLARQ_FRAC);
-     m_FE_ENG_POS->Fill(moment_ENG_POS);
-     m_FE_AVG_LAR_Q->Fill(moment_AVG_LAR_Q);
-     m_FE_AVG_TILE_Q->Fill(moment_AVG_TILE_Q);
-     m_FE_EM_PROBABILITY->Fill(moment_EM_PROBABILITY);
-     m_FE_SECOND_LAMBDA->Fill(moment_SECOND_LAMBDA);
+     m_FE_SECOND_R->Fill(moment_SECOND_R,eventInfo.beamSpotWeight());     
+     m_FE_CENTER_LAMBDA->Fill(moment_CENTER_LAMBDA,eventInfo.beamSpotWeight());
+     m_FE_ISOLATION->Fill(moment_ISOLATION,eventInfo.beamSpotWeight());     
+     m_FE_ENG_BAD_CELLS->Fill(moment_ENG_BAD_CELLS,eventInfo.beamSpotWeight());
+     m_FE_N_BAD_CELLS->Fill(moment_N_BAD_CELLS,eventInfo.beamSpotWeight());
+     m_FE_BADLARQ_FRAC->Fill(moment_BADLARQ_FRAC,eventInfo.beamSpotWeight());
+     m_FE_ENG_POS->Fill(moment_ENG_POS,eventInfo.beamSpotWeight());
+     m_FE_AVG_LAR_Q->Fill(moment_AVG_LAR_Q,eventInfo.beamSpotWeight());
+     m_FE_AVG_TILE_Q->Fill(moment_AVG_TILE_Q,eventInfo.beamSpotWeight());
+     m_FE_EM_PROBABILITY->Fill(moment_EM_PROBABILITY,eventInfo.beamSpotWeight());
+     m_FE_SECOND_LAMBDA->Fill(moment_SECOND_LAMBDA,eventInfo.beamSpotWeight());
 
      if (fabs(FE_eta) < 1.5){
-       m_FE_SECOND_R_etaBinA->Fill(moment_SECOND_R);
-       m_FE_CENTER_LAMBDA_etaBinA->Fill(moment_CENTER_LAMBDA);
-       m_FE_ISOLATION_etaBinA->Fill(moment_ISOLATION);
-       m_FE_ENG_BAD_CELLS_etaBinA->Fill(moment_ENG_BAD_CELLS);
-       m_FE_N_BAD_CELLS_etaBinA->Fill(moment_N_BAD_CELLS);
-       m_FE_BADLARQ_FRAC_etaBinA->Fill(moment_BADLARQ_FRAC);
-       m_FE_ENG_POS_etaBinA->Fill(moment_ENG_POS);
-       m_FE_AVG_LAR_Q_etaBinA->Fill(moment_AVG_LAR_Q);
-       m_FE_AVG_TILE_Q_etaBinA->Fill(moment_AVG_TILE_Q);
-       m_FE_EM_PROBABILITY_etaBinA->Fill(moment_EM_PROBABILITY);
-       m_FE_SECOND_LAMBDA_etaBinA->Fill(moment_SECOND_LAMBDA);
+       m_FE_SECOND_R_etaBinA->Fill(moment_SECOND_R,eventInfo.beamSpotWeight());
+       m_FE_CENTER_LAMBDA_etaBinA->Fill(moment_CENTER_LAMBDA,eventInfo.beamSpotWeight());
+       m_FE_ISOLATION_etaBinA->Fill(moment_ISOLATION,eventInfo.beamSpotWeight());
+       m_FE_ENG_BAD_CELLS_etaBinA->Fill(moment_ENG_BAD_CELLS,eventInfo.beamSpotWeight());
+       m_FE_N_BAD_CELLS_etaBinA->Fill(moment_N_BAD_CELLS,eventInfo.beamSpotWeight());
+       m_FE_BADLARQ_FRAC_etaBinA->Fill(moment_BADLARQ_FRAC,eventInfo.beamSpotWeight());
+       m_FE_ENG_POS_etaBinA->Fill(moment_ENG_POS,eventInfo.beamSpotWeight());
+       m_FE_AVG_LAR_Q_etaBinA->Fill(moment_AVG_LAR_Q,eventInfo.beamSpotWeight());
+       m_FE_AVG_TILE_Q_etaBinA->Fill(moment_AVG_TILE_Q,eventInfo.beamSpotWeight());
+       m_FE_EM_PROBABILITY_etaBinA->Fill(moment_EM_PROBABILITY,eventInfo.beamSpotWeight());
+       m_FE_SECOND_LAMBDA_etaBinA->Fill(moment_SECOND_LAMBDA,eventInfo.beamSpotWeight());
      }//|eta| < 1.5
      else if (fabs(FE_eta) < 2.5){
-       m_FE_SECOND_R_etaBinB->Fill(moment_SECOND_R);
-       m_FE_CENTER_LAMBDA_etaBinB->Fill(moment_CENTER_LAMBDA);
-       m_FE_ISOLATION_etaBinB->Fill(moment_ISOLATION);
-       m_FE_ENG_BAD_CELLS_etaBinB->Fill(moment_ENG_BAD_CELLS);
-       m_FE_N_BAD_CELLS_etaBinB->Fill(moment_N_BAD_CELLS);
-       m_FE_BADLARQ_FRAC_etaBinB->Fill(moment_BADLARQ_FRAC);
-       m_FE_ENG_POS_etaBinB->Fill(moment_ENG_POS);
-       m_FE_AVG_LAR_Q_etaBinB->Fill(moment_AVG_LAR_Q);
-       m_FE_AVG_TILE_Q_etaBinB->Fill(moment_AVG_TILE_Q);
-       m_FE_EM_PROBABILITY_etaBinB->Fill(moment_EM_PROBABILITY);
-       m_FE_SECOND_LAMBDA_etaBinB->Fill(moment_SECOND_LAMBDA);
+       m_FE_SECOND_R_etaBinB->Fill(moment_SECOND_R,eventInfo.beamSpotWeight());
+       m_FE_CENTER_LAMBDA_etaBinB->Fill(moment_CENTER_LAMBDA,eventInfo.beamSpotWeight());
+       m_FE_ISOLATION_etaBinB->Fill(moment_ISOLATION,eventInfo.beamSpotWeight());
+       m_FE_ENG_BAD_CELLS_etaBinB->Fill(moment_ENG_BAD_CELLS,eventInfo.beamSpotWeight());
+       m_FE_N_BAD_CELLS_etaBinB->Fill(moment_N_BAD_CELLS,eventInfo.beamSpotWeight());
+       m_FE_BADLARQ_FRAC_etaBinB->Fill(moment_BADLARQ_FRAC,eventInfo.beamSpotWeight());
+       m_FE_ENG_POS_etaBinB->Fill(moment_ENG_POS,eventInfo.beamSpotWeight());
+       m_FE_AVG_LAR_Q_etaBinB->Fill(moment_AVG_LAR_Q,eventInfo.beamSpotWeight());
+       m_FE_AVG_TILE_Q_etaBinB->Fill(moment_AVG_TILE_Q,eventInfo.beamSpotWeight());
+       m_FE_EM_PROBABILITY_etaBinB->Fill(moment_EM_PROBABILITY,eventInfo.beamSpotWeight());
+       m_FE_SECOND_LAMBDA_etaBinB->Fill(moment_SECOND_LAMBDA,eventInfo.beamSpotWeight());
      }
      else if (fabs(FE_eta) < 3.2){
-       m_FE_SECOND_R_etaBinC->Fill(moment_SECOND_R);
-       m_FE_CENTER_LAMBDA_etaBinC->Fill(moment_CENTER_LAMBDA);
-       m_FE_ISOLATION_etaBinC->Fill(moment_ISOLATION);
-       m_FE_ENG_BAD_CELLS_etaBinC->Fill(moment_ENG_BAD_CELLS);
-       m_FE_N_BAD_CELLS_etaBinC->Fill(moment_N_BAD_CELLS);
-       m_FE_BADLARQ_FRAC_etaBinC->Fill(moment_BADLARQ_FRAC);
-       m_FE_ENG_POS_etaBinC->Fill(moment_ENG_POS);
-       m_FE_AVG_LAR_Q_etaBinC->Fill(moment_AVG_LAR_Q);
-       m_FE_AVG_TILE_Q_etaBinC->Fill(moment_AVG_TILE_Q);
-       m_FE_EM_PROBABILITY_etaBinC->Fill(moment_EM_PROBABILITY);
-       m_FE_SECOND_LAMBDA_etaBinC->Fill(moment_SECOND_LAMBDA);
+       m_FE_SECOND_R_etaBinC->Fill(moment_SECOND_R,eventInfo.beamSpotWeight());
+       m_FE_CENTER_LAMBDA_etaBinC->Fill(moment_CENTER_LAMBDA,eventInfo.beamSpotWeight());
+       m_FE_ISOLATION_etaBinC->Fill(moment_ISOLATION,eventInfo.beamSpotWeight());
+       m_FE_ENG_BAD_CELLS_etaBinC->Fill(moment_ENG_BAD_CELLS,eventInfo.beamSpotWeight());
+       m_FE_N_BAD_CELLS_etaBinC->Fill(moment_N_BAD_CELLS,eventInfo.beamSpotWeight());
+       m_FE_BADLARQ_FRAC_etaBinC->Fill(moment_BADLARQ_FRAC,eventInfo.beamSpotWeight());
+       m_FE_ENG_POS_etaBinC->Fill(moment_ENG_POS,eventInfo.beamSpotWeight());
+       m_FE_AVG_LAR_Q_etaBinC->Fill(moment_AVG_LAR_Q,eventInfo.beamSpotWeight());
+       m_FE_AVG_TILE_Q_etaBinC->Fill(moment_AVG_TILE_Q,eventInfo.beamSpotWeight());
+       m_FE_EM_PROBABILITY_etaBinC->Fill(moment_EM_PROBABILITY,eventInfo.beamSpotWeight());
+       m_FE_SECOND_LAMBDA_etaBinC->Fill(moment_SECOND_LAMBDA,eventInfo.beamSpotWeight());
      }
      else{
-       m_FE_SECOND_R_etaBinD->Fill(moment_SECOND_R);
-       m_FE_CENTER_LAMBDA_etaBinD->Fill(moment_CENTER_LAMBDA);
-       m_FE_ISOLATION_etaBinD->Fill(moment_ISOLATION);
-       m_FE_ENG_BAD_CELLS_etaBinD->Fill(moment_ENG_BAD_CELLS);
-       m_FE_N_BAD_CELLS_etaBinD->Fill(moment_N_BAD_CELLS);
-       m_FE_BADLARQ_FRAC_etaBinD->Fill(moment_BADLARQ_FRAC);
-       m_FE_ENG_POS_etaBinD->Fill(moment_ENG_POS);
-       m_FE_AVG_LAR_Q_etaBinD->Fill(moment_AVG_LAR_Q);
-       m_FE_AVG_TILE_Q_etaBinD->Fill(moment_AVG_TILE_Q);
-       m_FE_EM_PROBABILITY_etaBinD->Fill(moment_EM_PROBABILITY);
-       m_FE_SECOND_LAMBDA_etaBinD->Fill(moment_SECOND_LAMBDA);
+       m_FE_SECOND_R_etaBinD->Fill(moment_SECOND_R,eventInfo.beamSpotWeight());
+       m_FE_CENTER_LAMBDA_etaBinD->Fill(moment_CENTER_LAMBDA,eventInfo.beamSpotWeight());
+       m_FE_ISOLATION_etaBinD->Fill(moment_ISOLATION,eventInfo.beamSpotWeight());
+       m_FE_ENG_BAD_CELLS_etaBinD->Fill(moment_ENG_BAD_CELLS,eventInfo.beamSpotWeight());
+       m_FE_N_BAD_CELLS_etaBinD->Fill(moment_N_BAD_CELLS,eventInfo.beamSpotWeight());
+       m_FE_BADLARQ_FRAC_etaBinD->Fill(moment_BADLARQ_FRAC,eventInfo.beamSpotWeight());
+       m_FE_ENG_POS_etaBinD->Fill(moment_ENG_POS,eventInfo.beamSpotWeight());
+       m_FE_AVG_LAR_Q_etaBinD->Fill(moment_AVG_LAR_Q,eventInfo.beamSpotWeight());
+       m_FE_AVG_TILE_Q_etaBinD->Fill(moment_AVG_TILE_Q,eventInfo.beamSpotWeight());
+       m_FE_EM_PROBABILITY_etaBinD->Fill(moment_EM_PROBABILITY,eventInfo.beamSpotWeight());
+       m_FE_SECOND_LAMBDA_etaBinD->Fill(moment_SECOND_LAMBDA,eventInfo.beamSpotWeight());
      }     
      
      

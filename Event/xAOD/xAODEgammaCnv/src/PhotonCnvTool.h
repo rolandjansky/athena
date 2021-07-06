@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -28,9 +28,6 @@ namespace xAODMaker {
     *         egamma (Photon) Container into an xAOD::PhotonContainer.
     *
     * @author Jovan Mitrevski <Jovan.Mitrevski@cern.ch>
-    *
-    * $Revision$
-    * $Date$
     */
   class PhotonCnvTool : public AthAlgTool,
 			public virtual IPhotonCnvTool {
@@ -40,12 +37,9 @@ namespace xAODMaker {
     PhotonCnvTool( const std::string& type, const std::string& name,
 		   const IInterface* parent );
     
-    /// Function initializing the tool
-    virtual StatusCode initialize();
-    
     /// Function that fills an existing xAOD::PhotonContainer
     virtual StatusCode convert( const egammaContainer* aod,
-				xAOD::PhotonContainer* xaod) const;
+				xAOD::PhotonContainer* xaod) const override;
     
   private:
     /// Fills in the shower shape variables 

@@ -9,15 +9,6 @@ genSeq.Pythia8.Commands += ["Tune:ee = 7",
 rel = os.popen("echo $AtlasVersion").read()
 print ("Atlas release " + rel)
 
-if rel[:2].isdigit() and int(rel[:2])<20:
-  ver =  os.popen("cmt show versions External/Pythia8").read()
-  print ("Pythia8 version: " + ver)
-  if 'Pythia8-01' in ver[:50]:
-   genSeq.Pythia8.Commands += ["PDF:useLHAPDF = on",
-                             "PDF:LHAPDFset = NNPDF23_lo_as_0130_qed"]
-  else:
-   genSeq.Pythia8.Commands += ["PDF:pSet=LHAPDF6:NNPDF23_lo_as_0130_qed"]
-else:
-  genSeq.Pythia8.Commands += ["PDF:pSet=LHAPDF6:NNPDF23_lo_as_0130_qed"]
+genSeq.Pythia8.Commands += ["PDF:pSet=LHAPDF6:NNPDF23_lo_as_0130_qed"]
 
 evgenConfig.tune = "MonashStar"

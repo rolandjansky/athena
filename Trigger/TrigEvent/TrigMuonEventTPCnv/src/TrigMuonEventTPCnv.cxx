@@ -18,10 +18,6 @@
 #include "TrigMuonEventTPCnv/MuonFeatureContainerCnv_tlp2.h"
 #include "TrigMuonEventTPCnv/MuonFeatureCnv_p2.h"
 
-#include "TrigMuonEventTPCnv/MuonFeatureContainer_p2.h"
-#include "TrigMuonEventTPCnv/MuonFeatureContainer_tlp2.h"
-#include "TrigMuonEventTPCnv/MuonFeatureContainerCnv_tlp2.h"
-
 #include "TrigMuonEventTPCnv/MuonFeatureContainer_p3.h"
 #include "TrigMuonEventTPCnv/MuonFeatureContainerCnv_p3.h"
 

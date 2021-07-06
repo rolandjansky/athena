@@ -5,12 +5,12 @@
 #ifndef MUONALIGNGENALGS_TGCALIGNMODULE_H
 #define MUONALIGNGENALGS_TGCALIGNMODULE_H
 
-#include "TrkAlignEvent/AlignModule.h"
-#include "TrkAlignEvent/AlignPar.h"
-#include "MuonAlignEvent/CombinedMuonAlignModule.h"
-
 #include <iostream>
 #include <vector>
+
+#include "MuonAlignEvent/CombinedMuonAlignModule.h"
+#include "TrkAlignEvent/AlignModule.h"
+#include "TrkAlignEvent/AlignPar.h"
 
 /**
    @file TgcAlignModule.h
@@ -30,49 +30,44 @@ class TFile;
 class TTree;
 
 namespace MuonGM {
-  class TgcReadoutElement;
+    class TgcReadoutElement;
 }
 
 namespace Muon {
-  
-  class TgcAlignModule : public CombinedMuonAlignModule {
-    
-  public:
-    
-    /** Constructor using AlgTool gives a MsgStream with TgcAlignModule for name and the the same output level as the AlgTool. */
-    TgcAlignModule(const AlgTool* algtool,
-		   const Amg::Transform3D& transform=Amg::Transform3D::Identity());
 
-    /** This constructor gives a MsgStream with the name of the tool that created the TgcAlignModule and the same output level. */
-    TgcAlignModule(MsgStream* log, 
-		   const Amg::Transform3D& transform=Amg::Transform3D::Identity());
+    class TgcAlignModule : public CombinedMuonAlignModule {
+    public:
+        /** Constructor using AlgTool gives a MsgStream with TgcAlignModule for name and the the same output level as the AlgTool. */
+        TgcAlignModule(const AlgTool* algtool, const Amg::Transform3D& transform = Amg::Transform3D::Identity());
 
-    virtual ~TgcAlignModule();
-    
-    /** trees in m_rootfile used to store positions of strips and wires in chambers */
-    TFile* getRootFile()         { return m_rootfile; }
-    TTree* getStripPositionTree() { return m_stripPositionTree; }
-    TTree* getWirePositionTree()  { return m_wirePositionTree; }
-    void   setRootFile(TFile* file)         { m_rootfile=file; }
-    void   setStripPositionTree(TTree* tree) { m_stripPositionTree=tree; }
-    void   setWirePositionTree(TTree* tree)  { m_wirePositionTree=tree; }
+        /** This constructor gives a MsgStream with the name of the tool that created the TgcAlignModule and the same output level. */
+        TgcAlignModule(MsgStream* log, const Amg::Transform3D& transform = Amg::Transform3D::Identity());
 
-    //void   shiftSurface(Trk::TrkDetElementBase* det, Identifier id) const;
-    //void   restoreSurfaces(Trk::TrkDetElementBase* tre) const;
+        virtual ~TgcAlignModule();
 
-  private:
+        /** trees in m_rootfile used to store positions of strips and wires in chambers */
+        TFile* getRootFile() { return m_rootfile; }
+        TTree* getStripPositionTree() { return m_stripPositionTree; }
+        TTree* getWirePositionTree() { return m_wirePositionTree; }
+        void setRootFile(TFile* file) { m_rootfile = file; }
+        void setStripPositionTree(TTree* tree) { m_stripPositionTree = tree; }
+        void setWirePositionTree(TTree* tree) { m_wirePositionTree = tree; }
 
-    /** trees used to store positions of stripts and wires for drawing hits and troubleshooting */
-    TFile*         m_rootfile;
-    TTree*         m_stripPositionTree;
-    TTree*         m_wirePositionTree;
+        // void   shiftSurface(Trk::TrkDetElementBase* det, Identifier id) const;
+        // void   restoreSurfaces(Trk::TrkDetElementBase* tre) const;
 
-    MsgStream*     m_log;
-    TgcAlignModule & operator=(const TgcAlignModule &right);
-    TgcAlignModule(const TgcAlignModule&);
+    private:
+        /** trees used to store positions of stripts and wires for drawing hits and troubleshooting */
+        TFile* m_rootfile;
+        TTree* m_stripPositionTree;
+        TTree* m_wirePositionTree;
 
-  }; // end class
-  
-} // end namespace
+        MsgStream* m_log;
+        TgcAlignModule& operator=(const TgcAlignModule& right);
+        TgcAlignModule(const TgcAlignModule&);
 
-#endif // MUONALIGNGENALGS_TGCALIGNMODULE_H
+    };  // end class
+
+}  // namespace Muon
+
+#endif  // MUONALIGNGENALGS_TGCALIGNMODULE_H

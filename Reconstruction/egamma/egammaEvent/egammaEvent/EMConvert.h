@@ -290,9 +290,9 @@ class EMConvert : public egDetail
   /** @brief get the vertex position error matrix from the stored egammaParameters */
   AmgSymMatrix(3)* getVxPosErrorMatrix() const;
   /** @brief get the error matrix for the first track from the stored egammaParameters */
-  AmgSymMatrix(5)* getTrk1ErrorMatrix() const;
+  AmgSymMatrix(5)  getTrk1ErrorMatrix() const;
   /** @brief get the error matrix for the second track from the stored egammaParameters */
-  AmgSymMatrix(5)* getTrk2ErrorMatrix() const;
+  AmgSymMatrix(5) getTrk2ErrorMatrix() const;
   /** @brief get the full vertex error matrix from the stored egammaParameters */
   Amg::MatrixX* getVxErrorMatrix() const;
   

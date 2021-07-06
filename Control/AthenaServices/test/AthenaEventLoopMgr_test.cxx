@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthenaServices/test/AthenaEventLoopMgr_test.cxx
@@ -267,9 +267,8 @@ class TestAlgorithm
 {
 public:
   TestAlgorithm(const std::string& name,
-                ISvcLocator* pSvcLocator,
-                const std::string& version = PACKAGE_VERSION)
-    : AthAlgorithm(name, pSvcLocator, version) {}
+                ISvcLocator* pSvcLocator)
+    : AthAlgorithm(name, pSvcLocator) {}
 
   virtual StatusCode initialize() override
   { std::cout << "TestAlgorithm::initialize\n"; return StatusCode::SUCCESS; }

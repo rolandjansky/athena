@@ -55,7 +55,6 @@ namespace ExpressionParsing {
     if (!foundProxyLoader) {
       throw std::runtime_error("MultipleProxyLoader: unable to find valid proxy loader for "+varname);
     }
-    std::cout << "MultipleProxyLoader - found proxy loader for " << varname << std::endl;
     return result;
   }
 

@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 from future import standard_library
 standard_library.install_aliases()
 import subprocess
@@ -40,6 +42,9 @@ from string import *
 def DBConnectionFile(sqlitefile):
    return "sqlite://;schema="+sqlitefile+";dbname=CONDBR2"
 
+if not 'DBConnectionCOOL' in dir():  
+   DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=CONDBR2;"   
+
 
 #######################################################
 #                Monitoring properties
@@ -68,7 +73,8 @@ if not 'WhichSample' in dir():
    WhichSample = -1
 
 if not 'InputDB' in dir():
-   InputDB = LArCalib_Flags.OutputDB
+   #InputDB = LArCalib_Flags.OutputDB
+   InputDB = DBConnectionCOOL
 
 if 'InputSQLiteFile' in dir():
    InputDB = DBConnectionFile(OutputSQLiteFile)   
@@ -92,9 +98,6 @@ if not 'IOVBegin' in dir():
    
 if not 'IOVEnd' in dir():
    IOVEnd = LArCalib_Flags.IOVEnd
-
-if not 'DBConnectionCOOL' in dir():  
-   DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=CONDBR2;"   
 
 if not 'OutputPedAutoCorrRootFileDir' in dir():
    OutputPedAutoCorrRootFileDir  = subprocess.getoutput("pwd")
@@ -164,18 +167,6 @@ include("LArCalibProcessing/LArCalib_MinimalSetup.py")
 
 GlobalTag = 'CONDBR2-BLKPA-2017-01'
 
-#Geometry = 'ATLAS-GEO-21-00-01'
-#from AthenaCommon.DetFlags import DetFlags
-#DetFlags.all_setOff()
-#DetFlags.LAr_setOn()
-#DetFlags.Tile_setOn()
-#DetFlags.digitize.all_setOff()
-
-#from AthenaCommon.GlobalFlags import globalflags
-#globalflags.DetGeo.set_Value_and_Lock('atlas')
-#globalflags.DataSource.set_Value_and_Lock('data')
-#globalflags.DatabaseInstance.set_Value_and_Lock('CONDBR2')
-
 from AthenaCommon.BeamFlags import jobproperties
 jobproperties.Beam.bunchSpacing = bunchSpace
 jobproperties.Beam.numberOfCollisions = float(NColl)
@@ -184,16 +175,14 @@ jobproperties.Beam.numberOfCollisions = float(NColl)
 from LArConditionsCommon.LArCondFlags import larCondFlags
 larCondFlags.useShape.set_Value_and_Lock(False)
 
+if SuperCells:
+   larCondFlags.hasHVCorr.set_Value_and_Lock(False) # here  needed since we don't have HVCorr info
+   larCondFlags.hasMphys.set_Value_and_Lock(False) # here  needed since we don't have MPhys info
+
 import AthenaCommon.AtlasUnixGeneratorJob
 
 # Setup Db stuff
 import AthenaPoolCnvSvc.AthenaPool
-
-#from AthenaCommon.GlobalFlags import jobproperties
-#jobproperties.Global.DetDescrVersion=Geometry
-
-#from AtlasGeoModel import SetGeometryVersion
-#from AtlasGeoModel import GeoModelInit
 
 
 ## get a handle to the default top-level algorithm sequence
@@ -222,18 +211,21 @@ include( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py")
 include( "CaloIdCnv/CaloIdCnv_joboptions.py" )
 include( "TileIdCnv/TileIdCnv_jobOptions.py" )
 include( "LArDetDescr/LArDetDescr_joboptions.py" )
-#include("TileConditions/TileConditions_jobOptions.py" )
 include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 
 if SuperCells:
-  svcMgr.LArFlatConditionSvc.DoSuperCells = True
-  svcMgr.LArFlatConditionSvc.DoRegularCells = False
-  #svcMgr.LArFlatConditionSvc.PedestalSCOutput = "Pedestal"
-  svcMgr.LArFlatConditionSvc.uA2MeVSCInput = "LAruA2MeVFlat"
-  svcMgr.LArFlatConditionSvc.DAC2uAVSCInput = "LArDAC2uAFlat"
-  #svcMgr.LArFlatConditionSvc.RampSCInput = "LArRamp"
-  #svcMgr.LArFlatConditionSvc.PedestalSCInput = "Pedestal"
+   #SC conditiona folders are not set-up yet in LArConditionsCommon_comm_jobOptions.py, should go there at some point
+   conddb.addFolderWithTag("","<dbConnection>"+InputDB+"</dbConnection>/LAR/ElecCalibOflSC/Pedestals/Pedestal<key>LArPedestal</key>",
+                          "LARElecCalibOflSCPedestalsPedestal-UPD3-01",
+                          className="LArPedestalComplete")
+   conddb.addFolderWithTag("","<dbConnection>"+InputDB+"</dbConnection>/LAR/ElecCalibOflSC/Ramps/RampLinea", "LARElecCalibOflSCRampsRampLinea-UPD3-01", className="LArRampComplete")
+   conddb.addFolderWithTag("","<dbConnection>"+InputDB+"</dbConnection>/LAR/ElecCalibOflSC/MphysOverMcal/RTM", "LARElecCalibOflSCMphysOverMcalRTM-UPD3-00", className="LArMphysOverMcalComplete")
   
+   
+# for calib data we need:
+conddb.addOverride("/CALO/Identifier/CaloTTOnAttrIdMapAtlas","CALOIdentifierCaloTTOnAttrIdMapAtlas-RUN2-0001")
+conddb.addOverride("/CALO/Identifier/CaloTTOnOffIdMapAtlas","CALOIdentifierCaloTTOnOffIdMapAtlas-RUN2-0002")
+conddb.addOverride("/CALO/Identifier/CaloTTPpmRxIdMapAtlas","CALOIdentifierCaloTTPpmRxIdMapAtlas-RUN2-0000")
 
 # Temperature folder
 #conddb.addFolder("DCS_OFL","/LAR/DCS/FEBTEMP")
@@ -252,97 +244,89 @@ if SuperCells:
 ##svcMgr.IOVDbSvc.forceTimestamp = 1283145454
 #svcMgr.IOVDbSvc.forceTimestamp = iovtemp
 
-#if ( doLArCalibDataQuality  ) :
 
-#   ## The reference is the Oracle DB
-#   conddb.addFolder("",LArCalib_Flags.LArAutoCorrFolder+"<key>LArAutoCorrRef</key><dbConnection>"+DBConnectionCOOL+"</dbConnection>"+ChannelSelection)
-
+# Idmapping
 if SuperCells:
-   conddb.addFolder("","/LAR/IdentifierOfl/OnOffIdMap_SC<db>COOLOFL_LAR/OFLP200</db><tag>LARIdentifierOflOnOffIdMap_SC-000</tag>") 
+   from LArCabling.LArCablingAccess import LArOnOffIdMappingSC
+   LArOnOffIdMappingSC()
+else:
+   from LArCabling.LArCablingAccess import LArOnOffIdMapping
+   LArOnOffIdMapping()
+
 
 #AutoCorrelation from data electronics noise
 if not SuperCells:
-  conddb.addFolder("","<dbConnection>"+InputDB+"</dbConnection>/LAR/ElecCalibOfl/AutoCorrs/AutoCorr<key>LArAutoCorrRef</key>")
-  conddb.addOverride("/LAR/ElecCalibOfl/AutoCorrs/AutoCorr","LARElecCalibOflAutoCorrsAutoCorr-RUN2-UPD3-00")
-if SuperCells:
-  conddb.addFolder("","<dbConnection>"+InputDB+"</dbConnection>/LAR/ElecCalibOflSC/AutoCorrs/AutoCorr<key>LArAutoCorrRef</key>")
-  conddb.addOverride("/LAR/ElecCalibOflSC/AutoCorrs/AutoCorr","LARElecCalibOflSCAutoCorrsAutoCorr-UPD3-00")
+   conddb.addFolder("","<dbConnection>"+InputDB+"</dbConnection>/LAR/ElecCalibOfl/AutoCorrs/AutoCorr<key>LArAutoCorrRef</key>",className='LArAutoCorrComplete')
+   conddb.addOverride("/LAR/ElecCalibOfl/AutoCorrs/AutoCorr","LARElecCalibOflAutoCorrsAutoCorr-RUN2-UPD3-00")
+else:
+   conddb.addFolder("","<dbConnection>"+InputDB+"</dbConnection>/LAR/ElecCalibOflSC/AutoCorrs/AutoCorr<key>LArAutoCorrRef</key>",className='LArAutoCorrComplete')
+   conddb.addOverride("/LAR/ElecCalibOflSC/AutoCorrs/AutoCorr","LARElecCalibOflSCAutoCorrsAutoCorr-UPD3-01")
+
+from LArRecUtils.LArRecUtilsConf import LArAutoCorrTotalCondAlg 
+theAutoCorrTotalCondAlg=LArAutoCorrTotalCondAlg()
+theAutoCorrTotalCondAlg.Nsamples = NSamples
+theAutoCorrTotalCondAlg.isMC = False
+theAutoCorrTotalCondAlg.LArAutoCorrObjKey = "LArAutoCorrRef"
+theAutoCorrTotalCondAlg.LArAutoCorrTotalObjKey = KeyOutputAC
 
 #load fsampl, MinBias Average and PulseShape 32 samples from OFLP200
 from IOVDbSvc.CondDB import conddb
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
 if not SuperCells:
-  conddb.addFolder("LAR_OFL","/LAR/ElecCalibMC/Shape",forceMC=True)
-  conddb.addFolder("LAR_OFL","/LAR/ElecCalibMC/MinBias",forceMC=True)
-  conddb.addFolder("LAR_OFL","/LAR/ElecCalibMC/fSampl",forceMC=True)
-  #conddb.addOverride("/LAR/ElecCalibMC/fSampl","LARElecCalibMCfSampl-G496-19213-FTFP_BERT_BIRK")
-  conddb.addOverride("/LAR/ElecCalibMC/fSampl","LARElecCalibMCfSampl-G4101-20371-FTFP_BERT_BIRK_v2")
-  conddb.addOverride("/LAR/ElecCalibMC/Shape","LARElecCalibMCShape-Apr2010")
-  #conddb.addOverride("/LAR/ElecCalibMC/MinBias","LARElecCalibMCMinBias-mc15-s2081")
-  conddb.addOverride("/LAR/ElecCalibMC/MinBias","LARElecCalibMCMinBias-mc16-ofc25mc15mu20-25ns-A3MinBias_1")
-if SuperCells:
-  # Will for now use a local db for SC coefficients
-  InputDBLocalCalib = "sqlite://;schema=localCalibConstants.db;dbname=CONDBR2"
-  
-  printfunc ("LAr conf flags FEB gain threshold")
-  printfunc (larCondFlags.useLArFEBGainThresholds())
-  
-  conddb.addFolder("","<dbConnection>"+InputDB+"</dbConnection>/LAR/ElecCalibOflSC/Pedestals/Pedestal")
-  conddb.addFolder("","<dbConnection>"+InputDB+"</dbConnection>/LAR/ElecCalibOflSC/Ramps/RampLinea")
-  conddb.addFolder("","<dbConnection>"+InputDB+"</dbConnection>/LAR/ElecCalibOflSC/MphysOverMcal/RTM")
-  conddb.addOverride("/LAR/ElecCalibOflSC/Pedestals/Pedestal","LARElecCalibOflSCPedestalsPedestal-UPD3-00")
-  conddb.addOverride("/LAR/ElecCalibOflSC/Ramps/RampLinea","LARElecCalibOflSCRampsRampLinea-UPD3-00")
-  conddb.addOverride("/LAR/ElecCalibOflSC/MphysOverMcal/RTM","LARElecCalibOflSCMphysOverMcalRTM-UPD3-00")
-  
-  conddb.addFolder("","<dbConnection>"+InputDBLocalCalib+"</dbConnection>/LAR/ElecCalibFlatSC/DAC2uA")
-  conddb.addFolder("","<dbConnection>"+InputDBLocalCalib+"</dbConnection>/LAR/ElecCalibFlatSC/uA2MeV")
-  conddb.addOverride("/LAR/ElecCalibFlatSC/DAC2uA","LARElecCalibFlatSCDAC2uA-000")
-  conddb.addOverride("/LAR/ElecCalibFlatSC/uA2MeV","LARElecCalibFlatSCuA2MeV-000")
-  
-  conddb.addFolder("LAR_OFL","/LAR/ElecCalibMCSC/Shape",forceMC=True)
-  conddb.addFolder("LAR_OFL","/LAR/ElecCalibMCSC/MinBias",forceMC=True)
-  conddb.addFolder("LAR_OFL","/LAR/ElecCalibMCSC/fSampl",forceMC=True)
-  conddb.addOverride("/LAR/ElecCalibMCSC/Shape","LARElecCalibMCSCShape-000")
-  conddb.addOverride("/LAR/ElecCalibMCSC/MinBias","LARElecCalibMCSCMinBias-000")
-  conddb.addOverride("/LAR/ElecCalibMCSC/fSampl","LARElecCalibMCSCfSampl-000")
+  from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArShape32MC_LArShape32Sym_ as LArShapeSymAlg
+  from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArMinBiasMC_LArMinBiasSym_ as LArMinBiasSymAlg
+  from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArfSamplMC_LArfSamplSym_ as LArfSamplSymAlg 
+  mcfolders=[("LArShape32MC","/LAR/ElecCalibMC/Shape","LArShape","LARElecCalibMCShape-Apr2010",LArShapeSymAlg),
+             ("LArMinBiasMC","/LAR/ElecCalibMC/MinBias","LArMinBias","LARElecCalibMCMinBias-mc16-ofc25mc15mu20-25ns-A3MinBias_1",LArMinBiasSymAlg),
+             ("LArfSamplMC","/LAR/ElecCalibMC/fSampl","LArfSampl","LARElecCalibMCfSampl-G4101-20371-FTFP_BERT_BIRK_v2",LArfSamplSymAlg)]
+  for className,fldr,key,tag,calg in mcfolders:           
+     keynew=key+"Sym"
+     conddb.addFolder("LAR_OFL",fldr, forceMC=True, className=className)
+     conddb.addOverride(fldr,tag)
+     condSeq+=calg(ReadKey=key,WriteKey=keynew)
+     
+else:
+  from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArShapeSC_ as LArShapeCondAlg
+  from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArRampSC_ as LArRampCondAlg
+  from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArMinBiasSC_ as LArMinBiasCondAlg
+  from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArfSamplSC_ as LArfSamplCondAlg
+  from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArfSamplSC_ as LArfSamplCondAlg
+  from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LAruA2MeVSC_ as LAruA2MeVCondAlg
+  from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArDAC2uASC_ as LArDAC2uACondAlg
 
 
-svcMgr.IOVDbSvc.GlobalTag = GlobalTag
+  mcfolders=[("CondAttrListCollection","/LAR/ElecCalibMCSC/Shape","LArShapeSC","LARElecCalibMCSCShape-000",LArShapeCondAlg),
+             ("CondAttrListCollection","/LAR/ElecCalibMCSC/Ramp","LArRampSC","LARElecCalibMCSRamp-mV-LSB",LArRampCondAlg),
+             ("CondAttrListCollection","/LAR/ElecCalibMCSC/MinBias","LArMinBiasSC","LARElecCalibMCSCMinBias-000",LArMinBiasCondAlg),
+             ("CondAttrListCollection","/LAR/ElecCalibMCSC/fSampl","LArfSamplSC","LARElecCalibMCSCfSampl-000",LArfSamplCondAlg),
+             ("CondAttrListCollection","/LAR/ElecCalibMCSC/uA2MeV","LAruA2MeVSC","LARElecCalibMCSCuA2MeV-000",LAruA2MeVCondAlg),
+             ("CondAttrListCollection","/LAR/ElecCalibMCSC/DAC2uA","LArDAC2uASC","LARElecCalibMCSCDAC2uA-000",LArDAC2uACondAlg),
+  ]
+  theAutoCorrTotalCondAlg.LArShapeObjKey = "LArShapeSC"
+  theAutoCorrTotalCondAlg.LArMinBiasObjKey = "LArMinBiasSC"
+  theAutoCorrTotalCondAlg.LArfSamplObjKey = "LArfSamplSC"
+  theAutoCorrTotalCondAlg.isSuperCell = True
 
-if not SuperCells:
-  from LArRecUtils.LArAutoCorrTotalToolDefault import LArAutoCorrTotalToolDefault
-  theLArAutoCorrTool = LArAutoCorrTotalToolDefault()
-  theLArAutoCorrTool.NSamples = NSamples
-  theLArAutoCorrTool.keyAutoCorr = "LArAutoCorrRef"
-  ToolSvc += theLArAutoCorrTool
-if SuperCells:
-  from LArRecUtils.LArAutoCorrTotalSCToolDefault import LArAutoCorrTotalSCToolDefault
-  theLArAutoCorrTool = LArAutoCorrTotalSCToolDefault()
-  theLArAutoCorrTool.NSamples = NSamples
-  theLArAutoCorrTool.keyAutoCorr = "LArAutoCorrRef"
-  theLArAutoCorrTool.keyShape = "LArShapeSC"
-  theLArAutoCorrTool.keyPedestal = "Pedestal"
-  theLArAutoCorrTool.keyfSampl = "LARfSamplSC"
-  theLArAutoCorrTool.keyMinBias = "LArMinBiasSC"
-  ToolSvc += theLArAutoCorrTool
+  for className,fldr,key,tag,calg in mcfolders:           
+     conddb.addFolder("LAR_OFL",fldr, forceMC=True, className=className)
+     conddb.addOverride(fldr,tag)
+     condSeq+=calg(ReadKey=fldr,WriteKey=key)
 
+  from LArRecUtils.LArADC2MeVSCCondAlgDefault import LArADC2MeVSCCondAlgDefault
+  LArADC2MeVSCCondAlgDefault(isMC=True)
 
-from LArCalibUtils.LArCalibUtilsConf import LArAutoCorrToolToDB
-theLArAutoCorrToolToDB = LArAutoCorrToolToDB("LArAutoCorrToolToDB")
-theLArAutoCorrToolToDB.AutoCorrTool = theLArAutoCorrTool
-theLArAutoCorrToolToDB.GroupingType = "ExtendedSubDetector"
-theLArAutoCorrToolToDB.AutoCorrKey = KeyOutputAC
-topSequence += theLArAutoCorrToolToDB
+condSeq += theAutoCorrTotalCondAlg
 
-# 
-#ToolSvc.LArADC2MeVSCToolDefault.UseFEBGainTresholds=False
-if not SuperCells:
-  ToolSvc.LArADC2MeVToolDefault.UseFEBGainTresholds=False
-if SuperCells:
-  ToolSvc.LArADC2MeVSCToolDefault.UseFEBGainTresholds=False
-  ToolSvc.LArADC2MeVSCToolDefault.keyADC2DAC='LArRamp'
-  ToolSvc.LArADC2MeVSCToolDefault.keyDAC2uA='LArDAC2uASC'
-  ToolSvc.LArADC2MeVSCToolDefault.keyuA2MeV='LAruA2MeVSC'
-#
+# need to run Alg to create LArAutoCorrComplete for DB
+from LArCalibUtils.LArCalibUtilsConf import LArAutoCorrAlgToDB
+theLArAutoCorrAlgToDB=LArAutoCorrAlgToDB()
+theLArAutoCorrAlgToDB.LArAutoCorrTotal=KeyOutputAC
+theLArAutoCorrAlgToDB.isSC = SuperCells
+theLArAutoCorrAlgToDB.GroupingType = "ExtendedSubDetector"
+theLArAutoCorrAlgToDB.OutAutoCorrKey = KeyOutputAC
+topSequence += theLArAutoCorrAlgToDB
+
 ######################################################################
 #                                                                    #
 #                          Output                                    #
@@ -353,10 +337,12 @@ if SuperCells:
 
 if ( WriteNtuple ) :
    
+   from LArCabling.LArCablingAccess import LArCalibIdMappingSC
+   LArCalibIdMappingSC()
+
    from LArCalibTools.LArCalibToolsConf import LArAutoCorr2Ntuple
    LArAutoCorr2Ntuple = LArAutoCorr2Ntuple( "LArAutoCorr2Ntuple" )
-   #LArAutoCorr2Ntuple.Nsamples     = NSamples
-   LArAutoCorr2Ntuple.Nsamples     = 32
+   LArAutoCorr2Ntuple.Nsamples     = NSamples
    LArAutoCorr2Ntuple.ContainerKey = KeyOutputAC
    LArAutoCorr2Ntuple.isSC = SuperCells
    
@@ -393,14 +379,18 @@ if ( WritePoolFile ) :
 #--------------------------------------------------------------
 #--- Dummy event loop parameters
 #--------------------------------------------------------------
+
+from McEventSelector.McEventSelectorConf import McEventSelector
+svcMgr += McEventSelector("EventSelector")
 svcMgr.EventSelector.RunNumber         = int(RunNumberList[0])
 svcMgr.EventSelector.EventsPerRun      = 1
 svcMgr.EventSelector.FirstEvent        = 0
-svcMgr.EventSelector.EventsPerLB       = 1
-svcMgr.EventSelector.FirstLB           = 1
 svcMgr.EventSelector.InitialTimeStamp  = 0
 svcMgr.EventSelector.TimeStampInterval = 5
-svcMgr.EventSelector.OverrideRunNumber=True
+##########################################################################
+#          don't remove otherwise infinite loop                          #
+##########################################################################
+
 theApp.EvtMax                          = 1
 
 
@@ -413,5 +403,3 @@ svcMgr.MessageSvc.Format       = "% F%20W%S%7W%R%T %0W%M"
 svcMgr+=CfgMgr.AthenaEventLoopMgr(OutputLevel = INFO)
 
 ###########################################################################
-#svcMgr.IOVDbSvc.OutputLevel = DEBUG 
-

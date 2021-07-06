@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: FileMetaData_v1.cxx 683694 2015-07-17 09:03:52Z krasznaa $
@@ -362,8 +362,6 @@ namespace xAOD {
       return true;
    }
 
-} // namespace xAOD
-
 /// Helper macro used to print MetaDataType values
 #define PRINT_TYPE( TYPE )                      \
    case xAOD::FileMetaData_v1::TYPE:            \
@@ -404,3 +402,5 @@ std::ostream& operator<< ( std::ostream& out,
    return out;
 }
 
+
+} // namespace xAOD

@@ -1,23 +1,24 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TGCStripTripletSB_hh
-#define TGCStripTripletSB_hh
+#ifndef TrigT1TGC_TGCStripTripletSB_h
+#define TrigT1TGC_TGCStripTripletSB_h
 
 #include "TrigT1TGC/TGCSlaveBoard.h"
 
 namespace LVL1TGCTrigger {
 
-const int NumberOfStripTripletSBData = 8;
+class TGCStripTripletSB: public TGCSlaveBoard
+{
+ private:
+  static constexpr int s_NumberOfStripTripletSBData = 8;
 
-class TGCStripTripletSB: public TGCSlaveBoard {
-
-public:
-  TGCStripTripletSB( TGCArguments* );
+ public:
+  TGCStripTripletSB();
   virtual ~TGCStripTripletSB(){};
 
-protected:
+ protected:
   virtual void doCoincidence();
   virtual void createSlaveBoardOut();
 };

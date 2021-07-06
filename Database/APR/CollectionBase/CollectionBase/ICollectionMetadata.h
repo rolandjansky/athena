@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ICollectionMetadata_h
@@ -21,7 +21,7 @@ namespace pool {
 	virtual void operator++() = 0;
 
 	virtual const std::string&	key() const = 0;
-	virtual const char *		value() const = 0;
+	virtual const char *		value() = 0;
       };
 
 
@@ -48,16 +48,16 @@ namespace pool {
       /// return number of metadata entries for this collection
       virtual unsigned long long	entries() const = 0;
 	        
-      virtual bool 		existsKey( const std::string& key ) const = 0;
+      virtual bool 		existsKey( const std::string& key ) = 0;
 
-      virtual const char*	getValueForKey( const std::string& key ) const = 0;
+      virtual const char*	getValueForKey( const std::string& key ) = 0;
 
       virtual void 		setValueForKey( const std::string& key,
 						const std::string& val ) = 0;
 
-      virtual const_iterator	begin() const = 0;
+      virtual const_iterator	begin() = 0;
 
-      virtual const_iterator	end() const = 0;
+      virtual const_iterator	end() = 0;
 
       
       virtual	~ICollectionMetadata() {} 

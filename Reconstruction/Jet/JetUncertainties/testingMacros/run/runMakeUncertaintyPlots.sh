@@ -3309,6 +3309,32 @@ function JER_Fall2018 \
     options="prefix=JET_;fixedEtaVals=0.202;fixedPtVals=40,60;scaleVar=${scaleVar};IsData=false;axisMax=0.05;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/CalibArea-07/\""
 }
 
+function JER_Summer2019 \
+{
+    scaleVar="FourVecResAbs"
+    jetDefinition="AntiKt4EMTopo;AntiKt4EMPFlow"
+    MCtype="MC16"
+    CalibArea=""
+    configFile="rel21/Summer2019/R4_AllNuisanceParameters_AllJERNP.config"
+    outFile="JER-Summer2019-${MCtype}-Recommendations.pdf"
+    compList="JER_DataVsMC_#;JER_N_#;JER_dijet_c#,JER_dijet_j#,JER_dijet_m#,JER_dijet_p#;JER_dijet_stat#"
+    compLabels="Nominal data vs MC difference;Noise term, random cones method;Dijet #it{in situ} JER (systematics);Dijet #it{in situ} JER (statistics)"
+    options="prefix=JET_;fixedEtaVals=0.202;fixedPtVals=40,60;scaleVar=${scaleVar};IsData=false;axisMax=0.05;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/CalibArea-07/\""
+}
+
+function JER_Summer2019_SplitJES \
+{
+    scaleVar="FourVecResAbs"
+    jetDefinition="AntiKt4EMTopo;AntiKt4EMPFlow"
+    MCtype="MC16"
+    CalibArea=""
+    configFile="rel21/Summer2019/R4_AllNuisanceParameters_AllJERNP.config"
+    outFile="JER-Summer2019-${MCtype}-Recommendations-SplitJES.pdf"
+    compList="JER_DataVsMC_#;JER_N_#;JER_dijet_c#,JER_dijet_m#,JER_dijet_p#;JER_dijet_jesnp1;JER_dijet_jesnp2;JER_dijet_jesnp3;JER_dijet_stat#"
+    compLabels="Nominal data vs MC difference;Noise term, random cones method;Dijet #it{in situ} JER (systematics, not JES);Dijet #it{in situ} JER (JES NP 1);Dijet #it{in situ} JER (JES NP 2);Dijet #it{in situ} JER (JES NP 3);Dijet #it{in situ} JER (statistics)"
+    options="prefix=JET_;fixedEtaVals=0.202;fixedPtVals=NONE;scaleVar=${scaleVar};IsData=false;axisMax=0.03;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/CalibArea-07/\""
+}
+
 function JER_Fall2018_TotalCompare \
 {
     scaleVar="FourVecResAbs"
@@ -3937,6 +3963,94 @@ function JMS_Fall2020_R10_compare \
     options="${options};massDef=calo;xAxisRange=150&3000;axisMax=0.2;drawTotal=False"
     options="${options};fixedPtVals=NONE;fixedEtaVals=NONE;fixedMassVals=30,50,80,175,275,325,500"
 }
+
+function JES_YearCompare \
+{
+    SVNBASEDIR="/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/SVNBACKUP/JetUncertainties/trunk/share"
+
+    jetDefinition="AntiKt4EMTopo;AntiKt4LCTopo;AntiKt4EMTopo;AntiKt4LCTopo;AntiKt4EMPFlow"
+    MCtype="MC11c;MC11c;MC12;MC12;MC16"
+    configFile="JES_2011/Final/InsituJES2011_12NP.config;JES_2011/Final/InsituJES2011_12NP.config;JES_2012/Final/InsituJES2012_14NP.config;JES_2012/Final/InsituJES2012_14NP.config;rel21/Summer2019/R4_GlobalReduction_SimpleJER.config"
+    outFile="JetUncertainties-YearCompare-Total.pdf"
+    compList="TOTAL@TOTAL@TOTAL@TOTAL@TOTAL"
+    compLabels="EMTopo, final 2011@LCTopo, final 2011@EMTopo, final 2012@LCTopo, final 2012@EMPFlow, r21 consolidated"
+    options="isDijet=false;isLargeR=false;prefix=JET_;drawTotal=false;fixedPtVals=50;fixedEtaVals=0;axisMax=0.1"
+    options="${options};path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/YearCompare/\""
+}
+
+function SF_Fall2020_R10 \
+{
+    tagDef="TopTagContained_SigEff80"
+    topology="tqqb"
+    #topology="qcd"
+    #topology="Wqq_From_t"
+
+    #tagDef="TopTagContained_SigEff50"
+    #topology="tqqb"
+    #topology="qcd"
+    #topology="Wqq_From_t"
+
+    #tagDef="TopTagInclusive_SigEff50"
+    #topology="tqqb"
+    #topology="qcd"
+    #topology="Wqq_From_t"
+
+    #tagDef="TopTagInclusive_SigEff80"
+    #topology="tqqb"
+    #topology="qcd"
+    #topology="Wqq_From_t"
+
+    #tagDef="WTag_SigEff80"
+    #topology="tqqb"
+    #topology="qcd"
+    #topology="Wqq_From_t"
+
+    #tagDef="WTag_SigEff50"
+    #topology="tqqb"
+    #topology="qcd"
+    #topology="Wqq_From_t"
+    
+    # From BoostedJetTaggers, for topology
+    # case tqqb:         return 1;
+    # case Wqq:          return 2;
+    # case Zqq:          return 3;
+    # case Wqq_From_t:   return 4;
+    # case other_From_t: return 5;
+    # case other_From_V: return 6;
+    # case notruth:      return 7;
+    # case qcd:          return 8;
+
+    TagSFName=""
+    if [[ $tagDef = "TopTagContained_SigEff80" ]] ; then
+        TagSFName="DNNTaggerTopQuarkContained80_SF"
+    elif [[ $tagDef = "TopTagContained_SigEff50" ]] ; then
+        TagSFName="DNNTaggerTopQuarkContained50_SF"
+    elif [[ $tagDef = "TopTagInclusive_SigEff80" ]] ; then
+        TagSFName="DNNTaggerTopQuarkIncusive80_SF"
+    elif [[ $tagDef = "TopTagInclusive_SigEff50" ]] ; then
+        TagSFName="DNNTaggerTopQuarkIncusive50_SF"
+    elif [[ $tagDef = "WTag_SigEff80" ]] ; then
+        TagSFName="SmoothWContained80_SF"
+    elif [[ $tagDef = "WTag_SigEff50" ]] ; then
+        TagSFName="SmoothWContained50_SF"
+    else
+        echo "ERROR: Unable to determine TagSFName for definition $tagDef"
+        return
+    fi
+
+    jetDefinition="AntiKt10LCTopoTrimmedPtFrac5SmallR20"
+    MCtype="MC16"
+    configFile="rel21/Fall2020/R10_SF_LCTopo_${tagDef}.config"
+    outFile="SF-Fall2020-${tagDef}-${topology}.pdf"
+    compList="EffectiveNP#,EtaIntercalibration#,Flavor_#;bTag_#;#Propagated_AllOthers;#Dijet#,#Gammajet#;JetTagSF_Hadronisation,JetTagSF_MatrixElement,JetTagSF_Radiation,#SigSF_Statistics;#SigSF_ExtrapolationPt"
+    compLabels="Leading prop. JES NPs;Leading prop. b-jet NPs;All other prop. NPs;Background evaluation NPs;Signal evaluation NPs;Signal extrapolation NPs"
+    options="prefix=JET_;path=/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/LargeRConsolidated/SFtests/"
+    options="${options};fixedPtVals=NONE;fixedEtaVals=NONE;fixedMassVals=30,45,50,80,90,175,300;fixedMoverPtVals=0.05,0.1,0.2,0.3,0.5"
+    options="${options};etaBins=U&50&-2.5&2.5;xAxisRange=200&4000;axisMax=0.3"
+    options="${options};FillLabelShift=-410&-435;TwoColumnLegend=True"
+    options="${options};scaleVar=TagScaleFactor;TagSFName=${TagSFName};LargeRJetTruthLabel=${topology};TruthLabelMoment=R10TruthLabel_R21Consolidated"
+}
+
 
 
 

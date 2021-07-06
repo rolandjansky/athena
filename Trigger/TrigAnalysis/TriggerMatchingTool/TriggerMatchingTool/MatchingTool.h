@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGGERMATCHINGTOOL_MATCHINGTOOL_H
@@ -13,7 +13,6 @@
 
 #include "TriggerMatchingTool/IMatchingTool.h"
 #include "TriggerMatchingTool/TypeMap.h"
-#include "TriggerMatchingTool/IMatchingTool.h"
 #include "TrigDecisionTool/Combination.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
@@ -33,7 +32,7 @@ public:
   bool match(const xAOD::IParticle& recoObjects, const std::string& chain, double matchTreshold, bool rerun) const override;
 
 protected:
-  MatchingImplementation* impl() const override;
+  const MatchingImplementation* impl() const override;
 
   bool matchSingleType(const std::vector<const xAOD::IParticle*>& subRecoObjects, Trig::Combination& comb, const std::string& chain, double threshold) const;
 

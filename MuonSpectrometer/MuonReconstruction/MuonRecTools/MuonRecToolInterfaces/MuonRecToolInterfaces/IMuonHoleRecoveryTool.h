@@ -1,45 +1,43 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_IMUONHOLERECOVERYTOOL_H
 #define MUON_IMUONHOLERECOVERYTOOL_H
- 
-#include "GaudiKernel/IAlgTool.h"
 
 #include <vector>
 
-static const InterfaceID IID_IMuonHoleRecoveryTool("Muon::IMuonHoleRecoveryTool",1,0);
+#include "GaudiKernel/IAlgTool.h"
+#include "TrkTrack/TrackStateOnSurface.h"
 
 namespace Trk {
-  class Track;
+    class Track;
 }
 
 namespace Muon {
 
-  /** @brief The IMuonHoleRecoveryTool is a pure virtual interface for tools that recover hole on a track */
-  class IMuonHoleRecoveryTool : virtual public IAlgTool 
-  {      
+    /** @brief The IMuonHoleRecoveryTool is a pure virtual interface for tools that recover hole on a track */
+    class IMuonHoleRecoveryTool : virtual public IAlgTool {
     public:
-    /** access to tool interface */
-    static const InterfaceID& interfaceID();
+        /** access to tool interface */
+        static const InterfaceID& interfaceID() {
+            static const InterfaceID IID_IMuonHoleRecoveryTool("Muon::IMuonHoleRecoveryTool", 1, 0);
+            return IID_IMuonHoleRecoveryTool;
+        }
 
+        /** @brief recover missing hits (holes) on tracks
+            @return a pointer to a track, the ownership of the output track is passed to the client calling the tool.
+        */
+        virtual std::unique_ptr<Trk::Track> recover(const Trk::Track& track, const EventContext& ctx) const = 0;
 
-    /** @brief recover missing hits (holes) on tracks
-	@return a pointer to a track, the ownership of the output track is passed to the client calling the tool.
-    */
-    virtual Trk::Track* recover( const Trk::Track& track ) const = 0;
+        virtual void createHoleTSOSsForClusterChamber(const Identifier& detElId, const EventContext& ctx, const Trk::TrackParameters& pars,
+                                                      std::set<Identifier>& layIds,
+                                                      std::vector<std::unique_ptr<const Trk::TrackStateOnSurface> >& states) const = 0;
 
-    virtual void cleanUp() const {};
+        /** virtual destructor **/
+        virtual ~IMuonHoleRecoveryTool() = default;
+    };
 
-  };
-  
-  inline const InterfaceID& IMuonHoleRecoveryTool::interfaceID()
-  {
-    return IID_IMuonHoleRecoveryTool;
-  }
+}  // namespace Muon
 
-} // end of name space
-
-#endif 
-
+#endif

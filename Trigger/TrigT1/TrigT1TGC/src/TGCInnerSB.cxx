@@ -1,37 +1,38 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ref. SOS054V06,SOS053V04
 #include "TrigT1TGC/TGCInnerSB.h"
+#include "TrigT1TGC/TGCPatchPanelOut.h"
 #include <iostream>
-#include <cstdlib>
-
 
 namespace LVL1TGCTrigger {
 
-TGCInnerSB::TGCInnerSB(const TGCArguments* tgcargs):TGCSlaveBoard(tgcargs)
+TGCInnerSB::TGCInnerSB()
+ : TGCSlaveBoard()
 {}
 
 void TGCInnerSB::createSlaveBoardOut()
 {
+  static constexpr int kNumberOfInnerSBData = 8;
+
   if(m_coincidenceOut!=0){
     if ( m_slaveBoardOut!=0 ) delete m_slaveBoardOut;
     m_slaveBoardOut = new  TGCSlaveBoardOut(this, m_bid);
     m_slaveBoardOut->clear();
-    m_slaveBoardOut->setNumberOfData(NumberOfInnerSBData);
+    m_slaveBoardOut->setNumberOfData(kNumberOfInnerSBData);
 
     // fill SlaveBoardOut.
     // select largest R hit in each sections.
-    int lengthOfSection = m_lengthOfCoincidenceOut/NumberOfInnerSBData;
+    int lengthOfSection = m_lengthOfCoincidenceOut/kNumberOfInnerSBData;
     int i,j;
 #ifdef TGCDEBUG
     std::cout <<" Type :" << getType() << "  id:" << getId()
 	      <<" lengthOfCoincidenceOut= "<< m_lengthOfCoincidenceOut 
-	      <<" NumberOfInnerSBData= "<<NumberOfInnerSBData  
 	      <<" lengthOfSection= "<<lengthOfSection<<std::endl;
 #endif
-    for( i=0; i<NumberOfInnerSBData; i+=1){// i=3:d 2:c 1:b 0:a, 7:d 6:c 5:b 4:a
+    for( i=0; i<kNumberOfInnerSBData; i+=1){// i=3:d 2:c 1:b 0:a, 7:d 6:c 5:b 4:a
       m_slaveBoardOut->setHit(i,false);
       for( j=0; j<lengthOfSection; j+=1) {
         if(m_coincidenceOut->getChannel(j+i*lengthOfSection)){
@@ -44,11 +45,7 @@ void TGCInnerSB::createSlaveBoardOut()
         }
       }
       if(m_slaveBoardOut->getHit(i)){
-          m_slaveBoardOut->setbPos(i, m_slaveBoardOut->getPos(i));
-#ifdef TGCCOUT
-          m_slaveBoardOut->getbPos(i)->printb();
-	  std::cout << " " << i << std::endl;
-#endif
+        m_slaveBoardOut->setbPos(i, m_slaveBoardOut->getPos(i));
       }
     }
   }
@@ -149,4 +146,4 @@ void TGCInnerSB::doCoincidence()
   }
 }
 
-} //end of namespace bracket
+}   // end of namespace

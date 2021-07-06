@@ -31,25 +31,27 @@
 #include <string>
 
 // root includes
-#include "TF1.h"
-#include "TH1.h"
-#include "TH2.h"
-#include "TFitResult.h"
-#include "TFitResultPtr.h"
+class TH1;
+class TH2;
+class TProfile;
+class TEfficiency;
+
 
 ///class holding plots for truth matched vertices
 class InDetPerfPlot_VertexTruthMatching: public InDetPlotBase {
 public:
     InDetPerfPlot_VertexTruthMatching(InDetPlotBase* pParent, const std::string& dirName, const int iDetailLevel = 10);
-    void fill(const xAOD::Vertex& vertex);
-    void fill(const xAOD::VertexContainer& vertexContainer, const std::vector<const xAOD::TruthVertex*>& truthHSVertices, const std::vector<const xAOD::TruthVertex*>& truthPUVertices);
+    void fill(const xAOD::Vertex& vertex, const xAOD::TruthVertex * tvrt =0, float weight=1.0);
+    void fill(const xAOD::VertexContainer& vertexContainer, const std::vector<const xAOD::TruthVertex*>& truthHSVertices, const std::vector<const xAOD::TruthVertex*>& truthPUVertices, float weight=1.0);
 private:
     int m_iDetailLevel;
     float m_cutMinTruthRecoRadialDiff = 0.1;
     ///truth type
-    TH1* m_vx_type_truth;
+    TH1* m_vx_type_truth{};
+    TH1* m_vx_z_diff{};
+    TH1* m_vx_z_diff_pull{};
     ///hardscatter classification
-    TH1* m_vx_hs_classification;
+    TH1* m_vx_hs_classification{};
     ///vertex reco efficiency
     TProfile* m_vx_nReco_vs_nTruth_inclusive;
     TProfile* m_vx_nReco_vs_nTruth_matched;

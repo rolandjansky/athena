@@ -20,7 +20,6 @@
 #include "xAODEventInfo/EventInfo.h"
 
 #include "FourMomUtils/xAODP4Helpers.h"
-//#include "PATCore/TAccept.h"
 
 #include "TopParticleLevel/TruthTools.h"
 #include "xAODTruth/TruthParticle.h"
@@ -342,7 +341,7 @@ namespace top {
   }
 
   void TopObjectSelection::applySelectionPreOverlapRemovalSoftMuons() {
-    for (const std::pair<std::size_t, std::string>& currentSystematic : *m_config->systSgKeyMapSoftMuons()) {
+    for (const auto& currentSystematic : *m_config->systSgKeyMapSoftMuons()) {
       ///-- if executeNominal, skip other systematics (and vice-versa) --///
       if (m_executeNominal && !m_config->isSystNominal(m_config->systematicName(currentSystematic.first))) continue;
       if (!m_executeNominal && m_config->isSystNominal(m_config->systematicName(currentSystematic.first))) continue;
@@ -523,8 +522,7 @@ namespace top {
                  "TopObjectSelection::applySelectionPreOverlapRemovalLargeRJets() failed to retrieve large R jets");
 
       for (auto jetPtr : *jets) {
-        //char decoration = m_largeJetSelection->passSelection(*jetPtr);
-        char decoration = '0';
+        char decoration = m_largeJetSelection->passSelection(*jetPtr);
         jetPtr->auxdecor<char>(m_passPreORSelection) = decoration;
         jetPtr->auxdecor<char>(m_ORToolDecoration) = decoration * 2;
         if (m_doLooseCuts) {
@@ -547,14 +545,13 @@ namespace top {
 
 
     for (const xAOD::Jet* jetPtr : *jets) {
-      //char decoration = m_trackJetSelection->passSelection(*jetPtr);
-      char decoration = '0';
+      char decoration = m_trackJetSelection->passSelection(*jetPtr);
       jetPtr->auxdecor<char>(m_passPreORSelection) = decoration;
       if (m_doLooseCuts) {
         jetPtr->auxdecor<char>(m_passPreORSelectionLoose) = decoration;
       }
 
-      if (m_config->sgKeyTrackJets() == "AntiKtVR30Rmax4Rmin02TrackJets") { // Event cleaning for variable-R track jets
+      if (m_config->sgKeyTrackJets() == "AntiKtVR30Rmax4Rmin02PV0TrackJets") { // Event cleaning for variable-R track jets
         float pt_baseline = 5e3;
         float radius1 = std::max(0.02, std::min(0.4, 30000. / jetPtr->pt()));
 
@@ -1255,6 +1252,15 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJetGhostTracks() {
       os << "  Selection: ";
       if (!m_largeJetSelection) os << "All";
       else os << *m_largeJetSelection;
+    }
+
+    os << "\n";
+    os << "TrackJets\n";
+    os << "  ContainerName: " << m_config->sgKeyTrackJets() << "\n";
+    if (m_config->useTrackJets()) {
+      os << "  Selection: ";
+      if (!m_trackJetSelection) os << "All";
+      else os << *m_trackJetSelection;
     }
 
     os << "\n";

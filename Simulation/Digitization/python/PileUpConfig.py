@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 from AthenaCommon.CfgGetter import getService, getPrivateTool
@@ -47,6 +47,7 @@ def getLowPtMinBiasEventSelector(name="LowPtMinBiasEventSelector", **kwargs):
 def getHighPtMinBiasEventSelector(name="HighPtMinBiasEventSelector", **kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
     kwargs.setdefault('InputCollections', digitizationFlags.HighPtMinBiasInputCols())
+    kwargs.setdefault('SkipEvents', digitizationFlags.HighPtMinBiasInputColOffset())
 
     return getGenericBackgroundEventSelector(name, **kwargs)
 

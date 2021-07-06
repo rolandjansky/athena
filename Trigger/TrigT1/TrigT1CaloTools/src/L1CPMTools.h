@@ -40,16 +40,13 @@ namespace LVL1
       @author  Alan Watson <Alan.Watson@cern.ch>
   */  
 
-  class L1CPMTools : virtual public IL1CPMTools, public AthAlgTool
+  class L1CPMTools : virtual public extends<AthAlgTool, IL1CPMTools>
     {
     public:
       typedef DataVector<xAOD::CPMTower>         CPMTCollection ;
       typedef std::map<int, xAOD::CPMTower*>*    CPMTContainer;
       
       L1CPMTools(const std::string&,const std::string&,const IInterface*);
-
-       /** default destructor */
-      virtual ~L1CPMTools ();
       
        /** standard Athena-Algorithm method */
       virtual StatusCode initialize() override;
@@ -85,36 +82,18 @@ namespace LVL1
       virtual CPMTobAlgorithm findRoI(double RoIeta, double RoIphi, const xAOD::CPMTowerMap_t* towers, int slice = -1)  const override;
       
       /** Form cluster/isolation sums for a given RoI location */
-      virtual void formSums(double RoIeta, double RoIphi, const xAOD::CPMTowerMap_t* towers, int slice = -1)  override;
-      virtual void formSums(uint32_t roiWord, const xAOD::CPMTowerMap_t* towers, int slice = -1) override;
-      /** Methods to return the cluster/isolation ET values */
-      virtual int Core() const override;
-      virtual int EMCore() const override;
-      virtual int HadCore() const override;
-      virtual int EMClus() const override;
-      virtual int TauClus() const override;
-      virtual int EMIsol() const override;
-      virtual int HadIsol() const override;
-      virtual bool isEtMax() const override;
-      virtual bool isEMRoI() const override;
-      virtual bool isTauRoI() const override; 
-      virtual unsigned int EMIsolWord() const override;
-      virtual unsigned int TauIsolWord() const override;
+      virtual CPMTobAlgorithm formSums(double RoIeta, double RoIphi, const xAOD::CPMTowerMap_t* towers, int slice = -1) const override;
+      virtual CPMTobAlgorithm formSums(uint32_t roiWord, const xAOD::CPMTowerMap_t* towers, int slice = -1) const override;
             
     private:
       
       /** pointer to LVL1ConfigSvc */
-      ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
-
-
-     /** member variables for algorithm properties: */
+      ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc {this, "LVL1ConfigSvc", "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", "LVL1 Config Service"};
+      Gaudi::Property<bool> m_useNewConfig { this, "UseNewConfig", true, "When true, read the menu from detector store, when false use the L1ConfigSvc" };
+      const TrigConf::L1Menu * m_l1menu{nullptr};
 
       /** Utility for decoding RoI words */
       CPRoIDecoder m_conv;
-
-      /** This object contains all information on specified trigger window */
-      CPMTobAlgorithm* m_RoI;
-
     };
 } // end of namespace
 

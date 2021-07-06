@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -13,7 +13,7 @@ def CaloNoiseCondAlgCfg(configFlags,noisetype="totalNoise"):
     noiseAlgName="Calo_"+noisetype+"Alg"
     
 
-    log = logging.getLogger("CaloNoiseToolCfg")
+    log = logging.getLogger("CaloNoiseCondAlgCfg")
     result=ComponentAccumulator()
 
     isMC=configFlags.Input.isMC
@@ -65,7 +65,7 @@ def CaloNoiseCondAlgCfg(configFlags,noisetype="totalNoise"):
             if useCaloLumi:
                 lumiFolder='/CALO/Ofl/Noise/PileUpNoiseLumi'
                 result.merge(addFolders(configFlags,lumiFolder,'CALO_OFL',className="CondAttrListCollection"))
-                log.info("offline mode: use luminosity from /CALO/Ofl/Noise/PileuUpNoiseLumi to scale pileup noise")
+                log.info("offline mode: use luminosity from /CALO/Ofl/Noise/PileUpNoiseLumi to scale pileup noise")
                 theCaloNoiseAlg.LumiFolder = lumiFolder
                 theCaloNoiseAlg.Luminosity=-1.
             else:
@@ -121,8 +121,8 @@ def CaloNoiseCondAlgCfg(configFlags,noisetype="totalNoise"):
             theCaloNoiseAlg.LArNoiseFolder="/LAR/NoiseOfl/CellNoise"
             theCaloNoiseAlg.TileNoiseFolder="/TILE/OFL02/NOISE/CELL"
             result.merge(addFolders(configFlags,"/CALO/Ofl/Noise/CellNoise","CALO_OFL",className="CondAttrListCollection"))
-            result.merge(addFolders(configFlags,"LAR_OFL","/LAR/NoiseOfl/CellNoise",className="CondAttrListCollection"))
-            result.merge(addFolders(configFlags,"TILE_OFL","/TILE/OFL02/NOISE/CELL",className="CondAttrListCollection"))
+            result.merge(addFolders(configFlags,"/LAR/NoiseOfl/CellNoise","LAR_OFL",className="CondAttrListCollection"))
+            result.merge(addFolders(configFlags,"/TILE/OFL02/NOISE/CELL","TILE_OFL",className="CondAttrListCollection"))
 
             
         pass #end of real data case

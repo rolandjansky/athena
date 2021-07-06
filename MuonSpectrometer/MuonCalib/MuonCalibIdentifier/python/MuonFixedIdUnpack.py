@@ -13,7 +13,7 @@ class MuonFixedIdUnpack:
 
 	# regex common to string input formats
 	__stationRe = '(?P<station>[BE][IEMO][MESLRFG])'
-	__mlRe = '[-_]{0,1}(?P<ml>[12]){0,1}[-_]{0,1}(?P<ly>[1234]){0,1}[-_]{0,1}(?P<tb>[1-9][0-9]{0,1}){0,1}'
+	__mlRe = '[-_]{0,1}(?P<ml>[12]){0,1}[-_]{0,1}(?P<ly>[1234]){0,1}[-_]{0,1}(?P<tb>[1-9][0-9]{0,2}){0,1}'
 	
 	# regexps to match tube string possibilities 
 	online_re = re.compile(__stationRe + '(?P<eta>[0-8][AC])(?P<phi>[0-1][0-9])' + __mlRe) 
@@ -173,19 +173,18 @@ class MuonFixedIdUnpack:
 	__kStationNameShift     = 24
 	__kStationNameMin       = 1
 
-	__kStationEtaMask          = 31
-	__kStationEtaShift         = 19
-	__kStationEtaMin            = -8
+	__kStationEtaMask       = 31
+	__kStationEtaShift      = 19
+	__kStationEtaMin        = -8
 
-	__kStationPhiMask          = 63
-	__kStationPhiShift         = 13
-	__kStationPhiMin           = 1
+	__kStationPhiMask       = 63
+	__kStationPhiShift      = 13
+	__kStationPhiMin        = 1
 	
-	__kUnusedBits         = 7168
+	__kUnusedBits           = 7168
 	
-	__kStationNameStrings = [ "BIL", "BIS", "BML", "BMS", "BOL", "BOS", "BEE", "BIR", "BMF", "BOF", "BOG", "BME", "BIM", "EIC", "EIL", "EEL", "EES", "EMC", "EML", "EMS", "EOC", "EOL", "EOS", "EIS", "T1F", "T1E", "T2F", "T2E", "T3F", "T3E", "T4F", "T4E", "CSS", "CSL", "BMG" ]
-	
-	
+	__kStationNameStrings    = [ "BIL", "BIS", "BML", "BMS", "BOL", "BOS", "BEE", "BIR", "BMF", "BOF", "BOG", "BME", "BIM", "EIC", "EIL", "EEL", "EES", "EMC", "EML", "EMS", "EOC", "EOL", "EOS", "EIS", "T1F", "T1E", "T2F", "T2E", "T3F", "T3E", "T4F", "T4E", "CSS", "CSL", "BMG" ]
+		
 	__kStationNameStringsMap = { "BIL" : 0,"BIS" : 1,"BML" : 2,"BMS" : 3,"BOL" : 4, "BOS" : 5,"BEE" : 6,"BIR" : 7,"BMF" : 8,"BOF" : 9,"BOG" : 10,"BME" : 11,"BIM" : 12,"EIC" : 13,"EIL" : 14,"EEL" : 15,"EES" : 16,"EMC" : 17,"EML" : 18,"EMS" : 19,"EOC" : 20,"EOL" : 21,"EOS" : 22,"EIS" : 23,"T1F" : 24,"T1E" : 25,"T2F" : 26,"T2E" : 27,"T3F" : 28,"T3E" : 29,"T4F" : 30,"T4E" : 31,"CSS" : 32,"CSL" : 33, "BMG" : 34 }
 
 	# following used for conversion from online to offline
@@ -204,6 +203,3 @@ class MuonFixedIdUnpack:
 						"BOG" : { 12 : __BOGMAP, 14 : __BOGMAP }
 						} 
 	__hardwareSideMap = { "A": "", "C": "-"}
-
-
-

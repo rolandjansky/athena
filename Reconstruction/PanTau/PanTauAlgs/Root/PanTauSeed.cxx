@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PanTauAlgs/PanTauSeed.h"
@@ -148,13 +148,13 @@ PanTau::PanTauSeed::FourMom_t PanTau::PanTauSeed::p4() const {
 }
 
 void PanTau::PanTauSeed::setP4(float pt, float eta, float phi, float m){
-  static Accessor< float > acc1( "pt" );
+  static const Accessor< float > acc1( "pt" );
   acc1( *this ) = pt;
-  static Accessor< float > acc2( "eta" );
+  static const Accessor< float > acc2( "eta" );
   acc2( *this ) = eta;
-  static Accessor< float > acc3( "phi" );
+  static const Accessor< float > acc3( "phi" );
   acc3( *this ) = phi;
-  static Accessor< float > acc4( "m" );
+  static const Accessor< float > acc4( "m" );
   acc4( *this ) = m;
   //Need to recalculate m_p4 if requested after update
   m_p4Cached=false;
@@ -162,28 +162,28 @@ void PanTau::PanTauSeed::setP4(float pt, float eta, float phi, float m){
 }
 
 void PanTau::PanTauSeed::setPt(float pt){
-  static Accessor< float > acc( "pt" );
+  static const Accessor< float > acc( "pt" );
   acc( *this ) = pt;
   //Need to recalculate m_p4 if requested after update
   m_p4Cached=false;
 }
 
 void PanTau::PanTauSeed::setEta(float eta){
-  static Accessor< float > acc( "eta" );
+  static const Accessor< float > acc( "eta" );
   acc( *this ) = eta;
   //Need to recalculate m_p4 if requested after update
   m_p4Cached=false;  
 }
 
 void PanTau::PanTauSeed::setPhi(float phi){
-  static Accessor< float > acc( "phi" );
+  static const Accessor< float > acc( "phi" );
   acc( *this ) = phi;
   //Need to recalculate m_p4 if requested after update
   m_p4Cached=false;
 }
 
 void PanTau::PanTauSeed::setM(float m){
-  static Accessor< float > acc( "m" );
+  static const Accessor< float > acc( "m" );
   acc( *this ) = m;
   //Need to recalculate m_p4 if requested after update
   m_p4Cached=false;

@@ -40,11 +40,6 @@ namespace Trk {
         /** Destructor */
         ~BinnedLayerMaterialCreator();
 
-        /** AlgTool initialize method */
-        StatusCode initialize();
-
-        /** AlgTool finalize method */
-        StatusCode finalize();
 
         /** process the material properties */
         LayerMaterialProperties* createLayerMaterial(const LayerMaterialRecord& lmr) const;

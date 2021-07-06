@@ -8,8 +8,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigInDetToolInterfaces/ITrigPrimaryVertexFitter.h"
 
-class TrigTimer;
-
 class TrigPrimaryVertexFitter: public AthAlgTool, virtual public ITrigPrimaryVertexFitter
 {
  public:

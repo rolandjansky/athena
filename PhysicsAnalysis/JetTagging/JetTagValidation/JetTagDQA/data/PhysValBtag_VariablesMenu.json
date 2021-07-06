@@ -1,0 +1,1902 @@
+{
+    "template": {
+        "histName": {
+            "_comment": "",
+            "title": "title",
+            "xtitle": "xtitle",
+            "ytitle": "ytitle",
+            "path":  {"ART": "path", "PHYSVAL": "path"},
+            "xbins": 100,
+            "xmin": -1.0,
+            "xmax": 1.0,
+            "type": "TH1D",
+            "forData": "true"
+        }
+    },
+
+    "GLOBAL": {
+        "nJets": {
+            "_comment": "",
+            "title": "jet multiplicity",
+            "xtitle": "Number of jets",
+            "ytitle": "Events",
+            "path":  {"ART": "", "PHYSVAL": "jet"},
+            "xbins": 51,
+            "xmin": -0.5,
+            "xmax": 50.5,
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "nTracks": {
+            "_comment": "",
+            "title": "track multiplicity",
+            "xtitle": "Number of tracks",
+            "ytitle": "Events",
+            "path":  {"ART": "", "PHYSVAL": "global"},
+            "xbins": 100,
+            "xmin": 0,
+            "xmax": 3000,
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "nPrimVtx": {
+            "_comment": "",
+            "title": "number of primary vertices",
+            "xtitle": "Number of PVs",
+            "ytitle": "Events",
+            "path":  {"ART": "", "PHYSVAL": "global"},
+            "xbins": 101,
+            "xmin": -0.5,
+            "xmax": 100.5,
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "nTracksPrimVtx": {
+            "_comment": "",
+            "title": "number of tracks from selected PV",
+            "xtitle": "Number of tracks",
+            "ytitle": "Events",
+            "path":  {"ART": "", "PHYSVAL": "global"},
+            "xbins": 201,
+            "xmin": -0.5,
+            "xmax": 200.5,
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "PV_x": {
+            "_comment": "",
+            "title": "x pos of selected PV",
+            "xtitle": "x [mm]",
+            "ytitle": "Events",
+            "path":  {"ART": "", "PHYSVAL": "global"},
+            "xbins": 50,
+            "xmin": -0.6,
+            "xmax": -0.4,
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "PV_y": {
+            "_comment": "",
+            "title": "y pos of selected PV",
+            "xtitle": "y [mm]",
+            "ytitle": "Events",
+            "path":  {"ART": "", "PHYSVAL": "global"},
+            "xbins": 50,
+            "xmin": -0.6,
+            "xmax": -0.4,
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "PV_z": {
+            "_comment": "",
+            "title": "z pos of selected PV",
+            "xtitle": "z [mm]",
+            "ytitle": "Events",
+            "path":  {"ART": "", "PHYSVAL": "global"},
+            "xbins": 50,
+            "xmin": -200,
+            "xmax": 200,
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "nJetsWithMuon": {
+            "_comment": "",
+            "title": "number of jets that contain a muon",
+            "xtitle": "Number of jets",
+            "ytitle": "Events",
+            "path":  {"ART": "", "PHYSVAL": "global"},
+            "xbins": 21,
+            "xmin": -0.5,
+            "xmax": 20.5,
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "nJetsWithSV": {
+            "_comment": "",
+            "title": "number of jets that contain a SV (SV1)",
+            "xtitle": "Number of jets",
+            "ytitle": "Events",
+            "path":  {"ART": "", "PHYSVAL": "global"},
+            "xbins": 21,
+            "xmin": -0.5,
+            "xmax": 20.5,
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "fracJetsWithMuon": {
+            "_comment": "",
+            "title": "fraction of jets that contain a muon",
+            "xtitle": "Fraction of jets",
+            "ytitle": "Events",
+            "path":  {"ART": "", "PHYSVAL": "global"},
+            "xbins": 50,
+            "xmin": -0.01,
+            "xmax": 1.01,
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "fracJetsWithSV": {
+            "_comment": "",
+            "title": "fraction of jets that contain a SV (SV1)",
+            "xtitle": "Fraction of jets",
+            "ytitle": "Events",
+            "path":  {"ART": "", "PHYSVAL": "global"},
+            "xbins": 50,
+            "xmin": -0.01,
+            "xmax": 1.01,
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "nJetsThatPassedWPCuts": {
+            "_comment": "",
+            "title": "number of jets that passed the WP cuts",
+            "xtitle": "Number of jets",
+            "ytitle": "Events",
+            "path":  {"PHYSVAL": "jet"},
+            "xbins": 21,
+            "xmin": -0.5,
+            "xmax": 20.5,
+            "type": "TH1D",
+            "forData": "true"
+        }
+
+    },
+
+    "JET": {
+        "jet_E": {
+            "_comment": "",
+            "title": "E",
+            "xtitle": "E [GeV]",
+            "ytitle": "Jets",
+            "path":  {"ART": "", "PHYSVAL": "jet"},
+            "xbins": 100,
+            "xmin": 0,
+            "xmax": 1000,
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "jet_E_Zprime": {
+            "_comment": "",
+            "title": "E on Zprime samples",
+            "xtitle": "E [GeV]",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "jet"},
+            "xbins": 100,
+            "xmin": 400,
+            "xmax": 3000,
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "jet_pT": {
+            "_comment": "",
+            "title": "p_{T}",
+            "xtitle": "p_{T} [GeV]",
+            "ytitle": "Jets",
+            "path":  {"ART": "", "PHYSVAL": "jet"},
+            "xbins": 100,
+            "xmin": 0,
+            "xmax": 1000,
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "jet_pT_Zprime": {
+            "_comment": "",
+            "title": "p_{T} on Zprime samples",
+            "xtitle": "p_{T} [GeV]",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "jet"},
+            "xbins": 100,
+            "xmin": 400,
+            "xmax": 3000,
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "jet_eta": {
+            "_comment": "",
+            "title": "#eta",
+            "xtitle": "#eta [GeV]",
+            "ytitle": "Jets",
+            "path":  {"ART": "", "PHYSVAL": "jet"},
+            "xbins": 100,
+            "xmin": -5,
+            "xmax": 5,
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "jet_phi": {
+            "_comment": "",
+            "title": "#varphi",
+            "xtitle": "#varphi [GeV]",
+            "ytitle": "Jets",
+            "path":  {"ART": "", "PHYSVAL": "jet"},
+            "xbins": 200,
+            "xmin": -3.2,
+            "xmax": 3.2,
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "truth_label": {
+            "_comment": "",
+            "title": "truthLabel",
+            "xtitle": "truthLabel",
+            "ytitle": "Jets",
+            "path":  {"ART": "", "PHYSVAL": "jet"},
+            "xbins": 17,
+            "xmin": -0.5,
+            "xmax": 16.5,
+            "type": "TH1D",
+            "forData": "false"
+        },
+
+        "muon_pT_frac": {
+            "_comment": "",
+            "title": "muon p_{T}^{frac}",
+            "xtitle": "p_{T}(muon) / p_{T}(jet)",
+            "ytitle": "Jets",
+            "path":  {"ART": "", "PHYSVAL": "muon"},
+            "xbins": 100,
+            "xmin": -0.01,
+            "xmax": 1.5,
+            "type": "TH1D",
+            "forData": "true"
+        }
+
+    },
+
+    "TAGGER": {
+
+        "IP2D": {
+            "_comment": "pb, pc, and pu",
+            "title": "IP2D",
+            "xtitle": "IP2D px",
+            "ytitle": "Jets",
+            "path":  {"ART": "bTagging"},
+            "xbins": 100,
+            "xmin": 0,
+            "xmax": 1,
+            "forEach": ["pb", "pc", "pu"],
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "IP3D": {
+            "_comment": "pb, pc, and pu",
+            "title": "IP3D",
+            "xtitle": "IP3D px",
+            "ytitle": "Jets",
+            "path":  {"ART": "bTagging", "PHYSVAL": "tagger"},
+            "xbins": 100,
+            "xmin": 0,
+            "xmax": 1,
+            "forEach": ["pb", "pc", "pu"],
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "IP3D_LLR": {
+            "title": "IP3D LLR for jets",
+            "xtitle": "IP3D LLR",
+            "ytitle": "Jets",
+            "path": {"ART": "bTagging"},
+            "xbins": 1000,
+            "xmin": -15,
+            "xmax": 50,
+            "forEachTruthType": ["U","B","C","DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "RNNIP": {
+            "_comment": "pb, pc, and pu",
+            "title": "RNNIP",
+            "xtitle": "RNNIP px",
+            "ytitle": "Jets",
+            "path":  {"ART": "bTagging", "PHYSVAL": "tagger"},
+            "xbins": 100,
+            "xmin": 0,
+            "xmax": 1,
+            "forEach": ["pb", "pc", "pu"],
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "RNNIP_LLR": {
+            "title": "RNNIP LLR for jets",
+            "xtitle": "RNNIP LLR",
+            "ytitle": "Jets",
+            "path": {"ART": "bTagging"},
+            "xbins": 1000,
+            "xmin": -20,
+            "xmax": 20,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "SV1": {
+            "_comment": "pb, pc, and pu",
+            "title": "SV1",
+            "xtitle": "SV1 px",
+            "ytitle": "Jets",
+            "path":  {"ART": "bTagging", "PHYSVAL": "tagger"},
+            "xbins": 100,
+            "xmin": 0,
+            "xmax": 1,
+            "forEach": ["pb", "pc", "pu"],
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "MV2c10_discriminant": {
+            "title": "MV2c10 score for jets",
+            "xtitle": "MV2c10",
+            "ytitle": "Jets",
+            "path": {"ART": "bTagging"},
+            "xbins": 1000,
+            "xmin": -1,
+            "xmax": 1,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "DL1": {
+            "_comment": "pb, pc, and pu",
+            "title": "DL1",
+            "xtitle": "DL1 px",
+            "ytitle": "Jets",
+            "path":  {"ART": "bTagging", "PHYSVAL": "tagger"},
+            "xbins": 100,
+            "xmin": 0,
+            "xmax": 1,
+            "forEach": ["pb", "pc", "pu"],
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "DL1r": {
+            "_comment": "pb, pc, and pu",
+            "title": "DL1r",
+            "xtitle": "DL1r px",
+            "ytitle": "Jets",
+            "path":  {"ART": "bTagging", "PHYSVAL": "tagger"},
+            "xbins": 100,
+            "xmin": 0,
+            "xmax": 1,
+            "forEach": ["pb", "pc", "pu"],
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "DL1r_LLR": {
+            "_comment": "",
+            "title": "DL1r",
+            "xtitle": "DL1r",
+            "ytitle": "Jets",
+            "path":  {"ART": "bTagging"},
+            "xbins": 100,
+            "xmin": -7,
+            "xmax": 17,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "DL1rc": {
+            "title": "DL1rc score for jets",
+            "xtitle": "DL1rc",
+            "ytitle": "Jets",
+            "path": {"ART": "bTagging"},
+            "xbins": 100,
+            "xmin": -7,
+            "xmax": 17,
+            "forEachTruthType": ["U","B","C","DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "IP3D_nTracks": {
+            "_comment": "",
+            "title": "number of IP3D tracks",
+            "xtitle": "nTracks",
+            "ytitle": "Jets",
+            "path":  {"ART": "bTagging", "PHYSVAL": "tagger"},
+            "xbins": 21,
+            "xmin": -0.5,
+            "xmax": 20.5,
+            "forEachTruthType": ["U","B","C","DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "IP2D_nTracks": {
+            "_comment": "",
+            "title": "number of IP2D tracks",
+            "xtitle": "nTracks",
+            "ytitle": "Jets",
+            "path":  {"ART": "bTagging", "PHYSVAL": "old_taggers"},
+            "xbins": 21,
+            "xmin": -0.5,
+            "xmax": 20.5,
+            "forEachTruthType": ["U","B","C","DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "IP3D_gradeOfTracks": {
+            "_comment": "",
+            "title": "IP3D grade of tracks",
+            "xtitle": "grade of tracks",
+            "ytitle": "Tracks",
+            "path":  {"ART": "bTagging", "PHYSVAL": "tagger"},
+            "xbins": 14,
+            "xmin": -0.5,
+            "xmax": 13.5,
+            "forEachTruthType": ["U","B","C","DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "IP2D_gradeOfTracks": {
+            "_comment": "",
+            "title": "IP2D grade of tracks",
+            "xtitle": "grade of tracks",
+            "ytitle": "Tracks",
+            "path":  {"ART": "bTagging", "PHYSVAL": "old_taggers"},
+            "xbins": 14,
+            "xmin": -0.5,
+            "xmax": 13.5,
+            "forEachTruthType": ["U","B","C","DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "IP3D_d0wrtPVOfTracks": {
+            "_comment": "",
+            "title": "IP3D d_{0} wrt PV of tracks",
+            "xtitle": "d_{0} [mm]",
+            "ytitle": "Tracks",
+            "path":  {"ART": "bTagging", "PHYSVAL": "tagger"},
+            "xbins": 200,
+            "xmin": -2,
+            "xmax": 2,
+            "forEachTruthType": ["U","B","C","DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "IP3D_z0wrtPVOfTracks": {
+            "_comment": "",
+            "title": "IP3D z_{0} wrt PV of tracks",
+            "xtitle": "z_{0} [mm]",
+            "ytitle": "Tracks",
+            "path":  {"ART": "bTagging", "PHYSVAL": "tagger"},
+            "xbins": 200,
+            "xmin": -0.5,
+            "xmax": 0.5,
+            "forEachTruthType": ["U","B","C","DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "IP3D_sigD0wrtPVOfTracks": {
+            "_comment": "",
+            "title": "IP3D sig(d_{0}) wrt PV of tracks",
+            "xtitle": "sig(d_{0})",
+            "ytitle": "Tracks",
+            "path":  {"ART": "bTagging", "PHYSVAL": "tagger"},
+            "xbins": 200,
+            "xmin": -5,
+            "xmax": 5,
+            "forEachTruthType": ["U","B","C","DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "IP3D_sigZ0wrtPVOfTracks": {
+            "_comment": "",
+            "title": "IP3D sig(z_{0}) wrt PV of tracks",
+            "xtitle": "sig(z_{0})",
+            "ytitle": "Tracks",
+            "path":  {"ART": "bTagging", "PHYSVAL": "tagger"},
+            "xbins": 200,
+            "xmin": -5,
+            "xmax": 5,
+            "forEachTruthType": ["U","B","C","DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "IP3D_weightBOfTracks": {
+            "_comment": "",
+            "title": "IP3D weight B of tracks",
+            "xtitle": "weight B of tracks",
+            "ytitle": "Tracks",
+            "path":  {"ART": "bTagging", "PHYSVAL": "tagger"},
+            "xbins": 200,
+            "xmin": -2,
+            "xmax": 2,
+            "forEachTruthType": ["U","B","C","DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "IP3D_weightCOfTracks": {
+            "_comment": "",
+            "title": "IP3D weight C of tracks",
+            "xtitle": "weight C of tracks",
+            "ytitle": "Tracks",
+            "path":  {"ART": "bTagging", "PHYSVAL": "tagger"},
+            "xbins": 200,
+            "xmin": -2,
+            "xmax": 2,
+            "forEachTruthType": ["U","B","C","DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "IP3D_weightUOfTracks": {
+            "_comment": "",
+            "title": "IP3D weight U of tracks",
+            "xtitle": "weight U of tracks",
+            "ytitle": "Tracks",
+            "path":  {"ART": "bTagging", "PHYSVAL": "tagger"},
+            "xbins": 200,
+            "xmin": -2,
+            "xmax": 2,
+            "forEachTruthType": ["U","B","C","DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "IP2D_weightBOfTracks": {
+            "_comment": "",
+            "title": "IP2D weight B of tracks",
+            "xtitle": "weight B of tracks",
+            "ytitle": "Tracks",
+            "path":  {"ART": "bTagging", "PHYSVAL": "old_taggers"},
+            "xbins": 200,
+            "xmin": -2,
+            "xmax": 2,
+            "forEachTruthType": ["U","B","C","DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "IP2D_weightCOfTracks": {
+            "_comment": "",
+            "title": "IP2D weight C of tracks",
+            "xtitle": "weight C of tracks",
+            "ytitle": "Tracks",
+            "path":  {"ART": "bTagging", "PHYSVAL": "old_taggers"},
+            "xbins": 200,
+            "xmin": -2,
+            "xmax": 2,
+            "forEachTruthType": ["U","B","C","DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "IP2D_weightUOfTracks": {
+            "_comment": "",
+            "title": "IP2D weight U of tracks",
+            "xtitle": "weight U of tracks",
+            "ytitle": "Tracks",
+            "path":  {"ART": "bTagging", "PHYSVAL": "old_taggers"},
+            "xbins": 200,
+            "xmin": -2,
+            "xmax": 2,
+            "forEachTruthType": ["U","B","C","DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "SV1_nGoodTracks": {
+            "_comment": "",
+            "title": "number of good tracks in SV1",
+            "xtitle": "nTracks",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "tagger"},
+            "xbins": 21,
+            "xmin": -0.5,
+            "xmax": 20.5,
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "SV0_nGoodTracks": {
+            "_comment": "",
+            "title": "number of good tracks in SV0",
+            "xtitle": "nTracks",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "old_taggers"},
+            "xbins": 21,
+            "xmin": -0.5,
+            "xmax": 20.5,
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "llr": {
+            "_comment": "",
+            "title": "loglikelihoodratio of matched jets",
+            "xtitle": "loglikelihoodratio",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "tagger"},
+            "xbins": 250,
+            "xmin": -10,
+            "xmax": 40,
+            "type": "TH1D",
+            "forData": "false"
+        },
+
+        "llr_nTracksCut": {
+            "_comment": "",
+            "title": "loglikelihoodratio of matched jets with nTracks cut",
+            "xtitle": "loglikelihoodratio",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "tagger"},
+            "xbins": 250,
+            "xmin": -10,
+            "xmax": 40,
+            "type": "TH1D",
+            "forData": "false"
+        },
+
+        "llr_old_taggers": {
+            "_comment": "",
+            "title": "loglikelihoodratio of matched jets",
+            "xtitle": "loglikelihoodratio",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "old_taggers"},
+            "xbins": 250,
+            "xmin": -10,
+            "xmax": 40,
+            "type": "TH1D",
+            "forData": "false"
+        },
+
+        "llr_nTracksCut_old_taggers": {
+            "_comment": "",
+            "title": "loglikelihoodratio of matched jets with nTracks cut",
+            "xtitle": "loglikelihoodratio",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "old_taggers"},
+            "xbins": 250,
+            "xmin": -10,
+            "xmax": 40,
+            "type": "TH1D",
+            "forData": "false"
+        },
+
+        "llr_MV": {
+            "_comment": "has a different range",
+            "title": "loglikelihoodratio of matched jets",
+            "xtitle": "loglikelihoodratio",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "old_taggers"},
+            "xbins": 250,
+            "xmin": -1,
+            "xmax": 1,
+            "type": "TH1D",
+            "forData": "false"
+        },
+
+        "llr_nTracksCut_MV": {
+            "_comment": "has a different range",
+            "title": "loglikelihoodratio of matched jets with nTracks cut",
+            "xtitle": "loglikelihoodratio",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "old_taggers"},
+            "xbins": 250,
+            "xmin": -1,
+            "xmax": 1,
+            "type": "TH1D",
+            "forData": "false"
+        },
+
+        "pT_llrCut": {
+            "_comment": "",
+            "title": "p_{T} of matched jets",
+            "xtitle": "p_{T} [GeV]",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "tagger"},
+            "xbins": 100,
+            "xmin": 0,
+            "xmax": 1000,
+            "type": "TH1D",
+            "forData": "false"
+        },
+
+        "pT_llrCut_old_taggers": {
+            "_comment": "",
+            "title": "p_{T} of matched jets",
+            "xtitle": "p_{T} [GeV]",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "old_taggers"},
+            "xbins": 100,
+            "xmin": 0,
+            "xmax": 1000,
+            "type": "TH1D",
+            "forData": "false"
+        },
+
+        "pT_llrCut_Zprime": {
+            "_comment": "",
+            "title": "p_{T} of matched jets on Zprime samples",
+            "xtitle": "p_{T} [GeV]",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "tagger"},
+            "xbins": 100,
+            "xmin": 400,
+            "xmax": 3000,
+            "type": "TH1D",
+            "forData": "false"
+        },
+
+        "pT_llrCut_Zprime_old_taggers": {
+            "_comment": "",
+            "title": "p_{T} of matched jets on Zprime samples",
+            "xtitle": "p_{T} [GeV]",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "old_taggers"},
+            "xbins": 100,
+            "xmin": 400,
+            "xmax": 3000,
+            "type": "TH1D",
+            "forData": "false"
+        },
+
+        "Lxy_llrCut": {
+            "_comment": "",
+            "title": "(SV1) L_{xy} of matched jets",
+            "xtitle": "L_{xy} [mm]",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "tagger"},
+            "xbins": 50,
+            "xmin": 0,
+            "xmax": 75,
+            "type": "TH1D",
+            "forData": "false"
+        },
+
+        "Lxy_llrCut_old_taggers": {
+            "_comment": "",
+            "title": "(SV1) L_{xy} of matched jets",
+            "xtitle": "L_{xy} [mm]",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "old_taggers"},
+            "xbins": 50,
+            "xmin": 0,
+            "xmax": 75,
+            "type": "TH1D",
+            "forData": "false"
+        },
+
+        "efficiency_vs_rejection": {
+            "_comment": "",
+            "title": "b-efficiency vs. rejection",
+            "xtitle": "efficiency",
+            "ytitle": "rejection",
+            "path":  {"PHYSVAL": "tagger"},
+            "xbins": 100,
+            "xmin": 0,
+            "xmax": 1,
+            "ymin": 0,
+            "ymax": 1000000,
+            "type": "TProfile",
+            "forData": "false"
+        },
+
+        "efficiency_vs_llr": {
+            "_comment": "",
+            "title": "efficiency vs. loglikelihoodratio",
+            "xtitle": "loglikelihoodratio",
+            "ytitle": "efficiency",
+            "path":  {"PHYSVAL": "tagger"},
+            "xbins": 250,
+            "xmin": -10,
+            "xmax": 40,
+            "ymin": 0,
+            "ymax": 1,
+            "type": "TProfile",
+            "forData": "false"
+        },
+
+        "efficiency_vs_llr_MV": {
+            "_comment": "has a different range",
+            "title": "efficiency vs. loglikelihoodratio",
+            "xtitle": "loglikelihoodratio",
+            "ytitle": "efficiency",
+            "path":  {"PHYSVAL": "tagger"},
+            "xbins": 250,
+            "xmin": -1,
+            "xmax": 1,
+            "ymin": 0,
+            "ymax": 1,
+            "type": "TProfile",
+            "forData": "false"
+        },
+
+        "efficiency_vs_pT": {
+            "_comment": "",
+            "title": "efficiency vs. p_{T}",
+            "xtitle": "p_{T} [GeV]",
+            "ytitle": "efficiency",
+            "path":  {"PHYSVAL": "tagger"},
+            "xbins": 100,
+            "xmin": 0,
+            "xmax": 1000,
+            "ymin": 0,
+            "ymax": 1,
+            "type": "TProfile",
+            "forData": "false"
+        }
+
+
+    },
+
+    "TRACKS": {
+
+        "track_d0": {
+            "_comment": "",
+            "title": "d_{0} of BTagTrackToJetAssociator",
+            "xtitle": "d_{0} [mm]",
+            "ytitle": "Tracks",
+            "path":  {"ART": "BTagTrackToJetAssociator", "PHYSVAL": "tracks"},
+            "xbins": 200,
+            "xmin": -2.2,
+            "xmax": 2.2,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "track_z0": {
+            "_comment": "",
+            "title": "z_{0} of BTagTrackToJetAssociator",
+            "xtitle": "z_{0} [mm]",
+            "ytitle": "Tracks",
+            "path":  {"ART": "BTagTrackToJetAssociator", "PHYSVAL": "tracks"},
+            "xbins": 200,
+            "xmin": -11,
+            "xmax": 11,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "track_sigd0": {
+            "_comment": "",
+            "title": "d_{0} significance of BTagTrackToJetAssociator",
+            "xtitle": "d_{0} / #sigma_{d_{0}}",
+            "ytitle": "Tracks",
+            "path":  {"ART": "BTagTrackToJetAssociator", "PHYSVAL": "tracks"},
+            "xbins": 60,
+            "xmin": -3.3,
+            "xmax": 3.3,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "track_sigz0": {
+            "_comment": "",
+            "title": "z_{0} significance of BTagTrackToJetAssociator",
+            "xtitle": "z_{0} / #sigma_{z_{0}}",
+            "ytitle": "Tracks",
+            "path":  {"ART": "BTagTrackToJetAssociator", "PHYSVAL": "tracks"},
+            "xbins": 60,
+            "xmin": -5.5,
+            "xmax": 5.5,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "track_sigd0_signed": {
+            "_comment": "",
+            "title": "signed d_{0} significance of BTagTrackToJetAssociator",
+            "xtitle": "signed d_{0} / #sigma_{d_{0}}",
+            "ytitle": "Tracks",
+            "path":  {"ART": "BTagTrackToJetAssociator"},
+            "xbins": 60,
+            "xmin": -3.3,
+            "xmax": 3.3,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "track_sigz0_signed": {
+            "_comment": "",
+            "title": "signed z_{0} significance of BTagTrackToJetAssociator",
+            "xtitle": "signed z_{0} / #sigma_{z_{0}}",
+            "ytitle": "Tracks",
+            "path":  {"ART": "BTagTrackToJetAssociator"},
+            "xbins": 60,
+            "xmin": -5.5,
+            "xmax": 5.5,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "track_pT_frac": {
+            "_comment": "",
+            "title": "p_{T}^{frac}",
+            "xtitle": "p_{T}(track) / p_{T}(jet)",
+            "ytitle": "Tracks",
+            "path":  {"ART": "BTagTrackToJetAssociator", "PHYSVAL": "tracks"},
+            "xbins": 60,
+            "xmin": -0.01,
+            "xmax": 1.2,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "DeltaR_jet_track": {
+            "_comment": "",
+            "title": "DeltaR(jet, track)",
+            "xtitle": "#DeltaR",
+            "ytitle": "Tracks",
+            "path":  {"ART": "BTagTrackToJetAssociator", "PHYSVAL": "tracks"},
+            "xbins": 60,
+            "xmin": 0,
+            "xmax": 0.6,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "numTracks_perJet": {
+            "_comment": "",
+            "title": "number of tracks per jet",
+            "xtitle": "Number of tracks",
+            "ytitle": "Jets",
+            "path":  {"ART": "BTagTrackToJetAssociator", "PHYSVAL": "tracks"},
+            "xbins": 75,
+            "xmin": 0,
+            "xmax": 75,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "numTracks_perJet_vs_pT": {
+            "_comment": "",
+            "title": "number of tracks per jet vs. jet pT",
+            "xtitle": "p_{T} [GeV]",
+            "ytitle": "Number of tracks",
+            "path":  {"PHYSVAL": "tracks"},
+            "xbins": 100,
+            "xmin": 0,
+            "xmax": 1000,
+            "ymin": 0,
+            "ymax": 75,
+            "type": "TProfile",
+            "forData": "true"
+        },
+
+        "numTracks": {
+            "_comment": "in Physval 'OtherOrigin' is only produced for detail level > 10",
+            "title": "number of tracks (per jet) from ",
+            "xtitle": "Number of tracks",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "tracks"},
+            "xbins": 40,
+            "xmin": 0,
+            "xmax": 40,
+            "forEach": ["B", "C", "Fragmentation", "Secondaries", "Pileup", "Fake", "OtherOrigin"],
+            "type": "TH1D",
+            "forData": "false"
+        },
+
+        "numTracks_Secondaries": {
+            "_comment": "in Physval only produced for detail level > 10",
+            "title": "number of tracks (per jet) from ",
+            "xtitle": "Number of tracks",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "tracks"},
+            "xbins": 20,
+            "xmin": 0,
+            "xmax": 20,
+            "forEach": ["KshortDecay", "LambdaDecay", "GammaConversion", "OtherDecay", "HadronicInteraction", "OtherSecondary"],
+            "type": "TH1D",
+            "forData": "false"
+        },
+
+        "nInnHits": {
+            "_comment": "",
+            "title": "number of innermost pixel layer hits",
+            "xtitle": "Number of hits",
+            "ytitle": "Tracks",
+            "path":  {"ART": "BTagTrackToJetAssociator", "PHYSVAL": "tracks"},
+            "xbins": 10,
+            "xmin": 0,
+            "xmax": 10,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "nNextToInnHits": {
+            "_comment": "",
+            "title": "number of next to innermost pixel layer hits",
+            "xtitle": "Number of hits",
+            "ytitle": "Tracks",
+            "path":  {"ART": "BTagTrackToJetAssociator", "PHYSVAL": "tracks"},
+            "xbins": 10,
+            "xmin": 0,
+            "xmax": 10,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "nBLHits": {
+            "_comment": "",
+            "title": "number of B layer hits",
+            "xtitle": "Number of hits",
+            "ytitle": "Tracks",
+            "path":  {"ART": "BTagTrackToJetAssociator", "PHYSVAL": "tracks"},
+            "xbins": 10,
+            "xmin": 0,
+            "xmax": 10,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "nsharedBLHits": {
+            "_comment": "",
+            "title": "number of shared B layer hits",
+            "xtitle": "Number of hits",
+            "ytitle": "Tracks",
+            "path":  {"ART": "BTagTrackToJetAssociator", "PHYSVAL": "tracks"},
+            "xbins": 10,
+            "xmin": 0,
+            "xmax": 10,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "nsplitBLHits": {
+            "_comment": "",
+            "title": "number of split B layer hits",
+            "xtitle": "Number of hits",
+            "ytitle": "Tracks",
+            "path":  {"ART": "BTagTrackToJetAssociator", "PHYSVAL": "tracks"},
+            "xbins": 10,
+            "xmin": 0,
+            "xmax": 10,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "nPixHits": {
+            "_comment": "",
+            "title": "number of pixel hits",
+            "xtitle": "Number of hits",
+            "ytitle": "Tracks",
+            "path":  {"ART": "BTagTrackToJetAssociator", "PHYSVAL": "tracks"},
+            "xbins": 20,
+            "xmin": 0,
+            "xmax": 20,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "nPixHoles": {
+            "_comment": "",
+            "title": "number of pixel holes",
+            "xtitle": "Number of hits",
+            "ytitle": "Tracks",
+            "path":  {"ART": "BTagTrackToJetAssociator", "PHYSVAL": "tracks"},
+            "xbins": 10,
+            "xmin": 0,
+            "xmax": 10,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "nsharedPixHits": {
+            "_comment": "",
+            "title": "number of shared pixel hits",
+            "xtitle": "Number of hits",
+            "ytitle": "Tracks",
+            "path":  {"ART": "BTagTrackToJetAssociator", "PHYSVAL": "tracks"},
+            "xbins": 10,
+            "xmin": 0,
+            "xmax": 10,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "nsplitPixHits": {
+            "_comment": "",
+            "title": "number of split pixel hits",
+            "xtitle": "Number of hits",
+            "ytitle": "Tracks",
+            "path":  {"ART": "BTagTrackToJetAssociator", "PHYSVAL": "tracks"},
+            "xbins": 10,
+            "xmin": 0,
+            "xmax": 10,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "nSCTHits": {
+            "_comment": "",
+            "title": "number of SCT hits",
+            "xtitle": "Number of hits",
+            "ytitle": "Tracks",
+            "path":  {"ART": "BTagTrackToJetAssociator", "PHYSVAL": "tracks"},
+            "xbins": 20,
+            "xmin": 0,
+            "xmax": 20,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "nSCTHoles": {
+            "_comment": "",
+            "title": "number of SCT holes",
+            "xtitle": "Number of hits",
+            "ytitle": "Tracks",
+            "path":  {"ART": "BTagTrackToJetAssociator", "PHYSVAL": "tracks"},
+            "xbins": 10,
+            "xmin": 0,
+            "xmax": 10,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "nsharedSCTHits": {
+            "_comment": "",
+            "title": "number of shared SCT hits",
+            "xtitle": "Number of hits",
+            "ytitle": "Tracks",
+            "path":  {"ART": "BTagTrackToJetAssociator", "PHYSVAL": "tracks"},
+            "xbins": 10,
+            "xmin": 0,
+            "xmax": 10,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        }
+
+    },
+
+    "SV": {
+
+        "SV1_numSVs": {
+            "_comment": "",
+            "title": "number of SV1 vertices",
+            "xtitle": "number",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "SV"},
+            "xbins": 3,
+            "xmin": -0.5,
+            "xmax": 2.5,
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "SV1_masssvx": {
+            "_comment": "",
+            "title": "mass of the secondary vertex",
+            "xtitle": "sv mass [GeV]",
+            "ytitle": "Jets",
+            "path":  {"ART": "bTagging", "PHYSVAL": "SV"},
+            "xbins": 50,
+            "xmin": 0,
+            "xmax": 8,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "SV1_N2Tpair": {
+            "_comment": "",
+            "title": "number of two-track vertices",
+            "xtitle": "number",
+            "ytitle": "Jets",
+            "path":  {"ART": "bTagging", "PHYSVAL": "SV"},
+            "xbins": 26,
+            "xmin": -0.5,
+            "xmax": 25.5,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "SV1_efracsvx": {
+            "_comment": "",
+            "title": "ratio of track energies in SV to jet",
+            "xtitle": "SV energy ratio",
+            "ytitle": "Jets",
+            "path":  {"ART": "bTagging", "PHYSVAL": "SV"},
+            "xbins": 50,
+            "xmin": -0.01,
+            "xmax": 1.01,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "SV1_deltaR": {
+            "_comment": "",
+            "title": "#DeltaR(jet, SV-PV)",
+            "xtitle": "#DeltaR(jet, SV-PV)",
+            "ytitle": "Jets",
+            "path":  {"ART": "bTagging", "PHYSVAL": "SV"},
+            "xbins": 50,
+            "xmin": 0,
+            "xmax": 0.6,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "SV1_significance3d": {
+            "_comment": "",
+            "title": "SV1 significance 3d",
+            "xtitle": "significance 3d",
+            "ytitle": "Jets",
+            "path":  {"ART": "bTagging", "PHYSVAL": "SV"},
+            "xbins": 50,
+            "xmin": 0,
+            "xmax": 50,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "SV1_energyTrkInJet": {
+            "_comment": "",
+            "title": "SV1 energyTrkInJet",
+            "xtitle": "energy [GeV]",
+            "ytitle": "Jets",
+            "path":  {"ART": "bTagging", "PHYSVAL": "SV"},
+            "xbins": 100,
+            "xmin": 0,
+            "xmax": 2000,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "SV1_NGTinSvx": {
+            "_comment": "",
+            "title": "number of good tracks in SV1 vertex",
+            "xtitle": "number",
+            "ytitle": "Jets",
+            "path":  {"ART": "bTagging", "PHYSVAL": "SV"},
+            "xbins": 16,
+            "xmin": -0.5,
+            "xmax": 15.5,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "SV1_Lxy": {
+            "_comment": "",
+            "title": "SV1 L_{xy}",
+            "xtitle": "L_{xy}",
+            "ytitle": "Jets",
+            "path":  {"ART": "bTagging", "PHYSVAL": "SV"},
+            "xbins": 50,
+            "xmin": 0,
+            "xmax": 75,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "SV1_purity": {
+            "_comment": "",
+            "title": "SV1 purity",
+            "xtitle": "purity",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "SV"},
+            "xbins": 10,
+            "xmin": -0.01,
+            "xmax": 1.01,
+            "type": "TH1D",
+            "forData": "false"
+        },
+
+        "SV1_fracTracks_from": {
+            "_comment": "in Physval 'OtherOrigin' is only produced for detail level > 10",
+            "title": "SV1 fraction of tracks from ",
+            "xtitle": "fraction",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "SV"},
+            "xbins": 10,
+            "xmin": -0.01,
+            "xmax": 1.01,
+            "forEach": ["B", "C", "Fragmentation", "Secondaries", "Pileup", "Fake", "OtherOrigin"],
+            "type": "TH1D",
+            "forData": "false"
+        },
+
+        "SV1_fracTracks_Secondaries": {
+            "_comment": "in Physval only produced for detail level > 10",
+            "title": "SV1 fraction of tracks from ",
+            "xtitle": "fraction",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "SV"},
+            "xbins": 10,
+            "xmin": -0.01,
+            "xmax": 1.01,
+            "forEach": ["KshortDecay", "LambdaDecay", "GammaConversion", "OtherDecay", "HadronicInteraction", "OtherSecondary"],
+            "type": "TH1D",
+            "forData": "false"
+        },
+
+        "SV1_fracHFTracksInJet": {
+            "_comment": "",
+            "title": "SV1 fraction of HF tracks in jet",
+            "xtitle": "fraction",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "SV"},
+            "xbins": 10,
+            "xmin": -0.01,
+            "xmax": 1.01,
+            "type": "TH1D",
+            "forData": "false"
+        },
+
+        "MSV_nvsec": {
+            "_comment": "",
+            "title": "number of MSV vertices",
+            "xtitle": "number",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "SV"},
+            "xbins": 11,
+            "xmin": -0.5,
+            "xmax": 10.5,
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "MSV_N2Tpair": {
+            "_comment": "",
+            "title": "MSV number of two-track vertices",
+            "xtitle": "number",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "SV"},
+            "xbins": 51,
+            "xmin": -0.5,
+            "xmax": 50.5,
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "MSV_energyTrkInJet": {
+            "_comment": "",
+            "title": "ratio of track energies in MSV vertices to jet",
+            "xtitle": "energy [GeV]",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "SV"},
+            "xbins": 100,
+            "xmin": 1,
+            "xmax": 2000,
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "MSV_normdist": {
+            "_comment": "",
+            "title": "MSV normdist",
+            "xtitle": "normdist",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "SV"},
+            "xbins": 50,
+            "xmin": 0,
+            "xmax": 100,
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "MSV_purity": {
+            "_comment": "",
+            "title": "MSV average purity",
+            "xtitle": "purity",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "SV"},
+            "xbins": 10,
+            "xmin": -0.01,
+            "xmax": 1.01,
+            "type": "TH1D",
+            "forData": "false"
+        },
+
+        "MSV_vtx_mass": {
+            "_comment": "",
+            "title": "MSV average vertex mass",
+            "xtitle": "mass [GeV]",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "SV"},
+            "xbins": 50,
+            "xmin": 0,
+            "xmax": 8,
+            "type": "TH1D",
+            "forData": "false"
+        },
+
+        "JetFitter_N2Tpair": {
+            "_comment": "",
+            "title": "JetFitter number of two-track vertices",
+            "xtitle": "number",
+            "ytitle": "Jets",
+            "path":  {"ART": "bTagging", "PHYSVAL": "SV"},
+            "xbins": 36,
+            "xmin": -0.5,
+            "xmax": 35.5,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "JetFitter_nVTX": {
+            "_comment": "",
+            "title": "JetFitter nVTX",
+            "xtitle": "number",
+            "ytitle": "Jets",
+            "path":  {"ART": "bTagging", "PHYSVAL": "SV"},
+            "xbins": 5,
+            "xmin": -0.5,
+            "xmax": 4.5,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "JetFitter_nSingleTracks": {
+            "_comment": "",
+            "title": "JetFitter nSingleTracks",
+            "xtitle": "number",
+            "ytitle": "Jets",
+            "path":  {"ART": "bTagging", "PHYSVAL": "SV"},
+            "xbins": 11,
+            "xmin": -0.5,
+            "xmax": 10.5,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "JetFitter_nTracksAtVtx": {
+            "_comment": "",
+            "title": "JetFitter nTracksAtVtx",
+            "xtitle": "number",
+            "ytitle": "Jets",
+            "path":  {"ART": "bTagging", "PHYSVAL": "SV"},
+            "xbins": 21,
+            "xmin": -0.5,
+            "xmax": 20.5,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "JetFitter_mass": {
+            "_comment": "",
+            "title": "JetFitter mass",
+            "xtitle": "mass [GeV]",
+            "ytitle": "Jets",
+            "path":  {"ART": "bTagging", "PHYSVAL": "SV"},
+            "xbins": 50,
+            "xmin": 0,
+            "xmax": 15,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "JetFitter_energyFraction": {
+            "_comment": "",
+            "title": "JetFitter energyFraction",
+            "xtitle": "fraction",
+            "ytitle": "Jets",
+            "path":  {"ART": "bTagging", "PHYSVAL": "SV"},
+            "xbins": 50,
+            "xmin": -0.01,
+            "xmax": 1.01,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "JetFitter_significance3d": {
+            "_comment": "",
+            "title": "JetFitter significance3d",
+            "xtitle": "significance3d",
+            "ytitle": "Jets",
+            "path":  {"ART": "bTagging", "PHYSVAL": "SV"},
+            "xbins": 50,
+            "xmin": 0,
+            "xmax": 50,
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "JetFitter_purity": {
+            "_comment": "",
+            "title": "JetFitter average purity",
+            "xtitle": "purity",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "SV"},
+            "xbins": 10,
+            "xmin": -0.01,
+            "xmax": 1.01,
+            "type": "TH1D",
+            "forData": "false"
+        },
+
+        "SV1_masssvx_vs_pT": {
+            "_comment": "",
+            "title": "mass of the secondary vertex vs. jet p_{T}",
+            "xtitle": "p_{T} [GeV]",
+            "ytitle": "sv mass [GeV]",
+            "path":  {"PHYSVAL": "SV"},
+            "xbins": 100,
+            "xmin": 0,
+            "xmax": 1000,
+            "ymin": 0,
+            "ymax": 6,
+            "type": "TProfile",
+            "forData": "true"
+        },
+
+        "SV1_N2Tpair_vs_pT": {
+            "_comment": "",
+            "title": "number of two-track vertices vs. jet p_{T}",
+            "xtitle": "p_{T} [GeV]",
+            "ytitle": "number",
+            "path":  {"PHYSVAL": "SV"},
+            "xbins": 100,
+            "xmin": 0,
+            "xmax": 1000,
+            "ymin": 0,
+            "ymax": 25,
+            "type": "TProfile",
+            "forData": "true"
+        },
+
+        "SV1_efracsvx_vs_pT": {
+            "_comment": "",
+            "title": "ratio of track energies in SV to jet vs. jet p_{T}",
+            "xtitle": "p_{T} [GeV]",
+            "ytitle": "SV energy ratio",
+            "path":  {"PHYSVAL": "SV"},
+            "xbins": 100,
+            "xmin": 0,
+            "xmax": 1000,
+            "ymin": -0.01,
+            "ymax": 1.01,
+            "type": "TProfile",
+            "forData": "true"
+        },
+
+        "SV1_deltaR_vs_pT": {
+            "_comment": "",
+            "title": "#DeltaR(jet, SV-PV) vs. jet p_{T}",
+            "xtitle": "p_{T} [GeV]",
+            "ytitle": "#DeltaR(jet, SV-PV)",
+            "path":  {"PHYSVAL": "SV"},
+            "xbins": 100,
+            "xmin": 0,
+            "xmax": 1000,
+            "ymin": 0,
+            "ymax": 0.6,
+            "type": "TProfile",
+            "forData": "true"
+        },
+
+        "SV1_masssvx_vs_eta": {
+            "_comment": "",
+            "title": "mass of the secondary vertex vs. jet eta",
+            "xtitle": "#eta",
+            "ytitle": "sv mass [GeV]",
+            "path":  {"PHYSVAL": "SV"},
+            "xbins": 100,
+            "xmin": -5,
+            "xmax": 5,
+            "ymin": 0,
+            "ymax": 6,
+            "type": "TProfile",
+            "forData": "true"
+        },
+
+        "SV1_N2Tpair_vs_eta": {
+            "_comment": "",
+            "title": "number of two-track vertices vs. jet eta",
+            "xtitle": "#eta",
+            "ytitle": "number",
+            "path":  {"PHYSVAL": "SV"},
+            "xbins": 100,
+            "xmin": -5,
+            "xmax": 5,
+            "ymin": 0,
+            "ymax": 25,
+            "type": "TProfile",
+            "forData": "true"
+        },
+
+        "SV1_efracsvx_vs_eta": {
+            "_comment": "",
+            "title": "ratio of track energies in SV to jet vs. jet eta",
+            "xtitle": "#eta",
+            "ytitle": "SV energy ratio",
+            "path":  {"PHYSVAL": "SV"},
+            "xbins": 100,
+            "xmin": -5,
+            "xmax": 5,
+            "ymin": 0,
+            "ymax": 1,
+            "type": "TProfile",
+            "forData": "true"
+        },
+
+        "SV1_deltaR_vs_eta": {
+            "_comment": "",
+            "title": "#DeltaR(jet, SV-PV) vs. jet eta",
+            "xtitle": "p_{T} [GeV]",
+            "ytitle": "#DeltaR(jet, SV-PV)",
+            "path":  {"PHYSVAL": "SV"},
+            "xbins": 100,
+            "xmin": -5,
+            "xmax": 5,
+            "ymin": 0,
+            "ymax": 4,
+            "type": "TProfile",
+            "forData": "true"
+        }
+    },
+
+
+    "TRUTH": {
+
+        "Truth_Lxy_b": {
+            "_comment": "",
+            "title": "L_{xy} of the BHadron",
+            "xtitle": "L_{xy} [mm]",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "truth"},
+            "xbins": 50,
+            "xmin": 0,
+            "xmax": 75,
+            "type": "TH1D",
+            "forData": "false"
+        },
+
+        "Truth_Lxy_c": {
+            "_comment": "",
+            "title": "L_{xy} of the CHadron",
+            "xtitle": "L_{xy} [mm]",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "truth"},
+            "xbins": 50,
+            "xmin": 0,
+            "xmax": 75,
+            "type": "TH1D",
+            "forData": "false"
+        },
+
+        "deltaR_truthBHadronJet_b": {
+            "_comment": "",
+            "title": "#DeltaR(BHadron, jet)",
+            "xtitle": "#DeltaR",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "truth"},
+            "xbins": 50,
+            "xmin": 0.0,
+            "xmax": 1.0,
+            "type": "TH1D",
+            "forData": "false"
+        },
+
+        "deltaR_truthCHadronJet_c": {
+            "_comment": "",
+            "title": "#DeltaR(CHadron, jet)",
+            "xtitle": "#DeltaR",
+            "ytitle": "Jets",
+            "path":  {"PHYSVAL": "truth"},
+            "xbins": 50,
+            "xmin": 0.0,
+            "xmax": 1.0,
+            "type": "TH1D",
+            "forData": "false"
+        }
+
+    },
+
+    "CombinedQuantities": {
+        "SV1_masssvx_vs_pT_2D": {
+            "_comment": "",
+            "title": "mass of the secondary vertex vs. jet p_{T}",
+            "xtitle": "p_{T} [GeV]",
+            "ytitle": "sv mass [GeV]",
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "path":  {"ART": "bTagging"},
+            "xbins": 20,
+            "xmin": 0,
+            "xmax": 1000,
+            "ybins": 20,
+            "ymin": 0,
+            "ymax": 6,
+            "type": "TH2F",
+            "forData": "true"
+        },
+        "SV1_N2Tpair_vs_pT_2D": {
+            "_comment": "",
+            "title": "number of two-track vertices vs. jet p_{T}",
+            "xtitle": "p_{T} [GeV]",
+            "ytitle": "SV1 N2Tpair",
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "path":  {"ART": "bTagging"},
+            "xbins": 20,
+            "xmin": 0,
+            "xmax": 1000,
+            "ybins": 20,
+            "ymin": 0,
+            "ymax": 20,
+            "type": "TH2F",
+            "forData": "true"
+        },
+        "SV1_efracsvx_vs_pT_2D": {
+            "_comment": "",
+            "title": "ratio of track energies in SV to jet vs. jet p_{T}",
+            "xtitle": "p_{T} [GeV]",
+            "ytitle": "SV energy ratio",
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "path":  {"ART": "bTagging"},
+            "xbins": 20,
+            "xmin": 0,
+            "xmax": 1000,
+            "ybins": 20,
+            "ymin": 0,
+            "ymax": 1,
+            "type": "TH2F",
+            "forData": "true"
+        },
+        "SV1_deltaR_vs_pT_2D": {
+            "_comment": "",
+            "title": "#DeltaR(jet, SV-PV) vs. jet p_{T}",
+            "xtitle": "p_{T} [GeV]",
+            "ytitle": "#DeltaR(jet, SV-PV)",
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "path":  {"ART": "bTagging"},
+            "xbins": 20,
+            "xmin": 0,
+            "xmax": 1000,
+            "ybins": 20,
+            "ymin": 0,
+            "ymax": 0.6,
+            "type": "TH2F",
+            "forData": "true"
+        },
+        "SV1_masssvx_vs_eta_2D": {
+            "_comment": "",
+            "title": "mass of the secondary vertex vs. jet eta",
+            "xtitle": "#eta",
+            "ytitle": "sv mass [GeV]",
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "path":  {"ART": "bTagging"},
+            "xbins": 20,
+            "xmin": -5,
+            "xmax": 5,
+            "ybins": 20,
+            "ymin": 0,
+            "ymax": 6,
+            "type": "TH2F",
+            "forData": "true"
+        },
+        "SV1_N2Tpair_vs_eta_2D": {
+            "_comment": "",
+            "title": "number of two-track vertices vs. jet eta",
+            "xtitle": "#eta",
+            "ytitle": "SV1 N2Tpair",
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "path":  {"ART": "bTagging"},
+            "xbins": 20,
+            "xmin": -5,
+            "xmax": 5,
+            "ybins": 20,
+            "ymin": 0,
+            "ymax": 20,
+            "type": "TH2F",
+            "forData": "true"
+        },
+        "SV1_efracsvx_vs_eta_2D": {
+            "_comment": "",
+            "title": "ratio of track energies in SV to jet vs. jet eta",
+            "xtitle": "#eta",
+            "ytitle": "SV energy ratio",
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "path":  {"ART": "bTagging"},
+            "xbins": 20,
+            "xmin": -5,
+            "xmax": 5,
+            "ybins": 20,
+            "ymin": 0,
+            "ymax": 1,
+            "type": "TH2F",
+            "forData": "true"
+        },
+        "SV1_deltaR_vs_eta_2D": {
+            "_comment": "",
+            "title": "#DeltaR(jet, SV-PV) vs. jet eta",
+            "xtitle": "#eta",
+            "ytitle": "#DeltaR(jet, SV-PV)",
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "path":  {"ART": "bTagging"},
+            "xbins": 20,
+            "xmin": -5,
+            "xmax": 5,
+            "ybins": 20,
+            "ymin": 0,
+            "ymax": 0.6,
+            "type": "TH2F",
+            "forData": "true"
+        }
+    }
+
+} 

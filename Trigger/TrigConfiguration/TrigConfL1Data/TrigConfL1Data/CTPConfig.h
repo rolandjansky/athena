@@ -66,7 +66,6 @@ namespace TrigConf {
       void setL1Version( unsigned int v );
       void setPrescaleSetId(int id) { m_PrescaleSetId=id; }
       void setBunchGroupSetId(int id) { m_BunchGroupSetId=id; }
-      void setMenu(const Menu& m ) { m_Menu = m; }
       
       void clearPrescaleSets();
       void setPrescaleSet( const PrescaleSet& pss );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -25,7 +25,6 @@
 #include "CxxUtils/checker_macros.h"
 ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // This is unit test and a static variable is used in IDEDC_GaudiFixtureBase.
 
-namespace utf = boost::unit_test;
 
 static const std::string testJobOptionsFile("InDetEtaDependentCutsTestJobOpts.txt");
 

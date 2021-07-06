@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -21,8 +21,10 @@
 // Set parameters
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiDetElementLink_xk::set(const double* P)
+void InDet::SiDetElementLink_xk::set(const double* P, bool isITk)
 {
+  m_z            = float(P[ 1])                        ; //  Z
+  m_dz           = float(std::abs(P[12]-P[11])*.5)         ; // dZ
   m_phi          = float(P[ 2])                        ; // azimuthal angle
   m_geo   [0]    = float(P[ 3])                        ; // min. distance
   m_geo   [1]    = float(P[ 4])                        ; // phi
@@ -44,6 +46,12 @@ void InDet::SiDetElementLink_xk::set(const double* P)
   m_bound [3][2] = float(sqrt(P[26]*P[26]+P[27]*P[27])); // -ZR
   m_bound [3][0] = float(P[26]/double(m_bound[3][2]))  ; //
   m_bound [3][1] = float(P[27]/double(m_bound[3][2]))  ; //
+  if (isITk) {
+    m_bound [0][2]+=P[40];
+    m_bound [1][2]+=P[40];
+    m_bound [2][2]+=P[40];
+    m_bound [3][2]+=P[40];
+  }
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -75,3 +83,34 @@ void InDet::SiDetElementLink_xk::intersect
   O[2] = S;
   return;
 }
+
+
+///////////////////////////////////////////////////////////////////
+// Detector element intersection using cashed information
+// Input  parameters: r[0] - X    a[0] - Ax
+//                    r[1] - Y    a[1] - Ay
+//                    r[2] - Z    a[2] - Az
+// Output parameters: Step - step to detector element
+///////////////////////////////////////////////////////////////////
+bool InDet::SiDetElementLink_xk::intersectITk
+(const float* r,const float* a,float& Step) const
+{
+  const float* g = &m_geo[0];
+
+  float     S    = a[0]*g[6]+a[1]*g[7]+a[2]*g[5]                      ;
+  if(S!=0.) S    = (g[0]-(r[0]*g[6]+r[1]*g[7]+r[2]*g[5]))/S           ;
+  float r0 = r[0]+S*a[0]                          ;
+  float r1 = r[1]+S*a[1]                          ;
+  float r2 = r[2]+S*a[2]                          ;
+  float d0 =       r1*g[3]-r0*g[2]          -g[8] ;
+  float d1 = g[5]*(r0*g[3]+r1*g[2])-(g[4]*r2+g[9]);
+
+  if((m_bound[1][0]*d0+m_bound[1][1]*d1) > m_bound[1][2] ||
+     (m_bound[3][0]*d0+m_bound[3][1]*d1) > m_bound[3][2] ||
+     (m_bound[0][0]*d0+m_bound[0][1]*d1) > m_bound[0][2] ||
+     (m_bound[2][0]*d0+m_bound[2][1]*d1) > m_bound[2][2]) return false;
+  Step = S+r[5];
+  return true;
+}
+
+

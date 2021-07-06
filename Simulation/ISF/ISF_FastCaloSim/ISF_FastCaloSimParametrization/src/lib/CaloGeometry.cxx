@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimParametrization/CaloGeometry.h"
@@ -353,6 +353,9 @@ void CaloGeometry::InitRZmaps()
 
 TGraph* CaloGeometry::DrawGeoSampleForPhi0(int sample, int calocol, bool print)
 {
+  if (sample < CaloSampling::PreSamplerB || sample >= CaloSampling::Unknown) {
+    return nullptr;
+  }
   TGraph* firstgr=0;
   cout<<"Start sample "<<sample<<" ("<<SamplingName(sample)<<")"<<endl;
   int ngr=0;
@@ -480,7 +483,7 @@ const CaloDetDescrElement* CaloGeometry::getDDE(int sampling,float eta,float phi
   if(sampling>=MAX_SAMPLING) return 0;
   if(m_cells_in_regions[sampling].size()==0) return 0;
   
-  float dist;
+  float dist = 0;
   const CaloDetDescrElement* bestDDE=0;
   if(!distance) distance=&dist;
   *distance=+10000000;

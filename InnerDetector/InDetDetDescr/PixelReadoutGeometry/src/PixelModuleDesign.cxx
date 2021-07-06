@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -14,10 +14,12 @@
 
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "Identifier/Identifier.h"
-#include "InDetReadoutGeometry/SiCellId.h"
-#include "InDetReadoutGeometry/SiReadoutCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
+#include "ReadoutGeometryBase/SiReadoutCellId.h"
 
 #include <cmath>
+#include <utility>
+
 
 namespace InDetDD {
 
@@ -26,27 +28,29 @@ using std::abs;
 // Constructor with parameters:
 
 PixelModuleDesign::PixelModuleDesign(const double thickness,
-				     const int circuitsPerColumn,
-				     const int circuitsPerRow,
-				     const int cellColumnsPerCircuit,
-				     const int cellRowsPerCircuit,
-				     const int diodeColumnsPerCircuit,
-				     const int diodeRowsPerCircuit,
-				     std::shared_ptr<const PixelDiodeMatrix> matrix,
-				     InDetDD::CarrierType carrierType,
-				     int readoutSide,
-				     bool is3D) :
+                                    const int circuitsPerColumn,
+                                    const int circuitsPerRow,
+                                    const int cellColumnsPerCircuit,
+                                    const int cellRowsPerCircuit,
+                                    const int diodeColumnsPerCircuit,
+                                    const int diodeRowsPerCircuit,
+                                    std::shared_ptr<const PixelDiodeMatrix> matrix,
+                                    InDetDD::CarrierType carrierType,
+                                    int readoutSide,
+                                    bool is3D,
+                                    InDetDD::DetectorType detectorType) :
 
   SiDetectorDesign(thickness, 
 		   true, true, true, // phi,eta,depth axes symmetric
 		   carrierType,
 		   readoutSide),
-  m_diodeMap(matrix),
+  m_diodeMap(std::move(matrix)),
   m_readoutScheme(circuitsPerColumn,circuitsPerRow,
 		  cellColumnsPerCircuit,cellRowsPerCircuit,
 		  diodeColumnsPerCircuit,diodeRowsPerCircuit),
   m_bounds(),
-  m_is3D(is3D)
+  m_is3D(is3D),
+  m_detectorType(detectorType)
 {
 }
 
@@ -240,5 +244,9 @@ PixelModuleDesign::cellIdInRange(const SiCellId & cellId) const
   return m_diodeMap.cellIdInRange(cellId);
 }
 
+DetectorType PixelModuleDesign::type() const
+{
+  return m_detectorType;
+}
 
 } // namespace InDetDD

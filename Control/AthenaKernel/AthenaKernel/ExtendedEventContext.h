@@ -43,7 +43,7 @@ namespace Atlas {
      * This is used to perform detailed trigger monitoring via auditor.
      *
      * @see EventViewCreatorAlgorithm::execute(const EventContext&)
-     * @see TrigCostMTSvc::processAlg(const EventContext&, const std::string&, const AuditType)
+     * @see TrigCostSvc::processAlg(const EventContext&, const std::string&, const AuditType)
      **/
     const TrigRoiDescriptor* roiDescriptor() const { return m_roi; }
 

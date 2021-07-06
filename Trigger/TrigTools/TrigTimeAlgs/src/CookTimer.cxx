@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
  * @file   TrigTimeAlgs/CookTimer.cxx
  * @brief  Some specialized classes of Athena::AlgorithmTimer
  * @author Frank Winklmeier
- *
- * $Id: CookTimer.cxx,v 1.1 2008-12-10 15:29:00 fwinkl Exp $
  */
 
 #include "TrigTimeAlgs/CookTimer.h"
@@ -26,7 +24,7 @@
 #include <iostream>
 #include <sstream>
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 
 using namespace HLT;
 
@@ -50,17 +48,17 @@ void AbortingCookTimer::abortJob()
 {
   /*
    * Print some information, stack trace and abort the job.
-   */  
+   */
   std::ostringstream os;
   os << "Timeout (" << m_timeout << " sec) reached";
-  
+
   ServiceHandle<ICoreDumpSvc> coreDumpSvc("CoreDumpSvc", "HLT::AbortingCookTimer");
   if ( coreDumpSvc.retrieve().isSuccess() ) {
     coreDumpSvc->setCoreDumpInfo("Reason", os.str());
     std::cout << coreDumpSvc->dump() << std::endl;
   }
   else std::cout << os.str() << std::endl;
-  
+
   gSystem->StackTrace();
   abort();
 }
@@ -81,7 +79,7 @@ IncidentTimer::IncidentTimer(unsigned int milliseconds,
   if ( m_incSvc.retrieve().isFailure() ) {
     MsgStream log(Athena::getMessageSvc(), "IncidentTimer");
     log << MSG::FATAL << "Could not retrieve IncidentSvc" << endmsg;
-  }    
+  }
 }
 
 
@@ -89,5 +87,3 @@ void IncidentTimer::fireIncident()
 {
   m_incSvc->fireIncident(Incident(m_name,m_name));
 }
-
-

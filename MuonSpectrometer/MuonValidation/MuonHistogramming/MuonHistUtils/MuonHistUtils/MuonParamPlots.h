@@ -15,7 +15,7 @@ class MuonParamPlots: public PlotBase
 {
  public:
   MuonParamPlots(PlotBase *pParent, std::string sDir);
-  void fill(const xAOD::Muon& mu);
+  void fill(const xAOD::Muon& mu, float weight=1.0);
   
   TH1* msInnerMatchChi2;
   TH1* msOuterMatchChi2;
@@ -28,7 +28,7 @@ class MuonParamPlots: public PlotBase
   
  private:
   void initializePlots();
-  void FillPlot(TH1* hist, const xAOD::Muon& mu,const xAOD::Muon::ParamDef paramDef,float scale=1);
+  void FillPlot(TH1* hist, const xAOD::Muon& mu,const xAOD::Muon::ParamDef paramDef,float scale=1, float weight=1.0);
 };
 
 }

@@ -73,20 +73,20 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
   }
 
   // origTrackParameters should be empty in standard reconstruction, origTracks should be empty when re-running from xAOD
-  if(origTracks.size()>0 && origTrackParameters.size()>0) {
+  if(!origTracks.empty() && !origTrackParameters.empty()) {
     ATH_MSG_ERROR("Inconsistent mix of Trk::Track and Trk::TrackParameter");
     return StatusCode::FAILURE;
   }
 
   xAOD::Vertex* xAODvertex = nullptr;
 
-  if(origTracks.size() > 0) {
+  if(!origTracks.empty()) {
     // get the starting point for the fit using Trk::Tracks
     const Amg::Vector3D& seedPoint = m_SeedFinder->findSeed(origTracks);
     // fitting the vertex
     xAODvertex = m_fitTool->fit(xaodTracks, seedPoint);
   }
-  else if (origTrackParameters.size() > 0) {
+  else if (!origTrackParameters.empty()) {
     // get the starting point for the fit using Trk::TrackParameters
     const Amg::Vector3D& seedPoint = m_SeedFinder->findSeed(origTrackParameters);
     // fitting the vertex

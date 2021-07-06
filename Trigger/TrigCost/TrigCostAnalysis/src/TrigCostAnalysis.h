@@ -1,24 +1,27 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCOSTANALYSIS_TRIGCOSTALYSIS_H
 #define TRIGCOSTANALYSIS_TRIGCOSTALYSIS_H 1
 
-#include "AthenaBaseComps/AthHistogramAlgorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandleKeyArray.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "TrigConfData/HLTMenu.h"
+#include "TrigCompositeUtils/AlgToChainTool.h"
 
 #include "EnhancedBiasWeighter/EnhancedBiasWeighter.h"
 
 #include "Gaudi/Parsers/Factory.h"
+#include "GaudiKernel/ITHistSvc.h"
 
 #include "MonitoredRange.h"
 
 #include <unordered_map>
 
-class TH1; //!< Forward reference
+#include "TH1.h"
+#include "TTree.h"
 
 /**
  * @class TrigCostAnalysis
@@ -28,7 +31,7 @@ class TH1; //!< Forward reference
  * config service, identify the time Range that the event falls into, and dispatches monitoring to the
  * correct time range. Time ranges, their monitors, and their monitor's counters are all instantiated on-demand.
  */
-class TrigCostAnalysis: public ::AthHistogramAlgorithm { 
+class TrigCostAnalysis: public ::AthAlgorithm { 
   public: 
 
     /**
@@ -69,7 +72,9 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
      * @param[in] tDir Histogram name & directory.
      * @return Cached pointer to histogram. Used to fill histogram without having to perform THishSvc lookup. 
      */
-    TH1* bookGetPointer_fwd(TH1* hist, const std::string& tDir = "");
+    TH1* bookGetPointer(TH1* hist, const std::string& tDir = "");
+
+    ServiceHandle<ITHistSvc> m_histSvc{ this, "THistSvc", "THistSvc/THistSvc", "Histogramming svc" };
 
     Gaudi::Property<bool> m_singleTimeRange { this, "UseSingleTimeRange", false,
       "Use a single time range rather than splitting by LB" };
@@ -77,8 +82,11 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
     Gaudi::Property<std::string> m_singleTimeRangeName { this, "SingleTimeRangeName", "All",
       "Name for single time range" };
 
-    Gaudi::Property<std::string> m_additionalHashMap { this, "AdditionalHashMap", "TrigCostRootAnalysis/hashes2string_08072020.txt",
+    Gaudi::Property<std::string> m_additionalHashMap { this, "AdditionalHashMap", "TrigCostRootAnalysis/hashes2string_29042021.txt",
       "Used to load strings corresponding to algorithms which are not explicitly scheduled by chains. To be updated periodically." };
+
+    Gaudi::Property<std::vector<std::string>> m_additionalHashList { this, "AdditionalHashList", {},
+      "Used to load strings corresponding to algorithms which are not explicitly scheduled by chains." };
 
     Gaudi::Property<size_t> m_TimeRangeLengthLB { this, "TimeRangeLengthLB", 50,
       "Length of each variable length Time Range in LB" };
@@ -95,11 +103,17 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
     Gaudi::Property<bool> m_doMonitorGlobal { this, "DoMonitorGlobal", true,
       "Monitor global event properties" };
 
-    Gaudi::Property<bool> m_doMonitorThreadOccupancy { this, "DoMonitorThreadOccupancy", true,
+    Gaudi::Property<bool> m_doMonitorThreadOccupancy { this, "DoMonitorThreadOccupancy", false,
       "Monitor algorithm occupancy load of individual threads in an MT execution environment" };
 
     Gaudi::Property<bool> m_doMonitorROS { this, "DoMonitorROS", true,
       "Monitor Read-Out System" };
+
+    Gaudi::Property<bool> m_doMonitorChain { this, "DoMonitorChain", true,
+      "Monitor individual chains by instance name" };
+
+    Gaudi::Property<bool> m_doMonitorChainAlgorithm { this, "DoMonitorChainAlgorithm", false,
+      "Monitor algorithms associated with chains by instance name" };
 
     Gaudi::Property<bool> m_useEBWeights { this, "UseEBWeights", true,
       "Apply Enhanced Bias weights" };
@@ -127,6 +141,9 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
 
     ToolHandle<IEnhancedBiasWeighter> m_enhancedBiasTool{this, "EnhancedBiasTool", "",
       "Enhanced bias weighting tool."};
+
+    ToolHandle<TrigCompositeUtils::AlgToChainTool> m_algToChainTool{this, "AlgToChainTool", "",
+      "Tool to retrieve chains for algorithm."};
    
   private:
 
@@ -173,16 +190,21 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
      */
     uint32_t getOnlineSlot(const xAOD::TrigCompositeContainer* costCollection) const;
 
-
     /**
      * @brief High watermark for pre-cached string hashes for the SLOT category. Corresponding to SG and View IProxyDict names.
      * @param[in] max Pre-compute string hashes for View or Slot multiplicities up to this number.
      */
     StatusCode checkUpdateMaxView(const size_t max);
 
+    /**
+     * @brief Write to outpute tree (if any) the metadata needed downstream.
+     */
+    void writeMetadata();
+
     std::unordered_map<std::string, std::unique_ptr<MonitoredRange> > m_monitoredRanges; //!< Owned storage of Ranges. Keyed on Range name.
     std::unordered_map<uint32_t, std::string > m_algTypeMap; //!< Cache of algorithm's type, read from configuration data.
     std::set<std::string> m_storeIdentifiers; //!< Identifiers of object stores, needed to cache STORE string-hash values
+    TTree* m_metadataTree; //!< Used to write out some metadata needed by post-processing (e.g. bunchgroup, lumi)
 
     mutable std::atomic<size_t> m_fullEventDumps; //!< Counter to keep track of how many events have been full-dumped
     mutable std::atomic<size_t> m_maxViewsNumber; //!< What is the maximum number of View instances we've so far cached string hashes to cover?

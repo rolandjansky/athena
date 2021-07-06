@@ -46,10 +46,10 @@ protected:
 
 private:
 
-  std::string _photonType;
-  EvtId _gammaId;
-  double _mPhoton;
-  bool _initialised;
+  std::string m_photonType;
+  EvtId m_gammaId;
+  double m_mPhoton;
+  bool m_initialised;
 
   HepMC::GenParticle* createGenParticle(EvtParticle* theParticle, bool incoming);
 

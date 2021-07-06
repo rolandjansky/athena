@@ -13,6 +13,7 @@
 #include "TrigConfL1Data/TriggerThreshold.h"
 #include "TrigConfL1Data/Menu.h"
 #include "TrigConfData/HLTMenu.h"
+#include "xAODTrigger/TrigComposite.h"
 
 namespace ROIB {
   class RoIBResult;
@@ -42,6 +43,10 @@ public:
                             const ROIB::RoIBResult& /*roib*/,
                             const HLT::IDSet& /*activeChains*/) const override { return StatusCode::SUCCESS; }
 
+  virtual StatusCode unpack(const EventContext& /*ctx*/,
+                            const xAOD::TrigComposite& /*l1TriggerResult*/,
+                            const HLT::IDSet& /*activeChains*/) const override { return StatusCode::SUCCESS; }
+
 
 protected:
   
@@ -49,12 +54,21 @@ protected:
   SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_decisionsKey{
     this, "Decisions", "RoIDecisions", "Decisions for each RoI"};
 
+  SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_decisionsKeyProbe{
+    this, "DecisionsProbe", "", "Optional secondary set of Decisions for each RoI for probe a.k.a. delayed a.k.a. rerun chains"};
+
   SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{
     this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu", "HLT Menu"};
 
   ToolHandle<GenericMonitoringTool> m_monTool{
     this, "MonTool", "", "Monitoring tool"};
   ///@}
+
+  /**
+   * @brief Concatonate the probe identifier string with the threshold name string to create the alternate version, 
+   * used by lower pT probe legs of tag+probe chains.
+   **/
+  static std::string getProbeThresholdName(const std::string& thresholdName);
 
   std::map<HLT::Identifier, HLT::IDVec> m_thresholdToChainMapping;
   std::map<HLT::Identifier, HLT::Identifier> m_legToChainMapping;

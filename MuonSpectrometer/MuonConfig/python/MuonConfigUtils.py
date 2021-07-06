@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # This file is just for shared functions etc used by this package.
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -19,6 +19,7 @@ def SetupMuonStandaloneArguments():
                         
     parser.add_argument("--forceclone", help="Override default cloneability of algorithms to force them to run in parallel",
                         action="store_true")
+    parser.add_argument("-d","--debug", default=None, help="attach debugger (gdb) before run, <stage>: conf, init, exec, fini")
     args = parser.parse_args()
     
     # Setup for new config
@@ -40,7 +41,10 @@ def SetupMuonStandaloneConfigFlags(args):
     ConfigFlags.Detector.GeometryMDT   = True 
     ConfigFlags.Detector.GeometryTGC   = True
     ConfigFlags.Detector.GeometryCSC   = True     
-    ConfigFlags.Detector.GeometryRPC   = True 
+    ConfigFlags.Detector.GeometryRPC   = True
+    # TODO: disable these for now, to be determined if needed
+    ConfigFlags.Detector.GeometryCalo  = False
+    ConfigFlags.Detector.GeometryID    = False
     
     ConfigFlags.Output.ESDFileName=args.output
     

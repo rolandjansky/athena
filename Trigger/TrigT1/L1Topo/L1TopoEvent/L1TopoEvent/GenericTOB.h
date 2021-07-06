@@ -1,13 +1,18 @@
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-#ifndef L1TopoEvent_GeneralTOP
-#define L1TopoEvent_GeneralTOP
+#ifndef GENERICTOB_H
+#define GENERICTOB_H
 
 #include <iostream>
+#include <string>
 
 #include "L1TopoEvent/BaseTOB.h"
 #include "L1TopoEvent/JetTOB.h"
+#include "L1TopoEvent/jTauTOB.h"
+#include "L1TopoEvent/jLargeRJetTOB.h"
+#include "L1TopoEvent/jJetTOB.h"
 #include "L1TopoEvent/ClusterTOB.h"
+#include "L1TopoEvent/eEmTOB.h"
 #include "L1TopoEvent/MuonTOB.h"
 #include "L1TopoEvent/LateMuonTOB.h"
 #include "L1TopoEvent/MuonNextBCTOB.h"
@@ -33,8 +38,20 @@ namespace TCS {
       // constructor from jet
       GenericTOB(const JetTOB & jet, JetTOB::JetSize jetSize);
 
+      // constructor from small r jet
+      GenericTOB(const jTauTOB & tau);
+
+      // constructor from small r jet
+      GenericTOB(const jLargeRJetTOB & jet);
+
+      // constructor from small r jet
+      GenericTOB(const jJetTOB & jet);
+
       // constructor from cluster
       GenericTOB(const ClusterTOB & cluster);
+
+      // constructor from eEm
+      GenericTOB(const eEmTOB & eem);
 
       // constructor from muon
       GenericTOB(const MuonTOB & muon);
@@ -66,6 +83,13 @@ namespace TCS {
 
       int eta() const { return m_eta; }
       int phi() const { return m_phi; }
+
+      // See definitions at TrigT1Interfaces/MuCTPIL1TopoCandidate.h 
+      int bw2or3() const { return m_bw2or3; }
+      int innerCoin() const { return m_innerCoin; }
+      int goodMF() const { return m_goodMF; }
+      int charge() const { return m_charge; }
+      int is2cand() const { return m_is2cand; }
       
       double EtDouble() const { return m_EtDouble; }
       double etaDouble() const { return m_etaDouble; }
@@ -87,6 +111,12 @@ namespace TCS {
 
       int m_eta { 0 };
       int m_phi { 0 };
+
+      int m_bw2or3 { 0 };
+      int m_innerCoin { 0 };
+      int m_goodMF { 0 };
+      int m_charge { 0 };
+      int m_is2cand { 0 };
 
       double m_EtDouble { 0 };
       double m_etaDouble { 0 };

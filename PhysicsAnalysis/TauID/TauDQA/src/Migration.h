@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUDQA_MIGRATION_H
@@ -36,9 +36,7 @@ namespace Tau{
 	virtual ~Migration();
 
 	/* void fill(const xAOD::TauJet& tau,int nProng, int nNeu); */
-	void fill(
-	   const xAOD::TauJet& tau,
-	   xAOD::TauJetParameters::DecayMode trueMode);
+	void fill(const xAOD::TauJet& tau, xAOD::TauJetParameters::DecayMode trueMode, float weight);
 	
 	const char *m_lable[DECAYSIZE] = {
 	    "t10r10",
@@ -64,8 +62,8 @@ namespace Tau{
     private:
 	void initializePlots();
 	std::string m_sTauJetContainerName;
-	void decayModeFill(int trueMode, int recMode, TH1 *histo);
-	void decayModeFill(int trueMode, int recP, int recN, TH1 *histo);
+	void decayModeFill(int trueMode, int recMode, TH1 *histo, float weight);
+	void decayModeFill(int trueMode, int recP, int recN, TH1 *histo, float weight);
     };
     
 }

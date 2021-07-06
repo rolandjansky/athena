@@ -1,23 +1,21 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CNVTOOL_ITGCPREPDATAREPLICATIONTOOL_H
 #define MUONTGC_CNVTOOL_ITGCPREPDATAREPLICATIONTOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
-
-static const InterfaceID IID_ITgcPrepDataReplicationTool("Muon::ITgcPrepDataReplicationTool", 1, 0);
+#include "CxxUtils/checker_macros.h"
 
 namespace Muon {
 
-  class ITgcPrepDataReplicationTool : virtual public IAlgTool  {
+  class ATLAS_NOT_THREAD_SAFE ITgcPrepDataReplicationTool : virtual public IAlgTool  {
 
-  public: 
-    /** Provide interface ID of ITgcPrepDataReplicationTool */
-    static const InterfaceID& interfaceID() { return IID_ITgcPrepDataReplicationTool; };
+  public:
+    DeclareInterfaceID( ITgcPrepDataReplicationTool, 1, 0 );
 
-    virtual StatusCode replicate()=0;
+    virtual StatusCode replicate() const = 0;
   }; 
 
 } // end of namespace

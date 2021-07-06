@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERECUTILS_TILERAWCHANNELBUILDERWIENERFILTER_H
@@ -22,10 +22,11 @@
 #include "TileConditions/ITileCondToolOfc.h"
 #include "TileConditions/TileCondToolTiming.h"
 #include "TileConditions/TileCondToolNoiseSample.h"
+#include "TileConditions/TileWienerFilterWeights.h"
 
 // Atlas includes
-#include "TileConditions/TileWienerFilterWeights.h"
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LumiBlockData/BunchCrossingCondData.h"
 
 #include <vector>
 #include <string>
@@ -69,17 +70,18 @@ class TileRawChannelBuilderWienerFilter: public TileRawChannelBuilder {
     ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample{this,
         "TileCondToolNoiseSample", "TileCondToolNoiseSample", "Tile noise sample tool"};
 
-    ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
+    SG::ReadCondHandleKey<BunchCrossingCondData> m_bunchCrossingKey{this,
+        "BunchCrossingCondDataKey", "BunchCrossingData" ,"SG Key of BunchCrossing CDO"}; //!< Tool to get distance into bunch train
 
     //!< Applies OF algorithm
-    double filter(int ros, int drawer, int channel, int &gain, double &pedestal, double &amplitude, double &time);
+    double filter(int ros, int drawer, int channel, int &gain, double &pedestal, double &amplitude, double &time, const EventContext &ctx);
     int findMaxDigitPosition();  //!< Finds maximum digit position in the pulse
     //!< Gets pedestal estimation for OF1
-    float getPedestal(int ros, int drawer, int channel, int gain);
+    float getPedestal(int ros, int drawer, int channel, int gain, const EventContext &ctx);
     //!< Computes A,time,ped using OF. If iterations are required, the Iterator method is used
     double compute(int ros, int drawer, int channel, int gain, double &pedestal, double &amplitude, double &time, double& phase);
     //!< Gets the BCID index within the train
-    int getBCIDIndex();
+    int getBCIDIndex(const EventContext &ctx);
 
     int m_maxIterations; //!< maximum number of iteration to perform
     int m_pedestalMode;  //!< pedestal mode to use

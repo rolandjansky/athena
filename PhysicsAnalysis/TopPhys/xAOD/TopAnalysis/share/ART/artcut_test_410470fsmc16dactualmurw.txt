@@ -59,8 +59,6 @@ PerfStats No
 
 ### Systematics configuration
 Systematics Nominal
-JetUncertainties_NPModel CategoryReduction
-LargeRJetUncertainties_NPModel CategoryReduction
 
 ### Electron configuration
 ElectronID TightLH
@@ -75,7 +73,6 @@ PhotonID Tight
 PhotonIDLoose Loose
 PhotonIsolation FixedCutTight
 PhotonIsolationLoose FixedCutLoose
-PhotonUseRadiativeZ False
 
 ### Muon configuration
 MuonQuality Medium

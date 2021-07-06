@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigEgammaMonitorBaseAlgorithm_h 
@@ -7,7 +7,8 @@
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 #include "TrigEgammaMatchingTool/TrigEgammaMatchingToolMT.h"
-#include "TrigEgammaAnalysisTools/TrigEgammaInfo.h"
+#include "TrigEgammaEmulationTool/TrigEgammaEmulationToolMT.h"
+
 
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
@@ -35,7 +36,24 @@
 #include "PATCore/AcceptData.h"
 
 
-
+// Trigger Information struct
+typedef struct _triginfo
+{
+    std::string trigName; //Trigger Name
+    std::string trigType; //Electron or Photon
+    std::string trigL1Item; //L1 item for HLT
+    std::string trigL1Type; //VHI
+    std::string trigPidType; //Loose, Medium, Tight, etc...
+    std::string trigPidDecorator; //Aux decoration
+    bool trigL1; // Level1 Trigger
+    bool trigPerf; // Performance chain
+    bool trigEtcut; // Et cut only chain
+    float trigThrHLT; // HLT Et threshold
+    float trigThrL1; // L1 Et threshold
+    bool trigIsEmulation;
+    bool isGSF; // GSF chain
+    bool isLRT; // LRT chain
+} TrigInfo;
 
 class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
   public:
@@ -68,17 +86,20 @@ class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
 
     /* Trigger e/g matching tool */
     ToolHandle<TrigEgammaMatchingToolMT> m_matchTool;
+    /* Trigger e/g emulation tool */
+    ToolHandle<Trig::TrigEgammaEmulationToolMT> m_emulatorTool;
     /*! Offline isEM Selectors */
     ToolHandleArray<IAsgElectronIsEMSelector> m_electronIsEMTool{this,"ElectronIsEMSelector",{}};
     /*! Offline LH Selectors */
     ToolHandleArray<IAsgElectronLikelihoodTool> m_electronLHTool{this,"ElectronLikelihoodTool",{}};
-    /*! Offline LH Very loose selector */
-    ToolHandle<IAsgElectronLikelihoodTool> m_electronLHVLooseTool{this,"ElectronLHVLooseTool", ""};
-    
+     /*! Offline DNN Selectors */
+    ToolHandleArray<IAsgElectronLikelihoodTool> m_electronDNNTool{ this, "ElectronDNNSelectorTool", {},"DNN tools" };
     /*! Offline isEM Photon Selectors */ 
     ToolHandleArray<IAsgPhotonIsEMSelector> m_photonIsEMTool{this,"PhotonIsEMSelector",{}};
     
-
+    
+    /*! Do emulation */
+    Gaudi::Property<bool> m_doEmulation{this, "DoEmulation", false };
     /*! TP Trigger Analysis */
     Gaudi::Property<bool> m_tp{this, "TPTrigger", false };
     /*! default probe pid for trigitems that don't have pid in their name */
@@ -87,6 +108,8 @@ class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
     Gaudi::Property<std::vector<std::string>> m_isemname{this, "isEMResultNames", {} };
     /*! lh names */
     Gaudi::Property<std::vector<std::string>>  m_lhname{this, "LHResultNames", {} };
+    /*! dnn names */
+    Gaudi::Property<std::vector<std::string>> m_dnnname {this, "DNNResultNames", {}, };
     /*! Include more detailed histograms */
     Gaudi::Property<bool> m_detailedHists{this, "DetailedHistograms", false};
   

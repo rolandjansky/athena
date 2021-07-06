@@ -5,7 +5,6 @@
 # art-type: grid
 # art-include: master/Athena
 # art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
-# art-athena-nfiles: 4
 # art-athena-mt: 8
 # art-memory: 4096
 # art-output: *.txt
@@ -28,13 +27,17 @@
 
 
 Slices  = ['minbias']
-RunEF   = False
 Events  = 8000 
 Threads = 8 
 Slots   = 8
 Input   = 'minbias'    # defined in TrigValTools/share/TrigValInputs.json  
+ExtraAna   = " -c 'ptmin=400' "
 
-TrackReference = [ 'Truth', 'Offline' ]
+Jobs = [ ( "Truth",       " TIDAdata-run3-minbias.dat                    -o data-hists.root" ),
+         ( "Offline",     " TIDAdata-run3-minbias-offline.dat -r Offline -o data-hists-offline.root" ) ]
+
+Comp = [ ( "L2minbias",        "L2minbias", "data-hists.root",         " -c TIDAhisto-panel.dat  -d HLTL2-plots " ),
+         ( "L2minbiasoffline", "L2minbias", "data-hists-offline.root", " -c TIDAhisto-panel.dat  -d HLTL2-plots-offline " ) ]
 
 
 from AthenaCommon.Include import include 

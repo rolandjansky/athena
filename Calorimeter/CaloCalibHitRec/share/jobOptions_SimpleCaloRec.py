@@ -63,8 +63,6 @@ include( "TileConditions/TileConditions_jobOptions.py" )
 include( "CaloIdCnv/CaloIdCnv_joboptions.py" )
 include( "TileIdCnv/TileIdCnv_jobOptions.py" )
 include( "LArDetDescr/LArDetDescr_joboptions.py" )
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-ToolSvc += CaloNoiseToolDefault()
 
 # data from pool
 include( "EventAthenaPool/EventAthenaPool_joboptions.py" )

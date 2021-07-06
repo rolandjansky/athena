@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ######################################################
 # ConfiguredTileVolumeBuilder module
@@ -16,7 +16,7 @@ from TileTrackingGeometry.TileTrackingGeometryConf import Tile__TileVolumeBuilde
 # define the class
 class ConfiguredTileVolumeBuilder( Tile__TileVolumeBuilder ):
     # constructor
-    def __init__(self,name = 'TileVolumeBuilder'):
+    def __init__(self,name = 'TileVolumeBuilder',nameSuffix=''):
 
         from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
 
@@ -27,10 +27,10 @@ class ConfiguredTileVolumeBuilder( Tile__TileVolumeBuilder ):
        
         # The volume helper for the Tile
         from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__TrackingVolumeHelper
-        TileTrackingVolumeHelper = Trk__TrackingVolumeHelper(name='TrackingVolumeHelper')
+        TileTrackingVolumeHelper = Trk__TrackingVolumeHelper(name='TrackingVolumeHelper'+nameSuffix)
         ToolSvc += TileTrackingVolumeHelper 
               
-        Tile__TileVolumeBuilder.__init__(self,name,
+        Tile__TileVolumeBuilder.__init__(self,name+nameSuffix,
                                          UseCaloSurfBuilder = TrkDetFlags.TileUseCaloSurfBuilder(),
                                          TrackingVolumeHelper = TileTrackingVolumeHelper,                                         
                                          BarrelEnvelopeCover  = TrkDetFlags.TileBarrelEnvelopeCover(),

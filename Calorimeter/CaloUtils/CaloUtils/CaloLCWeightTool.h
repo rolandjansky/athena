@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOUTILS_CALOLCWEIGHTTOOL_H
@@ -29,7 +29,6 @@
 #include "GaudiKernel/EventContext.h"
 
 class CaloCell_ID;
-class ICalorimeterNoiseTool;
 class CaloCluster;
 
 class CaloLCWeightTool : public AthAlgTool, virtual public IClusterCellWeightTool

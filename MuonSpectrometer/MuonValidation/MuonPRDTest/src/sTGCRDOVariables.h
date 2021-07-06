@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STGCRDOVARIABLES_H
@@ -10,7 +10,7 @@
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include <vector>
 
-class sTGCRDOVariables : public ValAlgVariables
+class sTGCRDOVariables final : public ValAlgVariables
 {
  public:
  sTGCRDOVariables(StoreGateSvc* evtStore,

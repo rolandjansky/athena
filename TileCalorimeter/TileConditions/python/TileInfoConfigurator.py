@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ##############################################################
 #
@@ -99,17 +99,16 @@ class _TileInfoConfigurator( TileInfoLoader ):
         #from .TileCondToolConf import getTileCondToolNoiseRawChn
         #ToolSvc += getTileCondToolNoiseRawChn('COOL')
 
-        self.msg.info("Changing default TileCondToolTiming configuration to COOL source")
-        from .TileCondToolConf import getTileCondToolTiming
-        getTileCondToolTiming('COOL',type)
+        from Digitization.DigitizationFlags import digitizationFlags
+        if not digitizationFlags.doXingByXingPileUp():
+            self.msg.info("Changing default TileCondToolTiming configuration to COOL source")
+            from .TileCondToolConf import getTileCondToolTiming
+            getTileCondToolTiming('COOL',type)
 
  #       self.msg.info("Changing default TileCondToolPulseShape configuration to COOL source")
  #       from .TileCondToolConf import getTileCondToolPulseShape
  #       ToolSvc += getTileCondToolPulseShape('COOL')
 
-
-        #in future will need this tool as well
-        #from .TileCondToolConf import getTileCellNoiseTool
 
         return
 
@@ -529,8 +528,6 @@ def TileInfoConfigurator(name="TileInfoLoader", **kwargs):
     #    from .TileCondToolConf import getTileCondToolOfcCool
     #    ToolSvc += getTileCondToolOfcCool()
 
-    #in future will need this tool as well
-    #from .TileCondToolConf import getTileCellNoiseTool
 
     #=== by default COOL is not configured
     svc._coolIsConfigured = False

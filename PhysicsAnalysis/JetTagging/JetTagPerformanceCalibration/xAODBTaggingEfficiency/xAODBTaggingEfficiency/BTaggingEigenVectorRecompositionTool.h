@@ -38,7 +38,7 @@ class BTaggingEigenVectorRecompositionTool: public asg::AsgTool,
             public virtual IBTaggingEigenVectorRecompositionTool
 {
   /// Create a proper constructor for Athena
-  ASG_TOOL_CLASS2( BTaggingEigenVectorRecompositionTool, IBTaggingEigenVectorRecompositionTool, ISystematicsTool)
+  ASG_TOOL_CLASS3( BTaggingEigenVectorRecompositionTool, IBTaggingEigenVectorRecompositionTool, ISystematicsTool, CP::IReentrantSystematicsTool)
 
   public:
 

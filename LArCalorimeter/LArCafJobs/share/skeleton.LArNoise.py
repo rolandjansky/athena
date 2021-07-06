@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import sys
 from AthenaCommon.Logging import logging
@@ -133,8 +133,8 @@ tf.readBS=False
 tf.doID=False
 
 
-from TriggerJobOpts.TriggerGetter import TriggerGetter
-triggerGetter = TriggerGetter()
+from TriggerJobOpts.T0TriggerGetter import T0TriggerGetter
+triggerGetter = T0TriggerGetter()
 
 # trigger configuration
 #from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
@@ -152,14 +152,12 @@ triggerGetter = TriggerGetter()
 #from TrigDecisionMaker.TrigDecisionMakerConfig import WriteTrigDecision
 #trigDecWriter = WriteTrigDecision()
 
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theCaloNoiseTool = CaloNoiseToolDefault()
-ToolSvc+=theCaloNoiseTool
+from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+CaloNoiseCondAlg ('totalNoise')
 
-# --- BunchCrossing Tool configuration ---
-from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-theBCTool = BunchCrossingTool()
-ToolSvc += theBCTool
+# BunchCrossing info
+from LumiBlockComps.BunchCrossingCondAlgDefault import BunchCrossingCondAlgDefault
+BunchCrossingCondAlgDefault()
 
 svcMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput()
 
@@ -169,7 +167,6 @@ include("LArCellRec//LArCollisionTime_jobOptions.py")
 
 from LArCafJobs.LArCafJobsConf import LArNoiseBursts
 topSequence += LArNoiseBursts( "LArNoiseBursts" )
-topSequence.LArNoiseBursts.ICaloNoiseTool = theCaloNoiseTool
 topSequence.LArNoiseBursts.BCTool = theBCTool
 topSequence.LArNoiseBursts.SigmaCut = 3.0
 topSequence.LArNoiseBursts.NumberOfBunchesInFront = 30

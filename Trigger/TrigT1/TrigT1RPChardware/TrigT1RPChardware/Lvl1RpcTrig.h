@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef Lvl1RpcTrig_H
-#define Lvl1RpcTrig_H
+#ifndef TrigT1RPChardware_Lvl1RpcTrig_H
+#define TrigT1RPChardware_Lvl1RpcTrig_H
 #include "TrigT1RPChardware/NOBXS.h"
 #include "TrigT1RPChardware/Lvl1RpcConf.h"
 #include "TrigT1RPChardware/Matrix.h"

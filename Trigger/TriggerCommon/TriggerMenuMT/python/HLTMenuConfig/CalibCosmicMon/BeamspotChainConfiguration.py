@@ -2,11 +2,11 @@
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.CalibCosmicMon.BeamspotChainConfiguration")
+log = logging.getLogger(__name__)
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
-from TrigStreamerHypo.TrigStreamerHypoConfigMT import StreamerHypoToolMTgenerator
-from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlgMT
+from TrigStreamerHypo.TrigStreamerHypoConfig import StreamerHypoToolGenerator
+from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlg
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 from AthenaCommon.CFElements import seqAND, parOR
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
@@ -14,13 +14,13 @@ from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool
 
 #----------------------------------------------------------------
 
-# fragments generating configuration will be functions in New JO, 
+# fragments generating configuration will be functions in New JO,
 # so let's make them functions already now
 #----------------------------------------------------------------
 
 def trkFS_trkfast_Cfg( flags ):
         return allTE_trkfast( signature="FS" )
- 
+
 def allTE_trkfast_Cfg( flags ):
         return allTE_trkfast( signature="BeamSpot" )
 
@@ -39,10 +39,13 @@ def allTE_trkfast( signature="FS" ):
         from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
         IDTrigConfig = getInDetTrigConfig( signature )
 
+        if(signature == "FS"):
+            IDTrigConfig = getInDetTrigConfig("beamSpotFS")
+
         viewAlgs, viewVerify  = makeInDetAlgs( config = IDTrigConfig,  rois=inputMakerAlg.InViewRoIs)
 
         vertexAlg = T2VertexBeamSpot_activeAllTE( "vertex_"+signature )
-        vertexAlg.TrackCollection = IDTrigConfig.FT.trkTracksFTF()
+        vertexAlg.TrackCollection = IDTrigConfig.trkTracks_FTF()
 
         viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+beamspotViewRoI_'+signature ),
                                    ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
@@ -59,9 +62,9 @@ def allTE_trkfast( signature="FS" ):
 
 
         #hypo
-        beamspotHypoAlg = TrigStreamerHypoAlgMT("BeamspotHypoAlg_"+signature)
+        beamspotHypoAlg = TrigStreamerHypoAlg("BeamspotHypoAlg_"+signature)
         beamspotHypoAlg.RuntimeValidation = False #Needed to avoid the ERROR ! Decision has no 'feature' ElementLink
-        beamspotHypoToolGen= StreamerHypoToolMTgenerator
+        beamspotHypoToolGen= StreamerHypoToolGenerator
 
 
         return  MenuSequence( Sequence    = beamspotViewsSequence,
@@ -81,25 +84,25 @@ class BeamspotChainConfiguration(ChainConfigurationBase):
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------
-    def assembleChain(self):                            
+    def assembleChain(self):
         chainSteps = []
         log.debug("Assembling chain for %s", self.chainName)
 
         stepDictionary = self.getStepDictionary()
-      
+
         #key = self.chainPart['EFrecoAlg']
         key = self.chainPart['addInfo'][0] + "_" + self.chainPart['l2IDAlg'][0]#TODO: hardcoded index
         steps=stepDictionary[key]
         for step in steps:
             chainstep = getattr(self, step)()
             chainSteps+=[chainstep]
-            
+
         myChain = self.buildChain(chainSteps)
         return myChain
 
     def getStepDictionary(self):
         # --------------------
-        # define here the names of the steps and obtain the chainStep configuration 
+        # define here the names of the steps and obtain the chainStep configuration
         # --------------------
         stepDictionary = {
             "allTE_trkfast":['getAllTEStep'],
@@ -107,7 +110,7 @@ class BeamspotChainConfiguration(ChainConfigurationBase):
             "trkFS_trkfast":['getTrkFSStep']
         }
         return stepDictionary
-       
+
     # --------------------
     # Configuration of costmonitor (costmonitor ?? but isn't this is the actua chain configuration ??)
     # --------------------

@@ -1,11 +1,14 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-#include "TrigConfL1Data/ThresholdConfig.h"
-#include "TrigT1Result/JetEnergyResult.h"
-#include "TrigT1Result/RoIBResult.h"
-#include "TrigConfL1Data/CTPConfig.h"
+
+
 #include "FSRoIsUnpackingTool.h"
+
+#include "TrigT1Result/RoIBResult.h"
+#include "TrigConfL1Data/TrigConfData.h"
+#include "xAODTrigger/TrigCompositeContainer.h"
+
 
 FSRoIsUnpackingTool::FSRoIsUnpackingTool( const std::string& type,
 					    const std::string& name,
@@ -66,7 +69,7 @@ StatusCode FSRoIsUnpackingTool::unpack( const EventContext& ctx,
   			m_allFSChains.begin(), m_allFSChains.end(),
 			std::inserter(activeFSchains, activeFSchains.end() ) );
 
-  auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, "L1" ); // This "L1" denotes an initial node with no parents
+  auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, l1DecoderNodeName() ); // This l1DecoderNodeName() denotes an initial node with no parents
   addChainsToDecision( HLT::Identifier( "FSNOSEED" ), decision, activeChains );
 
   ATH_MSG_DEBUG("Unpacking FS RoI for " << activeFSchains.size() << " chains: " << [&](){ 

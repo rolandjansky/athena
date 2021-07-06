@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /// \author Nils Krumnack
@@ -7,7 +7,7 @@
 #ifndef ASGTOOLS_ASGCOMPONENT_H
 #define ASGTOOLS_ASGCOMPONENT_H
 
-#ifndef XAOD_STANDALONE
+#if !defined(XAOD_STANDALONE) && !defined(__CPPCHECK__)
 #error "This header should only be used in XAOD_STANDALONE"
 #else
 
@@ -90,6 +90,13 @@ namespace asg
     template<typename T> ::StatusCode
     setProperty (const std::string& name, const T& value);
     ::StatusCode setProperty (const std::string& name, const char *value);
+    /// \}
+
+
+    /// Get a pointer to the property manager
+    /// \{
+    PropertyMgr *getPropertyMgr () noexcept;
+    const PropertyMgr* getPropertyMgr() const noexcept;
     /// \}
 
 

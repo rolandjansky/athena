@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local includes
@@ -123,7 +123,6 @@ void G4AtlasAlg::initializeOnce()
     std::unique_ptr<G4AtlasUserWorkerThreadInitialization> workerInit =
       std::make_unique<G4AtlasUserWorkerThreadInitialization>();
     workerInit->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
-    workerInit->SetSDMasterTool( m_senDetTool.typeAndName() );
     workerInit->SetFastSimMasterTool( m_fastSimTool.typeAndName() );
     runMgr->SetUserInitialization( workerInit.release() );
     std::unique_ptr<G4AtlasActionInitialization> actionInitialization =
@@ -140,7 +139,6 @@ void G4AtlasAlg::initializeOnce()
     runMgr->SetRecordFlux( m_recordFlux, std::make_unique<G4AtlasFluxRecorder>() );
     runMgr->SetLogLevel( int(msg().level()) ); // Synch log levels
     runMgr->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
-    runMgr->SetSDMasterTool(m_senDetTool.typeAndName() );
     runMgr->SetFastSimMasterTool(m_fastSimTool.typeAndName() );
     runMgr->SetPhysListSvc(m_physListSvc.typeAndName() );
     std::unique_ptr<G4AtlasActionInitialization> actionInitialization =

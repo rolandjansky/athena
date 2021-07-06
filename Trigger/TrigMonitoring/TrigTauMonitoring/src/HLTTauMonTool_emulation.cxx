@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TProfile.h"
@@ -14,7 +14,7 @@ std::string HLTTauMonTool::LowerChain(std::string hlt_item){
   std::string l1_chain("");
 
   TrigConf::HLTChain* hlt_chain;
-  if( (hlt_chain = m_configsvc->chainList()->chain(hlt_item)) ){ 
+  if( (hlt_chain = m_configsvc->chains().chain(hlt_item)) ){
     ATH_MSG_DEBUG("HLT Chain " << hlt_item << " found in TrigConfSvc!");
     std::string lower_chain( hlt_chain->lower_chain_name() );
     l1_chain = lower_chain;

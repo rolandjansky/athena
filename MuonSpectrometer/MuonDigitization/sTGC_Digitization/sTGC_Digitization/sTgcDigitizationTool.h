@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONDIGITIZATION_STGC_DIGITIZATIONTOOL_H
@@ -119,6 +119,7 @@ private:
   Gaudi::Property<bool> m_doSmearing{this,"doSmearing",false};
   Gaudi::Property<bool> m_needsMcEventCollHelper{this,"UseMcEventCollectionHelper",false};
   Gaudi::Property<bool> m_doToFCorrection{this,"doToFCorrection",false};
+  Gaudi::Property<bool> m_doEfficiencyCorrection{this,"doEfficiencyCorrection",false};
 
   Gaudi::Property<std::string> m_rndmEngineName{this,"RndmEngine","MuonDigitization","Random engine name"};
 

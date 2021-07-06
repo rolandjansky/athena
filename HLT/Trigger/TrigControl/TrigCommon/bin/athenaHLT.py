@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- mode: python -*-
 #
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # This is a script that is born as shell to setup the preloading and then
 # resurrected as python script for the actual athenaHLT.py application.
@@ -200,7 +200,7 @@ def HLTMPPy_cfgdict(args):
       'compressionFormat': 'ZLIB',
       'compressionLevel': 2,
       'file': args.file,
-      'loopFiles': False,
+      'loopFiles': args.loop_files,
       'numEvents': args.number_of_events,
       'outFile': args.save_output,
       'preload': False,
@@ -302,10 +302,6 @@ def main():
    ## Global options
    g = parser.add_argument_group('Options')
    g.add_argument('jobOptions', nargs='?', help='job options (or JSON) file')
-   g.add_argument('--file', '--filesInput', '-f', action='append', required=True, help='input RAW file')
-   g.add_argument('--save-output', '-o', metavar='FILE', help='output file name')
-   g.add_argument('--number-of-events', '--evtMax', '-n', metavar='N', default=-1, help='processes N events (<=0 means all)')
-   g.add_argument('--skip-events', '--skipEvents', '-k', metavar='N', default=0, help='skip N first events')
    g.add_argument('--threads', metavar='N', type=int, default=1, help='number of threads')
    g.add_argument('--nprocs', metavar='N', type=int, default=1, help='number of children to fork')
    g.add_argument('--concurrent-events', metavar='N', type=int, help='number of concurrent events if different from --threads')
@@ -314,13 +310,20 @@ def main():
                   help='Python commands executed before job options or database configuration')
    g.add_argument('--postcommand', '-C', metavar='CMD', action='append', default=[],
                   help='Python commands executed after job options or database configuration')
-   g.add_argument('--debug', '-d', nargs='?', const='child', choices=['parent','child'],
-                  help='attach debugger (to child by default)')
    g.add_argument('--interactive', '-i', action='store_true', help='interactive mode')
    g.add_argument('--help', '-h', nargs='?', choices=['all'], action=MyHelp, help='show help')
 
+   g = parser.add_argument_group('Input/Output')
+   g.add_argument('--file', '--filesInput', '-f', action='append', required=True, help='input RAW file')
+   g.add_argument('--save-output', '-o', metavar='FILE', help='output file name')
+   g.add_argument('--number-of-events', '--evtMax', '-n', metavar='N', type=int, default=-1, help='processes N events (<=0 means all)')
+   g.add_argument('--skip-events', '--skipEvents', '-k', metavar='N', type=int, default=0, help='skip N first events')
+   g.add_argument('--loop-files', action='store_true', help='loop over input files if no more events')
+
    ## Performance and debugging
    g = parser.add_argument_group('Performance and debugging')
+   g.add_argument('--debug', '-d', nargs='?', const='child', choices=['parent','child'],
+                  help='attach debugger (to child by default)')
    g.add_argument('--perfmon', action='store_true', help='enable PerfMon')
    g.add_argument('--leak-check', metavar='<stage>', nargs='?', const='execute',
                   choices=['all','initialize','start','beginrun','execute','finalize','endrun','stop'],
@@ -342,6 +345,7 @@ def main():
    g.add_argument('--hltpsk', type=int, default=None, help='HLT prescale key')
    g.add_argument('--dump-config', action='store_true', help='Dump joboptions JSON file')
    g.add_argument('--dump-config-exit', action='store_true', help='Dump joboptions JSON file and exit')
+   g.add_argument('--dump-config-reload', action='store_true', help='Dump joboptions JSON file and restart %(prog)s from this file')
 
    ## Online histogramming
    g = parser.add_argument_group('Online Histogramming')
@@ -396,6 +400,9 @@ def main():
    if not args.concurrent_events:
       args.concurrent_events = args.threads
 
+   if args.loop_files and args.number_of_events<0:
+      log.warning("Looping over files without specifying number of events will run forever!")
+
    # Update args and set athena flags
    update_run_params(args)
    if args.use_database:
@@ -413,8 +420,9 @@ def main():
    # Extra Psc configuration
    from TrigPSC import PscConfig
    PscConfig.interactive = args.interactive
-   PscConfig.dumpJobProperties = args.dump_config or args.dump_config_exit
+   PscConfig.dumpJobProperties = args.dump_config or args.dump_config_exit or args.dump_config_reload
    PscConfig.exitAfterDump = args.dump_config_exit
+   PscConfig.reloadAfterDump = args.dump_config_reload
 
    # Select the correct THistSvc
    from TrigServices.TriggerUnixStandardSetup import _Conf

@@ -424,6 +424,7 @@ SCT_ID::module_id(const Identifier& wafer_id) const {
   //  Reset the side and strip fields
   m_side_impl.reset(result);
   m_strip_impl.reset(result);
+  if(m_hasRows) m_row_impl.reset(result);
   return(result);
 }
 
@@ -472,6 +473,7 @@ SCT_ID::wafer_id(const Identifier& strip_id) const {
 
   // reset the strip field
   m_strip_impl.reset(result);
+  if(m_hasRows) m_row_impl.reset(result);
   return(result);
 }
 

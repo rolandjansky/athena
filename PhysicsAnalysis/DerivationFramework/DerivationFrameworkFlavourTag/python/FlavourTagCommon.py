@@ -62,7 +62,6 @@ def DontReduceInfo(Rel20=True):
 ######################################################################
 #ReTag JetCollections
 SAJetBTaggerAlgs={}
-BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4TopoEM->AntiKt4EMTopo" ]
 BTaggingFlags.Jets=[]
 from BTagging.BTaggingConfiguration import getConfiguration
 ConfInst=getConfiguration()

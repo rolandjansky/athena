@@ -59,11 +59,6 @@ if doMuonHoleSearch:
     MyMuonHolesOnTrackToolExtrapolator.printInfo()
     MyMuonHolesOnTrackToolExtrapolator.msgStreamLevel(0)
 
-    # load MuonHolesOnTrackTool 
-    include ("MuonTGRecTools/ConfigurableMuonHolesOnTrackTool.py")
-    MyMuonHolesOnTrackTool = ConfiguredMuonHolesOnTrackTool('MuonHolesOnTrack',MyMuonHolesOnTrackToolExtrapolator)
-    MyMuonHolesOnTrackTool.printInfo()
-    MyMuonHolesOnTrackTool.msgStreamLevel(0)
 
 theApp.Dlls   += [ "MuonTrackSummaryHelperTool" ]
 myMuonTrackSummaryHelperTool = Algorithm("ToolSvc.Muon::MuonTrackSummaryHelperTool")

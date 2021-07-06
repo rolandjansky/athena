@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 // ROOT include(s):
 #include <TClass.h>
@@ -25,7 +25,11 @@ namespace {
       static const TClass* aeClass =
          TClass::GetClass( typeid( SG::AuxElement ) );
 
-      if( type ) {
+      // Don't waste time (and possibly invoke autoparsing) for types
+      // that we know can't satisfy the tests below.  An AuxElement
+      // should have type kNotSTL, while a DataVector will have
+      // type kSTLlist, by virtue of a setting in TDVCollectionProxy.
+      if( type && (type->GetCollectionType() == ROOT::kNotSTL || type->GetCollectionType() == ROOT::kSTLlist) ) {
          if( type->InheritsFrom( dvClass ) ) {
             return xAOD::THolder::DATAVECTOR;
          }

@@ -1,22 +1,28 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTJETHYPO_FASTREDUCTIONMATCHER_H
 #define TRIGHLTJETHYPO_FASTREDUCTIONMATCHER_H
 
 
-#include "./IGroupsMatcherMT.h"
-#include "./CapacityCheckedConditionsDefs.h"
+#include "./IJetsMatcher.h"
+#include "./RepeatedConditionsDefs.h"
+#include "./ConditionFilter.h"
 #include "./Tree.h"
+#include "./IHypoJetVectorFilter.h"
 
 using TreeVec = std::vector<std::size_t>;
 class ITrigJetHypoInfoCollector;
 
-class FastReductionMatcher: public IGroupsMatcherMT {
+using  ConditionFilters =
+  std::vector<std::unique_ptr<IHypoJetVectorFilter>>;
+
+class FastReductionMatcher: public IJetsMatcher {
  public:
 
-  FastReductionMatcher(ConditionPtrs,
+  FastReductionMatcher(ConditionPtrs&,
+		       ConditionFilters&,
 		       const Tree&);
 
 
@@ -30,8 +36,8 @@ class FastReductionMatcher: public IGroupsMatcherMT {
   */
   
   virtual std::optional<bool>
-    match(const HypoJetGroupCIter& groups_b,
-	  const HypoJetGroupCIter& groups_e,
+    match(const HypoJetCIter& jets_b,
+	  const HypoJetCIter& jets_e,
 	  xAODJetCollector&,
 	  const std::unique_ptr<ITrigJetHypoInfoCollector>& collector,
 	  bool
@@ -42,13 +48,18 @@ class FastReductionMatcher: public IGroupsMatcherMT {
  private:
 
   ConditionPtrs m_conditions;
-
+  ConditionFilters m_conditionFilters;
+  
   /** tree structure for Conditions objects.
    The conditions tree gives relations among conditions (eg parent-child
    and siblings-of)
   */
   
   Tree m_tree;
+
+  // minimum number of jets required - determined by summing
+  // leaf Condition capacities
+  long int m_minNjets{0};
 
 };
 #endif

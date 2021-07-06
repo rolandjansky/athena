@@ -203,10 +203,6 @@ if globalflags.DataSource()!='data':
 # Variable Radius (VR) Jets
 #===================================================================
 
-# alias for VR
-BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo",
-                                            "AntiKtVR30Rmax4Rmin02TrackGhostTag->AntiKtVR30Rmax4Rmin02TrackGhostTag,AntiKt4EMTopo",]
-
 addVRJets(
     sequence=FTAG5Seq,
     largeRColls=fatJetCollections,
@@ -259,12 +255,6 @@ addExKtCoM(FTAG5Seq, ToolSvc, ExKtJetCollection__FatJet, 2, doTrackSubJet=False)
 addExKtCoM(FTAG5Seq, ToolSvc, ExKtJetCollection__FatJet, 3, doTrackSubJet=False)
 
 addExKtCoM(FTAG5Seq, ToolSvc, ExKtJetCollection__FatJet, 2, doTrackSubJet=False, subjetAlgName = "CoM")
-
-BTaggingFlags.CalibrationChannelAliases += ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
-                                            "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
-                                            "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2GASub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
-                                            "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3GASub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
-                                            "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo"]
 
 #==================================================================
 # Augment tracks and jets with additional information

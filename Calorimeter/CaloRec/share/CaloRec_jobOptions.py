@@ -90,13 +90,9 @@ if rec.readESD and not rec.doESD:
 ## if rec.readESD() and DetFlags.detdescr.Calo_on():
 ##     from CaloRec.CaloRecConf import CaloCellMaker
 ##     theCaloCellMaker=CaloCellMaker(CaloCellsOutputName="AllCalo",CaloCellHack=True)    
-##     # calo modifying tool to be inserted there
-##     from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-##     theCaloNoiseTool = CaloNoiseToolDefault()
-##     ToolSvc+=theCaloNoiseTool
     
 ##     from CaloCellCorrection.CaloCellCorrectionConf import CaloCellRandomizer     
-##     theCaloCellRandomizer=CaloCellRandomizer(noiseTool=theCaloNoiseTool,DoGaussRandomization=True)
+##     theCaloCellRandomizer=CaloCellRandomizer(DoGaussRandomization=True)
 ##     ToolSvc += theCaloCellRandomizer
 
 ##     from CaloRec.CaloRecConf import CaloCellContainerCorrectorTool
@@ -128,6 +124,21 @@ if rec.readESD and not rec.doESD:
 
 # create LArFebErrorSummary for BS input
 if rec.doLArg() and globalflags.DataSource()=='data' and globalflags.InputFormat() == 'bytestream':
+    # this needs to have LArRawDataReading algo already setup
+    if not hasattr(topSequence,"LArRawDataReadingAlg"):
+      from LArByteStream.LArByteStreamConf import LArRawDataReadingAlg
+      from LArConditionsCommon.LArRunFormat import getLArFormatForRun
+      from RecExConfig.AutoConfiguration import GetRunNumber
+      runNum = GetRunNumber()
+      if runNum is not None:
+         lri=getLArFormatForRun(runNum)
+      else:
+         lri=None
+      if lri is not None and lri.runType()==0:
+        topSequence+=LArRawDataReadingAlg(FailOnCorruption=True,LArRawChannelKey="") 
+      else:   
+        topSequence+=LArRawDataReadingAlg(FailOnCorruption=False) 
+
     from LArROD.LArRODFlags import larRODFlags
     if larRODFlags.doLArFebErrorSummary() :
         try:
@@ -366,6 +377,5 @@ if globalflags.DataSource()=='data' and rec.doESD() and rec.doCalo() and rec.doT
 if jobproperties.CaloRecFlags.doCaloTopoTower():
     include ( "CaloRec/CaloTopoTowerFragment.py" )
 #mixed topo-cluster/topo-tower 
-if jobproperties.CaloRecFlags.doCaloTopoSignal():
+if jobproperties.CaloRecFlags.doCaloTopoSignal() or jobproperties.CaloRecFlags.doCaloFwdTopoTower():
     include ("CaloRec/CaloTopoSignalFragment.py" )
-

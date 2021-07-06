@@ -6,7 +6,6 @@ from __future__ import print_function
 #
 # New version for revamped job transforms
 #
-# $Id: skeleton.ESDtoAOD_tf.py 700697 2015-10-15 09:48:11Z lerrenst $
 #
 #==============================================================
 
@@ -52,21 +51,11 @@ if hasattr(runArgs,"outputAODFile"):
     rec.doAOD.set_Value_and_Lock( True )
     rec.doWriteAOD.set_Value_and_Lock( True ) 
     athenaCommonFlags.PoolAODOutput.set_Value_and_Lock( runArgs.outputAODFile )
-    # Begin temporary block for Run-3 Trigger outputs
-    if ConfigFlags.Trigger.EDMVersion == 3:
-        # Lock DQ configuration to prevent downstream override
-        from AthenaMonitoring.DQMonFlags import DQMonFlags
-        print('DQMonFlags override')
-        if not rec.doTrigger():
-            DQMonFlags.useTrigger.set_Value_and_Lock(False)
-        if DQMonFlags.useTrigger() and rec.doTrigger():
-            DQMonFlags.useTrigger.set_Value_and_Lock(True)
-        # Don't run any trigger - only pass the HLT contents from ESD to AOD
-        # Configure here, and extract HLT content in RecExCommon_topOptions
-        # after the rest of the job is configured
-        from RecExConfig.RecAlgsFlags import recAlgs
-        recAlgs.doTrigger.set_Value_and_Lock( False )
-        rec.doTrigger.set_Value_and_Lock( False )
+    # Lock DQ configuration to prevent downstream override
+    # RB 15/12/2020: This logic was added in !36737, not sure if still needed
+    from AthenaMonitoring.DQMonFlags import DQMonFlags
+    print('DQMonFlags.useTrigger override')
+    DQMonFlags.useTrigger.set_Value_and_Lock(rec.doTrigger() and DQMonFlags.useTrigger())
 
 if hasattr(runArgs,"outputTAGFile"):
     # should be used as outputTAGFile_e2a=myTAG.root so that it does not trigger AODtoTAG
@@ -88,19 +77,6 @@ if hasattr(runArgs,"outputNTUP_BTAGFile"):
     from BTagging.BTaggingFlags import BTaggingFlags
     BTaggingFlags.doJetTagNtuple = True
     BTaggingFlags.JetTagNtupleName = runArgs.outputNTUP_BTAGFile
-
-if hasattr(runArgs, "outputNTUP_HIGHMULTFile"):
-    from TrigMbD3PDMaker.TrigMbD3PDMakerFlags import trigMbD3PDflags
-    trigMbD3PDflags.FileName=runArgs.outputNTUP_HIGHMULTFile
-    include("TrigMbD3PDMaker/HighMultD3PD_jobOptions.py")
-
-if hasattr(runArgs,"outputNTUP_ENHBIASFile"):
-    from TrigCostAthena.TrigCostAthenaFlags import TrigCostAthenaFlags
-    TrigCostAthenaFlags.StoreNtVerticesOutputFile.set_Value_and_Lock( runArgs.outputNTUP_ENHBIASFile )
-    TrigCostAthenaFlags.DoStoreNtVertices.set_Value_and_Lock( True )
-    if hasattr(runArgs,"inputESDFile") and not hasattr(runArgs,"inputFile"):
-        athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputESDFile )
-    include("TrigCostAthena/ESDtoNTUP_ENHBIAS.py")
 
 if hasattr(runArgs,"outputHIST_PHYSVALMONFile"):
     rec.doPhysValMonHists=True
@@ -138,13 +114,6 @@ if hasattr(runArgs,"outputNTUP_MINBIASFile"):
     prodFlags.WriteMinBiasD3PD.FileName = runArgs.outputNTUP_MINBIASFile
     prodFlags.WriteMinBiasD3PD.set_Value_and_Lock( True )
     include( prodFlags.WriteMinBiasD3PD.DPDMakerScript )
-    pass
-
-if hasattr(runArgs,"outputNTUP_TRIGFile"):
-    from D3PDMakerConfig.D3PDProdFlags import prodFlags
-    prodFlags.WriteTriggerD3PD.FileName = runArgs.outputNTUP_TRIGFile
-    prodFlags.WriteTriggerD3PD.set_Value_and_Lock( True )
-    include( prodFlags.WriteTriggerD3PD.DPDMakerScript )
     pass
 
 if hasattr(runArgs,"outputDESDM_BEAMSPOTFile"):

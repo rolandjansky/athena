@@ -8,7 +8,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "SCT_ReadoutGeometry/SCT_BarrelModuleSideDesign.h"
-#include "InDetReadoutGeometry/SiDiodesParameters.h"
+#include "ReadoutGeometryBase/SiDiodesParameters.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Geometry/Vector3D.h"

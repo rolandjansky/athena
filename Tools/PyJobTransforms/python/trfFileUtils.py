@@ -1,12 +1,9 @@
-
-from builtins import range
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfFileUtils
 # @brief Transform utilities to deal with files.
 # @details Mainly used by argFile class.
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfFileUtils.py 780653 2016-10-27 08:25:09Z mavogel $
 # @todo make functions timelimited
 
 import logging

@@ -77,13 +77,6 @@ if doEMECXTalk and not 'EMECXTalkFactorEMEC2Eta' in dir():
 if not 'doRndm' in dir():
    doRndm = False
 
-if not 'doSimpleNoiseTool' in dir():
-   doSimpleNoiseTool = False
-
-if doSimpleNoiseTool:
-   if not 'SimpleNoiseFile' in dir():
-      SimpleNoiseFile="rdmtrig_noise"
-
 if not 'doCellNoise' in dir():
    doCellNoise = True
 
@@ -455,35 +448,15 @@ if doBeamQuality:
 # -----------------------------
 if doLAr :
 
-    # Default CaloNoiseTool, to be used by all:
-    from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
     from CaloTools.CaloNoiseFlags import jobproperties
-    jobproperties.CaloNoiseFlags.UseCaloLuminosity.set_Value_and_Lock(False)
-    theCaloNoiseTool = CaloNoiseToolDefault()
-    theCaloNoiseTool.NMinBias                = 0
-    theCaloNoiseTool.WithOF                  = True
-    theCaloNoiseTool.UseTile                 = False
-    theCaloNoiseTool.IsMC                    = False
-    theCaloNoiseTool.UseSymmetry             = False
-    theCaloNoiseTool.WorkMode                = 1
-    if doOFC:
-             theCaloNoiseTool.WithOF=True
-    if doSim:
-             theCaloNoiseTool.IsMC=True    
+    jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(0)
+    from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+    CaloNoiseCondAlg ('electronicNoise')
 
-    ToolSvc += theCaloNoiseTool
+    from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
+    adc2mev = LArADC2MeVCondAlgDefault()
 
-    # get public tool LArADC2MeVTool
-    from LArRecUtils.LArADC2MeVToolDefault import LArADC2MeVToolDefault
-    theADC2MeVTool = LArADC2MeVToolDefault()
-    from AthenaCommon.AppMgr import ToolSvc
-    ToolSvc += theADC2MeVTool
-    # get public tool LArOFCTool
-    from LArRecUtils.LArOFCToolDefault import LArOFCToolDefault
-    theOFCTool = LArOFCToolDefault()
-    ToolSvc += theOFCTool
-
-    ToolSvc.LArADC2MeVToolDefault.UseHVScaleCorr = False
+    adc2mev.LArHVScaleCorrKey = ''
 
     if not doSim :
         # read ByteStream and run RawChannelBuilder
@@ -520,8 +493,6 @@ if doLAr :
             from TBRec.TBRecConf import TBECLArRawChannelBuilder
             LArRawChannelBuilder = TBECLArRawChannelBuilder("LArRawChannelBuilder")
             LArRawChannelBuilder.UseTDC = True
-            LArRawChannelBuilder.ADC2MeVTool = ToolSvc.LArADC2MeVToolDefault
-            LArRawChannelBuilder.UseOFCTool             = False
             LArRawChannelBuilder.NOFCTimeBins = 25
             LArRawChannelBuilder.OFCTimeBin    = 1.0*ns
             LArRawChannelBuilder.BinHalfOffset = False
@@ -683,18 +654,8 @@ if doLAr :
     topSequence +=  CaloCellMaker   
 
     if not doUseRampBuilder:
-       ToolSvc.LArADC2MeVToolDefault.UseMphysOverMcal = False
+       adc2mev.LArMphysOverMcalKey = ''
 
-    # Make sure no symmetrization:    
-    ToolSvc.LArADC2MeVToolDefault.MCSym = False
-    ToolSvc.LArOFCToolDefault.FromDatabase=True
-
-    # simple noise tool from text file
-    if doSimpleNoiseTool:
-       from CaloTools.CaloToolsConf import SimpleNoiseToolFromTextFile
-       SimpleNoiseTool = SimpleNoiseToolFromTextFile("SimpleNoiseTool")
-       SimpleNoiseTool.CellNoiseFileName = SimpleNoiseFile
-       ToolSvc += SimpleNoiseTool
 
 if doDMSplit:
    from TBRec.TBRecConf import TBDMContainerSplitter
@@ -728,10 +689,6 @@ if doMakeTBCluster:
     TBCluster.fixClusterPosition = False
     TBCluster.etaCluster         = 2.79
     TBCluster.phiCluster         = 2.49
-    if not doSimpleNoiseTool:
-       TBCluster.noiseToolName      = theCaloNoiseTool.getFullName()
-    else:
-       TBCluster.noiseToolName      = SimpleNoiseTool.getFullName()
     from CaloRec.CaloRecConf import CaloClusterMomentsMaker
     Moments = CaloClusterMomentsMaker("Moments")
     Moments.MaxAxisAngle         = 30*deg
@@ -773,7 +730,6 @@ if doMakeElecCluster:
     EMTBCluster.fixClusterPosition = False
     EMTBCluster.etaCluster         = 99.
     EMTBCluster.phiCluster         = 99.
-    EMTBCluster.noiseToolName      = theCaloNoiseTool.getFullName()
     EMClusterMaker += EMTBCluster
     EMClusterMaker.ClusterMakerTools = [ EMTBCluster.getFullName() ]
     topSequence += EMClusterMaker
@@ -815,10 +771,6 @@ if doMakeTopoCluster:
       topSequence.CaloTopoCluster.TopoCalibMoments.DMCalibrationHitContainerNames = ["LArCalibrationHitDeadMaterial"]
 
 
-    if doSimpleNoiseTool:
-       topSequence.CaloTopoCluster.TopoMaker.CaloNoiseTool           = SimpleNoiseTool
-       topSequence.CaloTopoCluster.LocalCalib.LCWeight.CaloNoiseTool = SimpleNoiseTool
-       topSequence.CaloTopoCluster.DMCalib.LCDeadMaterial.CaloNoiseTool      = SimpleNoiseTool
 
     # remove BadChannel tool from cluster corrections
     tlist=[]
@@ -903,13 +855,9 @@ if doCBNT:
    if doMakeTopoCluster:
        include ("CaloRec/CaloTopoCluster_CBNT_jobOptions.py")
        CBNT_AthenaAware.CBNT_CaloClusterTopo.AddCellDetails = doAddCellDetails
-       if doSimpleNoiseTool:
-          CBNT_AthenaAware.CBNT_CaloClusterTopo.CellDetailsNoiseTool = SimpleNoiseTool
    if doMakeEMTopoCluster:
        include ("CaloRec/EMTopoCluster_CBNT_jobOptions.py")
        CBNT_AthenaAware.CBNT_EMClusterTopo.AddCellDetails = doAddCellDetails
-       if doSimpleNoiseTool:
-          CBNT_AthenaAware.CBNT_EMCaloClusterTopo.CellDetailsNoiseTool = SimpleNoiseTool
 
    from CaloRec.CaloRecConf import CBNTAA_CaloCluster
    if doTopoClusterLocalCalib:
@@ -921,8 +869,6 @@ if doCBNT:
       CBNT_CaloClusterTopoEM.AddCellDetails = doAddCellDetails
       CBNT_CaloClusterTopoEM.MaxCaloCluster = 60
       CBNT_CaloClusterTopoEM.MaxCell = 1024
-      if doSimpleNoiseTool:
-          CBNT_CaloClusterTopoEM.CellDetailsNoiseTool = SimpleNoiseTool
       CBNT_AthenaAware += CBNT_CaloClusterTopoEM
 
       CBNT_CaloClusterTopoW = CBNTAA_CaloCluster("CBNT_CaloClusterTopoW" )
@@ -933,8 +879,6 @@ if doCBNT:
       CBNT_CaloClusterTopoW.AddCellDetails = doAddCellDetails
       CBNT_CaloClusterTopoW.MaxCaloCluster = 60
       CBNT_CaloClusterTopoW.MaxCell = 1024
-      if doSimpleNoiseTool:
-          CBNT_CaloClusterTopoW.CellDetailsNoiseTool = SimpleNoiseTool
       CBNT_AthenaAware += CBNT_CaloClusterTopoW
 
       CBNT_CaloClusterTopoOOC = CBNTAA_CaloCluster("CBNT_CaloClusterTopoOOC" )
@@ -945,8 +889,6 @@ if doCBNT:
       CBNT_CaloClusterTopoOOC.AddCellDetails = doAddCellDetails
       CBNT_CaloClusterTopoOOC.MaxCaloCluster = 60
       CBNT_CaloClusterTopoOOC.MaxCell = 1024
-      if doSimpleNoiseTool:
-          CBNT_CaloClusterTopoOOC.CellDetailsNoiseTool = SimpleNoiseTool
       CBNT_AthenaAware += CBNT_CaloClusterTopoOOC
 
    #  TB clusters part
@@ -958,8 +900,6 @@ if doCBNT:
       CBNT_TBCaloCluster.UseLink=TRUE
       CBNT_TBCaloCluster.AddCellDetails = doAddCellDetails
       CBNT_TBCaloCluster.MaxCell = 1024
-      if doSimpleNoiseTool:
-          CBNT_TBCaloCluster.CellDetailsNoiseTool = SimpleNoiseTool
       CBNT_AthenaAware += CBNT_TBCaloCluster
 
    if doMakeElecCluster:
@@ -970,8 +910,6 @@ if doCBNT:
       CBNT_EMTBCaloCluster.UseLink=TRUE
       CBNT_EMTBCaloCluster.AddCellDetails = doAddCellDetails
       CBNT_EMTBCaloCluster.MaxCell = 1024
-      if doSimpleNoiseTool:
-          CBNT_EMTBCaloCluster.CellDetailsNoiseTool = SimpleNoiseTool
       CBNT_AthenaAware += CBNT_EMTBCaloCluster
 
    #  Cells part
@@ -1020,12 +958,9 @@ if doTBTree:
     TBTree = TBTree_CaloClusterH6("TBTree")
     TBTree.OutputLevel      = OutputLevel
     TBTree.ClusterContainer = "TBClusters"
-    TBTree.NoiseToolName    = theCaloNoiseTool.getFullName()
-    TBTree.OFNoiseSuppToolName = ""
     if doMakeElecCluster:
         TBTree.useEMTBCluster   = True
     TBTree.Suffix           = "_tb"
-    TBTree.addNoise         = False
     TBTree.addMoments       = False
     TBTree.addGain          = True
     TBTree.addTime          = True

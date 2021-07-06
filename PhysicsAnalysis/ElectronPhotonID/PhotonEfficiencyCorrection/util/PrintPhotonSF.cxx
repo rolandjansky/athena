@@ -5,10 +5,10 @@
 //michael.pitt@cern.ch
 
 // System include(s):
-#include <stdio.h>
+#include <boost/filesystem.hpp>
+#include <cstdio>
 #include <cstdlib>
 #include <iostream>
-#include <boost/filesystem.hpp>
 
 // ROOT ide(s):
 #include "TFile.h"
@@ -67,7 +67,7 @@ int main (int argc, const char * argv[]) {
 	
 	// read first run number from the directory name:
 	int run_number = atoi(dirName.Tokenize("_")->First()->GetName());
-	if(getenv("ROOTCOREDIR")==NULL){
+	if(getenv("ROOTCOREDIR")==nullptr){
         cout << "Please setup RootCore before running the PrintPhotonSF [file]"<<endl;
         return 0.;
         }

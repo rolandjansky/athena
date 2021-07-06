@@ -17,7 +17,7 @@
 
 #include "ElectronPhotonSelectorTools/AsgElectronIsEMSelector.h"
 #include "ElectronPhotonSelectorTools/ElectronSelectorHelpers.h"
-#include "AsgElectronPhotonIsEMSelectorConfigHelper.h"
+#include "EgammaAnalysisHelpers/AsgEGammaConfigHelper.h"
 #include "TElectronIsEMSelector.h"
 #include "EGSelectorConfigurationMapping.h"
 #include "xAODEgamma/Electron.h"
@@ -195,7 +195,8 @@ StatusCode AsgElectronIsEMSelector::initialize()
 	return sc;      
       } 
     ATH_MSG_DEBUG("Configfile to use  " << m_configFile );
-    TEnv env(filename.c_str());
+    TEnv env;
+    env.ReadFile(filename.c_str(), kEnvLocal);
     
     ///------- Read in the TEnv config ------///
     

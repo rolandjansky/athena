@@ -57,6 +57,8 @@ enum{ NumberOfSlaveBoardType = 6};
 
 enum TGCForwardBackwardType { ForwardSector=0, BackwardSector=1, TotalNumForwardBackwardType };
 
+enum TGCHighPtBoardType { WHPB=0, SHPB, TotalNumHighPtBoardType };
+
 } //end of namespace bracket
 
 #endif // TGCNumbering_hh

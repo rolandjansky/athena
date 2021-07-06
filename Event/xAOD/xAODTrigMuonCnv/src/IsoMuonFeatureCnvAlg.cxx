@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id:$ //
@@ -33,7 +33,7 @@ namespace xAODMaker {
     StatusCode IsoMuonFeatureCnvAlg::initialize() {
         
         // Greet the user:
-        ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
+        ATH_MSG_INFO( "Initializing" );
         ATH_MSG_INFO( " AOD Key: " << m_aodKey );
         ATH_MSG_INFO( "xAOD Key: " << m_xaodKey );
         
@@ -47,7 +47,7 @@ namespace xAODMaker {
     StatusCode IsoMuonFeatureCnvAlg::execute() {
         
         // Retrieve the AOD container:
-        const IsoMuonFeatureContainer* aod = 0;
+        const IsoMuonFeatureContainer* aod = nullptr;
         if (evtStore()->retrieve( aod, m_aodKey ).isFailure()) {
             ATH_MSG_WARNING("Requesting in Alg: IsoMuonFeatureCnvAlg to convert AOD Key: " << m_aodKey <<
                             " into xAOD " << m_xaodKey << ". Input container not found or incorrect type");

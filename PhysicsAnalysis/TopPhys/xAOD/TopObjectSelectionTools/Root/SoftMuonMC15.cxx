@@ -9,7 +9,7 @@
 namespace top {
   SoftMuonMC15::SoftMuonMC15(const double ptcut) :
     m_ptcut(ptcut),
-    m_softmuonSelectionTool("CP::SoftMuonSelectionTool") {
+    m_softmuonSelectionTool("SoftMuonSelectionTool") {
     top::check(m_softmuonSelectionTool.retrieve(), "Failed to retrieve softmuonSelectionTool");
   }
 

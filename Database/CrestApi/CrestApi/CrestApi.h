@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2019, 2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2019-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 
@@ -7,10 +7,26 @@
    \file
    \brief Header file for CREST C++ Client Library
 
+   This file contains the CrestClient class.
+   (See CrestClientExt.h for CrestClient class extention with additional methods.)
    Here is the method description.
  */
 
+
+#ifndef CRESTAPI_CRESAPI_H
+#define CRESTAPI_CRESAPI_H
+
+#ifdef __GNUC__
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverloaded-virtual"
+#endif
+
+// We get an unused parameter warning from within the boost parameter code.
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#endif
+
 
 #include <string>
 #include <map>
@@ -18,20 +34,9 @@
 #include <iosfwd>
 #include <cstdint>
 #include "nlohmann/json.hpp"
-
-// Boost Function Fragment (begin)
-
-#include <stdlib.h>     /* getenv */
+#include <curl/curl.h>
 #include <iostream>
-#include <boost/parameter/name.hpp>
-#include <boost/parameter/preprocessor.hpp>
 
-//
-BOOST_PARAMETER_NAME(page)
-BOOST_PARAMETER_NAME(size)
-//
-
-// Boost Function Fragment (end)
 
 namespace Crest {
 
@@ -98,44 +103,6 @@ namespace Crest {
     enum Action {
       GET = 0, POST = 1, PUT = 2, DELETE = 3
     };
-  public:
-
-// ===================================
-// CONSTRUCTORS
-
-/**
- * CrestClient constructor for file storage mode. If CrestClient is created with this method the data will be written on
- * the hard disk.
- * @param rewriteIfExist - this parameter sets if the data can be rewritten.
- * @param root_folder - the folder where the data have to be stored.
- */
-    CrestClient(bool rewriteIfExists, const std::string& root_folder = "/tmp/crest_dump");
-
-//
-
-/**
- * CrestClient constructor for Internet mode. If CrestClient is created with this method the data will be sent to the
- * CREST Server.
- * @param _host - host name of the CREST Server.
- * @param _port - port of the CREST Server.
- */
-    CrestClient(const std::string& _host, const std::string& _port);
-
-/**
- * CrestClient constructor for Internet mode. If CrestClient is created with this method the data will be sent to the
- * CREST Server.
- * @param url - URL address of the CREST Server (with port).
- * <br> <br>
- * Example:
- * <br>
- * <pre>
- *    std::string url = "http://mvg-test-pc-03.cern.ch:8090";
- *    CrestClient myCrestClient = CrestClient(url);
- * </pre>
- */
-    CrestClient(const std::string& url);
-
-    ~CrestClient();
 
 
 // ====================================================
@@ -143,7 +110,7 @@ namespace Crest {
 
 /**
  * General auxiliary method to make request to the CREST Server. This method is used by other methods realizing the
- * requests with the concrete kinds of data (iovs|payloads|tags...).
+ * requests with the concrete kinds of data (iovs|payloads|tags…).
  *
  * @param current_path - URL request path
  * @param action - Action (GET|POST|DELETE)
@@ -169,7 +136,7 @@ namespace Crest {
 
 /**
  * General auxillary method to make request to the CREST Server. This method is used by other methods realizing the
- * requests with the concrete kinds of data (iovs|payloads|tags...).
+ * requests with the concrete kinds of data (iovs|payloads|tags…).
  *
  * @param current_path - URL request path
  * @param action - Action (GET|POST|DELETE)
@@ -198,7 +165,110 @@ namespace Crest {
  * @param since - since.
  * @param js - payloads in the JSON format.
  */
-    std::string storeBatchPayloadRequest(const std::string& tag, uint64_t endtime, const std::string& js); 
+    std::string storeBatchPayloadRequest(const std::string& tag, uint64_t endtime, const std::string& js);
+
+
+// ====================================================
+// AUXILLARY METHODS
+
+/**
+ * Auxillary method to get a resources parameter from new CREST server response.
+ *
+ * @param js - CREST server response.
+ */
+    nlohmann::json getResources(nlohmann::json& js);
+
+
+/**
+ * Auxillary method to get the first element from resources of the new CREST server response.
+ *
+ * @param js - CREST server response.
+ */
+    nlohmann::json getResFirst(nlohmann::json& js);
+
+
+/**
+ *  Auxillary method to check if the CrestApi library initialized to work with the file system.
+ *  It was used to throw an exception if the library method not implemented for file system.
+ * @param method_name - method name.
+ */
+    void checkFsException(std::string& method_name);
+
+
+/**
+ *  Auxillary method to check if the JSON object contain an error message.
+ * @param js - a JSON object to be checked. Example: <br>
+ * <pre>
+ *    nlohmann::json js =
+ *    {
+ *       "message": "Cannot create tag because name already exists: test_MvG3b",
+ *       "type": "error"
+ *    }
+ * </pre>
+ * @param method - method name, where was the error.
+ */
+    int checkErrors(const nlohmann::json& js, const std::string& method);
+
+/**
+ * This method removes all XML/HTML tags from a string.
+ * (It is an auxillary method to clear the CREST Server response.)
+ * @param xmlBuffer - the text (a std::string ) to be cleared.
+ */
+    std::string ParseXMLOutput(std::string xmlBuffer);
+
+/**
+ * This method removes all end of line and carriage return symbols from a string.
+ * (It is an auxillary method to clear the CREST Server response.)
+ * @param str - the text (a std::string ) to be cleared.
+ */
+    std::string removeCR(const std::string& str);
+
+
+/**
+ * This auxillary method checks the CURL response.
+ * It contais a error checking routine (common for all CURL request methods).
+ * @param res - CURL response status,
+ * @param response_code - the CURL response code,
+ * @param st - the CURL response,
+ * @param method_name - the name on a method which calls one of the perform request methods.
+ */
+    void checkResult(CURLcode res, long response_code, const std::string& st, const std::string& method_name);
+  public:
+// ===================================
+// CONSTRUCTORS
+
+/**
+ * CrestClient constructor for file storage mode. If CrestClient is created with this method the data will be written on
+ * the hard disk.
+ * @param rewriteIfExist - this parameter sets if the data can be rewritten.
+ * @param root_folder - the folder where the data have to be stored.
+ */
+    CrestClient(bool rewriteIfExists, const std::string& root_folder = "/tmp/crest_dump");
+
+
+/**
+ * CrestClient constructor for Internet mode. If CrestClient is created with this method the data will be sent to the
+ * CREST Server.
+ * @param _host - host name of the CREST Server.
+ * @param _port - port of the CREST Server.
+ */
+    CrestClient(const std::string& _host, const std::string& _port);
+
+/**
+ * CrestClient constructor for Internet mode. If CrestClient is created with this method the data will be sent to the
+ * CREST Server.
+ * @param url - URL address of the CREST Server (with port).
+ * <br> <br>
+ * Example:
+ * <br>
+ * <pre>
+ *    std::string url = "http://mvg-test-pc-03.cern.ch:8090";
+ *    CrestClient myCrestClient = CrestClient(url);
+ * </pre>
+ */
+    CrestClient(const std::string& url);
+
+    ~CrestClient();
 
 
 
@@ -208,11 +278,20 @@ namespace Crest {
 
 /**
  * Auxillary method to convert string in to JSON object.
- * @param str - string (sdt::string)
+ * @param str - string (std::string)
  * @return - JSON object as nlohmann::json
  *
  */
     nlohmann::json getJson(const std::string& str); // string to json
+
+/**
+ * Auxillary method to convert string in to JSON object.
+ * @param str - string (std::string)
+ * @param method - method name, wthich calls this method. This parameter is used to throw an error exception.
+ * @return - JSON object as nlohmann::json
+ *
+ */
+    nlohmann::json getJson(const std::string& str, const std::string& method); // string to json
 
 /**
  * Auxillary method to get a file as a string.
@@ -403,6 +482,14 @@ namespace Crest {
  */
     nlohmann::json listGlobalTags();
 
+/**
+ * This method returns the global tag list. It is a verion of this method with all parameters.
+ * @param name - global tag name pattern,
+ * @param size - page size,
+ * @param page - page number,
+ * @param sort - sorting order.
+ */
+    nlohmann::json listGlobalTags(const std::string& name, int size, int page, const std::string& sort);
 
 
 /**
@@ -442,6 +529,17 @@ namespace Crest {
  * @param tagname - tag name.
  */
     nlohmann::json findAllIovs(const std::string& tagname);
+
+/**
+ * This method finds all iovs for a given tag name. The result is a JSON object. It is a verion of this method with all
+ *parameters.
+ * (This method is an analogue of the find_all_iovs method in Python)
+ * @param tagname - tag name.
+ * @param size - page size.
+ * @param page - page number.
+ */
+    nlohmann::json findAllIovs(const std::string& tagname, int size, int page, const std::string& sort,
+                               const std::string& dateformat);
 
 
 /**
@@ -522,6 +620,11 @@ namespace Crest {
 // MonitoringApi
 //
 
+/**
+ * This method retrieves monitoring information on all payloads as a list of payload tag information.
+ * (This method is an analogue of the list_payload_tag_info method in Python)
+ */
+    nlohmann::json listPayloadTagInfo();
 
 /**
  * This method retrieves monitoring information on payload as a list of payload tag information.
@@ -571,7 +674,7 @@ namespace Crest {
 
 /**
  * This method finds payload data by hash; the payload object contains the real BLOB. The result returns in the stream
- *"out" (BE CARREFULL!).
+ *"out" (BE CAREFUL!).
  * (This method is an analogue of the get_blob method in Python)
  * @param hash - hash
  * @param[out] out - output stream to get the result.
@@ -762,8 +865,7 @@ namespace Crest {
     nlohmann::json findTag(const std::string& name);
 
 
-// TAG LIST
-
+// TAG LIST methods:
 
 /**
  * This method returns the tag list.
@@ -771,8 +873,27 @@ namespace Crest {
  */
     nlohmann::json listTags(void);
 
-// UPDATE TAG
+/**
+ * This method returns the tag list. It is a verion of this method with additional parameters.
+ * (This method is an analogue of the list_tags method in Python)
+ * @param size - page size.
+ * @param page - page number.
+ */
+    nlohmann::json listTags(int size, int page);
 
+
+/**
+ * This method returns the tag list. It is a verion of this method with all parameters.
+ * (This method is an analogue of the list_tags method in Python)
+ * @param name - tag name pattern,
+ * @param size - page size,
+ * @param page - page number,
+ * @param sort - sorting order.
+ */
+    nlohmann::json listTags(const std::string& name, int size, int page, const std::string& sort);
+
+
+// UPDATE TAG
 
 /**
  * This method allows to update tag record in the CREST DB.
@@ -832,8 +953,6 @@ namespace Crest {
     void storePayloadDump(const std::string& tag, uint64_t since, const std::string& js);
 
 
-
-
 /**
  * This method returns a tag list stored in the file storage. This is the auxilary method. The result is the tag names
  * only (as a string list).
@@ -887,33 +1006,33 @@ namespace Crest {
 
 
 /**
-* This auxillary method stores several payloads in batch mode in the file storage.
-* (This method is an analogue of the store_batch_payloads method in Python)
-* @param tag_name - tag name.
-* @param iovsetupload - iov data as a string. 
-* <br> Example how to use these parameters: <br>
-* <pre>
-*    std::string name39 = "test_M";
-*    std::string str39 = "[{\"payloadHash\":\"aaa\",\"since\":100},{\"payloadHash\":\"bbb\",\"since\":150}]";
-*    myCrestClient.storeBatchPayloadsFs(name39, str39);
-* </pre>
-*/
-void storeBatchPayloadsFs(std::string tag_name, std::string& iovsetupload);
+ * This auxillary method stores several payloads in batch mode in the file storage.
+ * (This method is an analogue of the store_batch_payloads method in Python)
+ * @param tag_name - tag name.
+ * @param iovsetupload - iov data as a string.
+ * <br> Example how to use these parameters: <br>
+ * <pre>
+ *    std::string name39 = "test_M";
+ *    std::string str39 = "[{\"payloadHash\":\"aaa\",\"since\":100},{\"payloadHash\":\"bbb\",\"since\":150}]";
+ *    myCrestClient.storeBatchPayloadsFs(name39, str39);
+ * </pre>
+ */
+    void storeBatchPayloadsFs(std::string tag_name, std::string& iovsetupload);
 
 /**
-* This auxillary method stores several payloads in batch mode in the file storage.
-* (This method is an analogue of the store_batch_payloads method in Python)
-* @param tag_name - tag name.
-* @param iovsetupload - iov data as a JSON object. 
-* <br> Example how to use these parameters: <br>
-* <pre>
-*    std::string name39 = "test_M";
-*    std::string str39 = "[{\"payloadHash\":\"aaa\",\"since\":100},{\"payloadHash\":\"bbb\",\"since\":150}]";
-*    nlohmann::json js39 = myCrestClient.getJson(str39);
-*    myCrestClient.storeBatchPayloadsFs(name39, js39);
-* </pre>
-*/
-void storeBatchPayloadsFs(std::string tag_name, nlohmann::json& js);
+ * This auxillary method stores several payloads in batch mode in the file storage.
+ * (This method is an analogue of the store_batch_payloads method in Python)
+ * @param tag_name - tag name.
+ * @param iovsetupload - iov data as a JSON object.
+ * <br> Example how to use these parameters: <br>
+ * <pre>
+ *    std::string name39 = "test_M";
+ *    std::string str39 = "[{\"payloadHash\":\"aaa\",\"since\":100},{\"payloadHash\":\"bbb\",\"since\":150}]";
+ *    nlohmann::json js39 = myCrestClient.getJson(str39);
+ *    myCrestClient.storeBatchPayloadsFs(name39, js39);
+ * </pre>
+ */
+    void storeBatchPayloadsFs(std::string tag_name, nlohmann::json& js);
 
 
 /**
@@ -929,41 +1048,45 @@ void storeBatchPayloadsFs(std::string tag_name, nlohmann::json& js);
  */
     std::string getEnvA(const std::string& varname);
 
-
 /**
  * Auxillary method to get an environment variable DAT_PATH.
  *
  */
     std::string getDataPath();
 
-
 /**
- * Auxillary method to get a resources parameter from new CREST server response.
- *
- * @param js - CREST server response.
+ * This method checks if a string is in the JSON format.
+ * (It is an auxillary method to check the CREST Server response format.)
+ * @param str - the string to be checked.
  */
-    nlohmann::json getResources(nlohmann::json& js);
+    bool isJson(const std::string& str);
 
-
-/**
- * Auxillary method to get the first element from resources of the new CREST server response.
- *
- * @param js - CREST server response.
- */
-    nlohmann::json getResFirst(nlohmann::json& js);
-
-
-    /**
-     *  Auxillary method to check if the JSON object contain an error message.
-     * @param js - a JSON object to be checked.
-     */
-    int checkErrors(nlohmann::json& js);
 
 // Tag Meta Info Methods
 
 /**
  * This method creates a tag meta info in the CREST database.
- * @param tagname - tag name
+ * @param js - tag meta info in the JSON format. Example: <br>
+ * <pre>
+ *    nlohmann::json js =
+ *    {
+ *      {"tagName", "test_MvG4"},
+ *      {"description", "desc-01"},
+ *      {"tagInfo", "taginf-01"},
+ *      {"chansize", 0},
+ *      {"colsize", 0},
+ *      {"insertionTime", "2019-03-14T13:29:25.286Z"}
+ *    };
+ * </pre>
+ */
+    void createTagMetaInfo(nlohmann::json& js);
+
+/**
+ * This method creates a tag meta info in the CREST database.
+ * (The tag meta info JSON contains the tag name, that is why it is better to use
+ * the method variant without tagname parameter. This method exists for the
+ * compatibility reasons.)
+ * @param tagname - tag name,
  * @param js - tag meta info in the JSON format. Example: <br>
  * <pre>
  *    nlohmann::json js =
@@ -979,11 +1102,30 @@ void storeBatchPayloadsFs(std::string tag_name, nlohmann::json& js);
  */
     void createTagMetaInfo(const std::string& tagname, nlohmann::json& js);
 
+
 /**
  * This method gets a tag meta info from the CREST database.
  * @param tagname - tag name
  */
     nlohmann::json getTagMetaInfo(const std::string& tagname);
+
+/**
+ * This method updates a tag meta info in the CREST database.
+ * @param js - a JSON object with new parameters (These parameters will be changed in the CREST DB). Example: <br>
+ * <pre>
+ *    nlohmann::json js =
+ *    {
+ *      {"tagName", "test_MvG4"},
+ *      {"description", "desc-01"},
+ *      {"tagInfo", "taginf-01"},
+ *      {"chansize", 0},
+ *      {"colsize", 0},
+ *      {"insertionTime", "2019-03-14T13:29:25.286Z"}
+ *    };
+ * </pre>
+ */
+    void updateTagMetaInfo(nlohmann::json& js);
+
 
 /**
  * This method updates a tag meta info in the CREST database.
@@ -1003,6 +1145,31 @@ void storeBatchPayloadsFs(std::string tag_name, nlohmann::json& js);
  */
     void updateTagMetaInfo(const std::string& tagname, nlohmann::json& js);
 
+
+/**
+ * This is an auxillary method, it creates a tag meta info on the file system storage.
+ * @param js - tag meta info in the JSON format. Example: <br>
+ * <pre>
+ *    nlohmann::json js =
+ *    {
+ *      {"tagName", "test_MvG4"},
+ *      {"description", "desc-01"},
+ *      {"tagInfo", "taginf-01"},
+ *      {"chansize", 0},
+ *      {"colsize", 0},
+ *      {"insertionTime", "2019-03-14T13:29:25.286Z"}
+ *    };
+ * </pre>
+ */
+    void createTagMetaInfoFs(nlohmann::json& js);
+
+/**
+ * This is an auxillary  method, it gets a tag meta info from file system storage.
+ * @param tagname - tag name
+ */
+    nlohmann::json getTagMetaInfoFs(const std::string& name);
+
+    void updateTagMetaInfoFs(const std::string& tagname, nlohmann::json& js);
 
 /**
  * Auxillary method to get an element by name from the Tag Meta Info.
@@ -1057,70 +1224,112 @@ void storeBatchPayloadsFs(std::string tag_name, nlohmann::json& js);
  * @param tagname - tag name
  * @param js - tag meta info in the JSON IOVDbSvc format. Example: <br>
  * <pre>
- * [
- *   { "node_description ": " string of the folder description  "},
- *   { "channel_list ":[0,10,20]},
- *   { "channel_names ": [ "first ", "second ", "third "]},
- *   { "payload_specification ": "stave: Int32, eta: Int32, mag: Float, base: Float, free: Float "}
- * ]
+ * {
+ *    "channel_list": [
+ *        {"0": "ATLAS_PREFERRED0"},
+ *        {"1": "ATLAS_PREFERRED1"}
+ *     ],
+ *    "node_description": "description of the node",
+ *    "payload_spec":
+ *"AlgorithmID:UInt32,LBAvInstLumi:Float,LBAvEvtsPerBX:Float,LumiType:UInt32,Valid:UInt32,BunchInstLumi:Blob64k"
+ * }
  * </pre>
  */
     void createTagMetaInfoIOVDbSvc(const std::string& tagname, nlohmann::json& js);
 
-
-// Boost Function Fragment (begin)
-
-
 /**
- * This method returns the tag list. It is a verion of this method with all parameters.
- * (This method is an analogue of the list_tags method in Python)
- */
-  nlohmann::json listTags(int size, int page);
-
-/**
- * This method returns the tag list. It has boost parameters, all of them are optional.
- * (This method is an analogue of the list_tags method in Python)
- * @param _size - page size, a number of tags per a page, optional parameter, default value is 1000,
- * @param _page - page number optional parameter, default value is 0.
- * If you dont use the optional parameter names, you have to use the same parameter order.
- * Example: <br>
+ * This method creates a tag meta info in the CREST database.
+ * @param tagname - tag name
+ * @param description - tag meta info description, this parameter is a part of the tag meta info in CREST format
+ * @param js - tag meta info in the JSON IOVDbSvc format. Example: <br>
  * <pre>
- *   nlohmann::json list1 = myCrestClient.listTagsParams();
- *   nlohmann::json list2 = myCrestClient.listTagsParams(100,200);
- *   nlohmann::json list2 = myCrestClient.listTagsParams(_page=3,_size=5);
+ * {
+ *    "channel_list": [
+ *        {"0": "ATLAS_PREFERRED0"},
+ *        {"1": "ATLAS_PREFERRED1"}
+ *     ],
+ *    "node_description": "description of the node",
+ *    "payload_spec":
+ *"AlgorithmID:UInt32,LBAvInstLumi:Float,LBAvEvtsPerBX:Float,LumiType:UInt32,Valid:UInt32,BunchInstLumi:Blob64k"
+ * }
  * </pre>
- *
- *  nlohmann::json listTagsParams(int _size, int _page);
  */
-#ifdef __clang__
-// Suppress clang warning about unused argument from boost code.
-# pragma clang diagnostic push
-# pragma clang diagnostic ignored "-Wunused-parameter"
-#endif
-BOOST_PARAMETER_MEMBER_FUNCTION(
-   (nlohmann::json), 
-   listTagsParams,
-   tag, 
-   (required 
-   )
-   (optional 
-     (size, (int) , 1000)
-     (page, (int) , 0)
-   )
-)
-{
+    void createTagMetaInfoIOVDbSvc(const std::string& tagname, nlohmann::json& js, const std::string& description);
 
-   return listTags(size, page); 
-}
-#ifdef __clang__
-# pragma clang diagnostic pop
-#endif
+//=====================================================
+// Global Tag and Global Tag Map methods for the file storage
+//
+
+/**
+ * The auxillary method to create a global tag in file storage.
+ * (This method is an analogue of the create_global_tag method in Python)
+ * @param js - global tag in the JSON format. Example: <br>
+ * <pre>
+ * json js =
+ *    {
+ *       {"name","M_TEST_01"},
+ *       {"validity",0},
+ *       {"description","test"},
+ *       {"release","1"},
+ *       {"insertionTime","2018-12-18T11:32:58.081+0000"},
+ *       {"snapshotTime","2018-12-18T11:32:57.952+0000"},
+ *       {"scenario","test"},
+ *       {"workflow","M"},
+ *       {"type","t"},
+ *       {"snapshotTimeMilli","null"},
+ *       {"insertionTimeMilli","null"}
+ *    };
+ *
+ * </pre>
+ */
+    void createGlobalTagFs(nlohmann::json& js);
 
 
-// Boost Function Fragment (end)
+/**
+ * The auxillary method to find a global tag by name stored in file storage.
+ * (This method is an analogue of the find_global_tag method in Python)
+ * This method returns the global tag as a JSON object.
+ * @param name - global tag name
+ */
+    nlohmann::json findGlobalTagFs(const std::string& name);
 
+
+/**
+ * The auxillary method to create a global tag map in file storage.
+ * (This method is an analogue of the create_global_tag_map method in Python)
+ * @param gt - global tag map in the JSON format. Example: <br>
+ * <pre>
+ * json gt =
+ *    {
+ *      {"globalTagName", "M_TEST"},
+ *      {"record", "testing2"},
+ *      {"label", "test2"},
+ *      {"tagName", "test_MvG3"}
+ *    }
+ * </pre>
+ */
+    void createGlobalTagMapFs(nlohmann::json& js);
+
+/**
+ * The auxillary method to find a global tag by name for the file storage.
+ * This method will search for a global tag with the given name.
+ * Only one global tag should be returned.
+ * (This method is an analogue of the find_global_tag method in Python)
+ * This method returns the global tag as a JSON object.
+ * @param name - global tag name
+ */
+    nlohmann::json findGlobalTagMapFs(const std::string& name);
   };
+} // namespace
 
-} // namespace 
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 
+#endif // not CRESTAPI_CRESAPI_H

@@ -3,89 +3,121 @@
 */
 
 namespace Trk {
+
+/** Return the surface type */
+inline SurfaceType
+PerigeeSurface::type() const
+{
+  return PerigeeSurface::staticType;
+}
+
+
 /** Use the Surface as a ParametersBase constructor, from local parameters -
  * charged */
-inline ParametersT<5, Charged, PerigeeSurface>*
-PerigeeSurface::createTrackParameters(double l1,
-                                      double l2,
-                                      double phi,
-                                      double theta,
-                                      double qop,
-                                      AmgSymMatrix(5) * cov) const
+inline Surface::ChargedTrackParametersUniquePtr
+PerigeeSurface::createUniqueTrackParameters(
+  double l1,
+  double l2,
+  double phi,
+  double theta,
+  double qop,
+  std::optional<AmgSymMatrix(5)> cov) const
 {
-  return new ParametersT<5, Charged, PerigeeSurface>(
-    l1, l2, phi, theta, qop, *this, cov);
+  return std::make_unique<ParametersT<5, Charged, PerigeeSurface>>(
+    l1, l2, phi, theta, qop, *this, std::move(cov));
 }
-
 /** Use the Surface as a ParametersBase constructor, from global parameters -
  * charged*/
-inline ParametersT<5, Charged, PerigeeSurface>*
-PerigeeSurface::createTrackParameters(const Amg::Vector3D& position,
-                                      const Amg::Vector3D& momentum,
-                                      double charge,
-                                      AmgSymMatrix(5) * cov) const
+inline Surface::ChargedTrackParametersUniquePtr
+PerigeeSurface::createUniqueTrackParameters(
+  const Amg::Vector3D& position,
+  const Amg::Vector3D& momentum,
+  double charge,
+  std::optional<AmgSymMatrix(5)> cov) const
 {
-  return new ParametersT<5, Charged, PerigeeSurface>(
-    position, momentum, charge, *this, cov);
+  return std::make_unique<ParametersT<5, Charged, PerigeeSurface>>(
+    position, momentum, charge, *this, std::move(cov));
 }
 
 /** Use the Surface as a ParametersBase constructor, from local parameters -
  * neutral */
-inline ParametersT<5, Neutral, PerigeeSurface>*
-PerigeeSurface::createNeutralParameters(double l1,
-                                        double l2,
-                                        double phi,
-                                        double theta,
-                                        double qop,
-                                        AmgSymMatrix(5) * cov) const
+inline Surface::NeutralTrackParametersUniquePtr
+PerigeeSurface::createUniqueNeutralParameters(
+  double l1,
+  double l2,
+  double phi,
+  double theta,
+  double qop,
+  std::optional<AmgSymMatrix(5)> cov) const
 {
-  return new ParametersT<5, Neutral, PerigeeSurface>(
-    l1, l2, phi, theta, qop, *this, cov);
+  return std::make_unique<ParametersT<5, Neutral, PerigeeSurface>>(
+    l1, l2, phi, theta, qop, *this, std::move(cov));
 }
 
 /** Use the Surface as a ParametersBase constructor, from global parameters -
  * neutral */
-inline ParametersT<5, Neutral, PerigeeSurface>*
-PerigeeSurface::createNeutralParameters(const Amg::Vector3D& position,
-                                        const Amg::Vector3D& momentum,
-                                        double charge,
-                                        AmgSymMatrix(5) * cov) const
+inline Surface::NeutralTrackParametersUniquePtr
+PerigeeSurface::createUniqueNeutralParameters(
+  const Amg::Vector3D& position,
+  const Amg::Vector3D& momentum,
+  double charge,
+  std::optional<AmgSymMatrix(5)> cov) const
 {
-  return new ParametersT<5, Neutral, PerigeeSurface>(
-    position, momentum, charge, *this, cov);
+  return std::make_unique<ParametersT<5, Neutral, PerigeeSurface>>(
+    position, momentum, charge, *this, std::move(cov));
+}
+
+template<int DIM, class T>
+std::unique_ptr<ParametersT<DIM, T, PerigeeSurface>>
+PerigeeSurface::createUniqueParameters(
+  double l1,
+  double l2,
+  double phi,
+  double theta,
+  double qop,
+  std::optional<AmgSymMatrix(DIM)> cov) const
+{
+  return std::make_unique<ParametersT<DIM, T, PerigeeSurface>>(
+    l1, l2, phi, theta, qop, *this, std::move(cov));
+}
+
+/** Use the Surface as a ParametersBase constructor, from global parameters */
+template<int DIM, class T>
+std::unique_ptr<ParametersT<DIM, T, PerigeeSurface>>
+PerigeeSurface::createUniqueParameters(
+  const Amg::Vector3D& position,
+  const Amg::Vector3D& momentum,
+  double charge,
+  std::optional<AmgSymMatrix(DIM)> cov) const
+{
+  return std::make_unique<ParametersT<DIM, T, PerigeeSurface>>(
+    position, momentum, charge, *this, std::move(cov));
 }
 
 /** Use the Surface as a ParametersBase constructor, from local parameters */
 template<int DIM, class T>
-ParametersT<DIM, T, PerigeeSurface>*
+ParametersT<DIM, T, PerigeeSurface>
 PerigeeSurface::createParameters(double l1,
                                  double l2,
                                  double phi,
                                  double theta,
                                  double qop,
-                                 AmgSymMatrix(DIM) * cov) const
+                                 std::optional<AmgSymMatrix(DIM)> cov) const
 {
-  return new ParametersT<DIM, T, PerigeeSurface>(
-    l1, l2, phi, theta, qop, *this, cov);
+  return ParametersT<DIM, T, PerigeeSurface>(
+    l1, l2, phi, theta, qop, *this, std::move(cov));
 }
 
 /** Use the Surface as a ParametersBase constructor, from global parameters */
 template<int DIM, class T>
-ParametersT<DIM, T, PerigeeSurface>*
+ParametersT<DIM, T, PerigeeSurface>
 PerigeeSurface::createParameters(const Amg::Vector3D& position,
                                  const Amg::Vector3D& momentum,
                                  double charge,
-                                 AmgSymMatrix(DIM) * cov) const
+                                 std::optional<AmgSymMatrix(DIM)> cov) const
 {
-  return new ParametersT<DIM, T, PerigeeSurface>(
-    position, momentum, charge, *this, cov);
-}
-
-/** Return the surface type */
-inline Surface::SurfaceType
-PerigeeSurface::type() const
-{
-  return PerigeeSurface::staticType;
+  return ParametersT<DIM, T, PerigeeSurface>(
+    position, momentum, charge, *this, std::move(cov));
 }
 
 inline PerigeeSurface*
@@ -94,34 +126,16 @@ PerigeeSurface::clone() const
   return new PerigeeSurface(*this);
 }
 
-inline const Amg::Transform3D&
-PerigeeSurface::transform() const
-{
-  if (!Surface::m_transform)
-    return (s_idTransform);
-  return (*Trk::Surface::m_transform);
-}
-
-inline const Amg::Vector3D&
-PerigeeSurface::center() const
-{
-  if (!Surface::m_center && !Surface::m_transform)
-    return (s_origin);
-  else if (!Surface::m_center)
-    m_center.set(std::make_unique<Amg::Vector3D>(m_transform->translation()));
-  return (*Surface::m_center);
-}
-
 inline const Amg::Vector3D&
 PerigeeSurface::normal() const
 {
-  return (s_xAxis);
+  return s_xAxis;
 }
 
-inline const Amg::Vector3D*
+inline Amg::Vector3D
 PerigeeSurface::normal(const Amg::Vector2D&) const
 {
-  return new Amg::Vector3D(this->normal());
+  return Amg::Vector3D(normal());
 }
 
 inline bool
@@ -139,7 +153,7 @@ PerigeeSurface::insideBoundsCheck(const Amg::Vector2D&,
 
 inline bool
 PerigeeSurface::isOnSurface(const Amg::Vector3D&,
-                            BoundaryCheck,
+                            const BoundaryCheck&,
                             double,
                             double) const
 {
@@ -185,8 +199,7 @@ PerigeeSurface::lineDirection() const
     return *(m_lineDirection.ptr());
   }
 
-  if (Surface::m_transform) {
-
+  if (Surface::m_transforms) {
     if (!m_lineDirection.isValid()) {
       m_lineDirection.set(transform().rotation().col(2));
       return *(m_lineDirection.ptr());

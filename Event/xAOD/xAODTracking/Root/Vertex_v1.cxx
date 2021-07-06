@@ -18,12 +18,12 @@ namespace xAOD {
 
    Vertex_v1::Vertex_v1()
       : SG::AuxElement(),
-        m_position(), 
+        m_position(),
         m_covariance() {
 
    }
 
-   Vertex_v1::Vertex_v1( const Vertex_v1& other ) 
+   Vertex_v1::Vertex_v1( const Vertex_v1& other )
       : SG::AuxElement(other),
         m_position( other.m_position ),
         m_covariance( other.m_covariance ){
@@ -157,7 +157,7 @@ namespace xAOD {
    AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( Vertex_v1, short, VxType::VertexType,
                                         vertexType, setVertexType )
 
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_ANALYSIS
    /// Helper object for implementing the vxTrackAtVertex functions
    static const SG::AuxElement::Accessor< std::vector< Trk::VxTrackAtVertex > >
    vxVertAcc( "vxTrackAtVertex" );
@@ -202,7 +202,7 @@ namespace xAOD {
 
       return vxVertAcc.isAvailable( *this );
    }
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE
+#endif // not XAOD_ANALYSIS
 
    /////////////////////////////////////////////////////////////////////////////
    //

@@ -1,5 +1,4 @@
-from __future__ import print_function
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # #######################################
 ## JetMonitoringConfig
@@ -29,7 +28,6 @@ from __future__ import print_function
 ##
 ## See python/JetMonitoringExample.py for usage of the system
 
-import six
 from AthenaCommon import  SystemOfUnits
 
 class ConfigDict(dict):
@@ -44,7 +42,7 @@ class ConfigDict(dict):
     """
     def __init__(self, **kwargs):
         dict.__init__(self, **kwargs)
-        for k,v in six.iteritems (kwargs):
+        for k,v in kwargs.items():
             dict.__setattr__(self, k,  v)
     def __getattr__(self, attr):
         try:
@@ -70,7 +68,7 @@ class ConfigDict(dict):
     def clone(self, **kwargs):
         from copy import deepcopy
         c = deepcopy(self)
-        for k,v in six.iteritems (kwargs):
+        for k,v in kwargs.items():
             setattr(c,k,v)
         return c
 
@@ -87,7 +85,7 @@ class ConfigDict(dict):
     def _dump(self, writeFunc):
         def write(s, e='\n'): writeFunc('  '+s,e)
         writeFunc(self.__class__.__name__+'(')
-        for k,v in sorted(six.iteritems (self)):
+        for k,v in sorted(self.items()):
             if isinstance(v, ConfigDict):
                 write(k+' = ','')
                 v._dump(write)
@@ -104,6 +102,14 @@ class ConfigDict(dict):
 # **********************************************************
 
 
+def interpretManySelStr(selStr):
+    selL = selStr.split('&')
+    interpL = [interpretSelStr( s ) for s in selL]
+    # interpL is in the form [ (min1,v1,max1), (min2,v2,max2),..]
+    # unpack it into 3 lists :
+    minL, varL, maxL = zip(*interpL)
+    return minL, varL, maxL
+    
 def interpretSelStr(selStr):
     """Interpret a selection string in the form '12.3<var<42.0'
     and returns a tuple.
@@ -115,8 +121,9 @@ def interpretSelStr(selStr):
     if '>' in selStr:
         print("JetMonitoring ERROR interpreting selection string ", selStr)
         print("JetMonitoring ERROR  can not interpret '>', please use only '<' ")
+
     parts = selStr.split('<')
-    cmin, cmax = None, None
+    cmin, cmax = -3.4e38, 3.4e38 #we declare std::vector<float> for both on the c++ side, but will not necessarily pass actual values for them, so we use min/max float values in python as default (hardcoded numbers, because not easily accessible)
     var = selStr
     if len(parts)==2:
         ismin = False
@@ -133,8 +140,6 @@ def interpretSelStr(selStr):
         cmax = float(cmax)
 
     return cmin, var, cmax
-    
-
 
 def findSelectIndex( name):
     """ interprets 'varName[X]' into ('varName',x) """
@@ -167,7 +172,7 @@ class ToolSpec(ConfigDict):
         conf.pop('topLevelDir',None)
         conf.pop('bottomLevelDir',None)
         conf.pop('defineHistoFunc',None) # not used here.
-        for k, v in six.iteritems (conf):
+        for k, v in conf.items():
             if isinstance(v,ToolSpec):
                 v.topLevelDir = self.topLevelDir
                 v.bottomLevelDir = self.bottomLevelDir
@@ -359,7 +364,7 @@ class HistoSpec(ToolSpec):
             name = name +"," + retrieveVarToolConf( self.yvar).vname()
         if self.nVar>2:
             name = name +"," + retrieveVarToolConf( self.zvar).vname()
-            
+
         name = name+";"+self.groupName()
 
         #print ' uuuuuuuuuuu ', self.name , ' --> ', name,  hargs
@@ -386,12 +391,22 @@ class EventHistoSpec(ToolSpec):
         self.bins = bins
         self.hargs = ConfigDict( **args)
 
+    def histName(self):
+        from JetMonitoring.JetStandardHistoSpecs import knownEventVar
+        histname = self.name
+        while knownEventVar.get(histname,None) is None: #try to remove suffixes in the form of "_SelectionName" when using with external SelectSpecs
+          if "_" in histname:
+            histnamesplit = histname.split("_")
+            histname = histname.replace("_"+histnamesplit[-1],"")
+          else:
+            raise JetMonSpecException(" Unknown EventHisto specification : '{}' ".format(histname))
+        return histname
 
     def toTool(self):
         from AthenaConfiguration.ComponentFactory import CompFactory
         from JetMonitoring.JetStandardHistoSpecs import knownEventVar
         # force the property "VarName" to simply be the name of the variable specification:
-        v = knownEventVar[self.name]
+        v = knownEventVar[self.histName()]
         v.VarName = v.name
         tool = CompFactory.JetHistoEventLevelFiller( self.name+"hfiller",
                                                 Var = v.toTool(),
@@ -400,14 +415,13 @@ class EventHistoSpec(ToolSpec):
         return tool
 
     def defineHisto(self, parentAlg, monhelper , path):
-        from JetMonitoring.JetStandardHistoSpecs import knownEventVar
         hargs = dict(xbins = self.bins[0],xmin = self.bins[1], xmax=self.bins[2],
                      type='TH1F', )
         hargs.update( **self.hargs)
         # we create one group for each histoFiller : self.name() are unique within a JetMonitoringAlg
         bottomLevelDir = self.bottomLevelDir if self.bottomLevelDir != '' else parentAlg.JetContainerName
         group = monhelper.addGroup(parentAlg, self.name, self.topLevelDir+bottomLevelDir)
-        group.defineHistogram(knownEventVar[self.name].VarName, path=path, **hargs)
+        group.defineHistogram(self.histName()+";"+self.name, path=path, **hargs) #give a recognisable histogram name in case of SelectSpec usage
 
 
 
@@ -423,16 +437,19 @@ class SelectSpec(ToolSpec):
     def __init__(self, selname, selexpr, path=None, **args):
         path = selname if path is None else path
         if '<' in selexpr:
-            # interpret it as min<v<max
-            cmin, v , cmax = interpretSelStr(selexpr)
+            # interpret it as a list of min<v<max
+            cminList , varList , cmaxList = interpretManySelStr(selexpr)
+            specname = '_'.join(varList)
             if args.setdefault('isEventVariable', False) :
+              VarList = [retrieveEventVarToolConf(v) for v in varList]
               selProp = 'EventSelector'
-              selSpec = ToolSpec('JetEventSelector', v+'sel', Var = retrieveEventVarToolConf(v), )
+              selSpec = ToolSpec('JetEventSelector', specname+'_sel', Var = VarList, ) 
             else:
+              VarList = [retrieveVarToolConf(v) for v in varList]
               selProp = 'Selector'
-              selSpec = ToolSpec('JetSelectorAttribute', v+'sel', Var = retrieveVarToolConf(v), )
-            if cmin is not None: selSpec['CutMin'] = cmin
-            if cmax is not None: selSpec['CutMax'] = cmax
+              selSpec = ToolSpec('JetSelectorAttribute', specname+'_sel', Var = VarList, )
+            selSpec['CutMin'] = cminList
+            selSpec['CutMax'] = cmaxList
             args[selProp] = selSpec
         elif selexpr != '':
             from JetMonitoring.JetStandardHistoSpecs import  knownSelector
@@ -443,8 +460,6 @@ class SelectSpec(ToolSpec):
                 # should raise an exception ??
                 return
             args['Selector'] = selSpec
-
-
 
         self.name = selname
         self.path = path
@@ -476,7 +491,8 @@ class SelectSpec(ToolSpec):
         for i,tconf in enumerate(self.FillerTools):
             tconf.topLevelDir = self.topLevelDir
             tconf.bottomLevelDir = self.bottomLevelDir
-            tconf = tconf.clone(newname=tconf.name+suffix)
+            newname = tconf.name if suffix in tconf.name else tconf.name+suffix #prevent duplicating of Selection name when loading external SelectSpecs
+            tconf = tconf.clone(newname=newname)
             self.FillerTools[i] = tconf # re-assign the modified conf so it's consistently re-used elsewhere 
             selTool.FillerTools += [ tconf.toTool() ] # assign a configured tool to the JetHistoSelectSort instance
         return selTool
@@ -516,6 +532,7 @@ class JetMonAlgSpec(ConfigDict):
         args.setdefault('bottomLevelDir', '')
         args.setdefault('failureOnMissingContainer', True)
         args.setdefault('onlyPassingJets', True)
+        args.setdefault('eventFiresAnyJetChain',False)
         ConfigDict.__init__(self, defaultPath=defaultPath, TriggerChain=TriggerChain, **args)
         tmpL = self.FillerTools
         self.FillerTools = []
@@ -532,7 +549,8 @@ class JetMonAlgSpec(ConfigDict):
         alg.JetContainerName = self.JetContainerName
         alg.FailureOnMissingContainer = self.failureOnMissingContainer
         alg.OnlyPassingJets = self.onlyPassingJets
-        
+        alg.EventFiresAnyJetChain = self.eventFiresAnyJetChain
+
         path = self.defaultPath
         tools = []
         for tconf in self.FillerTools:
@@ -547,7 +565,7 @@ class JetMonAlgSpec(ConfigDict):
         def write(s,e='\n'): writeFunc('  '+s,e)
         def write2(s,e='\n'): writeFunc('    '+s,e)
         writeFunc(self.__class__.__name__+'(')
-        for k,v in sorted(six.iteritems (self)):
+        for k,v in sorted(self.items()):
             if k == 'FillerTools':
                 write('FillerTools = [')
                 for hspec in v:
@@ -603,10 +621,10 @@ def retrieveHistoToolConf(alias):
           --> if not found and contain a ';' build a HistoSpec for a 2D histograms
         * if alias is a ToolSpec, returns it directly
     """
-    from JetMonitoring.JetStandardHistoSpecs import knownHistos
     if isinstance(alias, ToolSpec):
         return alias
     elif isinstance(alias,str):        
+        from JetMonitoring.JetStandardHistoSpecs import knownHistos
         # get it from knownHistos
         c = knownHistos.get(alias,None)
         if c :

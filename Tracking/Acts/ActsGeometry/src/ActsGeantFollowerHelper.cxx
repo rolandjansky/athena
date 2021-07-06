@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -88,7 +88,7 @@ StatusCode ActsGeantFollowerHelper::initialize()
   m_validationTree->Branch("InitCharge",   &m_treeData->m_t_charge,  "initQ/F");
 
   m_validationTree->Branch("G4Steps",      &m_treeData->m_g4_steps, "g4steps/I");
-  m_validationTree->Branch("G4StepP",      m_treeData->m_g4_p,      "g4stepP[g4steps]/F");
+  m_validationTree->Branch("G4StepPt",     m_treeData->m_g4_pt,     "g4stepPt[g4steps]/F");
   m_validationTree->Branch("G4StepEta",    m_treeData->m_g4_eta,    "g4stepEta[g4steps]/F");
   m_validationTree->Branch("G4StepTheta",  m_treeData->m_g4_theta,  "g4stepTheta[g4steps]/F");
   m_validationTree->Branch("G4StepPhi",    m_treeData->m_g4_phi,    "g4stepPhi[g4steps]/F");
@@ -101,7 +101,7 @@ StatusCode ActsGeantFollowerHelper::initialize()
   m_validationTree->Branch("G4StepX0",     m_treeData->m_g4_X0,     "g4stepX0[g4steps]/F");
 
   m_validationTree->Branch("TrkStepStatus",m_treeData->m_trk_status, "trkstepStatus[g4steps]/I");
-  m_validationTree->Branch("TrkStepP",     m_treeData->m_trk_p,      "trkstepP[g4steps]/F");
+  m_validationTree->Branch("TrkStepPt",    m_treeData->m_trk_pt,     "trkstepPt[g4steps]/F");
   m_validationTree->Branch("TrkStepEta",   m_treeData->m_trk_eta,    "trkstepEta[g4steps]/F");
   m_validationTree->Branch("TrkStepTheta", m_treeData->m_trk_theta,  "trkstepTheta[g4steps]/F");
   m_validationTree->Branch("TrkStepPhi",   m_treeData->m_trk_phi,    "trkstepPhi[g4steps]/F");
@@ -113,7 +113,7 @@ StatusCode ActsGeantFollowerHelper::initialize()
 
   m_validationTree->Branch("ActsStepStatus",m_treeData->m_acts_status,  "actsstepStatus[g4steps]/I");
   m_validationTree->Branch("ActsVolumeId",  m_treeData->m_acts_volumeID,"actsvolumeid[g4steps]/I");
-  m_validationTree->Branch("ActsStepP",     m_treeData->m_acts_p,       "actsstepP[g4steps]/F");
+  m_validationTree->Branch("ActsStepPt",    m_treeData->m_acts_pt,      "actsstepPt[g4steps]/F");
   m_validationTree->Branch("ActsStepEta",   m_treeData->m_acts_eta,     "actsstepEta[g4steps]/F");
   m_validationTree->Branch("ActsStepTheta", m_treeData->m_acts_theta,   "actsstepTheta[g4steps]/F");
   m_validationTree->Branch("ActsStepPhi",   m_treeData->m_acts_phi,     "actsstepPhi[g4steps]/F");
@@ -192,9 +192,9 @@ void ActsGeantFollowerHelper::trackParticle(const G4ThreeVector& pos,
         Acts::Surface::makeShared<Acts::PerigeeSurface>(
         npos);
 
-    Acts::Vector4D actsStart(pos.x(),pos.y(),pos.z(),0);
-    Acts::Vector3D dir = nmom.normalized();
-    m_actsParameterCache = std::make_unique<const Acts::BoundTrackParameters>(Acts::BoundTrackParameters(surface, gctx.any(), actsStart, dir, mom.mag()/1000, charge));
+    Acts::Vector4 actsStart(pos.x(),pos.y(),pos.z(),0);
+    Acts::Vector3 dir = nmom.normalized();
+    m_actsParameterCache = std::make_unique<const Acts::BoundTrackParameters>(Acts::BoundTrackParameters::create(surface, gctx.context(), actsStart, dir, mom.mag()/1000, charge).value());
   }
   // jumping over inital step
   m_treeData->m_g4_steps = (m_treeData->m_g4_steps == -1) ? 0 : m_treeData->m_g4_steps;
@@ -208,23 +208,36 @@ void ActsGeantFollowerHelper::trackParticle(const G4ThreeVector& pos,
     ATH_MSG_WARNING("Maximum number of " << MAXPROBES << " reached, step is ignored.");
     return;
   }
+  
+  // Use the G4 pdgId as the particle hypothesis
+  Trk::ParticleHypothesis particleHypo = m_pdgToParticleHypothesis.convert(m_treeData->m_t_pdg, m_treeData->m_t_charge);
   // parameters of the G4 step point
   Trk::CurvilinearParameters* g4Parameters = new Trk::CurvilinearParameters(npos, nmom, m_treeData->m_t_charge);
   // destination surface
   const Trk::PlaneSurface& destinationSurface = g4Parameters->associatedSurface();
   // extrapolate to the destination surface
   const Trk::TrackParameters* trkParameters = m_extrapolateDirectly ?
-    m_extrapolator->extrapolateDirectly(*m_parameterCache,destinationSurface,Trk::alongMomentum,false) :
-    m_extrapolator->extrapolate(*m_parameterCache,destinationSurface,Trk::alongMomentum,false);
+    m_extrapolator->extrapolateDirectly(*m_parameterCache,destinationSurface,Trk::alongMomentum,false, particleHypo) :
+    m_extrapolator->extrapolate(*m_parameterCache,destinationSurface,Trk::alongMomentum,false, particleHypo);
 
   // create a Acts::Surface that correspond to the Trk::Surface
   auto destinationSurfaceActs = Acts::Surface::makeShared<Acts::PlaneSurface>(destinationSurface.center(), destinationSurface.normal());
-  std::unique_ptr<const Acts::BoundTrackParameters> actsParameters = m_actsExtrapolator->propagate(ctx, *m_actsParameterCache, *destinationSurfaceActs);
-  double X0Acts = m_actsExtrapolator->propagationSteps(ctx, *m_actsParameterCache, *destinationSurfaceActs).second.materialInX0;
-  int volID = trackingGeometry->lowestTrackingVolume(gctx.any(), actsParameters->position(gctx.any()))->geometryId().volume();
+  std::unique_ptr<const Acts::BoundTrackParameters> actsParameters = m_actsExtrapolator->propagate(ctx, 
+                                                                                                   *m_actsParameterCache, 
+                                                                                                   *destinationSurfaceActs, 
+                                                                                                   Acts::forward,
+                                                                                                   std::numeric_limits<double>::max(),
+                                                                                                   particleHypo);
+  double X0Acts = m_actsExtrapolator->propagationSteps(ctx,
+                                                       *m_actsParameterCache, 
+                                                       *destinationSurfaceActs,
+                                                       Acts::forward,
+                                                       std::numeric_limits<double>::max(),
+                                                       particleHypo).second.materialInX0;
+  int volID = trackingGeometry->lowestTrackingVolume(gctx.context(), actsParameters->position(gctx.context()))->geometryId().volume();
 
   // fill the geant information and the trk information
-  m_treeData->m_g4_p[m_treeData->m_g4_steps]       =  mom.mag();
+  m_treeData->m_g4_pt[m_treeData->m_g4_steps]      =  mom.mag()/std::cosh(mom.eta());
   m_treeData->m_g4_eta[m_treeData->m_g4_steps]     =  mom.eta();
   m_treeData->m_g4_theta[m_treeData->m_g4_steps]   =  mom.theta();
   m_treeData->m_g4_phi[m_treeData->m_g4_steps]     =  mom.phi();
@@ -239,7 +252,7 @@ void ActsGeantFollowerHelper::trackParticle(const G4ThreeVector& pos,
   m_treeData->m_g4_X0[m_treeData->m_g4_steps]      = X0;
 
   m_treeData->m_trk_status[m_treeData->m_g4_steps] = trkParameters ? 1 : 0;
-  m_treeData->m_trk_p[m_treeData->m_g4_steps]      = trkParameters ? trkParameters->pT()      : 0.;
+  m_treeData->m_trk_pt[m_treeData->m_g4_steps]      = trkParameters ? trkParameters->pT()      : 0.;
   m_treeData->m_trk_eta[m_treeData->m_g4_steps]    = trkParameters ? trkParameters->momentum().eta()      : 0.;
   m_treeData->m_trk_theta[m_treeData->m_g4_steps]  = trkParameters ? trkParameters->momentum().theta()    : 0.;
   m_treeData->m_trk_phi[m_treeData->m_g4_steps]    = trkParameters ? trkParameters->momentum().phi()      : 0.;
@@ -251,19 +264,33 @@ void ActsGeantFollowerHelper::trackParticle(const G4ThreeVector& pos,
 
   m_treeData->m_acts_status[m_treeData->m_g4_steps] = actsParameters ? 1 : 0;
   m_treeData->m_acts_volumeID[m_treeData->m_g4_steps] = actsParameters ? volID : 0;
-  m_treeData->m_acts_p[m_treeData->m_g4_steps]      = actsParameters ? actsParameters->transverseMomentum()*1000     : 0.;
+  m_treeData->m_acts_pt[m_treeData->m_g4_steps]      = actsParameters ? actsParameters->transverseMomentum()*1000     : 0.;
   m_treeData->m_acts_eta[m_treeData->m_g4_steps]    = actsParameters ? actsParameters->momentum().eta()     : 0.;
   m_treeData->m_acts_theta[m_treeData->m_g4_steps]  = actsParameters ? actsParameters->momentum().theta()   : 0.;
   m_treeData->m_acts_phi[m_treeData->m_g4_steps]    = actsParameters ? actsParameters->momentum().phi()     : 0.;
-  m_treeData->m_acts_x[m_treeData->m_g4_steps]      = actsParameters ? actsParameters->position(gctx.any()).x()   : 0.;
-  m_treeData->m_acts_y[m_treeData->m_g4_steps]      = actsParameters ? actsParameters->position(gctx.any()).y()   : 0.;
-  m_treeData->m_acts_z[m_treeData->m_g4_steps]      = actsParameters ? actsParameters->position(gctx.any()).z()   : 0.;
-  float tActs = (actsParameters->position(gctx.any()) - m_actsParameterCache->position(gctx.any())).norm();
-  m_tX0CacheActs              += X0Acts;
-  m_treeData->m_acts_tX0[m_treeData->m_g4_steps]     = X0Acts;
-  m_treeData->m_acts_accX0[m_treeData->m_g4_steps]   = m_tX0CacheActs;
-  m_treeData->m_acts_t[m_treeData->m_g4_steps]       = tActs;
-  m_treeData->m_acts_X0[m_treeData->m_g4_steps]      = tActs/X0Acts;
+  m_treeData->m_acts_x[m_treeData->m_g4_steps]      = actsParameters ? actsParameters->position(gctx.context()).x()   : 0.;
+  m_treeData->m_acts_y[m_treeData->m_g4_steps]      = actsParameters ? actsParameters->position(gctx.context()).y()   : 0.;
+  m_treeData->m_acts_z[m_treeData->m_g4_steps]      = actsParameters ? actsParameters->position(gctx.context()).z()   : 0.;
+  // Incremental extrapolation, the extrapolation correspond to one step
+  if(m_extrapolateIncrementally || m_treeData->m_g4_steps == 0){
+    float tActs = (actsParameters->position(gctx.context()) - m_actsParameterCache->position(gctx.context())).norm();
+    m_tX0CacheActs              += X0Acts;
+    m_treeData->m_acts_tX0[m_treeData->m_g4_steps]     = X0Acts;
+    m_treeData->m_acts_accX0[m_treeData->m_g4_steps]   = m_tX0CacheActs;
+    m_treeData->m_acts_t[m_treeData->m_g4_steps]       = tActs;
+    m_treeData->m_acts_X0[m_treeData->m_g4_steps]      = tActs/X0Acts;
+  }
+  // Extrapolation perform from the start, step varaible need to be computed by comparing to the last extrapolation.
+  else{
+    Acts::Vector3 previousPos(m_treeData->m_trk_x[m_treeData->m_g4_steps-1],
+                               m_treeData->m_trk_y[m_treeData->m_g4_steps-1],
+                               m_treeData->m_trk_z[m_treeData->m_g4_steps-1]);
+    float tActs = (actsParameters->position(gctx.context()) - previousPos).norm();
+    m_treeData->m_acts_tX0[m_treeData->m_g4_steps]     = X0Acts - m_treeData->m_acts_accX0[m_treeData->m_g4_steps-1]   ;
+    m_treeData->m_acts_accX0[m_treeData->m_g4_steps]   = X0Acts;
+    m_treeData->m_acts_t[m_treeData->m_g4_steps]       = tActs;
+    m_treeData->m_acts_X0[m_treeData->m_g4_steps]      = tActs/m_treeData->m_acts_tX0[m_treeData->m_g4_steps];
+  }
 
   // update the parameters if needed/configured
   if (m_extrapolateIncrementally && trkParameters && actsParameters) {

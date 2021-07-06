@@ -21,7 +21,7 @@ namespace Muon
   class MMRdoToPrepDataTool;
 
   /** @brief Class to represent MM measurements. */
-  class MMPrepData :   public MuonCluster
+  class MMPrepData final:   public MuonCluster
   {
 
     friend class Muon::MMRdoToPrepDataTool;
@@ -54,7 +54,7 @@ namespace Muon
 		const IdentifierHash &idDE,
 		const Amg::Vector2D& locpos,
 		const std::vector<Identifier>& rdoList,
-		const Amg::MatrixX* locErrMat,
+		const Amg::MatrixX& locErrMat,
 		const MuonGM::MMReadoutElement* detEl,
 		const short int time,
 		const int charge,
@@ -68,7 +68,7 @@ namespace Muon
 		const IdentifierHash &idDE,
 		const Amg::Vector2D& locpos,
 		const std::vector<Identifier>& rdoList,
-		const Amg::MatrixX* locErrMat,
+		const Amg::MatrixX& locErrMat,
 		const MuonGM::MMReadoutElement* detEl,
 		const short int time,
 		const int charge,
@@ -79,7 +79,7 @@ namespace Muon
 		const IdentifierHash &idDE,
 		const Amg::Vector2D& locpos,
 		const std::vector<Identifier>& rdoList,
-		const Amg::MatrixX* locErrMat,
+		const Amg::MatrixX& locErrMat,
 		const MuonGM::MMReadoutElement* detEl,
 		const short int time,
 		const int charge );
@@ -88,7 +88,7 @@ namespace Muon
 		const IdentifierHash &idDE,
 		const Amg::Vector2D& locpos,
 		const std::vector<Identifier>& rdoList,
-		const Amg::MatrixX* locErrMat,
+		const Amg::MatrixX& locErrMat,
 		const MuonGM::MMReadoutElement* detEl);
 
     /** @brief Destructor: */
@@ -98,20 +98,23 @@ namespace Muon
     void setMicroTPC(float angle, float chisqProb);
 
     /** @brief set drift distances and uncertainties */
-    void setDriftDist(const std::vector<float>& driftDist, const std::vector<Amg::MatrixX>& driftDistErrors);
+    void setDriftDist(const std::vector<float>& driftDist,
+                      const std::vector<Amg::MatrixX>& driftDistErrors);
 
     // setter functions for the EventTPConverters
-    void setDriftDist(const std::vector<float>& driftDist, const std::vector<float>& stripDriftErrors_0_0, const std::vector<float>& stripDriftErrors_1_1);
+    void setDriftDist(const std::vector<float>& driftDist,
+                      const std::vector<float>& stripDriftErrors_0_0,
+                      const std::vector<float>& stripDriftErrors_1_1);
 
     /** @brief Returns the global position*/
-    virtual const Amg::Vector3D& globalPosition() const override;
+    virtual const Amg::Vector3D& globalPosition() const override final;
 
     /** @brief Returns the detector element corresponding to this PRD.
 	The pointer will be zero if the det el is not defined (i.e. it was not passed in by the ctor)*/
     virtual const MuonGM::MMReadoutElement* detectorElement() const override final;
 
     /** Interface method checking the type*/
-    virtual bool type(Trk::PrepRawDataType::Type type) const override final
+    virtual bool type(Trk::PrepRawDataType type) const override final
     {
       return type == Trk::PrepRawDataType::MMPrepData;
     }
@@ -151,10 +154,10 @@ namespace Muon
     const std::vector<float> stripDriftErrors_1_1() const;
 
     /** @brief Dumps information about the PRD*/
-    virtual MsgStream&    dump( MsgStream&    stream) const override;
+    virtual MsgStream&    dump( MsgStream&    stream) const override final;
 
     /** @brief Dumps information about the PRD*/
-    virtual std::ostream& dump( std::ostream& stream) const override;
+    virtual std::ostream& dump( std::ostream& stream) const override final;
 
 
     enum Author{
@@ -207,8 +210,11 @@ namespace Muon
   // return globalPosition:
   inline const Amg::Vector3D& MMPrepData::globalPosition() const
   {
-    if (not m_globalPosition) m_globalPosition.set(std::unique_ptr<const Amg::Vector3D>(m_detEl->surface(identify()).Trk::Surface::localToGlobal(localPosition())));
-
+    if (not m_globalPosition) {
+      m_globalPosition.set(std::make_unique<const Amg::Vector3D>(
+        m_detEl->surface(identify())
+          .Trk::Surface::localToGlobal(localPosition())));
+    }
     if (not m_globalPosition) throw Trk::PrepRawDataUndefinedVariable();
     return *m_globalPosition;
   }

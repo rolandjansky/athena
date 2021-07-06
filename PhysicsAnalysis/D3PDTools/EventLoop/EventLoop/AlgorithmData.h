@@ -11,6 +11,7 @@
 
 #include <EventLoop/Global.h>
 
+#include <AnaAlgorithm/Global.h>
 #include <cstdint>
 #include <memory>
 
@@ -26,7 +27,7 @@ namespace EL
     struct AlgorithmData final
     {
       /// \brief the algorithm we use
-      std::unique_ptr<Algorithm> m_algorithm;
+      std::unique_ptr<IAlgorithmWrapper> m_algorithm;
 
       /// \brief the number of times this algorithm has been called
       uint64_t m_executeCount {0};
@@ -38,15 +39,15 @@ namespace EL
 
       AlgorithmData () = default;
 
-      AlgorithmData (std::unique_ptr<Algorithm> val_algorithm);
+      AlgorithmData (std::unique_ptr<IAlgorithmWrapper> val_algorithm);
 
       AlgorithmData (AlgorithmData&& that) = default;
 
       ~AlgorithmData () noexcept;
 
-      inline Algorithm *operator -> () {return m_algorithm.get();};
+      inline IAlgorithmWrapper *operator -> () {return m_algorithm.get();};
 
-      inline const Algorithm *operator -> () const {return m_algorithm.get();};
+      inline const IAlgorithmWrapper *operator -> () const {return m_algorithm.get();};
     };
   }
 }

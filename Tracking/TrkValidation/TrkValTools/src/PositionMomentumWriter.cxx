@@ -90,34 +90,34 @@ StatusCode Trk::PositionMomentumWriter::initialize()
     m_tree->Branch("MomentumPhi", m_pMomentumPhi);
     
     // now register the Tree
-    ITHistSvc* tHistSvc = 0;
+    ITHistSvc* tHistSvc = nullptr;
     if (service("THistSvc",tHistSvc).isFailure()) {
         ATH_MSG_ERROR( "initialize() Could not find Hist Service  -> Switching Tree output off !" );
-        delete m_pPositionX; m_pPositionX = 0; 
-        delete m_pPositionY; m_pPositionY = 0;
-        delete m_pPositionZ; m_pPositionZ = 0;
-        delete m_pPositionR; m_pPositionR = 0;
-        delete m_pMomentumX; m_pMomentumX = 0;
-        delete m_pMomentumY; m_pMomentumY = 0;
-        delete m_pMomentumZ; m_pMomentumZ = 0;
-        delete m_pMomentumMag; m_pMomentumMag = 0;
-	delete m_pMomentumEta; m_pMomentumEta = 0;
-	delete m_pMomentumPhi; m_pMomentumPhi = 0;
-        delete m_tree; m_tree = 0;
+        delete m_pPositionX; m_pPositionX = nullptr; 
+        delete m_pPositionY; m_pPositionY = nullptr;
+        delete m_pPositionZ; m_pPositionZ = nullptr;
+        delete m_pPositionR; m_pPositionR = nullptr;
+        delete m_pMomentumX; m_pMomentumX = nullptr;
+        delete m_pMomentumY; m_pMomentumY = nullptr;
+        delete m_pMomentumZ; m_pMomentumZ = nullptr;
+        delete m_pMomentumMag; m_pMomentumMag = nullptr;
+	delete m_pMomentumEta; m_pMomentumEta = nullptr;
+	delete m_pMomentumPhi; m_pMomentumPhi = nullptr;
+        delete m_tree; m_tree = nullptr;
     }
     if (tHistSvc && ((tHistSvc->regTree(m_treeFolder+m_treeName, m_tree)).isFailure()) ) {
         ATH_MSG_ERROR( "initialize() Could not register the validation Tree -> Switching Tree output off !" );
-        delete m_tree; m_tree = 0;
-        delete m_pPositionX; m_pPositionX = 0; 
-        delete m_pPositionY; m_pPositionY = 0;
-        delete m_pPositionZ; m_pPositionZ = 0;
-        delete m_pPositionR; m_pPositionR = 0;
-        delete m_pMomentumX; m_pMomentumX = 0;
-        delete m_pMomentumY; m_pMomentumY = 0;
-        delete m_pMomentumZ; m_pMomentumZ = 0;
-        delete m_pMomentumMag; m_pMomentumMag = 0;
-	delete m_pMomentumEta; m_pMomentumEta = 0;
-	delete m_pMomentumPhi; m_pMomentumPhi = 0;
+        delete m_tree; m_tree = nullptr;
+        delete m_pPositionX; m_pPositionX = nullptr; 
+        delete m_pPositionY; m_pPositionY = nullptr;
+        delete m_pPositionZ; m_pPositionZ = nullptr;
+        delete m_pPositionR; m_pPositionR = nullptr;
+        delete m_pMomentumX; m_pMomentumX = nullptr;
+        delete m_pMomentumY; m_pMomentumY = nullptr;
+        delete m_pMomentumZ; m_pMomentumZ = nullptr;
+        delete m_pMomentumMag; m_pMomentumMag = nullptr;
+	delete m_pMomentumEta; m_pMomentumEta = nullptr;
+	delete m_pMomentumPhi; m_pMomentumPhi = nullptr;
     }    
     
     return StatusCode::SUCCESS;
@@ -127,16 +127,16 @@ StatusCode Trk::PositionMomentumWriter::initialize()
 StatusCode Trk::PositionMomentumWriter::finalize()
 {
     // delete the memory 
-    delete m_pPositionX; m_pPositionX = 0; 
-    delete m_pPositionY; m_pPositionY = 0;
-    delete m_pPositionZ; m_pPositionZ = 0;
-    delete m_pPositionR; m_pPositionR = 0;
-    delete m_pMomentumX; m_pMomentumX = 0;
-    delete m_pMomentumY; m_pMomentumY = 0;
-    delete m_pMomentumZ; m_pMomentumZ = 0;
-    delete m_pMomentumMag; m_pMomentumMag = 0;
-    delete m_pMomentumEta; m_pMomentumEta = 0;
-    delete m_pMomentumPhi; m_pMomentumPhi = 0;
+    delete m_pPositionX; m_pPositionX = nullptr; 
+    delete m_pPositionY; m_pPositionY = nullptr;
+    delete m_pPositionZ; m_pPositionZ = nullptr;
+    delete m_pPositionR; m_pPositionR = nullptr;
+    delete m_pMomentumX; m_pMomentumX = nullptr;
+    delete m_pMomentumY; m_pMomentumY = nullptr;
+    delete m_pMomentumZ; m_pMomentumZ = nullptr;
+    delete m_pMomentumMag; m_pMomentumMag = nullptr;
+    delete m_pMomentumEta; m_pMomentumEta = nullptr;
+    delete m_pMomentumPhi; m_pMomentumPhi = nullptr;
     // return success
     return StatusCode::SUCCESS;
 }

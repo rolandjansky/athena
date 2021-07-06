@@ -24,7 +24,7 @@ int main() {
 
 // FrameWork includes
 #include "AsgMessaging/MessageCheck.h"
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/StandaloneToolHandle.h"
 
 #include "xAODMissingET/MissingETAuxContainer.h"
 #include "xAODMissingET/MissingETAssociationMap.h"
@@ -106,7 +106,7 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
   // creation and set properties of the tools
   // if you need to set properties, you should do so before initialization
 
-  asg::AnaToolHandle<IJetCalibrationTool> jetCalibrationTool;
+  asg::StandaloneToolHandle<IJetCalibrationTool> jetCalibrationTool;
   ANA_CHECK( ASG_MAKE_ANA_TOOL( jetCalibrationTool, JetCalibrationTool ) );
   jetCalibrationTool.setName("jetCalibTool");
   ANA_CHECK( jetCalibrationTool.setProperty("JetCollection", jetType) );
@@ -115,12 +115,12 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
   ANA_CHECK( jetCalibrationTool.setProperty("IsData", false) );
   ANA_CHECK( jetCalibrationTool.retrieve() );
 
-  asg::AnaToolHandle<IMETSystematicsTool> metSystTool;
+  asg::StandaloneToolHandle<IMETSystematicsTool> metSystTool;
   metSystTool.setTypeAndName("met::METSystematicsTool/metSystTool");
   // ANA_CHECK( metSystTool.setProperty("UseDevArea"      ,true )); // To get the configs from GROUPDATA/dev/METUtilities
   ANA_CHECK( metSystTool.retrieve() );
 
-  asg::AnaToolHandle<IMETMaker> metMaker;
+  asg::StandaloneToolHandle<IMETMaker> metMaker;
   metMaker.setTypeAndName("met::METMaker/metMaker");
   ANA_CHECK( metMaker.setProperty("DoMuonEloss", true) );
   ANA_CHECK( metMaker.setProperty("DoRemoveMuonJets", true) );
@@ -204,7 +204,7 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
 				 xAOD::Type::Electron,       //telling the rebuilder that this is electron met
 				 newMetContainer,            //filling this met container
 				 metElectrons.asDataVector(),//using these metElectrons that accepted our cuts
-				 &metHelper)                     //and this association map
+				 metHelper)                     //and this association map
 	     );
 
       //Photons
@@ -216,7 +216,7 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
 				 xAOD::Type::Photon,
 				 newMetContainer,
 				 metPhotons.asDataVector(),
-				 &metHelper)
+				 metHelper)
 	     );
 
       //Taus
@@ -228,7 +228,7 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
 				 xAOD::Type::Tau,
 				 newMetContainer,
 				 metTaus.asDataVector(),
-				 &metHelper)
+				 metHelper)
 	     );
 
       //Muons
@@ -240,7 +240,7 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
 				 xAOD::Type::Muon,
 				 newMetContainer,
 				 metMuons.asDataVector(),
-				 &metHelper)
+				 metHelper)
 	     );
 
       //Now time to rebuild jetMet and get the soft term
@@ -252,7 +252,7 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
 				     newMetContainer, //adding to this new met container
 				     calibJets,       //using this jet collection to calculate jet met
 				     coreMet,         //core met container
-				     &metHelper,          //with this association map
+				     metHelper,          //with this association map
 				      false            //don't apply jet jvt cut
 				     )
 	     );
@@ -268,12 +268,12 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
       xAOD::MissingET * softClusMet = (*newMetContainer)["SoftClus"];
       if(debug) std::cout << "Soft cluster met term met " << softClusMet->met() << std::endl;
       ANA_CHECK( softClusMet != nullptr); //check we retrieved the clust term
-      ANA_CHECK( metSystTool->applyCorrection(*softClusMet) );
+      ANA_CHECK( metSystTool->applyCorrection(*softClusMet, metHelper) );
 
       xAOD::MissingET * softTrkMet = (*newMetContainer)["PVSoftTrk"];
       if(debug) std::cout << "Soft track met term met " << softTrkMet->met() << std::endl;
       ANA_CHECK( softTrkMet != nullptr); //check we retrieved the soft trk
-      ANA_CHECK( metSystTool->applyCorrection(*softTrkMet) );
+      ANA_CHECK( metSystTool->applyCorrection(*softTrkMet, metHelper) );
 
       //this builds the final track or cluster met sums, using systematic varied container
       //In the future, you will be able to run both of these on the same container to easily output CST and TST
@@ -304,8 +304,8 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
 #endif
   }
 
-#ifndef XAOD_STANDALONE // POOL::TEvent should handle this when changing events
-  app->finalize();
+#ifndef XAOD_STANDALONE
+  ANA_CHECK(app->finalize());
 #endif
 
   xAOD::IOStats::instance().stats().printSmartSlimmingBranchList();

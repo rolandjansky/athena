@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -115,10 +115,10 @@ InDet::SCT_ClusterOnTrackTool::finalize() {
 const InDet::SCT_ClusterOnTrack *
 InDet::SCT_ClusterOnTrackTool::correct
   (const Trk::PrepRawData &rio, const Trk::TrackParameters &trackPar) const {
-  const InDet::SCT_Cluster *SC = 0;
+  const InDet::SCT_Cluster *SC = nullptr;
 
   if (!(SC = dynamic_cast<const InDet::SCT_Cluster *> (&rio))) {
-    return 0;
+    return nullptr;
   }
 
   const InDet::SiWidth width = SC->width();
@@ -128,7 +128,7 @@ InDet::SCT_ClusterOnTrackTool::correct
   //
   const InDetDD::SiDetectorElement *EL = SC->detectorElement();
   if (!EL) {
-    return 0;
+    return nullptr;
   }
   IdentifierHash iH = EL->identifyHash();
 
@@ -155,7 +155,7 @@ InDet::SCT_ClusterOnTrackTool::correct
     dynamic_cast<const Trk::RectangleBounds *>(&trackPar.associatedSurface().bounds());
 
   if (!tbounds && !rbounds) {
-    return 0;
+    return nullptr;
   }
 
   double boundsy = rbounds ? rbounds->halflengthY() : tbounds->halflengthY();
@@ -272,7 +272,7 @@ InDet::SCT_ClusterOnTrackTool::correct
     double correction = getCorrection(dphi, int(colRow.x())) * EL->hitDepthDirection();
     locpar[Trk::locX] += correction;
   }
-  bool isbroad = (m_option_errorStrategy == 0) ? true : false;
+  bool isbroad = m_option_errorStrategy == 0;
   return new InDet::SCT_ClusterOnTrack(SC, locpar, cov, iH, glob, isbroad);
 }
 

@@ -5,6 +5,8 @@ include.block("CaloJiveXML/CaloJiveXML_DataTypes.py")
 if not "theEventData2XML" in dir():
     include ("JiveXML/JiveXML_jobOptionBase.py")
 
+from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
+LArADC2MeVCondAlgDefault()
 
 ## example how to switch on writting-out of HLT collections
 ## and select favourite and other collections 

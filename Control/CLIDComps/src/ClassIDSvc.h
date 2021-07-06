@@ -1,7 +1,5 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CLIDCOMPS_CLASSIDSVC_H
@@ -19,11 +17,9 @@
 #include <utility> // for std::pair
 
 #include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/Service.h"
-
 #include "GaudiKernel/DirSearchPath.h"
-
-#include "AthenaKernel/IClassIDSvc.h"
 
 #include "AthenaKernel/CLIDRegistry.h"
 
@@ -37,16 +33,12 @@
  * "OutputFileName" at finalize time.
  */
 
-
-class ClassIDSvc : virtual public IClassIDSvc, 
-                   virtual public IIncidentListener, 
-                   public Service
+class ClassIDSvc : public extends<Service, IClassIDSvc, IIncidentListener>
 {
 private:
   typedef std::pair<std::string, std::string> TypeName; //typename+typeinfoname
   typedef std::unordered_map<CLID, TypeName> CLIDMap; 
   typedef std::unordered_map<std::string, CLID> NameMap; 
-  typedef std::unordered_map<CLID, Athena::PackageInfo> PackageMap; 
 
 public:
   // Locking convention: public methods (except for gaudi state-change methods)
@@ -71,13 +63,10 @@ public:
   virtual StatusCode getIDOfTypeName(const std::string& typeName, CLID& id) const  override;
   /// get id associated with type-info name (if any)
   virtual StatusCode getIDOfTypeInfoName(const std::string& typeInfoName, CLID& id) const override;
-  /// get type name associated with clID (if any)
-  virtual StatusCode getPackageInfoForID(const CLID& id, Athena::PackageInfo& info) const override;
   /// associate type name, package info and type-info name with clID
-  virtual StatusCode setTypePackageForID(const CLID& id, 
-					 const std::string& typeName, 
-					 const Athena::PackageInfo& info,
-					 const std::string& typeInfoName) override;
+  virtual StatusCode setTypeForID(const CLID& id,
+                                  const std::string& typeName,
+                                  const std::string& typeInfoName = "") override;
 
   //========================================================================
   /** @name Debugging methods. */
@@ -94,49 +83,34 @@ public:
   virtual StatusCode initialize() override;
   virtual StatusCode reinitialize() override;
   ///dump CLIDmap to outputFileName;
-  virtual StatusCode finalize() override; 
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
+  virtual StatusCode finalize() override;
   //@}
 
   ///implement IIncidentListener
   void handle(const Incident &inc) override;
 
-  
   // Standard Constructor
   ClassIDSvc(const std::string& name, ISvcLocator* svc);
-        
-  // Standard Destructor
-  virtual ~ClassIDSvc() {};
 
 private:
-  // Return all registered IDs in sorted order.
+  /// Return all registered IDs in sorted order.
   std::vector<CLID> sortedIDs() const;
-
-  StatusCode
-  getPackageInfoForIDInternal(const CLID& id, Athena::PackageInfo& info) const;
-  /// get id associated with type name (if any)
-  StatusCode getIDOfTypeNameInternal(const std::string& typeName,
-                                     CLID& id) const;
-  /// get type name associated with clID (if any)
-  StatusCode getTypeNameOfIDInternal(const CLID& id,
-                                     std::string& typeName) const;
 
   /// get clids from CLIDDB and from registry entries
   StatusCode fillDB();
   /// load clid/names from a "db" file
-  bool processCLIDDB(const char* fileName);
+  bool processCLIDDB(const std::string& fileName);
   /// load clid/names from a DLL registry
   bool getRegistryEntries(const std::string& moduleName);
 
   /// associate type name with clID w/o checking CLID range
   StatusCode 
   uncheckedSetTypePackageForID(const CLID& id, 
-			       const std::string& typeName,
-			       const Athena::PackageInfo& info,
-			       const std::string& typeInfoName);
+                               const std::string& typeName,
+                               const std::string& typeInfoName);
 
   /// Test to see if anything new has been added to the registry.
-  void maybeRescan() const;
+  bool maybeRescan() const;
 
   /// @name Properties
   //@{
@@ -144,12 +118,11 @@ private:
     "List of db files with (CLID, class_name) entries. Loaded at init in svc maps. Files are looked up in DATAPATH"};
 
   Gaudi::Property<std::string> m_outputFileName{this, "OutputFileName", "NULL",
-    "Path to clid.db file for writing. By default ('NULL') do not create the file."};
+    "Path to clid.db file for writing. By default ('NULL') to not create the file."};
   //@}
   CLIDMap m_clidMap;
   NameMap m_nameMap;
   NameMap m_tiNameMap;
-  PackageMap m_packageMap;
 
   /// The path is which clid db files are to be searched (DATAPATH)
   DirSearchPath m_clidDBPath;

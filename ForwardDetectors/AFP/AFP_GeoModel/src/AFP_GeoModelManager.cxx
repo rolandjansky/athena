@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AFP_GeoModel/AFP_GeoModelManager.h"
+#include "AFP_GeoModelManager.h"
 AFP_GeoModelManager::AFP_GeoModelManager()
 {
 	setName(std::string("AFP_GeoModel"));

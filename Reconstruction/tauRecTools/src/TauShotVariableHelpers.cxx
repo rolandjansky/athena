@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -29,7 +29,7 @@ const CaloCell* getNeighbour(const CaloCell* cell,
   calo_id->get_neighbours(cell->caloDDE()->calo_hash(), option, neighHashes);
   
   // Loop all the cells, and find the required neighbour cell
-  for (const auto& cell : links) {
+  for (const auto cell : links) {
     const IdentifierHash& cellHash = cell->caloDDE()->calo_hash();
 
     // Check whether the cell is a neighbour cell 
@@ -77,7 +77,7 @@ std::vector<std::vector<const CaloCell*> > getCellBlock(const xAOD::PFO& shot, c
   const CaloClusterCellLink* cellLinks = cluster->getCellLinks();
 
   const CaloCell* seedCell = nullptr;
-  for (const auto& cell : *cellLinks) {
+  for (const auto cell : *cellLinks) {
      if (cell->caloDDE()->calo_hash() != (unsigned) seedHash) continue;
      seedCell = cell;
      break;

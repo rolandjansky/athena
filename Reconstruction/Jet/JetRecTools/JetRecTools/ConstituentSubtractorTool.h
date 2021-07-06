@@ -15,10 +15,14 @@
 #ifndef CALOCLUSTERCONSTITUENTSUBSTRACTOR_H
 #define CALOCLUSTERCONSTITUENTSUBSTRACTOR_H
 
-#include "AsgTools/AsgTool.h" 
-#include "JetRecTools/JetConstituentModifierBase.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "xAODBase/IParticleContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+
+#include "AsgTools/AsgTool.h" 
+#include "JetRecTools/JetConstituentModifierBase.h"
+#include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgTools/PropertyWrapper.h"
 
 class ConstituentSubtractorTool: public JetConstituentModifierBase {
 ASG_TOOL_CLASS(ConstituentSubtractorTool, IJetConstituentModifier) 
@@ -33,11 +37,15 @@ private:
   // Implement the correction
   StatusCode process_impl(xAOD::IParticleContainer* cont) const; 
 
-  float m_maxDeltaR;
-  float m_alpha;
-  float m_ghostArea;
-  float m_maxEta;
-  bool m_ignoreChargedPFOs;
+   /// Handle to EventInfo. This is used to get the evt&run number to set the Ghost area random seeds.
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventinfokey{"EventInfo"};
+    
+  Gaudi::Property<float> m_maxDeltaR = {this, "MaxDeltaR",0.25,""};
+  Gaudi::Property<float> m_alpha     = {this, "Alpha",0.,""};
+  Gaudi::Property<float> m_ghostArea = {this, "GhostArea",0.01,""};
+  Gaudi::Property<float> m_maxEta    = {this, "MaxEta",2.5,""};
+
+  Gaudi::Property<bool> m_ignoreChargedPFOs = {this, "IgnoreChargedPFO",0.,"Option to disregard cPFOs in the weight calculation"};
 
 };
 

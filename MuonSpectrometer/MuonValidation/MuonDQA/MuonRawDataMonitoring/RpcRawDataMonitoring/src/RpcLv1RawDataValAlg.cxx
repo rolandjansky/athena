@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -57,8 +57,6 @@ StatusCode RpcLv1RawDataValAlg::initialize()
 {
 
   ATH_MSG_INFO ( "in initializing RpcLv1RawDataValAlg" );
-  
-  ATH_MSG_INFO ( "package version = "   << PACKAGE_VERSION );
   
   ATH_MSG_INFO ( "properties are 	" 				);
   ATH_MSG_INFO ( "RpcLv1Prof 		" << m_rpclv1prof		);

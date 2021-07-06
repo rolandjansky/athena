@@ -9,6 +9,10 @@
 #include "GaudiKernel/IInterface.h"
 #include <string>
 
+namespace GeoModelIO {
+  class ReadGeoModel;
+}
+
 namespace GeoModel {
   enum GeoConfig {
     GEO_RUN1,
@@ -18,7 +22,7 @@ namespace GeoModel {
     GEO_ITk,
     GEO_TESTBEAM
   };
-}  
+}
 
 static const InterfaceID IID_IGeoDbTagSvc("IGeoDbTagSvc", 1, 0);
 
@@ -53,6 +57,14 @@ class IGeoDbTagSvc : virtual public IInterface {
   virtual const std::string & forwardDetectorsVersionOverride() const =0;
   
   virtual GeoModel::GeoConfig geoConfig() const = 0;
+
+  // Get the name of the IRDBAccessSvc used in the given job
+  virtual const std::string & getParamSvcName() const = 0;
+  
+  // Are we building GeoModel description from the GeometryDB or from the SQLite file?
+  // Yes - if the returned pointer in not null
+  // No  - otherwise
+  virtual GeoModelIO::ReadGeoModel* getSqliteReader() = 0;
 };
 
 #endif // GEOMODELINTERFACES_IGEODBTAGSVC_H

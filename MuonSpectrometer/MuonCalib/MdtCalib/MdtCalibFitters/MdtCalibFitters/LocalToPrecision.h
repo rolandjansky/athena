@@ -9,14 +9,13 @@
 
 namespace MuonCalib {
 
-  /** Provides transformation between local and presicion reference frames*/
-  class LocalToPrecision {
-  public:
-    static Amg::Vector3D precision( const Amg::Vector3D& p ) { return Amg::Vector3D( p.y(), p.z(), p.x() ); }
-    static Amg::Vector3D local( const Amg::Vector3D& p ) { return Amg::Vector3D( p.z(), p.x(), p.y() ); }
-    
-  };
+    /** Provides transformation between local and presicion reference frames*/
+    class LocalToPrecision {
+    public:
+        static Amg::Vector3D precision(const Amg::Vector3D& p) { return Amg::Vector3D(p.y(), p.z(), p.x()); }
+        static Amg::Vector3D local(const Amg::Vector3D& p) { return Amg::Vector3D(p.z(), p.x(), p.y()); }
+    };
 
-}
+}  // namespace MuonCalib
 
 #endif

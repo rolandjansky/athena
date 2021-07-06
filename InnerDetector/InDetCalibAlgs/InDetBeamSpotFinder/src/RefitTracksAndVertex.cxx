@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // @file RefitTracksAndVertex.cxx
@@ -147,7 +147,7 @@ StatusCode RefitTracksAndVertex::execute() {
   CHECK( evtStore()->record(theVertexAuxContainer, m_outputVertexContainerName + "Aux.") );
 
   const xAOD::Vertex* primaryVertex = 0;  
-  for( const auto & vertex: *vertices ) {
+  for( const xAOD::Vertex* vertex: *vertices ) {
     if( vertex->vertexType() == xAOD::VxType::PriVtx ) {
       primaryVertex = vertex;
       break;
@@ -218,7 +218,7 @@ const Trk::PseudoMeasurementOnTrack* RefitTracksAndVertex::createPMfromSi ( cons
   defPar.push_back( theta ) ;
   if( !mp->covariance() )  return 0;
   Trk::LocalParameters  parFromSi( defPar ) ;
-  AmgSymMatrix(1) covFromSi;
+  AmgSymMatrix(2) covFromSi;
   
   covFromSi( 0, 0 ) = (*mp->covariance())( Trk::z0,Trk::z0 ) ;
   covFromSi( 1, 1 ) = (*mp->covariance())( Trk::theta,Trk::theta ) ;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -12,7 +12,7 @@
 #include "TRT_ReadoutGeometry/TRT_EndcapDescriptor.h"
 #include "TRT_ReadoutGeometry/TRT_EndcapElement.h"
 #include "InDetReadoutGeometry/Version.h"
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
+#include "ReadoutGeometryBase/InDetDD_Defs.h"
 
 #include "IdDictDetDescr/IdDictManager.h"
 #include "InDetIdentifier/TRT_ID.h"
@@ -22,6 +22,7 @@
 #include "InDetGeoModelUtils/ExtraMaterial.h"
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
 #include "InDetGeoModelUtils/InDetMaterialManager.h"
+#include "InDetGeoModelUtils/GeoNodePtr.h"
 
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoTrd.h"
@@ -92,9 +93,6 @@ TRTDetectorFactory_Full::TRTDetectorFactory_Full(InDetDD::AthenaComps * athenaCo
 						 bool doKrypton,
 						 bool useDynamicAlignmentFolders)
   : InDetDD::DetectorFactoryBase(athenaComps), 
-    m_detectorManager(0), 
-    m_materialManager(0),
-    m_data(0), 
     m_useOldActiveGasMixture(useOldActiveGasMixture),
     m_DC2CompatibleBarrelCoordinates(DC2CompatibleBarrelCoordinates),
     m_overridedigversion(overridedigversion),
@@ -114,8 +112,6 @@ TRTDetectorFactory_Full::TRTDetectorFactory_Full(InDetDD::AthenaComps * athenaCo
 //
 TRTDetectorFactory_Full::~TRTDetectorFactory_Full() 
 { 
-  delete m_materialManager;
-  delete m_data; 
 }
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -148,17 +144,17 @@ const InDetDD::TRT_DetectorManager * TRTDetectorFactory_Full::getDetectorManager
 void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 {
   // Create a new detectormanager.
-  m_detectorManager = new InDetDD::TRT_DetectorManager();
+  m_detectorManager = new InDetDD::TRT_DetectorManager;
 
   //---------------------- Initialize the parameter interface ------------------------//
 
   ATH_MSG_DEBUG( " Getting primary numbers from the Detector Description Database " );  
   TRT_DetDescrDB_ParameterInterface * parameterInterface = new TRT_DetDescrDB_ParameterInterface(getAthenaComps());
-  m_data = parameterInterface;
+  m_data.reset(parameterInterface);
 
   //---------------------- Initialize the InnerDetector material manager ------------------------//
 
-  m_materialManager = new InDetMaterialManager("TRT_MaterialManager", getAthenaComps());
+  m_materialManager = std::make_unique<InDetMaterialManager>("TRT_MaterialManager", getAthenaComps());
   m_materialManager->addScalingTable(parameterInterface->scalingTable());
 
   //---------------------- Check if the folder TRT/Cond/StatusHT is in place ------------------------//
@@ -392,8 +388,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 
   //---------------------- Top level volumes ------------------------//
 
-  GeoNameTag * topLevelNameTag = new GeoNameTag("TRT");
-  topLevelNameTag->ref(); //(sar) Set this up for deletion if it never gets added
+  GeoNodePtr<GeoNameTag> topLevelNameTag(new GeoNameTag("TRT"));
   // The top level volumes
   GeoFullPhysVol *pBarrelVol = 0;
   GeoFullPhysVol *pEndCapABPlus = 0;
@@ -409,15 +404,15 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 
   if (barrelPresent) {
     GeoTube* sBarrelVol = new GeoTube( m_data->virtualBarrelInnerRadius,
-				       m_data->virtualBarrelOuterRadius,
-				       m_data->virtualBarrelVolumeLength );
-   
+                                      m_data->virtualBarrelOuterRadius,
+                                      m_data->virtualBarrelVolumeLength );
+
 
     GeoLogVol  *lBarrelVol = new GeoLogVol("TRTBarrel", sBarrelVol, m_materialManager->getMaterial("trt::CO2"));
     pBarrelVol = new GeoFullPhysVol(lBarrelVol);
 
     ATH_MSG_DEBUG( "Virtual TRT Barrel volume defined by RMin = "<<m_data->virtualBarrelInnerRadius 
-		   <<", Rmax = "<<m_data->virtualBarrelOuterRadius<<" Zmax = "<<m_data->virtualBarrelVolumeLength );
+                  <<", Rmax = "<<m_data->virtualBarrelOuterRadius<<" Zmax = "<<m_data->virtualBarrelVolumeLength );
 
     // Common Endcap volumes (one for forward, one for backward):
     //GeoPhysVol *pCommonEndcapVolume[2];
@@ -681,16 +676,16 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 
     double activeGasZPositionNormalStraws, activeGasZPositionStrawsWithLargeDeadRegion;
 	//AALONSO, create the Argon Straws
-    GeoPhysVol* pHoleForMixedStrawAR                    = nullptr;
-    GeoPhysVol* pHoleForMixedStrawWithLargeDeadRegionAR = nullptr;
+    GeoNodePtr<GeoPhysVol> pHoleForMixedStrawAR;
+    GeoNodePtr<GeoPhysVol> pHoleForMixedStrawWithLargeDeadRegionAR;
     if (m_doArgon)
       {
       pHoleForMixedStrawAR                    = makeStraw(activeGasZPositionNormalStraws, false, GM_ARGON);
       pHoleForMixedStrawWithLargeDeadRegionAR = makeStraw(activeGasZPositionStrawsWithLargeDeadRegion,true, GM_ARGON);
       }
     // and krypton straws
-    GeoPhysVol* pHoleForMixedStrawKR                    = nullptr;
-    GeoPhysVol* pHoleForMixedStrawWithLargeDeadRegionKR = nullptr;
+    GeoNodePtr<GeoPhysVol> pHoleForMixedStrawKR;
+    GeoNodePtr<GeoPhysVol> pHoleForMixedStrawWithLargeDeadRegionKR;
     if (m_doKrypton)
       {
       pHoleForMixedStrawKR                    = makeStraw(activeGasZPositionNormalStraws, false, GM_KRYPTON);
@@ -698,9 +693,9 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
       }
 
     // The barrel straw (including the "hole" in the radiator around it):
-    GeoPhysVol* pHoleForMixedStraw = makeStraw(activeGasZPositionNormalStraws);
+    GeoNodePtr<GeoPhysVol> pHoleForMixedStraw = makeStraw(activeGasZPositionNormalStraws);
     // The straws in the inner layers of module A have a large dead region, and are thus different.
-    GeoPhysVol* pHoleForMixedStrawWithLargeDeadRegion = makeStraw(activeGasZPositionStrawsWithLargeDeadRegion,true);
+    GeoNodePtr<GeoPhysVol> pHoleForMixedStrawWithLargeDeadRegion = makeStraw(activeGasZPositionStrawsWithLargeDeadRegion,true);
   
     // The modules themselves.
     for (size_t iABC=0;iABC<m_data->nBarrelRings;iABC++) {
@@ -753,12 +748,9 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
       if (!radMat) radMat = m_materialManager->getMaterial("trt::FibreRadiator");
 
       lRad = new GeoLogVol(radName, sRad, radMat);
-      GeoPhysVol *pRad   = nullptr;
-      GeoPhysVol *pRadAR = nullptr;
-      GeoPhysVol *pRadKR = nullptr;
-      pRad = new GeoPhysVol(lRad);
-      if (m_doArgon  ) pRadAR = new GeoPhysVol(lRad);
-      if (m_doKrypton) pRadKR = new GeoPhysVol(lRad);
+      GeoNodePtr<GeoPhysVol> pRad(new GeoPhysVol(lRad));
+      GeoNodePtr<GeoPhysVol> pRadAR(m_doArgon   ? new GeoPhysVol(lRad) : nullptr );
+      GeoNodePtr<GeoPhysVol> pRadKR(m_doKrypton ? new GeoPhysVol(lRad) : nullptr);
 
       //---------------------------------------------------------------------------------------------------------------
       // Place the cooling tubes in the Radiator
@@ -865,15 +857,17 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
       GeoSerialTransformer *serialTransformerKR = nullptr;  //Artem
 
       serialTransformer     = new GeoSerialTransformer(pHoleForMixedStraw,   &tx2, m_data->barrelNumberOfStrawsInModule[iABC]-nStrawsWithLargeDeadRegion);
-      if (m_doArgon)
+      if (m_doArgon) {
         serialTransformerAR = new GeoSerialTransformer(pHoleForMixedStrawAR, &tx2, m_data->barrelNumberOfStrawsInModule[iABC]-nStrawsWithLargeDeadRegion);
-      if (m_doKrypton)
+      }
+      if (m_doKrypton) {
         serialTransformerKR = new GeoSerialTransformer(pHoleForMixedStrawKR, &tx2, m_data->barrelNumberOfStrawsInModule[iABC]-nStrawsWithLargeDeadRegion);
+      }
 
 
-      GeoSerialTransformer *serialTransformerDead = nullptr;
-      GeoSerialTransformer *serialTransformerDeadAR = nullptr;
-      GeoSerialTransformer *serialTransformerDeadKR = nullptr;
+      GeoNodePtr<GeoSerialTransformer> serialTransformerDead;
+      GeoNodePtr<GeoSerialTransformer> serialTransformerDeadAR;
+      GeoNodePtr<GeoSerialTransformer> serialTransformerDeadKR;
       serialTransformerDead     = new GeoSerialTransformer(pHoleForMixedStrawWithLargeDeadRegion  , &tx2Dead,
 								      nStrawsWithLargeDeadRegion);
       if (m_doArgon)
@@ -1092,7 +1086,6 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 
   // if none of the endcaps is being built we can return.
   if (!(endcapABPlusPresent || endcapABMinusPresent || endcapCPlusPresent || endcapCMinusPresent)){
-    topLevelNameTag->unref();//(sar) delete this before returning
     return;
   }
   unsigned int firstIndexOfA = 0;
@@ -1171,8 +1164,8 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
     GeoPhysVol* pOuterSupportA = new GeoPhysVol(lOuterSupportA);
 
     // Straw plane
-    GeoFullPhysVol* pStrawPlaneA_Kr 	= nullptr;
-    GeoFullPhysVol* pStrawPlaneA_Ar 	= nullptr;
+    GeoNodePtr<GeoFullPhysVol> pStrawPlaneA_Kr;
+    GeoNodePtr<GeoFullPhysVol> pStrawPlaneA_Ar;
     if (m_doKrypton)
       pStrawPlaneA_Kr	= makeStrawPlane(firstIndexOfA, GM_KRYPTON);
     if (m_doArgon)

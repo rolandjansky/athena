@@ -1,16 +1,18 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "InDetGeoModelUtils/TopLevelPlacements.h"
 #include "GaudiKernel/SystemOfUnits.h"
-#include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBRecord.h"
+#include "RDBAccessSvc/IRDBRecordset.h"
 #include <iostream>
+#include <utility>
+
 
 const GeoTrf::Transform3D TopLevelPlacements::s_identityTransform = GeoTrf::Transform3D::Identity();
 
-TopLevelPlacements::TopLevelPlacements(IRDBRecordset_ptr topLevelTable)
+TopLevelPlacements::TopLevelPlacements(const IRDBRecordset_ptr& topLevelTable)
   : m_noTopLevelTable(true) {
   fillPlacements(topLevelTable);
 }
@@ -34,12 +36,12 @@ TopLevelPlacements::present(const std::string& partName) const {
   // If no table present assume everything is present.
   if (m_noTopLevelTable) return true;
 
-  return(getPart(partName) != 0);
+  return(getPart(partName) != nullptr);
 }
 
 void
-TopLevelPlacements::fillPlacements(IRDBRecordset_ptr topLevelTable) {
-  if (topLevelTable.get() == 0) {
+TopLevelPlacements::fillPlacements(const IRDBRecordset_ptr& topLevelTable) {
+  if (topLevelTable.get() == nullptr) {
     m_noTopLevelTable = true;
     return;
   }
@@ -95,7 +97,7 @@ TopLevelPlacements::partTransform(const IRDBRecord* record) const {
 
   // List of the three transforms
   GeoTrf::Transform3D* xformList[3] = {
-    0, 0, 0
+    nullptr, nullptr, nullptr
   };
   if (rotX != 0) xformList[0] = new GeoTrf::RotateX3D(rotX);
   if (rotY != 0) xformList[1] = new GeoTrf::RotateY3D(rotY);
@@ -117,7 +119,7 @@ TopLevelPlacements::Part*
 TopLevelPlacements::getPart(const std::string& partName) const {
   std::map<std::string, Part*>::const_iterator iter;
   iter = m_parts.find(partName);
-  if (iter == m_parts.end()) return 0;
+  if (iter == m_parts.end()) return nullptr;
 
   return iter->second;
 }

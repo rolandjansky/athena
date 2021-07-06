@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -16,7 +16,6 @@
 // Base class
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/DataHandle.h"
 //#include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"   // typedef
 //#include "Particle/TrackParticleContainer.h"
@@ -73,9 +72,9 @@ public:
   ///////////////////////////////////////////////////////////////////
 
   // Basic algorithm methods:
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
 
   // Loop on Trk::Tracks and create ImpactInCaloCollection
   bool CreateTrkImpactInCalo();
@@ -124,7 +123,6 @@ private:
 
   // Between the 2 :
   std::string m_ImpactInCalosOutputName;
-  //IExtrapolateToCaloTool* m_toCalo;
   TBExtrapolTrackToCaloTool* m_toCalo;
   CaloDepthTool* m_calodepth;
   CaloPhiRange m_phiRange;

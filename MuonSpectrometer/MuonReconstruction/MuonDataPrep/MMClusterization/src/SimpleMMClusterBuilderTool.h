@@ -31,11 +31,21 @@ namespace Muon
     StatusCode getClusters(std::vector<Muon::MMPrepData>& stripsVect, 
 			   std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVect) const;
 
+    StatusCode getClusterPosition(std::vector<Muon::MMPrepData>& stripsVect, 
+				  Amg::Vector2D& clusterLocalPosition, Amg::MatrixX* covMatrix) const;
+    
+    StatusCode getCalibratedClusterPosition(const Muon::MMPrepData* cluster, std::vector<NSWCalib::CalibratedStrip>&, 
+					    Amg::Vector2D& clusterLocalPosition, Amg::MatrixX& covMatrix) const;
+
   private: 
+
+    /// avoid warning from overriding functions
+    using IMMClusterBuilderTool::getClusterPosition;
+    using IMMClusterBuilderTool::getCalibratedClusterPosition;
+
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     bool m_writeStripProperties;
 
-    bool m_useErrorParametrization;
     uint m_maxHoleSize;
     
 };

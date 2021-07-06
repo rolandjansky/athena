@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -32,12 +32,14 @@ StatusCode CaloBaselineMonAlg::initialize() {
 
   ATH_CHECK( m_cellContainerKey.initialize() );
 
-  StatusCode sc = m_bunchCrossingTool.retrieve();
+  ATH_CHECK( m_bcDataKey.initialize() );
+  /*
   if (sc.isFailure()) {
-    ATH_MSG_WARNING( "Unable to retrieve bunchCrossingTool. Switch off CaloBaselineMon" );
+    ATH_MSG_WARNING( "Unable to retrieve BunchCrossingData. Switch off CaloBaselineMon" );
     m_pedestalMon_BCIDmin = -1;
     m_bcidtoolMon_BCIDmax = -1; 
   }
+  */
 
   if (m_pedestalMon_BCIDmin > 0) m_bool_pedestalMon = true;
   else m_bool_pedestalMon = false;
@@ -89,14 +91,22 @@ StatusCode CaloBaselineMonAlg::fillHistograms(const EventContext& ctx) const {
   bool thisEvent_bool_pedestalMon = false;
   bool thisEvent_bool_bcidtoolMon = false;
 
+  SG::ReadCondHandle<BunchCrossingCondData> bccd (m_bcDataKey,ctx);
+  const BunchCrossingCondData* bunchCrossing=*bccd;
+  if (!bunchCrossing) {
+    ATH_MSG_WARNING("Failed to retrieve Bunch Crossing data, no monitoring in this event");
+    return StatusCode::SUCCESS;
+  }
   // Fill pedestalMon only when the bunch is empty and far away enough from the last train.
   if (m_bool_pedestalMon){
-    if ((not m_bunchCrossingTool->isFilled(bcid)) and (m_bunchCrossingTool->gapAfterBunch(bcid) >= m_pedestalMon_BCIDmin*25.) and (m_bunchCrossingTool->gapBeforeBunch(bcid) >= m_pedestalMon_BCIDmin*25.)) thisEvent_bool_pedestalMon = true;
+    // FIXME: gapAfterBunch and gapBeforeBunch are not yet implemented in BunchCrossingCondData
+    //if ((not bunchCrossing->isFilled(bcid)) and (bunchCrossing->gapAfterBunch(bcid) >= m_pedestalMon_BCIDmin*25.) and (bunchCrossing->gapBeforeBunch(bcid) >= m_pedestalMon_BCIDmin*25.)) thisEvent_bool_pedestalMon = true;
+    if(!bunchCrossing->isInTrain(bcid)) thisEvent_bool_pedestalMon = true;
   }
   ATH_MSG_DEBUG("m_bool_pedestalMon passed"); 
   // Fill bcidtoolMon only when the bunch is in a bunch train and within accepted BCID range.
   if (m_bool_bcidtoolMon){
-    if (m_bunchCrossingTool->isInTrain(bcid) and m_bunchCrossingTool->distanceFromFront(bcid) <= m_bcidtoolMon_BCIDmax*25.) thisEvent_bool_bcidtoolMon = true;
+    if (bunchCrossing->isInTrain(bcid) and bunchCrossing->distanceFromFront(bcid,BunchCrossingCondData::BunchCrossings) <= m_bcidtoolMon_BCIDmax) thisEvent_bool_bcidtoolMon = true;
   }
   ATH_MSG_DEBUG("m_bool_bcidtoolMon passed"); 
 

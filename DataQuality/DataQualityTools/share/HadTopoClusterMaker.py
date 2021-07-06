@@ -15,11 +15,6 @@ from AthenaCommon.GlobalFlags import globalflags
 #topSequence = AlgSequence()
 
 
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theCaloNoiseTool = CaloNoiseToolDefault()
-from AthenaCommon.AppMgr import ToolSvc
-ToolSvc += theCaloNoiseTool
-
 doTopoClusterLocalCalib=False
 
 from CaloRec.CaloTopoClusterFlags import jobproperties
@@ -88,11 +83,7 @@ HadTopoMaker.SeedSamplingNames = ["TileBar0", "TileBar1", "TileBar2",
                                    "TileExt0", "TileExt1", "TileExt2",
                                   "HEC0","HEC1","HEC2","HEC3",
                                    "TileGap1", "TileGap2", "TileGap3"] 
-HadTopoMaker.CaloNoiseTool=theCaloNoiseTool
 HadTopoMaker.NoiseSigma= 1.68 / 1023 / 64 * 800 * 1.414214 * GeV
-#HadTopoMaker.UseCaloNoiseTool=False
-HadTopoMaker.UseCaloNoiseTool=True
-HadTopoMaker.UsePileUpNoise=False
 HadTopoMaker.NeighborOption = "super3D"
 HadTopoMaker.RestrictHECIWandFCalNeighbors  = False
 HadTopoMaker.SeedThresholdOnEorAbsEinSigma  =    4.0

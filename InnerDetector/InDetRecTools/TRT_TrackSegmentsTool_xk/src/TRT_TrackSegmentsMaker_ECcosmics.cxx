@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -88,19 +88,19 @@ InDet::TRT_TrackSegmentsMaker_ECcosmics::~TRT_TrackSegmentsMaker_ECcosmics()
 // Fitting functions
 ///////////////////////////////////////////////////////////////////
 
-Double_t fitf_ztanphi(Double_t *x, Double_t *par)
+Double_t fitf_ztanphi(const Double_t *x, const Double_t *par)
 {
   Double_t f = par[0]*(x[0]+par[1])/(x[0]+par[2]);
   return f;
 }
 
-Double_t fitf_zphi(Double_t *x, Double_t *par)
+Double_t fitf_zphi(const Double_t *x, const Double_t *par)
 {
   Double_t f = std::atan(par[0]*(x[0]+par[1])/(x[0]+par[2]));
   return f;
 }
 
-Double_t fitf_zphi_approx(Double_t *x, Double_t *par)
+Double_t fitf_zphi_approx(const Double_t *x, const Double_t *par)
 {
   Double_t f = par[0]+par[1]*x[0]+par[2]*x[0]*x[0];
   return f;
@@ -783,7 +783,7 @@ bool InDet::TRT_TrackSegmentsMaker_ECcosmics::find_seed(int endcap,
 int InDet::TRT_TrackSegmentsMaker_ECcosmics::evaluate_seed(int endcap,
                                                            int zslice,
                                                            int sector,
-                                                           double *p,
+                                                           const double *p,
                                                            TRT_TrackSegmentsMaker_ECcosmics::EventData &event_data) const
 {
 
@@ -1489,7 +1489,7 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::create_segment(std::vector<const I
       }else{
         C[2]+=1.;
       }
-      Amg::Transform3D*            T    = new Amg::Transform3D(line->transform().rotation()*Amg::Translation3D(C));
+      Amg::Transform3D            T    = Amg::Transform3D(line->transform().rotation()*Amg::Translation3D(C));
       Trk::StraightLineSurface* surface = new Trk::StraightLineSurface(T);
 
 
@@ -1565,7 +1565,7 @@ Trk::TrackSegment* InDet::TRT_TrackSegmentsMaker_ECcosmics::next(InDet::ITRT_Tra
      event_data  = TRT_TrackSegmentsMaker_ECcosmics::EventData::getPrivateEventData(virt_event_data);
 
   if(event_data.m_segiterator!=event_data.m_segments.end()) return (*event_data.m_segiterator++);
-  return 0;
+  return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -1924,7 +1924,7 @@ TF1 *InDet::TRT_TrackSegmentsMaker_ECcosmics::perform_fit(int count,
   delete gre;
 
 
-  if(fitresult1!=0 && fitresult2!=0) return NULL;
+  if(fitresult1!=0 && fitresult2!=0) return nullptr;
   if(fitresult1!=0 && fitresult2==0) return event_data.m_fitf_zphi_approx;
   if(fitresult1==0 && fitresult2!=0) return event_data.m_fitf_zphi;
 
@@ -1977,9 +1977,9 @@ double InDet::TRT_TrackSegmentsMaker_ECcosmics::classify_segment(Trk::TrackSegme
     const Trk::RIO_OnTrack* rot=dynamic_cast<const Trk::RIO_OnTrack*>(seg->measurement(i));
     if(rot){
       const Trk::PrepRawData* prd=rot->prepRawData();
-      if(prd!=0){
+      if(prd!=nullptr){
         const InDet::TRT_DriftCircle *dc=dynamic_cast<const InDet::TRT_DriftCircle*>(prd);
-        if(dc!=0){
+        if(dc!=nullptr){
           if(isTrueHit(dc))
             real++;
           else

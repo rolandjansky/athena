@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRTMONITORINGRUN3ESD_ALG_H
@@ -71,7 +71,8 @@ private:
 
     StatusCode fillTRTTracks(const xAOD::TrackParticleContainer& trackCollection,
                          const xAOD::TrigDecision* trigDecision,
-                         const ComTime* comTimeObject) const;                             
+                         const ComTime* comTimeObject,
+                         const xAOD::EventInfo& eventInfo) const;                             
     StatusCode fillTRTHighThreshold(const xAOD::TrackParticleContainer& trackCollection,
                                 const xAOD::EventInfo& eventInfo) const;
     int strawLayerNumber(int strawLayerNumber, int LayerNumber) const;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -8,15 +8,19 @@
 
 #ifndef TRKPARAMETERSBASE_PARAMETERSBASE_H
 #define TRKPARAMETERSBASE_PARAMETERSBASE_H
-
-// Amg
-#include "CxxUtils/checker_macros.h"
-#include "EventPrimitives/EventPrimitives.h"
-#include "GeoPrimitives/GeoPrimitives.h"
+//
 #include "TrkParametersBase/Charged.h"
 #include "TrkParametersBase/Neutral.h"
+// Amg
+#include "EventPrimitives/EventPrimitives.h"
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "TrkEventPrimitives/SurfaceTypes.h"
+//system
 #include <memory>
 #include <type_traits>
+#include <optional>
+#include <limits>
+#include <iosfwd>
 
 class MsgStream;
 
@@ -38,7 +42,8 @@ class MaterialEffectsEngine;
 enum ParametersType
 {
   AtaSurface = 0,
-  Curvilinear = 1
+  Curvilinear = 1,
+  Pattern = 2
 };
 
 namespace InvalidParam {
@@ -105,14 +110,6 @@ public:
   /** set covariance */
   void setCovariance(const AmgSymMatrix(DIM) & cov);
 
-  /** Update parameters and covariance.
-   * Derived classes override the
-   * implementation via updateParametersHelper
-   * as this could possibly lead to updating
-   * other data members
-   */
-  void updateParameters(const AmgVector(DIM) &, AmgSymMatrix(DIM) * = nullptr);
-
   /** Update parameters  and covariance , passing covariance by ref. A
    * covariance is created if one does not exist.  Otherwise in place update
    * occurs via assignment.
@@ -123,6 +120,15 @@ public:
    * other data members
    */
   void updateParameters(const AmgVector(DIM) &, const AmgSymMatrix(DIM) &);
+
+  /** Update parameters.
+   * Derived classes override the
+   * implementation via updateParametersHelper
+   * as this could possibly lead to updating
+   * other data members
+   */
+  void updateParameters(const AmgVector(DIM)&);
+
 
   /** Returns the charge */
   virtual double charge() const = 0;
@@ -151,13 +157,21 @@ public:
   /** clone method for polymorphic deep copy
        @return new object copied from the concrete type of this object.*/
   virtual ParametersBase<DIM, T>* clone() const = 0;
-
+  
+  /** clone method for polymorphic deep copy returning unique_ptr; it is not overriden,
+       but uses the existing clone method.
+       @return new object copied from the concrete type of this object.*/
+  std::unique_ptr<ParametersBase<DIM, T>> uniqueClone() const{
+    return std::unique_ptr<ParametersBase<DIM, T>>(clone());
+  }
+  
+  
   /** Return the ParametersType enum */
   virtual ParametersType type() const = 0;
 
   /** Returns the Surface Type enum for the surface used
    * to define the derived class*/
-  virtual int surfaceType() const = 0;
+  virtual SurfaceType surfaceType() const = 0;
 
   /** Dumps relevant information about the track parameters into the ostream */
   virtual MsgStream& dump(MsgStream& out) const;
@@ -165,7 +179,7 @@ public:
 
 protected:
   /*
-   * This is an abstract class and we can not instanticate objects directly.
+   * This is an abstract class and we can not instantiate objects directly.
    * In the other hand derived classed can use ctors
    */
 
@@ -173,20 +187,20 @@ protected:
 
   /* Helper ctors for derived classes*/
   ParametersBase(const AmgVector(DIM) parameters,
-                 AmgSymMatrix(DIM) * covariance,
+                 std::optional<AmgSymMatrix(DIM)> covariance,
                  const T chargeDef);
 
-  ParametersBase(AmgSymMatrix(DIM) * covariance);
+  ParametersBase(std::optional<AmgSymMatrix(DIM)> covariance);
 
   ParametersBase(const AmgVector(DIM) & parameters,
-                 AmgSymMatrix(DIM) * covariance = nullptr);
+                 std::optional<AmgSymMatrix(DIM)> covariance = std::nullopt);
 
   /*
    * Default Move ctor/assignment, private can be used
    * only by derived classes.
    */
-  ParametersBase(ParametersBase&&) = default;
-  ParametersBase& operator=(ParametersBase&&) = default;
+  ParametersBase(ParametersBase&&) noexcept = default;
+  ParametersBase& operator=(ParametersBase&&) noexcept  = default;
   /*
    * Default copy ctor/assignment
    * Deleted due unique_ptr.
@@ -195,8 +209,8 @@ protected:
    * Polymorphic deep copy can happen via the clone
    * method
    */
-  ParametersBase(const ParametersBase&) = delete;
-  ParametersBase& operator=(const ParametersBase&) = delete;
+  ParametersBase(const ParametersBase&) = default;
+  ParametersBase& operator=(const ParametersBase&) = default;
 
   /* Helper implementing the specific per derived class logic for
    * the update of parameters*/
@@ -204,8 +218,11 @@ protected:
 
   AmgVector(DIM) m_parameters; //!< contains the n parameters
   //!< contains the n x n covariance matrix
-  std::unique_ptr<AmgSymMatrix(DIM)> m_covariance;
+  std::optional<AmgSymMatrix(DIM)> m_covariance = std::nullopt;
   T m_chargeDef; //!< charge definition for this track
+
+  private:
+  
 };
 
 /**Overload of << operator for both, MsgStream and std::ostream for debug

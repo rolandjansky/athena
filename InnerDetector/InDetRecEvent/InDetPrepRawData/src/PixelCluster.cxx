@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -16,6 +16,8 @@
 #include "GaudiKernel/MsgStream.h"
 #include "InDetPrepRawData/SiWidth.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+#include <ostream>
+#include <sstream>
 
 // Set maximum charge for calibrated clusters
 // Needed as protection to avoid FPE in transient-to-persistent
@@ -33,7 +35,7 @@ namespace InDet{
                 const std::vector<Identifier>& rdoList,
                 const InDet::SiWidth& width,
                 const InDetDD::SiDetectorElement* detEl,
-                const Amg::MatrixX* locErrMat,
+                const Amg::MatrixX& locErrMat,
                 const float omegax,
                 const float omegay,
                 bool split,
@@ -62,11 +64,11 @@ namespace InDet{
                 const Identifier& RDOId,
                 const Amg::Vector2D& locpos, 
                 const std::vector<Identifier>& rdoList,
-    	        const int lvl1a,
-    	        const std::vector<int>& totList,
+                const int lvl1a,
+                const std::vector<int>& totList,
                 const InDet::SiWidth& width,
                 const InDetDD::SiDetectorElement* detEl,
-                const Amg::MatrixX* locErrMat,
+                const Amg::MatrixX& locErrMat,
                 const float omegax,
                 const float omegay,
                 bool split,
@@ -100,7 +102,7 @@ namespace InDet{
     	          const std::vector<float>& chargeList,
                 const InDet::SiWidth& width,
                 const InDetDD::SiDetectorElement* detEl,
-                const Amg::MatrixX* locErrMat,
+                const Amg::MatrixX& locErrMat,
                 const float omegax,
                 const float omegay,
                 bool split,
@@ -108,6 +110,43 @@ namespace InDet{
                 float splitProb2
               ) :
       SiCluster(RDOId, locpos, rdoList, width, detEl, locErrMat), //call base class constructor
+      m_omegax (omegax),
+      m_omegay (omegay),
+      m_totList (totList),
+      m_totalToT (0),
+      m_chargeList (chargeList),
+      m_totalCharge (0),
+      m_fake (false),
+      m_ambiguous (false),
+      m_lvl1 (lvl1a),
+      m_tooBigToBeSplit (false)
+    {
+      int n = m_totList.size();
+      for (int i=0; i<n; i++) m_totalToT+=int(totList[i]);
+      n = m_chargeList.size();
+      for (int i=0; i<n; i++) m_totalCharge+=chargeList[i];
+      if ( m_totalCharge>MAXCHARGE ) m_totalCharge=MAXCHARGE;
+      packSplitInformation(split,splitProb1,splitProb2);
+    }
+ 
+    PixelCluster::PixelCluster( 
+                const Identifier& RDOId,
+                const Amg::Vector2D& locpos, 
+                const Amg::Vector3D& globpos,
+                const std::vector<Identifier>& rdoList,
+    	          const int lvl1a,
+    	          const std::vector<int>& totList,
+    	          const std::vector<float>& chargeList,
+                const InDet::SiWidth& width,
+                const InDetDD::SiDetectorElement* detEl,
+                const Amg::MatrixX& locErrMat,
+                const float omegax,
+                const float omegay,
+                bool split,
+                float splitProb1,
+                float splitProb2
+              ) :
+      SiCluster(RDOId, locpos, globpos, rdoList, width, detEl, locErrMat), //call base class constructor
       m_omegax (omegax),
       m_omegay (omegay),
       m_totList (totList),
@@ -137,14 +176,14 @@ namespace InDet{
                 float totalCharge,
                 const InDet::SiWidth& width,
                 const InDetDD::SiDetectorElement* detEl,
-                std::unique_ptr<const Amg::MatrixX> locErrMat,
+                Amg::MatrixX&& locErrMat,
                 const float omegax,
                 const float omegay,
                 int splitInfoRaw
               ) :
       SiCluster(RDOId, locpos,
-                std::move(rdoList),
-                width, detEl, locErrMat.release()), //call base class constructor
+                rdoList,
+                width, detEl, locErrMat), //call base class constructor
       m_omegax (omegax),
       m_omegay (omegay),
       m_totList(),
@@ -174,28 +213,30 @@ namespace InDet{
     {
     }
     
+    bool 
+    PixelCluster::type(Trk::PrepRawDataType type) const{
+      return (type == Trk::PrepRawDataType::PixelCluster or type == Trk::PrepRawDataType::SiCluster);
+    }
+
+    
 
     MsgStream& PixelCluster::dump( MsgStream&    stream) const
     {
-        stream << "PixelCluster object" << std::endl;
-        stream << "omegax: " << m_omegax << "	omegay: " << m_omegay << std::endl;
-        stream << "total ToT: " << m_totalToT << ", calibrated charge =" << m_totalCharge << std::endl;
-        stream << "split information: " << (isSplit() ? "split" : "not split" );
-        stream << ", probabilities " << splitProbability1() << ", " << splitProbability2() << std::endl;
-        stream << "Base class (SiCluster):" << std::endl;
-        this->SiCluster::dump(stream);
-    
+        std::ostringstream out;
+        dump(out);
+        stream<<out.str();
         return stream;
     }
     
     std::ostream& PixelCluster::dump( std::ostream&    stream) const
     {
-        stream << "PixelCluster object"<<std::endl;
-        stream << "omegax: " << m_omegax << "	omegay: " << m_omegay << std::endl;
-        stream << "total ToT: " << m_totalToT << ", calibrated charge =" << m_totalCharge << std::endl;
+        const std::string lf{"\n"};
+        stream << "PixelCluster object"<<lf;
+        stream << "omegax: " << m_omegax << "	omegay: " << m_omegay << lf;
+        stream << "total ToT: " << m_totalToT << ", calibrated charge =" << m_totalCharge << lf;
         stream << "split information: " << (isSplit() ? "split" : "not split" );
-        stream << ", probabilities " << splitProbability1() << ", " << splitProbability2() << std::endl;
-        stream << "Base class (SiCluster):" << std::endl;
+        stream << ", probabilities " << splitProbability1() << ", " << splitProbability2() << lf;
+        stream << "Base class (SiCluster):" << lf;
         this->SiCluster::dump(stream);
     
         return stream;

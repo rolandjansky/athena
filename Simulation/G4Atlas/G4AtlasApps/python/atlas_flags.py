@@ -410,3 +410,13 @@ class IsEventOverlayInputSim(JobProperty):
     allowedTypes = ['bool']
     StoredValue = False
 
+class QuasiStableParticleRadius(JobProperty):
+    """
+    Particles decayed by the generator beyond this radius (mm) are
+    considered to be quasi-stable particles and will be passed to
+    Geant4 if quasi-stable particle simulation is activated.
+    """
+    statusOn = True
+    allowedTypes = ['float']
+    StoredValue = 30.19 # mm
+

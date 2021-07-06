@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CNVTOOLS_TGC_RAWDATAPROVIDERTOOL_H
@@ -23,7 +23,8 @@ namespace Muon
    *  @author Mark Owen <markowen@cern.ch>
    */
   
-  class ATLAS_NOT_THREAD_SAFE TGC_RawDataProviderTool : virtual public IMuonRawDataProviderTool, public TGC_RawDataProviderToolCore
+  class ATLAS_NOT_THREAD_SAFE TGC_RawDataProviderTool
+    : public extends<TGC_RawDataProviderToolCore, IMuonRawDataProviderTool>
     {
     public:
       /** Default constructor */
@@ -35,14 +36,14 @@ namespace Muon
       virtual StatusCode initialize() override;
       
       /** Old decoding method which uses IROBDataProviderSvc in TgcRdoToPrepDataTool */
-      virtual StatusCode convert(const ROBFragmentList& vecRobs) override;
+      virtual StatusCode convert(const ROBFragmentList& vecRobs) const override;
       /** Old decoding method which uses IROBDataProviderSvc in TgcRdoToPrepDataTool with IdentifierHash vector */
       virtual StatusCode convert(const ROBFragmentList& vecRobs,
-				 const std::vector<IdentifierHash>& rdoIdhVect) override;
+				 const std::vector<IdentifierHash>& rdoIdhVect) const override;
       /** New decoding methods which do not use IROBDataProviderSvc in TgcRdoToPrepDataTool */
-      virtual StatusCode convert() override;
+      virtual StatusCode convert() const override;
       /** New decoding methods which do not use IROBDataProviderSvc in TgcRdoToPrepDataTool with ID Hash vector */
-      virtual StatusCode convert(const std::vector<IdentifierHash>& rdoIdhVect) override;
+      virtual StatusCode convert(const std::vector<IdentifierHash>& rdoIdhVect) const override;
       
       /** EventContext ones **/
       virtual StatusCode convert(const ROBFragmentList&, const EventContext&) const override;
@@ -53,7 +54,7 @@ namespace Muon
     private:
 
       /** convert from vector of ROB IDs is not available */
-      virtual StatusCode convert(const std::vector<uint32_t>&) override {return StatusCode::FAILURE;}
+      virtual StatusCode convert(const std::vector<uint32_t>&) const override {return StatusCode::FAILURE;}
       /** EventContext ones **/
       virtual StatusCode convert(const std::vector<uint32_t>&, const EventContext&) const override {return StatusCode::FAILURE;}
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local includes
@@ -30,22 +30,29 @@ namespace CP {
   const xAOD::Vertex* getVertexFromTrack(const xAOD::TrackParticle* track,
                                          const xAOD::VertexContainer* vertices)
   {
-    for (const auto& vx : *vertices) {
-      for (const auto& tpLink : vx->trackParticleLinks()) {
-        if (*tpLink == track) { return vx; }
+    const xAOD::Vertex* vtxWithLargestWeight = nullptr;
+    float largestWeight = 0;
+
+    for (const auto *vtx : *vertices) {
+      //Search for vertex linked to this track
+      const auto& trkLinks=vtx->trackParticleLinks();
+      const size_t nTrackLinks=trkLinks.size();
+      for (unsigned i=0;i<nTrackLinks;++i) {
+        if (trkLinks[i].isValid() && *(trkLinks[i]) == track) {//ptr comparison
+          if( vtx->trackWeights()[i] > largestWeight ){
+            vtxWithLargestWeight = vtx;
+            largestWeight = vtx->trackWeights()[i];
+          }
+        }
       }
     }
 
-    return nullptr;
+    return vtxWithLargestWeight;
   }
 
   //____________________________________________________________________________
   PhotonVertexSelectionTool::PhotonVertexSelectionTool(const std::string &name)
   : asg::AsgTool(name)
-  , m_pointingTool("CP::PhotonPointingTool/PhotonVertexSelection", this)
-  , m_mva1(nullptr)
-  , m_mva2(nullptr)
-  , m_case(-1)
   {
     declareProperty("ConfigFileCase1",
         m_configFileCase1 = "PhotonVertexSelection/v1/DiphotonVertex_case1.weights.xml");
@@ -53,15 +60,13 @@ namespace CP {
         m_configFileCase2 = "PhotonVertexSelection/v1/DiphotonVertex_case2.weights.xml");
     declareProperty("conversionPtCut"      , m_convPtCut       = 2e3 );    
     declareProperty("updatePointing", m_updatePointing=true, "Update pointing data?");
-    declareProperty("vertexContainer", m_vertexContainerName = "PrimaryVertices");
     declareProperty("derivationPrefix", m_derivationPrefix = "");
   }
 
   //____________________________________________________________________________
   PhotonVertexSelectionTool::~PhotonVertexSelectionTool()
   {
-    SafeDelete(m_mva1);
-    SafeDelete(m_mva2);
+
   }
 
   //____________________________________________________________________________
@@ -76,92 +81,166 @@ namespace CP {
     }
 
     // Get full path of configuration files for MVA
-    m_configFileCase1  = PathResolverFindCalibFile(m_configFileCase1 );
-    m_configFileCase2  = PathResolverFindCalibFile(m_configFileCase2);
+    m_configFileCase1  = PathResolverFindCalibFile( m_configFileCase1 );
+    m_configFileCase2  = PathResolverFindCalibFile( m_configFileCase2 );
 
     // Setup MVAs
-    SafeDelete(m_mva1);
-    m_mva1 = new TMVA::Reader("!Color:Silent");
-    m_mva1->AddVariable("deltaZ := TMath::Min(abs(PrimaryVerticesAuxDyn.z-zCommon)/zCommonError,20)", &m_deltaZ         );
-    m_mva1->AddVariable("deltaPhi := abs(deltaPhi(PrimaryVerticesAuxDyn.phi,egamma_phi))"           , &m_deltaPhi       );
-    m_mva1->AddVariable("logSumpt := log10(PrimaryVerticesAuxDyn.sumPt)"                            , &m_sumPt          );
-    m_mva1->AddVariable("logSumpt2 := log10(PrimaryVerticesAuxDyn.sumPt2)"                          , &m_sumPt2         );
-    m_mva1->BookMVA    ("MLP method"                                                                , m_configFileCase1 );
+    float sumPt2, sumPt, deltaPhi, deltaZ;
 
-    SafeDelete(m_mva2);
-    m_mva2 = new TMVA::Reader("!Color:Silent");
-    m_mva2->AddVariable("deltaZ := TMath::Min(abs(PrimaryVerticesAuxDyn.z-zCommon)/zCommonError,20)", &m_deltaZ        );
-    m_mva2->AddVariable("deltaPhi := abs(deltaPhi(PrimaryVerticesAuxDyn.phi,egamma_phi))"           , &m_deltaPhi      );
-    m_mva2->AddVariable("logSumpt := log10(PrimaryVerticesAuxDyn.sumPt)"                            , &m_sumPt         );
-    m_mva2->AddVariable("logSumpt2 := log10(PrimaryVerticesAuxDyn.sumPt2)"                          , &m_sumPt2        );
-    m_mva2->BookMVA    ("MLP method"                                                                , m_configFileCase2);
+    auto mva1 = new TMVA::Reader("!Silent:Color");
+    mva1->AddVariable("deltaZ := TMath::Min(abs(PrimaryVerticesAuxDyn.z-zCommon)/zCommonError,20)", &deltaZ         );
+    mva1->AddVariable("deltaPhi := abs(deltaPhi(PrimaryVerticesAuxDyn.phi,egamma_phi))"           , &deltaPhi       );
+    mva1->AddVariable("logSumpt := log10(PrimaryVerticesAuxDyn.sumPt)"                            , &sumPt          );
+    mva1->AddVariable("logSumpt2 := log10(PrimaryVerticesAuxDyn.sumPt2)"                          , &sumPt2         );
+    mva1->BookMVA    ("MLP method"                                                                , m_configFileCase1 );
+    m_mva1 = std::unique_ptr<TMVA::Reader>( std::move(mva1) );
+    
+    auto mva2 = std::make_unique<TMVA::Reader>("!Silent:Color");
+    mva2->AddVariable("deltaZ := TMath::Min(abs(PrimaryVerticesAuxDyn.z-zCommon)/zCommonError,20)", &deltaZ        );
+    mva2->AddVariable("deltaPhi := abs(deltaPhi(PrimaryVerticesAuxDyn.phi,egamma_phi))"           , &deltaPhi      );
+    mva2->AddVariable("logSumpt := log10(PrimaryVerticesAuxDyn.sumPt)"                            , &sumPt         );
+    mva2->AddVariable("logSumpt2 := log10(PrimaryVerticesAuxDyn.sumPt2)"                          , &sumPt2        );
+    mva2->BookMVA    ("MLP method"                                                                , m_configFileCase2);
+    m_mva2 = std::unique_ptr<TMVA::Reader>( std::move(mva2) );
+
+    ATH_CHECK( m_eventInfo.initialize() );
+    ATH_CHECK( m_vertexContainer.initialize() );
 
     return StatusCode::SUCCESS;
   }
 
   //____________________________________________________________________________
-  std::vector<std::pair<const xAOD::Vertex*, float> >&
-  PhotonVertexSelectionTool::getVertex(const xAOD::EgammaContainer &egammas, bool ignoreConv)
-  {
-    const xAOD::Vertex *vertex = nullptr;
-    if (getVertex(egammas, vertex, ignoreConv).isSuccess()) {
-      std::sort(m_vertexMLP.begin(), m_vertexMLP.end(), sortMLP);
+  StatusCode PhotonVertexSelectionTool::decorateInputs(const xAOD::EgammaContainer &egammas, FailType* failType) const{
+    auto fail = FailType::NoFail;
+    
+    // Update calo pointing auxdata for photons
+    // FIXME: Remove once variables properly included in derivations
+    if (m_updatePointing and m_pointingTool->updatePointingAuxdata(egammas).isFailure()) {
+      ATH_MSG_INFO("Couldn't update photon calo pointing auxdata");
+      fail = FailType::FailPointing;
     }
 
-    return m_vertexMLP;
+    static const SG::AuxElement::Decorator<float> sumPt2(m_derivationPrefix + "sumPt2");
+    static const SG::AuxElement::Decorator<float> sumPt(m_derivationPrefix + "sumPt");
+    static const SG::AuxElement::Decorator<float> deltaPhi(m_derivationPrefix + "deltaPhi");
+    static const SG::AuxElement::Decorator<float> deltaZ(m_derivationPrefix + "deltaZ");
+   
+    // Get the EventInfo
+    SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfo);
+   
+    // Find the common z-position from beam / photon pointing information
+    std::pair<float, float> zCommon = xAOD::PVHelpers::getZCommonAndError(&*eventInfo, &egammas, m_convPtCut);
+    // Vector sum of photons
+    TLorentzVector vegamma = getEgammaVector(&egammas, fail);
+
+    // Retrieve PV collection from TEvent
+    SG::ReadHandle<xAOD::VertexContainer> vertices(m_vertexContainer);
+
+    for (const xAOD::Vertex* vertex: *vertices) {
+
+      // Skip dummy vertices
+      if (vertex->vertexType() != xAOD::VxType::VertexType::PriVtx and
+        vertex->vertexType() != xAOD::VxType::VertexType::PileUp) continue;
+
+      // Set input variables for MVA
+      sumPt(*vertex) = xAOD::PVHelpers::getVertexSumPt(vertex, 1, false);
+
+      if (not sumPt2.isAvailable(*vertex)) {
+        sumPt2(*vertex) = xAOD::PVHelpers::getVertexSumPt(vertex, 2);
+      }
+
+      // Get momentum vector of vertex
+      TLorentzVector vmom = xAOD::PVHelpers::getVertexMomentum(vertex, true, m_derivationPrefix);
+
+      deltaPhi(*vertex) = (fail != FailType::FailEgamVect) ? std::abs(vmom.DeltaPhi(vegamma)) : -999.;      
+      deltaZ(*vertex) = std::abs((zCommon.first - vertex->z())/zCommon.second);
+
+    } // loop over vertices
+
+    ATH_MSG_DEBUG("DecorateInputs exit code "<< fail);
+    if(failType!=nullptr)
+      *failType = fail;
+    return StatusCode::SUCCESS;
+  }
+
+  //____________________________________________________________________________
+  std::vector<std::pair<const xAOD::Vertex*, float> >
+  PhotonVertexSelectionTool::getVertex(const xAOD::EgammaContainer &egammas, bool ignoreConv, yyVtxType* vtxCasePtr, FailType* failTypePtr) const
+  {
+    const xAOD::Vertex *vertex = nullptr;
+    std::vector<std::pair<const xAOD::Vertex*, float> > vertexMLP;
+    yyVtxType vtxCase = yyVtxType::Unknown; 
+    FailType failType = FailType::NoFail;
+    if (getVertexImp( egammas, vertex, ignoreConv, vertexMLP, vtxCase, failType ).isSuccess()) {
+      std::sort(vertexMLP.begin(), vertexMLP.end(), sortMLP);
+    }
+    if(vtxCasePtr!=nullptr)
+      *vtxCasePtr = vtxCase;
+    if(failTypePtr!=nullptr)
+      *failTypePtr = failType;
+
+    return vertexMLP;
   }
 
   //____________________________________________________________________________
   StatusCode PhotonVertexSelectionTool::getVertex(const xAOD::EgammaContainer &egammas,
                                                   const xAOD::Vertex* &prime_vertex,
-                                                  bool ignoreConv)
+                                                  bool ignoreConv) const
   {
-    m_vertexMLP.clear();
-    m_case = -1;
-    const xAOD::PhotonContainer *photons = dynamic_cast<const xAOD::PhotonContainer*>(&egammas);
+    std::vector<std::pair<const xAOD::Vertex*, float> > vertexMLP;
+    yyVtxType vtxcase = yyVtxType::Unknown; 
+    FailType failType = FailType::NoFail;
+    return getVertexImp( egammas, prime_vertex, ignoreConv, vertexMLP, vtxcase, failType );
+  } 
 
-    // Retrieve PV collection from TEvent
-    const xAOD::VertexContainer* vertices = 0;
-    if (evtStore()->retrieve(vertices, m_vertexContainerName).isFailure()) {
-      ATH_MSG_WARNING("Couldn't retrieve " << m_vertexContainerName << " from TEvent, returning nullptr.");
-      prime_vertex = nullptr;
+  StatusCode PhotonVertexSelectionTool::getVertexImp(const xAOD::EgammaContainer &egammas, 
+                                                     const xAOD::Vertex* &prime_vertex, 
+                                                     bool ignoreConv, 
+                                                     std::vector<std::pair<const xAOD::Vertex*, float> >&  vertexMLP, yyVtxType& vtxCase, FailType& fail) const
+  {
+    vtxCase = yyVtxType::Unknown;
+    const xAOD::PhotonContainer *photons = dynamic_cast<const xAOD::PhotonContainer*>(&egammas);
+    if(!photons){
+      ATH_MSG_WARNING("Container is not a photon");
       return StatusCode::FAILURE;
     }
+
+    // Retrieve PV collection from TEvent
+    SG::ReadHandle<xAOD::VertexContainer> vertices(m_vertexContainer);
+
+
+    if (!decorateInputs(egammas).isSuccess()){   
+      return StatusCode::FAILURE;
+    }
+
 
     // Check if a conversion photon has a track attached to a primary/pileup vertex
     if (!ignoreConv) { 
       prime_vertex = getPrimaryVertexFromConv(photons);
       if (prime_vertex != nullptr) {
-        m_case = 0;
-        m_vertexMLP.push_back(std::make_pair(prime_vertex, 0.));
+        vtxCase = yyVtxType::ConvTrack;
+        fail = FailType::MatchedTrack;
+        vertexMLP.emplace_back(prime_vertex, 0.);
         return StatusCode::SUCCESS;
       }
     }
 
-    // Update calo pointing auxdata for photons
-    // FIXME: Remove once variables properly included in derivations
-    if (m_updatePointing and m_pointingTool->updatePointingAuxdata(egammas).isFailure()) {
-      ATH_MSG_WARNING("Couldn't update photon calo pointing auxdata, returning hardest vertex.");
-      prime_vertex = xAOD::PVHelpers::getHardestVertex(vertices);
-      return StatusCode::FAILURE;
+    if (fail != FailType::NoFail){
+      ATH_MSG_VERBOSE("Returning hardest vertex. Fail detected (type="<< fail <<")");
+      vertexMLP.clear();
+      vertexMLP.emplace_back(xAOD::PVHelpers::getHardestVertex(&*vertices), 10.);
+      return StatusCode::SUCCESS;
     }
+
   
     // Get the EventInfo
-    const xAOD::EventInfo *eventInfo = nullptr;
-    if (evtStore()->retrieve(eventInfo, "EventInfo").isFailure()) {
-      ATH_MSG_WARNING("Couldn't retrieve EventInfo from TEvent, returning hardest vertex.");
-      prime_vertex = xAOD::PVHelpers::getHardestVertex(vertices);
-      return StatusCode::FAILURE;
-    }
-
-    // Find the common z-position from beam / photon pointing information
-    std::pair<float, float> zCommon = xAOD::PVHelpers::getZCommonAndError(eventInfo, &egammas, m_convPtCut);
+    SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfo);
 
     // If there are any silicon conversions passing selection, use MVA1
-    TMVA::Reader *reader = m_mva2;
-    m_case = 2;
+    TMVA::Reader *reader = m_mva2.get();
+    vtxCase = yyVtxType::NoSiTracks;
     if (!ignoreConv && photons) {
-      for (auto photon: *photons) {
+      for (const auto *photon: *photons) {
         if (!photon)
         {
           ATH_MSG_WARNING("Null pointer to photon");
@@ -170,59 +249,54 @@ namespace CP {
         if (xAOD::PVHelpers::passConvSelection(photon,
                                                m_convPtCut))
         {
-          reader = m_mva1;
-          m_case = 1;
+          reader = m_mva1.get();
+          vtxCase = yyVtxType::SiConvTrack;
         }
       }
     }
-    ATH_MSG_DEBUG("Case: " << m_case);
+    ATH_MSG_DEBUG("Vtx Case: " << vtxCase);
 
     // Vector sum of photons
-    TLorentzVector vegamma = getEgammaVector(&egammas);
+    TLorentzVector vegamma = getEgammaVector(&egammas, fail);
+
+    SG::AuxElement::ConstAccessor<float> sumPtA(m_derivationPrefix + "sumPt");
+    SG::AuxElement::ConstAccessor<float> sumPt2A(m_derivationPrefix + "sumPt2");
+    SG::AuxElement::ConstAccessor<float> deltaPhiA(m_derivationPrefix + "deltaPhi");
+    SG::AuxElement::ConstAccessor<float> deltaZA(m_derivationPrefix + "deltaZ");
 
     // Loop over vertices and find best candidate
     float mlp = 0.0, mlp_max = -99999.0;
-    for (auto vertex: *vertices) {
+    for (const xAOD::Vertex* vertex: *vertices) {
 
       // Skip dummy vertices
       if (vertex->vertexType() != xAOD::VxType::VertexType::PriVtx and
           vertex->vertexType() != xAOD::VxType::VertexType::PileUp) continue;
 
-      // Get momentum vector of vertex
-      TLorentzVector vmom = xAOD::PVHelpers::getVertexMomentum(vertex, true, m_derivationPrefix);
+      // Variables used as input into TMVA::Reader
+      float sumPt2, sumPt, deltaPhi, deltaZ;
 
-      // Set input variables for MVA
-      static SG::AuxElement::ConstAccessor<float> sumPt(m_derivationPrefix + "sumPt");
-      if (sumPt.isAvailable(*vertex)) {
-        m_sumPt = log10(sumPt(*vertex));
-      } else {
-        m_sumPt  = log10(xAOD::PVHelpers::getVertexSumPt(vertex));
-      }
-
-      static SG::AuxElement::ConstAccessor<float> sumPt2(m_derivationPrefix + "sumPt2");
-      if (sumPt2.isAvailable(*vertex))
-        m_sumPt2 = log10(sumPt2(*vertex));
-      else
-        m_sumPt2 = log10(xAOD::PVHelpers::getVertexSumPt(vertex, 2));
-
-      m_deltaPhi     = fabs(vmom.DeltaPhi(vegamma));
-      m_deltaZ       = fabs((zCommon.first - vertex->z())/zCommon.second);
-      ATH_MSG_VERBOSE("log(sumPt): " << m_sumPt <<
-                      " log(sumPt2): " << m_sumPt2 <<
-                      " deltaPhi: " << m_deltaPhi <<
-                      " deltaZ: " << m_deltaZ);
+      sumPt     = log10((sumPtA)(*vertex)); 
+      sumPt2    = log10((sumPt2A)(*vertex)); 
+      deltaPhi  = (deltaPhiA)(*vertex); 
+      deltaZ    = (deltaZA)(*vertex); 
+      ATH_MSG_VERBOSE("log(sumPt): " << sumPt <<
+                      " log(sumPt2): " << sumPt2 <<
+                      " deltaPhi: " << deltaPhi <<
+                      " deltaZ: " << deltaZ);
 
       // Skip vertices above 10 sigma from pointing or 15 sigma from conversion (HPV)
-      if ((reader == m_mva2 && m_deltaZ > 10) ||
-          (reader == m_mva1 && m_deltaZ > 15)) {
+      if ((reader == m_mva2.get() && deltaZ > 10) ||
+          (reader == m_mva1.get() && deltaZ > 15)) {
         mlp = -9999.0;
       } else {
         // Get likelihood probability from MVA
-        mlp = reader->EvaluateMVA("MLP method");
+        std::vector<float> mvaInput = {deltaZ,deltaPhi,sumPt2,sumPt};
+        TString mvaMethod("MLP method");
+        mlp = reader->EvaluateMVA(mvaInput,mvaMethod);
       }
       ATH_MSG_VERBOSE("MVA output: " << mlp);
 
-      m_vertexMLP.push_back(std::make_pair(vertex, mlp));
+      vertexMLP.emplace_back(vertex, mlp);
 
       // Keep track of maximal likelihood vertex
       if (mlp > mlp_max) {
@@ -234,10 +308,13 @@ namespace CP {
 
     if (mlp_max <= -9999.0) {
       ATH_MSG_DEBUG("No good vertex candidates from pointing, returning hardest vertex.");
-      prime_vertex = xAOD::PVHelpers::getHardestVertex(vertices);
-      return StatusCode::FAILURE;
+      prime_vertex = xAOD::PVHelpers::getHardestVertex(&*vertices);
+      fail = FailType::NoGdCandidate;
+      vertexMLP.clear();
+      vertexMLP.push_back(std::make_pair(xAOD::PVHelpers::getHardestVertex(&*vertices), 20.));    
     }
-
+    
+    ATH_MSG_VERBOSE("getVertex case "<< (int)vtxCase << " exit code "<< (int)fail);
     return StatusCode::SUCCESS;
   }
 
@@ -259,13 +336,11 @@ namespace CP {
     const xAOD::TrackParticle *tp = nullptr;
     size_t NumberOfTracks = 0;
 
-    const xAOD::VertexContainer* all_vertices = nullptr;
-    if (evtStore()->retrieve(all_vertices, m_vertexContainerName).isFailure()) {
-      ATH_MSG_WARNING("Couldn't retrieve " << m_vertexContainerName << " from TEvent, returning nullptr.");
-      return nullptr;
-    }
+    // Retrieve PV collection from TEvent
+    SG::ReadHandle<xAOD::VertexContainer> all_vertices(m_vertexContainer);
 
-    for (auto photon: *photons) {
+
+    for (const auto *photon: *photons) {
       conversionVertex = photon->vertex();
       if (conversionVertex == nullptr) continue;
 
@@ -280,7 +355,7 @@ namespace CP {
         tp = xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(gsfTp);
         if (tp == nullptr) continue;
 
-        primary = getVertexFromTrack(tp, all_vertices);
+        primary = getVertexFromTrack(tp, &*all_vertices);
         if (primary == nullptr) continue;
 
         if (primary->vertexType() == xAOD::VxType::VertexType::PriVtx ||
@@ -290,11 +365,10 @@ namespace CP {
             continue;
           }
         }
-
       }
     }
 
-    if (vertices.size() > 0) {
+    if (!vertices.empty()) {
       if (vertices.size() > 1)
         ATH_MSG_WARNING("Photons associated to different vertices! Returning lead photon association.");
       return vertices[0];
@@ -310,11 +384,16 @@ namespace CP {
   }
 
   //____________________________________________________________________________
-  TLorentzVector PhotonVertexSelectionTool::getEgammaVector(const xAOD::EgammaContainer *egammas) const
+  TLorentzVector PhotonVertexSelectionTool::getEgammaVector(const xAOD::EgammaContainer *egammas, FailType& failType) const
   {
     TLorentzVector v, v1;
     const xAOD::CaloCluster *cluster = nullptr;
-    for (auto egamma: *egammas) {
+    for (const xAOD::Egamma* egamma: *egammas) {
+      if (egamma == nullptr) {
+        ATH_MSG_DEBUG("No egamma object to get four vector");
+        failType = FailType::FailEgamVect;
+        continue;
+      }
       cluster = egamma->caloCluster();
       if (cluster == nullptr) {
         ATH_MSG_WARNING("No cluster associated to egamma, not adding to 4-vector.");

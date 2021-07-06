@@ -1,7 +1,7 @@
 // emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////                                                        /////////// 
@@ -18,7 +18,7 @@ inline const std::vector<Jet::mkey_t> Jet::infoKeys() const
   std::vector<mkey_t> vKeys;
   if ( bool(m_tagInfoStore) )
     for ( tagstore_t::iterator itr = m_tagInfoStore->begin();
-	  itr != m_tagInfoStore->end(); itr++ )
+	  itr != m_tagInfoStore->end(); ++itr )
       if ( bool(*itr) )
 	vKeys.push_back( (*itr)->infoType() );
   return vKeys;
@@ -250,7 +250,7 @@ inline const Jet::tagstore_t Jet::jetTagInfoVector(void) const
   //  of the TagInfoStore with all zeros removed
   if ( bool(m_tagInfoStore) )
     for ( tagstore_t::iterator itr = m_tagInfoStore->begin();
-  	  itr != m_tagInfoStore->end(); itr++ )
+  	  itr != m_tagInfoStore->end(); ++itr )
       if ( bool(*itr) )
   	store.push_back( (*itr) );
   return store;

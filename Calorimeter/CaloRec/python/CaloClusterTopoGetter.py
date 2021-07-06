@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #
 #
@@ -234,7 +234,8 @@ class CaloClusterTopoGetter ( Configured )  :
                                     ,"AVG_TILE_Q"
                                     ,"PTD"
                                     ,"MASS"
-                                    ,"EM_PROBABILITY"
+                                    ,"SECOND_TIME"
+                                    ,"NCELL_SAMPLING"
                                     ]
 
         doDigiTruthFlag = False
@@ -247,7 +248,6 @@ class CaloClusterTopoGetter ( Configured )  :
 
         if doDigiTruthFlag:
           TopoMoments_Truth = CaloClusterMomentsMaker_DigiHSTruth ("TopoMoments_Truth")
-          TopoMoments_Truth.LArHVFraction=LArHVFraction(HVScaleCorrKey="LArHVScaleCorr")
           TopoMoments_Truth.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute() 
           TopoMoments_Truth.MaxAxisAngle = 20*deg
           TopoMoments_Truth.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
@@ -291,6 +291,8 @@ class CaloClusterTopoGetter ( Configured )  :
                 TopoMoments.LArHVFraction=LArHVFraction(HVScaleCorrKey="LArHVScaleCorrRecomputed")
             else:
                 TopoMoments.LArHVFraction=LArHVFraction(HVScaleCorrKey="LArHVScaleCorr")
+                if doDigiTruthFlag:
+                  TopoMoments_Truth.LArHVFraction=LArHVFraction(HVScaleCorrKey="LArHVScaleCorr")
             TopoMoments.MomentsNames += ["ENG_BAD_HV_CELLS"
                                          ,"N_BAD_HV_CELLS"
                                          ]

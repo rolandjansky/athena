@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -20,6 +20,8 @@
 #include "L1CaloFEXToolInterfaces/IeFEXtauAlgo.h"
 #include "L1CaloFEXToolInterfaces/IeFEXegAlgo.h"
 #include "L1CaloFEXSim/eFEXOutputCollection.h"
+#include "TrigConfData/L1Menu.h"
+
 
 #include <vector>
 
@@ -52,7 +54,7 @@ namespace LVL1 {
     virtual void SetIsoWP(std::vector<unsigned int> &, std::vector<unsigned int> &, unsigned int &) override ;
 
     /**Form a tob word out of the potential candidate EM tob */
-    virtual uint32_t formEmTOB(int &, int &) override ;
+    virtual uint32_t formEmTOB(int &, int &, int &, unsigned int &, unsigned int &, unsigned int &, unsigned int &, unsigned int &, unsigned int &) override ;
 
     virtual std::vector <uint32_t> getEmTOBs() override ;
 
@@ -66,13 +68,22 @@ namespace LVL1 {
     std::vector< uint32_t > m_tobwords;
     int m_eTowersIDs [10][6];
 
-    SG::ReadHandleKey<LVL1::eTowerContainer> m_eFEXFPGA_eTowerContainerKey {this, "MyETowers", "eTowerContainer", "Input container for eTowers"};
+    SG::ReadHandleKey<TrigConf::L1Menu> m_l1MenuKey{
+      this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu",
+      "Name of the L1Menu object to read configuration from"};
+
+    SG::ReadHandleKey<LVL1::eTowerContainer> m_eFEXFPGA_eTowerContainerKey {
+      this, "MyETowers", "eTowerContainer", 
+	"Input container for eTowers"};
 
     //SG::ReadHandleKey<eFEXOutputCollection> m_eFEXFPGA_eFEXOutputCollectionKey {this, "MyOutputs", "eFEXOutputCollection", "Input container for eFEXOutputCollection"};
 
-
-    ToolHandle<IeFEXtauAlgo> m_eFEXtauAlgoTool {this, "eFEXtauAlgoTool", "LVL1::eFEXtauAlgo", "Tool that runs the eFEX tau algorithm"};
-    ToolHandle<IeFEXegAlgo> m_eFEXegAlgoTool {this, "eFEXegAlgoTool", "LVL1::eFEXegAlgo", "Tool that runs the eFEX e/gamma algorithm"};
+    ToolHandle<IeFEXtauAlgo> m_eFEXtauAlgoTool {
+      this, "eFEXtauAlgoTool", "LVL1::eFEXtauAlgo", 
+	"Tool that runs the eFEX tau algorithm"};
+    ToolHandle<IeFEXegAlgo> m_eFEXegAlgoTool {
+      this, "eFEXegAlgoTool", "LVL1::eFEXegAlgo", 
+	"Tool that runs the eFEX e/gamma algorithm"};
     
   };
   

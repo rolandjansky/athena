@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # $Id$
 #
@@ -33,7 +33,7 @@ def main():
     # The name of the application
     import os
     APP_NAME = os.path.basename(__file__).rstrip('.py')
-    print APP_NAME
+    print(APP_NAME)
     # Set up a logger object
     import logging
     logger = logging.getLogger(APP_NAME)
@@ -74,7 +74,8 @@ def main():
         return 1
 
     # Create a transient tree from a test file
-    FNAME = "/afs/cern.ch/atlas/project/PAT/xAODs/r7725/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.AOD.e3698_s2608_s2183_r7725_r7676/AOD.07915862._000100.pool.root.1"
+    FNAME = os.environ['ASG_TEST_FILE_MC']
+
     ifile = ROOT.TFile.Open(FNAME, 'read')
 
     if not ifile:
@@ -108,8 +109,8 @@ def main():
         if len(taus) < 2:
             continue
         evts_with_two_taus += 1
-        print taus
-        print taus.__class__.__name__
+        print (taus)
+        print (taus.__class__.__name__)
         tau1 = taus.at(0)
         tau2 = taus.at(1)
         # tau1, tau2 = taus[0], taus[1]
@@ -126,9 +127,9 @@ def main():
             #print MET.name()
         
         met = mgr.eventTree().MET_Reference_AntiKt4LCTopo["FinalClus"]
-        print met, met.__class__.__name__
-        print tau1, tau1.__class__.__name__
-        print tau2, tau2.__class__.__name__
+        print (met, met.__class__.__name__)
+        print (tau1, tau1.__class__.__name__)
+        print (tau2, tau2.__class__.__name__)
         
         ei = mgr.eventTree().EventInfo
         missingmass_tool.apply(ei, tau1, tau2, met, njets_25).ignore()

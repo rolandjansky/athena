@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawDataReadingAlg.h"
@@ -11,9 +11,14 @@
 #include "eformat/Version.h"
 #include "eformat/index.h"
 
+#include "LArByteStream/LArRodBlockTransparentV0.h"
+#include "LArByteStream/LArRodBlockCalibrationV3.h"
 #include "LArByteStream/LArRodBlockStructure.h"
 #include "LArByteStream/LArRodBlockPhysicsV5.h"
 #include "LArByteStream/LArRodBlockPhysicsV6.h"
+
+#include "LArFebHeaderReader.h"
+
 
 LArRawDataReadingAlg::LArRawDataReadingAlg(const std::string& name, ISvcLocator* pSvcLocator) :  
   AthReentrantAlgorithm(name, pSvcLocator) {}
@@ -118,7 +123,20 @@ StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
 	  return m_failOnCorruption ? StatusCode::FAILURE : StatusCode::SUCCESS;
 	}// end switch(rodMinorVersion)
       }//end of rodBlockType==4
-      else {
+      else if (rodBlockType==2) { //Transparent mode
+	switch(rodMinorVersion) {
+           case 4:  
+	     rodBlock.reset(new LArRodBlockTransparentV0<LArRodBlockHeaderTransparentV0>);
+             break;
+           case 12:
+             rodBlock.reset(new LArRodBlockCalibrationV3);
+             break;
+           default:  
+	     ATH_MSG_ERROR("Found unsupported ROD Block version " << rodMinorVersion 
+			<< " of ROD block type " << rodBlockType);
+	     return m_failOnCorruption ? StatusCode::FAILURE : StatusCode::SUCCESS;
+        }
+      } else {
         if(rob.rod_source_id()& 0x1000 ){
                ATH_MSG_DEBUG(" skip Latome fragment with source ID "<< std::hex << rob.rod_source_id());
                rodBlock=nullptr;
@@ -212,45 +230,7 @@ StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
       //Decode FebHeaders (if requested)
       if (m_doFebHeaders) {
 	std::unique_ptr<LArFebHeader> larFebHeader(new LArFebHeader(fId));
-	larFebHeader->SetFormatVersion(rob.rod_version());
-	larFebHeader->SetSourceId(rob.rod_source_id());
-	larFebHeader->SetRunNumber(rob.rod_run_no());
-	larFebHeader->SetELVL1Id(rob.rod_lvl1_id());
-	larFebHeader->SetBCId(rob.rod_bc_id());
-	larFebHeader->SetLVL1TigType(rob.rod_lvl1_trigger_type());
-	larFebHeader->SetDetEventType(rob.rod_detev_type());
-  
-	//set DSP data
-	const unsigned nsample=rodBlock->getNumberOfSamples();
-	larFebHeader->SetRodStatus(rodBlock->getStatus());
-	larFebHeader->SetDspCodeVersion(rodBlock->getDspCodeVersion()); 
-	larFebHeader->SetDspEventCounter(rodBlock->getDspEventCounter()); 
-	larFebHeader->SetRodResults1Size(rodBlock->getResults1Size()); 
-	larFebHeader->SetRodResults2Size(rodBlock->getResults2Size()); 
-	larFebHeader->SetRodRawDataSize(rodBlock->getRawDataSize()); 
-	larFebHeader->SetNbSweetCells1(rodBlock->getNbSweetCells1()); 
-	larFebHeader->SetNbSweetCells2(rodBlock->getNbSweetCells2()); 
-	larFebHeader->SetNbSamples(nsample); 
-	larFebHeader->SetOnlineChecksum(rodBlock->onlineCheckSum());
-	larFebHeader->SetOfflineChecksum(rodBlock->offlineCheckSum());
-
-	if(!rodBlock->hasControlWords()) {
-	  larFebHeader->SetFebELVL1Id(rob.rod_lvl1_id());
-	  larFebHeader->SetFebBCId(rob.rod_bc_id());
-	} else {
-	  const uint16_t evtid = rodBlock->getCtrl1(0) & 0x1f;
-	  const uint16_t bcid  = rodBlock->getCtrl2(0) & 0x1fff;
-	  larFebHeader->SetFebELVL1Id(evtid);
-	  larFebHeader->SetFebBCId(bcid);
-	  for(int iadc=0;iadc<16;iadc++) {
-	    larFebHeader->SetFebCtrl1(rodBlock->getCtrl1(iadc));
-	    larFebHeader->SetFebCtrl2(rodBlock->getCtrl2(iadc));
-	    larFebHeader->SetFebCtrl3(rodBlock->getCtrl3(iadc));
-	  }
-	  for(unsigned int i = 0; i<nsample; i++ ) {
-	    larFebHeader->SetFebSCA(rodBlock->getRadd(0,i) & 0xff);
-	  }
-	}//end else no control words
+	LArFebHeaderReader::fillFebHeader(larFebHeader.get(),rodBlock.get(),rob);
 	febHeaders->push_back(std::move(larFebHeader));
       }//end if m_doFebHeaders
 

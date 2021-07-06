@@ -57,7 +57,7 @@ class ATLAS_CHECK_THREAD_SAFETY TRT_StrawNeighbourSvc: public AthService,
 
   int getRing( const Identifier &id );
 
-  int chipToBoardEndCap(int chip);
+  static int chipToBoardEndCap(int chip);
 
   int strawNumber( Identifier id);
   int strawLayerNumber( Identifier id);
@@ -78,8 +78,8 @@ class ATLAS_CHECK_THREAD_SAFETY TRT_StrawNeighbourSvc: public AthService,
   ServiceHandle<StoreGateSvc> m_detStore;
   const TRT_ID* m_trtid;
 
-  int m_numberOfStraws[75];
-  int m_TripletOrientation[2][32];
+  int m_numberOfStraws[75]{};
+  int m_TripletOrientation[2][32]{};
 
   std::vector<unsigned int> m_layer_m1;
   std::vector<unsigned int> m_layer_m1_acc;
@@ -100,17 +100,17 @@ class ATLAS_CHECK_THREAD_SAFETY TRT_StrawNeighbourSvc: public AthService,
   std::vector<double> m_chip_vector2;
   std::vector<double> m_chip_vector3;
 
-  int m_chipConversionSocketToChip_m1[22];
-  int m_chipConversionChipToSocket_m1[22];
-  int m_chipConversionSocketToChip_m2[34];
-  int m_chipConversionChipToSocket_m2[34];
-  int m_chipConversionSocketToChip_m3[51];
-  int m_chipConversionChipToSocket_m3[51];
+  int m_chipConversionSocketToChip_m1[22]{};
+  int m_chipConversionChipToSocket_m1[22]{};
+  int m_chipConversionSocketToChip_m2[34]{};
+  int m_chipConversionChipToSocket_m2[34]{};
+  int m_chipConversionSocketToChip_m3[51]{};
+  int m_chipConversionChipToSocket_m3[51]{};
 
-  int m_endcapChipMapA0[12]; // endcap chip number maps
-  int m_endcapChipMapA8[12];
-  int m_endcapChipMapC0[12];
-  int m_endcapChipMapC8[12];
+  int m_endcapChipMapA0[12]{}; // endcap chip number maps
+  int m_endcapChipMapA8[12]{};
+  int m_endcapChipMapC0[12]{};
+  int m_endcapChipMapC8[12]{};
 };
 
 

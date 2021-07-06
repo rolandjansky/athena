@@ -1,4 +1,7 @@
-/* Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration */
+/*
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "EventSelectorByteStream.h"
 
 #include <vector>
@@ -84,7 +87,7 @@ StatusCode EventSelectorByteStream::initialize() {
 
   m_autoRetrieveTools = false;
   m_checkToolDeps = false;
-  
+
    if (m_isSecondary.value()) {
       ATH_MSG_DEBUG("Initializing secondary event selector " << name());
    } else {
@@ -213,8 +216,8 @@ StatusCode EventSelectorByteStream::start() {
       }
 
       // try to open a file
-      if (this->openNewRun(lock).isFailure()) { 
-         ATH_MSG_FATAL("Unable to open any file in initialize"); 
+      if (this->openNewRun(lock).isFailure()) {
+         ATH_MSG_FATAL("Unable to open any file in initialize");
          return(StatusCode::FAILURE);
       }
       // should be in openNewRun, but see comment there
@@ -235,7 +238,7 @@ StatusCode EventSelectorByteStream::stop() {
    // Handle open files
    if (m_filebased) {
       // Close the file
-      if (m_eventSource->ready()) { 
+      if (m_eventSource->ready()) {
          m_eventSource->closeBlockIterator(false);
          FileIncident endInputFileIncident(name(), "EndInputFile", "stop");
          m_incidentSvc->fireIncident(endInputFileIncident);
@@ -327,7 +330,7 @@ StatusCode EventSelectorByteStream::openNewRun(lock_t& lock) const {
       return openNewRun(lock);
    }
 
-   ATH_MSG_DEBUG("Opened block/file " << blockname); 
+   ATH_MSG_DEBUG("Opened block/file " << blockname);
    m_firstEvt[m_fileCount] = m_NumEvents;
    m_numEvt[m_fileCount] = nev;
 
@@ -382,7 +385,7 @@ StatusCode EventSelectorByteStream::nextImpl(IEvtSelector::Context& it,
       // increment that an event was found
       ++m_NumEvents;
 
-      // check bad event flag and handle as configured 
+      // check bad event flag and handle as configured
       if (badEvent) {
          int nbad = ++n_bad_events;
          ATH_MSG_INFO("Bad event encountered, current count at " << nbad);
@@ -402,7 +405,7 @@ StatusCode EventSelectorByteStream::nextImpl(IEvtSelector::Context& it,
       }
 
       // Check whether properties or tools reject this event
-      if ( m_NumEvents > m_skipEvents.value() && 
+      if ( m_NumEvents > m_skipEvents.value() &&
            (m_skipEventSequence.empty() || m_NumEvents != m_skipEventSequence.front()) ) {
          StatusCode status(StatusCode::SUCCESS);
          // Build event info attribute list
@@ -434,7 +437,7 @@ StatusCode EventSelectorByteStream::nextImpl(IEvtSelector::Context& it,
          try {
             m_eventSource->validateEvent();
          }
-         catch (const ByteStreamExceptions::badFragmentData&) { 
+         catch (const ByteStreamExceptions::badFragmentData&) {
             ATH_MSG_ERROR("badFragment data encountered");
 
             int nbad = ++n_bad_events;
@@ -497,7 +500,7 @@ EventSelectorByteStream::nextImpl(IEvtSelector::Context& ctxt,
       else ATH_MSG_DEBUG("Jump covered by skip event " << m_skipEvents.value());
       return(StatusCode::SUCCESS);
    }
-   else { 
+   else {
       ATH_MSG_WARNING("Called jump next with non-multiple jump");
    }
    return(StatusCode::SUCCESS);
@@ -512,7 +515,7 @@ StatusCode EventSelectorByteStream::nextHandleFileTransition(IEvtSelector::Conte
 StatusCode EventSelectorByteStream::nextHandleFileTransitionImpl(IEvtSelector::Context& it,
                                                                  lock_t& lock) const
 {
-   const RawEvent* pre{}; 
+   const RawEvent* pre{};
    bool badEvent{};
    // if event source not ready from init, try next file
    if (m_filebased && !m_eventSource->ready()) {
@@ -521,21 +524,21 @@ StatusCode EventSelectorByteStream::nextHandleFileTransitionImpl(IEvtSelector::C
       if (this->openNewRun(lock).isFailure()) {
          ATH_MSG_DEBUG("Event source found no more valid files left in input list");
          m_NumEvents = -1;
-         return StatusCode::FAILURE; 
+         return StatusCode::FAILURE;
       }
    }
-   try { 
-      pre = m_eventSource->nextEvent(); 
-   } 
-   catch (const ByteStreamExceptions::readError&) { 
-      ATH_MSG_FATAL("Caught ByteStreamExceptions::readError"); 
-      return StatusCode::FAILURE; 
-   } 
-   catch (const ByteStreamExceptions::badFragment&) { 
+   try {
+      pre = m_eventSource->nextEvent();
+   }
+   catch (const ByteStreamExceptions::readError&) {
+      ATH_MSG_FATAL("Caught ByteStreamExceptions::readError");
+      return StatusCode::FAILURE;
+   }
+   catch (const ByteStreamExceptions::badFragment&) {
       ATH_MSG_ERROR("badFragment encountered");
       badEvent = true;
    }
-   catch (const ByteStreamExceptions::badFragmentData&) { 
+   catch (const ByteStreamExceptions::badFragmentData&) {
       ATH_MSG_ERROR("badFragment data encountered");
       badEvent = true;
    }
@@ -547,9 +550,9 @@ StatusCode EventSelectorByteStream::nextHandleFileTransitionImpl(IEvtSelector::C
 
    // If not secondary just return the status code based on if the event is bas
    if (!m_isSecondary.value()) {
-      // check bad event flag and handle as configured 
+      // check bad event flag and handle as configured
       return badEvent ? StatusCode::RECOVERABLE : StatusCode::SUCCESS;
-   } 
+   }
 
    // Build a DH for use by other components
    StatusCode rec_sg = m_eventSource->generateDataHeader();
@@ -569,22 +572,22 @@ StatusCode EventSelectorByteStream::previous(IEvtSelector::Context& ctxt) const
 StatusCode EventSelectorByteStream::previousImpl(IEvtSelector::Context& /*ctxt*/,
                                                  lock_t& /*lock*/) const {
     ATH_MSG_DEBUG(" ... previous");
-    const RawEvent* pre = 0; 
+    const RawEvent* pre = 0;
     bool badEvent(false);
     // if event source not ready from init, try next file
     if (m_eventSource->ready()) {
-       try { 
-          pre = m_eventSource->previousEvent(); 
-       } 
-       catch (const ByteStreamExceptions::readError&) { 
-          ATH_MSG_FATAL("Caught ByteStreamExceptions::readError"); 
-          return StatusCode::FAILURE; 
-       } 
-       catch (const ByteStreamExceptions::badFragment&) { 
+       try {
+          pre = m_eventSource->previousEvent();
+       }
+       catch (const ByteStreamExceptions::readError&) {
+          ATH_MSG_FATAL("Caught ByteStreamExceptions::readError");
+          return StatusCode::FAILURE;
+       }
+       catch (const ByteStreamExceptions::badFragment&) {
           ATH_MSG_ERROR("badFragment encountered");
           badEvent = true;
        }
-       catch (const ByteStreamExceptions::badFragmentData&) { 
+       catch (const ByteStreamExceptions::badFragmentData&) {
           ATH_MSG_ERROR("badFragment data encountered");
           badEvent = true;
        }
@@ -601,8 +604,8 @@ StatusCode EventSelectorByteStream::previousImpl(IEvtSelector::Context& /*ctxt*/
     }
     // increment that an event was found
     //++m_NumEvents;
- 
-    // check bad event flag and handle as configured 
+
+    // check bad event flag and handle as configured
     if (badEvent) {
        ATH_MSG_ERROR("Called previous for bad event");
        if (!m_procBadEvent) {
@@ -662,7 +665,7 @@ StatusCode EventSelectorByteStream::resetCriteria(const std::string& /*criteria*
 }
 
 //__________________________________________________________________________
-StatusCode EventSelectorByteStream::seek(Context& it, int evtNum) const {
+StatusCode EventSelectorByteStream::seek(Context& /* it */, int evtNum) const {
    lock_t lock (m_mutex);
    // Check that input is seekable
    if (!m_filebased) {
@@ -697,22 +700,22 @@ StatusCode EventSelectorByteStream::seek(Context& it, int evtNum) const {
       if (delta > 0) {
         if (nextImpl(*m_beginIter,delta, lock).isFailure()) return StatusCode::FAILURE;
       }
-      else return this->seek(it, evtNum);
-   } 
-   else { // event in current file
+   }
+   // event in current file
+   {
       int delta = (evtNum - m_firstEvt[m_fileCount] + 1) - m_eventSource->positionInBlock();
       ATH_MSG_DEBUG("Seeking event " << evtNum << " in current file wiht delta " << delta);
       if ( delta == 0 ) { // current event
          // nothing to do
-      } 
+      }
       else if ( delta > 0 ) { // forward
          if ( this->nextImpl(*m_beginIter, delta, lock).isFailure() ) return StatusCode::FAILURE;
-      } 
+      }
       else if ( delta < 0 ) { // backward
          if ( this->previousImpl(*m_beginIter, -1*delta, lock).isFailure() ) return(StatusCode::FAILURE);
-      } 
+      }
    }
-   return(StatusCode::SUCCESS);
+   return StatusCode::SUCCESS;
 }
 
 StatusCode EventSelectorByteStream::recordAttributeList() const
@@ -736,9 +739,8 @@ StatusCode EventSelectorByteStream::recordAttributeListImpl(lock_t& lock) const
       }
    }
 
-   // build spec and the new attr list
-   coral::AttributeListSpecification* spec = new coral::AttributeListSpecification(); // the newly created attribute list owns the spec
-   auto attrList = std::make_unique<AthenaAttributeList>(*spec);
+   // build the new attr list
+   auto attrList = std::make_unique<AthenaAttributeList>();
 
    // fill the attr list
    ATH_CHECK(fillAttributeListImpl(attrList.get(), "", false, lock));
@@ -808,7 +810,7 @@ StatusCode EventSelectorByteStream::fillAttributeListImpl(coral::AttributeList *
       attrList->extend(name.str() + suffix, "unsigned int");
       (*attrList)[name.str() + suffix].data<unsigned int>() = *buffer;
       ++buffer;
-   } 
+   }
 
    // Grab L2 words
    event->lvl2_trigger_info(buffer);
@@ -820,7 +822,7 @@ StatusCode EventSelectorByteStream::fillAttributeListImpl(coral::AttributeList *
          (*attrList)[name.str() + suffix].data<unsigned int>() = *buffer;
       }
       ++buffer;
-   } 
+   }
 
    // Grab EF words
    event->event_filter_info(buffer);
@@ -832,7 +834,7 @@ StatusCode EventSelectorByteStream::fillAttributeListImpl(coral::AttributeList *
          (*attrList)[name.str() + suffix].data<unsigned int>() = *buffer;
       }
       ++buffer;
-   } 
+   }
 
    // Grab stream tags
    event->stream_tag(buffer);
@@ -903,7 +905,7 @@ StatusCode EventSelectorByteStream::makeServer(int /*num*/) {
    if (m_eventStreamingTool.empty()) {
       return(StatusCode::FAILURE);
    }
-   return(m_eventStreamingTool->makeServer(1));
+   return(m_eventStreamingTool->makeServer(1, ""));
 }
 
 //________________________________________________________________________________
@@ -912,7 +914,8 @@ StatusCode EventSelectorByteStream::makeClient(int /*num*/) {
    if (m_eventStreamingTool.empty()) {
       return(StatusCode::FAILURE);
    }
-   return(m_eventStreamingTool->makeClient(0));
+   std::string dummyStr;
+   return(m_eventStreamingTool->makeClient(0, dummyStr));
 }
 
 //________________________________________________________________________________
@@ -1068,7 +1071,7 @@ StatusCode EventSelectorByteStream::io_reinit() {
    );
    m_inputCollectionsProp = inputCollections;
    m_inputCollectionsProp.declareUpdateHandler (old_cb);;
-   
+
    return(this->reinit(lock));
 }
 

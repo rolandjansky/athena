@@ -14,8 +14,7 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkEventPrimitives/CurvilinearUVT.h"
-#include "TrkEventPrimitives/SurfaceUniquePtrT.h"
-
+#include "TrkEventPrimitives/SurfaceTypes.h"
 #include <memory>
 class MsgStream;
 
@@ -48,37 +47,43 @@ template<int DIM, class T, class S>
 class CurvilinearParametersT final : public ParametersBase<DIM, T>
 {
 public:
+  static_assert(S::staticType == SurfaceType::Plane,
+                "The surface type must be Plane");
+
   /** default constructor only for POOL */
   CurvilinearParametersT() = default;
 
   /** Create CurvilinearParametersT from DIM+2 parameters
       - these are: global position, momentum, charge, extension */
-  CurvilinearParametersT(const AmgVector(DIM + 2) & parameters,
-                         AmgSymMatrix(DIM) * covariance = nullptr,
-                         unsigned int cIdenfier = 0);
+  CurvilinearParametersT(
+    const AmgVector(DIM + 2) & parameters,
+    std::optional<AmgSymMatrix(DIM)> covariance = std::nullopt,
+    unsigned int cIdenfier = 0);
 
   /**Create CurvilinearParametersT from mixed parameters: pos, local
    * parameters*/
-  CurvilinearParametersT(const Amg::Vector3D& pos,
-                         double phi,
-                         double theta,
-                         double qOverP,
-                         AmgSymMatrix(DIM) * covariance = nullptr,
-                         unsigned int cIdenfier = 0);
+  CurvilinearParametersT(
+    const Amg::Vector3D& pos,
+    double phi,
+    double theta,
+    double qOverP,
+    std::optional<AmgSymMatrix(DIM)> covariance = std::nullopt,
+    unsigned int cIdenfier = 0);
 
   /** Create CurvilinearParametersT from global parameters.
      -- it will throw a GaudiException if the position is not on surface  */
-  CurvilinearParametersT(const Amg::Vector3D& pos,
-                         const Amg::Vector3D& mom,
-                         double charge,
-                         AmgSymMatrix(DIM) * covariance = nullptr,
-                         unsigned int cIdenfier = 0);
+  CurvilinearParametersT(
+    const Amg::Vector3D& pos,
+    const Amg::Vector3D& mom,
+    double charge,
+    std::optional<AmgSymMatrix(DIM)> covariance = std::nullopt,
+    unsigned int cIdenfier = 0);
 
   /** Copy Constructor */
   CurvilinearParametersT(const CurvilinearParametersT<DIM, T, S>&);
 
   /** Move Constructor */
-  CurvilinearParametersT(CurvilinearParametersT<DIM, T, S>&&) = default;
+  CurvilinearParametersT(CurvilinearParametersT<DIM, T, S>&&) noexcept = default;
 
   /** Assignment operator*/
   CurvilinearParametersT<DIM, T, S>& operator=(
@@ -86,7 +91,7 @@ public:
 
   /** Move assignment operator*/
   CurvilinearParametersT<DIM, T, S>& operator=(
-    CurvilinearParametersT<DIM, T, S>&&) = default;
+    CurvilinearParametersT<DIM, T, S>&&) noexcept = default;
 
   /** Destructor */
   virtual ~CurvilinearParametersT() = default;
@@ -118,11 +123,14 @@ public:
   /** Virtual clone */
   virtual CurvilinearParametersT<DIM, T, S>* clone() const override final;
 
+  /** Virtual clone returning unique_ptr*/
+  std::unique_ptr<CurvilinearParametersT<DIM, T, S>> uniqueClone() const;
+
   /** Return the ParametersType enum */
   virtual ParametersType type() const override final;
 
   /** Return the Surface Type enum*/
-  virtual int surfaceType() const override final;
+  virtual SurfaceType surfaceType() const override final;
 
   /** Return the measurementFrame of the parameters */
   virtual Amg::RotationMatrix3D measurementFrame() const override final;
@@ -145,9 +153,9 @@ protected:
   using ParametersBase<DIM, T>::m_parameters;
   using ParametersBase<DIM, T>::m_covariance;
   using ParametersBase<DIM, T>::m_chargeDef;
-  Amg::Vector3D m_position;             //!< point on track
-  Amg::Vector3D m_momentum;             //!< momentum at this point on track
-  SurfaceUniquePtrT<const S> m_surface; //!< surface template
+  Amg::Vector3D m_position; //!< point on track
+  Amg::Vector3D m_momentum; //!< momentum at this point on track
+  S m_surface;              //!< surface template
   /** the curvilinear parameters identifier */
   unsigned int m_cIdentifier = 0;
   /*

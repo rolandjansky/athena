@@ -32,12 +32,4 @@ if doCaloTopoCluster:
      "ENG_FRAC_CORE" ,
      "SECOND_ENG_DENS" ,
   ]
-  #Apply identical settings for calonoisetool (do not know, who is using it) and CaloNoiseToolDefault 
-  if not doSim:
-     ToolSvc.CaloNoiseToolDefault.UseSymmetry=FALSE
-     ToolSvc.LArAutoCorrTotalToolDefault.NMinBias=0
-     ToolSvc.CaloNoiseToolDefault.WithOF=FALSE
-  if doLArOFC:
-     ToolSvc.CaloNoiseToolDefault.WithOF=TRUE
-     if not doSim:
-         ToolSvc.LArOFCToolDefault.FromDatabase=TRUE  
+

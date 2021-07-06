@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ReplicaSorter.cxx
@@ -182,8 +182,8 @@ TrigConf::ReplicaSorter::readConfig() {
 
 
 FILE*
-TrigConf::ReplicaSorter::findFile(const std::string filename,
-                                  const std::string pathvar) 
+TrigConf::ReplicaSorter::findFile(const std::string& filename,
+                                  const std::string& pathvar) 
 {
    // behave like pathresolver
    std::string::size_type iofs1,iofs2,len;

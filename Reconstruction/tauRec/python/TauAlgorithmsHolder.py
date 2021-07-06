@@ -1,12 +1,11 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
-##
+#
 #@file TauAlgorithmsHolder.py
 #
 #@brief All tau algorithms needed for tau reconstruction are configured here.
 #
-#@author Felix Friedrich <felix.friedrich@cern.ch>
 ################################################################################
 
 from AthenaCommon.SystemOfUnits import GeV, mm
@@ -19,8 +18,8 @@ bAODmode = False
 
 # standard container names
 _DefaultVertexContainer = "PrimaryVertices"
-_DefaultTrackContainer ="InDetTrackParticles"
-_DefaultLargeD0TrackContainer ="InDetLargeD0TrackParticles"
+_DefaultTrackContainer = "InDetTrackParticles"
+_DefaultLargeD0TrackContainer = "InDetLargeD0TrackParticles"
 
 ######################################################################## 
 def setPrefix(prefix): 
@@ -93,10 +92,8 @@ def getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix=''):
     
     from tauRecTools.tauRecToolsConf import TauCalibrateLC
     TauCalibrateLC = TauCalibrateLC(name = _name,
-                                    calibrationFile = "TES_MC16a_prelim.root",
-                                    doPtResponse = True,
-                                    Key_vertexInputContainer = _DefaultVertexContainer 
-                                    )
+                                    calibrationFile = tauFlags.tauRecCalibrateLCConfig(),
+                                    Key_vertexInputContainer = _DefaultVertexContainer)
             
     cached_instances[_name] = TauCalibrateLC                
     return TauCalibrateLC
@@ -115,11 +112,9 @@ def getCellVariables(cellConeSize=0.2, prefix=''):
     
     from tauRecTools.tauRecToolsConf import TauCellVariables
     TauCellVariables = TauCellVariables(name = _name,
-            CellEthreshold = 0.2*GeV,
             StripEthreshold = 0.2*GeV,
             CellCone = cellConeSize,
-            VertexCorrection = True,
-            UseSubtractedCluster = tauFlags.useSubtractedCluster() )
+            VertexCorrection = True)
             
     cached_instances[_name] = TauCellVariables   
     return TauCellVariables
@@ -259,21 +254,6 @@ def getTauCommonCalcVars():
     cached_instances[_name] = TauCommonCalcVars    
     return TauCommonCalcVars
 
-
-#########################################################################
-# Tau Test
-def getTauTestDump():
-    _name = sPrefix + 'TauTestDump'
-    
-    if _name in cached_instances:
-        return cached_instances[_name]
-    
-    from tauRecTools.tauRecToolsConf import TauTestDump
-    TauTestDump = TauTestDump(name = _name)
-    
-    cached_instances[_name] = TauTestDump
-    return TauTestDump
-
 #########################################################################
 # Tau Vertex Variables
 def getTauVertexVariables():
@@ -318,8 +298,7 @@ def getElectronVetoVars():
     TauElectronVetoVariables = TauElectronVetoVariables(name = _name,
                                                         VertexCorrection = True,
                                                         ParticleCaloExtensionTool = getParticleCaloExtensionTool(),
-                                                        tauEVParticleCache = getParticleCache(),
-                                                        UseSubtractedCluster = tauFlags.useSubtractedCluster() )
+                                                        tauEVParticleCache = getParticleCache())
     
     cached_instances[_name] = TauElectronVetoVariables
     return TauElectronVetoVariables
@@ -376,10 +355,7 @@ def getPi0ClusterCreator():
         return cached_instances[_name]
     
     from tauRecTools.tauRecToolsConf import TauPi0ClusterCreator
-    TauPi0ClusterCreator = TauPi0ClusterCreator(name = _name,
-                                                TauVertexCorrection = getTauVertexCorrection(),
-                                                UseSubtractedCluster = tauFlags.useSubtractedCluster()
-                                                )
+    TauPi0ClusterCreator = TauPi0ClusterCreator(name = _name)
     
     cached_instances[_name] = TauPi0ClusterCreator
     return TauPi0ClusterCreator
@@ -408,7 +384,7 @@ def getPi0ScoreCalculator():
 
     from tauRecTools.tauRecToolsConf import TauPi0ScoreCalculator
     TauPi0ScoreCalculator = TauPi0ScoreCalculator(name = _name,
-        BDTWeightFile = 'TauPi0BDTWeights.root',
+        BDTWeightFile = tauFlags.tauRecPi0ScoreConfig(),
         )
 
     cached_instances[_name] = TauPi0ScoreCalculator
@@ -422,10 +398,9 @@ def getPi0Selector():
     if _name in cached_instances:
         return cached_instances[_name]
 
-    from tauRec.tauRecFlags import jobproperties
-    pi0EtCuts = jobproperties.tauRecFlags.pi0EtCuts()
-    pi0MVACuts_1prong = jobproperties.tauRecFlags.pi0MVACuts_1prong()
-    pi0MVACuts_mprong = jobproperties.tauRecFlags.pi0MVACuts_mprong()
+    pi0EtCuts = tauFlags.pi0EtCuts()
+    pi0MVACuts_1prong = tauFlags.pi0MVACuts_1prong()
+    pi0MVACuts_mprong = tauFlags.pi0MVACuts_mprong()
      
 
     from tauRecTools.tauRecToolsConf import TauPi0Selector
@@ -446,9 +421,8 @@ def getTauShotFinder():
     if _name in cached_instances:
         return cached_instances[_name]
 
-    from tauRec.tauRecFlags import jobproperties
-    shotPtCut_1Photon = jobproperties.tauRecFlags.shotPtCut_1Photon()
-    shotPtCut_2Photons = jobproperties.tauRecFlags.shotPtCut_2Photons()
+    shotPtCut_1Photon = tauFlags.shotPtCut_1Photon()
+    shotPtCut_2Photons = tauFlags.shotPtCut_2Photons()
 
     from tauRecTools.tauRecToolsConf import TauShotFinder
     TauShotFinder = TauShotFinder(name = _name,
@@ -543,56 +517,6 @@ def getInDetTrackSelectorToolxAOD():
     
     cached_instances[_name] = myInDetTrackSelectionTool
     return myInDetTrackSelectionTool
-
-
-############################################################################
-# setup up JVA tools
-# Currently not used - moved into TauRecConfigured.py and added directly to topSequence
-def setupTauJVFTool():
-
-    #Configures tau track selection tool for TJVA
-    """
-    #Configures tau track selector tool for TJVA
-    from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool
-    InDetTrackSelectorToolForTJVA = InDet__InDetDetailedTrackSelectorTool(name = sPrefix + 'InDetTrackSelectorToolForTJVA',
-                                                                pTMin                = 1000.,
-                                                                IPd0Max              = 9999.*mm,
-                                                                IPz0Max              = 9999.*mm,                                                                 
-                                                                nHitPix              = 2,  # PixelHits + PixelDeadSensors
-                                                                nHitSct              = 0,  # SCTHits + SCTDeadSensors
-                                                                nHitSi               = 7,  # PixelHits + SCTHits + PixelDeadSensors + SCTDeadSensors
-                                                                fitChi2OnNdfMax      = 99999,
-                                                                TrackSummaryTool     = None,
-                                                                Extrapolator         = getAtlasExtrapolator())        
-        
-    ToolSvc += InDetTrackSelectorToolForTJVA
-    """
-    from JetRec.JetRecConf import JetAlgorithm
-    jetTrackAlg = JetAlgorithm("JetTrackAlg_forTaus")
-
-    """
-    from JetRecTools.JetRecToolsConf import JetTrackSelectionTool
-    jetTrackAlg.Tools  += JetTrackSelectionTool(InputContainer = _DefaultTrackContainer, 
-                                     OutputContainer="JetSelectedTracks_forTaus", 
-                                     Selector=InDetTrackSelectorToolForTJVA, 
-                                     OutputLevel=2
-                                     # what is about ptmin, eta min/max???
-                                     )
-    """
-
-    from JetRecTools.JetRecToolsConf import TrackVertexAssociationTool
-    jetTrackAlg.Tools += TrackVertexAssociationTool(TrackParticleContainer = _DefaultTrackContainer ,
-                                                    TrackVertexAssociation="JetTrackVtxAssoc_forTaus", 
-                                                    VertexContainer= _DefaultVertexContainer,
-                                                    MaxTransverseDistance = 2.5 *mm,
-                                                    #MaxLongitudinalDistance = 2 *mm, 
-                                                    MaxZ0SinTheta = 3.0 *mm,
-                                                    #OutputLevel=2
-                                                )
-
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()    
-    topSequence+=jetTrackAlg
     
 #########################################################################
 def getTauVertexFinder(doUseTJVA=False):
@@ -608,11 +532,12 @@ def getTauVertexFinder(doUseTJVA=False):
     from tauRecTools.tauRecToolsConf import TauVertexFinder
     TauVertexFinder = TauVertexFinder(name = _name,
                                       UseTJVA                 = doUseTJVA,
+                                      UseTJVA_Tiebreak        = tauFlags.doTJVA_Tiebreak(),
                                       AssociatedTracks="GhostTrack", # OK??
                                       InDetTrackSelectionToolForTJVA = getInDetTrackSelectionToolForTJVA(),
                                       Key_trackPartInputContainer=_DefaultTrackContainer,
-                                      Key_JetTrackVtxAssoc_forTaus="JetTrackVtxAssoc_forTaus",
-                                      Key_vertexInputContainer = _DefaultVertexContainer
+                                      Key_vertexInputContainer = _DefaultVertexContainer,
+                                      TVATool = getTVATool()
                                       )
     
     cached_instances[_name] = TauVertexFinder         
@@ -652,8 +577,11 @@ def getTauTrackFinder(removeDuplicateTracks=True):
                                     ParticleCaloExtensionTool = getParticleCaloExtensionTool(),
                                     tauParticleCache = getParticleCache(),
                                     removeDuplicateCoreTracks = removeDuplicateTracks,
+                                    useGhostTracks = tauFlags.useGhostTracks(),
+                                    ghostTrackDR = tauFlags.ghostTrackDR(),
+                                    Key_jetContainer = tauFlags.tauRecSeedJetCollection(),
                                     Key_trackPartInputContainer = _DefaultTrackContainer,
-                                    Key_LargeD0TrackInputContainer = _DefaultLargeD0TrackContainer if tauFlags.useLargeD0Tracks else "",
+                                    Key_LargeD0TrackInputContainer = _DefaultLargeD0TrackContainer if tauFlags.associateLRT() else "",
                                     TrackToVertexIPEstimator = getTauTrackToVertexIPEstimator(),
                                     #maxDeltaZ0wrtLeadTrk = 2, #in mm
                                     #removeTracksOutsideZ0wrtLeadTrk = True
@@ -673,7 +601,7 @@ def getTauClusterFinder():
     from JetRec.JetRecFlags import jetFlags
 
     doJetVertexCorrection = False
-    if tauFlags.isStandalone:
+    if tauFlags.isStandalone():
         doJetVertexCorrection = True
     if jetFlags.useVertices() and jetFlags.useTracks():
         doJetVertexCorrection = True
@@ -693,8 +621,7 @@ def getMvaTESVariableDecorator():
     from tauRecTools.tauRecToolsConf import MvaTESVariableDecorator
     MvaTESVariableDecorator = MvaTESVariableDecorator(name = _name,
                                                       Key_vertexInputContainer=_DefaultVertexContainer,
-                                                      TauVertexCorrection = getTauVertexCorrection(),
-                                                      UseSubtractedCluster = tauFlags.useSubtractedCluster() )
+                                                      VertexCorrection = True)
     cached_instances[_name] = MvaTESVariableDecorator
     return MvaTESVariableDecorator
 
@@ -704,86 +631,22 @@ def getMvaTESEvaluator():
     _name = sPrefix + 'MvaTESEvaluator'
     from tauRecTools.tauRecToolsConf import MvaTESEvaluator
     MvaTESEvaluator = MvaTESEvaluator(name = _name,
-                                      WeightFileName = 'MvaTES_20170207_v2_BDTG.weights.root') #update config?
+                                      WeightFileName = tauFlags.tauRecMvaTESConfig())
     cached_instances[_name] = MvaTESEvaluator
     return MvaTESEvaluator
 
 ########################################################################
-# CombinedP4FromRecoTaus
-def getCombinedP4FromRecoTaus():
-    _name = sPrefix + 'CombinedP4FromRecoTaus'
-    from tauRecTools.tauRecToolsConf import CombinedP4FromRecoTaus
-    CombinedP4FromRecoTaus = CombinedP4FromRecoTaus(name = _name,
-                                                    WeightFileName = 'CalibLoopResult_v04-04.root') #update config?
-    cached_instances[_name] = CombinedP4FromRecoTaus
-    return CombinedP4FromRecoTaus
+# TauCombinedTES
+def getTauCombinedTES():
+    _name = sPrefix + 'TauCombinedTES'
+    from tauRecTools.tauRecToolsConf import TauCombinedTES
+    TauCombinedTES = TauCombinedTES(name = _name,
+                                    WeightFileName = tauFlags.tauRecCombinedTESConfig())
+    cached_instances[_name] = TauCombinedTES
+    return TauCombinedTES
     
-#########################################################################
-def getTauTrackClassifier():
-    _name = sPrefix + 'TauTrackClassifier'
-    
-    if _name in cached_instances:
-        return cached_instances[_name]
-    
-    from AthenaCommon.AppMgr import ToolSvc
-    from tauRecTools.tauRecToolsConf import tauRecTools__TauTrackClassifier as TauTrackClassifier
-    from tauRecTools.tauRecToolsConf import tauRecTools__TrackMVABDT as TrackMVABDT
 
-    import PyUtils.RootUtils as ru
-    ROOT = ru.import_root()
-    import cppyy
-    cppyy.load_library('libxAODTau_cDict.so')
-
-    # =========================================================================
-    _BDT_TTCT_ITFT_0 = TrackMVABDT(name = _name + "_0",
-                                   #InputWeightsPath = "TMVAClassification_BDT.weights.root",
-                                   #Threshold      = -0.005,
-                                   InputWeightsPath = tauFlags.tauRecMVATrackClassificationConfig()[0][0],
-                                   Threshold = tauFlags.tauRecMVATrackClassificationConfig()[0][1],
-                                   ExpectedFlag   = ROOT.xAOD.TauJetParameters.TauTrackFlag.unclassified, 
-                                   SignalType     = ROOT.xAOD.TauJetParameters.TauTrackFlag.classifiedCharged, 
-                                   BackgroundType = ROOT.xAOD.TauJetParameters.TauTrackFlag.classifiedIsolation,
-                                   calibFolder = tauFlags.tauRecToolsCVMFSPath(), 
-                                   )
-    ToolSvc += _BDT_TTCT_ITFT_0
-    cached_instances[_BDT_TTCT_ITFT_0.name] = _BDT_TTCT_ITFT_0
-    
-    _BDT_TTCT_ITFT_0_0 = TrackMVABDT(name = _name + "_0_0",
-                                     #InputWeightsPath = "TMVAClassification_BDT_0.weights.root",
-                                     #Threshold      = -0.0074,
-                                     InputWeightsPath = tauFlags.tauRecMVATrackClassificationConfig()[1][0],
-                                     Threshold = tauFlags.tauRecMVATrackClassificationConfig()[1][1],
-                                     ExpectedFlag   = ROOT.xAOD.TauJetParameters.TauTrackFlag.classifiedCharged,
-                                     SignalType     = ROOT.xAOD.TauJetParameters.TauTrackFlag.classifiedCharged,
-                                     BackgroundType = ROOT.xAOD.TauJetParameters.TauTrackFlag.classifiedConversion,
-                                     calibFolder = tauFlags.tauRecToolsCVMFSPath(),
-                                     )
-    ToolSvc += _BDT_TTCT_ITFT_0_0
-    cached_instances[_BDT_TTCT_ITFT_0_0.name] = _BDT_TTCT_ITFT_0_0
-    
-    _BDT_TTCT_ITFT_0_1 = TrackMVABDT(name = _name + "_0_1",
-                                     #InputWeightsPath = "TMVAClassification_BDT_1.weights.root",
-                                     #Threshold      = 0.0005,
-                                     InputWeightsPath = tauFlags.tauRecMVATrackClassificationConfig()[2][0],
-                                     Threshold = tauFlags.tauRecMVATrackClassificationConfig()[2][1],
-                                     ExpectedFlag   = ROOT.xAOD.TauJetParameters.TauTrackFlag.classifiedIsolation, 
-                                     SignalType     = ROOT.xAOD.TauJetParameters.TauTrackFlag.classifiedIsolation, 
-                                     BackgroundType = ROOT.xAOD.TauJetParameters.TauTrackFlag.classifiedFake,
-                                     calibFolder = tauFlags.tauRecToolsCVMFSPath(),
-                                     )
-    ToolSvc += _BDT_TTCT_ITFT_0_1
-    cached_instances[_BDT_TTCT_ITFT_0_1.name] = _BDT_TTCT_ITFT_0_1
-
-    # create tool alg
-    myTauTrackClassifier = TauTrackClassifier( name = _name,
-                                               Classifiers = [_BDT_TTCT_ITFT_0, _BDT_TTCT_ITFT_0_0, _BDT_TTCT_ITFT_0_1] )
-    #ToolSvc += TauTrackClassifier #only add to tool service sub tools to your tool, the main tool will be added via TauRecConfigured
-    cached_instances[_name] = myTauTrackClassifier 
-
-    return myTauTrackClassifier
-
-########################################################################                                                                                                             
-#            
+########################################################################
 def getTauTrackRNNClassifier():
     _name = sPrefix + 'TauTrackRNNClassifier'
     
@@ -797,23 +660,48 @@ def getTauTrackRNNClassifier():
     import cppyy
     cppyy.load_library('libxAODTau_cDict')
 
-    _RNN= TrackRNN(name = _name + "_0",
-                   InputWeightsPath = tauFlags.tauRecRNNTrackClassificationConfig()[0],
-                   calibFolder = tauFlags.tauRecToolsCVMFSPath(), 
+    _RNN = TrackRNN(name = _name + "_TrackRNN",
+                    InputWeightsPath = tauFlags.tauRecRNNTrackClassificationConfig(),
+                    calibFolder = tauFlags.tauRecToolsCVMFSPath(),
                    )
-
     ToolSvc += _RNN
     cached_instances[_RNN.name] = _RNN
-    
+
+    _classifyLRT = True
+    if tauFlags.associateLRT() and not tauFlags.classifyLRT():
+        _classifyLRT = False
+
     # create tool alg
     myTauTrackClassifier = TauTrackRNNClassifier( name = _name,
-                                               Classifiers = [_RNN] )
-    cached_instances[_name] = myTauTrackClassifier 
+                                                  Classifiers = [_RNN],
+                                                  classifyLRT = _classifyLRT )
 
+    cached_instances[_name] = myTauTrackClassifier 
     return myTauTrackClassifier
 
-########################################################################                                                                                                             
-#
+
+def getTauJetRNNEvaluator():
+    _name = sPrefix + 'TauJetRNN'
+    from tauRecTools.tauRecToolsConf import TauJetRNNEvaluator
+    myTauJetRNNEvaluator = TauJetRNNEvaluator(name = _name,
+                                              NetworkFile0P = "",
+                                              NetworkFile1P = tauFlags.tauRecTauJetRNNConfig()[0],
+                                              NetworkFile3P = tauFlags.tauRecTauJetRNNConfig()[1],
+                                              OutputVarname = "RNNJetScore",
+                                              MaxTracks = 10,
+                                              MaxClusters = 6,
+                                              MaxClusterDR = 1.0,
+                                              VertexCorrection = True,
+                                              InputLayerScalar = "scalar",
+                                              InputLayerTracks = "tracks",
+                                              InputLayerClusters = "clusters",
+                                              OutputLayer = "rnnid_output",
+                                              OutputNode = "sig_prob")
+
+    cached_instances[_name] = myTauJetRNNEvaluator
+    return myTauJetRNNEvaluator
+
+
 def getTauWPDecoratorJetRNN():
     import PyUtils.RootUtils as ru
     ROOT = ru.import_root()
@@ -823,8 +711,8 @@ def getTauWPDecoratorJetRNN():
     _name = sPrefix + 'TauWPDecoratorJetRNN'
     from tauRecTools.tauRecToolsConf import TauWPDecorator
     myTauWPDecorator = TauWPDecorator( name=_name,
-                                       flatteningFile1Prong = "rnnid_mc16d_flat_1p.root",
-                                       flatteningFile3Prong = "rnnid_mc16d_flat_3p.root",
+                                       flatteningFile1Prong = tauFlags.tauRecTauJetRNNWPConfig()[0],
+                                       flatteningFile3Prong = tauFlags.tauRecTauJetRNNWPConfig()[1],
                                        CutEnumVals =
                                        [ ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigVeryLoose, ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigLoose,
                                          ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigMedium, ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigTight ],
@@ -838,127 +726,31 @@ def getTauWPDecoratorJetRNN():
     return myTauWPDecorator
 
 
-#                                                                                                                                                                                  
-def getTauWPDecoratorJetBDT():
-    import PyUtils.RootUtils as ru
-    ROOT = ru.import_root()
-    import cppyy
-    cppyy.load_library('libxAODTau_cDict')
-
-    _name = sPrefix + 'TauWPDecoratorJetBDT'
-    from tauRecTools.tauRecToolsConf import TauWPDecorator
-    myTauWPDecorator = TauWPDecorator( name=_name,
-                                       flatteningFile1Prong = "FlatJetBDT1Pv2.root", #update
-                                       flatteningFile3Prong = "FlatJetBDT3Pv2.root", #update
-                                       CutEnumVals = 
-                                       [ ROOT.xAOD.TauJetParameters.IsTauFlag.JetBDTSigVeryLoose, ROOT.xAOD.TauJetParameters.IsTauFlag.JetBDTSigLoose,
-                                         ROOT.xAOD.TauJetParameters.IsTauFlag.JetBDTSigMedium, ROOT.xAOD.TauJetParameters.IsTauFlag.JetBDTSigTight ],
-                                       SigEff1P = [0.95, 0.85, 0.75, 0.60],
-                                       SigEff3P = [0.95, 0.75, 0.60, 0.45],
-                                       ScoreName = "BDTJetScore",
-                                       NewScoreName = "BDTJetScoreSigTrans",
-                                       DefineWPs = True,
-                                       )
-    cached_instances[_name] = myTauWPDecorator
-    return myTauWPDecorator
-
-
-# 
-def getTauWPDecoratorEleBDT():
-    import PyUtils.RootUtils as ru
-    ROOT = ru.import_root()
-    import cppyy
-    cppyy.load_library('libxAODTau_cDict')
-
-    _name = sPrefix + 'TauWPDecoratorEleBDT'
-    from tauRecTools.tauRecToolsConf import TauWPDecorator
-    TauScoreFlatteningTool = TauWPDecorator( name=_name,
-                                             flatteningFile1Prong = "EleBDTFlat1P.root",#update
-                                             flatteningFile3Prong = "EleBDTFlat3P.root",#update                                             
-                                             UseEleBDT = True ,
-                                             ScoreName = "BDTEleScore",
-                                             NewScoreName = "BDTEleScoreSigTrans", #dynamic
-                                             DefineWPs = True,
-                                             CutEnumVals = 
-                                             [ROOT.xAOD.TauJetParameters.IsTauFlag.EleBDTLoose, 
-                                              ROOT.xAOD.TauJetParameters.IsTauFlag.EleBDTMedium, 
-                                              ROOT.xAOD.TauJetParameters.IsTauFlag.EleBDTTight],
-                                             SigEff1P = [0.95, 0.85, 0.75],
-                                             SigEff3P = [0.95, 0.85, 0.75],
-                                             ) 
-    cached_instances[_name] = TauScoreFlatteningTool
-    return TauScoreFlatteningTool
-
-
-#
-def getTauJetRNNEvaluator(_n, NetworkFile0P="", NetworkFile1P="", NetworkFile3P="", OutputVarname="RNNJetScore", MaxTracks=10, MaxClusters=6, MaxClusterDR=1.0, InputLayerScalar="scalar", InputLayerTracks="tracks", InputLayerClusters="clusters", OutputLayer="rnnid_output", OutputNode="sig_prob"):
-    _name = sPrefix + _n
-    from tauRecTools.tauRecToolsConf import TauJetRNNEvaluator
-    myTauJetRNNEvaluator = TauJetRNNEvaluator(name=_name,
-                                              NetworkFile0P=NetworkFile0P,
-                                              NetworkFile1P=NetworkFile1P,
-                                              NetworkFile3P=NetworkFile3P,
-                                              OutputVarname=OutputVarname,
-                                              MaxTracks=MaxTracks,
-                                              MaxClusters=MaxClusters,
-                                              MaxClusterDR=MaxClusterDR,
-                                              InputLayerScalar=InputLayerScalar,
-                                              InputLayerTracks=InputLayerTracks,
-                                              InputLayerClusters=InputLayerClusters,
-                                              OutputLayer=OutputLayer,
-                                              OutputNode=OutputNode,
-                                              TauVertexCorrection = getTauVertexCorrection(),
-                                              UseSubtractedCluster = tauFlags.useSubtractedCluster() )
-    cached_instances[_name] = myTauJetRNNEvaluator
-    return myTauJetRNNEvaluator
-
-
-def getTauJetBDTEvaluator(_n, weightsFile="", minNTracks=0, maxNTracks=10000, outputVarName="BDTJetScore", minAbsTrackEta=-1, maxAbsTrackEta=-1):
-    _name = sPrefix + _n
-    from tauRecTools.tauRecToolsConf import TauJetBDTEvaluator
-    myTauJetBDTEvaluator = TauJetBDTEvaluator(name=_name,
-                                              weightsFile=weightsFile, #update config?
-                                              minNTracks=minNTracks,
-                                              maxNTracks=maxNTracks,
-                                              minAbsTrackEta=minAbsTrackEta,
-                                              maxAbsTrackEta=maxAbsTrackEta,
-                                              outputVarName=outputVarName)
-    cached_instances[_name] = myTauJetBDTEvaluator
-    return myTauJetBDTEvaluator
-
 def getTauIDVarCalculator():
     _name = sPrefix + 'TauIDVarCalculator'
     from tauRecTools.tauRecToolsConf import TauIDVarCalculator   
 
     myTauIDVarCalculator = TauIDVarCalculator(name=_name,
-                                              UseSubtractedCluster = tauFlags.useSubtractedCluster(),
-                                              TauVertexCorrection = getTauVertexCorrection())
+                                              VertexCorrection = True)
     cached_instances[_name] = myTauIDVarCalculator
     return myTauIDVarCalculator
 
-def getTauEleRNNEvaluator(_n,
-        NetworkFile1P="", NetworkFile3P="",
-        OutputVarname="RNNEleScore", MaxTracks=10,
-        MaxClusters=6, MaxClusterDR=1.0, InputLayerScalar="scalar",
-        InputLayerTracks="tracks", InputLayerClusters="clusters",
-        OutputLayer="rnneveto_output", OutputNode="sig_prob"):
-
-    _name = sPrefix + _n 
+def getTauEleRNNEvaluator():
+    _name = sPrefix + 'TauEleRNN' 
     from tauRecTools.tauRecToolsConf import TauJetRNNEvaluator
-    tool = TauJetRNNEvaluator(name=_name,
-                              NetworkFile1P=NetworkFile1P,
-                              NetworkFile3P=NetworkFile3P,
-                              OutputVarname=OutputVarname,
-                              MaxTracks=MaxTracks,
-                              MaxClusters=MaxClusters,
-                              MaxClusterDR=MaxClusterDR,
-                              InputLayerScalar=InputLayerScalar,
-                              InputLayerTracks=InputLayerTracks,
-                              InputLayerClusters=InputLayerClusters,
-                              OutputLayer=OutputLayer,
-                              OutputNode=OutputNode,
-                              TauVertexCorrection = getTauVertexCorrection(),
-                              UseSubtractedCluster = tauFlags.useSubtractedCluster())
+    tool = TauJetRNNEvaluator(name = _name,
+                              NetworkFile1P = tauFlags.tauRecTauEleRNNConfig()[0],
+                              NetworkFile3P = tauFlags.tauRecTauEleRNNConfig()[1],
+                              OutputVarname = "RNNEleScore",
+                              MaxTracks = 10,
+                              MaxClusters = 6,
+                              MaxClusterDR = 1.0,
+                              VertexCorrection = True,
+                              InputLayerScalar = "scalar",
+                              InputLayerTracks = "tracks",
+                              InputLayerClusters = "clusters",
+                              OutputLayer = "rnneveto_output",
+                              OutputNode = "sig_prob")
 
     cached_instances[_name] = tool
     return tool
@@ -972,8 +764,8 @@ def getTauWPDecoratorEleRNN():
     _name = sPrefix + 'TauWPDecoratorEleRNN'
     from tauRecTools.tauRecToolsConf import TauWPDecorator
     myTauWPDecorator = TauWPDecorator( name=_name,
-                                       flatteningFile1Prong="rnneveto_mc16d_flat_1p.root",
-                                       flatteningFile3Prong="rnneveto_mc16d_flat_3p.root",
+                                       flatteningFile1Prong = tauFlags.tauRecTauEleRNNWPConfig()[0],
+                                       flatteningFile3Prong = tauFlags.tauRecTauEleRNNWPConfig()[1],
                                        CutEnumVals =
                                        [ ROOT.xAOD.TauJetParameters.IsTauFlag.EleRNNLoose,
                                          ROOT.xAOD.TauJetParameters.IsTauFlag.EleRNNMedium,
@@ -998,30 +790,6 @@ def getTauDecayModeNNClassifier():
     TauDecayModeNNClassifier = TauDecayModeNNClassifier(name=_name, WeightFile=tauFlags.tauRecDecayModeNNClassifierConfig())
     cached_instances[_name] = TauDecayModeNNClassifier
     return TauDecayModeNNClassifier
-
-def getTauVertexCorrection():
-    from tauRec.tauRecFlags import tauFlags
-    from tauRecTools.tauRecToolsConf import TauVertexCorrection
-    from JetRec.JetRecFlags import jetFlags
-
-    _name = sPrefix + 'TauVertexCorrection'
-    
-    if _name in cached_instances:
-        return cached_instances[_name]
-  
-    doJetVertexCorrection = False
-    if tauFlags.isStandalone:
-        doJetVertexCorrection = True
-    if jetFlags.useVertices() and jetFlags.useTracks():
-        doJetVertexCorrection = True
-
-    myTauVertexCorrection = TauVertexCorrection(name = _name,
-                                                SeedJet = tauFlags.tauRecSeedJetCollection(), 
-                                                VertexCorrection = True,
-                                                JetVertexCorrection = doJetVertexCorrection)
-    
-    cached_instances[_name] = myTauVertexCorrection
-    return myTauVertexCorrection
 
 def getTauVertexedClusterDecorator():
     from tauRec.tauRecFlags import tauFlags
@@ -1048,3 +816,20 @@ def getParticleCache():
         ParticleCache = ""
     
     return ParticleCache
+
+def getTVATool():
+    _name = sPrefix + "TVATool"
+    if _name in cached_instances:
+        return cached_instances[_name]
+
+    from TrackVertexAssociationTool.getTTVAToolForReco import getTTVAToolForReco
+    TVATool = getTTVAToolForReco(name = _name,
+                                 WorkingPoint = "Nonprompt_Hard_MaxWeight",
+                                 TrackContName = _DefaultTrackContainer,
+                                 VertexContName= _DefaultVertexContainer)
+
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc += TVATool
+
+    cached_instances[_name] = TVATool
+    return TVATool

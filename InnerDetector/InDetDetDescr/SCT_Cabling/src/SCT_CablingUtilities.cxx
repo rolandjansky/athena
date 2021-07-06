@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -25,7 +25,7 @@ namespace SCT_Cabling{
     //do conversion if the string is not empty
     if (not hexOrDecString.empty()){
       try{
-        bool numberIsHex = (hexOrDecString.find("x") not_eq std::string::npos) or (hexOrDecString.find("X") not_eq std::string::npos);
+        bool numberIsHex = (hexOrDecString.find('x') not_eq std::string::npos) or (hexOrDecString.find('X') not_eq std::string::npos);
         if(numberIsHex){
           istrm>>std::hex>>result;
         } else {

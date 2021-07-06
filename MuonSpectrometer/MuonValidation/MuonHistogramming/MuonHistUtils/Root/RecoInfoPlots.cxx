@@ -39,16 +39,16 @@ void RecoInfoPlots::initializePlots(){
   }
 }
 
-void RecoInfoPlots::fill(const xAOD::Muon& mu) {
+  void RecoInfoPlots::fill(const xAOD::Muon& mu, float weight) {
 
   const xAOD::TrackParticle* primaryTrk = mu.trackParticle(xAOD::Muon::Primary);
   if (primaryTrk) {
-    m_oRecoInfoPlots.fill(*primaryTrk);
+    m_oRecoInfoPlots.fill(*primaryTrk, weight);
   }
 
   const xAOD::TrackParticle* inDetTrk = mu.trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
   if (inDetTrk) {
-    m_oTrkRecoInfoPlots.fill(*inDetTrk);
+    m_oTrkRecoInfoPlots.fill(*inDetTrk, weight);
   }
 
   //muon extrapolated to IP
@@ -64,17 +64,17 @@ void RecoInfoPlots::fill(const xAOD::Muon& mu) {
   if (mu.isAvailable< ElementLink<xAOD::TrackParticleContainer> >("extrapolatedMuonSpectrometerTrackParticleLink") && (mu.auxdata< ElementLink<xAOD::TrackParticleContainer> >("extrapolatedMuonSpectrometerTrackParticleLink")).isValid()) correctEnum+=2; //check correct numbering in Muon.h
   const xAOD::TrackParticle* msExtrapTrk = mu.trackParticle((xAOD::Muon::TrackParticleType) correctEnum);
   if (msExtrapTrk) {
-    m_oMSTrkRecoInfoPlots.fill(*msExtrapTrk);
+    m_oMSTrkRecoInfoPlots.fill(*msExtrapTrk, weight);
   }
   
-  author->Fill(mu.author());
-  muonType->Fill(mu.muonType());
+  author->Fill(mu.author(), weight);
+  muonType->Fill(mu.muonType(), weight);
 
   xAOD::Muon::Quality muqual = mu.quality();
-  quality->Fill(muqual);
+  quality->Fill(muqual, weight);
   for (unsigned int i=0; i<Muon::EnumDefs::nMuonQualities(); i++) {    
     if ( muqual <= (xAOD::Muon::Quality)(Muon::EnumDefs::nMuonQualities()-i-1) ) 
-      quality_cutflow->Fill(i);
+      quality_cutflow->Fill(i, weight);
   } 
 }
   

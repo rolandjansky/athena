@@ -10,30 +10,11 @@ from __future__ import print_function
 
 from AthenaCommon.Include import include
 
-include.block("InDetTrigRecExample/EFInDetConfig.py")
-
 include("InDetTrigRecExample/InDetTrigRec_jobOptions.py") # this is needed to get InDetTrigFlags
 
 from AthenaCommon.Logging import logging 
 log = logging.getLogger("TrigInDetSequence.py")
 
-from InDetTrigRecExample.InDetTrigConfigRecPreProcessing import *
-
-from InDetTrigRecExample.InDetTrigConfigRecNewTracking import \
-     SiTrigTrackFinder_EF, SiTrigTrackSeededFinder_EF, SiTrigSimpleTrackFinder_EF, \
-     TrigAmbiguitySolver_EF,TRTTrackExtAlg_EF,\
-     TrigExtProcessor_EF, InDetTrigDetailedTrackTruthMaker_EF
-
-from InDetTrigRecExample.InDetTrigConfigRecNewTracking import SimpleTrigTrackCollMerger_EF
-  
-from InDetTrigRecExample.InDetTrigConfigRecBackTracking import *
-from InDetTrigRecExample.InDetTrigConfigRecPostProcessing import *
-
-from InDetTrigRecExample.InDetTrigRecLowPtTracking \
-     import SiTrigSpacePointFinderLowPt_EF, SiTrigTrackFinderLowPt_EF, \
-     TrigAmbiguitySolverLowPt_EF
-
-from TrigInDetConf.RoiManipulators import IDTrigRoiUpdater
 from TrigInDetConf.TrackingAlgCfgble import TrigFastTrackFinder
 
 from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
@@ -124,14 +105,6 @@ class TrigInDetSequence(TrigInDetSequenceBase):
       alglist += algline+',' 
     alglist += "]"
 
-    #this should be avoided by a higher level steering
-    #    modify the sequence acoording to triggerflags
-    from TriggerJobOpts.TriggerFlags  import TriggerFlags
-
-    if not TriggerFlags.doHLT() or not TriggerFlags.doFEX():
-      from TrigSteeringTest.TrigSteeringTestConf import PESA__dummyAlgo as dummyAlgo_disabledByTriggerFlags_EFID
-      dummyAlgEFID = dummyAlgo_disabledByTriggerFlags_EFID("doEF_or_doFEX_False_no_EFID")
-      alglist = '[dummyAlgEFID]'
 
     algseq = []
     try:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -166,7 +166,9 @@ void convert (std::ostream& os, const std::vector<T>& x)
 {
   os << "[";
   bool first = true;
-  for (const T& elt : x) {
+  // using `decltype(auto)` in case T=bool
+  // cppcheck-suppress internalAstError
+  for (decltype(auto) elt : x) {
     if (first)
       first = false;
     else

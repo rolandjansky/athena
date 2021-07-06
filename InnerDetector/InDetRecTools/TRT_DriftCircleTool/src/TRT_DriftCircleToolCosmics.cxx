@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -31,9 +31,6 @@
 
 #include "StoreGate/ReadHandle.h"
 
-#include "GeoPrimitives/GeoPrimitives.h"
-#include "EventPrimitives/EventPrimitives.h"
-
 #include "StoreGate/ReadCondHandle.h"
 ///////////////////////////////////////////////////////////////////
 // Constructior
@@ -46,7 +43,7 @@ InDet::TRT_DriftCircleToolCosmics::TRT_DriftCircleToolCosmics(const std::string&
   m_driftFunctionTool("TRT_DriftFunctionTool"),
   m_ConditionsSummary("TRT_StrawStatusSummaryTool",this),
   m_useConditionsStatus(false),
-  m_trtid(0),
+  m_trtid(nullptr),
   m_global_offset(0),
   m_useToTCorrection(false),
   m_useHTCorrection(false),
@@ -115,8 +112,7 @@ bool InDet::TRT_DriftCircleToolCosmics::passValidityGate(unsigned int word, floa
       mask >>= 1;
     i++;
   }
-  if (foundInterval) return true;
-  return false;
+  return foundInterval;
 }
 
 
@@ -180,7 +176,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int
 {
 
   //Initialise a new TRT_DriftCircleCollection
-  InDet::TRT_DriftCircleCollection* rio = 0;
+  InDet::TRT_DriftCircleCollection* rio = nullptr;
 
   if (!rdo) {
     ATH_MSG_ERROR("empty collection at input");
@@ -288,14 +284,15 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int
 	  error = 4./sqrt(12.);
 	}
 
-      Amg::MatrixX* errmat = new Amg::MatrixX(1,1);                          ;
-      (*errmat)(0,0) = error*error;
+      auto errmat = Amg::MatrixX(1,1);                          ;
+      (errmat)(0,0) = error*error;
 
       Amg::Vector2D loc(radius,0.);
 
-      // if(Mode<1) dvi.push_back(id);  we dont need this 
+      // if(Mode<1) dvi.push_back(id);  we dont need this
 
-      InDet::TRT_DriftCircle* tdc = new InDet::TRT_DriftCircle(id,loc,errmat,pE,word);
+      InDet::TRT_DriftCircle* tdc =
+        new InDet::TRT_DriftCircle(id, loc, std::move(errmat), pE, word);
 
       if (tdc) {
 	     

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileConditions/TileInfoLoader.h"
@@ -8,7 +8,6 @@
 #include "TileConditions/TileBadChanTool.h"
 #include "TileConditions/TileCondToolOfc.h"
 #include "TileConditions/TileCondToolOfcCool.h"
-#include "TileConditions/TileCellNoiseTool.h"
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/TileExpertToolEmscale.h"
 #include "TileConditions/TileCondToolIntegrator.h"
@@ -34,7 +33,6 @@ DECLARE_COMPONENT( TileCondIdTransforms )
 DECLARE_COMPONENT( TileBadChanTool )
 DECLARE_COMPONENT( TileCondToolOfc )
 DECLARE_COMPONENT( TileCondToolOfcCool )
-DECLARE_COMPONENT( TileCellNoiseTool )
 DECLARE_COMPONENT( TileCondToolEmscale )
 DECLARE_COMPONENT( TileExpertToolEmscale )
 DECLARE_COMPONENT( TileCondToolIntegrator )

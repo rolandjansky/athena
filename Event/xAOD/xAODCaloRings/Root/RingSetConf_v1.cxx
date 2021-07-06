@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s).
@@ -238,7 +238,7 @@ unsigned RingSetConf_v1::totalNumberOfRings(
 //==============================================================================
 void RingSetConf_v1::addRawConfColBounderies( RawConfCollection &clRingsConf )
 {
-  if ( !clRingsConf.size() ) {
+  if ( clRingsConf.empty() ) {
     throw std::runtime_error(std::string(
           "Cannot add the JointLayer/JointSection bounderies "
           "into an empty RawConfCollection."));
@@ -390,7 +390,7 @@ void RingSetConf_v1::getRawConfCol(
   // Clear previous collection
   rawConfCol.clear();
   // Push back new configuration
-  for ( const auto &rsConf : *container ) {
+  for ( const auto *const rsConf : *container ) {
     rawConfCol.push_back( rsConf->getRawConf() );
   }
 }

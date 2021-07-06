@@ -8,11 +8,13 @@
 #include <TObject.h>
 #include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
 #include <map>
+#include <set>
 #include <unordered_map>
 #include <vector>
 #include <stdint.h>
 
 class CaloDetDescrElement;
+class TFCSParametrizationBase;
 
 namespace CLHEP
 {
@@ -117,8 +119,12 @@ class TFCSSimulationState:public TObject
     //    or TFCSSimulationState::setAuxInfo(7,2.0)
     template<class T> inline void setAuxInfo(std::uint32_t index, const T& val) {m_AuxInfo[index].set<T>(val);}
     
+    void AddAuxInfoCleanup(const TFCSParametrizationBase* para);
+    void DoAuxInfoCleanup();
+    
   private:
     std::unordered_map< std::uint32_t , AuxInfo_t > m_AuxInfo;//! Do not persistify
+    std::set< const TFCSParametrizationBase* > m_AuxInfoCleanup;//! Do not persistify
     
   ClassDef(TFCSSimulationState,3)  //TFCSSimulationState
 };

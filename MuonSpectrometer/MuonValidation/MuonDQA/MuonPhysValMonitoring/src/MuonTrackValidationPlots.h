@@ -22,8 +22,8 @@ class MuonTrackValidationPlots:public PlotBase {
     // Truth related plots
     Muon::TruthRelatedMuonPlotOrganizer  *m_oMatchedMuonTrackPlots;
 
-    void fill(const xAOD::TrackParticle& muTP);
-    void fill(const xAOD::TruthParticle* truthMu, const xAOD::TrackParticle* muTP);
+    void fill(const xAOD::TrackParticle& muTP, float weight=1.0);
+    void fill(const xAOD::TruthParticle* truthMu, const xAOD::TrackParticle* muTP, float weight=1.0);
 
  private:
     std::string m_sTrackType;

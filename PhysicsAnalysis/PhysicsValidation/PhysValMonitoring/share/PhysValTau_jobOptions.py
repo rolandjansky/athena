@@ -7,9 +7,6 @@ from RecExConfig.RecFlags import rec as recFlags
 if recFlags.doTruth():
     tool1.isMC = True
 
-tool1.TauContainerName = "TauJets"
-tool1.TruthParticleContainerName = "TruthParticles"
-
 # configuration of the truth matching tool
 tool1.TauTruthMatchingTool.TruthElectronContainerName = "TruthElectrons"
 tool1.TauTruthMatchingTool.TruthMuonContainerName = "MuonTruthParticles"
@@ -29,8 +26,7 @@ SelectionCuts = TauAnalysisTools.SelectionCuts
 # configuration of the 'primitive' tau selection
 tool1.PrimitiveTauSelectionTool.ConfigPath = ""
 tool1.PrimitiveTauSelectionTool.SelectionCuts \
-    = int(SelectionCuts.CutAbsEta | SelectionCuts.CutAbsCharge | 
-          SelectionCuts.CutNTrack)
+    = int(SelectionCuts.CutAbsEta | SelectionCuts.CutAbsCharge | SelectionCuts.CutNTrack)
 tool1.PrimitiveTauSelectionTool.PtMin = 0.0
 tool1.PrimitiveTauSelectionTool.JetIDWP = TauAnalysisTools.JETIDNONE
 tool1.PrimitiveTauSelectionTool.EleOLR = False
@@ -41,8 +37,7 @@ tool1.PrimitiveTauSelectionTool.AbsEtaRegion = (0.0, 10.0)
 # configuration of the 'nominal' tau selection
 tool1.NominalTauSelectionTool.ConfigPath = ""
 tool1.NominalTauSelectionTool.SelectionCuts \
-    = int(SelectionCuts.CutPt | SelectionCuts.CutAbsEta | 
-          SelectionCuts.CutAbsCharge | SelectionCuts.CutNTrack)
+    = int(SelectionCuts.CutPt | SelectionCuts.CutAbsEta | SelectionCuts.CutAbsCharge | SelectionCuts.CutNTrack)
 tool1.NominalTauSelectionTool.PtMin = 20.0
 tool1.NominalTauSelectionTool.JetIDWP = TauAnalysisTools.JETIDNONE
 tool1.NominalTauSelectionTool.EleOLR = False
@@ -52,4 +47,3 @@ tool1.NominalTauSelectionTool.AbsEtaRegion = (0.0, 1.37, 1.52, 2.5)
 
 monMan = CfgMgr.AthenaMonManager("PhysValMonManager")
 monMan.AthenaMonTools += [ tool1 ]
-

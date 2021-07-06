@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( Pythia8_i )
@@ -69,4 +69,9 @@ atlas_add_component( Pythia8_i
 # Install files from the package:
 atlas_install_joboptions( share/common/*.py
                           share/example/*.py )
+
+set( Pythia8Environment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+   CACHE PATH "Location of Pythia8Environment.cmake" )
+find_package( Pythia8Environment )
+
 

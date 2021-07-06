@@ -26,7 +26,6 @@ if not __name__ == '__main__':
 
 # supported types of meta-data values (storage type, member name in IOVPayloadContainer, display type)
 payloadItemDescs = [
-   None,
    ('bool', 'm_bool', bool),
    ('char', 'm_char', int),
    ('unsigned char', 'm_unsignedChar', int),
@@ -40,6 +39,8 @@ payloadItemDescs = [
    ('ULong64_t', 'm_unsignedLongLong', int),
    ('float', 'm_float', float),
    ('double', 'm_double', float),
+   # long double not actually part of the IOVPayloadContainer, but the enum AttrListTypes contains it -- so we must add it here
+   ('long double', 'm_longDouble', float),
    ('std::string', 'm_string', str),
    ('ULong64_t', 'm_date', int),
    ('ULong64_t', 'm_timeStamp', int),
@@ -142,7 +143,7 @@ def extractMetaData(path):
 def mergeMetaData(md1, md2):
    assert len(md1) == len(md2)
    md = {}
-   for folderName, folderData1 in md1.iteritems():
+   for folderName, folderData1 in md1.items():
       folderData2 = md2[folderName]
       if folderData1 is None or folderData2 is None:
          folderData = None
@@ -166,7 +167,7 @@ def augmentMetaData(metaData):
       value = metaData['/Generation/Parameters']['HepMCWeightNames']
       mcWeightIndexByName = ast.literal_eval(value)
       mcWeightNames = []
-      for name, index in mcWeightIndexByName.iteritems():
+      for name, index in mcWeightIndexByName.items():
          if index >= len(mcWeightNames):
             mcWeightNames += ( None for _ in xrange(len(mcWeightNames), index + 1) )
          elif not mcWeightNames[index] is None:

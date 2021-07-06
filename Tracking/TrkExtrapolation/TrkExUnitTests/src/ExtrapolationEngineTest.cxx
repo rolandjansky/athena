@@ -69,17 +69,17 @@ Trk::ExtrapolationEngineTest::ExtrapolationEngineTest(const std::string& name, I
   m_materialThicknessInX0Cylinder(0.),
   m_materialThicknessInX0Disc(0.),
   m_materialThicknessInX0Plane(0.),
-  m_materialThicknessInX0Accumulated(0),
-  m_materialThicknessInX0Steps(0),
-  m_materialThicknessInL0Steps(0),
-  m_materialPositionX(0),
-  m_materialPositionY(0),
-  m_materialPositionZ(0),
-  m_materialPositionR(0),
+  m_materialThicknessInX0Accumulated(nullptr),
+  m_materialThicknessInX0Steps(nullptr),
+  m_materialThicknessInL0Steps(nullptr),
+  m_materialPositionX(nullptr),
+  m_materialPositionY(nullptr),
+  m_materialPositionZ(nullptr),
+  m_materialPositionR(nullptr),
   m_materialPositionP(nullptr),
   m_materialPositionPt(nullptr),
-  m_materialScaling(0),
-  m_stepDirection(0),
+  m_materialScaling(nullptr),
+  m_stepDirection(nullptr),
   m_endStepSuccessful(0),
   m_endStepPositionX(0.),
   m_endStepPositionY(0.),
@@ -233,9 +233,9 @@ StatusCode Trk::ExtrapolationEngineTest::bookTree() {
   }
 
   // this fixes the parameters to order
-  m_parameterNames.push_back("Sensitive");
-  m_parameterNames.push_back("Passive");
-  m_parameterNames.push_back("Boundary");
+  m_parameterNames.emplace_back("Sensitive");
+  m_parameterNames.emplace_back("Passive");
+  m_parameterNames.emplace_back("Boundary");
   for (size_t ip = 0; ip < m_parameterNames.size(); ++ip) {
     // create
     m_pPositionX.push_back(new std::vector<float> );
@@ -322,16 +322,16 @@ StatusCode Trk::ExtrapolationEngineTest::bookTree() {
   }
 
   // now register the Tree
-  ITHistSvc* tHistSvc = 0;
+  ITHistSvc* tHistSvc = nullptr;
   if (service("THistSvc", tHistSvc).isFailure()) {
     ATH_MSG_ERROR("initialize() Could not find Hist Service  -> Switching Tree output off !");
     delete m_tree;
-    m_tree = 0;
+    m_tree = nullptr;
   }
   if (tHistSvc && ((tHistSvc->regTree(m_treeFolder + m_treeName, m_tree)).isFailure())) {
     ATH_MSG_ERROR("initialize() Could not register the validation Tree -> Switching Tree output off !");
     delete m_tree;
-    m_tree = 0;
+    m_tree = nullptr;
   }
   return StatusCode::SUCCESS;
 }
@@ -347,7 +347,7 @@ StatusCode Trk::ExtrapolationEngineTest::runTest() {
 StatusCode Trk::ExtrapolationEngineTest::runScan() {
   ATH_MSG_VERBOSE("Running the ExtrapolationEngineTest Test in scanning mode");
 
-  if (m_phiScans.size() == 0) {
+  if (m_phiScans.empty()) {
     ATH_MSG_VERBOSE("Running in scan mode: Phi scans not given. Automatically calculated.");
     m_currentPhi = m_phiMin + double(m_currentPhiStep + 1) * (m_phiMax - m_phiMin) / double(m_stepsPhi);
   } else {
@@ -357,7 +357,7 @@ StatusCode Trk::ExtrapolationEngineTest::runScan() {
   }
   m_currentPhiStep++;
 
-  if (m_etaScans.size() == 0) {
+  if (m_etaScans.empty()) {
     ATH_MSG_ERROR("Running in scan mode without specified eta values");
     return StatusCode::FAILURE;
   }

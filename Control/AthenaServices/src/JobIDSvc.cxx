@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JobIDSvc.h"
@@ -12,7 +12,7 @@ JobIDSvc::JobIDSvc(const std::string& name, ISvcLocator* svc) :
 
 StatusCode JobIDSvc::initialize()
 {
-  ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
+  ATH_MSG_INFO("Initializing " << name());
 
   uuid_generate(m_JobID);
   return StatusCode::SUCCESS;

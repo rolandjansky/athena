@@ -30,13 +30,21 @@ public:
   /**
    * Unpack RoIB result depending on implementaton (e.g. EM, Jet, ...)
    *
-   * In addition to the implementation specific collection, a collection of decision objects 
-   * is created with each decision tagged by the chain ID it relates to. The mapping of threshold IDs 
-   * and the chains is provided externally at each call (may be refactored later as this is pure config information).
+   * A collection of decision objects is created in event store with each decision tagged by the chain ID it relates to.
+   * In addition, an implementation specific "RecRoI" collection is produced.
    */
   virtual StatusCode unpack(const EventContext& ctx,
                             const ROIB::RoIBResult& roib,
                             const HLT::IDSet& activeChains) const = 0;
+
+  /**
+   * Unpack specific sub-system RoIs (Muon, eFexEM, gFexJet, ...) linked to L1TriggerResult depending on implementation
+   *
+   * A collection of decision objects is created in event store with each decision tagged by the chain ID it relates to.
+   */
+  virtual StatusCode unpack(const EventContext& /*ctx*/,
+                            const xAOD::TrigComposite& /*l1TriggerResult*/,
+                            const HLT::IDSet& /*activeChains*/) const = 0;
 };
 
 #endif

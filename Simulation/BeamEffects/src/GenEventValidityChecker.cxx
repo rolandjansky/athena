@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// GenEventValidityChecker.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 // class header include
 #include "GenEventValidityChecker.h"
@@ -21,11 +17,8 @@ namespace Simulation
   GenEventValidityChecker::GenEventValidityChecker( const std::string& t,
                                                     const std::string& n,
                                                     const IInterface* p )
-    : base_class(t,n,p),
-      m_checkTime(true)
+    : base_class(t,n,p)
   {
-    declareProperty("CheckTime", m_checkTime,
-                    "Check the value in time dimension");
   }
 
   /** Athena algtool's Hooks */

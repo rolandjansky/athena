@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef SectorLogicReadOut_H
-#define SectorLogicReadOut_H
+#ifndef TrigT1RPChardware_SectorLogicReadOut_H
+#define TrigT1RPChardware_SectorLogicReadOut_H
 
 #include <iostream>
 #include "TrigT1RPChardware/MatrixReadOut.h"

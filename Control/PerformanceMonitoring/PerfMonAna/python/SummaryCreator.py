@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # @file: SummaryCreator.py
 # @purpose: a set of classes to create a summary from a perfmon tuple
@@ -273,7 +273,7 @@ class SummaryCreator(object):
             pl = ax.plot(
                 xbins,
                 dcpu_c[self.minEvt:] * ms,
-                linestyle = 'steps',
+                drawstyle = 'steps',
                 label = dsName
                 )
             ax.grid(True)
@@ -290,7 +290,7 @@ class SummaryCreator(object):
                 range = (yMinCpu*0.90, yMaxCpu*1.10)
                 )
             ax = fig.axes[1]
-            pl = ax.plot(b[:-1], h, label=dsName, ls='steps')
+            pl = ax.plot(b[:-1], h, label=dsName, drawstyle='steps')
             ax.grid(True)
             ax.set_xlabel('CPU time [ms]')
             ax.set_ylim((ax.get_ylim()[0],
@@ -321,7 +321,7 @@ class SummaryCreator(object):
             ax = fig.axes[0]
             pl = ax.plot( xbins,
                           vmem[self.minEvt:,1] * Mb ,
-                          linestyle = 'steps',
+                          drawstyle = 'steps',
                           #'o',
                           label     = dsName )
             ax.set_title ( "Memory usage [Begin/End-Event]" )
@@ -358,7 +358,7 @@ class SummaryCreator(object):
             ax = fig.axes[1]
             pl = ax.plot( xbins,
                           mem['rss'][self.minEvt:,1] * Mb,
-                          linestyle = 'steps',
+                          drawstyle = 'steps',
                           label     = dsName )
             ax.set_ylabel( 'RSS [MB]' )
             ax.set_xlabel( 'Event number' )
@@ -370,7 +370,7 @@ class SummaryCreator(object):
             ax = fig.axes[2]
             pl = ax.plot( xbins,
                           dmall[self.minEvt:] * Mb,
-                          linestyle = 'steps',
+                          drawstyle = 'steps',
                           label     = dsName )
             ax.set_ylabel( 'Delta Malloc [MB]' )
             ax.set_xlabel( 'Event number' )
@@ -406,7 +406,7 @@ class SummaryCreator(object):
             io_c = data['io']['w']['cpu']
             pl = ax.plot( xbins,
                           io_c[self.minEvt:] * ms,
-                          linestyle = 'steps',
+                          drawstyle = 'steps',
                           label = dsName )
             ax.set_title ( "I/O time [CommitOutput]" )
             ax.set_ylabel( 'I/O time [ms]' )
@@ -425,7 +425,7 @@ class SummaryCreator(object):
                 range = ( yMinIo, yMaxIo )
                 )
             ax = fig.axes[1]
-            pl = ax.plot( b[:-1], h, label=dsName, ls='steps' )
+            pl = ax.plot( b[:-1], h, label=dsName, drawstyle='steps' )
             ax.set_xlabel( 'I/O time [ms]' )
             ax.set_ylim( (ax.get_ylim()[0],
                           ax.get_ylim()[1]*1.1) )

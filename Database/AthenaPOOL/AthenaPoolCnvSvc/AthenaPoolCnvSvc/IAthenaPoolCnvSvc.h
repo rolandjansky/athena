@@ -54,7 +54,7 @@ public:
 
    /// @param obj [OUT] pointer to the Data Object.
    /// @param token [IN] string token of the Data Object for which a Pool Ref is filled.
-   virtual void setObjPtr(void*& obj, const Token* token) const = 0;
+   virtual void setObjPtr(void*& obj, const Token* token) = 0;
 
    /// @return a boolean for using detailed time and size statistics.
    virtual bool useDetailChronoStat() const = 0;

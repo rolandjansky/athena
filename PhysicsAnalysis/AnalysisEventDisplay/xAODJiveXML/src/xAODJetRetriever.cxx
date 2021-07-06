@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
    */
 
 #include "xAODJiveXML/xAODJetRetriever.h"
@@ -201,7 +201,7 @@ namespace JiveXML {
           clusterID.push_back(DataType(cluster->index()));
 
 
-          for (const auto& cc : *(cluster->getCellLinks())) {
+          for (const auto cc : *(cluster->getCellLinks())) {
             if (std::find(tempCellID.begin(), tempCellID.end(), std::to_string(cc->caloDDE()->identify().get_compact()))!=tempCellID.end()){
               continue;}
             else{

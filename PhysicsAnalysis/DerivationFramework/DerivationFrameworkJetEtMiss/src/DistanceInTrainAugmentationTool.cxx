@@ -21,13 +21,12 @@
 DerivationFramework::DistanceInTrainAugmentationTool::DistanceInTrainAugmentationTool(const std::string& t,
                                                             const std::string& n,
                                                             const IInterface* p) :
-  AthAlgTool(t, n, p),
-  m_bcTool( "Trig::LHCBunchCrossingTool/BunchCrossingTool" )
+  AthAlgTool(t, n, p)
 {
 
   declareInterface<DerivationFramework::IAugmentationTool>(this);
 
-  declareProperty( "BCTool",        m_bcTool );
+  declareProperty( "BCTool",        m_bunchCrossingKey );
 }
 
 DerivationFramework::DistanceInTrainAugmentationTool::~DistanceInTrainAugmentationTool() {
@@ -47,8 +46,8 @@ StatusCode DerivationFramework::DistanceInTrainAugmentationTool::initialize()
   ATH_CHECK(m_BCIDTypeMinus12Key.initialize());
 
   ATH_MSG_VERBOSE("initialize() ..");
-  ATH_CHECK( m_bcTool.retrieve() );
-  ATH_MSG_INFO("Retrieved tool: " << m_bcTool);
+  ATH_CHECK( m_bunchCrossingKey.initialize() );
+  ATH_MSG_INFO("The bunch crossing conditions key being used: " << m_bunchCrossingKey);
 
   return StatusCode::SUCCESS;
 }
@@ -69,6 +68,10 @@ StatusCode DerivationFramework::DistanceInTrainAugmentationTool::addBranches() c
   }
   auto ei = eventInfo.cptr();
 
+  const EventContext& context = Gaudi::Hive::currentContext();
+  SG::ReadCondHandle<BunchCrossingCondData> bunchCrossingTool (m_bunchCrossingKey, context);
+  ATH_CHECK( bunchCrossingTool.isValid() );
+
   SG::WriteDecorHandle<xAOD::EventInfo,int> dec_BCIDDistanceFront(m_BCIDDistanceFrontKey);
   SG::WriteDecorHandle<xAOD::EventInfo,int> dec_BCIDDistanceTail(m_BCIDDistanceTailKey);
   SG::WriteDecorHandle<xAOD::EventInfo,int> dec_BCIDGapBeforeTrain(m_BCIDGapBeforeTrainKey);
@@ -78,15 +81,15 @@ StatusCode DerivationFramework::DistanceInTrainAugmentationTool::addBranches() c
   SG::WriteDecorHandle<xAOD::EventInfo,int> dec_BCIDGapAfterTrainMinus12(m_BCIDGapAfterTrainMinus12Key);
   SG::WriteDecorHandle<xAOD::EventInfo,int> dec_BCIDTypeMinus12(m_BCIDTypeMinus12Key);
 
-  dec_BCIDDistanceFront(*ei) = m_bcTool->distanceFromFront(ei->bcid(), Trig::IBunchCrossingTool::BunchCrossings);
-  dec_BCIDDistanceTail(*ei)  = m_bcTool->distanceFromTail(ei->bcid(), Trig::IBunchCrossingTool::BunchCrossings);
-  dec_BCIDGapBeforeTrain(*ei) = m_bcTool->gapBeforeTrain(ei->bcid(), Trig::IBunchCrossingTool::BunchCrossings);
-  dec_BCIDGapAfterTrain(*ei) = m_bcTool->gapAfterTrain(ei->bcid(), Trig::IBunchCrossingTool::BunchCrossings);
-  dec_BCIDType(*ei) = m_bcTool->bcType(ei->bcid());
+  dec_BCIDDistanceFront(*ei)  = bunchCrossingTool->distanceFromFront(ei->bcid(), BunchCrossingCondData::BunchDistanceType::BunchCrossings);
+  dec_BCIDDistanceTail(*ei)   = bunchCrossingTool->distanceFromTail(ei->bcid(), BunchCrossingCondData::BunchDistanceType::BunchCrossings);
+  dec_BCIDGapBeforeTrain(*ei) = bunchCrossingTool->gapBeforeTrain(ei->bcid(), BunchCrossingCondData::BunchDistanceType::BunchCrossings);
+  dec_BCIDGapAfterTrain(*ei)  = bunchCrossingTool->gapAfterTrain(ei->bcid(), BunchCrossingCondData::BunchDistanceType::BunchCrossings);
+  dec_BCIDType(*ei)           = bunchCrossingTool->bcType(ei->bcid());
   if (ei->bcid()>=12){
-    dec_BCIDTypeMinus12(*ei) = m_bcTool->bcType(ei->bcid()-12);
-    dec_BCIDGapBeforeTrainMinus12(*ei) = m_bcTool->gapBeforeTrain(ei->bcid()-12, Trig::IBunchCrossingTool::BunchCrossings);
-    dec_BCIDGapAfterTrainMinus12(*ei) = m_bcTool->gapAfterTrain(ei->bcid()-12, Trig::IBunchCrossingTool::BunchCrossings);
+    dec_BCIDTypeMinus12(*ei)           = bunchCrossingTool->bcType(ei->bcid()-12);
+    dec_BCIDGapBeforeTrainMinus12(*ei) = bunchCrossingTool->gapBeforeTrain(ei->bcid()-12, BunchCrossingCondData::BunchDistanceType::BunchCrossings);
+    dec_BCIDGapAfterTrainMinus12(*ei)  = bunchCrossingTool->gapAfterTrain(ei->bcid()-12, BunchCrossingCondData::BunchDistanceType::BunchCrossings);
   }else{
     dec_BCIDTypeMinus12(*ei) = -1;
     dec_BCIDGapBeforeTrainMinus12(*ei) = 0;

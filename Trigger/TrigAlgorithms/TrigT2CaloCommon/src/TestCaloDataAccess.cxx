@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include <iostream>
 #include <random>
@@ -28,7 +28,8 @@
 
 class AskForRoI : public ParallelCallTest {
 public:
-  AskForRoI( const EventContext& context, const ServiceHandle<ITrigCaloDataAccessSvc>& svc,  	     
+  AskForRoI( const EventContext& context,
+	     const ServiceHandle<ITrigCaloDataAccessSvc>& svc,  	     
 	     MsgStream& msg,
 	     const TrigRoiDescriptor& roi ) 
     : m_context( context ),
@@ -233,7 +234,7 @@ void TestCaloDataAccess::emulateRoIs( const EventContext& context, std::vector<P
   TrigRoiDescriptor roi( RoI_eta1, RoI_eta1-width, RoI_eta1+width, // eta
 			 RoI_phi1, RoI_phi1-width, RoI_phi1+width, // phi
 			 0 );
-  AskForRoI* afr = new AskForRoI( context, m_dataAccessSvc, msg(), roi );
+  AskForRoI* afr = new AskForRoI( context,  m_dataAccessSvc, msg(), roi );
   allRoIs.push_back( afr );
 
   chance = U(generator);
@@ -245,7 +246,7 @@ void TestCaloDataAccess::emulateRoIs( const EventContext& context, std::vector<P
     TrigRoiDescriptor roi( RoI_eta2, RoI_eta2-width, RoI_eta2+width, // eta
 			   RoI_phi2, RoI_phi2-width, RoI_phi2+width, // phi
 			   0 );
-    AskForRoI* afr = new AskForRoI( context, m_dataAccessSvc, msg(), roi );
+    AskForRoI* afr = new AskForRoI( context,  m_dataAccessSvc, msg(), roi );
     allRoIs.push_back( afr );
   }
 

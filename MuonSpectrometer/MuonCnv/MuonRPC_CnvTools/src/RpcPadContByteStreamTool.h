@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRPC_CNVTOOLS_RPCPADCONTRAWEVENTTOOL_H
@@ -10,6 +10,7 @@
 
 #include "MuonRPC_CnvTools/IRPC_RDOtoByteStreamTool.h"
 
+#include "ByteStreamCnvSvc/ByteStreamCnvSvc.h"
 #include "RPC_Hid2RESrcID.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "ByteStreamData/RawEvent.h" 
@@ -39,8 +40,6 @@ class RpcPadContByteStreamTool : public AthAlgTool, virtual public IRPC_RDOtoByt
 
 public:
 
-  typedef RpcPadContainer CONTAINER ; 
-
   /** constructor
   */
   RpcPadContByteStreamTool( const std::string& type, const std::string& name, const IInterface* parent);
@@ -51,15 +50,17 @@ public:
   */
   static const InterfaceID& interfaceID();
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
-  StatusCode convert(CONTAINER* cont, RawEventWrite* re);
+  virtual StatusCode convert(RpcPadContainer* cont) const override;
 
 private:
    SG::ReadCondHandleKey<RpcCablingCondData> m_readKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
    RPC_Hid2RESrcID m_hid2re; 
    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-   FullEventAssembler<RPC_Hid2RESrcID> m_fea ;    
+  ServiceHandle<ByteStreamCnvSvc> m_byteStreamCnvSvc
+    { this, "ByteStreamCnvSvc", "ByteStreamCnvSvc" };
+
 };
 }
 

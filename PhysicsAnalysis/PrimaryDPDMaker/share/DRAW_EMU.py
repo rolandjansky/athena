@@ -37,7 +37,7 @@ topSequence += DRAW_EMU_Seq
 ### Output stream
 ##################
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-from D2PDMaker.D2PDHelpers import buildFileName
+from PrimaryDPDMaker.PrimaryDPDHelpers import buildFileName
 from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
 streamName = primDPD.WriteDRAW_EMU.StreamName
 fileName   = buildFileName( primDPD.WriteDRAW_EMU )

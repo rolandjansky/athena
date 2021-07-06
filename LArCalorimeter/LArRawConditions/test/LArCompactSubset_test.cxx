@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file LArRawConditions/test/LArCompactSubset_test.cxx
@@ -76,7 +76,7 @@ void checkFeb (LArCompactSubsetFebPair p)
   }
 
   size_t ch = 0;
-  for (const auto& chp : p.second) {
+  for (const auto chp : p.second) {
     checkWave (feb, ch, chp);
     ++ch;
   }
@@ -132,12 +132,12 @@ void test1()
   assert (ss.end() - ss.begin() == static_cast<long>(ss.size()));
   assert (css.end() - css.begin() == static_cast<long>(css.size()));
 
-  for (const auto& pp : ss)
+  for (const auto pp : ss)
   {
     checkFeb (pp);
   }
 
-  for (const auto& pp : css)
+  for (const auto pp : css)
   {
     checkFeb (pp);
   }

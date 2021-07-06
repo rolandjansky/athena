@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @file AtlasUnixStandardJob.py
 ## @brief py-module to configure the Athena AppMgr for standard (UNIX) jobs
@@ -55,6 +55,7 @@ def _setupAtlasUnixStandardJob():
     # add-in a service to handle core-dumps
     if not hasattr(svcMgr, 'CoreDumpSvc'):
         svcMgr += AthenaServicesConf.CoreDumpSvc()
+    svcMgr.CoreDumpSvc.FastStackTrace = True
     theApp.CreateSvc += [ svcMgr.CoreDumpSvc.getFullJobOptName() ]
 
 ## load basic services configuration at module import

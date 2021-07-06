@@ -94,22 +94,43 @@ def scheduleMETAssocAlg(sequence=DerivationFrameworkJob,configlist="CustomMET"):
     if not hasattr(sequence,algname):
         sequence += assocAlg
 
+def scheduleStandardMETContent(sequence=DerivationFrameworkJob, algname = 'METStandardAssociationAlg'):
+    assocAlg = None
+    if algname in metalgs.keys():
+        print ("Get preexisting alg:", algname, metalgs[algname])
+        assocAlg = metalgs[algname]
+    else:
+        # This import statement executes code which auto-configures the standard associations.
+        # Design to be improved with the migration to the new config.
+        import METReconstruction.METConfig_Associator # noqa: F401
+
+        from METReconstruction.METRecoFlags import metFlags
+        standardConfigs = {k : v for k, v in metFlags.METAssocConfigs().items() if ("EMTopo" in k or "EMPFlow" in k)}
+        from METReconstruction.METAssocConfig import getMETAssocAlg
+        assocAlg = getMETAssocAlg(algname,standardConfigs)
+        metalgs[algname] = assocAlg
+        print ("Generate MET alg:", algname, assocAlg)
+    if not hasattr(sequence,algname):
+        sequence += assocAlg
+
 def scheduleMETCustomVertex(vxColl,jetcoll='AntiKt4EMTopo',
                             configlist="CustomMET",
                             outputlist="CustomMET"):
     from METReconstruction.METAssocConfig import METAssocConfig,AssocConfig
     jettype = {'AntiKt4EMTopo':'EMJet',
            'AntiKt4LCTopo':'LCJet',
-           'AntiKt4EMPFlow':'PFlowJet'}
+           'AntiKt4EMPFlow':'PFlowJet',
+           'AntiKt4PFlowCustomVtx':'PFlowJet'}
     associators = [AssocConfig(jettype[jetcoll]),
                AssocConfig('Muon'),
                AssocConfig('Ele'),
                AssocConfig('Gamma'),
                AssocConfig('Tau'),
                AssocConfig('Soft')]
+
     cfg = METAssocConfig(jetcoll+vxColl,
                  associators,
-                 jetcoll=='AntiKt4EMPFlow' # doPFlow
+                 'PFlow' in jetcoll # doPFlow
                  )
     for assoc in cfg.assoclist:
         assoc.PrimVxColl = vxColl+'PrimaryVertices'

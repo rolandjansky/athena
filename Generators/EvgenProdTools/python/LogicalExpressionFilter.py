@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 ##==============================================================================
 ## Name:        LogicalExpressionFilter.py
 ##
@@ -80,8 +80,8 @@ class LogicalExpressionFilter( PyAthena.Alg ):
                   error = 'could not retrieve IAlgManager/ApplicationMgr'
                   self.msg.error (error)
                   raise RuntimeError (error)
-              import PyCintex
-              _alg = PyCintex.libPyROOT.MakeNullPointer("IAlgorithm")
+              import cppyy
+              _alg = cppyy.bind_object(0, "IAlgorithm")
               if algmgr.createAlgorithm(filterType,filterName,_alg).isFailure() or not _alg:
                   self.msg.error ('could not create alg: ' + filterTypeAndName)
                   raise RuntimeError ('could not create alg: ' + filterTypeAndName)
@@ -165,9 +165,7 @@ class LogicalExpressionFilter( PyAthena.Alg ):
 
     def evalFilter(self, filterName):
       if not self.algdict[filterName].isExecuted():
-#         self.algdict[filterName].sysExecute( self.getContext() ) # only rel. 21+
-         self.algdict[filterName].sysExecute()
-         self.algdict[filterName].setExecuted(True)
+         self.algdict[filterName].sysExecute( self.getContext() ) # only rel. 21+
       decision = self.algdict[filterName].filterPassed()
       self.msg.verbose(filterName + " decision=" + str(decision))
       return decision
@@ -181,17 +179,19 @@ class LogicalExpressionFilter( PyAthena.Alg ):
     def execute(self):
         #extract from first event of McEventCollection
         event_weight=1
+
+        response = bool(eval(self.cmd)) if self.cmd else True
+
         mc = self.evtStore[self.McEventKey]
         if mc.size()==0:
             self.msg.error("No events in McEventCollection!?")
             return StatusCode.Failure
         weights = mc[0].weights()
+
         if weights.size()==0:
             self.msg.debug("No weights to retrieve")
         else:
             event_weight = weights[0]
-
-        response = bool(eval(self.cmd)) if self.cmd else True
 
         if self.Sampling>0 and self.Sampling<=1 and not response:
             for a in range(len(mc[0].weights())): mc[0].weights()[a] /= self.Sampling

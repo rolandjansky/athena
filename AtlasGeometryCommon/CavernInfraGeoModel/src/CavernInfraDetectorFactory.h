@@ -6,7 +6,7 @@
 #define CavernInfraDetectorFactory_h 1
 
 #include "GeoModelKernel/GeoVDetectorFactory.h"
-#include "CavernInfraGeoModel/CavernInfraDetectorManager.h"
+#include "CavernInfraDetectorManager.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include <string>
 

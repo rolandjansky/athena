@@ -29,24 +29,24 @@ void MuonParamPlots::initializePlots()
 }
 
 
-void MuonParamPlots::fill(const xAOD::Muon& mu)
+  void MuonParamPlots::fill(const xAOD::Muon& mu, float weight)
 {
-  FillPlot(msInnerMatchChi2,mu,xAOD::Muon::msInnerMatchChi2);
-  FillPlot(msOuterMatchChi2,mu,xAOD::Muon::msOuterMatchChi2);
+  FillPlot(msInnerMatchChi2,mu,xAOD::Muon::msInnerMatchChi2, weight);
+  FillPlot(msOuterMatchChi2,mu,xAOD::Muon::msOuterMatchChi2, weight);
 #ifndef XAOD_ANALYSIS
-  FillPlot(ELoss,mu,xAOD::Muon::EnergyLoss,0.001);
-  FillPlot(measELoss,mu,xAOD::Muon::MeasEnergyLoss,0.001);  
-  FillPlot(ELossSigma,mu,xAOD::Muon::EnergyLossSigma,0.001);
-  FillPlot(paramELoss,mu,xAOD::Muon::ParamEnergyLoss,0.001);
+  FillPlot(ELoss,mu,xAOD::Muon::EnergyLoss,0.001, weight);
+  FillPlot(measELoss,mu,xAOD::Muon::MeasEnergyLoss,0.001, weight);  
+  FillPlot(ELossSigma,mu,xAOD::Muon::EnergyLossSigma,0.001, weight);
+  FillPlot(paramELoss,mu,xAOD::Muon::ParamEnergyLoss,0.001, weight);
 #endif // not XAOD_ANALYSIS
 }
   
-void MuonParamPlots::FillPlot(TH1* hist, const xAOD::Muon& mu,const xAOD::Muon::ParamDef paramDef,float scale) {
+  void MuonParamPlots::FillPlot(TH1* hist, const xAOD::Muon& mu,const xAOD::Muon::ParamDef paramDef,float scale, float weight) {
   if (mu.author()==xAOD::Muon::CaloTag || mu.author()==xAOD::Muon::CaloLikelihood || mu.author()==xAOD::Muon::ExtrapolateMuonToIP) return; //protection
   float fpar = 0;
   if (mu.isAvailable<float>("EnergyLoss")) {
      if (mu.parameter(fpar, paramDef)) 
-       hist->Fill(scale*fpar); //scale to GeV, if needed
+       hist->Fill(scale*fpar, weight); //scale to GeV, if needed
   }
   return;
 }

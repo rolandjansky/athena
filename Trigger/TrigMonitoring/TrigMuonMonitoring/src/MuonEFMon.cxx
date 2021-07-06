@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @Afile HLTMuonMonTool.cxx
@@ -317,7 +317,7 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
   // First try from xAOD::Muon
   const xAOD::MuonContainer* muonEFcontainer(0);
   // container names for MT setup
-  std::vector< std::string > efcontnames = {"HLT_MuonsCB_FS", "HLT_Muons_RoI", "HLT_MuonsCBOutsideIn"}; //last one should be replaced with HLT_MuonsCB_RoI once it works
+  std::vector< std::string > efcontnames = {"HLT_MuonsCB_FS", "HLT_Muons_RoI", "HLT_MuonsCB_RoI"}; 
   // container names for legacy run-2 setup
   if (getTDT()->getNavigationFormat() == "TriggerElement") efcontnames = {"HLT_xAOD__MuonContainer_MuonEFInfo"};
   bool gotxAODMuon = false;
@@ -544,7 +544,7 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 	    const TrigMuonEFInfoTrackContainer *tc = muonInfo->TrackContainer();
 	    for (TrigMuonEFInfoTrackContainer::const_iterator TrackItr = tc->begin() ; TrackItr!=tc->end(); TrackItr++) {  // loop over container content
 	      const TrigMuonEFInfoTrack* muonInfoTr = (*TrackItr);
-	      TrigMuonEFTrack* muonTrack = muonInfoTr->SpectrometerTrack();
+	      const TrigMuonEFTrack* muonTrack = muonInfoTr->SpectrometerTrack();
 	      if (!muonTrack) {
 		ATH_MSG_DEBUG( "No MuonEF Spectrometer track found" );
 	      } else {
@@ -629,7 +629,7 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 		  hist2("EFSA_eta_vs_phi_in_10LBs", m_histdircoverage)->Fill(eta,phi);
 		}
 	      }
-	      TrigMuonEFCbTrack* muonCbTrack = muonInfoTr->CombinedTrack();
+	      const TrigMuonEFCbTrack* muonCbTrack = muonInfoTr->CombinedTrack();
 	      if (!muonCbTrack){
 		ATH_MSG_DEBUG( "No MuonEF Combined track found" );
 	      }else{

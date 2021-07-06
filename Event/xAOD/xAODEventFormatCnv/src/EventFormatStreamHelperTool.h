@@ -53,7 +53,7 @@ class EventFormatStreamHelperTool : public extends< AthAlgTool, IAthenaOutputToo
   /// Called at the beginning of finalize
   StatusCode preFinalize() override {return StatusCode::SUCCESS;}
 
-  /// Called at the 
+  /// Called at the
   StatusCode preStream() override {return StatusCode::SUCCESS;}
 
   /// @}
@@ -80,7 +80,37 @@ class EventFormatStreamHelperTool : public extends< AthAlgTool, IAthenaOutputToo
     "IgnoreKeys", { "HLTAutoKey_.*" },
     "SG keys that should be ignored during the metadata collection" };
 
+  Gaudi::Property< std::string > m_dataHeaderKey{this, "DataHeaderKey", "",
+    "Key of DataHeader produced by output stream" };
+
   StatusCode collectFormatMetadata();
+
+  /** @brief look up hash coresponding to primary class ID
+
+      We can retrieve the list of all class IDs and hashes corresponding to an
+      element in the output stream. The two collections should be of the same
+      size. Element one of the @p classIDs corresponds to element one of the
+      @p hashes and so on. This function steps through the two collections and
+      retruns the hash corresponding to the classID matching the
+      @p primaryClassID.
+
+      @param [in] primaryClassID  the primary class ID
+      @param [in] classIDs        the set of classIDs associated with a
+                                  DataHeaderElement
+      @param [in] hashes          the vector of hashes associated with a
+                                  DataHeaderElement
+
+      @warning classIDs and hashes must have the same number of entries
+
+      @throws std::runtime_error  classIDs and hashes not the same size
+      @throws std::range_error    primaryClassID not found in classIDs
+
+      @returns the hash corresponding to the primaryClassID
+   */
+  unsigned int lookUpHash(
+    CLID primaryClassID,
+    const std::set< CLID >& classIDs,
+    const std::vector< unsigned int >& hashes) const;
 
   /// CLIDs about which warnings have already been printed
   std::set< CLID > m_warnedCLIDs;

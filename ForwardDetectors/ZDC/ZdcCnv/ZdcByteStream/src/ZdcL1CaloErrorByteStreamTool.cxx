@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -33,32 +33,6 @@ ZdcL1CaloErrorByteStreamTool::ZdcL1CaloErrorByteStreamTool(const std::string& ty
   declareInterface<ZdcL1CaloErrorByteStreamTool>(this);
 }
 
-// Destructor
-
-ZdcL1CaloErrorByteStreamTool::~ZdcL1CaloErrorByteStreamTool()
-{
-}
-
-// Initialize
-
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
-
-StatusCode ZdcL1CaloErrorByteStreamTool::initialize()
-{
-  msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endmsg;
-
-  return StatusCode::SUCCESS;
-}
-
-// Finalize
-
-StatusCode ZdcL1CaloErrorByteStreamTool::finalize()
-{
-  return StatusCode::SUCCESS;
-}
 
 // Set ROB status error
 

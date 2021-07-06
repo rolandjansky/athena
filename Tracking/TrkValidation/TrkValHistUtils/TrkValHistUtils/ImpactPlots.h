@@ -13,7 +13,7 @@ namespace Trk{
 class ImpactPlots: public PlotBase {
   public:
     ImpactPlots(PlotBase *pParent, std::string sDir):PlotBase(pParent, sDir){ init();}
-    void fill(const xAOD::TrackParticle& trkprt);
+  void fill(const xAOD::TrackParticle& trkprt, float weight=1.0);
     
     TH1* z0;
     TH1* z0sig;

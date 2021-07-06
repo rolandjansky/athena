@@ -52,7 +52,7 @@ void compare (const TrackTruthCollection& p1,
 
 void testit (const TrackTruthCollection& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   TrackTruthCollectionCnv_p2 cnv;
   Trk::TrackTruthCollection_p2 pers;
   cnv.transToPers (&trans1, &pers, log);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_SIDLOCRECO_h
@@ -12,45 +12,28 @@
 #include <vector>
 #include <fstream>
 
-#include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ObjectVector.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IToolSvc.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "AthenaKernel/errorcheck.h" // CHECK( )
+#include "AthenaBaseComps/AthMsgStreamMacros.h" 
 
-#include "AthenaKernel/getMessageSvc.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaMonitoringKernel/Monitored.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
-#include "AthenaPoolUtilities/AthenaAttributeList.h"
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
-
-#include "AFP_Geometry/AFP_constants.h"
-#include "AFP_Geometry/AFP_Geometry.h"
-#include "AFP_Geometry/AFP_ConfigParams.h"
+#include "AFP_Geometry/AFP_GeometryTool.h"
 #include "CLHEP/Geometry/Point3D.h"
 
-#include "AFP_DigiEv/AFP_SiDigiCollection.h"
-#include "AFP_LocRecoEv/AFP_SIDLocRecoEvCollection.h"
-
-#include "AFP_LocReco/AFP_UserObjects.h"
+#include "AFP_LocReco/AFP_UserObjects.h" // for SIDHIT
 #include "AFP_LocReco/AFP_SIDBasicKalman.h"
 
-#include "TROOT.h"
-
-//for truth particles
-#include "GeneratorObjects/McEventCollection.h"
-#include "AtlasHepMC/GenEvent.h"
-#include "AtlasHepMC/GenVertex.h"
-#include "AtlasHepMC/GenParticle.h"
-
-// xAOD 
+// xAOD
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODForward/AFPSiHit.h"
+#include "xAODForward/AFPTrack.h"
 #include "xAODForward/AFPTrackContainer.h"
+#include "xAODForward/AFPTrackAuxContainer.h"
+#include "xAODForward/AFPSiHitContainer.h"
 
 
 #define SIDSTATIONID 4
@@ -58,60 +41,48 @@
 class StoreGateSvc;
 class ActiveStoreSvc;
 
-class AFP_SIDLocReco : public AthAlgorithm
+class AFP_SIDLocReco : public AthReentrantAlgorithm
 {
 	public:
-                AFP_SIDLocReco(const std::string& name, ISvcLocator* pSvcLocator);
+        AFP_SIDLocReco(const std::string& name, ISvcLocator* pSvcLocator);
 		~AFP_SIDLocReco();
 
 	private:
 		AFP_CONFIGURATION m_Config;
-		AFP_Geometry* m_pGeometry;
-		
-		// a handle on Store Gate
-		StoreGateSvc* m_storeGate;
-		//StoreGateSvc* m_pDetStore;
+		ToolHandle<AFP_GeometryTool> m_pGeometry {this, "AFP_Geometry", "AFP_GeometryTool", "Tool that provides AFP geometry"};
+		ToolHandle<GenericMonitoringTool> m_monTool {this, "MonTool", "", "Monitoring tool"};
 
-		AFP_SIDLocRecoEvCollection*	m_pSIDLocRecoEvCollection;
-		AFP_SIDLocRecoEvent*			m_pSIDLocRecoEvent;
+		SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey { this, "EventInfoKey", "EventInfo", "name of EventInfo container" };
+		SG::ReadHandleKey<xAOD::AFPSiHitContainer> m_AFPSiHitContainerKey { this, "AFPSiHitsContainerName", "AFPSiHitContainer", "name of AFPSiHit container" };
+		SG::WriteHandleKey<xAOD::AFPTrackContainer> m_AFPTrackContainerKey{this, "AFPTrackContainerKey", "AFPTrackContainer", "name of AFPTrack container"};
+		
+		Gaudi::Property<int> m_iDataType{this, "DataType",0, "data type (simulation=0, real data=1) using in the local reconstruction"};
+		Gaudi::Property<float> m_AmpThresh{this, "AmpThresh",10., "TD signal amplitude threshold"};
+
+		Gaudi::Property<std::vector<std::string>> m_vecListAlgoSID{this, "vecListAlgoSID",{"SIDBasicKalman"}, "list of AFP track reco algorithms"};
 
 	private:
 
-		UInt_t m_eventNum;			//real event number
-		Int_t m_iRunNum;
-		Int_t m_iDataType;			//data type (simulation or real data) using in the local reconstruction
-		Int_t m_iEvent;				//event number from zero value
-		Float_t m_AmpThresh;			// TD signal amplitude threshold
-		
 		//slope and X,Y,Z-pos for SID plates [4][6]
 		Float_t m_fsSID[SIDSTATIONID][SIDCNT];
 		Float_t m_fxSID[SIDSTATIONID][SIDCNT];
 		Float_t m_fySID[SIDSTATIONID][SIDCNT];
 		Float_t m_fzSID[SIDSTATIONID][SIDCNT];
-
-
-                std::string m_strKeyGeometryForReco;
-                std::vector<std::string> m_vecListAlgoSID;
-                std::string m_strAlgoSID;
 	
-                std::string m_strKeySIDLocRecoEvCollection;
-                std::string m_strSIDCollectionName;
-
 	public:
 		StatusCode initialize();
-		StatusCode execute();
+		StatusCode execute(const EventContext &ctx) const;
 		StatusCode finalize();
 		
 	private:
-		bool ReadGeometryDetCS();
-		bool StoreReconstructionGeometry(/*const char* szDataDestination*/);
-		void SaveGeometry();
-		void ClearGeometry();
+		StatusCode ReadGeometryDetCS();
+		StatusCode ClearGeometry();
 
-		StatusCode AFPCollectionReading(std::list<SIDHIT> &ListSIDHits);	
+		// save all Si hits
+		std::list<SIDHIT> AFPCollectionReading(SG::ReadHandle<xAOD::AFPSiHitContainer> siHitContainer, SG::ReadHandle<xAOD::EventInfo> eventInfo) const;
 
-		StatusCode RecordSIDCollection();
-                StatusCode ExecuteRecoMethod(const std::string strAlgo, const std::list<SIDHIT> &ListSIDHits, xAOD::AFPTrackContainer* resultContainer);
+		// perform the track reconstrution
+		StatusCode ExecuteRecoMethod(const std::string strAlgo, const std::list<SIDHIT> &ListSIDHits, SG::ReadHandle<xAOD::AFPSiHitContainer> siHitContainer, const EventContext &ctx) const;
 };
 
 #endif	//AFP_TDLOCRECO_h

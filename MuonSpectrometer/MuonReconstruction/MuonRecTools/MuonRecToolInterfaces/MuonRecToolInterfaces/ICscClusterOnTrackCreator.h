@@ -5,11 +5,10 @@
 #ifndef MUON_ICSCCLUSTERONTRACKCREATOR_H
 #define MUON_ICSCCLUSTERONTRACKCREATOR_H
 
-#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 
-static const InterfaceID IID_ICscClusterOnTrackCreator
-    ("Muon::ICscClusterOnTrackCreator",1,0);
+static const InterfaceID IID_ICscClusterOnTrackCreator("Muon::ICscClusterOnTrackCreator", 1, 0);
 
 class ICscStripFitter;
 class ICscClusterFitter;
@@ -17,32 +16,25 @@ class ICscClusterUtilTool;
 
 namespace Muon {
 
-
-  /** @brief Interface for tools calibrating CSCCluster, turning them into Muon::ICscClusterOnTrack object. 
-      The interface inherits from IMuonClusterOnTrackCreator. 
-  */
-  class ICscClusterOnTrackCreator : virtual public IMuonClusterOnTrackCreator
-  {      
-  public:
-    ///////////////////////////////////////////////////////////////////
-    // Standard tool methods
-    ///////////////////////////////////////////////////////////////////
-    
-    static const InterfaceID& interfaceID();
-    
-
-    /** @brief Return some tools used by CscClusterOnTrackCreator       
+    /** @brief Interface for tools calibrating CSCCluster, turning them into Muon::ICscClusterOnTrack object.
+        The interface inherits from IMuonClusterOnTrackCreator.
     */
-    virtual const ToolHandle<ICscStripFitter>& GetICscStripFitter() const = 0;
-    virtual const ToolHandle<ICscClusterFitter>& GetICscClusterFitter() const = 0;
-    virtual const ToolHandle<ICscClusterUtilTool>& GetICscClusterUtilTool() const = 0;
-  };
-  
-  inline const InterfaceID& ICscClusterOnTrackCreator::interfaceID()
-  {
-    return IID_ICscClusterOnTrackCreator;
-  }
-} // end of name space
+    class ICscClusterOnTrackCreator : virtual public IMuonClusterOnTrackCreator {
+    public:
+        ///////////////////////////////////////////////////////////////////
+        // Standard tool methods
+        ///////////////////////////////////////////////////////////////////
 
-#endif // MUON_ICSCCLUSTERONTRACKCREATOR_H
+        static const InterfaceID& interfaceID();
 
+        /** @brief Return some tools used by CscClusterOnTrackCreator
+         */
+        virtual const ToolHandle<ICscStripFitter>& GetICscStripFitter() const = 0;
+        virtual const ToolHandle<ICscClusterFitter>& GetICscClusterFitter() const = 0;
+        virtual const ToolHandle<ICscClusterUtilTool>& GetICscClusterUtilTool() const = 0;
+    };
+
+    inline const InterfaceID& ICscClusterOnTrackCreator::interfaceID() { return IID_ICscClusterOnTrackCreator; }
+}  // namespace Muon
+
+#endif  // MUON_ICSCCLUSTERONTRACKCREATOR_H

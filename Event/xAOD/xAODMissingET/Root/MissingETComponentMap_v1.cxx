@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -29,7 +29,8 @@ MissingETComponentMap_v1::MissingETComponentMap_v1(SG::OwnershipPolicy own, SG::
   this->f_setupLookupCache(m_trackLinks,m_trackLinkReserve); 
 }
 
-MissingETComponentMap_v1::MissingETComponentMap_v1(MissingETComponentMap_v1::iterator first, MissingETComponentMap_v1::iterator last,
+MissingETComponentMap_v1::MissingETComponentMap_v1(const MissingETComponentMap_v1::iterator& first,
+                                                   const MissingETComponentMap_v1::iterator& last,
 						   SG::OwnershipPolicy own, SG::IndexTrackingPolicy trackIndices)
   : DataVector<MissingETComponent_v1>(first,last,own,trackIndices)
 {
@@ -129,7 +130,7 @@ const MissingET* MissingETComponentMap_v1::retrieveMissingET(const std::string& 
   const_iterator lCont(this->end());
   while ( fCont != lCont && (*fCont)->metObject()->name() != name ) { ++fCont; }
   if ( fCont != lCont ) return (*fCont)->metObject();
-  return 0;
+  return nullptr;
 }
 
 const MissingET* MissingETComponentMap_v1::retrieveMissingET(MissingETBase::Types::bitmask_t src,bool excl) const
@@ -148,7 +149,7 @@ const MissingET* MissingETComponentMap_v1::f_retrieveMissingETExcl(MissingETBase
   const_iterator lCont(this->end());
   while ( fCont != lCont && (*fCont)->metObject()->source() != src ) { ++fCont; }
   if ( fCont != lCont ) return (*fCont)->metObject();
-  return 0;
+  return nullptr;
 }
 
 const MissingET* MissingETComponentMap_v1::f_retrieveMissingETExcl(MissingETBase::Types::bitmask_t src,MissingETBase::Types::bitmask_t sw) const
@@ -157,7 +158,7 @@ const MissingET* MissingETComponentMap_v1::f_retrieveMissingETExcl(MissingETBase
   const_iterator lCont(this->end());
   while ( fCont != lCont && ( (*fCont)->metObject()->source() != src || (*fCont)->statusWord() != sw ) ) { ++fCont; }
   if ( fCont != lCont ) return (*fCont)->metObject();
-  return 0;
+  return nullptr;
 }
 
 const MissingET* MissingETComponentMap_v1::f_retrieveMissingETIncl(MissingETBase::Types::bitmask_t src) const
@@ -166,7 +167,7 @@ const MissingET* MissingETComponentMap_v1::f_retrieveMissingETIncl(MissingETBase
   const_iterator lCont(this->end());
   while ( fCont != lCont && !MissingETBase::Source::hasPattern((*fCont)->metObject()->source(),src) ) { ++fCont; }
   if ( fCont != lCont ) return (*fCont)->metObject();
-  return 0;
+  return nullptr;
 }
 
 const MissingET* MissingETComponentMap_v1::f_retrieveMissingETIncl(MissingETBase::Types::bitmask_t src,MissingETBase::Types::bitmask_t sw) const
@@ -176,7 +177,7 @@ const MissingET* MissingETComponentMap_v1::f_retrieveMissingETIncl(MissingETBase
   while ( fCont != lCont && ( !MissingETBase::Source::hasPattern((*fCont)->metObject()->source(),src) ||
                               !MissingETBase::Status::Tags::hasPattern((*fCont)->statusWord(),sw) ) ) { ++fCont; }
   if ( fCont != lCont ) return (*fCont)->metObject();
-  return 0;
+  return nullptr;
 }
 
 /////////////////////////////
@@ -227,7 +228,7 @@ bool MissingETComponentMap_v1::f_checkObjectUsage(MissingETBase::Types::object_v
       if( fIdx >= signalLinks.size() ) {
 	// if invalid, something probably went wrong in reconstruction, so complain
 	// this should raise an out-of-range exception
-	printf("MissingETComponentMap::f_checkObjectUsage(...) - ERROR - searching for a signal with index (%lu) beyond signal container range (%lu).", fIdx, signalLinks.size());
+	printf("MissingETComponentMap::f_checkObjectUsage(...) - ERROR - searching for a signal with index (%zu) beyond signal container range (%zu).", fIdx, signalLinks.size());
 	printf("MissingETComponentMap::f_checkObjectUsage(...) - ERROR - this may indicate an inconsistency in the signal containers.");	
       }
       // signal already used

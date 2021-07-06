@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibSvc/MdtCalibrationTool.h"
@@ -59,10 +59,10 @@ public:
   double m_inverseSpeedOfLight;      // in ns/mm
   double m_inversePropagationSpeed;  // in ns/mm
 
-  /* T0 Shift Service -- Per-tube offsets of t0 value */
-  ServiceHandle<MuonCalib::IShiftMapTools> m_t0ShiftSvc;
-  /* TMax Shift Service -- Per-tube offsets of Tmax */
-  ServiceHandle<MuonCalib::IShiftMapTools> m_tMaxShiftSvc;
+  /* T0 Shift tool -- Per-tube offsets of t0 value */
+  ToolHandle<MuonCalib::IShiftMapTools> m_t0ShiftTool;
+  /* TMax Shift tool -- Per-tube offsets of Tmax */
+  ToolHandle<MuonCalib::IShiftMapTools> m_tMaxShiftTool;
 
   // tools should only be retrieved if they are used
   bool m_doT0Shift;
@@ -71,30 +71,25 @@ public:
   double m_unphysicalHitRadiusUpperBound;
   double m_unphysicalHitRadiusLowerBound;
   double m_resTwin;
-  bool m_BMGpresent;
-  int m_BMGid;
 
 };
 
-MdtCalibrationTool::Imp::Imp(std::string name) :
+MdtCalibrationTool::Imp::Imp(std::string ) :
   m_muonGeoManager(nullptr),
   m_inverseSpeedOfLight(1./Gaudi::Units::c_light),
   m_inversePropagationSpeed(m_inverseSpeedOfLight/0.85),
-  m_t0ShiftSvc("MdtCalibrationT0ShiftSvc", name),
-  m_tMaxShiftSvc("MdtCalibrationTMaxShiftSvc", name),
+  m_t0ShiftTool("MdtCalibrationT0ShiftTool"),
+  m_tMaxShiftTool("MdtCalibrationTMaxShiftTool"),
   m_doT0Shift(false),
   m_doTMaxShift(false),
   m_unphysicalHitRadiusUpperBound(-1.),
   m_unphysicalHitRadiusLowerBound(-1.),
-  m_resTwin(-1.),
-  m_BMGpresent(false),
-  m_BMGid(-1)
-{}
+  m_resTwin(-1.) {
+}
 
 
-MdtCalibrationTool::MdtCalibrationTool(const std::string& type, const std::string &name, const IInterface* parent) : base_class(type, name, parent),
-  m_hasBISsMDT(false)
-{
+MdtCalibrationTool::MdtCalibrationTool(const std::string& type, const std::string &name, const IInterface* parent) :
+    base_class(type, name, parent) {
   m_imp.reset(new MdtCalibrationTool::Imp(name));
   // settable properties
   declareProperty("TimeWindowLowerBound",m_imp->settings.windowLowerBound );
@@ -128,23 +123,12 @@ StatusCode MdtCalibrationTool::initialize() {
 
   ATH_CHECK(m_idHelperSvc.retrieve());
 
-  // assign BMG identifier
-  m_imp->m_BMGpresent = m_idHelperSvc->mdtIdHelper().stationNameIndex("BMG") != -1;
-  if(m_imp->m_BMGpresent){
-    ATH_MSG_INFO("Processing configuration for layouts with BMG chambers.");
-    m_imp->m_BMGid = m_idHelperSvc->mdtIdHelper().stationNameIndex("BMG");
-  }
-
-  int bisIndex=m_idHelperSvc->mdtIdHelper().stationNameIndex("BIS");
-  Identifier bis7Id = m_idHelperSvc->mdtIdHelper().elementID(bisIndex, 7, 1);
-  if (m_idHelperSvc->issMdt(bis7Id)) m_hasBISsMDT=true;
-
   // initialise MuonGeoModel access
   ATH_CHECK(detStore()->retrieve( m_imp->m_muonGeoManager ));
 
-  if (m_imp->m_doT0Shift) ATH_CHECK( m_imp->m_t0ShiftSvc.retrieve() );
+  if (m_imp->m_doT0Shift) ATH_CHECK( m_imp->m_t0ShiftTool.retrieve() );
 
-  if (m_imp->m_doTMaxShift) ATH_CHECK ( m_imp->m_tMaxShiftSvc.retrieve() );
+  if (m_imp->m_doTMaxShift) ATH_CHECK ( m_imp->m_tMaxShiftTool.retrieve() );
 
   ATH_MSG_DEBUG("Settings:");
   ATH_MSG_DEBUG("  Time window: lower bound " << m_imp->settings.timeWindowLowerBound()
@@ -261,17 +245,9 @@ bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
     }
 
     // get t0 shift from tool (default: no shift, value is zero)
-    if (m_imp->m_doT0Shift) t0 += m_imp->m_t0ShiftSvc->getValue(id);
+    if (m_imp->m_doT0Shift) t0 += m_imp->m_t0ShiftTool->getValue(id);
   } else {
-    if (m_hasBISsMDT) {
-      static std::atomic<bool> bisWarningPrinted = false;
-      if (!bisWarningPrinted) {
-        ATH_MSG_WARNING("MdtTubeCalibContainer not found for " << m_idHelperSvc->mdtIdHelper().print_to_string( id ) << " - Tube cannot be calibrated, cf. ATLASRECTS-5819");
-        bisWarningPrinted.store(true, std::memory_order_relaxed);
-      }
-    } else {
-      ATH_MSG_WARNING("MdtTubeCalibContainer not found for " << m_idHelperSvc->mdtIdHelper().print_to_string( id ) << " - Tube cannot be calibrated!");
-    }
+    ATH_MSG_WARNING("MdtTubeCalibContainer not found for " << m_idHelperSvc->mdtIdHelper().print_to_string( id ) << " - Tube cannot be calibrated!");
     return false;
   }
 
@@ -302,7 +278,7 @@ bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
   hit.setTimeOfFlight( settings.doTof ? triggerTime : 0. );
 
   // calculate drift time
-  double driftTime = hit.tdcCount() * tdcBinSize(id) - hit.timeOfFlight()
+  double driftTime = hit.tdcCount() * tdcBinSize() - hit.timeOfFlight()
                      - hit.tubeT0() - hit.propagationTime();
   hit.setDriftTime( driftTime );
 
@@ -339,7 +315,7 @@ bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
 
     // apply tUpper gshift
     if (m_imp->m_doTMaxShift) {
-      float tShift = m_imp->m_tMaxShiftSvc->getValue(id);
+      float tShift = m_imp->m_tMaxShiftTool->getValue(id);
       r = rtRelation->rt()->radius( t * (1 + tShift) );
     }
 
@@ -392,7 +368,7 @@ bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
   // summary
   ATH_MSG_VERBOSE( "driftRadiusFromTime for tube " << m_idHelperSvc->mdtIdHelper().print_to_string(id)
 		 << (calibOk ? " OK" : "FAILED") );
-  ATH_MSG_VERBOSE( " raw drift time " << hit.tdcCount() * tdcBinSize(id)
+  ATH_MSG_VERBOSE( " raw drift time " << hit.tdcCount() * tdcBinSize()
 		 << " TriggerOffset " << inputData.triggerOffset << endmsg
 		 << "Tof " << inputData.tof << " Propagation Delay "
 		 << hit.propagationTime() << " T0 " << hit.tubeT0()
@@ -444,8 +420,8 @@ bool MdtCalibrationTool::twinPositionFromTwinHits( MdtCalibHit &hit,
   const MuonGM::MdtReadoutElement *geoSecond = secondHit.geometry();
 
   // get 'raw' drifttimes of twin pair; we don't use timeofFlight or propagationTime cause they are irrelevant for twin coordinate
-  double driftTime = hit.tdcCount()*tdcBinSize(id) - hit.tubeT0();
-  double driftTimeSecond = secondHit.tdcCount()*tdcBinSize(idSecond) - secondHit.tubeT0();
+  double driftTime = hit.tdcCount()*tdcBinSize() - hit.tubeT0();
+  double driftTimeSecond = secondHit.tdcCount()*tdcBinSize() - secondHit.tubeT0();
 
   if(!geo) {
     ATH_MSG_WARNING( "Geometry not set for first hit" );
@@ -649,10 +625,7 @@ bool MdtCalibrationTool::twinPositionFromTwinHits( MdtCalibHit &hit,
   return true;
 }  //end MdtCalibrationTool::twinPositionFromTwinHits
 
-double MdtCalibrationTool::tdcBinSize(const Identifier &id) const {
-//BMG which uses HPTDC instead of AMT, and has 0.2ns TDC ticksize
-  if( m_idHelperSvc->mdtIdHelper().stationName(id) == m_imp->m_BMGid && m_imp->m_BMGpresent)
-    return 0.1953125; // 25/128
+double MdtCalibrationTool::tdcBinSize() const {
   return 0.78125;  //25/32; exact number: (1000.0/40.079)/32.0
 }
 
@@ -805,14 +778,13 @@ double MdtCalibrationTool::Imp::applyCorrections(MagField::AtlasFieldCache& fiel
           if ( nominalSurf ){
             // Local position for calculation of position along the tube,
             // used for wire sag treatment
-            const Amg::Vector2D *tempLocOnWire = nominalSurf->Trk::Surface::globalToLocal(*pointOfClosestApproach,1000.);
+            std::optional<Amg::Vector2D> tempLocOnWire = nominalSurf->Trk::Surface::globalToLocal(*pointOfClosestApproach,1000.);
             if ( !tempLocOnWire ){
               *msgStr << MSG::WARNING << "globalToLocal failed! " << endmsg;
             } else {
               // sagged surface
               wireSurface = nominalSurf->correctedSurface(*tempLocOnWire);
               tempSaggedSurface = wireSurface;
-              delete tempLocOnWire;
             }
           } else {
             *msgStr << MSG::WARNING << "Nominal wire surface not a SaggedLineSurface,"

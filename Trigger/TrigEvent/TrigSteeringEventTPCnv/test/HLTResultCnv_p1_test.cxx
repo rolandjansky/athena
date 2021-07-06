@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file TrigSteeringEventTPCnv/test/HLTResultCnv_p1_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -17,6 +15,7 @@
 #include "TrigSteeringEvent/HLTResult.h"
 #include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include <cassert>
 #include <iostream>
 
@@ -74,6 +73,7 @@ void testit (const HLT::HLTResult& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  (void)Gaudi::Hive::currentContext();
   Athena_test::Leakcheck check;
 
   HLT::HLTResult trans1;

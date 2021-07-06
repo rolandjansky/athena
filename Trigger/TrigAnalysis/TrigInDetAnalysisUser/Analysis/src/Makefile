@@ -143,8 +143,10 @@ RM  = rm
 TAR = tar
 
 
+DOBJECTS  = $(OBJDIR)/dependence.o $(OBJDIR)/AtlasStyle.o $(OBJDIR)/AtlasLabels.o   
 COBJECTS  = $(OBJDIR)/comparitor.o $(OBJDIR)/computils.o $(OBJDIR)/AtlasStyle.o $(OBJDIR)/AtlasLabels.o 
-CCOBJECTS = $(OBJDIR)/cpucost.o $(OBJDIR)/computils.o 
+CCOBJECTS = $(OBJDIR)/cpucost.o $(OBJDIR)/computils.o $(OBJDIR)/AtlasStyle.o $(OBJDIR)/AtlasLabels.o
+CCHEADERS = $(SRCDIR)/computils.h 
 CHOBJECTS = $(OBJDIR)/chains.o 
 WOBJECTS  = $(OBJDIR)/wmain.o 
 SOBJECTS  = $(OBJDIR)/skim.o 
@@ -197,10 +199,12 @@ RLIBS += -L$(TIDUB)/Resplot/lib/$(ARCH_TYPE) -lResplot -L$(TIDUB)/Readcards/lib/
 
 # build executable: link
 
-all : dirs resplot readcards rdict wdict reader comparitor cpucost chains skim listroot sb runtool
+all : dirs resplot readcards rdict wdict reader comparitor cpucost chains skim listroot sb runtool dependence
 
 $(OBJDIR)/computils.o : $(SRCDIR)/computils.h 
 $(OBJDIR)/comparitor.o : $(SRCDIR)/computils.h 
+
+
 
 rdict : $(EXEDIR)/rdict  
 $(EXEDIR)/rdict : dirs resplot readcards $(ROBJECTS) $(LIBSO) 
@@ -213,6 +217,10 @@ $(EXEDIR)/wdict : dirs $(WOBJECTS) $(LIBSO)
 reader : $(EXEDIR)/reader 
 $(EXEDIR)/reader : dirs $(OBJDIR)/reader.o  $(LIBSO)    
 	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/reader.o $(LIBS) $(GLIBS)
+
+dependence : $(EXEDIR)/dependence 
+$(EXEDIR)/dependence : dirs readcards $(DOBJECTS)  $(LIBSO)  
+	$(CXX) $(LDFLAGS) -o $@ $(DOBJECTS) $(LIBS) $(RLIBS) $(GLIBS)
 
 skim : dirs $(EXEDIR)/skim 
 $(EXEDIR)/skim : dirs $(OBJDIR)/skim.o  $(LIBSO)        
@@ -227,11 +235,11 @@ $(EXEDIR)/refit : dirs $(OBJDIR)/refit.o  $(LIBSO)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/refit.o $(LIBS) $(RLIBS) $(GLIBS)
 
 comparitor : $(EXEDIR)/comparitor  
-$(EXEDIR)/comparitor : $(COBJECTS)  $(LIBSO)
+$(EXEDIR)/comparitor : $(COBJECTS) $(CCHEADERS) $(LIBSO)
 	$(CXX) $(LDFLAGS) -o $@ $(COBJECTS) $(LIBS) $(RLIBS) $(GLIBS)
 
 cpucost : $(EXEDIR)/cpucost  
-$(EXEDIR)/cpucost : $(CCOBJECTS)  $(LIBSO)
+$(EXEDIR)/cpucost : $(CCOBJECTS) $(CCHEADERS) $(LIBSO)
 	$(CXX) $(LDFLAGS) -o $@ $(CCOBJECTS) $(LIBS) $(RLIBS) $(GLIBS)
 
 chains : $(EXEDIR)/chains  
@@ -334,7 +342,7 @@ $(INSTALLDIR)/TIDA% : $(EXEDIR)/%
 	cp $< $@.exe
 
 
-INSTALLFILES=comparitor chains cpucost runtool sb rdict reader
+INSTALLFILES=comparitor chains cpucost runtool sb rdict reader dependence
 
 ginstall : install $(patsubst %,$(INSTALLDIR)/TIDA%,$(INSTALLFILES))
 
@@ -348,6 +356,8 @@ install : all
 	cp $(EXEDIR)/listroot   $(HOME)/bin
 	cp $(EXEDIR)/runtool    $(HOME)/bin
 	cp $(EXEDIR)/sb         $(HOME)/bin
+	cp $(EXEDIR)/dependence $(HOME)/bin
+	cp $(SRCDIR)/*.pcm      $(HOME)/bin
 
 dirs :  $(LIBDIR)/.d $(OBJDIR)/.d $(EXEDIR)/.d
 

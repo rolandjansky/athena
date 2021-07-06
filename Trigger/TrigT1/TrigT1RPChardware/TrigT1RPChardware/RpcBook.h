@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef RPCBOOK_H
-#define RPCBOOK_H
+#ifndef TrigT1RPChardware_RPCBOOK_H
+#define TrigT1RPChardware_RPCBOOK_H
 
 class rpcbookBase {
  public:

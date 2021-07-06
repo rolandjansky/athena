@@ -8,7 +8,6 @@
  * @brief Algorithm for testing TrkVKalVrtFitter.
  */
 
-
 #undef NDEBUG
 #include "TrkVKalVrtFitterTestAlg.h"
 #include "TrkVKalVrtFitter/IVertexCascadeFitter.h"
@@ -36,6 +35,8 @@ template <class T>
 std::vector<const T*> asVec (const std::vector<std::unique_ptr<T> >& v)
 {
   std::vector<const T*> ret;
+  ret.reserve(v.size());
+
   for (const std::unique_ptr<T>& p : v) {
     ret.push_back (p.get());
   }
@@ -47,6 +48,8 @@ std::vector<const Trk::NeutralParameters*>
 asVec (const std::vector<std::unique_ptr<Trk::NeutralPerigee> >& v)
 {
   std::vector<const Trk::NeutralParameters*> ret;
+  ret.reserve(v.size());
+
   for (const std::unique_ptr<Trk::NeutralPerigee>& p : v) {
     ret.push_back (p.get());
   }
@@ -54,10 +57,10 @@ asVec (const std::vector<std::unique_ptr<Trk::NeutralPerigee> >& v)
 }
 
 
-std::unique_ptr<AmgSymMatrix(5)> cov5()
+AmgSymMatrix(5) cov5()
 {
-  auto m = std::make_unique<AmgSymMatrix(5)>();
-  m->setIdentity();
+  AmgSymMatrix(5) m;
+  m.setIdentity();
   return m;
 }
 
@@ -78,9 +81,9 @@ NeutralUVec_t makeNeutrals1()
 
   NeutralUVec_t ret;
 
-  ret.emplace_back (std::make_unique<Trk::NeutralPerigee>(pos1a, mom1a,  1, pos1a, cov5().release()));
-  ret.emplace_back (std::make_unique<Trk::NeutralPerigee>(pos1b, mom1b,  1, pos1b, cov5().release()));
-  ret.emplace_back (std::make_unique<Trk::NeutralPerigee>(pos1c, mom1c,  1, pos1c, cov5().release()));
+  ret.emplace_back (std::make_unique<Trk::NeutralPerigee>(pos1a, mom1a,  1, pos1a, cov5()));
+  ret.emplace_back (std::make_unique<Trk::NeutralPerigee>(pos1b, mom1b,  1, pos1b, cov5()));
+  ret.emplace_back (std::make_unique<Trk::NeutralPerigee>(pos1c, mom1c,  1, pos1c, cov5()));
 
   return ret;
 }
@@ -310,17 +313,17 @@ void setRefittedPerigee (xAOD::Vertex& v, unsigned i,
   std::vector< Trk::VxTrackAtVertex >& vec = v.vxTrackAtVertex();
   if (vec.size() <= i) vec.resize(i+1);
 
-  std::unique_ptr<AmgSymMatrix(5)> cov = cov5();
+  AmgSymMatrix(5) cov = cov5();
   for (int i=0; i < 5; i++) {
     for (int j=0; j < 5; j++) {
       unsigned ipos = i*5 + j;
-      (*cov)(i,j) = ipos < c.size() ? c[ipos] : 0;
+      (cov)(i,j) = ipos < c.size() ? c[ipos] : 0;
     }
   }
 
   const Amg::Vector3D& pos = v.position();
   auto p = std::make_unique<Trk::Perigee> (pos, mom, charge, pos,
-                                           cov.release());
+                                           cov);
   vec[i].setPerigeeAtVertex (p.release());
 }
 
@@ -513,14 +516,14 @@ StatusCode TrkVKalVrtFitterTestAlg::test3()
 namespace {
 
 
-std::unique_ptr<AmgSymMatrix(5)> cov5a()
+AmgSymMatrix(5) cov5a()
 {
-  auto m = std::make_unique<AmgSymMatrix(5)>();
-  m->setZero();
+  AmgSymMatrix(5) m;
+  m.setZero();
   for (int i=0; i < 5; i++) {
-    (*m)(i,i) = 1e-2;
+    (m)(i,i) = 1e-2;
   }
-  (*m)(1,1)=1;
+  (m)(1,1)=1;
   return m;
 }
 
@@ -537,9 +540,9 @@ PerigeeUVec_t makePerigees2()
 
   PerigeeUVec_t ret;
 
-  ret.emplace_back (std::make_unique<Trk::Perigee>(pos1a, mom1a,  1, pos1a, cov5a().release()));
-  ret.emplace_back (std::make_unique<Trk::Perigee>(pos1b, mom1b, -1, pos1a, cov5a().release()));
-  ret.emplace_back (std::make_unique<Trk::Perigee>(pos1c, mom1c, -1, pos1a, cov5a().release()));
+  ret.emplace_back (std::make_unique<Trk::Perigee>(pos1a, mom1a,  1, pos1a, cov5a()));
+  ret.emplace_back (std::make_unique<Trk::Perigee>(pos1b, mom1b, -1, pos1a, cov5a()));
+  ret.emplace_back (std::make_unique<Trk::Perigee>(pos1c, mom1c, -1, pos1a, cov5a()));
 
   return ret;
 }
@@ -554,8 +557,8 @@ PerigeeUVec_t makePerigees3()
 
   PerigeeUVec_t ret;
 
-  ret.emplace_back (std::make_unique<Trk::Perigee>(pos1a, mom1a,  1, pos1a, cov5a().release()));
-  ret.emplace_back (std::make_unique<Trk::Perigee>(pos1b, mom1b, -1, pos1a, cov5a().release()));
+  ret.emplace_back (std::make_unique<Trk::Perigee>(pos1a, mom1a,  1, pos1a, cov5a()));
+  ret.emplace_back (std::make_unique<Trk::Perigee>(pos1b, mom1b, -1, pos1a, cov5a()));
 
   return ret;
 }

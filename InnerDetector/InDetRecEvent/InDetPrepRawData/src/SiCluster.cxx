@@ -13,6 +13,8 @@
 
 #include "InDetPrepRawData/SiCluster.h"
 #include "GaudiKernel/MsgStream.h"
+#include <ostream>
+#include <sstream>
 
 namespace InDet {
 
@@ -22,7 +24,7 @@ SiCluster::SiCluster(const Identifier& RDOId,
                      const std::vector<Identifier>& rdoList,
                      const InDet::SiWidth& width,
                      const InDetDD::SiDetectorElement* detEl,
-                     const Amg::MatrixX* locErrMat)
+                     const Amg::MatrixX& locErrMat)
   : // call base class constructor
   PrepRawData(RDOId, locpos, rdoList, locErrMat)
   , m_width(width)
@@ -31,16 +33,63 @@ SiCluster::SiCluster(const Identifier& RDOId,
 {
   if (m_detEl) {
     m_globalPosition =
-      m_detEl->surface(identify()).localToGlobalPos(localPosition());
+      m_detEl->surface(identify()).localToGlobal(localPosition());
   }
 }
+
+// Constructor for EF:
+SiCluster::SiCluster(const Identifier& RDOId,
+                     const Amg::Vector2D& locpos,
+                     const std::vector<Identifier>& rdoList,
+                     const InDet::SiWidth& width,
+                     const InDetDD::SiDetectorElement* detEl)
+  : // call base class constructor
+  PrepRawData(RDOId, locpos, rdoList, {})
+  , m_width(width)
+  , m_detEl(detEl)
+  , m_gangedPixel(false)
+{
+  if (m_detEl) {
+    m_globalPosition =
+      m_detEl->surface(identify()).localToGlobal(localPosition());
+  }
+}
+
+SiCluster::SiCluster(const Identifier& RDOId,
+                     const Amg::Vector2D& locpos,
+                     const Amg::Vector3D& globpos,
+                     const std::vector<Identifier>& rdoList,
+                     const InDet::SiWidth& width,
+                     const InDetDD::SiDetectorElement* detEl,
+                     const Amg::MatrixX& locErrMat)
+  : // call base class constructor
+  PrepRawData(RDOId, locpos, rdoList, locErrMat)
+  , m_globalPosition(globpos)
+  , m_width(width)
+  , m_detEl(detEl)
+  , m_gangedPixel(false)
+{}
+
+SiCluster::SiCluster(const Identifier& RDOId,
+                     const Amg::Vector2D& locpos,
+                     const Amg::Vector3D& globpos,
+                     const std::vector<Identifier>& rdoList,
+                     const InDet::SiWidth& width,
+                     const InDetDD::SiDetectorElement* detEl)
+  : // call base class constructor
+  PrepRawData(RDOId, locpos, rdoList,{})
+  , m_globalPosition(globpos)
+  , m_width(width)
+  , m_detEl(detEl)
+  , m_gangedPixel(false)
+{}
 
 SiCluster::SiCluster(const Identifier& RDOId,
                      const Amg::Vector2D& locpos,
                      std::vector<Identifier>&& rdoList,
                      const InDet::SiWidth& width,
                      const InDetDD::SiDetectorElement* detEl,
-                     std::unique_ptr<const Amg::MatrixX> locErrMat)
+                     Amg::MatrixX&& locErrMat)
   : // call base class constructor
   PrepRawData(RDOId, locpos, std::move(rdoList), std::move(locErrMat))
   , m_width(width)
@@ -49,9 +98,24 @@ SiCluster::SiCluster(const Identifier& RDOId,
 {
   if (m_detEl) {
     m_globalPosition =
-      m_detEl->surface(identify()).localToGlobalPos(localPosition());
+      m_detEl->surface(identify()).localToGlobal(localPosition());
   }
 }
+
+SiCluster::SiCluster(const Identifier& RDOId,
+                     const Amg::Vector2D& locpos,
+                     const Amg::Vector3D& globpos,
+                     std::vector<Identifier>&& rdoList,
+                     const InDet::SiWidth& width,
+                     const InDetDD::SiDetectorElement* detEl,
+                     Amg::MatrixX&& locErrMat)
+  : // call base class constructor
+  PrepRawData(RDOId, locpos, std::move(rdoList), std::move(locErrMat))
+  , m_globalPosition(globpos)
+  , m_width(width)
+  , m_detEl(detEl)
+  , m_gangedPixel(false)
+{}
 
 // Destructor:
 SiCluster::~SiCluster()
@@ -59,52 +123,35 @@ SiCluster::~SiCluster()
   // do not delete m_detEl since owned by DetectorStore
 }
 
-
 MsgStream&
 SiCluster::dump(MsgStream& stream) const
 {
-  stream << "SiCluster object" << std::endl;
-
-  // have to do a lot of annoying checking to make sure that PRD is valid.
-  {
-    stream << "at global coordinates (x,y,z) = (" << this->globalPosition().x()
-           << ", " << this->globalPosition().y() << ", "
-           << this->globalPosition().z() << ")" << std::endl;
-  }
-
-  if (gangedPixel()) {
-    stream << "and is a ganged pixel. " << std::endl;
-  } else {
-    stream << "and is not a ganged pixel. " << std::endl;
-  }
-
-  stream << "SiWidth: " << m_width << std::endl;
-
-  stream << "Base class (PrepRawData):" << std::endl;
-  this->PrepRawData::dump(stream);
-
+  std::ostringstream out;
+  dump(out);
+  stream<<out.str();
   return stream;
 }
 
 std::ostream&
 SiCluster::dump(std::ostream& stream) const
 {
-  stream << "SiCluster object" << std::endl;
+  const std::string lf("\n");
+  stream << "SiCluster object" << lf;
   {
     stream << "at global coordinates (x,y,z) = (" << this->globalPosition().x()
            << ", " << this->globalPosition().y() << ", "
-           << this->globalPosition().z() << ")" << std::endl;
+           << this->globalPosition().z() << ")" << lf;
   }
 
   if (gangedPixel()) {
-    stream << "and is a ganged pixel. " << std::endl;
+    stream << "and is a ganged pixel. " << lf;
   } else {
-    stream << "and is not a ganged pixel. " << std::endl;
+    stream << "and is not a ganged pixel. " << lf;
   }
 
-  stream << "SiWidth: " << m_width << std::endl;
+  stream << "SiWidth: " << m_width << lf;
 
-  stream << "Base Class (PrepRawData): " << std::endl;
+  stream << "Base Class (PrepRawData): " << lf;
   this->PrepRawData::dump(stream);
 
   return stream;
@@ -122,4 +169,4 @@ operator<<(std::ostream& stream, const SiCluster& prd)
   return prd.dump(stream);
 }
 
-} // end of ns
+} // end of nsk

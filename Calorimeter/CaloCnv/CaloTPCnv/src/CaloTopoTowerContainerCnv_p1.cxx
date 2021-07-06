@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTPCnv/CaloTopoTowerContainerCnv_p1.h"
@@ -30,8 +30,6 @@ void CaloTopoTowerContainerCnv_p1::persToTrans (const CaloTopoTowerContainer_p1*
   trans->m_minimumCellEnergy=pers->m_minimumCellEnergy;
   trans->m_minimumClusterEnergy=pers->m_minimumClusterEnergy;
   trans->m_useCellWeights=pers->m_useCellWeights;
-  trans->m_useNoiseTool=pers->m_useNoiseTool;
-  trans->m_usePileUpNoise=pers->m_usePileUpNoise;
   trans->m_noiseSigma=pers->m_noiseSigma;
   trans->m_cellESignificanceThreshold=pers->m_cellESignificanceThreshold;
   trans->m_caloSelection=pers->m_caloSelection;
@@ -56,8 +54,6 @@ void CaloTopoTowerContainerCnv_p1::transToPers (const CaloTopoTowerContainer* tr
   pers->m_minimumCellEnergy=trans->m_minimumCellEnergy;
   pers->m_minimumClusterEnergy=trans->m_minimumClusterEnergy;
   pers->m_useCellWeights=trans->m_useCellWeights;
-  pers->m_useNoiseTool=trans->m_useNoiseTool;
-  pers->m_usePileUpNoise=trans->m_usePileUpNoise;
   pers->m_noiseSigma=trans->m_noiseSigma;
   pers->m_cellESignificanceThreshold=trans->m_cellESignificanceThreshold;
   pers->m_caloSelection=trans->m_caloSelection;

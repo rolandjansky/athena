@@ -39,7 +39,7 @@ def testCfg (configFlags):
     result = ComponentAccumulator()
 
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
-    result.merge (MuonGeoModelCfg(configFlags))
+    result.merge (MuonGeoModelCfg(configFlags, forceDisableAlignment=True))
 
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     result.merge (MagneticFieldSvcCfg(configFlags, UseDCS = False))
@@ -57,7 +57,6 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 
 ConfigFlags.Input.Files = defaultTestFiles.RAW
-
 ConfigFlags.lock()
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
 acc=MainServicesCfg(ConfigFlags)

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 #/** @file post.sh
 # @brief sh script that checks the return code of an executable and compares
@@ -129,7 +129,7 @@ PP="$PP"'|PluginMgr +INFO loaded plugin info for'
 # ignore HistorySvc registered count
 PP="$PP"'|HistorySvc +INFO Registered'
 # ignore clid registry entries count
-PP="$PP"'|ClassIDSvc[ [:digit:]]+INFO  getRegistryEntries: read'
+PP="$PP"'|ClassIDSvc[ [:digit:]]+INFO\s+getRegistryEntries: read'
 # ignore existsDir path WARNINGS
 PP="$PP"'|DirSearchPath::existsDir: WARNING not a directory'
 # ignore warnings about duplicate services/converters.
@@ -153,7 +153,6 @@ PP="$PP"'|^HistogramPersis.*Histograms saving not required.'
 PP="$PP"'|^StatusCodeSvc'
 PP="$PP"'|^ApplicationMgr +INFO Successfully loaded'
 PP="$PP"'|^IncidentSvc +DEBUG Service base class'
-PP="$PP"'|^ClassIDSvc +WARNING Could not resolve clid DB path notthere.db'
 PP="$PP"'|^IncidentSvc         DEBUG Adding .* listener '.*' with priority .*'
 PP="$PP"'|MessageSvc not found, will use std::cerr'
 PP="$PP"'|^AtRndmGenSvc         INFO Initializing AtRndmGenSvc'
@@ -266,10 +265,14 @@ PP="$PP"'|MetaInputLoader *INFO ( address|.*is still valid for|.*and sid)'
 PP="$PP"'|^FileMgr +DEBUG Successfully registered handler for tech'
 
 # TagInfoMgr not longer a ConversionSvc
-# this line is gone
+# these lines are gone
 PP="$PP"'|Added successfully Conversion service:TagInfoMgr'
+PP="$PP"'|TagInfoMgr +DEBUG in queryInterface'
 # this line moved around
 PP="$PP"'|Added successfully Conversion service:AthenaPoolCnvSvc'
+
+# Py:PropertyProxy
+PP="$PP"'|Py:PropertyProxy.*WARNING'
 
 ########################################### END #####################################################
 

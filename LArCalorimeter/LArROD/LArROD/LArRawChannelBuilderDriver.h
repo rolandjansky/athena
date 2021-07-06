@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -63,9 +63,9 @@ class LArRawChannelBuilderDriver : public AthAlgorithm
   
   float pedestal();
   
-  void ADC2energy();
+  void ADC2energy (const EventContext& ctx);
   
-  LArRawChannelBuilderParams* m_params;
+  LArRawChannelBuilderParams m_params;
   
   typedef ToolHandleArray<ILArRawChannelBuilderToolBase>           builderToolVector;
   typedef ToolHandleArray<ILArRawChannelBuilderADC2EToolBase>      adc2eToolVector;

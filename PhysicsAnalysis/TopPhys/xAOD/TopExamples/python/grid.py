@@ -4,8 +4,8 @@
 import os
 import sys
 import distutils.spawn
-import logger
-import analysis
+import TopExamples.logger as logger
+import TopExamples.analysis as analysis
 import ROOT
 from PathResolver import PathResolver
 
@@ -468,7 +468,7 @@ def checkForShowerAlgorithm(Samples, cutfile):
                     continue
                 dsid = sample.split('.')[1]
                 dsid = int(dsid)
-                hasShower = tdp.getShower(dsid) in ['sherpa','sherpa21','pythia','pythia8','herwigpp','amcatnlopythia8', 'herwigpp713', 'sherpa228']
+                hasShower = tdp.getShower(dsid) in ['sherpa','sherpa21','pythia','pythia8','herwigpp','amcatnlopythia8', 'herwigpp713', 'sherpa228', 'sherpa2210', 'herwigpp721']
                 #print hasShower,"   ",sample
                 if not tdp.hasID(dsid) or not hasShower:
                     noShowerDatasets += [dsid]

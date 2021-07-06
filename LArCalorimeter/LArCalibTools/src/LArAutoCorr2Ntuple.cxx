@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArAutoCorr2Ntuple.h"
@@ -9,9 +9,8 @@
 #include "StoreGate/StoreGateSvc.h"
 
 LArAutoCorr2Ntuple::LArAutoCorr2Ntuple(const std::string& name, ISvcLocator* pSvcLocator)
-  : LArCond2NtupleBase(name, pSvcLocator)//,m_nsamples(7)
+  : LArCond2NtupleBase(name, pSvcLocator)
 {
-  declareProperty("ContainerKey",m_objKey);
   declareProperty("Nsamples",    m_nsamples=32);
   
   m_ntTitle="AutoCorrelation";
@@ -19,12 +18,18 @@ LArAutoCorr2Ntuple::LArAutoCorr2Ntuple(const std::string& name, ISvcLocator* pSv
 
 }
 
+StatusCode LArAutoCorr2Ntuple::initialize() {
+   ATH_CHECK(m_objKey.initialize());
+   return LArCond2NtupleBase::initialize();
+}
 
 LArAutoCorr2Ntuple::~LArAutoCorr2Ntuple() 
 {}
 
 StatusCode LArAutoCorr2Ntuple::stop() {
   
+ ATH_MSG_INFO( "LArAutoCorr2Ntuple in stop " << m_nt);
+
  StatusCode sc; 
  NTuple::Array<float> cov;
  NTuple::Item<long> gain, cellIndex;
@@ -46,23 +51,33 @@ StatusCode LArAutoCorr2Ntuple::stop() {
    return StatusCode::FAILURE;
  }
 
- const ILArAutoCorr* larAutoCorr;
- sc=m_detStore->retrieve(larAutoCorr,m_objKey);
- if (sc!=StatusCode::SUCCESS){
-   ATH_MSG_ERROR( "Unable to retrieve ILArAutoCorr with key " 
-       << m_objKey << " from DetectorStore" );
+ ATH_MSG_DEBUG( "LArAutoCorr2Ntuple reading container " << m_objKey.key());
+ // For compatibility with existing configurations, look in the detector
+ // store first, then in conditions.
+ const ILArAutoCorr* larAutoCorr=nullptr;
+ larAutoCorr = detStore()->tryConstRetrieve<ILArAutoCorr>(m_objKey.key());
+ if(!larAutoCorr) {
+    ATH_MSG_DEBUG( "No ILArAutoCorr found, trying LArAutoCorrComplete " << m_objKey.key());
+    const LArAutoCorrComplete *larComplete =
+        detStore()->tryConstRetrieve<LArAutoCorrComplete>(m_objKey.key());
+    if(larComplete) {
+       larAutoCorr = larComplete;
+    } else {
+       ATH_MSG_DEBUG( "LArAutoCorr2Ntuple reading conditions" );
+       SG::ReadCondHandle<ILArAutoCorr> acHdl{m_objKey};
+       larAutoCorr = *acHdl;
+    }
+ }
+ if(larAutoCorr==nullptr){
+   ATH_MSG_ERROR( "Unable to retrieve ILArAutoCorr with key " << m_objKey.key() << " neither from DetectorStore neither from conditions" );
    return StatusCode::FAILURE;
- } 
-
+ }
 
  unsigned cellCounter=0;
  unsigned cellZeroCounter=0;
  for ( unsigned igain=CaloGain::LARHIGHGAIN; 
        igain<CaloGain::LARNGAIN ; ++igain ) {
-   std::vector<HWIdentifier>::const_iterator it = m_onlineId->channel_begin();
-   std::vector<HWIdentifier>::const_iterator it_e = m_onlineId->channel_end();
-   for (;it!=it_e;it++) {
-     const HWIdentifier hwid = *it;
+   for (HWIdentifier hwid : m_onlineId->channel_range()) {
      ILArAutoCorr::AutoCorrRef_t corr=larAutoCorr->autoCorr(hwid,igain);
 
      if (corr.size()>0) {
@@ -70,12 +85,12 @@ StatusCode LArAutoCorr2Ntuple::stop() {
        gain = igain;
        cellIndex = cellCounter;
        for(unsigned i=0;i<m_nsamples-1 && i<corr.size();i++)
-	 cov[i] = corr[i];
+         cov[i] = corr[i];
 
        sc = ntupleSvc()->writeRecord(m_nt);
        if (sc!=StatusCode::SUCCESS) {
-	 ATH_MSG_ERROR( "writeRecord failed" );
-	 return StatusCode::FAILURE;
+         ATH_MSG_ERROR( "writeRecord failed" );
+         return StatusCode::FAILURE;
        }
        cellCounter++;
      } else { ++cellZeroCounter;}//end if size>0

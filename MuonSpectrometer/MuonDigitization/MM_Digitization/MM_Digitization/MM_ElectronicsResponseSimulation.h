@@ -57,11 +57,11 @@ public :
   void initialize();
 
   void clearValues ();
-  void vmmPeakResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip, const float thresholdScaleFactor);
-  void vmmThresholdResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip, const float thresholdScaleFactor);
+  void vmmPeakResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip, const std::vector<float>& electronicsThreshold);
+  void vmmThresholdResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip, const std::vector<float>& electronicsThreshold);
 
-  MM_DigitToolOutput getPeakResponseFrom(const MM_ElectronicsToolInput & digiInput, const float thresholdScaleFactor);
-  MM_DigitToolOutput getThresholdResponseFrom(const MM_ElectronicsToolInput & digiInput, const float thresholdScaleFactor);
+  MM_DigitToolOutput getPeakResponseFrom(const MM_ElectronicsToolInput & digiInput);
+  MM_DigitToolOutput getThresholdResponseFrom(const MM_ElectronicsToolInput & digiInput);
 
   MM_ElectronicsToolTriggerOutput getTheFastestSignalInVMM(const MM_DigitToolOutput & ElectronicThresholdOutput, const int chMax, const int stationEta);
   int getIdTheFastestSignalInVMM(float time, int VMM_id, std::vector<int> trigger_VMM_id, const std::vector<float> ElectronicsThreshold_stripTime, float timeWindowLower, float timeWindowUpper);
@@ -74,7 +74,6 @@ public :
   inline void setPeakTime(float val) { m_peakTime = val;  };
   inline void setTimeWindowLowerOffset(float val) { m_timeWindowLowerOffset = val;};
   inline void setTimeWindowUpperOffset(float val) { m_timeWindowUpperOffset = val;};
-  inline void setElectronicsThreshold(float val) { m_electronicsThreshold = val;};
   inline void setStripdeadtime(float val) { m_stripDeadTime = val;};
   inline void setARTdeadtime(float val)   { m_artDeadTime = val;};
 
@@ -84,7 +83,6 @@ public :
   float getPeakTime() const { return m_peakTime;};
   float getTimeWindowLowerOffset() const { return m_timeWindowLowerOffset ;};
   float getTimeWindowUpperOffset() const { return m_timeWindowUpperOffset ;};
-  float getElectronicsThreshold() const { return m_electronicsThreshold;};
   float getStripdeadtime() const { return m_stripDeadTime;};
   float getARTdeadtime() const { return m_artDeadTime;};
 
@@ -99,7 +97,6 @@ private:
   float m_peakTime;
   float m_timeWindowLowerOffset;
   float m_timeWindowUpperOffset;
-  float m_electronicsThreshold;
   float m_stripDeadTime;
   float m_artDeadTime;
   bool  m_useNeighborLogic;

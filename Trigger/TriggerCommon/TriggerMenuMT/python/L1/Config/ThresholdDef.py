@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from ..Base.Thresholds import MuonThreshold, EMThreshold, TauThreshold, JetThreshold, XEThreshold, MBTSThreshold, MBTSSIThreshold, NimThreshold, ThresholdValue
+from ..Base.Thresholds import MuonThreshold, EMThreshold, TauThreshold, JetThreshold, XEThreshold, MBTSThreshold, MBTSSIThreshold, NimThreshold
 
 class ThresholdDef:
 
@@ -32,30 +32,53 @@ class ThresholdDef:
     @staticmethod
     def registerThresholds(tc, menuName):
 
-        isV6 = '_v6' in menuName
-
         if ThresholdDef.alreadyExecuted:
             raise RuntimeError("Calling ThresholdDef.registerThresholds twice")
         ThresholdDef.alreadyExecuted = True
  
-        # MU
-        ThresholdValue.setDefaults('MU', {})
+        # MU (ATR-23227)
+        # Primary and emergency:
+        MuonThreshold( "MU3V"     ).setThrValue( thr=3, ba=4 )                     # similar to Run-2 MU4 efficiency
+        MuonThreshold( "MU3VF"    ).setThrValue( thr=3, ba=4 ).setTGCFlags("F")    # similar to Run-2 MU4 rate
+        MuonThreshold( "MU3VC"    ).setThrValue( thr=3, ba=4 ).setTGCFlags("C")    # to be checked
+        MuonThreshold( "MU5VF"    ).setThrValue( thr=5, ba=6 ).setTGCFlags("F")    # similar to Run-2 MU6
+        MuonThreshold( "MU8F"     ).setThrValue( thr=8 ).setTGCFlags("F")          # similar to Run-2 MU10
+        MuonThreshold( "MU8FC"    ).setThrValue( thr=8 ).setTGCFlags("F & C")      # backup for MU8F
+        MuonThreshold( "MU9VF"    ).setThrValue( thr=9,ba=8 ).setTGCFlags("F")     # backup for MU8F
+        MuonThreshold( "MU9VFC"   ).setThrValue( thr=9,ba=8 ).setTGCFlags("F & C") # backup for MU8F
+        MuonThreshold( "MU8VF"    ).setThrValue( thr=8, ba=10 ).setTGCFlags("F")   # similar to Run-2 MU11
+        MuonThreshold( "MU14FCH"  ).setThrValue( thr=14 ).setTGCFlags("F & C & H") # similar to Run-2 MU20
+        MuonThreshold( "MU14FCHR" ).setThrValue( thr=14 ).setTGCFlags("F & C & H").setExclusionList("rpcFeet") # similar to Run-2 MU21
+        MuonThreshold( "MU15VFCH" ).setThrValue( thr=15, ba=14 ).setTGCFlags("F & C & H") # similar to Run-2 MU20, bit lower rate than MU14
+        MuonThreshold( "MU15VFCHR").setThrValue( thr=15, ba=14 ).setTGCFlags("F & C & H").setExclusionList("rpcFeet") # emergency        
+        MuonThreshold( "MU18VFCH" ).setThrValue( thr=18, ba=14 ).setTGCFlags("F & C & H") # emergency 
+        # Close-by barrel muon:
+        MuonThreshold( "MU10BOM"  ).setThrValue( thr=10 ).setRPCFlags("M").setRegion("BA") # multiple close-by muons, barrel-only
+        MuonThreshold( "MU12BOM"  ).setThrValue( thr=12 ).setRPCFlags("M").setRegion("BA") # multiple close-by muons, barel-only, emergency
+        # Late muon:
+        MuonThreshold( "MU8FH"    ).setThrValue( thr=8 ).setTGCFlags("F & H") # for late muon 
+        # Alignment:
+        MuonThreshold( "MU20FC"   ).setThrValue( thr=20, ba=14 ).setTGCFlags("F & C") # alignment with toroid off
+        # Commissioning:
+        MuonThreshold( "MU12FCH"  ).setThrValue( thr=12 ).setTGCFlags("F & C & H")             # commissioning
+        MuonThreshold( "MU4BOM"   ).setThrValue( thr=4  ).setRPCFlags("M").setRegion("BA")     # multiple close-by muons, barrel-only, commissioning
+        MuonThreshold( "MU4BO"    ).setThrValue( thr=4  ).setRegion("BA")                      # barrel-only, commissioning
+        MuonThreshold( "MU14EOF"  ).setThrValue( thr=14 ).setTGCFlags("F").setRegion("EC,FW")  # forward muon, commissioning
+        MuonThreshold( "MU8EOF"   ).setThrValue( thr=8  ).setTGCFlags("F").setRegion("EC,FW")  # forward muon, commissioning
+        MuonThreshold( "MU3EOF"   ).setThrValue( thr=3, ba=4 ).setTGCFlags("F").setRegion("EC,FW")  # forward muon, commissioning
 
-        MuonThreshold( 'MU0'   ).setThrValue( thr = 4 )
-        MuonThreshold( 'MU4'   ).setThrValue( ba=4,  ec=4,  fw=4 )
-        MuonThreshold( 'MU5'   ).setThrValue( ba=4,  ec=4,  fw=6  )
-        MuonThreshold( 'MU6'   ).setThrValue( thr=6  )
-        MuonThreshold( 'MU6M'  ).setThrValue( thr=6,  fw=8  ).setTGCFlags("F & C | F & H | C & H")
-        MuonThreshold( 'MU10'  ).setThrValue( thr=10  )
-        MuonThreshold( 'MU11'  ).setThrValue( thr=10 )
-        MuonThreshold( 'MU15'  ).setThrValue( thr=14, ba=15 )
-        MuonThreshold( 'MU20'  ).setThrValue( thr=20 )
-        MuonThreshold( 'MU21'  ).setThrValue( thr=20 ).setExclusionList("rpcFeet")
-        MuonThreshold( 'MU20BA').setThrValue( thr=20 ).setRegion("BA")
-        MuonThreshold( 'MU20NF').setThrValue( thr=20 ).setExclusionList("rpcFeet")
-        MuonThreshold( 'MU22'  ).setThrValue( thr=20 )
-        MuonThreshold( 'MU24'  ).setThrValue( thr=20 )
-        MuonThreshold( 'MU26'  ).setThrValue( thr=20 )
+        # backward compatible threshold names (definition like above)
+        MuonThreshold( "MU4" ).setThrValue( thr=3, ba=4 )                     # similar to Run-2 MU4 efficiency
+        MuonThreshold( "MU6" ).setThrValue( thr=5, ba=6 ).setTGCFlags("F")    # similar to Run-2 MU6
+        MuonThreshold( "MU10").setThrValue( thr=8 ).setTGCFlags("F")          # similar to Run-2 MU10
+        MuonThreshold( "MU11").setThrValue( thr=8, ba=10 ).setTGCFlags("F")   # similar to Run-2 MU11
+        MuonThreshold( "MU15").setThrValue( thr=12).setTGCFlags("F & c & H")  # guess
+        MuonThreshold( "MU20").setThrValue( thr=14 ).setTGCFlags("F & C & H") # similar to Run-2 MU20
+        MuonThreshold( "MU21" ).setThrValue( thr=14 ).setTGCFlags("F & C & H").setExclusionList("rpcFeet") # similar to Run-2 MU21
+
+        # special threshold for magnet-off menu
+        MuonThreshold( "MU0").setThrValue( thr=0 )
+
 
 
         # EM 
@@ -158,20 +181,17 @@ class ThresholdDef:
         for et in [12,20, 25]:
             TauThreshold('eTAU%iIM' % et, 'eTAU').setEt(et)
 
-
-
         # JET
         for thrV in [12, 15, 20, 25, 30, 40, 50, 85, 100]:
             JetThreshold('jJ%i' % thrV, 'jJ').setPt(thrV).addRange(etamin=-31, etamax=31) # jets are between -31 and 31 -ATR-11526
 
-
         # Central jet
-        for (thrV, etamax) in [(12,23), (15,25), (25,23), (35,23), (40,25)]:
-            JetThreshold('jJ%i.0ETA%i'  % (thrV, etamax), 'jJ').setPt(thrV).addRange(etamin = -etamax,  etamax = etamax)  
+        for (thrV, etamax) in [(12,25), (15,25), (25,23), (35,23), (40,25)]:
+            JetThreshold('jJ%ip0ETA%i'  % (thrV, etamax), 'jJ').setPt(thrV).addRange(etamin = -etamax,  etamax = etamax)  
 
         # Standard forward jet
         for thrV in [15, 20, 75]:
-            JetThreshold('jJ%i.31ETA49' % thrV, 'jJ').setPt(thrV).addRange(etamin=31, etamax=49).addRange(etamin=-49, etamax=-31)
+            JetThreshold('jJ%ip31ETA49' % thrV, 'jJ').setPt(thrV).addRange(etamin=31, etamax=49).addRange(etamin=-49, etamax=-31)
 
         # XE
         for thrV in [20, 50]:
@@ -248,22 +268,19 @@ class ThresholdDef:
         NimThreshold('LUCID_05', 'LUCID')
         NimThreshold('LUCID_06', 'LUCID')
 
-        ## AFP
-
-        if isV6:
-            NimThreshold('AFP_NSC', 'NIM', mapping=2)
-            NimThreshold('AFP_FSC', 'NIM', mapping=3)
-            NimThreshold('AFP_NSA', 'NIM', mapping=4)
-            NimThreshold('AFP_FSA', 'NIM', mapping=5)      
-        else:
-            NimThreshold('AFP_NSC', 'NIM', mapping=2)        
-            NimThreshold('AFP_NSA', 'NIM', mapping=3)        
-            NimThreshold('AFP_FSA_SIT', 'NIM', mapping=4)        
-            NimThreshold('AFP_FSA_TOF', 'NIM', mapping=5)  
-            NimThreshold('AFP_FSA_LOG', 'NIM', mapping=6)        
-            NimThreshold('AFP_FSC_SIT', 'NIM', mapping=7)        
-            NimThreshold('AFP_FSC_LOG', 'NIM', mapping=8)        
-            NimThreshold('AFP_FSC_TOF', 'NIM', mapping=9)  
+        ## AFP (ATR-23476)
+        NimThreshold('AFP_NSA', 'NIM', mapping=2)        
+        NimThreshold('AFP_FSA', 'NIM', mapping=3)        
+        NimThreshold('AFP_FSA_TOF_T0', 'NIM', mapping=4)        
+        NimThreshold('AFP_FSA_TOF_T1', 'NIM', mapping=5)  
+        NimThreshold('AFP_FSA_TOF_T2', 'NIM', mapping=6)        
+        NimThreshold('AFP_FSA_TOF_T3', 'NIM', mapping=7)        
+        NimThreshold('AFP_NSC', 'NIM', mapping=15)        
+        NimThreshold('AFP_FSC', 'NIM', mapping=16)        
+        NimThreshold('AFP_FSC_TOF_T0', 'NIM', mapping=17)     
+        NimThreshold('AFP_FSC_TOF_T1', 'NIM', mapping=18)
+        NimThreshold('AFP_FSC_TOF_T2', 'NIM', mapping=19)     
+        NimThreshold('AFP_FSC_TOF_T3', 'NIM', mapping=20)
 
 
         ## BPTX

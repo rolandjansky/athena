@@ -2,10 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <utility>
+
+
+
 #include "TrkValHistUtils/TruthTrkExtrapolationPlots.h"
 
 namespace Trk {
-  TruthTrkExtrapolationPlots::TruthTrkExtrapolationPlots(PlotBase *pParent, std::string sDir) : PlotBase(pParent, sDir),
+  TruthTrkExtrapolationPlots::TruthTrkExtrapolationPlots(PlotBase *pParent, const std::string& sDir) : PlotBase(pParent, sDir),
     m_CaloEntry(this, "", "CaloEntry"),
     m_MuonEntry(this, "", "MuonEntry"),
     m_MuonExit(this, "", "MuonExit")
@@ -19,10 +23,10 @@ namespace Trk {
   }
 
   void
-  TruthTrkExtrapolationPlots::fill(const xAOD::TruthParticle &truthprt) {
-    m_CaloEntry.fill(truthprt, "CaloEntryLayer");
-    m_MuonEntry.fill(truthprt, "MuonEntryLayer");
-    m_MuonExit.fill(truthprt, "MuonExitLayer");
+  TruthTrkExtrapolationPlots::fill(const xAOD::TruthParticle &truthprt, float weight) {
+    m_CaloEntry.fill(truthprt, "CaloEntryLayer", weight);
+    m_MuonEntry.fill(truthprt, "MuonEntryLayer", weight);
+    m_MuonExit.fill(truthprt, "MuonExitLayer", weight);
 
     // m_Calo.fill(truthprt,"CaloEntryLayer_","MuonEntryLayer_");
     // m_MS.fill(truthprt, "MuonEntryLayer_","MuonExitLayer_");
@@ -32,8 +36,8 @@ namespace Trk {
     // m_IP_MS.fill(truthprt, "","MuonExitLayer_");
   }
 
-  ExtrLayerPlots::ExtrLayerPlots(PlotBase *pParent, std::string sDir, std::string sLayerName) : PlotBase(pParent, sDir),
-    m_sLayerName(sLayerName),
+  ExtrLayerPlots::ExtrLayerPlots(PlotBase *pParent, const std::string& sDir, std::string sLayerName) : PlotBase(pParent, sDir),
+    m_sLayerName(std::move(sLayerName)),
     p{},px{},py{},pz{},p_extr{},px_extr{},py_extr{},pz_extr{},dp_truth{},dpx_truth{},dpy_truth{},dpz_truth{},
     pt{},eta{},phi{},theta{}{
     //nop
@@ -71,7 +75,7 @@ namespace Trk {
   }
 
   void
-  ExtrLayerPlots::fill(const xAOD::TruthParticle &truthprt, std::string sNom) {
+  ExtrLayerPlots::fill(const xAOD::TruthParticle &truthprt, const std::string& sNom, float weight) {
     if (!truthprt.isAvailable<float>(sNom + "_px") ||
         !truthprt.isAvailable<float>(sNom + "_py") ||
         !truthprt.isAvailable<float>(sNom + "_pz")) {
@@ -93,15 +97,15 @@ namespace Trk {
                     truthprt.auxdata<float>(sNom + "_py_extr"),
                     truthprt.auxdata<float>(sNom + "_pz_extr"));
 
-    p->Fill(vec.Mag() * 0.001);
+    p->Fill(vec.Mag() * 0.001, weight);
     // px->Fill(vec.Px()*0.001);
     // py->Fill(vec.Py()*0.001);
     // pz->Fill(vec.Pz()*0.001);
-    p_extr->Fill(vec_extr.Mag() * 0.001);
+    p_extr->Fill(vec_extr.Mag() * 0.001, weight);
     // px_extr->Fill(vec_extr.Px()*0.001);
     // py_extr->Fill(vec_extr.Py()*0.001);
     // pz_extr->Fill(vec_extr.Pz()*0.001);
-    dp_truth->Fill((vec.Mag() - vec_extr.Mag()) * 0.001);
+    dp_truth->Fill((vec.Mag() - vec_extr.Mag()) * 0.001, weight);
     // dpx_truth->Fill((vec.Px()-vec_extr.Px())*0.001);
     // dpy_truth->Fill((vec.Py()-vec_extr.Py())*0.001);
     // dpz_truth->Fill((vec.Pz()-vec_extr.Pz())*0.001);
@@ -111,10 +115,10 @@ namespace Trk {
     // theta->Fill(vec.Theta());
   }
 
-  ExtrRegionPlots::ExtrRegionPlots(PlotBase *pParent, std::string sDir, std::string sRegionBegin,
+  ExtrRegionPlots::ExtrRegionPlots(PlotBase *pParent, const std::string& sDir, std::string sRegionBegin,
                                    std::string sRegionEnd) : PlotBase(pParent, sDir),
-    m_sRegionBegin(sRegionBegin),
-    m_sRegionEnd(sRegionEnd),
+    m_sRegionBegin(std::move(sRegionBegin)),
+    m_sRegionEnd(std::move(sRegionEnd)),
     dp{},dpt{},dpx{},dpy{},dpz{},dp_extr{},dpx_extr{},dpy_extr{},dpz_extr{},
     dp_vs_p{},dp_vs_phi{},dp_vs_eta{},dp_vs_eta_phi{},p_vs_p{},p_extr_vs_p_extr{},dp_extr_vs_eta{},
     dR{},dR_vs_p{},dR_vs_dp{},dR_vs_eta{},dR_vs_phi{},dR_vs_eta_phi{},dphi{},dtheta{},dAngle{},
@@ -217,7 +221,7 @@ namespace Trk {
   }
 
   void
-  ExtrRegionPlots::fill(const xAOD::TruthParticle &truthprt, std::string sDetBegin, std::string sDetEnd) {
+  ExtrRegionPlots::fill(const xAOD::TruthParticle &truthprt, const std::string& sDetBegin, const std::string& sDetEnd, float weight) {
     if (!truthprt.isAvailable<float>(sDetBegin + "px") ||
         !truthprt.isAvailable<float>(sDetBegin + "py") ||
         !truthprt.isAvailable<float>(sDetBegin + "pz") ||
@@ -266,36 +270,38 @@ namespace Trk {
       vecDetEnd_extr = vecDetEnd;
     }
 
-    dp->Fill((vecDetBegin.Mag() - vecDetEnd.Mag()) * 0.001);
-    dpt->Fill((vecDetBegin.Perp() - vecDetEnd.Perp()) * 0.001);
-    dpx->Fill((vecDetBegin.Px() - vecDetEnd.Px()) * 0.001);
-    dpy->Fill((vecDetBegin.Py() - vecDetEnd.Py()) * 0.001);
-    dpz->Fill((vecDetBegin.Pz() - vecDetEnd.Pz()) * 0.001);
-    dp_extr->Fill((vecDetBegin_extr.Mag() - vecDetEnd_extr.Mag()) * 0.001);
-    dpx_extr->Fill((vecDetBegin_extr.Px() - vecDetEnd_extr.Px()) * 0.001);
-    dpy_extr->Fill((vecDetBegin_extr.Py() - vecDetEnd_extr.Py()) * 0.001);
-    dpz_extr->Fill((vecDetBegin_extr.Pz() - vecDetEnd_extr.Pz()) * 0.001);
+    dp->Fill((vecDetBegin.Mag() - vecDetEnd.Mag()) * 0.001, weight);
+    dpt->Fill((vecDetBegin.Perp() - vecDetEnd.Perp()) * 0.001, weight);
+    dpx->Fill((vecDetBegin.Px() - vecDetEnd.Px()) * 0.001, weight);
+    dpy->Fill((vecDetBegin.Py() - vecDetEnd.Py()) * 0.001, weight);
+    dpz->Fill((vecDetBegin.Pz() - vecDetEnd.Pz()) * 0.001, weight);
+    dp_extr->Fill((vecDetBegin_extr.Mag() - vecDetEnd_extr.Mag()) * 0.001, weight);
+    dpx_extr->Fill((vecDetBegin_extr.Px() - vecDetEnd_extr.Px()) * 0.001, weight);
+    dpy_extr->Fill((vecDetBegin_extr.Py() - vecDetEnd_extr.Py()) * 0.001, weight);
+    dpz_extr->Fill((vecDetBegin_extr.Pz() - vecDetEnd_extr.Pz()) * 0.001, weight);
     // 2D
-    dp_vs_p->Fill(vecDetBegin.Mag() * 0.001, (vecDetBegin.Mag() - vecDetEnd.Mag()) * 0.001);
-    dp_vs_phi->Fill(vecDetBegin.Phi(), (vecDetBegin.Mag() - vecDetEnd.Mag()) * 0.001);
-    dp_vs_eta->Fill(vecDetBegin.Eta(), (vecDetBegin.Mag() - vecDetEnd.Mag()) * 0.001);
+    dp_vs_p->Fill(vecDetBegin.Mag() * 0.001, (vecDetBegin.Mag() - vecDetEnd.Mag()) * 0.001, weight);
+    dp_vs_phi->Fill(vecDetBegin.Phi(), (vecDetBegin.Mag() - vecDetEnd.Mag()) * 0.001, weight);
+    dp_vs_eta->Fill(vecDetBegin.Eta(), (vecDetBegin.Mag() - vecDetEnd.Mag()) * 0.001, weight);
+    // not sure how to weight this
     dp_vs_eta_phi->Fill(vecDetBegin.Eta(), vecDetBegin.Phi(), (vecDetBegin.Mag() - vecDetEnd.Mag()) * 0.001);
-    p_vs_p->Fill(vecDetBegin.Mag() * 0.001, vecDetEnd.Mag() * 0.001);
-    p_extr_vs_p_extr->Fill(vecDetBegin_extr.Mag() * 0.001, vecDetEnd_extr.Mag() * 0.001);
-    dp_extr_vs_eta->Fill(vecDetBegin_extr.Eta(), (vecDetBegin_extr.Mag() - vecDetEnd_extr.Mag()) * 0.001);
+    p_vs_p->Fill(vecDetBegin.Mag() * 0.001, vecDetEnd.Mag() * 0.001, weight);
+    p_extr_vs_p_extr->Fill(vecDetBegin_extr.Mag() * 0.001, vecDetEnd_extr.Mag() * 0.001, weight);
+    dp_extr_vs_eta->Fill(vecDetBegin_extr.Eta(), (vecDetBegin_extr.Mag() - vecDetEnd_extr.Mag()) * 0.001, weight);
 
     // multiple scattering
-    dR->Fill(vecDetBegin.DeltaR(vecDetEnd));
+    dR->Fill(vecDetBegin.DeltaR(vecDetEnd),weight);
     // 2D
-    dR_vs_p->Fill(vecDetBegin.Mag() * 0.001, vecDetBegin.DeltaR(vecDetEnd));
-    dR_vs_dp->Fill((vecDetBegin.Mag() - vecDetEnd.Mag()) * 0.001, vecDetBegin.DeltaR(vecDetEnd));
-    dR_vs_eta->Fill(vecDetBegin.Eta(), vecDetBegin.DeltaR(vecDetEnd));
-    dR_vs_phi->Fill(vecDetBegin.Phi(), vecDetBegin.DeltaR(vecDetEnd));
-    dR_vs_eta_phi->Fill(vecDetBegin.Eta(), vecDetBegin.Phi(), vecDetBegin.DeltaR(vecDetEnd));
+    dR_vs_p->Fill(vecDetBegin.Mag() * 0.001, vecDetBegin.DeltaR(vecDetEnd),weight);
+    dR_vs_dp->Fill((vecDetBegin.Mag() - vecDetEnd.Mag()) * 0.001, vecDetBegin.DeltaR(vecDetEnd), weight);
+    dR_vs_eta->Fill(vecDetBegin.Eta(), vecDetBegin.DeltaR(vecDetEnd), weight);
+    dR_vs_phi->Fill(vecDetBegin.Phi(), vecDetBegin.DeltaR(vecDetEnd), weight);
+    // not sure how to weight this
+    dR_vs_eta_phi->Fill(vecDetBegin.Eta(), vecDetBegin.Phi(), vecDetBegin.DeltaR(vecDetEnd) );
 
-    dphi->Fill(vecDetBegin.DeltaPhi(vecDetEnd));
-    dtheta->Fill(vecDetBegin.Theta() - vecDetEnd.Theta());
+    dphi->Fill(vecDetBegin.DeltaPhi(vecDetEnd), weight);
+    dtheta->Fill(vecDetBegin.Theta() - vecDetEnd.Theta(), weight);
 
-    dAngle->Fill(vecDetBegin.Angle(vecDetEnd));
+    dAngle->Fill(vecDetBegin.Angle(vecDetEnd), weight);
   }
 }// namespace trk

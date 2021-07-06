@@ -3,6 +3,7 @@
 
 from RecExConfig.RecFlags import rec
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 rec.readAOD=True
 
@@ -54,7 +55,8 @@ if not ('fileList' in dir()) and not ('RunningRTT' in dir()):
 #added for RTT-chainstore conmpatibility
 if not ('RunningRTT' in dir()):
     acf.FilesInput=fileList
-#acf.FilesInput=fileList
+
+ConfigFlags.Input.Files = acf.FilesInput() or acf.PoolAODInput()
 
 
 

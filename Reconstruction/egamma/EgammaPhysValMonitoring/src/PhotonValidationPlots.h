@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAPHYSVALMONITORING_PHOTONVALIDATIONPLOTS_H
@@ -14,10 +14,12 @@
 #include "xAODEgamma/Photon.h"
 #include "xAODTruth/TruthParticle.h"
 
+#include "CLHEP/Units/SystemOfUnits.h"
+
 class PhotonValidationPlots:public PlotBase {
     public:
       PhotonValidationPlots(PlotBase* pParent, const std::string& sDir);
-      void fill(const xAOD::Photon& photon, bool isPrompt);
+  void fill(const xAOD::Photon& photon, const xAOD::EventInfo& eventInfo, bool isPrompt) const;
       
       std::string m_sParticleType;
       

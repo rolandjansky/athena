@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file DataStore_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -512,6 +510,24 @@ void test_dummy ATLAS_NOT_THREAD_SAFE ()
   assert (dp2->clID() == 456);
   assert (dp2->name() == "dp2");
   assert (dp2->refCount() == 1);
+
+  SG::StringPool::sgkey_t sgkey3 = pool.stringToKey ("dp3", 456);
+  SG::DataProxy* dp3 = make_proxy (0, "", sgkey3);
+  assert (store.addToStore (0, dp3).isSuccess());
+  assert (dp3->refCount() == 1);
+  assert (store.proxy_exact (sgkey3) == dp3);
+
+  dp1->addRef();
+  dp2->addRef();
+  dp3->addRef();
+  assert (dp1->refCount() == 2);
+  assert (dp2->refCount() == 2);
+  assert (dp3->refCount() == 2);
+
+  store.clearStore (true, false, nullptr);
+  assert (dp1->refCount() == 1);
+  assert (dp2->refCount() == 1);
+  assert (dp3->refCount() == 1);
 }
 
 

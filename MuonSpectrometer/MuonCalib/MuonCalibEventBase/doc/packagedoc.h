@@ -9,7 +9,8 @@
 
 @section MuonCalibEventBase_MuonCalibEventBaseIntro Introduction
 This package implements the internal Muon calibration EDM,
-with no dependencies on ATHENA. This feature allows processing the CalibrationNtuples within the Muon calibration EDM, without ATHENA dependencies.
+with no dependencies on ATHENA. This feature allows processing the CalibrationNtuples within the Muon calibration EDM, without ATHENA
+dependencies.
 
 @section MuonCalibEventBase_MuonCalibEventBaseOverview Class Overview
 The MuonCalibEventBase package contains the following classes :
@@ -18,9 +19,10 @@ The MuonCalibEventBase package contains the following classes :
 - MuonCalib::MuonCalibPattern           : prototrack from patternrecognition. Owns one or more MuonCalib::MuonCalibSegments.
 - MuonCalib::MuonCalibSegment           : track segment on station level. Contains XxxCalibHits.
 - MuonCalib::MuonCalibTruthCollection   : collection of MuonCalibXxxTruthHits and MuonCalib::MuonCalibTruth s.
-- MuonCalib::MuonCalibRawHitCollection  : collection of MuonCalibXxxRawHits. A 'raw hit' is uncalibrated, and has an occupancy of -1 when the hit is not assigned to any segment.
+- MuonCalib::MuonCalibRawHitCollection  : collection of MuonCalibXxxRawHits. A 'raw hit' is uncalibrated, and has an occupancy of -1 when
+the hit is not assigned to any segment.
 
-- MuonCalib::MdtCalibHitBase            : MDT hit, can be used for calibration. Is always assigned to a segment. 
+- MuonCalib::MdtCalibHitBase            : MDT hit, can be used for calibration. Is always assigned to a segment.
 - MuonCalib::RpcCalibHitBase            : RPC hit, used for MDT calibration. Is assigned to a segment.
 - MuonCalib::TgcCalibHitBase            : TGC hit, used for MDT calibration. Is assigned to a segment.
 - MuonCalib::CscCalibHitBase            : CSC hit, assigned to a segment.

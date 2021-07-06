@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -69,7 +69,7 @@ namespace InDet
 
       //! method calculating the dna-separation variables on the floor-projected track pars
       std::vector<double> calculateSignificance
-        (const std::vector<Trk::MeanTrackParsAtFloor>) const;
+        (const std::vector<Trk::MeanTrackParsAtFloor>&) const;
 
       //! Cutoff used in the Separator (VK)
       double  m_kutoff;

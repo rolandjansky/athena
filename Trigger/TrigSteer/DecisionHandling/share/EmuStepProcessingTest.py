@@ -40,14 +40,13 @@ for option in defaultOptions:
     else:        
         log.info(' %20s = (Default) %s' % (option, getattr(opt, option)))
 
-TriggerFlags.generateMenuDiagnostics=True
-
 from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc, getL1ConfigSvc
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 ConfigFlags.Trigger.triggerMenuSetup = TriggerFlags.triggerMenuSetup= 'LS2_v1'
+ConfigFlags.Trigger.generateMenuDiagnostics = True
 
 svcMgr += conf2toConfigurable( getHLTConfigSvc(ConfigFlags))
 svcMgr += conf2toConfigurable( getL1ConfigSvc(ConfigFlags))
@@ -69,12 +68,22 @@ from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr
 from GaudiSvc.GaudiSvcConf import THistSvc
 svcMgr += THistSvc()
 if hasattr(svcMgr.THistSvc, "Output"):
-    from TriggerJobOpts.HLTTriggerGetter import setTHistSvcOutput
+    from TriggerJobOpts.TriggerHistSvcConfig import setTHistSvcOutput
     setTHistSvcOutput(svcMgr.THistSvc.Output)
 
 print ("EmuStepProcessing: dump top Sequence after CF/DF Tree build")
 from AthenaCommon.AlgSequence import dumpSequence
 dumpSequence( topSequence )
+
+from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectDecisionObjects, collectHypoDecisionObjects, triggerOutputCfg
+from AthenaCommon.CFElements import findAlgorithm,findSubSequence
+hypos = collectHypos(findSubSequence(topSequence, "HLTAllSteps"))
+filters = collectFilters(findSubSequence(topSequence, "HLTAllSteps"))
+
+nfilters = sum(len(v) for v in filters.values())
+nhypos = sum(len(v) for v in hypos.values())
+log.info( "Algorithms counting: Number of Filter algorithms: %d  -  Number of Hypo algorithms: %d", nfilters , nhypos) 
+
 #dumpMasterSequence()
 
 theApp.EvtMax = 4

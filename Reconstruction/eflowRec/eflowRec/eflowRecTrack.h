@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -65,7 +65,7 @@ public:
   const std::vector<eflowTrackClusterLink*>& getClusterMatches() const { return m_clusterMatches; }
   void clearClusterMatches() { m_clusterMatches.clear(); }
 
-  const std::vector<eflowTrackClusterLink*>* getAlternativeClusterMatches(std::string key) const;// { return m_alternativeClusterMatches.at(key); }
+  const std::vector<eflowTrackClusterLink*>* getAlternativeClusterMatches(const std::string& key) const;// { return m_alternativeClusterMatches.at(key); }
 
   bool hasBin() const { return m_hasBin; }
   void setHasBin(bool hasBin) { m_hasBin = hasBin; }
@@ -124,7 +124,7 @@ private:
   int m_type;
   double m_pull15;
   
-  int m_layerHED;
+  int m_layerHED{};
   std::vector<int> m_layerCellOrderVector;
   std::vector<float> m_radiusCellOrderVector;
   std::vector<float> m_avgEdensityCellOrderVector;
@@ -144,7 +144,7 @@ private:
   std::map<std::string,std::vector<eflowTrackClusterLink*> > m_alternativeClusterMatches;
 
   ISvcLocator* m_svcLoc;
-  IMessageSvc* m_msgSvc;
+  IMessageSvc* m_msgSvc{};
   std::unique_ptr<MsgStream> m_mlog;
 
 public:

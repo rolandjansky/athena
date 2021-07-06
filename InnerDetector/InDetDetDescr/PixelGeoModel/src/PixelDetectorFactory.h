@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelDetectorFactory_h
@@ -9,7 +9,7 @@
 #include "InDetGeoModelUtils/InDetDetectorFactoryBase.h" 
 // readout includes:
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
+#include "ReadoutGeometryBase/InDetDD_Defs.h"
 #include "CxxUtils/checker_macros.h"
 
 class PixelSwitches;
@@ -40,8 +40,8 @@ class PixelDetectorFactory : public InDetDD::DetectorFactoryBase {
   const PixelDetectorFactory & operator=(const PixelDetectorFactory &right);
   PixelDetectorFactory(const PixelDetectorFactory &right);
   // private data
-  InDetDD::PixelDetectorManager     *m_detectorManager;
-  PixelGeometryManager * m_geometryManager;
+  InDetDD::PixelDetectorManager         *m_detectorManager = nullptr; //ownership handed to caller
+  std::unique_ptr<PixelGeometryManager>  m_geometryManager;
 
   void doChecks();
 

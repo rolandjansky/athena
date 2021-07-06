@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -13,6 +13,8 @@
 #include <ios>
 
 #include <boost/format.hpp>
+#include <memory>
+
 
 #include "TH1.h"
 #include "TH2.h"
@@ -152,7 +154,7 @@ namespace AtlasRoot {
     // instantiate the resolution parametriaton
 
     //`:if (!m_getMaterialDelta)
-    m_getMaterialDelta.reset( new get_MaterialResolutionEffect());
+    m_getMaterialDelta = std::make_unique<get_MaterialResolutionEffect>( );
 
 
     // Energy corrections and systematic uncertainties
@@ -205,7 +207,7 @@ namespace AtlasRoot {
 
     } else if ( m_esmodel==egEnergyCorr::es2011d || m_esmodel==egEnergyCorr::es2011dMedium || m_esmodel==egEnergyCorr::es2011dTight ) {
       m_use_new_resolution_model = true;
-      m_resolution_tool.reset(new eg_resolution("run1"));
+      m_resolution_tool = std::make_unique<eg_resolution>("run1");
       m_aPSNom.reset( dynamic_cast< TH1* >( m_rootFile->Get("Scales/es2011d/alphaPS_uncor")));                 m_aPSNom->SetDirectory(nullptr);
       m_daPSCor.reset( dynamic_cast< TH1* >( m_rootFile->Get("Scales/es2011d/dalphaPS_cor")));                  m_daPSCor->SetDirectory(nullptr);
       m_aS12Nom.reset( dynamic_cast< TH1* >( m_rootFile->Get("Scales/es2011d/alphaS12_uncor")));                m_aS12Nom->SetDirectory(nullptr);
@@ -267,10 +269,10 @@ namespace AtlasRoot {
 
       const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsTO.root");
       const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsG_all.root");
-      m_gain_tool.reset(new egGain::GainTool(gain_filename1, gain_filename2));
+      m_gain_tool = std::make_unique<egGain::GainTool>(gain_filename1, gain_filename2);
 
 
-      m_e1hg_tool.reset(new e1hg_systematics());
+      m_e1hg_tool = std::make_unique<e1hg_systematics>();
 
       // mc12a : crude MSc fix in G4; old geometry
       // All systematics as in 2010.
@@ -296,7 +298,7 @@ namespace AtlasRoot {
 
     } else if (m_esmodel == egEnergyCorr::es2012c) {
       m_use_new_resolution_model = true;
-      m_resolution_tool.reset(new eg_resolution("run1"));
+      m_resolution_tool = std::make_unique<eg_resolution>("run1");
 
       m_aPSNom.reset( dynamic_cast< TH1* >( m_rootFile->Get("Scales/es2012c/alphaPS_uncor")));                 m_aPSNom->SetDirectory(nullptr);
       m_daPSCor.reset( dynamic_cast< TH1* >( m_rootFile->Get("Scales/es2012c/dalphaPS_cor")));                  m_daPSCor->SetDirectory(nullptr);
@@ -339,14 +341,14 @@ namespace AtlasRoot {
 
       const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsTO.root");
       const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsG_all.root");
-      m_gain_tool.reset(new egGain::GainTool(gain_filename1, gain_filename2));
+      m_gain_tool = std::make_unique<egGain::GainTool>(gain_filename1, gain_filename2);
 
-      m_e1hg_tool.reset(new e1hg_systematics());
+      m_e1hg_tool = std::make_unique<e1hg_systematics>();
     }
     else if (m_esmodel == egEnergyCorr::es2012XX) {
       m_use_etaCalo_scales = true;
       m_use_new_resolution_model = true;
-      m_resolution_tool.reset(new eg_resolution("run1"));
+      m_resolution_tool = std::make_unique<eg_resolution>("run1");
 
       m_aPSNom.reset( dynamic_cast< TH1* >( m_rootFile->Get("Scales/es2012c/alphaPS_uncor")));                 m_aPSNom->SetDirectory(nullptr);
       m_daPSCor.reset( dynamic_cast< TH1* >( m_rootFile->Get("Scales/es2012c/dalphaPS_cor")));                  m_daPSCor->SetDirectory(nullptr);
@@ -390,14 +392,14 @@ namespace AtlasRoot {
 
       const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsTO.root");
       const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsG_all.root");
-      m_gain_tool.reset(new egGain::GainTool(gain_filename1, gain_filename2));
+      m_gain_tool = std::make_unique<egGain::GainTool>(gain_filename1, gain_filename2);
 
-      m_e1hg_tool.reset(new e1hg_systematics());
+      m_e1hg_tool = std::make_unique<e1hg_systematics>();
     }
     else if (m_esmodel == egEnergyCorr::es2015PRE or m_esmodel == egEnergyCorr::es2015cPRE) {
       m_use_etaCalo_scales = true;
       m_use_new_resolution_model = true;
-      m_resolution_tool.reset( new eg_resolution("run2_pre")) ;
+      m_resolution_tool = std::make_unique<eg_resolution>( "run2_pre") ;
 
       m_aPSNom.reset( dynamic_cast< TH1* >( m_rootFile->Get("Scales/es2012c/alphaPS_uncor")));                 m_aPSNom->SetDirectory(nullptr);
       m_daPSCor.reset( dynamic_cast< TH1* >( m_rootFile->Get("Scales/es2012c/dalphaPS_cor")));                  m_daPSCor->SetDirectory(nullptr);
@@ -453,15 +455,15 @@ namespace AtlasRoot {
 
       const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsTO.root");
       const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsG_all.root");
-      m_gain_tool.reset(new egGain::GainTool(gain_filename1, gain_filename2));
+      m_gain_tool = std::make_unique<egGain::GainTool>(gain_filename1, gain_filename2);
 
-      m_e1hg_tool.reset(new e1hg_systematics());
+      m_e1hg_tool = std::make_unique<e1hg_systematics>();
     }
 
     else if (m_esmodel == egEnergyCorr::es2015PRE_res_improved or m_esmodel == egEnergyCorr::es2015cPRE_res_improved) {
       m_use_etaCalo_scales = true;
       m_use_new_resolution_model = true;
-      m_resolution_tool.reset(new eg_resolution("run2_pre"));
+      m_resolution_tool = std::make_unique<eg_resolution>("run2_pre");
 
       m_aPSNom.reset( dynamic_cast< TH1* >( m_rootFile->Get("Scales/es2012c/alphaPS_uncor")));                 m_aPSNom->SetDirectory(nullptr);
       m_daPSCor.reset( dynamic_cast< TH1* >( m_rootFile->Get("Scales/es2012c/dalphaPS_cor")));                  m_daPSCor->SetDirectory(nullptr);
@@ -517,15 +519,15 @@ namespace AtlasRoot {
 
       const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsTO.root");
       const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsG_all.root");
-      m_gain_tool.reset(new egGain::GainTool(gain_filename1, gain_filename2));
+      m_gain_tool = std::make_unique<egGain::GainTool>(gain_filename1, gain_filename2);
 
-      m_e1hg_tool.reset(new e1hg_systematics());
+      m_e1hg_tool = std::make_unique<e1hg_systematics>();
     }
 
     else if (m_esmodel == egEnergyCorr::es2015c_summer) {
       m_use_etaCalo_scales = true;
       m_use_new_resolution_model = true;
-      m_resolution_tool.reset(new eg_resolution("run2_pre"));
+      m_resolution_tool = std::make_unique<eg_resolution>("run2_pre");
 
       m_aPSNom.reset( dynamic_cast< TH1* >( m_rootFile->Get("Scales/es2012c/alphaPS_uncor")));                 m_aPSNom->SetDirectory(nullptr);
       m_daPSCor.reset( dynamic_cast< TH1* >( m_rootFile->Get("Scales/es2012c/dalphaPS_cor")));                  m_daPSCor->SetDirectory(nullptr);
@@ -581,9 +583,9 @@ namespace AtlasRoot {
 
       const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsTO.root");
       const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsG_all.root");
-      m_gain_tool.reset(new egGain::GainTool(gain_filename1, gain_filename2));
+      m_gain_tool = std::make_unique<egGain::GainTool>(gain_filename1, gain_filename2);
 
-      m_e1hg_tool.reset( new e1hg_systematics());
+      m_e1hg_tool = std::make_unique<e1hg_systematics>( );
       m_use_temp_correction201215 = true;  // for eta > 2.5
       m_use_temp_correction201516 = false;
     }
@@ -591,7 +593,7 @@ namespace AtlasRoot {
     else if (m_esmodel == egEnergyCorr::es2016PRE) {
       m_use_etaCalo_scales = true;
       m_use_new_resolution_model = true;
-      m_resolution_tool.reset( new eg_resolution("run2_pre"));
+      m_resolution_tool = std::make_unique<eg_resolution>( "run2_pre");
 
       m_aPSNom.reset( dynamic_cast< TH1* >( m_rootFile->Get("Scales/es2012c/alphaPS_uncor")));                 m_aPSNom->SetDirectory(nullptr);
       m_daPSCor.reset( dynamic_cast< TH1* >( m_rootFile->Get("Scales/es2012c/dalphaPS_cor")));                  m_daPSCor->SetDirectory(nullptr);
@@ -646,9 +648,9 @@ namespace AtlasRoot {
 
       const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsTO.root");
       const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsG_all.root");
-      m_gain_tool.reset(new egGain::GainTool(gain_filename1, gain_filename2));
+      m_gain_tool = std::make_unique<egGain::GainTool>(gain_filename1, gain_filename2);
 
-      m_e1hg_tool.reset( new e1hg_systematics());
+      m_e1hg_tool = std::make_unique<e1hg_systematics>( );
       m_use_temp_correction201215 = true;  // for eta > 2.5
       m_use_temp_correction201516 = true;
     }
@@ -659,9 +661,9 @@ namespace AtlasRoot {
       m_use_etaCalo_scales = true;
       m_use_new_resolution_model = true;
       if (m_esmodel == egEnergyCorr::es2017_R21_v1 || m_esmodel == egEnergyCorr::es2017_R21_ofc0_v1 || m_esmodel == egEnergyCorr::es2018_R21_v0 || m_esmodel == egEnergyCorr::es2018_R21_v1)
-        m_resolution_tool.reset(new eg_resolution("run2_R21_v1"));
+        m_resolution_tool = std::make_unique<eg_resolution>("run2_R21_v1");
       else
-        m_resolution_tool.reset(new eg_resolution("run2_pre"));
+        m_resolution_tool = std::make_unique<eg_resolution>("run2_pre");
 
       if(m_esmodel == egEnergyCorr::es2017_summer_final or m_esmodel == egEnergyCorr::es2017_R21_v0 or m_esmodel == egEnergyCorr::es2017_R21_v1 or m_esmodel == egEnergyCorr::es2017_R21_ofc0_v1 or m_esmodel == egEnergyCorr::es2018_R21_v0 ){
         m_aPSNom.reset( dynamic_cast< TH1* >( m_rootFile->Get("Scales/es2017_summer_final/alphaPS_uncor")));       m_aPSNom->SetDirectory(nullptr);
@@ -920,16 +922,16 @@ namespace AtlasRoot {
       else{
         gain_tool_run_2_filename = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v14/gain_uncertainty_specialRun.root");
       }
-      m_gain_tool_run2.reset( new egGain::GainUncertainty(gain_tool_run_2_filename));
+      m_gain_tool_run2 = std::make_unique<egGain::GainUncertainty>( gain_tool_run_2_filename);
 
-      m_e1hg_tool.reset( new e1hg_systematics());
+      m_e1hg_tool = std::make_unique<e1hg_systematics>( );
       m_use_temp_correction201215 = false;
       m_use_temp_correction201516 = false;
     }
 
     else if ( m_esmodel==egEnergyCorr::es2015_day0_3percent ) {
       m_use_new_resolution_model = true;
-      m_resolution_tool.reset(new eg_resolution("run2_pre"));
+      m_resolution_tool = std::make_unique<eg_resolution>("run2_pre");
 
       m_aPSNom.reset( dynamic_cast< TH1* >( m_rootFile->Get("Scales/es2015_day0/alphaPS_uncor")));             m_aPSNom->SetDirectory(nullptr);         // old one
       m_daPSCor.reset( dynamic_cast< TH1* >( m_rootFile->Get("Scales/es2015_day0/dalphaPS_cor")));              m_daPSCor->SetDirectory(nullptr);        // old one
@@ -972,9 +974,9 @@ namespace AtlasRoot {
 
       const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsTO.root");
       const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsG_all.root");
-      m_gain_tool.reset( new egGain::GainTool(gain_filename1, gain_filename2));
+      m_gain_tool = std::make_unique<egGain::GainTool>( gain_filename1, gain_filename2);
 
-      m_e1hg_tool.reset( new e1hg_systematics());
+      m_e1hg_tool = std::make_unique<e1hg_systematics>( );
 
 
       // If we are here, fail      :
@@ -3147,10 +3149,7 @@ double egammaEnergyCorrectionTool::getMaterialEffect(egEnergyCorr::Geometry geo,
 
   bool egammaEnergyCorrectionTool::isInCrack( double cl_eta ) const {
 
-    if( fabs(cl_eta)>=1.35 && fabs(cl_eta)<=1.55)
-      return true;
-
-    return false;
+    return fabs(cl_eta)>=1.35 && fabs(cl_eta)<=1.55;
 
   }
 

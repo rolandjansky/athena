@@ -1,69 +1,45 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-//
-/********************************************************************
- *
- * NAME:     TrigTauRecMerged.h
- * PACKAGE:  Trigger/TrigAlgorithms/TrigTauRecMerged
- *
- * AUTHOR:   R. Soluk (based on tauBuilder)
- * CREATED:  Nov 21 2005
- * MODIFIED: Dec 14 2006 S.Xella
- *           Mar 02 2001 ccuenca
- *********************************************************************/
+#ifndef TRIGTAUREC_TRIGTAURECMERGED_H
+#define TRIGTAUREC_TRIGTAURECMERGED_H
 
-#ifndef TRIGTAURECMERGED_H
-#define TRIGTAURECMERGED_H
-
-#include <vector>
-#include "TrigInterfaces/FexAlgo.h"
-#include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "GaudiKernel/ToolHandle.h"
+
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+
 #include "tauRecTools/ITauToolBase.h"
-#include "tauRecTools/TauJetRNNEvaluator.h"
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODJet/JetContainer.h"
+#include "xAODTau/TauJetContainer.h"
+#include "xAODTau/TauTrackContainer.h"
 
 #include "BeamSpotConditionsData/BeamSpotData.h"
 
 
-namespace HLT {
-  class TriggerElement;
-}
-
-class ILumiBlockMuTool;
-
-class TrigTauRecMerged: public HLT::FexAlgo {
+class TrigTauRecMerged: public AthReentrantAlgorithm {
 
  public:
 
-  /**  type definitions for internal tool storage */
-  typedef std::string                          tool_key;
-  typedef ITauToolBase                         tool_type;
-  typedef std::vector<tool_type*>              tool_store;
-  typedef tool_store::const_iterator           tool_iterator;
-  typedef std::map<tool_key,unsigned int>      tool_stats;
-  typedef tool_stats::const_iterator           tool_stats_iterator;
-  typedef std::string                          tool_containers;
-
-  /**  constructor */
   TrigTauRecMerged(const std::string& name, ISvcLocator* pSvcLocator);
 
-  /** destructor */
-  ~TrigTauRecMerged();
-
-  // Gaudi algorithm hooks
-  /** HLT method to initialize */
-  HLT::ErrorCode  hltInitialize();
-
-  /** HLT method to finalize */
-  HLT::ErrorCode hltFinalize();
-
-  /** HLT method to execute FEX algo on a given TE.
-   input is last TE from EF ID, output is TE for EF tauRec hypo execution */
-  HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElement* outputTE);
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
 
  private:
+
+  template<class T, class U, class V> StatusCode deepCopy(T*& containerOut, U*& containerStoreOut, const V* dummyContainerType,
+                                 const T*& oldContainer);
+  template<class W, class V, class T> StatusCode deepCopy(W& writeHandle,
+                                                          const V* dummyContainerType,
+                                                          const T*& oldContainer) const;
 
   enum TAUEFCALOMON{
     NoROIDescr=0,
@@ -83,151 +59,52 @@ class TrigTauRecMerged: public HLT::FexAlgo {
     NoVtxCont=1
   };
 
-
-  /** output container name */
-  std::string m_outputName;
-
   /** internal tool store */
-  ToolHandleArray<ITauToolBase>  m_tools;
+  const ToolHandleArray<ITauToolBase> m_tools{this, "Tools", {}, "List of ITauToolBase tools"};
 
-  /** internal tool store */
-  ToolHandleArray<ITauToolBase>  m_endtools;
+  // Monitoring tool
+  const ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
 
-  /** Luminosity Tool */
-  ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool;
-
-  /** Beam spot service */
+  //Gaudi::Property< std::string > m_outputName {this,"OutputCollection","TrigTauRecMerged","Name of output collection"};
+  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_roIInputKey { this,"RoIInputKey","InputRoI","Input RoI name"};
+  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_L1RoIKey    { this, "L1RoIKey","L1RoI","L1 RoI name"};
+  SG::ReadHandleKey< xAOD::CaloClusterContainer > m_clustersKey  { this, "clustersKey", "CaloClusters", "caloclusters in view" };
+  SG::ReadHandleKey< xAOD::TrackParticleContainer > m_tracksKey  { this, "Key_trackPartInputContainer", "InDetTrackParticles", "input track particle container key"};
+  SG::ReadHandleKey< xAOD::VertexContainer> m_vertexKey          { this, "Key_vertexInputContainer", "HLT_IDVertex_Tau", "input vertex container key"};
+  SG::ReadHandleKey< xAOD::TauJetContainer> m_trigTauJetKey      { this, "Key_trigTauJetInputContainer", "HLT_taujet", "input taujet container" };
+  SG::ReadHandleKey< xAOD::TauTrackContainer> m_trigTauTrackInKey      { this, "Key_trigTauTrackInputContainer", "HLT_tautrack_input", "input tautrack container" };
   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
-  
-  /** only build taus with eta_seed < m_maxeta */
-  float m_maxeta;
 
-  /** only build taus with pt_seed > m_minpt */
-  float m_minpt;
+  SG::WriteHandleKey< xAOD::JetContainer > m_trigtauSeedOutKey   { this,"Key_trigJetSeedOutputKey","HLT_jet_seed","Key for output jets which are seed for tau jets"};
+  SG::WriteHandleKey< xAOD::TauJetContainer > m_trigtauRecOutKey {this,"Key_trigTauJetOutputContainer","HLT_taujet","Output taujet container"};
+  SG::WriteHandleKey< xAOD::TauTrackContainer > m_trigtauTrkOutKey {this,"Key_trigTauTrackOutputContainer","HLT_tautrack","Output tautrack container"};
 
-  /** only build taus with track seed < 0.2 from roi center */
-  float m_trkcone;
-
-  /** Store beam type  */
-  std::string m_beamType;
-
-  /** vector of Timers */
-  std::vector<TrigTimer* > m_mytimers;
-
-  /** Monitoring : nCells obtained */
-  int  m_nCells;
-  /** Monitoring : nTracks obtained */
-  int  m_nTracks;
-
-  /** Monitoring : Eta(tau)-Eta(RoI) reconstructed */
-  float  m_dEta;
-  /** Monitoring : Phi(tau)-Phi(RoI) reconstructed */
-  float  m_dPhi;
-  /** Monitoring : emRadius */
-  float  m_emRadius;
-  /** Monitoring : hadRadius */
-  float  m_hadRadius;
-  /** EM Et et Em scale*/
-  float m_EtEm;
-  /** Had Et at EM scale */
-  float m_EtHad;
-  /** Et at EM scale */
-  float m_Et;
-   /** Calibrated Et  */
-  float m_EtFinal;
-  /** EM fraction of tau energy */
-  float m_EMFrac;
-  /** Isolation fraction */
-  float m_IsoFrac;
-
-  /** Monitoring: seedCalo_centFrac **/
-  float m_centFrac;
-  /** Monitoring: seedCalo_nWideTrk **/
-  int m_nWideTrk;
-  /** Monitoring: ipSigLeadTrk **/
-  float m_ipSigLeadTrk;
-  /** Monitoring: trFlightPathSig **/
-  float m_trFlightPathSig;
-  /** Monitoring: massTrkSys **/
-  float m_massTrkSys;
-  /** Monitoring: seedCalo_dRmax **/
-  float m_dRmax;
- 
-  /** Number of tracks used for tau ID */
-  int m_numTrack;
-  
-  /** Track average distance */
-  float m_trkAvgDist;
-  /** Et over lead track Pt */
-  float m_etovPtLead;
-  /** number of tau candidates */
-  int m_Ncand;
-
-  /** Monitoring: actual interaction per bunch crossing **/
-  double m_ActualInteractions;
-  /** Monitoring: average interaction per bunch crossing **/
-  double m_AvgInteractions;
-
-  /** Monitoring: beamspot position */
-  float m_beamspot_x,m_beamspot_y,m_beamspot_z;
-
-
-  /** Monitoring: PSSFractionw **/
-  float m_PSSFraction;
-  /** Monitoring: EMPOverTrkSysP **/
-  float m_EMPOverTrkSysP;
-  /** Monitoring: ChPiEMEOverCaloEME **/
-  float m_ChPiEMEOverCaloEME;
-
-  /** Monitoring: innerTrkAvgDist **/
-  float m_innerTrkAvgDist;
-
-  /** Monitoring: SumPtTrkFrac **/
-  float m_SumPtTrkFrac;
-
-  /** Eta of L1 ROI */
-  float m_EtaL1;
-  /** Phi of L1 ROI */
-  float m_PhiL1;
-
-  /** Eta of EF ROI */
-  float m_EtaEF;
-  /** Phi of EF ROI */
-  float m_PhiEF;
-
-  /** calo errors */
-  std::vector<unsigned char> m_calo_errors;
-  /** track errors */
-  std::vector<unsigned char> m_track_errors;
-
-  //  RNN ID monitoring
-  // retrieved from tool handle, if tool exists
-  TauJetRNNEvaluator* m_rnn_evaluator;
-
-  float m_RNN_scalar_ptRatioEflowApprox; 
-  float m_RNN_scalar_mEflowApprox; 
-  float m_RNN_scalar_pt_jetseed_log;
-
-  int m_RNN_Nclusters;
-  std::vector<double> m_RNN_cluster_et_log;
-  std::vector<double> m_RNN_cluster_dEta;
-  std::vector<double> m_RNN_cluster_dPhi;
-  std::vector<double> m_RNN_cluster_CENTER_LAMBDA;
-  std::vector<double> m_RNN_cluster_SECOND_LAMBDA;
-  std::vector<double> m_RNN_cluster_SECOND_R;
-
-  int m_RNN_Ntracks;
-  std::vector<double> m_RNN_track_pt_log;
-  std::vector<double> m_RNN_track_dEta;
-  std::vector<double> m_RNN_track_dPhi;
-  std::vector<double> m_RNN_track_d0_abs_log;
-  std::vector<double> m_RNN_track_z0sinThetaTJVA_abs_log;
-  std::vector<double> m_RNN_track_nInnermostPixelHits;
-  std::vector<double> m_RNN_track_nPixelHits;
-  std::vector<double> m_RNN_track_nSCTHits;
-
-  float m_RNNJetScore;
-  float m_RNNJetScoreSigTrans;
+  Gaudi::Property< float > m_maxeta         { this, "maxeta", 2.5,"max eta for tau"};
+  Gaudi::Property< float > m_minpt          { this, "minpt", 10000.0, "min pt for tau"};
+  Gaudi::Property< std::string > m_beamType { this, "BeamType", "collisions", "Beam type"};
+  Gaudi::Property< float > m_trkcone        { this, "trkcone", 0.2, "max distance track seed from roi center"};
 
 };
+
+  // Function to perform deep copy on container
+  template<class W, class V, class T>
+    StatusCode TrigTauRecMerged::deepCopy(W& writeHandle,
+                                          const V* ,
+                                          const T*& oldContainer) const {
+   if(!writeHandle.isValid()){
+      ATH_MSG_FATAL("Provided with an invalid write handle ");
+      return StatusCode::FAILURE;
+   }
+   if(oldContainer != nullptr){
+     for( const V* v : *oldContainer ){
+       V* newV = new V();
+       // Put objects into new container
+       writeHandle->push_back(newV);
+       // Copy across aux store
+       *newV = *v;
+     }
+   }
+   return StatusCode::SUCCESS;
+  }
+
 #endif

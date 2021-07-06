@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGC_CondCabling/TGCCablingDbTool.h" 
@@ -21,11 +21,11 @@
 TGCCablingDbTool::TGCCablingDbTool(const std::string& type,
 				   const std::string& name,
 				   const IInterface* parent)
-  : AthAlgTool(type, name, parent), m_ASD2PP_DIFF_12(0)
+  : AthAlgTool(type, name, parent),
+    m_DataLocation ("keyTGC"),
+    m_ASD2PP_DIFF_12(0)
 {
   declareInterface<ITGCCablingDbTool>(this);
-  
-  m_DataLocation="keyTGC";
   
   declareProperty("Folder", m_Folder="/TGC/CABLING/MAP_SCHEMA");
 
@@ -94,18 +94,8 @@ std::vector<std::string>* TGCCablingDbTool::giveASD2PP_DIFF_12() {
     return 0;
   }
 
-  // Copy the database, m_ASD2PP_DIFF_12, as new_ASD2PP_DIFF_12 and return new_ASD2PP_DIFF_12
-  std::vector<std::string>* new_ASD2PP_DIFF_12 = new std::vector<std::string>;
-
-  std::vector<std::string>::const_iterator it   = m_ASD2PP_DIFF_12->begin();
-  std::vector<std::string>::const_iterator it_e = m_ASD2PP_DIFF_12->end();
-
-  while(it!=it_e) {
-    new_ASD2PP_DIFF_12->push_back(*it);
-    it++;
-  }
-
-  return new_ASD2PP_DIFF_12;
+  // Copy the database
+  return new std::vector<std::string> (*m_ASD2PP_DIFF_12);
 }
 
 StatusCode TGCCablingDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I, keys)) {
@@ -181,7 +171,7 @@ StatusCode TGCCablingDbTool::readASD2PP_DIFF_12FromText() {
   ATH_MSG_INFO("readTGCMap from text");
 
   // PathResolver finds the full path of the file (default file name is ASD2PP_diff_12.db) 
-  std::string location = PathResolver::find_file(m_filename.c_str(), "DATAPATH");
+  std::string location = PathResolver::find_file(m_filename, "DATAPATH");
   if(location=="") {
     ATH_MSG_FATAL("Could not find " << m_filename.c_str());
     return StatusCode::FAILURE; 

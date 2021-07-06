@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 #  This file configs the L2MuonSA reco alg in the newJO way, 
 #      but now is located here temporarily until newJO migrations are done in all trigger signatures.
@@ -20,10 +20,7 @@ def RpcDataPreparatorCfg( flags, roisKey ):
 
     # Set Rpc data preparator for MuFast data preparator
     TrigL2MuonSA__RpcDataPreparator=CompFactory.getComp("TrigL2MuonSA::RpcDataPreparator")
-    RpcDataPreparator = TrigL2MuonSA__RpcDataPreparator( RpcPrepDataProvider  = None,
-                                                         RpcRawDataProvider   = None,
-                                                         DecodeBS = False,
-                                                         DoDecoding = False )
+    RpcDataPreparator = TrigL2MuonSA__RpcDataPreparator()
     acc.addPublicTool( RpcDataPreparator, primary=True ) # Now this is needed, but should be removed
     from RegionSelector.RegSelToolConfig import regSelTool_RPC_Cfg
     RpcDataPreparator.RegSel_RPC = acc.popToolsAndMerge( regSelTool_RPC_Cfg( flags ) )
@@ -37,12 +34,7 @@ def TgcDataPreparatorCfg( flags, roisKey ):
 
     # Set Tgc data preparator for MuFast data preparator
     TrigL2MuonSA__TgcDataPreparator=CompFactory.getComp("TrigL2MuonSA::TgcDataPreparator")
-    TgcDataPreparator = TrigL2MuonSA__TgcDataPreparator( TgcPrepDataProvider  = None,
-                                                         TgcRawDataProvider   = None,
-                                                         DecodeBS = False,
-                                                         DoDecoding = False )
-    from RegionSelector.RegSelToolConfig import regSelTool_TGC_Cfg
-    TgcDataPreparator.RegSel_TGC = acc.popToolsAndMerge( regSelTool_TGC_Cfg( flags ) )
+    TgcDataPreparator = TrigL2MuonSA__TgcDataPreparator()
  
     return acc, TgcDataPreparator
 
@@ -53,10 +45,7 @@ def MdtDataPreparatorCfg( flags, roisKey ):
 
     # Set Mdt data preparator for MuFast data preparator
     TrigL2MuonSA__MdtDataPreparator=CompFactory.getComp("TrigL2MuonSA::MdtDataPreparator")
-    MdtDataPreparator = TrigL2MuonSA__MdtDataPreparator( MdtPrepDataProvider  = None,
-                                                         MDT_RawDataProvider   = None,
-                                                         DecodeBS = False,
-                                                         DoDecoding = False )
+    MdtDataPreparator = TrigL2MuonSA__MdtDataPreparator()
     from RegionSelector.RegSelToolConfig import regSelTool_MDT_Cfg
     MdtDataPreparator.RegSel_MDT = acc.popToolsAndMerge( regSelTool_MDT_Cfg( flags ) )
  
@@ -69,16 +58,10 @@ def CscDataPreparatorCfg( flags, roisKey ):
 
     # Set Csc data preparator for MuFast data preparator
     TrigL2MuonSA__CscDataPreparator=CompFactory.getComp("TrigL2MuonSA::CscDataPreparator")
-    CscDataPreparator = TrigL2MuonSA__CscDataPreparator( CscPrepDataProvider  = None,
-                                                         CscClusterProvider   = None,
-                                                         CscRawDataProvider   = None,
-                                                         DecodeBS = False,
-                                                         DoDecoding = False )
+    CscDataPreparator = TrigL2MuonSA__CscDataPreparator()
 
     acc.addPublicTool( CscDataPreparator, primary=True ) # This should be removed
-    from RegionSelector.RegSelToolConfig import regSelTool_CSC_Cfg
-    CscDataPreparator.RegSel_CSC = acc.popToolsAndMerge( regSelTool_CSC_Cfg( flags ) )
- 
+
     return acc, CscDataPreparator
 
 def StgcDataPreparatorCfg( flags, roisKey ):
@@ -87,10 +70,7 @@ def StgcDataPreparatorCfg( flags, roisKey ):
 
     # Set Stgc data preparator for MuFast data preparator
     TrigL2MuonSA__StgcDataPreparator=CompFactory.getComp("TrigL2MuonSA::StgcDataPreparator")
-    StgcDataPreparator = TrigL2MuonSA__StgcDataPreparator( StgcPrepDataProvider  = None,
-                                                           StgcRawDataProvider   = None,
-                                                           DecodeBS = False,
-                                                           DoDecoding = False )
+    StgcDataPreparator = TrigL2MuonSA__StgcDataPreparator()
     acc.addPublicTool( StgcDataPreparator, primary=True ) # Now this is needed, but should be removed
     from RegionSelector.RegSelToolConfig import regSelTool_STGC_Cfg
     StgcDataPreparator.RegSel_STGC = acc.popToolsAndMerge( regSelTool_STGC_Cfg( flags ) )
@@ -103,17 +83,47 @@ def MmDataPreparatorCfg( flags, roisKey ):
 
     # Set Mm data preparator for MuFast data preparator
     TrigL2MuonSA__MmDataPreparator=CompFactory.getComp("TrigL2MuonSA::MmDataPreparator")
-    MmDataPreparator = TrigL2MuonSA__MmDataPreparator( MmPrepDataProvider  = None,
-                                                       # MmRawDataProvider   = None,
-                                                       DecodeBS = False,
-                                                       DoDecoding = False )
+    MmDataPreparator = TrigL2MuonSA__MmDataPreparator()
     from RegionSelector.RegSelToolConfig import regSelTool_MM_Cfg
     MmDataPreparator.RegSel_MM = acc.popToolsAndMerge( regSelTool_MM_Cfg( flags ) )
     acc.addPublicTool( MmDataPreparator, primary=True ) # Now this is needed, but should be removed
 
     return acc, MmDataPreparator
 
-# Based on TrigL2MuonSAMTConfig at TrigL2MuonSA/TrigL2MuonSAConfig.py
+def RpcRoadDefinerCfg( flags, roisKey ):
+
+    acc = ComponentAccumulator()
+
+    # Set RPC road definer for MuFast data preparator
+    TrigL2MuonSA__RpcRoadDefiner=CompFactory.getComp("TrigL2MuonSA::RpcRoadDefiner")
+    RpcRoadDefiner = TrigL2MuonSA__RpcRoadDefiner( )
+    from RegionSelector.RegSelToolConfig import regSelTool_MDT_Cfg
+    RpcRoadDefiner.RegionSelectionTool = acc.popToolsAndMerge( regSelTool_MDT_Cfg( flags ) )
+
+    return acc, RpcRoadDefiner
+
+def TgcRoadDefinerCfg( flags, roisKey ):
+
+    acc = ComponentAccumulator()
+
+    # Set TGC road definer for MuFast data preparator
+    TrigL2MuonSA__TgcRoadDefiner=CompFactory.getComp("TrigL2MuonSA::TgcRoadDefiner")
+    TgcRoadDefiner = TrigL2MuonSA__TgcRoadDefiner( )
+    from RegionSelector.RegSelToolConfig import regSelTool_MDT_Cfg
+    TgcRoadDefiner.RegionSelectionTool = acc.popToolsAndMerge( regSelTool_MDT_Cfg( flags ) )
+
+    return acc, TgcRoadDefiner
+
+def ClusterRoadDefinerCfg(flags):
+
+    acc = ComponentAccumulator()
+    TrigL2MuonSA__ClusterRoadDefiner = CompFactory.getComp("TrigL2MuonSA::ClusterRoadDefiner")
+    from RegionSelector.RegSelToolConfig import regSelTool_MDT_Cfg
+    ClusterRoadDefiner = TrigL2MuonSA__ClusterRoadDefiner()
+    ClusterRoadDefiner.RegionSelectionTool = acc.popToolsAndMerge(regSelTool_MDT_Cfg(flags))
+    return acc, ClusterRoadDefiner
+
+# Based on TrigL2MuonSAConfig at TrigL2MuonSA/TrigL2MuonSAConfig.py
 def muFastSteeringCfg( flags, roisKey, setup="" ):
     from MuonConfig.MuonCalibrationConfig import MdtCalibrationToolCfg
 
@@ -152,6 +162,18 @@ def muFastSteeringCfg( flags, roisKey, setup="" ):
     else:
         MmDataPreparator = ""
 
+    # Get RPC road definer
+    rpcRDAcc, RpcRoadDefiner = RpcRoadDefinerCfg( flags, roisKey )
+    acc.merge( rpcRDAcc )
+
+    # Get TGC road definer
+    tgcRDAcc, TgcRoadDefiner = TgcRoadDefinerCfg( flags, roisKey )
+    acc.merge( tgcRDAcc )
+
+    #Get Cluster Road Definer
+    clusRDAcc, ClusterRoadDefiner = ClusterRoadDefinerCfg(flags)
+    acc.merge(clusRDAcc)
+
     # Set MuFast data preparator
     TrigL2MuonSA__MuFastDataPreparator=CompFactory.getComp("TrigL2MuonSA::MuFastDataPreparator")
     MuFastDataPreparator = TrigL2MuonSA__MuFastDataPreparator( CSCDataPreparator = CscDataPreparator,
@@ -159,17 +181,16 @@ def muFastSteeringCfg( flags, roisKey, setup="" ):
                                                                RPCDataPreparator = RpcDataPreparator,
                                                                TGCDataPreparator = TgcDataPreparator,
                                                                STGCDataPreparator = StgcDataPreparator,
-                                                               MMDataPreparator = MmDataPreparator )
+                                                               MMDataPreparator = MmDataPreparator,
+                                                               RpcRoadDefiner = RpcRoadDefiner,
+                                                               TgcRoadDefiner = TgcRoadDefiner,
+                                                               ClusterRoadDefiner = ClusterRoadDefiner )
 
     # Setup the station fitter
     TrigL2MuonSA__MuFastStationFitter,TrigL2MuonSA__PtFromAlphaBeta=CompFactory.getComps("TrigL2MuonSA::MuFastStationFitter","TrigL2MuonSA::PtFromAlphaBeta")
     PtFromAlphaBeta = TrigL2MuonSA__PtFromAlphaBeta()
-    if flags.Trigger.run2Config == '2016':
-        PtFromAlphaBeta.useCscPt = False
-        PtFromAlphaBeta.AvoidMisalignedCSCs = True
-    else:
-        PtFromAlphaBeta.useCscPt = True
-        PtFromAlphaBeta.AvoidMisalignedCSCs = True
+    PtFromAlphaBeta.useCscPt = True
+    PtFromAlphaBeta.AvoidMisalignedCSCs = False
 
     MuFastStationFitter = TrigL2MuonSA__MuFastStationFitter( PtFromAlphaBeta = PtFromAlphaBeta )
     TrigL2MuonSA__MuFastPatternFinder,TrigL2MuonSA__MuFastTrackFitter,TrigL2MuonSA__MuFastTrackExtrapolator,TrigL2MuonSA__MuCalStreamerTool,TrigL2MuonSA__CscSegmentMaker=CompFactory.getComps("TrigL2MuonSA::MuFastPatternFinder","TrigL2MuonSA::MuFastTrackFitter","TrigL2MuonSA::MuFastTrackExtrapolator","TrigL2MuonSA::MuCalStreamerTool","TrigL2MuonSA::CscSegmentMaker")
@@ -196,6 +217,9 @@ def muFastSteeringCfg( flags, roisKey, setup="" ):
                                 USE_ROIBASEDACCESS_CSC = True,
                                 RpcErrToDebugStream    = True,
                                 Timing                 = False,
+                                topoRoad=True,
+                                dEtasurrRoI = 0.14,
+                                dPhisurrRoI = 0.14,
                                 MonTool                = None )
                                 #MonTool                = TrigL2MuonSAMonitoring() )
 
@@ -206,10 +230,7 @@ def muFastSteeringCfg( flags, roisKey, setup="" ):
                                                            Aligned     = False,
                                                            DataSet     = False )
 
-    if flags.Trigger.run2Config == '2016':
-        muFastAlg.UseEndcapInnerFromBarrel = False
-    else: 
-        muFastAlg.UseEndcapInnerFromBarrel = True
+    muFastAlg.UseEndcapInnerFromBarrel = True
 
     if setup == '900GeV':
         muFastAlg.WinPt = 4.0
@@ -299,7 +320,8 @@ def l2MuFastAlgCfg( flags, roisKey="" ):
     # Get Reco alg of muFast step
     muFastAcc, muFastFex = muFastSteeringCfg( flags, roisKey )  
     muFastFex.MuRoIs = roisKey
-    muFastFex.RecMuonRoI = "HLT_RecMURoIs"
+    muFastFex.Run2RecMuonRoI = "HLT_RecMURoIs"
+    muFastFex.RecMuonRoI = "LVL1MuonRoIs"
     muFastFex.MuonL2SAInfo = muFastInfo
     muFastFex.forID = "forID"
     muFastFex.forMS = "forMS"
@@ -311,8 +333,9 @@ def l2MuFastAlgCfg( flags, roisKey="" ):
     acc.merge( PtEndcapLUTSvcCfg(flags)[0] )   
     acc.merge( PtEndcapLUTSvcCfg_MC(flags)[0] )   
     acc.merge( AlignmentBarrelLUTSvcCfg(flags)[0] )
+    acc.addEventAlgo(muFastFex)
 
-    return acc, muFastFex
+    return acc
 
 
 

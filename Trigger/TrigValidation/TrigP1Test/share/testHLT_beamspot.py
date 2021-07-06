@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # Minimal job options to test BeamSpot update. Usage:
 #   1) Create bytestream input file: BeamSpotUpdate.py RAW.data
@@ -34,5 +34,3 @@ from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
 condSeq = AthSequencer('AthCondSeq')
 condSeq += BeamSpotCondAlg('BeamSpotCondAlg')
 condSeq.BeamSpotCondAlg.OutputLevel = DEBUG
-
-svcMgr.HltEventLoopMgr.CoolUpdateTool.enable()

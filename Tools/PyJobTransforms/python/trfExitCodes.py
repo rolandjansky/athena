@@ -1,5 +1,4 @@
-from builtins import object
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfExitCodes
 #
@@ -7,8 +6,7 @@ from builtins import object
 # @details Define all transform exit codes with their acronymns
 # @remarks Usual usage is to import @c trfExit from this module
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfExitCodes.py 696626 2015-09-24 14:46:12Z graemes $
-# 
+#
 
 import signal
 

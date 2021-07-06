@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -79,7 +79,7 @@ CaloTowerVecMon::CaloTowerVecMon(const std::string& type,
   declareProperty("useLArNoisyAlg",m_useLArNoisyAlg=false);
 
   // Trigger Awareness:
-  declareProperty("useTrigger",m_useTrigger);
+  declareProperty("useTrigger",m_useTriggerCaloMon);
   declareProperty("TriggerNames1",m_TriggerNames1);
   declareProperty("TriggerNames2",m_TriggerNames2);
   declareProperty("TriggerNames3",m_TriggerNames3);
@@ -207,12 +207,12 @@ StatusCode CaloTowerVecMon::retrieveTools(){
    ATH_MSG_INFO("AtlasReadyFilterTool retrieved");
   }
 
-  if( m_useTrigger) {
+  if( m_useTriggerCaloMon) {
     if( (!m_TriggerNames1.empty()) || (!m_TriggerNames2.empty()) || (!m_TriggerNames3.empty()) ) {
       sc = m_trigDec.retrieve();
       if( !sc.isSuccess() ) {
         ATH_MSG_ERROR("Unable to retrieve the TrigDecisionTool");
-        m_useTrigger = false;
+        m_useTriggerCaloMon = false;
         return sc;
       }
       ATH_MSG_INFO("TrigDecisionTool retrieved");
@@ -239,7 +239,7 @@ StatusCode CaloTowerVecMon::retrieveTools(){
       }
     }
     else {
-      m_useTrigger = false;
+      m_useTriggerCaloMon = false;
     }
   }
 
@@ -756,7 +756,7 @@ void CaloTowerVecMon::fillTrigPara(){
  m_isTrigEvent2 = false;
  m_isTrigEvent3 = false;
 
- if(m_useTrigger){
+ if(m_useTriggerCaloMon){
 
     if( m_isTrigDefined1 ) {
       m_isTrigEvent1 = m_Trigger1->isPassed();

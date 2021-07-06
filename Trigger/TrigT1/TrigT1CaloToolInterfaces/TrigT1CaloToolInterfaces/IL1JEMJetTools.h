@@ -33,31 +33,24 @@ Interface definition for L1JEMJetTools
     static const InterfaceID& interfaceID( ) ;
 
     // enter declaration of your interface-defining member functions here
-    virtual void findRoIs(const std::map<int, JetInput*>* elements, xAOD::JEMTobRoIContainer* rois) = 0;
-    virtual void findRoIs(const xAOD::JetElementContainer* jes, xAOD::JEMTobRoIContainer* rois, int slice = -1) = 0;
-    virtual void findRoIs(const std::map<int, JetInput*>* elements, DataVector<JEMJetAlgorithm>* rois) = 0;
+    virtual void findRoIs(const std::map<int, JetInput*>* elements, xAOD::JEMTobRoIContainer* rois) const = 0;
+    virtual void findRoIs(const xAOD::JetElementContainer* jes, xAOD::JEMTobRoIContainer* rois, int slice = -1) const = 0;
+    virtual void findRoIs(const std::map<int, JetInput*>* elements, DataVector<JEMJetAlgorithm>* rois) const = 0;
     
-    virtual void findRoIs(const xAOD::JetElementContainer* jes, DataVector<JEMJetAlgorithm>* rois, int slice = -1) = 0;
+    virtual void findRoIs(const xAOD::JetElementContainer* jes, DataVector<JEMJetAlgorithm>* rois, int slice = -1) const = 0;
     
     virtual void findJEMResults(const std::map<int, JetInput*>* inputs, int crate, int module,
-                                xAOD::JEMTobRoIContainer* rois, std::vector<unsigned int>& jetCMXData) = 0;
+                                xAOD::JEMTobRoIContainer* rois, std::vector<unsigned int>& jetCMXData) const = 0;
 
     // DEPRECATED(amazurov): use findJEMResults with AOD::JEMTobRoIContainer
     virtual void findJEMResults(const std::map<int, JetInput*>* inputs, int crate, int module,
-                                DataVector<JEMTobRoI>* rois, std::vector<unsigned int>& jetCMXData) = 0;
+                                DataVector<JEMTobRoI>* rois, std::vector<unsigned int>& jetCMXData) const = 0;
 
     
-    virtual void mapJetInputs(const xAOD::JetElementContainer* jes, std::map<int, JetInput*>* elements, int slice = -1) = 0;
-    virtual JEMJetAlgorithm findRoI(double RoIeta, double RoIphi, const std::map<int, JetInput*>* elements) = 0;
-    virtual void formSums(double RoIeta, double RoIphi, const std::map<int, JetInput*>* elements) = 0;
-    virtual void formSums(uint32_t roiWord, const std::map<int, JetInput*>* elements) = 0;
-    virtual int ET4x4() const = 0;
-    virtual int ET6x6() const = 0;
-    virtual int ET8x8() const = 0;
-    virtual int ETLarge() const = 0;
-    virtual int ETSmall() const = 0;
-    virtual bool isEtMax() const = 0;
-    virtual bool isRoI() const = 0;
+    virtual void mapJetInputs(const xAOD::JetElementContainer* jes, std::map<int, JetInput*>* elements, int slice = -1) const = 0;
+    virtual JEMJetAlgorithm findRoI(double RoIeta, double RoIphi, const std::map<int, JetInput*>* elements) const = 0;
+    virtual JEMJetAlgorithm formSums(double RoIeta, double RoIphi, const std::map<int, JetInput*>* elements) const = 0;
+    virtual JEMJetAlgorithm formSums(uint32_t roiWord, const std::map<int, JetInput*>* elements) const = 0;
     
   };
 

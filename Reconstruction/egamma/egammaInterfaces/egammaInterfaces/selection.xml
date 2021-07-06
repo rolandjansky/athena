@@ -16,7 +16,6 @@
   <class name="IegammaStripsShape" />
   <class name="IegammaSwTool" />
   <class name="IegammaTrkRefitterTool" />
-  <class name="IegammaMVASvc" />
   <class name="IegammaOQFlagsBuilder" />
 </lcgdict>
 

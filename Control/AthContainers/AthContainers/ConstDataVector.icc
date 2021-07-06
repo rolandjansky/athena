@@ -1,6 +1,6 @@
 // Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthContainers/ConstDataVector.icc
@@ -582,7 +582,7 @@ ConstDataVector<DV>::push_back(std::unique_ptr<const base_value_type> pElem)
     const_cast<typename DV::value_type> (pElem.release());
   std::unique_ptr<typename DV::base_value_type> ptr (ptmp);
   DV::push_back (std::move (ptr));
-  return ptmp;
+  return DV::back();
 }
 
 

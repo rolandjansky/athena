@@ -10,7 +10,6 @@
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTruthData/TrackTruthCollection.h"
 #include "TrkParameters/TrackParameters.h"
-//#include "TrkParameters/Perigee.h"
 #include "AtlasHepMC/GenParticle.h"
 #include "TrkToolInterfaces/ITruthToTrack.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
@@ -26,7 +25,7 @@ Trk::RecMomentumQualityValidation::RecMomentumQualityValidation(const std::strin
   m_trackTruthCollection("TrackTruthCollection"),
     m_truthToTrack("Trk::TruthToTrack/TruthToTrack"),
   m_trackSelector(""), //InDet::InDetTrackSelectorTool/InDetTrackSelectorTool),
-  m_idHelper(0),
+  m_idHelper(nullptr),
   m_nHundred(4),m_nFifty(4),m_nTwenty(4),m_nTen(4),m_nFakeOrLost(4),
   m_tHundred(4),m_tFifty(4),m_tTwenty(4),m_tTen(4),m_tFakeOrLost(4)
 {
@@ -96,7 +95,7 @@ StatusCode Trk::RecMomentumQualityValidation::execute()
 
   // Retrieving the Trackcollection specified via m_inputTrackCollection
   StatusCode sc = StatusCode::SUCCESS;
-  const TrackCollection* trackCollection = 0;
+  const TrackCollection* trackCollection = nullptr;
 
   if (m_inputTrackCollection!="") {
       sc = evtStore()->retrieve(trackCollection,m_inputTrackCollection);
@@ -110,7 +109,7 @@ StatusCode Trk::RecMomentumQualityValidation::execute()
          return StatusCode::FAILURE;
   }
 
-  const TrackTruthCollection* trackTruthCollection = 0;
+  const TrackTruthCollection* trackTruthCollection = nullptr;
   if (m_trackTruthCollection!="") {
     sc = evtStore()->retrieve(trackTruthCollection, m_trackTruthCollection);
     if (sc.isFailure())
@@ -126,16 +125,13 @@ StatusCode Trk::RecMomentumQualityValidation::execute()
   TrackCollection::const_iterator trackIterator = trackCollection->begin();
   for (;trackIterator!=trackCollection->end();++trackIterator) {
 
-    /*    const Trk::TrackInfo& info = (*trackIterator)->info();
-          if ( ! info.patternRecoInfo(Trk::TrackInfo::TRTStandalone) &&
-          ! info.patternRecoInfo(Trk::TrackInfo::TRTSeededSingleSpTrackFinder)) { */
-    if (!m_trackSelector.empty() && (*trackIterator)!=NULL && 
+    if (!m_trackSelector.empty() && (*trackIterator)!=nullptr && 
         m_trackSelector->decision(**trackIterator) ) {
-      const Trk::TrackParameters* generatedTrackPerigee(0);
+      const Trk::TrackParameters* generatedTrackPerigee(nullptr);
 
       // find matching truth particle
-      const TrackTruth* trackTruth = 0;
-      const HepMC::GenParticle* genParticle = 0;
+      const TrackTruth* trackTruth = nullptr;
+      HepMC::ConstGenParticlePtr genParticle{nullptr};
       TrackTruthCollection::const_iterator truthIterator 
         = trackTruthCollection->find( trackIterator - (*trackCollection).begin() );
       if ( truthIterator == trackTruthCollection->end() ){
@@ -146,11 +142,15 @@ StatusCode Trk::RecMomentumQualityValidation::execute()
           if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Link to generated particle information is not there - assuming a lost G4 particle ('fake fake')." << endmsg;
           //        genParticle = m_visibleParticleWithoutTruth; // with pdg_id 0
         } else {
+#ifdef HEPMC3
+          genParticle = trackTruth->particleLink().scptr();
+#else
           genParticle = trackTruth->particleLink().cptr();
-          if ( genParticle!=NULL && genParticle->pdg_id() == 0 ) {
+#endif
+          if ( genParticle && genParticle->pdg_id() == 0 ) {
             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Associated Particle ID " << genParticle->pdg_id()
                                                     << " does not conform to PDG requirements... ignore it!" << endmsg;
-            genParticle = 0;
+            genParticle = nullptr;
           } 
         }
       }
@@ -178,11 +178,10 @@ StatusCode Trk::RecMomentumQualityValidation::execute()
       }
       const TrackParameters* reconstructedPerigee = (*trackIterator)->perigeeParameters();
 
-      if (generatedTrackPerigee != NULL) {
+      if (generatedTrackPerigee != nullptr) {
         
         if (!reconstructedPerigee) return StatusCode::FAILURE;
 
-        //      double this_eta = generatedTrackPerigee->eta();
         double this_eta = reconstructedPerigee->eta();
         
         double truth_over_recP = generatedTrackPerigee->parameters()[Trk::qOverP]
@@ -240,9 +239,9 @@ StatusCode Trk::RecMomentumQualityValidation::execute()
 void Trk::RecMomentumQualityValidation::monitorTrackFits(std::vector<unsigned int>& Ntracks,
                                          const double& eta) const {
   Ntracks[Trk::RecMomentumQualityValidation::iAll] += 1;
-  if (fabs(eta) < 0.80 ) ++Ntracks[Trk::RecMomentumQualityValidation::iBarrel];
-  else if (fabs(eta) < 1.60) ++Ntracks[Trk::RecMomentumQualityValidation::iTransi];
-  else if (fabs(eta) < 2.40) ++Ntracks[Trk::RecMomentumQualityValidation::iEndcap];
+  if (std::abs(eta) < 0.80 ) ++Ntracks[Trk::RecMomentumQualityValidation::iBarrel];
+  else if (std::abs(eta) < 1.60) ++Ntracks[Trk::RecMomentumQualityValidation::iTransi];
+  else if (std::abs(eta) < 2.40) ++Ntracks[Trk::RecMomentumQualityValidation::iEndcap];
 }
 
 

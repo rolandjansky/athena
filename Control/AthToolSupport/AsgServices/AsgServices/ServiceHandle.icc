@@ -1,0 +1,182 @@
+/*
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
+
+/// @author Nils Krumnack
+/// @author David Adams <dladams@bnl.gov> (for original implementation for tools)
+
+
+
+#ifndef ASGSERVICES_SERVICEHANDLE_ICC
+#define ASGSERVICES_SERVICEHANDLE_ICC
+
+// System include(s):
+#include <stdexcept>
+#include <iostream>
+
+// Local include(s):
+#include "AsgServices/ServiceStore.h"
+
+template< class T >
+ServiceHandle< T >::ServiceHandle( const std::shared_ptr<T>& pservice,
+                                   const std::string& parentName)
+  : ServiceHandleBase("",parentName), m_pservice( pservice )
+{
+  // Set the name in the base class in case we received a valid pointer:
+  if( m_pservice ) {
+    m_name = m_pservice->name();
+  }
+}
+
+template< class T >
+ServiceHandle< T >::ServiceHandle( const std::string& typeAndName,
+                                   const std::string& parentName )
+: ServiceHandleBase( typeAndName , parentName )
+{}
+
+template<typename T> template<typename T2>
+ServiceHandle<T> ::
+ServiceHandle (T2 *parent, const std::string& propertyName,
+               const std::string& serviceName,
+               const std::string& propertyTitle)
+  : ServiceHandle (serviceName, parent->name())
+{
+  parent->declareProperty (propertyName, *this, propertyTitle);
+}
+
+template< class T >
+T& ServiceHandle< T >::operator*()
+{
+   // Retrieve the service pointer if necessary:
+   if( ! m_pservice )
+     m_pservice = asg::ServiceStore::get< T >( name() );
+
+   // Check if we succeeded:
+   if( ! m_pservice )
+      throw std::runtime_error( "Couldn't find service with name \"" +
+                                name() + "\"" );
+
+   // Return a reference to the service:
+   return *m_pservice;
+}
+
+template< class T >
+const T& ServiceHandle< T >::operator*() const
+{
+   // Retrieve the service pointer if necessary:
+   if( ! m_pservice )
+      m_pservice = asg::ServiceStore::get< T >( name() );
+
+   // Check if we succeeded:
+   if( ! m_pservice )
+      throw std::runtime_error( "Couldn't find service with name \"" +
+                                name() + "\"" );
+
+   // Return a reference to the service:
+   return *m_pservice;
+}
+
+template< class T >
+T* ServiceHandle<T>::operator->()
+{
+   // Retrieve the service pointer if necessary:
+   if( ! m_pservice ) {
+      m_pservice = asg::ServiceStore::get< T >( name() );
+   }
+   // Check if we succeeded:
+   if( ! m_pservice ) {
+      throw std::runtime_error( "Couldn't find service with name \"" +
+                                name() + "\"" );
+   }
+
+   // Return the (possibly null-)pointer to the service:
+   return m_pservice.get();
+}
+
+template< class T >
+const T* ServiceHandle<T>::operator->() const
+{
+
+   // Retrieve the service pointer if necessary:
+   if( ! m_pservice )
+      m_pservice = asg::ServiceStore::get< T >( name() );
+
+   // Check if we succeeded:
+   if( ! m_pservice )
+      throw std::runtime_error( "Couldn't find service with name \"" +
+                                name() + "\"" );
+
+   // Return the (possibly null-)pointer to the service:
+   return m_pservice.get();
+}
+
+template< class T >
+StatusCode ServiceHandle< T >::retrieve() const
+{
+  // If we have the service already, there's nothing to do:
+  if( m_pservice )
+    return StatusCode::SUCCESS;
+
+  // Try to retrieve the service:
+  m_pservice = asg::ServiceStore::get< T >( name() );
+
+  // Check if it succeeded:
+  if( m_pservice ) {
+    return StatusCode::SUCCESS;
+  } else {
+    return StatusCode::FAILURE;
+  }
+}
+
+template< class T >
+void ServiceHandle< T >::disable () noexcept
+{
+  m_pservice.reset ();
+}
+
+template< class T >
+bool ServiceHandle< T >::empty() const
+{
+  return ( ( m_pservice == nullptr ) && ( name().size() == 0 ) );
+}
+
+template< class T >
+bool ServiceHandle< T >::isSet() const
+{
+  return ( !( m_pservice == nullptr ) );
+}
+
+template< class T >
+std::ostream& operator<<( std::ostream& out,
+                          const ServiceHandle< T >& handle )
+{
+  out << "ASG ServiceHandle with name = \"" << handle.name() << "\", pointer = ";
+  const T* pservice = nullptr;
+  if (handle.retrieve())
+    pservice = &*handle;
+  out << pservice;
+
+  // Return the same stream object:
+  return out;
+}
+
+namespace asg
+{
+  namespace detail
+  {
+    StatusCode packStringSingle (const std::string& value,
+				 std::string& result);
+
+    template<typename T> struct GetStringHelper;
+
+    template<typename T> struct GetStringHelper<ServiceHandle<T> >
+    {
+      static StatusCode get (const ServiceHandle<T>& value,
+			     std::string& result) {
+        return packStringSingle (value.typeAndName(), result);
+      }
+    };
+  }
+}
+
+#endif // ASGSERVICES_SERVICEHANDLE_ICC

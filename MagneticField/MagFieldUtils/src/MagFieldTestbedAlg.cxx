@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -10,7 +10,7 @@
  *
  */
 // class include
-#include "MagFieldUtils/MagFieldTestbedAlg.h"
+#include "MagFieldTestbedAlg.h"
 
 // Framework
 #include "GaudiKernel/ITHistSvc.h"
@@ -435,8 +435,8 @@ bool MagField::MagFieldTestbedAlg::checkWithReference() {
 	// setup the reference file branches
 	for (int i = 0; i < 4; i++)
 		m_xyzt[i] = 0.;
-	static double refField[3] = { 0., 0., 0. };
-	static double refDerivatives[9] = { 0., 0., 0., 0., 0., 0., 0., 0., 0. };
+	double refField[3] = { 0., 0., 0. };
+	double refDerivatives[9] = { 0., 0., 0., 0., 0., 0., 0., 0., 0. };
 
 	refT->SetBranchAddress("pos", &m_xyzt);
 	refT->SetBranchAddress("field", &refField);
@@ -450,8 +450,8 @@ bool MagField::MagFieldTestbedAlg::checkWithReference() {
 	// setup the diff TTree
 //	TTree *diffT = new TTree("fieldDiff",
 //			"Magnetic Field Differences in AtlasG4");
-	static double fieldAbsDiff;
-	static double fieldRelDiff;
+	double fieldAbsDiff;
+	double fieldRelDiff;
 	//
 	m_tree->Branch("ReferenceField", &refField, "x/D:y/D:z/D");
 	m_tree->Branch("fieldAbsDiff", &fieldAbsDiff, "diff/D");

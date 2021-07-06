@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -61,7 +61,8 @@ public:
     typedef Identifier::value_type  value_type;
     typedef Identifier::size_type   size_type;
 
-    typedef enum 
+    typedef enum
+    // cppcheck-suppress syntaxError
     { 
         NBITS   = sizeof(value_type) * 8, // bits per byte
         MAX_BIT = (static_cast<value_type>(1) << (NBITS - 1)),

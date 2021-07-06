@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -430,7 +430,7 @@ RootTreeContainer::loadObject(void** obj_p, ShapeH /*shape*/, Token::OID_t& oid)
                ::strcpy(q.c_str, p.c_str);
                break;
             case DbColumn::BLOB:
-               q.blob->adopt((char*)s_char_Blob.m_buffer,s_char_Blob.m_size);
+               p.blob->adopt((char*)s_char_Blob.m_buffer,s_char_Blob.m_size);
                s_char_Blob.release(false);
                break;
             case DbColumn::POINTER:
@@ -506,10 +506,10 @@ DbStatus RootTreeContainer::close()   {
 }
 
 
-DbStatus RootTreeContainer::open( const DbDatabase& dbH,
-                                  const std::string& nam,
-                                  const DbTypeInfo* info,
-                                  DbAccessMode mode)
+DbStatus RootTreeContainer::open( DbDatabase& dbH, 
+                                  const std::string& nam, 
+                                  const DbTypeInfo* info, 
+                                  DbAccessMode mode)  
 {
    DbPrint log(nam);
    m_branches.clear();
@@ -1041,7 +1041,7 @@ DbStatus RootTreeContainer::getOption(DbOption& opt)  const  {
     else if ( !strcasecmp(n,"TREE") )  {
       return opt._setValue((void*)m_tree);
     }
-    else if ( ::toupper(n[0]=='T') && opt.name().length() > 6 ) {
+    else if ( ::toupper(n[0])=='T' && opt.name().length() > 6 ) {
       switch(::toupper(n[5]))   {
       case 'B':
         if ( !strcasecmp(n+5,"BRANCH_IDX") )  {

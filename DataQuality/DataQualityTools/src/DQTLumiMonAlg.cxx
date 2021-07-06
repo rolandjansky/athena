@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DataQualityTools/DQTLumiMonAlg.h"
@@ -45,7 +45,7 @@ StatusCode DQTLumiMonAlg::fillHistograms(const EventContext& ctx) const {
     auto nLooseVtx = Scalar<int>("nLooseVtx",0);
     auto nTightVtx = Scalar<int>("nTightVtx",0);
     if ( vertices.isValid() ) {
-        for ( const auto& vertex : *vertices ) {
+        for ( const auto vertex : *vertices ) {
             if (!vertex || !vertex->nTrackParticles()) continue;
             nLooseVtx++;
 

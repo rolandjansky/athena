@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -32,9 +32,6 @@
 
 #include "ZdcByteStream/ZdcByteStreamTool.h"
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 
 //==================================================================================================
 // Interface ID
@@ -91,17 +88,10 @@ ZdcByteStreamTool::ZdcByteStreamTool(const std::string& type,
 
 }
 
-ZdcByteStreamTool::~ZdcByteStreamTool()
-{
-}
-
 //==================================================================================================
 // Initialize  the tool
 StatusCode ZdcByteStreamTool::initialize()
 {
-	msg(MSG::INFO) << "Initializing " << name() << " - package version " << PACKAGE_VERSION
-			<< endmsg;
-
 	/*
 	 * This would be used for crate/module/channel to eta/phi/layer mappings
 	StatusCode sc = m_zdcMaps.retrieve();

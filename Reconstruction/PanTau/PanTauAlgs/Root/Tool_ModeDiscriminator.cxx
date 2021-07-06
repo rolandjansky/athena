@@ -12,7 +12,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include <string>
-
+#include <memory>
 
 PanTau::Tool_ModeDiscriminator::Tool_ModeDiscriminator(const std::string& name) :
   asg::AsgTool(name),
@@ -104,7 +104,7 @@ StatusCode PanTau::Tool_ModeDiscriminator::initialize() {
       TString variableNameForReader = "tau_pantauFeature_" + m_Name_InputAlg + "_" + m_List_BDTVariableNames[iVar];
     }//end loop over variables
 
-    TFile* fBDT = TFile::Open(resolvedWeightFileName.c_str());
+    std::unique_ptr<TFile> fBDT = std::make_unique<TFile>( resolvedWeightFileName.c_str() );
     TTree* tBDT = dynamic_cast<TTree*> (fBDT->Get("BDT"));
     MVAUtils::BDT* curBDT = new MVAUtils::BDT(tBDT);
     curBDT->SetPointers(m_List_BDTVariableValues);

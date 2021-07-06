@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -19,27 +19,29 @@
 #ifndef LAROFC2NTUPLE_H
 #define LAROFC2NTUPLE_H
 #include "LArCalibTools/LArCond2NtupleBase.h"
-#include "LArElecCalib/ILArOFCTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArElecCalib/ILArOFC.h"
 
 class LArOFC2Ntuple : public LArCond2NtupleBase {
  public:
 
   LArOFC2Ntuple(const std::string & name, ISvcLocator * pSvcLocator);
-  ~LArOFC2Ntuple();
+  virtual ~LArOFC2Ntuple();
 
   //standard algorithm methods
-  StatusCode initialize();
-  virtual StatusCode stop();
-  StatusCode finalize(){return StatusCode::SUCCESS;}
+  virtual StatusCode initialize() override;
+  virtual StatusCode stop() override;
+  virtual StatusCode finalize() override {return StatusCode::SUCCESS;}
 
  private:
    
-  //unsigned m_nSamples;// , m_nPhases ;
-   std::string m_contKey;
+  unsigned m_nSamples;// , m_nPhases ;
    std::string m_ntName;
    std::string m_ntFile;   
-   bool m_isMC;
-   ToolHandle<ILArOFCTool> m_OFCTool;
+
+   /// Property: OFC coefficients (conditions input).
+   SG::ReadCondHandleKey<ILArOFC> m_ofcKey
+    {this, "ContainerKey", "LArOFC", "SG Key of OFC conditions object" };
 };
 
 #endif

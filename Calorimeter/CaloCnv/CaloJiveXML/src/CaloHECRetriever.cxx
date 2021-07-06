@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloJiveXML/CaloHECRetriever.h"
@@ -11,12 +11,13 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "LArElecCalib/ILArPedestal.h"
-#include "LArElecCalib/ILArADC2MeVTool.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArRawEvent/LArRawChannel.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "Identifier/HWIdentifier.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 using Athena::Units::GeV;
 
@@ -31,14 +32,12 @@ namespace JiveXML {
   CaloHECRetriever::CaloHECRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
     m_typeName("HEC"),
-    m_calocell_id(nullptr)
+    m_calocell_id(nullptr),
+    m_sgKey ("AllCalo")
   {
-
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
     
-    m_sgKey = "AllCalo"; 
-
     declareInterface<IDataRetriever>(this);
     declareProperty("StoreGateKey" , m_sgKey);
     declareProperty("HEClCellThreshold", m_cellThreshold = 50.);
@@ -63,6 +62,7 @@ namespace JiveXML {
     ATH_CHECK( detStore()->retrieve (m_calocell_id, "CaloCell_ID") );
 
     ATH_CHECK( m_cablingKey.initialize() );
+    ATH_CHECK( m_adc2mevKey.initialize(m_doHECCellDetails) );
 
     return StatusCode::SUCCESS;	
   }
@@ -98,6 +98,7 @@ namespace JiveXML {
   const DataMap CaloHECRetriever::getHECData(const CaloCellContainer* cellContainer) {
     
     ATH_MSG_DEBUG( "getHECData()"  );
+    const EventContext& ctx = Gaudi::Hive::currentContext();
 
     DataMap DataMap;
 
@@ -121,7 +122,7 @@ namespace JiveXML {
     CaloCellContainer::const_iterator it2 = cellContainer->endConstCalo(CaloCell_ID::LARHEC);
 
     
-    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey, ctx};
     const LArOnOffIdMapping* cabling{*cablingHdl};
     if(!cabling) {
       ATH_MSG_ERROR ("Could not get cabling mapping from key " << m_cablingKey.key() );
@@ -140,20 +141,16 @@ namespace JiveXML {
       ATH_MSG_ERROR( "in getHECData(),Could not get LArOnlineID!"  );
     }
 
-      IAlgTool* algtool;
-      ILArADC2MeVTool* adc2mevTool=0;
-      if(m_doHECCellDetails){
-	if( toolSvc()->retrieveTool("LArADC2MeVTool", algtool).isFailure()){
-	  ATH_MSG_ERROR( "in getHECData(), Could not retrieve LAr ADC2MeV Tool"  );
-	} else {
-	  adc2mevTool=dynamic_cast<ILArADC2MeVTool*>(algtool);
-	}
-      }
+    const LArADC2MeV* adc2mev = nullptr;
+    if (m_doHECCellDetails) {
+      SG::ReadCondHandle<LArADC2MeV> adc2mevH (m_adc2mevKey, ctx);
+      adc2mev = *adc2mevH;
+    }
 
       double energyGeV,cellTime;	
       double energyAllLArHEC = 0.;      
 
-      for(;it1!=it2;it1++){
+      for(;it1!=it2;++it1){
         if ((*it1)->energy() < m_cellThreshold) continue; // skip to next cell if threshold not passed
 
 	if((*it1)->badcell()){ BadCell.push_back(1); }
@@ -199,13 +196,9 @@ namespace JiveXML {
 	    else pedvalue = 0;
 	    cellPedestal.push_back(DataType(pedvalue));
 
-            if (!adc2mevTool)
-              adc2Mev.push_back(DataType(-1));
-            else {
-              const std::vector<float>* polynom_adc2mev = &(adc2mevTool->ADC2MEV(cellid,hecgain));
-              if (polynom_adc2mev->size()==0){ adc2Mev.push_back(DataType(-1)); }
-              else{ adc2Mev.push_back(DataType((*polynom_adc2mev)[1])); }
-            }
+            LArVectorProxy polynom_adc2mev = adc2mev->ADC2MEV(cellid,hecgain);
+            if (polynom_adc2mev.size()==0){ adc2Mev.push_back(DataType(-1)); }
+            else{ adc2Mev.push_back(DataType(polynom_adc2mev[1])); }
 	  }
       }
 

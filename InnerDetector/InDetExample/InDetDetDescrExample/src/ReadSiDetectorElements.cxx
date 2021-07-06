@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetDetDescrExample/ReadSiDetectorElements.h"
@@ -10,13 +10,13 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/SiNumerology.h"
-#include "InDetReadoutGeometry/SiCellId.h"
-#include "InDetReadoutGeometry/SiIntersect.h"
+#include "ReadoutGeometryBase/SiCellId.h"
+#include "ReadoutGeometryBase/SiIntersect.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "Identifier/Identifier.h"
 
-#include "InDetReadoutGeometry/SiLocalPosition.h"
+#include "ReadoutGeometryBase/SiLocalPosition.h"
 
 
 #include <vector>
@@ -53,6 +53,9 @@ ReadSiDetectorElements::ReadSiDetectorElements(const std::string& name, ISvcLoca
   declareProperty("DoInitialize", m_doInit = false);
   declareProperty("DoExecute",    m_doExec = true);
   declareProperty("UseConditionsTools", m_useConditionsTools = false);
+  declareProperty("PrintProbePositions", m_printProbePositions = true);
+  declareProperty("PrintTransforms", m_printTransforms = true);
+  declareProperty("PrintDirections", m_printDirections = true);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -67,7 +70,7 @@ StatusCode ReadSiDetectorElements::initialize(){
   //  const SCT_DetectorManager  * manager;
 
   ATH_CHECK( detStore()->retrieve(m_manager,m_managerName));
-  if (m_managerName == "Pixel") {
+  if (m_managerName == "Pixel" || m_managerName == "ITkPixel") {
     //
     // Get Pixel ID helper
     //
@@ -149,9 +152,18 @@ void ReadSiDetectorElements::printAllElements(const bool accessDuringInitializat
         //
         // element->getIdHelper()->show(element->identify());
         //
-  
-        ATH_MSG_ALWAYS(" center (x,y,z) = " << element->center().x() << "," << element->center().y() << "," << element->center().z());
-	ATH_MSG_ALWAYS(" center (r,phi,z) = " << element->center().perp() << "," << element->center().phi() << "," <<element->center().z());
+        ATH_MSG_ALWAYS(" center (x,y,z)   = " << element->center().x() << "," << element->center().y() << "," << element->center().z());
+	      ATH_MSG_ALWAYS(" center (r,phi,z) = " << element->center().perp() << "," << element->center().phi() << "," <<element->center().z());
+	if(m_printProbePositions){
+	  ATH_MSG_ALWAYS(" global (r,phi,z) position of (1,1)          = " <<element->globalPosition(Amg::Vector2D(1,1)).perp() << "," << element->globalPosition(Amg::Vector2D(1,1)).phi() <<","<< element->globalPosition(Amg::Vector2D(1,1)).z());
+	  ATH_MSG_ALWAYS(" global (r,phi,z) position of (-1,-1)        = " <<element->globalPosition(Amg::Vector2D(-1,-1)).perp() << "," << element->globalPosition(Amg::Vector2D(-1,-1)).phi() <<","<< element->globalPosition(Amg::Vector2D(-1,-1)).z());
+	  ATH_MSG_ALWAYS(" global (r,phi,z) hit position of (1,1,0)    = " <<element->globalPositionHit(Amg::Vector3D(1,1,0)).perp() << "," << element->globalPositionHit(Amg::Vector3D(1,1,0)).phi() <<","<< element->globalPositionHit(Amg::Vector3D(1,1,0)).z());
+	  ATH_MSG_ALWAYS(" global (r,phi,z) hit  position of (-1,-1,0) = " <<element->globalPositionHit(Amg::Vector3D(-1,-1,0)).perp() << "," << element->globalPositionHit(Amg::Vector3D(-1,-1,0)).phi() <<","<< element->globalPositionHit(Amg::Vector3D(-1,-1,0)).z()); 
+    ATH_MSG_ALWAYS(" Cell Id of (1,1)        = " <<element->cellIdOfPosition(Amg::Vector2D(1,1)).etaIndex() << "," << element->cellIdOfPosition(Amg::Vector2D(1,1)).phiIndex());
+    ATH_MSG_ALWAYS(" Cell Id of (-1,-1)      = " <<element->cellIdOfPosition(Amg::Vector2D(-1,-1)).etaIndex() << "," << element->cellIdOfPosition(Amg::Vector2D(-1,-1)).phiIndex());
+
+  }
+        ATH_MSG_ALWAYS(" Normal = " <<element->normal().perp() << "," << element->normal().phi() <<","<< element->normal().z());
         ATH_MSG_ALWAYS(" sin(tilt), sin(stereo) = " <<  element->sinTilt() << " " 
                        << element->sinStereo());
         ATH_MSG_ALWAYS(" width, minWidth, maxWidth, length (mm) = " 
@@ -163,10 +175,11 @@ void ReadSiDetectorElements::printAllElements(const bool accessDuringInitializat
         // These are no longer accessed through the detector element.
         IdentifierHash hashId = element->identifyHash();
         if (m_useConditionsTools) {
+          const EventContext &ctx = Gaudi::Hive::currentContext();
           ATH_MSG_ALWAYS(" Temperature (C), bias voltage, depletion voltage: "
-                         << m_siConditionsTool->temperature(hashId) << " "
-                         << m_siConditionsTool->biasVoltage(hashId) << " "
-                         << m_siConditionsTool->depletionVoltage(hashId));
+                         << m_siConditionsTool->temperature(hashId, ctx) << " "
+                         << m_siConditionsTool->biasVoltage(hashId, ctx) << " "
+                         << m_siConditionsTool->depletionVoltage(hashId, ctx));
         
 
 	  ATH_MSG_ALWAYS(" Lorentz correction (mm), tanLorentzPhi = "
@@ -181,7 +194,7 @@ void ReadSiDetectorElements::printAllElements(const bool accessDuringInitializat
         // Make some consistency tests for the identifier.
         Identifier idTest;
         IdentifierHash idHashTest;
-        if (m_managerName == "Pixel") {
+        if (m_managerName == "Pixel" || m_managerName == "ITkPixel") {
           idTest = m_pixelIdHelper->wafer_id(hashId);
           idHashTest = m_pixelIdHelper->wafer_hash(idTest);
         } else if (m_sctIdHelper) {
@@ -192,7 +205,7 @@ void ReadSiDetectorElements::printAllElements(const bool accessDuringInitializat
         const SiDetectorElement * elementtest2 = nullptr;
         if (useConditionStore) {
           // SiDetectorElementCollection::getDetectorElement supports only IdentifierHash as the argument.
-          if (m_managerName == "Pixel") {
+          if (m_managerName == "Pixel" || m_managerName == "ITkPixel") {
             elementtest1 = elements->getDetectorElement(m_pixelIdHelper->wafer_hash(element->identify()));
           } else {
             elementtest1 = elements->getDetectorElement(m_sctIdHelper->wafer_hash(element->identify()));
@@ -211,7 +224,37 @@ void ReadSiDetectorElements::printAllElements(const bool accessDuringInitializat
       } else {
         // ATH_MSG_ALWAYS("Missing element!!!!!!!!!!!");
       }
-      //add divider between elements for readability
+   if(m_printTransforms){
+      const GeoTrf::Transform3D mytrf = element->transform();
+      const GeoTrf::Transform3D mytrfhit = element->transformHit();
+
+      	ATH_MSG_ALWAYS("Transform: ");
+        ATH_MSG_ALWAYS("|"<<mytrf(2,0)<<","<<mytrf(2,1)<<","<<mytrf(2,2)<<"|");
+        ATH_MSG_ALWAYS("|"<<mytrf(1,0)<<","<<mytrf(1,1)<<","<<mytrf(1,2)<<"|");
+        ATH_MSG_ALWAYS("|"<<mytrf(0,0)<<","<<mytrf(0,1)<<","<<mytrf(0,2)<<"|");
+        ATH_MSG_ALWAYS("");
+        ATH_MSG_ALWAYS("TransformHit: ");
+        ATH_MSG_ALWAYS("|"<<mytrfhit(2,0)<<","<<mytrfhit(2,1)<<","<<mytrfhit(2,2)<<"|");
+        ATH_MSG_ALWAYS("|"<<mytrfhit(1,0)<<","<<mytrfhit(1,1)<<","<<mytrfhit(1,2)<<"|");
+        ATH_MSG_ALWAYS("|"<<mytrfhit(0,0)<<","<<mytrfhit(0,1)<<","<<mytrfhit(0,2)<<"|");
+        ATH_MSG_ALWAYS("");
+   }
+   if(m_printDirections){
+    ATH_MSG_ALWAYS("Depth Angle: "<<element->depthAngle());
+    if(element->depthDirection()) ATH_MSG_ALWAYS("Depth Direction True");
+    else ATH_MSG_ALWAYS("Depth Direction False");
+    ATH_MSG_ALWAYS("Eta Angle: "<<element->etaAngle());
+    if(element->etaDirection()) ATH_MSG_ALWAYS("Eta Direction True");
+    else ATH_MSG_ALWAYS("Eta Direction False");
+    ATH_MSG_ALWAYS("Phi Angle: "<<element->phiAngle());
+    if(element->phiDirection()) ATH_MSG_ALWAYS("Phi Direction True");
+    else ATH_MSG_ALWAYS("Phi Direction False");
+
+    if(std::abs(element->depthAngle())<0.5) ATH_MSG_ALWAYS("BAD DEPTH DIRECTION!");
+    if(std::abs(element->etaAngle())<0.5) ATH_MSG_ALWAYS("BAD ETA DIRECTION!");
+    if(std::abs(element->phiAngle())<0.5) ATH_MSG_ALWAYS("BAD PHI DIRECTION!");
+   }
+  //add divider between elements for readability
 	ATH_MSG_ALWAYS("-----------------------------");
     }
   }
@@ -236,7 +279,7 @@ void ReadSiDetectorElements::printAllElements(const bool accessDuringInitializat
           if (!iEta && siNumerology.skipEtaZeroForLayer(iLayer)) continue;
           for (int iSide = 0; iSide < nSides; iSide++) {
             Identifier id;
-            if (m_managerName == "Pixel"){
+            if (m_managerName == "Pixel" || m_managerName == "ITkPixel"){
               id = m_pixelIdHelper->wafer_id(iBarrel,iLayer,iPhi,iEta);
             } else {
               id = m_sctIdHelper->wafer_id(iBarrel,iLayer,iPhi,iEta,iSide);
@@ -244,7 +287,7 @@ void ReadSiDetectorElements::printAllElements(const bool accessDuringInitializat
             const SiDetectorElement * element = nullptr;
             if (useConditionStore) {
               // SiDetectorElementCollection::getDetectorElement supports only IdentifierHash as the argument.
-              if (m_managerName == "Pixel") {
+              if (m_managerName == "Pixel" || m_managerName == "ITkPixel") {
                 element = elements->getDetectorElement(m_pixelIdHelper->wafer_hash(id));
               } else {
                 element = elements->getDetectorElement(m_sctIdHelper->wafer_hash(id));
@@ -284,7 +327,7 @@ void ReadSiDetectorElements::printAllElements(const bool accessDuringInitializat
         for (int iPhi = 0; iPhi < siNumerology.numPhiModulesForDiskRing(iDisk,iEta); iPhi++) {
           for (int iSide = 0; iSide < nSides; iSide++) {
             Identifier id;
-            if (m_managerName == "Pixel"){
+            if (m_managerName == "Pixel" || m_managerName == "ITkPixel") {
               id = m_pixelIdHelper->wafer_id(iEndcap,iDisk,iPhi,iEta);
             } else {
               id = m_sctIdHelper->wafer_id(iEndcap,iDisk,iPhi,iEta,iSide);
@@ -337,7 +380,7 @@ void ReadSiDetectorElements::printRandomAccess(const bool accessDuringInitializa
   }
 
   // Some random access
-  if (m_managerName == "Pixel") {
+  if (m_managerName == "Pixel" || m_managerName == "ITkPixel") {
     //const PixelID * idHelper = dynamic_cast<const PixelID *>(m_manager->getIdHelper());
     const PixelID * idHelper = m_pixelIdHelper;
     if (idHelper) {
@@ -391,7 +434,7 @@ void ReadSiDetectorElements::printRandomAccess(const bool accessDuringInitializa
       testElement(id, cellIds, positions, elements);
 
     }
-  } else if (m_managerName == "SCT") {
+  } else if (m_managerName == "SCT" || m_managerName == "ITkStrip") {
     
     //const SCT_ID * idHelper = dynamic_cast<const SCT_ID *>(m_manager->getIdHelper());
     const SCT_ID * idHelper = m_sctIdHelper;
@@ -413,9 +456,11 @@ void ReadSiDetectorElements::printRandomAccess(const bool accessDuringInitializa
       cellIds.push_back(SiCellId(32)); // phi,eta
       cellIds.push_back(SiCellId(1)); // phi,eta
       cellIds.push_back(SiCellId(0)); // phi,eta
-      cellIds.push_back(SiCellId(-1)); // phi,eta
-      cellIds.push_back(SiCellId(-2)); // phi,eta
-      cellIds.push_back(SiCellId(-3)); // phi,eta
+      if (m_managerName == "SCT") {
+        cellIds.push_back(SiCellId(-1)); // phi,eta
+        cellIds.push_back(SiCellId(-2)); // phi,eta
+        cellIds.push_back(SiCellId(-3)); // phi,eta
+      }
       cellIds.push_back(SiCellId(767)); // phi,eta
       cellIds.push_back(SiCellId(768)); // phi,eta
       positions.push_back(Amg::Vector2D(12.727*CLHEP::mm, 4.534*CLHEP::mm)); // eta,phi
@@ -441,7 +486,7 @@ void ReadSiDetectorElements::printRandomAccess(const bool accessDuringInitializa
       positions.clear();
       cellIds.push_back(SiCellId(532)); // phi,eta
       cellIds.push_back(SiCellId(0)); // phi,eta
-      cellIds.push_back(SiCellId(-1)); // phi,eta
+      if (m_managerName == "SCT") cellIds.push_back(SiCellId(-1)); // phi,eta
       cellIds.push_back(SiCellId(767)); // phi,eta
       cellIds.push_back(SiCellId(768)); // phi,eta
       positions.push_back(Amg::Vector2D(12.727*CLHEP::mm, 20.534*CLHEP::mm)); // eta,phi
@@ -539,7 +584,7 @@ ReadSiDetectorElements::testElement(const Identifier & id,
   ATH_MSG_ALWAYS("----------------------------------------------");
   const SiDetectorElement * element = nullptr;
   if (elements) {
-    if (m_managerName == "Pixel") {
+    if (m_managerName == "Pixel" || m_managerName == "ITkPixel") {
       element = elements->getDetectorElement(m_pixelIdHelper->wafer_hash(id));
     } else {
       element = elements->getDetectorElement(m_sctIdHelper->wafer_hash(id));
@@ -576,10 +621,11 @@ ReadSiDetectorElements::testElement(const Identifier & id,
     ATH_MSG_ALWAYS(" center: r (mm) = " <<  element->center().perp()/CLHEP::mm 
                    << ", phi (deg) = " <<  element->center().phi()/CLHEP::deg);
     if (m_useConditionsTools) {
+      const EventContext &ctx = Gaudi::Hive::currentContext();
       ATH_MSG_ALWAYS(" Temperature (C), bias voltage, depletion voltage: "
-                     << m_siConditionsTool->temperature(hashId) << " "
-                     << m_siConditionsTool->biasVoltage(hashId) << " "
-                     << m_siConditionsTool->depletionVoltage(hashId));
+                     << m_siConditionsTool->temperature(hashId, ctx) << " "
+                     << m_siConditionsTool->biasVoltage(hashId, ctx) << " "
+                     << m_siConditionsTool->depletionVoltage(hashId, ctx));
     }
     ATH_MSG_ALWAYS(" sin(tilt), tilt (deg), sin(stereo), stereo (deg) = " 
                    << element->sinTilt() << ", " 
@@ -629,7 +675,7 @@ ReadSiDetectorElements::testElement(const Identifier & id,
       const InDetDD::SiLocalPosition & localPosOrig = positionsVec[iTestPos];
       ATH_MSG_ALWAYS(" Requested local pos (xPhi,xEta) = " << localPosOrig.xPhi() << ", " << localPosOrig.xEta());
       //lost out to HepGeom here
-      HepGeom::Point3D<double> globalPos(element->globalPositionCLHEP(localPosOrig));
+      Amg::Vector3D globalPos(element->globalPosition(localPosOrig));
       ATH_MSG_ALWAYS(" Global pos = " << globalPos << ", r (mm) = " << globalPos.perp()/CLHEP::mm<< ", phi (deg) = " << globalPos.phi()/CLHEP::degree);
 
       //...because i need a HepGeom::Point3D<double> to pass to element->localPosition...

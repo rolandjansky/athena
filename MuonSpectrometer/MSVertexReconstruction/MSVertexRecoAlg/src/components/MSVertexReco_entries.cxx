@@ -1,4 +1,3 @@
 #include "MSVertexRecoAlg/MSVertexRecoAlg.h"
 
-DECLARE_COMPONENT( MSVertexRecoAlg )
-
+DECLARE_COMPONENT(MSVertexRecoAlg)

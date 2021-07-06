@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// GenEventBeamEffectBooster.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 // class header include
 #include "GenEventBeamEffectBooster.h"
@@ -27,47 +23,8 @@ namespace Simulation
   GenEventBeamEffectBooster::GenEventBeamEffectBooster( const std::string& t,
                                                         const std::string& n,
                                                         const IInterface* p )
-    : base_class(t,n,p),
-      m_rndGenSvc("AthRNGSvc", n),
-      m_randomEngine(0),
-      m_randomEngineName("BEAM"),
-      m_applyBoost(true),
-      m_applyDivergence(true),
-      m_sigma_px_b1 (20.E-6), // angular divergence in x of beam 1 [rad]
-      m_sigma_px_b2 (21.E-6), // angular divergence in x of beam 2 [rad]
-      m_sigma_py_b1 (22.E-6), // angular divergence in y of beam 1 [rad]
-      m_sigma_py_b2 (23.E-6), // angular divergence in y of beam 2 [rad]
-      // Crossing angles, note the convention here is taken from online https://atlas-dcs.cern.ch/index.php?page=LHC_INS::INS_BPM
-      m_xing_x_b1 (19.E-6),   // half-crossing in x for beam 1 at IP1, i.e. angle between beam 1 and z-axis
-      m_xing_x_b2 (1.E-6),    // half-crossing in x for beam 2 at IP1, i.e. angle between beam 2 and z-axis
-      m_xing_y_b1 ( 150.E-6),  // half-crossing in y for beam 1 at IP1, i.e. angle between beam 1 and z-axis
-      m_xing_y_b2 (-152.E-6), // half-crossing in y for beam 2 at IP1, i.e. angle between beam 2 and z-axis
-      m_dE (1.1E-4), // Delta_E/E theoretical value
-      m_pbeam1 (3500.0E3), /// @todo Get from a service
-      m_pbeam2 (3500.0E3), /// @todo Get from a service
-      m_beam1ParticleMass(CLHEP::proton_mass_c2),
-      m_beam2ParticleMass(CLHEP::proton_mass_c2)
+    : base_class(t,n,p)
   {
-    // declare properties for the configuration
-    declareProperty( "RandomSvc"        , m_rndGenSvc        );
-    declareProperty( "RandomStream"     , m_randomEngineName );
-    declareProperty( "ApplyBoost"       , m_applyBoost       );
-    declareProperty( "ApplyDivergence"  , m_applyDivergence  );
-    //BACKUP properties needed until IBeamCondSvc is updated
-    declareProperty( "Sigma_px_b1", m_sigma_px_b1, "angular divergence in x of beam 1 [rad]");
-    declareProperty( "Sigma_px_b2", m_sigma_px_b2, "angular divergence in x of beam 2 [rad]");
-    declareProperty( "Sigma_py_b1", m_sigma_py_b1, "angular divergence in y of beam 1 [rad]");
-    declareProperty( "Sigma_py_b2", m_sigma_py_b2, "angular divergence in y of beam 2 [rad]");
-    // Crossing angles, note the convention here is taken from online https://atlas-dcs.cern.ch/index.php?page=LHC_INS::INS_BPM
-    declareProperty( "HalfXing_x_b1", m_xing_x_b1, "half-crossing in x for beam 1 at IP1, i.e. angle between beam 1 and z-axis");
-    declareProperty( "HalfXing_x_b2", m_xing_x_b2, "half-crossing in x for beam 2 at IP1, i.e. angle between beam 2 and z-axis");
-    declareProperty( "HalfXing_y_b1", m_xing_y_b1, "half-crossing in y for beam 1 at IP1, i.e. angle between beam 1 and z-axis");
-    declareProperty( "HalfXing_y_b2", m_xing_y_b2, "half-crossing in y for beam 2 at IP1, i.e. angle between beam 2 and z-axis");
-    declareProperty( "deltaEOverE",   m_dE,        "Delta_E/E theoretical value");
-    declareProperty( "pbeam1",        m_pbeam1,    "Beam 1 Momentum / MeV");
-    declareProperty( "pbeam2",        m_pbeam2,    "Beam 2 Momentum / MeV");
-    declareProperty( "Beam1ParticleMass",m_beam1ParticleMass, "Mass of particle used in beam 1");
-    declareProperty( "Beam2ParticleMass",m_beam2ParticleMass, "Mass of particle used in beam 2");
   }
 
 
@@ -77,7 +34,7 @@ namespace Simulation
     ATH_MSG_VERBOSE("Initializing ...");
     // prepare the RandonNumber generation
     ATH_CHECK(m_rndGenSvc.retrieve());
-    m_randomEngine = m_rndGenSvc->getEngine(this, m_randomEngineName);
+    m_randomEngine = m_rndGenSvc->getEngine(this, m_randomEngineName); //FIXME
     if (!m_randomEngine) {
       ATH_MSG_ERROR("Could not get random number engine from RandomNumberService. Abort.");
       return StatusCode::FAILURE;

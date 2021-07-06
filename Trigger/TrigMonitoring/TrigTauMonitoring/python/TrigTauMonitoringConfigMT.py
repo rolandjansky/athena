@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -56,17 +56,6 @@ class TrigTauMonAlgBuilder:
         self.activate_tau=True
     else:
         self.activate_tau=True
-    """    self.activate_jpsiee=True 
-        self.activate_electron=True
-        self.activate_photon=True
-    elif self.HI_mode is True or self.pPb_mode is True or self.cosmic_mode is True:
-      self.activate_electron=True
-      self.activate_photon=True
-    else:
-      self.activate_zee=True
-      self.activate_jpsiee=True
-      self.activate_electron=True
-      self.activate_photon=True"""
 
     
   def configure(self):
@@ -88,6 +77,28 @@ class TrigTauMonAlgBuilder:
       def isL1Item(self):
         return True if self.chain().startswith('L1') else False
 
+      def isComboChain(self):
+        isComboChain = False
+        splits = self.chain().split("_")
+        Npart = 0
+        for split in splits:
+            if split.startswith('tau'):
+                Npart+=1
+        if Npart > 1:
+            isComboChain = True
+        return isComboChain        
+
+      # CAUTION: Works only for no combined chains
+      def L1thresh(self):
+        thresh = []
+        splits = self.chain().split("_")
+        for split in splits:
+            if split.startswith('L1'):
+                for word in split:
+                   if word.isdigit():
+                      thresh.append(int(word))
+        return thresh
+
       def L1seed(self):
         l1seed = ''
         splits = self.chain().split("_")
@@ -98,6 +109,12 @@ class TrigTauMonAlgBuilder:
 
       def isRNN(self):
         return True if "RNN" in self.chain() else False
+  
+      def isBDT(self):
+        if 'loose1' in self.chain() or 'medium1' in self.chain() or 'tight1' in self.chain():
+            return True
+        else:
+            return False
 
     return TrigTauInfo(trigger)
 
@@ -144,32 +161,88 @@ class TrigTauMonAlgBuilder:
     
     # This will be removed for future.
     monitoring_tau = [
+    # tau0
+    'HLT_tau0_ptonly_L1TAU8',
+    'HLT_tau0_ptonly_L1TAU60',
+    'HLT_tau0_ptonly_L1TAU100',
+    # tau25
+    'HLT_tau25_ptonly_L1TAU12IM',
+    'HLT_tau25_idperf_track_L1TAU12IM',
+    'HLT_tau25_idperf_tracktwo_L1TAU12IM',
+    'HLT_tau25_idperf_tracktwoEF_L1TAU12IM',
+    'HLT_tau25_idperf_tracktwoMVA_L1TAU12IM',
     'HLT_tau25_idperf_tracktwoMVABDT_L1TAU12IM',
+    'HLT_tau25_perf_track_L1TAU12IM',
+    'HLT_tau25_perf_tracktwo_L1TAU12IM',
+    'HLT_tau25_perf_tracktwoEF_L1TAU12IM',
+    'HLT_tau25_perf_tracktwoMVA_L1TAU12IM',
     'HLT_tau25_perf_tracktwoMVABDT_L1TAU12IM',
-    'HLT_tau25_medium1_tracktwoMVABDT_L1TAU12IM',
-    'HLT_tau25_verylooseRNN_tracktwoMVABDT_L1TAU12IM',
+    'HLT_tau25_looseRNN_tracktwoMVA_L1TAU12IM',
     'HLT_tau25_looseRNN_tracktwoMVABDT_L1TAU12IM',
-    'HLT_tau25_mediumRNN_tracktwoMVABDT_L1TAU12IM',
-    'HLT_tau25_tightRNN_tracktwoMVABDT_L1TAU12IM',
     'HLT_tau25_mediumRNN_tracktwoMVA_L1TAU12IM',
+    'HLT_tau25_mediumRNN_tracktwoMVABDT_L1TAU12IM',
+    'HLT_tau25_tightRNN_tracktwoMVA_L1TAU12IM',
+    'HLT_tau25_tightRNN_tracktwoMVABDT_L1TAU12IM',
+    'HLT_tau25_medium1_track_L1TAU12IM',
+    'HLT_tau25_medium1_tracktwo_L1TAU12IM',
+    'HLT_tau25_medium1_tracktwoEF_L1TAU12IM',
+    # tau35
+    'HLT_tau35_ptonly_L1TAU12IM',
+    'HLT_tau35_idperf_track_L1TAU12IM',
+    'HLT_tau35_idperf_tracktwo_L1TAU12IM',
+    'HLT_tau35_idperf_tracktwoEF_L1TAU12IM',
+    'HLT_tau35_idperf_tracktwoMVA_L1TAU12IM',
+    'HLT_tau35_idperf_tracktwoMVABDT_L1TAU12IM',
+    'HLT_tau35_perf_track_L1TAU12IM',
+    'HLT_tau35_perf_tracktwo_L1TAU12IM',
+    'HLT_tau35_perf_tracktwoEF_L1TAU12IM',
+    'HLT_tau35_perf_tracktwoMVA_L1TAU12IM',
+    'HLT_tau35_perf_tracktwoMVABDT_L1TAU12IM',
+    'HLT_tau35_looseRNN_tracktwoMVA_L1TAU12IM',
+    'HLT_tau35_looseRNN_tracktwoMVABDT_L1TAU12IM',
+    'HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM',
+    'HLT_tau35_mediumRNN_tracktwoMVABDT_L1TAU12IM',
+    'HLT_tau35_tightRNN_tracktwoMVA_L1TAU12IM',
+    'HLT_tau35_tightRNN_tracktwoMVABDT_L1TAU12IM',
+    # tau80
     'HLT_tau80_medium1_tracktwo_L1TAU60',
-    'HLT_tau0_perf_ptonly_L1TAU100',
+    # tau160
+    'HLT_tau160_ptonly_L1TAU100',
     'HLT_tau160_idperf_track_L1TAU100',
     'HLT_tau160_idperf_tracktwo_L1TAU100',
-    'HLT_tau160_perf_tracktwo_L1TAU100',
+    'HLT_tau160_idperf_tracktwoEF_L1TAU100',
     'HLT_tau160_idperf_tracktwoMVA_L1TAU100',
+    'HLT_tau160_idperf_tracktwoMVABDT_L1TAU100',
+    'HLT_tau160_perf_track_L1TAU100',
+    'HLT_tau160_perf_tracktwo_L1TAU100',
+    'HLT_tau160_perf_tracktwoEF_L1TAU100',
     'HLT_tau160_perf_tracktwoMVA_L1TAU100',
+    'HLT_tau160_perf_tracktwoMVABDT_L1TAU100',
     'HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100',
+    'HLT_tau160_mediumRNN_tracktwoMVABDT_L1TAU100',
+    'HLT_tau160_medium1_track_L1TAU100',
     'HLT_tau160_medium1_tracktwo_L1TAU100',
     'HLT_tau160_medium1_tracktwoEF_L1TAU100',
-    'HLT_tau160_perf_tracktwoMVABDT_L1TAU100',
-    'HLT_tau160_idperf_tracktwoMVABDT_L1TAU100',
-    'HLT_tau160_mediumRNN_tracktwoMVABDT_L1TAU100',
-    'HLT_tau200_medium1_tracktwoEF_L1TAU100',
+    # tau180
+    'HLT_tau180_mediumRNN_tracktwoLLP_L1TAU100',
+    'HLT_tau180_tightRNN_tracktwoLLP_L1TAU100',
+    # tau200
+    'HLT_tau200_ptonly_L1TAU100',
     'HLT_tau200_mediumRNN_tracktwoMVA_L1TAU100',
+    'HLT_tau200_mediumRNN_tracktwoMVABDT_L1TAU100',
+    'HLT_tau200_medium1_track_L1TAU100',
+    'HLT_tau200_medium1_tracktwo_L1TAU100',
+    'HLT_tau200_medium1_tracktwoEF_L1TAU100',
+    'HLT_tau200_mediumRNN_tracktwoLLP_L1TAU100',
+    'HLT_tau200_tightRNN_tracktwoLLP_L1TAU100',
+    # ditau
     'HLT_tau80_mediumRNN_tracktwoMVA_tau60_mediumRNN_tracktwoMVA_L1TAU60_2TAU40',
     'HLT_tau80_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_L1TAU60_DR-TAU20ITAU12I',
-    'HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25'
+    'HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25',
+    'HLT_tau80_mediumRNN_tracktwoLLP_tau60_mediumRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
+    'HLT_tau80_mediumRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
+    'HLT_tau80_tightRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
+    'HLT_tau100_mediumRNN_tracktwoLLP_tau80_mediumRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40'
     ]
 
     self.tauList = monitoring_tau
@@ -206,20 +279,21 @@ class TrigTauMonAlgBuilder:
   
       l1seeds.append(info.L1seed())
 
+      self.bookbasicVars( monAlg, trigger, online=False )
+      self.bookbasicVars( monAlg, trigger, online=True )
+      self.bookHLTEffHistograms( monAlg, trigger,nProng='1P')
+      self.bookHLTEffHistograms( monAlg, trigger,nProng='MP')
+
       if info.isRNN() is True:
         self.bookRNNInputVars( monAlg, trigger,nProng='1P', online=True )
         self.bookRNNInputVars( monAlg, trigger,nProng='MP', online=True )
         self.bookRNNInputVars( monAlg, trigger,nProng='1P', online=False )
         self.bookRNNInputVars( monAlg, trigger,nProng='MP', online=False )
         self.bookRNNTrack( monAlg, trigger, online=True )
-        self.bookRNNTrack( monAlg, trigger, online=False )
         self.bookRNNCluster( monAlg, trigger, online=True )
+        self.bookRNNTrack( monAlg, trigger, online=False )
         self.bookRNNCluster( monAlg, trigger, online=False )
-        self.bookbasicVars( monAlg, trigger, online=True )
-        self.bookbasicVars( monAlg, trigger, online=False )
-        self.bookHLTEffHistograms( monAlg, trigger,nProng='1P')
-        self.bookHLTEffHistograms( monAlg, trigger,nProng='MP')
-      else:
+      elif info.isBDT() is True:
         self.bookBDTOut( monAlg, trigger, nProng='1P')
         self.bookBDTOut( monAlg, trigger, nProng='MP')
         self.bookBDTNoCorr( monAlg, trigger, nProng='1P')
@@ -230,9 +304,11 @@ class TrigTauMonAlgBuilder:
     for l1seed in l1seeds:
         if not l1seed : 
             continue
+        self.bookL1( monAlg, l1seed, nProng='1P')
+        self.bookL1( monAlg, l1seed, nProng='MP')
         self.bookL1EffHistograms( monAlg, l1seed, nProng='1P')
         self.bookL1EffHistograms( monAlg, l1seed, nProng='MP') 
-   
+           
 
   #
   # Booking HLT efficiencies
@@ -280,6 +356,39 @@ class TrigTauMonAlgBuilder:
     defineEachStepHistograms('tauPhi','#phi', 16, -3.2, 3.2)
     defineEachStepHistograms('averageMu', 'average pileup', 10, 0., 80.)
 
+  #
+  # Booking L1 Variables
+  #
+
+  def bookL1( self, monAlg, trigL1Item, nProng):
+
+    monGroupName = trigL1Item+'_L1_'+nProng
+    monGroupPath = 'L1/'+trigL1Item+'/L1_' + nProng
+
+    monGroup = self.helper.addGroup( monAlg, monGroupName,
+                              self.basePath+'/'+monGroupPath )
+
+    monGroup.defineHistogram('L1RoIEt,L1RoIEta', type='TH2F', title='L1 RoI Et vs Eta; E_{T}[GeV]; #eta',
+                            xbins=100,xmin=0,xmax=100,
+                            ybins=100,ymin=-2.6,ymax=2.6)
+    monGroup.defineHistogram('L1RoIEt,L1RoIPhi', type='TH2F', title='L1 RoI Et vs Phi; E_{T}[GeV]; #phi',
+                            xbins=100,xmin=0,xmax=100,
+                            ybins=100,ymin=-3.2,ymax=3.2)
+    monGroup.defineHistogram('L1RoIEta,L1RoIPhi', type='TH2F', title='L1 RoI Eta vs Phi; #eta; #phi',
+                            xbins=100,xmin=-2.6,xmax=2.6,
+                            ybins=100,ymin=-3.2,ymax=3.2)
+    monGroup.defineHistogram('L1RoIEMIsol', title='L1 RoI EM Isol (offline ' + nProng + ' tau); E_{T}^{EM Isol}[GeV]; N RoI',xbins=16,xmin=-2,xmax=30)
+    monGroup.defineHistogram('L1RoIEta', title='L1 RoI Eta (offline ' + nProng + ' tau) ; #eta; N RoI',xbins=100,xmin=-2.6,xmax=2.6)
+    monGroup.defineHistogram('L1RoIHadCore', title='L1 RoI HAD Core (offline ' + nProng + ' tau) ; E_{T}^{HAD}[GeV]; N RoI',xbins=16,xmin=-2,xmax=30)
+    monGroup.defineHistogram('L1RoIHadIsol', title='L1 RoI HAD Isol (offline ' + nProng + ' tau) ; E_{T}^{HAD Isol}[GeV]; N RoI',xbins=16,xmin=-2,xmax=30)
+    monGroup.defineHistogram('L1RoIPhi', title='L1 RoI Phi (offline ' + nProng + ' tau) ; #phi; N RoI',xbins=100,xmin=-3.2,xmax=3.2)
+    monGroup.defineHistogram('L1RoITauClus', title='L1 RoI Tau Clust Energy (offline ' + nProng + ' tau) ; E_{T}[GeV]; N RoI',xbins=260,xmin=0,xmax=130)
+    monGroup.defineHistogram('L1RoITauClus,L1RoIEMIsol', type='TH2F', title='L1 RoI TauClus vs EMiso (offline ' + nProng + ' tau) ; E_{T}[GeV]; E_{T}^{EM Isol}[GeV]',
+                            xbins=140,xmin=10,xmax=80,
+                            ybins=42,ymin=-1,ymax=20)
+    monGroup.defineHistogram('L1RoIEt', title='L1 RoI Tau Clust Energy (offline ' + nProng + ' tau); E_{T}[GeV]; N RoI',xbins=30,xmin=0,xmax=150)
+
+                             
   #
   # Book RNN Variables
   #
@@ -344,25 +453,44 @@ class TrigTauMonAlgBuilder:
 
     monGroup = self.helper.addGroup( monAlg, monGroupName,
                               self.basePath+'/'+monGroupPath )
+
+    info = self.getTrigInfo(trigger) 
+    l1th = []    
+    if(not info.isComboChain()):
+      l1th = info.L1thresh()
+
+    thresh=''
+    for i in range(1,len(l1th)):
+       thresh=thresh+str(l1th[i])
+
+    etmin=0.
+    etmax=250.
     
-    monGroup.defineHistogram('hEFEt', title='EF Et;E_{T}[GeV];Nevents',xbins=50,xmin=0,xmax=250)
+    if len(l1th) !=  0:
+       etmin=int(thresh)
+       etmax=5*int(thresh)
+
+    monGroup.defineHistogram('hEFEt', title='EF Et;E_{T}[GeV];Nevents',xbins=50,xmin=etmin,xmax=etmax)
     monGroup.defineHistogram('hEFEta', title='EF TrigCaloCluster Eta; #eta ; Nevents',xbins=26,xmin=-2.6,xmax=2.6)
     monGroup.defineHistogram('hEFPhi', title='EF TrigCaloCluster Phi; #phi ; Nevents',xbins=16,xmin=-3.2,xmax=3.2)
     monGroup.defineHistogram('hEFnTrack', title='EF number of tracks;number of tracks;Nevents',xbins=10,xmin=0,xmax=10)
 
-    monGroup.defineHistogram('hEFEta;hEFPhi', type='TH2F', title='EF TrigCaloCluster Eta vs Phi; #eta ; #phi',
+    monGroup.defineHistogram('hEFEta,hEFPhi', type='TH2F', title='EF TrigCaloCluster Eta vs Phi; #eta ; #phi',
                                path=monGroupPath,
                                xbins=26,xmin=-2.6,xmax=2.6,ybins=16,ymin=-3.2,ymax=3.2)
-    monGroup.defineHistogram('hEFEt;hEFPhi', type='TH2F', title='Et from tau Jet vs #phi; #phi^{EF}; Raw E_{T} [GeV]',
+    monGroup.defineHistogram('hEFEt,hEFPhi', type='TH2F', title='Et from tau Jet vs #phi; #phi^{EF}; Raw E_{T} [GeV]',
                                path=monGroupPath,
                                xbins=16,xmin=-3.2,xmax=3.2,ybins=50,ymin=0,ymax=100)
    
-    monGroup.defineHistogram('hEFEta;hEFEt', type='TH2F', title='Et from tau Jet vs #eta; #eta^{EF}; Raw E_{T}[GeV]',
+    monGroup.defineHistogram('hEFEta,hEFEt', type='TH2F', title='Et from tau Jet vs #eta; #eta^{EF}; Raw E_{T}[GeV]',
                                path=monGroupPath,
                                xbins=26,xmin=-2.6,xmax=2.6,ybins=50,ymin=0,ymax=100)
    
     monGroup.defineHistogram('hEFEtRaw', title='EF Et Raw;Uncalibrated E_{T}[GeV];Nevents',xbins=50,xmin=0,xmax=100)
     monGroup.defineHistogram('hEFnWideTrack', title='EF number of wide tracks;number of tracks;Nevents',xbins=10,xmin=0,xmax=10)
+
+    monGroup.defineHistogram('hRNNScore', title='EF RNN score; RNN score;Nevents',xbins=20,xmin=0,xmax=1)
+    monGroup.defineHistogram('hRNNScoreSigTrans', title='EF RNN trans score; RNN Trans score;Nevents',xbins=20,xmin=0,xmax=1)
 
   #                                                                                                                                                                                                                                   
   # Book BDT Variables                                                                                                                                                                                                                
@@ -373,8 +501,6 @@ class TrigTauMonAlgBuilder:
     monGroupPath = 'BDT/Out_'+nProng+'/'+trigger
     monGroup = self.helper.addGroup( monAlg, monGroupName,
                               self.basePath+'/'+monGroupPath )
-
-    print('MonGroup name is python: ', monGroupName)
 
     monGroup.defineHistogram('BDTJetScore', title='BDT Score ('+nProng+') ; HLT BDT Score; Candidates',xbins=50,xmin=0,xmax=1)
     monGroup.defineHistogram('BDTJetScoreSigTrans', title='Flattened BDT Score ('+nProng+') ; HLT BDT Score; Candidates',xbins=50,xmin=0,xmax=1)
@@ -393,7 +519,7 @@ class TrigTauMonAlgBuilder:
     monGroup.defineHistogram('etOverPtLeadTrk', title='etOverPtLeadTrk ('+nProng+') non-corrected; etOverPtLeadTrk; Candidates',xbins=51,xmin=-0.1,xmax=25)
     monGroup.defineHistogram('innerTrkAvgDist', title='innerTrkAvgDist ('+nProng+') non-corrected; innerTrkAvgDist; Candidates',xbins=50,xmin=-0.05,xmax=0.5)
     monGroup.defineHistogram('ptRatioEflowApprox', title='ptRatioEflowApprox ('+nProng+') non-corrected; ptRatioEflowApprox; Candidates',xbins=50,xmin=0,xmax=2)
-    monGroup.defineHistogram('massTrkSys', title='massTrkSys log ('+nProng+'); massTrkSys_log; Events',xbins=50,xmin=0.,xmax=3.)
+    monGroup.defineHistogram('massTrkSys;massTrkSys_log', title='massTrkSys log ('+nProng+'); massTrkSys_log; Events',xbins=50,xmin=0.,xmax=3.)
 
     if nProng=='1P':
       monGroup.defineHistogram('SumPtTrkFrac', title='SumPtTrkFrac ('+nProng+') non-corrected; SumPtTrkFrac; Candidates',xbins=50,xmin=-0.5,xmax=1.1)

@@ -161,17 +161,17 @@ namespace Muon {
     // const MuonSegmentCombinationCollection* m_csc_segments;
 
     /** histogram file for studies on weighting (only in use, when m_use_histos is true) */
-    TFile* m_file;
+    TFile* m_file{};
     /** all hits histograms for studies on weighting (only in use, when m_use_histos is true) */
-    TH1F* m_weighthistogram;
+    TH1F* m_weighthistogram{};
     /** mdt histogram */
-    TH1F* m_weighthistogrammdt;
+    TH1F* m_weighthistogrammdt{};
     /** rpc histogram */
-    TH1F* m_weighthistogramrpc;
+    TH1F* m_weighthistogramrpc{};
     /** tgc histogram */
-    TH1F* m_weighthistogramtgc;
+    TH1F* m_weighthistogramtgc{};
     /** csc histogram */
-    TH1F* m_weighthistogramcsc;
+    TH1F* m_weighthistogramcsc{};
 
     SG::WriteHandleKey<MuonPrdPatternCollection> m_CosmicPhiPatternsKey{this,"CosmicPhiKey","CosmicPhiPatterns"};
     SG::WriteHandleKey<MuonPrdPatternCollection> m_CosmicEtaPatternsKey{this,"CosmicEtaPatterns","CosmicEtaPatterns"};

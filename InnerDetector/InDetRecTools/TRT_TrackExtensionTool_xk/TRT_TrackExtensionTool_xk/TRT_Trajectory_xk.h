@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -77,13 +77,13 @@ namespace InDet{
 
       void initiateForPrecisionSeed
 	(std::list< std::pair<Amg::Vector3D,double> >&,
-	 std::vector<const InDetDD::TRT_BaseElement*>&,
+	 const std::vector<const InDetDD::TRT_BaseElement*>&,
 	 const TRT_DriftCircleContainer*&,
 	 const Trk::PatternTrackParameters&);
 
       void initiateForTRTSeed
 	(std::list< std::pair<Amg::Vector3D,double> >&,
-	 std::vector<const InDetDD::TRT_BaseElement*>&,
+	 const std::vector<const InDetDD::TRT_BaseElement*>&,
 	 const TRT_DriftCircleContainer*&,
 	 const Trk::PatternTrackParameters&);
 
@@ -184,7 +184,7 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
 
       void stabline(int,double);
-      void sort    (samiStruct*,int);
+      static void sort    (samiStruct*,int);
       void erase   (int);
       std::pair<const Trk::PseudoMeasurementOnTrack*,const Trk::PseudoMeasurementOnTrack*>
 	pseudoMeasurements(const Trk::Surface*,const Trk::Surface*,int bec);

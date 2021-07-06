@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -29,9 +29,6 @@ namespace xAODMaker {
     *         egamma (MBTSModule) Container into an xAOD::MBTSModuleContainer.
     *
     * @author Andrzej Zemla <azemla@cern.ch>
-    *
-    * $Revision$
-    * $Date$
     */
   class MBTSModuleCnvTool : public AthAlgTool,
 			  public virtual IMBTSModuleCnvTool {
@@ -41,12 +38,9 @@ namespace xAODMaker {
     MBTSModuleCnvTool( const std::string& type, const std::string& name,
 		     const IInterface* parent );
 
-    /// Function initializing the tool
-    virtual StatusCode initialize();
-
-    /// Function that fills an existing xAOD::MBTSModuleContainer 
+    /// Function that fills an existing xAOD::MBTSModuleContainer
     virtual StatusCode convert( const TileCellContainer* aod,
-				xAOD::MBTSModuleContainer* xaod) const;
+				xAOD::MBTSModuleContainer* xaod) const override;
     
   }; // class MBTSModuleCnvTool
 

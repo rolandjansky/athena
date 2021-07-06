@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 // Author: Vadim Kostyukhin (vadim.kostyukhin@cern.ch)
 
@@ -146,6 +146,10 @@ namespace InDet{
     PrimCovMtx(2,2) += SecVrtErr[5];
 
     Amg::MatrixX  WgtMtx = PrimCovMtx.inverse();
+    if( WgtMtx(0,0)<=0. || WgtMtx(1,1)<=0. || WgtMtx(2,2)<=0. ){
+       ATH_MSG_DEBUG(" Cov.matrix inversion failure in vertex distance significane");
+       return 1.e10;
+    }
 
     Signif = distx*WgtMtx(0,0)*distx
             +disty*WgtMtx(1,1)*disty
@@ -153,6 +157,7 @@ namespace InDet{
          +2.*distx*WgtMtx(0,1)*disty
          +2.*distx*WgtMtx(0,2)*distz
          +2.*disty*WgtMtx(1,2)*distz;
+    if(Signif<=0.)return 1.e10;        //Something is wrong in distance significance. 
     Signif=std::sqrt(Signif);
     if( Signif!=Signif ) Signif = 0.;
     return std::sqrt(distx*distx+disty*disty+distz*distz);
@@ -179,6 +184,10 @@ namespace InDet{
     PrimCovMtx(2,2) += SecVrtErr[5];
 
     AmgSymMatrix(3)  WgtMtx = PrimCovMtx.inverse();
+    if( WgtMtx(0,0)<=0. || WgtMtx(1,1)<=0. || WgtMtx(2,2)<=0. ){
+       ATH_MSG_DEBUG(" Cov.matrix inversion failure in vertex distance significane");
+       return 1.e10;
+    }
 
     Signif = distx*WgtMtx(0,0)*distx
             +disty*WgtMtx(1,1)*disty
@@ -186,6 +195,7 @@ namespace InDet{
          +2.*distx*WgtMtx(0,1)*disty
          +2.*distx*WgtMtx(0,2)*distz
          +2.*disty*WgtMtx(1,2)*distz;
+    if(Signif<=0.)return 1.e10;        //Something is wrong in distance significance. 
     Signif=std::sqrt(Signif);
     if( Signif!=Signif ) Signif = 0.;
     return std::sqrt(distx*distx+disty*disty+distz*distz);
@@ -207,10 +217,15 @@ namespace InDet{
     CovMtx(1,1) = PrimCovMtx(1,1) + SecVrtErr[2];
 
     AmgSymMatrix(2)  WgtMtx = CovMtx.inverse();
+    if( WgtMtx(0,0)<=0. || WgtMtx(1,1)<=0. ){
+       ATH_MSG_DEBUG(" Cov.matrix inversion failure in vertex distance significane");
+       return 1.e10;
+    }
 
     Signif = distx*WgtMtx(0,0)*distx
             +disty*WgtMtx(1,1)*disty
          +2.*distx*WgtMtx(0,1)*disty;
+    if(Signif<=0.)return 1.e10;        //Something is wrong in distance significance. 
     Signif=std::sqrt(Signif);
     if( Signif!=Signif ) Signif = 0.;
     return std::sqrt(distx*distx+disty*disty);
@@ -241,6 +256,11 @@ namespace InDet{
     PrimCovMtx(2,2) += SecVrtErr[5];
 
     AmgSymMatrix(3)  WgtMtx = PrimCovMtx.inverse();
+    if( WgtMtx(0,0)<=0. || WgtMtx(1,1)<=0. || WgtMtx(2,2)<=0. ){
+       ATH_MSG_DEBUG(" Cov.matrix inversion failure in vertex distance significane");
+       return 1.e10;
+    }
+
 
     double Signif = distx*WgtMtx(0,0)*distx
                    +disty*WgtMtx(1,1)*disty
@@ -248,6 +268,7 @@ namespace InDet{
                 +2.*distx*WgtMtx(0,1)*disty
                 +2.*distx*WgtMtx(0,2)*distz
                 +2.*disty*WgtMtx(1,2)*distz;
+    if(Signif<=0.)return 1.e10;        //Something is wrong in distance significance. 
     Signif=std::sqrt(Signif);
     if( Signif!=Signif ) Signif = 0.;
     if(projDist<0)Signif=-Signif;
@@ -279,6 +300,10 @@ namespace InDet{
     PrimCovMtx(2,2) += SecVrtErr[5];
 
     AmgSymMatrix(3)  WgtMtx = PrimCovMtx.inverse();
+    if( WgtMtx(0,0)<=0. || WgtMtx(1,1)<=0. || WgtMtx(2,2)<=0. ){
+       ATH_MSG_DEBUG(" Cov.matrix inversion failure in vertex distance significane");
+       return 1.e10;
+    }
 
     double Signif = distx*WgtMtx(0,0)*distx
                    +disty*WgtMtx(1,1)*disty
@@ -286,6 +311,7 @@ namespace InDet{
                 +2.*distx*WgtMtx(0,1)*disty
                 +2.*distx*WgtMtx(0,2)*distz
                 +2.*disty*WgtMtx(1,2)*distz;
+    if(Signif<=0.)return 1.e10;        //Something is wrong in distance significance. 
     Signif=std::sqrt(Signif);
     if( Signif!=Signif ) Signif = 0.;
     if(projDist<0)Signif=-Signif;
@@ -310,6 +336,10 @@ namespace InDet{
     PrimCovMtx(2,2) =                   VrtErr1[5]+VrtErr2[5];
 
     AmgSymMatrix(3)  WgtMtx = PrimCovMtx.inverse();
+    if( WgtMtx(0,0)<=0. || WgtMtx(1,1)<=0. || WgtMtx(2,2)<=0. ){
+       ATH_MSG_DEBUG(" Cov.matrix inversion failure in vertex distance significane");
+       return 1.e10;
+    }
 
 
     Signif =   distx*WgtMtx(0,0)*distx
@@ -318,6 +348,7 @@ namespace InDet{
            +2.*distx*WgtMtx(0,1)*disty
            +2.*distx*WgtMtx(0,2)*distz
            +2.*disty*WgtMtx(1,2)*distz;
+    if(Signif<=0.)return 1.e10;        //Something is wrong in distance significance. 
     Signif=std::sqrt(Signif);
     if(Signif != Signif)  Signif = 0.;
     return Signif;
@@ -389,7 +420,7 @@ namespace InDet{
    { 
       double chi2Ref=0.;
       int position=-1;
-      if( chi2PerTrk.size() < 1 ) return position ;
+      if( chi2PerTrk.empty() ) return position ;
       for (int i=0; i< (int)chi2PerTrk.size(); i++){
 	if(chi2PerTrk[i]/std::max(rank[i],(float)0.1) > chi2Ref) { chi2Ref=chi2PerTrk[i]/std::max(rank[i],(float)0.1); position=i;}
       }
@@ -444,7 +475,7 @@ namespace InDet{
   {
      TLorentzVector sum(0.,0.,0.,0.); 
      for (int i = 0; i < (int)InpTrk.size(); ++i) {
-       if( InpTrk[i] == NULL ) continue; 
+       if( InpTrk[i] == nullptr ) continue; 
        sum += InpTrk[i]->p4();
      }
      return sum; 
@@ -647,7 +678,7 @@ namespace InDet{
           if( (*tplink)->prodVtx()->nIncomingParticles()==1){
              int PDGID1=0, PDGID2=0, PDGID3=0;
 	     const xAOD::TruthParticle * parTP1=getPreviousParent(*tplink, PDGID1);
-	     const xAOD::TruthParticle * parTP2=0;
+	     const xAOD::TruthParticle * parTP2=nullptr;
 	     int noBC1=notFromBC(PDGID1);
              if(noBC1)  parTP2 = getPreviousParent(parTP1, PDGID2);
 	     int noBC2=notFromBC(PDGID2);
@@ -678,7 +709,7 @@ namespace InDet{
             return *(child->prodVtx()->incomingParticleLinks())[0];
        }
     }
-    return 0;
+    return nullptr;
   }
 
 

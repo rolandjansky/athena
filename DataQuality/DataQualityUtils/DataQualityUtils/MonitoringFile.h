@@ -123,6 +123,8 @@ namespace dqutils {
     static void merge_RMSpercentDeviation(TH1& a, const TH1& b);
 
     static void merge_lowerLB(TH1& a, const TH1& b);
+
+    static void merge_identical(TH1& a, const TH1& b);
     /**
      * Methods for creating ID Alignment summary plots on merged files
      */

@@ -1,11 +1,17 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
+#--------------------------------------------------------------
+# This is an example joboption to generate events with Powheg
+# using ATLAS' interface. Users should optimise and carefully
+# validate the settings before making an official sample request.
+#--------------------------------------------------------------
 
 #--------------------------------------------------------------
 # EVGEN configuration
 #--------------------------------------------------------------
 evgenConfig.description = "POWHEG+Pythia8 bblvlv production with A14 NNPDF2.3 tune."
 evgenConfig.keywords = ["SM", "WW", "2jet", "bottom"]
-evgenConfig.contact = ["simone.amoroso@cern.ch"]
+evgenConfig.contact = ["james.robinson@cern.ch"]
 
 # --------------------------------------------------------------
 # Load ATLAS defaults for the Powheg bblvlv process

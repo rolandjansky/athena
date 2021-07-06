@@ -27,7 +27,7 @@ class MomentumPullPlots: public PlotBase {
       pt_meid(NULL)
 
     {}
-    void fill(const xAOD::Muon& mu);
+      void fill(const xAOD::Muon& mu, float weight=1.0);
 
     TH1* dpt_idme;
     TH1* ddpt_idme;

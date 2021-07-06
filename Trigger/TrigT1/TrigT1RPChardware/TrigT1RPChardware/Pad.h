@@ -1,12 +1,13 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "NOBXS.h"
-#ifndef Pad_H
-#define Pad_H
+#ifndef TrigT1RPChardware_Pad_H
+#define TrigT1RPChardware_Pad_H
 
+#include "NOBXS.h"
 #include "TrigT1RPChardware/Lvl1Def.h"
+
 class Pad {
 public:
 Pad(int run, int event, CMAword debug,

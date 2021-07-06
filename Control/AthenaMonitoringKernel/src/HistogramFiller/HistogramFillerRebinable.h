@@ -55,6 +55,8 @@ namespace Monitored {
       } else {
         hist->SetCanExtend(detail::axis_bit[AXIS]);
         // ExtendAxis is an extremely expensive operation; only call if necessary
+        // Rebinning requires a lock on the global ROOT directory state
+        std::scoped_lock<std::mutex> dirLock(HistogramFactory::globalROOTMutex());
         if (max >= axis->GetXmax()) hist->ExtendAxis(max, axis);
         if (min < axis->GetXmin()) hist->ExtendAxis(min, axis);
       }

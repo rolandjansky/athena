@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id:$
@@ -36,9 +36,6 @@ namespace xAODMaker {
         /// Regular AlgTool constructor
         CombinedMuonFeatureCnvTool( const std::string& type, const std::string& name,
                            const IInterface* parent );
-        
-        /// Function initialising the tool
-        virtual StatusCode initialize() override;
         
         /// Function that fills an existing xAOD::L2CombinedMuon
         virtual StatusCode convert( const CombinedMuonFeature * aod,

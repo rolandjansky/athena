@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -208,7 +208,7 @@ LWHist::LWHist( const char* n,
   static bool first = true;
   if (first) {
     first = false;
-    std::cout<<"LWHists INFO: Using light weight histograms version "<<PACKAGE_VERSION<<std::endl;
+    std::cout<<"LWHists INFO: Using light weight histograms"<<std::endl;
   }
 }
 

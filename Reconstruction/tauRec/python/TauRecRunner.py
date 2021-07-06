@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -56,31 +56,24 @@ class TauRecRunner ( TauRecRunConfigured ) :
             tools.append(pantau.getPanTau())
  
         # these tools need pantau info
-        tools.append(taualgs.getCombinedP4FromRecoTaus())
+        tools.append(taualgs.getTauCombinedTES())
         if jobproperties.Beam.beamType()!="cosmics":
             tools.append(taualgs.getMvaTESVariableDecorator())
             tools.append(taualgs.getMvaTESEvaluator())
 
         if tauFlags.doRunTauDiscriminant():
             tools.append(taualgs.getTauIDVarCalculator())
-            tools.append(taualgs.getTauJetRNNEvaluator("TauJetRNN",
-                                                       NetworkFile1P="rnnid_mc16d_config_1p.json",
-                                                       NetworkFile3P="rnnid_mc16d_config_3p.json",
-                                                       OutputVarname="RNNJetScore", MaxTracks=10, MaxClusters=6))
+            tools.append(taualgs.getTauJetRNNEvaluator())
             tools.append(taualgs.getTauWPDecoratorJetRNN())
-            tools.append(taualgs.getTauEleRNNEvaluator("TauEleRNN",
-                                                         NetworkFile1P="rnneveto_mc16d_config_1p.json",
-                                                         NetworkFile3P="rnneveto_mc16d_config_3p.json",
-                                                         OutputVarname="RNNEleScore", MaxTracks=10, MaxClusters=6))
+            tools.append(taualgs.getTauEleRNNEvaluator())
             tools.append(taualgs.getTauWPDecoratorEleRNN())
             tools.append(taualgs.getTauDecayModeNNClassifier())
             
-            ################################
 
-        from tauRec.tauRecFlags import tauFlags
         tools+=tauFlags.tauRecToolsDevToolList()
-        #self.TauBuilderToolHandle().Tools = tools
-            
+
+        # set path to calibration area
+        TauRecRunConfigured.AddToolsToToolSvc(self, tools)
                 
         # run first part of Tau Builder
         TauRecRunConfigured.WrapTauRecToolExecHandle(self, tool=tools)

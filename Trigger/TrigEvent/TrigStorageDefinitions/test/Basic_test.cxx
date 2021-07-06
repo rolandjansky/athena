@@ -3,7 +3,6 @@
 */
 
 #include "TrigStorageDefinitions/TypeInformation.h"
-#include <boost/type_traits.hpp>
 #include <iostream>
 #include <boost/type_traits.hpp>
 

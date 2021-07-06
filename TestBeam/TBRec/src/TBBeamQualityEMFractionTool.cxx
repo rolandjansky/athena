@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //#####################################################
@@ -19,10 +19,10 @@
 
 #include "Identifier/Identifier.h"
 
-TBBeamQualityEMFractionTool::TBBeamQualityEMFractionTool(const std::string& name,
-							 const std::string& type,
+TBBeamQualityEMFractionTool::TBBeamQualityEMFractionTool(const std::string& type,
+							 const std::string& name,
 							 const IInterface* parent)
-  : TBBeamQualityTool(name,type,parent),
+  : TBBeamQualityTool(type,name,parent),
     m_emecID_help(nullptr),
     m_hecID_help(nullptr),
     m_fcalID_help(nullptr),
@@ -139,7 +139,7 @@ StatusCode TBBeamQualityEMFractionTool::initializeTool()
   return StatusCode::SUCCESS;
 }//init
 
-StatusCode TBBeamQualityEMFractionTool::accept(std::vector<std::string> m_particles)
+StatusCode TBBeamQualityEMFractionTool::accept(const std::vector<std::string>& particles)
 {//accept
   
   MsgStream log(msgSvc(),name());
@@ -152,7 +152,7 @@ StatusCode TBBeamQualityEMFractionTool::accept(std::vector<std::string> m_partic
   
   log << MSG::DEBUG << "m_em_fracnumdet: "<<m_em_fracnumdet<<endmsg;
   log << MSG::DEBUG << "m_em_fracdendet: "<<m_em_fracdendet<<endmsg;
-  log << MSG::DEBUG << " called for:  "<<m_particles.size()<<" particles"<<endmsg;
+  log << MSG::DEBUG << " called for:  "<<particles.size()<<" particles"<<endmsg;
   
   // setting up layers (h6)
   
@@ -176,14 +176,8 @@ StatusCode TBBeamQualityEMFractionTool::accept(std::vector<std::string> m_partic
     return StatusCode::FAILURE;
   }
   
-  CaloCellContainer::const_iterator ifirst = cellContainer->begin();
-  CaloCellContainer::const_iterator ilast = cellContainer->end();
-  
-  for (; ifirst!=ilast; ifirst++){//iterating
-    
-    //obtaining cell pointer
-    const CaloCell* cell_ptr = *ifirst;
-    
+  for (const CaloCell* cell_ptr : *cellContainer) {
+
     //obtaining dde pointer
     const CaloDetDescrElement* caloDDE_ptr = cell_ptr->caloDDE();
     

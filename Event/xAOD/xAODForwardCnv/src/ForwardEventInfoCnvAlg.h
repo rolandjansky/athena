@@ -12,45 +12,36 @@
 #include <string>
 
 // Athena/Gaudi include(s):
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-
+#include "TileEvent/MBTSCollisionTime.h"
+#include "xAODForward/ForwardEventInfoContainer.h"
 #include "xAODForwardCnv/IForwardEventInfoCnvTool.h"
 
-namespace xAODMaker {
+namespace xAODMaker
+{
 
-   /**
-    * update for mbts
-    *  @short Algorithm creating xAOD::ForwardEventInfos from TileCellContainer
-    *
-    *         This algorithm can be used to translate the TileCells coming
-    *         from an AOD, and create xAOD::ForwardEventInfo objects out of them
-    *         for an output xAOD.
-    *
-    *
+  /**
+    *  @short Algorithm creating xAOD::ForwardEventInfos from MBTSCollisionTime object
     */
-   class ForwardEventInfoCnvAlg : public AthAlgorithm {
+  class ForwardEventInfoCnvAlg : public AthReentrantAlgorithm
+  {
 
-   public:
-     ///@brief Regular algorithm constructor
-     ForwardEventInfoCnvAlg( const std::string& name, ISvcLocator* svcLoc );
-     
-      ///@brief Function initialising the algorithm
-     virtual StatusCode initialize();
-     ///@brief Function executing the algorithm
-     virtual StatusCode execute();
-     
-   private:
+  public:
+    ///@brief Regular algorithm constructor
+    ForwardEventInfoCnvAlg(const std::string &name, ISvcLocator *svcLoc);
 
-     ///@brief  The key of the input ForwardEventInfoContainer
-     std::string m_aodContainerName;
+    ///@brief Function initialising the algorithm
+    virtual StatusCode initialize() override;
+    ///@brief Function executing the algorithm
+    virtual StatusCode execute(const EventContext &ctx) const override;
 
-     ///@brief The key for the output xAOD::ForwardEventInfoContainer
-     std::string m_xaodContainerName;
+  private:
+    SG::ReadHandleKey<MBTSCollisionTime> m_inputKey{this, "MBTSCollisionsTimeKey", "MBTSCollisionTime"};
 
-     /** @brief Handle to the converter tool */
-     ToolHandle<IForwardEventInfoCnvTool>                 m_cnvTool;
+    SG::WriteHandleKey<xAOD::ForwardEventInfoContainer> m_outputKey{this, "ForwardEventInfoKey", "MBTSForwardEventInfo"};
 
+    ToolHandle<IForwardEventInfoCnvTool> m_cnvTool{this, "CnvTool", "xAODMaker::ForwardEventInfoCnvTool/ForwardEventInfoCnvTool"};
 
   }; // class ForwardEventInfoCnvAlg
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #=======================================================================
 # File:   DigitizationFlags.py
@@ -356,6 +356,14 @@ class HighPtMinBiasInputCols(JobProperty):
     statusOn=False
     allowedTypes=['list']
     StoredValue=[]
+
+#
+class HighPtMinBiasInputColOffset(JobProperty):
+    """ Offset into the collection of high pt min-bias events
+    """
+    statusOn=True
+    allowedTypes=['int']
+    StoredValue=0
 
 #
 class LowPtMinBiasInputCols(JobProperty):
@@ -728,12 +736,32 @@ class TRTRangeCut(JobProperty):
     StoredValue=0.05
 
 #
-class PileUpPremixing(JobProperty):
-    """ Run pile-up premixing
+class PileUpPresampling(JobProperty):
+    """ Run pile-up presampling
     """
     statusOn=True
     allowedTypes=['bool']
     StoredValue=False
+
+#
+class doBeamSpotSizeReweighting(JobProperty):
+    """ calculate a weight to reweight events to a new beam spot size
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+#
+class OldBeamSpotZSize(JobProperty):
+    """ old beam spot size used to calculate a weight to reweight events to a new beam spot size
+    """
+    statusOn=True
+    allowedTypes=['float']
+    StoredValue=42.0  #42mm is the beam spot size in the original MC16 HIT file simulation
+    def __setattr__(self, name, value):
+        if name=='StoredValue' and not(self._locked):
+            jobproperties.Digitization.doBeamSpotSizeReweighting=True
+        JobProperty.__setattr__(self, name, value)
 
 #
 # Defines the container for the digitization flags
@@ -799,14 +827,14 @@ list_jobproperties=[doInDetNoise,doCaloNoise,doMuonNoise,doFwdNoise,doRadiationD
                     rndmSeedInputFile,physicsList,overrideMetadata,doBichselSimulation,\
                     IOVDbGlobalTag,SimG4VersionUsed,numberOfCollisions,\
                     doLowPtMinBias,numberOfLowPtMinBias,LowPtMinBiasInputCols,\
-                    doHighPtMinBias,doDigiTruth,numberOfHighPtMinBias,HighPtMinBiasInputCols,\
+                    doHighPtMinBias,doDigiTruth,numberOfHighPtMinBias,HighPtMinBiasInputCols,HighPtMinBiasInputColOffset,\
                     doCavern,numberOfCavern,cavernInputCols,\
                     doBeamGas,numberOfBeamGas,beamGasInputCols,\
                     doBeamHalo,numberOfBeamHalo,beamHaloInputCols,\
                     bunchSpacing,initialBunchCrossing,finalBunchCrossing,doXingByXingPileUp,\
                     simRunNumber,dataRunNumber,BeamIntensityPattern,FixedT0BunchCrossing,cavernIgnoresBeamInt,\
                     RunAndLumiOverrideList,SignalPatternForSteppingCache,
-                    experimentalDigi,pileupDSID,specialConfiguration,digiSteeringConf,TRTRangeCut,PileUpPremixing]
+                    experimentalDigi,pileupDSID,specialConfiguration,digiSteeringConf,TRTRangeCut,PileUpPresampling,doBeamSpotSizeReweighting,OldBeamSpotZSize]
 
 for i in list_jobproperties:
     jobproperties.Digitization.add_JobProperty(i)

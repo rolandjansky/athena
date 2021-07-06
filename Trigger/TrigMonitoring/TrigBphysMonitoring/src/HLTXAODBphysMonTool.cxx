@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file HLTXAODBphysMonTool.cxx
@@ -52,7 +52,7 @@
 
 
 // TrigBphysMonitoring
-#include "TrigBphysMonitoring/HLTXAODBphysMonTool.h"
+#include "HLTXAODBphysMonTool.h"
 
 #include "xAODTrigBphys/TrigBphysContainer.h"
 #include "xAODTrigBphys/TrigBphys.h"
@@ -1129,7 +1129,7 @@ StatusCode HLTXAODBphysMonTool::fillJpsiFinder(){
         // check for, and access, the decorated quantities
         bool hasAccessorVariables(true);
         //static Accessor< float > acc("");
-#define createAccesor(name) static SG::AuxElement::Accessor< float > acc_##name(#name)
+#define createAccesor(name) static const SG::AuxElement::Accessor< float > acc_##name(#name)
         createAccesor(Lxy_bs);
         createAccesor(LxyError_bs);
         createAccesor(Tau_bs);
@@ -1632,11 +1632,24 @@ StatusCode HLTXAODBphysMonTool::fillTriggerGroup(const std::string & groupName, 
         
         for( auto cont_bphys : fc_bphys ) {
             ATH_MSG_DEBUG("REGTEST Got Bphysics container, size = " << cont_bphys.cptr()->size());
+            
+            // Check that the combination has actually passed the trigger
+            // based on exmple in Trigger/TrigAnalysis/TrigAnalysisExamples/src/TDTExample.cxx
+            const xAOD::TrigPassBits *bits=(getTDT()->ancestor<xAOD::TrigPassBits>(cont_bphys.te())).cptr();
+            if( !bits )
+              ATH_MSG_WARNING("TrigPassBits is null; will use all combinations");
+            
             for ( auto bphys:  *(cont_bphys.cptr()) )  {
                 ATH_MSG_DEBUG("REGTEST Level = " << bphys->level());
 
                 // ignore l2 objects
                 if ((bphys->level() != xAOD::TrigBphys::EF) &&  (bphys->level() != xAOD::TrigBphys::HLT)) continue;
+                
+                if(bits) {
+                  bool objPass = bits->isPassing( bphys, cont_bphys.cptr() );
+                  ATH_MSG_DEBUG("TrigBphys object pass: " << objPass << ", mass: " << bphys->mass() );
+                  if(!objPass) continue;
+                }
                 
                 fillTrigBphysHists(bphys,groupName,  m_prefix,groupName,chainName, fullSetOfHists);
                 // to be added with more complete informations
@@ -2040,9 +2053,9 @@ TVector3 HLTXAODBphysMonTool::trackMomentum(const xAOD::Vertex * vxCandidate, ui
 {
     float px(0.), py(0.), pz(0.);
     
-    static SG::AuxElement::Accessor< std::vector<float> > refTrackPxAcc("RefTrackPx");
-    static SG::AuxElement::Accessor< std::vector<float> > refTrackPyAcc("RefTrackPy");
-    static SG::AuxElement::Accessor< std::vector<float> > refTrackPzAcc("RefTrackPz");
+    static const SG::AuxElement::Accessor< std::vector<float> > refTrackPxAcc("RefTrackPx");
+    static const SG::AuxElement::Accessor< std::vector<float> > refTrackPyAcc("RefTrackPy");
+    static const SG::AuxElement::Accessor< std::vector<float> > refTrackPzAcc("RefTrackPz");
     const std::vector<float>& refTrackPx = refTrackPxAcc(*vxCandidate);
     const std::vector<float>& refTrackPy = refTrackPyAcc(*vxCandidate);
     const std::vector<float>& refTrackPz = refTrackPzAcc(*vxCandidate);

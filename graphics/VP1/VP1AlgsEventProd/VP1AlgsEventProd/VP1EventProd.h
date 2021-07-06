@@ -38,7 +38,7 @@ class VP1EventProd: public AthAlgorithm,
  private:
   // run/event number to be used in the vp1 event file name
   unsigned long m_runNumber;
-  unsigned long long m_eventNumber;
+  uint64_t m_eventNumber;
   unsigned int m_timeStamp;
   std::string m_humanTimestamp;
   std::string m_outputFileType;

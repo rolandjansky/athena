@@ -1,14 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-
-from __future__ import print_function
-from future.utils import iteritems
-import six
-
-from builtins import zip
-from builtins import next
-from builtins import object
-from builtins import range
-from builtins import int
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfExe
 #
@@ -33,8 +23,9 @@ from fnmatch import fnmatch
 msg = logging.getLogger(__name__)
 
 from PyJobTransforms.trfJobOptions import JobOptionsTemplate
-from PyJobTransforms.trfUtils import asetupReport, unpackDBRelease, setupDBRelease, cvmfsDBReleaseCheck, forceToAlphaNum
-from PyJobTransforms.trfUtils import ValgrindCommand, isInteractiveEnv, calcCpuTime, calcWallTime, analytic
+from PyJobTransforms.trfUtils import asetupReport, asetupReleaseIsOlderThan, unpackDBRelease, setupDBRelease, \
+    cvmfsDBReleaseCheck, forceToAlphaNum, \
+    ValgrindCommand, isInteractiveEnv, calcCpuTime, calcWallTime, analytic, reportEventsPassedSimFilter
 from PyJobTransforms.trfExitCodes import trfExit
 from PyJobTransforms.trfLogger import stdLogLevels
 from PyJobTransforms.trfMPTools import detectAthenaMPProcs, athenaMPOutputHandler
@@ -52,7 +43,6 @@ import PyJobTransforms.trfEnv as trfEnv
 # in a crash with python 3.  In such a case, force the use of a utf-8 encoded
 # output stream instead.
 def _encoding_stream (s):
-    if six.PY2: return s
     enc = s.encoding.lower()
     if enc.find('ascii') >= 0 or enc.find('ansi') >= 0:
         return open (s.fileno(), 'w', encoding='utf-8')
@@ -186,7 +176,8 @@ class transformExecutor(object):
         self._athenaMT = None
         self._athenaConcurrentEvents = None
         self._dbMonitor = None
-        
+        self._resimevents = None
+
         # Holder for execution information about any merges done by this executor in MP mode
         self._myMerger = []
 
@@ -430,6 +421,10 @@ class transformExecutor(object):
         return self._eventCount
 
     @property
+    def reSimEvent(self):
+        return self._resimevents
+
+    @property
     def athenaMP(self):
         return self._athenaMP
 
@@ -563,7 +558,7 @@ class echoExecutor(transformExecutor):
         msg.debug('exeStart time is {0}'.format(self._exeStart))
         msg.info('Starting execution of %s', self._name)        
         msg.info('Transform argument dictionary now follows:')
-        for k, v in iteritems(self.conf.argdict):
+        for k, v in self.conf.argdict.items():
             print("%s = %s" % (k, v))
         self._hasExecuted = True
         self._rc = 0
@@ -585,7 +580,7 @@ class dummyExecutor(transformExecutor):
         msg.debug('exeStart time is {0}'.format(self._exeStart))
         msg.info('Starting execution of %s', self._name)
         for type in self._outData:
-            for k, v in iteritems(self.conf.argdict):
+            for k, v in self.conf.argdict.items():
                 if type in k:
                     msg.info('Creating dummy output file: {0}'.format(self.conf.argdict[k].value[0]))
                     open(self.conf.argdict[k].value[0], 'a').close()
@@ -674,7 +669,7 @@ class scriptExecutor(transformExecutor):
         self._echologger.setLevel(logging.INFO)
         self._echologger.propagate = False
 
-        encargs = {} if six.PY2 else {'encoding' : 'utf-8'}
+        encargs = {'encoding' : 'utf-8'}
         self._exeLogFile = logging.FileHandler(self._logFileName, mode='w', **encargs)
         self._exeLogFile.setFormatter(logging.Formatter('%(asctime)s %(message)s', datefmt='%H:%M:%S'))
         self._echologger.addHandler(self._exeLogFile)
@@ -711,9 +706,7 @@ class scriptExecutor(transformExecutor):
             msg.info('execOnly flag is set - execution will now switch, replacing the transform')
             os.execvp(self._cmd[0], self._cmd)
 
-        encargs = {}
-        if not six.PY2:
-            encargs = {'encoding' : 'utf8'}
+        encargs = {'encoding' : 'utf8'}
         try:
             p = subprocess.Popen(self._cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 1, **encargs)
             if self._memMonitor:
@@ -868,7 +861,7 @@ class athenaExecutor(scriptExecutor):
             msg.debug("Resource monitoring from PerfMon is now deprecated")
         
         # SkeletonFile can be None (disable) or a string or a list of strings - normalise it here
-        if isinstance(skeletonFile, six.string_types):
+        if isinstance(skeletonFile, str):
             self._skeleton = [skeletonFile]
         else:
             self._skeleton = skeletonFile
@@ -955,18 +948,29 @@ class athenaExecutor(scriptExecutor):
             msg.info('input event count is UNDEFINED, setting expectedEvents to 0')
             expectedEvents = 0
         
+        ## Do we need to run asetup first?
+        asetupString = None
+        legacyThreadingRelease = False
+        if 'asetup' in self.conf.argdict:
+            asetupString = self.conf.argdict['asetup'].returnMyValue(name=self._name, substep=self._substep, first=self.conf.firstExecutor)
+            legacyThreadingRelease = asetupReleaseIsOlderThan(asetupString, 22)
+        else:
+            msg.info('Asetup report: {0}'.format(asetupReport()))
+
         # Check the consistency of parallel configuration: CLI flags + evnironment.
-        # At least one of the parallel command-line flags has been provided but ATHENA_CORE_NUMBER environment has not been set
-        if (('multithreaded' in self.conf._argdict or 'multiprocess' in self.conf._argdict) and
+        if ((('multithreaded' in self.conf._argdict and self.conf._argdict['multithreaded'].value) or ('multiprocess' in self.conf._argdict and self.conf._argdict['multiprocess'].value)) and
             ('ATHENA_CORE_NUMBER' not in os.environ)):
-            raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_SETUP'),
-                                                            'either --multithreaded nor --multiprocess command line option provided but ATHENA_CORE_NUMBER environment has not been set')
+            # At least one of the parallel command-line flags has been provided but ATHENA_CORE_NUMBER environment has not been set
+            msg.warning('either --multithreaded or --multiprocess argument used but ATHENA_CORE_NUMBER environment not set. Athena will continue in Serial mode')
+            self._athenaMP = 0
+            self._athenaMT = 0
+            self._athenaConcurrentEvents = 0
+        else:
+            # Try to detect AthenaMT mode, number of threads and number of concurrent events
+            self._athenaMT, self._athenaConcurrentEvents = detectAthenaMTThreads(self.conf.argdict, self.name, legacyThreadingRelease)
 
-        # Try to detect AthenaMT mode, number of threads and number of concurrent events
-        self._athenaMT, self._athenaConcurrentEvents = detectAthenaMTThreads(self.conf.argdict,self.name)
-
-        # Try to detect AthenaMP mode and number of workers
-        self._athenaMP = detectAthenaMPProcs(self.conf.argdict,self.name)
+            # Try to detect AthenaMP mode and number of workers
+            self._athenaMP = detectAthenaMPProcs(self.conf.argdict, self.name, legacyThreadingRelease)
 
         if self._disableMP:
             self._athenaMP = 0
@@ -1003,7 +1007,7 @@ class athenaExecutor(scriptExecutor):
                     else:
                         # Use a globbing strategy
                         matchedViaGlob = False
-                        for mtsType, mtsSize in iteritems(self.conf.argdict['athenaMPMergeTargetSize'].value):
+                        for mtsType, mtsSize in self.conf.argdict['athenaMPMergeTargetSize'].value.items():
                             if fnmatch(dataType, mtsType):
                                 self.conf._dataDictionary[dataType].mergeTargetSize = mtsSize * 1000000 # Convert from MB to B
                                 msg.info('Set target merge size for {0} to {1} from "{2}" glob'.format(dataType, self.conf._dataDictionary[dataType].mergeTargetSize, mtsType))
@@ -1038,7 +1042,7 @@ class athenaExecutor(scriptExecutor):
                 outputFiles[dataType] = self.conf.dataDictionary[dataType]
                 
             # See if we have any 'extra' file arguments
-            for dataType, dataArg in iteritems(self.conf.dataDictionary):
+            for dataType, dataArg in self.conf.dataDictionary.items():
                 if dataArg.io == 'input' and self._name in dataArg.executor:
                     inputFiles[dataArg.subtype] = dataArg
                 
@@ -1055,13 +1059,6 @@ class athenaExecutor(scriptExecutor):
         if len(output) > 0:
             self._extraMetadata['outputs'] = list(output)
 
-        ## Do we need to run asetup first?
-        asetupString = None
-        if 'asetup' in self.conf.argdict:
-            asetupString = self.conf.argdict['asetup'].returnMyValue(name=self._name, substep=self._substep, first=self.conf.firstExecutor)
-        else:
-            msg.info('Asetup report: {0}'.format(asetupReport()))
-        
         ## DBRelease configuration
         dbrelease = dbsetup = None
         if 'DBRelease' in self.conf.argdict:
@@ -1122,6 +1119,17 @@ class athenaExecutor(scriptExecutor):
         
         if 'TXT_JIVEXMLTGZ' in self.conf.dataDictionary:
             self._targzipJiveXML()
+
+        # Summarise events passed the filter ISF_SimEventFilter from log.ReSim
+        # This is a bit ugly to have such a specific feature here though
+        # TODO
+        # The best is to have a general approach so that user can extract useful info from log
+        # Instead of hard coding a pattern, one idea could be that user provides a regExp pattern
+        # in which the wanted variable is grouped by a name, then transforms could decode the pattern
+        # and use it to extract required info and do the summation during log scan.
+        if self._logFileName=='log.ReSim' and self.name=='ReSim':
+            msg.info('scanning {0} for reporting events passed the filter ISF_SimEventFilter'.format(self._logFileName))
+            self._resimevents = reportEventsPassedSimFilter(self._logFileName)
 
 
     def validate(self):

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCOSTANALYSIS_COSTDATA_H
@@ -7,6 +7,8 @@
 
 #include "GaudiKernel/StatusCode.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
+#include "TrigConfData/HLTChain.h"
+#include "TrigCompositeUtils/AlgToChainTool.h"
 
 #include <map>
 #include <vector>
@@ -65,6 +67,26 @@ class CostData {
      * @brief Set ROS to ROB map
      */
     void setRosToRobMap(const std::map<std::string, std::vector<uint32_t>>& rosToRobMap);
+
+    /**
+     * @brief Getter of the alg name to chains map.
+     */
+    const std::map<std::string, std::set<size_t>>& chainToAlgMap() const;
+
+    /**
+     * @brief Set the alg name to chains map.
+     */
+    void setChainToAlgMap( const std::map<std::string, std::set<size_t>>& algToChains );
+
+    /**
+     * @brief Getter of the seeded chains set.
+     */
+    const std::vector<TrigCompositeUtils::AlgToChainTool::ChainInfo>& seededChains() const;
+
+    /**
+     * @brief Set the seeded chains set.
+     */
+    void setSeededChains(const std::vector<TrigCompositeUtils::AlgToChainTool::ChainInfo>& seededChains);
 
     /**
      * @brief Getter of map between algorithm (index in costCollection) and ROS requests (indicies in rosCollection)
@@ -150,6 +172,8 @@ class CostData {
     const std::unordered_map<uint32_t, std::string>* m_typeMapPtr; //!< Cached non-owning pointer mapping algorithm instance names to types
     std::map<size_t, std::vector<size_t>> m_algToRos; //!< Mapping of indexes from m_costCollection to corresponding ROS requests made by algorithm
     const std::map<std::string, std::vector<uint32_t>>* m_rosToRob; //!< Mapping of ROS corresponding to ROB requests
+    const std::map<std::string, std::set<size_t>>* m_chainToAlgIdx; //!<Mapping of algorithm name to chains
+    const std::vector<TrigCompositeUtils::AlgToChainTool::ChainInfo>* m_seededChains; //!<Set of seeded chains to monitor
 
 };
 

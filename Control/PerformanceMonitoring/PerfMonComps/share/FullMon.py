@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 # @file: PerfMonComps/FullMon.py
 # @author: Sebastien Binet
 # $Id$

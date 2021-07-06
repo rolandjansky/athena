@@ -13,15 +13,14 @@ using TrigCompositeUtils::Decision;
 using TrigCompositeUtils::createAndStore;
 using TrigCompositeUtils::roiString;
 
-InputMakerForRoI:: InputMakerForRoI( const std::string& name, 
- ISvcLocator* pSvcLocator )    
-: InputMakerBase( name, pSvcLocator ) {}
+InputMakerForRoI:: InputMakerForRoI( const std::string& name, ISvcLocator* pSvcLocator )    
+  : InputMakerBase( name, pSvcLocator ) {}
 
 
 StatusCode  InputMakerForRoI::initialize() {
   ATH_MSG_DEBUG("Will produce output RoI collections: " << m_RoIs);
   ATH_CHECK( m_RoIs.initialize( SG::AllowEmpty ) );
-  ATH_CHECK( m_roiTool.retrieve() );
+  if (not m_roiTool.empty()) ATH_CHECK( m_roiTool.retrieve() );
   return StatusCode::SUCCESS;
 }
 
@@ -35,14 +34,14 @@ StatusCode  InputMakerForRoI::execute( const EventContext& context ) const {
   ATH_MSG_DEBUG("Merging complete");
 
   if( outputHandle->size() == 0) {
-    ATH_MSG_WARNING( "Have no decisions in output handle "<< outputHandle.key() << ". Handle is valid but container is empty. "
-      << "Check why this InputMakerForRoI was unlocked by a Filter, if the Filter then gave it no inputs.");
+    ATH_MSG_DEBUG( "Have no decisions in output handle "<< outputHandle.key() << ". Handle is valid but container is empty. "
+      << "This can happen if a ROI-based HLT chain leg was activated in a chain whose L1 item which does not explicitly require the ROI.");
   } else {
     ATH_MSG_DEBUG( "Have output " << outputHandle.key() << " with " << outputHandle->size() << " elements" );
   }
 
   // Find and link to the output Decision objects the ROIs to run over
-  ATH_CHECK( m_roiTool->attachROILinks(*outputHandle, context) );
+  if (not m_roiTool.empty()) ATH_CHECK( m_roiTool->attachROILinks(*outputHandle, context) );
 
   if (m_RoIs.empty()) {
     ATH_MSG_DEBUG("No concrete output ROI collection required from this InputMaker.");

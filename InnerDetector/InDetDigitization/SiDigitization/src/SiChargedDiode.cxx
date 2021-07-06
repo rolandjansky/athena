@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -16,10 +16,8 @@
 
 
 // Constructor with parameters:
-SiChargedDiode::SiChargedDiode(const SiTotalCharge::alloc_t& alloc,
-                               const InDetDD::SiCellId & diode, const InDetDD::SiReadoutCellId & roCell,  int flagword, SiChargedDiode * nextInCluster) 
+SiChargedDiode::SiChargedDiode(const InDetDD::SiCellId & diode, const InDetDD::SiReadoutCellId & roCell, int flagword, SiChargedDiode * nextInCluster) 
   :  m_diode(diode),
-     m_totalCharge(alloc),
      m_readoutCell(roCell),
      m_word(flagword),
      m_nextInCluster(nextInCluster)

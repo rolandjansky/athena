@@ -16,7 +16,6 @@
 #ifndef TRIGTRACKJETFINDERTOOL_H
 #define TRIGTRACKJETFINDERTOOL_H
 
-#include <vector>
 #include <math.h>
 #include <vector>
 #include <algorithm>

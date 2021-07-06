@@ -202,11 +202,9 @@ def CreateXMLFile( runlist, options, origQuery, datapath, xmlfname, xmllabel, sv
                                     streams[stream][1] += nev
 
             # append stream element
-            s = streams.keys()        
-            s.sort()
             strselm = doc.createElement('StreamsInRun')
 
-            for stream in s:
+            for stream in sorted (streams.keys()):
                 nevts  = streams[stream]
                 if ShowNumberOfEventsPerStreamPerRun:
                     strelm = TextElement('Stream','',doc)

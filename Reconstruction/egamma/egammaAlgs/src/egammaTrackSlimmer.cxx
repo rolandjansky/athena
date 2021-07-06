@@ -99,17 +99,13 @@ StatusCode egammaTrackSlimmer::execute (const EventContext& ctx) const {
     return StatusCode::FAILURE;
   }
   /*
-   * For the InDet Track particles we set them first all  to true aka keep.
-   * Then we set to false ONLY the TRT-alone. 
+   * For the InDet Track particles we set them first all to true aka keep.
+   * Then we set to false ONLY the TRT-alone.
+   * (05/05/21: omitting the aforementioned step for release 22 round 2 CP samples production)
    * We will reset to true whatever is to be kept due to e/gamma... 
    */
   ATH_MSG_DEBUG("Number of In Det TrackParticles "<< indetTrackPC->size());
   keptInDetTrackParticles.resize( indetTrackPC->size(), true );
-  for (const auto *trkIt : *indetTrackPC)  {
-    if (xAOD::EgammaHelpers::numberOfSiHits(trkIt) < 4) {
-      keptInDetTrackParticles[trkIt->index()] = false;
-    }
-  }
 
   /*
    * Electron track particle Thinning

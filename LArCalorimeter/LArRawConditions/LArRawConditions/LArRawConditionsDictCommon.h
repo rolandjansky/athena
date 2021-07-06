@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -9,6 +9,7 @@
 
 #include "LArRawConditions/LArConditionsContainer.h"
 #include "LArRawConditions/LArConditionsSubset.h"
+#include "AthenaPoolUtilities/CondMultChanCollection.h"
 #include "StoreGate/StoreGateSvc.h" // for PyGate
 
 #define INSTAN_CC(T) \
@@ -22,6 +23,7 @@
     LArConditionsSubset<T>::CorrectionPair          cscp_##T; \
     LArConditionsSubset<T>::ConstCorrectionVecIt    cscv_##T;  \
     LArConditionsSubset<T>::FebPair                 csfb_##T; \
+    CondMultChanCollection<LArConditionsSubset<T> > cscmcc_##T; \
   } struct xyzzy
 #define INSTAN_BOTH(T) \
   INSTAN_CC(T); INSTAN_CS(T)

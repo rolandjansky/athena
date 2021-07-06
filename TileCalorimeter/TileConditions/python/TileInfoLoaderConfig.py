@@ -6,6 +6,7 @@
 from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.Enums import ProductionStep
 
 
 def TileInfoLoaderCfg(flags, **kwargs):
@@ -31,7 +32,7 @@ def TileInfoLoaderCfg(flags, **kwargs):
             kwargs['NoiseScaleIndex'] = 1 # Noise for Optimal Filter without iterations
 
 
-    if (flags.Input.isMC or flags.Detector.OverlayTile) and ('TileHitVec' in flags.Input.Collections or 'TileHitVec' in flags.Input.SecondaryCollections):
+    if (flags.Input.isMC or flags.Common.ProductionStep == ProductionStep.Overlay) and ('TileHitVec' in flags.Input.Collections or 'TileHitVec' in flags.Input.SecondaryCollections):
 
         G4Version = flags.Sim.G4Version
         G4VersionMajor, G4VersionMinor = G4Version.split(".")[1:3]

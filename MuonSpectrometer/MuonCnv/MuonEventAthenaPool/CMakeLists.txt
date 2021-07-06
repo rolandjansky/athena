@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( MuonEventAthenaPool )
@@ -8,14 +8,14 @@ find_package( Boost )
 find_package( ROOT COMPONENTS Core )
 
 # Component(s) in the package:
-atlas_add_library( MuonEventAthenaPoolLib
+atlas_add_tpcnv_library( MuonEventAthenaPoolLib
    MuonEventAthenaPool/*.h src/*Cnv_p*.h src/*Cnv_p*.cxx
    PUBLIC_HEADERS MuonEventAthenaPool
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaPoolUtilities
    AtlasSealCLHEP MuonRDO MuonRIO_OnTrack MuonSegment AthAllocators
    AthContainers AthenaKernel StoreGateLib AthenaPoolCnvSvcLib
-   Identifier GaudiKernel RPCcablingInterfaceLib CscCalibEvent MuonEventTPCnv
+   Identifier GaudiKernel CscCalibEvent MuonEventTPCnv RPC_CondCablingLib
    MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonChamberT0s
    MuonPrepRawData MuonTrigCoinData MuonSimData AthenaPoolServicesLib )
 
@@ -23,7 +23,7 @@ atlas_add_poolcnv_library( MuonEventAthenaPoolPoolCnv
    MuonEventAthenaPool/*.h src/*Cnv.h src/*Cnv.cxx
    FILES MuonSimData/MuonSimDataCollection.h MuonSimData/CscSimDataCollection.h
          MuonRDO/MdtCsmContainer.h MuonRDO/RpcPadContainer.h
-         MuonRDO/TgcRdoContainer.h MuonRDO/CscRawDataContainer.h
+         MuonRDO/TgcRdoContainer.h MuonRDO/TgcL1RdoContainer.h MuonRDO/CscRawDataContainer.h
          MuonRDO/RpcSectorLogicContainer.h MuonRDO/STGC_RawDataContainer.h
          MuonRDO/MM_RawDataContainer.h MuonDigitContainer/MdtDigitContainer.h
          MuonDigitContainer/RpcDigitContainer.h
@@ -42,19 +42,20 @@ atlas_add_poolcnv_library( MuonEventAthenaPoolPoolCnv
          MuonTrigCoinData/TgcCoinDataContainer.h
          MuonTrigCoinData/RpcCoinDataContainer.h
          MuonChamberT0s/ChamberT0s.h src/MuonMeasurements.h
+         MuonRDO/NSW_PadTriggerDataContainer.h
    TYPES_WITH_NAMESPACE Muon::STGC_RawDataContainer Muon::MM_RawDataContainer
                         Muon::CscPrepDataContainer
                         Muon::CscStripPrepRawDataContainer
                         Muon::RpcPrepDataContainer Muon::TgcPrepDataContainer
                         Muon::MdtPrepDataContainer Muon::MMPrepDataContainer
                         Muon::sTgcPrepDataContainer Muon::TgcCoinDataContainer
-                        Muon::ChamberT0s TPCnv::MuonMeasurements
+                        Muon::ChamberT0s TPCnv::MuonMeasurements Muon::NSW_PadTriggerDataContainer
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaPoolUtilities
                   AtlasSealCLHEP MuonRDO MuonRIO_OnTrack MuonSegment
                   AthAllocators AthContainers AthenaKernel StoreGateLib
                   AthenaPoolCnvSvcLib Identifier GaudiKernel
-                  RPCcablingInterfaceLib CscCalibEvent MuonEventTPCnv
+                  CscCalibEvent MuonEventTPCnv RPC_CondCablingLib
                   MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib
                   MuonChamberT0s MuonPrepRawData MuonTrigCoinData MuonSimData
                   RPC_CondCablingLib MuonEventAthenaPoolLib )
@@ -66,7 +67,7 @@ atlas_add_dictionary( MuonRDOCnvDict
    MuonSegment )
 
 # Install files from the package:
-atlas_install_joboptions( share/*.py )
+atlas_install_joboptions( share/*.py share/*.txt )
 atlas_install_scripts( test/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 # Set up (a) test(s) for the converter(s):
@@ -114,7 +115,7 @@ foreach( name
 
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx
-      LINK_LIBRARIES IdDictParser MuonEventAthenaPoolLib
+      LINK_LIBRARIES IdDictParser MuonEventAthenaPoolLib TestTools
       PROPERTIES TIMEOUT 300
       ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 

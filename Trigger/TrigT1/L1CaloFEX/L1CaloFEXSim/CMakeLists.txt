@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( L1CaloFEXSim )
@@ -15,12 +15,13 @@ atlas_add_library( L1CaloFEXSimLib
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks AthenaBaseComps AthenaKernel CaloEvent CaloIdentifier CxxUtils GaudiKernel Identifier L1CaloFEXToolInterfaces StoreGateLib xAODBase xAODCore xAODTrigL1Calo xAODTruth xAODTrigger
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} SGTools xAODJet )
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} TrigConfData SGTools xAODJet PathResolver)
 
 atlas_add_component( L1CaloFEXSim
                      src/components/*.cxx
-                     LINK_LIBRARIES L1CaloFEXSimLib )
+                     LINK_LIBRARIES L1CaloFEXSimLib PathResolver)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
+atlas_install_runtime( share/*.csv )

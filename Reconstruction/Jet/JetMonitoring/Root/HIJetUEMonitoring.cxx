@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //HIJetUEMonitoring.cxx
@@ -134,7 +134,7 @@ int HIJetUEMonitoring::buildHistos(){
   return 0;
 }
 
-int HIJetUEMonitoring::fillHistosFromJet(const xAOD::Jet &j){
+int HIJetUEMonitoring::fillHistosFromJet(const xAOD::Jet &j, float weight){
 
   const xAOD::EventInfo* evtInfo;
   CHECK(evtStore()->retrieve( evtInfo ), 1);
@@ -160,12 +160,13 @@ int HIJetUEMonitoring::fillHistosFromJet(const xAOD::Jet &j){
       float qx=sh->etCos().at(m_harmonic);
       float qy=sh->etSin().at(m_harmonic);
       m_psiN_FCal=std::atan2(qy,qx)/float(m_n); // Psi2 (m_n=2)
-      m_vN_fcal=std::sqrt(qx+qx+qy*qy)/m_FCalET;
+      m_vN_fcal=-999.;
+      if (m_FCalET != 0.) m_vN_fcal = std::sqrt(qx+qx+qy*qy)/m_FCalET;
       break;
     }
   }
 
-  m_FCALET->Fill(m_FCalET);
+  m_FCALET->Fill(m_FCalET, weight);
 
   // m_jetScale is a property of the base tool
   //const xAOD::JetFourMom_t p4 = j.jetP4( (xAOD::JetScale) m_jetScale);
@@ -178,104 +179,107 @@ int HIJetUEMonitoring::fillHistosFromJet(const xAOD::Jet &j){
 
   if (fabs(j.getAttribute<float>("JetEtaJESScaleMomentum_eta"))<2.8){
     if (m_FCalET > 2.7){//0-10%
-      m_SubtractedET_pt_0_10->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_pt")*toGeV,SubtractedET ); 
+      m_SubtractedET_pt_0_10->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_pt")*toGeV,SubtractedET, weight ); 
     }
     if (m_FCalET < 2.7 && m_FCalET > 1.75 ){//10-20%
-      m_SubtractedET_pt_10_20->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_pt")*toGeV,SubtractedET ); 
+      m_SubtractedET_pt_10_20->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_pt")*toGeV,SubtractedET, weight ); 
     }
     if (m_FCalET < 1.75 && m_FCalET > 0.65 ){//20-40%
-      m_SubtractedET_pt_20_40->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_pt")*toGeV,SubtractedET ); 
+      m_SubtractedET_pt_20_40->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_pt")*toGeV,SubtractedET, weight ); 
     }
     if (m_FCalET < 0.20 ){//60-100%
-      m_SubtractedET_pt_60_100->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_pt")*toGeV,SubtractedET ); 
+      m_SubtractedET_pt_60_100->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_pt")*toGeV,SubtractedET, weight ); 
     }
   }
 
   if (j.getAttribute<float>("JetEtaJESScaleMomentum_pt")*toGeV > m_ptcut){
     // ATH_MSG_INFO(" FCal ET: "<< m_FCalET<<"  SubtractedE:, "<<SubtractedET<<" m_psiN_FCal: "<<m_psiN_FCal<<" Acos: "<<Acos <<" m_vN_fcal: "<<m_vN_fcal<<" ptcut: "<<m_ptcut);
-    m_2dSubtractedET_pT->Fill( j.getAttribute<float>("JetEtaJESScaleMomentum_pt")*toGeV, SubtractedET);
+    m_2dSubtractedET_pT->Fill( j.getAttribute<float>("JetEtaJESScaleMomentum_pt")*toGeV, SubtractedET, weight);
 
-    m_SubtractedET_Centrality->Fill( m_FCalET, SubtractedET);
-    m_2dSubtractedET_Centrality->Fill( m_FCalET, SubtractedET);
-    m_2dSubtractedET_Expected_Centrality->Fill( m_FCalET, (SubtractedET/m_FCalET)*0.025);
+    double subtractedET_Expected = -999.;
+    if (m_FCalET != 0.) subtractedET_Expected = (SubtractedET/m_FCalET)*0.025;
 
-    m_2dSubtractedET_Expected_eta->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , (SubtractedET/m_FCalET)*0.025);
-    m_SubtractedET_Expected_eta->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , (SubtractedET/m_FCalET)*0.025);
-    m_2dSubtractedET_2Dphi->Fill( Acos,SubtractedET);
-    m_SubtractedET_eta->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta"),SubtractedET ); 
-    m_SubtractedET_pt->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_pt")*toGeV,SubtractedET ); 
-    m_SubtractedET_2Dphi->Fill( Acos,SubtractedET);
+    m_SubtractedET_Centrality->Fill( m_FCalET, SubtractedET, weight);
+    m_2dSubtractedET_Centrality->Fill( m_FCalET, SubtractedET, weight);
+    m_2dSubtractedET_Expected_Centrality->Fill( m_FCalET, subtractedET_Expected, weight);
+
+    m_2dSubtractedET_Expected_eta->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , subtractedET_Expected, weight);
+    m_SubtractedET_Expected_eta->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , subtractedET_Expected, weight);
+    m_2dSubtractedET_2Dphi->Fill( Acos,SubtractedET, weight);
+    m_SubtractedET_eta->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta"),SubtractedET, weight); 
+    m_SubtractedET_pt->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_pt")*toGeV,SubtractedET, weight ); 
+    m_SubtractedET_2Dphi->Fill( Acos,SubtractedET, weight);
 
     if (m_FCalET > 2.7){//0-10%
-      m_JetUnsubtractedScaleMomentum_pt_0_10->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_pt")*toGeV );
-      m_JetUnsubtractedScaleMomentum_eta_0_10->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_eta") );
-      m_JetUnsubtractedScaleMomentum_phi_0_10->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_phi") );
-      m_JetUnsubtractedScaleMomentum_m_0_10->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_m")*toGeV );
-      m_JetSubtractedScaleMomentum_pt_0_10->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_pt")*toGeV );
-      m_JetSubtractedScaleMomentum_eta_0_10->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_eta") );
-      m_JetSubtractedScaleMomentum_phi_0_10->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_phi") );
-      m_JetSubtractedScaleMomentum_m_0_10->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_m")*toGeV );
-      m_2dSubtractedET_Expected_eta_0_10->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , (SubtractedET/m_FCalET)*0.025);
-      m_SubtractedET_Expected_eta_0_10->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , (SubtractedET/m_FCalET)*0.025);
+      m_JetUnsubtractedScaleMomentum_pt_0_10->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_pt")*toGeV, weight );
+      m_JetUnsubtractedScaleMomentum_eta_0_10->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_eta"), weight );
+      m_JetUnsubtractedScaleMomentum_phi_0_10->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_phi"), weight );
+      m_JetUnsubtractedScaleMomentum_m_0_10->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_m")*toGeV, weight );
+      m_JetSubtractedScaleMomentum_pt_0_10->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_pt")*toGeV, weight );
+      m_JetSubtractedScaleMomentum_eta_0_10->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_eta"), weight );
+      m_JetSubtractedScaleMomentum_phi_0_10->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_phi"), weight );
+      m_JetSubtractedScaleMomentum_m_0_10->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_m")*toGeV, weight );
+      m_2dSubtractedET_Expected_eta_0_10->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , subtractedET_Expected, weight);
+      m_SubtractedET_Expected_eta_0_10->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , subtractedET_Expected, weight);
 
-      m_2dSubtractedET_2Dphi_0_10->Fill( Acos,SubtractedET);
-      m_SubtractedET_eta_0_10->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta"),SubtractedET ); 
-      m_SubtractedET_2Dphi_0_10->Fill( Acos,SubtractedET);
+      m_2dSubtractedET_2Dphi_0_10->Fill( Acos,SubtractedET, weight);
+      m_SubtractedET_eta_0_10->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta"),SubtractedET, weight ); 
+      m_SubtractedET_2Dphi_0_10->Fill( Acos,SubtractedET, weight);
     }
     if (m_FCalET < 2.7 && m_FCalET > 1.75 ){//10-20%
-      m_JetUnsubtractedScaleMomentum_pt_10_20->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_pt")*toGeV );
-      m_JetUnsubtractedScaleMomentum_eta_10_20->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_eta") );
-      m_JetUnsubtractedScaleMomentum_phi_10_20->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_phi") );
-      m_JetUnsubtractedScaleMomentum_m_10_20->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_m")*toGeV );
-      m_JetSubtractedScaleMomentum_pt_10_20->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_pt")*toGeV );
-      m_JetSubtractedScaleMomentum_eta_10_20->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_eta") );
-      m_JetSubtractedScaleMomentum_phi_10_20->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_phi") );
-      m_JetSubtractedScaleMomentum_m_10_20->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_m")*toGeV );
+      m_JetUnsubtractedScaleMomentum_pt_10_20->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_pt")*toGeV, weight );
+      m_JetUnsubtractedScaleMomentum_eta_10_20->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_eta"), weight );
+      m_JetUnsubtractedScaleMomentum_phi_10_20->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_phi"), weight );
+      m_JetUnsubtractedScaleMomentum_m_10_20->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_m")*toGeV, weight );
+      m_JetSubtractedScaleMomentum_pt_10_20->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_pt")*toGeV, weight );
+      m_JetSubtractedScaleMomentum_eta_10_20->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_eta"), weight );
+      m_JetSubtractedScaleMomentum_phi_10_20->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_phi"), weight );
+      m_JetSubtractedScaleMomentum_m_10_20->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_m")*toGeV, weight );
 
-      m_2dSubtractedET_Expected_eta_10_20->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , (SubtractedET/m_FCalET)*0.025);
-      m_SubtractedET_Expected_eta_10_20->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , (SubtractedET/m_FCalET)*0.025);
+      m_2dSubtractedET_Expected_eta_10_20->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , subtractedET_Expected, weight);
+      m_SubtractedET_Expected_eta_10_20->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , subtractedET_Expected, weight);
 
-      m_2dSubtractedET_2Dphi_10_20->Fill( Acos,SubtractedET);
+      m_2dSubtractedET_2Dphi_10_20->Fill( Acos,SubtractedET, weight);
 
-      m_SubtractedET_eta_10_20->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta"),SubtractedET ); 
-      m_SubtractedET_2Dphi_10_20->Fill( Acos,SubtractedET);
+      m_SubtractedET_eta_10_20->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta"),SubtractedET, weight ); 
+      m_SubtractedET_2Dphi_10_20->Fill( Acos,SubtractedET, weight);
     }
 
     if (m_FCalET < 1.75 && m_FCalET > 0.65 ){//20-40%
-      m_JetUnsubtractedScaleMomentum_pt_20_40->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_pt")*toGeV );
-      m_JetUnsubtractedScaleMomentum_eta_20_40->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_eta") );
-      m_JetUnsubtractedScaleMomentum_phi_20_40->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_phi") );
-      m_JetUnsubtractedScaleMomentum_m_20_40->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_m")*toGeV );
-      m_JetSubtractedScaleMomentum_pt_20_40->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_pt")*toGeV );
-      m_JetSubtractedScaleMomentum_eta_20_40->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_eta") );
-      m_JetSubtractedScaleMomentum_phi_20_40->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_phi") );
-      m_JetSubtractedScaleMomentum_m_20_40->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_m")*toGeV );
+      m_JetUnsubtractedScaleMomentum_pt_20_40->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_pt")*toGeV, weight );
+      m_JetUnsubtractedScaleMomentum_eta_20_40->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_eta"), weight );
+      m_JetUnsubtractedScaleMomentum_phi_20_40->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_phi"), weight );
+      m_JetUnsubtractedScaleMomentum_m_20_40->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_m")*toGeV, weight );
+      m_JetSubtractedScaleMomentum_pt_20_40->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_pt")*toGeV, weight );
+      m_JetSubtractedScaleMomentum_eta_20_40->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_eta"), weight );
+      m_JetSubtractedScaleMomentum_phi_20_40->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_phi"), weight );
+      m_JetSubtractedScaleMomentum_m_20_40->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_m")*toGeV, weight );
 
-      m_2dSubtractedET_Expected_eta_20_40->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , (SubtractedET/m_FCalET)*0.025);
-      m_SubtractedET_Expected_eta_20_40->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , (SubtractedET/m_FCalET)*0.025);
+      m_2dSubtractedET_Expected_eta_20_40->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , subtractedET_Expected, weight);
+      m_SubtractedET_Expected_eta_20_40->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , subtractedET_Expected, weight);
 
-      m_2dSubtractedET_2Dphi_20_40->Fill( Acos,SubtractedET);
+      m_2dSubtractedET_2Dphi_20_40->Fill( Acos,SubtractedET, weight);
 
-      m_SubtractedET_eta_20_40->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta"),SubtractedET ); 
-      m_SubtractedET_2Dphi_20_40->Fill( Acos,SubtractedET);
+      m_SubtractedET_eta_20_40->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta"),SubtractedET, weight ); 
+      m_SubtractedET_2Dphi_20_40->Fill( Acos,SubtractedET, weight);
     }
     if (m_FCalET < 0.20 ){//60-100%
-      m_JetUnsubtractedScaleMomentum_pt_60_100->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_pt")*toGeV );
-      m_JetUnsubtractedScaleMomentum_eta_60_100->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_eta") );
-      m_JetUnsubtractedScaleMomentum_phi_60_100->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_phi") );
-      m_JetUnsubtractedScaleMomentum_m_60_100->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_m")*toGeV );
-      m_JetSubtractedScaleMomentum_pt_60_100->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_pt")*toGeV );
-      m_JetSubtractedScaleMomentum_eta_60_100->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_eta") );
-      m_JetSubtractedScaleMomentum_phi_60_100->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_phi") );
-      m_JetSubtractedScaleMomentum_m_60_100->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_m")*toGeV );
+      m_JetUnsubtractedScaleMomentum_pt_60_100->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_pt")*toGeV, weight );
+      m_JetUnsubtractedScaleMomentum_eta_60_100->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_eta"), weight );
+      m_JetUnsubtractedScaleMomentum_phi_60_100->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_phi"), weight );
+      m_JetUnsubtractedScaleMomentum_m_60_100->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_m")*toGeV, weight );
+      m_JetSubtractedScaleMomentum_pt_60_100->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_pt")*toGeV, weight );
+      m_JetSubtractedScaleMomentum_eta_60_100->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_eta"), weight );
+      m_JetSubtractedScaleMomentum_phi_60_100->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_phi"), weight );
+      m_JetSubtractedScaleMomentum_m_60_100->Fill( j.getAttribute<float>("JetSubtractedScaleMomentum_m")*toGeV, weight );
 
-      m_2dSubtractedET_Expected_eta_60_100->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , (SubtractedET/m_FCalET)*0.025);
-      m_SubtractedET_Expected_eta_60_100->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , (SubtractedET/m_FCalET)*0.025);
+      m_2dSubtractedET_Expected_eta_60_100->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , subtractedET_Expected, weight);
+      m_SubtractedET_Expected_eta_60_100->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , subtractedET_Expected, weight);
 
-      m_2dSubtractedET_2Dphi_60_100->Fill( Acos,SubtractedET);
+      m_2dSubtractedET_2Dphi_60_100->Fill( Acos,SubtractedET, weight);
 
-      m_SubtractedET_eta_60_100->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta"),SubtractedET ); 
-      m_SubtractedET_2Dphi_60_100->Fill( Acos,SubtractedET);
+      m_SubtractedET_eta_60_100->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta"),SubtractedET, weight ); 
+      m_SubtractedET_2Dphi_60_100->Fill( Acos,SubtractedET, weight);
     }
 
   }

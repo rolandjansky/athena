@@ -305,7 +305,11 @@ TgcLv1RawDataValAlg::fillHistograms(){
   // ReadContainer
   /////////////////////////////////////
   // Read Offline Muon Containers
-  ATH_CHECK( readOfflineMuonContainer( &m_muid_pt,  &m_muid_eta,  &m_muid_phi,  &m_muid_q) );
+  std::vector<float> muid_pt;
+  std::vector<float> muid_eta;
+  std::vector<float> muid_phi;
+  std::vector<float> muid_q;
+  ATH_CHECK( readOfflineMuonContainer( &muid_pt,  &muid_eta,  &muid_phi,  &muid_q) );
   ATH_MSG_DEBUG("read offline muon container");
 
   ///////////////////////////////////////////////////////////////////////////
@@ -322,19 +326,19 @@ TgcLv1RawDataValAlg::fillHistograms(){
   
   int ms;
   ms=0; //Muid
-  fillTriggerTimingAssociatedWithTrack( ms, &m_muid_pt,  &m_muid_eta,  &m_muid_phi,  &m_muid_q );
+  fillTriggerTimingAssociatedWithTrack( ms, &muid_pt,  &muid_eta,  &muid_phi,  &muid_q );
   ATH_MSG_DEBUG("Associated with track");
   
   // Efficiency
   ms=0; //Muid
-  fillEfficiency( ms, &m_muid_pt,  &m_muid_eta,  &m_muid_phi,  &m_muid_q );
+  fillEfficiency( ms, &muid_pt,  &muid_eta,  &muid_phi,  &muid_q );
   ATH_MSG_DEBUG("filled efficiency");
   
   
   // Coincidence Window
   // not monitor these profiles at GM
   if( m_environment != AthenaMonManager::online ){
-    fillCoincidenceWindow( ms, &m_muid_pt,  &m_muid_eta,  &m_muid_phi,  &m_muid_q );
+    fillCoincidenceWindow( ms, &muid_pt,  &muid_eta,  &muid_phi,  &muid_q );
   }
   ATH_MSG_DEBUG("filled coincidence window");
   

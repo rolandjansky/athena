@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -179,7 +179,7 @@ void TRTSensitiveDetector::Initialize(G4HCofThisEvent* /*pHCofThisEvent*/)
   if(!m_phot) {  // Only for the first event
     const G4ProcessVector* pVec =
       G4Gamma::Definition()->GetProcessManager()->GetProcessList();
-    for(G4int ip=0;ip<pVec->entries();ip++)
+    for(size_t ip=0;ip<pVec->entries();ip++)
       {
         if((*pVec)[ip]->GetProcessName()=="phot")
           {

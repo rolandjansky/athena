@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: TGCBoardConnection.cxx,v 1.3 2009-01-08 10:06:48 isaya Exp $
 #include "TrigT1TGC/TGCBoardConnection.h"
 
 namespace LVL1TGCTrigger {
@@ -109,4 +108,4 @@ TGCBoardConnection& TGCBoardConnection::operator=(const TGCBoardConnection& righ
 }
 
 
-} //end of namespace bracket
+}   // end of namespace

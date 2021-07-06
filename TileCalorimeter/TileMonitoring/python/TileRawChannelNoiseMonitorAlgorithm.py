@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 '''
 @file TileRawChannelNoiseMonitorAlgorithm.py
@@ -82,8 +82,9 @@ def TileRawChannelNoiseMonitoringConfig(flags, **kwargs):
         title = 'Run %s %s: Tile cell %s / channel %s amplitude (%s);Amplitude [ADC]'
         title = title % (run, moduleName, cellName, str(channel), gainName)
         name = 'amplitude;TileRawChannelNoise_%s_%s_ch_%s_%s' % (moduleName, cellName, str(channel), gainName)
+        fullPath = '{}/{}'.format(partition, moduleName)
 
-        tool.defineHistogram(name, title = title, path = partition, type = 'TH1F',
+        tool.defineHistogram(name, title = title, path = fullPath, type = 'TH1F',
                              xbins = 81, xmin = -20.25, xmax = 20.25)
 
     accumalator = helper.result()

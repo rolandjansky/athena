@@ -22,9 +22,13 @@ ClassIDSvc           INFO  getRegistryEntries: read 1773 CLIDRegistry entries fo
 [93;1mHistogramPersis...WARNING Histograms saving not required.[m
 ApplicationMgr       INFO Application Manager Initialized successfully[m
 ApplicationMgr Ready
-StoreGateSvc        DEBUG Property update for OutputLevel : new value = 1[m
-StoreGateSvc      VERBOSE Initializing StoreGateSvc - package version StoreGate-00-00-00[m
-StoreGateSvc        DEBUG Service base class initialized successfully[m
-StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc[m
-StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc[m
+StoreGateSvc        DEBUG Property update for OutputLevel : new value = 1
+StoreGateSvc        DEBUG Service base class initialized successfully
+StoreGateSvc      VERBOSE Initializing StoreGateSvc
+StoreGateSvc        DEBUG trying to create store SGImplSvc/StoreGateSvc_Impl
+StoreGateSvc_Impl   DEBUG Property update for OutputLevel : new value = 1
+StoreGateSvc_Impl VERBOSE Initializing StoreGateSvc_Impl
+StoreGateSvc_Impl   DEBUG Service base class initialized successfully
+StoreGateSvc_Impl VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc
+StoreGateSvc_Impl VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc
 *** StoreID_test OK ***

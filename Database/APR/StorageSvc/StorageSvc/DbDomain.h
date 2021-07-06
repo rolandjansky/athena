@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: DbDomain.h 726071 2016-02-25 09:23:05Z krasznaa $
@@ -50,10 +50,10 @@ namespace pool    {
     friend class DbDomainObj;
   private:
     /// Assign transient object properly (including reference counting)
-    void switchPtr(const DbDomainObj* obj)  const;
+    void switchPtr(DbDomainObj* obj);
   public:
     /// Friend's constructor
-    DbDomain(const DbDomainObj* dom);
+    DbDomain(DbDomainObj* dom);
     /// Constructor using Db type
     DbDomain(const DbType& type)   {   m_type = type.majorType();       }
     /// Copy constructor
@@ -101,9 +101,9 @@ namespace pool    {
       */
     DbStatus open(const DbSession&  sesH, 
                   const DbType&     technology,
-                  DbAccessMode      mod=pool::READ) const;
+                  DbAccessMode      mod=pool::READ);
     /// Close domain
-    DbStatus close() const;
+    DbStatus close();
     /// Access to access mode
     DbAccessMode openMode() const;
     /// Access to session handle
@@ -111,21 +111,23 @@ namespace pool    {
     /// Check if Database exists within the domain
     bool existsDbase(const std::string& db_name) const;
     /// Find Database in domain
-    DbDatabaseObj* find(const std::string& db_name) const;
+    const DbDatabaseObj* find(const std::string& db_name) const;
+          DbDatabaseObj* find(const std::string& db_name);
     /// Add domain to session
-    DbStatus add(const std::string& nam, DbDatabaseObj* db) const;
+    DbStatus add(const std::string& nam, DbDatabaseObj* db);
     /// Find domain in session
-    DbStatus remove(DbDatabaseObj* db) const;
+    DbStatus remove(DbDatabaseObj* db);
     /// Increase the age of all open databases
-    DbStatus ageOpenDbs() const;
+    DbStatus ageOpenDbs();
     /// Check if databases are present, which aged a lot and need to be closed
-    DbStatus closeAgedDbs() const;
+    DbStatus closeAgedDbs();
     /// Set the maximal allowed age limit for files in this domain
     void setAgeLimit(int value);
     /// Access the maximal age limit
     int ageLimit()  const;
     /// Let the implementation access the internals
-    IDbDomain* info() const;
+    IDbDomain* info();
+    const IDbDomain* info() const;
 
     /// Set domain specific options
     /** @param refOpt   [IN]  Reference to option object
@@ -142,7 +144,8 @@ namespace pool    {
     DbStatus getOption(DbOption& refOpt) const;
 
     /// Allow access to the Database implementation
-    IOODatabase* db()   const;
+    IOODatabase* db();
+    const IOODatabase* db()   const;
   };
 }       // End namespace pool
 #endif  // POOL_DBDOMAIN_H

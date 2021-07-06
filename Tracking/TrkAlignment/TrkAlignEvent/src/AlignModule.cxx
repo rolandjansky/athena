@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -14,7 +14,7 @@
 #include "TrkSurfaces/Surface.h"
 
 #define _USE_MATH_DEFINES
-#include <math.h>
+#include <cmath>
 
 
 namespace Trk {
@@ -23,12 +23,12 @@ namespace Trk {
   AlignModule::AlignModule(const AlgTool* algtool, 
                            const Amg::Transform3D& transform,
                            const std::string& name)
-    : m_detelements(AlignModule::NDetectorTypes,(DetElementCollection*)0)
-    , m_detIdentifiers(AlignModule::NDetectorTypes,(IdentifierCollection*)0)
-    , m_alignModuleToDetElementTransforms(AlignModule::NDetectorTypes, (std::vector<Amg::Transform3D>*)0)
+    : m_detelements(AlignModule::NDetectorTypes,(DetElementCollection*)nullptr)
+    , m_detIdentifiers(AlignModule::NDetectorTypes,(IdentifierCollection*)nullptr)
+    , m_alignModuleToDetElementTransforms(AlignModule::NDetectorTypes, (std::vector<Amg::Transform3D>*)nullptr)
     , m_nChamberShifts(8)
-    , m_chi2VAlignParam(0)
-    , m_chi2VAlignParamX(0)
+    , m_chi2VAlignParam(nullptr)
+    , m_chi2VAlignParamX(nullptr)
     , m_chi2VAlignParamMeasType (new double**[TrackState::NumberOfMeasurementTypes])
     , m_name(name)
     , m_ntracks(0)
@@ -38,7 +38,7 @@ namespace Trk {
     , m_log(new MsgStream(algtool->msgSvc(),"AlignModule"))
   {
     for (int i=0;i<(int)TrackState::NumberOfMeasurementTypes;i++)
-      m_chi2VAlignParamMeasType[i]=0;
+      m_chi2VAlignParamMeasType[i]=nullptr;
     
     const AthAlgTool* athAlgTool=dynamic_cast<const AthAlgTool*>(algtool); 
     if (athAlgTool) 
@@ -51,12 +51,12 @@ namespace Trk {
   AlignModule::AlignModule(MsgStream* log,
                            const Amg::Transform3D& transform,
                            const std::string& name)
-    : m_detelements(AlignModule::NDetectorTypes,(DetElementCollection*)0)
-    , m_detIdentifiers(AlignModule::NDetectorTypes,(IdentifierCollection*)0)
-    , m_alignModuleToDetElementTransforms(AlignModule::NDetectorTypes, (std::vector<Amg::Transform3D>*)0)
+    : m_detelements(AlignModule::NDetectorTypes,(DetElementCollection*)nullptr)
+    , m_detIdentifiers(AlignModule::NDetectorTypes,(IdentifierCollection*)nullptr)
+    , m_alignModuleToDetElementTransforms(AlignModule::NDetectorTypes, (std::vector<Amg::Transform3D>*)nullptr)
     , m_nChamberShifts(8)
-    , m_chi2VAlignParam(0)
-    , m_chi2VAlignParamX(0)
+    , m_chi2VAlignParam(nullptr)
+    , m_chi2VAlignParamX(nullptr)
     , m_chi2VAlignParamMeasType (new double**[TrackState::NumberOfMeasurementTypes])
     , m_name(name)
     , m_ntracks(0)
@@ -66,7 +66,7 @@ namespace Trk {
     , m_log(new MsgStream(*log))
   {
     for (int i=0;i<TrackState::NumberOfMeasurementTypes;i++)
-      m_chi2VAlignParamMeasType[i]=0;
+      m_chi2VAlignParamMeasType[i]=nullptr;
     
     setGlobalFrameToAlignFrameTransform(transform);
     
@@ -190,14 +190,14 @@ namespace Trk {
   {
     std::vector<Amg::Transform3D>* alignModToDetElemTransform=m_alignModuleToDetElementTransforms[detType];
 
-    if(m_detIdentifiers[detType] && m_detIdentifiers[detType]->size()) {
+    if(m_detIdentifiers[detType] && !m_detIdentifiers[detType]->empty()) {
       if(id.is_valid()) {
         IdentifierCollection * ids = m_detIdentifiers[detType];
         for (int i=0;i<(int)alignModToDetElemTransform->size();i++)
           if ((*ids)[i]==id)
             return &(*alignModToDetElemTransform)[i];
       }
-      return 0;
+      return nullptr;
     }
 
     DetElementCollection* detElements=m_detelements[detType];
@@ -206,7 +206,7 @@ namespace Trk {
         return &(*alignModToDetElemTransform)[i];
 
 
-    return 0;
+    return nullptr;
   }
 
   //________________________________________________________________________

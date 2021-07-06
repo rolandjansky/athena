@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -387,7 +387,7 @@ void XMLCoreParser::visit (const std::string& file_name)
                 << file_name << std::endl; 
     }
 
-  XMLCoreNode n = parse (file_name.c_str ());
+  XMLCoreNode n = parse (file_name);
 
   if (XMLCoreParserDebugger::debug ())
   {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTProcessingOfStraw.h"
@@ -101,11 +101,6 @@ void TRTProcessingOfStraw::Initialize(const ITRT_CalDbTool* calDbTool)
   m_outerRadiusOfWire      = m_settings->outerRadiusOfWire();
   m_timeCorrection         = m_settings->timeCorrection();        // false for beamType='cosmics'
   m_solenoidFieldStrength  = m_settings->solenoidFieldStrength();
-  m_ionisationPotential    = m_settings->ionisationPotential(0);  // strawGasType=0 here just to initialize
-  m_smearingFactor         = m_settings->smearingFactor(0);       // to keep coverity happy. Reset correctly later.
-  m_trEfficiencyBarrel     = m_settings->trEfficiencyBarrel(0);   //
-  m_trEfficiencyEndCapA    = m_settings->trEfficiencyEndCapA(0);  //
-  m_trEfficiencyEndCapB    = m_settings->trEfficiencyEndCapB(0);  //
 
   m_maxelectrons = 100; // 100 gives good Gaussian approximation
 
@@ -202,6 +197,9 @@ void TRTProcessingOfStraw::Initialize(const ITRT_CalDbTool* calDbTool)
         }
     }
 
+  m_randBinomialXe = std::make_unique<CLHEP::RandBinomialFixedP>(nullptr, 1, m_settings->smearingFactor(0), m_maxelectrons);
+  m_randBinomialKr = std::make_unique<CLHEP::RandBinomialFixedP>(nullptr, 1, m_settings->smearingFactor(1), m_maxelectrons);
+  m_randBinomialAr = std::make_unique<CLHEP::RandBinomialFixedP>(nullptr, 1, m_settings->smearingFactor(2), m_maxelectrons);
 
   ATH_MSG_VERBOSE ( "Initialization done" );
 
@@ -369,31 +367,31 @@ void TRTProcessingOfStraw::ProcessStraw ( MagField::AtlasFieldCache& fieldCache,
             double KrEmulationScaling_ECB = 0.39;
 
             if (isBarrel) { // Barrel
-              m_trEfficiencyBarrel = m_settings->trEfficiencyBarrel(strawGasType);
+              double trEfficiencyBarrel = m_settings->trEfficiencyBarrel(strawGasType);
               double hitx = TRThitGlobalPos[0];
               double hity = TRThitGlobalPos[1];
               double hitz = TRThitGlobalPos[2];
               double hitEta = fabs(log(tan(0.5*atan2(sqrt(hitx*hitx+hity*hity),hitz))));
-              if ( hitEta < 0.5 ) { m_trEfficiencyBarrel *= ( 0.833333+0.6666667*hitEta*hitEta ); }
+              if ( hitEta < 0.5 ) { trEfficiencyBarrel *= ( 0.833333+0.6666667*hitEta*hitEta ); }
               // scale down the TR efficiency if we are emulating
-              if ( strawGasType == 0 && emulationArflag ) { m_trEfficiencyBarrel = m_trEfficiencyBarrel*ArEmulationScaling_BA; }
-              if ( strawGasType == 0 && emulationKrflag ) { m_trEfficiencyBarrel = m_trEfficiencyBarrel*KrEmulationScaling_BA; }
-              if ( CLHEP::RandFlat::shoot(rndmEngine) > m_trEfficiencyBarrel ) continue; // Skip this photon
+              if ( strawGasType == 0 && emulationArflag ) { trEfficiencyBarrel *= ArEmulationScaling_BA; }
+              if ( strawGasType == 0 && emulationKrflag ) { trEfficiencyBarrel *= KrEmulationScaling_BA; }
+              if ( CLHEP::RandFlat::shoot(rndmEngine) > trEfficiencyBarrel ) continue; // Skip this photon
             } // close if barrel
             else { // Endcap - no eta dependence here.
               if (isECA) {
-                m_trEfficiencyEndCapA = m_settings->trEfficiencyEndCapA(strawGasType);
+                double trEfficiencyEndCapA = m_settings->trEfficiencyEndCapA(strawGasType);
                 // scale down the TR efficiency if we are emulating
-                if ( strawGasType == 0 && emulationArflag ) { m_trEfficiencyEndCapA = m_trEfficiencyEndCapA*ArEmulationScaling_ECA; }
-                if ( strawGasType == 0 && emulationKrflag ) { m_trEfficiencyEndCapA = m_trEfficiencyEndCapA*KrEmulationScaling_ECA; }
-                if ( CLHEP::RandFlat::shoot(rndmEngine) > m_trEfficiencyEndCapA ) continue; // Skip this photon
+                if ( strawGasType == 0 && emulationArflag ) { trEfficiencyEndCapA *= ArEmulationScaling_ECA; }
+                if ( strawGasType == 0 && emulationKrflag ) { trEfficiencyEndCapA *= KrEmulationScaling_ECA; }
+                if ( CLHEP::RandFlat::shoot(rndmEngine) > trEfficiencyEndCapA ) continue; // Skip this photon
               }
               if (isECB) {
-                m_trEfficiencyEndCapB = m_settings->trEfficiencyEndCapB(strawGasType);
+                double trEfficiencyEndCapB = m_settings->trEfficiencyEndCapB(strawGasType);
                 // scale down the TR efficiency if we are emulating
-                if ( strawGasType == 0 && emulationArflag ) { m_trEfficiencyEndCapB = m_trEfficiencyEndCapB*ArEmulationScaling_ECB; }
-                if ( strawGasType == 0 && emulationKrflag ) { m_trEfficiencyEndCapB = m_trEfficiencyEndCapB*KrEmulationScaling_ECB; }
-                if ( CLHEP::RandFlat::shoot(rndmEngine) > m_trEfficiencyEndCapB ) continue; // Skip this photon
+                if ( strawGasType == 0 && emulationArflag ) { trEfficiencyEndCapB *= ArEmulationScaling_ECB; }
+                if ( strawGasType == 0 && emulationKrflag ) { trEfficiencyEndCapB *= KrEmulationScaling_ECB; }
+                if ( CLHEP::RandFlat::shoot(rndmEngine) > trEfficiencyEndCapB ) continue; // Skip this photon
               }
             } // close else (end caps)
           } // energyDeposit < 30.0
@@ -578,8 +576,14 @@ void TRTProcessingOfStraw::ClustersToDeposits (MagField::AtlasFieldCache& fieldC
   //const bool isECA   (region==3);
   //const bool isECB   (region==4);
 
-  m_ionisationPotential = m_settings->ionisationPotential(strawGasType);
-  m_smearingFactor      = m_settings->smearingFactor(strawGasType);
+  CLHEP::RandBinomialFixedP *randBinomial{};
+  if      (strawGasType == 0) { randBinomial = m_randBinomialXe.get(); }
+  else if (strawGasType == 1) { randBinomial = m_randBinomialKr.get(); }
+  else if (strawGasType == 2) { randBinomial = m_randBinomialAr.get(); }
+  else { randBinomial = m_randBinomialXe.get(); } // should never happen
+
+  double ionisationPotential = m_settings->ionisationPotential(strawGasType);
+  double smearingFactor      = m_settings->smearingFactor(strawGasType);
 
   std::vector<cluster>::const_iterator currentClusterIter(clusters.begin());
   const std::vector<cluster>::const_iterator endOfClusterList(clusters.end());
@@ -641,29 +645,10 @@ void TRTProcessingOfStraw::ClustersToDeposits (MagField::AtlasFieldCache& fieldC
       // Get the cluster radius and energy.
       const double cluster_x(currentClusterIter->xpos);
       const double cluster_y(currentClusterIter->ypos);
-      const double cluster_z(currentClusterIter->zpos);
+      const double cluster_z(this->setClusterZ(currentClusterIter->zpos, isLong, isShort, isEC));
       const double cluster_x2(cluster_x*cluster_x);
       const double cluster_y2(cluster_y*cluster_y);
       double cluster_r2(cluster_x2+cluster_y2);
-
-      // The active gas volume along the straw z-axis is: Barrel long +-349.315 mm; Barrel short +-153.375 mm; End caps +-177.150 mm.
-      // Here we give a warning for clusters that are outside of the straw gas volume in in z. Since T/P version 3 cluster z values
-      // can go several mm outside these ranges; 30 mm is plenty allowance in the checks below.
-      const double  longBarrelStrawHalfLength(349.315*CLHEP::mm);
-      const double shortBarrelStrawHalfLength(153.375*CLHEP::mm);
-      const double      EndcapStrawHalfLength(177.150*CLHEP::mm);
-      if ( isLong  && fabs(cluster_z)>longBarrelStrawHalfLength+30 ) {
-        double d = cluster_z<0 ? cluster_z+longBarrelStrawHalfLength : cluster_z-longBarrelStrawHalfLength;
-        ATH_MSG_WARNING ("Long barrel straw cluster is outside the active gas volume z = +- 349.315 mm by " << d << " mm.");
-      }
-      if ( isShort && fabs(cluster_z)>shortBarrelStrawHalfLength+30 ) {
-        double d = cluster_z<0 ? cluster_z+shortBarrelStrawHalfLength : cluster_z-shortBarrelStrawHalfLength;
-        ATH_MSG_WARNING ("Short barrel straw cluster is outside the active gas volume z = +- 153.375 mm by " << d << " mm.");
-      }
-      if ( isEC    && fabs(cluster_z)>EndcapStrawHalfLength+30 ) {
-        double d = cluster_z<0 ? cluster_z+EndcapStrawHalfLength : cluster_z-EndcapStrawHalfLength;
-        ATH_MSG_WARNING ("End cap straw cluster is outside the active gas volume z = +- 177.150 mm by " << d << " mm.");
-      }
 
       // These may never occur, but could be very problematic for getAverageDriftTime(), so check and correct this now.
       if (cluster_r2<wire_r2)  cluster_r2=wire_r2;  // Compression may (v. rarely) cause r to be smaller than the wire radius. If r=0 then NaN's later!
@@ -671,7 +656,7 @@ void TRTProcessingOfStraw::ClustersToDeposits (MagField::AtlasFieldCache& fieldC
 
       const double cluster_r(std::sqrt(cluster_r2));      // cluster radius
       const double cluster_E(currentClusterIter->energy); // cluster energy
-      const unsigned int nprimaryelectrons( static_cast<unsigned int>( cluster_E/m_ionisationPotential + 1.0 ) );
+      const unsigned int nprimaryelectrons( static_cast<unsigned int>( cluster_E / ionisationPotential + 1.0 ) );
 
       // Determine the number of surviving electrons and their energy sum.
       // If nprimaryelectrons > 100 then a Gaussian approximation is good (and much quicker)
@@ -680,16 +665,16 @@ void TRTProcessingOfStraw::ClustersToDeposits (MagField::AtlasFieldCache& fieldC
 
       if (nprimaryelectrons<m_maxelectrons) // Use the detailed Binomial and Exponential treatment at this low energy.
         {
-          unsigned int nsurvivingprimaryelectrons = static_cast<unsigned int>(CLHEP::RandBinomial::shoot(rndmEngine,nprimaryelectrons,m_smearingFactor) + 0.5);
+          unsigned int nsurvivingprimaryelectrons = static_cast<unsigned int>(randBinomial->fire(rndmEngine,nprimaryelectrons) + 0.5);
           if (nsurvivingprimaryelectrons==0) continue; // no electrons survived; move on to the next cluster.
-          const double meanElectronEnergy(m_ionisationPotential/m_smearingFactor);
+          const double meanElectronEnergy(ionisationPotential / smearingFactor);
           for (unsigned int ielec(0); ielec<nsurvivingprimaryelectrons; ++ielec) {
             depositEnergy += CLHEP::RandExpZiggurat::shoot(rndmEngine, meanElectronEnergy);
           }
         }
       else // Use a Gaussian approximation
         {
-          const double fluctSigma(sqrt(cluster_E*m_ionisationPotential*(2-m_smearingFactor)/m_smearingFactor));
+          const double fluctSigma(sqrt(cluster_E * ionisationPotential * (2 - smearingFactor) / smearingFactor));
           do {
             depositEnergy = CLHEP::RandGaussZiggurat::shoot(rndmEngine, cluster_E, fluctSigma);
           } while(depositEnergy<0.0); // very rare.
@@ -834,4 +819,35 @@ Amg::Vector3D TRTProcessingOfStraw::getGlobalPosition (  int hitID, const TimedH
   const Amg::Vector3D def(0.0,0.0,0.0);
   return def;
 
+}
+
+
+double TRTProcessingOfStraw::setClusterZ(double cluster_z_in, bool isLong, bool isShort, bool isEC) const {
+  double cluster_z(cluster_z_in);
+
+  // The active gas volume along the straw z-axis is: Barrel long +-349.315 mm; Barrel short +-153.375 mm; End caps +-177.150 mm.
+  // Here we give a warning for clusters that are outside of the straw gas volume in in z. Since T/P version 3 cluster z values
+  // can go several mm outside these ranges; 30 mm is plenty allowance in the checks below.
+  const double  longBarrelStrawHalfLength(349.315*CLHEP::mm);
+  const double shortBarrelStrawHalfLength(153.375*CLHEP::mm);
+  const double      EndcapStrawHalfLength(177.150*CLHEP::mm);
+  if ( isLong  && fabs(cluster_z)>longBarrelStrawHalfLength+30 ) {
+    double d = cluster_z<0 ? cluster_z+longBarrelStrawHalfLength : cluster_z-longBarrelStrawHalfLength;
+    ATH_MSG_WARNING ("Long barrel straw cluster is outside the active gas volume z = +- 349.315 mm by " << d << " mm.");
+    ATH_MSG_WARNING ("Setting cluster_z = 0.0");
+    cluster_z = 0.0;
+  }
+  if ( isShort && fabs(cluster_z)>shortBarrelStrawHalfLength+30 ) {
+    double d = cluster_z<0 ? cluster_z+shortBarrelStrawHalfLength : cluster_z-shortBarrelStrawHalfLength;
+    ATH_MSG_WARNING ("Short barrel straw cluster is outside the active gas volume z = +- 153.375 mm by " << d << " mm.");
+    ATH_MSG_WARNING ("Setting cluster_z = 0.0");
+    cluster_z = 0.0;
+  }
+  if ( isEC    && fabs(cluster_z)>EndcapStrawHalfLength+30 ) {
+    double d = cluster_z<0 ? cluster_z+EndcapStrawHalfLength : cluster_z-EndcapStrawHalfLength;
+    ATH_MSG_WARNING ("End cap straw cluster is outside the active gas volume z = +- 177.150 mm by " << d << " mm.");
+    ATH_MSG_WARNING ("Setting cluster_z = 0.0");
+    cluster_z = 0.0;
+  }
+  return cluster_z;
 }

@@ -125,7 +125,8 @@ public:
   // Get IOVRange from db for current event
   virtual StatusCode getRangeFromDB(const CLID& clid, const std::string& key, 
                                     IOVRange& range, std::string &tag,
-                                    std::unique_ptr<IOpaqueAddress>& ioa) const override;
+                                    std::unique_ptr<IOpaqueAddress>& ioa,
+				    const IOVTime& curTime) const override;
 
   // Get IOVRange from db for a particular event
   virtual StatusCode getRangeFromDB(const CLID& clid, const std::string& key, 
@@ -187,7 +188,7 @@ private:
   ServiceHandle<IClassIDSvc> p_CLIDSvc;
   ServiceHandle<IToolSvc> p_toolSvc;
 
-  IOVTime m_curTime{0};
+  //IOVTime m_curTime{0};
 
   typedef IOVSvcCallBackFcn BFCN;
   typedef std::multimap<const SG::DataProxy*, BFCN*>::iterator pmITR;
@@ -235,7 +236,7 @@ private:
   bool m_checkOnce{false};
   bool m_triggered{false};
   bool m_firstEventOfRun{false};
-  bool m_resetAllCallbacks{false};
+  bool m_resetAllCallbacks{false}; 
   std::string m_checkTrigger;
 
   Gaudi::Property<bool> m_preLoadRanges{this, "preLoadRanges", false};
@@ -248,14 +249,16 @@ private:
 
 
   void scanStartSet(startSet &pSet, const std::string &type,
-                    std::set<SG::DataProxy*, SortDPptr> &proxiesToReset);
+                    std::set<SG::DataProxy*, SortDPptr> &proxiesToReset,
+		    const IOVTime& curTime) const;
   void scanStopSet(stopSet &pSet, const std::string &type,
-                   std::set<SG::DataProxy*, SortDPptr> &proxiesToReset);
+                   std::set<SG::DataProxy*, SortDPptr> &proxiesToReset,
+		   const IOVTime& curTime) const;
 
-  void PrintStartSet();
-  void PrintStopSet();
-  void PrintProxyMap();
-  void PrintProxyMap(const SG::DataProxy*);
+  void PrintStartSet() const;
+  void PrintStopSet() const;
+  void PrintProxyMap() const;
+  void PrintProxyMap(const SG::DataProxy*) const;
 
 };
 

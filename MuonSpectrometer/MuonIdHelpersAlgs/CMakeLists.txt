@@ -9,12 +9,12 @@ atlas_subdir( MuonIdHelpersAlgs )
 atlas_add_library( MuonIdHelpersAlgsLib
                    src/*.cxx
                    PUBLIC_HEADERS MuonIdHelpersAlgs
-                   LINK_LIBRARIES AthenaBaseComps Identifier GaudiKernel StoreGateLib SGtests MuonIdHelpersLib
+                   LINK_LIBRARIES AthenaBaseComps Identifier GaudiKernel StoreGateLib MuonIdHelpersLib
                    PRIVATE_LINK_LIBRARIES MuonReadoutGeometry MuonDigitContainer )
 
 atlas_add_component( MuonIdHelpersAlgs
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests Identifier GaudiKernel MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonIdHelpersAlgsLib )
+                     LINK_LIBRARIES AthenaBaseComps StoreGateLib Identifier GaudiKernel MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonIdHelpersAlgsLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

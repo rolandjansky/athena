@@ -1,17 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGEGAMMAHYPO_ITRIGEGAMMAFASTCALOHYPOTOOL_H
 #define TRIGEGAMMAHYPO_ITRIGEGAMMAFASTCALOHYPOTOOL_H 1
 
 #include "GaudiKernel/IAlgTool.h"
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "xAODTrigRinger/TrigRingerRings.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-
-
 
 
 
@@ -32,7 +29,7 @@ class ITrigEgammaFastCaloHypoTool
   FastClusterInfo( TrigCompositeUtils::Decision* d, 
                const TrigRoiDescriptor* r, 
                const xAOD::TrigEMCluster* c,
-	       const xAOD::TrigRingerRings* ring,
+               const xAOD::TrigRingerRings* ring,
                const TrigCompositeUtils::Decision* previousDecision )
   : decision( d ), 
     roi( r ), 
@@ -46,6 +43,8 @@ class ITrigEgammaFastCaloHypoTool
     const TrigRoiDescriptor* roi;
     const xAOD::TrigEMCluster* cluster;
     const xAOD::TrigRingerRings* ringerShape;
+    std::map<std::string, float> valueDecorator;
+    std::map<std::string, bool> pidDecorator;
     const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
   };
   

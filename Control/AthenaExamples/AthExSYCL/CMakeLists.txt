@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Set the name of the package.
 atlas_subdir( AthExSYCL )
@@ -25,3 +25,7 @@ atlas_setup_sycl_target( AthExSYCL )
 
 # Install extra files from the package.
 atlas_install_joboptions( share/*.py )
+
+# Test(s) in the package.
+atlas_add_test( LinearTransformExample
+   SCRIPT athena.py --stdcmalloc AthExSYCL/LinearTransformExample_jobOptions.py )

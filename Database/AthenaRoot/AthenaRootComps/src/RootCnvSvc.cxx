@@ -37,7 +37,7 @@ RootCnvSvc::RootCnvSvc(const std::string& name, ISvcLocator* pSvcLocator) :
 }
 
 StatusCode RootCnvSvc::initialize() {
-  ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
+  ATH_MSG_INFO("Initializing " << name());
   if (!::AthCnvSvc::initialize().isSuccess()) {
     ATH_MSG_FATAL("Cannot initialize ConversionSvc base class.");
     return StatusCode::FAILURE;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /// This code is used in both MT and single-thread
@@ -11,12 +11,44 @@
 
 #include "MuonRPC_CnvTools/IRPC_RDO_Decoder.h"
 #include "MuonTrigCoinData/RpcCoinDataContainer.h"
+#include "MuonCnvToolInterfaces/IDC_Helper.h"
+
+
+namespace {
+
+
+using namespace Muon;
+
+
+template <class CONT, class COLL>
+struct ATLAS_NOT_THREAD_SAFE GetCollection
+{
+  GetCollection (const RpcIdHelper& idHelper,
+                 CONT* container,
+                 MsgStream& msg)
+  : m_idHelper (idHelper),
+    m_container (container),
+    m_msg (msg)
+    {}
+
+  COLL* operator() (Identifier id)
+  {
+    return Muon::IDC_Helper::getCollection<CONT, RpcIdHelper>
+      (id, m_container, m_idHelper, m_msg);
+  }
+
+  const RpcIdHelper& m_idHelper;
+  CONT* m_container;
+  MsgStream& m_msg;
+};
+
+
+} // anonymous namespace
 
 
 Muon::RpcRdoToPrepDataTool::RpcRdoToPrepDataTool( const std::string& type, const std::string& name,
 						  const IInterface* parent ) 
-  : AthAlgTool( type, name, parent ),
-    RpcRdoToPrepDataToolCore( type, name, parent )
+  : base_class( type, name, parent )
 {
 }
 
@@ -28,7 +60,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::RpcRdoToPrepDataTool::manageOutputContainers(bool& firstTimeInTheEvent)
+StatusCode Muon::RpcRdoToPrepDataTool::manageOutputContainers(bool& firstTimeInTheEvent) const
 {
   SG::WriteHandle< Muon::RpcPrepDataContainer > rpcPrepDataHandle(m_rpcPrepDataContainerKey);
   if(!rpcPrepDataHandle.isPresent()) {
@@ -40,7 +72,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::manageOutputContainers(bool& firstTimeInT
       ATH_MSG_FATAL("Could not record container of RPC PrepData Container at " << m_rpcPrepDataContainerKey.key());
       return status;
     } else {
-      m_rpcPrepDataContainer = rpcPrepDataHandle.ptr();
+      m_state.m_rpcPrepDataContainer = rpcPrepDataHandle.ptr();
       ATH_MSG_DEBUG("RPC PrepData Container recorded in StoreGate with key " << m_rpcPrepDataContainerKey.key() << ", " << rpcPrepDataHandle.key());
     }
 
@@ -53,19 +85,19 @@ StatusCode Muon::RpcRdoToPrepDataTool::manageOutputContainers(bool& firstTimeInT
         ATH_MSG_FATAL("Could not record container of RPC TrigCoinData Container at " << m_rpcCoinDataContainerKey.key());
         return status;
       } else {
-        m_rpcCoinDataContainer = rpcCoinDataHandle.ptr();
+        m_state.m_rpcCoinDataContainer = rpcCoinDataHandle.ptr();
 	ATH_MSG_DEBUG("RPC TrigCoinData Container recorded in StoreGate with key " << m_rpcCoinDataContainerKey.key());
       }      
       ATH_MSG_VERBOSE(" RpcCoinDataContainer created");
     } 
-    m_decodedOfflineHashIds.clear();
-    m_decodedRobIds.clear();
+    m_state.m_decodedOfflineHashIds.clear();
+    m_state.m_decodedRobIds.clear();
 
   }
   else{
     const Muon::RpcPrepDataContainer* rpcPrepDataContainer_c;
     ATH_CHECK( evtStore()->retrieve (rpcPrepDataContainer_c, m_rpcPrepDataContainerKey.key()) );
-    m_rpcPrepDataContainer = const_cast<Muon::RpcPrepDataContainer*> (rpcPrepDataContainer_c);
+    m_state.m_rpcPrepDataContainer = const_cast<Muon::RpcPrepDataContainer*> (rpcPrepDataContainer_c);
     ATH_MSG_DEBUG("RPC PrepData Container is already in StoreGate ");
     if (m_producePRDfromTriggerWords){
       SG::WriteHandle< Muon::RpcCoinDataContainer > rpcCoinDataHandle(m_rpcCoinDataContainerKey);
@@ -75,23 +107,37 @@ StatusCode Muon::RpcRdoToPrepDataTool::manageOutputContainers(bool& firstTimeInT
       }
       const Muon::RpcCoinDataContainer* rpcCoinDataContainer_c;
       ATH_CHECK( evtStore()->retrieve (rpcCoinDataContainer_c, m_rpcCoinDataContainerKey.key()) );
-      m_rpcCoinDataContainer = const_cast<Muon::RpcCoinDataContainer*> (rpcCoinDataContainer_c);
+      m_state.m_rpcCoinDataContainer = const_cast<Muon::RpcCoinDataContainer*> (rpcCoinDataContainer_c);
       ATH_MSG_DEBUG("RPC CoinData Container is already in StoreGate ");
     }
   }
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::RpcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect ){
+StatusCode Muon::RpcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect ) const
+{
+  bool firstTimeInTheEvent=false;
+  ATH_CHECK( manageOutputContainers (firstTimeInTheEvent) );
+
+  // In principle, these could be written as lambdas.
+  // But we need gcc10 to be able to declare lambdas as not thread-safe.
+  getPrepCollection_func getPrepCollection = GetCollection<RpcPrepDataContainer, RpcPrepDataCollection>
+    (m_idHelperSvc->rpcIdHelper(), m_state.m_rpcPrepDataContainer, msg());
+  getCoinCollection_func getCoinCollection = GetCollection<RpcCoinDataContainer, RpcCoinDataCollection>
+    (m_idHelperSvc->rpcIdHelper(), m_state.m_rpcCoinDataContainer, msg());
+
   ATH_MSG_DEBUG("Calling Core decode function from Legacy decode function (hash vector)");
-  StatusCode status = Muon::RpcRdoToPrepDataToolCore::decode( idVect, selectedIdVect );
+  StatusCode status = decodeImpl( m_state,
+                                  getPrepCollection,
+                                  getCoinCollection,
+                                  idVect, selectedIdVect, firstTimeInTheEvent );
   if (status.isFailure()){
     ATH_MSG_FATAL("Error processing Core decode from Legacy (hash vector)");
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG("Core decode processed in Legacy decode (hash vector)");
   if (msgLvl(MSG::DEBUG)){
-     for (const auto &[hash, ptr] : m_rpcPrepDataContainer->GetAllHashPtrPair()){
+     for (const auto &[hash, ptr] : m_state.m_rpcPrepDataContainer->GetAllHashPtrPair()){
        ATH_MSG_DEBUG("Contents of CONTAINER in this view : " << hash);
      }
   }
@@ -101,16 +147,30 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVe
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::RpcRdoToPrepDataTool::decode( const std::vector<uint32_t>& robIds ){
+StatusCode Muon::RpcRdoToPrepDataTool::decode( const std::vector<uint32_t>& robIds ) const
+{
+  bool firstTimeInTheEvent=false;
+  ATH_CHECK( manageOutputContainers (firstTimeInTheEvent) );
+
+  // In principle, these could be written as lambdas.
+  // But we need gcc10 to be able to declare lambdas as not thread-safe.
+  getPrepCollection_func getPrepCollection = GetCollection<RpcPrepDataContainer, RpcPrepDataCollection>
+    (m_idHelperSvc->rpcIdHelper(), m_state.m_rpcPrepDataContainer, msg());
+  getCoinCollection_func getCoinCollection = GetCollection<RpcCoinDataContainer, RpcCoinDataCollection>
+    (m_idHelperSvc->rpcIdHelper(), m_state.m_rpcCoinDataContainer, msg());
+
   ATH_MSG_DEBUG("Calling Core decode function from Legacy decode function (ROB vector)");
-  StatusCode status = Muon::RpcRdoToPrepDataToolCore::decode( robIds );
+  StatusCode status = decodeImpl( m_state,
+                                  getPrepCollection,
+                                  getCoinCollection,
+                                  robIds, firstTimeInTheEvent );
   if (status.isFailure()){
     ATH_MSG_FATAL("Error processing Core decode from Legacy (ROB vector)");
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG("Core decode processed in Legacy decode (ROB vector)");
   if (msgLvl(MSG::DEBUG)){
-     for (const auto &[hash, ptr] : m_rpcPrepDataContainer->GetAllHashPtrPair()){
+     for (const auto &[hash, ptr] : m_state.m_rpcPrepDataContainer->GetAllHashPtrPair()){
        ATH_MSG_DEBUG("Contents of CONTAINER in this view : " << hash);
      }
   }
@@ -118,4 +178,11 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( const std::vector<uint32_t>& robI
   //  Muon::RpcRdoToPrepDataToolCore::printPrepData();
 
   return StatusCode::SUCCESS;
+}
+
+
+void Muon::RpcRdoToPrepDataTool::printPrepData() const
+{
+  printPrepDataImpl(*m_state.m_rpcPrepDataContainer,
+                    *m_state.m_rpcCoinDataContainer);
 }

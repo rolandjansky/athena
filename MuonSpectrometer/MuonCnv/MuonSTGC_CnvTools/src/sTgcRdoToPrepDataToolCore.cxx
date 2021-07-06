@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTgcRdoToPrepDataToolCore.h"
@@ -12,12 +12,8 @@ using namespace Trk;
 using namespace Muon;
 
 Muon::sTgcRdoToPrepDataToolCore::sTgcRdoToPrepDataToolCore(const std::string& t, const std::string& n, const IInterface* p) :
-  AthAlgTool(t,n,p),
-  m_fullEventDone(false),
-  m_stgcPrepDataContainer(0)
+  base_class(t,n,p)
 {
-  declareInterface<Muon::IMuonRdoToPrepDataTool>(this);
-  
   //  template for property decalration
   declareProperty("OutputCollection",    m_stgcPrepDataContainerKey = std::string("STGC_Measurements"),
 		  "Muon::sTgcPrepDataContainer to record");
@@ -38,7 +34,8 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(const STGC_RawDataCollection *rdoColl, std::vector<IdentifierHash>& idWithDataVect)
+StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(Muon::sTgcPrepDataContainer* stgcPrepDataContainer,
+                                                              const STGC_RawDataCollection *rdoColl, std::vector<IdentifierHash>& idWithDataVect) const
 {
 
   const IdentifierHash hash = rdoColl->identifyHash();
@@ -48,7 +45,7 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(const STGC_RawData
   sTgcPrepDataCollection* prdColl = nullptr;
   
   // check if the collection already exists, otherwise add it
-  if ( m_stgcPrepDataContainer->indexFindPtr(hash) != nullptr ) {
+  if ( stgcPrepDataContainer->indexFindPtr(hash) != nullptr ) {
 
     ATH_MSG_DEBUG("In processCollection: collection already contained in the MM PrepData container");
     return StatusCode::FAILURE;
@@ -68,7 +65,7 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(const STGC_RawData
       prdColl->setIdentifier(moduleId);
     }
 
-    if (StatusCode::SUCCESS != m_stgcPrepDataContainer->addCollection(prdColl, hash)) {
+    if (StatusCode::SUCCESS != stgcPrepDataContainer->addCollection(prdColl, hash)) {
       ATH_MSG_DEBUG("In processCollection - Couldn't record in the Container MM Collection with hashID = "
 		    << (int)hash );
       return StatusCode::FAILURE;
@@ -163,9 +160,9 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(const STGC_RawData
 
     double resolution = width/sqrt(12.); 
 
-    Amg::MatrixX* cov = new Amg::MatrixX(1,1);
-    cov->setIdentity();
-    (*cov)(0,0) = resolution*resolution;  
+    auto cov = Amg::MatrixX(1,1);
+    cov.setIdentity();
+    (cov)(0,0) = resolution*resolution;  
 
     ATH_MSG_DEBUG("Adding a new STGC PRD, gasGap: " << gasGap << " channel: " << channel << " type: " << channelType << " resolution " << resolution );
 
@@ -270,28 +267,7 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(const STGC_RawData
 }
 
 
-Muon::sTgcRdoToPrepDataToolCore::SetupSTGC_PrepDataContainerStatus Muon::sTgcRdoToPrepDataToolCore::setupSTGC_PrepDataContainer() 
-{
-
-  if(!evtStore()->contains<Muon::sTgcPrepDataContainer>(m_stgcPrepDataContainerKey.key())){    
-    m_fullEventDone=false;
-    
-    SG::WriteHandle< Muon::sTgcPrepDataContainer > handle(m_stgcPrepDataContainerKey);
-    StatusCode status = handle.record(std::make_unique<Muon::sTgcPrepDataContainer>(m_idHelperSvc->stgcIdHelper().module_hash_max()));
-    
-    if (status.isFailure() || !handle.isValid() )   {
-      ATH_MSG_FATAL("Could not record container of STGC PrepData Container at " << m_stgcPrepDataContainerKey.key()); 
-      return FAILED;
-    }
-    m_stgcPrepDataContainer = handle.ptr();
-    return ADDED;
-    
-  }
-  return ALREADYCONTAINED;
-}
-
-
-const STGC_RawDataContainer* Muon::sTgcRdoToPrepDataToolCore::getRdoContainer() {
+const STGC_RawDataContainer* Muon::sTgcRdoToPrepDataToolCore::getRdoContainer() const {
 
   auto rdoContainerHandle  = SG::makeHandle(m_rdoContainerKey);
   if(rdoContainerHandle.isValid()) {
@@ -304,7 +280,8 @@ const STGC_RawDataContainer* Muon::sTgcRdoToPrepDataToolCore::getRdoContainer() 
 }
 
 
-void Muon::sTgcRdoToPrepDataToolCore::processRDOContainer( std::vector<IdentifierHash>& idWithDataVect ) 
+void Muon::sTgcRdoToPrepDataToolCore::processRDOContainer( Muon::sTgcPrepDataContainer* stgcPrepDataContainer,
+                                                           std::vector<IdentifierHash>& idWithDataVect ) const
 {
 
 
@@ -321,7 +298,7 @@ void Muon::sTgcRdoToPrepDataToolCore::processRDOContainer( std::vector<Identifie
     if (rdoColl->empty()) continue;
     ATH_MSG_DEBUG("New RDO collection with " << rdoColl->size() << "STGC Hits");
 
-    if(processCollection(rdoColl, idWithDataVect).isFailure()) {
+    if(processCollection(stgcPrepDataContainer, rdoColl, idWithDataVect).isFailure()) {
       ATH_MSG_DEBUG("processCsm returns a bad StatusCode - keep going for new data collections in this event");
     }
   } 
@@ -333,33 +310,26 @@ void Muon::sTgcRdoToPrepDataToolCore::processRDOContainer( std::vector<Identifie
 
 // methods for ROB-based decoding
 StatusCode Muon::sTgcRdoToPrepDataToolCore::decode( std::vector<IdentifierHash>& idVect, 
-						std::vector<IdentifierHash>& idWithDataVect )
+                                                    std::vector<IdentifierHash>& idWithDataVect ) const
 {
 
   ATH_MSG_DEBUG("Size of the input hash id vector: " << idVect.size());
 
   // clear the output vector of selected data
   idWithDataVect.clear();
-  
-  SetupSTGC_PrepDataContainerStatus containerRecordStatus = setupSTGC_PrepDataContainer();
 
-  if ( containerRecordStatus == FAILED ) {
+  Muon::sTgcPrepDataContainer* stgcPrepDataContainer = setupSTGC_PrepDataContainer();
+
+  if ( stgcPrepDataContainer == nullptr ) {
     return StatusCode::FAILURE;
   } 
 
-  processRDOContainer(idWithDataVect);
-
-  // check if the full event has already been decoded
-  if ( m_fullEventDone ) {
-    ATH_MSG_DEBUG ("Full event dcoded, nothing to do");
-    return StatusCode::SUCCESS;
-  } 
-
+  processRDOContainer(stgcPrepDataContainer, idWithDataVect);
 
   return StatusCode::SUCCESS;
 } 
 
-StatusCode Muon::sTgcRdoToPrepDataToolCore::decode( const std::vector<uint32_t>& robIds )
+StatusCode Muon::sTgcRdoToPrepDataToolCore::decode( const std::vector<uint32_t>& robIds ) const
 {
 
   ATH_MSG_DEBUG("Size of the robIds" << robIds.size() );
@@ -368,14 +338,14 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::decode( const std::vector<uint32_t>&
 }
 
 // printout methods
-void Muon::sTgcRdoToPrepDataToolCore::printInputRdo() {
+void Muon::sTgcRdoToPrepDataToolCore::printInputRdo() const {
 
 
   return;
 }
 
 
-void Muon::sTgcRdoToPrepDataToolCore::printPrepData() {
+void Muon::sTgcRdoToPrepDataToolCore::printPrepData() const {
 
 
   return;

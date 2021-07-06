@@ -278,7 +278,7 @@ StatusCode Trk::TrackDiff::diff (
         bool foundMatchingState = false;
         //bool foundDiff = false;
         // cache the pointer to reference PRD, so we do not have get it again and again
-        const Trk::PrepRawData* refPRD = 0;
+        const Trk::PrepRawData* refPRD = nullptr;
         if ((*refIter)->rot()) {
             refPRD = (*refIter)->rot()->prepRawData();
         }
@@ -312,7 +312,7 @@ StatusCode Trk::TrackDiff::diff (
         if (!foundMatchingState) {
             // we have a state in the reference, which is not contained in the
             // compared track!
-            diffStateInfo((*refIter), 0);
+            diffStateInfo((*refIter), nullptr);
         } else {
             diffStateInfo((*refIter), (*compIter));
             // drop the compared track state from our list:
@@ -324,7 +324,7 @@ StatusCode Trk::TrackDiff::diff (
     // loop over the remaining compared states: They are fakes
     compIter = compareTrackStateData->begin();
     for (; compIter != compareTrackStateData->end(); compIter++) {
-        diffStateInfo(0, (*compIter));
+        diffStateInfo(nullptr, (*compIter));
     }
     // -----------------------
     // output some statistics:
@@ -356,7 +356,7 @@ DataVector< const Trk::TrackStateData >* Trk::TrackDiff::extractDataFromTrack( c
     const DataVector<const Trk::TrackStateOnSurface>* trackStates = track.trackStateOnSurfaces();
     if (!trackStates) {
       ATH_MSG_ERROR ( "track containes no track states, diff impossible" );
-      return 0;
+      return nullptr;
     }
 
     // create the vector of extracted data

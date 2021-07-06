@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOREC_CALOTOPOTOWERALGORITHM_H
@@ -87,8 +87,6 @@ class CaloTopoTowerAlgorithm : public AthReentrantAlgorithm
   bool   m_useCellWeights;
 
   // Noise tool stuff
-  bool m_useNoiseTool;
-  bool m_usePileUpNoise;
   float m_noiseSigma;
   float m_cellESignificanceThreshold;
 

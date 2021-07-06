@@ -15,7 +15,7 @@ from __future__ import print_function
 from functools import reduce
 import sys,re
 
-from utils.AtlRunQueryLookup import InitDetectorMaskDecoder, DecodeDetectorMask, DQChannels
+from CoolRunQuery.utils.AtlRunQueryLookup import InitDetectorMaskDecoder, DecodeDetectorMask, DQChannels
 
 from DQDefects import DefectsDB
 
@@ -67,7 +67,7 @@ class ArgumentParser:
                            "release":    ("rel(ease)",   "release", self.InterpretString, self.ShowWithArg, 
                                           'rel(ease)     [format: "release 15.1.*" ',""),
                            "projectTag": ("ptag",        "projecttag",self.InterpretString, self.ShowVariable, 
-                                          'ptag          [format: "ptag data08_cos,data08_cosmag,data09_cos", "ptag data08_cos*,data09_cos" (note: the projectTag in dataset name / denoted "filenamtTag" in COOL)]',"data0*,data1*"),
+                                          'ptag          [format: "ptag data08_cos,data08_cosmag,data09_cos", "ptag data08_cos*,data09_cos" (note: the projectTag in dataset name / denoted "filenamtTag" in COOL)]',"data0*,data1*,data2*"),
                            "partition":  ("p(artition)", "partition", self.InterpretString, self.ShowVariable, 
                                           'p(artition)   [format: "partition ATLAS"]', "ATLAS"),
                            "readyforphysics":  ("ready(forphysics)", "readyforphysics", self.InterpretString, self.ShowVariable, 
@@ -156,7 +156,7 @@ class ArgumentParser:
         """
         arg = arg.split(None,1)[1] # remove keyword 'run'
 
-        from .AtlRunQueryInterpretDataPeriods import GetRuns
+        from CoolRunQuery.AtlRunQueryInterpretDataPeriods import GetRuns
 
         list_of_runs = GetRuns(arg)
                 

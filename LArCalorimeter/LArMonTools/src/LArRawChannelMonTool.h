@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARMONTOOLS_LARRAWCHANNELMONTOOL_H
@@ -17,10 +17,11 @@
 #include "AthenaMonitoring/DQAtlasReadyFilterTool.h"
 //#include "AthenaMonitoring/IDQFilterTool.h"
 #include "CaloIdentifier/CaloIdManager.h"
-#include "CaloInterface/ICaloNoiseTool.h"
 #include "LArCabling/LArCablingLegacyService.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
+#include "LArRecConditions/LArBadChannelMask.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 // --- boost ---
 #include <boost/shared_ptr.hpp>
@@ -43,6 +44,7 @@ class TProfile2D_LW;
 class TH2F_LW;
 class TH1I_LW;
 class LWHist;
+class CaloNoise;
 
 //! A monitor for the LArg's Raw Channels
 /*!
@@ -68,9 +70,7 @@ class LArRawChannelMonTool: public ManagedMonitorToolBase
 
   //! Connects to services and tools
   /*!
-    The LArOnlineID and LArCablingService are retrieved. The
-    CaloNoiseTool and LArBadChannelMasker configurables are also
-    retrieved. The LArOnlineIDStrHelper is instantiated. Mapping
+    The LArOnlineID and LArCablingService are retrieved. Mapping
     from FEB hash to feedthrough hash, from FEB hash to sub-detector, and
     from superslot (Halfcrate+slot number) to sparcified axis bin are
     created.
@@ -112,7 +112,6 @@ class LArRawChannelMonTool: public ManagedMonitorToolBase
  private:
 
   // --- Job Option Variables ---
-  bool m_useElecNoiseOnly;
   bool m_monitor_occupancy;
   bool m_monitor_signal;
   bool m_monitor_positive_noise;
@@ -150,8 +149,14 @@ class LArRawChannelMonTool: public ManagedMonitorToolBase
   const CaloIdManager       *m_calo_id_mgr_ptr; //!< offline calo structure
 
   ToolHandle<LArCablingLegacyService>    m_cable_service_tool;//!< LAr connections
-  ToolHandle<ICaloNoiseTool>       m_calo_noise_tool;   //!< Calorimeter noise
-  ToolHandle<ILArBadChannelMasker> m_masking_tool;      //!< LAr Masking
+
+ /** Handle to bad-channel mask */
+  LArBadChannelMask m_bcMask;
+  SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
+  Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{}, "Bad-Channel categories to mask"}; 
+  
+  SG::ReadCondHandleKey<CaloNoise> m_noiseKey
+    { this, "NoiseKey", "totalNoise", "SG key for noise" };
 
   // -- for ATLAS Ready Filter
   bool isATLASReady() { return m_atlas_ready; }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef StripGeoModelXml_STRIPDETECTORFACTORY_H 
@@ -10,7 +10,7 @@
 // 
 #include "InDetGeoModelUtils/InDetDetectorFactoryBase.h" 
 #include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
-#include "StripGeoModelXml/WaferTree.h"
+#include "InDetGeoModelUtils/WaferTree.h"
 
 namespace InDetDD {class AthenaComps; class SiCommonItems;}
 class GeoPhysVol;

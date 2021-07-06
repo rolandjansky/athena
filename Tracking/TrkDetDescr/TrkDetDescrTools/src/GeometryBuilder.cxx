@@ -117,13 +117,6 @@ StatusCode Trk::GeometryBuilder::initialize()
     return StatusCode::SUCCESS;
 }
 
-// finalize
-StatusCode Trk::GeometryBuilder::finalize()
-{
-    ATH_MSG_DEBUG( "finalize() successful." );
-    return StatusCode::SUCCESS;
-}
-
 
 const Trk::TrackingGeometry* Trk::GeometryBuilder::trackingGeometry(const Trk::TrackingVolume*) const
 {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArNoisyROTool.cxx 
@@ -158,7 +158,7 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
 
   // loop on all FEBs and check whether FEB can be declared as bad for the different type of flags:
   // regular noise burst, weighted noise burst, MNB tight and loose
-  for ( FEBEvtStatMapCstIt it = FEBStats.begin(); it != FEBStats.end(); it++ ) {
+  for ( FEBEvtStatMapCstIt it = FEBStats.begin(); it != FEBStats.end(); ++it ) {
     ATH_MSG_DEBUG(" bad FEB " << it->first << " with " << it->second.badChannels() << " bad channels");
     if ( it->second.badChannels() > m_BadChanPerFEB ) {
       noisyRO->add_noisy_feb(HWIdentifier(it->first));

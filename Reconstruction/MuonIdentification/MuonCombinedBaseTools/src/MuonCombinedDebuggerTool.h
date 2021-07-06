@@ -5,138 +5,131 @@
 #ifndef MUONCOMBINEDBASETOOLS_MUONCOMBINEDDEBUGGERTOOL_H
 #define MUONCOMBINEDBASETOOLS_MUONCOMBINEDDEBUGGERTOOL_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-
-#include "MuonCombinedEvent/MuonCandidateCollection.h"
-#include "MuonCombinedEvent/InDetCandidateCollection.h"
-#include "CxxUtils/checker_macros.h"
-#include "GaudiKernel/ITHistSvc.h"
-#include "TrkToolInterfaces/ITruthToTrack.h"
-#include "MuidInterfaces/IMuonMatchQuality.h"
-
 #include <string>
 #include <vector>
+
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "CxxUtils/checker_macros.h"
+#include "GaudiKernel/ITHistSvc.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "MuidInterfaces/IMuonMatchQuality.h"
+#include "MuonCombinedEvent/InDetCandidateCollection.h"
+#include "MuonCombinedEvent/MuonCandidateCollection.h"
+#include "TrkToolInterfaces/ITruthToTrack.h"
 
 class TTree;
 
 namespace MuonCombined {
 
-  static const InterfaceID IID_MuonCombinedDebuggerTool("MuonCombined::MuonCombinedDebuggerTool", 1, 0);
+    class MuonCombinedDebuggerTool : public AthAlgTool  // the MuonCombinedDebuggerTool can only be used when running with one thread
+    {
+    public:
+        MuonCombinedDebuggerTool(const std::string& type, const std::string& name, const IInterface* parent);
+        ~MuonCombinedDebuggerTool() = default;
 
-  class ATLAS_NOT_THREAD_SAFE MuonCombinedDebuggerTool: public AthAlgTool // the MuonCombinedDebuggerTool can only be used when running with one thread
-  {
-    
-  public:
-    MuonCombinedDebuggerTool(const std::string& type, const std::string& name, const IInterface* parent);
-    ~MuonCombinedDebuggerTool()=default;
+        static const InterfaceID& interfaceID() {
+            static const InterfaceID IID_MuonCombinedDebuggerTool("MuonCombined::MuonCombinedDebuggerTool", 1, 0);
+            return IID_MuonCombinedDebuggerTool;
+        }
 
-    static const InterfaceID& interfaceID() {return IID_MuonCombinedDebuggerTool;}
-  
-    StatusCode initialize();
+        StatusCode initialize() override;
 
-    void bookBranches();
+        void fillBranches(const MuonCandidateCollection& muonCandidates, const InDetCandidateCollection& inDetCandidates);
 
-    void fillBranches(const MuonCandidateCollection& muonCandidates, 
-		      const InDetCandidateCollection& inDetCandidates) const;
-    
-    void fillMsIdBranches(const MuonCandidateCollection& muonCandidates, 
-			  const InDetCandidateCollection& inDetCandidates) const;
+        void fillMsIdBranches(const MuonCandidateCollection& muonCandidates, const InDetCandidateCollection& inDetCandidates);
 
-    void fillIdBranches(const InDetCandidateCollection& inDetCandidates) const;
+        void fillIdBranches(const InDetCandidateCollection& inDetCandidates);
 
-    void fillMsBranches(const MuonCandidateCollection& muonCandidates) const;
+        void fillMsBranches(const MuonCandidateCollection& muonCandidates);
 
-  private:
+    private:
+        void bookBranches();
 
-    ToolHandle<Rec::IMuonMatchQuality> m_matchQuality {this, "MuonMatchQuality", "Rec::MuonMatchQuality/MuonMatchQuality"};
-    ToolHandle<Trk::ITruthToTrack> m_truthToTrack {this, "TruthToTrack", "Trk::TruthToTrack/TruthToTrack"};
+        ToolHandle<Rec::IMuonMatchQuality> m_matchQuality{this, "MuonMatchQuality", "Rec::MuonMatchQuality/MuonMatchQuality"};
+        ToolHandle<Trk::ITruthToTrack> m_truthToTrack{this, "TruthToTrack", "Trk::TruthToTrack/TruthToTrack"};
 
-    ServiceHandle<ITHistSvc> m_histSvc;
+        ServiceHandle<ITHistSvc> m_histSvc;
 
-    TTree* m_recoTree;
-    mutable int m_eventNumber;
+        TTree* m_recoTree;
+        int m_eventNumber{};
 
-    mutable std::vector<int>    m_mstrack_has_truth;
-    mutable std::vector<int>    m_mstrack_has_truth_par;
-    mutable std::vector<int>    m_mstrack_truth_id;
-    mutable std::vector<int>    m_mstrack_truth_barcode;
-    mutable std::vector<double> m_mstrack_truth_sur_x;
-    mutable std::vector<double> m_mstrack_truth_sur_y;
-    mutable std::vector<double> m_mstrack_truth_sur_z;
-    mutable std::vector<double> m_mstrack_truth_d0;
-    mutable std::vector<double> m_mstrack_truth_z0;
-    mutable std::vector<double> m_mstrack_truth_phi0;
-    mutable std::vector<double> m_mstrack_truth_theta;
-    mutable std::vector<double> m_mstrack_truth_qOverP;
+        std::vector<int> m_mstrack_has_truth;
+        std::vector<int> m_mstrack_has_truth_par;
+        std::vector<int> m_mstrack_truth_id;
+        std::vector<int> m_mstrack_truth_barcode;
+        std::vector<double> m_mstrack_truth_sur_x;
+        std::vector<double> m_mstrack_truth_sur_y;
+        std::vector<double> m_mstrack_truth_sur_z;
+        std::vector<double> m_mstrack_truth_d0;
+        std::vector<double> m_mstrack_truth_z0;
+        std::vector<double> m_mstrack_truth_phi0;
+        std::vector<double> m_mstrack_truth_theta;
+        std::vector<double> m_mstrack_truth_qOverP;
 
-    mutable std::vector<double> m_mstrack_sur_x;
-    mutable std::vector<double> m_mstrack_sur_y;
-    mutable std::vector<double> m_mstrack_sur_z;
-    mutable std::vector<double> m_mstrack_d0;
-    mutable std::vector<double> m_mstrack_z0;
-    mutable std::vector<double> m_mstrack_phi0;
-    mutable std::vector<double> m_mstrack_theta;
-    mutable std::vector<double> m_mstrack_qOverP;
-    mutable std::vector<double> m_mstrack_cov_d0;
-    mutable std::vector<double> m_mstrack_cov_z0;
-    mutable std::vector<double> m_mstrack_cov_phi0;
-    mutable std::vector<double> m_mstrack_cov_theta;
-    mutable std::vector<double> m_mstrack_cov_qOverP;
+        std::vector<double> m_mstrack_sur_x;
+        std::vector<double> m_mstrack_sur_y;
+        std::vector<double> m_mstrack_sur_z;
+        std::vector<double> m_mstrack_d0;
+        std::vector<double> m_mstrack_z0;
+        std::vector<double> m_mstrack_phi0;
+        std::vector<double> m_mstrack_theta;
+        std::vector<double> m_mstrack_qOverP;
+        std::vector<double> m_mstrack_cov_d0;
+        std::vector<double> m_mstrack_cov_z0;
+        std::vector<double> m_mstrack_cov_phi0;
+        std::vector<double> m_mstrack_cov_theta;
+        std::vector<double> m_mstrack_cov_qOverP;
 
-    mutable std::vector<int>    m_mstrack_has_sa;
-    mutable std::vector<double> m_mstrack_sa_sur_x;
-    mutable std::vector<double> m_mstrack_sa_sur_y;
-    mutable std::vector<double> m_mstrack_sa_sur_z;
-    mutable std::vector<double> m_mstrack_sa_d0;
-    mutable std::vector<double> m_mstrack_sa_z0;
-    mutable std::vector<double> m_mstrack_sa_phi0;
-    mutable std::vector<double> m_mstrack_sa_theta;
-    mutable std::vector<double> m_mstrack_sa_qOverP;
-    mutable std::vector<double> m_mstrack_sa_cov_d0;
-    mutable std::vector<double> m_mstrack_sa_cov_z0;
-    mutable std::vector<double> m_mstrack_sa_cov_phi0;
-    mutable std::vector<double> m_mstrack_sa_cov_theta;
-    mutable std::vector<double> m_mstrack_sa_cov_qOverP;
+        std::vector<int> m_mstrack_has_sa;
+        std::vector<double> m_mstrack_sa_sur_x;
+        std::vector<double> m_mstrack_sa_sur_y;
+        std::vector<double> m_mstrack_sa_sur_z;
+        std::vector<double> m_mstrack_sa_d0;
+        std::vector<double> m_mstrack_sa_z0;
+        std::vector<double> m_mstrack_sa_phi0;
+        std::vector<double> m_mstrack_sa_theta;
+        std::vector<double> m_mstrack_sa_qOverP;
+        std::vector<double> m_mstrack_sa_cov_d0;
+        std::vector<double> m_mstrack_sa_cov_z0;
+        std::vector<double> m_mstrack_sa_cov_phi0;
+        std::vector<double> m_mstrack_sa_cov_theta;
+        std::vector<double> m_mstrack_sa_cov_qOverP;
 
-    mutable std::vector<int>    m_idtrack_has_truth;
-    mutable std::vector<int>    m_idtrack_has_truth_par;
-    mutable std::vector<int>    m_idtrack_truth_id;
-    mutable std::vector<int>    m_idtrack_truth_barcode;
-    mutable std::vector<double> m_idtrack_truth_sur_x;
-    mutable std::vector<double> m_idtrack_truth_sur_y;
-    mutable std::vector<double> m_idtrack_truth_sur_z;
-    mutable std::vector<double> m_idtrack_truth_d0;
-    mutable std::vector<double> m_idtrack_truth_z0;
-    mutable std::vector<double> m_idtrack_truth_phi0;
-    mutable std::vector<double> m_idtrack_truth_theta;
-    mutable std::vector<double> m_idtrack_truth_qOverP;
+        std::vector<int> m_idtrack_has_truth;
+        std::vector<int> m_idtrack_has_truth_par;
+        std::vector<int> m_idtrack_truth_id;
+        std::vector<int> m_idtrack_truth_barcode;
+        std::vector<double> m_idtrack_truth_sur_x;
+        std::vector<double> m_idtrack_truth_sur_y;
+        std::vector<double> m_idtrack_truth_sur_z;
+        std::vector<double> m_idtrack_truth_d0;
+        std::vector<double> m_idtrack_truth_z0;
+        std::vector<double> m_idtrack_truth_phi0;
+        std::vector<double> m_idtrack_truth_theta;
+        std::vector<double> m_idtrack_truth_qOverP;
 
-    mutable std::vector<double> m_idtrack_sur_x;
-    mutable std::vector<double> m_idtrack_sur_y;
-    mutable std::vector<double> m_idtrack_sur_z;
-    mutable std::vector<double> m_idtrack_d0;
-    mutable std::vector<double> m_idtrack_z0;
-    mutable std::vector<double> m_idtrack_phi0;
-    mutable std::vector<double> m_idtrack_theta;
-    mutable std::vector<double> m_idtrack_qOverP;
-    mutable std::vector<double> m_idtrack_cov_d0;
-    mutable std::vector<double> m_idtrack_cov_z0;
-    mutable std::vector<double> m_idtrack_cov_phi0;
-    mutable std::vector<double> m_idtrack_cov_theta;
-    mutable std::vector<double> m_idtrack_cov_qOverP;
+        std::vector<double> m_idtrack_sur_x;
+        std::vector<double> m_idtrack_sur_y;
+        std::vector<double> m_idtrack_sur_z;
+        std::vector<double> m_idtrack_d0;
+        std::vector<double> m_idtrack_z0;
+        std::vector<double> m_idtrack_phi0;
+        std::vector<double> m_idtrack_theta;
+        std::vector<double> m_idtrack_qOverP;
+        std::vector<double> m_idtrack_cov_d0;
+        std::vector<double> m_idtrack_cov_z0;
+        std::vector<double> m_idtrack_cov_phi0;
+        std::vector<double> m_idtrack_cov_theta;
+        std::vector<double> m_idtrack_cov_qOverP;
 
-    mutable std::vector<std::vector<double> > m_ms_id_ochi2;
-    mutable std::vector<std::vector<int> >    m_ms_id_ondf;
-    mutable std::vector<std::vector<double> > m_ms_id_oprob;
-    mutable std::vector<std::vector<double> > m_ms_id_ichi2;
-    mutable std::vector<std::vector<int> >    m_ms_id_indf;
-    mutable std::vector<std::vector<double> > m_ms_id_iprob;
-    
-  };
+        std::vector<std::vector<double> > m_ms_id_ochi2;
+        std::vector<std::vector<int> > m_ms_id_ondf;
+        std::vector<std::vector<double> > m_ms_id_oprob;
+        std::vector<std::vector<double> > m_ms_id_ichi2;
+        std::vector<std::vector<int> > m_ms_id_indf;
+        std::vector<std::vector<double> > m_ms_id_iprob;
+    };
 
-}	// end of namespace
+}  // namespace MuonCombined
 
 #endif
-
-

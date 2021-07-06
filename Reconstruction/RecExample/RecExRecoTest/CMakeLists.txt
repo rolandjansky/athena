@@ -7,5 +7,8 @@ atlas_subdir( RecExRecoTest )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( test/*.sh )
 
+#Make test scripts available
+atlas_install_scripts( test/test*.sh )
+
 atlas_install_scripts( test/MetaDataTest.py )
 atlas_add_alias( metadata-test "MetaDataTest.py" )

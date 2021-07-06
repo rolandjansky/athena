@@ -15,6 +15,7 @@ namespace LVL1MUONIF {
       : 
     m_2candidatesInSector ( false ), 
     m_bcid( 0 ),
+    m_nsw( 0 ),
     m_id_system( -1 )
   {
   }
@@ -28,6 +29,7 @@ namespace LVL1MUONIF {
     m_goodmf.clear();
     m_innercoin.clear();
     m_bw2or3.clear();
+    m_veto.clear();
   }
 
   void Lvl1MuSectorLogicDataPhase1::initialize()
@@ -44,6 +46,7 @@ namespace LVL1MUONIF {
       m_goodmf.push_back(-1);
       m_innercoin.push_back(-1);
       m_bw2or3.push_back(-1);
+      m_veto.push_back(0);
     }
   }
 
@@ -56,6 +59,7 @@ namespace LVL1MUONIF {
     if ( this != &right ) {
       m_id_system = right.m_id_system;
       m_bcid = right.m_bcid;
+      m_nsw = right.m_nsw;
       m_2candidatesInSector = right.m_2candidatesInSector;
       for ( size_t i = 0; i < NCAND[m_id_system]; ++i ) {
         m_roi[ i ] = right.m_roi[ i ];
@@ -66,6 +70,7 @@ namespace LVL1MUONIF {
         m_goodmf[ i ] = right.m_goodmf[ i ];
         m_innercoin[ i ] = right.m_innercoin[ i ];
         m_bw2or3[ i ] = right.m_bw2or3[ i ];
+        m_veto[ i ] = right.m_veto[ i ];
       }
     }
     return *this;
@@ -81,6 +86,7 @@ namespace LVL1MUONIF {
   void Lvl1MuSectorLogicDataPhase1::clear() {
     m_2candidatesInSector = false;
     m_bcid = 0;
+    m_nsw = 0;
     for ( size_t i = 0; i < NCAND[m_id_system]; ++i ) {
       m_roi[ i ] = -1;
       m_ovl[ i ] = -1;
@@ -90,6 +96,7 @@ namespace LVL1MUONIF {
       m_goodmf[ i ] = -1;
       m_innercoin[ i ] = -1;
       m_bw2or3[ i ] = -1;
+      m_veto[ i ] = 0;
     }
   }
 

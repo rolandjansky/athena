@@ -17,12 +17,6 @@
 
 class ZdcCablingService
 {
-  //friend class ZdcInfoLoader;
-  //friend class ZdcDetectorTool;
-  //friend class ZdcDetectorFactory;
-  friend class ZdcCablingSvc;
-  //friend class ZdcROD_Decoder;
-
 public:
 
     /** get pointer to service instance*/
@@ -80,7 +74,6 @@ public:
     int         m_channel_db[4][64];
     int         m_hv_db[4][64];
     int         m_ppm_db[16];
-    int         m_crate_db[8];
     int         m_crate_index[4];
     int         m_ncrate;
     //int         m_crate_lookup[2][3][2];

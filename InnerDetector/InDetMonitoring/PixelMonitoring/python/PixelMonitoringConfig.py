@@ -1,13 +1,14 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 def PixelMonitoringConfig(flags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
-
+    forceOnline = False # for testing of online monitoring and 100LB histograms
     # run on RAW only
     if flags.DQ.Environment in ('online', 'tier0', 'tier0Raw'):
+        if forceOnline : flags.Common.isOnline = True
         kwargsHitMonAlg = { 'doOnline'        : flags.Common.isOnline,      #Histograms for online (athenaPT) running
                             'doLumiBlock'     : not flags.Common.isOnline,       #Turn on/off histograms stored for each lumi block
                             'doLowOccupancy'  : False,      #Turn on/off histograms with binning for cosmics/single beam                    
@@ -15,7 +16,7 @@ def PixelMonitoringConfig(flags):
                             #'doHeavyIonMon'   : InDetFlags.doHeavyIon(),   # Histogram modification for heavy ion monitoring
                             #'RDOName'         : InDetKeys.PixelRDOs()
                             'doHeavyIonMon'   : False,      #Until new config ready
-                            'doFEPlots'       : False,       #Turn on/off histograms with FE Status information
+                            'doFEPlots'       : True,       #Turn on/off histograms with FE Status information
                             'RDOName'         : 'PixelRDOs',#Until new config ready
         }
 
@@ -25,7 +26,7 @@ def PixelMonitoringConfig(flags):
                              'doHighOccupancy' : True,       #Turn on/off histograms with binning for collisions
                              #'doHeavyIonMon'   : InDetFlags.doHeavyIon(),   # Histogram modification for heavy ion monitoring
                              'doHeavyIonMon'   : False,   #Until new config ready
-                             'doFEPlots'       : False,       #Turn on/off histograms with FE Status information
+                             'doFEPlots'       : True,       #Turn on/off histograms with FE Status information
                              #'ClusterName'     : InDetKeys.PixelClusters(),
                              'ClusterName'     : 'PixelClusters', #Until new config ready
                              #'TrackName'       : InDetKeys.Tracks()
@@ -39,7 +40,7 @@ def PixelMonitoringConfig(flags):
                             #'doHeavyIonMon'   : InDetFlags.doHeavyIon()
                             'doHeavyIonMon'   : False, #Until new config is ready
         }
-        
+        if forceOnline : flags.Common.isOnline = False
         from AthenaMonitoring import AthMonitorCfgHelper
         helper = AthMonitorCfgHelper(flags, "NewPixelMonitoring")
 

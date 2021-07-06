@@ -1,41 +1,47 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONMdtRdoToPrepDataTool_H
 #define MUONMdtRdoToPrepDataTool_H
-     
-#include "MdtRdoToPrepDataToolCore.h"
+
 #include "CxxUtils/checker_macros.h"
+#include "MdtRdoToPrepDataToolCore.h"
 
-namespace Muon 
-{
+namespace Muon {
 
-  /** @class MdtRdoToPrepDataTool 
+    /** @class MdtRdoToPrepDataTool
 
-      This is for the Doxygen-Documentation.  
-      Please delete these lines and fill in information about
-      the Algorithm!
-      Please precede every member function declaration with a
-      short Doxygen comment stating the purpose of this function.
-      
-      @author  Edward Moyse <Edward.Moyse@cern.ch>
-  */  
+        This is for the Doxygen-Documentation.
+        Please delete these lines and fill in information about
+        the Algorithm!
+        Please precede every member function declaration with a
+        short Doxygen comment stating the purpose of this function.
 
-  class ATLAS_NOT_THREAD_SAFE MdtRdoToPrepDataTool : virtual public MdtRdoToPrepDataToolCore
-  {
-  public:
-    MdtRdoToPrepDataTool(const std::string&,const std::string&,const IInterface*);
+        @author  Edward Moyse <Edward.Moyse@cern.ch>
+    */
 
-    /** default destructor */
-    virtual ~MdtRdoToPrepDataTool()=default;
+    class ATLAS_NOT_THREAD_SAFE MdtRdoToPrepDataTool : public extends<MdtRdoToPrepDataToolCore, IMuonRdoToPrepDataTool> {
+    public:
+        MdtRdoToPrepDataTool(const std::string&, const std::string&, const IInterface*);
 
-    /** standard Athena-Algorithm method */
-    virtual StatusCode initialize() override;
-      
-  protected:
-    virtual SetupMdtPrepDataContainerStatus setupMdtPrepDataContainer() override;
-  }; 
-} // end of namespace
+        /** default destructor */
+        virtual ~MdtRdoToPrepDataTool() = default;
 
-#endif 
+        /** standard Athena-Algorithm method */
+        virtual StatusCode initialize() override;
+
+        virtual void printPrepData() const override;
+
+    protected:
+        virtual Muon::MdtPrepDataContainer* setupMdtPrepDataContainer(unsigned int sizeVectorRequested, bool& fullEventDone) const override;
+
+    private:
+        mutable Muon::MdtPrepDataContainer* m_mdtPrepDataContainer = nullptr;
+
+        // keepTrackOfFullEventDecoding
+        mutable bool m_fullEventDone = false;
+    };
+}  // namespace Muon
+
+#endif

@@ -1,19 +1,21 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef L1DECODER_JROISUNPACKINGTOOL_H
 #define L1DECODER_JROISUNPACKINGTOOL_H 1
-#include <string>
 
+#include "RoIsUnpackingToolBase.h"
+
+#include "GaudiKernel/ServiceHandle.h"
+
+#include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
-#include "TrigConfL1Data/ThresholdConfig.h"
-#include "TrigConfL1Data/TriggerThreshold.h"
+#include "TrigT1Result/RoIBResult.h"
 #include "TrigT1Interfaces/RecJetRoI.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "TrigCompositeUtils/TrigCompositeUtils.h"
-#include "RoIsUnpackingToolBase.h"
+
+#include <string>
+#include <vector>
 
 
 class JRoIsUnpackingTool : public RoIsUnpackingToolBase {
@@ -23,14 +25,15 @@ public:
                       const std::string& name,
                       const IInterface* parent );
 
+  using RoIsUnpackingToolBase::unpack;
   StatusCode unpack(const EventContext& ctx,
                     const ROIB::RoIBResult& roib,
                     const HLT::IDSet& activeChains) const override;
 
   virtual StatusCode initialize() override;
   virtual StatusCode updateConfiguration() override;
-  virtual StatusCode finalize() override { return StatusCode::SUCCESS; }
   virtual StatusCode start() override;
+
 private:
   SG::WriteHandleKey<TrigRoiDescriptorCollection> m_trigRoIsKey{
     this, "OutputTrigRoIs", "HLT_JETRoIs",

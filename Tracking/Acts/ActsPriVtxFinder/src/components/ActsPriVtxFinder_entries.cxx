@@ -4,7 +4,8 @@
 
 //#include "ActsPriVtxFinder/ActsPrimaryVtxFinderAlg.h"
 #include "../ActsAdaptiveMultiPriVtxFinderTool.h"
+#include "../ActsIterativePriVtxFinderTool.h"
 
 // DECLARE_COMPONENT( ActsPrimaryVtxFinderAlg )
 DECLARE_COMPONENT( ActsAdaptiveMultiPriVtxFinderTool )
-
+DECLARE_COMPONENT( ActsIterativePriVtxFinderTool )

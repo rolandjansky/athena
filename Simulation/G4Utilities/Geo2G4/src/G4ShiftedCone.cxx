@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -84,18 +84,17 @@ G4ShiftedCone::G4ShiftedCone( const G4String& pName,
                       G4double  pRmin2, G4double pRmax2)
 //                      G4double pDz,
 //                      G4double pSPhi, G4double pDPhi)
-  : G4CSGSolid(pName), fRmin1(pRmin1), fRmin2(pRmin2),
+  : G4CSGSolid(pName),
+    kRadTolerance (G4GeometryTolerance::GetInstance()->GetRadialTolerance()),
+    kAngTolerance (G4GeometryTolerance::GetInstance()->GetAngularTolerance()),
+    fRmin1(pRmin1), fRmin2(pRmin2),
     fRmax1(pRmax1), fRmax2(pRmax2),
-    fDz((pZ2 - pZ1) * 0.5), fZshift(pZ1 + fDz)
+    fDz((pZ2 - pZ1) * 0.5), fZshift(pZ1 + fDz),
     // fSPhi(0.), fDPhi(0.)
+    halfCarTolerance (kCarTolerance*0.5),
+    halfRadTolerance (kRadTolerance*0.5),
+    halfAngTolerance (kAngTolerance*0.5)
 {
-  kRadTolerance = G4GeometryTolerance::GetInstance()->GetRadialTolerance();
-  kAngTolerance = G4GeometryTolerance::GetInstance()->GetAngularTolerance();
-
-  halfCarTolerance=kCarTolerance*0.5;
-  halfRadTolerance=kRadTolerance*0.5;
-  halfAngTolerance=kAngTolerance*0.5;
-
   // Check z-len
   //
   if ( fDz < 0 )

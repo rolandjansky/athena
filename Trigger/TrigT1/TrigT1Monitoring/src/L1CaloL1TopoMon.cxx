@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <map>
@@ -26,8 +26,6 @@
 #include "TrigT1CaloMonitoringTools/ITrigT1CaloMonErrorTool.h"
 #include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
-#include "TrigT1Interfaces/FrontPanelCTP.h"
-#include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
 #include "TrigT1Interfaces/CoordinateRange.h"
 #include "TrigT1Interfaces/CPRoIDecoder.h"
 #include "TrigT1Interfaces/JEPRoIDecoder.h"
@@ -117,9 +115,6 @@ L1CaloL1TopoMon::L1CaloL1TopoMon( const std::string & type,
 		   = LVL1::TrigT1CaloDefs::CMXJetTobLocation);
   declareProperty( "CMXCPTobLocation", m_CMXCPTobLocation
 		   = LVL1::TrigT1CaloDefs::CMXCPTobLocation);
-  declareProperty( "TopoCTPLocation", m_topoCTPLoc
-		   = LVL1::DEFAULT_L1TopoCTPLocation, 
-		   "StoreGate location of topo inputs" );
 }
   
 /*---------------------------------------------------------*/
@@ -128,16 +123,11 @@ L1CaloL1TopoMon::~L1CaloL1TopoMon()
 {
 }
   
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
-
 /*---------------------------------------------------------*/
 StatusCode L1CaloL1TopoMon::initialize()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endmsg;
+  msg(MSG::INFO) << "Initializing " << name() << endmsg;
   m_debug = msgLvl(MSG::DEBUG);
 
   StatusCode sc = ManagedMonitorToolBase::initialize();
@@ -165,6 +155,8 @@ StatusCode L1CaloL1TopoMon::initialize()
                     << endmsg;
     return sc;
   }
+
+  ATH_CHECK( m_topoCTPLoc.initialize( SG::AllowEmpty ) );
 
   return StatusCode::SUCCESS;
 }
@@ -520,13 +512,12 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
   }
   
   // Retrieve L1Topo CTP simulted decision if present
-  if (!evtStore()->contains<LVL1::FrontPanelCTP>(m_topoCTPLoc.value())){
+  if (!evtStore()->contains<LVL1::FrontPanelCTP>(m_topoCTPLoc.key())){
     ATH_MSG_DEBUG("Could not retrieve LVL1::FrontPanelCTP with key "
-		  << m_topoCTPLoc.value());
+		  << m_topoCTPLoc.key());
   }
   else {
-    const LVL1::FrontPanelCTP* topoCTP = nullptr;
-    CHECK_RECOVERABLE(evtStore()->retrieve(topoCTP,m_topoCTPLoc.value()));
+    const LVL1::FrontPanelCTP* topoCTP = SG::get(m_topoCTPLoc);
     if (!topoCTP){
       ATH_MSG_INFO( "Retrieve of LVL1::FrontPanelCTP failed." );
     }

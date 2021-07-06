@@ -25,13 +25,13 @@ atlas_add_test( dataSourceEvent_test
    SOURCES test/dataSourceEvent_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODDataSourceLib
-   LOG_IGNORE_PATTERN "Can.t find BranchInfo|Function should only be called" )
+   LOG_IGNORE_PATTERN "Can.t find BranchInfo|Function should only be called|TInterpreter::ReadRoot" )
 
 atlas_add_test( dataSource_test
    SOURCES test/dataSource_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODDataSourceLib
-   LOG_IGNORE_PATTERN "Can.t find BranchInfo|Function should only be called" )
+   LOG_IGNORE_PATTERN "Can.t find BranchInfo|Function should only be called|TInterpreter::ReadRoot" )
 
 atlas_add_test( dataFrame_test
    SOURCES test/dataFrame_test.cxx

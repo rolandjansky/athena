@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
 #
 # @file egammaD3PDAnalysis/python/TileGapSelectionGetter.py
 # @author scott snyder <snyder@bnl.gov>
@@ -53,7 +52,7 @@ class TileGapSelectionGetter ( Configured )  :
 
             self._handle = alg
 
-        except:
+        except Exception:
             mlog.error ("Error configuring TileGapSelectionAlg.")
             traceback.print_exc()
 

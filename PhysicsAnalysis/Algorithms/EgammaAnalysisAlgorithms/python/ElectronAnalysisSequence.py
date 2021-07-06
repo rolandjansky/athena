@@ -1,7 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-
-# Framework import(s):
-import ROOT
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # AnaAlgorithm import(s):
 from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
@@ -48,7 +45,7 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
 
     # Make sure we received a valid data type.
     if dataType not in [ 'data', 'mc', 'afii' ]:
-        raise ValueError( 'Invalid data type: %' % dataType )
+        raise ValueError( 'Invalid data type: %s' % dataType )
 
     if postfix != '' :
         postfix = '_' + postfix
@@ -103,24 +100,39 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
     selectionDecorNames.append( alg.selectionDecoration )
     selectionDecorCount.append( 3 )
 
-    # Set up the likelihood ID selection algorithm
-    # It is safe to do this before calibration, as the cluster E is used
-    alg = createAlgorithm( 'CP::AsgSelectionAlg', 'ElectronLikelihoodAlg' + postfix )
-    alg.preselection = "&&".join (selectionDecorNames)
-    alg.selectionDecoration = 'selectLikelihood' + postfix + ',as_bits'
-    selectionDecorNames.append( alg.selectionDecoration )
-    if recomputeLikelihood:
-        # Rerun the likelihood ID
-        addPrivateTool( alg, 'selectionTool', 'AsgElectronLikelihoodTool' )
-        alg.selectionTool.primaryVertexContainer = 'PrimaryVertices'
-        alg.selectionTool.WorkingPoint = likelihoodWP
-        selectionDecorCount.append( 7 )
+    if 'LH' in likelihoodWP:
+        # Set up the likelihood ID selection algorithm
+        # It is safe to do this before calibration, as the cluster E is used
+        alg = createAlgorithm( 'CP::AsgSelectionAlg', 'ElectronLikelihoodAlg' + postfix )
+        alg.preselection = "&&".join (selectionDecorNames)
+        alg.selectionDecoration = 'selectLikelihood' + postfix + ',as_bits'
+        selectionDecorNames.append( alg.selectionDecoration )
+        if recomputeLikelihood:
+            # Rerun the likelihood ID
+            addPrivateTool( alg, 'selectionTool', 'AsgElectronLikelihoodTool' )
+            alg.selectionTool.primaryVertexContainer = 'PrimaryVertices'
+            alg.selectionTool.WorkingPoint = likelihoodWP
+            selectionDecorCount.append( 7 )
+        else:
+            # Select from Derivation Framework flags
+            addPrivateTool( alg, 'selectionTool', 'CP::AsgFlagSelectionTool' )
+            dfFlag = "DFCommonElectronsLH" + likelihoodWP.split('LH')[0]
+            alg.selectionTool.selectionFlags = [dfFlag]
+            selectionDecorCount.append( 1 )
     else:
-        # Select from Derivation Framework flags
-        addPrivateTool( alg, 'selectionTool', 'CP::AsgFlagSelectionTool' )
-        dfFlag = "DFCommonElectronsLH" + likelihoodWP.split('LH')[0]
-        alg.selectionTool.selectionFlags = [dfFlag]
-        selectionDecorCount.append( 1 )
+        # Set up the DNN ID selection algorithm
+        alg = createAlgorithm( 'CP::AsgSelectionAlg', 'ElectronDNNAlg' + postfix )
+        alg.preselection = "&&".join (selectionDecorNames)
+        alg.selectionDecoration = 'selectDNN' + postfix + ',as_bits'
+        selectionDecorNames.append( alg.selectionDecoration )
+        if recomputeLikelihood:
+            # Rerun the DNN ID
+            addPrivateTool( alg, 'selectionTool', 'AsgElectronSelectorTool' )
+            alg.selectionTool.WorkingPoint = likelihoodWP
+            selectionDecorCount.append( 6 )
+        else:
+            # Select from Derivation Framework flags
+            raise ValueError ( "DNN working points are not available in derivations yet.")
     seq.append( alg, inputPropName = 'particles',
                 stageName = 'selection' )
 

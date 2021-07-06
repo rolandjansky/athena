@@ -1,6 +1,6 @@
 """ComponentAccumulator confguration for pileup digitization
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -67,6 +67,7 @@ def LowPtMinBiasEventSelectorCfg(flags, name="LowPtMinBiasEventSelector", **kwar
 def HighPtMinBiasEventSelectorCfg(flags, name="HighPtMinBiasEventSelector", **kwargs):
     acc = ComponentAccumulator()
     kwargs.setdefault("InputCollections", flags.Digitization.PU.HighPtMinBiasInputCols)
+    kwargs.setdefault('SkipEvents', flags.Digitization.PU.HighPtMinBiasInputColOffset)
     acc.merge(GenericBackgroundEventSelectorCfg(flags, name, **kwargs))
     return acc
 
@@ -311,7 +312,7 @@ def PileUpEventLoopMgrCfg(flags, name="PileUpEventLoopMgr", **kwargs):
     kwargs.setdefault("firstXing", flags.Digitization.PU.InitialBunchCrossing)
     kwargs.setdefault("lastXing", flags.Digitization.PU.FinalBunchCrossing)
 
-    if flags.Digitization.PU.RunAndLumiOverrideList:
+    if flags.Input.RunAndLumiOverrideList:
         kwargs.setdefault("MaxMinBiasCollPerXing", maxNevtsPerXing(flags))
         acc.merge(LumiProfileSvcCfg(flags))
         kwargs.setdefault("BeamLuminosity", acc.getService("LumiProfileSvc"))
@@ -324,6 +325,14 @@ def PileUpEventLoopMgrCfg(flags, name="PileUpEventLoopMgr", **kwargs):
     # Note that this is a hack. It is needed to fix beam spot information
     # as original xAOD::EventInfo is created before conditions data could
     # be read. Only the "EventInfoName" should change.
+
+    # write PileUpEventInfo
+    if flags.Output.doWriteRDO:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
+            "xAOD::EventInfoContainer#PileUpEventInfo",
+            "xAOD::EventInfoAuxContainer#PileUpEventInfo*",
+        ]))
 
     acc.addService(CompFactory.PileUpEventLoopMgr(name, **kwargs))
     return acc

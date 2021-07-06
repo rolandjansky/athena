@@ -38,10 +38,14 @@ public:
 			   const std::vector<std::string>& chainNames, std::string outputFileName="TrkNtuple.root", 
 			   double tauEtCutOffline=0.0, int TruthPdgId = 0, bool keepAllEvents_=false ) : 
     AnalysisConfig_Ntuple( roiInfo, chainNames, outputFileName, tauEtCutOffline, TruthPdgId, keepAllEvents_ ),
-    m_fiducial_radius(47)
+    m_fiducial_radius(47),
+    m_ptmin(1000)
   { }  
 
   virtual ~AnalysisConfigMT_Ntuple() { }
+
+  void set_fiducial_radius( double d ) { m_fiducial_radius = d; }
+  void set_ptmin( double d ) { m_ptmin = d; }
 
 protected:
 
@@ -50,6 +54,7 @@ protected:
 private: 
   
   double m_fiducial_radius; 
+  double m_ptmin; 
 
 };
 

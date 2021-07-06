@@ -141,7 +141,7 @@ void compare (const Trk::TrackStateOnSurface& p1,
               
 void testit (const Trk::TrackStateOnSurface& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   TrackStateOnSurfaceCnv_p3 cnv;
   TrackCollectionCnv_tlp5 tlcnv;
   cnv.setTopConverter (&tlcnv, TPObjRef::typeID_t());
@@ -166,7 +166,7 @@ void test1 ATLAS_NOT_THREAD_SAFE ()
   Trk::PerigeeSurface psurf (Amg::Vector3D (50, 100, 150));
   Trk::LocalParameters parms1 (1.5, 2.5, 3.5, 4.5, 5.5);
   Trk::PseudoMeasurementOnTrack pmeas (parms1, cov, psurf);
-  Trk::Perigee perigee (100, 200, 1.5, 0.5, 1e-3, psurf, nullptr);
+  Trk::Perigee perigee (100, 200, 1.5, 0.5, 1e-3, psurf, std::nullopt);
   Trk::FitQuality fq (10, 20);
   Trk::MaterialEffectsOnTrack me (12.5, psurf);
 

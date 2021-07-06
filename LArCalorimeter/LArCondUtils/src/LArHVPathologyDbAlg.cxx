@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHVPathologyDbAlg.h"
@@ -13,7 +13,6 @@
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingLegacyService.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include "CaloDetDescr/CaloDetectorElements.h"
@@ -42,7 +41,6 @@ LArHVPathologyDbAlg::LArHVPathologyDbAlg(const std::string& name, ISvcLocator* p
   , m_regSvc("IOVRegistrationSvc",name)
   , m_pathologyTool("LArHVPathologyDbTool")
   , m_mode(0)
-  , m_cablingService("LArCablingLegacyService")
   , m_larem_id(0)
   , m_larhec_id(0)
   , m_larfcal_id(0)
@@ -119,6 +117,7 @@ StatusCode LArHVPathologyDbAlg::initialize()
   }
 
   ATH_CHECK( m_hvCablingKey.initialize() );
+  ATH_CHECK( m_cablingKey.initialize() );
 
   return sc;
 }
@@ -181,6 +180,12 @@ StatusCode LArHVPathologyDbAlg::createCondObjects (const EventContext & ctx)
   else {
     SG::ReadCondHandle<LArHVIdMapping> hvIdMapping (m_hvCablingKey, ctx);
 
+    SG::ReadCondHandle<LArOnOffIdMapping> cabHdl (m_cablingKey, ctx);
+    const LArOnOffIdMapping *cabling = *cabHdl;
+    if(!cabling) {
+       ATH_MSG_ERROR("Do not have cabling object with key " << m_cablingKey.key());
+       return StatusCode::FAILURE;
+    }
     // Read input file and construct LArHVPathologiesDb for given folder
     std::ifstream infile;
     infile.open(m_inpFile.value().c_str());
@@ -234,7 +239,7 @@ StatusCode LArHVPathologyDbAlg::createCondObjects (const EventContext & ctx)
           infile >> bec >> pos_neg >> FT >> slot >> channel >> hvModule >> hvLine >> pathologyType;
           msg(MSG::INFO) << " read " << bec << " " << pos_neg << " " << FT << " " << slot << " " << channel << " " << hvModule << " " << hvLine << " " << pathologyType << endmsg;
           HWIdentifier hwid = m_laronline_id->channel_Id(bec,pos_neg,FT,slot,channel);
-          Identifier id = m_cablingService->cnvToIdentifier( hwid);
+          Identifier id = cabling->cnvToIdentifier( hwid);
           cellID = (unsigned int)(id.get_identifier32().get_compact());
           elecList=getElectInd(**hvIdMapping, id,hvModule,hvLine);
           msg(MSG::INFO) << " cellId , elecList size " << cellID << " " << elecList.size() << endmsg;
@@ -284,6 +289,12 @@ StatusCode LArHVPathologyDbAlg::printCondObjects (const EventContext& ctx)
   msg(MSG::INFO) <<" in printCondObjects() " <<endmsg;
 
   SG::ReadCondHandle<LArHVIdMapping> hvIdMapping (m_hvCablingKey, ctx);
+  SG::ReadCondHandle<LArOnOffIdMapping> cabHdl (m_cablingKey, ctx);
+  const LArOnOffIdMapping *cabling = *cabHdl;
+  if(!cabling) {
+     ATH_MSG_ERROR("Do not have cabling object with key " << m_cablingKey.key());
+     return StatusCode::FAILURE;
+  }
 
   std::ofstream *fout=0;
   const AthenaAttributeList* attrlist;
@@ -311,7 +322,7 @@ StatusCode LArHVPathologyDbAlg::printCondObjects (const EventContext& ctx)
          if(fout) *fout<<electPath.cellID<<"\t"<<electPath.electInd<<"\t"<<electPath.pathologyType<<std::endl;    
       } else {
          msg(MSG::INFO) << "Got pathology for cell ID: " << electPath.cellID << endmsg;
-         HWIdentifier hwid = m_cablingService->createSignalChannelID(Identifier32(electPath.cellID));
+         HWIdentifier hwid = cabling->createSignalChannelID(Identifier32(electPath.cellID));
          int HVLine=getHVline(**hvIdMapping,Identifier(electPath.cellID),electPath.electInd);
          if(HVLine<0) {
             msg(MSG::ERROR) << "No HVline for cell "<<electPath.cellID<< endmsg;

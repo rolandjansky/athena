@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCDATABASE_HH
@@ -22,8 +22,8 @@ public:
   TGCDatabase (DatabaseType type=NoDatabaseType);
 
   TGCDatabase (DatabaseType type,
-	       std::string filename, 
-	       std::string blockname);
+	       const std::string& filename, 
+	       const std::string& blockname);
 
   virtual ~TGCDatabase (void);
   

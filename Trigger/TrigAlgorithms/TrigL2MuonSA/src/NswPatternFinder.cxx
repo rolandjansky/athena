@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "NswPatternFinder.h"
@@ -51,7 +51,7 @@ double TrigL2MuonSA::NswPatternFinder::calc_residualR(const double aw,const doub
   double ia  = 1/aw;
   double iaq = ia*ia;
   double dz  = x - (y-bw)*ia;
-  return dz/sqrt(1.+iaq);
+  return dz/std::sqrt(1.+iaq);
 }
 
 double TrigL2MuonSA::NswPatternFinder::calc_dPhi(const double hitphi, const double roadphi) const

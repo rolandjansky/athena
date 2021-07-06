@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/Configurable.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
@@ -12,6 +12,7 @@ from AthenaCommon import ConfigurableMeta
 # Note: load iProperty etc. from GaudiPython only as-needed
 import GaudiKernel.GaudiHandles as GaudiHandles
 import GaudiKernel.DataHandle as DataHandle
+from collections import MutableSequence
 
 ### data ---------------------------------------------------------------------
 __version__ = '3.2.0'
@@ -294,6 +295,9 @@ class Configurable(metaclass=ConfigurableMeta.ConfigurableMeta ):
 
  # hierarchy building, and ownership rules of children
    def __iadd__( self, configs, descr = None, index = None ):
+      if self.isLocked():
+         raise RuntimeError( f"cannot add children to locked configurable {self.getJobOptName()}" )
+
       if not type(configs) in (list,tuple):
          configs = ( configs, )
 
@@ -712,7 +716,8 @@ class Configurable(metaclass=ConfigurableMeta.ConfigurableMeta ):
                prefix += address
           # add value and default
             default = defs.get(p)
-            if v == Configurable.propertyNoValue:
+
+            if not isinstance(v,MutableSequence) and v == Configurable.propertyNoValue:
                # show default value as value, and no extra 'default'
                strVal = repr(default)
                strDef = None

@@ -1,27 +1,13 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
+from AthenaKernel.EventIdOverrideConfig import getMinMaxRunNumbers
 from AthenaCommon.Logging import logging
 logDigitizationWriteMetadata = logging.getLogger( 'DigitizationParametersConfig' )
-
-myRunNumber = 0
-myEndRunNumber = 2147483647 # the max run number
-
-def getRunNumberRangeForOutputMetadata(ConfigFlags):
-    myRunNumber = ConfigFlags.Input.RunNumber[0]
-    myEndRunNumber = 2147483647 # the max run number
-
-    if myRunNumber > 0 :
-        logDigitizationWriteMetadata.info('Found Run Number %s in hits file metadata.', str(myRunNumber) )
-        myEndRunNumber = myRunNumber+1 # got a reasonable run number so set end run to be the next run after this one.
-    else :
-        logDigitizationWriteMetadata.info('Found unexpected Run Number %s in hits file metadata. Not overriding RunNumber to match hits file for this job.', str(myRunNumber) )
-        myRunNumber = 0
-    return myRunNumber, myEndRunNumber
 
 def writeDigitizationMetadata(ConfigFlags):
     from IOVDbMetaDataTools import ParameterDbFiller
     dbFiller = ParameterDbFiller.ParameterDbFiller()
-    myRunNumber, myEndRunNumber = getRunNumberRangeForOutputMetadata(ConfigFlags)
+    myRunNumber, myEndRunNumber = getMinMaxRunNumbers(ConfigFlags)
     logDigitizationWriteMetadata.debug('ParameterDbFiller BeginRun = %s', str(myRunNumber) )
     dbFiller.setBeginRun(myRunNumber)
     logDigitizationWriteMetadata.debug('ParameterDbFiller EndRun   = %s', str(myEndRunNumber) )
@@ -65,8 +51,8 @@ def writeDigitizationMetadata(ConfigFlags):
 
     ## Digitized detector flags: add each enabled detector to the DigitizedDetectors list - might be better to determine this from the OutputStream or CA-itself? Possibly redundant info though?
     digiDets = []
-    for det in ['Pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','MM','sTGC','Truth','LVL1']:
-        attrname = "Detector.Geometry"+det
+    for det in ['Pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','MM','sTGC','Truth','LVL1','ITkPixel','ITkStrip']:
+        attrname = "Detector.Enable"+det
         if ConfigFlags.hasFlag(attrname):
             testValue = ConfigFlags._get(attrname)
             if testValue:

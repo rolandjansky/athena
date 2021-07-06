@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetSurveyConstraintTool/SurveyConstraint.h"
@@ -934,7 +934,7 @@ int SurveyConstraint::getWeightPixEC(//const Identifier& ModuleID,
 int SurveyConstraint::getWeightPixB(//const Identifier& ModuleID,
 				    Amg::MatrixX& weight) {
   
-  AmgSymMatrix(5) covar;
+  AmgSymMatrix(6) covar;
   // in local coords, set errors to be diagonal, with values to be provided by Vadim
   covar(0,0) = m_TransXRandPixB*m_TransXRandPixB;
   covar(1,1) = m_TransYRandPixB*m_TransYRandPixB;

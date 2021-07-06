@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -43,7 +43,7 @@ namespace Muon
 {
 
 /** @brief Class to represent the calibrated clusters created from CSC strips*/
-class CscClusterOnTrack :  public MuonClusterOnTrack
+class CscClusterOnTrack final:  public MuonClusterOnTrack
 {
 
 public:
@@ -91,18 +91,18 @@ public:
     virtual ~CscClusterOnTrack();
 
     /** @brief Clone this ROT */
-    virtual CscClusterOnTrack* clone() const ;
+    virtual CscClusterOnTrack* clone() const override final;
 
     /** @brief Returns the CscPrepData - is a CscPrepData in this scope*/
-    virtual const CscPrepData* prepRawData() const;
+    virtual const CscPrepData* prepRawData() const override final;
     const ElementLinkToIDC_CSC_Container& prepRawDataLink() const;
 
     /** @brief Returns the detector element, associated with the PRD of this class*/
-    virtual const MuonGM::CscReadoutElement* detectorElement() const;
+    virtual const MuonGM::CscReadoutElement* detectorElement() const override final;
 
     /** @brief Returns the surface on which this measurement was taken. 
     (i.e. a surface of a detector element) */
-    virtual const Trk::Surface& associatedSurface() const;
+    virtual const Trk::Surface& associatedSurface() const override final;
 
     /** @brief Returns Csc position measurement  status flag */
     CscClusterStatus status() const;
@@ -114,30 +114,31 @@ public:
     float time() const;
     
     /** @brief Dumps information about the PRD*/
-    virtual MsgStream&    dump( MsgStream&    stream) const;
+    virtual MsgStream&    dump( MsgStream&    stream) const override final;
 
     /** @brief Dumps information about the PRD*/
-    virtual std::ostream& dump( std::ostream& stream) const;
+    virtual std::ostream& dump( std::ostream& stream) const override final;
 
 private:
     /** this method is only used by the custom convertors. 
     @warning At the moment it only actually sets the CscPrepData, since that's all that's stored
     @todo Throw exception if TrkDetElementBase isn't correct concrete type*/
-    virtual void setValues(const Trk::TrkDetElementBase*, const Trk::PrepRawData*);
+  virtual void setValues(const Trk::TrkDetElementBase*,
+                         const Trk::PrepRawData*) override final;
 
-    /** PrepRawData object assoicated with this measurement*/
-    ElementLinkToIDC_CSC_Container      m_rio;
+  /** PrepRawData object assoicated with this measurement*/
+  ElementLinkToIDC_CSC_Container m_rio;
 
-    /** The detector element, associated with this measurement*/
-    const MuonGM::CscReadoutElement*    m_detEl;
+  /** The detector element, associated with this measurement*/
+  const MuonGM::CscReadoutElement* m_detEl;
 
-    /** cluster position measurement status */
-    CscClusterStatus                    m_status;
+  /** cluster position measurement status */
+  CscClusterStatus m_status;
 
-    /** cluster time measurement status */
-    CscTimeStatus                    m_timeStatus;
-  
-    float                               m_time;
+  /** cluster time measurement status */
+  CscTimeStatus m_timeStatus;
+
+  float m_time;
 };
 
 ///////////////////////////////////////////////////////////////////

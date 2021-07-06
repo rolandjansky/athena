@@ -1,12 +1,16 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelConditionsData/PixelModuleData.h"
 
 PixelModuleData::PixelModuleData():
   m_moduleStatus(),
-  m_chipStatus()
+  m_chipStatus(),
+  m_fluenceLayer(),
+  m_RadSimFluenceMapList(),
+  m_fluenceLayer3D(),
+  m_RadSimFluenceMapList3D()
 {
 }
 
@@ -280,12 +284,46 @@ float PixelModuleData::getDefaultQ2TotA() const { return m_paramA; }
 float PixelModuleData::getDefaultQ2TotE() const { return m_paramE; }
 float PixelModuleData::getDefaultQ2TotC() const { return m_paramC; }
 
+// Lorentz angle correction
+void PixelModuleData::setBarrelLorentzAngleCorr(std::vector<double> BarrelLorentzAngleCorr) { m_BarrelLorentzAngleCorr = BarrelLorentzAngleCorr; }
+void PixelModuleData::setEndcapLorentzAngleCorr(std::vector<double> EndcapLorentzAngleCorr) { m_EndcapLorentzAngleCorr = EndcapLorentzAngleCorr; }
+double PixelModuleData::getLorentzAngleCorr(int bec, int layer) const {
+  double LAcorr = 1.0;
+  if (std::abs(bec)==0 && layer<(int)m_BarrelLorentzAngleCorr.size()) { LAcorr=m_BarrelLorentzAngleCorr.at(layer); }
+  if (std::abs(bec)==2 && layer<(int)m_EndcapLorentzAngleCorr.size()) { LAcorr=m_EndcapLorentzAngleCorr.at(layer); }
+  return LAcorr;
+}
+
 // DCS parameters
 void PixelModuleData::setDefaultBiasVoltage(float biasVoltage) { m_biasVoltage=biasVoltage; }
 float PixelModuleData::getDefaultBiasVoltage() const { return m_biasVoltage; }
 
+void PixelModuleData::setDefaultBarrelBiasVoltage(std::vector<float> BarrelBiasVoltage) { m_BarrelBiasVoltage = BarrelBiasVoltage; }
+void PixelModuleData::setDefaultEndcapBiasVoltage(std::vector<float> EndcapBiasVoltage) { m_EndcapBiasVoltage = EndcapBiasVoltage; }
+void PixelModuleData::setDefaultDBMBiasVoltage(std::vector<float>    DBMBiasVoltage)    { m_DBMBiasVoltage = DBMBiasVoltage; }
+float PixelModuleData::getDefaultBiasVoltage(int bec, int layer) const {
+  float biasVoltage = 0.0;
+  if (std::abs(bec)==0 && layer<(int)m_BarrelBiasVoltage.size()) { biasVoltage=m_BarrelBiasVoltage.at(layer); }
+  if (std::abs(bec)==2 && layer<(int)m_EndcapBiasVoltage.size()) { biasVoltage=m_EndcapBiasVoltage.at(layer); }
+  if (std::abs(bec)==4 && layer<(int)m_DBMBiasVoltage.size())    { biasVoltage=m_DBMBiasVoltage.at(layer); }
+  return biasVoltage;
+}
+
 void PixelModuleData::setDefaultTemperature(float temperature) { m_temperature=temperature; }
 float PixelModuleData::getDefaultTemperature() const { return m_temperature; }
+
+// Radiation damage fluence maps
+void PixelModuleData::setFluenceLayer(std::vector<double> fluenceLayer) { m_fluenceLayer = fluenceLayer; }
+std::vector<double> PixelModuleData::getFluenceLayer() const { return m_fluenceLayer; }
+
+void PixelModuleData::setRadSimFluenceMapList(std::vector<std::string> RadSimFluenceMapList) { m_RadSimFluenceMapList = RadSimFluenceMapList; }
+std::vector<std::string> PixelModuleData::getRadSimFluenceMapList() const { return m_RadSimFluenceMapList; }
+
+void PixelModuleData::setFluenceLayer3D(std::vector<double> fluenceLayer) { m_fluenceLayer3D = fluenceLayer; }
+std::vector<double> PixelModuleData::getFluenceLayer3D() const { return m_fluenceLayer3D; }
+
+void PixelModuleData::setRadSimFluenceMapList3D(std::vector<std::string> RadSimFluenceMapList3D) { m_RadSimFluenceMapList3D = RadSimFluenceMapList3D; }
+std::vector<std::string> PixelModuleData::getRadSimFluenceMapList3D() const { return m_RadSimFluenceMapList3D; }
 
 // Cabling parameters
 void PixelModuleData::setCablingMapToFile(bool cablingMapToFile) { m_cablingMapToFile = cablingMapToFile; }
@@ -331,5 +369,9 @@ std::string PixelModuleData::getDistortionFileName() const { return m_distortion
 void PixelModuleData::clear() {
   m_moduleStatus.clear();
   m_chipStatus.clear();
+  m_fluenceLayer.clear();
+  m_RadSimFluenceMapList.clear();
+  m_fluenceLayer3D.clear();
+  m_RadSimFluenceMapList3D.clear();
 }
 

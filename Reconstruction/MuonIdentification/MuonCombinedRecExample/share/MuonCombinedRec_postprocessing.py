@@ -11,22 +11,37 @@ if rec.doMuonCombined() and muonRecFlags.doCalibNtuple():
     from MuonCombinedRecExample import MuonCombinedCalibConfig
 
 #--------------------------------------------------------------------------
+# Do segment truth association
+#--------------------------------------------------------------------------
+if rec.doTruth() and muonCombinedRecFlags.doxAOD():
+    from MuonTruthAlgs.MuonTruthAlgsConf import Muon__MuonSegmentTruthAssociationAlg
+    topSequence += Muon__MuonSegmentTruthAssociationAlg("MuonSegmentTruthAssociationAlg")
+    try:
+        from PyUtils.MetaReaderPeeker import metadata
+        truthStrategy = metadata['TruthStrategy']
+        if truthStrategy in ['MC15', 'MC18', 'MC18LLP']:
+            topSequence.MuonSegmentTruthAssociationAlg.BarcodeOffset = 10000000
+    except:
+        printfunc ("Failed to read /Simulation/Parameters/ metadata")
+        pass
+
+#--------------------------------------------------------------------------
 # Do track truth
 #--------------------------------------------------------------------------
 if rec.doTruth() and muonCombinedRecFlags.doxAOD() and rec.doMuonCombined():
 
     from MuonTruthAlgs.MuonTruthAlgsConf import MuonDetailedTrackTruthMaker
     from TrkTruthAlgs.TrkTruthAlgsConf import TrackTruthSelector
-
+    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
     colsTP = [ "ExtrapolatedMuonTrackParticles", "CombinedMuonTrackParticles", "MSOnlyExtrapolatedMuonTrackParticles" ]
     cols = [ "ExtrapolatedMuonTracks", "CombinedMuonTracks", "MSOnlyExtrapolatedTracks" ]
-    topSequence+= MuonDetailedTrackTruthMaker("MuonCombinedDetailedTrackTruthMaker")
-    topSequence.MuonCombinedDetailedTrackTruthMaker.TrackCollectionNames = cols 
-    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
-    topSequence.MuonCombinedDetailedTrackTruthMaker.HasCSC = MuonGeometryFlags.hasCSC()
-    topSequence.MuonCombinedDetailedTrackTruthMaker.HasSTgc = MuonGeometryFlags.hasSTGC()
-    topSequence.MuonCombinedDetailedTrackTruthMaker.HasMM = MuonGeometryFlags.hasMM()
-        
+    topSequence+= MuonDetailedTrackTruthMaker("MuonCombinedDetailedTrackTruthMaker",
+                                              TrackCollectionNames = cols,
+                                              PRD_TruthNames =["RPC_TruthMap", "TGC_TruthMap", "MDT_TruthMap"] + 
+                                                   (["CSC_TruthMap"] if MuonGeometryFlags.hasCSC() else []) + 
+                                                   (["MM_TruthMap"]if MuonGeometryFlags.hasMM() else []) + 
+                                                   (["STGC_TruthMap"] if MuonGeometryFlags.hasSTGC() else [])                                              )
+    
     from TrkTruthAlgs.TrkTruthAlgsConf import TrackParticleTruthAlg
     for i in range(0, len(cols)):
         topSequence += TrackTruthSelector(name= cols[i] + "Selector",

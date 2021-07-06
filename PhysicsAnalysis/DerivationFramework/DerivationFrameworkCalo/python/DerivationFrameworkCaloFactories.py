@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaborationa
 
 # Declares a GainDecorator factory. To add it to your decoration:
 # from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getExtraContent
@@ -20,12 +20,12 @@ GainDecorator = ToolFactory( DerivationFramework__GainDecorator,
 
 # Define defaults for CaloFillRectangularCluster and ClusterEnergyPerLayerDecorator
 # will be overridden later depending on the number of cells neta X nphi
-CaloFillRectangularCluster = ToolFactory(CFRC, 
+CaloFillRectangularCluster = ToolFactory(CFRC,
   cells_name = egammaKeys.caloCellKey(), fill_cluster = True )
 
 ClusterEnergyPerLayerDecorator = ToolFactory(
   DerivationFramework__ClusterEnergyPerLayerDecorator,
-  CaloFillRectangularTool = CaloFillRectangularCluster,
+  CaloFillRectangularClusterTool = CaloFillRectangularCluster,
   SGKey_electrons = egammaKeys.outputElectronKey(),
   SGKey_photons = egammaKeys.outputPhotonKey(), 
   SGKey_caloCells = egammaKeys.caloCellKey() )
@@ -49,9 +49,9 @@ def getGainDecorations( obj,
 
 def getClusterEnergyPerLayerDecorator( neta, nphi, prefix = '', **kw ):
   """Return a factory for ClusterEnergyPerLayerDecorator given neta, nphi"""
-  return ClusterEnergyPerLayerDecorator.copy( 
+  return ClusterEnergyPerLayerDecorator.copyPublic(
     name = "%sClusterEnergyPerLayerDecorator_%sx%s" % (prefix, neta, nphi),
-    CaloFillRectangularTool = CaloFillRectangularCluster.copy( 
+    CaloFillRectangularClusterTool = CaloFillRectangularCluster.copy(
       name = "%sCaloFillRectangularCluster_%sx%s" % (prefix, neta, nphi), 
       eta_size = neta,
       phi_size = nphi),

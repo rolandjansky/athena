@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StripGeoModelXml/StripDetectorFactory.h"
@@ -16,7 +16,7 @@
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 
-#include "InDetReadoutGeometry/SiCommonItems.h"
+#include "ReadoutGeometryBase/SiCommonItems.h"
 #include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/Version.h"
 #include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
@@ -47,23 +47,20 @@ StripDetectorFactory::StripDetectorFactory(InDetDD::AthenaComps *athenaComps,
 //    Create the detector manager... should allow the name to be set
 //
     m_detectorManager = new InDetDD::SCT_DetectorManager(detStore(),m_options->detectorName());
+
+    //TODO - For now this is always assuemd to be present as a default.
+    //To be revisited once the ITk alignment scheme is a bit clearer
+    m_detectorManager->addFolder("/Indet/Align");
+
 //
 //   Set Detector Manager SCT version information
 //
-//At some point we may want to decouple also this DB stuff, and make this ITkStrip specific?
+// No database is used at the moment and reasonable defaults are used
     DecodeVersionKey versionKey(geoDbTagSvc(), "SCT");
-    IRDBRecordset_ptr switchSet = rdbAccessSvc()->getRecordsetPtr("SctSwitches", versionKey.tag(), versionKey.node());
-    const IRDBRecord *switches = (*switchSet)[0];
-    string layout = "SLHC";
-    if (!switches->isFieldNull("LAYOUT")) {
-        layout = switches->getString("LAYOUT");
-    }
-    string description = "Test geometry";
-    if (!switches->isFieldNull("DESCRIPTION")) {
-        description = switches->getString("DESCRIPTION");
-    }
     string versionTag = rdbAccessSvc()->getChildTag("SCT", versionKey.tag(), versionKey.node());
-    string versionName = switches->getString("VERSIONNAME");
+    string versionName = "SLHC";
+    string layout = "SLHC";
+    string description = "SLHC Geometry";
     int versionMajorNumber = 0;
     int versionMinorNumber = 0;
     int versionPatchNumber = 0;
@@ -81,7 +78,7 @@ void StripDetectorFactory::create(GeoPhysVol *world) {
    
     msg(MSG::INFO) << m_detectorManager->getVersion().fullDescription() << endmsg;
 
-    StripGmxInterface gmxInterface(m_detectorManager, m_commonItems, &m_waferTree);
+    ITk::StripGmxInterface gmxInterface(m_detectorManager, m_commonItems, &m_waferTree);
 //    To set up solid geometry only, without having to worry about sensitive detectors etc., and get loads of debug output,
 //    comment out above line and uncomment the following line; also, switch header files above.
 //    GmxInterface gmxInterface;
@@ -89,7 +86,7 @@ void StripDetectorFactory::create(GeoPhysVol *world) {
     int flags(0);
     string gmxInput;
 
-    if (m_options->gmxFilename() == "") {
+    if (m_options->gmxFilename().empty()) {
         msg(MSG::INFO) << "gmxFilename not set; getting .gmx from Geometry database Blob" << endmsg;
         flags = 0x1; // Lowest bit ==> string; next bit implies gzip'd but we decided not to gzip
         gmxInput = getBlob();
@@ -106,7 +103,7 @@ void StripDetectorFactory::create(GeoPhysVol *world) {
     else {
         flags = 0;
         gmxInput = PathResolver::find_file(m_options->gmxFilename(), "DATAPATH");
-        if (gmxInput == "") { // File not found
+        if (gmxInput.empty()) { // File not found
             string errMessage("StripDetectorFactory::create: Unable to find file " + m_options->gmxFilename() +
                                    " with PathResolver; check filename and DATAPATH environment variable");
             throw runtime_error(errMessage);
@@ -121,15 +118,20 @@ void StripDetectorFactory::create(GeoPhysVol *world) {
    
 //
     unsigned int nChildren = world->getNChildVols();
+    bool foundVolume = false;
 
     for (int iChild = nChildren - 1; iChild>=0; --iChild) {
-        if (world->getNameOfChildVol(iChild) == "SCT") {
-            // The * converts from a ConstPVLink to a reference to a GeoVPhysVol;
-            // the & takes its address.
-            m_detectorManager->addTreeTop(&*world->getChildVol(iChild));
-            break;
-        }
+      if (world->getNameOfChildVol(iChild) == "SCT" || world->getNameOfChildVol(iChild) == "ITkStrip") {
+	//Allow "SCT" for compatibility with older geometry tags
+	// The * converts from a ConstPVLink to a reference to a GeoVPhysVol;
+	// the & takes its address.
+	foundVolume = true;
+	m_detectorManager->addTreeTop(&*world->getChildVol(iChild));
+	break;
+      }
     }
+
+    if(!foundVolume) ATH_MSG_ERROR("Could not find a logicalVolume named \"ITkStrip\" (or \"SCT\") - this is required to provide the Envelope!");
 
     doNumerology();
 
@@ -139,8 +141,8 @@ void StripDetectorFactory::create(GeoPhysVol *world) {
 
 string StripDetectorFactory::getBlob() {
     DecodeVersionKey versionKey(geoDbTagSvc(), "SCT");
-    std::string versionTag  = versionKey.tag();
-    std::string versionNode = versionKey.node();
+    const std::string& versionTag  = versionKey.tag();
+    const std::string& versionNode = versionKey.node();
     msg(MSG::INFO) << "getBlob: versionTag = " << versionTag << endmsg;
     msg(MSG::INFO) << "getBlob: versionNode = " << versionNode << endmsg;
 
@@ -256,11 +258,11 @@ void StripDetectorFactory::doNumerology() {
         // and whether it expects a global or local shift.
         // level 0: sensor, level 1: module, level 2, layer/disc, level 3: whole barrel/enccap
         InDetDD::AlignFolderType alignFolderType = getAlignFolderType();
+
         m_detectorManager->addAlignFolderType(alignFolderType);
 
         switch (alignFolderType) {
         case InDetDD::static_run1:
-            m_detectorManager->addFolder(topFolder);
             m_detectorManager->addChannel(topFolder + "/ID", 3, InDetDD::global);
             m_detectorManager->addChannel(topFolder + "/SCT",2,InDetDD::global);
             for (BarrelEndcap::iterator bec = m_waferTree.begin(); bec != m_waferTree.end(); ++bec) {

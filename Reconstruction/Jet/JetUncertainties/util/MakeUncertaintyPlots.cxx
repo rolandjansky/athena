@@ -160,7 +160,6 @@ void DrawFillLabel(TString txt, double x, double y, TH1 *h, bool logX = optHelpe
     x = x + 0.012; // Boxes in an ugly place otherwise.
   }
 
-  double ylow = 0.0;  // I hate root and I am hard-coding this. Apologies future user.
   double yhigh = maxYuser; // ""
   // Now calculate user coordinates from sensible ratios given in function call :(
   double fracxaxislow = ((x-0.02)-0.12)/(1.0-0.12-0.04); 
@@ -197,11 +196,11 @@ void DrawFillLabel(TString txt, double x, double y, TH1 *h, bool logX = optHelpe
   double fracyaxishigh = ((y+0.015)-0.15)/(1.0-0.15-0.04);
   double userylow, useryhigh;
   if (logY) {
-    userylow = exp(log(ylow) + fracyaxislow*(log(yhigh) - log(ylow)));
-    useryhigh = exp(log(ylow) + fracyaxishigh*(log(yhigh) - log(ylow)));
+    userylow = exp(fracyaxislow*(log(yhigh)));
+    useryhigh = exp(fracyaxishigh*(log(yhigh)));
   } else {
-    userylow = ylow + fracyaxislow*(yhigh - ylow);
-    useryhigh = ylow + fracyaxishigh*(yhigh - ylow);
+    userylow = fracyaxislow*yhigh;
+    useryhigh = fracyaxishigh*yhigh;
   }
 
   myTBox->SetFillColor(h->GetFillColor());
@@ -1008,7 +1007,7 @@ void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vect
         // Fix the large-R jet truth label if relevant
         if (optHelper.FixedLargeRJetTruthLabel() != LargeRJetTruthLabel::UNKNOWN)
         {
-            jet->setAttribute("LargeRJetTruthLabel",LargeRJetTruthLabel::enumToInt(optHelper.FixedLargeRJetTruthLabel()));
+	    jet->setAttribute(optHelper.TruthLabelMoment().Data(),LargeRJetTruthLabel::enumToInt(optHelper.FixedLargeRJetTruthLabel()));
             std::cout << "Fixed LargeRJetTruthLabel" << std::endl;
         }
         // Fix the Large-R jet tag accept if relevant

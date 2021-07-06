@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -155,7 +155,7 @@ MsgStream& InDet::TRT_TrackExtensionToolCosmics::dump( MsgStream& out ) const
 // Dumps conditions information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::TRT_TrackExtensionToolCosmics::dumpConditions( MsgStream& out ) const
+MsgStream& InDet::TRT_TrackExtensionToolCosmics::dumpConditions( MsgStream& out ) 
 {
 
   return out;
@@ -165,7 +165,7 @@ MsgStream& InDet::TRT_TrackExtensionToolCosmics::dumpConditions( MsgStream& out 
 // Dumps event information into the ostream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::TRT_TrackExtensionToolCosmics::dumpEvent( MsgStream& out ) const
+MsgStream& InDet::TRT_TrackExtensionToolCosmics::dumpEvent( MsgStream& out ) 
 {
   return out;
 }
@@ -218,14 +218,12 @@ InDet::TRT_TrackExtensionToolCosmics::newEvent(const EventContext& ctx) const
   std::unique_ptr<EventData> event_data(new EventData(trtcontainer.cptr()));
 
   Amg::RotationMatrix3D r; r.setIdentity();
-  Amg::Transform3D* t = 0;
-
-  t = new Amg::Transform3D(r * Amg::Translation3D(Amg::Vector3D::Zero()));
+  Amg::Transform3D t = Amg::Transform3D(r * Amg::Translation3D(Amg::Vector3D::Zero()));
   event_data->m_trtcylinder= new Trk::CylinderSurface(t,1150.,3000.);
-  t = new Amg::Transform3D(r * Amg::Translation3D(Amg::Vector3D(0.,0.,3000)));
-  event_data->m_trtdiscA   = new Trk::DiscSurface    (t,1.,1200.);
-  t = new Amg::Transform3D(r * Amg::Translation3D(Amg::Vector3D(0.,0.,-3000)));
-  event_data->m_trtdiscC   = new Trk::DiscSurface    (t,1.,1200.);
+  Amg::Transform3D transf = Amg::Transform3D(r * Amg::Translation3D(Amg::Vector3D(0.,0.,3000)));
+  event_data->m_trtdiscA   = new Trk::DiscSurface    (transf,1.,1200.);
+  transf = Amg::Transform3D(r * Amg::Translation3D(Amg::Vector3D(0.,0.,-3000)));
+  event_data->m_trtdiscC   = new Trk::DiscSurface    (transf,1.,1200.);
 
   return std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData>(event_data.release());
 
@@ -264,7 +262,7 @@ InDet::TRT_TrackExtensionToolCosmics::extendTrack(const EventContext& ctx,
   }
 
   if(Tr.perigeeParameters()) {
-    return extendTrack(ctx, *Tr.perigeeParameters(),event_data);
+    return extendTrack(ctx, Tr.perigeeParameters(),event_data);
   }
   event_data.m_measurement.clear();
   return event_data.m_measurement;
@@ -312,7 +310,7 @@ void InDet::TRT_TrackExtensionToolCosmics::analyze_tpars(const std::vector<const
 	detElements[2]=m_trtid->straw_layer_hash(temp);
       }
       double maxdist=m_roadwidth;
-      const InDet::TRT_DriftCircle *circ=NULL;
+      const InDet::TRT_DriftCircle *circ=nullptr;
       
       for(int i=-1;i<2;i++) {
 	if(m_searchNeighbour || i==0){	    
@@ -336,7 +334,7 @@ void InDet::TRT_TrackExtensionToolCosmics::analyze_tpars(const std::vector<const
 	    const Trk::Surface &dc_surface=(*driftCircleIterator)->detectorElement()->surface((*driftCircleIterator)->identify());
 
 	    //get the local position of the track prediction in the frame of the driftcircle
-	    const Amg::Vector2D *lpos=dc_surface.globalToLocal((*parameterIter)->position());
+      std::optional<Amg::Vector2D> lpos=dc_surface.globalToLocal((*parameterIter)->position());
 
 	    double distance=m_roadwidth+1;
 	    if(lpos){
@@ -352,7 +350,6 @@ void InDet::TRT_TrackExtensionToolCosmics::analyze_tpars(const std::vector<const
 		}
 	      }
 
-	      delete lpos;
 	    }
 
 	    if(distance<maxdist){
@@ -382,7 +379,7 @@ namespace InDet{
 class tp_sort_cosmics{
           public:
           tp_sort_cosmics(double theta){m_theta=theta;}
-          bool operator()(const Trk::TrackParameters *par1,const Trk::TrackParameters *par2){
+          bool operator()(const Trk::TrackParameters *par1,const Trk::TrackParameters *par2) const{
             if (m_theta>M_PI_2) return (par1->position().z()>par2->position().z());
             else return (par1->position().z()<par2->position().z());
           }
@@ -397,7 +394,7 @@ class tp_sort_cosmics{
 
 std::vector<const Trk::MeasurementBase*>&
 InDet::TRT_TrackExtensionToolCosmics::extendTrack(const EventContext& /*ctx*/,
-                                                  const Trk::TrackParameters& par,
+                                                  const Trk::TrackParameters * par,
                                                   InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const
 {
   InDet::TRT_TrackExtensionToolCosmics::EventData &
@@ -410,9 +407,9 @@ InDet::TRT_TrackExtensionToolCosmics::extendTrack(const EventContext& /*ctx*/,
 
 
 
-  std::vector<const Trk::TrackParameters* >* tpars_down=0;
-  std::vector<const Trk::TrackParameters* >* tpars_up=0;
-  const Trk::Perigee *per=dynamic_cast<const Trk::Perigee *>(&par);
+  std::vector<const Trk::TrackParameters* >* tpars_down=nullptr;
+  std::vector<const Trk::TrackParameters* >* tpars_up=nullptr;
+  const Trk::Perigee *per=dynamic_cast<const Trk::Perigee *>(par);
   if (!per) {
     msg(MSG::FATAL)<<"Track perigee not found!"<<endmsg;
     return event_data.m_measurement;
@@ -436,7 +433,7 @@ InDet::TRT_TrackExtensionToolCosmics::extendTrack(const EventContext& /*ctx*/,
 
      const Trk::PlaneSurface *plsurf=dynamic_cast<const Trk::PlaneSurface *>(&surf);
      const Trk::DiscSurface *discsurf=dynamic_cast<const Trk::DiscSurface *>(&surf);
-     Trk::TrackParameters *newpar=0;
+     Trk::TrackParameters *newpar=nullptr;
      if (plsurf) newpar=new Trk::AtaPlane(pos2,per->parameters()[Trk::phi],per->parameters()[Trk::theta],per->parameters()[Trk::qOverP],*plsurf);
      else newpar=new Trk::AtaDisc(pos2,per->parameters()[Trk::phi],per->parameters()[Trk::theta],per->parameters()[Trk::qOverP],*discsurf); 
      vecTP.push_back(newpar);
@@ -492,10 +489,10 @@ InDet::TRT_TrackExtensionToolCosmics::extendTrack(const EventContext& /*ctx*/,
 
 Trk::TrackSegment* 
 InDet::TRT_TrackExtensionToolCosmics::findSegment(const EventContext& /*ctx*/,
-                                                  const Trk::TrackParameters&,
+                                                  const Trk::TrackParameters *,
                                                   InDet::ITRT_TrackExtensionTool::IEventData &) const
 {
-  return NULL;
+  return nullptr;
 }
 
 
@@ -523,7 +520,7 @@ InDet::TRT_TrackExtensionToolCosmics::findBoundarySurface(const Trk::TrackParame
     return event_data.m_trtdiscC;
   }
 
-  return 0;
+  return nullptr;
 }
 
 Amg::Vector3D InDet::TRT_TrackExtensionToolCosmics::intersect(const Trk::Surface *surf,const Trk::Perigee *per) {
@@ -586,6 +583,6 @@ InDet::TRT_TrackExtensionToolCosmics::newTrack(const EventContext& /*ctx*/,
                                                const Trk::Track&,
                                                InDet::ITRT_TrackExtensionTool::IEventData &) const
 { 
-  return 0;
+  return nullptr;
 }
 

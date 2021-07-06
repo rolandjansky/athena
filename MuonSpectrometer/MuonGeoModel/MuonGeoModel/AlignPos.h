@@ -9,25 +9,24 @@
 #include <string>
 namespace MuonGM {
 
-class AlignPos {
-public:
+    class AlignPos {
+      public:
+        AlignPos();
 
-  AlignPos();
-  
-  int zindex;
-  int phiindex;
-  int jobindex;
-	double tras;
-	double traz;
-	double trat;
-	double rots;
-	double rotz;
-	double rott;
-	bool isBarrel;
-	bool isTrapezoid; // yuck! GeoModel axes different for box, trap
-	std::string tectype;  // eg BOS1 (to match to station type)
-    friend std::ostream& operator<<(std::ostream &os, const AlignPos& p);
-};
+        int zindex;
+        int phiindex;
+        int jobindex;
+        double tras;
+        double traz;
+        double trat;
+        double rots;
+        double rotz;
+        double rott;
+        bool isBarrel;
+        bool isTrapezoid;    // yuck! GeoModel axes different for box, trap
+        std::string tectype; // eg BOS1 (to match to station type)
+        friend std::ostream &operator<<(std::ostream &os, const AlignPos &p);
+    };
 
 } // namespace MuonGM
 #endif

@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BEAMEFFECTS_BeamSpotReweightingAlg_H
@@ -57,13 +57,13 @@ namespace Simulation
     
     SG::ReadHandleKey<McEventCollection> m_inputMcEventCollection { this, "InputMcEventCollection", "TruthEvent", "The name of the input McEventCollection" };
     
-    SG::WriteDecorHandleKey<xAOD::EventInfo> m_beamSpotWeight {this, "BeamSpotWeight", "EventInfo.BeamSpotWeight", "Decoration for a beam spot weight when reweighting the beam spot size" };
+    SG::WriteDecorHandleKey<xAOD::EventInfo> m_beamSpotWeight {this, "beamSpotWeight", "EventInfo.beamSpotWeight", "Decoration for a beam spot weight when reweighting the beam spot size" };
       
     SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };  
     
     SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo { this, "EventInfo", "EventInfo", "EventInfo object in SG" };
       
-    float m_input_beam_sigma_z = 42*Gaudi::Units::mm;
+    Gaudi::Property<float> m_input_beam_sigma_z{this, "Input_beam_sigma_z", 42*Gaudi::Units::mm, "Beam spot sigma of the input HIT file to be reweighted"};
   };
 
 }

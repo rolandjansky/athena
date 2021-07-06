@@ -42,7 +42,6 @@ class WriteRPVLLStream(JobProperty):
     FileName = ""
     DPDMakerScript = "PrimaryDPDMaker/esdtodpd.py"
     TriggerNames = []
-    pass
 primDPD.add_JobProperty(WriteRPVLLStream)
 listESDtoDPD.append(WriteRPVLLStream.StreamName)
 

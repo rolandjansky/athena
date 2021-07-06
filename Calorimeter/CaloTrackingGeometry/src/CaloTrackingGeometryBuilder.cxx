@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,7 +15,6 @@
 #include "TrkDetDescrInterfaces/ITrackingVolumeArrayCreator.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumeHelper.h"
 #include "TrkDetDescrInterfaces/IDynamicLayerCreator.h"
-//#include "TrkDetDescrInterfaces/IMaterialEffectsOnTrackProvider.h"
 #include "TrkDetDescrUtils/BinnedArray.h"
 #include "TrkDetDescrUtils/BinnedArray1D1D.h"
 #include "TrkDetDescrUtils/SharedObject.h"
@@ -35,20 +34,9 @@
 #include "TrkSurfaces/DiscBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
 #include "TrkSurfaces/DiscSurface.h"
-#include "TrkSurfaces/PlaneSurface.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include <memory>
-// CLHEP
-//#include "CLHEP/Geometry/Transform3D.h"
 
-//using HepGeom::Transform3D;
-//using HepGeom::Translate3D;
-//using HepGeom::RotateZ3D;
-//using HepGeom::Vector3D;
-//using CLHEP::Hep3Vector;
-//using CLHEP::HepRotation;
-//using CLHEP::mm;
-//using CLHEP::radian;
 
 // constructor
 Calo::CaloTrackingGeometryBuilder::CaloTrackingGeometryBuilder(const std::string& t, const std::string& n, const IInterface* p) :
@@ -518,8 +506,8 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
        //float d = mbtsBounds->halflengthZ();
        Trk::DiscBounds* dibo = new Trk::DiscBounds(rmin,rmax);
        // MBTS positions
-       Amg::Transform3D* mbtsNegZpos = new Amg::Transform3D(Amg::Translation3D(lArNegativeMBTS->center()));
-       Amg::Transform3D* mbtsPosZpos = new Amg::Transform3D(Amg::Translation3D(lArPositiveMBTS->center()));
+       Amg::Transform3D mbtsNegZpos = Amg::Transform3D(Amg::Translation3D(lArNegativeMBTS->center()));
+       Amg::Transform3D mbtsPosZpos = Amg::Transform3D(Amg::Translation3D(lArPositiveMBTS->center()));
        // create the two Layers ( TODO: add trd surface subarray )
        Trk::DiscLayer* mbtsNegLayer = new Trk::DiscLayer(mbtsNegZpos,dibo,
                                                          //mbtsNegLayerSurfArray,
@@ -1070,12 +1058,12 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
    // the Tile Crack volume (TileGap3, enum 17) inserted here
    // binned material for Crack : steering in binEta
    // TODO turn into 2D binned array
-   std::vector<const Trk::IdentifiedMaterial*> matCrack;
+   std::vector<Trk::IdentifiedMaterial> matCrack;
    // layer material can be adjusted here
    int baseID = Trk::GeometrySignature(Trk::Calo)*1000 + 17;
-   matCrack.push_back(new std::pair<const Trk::Material*,int>(mScint,baseID));
-   matCrack.push_back(new std::pair<const Trk::Material*,int>(m_caloMaterial,-1));
-   matCrack.push_back(new std::pair<const Trk::Material*,int>(mAl,-1));
+   matCrack.emplace_back(mScint,baseID);
+   matCrack.emplace_back(m_caloMaterial,-1);
+   matCrack.emplace_back(mAl,-1);
    //
    Trk::BinUtility* bun = new Trk::BinUtility(3,-1.8,-1.2,Trk::open,Trk::binEta);
    Trk::BinUtility* bup = new Trk::BinUtility(3, 1.2,1.8,Trk::open,Trk::binEta);

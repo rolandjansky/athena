@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -76,28 +76,30 @@ InDetPhysValTruthDecoratorAlg::execute(const EventContext &ctx) const {
     return StatusCode::FAILURE;
   }
 
-  std::vector< std::pair<SG::WriteDecorHandle<xAOD::TruthParticleContainer, float>,const SG::AuxElement::ConstAccessor<float> &> >
-    float_decor( IDPVM::createDecoratorsWithAccessor(m_decor, ctx) );
+  std::vector< IDPVM::OptionalDecoration<xAOD::TruthParticleContainer,float> >
+     float_decor( IDPVM::createDecoratorsIfNeeded(*ptruth, m_decor, ctx, msgLvl(MSG::DEBUG)) );
 
-  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
-  ATH_CHECK(beamSpotHandle.isValid());
-  const auto& beamPos = beamSpotHandle->beamPos();
+  if (not float_decor.empty()) {
+     SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
+     ATH_CHECK(beamSpotHandle.isValid());
+     const auto& beamPos = beamSpotHandle->beamPos();
 
-  if ( m_truthSelectionTool.get() ) {
-    CutFlow tmp_cut_flow(m_truthSelectionTool->nCuts());
-    for (const xAOD::TruthParticle *truth_particle : *ptruth) {
-      auto passed = m_truthSelectionTool->accept(truth_particle);
-      tmp_cut_flow.update( passed.missingCuts() );
-      if (not passed) continue;
-      decorateTruth(*truth_particle, float_decor, beamPos);
-    }
-    std::lock_guard<std::mutex> lock(m_mutex);
-    m_cutFlow.merge(std::move(tmp_cut_flow));
-  }
-  else {
-    for (const xAOD::TruthParticle *truth_particle : *ptruth) {
-      decorateTruth(*truth_particle, float_decor, beamPos);
-    }
+     if ( m_truthSelectionTool.get() ) {
+        CutFlow tmp_cut_flow(m_truthSelectionTool->nCuts());
+        for (const xAOD::TruthParticle *truth_particle : *ptruth) {
+           auto passed = m_truthSelectionTool->accept(truth_particle);
+           tmp_cut_flow.update( passed.missingCuts() );
+           if (not passed) continue;
+           decorateTruth(*truth_particle, float_decor, beamPos);
+        }
+        std::lock_guard<std::mutex> lock(m_mutex);
+        m_cutFlow.merge(std::move(tmp_cut_flow));
+     }
+     else {
+        for (const xAOD::TruthParticle *truth_particle : *ptruth) {
+           decorateTruth(*truth_particle, float_decor, beamPos);
+        }
+     }
   }
   return StatusCode::SUCCESS;
 }
@@ -106,8 +108,8 @@ InDetPhysValTruthDecoratorAlg::execute(const EventContext &ctx) const {
 
 bool
 InDetPhysValTruthDecoratorAlg::decorateTruth(const xAOD::TruthParticle& particle,
-                                              std::vector<IDPVM::WriteAccessorRefPair<xAOD::TruthParticleContainer, float> > &float_decor,
-                                                                      const Amg::Vector3D& beamPos) const {
+                                             std::vector<IDPVM::OptionalDecoration<xAOD::TruthParticleContainer, float> > &float_decor,
+                                             const Amg::Vector3D& beamPos) const {
   ATH_MSG_VERBOSE("Decorate truth with d0 etc");
   if (particle.isNeutral()) {
     return false;

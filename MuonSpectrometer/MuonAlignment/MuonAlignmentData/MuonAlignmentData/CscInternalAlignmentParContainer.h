@@ -9,17 +9,13 @@
 #include "AthenaKernel/CLASS_DEF.h"
 #include "MuonAlignmentData/CscInternalAlignmentPar.h"
 
-class CscInternalAlignmentParContainer : public DataVector<CscInternalAlignmentPar>
-{
- public:
-  CscInternalAlignmentParContainer();
-  ~CscInternalAlignmentParContainer()=default;
-
+class CscInternalAlignmentParContainer : public DataVector<CscInternalAlignmentPar> {
+public:
+    CscInternalAlignmentParContainer();
+    ~CscInternalAlignmentParContainer() = default;
 };
 
-inline CscInternalAlignmentParContainer::CscInternalAlignmentParContainer():
-  DataVector<CscInternalAlignmentPar>()
-{ } 
+inline CscInternalAlignmentParContainer::CscInternalAlignmentParContainer() : DataVector<CscInternalAlignmentPar>() {}
 
 CLASS_DEF(CscInternalAlignmentParContainer, 1324994858, 1)
 

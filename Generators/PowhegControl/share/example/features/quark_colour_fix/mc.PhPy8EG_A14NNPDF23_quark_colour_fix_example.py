@@ -1,11 +1,11 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 # --------------------------------------------------------------
 # EVGEN configuration
 # --------------------------------------------------------------
 evgenConfig.description = "PowhegControl example of automated quark colour fixing"
 evgenConfig.keywords = ["SM", "Higgs", "Z"]
-evgenConfig.contact = ["simone.amoroso@cern.ch"]
+evgenConfig.contact = ["james.robinson@cern.ch"]
 
 # --------------------------------------------------------------
 # Load ATLAS defaults for the Powheg ggF_HZ process

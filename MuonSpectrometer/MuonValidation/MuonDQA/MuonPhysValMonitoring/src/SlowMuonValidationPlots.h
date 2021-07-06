@@ -15,15 +15,15 @@ class SlowMuonValidationPlots:public PlotBase
   SlowMuonValidationPlots(PlotBase* pParent, std::string sDir, bool isData);
 
   virtual ~SlowMuonValidationPlots();
-  void fill(const xAOD::SlowMuon& smu, const xAOD::Muon& mu);
-  void fill(const xAOD::TruthParticle *truthMu, const xAOD::SlowMuon *smu, const xAOD::Muon* mu);
+  void fill(const xAOD::SlowMuon& smu, const xAOD::Muon& mu, float weight=1.0);
+  void fill(const xAOD::TruthParticle *truthMu, const xAOD::SlowMuon *smu, const xAOD::Muon* mu, float weight=1.0);
 
   Muon::SlowMuonParamPlots* m_oSlowMuonRecoPlots;
   Muon::SlowMuonParamPlots* m_oSlowMuonMatchedPlots;
 
  private:
-  void fillRecoMuonPlots(const xAOD::SlowMuon& smu, const xAOD::Muon& mu);
-  void fillMatchedMuonPlots(const xAOD::SlowMuon& smu, const xAOD::Muon& mu);
+  void fillRecoMuonPlots(const xAOD::SlowMuon& smu, const xAOD::Muon& mu, float weight=1.0);
+  void fillMatchedMuonPlots(const xAOD::SlowMuon& smu, const xAOD::Muon& mu, float weight=1.0);
 
   bool m_isData;
 

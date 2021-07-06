@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "AthenaMonitoring/AthenaMonManager.h"
 
@@ -76,6 +76,10 @@ StatusCode CSCSegmValMonAlg::fillHistograms(const EventContext& ctx) const{
     }
 
     SG::ReadHandle<Trk::SegmentCollection> segments(m_segmKey, ctx);
+    if (!segments.isValid()) {
+      ATH_MSG_ERROR("Could not retrieve Trk::SegmentCollection "<<m_segmKey.key());
+      return StatusCode::FAILURE;
+    }
 
     if ( segments->empty() ){
       ATH_MSG_DEBUG( "      Segm Collection is Empty, done...    ");
@@ -178,7 +182,7 @@ StatusCode CSCSegmValMonAlg::fillHistograms(const EventContext& ctx) const{
         int segm_stationPhi  = m_idHelperSvc->cscIdHelper().stationPhi(segmId);
         int segm_stationEta  = m_idHelperSvc->cscIdHelper().stationEta(segmId);
         int segm_stationName = m_idHelperSvc->cscIdHelper().stationName(segmId);
-        int segm_chamberType = Muon::MuonStationIndex::CSS == segm_stationName ? 0 : 1;
+        int segm_chamberType = m_idHelperSvc->cscIdHelper().stationNameIndex("CSS") == segm_stationName ? 0 : 1;
         auto segm_sectorNo = Monitored::Scalar<int>("segm_sectorNo", (segm_stationEta * (2 * segm_stationPhi - segm_chamberType)) ); // [-16 -> -1] and [+1 -> +16]
         int segm_isec = segm_sectorNo < 0 ? segm_sectorNo*(-1) : segm_sectorNo+16; // [-16 -> -1] shifted to [1 -> 16] and [+1 -> +16] shifted to [+17 -> +32]
         ATH_MSG_DEBUG(" sgsec = " << segm_isec << "\tsec = " << segm_sectorNo);
@@ -188,9 +192,9 @@ StatusCode CSCSegmValMonAlg::fillHistograms(const EventContext& ctx) const{
 
         float clus_kiloele = 1.0e-3; // multiply # of electrons by this number to get kiloElectrons (1 ke = 1 ADC)
         int eta_clus_count[2][2] = {{0, 0},{0, 0}}, phi_clus_count[2][2] = {{0, 0},{0, 0}}; // no. of prec/trans hits per segment
-        float eta_clus_qsum[2][5] = {{-1., -1.}, {-1., -1., -1., -1., -1.}},  phi_clus_qsum[2][5] = {{-1., -1.}, {-1., -1., -1., -1., -1.}}; // qsum over each prec/trans. layer on segment
-        float eta_clus_time[2][5] = {{-1., -1.}, {-1., -1., -1., -1., -1.}},  phi_clus_time[2][5] = {{-1., -1.}, {-1., -1., -1., -1., -1.}}; // time over each prec/trans. layer on segment
-        int eta_clus_use[2][5] = {{0, 0},{0,0,0,0,0}}, phi_clus_use[2][5] = {{0,0}, {0,0,0,0,0}};
+        float eta_clus_qsum[2][5] = {{-1., 0., 0., 0., 0.}, {-1., 0., 0., 0., 0.}},  phi_clus_qsum[2][5] = {{-1., 0., 0., 0., 0.}, {-1., 0., 0., 0., 0.}}; // qsum over each prec/trans. layer on segment
+        float eta_clus_time[2][5] = {{-1., 0., 0., 0., 0.}, {-1., 0., 0., 0., 0.}},  phi_clus_time[2][5] = {{-1., 0., 0., 0., 0.}, {-1., 0., 0., 0., 0.}}; // time over each prec/trans. layer on segment
+        int eta_clus_use[2][5] = {{0, 0, 0, 0, 0 },{0, 0, 0, 0, 0}}, phi_clus_use[2][5] = {{0, 0, 0, 0, 0}, {0, 0, 0, 0, 0}};
 
         layerindex = 0;
 
@@ -201,7 +205,7 @@ StatusCode CSCSegmValMonAlg::fillHistograms(const EventContext& ctx) const{
 
             // get the cluster coordinates
             int clus_stationName = m_idHelperSvc->cscIdHelper().stationName(clusId);
-            int clus_chamberType = Muon::MuonStationIndex::CSS == clus_stationName ? 0 : 1;
+            int clus_chamberType = m_idHelperSvc->cscIdHelper().stationNameIndex("CSS") == clus_stationName ? 0 : 1;
             int clus_stationEta  = m_idHelperSvc->cscIdHelper().stationEta(clusId);
             int clus_stationPhi  = m_idHelperSvc->cscIdHelper().stationPhi(clusId);
             int clus_wireLayer = m_idHelperSvc->cscIdHelper().wireLayer(clusId);
@@ -244,9 +248,6 @@ StatusCode CSCSegmValMonAlg::fillHistograms(const EventContext& ctx) const{
               }
             }
 
-            auto clus_qsum_mon = Monitored::Scalar<float>("clus_qsum_mon",clus_qsum);
-            auto clus_time_mon = Monitored::Scalar<float>("clus_time_mon",clus_time);
-
             // get no. of strips per cluster
             unsigned int clus_noStrips = theClus->rdoList().size();
 
@@ -255,7 +256,7 @@ StatusCode CSCSegmValMonAlg::fillHistograms(const EventContext& ctx) const{
             bool clus_eta_eff = clus_stat_eff && ( clus_noStrips > 2 ) && (clus_measuresPhi == 0);
             if(clus_eta_eff){
               if(clus_stationEta == 1) eta_clus_count[0][1]++;
-              else phi_clus_count[1][1]++;
+              else eta_clus_count[1][1]++;
             }
             if(clus_eta_status){
               if(clus_stationEta == 1){
@@ -286,18 +287,6 @@ StatusCode CSCSegmValMonAlg::fillHistograms(const EventContext& ctx) const{
               }
             }
 
-
-            auto checkStatusEtaA = Monitored::Scalar<int>("checkStatusEtaA", (int)clus_eta_status && (int)(clus_stationEta==1));
-            auto checkStatusEtaC = Monitored::Scalar<int>("checkStatusEtaC", (int)clus_eta_status && (int)(clus_stationEta==-1));
-            auto checkTimeEtaA = Monitored::Scalar<int>("checkTimeEtaA", (int)clus_eta_status && (int)(clus_stationEta==1) && (int) (std::abs(clus_time) <= 200));
-            auto checkTimeEtaC = Monitored::Scalar<int>("checkTimeEtaC", (int)clus_eta_status && (int)(clus_stationEta==-1) && (int) (std::abs(clus_time) <= 200));
-          
-            auto checkStatusPhiA = Monitored::Scalar<int>("checkStatusPhiA", (int)clus_phi_status && (int)(clus_stationEta==1));
-            auto checkStatusPhiC = Monitored::Scalar<int>("checkStatusPhiC", (int)clus_phi_status && (int)(clus_stationEta==-1));
-            auto checkTimePhiA = Monitored::Scalar<int>("checkTimePhiA", (int)clus_phi_status && (int)(clus_stationEta==1) && (int) (std::abs(clus_time) <= 200));
-            auto checkTimePhiC = Monitored::Scalar<int>("checkTimePhiC", (int)clus_phi_status && (int)(clus_stationEta==-1) && (int) (std::abs(clus_time) <= 200));
-            fill("CscSegmMonitor", clus_qsum_mon, clus_secLayer, clus_time_mon, checkStatusEtaA, checkStatusEtaC, checkTimeEtaA, checkTimeEtaC, checkStatusPhiA, checkStatusPhiC, checkTimePhiA, checkTimePhiC );
-
             // increment the cluster-count for this layer
             if(clus_eta_status || clus_phi_status) clusCount[clus_isec][clus_ilay]++;
 
@@ -308,34 +297,47 @@ StatusCode CSCSegmValMonAlg::fillHistograms(const EventContext& ctx) const{
 
             ATH_MSG_DEBUG("status = " << clus_stat << "\tcharge = " << clus_qsum << "\ttime= " << clus_time << "\tnstrips = " << clus_noStrips);
 
+            auto clus_qsum_mon = Monitored::Scalar<float>("clus_qsum_mon",clus_qsum);
+            auto clus_time_mon = Monitored::Scalar<float>("clus_time_mon",clus_time);
+            auto checkStatusEtaA = Monitored::Scalar<int>("checkStatusEtaA", (int) (clus_eta_status && (clus_stationEta==1)));
+            auto checkStatusEtaC = Monitored::Scalar<int>("checkStatusEtaC", (int) (clus_eta_status && (clus_stationEta==-1)));
+            auto checkTimeEtaA = Monitored::Scalar<int>("checkTimeEtaA", (int) (clus_eta_status && (clus_stationEta==1) && (std::abs(clus_time) <= 200)));
+            auto checkTimeEtaC = Monitored::Scalar<int>("checkTimeEtaC", (int) (clus_eta_status && (clus_stationEta==-1) && (std::abs(clus_time) <= 200)));
+          
+            auto checkStatusPhiA = Monitored::Scalar<int>("checkStatusPhiA", (int) (clus_phi_status && (clus_stationEta==1)));
+            auto checkStatusPhiC = Monitored::Scalar<int>("checkStatusPhiC", (int) (clus_phi_status && (clus_stationEta==-1)));
+            auto checkTimePhiA = Monitored::Scalar<int>("checkTimePhiA", (int) (clus_phi_status && (clus_stationEta==1) && (std::abs(clus_time) <= 200)));
+            auto checkTimePhiC = Monitored::Scalar<int>("checkTimePhiC", (int) (clus_phi_status && (clus_stationEta==-1) && (std::abs(clus_time) <= 200)));
+            fill("CscSegmMonitor", clus_qsum_mon, clus_secLayer, clus_time_mon, checkStatusEtaA, checkStatusEtaC, checkTimeEtaA, checkTimeEtaC, checkStatusPhiA, checkStatusPhiC, checkTimePhiA, checkTimePhiC );
+
 
           } // if clust_rot
 
         } // for loop over clusters
 
-        auto tmp_etaClusA = Monitored::Scalar<int>("tmp_etaClusA", eta_clus_count[0][0]);
-        auto tmp_etaClusGoodA = Monitored::Scalar<int>("tmp_etaClusGoodA", eta_clus_count[0][1]);
+        auto tmp_etaClusA = Monitored::Scalar<float>("tmp_etaClusA", eta_clus_count[0][0]);
+        auto tmp_etaClusGoodA = Monitored::Scalar<float>("tmp_etaClusGoodA", eta_clus_count[0][1]);
 
-        auto tmp_phiClusA = Monitored::Scalar<int>("tmp_phiClusA", phi_clus_count[0][0]);
-        auto tmp_phiClusGoodA = Monitored::Scalar<int>("tmp_phiClusGoodA", phi_clus_count[0][1]);
+        auto tmp_phiClusA = Monitored::Scalar<float>("tmp_phiClusA", phi_clus_count[0][0]);
+        auto tmp_phiClusGoodA = Monitored::Scalar<float>("tmp_phiClusGoodA", phi_clus_count[0][1]);
 
-        auto checkClusEtaA = Monitored::Scalar<int>("checkClusEtaA", (int)eta_clus_count[0][0] > 0);
-        auto checkClusEtaGoodA = Monitored::Scalar<int>("checkClusEtaGoodA", (int)eta_clus_count[0][1] > 0);
+        auto checkClusEtaA = Monitored::Scalar<int>("checkClusEtaA", (int) (eta_clus_count[0][0] > 0));
+        auto checkClusEtaGoodA = Monitored::Scalar<int>("checkClusEtaGoodA", (int) (eta_clus_count[0][1] > 0));
 
-        auto checkClusPhiA = Monitored::Scalar<int>("checkClusPhiA", (int)phi_clus_count[0][0] > 0);
-        auto checkClusPhiGoodA = Monitored::Scalar<int>("checkClusPhiGoodA", (int)phi_clus_count[0][1] > 0);
+        auto checkClusPhiA = Monitored::Scalar<int>("checkClusPhiA", (int) (phi_clus_count[0][0] > 0));
+        auto checkClusPhiGoodA = Monitored::Scalar<int>("checkClusPhiGoodA", (int) (phi_clus_count[0][1] > 0));
 
-        auto tmp_etaClusC = Monitored::Scalar<int>("tmp_etaClusC", eta_clus_count[1][0]);
-        auto tmp_etaClusGoodC = Monitored::Scalar<int>("tmp_etaClusGoodC", eta_clus_count[1][1]);
+        auto tmp_etaClusC = Monitored::Scalar<float>("tmp_etaClusC", eta_clus_count[1][0]);
+        auto tmp_etaClusGoodC = Monitored::Scalar<float>("tmp_etaClusGoodC", eta_clus_count[1][1]);
 
-        auto tmp_phiClusC = Monitored::Scalar<int>("tmp_phiClusC", phi_clus_count[1][0]);
-        auto tmp_phiClusGoodC = Monitored::Scalar<int>("tmp_phiClusGoodC", phi_clus_count[1][1]);
+        auto tmp_phiClusC = Monitored::Scalar<float>("tmp_phiClusC", phi_clus_count[1][0]);
+        auto tmp_phiClusGoodC = Monitored::Scalar<float>("tmp_phiClusGoodC", phi_clus_count[1][1]);
 
-        auto checkClusEtaC = Monitored::Scalar<int>("checkClusEtaC", (int)eta_clus_count[1][0] > 0);
-        auto checkClusEtaGoodC = Monitored::Scalar<int>("checkClusEtaGoodC", (int)eta_clus_count[1][1] > 0);
+        auto checkClusEtaC = Monitored::Scalar<int>("checkClusEtaC", (int) (eta_clus_count[1][0] > 0));
+        auto checkClusEtaGoodC = Monitored::Scalar<int>("checkClusEtaGoodC", (int) (eta_clus_count[1][1] > 0));
 
-        auto checkClusPhiC = Monitored::Scalar<int>("checkClusPhiC", (int)phi_clus_count[1][0] > 0);
-        auto checkClusPhiGoodC = Monitored::Scalar<int>("checkClusPhiGoodC", (int)phi_clus_count[1][1] > 0);
+        auto checkClusPhiC = Monitored::Scalar<int>("checkClusPhiC", (int) (phi_clus_count[1][0] > 0));
+        auto checkClusPhiGoodC = Monitored::Scalar<int>("checkClusPhiGoodC", (int) (phi_clus_count[1][1] > 0));
 
         fill("CscSegmMonitor", tmp_etaClusA, checkClusEtaA, tmp_etaClusGoodA, checkClusEtaGoodA, tmp_phiClusA, tmp_phiClusGoodA, checkClusPhiA, checkClusPhiGoodA, tmp_etaClusC, checkClusEtaC, tmp_etaClusGoodC, checkClusEtaGoodC, tmp_phiClusC, tmp_phiClusGoodC, checkClusPhiC, checkClusPhiGoodC);
 
@@ -375,8 +377,8 @@ StatusCode CSCSegmValMonAlg::fillHistograms(const EventContext& ctx) const{
 
         auto tmp_layerIndexA_mon = Monitored::Collection("tmp_layerIndexA_mon", tmp_layerIndexA);
         auto tmp_isectA_mon = Monitored::Collection("tmp_isectA_mon", tmp_isectA);
-        auto tmp_layerIndexC_mon = Monitored::Collection("tmp_layerIndexC_mon", tmp_layerIndexA);
-        auto tmp_isectC_mon = Monitored::Collection("tmp_isectC_mon", tmp_isectA);
+        auto tmp_layerIndexC_mon = Monitored::Collection("tmp_layerIndexC_mon", tmp_layerIndexC);
+        auto tmp_isectC_mon = Monitored::Collection("tmp_isectC_mon", tmp_isectC);
         fill("CscSegmMonitor", tmp_layerIndexA_mon, tmp_isectA_mon, tmp_layerIndexC_mon, tmp_isectC_mon);
 
         float eta_clus_qsum_tot = 0., phi_clus_qsum_tot = 0.; // total qsum over all prec. trans. layers on segment
@@ -417,7 +419,6 @@ StatusCode CSCSegmValMonAlg::fillHistograms(const EventContext& ctx) const{
               }
             }
 
-                   
             if(phi_clus_use[i][j] && eta_clus_use[i][j]){
               eta_clus_qsum_tot += eta_clus_qsum[i][j];
               phi_clus_qsum_tot += phi_clus_qsum[i][j];
@@ -455,15 +456,15 @@ StatusCode CSCSegmValMonAlg::fillHistograms(const EventContext& ctx) const{
           }
               
           if(i==0) {
-            auto etaQSumTot0 = Monitored::Scalar<float>("etaQSumTot0", eta_clus_qsum_tot);
-            auto phiQSumTot0 = Monitored::Scalar<float>("phiQSumTot0", phi_clus_qsum_tot);
-            fill("CscSegmMonitor", etaQSumTot0, phiQSumTot0);
+            auto etaQSumTotA = Monitored::Scalar<float>("etaQSumTotA", eta_clus_qsum_tot);
+            auto phiQSumTotA = Monitored::Scalar<float>("phiQSumTotA", phi_clus_qsum_tot);
+            fill("CscSegmMonitor", etaQSumTotA, phiQSumTotA);
           }   
         
           if(i==1) {
-            auto etaQSumTot = Monitored::Scalar<float>("etaQSumTot", eta_clus_qsum_tot);
-            auto phiQSumTot = Monitored::Scalar<float>("phiQSumTot", phi_clus_qsum_tot);
-            fill("CscSegmMonitor", etaQSumTot, phiQSumTot); 
+            auto etaQSumTotC = Monitored::Scalar<float>("etaQSumTotC", eta_clus_qsum_tot);
+            auto phiQSumTotC = Monitored::Scalar<float>("phiQSumTotC", phi_clus_qsum_tot);
+            fill("CscSegmMonitor", etaQSumTotC, phiQSumTotC); 
           } 
         }    
       } // if is csc segment

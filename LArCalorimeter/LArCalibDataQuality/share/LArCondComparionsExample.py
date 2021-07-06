@@ -109,31 +109,6 @@ if "Catalog" in dir():
   svcMgr.PoolSvc.ReadCatalog += ["xmlcatalog_file:"+Catalog]
 
 
-## from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-## theLArPedACValBCMask=LArBadChannelMasker("PedValBCMask",
-##                                          DoMasking=False,
-##                                          ProblemsToMask=[]
-##                                          )
-## ToolSvc+=theLArPedACValBCMask
-## theLArRampValBCMask=LArBadChannelMasker("RampValBCMask",
-##                                         DoMasking=True,
-##                                         ProblemsToMask=[
-##   "deadReadout","deadCalib","deadPhys","almostDeadBit",
-##   "highNoiseHG","highNoiseMG","highNoiseLG"
-##   ]
-## )
-## ToolSvc+=theLArRampValBCMask
-
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-theLArBCMask=LArBadChannelMasker("BadChannelMask",
-                                 DoMasking=True,
-                                 ProblemsToMask=["deadReadout","deadCalib","deadPhys","almostDead",
-                                                 "highNoiseHG","highNoiseMG","highNoiseLG"]
-                                 )
-ToolSvc += theLArBCMask
-
-
-
 if upper(Object)=="PEDESTAL":
   from LArCalibDataQuality.Thresholds import pedThr,rmsThr, pedThrFEB,rmsThrFEB
   addFolderAndTag("/LAR/ElecCalibOfl/Pedestals/Pedestal","Pedestal")
@@ -177,7 +152,8 @@ elif upper(Object)=="RAMP":
   theRampValidationAlg=LArRampValidationAlg()
   theRampValidationAlg.RampTolerance=rampThr
   theRampValidationAlg.RampToleranceFEB=rampThrFEB
-  theRampValidationAlg.BadChannelMaskingTool=theLArBCMask
+  theRampValidationAlg.ProblemsToMask=["deadReadout","deadCalib","deadPhys","almostDead",
+                                       "highNoiseHG","highNoiseMG","highNoiseLG"]
   theRampValidationAlg.ValidationKey="Ramp"
   theRampValidationAlg.ReferenceKey="RampRef"
   theRampValidationAlg.MsgLevelForDeviations=INFO
@@ -199,7 +175,8 @@ elif upper(Object)=="CALIWAVE" or upper(Object)=="CALIWAVEXTALK":
   from LArCalibDataQuality.LArCalibDataQualityConf import LArCaliWaveValidationAlg
 
   theCaliWaveValidationAlg=LArCaliWaveValidationAlg()
-  theCaliWaveValidationAlg.BadChannelMaskingTool=theLArBCMask
+  theCaliWaveValidationAlg.ProblemsToMask=["deadReadout","deadCalib","deadPhys","almostDead",
+                                           "highNoiseHG","highNoiseMG","highNoiseLG"]
   theCaliWaveValidationAlg.ValidationKey="CaliWave"
   theCaliWaveValidationAlg.ReferenceKey="CaliWaveRef"
   theCaliWaveValidationAlg.AmplitudeTolerance=cwAmpThr

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGCcabling/TGCCabling.h"
@@ -38,9 +38,9 @@ TGCCabling::~TGCCabling (void)
   delete m_cableSLBToSSW;
   delete m_cableSSWToROD;
 
-  std::map<int, TGCModuleId*>::iterator it   = m_slbModuleIdMap.begin(); 
-  std::map<int, TGCModuleId*>::iterator it_e = m_slbModuleIdMap.end(); 
-  for(; it!=it_e; it++) delete ((*it).second); 
+  for (auto& p : m_slbModuleIdMap) {
+    delete p.second;
+  }
 }
 
 // virtual method  of TGCCabligBase   
@@ -65,7 +65,10 @@ TGCIdBase* TGCCabling::getASDOutChannel(const TGCIdBase* in) const
 const TGCModuleId* TGCCabling::getSLBFromReadout (TGCIdBase::SideType side,
 						  int rodId,
 						  int sswId,
-						  int slbId) const {
+						  int slbId) const
+{
+  std::scoped_lock lock (m_mutex);
+
   int indexFromReadoutWithoutChannel  
     = getIndexFromReadoutWithoutChannel(side, rodId, sswId, slbId); 
   std::map<int, TGCModuleId*>::iterator it 

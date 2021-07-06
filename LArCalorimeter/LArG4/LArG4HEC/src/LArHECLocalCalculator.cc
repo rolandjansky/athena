@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHECLocalCalculator.h"
@@ -65,8 +65,7 @@ StatusCode LArHECLocalCalculator::finalize()
 G4bool LArHECLocalCalculator::Process(const G4Step* a_step, int depthadd, double deadzone, std::vector<LArHitData>& hdata) const
 {
 
-  // make sure vector is clear
-  hdata.clear();
+  hdata.resize(1);
   // First, get the energy.
   hdata[0].energy = a_step->GetTotalEnergyDeposit() * a_step->GetTrack()->GetWeight();
 

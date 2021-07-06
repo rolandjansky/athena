@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file MakeEventStreamInfo.cxx
  *  @brief This file contains the implementation for the MakeEventStreamInfo class.
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
- *  $Id: MakeEventStreamInfo.cxx,v 1.7 2009-02-09 22:48:31 gemmeren Exp $
  **/
 
 #include "MakeEventStreamInfo.h"
@@ -37,7 +36,7 @@ MakeEventStreamInfo::~MakeEventStreamInfo() {
 }
 //___________________________________________________________________________
 StatusCode MakeEventStreamInfo::initialize() {
-   ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
+   ATH_MSG_DEBUG("Initializing " << name());
    // Locate the MetaDataStore
    if (!m_metaDataSvc.retrieve().isSuccess()) {
       ATH_MSG_FATAL("Could not find MetaDataSvc");

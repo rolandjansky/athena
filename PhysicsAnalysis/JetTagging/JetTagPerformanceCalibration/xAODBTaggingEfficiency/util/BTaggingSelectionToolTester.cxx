@@ -7,7 +7,7 @@
 #else
 #include "POOLRootAccess/TEvent.h"
 #endif
-#include <AsgTools/AnaToolHandle.h>
+#include <AsgTools/StandaloneToolHandle.h>
 #include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 
 #include "PATInterfaces/CorrectionCode.h"
@@ -32,7 +32,7 @@ int main() {
   std::string workingPointName = "HybBEff_77";
 
 
-  asg::AnaToolHandle<IBTaggingSelectionTool> tool("BTaggingSelectionTool/BTagSelecTest");
+  asg::StandaloneToolHandle<IBTaggingSelectionTool> tool("BTaggingSelectionTool/BTagSelecTest");
   StatusCode code1 = tool.setProperty( "FlvTagCutDefinitionsFileName","xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root" );
   StatusCode code2 = tool.setProperty("TaggerName",    taggerName  );
   StatusCode code3 = tool.setProperty("OperatingPoint", workingPointName);
@@ -121,7 +121,7 @@ int main() {
   //you can get the jets tag weight bin (between the different fixedcutBEff working points, 60,70,77,85)
   taggerName = "DL1";
   workingPointName = "Continuous";
-  asg::AnaToolHandle<IBTaggingSelectionTool> tool_Continuous("BTaggingSelectionTool/BTagSelContinuousTest");
+  asg::StandaloneToolHandle<IBTaggingSelectionTool> tool_Continuous("BTaggingSelectionTool/BTagSelContinuousTest");
   code1 = tool_Continuous.setProperty( "FlvTagCutDefinitionsFileName","xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root" );
   code2 = tool_Continuous.setProperty("TaggerName",    taggerName  );
   code3 = tool_Continuous.setProperty("OperatingPoint", workingPointName );
@@ -164,7 +164,7 @@ int main() {
   taggerName = "MV2c10";
   workingPointName = "FixedCutBEff_70_Veto_DL1_CTag_Loose";
 
-  asg::AnaToolHandle<IBTaggingSelectionTool> tool_veto("BTaggingSelectionTool/BTagSelecVetoTest");
+  asg::StandaloneToolHandle<IBTaggingSelectionTool> tool_veto("BTaggingSelectionTool/BTagSelecVetoTest");
   code1 = tool_veto.setProperty( "FlvTagCutDefinitionsFileName","xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root" );
   code2 = tool_veto.setProperty("TaggerName",    taggerName  );
   code3 = tool_veto.setProperty("OperatingPoint", workingPointName );

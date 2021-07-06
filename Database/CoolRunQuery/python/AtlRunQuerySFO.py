@@ -101,8 +101,8 @@
 #  
 
 from __future__ import with_statement, print_function
-from utils.AtlRunQueryCache import Cache
-from .AtlRunQueryRun import Run
+from CoolRunQuery.utils.AtlRunQueryCache import Cache
+from CoolRunQuery.AtlRunQueryRun import Run
 
 from time import time
 from collections import defaultdict
@@ -278,7 +278,7 @@ def GetSFO_lastNruns( cursor, nruns ):
 ##############################################################
 
 def SetOKSLinks( runlist ):
-    from utils.AtlRunQueryUtils import coolDbConn
+    from CoolRunQuery.utils.AtlRunQueryUtils import coolDbConn
     conn = coolDbConn.GetAtlasRunDBConnection()
     cursor = conn.cursor()
     query = "select ConfigSchema,ConfigData from ATLAS_RUN_NUMBER.RunNumber where RunNumber=:run"
@@ -339,7 +339,7 @@ def main():
         #runno = range(141000,143000)
 
 
-        from utils.AtlRunQueryUtils import coolDbConn
+        from CoolRunQuery.utils.AtlRunQueryUtils import coolDbConn
         connection = coolDbConn.GetSFODBConnection()
         cursor     = connection.cursor()
 

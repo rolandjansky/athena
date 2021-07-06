@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODMISSINGET_VERSIONS_MISSINGET_V1_H
@@ -9,8 +9,9 @@
 
 #include "AthContainers/AuxElement.h"
 
-#include "xAODBase/IParticle.h"
+#include "CxxUtils/CachedValue.h"
 
+#include "xAODBase/IParticle.h"
 #include "xAODMissingET/versions/MissingETBase.h"
 
 #include <string>
@@ -108,12 +109,16 @@ namespace xAOD
     float&                           f_mpy();     /*!< @brief Returns reference to @f$ p_{y} @f$ store */
     float&                           f_sumet();  /*!< @brief Returns reference to @f$ \Sigma E_{\rm T} @f$ store */
     std::string&                      f_name();   /*!< @brief Returns reference to MET object name store */
-    const std::string&                f_nameConst(); /*!< @brief Returns const reference to the MET object name store*/
+    const std::string&                f_nameConst() const; /*!< @brief Returns const reference to the MET object name store*/
     MissingETBase::Types::bitmask_t&  f_source(); /*!< @brief Returns reference to MET object source store */
     /*!@}*/
 
   private:
-    std::size_t m_nameHash;/*!< @brief Stores the hash for the current f_name string */
+    CxxUtils::CachedValue<std::size_t> m_nameHash; /*!< @brief Stores the hash for the current f_name string */
+
+    static const SG::AuxElement::Accessor<float> m_acc_mpx;
+    static const SG::AuxElement::Accessor<float> m_acc_mpy;
+    static const SG::AuxElement::Accessor<float> m_acc_sumet;
   };
 }
 

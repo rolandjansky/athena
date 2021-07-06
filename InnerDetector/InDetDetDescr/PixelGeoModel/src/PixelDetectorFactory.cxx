@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelDetectorFactory.h"
@@ -16,8 +16,8 @@
 #include "GaudiKernel/SystemOfUnits.h"
 
 // InDetReadoutGeometry
-#include "InDetReadoutGeometry/SiCommonItems.h" 
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
+#include "ReadoutGeometryBase/SiCommonItems.h" 
+#include "ReadoutGeometryBase/InDetDD_Defs.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
 
@@ -35,14 +35,14 @@ using InDetDD::SiCommonItems;
 PixelDetectorFactory::PixelDetectorFactory(PixelGeoModelAthenaComps * athenaComps,
 					   const PixelSwitches & switches)
   : InDetDD::DetectorFactoryBase(athenaComps),
-    m_detectorManager(0),
+    m_detectorManager(nullptr),
     m_useDynamicAlignFolders(false)
 {
   // Create the detector manager
   m_detectorManager = new PixelDetectorManager(detStore());
 
   // Create the geometry manager.
-  m_geometryManager =  new OraclePixGeoManager(athenaComps);
+  m_geometryManager =  std::make_unique<OraclePixGeoManager>(athenaComps);
 
   // Pass the switches
   m_geometryManager->SetServices(switches.services());
@@ -50,7 +50,6 @@ PixelDetectorFactory::PixelDetectorFactory(PixelGeoModelAthenaComps * athenaComp
   m_geometryManager->SetDC1Geometry(switches.dc1Geometry());
   m_geometryManager->SetAlignable(switches.alignable());
   m_geometryManager->SetInitialLayout(switches.initialLayout());
-  m_geometryManager->SetSLHC(switches.slhc());
   m_geometryManager->SetIBL(switches.ibl());
 
   // get switch for DBM
@@ -106,9 +105,7 @@ PixelDetectorFactory::PixelDetectorFactory(PixelGeoModelAthenaComps * athenaComp
 
 PixelDetectorFactory::~PixelDetectorFactory()
 {
-  delete m_geometryManager;
 }
-
 
 
 //## Other Operations (implementation)
@@ -132,15 +129,14 @@ void PixelDetectorFactory::create(GeoPhysVol *world)
 
   //
   // Create the Pixel Envelope...
-  GeoPixelEnvelope pe (m_detectorManager, m_geometryManager);
+  GeoPixelEnvelope pe (m_detectorManager, m_geometryManager.get());
   GeoVPhysVol* pephys = pe.Build() ;
-  GeoAlignableTransform * transform = new GeoAlignableTransform(topTransform);
-  
+
   //
   // Add this to the world
   //
-  GeoNameTag *tag = new GeoNameTag("Pixel");         
-  world->add(tag);
+  world->add(new GeoNameTag("Pixel"));
+  GeoAlignableTransform * transform = new GeoAlignableTransform(topTransform);
   world->add(transform);
   world->add(pephys);
 
@@ -148,7 +144,6 @@ void PixelDetectorFactory::create(GeoPhysVol *world)
   Identifier id = m_geometryManager->getIdHelper()->wafer_id(0,0,0,0);
   m_detectorManager->addAlignableTransform(2, id, transform, pephys);
 
-  //
   // Add this to the list of top level physical volumes:             
   //
   m_detectorManager->addTreeTop(pephys);                                       
@@ -209,7 +204,7 @@ void PixelDetectorFactory::create(GeoPhysVol *world)
 
   // Check that there are no missing elements.
   // Bypass checks for standard ATLAS.
-  if (m_geometryManager->ibl() || m_geometryManager->slhc()) {
+  if (m_geometryManager->ibl()) {
     doChecks();
   }
 }

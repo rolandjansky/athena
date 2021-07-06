@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -81,7 +81,7 @@ public:
 
   /**Move assignment operator*/
   CylinderBounds& operator=(CylinderBounds&& cylbo) = default;
-
+  
   /**Equality operator*/
   virtual bool operator==(const SurfaceBounds& sbo) const override;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //#####################################################################
@@ -25,6 +25,7 @@ using namespace std;
 class CaloClusterShwrMon
 {
 
+  // cppcheck-suppress unknownMacro
   RQ_OBJECT("CaloClusterShwrMon") // necessary if not inherite from ROOT class
 
  protected:
@@ -69,6 +70,9 @@ class CaloClusterShwrMon
  public:
   CaloClusterShwrMon(const TGWindow *p, UInt_t w, UInt_t h);
   virtual ~CaloClusterShwrMon();
+  CaloClusterShwrMon(const CaloClusterShwrMon&) = delete;
+  CaloClusterShwrMon& operator= (const CaloClusterShwrMon&) = delete;
+
   void CloseMainWindow();
   
   void ConfigureMainMenu();
@@ -86,16 +90,29 @@ class CaloClusterShwrMon
 //#####################################################################
 // Class constructor
 CaloClusterShwrMon::CaloClusterShwrMon(const TGWindow *p, UInt_t w, UInt_t h)
+  : fMain (nullptr),
+    fMenuDock (nullptr),
+    fGCanvas (nullptr),
+    fContainer (nullptr),
+    fECanvas (),
+    fMenuBar (nullptr),
+    fMenuCaloCluster (nullptr),
+    fMenuPS (nullptr),
+    fHFrame (nullptr),
+    fSave (nullptr),
+    fPrintThis (nullptr),
+    fStatusBar (nullptr),
+    fCanvas (nullptr),
+    m_h1d (nullptr),
+    m_href (nullptr),
+    m_h2d (nullptr),
+    m_psFile (nullptr),
+    
+    m_fileBaseName (gSystem->BaseName(g_rootFile->GetName())),
+    m_dirCaloClusterShwr ("/CaloClusterShwrMon/"),
+    m_canvasW (720),
+    m_canvasH (540)
 {
-  // initialize variables
-  m_fileBaseName = gSystem->BaseName(g_rootFile->GetName());
-  m_dirCaloClusterShwr = "/CaloClusterShwrMon/";
-  m_histoNameBase1 = "";
-  m_canvasW = 720;
-  m_canvasH = 540;
-  m_psFile = 0;
-  m_psFileName = "";
-
   // global style options
   gStyle->SetOptStat("emr");
   gStyle->SetPaperSize(TStyle::kA4);

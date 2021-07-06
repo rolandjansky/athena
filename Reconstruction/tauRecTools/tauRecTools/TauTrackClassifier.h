@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUREC_TAUTRACKCLASSIFIER_H
-#define TAUREC_TAUTRACKCLASSIFIER_H
+#ifndef TAURECTOOLS_TAUTRACKCLASSIFIER_H
+#define TAURECTOOLS_TAUTRACKCLASSIFIER_H
 
 // ASG include(s)
 #include "AsgTools/AsgTool.h"
@@ -95,4 +95,4 @@ private:
 
 } // namespace tauRecTools
 
-#endif // not TAUTRACKCLASSIFIER
+#endif // TAURECTOOLS_TAUTRACKCLASSIFIER_H

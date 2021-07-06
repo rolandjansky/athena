@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -108,12 +108,13 @@ TString EventData::triggers() const
 {
   TString triggers = "";
   if (!runData()) return triggers;
-  for (std::map<TString, unsigned int>::const_iterator trigger = runData()->triggerConfig().begin();
-       trigger != runData()->triggerConfig().end(); trigger++)
-    if (isPassed(trigger->first)) {
+  for (const std::pair<const TString, unsigned int>& p : runData()->triggerConfig())
+  {
+    if (isPassed(p.first)) {
       if (triggers != "") triggers += " ";
-      triggers += trigger->first;
+      triggers += p.first;
     }
+  }
   return triggers;
 }
 

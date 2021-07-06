@@ -96,7 +96,7 @@ void AFPSiLayerMonitor::bookHistograms(ManagedMonitorToolBase* toolToStoreHistog
   m_hitMultiplicity = new TH1F(hitMultiplicityName.data(),
 			       hitMultiplicityTitle.data(),
 			       40, -0.5, 39.5);
-  m_hitMultiplicity->StatOverflows(); // need to use overflows for calculation of mean
+  m_hitMultiplicity->SetStatOverflows(TH1::EStatOverflows::kConsider); // need to use overflows for calculation of mean
   m_hitMultiplicity->SetXTitle("number of hits in an event");
   m_hitMultiplicity->SetYTitle("events");
 
@@ -110,7 +110,7 @@ void AFPSiLayerMonitor::bookHistograms(ManagedMonitorToolBase* toolToStoreHistog
   m_hitMultiplicityHotSpot = new TH1F(hitMultiplicityNameHotSpot.data(),
 				      hitMultiplicityTitleHotSpot.data(),
 				      40, -0.5, 39.5);
-  m_hitMultiplicityHotSpot->StatOverflows(); // need to use overflows for calculation of mean
+  m_hitMultiplicityHotSpot->SetStatOverflows(TH1::EStatOverflows::kConsider); // need to use overflows for calculation of mean
   m_hitMultiplicityHotSpot->SetXTitle("number of hits in hotspot in an event");
   m_hitMultiplicityHotSpot->SetYTitle("events");
 
@@ -125,7 +125,7 @@ void AFPSiLayerMonitor::bookHistograms(ManagedMonitorToolBase* toolToStoreHistog
   m_timeOverThreshold = new TH1F(timeOverThresholdName.data(),
 				 timeOverThresholdTitle.data(),
 				 16, -0.5, 15.5);
-  m_timeOverThreshold->StatOverflows();  // need to use overflows for calculation of mean
+  m_timeOverThreshold->SetStatOverflows(TH1::EStatOverflows::kConsider);  // need to use overflows for calculation of mean
   m_timeOverThreshold->SetXTitle("time-over-threshold");
   m_timeOverThreshold->SetYTitle("number of hits");
 

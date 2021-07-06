@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Had3ProngPlots.h"
@@ -39,7 +39,6 @@ void Had3ProngPlots::initializePlots(){
   m_tauSflight    = Book1D("Sflight",m_sTauJetContainerName + " Tau flight sign. ; Sflight; # Taus",100,-10.,20.);
   m_tauMtrks      = Book1D("Mtracks",m_sTauJetContainerName + " Tau tracks mass ; Mtrks; # Taus",100,-10.,20.);
   m_tauIpSig      = Book1D("IpSig",m_sTauJetContainerName + " Tau lead track IP signif. ; IpSig; # Taus",30,-15.,15.);
-
   m_innerTrkAvgDist    = Book1D("innerTrkAvgDist",m_sTauJetContainerName + "Tau innerTrkAvgDist; innerTrkAvgDist; # of Taus", 10,-0.2,.8);
   m_ptRatioEflowApprox = Book1D("ptRatioEflowApprox",m_sTauJetContainerName + "Tau ptRatioEflowApprox; ptRatioEflowApprox; # of Taus", 10, 0, 10);
   m_mEflowApprox       = Book1D("mEflowApprox",m_sTauJetContainerName + "Tau mEflowApprox; mEflowApprox; #Taus",30,0.0,3000.0);
@@ -48,47 +47,46 @@ void Had3ProngPlots::initializePlots(){
 
 }
 
-void Had3ProngPlots::fill(const xAOD::TauJet& tau) {
-  m_oGeneralTauPlots.fill(tau);
+void Had3ProngPlots::fill(const xAOD::TauJet& tau, float weight) {
+  m_oGeneralTauPlots.fill(tau, weight);
 
-  float avariable=0;
+  float avariable = 0.;
 
-  bool test=tau.detail(xAOD::TauJetParameters::centFrac, avariable);
-  if(test)     m_tauCoreFrac->Fill(avariable,1.);
+  bool test = tau.detail(xAOD::TauJetParameters::centFrac, avariable);
+  if(test) m_tauCoreFrac->Fill(avariable, weight);
  
-  test=tau.detail(xAOD::TauJetParameters::etOverPtLeadTrk, avariable);
-  if(test) m_tauEoverPTrk->Fill(avariable, 1.);
+  test = tau.detail(xAOD::TauJetParameters::etOverPtLeadTrk, avariable);
+  if(test) m_tauEoverPTrk->Fill(avariable, weight);
 
-  test=tau.detail(xAOD::TauJetParameters::trkAvgDist, avariable);
-  if (test) m_tauTrkAvgDist->Fill(avariable, 1.);
+  test = tau.detail(xAOD::TauJetParameters::trkAvgDist, avariable);
+  if(test) m_tauTrkAvgDist->Fill(avariable, weight);
 
-  test=tau.detail(xAOD::TauJetParameters::dRmax, avariable);
-  if (test) m_tauDRMax->Fill(avariable,1.);
+  test = tau.detail(xAOD::TauJetParameters::dRmax, avariable);
+  if(test) m_tauDRMax->Fill(avariable, weight);
 
-  test=tau.detail(xAOD::TauJetParameters::trFlightPathSig, avariable);
-  if (test) m_tauSflight->Fill(avariable,1.);
+  test = tau.detail(xAOD::TauJetParameters::trFlightPathSig, avariable);
+  if(test) m_tauSflight->Fill(avariable, weight);
 
-  test=tau.detail(xAOD::TauJetParameters::massTrkSys, avariable);
-  if (test) m_tauMtrks->Fill(avariable/1000.,1.);
+  test = tau.detail(xAOD::TauJetParameters::massTrkSys, avariable);
+  if(test) m_tauMtrks->Fill(avariable/1000., weight);
 
-  test=tau.detail(xAOD::TauJetParameters::ipSigLeadTrk, avariable);
-  if (test) m_tauIpSig->Fill(avariable,1.);
+  test = tau.detail(xAOD::TauJetParameters::ipSigLeadTrk, avariable);
+  if(test) m_tauIpSig->Fill(avariable, weight);
 
-  test=tau.detail(xAOD::TauJetParameters::innerTrkAvgDist, avariable);
-  if (test) m_innerTrkAvgDist->Fill(avariable,1.);
+  test = tau.detail(xAOD::TauJetParameters::innerTrkAvgDist, avariable);
+  if(test) m_innerTrkAvgDist->Fill(avariable, weight);
 
-  test=tau.detail(xAOD::TauJetParameters::ptRatioEflowApprox, avariable);
-  if (test) m_ptRatioEflowApprox->Fill(avariable,1.);
+  test = tau.detail(xAOD::TauJetParameters::ptRatioEflowApprox, avariable);
+  if(test) m_ptRatioEflowApprox->Fill(avariable, weight);
 
-  test=tau.detail(xAOD::TauJetParameters::mEflowApprox, avariable);
-  if (test) m_mEflowApprox->Fill(avariable,1.);
+  test = tau.detail(xAOD::TauJetParameters::mEflowApprox, avariable);
+  if(test) m_mEflowApprox->Fill(avariable, weight);
 
-  test=tau.detail(xAOD::TauJetParameters::ChPiEMEOverCaloEME, avariable);
-  if(test)     m_ChPiEMEOverCaloEME->Fill(avariable,1.);
+  test = tau.detail(xAOD::TauJetParameters::ChPiEMEOverCaloEME, avariable);
+  if(test) m_ChPiEMEOverCaloEME->Fill(avariable, weight);
 
-  test=tau.detail(xAOD::TauJetParameters::EMPOverTrkSysP, avariable);
-  if(test)     m_EMPOverTrkSysP->Fill(avariable,1.);
-
+  test = tau.detail(xAOD::TauJetParameters::EMPOverTrkSysP, avariable);
+  if(test) m_EMPOverTrkSysP->Fill(avariable, weight);
 }
 
 }

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // CutTool.cxx
@@ -17,14 +17,7 @@
 #include <string>
 
 // FrameWork includes
-#include "ExpressionEvaluation/ExpressionParser.h"
-#include "ExpressionEvaluation/SGxAODProxyLoader.h"
-#include "ExpressionEvaluation/SGNTUPProxyLoader.h"
-#include "ExpressionEvaluation/MultipleProxyLoader.h"
 #include "ExpressionEvaluation/StackElement.h"
-#include "TrigDecisionTool/TrigDecisionTool.h"
-#include "ExpressionEvaluation/TriggerDecisionProxyLoader.h"
-
 
 ///////////////////////////////////////////////////////////////////
 // Public methods:
@@ -35,16 +28,12 @@
 CutTool::CutTool( const std::string& type,
                   const std::string& name,
                   const IInterface* parent ) :
-  ::AthAlgTool  ( type, name, parent ),
-  m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"),
-  m_parser(0),
+  ExpressionParserUserWithTrigSupport<::AthAlgTool>  ( type, name, parent ),
   m_cut("")
-  //m_nEventsProcessed(0)
 {
   declareInterface< DerivationFramework::ISkimmingTool >(this);
 
   declareProperty("Cut", m_cut="", "The cut expression" );
-  declareProperty("TrigDecisionTool",m_trigDecisionTool,"If you do not use trigger decisions and want to ensure the TrigDecisionTool is not loaded, set this to a blank string");
 }
 
 // Destructor
@@ -60,21 +49,9 @@ StatusCode CutTool::initialize()
 {
   ATH_MSG_DEBUG ("Initializing " << name() << "...");
 
-  // initialize proxy loaders for expression parsing
-  ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-
-  // initialise TDT explicitly, needed for the tool to properly work with trigger decisions in AthAnalysisBase (until fixed)
-  if( !m_trigDecisionTool.empty() ) {
-    ATH_CHECK( m_trigDecisionTool.retrieve() );
-    proxyLoaders->push_back(new ExpressionParsing::TriggerDecisionProxyLoader(m_trigDecisionTool));
+  if (!m_cut.value().empty()) {
+     ATH_CHECK( initializeParser(m_cut.value()) );
   }
-
-  proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
-  proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-
-  // load the expressions
-  m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
-  m_parser->loadExpression( m_cut.value() );
 
   return StatusCode::SUCCESS;
 }
@@ -85,11 +62,7 @@ StatusCode CutTool::finalize()
 {
   ATH_MSG_DEBUG ("Finalizing " << name() << "...");
 
-  if (m_parser) {
-    delete m_parser;
-    m_parser = 0;
-  }
-
+  ATH_CHECK( finalizeParser() );
   return StatusCode::SUCCESS;
 }
 
@@ -101,6 +74,5 @@ bool CutTool::eventPassesFilter() const
   ATH_MSG_DEBUG ( "==> eventPassesFilter() " << name()  );
   ATH_MSG_VERBOSE ( "Dumping event store: " << evtStore()->dump() );
 
-  return m_parser->evaluateAsBool();
-  return true;
+  return (m_parser ? m_parser->evaluateAsBool() : true);
 }

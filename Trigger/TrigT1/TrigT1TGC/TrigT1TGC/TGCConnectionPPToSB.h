@@ -7,17 +7,13 @@
 #define TGCConnectionPPToSB_hh
 
 #include "TrigT1TGC/TGCBoardConnection.h"
+#include "TrigT1TGC/TGCSector.h"
 
 namespace LVL1TGCTrigger {
 
-enum TGCPatchPanelType { NOPP=-1, 
-			 WTPP=0, WDPP, STPP, SDPP, WIPP, SIPP, 
-			 TotalNumPatchPanelType };
-enum{ NumberOfPatchPanelType = 6};
-enum{ NumberOfPPPort = 2 };
-
-class TGCConnectionPPToSB : public TGCBoardConnection {
-public:
+class TGCConnectionPPToSB : public TGCBoardConnection
+{
+ public:
   int getSBIdToPP(int type, int port, int index) const;
   void setSBIdToPP(int type, int port, int index, int idIn);
   int getNumberOfPort() const { return NumberOfPPPort; };
@@ -26,8 +22,10 @@ public:
   ~TGCConnectionPPToSB();
   TGCConnectionPPToSB(const TGCConnectionPPToSB& right);
   TGCConnectionPPToSB& operator=(const TGCConnectionPPToSB& right);
-private:
-  int* m_SBIdToPP[NumberOfPPPort][NumberOfPatchPanelType];
+
+ private:
+  enum{ NumberOfPPPort = 2 };
+  int* m_SBIdToPP[NumberOfPPPort][TGCSector::NumberOfPatchPanelType];
 };
 
 inline

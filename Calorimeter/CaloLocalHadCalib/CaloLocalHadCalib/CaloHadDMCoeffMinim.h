@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOLOCALHADCALIB_CALOHADDMCOEFFMINIM_H
@@ -42,7 +42,7 @@ class ATLAS_NOT_THREAD_SAFE CaloHadDMCoeffMinim {
         double      upperLim;
         double      value;
         double      error;
-        MinimPar(std::string the_name, double the_initVal, double the_initErr,
+        MinimPar(const std::string& the_name, double the_initVal, double the_initErr,
                    double the_lowerLim, double the_upperLim) 
         : name(the_name),
           fixIt(true),
@@ -82,7 +82,7 @@ class ATLAS_NOT_THREAD_SAFE CaloHadDMCoeffMinim {
 
     static CaloHadDMCoeffMinim *s_instance;
     CaloHadDMCoeffData *m_data;
-    CaloLocalHadCoeffHelper *m_HadDMHelper;
+    std::unique_ptr<CaloLocalHadCoeffHelper> m_HadDMHelper;
     CaloLocalHadCoeff *m_HadDMCoeff;
 
     bool m_isTestbeam;
@@ -90,7 +90,7 @@ class ATLAS_NOT_THREAD_SAFE CaloHadDMCoeffMinim {
     int m_iBinGlob;
     std::vector<MinimPar > m_minimPars;
     std::map<int, std::vector<MinimPar > > m_minimResults;
-    std::vector<MinimSample *> m_minimSample;
+    std::vector<std::unique_ptr<MinimSample> > m_minimSample;
     std::vector<MinimSample *> m_minimSubSample;
     std::vector<int > m_sample_size;
     double m_engClusMin;

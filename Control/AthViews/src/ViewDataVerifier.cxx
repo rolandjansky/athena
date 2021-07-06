@@ -59,32 +59,61 @@ StatusCode ViewDataVerifier::execute(const EventContext& ctx) const
   auto viewProxy = Atlas::getExtendedEventContext(ctx).proxy();
 
   ATH_MSG_DEBUG( "Executing " << name() << " running with store " << viewProxy->name() );
+  StatusCode sc = StatusCode::SUCCESS;
 
   // Test each container
   for ( auto &obj : m_load.value() ) {
 
-    // Create a VarHandleKey (copied from SGInputLoader)
+    // Create a VarHandleKey (code copied from SGInputLoader)
     SG::VarHandleKey vhk( obj.clid(), obj.key(), Gaudi::DataHandle::Writer );
 
     // Create a test proxy 
     SG::DataProxy* dp = viewProxy->proxy( obj.clid(), vhk.key() );
 
     // Test if the proxy is valid
-    if ( dp ) { 
+    if ( dp )
+    {
       ATH_MSG_DEBUG( "Found " << obj.key() << " in " << viewProxy->name() );
-    } else {
-      ATH_MSG_DEBUG( "Did not find " << obj.key() << " in " << viewProxy->name() );
+    }
+    else if ( obj.key().find( "DetectorStore" ) != std::string::npos )
+    {
+      ATH_MSG_DEBUG( "Ignoring DetectorStore data " << obj.key() );
+    }
+    else if ( obj.className() == "SG::AuxElement" )
+    {
+      // For decorations, look for the parent container
+      const auto split = obj.key().rfind('.');
+      if (split == std::string::npos) {
+        ATH_MSG_ERROR( "Aux data specified, but key does not contain '.': " << obj.key() );
+        sc = StatusCode::FAILURE;
+      }
+
+      // Is parent container present?
+      const auto parentKey = obj.key().substr( 0, split );
+      SG::VarHandleKey parentVhk( obj.clid(), parentKey, Gaudi::DataHandle::Writer );
+      dp = viewProxy->proxy( obj.clid(), parentVhk.key() );
+      if ( dp ) {
+        ATH_MSG_DEBUG( "Found " << parentKey << " in " << viewProxy->name() << " (need aux data " << obj.key() << ")" );
+      } else {
+        ATH_MSG_ERROR( "Did not find " << parentKey << " in " << viewProxy->name() << " (need aux data " << obj.key() << ")" );
+        sc = StatusCode::FAILURE;
+      }
+    }
+    else
+    {
+      // Examine the current view
+      ATH_MSG_ERROR( "Did not find " << obj.key() << " in " << viewProxy->name() );
       const SG::View* view = dynamic_cast<const SG::View*>( viewProxy );
       if ( view != 0 ) {
         ATH_MSG_DEBUG( "Available content is: " << view->dump() );
       } else {
         ATH_MSG_DEBUG( "Not a View" );
       }
-      //return StatusCode::FAILURE;
+      sc = StatusCode::FAILURE;
     }
   }
 
-  return StatusCode::SUCCESS;
+  return sc;
 }
 
 } //> end namespace AthViews

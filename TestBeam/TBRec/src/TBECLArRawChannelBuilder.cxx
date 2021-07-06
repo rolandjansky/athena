@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBECLArRawChannelBuilder.h"
@@ -12,13 +12,13 @@
 #include "LArElecCalib/ILArPedestal.h"
 //#include "LArElecCalib/ILArRamp.h"
 #include "LArElecCalib/ILArOFC.h"
-#include "LArElecCalib/ILArOFCTool.h"
 #include "LArElecCalib/ILArShape.h"
-#include "LArElecCalib/ILArADC2MeVTool.h"
 #include "LArElecCalib/ILArGlobalTimeOffset.h"
 #include "LArElecCalib/ILArFEBTimeOffset.h"
 #include "CLHEP/Units/SystemOfUnits.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "AthenaKernel/Units.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include <math.h>
 
@@ -28,8 +28,6 @@ using Athena::Units::picosecond;
 
 TBECLArRawChannelBuilder::TBECLArRawChannelBuilder (const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator),
-  m_OFCTool("LArOFCTool"),
-  m_adc2mevTool("LArADC2MeVTool"),
   m_onlineHelper(0),
   m_calo_id(0),
   m_calo_dd_man(0),
@@ -39,7 +37,6 @@ TBECLArRawChannelBuilder::TBECLArRawChannelBuilder (const std::string& name, ISv
   m_useTDC(false),
   m_useRamp(true),
   m_useShape(true),
-  m_useOFCTool(false),
   m_ConvertADCToHighGain(false),
   m_Ecut(256*MeV),
   m_initialTimeSampleShift(0),
@@ -73,7 +70,6 @@ TBECLArRawChannelBuilder::TBECLArRawChannelBuilder (const std::string& name, ISv
  declareProperty("UseTDC",                    m_useTDC);
  declareProperty("UseRamp",m_useRamp);
  declareProperty("UseShape",m_useShape);
- declareProperty("UseOFCTool",                m_useOFCTool);
  declareProperty("ConvertADCToHighGain",m_ConvertADCToHighGain);
  declareProperty("Ecut",                      m_Ecut);
  declareProperty("UseHighGainRampIntercept",  m_useIntercept[CaloGain::LARHIGHGAIN]=false);
@@ -95,8 +91,6 @@ TBECLArRawChannelBuilder::TBECLArRawChannelBuilder (const std::string& name, ISv
  declareProperty("SkipSaturCellsMode",        m_skipSaturCells=0);
  declareProperty("ADCMax",                    m_AdcMax=4095);
  declareProperty("HVcorr",                    m_hvcorr=false);
- declareProperty("ADC2MeVTool", 	      m_adc2mevTool);
- declareProperty("OFCTool",                   m_OFCTool);
 }
 
 
@@ -104,12 +98,11 @@ StatusCode TBECLArRawChannelBuilder::initialize(){
 
   ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
 
-  if (m_useOFCTool)
-    ATH_CHECK( m_OFCTool.retrieve() );
+  ATH_CHECK( m_ofcKey.initialize() );
+  ATH_CHECK( m_adc2mevKey.initialize (m_useRamp) );
 
-  if (m_useRamp) {
-    ATH_CHECK( m_adc2mevTool.retrieve() );
-  } else {
+  if (!m_useRamp)
+  {
     // pointer to detector manager:
     ATH_CHECK( detStore()->retrieve (m_calo_dd_man, "CaloMgr") );
     m_calo_id   = m_calo_dd_man->getCaloCell_ID();
@@ -193,6 +186,8 @@ StatusCode TBECLArRawChannelBuilder::initialize(){
 
 StatusCode TBECLArRawChannelBuilder::execute() 
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
   //Counters for errors & warnings per event
   int noEnergy   = 0; // Number of completly failed channels in a given event
   int BadTiming  = 0; // Number of channels with bad timing in a given event
@@ -204,14 +199,14 @@ StatusCode TBECLArRawChannelBuilder::execute()
   
   const ILArHVScaleCorr *oflHVCorr=nullptr;
   if(m_hvcorr) {
-     SG::ReadCondHandle<ILArHVScaleCorr> oflHVCorrHdl(m_offlineHVScaleCorrKey);
+     SG::ReadCondHandle<ILArHVScaleCorr> oflHVCorrHdl(m_offlineHVScaleCorrKey, ctx);
      oflHVCorr = *oflHVCorrHdl;
      if(!oflHVCorr) {
         ATH_MSG_ERROR( "Could not get the HVScaleCorr from key " << m_offlineHVScaleCorrKey.key() );
         return StatusCode::FAILURE;
      }
   }
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey, ctx};
   const LArOnOffIdMapping* cabling{*cablingHdl};
   if(!cabling) {
         ATH_MSG_ERROR( "Could not get the cabling mapping from key " << m_cablingKey.key() );
@@ -225,7 +220,6 @@ StatusCode TBECLArRawChannelBuilder::execute()
   float globalTimeOffset=0;
   //Pointer to conditions data objects 
   const ILArFEBTimeOffset* larFebTimeOffset=NULL;
-  const ILArOFC* larOFC=NULL;
   const ILArShape* larShape=NULL;
   //Retrieve Digit Container
 
@@ -244,9 +238,14 @@ StatusCode TBECLArRawChannelBuilder::execute()
       larShape=NULL;
     }
   }
+
   ATH_MSG_DEBUG ( "Retrieving LArOFC object" );
-  if (!m_useOFCTool) {  //OFC-Conditons object only needed if OFC's not computed on-the-fly
-    ATH_CHECK( detStore()->retrieve(larOFC) );
+  SG::ReadCondHandle<ILArOFC> larOFC (m_ofcKey, ctx);
+
+  const LArADC2MeV* adc2mev = nullptr;
+  if (m_useRamp) {
+    SG::ReadCondHandle<LArADC2MeV> adc2mevH (m_adc2mevKey, ctx);
+    adc2mev = *adc2mevH;
   }
 
   //retrieve TDC
@@ -286,11 +285,9 @@ StatusCode TBECLArRawChannelBuilder::execute()
   if (msgLvl(MSG::DEBUG) ) debugPrint=true;
 
   // Now all data is available, start loop over Digit Container
-  LArDigitContainer::const_iterator cont_it=digitContainer->begin();
-  LArDigitContainer::const_iterator cont_it_e=digitContainer->end();
   int ntot_raw=0;
 
-  for (;cont_it!=cont_it_e;cont_it++) {
+  for (const LArDigit* digit : *(digitContainer)) {
 
     //Data that goes into RawChannel:
     float energy=0;
@@ -301,10 +298,10 @@ StatusCode TBECLArRawChannelBuilder::execute()
     int timeSampleShift=m_initialTimeSampleShift;
 
     //Get data from LArDigit
-    const std::vector<short>& samples=(*cont_it)->samples();
+    const std::vector<short>& samples=digit->samples();
     const unsigned nSamples=samples.size(); 
-    const HWIdentifier chid=(*cont_it)->channelID();
-    const CaloGain::CaloGain gain=(*cont_it)->gain();
+    const HWIdentifier chid=digit->channelID();
+    const CaloGain::CaloGain gain=digit->gain();
     
     // to be used in case of DEBUG output
     int layer  = -99999 ;
@@ -381,11 +378,7 @@ StatusCode TBECLArRawChannelBuilder::execute()
     // Optimal Filtering Coefficients
     ILArOFC::OFCRef_t ofc_a;
     ILArOFC::OFCRef_t ofc_b;
-    if (m_useOFCTool) { //Use OFC-Tool to compute OFC on-the-fly
-      ofc_a=m_OFCTool->OFC_a(chid,gain);
-      //ofc_b=&(m_OFCTool->OFC_b(chid,gain));//retrieve only when needed
-    }
-    else {// get OFC from Conditions Store
+    {// get OFC from Conditions Store
       float febTimeOffset=0;
       const HWIdentifier febid=m_onlineHelper->feb_Id(chid);
       if (larFebTimeOffset)
@@ -484,7 +477,7 @@ StatusCode TBECLArRawChannelBuilder::execute()
      
     if (m_useRamp) {
       //ADC2MeV (a.k.a. Ramp)   
-      const std::vector<float>& ramp=m_adc2mevTool->ADC2MEV(chid,gain);
+      LArVectorProxy ramp = adc2mev->ADC2MEV(chid,gain);
       //Check ramp coefficents
       if (ramp.size()==0) {
 	noEnergy++;
@@ -494,7 +487,7 @@ StatusCode TBECLArRawChannelBuilder::execute()
 	continue;
       } 
       
-      // temporalery fix for bad ramps... should be done in the DB
+      // temporary fix for bad ramps... should be done in the DB
       if(ramp[1]>m_ramp_max[gain] || ramp[1]<0) {
 	noEnergy++;
 	ATH_MSG_DEBUG ( "Bad ramp for channel " << chid << " (ramp[1] = " << ramp[1] << "): skip this channel" );
@@ -530,10 +523,7 @@ StatusCode TBECLArRawChannelBuilder::execute()
     //Check if energy is above threshold for time & quality calculation
     if (energy>m_Ecut) {
       highE++;
-      if (m_useOFCTool)  //Use OFC-Tool to compute OFC on-the-fly
-	ofc_b=m_OFCTool->OFC_b(chid,gain);
-      else 
-	ofc_b=larOFC->OFC_b(chid,gain,OFCTimeBin);
+      ofc_b=larOFC->OFC_b(chid,gain,OFCTimeBin);
       if (ofc_b.size() != ofc_a.size()) {//don't have proper number of coefficients
 	if (ofc_b.size()==0)
 	  ATH_MSG_DEBUG ( "No time-OFC's found for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 

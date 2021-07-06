@@ -25,7 +25,7 @@ atlas_add_executable( iLumiCalc
                       src/LumiBlockRangeContainerConverter.cxx
                       src/LumiCalculator.cxx
                       src/ReplicaSorter.cxx
-                      LINK_LIBRARIES LINK_LIBRARIES CollectionBase CxxUtils DBDataModel DataModelRoot LumiBlockCoolQuery )
+                      LINK_LIBRARIES LINK_LIBRARIES CollectionBase CxxUtils DataModelRoot LumiBlockCoolQuery )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

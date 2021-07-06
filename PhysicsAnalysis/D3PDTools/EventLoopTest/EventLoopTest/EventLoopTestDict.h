@@ -6,5 +6,6 @@
 #endif
 
 #include "EventLoopTest/UnitTestAlg5.h"
+#include "EventLoopTest/UnitTestAlg6.h"
 
 #endif

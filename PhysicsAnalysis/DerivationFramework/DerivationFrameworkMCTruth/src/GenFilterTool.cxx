@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Class header file
@@ -132,7 +132,7 @@ namespace DerivationFramework {
 
     // Get HT
     genFiltHT = 0.;
-    for (const auto& tj : *truthjets) {
+    for (const auto tj : *truthjets) {
       if ( tj->pt()>m_MinJetPt && fabs(tj->eta())<m_MaxJetEta ) {
         ATH_MSG_VERBOSE("Adding truth jet with pt " << tj->pt()
                         << ", eta " << tj->eta()
@@ -144,7 +144,7 @@ namespace DerivationFramework {
 
     // Get MET and add leptons to HT
     float MEx(0.), MEy(0.);
-    for (const auto& tp : *tpc){
+    for (const auto tp : *tpc){
       int pdgid = tp->pdgId();
       if (tp->barcode() >= m_SimBarcodeOffset) continue; // Particle is from G4
       if (pdgid==21 && tp->e()==0) continue; // Work around for an old generator bug
@@ -218,7 +218,7 @@ namespace DerivationFramework {
      return StatusCode::FAILURE;
    }
    genFiltFatJ=0.;
-   for (const auto& j : *truthjets10) {
+   for (const auto j : *truthjets10) {
      if (j->pt()>genFiltFatJ) genFiltFatJ=j->pt();
    }
 

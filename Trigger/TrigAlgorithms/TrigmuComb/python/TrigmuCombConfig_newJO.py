@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #  This file configs the muComb reco alg with the newJO
 
@@ -13,14 +13,9 @@ def muCombCfg(flags, postFix="", useBackExtrp=True):
     acc = ComponentAccumulator()
 
     # matching windows parameters tuned in 2016 and 2015 data (T&P Z  and J/psi samples)
-    if flags.Trigger.run2Config == '2016':
-        winEtaSigma = 4.0
-        winPhiSigma = 4.0
-        chi2Weight  = 1.0
-    else:
-        winEtaSigma = 7.0
-        winPhiSigma = 7.0
-        chi2Weight  = 2.0
+    winEtaSigma = 7.0
+    winPhiSigma = 7.0
+    chi2Weight  = 2.0
         
     # pt resolution parameters for ID-SAmuon match from SAmuon developers (2016 data)
     if flags.Muon.doCSCs:
@@ -36,38 +31,39 @@ def muCombCfg(flags, postFix="", useBackExtrp=True):
         idScanEndcap3Res = [0.036, 0.0000004]
         idScanEndcap4Res = [0.046, 0.0000002]
     from TrigmuComb.TrigmuCombMonitoring import TrigMuCombMonitoring
-    muCombMT = CompFactory.muCombMT
-    muCombAlg = muCombMT(name                  = "MuComb"+postFix,
-                         MuCombStrategy        = 0,
-                         UseBackExtrapolatorG4 = useBackExtrp,
-                         MinPtTRK              = 0.,
-                         WinEtaSigma_g4        = winEtaSigma,
-                         WinPhiSigma_g4        = winPhiSigma,
-                         Chi2Weight_g4         = chi2Weight, 
-                         IDSCANBarrelRes       = idScanBarrelRes,
-                         IDSCANEndcap1Res      = idScanEndcap1Res,
-                         IDSCANEndcap2Res      = idScanEndcap2Res,
-                         IDSCANEndcap3Res      = idScanEndcap3Res,
-                         IDSCANEndcap4Res      = idScanEndcap4Res,
-                         IDalgo                = "InDetTrigTrackingxAODCnv_Muon_FTF",
-                         MonTool = TrigMuCombMonitoring())
+    muComb = CompFactory.muComb
+    muCombAlg = muComb(name                  = "MuComb"+postFix,
+                       MuCombStrategy        = 0,
+                       UseBackExtrapolatorG4 = useBackExtrp,
+                       MinPtTRK              = 0.,
+                       WinEtaSigma_g4        = winEtaSigma,
+                       WinPhiSigma_g4        = winPhiSigma,
+                       Chi2Weight_g4         = chi2Weight,
+                       IDSCANBarrelRes       = idScanBarrelRes,
+                       IDSCANEndcap1Res      = idScanEndcap1Res,
+                       IDSCANEndcap2Res      = idScanEndcap2Res,
+                       IDSCANEndcap3Res      = idScanEndcap3Res,
+                       IDSCANEndcap4Res      = idScanEndcap4Res,
+                       IDalgo                = "InDetTrigTrackingxAODCnv_Muon_FTF",
+                       MonTool = TrigMuCombMonitoring())
 
     return acc, muCombAlg
 
     
 def l2MuCombRecoCfg(flags, name="L2MuCombReco"):
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewRecoCA
     ViewCreatorFetchFromViewROITool=CompFactory.ViewCreatorFetchFromViewROITool
     viewMakerAlg = CompFactory.EventViewCreatorAlgorithm("IM"+name,
                                                          ViewFallThrough = True,
+                                                         RequireParentView = True,
                                                          RoIsLink        = 'initialRoI',
                                                          RoITool         = ViewCreatorFetchFromViewROITool(RoisWriteHandleKey="Roi_L2SAMuon", InViewRoIs = "forID", ViewToFetchFrom = "L2MuFastRecoViews"),
                                                          InViewRoIs      = name+'RoIs',
                                                          Views           = name+'Views',
                                                          ViewNodeName    = name+"InView")
 
-    reco = InViewReco(name, viewMaker=viewMakerAlg)
+    reco = InViewRecoCA(name, viewMaker=viewMakerAlg)
 
     acc, alg = muCombCfg(flags)
     alg.L2StandAloneMuonContainerName=muFastInfo

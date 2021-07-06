@@ -1,10 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <utility>
 
 #include "KinematicsPlots.h"
+
+using CLHEP::GeV;
 
 namespace Egamma{
 
@@ -23,11 +25,15 @@ namespace Egamma{
     etvseta = Book2D("etvseta", "E_{T} vs #eta of "+ m_sParticleType +"; #eta ; E_{T} (GeV) ", 1000,-5.,5., 200, 0., 200);
   }
   
-  void KinematicsPlots::fill(const xAOD::IParticle& part){
-    et->Fill(part.pt()*0.001); //MeV to GeV conversion, change that to something more official
-    eta->Fill(part.eta());
-    phi->Fill(part.phi());
-    etvseta->Fill(part.eta(),part.pt()*0.001);
+  void KinematicsPlots::fill(const xAOD::IParticle& part, const xAOD::EventInfo& eventInfo) const{
+
+    float weight = 1.;
+    weight = !eventInfo.beamSpotWeight() ? eventInfo.beamSpotWeight() : 1.;
+    
+    et->Fill(part.pt()/GeV,weight);
+    eta->Fill(part.eta(),weight);
+    phi->Fill(part.phi(),weight);
+    etvseta->Fill(part.eta(),part.pt()/GeV,weight);
   }
 
 }

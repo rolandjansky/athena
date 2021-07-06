@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( PerfMonEvent )
@@ -25,7 +25,7 @@ atlas_add_library( PerfMonEvent
                    PUBLIC_HEADERS PerfMonEvent
                    INCLUDE_DIRS ${Python_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Python_LIBRARIES} ${Boost_LIBRARIES} GaudiKernel rt nlohmann_json::nlohmann_json
+                   LINK_LIBRARIES ${Python_LIBRARIES} ${Boost_LIBRARIES} GaudiKernel rt nlohmann_json::nlohmann_json CxxUtils
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( PerfMonEventDict

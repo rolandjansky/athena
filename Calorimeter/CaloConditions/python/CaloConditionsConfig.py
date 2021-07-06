@@ -1,9 +1,9 @@
 """ComponentAccumulator configuration utilities for Calorimeter Conditions
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
+from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
 
 def CaloTriggerTowerCfg(flags):
     """Return ComponentAccumulator configured for Trigger Tower"""
@@ -18,7 +18,10 @@ def LArTTCellMapCfg(flags):
     """Return ComponentAccumulator configured for LAr Trigger Tower"""
     # replaces LArTTCellMap_ATLAS_jobOptions.py
     folder = "/LAR/Identifier/LArTTCellMapAtlas" + flags.LAr.DBConnection
-    acc = addFoldersSplitOnline(flags, "LAR", folder, folder)
+    if flags.IOVDb.DatabaseInstance == 'OFLP200':
+        acc = addFoldersSplitOnline(flags, "LAR", folder, folder)
+    else:
+        acc = addFolders(flags, folder, "LAR")
     # override not migrated
     #DetDescr = flags.Global.DetDescrVersion
     #if DetDescr.startswith("ATLAS-CSC-01") or DetDescr.startswith("ATLAS-DC"):
@@ -32,6 +35,9 @@ def CaloTTIdMapCfg(flags):
     folders = ["CaloTTOnOffIdMapAtlas", "CaloTTOnAttrIdMapAtlas", "CaloTTPpmRxIdMapAtlas"]
     for f in folders:
         endf = "/Identifier/" + f
-        acc.merge(addFoldersSplitOnline(flags, "CALO", "/CALO" + endf, "/CALO/Ofl" + endf))
+        if flags.IOVDb.DatabaseInstance == 'OFLP200':
+            acc.merge(addFoldersSplitOnline(flags, "CALO", "/CALO" + endf, "/CALO/Ofl" + endf))
+        else:
+            acc.merge(addFolders(flags, "/CALO" + endf, "CALO"))
     return acc
 

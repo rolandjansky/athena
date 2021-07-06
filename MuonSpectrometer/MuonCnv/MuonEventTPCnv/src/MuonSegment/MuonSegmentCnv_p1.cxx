@@ -18,7 +18,7 @@ void MuonSegmentCnv_p1::persToTrans( const Muon::MuonSegment_p1 *persObj, Muon::
     Trk::LocalDirection localDirection;
     m_localDirCnv.persToTrans(&persObj->m_localDirection,&localDirection,log);
 
-    ITPConverterFor<Trk::Surface> *associatedSurfaceCnv(0);
+    ITPConverterFor<Trk::Surface> *associatedSurfaceCnv(nullptr);
     Trk::Surface* temp = createTransFromPStore( &associatedSurfaceCnv, persObj->m_associatedSurface, log ); 
     Trk::PlaneSurface* associatedSurface = 
       dynamic_cast<Trk::PlaneSurface*>(temp);

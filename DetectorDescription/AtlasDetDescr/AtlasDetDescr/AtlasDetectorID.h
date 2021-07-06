@@ -79,6 +79,7 @@ public:
     Identifier          pixel           (void) const;
     Identifier          sct             (void) const;
     Identifier          trt             (void) const;
+    Identifier          hgtd            (void) const;
     //@}
 
     /// @name LAr subsystem ids
@@ -170,6 +171,7 @@ public:
     bool                is_pixel        (Identifier id) const;
     bool                is_sct          (Identifier id) const;
     bool                is_trt          (Identifier id) const;
+    bool                is_hgtd         (Identifier id) const;
     bool                is_lar_em       (Identifier id) const;
     bool                is_lar_hec      (Identifier id) const;
     bool                is_lar_fcal     (Identifier id) const;
@@ -201,6 +203,7 @@ public:
     bool                is_pixel        (const ExpandedIdentifier& id) const;
     bool                is_sct          (const ExpandedIdentifier& id) const;
     bool                is_trt          (const ExpandedIdentifier& id) const;
+    bool                is_hgtd         (const ExpandedIdentifier& id) const;
     bool                is_lar_em       (const ExpandedIdentifier& id) const;
     bool                is_lar_hec      (const ExpandedIdentifier& id) const;
     bool                is_lar_fcal     (const ExpandedIdentifier& id) const;
@@ -266,6 +269,7 @@ protected:
     ExpandedIdentifier          pixel_exp           (void) const;
     ExpandedIdentifier          sct_exp             (void) const;
     ExpandedIdentifier          trt_exp             (void) const;
+    ExpandedIdentifier          hgtd_exp            (void) const;
 
     /// LAr 
     ExpandedIdentifier          lar_em_exp          (void) const;
@@ -288,6 +292,7 @@ protected:
     int                 pixel_field_value        () const;     
     int                 sct_field_value          () const;       
     int                 trt_field_value          () const;       
+    int                 hgtd_field_value         () const;
     int                 lar_em_field_value       () const;  
     int                 lar_hec_field_value      () const; 
     int                 lar_fcal_field_value     () const;
@@ -362,6 +367,7 @@ private:
     int                 m_PIXEL_ID;     
     int                 m_SCT_ID;       
     int                 m_TRT_ID;       
+    int                 m_HGTD_ID;
     int                 m_LAR_EM_ID;  
     int                 m_LAR_HEC_ID; 
     int                 m_LAR_FCAL_ID;
@@ -497,6 +503,13 @@ AtlasDetectorID::trt_exp             (void) const
     return (result << m_TRT_ID);  
 }
 
+inline ExpandedIdentifier
+AtlasDetectorID::hgtd_exp           (void) const
+{
+    ExpandedIdentifier result(indet_exp());
+    return (result << m_HGTD_ID);
+}
+
 inline ExpandedIdentifier          
 AtlasDetectorID::lar_em_exp          (void) const
 {
@@ -569,6 +582,9 @@ AtlasDetectorID::sct_field_value          () const {return (m_SCT_ID);}
 
 inline int                 
 AtlasDetectorID::trt_field_value          () const {return (m_TRT_ID);}       
+
+inline int
+AtlasDetectorID::hgtd_field_value         () const {return (m_HGTD_ID);}
 
 inline int                 
 AtlasDetectorID::lar_em_field_value       () const {return (m_LAR_EM_ID);}  
@@ -716,6 +732,18 @@ AtlasDetectorID::is_trt         (Identifier id) const
     // (don't need this check for 64-bit identifier, but leave it in for now)
     if(is_indet(id) && !is_pixel(id)) {
         result = (m_indet_part_impl.unpack(id) == m_TRT_ID);
+    }
+    return result;
+}
+
+inline bool
+AtlasDetectorID::is_hgtd        (Identifier id) const
+{
+    bool result = false;
+    // Must check is_pixel to allow for special bits
+    // (don't need this check for 64-bit identifier, but leave it in for now)
+    if(is_indet(id) && !is_pixel(id)) {
+        result = (m_indet_part_impl.unpack(id) == m_HGTD_ID);
     }
     return result;
 }

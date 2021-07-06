@@ -203,7 +203,7 @@ namespace Trk
    trJac(1,1) = -sin(refTrkPar[2])/tan(refTrkPar[3]);
    trJac(1,2) = 1.;
 
-   AmgSymMatrix(5)* perFullTrkCov = new AmgSymMatrix(5)(trJac*(fullTrkCov*trJac.transpose()));
+   AmgSymMatrix(5) perFullTrkCov = AmgSymMatrix(5)(trJac*(fullTrkCov*trJac.transpose()));
 
    //temporary hack: returning the state with incorrect covariance matrix, to see
    //how general infrastructure works.
@@ -215,7 +215,7 @@ namespace Trk
                                                       refTrkPar[3],
                                                       refTrkPar[4],
                                                       fit_vrt_pos,
-                                                      perFullTrkCov);
+                                                      std::move(perFullTrkCov));
 
    trk.setPerigeeAtVertex(refittedPerigee);
    const FitQuality trkQuality(chi2,2*trk.weight());

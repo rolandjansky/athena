@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGEFTAUMVHYPOTOOL_H
 #define TRIGEFTAUMVHYPOTOOL_H
 
-#include "TrigInterfaces/HypoAlgo.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"

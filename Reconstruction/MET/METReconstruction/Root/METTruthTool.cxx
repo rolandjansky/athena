@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // METTruthTool.cxx 
@@ -225,7 +225,7 @@ namespace met {
     vector<const IParticle*> signalList;
     signalList.reserve(truthCont.size());
     // Loop over all truth particles
-    for( const auto& truthp : truthCont ) {
+    for( const auto truthp : truthCont ) {
       // Check if truth particles satisfies the requirements
       if( this->accept(truthp) ) {
 	// Add the selected truth particles to the list

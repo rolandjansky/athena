@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #define  ATHENASERVICES_ATHENAHIVEEVENTLOOPMGR_CPP
@@ -11,7 +11,6 @@
 #include <iomanip>
 
 #include "PersistentDataModel/AthenaAttributeList.h"
-#include "AthenaKernel/ITimeKeeper.h"
 #include "AthenaKernel/IEventSeek.h"
 #include "AthenaKernel/IEvtSelectorSeek.h"
 #include "AthenaKernel/IAthenaEvtLoopPreSelectTool.h"
@@ -50,7 +49,6 @@
 // External libraries
 #include "tbb/tick_count.h"
 
-#include "ClearStorePolicy.h"
 
 
 //=========================================================================
@@ -65,7 +63,6 @@ AthenaHiveEventLoopMgr::AthenaHiveEventLoopMgr(const std::string& nam,
     m_histoDataMgrSvc( "HistogramDataSvc",         nam ), 
     m_histoPersSvc   ( "HistogramPersistencySvc",  nam ), 
     m_activeStoreSvc ( "ActiveStoreSvc",           nam ),
-    m_pITK(0), 
     m_currentRun(0), m_firstRun(true), m_tools(this), m_nevt(0), m_writeHists(false),
     m_nev(0), m_proc(0), m_useTools(false),m_doEvtHeartbeat(false),
     m_conditionsCleaner( "Athena::ConditionsCleanerSvc", nam )
@@ -77,10 +74,6 @@ AthenaHiveEventLoopMgr::AthenaHiveEventLoopMgr(const std::string& nam,
 		  "Histogram persistency technology to use: ROOT, HBOOK, NONE. "
 		  "By default (empty string) get property value from "
 		  "ApplicationMgr");
-  declareProperty("TimeKeeper", m_timeKeeperName, 
-		  "Name of TimeKeeper to use. NONE or empty string (default) "
-		  "means no time limit control on event loop");
-  m_timeKeeperName.declareUpdateHandler(&AthenaHiveEventLoopMgr::setupTimeKeeper, this);
   declareProperty("HistWriteInterval",    m_writeInterval=0 ,
 		  "histogram write/update interval");
   declareProperty("FailureMode",          m_failureMode=1 , 
@@ -90,12 +83,6 @@ AthenaHiveEventLoopMgr::AthenaHiveEventLoopMgr(const std::string& nam,
 		  "(DEFAULT). 2: RECOVERABLE and FAILURE skip to next events");
   declareProperty("EventPrintoutInterval", m_eventPrintoutInterval=1,
                   "Print event heartbeat printouts every m_eventPrintoutInterval events");
-  declareProperty("ClearStorePolicy",
-		  m_clearStorePolicy = "EndEvent",
-		  "Configure the policy wrt handling of when the "
-		  "'clear-the-event-store' event shall happen: at EndEvent "
-		  "(default as it is makes things easier for memory management"
-		  ") or at BeginEvent (easier e.g. for interactive use)");
   declareProperty("PreSelectTools",m_tools,"AlgTools for event pre-selection")->
     declareUpdateHandler( &AthenaHiveEventLoopMgr::setupPreSelectTools, this ); ;
   
@@ -114,6 +101,8 @@ AthenaHiveEventLoopMgr::AthenaHiveEventLoopMgr(const std::string& nam,
   declareProperty("FakeTimestampInterval", m_timeStampInt = 1,
                   "timestamp interval between events when creating Events "
                   "without an EventSelector");
+  declareProperty("RequireInputAttributeList", m_requireInputAttributeList = false,
+                  "Require valid input attribute list to be present");
   declareProperty("UseSecondaryEventNumber", m_useSecondaryEventNumber = false,
                   "In case of DoubleEventSelector use event number from secondary input");
 
@@ -137,8 +126,7 @@ AthenaHiveEventLoopMgr::~AthenaHiveEventLoopMgr()
 StatusCode AthenaHiveEventLoopMgr::initialize()    
 {
 
-  info() << "Initializing " << name()
-         << " - package version " << PACKAGE_VERSION << endmsg ;
+  info() << "Initializing " << name() << endmsg ;
  
 
   StatusCode sc = MinimalEventLoopMgr::initialize();
@@ -224,7 +212,7 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
   const std::string& histPersName(m_histPersName.value());
   if ( histPersName.length() == 0 )    
   {
-    setProperty(prpMgr->getProperty("HistogramPersistency")).ignore();
+    CHECK(setProperty(prpMgr->getProperty("HistogramPersistency")));
   }
 
   if ( histPersName != "NONE" )   {
@@ -307,20 +295,7 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
       return StatusCode::FAILURE;
     }
   }  
-//-------------------------------------------------------------------------
-// Setup TimeKeeper service
-//-------------------------------------------------------------------------
-  // the time keeper may one day be specified as a property of ApplicationMgr
-  //  setProperty(prpMgr->getProperty("TimeKeeper"));
 
-//-------------------------------------------------------------------------
-// Setup 'Clear-Store' policy
-//-------------------------------------------------------------------------
-  try {
-    setClearStorePolicy( m_clearStorePolicy );
-  } catch(...) {
-    return StatusCode::FAILURE;
-  }
 //-------------------------------------------------------------------------
 // Make sure the ActiveStoreSvc is initialized.
 // We don't use this, but want to be sure that it gets created
@@ -333,8 +308,9 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
     return sc;
   }
 
-  // Listen to the BeforeFork incident
+  // Listen to the BeforeFork and EndAlgorithms incidents
   m_incidentSvc->addListener(this,"BeforeFork",0);
+  m_incidentSvc->addListener(this, "EndAlgorithms",0);
 
   CHECK( m_conditionsCleaner.retrieve() );
 
@@ -356,38 +332,6 @@ AthenaHiveEventLoopMgr::eventStore() const {
 //=========================================================================
 // property handlers
 //=========================================================================
-void 
-AthenaHiveEventLoopMgr::setupTimeKeeper(Gaudi::Details::PropertyBase&) {
-  const std::string& tkName(m_timeKeeperName.value());
-  // We do not expect a TimeKeeper necessarily being declared  
-  if( tkName != "NONE" && tkName.length() != 0) {
-    if (!(serviceLocator()->service( tkName, m_pITK, true)).isSuccess()) 
-      error() << "TimeKeeper not found." << endmsg;
-    else info() << "No TimeKeeper selected. "
-	        << "No time limit control on event loop." 
-	        << endmsg;
-  }
-}
-
-void 
-AthenaHiveEventLoopMgr::setClearStorePolicy(Gaudi::Details::PropertyBase&) {
-  const std::string& policyName = m_clearStorePolicy.value();
-
-  if ( policyName != "BeginEvent" &&
-       policyName != "EndEvent" ) {
-
-    fatal() << "Unknown policy [" << policyName 
-            << "] for the 'ClearStore-policy !\n"
-            << "           Valid values are: BeginEvent, EndEvent"
-            << endmsg;
-    throw GaudiException("Can not setup 'ClearStore'-policy",
-			 name(),
-			 StatusCode::FAILURE);
-  }
-
-  return;
-}
-
 void
 AthenaHiveEventLoopMgr::setupPreSelectTools(Gaudi::Details::PropertyBase&) {
 
@@ -785,7 +729,7 @@ StatusCode AthenaHiveEventLoopMgr::nextEvent(int maxevt)
   // CGL: FIXME
   // bool noTimeLimit(false);
   bool loop_ended=false;
-  StatusCode sc(StatusCode::SUCCESS,true);
+  StatusCode sc(StatusCode::SUCCESS);
 
   bool newEvtAllowed = ! m_firstEventAlone;
   
@@ -931,6 +875,17 @@ int AthenaHiveEventLoopMgr::size()
 void AthenaHiveEventLoopMgr::handle(const Incident& inc)
 {
 
+  if(inc.type() == "EndAlgorithms") {
+    // Clear the store at the end of the event.
+    // Do it here so that it executes in an algorithm context and thus
+    // multiple stores can be cleared at the same time.
+    StatusCode sc = m_whiteboard->clearStore(inc.context().slot());
+    if( !sc.isSuccess() )  {
+      warning() << "Clear of Event data store failed" << endmsg;    
+    }
+    return;
+  }
+
   if(inc.type()!="BeforeFork")
     return;
 
@@ -983,12 +938,9 @@ void AthenaHiveEventLoopMgr::handle(const Incident& inc)
   m_currentRun = pEvent->event_ID()->run_number();
 
   // Clear Store
-  const ClearStorePolicy::Type s_clearStore = clearStorePolicy( m_clearStorePolicy.value(), msgStream() );
-  if(s_clearStore==ClearStorePolicy::EndEvent) {
-    sc = eventStore()->clearStore();
-    if(!sc.isSuccess()) {
-      error() << "Clear of Event data store failed" << endmsg;
-    }
+  sc = eventStore()->clearStore();
+  if(!sc.isSuccess()) {
+    error() << "Clear of Event data store failed" << endmsg;
   }
 }
 
@@ -1126,8 +1078,10 @@ int AthenaHiveEventLoopMgr::declareEventRootAddress(EventContext& ctx){
                 }
             }
             if (eventNumberSecondary != 0) {
+                m_doEvtHeartbeat = (m_eventPrintoutInterval.value() > 0 && 
+                  0 == (m_nev % m_eventPrintoutInterval.value()));
                 if (m_doEvtHeartbeat) {
-                    info() << "  ===>>>  using secondary event #" << eventNumberSecondary << " instead of #" << eventNumber << "<<<===" << endmsg;
+                    info() << "  ===>>>  using secondary event #" << eventNumberSecondary << " instead of #" << eventNumber << "  <<<===" << endmsg;
                 }
                 eventNumber = eventNumberSecondary;
             }
@@ -1138,8 +1092,11 @@ int AthenaHiveEventLoopMgr::declareEventRootAddress(EventContext& ctx){
         pEvent = pEventPtr.release();
       } catch (...) {
       }
+    } else if (m_requireInputAttributeList) {
+      fatal() << "Valid input attribute list required but not present!" << endmsg;
+      return -1;
     }
-    
+
     if (!pEvent) {
         // Retrieve the Event object
         pEvent = eventStore()->tryConstRetrieve<EventInfo>();
@@ -1365,10 +1322,6 @@ AthenaHiveEventLoopMgr::drainScheduler(int& finishedEvts){
 //---------------------------------------------------------------------------
 
 StatusCode AthenaHiveEventLoopMgr::clearWBSlot(int evtSlot)  {
-  StatusCode sc = m_whiteboard->clearStore(evtSlot);
-  if( !sc.isSuccess() )  {
-    warning() << "Clear of Event data store failed" << endmsg;    
-  }
   return m_whiteboard->freeStore(evtSlot);  
 }
 //---------------------------------------------------------------------------

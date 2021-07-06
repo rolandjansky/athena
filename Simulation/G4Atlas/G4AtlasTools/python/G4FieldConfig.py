@@ -53,7 +53,7 @@ def getInDetFieldManagerTool(name='InDetFieldManager', **kwargs):
     return getBasicDetectorFieldManagerTool(name, **kwargs)
 
 def getMuonsOnlyInCaloFieldManagerTool(name='MuonsOnlyInCaloFieldManager', **kwargs):
-    kwargs.setdefault("LogicalVolumes", ['CALO::CALO'])
+    kwargs.setdefault("PhysicalVolumes", ['LArBarrel'])
     #kwargs.setdefault('DeltaChord',         0.00000002)
     kwargs.setdefault('DeltaIntersection',  0.00000002)
     kwargs.setdefault('DeltaOneStep',       0.000001)

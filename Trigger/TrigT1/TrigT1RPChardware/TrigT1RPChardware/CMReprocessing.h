@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef CMReprocessing_H
-#define CMReprocessing_H
+#ifndef TrigT1RPChardware_CMReprocessing_H
+#define TrigT1RPChardware_CMReprocessing_H
 
 #include <iostream>
 #include <fstream>

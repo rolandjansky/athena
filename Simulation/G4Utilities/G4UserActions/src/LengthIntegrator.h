@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4UserActions_LengthIntegrator_H
@@ -45,7 +45,7 @@ namespace G4UA
     public:
 
       /// Constructor takes the name of the histogram service as argument.
-      LengthIntegrator(const std::string& histSvcName);
+    LengthIntegrator(const std::string& histSvcName, bool doHistos);
 
       /// Called at beginning of G4 event to cache some details about the
       /// current primary vertex and particle. Also resets some measurements.
@@ -82,6 +82,9 @@ namespace G4UA
       std::vector<float> m_collected_hitr;
       std::vector<float> m_collected_hitz;
 
+      std::vector<float> m_collected_outhitr;
+      std::vector<float> m_collected_outhitz;
+
       std::vector<float> m_collected_density;
       std::vector<std::string> m_collected_material;
       std::vector<std::string> m_collected_volume;
@@ -90,7 +93,7 @@ namespace G4UA
       std::vector<std::string> m_collected_volumetype;
 
       bool m_splitModerator;
-      bool m_splitPP1;
+      bool m_splitPP1;  
 
       void fillNtuple();
       std::string getMaterialClassification(std::string name);
@@ -108,6 +111,9 @@ namespace G4UA
 
       /// Handle to the histogram service
       ServiceHandle<ITHistSvc> m_hSvc;
+      
+      //Do we create histograms
+      bool m_doHistos;
 
       /// Cached eta of the current primary
       double m_etaPrimary;

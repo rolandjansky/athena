@@ -17,10 +17,24 @@ namespace LVL1TGCTrigger {
     m_numberOfCandidate_Out(0),
     m_sectorLogic(sL) 
   {
+    for(int i_track=0;i_track!=MaxNumber_of_TrackCandidate_in;i_track++){
+      m_trackPriorityRank[i_track]=0;
+    }
   }
 
   TGCTrackSelector::~TGCTrackSelector()
   {
+  }
+
+
+  void TGCTrackSelector::reset(){
+    m_numberOfCandidate_In=0;
+    m_numberOfCandidate_Out=0;
+    
+    for(int i_track=0;i_track!=MaxNumber_of_TrackCandidate_in;i_track++){
+      m_trackPriorityRank[i_track]=0;
+    }
+
   }
 
 
@@ -73,8 +87,7 @@ namespace LVL1TGCTrigger {
       }
     }
 
-    m_numberOfCandidate_In=0;
-    m_numberOfCandidate_Out=0;
+    reset();
  
     return true;
 

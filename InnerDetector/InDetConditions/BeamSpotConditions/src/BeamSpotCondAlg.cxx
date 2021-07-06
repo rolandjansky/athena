@@ -18,7 +18,7 @@ const EventIDRange BeamSpotCondAlg::alwaysValid { EventIDBase { 1,
                                                 };
 
 BeamSpotCondAlg::BeamSpotCondAlg( const std::string& name, ISvcLocator* pSvcLocator ) 
-  : AthAlgorithm( name, pSvcLocator )
+  : AthReentrantAlgorithm( name, pSvcLocator )
 { }
 
 
@@ -27,7 +27,7 @@ BeamSpotCondAlg::~BeamSpotCondAlg() {}
 
 StatusCode BeamSpotCondAlg::initialize() 
 {
-  ATH_MSG_INFO ("Initializing " << name() << "...");
+  ATH_MSG_DEBUG ("Initializing " << name() << "...");
 
   ATH_CHECK( m_condSvc.retrieve() );
 
@@ -43,18 +43,11 @@ StatusCode BeamSpotCondAlg::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode BeamSpotCondAlg::finalize() 
-{
-  ATH_MSG_INFO ("Finalizing " << name() << "...");
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode BeamSpotCondAlg::execute() 
+StatusCode BeamSpotCondAlg::execute(const EventContext& ctx) const
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-  SG::WriteCondHandle<InDet::BeamSpotData> writeHandle { m_writeKey };
+  SG::WriteCondHandle<InDet::BeamSpotData> writeHandle { m_writeKey, ctx };
   if ( writeHandle.isValid() )
   {
     ATH_MSG_DEBUG( "CondHandle " << writeHandle.fullKey() << " is already valid " <<
@@ -75,7 +68,7 @@ StatusCode BeamSpotCondAlg::execute()
   else
   {
 
-    SG::ReadCondHandle<AthenaAttributeList> readHandle { m_readKey };
+    SG::ReadCondHandle<AthenaAttributeList> readHandle { m_readKey, ctx };
   
     const AthenaAttributeList* raw { *readHandle };
     if ( raw == nullptr )

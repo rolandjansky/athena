@@ -1,5 +1,5 @@
 #====================================================================
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #====================================================================
 # IDTIDE1.py
 # Contact: atlas-cp-tracking-denseenvironments@cern.ch
@@ -15,6 +15,8 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 
 from DerivationFrameworkInDet.InDetCommon import *
 from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags
+from InDetRecExample import TrackingCommon
+from AthenaCommon.CFElements import seqAND, parOR
 
 from AthenaCommon.Logging import logging
 msg = logging.getLogger( "IDTIDE1" )
@@ -36,7 +38,7 @@ IsMonteCarlo=DerivationFrameworkIsMonteCarlo
 # SET UP STREAM  
 #====================================================================
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-from D2PDMaker.D2PDHelpers import buildFileName
+from PrimaryDPDMaker.PrimaryDPDHelpers import buildFileName
 from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
 streamName = primDPD.WriteDAOD_IDTIDEStream.StreamName
 fileName   = buildFileName( primDPD.WriteDAOD_IDTIDEStream )
@@ -53,9 +55,7 @@ evtStream = augStream.GetEventStream()
 #====================================================================
 # CP GROUP TOOLS
 #====================================================================
-from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__TrackToVertexIPEstimator
-IDTIDE1IPETool = Trk__TrackToVertexIPEstimator(name = "IDTIDE1IPETool")
-ToolSvc += IDTIDE1IPETool
+IDTIDE1IPETool = TrackingCommon.getTrackToVertexIPEstimator(name = "IDTIDE1IPETool")
 _info(IDTIDE1IPETool)
 
 #Setup tools
@@ -81,15 +81,23 @@ ToolSvc += IDTIDE1TrackToVertexWrapper
 augmentationTools.append(IDTIDE1TrackToVertexWrapper)
 _info(IDTIDE1TrackToVertexWrapper)
 
+# @TODO eventually computed for other extra outputs. Possible to come  up with a solution to use a common Z0AtPV if there is more than one client ?
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParametersAtPV
+DFCommonZ0AtPV = DerivationFramework__TrackParametersAtPV(name                       = "DFCommonZ0AtPV",
+                                                          TrackParticleContainerName = "InDetTrackParticles",
+                                                          VertexContainerName        = "PrimaryVertices",
+                                                          Z0SGEntryName              = "IDTIDEInDetTrackZ0AtPV" )
+ToolSvc += DFCommonZ0AtPV
+augmentationTools.append(DFCommonZ0AtPV)
+
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackStateOnSurfaceDecorator
-import InDetRecExample.TrackingCommon
 DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackStateOnSurfaceDecorator",
                                                           ContainerName = "InDetTrackParticles",
                                                           IsSimulation = False,
                                                           DecorationPrefix = "",
                                                           StoreTRT   = idDxAOD_doTrt,
-                                                          TRT_ToT_dEdx = InDetRecExample.TrackingCommon.getInDetTRT_dEdxTool() if idDxAOD_doTrt else "",
+                                                          TRT_ToT_dEdx = TrackingCommon.getInDetTRT_dEdxTool() if idDxAOD_doTrt else "",
                                                           StoreSCT   = idDxAOD_doSct,
                                                           StorePixel = idDxAOD_doPix,
                                                           OutputLevel =INFO)
@@ -98,7 +106,10 @@ augmentationTools.append(DFTSOS)
 _info(DFTSOS)
 
 # Sequence for skimming kernel (if running on data) -> PrepDataToxAOD -> ID TIDE kernel
-IDTIDESequence = CfgMgr.AthSequencer("IDTIDESequence")
+# sequence to be used for algorithm which should run before the IDTIDEPresel
+IDTIDESequencePre   = DerivationFrameworkJob
+IDTIDESequence = seqAND("IDTIDESequence")
+
 # Add decoration with truth parameters if running on simulation
 if IsMonteCarlo:
   # add track parameter decorations to truth particles but only if the decorations have not been applied already
@@ -109,7 +120,7 @@ if IsMonteCarlo:
   if len(meta_data) == 0 :
     truth_track_param_decor_alg = InDetPhysValMonitoring.InDetPhysValDecoration.getInDetPhysValTruthDecoratorAlg()
     if  InDetPhysValMonitoring.InDetPhysValDecoration.findAlg([truth_track_param_decor_alg.getName()]) == None :
-      IDTIDESequence += truth_track_param_decor_alg
+      IDTIDESequencePre += truth_track_param_decor_alg
     else :
       logger.info('Decorator %s already present not adding again.' % (truth_track_param_decor_alg.getName() ))
   else :
@@ -211,6 +222,10 @@ if not IsMonteCarlo:
   IDTIDESequence += CfgMgr.DerivationFramework__DerivationKernel("IDTIDE1KernelPresel",
                                                                  SkimmingTools = skimmingTools)
 
+# sequence for algorithms which should run after the preselection bu which can run in parallel
+IDTIDESeqAfterPresel = parOR("IDTIDESeqAfterPresel")
+IDTIDESequence += IDTIDESeqAfterPresel
+
 #Setup decorators tools
 if idDxAOD_doTrt:
   from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import TRT_PrepDataToxAOD
@@ -218,7 +233,7 @@ if idDxAOD_doTrt:
   xAOD_TRT_PrepDataToxAOD.OutputLevel=INFO
   xAOD_TRT_PrepDataToxAOD.UseTruthInfo=IsMonteCarlo
   _info( "Add TRT xAOD TrackMeasurementValidation: %s" , xAOD_TRT_PrepDataToxAOD)
-  IDTIDESequence += xAOD_TRT_PrepDataToxAOD
+  IDTIDESeqAfterPresel += xAOD_TRT_PrepDataToxAOD
 
 if idDxAOD_doSct:
   from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import SCT_PrepDataToxAOD
@@ -226,20 +241,20 @@ if idDxAOD_doSct:
   xAOD_SCT_PrepDataToxAOD.OutputLevel=INFO
   xAOD_SCT_PrepDataToxAOD.UseTruthInfo=IsMonteCarlo
   _info("Add SCT xAOD TrackMeasurementValidation: %s", xAOD_SCT_PrepDataToxAOD)
-  IDTIDESequence += xAOD_SCT_PrepDataToxAOD
+  IDTIDESeqAfterPresel += xAOD_SCT_PrepDataToxAOD
 
 if idDxAOD_doPix:
   from PixelCalibAlgs.PixelCalibAlgsConf import PixelChargeToTConversion 
   PixelChargeToTConversionSetter = PixelChargeToTConversion(name = "PixelChargeToTConversionSetter") 
-  IDTIDESequence += PixelChargeToTConversionSetter 
+  IDTIDESeqAfterPresel += PixelChargeToTConversionSetter 
   _info("Add Pixel xAOD ToTConversionSetter: %s Properties: %s", PixelChargeToTConversionSetter, PixelChargeToTConversionSetter.properties())
   from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import PixelPrepDataToxAOD
   xAOD_PixelPrepDataToxAOD = PixelPrepDataToxAOD( name = "xAOD_PixelPrepDataToxAOD",
-                                                  ClusterSplitProbabilityName = InDetRecExample.TrackingCommon.pixelClusterSplitProbName())
+                                                  ClusterSplitProbabilityName = TrackingCommon.pixelClusterSplitProbName())
   xAOD_PixelPrepDataToxAOD.OutputLevel=INFO
   xAOD_PixelPrepDataToxAOD.UseTruthInfo=IsMonteCarlo
   _info( "Add Pixel xAOD TrackMeasurementValidation: %s", xAOD_PixelPrepDataToxAOD)
-  IDTIDESequence += xAOD_PixelPrepDataToxAOD
+  IDTIDESeqAfterPresel += xAOD_PixelPrepDataToxAOD
 
 
 #====================================================================
@@ -261,7 +276,7 @@ if not idDxAOD_doTrt:
   kw['InDetTrackMeasurementsTrtKey'] = ''
 IDTIDE1ThinningTool = DerivationFramework__TrackParticleThinning(name = "IDTIDE1ThinningTool",
                                                                  StreamName              = streamName,
-                                                                 SelectionString         = "abs(DFCommonInDetTrackZ0AtPV) < 5.0",
+                                                                 SelectionString         = "abs(IDTIDEInDetTrackZ0AtPV) < 5.0",
                                                                  InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                  ThinHitsOnTrack =  InDetDxAODFlags.ThinHitsOnTrack(),
                                                                  **kw)
@@ -308,7 +323,7 @@ idtide_kernel = CfgMgr.DerivationFramework__DerivationKernel("IDTIDE1Kernel",
                                                              RunSkimmingFirst = True,
                                                              OutputLevel =INFO)
 
-IDTIDESequence += idtide_kernel
+IDTIDESeqAfterPresel += idtide_kernel
 DerivationFrameworkJob += IDTIDESequence
 accept_algs=[ idtide_kernel.name() ]
 

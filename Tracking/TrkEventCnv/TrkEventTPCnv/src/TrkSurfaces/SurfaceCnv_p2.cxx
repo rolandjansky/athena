@@ -23,7 +23,7 @@ template <class SURFACE>
 SURFACE* SurfaceCnv_p2<SURFACE>::createTransient( const Trk::Surface_p2 * persObj,MsgStream& ){
   //Trk::Surface::SurfaceType type = static_cast<Trk::Surface::SurfaceType>(persObj->m_surfaceType);
   // std::cout<<"SurfaceCnv_p2<SURFACE>::createTransient for type="<<type<<", persId= "<<persObj->m_associatedDetElementId<<std::endl;
-  SURFACE* surface=0;
+  SURFACE* surface=nullptr;
   if (!persObj->m_transform.size()) {
     // det element surface
     Identifier id =  Identifier32(persObj->m_associatedDetElementId);
@@ -36,9 +36,9 @@ SURFACE* SurfaceCnv_p2<SURFACE>::createTransient( const Trk::Surface_p2 * persOb
     surface= surface_nc; // Needed to fulfill interface...
   } else {
     // Not Det element surface, so need to create surface & fill transform
-    auto transform = std::make_unique<Amg::Transform3D>();
-    EigenHelpers::vectorToEigenTransform3D( persObj->m_transform, *transform.get() );
-    surface=new SURFACE(std::move(transform));
+    Amg::Transform3D transform;
+    EigenHelpers::vectorToEigenTransform3D( persObj->m_transform, transform );
+    surface=new SURFACE(transform);
     // std::cout<<"SurfaceCnv_p2<SURFACE>::createTransient with vector=[";
     // for (auto v : persObj->m_transform)
     //     std::cout << v << ' ';

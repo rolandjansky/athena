@@ -1,0 +1,3 @@
+#include "InDetUsedInVertexFitTrackDecorator/InDetUsedInVertexFitTrackDecorator.h"
+
+DECLARE_COMPONENT(InDet::InDetUsedInVertexFitTrackDecorator)

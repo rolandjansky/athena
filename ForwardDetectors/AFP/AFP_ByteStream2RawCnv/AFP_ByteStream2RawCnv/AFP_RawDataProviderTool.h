@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DECODER_AFP_RAWDATAPROVIDERTOOL_H
@@ -33,11 +33,10 @@ public:
 
   /// Fill rawContainer with collections created from provided vecRobs
   StatusCode convert(std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *> &vecRobs,
-                     AFP_RawContainer *rawContainer);
+                     AFP_RawContainer *rawContainer) const;
 
 private:
   ToolHandle<AFP_ByteStream2RawCnv> m_decoder;
-  std::set<uint32_t> m_robIdSet;
 
 };
 

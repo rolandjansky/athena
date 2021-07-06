@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArDeltaRespTool.h" 
@@ -124,7 +124,7 @@ double LArDeltaRespTool::deltaCorr ( double t ) const
   return ((fstep*fstep-fstep)/(Tc*Tc)) * exp( -fstep*t/Tc );
 }
 
-LArWave LArDeltaRespTool::injResp (LArWave w) const {
+LArWave LArDeltaRespTool::injResp (const LArWave& w) const {
   return  w % injCorr() ;
 }
 

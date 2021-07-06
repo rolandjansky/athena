@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // This is based on https://gitlab.cern.ch/atlas/athena/-/blob/master/Tracking/TrkG4Components/TrkG4UserActions/TrkG4UserActions/GeantFollower.h
@@ -23,14 +23,7 @@ class ActsGeantFollower: public G4UserEventAction, public G4UserRunAction, publi
 
 public:
 
-  struct Config
-  {
-    /// FIXME: Public tool handle. See ATLASSIM-3561.
-    ToolHandle<IActsGeantFollowerHelper> helper =
-      ToolHandle<IActsGeantFollowerHelper>("ActsGeantFollowerHelper");
-  };
-
-  ActsGeantFollower(const Config& config);
+  ActsGeantFollower();
   virtual void BeginOfEventAction(const G4Event*) override;
   virtual void EndOfEventAction(const G4Event*) override;
   virtual void BeginOfRunAction(const G4Run*) override;
@@ -38,11 +31,8 @@ public:
 
 private:
 
-  Config m_config;
-
-  /// FIXME: mutable helper! See ATLASSIM-3561.
-  mutable const IActsGeantFollowerHelper* m_helperPointer;
-
+    ToolHandle<IActsGeantFollowerHelper> m_helper =
+      ToolHandle<IActsGeantFollowerHelper>("ActsGeantFollowerHelper");
 }; // class GeantFollower
 
 #endif

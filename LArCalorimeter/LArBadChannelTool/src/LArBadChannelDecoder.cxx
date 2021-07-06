@@ -6,7 +6,7 @@
 
 #include "LArRecConditions/LArBadChannelParser.h"
 #include "GaudiKernel/MsgStream.h"
-#include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArOnlineID_Base.h"
 
 std::vector<LArBadChannelDecoder::BadChanEntry>
 LArBadChannelDecoder::readASCII( const std::string& fname, 

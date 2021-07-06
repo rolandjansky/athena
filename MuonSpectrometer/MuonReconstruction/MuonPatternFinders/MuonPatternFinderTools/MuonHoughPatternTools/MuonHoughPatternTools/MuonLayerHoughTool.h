@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONHOUGHPATTERNTOOLS_MUONLAYERHOUGHTOOL_H
@@ -22,7 +22,6 @@
 
 #include "MuonClusterization/TgcHitClustering.h"
 #include "MuonClusterization/RpcHitClustering.h"
-#include "MuonRecToolInterfaces/IMuonTruthSummaryTool.h"
 #include "MuonLayerHough/MuonRegionHough.h"
 #include "MuonLayerHough/MuonLayerHough.h"
 #include "MuonLayerHough/MuonPhiLayerHough.h"
@@ -231,14 +230,13 @@ namespace Muon {
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ToolHandle<MuonEDMPrinterTool> m_printer{this, "printerTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
-    ToolHandle<Muon::IMuonTruthSummaryTool> m_truthSummaryTool{this, "MuonTruthSummaryTool", "Muon::MuonTruthSummaryTool/MuonTruthSummaryTool"};
 
     std::vector<MuonHough::MuonLayerHoughSelector> m_selectors;
     std::vector<MuonHough::MuonLayerHoughSelector> m_selectorsLoose;
     Gaudi::Property<bool>       m_doNtuple{this,"DoNtuple",false};
-    TFile*     m_file;
-    TTree*     m_tree;
-    mutable MuonHough::HitNtuple* m_ntuple ATLAS_THREAD_SAFE; // Marked as thread-safe because it's disabled when running multi-threaded
+    TFile*     m_file{};
+    TTree*     m_tree{};
+    mutable MuonHough::HitNtuple* m_ntuple ATLAS_THREAD_SAFE = {}; // Marked as thread-safe because it's disabled when running multi-threaded
 
     SG::ReadHandleKeyArray< PRD_MultiTruthCollection >       m_truthNames{this, "TruthNames", {}}; 
     SG::ReadHandleKey<xAOD::TruthParticleContainer>       m_MuonTruthParticlesKey{this,"MuonTruthParticlesKey","MuonTruthParticles"};

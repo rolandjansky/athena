@@ -11,9 +11,6 @@
  * @date 21 February 2014
 **/
 
-
-
-
 //local include
 #include "InDetPhysValMonitoring/IAthSelectionTool.h"
 #include "InDetPhysValMonitoring/CutFlow.h"
@@ -22,6 +19,8 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
+#include "InDetTrackSystematicsTools/InDetTrackTruthOriginTool.h"
+#include "InDetTrackSystematicsTools/InDetTrackTruthOriginDefs.h"
 
 #include "InDetTruthVertexValidation/IInDetVertexTruthMatchTool.h"
 
@@ -90,6 +89,29 @@ private:
                         const  xAOD::Vertex * primaryVtx,
                         const std::vector<const xAOD::TruthParticle*> &truthParticles);
 
+	// accessors/decorators
+    SG::AuxElement::Accessor<bool>  m_acc_hasTruthFilled{"hasTruthFilled"};
+    SG::AuxElement::Decorator<bool> m_dec_hasTruthFilled{"hasTruthFilled"};	
+    SG::AuxElement::Decorator<bool> m_dec_passedTruthSelection{"passedTruthSelection"};	
+    SG::AuxElement::Decorator<bool> m_dec_passedTrackSelection{"passedTrackSelection"};	
+    SG::AuxElement::Accessor<bool>  m_acc_selectedByPileupSwitch{"selectedByPileupSwitch"};
+    SG::AuxElement::Decorator<bool> m_dec_selectedByPileupSwitch{"selectedByPileupSwitch"};
+
+    // decorate track particle for ntuple writing
+    void decorateTrackParticle(const xAOD::TrackParticle & track, const asg::AcceptData & passed) const;
+
+    // decorate truth particle for ntuple writing
+    void decorateTruthParticle(const xAOD::TruthParticle & truth, const IAthSelectionTool::CutResult & passed) const;
+
+    // safely check the "hasTruthFilled" decoration on a truth particle
+    bool hasTruthFilled(const xAOD::TruthParticle & truth) const;
+    
+    // safely check the "selectedByPileupSwitch" decoration on a truth particle
+    bool isSelectedByPileupSwitch(const xAOD::TruthParticle & truth) const;
+   
+    // set the "selectedByPileupSwitch" decoration for all particles in the passed vector
+    void markSelectedByPileupSwitch(const std::vector<const xAOD::TruthParticle*> & truthParticles) const;
+
     ///TrackParticle container's name
     SG::ReadHandleKey<xAOD::TrackParticleContainer>  m_trkParticleName
         {this,"TrackParticleContainerName", "InDetTrackParticles"};
@@ -136,9 +158,12 @@ private:
     bool m_useTrackSelection;
     bool m_useVertexTruthMatchTool;
     bool m_TrkSelectPV;   // make track selection relative to PV
+    bool m_doTruthOriginPlots;
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectionTool;
     ToolHandle<IInDetVertexTruthMatchTool> m_vtxValidTool;
     ToolHandle<IAthSelectionTool> m_truthSelectionTool;
+    ToolHandle<InDet::IInDetTrackTruthOriginTool> m_trackTruthOriginTool{this, "trackTruthOriginTool", "InDet::InDetTrackTruthOriginTool"};
+
     mutable std::mutex  m_mutex;
     mutable CutFlow     m_truthCutFlow ATLAS_THREAD_SAFE; // Guarded by m_mutex
     std::vector<int> m_prospectsMatched;
@@ -155,6 +180,7 @@ private:
     float m_maxTrkJetDR;
     bool m_doTrackInJetPlots;
     bool m_doBjetPlots; 
+	bool m_fillTruthToRecoNtuple;
 
     std::string m_folder;
 };

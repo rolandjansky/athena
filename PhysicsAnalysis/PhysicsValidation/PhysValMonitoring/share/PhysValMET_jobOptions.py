@@ -41,8 +41,22 @@ phoseltool = CfgMgr.AsgPhotonIsEMSelector("PhotonIsEMSelectionTool",
                                            WorkingPoint="TightPhoton")
 tool1.PhotonIsEMSelectionTool = phoseltool
 
+from ROOT import TauAnalysisTools
+SelectionCuts = TauAnalysisTools.SelectionCuts
+
 tauseltool = CfgMgr.TauAnalysisTools__TauSelectionTool("TauSelectionTool")
 tool1.TauSelectionTool = tauseltool
+
+tool1.TauSelectionTool.ConfigPath = ""
+tool1.TauSelectionTool.SelectionCuts \
+    = int(SelectionCuts.CutPt | SelectionCuts.CutAbsEta |
+          SelectionCuts.CutAbsCharge | SelectionCuts.CutNTrack | SelectionCuts.CutJetIDWP)
+tool1.TauSelectionTool.PtMin = 20.0
+tool1.TauSelectionTool.JetIDWP = TauAnalysisTools.JETIDRNNMEDIUM
+tool1.TauSelectionTool.EleOLR = True
+tool1.TauSelectionTool.NTracks = (1, 3)
+tool1.TauSelectionTool.AbsCharge = 1
+tool1.TauSelectionTool.AbsEtaRegion = (0.0, 1.37, 1.52, 2.5)
 
 monMan = CfgMgr.AthenaMonManager("PhysValMonManager")
 monMan.AthenaMonTools += [ tool1 ]

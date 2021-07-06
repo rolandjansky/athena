@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTSELECTORATHENAPOOL_H
@@ -22,6 +22,7 @@
 #include "AthenaKernel/IEvtSelectorSeek.h"
 #include "AthenaKernel/IEventShare.h"
 #include "AthenaKernel/ISecondaryEventSelector.h"
+#include "AthenaKernel/SlotSpecificObj.h"
 #include "AthenaPoolCnvSvc/IAthenaPoolCnvSvc.h"
 #include "AthenaBaseComps/AthService.h"
 
@@ -209,6 +210,8 @@ private: // properties
    ToolHandleArray<IAthenaSelectorTool> m_helperTools{this};
    ToolHandle<IAthenaSelectorTool> m_counterTool{this, "CounterTool", "", ""};
    ToolHandle<IAthenaIPCTool> m_eventStreamingTool{this, "SharedMemoryTool", "", ""};
+   /// Make this instance a Streaming Client during first iteration automatically
+   IntegerProperty m_makeStreamingToolClient{this,"MakeStreamingToolClient",0};
 
    /// The following are included for compatibility with McEventSelector and are not really used.
    /// However runNo, oldRunNo and overrideRunNumberFromInput are used to reset run number for
@@ -242,6 +245,8 @@ private: // properties
 
    typedef std::mutex CallMutex;
    mutable CallMutex m_callLock;
+
+   SG::SlotSpecificObj<SG::SourceID> m_sourceID;
 
    /// @brief make the @c DoubleEventSelectorAthenaPool a friend so it can access the 
    ///        internal @c EventSelectorAthenaPool methods and members

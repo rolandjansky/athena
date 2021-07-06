@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -29,8 +29,8 @@ GeoPixelStaveRingServices::GeoPixelStaveRingServices(InDetDD::PixelDetectorManag
                                                      GeoPixelLadder& ladder, GeoPixelStaveSupport& staveSupport):
   GeoVPixelFactory (ddmgr, mgr),
   m_ladder(ladder),m_staveSupport(staveSupport),
-  m_supportPhysA(0),m_supportPhysC(0),m_supportMidRing(0),
-  m_xformSupportA(0), m_xformSupportC(0), m_xformSupportMidRing(0)
+  m_supportPhysA(nullptr),m_supportPhysC(nullptr),m_supportMidRing(nullptr),
+  m_xformSupportA(nullptr), m_xformSupportC(nullptr), m_xformSupportMidRing(nullptr)
 {
 
 }
@@ -313,6 +313,6 @@ GeoVPhysVol* GeoPixelStaveRingServices::Build()
   m_xformSupportMidRing = new GeoTransform(ring_posM);
 
 
-  return 0;
+  return nullptr;
 
 }

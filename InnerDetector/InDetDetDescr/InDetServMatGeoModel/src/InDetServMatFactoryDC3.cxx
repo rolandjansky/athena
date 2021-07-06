@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/InDetServMatFactoryDC3.h"
@@ -42,7 +42,7 @@
 
 InDetServMatFactoryDC3::InDetServMatFactoryDC3(InDetDD::AthenaComps * athenaComps)
   : InDetDD::DetectorFactoryBase(athenaComps),
-    m_manager(0)
+    m_manager(nullptr)
 {}
 
 

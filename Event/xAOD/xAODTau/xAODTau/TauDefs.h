@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauDefs.h 796092 2017-02-08 00:14:16Z griffith $
 #ifndef XAODTAU_TAUDEFS_H
 #define XAODTAU_TAUDEFS_H
 
@@ -130,10 +129,9 @@ namespace TauJetParameters
         // = 12,
         // = 13,
         // = 14,
-        // = 15,
-        // = 16,
-        // = 17,
-        // = 18,
+        EleRNNLoose  = 15,
+        EleRNNMedium = 16,
+        EleRNNTight  = 17,
 	JetBDTSigVeryLoose      = 18, // new in r21
         JetBDTSigLoose          = 19, // rename (add sig)
         JetBDTSigMedium         = 20, // rename (add sig)
@@ -147,10 +145,7 @@ namespace TauJetParameters
 	JetRNNSigVeryLoose      = 28,
         JetRNNSigLoose          = 29,
         JetRNNSigMedium         = 30,
-        JetRNNSigTight          = 31,
-        EleRNNLoose          = 32,
-        EleRNNMedium         = 33,
-        EleRNNTight          = 34,	
+        JetRNNSigTight          = 31, // DON'T USE ANYTHING ABOVE 31, IsTauFlag is encoded on 32 bits!
       };
 
     //-------------------------------------------------------------------------
@@ -327,8 +322,8 @@ namespace TauJetParameters
       nChargedTracks=109,
       nIsolatedTracks=110,
       nModifiedIsolationTracks=111,//no static variable for now
-
-      //Tau/Ele BDTVars
+      nAllTracks=112,
+      nLargeRadiusTracks=113,
 
     };
 
@@ -415,6 +410,7 @@ namespace TauJetParameters
       unclassified         = 9,  // helper enum for not yet classified tracks
       passTrkSelectionTight = 10, //pass the xAOD Tight track selection
       modifiedIsolationTrack = 11, //passTrkSelector && !classifiedCharged
+      LargeRadiusTrack = 12, // Large Radius Track
       //if you add another flag, you'll need to check the track sorting alg, it assumes unclassified is the last flag *This should be fixed in TauTrackClassifier now*
       //Track sorting just requires that the classifiedXXX bits are consecutive, charged is first (of classifiedXXX), and fake is last (of classifiedXXX)
     };

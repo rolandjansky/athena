@@ -2,28 +2,25 @@ LibraryNames libTopEventSelectionTools libTopEventReconstructionTools
 
 ### Good Run List
 GRLDir  GoodRunsLists
-GRLFile data15_13TeV/20160720/physics_25ns_20.7.xml data16_13TeV/20170215/physics_25ns_20.7.xml
+GRLFile data18_13TeV/20190219/physics_25ns_Triggerno17e33prim.xml
 
-### Pile-up reweighting tool - this is now mandatory
-### Now requires only PRWLumiCalcFiles
-### No PRWDefaultChannel anymore
-### The nominal mc15c PU distribution is now appended to PRWConfigFiles automatically
-### Will hence be using mc15c_v2_defaults.NotRecommended.prw.root if nothing is provided for PRWConfigFiles
-# PRWConfigFiles TopCorrections/PRW.410000.mc15c.r7725_r7676.root
 PRWConfigFiles
-PRWLumiCalcFiles GoodRunsLists/data15_13TeV/20160720/physics_25ns_20.7.lumicalc.OflLumi-13TeV-005.root GoodRunsLists/data16_13TeV/20170215/physics_25ns_20.7.lumicalc.OflLumi-13TeV-008.root
-# no PRWDefaultChannel anymore
+PRWConfigFiles_FS dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16e.FS.v2/prw.merged.root
+PRWConfigFiles_AF dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16e.AF.v2/prw.merged.root
+PRWActualMu_FS GoodRunsLists/data18_13TeV/20190318/physics_25ns_Triggerno17e33prim.actualMu.OflLumi-13TeV-010.root
+PRWActualMu_AF GoodRunsLists/data18_13TeV/20190318/physics_25ns_Triggerno17e33prim.actualMu.OflLumi-13TeV-010.root
+PRWLumiCalcFiles GoodRunsLists/data18_13TeV/20190318/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-010.root
 
 ElectronCollectionName Electrons
 MuonCollectionName Muons
-JetCollectionName AntiKt4EMTopoJets
+JetCollectionName AntiKt4EMPFlowJets
 LargeJetCollectionName None
 LargeJetSubstructure None
 TauCollectionName None
 PhotonCollectionName None
 
-TruthCollectionName TruthParticles
-TruthJetCollectionName AntiKt4TruthWZJets
+TruthCollectionName None
+TruthJetCollectionName AntiKt4TruthDressedWZJets
 TopPartonHistory ttbar
 TruthBlockInfo False
 PDFInfo False
@@ -36,9 +33,11 @@ PerfStats No
 
 Systematics Nominal
 
+UseEgammaLeakageCorrection False
+
 ElectronID TightLH
-ElectronIDLoose MediumLH
-ElectronIsolation Gradient
+ElectronIDLoose LooseAndBLayerLH
+ElectronIsolation FCTight
 ElectronIsolationLoose None
 
 MuonQuality Medium
@@ -69,5 +68,25 @@ GRL
 GOODCALO
 PRIVTX
 RUN_NUMBER >= 297730
+RUN_NUMBER <= 311481
+EXAMPLEPLOTS
+SAVE
+
+SELECTION all_2017
+INITIAL
+GRL
+GOODCALO
+PRIVTX
+RUN_NUMBER >= 325713
+RUN_NUMBER <= 348835
+EXAMPLEPLOTS
+SAVE
+
+SELECTION all_2018
+INITIAL
+GRL
+GOODCALO
+PRIVTX
+RUN_NUMBER >= 348836
 EXAMPLEPLOTS
 SAVE

@@ -36,7 +36,9 @@ def openDatabase(dbstring):
 #CS: this version is needed if previous runs are processed (make sure runNumberSave is small enough)
 def formIov(runNumber):
   #runNumberSave = 364160
-  runNumberSave = 364076
+  #runNumberSave = 364076
+  #runNumberSave = 359398
+  runNumberSave = 364214
   s,u=(runNumberSave << 32), ((runNumber + 1) << 32) - 1
   return s,u
 

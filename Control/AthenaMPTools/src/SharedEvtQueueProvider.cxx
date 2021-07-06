@@ -209,7 +209,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueProvider::boots
       ATH_MSG_ERROR( "Failed to dyncast event selector to IEventShare" );
       return outwork;
     } else {
-      if(!m_evtShare->makeServer(m_nprocs).isSuccess()) {
+      if(!m_evtShare->makeServer(m_nprocs+1).isSuccess()) {
         ATH_MSG_ERROR("Failed to make the event selector a share server");
         return outwork;
       } else {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -180,7 +180,7 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(
   if (!perigee) return PIDvalues;
 
   // Get parameters at perigee and check that they are reasonable:
-  const Amg::VectorX& parameterVector = perigee->parameters();
+  const AmgVector(Trk::TrackParameters::dim)& parameterVector = perigee->parameters();
   double qOverP = parameterVector[Trk::qOverP];
   double theta  = parameterVector[Trk::theta];
   double phi    = parameterVector[Trk::phi];
@@ -470,10 +470,21 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(
                                      << "  pHTpi_prod: " << pHTpi_prod
                                      << "  probEl: " << PIDvalues[Trk::eProbabilityHT]);
 
-  PIDvalues[Trk::TRTdEdx] = m_TRTdEdxTool->dEdx(ctx,&track); // default dEdx using all hits
-  PIDvalues[Trk::eProbabilityNumberOfTRTHitsUsedFordEdx] = m_TRTdEdxTool->usedHits(ctx,&track);
-  double dEdx_noHTHits = m_TRTdEdxTool->dEdx(ctx,&track, false); // Divide by L, exclude HT hits
-  double dEdx_usedHits_noHTHits = m_TRTdEdxTool->usedHits(ctx,&track, false);
+  PIDvalues[Trk::TRTdEdx] = m_TRTdEdxTool->dEdx(
+    ctx,
+    &track,
+    true, //be expicit as optional below can be converted to bool
+    PIDvalues[Trk::TRTTrackOccupancy]); // default dEdx using all hits
+
+  PIDvalues[Trk::eProbabilityNumberOfTRTHitsUsedFordEdx] =
+    m_TRTdEdxTool->usedHits(ctx, &track);
+  double dEdx_noHTHits = m_TRTdEdxTool->dEdx(
+    ctx,
+    &track,
+    false,//be expicit as optional below can be converted to bool 
+    PIDvalues[Trk::TRTTrackOccupancy]); // Divide by L, exclude HT hits
+
+  double dEdx_usedHits_noHTHits = m_TRTdEdxTool->usedHits(ctx, &track, false);
   PIDvalues[Trk::eProbabilityToT] = m_TRTdEdxTool->getTest(
     ctx, dEdx_noHTHits, pTrk, Trk::electron, Trk::pion, dEdx_usedHits_noHTHits);
 
@@ -528,15 +539,15 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(
   PIDvalues[Trk::eProbabilityNN] = PIDNN->evaluate(scalarInputs_NN, vectorInputs_NN);
 
   ATH_MSG_DEBUG ("check NN PID calculation: ");
-  for (auto scalarInputs : scalarInputs_NN) {
+  for (const auto& scalarInputs : scalarInputs_NN) {
     ATH_MSG_DEBUG ("  scalar inputs: " << scalarInputs.first);
-    for (auto variable : scalarInputs.second) {
+    for (const auto& variable : scalarInputs.second) {
       ATH_MSG_DEBUG ("    " << variable.first << " = " << variable.second);
     }
   }
-  for (auto vectorInputs : vectorInputs_NN) {
+  for (const auto& vectorInputs : vectorInputs_NN) {
     ATH_MSG_DEBUG ("  vector inputs: " << vectorInputs.first);
-    for (auto variable : vectorInputs.second) {
+    for (const auto& variable : vectorInputs.second) {
       ATH_MSG_DEBUG ("    " << variable.first << " = " << variable.second);
     }
   }

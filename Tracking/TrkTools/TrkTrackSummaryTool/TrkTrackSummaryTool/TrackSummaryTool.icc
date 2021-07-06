@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 namespace Trk {
@@ -17,7 +17,7 @@ TrackSummaryTool::updateTrackSummary(const EventContext& ctx,
   /*suppress hole search*/
   UpdateSummary(ctx, track, nullptr, true);
   /*Needed for expected B-Layer*/
-  m_idTool->updateExpectedHitInfo(track, *track.trackSummary());
+  m_idTool->updateExpectedHitInfo(ctx, track, *track.trackSummary());
 }
 
 inline void

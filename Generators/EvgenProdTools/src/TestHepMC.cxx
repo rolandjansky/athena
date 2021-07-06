@@ -1,11 +1,12 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef XAOD_ANALYSIS
 
 #include "EvgenProdTools/TestHepMC.h"
 #include "GaudiKernel/DataSvc.h"
 #include "TruthUtils/PIDHelpers.h"
+#include "PathResolver/PathResolver.h"
 
 // For find
 #include <algorithm>
@@ -180,15 +181,18 @@ StatusCode TestHepMC::initialize() {
     CHECK(m_thistSvc->regHist("/TestHepMCname/h_beamparticle2_Energy", m_h_beamparticle2_Energy));
     CHECK(m_thistSvc->regHist("/TestHepMCname/h_cmEnergyDiff", m_h_cmEnergyDiff));
 
-    ATH_MSG_INFO("No decay vertex is ignored for particles with status (list):" );
+    ATH_MSG_INFO("No decay vertex - is ignored for particles with status (list):" );
     for ( unsigned int i = 0; i < m_vertexStatuses.size(); i++ ) ATH_MSG_INFO("            : " << m_vertexStatuses.at(i) );
     ATH_MSG_INFO("Vertex statuses finished");
 
   } // End of histogramming setup
 
   // open the files and read G4particle_whitelist.txt
+
+  static const char* fileName = "G4particle_whitelist.txt";
+  const std::string fileLocation = PathResolverFindDataFile ( fileName);
   std::ifstream G4file;
-  G4file.open("G4particle_whitelist.txt");
+  G4file.open(fileLocation);
   std::string line;
   int G4pdgID;
   if (!G4file.fail()){

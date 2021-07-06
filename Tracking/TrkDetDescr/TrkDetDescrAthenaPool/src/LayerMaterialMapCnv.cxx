@@ -55,7 +55,7 @@ LayerMaterialMapCnv::createTransientWithKey (const std::string& key)
 {
   static const pool::Guid tlp1_guid( "3DA92DBD-DA78-43A2-BFDF-9E19E2BF1E8A" );
 
-  Trk::LayerMaterialMap *p_collection = 0;
+  Trk::LayerMaterialMap *p_collection = nullptr;
 
   MsgStream log (m_msgSvc, "LayerMaterialMapCnv: " + key);
 

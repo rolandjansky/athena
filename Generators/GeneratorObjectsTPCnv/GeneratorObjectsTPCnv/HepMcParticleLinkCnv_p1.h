@@ -40,13 +40,6 @@ class HepMcParticleLinkCnv_p1 : public T_AthenaPoolTPCnvBase<
    */
   HepMcParticleLinkCnv_p1();
 
-  /** Destructor: 
-   */
-  //virtual ~HepMcParticleLinkCnv_p1(); 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  /////////////////////////////////////////////////////////////////// 
 
   /** Method creating the transient representation of @c HepMcParticleLink
    *  from its persistent representation @c HepMcParticleLink_p1
@@ -62,15 +55,6 @@ class HepMcParticleLinkCnv_p1 : public T_AthenaPoolTPCnvBase<
 			    HepMcParticleLink_p1* persObj, 
 			    MsgStream &msg );
 
-  /////////////////////////////////////////////////////////////////// 
-  // Protected methods: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
-  
-  /////////////////////////////////////////////////////////////////// 
-  // Protected data: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
 
 }; 
 

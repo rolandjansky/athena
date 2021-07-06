@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -10,10 +10,6 @@
 
 #include "DerivationFrameworkTools/InvariantMassTool.h"
 #include "xAODBase/IParticleContainer.h"
-#include "ExpressionEvaluation/ExpressionParser.h"
-#include "ExpressionEvaluation/SGxAODProxyLoader.h"
-#include "ExpressionEvaluation/MultipleProxyLoader.h"
-#include "ExpressionEvaluation/SGNTUPProxyLoader.h"
 #include <vector>
 #include <string>
 
@@ -22,69 +18,58 @@ namespace DerivationFramework {
   InvariantMassTool::InvariantMassTool(const std::string& t,
       const std::string& n,
       const IInterface* p) : 
-    AthAlgTool(t,n,p),
+    ExpressionParserUser<AthAlgTool,kInvariantMassToolParserNum>(t,n,p),
     m_expression("true"),
     m_expression2(""), 
-    m_parser(0),
-    m_parser2(0),
-    m_sgName(""),
     m_massHypothesis(0.0),
-    m_massHypothesis2(0.0),
-    m_containerName(""),
-    m_containerName2("")
+    m_massHypothesis2(0.0)
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     declareProperty("ObjectRequirements", m_expression);
     declareProperty("SecondObjectRequirements", m_expression2);
-    declareProperty("StoreGateEntryName", m_sgName);
     declareProperty("MassHypothesis", m_massHypothesis);
     declareProperty("SecondMassHypothesis", m_massHypothesis2);
-    declareProperty("ContainerName", m_containerName);
-    declareProperty("SecondContainerName", m_containerName2);
   }
 
   StatusCode InvariantMassTool::initialize()
   {
-    if (m_sgName=="") {
+    if (m_sgName.key()=="") {
       ATH_MSG_ERROR("No SG name provided for the output of invariant mass tool!");
       return StatusCode::FAILURE;
     }
+    ATH_CHECK(m_sgName.initialize());
 
-    if (m_expression2=="") m_expression2 = m_expression;
-    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
-    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-    m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
-    m_parser->loadExpression(m_expression);
-    m_parser2 = new ExpressionParsing::ExpressionParser(proxyLoaders);
-    m_parser2->loadExpression(m_expression2);
+    if (m_expression2.empty()) m_expression2 = m_expression;
+    ATH_CHECK(initializeParser({m_expression,m_expression2} ) );
+
+    ATH_CHECK(m_containerName.initialize());
+    if (!m_containerName2.key().empty()) {
+      ATH_CHECK(m_containerName2.initialize());
+    }
+
+
 
     return StatusCode::SUCCESS;
   }
 
   StatusCode InvariantMassTool::finalize()
   {
-    if (m_parser) {
-      delete m_parser;
-      m_parser = 0;
-    }
-    if (m_parser2) {
-      delete m_parser2;
-      m_parser2 = 0;
-    }
+    ATH_CHECK( finalizeParser());
     return StatusCode::SUCCESS;
   }
 
   StatusCode InvariantMassTool::addBranches() const
   {
     // Write masses to SG for access by downstream algs     
-    if (evtStore()->contains<std::vector<float> >(m_sgName)) {
+    if (evtStore()->contains<std::vector<float> >(m_sgName.key())) {
       ATH_MSG_ERROR("Tool is attempting to write a StoreGate key " << m_sgName << " which already exists. Please use a different key");
       return StatusCode::FAILURE;
     }
     std::unique_ptr<std::vector<float> > masses(new std::vector<float>());
-    CHECK(getInvariantMasses(masses.get()));
-    CHECK(evtStore()->record(std::move(masses), m_sgName));      
+    ATH_CHECK(getInvariantMasses(masses.get()));
+    //CHECK(evtStore()->record(std::move(masses), m_sgName));      
+    SG::WriteHandle<std::vector<float> > writeHandle(m_sgName);
+    ATH_CHECK(writeHandle.record(std::move(masses)));
     return StatusCode::SUCCESS;
   }  
 
@@ -92,34 +77,26 @@ namespace DerivationFramework {
   {
 
     // check the relevant information is available
-    if (m_containerName=="") {
+    if (m_containerName.key().empty()) {
       ATH_MSG_WARNING("Input container missing - returning zero");  
       masses->push_back(0.0);
       return StatusCode::FAILURE;
     }
 
-    // get the relevant branches
-    const xAOD::IParticleContainer* particles = evtStore()->retrieve< const xAOD::IParticleContainer >( m_containerName );
-    if( ! particles ) {
-        ATH_MSG_ERROR ("Couldn't retrieve IParticles with key: " << m_containerName );
-        return StatusCode::FAILURE;
-    }
+    SG::ReadHandle<xAOD::IParticleContainer> particles{m_containerName};
     
     bool from2Collections(false);
-    const xAOD::IParticleContainer* particles2(0); 
-    if (m_containerName2!="" && m_containerName2!=m_containerName) {
-      particles2 = evtStore()->retrieve< const xAOD::IParticleContainer >( m_containerName2 );
-      if( ! particles2 ) {
-        ATH_MSG_ERROR ("Couldn't retrieve IParticles with key: " << m_containerName2 );
-        return StatusCode::FAILURE;
-      }
+    const xAOD::IParticleContainer* particles2{nullptr}; 
+    if (!m_containerName2.key().empty() && m_containerName2.key()!=m_containerName.key()) {
+      SG::ReadHandle<xAOD::IParticleContainer> particleHdl2{m_containerName2};
+      particles2=particleHdl2.cptr();
       from2Collections = true;
     }
 
 
     // get the positions of the elements which pass the requirement
-    std::vector<int> entries =  m_parser->evaluateAsVector();
-    std::vector<int> entries2 =  m_parser2->evaluateAsVector();
+    std::vector<int> entries =  m_parser[kInvariantMassToolParser1]->evaluateAsVector();
+    std::vector<int> entries2 =  m_parser[kInvariantMassToolParser2]->evaluateAsVector();
     unsigned int nEntries = entries.size();
     unsigned int nEntries2 = entries2.size();
 
@@ -157,10 +134,11 @@ namespace DerivationFramework {
         unsigned int first = (*pairIt)[0];
         unsigned int second = (*pairIt)[1];    
         if ( (entries[first]==1 && entries2[second]==1) || (entries2[first]==1 && entries[second]==1) ) {
-          float px1 = ((*particles)[first])->p4().Px(); float px2 = ((*particles)[second])->p4().Px();
-          float py1 = ((*particles)[first])->p4().Py(); float py2 = ((*particles)[second])->p4().Py();
-          float pz1 = ((*particles)[first])->p4().Pz(); float pz2 = ((*particles)[second])->p4().Pz();
-          float mass = calculateInvariantMass(px1,px2,py1,py2,pz1,pz2,m_massHypothesis);
+         
+          const float mass = calculateInvariantMass( ((*particles)[first])->p4().Vect(),
+                                                   ((*particles)[second])->p4().Vect(), 
+                                                   m_massHypothesis,
+                                                   m_massHypothesis);  
           masses->push_back(mass);
         }
       }  
@@ -182,10 +160,10 @@ namespace DerivationFramework {
       for (pairIt=pairs.begin(); pairIt!=pairs.end(); ++pairIt) {
         unsigned int first = (*pairIt)[0];
         unsigned int second = (*pairIt)[1];
-        float px1 = ((*particles)[first])->p4().Px(); float px2 = ((*particles2)[second])->p4().Px();
-        float py1 = ((*particles)[first])->p4().Py(); float py2 = ((*particles2)[second])->p4().Py();
-        float pz1 = ((*particles)[first])->p4().Pz(); float pz2 = ((*particles2)[second])->p4().Pz();
-        float mass = calculateInvariantMass(px1,px2,py1,py2,pz1,pz2,m_massHypothesis,m_massHypothesis2);
+        const float mass = calculateInvariantMass( ((*particles)[first])->p4().Vect(),
+                                                   ((*particles)[second])->p4().Vect(), 
+                                                   m_massHypothesis,
+                                                   m_massHypothesis2);  
         masses->push_back(mass);
       }
     } 
@@ -193,29 +171,11 @@ namespace DerivationFramework {
     return StatusCode::SUCCESS; 
 
   }
-
-  float InvariantMassTool::calculateInvariantMass(float px1, float px2, float py1, float py2, float pz1, float pz2, float massH) const 
-  {
-    float e1 = sqrt(px1*px1 + py1*py1 + pz1*pz1 + massH*massH); 
-    float e2 = sqrt(px2*px2 + py2*py2 + pz2*pz2 + massH*massH);
-    float eSum = e1+e2;
-    float pxSum = px1+px2;
-    float pySum = py1+py2;
-    float pzSum = pz1+pz2;
-    float invariantMass = sqrt( (eSum*eSum)-(pxSum*pxSum)-(pySum*pySum)-(pzSum*pzSum) );   	   
-    return invariantMass;
-  }        
-
-  float InvariantMassTool::calculateInvariantMass(float px1, float px2, float py1, float py2, float pz1, float pz2, float massH, float massH2) const
-  {
-    float e1 = sqrt(px1*px1 + py1*py1 + pz1*pz1 + massH*massH);
-    float e2 = sqrt(px2*px2 + py2*py2 + pz2*pz2 + massH2*massH2);
-    float eSum = e1+e2;
-    float pxSum = px1+px2;
-    float pySum = py1+py2;
-    float pzSum = pz1+pz2;
-    float invariantMass = sqrt( (eSum*eSum)-(pxSum*pxSum)-(pySum*pySum)-(pzSum*pzSum) );
-    return invariantMass;
-  } 
-
+  float InvariantMassTool::calculateInvariantMass(const TVector3& v1, const TVector3&v2,float M1,float M2) const{
+      TLorentzVector p1(v1, M1 > 0 ? std::hypot(M1, v1.Mag()) : v1.Mag());
+      TLorentzVector p2(v2, M2 > 0 ? std::hypot(M2, v2.Mag()) : v2.Mag());
+      return (p1+p2).M();
+      
+  }
+  
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -9,8 +9,8 @@
 
 #include "MuonReadoutGeometry/GlobalUtilities.h"
 #include <cstdlib>
-#include <sstream>
 #include <iostream>
+#include <sstream>
 #include <cmath>
 
 namespace MuonGM 

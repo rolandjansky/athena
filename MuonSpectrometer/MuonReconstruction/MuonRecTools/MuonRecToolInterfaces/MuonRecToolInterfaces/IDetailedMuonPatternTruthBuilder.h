@@ -6,17 +6,15 @@
 #define IDETAILEDMUONPATTERNTRUTHBUILDER_H
 
 #include <vector>
-#include "GaudiKernel/IAlgTool.h"
 
-#include "TrkTrack/TrackCollection.h" /* forward declaring the typedef would be ugly.. */
+#include "GaudiKernel/IAlgTool.h"
+#include "MuonPattern/DetailedMuonPatternTruthCollection.h"
 #include "MuonPattern/MuonPatternCollection.h"
 #include "MuonPattern/MuonPatternCombination.h"
 #include "MuonPattern/MuonPatternCombinationCollection.h"
-#include "MuonPattern/DetailedMuonPatternTruthCollection.h"
-
-#include "TrkTruthData/DetailedSegmentTruth.h"
-
 #include "MuonSegment/MuonSegment.h"
+#include "TrkTrack/TrackCollection.h" /* forward declaring the typedef would be ugly.. */
+#include "TrkTruthData/DetailedSegmentTruth.h"
 
 // Forard declarations of types.
 class PRD_MultiTruthCollection;
@@ -24,41 +22,38 @@ class DetailedTrackTruthCollection;
 class DetailedSegmentTruthCollection;
 
 namespace Trk {
-  
-  static const InterfaceID IID_IDetailedMuonPatternTruthBuilder("Trk::IDetailedMuonPatternTruthBuilder",1,0);
 
-  /** @brief Provides interface for tool to return a "detailed" track truth map.
+    static const InterfaceID IID_IDetailedMuonPatternTruthBuilder("Trk::IDetailedMuonPatternTruthBuilder", 1, 0);
 
-      @author Andrei Gaponenko <agaponenko@lbl.gov>  */
-  class IDetailedMuonPatternTruthBuilder : virtual public IAlgTool {
-  public:
-    static const InterfaceID& interfaceID() { return IID_IDetailedMuonPatternTruthBuilder; }
+    /** @brief Provides interface for tool to return a "detailed" track truth map.
 
-    /** The main tool method.  Fills a pre-existing
-     * DetailedTrackTruthCollection pointed to by output with data for
-     * the tracks, using the prdTruth collections.  pdrTruth is
-     * allowed to contain null pointers.  Each non-null pointer must
-     * correspond to collection for a single subdetector.
-     *
-     * This method does not impose a memory management model on the
-     * caller. (As e.g. returning an object on the heap would do.)
-     * The caller can use it to work with stack or heap objects. 
-     * Call with output==0 is a no-op. (But output should not be garbage, it must be initialized.)
-     */
-    virtual void buildDetailedMuonPatternTruth(DetailedMuonPatternTruthCollection *output,
-                                         const MuonPatternCombinationCollection& tracks,
-                                         const std::vector<const PRD_MultiTruthCollection*>& prdTruth) = 0;
+        @author Andrei Gaponenko <agaponenko@lbl.gov>  */
+    class IDetailedMuonPatternTruthBuilder : virtual public IAlgTool {
+    public:
+        static const InterfaceID& interfaceID() { return IID_IDetailedMuonPatternTruthBuilder; }
 
-    virtual void buildDetailedTrackTruth(std::vector<DetailedTrackTruth> *output,
-                                         const Muon::MuonPatternCombination &pattern,
-                                         const std::vector<const PRD_MultiTruthCollection*>& prdTruth) = 0;
+        /** The main tool method.  Fills a pre-existing
+         * DetailedTrackTruthCollection pointed to by output with data for
+         * the tracks, using the prdTruth collections.  pdrTruth is
+         * allowed to contain null pointers.  Each non-null pointer must
+         * correspond to collection for a single subdetector.
+         *
+         * This method does not impose a memory management model on the
+         * caller. (As e.g. returning an object on the heap would do.)
+         * The caller can use it to work with stack or heap objects.
+         * Call with output==0 is a no-op. (But output should not be garbage, it must be initialized.)
+         */
+        virtual void buildDetailedMuonPatternTruth(DetailedMuonPatternTruthCollection* output,
+                                                   const MuonPatternCombinationCollection& tracks,
+                                                   const std::vector<const PRD_MultiTruthCollection*>& prdTruth) = 0;
 
-    virtual void buildDetailedTrackTruthFromSegments(std::vector<DetailedSegmentTruth> *output,
-                                                     const Muon::MuonSegment &segment,
-                                                     const std::vector<const PRD_MultiTruthCollection*>& prdTruth) = 0;
-  };
-  
-} // namespace Trk
+        virtual void buildDetailedTrackTruth(std::vector<DetailedTrackTruth>* output, const Muon::MuonPatternCombination& pattern,
+                                             const std::vector<const PRD_MultiTruthCollection*>& prdTruth) = 0;
 
-#endif/*IDETAILEDMUONPATTERNTRUTHBUILDER_H*/
+        virtual void buildDetailedTrackTruthFromSegments(std::vector<DetailedSegmentTruth>* output, const Muon::MuonSegment& segment,
+                                                         const std::vector<const PRD_MultiTruthCollection*>& prdTruth) = 0;
+    };
 
+}  // namespace Trk
+
+#endif /*IDETAILEDMUONPATTERNTRUTHBUILDER_H*/

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -1338,7 +1338,7 @@ namespace xAOD {
 
    /// Set RPC rpc hits
    void L2StandAloneMuon_v2::setRpcHit(uint32_t layer, uint32_t measuresPhi, float x, float y, float z,
-                                       float time, float distEta, float distPhi, std::string stationName ) {
+                                       float time, float distEta, float distPhi, const std::string& stationName ) {
       // Make sure that the size of vector is still within the capacity
       if ( rpclAcc( *this ).size() >= (unsigned int)rpcHitsCapacity() ) return;
 

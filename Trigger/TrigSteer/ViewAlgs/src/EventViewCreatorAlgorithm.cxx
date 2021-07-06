@@ -66,8 +66,8 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
   ElementLinkVector<TrigRoiDescriptorCollection> RoIsFromDecision;
 
   if( outputHandle->size() == 0) {
-    ATH_MSG_WARNING( "Have no decisions in output handle "<< outputHandle.key() << ". Handle is valid but container is empty. "
-      << "Check why this EventViewCreatorAlgorithm was unlocked by a Filter, if the Filter then gave it no inputs.");
+    ATH_MSG_DEBUG( "Have no decisions in output handle "<< outputHandle.key() << ". Handle is valid but container is empty. "
+      << "This can happen if a ROI-based HLT chain leg was activated in a chain whose L1 item which does not explicitly require the ROI.");
   } else {
     ATH_MSG_DEBUG( "Have output " << outputHandle.key() << " with " << outputHandle->size() << " elements" );
   }

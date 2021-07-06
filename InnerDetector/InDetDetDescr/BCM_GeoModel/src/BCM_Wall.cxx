@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BCM_GeoModel/BCM_Wall.h"
@@ -12,7 +12,7 @@
 #include "GeoModelKernel/GeoIdentifierTag.h"
 #include "GeoModelKernel/GeoTransform.h"
 
-GeoPhysVol* BCM_Wall::Build(double halfX, double halfY, double thick, std::string logname,const  GeoMaterial* material)
+GeoPhysVol* BCM_Wall::Build(double halfX, double halfY, double thick, const std::string& logname,const  GeoMaterial* material)
 {
   const GeoBox* bcmWallBox = new GeoBox(halfX, halfY, thick/2);
   const GeoLogVol* bcmWallLog = new GeoLogVol(logname, bcmWallBox, material);

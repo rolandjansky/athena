@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FastPhysMonToolBase.h"
@@ -54,7 +54,7 @@ void FastPhysMonToolBase::handle(const Incident&) {
 }
 
 
-TTree* FastPhysMonToolBase::regFPMTree(const std::string& treeName, const std::string treeTitle, const std::string& systemName, 
+TTree* FastPhysMonToolBase::regFPMTree(const std::string& treeName, const std::string& treeTitle, const std::string& systemName, 
 				       const std::string& chain, const std::string& merge) {
 
   TTree* tree=new TTree(treeName.c_str(),treeTitle.c_str());

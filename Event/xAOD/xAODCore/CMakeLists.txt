@@ -6,7 +6,7 @@ atlas_subdir( xAODCore )
 # Extra dependencies based on what environment we are in.
 set( extra_libs )
 if( NOT XAOD_STANDALONE )
-   set( extra_libs AthenaKernel )
+   set( extra_libs AthenaKernel GaudiKernel)
 endif()
 
 # External dependencies.
@@ -32,9 +32,13 @@ atlas_add_dictionary( xAODCoreDict
    xAODCore/selection.xml
    LINK_LIBRARIES xAODCore )
 
+set( _stlDictXml "xAODCore/selectionSTL.xml" )
+if( APPLE )
+   set( _stlDictXml "xAODCore/selectionSTLmacOS.xml" )
+endif()
 atlas_add_dictionary( xAODCoreSTLDict
    xAODCore/xAODCoreSTLDict.h
-   xAODCore/selectionSTL.xml )
+   ${_stlDictXml} )
 
 # Install the CMake code from the package:
 atlas_install_generic( cmake/xAODUtilitiesConfig.cmake

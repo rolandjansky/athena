@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file PixelConditionsData/PixelModuleData.h
@@ -15,6 +15,10 @@
 #include <map>
 
 #include "AthenaKernel/CondCont.h"
+#include "PixelConditionsData/PixelHistoConverter.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TH3.h"
 
 class PixelModuleData {
   public:
@@ -136,12 +140,35 @@ class PixelModuleData {
     float getDefaultQ2TotE() const;
     float getDefaultQ2TotC() const;
 
+    // Lorentz angle correction
+    void setBarrelLorentzAngleCorr(std::vector<double> BarrelLorentzAngleCorr);
+    void setEndcapLorentzAngleCorr(std::vector<double> EndcapLorentzAngleCorr);
+    double getLorentzAngleCorr(int bec, int layer) const;
+
     // DCS parameters
     void setDefaultBiasVoltage(float biasVoltage);
     float getDefaultBiasVoltage() const;
 
+    void setDefaultBarrelBiasVoltage(std::vector<float> BarrelBiasVoltage);
+    void setDefaultEndcapBiasVoltage(std::vector<float> EndcapBiasVoltage);
+    void setDefaultDBMBiasVoltage(std::vector<float>    DBMBiasVoltage);
+    float getDefaultBiasVoltage(int bec, int layer) const;
+
     void setDefaultTemperature(float temperature);
     float getDefaultTemperature() const;
+
+    // Radiation damage fluence maps
+    void setFluenceLayer(std::vector<double> fluenceLayer);
+    std::vector<double> getFluenceLayer() const;
+
+    void setRadSimFluenceMapList(std::vector<std::string> RadSimFluenceMapList);
+    std::vector<std::string> getRadSimFluenceMapList() const;
+
+    void setFluenceLayer3D(std::vector<double> fluenceLayer);
+    std::vector<double> getFluenceLayer3D() const;
+
+    void setRadSimFluenceMapList3D(std::vector<std::string> RadSimFluenceMapList3D);
+    std::vector<std::string> getRadSimFluenceMapList3D() const;
 
     // Cabling parameters
     void setCablingMapToFile(bool cablingMapToFile);
@@ -258,8 +285,21 @@ class PixelModuleData {
     float m_paramE;
     float m_paramC;
 
+    std::vector<double> m_BarrelLorentzAngleCorr;
+    std::vector<double> m_EndcapLorentzAngleCorr;
+
     float m_biasVoltage;
     float m_temperature;
+
+    std::vector<float> m_BarrelBiasVoltage;
+    std::vector<float> m_EndcapBiasVoltage;
+    std::vector<float> m_DBMBiasVoltage;
+
+    std::vector<double> m_fluenceLayer;
+    std::vector<std::string> m_RadSimFluenceMapList;
+
+    std::vector<double> m_fluenceLayer3D;
+    std::vector<std::string> m_RadSimFluenceMapList3D;
 
     bool        m_cablingMapToFile;
     std::string m_cablingMapFileName;

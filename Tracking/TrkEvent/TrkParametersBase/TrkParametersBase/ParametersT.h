@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,14 +11,10 @@
 
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "TrkEventPrimitives/SurfaceHolderImpl.h"
+#include "TrkEventPrimitives/SurfaceTypes.h"
 #include "TrkEventPrimitives/SurfaceUniquePtrT.h"
 #include "TrkParametersBase/ParametersBase.h"
-#include "TrkSurfaces/Surface.h"
-/*
- * Needed for persistency
- * friends
- */
-
 namespace Trk {
 class MaterialEffectsEngine;
 
@@ -47,13 +43,17 @@ class MaterialEffectsEngine;
    @author Christos Anastopoulos (Athena MT modifications)
 */
 template<int DIM, class T, class S>
-class ParametersT final : public ParametersBase<DIM, T>
+class ParametersT final
+  : public ParametersBase<DIM, T>
+  , public SurfaceUniqHolderImpl<S>
 {
 public:
   static_assert(
-    (S::staticType == Surface::Cone || S::staticType == Surface::Cylinder ||
-     S::staticType == Surface::Disc || S::staticType == Surface::Perigee ||
-     S::staticType == Surface::Plane || S::staticType == Surface::Line),
+    (S::staticType == SurfaceType::Cone ||
+     S::staticType == SurfaceType::Cylinder ||
+     S::staticType == SurfaceType::Disc ||
+     S::staticType == SurfaceType::Perigee ||
+     S::staticType == SurfaceType::Plane || S::staticType == SurfaceType::Line),
     "The surface type must be one of Cone, Cylinder, Disc, Perigee, Plane, "
     "Line");
 
@@ -69,12 +69,12 @@ public:
               double theta,
               double qop,
               const S& surface,
-              AmgSymMatrix(DIM) * covariance = nullptr);
+              std::optional<AmgSymMatrix(DIM)> covariance = std::nullopt);
 
   /** Constructor with parameters - extract position and momentum */
   ParametersT(const AmgVector(DIM) & parameters,
               const S& surface,
-              AmgSymMatrix(DIM) * covariance = nullptr);
+              std::optional<AmgSymMatrix(DIM)> covariance = std::nullopt);
 
   /** Constructor with global arguments - uses global <-> local for parameters
    */
@@ -82,7 +82,7 @@ public:
               const Amg::Vector3D& momentum,
               double charge,
               const S& surface,
-              AmgSymMatrix(DIM) * covariance = nullptr);
+              std::optional<AmgSymMatrix(DIM)> covariance = std::nullopt);
 
   /** Constructor with mixed arguments 1 - uses global <-> local for parameters
    */
@@ -91,19 +91,20 @@ public:
               double theta,
               double qop,
               const S& surface,
-              AmgSymMatrix(DIM) * covariance = nullptr);
+              std::optional<AmgSymMatrix(DIM)> covariance = std::nullopt);
 
   /** Copy constructor */
   ParametersT(const ParametersT<DIM, T, S>& rhs);
 
   /** Move constructor */
-  ParametersT(ParametersT<DIM, T, S>&& rhs) = default;
+  ParametersT(ParametersT<DIM, T, S>&& rhs) noexcept = default;
 
   /** Assignment operator */
   ParametersT<DIM, T, S>& operator=(const ParametersT<DIM, T, S>& rhs);
 
   /** Move assignment operator */
-  ParametersT<DIM, T, S>& operator=(ParametersT<DIM, T, S>&& rhs) = default;
+  ParametersT<DIM, T, S>& operator=(ParametersT<DIM, T, S>&& rhs) noexcept =
+    default;
 
   //** Destructor */
   virtual ~ParametersT() = default;
@@ -130,11 +131,14 @@ public:
   /** Virtual clone */
   virtual ParametersT<DIM, T, S>* clone() const override final;
 
+  /** Virtual clone returning unique_ptr*/
+  std::unique_ptr<ParametersT<DIM, T, S>> uniqueClone() const;
+
   /** Return the ParametersType enum */
   virtual ParametersType type() const override final;
 
   /** Return the Surface Type enum */
-  virtual int surfaceType() const override final;
+  virtual SurfaceType surfaceType() const override final;
 
   /** Return the measurementFrame of the parameters */
   virtual Amg::RotationMatrix3D measurementFrame() const override final;
@@ -150,16 +154,16 @@ protected:
   using ParametersBase<DIM, T>::m_parameters;
   using ParametersBase<DIM, T>::m_covariance;
   using ParametersBase<DIM, T>::m_chargeDef;
-  Amg::Vector3D m_position;             //!< point on track
-  Amg::Vector3D m_momentum;             //!< momentum at this point on track
-  SurfaceUniquePtrT<const S> m_surface; //!< surface template
+  using SurfaceUniqHolderImpl<S>::m_associatedSurface;
+  Amg::Vector3D m_position; //!< point on track
+  Amg::Vector3D m_momentum; //!< momentum at this point on track
 
   /**
    * @brief Constructor for persistency
    */
   ParametersT(const AmgVector(DIM) & parameters,
               const S* surface,
-              AmgSymMatrix(DIM) * covariance = nullptr);
+              std::optional<AmgSymMatrix(DIM)> covariance = std::nullopt);
   /*
    * friends needed for Persistency
    */

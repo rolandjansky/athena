@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @file TriggerUnixStandardSetup.py
 ## @brief py-module to configure the Athena AppMgr for trigger
@@ -51,12 +51,11 @@ def setupCommonServices():
     from AthenaCommon.AlgSequence import AlgSequence
     from SGComps.SGCompsConf import SGInputLoader
     topSequence = AlgSequence()
-    topSequence += SGInputLoader(FailIfNoProxy = False)  # change to True eventually
+    topSequence += SGInputLoader(FailIfNoProxy = True)
 
     from AthenaCommon.AlgScheduler import AlgScheduler
     AlgScheduler.ShowDataDependencies(False)
     AlgScheduler.ShowControlFlow(False)
-    AlgScheduler.setDataLoaderAlg ('SGInputLoader' )
 
     # Setup SGCommitAuditor to sweep new DataObjects at end of Alg execute
     theApp.AuditAlgorithms = True
@@ -83,17 +82,17 @@ def setupCommonServices():
         from GaudiSvc.GaudiSvcConf import THistSvc
         svcMgr += THistSvc()
 
+    # Online event loop manager
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+    from TrigServices.TrigServicesConfig import TrigServicesCfg
+    CAtoGlobalWrapper(TrigServicesCfg, ConfigFlags)
+    svcMgr.HltEventLoopMgr.WhiteboardSvc = "EventDataSvc"
+    svcMgr.HltEventLoopMgr.SchedulerSvc = AlgScheduler.getScheduler().getName()
+
     # StoreGateSvc
     svcMgr.StoreGateSvc.ActivateHistory = False
     
-    # ProxyProviderSvc services configuration
-    svcMgr += CfgMgr.ProxyProviderSvc()
-
-    # --- ByteStreamAddressProviderSvc configuration
-    svcMgr += CfgMgr.ByteStreamAddressProviderSvc()
-    svcMgr.ProxyProviderSvc.ProviderNames += [ "ByteStreamAddressProviderSvc" ]
-    theApp.CreateSvc += [ svcMgr.ByteStreamAddressProviderSvc.getFullName() ]
-
     # Initialization of DetDescrCnvSvc
     svcMgr += CfgMgr.DetDescrCnvSvc(
         # specify primary Identifier dictionary to be used
@@ -102,39 +101,9 @@ def setupCommonServices():
     theApp.CreateSvc += [ svcMgr.DetDescrCnvSvc.getFullName() ]
     svcMgr.EventPersistencySvc.CnvServices += [ "DetDescrCnvSvc" ]
 
-    # Online services for ByteStream input/output
-    from TrigByteStreamCnvSvc.TrigByteStreamCnvSvcConf import TrigEventSelectorByteStream
-    from TrigByteStreamCnvSvc.TrigByteStreamCnvSvcConfig import TrigByteStreamInputSvc, TrigByteStreamCnvSvc
-    svcMgr += TrigByteStreamCnvSvc("ByteStreamCnvSvc") # this name is hard-coded in some converters
-    svcMgr.EventPersistencySvc.CnvServices += [ "ByteStreamCnvSvc" ]
-    svcMgr += TrigByteStreamInputSvc("ByteStreamInputSvc")
-    svcMgr += TrigEventSelectorByteStream("EventSelector", ByteStreamInputSvc = svcMgr.ByteStreamInputSvc)
-    theApp.EvtSel = "EventSelector"
-
-    # Online event loop manager
-    from TrigServices.TrigServicesConfig import HltEventLoopMgr
-    loopMgr = HltEventLoopMgr("HltEventLoopMgr")
-    loopMgr.WhiteboardSvc = "EventDataSvc"
-    loopMgr.SchedulerSvc = AlgScheduler.getScheduler().getName()
-    loopMgr.EvtSel = svcMgr.EventSelector
-    loopMgr.OutputCnvSvc = svcMgr.ByteStreamCnvSvc
-    svcMgr += loopMgr
-    theApp.EventLoop = loopMgr.name()
-
-    from TrigOutputHandling.TrigOutputHandlingConfig import HLTResultMTMakerCfg
-    svcMgr.HltEventLoopMgr.ResultMaker = HLTResultMTMakerCfg()
-
     # Configuration of Interval of Validity Service
     svcMgr += CfgMgr.IOVSvc()
     
-    # Configure COOL update helper tool
-    from TrigServices.TrigServicesConfig import TrigCOOLUpdateHelper
-    svcMgr.HltEventLoopMgr.CoolUpdateTool = TrigCOOLUpdateHelper()
-            
-    # Configure the online ROB data provider service
-    from TrigServices.TrigServicesConfig import HltROBDataProviderSvc
-    svcMgr += HltROBDataProviderSvc()  
-
     # Explicitly set a few OutputLevels (needed because some services are created in
     # different order when running with the PSC)
     svcMgr.IncidentSvc.OutputLevel = theApp.OutputLevel
@@ -179,9 +148,13 @@ def setupCommonServicesEnd():
     from TrigServices.TrigServicesConfig import setupMessageSvc
     setupMessageSvc()
 
+    from TrigServices.TrigServicesConfig import enableCOOLFolderUpdates
+    enableCOOLFolderUpdates()
+
     svcMgr.CoreDumpSvc.CoreDumpStream = "stdout"
     svcMgr.CoreDumpSvc.CallOldHandler = False
     svcMgr.CoreDumpSvc.StackTrace = True
+    svcMgr.CoreDumpSvc.FastStackTrace = True
     svcMgr.CoreDumpSvc.FatalHandler = 0   # no extra fatal handler
     svcMgr.CoreDumpSvc.TimeOut = 60000000000        # timeout for stack trace generation changed to 60s (ATR-17112)
 

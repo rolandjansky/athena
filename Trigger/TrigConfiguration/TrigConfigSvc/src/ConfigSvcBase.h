@@ -1,14 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConfigSvc_ConfigSvcBase
 #define TrigConfigSvc_ConfigSvcBase
 
 #include "AthenaBaseComps/AthService.h"
+#include "CxxUtils/checker_macros.h"
+
+#include <memory>
+#include <string>
 
 namespace TrigConf {
-   class TrigDBConnectionConfig;
    class IStorageMgr;
    class TrigDBConnectionConfig;
 
@@ -17,9 +20,9 @@ namespace TrigConf {
       ConfigSvcBase(const std::string& name, ISvcLocator* pSvcLocator);
       virtual ~ConfigSvcBase();
 
-      virtual StatusCode initialize();
+      virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE () override;
 
-      virtual void declareCommonProperties();
+      void declareCommonProperties();
 
       // to create db storage manager
       StatusCode initStorageMgr();

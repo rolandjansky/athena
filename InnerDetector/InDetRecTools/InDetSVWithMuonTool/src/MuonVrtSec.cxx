@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -27,12 +27,12 @@ namespace InDet{
       std::vector<const xAOD::TrackParticle*> SelectedTracks(0);
       ListTracksNearMuon.clear();      
 
-      if( InpTrk.size() < 1 ) { return 0;} // 0,1 input track => nothing to do!
+      if( InpTrk.empty() ) { return nullptr;} // 0,1 input track => nothing to do!
       SelGoodTrkParticle( InpTrk, PrimVrt, Muon, SelectedTracks);
       long int NTracks = SelectedTracks.size();
       TLorentzVector TrkJet = TotalMom(SelectedTracks);
       if(m_FillHist)m_hb_nseltrk->Fill( (double)NTracks, m_w_1);    
-      if( NTracks < 1 ) { return 0;}      // 0,1 selected track => nothing to do!
+      if( NTracks < 1 ) { return nullptr;}      // 0,1 selected track => nothing to do!
 
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Number of selected tracks dR-close to muon= " <<NTracks << endmsg;
 
@@ -53,7 +53,7 @@ namespace InDet{
       RemoveDoubleEntries(ListTracksNearMuon);
       AnalysisUtils::Sort::pT (&ListTracksNearMuon);      //no sorting for xAOD
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Found different xAOD tracks crossing muon="<< ListTracksNearMuon.size()<<endmsg;
-      if(ListTracksNearMuon.size()==0) { return 0;} // Less than one track left
+      if(ListTracksNearMuon.empty()) { return nullptr;} // Less than one track left
 
 //
 //-----------------------------------------------------------------------------------------------------
@@ -80,7 +80,7 @@ namespace InDet{
         }
       }
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" FitCommonVrt result="<< Chi2<<endmsg;
-      if( Chi2 < 0) { return 0; }      // Vertex not reconstructed
+      if( Chi2 < 0) { return nullptr; }      // Vertex not reconstructed
 
 //
 //  Saving of results
@@ -109,18 +109,17 @@ namespace InDet{
 
        std::vector<Trk::VxTrackAtVertex> & tmpVTAV=tmpVertex->vxTrackAtVertex();    tmpVTAV.clear();
        for(int ii=0; ii<(int)ListTracksNearMuon.size(); ii++) {
-         AmgSymMatrix(5) *CovMtxP=new AmgSymMatrix(5);   (*CovMtxP).setIdentity(); 
+         AmgSymMatrix(5) CovMtxP;   
+         CovMtxP.setIdentity(); 
          Trk::Perigee * tmpMeasPer  =  new Trk::Perigee( 0.,0., TrkAtVrt[ii][0], TrkAtVrt[ii][1], TrkAtVrt[ii][2],
                                                                 Trk::PerigeeSurface(FitVertex), CovMtxP );
-         tmpVTAV.push_back( Trk::VxTrackAtVertex( 1., tmpMeasPer) );
+         tmpVTAV.emplace_back( 1., tmpMeasPer );
          ElementLink<xAOD::TrackParticleContainer> TEL;  TEL.setElement( ListTracksNearMuon[ii] );
          const xAOD::TrackParticleContainer* cont = (const xAOD::TrackParticleContainer* ) (ListTracksNearMuon[ii]->container() );
-	 TEL.setStorableObject(*cont);
+         TEL.setStorableObject(*cont);
          tmpVertex->addTrackAtVertex(TEL,1.);
        }
        return tmpVertex;
-
-
   }
 
 
@@ -144,7 +143,7 @@ namespace InDet{
  {
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "FitCommonVrt() called with Ntrk="<<ListSecondTracks.size()<< endmsg;
 //preparation
-      StatusCode sc; sc.setChecked();
+      StatusCode sc;
       ListSecondTracks.insert(ListSecondTracks.begin(), Muon);
       RemoveDoubleEntries(ListSecondTracks);
       int NTracksVrt = ListSecondTracks.size();
@@ -232,7 +231,7 @@ namespace InDet{
       long int Charge;
 //
       long int NTracks = (int) (SelectedTracks.size());
-      std::vector<const xAOD::TrackParticle*>   TracksForFit(2,0);
+      std::vector<const xAOD::TrackParticle*>   TracksForFit(2,nullptr);
       std::vector<double> InpMass(NTracks, m_massPi);
 
 //
@@ -258,7 +257,7 @@ namespace InDet{
       }
 
 
-      StatusCode sc; sc.setChecked();
+      StatusCode sc;
       ListSecondTracks.reserve(2*NTracks);                 // Reserve memory for sigle vertex
 
       Amg::Vector3D iniVrt(0.,0.,0.);

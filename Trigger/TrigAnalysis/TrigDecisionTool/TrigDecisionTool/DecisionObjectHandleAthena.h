@@ -23,8 +23,6 @@
 
 #include "StoreGate/ReadHandleKey.h"
 
-#include "TrigDecisionEvent/TrigDecision.h"
-
 
 class StoreGateSvc;
 

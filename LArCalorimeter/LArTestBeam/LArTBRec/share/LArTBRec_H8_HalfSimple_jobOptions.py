@@ -36,6 +36,9 @@ theApp.TopAlg += [ "CheckLArFebHeader" ]
 
 include("LArConditionsCommon/LArConditionsCommon_H8_jobOptions.py")
 
+from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
+LArADC2MeVCondAlgDefault()
+
 theApp.TopAlg += [ "LArRawChannelSimpleBuilder" ]
 LArRawChannelSimpleBuilder = Algorithm("LArRawChannelSimpleBuilder");
 LArRawChannelSimpleBuilder.maxSamp     = 2
@@ -44,7 +47,6 @@ LArRawChannelSimpleBuilder.CubicAdcCut = 15.
 LArRawChannelSimpleBuilder.UsePedestalDB=True
 LArRawChannelSimpleBuilder.UseRampDB=True
 
-ToolSvc.LArADC2MeV.BeginRunPriority = 100
 ToolSvc.LArRodDecoder.FirstSample=2
 ToolSvc.LArParabolaPeakrecoTool.correctBias=True;
 # Turn off printing for LArRoI_Map

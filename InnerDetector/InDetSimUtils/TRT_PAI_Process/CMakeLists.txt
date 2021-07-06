@@ -19,7 +19,7 @@ atlas_add_component( TRT_PAI_Process
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} TRT_PAI_ProcessLib AthenaBaseComps AthenaKernel StoreGateLib SGtests InDetReadoutGeometry TRT_ReadoutGeometry )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} TRT_PAI_ProcessLib AthenaBaseComps AthenaKernel StoreGateLib InDetReadoutGeometry TRT_ReadoutGeometry )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

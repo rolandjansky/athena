@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DERIVATIONFRAMEWORK_KINKTRKZMUMUTAGTOOL_H
@@ -19,6 +19,10 @@
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTracking/TrackParticle.h"
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
+#include "xAODTracking/TrackingPrimitives.h"
+#include "xAODMissingET/MissingETContainer.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 namespace DerivationFramework {
 
@@ -57,12 +61,12 @@ namespace DerivationFramework {
     bool m_doTrigMatch;
 
     ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
-    std::string m_muonSGKey;
+    SG::ReadHandleKey<xAOD::MuonContainer> m_muonSGKey { this, "MuonContainerKey", "Muons", ""};
     std::vector<std::string> m_muonIDKeys;
     float m_muonPtCut;
     float m_muonEtaMax;
 
-    std::string m_trackSGKey;
+    SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackSGKey { this, "TrackContainerKey", "MuonSpectrometerTracks", ""};
     float m_trackPtCut;
     float m_trackEtaMax;
 
@@ -71,7 +75,9 @@ namespace DerivationFramework {
     float m_dPhiMax;
     bool m_doOppositeSignReq;
 
-    std::string m_sgKeyPrefix;
+    SG::WriteHandleKey<std::vector<float>> m_KinkTrkDiMuMassKey { this, "KinkTrkDiMuMassKey", "KinkTrkDiMuMass", ""};
+    SG::WriteHandleKey<std::vector<float>> m_KinkTrkProbeMuPtKey { this, "KinkTrkProbeMuPtKey", "KinkTrkProbeMuPt", ""};
+
 
   }; 
  

@@ -7,15 +7,15 @@
 #define BTAG_MUON_AUGMENTER_TOOL_H
 
 #include "AsgTools/AsgTool.h"
-#include "FlavorTagDiscriminants/ISingleJetDecorator.h"
+#include "FlavorTagDiscriminants/IBTagDecorator.h"
 
 namespace FlavorTagDiscriminants {
 
   class BTagMuonAugmenter;
 
-  class BTagMuonAugmenterTool : public asg::AsgTool, virtual public ISingleJetDecorator
+  class BTagMuonAugmenterTool : public asg::AsgTool, virtual public IBTagDecorator
   {
-    ASG_TOOL_CLASS(BTagMuonAugmenterTool, ISingleJetDecorator )
+    ASG_TOOL_CLASS(BTagMuonAugmenterTool, IBTagDecorator )
   public:
     BTagMuonAugmenterTool(const std::string& name);
     ~BTagMuonAugmenterTool();
@@ -23,9 +23,11 @@ namespace FlavorTagDiscriminants {
     StatusCode initialize() override;
 
     // returns 0 for success
-    virtual void decorate(const xAOD::Jet& jet) const override;
+    virtual void decorate(const xAOD::BTagging& btag) const override;
 
     virtual std::set<std::string> getDecoratorKeys() const override;
+    virtual std::set<std::string> getAuxInputKeys() const override;
+    virtual std::set<std::string> getConstituentAuxInputKeys() const override;
   private:
     std::unique_ptr<BTagMuonAugmenter> m_aug;
     std::string m_muonAssociationName;

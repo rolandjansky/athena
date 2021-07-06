@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file   BPhysHelper.cxx
@@ -17,11 +17,11 @@
  */
 
 typedef ElementLink<xAOD::VertexContainer> VertexLink;
-typedef std::vector<VertexLink> VertexLinkVector;
-typedef ElementLink<xAOD::MuonContainer> MuonLink;
-typedef std::vector<MuonLink> MuonLinkVector;
-typedef ElementLink<xAOD::ElectronContainer> ElectronLink;
-typedef std::vector<ElectronLink> ElectronLinkVector;
+using VertexLinkVector = std::vector<VertexLink>;
+using MuonLink = ElementLink<xAOD::MuonContainer>;
+using MuonLinkVector = std::vector<MuonLink>;
+using ElectronLink = ElementLink<xAOD::ElectronContainer>;
+using ElectronLinkVector = std::vector<ElectronLink>;
 
 /** @} */
 
@@ -177,7 +177,7 @@ const xAOD::IParticle* xAOD::BPhysHelper::refTrkOrigin(const size_t index) const
 
   // FIXME:supports charged particles only for now  
   if(index>=m_b->nTrackParticles())
-    return 0;
+    return nullptr;
   
   // charged tracks
   if(index<m_b->nTrackParticles()) {
@@ -185,7 +185,7 @@ const xAOD::IParticle* xAOD::BPhysHelper::refTrkOrigin(const size_t index) const
   } else  {
     // FIXME: add neutral particles once they are available
     //return m_b->neutralParticle(index - m_b->nNeutralParticles());
-    return 0;
+    return nullptr;
   }
     
 }
@@ -453,11 +453,11 @@ const xAOD::Muon* xAOD::BPhysHelper::muon(const size_t index)
 {
   // cache linked muons
   if(!cacheMuons())
-    return 0;
+    return nullptr;
   
   // range check
   if(index>=m_cachedMuons.size())
-    return 0;
+    return nullptr;
   
   // all OK:
   return m_cachedMuons[index];
@@ -533,11 +533,11 @@ const xAOD::Electron* xAOD::BPhysHelper::electron(const size_t index)
 {
   // cache linked electrons
   if(!cacheElectrons())
-    return 0;
+    return nullptr;
   
   // range check
   if(index>=m_cachedElectrons.size())
-    return 0;
+    return nullptr;
   
   // all OK:
   return m_cachedElectrons[index];
@@ -614,11 +614,11 @@ const xAOD::Vertex* xAOD::BPhysHelper::precedingVertex(const size_t index)
 {
   // cache linked precedingVertices
   if(!cachePrecedingVertices())
-    return 0;
+    return nullptr;
   
   // range check
   if(index>=m_cachedPrecedingVertices.size())
-    return 0;
+    return nullptr;
   
   // all OK:
   return m_cachedPrecedingVertices[index];
@@ -695,11 +695,11 @@ const xAOD::Vertex* xAOD::BPhysHelper::cascadeVertex(const size_t index)
 {
   // cache linked cascadeVertices
   if(!cacheCascadeVertices())
-    return 0;
+    return nullptr;
   
   // range check
   if(index>=m_cachedCascadeVertices.size())
-    return 0;
+    return nullptr;
   
   // all OK:
   return m_cachedCascadeVertices[index];
@@ -800,7 +800,7 @@ const xAOD::Vertex* xAOD::BPhysHelper::pv(const pv_type vertexType)
     case PV_MIN_A0      : GET_PV("PvMinA0Link");
     case PV_MIN_Z0      : GET_PV("PvMinZ0Link");
     case PV_MIN_Z0_BA   : GET_PV("PvMinZ0BALink");
-    default: return 0;
+    default: return nullptr;
   }      
 }        
 /*****************************************************************************/
@@ -811,7 +811,7 @@ const xAOD::Vertex* xAOD::BPhysHelper::origPv(const pv_type vertexType)
     case PV_MIN_A0      : GET_PV("OrigPvMinA0Link");
     case PV_MIN_Z0      : GET_PV("OrigPvMinZ0Link");
     case PV_MIN_Z0_BA   : GET_PV("OrigPvMinZ0BALink");
-    default: return 0;
+    default: return nullptr;
   } 
 }
 /*****************************************************************************/
@@ -1170,7 +1170,7 @@ bool xAOD::BPhysHelper::cacheRefTracks()
   
   // all OK: store refitted tracks in the cache
   for(uint i=0; i<refTrackPx.size(); ++i) {
-    m_cachedRefTracks.push_back( TVector3(refTrackPx[i], refTrackPy[i], refTrackPz[i] ));
+    m_cachedRefTracks.emplace_back(refTrackPx[i], refTrackPy[i], refTrackPz[i] );
   }
   
   return true;

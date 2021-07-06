@@ -249,9 +249,10 @@ def getTriggerDBCursor(connection):
         schema = connectionParameters["schema"].rstrip('.') + '.'
 
     elif technology == 'frontier':
-        from TrigConfigSvc.TrigConfFrontier import getFrontierCursor 
-        cursor = getFrontierCursor(connectionParameters["url"], connectionParameters["schema"], logging.getLogger("TrigConfigSvcUtils.py").level)
-        schema = connectionParameters["schema"].rstrip('.') + '.'
+        from TrigConfigSvc.TrigConfFrontier import getFrontierCursor
+        schema = connectionParameters["schema"].rstrip('.')
+        cursor = getFrontierCursor( url = connectionParameters['url'], schema = schema, loglevel = logging.getLogger("TrigConfigSvcUtils.py").level)
+        schema = schema + '.'
 
     elif technology == 'mysql':
         cursor = _get_mysql_cursor(connectionParameters["server"], connectionParameters["dbname"], connectionParameters["user"], connectionParameters["passwd"]),''
@@ -986,7 +987,8 @@ def test():
 ####################################""")
     
 
-
+def test1():
+    getMenuNameFromDB("TRIGGERDBMC",321)
 
 def test2():
     log.setLevel(logging.WARNING)
@@ -1016,4 +1018,4 @@ def test2():
 
 if __name__=="__main__":
     import sys
-    sys.exit(test2())
+    sys.exit(test1())

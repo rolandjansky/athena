@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUREC_TAUCOMMONCALCVARS_H
-#define TAUREC_TAUCOMMONCALCVARS_H
+#ifndef TAURECTOOLS_TAUCOMMONCALCVARS_H
+#define TAURECTOOLS_TAUCOMMONCALCVARS_H
 
 #include "tauRecTools/TauRecToolBase.h"
 
@@ -32,4 +32,4 @@ private:
     int m_isolationTrackType;
 };
 
-#endif // TAUREC_TAUCOMMONCALCVARS_H
+#endif // TAURECTOOLS_TAUCOMMONCALCVARS_H

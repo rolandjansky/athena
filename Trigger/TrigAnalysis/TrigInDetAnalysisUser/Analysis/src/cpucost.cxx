@@ -34,7 +34,7 @@
 
 #include "computils.h"
 
-
+#include "AtlasStyle.h"
 
 /// Prints usage instructions to standard output and returns given status
 int usage(const std::string& name, int status) {
@@ -46,12 +46,17 @@ int usage(const std::string& name, int status) {
   s << "    -t,  --tag       value   \t appends tag 'value' to the end of output plot names, \n";
   s << "    -k,  --key       value   \t prepends key 'value' to the front of output plot names, \n\n";
   s << "    -a,  --auto              \t process all histograms that are in the file, \n";
+  s << "    -r,  --replace   patt rep\t replace patt wiht rep in the file name\n"; 
   s << "    -d,  --directory value   \t if auto is set, search only in specifed directory, \n";
-  s << "      ,  --nodir             \t do not print the directory name on the plot,\n";
+  s << "         --nodir             \t do not print the directory name on the plot,\n";
   s << "    -p,  --pattern   value   \t if auto is set, search for histograms containing this string, \n\n";
-  s << "    -nr, --noref             \t do not use a reference file, \n\n";
-  s << "    -x,  --xoffset   value   \t offset the key by value \n\n";
-  s << "    -v,  --verbose           \t verbose output\n";
+  s << "    -f,  --frac              \t explicitly include the fractional plots\n";
+  s << "    -nr, --noref             \t do not use the reference file, \n\n";
+  s << "    -x,  --xoffset   value   \t offset the key by value \n";
+  s << "         --logx               \t force logx \n";
+  s << "    -w,  --binwidth          \t normalise by bin width\n";
+  s << "    -as, --atlasstyle        \t use the ATLAS style \n\n";
+  s << "    -v,  --verbose           \t verbose output\n\n";
   s << "    -h,  --help              \t this help\n";
   s << std::endl;
   return status;
@@ -70,6 +75,14 @@ std::ostream& operator<<( std::ostream& s, const histoinfo& h ) {
   return s << h.fname << " : " << h.dname; 
 }
 
+
+void binwidth( TH1F* h ) {
+  for ( int i=0 ; i<h->GetNbinsX() ; i++ ) {
+    double w = h->GetBinLowEdge(i+2)-h->GetBinLowEdge(i+1);
+    h->SetBinContent( i+1, h->GetBinContent(i+1)/w );
+    h->SetBinError( i+1, h->GetBinError(i+1)/w );
+  }
+}
 
 
 int main(int argc, char** argv) {
@@ -103,7 +116,7 @@ int main(int argc, char** argv) {
   std::vector<std::string> taglabels;
 
   std::string directory = "TIMERS";
-  std::string pattern = "_TotalTime";
+  std::vector<std::string> patterns;
 
   TDirectory* tdir = gDirectory;
 
@@ -116,6 +129,16 @@ int main(int argc, char** argv) {
   double xoffset = 0.17;
 
   bool show_directory = true;
+
+  bool norm_width = true;
+
+  bool logx = false;
+
+  bool withlumiblock = false;
+
+  bool withfractional = false;
+
+  std::vector<std::string> replace_list;
 
   // Parse the arguments
   std::vector<std::string> algorithms;
@@ -141,8 +164,20 @@ int main(int argc, char** argv) {
       if (++argnum < argc) { key = argv[argnum] + std::string("-"); }
       else { return usage(argv[0], -1); }
     }
+    else if (arg == "-r" || arg == "--replace") {
+      if (++argnum < argc) replace_list.push_back( argv[argnum] );
+      else { return usage(argv[0], -1); }
+      if (++argnum < argc) replace_list.push_back( argv[argnum] );
+      else { return usage(argv[0], -1); }
+    }
+    else if ( arg == "--logx") {
+      logx = true;
+    }
     else if (arg == "-np" || arg == "--nopng") {
       nopng = true;
+    }
+    else if (arg == "-f" || arg == "--frac" ) {
+      withfractional = true;
     }
     else if (arg == "-a" || arg == "--auto") {
       autochains = true;
@@ -153,8 +188,17 @@ int main(int argc, char** argv) {
     else if (arg == "-v" || arg == "--verbose") {
       verbose = true;
     }
+    else if (arg == "-lb" ) {
+      withlumiblock = true;
+    }
     else if (arg == "-nr" || arg == "--noref") {
       noref = true;
+    }
+    else if (arg == "-w" || arg == "--binwidth") {
+      norm_width = true;
+    }
+    else if (arg == "-as" || arg == "--atlasstyle") {
+      atlasstyle = true;
     }
     else if (arg == "-ap" || arg == "--autopattern") {
       if (++argnum < argc) autopattern = argv[argnum];
@@ -165,7 +209,7 @@ int main(int argc, char** argv) {
       else                 return usage(argv[0], -1); 
     }
     else if (arg == "-p" || arg == "--pattern") {
-      if (++argnum < argc) pattern = argv[argnum];
+      if (++argnum < argc) patterns.push_back(argv[argnum]);
       else                 return usage(argv[0], -1); 
     }
     else {
@@ -185,6 +229,9 @@ int main(int argc, char** argv) {
       }
     }
   }
+
+  if ( patterns.empty() ) patterns.push_back( "_TotalTime" );
+
   
   if (ftest == 0 || ( noref==false && frefname=="" ) ) {
     return usage(argv[0], -4);
@@ -201,6 +248,10 @@ int main(int argc, char** argv) {
     }
   }
 
+  if ( atlasstyle ) SetAtlasStyle();
+
+  gStyle->SetErrorX(0);
+
   if ( noref ) fref = ftest;
 
   if ( noref ) Plotter::setmeanplotref(!noref);
@@ -210,8 +261,8 @@ int main(int argc, char** argv) {
     ftest->cd();
 
     std::vector<std::string> dirs;
-    contents( dirs, gDirectory, directory, pattern );
 
+    contents( dirs, gDirectory, directory, patterns );
 
     if ( autopattern=="" ) { 
       for ( unsigned j=0 ; j<dirs.size() ; j++ ) { 
@@ -280,6 +331,8 @@ int main(int argc, char** argv) {
   //  for (unsigned int histogram = 0; histogram < histograms.size(); ++histogram) {
   for (unsigned int histogram=histograms.size(); histogram-- ; ) {
 
+    
+
     std::cout << "\nhistogram " << histograms.at(histogram) << " : with " << algorithms.size() << " algorithms" << std::endl;
 
 
@@ -291,7 +344,9 @@ int main(int argc, char** argv) {
     //    for (unsigned int algorithm = 0; algorithm < algorithms.size(); ++algorithm) {
     for (unsigned int algorithm = algorithms.size(); algorithm-- ; ) {
       
-      if ( algorithms[algorithm].find("LumiBlock")!=std::string::npos ) continue;
+      if ( !withlumiblock && algorithms[algorithm].find("LumiBlock")!=std::string::npos ) continue;
+
+      if ( !withfractional && algorithms[algorithm].find("Fractional")!=std::string::npos ) continue;
 
       std::cout << "\nmain() processing algorithm : " << algorithms[algorithm] << std::endl;
 
@@ -300,11 +355,12 @@ int main(int argc, char** argv) {
             
       double x1 = xoffset;
       double x2 = xoffset+0.25;
-      double y1 = 0.80;
+      double y1 = 0.75;
       double y2 = 0.87;
 
-      /// adjust the legend if no reference times are to be plotted
-      if ( noref ) y1 = y2-0.5*(y2-y1);
+      /// no longer adjust the legend if no reference times are to be 
+      /// plotted as we now more properly set the legend size automatically 
+      /// depending on the number of entries
 
       Legend legend(x1, x2, y1, y2);
      
@@ -322,11 +378,16 @@ int main(int argc, char** argv) {
       //      std::cout << "Directory: " << gDirectory->GetName() << std::endl;
 
       TH1F* testhist = (TH1F*)ftest->Get(histname.c_str());
+
       if (testhist == 0 ) {
         std::cerr << "main(): can not find hist " << histname << " in test file" << std::endl;
         continue;
       }
-      
+
+      std::cout << "mean time: " << testhist->GetMean() << "\t:: " << testhist->GetName() << std::endl;
+
+      if ( norm_width ) binwidth( testhist );
+
       /// skip TH2 and TProfiles for the moment ... 
       if ( std::string(testhist->ClassName()).find("TH1")==std::string::npos ) continue; 
       
@@ -335,20 +396,59 @@ int main(int argc, char** argv) {
 
       //      std::cout << "\n\nfound histname " << histname << std::endl;
 
-      TH1F* refhist = (TH1F*)fref->Get(histname.c_str());
-  
+      std::string refhistname = histname;
+
+
+      TH1F* refhist = (TH1F*)fref->Get(refhistname.c_str());
+
+
+      /// if we cannot find the reference histogram, try replacing all patterns 
+      /// that are requested in the reference hist name 
+
+      if ( refhist==0 && replace_list.size()>=2 ) { 
+
+	for ( size_t ir=0 ; ir<replace_list.size()-1 ; ir+=2 ) {
+	  
+	  size_t pos = refhistname.find(replace_list[ir]);
+	  if ( pos != std::string::npos ) { 
+	    
+	    while( pos!=std::string::npos ) { 
+	      refhistname.replace( pos, replace_list[ir].size(), "XXXX" );
+	      pos = refhistname.find(replace_list[ir]);
+	    }
+	    
+	    pos = refhistname.find("XXXX");
+	    while( pos!=std::string::npos ) { 
+	      refhistname.replace( pos, 4, replace_list[ir+1] );
+	      pos = refhistname.find("XXXX");
+	    }
+	  }
+	  
+	}
+
+	refhist = (TH1F*)fref->Get(refhistname.c_str());
+
+      }
+     
       if (refhist == 0 ) {
-        std::cerr << "main(): can not find hist " << histname << " in ref file" << std::endl;
-        continue;
+        std::cerr << "main(): can not find hist " << refhistname << " in ref file" << std::endl;
+	continue;
       }
 
+      if ( norm_width ) binwidth( refhist );
 
-      testhist->GetYaxis()->SetTitleOffset(1.5);
-      refhist->GetYaxis()->SetTitleOffset(1.5);
-      testhist->GetXaxis()->SetTitle(_xaxis.c_str());
       testhist->GetYaxis()->SetTitle(yaxis.c_str());
-      refhist->GetXaxis()->SetTitle(_xaxis.c_str());
+      testhist->GetYaxis()->SetTitleOffset(1.5);
+
       refhist->GetYaxis()->SetTitle(yaxis.c_str());
+      refhist->GetYaxis()->SetTitleOffset(1.5);
+      
+      testhist->GetXaxis()->SetTitle(_xaxis.c_str());
+      testhist->GetXaxis()->SetTitleOffset(1.5);
+
+      refhist->GetXaxis()->SetTitle(_xaxis.c_str());
+      refhist->GetXaxis()->SetTitleOffset(1.5);
+
 
       Plots plots;
 
@@ -364,9 +464,20 @@ int main(int argc, char** argv) {
 
       plots.push_back( Plotter( testhist, refhist, " "+algname ) );
 
-      std::string plotname = output_dir + key + algpname + tag;
-      //                              histograms.at(histogram).fname + tag;
+      std::string plotname = key + algpname + tag;
+      
+      std::string stub = directory;
 
+      size_t pos = stub.find("/");
+      while ( pos!=std::string::npos ) { stub.erase( pos, 1 ); pos = stub.find("/"); }
+
+      while ( plotname.find(stub)!=std::string::npos ) { 
+	plotname.erase( 0, plotname.find(stub)+stub.size() );
+      }
+
+      while ( plotname.find("_")==0 ) plotname.erase( 0, 1 );
+
+      plotname = output_dir + plotname;
 
       std::cout << "output dir " << output_dir << "\tkey " << key << "\talgname " << algname << "\ttag " << tag << std::endl;  
 
@@ -396,6 +507,8 @@ int main(int argc, char** argv) {
 
       plots.SetLogy(ylogt);
 
+      if ( logx ) plots.SetLogx(true); 
+
       double rmin = plots.realmin();
       double rmax = plots.realmax();
       
@@ -405,7 +518,7 @@ int main(int argc, char** argv) {
 	  if ( rmin == 0 ) rmin = rmax*0.0001; 
 	  double delta = std::log10(rmax)-std::log10(rmin);
 	  if ( atlasstyle ) plots.Max( rmax*std::pow(10,delta*0.15*2*(chains.size()+taglabels.size()+1.5)) );
-	  else              plots.Max( rmax*std::pow(10,delta*0.15*2*(chains.size()+taglabels.size()+0.5)) );
+	  else              plots.Max( rmax*std::pow(10,delta*0.15*2*(chains.size()+taglabels.size()+1.0)) );
 	  plots.Min( rmin*std::pow(10,-delta*0.1) );
       }
       else { 
@@ -420,16 +533,24 @@ int main(int argc, char** argv) {
 	
       std::vector<double> range = plots.findxrange();
 
-      double upper = ( range[1]-range[0] )*1.1 + range[0];
-      double lower = range[0] - ( range[1]-range[0] )*0.1; 
-      
+      double lower = range[0];
+      double upper = range[1];
+
       if ( lower<0 ) lower = 0;
-      
+
       plots.SetRangeUser( lower, upper );
 
       plots.Draw( legend, true );
 
-      if ( show_directory ) DrawLabel( x1+0.01, y2+0.03, dirname, kBlack, legend.TextSize(), legend.TextFont() );
+      std::string dirtitle = dirname;
+      if ( dirtitle.find("HLT_")==0 && dirtitle.find("__")!=std::string::npos ) dirtitle.erase( dirtitle.find("__"), dirtitle.size() ); 
+
+      if ( show_directory ) DrawLabel( x1+0.02, y2+0.02, dirtitle, kBlack, legend.TextSize(), legend.TextFont() );
+
+      /// could simply run gPad->SetLogyx( logx );
+      /// but that would interfere with the individual plot 
+      /// setting from the config file 
+      if ( logx ) gPad->SetLogx(true); 
 
       plots.back().Print( (plotname+".pdf").c_str() );
       if ( !nopng ) plots.back().Print( (plotname+".png").c_str() );

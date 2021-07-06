@@ -10,7 +10,6 @@
  Dummy methods
 	 
    @author Alan.Poppleton@cern.ch
-  (c) ATLAS Combined Muon software
 */
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -28,7 +27,7 @@ MuidTrack::MuidTrack (const Trk::Track*			combinedTrack,
 		      const Trk::Track*			extrapolatedTrack,
 		      const Trk::Track*			indetTrack,
 		      const Trk::Track*			spectrometerTrack,
-		      Rec::FieldIntegral		fieldIntegral,
+		      const Rec::FieldIntegral&		fieldIntegral,
 		      double   				innerMatchChi2,
 		      int				innerMatchDoF,
 		      double   				innerMatchProb,
@@ -36,7 +35,7 @@ MuidTrack::MuidTrack (const Trk::Track*			combinedTrack,
 		      double   				outerMatchChi2,
 		      int				outerMatchDoF,
 		      double   				outerMatchProb,
-		      Rec::ScatteringAngleSignificance	scatteringAngleSignificance)
+		      const Rec::ScatteringAngleSignificance&	scatteringAngleSignificance)
     :	MuonMatch	(combinedTrack,
 			 extrapolatedTrack,
 			 indetTrack,

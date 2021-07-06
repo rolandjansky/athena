@@ -275,24 +275,24 @@ namespace Trk {
         mutable float         m_mappedPathRho;                                          //!< total mapped path times rho
         mutable float         m_mappedPathZARho;                                        //!< total mapped path times (Z/A)*rho
         mutable float         m_unmappedPathInX0;                                       //!< total path in x0 in these events lost        
-        mutable int           m_mapped[TRKDETDESCRTOOLS_MAXSTEPS];                      //!< mapped or not mapped
-        mutable float         m_materialAccumPathInX0[TRKDETDESCRTOOLS_MAXSTEPS];       //!< accumulated path length in x0
-        mutable float         m_materialAccumPathZARho[TRKDETDESCRTOOLS_MAXSTEPS];      //!< accumulated path length times (Z/A)*rho
-        mutable float         m_materialStepPath[TRKDETDESCRTOOLS_MAXSTEPS];            //!< step path 
-        mutable float         m_materialStepX0[TRKDETDESCRTOOLS_MAXSTEPS];              //!< step x0
-        mutable float         m_materialStepL0[TRKDETDESCRTOOLS_MAXSTEPS];              //!< step l0
-        mutable float         m_materialStepZ[TRKDETDESCRTOOLS_MAXSTEPS];               //!< step Z
-        mutable float         m_materialStepA[TRKDETDESCRTOOLS_MAXSTEPS];               //!< step A
-        mutable float         m_materialStepRho[TRKDETDESCRTOOLS_MAXSTEPS];             //!< step rho
-        mutable float         m_materialStepPositionX[TRKDETDESCRTOOLS_MAXSTEPS];       //!< x position of the material recording
-        mutable float         m_materialStepPositionY[TRKDETDESCRTOOLS_MAXSTEPS];       //!< y position of the material recording
-        mutable float         m_materialStepPositionZ[TRKDETDESCRTOOLS_MAXSTEPS];       //!< z position of the material recording
-        mutable float         m_materialStepPositionR[TRKDETDESCRTOOLS_MAXSTEPS];       //!< r value of the material recording
-        mutable float         m_materialProjPositionX[TRKDETDESCRTOOLS_MAXSTEPS];       //!< x position of the material recording when assigned to layer
-        mutable float         m_materialProjPositionY[TRKDETDESCRTOOLS_MAXSTEPS];       //!< y position of the material recording when assigned to layer
-        mutable float         m_materialProjPositionZ[TRKDETDESCRTOOLS_MAXSTEPS];       //!< z position of the material recording when assigned to layer
-        mutable float         m_materialProjPositionR[TRKDETDESCRTOOLS_MAXSTEPS];       //!< r value of the material recording when assigned to layer
-        mutable float         m_materialProjDistance[TRKDETDESCRTOOLS_MAXSTEPS];        //!< the distance to the projected hit
+        mutable int           m_mapped[TRKDETDESCRTOOLS_MAXSTEPS]{};                      //!< mapped or not mapped
+        mutable float         m_materialAccumPathInX0[TRKDETDESCRTOOLS_MAXSTEPS]{};       //!< accumulated path length in x0
+        mutable float         m_materialAccumPathZARho[TRKDETDESCRTOOLS_MAXSTEPS]{};      //!< accumulated path length times (Z/A)*rho
+        mutable float         m_materialStepPath[TRKDETDESCRTOOLS_MAXSTEPS]{};            //!< step path 
+        mutable float         m_materialStepX0[TRKDETDESCRTOOLS_MAXSTEPS]{};              //!< step x0
+        mutable float         m_materialStepL0[TRKDETDESCRTOOLS_MAXSTEPS]{};              //!< step l0
+        mutable float         m_materialStepZ[TRKDETDESCRTOOLS_MAXSTEPS]{};               //!< step Z
+        mutable float         m_materialStepA[TRKDETDESCRTOOLS_MAXSTEPS]{};               //!< step A
+        mutable float         m_materialStepRho[TRKDETDESCRTOOLS_MAXSTEPS]{};             //!< step rho
+        mutable float         m_materialStepPositionX[TRKDETDESCRTOOLS_MAXSTEPS]{};       //!< x position of the material recording
+        mutable float         m_materialStepPositionY[TRKDETDESCRTOOLS_MAXSTEPS]{};       //!< y position of the material recording
+        mutable float         m_materialStepPositionZ[TRKDETDESCRTOOLS_MAXSTEPS]{};       //!< z position of the material recording
+        mutable float         m_materialStepPositionR[TRKDETDESCRTOOLS_MAXSTEPS]{};       //!< r value of the material recording
+        mutable float         m_materialProjPositionX[TRKDETDESCRTOOLS_MAXSTEPS]{};       //!< x position of the material recording when assigned to layer
+        mutable float         m_materialProjPositionY[TRKDETDESCRTOOLS_MAXSTEPS]{};       //!< y position of the material recording when assigned to layer
+        mutable float         m_materialProjPositionZ[TRKDETDESCRTOOLS_MAXSTEPS]{};       //!< z position of the material recording when assigned to layer
+        mutable float         m_materialProjPositionR[TRKDETDESCRTOOLS_MAXSTEPS]{};       //!< r value of the material recording when assigned to layer
+        mutable float         m_materialProjDistance[TRKDETDESCRTOOLS_MAXSTEPS]{};        //!< the distance to the projected hit
 
         // Per Volume Validation
         bool                  m_volumeValidation;

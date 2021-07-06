@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * DisambiguationIncl3.cpp
@@ -15,7 +15,6 @@
 #include "L1TopoAlgorithms/DisambiguationIncl3.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
-#include "L1TopoSimulationUtils/Kinematics.h"
 
 REGISTER_ALG_TCS(DisambiguationIncl3)
 
@@ -115,8 +114,8 @@ TCS::DisambiguationIncl3::processBitCorrect( const std::vector<TCS::TOBArray con
                     ++tob3) {
 
                
-                  unsigned int deltaR13 = TSU::Kinematics::calcDeltaR2BW( *tob1, *tob3 );
-                  unsigned int deltaR23 = TSU::Kinematics::calcDeltaR2BW( *tob2, *tob3 );
+                  unsigned int deltaR13 = calcDeltaR2BW( *tob1, *tob3 );
+                  unsigned int deltaR23 = calcDeltaR2BW( *tob2, *tob3 );
 
                   for(unsigned int i=0; i<numberOutputBits(); ++i) {
                       bool accept = false;
@@ -180,8 +179,8 @@ TCS::DisambiguationIncl3::process( const std::vector<TCS::TOBArray const *> & in
                     ++tob3) {
 
                
-                  unsigned int deltaR13 = TSU::Kinematics::calcDeltaR2( *tob1, *tob3 );
-                  unsigned int deltaR23 = TSU::Kinematics::calcDeltaR2( *tob2, *tob3 );
+                  unsigned int deltaR13 = calcDeltaR2( *tob1, *tob3 );
+                  unsigned int deltaR23 = calcDeltaR2( *tob2, *tob3 );
 
                   for(unsigned int i=0; i<numberOutputBits(); ++i) {
                       bool accept = false;

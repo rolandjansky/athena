@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -63,7 +63,7 @@ InDetV0FinderTool::InDetV0FinderTool(const std::string& t, const std::string& n,
   m_trkSelector("InDet::TrackSelectorTool"),
   m_vertexEstimator("InDet::VertexPointEstimator"),
   m_extrapolator("Trk::Extrapolator"),
-  m_particleDataTable(0),
+  m_particleDataTable(nullptr),
   m_doSimpleV0(false),
   m_useorigin(true),
   m_samesign(false),
@@ -190,7 +190,7 @@ StatusCode InDetV0FinderTool::initialize()
   }
 
 // get the Particle Properties Service
-  IPartPropSvc* partPropSvc = 0;
+  IPartPropSvc* partPropSvc = nullptr;
   ATH_CHECK( service("PartPropSvc", partPropSvc, true) );
   m_particleDataTable = partPropSvc->PDT();
 
@@ -262,10 +262,10 @@ StatusCode InDetV0FinderTool::initialize()
   m_Gamma_stored     = 0;
 
 // making a concrete fitter for the V0Fitter
-  m_concreteVertexFitter = 0;
+  m_concreteVertexFitter = nullptr;
   if (m_useV0Fitter) {
     m_concreteVertexFitter = dynamic_cast<Trk::TrkV0VertexFitter * >(&(*m_iVertexFitter));
-    if (m_concreteVertexFitter == 0) {
+    if (m_concreteVertexFitter == nullptr) {
       ATH_MSG_FATAL("The vertex fitter passed is not a V0 Vertex Fitter");
       return StatusCode::FAILURE;
     }
@@ -322,7 +322,7 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
 // track preselection
   std::vector<const xAOD::TrackParticle*> posTracks; posTracks.clear();
   std::vector<const xAOD::TrackParticle*> negTracks; negTracks.clear();
-  const xAOD::Vertex* vx = 0;
+  const xAOD::Vertex* vx = nullptr;
   if (m_pv && primaryVertex) vx = primaryVertex;
 
   if (TPC->size() > 1) {
@@ -349,7 +349,7 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
   }
   ATH_MSG_DEBUG("number of tracks passing preselection, positive " << posTracks.size() << " negative " << negTracks.size());
 
-  if (posTracks.size() > 0 && negTracks.size() > 0)
+  if (!posTracks.empty() && !negTracks.empty())
   {
   SG::ReadHandle<xAOD::VertexContainer> vertices { m_vertexKey };
   if (!vertices.isValid())
@@ -373,7 +373,7 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
     const xAOD::Vertex* foundVertex1 { nullptr };
     if (m_useorigin)
     {
-      for (const auto& vx : *vertices)
+      for (const auto *const vx : *vertices)
       {
 	for (const auto& tpLink : vx->trackParticleLinks())
 	{
@@ -416,7 +416,7 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
       const xAOD::Vertex* foundVertex2 { nullptr };
       if (m_useorigin)
       {
-	for (const auto& vx : *vertices)
+	for (const auto *const vx : *vertices)
 	{
 	  for (const auto& tpLink : vx->trackParticleLinks())
 	  {
@@ -679,10 +679,10 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
 
   }  // posTracks.size() > 0 && negTracks.size() > 0
 
-  if (v0Container->size()==0) ATH_MSG_DEBUG("No Candidates found. Empty container returned");
-  if (ksContainer->size()==0) ATH_MSG_DEBUG("No Kshort Candidates found. Empty container returned");
-  if (laContainer->size()==0) ATH_MSG_DEBUG("No Lambda Candidates found. Empty container returned");
-  if (lbContainer->size()==0) ATH_MSG_DEBUG("No Lambdabar Candidates found. Empty container returned");
+  if (v0Container->empty()) ATH_MSG_DEBUG("No Candidates found. Empty container returned");
+  if (ksContainer->empty()) ATH_MSG_DEBUG("No Kshort Candidates found. Empty container returned");
+  if (laContainer->empty()) ATH_MSG_DEBUG("No Lambda Candidates found. Empty container returned");
+  if (lbContainer->empty()) ATH_MSG_DEBUG("No Lambdabar Candidates found. Empty container returned");
 
   return StatusCode::SUCCESS;
 }
@@ -702,7 +702,7 @@ StatusCode InDetV0FinderTool::finalize()
   return StatusCode::SUCCESS;
 }
 
-void InDetV0FinderTool::SGError(std::string errService) const
+void InDetV0FinderTool::SGError(const std::string& errService) const
 {
   msg(MSG::FATAL) << errService << " not found. Exiting !" << endmsg;
   return;
@@ -716,20 +716,20 @@ bool InDetV0FinderTool::doFit(const xAOD::TrackParticle* track1, const xAOD::Tra
   if (srxy <= m_maxsxy)
   {
     double massKshort_i=2000001., massLambda_i=2000001., massLambdabar_i=2000001.;
-    Amg::Vector3D globalPosition = startingPoint;
+    const Amg::Vector3D& globalPosition = startingPoint;
     Trk::PerigeeSurface perigeeSurface(globalPosition);
     std::vector<std::unique_ptr<const Trk::TrackParameters> >  cleanup;
-    const Trk::TrackParameters* extrapolatedPerigee1(0);
-    const Trk::TrackParameters* extrapolatedPerigee2(0);
+    const Trk::TrackParameters* extrapolatedPerigee1(nullptr);
+    const Trk::TrackParameters* extrapolatedPerigee2(nullptr);
     extrapolatedPerigee1 = m_extrapolator->extrapolate(track1->perigeeParameters(), perigeeSurface);
-    if (extrapolatedPerigee1 == 0) extrapolatedPerigee1 = &track1->perigeeParameters();
+    if (extrapolatedPerigee1 == nullptr) extrapolatedPerigee1 = &track1->perigeeParameters();
     else cleanup.push_back(std::unique_ptr<const Trk::TrackParameters>(extrapolatedPerigee1));
 
     extrapolatedPerigee2 = m_extrapolator->extrapolate(track2->perigeeParameters(), perigeeSurface);
-    if (extrapolatedPerigee2 == 0) extrapolatedPerigee2 = &track2->perigeeParameters();
+    if (extrapolatedPerigee2 == nullptr) extrapolatedPerigee2 = &track2->perigeeParameters();
     else cleanup.push_back(std::unique_ptr<const Trk::TrackParameters>(extrapolatedPerigee2));
 
-    if (extrapolatedPerigee1 != 0 && extrapolatedPerigee2 != 0) {
+    if (extrapolatedPerigee1 != nullptr && extrapolatedPerigee2 != nullptr) {
       massKshort_i = invariantMass(extrapolatedPerigee1,extrapolatedPerigee2,m_masspi,m_masspi);
       massLambda_i = invariantMass(extrapolatedPerigee1,extrapolatedPerigee2,m_massp,m_masspi);
       massLambdabar_i = invariantMass(extrapolatedPerigee1,extrapolatedPerigee2,m_masspi,m_massp);
@@ -750,9 +750,9 @@ bool InDetV0FinderTool::d0Pass(const xAOD::TrackParticle* track1, const xAOD::Tr
   {
     const xAOD::Vertex* PV = (*vItr);
     const Trk::Perigee* per1 = m_trackToVertexTool->perigeeAtVertex( *track1, PV->position() );
-    if (per1 == 0) return pass;
+    if (per1 == nullptr) return pass;
     const Trk::Perigee* per2 = m_trackToVertexTool->perigeeAtVertex( *track2, PV->position() );
-    if (per2 == 0) {
+    if (per2 == nullptr) {
       delete per1;
       return pass;
     }
@@ -771,9 +771,9 @@ bool InDetV0FinderTool::d0Pass(const xAOD::TrackParticle* track1, const xAOD::Tr
 {
   bool pass = false;
   const Trk::Perigee* per1 = m_trackToVertexTool->perigeeAtVertex( *track1, PV->position() );
-  if (per1 == 0) return pass;
+  if (per1 == nullptr) return pass;
   const Trk::Perigee* per2 = m_trackToVertexTool->perigeeAtVertex( *track2, PV->position() );
-  if (per2 == 0) {
+  if (per2 == nullptr) {
     delete per1;
     return pass;
   }
@@ -787,13 +787,13 @@ bool InDetV0FinderTool::d0Pass(const xAOD::TrackParticle* track1, const xAOD::Tr
   return pass;
 }
 
-bool InDetV0FinderTool::d0Pass(const xAOD::TrackParticle* track1, const xAOD::TrackParticle* track2, Amg::Vector3D PV) const
+bool InDetV0FinderTool::d0Pass(const xAOD::TrackParticle* track1, const xAOD::TrackParticle* track2, const Amg::Vector3D& PV) const
 {
   bool pass = false;
   const Trk::Perigee* per1 = m_trackToVertexTool->perigeeAtVertex( *track1, PV );
-  if (per1 == 0) return pass;
+  if (per1 == nullptr) return pass;
   const Trk::Perigee* per2 = m_trackToVertexTool->perigeeAtVertex( *track2, PV );
-  if (per2 == 0) {
+  if (per2 == nullptr) {
     delete per1;
     return pass;
   }
@@ -880,7 +880,7 @@ bool InDetV0FinderTool::doMassFit(xAOD::Vertex* vxCandidate, int pdgID) const
 
 xAOD::Vertex* InDetV0FinderTool::massFit(int pdgID, const std::vector<const xAOD::TrackParticle*> &pairV0, const Amg::Vector3D &vertex) const
 {
-  xAOD::Vertex* vxCandidate(0);
+  xAOD::Vertex* vxCandidate(nullptr);
   std::vector<double> masses;
   if (pdgID == 310) {
     masses.push_back(m_masspi);
@@ -901,21 +901,21 @@ xAOD::Vertex* InDetV0FinderTool::massFit(int pdgID, const std::vector<const xAOD
   }
   if (pdgID ==   310) {
     if (m_useV0Fitter) {
-      vxCandidate = m_concreteVertexFitter->fit(pairV0, masses, m_massK0S, 0, vertex);
+      vxCandidate = m_concreteVertexFitter->fit(pairV0, masses, m_massK0S, nullptr, vertex);
     } else {
       vxCandidate = m_iKshortFitter->fit(pairV0, vertex);
     }
   }
   if (pdgID ==  3122) {
     if (m_useV0Fitter) {
-      vxCandidate = m_concreteVertexFitter->fit(pairV0, masses, m_massLambda, 0, vertex);
+      vxCandidate = m_concreteVertexFitter->fit(pairV0, masses, m_massLambda, nullptr, vertex);
     } else {
       vxCandidate = m_iLambdaFitter->fit(pairV0, vertex);
     }
   }
   if (pdgID == -3122) {
     if (m_useV0Fitter) {
-      vxCandidate = m_concreteVertexFitter->fit(pairV0, masses, m_massLambda, 0, vertex);
+      vxCandidate = m_concreteVertexFitter->fit(pairV0, masses, m_massLambda, nullptr, vertex);
     } else {
       vxCandidate = m_iLambdabarFitter->fit(pairV0, vertex);
     }

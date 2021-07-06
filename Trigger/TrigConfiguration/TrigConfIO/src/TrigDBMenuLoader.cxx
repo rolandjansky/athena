@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #include "./TrigDBHelper.h"
 #include "TrigConfIO/TrigDBMenuLoader.h"
@@ -95,7 +95,8 @@ TrigConf::TrigDBMenuLoader::loadL1Menu ( unsigned int smk,
 {
    auto session = createDBSession();
    session->transaction().start( /*bool readonly=*/ true);
-   QueryDefinition qdef = getQueryDefinition(session.get(), m_l1queries);
+   const size_t sv = schemaVersion(session.get());
+   QueryDefinition qdef = getQueryDefinition(sv, m_l1queries);
    try {
       qdef.setBoundValue<int>("smk", smk);
       auto q = qdef.createQuery( session.get() );
@@ -124,7 +125,8 @@ TrigConf::TrigDBMenuLoader::loadHLTMenu ( unsigned int smk,
 {
    auto session = createDBSession();
    session->transaction().start( /*bool readonly=*/ true);
-   QueryDefinition qdef = getQueryDefinition(session.get(), m_hltqueries);
+   const size_t sv = schemaVersion(session.get());
+   QueryDefinition qdef = getQueryDefinition(sv, m_hltqueries);
    try {
       qdef.setBoundValue<int>("smk", smk);
       auto q = qdef.createQuery( session.get() );

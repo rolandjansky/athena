@@ -1,7 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-from __future__ import print_function
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from cPickle import dumps, loads
+from pickle import dump, loads
 from functools import wraps
 from os import environ
 from pkg_resources import resource_string
@@ -13,8 +12,8 @@ def invariant(test_data_name):
         def check_invariant(*args, **kwargs):
             result = func(*args, **kwargs)
             if "DQU_UPDATE_TEST_DATA" in environ:
-                with open(test_data_name, "w") as fd:
-                    fd.write(dumps(result))
+                with open(test_data_name, "wb") as fd:
+                    dump(result, fd)
                 print("Wrote updated test data")
             else:
                 test_data = loads(resource_string("testdata", testfile))

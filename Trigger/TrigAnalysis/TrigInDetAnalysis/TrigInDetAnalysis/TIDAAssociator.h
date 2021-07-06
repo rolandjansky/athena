@@ -25,7 +25,8 @@ class Associator {
 
 public:
 
-  typedef std::map<T*, S*> map_type; 
+  typedef std::map<T*, S*>  map_type; 
+  typedef std::map<S*, T*> rmap_type; 
 
 public:
 
@@ -47,14 +48,14 @@ public:
 
   // get matched track from reverse map
   virtual const T* revmatched( S* t) { 
-     typename map_type::const_iterator titr = mrevmatched.find(t);
+     typename rmap_type::const_iterator titr = mrevmatched.find(t);
      if ( titr != mrevmatched.end() ) return titr->second;
      else                             return 0;
   } 
 
   // get the lookup tables
-  const map_type&    matched() const { return mmatched; }
-  const map_type& revmatched() const { return mrevmatched; }
+  const  map_type&    matched() const { return mmatched; }
+  const rmap_type& revmatched() const { return mrevmatched; }
 
   // clear the match lookup tables
   void clear() { mmatched.clear(); mrevmatched.clear(); } 
@@ -66,8 +67,8 @@ protected:
 
   std::string mname;
   
-  map_type mmatched;
-  map_type mrevmatched;
+  map_type  mmatched;
+  rmap_type mrevmatched;
 
 };
 

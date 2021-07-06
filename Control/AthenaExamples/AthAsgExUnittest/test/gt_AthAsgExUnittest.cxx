@@ -9,7 +9,7 @@
 
 #include <string>
 
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/StandaloneToolHandle.h"
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 
 #include "AthAsgExUnittest/IMyPackageTool.h"

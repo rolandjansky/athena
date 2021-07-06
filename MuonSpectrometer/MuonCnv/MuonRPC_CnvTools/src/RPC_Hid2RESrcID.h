@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __RPC_HID2RESRCID__
-#define __RPC_HID2RESRCID__
+#ifndef MUONRPC_CNVTOOLS_RPC_HID2RESRCID_H
+#define MUONRPC_CNVTOOLS_RPC_HID2RESRCID_H
 
 #include "AthenaKernel/MsgStreamMember.h"
 #include "GaudiKernel/StatusCode.h"
@@ -26,28 +26,21 @@ public:
 
   void set(const RpcIdHelper* rpdId);
 
-  uint32_t getRodID(const Identifier& offlineId, const RpcCablingCondData* readCdo);
-  uint32_t getRodID(const int& side, const int& slogic, const int& padId, const RpcCablingCondData* readCdo);
-  uint32_t getRodID(const int& sector);
-  uint32_t getRodID(const uint16_t& side, const uint16_t& rodIndex);
+  uint32_t getRodID(const Identifier& offlineId, const RpcCablingCondData* readCdo) const;
+  uint32_t getRodID(const int& side, const int& slogic, const int& padId, const RpcCablingCondData* readCdo) const;
+  uint32_t getRodID(const int& sector) const;
+  uint32_t getRodID(const uint16_t& side, const uint16_t& rodIndex) const;
 
-  uint32_t getRobID(const uint32_t rod_id);
+  uint32_t getRobID(const uint32_t rod_id) const;
 
-  uint32_t getRosID(const uint32_t rob_id);
+  uint32_t getRosID(const uint32_t rob_id) const;
 
-  uint32_t getDetID(const uint32_t ros_id);
+  uint32_t getDetID(const uint32_t ros_id) const;
    
-  MsgStream& msg(MSG::Level lvl) const { return m_msg << lvl;};
-
-  bool msgLevel (MSG::Level lvl) { return m_msg.get().level() <= lvl;};
-
 private:
   const RpcIdHelper* m_rpcIdHelper;
 
   int m_specialROBNumber;
-
-  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
-  
 };
 
 #endif 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERECUTILS_ITILETIMEBCOFFSETFILTER_H
@@ -29,6 +29,7 @@
 #include "TileConditions/ITileDCSTool.h"
 #include "TileConditions/ITileBadChanTool.h"
 #include "TileEvent/TileDQstatus.h"
+#include "TileEvent/TileDigitsContainer.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -37,6 +38,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include <vector>
+#include <cmath>
 
 // forward declarations
 class TileHWID;
@@ -61,16 +63,17 @@ class TileTimeBCOffsetFilter: public extends<AthAlgTool, ITileRawChannelTool> {
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
 
-    virtual StatusCode process (TileMutableRawChannelContainer& rchCont) const override;
+    virtual StatusCode process (TileMutableRawChannelContainer& rchCont, const EventContext& ctx) const override;
 
   private:
 
     int find_partner(int ros, int channel) const;
-    bool drawer_ok(const int drawerIndex, std::vector<bool> & channel_time_ok,
+    bool drawer_ok(const int drawerIndex, std::vector<int> & channel_time_ok,
                    std::vector<int> & bad_dmu) const;
     bool ch_masked_or_empty(int ros, int drawer, int channel, int gain,
                             const TileDQstatus* DQstatus) const;
     bool isChanDCSgood(int ros, int drawer, int channel) const;
+    float ref_digits_maxmindiff(int ros, int drawer, int ref_channel) const;
 
     const TileHWID* m_tileHWID; //!< Pointer to TileHWID
 
@@ -87,6 +90,10 @@ class TileTimeBCOffsetFilter: public extends<AthAlgTool, ITileRawChannelTool> {
     ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
         "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
 
+    // name of TDS container with TileDigits
+    SG::ReadHandleKey<TileDigitsContainer> m_digitsContainerKey{this,"TileDigitsContainer","TileDigitsCnt",
+                                                                "Input Tile digits container key"};
+
     // properties
     SG::ReadHandleKey<TileDQstatus> m_DQstatusKey{this, "TileDQstatus", 
                                                   "TileDQstatus", 
@@ -96,8 +103,9 @@ class TileTimeBCOffsetFilter: public extends<AthAlgTool, ITileRawChannelTool> {
     float m_ene_threshold_1chan;
     float m_time_threshold_diff;
     float m_time_threshold_ref_ch;
-    float m_ene_threshold_ref_ch;
-    
+    float m_ene_threshold_aver_time;
+    float m_sample_diffmaxmin_threshold_hg;
+    float m_sample_diffmaxmin_threshold_lg;
     bool m_checkDCS;
 
 };

@@ -15,7 +15,7 @@
 Trk::PropResultRootWriterSvc::PropResultRootWriterSvc( const std::string& name, ISvcLocator* svc )
 : AthService(name, svc),
   m_thistSvc("THistSvc", name),
-  m_tree(0) {
+  m_tree(nullptr) {
 }
 
 Trk::PropResultRootWriterSvc::~PropResultRootWriterSvc() {}

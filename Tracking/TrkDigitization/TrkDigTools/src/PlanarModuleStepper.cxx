@@ -70,7 +70,7 @@ std::vector<Trk::DigitizationStep> Trk::PlanarModuleStepper::cellSteps(const Trk
         }  
     }
     // last one is also valid - now sort
-    stepIntersections.push_back(Trk::Intersection(endPoint,(startPoint-endPoint).mag(),true));
+    stepIntersections.emplace_back(endPoint,(startPoint-endPoint).mag(),true);
     std::sort(stepIntersections.begin(),stepIntersections.end());
     
     Amg::Vector3D lastPosition = startPoint;    

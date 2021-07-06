@@ -1,6 +1,6 @@
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include <iostream>
 
@@ -19,6 +19,8 @@
 #include "../src/TriggerEDMDeserialiserAlg.h"
 
 #include "CxxUtils/checker_macros.h"
+#include "CxxUtils/ubsan_suppress.h"
+#include "TInterpreter.h"
 
 std::vector<uint32_t> serialisedData ATLAS_THREAD_SAFE; //Only used in test program
 StatusCode tester( TriggerEDMSerialiserTool* ser) {
@@ -59,6 +61,7 @@ StatusCode tester( TriggerEDMSerialiserTool* ser) {
 }
 
 int main() {
+  CxxUtils::ubsan_suppress ( []() { TInterpreter::Instance(); } );
   using namespace std;
   ISvcLocator* pSvcLoc;
   if( !Athena_test::initGaudi("test.txt",  pSvcLoc) ) {

@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfData/L1Board.h"
 
 #include <stdexcept>
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS // Needed to silence Boost pragma message
 #include <boost/property_tree/json_parser.hpp>
 
 using namespace std;
@@ -12,7 +13,7 @@ using namespace std;
 TrigConf::L1Board::L1Board()
 {}
 
-TrigConf::L1Board::L1Board(const std::string & boardName, const boost::property_tree::ptree & data) 
+TrigConf::L1Board::L1Board(const std::string & boardName, const boost::property_tree::ptree & data)
    : DataStructure(data)
 {
    m_name = boardName;
@@ -85,7 +86,7 @@ TrigConf::L1Board::type() const
 }
 
 bool
-TrigConf::L1Board::legacy() const 
+TrigConf::L1Board::legacy() const
 {
    return m_legacy;
 }

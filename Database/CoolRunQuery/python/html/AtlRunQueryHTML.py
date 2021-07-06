@@ -19,7 +19,7 @@ from CoolRunQuery.AtlRunQueryRun         import Run
 from CoolRunQuery.utils.AtlRunQueryUtils import addKommaToNumber, filesize
 from CoolRunQuery.utils.AtlRunQueryTimer import timer
 
-from .AtlRunQueryPageMaker               import PageMaker as PM
+from CoolRunQuery.html.AtlRunQueryPageMaker        import PageMaker as PM
 from CoolRunQuery.selector.AtlRunQuerySelectorBase import DataKey
 
 
@@ -262,9 +262,8 @@ class ResultPageMaker:
         if not runsOnServer() and doPickle:
             import pickle
             from CoolRunQuery.AtlRunQueryQueryConfig import QC
-            f = open('%s/dqsum_pi.pickle' % QC.datapath, "w")
-            pickle.dump(pageinfo, f)
-            f.close()
+            with open('%s/dqsum_pi.pickle' % QC.datapath, "wb") as fh:
+                pickle.dump(pageinfo, fh)
 
         class PI:
             pass

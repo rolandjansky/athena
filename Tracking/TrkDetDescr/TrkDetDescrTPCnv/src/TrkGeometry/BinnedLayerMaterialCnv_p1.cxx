@@ -27,10 +27,10 @@ void BinnedLayerMaterialCnv_p1::persToTrans( const Trk::BinnedLayerMaterial_p1 *
     
     // create the transient material properties
     // pointer to converter (will be auto-retrieved)
-    ITPConverterFor<Trk::MaterialProperties> *materialCnv = 0;
+    ITPConverterFor<Trk::MaterialProperties> *materialCnv = nullptr;
     size_t matrixOuterDim = transObj->m_binUtility->max(1)+1;
     size_t matrixInnerDim = transObj->m_binUtility->max(0)+1;
-    transObj->m_fullMaterial = std::vector< std::vector<const Trk::MaterialProperties*> >(matrixOuterDim, std::vector< const Trk::MaterialProperties* >(matrixInnerDim, 0) );
+    transObj->m_fullMaterial = std::vector< std::vector<const Trk::MaterialProperties*> >(matrixOuterDim, std::vector< const Trk::MaterialProperties* >(matrixInnerDim, nullptr) );
     for ( size_t iod = 0; iod < matrixOuterDim; ++iod )
         for ( size_t iid = 0; iid < matrixInnerDim; ++iid) {
             // create the material properties
@@ -40,7 +40,7 @@ void BinnedLayerMaterialCnv_p1::persToTrans( const Trk::BinnedLayerMaterial_p1 *
             if (carriesMaterial)
                 (transObj->m_fullMaterial)[iod][iid] = mprop; 
             else {
-                (transObj->m_fullMaterial)[iod][iid] = 0; 
+                (transObj->m_fullMaterial)[iod][iid] = nullptr; 
                 delete mprop; // clear this instance and set to 0
                 mprop=nullptr;
             }
@@ -60,7 +60,7 @@ void BinnedLayerMaterialCnv_p1::transToPers( const Trk::BinnedLayerMaterial    *
     
     // create the persistent material properties
     // pointer to converter (will be auto-retrieved)
-    ITPConverterFor<Trk::MaterialProperties> *materialCnv = 0;
+    ITPConverterFor<Trk::MaterialProperties> *materialCnv = nullptr;
     // prepare the matrix
     size_t matrixOuterDim =transObj->m_binUtility->max(1)+1;
     size_t matrixInnerDim =transObj->m_binUtility->max(0)+1;

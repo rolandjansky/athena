@@ -71,7 +71,6 @@ namespace SH
   void Sample ::
   testInvariant () const
   {
-    RCU_INVARIANT (this != 0);
     RCU_INVARIANT (m_meta != 0);
  }
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  
 # Job options configuration file for PerfMonMTSvc
 
@@ -26,8 +26,6 @@ class PerfMonMTSvc ( _PerfMonMTSvc  ):
         if not isinstance(handle, PerfMonMTSvc):
             return
 
-        from AthenaCommon import CfgMgr
-
         ## Enable the auditors
         from AthenaCommon.AppMgr import theApp
         theApp.AuditAlgorithms = True
@@ -41,6 +39,9 @@ class PerfMonMTSvc ( _PerfMonMTSvc  ):
             if handleName not in theApp.CreateSvc:
                 # Be the very first service to be initialized
                 theApp.CreateSvc = [ handleName ] + theApp.CreateSvc
+
+        ## Configure the output file name
+        handle.jsonFileName = jobproperties.PerfMonFlags.OutputJSON()
 
         ## Set the job start time
         import os,psutil

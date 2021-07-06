@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@
 #include "CaloEvent/CaloCluster.h"
 #include "GaudiKernel/GaudiException.h"
 
-#include <math.h>
+#include <cmath>
 #include <string>
 
 namespace Analysis {
@@ -115,14 +115,14 @@ Muon::Muon(MuonParameters::Author author,
 {
   this->set4Mom(combTP->hlv());
 
-  m_inDetTrackParticle.setElement(const_cast<Rec::TrackParticle*>(inDetTP));
+  m_inDetTrackParticle.setElement(inDetTP);
 
   if(isExtrapolatedToVertex)
-    m_muonExtrapolatedTrackParticle.setElement(const_cast<Rec::TrackParticle*>(extrapTP));
+    m_muonExtrapolatedTrackParticle.setElement(extrapTP);
   else
-    m_innerExtrapolatedTrackParticle.setElement(const_cast<Rec::TrackParticle*>(extrapTP));
+    m_innerExtrapolatedTrackParticle.setElement(extrapTP);
 
-  m_combinedMuonTrackParticle.setElement(const_cast<Rec::TrackParticle*>(combTP));
+  m_combinedMuonTrackParticle.setElement(combTP);
 
   m_hasMuonExtrapolatedTrackParticle = m_muonExtrapolatedTrackParticle.isValid();
   m_hasCombinedMuonTrackParticle     = m_combinedMuonTrackParticle.isValid();
@@ -158,12 +158,12 @@ Muon::Muon(MuonParameters::Author author,
   this->set4Mom(trackParticle->hlv());
 
   if(isExtrapolatedToVertex)
-    m_muonExtrapolatedTrackParticle.setElement(const_cast<Rec::TrackParticle*>(trackParticle));
+    m_muonExtrapolatedTrackParticle.setElement(trackParticle);
   else {
     if (this->isCaloMuonId())
-      m_inDetTrackParticle.setElement(const_cast<Rec::TrackParticle*>(trackParticle));
+      m_inDetTrackParticle.setElement(trackParticle);
     else
-      m_innerExtrapolatedTrackParticle.setElement(const_cast<Rec::TrackParticle*>(trackParticle));
+      m_innerExtrapolatedTrackParticle.setElement(trackParticle);
   }
   m_hasMuonExtrapolatedTrackParticle = m_muonExtrapolatedTrackParticle.isValid();
   m_hasCombinedMuonTrackParticle     = m_combinedMuonTrackParticle.isValid();
@@ -201,7 +201,7 @@ Muon::Muon(MuonParameters::Author author,
   m_isCorrected(false)
  {
   this->set4Mom(inDetTP->hlv());
-  m_inDetTrackParticle.setElement(const_cast<Rec::TrackParticle*>(inDetTP));
+  m_inDetTrackParticle.setElement(inDetTP);
 
   for (unsigned int i=0; i<muonSegments.size(); ++i) this->addSegment(segmentContainer, muonSegments[i]);
 
@@ -446,18 +446,20 @@ bool Muon::isStandAloneMuon() const {
 
 /** test for a MS-segment tagged muon */
 bool Muon::isSegmentTaggedMuon() const {
-  if (m_author==MuonParameters::MuTag    ||
+  return m_author==MuonParameters::MuTag    ||
+
       m_author==MuonParameters::MuTagIMO ||
-      ( m_author==MuonParameters::MuGirl && ! m_hasCombinedMuonTrackParticle) ) return true;
-  else return false;
+
+      ( m_author==MuonParameters::MuGirl && ! m_hasCombinedMuonTrackParticle);
 }
 
 /** test for a calo-tagged muon */
 bool Muon::isCaloMuonId() const {
-  if ( m_author==MuonParameters::CaloMuonId ||
+  return m_author==MuonParameters::CaloMuonId ||
+
        m_author==MuonParameters::CaloTag    ||
-       m_author==MuonParameters::CaloLikelihood ) return true;
-  else return false;
+
+       m_author==MuonParameters::CaloLikelihood;
 }
 
 /** test for a silicon associated forward muon*/
@@ -469,25 +471,24 @@ bool Muon::isSiliconAssociatedForwardMuon() const {
 
 /** flag if the there was re-fit of ID and MS hits */
 bool Muon::hasGlobalMuonTrackFit() const {
-  if (m_author==MuonParameters::MuidCo ||
+  return m_author==MuonParameters::MuidCo ||
+
       m_author==MuonParameters::MuonCombinedRefit ||
+
       this->hasInnerExtrapolatedTrackParticle() ||
-      (m_author==MuonParameters::MuGirl && m_hasCombinedMuonTrackParticle) ) return true;
-  else return false;
+
+      (m_author==MuonParameters::MuGirl && m_hasCombinedMuonTrackParticle);
 }
 
 
 /** get a parameter for this Muon - isolation energy in some cone for example */
 double Muon::parameter( MuonParameters::ParamDef x) const {
 
-  typedef std::pair<MuonParameters::ParamDef,float> muonParams;
-
   double result = -999.;
-  std::vector<muonParams>::const_iterator p = m_parameters.begin();
- 
-  for (;p !=m_parameters.end(); p++) {
-    if ( (*p).first == x )
-      result = (*p).second;
+
+  for (const std::pair<MuonParameters::ParamDef, float>& p : m_parameters) {
+    if ( p.first == x )
+      result = p.second;
   }
 
   return result;
@@ -604,7 +605,7 @@ int Muon::numberOfTRTHighThresholdOutliers() const {
 int Muon::numberOfMDTHits() const {   
   if ( this->hasMuonExtrapolatedTrackParticle() )
       return (*m_muonExtrapolatedTrackParticle)->trackSummary()->get( Trk::numberOfMdtHits );
-  else if ( this->hasInDetTrackParticle() && associatedEtaDigits().size() > 0)
+  else if ( this->hasInDetTrackParticle() && !associatedEtaDigits().empty())
       return ( associatedEtaDigits()[0] );
   else return -1;
 }
@@ -618,7 +619,7 @@ int Muon::numberOfMDTHoles() const {
 int Muon::numberOfCSCPhiHits() const {   
   if ( this->hasMuonExtrapolatedTrackParticle() )
       return (*m_muonExtrapolatedTrackParticle)->trackSummary()->get( Trk::numberOfCscPhiHits );
-  else if ( this->hasInDetTrackParticle() && associatedPhiDigits().size() > 0)
+  else if ( this->hasInDetTrackParticle() && !associatedPhiDigits().empty())
       return ( associatedPhiDigits()[1] );
   else return -1;
 }
@@ -632,7 +633,7 @@ int Muon::numberOfCSCPhiHoles() const {
 int Muon::numberOfCSCEtaHits() const {   
   if ( this->hasMuonExtrapolatedTrackParticle() )
       return (*m_muonExtrapolatedTrackParticle)->trackSummary()->get( Trk::numberOfCscEtaHits );
-  else if ( this->hasInDetTrackParticle() && associatedEtaDigits().size() > 0)
+  else if ( this->hasInDetTrackParticle() && !associatedEtaDigits().empty())
       return ( associatedEtaDigits()[1] );
   else return -1;
 }
@@ -646,7 +647,7 @@ int Muon::numberOfCSCEtaHoles() const {
 int Muon::numberOfRPCPhiHits() const {   
   if ( this->hasMuonExtrapolatedTrackParticle() )
       return (*m_muonExtrapolatedTrackParticle)->trackSummary()->get( Trk::numberOfRpcPhiHits );
-  else if ( this->hasInDetTrackParticle() && associatedPhiDigits().size() > 0)
+  else if ( this->hasInDetTrackParticle() && !associatedPhiDigits().empty())
       return ( associatedPhiDigits()[2] );
   else return -1;
 }
@@ -660,7 +661,7 @@ int Muon::numberOfRPCPhiHoles() const {
 int Muon::numberOfRPCEtaHits() const {   
   if ( this->hasMuonExtrapolatedTrackParticle() )
       return (*m_muonExtrapolatedTrackParticle)->trackSummary()->get( Trk::numberOfRpcEtaHits );
-  else if ( this->hasInDetTrackParticle() && associatedEtaDigits().size() > 0)
+  else if ( this->hasInDetTrackParticle() && !associatedEtaDigits().empty())
       return ( associatedEtaDigits()[2] );
   else return -1;
 }
@@ -674,7 +675,7 @@ int Muon::numberOfRPCEtaHoles() const {
 int Muon::numberOfTGCPhiHits() const {   
   if ( this->hasMuonExtrapolatedTrackParticle() )
       return (*m_muonExtrapolatedTrackParticle)->trackSummary()->get( Trk::numberOfTgcPhiHits );
-  else if ( this->hasInDetTrackParticle() && associatedPhiDigits().size() > 0)
+  else if ( this->hasInDetTrackParticle() && !associatedPhiDigits().empty())
       return ( associatedPhiDigits()[3] );
   else return -1;
 }
@@ -688,7 +689,7 @@ int Muon::numberOfTGCPhiHoles() const {
 int Muon::numberOfTGCEtaHits() const {   
   if ( this->hasMuonExtrapolatedTrackParticle() )
       return (*m_muonExtrapolatedTrackParticle)->trackSummary()->get( Trk::numberOfTgcEtaHits );
-  else if ( this->hasInDetTrackParticle() && associatedEtaDigits().size() > 0)
+  else if ( this->hasInDetTrackParticle() && !associatedEtaDigits().empty())
       return ( associatedEtaDigits()[3] );
   else return -1;
 }
@@ -724,7 +725,7 @@ int Muon::numberOfTrackSummaryTypes(unsigned int type) const {
 void Muon::set_energyLoss ( const MuonCaloEnergyContainer* cont, const CaloEnergy* caloEnergy )
 {
   if (m_caloEnergyLoss.isValid() ) m_caloEnergyLoss.reset();
-  m_caloEnergyLoss.toContainedElement(*cont, const_cast<CaloEnergy*>(caloEnergy));
+  m_caloEnergyLoss.toContainedElement(*cont, caloEnergy);
 }
 
 /** Set Inner Detector TrackParticle */
@@ -732,12 +733,12 @@ void Muon::set_inDetTrackParticle(const Rec::TrackParticleContainer* cont,
 				  const Rec::TrackParticle* trackParticle )
 {
   if (m_inDetTrackParticle.isValid() ) m_inDetTrackParticle.reset();
-  m_inDetTrackParticle.toContainedElement(*cont, const_cast<Rec::TrackParticle*>(trackParticle));
+  m_inDetTrackParticle.toContainedElement(*cont, trackParticle);
 }
 
 void Muon::set_inDetTrackParticle(const Rec::TrackParticle* trackParticle )
 {
-  m_inDetTrackParticle.setElement(const_cast<Rec::TrackParticle*>(trackParticle));
+  m_inDetTrackParticle.setElement(trackParticle);
 }
 
 /** Set MuonSegments  */
@@ -751,7 +752,7 @@ void Muon::set_muonSegments(const Trk::SegmentCollection* segmentContainer,
 void Muon::addSegment ( const Trk::SegmentCollection* segmentContainer, const Trk::Segment* segment )
 {
   ElementLink<Trk::SegmentCollection> link;
-  link.toContainedElement( *segmentContainer, const_cast<Trk::Segment*>(segment) ) ;
+  link.toContainedElement( *segmentContainer,segment) ;
   m_muonSegments.push_back( link ) ;
 }
 
@@ -773,7 +774,7 @@ void Muon::set_muonSpectrometerTrackParticle(const Rec::TrackParticleContainer* 
 {
   if ( m_muonSpectrometerTrackParticle.isValid() ) m_muonSpectrometerTrackParticle.reset();
   if (cont && trackParticle) // allow also to remove an EL
-    m_muonSpectrometerTrackParticle.toContainedElement(*cont, const_cast<Rec::TrackParticle*>(trackParticle));
+    m_muonSpectrometerTrackParticle.toContainedElement(*cont, trackParticle);
 }
 
 /** Set Muon Extrapolated TrackParticle */
@@ -782,14 +783,14 @@ void Muon::set_muonExtrapolatedTrackParticle(const Rec::TrackParticleContainer* 
 {
   if (m_muonExtrapolatedTrackParticle.isValid() ) m_muonExtrapolatedTrackParticle.reset();
   if (cont && trackParticle) { // allow also to remove an EL
-    m_muonExtrapolatedTrackParticle.toContainedElement(*cont, const_cast<Rec::TrackParticle*>(trackParticle));
+    m_muonExtrapolatedTrackParticle.toContainedElement(*cont, trackParticle);
     m_hasMuonExtrapolatedTrackParticle = m_muonExtrapolatedTrackParticle.isValid();
   }
 }
 
 void Muon::set_muonExtrapolatedTrackParticle(const Rec::TrackParticle* trackParticle )
 {
-  m_muonExtrapolatedTrackParticle.setElement(const_cast<Rec::TrackParticle*>(trackParticle));
+  m_muonExtrapolatedTrackParticle.setElement(trackParticle);
   m_hasMuonExtrapolatedTrackParticle = m_muonExtrapolatedTrackParticle.isValid();
 }
 
@@ -799,13 +800,13 @@ void Muon::set_innerExtrapolatedTrackParticle(const Rec::TrackParticleContainer*
 {
   if (m_innerExtrapolatedTrackParticle.isValid() ) m_innerExtrapolatedTrackParticle.reset();
   if (cont && trackParticle) { // allow also to remove an EL
-    m_innerExtrapolatedTrackParticle.toContainedElement(*cont, const_cast<Rec::TrackParticle*>(trackParticle));
+    m_innerExtrapolatedTrackParticle.toContainedElement(*cont, trackParticle);
   }
 }
 
 void Muon::set_innerExtrapolatedTrackParticle(const Rec::TrackParticle* trackParticle )
 {
-  m_innerExtrapolatedTrackParticle.setElement(const_cast<Rec::TrackParticle*>(trackParticle));
+  m_innerExtrapolatedTrackParticle.setElement(trackParticle);
 }
 
 /** Set Combined Muon TrackParticle */
@@ -814,14 +815,14 @@ void Muon::set_combinedMuonTrackParticle(const Rec::TrackParticleContainer* cont
 {
   if (m_combinedMuonTrackParticle.isValid() ) m_combinedMuonTrackParticle.reset();
   if (cont && trackParticle) { // allow also to remove an EL
-    m_combinedMuonTrackParticle.toContainedElement(*cont, const_cast<Rec::TrackParticle*>(trackParticle));
+    m_combinedMuonTrackParticle.toContainedElement(*cont, trackParticle);
     m_hasCombinedMuonTrackParticle = m_combinedMuonTrackParticle.isValid();
   }
 }
 
 void Muon::set_combinedMuonTrackParticle(const Rec::TrackParticle* trackParticle )
 {
-  m_combinedMuonTrackParticle.setElement(const_cast<Rec::TrackParticle*>(trackParticle)); 
+  m_combinedMuonTrackParticle.setElement(trackParticle); 
   m_hasCombinedMuonTrackParticle = m_combinedMuonTrackParticle.isValid();
 }
 
@@ -831,7 +832,7 @@ void Muon::set_statCombinedMuonTrackParticle(const Rec::TrackParticleContainer* 
 {
   if (m_statCombinedMuonTrackParticle.isValid() ) m_statCombinedMuonTrackParticle.reset();
   if (cont && trackParticle) { // allow also to remove an EL
-    m_statCombinedMuonTrackParticle.toContainedElement(*cont, const_cast<Rec::TrackParticle*>(trackParticle));
+    m_statCombinedMuonTrackParticle.toContainedElement(*cont, trackParticle);
   }
 }
 
@@ -886,16 +887,16 @@ void Muon::set_numberOfSegmentPhiDigits(const std::vector<int>& associated_digit
 /** set a parameter in the MuonParamDefs.h */
 void Muon::set_parameter(MuonParameters::ParamDef index, double value, bool overwrite) { 
 
-  typedef std::pair<MuonParameters::ParamDef,float> muonParams;
+  using muonParams = std::pair<MuonParameters::ParamDef, float>;
 
   std::vector<muonParams>::iterator p = m_parameters.begin();
  
-  for (;p !=m_parameters.end(); p++) {
+  for (;p !=m_parameters.end(); ++p) {
     if ( (*p).first == index ) break;
   }
 
   if ( p == m_parameters.end() ) {
-    m_parameters.push_back( muonParams(index,(float)value) );
+    m_parameters.emplace_back(index,(float)value );
   }
   else {
     if ( overwrite ) {
@@ -934,7 +935,7 @@ void Muon::fillToken(INavigationToken& theToken) const
     // check requested object type with token type
     NavigationToken<Rec::TrackParticle>* trackToken =
       dynamic_cast< NavigationToken<Rec::TrackParticle>* >(&theToken);
-    if ( trackToken != 0 )	{
+    if ( trackToken != nullptr )	{
       // request is honored
       trackToken->setObject(aTrack);
       checkFlag = true;
@@ -945,14 +946,14 @@ void Muon::fillToken(INavigationToken& theToken) const
       NavigationToken<Rec::TrackParticle,double>* parTrackToken =
 	dynamic_cast< NavigationToken<Rec::TrackParticle,double>* >
 	(&theToken);
-      if ( parTrackToken != 0 )	    {
+      if ( parTrackToken != nullptr )	    {
 	parTrackToken->setObject(aTrack);
 	checkFlag = true;
       }
     }
     if(!checkFlag) {   
       // try for generic type requests
-      if ( aTrack  != 0 ) theToken.trySetObject(aTrack);
+      if ( aTrack  != nullptr ) theToken.trySetObject(aTrack);
     }
 
   }
@@ -963,7 +964,7 @@ void Muon::fillToken(INavigationToken& theToken) const
       // check requested object type with token type
       NavigationToken<Rec::TrackParticle>* trackToken =
 	dynamic_cast< NavigationToken<Rec::TrackParticle>* >(&theToken);
-      if ( trackToken != 0 )	{
+      if ( trackToken != nullptr )	{
 	// request is honored
 	trackToken->setObject(aTrack);
 	checkFlag = true;
@@ -974,7 +975,7 @@ void Muon::fillToken(INavigationToken& theToken) const
 	NavigationToken<Rec::TrackParticle,double>* parTrackToken =
 	  dynamic_cast< NavigationToken<Rec::TrackParticle,double>* >
 	  (&theToken);
-	if ( parTrackToken != 0 )	    {
+	if ( parTrackToken != nullptr )	    {
 	  parTrackToken->setObject(aTrack);
 	  checkFlag = true;
 	}
@@ -982,7 +983,7 @@ void Muon::fillToken(INavigationToken& theToken) const
       if(!checkFlag) {
     
 	// try for generic type requests
-	if ( aTrack  != 0 ) theToken.trySetObject(aTrack);
+	if ( aTrack  != nullptr ) theToken.trySetObject(aTrack);
       }
 
     }
@@ -993,7 +994,7 @@ void Muon::fillToken(INavigationToken& theToken) const
       // check requested object type with token type
       NavigationToken<Rec::TrackParticle>* trackToken =
 	dynamic_cast< NavigationToken<Rec::TrackParticle>* >(&theToken);
-      if ( trackToken != 0 )	{
+      if ( trackToken != nullptr )	{
 	// request is honored
 	trackToken->setObject(aTrack);
 	checkFlag = true;
@@ -1004,7 +1005,7 @@ void Muon::fillToken(INavigationToken& theToken) const
 	NavigationToken<Rec::TrackParticle,double>* parTrackToken =
 	  dynamic_cast< NavigationToken<Rec::TrackParticle,double>* >
 	  (&theToken);
-	if ( parTrackToken != 0 )	    {
+	if ( parTrackToken != nullptr )	    {
 	  parTrackToken->setObject(aTrack);
 	  checkFlag = true;
 	}
@@ -1012,7 +1013,7 @@ void Muon::fillToken(INavigationToken& theToken) const
       if(!checkFlag) {
     
 	// try for generic type requests
-	if ( aTrack  != 0 ) theToken.trySetObject(aTrack);
+	if ( aTrack  != nullptr ) theToken.trySetObject(aTrack);
       }
     }
     
@@ -1041,7 +1042,7 @@ void Muon::fillToken(INavigationToken& theToken,
     // check requested object type with token type
     NavigationToken<Rec::TrackParticle>* trackToken =
       dynamic_cast< NavigationToken<Rec::TrackParticle>* >(&theToken);
-    if ( trackToken != 0 )	{
+    if ( trackToken != nullptr )	{
       // request is honored
       trackToken->setObject(aTrack);
       checkFlag = true;
@@ -1052,7 +1053,7 @@ void Muon::fillToken(INavigationToken& theToken,
       NavigationToken<Rec::TrackParticle,double>* parTrackToken =
 	dynamic_cast< NavigationToken<Rec::TrackParticle,double>* >
 	(&theToken);
-      if ( parTrackToken != 0 )	    {
+      if ( parTrackToken != nullptr )	    {
 	parTrackToken->setObject(aTrack,
 				 boost::any_cast<double>(theWeight));
 	checkFlag = true;
@@ -1061,7 +1062,7 @@ void Muon::fillToken(INavigationToken& theToken,
     if(!checkFlag) {
     
       // try for generic type requests
-      if ( aTrack  != 0 ) theToken.trySetObject(aTrack, theWeight);
+      if ( aTrack  != nullptr ) theToken.trySetObject(aTrack, theWeight);
     }
 
   } 
@@ -1072,7 +1073,7 @@ void Muon::fillToken(INavigationToken& theToken,
       // check requested object type with token type
       NavigationToken<Rec::TrackParticle>* trackToken =
 	dynamic_cast< NavigationToken<Rec::TrackParticle>* >(&theToken);
-      if ( trackToken != 0 )	{
+      if ( trackToken != nullptr )	{
 	// request is honored
 	trackToken->setObject(aTrack);
 	checkFlag = true;
@@ -1083,7 +1084,7 @@ void Muon::fillToken(INavigationToken& theToken,
 	NavigationToken<Rec::TrackParticle,double>* parTrackToken =
 	  dynamic_cast< NavigationToken<Rec::TrackParticle,double>* >
 	  (&theToken);
-	if ( parTrackToken != 0 )	    {
+	if ( parTrackToken != nullptr )	    {
 	  parTrackToken->setObject(aTrack,
 				   boost::any_cast<double>(theWeight));
 	  checkFlag = true;
@@ -1092,7 +1093,7 @@ void Muon::fillToken(INavigationToken& theToken,
       if(!checkFlag) {
     
 	// try for generic type requests
-	if ( aTrack  != 0 ) theToken.trySetObject(aTrack, theWeight);
+	if ( aTrack  != nullptr ) theToken.trySetObject(aTrack, theWeight);
       }
 
     }
@@ -1103,7 +1104,7 @@ void Muon::fillToken(INavigationToken& theToken,
       // check requested object type with token type
       NavigationToken<Rec::TrackParticle>* trackToken =
 	dynamic_cast< NavigationToken<Rec::TrackParticle>* >(&theToken);
-      if ( trackToken != 0 )	{
+      if ( trackToken != nullptr )	{
 	// request is honored
 	trackToken->setObject(aTrack);
 	checkFlag = true;
@@ -1114,7 +1115,7 @@ void Muon::fillToken(INavigationToken& theToken,
 	NavigationToken<Rec::TrackParticle,double>* parTrackToken =
 	  dynamic_cast< NavigationToken<Rec::TrackParticle,double>* >
 	  (&theToken);
-	if ( parTrackToken != 0 )	    {
+	if ( parTrackToken != nullptr )	    {
 	  parTrackToken->setObject(aTrack,
 				   boost::any_cast<double>(theWeight));
 	  checkFlag = true;
@@ -1123,7 +1124,7 @@ void Muon::fillToken(INavigationToken& theToken,
       if(!checkFlag) {
     
 	// try for generic type requests
-	if ( aTrack  != 0 ) theToken.trySetObject(aTrack, theWeight);
+	if ( aTrack  != nullptr ) theToken.trySetObject(aTrack, theWeight);
       }
     }
     
@@ -1138,7 +1139,7 @@ const Rec::TrackParticle * Muon::track() const {
    //else if (this->hasMuonExtrapolatedTrackParticle()) return (*m_muonExtrapolatedTrackParticle);
    else if (this->hasInDetTrackParticle()) return (*m_inDetTrackParticle);
    else if (this->hasMuonExtrapolatedTrackParticle()) return (*m_muonExtrapolatedTrackParticle);
-   else return 0;
+   else return nullptr;
 }
 
 } //namespace

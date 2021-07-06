@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //mmcTest
 //root [0] .L mmcTest.C++
 //root [1] mmcTest()
-//setvalgrind='export PATH=/afs/cern.ch/sw/lcg/external/valgrind/3.5.0/x86_64-slc5-gcc43-opt/bin:$PATH ;export LD_LIBRARY_PATH=/afs/cern.ch/sw/lcg/external/valgrind/3.5.0/x86_64-slc5-gcc43-opt/lib:$LD_LIBRARY_PATH; export PATH=${PATH}:/afs/cern.ch/sw/lcg/external/graphviz/1.9/slc3_ia32_gcc344/bin/'
 //#valgrind --tool=callgrind --trace-children=yes ./mmcTest
 //#kcachegrind callgrind.out.*
 //if save histogram. 
@@ -18,7 +17,6 @@
 //DR #define TAUESCAN
 // to dump the new mass values to be able to cut and paste them in the code
 #include "DiTauMassTools/MissingMassCalculator.h"
-//#include "JERProvider.h" remove
 #include "TFile.h"
 #include "TTree.h"
 #include <TStopwatch.h>

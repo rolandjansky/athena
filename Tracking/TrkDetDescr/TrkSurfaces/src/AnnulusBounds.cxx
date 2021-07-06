@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -160,11 +160,11 @@ Trk::AnnulusBounds::AnnulusBounds(double minR, double maxR, double R, double phi
   if (m_boundValues[AnnulusBounds::bv_minR] > m_boundValues[AnnulusBounds::bv_maxR])
     swap(m_boundValues[AnnulusBounds::bv_minR], m_boundValues[AnnulusBounds::bv_maxR]);
 
-  m_k_L = std::tan((M_PI + phi) / 2. + phiS);
-  m_k_R = std::tan((M_PI - phi) / 2. + phiS);
+  m_k_L = std::tan((M_PI + phi) / 2. - phiS);
+  m_k_R = std::tan((M_PI - phi) / 2. - phiS);
 
-  m_d_L = R * std::sin(phiS) * std::tan((M_PI - phi) / 2. - phiS) + R * (1. - std::cos(phiS));
-  m_d_R = R * std::sin(phiS) * std::tan((M_PI + phi) / 2. - phiS) + R * (1. - std::cos(phiS));
+  m_d_L = R * std::sin(-phiS) * std::tan((M_PI - phi) / 2. + phiS) + R * (1. - std::cos(-phiS));
+  m_d_R = R * std::sin(-phiS) * std::tan((M_PI + phi) / 2. + phiS) + R * (1. - std::cos(-phiS));
 
   // solving quadratic equation to find four corners of the AnnulusBounds
   m_solution_L_min = circleLineIntersection(minR, m_k_L, m_d_L);
@@ -299,6 +299,7 @@ Trk::AnnulusBounds::inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk
   std::vector<Amg::Vector2D> elementP(4);
 
   AmgMatrix(2, 2) normal;
+  // cppcheck-suppress constStatement
   normal << 0, -1, 1, 0;
 
   // ellipse is always at (0,0), surface is moved to ellipse position and then rotated
@@ -346,7 +347,7 @@ Trk::AnnulusBounds::isAbove(const Amg::Vector2D& locpo,
                             double x1,
                             double y1,
                             double x2,
-                            double y2) const
+                            double y2) 
 {
   if (x2 != x1) {
     double k = (y2 - y1) / (x2 - x1);
@@ -366,7 +367,7 @@ Trk::AnnulusBounds::isRight(const Amg::Vector2D& locpo,
                             double x1,
                             double y1,
                             double x2,
-                            double y2) const
+                            double y2) 
 {
 
   if (x1 != x2) {
@@ -396,7 +397,7 @@ Trk::AnnulusBounds::isLeft(const Amg::Vector2D& locpo,
                            double x1,
                            double y1,
                            double x2,
-                           double y2) const
+                           double y2) 
 {
 
   if (x1 != x2) {
@@ -448,7 +449,7 @@ Trk::AnnulusBounds::minDistance(const Amg::Vector2D& locpo) const
 
 /** Circle and line intersection **/
 std::vector<double>
-Trk::AnnulusBounds::circleLineIntersection(double R, double k, double d) const
+Trk::AnnulusBounds::circleLineIntersection(double R, double k, double d) 
 {
   // change k, d -> phi, d
   // think: which of two intersection points to chose
@@ -484,7 +485,7 @@ Trk::AnnulusBounds::circleLineIntersection(double R, double k, double d) const
 double
 Trk::AnnulusBounds::distanceToLine(const Amg::Vector2D& locpo,
                                    std::vector<TDD_real_t> P1,
-                                   std::vector<TDD_real_t> P2) const
+                                   std::vector<TDD_real_t> P2) 
 {
   double P1x = P1[0];
   double P1y = P1[1];
@@ -518,7 +519,7 @@ double
 Trk::AnnulusBounds::distanceToArc(const Amg::Vector2D& locpo,
                                   double R,
                                   std::vector<TDD_real_t> sL,
-                                  std::vector<TDD_real_t> sR) const
+                                  std::vector<TDD_real_t> sR) 
 {
 
   double X = locpo[Trk::locX];
@@ -543,7 +544,7 @@ Trk::AnnulusBounds::EllipseIntersectLine(const Amg::Vector2D& locpo,
                                          double x1,
                                          double y1,
                                          double x2,
-                                         double y2) const
+                                         double y2) 
 {
   // h, k - ellipse axis (h - horizontal, k - vertical)
   // x1, y1, x2, y2 - define a line

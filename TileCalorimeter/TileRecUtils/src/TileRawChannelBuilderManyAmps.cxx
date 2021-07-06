@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // small hack to enable datapool usage
@@ -143,6 +143,8 @@ StatusCode TileRawChannelBuilderManyAmps::finalize() {
 }
 
 TileRawChannel* TileRawChannelBuilderManyAmps::rawChannel(const TileDigits* tiledigits) {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
   ++m_chCounter;
 
   const HWIdentifier adcId = tiledigits->adc_HWID();
@@ -162,7 +164,7 @@ TileRawChannel* TileRawChannelBuilderManyAmps::rawChannel(const TileDigits* tile
   // new way to get channel-dependent sigma:
   // but we lost difference between sigma used in digitization and 
   // sigma assumed in reconstruction - it's the same sigma now
-  double digSigma = m_tileToolNoiseSample->getHfn(drawerIdx, channel, gain);
+  double digSigma = m_tileToolNoiseSample->getHfn(drawerIdx, channel, gain, TileRawChannelUnit::ADCcounts, ctx);
 
   /* Get vector of time-slice amplitudes. */
   std::vector<float> digits = tiledigits->samples();

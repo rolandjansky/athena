@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef egammaMVACalibAnalysisNew_H
@@ -407,7 +407,7 @@ class egammaMVACalib : public asg::AsgMessaging
     bool m_hasEnergyBins;
     int m_binMultiplicity;
 
-    bool m_clusterEif0; //! Use clusterE if MVA response is 0
+    bool m_clusterEif0{}; //! Use clusterE if MVA response is 0
 
     // Variables that point to the ones that define the key
     // and the initial energy (for getMVAEnergy)

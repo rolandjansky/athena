@@ -47,7 +47,7 @@ class IGenParticleJetFinder : virtual public IAlgTool {
         This method is a factory, i.e. vector ownership is given back and
         on failure condition returns NULL. */
     virtual std::vector< Trk::GenParticleJet >*  jetMCFinder
-      (std::vector <const HepMC::GenParticle *>& ) const=0;
+      (std::vector <HepMC::ConstGenParticlePtr>& ) const=0;
 
   };
 

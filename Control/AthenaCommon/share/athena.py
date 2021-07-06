@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # athena.py is born as shell script to preload some optional libraries
 #
@@ -9,6 +9,7 @@
 # defaults
 export USETCMALLOC=0
 export USEIMF=0
+export USEEXCTRACE=0
 USECA=0
 otherargs=""
 # but use tcmalloc by default if TCMALLOCDIR is defined
@@ -26,12 +27,14 @@ do
 	--tcmalloc)      USETCMALLOC=1;;
 	--stdcmath)      USEIMF=0;;
 	--imf)           USEIMF=1;;
+        --exctrace)      USEEXCTRACE=1;;
 	--preloadlib*)     export ATHENA_ADD_PRELOAD=${a#*=};;
-	--drop-and-reload) export ATHENA_DROP_RELOAD=1;;
+	--drop-and-reload) ATHENA_DROP_RELOAD=1;;
 	--CA)              USECA=1;;
 	*)               otherargs="$otherargs $a";;
     esac
 done
+
 
 # Do the actual preloading via LD_PRELOAD
 source `which athena_preload.sh `

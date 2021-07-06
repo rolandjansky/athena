@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // class header
@@ -21,22 +21,8 @@ namespace Simulation
 {
 
   BeamEffectsAlg::BeamEffectsAlg( const std::string& name, ISvcLocator* pSvcLocator )
-    : AthReentrantAlgorithm( name, pSvcLocator ),
-      m_inputMcEventCollection("GEN_EVENT"),
-      m_outputMcEventCollection("BeamTruthEvent"),
-      m_genEventManipulators(this), //private ToolHandleArray
-      m_ISFRun(false)
+    : AthReentrantAlgorithm( name, pSvcLocator )
   {
-    declareProperty("InputMcEventCollection", m_inputMcEventCollection,
-                    "The name of the input McEventCollection");
-    declareProperty("OutputMcEventCollection", m_outputMcEventCollection,
-                    "The name of the output McEventCollection");
-    declareProperty("GenEventManipulators", m_genEventManipulators,
-                    "BeamEffectsAlg will send the read-in GenEvent to each "
-                    "individual IGenEventManipulator.");
-    declareProperty("ISFRun", m_ISFRun,
-                    "Temporary property so that we don't change the output in "
-                    "the initial switch to this code");
   }
 
   /** Athena algorithm's interface method initialize() */
@@ -64,8 +50,8 @@ namespace Simulation
     }
     auto outputMcEventCollection = std::make_unique<McEventCollection>(*h_inputMcEventCollection);
     ATH_CHECK( h_outputMcEventCollection.record ( std::move (outputMcEventCollection)) );
-    // loop over the event in the mc collection
-    for (const auto& currentGenEvent : *h_outputMcEventCollection) {
+    // loop over the events in the mc collection
+    for (HepMC::GenEvent* currentGenEvent : *h_outputMcEventCollection) {
       // skip empty events
       if ( !currentGenEvent ) continue;
       ATH_CHECK(this->patchSignalProcessVertex(*currentGenEvent));

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -2856,6 +2856,7 @@ template<class T> T CoralDB::findEntry(const string& tableName, const string& ke
   coral::AttributeList data;
   data.template extend<string>(keyField);
   query->setCondition(keyField+" = :"+keyField,data);
+  // cppcheck-suppress internalAstError
   data[keyField].template data<string>() = keyValue;
   query->defineOutputType(resultField, coral::AttributeSpecification::typeNameForType<T>());
   coral::ICursor& c = query->execute();

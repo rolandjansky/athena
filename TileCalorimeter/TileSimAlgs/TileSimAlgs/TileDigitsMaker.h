@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -31,14 +31,15 @@
 #include "TileEvent/TileHitContainer.h"
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileDQstatus.h"
-#include "TileConditions/TileCondToolPulseShape.h"
-#include "TileConditions/TileCondToolEmscale.h"
-#include "TileConditions/TileCondToolNoiseSample.h"
-#include "TileConditions/ITileBadChanTool.h"
+#include "TileConditions/TileCalibData.h"
+#include "TileConditions/TilePulse.h"
+#include "TileConditions/TileSampleNoise.h"
+#include "TileConditions/TileEMScale.h"
+#include "TileConditions/TileBadChannels.h"
 #include "TileConditions/TileCablingSvc.h"
 
 // Atlas includes
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
@@ -47,7 +48,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "CLHEP/Random/RandomEngine.h"
-
+#include "AthenaKernel/Units.h"
 
 class IAthRNGSvc;
 class PileUpMergeSvc;
@@ -61,105 +62,132 @@ class TileDQstatus;
 
 #include <string>
 #include <vector>
+#include <memory>
 
 /** 
  @class TileDigitsMaker
  @brief This algorithm performs digitization in TileCal, obtaining TileDigits from TileHits.
 
- Hits from the PMTs in the cell are merged and calibration constants applied to obtained cell energy, time and quality. Starting from hits, pulse shapes are applied and the resulting pulses are digitized. Depending on the options selected, electronic noise and photoelectron statistical fluctuations are simulated in this procedure.
+ Hits from the PMTs in the cell are merged and calibration constants applied to obtained cell energy, time and quality.
+ Starting from hits, pulse shapes are applied and the resulting pulses are digitized.
+ Depending on the options selected, electronic noise and photoelectron statistical fluctuations are simulated in this procedure.
  */
-class TileDigitsMaker: public AthAlgorithm {
+class TileDigitsMaker: public AthReentrantAlgorithm {
   public:
     // Constructor
-    TileDigitsMaker(std::string name, ISvcLocator* pSvcLocator);
+    using AthReentrantAlgorithm::AthReentrantAlgorithm;
 
-
-    //Destructor 
-    virtual ~TileDigitsMaker();
+    //Destructor
+    virtual ~TileDigitsMaker() = default;
 
     //Gaudi Hooks
-    StatusCode initialize(); //!< initialize method
-    StatusCode execute();    //!< execute method
-    StatusCode finalize();   //!< finalize method
+    virtual StatusCode initialize() override; //!< initialize method
+    virtual StatusCode execute(const EventContext &ctx) const override;    //!< execute method
+    virtual StatusCode finalize() override;   //!< finalize method
 
   private:
-    StatusCode overlayBackgroundDigits( const TileDigitsCollection *bkgDigitCollection, const TileHitCollection* hitCollection, int igain[], int ros, int drawer, int drawerIdx, int over_gain[] );
+    StatusCode overlayBackgroundDigits(const TileDigitsCollection* bkgDigitCollection,
+                                       const TileHitCollection* hitCollection,
+                                       std::vector<std::vector<double>>& drawerBufferLo,
+                                       std::vector<std::vector<double>>& drawerBufferHi,
+                                       std::vector<int>& igain, int ros, int drawer, int drawerIdx,
+                                       std::vector<int>& over_gain, const TileEMScale* emScale,
+                                       const TileSampleNoise& sampleNoise, const TileDQstatus* dqStatus,
+                                       const TileBadChannels* badChannels) const;
 
-    StatusCode FillDigitCollection(const TileHitCollection* hitCollection, std::vector<double *> &drawerBufferLo, std::vector<double *> &drawerBufferHi, int igain[], int overgain[], double ech_int[], std::vector<bool> &signal_in_channel) const;
+    StatusCode fillDigitCollection(const TileHitCollection* hitCollection,
+                                   std::vector<std::vector<double>>& drawerBufferLo,
+                                   std::vector<std::vector<double>>& drawerBufferHi,
+                                   std::vector<int>& igain, std::vector<int>& overgain, std::vector<double>& ech_int,
+                                   std::vector<bool> &signal_in_channel, const TileEMScale* emScale,
+                                   const TilePulse& pulse) const;
 
-    SG::ReadHandleKey<TileHitContainer> m_hitContainerKey{this,"TileHitContainer","TileHitCnt",
-                                                          "input Tile hit container key"};
+    SG::ReadHandleKey<TileHitContainer> m_hitContainerKey{this,
+         "TileHitContainer", "TileHitCnt", "input Tile hit container key"};
 
-    SG::ReadHandleKey<TileHitContainer> m_hitContainer_DigiHSTruthKey{this,"TileHitContainer_DigiHSTruth","TileHitCnt_DigiHSTruth",
-                                                          "input Tile hit container key"};
+    SG::ReadHandleKey<TileHitContainer> m_hitContainer_DigiHSTruthKey{this,
+         "TileHitContainer_DigiHSTruth","TileHitCnt_DigiHSTruth", "input Tile hit container key"};
 
-    Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
+    Gaudi::Property<bool> m_onlyUseContainerName{this,
+        "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
+
     SG::ReadHandleKey<TileDigitsContainer> m_inputDigitContainerKey{this, "InputTileDigitContainer","",""};
     std::string m_inputDigitContainerName{""};
 
-    SG::WriteHandleKey<TileDigitsContainer> m_digitsContainerKey{this,"TileDigitsContainer",
-                                                                 "TileDigitsCnt",
-                                                                 "Output Tile digits container key"};
+    SG::WriteHandleKey<TileDigitsContainer> m_digitsContainerKey{this,
+        "TileDigitsContainer", "TileDigitsCnt", "Output Tile digits container key"};
 
-    SG::WriteHandleKey<TileDigitsContainer> m_digitsContainer_DigiHSTruthKey{this,"TileDigitsContainer_DigiHSTruth",
-                                                                 "TileDigitsCnt_DigiHSTruth",
-                                                                 "Output DigiHSTruth Tile digits container key"};
+    SG::WriteHandleKey<TileDigitsContainer> m_digitsContainer_DigiHSTruthKey{this,
+        "TileDigitsContainer_DigiHSTruth", "TileDigitsCnt_DigiHSTruth", "Output DigiHSTruth Tile digits container key"};
 
-    SG::WriteHandleKey<TileDigitsContainer> m_filteredDigitsContainerKey{this,"TileFilteredContainer",
-                                                                         "TileDigitsFlt",
-                                                                         "Output filtered Tile digits container key"};
+    SG::WriteHandleKey<TileDigitsContainer> m_filteredDigitsContainerKey{this,
+         "TileFilteredContainer", "TileDigitsFlt", "Output filtered Tile digits container key"};
 
-    std::string m_infoName;        //!< Name of TileInfo object in TES
-    double m_filterThreshold;      //!< theshold on hit energy to store digit in filtered container
-    double m_filterThresholdMBTS; //!< theshold on MBTS hit energy to store digit in filtered container
-    bool m_integerDigits;          //!< If true -> round digits to integer
-    bool m_calibRun;               //!< If true -> both high and low gain saved
-    bool m_rndmEvtOverlay;       //!< If true -> overlay with random event (zero-luminosity pile-up)
-    bool m_useCoolPulseShapes;
-    bool m_maskBadChannels;
-    bool m_doDigiTruth;
+    Gaudi::Property<double> m_filterThreshold{this,
+         "FilterThreshold", 100.0 * Athena::Units::MeV, "Threshold on filtered digits (default - 100 MeV)"};
 
-    PileUpMergeSvc* m_mergeSvc; //!< Pointer to PileUpMergeService
+    Gaudi::Property<double> m_filterThresholdMBTS{this,
+         "FilterThresholdMBTS", 0.0 * Athena::Units::MeV, "Threshold on filtered digits of MBTS (default - 0 MeV)"};
 
-    const TileID* m_tileID;
-    const TileTBID* m_tileTBID;
-    const TileHWID* m_tileHWID;
-    const TileInfo* m_tileInfo;
-    const TileCablingService* m_cabling; //!< TileCabling instance
+    Gaudi::Property<std::string> m_infoName{this,
+         "TileInfoName", "TileInfo", "TileInfo object name"};
 
-    std::vector<HWIdentifier *> m_all_ids;
-    std::vector<double *> m_drawerBufferHi; //!< Vector used to store pointers to digits for a single drawer (high gain)
-    std::vector<double *> m_drawerBufferLo; //!< Vector used to store pointers to digits for a single drawer (low gain)
-    std::vector<double *> m_drawerBufferHi_DigiHSTruth; //!< Vector used to store pointers to digits for a single drawer (high gain)
-    std::vector<double *> m_drawerBufferLo_DigiHSTruth; //!< Vector used to store pointers to digits for a single drawer (low gain)
+    Gaudi::Property<bool> m_integerDigits{this,
+         "IntegerDigits", true, "Round digits to integer"};
 
-    int m_nSamples;           //!< Number of time slices for each channel
-    int m_iTrig;           //!< Index of the triggering time slice
-    int m_i_ADCmax;        //!< ADC saturation value
-    float m_f_ADCmax;      //!< ADC saturation value
-    float m_f_ADCmaxHG;    //!< ADC saturation value - 0.5 
-    float m_ADCmaxMinusEps;//!< ADC saturation value - 0.01 or something small
-    float m_ADCmaxPlusEps; //!< ADC saturation value + 0.01 or something small
-    float m_f_ADCmaskValue;      //!< indicates channels which were masked in background dataset
-    bool m_tileNoise;      //!< If true => generate noise in TileDigits
-    bool m_tileCoherNoise; //!< If true => generate coherent noise in TileDigits
-    bool m_tileThresh;     //!< If true => apply threshold to Digits
-    double m_tileThreshHi; //!< Actual threshold value for high gain
-    double m_tileThreshLo; //!< Actual threshold value for low gain
-    int m_allChannels;     //!< If set to 1 => always create all channels in output container
-                           //!< If set to 2 => always add noise to all missing channels in overlay
+    Gaudi::Property<bool> m_calibRun{this,
+         "CalibrationRun", false, "If true -> both high and low gain saved"};
+
+    Gaudi::Property<bool> m_rndmEvtOverlay{this,
+         "RndmEvtOverlay", false, "Pileup and/or noise added by overlaying random events (default=false)"};
+
+    Gaudi::Property<bool> m_useCoolPulseShapes{this,
+         "UseCoolPulseShapes", true, "Pulse shapes from database (default=true)"};
+
+    Gaudi::Property<bool> m_maskBadChannels{this,
+         "MaskBadChannels", false, "Remove channels tagged bad (default=false)"};
+
+    Gaudi::Property<bool> m_doDigiTruth{this,
+         "DoHSTruthReconstruction", false, ""};
+
+    Gaudi::Property<int> m_allChannels{this,
+         "AllChannels", -1, "Create all channels, use 0 or 1 or 2 (default=-1 - unset)"};
+
+    PileUpMergeSvc* m_mergeSvc{nullptr}; //!< Pointer to PileUpMergeService
+
+    const TileID* m_tileID{nullptr};
+    const TileTBID* m_tileTBID{nullptr};
+    const TileHWID* m_tileHWID{nullptr};
+    const TileInfo* m_tileInfo{nullptr};
+    const TileCablingService* m_cabling{nullptr}; //!< TileCabling instance
+
+    std::vector<std::unique_ptr<HWIdentifier[]> > m_all_ids;
+
+    int m_nSamples{0};            //!< Number of time slices for each channel
+    int m_iTrig{0};               //!< Index of the triggering time slice
+    int m_i_ADCmax{0};            //!< ADC saturation value
+    float m_f_ADCmax{0.0F};       //!< ADC saturation value
+    float m_f_ADCmaxHG{0.0F};     //!< ADC saturation value - 0.5
+    float m_ADCmaxMinusEps{0.0F}; //!< ADC saturation value - 0.01 or something small
+    float m_ADCmaxPlusEps{0.0F};  //!< ADC saturation value + 0.01 or something small
+    float m_f_ADCmaskValue{0.0F}; //!< indicates channels which were masked in background dataset
+    bool m_tileNoise{false};      //!< If true => generate noise in TileDigits
+    bool m_tileCoherNoise{false}; //!< If true => generate coherent noise in TileDigits
+    bool m_tileThresh{false};     //!< If true => apply threshold to Digits
+    double m_tileThreshHi{0.0};   //!< Actual threshold value for high gain
+    double m_tileThreshLo{0.0};   //!< Actual threshold value for low gain
 
     std::vector<double> m_digitShapeHi; //!< High gain pulse shape
-    int m_nShapeHi;                     //!< Number of bins in high gain pulse shape 
-    int m_nBinsPerXHi;                //!< Number of bins per bunch crossing in high gain pulse shape
-    int m_binTime0Hi;                   //!< Index of time=0 bin for high gain pulse shape 
-    double m_timeStepHi;                //!< Time step in high gain pulse shape: 25.0 / nBinsPerXHi
+    int m_nShapeHi{0};                  //!< Number of bins in high gain pulse shape
+    int m_nBinsPerXHi{0};               //!< Number of bins per bunch crossing in high gain pulse shape
+    int m_binTime0Hi{0};                //!< Index of time=0 bin for high gain pulse shape
+    double m_timeStepHi{0.};            //!< Time step in high gain pulse shape: 25.0 / nBinsPerXHi
 
     std::vector<double> m_digitShapeLo; //!< Low gain pulse shape
-    int m_nShapeLo;                     //!< Number of bins in low gain pulse shape 
-    int m_nBinsPerXLo;                  //!< Number of bins per bunch crossing in low gain pulse shape
-    int m_binTime0Lo;                   //!< Index of time=0 bin for low gain pulse shape
-    double m_timeStepLo;                //!< Time step in low gain pulse shape: 25.0 / nBinsPerXLo
+    int m_nShapeLo{0};                  //!< Number of bins in low gain pulse shape
+    int m_nBinsPerXLo{0};               //!< Number of bins per bunch crossing in low gain pulse shape
+    int m_binTime0Lo{0};                //!< Index of time=0 bin for low gain pulse shape
+    double m_timeStepLo{0.};            //!< Time step in low gain pulse shape: 25.0 / nBinsPerXLo
 
     /**
      * @brief Name of Tile cabling service
@@ -171,17 +199,29 @@ class TileDigitsMaker: public AthAlgorithm {
     /// Random Stream Name
     Gaudi::Property<std::string> m_randomStreamName{this, "RandomStreamName", "Tile_DigitsMaker", ""};
 
-    ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample{this,
-        "TileCondToolNoiseSample", "TileCondToolNoiseSample", "Tile sample noise tool"};
+    /**
+     * @brief Name of TileSampleNoise in condition store
+     */
+    SG::ReadCondHandleKey<TileCalibDataFlt> m_sampleNoiseKey{this,
+        "TileSampleNoise", "TileSampleNoise", "Input Tile sample noise"};
 
-    ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
-        "TileCondToolEmscale", "TileCondToolEmscale", "Tile EM scale calibration tool"};
+    /**
+     * @brief Name of TileEMScale in condition store
+     */
+    SG::ReadCondHandleKey<TileEMScale> m_emScaleKey{this,
+        "TileEMScale", "TileEMScale", "Input Tile EMS calibration constants"};
 
-    ToolHandle<TileCondToolPulseShape> m_tileToolPulseShape{this,
-        "TileCondToolPulseShape", "TileCondToolPulseShape", "Tile pulse shape tool"};
+    /**
+     * @brief Name of TilePulseShape in condition store
+     */
+    SG::ReadCondHandleKey<TileCalibDataFlt> m_pulseShapeKey{this,
+        "TilePulseShape", "TilePulseShape", "Input Tile pulse shape"};
 
-    ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
-        "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
+    /**
+     * @brief Name of TileBadChannels in condition store
+     */
+    SG::ReadCondHandleKey<TileBadChannels> m_badChannelsKey{this,
+        "TileBadChannels", "TileBadChannels", "Input Tile bad channel status"};
 
     SG::ReadHandleKey<TileDQstatus> m_DQstatusKey {this,
         "TileDQstatus", "", "Input TileDQstatus key" };

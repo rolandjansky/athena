@@ -32,8 +32,8 @@
 #include <string>
 
 // Forward delcarations
-class LArOnlineID;
-class CaloCell_ID;
+class LArOnlineID_Base;
+class CaloCell_Base_ID;
 class MsgStream;
 
 class LArConditionsContainerBase
@@ -47,7 +47,8 @@ public:
 	SubDetectorGrouping,
 	FeedThroughGrouping,
 	ExtendedFTGrouping,
-	ExtendedSubDetGrouping
+	ExtendedSubDetGrouping,
+	SuperCells
     };
 
     typedef LArCondFEBIdChanMap::FEBIdVector  FEBIdVector;
@@ -73,10 +74,10 @@ public:
     StatusCode                  setGroupingType(const std::string& groupingStr, MsgStream& logStr);
 
     /// provide access to online id helper
-    const LArOnlineID*          onlineHelper() const;
+    const LArOnlineID_Base*     onlineHelper() const;
 
     /// provide access to offline id helper
-    const CaloCell_ID*          offlineHelper() const;
+    const CaloCell_Base_ID*     offlineHelper() const;
 
     /// Access to a FEB ID vector for a given gain and  COOL channel
     const FEBIdVector&          febIdVector(unsigned int gain, 
@@ -105,8 +106,8 @@ protected:
 
     GroupingType                m_groupType;
     LArCondFEBIdChanMap         m_febIdChanMap;
-    const LArOnlineID*          m_onlineHelper;
-    const CaloCell_ID*          m_offlineHelper;
+    const LArOnlineID_Base*     m_onlineHelper;
+    const CaloCell_Base_ID*     m_offlineHelper;
 
     // Table to map from Cool channel number to index in
     // CondMultChanCollection - when writing this can be all mixed up 

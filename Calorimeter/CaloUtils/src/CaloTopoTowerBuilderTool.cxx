@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -106,24 +106,11 @@ StatusCode CaloTopoTowerBuilderTool::execute(const EventContext& ctx,
 
   ATH_MSG_DEBUG("Energy cuts " << minimumCellEnergy << " " << minimumClusterEnergy << " " << useCellWeights);
 
-  // Noise tool stuff
-  bool useNoiseTool = theTowers->GetUseNoiseTool();
-  bool usePileUpNoise = theTowers->GetUsePileUpNoise();
   float noiseSigma0 = theTowers->GetNoiseSigma();
   float cellESignificanceThreshold = theTowers->GetCellESignificanceThreshold();
 
 
-  if (useNoiseTool) {
-    ATH_MSG_WARNING( " Using noise tool in CaloTopoTowerBuilderTool no supported. give up => No CaloTopoTowers are made"  );
-    if(delete_cellToClusterMap){
-      ATH_MSG_DEBUG("Deleting cellToClusterMap Pointer");
-      delete cellToClusterMap;
-      ATH_MSG_DEBUG("Deleting cellToClusterMap Pointer Finished");
-    }
-    
-    return StatusCode::SUCCESS;
-  }
-  ATH_MSG_DEBUG("Noise cuts "<< noiseSigma0 << " " <<  cellESignificanceThreshold << " " << useNoiseTool << " " << usePileUpNoise);
+  ATH_MSG_DEBUG("Noise cuts "<< noiseSigma0 << " " <<  cellESignificanceThreshold);
 
   // List of calorimeters from which to use cells
   std::vector<CaloCell_ID::SUBCALO> caloIndices = theTowers->GetCaloIndices();
@@ -150,7 +137,7 @@ StatusCode CaloTopoTowerBuilderTool::execute(const EventContext& ctx,
       clusterContainer = pNav->getContainer(pNav->begin());
       ATH_MSG_DEBUG("Successfully picked up CaloClusterContainer ");
     }
-    else fClusMap++;
+    else ++fClusMap;
   }
   
   // Make sure the cluster container is not NULL
@@ -179,20 +166,17 @@ StatusCode CaloTopoTowerBuilderTool::execute(const EventContext& ctx,
   //  (*cellInTowerIter) is the ITERATOR over CELLS for this TOWER
 
   ATH_MSG_DEBUG("Beginning loop over tower grid");
- 
-  CaloTowerContainer::const_iterator towerIter(towerContainer->begin());
-  CaloTowerContainer::const_iterator lastTower(towerContainer->end());
-  for ( ; towerIter != lastTower; towerIter++ )
+
+  for (const CaloTower* tower : *towerContainer)
    {
-     const CaloTower* tower = (*towerIter);
       int towerIndex = towerContainer->getTowerIndex(tower);
 
       CaloTower* newTower = theTowers->getTower(towerIndex);
 
       ///+++ loop cells in old tower
       ATH_MSG_VERBOSE("In loop over tower grid: tower eta-phi" << tower->eta() << " " << tower->phi());
-      CaloTower::cell_iterator cellInTowerIter((*towerIter)->cell_begin());
-      CaloTower::cell_iterator lastCellInTower((*towerIter)->cell_end());
+      CaloTower::cell_iterator cellInTowerIter(tower->cell_begin());
+      CaloTower::cell_iterator lastCellInTower(tower->cell_end());
 
       /// Various counters for keeping track of energy added to this tower
       double energyTower = 0.0;
@@ -356,17 +340,14 @@ CaloTopoTowerBuilderTool::CreateCaloCell2ClusterMap(const CaloClusterContainer* 
   ATH_MSG_DEBUG("CaloCluster container contains " << clusColl->size() << " clusters");
   // loop over cluster collection and add each cluster to the map for 
   // each member cell
-  CaloClusterContainer::const_iterator clusIter = clusColl->begin();
-  CaloClusterContainer::const_iterator clusIterEnd = clusColl->end();
-  unsigned int iClus=0;
-  for( ;clusIter!=clusIterEnd;clusIter++,iClus++) {
+  for (const CaloCluster* clust : *clusColl) {
     // loop over its cell members
-    if  (((*clusIter)->getNumberOfCells()) == 0 ) {
+    if  ((clust->getNumberOfCells()) == 0 ) {
       ATH_MSG_DEBUG(" no cells for this cluster... No reverse navigation possible...");
     }
     else {
-      CaloCluster::cell_iterator cellIter    = (*clusIter)->cell_begin();
-      CaloCluster::cell_iterator cellIterEnd = (*clusIter)->cell_end();
+      CaloCluster::cell_iterator cellIter    = clust->cell_begin();
+      CaloCluster::cell_iterator cellIterEnd = clust->cell_end();
       for( ;cellIter!=cellIterEnd;cellIter++) {
         // look up the IdentifierHash for the current cell
         if (*cellIter) {
@@ -380,7 +361,7 @@ CaloTopoTowerBuilderTool::CreateCaloCell2ClusterMap(const CaloClusterContainer* 
 	    (*cell2ClusterMap)[myHashId] = theNav;
           }
           // add the current cluster to the list of clusters for this cell
-          theNav->putElement(clusColl,*clusIter);
+          theNav->putElement(clusColl,clust);
           // add the energy*weight for this cell to the weightedESum 
         }
       }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -40,7 +40,7 @@ namespace InDet{
      
   @author Veronique.Boisvert@cern.ch, Edward.Moyse@cern.ch, Andreas.Salzburger@cern.ch
    */
-  class SCT_ClusterOnTrack :   public SiClusterOnTrack{
+  class SCT_ClusterOnTrack final : public SiClusterOnTrack {
 
     public:
       friend class  Trk::ITrkEventCnvTool;
@@ -116,12 +116,12 @@ namespace InDet{
       virtual ~SCT_ClusterOnTrack() = default;
      
       /** Pseudo-constructor */
-      virtual SCT_ClusterOnTrack* clone() const override;
+      virtual SCT_ClusterOnTrack* clone() const override final;
 
       /** returns the surface for the local to global transformation
           - fullfills the Trk::MeasurementBase interface
       */
-      virtual const Trk::Surface& associatedSurface() const override;
+      virtual const Trk::Surface& associatedSurface() const override final;
 
       virtual bool rioType(Trk::RIO_OnTrackType::Type type) const override final
       {
@@ -132,7 +132,7 @@ namespace InDet{
     /** returns the PrepRawData - is a SCT_Cluster in this scope
       - fullfills the Trk::RIO_OnTrack interface
      */
-      virtual const InDet::SCT_Cluster* prepRawData() const override;
+      virtual const InDet::SCT_Cluster* prepRawData() const override final;
 
     const ElementLinkToIDCSCT_ClusterContainer& prepRawDataLink() const;
      
@@ -140,28 +140,29 @@ namespace InDet{
     /** returns the detector element, assoicated with the PRD of this class
       - fullfills the Trk::RIO_OnTrack interface
      */
-      virtual const InDetDD::SiDetectorElement* detectorElement() const override;
+      virtual const InDetDD::SiDetectorElement* detectorElement() const override final;
     
       /**returns some information about this RIO_OnTrack.*/
-      virtual MsgStream&    dump( MsgStream& out ) const override;	
+      virtual MsgStream&    dump( MsgStream& out ) const override final;	
 	
       /**returns some information about this RIO_OnTrack.*/
-      virtual std::ostream& dump( std::ostream& out ) const override;
+      virtual std::ostream& dump( std::ostream& out ) const override final;
 
       double positionAlongStrip() const;
 
     private:
-    /** ONLY for use in custom convertor
-      Allows the custom convertor to reset values when persistying/reading back RoTs*/
-      virtual void setValues(const Trk::TrkDetElementBase* detEl, const Trk::PrepRawData* prd) override;
- 
+      /** ONLY for use in custom convertor
+        Allows the custom convertor to reset values when persistying/reading
+        back RoTs*/
+      virtual void setValues(const Trk::TrkDetElementBase* detEl,
+                             const Trk::PrepRawData* prd) override final;
+
       /** SCT_Cluster - the RIO (PRD, PrepRawData)*/
-      ElementLinkToIDCSCT_ClusterContainer m_rio; 
+      ElementLinkToIDCSCT_ClusterContainer m_rio;
       /** corresponding detector element*/
       const InDetDD::SiDetectorElement* m_detEl;
-      
+
       double m_positionAlongStrip;
-      
   };
 
   inline SCT_ClusterOnTrack* SCT_ClusterOnTrack::clone() const 

@@ -1,13 +1,10 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// TrkMaterialProviderTool.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef TrkMaterialProviderTool_H
 #define TrkMaterialProviderTool_H
+#define LEGACY_TRKGEOM
 
 //#define protected public
 #include "TrkExInterfaces/IEnergyLossUpdator.h"
@@ -25,7 +22,11 @@
 
 #include "TrkToolInterfaces/ITrkMaterialProviderTool.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "TrkGeometry/TrackingGeometry.h"
+#ifdef LEGACY_TRKGEOM
 #include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
+#endif
 #include "TrkExInterfaces/IMultipleScatteringUpdator.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
@@ -111,10 +112,10 @@ namespace Trk{
     void removeMS(std::vector<const Trk::TrackStateOnSurface*>* caloTSOS) const;
 
     /** Helper to update entries in the vector*/
-    void updateVector(DataVector<const Trk::TrackStateOnSurface>* inputTSOS, 
+    static void updateVector(DataVector<const Trk::TrackStateOnSurface>* inputTSOS, 
 		      DataVector<const Trk::TrackStateOnSurface>::iterator lastID, 
 		      DataVector<const Trk::TrackStateOnSurface>::iterator firstMS, 
-		      DataVector<const Trk::TrackStateOnSurface>* caloTSOS) const;
+		      DataVector<const Trk::TrackStateOnSurface>* caloTSOS) ;
 
     /** update the TSOS vector for the Muon Spectrometer applying X0 and Eloss scaling*/
     void updateVectorMS(DataVector<const Trk::TrackStateOnSurface>* inputTSOS,
@@ -126,8 +127,8 @@ namespace Trk{
 
     /* Helper to delete TSOS (data)vectors 
        Note that DataVector ownership is taken and elements deleted!*/
-    void deleteTSOS(const std::vector<const Trk::TrackStateOnSurface*>* vecTSOS) const;
-    void deleteTSOS(DataVector<const Trk::TrackStateOnSurface>* vecTSOS) const;
+    static void deleteTSOS(const std::vector<const Trk::TrackStateOnSurface*>* vecTSOS) ;
+    static void deleteTSOS(DataVector<const Trk::TrackStateOnSurface>* vecTSOS) ;
 
     //** Helper to printout TSOS details*/
     void printTSOS(const Trk::TrackStateOnSurface* m, const std::string& tag) const;
@@ -172,14 +173,31 @@ namespace Trk{
 				  double meanElossIoni,
 				  double eta,
 				  double& fsrCaloEnergy) const;
-    
-    
+
+    void throwFailedToGetTrackingGeomtry() const;
+    const TrackingGeometry* retrieveTrackingGeometry(const EventContext& ctx) const {
+#ifdef LEGACY_TRKGEOM
+       if (m_trackingGeometryReadKey.key().empty()) {
+          return m_trackingGeometrySvc->trackingGeometry();
+       }
+#endif
+       SG::ReadCondHandle<TrackingGeometry>  handle(m_trackingGeometryReadKey,ctx);
+       if (!handle.isValid()) {throwFailedToGetTrackingGeomtry(); }
+       return handle.cptr();
+    }
+
     PublicToolHandle<Trk::IExtrapolator>                m_muonExtrapolator
        {this,"Extrapolator","Trk::Extrapolator/AtlasExtrapolator",""};
     PublicToolHandle<Trk::IEnergyLossUpdator>           m_elossupdator
        {this,"EnergyLossUpdator","Trk::EnergyLossUpdator/AtlasEnergyLossUpdator",""};
     ServiceHandle<Trk::ITrackingVolumesSvc>       m_trackingVolumesSvc;
-    ServiceHandle<Trk::ITrackingGeometrySvc>      m_trackingGeometrySvc;
+#ifdef LEGACY_TRKGEOM
+     ServiceHandle<ITrackingGeometrySvc> m_trackingGeometrySvc {this, "TrackingGeometrySvc", "",""};
+#endif
+
+    SG::ReadCondHandleKey<TrackingGeometry>   m_trackingGeometryReadKey
+       {this, "TrackingGeometryReadKey", "", "Key of the TrackingGeometry conditions data."};
+
     ToolHandle< Trk::IMultipleScatteringUpdator > m_scattool;
 
     ToolHandle<Rec::IMuidCaloEnergyMeas>  m_caloMeasTool;

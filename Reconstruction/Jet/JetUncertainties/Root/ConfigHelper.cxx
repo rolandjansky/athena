@@ -57,7 +57,8 @@ ComponentHelper::ComponentHelper(TEnv& settings, const TString& compPrefix, cons
     TAMassDef   = settings.GetValue(compPrefix+"TAMassDef","");
     truthLabelStr = settings.GetValue(compPrefix+"TruthLabels","");
     LargeRJetTruthLabelName = settings.GetValue(compPrefix+"LargeRJetTruthLabelName","R10TruthLabel_R21Consolidated");
-    LargeRJetTruthLabelStr = settings.GetValue(compPrefix+"FatjetTruthLabels","");
+    TString LargeRJetTruthLabelStrOld = settings.GetValue(compPrefix+"FatjetTruthLabels","");
+    TString LargeRJetTruthLabelStrNew = settings.GetValue(compPrefix+"LargeRJetTruthLabels","");
     LargeRJetTruthLabelsForSFstr = settings.GetValue(compPrefix+"LargeRJetTruthLabelForSF","");
     RegionForSFstr = settings.GetValue(compPrefix+"RegionForSF","");
     ResultName = settings.GetValue(compPrefix+"ResultName","");
@@ -76,6 +77,13 @@ ComponentHelper::ComponentHelper(TEnv& settings, const TString& compPrefix, cons
     uncNames        = utils::vectorize<TString>(uncNameList,", ");
     subComps        = utils::vectorize<TString>(subCompList,", ");
     truthLabels     = utils::vectorize<int>(truthLabelStr,", ");
+    if (LargeRJetTruthLabelStrOld != "" && LargeRJetTruthLabelStrNew != "")
+        throw std::runtime_error("ERROR: double-specification of the LargeRJetTruthLabels/FatjetTruthLabels property");
+    else if (LargeRJetTruthLabelStrNew != "")
+        LargeRJetTruthLabelStr = LargeRJetTruthLabelStrNew;
+    else
+        LargeRJetTruthLabelStr = LargeRJetTruthLabelStrOld;
+    
     LargeRJetTruthLabelStrs = utils::vectorize<TString>(LargeRJetTruthLabelStr,",");
     for (const TString& aVal : LargeRJetTruthLabelStrs)
     {
@@ -273,8 +281,17 @@ void ConfigHelper::enforceGroupNamePrefix(const std::string& prefix)
 
 void ConfigHelper::enforceGroupNamePrefix(const TString& prefix)
 {
+    // Special config file string must exactly match this to activate the condition
+    const TString NOPREFIX = "NOPREFIX_";
+
+    // Check for a special NOPREFIX string
+    // This is to support parameters from other groups we have propagated into our uncertainties
+    // NPs can now have the same name, so tools will coherently scale different properties for the same uncertainty name
+    if (m_gInfo->name.BeginsWith(NOPREFIX))
+    m_gInfo->name = m_gInfo->name.ReplaceAll(NOPREFIX,"");
+
     // Doesn't have the prefix
-    if (!m_gInfo->name.BeginsWith(prefix,TString::kIgnoreCase))
+    else if (!m_gInfo->name.BeginsWith(prefix,TString::kIgnoreCase))
         m_gInfo->name = Form("%s%s",prefix.Data(),m_gInfo->name.Data());
     // Has the right prefix, but not the right case (enforce identical prefix)
     else if (!m_gInfo->name.BeginsWith(prefix))

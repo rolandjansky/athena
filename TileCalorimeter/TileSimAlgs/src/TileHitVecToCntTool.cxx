@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -269,9 +269,7 @@ StatusCode TileHitVecToCntTool::initialize() {
   ATH_CHECK(m_hitVectorKeys.initialize(!m_onlyUseContainerName && !m_hitVectorKeys.empty() ));
 
   ATH_CHECK( m_hitContainerKey.initialize() );
-  if(m_doDigiTruth){
-    ATH_CHECK( m_hitContainer_DigiHSTruthKey.initialize() );
-  }
+  ATH_CHECK( m_hitContainer_DigiHSTruthKey.initialize(m_doDigiTruth) );
 
   ATH_MSG_DEBUG("TileHitVecToCntTool initialization completed");
 
@@ -895,7 +893,7 @@ StatusCode TileHitVecToCntTool::mergeEvent(const EventContext& ctx) {
         ++nHitUni;
         eHitInTime += pHit->energy();
       }
-      if(m_doDigiTruth) iHit_DigiHSTruth++;
+      if(m_doDigiTruth) ++iHit_DigiHSTruth;
     }
 
 
@@ -977,11 +975,11 @@ StatusCode TileHitVecToCntTool::mergeEvent(const EventContext& ctx) {
         }
         pHit_DigiHSTruth->scale(scaleFactor);
 
-        hitItr_DigiHSTruth++;
+        ++hitItr_DigiHSTruth;
       }
     }
 
-	  if(m_doDigiTruth) collIt_DigiHSTruth++;
+	  if(m_doDigiTruth) ++collIt_DigiHSTruth;
   }
 
 
@@ -1126,7 +1124,7 @@ void TileHitVecToCntTool::findAndMergeE1(TileHitCollection* coll, int frag_id, T
   TileHitCollection::iterator fromHitIt = coll->end();
   TileHit* toHit(0);
 
-  for (; hitIt != endHitIt; hitIt++) {
+  for (; hitIt != endHitIt; ++hitIt) {
     Identifier pmt_id = (*hitIt)->pmt_ID();
     if (m_tileID->tower(pmt_id) == E1_TOWER && m_tileID->sample(pmt_id) == TileID::SAMP_E) {
       if (module == m_tileID->module(pmt_id)) {
@@ -1179,7 +1177,7 @@ void TileHitVecToCntTool::findAndMergeMBTS(TileHitCollection* coll, int frag_id,
   TileHitCollection::iterator fromHitIt = coll->end();
   TileHit* toHit(0);
 
-  for (; hitIt != endHitIt; hitIt++) {
+  for (; hitIt != endHitIt; ++hitIt) {
     Identifier pmt_id = (*hitIt)->pmt_ID();
     if (m_tileTBID->is_tiletb(pmt_id)) {
       if (m_tileTBID->phi(pmt_id) % 2 == 0) {

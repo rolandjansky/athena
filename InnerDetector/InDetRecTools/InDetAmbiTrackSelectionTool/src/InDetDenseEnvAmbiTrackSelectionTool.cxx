@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -81,7 +81,7 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::newEvent(CacheEntry* ent) const
     ent->m_hadZ.clear();
 
     SG::ReadHandle<CaloClusterROI_Collection> calo(m_inputHadClusterContainerName);
-    for ( const auto& ccROI : *calo) {
+    for ( const auto *const ccROI : *calo) {
       ent->m_hadF.push_back( ccROI->globalPosition().phi() );
       ent->m_hadE.push_back( ccROI->globalPosition().eta() );
       ent->m_hadR.push_back( ccROI->globalPosition().perp() );
@@ -98,7 +98,7 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::newEvent(CacheEntry* ent) const
 
     SG::ReadHandle<CaloClusterROI_Collection> calo(m_inputEmClusterContainerName);
     for ( const Trk::CaloClusterROI* ccROI : *calo) {
-      if ( ccROI->energy() * sin(ccROI->globalPosition().theta()) < m_minPtEm){
+      if ( ccROI->energy() * std::sin(ccROI->globalPosition().theta()) < m_minPtEm){
         continue;
       }
       ent->m_emF.push_back( ccROI->globalPosition().phi() );
@@ -413,8 +413,8 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::checkOtherTracksValidity(TSoS_D
       bool isSplitPixel(false);
       if (m_detID->is_pixel(prdToCheck->identify())) {
         isPixel = true;
-        const InDet::PixelCluster* constPixelCluster = dynamic_cast<const InDet::PixelCluster*> ( prdToCheck  );    
-        if (constPixelCluster){    
+        if (prdToCheck->type(Trk::PrepRawDataType::PixelCluster)){
+          const InDet::PixelCluster* constPixelCluster = static_cast<const InDet::PixelCluster*> ( prdToCheck  );
           const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo &splitProb = splitProbContainer.splitProbability(constPixelCluster);
           if ( splitProb.isSplit() )  {
             isSplitPixel = true;
@@ -533,11 +533,10 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::fillTrackDetails(const Trk::Tra
     }
 
     // ok, let try to get the ROT then
-    const Trk::RIO_OnTrack* rot = dynamic_cast <const Trk::RIO_OnTrack*> (meas);
-    if (!rot) {
+    
+    if (not meas->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
       // could be a Pseudo-Measurement ?
-      const Trk::PseudoMeasurementOnTrack* pseudo = dynamic_cast <const Trk::PseudoMeasurementOnTrack*> (meas);
-      if (pseudo){
+      if (meas->type(Trk::MeasurementBaseType::PseudoMeasurementOnTrack)){
         ATH_MSG_VERBOSE ( Form("---> Pseudo measurement, %2d",index) );
         ++trackHitDetails.m_numPseudo; // increase counter
       } else {
@@ -546,7 +545,7 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::fillTrackDetails(const Trk::Tra
       tsosDetails.m_type[index] = OtherTsos;
       continue;
     }
-    
+    const Trk::RIO_OnTrack* rot = static_cast <const Trk::RIO_OnTrack*> (meas);
     //Store RIO into vector for later use
     tsosDetails.m_RIO[index] = rot;
 
@@ -571,13 +570,13 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::fillTrackDetails(const Trk::Tra
 
     // Add splitting information about the cluster
     if (isPixel) {
-      // get pixel cluster
-      const InDet::PixelCluster* clus = dynamic_cast <const InDet::PixelCluster*> (rot->prepRawData());
-      if ( !clus ) {
-        ATH_MSG_WARNING ("---> Cast to Pixel cluster failed, should not happen !");
+      if ( not rot->prepRawData()->type(Trk::PrepRawDataType::PixelCluster) ) {
+        ATH_MSG_WARNING ("---> Cluster is not from pixels; should not happen !");
         tsosDetails.m_type[index] = RejectedHit;
         continue; 
       } else {
+        // get pixel cluster
+        const InDet::PixelCluster* clus = static_cast <const InDet::PixelCluster*> (rot->prepRawData());
         const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo &splitProb = splitProbContainer.splitProbability(clus);
         if ( !splitProb.isTooBigToBeSplit() )  {
           tsosDetails.m_splitProb1[index] = splitProb.splitProbability1();
@@ -585,8 +584,8 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::fillTrackDetails(const Trk::Tra
         } else { 
           // cluster too big to split are default to 3 particle cluster
           // rigorously checked?
-          tsosDetails.m_splitProb1[index] = m_sharedProbCut - 0.01;
-          tsosDetails.m_splitProb2[index] = m_sharedProbCut2 + 0.01;
+          tsosDetails.m_splitProb1[index] = m_sharedProbCut - 0.01f;
+          tsosDetails.m_splitProb2[index] = m_sharedProbCut2 + 0.01f;
         }
       }
     } // isPixel
@@ -682,9 +681,6 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
   trackHitDetails.m_passHadronicROI = false;
   if( m_useHClusSeed && inHadronicROI(ptrTrack, ent) ) {
     trackHitDetails.m_passHadronicROI = true;
-    ent->m_maxSharedModules = 2*m_maxSharedModulesInROI+1; // see header for meaning
-    ent->m_minNotShared     = m_minNotSharedHitsInROI;
-    ent->m_minSiHits        = m_minSiHitsToAllowSplittingInROI;
   }
  
  
@@ -708,10 +704,6 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
   }
   // too many holes
   if(trackHitDetails.m_numPixelHoles>1) { recoverSharedHits = false; }
-  //
-  // OVERRIDE criteria
-  if( m_useHClusSeed && trackHitDetails.m_passHadronicROI ) { recoverSharedHits = true; }
-  //------------------------------------------------------------------//
 
 
 
@@ -952,12 +944,23 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
   //  - those two track have a small separation 
   //
   trackHitDetails.m_passConversionSel = false; // make sure off to start
-  if (m_doPairSelection && tsosDetails.m_overlappingTracks.size() > 0) {
+  if (m_doPairSelection && !tsosDetails.m_overlappingTracks.empty()) {
     trackHitDetails.m_passConversionSel = performConversionCheck(ptrTrack, 
         prd_to_track_map, trackHitDetails, tsosDetails, ent);
   }
   //------------------------------------------------------------------//
 
+  //------------------------------------------------------------------//
+  // Also check if the pair is compatible with being a boosted hadronic topology. 
+  // This branch focuses on high-pt taus and b-jets in particular  
+  // Same conditions as above.
+  // Do not process any track already modified by the conversion check
+  //
+  if (m_useHClusSeed && !trackHitDetails.m_passConversionSel && trackHitDetails.m_passHadronicROI && 
+    m_doPairSelection && !tsosDetails.m_overlappingTracks.empty()) {
+    trackHitDetails.m_passConversionSel = performHadDecayCheck(ptrTrack, 
+        prd_to_track_map, trackHitDetails, tsosDetails, ent);
+  }
   
   //------------------------------------------------------------------//
   //
@@ -1138,7 +1141,7 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::performConversionCheck(const Tr
   if ( trackHitDetails.m_numPixelHoles + trackHitDetails.m_numSCTHoles >= 2) { return false; }
 
   //Find the accepted track that shares the most hits our proposed track 
-  const Trk::Track*  mostOverlappingTrack(0);
+  const Trk::Track*  mostOverlappingTrack(nullptr);
   int mostOverlappingNumberOfHits(0);
   int indexOfFirstOverlappingHit(0);
   for ( std::multimap<const Trk::Track*,int>::iterator it = tsosDetails.m_overlappingTracks.begin(), 
@@ -1196,10 +1199,96 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::performConversionCheck(const Tr
   }
   ATH_MSG_DEBUG ("Track "<< mostOverlappingTrack << " shares " << mostOverlappingNumberOfHits ); 
 
+  updateSharedForCollimated(trackHitDetails, tsosDetails);
 
+  return true;
+} // performConversionCheck
+
+
+// GOAL: Do not kill light particle decays in dense jets in the ambi.
+// Based on conversion logic, but tuned towards later decays 
+// Heavily borrows from performConversionCheck, but 
+// separate implementation to for allow future fine-tuning
+// distinct from the conversion version. 
+bool InDet::InDetDenseEnvAmbiTrackSelectionTool::performHadDecayCheck(const Trk::Track* ptrTrack,
+    Trk::PRDtoTrackMap &prd_to_track_map,
+    TrackHitDetails& trackHitDetails,
+    TSoS_Details& tsosDetails,
+    CacheEntry* ent) const
+{
+  ATH_MSG_DEBUG(" Hadron decay Check ");
+
+  // We need to have a good number of unshared SCT hits
+  if ( trackHitDetails.m_numSCT_Unused < m_minUniqueSCTHits )              { return false; }
+  if ( trackHitDetails.m_numPixelHoles + trackHitDetails.m_numSCTHoles >= 2) { return false; }
+
+  //Find the accepted track that shares the most hits our proposed track 
+  const Trk::Track*  mostOverlappingTrack(nullptr);
+  int mostOverlappingNumberOfHits(0);
+  int indexOfFirstOverlappingHit(0);
+  for ( std::multimap<const Trk::Track*,int>::iterator it = tsosDetails.m_overlappingTracks.begin(), 
+      end = tsosDetails.m_overlappingTracks.end(); it != end; 
+      it = tsosDetails.m_overlappingTracks.upper_bound(it->first) ) {
+    int numberOfHitsSharedWithThisTrack  = std::distance( it, tsosDetails.m_overlappingTracks.upper_bound(it->first));
+    ATH_MSG_DEBUG(it->first <<" shares " << numberOfHitsSharedWithThisTrack << " hits with this track " );
+    if (mostOverlappingNumberOfHits < numberOfHitsSharedWithThisTrack){
+      mostOverlappingNumberOfHits = numberOfHitsSharedWithThisTrack;
+      mostOverlappingTrack        = it->first;
+      indexOfFirstOverlappingHit  = it->second;
+    }
+  } // loop over overlapping tracks
+
+  if(!mostOverlappingTrack) { return false; }
+
+  // criteria applied for fitted and pattern tracks
+  if(mostOverlappingNumberOfHits < 2)                         { return false; }
+  if(mostOverlappingNumberOfHits < trackHitDetails.m_numShared) { return false; }
+
+
+  //If an overlapping track if found get the track parameters on the first shared surface
+  auto tpPair = getOverlapTrackParameters(indexOfFirstOverlappingHit, ptrTrack, mostOverlappingTrack, prd_to_track_map, trackHitDetails.m_numSplitSharedPix );
+
+  // If found track parameters at first overlapping track, check separation
+  if (tpPair.first && tpPair.second) {
+    // Check a series of criteria to see if track is a compatible with a boosted decay
+    // Check if both tracks are above threshold
+    if(tpPair.first->pT() <= m_minPairTrackPt || tpPair.second->pT() <= m_minPairTrackPt) {
+      return false;
+    }
+    //Check if it is in a ROI, if requested
+    if(m_useHClusSeed) {
+      if(!isHadCaloCompatible( *tpPair.first, ent )) { return false; }
+    }
+    ATH_MSG_DEBUG ("Possible boosted decay");
+  }
+  // for pattern tracks, cannot get the track parameters at a hit position
+  else if ( trackHitDetails.m_isPatternTrack ) {
+    if(m_useHClusSeed && tpPair.second ) {
+      if(!isHadCaloCompatible( *tpPair.second, ent )) { return false; }
+    }
+    ATH_MSG_DEBUG ("Possible boosted decay - for pattern track");
+  }
+  // if cannot find track parameters, and not a pattern track, then failed
+  else {
+    return false;
+  }
+
+  ATH_MSG_DEBUG ("Number of unused SCT hits:   " <<  trackHitDetails.m_numSCT_Unused);  
+  if (msgLvl(MSG::DEBUG)){
+    trackHitDetails.dumpInfo();
+  }
+  ATH_MSG_DEBUG ("Track "<< mostOverlappingTrack << " shares " << mostOverlappingNumberOfHits ); 
+
+  updateSharedForCollimated(trackHitDetails, tsosDetails);
+
+  return true; 
+}
+
+void InDet::InDetDenseEnvAmbiTrackSelectionTool::updateSharedForCollimated(TrackHitDetails& trackHitDetails,
+          TSoS_Details& tsosDetails) const{
   //Change all shared SCT to SplitSharedHit
-  //Change some shared Pix to SplitSharedHit
   ATH_MSG_VERBOSE ("Updating SCT hit information");
+  
   trackHitDetails.m_numSplitSharedPix = 0;          // reset counter
   trackHitDetails.m_numSplitSharedSCT = 0;          // reset counter
   trackHitDetails.m_numShared         = 0;          // reset counter 
@@ -1247,10 +1336,7 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::performConversionCheck(const Tr
     }
     
   } // loop over TSOS
-
-  return true;
-} // performConversionCheck
-
+} 
 
 //==========================================================================================
 Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::createSubTrack( const std::vector<const Trk::TrackStateOnSurface*>& tsos, const Trk::Track* track ) const
@@ -1262,15 +1348,15 @@ Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::createSubTrack( const st
   }
   if (nmeas<3) {
     ATH_MSG_DEBUG ("Less than 3 measurements, reject track !");
-    return 0;
+    return nullptr;
   }
 
-  DataVector<const Trk::TrackStateOnSurface>* vecTsos = new DataVector<const Trk::TrackStateOnSurface>();
+  auto vecTsos = DataVector<const Trk::TrackStateOnSurface>();
 
   // loop over TSOS, copy TSOS and push into vector
   for (const Trk::TrackStateOnSurface* iTsos : tsos) {
     const Trk::TrackStateOnSurface* newTsos = new Trk::TrackStateOnSurface(*iTsos);
-    vecTsos->push_back(newTsos);
+    vecTsos.push_back(newTsos);
   }
 
   Trk::TrackInfo info;
@@ -1279,7 +1365,7 @@ Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::createSubTrack( const st
   newInfo.setPatternRecognitionInfo(Trk::TrackInfo::InDetAmbiTrackSelectionTool);
   info.addPatternReco(newInfo);
 
-  Trk::Track* newTrack = new Trk::Track(info, vecTsos,0);
+  Trk::Track* newTrack = new Trk::Track(info, std::move(vecTsos),nullptr);
   
   return newTrack;
 
@@ -1297,8 +1383,8 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::setPixelClusterSplitInformation
 
     // And the hit is a pixel hit
     if (tsosDetails.m_detType[index]%10 == 1){
-      const InDet::PixelCluster* pixelCluster = dynamic_cast<const InDet::PixelCluster*> ( tsosDetails.m_RIO[index]->prepRawData()  );
-      if (pixelCluster){
+      if (const auto * pThisPrd(tsosDetails.m_RIO[index]->prepRawData());pThisPrd->type(Trk::PrepRawDataType::PixelCluster)){
+        const InDet::PixelCluster* pixelCluster = static_cast<const InDet::PixelCluster*> ( pThisPrd  );
         Trk::ClusterSplitProbabilityContainer::ProbabilityInfo *splitProb = splitProbContainer.getSplitProbability(pixelCluster);
         if (!splitProb) {
            splitProb = &(splitProbContainer.setSplitInformation(pixelCluster,0.f,0.f));
@@ -1340,14 +1426,14 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::isHadCaloCompatible(const Trk::
   double E = Tp.eta();
 
   for (; f!=fe; ++f) {
-    double df = std::fabs(F-(*f));
-    if (df > pi        ) df = std::fabs(pi2-df);
+    double df = std::abs(F-(*f));
+    if (df > pi        ) df = std::abs(pi2-df);
     if (df < m_phiWidth) {
       //Correct eta of cluster to take into account the z postion of the track
       double newZ   = *z - Tp.position().z();
       double newEta =  std::atanh( newZ / std::sqrt( (*r) * (*r) + newZ*newZ ) );
  
-      double de = std::fabs(E-newEta);
+      double de = std::abs(E-newEta);
       if (de < m_etaWidth) return true;
 
     }
@@ -1379,14 +1465,14 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::isEmCaloCompatible(const Trk::T
   double Z = Tp.position().z();
 
   for (; f!=fe; ++f) {
-    double df = std::fabs(F-(*f));
-    if (df > pi        ) df = std::fabs(pi2-df);
+    double df = std::abs(F-(*f));
+    if (df > pi        ) df = std::abs(pi2-df);
     if (df < m_phiWidthEm) {
       //Correct eta of cluster to take into account the z postion of the track
       double newZ   = *z - Z;
       double newR   = *r - R;
       double newEta =  std::atanh( newZ / std::sqrt( newR*newR + newZ*newZ ) );
-      double de = std::fabs(E-newEta);
+      double de = std::abs(E-newEta);
        
       if (de < m_etaWidthEm) return true;
     }
@@ -1416,19 +1502,19 @@ InDet::InDetDenseEnvAmbiTrackSelectionTool::getOverlapTrackParameters(int index,
 
   auto firstTsos    = track1tsos->begin();
   firstTsos += index;
-  auto firstMeas = (*firstTsos)->measurementOnTrack();
+  const auto *firstMeas = (*firstTsos)->measurementOnTrack();
 
   if (!firstMeas){
     ATH_MSG_ERROR("This is not a measurement!");
     return returnPair;
   }
   
-  auto firstRot = dynamic_cast <const Trk::RIO_OnTrack*> (firstMeas);
-  if (!firstRot) {
+  if (not firstMeas->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
     ATH_MSG_DEBUG("This measurement is not a ROT");
     return returnPair;
   }
-
+  
+  const auto *firstRot = static_cast <const Trk::RIO_OnTrack*> (firstMeas);
   if ( !prd_to_track_map.isUsed(*(firstRot->prepRawData()))){
     ATH_MSG_ERROR("This hist is not shared");
     return returnPair;
@@ -1452,18 +1538,18 @@ InDet::InDetDenseEnvAmbiTrackSelectionTool::getOverlapTrackParameters(int index,
     } 
      
     // get measurment from TSOS
-    auto meas = (*iTsos)->measurementOnTrack();
+    const auto *meas = (*iTsos)->measurementOnTrack();
 
     // if we do not have a measurement, we should just mark it
     if (!meas) {
       continue;
     }
     
-    const Trk::RIO_OnTrack* rot = dynamic_cast <const Trk::RIO_OnTrack*> (meas);
-    if (!rot) {
+    
+    if (not meas->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
       continue;
     }
-    
+    const Trk::RIO_OnTrack* rot = static_cast <const Trk::RIO_OnTrack*> (meas);
     if (rot->prepRawData() != firstRot->prepRawData()){
       ++measurementsBeforeShared;
       continue;

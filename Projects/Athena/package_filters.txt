@@ -23,19 +23,15 @@
 - graphics/VP1/VP1Systems/VP1TriggerDecisionSystems
 + graphics/VP1/.*
 
-# Temporarily disable Rivet_i until we have LCG_97_ATLAS_2
-- Generators/Rivet_i
+# Disable MCTester until we are sure we can remove it completely
+- Generators/MCTester_i
 
 # Some analysis packages that are not part of Athena
 - Control/AthLinksSA
-+ PhysicsAnalysis/Algorithms/MuonAnalysisAlgorithms
-+ PhysicsAnalysis/Algorithms/SelectionHelpers
-+ PhysicsAnalysis/Algorithms/SystematicsHandles
-- PhysicsAnalysis/Algorithms/.*
+- PhysicsAnalysis/Algorithms/StandaloneAnalysisAlgorithms
 - PhysicsAnalysis/D3PDTools/EventLoop.*
 - PhysicsAnalysis/D3PDTools/MultiDraw
 - PhysicsAnalysis/D3PDTools/SampleHandler
-- PhysicsAnalysis/ElectronPhotonID/PhotonEfficiencyCorrection
 - PhysicsAnalysis/HiggsPhys/Run2/HZZ/Tools/ZMassConstraint
 - PhysicsAnalysis/JetPhys/SemileptonicCorr
 - PhysicsAnalysis/SUSYPhys/SUSYTools

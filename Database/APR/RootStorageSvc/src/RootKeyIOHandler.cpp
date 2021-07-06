@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -16,6 +16,7 @@
 #include "TBufferFile.h"
 #define G__DICTIONARY
 #include "RtypesImp.h"
+#include "CxxUtils/no_sanitize_undefined.h"
 
 #include <iostream>
 
@@ -296,10 +297,11 @@ int pool::RootKeyIOHandler::read(const char* knam, void** obj) const    {
   return 0;
 }
 
-int pool::RootKeyIOHandler::read(TKey* key, void** obj) const   {
+int pool::RootKeyIOHandler::read NO_SANITIZE_UNDEFINED (TKey* key, void** obj) const   {
   if ( key )  { 
     Key* mkey = (Key*)key;// Extremely ugly, but it works, because
     // of single inheritance and no virtuality.
+    // But we then need to disable ubsan for this function.
     int nbytes = mkey->readObject(obj);
     const char* knam = key->GetName();
     if ( gDebug > 1 ) {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #include "./HLTPrescaleCondAlg.h"
@@ -98,6 +98,7 @@ TrigConf::HLTPrescaleCondAlg::initialize() {
          ATH_MSG_ERROR( "Failed loading HLT prescales set from the file " << m_filename );
          return StatusCode::FAILURE;
       }
+      pss->setPSK(m_psk);
       m_pssMap[0] = pss;
 
    } else if( m_psk != 0u ) {
@@ -155,7 +156,7 @@ TrigConf::HLTPrescaleCondAlg::execute(const EventContext& ctx) const {
 
    }
 
-   std::shared_ptr<HLTPrescalesSet> pss;
+   std::shared_ptr<const HLTPrescalesSet> pss;
 
    if( m_configSource == "FILE" ) {
 
@@ -196,7 +197,8 @@ TrigConf::HLTPrescaleCondAlg::execute(const EventContext& ctx) const {
       ATH_MSG_INFO("Recording empty HLT prescales set with range " << range);
       ATH_CHECK( writeCondHandle.record( range, new HLTPrescalesSet ) );
    } else {
-      ATH_MSG_INFO("Recording HLT prescales set with range " << range << " (key = " << hltPsk << ")");
+
+      ATH_MSG_INFO("Recording HLT prescales set with range " << range << " (key = " << pss->psk() << ")");
       ATH_CHECK( writeCondHandle.record( range, new HLTPrescalesSet(*pss) ) );
    }
 

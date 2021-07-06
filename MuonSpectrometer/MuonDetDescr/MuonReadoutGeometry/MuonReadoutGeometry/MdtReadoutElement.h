@@ -30,39 +30,39 @@ namespace Muon {
 namespace MuonGM {
 
 /**
-   An MdtReadoutElement corresponds to a single MDT multilayer; therefore 
-   typicaly a MDT chamber consists of two MdtReadoutElements, each identified 
+   An MdtReadoutElement corresponds to a single MDT multilayer; therefore
+   typicaly a MDT chamber consists of two MdtReadoutElements, each identified
    by StationName, StationEta, StationPhi, Technology=0, and Multilayer.
-   
-   Pointers to all MdtReadoutElements are created in the build() method of 
-   the MuonChamber class, and are held in arrays by the MuonDetectorManager, 
-   which is responsible for storing, deleting and providing access to these 
-   objects. 
 
-   An MdtReadoutElement holds properties related to its internal structure 
-   (i.e. wire pitch) and general geometrical properties (size);  it 
-   implements tracking interfaces and provides access to typical 
-   readout-geometry information: i.e. number of tubes, position of the tubes, 
+   Pointers to all MdtReadoutElements are created in the build() method of
+   the MuonChamber class, and are held in arrays by the MuonDetectorManager,
+   which is responsible for storing, deleting and providing access to these
+   objects.
+
+   An MdtReadoutElement holds properties related to its internal structure
+   (i.e. wire pitch) and general geometrical properties (size);  it
+   implements tracking interfaces and provides access to typical
+   readout-geometry information: i.e. number of tubes, position of the tubes,
    distance of a point to the readout side, etc.
 
-   The globalToLocalCoords and globalToLocalTransform methods (+ their opposite) 
-   define the link between the ATLAS global reference frame and the internal 
-   (geo-model defined) local reference frame of any drift tube (which is the 
+   The globalToLocalCoords and globalToLocalTransform methods (+ their opposite)
+   define the link between the ATLAS global reference frame and the internal
+   (geo-model defined) local reference frame of any drift tube (which is the
    frame where local coordinates of SimHits, in output from G4, are expressed).
 */
 
-class MdtReadoutElement: public MuonReadoutElement 
+class MdtReadoutElement final: public MuonReadoutElement
 {
-  
+
 friend class Muon::MdtAlignModule;
 friend class Muon::CombinedMuonAlignModule;
 friend class MuonChamber;
-  
+
 public:
-  
+
    MdtReadoutElement(GeoVFullPhysVol* pv, std::string stName,
                      int zi, int fi, bool is_mirrored, MuonDetectorManager* mgr);
-                      
+
    virtual ~MdtReadoutElement()=default;
 
    // Id set/get methods
@@ -78,8 +78,8 @@ public:
    bool getWireFirstLocalCoordAlongR(int tubeLayer, double& coord) const;
 
    virtual bool containsId(Identifier id) const override;
-    
-    // detector specific 
+
+    // detector specific
     inline double getTubeLength(const int tubeLayer, const int tube) const;
     inline double getActiveTubeLength(const int tubeLayer, const int tube) const;
     inline double getGasLength(const int tubeLayer, const int tube) const;
@@ -145,10 +145,10 @@ public:
     const Amg::Vector3D ROPos(const Identifier id) const;
     const Amg::Vector3D tubeFrame_localROPos(const Identifier id) const;
 
-    // defining B-line parameters 
+    // defining B-line parameters
     /*inline*/ void setBLinePar(const BLinePar*  bLine);
-    inline void clearBLinePar(); 
-    inline const BLinePar* getBLinePar() const {return m_BLinePar;} 
+    inline void clearBLinePar();
+    inline const BLinePar* getBLinePar() const {return m_BLinePar;}
 
     ////////////////////////////////////////////////////////////
     //// Tracking interfaces
@@ -160,34 +160,40 @@ public:
     void         clearBLineCache();
     void         fillBLineCache();
     //void         fillBLineCache() const;
-    virtual const Trk::Surface& surface() const override;
-    virtual const Trk::SaggedLineSurface& surface(const Identifier& id) const override;
-    virtual const Trk::SaggedLineSurface& surface(const int tubeLayer, const int tube) const;
-    virtual const Trk::SurfaceBounds& bounds() const override;
-    virtual const Trk::CylinderBounds& bounds(const Identifier& id) const override;
-    virtual const Trk::CylinderBounds& bounds(const int tubeLayer, const int tube) const;
-    
-    virtual const Amg::Transform3D& transform(const Identifier&) const override;
-    virtual const Amg::Transform3D& transform(const int tubeLayer, const int tube) const;
-    virtual const Amg::Transform3D& transform() const override {return absTransform();}
-    
-    virtual const Amg::Vector3D& center(const Identifier&) const override;
-    virtual const Amg::Vector3D& center(const int tubeLayer, const int tube) const;
-    virtual const Amg::Vector3D& center() const override;
-    
-    virtual const Amg::Vector3D& normal(const Identifier&) const override {return normal();}
-    virtual const Amg::Vector3D tubeNormal(const Identifier&) const;
-    virtual const Amg::Vector3D& normal(const int , const int ) const {return normal();}
-    virtual const Amg::Vector3D tubeNormal(const int, const int ) const;
-    virtual const Amg::Vector3D& normal() const override;
-      
+    virtual const Trk::Surface& surface() const override final;
+    virtual const Trk::SaggedLineSurface& surface(const Identifier& id) const override final;
+    const Trk::SaggedLineSurface& surface(const int tubeLayer, const int tube) const;
+    virtual const Trk::SurfaceBounds& bounds() const override final;
+    virtual const Trk::CylinderBounds& bounds(const Identifier& id) const override final;
+    const Trk::CylinderBounds& bounds(const int tubeLayer, const int tube) const;
+
+    virtual const Amg::Transform3D& transform(const Identifier&) const override final;
+    const Amg::Transform3D& transform(const int tubeLayer, const int tube) const;
+    virtual const Amg::Transform3D& transform() const override final {return absTransform();}
+
+    virtual const Amg::Vector3D& center(const Identifier&) const override final;
+    const Amg::Vector3D& center(const int tubeLayer, const int tube) const;
+    virtual const Amg::Vector3D& center() const override final;
+
+    virtual const Amg::Vector3D& normal(const Identifier&) const override final{return normal();}
+    const Amg::Vector3D tubeNormal(const Identifier&) const;
+    const Amg::Vector3D& normal(const int , const int ) const {return normal();}
+    const Amg::Vector3D tubeNormal(const int, const int ) const;
+    const Amg::Vector3D& normal() const override final;
+
+    /** TrkDetElementInterface */
+    virtual Trk::DetectorElemType detectorType() const override final
+    {
+      return Trk::DetectorElemType::Mdt;
+    }
+
     /** returns all the surfaces contained in this detector element */
-    virtual std::vector<const Trk::Surface*> surfaces() const;
+    std::vector<const Trk::Surface*> surfaces() const;
 
     // methods handling deformations
     const Amg::Transform3D& fromIdealToDeformed(const Identifier&) const;
     const Amg::Transform3D& fromIdealToDeformed(const int multilayer, const int tubelayer, const int tube) const;
-    
+
 private:
     // Called from MuonChamber
     void geoInitDone();
@@ -196,7 +202,7 @@ private:
     double getNominalTubeLengthWoCutouts(const int tubeLayer, const int tube) const;
     Amg::Vector3D localNominalTubePosWoCutouts(const int tubelayer, const int tube) const;
 
-    Amg::Vector3D posOnDefChamWire(const Amg::Vector3D& locAMDBPos, double, double, double, double, 
+    Amg::Vector3D posOnDefChamWire(const Amg::Vector3D& locAMDBPos, double, double, double, double,
 	double, double, double, double, double, double, double, double,
 	double, double, double, const Amg::Vector3D fixedPoint) const;
     Amg::Vector3D posOnDefChamWire(const Amg::Vector3D& locAMDBPos, const BLinePar* bLine, const Amg::Vector3D fixedPoint) const;
@@ -206,7 +212,7 @@ private:
     void shiftTube(const Identifier& id);
     void restoreTubes();
 
-    
+
     int    m_multilayer;
     int    m_nlayers;
     double m_tubepitch;
@@ -229,7 +235,7 @@ private:
     const Amg::Transform3D globalTransform (const Amg::Vector3D& tubePos,
                                             const Amg::Transform3D& toDeform) const;
     const Amg::Transform3D globalTransform (const Amg::Vector3D& tubePos) const;
-    
+
     struct GeoInfo
     {
       GeoInfo (const Amg::Transform3D& transform)
@@ -262,13 +268,13 @@ private:
     mutable std::atomic<bool> m_haveTubeGeo = false;
     mutable std::atomic<bool> m_haveTubeBounds = false;
     mutable std::atomic<bool> m_haveDeformTransf = false;
-    
+
     // the single surface information representing the DetElement
     CxxUtils::CachedUniquePtr<Trk::Surface>       m_associatedSurface;
     CxxUtils::CachedUniquePtr<Trk::SurfaceBounds> m_associatedBounds;
 };
 
-int MdtReadoutElement::getMultilayer() const 
+int MdtReadoutElement::getMultilayer() const
   {return m_multilayer;}
 int MdtReadoutElement::getNLayers() const
   {return m_nlayers;}

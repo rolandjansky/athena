@@ -14,7 +14,7 @@
 
 #include <iostream>
 #include "L1TopoCommon/StatusCode.h"
-#include "L1TopoCoreSim/GlobalDecision.h"
+#include "L1TopoCoreSim/GlobalOutput.h"
 #include <vector>
 #include <map>
 #include <set>
@@ -31,6 +31,7 @@ namespace TCS {
 
    class TOBArray;
    class DecisionConnector;
+   class CountingConnector;
 
    class TopoCoreSimResult : public TrigConf::TrigConfMessaging {
    public:
@@ -41,13 +42,13 @@ namespace TCS {
 
       const TCS::TOBArray* triggerOutput(const std::string & triggerName) const;
 
-      const GlobalDecision& globalDecision() const { return m_globalDecision; }
+      const GlobalOutput& globalOutput() const { return m_globalOutput; }
 
       const std::vector<const TCS::TOBArray*> & output(const std::string & connName) const;
 
-      StatusCode setupFromMenu(const std::map<std::string, TCS::DecisionConnector*>& outputConnectorMap);
+      StatusCode setupFromMenu(const std::map<std::string, TCS::DecisionConnector*>& outputConnectorMap, const std::map<std::string, TCS::CountingConnector*>& countConnectorMap);
 
-      StatusCode collectResult(TCS::DecisionConnector* outputConn = nullptr );
+      StatusCode collectResult(TCS::DecisionConnector* outputConn = nullptr, TCS::CountingConnector* countConn = nullptr );
 
       StatusCode reset();
 
@@ -56,15 +57,24 @@ namespace TCS {
    private:
       friend std::ostream& ::operator<<(std::ostream&, const TCS::TopoCoreSimResult &);
 
-      GlobalDecision m_globalDecision;
+      GlobalOutput m_globalOutput;
 
       // map from connector name to decision connectors
       std::map<std::string, TCS::DecisionConnector*> m_outputConnectorMap;
 
       // map from trigger name to decision connectors
-      std::map<std::string, TCS::DecisionConnector*> m_triggerLocation;
+      std::map<std::string, TCS::DecisionConnector*> m_triggerLocationDec;
 
       std::set<TCS::DecisionConnector*> m_outputConnectors;
+
+      // map from connector name to counting connectors
+      std::map<std::string, TCS::CountingConnector*> m_countConnectorMap;
+
+      // map from trigger name to counting connectors
+      std::map<std::string, TCS::CountingConnector*> m_triggerLocationCount;
+
+      std::set<TCS::CountingConnector*> m_countConnectors;
+
 
    };
 

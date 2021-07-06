@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelMaterialMap.h"
@@ -24,7 +24,7 @@ PixelMaterialMap::Key::operator<(const PixelMaterialMap::Key &rhs) const
 }
 
 
-PixelMaterialMap::PixelMaterialMap(const IGeometryDBSvc * db, IRDBRecordset_ptr mapTable)
+PixelMaterialMap::PixelMaterialMap(const IGeometryDBSvc * db, const IRDBRecordset_ptr& mapTable)
 {
   for (unsigned int i = 0; i < db->getTableSize(mapTable); i++) {
     int layerdisk = db->getInt(mapTable,"LAYERDISK",i);

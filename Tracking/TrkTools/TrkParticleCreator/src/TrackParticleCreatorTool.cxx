@@ -172,14 +172,6 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t,
       m_trackSummaryTool.disable();
     }
 
-    /* Retrieve track extrapolator from ToolService */
-    if ( m_extrapolator.retrieve().isFailure() ) {
-      ATH_MSG_FATAL( "Failed to retrieve tool " << m_extrapolator );
-      return StatusCode::FAILURE;
-    }
-      ATH_MSG_DEBUG( "Retrieved tool " << m_extrapolator );
-
-
     if (detStore()->retrieve(m_detID, "AtlasID" ).isFailure()) {
       ATH_MSG_FATAL ("Could not get AtlasDetectorID ");
       return StatusCode::FAILURE;
@@ -277,12 +269,6 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t,
     return sc;
   }
 
-  StatusCode TrackParticleCreatorTool::finalize()
-  {
-    ATH_MSG_INFO( " finalize successful" );
-    return StatusCode::SUCCESS;
-  }
-
   Rec::TrackParticle*
   TrackParticleCreatorTool::createParticle(
     const EventContext& ctx,
@@ -354,7 +340,7 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t,
     }
     else if (m_perigeeExpression == "BeamLine"){
       const Trk::Perigee* result =
-        m_trackToVertex->perigeeAtBeamline(*track, CacheBeamSpotData(ctx));
+        m_trackToVertex->perigeeAtBeamline(ctx,*track, CacheBeamSpotData(ctx));
       if (!result){
 
         ATH_MSG_WARNING("Failed to extrapolate to Beamline");
@@ -455,7 +441,7 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t,
           }
           if (!tsos->type(TrackStateOnSurface::Perigee) ||
               !(tsos->trackParameters()->surfaceType() ==
-                Trk::Surface::Perigee) ||
+                Trk::SurfaceType::Perigee) ||
               !(tsos->trackParameters()->type() == Trk::AtaSurface)) {
             continue;
           }
@@ -540,7 +526,7 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t,
     }
     else if (m_perigeeExpression == "BeamLine"){
       const Trk::Perigee* result =
-        m_trackToVertex->perigeeAtBeamline(track, CacheBeamSpotData(ctx));
+        m_trackToVertex->perigeeAtBeamline(ctx,track, CacheBeamSpotData(ctx));
       if (!result){
         ATH_MSG_WARNING("Failed to extrapolate to Beamline - No TrackParticle created.");
         return nullptr;
@@ -779,7 +765,7 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t,
         }
         if (!tsos->type(TrackStateOnSurface::Perigee) ||
             !(tsos->trackParameters()->surfaceType() ==
-              Trk::Surface::Perigee) ||
+              Trk::SurfaceType::Perigee) ||
             !(tsos->trackParameters()->type() == Trk::AtaSurface)) {
           continue;
         }
@@ -1066,20 +1052,20 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t,
     }
   }
 
-  void TrackParticleCreatorTool::setTilt( xAOD::TrackParticle& tp, float tiltx, float tilty ) const {
+  void TrackParticleCreatorTool::setTilt( xAOD::TrackParticle& tp, float tiltx, float tilty ) {
     tp.setBeamlineTiltX(tiltx);
     tp.setBeamlineTiltY(tilty);
   }
 
-  void TrackParticleCreatorTool::setHitPattern( xAOD::TrackParticle& tp, unsigned long hitpattern ) const {
+  void TrackParticleCreatorTool::setHitPattern( xAOD::TrackParticle& tp, unsigned long hitpattern ) {
     tp.setHitPattern(hitpattern);
   }
 
-  void TrackParticleCreatorTool::setNumberOfUsedHits( xAOD::TrackParticle& tp, int hits ) const {
+  void TrackParticleCreatorTool::setNumberOfUsedHits( xAOD::TrackParticle& tp, int hits ) {
     tp.setNumberOfUsedHitsdEdx(hits);
   }
 
-  void TrackParticleCreatorTool::setNumberOfOverflowHits( xAOD::TrackParticle& tp, int overflows ) const {
+  void TrackParticleCreatorTool::setNumberOfOverflowHits( xAOD::TrackParticle& tp, int overflows ) {
     tp.setNumberOfIBLOverflowsdEdx(overflows);
   }
 

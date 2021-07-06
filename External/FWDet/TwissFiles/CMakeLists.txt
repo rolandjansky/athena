@@ -1,22 +1,19 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
 # Declare the name of the package:
 atlas_subdir( TwissFiles )
 
-# If we are in release rebuilding mode, stop here:
-if( ATLAS_RELEASE_MODE )
-   return()
-endif()
-
 # Find the ATLAS TwissFiles area:
 if( NOT SITEROOT )
-   if( ENV{SITEROOT} )
-      set( SITEROOT $ENV{SITEROOT} )
+   if( NOT "$ENV{SITEROOT}" STREQUAL "" )
+      set( SITEROOT "$ENV{SITEROOT}" )
    else()
       set( SITEROOT "/afs/cern.ch" )
    endif()
 endif()
 if( NOT ATLAS_TWISSFILES )
-   if( ENV{ATLAS_TWISSFILES} )
-      set( ATLAS_TWISSFILES $ENV{ATLAS_TWISSFILES} )
+   if( NOT "$ENV{ATLAS_TWISSFILES}" STREQUAL "" )
+      set( ATLAS_TWISSFILES "$ENV{ATLAS_TWISSFILES}" )
    else()
       set( ATLAS_TWISSFILES "${SITEROOT}/atlas/offline/external/TwissFiles" )
    endif()

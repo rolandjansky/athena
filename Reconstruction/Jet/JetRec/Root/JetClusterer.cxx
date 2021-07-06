@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <memory>
@@ -66,6 +66,8 @@ StatusCode JetClusterer::initialize() {
   ATH_CHECK( m_inputPseudoJets.initialize() );
   m_finalPseudoJets = name() + "FinalPJ";
   ATH_CHECK( m_finalPseudoJets.initialize() );
+  m_clusterSequence = name() + "ClusterSequence";
+  ATH_CHECK( m_clusterSequence.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -107,7 +109,7 @@ std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > 
   } else {
     ATH_MSG_DEBUG("Creating input cluster sequence");
     clSequence = std::make_unique<fastjet::ClusterSequence>(*pseudoJetVector, jetdef);
-  } 
+  }
 
 
   // -----------------------
@@ -125,11 +127,6 @@ std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > 
   // No PseudoJets, so there's nothing else to do
   // Delete the cluster sequence before we go
   if(!pjVector->empty()) {
-
-    // Let fastjet deal with deletion of ClusterSequence, so we don't need to also put it in the EventStore.
-    // Release the memory from the unique_ptr
-    clSequence->delete_self_when_unused();
-    clSequence.release();
 
     // -------------------------------------
     // translate to xAOD::Jet
@@ -160,6 +157,13 @@ std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > 
       ATH_MSG_ERROR("Can't record PseudoJetVector under key "<< m_finalPseudoJets);
       return nullreturn;
     }
+    // -------------------------------------
+    // record ClusterSequence
+    SG::WriteHandle<jet::ClusterSequence> clusterSeqHandle(m_clusterSequence);
+    if(!clusterSeqHandle.record(std::move(clSequence))){
+      ATH_MSG_ERROR("Can't record ClusterSequence under key "<< m_clusterSequence);
+      return nullreturn;
+    }
   }
 
   ATH_MSG_DEBUG("Reconstructed jet count: " << jets->size() <<  "  clusterseq="<<clSequence.get());
@@ -174,6 +178,7 @@ fastjet::AreaDefinition JetClusterer::buildAreaDefinition(bool & seedsok) const 
 
     fastjet::GhostedAreaSpec gspec(5.0, 1, m_ghostarea);
     seedsok = true;
+    std::vector<int> seeds;
 
     if ( m_ranopt == 1 ) {
       // Use run/event number as random number seeds.
@@ -184,11 +189,8 @@ fastjet::AreaDefinition JetClusterer::buildAreaDefinition(bool & seedsok) const 
         return fastjet::AreaDefinition();
       }
 
-      std::vector<int> inseeds;
-      JetClustererHelper::seedsFromEventInfo(evtInfoHandle.cptr(), inseeds);
-      gspec.set_random_status(inseeds);
+      JetClustererHelper::seedsFromEventInfo(evtInfoHandle.cptr(), seeds);
     }
-
 
     ATH_MSG_DEBUG("Active area specs:");
     ATH_MSG_DEBUG("  Requested ghost area: " << m_ghostarea);
@@ -197,8 +199,7 @@ fastjet::AreaDefinition JetClusterer::buildAreaDefinition(bool & seedsok) const 
     ATH_MSG_DEBUG("              # ghosts: " << gspec.n_ghosts());
     ATH_MSG_DEBUG("       # rapidity bins: " << gspec.nrap());
     ATH_MSG_DEBUG("            # phi bins: " << gspec.nphi());
-    std::vector<int> seeds;
-    gspec.get_random_status(seeds);
+
     if ( seeds.size() == 2 ) {
       ATH_MSG_DEBUG("          Random seeds: " << seeds[0] << ", " << seeds[1]);
     } else {
@@ -207,5 +208,8 @@ fastjet::AreaDefinition JetClusterer::buildAreaDefinition(bool & seedsok) const 
       for ( auto seed : seeds ) ATH_MSG_DEBUG("                 " << seed);
     }
 
-    return fastjet::AreaDefinition(fastjet::active_area, gspec);
+    // We use with_fixed_seed() as recommended for thread safety in
+    // fastjet 3.4.0.
+    return fastjet::AreaDefinition(fastjet::active_area,
+                                   gspec).with_fixed_seed(seeds);
 }

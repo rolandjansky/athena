@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
 #
 # @file TruthD3PDMaker/python/TruthParticleChildAssociation.py
 # @author Ryan Reece <ryan.reece@cern.ch>
@@ -10,9 +9,7 @@
 #
 
 
-import D3PDMakerCoreComps
 import TruthD3PDMaker
-from D3PDMakerCoreComps.D3PDObject import D3PDObject
 from D3PDMakerCoreComps.IndexMultiAssociation import IndexMultiAssociation
 
 
@@ -25,7 +22,7 @@ def TruthParticleChildAssociation (parent,
     """Helper for setting up an association for truth particle
 children by index.
 """
-    if blockname == None:
+    if blockname is None:
         blockname = prefix + 'TruthParticleChildAssociation'
 
     return IndexMultiAssociation (parent,

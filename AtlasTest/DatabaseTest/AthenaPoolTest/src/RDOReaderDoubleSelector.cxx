@@ -52,11 +52,11 @@
 RDOReaderDoubleSelector::RDOReaderDoubleSelector(const std::string &name,
     ISvcLocator *pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_pixelId(0),
-  m_sctId(0),
-  m_trtId(0),
-  m_caloMgr(0),
-  m_calocellId(0)
+  m_pixelId(nullptr),
+  m_sctId(nullptr),
+  m_trtId(nullptr),
+  m_caloMgr(nullptr),
+  m_calocellId(nullptr)
 
 {}
 
@@ -163,7 +163,7 @@ StatusCode RDOReaderDoubleSelector::checkPixel() const
 
   // print out pixel element links
   // Retrive the element link vector
-  const PixelRDOElemLinkVec* linkVec = 0;
+  const PixelRDOElemLinkVec* linkVec = nullptr;
   ATH_CHECK( evtStore()->retrieve(linkVec, "PixelRDOELs") );
 
   ATH_MSG_DEBUG("PixelRDOElemLinkVec found with "

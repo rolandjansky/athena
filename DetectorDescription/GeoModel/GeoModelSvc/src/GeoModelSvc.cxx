@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoModelKernel/GeoBox.h"
@@ -26,6 +26,8 @@
 #include "AthenaKernel/ClassID_traits.h"
 #include "SGTools/DataProxy.h"
 
+#include "GeoModelDBManager/GMDBManager.h"
+#include "GeoModelRead/ReadGeoModel.h"
 
 GeoModelSvc::GeoModelSvc(const std::string& name,ISvcLocator* svc)
   : AthService(name,svc),
@@ -36,7 +38,6 @@ GeoModelSvc::GeoModelSvc(const std::string& name,ISvcLocator* svc)
     m_tagInfoMgr("TagInfoMgr",name),
     m_geoDbTagSvc("GeoDbTagSvc",name),
     m_AtlasVersion("AUTO"),
-    m_printMaterials(false),
     m_callBackON(true),
     m_ignoreTagDifference(false),
     m_useTagInfo(true),
@@ -46,7 +47,6 @@ GeoModelSvc::GeoModelSvc(const std::string& name,ISvcLocator* svc)
     m_ignoreTagSupport(false)
 {
   declareProperty( "DetectorTools",               m_detectorTools);
-  declareProperty( "PrintMaterials",              m_printMaterials);
   declareProperty( "AtlasVersion",                m_AtlasVersion);
   declareProperty( "InDetVersionOverride",        m_InDetVersionOverride);
   declareProperty( "PixelVersionOverride",        m_PixelVersionOverride);
@@ -69,11 +69,13 @@ GeoModelSvc::GeoModelSvc(const std::string& name,ISvcLocator* svc)
 
 GeoModelSvc::~GeoModelSvc()
 {
+  delete m_sqliteDbManager;
+  delete m_sqliteReader;
 }
 
 StatusCode GeoModelSvc::initialize()
 {
-  if(m_supportedGeometry==0) {
+  if(m_sqliteDb.empty() && m_supportedGeometry==0) {
     ATH_MSG_FATAL("The Supported Geometry flag was not set in Job Options! Exiting ...");
     return StatusCode::FAILURE;
   }
@@ -192,101 +194,137 @@ StatusCode GeoModelSvc::queryInterface(const InterfaceID& riid, void** ppvInterf
 
 StatusCode GeoModelSvc::geoInit()
 {
-  ATH_MSG_DEBUG("** Building geometry configuration: ");
-  ATH_MSG_DEBUG("* ATLAS tag: " << m_AtlasVersion);
-  ATH_MSG_DEBUG("* InDet tag: " << m_InDetVersionOverride);
-  ATH_MSG_DEBUG("* Pixel tag: " << m_PixelVersionOverride);
-  ATH_MSG_DEBUG("* SCT   tag: " << m_SCT_VersionOverride);
-  ATH_MSG_DEBUG("* TRT   tag: " << m_TRT_VersionOverride);
-  ATH_MSG_DEBUG("* LAr   tag: " << m_LAr_VersionOverride);
-  ATH_MSG_DEBUG("* Tile  tag: " << m_TileVersionOverride);
-  ATH_MSG_DEBUG("* Muon  tag: " << m_MuonVersionOverride);
-  ATH_MSG_DEBUG("* Calo  tag: " << m_CaloVersionOverride);
-  ATH_MSG_DEBUG("* MagField  tag: " << m_MagFieldVersionOverride);
-  ATH_MSG_DEBUG("* CavernInfra  tag: " << m_CavernInfraVersionOverride);
-  ATH_MSG_DEBUG("* ForwardDetectors  tag: " << m_ForwardDetectorsVersionOverride);
-  
-  // GetRDBAccessSvc and open connection to DB
+  GeoPhysVol* worldPhys{nullptr};
   ServiceHandle<IRDBAccessSvc> rdbAccess("RDBAccessSvc",name());
-  ATH_CHECK( rdbAccess.retrieve() );
 
-  if(!rdbAccess->connect()) {
-    ATH_MSG_ERROR("Unable to connect to the Geometry DB");
-    return StatusCode::FAILURE;
-  }
-
-  // Check the existence of ATLAS tag in the database
-  if(rdbAccess->getChildTag("ATLAS",m_AtlasVersion,"ATLAS")=="") {
-    ATH_MSG_FATAL(" *** *** Wrong ATLAS layout: " << m_AtlasVersion << " *** ***");
-    ATH_MSG_FATAL(" Either ATLAS geometry tag has been misspelled, or the DB Release does not contain the geometry specified.");
-    ATH_MSG_FATAL(" In latter case please update DB Release version");
-    return StatusCode::FAILURE;
-  }
-
-  if(!m_ignoreTagSupport) {
-    RDBTagDetails atlasTagDetails;
-    rdbAccess->getTagDetails(atlasTagDetails, m_AtlasVersion);
-    const coral::AttributeSpecification& supportedSpec = atlasTagDetails["SUPPORTED"].specification();
-    if(supportedSpec.type()==typeid(bool)) {
-      if(!atlasTagDetails["SUPPORTED"].data<bool>()) {
-	ATH_MSG_FATAL(" *** *** ATLAS layout " << m_AtlasVersion << " is OBSOLETE and can NOT be supported any more! *** ***");
-	return StatusCode::FAILURE;
-      }
-    }
-    else if(supportedSpec.type()==typeid(int)) {
-      if(atlasTagDetails["SUPPORTED"].data<int>()<m_supportedGeometry) {
-	ATH_MSG_FATAL(" *** *** ATLAS layout " << m_AtlasVersion 
-		      << " is OBSOLETE in rel " << m_supportedGeometry 
-		      << " and can NOT be supported any more! *** ***");
-	return StatusCode::FAILURE;
-      }
-    }
-  }
-
-  // Create a material manager
-  StoredMaterialManager *theMaterialManager{nullptr};
-  try{
-    theMaterialManager = new RDBMaterialManager(m_pSvcLocator);
-  }
-  catch(std::runtime_error& e) {
-    ATH_MSG_FATAL(e.what());
-    return StatusCode::FAILURE;
-  }
-  ATH_CHECK( m_detStore->record(theMaterialManager,"MATERIALS") );
-  
   // Setup the GeoDbTagSvc
   ATH_CHECK( m_geoDbTagSvc.retrieve() );
-  
-  GeoDbTagSvc* dbTagSvc = dynamic_cast<GeoDbTagSvc*>(m_geoDbTagSvc.operator->());
+
+  GeoDbTagSvc* dbTagSvc = dynamic_cast<GeoDbTagSvc*>(m_geoDbTagSvc.get());
   if(dbTagSvc==nullptr) {
     ATH_MSG_FATAL("Unable to dyn-cast the IGeoDbTagSvc pointer to GeoDbTagSvc");
     return StatusCode::FAILURE;
   }
 
-  dbTagSvc->setAtlasVersion(m_AtlasVersion);
-  dbTagSvc->setInDetVersionOverride(m_InDetVersionOverride);
-  dbTagSvc->setPixelVersionOverride(m_PixelVersionOverride);
-  dbTagSvc->setSCT_VersionOverride(m_SCT_VersionOverride);
-  dbTagSvc->setTRT_VersionOverride(m_TRT_VersionOverride);
-  dbTagSvc->setLAr_VersionOverride(m_LAr_VersionOverride);
-  dbTagSvc->setTileVersionOverride(m_TileVersionOverride);
-  dbTagSvc->setMuonVersionOverride(m_MuonVersionOverride);
-  dbTagSvc->setCaloVersionOverride(m_CaloVersionOverride);
-  dbTagSvc->setMagFieldVersionOverride(m_MagFieldVersionOverride);
-  dbTagSvc->setCavernInfraVersionOverride(m_CavernInfraVersionOverride);
-  dbTagSvc->setForwardDetectorsVersionOverride(m_ForwardDetectorsVersionOverride);
+  // Build geometry from the SQLiteDB file
+  if(!m_sqliteDb.empty()) {
 
-  if(dbTagSvc->setupTags().isFailure()) {
-    ATH_MSG_FATAL("Failed to setup subsystem tags");
-    return StatusCode::FAILURE;
+    // Read raw geometry description from the file
+    m_sqliteDbManager = new GMDBManager(m_sqliteDb);
+    if(m_sqliteDbManager->checkIsDBOpen()) {
+      ATH_MSG_INFO("Successfully opened SQLite DB file " << m_sqliteDb << " for reading in persistent GeoModel tree");
+    }
+    else {
+      ATH_MSG_FATAL("Failed to open SQLite database for reading in persistent GeoModel tree");
+      return StatusCode::FAILURE;
+    }
+    m_sqliteReader = new GeoModelIO::ReadGeoModel(m_sqliteDbManager);
+    worldPhys = m_sqliteReader->buildGeoModel();
+    ATH_MSG_INFO("Successfully read persistent GeoModel description from the file");
+
+    // Initialize SqliteReadSvc and open the file for reading plain SQLite tables with DetDescr parameters
+    ServiceHandle<IRDBAccessSvc> sqliteReadSvc("SqliteReadSvc",name());
+    ATH_CHECK(sqliteReadSvc.retrieve());
+    if(!sqliteReadSvc->connect(m_sqliteDb)) {
+      ATH_MSG_FATAL("Failed to open SQLite database file " << m_sqliteDb << " for reading geometry parameters");
+      return StatusCode::FAILURE;
+    }
+    else {
+      ATH_MSG_INFO("Successfully opened SQLite DB file: " << m_sqliteDb << " for reading Det Descr parameters");
+    }
+    dbTagSvc->setParamSvcName("SqliteReadSvc");
+    dbTagSvc->setSqliteReader(m_sqliteReader);
   }
+  else {
+    // Build geometry from the GeometryDB
+    ATH_MSG_DEBUG("** Building geometry configuration: ");
+    ATH_MSG_DEBUG("* ATLAS tag: " << m_AtlasVersion);
+    ATH_MSG_DEBUG("* InDet tag: " << m_InDetVersionOverride);
+    ATH_MSG_DEBUG("* Pixel tag: " << m_PixelVersionOverride);
+    ATH_MSG_DEBUG("* SCT   tag: " << m_SCT_VersionOverride);
+    ATH_MSG_DEBUG("* TRT   tag: " << m_TRT_VersionOverride);
+    ATH_MSG_DEBUG("* LAr   tag: " << m_LAr_VersionOverride);
+    ATH_MSG_DEBUG("* Tile  tag: " << m_TileVersionOverride);
+    ATH_MSG_DEBUG("* Muon  tag: " << m_MuonVersionOverride);
+    ATH_MSG_DEBUG("* Calo  tag: " << m_CaloVersionOverride);
+    ATH_MSG_DEBUG("* MagField  tag: " << m_MagFieldVersionOverride);
+    ATH_MSG_DEBUG("* CavernInfra  tag: " << m_CavernInfraVersionOverride);
+    ATH_MSG_DEBUG("* ForwardDetectors  tag: " << m_ForwardDetectorsVersionOverride);
+    
+    // Get RDBAccessSvc and open connection to DB
+    ATH_CHECK( rdbAccess.retrieve() );
 
-  // Build the world node from which everything else will be suspended
-  const GeoMaterial* air = theMaterialManager->getMaterial("std::Air");  
-  const GeoBox* worldBox = new GeoBox(1000*Gaudi::Units::cm,1000*Gaudi::Units::cm, 1000*Gaudi::Units::cm);
-  const GeoLogVol* worldLog = new GeoLogVol("WorldLog", worldBox, air);
-  GeoPhysVol *worldPhys=new GeoPhysVol(worldLog);
+    if(!rdbAccess->connect()) {
+      ATH_MSG_FATAL("Unable to connect to the Geometry DB");
+      return StatusCode::FAILURE;
+    }
+
+    // Check the existence of ATLAS tag in the database
+    if(rdbAccess->getChildTag("ATLAS",m_AtlasVersion,"ATLAS")=="") {
+      ATH_MSG_FATAL(" *** *** Wrong ATLAS layout: " << m_AtlasVersion << " *** ***");
+      ATH_MSG_FATAL(" Either ATLAS geometry tag has been misspelled, or the DB Release does not contain the geometry specified.");
+      ATH_MSG_FATAL(" In latter case please update DB Release version");
+      return StatusCode::FAILURE;
+    }
+
+    dbTagSvc->setParamSvcName("RDBAccessSvc");
+
+    if(!m_ignoreTagSupport) {
+      RDBTagDetails atlasTagDetails;
+      rdbAccess->getTagDetails(atlasTagDetails, m_AtlasVersion);
+      const coral::AttributeSpecification& supportedSpec = atlasTagDetails["SUPPORTED"].specification();
+      if(supportedSpec.type()==typeid(bool)) {
+	if(!atlasTagDetails["SUPPORTED"].data<bool>()) {
+	  ATH_MSG_FATAL(" *** *** ATLAS layout " << m_AtlasVersion << " is OBSOLETE and can NOT be supported any more! *** ***");
+	  return StatusCode::FAILURE;
+	}
+    }
+      else if(supportedSpec.type()==typeid(int)) {
+	if(atlasTagDetails["SUPPORTED"].data<int>()<m_supportedGeometry) {
+	  ATH_MSG_FATAL(" *** *** ATLAS layout " << m_AtlasVersion 
+			<< " is OBSOLETE in rel " << m_supportedGeometry 
+			<< " and can NOT be supported any more! *** ***");
+	  return StatusCode::FAILURE;
+	}
+      }
+    }
+
+    // Create a material manager
+    StoredMaterialManager *theMaterialManager{nullptr};
+    try{
+      theMaterialManager = new RDBMaterialManager(m_pSvcLocator);
+    }
+    catch(std::runtime_error& e) {
+      ATH_MSG_FATAL(e.what());
+      return StatusCode::FAILURE;
+    }
+    ATH_CHECK( m_detStore->record(theMaterialManager,"MATERIALS") );
   
+    dbTagSvc->setAtlasVersion(m_AtlasVersion);
+    dbTagSvc->setInDetVersionOverride(m_InDetVersionOverride);
+    dbTagSvc->setPixelVersionOverride(m_PixelVersionOverride);
+    dbTagSvc->setSCT_VersionOverride(m_SCT_VersionOverride);
+    dbTagSvc->setTRT_VersionOverride(m_TRT_VersionOverride);
+    dbTagSvc->setLAr_VersionOverride(m_LAr_VersionOverride);
+    dbTagSvc->setTileVersionOverride(m_TileVersionOverride);
+    dbTagSvc->setMuonVersionOverride(m_MuonVersionOverride);
+    dbTagSvc->setCaloVersionOverride(m_CaloVersionOverride);
+    dbTagSvc->setMagFieldVersionOverride(m_MagFieldVersionOverride);
+    dbTagSvc->setCavernInfraVersionOverride(m_CavernInfraVersionOverride);
+    dbTagSvc->setForwardDetectorsVersionOverride(m_ForwardDetectorsVersionOverride);
+    
+    if(dbTagSvc->setupTags().isFailure()) {
+      ATH_MSG_FATAL("Failed to setup subsystem tags");
+      return StatusCode::FAILURE;
+    }
+    
+    // Build the world node from which everything else will be suspended
+    const GeoMaterial* air = theMaterialManager->getMaterial("std::Air");  
+    const GeoBox* worldBox = new GeoBox(1000*Gaudi::Units::cm,1000*Gaudi::Units::cm, 1000*Gaudi::Units::cm);
+    const GeoLogVol* worldLog = new GeoLogVol("WorldLog", worldBox, air);
+    worldPhys=new GeoPhysVol(worldLog);
+  } // End of the GeometryDB-specific part
+
   // Create AtlasExperiment and register it within the transient detector store
   GeoModelExperiment* theExperiment = new GeoModelExperiment(worldPhys);
   ATH_CHECK( m_detStore->record(theExperiment,"ATLAS") );
@@ -326,12 +364,12 @@ StatusCode GeoModelSvc::geoInit()
   if(m_statisticsToFile) {
     geoModelStats->close();
   }
-	
-  // Close DB connection
-  rdbAccess->shutdown();
-  if(m_printMaterials)
-    theMaterialManager->printAll();
-  
+
+  if(m_sqliteDb.empty()) {	
+    // Close connection to the GeometryDB
+    rdbAccess->shutdown();
+  }
+
   return StatusCode::SUCCESS;
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_DigitizationTool.h"
@@ -416,7 +416,7 @@ bool SCT_DigitizationTool::digitizeElement(const EventContext& ctx, SiChargedDio
                                                                        phit->getEtaModule(),
                                                                        phit->getSide())));
       ATH_MSG_DEBUG("calling process() for all methods");
-      m_sct_SurfaceChargesGenerator->process(sielement, phit, SiDigitizationSurfaceChargeInserter(sielement, chargedDiodes), rndmEngine);
+      m_sct_SurfaceChargesGenerator->process(sielement, phit, SiDigitizationSurfaceChargeInserter(sielement, chargedDiodes), rndmEngine, ctx);
       ATH_MSG_DEBUG("charges filled!");
     }
   }
@@ -639,8 +639,7 @@ std::unique_ptr<SCT_RDO_Collection> SCT_DigitizationTool::createRDO(SiChargedDio
         // create new SCT RDO
         InDetDD::SiReadoutCellId roCell{(*i_chargedDiode).second.getReadoutCell()};
         int strip{roCell.strip()};
-        const InDetDD::SiDetectorDesign& detDesign{collection->design()};
-        const InDetDD::SCT_ModuleSideDesign& sctDesign{dynamic_cast<const InDetDD::SCT_ModuleSideDesign&>(detDesign)};
+        const InDetDD::SCT_ModuleSideDesign& sctDesign{static_cast<const InDetDD::SCT_ModuleSideDesign&>(collection->design())};
         int row2D{sctDesign.row(strip)};
         Identifier id_readout;
         if (row2D < 0) { // SCT sensors
@@ -816,8 +815,7 @@ void SCT_DigitizationTool::addSDO(SiChargedDiodeCollection* collection, SG::Writ
     if (real_particle_hit or m_createNoiseSDO) {
       InDetDD::SiReadoutCellId roCell{(*i_chargedDiode).second.getReadoutCell()};
       int strip{roCell.strip()};
-      const InDetDD::SiDetectorDesign& detDesign{collection->design()};
-      const InDetDD::SCT_ModuleSideDesign& sctDesign{dynamic_cast<const InDetDD::SCT_ModuleSideDesign&>(detDesign)};
+      const InDetDD::SCT_ModuleSideDesign& sctDesign{dynamic_cast<const InDetDD::SCT_ModuleSideDesign&>(collection->design())};
 
       int row2D{sctDesign.row(strip)};
       Identifier id_readout;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDTCALIBSVC_MDTCALIBRATIONDBTOOL_H
@@ -87,8 +87,6 @@ private:
 
   bool m_getTubeConstants; //<! flag to switch off loading of tube constants
   bool m_getCorrections;   //<! flag to switch off loading of correction function constants
-
-  bool m_hasBISsMDT;
 
   SG::ReadCondHandleKey<MdtRtRelationCollection> m_readKeyRt{this,"MdtRtRelationCollection","MdtRtRelationCollection","MDT RT relations"};
   SG::ReadCondHandleKey<MdtTubeCalibContainerCollection> m_readKeyTube{this,"MdtTubeCalibContainerCollection","MdtTubeCalibContainerCollection","MDT tube calib"};

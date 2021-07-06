@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EFLOWLAYERINTEGRATOR_H
@@ -44,8 +44,8 @@ class eflowLayerIntegrator {
 
   void measureNewClus(const xAOD::CaloCluster* clus, const eflowTrackCaloPoints& trackCalo);
   void measureNewClus(eflowTrackClusterLink* trackClusterLink);
-  void measureNewClus(std::vector<eflowRecCluster*> efRecClusters, eflowRecTrack* track);
-  void measureNewClus(std::vector<xAOD::CaloCluster*> clusVec, const eflowTrackCaloPoints& trackCalo);
+  void measureNewClus(const std::vector<eflowRecCluster*>& efRecClusters, eflowRecTrack* track);
+  void measureNewClus(const std::vector<xAOD::CaloCluster*>& clusVec, const eflowTrackCaloPoints& trackCalo);
 
   eflowFirstIntENUM getFirstIntLayer() const;
 
@@ -67,7 +67,7 @@ class eflowLayerIntegrator {
   
   eflowDepthCalculator m_caloModel;
 
-  double m_densityConversion[eflowCalo::nRegions];
+  double m_densityConversion[eflowCalo::nRegions]{};
 
   std::vector<double> m_nUnitCellPerWindowOverCellEtaPhiArea;
 

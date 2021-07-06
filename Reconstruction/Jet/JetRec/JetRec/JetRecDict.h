@@ -5,27 +5,24 @@
 #ifndef JETREC_JETRECDICT_H
 #define JETREC_JETRECDICT_H
 
-#include "JetRec/FastJetInterfaceTool.h"
-#include "JetRec/JetBottomUpSoftDrop.h"
-#include "JetRec/JetByVertexFinder.h"
-#include "JetRec/JetConstitRemover.h"
-#include "JetRec/JetConstituentsRetriever.h"
-#include "JetRec/JetDumper.h"
+
+
 #include "JetRec/JetFilterTool.h"
-#include "JetRec/JetFinder.h"
-#include "JetRec/JetFromPseudojet.h"
-#include "JetRec/JetModifierBase.h"
-#include "JetRec/JetPruner.h"
-#include "JetRec/JetPseudojetCopier.h"
-#include "JetRec/JetPseudojetRetriever.h"
-#include "JetRec/JetReclusterer.h"
-#include "JetRec/JetRecTool.h"
-#include "JetRec/JetRecursiveSoftDrop.h"
-#include "JetRec/JetSoftDrop.h"
 #include "JetRec/JetSorter.h"
-#include "JetRec/JetSplitter.h"
-#include "JetRec/JetToolRunner.h"
-#include "JetRec/JetTrimmer.h"
+#include "JetRec/JetClusterer.h"
+
+
+#include "JetRec/JetSoftDropTools.h"
+#include "JetRec/JetTrimming.h"
+//#include "JetRec/JetViewAlg.h" not as long as we miss support for ShallowCopyDecorDeps
+#include "JetRec/MuonSegmentPseudoJetAlgorithm.h"
+#include "JetRec/PseudoJetAlgorithm.h"
+#include "JetRec/PseudoJetMerger.h"
+
+
+#include "JetRec/JetRecAlg.h"
+#include "JetRec/JetAlgorithm.h"
+#include "JetRec/JetDecorationAlg.h"
 
 
 #endif

@@ -36,7 +36,7 @@ public:
                            const IInterface* parent);
 
   /// Test to see if we want to keep a particle.
-  virtual bool isAccepted (const HepMC::GenParticle* p);
+  virtual bool isAccepted (HepMC::ConstGenParticlePtr p);
 
 private:
   /// Parameter: PDG ID to filter on

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // AFP_ByteStream2RawCnv includes
@@ -15,8 +15,7 @@ AFP_RawDataProviderTool::AFP_RawDataProviderTool(const std::string &type,
                                                  const std::string &name,
                                                  const IInterface *parent)
     : AthAlgTool(type, name, parent),
-      m_decoder("AFP_ByteStream2RawCnv"),
-      m_robIdSet()
+      m_decoder("AFP_ByteStream2RawCnv")
 {
   declareProperty("AFP_ByteStream2RawCnv", m_decoder);
   declareInterface<AFP_RawDataProviderTool>(this);
@@ -45,9 +44,9 @@ StatusCode AFP_RawDataProviderTool::initialize() {
 
 StatusCode
 AFP_RawDataProviderTool::convert(std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *> &vecRobs,
-                                 AFP_RawContainer *rawContainer)
+                                 AFP_RawContainer *rawContainer) const
 {
-  static uint32_t LastLvl1ID = 0xffffffff;
+  std::set<uint32_t> robIdSet;
 
   if (!rawContainer) {
     ATH_MSG_WARNING("NULL pointer passed in rawContainer.");
@@ -59,19 +58,11 @@ AFP_RawDataProviderTool::convert(std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::
     return StatusCode::SUCCESS;
   }
 
-  // clear containers
-  const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* firstROB = vecRobs.front();
-  if (firstROB->rod_lvl1_id() != LastLvl1ID) {
-    LastLvl1ID = firstROB->rod_lvl1_id();
-    m_robIdSet.clear();
-    rawContainer->clear();
-  }
-
   // Loop over robs and fill rawContainer
   for (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* rob : vecRobs) {
     const uint32_t robId = rob->rod_source_id();
 
-    if (m_robIdSet.insert(robId).second) {
+    if (robIdSet.insert(robId).second) {
       StatusCode sc = m_decoder->fillCollection(rob, rawContainer);
       if (sc.isFailure()) {
         ATH_MSG_WARNING("Failed filling collection");

@@ -722,4 +722,40 @@ void MonitoringFile::merge_lowerLB( TH1& a, const TH1& b ) {
   return;
 }
 
+
+void MonitoringFile::merge_identical( TH1& a, const TH1& b ) {
+  
+  // Merge "status" histograms, i.e filled at start of run/LB.
+  // The histogram title should contain the LB for which the histo was filled
+  // such that strcmp can extract the histo of lower LB
+  // Be careful to not format your title with %d but rather %4d. Otherwise, 
+  // strcmp will return : 2>10
+  // Example in : LArCalorimeter/LArMonTools/src/LArCoverage.cxx
+  // Author: B.Trocme
+  // 
+
+  if (a.GetDimension() != b.GetDimension()) {
+    std::cerr<<"merge_identical \"" << a.GetName() <<"\": attempt to merge histograms of different dimensionality\n";
+    return;
+  }
+
+  Int_t ncells = getNumBins(a);
+
+  if (ncells != getNumBins(b)) {
+    std::cerr<<"merge_identical \"" << a.GetName() <<"\": attempt to merge histograms of different sizes\n";
+    return;
+  }
+
+  // check that all bins contentsl are identical
+  for (Int_t icell = 0; icell < ncells; ++icell) {
+    if ((a.GetBinContent(icell) != b.GetBinContent(icell))
+        || (a.GetBinError(icell) != b.GetBinError(icell))) {
+          std::cerr<<"merge_identical \"" << a.GetName() << "\" and \"" << b.GetName() << "\" have different content";
+          return;
+        }
+  }
+   
+  return;
+}
+
 }//end dqutils namespace

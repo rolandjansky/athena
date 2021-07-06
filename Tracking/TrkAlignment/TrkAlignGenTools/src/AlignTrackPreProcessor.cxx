@@ -31,7 +31,7 @@ namespace Trk {
                                                  const std::string & name,
                                                  const IInterface  * parent)
     : AthAlgTool(type,name,parent)
-    , m_trackFitterTool("Trk::GlobalChi2Fitter/MCTBFitter")
+    , m_trackFitterTool("Trk::GlobalChi2Fitter/InDetTrackFitter")
     , m_SLTrackFitterTool("")
     , m_trackSelectorTool("")
     , m_runOutlierRemoval(false)
@@ -46,7 +46,7 @@ namespace Trk {
 
     declareProperty("TrackFitterTool",   m_trackFitterTool);
     declareProperty("SLTrackFitterTool", m_SLTrackFitterTool);
-    declareProperty("UseSingleFitter",   m_useSingleFitter);
+    declareProperty("UseSingleFitter",   m_useSingleFitter = false);
 
     declareProperty("StoreFitMatricesAfterRefit", m_storeFitMatricesAfterRefit = true);
 
@@ -60,7 +60,7 @@ namespace Trk {
     declareProperty("SelectHits", m_selectHits);
     declareProperty("FixMomentum", m_fixMomentum);
 
-    m_logStream = 0;
+    m_logStream = nullptr;
   }
 
   //________________________________________________________________________
@@ -80,7 +80,8 @@ namespace Trk {
       return StatusCode::FAILURE;
     }
 
-    if (!m_useSingleFitter) {
+    if (m_useSingleFitter) {
+      
       if (m_SLTrackFitterTool.retrieve().isSuccess())
         ATH_MSG_INFO("Retrieved " << m_SLTrackFitterTool);
       else {
@@ -130,7 +131,7 @@ namespace Trk {
     ATH_MSG_DEBUG("AlignTrackPreProcessor::processTrackCollection()");
 
     if (!tracks || tracks->empty())
-      return 0;
+      return nullptr;
 
     // the output collection of AlignTracks
     // we define it as collection of Tracks but fill AlignTracks inside
@@ -230,7 +231,7 @@ namespace Trk {
 
     if (newTracks->empty()) {
       delete newTracks;
-      return 0;
+      return nullptr;
     }
 
     return newTracks;

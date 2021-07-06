@@ -21,32 +21,25 @@
 
 
 //Standard Constructor
-ElectronPhotonShowerShapeFudgeTool::ElectronPhotonShowerShapeFudgeTool(std::string myname) :
+ElectronPhotonShowerShapeFudgeTool::ElectronPhotonShowerShapeFudgeTool(const std::string& myname) :
   AsgTool(myname),
-  m_ph_rootTool(0),
-  m_el_rootTool(0),
+  m_ph_rootTool(nullptr),
+  m_el_rootTool(nullptr),
   m_configFile("")
 {
 
+  declareProperty("FFCalibFile", m_ffFile="ElectronPhotonShowerShapeFudgeTool/v2/PhotonFudgeFactors.root", "Calib path file for Photon MC corrections");
   declareProperty("Preselection",m_preselection=-999);
   declareProperty("ConfigFile",m_configFile="","The config file to use for the Electron Shifter");
 
   // Create an instance of the underlying ROOT tool
-#ifdef USE_NEW_TOOL  
   m_ph_rootTool = new TPhotonMCShifterTool();
-#else
-  m_ph_rootTool = new FudgeMCTool();
-#endif
   m_el_rootTool = new TElectronMCShifterTool();
 }
 
 // Standard Destructor
 ElectronPhotonShowerShapeFudgeTool::~ElectronPhotonShowerShapeFudgeTool()
 {
-  if(finalize().isFailure()){
-    ATH_MSG_ERROR ( "Failure in ElectronPhotonShowerShapeFudgeTool finalize()");
-  }
-
   if ( m_ph_rootTool ) delete m_ph_rootTool;
   if ( m_el_rootTool ) delete m_el_rootTool;
 }
@@ -59,7 +52,8 @@ StatusCode ElectronPhotonShowerShapeFudgeTool::initialize()
     m_configFile = "ElectronPhotonShowerShapeFudgeTool/DefaultShifts.conf";
   }
   std::string configFile = PathResolverFindCalibFile(m_configFile);
-  TEnv env(configFile.c_str());
+  TEnv env;
+  env.ReadFile(configFile.c_str(), kEnvLocal);
 
   m_el_rootTool->Shifts[ElePIDNames::Var::DeltaPoverP] = GetFloatVector("shift_DeltaPoverP", env);
   m_el_rootTool->Shifts[ElePIDNames::Var::TRTHighTOutliersRatio] = GetFloatVector("shift_TRTHighTOutliersRatio", env);
@@ -102,12 +96,8 @@ StatusCode ElectronPhotonShowerShapeFudgeTool::initialize()
   m_el_rootTool->Widths[ElePIDNames::Var::e277] = GetFloatVector("width_e277", env);
   m_el_rootTool->Widths[ElePIDNames::Var::DeltaE] = GetFloatVector("width_DeltaE", env);
 
-  return StatusCode::SUCCESS;
-}
+  m_ph_rootTool->LoadFFs(m_preselection, m_ffFile);
 
-
-StatusCode ElectronPhotonShowerShapeFudgeTool::finalize()
-{
   return StatusCode::SUCCESS;
 }
 
@@ -155,7 +145,7 @@ const CP::CorrectionCode ElectronPhotonShowerShapeFudgeTool::applyCorrection( xA
 
   // protection against bad clusters
   const xAOD::CaloCluster* cluster  = ph.caloCluster();
-  if ( cluster == 0 ) {
+  if ( cluster == nullptr ) {
     ATH_MSG_ERROR("cluster == " << cluster);
     return CP::CorrectionCode::Error;
   }
@@ -262,7 +252,7 @@ const CP::CorrectionCode ElectronPhotonShowerShapeFudgeTool::applyCorrection( xA
 
   // protection against bad clusters
   const xAOD::CaloCluster* cluster  = el.caloCluster();
-  if ( cluster == 0 ) {
+  if ( cluster == nullptr ) {
     ATH_MSG_ERROR("cluster == " << cluster);
     return CP::CorrectionCode::Error;
   }
@@ -336,10 +326,10 @@ const CP::CorrectionCode ElectronPhotonShowerShapeFudgeTool::correctedCopy( cons
 std::vector<float> ElectronPhotonShowerShapeFudgeTool::GetFloatVector(const std::string& input,  TEnv& env){
 	  std::vector<float> CutVector;
 	  std::string env_input(env.GetValue(input.c_str(), ""));
-	  if (env_input.size() > 0) {
+	  if (!env_input.empty()) {
 	    std::string::size_type end;
 	    do {
-	      end = env_input.find(";");
+	      end = env_input.find(';');
 	      float myValue(0);
 	      if(ElectronPhotonShowerShapeFudgeTool::strtof(env_input.substr(0,end),myValue)){
 	        CutVector.push_back(myValue);
@@ -357,16 +347,15 @@ bool ElectronPhotonShowerShapeFudgeTool::strtof(const std::string& input, float&
   std::string::size_type first(0);
   std::string::size_type last(0);
 
-  first = ( input.find("#") ) ;
+  first = ( input.find('#') ) ;
   if (first == std::string::npos) {
     f = ( atof (input.c_str() ) ) ;
     return true;
   }
   else {
-    last = (input.find("#",first+1) );
+    last = (input.find('#',first+1) );
     if (last == std::string::npos) {
-      static asg::AsgMessaging msg("Egamma::ElectronPhotonShowerShapeFudgeTool");
-      msg.msg(MSG::WARNING)<<" Improper comment format , inline comment should be enclosed between two #  "<<endmsg;
+      ATH_MSG_WARNING("Improper comment format , inline comment should be enclosed between two #");
       return false;
     }
     diff = last - first ;

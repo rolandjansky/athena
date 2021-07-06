@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODMISSINGET_VERSIONS_MISSINGETCOMPONENTMAP_V1_H
@@ -28,7 +28,8 @@ namespace xAOD
     /*! @brief Default constructor */
     MissingETComponentMap_v1(SG::OwnershipPolicy own=SG::OWN_ELEMENTS, SG::IndexTrackingPolicy trackIndices = SG::DEFAULT_TRACK_INDICES);
     /*! @brief Constructor from iterators */
-    MissingETComponentMap_v1(MissingETComponentMap_v1::iterator first, MissingETComponentMap_v1::iterator last,
+    MissingETComponentMap_v1(const MissingETComponentMap_v1::iterator& first,
+                             const MissingETComponentMap_v1::iterator& last,
 			     SG::OwnershipPolicy own=SG::OWN_ELEMENTS, SG::IndexTrackingPolicy trackIndices = SG::DEFAULT_TRACK_INDICES);
     /*! @brief Base class destructor */
     virtual ~MissingETComponentMap_v1();

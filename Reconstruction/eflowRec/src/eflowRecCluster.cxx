@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -96,8 +96,10 @@ double eflowRecCluster::getVarianceOfSumExpectedEnergy() {
 }
 
 int eflowRecCluster::getClusterType() {
-  if(m_calorimeterType!=UNASSIGNED) return m_calorimeterType;
-  CaloClusterKineHelper::calculateKine(const_cast<xAOD::CaloCluster*>(m_cluster), true, true);
+  if(m_calorimeterType!=UNASSIGNED) {
+    return m_calorimeterType;
+  }
+  CaloClusterKineHelper::calculateKine(m_cluster, true, true);
 
   double EMB_E = m_cluster->eSample(xAOD::CaloCluster::CaloSample::PreSamplerB)
       + m_cluster->eSample(xAOD::CaloCluster::CaloSample::EMB1)

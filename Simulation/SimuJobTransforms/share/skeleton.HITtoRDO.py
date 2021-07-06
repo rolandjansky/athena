@@ -1,5 +1,11 @@
-from __future__ import print_function
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
 from __future__ import division
+
+# get the logger
+from AthenaCommon.Logging import logging
+digilog = logging.getLogger('Digi_tf')
+digilog.info( '****************** STARTING DIGITIZATION *****************' )
 
 include("SimuJobTransforms/CommonSkeletonJobOptions.py")
 
@@ -10,17 +16,12 @@ if hasattr(runArgs, "jobNumber"):
 from AthenaCommon.GlobalFlags import globalflags
 if hasattr(runArgs,"geometryVersion"):
     # strip _VALIDATION
-    print("stripping _VALIDATION")
+    digilog.info("stripping _VALIDATION")
     if runArgs.geometryVersion.endswith("_VALIDATION"):
         pos=runArgs.geometryVersion.find("_VALIDATION")
         globalflags.DetDescrVersion.set_Value_and_Lock( runArgs.geometryVersion[:pos] )
     else:
         globalflags.DetDescrVersion.set_Value_and_Lock( runArgs.geometryVersion )
-
-# get the logger
-from AthenaCommon.Logging import logging
-digilog = logging.getLogger('Digi_tf')
-digilog.info( '****************** STARTING DIGITIZATION *****************' )
 
 
 #==============================================================
@@ -199,14 +200,14 @@ if hasattr(runArgs,"conditionsTag"):
     if(runArgs.conditionsTag!='NONE'):
         digitizationFlags.IOVDbGlobalTag = runArgs.conditionsTag
 
-if hasattr(runArgs,"PileUpPremixing"):
-    digilog.info("Doing pile-up premixing")
-    digitizationFlags.PileUpPremixing = runArgs.PileUpPremixing
+if hasattr(runArgs,"PileUpPresampling"):
+    digilog.info("Doing pile-up presampling")
+    digitizationFlags.PileUpPresampling = runArgs.PileUpPresampling
 
 #--------------------------------------------------------------
 # Pileup configuration
 #--------------------------------------------------------------
-from SimuJobTransforms.SimTransformUtils import makeBkgInputCol
+from SimuJobTransforms.SimTransformUtils import makeBkgInputCol,getInputColOffset
 def HasInputFiles(runArgs, key):
     if hasattr(runArgs, key):
         cmd='runArgs.%s' % key
@@ -234,8 +235,12 @@ if hasattr(runArgs, "inputHighPtMinbiasHitsFile"):
     bkgArgName="inputHighPtMinbiasHitsFile"
 if HasInputFiles(runArgs, bkgArgName):
     exec("bkgArg = runArgs."+bkgArgName)
-    digitizationFlags.HighPtMinBiasInputCols = makeBkgInputCol(bkgArg,
-                                                               digitizationFlags.numberOfHighPtMinBias.get_Value(), True, digilog)
+    if(digitizationFlags.HighPtMinBiasInputColOffset.get_Value()<0):
+        #Calculate a pseudo random offset into the collection from the jobNumber
+        digitizationFlags.HighPtMinBiasInputColOffset = getInputColOffset(bkgArg, runArgs.jobNumber, digilog)
+    digitizationFlags.HighPtMinBiasInputCols = makeBkgInputCol(bkgArg, 
+                                                               digitizationFlags.numberOfHighPtMinBias.get_Value(), True, digilog,
+                                                               digitizationFlags.HighPtMinBiasInputColOffset.get_Value())
 if digitizationFlags.HighPtMinBiasInputCols.statusOn:
     digitizationFlags.doHighPtMinBias = True
 else:
@@ -283,6 +288,11 @@ else:
 #--------------------------------------------------------------
 # Other configuration: LVL1, turn off sub detectors, calo noise
 #--------------------------------------------------------------
+
+if hasattr(runArgs, "detectors"):
+    if not 'DetFlags' in dir():
+        from Digitization.DigitizationFlagsHelpers import setupDigitizationLegacyDetectorFlags
+        DetFlags = setupDigitizationLegacyDetectorFlags(runArgs.detectors)
 
 if hasattr(runArgs,"doAllNoise"):
     if runArgs.doAllNoise!="NONE":
@@ -405,7 +415,7 @@ topSeq.TimeOut = 43200 * Units.s
 
 try:
     timingOutput = "HITStoRDO_timings"
-    if 'OverlayMT' in digitizationFlags.experimentalDigi():
+    if digitizationFlags.PileUpPresampling and 'LegacyOverlay' not in digitizationFlags.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         timingOutput = overlayFlags.bkgPrefix() + timingOutput
 

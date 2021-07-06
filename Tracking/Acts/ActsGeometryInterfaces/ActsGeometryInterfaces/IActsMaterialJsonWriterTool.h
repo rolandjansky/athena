@@ -9,7 +9,7 @@
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/IAlgTool.h"
 
-#include "Acts/Plugins/Json/JsonGeometryConverter.hpp"
+#include "Acts/Plugins/Json/MaterialMapJsonConverter.hpp"
 
 namespace Acts {
   class TrackingGeometry;
@@ -22,7 +22,7 @@ public:
 
   virtual
   void
-  write(const Acts::JsonGeometryConverter::DetectorMaterialMaps& detMaterial) const = 0;
+  write(const Acts::MaterialMapJsonConverter::DetectorMaterialMaps& detMaterial) const = 0;
 
   virtual
   void

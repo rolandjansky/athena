@@ -111,6 +111,7 @@ namespace Trk
   xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk) const
   {
     Amg::Vector3D tmpVtx;
+    tmpVtx.setZero();
     return fit(vectorTrk, tmpVtx);
   }
 
@@ -133,8 +134,8 @@ namespace Trk
           msg(MSG::DEBUG) << "first measurement " << p->curvilinearParameters(indexFMP) << endmsg;
           msg(MSG::DEBUG) << "first measurement covariance " << *(p->curvilinearParameters(indexFMP)).covariance() << endmsg;
         } else {
-          Amg::Transform3D * CylTrf = new Amg::Transform3D;
-          CylTrf->setIdentity();
+          Amg::Transform3D CylTrf;
+          CylTrf.setIdentity();
           Trk::CylinderSurface estimationCylinder(CylTrf, p->radiusOfFirstHit(), 10e10);
           const Trk::TrackParameters* chargeParameters = &p->perigeeParameters();
           MaterialUpdateMode mode = Trk::removeNoise;
@@ -205,6 +206,7 @@ namespace Trk
   xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const Trk::TrackParameters*>& originalPerigees) const
   {
     Amg::Vector3D tmpVtx;
+    tmpVtx.setZero();
     return fit(originalPerigees, tmpVtx);
   }
 
@@ -900,15 +902,16 @@ namespace Trk
     std::vector<V0FitterTrack>::iterator BTIterf;
     for (BTIterf = v0FitterTracks.begin(); BTIterf != v0FitterTracks.end() ; ++BTIterf)
     {
-      AmgSymMatrix(5) * CovMtxP = new AmgSymMatrix(5);
-      CovMtxP->setIdentity();
+      AmgSymMatrix(5) CovMtxP;
+      CovMtxP.setIdentity();
       for (unsigned int i=0; i<5; ++i) {
         for (unsigned int j=0; j<i+1; ++j) {
           double val = V_mat(5*iterf+i,5*iterf+j);
-          CovMtxP->fillSymmetric(i,j,val);
+          CovMtxP.fillSymmetric(i,j,val);
         }
       }
-      refittedPerigee = new Trk::Perigee (Y_vec(0+5*iterf),Y_vec(1+5*iterf),Y_vec(2+5*iterf),Y_vec(3+5*iterf),Y_vec(4+5*iterf), Surface, CovMtxP);
+      refittedPerigee = new Trk::Perigee (Y_vec(0+5*iterf),Y_vec(1+5*iterf),Y_vec(2+5*iterf),Y_vec(3+5*iterf),Y_vec(4+5*iterf), 
+                                          Surface, std::move(CovMtxP));
       tracksAtVertex.emplace_back((*BTIterf).chi2, refittedPerigee, (*BTIterf).originalPerigee);
       iterf++;
     }

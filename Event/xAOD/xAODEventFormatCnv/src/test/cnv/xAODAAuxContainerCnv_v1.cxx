@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration */
+/* Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration */
 #include "xAODAAuxContainerCnv_v1.h"
 
 // System include(s):
@@ -45,7 +45,7 @@ persToTrans( const xAODMakerTest::AAuxContainer_v1* oldObj,
 
    // Copy the payload of the v1 object into the latest one by misusing
    // the thinning code a bit...
-   SG::copyAuxStoreThinned( *oldObj, *newObj, 0 );
+   SG::copyAuxStoreThinned( *oldObj, *newObj, nullptr );
 
    // Set up interface containers on top of them:
 

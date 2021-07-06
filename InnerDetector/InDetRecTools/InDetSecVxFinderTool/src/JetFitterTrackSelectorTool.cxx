@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration 
 */
 #include "InDetSecVxFinderTool/JetFitterTrackSelectorTool.h"
 #include <cassert>
@@ -65,7 +65,7 @@ using namespace InDet;
 	assert( tmp != nullptr ); // in principle should really check that inputTracks only contains TrackParticle objects
 
 	// Apply track filter
-	if ( m_trkFilter->decision( *tmp,&primaryVertex ) == false ) continue;
+	if ( !m_trkFilter->decision( *tmp,&primaryVertex ) ) continue;
 
 	// Compute compatibility and understand track type
 	// 0: extrapolation of MeasuredPerigee failed

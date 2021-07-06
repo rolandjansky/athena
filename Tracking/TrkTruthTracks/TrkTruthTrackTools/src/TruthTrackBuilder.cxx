@@ -38,9 +38,9 @@ Trk::TruthTrackBuilder::TruthTrackBuilder(const std::string& t, const std::strin
   m_extrapolator(""),
   m_rotcreator(""),
   m_rotcreatorbroad(""),
-  m_DetID(0),
+  m_DetID(nullptr),
   m_particlePropSvc("PartPropSvc",n),
-  m_particleDataTable(0),
+  m_particleDataTable(nullptr),
   m_minNdof(6),
   m_onlyPrimaries(false),
   m_primaryBarcodeCutOff(100000),
@@ -99,7 +99,7 @@ StatusCode  Trk::TruthTrackBuilder::initialize()
     
     // and the particle data table 
     m_particleDataTable = m_particlePropSvc->PDT();
-    if (m_particleDataTable==0)
+    if (m_particleDataTable==nullptr)
     {
       ATH_MSG_ERROR( "Could not get ParticleDataTable! Cannot associate pdg code with charge. Aborting. " );
       return StatusCode::FAILURE;
@@ -124,20 +124,20 @@ StatusCode  Trk::TruthTrackBuilder::finalize()
 Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTraj, SegmentCollection* segs ) const 
 {
 
-    if( segs != 0 ){
+    if( segs != nullptr ){
       ATH_MSG_WARNING("Requested to fill segment collection but mode not implemented");
     }
     ATH_MSG_VERBOSE("The PRD Truth trajectory contains " << prdTraj.prds.size() << " PRDs.");
 
     // get the associated GenParticle
-    const HepMC::GenParticle* genPart = prdTraj.genParticle;
+    auto genPart = prdTraj.genParticle;
     if (!genPart) {
         ATH_MSG_WARNING("No GenParticle associated to this PRD_TruthTrajectory. Ignoring track creation.");
-        return 0;
+        return nullptr;
     }    
     ATH_MSG_VERBOSE("Got PRD Truth trajectory with " << prdTraj.nDoF << " degrees of freedom.");
     // check min degrees of freedom
-    if ( m_minNdof > 0 &&  prdTraj.nDoF < m_minNdof) return 0;
+    if ( m_minNdof > 0 &&  prdTraj.nDoF < m_minNdof) return nullptr;
     // get the startPosition : math library madness as usual
     Amg::Vector3D startPos = genPart->production_vertex() ?
       Amg::Vector3D(genPart->production_vertex()->position().x(),
@@ -166,16 +166,16 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
     const Trk::TrackParameters *per = m_extrapolator->extrapolate(startParams,persurf,Trk::anyDirection,false,Trk::nonInteracting);
     if (!per) {
         ATH_MSG_DEBUG("Perigee creation for genParticle start position failed. Skipping track creation.");
-        return 0;
+        return nullptr;
     }
     // first TrackStateOnSurface is the Perigee 
     const Trk::TrackParameters *prevpar = &startParams;
     std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
     typePattern.set(Trk::TrackStateOnSurface::Perigee);
     
-   const Trk::TrackStateOnSurface *pertsos=new Trk::TrackStateOnSurface(0,per,0,0,typePattern);
-   DataVector<const Trk::TrackStateOnSurface>* traj = new DataVector<const Trk::TrackStateOnSurface>;
-   traj->push_back(pertsos);
+   const Trk::TrackStateOnSurface *pertsos=new Trk::TrackStateOnSurface(nullptr,per,nullptr,nullptr,typePattern);
+   auto traj = DataVector<const Trk::TrackStateOnSurface>();
+   traj.push_back(pertsos);
    
    
    
@@ -204,7 +204,7 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
         thispar=tmppar;
         std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
         typePattern.set(Trk::TrackStateOnSurface::Measurement);
-        const Trk::RIO_OnTrack *rot=0;
+        const Trk::RIO_OnTrack *rot=nullptr;
         bool isshared=false;
         
         if (!isshared) rot=m_rotcreator->correct(*clusters[i],*thispar);
@@ -213,17 +213,22 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
           continue;
         }
         // create the ROTs for the reference trajectory
-        const Trk::TrackStateOnSurface *tsos=new Trk::TrackStateOnSurface(rot,thispar,0,0,typePattern);
-        traj->push_back(tsos);
+        const Trk::TrackStateOnSurface *tsos=new Trk::TrackStateOnSurface(rot,thispar,nullptr,nullptr,typePattern);
+        traj.push_back(tsos);
         prevpar=thispar;
         
    }
    // this is the reference trajectory to be refitted  
    Trk::TrackInfo info;
-   Trk::Track track(info,traj,0);
-   if (/* ndof<0 */ (track.measurementsOnTrack()->size()<m_minSiHits && fabs(genPart->momentum().eta())<=m_forwardBoundary) || (track.measurementsOnTrack()->size()<m_minSiHitsForward && fabs(genPart->momentum().eta())>m_forwardBoundary) || (m_onlyPrimaries && barcode>=m_primaryBarcodeCutOff)) {
-       ATH_MSG_VERBOSE("Track does not fulfill requirements for refitting. Skipping it.");
-       return 0;
+   Trk::Track track(info, std::move(traj), nullptr);
+   if (/* ndof<0 */ (track.measurementsOnTrack()->size() < m_minSiHits &&
+                     fabs(genPart->momentum().eta()) <= m_forwardBoundary) ||
+       (track.measurementsOnTrack()->size() < m_minSiHitsForward &&
+        fabs(genPart->momentum().eta()) > m_forwardBoundary) ||
+       (m_onlyPrimaries && barcode >= m_primaryBarcodeCutOff)) {
+     ATH_MSG_VERBOSE(
+       "Track does not fulfill requirements for refitting. Skipping it.");
+     return nullptr;
    }
    // choose the material effects
    //!< @todo : if we need a dedicated electron fitter is has to go in here !
@@ -254,13 +259,13 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
      if (prevpar!=refittedtrack->trackParameters()->back() )delete prevpar;
      refittedtrack2=m_trackFitter->fit(*refittedtrack,measset,false,materialInteractions);
      if (!refittedtrack2){
-       DataVector<const Trk::TrackStateOnSurface>* traj2 = new DataVector<const Trk::TrackStateOnSurface>;
-       for (int j=0;j<(int)refittedtrack->trackStateOnSurfaces()->size();j++) traj2->push_back(new Trk::TrackStateOnSurface(*(*refittedtrack->trackStateOnSurfaces())[j]));
+       auto traj2 = DataVector<const Trk::TrackStateOnSurface>();
+       for (int j=0;j<(int)refittedtrack->trackStateOnSurfaces()->size();j++) traj2.push_back(new Trk::TrackStateOnSurface(*(*refittedtrack->trackStateOnSurfaces())[j]));
        std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern2;
        typePattern2.set(Trk::TrackStateOnSurface::Outlier);
    
-       for (int j=0;j<(int)measset.size();j++) traj2->push_back(new Trk::TrackStateOnSurface( measset[j],0,0,0,typePattern2));
-       refittedtrack2=new Trk::Track(refittedtrack->info(),traj2,refittedtrack->fitQuality()->clone());
+       for (int j=0;j<(int)measset.size();j++) traj2.push_back(new Trk::TrackStateOnSurface( measset[j],nullptr,nullptr,nullptr,typePattern2));
+       refittedtrack2=new Trk::Track(refittedtrack->info(),std::move(traj2),refittedtrack->fitQuality()->clone());
      }
      else for (int j=0;j<(int)measset.size();j++) delete measset[j];
    } else if(!refittedtrack){

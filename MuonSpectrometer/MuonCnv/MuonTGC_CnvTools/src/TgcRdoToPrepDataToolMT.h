@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -22,7 +22,7 @@ namespace Muon
    * This class was developed by Takashi Kubota. 
    */  
 
-  class TgcRdoToPrepDataToolMT : virtual public TgcRdoToPrepDataToolCore
+  class TgcRdoToPrepDataToolMT : public extends<TgcRdoToPrepDataToolCore, IMuonRdoToPrepDataTool>
   {
     public:
       /** Constructor */
@@ -35,7 +35,9 @@ namespace Muon
       virtual StatusCode initialize() override;
     
       using TgcRdoToPrepDataToolCore::decode; // To prevent the decode below from hiding the superclass decode methods
-      virtual StatusCode decode(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& idWithDataVect) override;
+      virtual StatusCode decode(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& idWithDataVect) const override;
+
+      virtual void printPrepData() const override;
    }; 
 } // end of namespace
 

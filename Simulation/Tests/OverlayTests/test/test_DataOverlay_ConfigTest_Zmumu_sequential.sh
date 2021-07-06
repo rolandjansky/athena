@@ -20,10 +20,11 @@ Overlay_tf.py \
 --maxEvents 10 \
 --conditionsTag CONDBR2-BLKPA-2016-12 \
 --postInclude 'OverlayConfiguration.OverlayTestHelpers.OverlayJobOptsDumperCfg' \
---postExec 'with open("ConfigOverlay.pkl", "wb") as f: acc.store(f)' \
+--postExec 'with open("ConfigOverlay.pkl", "wb") as f: cfg.store(f)' \
 --imf False
 
 rc=$?
+status=$rc
 echo "art-result: $rc overlay"
 
 rc2=-9999
@@ -33,5 +34,8 @@ then
     ArtJobName=$2
     art.py compare grid --entries 10 "${ArtPackage}" "${ArtJobName}" --mode=semi-detailed --order-trees
     rc2=$?
+    status=$rc2
 fi
 echo  "art-result: $rc2 regression"
+
+exit $status

@@ -1,30 +1,22 @@
 <lcgdict>
-<class name="FastJetInterfaceTool"/>
-<class name="JetBottomUpSoftDrop"/>
-<class name="JetByVertexFinder"/>
-<class name="JetConstitRemover"/>
-<class name="JetConstituentsRetriever"/>
-<class name="JetDumper"/>
-<class name="JetFilterTool"/>
-<class name="JetFinder"/>
-<class name="JetFromPseudojet"/>
-<class name="JetModifierBase"/>
-<class name="JetPruner"/>
-<class name="JetPseudojetCopier"/>
-<class name="JetPseudojetRetriever"/>
-<class name="JetReclusterer"/>
-<class name="JetRecTool"/>
-<class name="JetRecursiveSoftDrop"/>
-<class name="JetSoftDrop"/>
-<class name="JetSorter"/>
-<class name="JetSplitter"/>
-<class name="JetToolRunner"/>
-<class name="JetTrimmer"/>
-<class name="JetModifiedMassDrop"/>
-<enum name="JetModifiedMassDrop::SymmetryMeasure"/>
-<enum name="JetModifiedMassDrop::RecursionChoice"/>
+
+<class name="JetRecAlg"/>
+<class name="JetAlgorithm"/>
+<!-- <class name="JetViewAlg"/> -->
 <class name="MuonSegmentPseudoJetGetter"/>
-<class name="PseudoJetGetter"/>
-<class name="PseudoJetGetterRegistry"/>
+<class name="PseudoJetMerger"/>
+<class name="PseudoJetAlgorithm"/>
+
+<class name="JetSorter"/>
+<class name="JetFilterTool"/>
+
+<class name="JetClusterer"/>
+<class name="JetDecorator"/>
+
+<namespace name="JetGrooming"/>
+<class name="JetGrooming::SoftDrop"/>
+<class name="JetGrooming::RecSoftDrop"/>
+<class name="JetGrooming::BottomUpSoftDrop"/>
+<class name="JetGrooming::JetTrimming"/>
 
 </lcgdict>

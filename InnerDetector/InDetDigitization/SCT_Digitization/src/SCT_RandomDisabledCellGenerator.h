@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -23,7 +23,7 @@
 
 //Inheritance
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "SCT_Digitization/ISCT_RandomDisabledCellGenerator.h"
+#include "SiDigitization/IRandomDisabledCellGenerator.h"
 
 class SiChargedDiode;
 class SiChargedDiodeCollection;
@@ -32,7 +32,7 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class SCT_RandomDisabledCellGenerator : public extends<AthAlgTool, ISCT_RandomDisabledCellGenerator> {
+class SCT_RandomDisabledCellGenerator : public extends<AthAlgTool, IRandomDisabledCellGenerator> {
 
   ///////////////////////////////////////////////////////////////////
   // Public methods:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGL2MUONSA_ALIGNMENTBARRELLUTSVC_H
@@ -8,25 +8,19 @@
 #include <string>
 #include "AthenaBaseComps/AthService.h"
 
-#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "AlignmentBarrelLUT.h"
 
 namespace TrigL2MuonSA {
 
-  class AlignmentBarrelLUTSvc : public AthService, virtual public IInterface
+  class AlignmentBarrelLUTSvc : public AthService
   {
   public:
-    static const InterfaceID& interfaceID() {
-      static const InterfaceID IID(11498, 0 , 0);
-      return IID;
-    }
+    // import IService as this service does not define its own interface:
+    using IService::interfaceID;
 
-  public:
     AlignmentBarrelLUTSvc(const std::string& name,ISvcLocator* sl);
-
-    virtual StatusCode queryInterface(const InterfaceID& riid,void** ppvIF) override;
 
     virtual StatusCode initialize() override;
 

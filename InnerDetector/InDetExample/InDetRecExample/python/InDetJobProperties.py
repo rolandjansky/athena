@@ -1,7 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-
-from __future__ import print_function
-
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #
 ## @file InDetRecExample/python/InDetJobProperties.py
@@ -26,7 +23,6 @@ __all__    = [ "InDetJobProperties" ]
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties
-import AthenaCommon.SystemOfUnits as Units
 
 ##-----------------------------------------------------------------------------
 ## 0th step: define infrastructure JPs DO NOT MODIFY THEM!!!
@@ -45,7 +41,7 @@ class Enabled(JobProperty):
       if not(obj._locked):
          obj.__dict__['statusOn']=True
       else:
-         obj._log.info('The JobProperty %s is blocked' % obj.__name__)
+         obj._log.info('The JobProperty %s is blocked', obj.__name__)
 
    def set_Off_NoDoAction(self, obj):
       """ Sets statusOn equals to False w/o _undo_action.
@@ -53,7 +49,7 @@ class Enabled(JobProperty):
       if not(obj._locked):
          obj.__dict__['statusOn']=False
       else:
-         obj._log.info('The JobProperty %s is blocked' % obj.__name__)
+         obj._log.info('The JobProperty %s is blocked', obj.__name__)
 
    def _do_action(self):
       for obj in self._the_same_context_objects():
@@ -333,7 +329,7 @@ class doCaloSeededAmbi(InDetFlagsJobProperty):
     """Use Calo ROIs to seed specific cuts for the ambi"""
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = False
+    StoredValue  = True
 
 class doCaloSeededRefit(InDetFlagsJobProperty):
     """Use Calo ROIs to seed refif for the ambi processor"""
@@ -848,12 +844,6 @@ class doV0VtxD3PD(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
         
-class doTriggerD3PD(InDetFlagsJobProperty):
-    """  """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-        
 class removeTRTNoise(InDetFlagsJobProperty):
     """  """
     statusOn     = True
@@ -1148,8 +1138,8 @@ class useNNTTrainedNetworks(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = False
 
-class keepAdditionalHitsOnTrackParticle(InDetFlagsJobProperty): 
-  """Do not drop first/last hits on track (only for special cases - will blow up TrackParticle szie!!!)""" 
+class keepAdditionalHitsOnTrackParticle(InDetFlagsJobProperty):
+  """Do not drop first/last hits on track (only for special cases - will blow up TrackParticle size!!!)"""
   statusOn     = True 
   allowedTypes = ['bool']
   StoredValue  = False
@@ -1196,11 +1186,29 @@ class nnCutLargeD0Threshold(InDetFlagsJobProperty):
   allowedTypes = ['float']
   StoredValue  = -1.0
 
+class writeSeedValNtuple(InDetFlagsJobProperty):
+    """Turn writing of seed validation ntuple on and off"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
 class doTRTPIDNN(InDetFlagsJobProperty): 
   """calculate NN-based TRT electron probability""" 
   statusOn     = True 
   allowedTypes = ['bool']
   StoredValue  = True
+
+class doTTVADecos(InDetFlagsJobProperty): 
+  """decorate tracks with their AMVF vertices+weights for TTVA""" 
+  statusOn     = True 
+  allowedTypes = ['bool']
+  StoredValue  = True
+
+## Decide whether to wrap the new configuration in the old.
+class useNewConfig(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
 
 
 ##-----------------------------------------------------------------------------
@@ -1441,6 +1449,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.primaryVertexCutSetup  , "Offline") 
        self.checkThenSet(self.secondaryVertexCutSetup, "PileUp") 
        self.checkThenSet(self.vertexSeedFinder       , "SlidingWindowMultiSeedFinder")
+       self.checkThenSet(self.useActsPriVertexing    , False)
        self.checkThenSet(self.doV0Finder             , False)
        self.checkThenSet(self.doSimpleV0Finder       , False)      
        self.checkThenSet(self.doConversions          , False )        
@@ -1480,6 +1489,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.primaryVertexCutSetup  , "Offline")
        self.checkThenSet(self.secondaryVertexCutSetup, "PileUp")
        self.checkThenSet(self.vertexSeedFinder       , "SlidingWindowMultiSeedFinder")
+       self.checkThenSet(self.useActsPriVertexing    , False)
        self.checkThenSet(self.doV0Finder             , False)
        self.checkThenSet(self.doSimpleV0Finder       , False)     
        self.checkThenSet(self.doConversions          , False )       
@@ -1685,9 +1695,7 @@ class InDetJobProperties(JobPropertyContainer):
       # THIS METHOD MUST BE THE FIRST TO BE CALLED. DO NOT MOVE IT OR ADD THINGS IN FRONT
       self.setupDefaults()
 
-      from AthenaCommon.GlobalFlags import globalflags
       from AthenaCommon.DetFlags    import DetFlags
-      from RecExConfig.RecFlags     import rec
 
       # -------------------------------------------------------------------
       # Cosmics TRT extension, NewTracking needs full tracking geometry 
@@ -1741,7 +1749,7 @@ class InDetJobProperties(JobPropertyContainer):
       #
       # no new tracking if pixel or sct off (new tracking = inside out only)
       self.doNewTracking = self.doNewTracking() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
-	  # always use truth tracking for SplitReco and never use it if pixel or sct off
+      # always use truth tracking for SplitReco and never use it if pixel or sct off
       self.doPseudoTracking = (self.doPseudoTracking() or self.doSplitReco()) and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
       #
       # no low pt tracking if no new tracking before or if pixels are off (since low-pt tracking is pixel seeded)!  Explicitly veto for cosmics to aid T0
@@ -1765,8 +1773,9 @@ class InDetJobProperties(JobPropertyContainer):
       # --------------------------------------------------------------------
       #
       # control whether to run SiSPSeededTrackFinder
+      # doR3LargeD0 is removed from setTrackingOff sequence therefore "not self.setTrackingOff() and self.doR3LargeD0()" becomes the equivalent expression
       self.doSiSPSeededTrackFinder = (self.doNewTracking() or self.doNewTrackingSegments() or \
-                                      self.doBeamGas() or self.doLargeD0() or self.doR3LargeD0() or self.doLowPtLargeD0() ) \
+                                      self.doBeamGas() or self.doLargeD0() or self.runLRTReco() or self.doLowPtLargeD0() ) \
                                     and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())      
       # failsafe lines in case requirements are not met to run TRT standalone or back tracking
       self.doTRTStandalone         = self.doTRTStandalone() and DetFlags.haveRIO.TRT_on()
@@ -1884,22 +1893,22 @@ class InDetJobProperties(JobPropertyContainer):
       # ---- Refit of tracks
       # --------------------------------------------------------------------
       #
-      if (self.trackFitterType() is not 'KalmanFitter' and self.trackFitterType() is not 'KalmanDNAFitter') :
+      if (self.trackFitterType() != 'KalmanFitter' and self.trackFitterType() != 'KalmanDNAFitter') :
          self.refitROT = True
       if not self.refitROT() and not self.redoTRT_LR() :
          print('ConfiguredInDetFlags.py       WARNING refitROT and redoTRT_LR are both False, NOT RECOMMENDED!')
       #
       # refKF needs a new method in IUpdator, where there is currently only one implementation
-      if (self.trackFitterType() is 'ReferenceKalmanFitter'):
+      if (self.trackFitterType() == 'ReferenceKalmanFitter'):
           self.kalmanUpdator = 'amg'
       #
       # check if a valid fitter has been used
-      if not (    (self.trackFitterType() is 'KalmanFitter')
-               or (self.trackFitterType() is 'KalmanDNAFitter')
-               or (self.trackFitterType() is 'ReferenceKalmanFitter')
-               or (self.trackFitterType() is 'DistributedKalmanFilter')
-               or (self.trackFitterType() is 'GlobalChi2Fitter' )
-               or (self.trackFitterType() is 'GaussianSumFilter') ):
+      if not (    (self.trackFitterType() == 'KalmanFitter')
+               or (self.trackFitterType() == 'KalmanDNAFitter')
+               or (self.trackFitterType() == 'ReferenceKalmanFitter')
+               or (self.trackFitterType() == 'DistributedKalmanFilter')
+               or (self.trackFitterType() == 'GlobalChi2Fitter' )
+               or (self.trackFitterType() == 'GaussianSumFilter') ):
          print('InDetJobProperties.py       WARNING unregistered or invalid track fitter setup.')
          print('                                      --> re-setting to TrkKalmanFitter.')
          self.trackFitterType = 'KalmanFitter'
@@ -1951,7 +1960,7 @@ class InDetJobProperties(JobPropertyContainer):
   def doAmbiSolving(self):
     from AthenaCommon.DetFlags import DetFlags
     return (self.doNewTracking() or self.doBeamGas() or self.doTrackSegmentsPixel() \
-            or self.doTrackSegmentsSCT() or self.doLargeD0() or self.doR3LargeD0() or self.doLowPtLargeD0() ) \
+            or self.doTrackSegmentsSCT() or self.doLargeD0() or self.runLRTReco() or self.doLowPtLargeD0() ) \
            and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
   
   def loadRotCreator(self):
@@ -1975,7 +1984,7 @@ class InDetJobProperties(JobPropertyContainer):
   def doNewTrackingPattern(self):
     return self.doNewTracking() or self.doBackTracking() or self.doBeamGas() \
            or self.doLowPt() or self.doVeryLowPt() or self.doTRTStandalone() \
-           or self.doForwardTracks() or self.doLargeD0() or self.doR3LargeD0() or self.doLowPtLargeD0()
+           or self.doForwardTracks() or self.doLargeD0() or self.runLRTReco() or self.doLowPtLargeD0()
 
   def doNewTrackingSegments(self):
     return self.doTrackSegmentsPixel() or self.doTrackSegmentsSCT() or self.doTrackSegmentsTRT()
@@ -1985,12 +1994,12 @@ class InDetJobProperties(JobPropertyContainer):
   
   def doTRTExtension(self):
     from AthenaCommon.DetFlags import DetFlags
-    return ((self.doNewTracking() or self.doBeamGas() or self.doLargeD0() or self.doR3LargeD0() or self.doLowPtLargeD0()) \
+    return ((self.doNewTracking() or self.doBeamGas() or self.doLargeD0() or self.runLRTReco() or self.doLowPtLargeD0()) \
              and DetFlags.haveRIO.TRT_on() ) and self.doTRTExtensionNew()
   
   def doExtensionProcessor(self):
     from AthenaCommon.DetFlags    import DetFlags
-    return (self.doNewTracking() or self.doBeamGas() or self.doLargeD0() or self.doR3LargeD0() or self.doLowPtLargeD0()) \
+    return (self.doNewTracking() or self.doBeamGas() or self.doLargeD0() or self.runLRTReco() or self.doLowPtLargeD0()) \
             and DetFlags.haveRIO.TRT_on()
  
   def solenoidOn(self):
@@ -2011,14 +2020,14 @@ class InDetJobProperties(JobPropertyContainer):
 
   def doNtupleCreation(self):
     return (self.doSctClusterNtuple() or
-	    self.doTrkNtuple() or self.doPixelTrkNtuple() or self.doSctTrkNtuple() or
+            self.doTrkNtuple() or self.doPixelTrkNtuple() or self.doSctTrkNtuple() or
             self.doTrtTrkNtuple() or self.doVtxNtuple() or self.doConvVtxNtuple() or
             self.doV0VtxNtuple())
 
   def doD3PDCreation(self):
     return (self.doTrkD3PD() or self.doPixelTrkD3PD() or self.doSctTrkD3PD() or
             self.doTrtTrkD3PD() or self.doVtxD3PD() or self.doVtxMonitoringD3PD() or self.doConvVtxD3PD() or
-            self.doV0VtxD3PD() or self.doTriggerD3PD())
+            self.doV0VtxD3PD())
   
   def doMonitoring(self):
     return (self.doMonitoringGlobal() or self.doMonitoringPrimaryVertexingEnhanced() or self.doMonitoringPixel() or self.doMonitoringSCT() or
@@ -2037,7 +2046,6 @@ class InDetJobProperties(JobPropertyContainer):
        self.doVeryLowPt               = False  
        self.doForwardTracks           = False
        self.doLargeD0                 = False
-       self.doR3LargeD0               = False
        self.doLowPtLargeD0            = False
        self.doHadCaloSeededSSS        = False
 
@@ -2052,10 +2060,15 @@ class InDetJobProperties(JobPropertyContainer):
        self.doLowBetaFinder           = False  # couple to post processing? 
     return
  
+  def runLRTReco(self):
+    return self.doR3LargeD0() and not self.disableTracking()
+
   def setInDetRecoOff(self):
     "Disable all ID reco: pre-processing, tracking, post-processing ..."
     if self.disableInDetReco():
        self.doCaloSeededBrem          = False # disables ROI creation
+       self.doCaloSeededAmbi          = False # disables ROI creation also for the hadronic calo
+       self.doTTVADecos               = False # Disables TTVA decorations 
        self.preProcessing             = False
        self.doHadCaloSeededSSS        = False
        #self.doPRDFormation            = False
@@ -2311,7 +2324,7 @@ class InDetJobProperties(JobPropertyContainer):
           standAloneTracking += 'TRT'
        print(standAloneTracking)
     # -----------------------------------------
-    if self.doLargeD0() or self.doR3LargeD0() or self.doLowPtLargeD0() :
+    if self.doLargeD0() or (not self.disableTracking() and self.doR3LargeD0()) or self.doLowPtLargeD0() :
        print('*')
        print('* LargeD0 Tracking is ON')
        if self.doSiSPSeededTrackFinder() :
@@ -2492,9 +2505,6 @@ class InDetJobProperties(JobPropertyContainer):
        if self.doVtxD3PD() or self.doVtxMonitoringD3PD() or self.doConvVtxD3PD() or self.doV0VtxD3PD():
           print(ntupleString)
 
-       if self.doTriggerD3PD():
-          print('* D3PD trigger tree activated')
-
     # -----------------------------------------
     if (self.doMonitoringGlobal() or self.doMonitoringPrimaryVertexingEnhanced() or self.doMonitoringPixel() or self.doMonitoringSCT() or self.doMonitoringTRT() or self.doMonitoringAlignment()):
        print('*')
@@ -2567,14 +2577,14 @@ class InDetJobProperties(JobPropertyContainer):
       print('* load TrackingGeometry')
     if self.loadExtrapolator() :
       print('* load Extrapolator:')
-      if self.propagatorType() is 'RungeKutta' :
+      if self.propagatorType() == 'RungeKutta' :
         print('* - load Runge Kutta propagator')
-      elif self.propagatorType() is 'STEP' :
+      elif self.propagatorType() == 'STEP' :
         print('* - load STEP propagator')
       if self.materialInteractions() :
         print('* - use material corrections of type %s in extrapolation and fit'% self.materialInteractionsType())
     if self.loadUpdator() :
-      if self.kalmanUpdator() is "fast" :
+      if self.kalmanUpdator() == "fast" :
         print('* load MeasurementUpdator_xk')
       else:
         print('* load MeasurementUpdator')
@@ -2741,7 +2751,6 @@ _list_InDetJobProperties = [Enabled,
                             doVtxMonitoringD3PD,
                             doConvVtxD3PD,
                             doV0VtxD3PD,
-                            doTriggerD3PD,
                             removeTRTNoise,
                             noTRTTiming,
                             InDet25nsec,
@@ -2800,7 +2809,10 @@ _list_InDetJobProperties = [Enabled,
                             doDigitalROTCreation,
                             nnCutLargeD0Threshold,
                             useMuForTRTErrorScaling,
-                            doTRTPIDNN
+                            writeSeedValNtuple,
+                            doTRTPIDNN,
+                            doTTVADecos,
+                            useNewConfig
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)

@@ -29,25 +29,29 @@ namespace InDet {
 
   public:
 
-  InDetTrackTruthOriginTool (const std::string& name);
-  virtual ~InDetTrackTruthOriginTool();
+    InDetTrackTruthOriginTool (const std::string& name);
+    virtual ~InDetTrackTruthOriginTool();
 
-  virtual StatusCode initialize() override;
-  virtual void prepare() override {};
+    virtual StatusCode initialize() override;
 
-  /** Computes the tracks origin */
-  virtual int getTrackOrigin(const xAOD::TrackParticle* track) const override;
+    /** Safely access a track's linked truth particle, if available **/
+    virtual const xAOD::TruthParticle* getTruth( const xAOD::TrackParticle* track ) const override;
 
-private:
+    /** Computes the tracks origin */
+    virtual int getTrackOrigin(const xAOD::TrackParticle* track) const override;
 
-  bool isFrom(const xAOD::TruthParticle* part, int flav) const;
-  int getParentID(const xAOD::TruthParticle* part) const;
+    /** Computes the truth origin (from B or D hadron) */
+    virtual bool isFrom(const xAOD::TruthParticle* part, int flav) const override;
 
-  float m_matchingProbabilityCut = 0.75;
-  float m_barcodeG4 = 2e5;
+  private:
 
-  std::string m_truthParticleLinkName = "truthParticleLink";
-  std::string m_truthMatchProbabilityAuxName = "truthMatchProbability";
+    int getParentID(const xAOD::TruthParticle* part) const;
+
+    float m_matchingProbabilityCut;
+    float m_barcodeG4;
+
+    std::string m_truthParticleLinkName;
+    std::string m_truthMatchProbabilityAuxName;
 
 }; // class InDetTrackTruthOriginTool
 

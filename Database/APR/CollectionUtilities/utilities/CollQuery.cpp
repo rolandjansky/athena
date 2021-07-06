@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -34,6 +34,7 @@
 #include "CollectionUtilities/QueryInfo.h"
 #include "CollectionUtilities/CatalogInfo.h"
 #include "CollectionUtilities/MaxEventsInfo.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <iostream>
 #include <iomanip>
@@ -42,6 +43,8 @@
 
 // ------   copied the whole class here for quick adaptation.  MN
 #include <set>
+
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 using namespace pool;
 using namespace std;
@@ -55,10 +58,10 @@ public:
   std::string info() const;
 //  std::string nonTypeInfo() const;
   
-  void setType(std::string info) {setInfoForKey("TYPE",info);}
-  void setUnit(std::string info) {setInfoForKey("UNIT",info);}
-  void setGroup(std::string info) {setInfoForKey("GRP",info);}
-  void fromString(std::string info);
+  void setType(const std::string& info) {setInfoForKey("TYPE",info);}
+  void setUnit(const std::string& info) {setInfoForKey("UNIT",info);}
+  void setGroup(const std::string& info) {setInfoForKey("GRP",info);}
+  void fromString(const std::string& info);
 
   std::string typeName() const;
   std::string unit() const;
@@ -68,7 +71,7 @@ public:
 
 private:
 
-  bool setInfoForKey(std::string key, std::string info);
+  bool setInfoForKey(const std::string& key, const std::string& info);
 
   std::map<std::string,std::string> m_keyedInfo;
   std::set<std::string> m_keys;
@@ -90,7 +93,7 @@ AttributeType::AttributeType(std::string t,
 }
 
 inline
-bool AttributeType::setInfoForKey(std::string key, std::string info)
+bool AttributeType::setInfoForKey(const std::string& key, const std::string& info)
 {
    if ( m_keys.find(key) != m_keys.end() ) {
       std::map<std::string,std::string>::iterator i = m_keyedInfo.find(key);
@@ -102,7 +105,7 @@ bool AttributeType::setInfoForKey(std::string key, std::string info)
 }
 
 inline void
-AttributeType::fromString(std::string i)
+AttributeType::fromString(const std::string& i)
 {
    m_keyedInfo.clear();
    m_keys.clear();

@@ -37,7 +37,7 @@ def _CaloNoiseCondAlgMC(noiseAlgName,noisetype):
         if jobproperties.CaloNoiseFlags.UseCaloLuminosity():
             lumiFolder='/CALO/Ofl/Noise/PileUpNoiseLumi'
             conddb.addFolder('CALO_OFL',lumiFolder,className="CondAttrListCollection")
-            mlog.info("offline mode: use luminosity from /CALO/Ofl/Noise/PileuUpNoiseLumi to scale pileup noise")
+            mlog.info("offline mode: use luminosity from /CALO/Ofl/Noise/PileUpNoiseLumi to scale pileup noise")
             theCaloNoiseAlg.LumiFolder = lumiFolder
             theCaloNoiseAlg.Luminosity=-1.
         else:

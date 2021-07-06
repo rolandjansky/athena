@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 """Run tests on G4AtlasServicesConfigNew
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-from __future__ import print_function
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 
 if __name__ == '__main__':
   from AthenaConfiguration.MainServicesConfig import MainServicesCfg
-  import os
 
   # Set up logging and config behaviour
   from AthenaCommon.Logging import log
@@ -19,18 +17,17 @@ if __name__ == '__main__':
 
   #import config flags
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
+  from AthenaConfiguration.Enums import ProductionStep
+  ConfigFlags.Common.ProductionStep = ProductionStep.Simulation
   
   from AthenaConfiguration.TestDefaults import defaultTestFiles
   inputDir = defaultTestFiles.d
   ConfigFlags.Input.Files = defaultTestFiles.EVNT
 
-  ConfigFlags.Detector.SimulateBpipe = True
-  ConfigFlags.Detector.SimulateID = True
-  ConfigFlags.Detector.SimulateCalo = True 
-  ConfigFlags.Detector.SimulateMuon = True
-  ConfigFlags.Detector.SimulateForward = False
-  ConfigFlags.Detector.GeometryFwdRegion = False
-
+  # Setup detector flags
+  detectors = ['Bpipe', 'BCM', 'DBM', 'Pixel', 'SCT', 'TRT', 'LAr', 'Tile', 'CSC', 'MDT', 'RPC', 'TGC']
+  from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
+  setupDetectorsFromList(ConfigFlags, detectors, toggle_geometry=True)
 
   ConfigFlags.Sim.CavernBG = "Signal"  #for it to go via atlas?
   ConfigFlags.Sim.WorldRRange = 15000

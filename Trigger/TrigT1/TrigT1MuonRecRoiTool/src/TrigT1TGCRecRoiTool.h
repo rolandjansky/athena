@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1TGCRECROITOOL_H
 #define TRIGT1TGCRECROITOOL_H
 
-#include "TrigT1MuonRecRoiTool/ITrigT1MuonRecRoiTool.h"
+#include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
 class TGCIdBase;
@@ -35,6 +35,10 @@ namespace LVL1 {
 			   double& phiMin, double& phiMax) const override;
       
       virtual bool dumpRoiMap(const std::string& filename) const override;
+
+      // does not exists for TGCs
+      bool etaDimLow (const TrigT1MuonRecRoiData& , double& , double& ) const override {return false;}
+      bool etaDimHigh(const TrigT1MuonRecRoiData& , double& , double& ) const override {return false;}
       
   private:
       
@@ -85,7 +89,6 @@ namespace LVL1 {
       BooleanProperty m_useConditionData{this,"UseConditionData",true,"use condition data"};
       ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
       SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey","MuonDetectorManager","Key of input MuonDetectorManager condition data"};
-      const MuonGM::MuonDetectorManager* m_muonMgr{nullptr};
       const ITGCcablingSvc* m_cabling{nullptr};
       bool m_isAtlas{true};
       

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -9,21 +9,24 @@
 #ifndef PERFMONCOMPS_PERFMONMTUTILS_H
 #define PERFMONCOMPS_PERFMONMTUTILS_H
 
+#include "PerfMonEvent/mallinfo.h"
+
 // STL includes
 #include <fcntl.h>     // for open function
 #include <malloc.h>    // for mallinfo function
 #include <sys/stat.h>  // to check whether /proc/* exists in the machine
 
 #include <chrono>
+#include <cstdint>
 #include <ctime>
 #include <fstream>
 
-typedef std::map<std::string, long> memory_map_t;  // Component : Memory Measurement(kB)
+typedef std::map<std::string, int64_t> memory_map_t;  // Component : Memory Measurement(kB)
 
 /*
  * Inline function prototypes
  */
-inline memory_map_t operator-(memory_map_t& map1, memory_map_t& map2);
+inline memory_map_t operator-(const memory_map_t& map1, const memory_map_t& map2);
 
 /*
  * Necessary tools
@@ -39,7 +42,7 @@ memory_map_t get_mem_stats();
 double get_malloc();
 double get_vmem();
 // Simple check if directory exists
-bool doesDirectoryExist(const std::string dir);
+bool doesDirectoryExist(const std::string& dir);
 
 // Step name and Component name pairs. Ex: Initialize - StoreGateSvc
 struct StepComp {
@@ -61,9 +64,9 @@ struct Measurement {
   double vmem, malloc; // Memory: Vmem, Malloc (faster than above)
 
   // Peak values for Vmem, Rss and Pss
-  long vmemPeak = LONG_MIN;
-  long rssPeak = LONG_MIN;
-  long pssPeak = LONG_MIN;
+  int64_t vmemPeak = INT64_MIN;
+  int64_t rssPeak = INT64_MIN;
+  int64_t pssPeak = INT64_MIN;
 
   // Capture snapshot measurements
   void capture_snapshot() {
@@ -191,27 +194,29 @@ struct MeasurementData {
 
   event_meas_map_t getEventLevelData() const { return m_eventLevel_delta_map; }
 
-  double getEventLevelCpuTime(unsigned long long event_count) const {
+  uint64_t getNMeasurements() const { return m_eventLevel_delta_map.size(); }
+
+  double getEventLevelCpuTime(uint64_t event_count) const {
     return m_eventLevel_delta_map.at(event_count).cpu_time;
   }
 
-  double getEventLevelWallTime(unsigned long long event_count) const {
+  double getEventLevelWallTime(uint64_t event_count) const {
     return m_eventLevel_delta_map.at(event_count).wall_time;
   }
 
-  double getEventLevelVmem(unsigned long long event_count) const {
+  int64_t getEventLevelVmem(uint64_t event_count) const {
     return m_eventLevel_delta_map.at(event_count).mem_stats.at("vmem");
   }
 
-  double getEventLevelRss(unsigned long long event_count) const {
+  int64_t getEventLevelRss(uint64_t event_count) const {
     return m_eventLevel_delta_map.at(event_count).mem_stats.at("rss");
   }
 
-  double getEventLevelPss(unsigned long long event_count) const {
+  int64_t getEventLevelPss(uint64_t event_count) const {
     return m_eventLevel_delta_map.at(event_count).mem_stats.at("pss");
   }
 
-  double getEventLevelSwap(unsigned long long event_count) const {
+  int64_t getEventLevelSwap(uint64_t event_count) const {
     return m_eventLevel_delta_map.at(event_count).mem_stats.at("swap");
   }
 
@@ -230,7 +235,7 @@ struct MeasurementData {
   double getDeltaMalloc() const { return m_delta_malloc; }
   void add2DeltaMalloc(double val) { m_delta_malloc += val; }
 
-  long getMemMonDeltaMap(std::string mem_stat) const { return m_memMon_delta_map.at(mem_stat); }
+  int64_t getMemMonDeltaMap(std::string mem_stat) const { return m_memMon_delta_map.at(mem_stat); }
 
   MeasurementData() : m_call_count{0}, m_tmp_cpu{0.}, m_delta_cpu{0.}, m_tmp_wall{0.}, m_delta_wall{0.},
     m_tmp_vmem{0.}, m_delta_vmem{0.}, m_tmp_malloc{0.}, m_delta_malloc{0.}, m_offset_wall{0.} {
@@ -347,7 +352,7 @@ inline double PMonMT::get_vmem() {
 // See:
 // https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/Control/PerformanceMonitoring/PerfMonComps/src/SemiDetMisc.h#0443
 inline double PMonMT::get_malloc() {
-  struct mallinfo curr_mallinfo = mallinfo();
+  PerfMon::mallinfo_t curr_mallinfo = PerfMon::mallinfo();
   int64_t uordblks_raw = curr_mallinfo.uordblks;
   if (sizeof(curr_mallinfo.uordblks) == sizeof(int32_t)) {
     const int64_t half_range = std::numeric_limits<int32_t>::max();
@@ -382,10 +387,10 @@ inline double PMonMT::get_malloc() {
   return (uordblks_raw + hblkhd_raw) / 1024.0;
 }
 
-inline memory_map_t operator-(memory_map_t& map1, memory_map_t& map2) {
+inline memory_map_t operator-(const memory_map_t& map1, const memory_map_t& map2) {
   memory_map_t result_map;
   for (auto it : map1) {
-    result_map[it.first] = map1[it.first] - map2[it.first];
+    result_map[it.first] = map1.at(it.first) - map2.at(it.first);
   }
   return result_map;
 }
@@ -393,7 +398,7 @@ inline memory_map_t operator-(memory_map_t& map1, memory_map_t& map2) {
 /*
  * Simple check if a given directory exists
  */
-inline bool PMonMT::doesDirectoryExist(const std::string dir) {
+inline bool PMonMT::doesDirectoryExist(const std::string& dir) {
   struct stat buffer;
   return (stat(dir.c_str(), &buffer) == 0);
 }

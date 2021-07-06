@@ -1,15 +1,16 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger("Menu.L1.Base.L1Menu2JSON")
+log = logging.getLogger(__name__)
 
 
 class L1MenuJSONConverter(object):
 
-    def __init__(self, l1menu = None, outputFile = None , inputFile = None ):
+    def __init__(self, l1menu = None, outputFile = None, bgsOutputFile = None, inputFile = None ):
         self.menu          = l1menu
         self.inputFile     = inputFile
         self.outputFile    = outputFile
+        self.bgsOutputFile = bgsOutputFile
 
     def writeJSON(self,pretty=False):
 
@@ -17,12 +18,23 @@ class L1MenuJSONConverter(object):
             log.warning("Can't write json file since no name was provided")
             return
 
+        # L1Menu json
         confObj = self.generateJSON()
-
         with open( self.outputFile, mode="wt" ) as fh:
             import json
             json.dump(confObj, fh, indent = 4 if pretty else None, separators=(',', ': '))
+            fh.write("\n")
         log.info("Wrote %s", self.outputFile)
+
+        if self.bgsOutputFile is not None:
+            confObj = self.generateJsonBunchgroupset()
+            with open( self.bgsOutputFile, mode="wt" ) as fh:
+                import json
+                json.dump(confObj, fh, indent = 4 if pretty else None, separators=(',', ': '))
+                fh.write("\n")
+            log.info("Wrote %s", self.bgsOutputFile)
+
+
         return self.outputFile
 
 
@@ -35,6 +47,8 @@ class L1MenuJSONConverter(object):
         confObj["filetype"] = "l1menu" 
 
         confObj["name"] = self.menu.menuName
+
+        confObj["run"] = 3 # will be useful for later (we also record this for Run 1 and 2)
 
         # items
         confObj["items"] = self.menu.items.json()
@@ -71,5 +85,15 @@ class L1MenuJSONConverter(object):
         return confObj
 
 
+    def generateJsonBunchgroupset(self):
+        from collections import OrderedDict as odict
+        confObj = odict()
 
+        confObj["filetype"] = "bunchgroupset" 
 
+        confObj["name"] = self.menu.menuName
+
+        # bunchgroups
+        confObj["bunchGroups"] = self.menu.ctp.bunchGroupSet.json()
+
+        return confObj

@@ -39,6 +39,8 @@ StatusCode SCTRawDataProvider::initialize()
     m_cabling.disable();
   }
   else {
+    //Disable Roi requirement
+    ATH_CHECK(m_roiCollectionKey.initialize(false));
     // Retrieve Cabling tool
     ATH_CHECK(m_cabling.retrieve());
     m_regionSelector.disable();
@@ -99,6 +101,7 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
     SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection{m_roiCollectionKey, ctx};
     ATH_CHECK(roiCollection.isValid());
     TrigRoiDescriptor superRoI; // Add all RoIs to a super-RoI
+    superRoI.reserve(roiCollection->size());
     superRoI.setComposite(true);
     superRoI.manageConstituents(false);
     for (const TrigRoiDescriptor* roi : *roiCollection) {

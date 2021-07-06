@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthContainers/test/AuxBaseRegistry_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -210,12 +208,20 @@ void test_makeVector (const std::string& name)
 void test2()
 {
   std::cout << "test2\n";
+  SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
+  assert (r.numVariables() == 0);
   test_type<int> ("int", "anInt");
+  assert (r.numVariables() == 2);
   test_type<float> ("float", "aFloat");
+  assert (r.numVariables() == 4);
   test_type<double> ("double", "aFloat", "xclass");
+  assert (r.numVariables() == 5);
   test_type<bool> ("bool", "aBool");
+  assert (r.numVariables() == 7);
   test_type<Payload> ("Payload", "aPayload");
+  assert (r.numVariables() == 9);
   test_makeVector<int> ("anInt");
+  assert (r.numVariables() == 9);
 }
 
 

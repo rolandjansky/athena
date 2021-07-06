@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Geo2G4Builder.h"
@@ -108,8 +108,7 @@ G4LogicalVolume* Geo2G4Builder::BuildTree()
       const GeoShape* shResult = &shFirst;
 
       for(unsigned int i=1; i<m_treeTops.size(); i++){
-        const GeoShape& shNext = (*shResult).add((*(m_treeTops[i]->getLogVol()->getShape()))<<(m_treeTops[i]->getX()));
-        shResult = &shNext;
+        shResult = & shResult->add((*(m_treeTops[i]->getLogVol()->getShape()))<<(m_treeTops[i]->getX()));
       }
 
       GeoLogVol* lvEnvelope = new GeoLogVol(m_detectorName,shResult,m_matAir);
@@ -184,14 +183,9 @@ void Geo2G4Builder::BuildOpticalSurfaces(const GeoBorderSurfaceContainer* surfac
 {
   Geo2G4OpticalSurfaceFactory surfaceFactory;
 
-  // Iterate over all Border Surfaces in the container
-  GeoBorderSurfaceContainer::const_iterator first = surface_container->begin();
-  GeoBorderSurfaceContainer::const_iterator last  = surface_container->end();
-
-  for(;first!=last;first++)
+  for (const GeoBorderSurface& border_surface : *surface_container)
     {
       // Build Optical Surface
-      const GeoBorderSurface& border_surface = *first;
       G4OpticalSurface* g4OptSurface = surfaceFactory.Build(border_surface.getOptSurface());
 
       G4VPhysicalVolume* g4PV1 = 0;

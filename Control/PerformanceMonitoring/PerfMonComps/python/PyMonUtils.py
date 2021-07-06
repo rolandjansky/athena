@@ -1,8 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file: PyMonUtils.py
 # @author: Sebastien Binet <binet@cern.ch>
-from __future__ import print_function
 
 __author__  = "Sebastien Binet <binet@cern.ch>"
 __version__ = "$Revision: 1.3 $"
@@ -44,7 +43,7 @@ def mon_push_back (sgname='StoreGateSvc'):
         # no double counting from symlinks
         # FIXME: it is actually valid to have 2 different collections
         #        (=/= CLIDs) with the same key...
-        if wasted.has_key(k):
+        if k in wasted:
             continue
         clid = dp.clID()
         klass = "%s" % cl.typename(clid)
@@ -81,18 +80,22 @@ def mon_push_back (sgname='StoreGateSvc'):
 
 def dump_smaps (fname=None):
     import os,sys
-    if not (fname is None): o = open (fname, 'w')
-    else:                   o = sys.stdout
-    for l in open('/proc/%d/smaps'%os.getpid()):
-        print(l, file=o)
+    if not (fname is None):
+        o = open (fname, 'w')
+    else:
+        o = sys.stdout
+    for z in open('/proc/%d/smaps'%os.getpid()):
+        print(z, file=o)
     if not (fname is None):
         o.close()
     return
 
 def loaded_libs (fname=None, pid=None, show=False):
     import os,sys,re
-    if not (fname is None): o = open (fname, 'w')
-    else:                   o = sys.stdout
+    if not (fname is None):
+        o = open (fname, 'w')
+    else:
+        o = sys.stdout
     pat = re.compile(r'(?P<addr_beg>\w*?)\-(?P<addr_end>\w*?)\s'\
                      r'(?P<perm>.{4})\s(?P<offset>\w*?)\s'\
                      r'(?P<devmajor>\d{2}):(?P<devminor>\d{2})\s'\
@@ -102,13 +105,13 @@ def loaded_libs (fname=None, pid=None, show=False):
     if pid is None:
         pid = os.getpid()
     for line in open('/proc/%s/smaps'%pid):
-        l = line.strip()
-        res = re.match(pat,l)
+        z = line.strip()
+        res = re.match(pat,z)
         if res:
             g = res.group
             libname = g('libname').strip()
             libs.add(_realpath(libname))
-    libs = sorted([l for l in libs], reverse=True)
+    libs = sorted([z for z in libs], reverse=True)
     if show:
         for libname in libs:
             print(libname, file=o)
@@ -117,8 +120,6 @@ def loaded_libs (fname=None, pid=None, show=False):
 import sys
 if sys.platform == 'darwin':
     def pymon():
-        from os import getpid,sysconf
-        from sys import platform
         from resource import getrusage, RUSAGE_SELF
         cpu = getrusage(RUSAGE_SELF)
         cpu = (cpu.ru_utime+cpu.ru_stime) * 1e3 # in milliseconds
@@ -138,7 +139,6 @@ if sys.platform == 'darwin':
 else:
     def pymon():
         from os import getpid,sysconf
-        from sys import platform
         from resource import getrusage, RUSAGE_SELF
         cpu = getrusage(RUSAGE_SELF)
         cpu = (cpu.ru_utime+cpu.ru_stime) * 1e3 # in milliseconds
@@ -152,13 +152,17 @@ else:
 def lshosts_infos():
     import socket,commands
     hostname = '<unknown>'
-    try: hostname = socket.gethostname()
-    except Exception: pass
+    try:
+        hostname = socket.gethostname()
+    except Exception:
+        pass
     sc,out = commands.getstatusoutput('which lshosts')
-    if sc != 0: return ('no lshosts command',0.) # no lshosts could be found
+    if sc != 0:
+        return ('no lshosts command',0.) # no lshosts could be found
     cmd = out
     sc,out = commands.getstatusoutput("%s %s"%(cmd,hostname))
-    if sc != 0: return ('host not in db', 0.)
+    if sc != 0:
+        return ('host not in db', 0.)
     cpu_infos = {}
     try:
         title,data = out.splitlines()

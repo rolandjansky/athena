@@ -1,11 +1,19 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TriggerMenuMetaDataTool.cxx 683395 2015-07-16 11:11:56Z krasznaa $
 
 // System include(s):
+#include <memory>
+
 #include <stdexcept>
+
+// Hack to initialise decoration accessors for Trigger EDM in offline jobs
+// starting from ESD or later, see ATR-22421
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
+#include "TrigOutputHandling/TriggerEDMAuxAccessors.h"
+#endif
 
 // Local include(s):
 #include "xAODTriggerCnv/TriggerMenuMetaDataTool.h"
@@ -83,14 +91,14 @@ namespace xAODMaker {
       }
 
       // Retrieve the input container:
-      const xAOD::TriggerMenuContainer* input = 0;
+      const xAOD::TriggerMenuContainer* input = nullptr;
       ATH_CHECK( inputMetaStore()->retrieve( input, m_inputKey ) );
 
       // Create an output container if it doesn't exist yet:
       if( ( ! m_menu.get() ) && ( ! m_menuAux.get() ) ) {
          ATH_MSG_DEBUG( "Creating output container" );
-         m_menu.reset( new xAOD::TriggerMenuContainer() );
-         m_menuAux.reset( new xAOD::TriggerMenuAuxContainer() );
+         m_menu = std::make_unique<xAOD::TriggerMenuContainer>( );
+         m_menuAux = std::make_unique<xAOD::TriggerMenuAuxContainer>( );
          m_menu->setStore( m_menuAux.get() );
       }
 
@@ -137,14 +145,18 @@ namespace xAODMaker {
       std::unique_ptr< xAOD::TriggerMenuJsonContainer >& outContainer,
       std::unique_ptr< xAOD::TriggerMenuJsonAuxContainer >& outAuxContainer) {
 
-      const xAOD::TriggerMenuJsonContainer* input = 0;
+      if( !inputMetaStore()->contains<xAOD::TriggerMenuJsonContainer>(inputMetaSGKey)) {
+         return StatusCode::SUCCESS;
+      }
+
+      const xAOD::TriggerMenuJsonContainer* input = nullptr;
       if (inputMetaStore()->retrieve( input, inputMetaSGKey ).isSuccess() ) {
 
          // Create an output container if it doesn't exist yet:
          if( ( ! outContainer.get() ) && ( ! outAuxContainer.get() ) ) {
             ATH_MSG_DEBUG( "Creating output container" );
-            outContainer.reset( new xAOD::TriggerMenuJsonContainer() );
-            outAuxContainer.reset( new xAOD::TriggerMenuJsonAuxContainer() );
+            outContainer = std::make_unique<xAOD::TriggerMenuJsonContainer>( );
+            outAuxContainer = std::make_unique<xAOD::TriggerMenuJsonAuxContainer>( );
             outContainer->setStore( outAuxContainer.get() );
          }
 

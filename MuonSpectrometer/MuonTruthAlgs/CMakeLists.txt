@@ -16,5 +16,5 @@ atlas_add_component( MuonTruthAlgs
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS 
-                     LINK_LIBRARIES MuonTruthAlgsLib AtlasHepMCLib SGtests Identifier AthLinks AthContainers AtlasDetDescr EventPrimitives xAODMuon xAODTracking xAODTruth GeneratorObjects MuonReadoutGeometry MuonGeoModelLib MuonCompetingRIOsOnTrack MuonPattern MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MCTruthClassifierLib Particle ParticleTruth TrkDetElementBase TrkGeometry TrkSurfaces TrkCompetingRIOsOnTrack TrkEventUtils TrkMeasurementBase TrkParameters TrkPrepRawData TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkSegment TrkExInterfaces TrkFitterInterfaces MuonTrackMakerUtils )
+                     LINK_LIBRARIES MuonTruthAlgsLib AtlasHepMCLib Identifier AthLinks AthContainers AtlasDetDescr EventPrimitives xAODMuon xAODTracking xAODTruth GeneratorObjects MuonReadoutGeometry MuonGeoModelLib MuonCompetingRIOsOnTrack MuonPattern MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MCTruthClassifierLib Particle ParticleTruth TrkDetElementBase TrkGeometry TrkSurfaces TrkCompetingRIOsOnTrack TrkEventUtils TrkMeasurementBase TrkParameters TrkPrepRawData TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkSegment TrkExInterfaces TrkFitterInterfaces MuonTrackMakerUtils )
 

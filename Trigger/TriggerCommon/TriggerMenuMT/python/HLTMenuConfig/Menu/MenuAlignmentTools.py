@@ -2,6 +2,7 @@
 import numpy as np
 from collections import OrderedDict
 from AthenaCommon.Logging import logging
+import itertools
 
 log = logging.getLogger( __name__ )
 
@@ -22,9 +23,12 @@ the_signature_grouping = OrderedDict([
     ('MET','JetMET'),
     ('UnconventionalTracking','JetMET'),
     ('Bjet','JetMET'),
+    ('MinBias', 'MinBias'),
     ('MuonnoL1', 'MuonnoL1'),
-
+    ('Electronprobe', 'EgammaProbe'),
+    ('Photonprobe' , 'EgammaProbe'),
     ])
+    
 
 def get_alignment_group_ordering():
     seen = set()
@@ -32,13 +36,15 @@ def get_alignment_group_ordering():
 
 def get_alignment_group_from_pattern(signature, extra):
     signature_for_alignment = signature + extra
+    log.debug("[get_alignment_group_from_pattern] Searching for alignment group for %s",signature_for_alignment)
     
     if signature_for_alignment in the_signature_grouping.keys():
         return the_signature_grouping[signature_for_alignment]
     elif signature in the_signature_grouping.keys():
+        log.debug("[get_alignment_group_from_pattern] Falling back to signature alignment grouping for %s (%s)",signature,extra)
         return the_signature_grouping[signature]
     else:
-        log.info("No dedicated alignment grouping for signature %s (%s)",signature,extra)
+        log.debug("[get_alignment_group_from_pattern] No dedicated alignment grouping for signature %s (%s)",signature,extra)
         return signature
 
 class MenuAlignment():
@@ -93,11 +99,9 @@ class MenuAlignment():
         the_matrix = np.eye((len(self.signature_dict)))
         
         for comb in self.combinations_in_menu:
-            if len(comb) > 2:
-                log.error("Not setup for chains with more than two signatures yet!")
-            else:
-                the_matrix[self.signature_dict[comb[0]]][self.signature_dict[comb[1]]] = 1  
-                the_matrix[self.signature_dict[comb[1]]][self.signature_dict[comb[0]]] = 1
+            for comb_pair in list(itertools.combinations(comb,2)):
+                the_matrix[self.signature_dict[comb_pair[0]]][self.signature_dict[comb_pair[1]]] = 1  
+                the_matrix[self.signature_dict[comb_pair[1]]][self.signature_dict[comb_pair[0]]] = 1
 
         _,eigenvecs = np.linalg.eig(the_matrix)
         # eigenvecs: The normalized (unit length) eigenvectors, such that the column v[:,i] 
@@ -118,12 +122,16 @@ class MenuAlignment():
                 inlist = True
                 for ibset,bset in enumerate(unique_sets):
                     if aset == bset:
-                        continue
+                        inlist = True
+                        break
                     elif set(aset).issubset(set(bset)):
-                        continue
+                        inlist = True
+                        break
                     elif set(bset).issubset(set(aset)):
                         unique_sets.pop(ibset)
                         unique_sets += [aset]
+                        inlist = True
+                        break
                     else:
                         inlist = False
                 if not inlist:
@@ -251,13 +259,24 @@ class MenuAlignment():
                     log.error("     Set: %s, group %s", self.sets_to_align[x] , x)
                 raise Exception("MenuAlignment.analyse_combinations() needs checking, this should never happen.")
             
+            # first, we need to convert alignment_grps from the order it is based on the chain naming
+            # convention into the order it needs to be for the alignment
+            # these are not always the same thing!
+            
+            # takes the values of the ordering dictionary and creates a list of unique values
+            # so it isn't just e.g. [egamma, egamma, egamma, JetMET, JetMET] but actually
+            # [egamma, JetMET]
+            alignment_grp_ordering = get_alignment_group_ordering()            
+            alignment_grps_ordered = [x for x in alignment_grp_ordering if x in alignment_grps]
+
             # we need to know which alignment_grps are in the chain in which order. Assume this is always stored correctly.
-            # (this should be true)
-            # never need to align the last chain - it can end a different length, no problem.
+            # (this should be true, once it is sorted! If not, there is a bug.)
+            # never need to add empty steps to the last leg - it can end at a different
+            # time (be a different number of steps) - no problem.
             # ignore any signatures after the end of those in this chain
-            aligngroups_set = self.get_groups_to_align(alignment_grps[-1])
+            aligngroups_set = self.get_groups_to_align(alignment_grps_ordered[-1])
             aligngroups_set.reverse()
-            grp_masks = [x in alignment_grps for x in aligngroups_set]
+            grp_masks = [x in alignment_grps_ordered for x in aligngroups_set]
             grp_lengths = []
             for align_grp,grp_in_chain in zip(aligngroups_set,grp_masks):
                 if grp_in_chain:
@@ -266,7 +285,7 @@ class MenuAlignment():
                         grp_lengths += [config_length]
                 else:
                   grp_lengths += [0]
-          
+
             for istep,(align_grp,grp_in_chain,length_in_chain) in enumerate(zip(aligngroups_set,grp_masks,grp_lengths)):
                 # We're working our way backwards through the chain 
                 # need to know how many steps are already before us!
@@ -285,7 +304,7 @@ class MenuAlignment():
                     # always add them to the start, because we're running in reverse order
                     chainConfig.insertEmptySteps('Empty'+align_grp+'Align',self.length_of_configs[align_grp],n_steps_before_grp) 
         else:
-             log.error("Should never reach this point. alignmentGroups: %s, sets_to_align: %s",alignment_grps,self.sets_to_align)
+             log.error("Should never reach this point. Ordered alignmentGroups: %s, sets_to_align: %s",alignment_grps_ordered,self.sets_to_align)
              raise Exception("MenuAlignment.multi_align() needs checking, this should never happen.")
 
         log.debug("Finished with retrieving chain configuration for chain %s", chainDict['chainName']) 

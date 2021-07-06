@@ -18,7 +18,6 @@ namespace pool {
    class ICollection;
    class ICollectionQuery;
    class ICollectionCursor;
-   class ICollectionMetadata;
 }
 class StatusCode;
 
@@ -37,6 +36,7 @@ public:
    /// @param contextId [IN] id for PoolSvc persistency service to use for input.
    PoolCollectionConverter(const std::string& collectionType,
 		   const std::string& inputCollection,
+		   unsigned int contextId,
 		   const std::string& query,
 		   const IPoolSvc* svc);
 
@@ -67,6 +67,7 @@ private: // data
    std::string m_collectionType;
    std::string m_connection;
    std::string m_inputCollection;
+   unsigned int m_contextId;
    std::string m_query;
    const IPoolSvc* m_poolSvc;
    pool::ICollection* m_poolCollection;

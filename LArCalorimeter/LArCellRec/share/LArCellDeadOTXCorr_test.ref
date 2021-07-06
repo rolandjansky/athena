@@ -34,7 +34,7 @@ AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
 ClassIDSvc           INFO  getRegistryEntries: read 3535 CLIDRegistry entries for module ALL
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
+MetaDataSvc          INFO Initializing MetaDataSvc
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
@@ -50,7 +50,6 @@ PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.x
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
 MetaDataSvc          INFO Found MetaDataTools = PublicToolHandleArray([])
-OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
 IOVDbSvc             INFO Only 5 POOL conditions files will be open at once
 IOVDbSvc             INFO Cache alignment will be done in 3 slices
 IOVDbSvc             INFO Global tag: OFLCOND-RUN12-SDR-35 set from joboptions
@@ -197,7 +196,7 @@ EMECConstruction     INFO activating LAr::EMEC::Neg::OuterWheel
 EndcapDMConstru...   INFO Start building EC electronics geometry
 GeoModelSvc          INFO GeoModelSvc.LArDetectorToolNV	 SZ= 24344Kb 	 Time = 0.64S
 ClassIDSvc           INFO  getRegistryEntries: read 67 CLIDRegistry entries for module ALL
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr
 ClassIDSvc           INFO  getRegistryEntries: read 5532 CLIDRegistry entries for module ALL
 ClassIDSvc           INFO  getRegistryEntries: read 618 CLIDRegistry entries for module ALL
 ClassIDSvc           INFO  getRegistryEntries: read 3459 CLIDRegistry entries for module ALL

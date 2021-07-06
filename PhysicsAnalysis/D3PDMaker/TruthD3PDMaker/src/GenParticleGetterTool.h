@@ -67,10 +67,17 @@ namespace D3PD {
       /// Iterator pointing at the last GenEvent object
       McEventCollection::const_iterator m_evtEnd;
 
+
+#ifdef HEPMC3
+  std::vector<HepMC::ConstGenParticlePtr>::const_iterator m_partItr;
+  std::vector<HepMC::ConstGenParticlePtr>::const_iterator m_partEnd;
+
+#else  
       /// Iterator pointing at the current GenParticle object
       HepMC::GenEvent::particle_const_iterator m_partItr;
       /// Iterator pointing at the last GenParticle object
       HepMC::GenEvent::particle_const_iterator m_partEnd;
+#endif
 
       /// Tool used to select "good" GenParticle objects
       ToolHandle< IGenObjectsFilterTool > m_selector;

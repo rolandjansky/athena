@@ -1,32 +1,22 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from TrigT2HistoPrmVtx.TrigT2HistoPrmVtxConf import TrigT2HistoPrmVtxAllTEMT
+from TrigT2HistoPrmVtx.TrigT2HistoPrmVtxConf import TrigT2HistoPrmVtxAllTE
 
 
 from AthenaCommon.SystemOfUnits import mm, GeV
 
 
-class TrigT2HistoPrmVtxAllTEMTBase (TrigT2HistoPrmVtxAllTEMT):
+class TrigT2HistoPrmVtxAllTEBase (TrigT2HistoPrmVtxAllTE):
     __slots__ = []
     def __init__(self, name):
-        super( TrigT2HistoPrmVtxAllTEMTBase, self ).__init__( name )
+        super( TrigT2HistoPrmVtxAllTEBase, self ).__init__( name )
 
 
-class TrigT2HistoPrmVtxAllTEMT_EF (TrigT2HistoPrmVtxAllTEMTBase):
+class TrigT2HistoPrmVtxAllTE_EF (TrigT2HistoPrmVtxAllTEBase):
     __slots__ = []
-    def __init__(self, name = "TrigT2HistoPrmVtxAllTEMT_EF"):
-        super( TrigT2HistoPrmVtxAllTEMT_EF, self ).__init__( name )
+    def __init__(self, name = "TrigT2HistoPrmVtxAllTE_EF"):
+        super( TrigT2HistoPrmVtxAllTE_EF, self ).__init__( name )
 
-#        from TrigT2HistoPrmVtx.TrigT2HistoPrmVtxAllTEMonitoring import TrigT2HistoPrmVtxAllTEValidationMonitoring_EF, TrigT2HistoPrmVtxAllTEOnlineMonitoring_EF
-#        validation = TrigT2HistoPrmVtxAllTEValidationMonitoring_EF()        
-#        online     = TrigT2HistoPrmVtxAllTEOnlineMonitoring_EF()
-
-#        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-#        time = TrigTimeHistToolConfig("TimeHistogramForTrigT2HistoPrmVtxAllTE")
-#        time.TimerHistLimits = [0,2]
-
-#        self.AthenaMonTools = [ time, validation, online ]
-        
         self.NumBins            = 20
         
         self.UseBeamSpot        = True
@@ -41,11 +31,9 @@ class TrigT2HistoPrmVtxAllTEMT_EF (TrigT2HistoPrmVtxAllTEMTBase):
 
 
 
-class EFHistoPrmVtxAllTEMT_Jet (TrigT2HistoPrmVtxAllTEMT_EF):
+class EFHistoPrmVtxAllTE_Jet (TrigT2HistoPrmVtxAllTE_EF):
     __slots__ = []
-    def __init__(self, name = "EFHistoPrmVtxAllTEMT_Jet"):
-        super( EFHistoPrmVtxAllTEMT_Jet, self ).__init__( name )
+    def __init__(self, name = "EFHistoPrmVtxAllTE_Jet"):
+        super( EFHistoPrmVtxAllTE_Jet, self ).__init__( name )
 
         self.AlgoId = 3
-
-

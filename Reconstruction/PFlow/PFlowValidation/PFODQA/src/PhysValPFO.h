@@ -12,6 +12,7 @@
 #include "xAODTracking/VertexContainer.h"
 #include "xAODPFlow/PFOContainer.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 
 class PhysValPFO : public ManagedMonitorToolBase {
 
@@ -36,7 +37,10 @@ public:
 
   /** ReadHandle to retrieve xAOD::PFOContainer */
   SG::ReadHandleKey<xAOD::PFOContainer> m_PFOContainerHandleKey{this,"PFOContainerName","JetETMissChargedParticleFlowObjects","ReadHandleKey for the PFO container"};
-    
+
+  /** ReadHandleKey for EventInfo */
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoReadHandleKey{this,"EventInfoName","EventInfo","ReadHandleKey for EventInfo"};
+
   /** Pointer to class that deals with histograms for charged PFO */
   std::unique_ptr<PFOChargedValidationPlots> m_PFOChargedValidationPlots;
 

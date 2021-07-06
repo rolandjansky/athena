@@ -1,12 +1,8 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import optparse
 import os
-
-# Make sure getoutput() is in the subprocess module.
-from future import standard_library
-standard_library.install_aliases()
 
 import pm.project
 import pm.common
@@ -107,11 +103,19 @@ apps = [
 ]
 
 
+# Workaround for clang build (ATR-22849)
+try:
+    tag = pm.common.tdaqRepository.getObject('Tag',hltOksUtils.platform())
+except RuntimeError:
+    tag = pm.common.tdaqRepository.getObject('Tag')[0]
+    print('Cannot find tag %s in OKS. Using %s instead. Please fix manually.' %
+          (hltOksUtils.platform(), tag.id))
+
 hltRep = dal.SW_Repository('%s-Repository' % prefix,
                            Name=('%s-Repository' % prefix),
                            InstallationPath="%s/InstallArea" % os.environ.get('AtlasArea'),
                            SW_Objects=apps,
-                           Tags=[pm.common.tdaqRepository.getObject('Tag',hltOksUtils.platform())],
+                           Tags=[tag],
                            ISInfoDescriptionFiles=[os.path.join(platform,'share/data/daq/schema/is_trigconf_hlt.schema.xml')],
                            AddProcessEnvironment = swvars
                            )

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 ###############################################################
 #
 # Job options file for CaloCellCalcEnergyCorr
@@ -86,10 +86,6 @@ include("TileConditions/TileConditions_jobOptions.py" )
 include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 
 svcMgr.IOVDbSvc.GlobalTag = GlobalTag
-
-#from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-#theCaloNoiseTool = CaloNoiseToolDefault()
-#ToolSvc += theCaloNoiseTool
 
 from LArConditionsCommon import LArHVDB
 

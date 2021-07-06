@@ -24,7 +24,7 @@ EnergyInputProviderFEX::EnergyInputProviderFEX(const std::string& type, const st
                                          const IInterface* parent) :
    base_class(type, name, parent),
    m_histSvc("THistSvc", name),
-   m_gFEXMETLoc ("gXERHO_MET")
+   m_gFEXMETLoc ("gXERHOPerf")
 {
    declareInterface<LVL1::IInputTOBConverter>( this );
    declareProperty( "gFEXMETInput", m_gFEXMETLoc, "StoreGate location of default gFEX MET input" );

@@ -93,6 +93,7 @@ namespace InDet {
       const std::string& identification() const;      
         
     private:
+      SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> retrieveSiDetElements(const EventContext& ctx) const;
       std::vector< const Trk::CylinderLayer* >* dressCylinderLayers(const std::vector< const Trk::CylinderLayer* >& dLayers) const;
       
       /** create the disc layers, if no vector is given, then it's the first pass, else it's the DBM for the Pixels */

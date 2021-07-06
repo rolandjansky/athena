@@ -23,7 +23,7 @@
 #ifdef XAOD_STANDALONE
 #include "xAODCore/ClassID_traits.h"
 #else
-#include "AthenaKernel/IClassIDSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #endif
 
 #include "xAODCore/CLASS_DEF.h"

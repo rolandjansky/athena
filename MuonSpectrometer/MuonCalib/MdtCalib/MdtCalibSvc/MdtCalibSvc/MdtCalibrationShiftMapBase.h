@@ -1,29 +1,19 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDTCALIBSVC_MDTCALIBRATIONSHIFTMAPBASE_H
 #define MDTCALIBSVC_MDTCALIBRATIONSHIFTMAPBASE_H
 
-/*
- *
- * Author Andreas Hoenle (der.andi@cern.ch)
- *
- */
-
 #include <map>
 
-// Framework includes
-#include "AthenaBaseComps/AthService.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 
-// MDT interfaces
 #include "MdtCalibInterfaces/IShiftMapTools.h"
-
-// MDT includes
-#include "MuonMDT_Cabling/MuonMDT_CablingSvc.h"
-
-class Identifier;
-class TTree;
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonCablingData/MuonMDT_CablingMap.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 /**
    @class MdtCalibrationShiftMapBase
@@ -32,16 +22,18 @@ class TTree;
    @author Andreas Hoenle
 */
 class MdtCalibrationShiftMapBase
-    : public extends<AthService, MuonCalib::IShiftMapTools> {
+    : public extends<AthAlgTool, MuonCalib::IShiftMapTools> {
  public:
   /* constructor */
-  MdtCalibrationShiftMapBase(const std::string& name, ISvcLocator* pSvcLocator);
+  MdtCalibrationShiftMapBase(const std::string& type, const std::string& name, const IInterface* parent);
 
   /* destructor */
-  ~MdtCalibrationShiftMapBase();
+  ~MdtCalibrationShiftMapBase()=default;
 
   /* get shift value, override from IShiftMapTools */
   float getValue(const Identifier& id) override;
+
+  virtual StatusCode initialize() override;
 
   /*
    * initialization of map cannot happen before first event
@@ -57,17 +49,16 @@ class MdtCalibrationShiftMapBase
   StatusCode loadMapFromFile();
 
  protected:
-  ServiceHandle<MuonMDT_CablingSvc> m_cablingSvc;
+  Gaudi::Property<std::string> m_mapFileName{this,"MapFile",""};
+  Gaudi::Property<float> m_centralValue{this,"CentralValue",0};
+  Gaudi::Property<float> m_sigma{this,"Sigma",10};
+  Gaudi::Property<bool> m_forceMapRecreate{this,"ForceMapRecreate",false};
+
   std::map<Identifier, float> m_shiftValues;
   bool m_mapIsInitialized;
 
-  /* Make map configurable in job options */
-  std::string m_mapFileName;
-  float m_centralValue;
-  float m_sigma;
-  bool m_forceMapRecreate;
-
- private:
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+  SG::ReadCondHandleKey<MuonMDT_CablingMap> m_mdtCab {this, "MdtCabling", "MuonMDT_CablingMap"};
 };
 
 #endif

@@ -258,6 +258,25 @@ StatusCode PixelChargeLUTCalibCondAlg::execute(const EventContext& ctx) const {
     }
   }
 
+  // Scan over if the DB contents need to be overwritten.
+  // This is useful for threshold study. So far only threshold value.
+  for (int i=0; i<(int)m_pixelID->wafer_hash_max(); i++) {
+    IdentifierHash wafer_hash = IdentifierHash(i);
+    Identifier wafer_id = m_pixelID->wafer_id(wafer_hash);
+    int bec   = m_pixelID->barrel_ec(wafer_id);
+    int layer = m_pixelID->layer_disk(wafer_id);
+    const InDetDD::SiDetectorElement *element = elements->getDetectorElement(wafer_hash);
+    const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+    int numFE = p_design->numberOfCircuits() < 8 ? p_design->numberOfCircuits() : 16;
+    for (int j=0; j<numFE; j++) {
+      if (configData->getDefaultAnalogThreshold(bec,layer)>-0.1) {
+        writeCdo -> setAnalogThreshold(i,       configData->getDefaultAnalogThreshold(bec,layer));
+        writeCdo -> setAnalogThresholdLong(i,   configData->getDefaultAnalogThreshold(bec,layer));
+        writeCdo -> setAnalogThresholdGanged(i, configData->getDefaultAnalogThreshold(bec,layer));
+      }
+    }
+  }
+
   if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record PixelChargeCalibCondData " << writeHandle.key() << " with EventRange " << rangeW << " into Conditions Store");
     return StatusCode::FAILURE;

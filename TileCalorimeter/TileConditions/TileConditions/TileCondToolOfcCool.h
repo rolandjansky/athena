@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILECONDTOOLOFCCOOL_H
@@ -39,12 +39,15 @@ class TileCondToolOfcCool: public extends<AthAlgTool, ITileCondToolOfc>
                                      unsigned int adc,
                                      float& phase,
                                      bool of2,
-                                     TileOfcWeightsStruct& weights) const override;
+                                     TileOfcWeightsStruct& weights,
+                                     const EventContext& ctx) const override;
 
     int getOfcWeights(unsigned int drawerIdx, unsigned int channel, unsigned int adc, float& phase,
-                      float *a, float *b, float *c, float *g, float *dg);
+                      float *a, float *b, float *c, float *g, float *dg,
+                      const EventContext& ctx);
 
-    void getOfcParams(unsigned int drawerIdx, int &NPhases, int &NFields, int &Phamin, int &Phamax, int &NSamples);
+    void getOfcParams(unsigned int drawerIdx, int &NPhases, int &NFields, int &Phamin, int &Phamax, int &NSamples,
+                      const EventContext& ctx);
 
 
   private:

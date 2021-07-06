@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOMODELSVC_GEODBTAGSVC_H
@@ -15,10 +15,10 @@ class ATLAS_CHECK_THREAD_SAFETY GeoDbTagSvc : public AthService, virtual public 
   friend class GeoModelSvc;
 
  public:
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
 
   friend class SvcFactory<GeoDbTagSvc>;
 
@@ -40,36 +40,42 @@ class ATLAS_CHECK_THREAD_SAFETY GeoDbTagSvc : public AthService, virtual public 
   void setCavernInfraVersionOverride(const std::string& tag)       { m_CavernInfraVersionOverride=tag; }
   void setForwardDetectorsVersionOverride(const std::string& tag)  { m_ForwardDetectorsVersionOverride=tag; }
 
+  void setParamSvcName(const std::string& name)                    { m_paramSvcName=name; }
+  void setSqliteReader(GeoModelIO::ReadGeoModel* reader)           { m_sqliteReader=reader; }
+
   StatusCode setupTags();
 
  private:
   // ______________________________ IGeoDbTagSvc ____________________________________
-  const std::string & atlasVersion()                     const { return m_AtlasVersion; }
-  const std::string & inDetVersionOverride()             const { return m_InDetVersionOverride; }
-  const std::string & pixelVersionOverride()             const { return m_PixelVersionOverride; }
-  const std::string & SCT_VersionOverride()              const { return m_SCT_VersionOverride; }
-  const std::string & TRT_VersionOverride()              const { return m_TRT_VersionOverride; }
-  const std::string & LAr_VersionOverride()              const { return m_LAr_VersionOverride; }
-  const std::string & tileVersionOverride()              const { return m_TileVersionOverride; }
-  const std::string & muonVersionOverride()              const { return m_MuonVersionOverride; }
-  const std::string & caloVersionOverride()              const { return m_CaloVersionOverride; }
-  const std::string & magFieldVersionOverride()          const { return m_MagFieldVersionOverride; }
-  const std::string & cavernInfraVersionOverride()       const { return m_CavernInfraVersionOverride; }
-  const std::string & forwardDetectorsVersionOverride()  const { return m_ForwardDetectorsVersionOverride; }
+  virtual const std::string & atlasVersion()                     const override  { return m_AtlasVersion; }
+  virtual const std::string & inDetVersionOverride()             const override { return m_InDetVersionOverride; }
+  virtual const std::string & pixelVersionOverride()             const override { return m_PixelVersionOverride; }
+  virtual const std::string & SCT_VersionOverride()              const override { return m_SCT_VersionOverride; }
+  virtual const std::string & TRT_VersionOverride()              const override { return m_TRT_VersionOverride; }
+  virtual const std::string & LAr_VersionOverride()              const override { return m_LAr_VersionOverride; }
+  virtual const std::string & tileVersionOverride()              const override { return m_TileVersionOverride; }
+  virtual const std::string & muonVersionOverride()              const override { return m_MuonVersionOverride; }
+  virtual const std::string & caloVersionOverride()              const override { return m_CaloVersionOverride; }
+  virtual const std::string & magFieldVersionOverride()          const override { return m_MagFieldVersionOverride; }
+  virtual const std::string & cavernInfraVersionOverride()       const override { return m_CavernInfraVersionOverride; }
+  virtual const std::string & forwardDetectorsVersionOverride()  const override { return m_ForwardDetectorsVersionOverride; }
 
-  const std::string & inDetVersion()                     const { return m_InDetVersion; }
-  const std::string & pixelVersion()                     const { return m_PixelVersion; }
-  const std::string & SCT_Version()                      const { return m_SCT_Version; }
-  const std::string & TRT_Version()                      const { return m_TRT_Version; }
-  const std::string & LAr_Version()                      const { return m_LAr_Version; }
-  const std::string & tileVersion()                      const { return m_TileVersion; }
-  const std::string & muonVersion()                      const { return m_MuonVersion; }
-  const std::string & caloVersion()                      const { return m_CaloVersion; }
-  const std::string & magFieldVersion()                  const { return m_MagFieldVersion; }
-  const std::string & cavernInfraVersion()               const { return m_CavernInfraVersion; }
-  const std::string & forwardDetectorsVersion()          const { return m_ForwardDetectorsVersion; }
+  virtual const std::string & inDetVersion()                     const override { return m_InDetVersion; }
+  virtual const std::string & pixelVersion()                     const override { return m_PixelVersion; }
+  virtual const std::string & SCT_Version()                      const override { return m_SCT_Version; }
+  virtual const std::string & TRT_Version()                      const override { return m_TRT_Version; }
+  virtual const std::string & LAr_Version()                      const override { return m_LAr_Version; }
+  virtual const std::string & tileVersion()                      const override { return m_TileVersion; }
+  virtual const std::string & muonVersion()                      const override { return m_MuonVersion; }
+  virtual const std::string & caloVersion()                      const override { return m_CaloVersion; }
+  virtual const std::string & magFieldVersion()                  const override { return m_MagFieldVersion; }
+  virtual const std::string & cavernInfraVersion()               const override { return m_CavernInfraVersion; }
+  virtual const std::string & forwardDetectorsVersion()          const override { return m_ForwardDetectorsVersion; }
 
-  GeoModel::GeoConfig geoConfig() const { return m_geoConfig; }
+  virtual GeoModel::GeoConfig geoConfig() const override { return m_geoConfig; }
+
+  virtual const std::string & getParamSvcName()       const override { return m_paramSvcName; }
+  virtual GeoModelIO::ReadGeoModel* getSqliteReader() override { return m_sqliteReader; }
 
   // _________________________ Private data Members _______________________________
   std::string m_AtlasVersion;
@@ -99,6 +105,9 @@ class ATLAS_CHECK_THREAD_SAFETY GeoDbTagSvc : public AthService, virtual public 
   std::string m_ForwardDetectorsVersionOverride;
 
   GeoModel::GeoConfig m_geoConfig;
+
+  std::string m_paramSvcName;
+  GeoModelIO::ReadGeoModel* m_sqliteReader{nullptr};
 };
 
 #endif // GEOMODELSVC_GEODBTAGSVC_H

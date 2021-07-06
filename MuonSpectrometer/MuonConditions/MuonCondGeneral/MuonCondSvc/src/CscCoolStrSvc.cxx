@@ -6,7 +6,7 @@
 //back out again to check.
 // author lampen@physics.arizona.edu
 
-#include "CscCoolStrSvc.h"
+#include "MuonCondSvc/CscCoolStrSvc.h"
 
 #include <sstream>
 #include <vector>

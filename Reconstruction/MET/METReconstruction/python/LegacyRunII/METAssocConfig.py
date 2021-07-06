@@ -2,7 +2,9 @@
 
 from __future__ import print_function
 from AthenaCommon import CfgMgr
+
 from GaudiKernel.Constants import INFO
+
 import six
 
 #################################################################################
@@ -15,13 +17,13 @@ defaultInputKey = {
    'LCJet'     :'AntiKt4LCTopoJets',
    'EMJet'     :'AntiKt4EMTopoJets',
    'PFlowJet'  :'AntiKt4EMPFlowJets',
-   'PFlowFEJet':'AntiKt4EMPFlowFEJets',
+   'ORPFlowJet':'AntiKt4OverlapRemovedEMPFlowJets',
    'Muon'      :'Muons',
    'Soft'      :'',
    'Clusters'  :'CaloCalTopoClusters',
    'Tracks'    :'InDetTrackParticles',
    'PFlowObj'  :'CHSParticleFlowObjects',
-   'PFlowObjFE':'CHSFlowElements',
+   'ORPFlowObj':'OverlapRemovedCHSParticleFlowObjects',
    'PrimVxColl':'PrimaryVertices',
    'Truth'     :'TruthEvents',
    }
@@ -36,7 +38,8 @@ class AssocConfig:
         self.objType = objType
         self.inputKey = inputKey
 
-def getAssociator(config,suffix,doPFlow=False,
+# usePFOLinks option is deprecated and will eventually be removed.
+def getAssociator(config,suffix,doPFlow=False,usePFOLinks=False,useFELinks=False,
                   trkseltool=None,trkisotool=None,caloisotool=None,
                   modConstKey="",
                   modClusColls={}):
@@ -44,31 +47,40 @@ def getAssociator(config,suffix,doPFlow=False,
 
     import cppyy
     cppyy.include("METRecoInterface/METRecoCommon.h")
-  
+
     doModClus = (modConstKey!="" and not doPFlow)
     if doModClus:
         modLCClus = modClusColls['LC{0}Clusters'.format(modConstKey)]
         modEMClus = modClusColls['EM{0}Clusters'.format(modConstKey)]
-
     # Construct tool and set defaults for case-specific configuration
+
+
+    from METReconstruction.METRecoFlags import metFlags
+
     if config.objType == 'Ele':
         from ROOT import met
         tool = CfgMgr.met__METElectronAssociator('MET_ElectronAssociator_'+suffix,TCMatchMethod=met.ClusterLink)
+        tool.UseFEElectronLinks = metFlags.UseFEElectronLinks()
+
     if config.objType == 'Gamma':
         from ROOT import met
         tool = CfgMgr.met__METPhotonAssociator('MET_PhotonAssociator_'+suffix,TCMatchMethod=met.ClusterLink)
+        tool.UseFEPhotonLinks = metFlags.UseFEPhotonLinks()
+
     if config.objType == 'Tau':
         tool = CfgMgr.met__METTauAssociator('MET_TauAssociator_'+suffix)
+        tool.UseFETauLinks = metFlags.UseFETauLinks()
     if config.objType == 'LCJet':
         tool = CfgMgr.met__METJetAssocTool('MET_LCJetAssocTool_'+suffix)
     if config.objType == 'EMJet':
         tool = CfgMgr.met__METJetAssocTool('MET_EMJetAssocTool_'+suffix)
     if config.objType == 'PFlowJet':
         tool = CfgMgr.met__METJetAssocTool('MET_PFlowJetAssocTool_'+suffix)
-    if config.objType == 'PFlowFEJet':
-        tool = CfgMgr.met__METJetAssocTool('MET_PFlowFEJetAssocTool_'+suffix)
+    if config.objType == 'ORPFlowJet':
+        tool = CfgMgr.met__METJetAssocTool('MET_OverlapRemovedPFlowJetAssocTool_'+suffix)
     if config.objType == 'Muon':
         tool = CfgMgr.met__METMuonAssociator('MET_MuonAssociator_'+suffix)
+        tool.UseFEMuonLinks = metFlags.UseFEMuonLinks()
     if config.objType == 'Soft':
         tool = CfgMgr.met__METSoftAssociator('MET_SoftAssociator_'+suffix)
         tool.DecorateSoftConst = True
@@ -79,13 +91,12 @@ def getAssociator(config,suffix,doPFlow=False,
         tool = CfgMgr.met__METTruthAssociator('MET_TruthAssociator_'+suffix)
         tool.RecoJetKey = config.inputKey
 
-    from METReconstruction.METRecoFlags import metFlags
+    tool.UseFELinks = useFELinks
+    tool.UsePFOLinks = usePFOLinks
+
     if doPFlow:
         tool.PFlow = True
-        if metFlags.UseFlowElements() :
-            tool.FlowElementCollection = modConstKey if modConstKey!="" else defaultInputKey["PFlowObjFE"]
-        else:
-            tool.PFlowColl = modConstKey if modConstKey!="" else defaultInputKey["PFlowObj"]
+        tool.FlowElementCollection = modConstKey if modConstKey!="" else defaultInputKey["PFlowObj"]
     else:
         tool.UseModifiedClus = doModClus
     # set input/output key names
@@ -107,8 +118,6 @@ def getAssociator(config,suffix,doPFlow=False,
     tool.TrackIsolationTool = trkisotool
     tool.CaloIsolationTool = caloisotool
 
-    #if not hasattr(ToolSvc,tool.name()):
-    #   ToolSvc += tool
     return tool
 
 #################################################################################
@@ -121,7 +130,6 @@ class METAssocConfig:
     #
     def outputMap(self):
         return 'METAssoc_'+self.suffix
-        return 'METAssoc_'+self.suffix
     #
     def setupAssociators(self,buildconfigs):
         print (prefix, 'Setting up associators for MET config '+self.suffix)
@@ -132,6 +140,7 @@ class METAssocConfig:
             else:
                 associator = getAssociator(config=config,suffix=self.suffix,
                                            doPFlow=self.doPFlow,
+                                           useFELinks=self.useFELinks,
                                            trkseltool=self.trkseltool,
                                            trkisotool=self.trkisotool,
                                            caloisotool=self.caloisotool,
@@ -147,6 +156,7 @@ class METAssocConfig:
     #
     def __init__(self,suffix,buildconfigs=[],
                  doPFlow=False,doTruth=False,
+                 usePFOLinks=False,
                  trksel=None,
                  modConstKey="",
                  modClusColls={}
@@ -155,11 +165,7 @@ class METAssocConfig:
         modConstKey_tmp = modConstKey
         modClusColls_tmp = modClusColls
         if doPFlow:
-            from METReconstruction.METRecoFlags import metFlags
-            if metFlags.UseFlowElements():
-                if modConstKey_tmp == "": modConstKey_tmp = "CHSFlowElements"
-            else:
-                if modConstKey_tmp == "": modConstKey_tmp = "CHSParticleFlowObjects"
+            if modConstKey_tmp == "": modConstKey_tmp = "CHSParticleFlowObjects" if 'OverlapRemoved' not in suffix else "OverlapRemovedCHSParticleFlowObjects"
         else:
             if modConstKey_tmp == "": modConstKey_tmp = "OriginCorr"
             if modClusColls_tmp == {}: modClusColls_tmp = {'LCOriginCorrClusters':'LCOriginTopoClusters',
@@ -169,11 +175,11 @@ class METAssocConfig:
         else:
             print (prefix, 'Creating MET Assoc config \''+suffix+'\'')
         self.suffix = suffix
-        self.doPFlow = doPFlow                
+        self.doPFlow = doPFlow
+        self.useFELinks = usePFOLinks
         self.modConstKey=modConstKey_tmp
         self.modClusColls=modClusColls_tmp
         self.doTruth = doTruth
-
         if trksel:
             self.trkseltool = trksel
         else:
@@ -196,7 +202,6 @@ class METAssocConfig:
         CaloCellAssocTool =  Rec__ParticleCaloCellAssociationTool(ParticleCaloExtensionTool = CaloExtensionTool)
         self.caloisotool = CfgMgr.xAOD__CaloIsolationTool("CaloIsolationTool_MET",
                                                           saveOnlyRequestedCorrections=True,
-                                                          addCaloExtensionDecoration=False,
                                                           ParticleCaloExtensionTool = CaloExtensionTool,
                                                           ParticleCaloCellAssociationTool = CaloCellAssocTool)
         #if not hasattr(ToolSvc,self.caloisotool.name()):
@@ -233,11 +238,11 @@ def getMETAssocAlg(algName='METAssociation',configs={},tools=[],msglvl=INFO):
 
     from METReconstruction.METRecoFlags import metFlags
     if configs=={} and tools==[]:
-        print( prefix, 'Taking configurations from METRecoFlags')
+        print (prefix, 'Taking configurations from METRecoFlags')
         configs = metFlags.METAssocConfigs()
-        print(configs)
+        print (configs)
     for key,conf in six.iteritems(configs):
-        print( prefix, 'Generate METAssocTool for MET_'+key)
+        print (prefix, 'Generate METAssocTool for MET_'+key)
         assoctool = getMETAssocTool(conf,msglvl)
         assocTools.append(assoctool)
         metFlags.METAssocTools()[key] = assoctool
@@ -249,3 +254,4 @@ def getMETAssocAlg(algName='METAssociation',configs={},tools=[],msglvl=INFO):
                                       RecoTools=assocTools)
 #    assocAlg.OutputLevel=DEBUG
     return assocAlg
+

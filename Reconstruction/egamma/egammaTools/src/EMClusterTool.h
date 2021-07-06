@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMATOOLS_EMCLUSTERTOOL_H
@@ -11,7 +11,7 @@
 #include "egammaBaseTool.h"
 #include "egammaInterfaces/IEMClusterTool.h"
 
-#include "egammaInterfaces/IegammaMVASvc.h"
+#include "EgammaAnalysisInterfaces/IegammaMVASvc.h"
 #include "egammaInterfaces/IegammaSwTool.h"
 
 #include "StoreGate/WriteHandleKey.h"

@@ -10,7 +10,8 @@
 
 //LAr services:
 #include "LArElecCalib/ILArPedestal.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
+#include "LArRecConditions/LArBadChannelMask.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 
 //STL:
 #include <string>
@@ -24,12 +25,12 @@
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 
+
 #include <mutex>
 
 class LArEM_ID;
 class LArOnlineID;
 class HWIdentifier;
-class LArOnlineIDStrHelper;
 class LArOnOffIdMapping;
 
 class LArDigitMonAlg: public AthMonitorAlgorithm
@@ -76,7 +77,8 @@ private:
   
   //Added for Stream aware:
   /** Give the name of the streams you want to monitor:*/
-  Gaudi::Property<std::vector<std::string> >  m_streams {this, "Streams", {""}};
+  Gaudi::Property<std::vector<std::string> >  m_streams {this, "Streams", {}};
+
   //std::vector<unsigned> m_streamsThisEvent;
   
   //Histogram group names
@@ -86,8 +88,10 @@ private:
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this, "CablingKey", "LArOnOffIdMap","Cabling key"};
   
   /** Handle to bad-channel mask */
-  ToolHandle<ILArBadChannelMasker> m_badChannelMask;
-  
+  LArBadChannelMask m_bcMask;
+  SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
+  Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{}, "Bad-Channel categories to mask"};
+ 
   /** Handle to pedestal */
   SG::ReadCondHandleKey<ILArPedestal> m_keyPedestal{this,"LArPedestalKey","LArPedestal","SG key of LArPedestal CDO"};
   

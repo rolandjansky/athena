@@ -20,12 +20,6 @@ TrigConf::HLTMenu::~HLTMenu()
 {}
 
 void
-TrigConf::HLTMenu::update()
-{
-   load();
-}
-
-void
 TrigConf::HLTMenu::load()
 {
    if(! isInitialized() || empty() ) {
@@ -34,6 +28,11 @@ TrigConf::HLTMenu::load()
    m_name = getAttribute("name");
 }
 
+void
+TrigConf::HLTMenu::clear()
+{
+   m_smk = 0;
+}
 
 std::size_t 
 TrigConf::HLTMenu::size() const

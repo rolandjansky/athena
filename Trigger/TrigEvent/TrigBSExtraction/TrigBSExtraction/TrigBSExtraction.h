@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGBSEXTRACTION_TRIGBSEXTRACTION_H
@@ -7,7 +7,6 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
 
 #include "TrigNavigation/Navigation.h"
 
@@ -22,23 +21,26 @@ namespace HLT {
 class TrigBSExtraction : public AthAlgorithm {
 public:
   TrigBSExtraction(const std::string& name, ISvcLocator* pSvcLocator);
-  ~TrigBSExtraction();   
-  StatusCode initialize(); 
-  StatusCode finalize();
-  StatusCode execute();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
 
 private:
-  template<class T> bool repackFeature();    //!< helper which actually does the work of repacking (templated for each TriggerType)
-  StatusCode repackFeaturesToSG(const std::string& key, bool equalize); //!< a method which does loop over objects (depending on @param key does the job for EF or L2) @param equalize flattens the EDM if true
+  /**
+   @brief method which does loop over objects
+   @param  navTool   navigation tool
+   @param  key       does the job for EF or L2
+   @param  equalize  flattens the EDM if true
+   */
+  StatusCode repackFeaturesToSG(HLT::Navigation& navTool, const std::string& key, bool equalize);
 
-  ToolHandle<HLT::Navigation> m_navigationForEF; //!< handle to Navigation tools
-  ToolHandle<HLT::Navigation> m_navigationForL2; 
-  HLT::Navigation* m_nav;
+  ToolHandle<HLT::Navigation> m_navToolL2{this, "NavigationForL2", "HLT::Navigation/NavigationForL2",
+                                          "Navigation tool for Run-1 L2 result"};
+  ToolHandle<HLT::Navigation> m_navTool{this, "Navigation", "HLT::Navigation/Navigation",
+                                        "Navigation tool for EF/HLT result"};
 
-  std::string m_l2ResultKey;  //!< key of HLTResult for L2
-  std::string m_efResultKey;  //!< key of HLTResult for EF
-  std::string m_hltResultKey;  //!< key of HLTResult for HLT P
-  StringArrayProperty m_dataScoutingKeys; //!< keys for DataScouting HLT Results
+  Gaudi::Property<std::string> m_l2ResultKey{this, "L2ResultKey", "", "key for L2 result (Run-1)"};
+  Gaudi::Property<std::string> m_hltResultKey{this, "HLTResultKey", "HLTResult_HLT", "key for EF/HLT result"};
+  StringArrayProperty m_dataScoutingKeys{this, "DSResultKeys", {}, "keys for DataScouting HLT results"};
 };
 
 

@@ -47,6 +47,9 @@ private:
     // Attribute types
     std::map<std::string, unsigned int>    m_attributeTypeMap;
     std::vector<std::string>               m_attributeTypes;
+
+    unsigned int m_objIndexOffset[IOVPayloadContainer_p1::ATTR_TIME_STAMP+1];
+
 };
 
 #endif // IOVDBPTCNV_IOVPAYLOADCONTAINERPTCNV_P1_H

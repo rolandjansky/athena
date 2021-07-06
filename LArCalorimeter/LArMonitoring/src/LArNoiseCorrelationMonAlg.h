@@ -18,7 +18,8 @@
 
 //LAr services:
 #include "LArElecCalib/ILArPedestal.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
+#include "LArRecConditions/LArBadChannelMask.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "LArCabling/LArOnOffIdMapping.h"
@@ -55,7 +56,9 @@ private:
   const LArOnlineID* m_LArOnlineIDHelper;
 
   /** Handle to bad-channel mask */
-  ToolHandle<ILArBadChannelMasker> m_badChannelMask;
+  LArBadChannelMask m_bcMask;
+  SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
+  Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{}, "Bad-Channel categories to mask"};
 
   /** Handle to cabling */
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
@@ -93,7 +96,7 @@ private:
   std::map<std::string,int> m_noiseCorrGroups;
 
   /** Declare methods used*/
-  bool isGoodChannel(const HWIdentifier id,const float ped,const LArOnOffIdMapping *cabling) const;
+  bool isGoodChannel(const HWIdentifier id,const float ped,const LArOnOffIdMapping *cabling,const LArBadChannelCont* bc) const;
   std::string febString(const HWIdentifier) const;
 
 

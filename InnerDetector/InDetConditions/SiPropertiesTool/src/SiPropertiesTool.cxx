@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SiPropertiesTool.h"
@@ -33,8 +33,8 @@ SiPropertiesTool::finalize()
 }
 
 const InDet::SiliconProperties&
-SiPropertiesTool::getSiProperties(const IdentifierHash& elementHash) const {
-  SG::ReadCondHandle<InDet::SiliconPropertiesVector> handle{m_propertiesVector};
+SiPropertiesTool::getSiProperties(const IdentifierHash& elementHash, const EventContext& ctx) const {
+  SG::ReadCondHandle<InDet::SiliconPropertiesVector> handle{m_propertiesVector, ctx};
   if (handle.isValid()) {
     const InDet::SiliconPropertiesVector* vector{*handle};
     if (vector) {

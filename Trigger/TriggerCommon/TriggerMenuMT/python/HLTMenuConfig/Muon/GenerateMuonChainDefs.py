@@ -5,12 +5,12 @@
 ###########################################################################
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Muon.generateChainConfigs' )
+log = logging.getLogger(__name__)
 logging.getLogger().info("Importing %s",__name__)
 
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
-from TriggerMenuMT.HLTMenuConfig.Muon.MuonDef import MuonChainConfiguration as MuonChainConfiguration
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
+from ..Menu.ChainDictTools import splitChainDict
+from ..Menu.ChainMerging import mergeChainDefs
+from .MuonChainConfiguration import MuonChainConfiguration
 
 
 def generateChainConfigs(chainDict):

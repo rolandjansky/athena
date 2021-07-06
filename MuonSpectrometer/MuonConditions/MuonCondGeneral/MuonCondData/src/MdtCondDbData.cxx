@@ -1,41 +1,42 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondData/MdtCondDbData.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
 
 // --- writing identifiers -------
-
+MdtCondDbData::MdtCondDbData(const MdtIdHelper& id_helper):
+    m_id_helper(id_helper){}
 // setDeadTube
 void
-MdtCondDbData::setDeadTube(std::string name, Identifier Id){
+MdtCondDbData::setDeadTube(const std::string& id_name, Identifier Id){
     if(std::find(m_cachedDeadTubesId.begin(), m_cachedDeadTubesId.end(), Id)!=m_cachedDeadTubesId.end()) return;
-    m_cachedDeadTubes  .push_back(name);
+    m_cachedDeadTubes  .push_back(id_name);
     m_cachedDeadTubesId.push_back(Id  );
 }
 
 // setDeadLayer
 void
-MdtCondDbData::setDeadLayer(std::string name, Identifier Id){
+MdtCondDbData::setDeadLayer(const std::string& id_name, Identifier Id){
     if(std::find(m_cachedDeadLayersId.begin(), m_cachedDeadLayersId.end(), Id)!=m_cachedDeadLayersId.end()) return;
-    m_cachedDeadLayers  .push_back(name);
+    m_cachedDeadLayers  .push_back(id_name);
     m_cachedDeadLayersId.push_back(Id  );
 }
 
 // setDeadMultilayer
 void
-MdtCondDbData::setDeadMultilayer(std::string name, Identifier Id){
+MdtCondDbData::setDeadMultilayer(const std::string& id_name, Identifier Id){
     if(std::find(m_cachedDeadMultilayersId.begin(), m_cachedDeadMultilayersId.end(), Id)!=m_cachedDeadMultilayersId.end()) return;
-    m_cachedDeadMultilayers  .push_back(name);
+    m_cachedDeadMultilayers  .push_back(id_name);
     m_cachedDeadMultilayersId.push_back(Id  );
 }
 
 // setDeadStation (= a chamber dead by itself)
 void
-MdtCondDbData::setDeadStation(std::string name, Identifier Id){
+MdtCondDbData::setDeadStation(const std::string& id_name, Identifier Id){
     if(std::find(m_cachedDeadStationsId.begin(), m_cachedDeadStationsId.end(), Id)!=m_cachedDeadStationsId.end()) return;
-    m_cachedDeadStations  .push_back(name);
+    m_cachedDeadStations  .push_back(id_name);
     m_cachedDeadStationsId.push_back(Id  );
 }
 
@@ -87,212 +88,72 @@ MdtCondDbData::setNoisyChamber(Identifier Id){
 
 // --- reading identifiers -------
 
-// getDeadTubes
-const 
-std::vector<std::string>& MdtCondDbData::getDeadTubes() const{
-    if(m_cachedDeadTubes.size()!=0) return m_cachedDeadTubes;
-    return m_emptyNames;
-}
-
-// getDeadLayers
-const 
-std::vector<std::string>& MdtCondDbData::getDeadLayers() const{
-    if(m_cachedDeadLayers.size()!=0) return m_cachedDeadLayers;
-    return m_emptyNames;
-}
-
-// getDeadMultilayers
-const 
-std::vector<std::string>& MdtCondDbData::getDeadMultilayers() const{
-    if(m_cachedDeadMultilayers.size()!=0) return m_cachedDeadMultilayers;
-    return m_emptyNames;
-}
-
-// getDeadStations
-const 
-std::vector<std::string>& MdtCondDbData::getDeadStations() const{
-    if(m_cachedDeadStations.size()!=0) return m_cachedDeadStations;
-    return m_emptyNames;
-}
-
-// getDeadChambers
-const 
-std::vector<std::string>& MdtCondDbData::getDeadChambers() const{
-    if(m_cachedDeadChambers.size()!=0) return m_cachedDeadChambers;
-    return m_emptyNames;
-}
+const std::vector<std::string>& MdtCondDbData::getDeadTubes() const{return m_cachedDeadTubes;}
+const std::vector<std::string>& MdtCondDbData::getDeadLayers() const{return m_cachedDeadLayers;}
+const std::vector<std::string>& MdtCondDbData::getDeadMultilayers() const{ return m_cachedDeadMultilayers;}
+const std::vector<std::string>& MdtCondDbData::getDeadStations() const{ return m_cachedDeadStations;}
+const std::vector<std::string>& MdtCondDbData::getDeadChambers() const{return m_cachedDeadChambers;}
 
 
 
-// getDeadTubesId
-const 
-std::vector<Identifier>& MdtCondDbData::getDeadTubesId() const{
-    if(m_cachedDeadTubesId.size()!=0) return m_cachedDeadTubesId;
-    return m_emptyIds;
-}
-
-// getDeadLayersId
-const 
-std::vector<Identifier>& MdtCondDbData::getDeadLayersId() const{
-    if(m_cachedDeadLayersId.size()!=0) return m_cachedDeadLayersId;
-    return m_emptyIds;
-}
-
-// getDeadMultilayersId
-const 
-std::vector<Identifier>& MdtCondDbData::getDeadMultilayersId() const{
-    if(m_cachedDeadMultilayersId.size()!=0) return m_cachedDeadMultilayersId;
-    return m_emptyIds;
-}
-
-// getDeadStationsId
-const 
-std::vector<Identifier>& MdtCondDbData::getDeadStationsId() const{
-    if(m_cachedDeadStationsId.size()!=0) return m_cachedDeadStationsId;
-    return m_emptyIds;
-}
-
-// getDeadChambersId
-const 
-std::vector<Identifier>& MdtCondDbData::getDeadChambersId() const{
-    if(m_cachedDeadChambersId.size()!=0) return m_cachedDeadChambersId;
-    return m_emptyIds;
-}
+const std::vector<Identifier>& MdtCondDbData::getDeadTubesId() const{ return m_cachedDeadTubesId;}
+const std::vector<Identifier>& MdtCondDbData::getDeadLayersId() const{ return m_cachedDeadLayersId; }
+const std::vector<Identifier>& MdtCondDbData::getDeadMultilayersId() const{ return m_cachedDeadMultilayersId;}
+const std::vector<Identifier>& MdtCondDbData::getDeadStationsId() const{ return m_cachedDeadStationsId;}
+const std::vector<Identifier>& MdtCondDbData::getDeadChambersId() const{ return m_cachedDeadChambersId;}
 
 
 
-// getNoisyTubes
-const 
-std::vector<std::string>& MdtCondDbData::getNoisyTubes() const{
-    if(m_cachedNoisyTubes.size()!=0) return m_cachedNoisyTubes;
-    return m_emptyNames;
-}
-
-// getNoisyLayers
-const 
-std::vector<std::string>& MdtCondDbData::getNoisyLayers() const{
-    if(m_cachedNoisyLayers.size()!=0) return m_cachedNoisyLayers;
-    return m_emptyNames;
-}
-
-// getNoisyMultilayers
-const 
-std::vector<std::string>& MdtCondDbData::getNoisyMultilayers() const{
-    if(m_cachedNoisyMultilayers.size()!=0) return m_cachedNoisyMultilayers;
-    return m_emptyNames;
-}
-
-// getNoisyStations
-const 
-std::vector<std::string>& MdtCondDbData::getNoisyStations() const{
-    if(m_cachedNoisyStations.size()!=0) return m_cachedNoisyStations;
-    return m_emptyNames;
-}
-
-// getNoisyChambers
-const 
-std::vector<std::string>& MdtCondDbData::getNoisyChambers() const{
-    if(m_cachedNoisyChambers.size()!=0) return m_cachedNoisyChambers;
-    return m_emptyNames;
-}
+const std::vector<std::string>& MdtCondDbData::getNoisyTubes() const{ return m_cachedNoisyTubes;}
+const std::vector<std::string>& MdtCondDbData::getNoisyLayers() const{ return m_cachedNoisyLayers;}
+const std::vector<std::string>& MdtCondDbData::getNoisyMultilayers() const{return m_cachedNoisyMultilayers;}
+const std::vector<std::string>& MdtCondDbData::getNoisyStations() const{ return m_cachedNoisyStations;}
+const std::vector<std::string>& MdtCondDbData::getNoisyChambers() const{ return m_cachedNoisyChambers;}
 
 
 
-// getNoisyTubesId
-const 
-std::vector<Identifier>& MdtCondDbData::getNoisyTubesId() const{
-    if(m_cachedNoisyTubesId.size()!=0) return m_cachedNoisyTubesId;
-    return m_emptyIds;
-}
-
-// getNoisyLayersId
-const 
-std::vector<Identifier>& MdtCondDbData::getNoisyLayersId() const{
-    if(m_cachedNoisyLayersId.size()!=0) return m_cachedNoisyLayersId;
-    return m_emptyIds;
-}
-
-// getNoisyMultilayersId
-const 
-std::vector<Identifier>& MdtCondDbData::getNoisyMultilayersId() const{
-    if(m_cachedNoisyMultilayersId.size()!=0) return m_cachedNoisyMultilayersId;
-    return m_emptyIds;
-}
-
-// getNoisyStationsId
-const 
-std::vector<Identifier>& MdtCondDbData::getNoisyStationsId() const{
-    if(m_cachedNoisyStationsId.size()!=0) return m_cachedNoisyStationsId;
-    return m_emptyIds;
-}
-
-// getNoisyChambersId
-const 
-std::vector<Identifier>& MdtCondDbData::getNoisyChambersId() const{
-    if(m_cachedNoisyChambersId.size()!=0) return m_cachedNoisyChambersId;
-    return m_emptyIds;
-}
+const std::vector<Identifier>& MdtCondDbData::getNoisyTubesId() const{ return m_cachedNoisyTubesId;}
+const std::vector<Identifier>& MdtCondDbData::getNoisyLayersId() const{return m_cachedNoisyLayersId;}
+const std::vector<Identifier>& MdtCondDbData::getNoisyMultilayersId() const{return m_cachedNoisyMultilayersId;}
+const std::vector<Identifier>& MdtCondDbData::getNoisyStationsId() const{ return m_cachedNoisyStationsId;}
+const std::vector<Identifier>& MdtCondDbData::getNoisyChambersId() const{return m_cachedNoisyChambersId;}
 
 
 
 // --- probing identifiers -------
 
-// isGood
 bool 
 MdtCondDbData::isGood(const Identifier & Id) const{
     // probing id in all lists
-    if(not isGoodTube      (Id)) return false;
-    if(not isGoodLayer     (Id)) return false;
-    if(not isGoodMultilayer(Id)) return false;
-    if(not isGoodChamber   (Id)) return false;
-    if(not isGoodStation   (Id)) return false;
-    return true;
-}
-
-// isGoodChannel
-bool 
-MdtCondDbData::isGoodChannel(const MdtIdHelper* idHelper, const Identifier & Id) const{
-    // probing channel and all associated entities
-    //Identifier layerId      = idHelper->layerID     (Id); 
-    Identifier multilayerId = idHelper->multilayerID(Id); 
-    Identifier chamberId    = idHelper->elementID   (Id); 
-    //Identifier stationId    = idHelper->stationID   (Id); 
-    if(not isGoodTube      (Id          )) return false;
-    //if(not isGoodLayer     (layerId     )) return false;
-    if(not isGoodMultilayer(multilayerId)) return false;
-    // if(not isGoodChamber   (chamberId   )) return false; // will fail if any channel in same chamber is off
+    const Identifier multilayerId = m_id_helper.multilayerID(Id); 
+    const Identifier chamberId    = m_id_helper.elementID   (Id); 
     if(not isGoodStation   (chamberId   )) return false;
+    if(not isGoodMultilayer(multilayerId)) return false;
+    if(not isGoodTube      (Id          )) return false;
     return true;
 }
+bool MdtCondDbData::isGoodChannel(const MdtIdHelper* , const Identifier & Id) const{ return isGood(Id);}
 
-// isGoodTube
-bool
-MdtCondDbData::isGoodTube(const Identifier & Id) const{
-    if(m_cachedDeadTubesId.size()==0) return true;
+bool MdtCondDbData::isGoodTube(const Identifier & Id) const{
+    if(m_cachedDeadTubesId.empty()) return true;
     bool found = std::find(m_cachedDeadTubesId.begin(), m_cachedDeadTubesId.end(), Id)!=m_cachedDeadTubesId.end();
     return !found;
 } 
 
-// isGoodLayer
-bool
-MdtCondDbData::isGoodLayer(const Identifier & Id) const{
-    if(m_cachedDeadLayersId.size()==0) return true;
+bool MdtCondDbData::isGoodLayer(const Identifier & Id) const{
+    if(m_cachedDeadLayersId.empty()) return true;
     bool found = std::find(m_cachedDeadLayersId.begin(), m_cachedDeadLayersId.end(), Id)!=m_cachedDeadLayersId.end();
     return !found;
 } 
 
-// isGoodMultilayer
-bool
-MdtCondDbData::isGoodMultilayer(const Identifier & Id) const{
-    if(m_cachedDeadMultilayersId.size()==0) return true;
+bool MdtCondDbData::isGoodMultilayer(const Identifier & Id) const{
+    if(m_cachedDeadMultilayersId.empty()) return true;
     bool found = std::find(m_cachedDeadMultilayersId.begin(), m_cachedDeadMultilayersId.end(), Id)!=m_cachedDeadMultilayersId.end();
     return !found;
 } 
 
-// isGoodStation
-bool
-MdtCondDbData::isGoodStation(const Identifier & Id) const{
-    if(m_cachedDeadStationsId.size()==0) return true;
+bool MdtCondDbData::isGoodStation(const Identifier & Id) const{
+    if(m_cachedDeadStationsId.empty()) return true;
     bool found = std::find(m_cachedDeadStationsId.begin(), m_cachedDeadStationsId.end(), Id)!=m_cachedDeadStationsId.end();
     return !found;
 } 
@@ -303,7 +164,7 @@ MdtCondDbData::isGoodStation(const Identifier & Id) const{
 /// latter, you need to use isGoodStation.
 bool
 MdtCondDbData::isGoodChamber(const Identifier & Id) const{
-    if(m_cachedDeadChambersId.size()==0) return true;
+    if(m_cachedDeadChambersId.empty()) return true;
     bool found = std::find(m_cachedDeadChambersId.begin(), m_cachedDeadChambersId.end(), Id)!=m_cachedDeadChambersId.end();
     return !found;
 } 

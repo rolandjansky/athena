@@ -6,50 +6,41 @@
 #define WIREDORDATA_H
 
 #include <list>
+
 #include "MuonCablingTools/ShowRequest.h"
 #include "MuonCablingTools/dbline.h"
 #include "RPC_CondCabling/WiredOR.h"
 
 namespace RPC_CondCabling {
 
-class WiredORdata : BaseObject
-{
+    class WiredORdata : BaseObject {
     private:
-    typedef std::list < WiredOR > WORlist;
+        typedef std::list<WiredOR> WORlist;
 
-    bool m_fail;
+        bool m_fail;
+        int m_station{-1};
+        WORlist m_wor;
 
-    int m_number;
-    int m_station;
-    int m_type;
-    int m_start;
-    int m_stop;
-
-    WORlist m_wor;
-
-
-    void reset_data(void);
-    bool get_data(DBline&);
-    bool confirm_boundary(void) const;
+        void reset_data();
+        bool get_data(DBline&, WiredOR::parseParams&);
+        bool confirm_boundary(WiredOR::parseParams&) const;
 
     public:
-    WiredORdata();
-    WiredORdata(DBline&,int);
-    ~WiredORdata();
+        WiredORdata(DBline&, int, IMessageSvc*);
+        virtual ~WiredORdata();
 
-    std::unique_ptr<WiredOR> give_wor(void);
+        std::unique_ptr<WiredOR> give_wor(void);
 
-    int station(void) const {return m_station;}
+        int station() const { return m_station; }
 
-    void Print(std::ostream&,bool) const;
-};
+        void Print(std::ostream&, bool) const;
+    };
 
-template <class X> X& operator<< (X& stream, WiredORdata& data)
-{
-    data.Print(stream,false);
-    return stream;
-}
+    template <class X> X& operator<<(X& stream, WiredORdata& data) {
+        data.Print(stream, false);
+        return stream;
+    }
 
-}
+}  // namespace RPC_CondCabling
 
 #endif

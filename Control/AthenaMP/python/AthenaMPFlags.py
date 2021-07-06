@@ -97,7 +97,7 @@ class ChunkSize(JobProperty):
     """
     statusOn = True
     allowedTypes = ['int']
-    StoredValue  = 1
+    StoredValue  = -1
 
 class ReadEventOrders(JobProperty):
     """ Flag for reading event orders (Shared Queue) from an ASCII file for reproducibility
@@ -127,6 +127,13 @@ class UseSharedWriter(JobProperty):
     allowedTypes = ['bool']
     StoredValue = False
 
+class UseParallelCompression(JobProperty):
+    """ Flag for activating event data compression in the workers
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = True
+
 # Defines the container for the performance monitoring flags  
 class AthenaMPFlags(JobPropertyContainer):
     """ The global AthenaMP job property container.
@@ -154,6 +161,7 @@ list_jobproperties = [
     EventOrdersFile,
     UseSharedReader,
     UseSharedWriter,
+    UseParallelCompression,
     ]
 
 for i in list_jobproperties:

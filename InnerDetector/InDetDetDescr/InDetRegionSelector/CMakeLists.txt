@@ -9,5 +9,3 @@ atlas_add_component( InDetRegionSelector
                      src/components/*.cxx
                      LINK_LIBRARIES AthenaBaseComps RegSelLUT GaudiKernel PixelConditionsData SCT_CablingLib Identifier InDetIdentifier InDetReadoutGeometry IRegionSelector StoreGateLib TRT_ReadoutGeometry TRT_CablingLib )
 
-# Install files from the package:
-atlas_install_joboptions( share/*.py )

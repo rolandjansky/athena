@@ -42,8 +42,7 @@ from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 
 
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools import \
-    InDetTrigTrackSummaryToolSharedHits, \
-    InDetTrigExtrapolator
+    InDetTrigTrackSummaryToolSharedHits
 
 from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool, InDetTrigTrackSummaryToolSharedHitsWithTRTPid
 
@@ -51,7 +50,6 @@ from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool,
 from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
 InDetTrigParticleCreatorTool = \
     Trk__TrackParticleCreatorTool( name = "InDetTrigParticleCreatorTool",
-                                   Extrapolator = InDetTrigExtrapolator,
                                    TrackSummaryTool = InDetTrigTrackSummaryToolSharedHits,
                                    KeepParameters = False,
                                    )
@@ -62,7 +60,6 @@ if (InDetTrigFlags.doPrintConfigurables()):
 
 InDetTrigParticleCreatorToolWithSummary = \
     Trk__TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolWithSummary",
-                                   Extrapolator = InDetTrigExtrapolator,
                                    TrackSummaryTool = InDetTrigTrackSummaryToolSharedHits,
                                    KeepParameters = True,
                                    ComputeAdditionalInfo = True
@@ -74,7 +71,6 @@ if (InDetTrigFlags.doPrintConfigurables()):
 
 InDetTrigParticleCreatorToolWithSummaryTRTPid = \
     Trk__TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolWithSummaryTRTPid",
-                                   Extrapolator = InDetTrigExtrapolator,
                                    TrackSummaryTool = InDetTrigTrackSummaryToolSharedHitsWithTRTPid,
                                    KeepParameters = True,
                                    ComputeAdditionalInfo = True
@@ -87,7 +83,6 @@ if (InDetTrigFlags.doPrintConfigurables()):
 
 InDetTrigParticleCreatorToolParams = \
     Trk__TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolParams",
-                                   Extrapolator = InDetTrigExtrapolator,
                                    TrackSummaryTool = InDetTrigTrackSummaryToolSharedHits,
                                    KeepParameters = True
                                    )
@@ -98,7 +93,6 @@ if (InDetTrigFlags.doPrintConfigurables()):
 
 InDetTrigParticleCreatorToolFTF = \
     Trk__TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolFTF",
-                                   Extrapolator = InDetTrigExtrapolator,
                                    TrackSummaryTool = InDetTrigFastTrackSummaryTool,
                                    KeepParameters = True,
                                    ComputeAdditionalInfo = True

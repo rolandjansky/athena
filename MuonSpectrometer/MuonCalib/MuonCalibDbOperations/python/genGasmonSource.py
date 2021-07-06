@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -14,7 +14,7 @@ def MuonCalib__genGasmonSource(toroidOn, cal_time, reader_cursor):
 	if not cal_time:
 		cal_time = MuonCalib__gCalibrationSourceConfigs[0].GetTime(reader_cursor)
 	
-	if not type(cal_time)==type(""):
+	if not isinstance(type(cal_time), str):
 		tm=time.gmtime(cal_time)
 		cal_time=str(tm.tm_year) + str(tm.tm_mon).zfill(2) + str(tm.tm_mday).zfill(2)
 	imp_str="GASMON_RT_" + cal_time + "_TP"

@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE(PublicMethods, * utf::expected_failures(1)){
   uint32_t size{2};
   uint32_t num{10};
   uint32_t nChans{1};
-  uint16_t gain{1};
+  uint32_t gain{1};
   const std::string author{"Shaun"};
   const std::string comment{"Just testing"};
   //
@@ -154,7 +154,7 @@ Date           : Thu Jan  1 01:00:00 1970 (0)
 Comment:       : Just testing
 )";
   BOOST_TEST(representation.str() == expectedString);
-  uint16_t gainTooBig{0x80};//gain must be <=0x7F
+  uint32_t gainTooBig{0x80};//gain must be <=0x7F
   pDestination[3] = 0x80000000 | (gainTooBig << 24) | nChans;
   BOOST_CHECK_THROW(CaloCondBlobStub invalid(b),CaloCond::InvalidBlob);//expect this test to fail
   

@@ -7,8 +7,10 @@
 #--------------------------------------------------------------
 # RunNumber and number of events
 #--------------------------------------------------------------
+#RunNumber = 364204
 #RunNumber = 364214
-RunNumber = 370059
+RunNumber = 384813
+#RunNumber = 384896
 EvtMax    = -1  
 
 #--------------------------------------------------------------
@@ -35,11 +37,13 @@ ReadBS         = True
 # - Set only one flag to True and others to False
 #------------------------------------------------------------
 #--- Algs using TrkVal or BS
-DoNoisyStrip     = False
-DoNoisyLB        = False 
+DoHitMap         = True
+DoHitMapsLB      = False 
 DoHV             = False
 DoDeadStrip      = False
-DoDeadChip       = True
+DoDeadChip       = False
+DoQuietStrip     = False
+DoQuietChip      = False
 #--- Algs using HIST
 DoNoiseOccupancy = False 
 DoRawOccupancy   = False
@@ -94,15 +98,21 @@ NoisyModuleDiff        = 0.500
 NoisyStripDiff         = 5120
             
 #--- Dead strips/chips
-DeadStripMinStat      = 0
-DeadStripMinStatBusy  = 200000
-DeadChipMinStat       = 0 
-DeadStripSignificance = 10
-DeadChipSignificance  = 10
+DeadStripMinStat      = 5000
+DeadStripMinStatBusy  = 5000
+DeadChipMinStat       = 5000 
+DeadStripSignificance = 6
+DeadChipSignificance  = 6
 BusyThr4DeadFinding   = 1E-4
-NoisyThr4DeadFinding  = 1.500E-3
+NoisyThr4DeadFinding  = 5.0E-2
 DeadChipUploadTest    = True
 DeadStripUploadTest   = True
+DeadNotQuiet          = False
+QuietThresholdStrip   = 0.5
+QuietThresholdChip    = 0.5
+
+#--- Efficiency
+EfficiencyDoChips     = True
 
 #--- HIST
 NoiseOccupancyTriggerAware = True

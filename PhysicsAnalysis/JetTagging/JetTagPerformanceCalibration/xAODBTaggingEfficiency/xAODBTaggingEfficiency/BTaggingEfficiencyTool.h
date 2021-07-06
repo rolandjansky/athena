@@ -36,7 +36,7 @@ class BTaggingEfficiencyTool: public asg::AsgTool,
   //  typedef double (xAOD::BTagging::* tagWeight_member_t)() const;
 
   /// Create a proper constructor for Athena
-  ASG_TOOL_CLASS2( BTaggingEfficiencyTool , IBTaggingEfficiencyTool, ISystematicsTool )
+  ASG_TOOL_CLASS3( BTaggingEfficiencyTool , IBTaggingEfficiencyTool, ISystematicsTool, CP::IReentrantSystematicsTool )
 
   public:
 

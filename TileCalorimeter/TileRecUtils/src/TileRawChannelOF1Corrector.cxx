@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -77,7 +77,7 @@ StatusCode TileRawChannelOF1Corrector::initialize() {
 // ============================================================================
 // process container
 StatusCode
-TileRawChannelOF1Corrector::process (TileMutableRawChannelContainer& rchCont) const
+TileRawChannelOF1Corrector::process (TileMutableRawChannelContainer& rchCont, const EventContext &ctx) const
 {
   ATH_MSG_DEBUG("in TileRawChannelOF1Corrector::process()");
 
@@ -94,7 +94,7 @@ TileRawChannelOF1Corrector::process (TileMutableRawChannelContainer& rchCont) co
     const TileDigitsContainer* digitsContainer(nullptr);
 
     if (m_zeroAmplitudeWithoutDigits) {
-      SG::ReadHandle<TileDigitsContainer> allDigits(m_digitsContainerKey);
+      SG::ReadHandle<TileDigitsContainer> allDigits(m_digitsContainerKey, ctx);
       digitsContainer = allDigits.cptr();
     }
 
@@ -131,10 +131,10 @@ TileRawChannelOF1Corrector::process (TileMutableRawChannelContainer& rchCont) co
 
         if (m_correctPedestalDifference) {
 
-          float onlinePedestalDifference = m_tileToolNoiseSample->getOnlinePedestalDifference(drawerIdx, channel, gain, rawChannelUnit);
+          float onlinePedestalDifference = m_tileToolNoiseSample->getOnlinePedestalDifference(drawerIdx, channel, gain, rawChannelUnit, ctx);
           float phase = -m_tileToolTiming->getSignalPhase(drawerIdx, channel, gain);
           TileOfcWeightsStruct weights;
-          ATH_CHECK( m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, phase, false, weights) );
+          ATH_CHECK( m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, phase, false, weights, ctx) );
           float weightsSum(0.0);
           for (int i = 0; i < weights.n_samples; ++i) weightsSum += weights.w_a[i];
           float energyCorrection = onlinePedestalDifference * weightsSum;

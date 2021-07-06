@@ -17,6 +17,8 @@ namespace G4UA
       m_hSvc("THistSvc", name)
   {
     declareProperty("HistoSvc", m_hSvc);
+    declareProperty("CreateHistograms", m_doHistos=true);
+    
   }
 
   //---------------------------------------------------------------------------
@@ -38,7 +40,7 @@ namespace G4UA
   LengthIntegratorTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
     ATH_MSG_DEBUG("Making a LengthIntegrator action");
-    auto action = std::make_unique<LengthIntegrator>( m_hSvc.name() );
+    auto action = std::make_unique<LengthIntegrator>( m_hSvc.name(), m_doHistos );
     actionList.eventActions.push_back( action.get() );
     actionList.steppingActions.push_back( action.get() );
     return action;

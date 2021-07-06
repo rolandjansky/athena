@@ -41,7 +41,7 @@ ElementTableCnv::createTransientWithKey (const std::string& key)
 
    static const pool::Guid p1_guid( "B157B642-94C0-11E3-B1C2-02163E00A511" );
 
-   Trk::ElementTable* tCollection = 0;
+   Trk::ElementTable* tCollection = nullptr;
    if( compareClassGuid( p1_guid ) ) {
 
       std::unique_ptr< ElementTable_PERS >  p_coll( poolReadObject< ElementTable_PERS >() );

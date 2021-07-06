@@ -15,6 +15,9 @@
 ## get a handle to the ServiceManager
 #-----------COMMON CODE---------------------
 
+from AthenaCommon.Logging import logging
+ctpmonlog = logging.getLogger("CTPMonitoringSetup")
+
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaCommon.Constants import *
 
@@ -23,10 +26,10 @@ UsedFillStateCoolFolderName="/LHC/DCS/FILLSTATE"
 if LHCFillStateAvailable:
     UsedFillStateCoolFolderName="Unavailable"
 
+# add CTP and MUCTPI data to ByteStreamAddressProviderSvc
 if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
     from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc 
     svcMgr += ByteStreamAddressProviderSvc()
-
 svcMgr.ByteStreamAddressProviderSvc.TypeNames += [
     "MuCTPI_RDO/MUCTPI_RDO",
     "CTP_RDO/CTP_RDO",
@@ -45,9 +48,11 @@ from TrigT1CTMonitoring.TrigT1CTMonitoringConfig import *
 ## get a handle on the ToolSvc
 from AthenaCommon.AppMgr import ToolSvc as toolSvc
 from TrigT1CTMonitoring.TrigT1CTMonitoringConf import TrigT1CTMonitoring__BSMonitoring as BSMon
+from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
 
 #-----------ONLINE CODE---------------------
-if athenaCommonFlags.isOnline() and jp.ConcurrencyFlags.NumThreads() == 0:
+if athenaCommonFlags.isOnline():
+    ctpmonlog.info("Setting up CTP/MUCTPI BS monitoring for online")
     #from TrigServices.TrigServicesConf import TrigMonTHistSvc
     #THistSvc = TrigMonTHistSvc("THistSvc") 
     #svcMgr += THistSvc 
@@ -59,7 +64,6 @@ if athenaCommonFlags.isOnline() and jp.ConcurrencyFlags.NumThreads() == 0:
     
     ## add an AthenaMonManager algorithm to the list of algorithms to be ran
     if not hasattr(topSequence,"PrimaryManager"):
-        from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
         topSequence += AthenaMonManager( "PrimaryManager" )
     ## AthenaMonManager is the Algorithm that manages many classes inheriting
     ## from ManagedMonitorToolBase
@@ -68,7 +72,7 @@ if athenaCommonFlags.isOnline() and jp.ConcurrencyFlags.NumThreads() == 0:
     theApp.Dlls += [ "TrigT1CTMonitoring" ]
     
     CTmonMan.AthenaMonTools += [ "TrigT1CTMonitoring__BSMonitoring/BSMon" ]
-   
+
     ## FILEKEY must match that given to THistSvc
     CTmonMan.FileKey = "GLOBAL"
 
@@ -89,10 +93,10 @@ if athenaCommonFlags.isOnline() and jp.ConcurrencyFlags.NumThreads() == 0:
     DetFlags.Calo_setOff() 
     DetFlags.Truth_setOff()
     #switch on/off detectors
-   
+
     DetFlags.Muon_setOn()
     #DetFlags.Muon_setOff()
-   
+
     DetFlags.LVL1_setOn()
     DetFlags.pileup.all_setOff()
     DetFlags.simulate.all_setOff()
@@ -133,11 +137,7 @@ if athenaCommonFlags.isOnline() and jp.ConcurrencyFlags.NumThreads() == 0:
     MDTcablingSvc.RODfile    = "RODmap.data"
     from TGCcabling.TGCcablingConfig import TGCcablingConfig
     
-    # Needed to decode the RoI information
-    from TrigT1RPCRecRoiSvc.TrigT1RPCRecRoiConfig import RPCRecRoiConfig
-    from TrigT1TGCRecRoiSvc.TrigT1TGCRecRoiConfig import TGCRecRoiConfig
-
-    CTmonMan.Environment = "online" 
+    CTmonMan.Environment = "online"
     CTmonMan.ManualDataTypeSetup = False
     CTmonMan.DataType            = "cosmics"
     CTmonMan.ManualRunLBSetup    = False
@@ -147,52 +147,61 @@ if athenaCommonFlags.isOnline() and jp.ConcurrencyFlags.NumThreads() == 0:
     #---------------------------------------------------------------
     # LVL1 configuration
     #---------------------------------------------------------------
-    log.info("will setup LVL1ConfigSvc and add instance to ServiceMgr")
+    ctpmonlog.info("will setup LVL1ConfigSvc and add instance to ServiceMgr")
     from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc
     LVL1ConfigSvc = LVL1ConfigSvc('LVL1ConfigSvc')
     LVL1ConfigSvc.ConfigSource = "XML"
     LVL1ConfigSvc.XMLFile = "L1MenuM5.xml"
     LVL1ConfigSvc.CreateLegacyObjects = True
     LVL1ConfigSvc.DumpTTVmap = False
-    #LVL1ConfigSvc.OutputLevel = VERBOSE
     svcMgr += LVL1ConfigSvc
     theApp.CreateSvc += [ "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc" ]
-   
-    #    svcMgr.ToolSvc += BSMon( OutputLevel=INFO )
-    svcMgr.ToolSvc += BSMon( ProcessMuctpiData=True )
-    svcMgr.ToolSvc += BSMon( ProcessMuctpiDataRIO=True )
-    svcMgr.ToolSvc += BSMon( ProcessCTPData=True )
-    svcMgr.ToolSvc += BSMon( ProcessRoIBResult=True )
-    svcMgr.ToolSvc += BSMon( InclusiveTriggerThresholds=True )
-    svcMgr.ToolSvc += BSMon( FillStateCoolFolderName=UsedFillStateCoolFolderName)
-    #    RecMuCTPIByteStreamTool.OutputLevel = INFO #DEBUG
+
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    svcMgr.ToolSvc += BSMon( ProcessMuctpiData=True,
+                            ProcessMuctpiDataRIO=True,
+                            ProcessCTPData=True,
+                            ProcessRoIBResult=True,
+                            InclusiveTriggerThresholds=True,
+                            FillStateCoolFolderName=UsedFillStateCoolFolderName,
+                            UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON )
     
     printfunc (topSequence)
     printfunc (svcMgr)
 
 
-   
 #-----------OFFLINE CODE---------------------
-if not athenaCommonFlags.isOnline() and jp.ConcurrencyFlags.NumThreads() == 0:
+else:
+    from PyUtils.MetaReaderPeeker import metadata
+    isMC = 'IS_SIMULATION' in metadata['eventTypes']
+    ctpmonlog.info("Setting up CTP/MUCTPI BS monitoring for offline (MC=%s)", isMC)
 
     from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
     cfg = TriggerConfigGetter()
 
     ## add pre algorithms for rerunning CTP simulation
-    from PyUtils.MetaReaderPeeker import metadata
     if 'IS_SIMULATION' not in metadata['eventTypes']:
         #svcMgr.DSConfigSvc.readLVL1Thr=True
         #svcMgr.DSConfigSvc.readLVL1BG=True
 
-        from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi_on_Data
-        topSequence += L1Muctpi_on_Data()
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        # Wrap everything in a sequence which will force algs to execute in order, even in MT mode
+        from AthenaCommon.AlgSequence import AthSequencer
+        CTPMonSeq=CfgMgr.AthSequencer('CTPMonSeq')
+
+        if ConfigFlags.Trigger.enableL1MuonPhase1:
+            from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1_on_Data
+            CTPMonSeq += L1MuctpiPhase1_on_Data()
+        else:
+            from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi_on_Data
+            CTPMonSeq += L1Muctpi_on_Data()
 
         from TrigT1CTMonitoring.TrigT1CTMonitoringConf import TrigT1CTMonitoring__DeriveSimulationInputs as DeriveSimulationInputs
-        topSequence += DeriveSimulationInputs(do_MuCTPI_input=True,
-                                              do_L1Calo_sim=False)
+        CTPMonSeq += DeriveSimulationInputs(do_MuCTPI_input=True,
+                                            do_L1Calo_sim=False)
 
         from TrigT1CTP.TrigT1CTPConfig import CTPSimulationOnData
-        topSequence += CTPSimulationOnData("CTPSimulation")
+        CTPMonSeq += CTPSimulationOnData("CTPSimulation")
 
         # configure simulation histogram output directory
         from AthenaMonitoring.DQMonFlags import DQMonFlags
@@ -203,7 +212,7 @@ if not athenaCommonFlags.isOnline() and jp.ConcurrencyFlags.NumThreads() == 0:
         else:
             histbase += "L1Simulation"
         try:
-            topSequence.CTPSimulation.HistPath = histbase
+            CTPMonSeq.CTPSimulation.HistPath = histbase
         except AttributeError as ex:
             printfunc (ex," ignore for now")
             import traceback
@@ -211,53 +220,48 @@ if not athenaCommonFlags.isOnline() and jp.ConcurrencyFlags.NumThreads() == 0:
 
     ## add an AthenaMonManager algorithm to the list of algorithms to be run
     monMan = AthenaMonManager( name="CTMonManager",
-                               FileKey             = DQMonFlags.monManFileKey(),
-                               Environment         = DQMonFlags.monManEnvironment(),
-                               ManualDataTypeSetup = DQMonFlags.monManManualDataTypeSetup(),
-                               DataType            = DQMonFlags.monManDataType() )
-    topSequence += monMan
-   
+                            FileKey             = DQMonFlags.monManFileKey(),
+                            Environment         = DQMonFlags.monManEnvironment(),
+                            ManualDataTypeSetup = DQMonFlags.monManManualDataTypeSetup(),
+                            DataType            = DQMonFlags.monManDataType() )
+    CTPMonSeq += monMan
+
     theApp.Dlls += [ "TrigT1CTMonitoring" ]
     
-    from PyUtils.MetaReaderPeeker import metadata
-
     # check if global muons are on
     if not rec.doMuon:
         if 'IS_SIMULATION' not in metadata['eventTypes']:
-            CTBSMonTool = BSMon( ProcessCTPData = True,
-                                 ProcessRoIBResult = False,
-                                 InclusiveTriggerThresholds = False,
-                                 ProcessMuctpiData = False,
-                                 ProcessMuctpiDataRIO = False,
-                                 CompareRerun = True,
-                                 FillStateCoolFolderName=UsedFillStateCoolFolderName)
+            CTBSMonTool = BSMon(ProcessRoIBResult = False,
+                                InclusiveTriggerThresholds = False,
+                                ProcessMuctpiData = False,
+                                ProcessMuctpiDataRIO = False,
+                                CompareRerun = True,
+                                FillStateCoolFolderName=UsedFillStateCoolFolderName)
         else:
-            CTBSMonTool = BSMon( ProcessCTPData = True,
-                                 ProcessRoIBResult = False,
-                                 InclusiveTriggerThresholds = False,
-                                 ProcessMuctpiData = False,
-                                 ProcessMuctpiDataRIO = False,
-                                 RunOnESD = True,
-                                 CompareRerun = False,
-                                 FillStateCoolFolderName=UsedFillStateCoolFolderName)
+            CTBSMonTool = BSMon(ProcessRoIBResult = False,
+                                InclusiveTriggerThresholds = False,
+                                ProcessMuctpiData = False,
+                                ProcessMuctpiDataRIO = False,
+                                RunOnESD = True,
+                                CompareRerun = False,
+                                FillStateCoolFolderName=UsedFillStateCoolFolderName)
     else:
         if 'IS_SIMULATION' not in metadata['eventTypes']:
-            CTBSMonTool = BSMon( ProcessCTPData = True,
-                                 ProcessRoIBResult = True,
-                                 ProcessMuctpiData = True,
-                                 ProcessMuctpiDataRIO = True,
-                                 CompareRerun = True)
+            CTBSMonTool = BSMon(ProcessRoIBResult = True,
+                                ProcessMuctpiData = True,
+                                ProcessMuctpiDataRIO = True,
+                                CompareRerun = True)
         else:
-            CTBSMonTool = BSMon( ProcessCTPData = True,
-                                 ProcessRoIBResult = True,
-                                 ProcessMuctpiData = True,
-                                 ProcessMuctpiDataRIO = False,
-                                 RunOnESD = True,
-                                 CompareRerun = False,
-                                 FillStateCoolFolderName=UsedFillStateCoolFolderName)
-        # Needed to decode the RoI information
-        from TrigT1RPCRecRoiSvc.TrigT1RPCRecRoiConfig import RPCRecRoiConfig
-        from TrigT1TGCRecRoiSvc.TrigT1TGCRecRoiConfig import TGCRecRoiConfig
+            CTBSMonTool = BSMon(ProcessRoIBResult = True,
+                                ProcessMuctpiData = True,
+                                ProcessMuctpiDataRIO = False,
+                                RunOnESD = True,
+                                CompareRerun = False,
+                                FillStateCoolFolderName=UsedFillStateCoolFolderName)
+
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    CTBSMonTool.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
+
 
     processByteStream = True
 
@@ -272,3 +276,9 @@ if not athenaCommonFlags.isOnline() and jp.ConcurrencyFlags.NumThreads() == 0:
         conddb.addFolder('TRIGGER', '/TRIGGER/LVL1/CTPCoreInputMapping')
 
     monMan.AthenaMonTools += [ CTBSMonTool ]
+
+    CTPMonSeq.Sequential=True
+    topSequence += CTPMonSeq
+
+
+del ctpmonlog

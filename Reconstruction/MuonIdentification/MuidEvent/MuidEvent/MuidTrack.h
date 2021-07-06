@@ -10,7 +10,6 @@
  Dummy methods
 	 
    @author Alan.Poppleton@cern.ch
-  (c) ATLAS Combined Muon software
 */
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +34,7 @@ public:
 	       const Trk::Track*		extrapolatedTrack,
 	       const Trk::Track*		indetTrack,
 	       const Trk::Track*		spectrometerTrack,
-	       Rec::FieldIntegral		fieldIntegral = Rec::FieldIntegral(),
+	       const Rec::FieldIntegral&		fieldIntegral = Rec::FieldIntegral(),
 	       double				innerMatchChi2			= 0.,
 	       int				innerMatchDoF			= 0,
 	       double				innerMatchProb			= 0.,
@@ -43,7 +42,7 @@ public:
 	       double				outerMatchChi2			= 0.,
 	       int				outerMatchDoF			= 0,
 	       double				outerMatchProb			= 0.,
-	       Rec::ScatteringAngleSignificance
+	       const Rec::ScatteringAngleSignificance&
 	       scatAngleSignificance = Rec::ScatteringAngleSignificance());
 
     // destructor

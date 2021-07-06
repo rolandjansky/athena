@@ -4,17 +4,20 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 LArCellBuilderFromLArRawChannelTool, LArCellMerger, LArCellNoiseMaskingTool=CompFactory.getComps("LArCellBuilderFromLArRawChannelTool","LArCellMerger","LArCellNoiseMaskingTool",)
 from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg 
+from LArBadChannelTool.LArBadChannelConfig import LArBadChannelCfg, LArBadFebCfg
 from LArCalibUtils.LArHVScaleConfig import LArHVScaleCfg
 
 def LArCellBuilderCfg(configFlags):
     result=ComponentAccumulator()
     result.merge(LArOnOffIdMappingCfg(configFlags))
+    result.merge(LArBadFebCfg(configFlags))
     theLArCellBuilder = LArCellBuilderFromLArRawChannelTool()
-
-    theLArCellBuilder.addDeadOTX = False #Create flag? Requires bad-feb DB access
+    theLArCellBuilder.LArCablingKey = "ConditionStore+LArOnOffIdMap"
+    theLArCellBuilder.MissingFebKey = "ConditionStore+LArBadFeb"
+    theLArCellBuilder.RawChannelsName = "LArRawChannels"
+    theLArCellBuilder.addDeadOTX = True #Create flag? Requires bad-feb DB access
     result.setPrivateTools(theLArCellBuilder)
     return result
-
 
 
 def LArCellCorrectorCfg(configFlags):
@@ -27,18 +30,13 @@ def LArCellCorrectorCfg(configFlags):
         correctionTools.append(theMerger)
     
     if configFlags.LAr.doCellNoiseMasking or configFlags.LAr.doCellSporadicNoiseMasking:
-        from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg
-        theNoiseMasker=LArCellNoiseMaskingTool()
+        result.merge(LArBadChannelCfg(configFlags))
+        theNoiseMasker=LArCellNoiseMaskingTool(qualityCut = 4000)
         if configFlags.LAr.doCellNoiseMasking:
-            acc= LArBadChannelMaskerCfg(configFlags,problemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"],ToolName="CellNoiseMask")
-            theNoiseMasker.MaskingTool=acc.popPrivateTools()
-            result.merge(acc)
-
+            theNoiseMasker.ProblemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"]
             pass
         if configFlags.LAr.doCellSporadicNoiseMasking:
-            acc=LArBadChannelMaskerCfg(configFlags,problemsToMask=["sporadicBurstNoise",],ToolName="SporadicNoiseMask")
-            theNoiseMasker.MaskingSporadicTool=acc.popPrivateTools()
-            result.merge(acc)
+            theNoiseMasker.SporadicProblemsToMask=["sporadicBurstNoise",]
             pass
         correctionTools.append(theNoiseMasker)
 

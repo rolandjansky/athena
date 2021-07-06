@@ -7,4 +7,4 @@ atlas_subdir( TrigVertexFitter )
 atlas_add_component( TrigVertexFitter
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel TrigInDetEvent TrigInDetToolInterfacesLib TrigTimeAlgsLib TrkEventPrimitives TrkParameters TrkTrack )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel TrigInDetEvent TrigInDetToolInterfacesLib TrkEventPrimitives TrkParameters TrkTrack )

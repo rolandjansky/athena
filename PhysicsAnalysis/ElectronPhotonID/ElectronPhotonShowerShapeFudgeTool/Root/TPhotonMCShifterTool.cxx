@@ -37,7 +37,7 @@ void TPhotonMCShifterTool::FudgeShowers( double  pt     ,
   if (preselection<0) preselection = m_preselection;
   if (preselection>0 && preselection!=m_preselection) {
     m_preselection = preselection;
-    this->LoadFFs(preselection);
+    this->LoadFFs(preselection,m_corr_file);
   }
 
   //fudge showers
@@ -77,7 +77,7 @@ void TPhotonMCShifterTool::FudgeShowers( float  pt     ,
   if (preselection<0) preselection = m_preselection;
   if (preselection>0 && preselection!=m_preselection) {
     m_preselection = preselection;
-    this->LoadFFs(preselection);
+    this->LoadFFs(preselection,m_corr_file);
   }
 
   //fudge showers
@@ -93,6 +93,7 @@ void TPhotonMCShifterTool::FudgeShowers( float  pt     ,
   fside  = Fudge_Fside(fside, pt, eta2, isConv);
   w1     = Fudge_W1(w1, pt, eta2, isConv);
   eratio = Fudge_Eratio(eratio, pt, eta2, isConv);
+
 }
 
 void TPhotonMCShifterTool::FudgeShowers(  std::vector<float> clE,
@@ -133,217 +134,109 @@ void TPhotonMCShifterTool::FudgeShowers(  std::vector<float> clE,
 }
 
 
-void TPhotonMCShifterTool::LoadFFs(int preselection)
+void TPhotonMCShifterTool::LoadFFs(int preselection, const std::string& file)
 {
   if (preselection == m_preselection) return;
   m_preselection = preselection;
 
-  static const std::string FILE_NAME =
-     "ElectronPhotonShowerShapeFudgeTool/PhotonFudgeFactors.root";
-  const std::string filePath = PathResolverFindCalibFile( FILE_NAME );
-  std::unique_ptr< TFile > f( TFile::Open( filePath.c_str(), "READ" ) );
+  const std::string filename = PathResolverFindCalibFile( file );
+  if (filename.empty()){
+    throw std::runtime_error("FudgeMCTool  ERROR  Could NOT resolve file name "+ file);
+  } else{
+    Info("FudgeMCTool", "Path found = %s", filename.c_str());
+  }
+  m_corr_file = filename;
+  std::unique_ptr< TFile > f( TFile::Open( m_corr_file.c_str(), "READ" ) );
   if( ( ! f.get() ) || f->IsZombie() ) {
-     throw std::runtime_error( "Couldn't open file: " + FILE_NAME );
+     throw std::runtime_error( "Couldn't open file: " + m_corr_file );
   }
   if (!f->FindKey(Form("TUNE%d",preselection))) {
-    std::cout << "Directory TUNE" << preselection << " does not exist in fudge factor file. Aborting" << std::endl;
-    exit(-1);
+    throw std::runtime_error("Directory TUNE " + std::to_string(preselection) +
+                             " does not exist in fudge factor file.");
   }
-  
+
   h_u_rhad1 = (TH2D*) f->Get(Form("TUNE%d/FF_RHAD1_UNCONV",preselection));
-  h_u_rhad1->SetDirectory(0);
+  h_u_rhad1->SetDirectory(nullptr);
  
   h_u_rhad = (TH2D*) f->Get(Form("TUNE%d/FF_RHAD_UNCONV",preselection));
-  h_u_rhad->SetDirectory(0);
+  h_u_rhad->SetDirectory(nullptr);
     
   h_u_e277 = (TH2D*) f->Get(Form("TUNE%d/FF_E277_UNCONV",preselection));
-  h_u_e277->SetDirectory(0);
+  h_u_e277->SetDirectory(nullptr);
     
   h_u_reta = (TH2D*) f->Get(Form("TUNE%d/FF_RETA_UNCONV",preselection));
-  h_u_reta->SetDirectory(0);
+  h_u_reta->SetDirectory(nullptr);
     
   h_u_rphi = (TH2D*) f->Get(Form("TUNE%d/FF_RPHI_UNCONV",preselection));
-  h_u_rphi->SetDirectory(0);
+  h_u_rphi->SetDirectory(nullptr);
     
   h_u_weta2 =(TH2D*) f->Get(Form("TUNE%d/FF_WETA2_UNCONV",preselection));
-  h_u_weta2->SetDirectory(0);
+  h_u_weta2->SetDirectory(nullptr);
     
   h_u_f1 = (TH2D*) f->Get(Form("TUNE%d/FF_F1_UNCONV",preselection));
-  h_u_f1->SetDirectory(0);
+  h_u_f1->SetDirectory(nullptr);
     
   h_u_fside = (TH2D*) f->Get(Form("TUNE%d/FF_FSIDE_UNCONV",preselection));
-  h_u_fside->SetDirectory(0);
+  h_u_fside->SetDirectory(nullptr);
     
   h_u_wtot = (TH2D*) f->Get(Form("TUNE%d/FF_WTOT_UNCONV",preselection));
-  h_u_wtot->SetDirectory(0);
+  h_u_wtot->SetDirectory(nullptr);
     
   h_u_w1 = (TH2D*) f->Get(Form("TUNE%d/FF_W1_UNCONV",preselection));
-  h_u_w1->SetDirectory(0);
+  h_u_w1->SetDirectory(nullptr);
     
   h_u_de = (TH2D*) f->Get(Form("TUNE%d/FF_DE_UNCONV",preselection));
-  h_u_de->SetDirectory(0);
+  h_u_de->SetDirectory(nullptr);
     
   h_u_eratio = (TH2D*) f->Get(Form("TUNE%d/FF_ERATIO_UNCONV",preselection));
-  h_u_eratio->SetDirectory(0);
+  h_u_eratio->SetDirectory(nullptr);
 
   h_c_rhad1 = (TH2D*) f->Get(Form("TUNE%d/FF_RHAD1_CONV",preselection));
-  h_c_rhad1->SetDirectory(0);
+  h_c_rhad1->SetDirectory(nullptr);
     
   h_c_rhad = (TH2D*) f->Get(Form("TUNE%d/FF_RHAD_CONV",preselection));
-  h_c_rhad->SetDirectory(0);
+  h_c_rhad->SetDirectory(nullptr);
     
   h_c_e277 = (TH2D*) f->Get(Form("TUNE%d/FF_E277_CONV",preselection));
-  h_c_e277->SetDirectory(0);
+  h_c_e277->SetDirectory(nullptr);
     
   h_c_reta = (TH2D*) f->Get(Form("TUNE%d/FF_RETA_CONV",preselection));
-  h_c_reta->SetDirectory(0);
+  h_c_reta->SetDirectory(nullptr);
     
   h_c_rphi = (TH2D*) f->Get(Form("TUNE%d/FF_RPHI_CONV",preselection));
-  h_c_rphi->SetDirectory(0);
+  h_c_rphi->SetDirectory(nullptr);
     
   h_c_weta2 = (TH2D*) f->Get(Form("TUNE%d/FF_WETA2_CONV",preselection));
-  h_c_weta2->SetDirectory(0);
+  h_c_weta2->SetDirectory(nullptr);
     
   h_c_f1 = (TH2D*) f->Get(Form("TUNE%d/FF_F1_CONV",preselection));
-  h_c_f1->SetDirectory(0);
+  h_c_f1->SetDirectory(nullptr);
     
   h_c_fside = (TH2D*) f->Get(Form("TUNE%d/FF_FSIDE_CONV",preselection));
-  h_c_fside->SetDirectory(0);
+  h_c_fside->SetDirectory(nullptr);
     
   h_c_wtot = (TH2D*) f->Get(Form("TUNE%d/FF_WTOT_CONV",preselection));
-  h_c_wtot->SetDirectory(0);
+  h_c_wtot->SetDirectory(nullptr);
     
   h_c_w1 = (TH2D*) f->Get(Form("TUNE%d/FF_W1_CONV",preselection));
-  h_c_w1->SetDirectory(0);
+  h_c_w1->SetDirectory(nullptr);
     
   h_c_de = (TH2D*) f->Get(Form("TUNE%d/FF_DE_CONV",preselection));
-  h_c_de->SetDirectory(0);
+  h_c_de->SetDirectory(nullptr);
     
   h_c_eratio = (TH2D*) f->Get(Form("TUNE%d/FF_ERATIO_CONV",preselection));
-  h_c_eratio->SetDirectory(0);
+  h_c_eratio->SetDirectory(nullptr);
 
   f->Close();
 }
-
-/*
-TH2D* TPhotonMCShifterTool::GetFFTH2D(int var, int isConv, int preselection){
-
-  // read the FFs
-  if (preselection>=0 && preselection != m_preselection)
-    this->LoadFFs(preselection);
-
-  // create the histogram
-  const int ptbins = m_rhad1_ff.GetPtBins()+1;
-  double *ptarray = m_rhad1_ff.GetPtArray();
-  const int etabins = m_rhad1_ff.GetEtaBins()+1;
-  double *etaarray = m_rhad1_ff.GetEtaArray();
-  //std::cout << ptbins << " " << etabins << std::endl;
-  double x[100];
-  double y[100];
-  
-  for (int i=0; i<ptbins; i++){
-    if(i==0)
-      x[0]=0.;
-    else
-      x[i] = ptarray[i-1];
-    //std::cout << i << " " << x[i] << std::endl;
-  }    
-  for (int i=0; i<etabins; i++){
-    if(i==0)
-      y[0]=0.;
-    else
-      y[i] = etaarray[i-1];
-    //std::cout << i << " " << y[i] << std::endl;
-  }    
-
-
-  
-  TH2D* hff = new TH2D("hff","hff",ptbins-1,x,etabins-1,y);
-  hff->GetXaxis()->SetTitle("p_{T} [MeV]");
-  hff->GetYaxis()->SetTitle("|#eta_{S2}|");
-  
-  // fill the histogram
-  double pt, eta;
-  for (int i=1; i<ptbins; i++){
-    pt = hff->GetXaxis()->GetBinCenter(i);
-    for (int j=1; j<etabins; j++){
-      eta = hff->GetYaxis()->GetBinCenter(j);      
-      //std::cout << "pT = " << pt << ", eta = " << eta << std::endl;
-
-      double ff, fferr;
-      
-      switch (var) {
-      case IDVAR::RHAD1:
-	ff    = GetFF_Rhad1( pt, eta );
-	fferr = GetFFerr_Rhad1( pt, eta );
-	break;
-      case IDVAR::RHAD:
-	ff    = GetFF_Rhad( pt, eta );
-	fferr = GetFFerr_Rhad( pt, eta );
-	break;
-      case IDVAR::E277:
-	ff    = GetFF_E277( pt, eta );
-	fferr = GetFFerr_E277( pt, eta );
-	break;
-      case IDVAR::RETA:
-	ff    = GetFF_Reta( pt, eta );
-	fferr = GetFFerr_Reta( pt, eta );
-	break;
-      case IDVAR::RPHI:
-	ff    = GetFF_Rphi( pt, eta );
-	fferr = GetFFerr_Rphi( pt, eta );
-	break;
-      case IDVAR::WETA2:
-	ff    = GetFF_Weta2( pt, eta );
-	fferr = GetFFerr_Weta2( pt, eta );
-	break;
-      case IDVAR::F1:
-	ff    = GetFF_F1( pt, eta );
-	fferr = GetFFerr_F1( pt, eta );
-	break;
-      case IDVAR::FSIDE:
-	ff    = GetFF_Fside( pt, eta );
-	fferr = GetFFerr_Fside( pt, eta );
-	break;
-      case IDVAR::WTOT:
-	ff    = GetFF_Wtot( pt, eta );
-	fferr = GetFFerr_Wtot( pt, eta );
-	break;
-      case IDVAR::W1:
-	ff    = GetFF_W1( pt, eta );
-	fferr = GetFFerr_W1( pt, eta );
-	break;
-      case IDVAR::DE:
-	ff    = GetFF_DE( pt, eta );
-	fferr = GetFFerr_DE( pt, eta );
-	break;
-      case IDVAR::ERATIO:
-	ff    = GetFF_Eratio( pt, eta );
-	fferr = GetFFerr_Eratio( pt, eta );
-	break;
-      default:
-	ff = 0.;
-	fferr = 0.;
-	break;
-      }
-      //std::cout << "FF = " << ff << " +- " << fferr << std::endl;
-      hff->SetBinContent(i,j,ff);
-      hff->SetBinError(i,j,fferr);
-    }
-  }
-  
-  // return the histogram
-  return hff;
-}
-*/
 
 
 //Get graph of FFs
 TGraphErrors* TPhotonMCShifterTool::GetFFmap(int var, double eta, int isConv, int preselection ){
   if (preselection>=0 && preselection != m_preselection)
-    this->LoadFFs(preselection);
+    this->LoadFFs(preselection,m_corr_file);
 
-  if (h_u_rhad1==0) return 0;
+  if (h_u_rhad1==nullptr) return nullptr;
   
   const int ptbins = h_u_rhad1->GetNbinsX();
 

@@ -52,6 +52,9 @@ namespace asg
     ANA_CHECK (m_anaPrivateHandle.setProperty ("propertyInt", 222));
     ANA_CHECK (m_anaPrivateHandle.initialize ());
 
+    for (auto& handle : m_regPrivateArray)
+      ANA_CHECK (handle.retrieve());
+
     return StatusCode::SUCCESS;
   }
 
@@ -109,5 +112,13 @@ namespace asg
     if (handleName == "anaPrivateHandle")
       return m_wasUserConfiguredPrivate;
     throw std::runtime_error ("unknown handle: " + handleName);
+  }
+
+
+
+  const ToolHandleArray<IUnitTestTool1>& UnitTestTool2 ::
+  getArray () const
+  {
+    return m_regPrivateArray;
   }
 }

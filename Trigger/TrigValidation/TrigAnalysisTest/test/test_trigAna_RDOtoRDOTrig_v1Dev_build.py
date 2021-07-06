@@ -10,7 +10,7 @@
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 
 preExec = ';'.join([
-  'setMenu=\'LS2_v1_TriggerValidation_mc_prescale\'',
+  'setMenu=\'LS2_v1_TriggerValidation_prescale\'',
   'from TriggerJobOpts.TriggerFlags import TriggerFlags',
   'TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\")',
 ])
@@ -32,6 +32,8 @@ chaindump = test.get_step("ChainDump")
 chaindump.args = '--json --yaml ref_RDOtoRDOTrig_v1Dev_build.new'
 refcomp = CheckSteps.ChainCompStep("CountRefComp")
 refcomp.input_file = 'ref_RDOtoRDOTrig_v1Dev_build.new'
+refcomp.args += ' --patch'
+refcomp.reference_from_release = True # installed from TrigAnalysisTest/share
 refcomp.required = True # Final exit code depends on this step
 CheckSteps.add_step_after_type(test.check_steps, CheckSteps.ChainDumpStep, refcomp)
 

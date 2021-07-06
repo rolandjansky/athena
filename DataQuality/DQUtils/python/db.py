@@ -335,7 +335,7 @@ class Databases(object):
             cool_folder = db.getFolder(folder)
         except Exception as error:
             log.debug('HELP! %s', error.args)
-            args = str(error.args[0] if not isinstance(error.args, str) else error.args)
+            args = str(error)
             log.debug('THIS IS %s', type(args))
             log.debug('Value of boolean: %s', ("not found" in args))
             if not ("cannot be established" in args or
@@ -405,7 +405,8 @@ class Databases(object):
             finally:
                 sys.stdout = prev_stdout
         except Exception as e:
-            if "The database does not exist" in e.args[0] and not create:
+            if ((e.args and "The database does not exist" in e.args[0]) or
+                str(e).find ('The database does not exist') >= 0) and not create:
                 log.info("Failed trying to connect to '%s'", res_db_string)
                 raise
             from PyCool import cool

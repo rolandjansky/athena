@@ -49,7 +49,7 @@ namespace TrigConf {
    class Menu  : public L1DataBaseclass {
    public:
       Menu();
-      ~Menu() = default;
+      ~Menu();
 
       item_by_ctpid_t&           item_by_ctpid();
       const item_by_ctpid_t&     item_by_ctpid() const;
@@ -78,7 +78,6 @@ namespace TrigConf {
       std::vector<uint16_t> bunchgroupMask() const;
 
       // setters
-      void setThresholdConfig( const TrigConf::ThresholdConfig& tc ) { m_ThresholdConfig = tc; }
       void setCaloInfo( const CaloInfo& ci ) { m_ThresholdConfig.setCaloInfo(ci); }
 
       // another interface to access the TriggerThreshold vector

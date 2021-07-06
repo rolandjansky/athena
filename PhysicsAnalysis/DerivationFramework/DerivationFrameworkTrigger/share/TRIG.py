@@ -16,8 +16,8 @@ from DerivationFrameworkJetEtMiss import METCommon
 from DerivationFrameworkEGamma import EGammaCommon
 from DerivationFrameworkEGamma import ElectronsCPDetailedContent
 from DerivationFrameworkMuons import MuonsCommon
-from TriggerMenu.api.TriggerAPI import TriggerAPI
-from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
+from TriggerMenuMT.TriggerAPI.TriggerAPI import TriggerAPI
+from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerPeriod, TriggerType
 
 #====================================================================
 # SET UP STREAM   

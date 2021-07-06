@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MM_FastDigitizer.h"
@@ -18,6 +18,7 @@
 #include "MuonAGDDDescription/MMDetectorDescription.h"
 #include "MuonAGDDDescription/MMDetectorHelper.h"
 #include "AthenaKernel/RNGWrapper.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 
 #include <sstream>
 #include <iostream>
@@ -335,7 +336,7 @@ StatusCode MM_FastDigitizer::execute() {
       resolution = .07;
     else
       resolution = ( -.001/3.*fabs(inAngle_XZ) ) + .28/3.;
-    double sp = CLHEP::RandGauss::shoot(rndmEngine, 0, resolution);
+    double sp = CLHEP::RandGaussZiggurat::shoot(rndmEngine, 0, resolution);
 
     ATH_MSG_VERBOSE("slpos.z " << slpos.z() << ", ldir " << ldir.z() << ", scale " << scale << ", hitOnSurface.z " << hitOnSurface.z() );
     
@@ -414,8 +415,9 @@ StatusCode MM_FastDigitizer::execute() {
       continue;
     }
 
-    // perform bound check
-    if( !surf.insideBounds(posOnSurf) ){
+    // perform bound check (making the call from the detector element to consider edge passivation)
+    //if( !surf.insideBounds(posOnSurf) ){
+    if( !detEl->insideActiveBounds(layid, posOnSurf) ) {
       m_exitcode = 1;
       m_ntuple->Fill();
       continue;
@@ -475,11 +477,20 @@ StatusCode MM_FastDigitizer::execute() {
     Amg::Vector3D CurrentHitInDriftGap = slpos;
     // emulating micro track in the drift volume for microTPC
     if (!m_microTPC) {
-      std::unique_ptr<Amg::MatrixX> cov = std::make_unique<Amg::MatrixX>(1,1);
-      cov->setIdentity();
-      (*cov.get())(0,0) = resolution*resolution;
-      MMPrepData* prd = new MMPrepData( id,hash,Amg::Vector2D(posOnSurf.x(),0.),rdoList,cov.get(),detEl,(int)tdrift,0);
-      prd->setHashAndIndex(col->identifyHash(), col->size()); // <<< add this line to the MM code as well
+      auto cov = Amg::MatrixX(1,1);
+      cov.setIdentity();
+      (cov)(0, 0) = resolution * resolution;
+      MMPrepData* prd = new MMPrepData(id,
+                                       hash,
+                                       Amg::Vector2D(posOnSurf.x(), 0.),
+                                       rdoList,
+                                       std::move(cov),
+                                       detEl,
+                                       (int)tdrift,
+                                       0);
+      prd->setHashAndIndex(
+        col->identifyHash(),
+        col->size()); // <<< add this line to the MM code as well
       col->push_back(prd);
 
       std::vector<MuonSimData::Deposit> deposits;
@@ -498,11 +509,11 @@ StatusCode MM_FastDigitizer::execute() {
         Amg::Vector3D stepInDriftGap = loop_direction * ldir * (roParam.stripPitch/std::cos(roParam.stereoAngle.at(m_idHelperSvc->mmIdHelper().gasGap(layid)-1) ))/abs(ldir.x());
         if (loop_direction == 1) CurrentHitInDriftGap = slpos + stepInDriftGap;
         while (std::abs(CurrentHitInDriftGap.z()) <= roParam.gasThickness) {
-          std::unique_ptr<Amg::MatrixX> cov = std::make_unique<Amg::MatrixX>(1,1);
-          cov->setIdentity();
-          (*cov.get())(0,0) = resolution*resolution;
+          auto cov = Amg::MatrixX(1,1);
+          cov.setIdentity();
+          (cov)(0,0) = resolution*resolution;
 
-          tdrift = CurrentHitInDriftGap.z() / vdrift + CLHEP::RandGauss::shoot(rndmEngine, 0., 5.);
+          tdrift = CurrentHitInDriftGap.z() / vdrift + CLHEP::RandGaussZiggurat::shoot(rndmEngine, 0., 5.);
           Amg::Vector2D CurrenPosOnSurf(CurrentHitInDriftGap.x(),CurrentHitInDriftGap.y());
 
           stripNumber = detEl->stripNumber(CurrenPosOnSurf,layid);
@@ -515,9 +526,19 @@ StatusCode MM_FastDigitizer::execute() {
             CurrentHitInDriftGap += stepInDriftGap;
             continue;
           }
-        
-          MMPrepData* prd = new MMPrepData( id,hash,Amg::Vector2D(CurrenPosOnSurf.x(),0.),rdoList,cov.get(),detEl,(int)tdrift,0);
-          prd->setHashAndIndex(col->identifyHash(), col->size()); // <<< add this line to the MM code as well
+
+          MMPrepData* prd =
+            new MMPrepData(id,
+                           hash,
+                           Amg::Vector2D(CurrenPosOnSurf.x(), 0.),
+                           rdoList,
+                           std::move(cov),
+                           detEl,
+                           (int)tdrift,
+                           0);
+          prd->setHashAndIndex(
+            col->identifyHash(),
+            col->size()); // <<< add this line to the MM code as well
           col->push_back(prd);
 
           std::vector<MuonSimData::Deposit> deposits;

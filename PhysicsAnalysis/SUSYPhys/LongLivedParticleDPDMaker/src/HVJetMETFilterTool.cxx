@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -9,8 +9,6 @@
 #include "LongLivedParticleDPDMaker/HVJetMETFilterTool.h"
 #include <vector>
 #include <string>
-#include "xAODMissingET/MissingETContainer.h"
-#include "xAODJet/JetContainer.h"
 
 // Constructor
 DerivationFramework::HVJetMETFilterTool::HVJetMETFilterTool( const std::string& t,
@@ -19,16 +17,12 @@ DerivationFramework::HVJetMETFilterTool::HVJetMETFilterTool( const std::string& 
   AthAlgTool(t,n,p),
   m_ntot(0),
   m_npass(0),
-  m_metSGKey("MET_RefFinal"),
   m_metTerm("Final"),
-  m_metCut(50000.0),
-  m_jetSGKey("AntiKt4LCTopoJets")
+  m_metCut(50000.0)
   {
     declareInterface<DerivationFramework::ISkimmingTool>(this);
-    declareProperty("METContainerKey", m_metSGKey);
     declareProperty("METTerm", m_metTerm);
     declareProperty("METCut", m_metCut);
-    declareProperty("JetContainerKey", m_jetSGKey);
   }
   
 // Destructor
@@ -39,6 +33,7 @@ DerivationFramework::HVJetMETFilterTool::~HVJetMETFilterTool() {
 StatusCode DerivationFramework::HVJetMETFilterTool::initialize()
 {
      ATH_MSG_VERBOSE("initialize() ...");
+     ATH_CHECK(m_metSGKey.initialize());
      return StatusCode::SUCCESS;
 }
 StatusCode DerivationFramework::HVJetMETFilterTool::finalize()
@@ -53,11 +48,9 @@ bool DerivationFramework::HVJetMETFilterTool::eventPassesFilter() const
 {
      ++m_ntot;
 
-     const xAOD::MissingETContainer* metContainer(0);
      const xAOD::MissingET* met(0);
-     StatusCode sc=evtStore()->retrieve(metContainer,m_metSGKey);
-     //     met = (*metContainer)[m_metTerm];
-     if( sc.isFailure()  ||  !metContainer ) {
+     SG::ReadHandle<xAOD::MissingETContainer> metContainer(m_metSGKey);
+     if( !metContainer.isValid() ) {
        msg(MSG::WARNING) << "No MET container found, will skip this event" << endmsg;
        return false;
      } 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ROOTCOLLECTION_ROOTCOLLECTIONCURSOR_H
@@ -39,22 +39,22 @@ namespace pool {
 
         
         /// Advances the cursor to the next row of the query result set.
-        virtual bool next();
+        virtual bool next() override;
 
         /// Returns the selected Tokens and Attributes for the current row of the query result set.
-        virtual const pool::CollectionRowBuffer& currentRow() const;
+        virtual const pool::CollectionRowBuffer& currentRow() const override;
 
         /// Seeks the cursor to a given position in the collection.
-        virtual bool seek(long long int position);
+        virtual bool seek(long long int position) override;
 
         /// Return the size of the collection.
-        virtual int size();
+        virtual int size() override;
 
         /// Returns the event reference Token for the current row.
-        virtual const Token& eventRef() const;
+        virtual const Token& eventRef() const override;
 
         /// Cleanup.
-        virtual void close();
+        virtual void close() override;
 
         virtual ~RootCollectionCursor();
 
@@ -70,7 +70,7 @@ namespace pool {
         const TEventList                *m_eventList;
 
         
-        mutable char                    m_charBuffer[c_maxLengthOfStrings];
+        char                             m_charBuffer[c_maxLengthOfStrings];
 
         typedef std::vector< std::pair<TBranch*, std::string*> >  AttrBranchVector_t;
         typedef std::vector< std::pair<TBranch*, Token*> >        TokenBranchVector_t;
@@ -78,10 +78,8 @@ namespace pool {
         AttrBranchVector_t              m_attrBranches;
         TokenBranchVector_t             m_tokenBranches;
 
-        mutable int                     m_idx;
+        int                             m_idx;
         Long64_t                        m_entries;
-        mutable int                     m_attIdx;
-        mutable int                     m_tokIdx;
         bool                            m_dummyRef;
       };
    }

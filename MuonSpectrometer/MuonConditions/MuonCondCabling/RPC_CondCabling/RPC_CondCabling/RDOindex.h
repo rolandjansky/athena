@@ -2,14 +2,13 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #ifndef RDOINDEX_H
 #define RDOINDEX_H
 
 // Mapping of the PAD into Receiver(RX), Sector Logic(SL), ROD and ROB.
-// The PAD is identified inside the SL by a progressive number. The mapping 
-// between SL and RX is one on one, the same between RDO and ROB. Two SL go 
-// into one ROD  
+// The PAD is identified inside the SL by a progressive number. The mapping
+// between SL and RX is one on one, the same between RDO and ROB. Two SL go
+// into one ROD
 
 //                              MAP for the Sector Logic
 //
@@ -81,94 +80,86 @@
 //  |   |   RX=0,   SL=00,   ROD=ROB=00    |   RX=0,   SL=00,   ROD=ROB=00    |
 //  +   +----------------------------------+----------------------------------+
 
-
 #ifndef LVL1_STANDALONE
 
 #include "MuonIdHelpers/RpcIdHelper.h"
 
 #endif
 
+class RDOindex {
+private:
+    unsigned short int m_ROBid{0};  // hardware Id for the ROB
+    unsigned short int m_RODid{0};  // hardware Id for the ROD
+    unsigned short int m_side{0};   // hardware Id for the Sector Logic Side
+    unsigned short int m_SLid{0};   // hardware Id for the Sector Logic
+    unsigned short int m_RXid{0};   // hardware Id for the Receiver
+    unsigned short int m_PADid{0};  // hardware Id for the PAD
 
-class RDOindex
-{
-    private:
-    unsigned short int m_ROBid;  // hardware Id for the ROB
-    unsigned short int m_RODid;  // hardware Id for the ROD
-    unsigned short int m_side;   // hardware Id for the Sector Logic Side
-    unsigned short int m_SLid;   // hardware Id for the Sector Logic
-    unsigned short int m_RXid;   // hardware Id for the Receiver
-    unsigned short int m_PADid;  // hardware Id for the PAD
+    unsigned long int m_lvl1_code{0};  // Identification of the first RPC strip
+                                       // on eta projection read by this PAD
 
-    unsigned long int m_lvl1_code;  // Identification of the first RPC strip
-                                    // on eta projection read by this PAD
+    int m_stationName{0};  // StationName index according to offline Ids
+    int m_stationEta{0};   // StationEta index according to offline Ids
+    int m_stationPhi{0};   // StationPhi index according to offline Ids
+    int m_doubletR{0};     // DoubletR index according to offline Ids
+    int m_doubletZ{0};     // DoubletZ index according to offline Ids
+    int m_doubletPhi{0};   // DoubletPhi index according to offline Ids
 
-    int m_stationName;           // StationName index according to offline Ids
-    int m_stationEta;            // StationEta index according to offline Ids
-    int m_stationPhi;            // StationPhi index according to offline Ids
-    int m_doubletR;              // DoubletR index according to offline Ids
-    int m_doubletZ;              // DoubletZ index according to offline Ids
-    int m_doubletPhi;            // DoubletPhi index according to offline Ids
-    
-    unsigned int m_hash; // hash id to be used for allocation into the container
-        
-    bool m_status;         // boolean flag for checking the map integrity
+    unsigned int m_hash{0};  // hash id to be used for allocation into the container
+
+    bool m_status{false};  // boolean flag for checking the map integrity
 
     void set_indexes(void);
 
-    public:
-    RDOindex(unsigned int,unsigned int);
-    RDOindex(unsigned int,unsigned int,std::string,int,int,int,int,int);
-    
-    RDOindex(const RDOindex&);
-    ~RDOindex();
+public:
+    RDOindex(unsigned int, unsigned int);
+    RDOindex(unsigned int, unsigned int, std::string, int, int, int, int, int);
 
-    RDOindex& operator=(const RDOindex&);
-    operator bool();
-    bool operator !();
-    
+    RDOindex(const RDOindex&) = default;
+    ~RDOindex() = default;
+
+    RDOindex& operator=(const RDOindex&) = default;
+    operator bool() const;
+    bool operator!() const;
+
     void set_hash(unsigned int h);
 
-    unsigned short int ROBid(void) const {return m_ROBid;}
-    unsigned short int RODid(void) const {return m_RODid;}
-    unsigned short int side (void) const {return m_side;}
+    unsigned short int ROBid(void) const { return m_ROBid; }
+    unsigned short int RODid(void) const { return m_RODid; }
+    unsigned short int side(void) const { return m_side; }
 
-    unsigned short int SLid(void)  const {return m_SLid;}
-    unsigned short int RXid(void)  const {return m_RXid;}
-    unsigned short int PADid(void) const {return m_PADid;}
+    unsigned short int SLid(void) const { return m_SLid; }
+    unsigned short int RXid(void) const { return m_RXid; }
+    unsigned short int PADid(void) const { return m_PADid; }
 
-    unsigned long int lvl1_code(void) const {return m_lvl1_code;}
+    unsigned long int lvl1_code(void) const { return m_lvl1_code; }
 
-    int stationName(void) const {return m_stationName;}
-    int stationEta(void)  const {return m_stationEta;}
-    int stationPhi(void)  const {return m_stationPhi;}
-    int doubletR(void)    const {return m_doubletR;}
-    int doubletZ(void)    const {return m_doubletZ;}
-    int doubletPhi(void)  const {return m_doubletPhi;}
-    
-    unsigned int hash(void)        const {return m_hash;}
-    
-    bool status(void) const {return m_status;}
+    int stationName(void) const { return m_stationName; }
+    int stationEta(void) const { return m_stationEta; }
+    int stationPhi(void) const { return m_stationPhi; }
+    int doubletR(void) const { return m_doubletR; }
+    int doubletZ(void) const { return m_doubletZ; }
+    int doubletPhi(void) const { return m_doubletPhi; }
 
+    unsigned int hash(void) const { return m_hash; }
+
+    bool status(void) const { return m_status; }
 
 #ifndef LVL1_STANDALONE
-    public:
-    void offline_indexes(int& name, int& eta, int& phi,
-                         int& doublet_r, int& doublet_z, int& doublet_phi,
-                         int& gas_gap, int& measures_phi, int& strip) const;
-			 
-    void pad_identifier(Identifier& id ) const;
+public:
+    void offline_indexes(int& name, int& eta, int& phi, int& doublet_r, int& doublet_z, int& doublet_phi, int& gas_gap, int& measures_phi,
+                         int& strip) const;
+
+    void pad_identifier(Identifier& id) const;
 
     static void setRpcIdHelper(const RpcIdHelper*);
-    
-    private:
+
+private:
     static const RpcIdHelper* s_rpcIdHelper;
 
 #endif
 
-    friend std::ostream& operator<<(std::ostream&,const RDOindex&);
-
+    friend std::ostream& operator<<(std::ostream&, const RDOindex&);
 };
-
-
 
 #endif

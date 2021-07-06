@@ -46,9 +46,8 @@ StatusCode SiLorentzAngleTool::initialize() {
   // MagneticFieldCache
   if (not m_useMagFieldCache) {
     ATH_MSG_DEBUG("Not using Magnetic Field cache - Will be using Nominal Field!");
-  } else {
-    ATH_CHECK(m_fieldCondObjInputKey.initialize());
   }
+  ATH_CHECK(m_fieldCondObjInputKey.initialize(m_useMagFieldCache));
   
   return StatusCode::SUCCESS;
 }

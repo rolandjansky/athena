@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id:$
@@ -25,9 +25,6 @@ namespace xAODMaker {
      *
      *         This is a simple tool that implements the converter function
      *         defined in ITrigEFBphysCnvTool.
-     *
-     * @author
-     *
      */
     class TrigEFBphysCnvTool : public AthAlgTool,
     public virtual ITrigEFBphysCnvTool {
@@ -36,9 +33,6 @@ namespace xAODMaker {
         /// Regular AlgTool constructor
         TrigEFBphysCnvTool( const std::string& type, const std::string& name,
                             const IInterface* parent );
-        
-        /// Function initialising the tool
-        virtual StatusCode initialize() override;
         
         /// Function that fills an existing xAOD::TrigBphysContainer
         virtual StatusCode convert( const TrigEFBphys * aod,

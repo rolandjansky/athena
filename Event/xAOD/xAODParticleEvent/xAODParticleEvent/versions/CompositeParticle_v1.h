@@ -8,7 +8,6 @@
 #ifndef XAODPARTICLEEVENT_VERSIONS_COMPOSITEPARTICLE_V1_H
 #define XAODPARTICLEEVENT_VERSIONS_COMPOSITEPARTICLE_V1_H
 
-
 // STL includes
 #include <vector>
 
@@ -345,17 +344,32 @@ namespace xAOD {
     /// Number of constituent photons.
     std::size_t nPhotons() const;
 
+    /// Number of constituent truth photons.
+    std::size_t nTruthPhotons() const;
+
     /// Number of constituent electrons.
     std::size_t nElectrons() const;
+
+    /// Number of constituent truth electrons.
+    std::size_t nTruthElectrons() const;
 
     /// Number of constituent muons.
     std::size_t nMuons() const;
 
+    /// Number of constituent truth muons.
+    std::size_t nTruthMuons() const;
+
     /// Number of constituent taus.
     std::size_t nTaus() const;
 
+    /// Number of constituent truth taus.
+    std::size_t nTruthTaus() const;
+
     /// Number of constituent leptons (electrons, muons, and taus).
     std::size_t nLeptons() const;
+
+    /// Number of constituent truth leptons (truth electrons, truth muons, and truth taus).
+    std::size_t nTruthLeptons() const;
 
     /// Number of constituent jets.
     std::size_t nJets() const;
@@ -487,17 +501,32 @@ namespace xAOD {
     /// Number of other constituent photons.
     std::size_t nOtherPhotons() const;
 
+    /// Number of other constituent truth photons.
+    std::size_t nOtherTruthPhotons() const;
+
     /// Number of other constituent electrons.
     std::size_t nOtherElectrons() const;
+
+    /// Number of other constituent truth electrons.
+    std::size_t nOtherTruthElectrons() const;
 
     /// Number of other constituent muons.
     std::size_t nOtherMuons() const;
 
+    /// Number of other constituent truth muons.
+    std::size_t nOtherTruthMuons() const;
+
     /// Number of other constituent taus.
     std::size_t nOtherTaus() const;
 
+    /// Number of other constituent truth taus.
+    std::size_t nOtherTruthTaus() const;
+
     /// Number of other constituent leptons (electrons, muons, and taus).
     std::size_t nOtherLeptons() const;
+
+    /// Number of other constituent truth leptons (truth electrons, truth muons, and truth taus).
+    std::size_t nOtherTruthLeptons() const;
 
     /// Number of other constituent jets.
     std::size_t nOtherJets() const;

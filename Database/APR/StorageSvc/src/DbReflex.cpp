@@ -22,6 +22,16 @@ typedef AthContainers_detail::upgrade_mutex mutex_t;
 typedef AthContainers_detail::upgrading_lock<mutex_t> upgrading_lock_t;
 mutex_t guidMapMutex;
 
+/* Lookup table for translating GUIDs into class names.
+   Here for convenience to avoid searching through ROOT dictionary information
+   which can be slow and produce side effects.
+   This must mutch the GUIDs in selection.xml files.
+   GUIDs should never change, so it is safe to hardcode them here.
+*/
+const std::pair<Guid, const char*> GuidToClname[] = {
+   {Guid("F41DF744-242D-11E6-B472-02163E010CEC"), "xAOD::TrackParticleAuxContainer_v3"}
+};
+
 using namespace pool;
 using namespace std;
 
@@ -29,13 +39,13 @@ void genMD5(const string& s, void* code);
 
 typedef map<Guid,TypeH> GuidMap;
 static GuidMap& guid_mapping()  {
-  static GuidMap s_map;
+  static GuidMap s_map ATLAS_THREAD_SAFE; // protected by guidMapMutex
   return s_map;
 }
 
 typedef map<TypeH,Guid> TypeMap;
 static TypeMap& type_mapping()  {
-  static TypeMap s_map;
+  static TypeMap s_map ATLAS_THREAD_SAFE; // protected by guidMapMutex
   return s_map;
 }
 
@@ -118,10 +128,27 @@ const TypeH DbReflex::forGuid(const Guid& id)
      }
   }
 
+  DbPrint log("APR:DbReflex:forGuid");
+
+  for( auto& el : GuidToClname ) {
+     if( id==el.first ) {
+        // we have this guid in the hardcoded mapping
+        const TypeH typ( el.second );
+        if( typ ) {
+           Guid g( guid( typ ) );  // call this to update guid->type maps
+           if( g != id ) {
+              // inconsistency with XML and hardcoded GUID??
+              log << DbPrintLvl::Error << "GUID query for " << id << " found GUID missmatch! "
+                  << el.second << " -> " << g << DbPrint::endmsg;
+           }
+        }
+        return typ;
+     }
+  }
+  
   static std::mutex guidScanMutex;
   std::lock_guard<std::mutex> lock (guidScanMutex);
 
-  DbPrint log("APR:DbReflex:forGuid");
   // GUID not in the map: scan all known types. refresh the map
   log << DbPrintLvl::Warning << " doing GUID scan on ALL types for Class ID=" << id << DbPrint::endmsg;
 

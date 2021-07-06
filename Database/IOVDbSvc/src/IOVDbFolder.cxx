@@ -55,7 +55,6 @@
 
 #include "Cool2Json.h"
 #include "Json2Cool.h"
-#include "IOVDbSvcCurl.h"
 #include "BasicFolder.h"
 #include "IOVDbResolveTag.h"
 #include "CrestFunctions.h"

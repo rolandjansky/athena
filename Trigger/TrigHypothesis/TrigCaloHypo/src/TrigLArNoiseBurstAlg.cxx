@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "Gaudi/Property.h"
 #include "TrigLArNoiseBurstAlg.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
-#include "AthViews/ViewHelper.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 using namespace TrigCompositeUtils;
 
@@ -72,7 +71,7 @@ StatusCode TrigLArNoiseBurstAlg::execute( const EventContext& context ) const {
     }
 
     // Get new output decision, child of previousDecision
-    auto d = newDecisionIn (decisions, previousDecision, "", context );
+    auto d = newDecisionIn (decisions, previousDecision, hypoAlgNodeName(), context );
     
     // create summary struct
     toolInput.emplace_back( d, roi, cellsHandle.cptr(), &bf, &MNBfeb, previousDecision );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -48,12 +48,9 @@ TBScintillatorRec::execute()
   }else {
 
     TBScintillatorCont * scintCont = new TBScintillatorCont();
-    TBScintillatorRawCont::const_iterator it_scint   = scintrawCont->begin();
-    TBScintillatorRawCont::const_iterator last_scint   = scintrawCont->end();
     
-    // Loop over Sintillators
-    for(;it_scint != last_scint;it_scint++){
-      const TBScintillatorRaw * scintraw = (*it_scint);
+    // Loop over Scintillators
+    for (const TBScintillatorRaw * scintraw : *scintrawCont) {
       std::string name = scintraw->getDetectorName();
       unsigned int ind=0;
       // Find calibration index for this Scint

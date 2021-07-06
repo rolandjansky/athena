@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -75,6 +75,10 @@ public:
   /**Default Constructor*/
   SurfaceBounds() = default;
 
+  SurfaceBounds(const SurfaceBounds&) = default;
+  SurfaceBounds& operator=(const SurfaceBounds&) = default;
+  SurfaceBounds(SurfaceBounds&&) noexcept = default;
+  SurfaceBounds& operator=(SurfaceBounds&&) noexcept = default;
   /**Destructor*/
   virtual ~SurfaceBounds() = default;
 

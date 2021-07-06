@@ -1,28 +1,39 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConfig_DSConfigSvc
 #define TrigConfig_DSConfigSvc
 
-#include <stdint.h>
+#include "ConfigSvcBase.h"
+#include "TrigConfInterfaces/ITrigConfigSvc.h"
+
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/extends.h"
+#include "AthenaKernel/IOVSvcDefs.h"
+#include "CxxUtils/checker_macros.h"
+#include "StoreGate/StoreGateSvc.h"
 
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfHLTData/HLTFrame.h"
+#include "L1TopoConfig/L1TopoMenu.h"
+#include "TrigConfData/L1Menu.h"
+#include "TrigConfData/L1PrescalesSet.h"
+#include "TrigConfData/L1BunchGroupSet.h"
+#include "TrigConfData/HLTMenu.h"
+#include "TrigConfData/HLTPrescalesSet.h"
 
-#include "GaudiKernel/ServiceHandle.h"
-#include "./ConfigSvcBase.h"
-#include "AthenaKernel/IIOVSvc.h"
-#include "StoreGate/StoreGateSvc.h"
-
-#include "TrigConfInterfaces/ITrigConfigSvc.h"
-
+#include <stdint.h>
 #include <memory>
 #include <set>
+#include <string>
+#include <vector>
 
-namespace TXC {
-   class L1TopoMenu;
-}
+#define DEPRECATED \
+   static std::atomic<bool> warn = true; \
+   if (warn) { ATH_MSG_WARNING("DSConfigSvc::" <<__func__ << " is deprecated"); warn = false; }
+
+class EventContext;
 
 /**
  *    @short Service providing the full trigger configuration information, based
@@ -33,15 +44,15 @@ namespace TrigConf {
    class ThresholdConfig;
    class HLTChainList;
    class HLTSequenceList;
-   class HLTPrescaleSet;
-   class BunchGroup;
+   class BunchGroupSet;
+   class Muctpi;
 
    /**
     * @brief Service providing the full trigger configuration information, based
     *        on what is provided by HLTConfigSvc and LVL1ConfigSvc
     *
     */
-   class DSConfigSvc : public extends1<ConfigSvcBase, ITrigConfigSvc>
+   class DSConfigSvc : public extends<ConfigSvcBase, ITrigConfigSvc>
    {
 
    public:
@@ -49,91 +60,92 @@ namespace TrigConf {
       // Standard Gaudi Service constructor
       DSConfigSvc( const std::string& name, ISvcLocator* pSvcLocator );
 
-      // Destructor
-      virtual ~DSConfigSvc();
-
       // @brief initialize the service
-      virtual StatusCode initialize() override;
+      virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE () override;
 
-      // @brief finalize the service
-      virtual StatusCode finalize() override {
-         return StatusCode::SUCCESS;
-      }
-
-      // @brief set the master key of the configuration to be requested
-      virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIF ) override;
-
-      // @brief L1 topo configuration menu
-      virtual const TXC::L1TopoMenu* menu() const override {
-         return m_topoMenu.get();
-      }
-      
       // LVL1 menu and prescales only (no bunchgroups, prescale clocks, etc.)
-      virtual const CTPConfig* ctpConfig() const override {
+      virtual const CTPConfig* ctpConfig() const override { DEPRECATED;
          return & m_ctpConfig;
       }
 
       // access muctpi configuration
-      virtual const Muctpi* muctpiConfig() const override {
+      virtual const Muctpi* muctpiConfig() const override { DEPRECATED;
          return & m_ctpConfig.muCTPi();
       }
 
       // access to trigger thresholds
-      virtual const ThresholdConfig* thresholdConfig() const override {
+      virtual const ThresholdConfig* thresholdConfig() const override { DEPRECATED;
          return & m_ctpConfig.menu().thresholdConfig();
       }
 
       // returns bunch group set
-      virtual const BunchGroupSet* bunchGroupSet() const override {
+      virtual const BunchGroupSet* bunchGroupSet() const override { DEPRECATED;
          return & m_ctpConfig.bunchGroupSet();
       }
 
       // access to HLT chains
-      virtual const HLTChainList* chainList() const override {
-         return & m_hltFrame.getHLTChainList();
-      }
-
-      // access to HLT chains
-      virtual const HLTChainList& chains() const override {
-         return m_hltFrame.chains();
+      virtual const HLTChainList& chains() const override { DEPRECATED;
+         return m_hltFrame.getHLTChainList();
       }
 
       // access to HLT sequences
-      virtual const HLTSequenceList* sequenceList() const override {
-         return & m_hltFrame.getHLTSequenceList();
-      }
-
-      // access to HLT sequences
-      virtual const HLTSequenceList& sequences() const override {
-         return m_hltFrame.sequences();
+      virtual const HLTSequenceList& sequences() const override { DEPRECATED;
+         return m_hltFrame.getHLTSequenceList();
       }
 
       // access to SMK
-      virtual uint32_t masterKey() const override { return m_masterKey; }
+      virtual uint32_t masterKey() const override { DEPRECATED; return m_masterKey; }
 
       // access to LVL1 prescale key
-      virtual uint32_t lvl1PrescaleKey() const override {
+      virtual uint32_t lvl1PrescaleKey() const override { DEPRECATED;
          return m_lvl1PsKey;
       }
 
       // access to HLT prescale configuration key
-      virtual uint32_t hltPrescaleKey() const override { return m_hltPsKey; }
+      virtual uint32_t hltPrescaleKey() const override { DEPRECATED; return m_hltPsKey; }
 
       // access to a description of the source of the configuration (TriggerDB/XMLfilename)
-      virtual std::string configurationSource() const override {
+      virtual std::string configurationSource() const override { DEPRECATED;
          return m_configSrc;
       }
 
-      virtual StatusCode updatePrescaleSets(uint requestcount) override;
+      /// @name Dummy implementations of the Run 3 L1 JSON trigger configuration interface in IILVL1ConfigSvc.
+      /// @brief Use the xAODConfigSvc or xAODConfigTool to access these data.
+      /// @{
+      virtual const ::TrigConf::L1Menu& l1Menu(const ::EventContext&) const override { DEPRECATED;
+        const static ::TrigConf::L1Menu dummy = ::TrigConf::L1Menu();
+        return dummy;
+      }
 
-      // This method is called by TrigSteer on *every* event (keep it fast)
-      // This is never used in connection with COOL configuration data
-      virtual StatusCode assignPrescalesToChains(uint lumiblock ) override;
+      virtual const ::TrigConf::L1PrescalesSet& l1PrescalesSet(const ::EventContext&) const override { DEPRECATED;
+        const static ::TrigConf::L1PrescalesSet dummy = ::TrigConf::L1PrescalesSet();
+        return dummy;
+      }
+
+      virtual const ::TrigConf::L1BunchGroupSet& l1BunchGroupSet(const ::EventContext&) const override { DEPRECATED;
+        const static ::TrigConf::L1BunchGroupSet dummy = ::TrigConf::L1BunchGroupSet();
+        return dummy;
+      }
+      /// @}
+
+      /// @name Dummy implementations of the Run 3 HLT JSON trigger configuration interface in IIHLTConfigSvc.
+      /// @brief Use the xAODConfigSvc or xAODConfigTool to access these data.
+      /// @{
+      virtual const ::TrigConf::HLTMenu& hltMenu(const ::EventContext&) const override { DEPRECATED;
+         const static ::TrigConf::HLTMenu dummy = ::TrigConf::HLTMenu();
+         return dummy;
+      }
+
+      virtual const ::TrigConf::HLTPrescalesSet& hltPrescalesSet(const ::EventContext&) const override { DEPRECATED;
+         const static ::TrigConf::HLTPrescalesSet dummy = ::TrigConf::HLTPrescalesSet();
+         return dummy;
+      }
+      /// @}
 
    private:
-      StatusCode registerCallbackForFolder( const std::string& foldername,
-                                            bool multichannel );
-      StatusCode update( IOVSVC_CALLBACK_ARGS_P( I, keys ) );
+      StatusCode registerCallbackForFolder ATLAS_NOT_THREAD_SAFE ( const std::string& foldername,
+                                                                   bool multichannel );
+      StatusCode update ATLAS_NOT_THREAD_SAFE ( IOVSVC_CALLBACK_ARGS_P( I, keys ) );
       StatusCode reset();
       void setEFLowerChainCounter();
       void set_ChainlistFromHltPrescaleSet();

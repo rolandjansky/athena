@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CABLING_TGCDATABASEPPTOSL_HH
@@ -14,7 +14,7 @@ class TGCDatabasePPToSL : public TGCDatabase
 {
 public:
   // Constructor & Destructor
-  TGCDatabasePPToSL(std::string filename, std::string blockname);
+  TGCDatabasePPToSL(const std::string& filename, const std::string& blockname);
 
   TGCDatabasePPToSL(const TGCDatabasePPToSL&);
 

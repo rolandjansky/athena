@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LArNoiseBursts_H
@@ -11,7 +11,6 @@
 #include "GaudiKernel/AlgTool.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "AnalysisTools/AnalysisTools.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -20,9 +19,6 @@
 #include "Identifier/Range.h" 
 #include "Identifier/IdentifierHash.h"
 #include "LArRecConditions/LArBadChannelCont.h"
-#include "CaloInterface/ICaloNoiseTool.h"
-#include "CaloInterface/ICalorimeterNoiseTool.h"
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArElectrodeID.h"
@@ -31,6 +27,7 @@
 
 // Trigger
 #include "TrigDecisionTool/TrigDecisionTool.h"
+#include "LumiBlockData/BunchCrossingCondData.h"
 
 // Electrons
 #include "egammaEvent/ElectronContainer.h"
@@ -47,6 +44,7 @@ class LArOnlineIDStrHelper;
 class LArEM_ID;
 class LArHEC_ID;
 class LArFCAL_ID;
+class CaloNoise;
 //class CaloDetDescrManager;
 
 class TileTBID;
@@ -61,12 +59,12 @@ class LArNoiseBursts : public AthAlgorithm  {
  public:
 
    LArNoiseBursts(const std::string& name, ISvcLocator* pSvcLocator);
-   ~LArNoiseBursts();
+   virtual ~LArNoiseBursts();
 
    //virtual StatusCode initializeBeforeEventLoop();
-   virtual StatusCode initialize();
-   virtual StatusCode finalize();
-   virtual StatusCode execute();
+   virtual StatusCode initialize() override;
+   virtual StatusCode finalize() override;
+   virtual StatusCode execute() override;
    virtual StatusCode clear();
 
  private:
@@ -80,7 +78,8 @@ class LArNoiseBursts : public AthAlgorithm  {
    //functions
    int GetPartitionLayerIndex(const Identifier& id);
      
-   StatusCode fillCell(HWIdentifier onlID, float eCalo, float qfactor, CaloGain::CaloGain gain, const LArOnOffIdMapping* cabling, const LArBadChannelCont* bcCont);
+   StatusCode fillCell(HWIdentifier onlID, float eCalo, float qfactor, CaloGain::CaloGain gain, const LArOnOffIdMapping* cabling, const LArBadChannelCont* bcCont,
+                       const CaloNoise& totalNoise);
 
  private:
 
@@ -90,10 +89,11 @@ class LArNoiseBursts : public AthAlgorithm  {
 
    SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey { this, "CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
    SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey { this, "BadChanKey","LArBadChannel","SG Key of LArBadChannelCont object"};
+   SG::ReadCondHandleKey<CaloNoise> m_totalNoiseKey
+     { this, "TotalNoiseKey", "totalNoise", "SG key for total noise" };
+   SG::ReadCondHandleKey<BunchCrossingCondData> m_bcDataKey 
+     {this, "BunchCrossingCondDataKey", "BunchCrossingData" ,"SG Key of BunchCrossing CDO"};
    /*Tools*/
-   ToolHandle<ICaloNoiseTool> m_calo_noise_tool;
-   ToolHandle<Trig::IBunchCrossingTool> m_bc_tool;
-
    ToolHandle< Trig::TrigDecisionTool > m_trigDec;
 
    /*services*/
@@ -111,7 +111,7 @@ class LArNoiseBursts : public AthAlgorithm  {
    /*event cuts */
    double m_sigmacut;
    bool m_CosmicCaloStream;
-   int m_frontbunches;
+   unsigned int m_frontbunches;
    bool m_keepOnlyCellID;
 
    /*declaration of branches*/

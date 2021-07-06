@@ -19,5 +19,5 @@ atlas_add_component( CscCalibTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaBaseComps CxxUtils StoreGateLib SGtests MuonCondData MuonCondInterface CscCalibToolsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaBaseComps CxxUtils StoreGateLib MuonCondData MuonCondInterface CscCalibToolsLib )
 

@@ -39,7 +39,7 @@
 #include "xAODCore/tools/ReadStats.h"
 
 #include "AsgTools/ToolHandle.h"
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/StandaloneToolHandle.h"
 #include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
 
 #include "MuonEfficiencyCorrections/MuonSFTestHelper.h"
@@ -49,7 +49,7 @@
         return 1;   \
     }
 
-typedef asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> EffiToolInstance;
+typedef asg::StandaloneToolHandle<CP::IMuonEfficiencyScaleFactors> EffiToolInstance;
 
 EffiToolInstance createSFTool(const std::string& WP, const std::string& CustomInput, bool uncorrelate_Syst, bool doJPsi, bool isComparison=false) {
     EffiToolInstance tool(std::string("CP::MuonEfficiencyScaleFactors/EffiTool_") + WP + (isComparison ? "_comp" : "" ) );
@@ -166,12 +166,12 @@ int main(int argc, char* argv[]) {
     TestMuonSF::MuonSFTestHelper ComparisonHelper(PrimaryHelper.tree_shared(), SFComparisonFolder);
 
     for (auto Effi : EffiTools) {
-        PrimaryHelper.addTool(Effi);
-        PrimaryHelper.addReplicaTool(Effi);
+        PrimaryHelper.addTool(Effi.getHandle());
+        PrimaryHelper.addReplicaTool(Effi.getHandle());
     }
     for (auto Effi : ComparisonTools) {
-        ComparisonHelper.addTool(Effi);
-        ComparisonHelper.addReplicaTool(Effi);
+        ComparisonHelper.addTool(Effi.getHandle());
+        ComparisonHelper.addReplicaTool(Effi.getHandle());
     }
     if (!PrimaryHelper.init()) return EXIT_FAILURE;
     if (doComparison && !ComparisonHelper.init()) return EXIT_FAILURE;
@@ -181,7 +181,7 @@ int main(int argc, char* argv[]) {
 
     unsigned int nMuons = 0;
 
-    asg::AnaToolHandle < CP::IPileupReweightingTool > m_prw_tool("CP::PileupReweightingTool/myTool");
+    asg::StandaloneToolHandle < CP::IPileupReweightingTool > m_prw_tool("CP::PileupReweightingTool/myTool");
     // This is just a placeholder configuration for testing. Do not use these config files for your analysis!
     std::vector<std::string> m_ConfigFiles { prwFilename };
     std::vector<std::string> m_LumiCalcFiles { ilumiFilename };
@@ -209,7 +209,7 @@ int main(int argc, char* argv[]) {
         // Get the Muons from the event:
         const xAOD::MuonContainer* muons = 0;
         RETURN_CHECK(APP_NAME, event.retrieve(muons, "Muons"));
-        for (const auto& mu : *muons) {
+        for (const auto *mu : *muons) {
             if (PrimaryHelper.fill(mu) != CP::CorrectionCode::Ok) return EXIT_FAILURE;
             if (doComparison && ComparisonHelper.fill(mu) != CP::CorrectionCode::Ok) return EXIT_FAILURE;
             PrimaryHelper.fillTree();

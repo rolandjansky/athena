@@ -1,3 +1,5 @@
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
 #**************************************************************
 #
 #       Csc Pedestal Calibration
@@ -5,37 +7,7 @@
 #==============================================================
 
 runNumber = 2147483647
-#Input files:
-#prelimDir = "/raid01/lampen/testarea/Calib/August09CosmicRun/data/preliminaryData/"
 
-#AugustRunDir = "rfio:/castor/cern.ch/grid/atlas/DAQ/muon/csc/00124401/"
-#myInputFiles = [
-#    AugustRunDir + 'data_test.00124401.calibration_ped.daq.RAW._lb0000._CSC-EB._0001.data',
-#        AugustRunDir + 'data_test.00124401.calibration_ped.daq.RAW._lb0000._CSC-EB._0002.data',
-#    AugustRunDir + 'data_test.00124401.calibration_ped.daq.RAW._lb0000._CSC-EB._0003.data',
-#    ]
-
-#SeptRunDir = 'rfio:/castor/cern.ch/grid/atlas/DAQ/muon/csc/00129083/'
-#myInputFiles = [ 
-#    SeptRunDir + 'data_test.00129083.calibration_ped.daq.RAW._lb0000._CSC-EB._0001.data',
-#    SeptRunDir + 'data_test.00129083.calibration_ped.daq.RAW._lb0000._CSC-EB._0002.data',
-#    SeptRunDir + 'data_test.00129083.calibration_ped.daq.RAW._lb0000._CSC-EB._0003.data', 
-#    ]
-
-#OctRunDir = '/raid02/lampen/datasets/csc/pedRuns/oct/raw/'
-#OctRUn1
-#myInputFiles = [ 
-#    OctRunDir + 'data_test.00132435.calibration_ped.daq.RAW._lb0000._CSC-EB._0001.data',
-#    OctRunDir + 'data_test.00132435.calibration_ped.daq.RAW._lb0000._CSC-EB._0002.data',
-#    OctRunDir + 'data_test.00132435.calibration_ped.daq.RAW._lb0000._CSC-EB._0003.data'
-#    ]
-
-#OctRun2
-#myInputFiles = [ 
-#    OctRunDir + 'data_test.00133116.calibration_ped.daq.RAW._lb0000._CSC-EB._0001.data',
-#OctRunDir + 'data_test.00133116.calibration_ped.daq.RAW._lb0000._CSC-EB._0002.data',
-#OctRunDir + 'data_test.00133116.calibration_ped.daq.RAW._lb0000._CSC-EB._0003.data'
-#]
 NovRunDir="/raid02/lampen/datasets/csc/pedRuns/nov/raw/*.data"
 
 import glob
@@ -125,8 +97,15 @@ printfunc (MuonCscRawDataProviderTool)
 
 # --- RawData Provider
 from MuonByteStream.MuonByteStreamConf import Muon__CscRawDataProvider
-topSequence += Muon__CscRawDataProvider(name         = "MuonCscRawDataProvider",
-    ProviderTool = ToolSvc.MuonCscRawDataProviderTool)
+cscRawDataProvider = Muon__CscRawDataProvider(name    = "MuonCscRawDataProvider",
+                                              ProviderTool = ToolSvc.MuonCscRawDataProviderTool)
+
+
+from RegionSelector.RegSelToolConfig import makeRegSelTool_CSC
+cscRawDataProvider.RegionSelectionTool = makeRegSelTool_CSC()
+
+topSequence += cscRawDataProvider
+
 printfunc (topSequence.MuonCscRawDataProvider)
 
 # --- BS Converter 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ----------------------------------------------
@@ -44,7 +44,7 @@ class BSignalFilter : public GenFilter
          m_cuts_f_gam_on,  m_cuts_f_K0_on,
          m_localLVL1MuonCutOn, m_localLVL2MuonCutOn,
          m_localLVL2ElectronCutOn,
-         m_InvMass_switch;
+         m_InvMass_switch, m_TotalInvMass_switch;
   double m_cuts_f_e_pT,    m_cuts_f_mu_pT,   m_cuts_f_had_pT,
          m_cuts_f_gam_pT,  m_cuts_f_K0_pT;
   double m_cuts_f_e_eta,   m_cuts_f_mu_eta,  m_cuts_f_had_eta,
@@ -58,7 +58,9 @@ class BSignalFilter : public GenFilter
   double m_rejectedAll;     // Failed to pass filter (both trigger and signal selection)  
   int    m_B_pdgid;       // pdgID of the mother
   int    m_InvMass_PartId1, m_InvMass_PartId2; // pdgID of the couple used for mass cuts
+  double m_InvMass_PartFakeMass1, m_InvMass_PartFakeMass2;
   double m_InvMassMin, m_InvMassMax;           // Mass range for invariant mass cut
+  double m_TotalInvMassMin, m_TotalInvMassMax;
   //
   int    m_EventCnt;
 		
@@ -67,7 +69,8 @@ class BSignalFilter : public GenFilter
   // Find child
   void FindAllChildren(HepMC::ConstGenParticlePtr mother,std::string treeIDStr,  
 		       bool fromFinalB, bool &foundSignal, bool &passedAllCuts,
-		       TLorentzVector &p1, TLorentzVector &p2, bool fromSelectedB) const;
+		       TLorentzVector &p1, TLorentzVector &p2, bool fromSelectedB, 
+                       TLorentzVector &total_4mom) const;
 
   // Check whether child has pass cuts
   bool FinalStatePassedCuts(HepMC::ConstGenParticlePtr child) const; 
@@ -81,7 +84,7 @@ class BSignalFilter : public GenFilter
   bool LVL2_eMu_Trigger(HepMC::ConstGenParticlePtr child) const;
   
   // Print child (for debug)
-  void PrintChild(HepMC::ConstGenParticlePtr child, const std::string treeIDStr, const bool fromFinalB) const; 
+  void PrintChild(HepMC::ConstGenParticlePtr child, const std::string& treeIDStr, const bool fromFinalB) const; 
   
 };
 

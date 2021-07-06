@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -60,9 +60,6 @@ ZdcRecChannelToolV2::ZdcRecChannelToolV2(const std::string& name):
 }
 //==================================================================================================
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 
 void ZdcRecChannelToolV2::handle( const Incident& inc )
 {

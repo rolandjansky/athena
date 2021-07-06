@@ -26,14 +26,9 @@ if rec.readESD() or myreadESD:
   MBTSTimeFilterTool.MinHitsPerSide    = 2
   MBTSTimeFilterTool.MaxTimeDifference = 10.0
   #
-  ### Get the needed CaloNoiseTool
-  #from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-  #theCaloNoiseTool = CaloNoiseToolDefault()
-  #ToolSvc+=theCaloNoiseTool
   ### Get the needed CaloTimeFilterTool
   #from PrimaryDPDMaker.PrimaryDPDMakerConf import CaloTimeFilterTool
   #ToolSvc += CaloTimeFilterTool() 
-  #CaloTimeFilterTool.NoiseTool                 = theCaloNoiseTool
   #CaloTimeFilterTool.timeDiffCut               = 5
   #CaloTimeFilterTool.MinCellsPerSide           = 2
   #if rec.doTruth() or isMC:

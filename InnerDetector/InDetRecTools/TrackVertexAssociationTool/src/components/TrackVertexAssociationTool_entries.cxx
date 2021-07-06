@@ -5,6 +5,7 @@
 #include "TrackVertexAssociationTool/MVATrackVertexAssociationTool.h"
 
 #include "../TrackVertexAssoTestAlg.h"
+#include "../PV0TrackSelectionAlg.h"
 
 using namespace xAOD;
 
@@ -14,4 +15,5 @@ DECLARE_COMPONENT( CP::ElectronTrackVertexAssociationTool )
 DECLARE_COMPONENT( CP::MuonTrackVertexAssociationTool )
 DECLARE_COMPONENT( CP::MVATrackVertexAssociationTool )
 DECLARE_COMPONENT( TrackVertexAssoTestAlg )
+DECLARE_COMPONENT( PV0TrackSelectionAlg )
 

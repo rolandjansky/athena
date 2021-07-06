@@ -56,6 +56,9 @@ typedef LArFlatConditionsAlg<LArHVScaleCorrSC> LArCondAlgHVScaleCorrSC;
 #include "LArCOOLConditions/LArMinBiasSC.h"
 typedef LArFlatConditionsAlg<LArMinBiasSC> LArCondAlgMinBiasSC;
 
+#include "LArCOOLConditions/LArMinBiasAverageSC.h"
+typedef LArFlatConditionsAlg<LArMinBiasAverageSC> LArCondAlgMinBiasAverageSC;
+
 #include "LArCOOLConditions/LArMphysOverMcalFlat.h"
 typedef LArFlatConditionsAlg<LArMphysOverMcalFlat> LArCondAlgMphysOverMcalFlat;
 

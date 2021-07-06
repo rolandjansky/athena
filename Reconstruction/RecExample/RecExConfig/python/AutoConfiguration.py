@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        AutoConfiguration.py
@@ -26,6 +26,10 @@ KnownCosmicsProjects=frozenset(["data08_calocomm","data08_muoncomm","data08_cos"
                                 "data18_calib","data18_calocomm","data18_cos","data18_idcomm","data18_larcomm","data18_muoncomm","data18_tilecomm",
                                 "data19_calib","data19_calocomm","data19_cos","data19_idcomm","data19_larcomm","data19_muoncomm","data19_tilecomm",
                                 "data20_calib","data20_calocomm","data20_cos","data20_idcomm","data20_larcomm","data20_muoncomm","data20_tilecomm",
+                                "data21_calib","data21_calocomm","data21_cos","data21_idcomm","data21_larcomm","data21_muoncomm","data21_tilecomm",
+                                "data22_calib","data22_calocomm","data22_cos","data22_idcomm","data22_larcomm","data22_muoncomm","data22_tilecomm",
+                                "data23_calib","data23_calocomm","data23_cos","data23_idcomm","data23_larcomm","data23_muoncomm","data23_tilecomm",
+                                "data24_calib","data24_calocomm","data24_cos","data24_idcomm","data24_larcomm","data24_muoncomm","data24_tilecomm",
                                 ])
 
 # Abandon the single-beam reconstruction all together, 26 February 2011 
@@ -42,10 +46,14 @@ KnownCollisionsProjects=frozenset(["data08","data08_coll900","data09","data09_co
                                    "data14_comm","data15_comm","data15_900GeV","data15_1beam","data15_13TeV","data15_5TeV",
                                    "data16_comm","data16_13TeV","data16_900GeV","data16_1beam",
                                    "data17_comm","data17_13TeV","data17_900GeV","data17_1beam","data17_5TeV",
-                                   "data18_comm","data18_13TeV","data18_900GeV","data18_1beam","data18_1p8TeV"
+                                   "data18_comm","data18_13TeV","data18_900GeV","data18_1beam","data18_1p8TeV",
+                                   "data21_comm","data21_13TeV","data21_14TeV","data21_900GeV","data21_1beam","data21_1p8TeV",
+                                   "data22_comm","data22_13TeV","data22_14TeV","data22_900GeV","data22_1beam","data22_1p8TeV",
+                                   "data23_comm","data23_13TeV","data23_14TeV","data23_900GeV","data23_1beam","data23_1p8TeV",
+                                   "data24_comm","data24_13TeV","data24_14TeV","data24_900GeV","data24_1beam","data24_1p8TeV"
                                    ])
 
-KnownHeavyIonProjects=frozenset(["data10_hi","data11_hi","data15_hi","data16_hi","data17_hi","data18_hi"])
+KnownHeavyIonProjects=frozenset(["data10_hi","data11_hi","data15_hi","data16_hi","data17_hi","data18_hi","data21_hi","data22_hi"])
 
 KnownHeavyIonProtonProjects=frozenset(["data12_hip","data13_hip","data16_hip","data16_hip5TeV","data16_hip8TeV"])
 

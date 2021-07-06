@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 /**
  * @file CaloTools/src/CaloEstimatedGainTool.cxx
  * @author scott snyder <snyder@bnl.gov>
  * @date Aug, 2019
  * @brief Estimate gain used to read out a certain energy.
- *
- * Used to be part of ICaloNoiseTool.
  */
 
 
@@ -72,11 +70,11 @@ CaloEstimatedGainTool::estimatedGain (const EventContext& ctx,
   }
   else if (iCalo == CaloCell_ID::TILE)
   {
-    return estimatedTileGain (caloCell, caloDDE, step);
+    return estimatedTileGain (ctx, caloCell, caloDDE, step);
   }
   else
   {
-    ATH_MSG_WARNING("CaloNoiseTool::estimatedGain  wrong id ! " 
+    ATH_MSG_WARNING("CaloEstimatedGainTool::estimatedGain  wrong id ! " 
                     << m_lar_em_id->show_to_string (caloDDE.identify()) );
     return CaloGain::INVALIDGAIN;
   } 
@@ -99,14 +97,14 @@ CaloEstimatedGainTool::estimatedGain (const EventContext& ctx,
   }
   else if (iCalo == CaloCell_ID::TILE)
   {
-    ATH_MSG_WARNING("CaloNoiseTool::estimatedGain  NOT IMPLEMENTED FOR TILE "
+    ATH_MSG_WARNING("CaloEstimatedGainTool::estimatedGain  NOT IMPLEMENTED FOR TILE "
                     <<"with these arguments! " 
                     << m_lar_em_id->show_to_string (caloDDE.identify()) );
     return CaloGain::INVALIDGAIN;
   } 
   else
   {
-    ATH_MSG_WARNING("CaloNoiseTool::estimatedGain  wrong id ! " 
+    ATH_MSG_WARNING("CaloEstimatedGainTool::estimatedGain  wrong id ! " 
                     << m_lar_em_id->show_to_string (caloDDE.identify()) );
     return CaloGain::INVALIDGAIN;
   } 
@@ -155,7 +153,7 @@ CaloEstimatedGainTool::estimatedLArGain (const EventContext& ctx,
     }
     else 
     {
-      ATH_MSG_WARNING( "CaloNoiseTool::estimatedGain   wrong step" );
+      ATH_MSG_WARNING( "CaloEstimatedGainTool::estimatedGain   wrong step" );
     }  
 
     if (adc < m_HighGainThresh[iCalo])     igain = CaloGain::LARHIGHGAIN;  
@@ -168,7 +166,8 @@ CaloEstimatedGainTool::estimatedLArGain (const EventContext& ctx,
 
 
 CaloGain::CaloGain
-CaloEstimatedGainTool::estimatedTileGain(const CaloCell& caloCell,
+CaloEstimatedGainTool::estimatedTileGain(const EventContext& ctx,
+                                         const CaloCell& caloCell,
                                          const CaloDetDescrElement& caloDDE,
                                          const Step /*step*/) const
 {
@@ -194,7 +193,7 @@ CaloEstimatedGainTool::estimatedTileGain(const CaloCell& caloCell,
                                                  TileRawChannelUnit::ADCcounts,
                                                  TileRawChannelUnit::MegaElectronVolts);
 
-  double pedestal1 = m_tileToolNoiseSample->getPed (drawerIdx1, channel1, adc1);
+  double pedestal1 = m_tileToolNoiseSample->getPed (drawerIdx1, channel1, adc1, TileRawChannelUnit::ADCcounts, ctx);
 
   int igain1;
 
@@ -220,7 +219,7 @@ CaloEstimatedGainTool::estimatedTileGain(const CaloCell& caloCell,
                                                    TileRawChannelUnit::ADCcounts,
                                                    TileRawChannelUnit::MegaElectronVolts);
 
-    double pedestal2 = m_tileToolNoiseSample->getPed (drawerIdx2, channel2, adc2);
+    double pedestal2 = m_tileToolNoiseSample->getPed (drawerIdx2, channel2, adc2, TileRawChannelUnit::ADCcounts, ctx);
 
     if (amplitude2 + pedestal2 < threshold) {
       // igain2 high

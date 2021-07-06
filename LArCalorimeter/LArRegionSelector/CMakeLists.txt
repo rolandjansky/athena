@@ -11,7 +11,4 @@ atlas_add_component( LArRegionSelector
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} CaloIdentifier AthenaBaseComps Identifier IRegionSelector RegionSelectorLib GaudiKernel CaloDetDescrLib CaloTTDetDescr CaloTriggerToolLib StoreGateLib ByteStreamData LArIdentifier LArRawUtilsLib PixelConditionsData )
-
-# Install files from the package:
-atlas_install_joboptions( share/*.py )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} CaloIdentifier AthenaBaseComps Identifier IRegionSelector RegionSelectorLib GaudiKernel CaloDetDescrLib CaloTTDetDescr CaloTriggerToolLib StoreGateLib ByteStreamData LArIdentifier LArRawUtilsLib )

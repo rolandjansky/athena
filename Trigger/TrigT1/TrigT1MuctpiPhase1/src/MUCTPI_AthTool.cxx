@@ -1,12 +1,14 @@
 /*                                                                                                                      
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration                                               
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // First the corresponding header.
-#include "TrigT1MuctpiPhase1/MUCTPI_AthTool.h"
-#include "TrigT1MuctpiPhase1/SimController.h"
-#include "TrigT1MuctpiPhase1/TriggerProcessor.h"
-#include "TrigT1MuctpiPhase1/Configuration.h"
+#include "MUCTPI_AthTool.h"
+#include "SimController.h"
+#include "TriggerProcessor.h"
+#include "MuonSectorProcessor.h"
+#include "Configuration.h"
+#include "TrigThresholdDecisionTool.h"
 
 // The headers from other ATLAS packages,
 // from most to least dependent.
@@ -14,11 +16,7 @@
 // Headers from external packages.
 
 // The new trigger configuration
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
-#include "TrigConfL1Data/Muctpi.h"
-#include "TrigConfL1Data/ThresholdConfig.h"
-#include "TrigConfL1Data/TriggerThreshold.h"
-#include "TrigConfL1Data/L1DataDef.h"
+#include "TrigConfData/L1Menu.h"
 
 // Interfaces used by the simulation
 #include "TrigT1Interfaces/MuCTPICTP.h"
@@ -28,7 +26,6 @@
 #include "TrigT1Interfaces/Lvl1MuCTPIInputPhase1.h"
 #include "TrigT1Interfaces/MuCTPIL1Topo.h"
 
-#include "TrigT1Result/MuCTPI_RDO.h"
 #include "TrigT1Result/MuCTPIRoI.h"
 #include "xAODTrigger/MuonRoI.h"
 #include "xAODTrigger/MuonRoIAuxContainer.h"
@@ -47,15 +44,16 @@ namespace LVL1MUCTPIPHASE1 {
   const std::string MUCTPI_AthTool::m_DEFAULT_L1MuctpiStoreLocationTGC = "/Event/L1MuctpiStoreTGC";
   const std::string MUCTPI_AthTool::m_DEFAULT_AODLocID                 = "LVL1_ROI";
   const std::string MUCTPI_AthTool::m_DEFAULT_RDOLocID                 = "MUCTPI_RDO";
-  const std::string MUCTPI_AthTool::m_DEFAULT_geometryXMLFile          = "TrigConfMuctpi/L1MuonGeometry_20200629.xml";
+  const std::string MUCTPI_AthTool::m_DEFAULT_barrelRoIFile            = "TrigConfMuctpi/Data_ROI_Mapping_Barrel_20201214.txt";
+  const std::string MUCTPI_AthTool::m_DEFAULT_ecfRoIFile               = "TrigConfMuctpi/Data_RoI_Mapping_EF_20201214.txt";
+  const std::string MUCTPI_AthTool::m_DEFAULT_side0LUTFile             = "TrigConfMuctpi/lookup_0_20201214.json";
+  const std::string MUCTPI_AthTool::m_DEFAULT_side1LUTFile             = "TrigConfMuctpi/lookup_1_20201214.json";
 
   MUCTPI_AthTool::MUCTPI_AthTool(const std::string& type, const std::string& name, 
 				 const IInterface* parent)
     :
     base_class(type, name, parent),
     m_MuCTPIL1TopoKey(LVL1MUCTPI::DEFAULT_MuonL1TopoLocation),
-    m_MuCTPIL1TopoKey_p1(""),
-    m_configSvc( "TrigConf::TrigConfigSvc/TrigConfigSvc", name ),
     m_theMuctpi(new SimController())
   {
     
@@ -64,20 +62,16 @@ namespace LVL1MUCTPIPHASE1 {
     ATH_MSG_INFO( "Constructor for Phase1 MUCTPI_AthTool."  );
     ATH_MSG_INFO( "=======================================" );
 
-    // Declare the service handles as properties:
-    declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service" );
-
     // Declare the properties of the overlap treatment:
     declareProperty( "OverlapStrategyName", m_overlapStrategyName = "NULL" );
     declareProperty( "LUTXMLFile", m_lutXMLFile = "" );
-    declareProperty( "FlaggingMode", m_flagMode = false );
     
     // Declare the properties of the output generation for L1Topo:
-    declareProperty( "GeometryXMLFile", m_geometryXMLFile = m_DEFAULT_geometryXMLFile );
+    declareProperty( "BarrelRoIFile", m_barrelRoIFile = m_DEFAULT_barrelRoIFile );
+    declareProperty( "EndcapForwardRoIFile", m_ecfRoIFile = m_DEFAULT_ecfRoIFile );
+    declareProperty( "Side0LUTFile", m_side0LUTFile = m_DEFAULT_side0LUTFile );
+    declareProperty( "Side1LUTFile", m_side1LUTFile = m_DEFAULT_side1LUTFile );
        
-    // Declare the properties for the multiplicity summation:
-    declareProperty( "MultiplicityStrategyName", m_multiplicityStrategyName = "INCLUSIVE" );
-
     // Declare the properties of the input selection:
     declareProperty( "InputSource", m_inputSource = "DIGITIZATION" );
     declareProperty( "AODLocID", m_aodLocId = m_DEFAULT_AODLocID );
@@ -90,7 +84,6 @@ namespace LVL1MUCTPIPHASE1 {
     // These are just here for flexibility, normally they should not be changed:
     declareProperty( "TGCLocID", m_tgcLocId = m_DEFAULT_L1MuctpiStoreLocationTGC );
     declareProperty( "RPCLocID", m_rpcLocId = m_DEFAULT_L1MuctpiStoreLocationRPC );
-   
   }
   
   MUCTPI_AthTool::~MUCTPI_AthTool()
@@ -140,15 +133,31 @@ namespace LVL1MUCTPIPHASE1 {
       return StatusCode::FAILURE;
 
     }
-    ATH_MSG_INFO( "Retrieving trigger config service" << m_configSvc );
-    CHECK(m_configSvc.retrieve());
 
     //initialize MSP ROI configuration
-    const std::string fullFileName = PathResolverFindCalibFile( m_geometryXMLFile );
-    m_theMuctpi->configureMSP(fullFileName);
 
-    m_theMuctpi->getTriggerProcessor()->setThresholds(m_configSvc->thresholdConfig()->getThresholdVector(TrigConf::L1DataDef::MUON));
-    //m_theMuctpi->getTriggerProcessor()->setThresholds(m_configSvc->muctpiConfig()->thresholds()); // maybe better to switch to this once new config is implemented
+
+    const std::string barrelFileName = PathResolverFindCalibFile( m_barrelRoIFile );
+    const std::string ecfFileName = PathResolverFindCalibFile( m_ecfRoIFile );
+    const std::string side0LUTFileName = PathResolverFindCalibFile( m_side0LUTFile );
+    const std::string side1LUTFileName = PathResolverFindCalibFile( m_side1LUTFile );
+    ATH_MSG_INFO("Initializing L1Topo decoding with the following inputs");
+    ATH_MSG_INFO("  Barrel file: " << barrelFileName);
+    ATH_MSG_INFO("  EC/Fwd file: " << ecfFileName);
+    ATH_MSG_INFO("  Side 0 LUT:  " << side0LUTFileName);
+    ATH_MSG_INFO("  Side 1 LUT:  " << side1LUTFileName);
+    std::vector<std::string> topo_errors = m_theMuctpi->configureTopo(barrelFileName,
+								      ecfFileName,
+								      side0LUTFileName,
+								      side1LUTFileName);
+    if (topo_errors.size())
+    {
+      std::stringstream err;
+      err << "Couldn't initialize L1Topo eta/phi encoding/decoding:\n";
+      for (unsigned i=0;i<topo_errors.size();i++) err << topo_errors[i] << "\n";
+      REPORT_ERROR( StatusCode::FAILURE ) << err.str();
+      return StatusCode::FAILURE;
+    }
 
     //                                                                                                                                                                                        
     // Set up the overlap handling of the simulation:                                                                                                                                         
@@ -157,22 +166,19 @@ namespace LVL1MUCTPIPHASE1 {
     if( m_overlapStrategyName == "NULL" ) {
 
       ATH_MSG_DEBUG( "Setting overlap strategy: \"NULL\"" );
-      //m_theMuctpi->setOverlapStrategy( NO_OVERLAP ); // overlap removal to be implemented later
 
     } else if( m_overlapStrategyName == "LUT" ) {
 
       ATH_MSG_DEBUG( "Setting overlap strategy: \"LUT\"" );
-      //m_theMuctpi->setOverlapStrategy( LUT_OVERLAP ); // overlap removal to be implemented later
 
-      if( m_flagMode ) {
-	ATH_MSG_INFO( "Using 'flagging mode' in the overlap handling" );
-      }
-
-      ATH_MSG_INFO( "XML LUT file defined in jobO: " << m_lutXMLFile << " with a RunPeriod=" << m_runPeriod );
+      ATH_MSG_INFO( "XML LUT file defined in jobO: " << m_lutXMLFile );
       const std::string fullFileName = PathResolverFindCalibFile( m_lutXMLFile );
       ATH_MSG_DEBUG( "Full path to XML LUT file: " << fullFileName );
-      //CHECK( m_theMuctpi->initializeLUTOverlapStrategy( fullFileName, m_flagMode,
-      //                                                        m_dumpLut, m_runPeriod ) ); // overlap removal to be implemented later
+
+      for (MuonSectorProcessor& msp : m_theMuctpi->getMuonSectorProcessors())
+      {
+        msp.configureOverlapRemoval(fullFileName);
+      }
 
     } else {
 
@@ -188,8 +194,7 @@ namespace LVL1MUCTPIPHASE1 {
     //Initialize Read/WriteHandleKeys
     ATH_CHECK(m_muctpiPhase1KeyRPC.initialize());
     ATH_CHECK(m_muctpiPhase1KeyTGC.initialize());
-    ATH_CHECK(m_MuCTPI_RDOReadKey.initialize(m_inputSource == "RDO"));
-    ATH_CHECK(m_MuCTPI_RDOWriteKey.initialize(m_inputSource != "RDO"));
+    ATH_CHECK(m_MuCTPICTPWriteKey.initialize());
     ATH_CHECK(m_MuCTPI_xAODWriteKey.initialize());
     ATH_CHECK(m_MuCTPIL1TopoKey.initialize());
 
@@ -202,16 +207,42 @@ namespace LVL1MUCTPIPHASE1 {
     m_MuCTPIL1TopoKey_p2 = m_MuCTPIL1TopoKey.key()+std::to_string(2);
     ATH_CHECK(m_MuCTPIL1TopoKey_p2.initialize());
 
+    ATH_CHECK( m_rpcTool.retrieve() );
+    ATH_CHECK( m_tgcTool.retrieve() );
+    ATH_CHECK( m_trigThresholdDecisionTool.retrieve() );
 
     return StatusCode::SUCCESS;
   }
 
+  StatusCode MUCTPI_AthTool::start()
+  {
+    ATH_MSG_INFO( "=======================================" );
+    ATH_MSG_INFO( "Start for Phase1 MUCTPI_AthTool"  );
+    ATH_MSG_INFO( "=======================================" );
 
+    ATH_MSG_INFO( "initialize(): use L1 trigger menu from detector store" );
+    const TrigConf::L1Menu * l1menu = nullptr;
+    ATH_CHECK( m_detStore->retrieve(l1menu) ); 
+    m_theMuctpi->getTriggerProcessor().setTrigTool(*m_trigThresholdDecisionTool);
+    m_theMuctpi->getTriggerProcessor().setMenu(l1menu);
+    for (MuonSectorProcessor& msp : m_theMuctpi->getMuonSectorProcessors())
+    {
+      msp.setMenu(l1menu);
+      if (!msp.configurePtEncoding())
+      {
+        REPORT_ERROR( StatusCode::FAILURE )
+          << "Couldn't configure pt encoding in MuonSectorProcessor " << msp.getSide();
+        return StatusCode::FAILURE;
+      }
+    }
+
+    return StatusCode::SUCCESS;
+  }
 
   //----------------------------------------------
   // execute() method called once per event
   //----------------------------------------------
-  StatusCode MUCTPI_AthTool::execute( ) {
+  StatusCode MUCTPI_AthTool::execute( ) const {
 
     // Now this is a tricky part. We have to force the message logging of the
     // MuCTPI simulation to display messages of the same level as this MsgStream.
@@ -228,7 +259,7 @@ namespace LVL1MUCTPIPHASE1 {
    * This is the default execute() function. It reads inputs from the RPC and TGC sector logics,
    * and runs the MuCTPI simulation with their inputs.
    */
-  StatusCode MUCTPI_AthTool::executeFromDigi() {
+  StatusCode MUCTPI_AthTool::executeFromDigi() const {
 
     ATH_MSG_DEBUG( "in executeFromDigi()" );
 
@@ -277,27 +308,31 @@ namespace LVL1MUCTPIPHASE1 {
 
     //always process the central slice, which defaults to bcidOffset = 0
     // process the input in the MUCTPI simulation
-    m_theMuctpi->processData( &mergedInput );      
+    std::string ret = m_theMuctpi->processData( &mergedInput );
+    if (ret != "")
+    {
+      REPORT_ERROR( StatusCode::FAILURE ) << "Error while processing MUCTPI data: " << ret;
+      return StatusCode::FAILURE;
+    }
     // Save the output of the simulation
     CHECK( saveOutput() );
       
     // check the other 4 possible BC offset values in case the input objects tells us there are
     // out of time candidates
 
-
     if (mergedInput.hasOutOfTimeCandidates(LVL1MUONIF::Lvl1MuCTPIInputPhase1::idBarrelSystem()) ||
-	mergedInput.hasOutOfTimeCandidates(LVL1MUONIF::Lvl1MuCTPIInputPhase1::idEndcapSystem()) || 
-	mergedInput.hasOutOfTimeCandidates(LVL1MUONIF::Lvl1MuCTPIInputPhase1::idForwardSystem()) ){
+        mergedInput.hasOutOfTimeCandidates(LVL1MUONIF::Lvl1MuCTPIInputPhase1::idEndcapSystem()) || 
+        mergedInput.hasOutOfTimeCandidates(LVL1MUONIF::Lvl1MuCTPIInputPhase1::idForwardSystem()) ){
       
-      for (std::vector<int>::iterator it = m_bcidOffsetList.begin(); it != m_bcidOffsetList.end(); ++it){
-	if (! mergedInput.isEmptyAll( (*it) ) ){
-	  // process the input in the MUCTPI simulation
-	  m_theMuctpi->processData( &mergedInput, (*it));      
-	  // Save the output of the simulation
-	  CHECK( saveOutput( (*it) ) );	    
-	}
+      for (std::vector<int>::const_iterator it = m_bcidOffsetList.begin(); it != m_bcidOffsetList.end(); ++it){
+        if (! mergedInput.isEmptyAll( (*it) ) ){
+          // process the input in the MUCTPI simulation
+          m_theMuctpi->processData( &mergedInput, (*it));      
+          // Save the output of the simulation
+          CHECK( saveOutput( (*it) ) );	    
+        }
       }
-      }    
+    }
 
     return StatusCode::SUCCESS;
   }
@@ -306,7 +341,7 @@ namespace LVL1MUCTPIPHASE1 {
   //This is a new execute() function. It reads the LVL1_ROI object from an AOD file, it converts
   //the muon RoIs back into the input format of the MuCTPI, then runs the MuCTPI information
   //with this transformed input.
-  StatusCode MUCTPI_AthTool::executeFromAOD() {
+  StatusCode MUCTPI_AthTool::executeFromAOD() const {
 
     //this functionality still needs converted to the new data format.
     //in particular, Converter.cxx doesn't exist anymore.
@@ -349,7 +384,7 @@ namespace LVL1MUCTPIPHASE1 {
   //converts the muon data words back into the input format of the MuCTPI, then runs the
   //MuCTPI information with this transformed input.
    
-  StatusCode MUCTPI_AthTool::executeFromRDO() {
+  StatusCode MUCTPI_AthTool::executeFromRDO() const {
 
     //this function still needs to be written.
     //in particular, converter doesn't exist anymore.
@@ -389,47 +424,44 @@ namespace LVL1MUCTPIPHASE1 {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode MUCTPI_AthTool::saveOutput(int bcidOffset) {
+  StatusCode MUCTPI_AthTool::saveOutput(int bcidOffset) const {
 
     /// the standart processing is done for the central slice, with no Bcid offset
     if (bcidOffset == 0 ) {
       // store CTP result in interface object and put to StoreGate
-      std::vector<unsigned int> ctpData = m_theMuctpi->getCTPData();
-    //TEMPORARILY REMOVED UNTIL MUCTPICTP UPDATED TO VECTOR!
-      //LVL1::MuCTPICTP* theCTPResult = new LVL1::MuCTPICTP( ctpData );
-      //CHECK( evtStore()->record( theCTPResult, m_ctpOutputLocId ) );
-      //ATH_MSG_DEBUG( "CTP word recorded to StoreGate with key: "
-      //               << m_ctpOutputLocId );
+      const std::vector<unsigned int>& ctpData = m_theMuctpi->getTriggerProcessor().getCTPData();
 
-      // create MuCTPI RDO
-      const std::vector<unsigned int>& daqData = m_theMuctpi->getDAQData();
+      LVL1::MuCTPICTP* theCTPResult = new LVL1::MuCTPICTP( ctpData );
+      SG::WriteHandle<LVL1::MuCTPICTP> wh_muctpi_ctp(m_MuCTPICTPWriteKey);
+      ATH_CHECK(wh_muctpi_ctp.record(std::make_unique<LVL1::MuCTPICTP>(*theCTPResult)));
+      ATH_MSG_DEBUG( "CTP word recorded to StoreGate" );
 
       // size check
       // check that the multiplicity was properly filled
       int multSize = ctpData.size();
       if( multSize < 1 ) {
-	REPORT_ERROR( StatusCode::FAILURE )
-	  << "TriggerProcessor didn't provide correct CTP data";
-	return StatusCode::FAILURE;
+        REPORT_ERROR( StatusCode::FAILURE )
+          << "TriggerProcessor didn't provide correct CTP data";
+        return StatusCode::FAILURE;
       }
 
-      // data word
-      std::vector<unsigned int> dataWords= daqData;
-
       // create MuCTPI RDO
-      auto muCTPI_RDO = std::make_unique< MuCTPI_RDO >( std::move(ctpData), std::move(dataWords) );
-      SG::WriteHandle<MuCTPI_RDO> wh_muctpi_rdo(m_MuCTPI_RDOWriteKey);
-      ATH_CHECK(wh_muctpi_rdo.record(std::move(muCTPI_RDO)));
-      ATH_MSG_DEBUG( "MuCTPI_RDO object recorded to StoreGate");
+      const std::vector<DAQData>& daqData = m_theMuctpi->getTriggerProcessor().getDAQData();
 
       // create MuCTPI xAOD
       auto xAODRoIs = SG::makeHandle(m_MuCTPI_xAODWriteKey);
       ATH_CHECK(xAODRoIs.record(std::make_unique<xAOD::MuonRoIContainer>(), std::make_unique<xAOD::MuonRoIAuxContainer>()));
       ATH_MSG_DEBUG("Recorded MuonRoIContainer with key " << m_MuCTPI_xAODWriteKey.key());
-      for (const unsigned int word : daqData) {
+      for (DAQData data : daqData) {
         xAODRoIs->push_back(new xAOD::MuonRoI);
-        // RB: dummy values just to have the objects for downstream code development
-        xAODRoIs->back()->initialize(word, 99, 99, "DummyThreshold", 99);
+
+        LVL1::TrigT1MuonRecRoiData roiData;
+        if (m_rpcTool->getSystem(data.dataWord) == LVL1::ITrigT1MuonRecRoiTool::Barrel) roiData = m_rpcTool->roiData(data.dataWord);
+        else roiData = m_tgcTool->roiData(data.dataWord); // Endcap/Forward
+
+        std::pair<std::string, double> minThrInfo = m_trigThresholdDecisionTool->getMinThresholdNameAndValue(data.thresholdDecisions, roiData.eta());
+
+        xAODRoIs->back()->initialize(data.dataWord, roiData.eta(), roiData.phi(), minThrInfo.first, minThrInfo.second);
       }
 
       // get outputs for L1Topo and store into Storegate

@@ -8,7 +8,7 @@ import sys, subprocess, random, os, shlex, ROOT, shutil
 
 def CITest(testname, cutfile, cutfilepath, inputfile, sedreplace):
     """ Templated test to allow extension """
-    print "CI Integration Test :",testname
+    print("CI Integration Test :",testname)
 
     # -- Settings --
     cutfilename   = cutfile
@@ -23,8 +23,8 @@ def CITest(testname, cutfile, cutfilepath, inputfile, sedreplace):
     # -- Get the validation file path from the most recent location --
 
     # -- Print the file location for debugging --
-    print "CI Integration Test : Using cutfile %s"%(cutfilepath)
-    print "CI Integration Test : Using inputfile %s"%(inputfilename)
+    print("CI Integration Test : Using cutfile %s"%(cutfilepath))
+    print("CI Integration Test : Using inputfile %s"%(inputfilename))
 
     # -- Copy the cutfile locally to be updated -- 
     shutil.copyfile(cutfilepath, cutfilename)

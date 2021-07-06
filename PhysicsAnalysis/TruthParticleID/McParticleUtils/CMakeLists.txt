@@ -7,6 +7,7 @@ atlas_subdir( McParticleUtils )
 find_package( Boost )
 find_package( HepPDT )
 find_package( Python COMPONENTS Development )
+find_package( CLHEP )
 
 # Component(s) in the package:
 atlas_add_library( McParticleUtils

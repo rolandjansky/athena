@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthContainers/ConstDataVector.h
@@ -98,6 +98,7 @@ public:
   typedef typename DV::const_value_type const * const_pointer;
 
   /// This needs to be forwarded from the base as well.
+  // cppcheck-suppress duplInheritedMember
   static const bool has_virtual = DV::has_virtual;
 
   /// This type is used to proxy lvalue accesses to @c DataVector
@@ -600,6 +601,7 @@ public:
    * will be deleted.  Any duplicates will be removed in this process,
    * but don't rely on this.
    */
+  // cppcheck-suppress duplInheritedMember
   void clear();
 
 
@@ -761,6 +763,7 @@ public:
    * will be deleted.  Any duplicates will be removed in this process,
    * but don't rely on this.
    */
+  // cppcheck-suppress duplInheritedMember
   void clear (SG::OwnershipPolicy ownPolicy);
 
 
@@ -775,6 +778,7 @@ public:
    * will be deleted.  Any duplicates will be removed in this process,
    * but don't rely on this.
    */
+  // cppcheck-suppress duplInheritedMember
   void clear (SG::OwnershipPolicy ownPolicy,
               SG::IndexTrackingPolicy trackIndices);
 

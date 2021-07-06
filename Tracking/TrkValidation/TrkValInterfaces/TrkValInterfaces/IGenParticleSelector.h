@@ -33,7 +33,7 @@ class IGenParticleSelector : virtual public IAlgTool {
     static const InterfaceID& interfaceID();
     
     /** explain */
-    virtual std::vector<const HepMC::GenParticle *>*
+    virtual std::vector<HepMC::ConstGenParticlePtr>*
       selectGenSignal (const McEventCollection*) const=0;
   };
 

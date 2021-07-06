@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CBNTAA_TBTrack.h"
@@ -101,7 +101,7 @@ StatusCode CBNTAA_TBTrack::CBNT_finalize() {
   return StatusCode::SUCCESS;
 }
 
-std::string CBNTAA_TBTrack::add_name(const char* base, const std::string extension) {
+std::string CBNTAA_TBTrack::add_name(const char* base, const std::string& extension) {
   std::string retval(base);
   for (unsigned i=0;i<extension.size();i++) {
     const char& ch=extension[i];

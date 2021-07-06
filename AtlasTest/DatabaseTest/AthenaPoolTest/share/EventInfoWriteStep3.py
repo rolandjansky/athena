@@ -123,6 +123,11 @@ from IOVDbMetaDataTools.IOVDbMetaDataToolsConf import IOVDbMetaDataTool
 ToolSvc += IOVDbMetaDataTool( "IOVDbMetaDataTool" )
 IOVDbMetaDataTool.OutputLevel      = INFO
 
+# Change output file catalog to avoid races.
+from PoolSvc import PoolSvcConf
+PoolSvc = PoolSvcConf.PoolSvc()
+PoolSvc.WriteCatalog = 'file:EventInfoTests_catalog.xml'
+
 # No stats printout
 include( "AthenaPoolTest/NoStats_jobOptions.py" )
 

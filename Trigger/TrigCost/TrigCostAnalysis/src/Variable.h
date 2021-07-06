@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCOSTANALYSIS_VARIABLE_H
@@ -86,10 +86,25 @@ class Variable {
 
     /**
      * @brief Fill histogram (per-Call Variable), or add value to internal accumulator (per-Event Variable) to be filled at the end of the event.
-     * @pram[in] value The payload.     
+     * @param[in] value The payload.     
      * @param[in] weight Global event weight
      */
     StatusCode fill(float value, float weight = 1.0);
+
+    /**
+     * @brief Fill histogram (per-Call Variable), or add value to internal accumulator (per-Event Variable) to be filled at the end of the event.
+     * @param[in] xvalue The x-axis payload.     
+     * @param[in] yvalue The y-axis payload.   
+     * @param[in] weight Global event weight
+     */
+    StatusCode fill(float xvalue, float yvalue, float weight);
+
+    /**
+     * @brief Fill histogram's bin (per-Call Variable) with given label
+     * @param[in] label Label of bin to fill
+     * @param[in] weight Global event weight
+     */
+    StatusCode fill(const std::string& label, float weight = 1.0);
 
     /**
      * @brief Convenience function. Equivalent of fill(1.0, weight). For use with per-Event counting type variables.
@@ -97,6 +112,13 @@ class Variable {
      */
     StatusCode increment(float weight = 1.0);
 
+    /**
+     * @brief Set label on given bin in cached histogram
+     * @param[in] bin Bin number
+     * @param[in] label Label to set
+     */
+    StatusCode setBinLabel(int bin, const std::string& label);
+  
     /**
      * @brief Sets, until the end of the event, a denominator which will be used to normalise every Fill.
      * @pram[in] value The denominator to normalise Fill operations.
@@ -114,7 +136,8 @@ class Variable {
     const VariableType m_variableType; //<! Variable's type enumeration
     TH1* m_cacheHistoPtr; //<! Mutable cached non-owning ptr to this Variable's histogram.
     size_t m_calls; //<! Counter of how many times the Variable is Filled in an event.
-    float m_accumulator; //<! For per-Event quantities, the accumulator buffers until the final quantity is known.
+    float m_xaccumulator; //<! For per-Event quantities, the accumulator buffers until the final quantity is known.
+    float m_yaccumulator; //<! Buffer as xaccumulator, but for y axis, used of 2D histograms
     float m_weight; //!< Cache of the event weight. Assumed to be the same for every call to fill with per-Event monitoring!
     float m_oneOverDenominator; //!< Cache of the reciprocal of the denominator used to normalise when filling the histogram.
 };

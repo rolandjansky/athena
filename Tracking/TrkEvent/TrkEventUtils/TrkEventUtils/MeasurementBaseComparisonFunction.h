@@ -69,29 +69,29 @@ public:
     // --- flexible sorting along a predicted direction
     double path1 = 0;
     const Trk::Surface& sf1 = one->associatedSurface();
-    const Trk::Surface::SurfaceType surfType1 = sf1.type();
+    const Trk::SurfaceType surfType1 = sf1.type();
     switch (surfType1) {
-      case Trk::Surface::Plane: {
+      case Trk::SurfaceType::Plane: {
         const Trk::PlaneSurface& opsf =
           static_cast<const Trk::PlaneSurface&>(sf1);
         path1 = this->pathIntersectWithPlane(opsf);
       } break;
-      case Trk::Surface::Line: {
+      case Trk::SurfaceType::Line: {
         const Trk::StraightLineSurface& ossf =
           static_cast<const Trk::StraightLineSurface&>(sf1);
         path1 = this->pathIntersectWithLine(ossf);
       } break;
-      case Trk::Surface::Disc: {
+      case Trk::SurfaceType::Disc: {
         const Trk::DiscSurface& odsf =
           static_cast<const Trk::DiscSurface&>(sf1);
         path1 = this->pathIntersectWithDisc(odsf);
       } break;
-      case Trk::Surface::Cylinder: {
+      case Trk::SurfaceType::Cylinder: {
         const Trk::CylinderSurface& ocsf =
           static_cast<const Trk::CylinderSurface&>(sf1);
         path1 = this->pathIntersectWithCylinder(ocsf, one->globalPosition());
       } break;
-      case Trk::Surface::Perigee: {
+      case Trk::SurfaceType::Perigee: {
         const Trk::PerigeeSurface& ogsf =
           static_cast<const Trk::PerigeeSurface&>(sf1);
         path1 = this->pathIntersectWithLine(ogsf);
@@ -105,29 +105,29 @@ public:
     // --- identify the 2nd surface type and get intersection path for surface 1
     double path2 = 0;
     const Trk::Surface& sf2 = two->associatedSurface();
-    const Trk::Surface::SurfaceType surfType2 = sf2.type();
+    const Trk::SurfaceType surfType2 = sf2.type();
     switch (surfType2) {
-      case Trk::Surface::Plane: {
+      case Trk::SurfaceType::Plane: {
         const Trk::PlaneSurface& tpsf =
           static_cast<const Trk::PlaneSurface&>(sf2);
         path2 = this->pathIntersectWithPlane(tpsf);
       } break;
-      case Trk::Surface::Line: {
+      case Trk::SurfaceType::Line: {
         const Trk::StraightLineSurface& tssf =
           static_cast<const Trk::StraightLineSurface&>(sf2);
         path2 = this->pathIntersectWithLine(tssf);
       } break;
-      case Trk::Surface::Disc: {
+      case Trk::SurfaceType::Disc: {
         const Trk::DiscSurface& tdsf =
           static_cast<const Trk::DiscSurface&>(sf2);
         path2 = this->pathIntersectWithDisc(tdsf);
       } break;
-      case Trk::Surface::Cylinder: {
+      case Trk::SurfaceType::Cylinder: {
         const Trk::CylinderSurface& tcsf =
           static_cast<const Trk::CylinderSurface&>(sf2);
         path2 = this->pathIntersectWithCylinder(tcsf, two->globalPosition());
       } break;
-      case Trk::Surface::Perigee: {
+      case Trk::SurfaceType::Perigee: {
         const Trk::PerigeeSurface& tgsf =
           static_cast<const Trk::PerigeeSurface&>(sf2);
         path2 = this->pathIntersectWithLine(tgsf);

@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// GenEventValidityChecker.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef BEAMEFFECTS_GENEVENTVALIDITYCHECK_H
 #define BEAMEFFECTS_GENEVENTVALIDITYCHECK_H 1
@@ -36,7 +32,7 @@ namespace Simulation {
       StatusCode  manipulate(HepMC::GenEvent& ge) const override final;
 
     private:
-      bool        m_checkTime;         //!< check the time dimension value for validity
+    Gaudi::Property<bool>        m_checkTime{this, "CheckTime", true};         //!< check the time dimension value for validity
   };
 
 }

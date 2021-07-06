@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawEvent/LArDigitContainer.h"
@@ -14,15 +14,16 @@
 /*---------------------------------------------------------*/
 template<class DIGITCONTAINER>
 LArDigitPreProcessor<DIGITCONTAINER>::LArDigitPreProcessor (const std::string& name,
-                                  ISvcLocator* pSvcLocator):AthAlgorithm(name, pSvcLocator)
+                                  ISvcLocator* pSvcLocator)
+  : AthAlgorithm(name, pSvcLocator),
+    m_outputContainer ("FREE"),
+    m_NumberOfSamples (0),
+    m_firstSample (-1),
+    m_pickGain (false),
+    m_useOscillationCorrTool (false),
+    m_corrTool (nullptr)
 /*---------------------------------------------------------*/
 {
-  m_corrTool=NULL;
-  m_outputContainer="FREE"; 
-  m_NumberOfSamples=0;
-  m_firstSample=-1;
-  m_pickGain=false;
-  m_useOscillationCorrTool=false;
   declareProperty("InputContainers",m_inputContainers);
   declareProperty("OutputContainer", m_outputContainer);
   declareProperty("NumberOfSamples",m_NumberOfSamples);
@@ -95,32 +96,24 @@ StatusCode LArDigitPreProcessor<DIGITCONTAINER>::execute()
   }
   
   // Loop over list of input containers
-  std::vector<std::string>::const_iterator cont_it=m_inputContainers.begin();
-  std::vector<std::string>::const_iterator cont_it_e=m_inputContainers.end();
-  for(;cont_it!=cont_it_e;cont_it++) {
+  for (const std::string& cont : m_inputContainers) {
     //Retrieve input Container
     // const LArDigitContainer* inputContainer;
     const DIGITCONTAINER* inputContainer = nullptr;
-    sc=evtStore()->retrieve(inputContainer,*cont_it);
+    sc=evtStore()->retrieve(inputContainer,cont);
     if (sc.isFailure()) {
-      log << MSG::WARNING << "Cannot retrieve DIGITCONTAINER with key " << *cont_it
+      log << MSG::WARNING << "Cannot retrieve DIGITCONTAINER with key " << cont
           << " from StoreGate." << endmsg;
       continue;
     }
     
-    //LArDigitContainer::const_iterator it=inputContainer->begin();
-    //LArDigitContainer::const_iterator it_e=inputContainer->end();
-    typedef typename DIGITCONTAINER::const_iterator CONT_IT;
-    CONT_IT it=inputContainer->begin();
-    CONT_IT it_e=inputContainer->end();
-    
-    for(;it!=it_e;it++) {
-      const std::vector<short>& samples=(*it)->samples();
-      HWIdentifier chid((*it)->channelID());
-      CaloGain::CaloGain gain=(*it)->gain();
+    for (const auto* digit : *inputContainer) {
+      const std::vector<short>& samples=digit->samples();
+      HWIdentifier chid(digit->channelID());
+      CaloGain::CaloGain gain=digit->gain();
       if (m_pickGain) {
 	//ADD: Check if sample already there....
-	short max=*(max_element((*it)->samples().begin(),(*it)->samples().end()));
+	short max=*(max_element(digit->samples().begin(),digit->samples().end()));
 	if (!((gain==CaloGain::LARLOWGAIN && max < m_lowGainUpperLimit) || 
 	      (gain==CaloGain::LARMEDIUMGAIN && max > m_medGainLowerLimit && max < m_medGainUpperLimit) ||
               (gain==CaloGain::LARHIGHGAIN && max > m_highGainLowerLimit)))
@@ -137,7 +130,7 @@ StatusCode LArDigitPreProcessor<DIGITCONTAINER>::execute()
 	  std::vector<short>::const_iterator first=samples.begin()+m_firstSample;
 	  newSamples.assign(first,first+m_NumberOfSamples);
 	} else { //choose accoring to maximum sample
-	  std::vector<short>::const_iterator max=max_element((*it)->samples().begin(),(*it)->samples().end());
+	  std::vector<short>::const_iterator max=max_element(digit->samples().begin(),digit->samples().end());
 	  std::vector<short> newSamples;
 	  const int  halfNSample=m_NumberOfSamples/2;
 	  if (max-samples.begin()>halfNSample) //At lower bound
@@ -147,7 +140,7 @@ StatusCode LArDigitPreProcessor<DIGITCONTAINER>::execute()
 	  else //in the middle
 	    newSamples.assign(max-halfNSample,max-halfNSample+m_NumberOfSamples);
 	}
-	LArDigit* lardigit=new LArDigit(chid,gain,newSamples);
+	LArDigit* lardigit=new LArDigit(chid,gain,std::move(newSamples));
 	outputContainer->push_back(lardigit);
       } else {
 	LArDigit* lardigit=new LArDigit(chid,gain,samples);

@@ -1,106 +1,68 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-
-// Author: Max Baak
-// Merger of : TrigT2MinBias/src/T2MbtsFex.cxx, TrigMinBiasNtuple/src/MbtsContainerNtComponent.cxx
-
 #include "PrimaryDPDMaker/MBTSTimeFilterTool.h"
-#include "TileIdentifier/TileTBID.h"
 #include "TileEvent/TileContainer.h"
-
-
-MBTSTimeFilterTool::MBTSTimeFilterTool( const std::string& type, const std::string& name, const IInterface* parent ) 
- : AthAlgTool( type, name, parent )
- , m_warningPrinted(false)
-{
-  declareInterface<MBTSTimeFilterTool>( this );
-
-  declareProperty( "MBTSContainerName", m_mbtsContainerName = "MBTSContainer" );
-  declareProperty( "ChargeThreshold",   m_chargethreshold = 60.0/222.0 );  // Value in pC, from T2MbtsFex.cxx
-  declareProperty( "MinHitsPerSide",    m_minhitsperside = 2 ); 
-  declareProperty( "MaxTimeDifference", m_maxtimediff = 10.0 ); 
+#include <float.h> 
+namespace {
+    constexpr float tile_eta_start = 1.5;
 }
 
 
-MBTSTimeFilterTool::~MBTSTimeFilterTool()
-{
-}
+MBTSTimeFilterTool::MBTSTimeFilterTool( const std::string& tool_name) : 
+    asg::AsgTool( tool_name) {}
 
-
-StatusCode
-MBTSTimeFilterTool::initialize()
-{
-  StatusCode sc = StatusCode::SUCCESS;
-
+StatusCode MBTSTimeFilterTool::initialize(){
   ATH_MSG_DEBUG ("initialize()");
-
-  // Get identifier for the MBTS
-  sc = detStore()->retrieve(m_tileTBID);
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR ("Unable to retrieve TileTBID helper from DetectorStore.");
-    return sc;
-  }
-
-  ATH_MSG_DEBUG ("initialize() successful");
-
-  return sc;
+  ATH_CHECK(detStore()->retrieve(m_tileTBID));
+  return StatusCode::SUCCESS;
 }
 
 
-StatusCode
-MBTSTimeFilterTool::getTimeDifference(bool& passCut, double& timeDiff, double& timeA, double&timeC, int& countA, int& countC)
-{
-  StatusCode sc = StatusCode::SUCCESS;
-
+StatusCode MBTSTimeFilterTool::getTimeDifference(TimingFilterInformation& time_info) {
+   const TileCellContainer* tileCellCnt = nullptr;
+   ATH_CHECK(evtStore()->retrieve(tileCellCnt,m_mbtsContainerName));
+   fillTimeDifference(time_info,tileCellCnt);
+   return StatusCode::SUCCESS;
+}
+StatusCode MBTSTimeFilterTool::getTimeDifference(TimingFilterInformation& time_info,
+                                        const SG::ReadHandleKey<TileCellContainer>& key,
+                                        const EventContext& ctx) const{ 
   ATH_MSG_DEBUG ("execute()");
-
-  const TileCellContainer *tileCellCnt = 0;
-
-  sc = evtStore()->retrieve(tileCellCnt, m_mbtsContainerName);
-  if( sc.isFailure()  || !tileCellCnt ) {
-    if (!m_warningPrinted) {
-      ATH_MSG_WARNING (m_mbtsContainerName <<" requested but not found.");
-      m_warningPrinted = true;
-    }
+   SG::ReadHandle<TileCellContainer> readHandle{key,ctx};
+   if (!readHandle.isValid()){
+      ATH_MSG_FATAL (key <<" requested but not found.");
+      return StatusCode::FAILURE;
+   }
+    fillTimeDifference(time_info, readHandle.cptr());
     return StatusCode::SUCCESS;
-  }
-
-  timeA = 0.;
-  timeC = 0.;
-  countA = 0;
-  countC = 0;
-  double charge = 0;
-  double eta = 0.;
-
-  TileCellContainer::const_iterator itr = tileCellCnt->begin();
-  TileCellContainer::const_iterator itr_end = tileCellCnt->end();
-
-  int count=0;
-  for(; itr != itr_end; ++itr, ++count) {
+}
+void MBTSTimeFilterTool::fillTimeDifference(TimingFilterInformation& time_info, const TileCellContainer* tileCellCnt) const{
+ 
+  for(const TileCell* tile : *tileCellCnt) {
 
     // check charge passes threshold
-    charge = (*itr)->energy();
+    const float charge = tile->energy();
     ATH_MSG_DEBUG ("Energy =" << charge << "pC");
     if(charge < m_chargethreshold) continue;
 
     // only endcap 
-    eta = (*itr)->eta();
+    const  float eta = tile->eta();
     ATH_MSG_DEBUG ("Eta =" << eta);
-    if ( std::fabs(eta) < 1.5 ) continue;
+    if ( std::abs(eta) < tile_eta_start) continue;
 
-    Identifier id=(*itr)->ID();
+    const Identifier id= tile->ID();
     // cache type, module and channel
     // MBTS Id type is  "side"  +/- 1
-    int type_id = m_tileTBID->type(id);
+    const int type_id = m_tileTBID->type(id);
     // MBTS Id module is "phi"  0-7
-    int module_id = m_tileTBID->module(id);
+    const int module_id = m_tileTBID->module(id);
     // MBTS Id channel is "eta"  0-1   zero is closer to beam pipe
-    int channel_id = m_tileTBID->channel(id);
+    const  int channel_id = m_tileTBID->channel(id);
 
     // Catch errors
-    if( abs(type_id) != 1 ){
+    if( std::abs(type_id) != 1 ){
       ATH_MSG_WARNING ("MBTS identifier type is out of range.");
       continue;
     }
@@ -114,39 +76,22 @@ MBTSTimeFilterTool::getTimeDifference(bool& passCut, double& timeDiff, double& t
     }
 
     if (type_id > 0)  {
-      timeA +=  (*itr)->time();
-      countA++ ; 
+      time_info.timeA +=  tile->time();
+      ++time_info.ncellA ; 
     } else {     
-      timeC +=  (*itr)->time();
-      countC++;
+      time_info.timeC +=  tile->time();
+      ++time_info.ncellC;
     }
   }
 
-  if(count>32)
-    ATH_MSG_WARNING ("There shoule be <=32 MBTS TileCells in " << m_mbtsContainerName << ".  " << count << " were found.");
+  if(time_info.ncellA + time_info.ncellC > 32)
+    ATH_MSG_WARNING ("There shoule be <=32 MBTS TileCells  " << (time_info.ncellA + time_info.ncellC) << " were found.");
 
-  if ( countA > 0 ) timeA = timeA/((double)(countA));
-  if ( countC > 0 ) timeC = timeC/((double)(countC));
+  if ( time_info.ncellA > 0 ) time_info.timeA /= time_info.ncellA;
+  if ( time_info.ncellC > 0 ) time_info.timeC /= time_info.ncellC;
 
-  timeDiff = 999.; // Or whatever default you want
-  if ( countA >= m_minhitsperside && countC >= m_minhitsperside ) { timeDiff = (timeA - timeC); }
-  passCut = ( std::fabs(timeDiff) < m_maxtimediff);
+  time_info.timeDiff = FLT_MAX; // Or whatever default you want
+  if ( time_info.ncellA >= m_minhitsperside && time_info.ncellC >= m_minhitsperside ) { time_info.timeDiff = (time_info.timeA - time_info.timeC); }
+  time_info.passCut = ( std::abs(time_info.timeDiff) < m_maxtimediff);
 
-  ATH_MSG_DEBUG ("execute() successful");
-
-  return sc;
 }
-
-
-StatusCode
-MBTSTimeFilterTool::finalize()
-{
-  StatusCode sc = StatusCode::SUCCESS;
-
-  ATH_MSG_DEBUG ("finalize()");
-
-  ATH_MSG_DEBUG ("finalize() successful");
-
-  return sc;
-}
-

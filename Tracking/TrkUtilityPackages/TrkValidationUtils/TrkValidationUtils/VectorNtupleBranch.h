@@ -35,10 +35,10 @@ namespace Trk {
     VectorNtupleBranch() : m_nrows(-1) {}
 
     /** initialize class for writing */
-    bool initForWrite(TTree& tree, std::string varname, int nrow, std::string prefix = ""  );
+    bool initForWrite(TTree& tree, const std::string& varname, int nrow, const std::string& prefix = ""  );
 
     /** initialize class for reading */
-    bool initForRead(TTree& tree, std::string varname, int nrow, std::string prefix = "" );
+    bool initForRead(TTree& tree, const std::string& varname, int nrow, const std::string& prefix = "" );
     
     /** fill a vector */
     bool fill( const Amg::VectorX& matrix );

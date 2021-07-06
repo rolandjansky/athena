@@ -9,11 +9,11 @@
 
 namespace MuonGM {
 
-class RpcComponent: public StandardComponent {
-public:
-    int ndivy;
-    int ndivz;
-};
+    class RpcComponent : public StandardComponent {
+      public:
+        int ndivy;
+        int ndivz;
+    };
 } // namespace MuonGM
 
 #endif

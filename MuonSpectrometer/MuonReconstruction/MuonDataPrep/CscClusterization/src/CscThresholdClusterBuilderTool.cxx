@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
 
 // CscThresholdClusterBuilderTool.cxx
 #include "CscThresholdClusterBuilderTool.h"
@@ -36,47 +35,40 @@ using std::vector;
 //******************************************************************************
 // Local definitions.
 namespace {
-//******************************************************************************
+    //******************************************************************************
 
-// Convert chamber identifier to string.
-std::string
-chamber(int istation, int zsec, int phi)
-{
-    ostringstream ssout;
-    if (istation == 1)
-        ssout << "CSS";
-    else if (istation == 2)
-        ssout << "CSL";
-    else
-        ssout << "???";
-    if (zsec == -1)
-        ssout << "-";
-    else if (zsec == 1)
-        ssout << "+";
-    else
-        ssout << "?";
-    ssout << phi;
-    return ssout.str();
-}
+    // Convert chamber identifier to string.
+    std::string chamber(int istation, int zsec, int phi) {
+        ostringstream ssout;
+        if (istation == 1)
+            ssout << "CSS";
+        else if (istation == 2)
+            ssout << "CSL";
+        else
+            ssout << "???";
+        if (zsec == -1)
+            ssout << "-";
+        else if (zsec == 1)
+            ssout << "+";
+        else
+            ssout << "?";
+        ssout << phi;
+        return ssout.str();
+    }
 
-// Convert measphi to string.
-std::string
-setaphi(bool measphi)
-{
-    if (measphi) return "phi";
-    return "eta";
-}
+    // Convert measphi to string.
+    std::string setaphi(bool measphi) {
+        if (measphi) return "phi";
+        return "eta";
+    }
 
-//******************************************************************************
+    //******************************************************************************
 }  // end unnamed namespace
 //******************************************************************************
 
 CscThresholdClusterBuilderTool::CscThresholdClusterBuilderTool(const std::string& type, const std::string& aname,
-                                                               const IInterface* parent)
-    : AthAlgTool(type, aname, parent),
-      m_noiseOption(rms),
-      m_digit_key("CSC_Measurements")
-{
+                                                               const IInterface* parent) :
+    AthAlgTool(type, aname, parent), m_noiseOption(rms), m_digit_key("CSC_Measurements") {
     declareInterface<ICscClusterBuilder>(this);
 
     declareProperty("threshold", m_threshold = 20000.0);
@@ -94,13 +86,11 @@ CscThresholdClusterBuilderTool::~CscThresholdClusterBuilderTool() {}
 
 //******************************************************************************
 
-StatusCode
-CscThresholdClusterBuilderTool::initialize()
-{
+StatusCode CscThresholdClusterBuilderTool::initialize() {
     // Display algorithm properties.
     ATH_MSG_DEBUG("Properties for " << name() << ":");
-    ATH_MSG_DEBUG("  Strip threshold is Max( " << m_threshold << ", " << m_kFactor
-                                               << "*stripNoise ) where stripNoise is from " << m_noiseOptionStr);
+    ATH_MSG_DEBUG("  Strip threshold is Max( " << m_threshold << ", " << m_kFactor << "*stripNoise ) where stripNoise is from "
+                                               << m_noiseOptionStr);
     ATH_CHECK(m_digit_key.initialize());
     if (m_noiseOptionStr != "rms" && m_noiseOptionStr != "sigma" && m_noiseOptionStr != "f001") {
         ATH_MSG_DEBUG(" noiseOption is not among rms/sigma/f001. rms is used for default!!");
@@ -147,15 +137,11 @@ CscThresholdClusterBuilderTool::initialize()
 
 //******************************************************************************
 
-StatusCode
-CscThresholdClusterBuilderTool::getClusters(std::vector<IdentifierHash>& givenIDs,
-                                            std::vector<IdentifierHash>& decodedIds,
-					    CscPrepDataContainer* object)
-{
-
+StatusCode CscThresholdClusterBuilderTool::getClusters(std::vector<IdentifierHash>& givenIDs, std::vector<IdentifierHash>& decodedIds,
+                                                       CscPrepDataContainer* object) {
     // clear output vector of selected data collections containing data
     decodedIds.clear();
-    if (givenIDs.size() != 0) {
+    if (!givenIDs.empty()) {
         for (unsigned int i = 0; i < givenIDs.size(); ++i) {
             if (getClusters(givenIDs[i], decodedIds, object).isFailure()) {
                 ATH_MSG_ERROR("Unable to decode CSC RDO " << i << "th into CSC PrepRawData");
@@ -170,25 +156,19 @@ CscThresholdClusterBuilderTool::getClusters(std::vector<IdentifierHash>& givenID
         }
     }
 
-
     return StatusCode::SUCCESS;
 }
 
-
 //******************************************************************************
 
-StatusCode
-CscThresholdClusterBuilderTool::getClusters(IdentifierHash givenHashId, std::vector<IdentifierHash>& decodedIds,
-                                            Muon::CscPrepDataContainer* pclusters)
-{
-
+StatusCode CscThresholdClusterBuilderTool::getClusters(IdentifierHash givenHashId, std::vector<IdentifierHash>& decodedIds,
+                                                       Muon::CscPrepDataContainer* pclusters) {
     // identifiers of collections already decoded and stored in the container will be skipped
     if (pclusters->indexFindPtr(givenHashId) != nullptr) {
         decodedIds.push_back(givenHashId);
         ATH_MSG_DEBUG("A collection already exists in the container for offline id hash. " << (int)givenHashId);
         return StatusCode::SUCCESS;
     }
-
 
     // Retrieve the CSC digits for this event.
     SG::ReadHandle<CscStripPrepDataContainer> pdigcon(m_digit_key);
@@ -198,7 +178,6 @@ CscThresholdClusterBuilderTool::getClusters(IdentifierHash givenHashId, std::vec
         ATH_MSG_WARNING("Failure to retrieve strip container " << m_digit_key.key());
         return StatusCode::SUCCESS;
     }
-
 
     //**********************************************
     // retrieve specific collection for the givenID
@@ -211,20 +190,20 @@ CscThresholdClusterBuilderTool::getClusters(IdentifierHash givenHashId, std::vec
 
     ATH_MSG_DEBUG("Retrieved " << col->size() << " CSC Strip PrepDatas.");
 
-    Identifier colid    = col->identify();
-    int        istation = m_idHelperSvc->cscIdHelper().stationName(colid) - 49;
-    int        zsec     = m_idHelperSvc->cscIdHelper().stationEta(colid);
-    int        phisec   = m_idHelperSvc->cscIdHelper().stationPhi(colid);
+    Identifier colid = col->identify();
+    int istation = m_idHelperSvc->cscIdHelper().stationName(colid) - 49;
+    int zsec = m_idHelperSvc->cscIdHelper().stationEta(colid);
+    int phisec = m_idHelperSvc->cscIdHelper().stationPhi(colid);
 
     ATH_MSG_DEBUG("  Strip collection " << chamber(istation, zsec, phisec) << " has " << col->size() << " strips");
 
     // Create arrays to hold digits and cathode plane parameters.
     vector<const CscStripPrepData*> strips[8];
-    int                             maxstrip[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    int maxstrip[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
     // retrieve MuonDetectorManager from the conditions store
     SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
-    const MuonGM::MuonDetectorManager*              MuonDetMgr = DetectorManagerHandle.cptr();
+    const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr();
     if (MuonDetMgr == nullptr) {
         ATH_MSG_ERROR("Null pointer to the MuonDetectorManager conditions object");
         return StatusCode::FAILURE;
@@ -233,17 +212,17 @@ CscThresholdClusterBuilderTool::getClusters(IdentifierHash givenHashId, std::vec
     IdentifierHash hash;
     // Loop over digits and fill these arrays.
     for (CscStripPrepDataCollection::const_iterator idig = col->begin(); idig != col->end(); ++idig) {
-        const CscStripPrepData& dig      = **idig;
-        Identifier              did      = dig.identify();
-        hash                             = dig.collectionHash();
-        const CscReadoutElement* pro     = MuonDetMgr->getCscReadoutElement(did);
-        int                      wlay    = m_idHelperSvc->cscIdHelper().wireLayer(did);
-        int                      measphi = m_idHelperSvc->cscIdHelper().measuresPhi(did);
-        int                      idx     = 2 * (wlay - 1) + measphi;
+        const CscStripPrepData& dig = **idig;
+        Identifier did = dig.identify();
+        hash = dig.collectionHash();
+        const CscReadoutElement* pro = MuonDetMgr->getCscReadoutElement(did);
+        int wlay = m_idHelperSvc->cscIdHelper().wireLayer(did);
+        int measphi = m_idHelperSvc->cscIdHelper().measuresPhi(did);
+        int idx = 2 * (wlay - 1) + measphi;
         // First entry for a cathode plane, initialize.
         if (maxstrip[idx] == 0) {
             maxstrip[idx] = pro->maxNumberOfStrips(measphi);
-            for (int istrip = 0; istrip < maxstrip[idx]; ++istrip) strips[idx].push_back(0);
+            for (int istrip = 0; istrip < maxstrip[idx]; ++istrip) strips[idx].push_back(nullptr);
         }
         int istrip = m_idHelperSvc->cscIdHelper().strip(did) - 1;
         if (istrip < 0 || istrip >= maxstrip[idx]) {
@@ -254,7 +233,7 @@ CscThresholdClusterBuilderTool::getClusters(IdentifierHash givenHashId, std::vec
     }
 
     // Cluster.
-    CscPrepDataCollection* newCollection = 0;
+    CscPrepDataCollection* newCollection = nullptr;
     for (int measphi = 0; measphi < 2; ++measphi) {
         for (int wlay = 1; wlay < 5; ++wlay) {
             int idx = 2 * (wlay - 1) + measphi;
@@ -275,14 +254,9 @@ CscThresholdClusterBuilderTool::getClusters(IdentifierHash givenHashId, std::vec
     return StatusCode::SUCCESS;
 }
 
-
 //******************************************************************************
 
-StatusCode
-CscThresholdClusterBuilderTool::getClusters(std::vector<IdentifierHash>& decodedIds,
-                                            Muon::CscPrepDataContainer*  pclusters)
-{
-
+StatusCode CscThresholdClusterBuilderTool::getClusters(std::vector<IdentifierHash>& decodedIds, Muon::CscPrepDataContainer* pclusters) {
     // Retrieve the CSC digits for this event.
     SG::ReadHandle<CscStripPrepDataContainer> pdigcon(m_digit_key);
     if (pdigcon.isValid()) {
@@ -303,21 +277,20 @@ CscThresholdClusterBuilderTool::getClusters(std::vector<IdentifierHash>& decoded
             decodedIds.push_back(col.identifyHash());
             continue;
         }
-        Identifier colid    = col.identify();
-        int        istation = m_idHelperSvc->cscIdHelper().stationName(colid) - 49;
-        int        zsec     = m_idHelperSvc->cscIdHelper().stationEta(colid);
-        int        phisec   = m_idHelperSvc->cscIdHelper().stationPhi(colid);
-        ATH_MSG_DEBUG("**Strip collection " << chamber(istation, zsec, phisec) << " sector "
-                                            << m_idHelperSvc->cscIdHelper().sector(colid) << " has " << col.size()
-                                            << " strips");
+        Identifier colid = col.identify();
+        int istation = m_idHelperSvc->cscIdHelper().stationName(colid) - 49;
+        int zsec = m_idHelperSvc->cscIdHelper().stationEta(colid);
+        int phisec = m_idHelperSvc->cscIdHelper().stationPhi(colid);
+        ATH_MSG_DEBUG("**Strip collection " << chamber(istation, zsec, phisec) << " sector " << m_idHelperSvc->cscIdHelper().sector(colid)
+                                            << " has " << col.size() << " strips");
 
         // Create arrays to hold digits and cathode plane parameters.
         vector<const CscStripPrepData*> strips[8];
-        int                             maxstrip[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+        int maxstrip[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
         // retrieve MuonDetectorManager from the conditions store
         SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
-        const MuonGM::MuonDetectorManager*              MuonDetMgr = DetectorManagerHandle.cptr();
+        const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr();
         if (MuonDetMgr == nullptr) {
             ATH_MSG_ERROR("Null pointer to the MuonDetectorManager conditions object");
             return StatusCode::FAILURE;
@@ -326,17 +299,17 @@ CscThresholdClusterBuilderTool::getClusters(std::vector<IdentifierHash>& decoded
         IdentifierHash hash;
         // Loop over digits and fill these arrays.
         for (CscStripPrepDataCollection::const_iterator idig = col.begin(); idig != col.end(); ++idig) {
-            const CscStripPrepData& dig      = **idig;
-            Identifier              did      = dig.identify();
-            hash                             = dig.collectionHash();
-            const CscReadoutElement* pro     = MuonDetMgr->getCscReadoutElement(did);
-            int                      wlay    = m_idHelperSvc->cscIdHelper().wireLayer(did);
-            int                      measphi = m_idHelperSvc->cscIdHelper().measuresPhi(did);
-            int                      idx     = 2 * (wlay - 1) + measphi;
+            const CscStripPrepData& dig = **idig;
+            Identifier did = dig.identify();
+            hash = dig.collectionHash();
+            const CscReadoutElement* pro = MuonDetMgr->getCscReadoutElement(did);
+            int wlay = m_idHelperSvc->cscIdHelper().wireLayer(did);
+            int measphi = m_idHelperSvc->cscIdHelper().measuresPhi(did);
+            int idx = 2 * (wlay - 1) + measphi;
             // First entry for a cathode plane, initialize.
             if (maxstrip[idx] == 0) {
                 maxstrip[idx] = pro->maxNumberOfStrips(measphi);
-                for (int istrip = 0; istrip < maxstrip[idx]; ++istrip) strips[idx].push_back(0);
+                for (int istrip = 0; istrip < maxstrip[idx]; ++istrip) strips[idx].push_back(nullptr);
             }
             int istrip = m_idHelperSvc->cscIdHelper().strip(did) - 1;
             if (istrip < 0 || istrip >= maxstrip[idx]) {
@@ -347,13 +320,13 @@ CscThresholdClusterBuilderTool::getClusters(std::vector<IdentifierHash>& decoded
         }
 
         // Cluster.
-        CscPrepDataCollection* newCollection = 0;
+        CscPrepDataCollection* newCollection = nullptr;
         for (int measphi = 0; measphi < 2; ++measphi) {
             for (int wlay = 1; wlay < 5; ++wlay) {
                 int idx = 2 * (wlay - 1) + measphi;
                 if (maxstrip[idx]) {
-                    ATH_MSG_DEBUG("*** " << chamber(istation, zsec, phisec) << " sector "
-                                         << m_idHelperSvc->cscIdHelper().sector(colid) << "  " << wlay << "th layer ");
+                    ATH_MSG_DEBUG("*** " << chamber(istation, zsec, phisec) << " sector " << m_idHelperSvc->cscIdHelper().sector(colid)
+                                         << "  " << wlay << "th layer ");
                     make_clusters(measphi, strips[idx], newCollection);
                 }
             }
@@ -371,9 +344,7 @@ CscThresholdClusterBuilderTool::getClusters(std::vector<IdentifierHash>& decoded
 }
 //******************************************************************************
 
-StatusCode
-CscThresholdClusterBuilderTool::finalize()
-{
+StatusCode CscThresholdClusterBuilderTool::finalize() {
     ATH_MSG_VERBOSE("Finalizing " << name());
     return StatusCode::SUCCESS;
 }
@@ -390,11 +361,8 @@ CscThresholdClusterBuilderTool::finalize()
 // NOTE: vector<CscStripPrepData*> strips is filled up with full strips (48/192)
 // some of them have null pointer. Useful to find adjacent strip CscStripPrepData...
 
-int
-CscThresholdClusterBuilderTool::make_clusters(bool measphi, const vector<const CscStripPrepData*>& strips,
-                                              CscPrepDataCollection*& newCollection)
-{
-
+int CscThresholdClusterBuilderTool::make_clusters(bool measphi, const vector<const CscStripPrepData*>& strips,
+                                                  CscPrepDataCollection*& newCollection) {
     // Loop over channels.
     unsigned int maxstrip = strips.size();
 
@@ -407,28 +375,27 @@ CscThresholdClusterBuilderTool::make_clusters(bool measphi, const vector<const C
     // Also set flag indicating if this strip has pointer and charge is above threshold(active)
     /////////////////
     ICscClusterFitter::StripFitList allStripfits;
-    std::vector<bool>               astrip;  // check active strip
-    std::vector<bool>               bstrip;  // check bad strip
-    IdentifierHash                  cscHashId;
+    std::vector<bool> astrip;  // check active strip
+    std::vector<bool> bstrip;  // check bad strip
+    IdentifierHash cscHashId;
 
     // Always [0, 191] or [0, 47]
     for (unsigned int istrip = 0; istrip < strips.size(); ++istrip) {
-        const CscStripPrepData*     pstrip = strips[istrip];
+        const CscStripPrepData* pstrip = strips[istrip];
         ICscClusterFitter::StripFit res;
-        bool                        active       = false;
-        bool                        isBadChannel = false;
+        bool active = false;
+        bool isBadChannel = false;
         if (pstrip) {
             if (!newCollection) {
                 Identifier elementId = m_idHelperSvc->cscIdHelper().elementID(pstrip->identify());
-                cscHashId            = pstrip->collectionHash();
-                newCollection        = new CscPrepDataCollection(cscHashId);
+                cscHashId = pstrip->collectionHash();
+                newCollection = new CscPrepDataCollection(cscHashId);
                 newCollection->setIdentifier(elementId);
             }
             res = m_pstrip_fitter->fit(*pstrip);
 
-
             IdentifierHash stripHash;
-            Identifier     stripId = pstrip->identify();
+            Identifier stripId = pstrip->identify();
             if (m_idHelperSvc->cscIdHelper().get_channel_hash(stripId, stripHash)) {
                 ATH_MSG_WARNING("Unable to get CSC striphash id "
                                 << " the identifier is ");
@@ -453,8 +420,8 @@ CscThresholdClusterBuilderTool::make_clusters(bool measphi, const vector<const C
             if (msgLvl(MSG::DEBUG)) {
                 // Log message.
                 ostringstream strlog;
-                strlog << "      Strip " << setw(3) << istrip + 1 << ": charge= " << setw(7) << int(res.charge)
-                       << " dcharge= " << setw(7) << int(res.dcharge);
+                strlog << "      Strip " << setw(3) << istrip + 1 << ": charge= " << setw(7) << int(res.charge) << " dcharge= " << setw(7)
+                       << int(res.dcharge);
                 if (std::fabs(res.time) < 1e8)
                     strlog << " time=" << setw(3) << int(res.time + 0.5);
                 else
@@ -486,7 +453,7 @@ CscThresholdClusterBuilderTool::make_clusters(bool measphi, const vector<const C
 
     // 1. identify strips to recover
     std::vector<bool> rstrip;  // check recover strip
-    bool              IsAnyStripRecovered = false;
+    bool IsAnyStripRecovered = false;
     for (unsigned int istrip = 0; istrip < strips.size(); ++istrip) {
         bool adjacentActive = false;
         if (bstrip[istrip]) {
@@ -498,11 +465,9 @@ CscThresholdClusterBuilderTool::make_clusters(bool measphi, const vector<const C
     }
 
     // 2. make it active if strip to recover is not active
-    if (IsAnyStripRecovered)
-    {  // This loop is needed if there is any bad strip recovered because of adjacent active strip
+    if (IsAnyStripRecovered) {  // This loop is needed if there is any bad strip recovered because of adjacent active strip
 
         if (msgLvl(MSG::DEBUG)) {
-
             ostringstream checklog1;
             ostringstream checklog2;
 
@@ -536,17 +501,17 @@ CscThresholdClusterBuilderTool::make_clusters(bool measphi, const vector<const C
     vector<unsigned int> nstrips;
 
     // Loop over strips and create clusters.
-    int  nstrip      = 0;
-    int  first_strip = 0;  // First strip in the cluster.
-    bool incluster   = false;
+    int nstrip = 0;
+    int first_strip = 0;  // First strip in the cluster.
+    bool incluster = false;
     for (unsigned int istrip = 0; istrip < strips.size(); ++istrip) {
         // If the current strip is not active, skip it.
         if (!astrip[istrip]) continue;
         assert(strips[istrip] != 0);  //  CscStripPrepData* pstrip = strips[istrip];
 
         if (!incluster) {
-            incluster   = true;
-            nstrip      = 0;
+            incluster = true;
+            nstrip = 0;
             first_strip = istrip;
         }
         ++nstrip;
@@ -557,30 +522,27 @@ CscThresholdClusterBuilderTool::make_clusters(bool measphi, const vector<const C
 
         // Recover narrow cluster
         if (!measphi && nstrip < 3) {
-            bool collectLeftStrip  = false;
+            bool collectLeftStrip = false;
             bool collectRightStrip = false;
 
             if (nstrip == 1) {
                 if (int(istrip) >= nstrip     // left adjacent strip should be inside of CSC chamber >0
                     && istrip + 1 < maxstrip  // the other side strip should be available < 192
-                    && (allStripfits[istrip - 1].charge > 0.1
-                        && allStripfits[istrip + 1].charge > 0.1)  // charge should be positive
-                    && strips[istrip - 1] && strips[istrip + 1])
-                {  // both adjacent strip identifier should exist
-                    collectLeftStrip  = true;
+                    && (allStripfits[istrip - 1].charge > 0.1 && allStripfits[istrip + 1].charge > 0.1)  // charge should be positive
+                    && strips[istrip - 1] && strips[istrip + 1]) {  // both adjacent strip identifier should exist
+                    collectLeftStrip = true;
                     collectRightStrip = true;
                 }
             } else if (nstrip == 2) {
                 if (allStripfits[istrip - 1].charge > allStripfits[istrip].charge) {  // In case of left strip not fired
                     if (int(istrip) >= nstrip                                         // nstrip 2
                         && allStripfits[istrip - 2].charge > 0.1                      // charge should be positive
-                        && strips[istrip - 2])  // left strip Identifier should exist
+                        && strips[istrip - 2])                                        // left strip Identifier should exist
                         collectLeftStrip = true;
                 } else {  // In case of right strip not fired
-                    if (istrip + 1 < maxstrip
-                        && allStripfits[istrip + 1].charge
-                               > 0.1            // charge should be positive if 0, then 0.341E-134 will enter
-                        && strips[istrip + 1])  // right strip Identifier should exist
+                    if (istrip + 1 < maxstrip &&
+                        allStripfits[istrip + 1].charge > 0.1  // charge should be positive if 0, then 0.341E-134 will enter
+                        && strips[istrip + 1])                 // right strip Identifier should exist
                         collectRightStrip = true;
                 }
             }
@@ -589,22 +551,15 @@ CscThresholdClusterBuilderTool::make_clusters(bool measphi, const vector<const C
                 first_strip = first_strip - 1;
                 nstrip += 1;
             }
-            if (collectRightStrip) {
-                nstrip += 1;
-            }
-
+            if (collectRightStrip) { nstrip += 1; }
 
             if (msgLvl(MSG::DEBUG)) {
                 // Log message.
                 ostringstream narrowlog;
-                narrowlog << "  ** narrow Clusters   " << first_strip + 1 << "  " << nstrip << "  L:R  "
-                          << collectLeftStrip << " " << collectRightStrip;
-                for (int i = 0; i < nstrip; ++i) {
-                    narrowlog << "  " << allStripfits[first_strip + i].charge;
-                }
-                for (int i = 0; i < nstrip; ++i) {
-                    narrowlog << "  " << strips[first_strip + i];
-                }
+                narrowlog << "  ** narrow Clusters   " << first_strip + 1 << "  " << nstrip << "  L:R  " << collectLeftStrip << " "
+                          << collectRightStrip;
+                for (int i = 0; i < nstrip; ++i) { narrowlog << "  " << allStripfits[first_strip + i].charge; }
+                for (int i = 0; i < nstrip; ++i) { narrowlog << "  " << strips[first_strip + i]; }
                 ATH_MSG_DEBUG(narrowlog.str());
             }
         }  // Only for eta plane nstrip <3
@@ -615,7 +570,6 @@ CscThresholdClusterBuilderTool::make_clusters(bool measphi, const vector<const C
         // Reset incluster.
         incluster = false;
     }
-
 
     //////////////////////////////////////////////////////
     // Phase IV:
@@ -641,8 +595,7 @@ CscThresholdClusterBuilderTool::make_clusters(bool measphi, const vector<const C
                     unsigned int newStrip0 = strip0s[icl - 1];
                     unsigned int newNstrip = nstrips[icl - 1] + nstrip;
 
-                    ATH_MSG_DEBUG("   " << icl << "   ** narrow Cluster merger Type I" << newStrip0 << "  "
-                                        << newNstrip);
+                    ATH_MSG_DEBUG("   " << icl << "   ** narrow Cluster merger Type I" << newStrip0 << "  " << newNstrip);
 
                     newStrip0s[icl - 1 - nMerged] = newStrip0;
                     newNstrips[icl - 1 - nMerged] = newNstrip;
@@ -654,8 +607,7 @@ CscThresholdClusterBuilderTool::make_clusters(bool measphi, const vector<const C
                     unsigned int newStrip0 = strip0;
                     unsigned int newNstrip = nstrip + nstrips[icl + 1];
 
-                    ATH_MSG_DEBUG("   " << icl << "   ** narrow Cluster merger Type II" << newStrip0 << "  "
-                                        << newNstrip);
+                    ATH_MSG_DEBUG("   " << icl << "   ** narrow Cluster merger Type II" << newStrip0 << "  " << newNstrip);
 
                     newStrip0s.push_back(newStrip0);
                     newNstrips.push_back(newNstrip);
@@ -673,16 +625,14 @@ CscThresholdClusterBuilderTool::make_clusters(bool measphi, const vector<const C
     }  // for
 
     if (strip0s.size() != newStrip0s.size()) {
-        ATH_MSG_DEBUG(" Phase II -> III Merged " << strip0s.size() << ":" << nstrips.size() << "  " << newStrip0s.size()
-                                                 << ":" << newNstrips.size());
+        ATH_MSG_DEBUG(" Phase II -> III Merged " << strip0s.size() << ":" << nstrips.size() << "  " << newStrip0s.size() << ":"
+                                                 << newNstrips.size());
         for (unsigned int icl = 0; icl < nstrips.size(); ++icl)
-            ATH_MSG_DEBUG("   *** " << icl << "   [" << strip0s[icl] << "," << strip0s[icl] + nstrips[icl] - 1 << "]  "
-                                    << nstrips[icl]);
+            ATH_MSG_DEBUG("   *** " << icl << "   [" << strip0s[icl] << "," << strip0s[icl] + nstrips[icl] - 1 << "]  " << nstrips[icl]);
         for (unsigned int icl = 0; icl < newNstrips.size(); ++icl)
-            ATH_MSG_DEBUG("   ****** " << icl << "   [" << newStrip0s[icl] << ","
-                                       << newStrip0s[icl] + newNstrips[icl] - 1 << "]  " << newNstrips[icl]);
+            ATH_MSG_DEBUG("   ****** " << icl << "   [" << newStrip0s[icl] << "," << newStrip0s[icl] + newNstrips[icl] - 1 << "]  "
+                                       << newNstrips[icl]);
     }
-
 
     //////////////////////////////////////////////////////
     // Phase V:
@@ -690,7 +640,7 @@ CscThresholdClusterBuilderTool::make_clusters(bool measphi, const vector<const C
     // Using strip0 and nstrip fill up collection
     /////////////////////////////////////////////////////////
 
-    ICscClusterFitter::StripFitList      sfits;
+    ICscClusterFitter::StripFitList sfits;
     std::vector<const CscStripPrepData*> clusterStrips;
     clusterStrips.reserve(50);
     std::vector<Identifier> prd_digit_ids;
@@ -703,14 +653,13 @@ CscThresholdClusterBuilderTool::make_clusters(bool measphi, const vector<const C
         unsigned int nstrip = newNstrips[icl];  // only used here
         unsigned int strip0 = newStrip0s[icl];  // only used here
 
-
         sfits.clear();
         clusterStrips.clear();
         prd_digit_ids.clear();
 
         for (unsigned int ist = strip0; ist < strip0 + nstrip; ++ist) {
-            const CscStripPrepData*     pstrip = strips[ist];
-            ICscClusterFitter::StripFit sfit   = allStripfits[ist];
+            const CscStripPrepData* pstrip = strips[ist];
+            const ICscClusterFitter::StripFit& sfit = allStripfits[ist];
 
             sfits.push_back(sfit);
             clusterStrips.push_back(pstrip);
@@ -724,10 +673,10 @@ CscThresholdClusterBuilderTool::make_clusters(bool measphi, const vector<const C
             /// Make every cluster have three strips ///////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////
 
-            bool leftToFill  = false;
+            bool leftToFill = false;
             bool rightToFill = false;
             if (nstrip == 1) {
-                leftToFill  = true;
+                leftToFill = true;
                 rightToFill = true;
             } else {
                 if (sfits[0].charge > sfits[1].charge) {
@@ -735,7 +684,7 @@ CscThresholdClusterBuilderTool::make_clusters(bool measphi, const vector<const C
                 } else if (sfits[0].charge < sfits[1].charge) {
                     rightToFill = true;
                 } else {
-                    ATH_MSG_WARNING("  It should be CHECKED!!! ");
+                    ATH_MSG_DEBUG("  It should be CHECKED!!! ");
                     if (strip0 > 0) {
                         if (strips[strip0 - 1]) {
                             leftToFill = true;
@@ -748,15 +697,12 @@ CscThresholdClusterBuilderTool::make_clusters(bool measphi, const vector<const C
                 }
             }
 
-            ATH_MSG_VERBOSE(" strip0  nstrip  filling left or right " << strip0 << "  " << nstrip << " " << leftToFill
-                                                                      << " " << rightToFill);
+            ATH_MSG_VERBOSE(" strip0  nstrip  filling left or right " << strip0 << "  " << nstrip << " " << leftToFill << " "
+                                                                      << rightToFill);
             ATH_MSG_VERBOSE("  sfits[0] " << sfits[0].charge);
             if (nstrip == 2) ATH_MSG_VERBOSE("  sfits[1] " << sfits[1].charge);
 
-            for (unsigned int i = 0; i < allStripfits.size(); ++i) {
-                ATH_MSG_VERBOSE("index " << i << "  " << allStripfits[i].charge);
-            }
-
+            for (unsigned int i = 0; i < allStripfits.size(); ++i) { ATH_MSG_VERBOSE("index " << i << "  " << allStripfits[i].charge); }
 
             if (leftToFill) {
                 //        ATH_MSG_DEBUG( " Left to fill " << allStripfits[strip0-1].charge);
@@ -764,13 +710,10 @@ CscThresholdClusterBuilderTool::make_clusters(bool measphi, const vector<const C
                 if (strip0 == 0) {
                     fillTheOtherSide = true;
                 } else {
-                    if (strips[strip0 - 1] == NULL) fillTheOtherSide = true;
+                    if (strips[strip0 - 1] == nullptr) fillTheOtherSide = true;
                 }
 
-                if (strip0 + nstrip >= allStripfits.size()) {
-                    fillTheOtherSide = false;
-                }
-
+                if (strip0 + nstrip >= allStripfits.size()) { fillTheOtherSide = false; }
 
                 if (!fillTheOtherSide) {
                     if (strips[strip0 - 1]) {
@@ -792,17 +735,14 @@ CscThresholdClusterBuilderTool::make_clusters(bool measphi, const vector<const C
             }
 
             if (rightToFill) {
-
                 bool fillTheOtherSide = false;
                 if (strip0 + nstrip >= allStripfits.size()) {
                     fillTheOtherSide = true;
                 } else {
-                    if (strips[strip0 + nstrip] == NULL) fillTheOtherSide = true;
+                    if (strips[strip0 + nstrip] == nullptr) fillTheOtherSide = true;
                 }
 
-                if (strip0 == 0) {
-                    fillTheOtherSide = false;
-                }
+                if (strip0 == 0) { fillTheOtherSide = false; }
 
                 if (!fillTheOtherSide) {
                     if (strips[strip0 + nstrip]) {
@@ -824,23 +764,21 @@ CscThresholdClusterBuilderTool::make_clusters(bool measphi, const vector<const C
         }
         ///////////////////////////////////////////////////////////////////////////
 
-
-        int                                    fitresult = 99;
+        int fitresult = 99;
         std::vector<ICscClusterFitter::Result> results;
 
         // Precision fit.
         if (!measphi) {
-            results   = m_pfitter_prec->fit(sfits);
+            results = m_pfitter_prec->fit(sfits);
             fitresult = results[0].fitStatus;
             ATH_MSG_VERBOSE("        Performing precision fit " << m_pfitter_prec << " result return=" << fitresult);
 
             // in case of multipeak cluster
             if (fitresult == 6) {
-                results   = m_pfitter_split->fit(sfits);
+                results = m_pfitter_split->fit(sfits);
                 fitresult = results[0].fitStatus;
                 for (unsigned int i = 0; i < results.size(); ++i)
-                    ATH_MSG_VERBOSE("    Performing split fit with " << m_pfitter_split
-                                                                     << " result return=" << results[i].fitStatus);
+                    ATH_MSG_VERBOSE("    Performing split fit with " << m_pfitter_split << " result return=" << results[i].fitStatus);
             }
         }
 
@@ -848,16 +786,16 @@ CscThresholdClusterBuilderTool::make_clusters(bool measphi, const vector<const C
         // Default fit for phi and eta failed
         if (measphi || precisionFitFailed) {
             ICscClusterFitter::Result res;
-            CscClusterStatus          oldclustatus;
+            CscClusterStatus oldclustatus;
             if (!measphi) {
-                res          = results[0];
+                res = results[0];
                 oldclustatus = res.clusterStatus;
             } else {
                 oldclustatus = Muon::CscStatusSimple;
             }
             results = m_pfitter_def->fit(sfits);
             if (!results.empty()) {
-                res       = results[0];
+                res = results[0];
                 fitresult = results[0].fitStatus;
                 if (msgLvl(MSG::VERBOSE)) {
                     ostringstream deflog;
@@ -885,13 +823,13 @@ CscThresholdClusterBuilderTool::make_clusters(bool measphi, const vector<const C
         ///////////////
         unsigned int nresults = results.size();
         for (unsigned int ire = 0; ire < nresults; ++ire) {
-            CscClusterStatus    clustatus      = results[ire].clusterStatus;
-            Muon::CscTimeStatus timeStatus     = results[ire].timeStatus;
-            double              pos            = results[ire].position;
-            double              err            = results[ire].dposition;
-            unsigned int        id_strip       = results[ire].strip;  // return peak strip index (unsigned integer)
-            double              cluster_charge = results[ire].charge;
-            double              cluster_time   = results[ire].time;
+            CscClusterStatus clustatus = results[ire].clusterStatus;
+            Muon::CscTimeStatus timeStatus = results[ire].timeStatus;
+            double pos = results[ire].position;
+            double err = results[ire].dposition;
+            unsigned int id_strip = results[ire].strip;  // return peak strip index (unsigned integer)
+            double cluster_charge = results[ire].charge;
+            double cluster_time = results[ire].time;
             if (clustatus == Muon::CscStatusUndefined) ATH_MSG_DEBUG("      Csc Cluster Status is not defined.");
 
             if (id_strip >= sfits.size()) {
@@ -899,7 +837,7 @@ CscThresholdClusterBuilderTool::make_clusters(bool measphi, const vector<const C
                 continue;
             }
             // Fetch the strip used to identify this cluster.
-            const CscStripPrepData* pstrip_id = 0;
+            const CscStripPrepData* pstrip_id = nullptr;
             if (id_strip < clusterStrips.size()) pstrip_id = clusterStrips[id_strip];
             if (!pstrip_id) {
                 ATH_MSG_WARNING("        Fit ID check failed: ");
@@ -907,14 +845,14 @@ CscThresholdClusterBuilderTool::make_clusters(bool measphi, const vector<const C
             }
 
             // Create ATLAS CSC cluster.
-            Identifier     cluster_id   = pstrip_id->identify();
+            Identifier cluster_id = pstrip_id->identify();
             IdentifierHash cluster_hash = pstrip_id->collectionHash();
-            int            zsec         = m_idHelperSvc->cscIdHelper().stationEta(cluster_id);
-            int            wlay         = m_idHelperSvc->cscIdHelper().wireLayer(cluster_id);
+            int zsec = m_idHelperSvc->cscIdHelper().stationEta(cluster_id);
+            int wlay = m_idHelperSvc->cscIdHelper().wireLayer(cluster_id);
             // This local position is in the muon (not tracking) coordinate system.
             // retrieve MuonDetectorManager from the conditions store
             SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
-            const MuonGM::MuonDetectorManager*              MuonDetMgr = DetectorManagerHandle.cptr();
+            const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr();
             if (MuonDetMgr == nullptr) {
                 ATH_MSG_ERROR("Null pointer to the MuonDetectorManager conditions object");
                 return 0;
@@ -923,23 +861,19 @@ CscThresholdClusterBuilderTool::make_clusters(bool measphi, const vector<const C
             // Amg::Vector3D local_pos = pro->localClusterPos(zsec, wlay, measphi, pos);
             Amg::Vector3D localTrk_pos = pro->nominalLocalClusterPos(zsec, wlay, measphi, pos);
 
-            Amg::MatrixX* cov = new Amg::MatrixX(1, 1);
-            (*cov)(0, 0)      = err * err;
-            Amg::Vector2D plpos(measphi ? localTrk_pos.y() : localTrk_pos.z(),
-                                measphi ? localTrk_pos.z() : localTrk_pos.y());
+            auto  cov = Amg::MatrixX(1, 1);
+            (cov)(0, 0) = err * err;
+            Amg::Vector2D plpos(measphi ? localTrk_pos.y() : localTrk_pos.z(), measphi ? localTrk_pos.z() : localTrk_pos.y());
             if (msgLvl(MSG::DEBUG)) {
-
                 ATH_MSG_DEBUG("        Cluster parameters: " << nresults);
-                ATH_MSG_DEBUG("                ID strip: " << first_strip + id_strip << "(" << first_strip << ":"
-                                                           << id_strip << ")");
-                ATH_MSG_DEBUG("          local position: " << plpos.x() << " " << plpos.y()
-                                                           << " error: " << Amg::toString(*cov));
+                ATH_MSG_DEBUG("                ID strip: " << first_strip + id_strip << "(" << first_strip << ":" << id_strip << ")");
+                ATH_MSG_DEBUG("          local position: " << plpos.x() << " " << plpos.y() << " error: " << Amg::toString(cov));
                 ATH_MSG_DEBUG("                  charge: " << cluster_charge);
                 ATH_MSG_DEBUG("                    time: " << cluster_time);
                 ATH_MSG_DEBUG("                  status: " << Muon::toString(clustatus));
             }
-            unsigned int            fstrip = results[ire].fstrip;
-            unsigned int            lstrip = results[ire].lstrip;
+            unsigned int fstrip = results[ire].fstrip;
+            unsigned int lstrip = results[ire].lstrip;
             std::vector<Identifier> prd_digit_ids_submit;
             for (unsigned int ids_index = fstrip; ids_index < lstrip + 1; ++ids_index) {
                 if (ids_index >= prd_digit_ids.size()) {
@@ -952,12 +886,20 @@ CscThresholdClusterBuilderTool::make_clusters(bool measphi, const vector<const C
             ATH_MSG_DEBUG("                    size: " << nstrip << " " << sfits.size());
             ATH_MSG_DEBUG("   all              size: " << strips.size() << " " << allStripfits.size());
 
-
             //      allStripfits.push_back(res);
 
-            CscPrepData* pclus = new CscPrepData(cluster_id, cluster_hash, plpos, prd_digit_ids_submit, cov, pro,
-                                                 int(cluster_charge + 0.5), cluster_time, clustatus, timeStatus);
-            pclus->setHashAndIndex(newCollection->identifyHash(), newCollection->size());
+            CscPrepData* pclus = new CscPrepData(cluster_id,
+                                                 cluster_hash,
+                                                 plpos,
+                                                 prd_digit_ids_submit,
+                                                 cov,
+                                                 pro,
+                                                 int(cluster_charge + 0.5),
+                                                 cluster_time,
+                                                 clustatus,
+                                                 timeStatus);
+            pclus->setHashAndIndex(newCollection->identifyHash(),
+                                   newCollection->size());
 
             newCollection->push_back(pclus);
         }

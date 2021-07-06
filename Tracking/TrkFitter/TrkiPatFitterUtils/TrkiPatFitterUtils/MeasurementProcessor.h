@@ -61,7 +61,7 @@ private:
     FitMeasurement*			m_caloEnergyMeasurement;
     double				m_cosPhi0;
     double				m_cosTheta0;
-    double				m_delta[ExtrapolationTypes];
+    double				m_delta[ExtrapolationTypes]{};
     double				m_derivQOverP0;
     double				m_derivQOverP1;
     double				m_energyResidual;
@@ -76,7 +76,7 @@ private:
     bool				m_numericDerivatives;
     FitParameters*			m_parameters;
     bool				m_phiInstability;
-    double				m_qOverP[ExtrapolationTypes];
+    double				m_qOverP[ExtrapolationTypes]{};
     double				m_qOverPbeforeCalo;
     double				m_qOverPafterCalo;
     ToolHandle<IIntersector>&		m_rungeKuttaIntersector;

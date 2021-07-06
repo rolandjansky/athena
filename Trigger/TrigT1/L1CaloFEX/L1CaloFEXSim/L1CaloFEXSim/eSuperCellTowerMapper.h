@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+    Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -19,6 +19,7 @@
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "L1CaloFEXSim/eTowerContainer.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
+#include "L1CaloFEXSim/eFEXSuperCellTowerIdProvider.h"
 
 class CaloIdManager;
 
@@ -40,9 +41,9 @@ class eSuperCellTowerMapper: public AthAlgTool, virtual public IeSuperCellTowerM
   virtual void reset() override;
 
  private:
-
   SG::ReadHandleKey<CaloCellContainer> m_scellsCollectionSGKey {this, "SCell", "SCell", "SCell"};
   SG::ReadHandleKey<xAOD::TriggerTowerContainer> m_triggerTowerCollectionSGKey {this, "xODTriggerTowers", "xAODTriggerTowers", "xAODTriggerTowers"};
+  ToolHandle<IeFEXSuperCellTowerIdProvider> m_eFEXSuperCellTowerIdProviderTool {this, "eFEXSuperCellTowerIdProviderTool", "LVL1::eFEXSuperCellTowerIdProvider", "Tool that provides tower-FOGA mapping"};
 
   virtual int FindAndConnectTower(/*eTowerContainer**/std::unique_ptr<eTowerContainer> & my_eTowerContainerRaw,CaloSampling::CaloSample sample,const int region, int layer, const int pos_neg, const int eta_index, const int phi_index, Identifier ID, float et, int prov, bool doPrint) override;
   virtual void ConnectSuperCellToTower(/*eTowerContainer**/std::unique_ptr<eTowerContainer> & my_eTowerContainerRaw, int iETower, Identifier ID, int iCell, float et, int layer, bool doenergysplit) override;

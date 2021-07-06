@@ -39,24 +39,18 @@ def LArHVScaleCfg(configFlags):
                                          HVPAthologyKey="LArHVPathology")
         result.addCondAlgo(hvpath)
 
-        LArHVCondAlg=CompFactory.LArHVCondAlg
-        if configFlags.GeoModel.Run != "RUN1":
-           hvcond = LArHVCondAlg(HVPathologies="LArHVPathology",OutputHVData="LArHVData")
-        else:   
-           hvcond = LArHVCondAlg(HVPathologies="LArHVPathology",OutputHVData="LArHVData",doR=False)
-        result.addCondAlgo(hvcond)
-
         from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
         result.merge(LArElecCalibDbCfg(configFlags,["HVScaleCorr",]))
 
-        LArHVScaleCorrCondAlg=CompFactory.LArHVScaleCorrCondAlg
-        hvscalecorrkey = "LArHVScaleCorrRecomputed"
-        if configFlags.Input.isMC:
-            hvscalecorrkey = "LArHVScaleCorr"
+        LArHVCondAlg=CompFactory.LArHVCondAlg
+        if configFlags.GeoModel.Run != "RUN1":
+           hvcond = LArHVCondAlg(HVPathologies="LArHVPathology")
+        else:   
+           hvcond = LArHVCondAlg(HVPathologies="LArHVPathology",doR=False)
 
-        hvscale = LArHVScaleCorrCondAlg(keyHVdata="LArHVData",keyOutputCorr=hvscalecorrkey)
-        hvscale.UndoOnlineHVCorr=True
-        result.addCondAlgo(hvscale)
+        hvcond.UndoOnlineHVCorr=True
+        hvcond.keyOutputCorr= "LArHVScaleCorrRecomputed"
+        result.addCondAlgo(hvcond)
 
     return result
 

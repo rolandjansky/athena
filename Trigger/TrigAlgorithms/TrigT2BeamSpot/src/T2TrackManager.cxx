@@ -30,8 +30,8 @@ using namespace PESA;
 
 
 // The meat of the class, return a vector of split clusters
-std::vector< ConstDataVector<TrackCollection> >
-T2TrackManager::split( const TrackCollection& cluster, const EventContext& ctx ) const
+std::vector<T2TrackManager::TrackVector>
+T2TrackManager::split( const TrackVector& cluster, const EventContext& ctx ) const
 {
   int key = ctx.eventID().event_number() %2 -1;
   const int nEntries = cluster.size();
@@ -39,17 +39,13 @@ T2TrackManager::split( const TrackCollection& cluster, const EventContext& ctx )
   //std::cout << "Reserve space" << std::endl;
 
   // Set up the output, reserve space, init collections
-  ConstDataVector<TrackCollection> splitColl;
-  splitColl.clear( SG::VIEW_ELEMENTS );
-  splitColl.reserve( nEntries / m_nSplit );
-  std::vector< ConstDataVector<TrackCollection> > trackCollections( m_nSplit, splitColl );
+  std::vector<TrackVector> trackCollections(m_nSplit);
 
   //if (m_alg == Pt)
   //sort(holder.begin(), holder.end(), ptSort);
 
   // Iterate over all the tracks in the cluster
-  for ( TrackCollection::const_iterator c_itr = cluster.begin();
-        c_itr != cluster.end(); ++c_itr ) {
+  for (auto&& track: cluster) {
     // By default (if the splitting algorithm doesn't exist) store
     // tracks in the 1st collection
     int nPos = 0;
@@ -59,7 +55,7 @@ T2TrackManager::split( const TrackCollection& cluster, const EventContext& ctx )
       nPos = orderedSplit(key, nEntries);
 
     // Add the track to the appropriate collection
-    trackCollections[nPos].push_back(*c_itr);
+    trackCollections[nPos].push_back(track);
   }
 
   //  if (!m_doCluster) {

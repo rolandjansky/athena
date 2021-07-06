@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -420,7 +420,7 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
      Int_t MuJPsi_N = 0;
      ATH_MSG_DEBUG("Start muon selection");
 
-     for (const auto& muonItr : *muons) {
+     for (const auto muonItr : *muons) {
          Float_t minptCutJPsi(1.0*GeV);
 	 auto muTrk = (muonItr)->primaryTrackParticle();
 	 float d0sig;

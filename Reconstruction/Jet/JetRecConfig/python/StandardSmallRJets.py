@@ -1,8 +1,7 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from JetRecConfig.StandardJetConstits import jetconstitdic as cst
+from JetRecConfig.StandardJetConstits import stdConstitDic as cst
 from .JetDefinition import  JetDefinition
-from xAODBase.xAODType import xAODType
 
 
 
@@ -26,10 +25,12 @@ flavourghosts = [ "BHadronsInitial", "BHadronsFinal", "BQuarksFinal",
 # Modifiers for the standard small R jets 
 # *********************************************************
 # (use tuples rather than lists to prevent accidental modification)
-standardrecomods = (
+calibmods = (
     "ConstitFourMom",   "CaloEnergies",
     "Calib:T0:mc",
-    "Sort","Filter:10000",
+    "Sort",
+    )
+standardmods = (
     "LArHVCorr", "Width",
      "CaloQuality", "TrackMoments","TrackSumMoments",
     "JVF","JVT","OriginSetPV", "Charge",
@@ -47,7 +48,7 @@ pflowmods        = ()
 
 AntiKt4EMPFlow = JetDefinition("AntiKt",0.4,cst.EMPFlow,
                                ghostdefs = standardghosts+flavourghosts , 
-                               modifiers = standardrecomods+truthmods, 
+                               modifiers = calibmods+("Filter:10000",)+standardmods, 
                                standardRecoMode = True,                               
                                lock = True
 )
@@ -57,29 +58,30 @@ AntiKt4EMPFlow = JetDefinition("AntiKt",0.4,cst.EMPFlow,
 
 AntiKt4LCTopo = JetDefinition("AntiKt",0.4,cst.LCTopoOrigin,
                               ghostdefs = standardghosts+flavourghosts, 
-                              modifiers = standardrecomods+truthmods+clustermods,
+                              modifiers = calibmods+("Filter:15000",)+standardmods+clustermods,
                               standardRecoMode = True,
                               lock = True,
 )
 
 
+
 AntiKt4EMTopo = JetDefinition("AntiKt",0.4,cst.EMTopoOrigin,
                               ghostdefs = standardghosts+flavourghosts, 
-                              modifiers = standardrecomods+truthmods+clustermods,
+                              modifiers = calibmods+("Filter:15000",)+standardmods+clustermods,
                               standardRecoMode = True,
                               lock = True,
 )
 
 AntiKt4Truth = JetDefinition("AntiKt",0.4, cst.Truth,
                              ghostdefs = flavourghosts,
-                             modifiers = ("Sort","Filter:10000", "Width")+truthmods,
+                             modifiers = ("Sort", "Width")+truthmods,
                              standardRecoMode = True,
                              lock = True,
 )
 
 AntiKt4TruthWZ = JetDefinition("AntiKt",0.4, cst.TruthWZ,
                                ghostdefs = flavourghosts,
-                               modifiers = ("Sort","Filter:10000", "Width")+truthmods,
+                               modifiers = ("Sort", "Width")+truthmods,
                                standardRecoMode = True,
                                lock = True,
 )
@@ -98,9 +100,9 @@ def StandardSmallRJetCfg(configFlags):
         AntiKt4Truth,
         ]
 
-    compacc = JetRecCfg( standarSmallRList[0], configFlags)
+    compacc = JetRecCfg( configFlags, standarSmallRList[0], )
     for jetdef in standarSmallRList[1:]:
-        compacc.merge( JetRecCfg(jetdef, configFlags) )
+        compacc.merge( JetRecCfg( configFlags, jetdef) )
 
     return compacc
         

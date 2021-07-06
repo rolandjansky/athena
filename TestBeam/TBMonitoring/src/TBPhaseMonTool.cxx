@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -16,6 +16,7 @@
 #include "AthenaMonitoring/MonitorToolBase.h"
 
 #include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ReadCondHandle.h"
 
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "CaloEvent/CaloCell.h"
@@ -26,7 +27,6 @@
 // #include "CaloUtils/CaloSamplingHelper.h"
 
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingLegacyService.h"
 
 #include "TBEvent/TBTDCRaw.h"
 #include "TBEvent/TBTDCRawCont.h"
@@ -54,7 +54,6 @@ TBPhaseMonTool::TBPhaseMonTool(const std::string& type,
 			       const std::string& name,
 			       const IInterface* parent)
   : MonitorToolBase(type,name,parent)
-    , m_cablingService("LArCablingLegacyService", "TBPhaseMonTool")
     , m_onlineHelper(nullptr)
     , m_tdcContainerName("TDCRawCont")
     , m_caloCellName("AllCalo")
@@ -120,7 +119,6 @@ StatusCode TBPhaseMonTool::initialize() {
   MsgStream report(msgSvc(),name());
   report << MSG::DEBUG << "TBPhaseMonTool::initialize()" << endmsg;
 
-  ATH_CHECK( m_cablingService.retrieve() );
   ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
 
   // 
@@ -141,20 +139,19 @@ StatusCode TBPhaseMonTool::initialize() {
 
   // get calorimeter samplings ids for the requested samplings
   report << MSG::INFO << "Included calorimeter samplings: ";
-  for (std::vector<std::string>::const_iterator sampling = m_samplingNames.begin(); sampling != m_samplingNames.end(); sampling++) {
+  for (const std::string& sampling : m_samplingNames) {
     //    CaloSampling::CaloSample idSamp = CaloSamplingHelper::getSamplingId(*sampling);
-    CaloSampling::CaloSample idSamp = m_samplingFromNameLookup[*sampling];
+    CaloSampling::CaloSample idSamp = m_samplingFromNameLookup[sampling];
     if (idSamp != CaloSampling::Unknown) {
       m_samplingIndices.push_back(idSamp);
-      report << MSG::INFO << "\042" << *sampling
+      report << MSG::INFO << "\042" << sampling
              << "\042 ";
     }
   }
   report << MSG::INFO << endmsg;
 
   // get an idCalo keyed map of vectors of idSample for the requested samplings
-  for (std::vector<CaloSampling::CaloSample>::iterator sample = m_samplingIndices.begin(); sample != m_samplingIndices.end(); sample++) {
-    CaloSampling::CaloSample idSample = *sample;
+  for (CaloSampling::CaloSample idSample : m_samplingIndices) {
     // find the idCalo 
     CaloCell_ID::SUBCALO idCalo = m_caloLookup[idSample];
     // build the vector of idSample
@@ -164,23 +161,22 @@ StatusCode TBPhaseMonTool::initialize() {
   }
   // printout
   std::map< CaloCell_ID::SUBCALO, std::vector<CaloSampling::CaloSample> >::iterator it = m_calosAndSamplings.begin();
-  for (; it != m_calosAndSamplings.end(); it++) {
+  for (; it != m_calosAndSamplings.end(); ++it) {
     CaloCell_ID::SUBCALO idCalo = it->first;
     report << MSG::INFO
            << "Included calorimeter : \042"
            << m_caloToNameLookup[idCalo]
            << "\042 samplings:";
-    std::vector<CaloSampling::CaloSample> samplingV = it->second;
-    std::vector<CaloSampling::CaloSample>::iterator sample     = samplingV.begin();
-    std::vector<CaloSampling::CaloSample>::iterator lastSample = samplingV.end();
-    for (; sample != lastSample; sample++) {
+    for (CaloSampling::CaloSample sample : it->second) {
       report << MSG::INFO
              << " \042"
-             << m_samplingToNameLookup[*sample]
+             << m_samplingToNameLookup[sample]
              << "\042";
     }
     report << MSG::INFO << endmsg;
   }
+
+  ATH_CHECK( m_cablingKey.initialize() );
   
   // booking flag
   this->SetBookStatus(false);
@@ -212,7 +208,8 @@ StatusCode TBPhaseMonTool::fillHists() {
 
   const TBPhase* theTBPhase = nullptr;
   ATH_CHECK( evtStore()->retrieve(theTBPhase, m_TBPhaseName) );
-  
+
+  SG::ReadCondHandle<LArOnOffIdMapping> cabling (m_cablingKey);
   
   ////////////////////////
   // First Event Action //
@@ -223,13 +220,13 @@ StatusCode TBPhaseMonTool::fillHists() {
     // find all febID's related to the requested samplings
     // loop over desired calorimeter modules first, more efficient this way
     std::map< CaloCell_ID::SUBCALO, std::vector<CaloSampling::CaloSample> >::iterator it = m_calosAndSamplings.begin();
-    for (; it != m_calosAndSamplings.end(); it++) {
+    for (; it != m_calosAndSamplings.end(); ++it) {
       CaloCell_ID::SUBCALO idCalo = it->first;
       std::vector<CaloSampling::CaloSample> samplingV = it->second;
 
       // loop over the corresponding CaloCell's
       for (CaloCellContainer::const_iterator cell = cellContainer->beginConstCalo(idCalo);
-           cell != cellContainer->endConstCalo(idCalo); cell++) {
+           cell != cellContainer->endConstCalo(idCalo); ++cell) {
 
         // get the corresponding sample
         CaloSampling::CaloSample idSample = (*cell)->caloDDE()->getSampling();
@@ -240,7 +237,7 @@ StatusCode TBPhaseMonTool::fillHists() {
           // here you have the CaloCell with idCalo, idSample, **cell
           // find the hardware ID and the corresponding febID
 
-          HWIdentifier id = m_cablingService->createSignalChannelID((*cell)->ID());
+          HWIdentifier id = cabling->createSignalChannelID((*cell)->ID());
           HWIdentifier febID = m_onlineHelper->feb_Id(id);
 
           // store it if you don't have it already
@@ -251,9 +248,9 @@ StatusCode TBPhaseMonTool::fillHists() {
     }
     // print out
     report << MSG::INFO << "FEB IDs: ";
-    for (std::vector<HWIdentifier>::iterator it_febID = m_febIDs.begin(); it_febID != m_febIDs.end(); it_febID++) {
+    for (HWIdentifier febID : m_febIDs) {
       std::ostringstream os; 
-      os << std::hex << *it_febID;
+      os << std::hex << febID;
       report << MSG::INFO << " \042" << os.str() << "\042";
     }
     report << MSG::INFO << endmsg;
@@ -278,10 +275,7 @@ StatusCode TBPhaseMonTool::fillHists() {
   int tdc1 = 0;
   double underValue = 2.*m_tdcLow - m_tdcHigh;  // always under m_tdcLow
   double overValue  = 2.*m_tdcHigh - m_tdcLow;  // always over m_tdcHigh
-  TBTDCRawCont::const_iterator it_tdc = tdcContainer->begin();
-  TBTDCRawCont::const_iterator it_tdcEnd = tdcContainer->end();
-  for(; it_tdc != it_tdcEnd; it_tdc++) {
-    const TBTDCRaw* tdcRaw = (*it_tdc);
+  for (const TBTDCRaw* tdcRaw : *tdcContainer) {
     std::string tdcName = tdcRaw->getDetectorName();
 
     // look if this is a requested tdc
@@ -333,7 +327,7 @@ StatusCode TBPhaseMonTool::fillHists() {
   // fill energy weighted time stores
   // loop over desired calorimeter modules first, more efficient this way
   std::map< CaloCell_ID::SUBCALO, std::vector<CaloSampling::CaloSample> >::iterator it = m_calosAndSamplings.begin();
-  for (; it != m_calosAndSamplings.end(); it++) {
+  for (; it != m_calosAndSamplings.end(); ++it) {
     CaloCell_ID::SUBCALO idCalo = it->first;
     report << MSG::DEBUG
            << "Looping over CaloCells of calorimeter : \042"
@@ -344,7 +338,7 @@ StatusCode TBPhaseMonTool::fillHists() {
 
     // loop over the corresponding CaloCell's
     for (CaloCellContainer::const_iterator cell = cellContainer->beginConstCalo(idCalo);
-         cell != cellContainer->endConstCalo(idCalo); cell++) {
+         cell != cellContainer->endConstCalo(idCalo); ++cell) {
 
       // get the corresponding sample
       CaloSampling::CaloSample idSample = (*cell)->caloDDE()->getSampling();
@@ -355,7 +349,7 @@ StatusCode TBPhaseMonTool::fillHists() {
         // here you have the CaloCell with idCalo, idSample, **cell
         // find the hardware ID and the corresponding febID
 
-        HWIdentifier id = m_cablingService->createSignalChannelID((*cell)->ID());
+        HWIdentifier id = cabling->createSignalChannelID((*cell)->ID());
         HWIdentifier febID = m_onlineHelper->feb_Id(id);
         
         // gather sums for energy weighted cubic peaking time
@@ -384,8 +378,7 @@ StatusCode TBPhaseMonTool::fillHists() {
   }
 
   // fill energy weighted cubic peaking time for each requested sampling
-  for (std::vector<CaloSampling::CaloSample>::iterator sample = m_samplingIndices.begin(); sample != m_samplingIndices.end(); sample++) {
-    CaloSampling::CaloSample idSample = *sample;
+  for (CaloSampling::CaloSample idSample : m_samplingIndices) {
     double peakTime = (sumEPerSampling[idSample] > 0.) ? sumETimePerSampling[idSample]/sumEPerSampling[idSample] : 0.;
     m_cubicTimePerSampling[idSample]->fill(peakTime/m_tUnit, 1.);
     m_cubicPhaseTimePerSampling[idSample]->fill((peakTime-theTBPhase->getPhase())/m_tUnit, 1.);
@@ -399,8 +392,7 @@ StatusCode TBPhaseMonTool::fillHists() {
 
     // loop over tdc
     // fill energy weighted cubic peaking time for each requested sampling vs tdc
-    for (TBTDCRawCont::const_iterator it_tdc = tdcContainer->begin(); it_tdc != tdcContainer->end(); it_tdc++) {
-      const TBTDCRaw* tdcRaw = (*it_tdc);
+    for (const TBTDCRaw* tdcRaw : *tdcContainer) {
       std::string tdcName = tdcRaw->getDetectorName();
       // look if this is a requested tdc
       if (find(m_tdcNames.begin(), m_tdcNames.end(), tdcName) != m_tdcNames.end()) {
@@ -422,8 +414,7 @@ StatusCode TBPhaseMonTool::fillHists() {
   }
 
   // fill energy weighted cubic peaking time for each requested FEB
-  for (std::vector<HWIdentifier>::iterator it_febID = m_febIDs.begin(); it_febID != m_febIDs.end(); it_febID++) {
-    HWIdentifier febID = *it_febID;
+  for (HWIdentifier febID : m_febIDs) {
     double peakTime = (sumEPerFeb[febID] > 0.) ? sumETimePerFeb[febID]/sumEPerFeb[febID] : 0.;
 
     m_cubicTimePerFeb[febID]->fill(peakTime/m_tUnit, 1.);
@@ -438,8 +429,7 @@ StatusCode TBPhaseMonTool::fillHists() {
 
     // loop over tdc
     // fill energy weighted cubic peaking time for each requested FEB vs tdc
-    for(TBTDCRawCont::const_iterator it_tdc = tdcContainer->begin(); it_tdc != tdcContainer->end(); it_tdc++) {
-      const TBTDCRaw* tdcRaw = (*it_tdc);
+    for (const TBTDCRaw* tdcRaw : *tdcContainer) {
       std::string tdcName = tdcRaw->getDetectorName();
       // look if this is a requested tdc
       if (find(m_tdcNames.begin(), m_tdcNames.end(), tdcName) != m_tdcNames.end()) {
@@ -503,10 +493,8 @@ StatusCode TBPhaseMonTool::bookMyHists() {
 	 << m_tdcLow << "/" << m_tdcHigh << "/" << m_tdcBins
 	 << endmsg;
 
-  std::vector<std::string>::iterator it_tdcName = m_tdcNames.begin();
-  for (; it_tdcName != m_tdcNames.end(); it_tdcName++) {
+  for (const std::string& tdcName : m_tdcNames) {
     // tdc distribution
-    std::string tdcName = (*it_tdcName);
     std::string histoTitle = tdcName;
     std::string pathName = m_path + "/" + tdcName; 
     IHistogram1D* H = ToolHistoSvc()->book(pathName, runnumber + histoTitle, m_tdcBins, m_tdcLow, m_tdcHigh);
@@ -562,9 +550,8 @@ StatusCode TBPhaseMonTool::bookMyHists() {
 	 << m_timeLow/Units::ns << "ns/" << m_timeHigh/Units::ns << "ns/" << m_timeBins
 	 << endmsg;
 
-  // book histos for cubic energy weighted peaking time per sampling 
-  for (std::vector<std::string>::const_iterator sampling = m_samplingNames.begin(); sampling != m_samplingNames.end(); sampling++) {
-    std::string samplingName = *sampling;
+  // book histos for cubic energy weighted peaking time per sampling
+  for (const std::string& samplingName : m_samplingNames) {
     CaloSampling::CaloSample idSample = m_samplingFromNameLookup[samplingName];
     std::string histoTitle = samplingName + ": " + m_recoName + " time";
     std::string pathName   = m_path + "/" + samplingName + "_time"; 
@@ -590,9 +577,8 @@ StatusCode TBPhaseMonTool::bookMyHists() {
 
     // loop over tdc's
     // book histos for cubic energy weighted peaking time per sampling vs tdc
-    for (std::vector<std::string>::iterator it_tdcName = m_tdcNames.begin(); it_tdcName != m_tdcNames.end(); it_tdcName++) {
+    for (const std::string& tdcName : m_tdcNames) {
       // tdc distribution
-      std::string tdcName = (*it_tdcName);
       histoTitle = samplingName + ": " + m_recoName + " time vs " + tdcName;
       pathName   = m_path + "/" + samplingName + "_" + tdcName;
       IHistogram2D* H2 = ToolHistoSvc()->book(pathName,  runnumber +histoTitle, m_tdcBins, m_tdcLow, m_tdcHigh, m_timeBins, m_timeLow/m_tUnit, m_timeHigh/m_tUnit);
@@ -604,8 +590,7 @@ StatusCode TBPhaseMonTool::bookMyHists() {
   }
 
   // book histos for cubic energy weighted peaking time per FEB
-  for (std::vector<HWIdentifier>::iterator it_febID = m_febIDs.begin(); it_febID != m_febIDs.end(); it_febID++) {
-    HWIdentifier febID = *it_febID;
+  for (HWIdentifier febID : m_febIDs) {
     std::ostringstream os; 
     if (m_onlineHelper->isEmBarrelOnline(febID)) {
       std::map<int, std::string>::const_iterator slot_it = m_slotToFebNameLookup.find(m_onlineHelper->slot(febID));
@@ -642,9 +627,8 @@ StatusCode TBPhaseMonTool::bookMyHists() {
 
     // loop over tdc's
     // book histos for cubic energy weighted peaking time per FEB vs tdc
-    for (std::vector<std::string>::iterator it_tdcName = m_tdcNames.begin(); it_tdcName != m_tdcNames.end(); it_tdcName++) {
+    for (const std::string& tdcName : m_tdcNames) {
       // tdc distribution
-      std::string tdcName = (*it_tdcName);
       histoTitle = febIDName + ": " + m_recoName + " time vs " + tdcName;
       pathName   = m_path + "/" + febIDName + "_" + tdcName;
       IHistogram2D* H2 = ToolHistoSvc()->book(pathName, runnumber + histoTitle, m_tdcBins, m_tdcLow, m_tdcHigh, m_timeBins, m_timeLow/m_tUnit, m_timeHigh/m_tUnit);

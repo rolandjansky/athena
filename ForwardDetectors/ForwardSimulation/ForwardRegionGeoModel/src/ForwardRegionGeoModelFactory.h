@@ -5,7 +5,7 @@
 #ifndef ForwardRegionGeoModelFactory_h
 #define ForwardRegionGeoModelFactory_h 1
 #include "GeoModelKernel/GeoVDetectorFactory.h"
-#include "ForwardRegionGeoModel/ForwardRegionGeoModelManager.h"
+#include "ForwardRegionGeoModelManager.h"
 
 #include "ForwardRegionGeoModel/IForwardRegionProperties.h"
 #include "GaudiKernel/ToolHandle.h"

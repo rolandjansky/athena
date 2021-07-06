@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ActsGeometry/ActsMaterialStepConverterTool.h"
@@ -54,16 +54,16 @@ ActsMaterialStepConverterTool::convertToMaterialTrack(const Trk::MaterialStepCol
                                  z_lengh*z_lengh));
 
 
-  Acts::Vector3D v_pos{0, 0, colStep.front()->hitZ() - (z_lengh/r_lengh)*colStep.front()->hitR() };
-  Acts::Vector3D v_imp{x_lengh*norm, y_lengh*norm, z_lengh*norm};
-  Acts::Vector3D prev_pos = v_pos;
+  Acts::Vector3 v_pos{0, 0, colStep.front()->hitZ() - (z_lengh/r_lengh)*colStep.front()->hitR() };
+  Acts::Vector3 v_imp{x_lengh*norm, y_lengh*norm, z_lengh*norm};
+  Acts::Vector3 prev_pos = v_pos;
 
-  for(auto const& step: colStep) {
+  for(auto const step: colStep) {
 
     Acts::MaterialInteraction interaction;
 
-    Acts::Vector3D pos{step->hitX(), step->hitY(), step->hitZ()};
-    Acts::MaterialSlab matProp(Acts::Material::fromMassDensity(step->x0(), step->l0(), step->A(), step->Z(), step->rho()),step->steplength());
+    Acts::Vector3 pos{step->hitX(), step->hitY(), step->hitZ()};
+    Acts::MaterialSlab matProp(Acts::Material::fromMassDensity(step->x0(), step->l0(), step->A(), step->Z(), (step->rho() * Acts::UnitConstants::g) ),step->steplength());
     interaction.position = pos;
 
     double x_dir = pos.x() - prev_pos.x();
@@ -73,7 +73,7 @@ ActsMaterialStepConverterTool::convertToMaterialTrack(const Trk::MaterialStepCol
                                  y_dir*y_dir +
                                  z_dir*z_dir));
 
-    Acts::Vector3D dir{x_dir * norm_dir, y_dir * norm_dir, z_dir * norm_dir};
+    Acts::Vector3 dir{x_dir * norm_dir, y_dir * norm_dir, z_dir * norm_dir};
     interaction.direction = dir;
     prev_pos = pos;
 

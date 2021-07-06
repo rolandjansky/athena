@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 /***************************************************************************
@@ -33,7 +33,7 @@ TRT_ID::TRT_ID(void)
   m_LAYER_OR_WHEEL_INDEX(4),
   m_STRAW_LAYER_INDEX(5),
   m_STRAW_INDEX(6),
-  m_dict(0),
+  m_dict(nullptr),
   m_module_hash_max(0),
   m_straw_layer_hash_max(0),
   m_straw_hash_max(0) {

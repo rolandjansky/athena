@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IMATCHINGTOOL_H
@@ -31,7 +31,7 @@ public:
   virtual bool match(const std::vector<const xAOD::IParticle*>& recoObjects, const std::string& chain, double matchThreshold=0.1, bool rerun=false) const = 0;
 
 protected:
-  virtual MatchingImplementation* impl() const = 0;
+  virtual const MatchingImplementation* impl() const = 0;
 };
 
 }

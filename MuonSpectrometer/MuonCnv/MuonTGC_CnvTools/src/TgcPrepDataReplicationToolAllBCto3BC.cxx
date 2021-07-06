@@ -13,7 +13,7 @@
 //================ Constructor =================================================
 Muon::TgcPrepDataReplicationToolAllBCto3BC::TgcPrepDataReplicationToolAllBCto3BC 
   (const std::string& t, const std::string& n, const IInterface* p)
-  : AthAlgTool(t, n, p),
+  : base_class(t, n, p),
   m_3BCKeys{"dummy", "dummy", "dummy"},
   m_AllBCKey("TGC_MeasurementsAllBCs")
 {
@@ -41,12 +41,12 @@ StatusCode Muon::TgcPrepDataReplicationToolAllBCto3BC::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::TgcPrepDataReplicationToolAllBCto3BC::replicate()
+StatusCode Muon::TgcPrepDataReplicationToolAllBCto3BC::replicate() const
 {
     return convertAllBCto3BC();
 }
 
-StatusCode Muon::TgcPrepDataReplicationToolAllBCto3BC::convertAllBCto3BC()
+StatusCode Muon::TgcPrepDataReplicationToolAllBCto3BC::convertAllBCto3BC() const
 {
 
   SG::ReadHandle<TgcPrepDataContainer> tgcAll(m_AllBCKey);
@@ -110,28 +110,11 @@ Muon::TgcPrepDataReplicationToolAllBCto3BC::makeTgcPrepData(Muon::TgcPrepDataCol
   const Amg::MatrixX* errHitPos = &(*itr)->localCovariance();
   const MuonGM::TgcReadoutElement* descriptor = (*itr)->detectorElement();
 
-  const Amg::MatrixX* newErrHitPos = new Amg::MatrixX(*errHitPos);
+  auto newErrHitPos = Amg::MatrixX(*errHitPos);
 
   Muon::TgcPrepData* newPrepData = new TgcPrepData(channelId, tgcHashId, (*itr)->localPosition(),
-                                                   identifierList, newErrHitPos, descriptor);
+                                                   identifierList, std::move(newErrHitPos), descriptor);
   newPrepData->setBcBitMap(bcBitMap);
 
   return newPrepData;
 }
-
-
-
-
-StatusCode Muon::TgcPrepDataReplicationToolAllBCto3BC::queryInterface(const InterfaceID& riid, void** ppvIf) {
-  ATH_MSG_DEBUG("queryInterface()");
-  if(ITgcPrepDataReplicationTool::interfaceID().versionMatch(riid)) {
-    *ppvIf = dynamic_cast<ITgcPrepDataReplicationTool*>(this);
-    addRef();
-    ATH_MSG_DEBUG("InterfaceID successfully matched with ITgcPrepDataReplicationTool one.");
-    return StatusCode::SUCCESS;
-  }
-
-  return AthAlgTool::queryInterface(riid, ppvIf);
-}
-
-

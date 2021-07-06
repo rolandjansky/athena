@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -30,7 +30,6 @@ def TileMonitoringCfg(flags):
         from TileMonitoring.TileDigiNoiseMonitorAlgorithm import TileDigiNoiseMonitoringConfig
         acc.merge( TileDigiNoiseMonitoringConfig(flags) )
 
-
     if environment in ('online', 'tier0', 'tier0ESD'):
         msg.info('Setup Tile Monitoring for ESD data due to environment: %s', environment)
 
@@ -49,6 +48,14 @@ def TileMonitoringCfg(flags):
         from TileMonitoring.TileJetMonitorAlgorithm import TileJetMonitoringConfig
         acc.merge( TileJetMonitoringConfig(flags) )
 
+        if flags.IOVDb.DatabaseInstance == 'CONDBR2' and flags.DQ.triggerDataAvailable:
+            from TileMonitoring.TileTMDBRawChannelMonitorAlgorithm import TileTMDBRawChannelMonitoringConfig
+            acc.merge( TileTMDBRawChannelMonitoringConfig(flags, FillRawChannelHistograms = False, FillEfficiencyHistograms = True) )
+
+        if flags.Beam.Type in ('cosmics', 'singlebeam'):
+            from TileMonitoring.TileMuonFitMonitorAlgorithm import TileMuonFitMonitoringConfig
+            acc.merge( TileMuonFitMonitoringConfig(flags) )
+
     return acc
 
 
@@ -62,9 +69,7 @@ if __name__=='__main__':
    Configurable.configurableRun3Behavior = True
    log.setLevel(INFO)
 
-   from AthenaConfiguration.TestDefaults import defaultTestFiles
-   ConfigFlags.Input.Files = defaultTestFiles.ESD
-
+   ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q431/22.0/v1/myESD.pool.root']
    ConfigFlags.Output.HISTFileName = 'TileMonitoringOutput.root'
    ConfigFlags.DQ.enableLumiAccess = False
    ConfigFlags.DQ.useTrigger = False

@@ -13,15 +13,15 @@
 #define TrkGsfMaterialMixtureConvolution_H
 
 #include "TrkGaussianSumFilter/IMaterialMixtureConvolution.h"
-#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
-
+//
+#include "TrkGaussianSumFilterUtils/GsfMaterial.h"
+#include "TrkGaussianSumFilterUtils/MultiComponentState.h"
+#include "TrkGaussianSumFilterUtils/GsfCombinedMaterialEffects.h"
+//
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
 namespace Trk {
-
-class IMultiStateMaterialEffectsUpdator;
-class IMultiStateMaterialEffects;
 class Layer;
 class MaterialProperties;
 
@@ -49,33 +49,29 @@ public:
   //!< AlgTool initialise method
   virtual StatusCode initialize() override final;
 
-
   //!< Convolution with full material properties
-  virtual MultiComponentState update(
-    std::vector<Trk::IMultiStateMaterialEffects::Cache>&,
-    const MultiComponentState&,
-    const Layer&,
-    PropDirection direction = anyDirection,
-    ParticleHypothesis particleHypothesis =
-      nonInteracting) const override final;
+  virtual MultiComponentState update(std::vector<GsfMaterial::Combined>&,
+                                     const MultiComponentState&,
+                                     const Layer&,
+                                     PropDirection direction = anyDirection,
+                                     ParticleHypothesis particleHypothesis =
+                                       nonInteracting) const override final;
 
   //!< Convolution with pre-measurement-update material properties
-  virtual MultiComponentState preUpdate(
-    std::vector<Trk::IMultiStateMaterialEffects::Cache>&,
-    const MultiComponentState&,
-    const Layer&,
-    PropDirection direction = anyDirection,
-    ParticleHypothesis particleHypothesis =
-      nonInteracting) const override final;
+  virtual MultiComponentState preUpdate(std::vector<GsfMaterial::Combined>&,
+                                        const MultiComponentState&,
+                                        const Layer&,
+                                        PropDirection direction = anyDirection,
+                                        ParticleHypothesis particleHypothesis =
+                                          nonInteracting) const override final;
 
   //!< Convolution with post-measurement-update material properties
-  virtual MultiComponentState postUpdate(
-    std::vector<Trk::IMultiStateMaterialEffects::Cache>&,
-    const MultiComponentState&,
-    const Layer&,
-    PropDirection direction = anyDirection,
-    ParticleHypothesis particleHypothesis =
-      nonInteracting) const override final;
+  virtual MultiComponentState postUpdate(std::vector<GsfMaterial::Combined>&,
+                                         const MultiComponentState&,
+                                         const Layer&,
+                                         PropDirection direction = anyDirection,
+                                         ParticleHypothesis particleHypothesis =
+                                           nonInteracting) const override final;
 
   //!< Retain for now redundant simplified material effects
   virtual MultiComponentState simplifiedMaterialUpdate(
@@ -87,18 +83,24 @@ public:
   };
 
 private:
+  Trk::MultiComponentState update(std::vector<GsfMaterial::Combined>&,
+                                  const Trk::MultiComponentState& inputState,
+                                  const Trk::Layer& layer,
+                                  Trk::PropDirection direction,
+                                  Trk::ParticleHypothesis particleHypothesis,
+                                  MaterialUpdateType updateType) const;
+
+  std::pair<const Trk::MaterialProperties*, double> getMaterialProperties(
+    const Trk::TrackParameters* trackParameters,
+    const Trk::Layer& layer) const;
+
+  GsfCombinedMaterialEffects m_materialEffects{};
+
   Gaudi::Property<unsigned int> m_maximumNumberOfComponents{
     this,
     "MaximumNumberOfComponents",
     12,
     "Maximum number of components"
-  };
-
-  ToolHandle<IMultiStateMaterialEffects> m_materialEffects{
-    this,
-    "MaterialEffects",
-    "Trk::GsfCombinedMaterialEffects/GsfCombinedMaterialEffects",
-    ""
   };
 
   Gaudi::Property<bool> m_useReferenceMaterial{ this,
@@ -111,19 +113,19 @@ private:
                                          250. * Gaudi::Units::MeV,
                                          "" };
 
-  Trk::MultiComponentState update(
-    std::vector<Trk::IMultiStateMaterialEffects::Cache>&,
-    const Trk::MultiComponentState& inputState,
-    const Trk::Layer& layer,
-    Trk::PropDirection direction,
-    Trk::ParticleHypothesis particleHypothesis,
-    MaterialUpdateType updateType) const;
+  Gaudi::Property<std::string> m_parameterisationFileName{
+    this,
+    "BetheHeitlerParameterisationFileName",
+    "GeantSim_LT01_cdf_nC6_O5.par",
+    "Parametrization of Bethe Heitler material effects"
+  };
 
-  bool updateP(double& qOverP, double deltaP) const;
-
-  std::pair<const Trk::MaterialProperties*, double> getMaterialProperties(
-    const Trk::TrackParameters* trackParameters,
-    const Trk::Layer& layer) const;
+  Gaudi::Property<std::string> m_parameterisationFileNameHighX0{
+    this,
+    "BetheHeitlerParameterisationFileNameHighX0",
+    "GeantSim_GT01_cdf_nC6_O5.par",
+    "Parametrization of Bethe Heitler material effects for high X0"
+  };
 };
 
 } // end Trk namespace

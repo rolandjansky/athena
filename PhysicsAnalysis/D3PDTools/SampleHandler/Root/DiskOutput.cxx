@@ -25,7 +25,6 @@ namespace SH
   void DiskOutput :: 
   testInvariant () const
   {
-    RCU_INVARIANT (this != 0);
   }
 
 

@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BEAMEFFECTS_BEAMEFFECTSALG_H
@@ -61,14 +61,14 @@ namespace Simulation
 
     /** Ensure that the GenEvent::signal_process_vertex has been set */
     StatusCode patchSignalProcessVertex(HepMC::GenEvent& ge) const;
-    SG::ReadHandleKey<McEventCollection> m_inputMcEventCollection;
-    SG::WriteHandleKey<McEventCollection> m_outputMcEventCollection;
+    SG::ReadHandleKey<McEventCollection> m_inputMcEventCollection{this, "InputMcEventCollection", "GEN_EVENT", "The name of the input McEventCollection"};
+    SG::WriteHandleKey<McEventCollection> m_outputMcEventCollection{this, "OutputMcEventCollection", "BeamTruthEvent", "The name of the output McEventCollection"};
 
     /// Event manipulator tools (executed in given order)
-    ToolHandleArray<IGenEventManipulator> m_genEventManipulators;
+    ToolHandleArray<IGenEventManipulator> m_genEventManipulators{this, "GenEventManipulators", {},  "BeamEffectsAlg will send the read-in GenEvent to each individual IGenEventManipulator."};
 
     /// Temporary property so that we don't change the output in the initial switch to this code.
-    bool m_ISFRun;
+    Gaudi::Property<bool> m_ISFRun{this, "ISFRun", false, "Temporary property so that we don't change the output in the initial switch to this code"};
 
   };
 

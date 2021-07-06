@@ -41,7 +41,6 @@ namespace OverlayTesting {
   protected:
     virtual void SetUp() override {
       m_alg = new BCMOverlay{"BCMOverlay", g_svcLoc};
-      ASSERT_TRUE( m_alg->setProperties().isSuccess() );
       ASSERT_TRUE( g_svcLoc->service("StoreGateSvc", m_sg) );
     }
 

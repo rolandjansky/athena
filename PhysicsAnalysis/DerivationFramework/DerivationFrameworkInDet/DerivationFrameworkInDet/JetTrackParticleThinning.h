@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -20,13 +20,12 @@
 #include "StoreGate/ThinningHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 
-namespace ExpressionParsing {
-  class ExpressionParser;
-}
+#include "ExpressionEvaluation/ExpressionParserUser.h"
 
 namespace DerivationFramework {
 
-  class JetTrackParticleThinning : public extends<AthAlgTool, IThinningTool> {
+  enum EJetTrPThinningParser { kJetSelection, kTrackThinning, kNumJetTPThinningParser};
+  class JetTrackParticleThinning : public extends<ExpressionParserUser<AthAlgTool, kNumJetTPThinningParser>, IThinningTool> {
     public: 
       JetTrackParticleThinning(const std::string& t, const std::string& n, const IInterface* p);
       virtual ~JetTrackParticleThinning();
@@ -48,8 +47,6 @@ namespace DerivationFramework {
         { this, "SelectionString", "", "" };
       StringProperty m_trackSelectionString
         { this, "TrackSelectionString", "", "" };
-      std::unique_ptr<ExpressionParsing::ExpressionParser> m_parser;
-      std::unique_ptr<ExpressionParsing::ExpressionParser> m_trackParser;
   }; 
 }
 

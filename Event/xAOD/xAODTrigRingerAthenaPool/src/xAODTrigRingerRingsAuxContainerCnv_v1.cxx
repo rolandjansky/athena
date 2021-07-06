@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODTrigRingerRingsAuxContainerCnv_v1.cxx 713588 2015-12-09 13:59:15Z jodafons $
@@ -46,7 +46,7 @@ persToTrans( const xAOD::TrigRingerRingsAuxContainer_v1* oldObj,
    // Clear the transient object:
    newObj->resize( 0 );
 
-   SG::copyAuxStoreThinned( *oldObj, *newObj, 0 );
+   SG::copyAuxStoreThinned( *oldObj, *newObj, nullptr );
 
    // Set up an interface container for the old object:
    xAOD::TrigRingerRingsContainer_v1 oldInt;

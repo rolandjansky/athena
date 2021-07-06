@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DetDescrConditions/AlignableTransformContainer.h"
@@ -19,6 +19,7 @@
 #include "GeoModelKernel/GeoVAlignmentStore.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
+#include "InDetGeoModelUtils/GeoNodePtr.h"
 
 namespace InDetDD {
 
@@ -26,13 +27,12 @@ namespace InDetDD {
 
 
   PixelDetectorManager::PixelDetectorManager(StoreGateSvc* detStore,
-                                             const std::string& name) 
+                                             const std::string& name)
     : SiDetectorManager(detStore,name),
-      m_idHelper(0),
+      m_idHelper(nullptr),
       m_isLogical(false) // Change to true to change the definition of local module corrections
   {
-
-    //  
+    //
     // Initialized the Identifier helper.
     //
 
@@ -45,10 +45,10 @@ namespace InDetDD {
     if (m_idHelper) {
       m_elementCollection.resize(m_idHelper->wafer_hash_max());
       m_alignableTransforms.resize(m_idHelper->wafer_hash_max());
-    } 
+    }
   }
- 
-   PixelDetectorManager::PixelDetectorManager(StoreGateSvc* detStore) 
+
+  PixelDetectorManager::PixelDetectorManager(StoreGateSvc* detStore)
      : PixelDetectorManager(detStore, "Pixel"){ }
 
 
@@ -64,7 +64,7 @@ namespace InDetDD {
 
   unsigned int PixelDetectorManager::getNumTreeTops() const
   {
-    return m_volume.size(); 
+    return m_volume.size();
   }
 
   PVConstLink PixelDetectorManager::getTreeTop(unsigned int i) const
@@ -79,25 +79,16 @@ namespace InDetDD {
 
 
   SiDetectorElement* PixelDetectorManager::getDetectorElement(const Identifier & id) const
-  {  
+  {
   // NB the id helpers implementation for getting a hash is not optimal.
   // Essentially does a binary search.
   // Make sure it is a wafer Id
-    Identifier waferId = id;
-#ifndef __IDENTIFIER_64BIT__
-  // pixel ids have special treatement. It is possible to distinguish between
-  // a wafer id and a pixel cell id by checking bit 32, which is set for a pixel cell id.
-    if (id.is_valid() && (id.get_compact() & 0x80000000)) {
-      waferId =  m_idHelper->wafer_id(id);
-    }
-#else  
-    waferId =  m_idHelper->wafer_id(id);
-#endif /* __IDENTIFIER_64BIT__ */
+    Identifier waferId = m_idHelper->wafer_id(id);
     IdentifierHash idHash = m_idHelper->wafer_hash(waferId);
     if (idHash.is_valid()) {
       return m_elementCollection[idHash];
     } else {
-      return 0;
+      return nullptr;
     }
   }
 
@@ -113,7 +104,7 @@ namespace InDetDD {
   }
 
   const SiDetectorElementCollection* PixelDetectorManager::getDetectorElementCollection() const
-  { 
+  {
     return &m_elementCollection;
   }
 
@@ -193,8 +184,8 @@ namespace InDetDD {
   }
 
 
-  bool PixelDetectorManager::setAlignableTransformDelta(int level, 
-                                                        const Identifier & id, 
+  bool PixelDetectorManager::setAlignableTransformDelta(int level,
+                                                        const Identifier & id,
                                                         const Amg::Transform3D & delta,
                                                         FrameType frame,
                                                         GeoVAlignmentStore* alignStore) const
@@ -216,12 +207,12 @@ namespace InDetDD {
         if (!element) return false;
 
         // Its a local transform
-        //See header file for definition of m_isLogical          
+        //See header file for definition of m_isLogical
         if( m_isLogical ){
     //Ensure cache is up to date and use the alignment corrected local to global transform
     element->setCache();
     return setAlignableTransformLocalDelta(m_alignableTransforms[idHash].get(), element->transform(), delta, alignStore);
-        } else 
+        } else
     //Use default local to global transform
     return setAlignableTransformLocalDelta(m_alignableTransforms[idHash].get(), element->defTransform(), delta, alignStore);
       } else {
@@ -240,10 +231,10 @@ namespace InDetDD {
       int index = level - FIRST_HIGHER_LEVEL; // level 0 is treated separately.
       if (index >=  static_cast<int>(m_higherAlignableTransforms.size())) return false;
 
-      // We retrieve it from a map. 
-      AlignableTransformMap::const_iterator iter;    
+      // We retrieve it from a map.
+      AlignableTransformMap::const_iterator iter;
       iter = m_higherAlignableTransforms[index].find(id);
-      if (iter == m_higherAlignableTransforms[index].end()) return false;      
+      if (iter == m_higherAlignableTransforms[index].end()) return false;
 
       // Its a global transform
       return setAlignableTransformGlobalDelta((iter->second).get(), delta, alignStore);
@@ -252,15 +243,16 @@ namespace InDetDD {
   }
 
 
-  void PixelDetectorManager::addAlignableTransform (int level, 
-                            const Identifier & id, 
+  void PixelDetectorManager::addAlignableTransform (int level,
+                            const Identifier & id,
                             GeoAlignableTransform *transform,
                             const GeoVPhysVol * child)
   {
+    GeoNodePtr<GeoAlignableTransform> tmp_transform(transform);
     if (m_idHelper) {
 
       const GeoVFullPhysVol * childFPV = dynamic_cast<const GeoVFullPhysVol *>(child);
-      if (!childFPV) { 
+      if (!childFPV) {
         ATH_MSG_ERROR("Child of alignable transform is not a full physical volume");
       } else {
         addAlignableTransform (level, id, transform, childFPV);
@@ -268,24 +260,25 @@ namespace InDetDD {
     }
   }
 
-  void PixelDetectorManager::addAlignableTransform (int level, 
-                            const Identifier & id, 
+  void PixelDetectorManager::addAlignableTransform (int level,
+                            const Identifier & id,
                             GeoAlignableTransform *transform,
                             const GeoVFullPhysVol * child)
   {
+    GeoNodePtr<GeoAlignableTransform> tmp_transform(transform);
     if (m_idHelper) {
       if (level == 0) {
         IdentifierHash idHash = m_idHelper->wafer_hash(id);
         if (idHash.is_valid()) {
           m_alignableTransforms[idHash]= std::make_unique<ExtendedAlignableTransform>(transform, child);
-        } 
+        }
       } else {
-        // Higher levels are saved in a map. NB the index is level-1 as level=0 is treated above.   
-        int index = level - FIRST_HIGHER_LEVEL; 
-        if (index >= static_cast<int>(m_higherAlignableTransforms.size())) m_higherAlignableTransforms.resize(index+1); 
+        // Higher levels are saved in a map. NB the index is level-1 as level=0 is treated above.
+        int index = level - FIRST_HIGHER_LEVEL;
+        if (index >= static_cast<int>(m_higherAlignableTransforms.size())) m_higherAlignableTransforms.resize(index+1);
         m_higherAlignableTransforms[index][id] = std::make_unique<ExtendedAlignableTransform>(transform, child);
       }
-    }  
+    }
   }
 
   bool PixelDetectorManager::identifierBelongs(const Identifier & id) const
@@ -302,8 +295,8 @@ namespace InDetDD {
 
 
 
-  // The implementation of the new IBLDist DB; 
-  // Specific for IBL -> maybe make it different function in future to be more general 
+  // The implementation of the new IBLDist DB;
+  // Specific for IBL -> maybe make it different function in future to be more general
   bool PixelDetectorManager::processSpecialAlignment(const std::string & key, InDetDD::AlignFolderType alignfolderType) const
   {
 
@@ -319,13 +312,13 @@ namespace InDetDD {
   int nstaves = 0;
   if (numerology().numPhiModulesForLayer(0)<14) nstaves = 14;
   else nstaves = numerology().numPhiModulesForLayer(0);
-  
+
   std::vector<float> ibldist;
   std::vector<float> iblbaseline;
   ibldist.resize(nstaves);
   iblbaseline.resize(nstaves);
 
-  const CondAttrListCollection* atrlistcol=0;
+  const CondAttrListCollection* atrlistcol=nullptr;
   if (StatusCode::SUCCESS==m_detStore->retrieve(atrlistcol,key)) {
     // loop over objects in collection
     for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr) {
@@ -334,7 +327,7 @@ namespace InDetDD {
       iblbaseline[atrlist["stave"].data<int>()] = atrlist["base"].data<float>();
 
       ATH_MSG_VERBOSE("IBLDist DB -- channel: " << citr->first
-                      << " ,stave: " << atrlist["stave"].data<int>() 
+                      << " ,stave: " << atrlist["stave"].data<int>()
                       << " ,mag: " << atrlist["mag"].data<float>()
                       << " ,base: " << atrlist["base"].data<float>());
     }
@@ -342,11 +335,11 @@ namespace InDetDD {
   else {
     ATH_MSG_WARNING("Cannot find IBLDist Container for key "
                     << key << " - no IBL bowing alignment");
-    return alignmentChange;                                   
+    return alignmentChange;
   }
 
   /**
-    Matthias D. (Oct. 2016): 
+    Matthias D. (Oct. 2016):
     The idea of this first implementation is to get the AlignTransforms for IBL modules from their folder;
     Calculate from the new DB entries the Tx displacement for this module;
     Make a simple transfrom in local frame;
@@ -357,39 +350,39 @@ namespace InDetDD {
   **/
 
   const AlignableTransformContainer* container;
-  if (StatusCode::SUCCESS!=m_detStore->retrieve(container, alignfolder)) {      
-    ATH_MSG_ERROR("Cannot find AlignableTransformContainer for key " 
+  if (StatusCode::SUCCESS!=m_detStore->retrieve(container, alignfolder)) {
+    ATH_MSG_ERROR("Cannot find AlignableTransformContainer for key "
                   << key << " - no misalignment");
     // This should not occur in normal situations so we force job to abort.
     throw std::runtime_error("Unable to apply Inner Detector alignments");
   }
   // Check if container is empty - this can occur if it is an invalid IOV.
   if (container->empty()) {
-    ATH_MSG_ERROR("AlignableTransformContainer for key " 
+    ATH_MSG_ERROR("AlignableTransformContainer for key "
                   << key << " is empty. Probably due to out of range IOV");
     // This should not occur in normal situations so we force job to abort.
     throw std::runtime_error("Unable to apply Inner Detector alignments.");
   }
   // loop over all the AlignableTransform objects in the collection
   std::string IBLalignfolder = alignfolder;
-  IBLalignfolder.append("/PIXB1");// "/Indet/Align/PIXB1"   
+  IBLalignfolder.append("/PIXB1");// "/Indet/Align/PIXB1"
   for (DataVector<AlignableTransform>::const_iterator pat=container->begin();
        pat!=container->end();++pat)
   {
-    if (!( (*pat)->tag()==IBLalignfolder && 
+    if (!( (*pat)->tag()==IBLalignfolder &&
      numerology().numPhiModulesForLayer(0)==14 &&
      numerology().numLayers()==4) ){  // hard-coded to IBL for now; no other geometry should really apply this!
       ATH_MSG_DEBUG("IBLDist; ignoring collections " << (*pat)->tag());
-    }  
+    }
     else{
       const AlignableTransform* transformCollection = *pat;
-      for (AlignableTransform::AlignTransMem_citr trans_iter = transformCollection->begin(); 
-         trans_iter != transformCollection->end(); 
+      for (AlignableTransform::AlignTransMem_citr trans_iter = transformCollection->begin();
+         trans_iter != transformCollection->end();
          ++trans_iter)
       {
-        ATH_MSG_DEBUG("IBLDist alignment for identifier " 
+        ATH_MSG_DEBUG("IBLDist alignment for identifier "
                       << getIdHelper()->show_to_string(trans_iter->identify()));
-  
+
         IdentifierHash idHash = getIdHelper()->wafer_hash(trans_iter->identify());
         if (!idHash.is_valid()){
           ATH_MSG_WARNING("Invalid HashID for identifier "
@@ -398,15 +391,15 @@ namespace InDetDD {
           return false;
         }
         SiDetectorElement * sielem = m_elementCollection[idHash];
-        //This should work as Bowing is in L3 frame, i.e. local module frame                 
+        //This should work as Bowing is in L3 frame, i.e. local module frame
         Amg::Vector3D center = sielem->defTransform() * Amg::Vector3D{0, 0, 0};
         double z = center[2];
         const double  y0y0  = 366.5*366.5;
-                 
+
         double bowx = ibldist[getIdHelper()->phi_module(trans_iter->identify())] * ( z*z - y0y0 ) / y0y0;
         double basex= iblbaseline[getIdHelper()->phi_module(trans_iter->identify())];
-        // This is in the module frame, as bowing corrections are directly L3                
-  
+        // This is in the module frame, as bowing corrections are directly L3
+
         ATH_MSG_DEBUG("Total IBL-module Tx shift (baseline+bowing): " << basex+bowx);
         if ( (basex+bowx)==0 ) continue; // make sure we ignore NULL corrections
 
@@ -426,17 +419,17 @@ namespace InDetDD {
           printTransform(MSG::VERBOSE, Amg::CLHEPTransformToEigen(newtrans));
         }
         /** End of verbose level debug section **/
-    
+
         // Set the new transform; Will replace existing one with updated transform
-        bool status = setAlignableTransformDelta(0, 
+        bool status = setAlignableTransformDelta(0,
                                                  trans_iter->identify(),
                                                  Amg::CLHEPTransformToEigen(newtrans),
                                                  InDetDD::local,
                                                  nullptr);
- 
+
         if (!status) {
-          ATH_MSG_DEBUG("Cannot set AlignableTransform for identifier."  
-                        << getIdHelper()->show_to_string(trans_iter->identify())  
+          ATH_MSG_DEBUG("Cannot set AlignableTransform for identifier."
+                        << getIdHelper()->show_to_string(trans_iter->identify())
                         << " at level 0 for IBLDist bowing deformation");
         }
 
@@ -581,7 +574,7 @@ namespace InDetDD {
                  << " in the " << frame << " frame at level " << level);
 
     Identifier ident=Identifier();
-    const CondAttrListCollection* atrlistcol=0;
+    const CondAttrListCollection* atrlistcol=nullptr;
     if (StatusCode::SUCCESS==m_detStore->retrieve(atrlistcol,key)) {
       // loop over objects in collection
       for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr) {
@@ -602,7 +595,7 @@ namespace InDetDD {
           return false;
         }
 
-        // construct new transform                                                                                                                
+        // construct new transform
         // Order of rotations is defined as around z, then y, then x.
         Amg::Translation3D  newtranslation(atrlist["Tx"].data<float>(),atrlist["Ty"].data<float>(),atrlist["Tz"].data<float>());
         Amg::Transform3D newtrans = newtranslation * Amg::RotationMatrix3D::Identity();
@@ -622,8 +615,8 @@ namespace InDetDD {
                       << " ,Rx: "     << atrlist["Rx"].data<float>()
                       << " ,Ry: "     << atrlist["Ry"].data<float>()
                       << " ,Rz: "     << atrlist["Rz"].data<float>());
-      
-        // Set the new transform; Will replace existing one with updated transform                                                                 
+
+        // Set the new transform; Will replace existing one with updated transform
         bool status = setAlignableTransformDelta(level,
                                                  ident,
                                                  newtrans,
@@ -661,5 +654,3 @@ namespace InDetDD {
 
 
 } // namespace InDetDD
-
-

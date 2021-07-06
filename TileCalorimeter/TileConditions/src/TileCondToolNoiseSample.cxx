@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -58,13 +58,13 @@ StatusCode TileCondToolNoiseSample::finalize() {
 //
 //____________________________________________________________________
 float TileCondToolNoiseSample::getPed(unsigned int drawerIdx, unsigned int channel, unsigned int adc,
-                                      TileRawChannelUnit::UNIT unit) const {
+                                      TileRawChannelUnit::UNIT unit, const EventContext &ctx) const {
 
-  SG::ReadCondHandle<TileCalibDataFlt> calibSampleNoise(m_calibSampleNoiseKey);
+  SG::ReadCondHandle<TileCalibDataFlt> calibSampleNoise(m_calibSampleNoiseKey, ctx);
   float ped = calibSampleNoise->getCalibDrawer(drawerIdx)->getData(channel, adc, 0);
 
   if (unit > TileRawChannelUnit::ADCcounts) {
-    SG::ReadCondHandle<TileEMScale> emScale(m_emScaleKey);
+    SG::ReadCondHandle<TileEMScale> emScale(m_emScaleKey, ctx);
     ped = emScale->calibrateChannel(drawerIdx, channel, adc, ped, TileRawChannelUnit::ADCcounts, unit);
   }
 
@@ -75,14 +75,14 @@ float TileCondToolNoiseSample::getPed(unsigned int drawerIdx, unsigned int chann
 //
 //____________________________________________________________________
 float TileCondToolNoiseSample::getHfn(unsigned int drawerIdx, unsigned int channel, unsigned int adc,
-                                      TileRawChannelUnit::UNIT unit) const {
+                                      TileRawChannelUnit::UNIT unit, const EventContext &ctx) const {
 
-  SG::ReadCondHandle<TileCalibDataFlt> calibSampleNoise(m_calibSampleNoiseKey);
+  SG::ReadCondHandle<TileCalibDataFlt> calibSampleNoise(m_calibSampleNoiseKey, ctx);
   float hfn = calibSampleNoise->getCalibDrawer(drawerIdx)->getData(channel, adc, 1);
 
 
   if (unit > TileRawChannelUnit::ADCcounts) {
-    SG::ReadCondHandle<TileEMScale> emScale(m_emScaleKey);
+    SG::ReadCondHandle<TileEMScale> emScale(m_emScaleKey, ctx);
     hfn = emScale->calibrateChannel(drawerIdx, channel, adc, hfn, TileRawChannelUnit::ADCcounts, unit);
   }
 
@@ -93,9 +93,9 @@ float TileCondToolNoiseSample::getHfn(unsigned int drawerIdx, unsigned int chann
 //
 //____________________________________________________________________
 float TileCondToolNoiseSample::getLfn(unsigned int drawerIdx, unsigned int channel, unsigned int adc,
-                                      TileRawChannelUnit::UNIT unit) const {
+                                      TileRawChannelUnit::UNIT unit, const EventContext &ctx) const {
 
-  SG::ReadCondHandle<TileCalibDataFlt> calibSampleNoise(m_calibSampleNoiseKey);
+  SG::ReadCondHandle<TileCalibDataFlt> calibSampleNoise(m_calibSampleNoiseKey, ctx);
   const TileCalibDrawerFlt* calibDrawer = calibSampleNoise->getCalibDrawer(drawerIdx);
 
   //=== check if Lfn is stored already
@@ -106,7 +106,7 @@ float TileCondToolNoiseSample::getLfn(unsigned int drawerIdx, unsigned int chann
 
   float lfn = calibDrawer->getData(channel, adc, 2);
   if (unit > TileRawChannelUnit::ADCcounts) {
-    SG::ReadCondHandle<TileEMScale> emScale(m_emScaleKey);
+    SG::ReadCondHandle<TileEMScale> emScale(m_emScaleKey, ctx);
     lfn = emScale->calibrateChannel(drawerIdx, channel, adc, lfn, TileRawChannelUnit::ADCcounts, unit);
   }
 
@@ -116,9 +116,10 @@ float TileCondToolNoiseSample::getLfn(unsigned int drawerIdx, unsigned int chann
 
 //
 //____________________________________________________________________
-float TileCondToolNoiseSample::getHfn1(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const {
+float TileCondToolNoiseSample::getHfn1(unsigned int drawerIdx, unsigned int channel, unsigned int adc,
+                                       const EventContext &ctx) const {
 
-  SG::ReadCondHandle<TileCalibDataFlt> calibSampleNoise(m_calibSampleNoiseKey);
+  SG::ReadCondHandle<TileCalibDataFlt> calibSampleNoise(m_calibSampleNoiseKey, ctx);
   const TileCalibDrawerFlt* calibDrawer = calibSampleNoise->getCalibDrawer(drawerIdx);
 
   //=== check if Hfn1 is stored already, if not - return old Hfn
@@ -131,9 +132,10 @@ float TileCondToolNoiseSample::getHfn1(unsigned int drawerIdx, unsigned int chan
 
 //
 //____________________________________________________________________
-float TileCondToolNoiseSample::getHfn2(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const {
+float TileCondToolNoiseSample::getHfn2(unsigned int drawerIdx, unsigned int channel, unsigned int adc,
+                                       const EventContext &ctx) const {
 
-  SG::ReadCondHandle<TileCalibDataFlt> calibSampleNoise(m_calibSampleNoiseKey);
+  SG::ReadCondHandle<TileCalibDataFlt> calibSampleNoise(m_calibSampleNoiseKey, ctx);
   const TileCalibDrawerFlt* calibDrawer = calibSampleNoise->getCalibDrawer(drawerIdx);
 
   //=== check if Hfn2 is stored already, if not - return zero
@@ -144,9 +146,10 @@ float TileCondToolNoiseSample::getHfn2(unsigned int drawerIdx, unsigned int chan
 
 //
 //____________________________________________________________________
-float TileCondToolNoiseSample::getHfnNorm(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const {
+float TileCondToolNoiseSample::getHfnNorm(unsigned int drawerIdx, unsigned int channel, unsigned int adc,
+                                          const EventContext &ctx) const {
 
-  SG::ReadCondHandle<TileCalibDataFlt> calibSampleNoise(m_calibSampleNoiseKey);
+  SG::ReadCondHandle<TileCalibDataFlt> calibSampleNoise(m_calibSampleNoiseKey, ctx);
   const TileCalibDrawerFlt* calibDrawer = calibSampleNoise->getCalibDrawer(drawerIdx);
 
   //=== check if HfnNorm is stored already, if not - return zero
@@ -158,18 +161,19 @@ float TileCondToolNoiseSample::getHfnNorm(unsigned int drawerIdx, unsigned int c
 
 
 float TileCondToolNoiseSample::getOnlinePedestalDifference(unsigned int drawerIdx, unsigned int channel,
-                                                           unsigned int adc, TileRawChannelUnit::UNIT onlineUnit) const {
+                                                           unsigned int adc, TileRawChannelUnit::UNIT onlineUnit,
+                                                           const EventContext &ctx) const {
 
   float pedestalDifference(0.0);
 
   if (!m_calibOnlineSampleNoiseKey.empty()) {
-    SG::ReadCondHandle<TileCalibDataFlt> calibSampleNoise(m_calibSampleNoiseKey);
-    SG::ReadCondHandle<TileCalibDataFlt> calibOnlineSampleNoise(m_calibOnlineSampleNoiseKey);
+    SG::ReadCondHandle<TileCalibDataFlt> calibSampleNoise(m_calibSampleNoiseKey, ctx);
+    SG::ReadCondHandle<TileCalibDataFlt> calibOnlineSampleNoise(m_calibOnlineSampleNoiseKey, ctx);
 
     float pedestal = calibSampleNoise->getCalibDrawer(drawerIdx)->getData(channel, adc, 0);
     float onlinePedestal = calibOnlineSampleNoise->getCalibDrawer(drawerIdx)->getData(channel, adc, 0);
 
-    SG::ReadCondHandle<TileEMScale> emScale(m_emScaleKey);
+    SG::ReadCondHandle<TileEMScale> emScale(m_emScaleKey, ctx);
     pedestalDifference = emScale->calibrateOnlineChannel(drawerIdx, channel, adc, (onlinePedestal - pedestal), onlineUnit);
   }
 

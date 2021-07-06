@@ -1,8 +1,10 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ConstraintAngleMMClusterBuilderTool.h"
+
+#include <memory>
 
 #include <numeric>
 #include <cmath>
@@ -183,8 +185,8 @@ const{
     
     //scan through clusters with a fixed angle and find optimal 
     double sTheta = m_sigmaTheta * Gaudi::Units::degree; 
-    std::unique_ptr<TF1> fLower=std::unique_ptr<TF1>(new TF1("fLower","[0]+[1]*x"));
-    std::unique_ptr<TF1> fUpper=std::unique_ptr<TF1>(new TF1("fUpper","[0]+[1]*x"));
+    std::unique_ptr<TF1> fLower=std::make_unique<TF1>("fLower","[0]+[1]*x");
+    std::unique_ptr<TF1> fUpper=std::make_unique<TF1>("fUpper","[0]+[1]*x");
     for(uint i_cluster = 0; i_cluster<idxClusters.size(); i_cluster++){
        fLower->SetParameter(1,-1 / std::atan(clusterTheta.at(i_cluster)-sTheta));
        fUpper->SetParameter(1,-1 / std::atan(clusterTheta.at(i_cluster)+sTheta));
@@ -237,8 +239,8 @@ const{
 StatusCode Muon::ConstraintAngleMMClusterBuilderTool::fitCluster(const std::vector<Muon::MMPrepData> &prdPerLayer, const std::vector<uint>& idxCluster,const double &clusterTheta,std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVec)
 const{
     std::vector<std::vector<double>> pts;
-    std::unique_ptr<TGraphErrors> fitGraph = std::unique_ptr<TGraphErrors>(new TGraphErrors());
-    std::unique_ptr<TF1> ffit = std::unique_ptr<TF1>(new TF1("ffit","-1/atan([0])*x + [1]"));
+    std::unique_ptr<TGraphErrors> fitGraph = std::make_unique<TGraphErrors>();
+    std::unique_ptr<TF1> ffit = std::make_unique<TF1>("ffit","-1/atan([0])*x + [1]");
     ffit->SetParameters(clusterTheta,2.5);
     double meanX = 0;
     for(auto const &idx:idxCluster){
@@ -309,31 +311,37 @@ const{
     float driftDist=0;
 
 
-    Amg::MatrixX* covN = new Amg::MatrixX(1,1);
-    covN->coeffRef(0,0)=0.3*0.3;
+    auto covN = Amg::MatrixX(1,1);
+    covN.coeffRef(0,0)=0.3*0.3;
     Amg::Vector2D localClusterPositionV(clusterPos,prdPerLayer.at(idxCluster.at(0)).localPosition().y()); // y position is the same for all strips
 
-    std::unique_ptr<MMPrepData> prdN=std::make_unique<MMPrepData>(prdPerLayer.at(idxCluster.at(0)).identify(),
-		prdPerLayer.at(idxCluster.at(0)).collectionHash(),
-		localClusterPositionV,stripsOfCluster,
-		covN,prdPerLayer.at(0).detectorElement(),
-		(short int)0,
-		std::accumulate(stripsOfClusterCharges.begin(),
-		  stripsOfClusterCharges.end(),0),
-		driftDist,
-		stripsOfClusterChannels,stripsOfClusterTimes,stripsOfClusterCharges);
+    std::unique_ptr<MMPrepData> prdN = std::make_unique<MMPrepData>(
+      prdPerLayer.at(idxCluster.at(0)).identify(),
+      prdPerLayer.at(idxCluster.at(0)).collectionHash(),
+      localClusterPositionV,
+      stripsOfCluster,
+      std::move(covN),
+      prdPerLayer.at(0).detectorElement(),
+      (short int)0,
+      std::accumulate(
+        stripsOfClusterCharges.begin(), stripsOfClusterCharges.end(), 0),
+      driftDist,
+      stripsOfClusterChannels,
+      stripsOfClusterTimes,
+      stripsOfClusterCharges);
 
+    prdN->setDriftDist(stripDriftDists, stripDriftDistErrors);
+    prdN->setAuthor(Muon::MMPrepData::Author::ConstraintuTPCClusterBuilder);
+    ATH_MSG_DEBUG("Did create new prd");
 
-     prdN->setDriftDist(stripDriftDists, stripDriftDistErrors);
-     prdN->setAuthor(Muon::MMPrepData::Author::ConstraintuTPCClusterBuilder);
-     ATH_MSG_DEBUG("Did create new prd");
+    ATH_MSG_DEBUG("Setting prd angle: " << fitResults[0]
+                                        << " chi2 Prob: " << 0);
 
-     ATH_MSG_DEBUG("Setting prd angle: "<< fitResults[0] <<" chi2 Prob: "<<0);
-
-     prdN->setMicroTPC(fitResults[0],0);
-     ATH_MSG_DEBUG("Reading back prd angle: "<< prdN->angle() <<" chi2 Prob: "<<prdN->chisqProb());
-     clustersVec.push_back(std::move(prdN));
-     ATH_MSG_DEBUG("pushedBack  prdN");
+    prdN->setMicroTPC(fitResults[0], 0);
+    ATH_MSG_DEBUG("Reading back prd angle: " << prdN->angle() << " chi2 Prob: "
+                                             << prdN->chisqProb());
+    clustersVec.push_back(std::move(prdN));
+    ATH_MSG_DEBUG("pushedBack  prdN");
 
 
 

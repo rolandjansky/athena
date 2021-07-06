@@ -12,7 +12,7 @@
 
 #include "CxxUtils/clock.h"
 
-#ifdef __APPLE__
+#if defined (__APPLE__) && __clang_major__ < 12
 #include <stdint.h>
 #include <mach/mach_time.h> 
 

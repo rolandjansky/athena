@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TGCConnectionASDToPP_hh
-#define TGCConnectionASDToPP_hh
+#ifndef TrigT1TGC_TGCConnectionASDToPP_hh
+#define TrigT1TGC_TGCConnectionASDToPP_hh
 
 #include "TrigT1TGC/TGCNumbering.h"
-#include <fstream>
 #include <sstream>
 
 namespace LVL1TGCTrigger {
@@ -36,9 +35,11 @@ private:
   int* m_PPId;
   int* m_connectorId;
   int* m_channelId;
-  static const int s_forwardLayer[];
+
+  // Strip backwardLayer  ->               0  1  2  3  4  5  6  7  8
+  static constexpr int s_forwardLayer[] = {2, 1, 0, 4, 3, 6, 5, 8, 7};
 };
 
-} //end of namespace bracket
+}  // end of namespace
 
-#endif // TGCConnectionASDToPP_hh
+#endif

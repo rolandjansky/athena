@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUDQA_GENERALTAUPLOTS_H
@@ -16,7 +16,7 @@ class GeneralTauPlots: public PlotBase {
       GeneralTauPlots(PlotBase *pParent, std::string sDir, std::string sTauJetContainerName);
       virtual ~GeneralTauPlots();
       
-      void fill(const xAOD::TauJet& tau);
+      void fill(const xAOD::TauJet& tau, float weight);
 
       Tau::ParamPlots m_oParamPlots;
       TH1* m_tauCharge;

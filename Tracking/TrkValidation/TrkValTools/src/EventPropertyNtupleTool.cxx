@@ -38,7 +38,7 @@ Trk::EventPropertyNtupleTool::EventPropertyNtupleTool(
   m_eventNumber(0),
   m_tdc_phase(0),
   m_trigLvl1Type(0),
-  m_trigLvl1TAV(0),
+  m_trigLvl1TAV(nullptr),
   m_lumiBlock(0),
   m_timeStamp(0),
   m_bCID     (0)
@@ -104,7 +104,7 @@ StatusCode Trk::EventPropertyNtupleTool::fillEventData( ) const {
   }
 
   if (m_doTrtPhase) {
-    const ComTime* comtime=0;
+    const ComTime* comtime=nullptr;
   
     if (evtStore()->contains<ComTime>(m_comTimeName)) {
       StatusCode sc = evtStore()->retrieve(comtime,m_comTimeName);
@@ -121,7 +121,7 @@ StatusCode Trk::EventPropertyNtupleTool::fillEventData( ) const {
 
   if (m_doTriggerInfo) {
     const TriggerInfo* myTriggerInfo=eventInfo->trigger_info();
-    if (myTriggerInfo!=0) {
+    if (myTriggerInfo!=nullptr) {
       m_trigLvl1Type = myTriggerInfo->level1TriggerType();
       std::vector<unsigned int> l1trigger = myTriggerInfo->level1TriggerInfo();
       if (l1trigger.size() == 24) { // size is 0 if trigger not simulated.

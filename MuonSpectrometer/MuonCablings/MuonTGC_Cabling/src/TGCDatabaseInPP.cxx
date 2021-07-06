@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTGC_Cabling/TGCDatabaseInPP.h"
@@ -10,7 +10,8 @@
 namespace MuonTGC_Cabling 
 {
 
-TGCDatabaseInPP::TGCDatabaseInPP(std::string filename, std::string blockname) 
+TGCDatabaseInPP::TGCDatabaseInPP(const std::string& filename,
+                                 const std::string& blockname) 
   : TGCDatabase(TGCDatabase::InPP, filename, blockname), m_NIndexDBIn(0) 
 {
   for(int iIndexIn=0; iIndexIn<NIndexIn; iIndexIn++) {

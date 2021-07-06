@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        Fancy Jet Skimmer (allows to also cut on jet moments)
@@ -223,30 +223,20 @@ class FancyJetFilter( PyAthena.AthFilterAlgorithm ):
                                 if self.utils['deltaR'](jet, lep) <= self.deltaR :
                                     doesOverlap = True
                                     break
-                                pass
                             if not doesOverlap :
                                 if jet.et() > leadEt :
                                     leadEt = jet.et()
-                                    pass
                                 jet_pass+=1
                                 jetCopy = jet
                                 goodJets.push_back( jetCopy )
-                                pass
-                            pass
                         else :
                             self.msg.debug( 'FancyJetFilter: I am NOT in overlap!' )
                             if jet.et() > leadEt :
                                 leadEt = jet.et()
-                                pass
                             jet_pass+=1
                             jetCopy = jet
                             goodJets.push_back( jetCopy )
                             self.msg.debug("added a good jet")
-                            pass
-                        pass
-                    pass
-                pass
-            pass
 
         # Print a debug message
         self.msg.debug( 'Done with the loop over the jets. Have %s jets in collection, put %s jets in goodJets, and the leading jet has et = %s GeV.', jetCollection.size(), goodJets.__len__(), leadEt/Units.GeV )
@@ -260,11 +250,9 @@ class FancyJetFilter( PyAthena.AthFilterAlgorithm ):
             self.msg.debug( '%s event passed.', self.name() )
             self.setFilterPassed(True)
             self.nEventPassed += 1
-            pass
         else:
             self.msg.debug( '%s event failed', self.name() )
             self.setFilterPassed(False)
-            pass
         
         return StatusCode.Success
 

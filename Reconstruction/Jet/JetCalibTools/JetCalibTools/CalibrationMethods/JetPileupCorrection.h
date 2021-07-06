@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETCALIBTOOLS_JETPILEUPCORRECTION_H
@@ -14,10 +14,15 @@
 
 #include <TEnv.h>
 
+#include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetCalibTools/JetCalibrationToolBase.h"
 #include "JetCalibTools/CalibrationMethods/ResidualOffsetCorrection.h"
 
-class JetPileupCorrection 
+namespace PUCorrection {
+  struct PU3DCorrectionHelper;
+}
+
+class JetPileupCorrection
   : virtual public ::JetCalibrationToolBase
 {
 
@@ -26,7 +31,7 @@ class JetPileupCorrection
  public:
   JetPileupCorrection();
   JetPileupCorrection(const std::string& name);
-  JetPileupCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool doResidual, bool doOrigin, bool isData, bool dev);
+  JetPileupCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool doResidual, bool doJetArea, bool doOrigin, bool isData, bool dev);
   virtual ~JetPileupCorrection();
 
   //virtual bool initializeTool(const std::string& name, TEnv * config, TString jetAlgo, bool doResidual, bool isData);
@@ -41,12 +46,23 @@ class JetPileupCorrection
   TString m_calibAreaTag;
   bool m_dev;
   bool m_doResidual;
+  bool m_doJetArea;
   bool m_doOrigin;
   bool m_isData;
+  bool m_doMuOnly;
+  bool m_doNPVOnly;
+  bool m_doNJetOnly;
+  bool m_doSequentialResidual;
+
+  bool m_do3Dcorrection;
 
   bool m_useFull4vectorArea;
   ResidualOffsetCorrection * m_residualOffsetCorr;
-  
+
+  std::unique_ptr<PUCorrection::PU3DCorrectionHelper> m_residual3DCorr;
+
+  bool m_doOnlyResidual;
+
   std::string m_originScale;
 
 };

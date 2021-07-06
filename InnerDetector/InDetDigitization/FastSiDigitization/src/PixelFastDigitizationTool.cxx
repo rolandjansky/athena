@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////
@@ -13,16 +13,15 @@
 // Det Descr
 #include "Identifier/Identifier.h"
 
-#include "InDetReadoutGeometry/SiReadoutCellId.h"
+#include "ReadoutGeometryBase/SiReadoutCellId.h"
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
-#include "InDetReadoutGeometry/SiCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 
 // Random numbers
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandLandau.h"
 
 // DataHandle
@@ -30,7 +29,6 @@
 
 // Pile-up
 
-#include "InDetReadoutGeometry/SiDetectorDesign.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 
 // Fatras
@@ -173,7 +171,7 @@ StatusCode PixelFastDigitizationTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  if (m_inputObjectName=="")
+  if (m_inputObjectName.empty())
     {
       ATH_MSG_FATAL ( "Property InputObjectName not set !" );
       return StatusCode::FAILURE;
@@ -442,13 +440,7 @@ StatusCode PixelFastDigitizationTool::mergeEvent(const EventContext& ctx)
   }
 
   delete m_thpcsi;
-  std::list<SiHitCollection*>::iterator siHitColl(m_siHitCollList.begin());
-  std::list<SiHitCollection*>::iterator siHitCollEnd(m_siHitCollList.end());
-  while(siHitColl!=siHitCollEnd)
-    {
-      delete (*siHitColl);
-      ++siHitColl;
-    }
+  for(SiHitCollection* ptr : m_siHitCollList) delete ptr;
   m_siHitCollList.clear();
 
 
@@ -493,6 +485,8 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
   else { m_pixelClusterMap->clear(); }
 
   SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey, ctx);
+  std::vector<int> trkNo;
+  std::vector<Identifier> detEl;
 
   while (m_thpcsi->nextDetectorElement(i, e)) {
 
@@ -500,8 +494,8 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
 
     int nnn = 0;
 
-    std::vector<int> trkNo;
-    std::vector<Identifier> detEl;
+    trkNo.clear();
+    detEl.clear();
 
     while (i != e) {
 
@@ -652,14 +646,11 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
 
       std::vector<Identifier>           rdoList;
       std::vector<int>                  totList;
-      std::vector<int>                  PixelIndicesX;
-      std::vector<int>                  PixelIndicesY;
 
       const bool   isGanged = false;
       int lvl1a = 0;
 
       double accumulatedPathLength=0.;
-      std::vector < double > paths;
 
       //ATTENTION index max e min da rdo + manager
       int phiIndexMax = -999999;
@@ -676,7 +667,7 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
           // create the smdar parameter
           double sPar = m_pixSmearLandau ?
             m_pixSmearPathLength*CLHEP::RandLandau::shoot(m_randomEngine) :
-            m_pixSmearPathLength*CLHEP::RandGauss::shoot(m_randomEngine);
+            m_pixSmearPathLength*CLHEP::RandGaussZiggurat::shoot(m_randomEngine);
           pathlenght *=  (1.+sPar);
         }
 
@@ -719,11 +710,8 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
       int siDeltaPhiCut = phiIndexMax-phiIndexMin+1;
       int siDeltaEtaCut = etaIndexMax-etaIndexMin+1;
 
-      int totalToT=0;
-      for (unsigned int i=0; i<totList.size() ; i++){
-        totalToT+=totList[i];
+      int totalToT=std::accumulate(totList.begin(), totList.end(), 0);;
 
-      }
       // bail out if 0 pixel or path length problem
       if (!rdoList.size() || accumulatedPathLength < pixMinimalPathCut || totalToT == 0) {
         if (totalToT == 0 && rdoList.size() > 0 ) ATH_MSG_WARNING("The total ToT of the cluster is 0, this should never happen");
@@ -744,14 +732,14 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
           //make a temporary to use within the loop and possibly erase - increment the main interator at the same time.
           Pixel_detElement_RIO_map::iterator clusIter = currentClusIter++;
           InDet::PixelCluster* currentCluster = clusIter->second;
-          std::vector<Identifier> currentRdoList = currentCluster->rdoList();
+          const std::vector<Identifier> &currentRdoList = currentCluster->rdoList();
           bool areNb = false;
           for (std::vector<Identifier>::const_iterator rdoIter = rdoList.begin(); rdoIter != rdoList.end(); ++rdoIter) {
             areNb = this->areNeighbours(currentRdoList, *rdoIter, hitSiDetElement,*m_pixel_ID);
             if (areNb) { break; }
           }
           if (areNb) {
-            std::vector<int> currentTotList = currentCluster->totList();
+            const std::vector<int> &currentTotList = currentCluster->totList();
             rdoList.insert(rdoList.end(), currentRdoList.begin(), currentRdoList.end() );
             totList.insert(totList.end(), currentTotList.begin(), currentTotList.end() );
             Amg::Vector2D       currentClusterPosition(currentCluster->localPosition());
@@ -817,9 +805,13 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
         //           clusterPosition = SG::ReadCondHandle<PixelDistortionData>(m_distortionKey)->correctSimulation(m_pixel_ID->wafer_hash(hitSiDetElement->identify()), clusterPosition, localDirection);
 
         // from InDetReadoutGeometry: width from eta
-        double etaWidth = dynamic_cast<const InDetDD::PixelModuleDesign*>(&hitSiDetElement->design())->widthFromColumnRange(etaIndexMin, etaIndexMax);
+        auto pixModDesign = dynamic_cast<const InDetDD::PixelModuleDesign*>(&hitSiDetElement->design());
+        if (!pixModDesign) {
+          return StatusCode::FAILURE;
+        }
+        double etaWidth = pixModDesign->widthFromColumnRange(etaIndexMin, etaIndexMax);
         // from InDetReadoutGeometry : width from phi
-        double phiWidth = dynamic_cast<const InDetDD::PixelModuleDesign*>(&hitSiDetElement->design())->widthFromRowRange(phiIndexMin, phiIndexMax);
+        double phiWidth = pixModDesign->widthFromRowRange(phiIndexMin, phiIndexMax);
 
         InDet::SiWidth siWidth(Amg::Vector2D(siDeltaPhiCut,siDeltaEtaCut),
                                Amg::Vector2D(phiWidth,etaWidth));
@@ -1025,13 +1017,13 @@ Trk::DigitizationModule* PixelFastDigitizationTool::buildDetectorModule(const In
   //        << " --  element->hitPhiDirection() = " << hitSiDetElement->hitPhiDirection() << std::endl;
 
   // rectangle bounds
-  std::shared_ptr<const Trk::RectangleBounds> rectangleBounds(new Trk::RectangleBounds(halfWidth,halfLenght));
+  auto rectangleBounds = std::make_shared<const Trk::RectangleBounds>(halfWidth,halfLenght);
   ATH_MSG_VERBOSE("Initialized rectangle Bounds");
   // create the segmentation
-  std::shared_ptr<const Trk::Segmentation> rectangleSegmentation(new Trk::RectangularSegmentation(rectangleBounds,(size_t)binsX,LongPitch,(size_t)binsY, numberOfChip));
+  std::shared_ptr<const Trk::Segmentation> rectangleSegmentation(new Trk::RectangularSegmentation(std::move(rectangleBounds),(size_t)binsX,LongPitch,(size_t)binsY, numberOfChip));
   // build the module
   ATH_MSG_VERBOSE("Initialized rectangleSegmentation");
-  Trk::DigitizationModule * digitizationModule = new Trk::DigitizationModule(rectangleSegmentation,
+  Trk::DigitizationModule * digitizationModule = new Trk::DigitizationModule(std::move(rectangleSegmentation),
                                                                                halfThickness,
                                                                                readoutDirection,
                                                                                lorentzAngle);

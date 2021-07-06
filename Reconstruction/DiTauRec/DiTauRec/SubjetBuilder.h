@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DITAUREC_SUBJETBUILDER_H
@@ -10,36 +10,36 @@
 #include "fastjet/tools/Filter.hh"
 
 class SubjetBuilder : public DiTauToolBase {
-public:
+ public:
 
- //-------------------------------------------------------------
- //! Constructor
- //-------------------------------------------------------------
- SubjetBuilder(const std::string& type,
-         const std::string& name,
-         const IInterface * parent);
+  //-------------------------------------------------------------
+  //! Constructor
+  //-------------------------------------------------------------
+  SubjetBuilder(const std::string& type,
+		const std::string& name,
+		const IInterface * parent);
 
- //-------------------------------------------------------------
- //! Destructor
- //-------------------------------------------------------------
- virtual ~SubjetBuilder();
+  //-------------------------------------------------------------
+  //! Destructor
+  //-------------------------------------------------------------
+  virtual ~SubjetBuilder();
 
- virtual StatusCode initialize() override;
+  virtual StatusCode initialize() override;
 
- virtual StatusCode execute(DiTauCandidateData * data,
-                            const EventContext& ctx) const override;
+  virtual StatusCode execute(DiTauCandidateData * data,
+			     const EventContext& ctx) const override;
 
- virtual void cleanup(DiTauCandidateData *) override { }
+  virtual void cleanup(DiTauCandidateData *) override { }
 
 
-private:
+ private:
 
- float m_Rsubjet;
- int m_Nsubjet;
- float m_ptmin;
+  float m_Rsubjet;
+  int m_Nsubjet;
+  float m_ptmin;
 
- // fastjet::Filter m_SubjetFilter;
+  // fastjet::Filter m_SubjetFilter;
 
 };
 
-#endif  /* SUBJETBUILDER_H */
+#endif  // DITAUREC_SUBJETBUILDER_H

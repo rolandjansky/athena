@@ -20,6 +20,16 @@ namespace D3PD {
 
    StatusCode GenVertexParticleAssociationTool::reset( const HepMC::GenVertex& p ) {
 
+#ifdef HEPMC3
+      if( m_inParticles ) {
+         m_partItr = p.particles_in().begin();
+         m_partEnd = p.particles_in().end();
+         return StatusCode::SUCCESS;
+      }
+
+      m_partItr = p.particles_out().begin();
+      m_partEnd = p.particles_out().end();
+#else
       if( m_inParticles ) {
          m_partItr = p.particles_in_const_begin();
          m_partEnd = p.particles_in_const_end();
@@ -28,9 +38,15 @@ namespace D3PD {
 
       m_partItr = p.particles_out_const_begin();
       m_partEnd = p.particles_out_const_end();
+#endif
       return StatusCode::SUCCESS;
    }
 
+#ifdef HEPMC3
+const HepMC::GenParticle* GenVertexParticleAssociationTool::next() {
+return nullptr;
+}
+#else
    const HepMC::GenParticle* GenVertexParticleAssociationTool::next() {
 
       if( m_partItr == m_partEnd ) return 0;
@@ -41,5 +57,6 @@ namespace D3PD {
 
       return part;
    }
+#endif
 
 } // namespace D3PD

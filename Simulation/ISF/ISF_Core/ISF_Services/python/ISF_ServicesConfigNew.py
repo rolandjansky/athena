@@ -11,7 +11,7 @@ from ISF_HepMC_Tools.ISF_HepMC_ToolsConfigNew import (
     KeepLLPHadronicInteractionChildrenStrategyCfg,
     TruthStrategyGroupID_MC15Cfg,
     TruthStrategyGroupIDHadInt_MC15Cfg,
-    TruthStrategyGroupCaloMuBrem_MC15Cfg,
+    #TruthStrategyGroupCaloMuBrem_MC15Cfg,
     TruthStrategyGroupCaloDecay_MC15Cfg,
     LLPTruthStrategyCfg,
     TruthStrategyGroupIDCfg,
@@ -39,11 +39,11 @@ def GenParticleFiltersToolCfg(ConfigFlags):
         if ConfigFlags.Beam.Type != "cosmics":
             acc = ParticlePositionFilterDynamicCfg(ConfigFlags)
             genParticleFilterList += [result.popToolsAndMerge(acc)]
-            if not (ConfigFlags.Detector.SimulateAFP or
-               ConfigFlags.Detector.SimulateALFA or
-               ConfigFlags.Detector.SimulateFwdRegion) and \
-               ((ConfigFlags.Sim.CavernBG in (False, "Signal")) and
-               (not ConfigFlags.Detector.SimulateCavern)):
+            if not (ConfigFlags.Detector.GeometryAFP or
+               ConfigFlags.Detector.GeometryALFA or
+               ConfigFlags.Detector.GeometryFwdRegion) and \
+               ((ConfigFlags.Sim.CavernBG in ("Off", "Signal")) and
+               (not ConfigFlags.Detector.GeometryCavern)):
                 acc = EtaPhiFilterCfg(ConfigFlags)
                 genParticleFilterList += [result.popToolsAndMerge(acc)]
     acc = GenParticleInteractingFilterCfg(ConfigFlags)
@@ -56,8 +56,9 @@ def InputConverterCfg(ConfigFlags, name="ISF_InputConverter", **kwargs):
     result = BarcodeSvcCfg(ConfigFlags)
     kwargs.setdefault("BarcodeSvc", result.getPrimary())
     kwargs.setdefault("UseGeneratedParticleMass", False)
-    acc_GenParticleFiltersList = GenParticleFiltersToolCfg(ConfigFlags)
-    kwargs.setdefault("GenParticleFilters", result.popToolsAndMerge(acc_GenParticleFiltersList) )
+    if "GenParticleFilters" not in kwargs:
+        acc_GenParticleFiltersList = GenParticleFiltersToolCfg(ConfigFlags)
+        kwargs.setdefault("GenParticleFilters", result.popToolsAndMerge(acc_GenParticleFiltersList) )
     result.addService(CompFactory.ISF.InputConverter(name, **kwargs))
     return result
 
@@ -78,9 +79,9 @@ def LongLivedInputConverterCfg(ConfigFlags, name="ISF_LongLivedInputConverter", 
 def ParticleBrokerSvcNoOrderingCfg(ConfigFlags, name="ISF_ParticleBrokerSvcNoOrdering", **kwargs):
     result = ComponentAccumulator()
     if "EntryLayerTool" not in kwargs:
-        result.merge(EntryLayerToolCfg(ConfigFlags))
-        tool = result.getPublicTool("ISF_EntryLayerTool")
-        kwargs.setdefault("EntryLayerTool", tool)
+        tool = result.popToolsAndMerge(EntryLayerToolCfg(ConfigFlags))
+        result.addPublicTool(tool)
+        kwargs.setdefault("EntryLayerTool", result.getPublicTool(tool.name))
         kwargs.setdefault("GeoIDSvc", result.getService("ISF_GeoIDSvc"))
     # assume "GeoIDSvc" has been set alongside "EntryLayerTool"
     kwargs.setdefault("AlwaysUseGeoIDSvc", False)
@@ -106,9 +107,11 @@ def ParticleBrokerSvcCfg(ConfigFlags, name="ISF_ParticleBrokerSvc", **kwargs):
 
 
 def AFIIParticleBrokerSvcCfg(ConfigFlags, name="ISF_AFIIParticleBrokerSvc", **kwargs):
-    result = AFIIEntryLayerToolCfg(ConfigFlags)
-    tool = result.getPublicTool("ISF_AFIIEntryLayerTool")
-    kwargs.setdefault("EntryLayerTool", tool)
+    result = ComponentAccumulator()
+    tool = result.popToolsAndMerge(AFIIEntryLayerToolCfg(ConfigFlags))
+    result.addPublicTool(tool)
+
+    kwargs.setdefault("EntryLayerTool", result.getPublicTool(tool.name))
     kwargs.setdefault("GeoIDSvc", result.getService("ISF_AFIIGeoIDSvc"))
     result.merge(ParticleBrokerSvcCfg(ConfigFlags, name, **kwargs))
     return result
@@ -137,8 +140,10 @@ def TruthServiceCfg(ConfigFlags, **kwargs):
 
 
 def GenericTruthServiceCfg(ConfigFlags, name="ISF_TruthService", **kwargs):
-    result = BarcodeSvcCfg(ConfigFlags)
-    kwargs.setdefault("BarcodeSvc", result.getPrimary())
+    result = ComponentAccumulator()
+    tmpAcc = BarcodeSvcCfg(ConfigFlags)
+    kwargs.setdefault("BarcodeSvc", tmpAcc.getPrimary())
+    result.merge(tmpAcc)
 
     kwargs.setdefault("SkipIfNoChildren", True)
     kwargs.setdefault("SkipIfNoParentBarcode", True)
@@ -249,9 +254,8 @@ def MC15TruthServiceCfg(ConfigFlags, name="ISF_MC15TruthService", **kwargs):
         truthCfgs = [
             TruthStrategyGroupID_MC15Cfg,
             TruthStrategyGroupIDHadInt_MC15Cfg,
-            TruthStrategyGroupCaloMuBrem_MC15Cfg,
-            TruthStrategyGroupCaloDecay_MC15Cfg,
-        ]
+            TruthStrategyGroupCaloMuBremCfg, # FIXME - should be TruthStrategyGroupCaloMuBrem_MC15Cfg but keeping this for consistency with old style
+            TruthStrategyGroupCaloDecay_MC15Cfg ]
         truthStrats = [result.popToolsAndMerge(cfg(ConfigFlags)) for cfg in truthCfgs]
         kwargs.setdefault("TruthStrategies", truthStrats)
 
@@ -284,7 +288,7 @@ def MC15aPlusLLPTruthServiceCfg(ConfigFlags, name="ISF_MC15aPlusLLPTruthService"
         KeepLLPHadronicInteractionChildrenStrategyCfg,
         TruthStrategyGroupID_MC15Cfg,
         TruthStrategyGroupIDHadInt_MC15Cfg,
-        TruthStrategyGroupCaloMuBrem_MC15Cfg,
+        TruthStrategyGroupCaloMuBremCfg, # FIXME - should be TruthStrategyGroupCaloDecay_MC15Cfg but keeping this for consistency with old style
         TruthStrategyGroupCaloDecay_MC15Cfg,
         LLPTruthStrategyCfg,
     ]

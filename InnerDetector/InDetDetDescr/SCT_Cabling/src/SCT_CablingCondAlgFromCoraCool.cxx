@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**   
@@ -252,7 +252,7 @@ SCT_CablingCondAlgFromCoraCool::execute(const EventContext& ctx) const {
   //so here we take whatever is in the database and map it onto numbers 0-15
   {//scope this calculation, only slotMap should emerge
     //map slots onto 0-15
-    typedef std::set<int> S;
+    using S = std::set<int>;
     S slots;
     for (; rodIt != last_rod; ++rodIt) {
       //type of 'slot' changed between COMP200 and CONDBR2:

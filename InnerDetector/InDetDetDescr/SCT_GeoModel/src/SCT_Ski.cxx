@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_Ski.h"
@@ -306,7 +306,7 @@ SCT_Ski::preBuild()
   GeoBox * envelope1 = new GeoBox(0.5 * (xmax1-xmin1), 0.5 * (ymax1-ymin1), 0.5 * m_length);
   GeoBox * envelope2 = new GeoBox(0.5 * (xmax2-xmin2), 0.5 * (ymax2-ymin2), 0.5 * m_length);
 
-  const GeoShape * skiEnvelopeShape = 0;
+  const GeoShape * skiEnvelopeShape = nullptr;
     
   const GeoShape & tmpShape = (*envelope1).
     add(*envelope2 << GeoTrf::Translate3D(xShift2, yShift2, 0));

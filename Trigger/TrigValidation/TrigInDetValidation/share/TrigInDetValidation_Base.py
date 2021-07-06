@@ -1,9 +1,6 @@
 ###  #!/usr/bin/env python
 
-
-
 # Slices = ['fsjet']
-# RunEF  = False
 # Events = 10
 # Threads = 1
 # Slots = 1
@@ -13,38 +10,37 @@
 import re
 
 from TrigValTools.TrigValSteering import Test, CheckSteps
-from TrigInDetValidation.TrigInDetArtSteps import TrigInDetReco, TrigInDetAna, TrigInDetdictStep, TrigInDetCompStep, TrigInDetCpuCostStep
+from TrigInDetValidation.TrigInDetArtSteps import TrigInDetReco, TrigInDetAna, TrigCostStep, TrigInDetRdictStep, TrigInDetCompStep, TrigInDetCpuCostStep
 
 
-import sys,getopt
+import os,sys,getopt
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"lcxpn:",["local","config"])
+    opts, args = getopt.getopt(sys.argv[1:],"lcxptmn:",["local","config"])
 except getopt.GetoptError:
     print("Usage:  ")
-    print("-l(--local)    run locally with input file from art eos grid-input")
+    print("-l | --local   run locally with input file from art eos grid-input")
     print("-x             don't run athena or post post-processing, only plotting")
+    print("-m             run cost monitoring plotting, even if -x is set")
     print("-p             run post-processing, even if -x is set")
     print("-n  N          run only on N events per job")
-    print("-c(--config)   run with config_only and print to a pkl file")
+    print("-c | --config  run with config_only and print to a pkl file")
+    print("-t             test steering, dry run for all steps")
     print("")
-
+    sys.exit(1)
 
 Events_local  = 0
 local         = False
 exclude       = False
+costplot      = False
 postproc      = False
 testconfig    = False
-lowpt_local   = []
+dry_run       = False
 
 
-try: GridFiles
-except NameError: GridFiles=False
-
-if GridFiles==True :
-    use_gridfiles = True
-else:
-    use_gridfiles = False
+if "Art_type"  not in locals(): Art_type = 'grid'
+if "GridFiles" not in locals(): GridFiles=False
+if "Malloc" not in locals(): Malloc=False
 
 for opt,arg in opts:
     if opt in ("-l", "--local"):
@@ -53,16 +49,31 @@ for opt,arg in opts:
         exclude=True
     if opt=="-p":
         postproc=True
+    if opt=="-m":
+        costplot=True
     if opt=="-n":
-        Events_local=arg
+        Events_local=int(arg)
     if opt in ("-c", "--config"):
         testconfig = True
+    if opt=="-t":
+        dry_run=True
+
+vdry_run = os.environ.get('TRIGVALSTEERING_DRY_RUN')
+
+if vdry_run == '1':
+    dry_run=True
 
 
 if 'postinclude_file' in dir() :
-    rdo2aod = TrigInDetReco( postinclude_file = postinclude_file )
+    if 'preinclude_file' in dir() :
+        rdo2aod = TrigInDetReco( postinclude_file=postinclude_file, preinclude_file=preinclude_file )
+    else :
+        rdo2aod = TrigInDetReco( postinclude_file=postinclude_file )
 else :
-    rdo2aod = TrigInDetReco()
+    if 'preinclude_file' in dir() :
+        rdo2aod = TrigInDetReco( preinclude_file=preinclude_file )
+    else :
+        rdo2aod = TrigInDetReco()
 
 # test specific variables ...
 
@@ -70,18 +81,13 @@ rdo2aod.slices            = Slices
 rdo2aod.threads           = Threads
 rdo2aod.concurrent_events = Slots 
 rdo2aod.config_only       = testconfig
-
-if "Lowpt" in locals() : 
-    if isinstance( Lowpt, list ) : 
-        lowpt_local = Lowpt
-    else : 
-        lowpt_local = [ Lowpt ]
-else : 
-    lowpt_local = [ False ]
+if 'Release' in dir():
+    rdo2aod.release           = Release
 
 
 if "Args" not in locals() : 
     Args = " "
+
 
 # allow command line to override programed number of events to process
 
@@ -92,10 +98,11 @@ else :
 
 
 rdo2aod.perfmon = False
+rdo2aod.costmon = True
 rdo2aod.timeout = 18*3600
 rdo2aod.input   = Input    # defined in TrigValTools/share/TrigValInputs.json  
 
-if use_gridfiles: 
+if GridFiles:
     if local:
 #   rdo2aod.input = 'Single_el_larged0'    # defined in TrigValTools/share/TrigValInputs.json  
        rdo2aod.input = Input   # should match definition in TrigValTools/share/TrigValInputs.json  
@@ -103,83 +110,64 @@ if use_gridfiles:
        rdo2aod.input = ''
        rdo2aod.args += ' --inputRDOFile=$ArtInFile '
 
-
+if (Malloc):
+    import os
+    os.environ["MALLOC_CHECK_"] = "3"
+    rdo2aod.malloc = True
 
 # Run athena analysis to produce TrkNtuple
 
 test = Test.Test()
-test.art_type = 'grid'
+test.art_type = Art_type
+
+
+if 'ExtraAna' not in locals() :
+    ExtraAna = None
+aod_to_ntup = TrigInDetAna(extraArgs = ExtraAna)
+
+
+rdo_to_cost = TrigCostStep()
+
+if dry_run:
+    test.dry_run = True
 if (not exclude):
-    test.exec_steps = [rdo2aod]
-    test.exec_steps.append(TrigInDetAna())
+    test.exec_steps = [rdo2aod, aod_to_ntup, rdo_to_cost]
     test.check_steps = CheckSteps.default_check_steps(test)
 
 # Run TIDArdict
 
-# first make sure that we have a proper list ..
-if isinstance( TrackReference, str ):
-    TrackReference = [ TrackReference ]
-
-for ref in TrackReference : 
-
-    hist_file = 'data-hists.root'
-    ext       = ''
-
-    if   ( ref == 'Truth' ) :
-        args = 'TIDAdata-run3.dat  -b Test_bin.dat -o ' + hist_file + Args
-    elif ( ref == 'Offline' ) :
-        # if more than one reefrence ...
-        if len(TrackReference)>1 : 
-            hist_file = 'data-hists-offline.root'
-            ext       = 'offline'
-        args = 'TIDAdata-run3-offline.dat -r Offline  -b Test_bin.dat -o ' + hist_file
-    else :
-        # here actually we should allow functionality 
-        # to use different pdgid truth or offline as
-        # a reference:
-        # presumably we run offline muons etc as well 
-        # now in the transform
-        raise Exception( 'unknown reference: ', ref )
-
-    if ((not exclude) or postproc ):
-        rdict = TrigInDetdictStep( name=ref, reference=ref )
-        rdict.args = args
-        print( "\033[0;32m TIDArdict "+args+" \033[0m" )
-
+if ((not exclude) or postproc ):
+    for job in Jobs :
+        if len(job) >= 3:
+            rdict = TrigInDetRdictStep( name=job[0], args=job[1], testbin=job[2], config=(testconfig or dry_run)  )
+        else:
+            rdict = TrigInDetRdictStep( name=job[0], args=job[1], config=(testconfig or dry_run) )
+        print( "\n\033[0;32m TIDArdict "+job[1]+" \033[0m" )
         test.check_steps.append(rdict)
+
+
+
        
-    # Now the comparitor steps
-    # here, the compararitor must know the name of the root file to process
-    # we set it in the comparitor job, using the "offline" extension
-    # this isn't ideal, since we set the hist file in this code also 
-    # so really we should pass it in consistently, and the options 
-    # for the directory names should be unrelated 
-    
-    for slice in Slices :
-        for _lowpt in lowpt_local :
-            
-            stagetag = slice+ext
-            if _lowpt :
-                stagetag += "-lowpt"
-                
-            print( "stagetag "+stagetag )
-                
-            comp1=TrigInDetCompStep( 'Comp_L2'+stagetag, 'L2', slice, type=ext, lowpt=_lowpt )
-            test.check_steps.append(comp1)
-            
-            if ( RunEF ) : 
-                comp2=TrigInDetCompStep( 'Comp_EF'+stagetag, 'EF', slice, type=ext, lowpt=_lowpt )
-                test.check_steps.append(comp2)
-
-
+        
+for _slice in Comp :
+    compstep = TrigInDetCompStep( name=_slice[0], slice=_slice[1], file=_slice[2], args=_slice[3] ) 
+    test.check_steps.append(compstep)
 
 # CPU cost steps
+# cputest defined with "name" "output directory" "filename" "args" 
+cputest = [ ( "CpuCostStep1", " times ",               "expert-monitoring.root",    " --auto -p TIME" ),
+            ( "CpuCostStep2", " times-FTF ",           "expert-monitoring.root",    " --auto -p TIME -d TrigFastTrackFinder_" ),
+            ( "CpuCostStep3", " cost-perCall ",        "TrigCostRoot_Results.root", " --auto -p _Time_perCall  -d /Algorithm  --logx " ),
+            ( "CpuCostStep4", " cost-perEvent ",       "TrigCostRoot_Results.root", " --auto -p _Time_perEvent -d /Algorithm  --logx " ),
+            ( "CpuCostStep5", " cost-perCall-chain ",  "TrigCostRoot_Results.root", " --auto -p _Time_perCall  -d /Chain_Algorithm  --logx " ),
+            ( "CpuCostStep6", " cost-perEvent-chain ", "TrigCostRoot_Results.root", " --auto -p _Time_perEvent -d /Chain_Algorithm  --logx " ) ]
+            
 
-cpucost=TrigInDetCpuCostStep('CpuCostStep1', ftf_times=False)
-test.check_steps.append(cpucost)
+if ((not exclude) or postproc or costplot ):
+    for job in cputest :
+        cpucost = TrigInDetCpuCostStep( name=job[0], outdir=job[1], infile=job[2], extra=job[3] )
+        test.check_steps.append(cpucost)
 
-cpucost2=TrigInDetCpuCostStep('CpuCostStep2')
-test.check_steps.append(cpucost2)
 
 import sys
 sys.exit(test.run())

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileConditions/TileCondToolNoiseRawChn.h"
@@ -54,13 +54,13 @@ StatusCode TileCondToolNoiseRawChn::finalize() {
 //
 //____________________________________________________________________
 float TileCondToolNoiseRawChn::getElectronicNoise(unsigned int drawerIdx, unsigned int channel, unsigned int adc,
-                                                  TileRawChannelUnit::UNIT unit) const {
+                                                  TileRawChannelUnit::UNIT unit, const EventContext &ctx) const {
 
-  SG::ReadCondHandle<TileCalibDataFlt> calibRawChannelNoise(m_calibRawChannelNoiseKey);
+  SG::ReadCondHandle<TileCalibDataFlt> calibRawChannelNoise(m_calibRawChannelNoiseKey, ctx);
   float val = calibRawChannelNoise->getCalibDrawer(drawerIdx)->getData(channel, adc, 0);
 
   if (unit > TileRawChannelUnit::ADCcounts) {
-    SG::ReadCondHandle<TileEMScale> emScale (m_emScaleKey);
+    SG::ReadCondHandle<TileEMScale> emScale (m_emScaleKey, ctx);
     val = emScale->calibrateChannel(drawerIdx, channel, adc, val, TileRawChannelUnit::ADCcounts, unit);
   }
 
@@ -70,9 +70,10 @@ float TileCondToolNoiseRawChn::getElectronicNoise(unsigned int drawerIdx, unsign
 
 //
 //____________________________________________________________________
-float TileCondToolNoiseRawChn::getPileUpNoise(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const {
+float TileCondToolNoiseRawChn::getPileUpNoise(unsigned int drawerIdx, unsigned int channel, unsigned int adc,
+                                              const EventContext &ctx) const {
 
-  SG::ReadCondHandle<TileCalibDataFlt> calibRawChannelNoise(m_calibRawChannelNoiseKey);
+  SG::ReadCondHandle<TileCalibDataFlt> calibRawChannelNoise(m_calibRawChannelNoiseKey, ctx);
   return calibRawChannelNoise->getCalibDrawer(drawerIdx)->getData(channel, adc, 1);
 
 }

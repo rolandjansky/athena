@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATE_STOREGATESVC_H
@@ -49,8 +49,8 @@
 #include "SGTools/ProxyMap.h" /* for SG::ConstProxyIterator */
 
 // includes used in StoreGateSvc.icc
+#include "GaudiKernel/IClassIDSvc.h"
 #include "AthenaKernel/IResetable.h"
-#include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IIOVSvc.h"
 #include "StoreGate/SGIterator.h"
 #include "StoreGate/DataHandle.h"
@@ -228,9 +228,21 @@ public:
   template <typename T, typename TKEY> 
   StatusCode retrieve(const T*& ptr, const TKEY& key) const;
 
+  /// Retrieve an object with "key", into a const T*.
+  /// Overload for std::string KEY type
+  template <typename T>
+  StatusCode retrieve(const T*& ptr, const std::string& key) const;
+
+
   /// Retrieve an object with "key", into a T*
   template <typename T, typename TKEY>
   StatusCode retrieve(T*& ptr, const TKEY& key) const;
+
+  /// Retrieve an object with "key", into a T*.
+  /// Overload for std::string KEY type
+  template <typename T>
+  StatusCode retrieve(T*& ptr, const std::string& key) const;
+
 
   /// Variant of the above which doesn't return a status code.
   /// Just returns null if the object isn't found.
@@ -642,11 +654,12 @@ public:
 
   /**
    * @brief Return the metadata source ID for the current event slot.
+   * @param key SG key of the DataHeader to query.
    *        Returns an empty string if no source has been set.
    *
    *        The default version always returns an empty string.
    */
-  virtual SG::SourceID sourceID() const override;
+  virtual SG::SourceID sourceID (const std::string& key = "EventSelector") const override;
 
 
   /////////////////////////////////////////////////////////////////////////

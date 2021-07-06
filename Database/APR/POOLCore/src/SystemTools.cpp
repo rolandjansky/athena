@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "POOLCore/SystemTools.h"
@@ -122,13 +122,17 @@ namespace pool
       SmartIF<IAppMgrUI> appMgr(iface);
       SmartIF<IProperty> propMgr(iface);
 
-      propMgr->setProperty( "JobOptionsType", "NONE" ) .ignore();
+      propMgr->setProperty( "JobOptionsType", "NONE" ).
+        orThrow("Cannot set JobOptionsType property", "initGaudi");
       // prevents unwanted output from the AppMgr
-      propMgr->setProperty( "OutputLevel", "4" ) .ignore();
+      propMgr->setProperty( "OutputLevel", "4" ).
+        orThrow("Cannot set OutputLevel property", "initGaudi");
       // minimal configuration
-      propMgr->setProperty( "EventLoop", "MinimalEventLoopMgr" ) .ignore();
+      propMgr->setProperty( "EventLoop", "MinimalEventLoopMgr" ).
+        orThrow("Cannot set EventLoop property", "initGaudi");
       // this prevents AppMgr "welcome" output
-      propMgr->setProperty( "AppName", "" ) .ignore();
+      propMgr->setProperty( "AppName", "" ).
+        orThrow("Cannot set AppName property", "initGaudi");
 
       if( !appMgr->configure().isSuccess() || !appMgr->initialize().isSuccess() ) {
          std::cerr << "Gaudi ApplicationMgr failed to initialize" << std::endl;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -78,7 +78,6 @@ namespace Trk {
       using INavigator::highestVolume;
       using INavigator::nextBoundarySurface;
       using INavigator::nextTrackingVolume;
-      using INavigator::nextDenseTrackingVolume;
 
 
       /** INavigator interface method - returns the TrackingGeometry used for
@@ -109,11 +108,6 @@ namespace Trk {
                                     const Trk::TrackingVolume*& nextVol,
                                     double tol) const override final;
 
-      /** Validation Action:
-         Can be implemented optionally, outside access to internal validation
-         steps */
-      virtual void validationAction() const override {}
-
       /** INavigator interface methods - getting the next BoundarySurface not
        * knowing the Volume*/
       virtual const BoundarySurface<TrackingVolume>* nextBoundarySurface(
@@ -140,28 +134,8 @@ namespace Trk {
         PropDirection dir,
         const TrackingVolume& vol) const override final;
 
-      /** INavigator interface method - getting the next Volume and the
-        parameter for the next Navigation
-        - contains full loop over volume boundaries
-      */
-      virtual NavigationCell nextDenseTrackingVolume(
-        const EventContext& ctx,
-        const IPropagator& prop,
-        const TrackParameters& parms,
-        const Surface* destination,
-        PropDirection dir,
-        ParticleHypothesis particle,
-        const TrackingVolume& vol,
-        double& path) const override final;
-
     private:
-      /*
-      * Methods to be overriden by the NavigatorValidation
-      */
-      virtual void validationInitialize() {}
-      virtual void validationFill(const Trk::TrackParameters* trackPar) const{
-         (void)trackPar;
-      }
+
 
       SG::ReadCondHandleKey<TrackingGeometry> m_trackingGeometryReadKey{
         this,
@@ -179,7 +153,7 @@ namespace Trk {
       double m_insideVolumeTolerance;
       /// Tolerance for isOnSurface() method of BoundarySurfaces
       double m_isOnSurfaceTolerance;
-      bool m_useConditions;
+      bool m_useConditions{};
       Trk::MagneticFieldProperties m_fieldProperties;
       /// use the straight line approximation for the next boundary sf
       bool m_useStraightLineApproximation;
@@ -187,8 +161,6 @@ namespace Trk {
       bool m_searchWithDistance;
       //------------ Magnetic field properties
       bool m_fastField;
-
-      bool m_validationMode; //!< This becomes a dummy option for now
       // ------ PERFORMANCE STATISTICS -------------------------------- //
       /* All performance stat counters are atomic (the simplest solution perhaps
        * not the most performant one)*/

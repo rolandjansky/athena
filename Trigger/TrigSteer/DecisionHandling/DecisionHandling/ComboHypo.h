@@ -22,6 +22,8 @@
  * jetDecisions
  * the multiplicity specification like this:
  * "HLT_4e10_2mu7_j100" : [ 4, 2, 1 ] will apply respectively requirement of 4, 2, 1 positive decisions in electron, muon and jet inputs
+ * the leg specification like this:
+ * "HLT_4e10_2mu7_j100" : [ 0, 1, 2 ], where the names of legs are leg000, leg001, and leg002.
  **/
 
 
@@ -38,7 +40,9 @@ class ComboHypo : public ::AthReentrantAlgorithm {
   const SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer>& decisionsInput() const { return m_inputs; }
   const SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer>& decisionsOutput() const { return m_outputs; }
   typedef std::map<std::string, std::vector<int>> MultiplicityReqMap;
+  typedef std::map<std::string, std::vector<int>> LegMap;
   const MultiplicityReqMap& triggerMultiplicityMap() const { return m_multiplicitiesReqMap.value(); }
+  const LegMap& triggerLegMap() const { return m_legMap.value(); }
   ToolHandleArray<ComboHypoToolBase>& hypoTools() { return m_hypoTools; }
   const ToolHandleArray<ComboHypoToolBase>& hypoTools() const { return m_hypoTools; }
 
@@ -52,6 +56,9 @@ class ComboHypo : public ::AthReentrantAlgorithm {
 
   Gaudi::Property< MultiplicityReqMap > m_multiplicitiesReqMap{this, "MultiplicitiesMap", {}, 
     "Map from the chain name to multiplicities required at each input"};
+
+  Gaudi::Property< LegMap > m_legMap{this, "LegMap", {},
+    "Map from the chain name to legs required at each input"};
 
   Gaudi::Property<bool> m_checkMultiplicityMap { this, "CheckMultiplicityMap", true,
     "Perform a consistency check of the MultiplicitiesMap"};
@@ -72,9 +79,12 @@ class ComboHypo : public ::AthReentrantAlgorithm {
    * @param[out] featureIndex Index inside the featureKey collection. 
    * @param[out] roiKey Type-less SG Key hash of the collection hosting the Decision node's initial ROI collection. 
    * @param[out] roiIndex Index inside the roiKey collection. 
+   * @param[out] roiFullscan Flag indicating if the located initial ROI has the FullScan flag enabled. 
+   *                         Triggers special behaviour allowing the ROI to satisfy arbitrary multiplicities in an arbitrary number of legs.
+   * @param[inout] priorFeaturesMap Data structure collating for a given feature (key) what the prior features were integrated over all previous steps (value set). 
    **/
   StatusCode extractFeatureAndRoI(const ElementLink<TrigCompositeUtils::DecisionContainer>& EL,
-    uint32_t& featureKey, uint16_t& featureIndex, uint32_t& roiKey, uint16_t& roiIndex) const; 
+    uint32_t& featureKey, uint16_t& featureIndex, uint32_t& roiKey, uint16_t& roiIndex, bool& roiFullscan, std::map<uint32_t, std::set<uint32_t>>& priorFeaturesMap) const; 
 
 
   /**

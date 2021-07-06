@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ namespace InDet{
   class SiTrackMakerEventData_xk;
 
   /**
-  @class SiTrackMaker_xk 
+  @class SiTrackMaker_xk
 
   InDet::SiTrackMaker_xk is algorithm which produce Trk::Track started
   from 3 space points information of SCT and Pixels
@@ -56,19 +56,19 @@ namespace InDet{
   event dependent data for SiTrackMaker_xk.
   Its object is instantiated in SiSPSeededTrackFinder::execute.
 
-  @author Igor.Gavrilenko@cern.ch     
+  @author Igor.Gavrilenko@cern.ch
   */
 
-  class SiTrackMaker_xk : 
+  class SiTrackMaker_xk :
     public extends<AthAlgTool, ISiTrackMaker>
     {
 
       ///////////////////////////////////////////////////////////////////
       // Public methods:
       ///////////////////////////////////////////////////////////////////
-      
+
     public:
-      
+
       ///////////////////////////////////////////////////////////////////
       /// @name Standard tool methods
       ///////////////////////////////////////////////////////////////////
@@ -111,7 +111,7 @@ namespace InDet{
       SiTrackMaker_xk(const SiTrackMaker_xk&) =delete;
       SiTrackMaker_xk &operator=(const SiTrackMaker_xk&) = delete;
       //@}
-      
+
       ///////////////////////////////////////////////////////////////////
       // Protected Data
       ///////////////////////////////////////////////////////////////////
@@ -146,8 +146,9 @@ namespace InDet{
       BooleanProperty m_useCaloSeeds{this, "doCaloSeededBrem", false};
       BooleanProperty m_useSSSfilter{this, "useSSSseedsFilter", true};
       BooleanProperty m_useHClusSeed{this, "doHadCaloSeedSSS", false, "Hadronic Calorimeter Seeds"};
-      BooleanProperty m_ITKGeomtry{this, "ITKGeometry", false, "ITK geometry"};
+      BooleanProperty m_ITKGeometry{this, "ITKGeometry", false, "ITK geometry"};
       BooleanProperty m_seedsegmentsWrite{this, "SeedSegmentsWrite", false, "Call seed to track conversion"};
+
       DoubleProperty m_xi2max{this, "Xi2max", 15., "max Xi2 for updators"};
       DoubleProperty m_xi2maxNoAdd{this, "Xi2maxNoAdd", 35., "max Xi2 for clusters"};
       DoubleProperty m_xi2maxlink{this, "Xi2maxlink", 200., "max Xi2 for clusters"};
@@ -162,6 +163,8 @@ namespace InDet{
       IntegerProperty m_nwclusmin{this, "nWeightedClustersMin", 6, "Min umber weighted clusters(pix=2 sct=1)"};
       DoubleProperty m_phiWidth{this, "phiWidth", 0.3};
       DoubleProperty m_etaWidth{this, "etaWidth", 0.3};
+      DoubleArrayProperty m_etabins{this, "etaBins", {}, "eta bins"};
+      DoubleArrayProperty m_ptbins{this, "pTBins", {}, "pT bins"};
       //@}
 
       /// @name Data members, which are updated only in initialize method
@@ -171,14 +174,14 @@ namespace InDet{
       Trk::MagneticFieldMode m_fieldModeEnum{Trk::FullField};
       //@}
 
-      ///////////////////////////////////////////////////////////////////             
-      // Counters                                                                     
-      /////////////////////////////////////////////////////////////////////       
+      ///////////////////////////////////////////////////////////////////
+      // Counters
+      /////////////////////////////////////////////////////////////////////
 
       mutable std::mutex            m_counterMutex;
       mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_totalInputSeeds        ATLAS_THREAD_SAFE {};
       mutable std::array<std::atomic<double>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_totalUsedSeeds        ATLAS_THREAD_SAFE {};
-      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_totalNoTrackPar        ATLAS_THREAD_SAFE {}; 
+      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_totalNoTrackPar        ATLAS_THREAD_SAFE {};
       mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_totalBremSeeds        ATLAS_THREAD_SAFE {};
       mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_twoClusters           ATLAS_THREAD_SAFE {};
       mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_wrongRoad        ATLAS_THREAD_SAFE {};
@@ -211,26 +214,29 @@ namespace InDet{
         kBremTracks,
         kDESize,
         kSeedsWithTracks
-      }; 
+      };
 
       enum kNStatEtaTypes  {
         kUsedSeedsEta,
         kSeedsWithTracksEta
       };
- 
+
       std::vector<statAllTypes> m_indexToEnum {kTwoClusters,kWrongInit,kWrongRoad,kNoTrack,kNotNewTrack,kBremAttempt};
- 
-      //mutable std::vector<
- 
+
       ///////////////////////////////////////////////////////////////////
-      // Methods 
+      // Methods
       ///////////////////////////////////////////////////////////////////
 
-      const Trk::TrackParameters* getAtaPlane(MagField::AtlasFieldCache& fieldCache, SiTrackMakerEventData_xk& data,
-                                              bool sss,
-                                              const std::vector<const Trk::SpacePoint*>& SP) const;
-      const Trk::TrackParameters* getAtaPlaneDBM(MagField::AtlasFieldCache& fieldCache, SiTrackMakerEventData_xk& data,
-                                                 const std::vector<const Trk::SpacePoint*>& SP) const;
+      std::unique_ptr<Trk::TrackParameters> getAtaPlane(
+        MagField::AtlasFieldCache& fieldCache,
+        SiTrackMakerEventData_xk& data,
+        bool sss,
+        const std::vector<const Trk::SpacePoint*>& SP,
+        const EventContext& ctx) const;
+      std::unique_ptr<Trk::TrackParameters> getAtaPlaneDBM(
+        MagField::AtlasFieldCache& fieldCache,
+        SiTrackMakerEventData_xk& data,
+        const std::vector<const Trk::SpacePoint*>& SP) const;
 
       bool globalPositions(const Trk::SpacePoint& s0,
                            const Trk::SpacePoint& s1,
@@ -238,8 +244,8 @@ namespace InDet{
                            double* p0,
                            double* p1,
                            double* p2) const;
-      bool globalPosition(const Trk::SpacePoint& sp, double* dir, double* p) const;
-      void globalDirections(double* p0, double* p1, double* p2, double* d0, double* d1, double* d2) const;
+      bool globalPosition(const Trk::SpacePoint& sp, const double* dir, double* p) const;
+      void globalDirections(const double* p0, const double* p1, const double* p2, double* d0, double* d1, double* d2) const;
       InDet::TrackQualityCuts setTrackQualityCuts(bool simpleTrack) const;
       void detectorElementsSelection(SiTrackMakerEventData_xk& data,
                                      std::list<const InDetDD::SiDetectorElement*>& DE) const;
@@ -251,17 +257,18 @@ namespace InDet{
       bool isHadCaloCompatible(SiTrackMakerEventData_xk& data) const;
       bool isDBMSeeds(const Trk::SpacePoint* s) const;
       void clusterTrackMap(SiTrackMakerEventData_xk& data, Trk::Track* Tr) const;
+      double pTmin(double eta) const;
 
-      MsgStream& dumpStatistics(MsgStream &out) const; 
+      MsgStream& dumpStatistics(MsgStream &out) const;
       MsgStream& dumpconditions(MsgStream& out) const;
       MsgStream& dumpevent(SiTrackMakerEventData_xk& data, MsgStream& out) const;
 
-      /// helper for working with the stat arrays 
+      /// helper for working with the stat arrays
       template <typename T, size_t N,size_t M> void resetCounter(std::array<std::array<T,M>,N> & a) const{
-        for (auto & subarr : a) resetCounter(subarr); 
+        for (auto & subarr : a) resetCounter(subarr);
       }
       template <typename T, size_t N> void resetCounter(std::array<T,N> & a) const{
-        std::fill(a.begin(),a.end(),0); 
+        std::fill(a.begin(),a.end(),0);
       }
     };
 

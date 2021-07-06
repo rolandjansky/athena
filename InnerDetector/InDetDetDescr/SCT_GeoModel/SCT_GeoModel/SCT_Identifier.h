@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GEOMODEL_SCT_IDENTIFIER_H
@@ -45,7 +45,7 @@ public:
   Identifier getWaferId();
 
   // For debugging purposes.
-  void print();
+  void print() const;
 
 private:
   const SCT_ID* m_idHelper;

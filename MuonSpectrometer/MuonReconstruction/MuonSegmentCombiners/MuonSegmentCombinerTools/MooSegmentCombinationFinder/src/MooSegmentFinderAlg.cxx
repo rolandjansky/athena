@@ -1,53 +1,15 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MooSegmentFinderAlg.h"
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonSegment/MuonSegment.h"
-#include "MuonSegmentCombinerToolInterfaces/IMooSegmentCombinationFinder.h"
-#include "MuonSegmentMakerToolInterfaces/IMuonSegmentOverlapRemovalTool.h"
 
-MooSegmentFinderAlg::MooSegmentFinderAlg(const std::string& name, ISvcLocator* pSvcLocator)
-    : AthReentrantAlgorithm(name, pSvcLocator),
-      m_keyTgc("TGC_Measurements"),
-      m_keyTgcPriorBC("TGC_MeasurementsPriorBC"),
-      m_keyTgcNextBC("TGC_MeasurementsNextBC"),
-      m_keyRpc("RPC_Measurements"),
-      m_keyCsc("CSC_Clusters"),
-      m_keyMdt("MDT_DriftCircles"),
-      m_patternCombiLocation("MuonHoughPatternCombinations"),
-      m_segmentLocation("MooreSegments")
-{
-    declareProperty("UseRPC", m_useRpc = true);
-    declareProperty("UseTGC", m_useTgc = true);
-    declareProperty("UseTGCPriorBC", m_useTgcPriorBC = false);
-    declareProperty("UseTGCNextBC", m_useTgcNextBC = false);
-    declareProperty("UseCSC", m_useCsc = true);
-    declareProperty("UseMDT", m_useMdt = true);
+MooSegmentFinderAlg::MooSegmentFinderAlg(const std::string& name, ISvcLocator* pSvcLocator) : AthReentrantAlgorithm(name, pSvcLocator) {}
 
-    declareProperty("doTGCClust", m_doTGCClust = false);
-    declareProperty("doRPCClust", m_doRPCClust = false);
-    declareProperty("doClusterTruth", m_doClusterTruth = false);
-
-    declareProperty("CscPrepDataContainer", m_keyCsc);
-    declareProperty("MdtPrepDataContainer", m_keyMdt);
-    declareProperty("RpcPrepDataContainer", m_keyRpc);
-    declareProperty("TgcPrepDataContainer", m_keyTgc);
-    declareProperty("TgcPrepDataContainerPriorBC", m_keyTgcPriorBC);
-    declareProperty("TgcPrepDataContainerNextBC", m_keyTgcNextBC);
-
-    declareProperty("MuonPatternCombinationLocation", m_patternCombiLocation);
-    declareProperty("MuonSegmentOutputLocation", m_segmentLocation);
-}
-
-MooSegmentFinderAlg::~MooSegmentFinderAlg() {}
-
-StatusCode
-MooSegmentFinderAlg::initialize()
-{
-
+StatusCode MooSegmentFinderAlg::initialize() {
     ATH_CHECK(m_segmentFinder.retrieve());
     ATH_CHECK(m_clusterSegMaker.retrieve());
     ATH_CHECK(m_overlapRemovalTool.retrieve());
@@ -64,15 +26,12 @@ MooSegmentFinderAlg::initialize()
 
     ATH_CHECK(m_patternCombiLocation.initialize());
     ATH_CHECK(m_segmentLocation.initialize());
-    ATH_CHECK(m_houghDataPerSectorVecKey.initialize());
+    ATH_CHECK(m_houghDataPerSectorVecKey.initialize(!m_houghDataPerSectorVecKey.empty()));
 
     return StatusCode::SUCCESS;
 }
 
-StatusCode
-MooSegmentFinderAlg::execute(const EventContext& ctx) const
-{
-
+StatusCode MooSegmentFinderAlg::execute(const EventContext& ctx) const {
     std::vector<const Muon::MdtPrepDataCollection*> mdtCols;
     std::vector<const Muon::CscPrepDataCollection*> cscCols;
     std::vector<const Muon::TgcPrepDataCollection*> tgcCols;
@@ -100,8 +59,7 @@ MooSegmentFinderAlg::execute(const EventContext& ctx) const
     m_segmentFinder->findSegments(mdtCols, cscCols, tgcCols, rpcCols, output, ctx);
 
     if (output.patternCombinations) {
-        if (patHandle.record(std::unique_ptr<MuonPatternCombinationCollection>(output.patternCombinations)).isSuccess())
-        {
+        if (patHandle.record(std::unique_ptr<MuonPatternCombinationCollection>(output.patternCombinations)).isSuccess()) {
             ATH_MSG_VERBOSE("stored MuonPatternCombinationCollection at " << m_patternCombiLocation.key());
         } else {
             ATH_MSG_ERROR("Failed to store MuonPatternCombinationCollection at " << m_patternCombiLocation.key());
@@ -116,35 +74,32 @@ MooSegmentFinderAlg::execute(const EventContext& ctx) const
     }
 
     // write hough data to SG
-    if (output.houghDataPerSectorVec) {
-      SG::WriteHandle<Muon::HoughDataPerSectorVec> handle{m_houghDataPerSectorVecKey, ctx};
-        ATH_CHECK(handle.record(std::move(output.houghDataPerSectorVec)));
-    } else {
-        ATH_MSG_VERBOSE("HoughDataPerSectorVec was empty, key: " << m_houghDataPerSectorVecKey.key());
+    if (!m_houghDataPerSectorVecKey.empty()) {
+        SG::WriteHandle<Muon::HoughDataPerSectorVec> handle{m_houghDataPerSectorVecKey, ctx};
+        if (output.houghDataPerSectorVec) {
+            ATH_CHECK(handle.record(std::move(output.houghDataPerSectorVec)));
+        } else {
+            ATH_CHECK(handle.record(std::make_unique<Muon::HoughDataPerSectorVec>()));
+            ATH_MSG_VERBOSE("HoughDataPerSectorVec was empty, key: " << m_houghDataPerSectorVecKey.key());
+        }
     }
 
     // do cluster based segment finding
     if (m_doTGCClust || m_doRPCClust) {
-        const PRD_MultiTruthCollection* tgcTruthColl = 0;
-        const PRD_MultiTruthCollection* rpcTruthColl = 0;
+        const PRD_MultiTruthCollection* tgcTruthColl = nullptr;
+        const PRD_MultiTruthCollection* rpcTruthColl = nullptr;
         if (m_doClusterTruth) {
-	  SG::ReadHandle<PRD_MultiTruthCollection> tgcTruth(m_tgcTruth, ctx);
-	  SG::ReadHandle<PRD_MultiTruthCollection> rpcTruth(m_rpcTruth, ctx);
+            SG::ReadHandle<PRD_MultiTruthCollection> tgcTruth(m_tgcTruth, ctx);
+            SG::ReadHandle<PRD_MultiTruthCollection> rpcTruth(m_rpcTruth, ctx);
             tgcTruthColl = tgcTruth.cptr();
             rpcTruthColl = rpcTruth.cptr();
         }
         SG::ReadHandle<Muon::MdtPrepDataContainer> mdth(m_keyMdt, ctx);
-        m_clusterSegMaker->getClusterSegments(mdth.cptr(), m_doTGCClust ? &tgcCols : 0, m_doRPCClust ? &rpcCols : 0,
-                                              tgcTruthColl, rpcTruthColl, segHandle.ptr());
+        m_clusterSegMaker->getClusterSegments(mdth.cptr(), m_doTGCClust ? &tgcCols : 0, m_doRPCClust ? &rpcCols : 0, tgcTruthColl,
+                                              rpcTruthColl, segHandle.ptr());
     }
 
-    m_overlapRemovalTool->removeDuplicates(segHandle.ptr());
+    m_overlapRemovalTool->removeDuplicates(*segHandle);
 
     return StatusCode::SUCCESS;
 }  // execute
-
-StatusCode
-MooSegmentFinderAlg::finalize()
-{
-    return StatusCode::SUCCESS;
-}

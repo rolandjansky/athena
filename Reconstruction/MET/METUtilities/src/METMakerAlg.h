@@ -54,7 +54,7 @@ namespace met {
     virtual StatusCode  execute() override;
     virtual StatusCode  finalize() override;
 
-  private: 
+  protected: // was private childORMETMaker
 
     /// Default constructor:
     METMakerAlg();

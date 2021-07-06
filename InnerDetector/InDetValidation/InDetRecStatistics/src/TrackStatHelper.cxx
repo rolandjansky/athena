@@ -131,7 +131,7 @@ void InDet::TrackStatHelper::SetCuts(struct cuts ct)
 void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTracks, 
 				      std::vector <const Trk::Track *>   & rec, 
                                       Trk::PRDtoTrackMap *prd_to_track_map,
-				      std::vector <std::pair<HepMC::GenParticle *,int> > & gen, 
+				      const std::vector <std::pair<HepMC::ConstGenParticlePtr,int> > & gen, 
 				      const TrackTruthCollection         * truthMap, 
 				      const AtlasDetectorID              * const idHelper, 
 				      const PixelID                      * pixelID, 
@@ -182,7 +182,7 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
       Region =  ETA_UNKNOWN;
     }
     else {
-      Eta = fabs(para->eta());
+      Eta = std::abs(para->eta());
       if (Eta < m_cuts.maxEtaBarrel) Region = ETA_BARREL;
       else if  (Eta < m_cuts.maxEtaTransition) Region = ETA_TRANSITION;
       else if  (Eta < m_cuts.maxEtaEndcap) Region = ETA_ENDCAP;
@@ -274,8 +274,11 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
 	}
 	else {
 	  //classify track as coming from primary, secondary or truncated gen particle
-	  //	    if(HMPL.isValid()){
+#ifdef HEPMC3
+	  HepMC::ConstGenParticlePtr particle = HMPL.scptr();
+#else
 	  const HepMC::GenParticle *particle = HMPL.cptr();
+#endif
 	  recoClassification = ClassifyParticle(particle, trprob);
 	    
 	  if (trprob < m_cuts.fakeTrackCut)
@@ -407,15 +410,14 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
   Eta = 0;
   Region = ETA_ALL;
   int classification=-999;
-  for (std::vector <std::pair<HepMC::GenParticle *,int> >::const_iterator truth = gen.begin(); truth != gen.end();  ++truth) {
+  for (auto truth = gen.begin(); truth != gen.end();  ++truth) {
     classification=-999; 
-    bool inTimePileup = truth->second == 0
-      || (truth->second >= (int)*inTimeStart && truth->second <= (int)*inTimeEnd);
+    bool inTimePileup = truth->second == 0 || (truth->second >= (int)*inTimeStart && truth->second <= (int)*inTimeEnd);
     
-    HepMC::GenParticle * const particle = truth->first;
+    auto particle = truth->first;
     
     //determine eta region
-    Eta = fabs(particle->momentum().pseudoRapidity());
+    Eta = std::abs(particle->momentum().pseudoRapidity());
     if (Eta < m_cuts.maxEtaBarrel) Region = ETA_BARREL;
     else if  (Eta < m_cuts.maxEtaTransition) Region = ETA_TRANSITION;
     else if  (Eta < m_cuts.maxEtaEndcap) Region = ETA_ENDCAP;
@@ -494,17 +496,17 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
   Region = ETA_ALL;
   classification=-999;
   
-  for (std::vector <std::pair<HepMC::GenParticle *,int> >::const_iterator truth = gen.begin(); truth != gen.end();  ++truth) 
+  for (auto truth = gen.begin(); truth != gen.end();  ++truth) 
     {
       if (truth->second != 0) // only signal event GenParticles
 	continue;
       
       classification=-999; 
       
-      HepMC::GenParticle * const particle = truth->first;
+      auto particle = truth->first;
       
       //determine eta region
-      Eta = fabs(particle->momentum().pseudoRapidity());
+      Eta = std::abs(particle->momentum().pseudoRapidity());
       if (Eta < m_cuts.maxEtaBarrel) Region = ETA_BARREL;
       else if  (Eta < m_cuts.maxEtaTransition) Region = ETA_TRANSITION;
       else if  (Eta < m_cuts.maxEtaEndcap) Region = ETA_ENDCAP;
@@ -868,7 +870,7 @@ bool InDet::TrackStatHelper::PassTrackCuts(const Trk::TrackParameters *para) con
 
 }
 
-int InDet::TrackStatHelper::ClassifyParticle( const HepMC::GenParticle *particle, const double prob) const {
+int InDet::TrackStatHelper::ClassifyParticle( HepMC::ConstGenParticlePtr particle, const double prob) const {
 
   int partClass=-999;
 

@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from ISF_Algorithms.collection_merger_helpersNew import CollectionMergerCfg
+from ISF_Algorithms.CollectionMergerConfig import CollectionMergerCfg
 
 LArG4__EMBSDTool=CompFactory.LArG4.EMBSDTool
 LArG4__EMECSDTool=CompFactory.LArG4.EMECSDTool
@@ -139,33 +139,30 @@ def LArDeadSensitiveDetectorToolCfg(ConfigFlags, name="LArDeadSensitiveDetector"
     result = ComponentAccumulator()
 
     result.merge( BarrelCryostatCalibrationCalculatorCfg(ConfigFlags) )
-    result.merge( BarrelCryostatCalibrationLArCalculatorCfg(ConfigFlags) )
-    result.merge( CalibrationDefaultCalculatorCfg(ConfigFlags) )
-    result.merge( BarrelCryostatCalibrationMixedCalculatorCfg(ConfigFlags) )
-    result.merge( DMCalibrationCalculatorCfg(ConfigFlags) )
-    result.merge( BarrelPresamplerCalibrationCalculatorCfg(ConfigFlags) )
-    result.merge( BarrelCalibrationCalculatorCfg(ConfigFlags) )
-
-    result.merge( EndcapCryostatCalibrationCalculatorCfg(ConfigFlags) )
-    result.merge( EndcapCryostatCalibrationLArCalculatorCfg(ConfigFlags) )
-    result.merge( EndcapCryostatCalibrationMixedCalculatorCfg(ConfigFlags) )
-    result.merge( EMECSupportCalibrationCalculatorCfg(ConfigFlags) )
-
-    result.merge( HECCalibrationWheelDeadCalculatorCfg(ConfigFlags) )
-
     kwargs.setdefault("EMBCryoCalibrationCalculator", result.getService("BarrelCryostatCalibrationCalculator"))
+    result.merge( BarrelCryostatCalibrationLArCalculatorCfg(ConfigFlags) )
     kwargs.setdefault("EMBCryoLArCalibrationCalculator", result.getService("BarrelCryostatCalibrationLArCalculator"))
+    result.merge( CalibrationDefaultCalculatorCfg(ConfigFlags) )
     kwargs.setdefault("DefaultCalibrationCalculator", result.getService("CalibrationDefaultCalculator"))
+    result.merge( BarrelCryostatCalibrationMixedCalculatorCfg(ConfigFlags) )
     kwargs.setdefault("EMBCryoMixCalibrationCalculator", result.getService("BarrelCryostatCalibrationMixedCalculator"))
+    result.merge( DMCalibrationCalculatorCfg(ConfigFlags) )
     kwargs.setdefault("DMCalibrationCalculator", result.getService("DMCalibrationCalculator"))
+    result.merge( BarrelPresamplerCalibrationCalculatorCfg(ConfigFlags) )
     kwargs.setdefault("EMBPSCalibrationCalculator", result.getService("BarrelPresamplerCalibrationCalculator"))
+    result.merge( BarrelCalibrationCalculatorCfg(ConfigFlags) )
     kwargs.setdefault("EMBCalibrationCalculator", result.getService("BarrelCalibrationCalculator"))
 
+    result.merge( EndcapCryostatCalibrationCalculatorCfg(ConfigFlags) )
     kwargs.setdefault("ECCryoCalibrationCalculator", result.getService("EndcapCryostatCalibrationCalculator"))
+    result.merge( EndcapCryostatCalibrationLArCalculatorCfg(ConfigFlags) )
     kwargs.setdefault("ECCryoLArCalibrationCalculator", result.getService("EndcapCryostatCalibrationLArCalculator"))
+    result.merge( EndcapCryostatCalibrationMixedCalculatorCfg(ConfigFlags) )
     kwargs.setdefault("ECCryoMixCalibrationCalculator", result.getService("EndcapCryostatCalibrationMixedCalculator"))
+    result.merge( EMECSupportCalibrationCalculatorCfg(ConfigFlags) )
     kwargs.setdefault("EMECSuppCalibrationCalculator", result.getService("EMECSupportCalibrationCalculator"))
 
+    result.merge( HECCalibrationWheelDeadCalculatorCfg(ConfigFlags) )
     kwargs.setdefault("HECWheelDeadCalculator", result.getService("HECCalibrationWheelDeadCalculator"))
 
     result.setPrivateTools(LArG4__DeadSDTool(name, **kwargs))

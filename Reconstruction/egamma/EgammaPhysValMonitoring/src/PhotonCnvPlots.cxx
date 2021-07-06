@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PhotonCnvPlots.h"
@@ -15,6 +15,7 @@ PhotonCnvPlots::PhotonCnvPlots(PlotBase* pParent, const std::string& sDir, const
 											       m_oKinIsoPlots(this, "Iso/KinPlots/", "Reco " + sParticleType +" Photon"), 
 											       m_sParticleType(sParticleType),
 											       m_nParticles(nullptr),
+											       m_nParticles_weighted(nullptr),
 											       m_nVtx(nullptr),
 											       m_convR(nullptr),
 											       m_convRvsEta(nullptr),
@@ -27,7 +28,8 @@ PhotonCnvPlots::PhotonCnvPlots(PlotBase* pParent, const std::string& sDir, const
 {}	
 
 void PhotonCnvPlots::initializePlots(){
-  m_nParticles = Book1D("n", "Number of"+ m_sParticleType + "s;#" + m_sParticleType + ";Events", 15, 0., 15.);
+  m_nParticles = Book1D("n", "Number of "+ m_sParticleType + "s;#" + m_sParticleType + ";Events", 15, 0., 15.);
+  m_nParticles_weighted = Book1D("n_weighted", "Number of "+ m_sParticleType + "s;#" + m_sParticleType + ";Events", 15, 0., 15.);
   m_nVtx = Book1D("nVtx","Number of vertexes"+ m_sParticleType + ";nVtx;Events", 10, -0.5, 9.5);
   m_convR = Book1D("convR", "Radius Of conversion vertex" + m_sParticleType + ";convR;Conversions", 1200,0.,1200.);
   m_convRvsEta = Book2D("convRvsEta", "Radius Of conversion vertex vs #eta" + m_sParticleType + ";convR;#eta", 1200,0.,1200., 1000.,-5.,5.);
@@ -39,17 +41,18 @@ void PhotonCnvPlots::initializePlots(){
 
 
 
- void PhotonCnvPlots::fill(const xAOD::Photon& photon, bool isPrompt){
+  void PhotonCnvPlots::fill(const xAOD::Photon& photon, const xAOD::EventInfo& eventInfo, bool isPrompt) const{
  
-
+    float weight = 1.;
+    weight = !eventInfo.beamSpotWeight() ? eventInfo.beamSpotWeight() : 1.;
 
    if(!xAOD::EgammaHelpers::isConvertedPhoton(&photon)) return;
-   m_oKinAllPlots.fill(photon);
+   m_oKinAllPlots.fill(photon,eventInfo);
 
    if(!isPrompt) return;
 
    int nvtx=photon.nVertices();
-   m_nVtx->Fill(nvtx);
+   m_nVtx->Fill(nvtx,weight);
 
    xAOD::EgammaParameters::ConversionType cvtype=xAOD::EgammaHelpers::conversionType(&photon); 
    m_convType->Fill(cvtype);
@@ -59,13 +62,13 @@ void PhotonCnvPlots::initializePlots(){
    float cnvDeltaPhi1;
    photon.vertexCaloMatchValue(cnvDeltaEta1, xAOD::EgammaParameters::convMatchDeltaEta1);
    photon.vertexCaloMatchValue(cnvDeltaPhi1, xAOD::EgammaParameters::convMatchDeltaPhi1);
-   m_convDeltaEta->Fill(cnvDeltaEta1); 
-   m_convDeltaPhi->Fill(cnvDeltaPhi1);
+   m_convDeltaEta->Fill(cnvDeltaEta1,weight); 
+   m_convDeltaPhi->Fill(cnvDeltaPhi1,weight);
 
    m_convR->Fill(vtxRad);
-   m_convRvsEta->Fill(vtxRad,photon.eta());
-   m_convRvsType->Fill(vtxRad,cvtype);
-   m_oKinIsoPlots.fill(photon);
+   m_convRvsEta->Fill(vtxRad,photon.eta(),weight);
+   m_convRvsType->Fill(vtxRad,cvtype,weight);
+   m_oKinIsoPlots.fill(photon,eventInfo);
 
 
  }

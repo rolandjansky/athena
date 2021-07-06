@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoModelXml/Gmx2Geo.h"
@@ -62,7 +62,8 @@ Gmx2Geo::Gmx2Geo(const string xmlFile, GeoPhysVol *addHere, GmxInterface &gmxInt
         msglog << MSG::INFO << "Set up detector geometry from file " << xmlFile << " which adds sub-detector ";
     }
     const DOMElement *element = dynamic_cast<const DOMElement*>(root);
-    const XMLCh *attribute = element->getAttribute(XMLString::transcode("name"));
+    XMLCh * name_tmp = XMLString::transcode("name");
+    const XMLCh *attribute = element->getAttribute(name_tmp);
     msglog << XMLString::transcode(attribute) << endmsg;
 //
 //    Add all constant definitions to the evaluator, so they are ready if needed.
@@ -81,7 +82,8 @@ Gmx2Geo::Gmx2Geo(const string xmlFile, GeoPhysVol *addHere, GmxInterface &gmxInt
 //   and it fills in the list of things to be added to the GeoModel graph. 
 //   There is one and only one addbranch element according to the DTD.
 //
-    xercesc::DOMNodeList *addbranchs = doc->getElementsByTagName(XMLString::transcode("addbranch"));
+    XMLCh * addbranch_tmp = XMLString::transcode("addbranch"); 
+    xercesc::DOMNodeList *addbranchs = doc->getElementsByTagName(addbranch_tmp);
     const DOMElement *addbranch = dynamic_cast<const DOMElement *> (addbranchs->item(0)); 
     GeoNodeList toAdd;
     gmxUtil.processorRegistry.find("addbranch")->process(addbranch, gmxUtil, toAdd);
@@ -89,6 +91,8 @@ Gmx2Geo::Gmx2Geo(const string xmlFile, GeoPhysVol *addHere, GmxInterface &gmxInt
         addHere->add(*node);
     }
 
+    XMLString::release(&name_tmp);
+    XMLString::release(&addbranch_tmp);
     XMLPlatformUtils::Terminate();
 }
 
@@ -115,7 +119,15 @@ const DOMElement *element;
     msglog << MSG::DEBUG << "\n\nGmx2Geo GmxUtil matrix, vector and var values:\n";
     msglog << MSG::DEBUG <<     "==============================================\n\n";
 
-    DOMNodeList *defines = doc->getElementsByTagName(XMLString::transcode("defines"));
+    XMLCh * defines_tmp = XMLString::transcode("defines");
+    XMLCh * vector_tmp = XMLString::transcode("vector");
+    XMLCh * name_tmp = XMLString::transcode("name");
+    XMLCh * value_tmp = XMLString::transcode("value");
+    XMLCh * var_tmp = XMLString::transcode("var");
+    XMLCh * matrix_tmp = XMLString::transcode("matrix");
+    XMLCh * coldim_tmp = XMLString::transcode("coldim");
+    
+    DOMNodeList *defines = doc->getElementsByTagName(defines_tmp);
     int nDefines = defines->getLength();
     for (int i = 0; i < nDefines; ++i) {
         element = dynamic_cast<DOMElement *>(defines->item(i));
@@ -127,12 +139,12 @@ const DOMElement *element;
 //
         msglog << "\n\n    Vectors\n    =======\n\n";
 
-        vars = element->getElementsByTagName(XMLString::transcode("vector"));
+        vars = element->getElementsByTagName(vector_tmp);
         nVars = vars->getLength();
         for (int j = 0; j < nVars; ++j) {
             var = dynamic_cast<DOMElement*>(vars->item(j));
-            char *name = XMLString::transcode(var->getAttribute(XMLString::transcode("name")));
-            char *val = XMLString::transcode(var->getAttribute(XMLString::transcode("value")));
+            char *name = XMLString::transcode(var->getAttribute(name_tmp));
+            char *val = XMLString::transcode(var->getAttribute(value_tmp));
             string fullname(name);
             fullname += '_';
             istringstream list(val);
@@ -151,14 +163,14 @@ const DOMElement *element;
 //
         msglog << "\n\n    Matrices\n    ========\n\n";
 
-        vars = element->getElementsByTagName(XMLString::transcode("matrix"));
+        vars = element->getElementsByTagName(matrix_tmp);
         nVars = vars->getLength();
         for (int j = 0; j < nVars; ++j) {
             var = dynamic_cast<DOMElement*>(vars->item(j));
-            char *name = XMLString::transcode(var->getAttribute(XMLString::transcode("name")));
-            char *val = XMLString::transcode(var->getAttribute(XMLString::transcode("value")));
+            char *name = XMLString::transcode(var->getAttribute(name_tmp));
+            char *val = XMLString::transcode(var->getAttribute(value_tmp));
             int coldim;
-            istringstream(XMLString::transcode(var->getAttribute(XMLString::transcode("coldim")))) >> coldim;
+            istringstream(XMLString::transcode(var->getAttribute(coldim_tmp))) >> coldim;
             string fullname(name);
             fullname += '_';
             istringstream list(val);
@@ -181,12 +193,12 @@ const DOMElement *element;
 //
         msglog << "\n\n    Single variables\n    ================\n\n";
 
-        vars = element->getElementsByTagName(XMLString::transcode("var"));
+        vars = element->getElementsByTagName(var_tmp);
         nVars = vars->getLength();
         for (int j = 0; j < nVars; ++j) {
             var = dynamic_cast<DOMElement*>(vars->item(j));
-            char *name = XMLString::transcode(var->getAttribute(XMLString::transcode("name")));
-            char *val = XMLString::transcode(var->getAttribute(XMLString::transcode("value")));
+            char *name = XMLString::transcode(var->getAttribute(name_tmp));
+            char *val = XMLString::transcode(var->getAttribute(value_tmp));
             double evaluated = eval.evaluate(val);
             if (eval.status() != Evaluator::OK) {
                 msglog << MSG::FATAL << "GeoModelXml Error processing CLHEP Evaluator expression. Error name " <<
@@ -203,23 +215,39 @@ const DOMElement *element;
             XMLString::release(&val);
         }
     }
+
+    XMLString::release(&defines_tmp);
+    XMLString::release(&vector_tmp);
+    XMLString::release(&name_tmp);
+    XMLString::release(&value_tmp);
+    XMLString::release(&var_tmp);
+    XMLString::release(&matrix_tmp);
+    XMLString::release(&coldim_tmp);
+
     msglog << endmsg;
     return 1;
 }
 
 int Gmx2Geo::doPositionIndex(xercesc::DOMDocument *doc, GmxUtil &gmxUtil) {
-    DOMNodeList *posIndex = doc->getElementsByTagName(XMLString::transcode("positionindex"));
+    XMLCh * positionindex_tmp = XMLString::transcode("positionindex");
+    XMLCh * addindex_tmp = XMLString::transcode("addindex");
+    XMLCh * name_tmp = XMLString::transcode("name");
+
+    DOMNodeList *posIndex = doc->getElementsByTagName(positionindex_tmp);
     int nPosIndex = posIndex->getLength(); // Probably limited to 0 or 1 by DTD
     for (int i = 0; i < nPosIndex; ++i) {
         const DOMElement *element = dynamic_cast<DOMElement *>(posIndex->item(i));
-        DOMNodeList *addindexs = element->getElementsByTagName(XMLString::transcode("addindex"));
+        DOMNodeList *addindexs = element->getElementsByTagName(addindex_tmp);
         int nIndexs = addindexs->getLength();
         for (int j = 0; j < nIndexs; ++j) {
             DOMElement *addindex = dynamic_cast<DOMElement*>(addindexs->item(j));
-            string name = string(XMLString::transcode(addindex->getAttribute(XMLString::transcode("name"))));
+            string name = string(XMLString::transcode(addindex->getAttribute(name_tmp)));
             gmxUtil.positionIndex.addIndex(name);
         }
     }
+    XMLString::release(&positionindex_tmp);
+    XMLString::release(&addindex_tmp);
+    XMLString::release(&name_tmp);
     return 1;
 }
 
@@ -234,7 +262,11 @@ string tagName;
 //
 //    Loop over all readoutgeometry elements
 //
-    DOMNodeList *rgs = doc->getElementsByTagName(XMLString::transcode("readoutgeometry"));
+
+XMLCh * readoutgeometry_tmp = XMLString::transcode("readoutgeometry");
+XMLCh * name_tmp = XMLString::transcode("name");
+ 
+DOMNodeList *rgs = doc->getElementsByTagName(readoutgeometry_tmp);
     int nRG = rgs->getLength(); 
     for (int i = 0; i < nRG; ++i) {
         map<string, string> rgParams; // New empty list
@@ -253,7 +285,7 @@ string tagName;
             else if (tagName == "sensorclass") {
                 map<string, string> scParams(rgParams); // Initialised with all previous params
                 const DOMElement *sensorClass = dynamic_cast<DOMElement *>(rgChild);
-                name2release = XMLString::transcode(sensorClass->getAttribute(XMLString::transcode("name")));
+                name2release = XMLString::transcode(sensorClass->getAttribute(name_tmp));
                 string clas(name2release); // class is reserved word
                 XMLString::release(&name2release);
 //
@@ -289,10 +321,17 @@ string tagName;
             }
         }
     }
+    
+    XMLString::release(&readoutgeometry_tmp);
+    XMLString::release(&name_tmp);
+
     return 1;
 }
 
 void Gmx2Geo::addParam(DOMNode *node, map<string, string> &params) {
+  XMLCh * name_tmp = XMLString::transcode("name");
+  XMLCh * value_tmp = XMLString::transcode("value_tmp");
+
     const DOMElement *param = dynamic_cast<DOMElement *>(node);
     char *name2release = XMLString::transcode(param->getAttribute(XMLString::transcode("name")));
     string name(name2release);
@@ -301,4 +340,7 @@ void Gmx2Geo::addParam(DOMNode *node, map<string, string> &params) {
     string value(name2release);
     XMLString::release(&name2release);
     params[name] = value;
+
+    XMLString::release(&name_tmp);
+    XMLString::release(&value_tmp);
 }

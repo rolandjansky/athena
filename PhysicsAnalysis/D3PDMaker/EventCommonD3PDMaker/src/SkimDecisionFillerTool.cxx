@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file EventCommonD3PDMaker/src/SkimDecisionFillerTool.cxx
@@ -70,6 +70,7 @@ StatusCode SkimDecisionFillerTool::book()
     }
     if (varname.empty())
       varname = var.key;
+    var.val = 0;
     m_vars.push_back (var);
     
     CHECK( addVariable (varname, m_vars.back().val, docstring) );

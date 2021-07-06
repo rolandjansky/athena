@@ -1,11 +1,11 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 ###############################################################
 #
 # Job options file for CaloNoise2Ntuple
 #
 #==============================================================
 
-# configuration for data, read noise from database through CaloNoiseToolDB
+# configuration for data
 
 if 'RunNumber' not in dir():
    RunNumber = 258914
@@ -72,10 +72,10 @@ include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 
 svcMgr.IOVDbSvc.GlobalTag = GlobalTag
 
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theCaloNoiseTool = CaloNoiseToolDefault()
-theCaloNoiseTool.RescaleForHV=False
-ToolSvc += theCaloNoiseTool
+from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+CaloNoiseCondAlg ('totalNoise')
+CaloNoiseCondAlg ('electronicNoise')
+CaloNoiseCondAlg ('pileupNoise')
 
 if "dbNoise" in dir():
    conddb.addMarkup("/LAR/NoiseOfl/CellNoise","<db>"+dbNoise+"</db>")
@@ -88,7 +88,6 @@ if "folderTag" in dir():
 #--------------------------------------------------------------
 from CaloCondPhysAlgs.CaloCondPhysAlgsConf import CaloNoise2Ntuple
 theCaloNoise2Ntuple = CaloNoise2Ntuple("CaloNoise2Ntuple")
-theCaloNoise2Ntuple.noiseTool = theCaloNoiseTool
 topSequence += theCaloNoise2Ntuple
 
 #--------------------------------------------------------------

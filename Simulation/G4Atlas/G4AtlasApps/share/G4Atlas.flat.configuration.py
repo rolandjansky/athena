@@ -178,6 +178,9 @@ if not simFlags.ISFRun:
 
         stream1.ItemList += ["xAOD::JetContainer#*",
                              "xAOD::JetAuxContainer#*"]
+        ## pile-up truth particles
+        stream1.ItemList += ["xAOD::TruthParticleContainer#TruthPileupParticles",
+                             "xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux."]
 
         ## Make stream aware of aborted events
         stream1.AcceptAlgs = ["G4AtlasAlg"]

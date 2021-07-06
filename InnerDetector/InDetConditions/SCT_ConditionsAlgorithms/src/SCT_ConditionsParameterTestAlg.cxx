@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file SCT_ConditionsParameterTestAlg.cxx  Implementation file for SCT_ConditionsParameterTestAlg class.
@@ -46,7 +46,7 @@ StatusCode SCT_ConditionsParameterTestAlg::execute(const EventContext& ctx) cons
   // so the INFO level messages have no impact on performance of these services when used by clients
   ATH_MSG_DEBUG("in execute()");
   //
-  StatusCode sc{StatusCode::SUCCESS, true};
+  StatusCode sc{StatusCode::SUCCESS};
   
   // Get the current event
   ATH_MSG_DEBUG("Current Run.Event,Time: "

@@ -18,7 +18,7 @@ void MaterialEffectsBaseCnv_p1::persToTrans(
 {
    transObj->m_tInX0              = persObj->m_tInX0;
    
-   ITPConverterFor<Trk::Surface>* surfaceCnv=0;
+   ITPConverterFor<Trk::Surface>* surfaceCnv=nullptr;
    const Trk::Surface* temp = this->createTransFromPStore( &surfaceCnv, persObj->m_associatedSurface, log );
    
    DetElementSurfaceCnv_p1* detElCnv = dynamic_cast<DetElementSurfaceCnv_p1*>(surfaceCnv); 
@@ -47,9 +47,9 @@ void MaterialEffectsBaseCnv_p1 :: transToPers(
     persObj->m_typeFlags          = (short)transObj->m_typeFlags;
    
    if (transObj->associatedSurface().isFree() ) // if this is a free surface, write it out 'as is'
-      persObj->m_associatedSurface = toPersistent((ITPConverterFor<Trk::Surface>**)0, &transObj->associatedSurface(), log);
+      persObj->m_associatedSurface = toPersistent((ITPConverterFor<Trk::Surface>**)nullptr, &transObj->associatedSurface(), log);
    else { // else, make it into a DetElementSurface, to allow the correct convertor to be called
        Trk::DetElementSurface surf( transObj->associatedSurface() );
-       persObj->m_associatedSurface = toPersistent((ITPConverterFor<Trk::Surface>**)0, &surf, log );
+       persObj->m_associatedSurface = toPersistent((ITPConverterFor<Trk::Surface>**)nullptr, &surf, log );
    }
 }

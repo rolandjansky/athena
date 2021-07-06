@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * InvariantMassInclusive2.cpp
@@ -14,14 +14,6 @@
 #include "L1TopoAlgorithms/InvariantMassInclusive2.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
-// Bitwise implementation utils
-#include "L1TopoSimulationUtils/L1TopoDataTypes.h"
-#include "L1TopoSimulationUtils/Trigo.h"
-#include "L1TopoSimulationUtils/Hyperbolic.h"
-#include "L1TopoSimulationUtils/Kinematics.h"
-//
-#include "TH1F.h"
-#include "TH2F.h"
 
 #include <cmath>
 #include <iostream>
@@ -146,7 +138,7 @@ TCS::InvariantMassInclusive2::processBitCorrect( const std::vector<TCS::TOBArray
                  tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
                  ++tob2) {
                 // Inv Mass calculation
-                unsigned int invmass2 = TSU::Kinematics::calcInvMassBW( *tob1, *tob2 );
+                unsigned int invmass2 = calcInvMassBW( *tob1, *tob2 );
                 const int eta1 = (*tob1)->eta();
                 const int eta2 = (*tob2)->eta();
                 const unsigned int aeta1 = std::abs(eta1);
@@ -202,7 +194,7 @@ TCS::InvariantMassInclusive2::process( const std::vector<TCS::TOBArray const *> 
                  tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
                  ++tob2) {
                 // Inv Mass calculation
-                unsigned int invmass2 = TSU::Kinematics::calcInvMass( *tob1, *tob2 );
+                unsigned int invmass2 = calcInvMass( *tob1, *tob2 );
                 const int eta1 = (*tob1)->eta();
                 const int eta2 = (*tob2)->eta();
                 const unsigned int aeta1 = std::abs(eta1);

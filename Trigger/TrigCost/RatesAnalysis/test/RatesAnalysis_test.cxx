@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "../RatesAnalysis/RatesTrigger.h"
@@ -8,9 +8,13 @@
 
 #include "GaudiKernel/MsgStream.h"
 
+#include "CxxUtils/ubsan_suppress.h"
+#include "TInterpreter.h"
+
 #include <iostream>
 
 int main() {
+  CxxUtils::ubsan_suppress ([]() { TInterpreter::Instance(); });
 
   MsgStream log(nullptr, "RatesAnalysis_test");
 
@@ -32,13 +36,52 @@ int main() {
   wvs.m_linearLumiFactor = 1;  
   wvs.m_expoMuFactor = 1; 
 
-  RatesGroup* groupA =  new RatesGroup("GroupA", log);
+  RatesGroup* groupA = new RatesGroup("GroupA", log);
   groupA->addToGroup(triggerA1);
   groupA->addToGroup(triggerA2);
 
-  RatesGroup* groupB =  new RatesGroup("GroupB", log);
+  RatesGroup* groupB = new RatesGroup("GroupB", log);
   groupB->addToGroup(triggerB1);
   groupB->addToGroup(triggerB2);
+
+  RatesGroup* groupAll = new RatesGroup("GroupAll", log);
+  groupAll->setDoCachedWeights(true);
+  groupAll->addToGroup(triggerA1);
+  groupAll->addToGroup(triggerA2);
+  groupAll->addToGroup(triggerB1);
+  groupAll->addToGroup(triggerB2);
+
+  RatesGroup* uniqueGroupA1 = new RatesGroup("UniqueGroupA1", log, /*histograms*/ false);
+  triggerA1->setUniqueGroup(uniqueGroupA1);
+  uniqueGroupA1->duplicateChildren(groupAll);
+  uniqueGroupA1->setUniqueTrigger(triggerA1);
+  uniqueGroupA1->removeOtherL1(triggerA1);
+  uniqueGroupA1->removeFromGroup(triggerA1);
+  uniqueGroupA1->setUseCachedWeights(true);
+
+  RatesGroup* uniqueGroupA2 = new RatesGroup("UniqueGroupA2", log, /*histograms*/ false);
+  triggerA2->setUniqueGroup(uniqueGroupA2);
+  uniqueGroupA2->duplicateChildren(groupAll);
+  uniqueGroupA2->setUniqueTrigger(triggerA2);
+  uniqueGroupA2->removeOtherL1(triggerA2); 
+  uniqueGroupA2->removeFromGroup(triggerA2);
+  uniqueGroupA2->setUseCachedWeights(true);
+
+  RatesGroup* uniqueGroupB1 = new RatesGroup("UniqueGroupB1", log, /*histograms*/ false);
+  triggerB1->setUniqueGroup(uniqueGroupB1);
+  uniqueGroupB1->duplicateChildren(groupAll);
+  uniqueGroupB1->setUniqueTrigger(triggerB1);
+  uniqueGroupB1->removeOtherL1(triggerB1); 
+  uniqueGroupB1->removeFromGroup(triggerB1);
+  uniqueGroupB1->setUseCachedWeights(true);
+
+  RatesGroup* uniqueGroupB2 = new RatesGroup("UniqueGroupB2", log, /*histograms*/ false);
+  triggerB2->setUniqueGroup(uniqueGroupB2);
+  uniqueGroupB2->duplicateChildren(groupAll);
+  uniqueGroupB2->setUniqueTrigger(triggerB2);
+  uniqueGroupB2->removeOtherL1(triggerB2); 
+  uniqueGroupB2->removeFromGroup(triggerB2);
+  uniqueGroupB2->setUseCachedWeights(true);
 
   // simulate event one
 
@@ -48,8 +91,13 @@ int main() {
   triggerB1->setPassedAndExecute(true, true, wvs);
   triggerB2->setPassedAndExecute(true, true, wvs);
 
+  groupAll->execute(wvs); // Must be before the unique trigger groups
   groupA->execute(wvs);
   groupB->execute(wvs);
+  uniqueGroupA1->execute(wvs);
+  uniqueGroupA2->execute(wvs);
+  uniqueGroupB1->execute(wvs);
+  uniqueGroupB2->execute(wvs);
 
   triggerA1->reset();
   triggerA2->reset();
@@ -66,8 +114,13 @@ int main() {
   triggerB1->setPassedAndExecute(false, false, wvs);
   triggerB2->setPassedAndExecute(false, false, wvs);
 
+  groupAll->execute(wvs); // Must be before the unique trigger groups
   groupA->execute(wvs);
   groupB->execute(wvs);
+  uniqueGroupA1->execute(wvs);
+  uniqueGroupA2->execute(wvs);
+  uniqueGroupB1->execute(wvs);
+  uniqueGroupB2->execute(wvs);
 
   triggerA1->reset();
   triggerA2->reset();
@@ -84,8 +137,13 @@ int main() {
   triggerB1->setPassedAndExecute(true, true, wvs);
   triggerB2->setPassedAndExecute(true, true, wvs);
 
+  groupAll->execute(wvs); // Must be before the unique trigger groups
   groupA->execute(wvs);
   groupB->execute(wvs);
+  uniqueGroupA1->execute(wvs);
+  uniqueGroupA2->execute(wvs);
+  uniqueGroupB1->execute(wvs);
+  uniqueGroupB2->execute(wvs);
 
   triggerA1->reset();
   triggerA2->reset();
@@ -102,8 +160,13 @@ int main() {
   triggerB1->setPassedAndExecute(true, true, wvs);
   triggerB2->setPassedAndExecute(false, true, wvs);
 
+  groupAll->execute(wvs); // Must be before the unique trigger groups
   groupA->execute(wvs);
   groupB->execute(wvs);
+  uniqueGroupA1->execute(wvs);
+  uniqueGroupA2->execute(wvs);
+  uniqueGroupB1->execute(wvs);
+  uniqueGroupB2->execute(wvs);
 
   triggerA1->reset();
   triggerA2->reset();
@@ -116,6 +179,7 @@ int main() {
   std::cout << triggerA2->printRate(wvs.m_eventLiveTime) << std::endl;
   std::cout << triggerB1->printRate(wvs.m_eventLiveTime) << std::endl;
   std::cout << triggerB2->printRate(wvs.m_eventLiveTime) << std::endl;
+  std::cout << groupAll->printRate(wvs.m_eventLiveTime) << std::endl;
   std::cout << groupA->printRate(wvs.m_eventLiveTime) << std::endl;
   std::cout << groupB->printRate(wvs.m_eventLiveTime) << std::endl;
 
@@ -123,7 +187,11 @@ int main() {
   delete triggerA2;
   delete triggerB1;
   delete triggerB2;
+  delete groupAll;
   delete groupA;
   delete groupB;
-
+  delete uniqueGroupA1;
+  delete uniqueGroupA2;
+  delete uniqueGroupB1;
+  delete uniqueGroupB2;
 }

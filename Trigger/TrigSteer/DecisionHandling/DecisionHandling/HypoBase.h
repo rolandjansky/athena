@@ -26,6 +26,12 @@ class HypoBase : public ::AthReentrantAlgorithm {
   /// initialise this base class 
   virtual StatusCode sysInitialize() override;
 
+  /// Executes all individual runtime tests.
+  static StatusCode runtimeValidation(SG::WriteHandle<TrigCompositeUtils::DecisionContainer>& outputHandle, 
+    MsgStream& msg,
+    bool onlyValidateOneStep = true,
+    bool runTwoConversion = false);
+
  protected:
 
   /// methods for derived classes to access handles of the base class input 
@@ -48,32 +54,42 @@ class HypoBase : public ::AthReentrantAlgorithm {
     kRequireAll //<! Require all DecisionIDs to be present in all of my parent Decision objects
   };
 
-  /// Executes all individual runtime tests.
-  StatusCode runtimeValidation(SG::WriteHandle<TrigCompositeUtils::DecisionContainer>& outputHandle) const;
-
-  /// Ensure all HypoAlg Decisions have a feature. Supports ComboHypo too
-  StatusCode validateHasFeature(const ElementLink<TrigCompositeUtils::DecisionContainer>& dEL) const;
+  /// Ensure all Decisions have the named ElementLink graph edges which they are required to by spec.
+  static StatusCode validateHasLinks(const ElementLink<TrigCompositeUtils::DecisionContainer>& dEL,
+    MsgStream& msg);
 
   /// Ensure that all DecisionIDs have propagated correctly from their parent
-  StatusCode validateLogicalFlow(const ElementLink<TrigCompositeUtils::DecisionContainer>& dEL, const LogicalFlowCheckMode mode) const;
+  static StatusCode validateLogicalFlow(const ElementLink<TrigCompositeUtils::DecisionContainer>& dEL,
+    MsgStream& msg,
+    const LogicalFlowCheckMode mode);
 
   /// Ensure that no space is being wasted by duplicated DecisionIDs in any Decision objects
-  StatusCode validateDuplicatedDecisionID(const ElementLink<TrigCompositeUtils::DecisionContainer>& dEL) const;
+  static StatusCode validateDuplicatedDecisionID(const ElementLink<TrigCompositeUtils::DecisionContainer>& dEL,
+    MsgStream& msg);
 
   /// Ensure that all present IDs correspond to configured chains
-  StatusCode validateDecisionIDs(const ElementLink<TrigCompositeUtils::DecisionContainer>& dEL) const;
+  static StatusCode validateDecisionIDs(const ElementLink<TrigCompositeUtils::DecisionContainer>& dEL,
+    MsgStream& msg);
 
   /// Ensure that the Decision has at least one valid parent, unless it is a initial Decision from the L1 Decoder
-  StatusCode validateParentLinking(const ElementLink<TrigCompositeUtils::DecisionContainer>& dEL) const;
+  static StatusCode validateParentLinking(const ElementLink<TrigCompositeUtils::DecisionContainer>& dEL, 
+    MsgStream& msg,
+    bool runTwoConversion);
 
   /// Execute all checks on one node in the graph, d, then recursive call self on all parent nodes up to L1.
-  StatusCode recursiveValidateGraph(const ElementLink<TrigCompositeUtils::DecisionContainer>& dEL) const;
+  static StatusCode recursiveValidateGraph(const ElementLink<TrigCompositeUtils::DecisionContainer>& dEL, 
+    MsgStream& msg,
+    bool onlyValidateOneStep,
+    bool runTwoConversion,
+    size_t callDepth,
+    std::set<const TrigCompositeUtils::Decision*>& fullyExploredFrom);
 
   /// Print header line
-  void printBangs() const;
+  static void printBangs(MsgStream& msg);
 
   /// A problem was found, print common output data
-  void printErrorHeader(const ElementLink<TrigCompositeUtils::DecisionContainer>& dEL)  const;
+  static void printErrorHeader(const ElementLink<TrigCompositeUtils::DecisionContainer>& dEL,
+    MsgStream& msg);
 
   /// @}
 
@@ -86,7 +102,7 @@ class HypoBase : public ::AthReentrantAlgorithm {
   /// output decisions
   SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_output { this, "HypoOutputDecisions", "UNSPECIFIED_OUTPUT", "Ouput Decision" };
   /// Enabling of detailed validation checks for use during development
-  Gaudi::Property<bool> m_runtimeValidation { this, "RuntimeValidation", true, "Enable detailed runtime validation of HypoAlg output, and upstream Decisions." };
+  Gaudi::Property<bool> m_runtimeValidation { this, "RuntimeValidation", false, "Enable detailed runtime validation of HypoAlg output, and upstream Decisions." };
     
   // for future implementation: ToolHandleArray<ITestHypoTool> m_tools { this, "HypoTools", {}, "Hypo tools" };
 

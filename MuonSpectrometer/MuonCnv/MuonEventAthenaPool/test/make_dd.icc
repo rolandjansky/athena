@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file MuonEventAthenaPool/test/make_dd.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -12,10 +10,15 @@
 
 
 #include "MuonIdHelpers/RpcIdHelper.h"
+#include "RPC_CondCabling/RpcCablingCondData.h"
 #include "RPC_CondCabling/RDOindex.h"
 #include "IdDictParser/IdDictParser.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "AthenaKernel/CondCont.h"
 #include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 
 
@@ -44,4 +47,61 @@ void make_dd()
 
 }
 
+
+class TestRCUSvc
+  : public Athena::IRCUSvc
+{
+public:
+  virtual StatusCode remove (Athena::IRCUObject* obj) override
+  {
+    m_removed = obj;
+    return StatusCode::SUCCESS;
+  }
+  virtual size_t getNumSlots() const override
+  { return 1; }
+  virtual void add (Athena::IRCUObject* /*obj*/) override
+  { }
+
+  virtual unsigned long addRef() override { std::abort(); }
+  virtual unsigned long release() override { std::abort(); }
+  virtual StatusCode queryInterface(const InterfaceID &/*ti*/, void** /*pp*/) override { std::abort(); }
+
+  Athena::IRCUObject* m_removed = nullptr;
+};
+
+
+EventIDBase runlbn (int run, int lbn)
+{
+  return EventIDBase (run,
+                      EventIDBase::UNDEFEVT,  // event
+                      EventIDBase::UNDEFNUM,  // timestamp
+                      EventIDBase::UNDEFNUM,  // timestamp ns
+                      lbn);
+}
+
+
+void make_cond (TestRCUSvc& rcusvc,
+                const std::vector<Identifier> ids = std::vector<Identifier>())
+{
+  EventContext ctx;
+  ctx.setEventID (runlbn (1, 1));
+  Atlas::setExtendedEventContext (ctx, Atlas::ExtendedEventContext (nullptr));
+  Gaudi::Hive::setCurrentContext (ctx);
+
+  auto data = std::make_unique<RpcCablingCondData>();
+  // RpcPadContainerCnv uses only a couple things from RpcCablingCondData.
+  std::vector<Identifier> v(500);
+  data->setIds (v);
+  data->setLookup (ids);
+
+  std::string key = "RpcCablingCondData";
+  EventIDRange r (runlbn(0, 0), runlbn (10000000, 0));
+  DataObjID id ("RpcCablingCondData", key);
+  auto cc = std::make_unique<CondCont<RpcCablingCondData> > (rcusvc, id);
+  assert (cc->insert (r, std::move(data), ctx).isSuccess());
+
+  ServiceHandle<StoreGateSvc> condStore ("StoreGateSvc/ConditionStore", "test");
+  assert (condStore.retrieve().isSuccess());
+  assert (condStore->record (std::move (cc), key).isSuccess());
+}
 

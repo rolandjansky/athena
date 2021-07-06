@@ -1,95 +1,13 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """ helpers for signature flags manipulations """
 class CommonSignatureHelper(object):
     def setAll(self):
-        #self.setL2()
-        #self.setEF()
         self.signatures.set_On()
         
     def unsetAll(self):
-        #self.unsetL2()
-        #self.unsetEF()
         self.signatures.set_Off()
         
-    def setL2(self):
-        if hasattr(self, 'doL2ID'):
-            self.doL2ID=True
-        if hasattr(self, 'doL2Calo'):
-            self.doL2Calo=True
-        if hasattr(self, 'doL2Muon'):
-            self.doL2Muon=True
-        
-    def unsetL2(self):
-        if hasattr(self, 'doL2ID'):
-            self.doL2ID=False
-        if hasattr(self, 'doL2Calo'):            
-            self.doL2Calo=False
-        if hasattr(self, 'doL2Muon'):            
-            self.doL2Muon=False
-
-    def setEF(self):
-        if hasattr(self, 'doEFID'):        
-            self.doEFID=True
-        if hasattr(self, 'doEFCalo'):            
-            self.doEFCalo=True
-        if hasattr(self, 'doEFMuon'):            
-            self.doEFMuon=True
-        
-    def unsetEF(self):
-        if hasattr(self, 'doEFID'):
-            self.doEFID=False
-        if hasattr(self, 'doEFCalo'):            
-            self.doEFCalo=False
-        if hasattr(self, 'doEFMuon'):            
-            self.doEFMuon=False
-        
-    def unsetID(self):
-        if hasattr(self, 'doL2ID'):        
-            self.doL2ID = False
-        if hasattr(self, 'doEFID'):        
-            self.doEFID = False
-
-    def setID(self):
-        if hasattr(self, 'doL2ID'):        
-            self.doL2ID = True
-        if hasattr(self, 'doEFID'):        
-            self.doEFID = True
-
-    def unsetCalo(self):
-        if hasattr(self, 'doL2Calo'):        
-            self.doL2Calo = False
-        if hasattr(self, 'doEFCalo'):                
-            self.doEFCalo = False
-
-    def setCalo(self):
-        if hasattr(self, 'doL2Calo'):                
-            self.doL2Calo = True
-        if hasattr(self, 'doEFCalo'):                    
-            self.doEFCalo = True
-        return 
-
-    def unsetMuon(self):
-        if hasattr(self, 'doL2Muon'):                
-            self.doL2Muon = False
-        if hasattr(self, 'doEFMuon'):                
-            self.doEFMuon = False
-
-    def setMuon(self):
-        if hasattr(self, 'doL2Muon'):                
-            self.doL2Muon = True
-        if hasattr(self, 'doEFMuon'):                
-            self.doEFMuon = True
-
-    def doAny(self):
-        return (self.doL2() or self.doEF())
-
-    def doL2(self):
-        return (self.doL2Muon or self.doL2Calo or self.doL2ID )
-
-    def doEF(self):
-        return (self.doEFMuon or self.doEFCalo or self.doEFID )
-
     def enableSignature(self, chainInfo):
         """ Add signature defined by chainInfo array """
         self.enableSignatures([chainInfo])

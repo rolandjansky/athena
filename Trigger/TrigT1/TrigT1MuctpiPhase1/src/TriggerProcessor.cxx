@@ -1,58 +1,50 @@
-/*                                                                                                                      
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration                                               
+/*
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // First the corresponding header.
-#include "TrigT1MuctpiPhase1/TriggerProcessor.h"
-#include "TrigT1MuctpiPhase1/BitOp.h"
+#include "TriggerProcessor.h"
 
 // The headers from other ATLAS packages,
 // from most to least dependent.
-#include "TrigT1Interfaces/Lvl1MuCTPIInputPhase1.h"
 #include "TrigT1Interfaces/Lvl1MuSectorLogicConstantsPhase1.h"
 #include "TrigT1Result/MuCTPI_RDO.h"
-#include "TrigT1MuctpiPhase1/Configuration.h"
-#include "TrigConfL1Data/TriggerThreshold.h"
+#include "Configuration.h"
+#include "TrigConfData/L1ThrExtraInfo.h"
+#include "TrigConfData/L1Threshold.h"
+#include "TrigConfData/L1Menu.h"
 
 // Headers from external packages.
 #include <math.h>
+#include <bitset>
+#include <sstream>
 
 // System headers.
+const static std::map<unsigned int,unsigned int> pow2 { {1,2}, {2,4}, {3,8} };
 
 namespace LVL1MUCTPIPHASE1 {
-  TriggerProcessor::TriggerProcessor()
-    :
-    m_mergedInputs(new LVL1MUONIF::Lvl1MuCTPIInputPhase1())
+
+  void TriggerProcessor::setMenu(const TrigConf::L1Menu* l1menu)
   {
-    
+    m_l1menu = l1menu;
   }
   
-  TriggerProcessor::~TriggerProcessor()
+  void TriggerProcessor::mergeInputs(std::vector<const LVL1MUONIF::Lvl1MuCTPIInputPhase1*> inputs)
   {
-    delete m_mergedInputs;
-  }
-
-
-  void TriggerProcessor::setThresholds(const std::vector<TrigConf::TriggerThreshold*>& thresholds)
-  {
-    m_thresholds = thresholds;
-  }
-  
-  void TriggerProcessor::mergeInputs(std::vector<LVL1MUONIF::Lvl1MuCTPIInputPhase1*> inputs)
-  {
-    m_mergedInputs->clearAll();
+    m_mergedInputs.clearAll();
     int nrInputs = inputs.size();
-    for (int i=0;i<nrInputs;i++) m_mergedInputs->merge(*inputs[i]);
+    for (int i=0;i<nrInputs;i++) m_mergedInputs.merge(*inputs[i]);
   }
   
-  void TriggerProcessor::computeMultiplicities(int bcid)
+  std::string TriggerProcessor::computeMultiplicities(int bcid)
   {
     m_ctp_words.clear();
     m_daq_data.clear();
 
     //initialize the vector to hold the threshold multiplicities
-    int nThresholds = m_thresholds.size();
-    std::vector<int> multiplicities(nThresholds, 0);
+    const std::vector<std::shared_ptr<TrigConf::L1Threshold> > & thresholds = m_l1menu->thresholds("MU");
+    int nThresholds = thresholds.size();
+    std::vector<unsigned int> multiplicities(nThresholds,0);
 
 
     // Barrel + EC + Fwd
@@ -62,168 +54,166 @@ namespace LVL1MUCTPIPHASE1 {
       LVL1MUONIF::Lvl1MuCTPIInputPhase1::MuonSystem system = static_cast<LVL1MUONIF::Lvl1MuCTPIInputPhase1::MuonSystem>(isys);
       for (size_t isec=0;isec<LVL1MUONIF::Lvl1MuCTPIInputPhase1::numberOfSector(system);isec++)
       {
-	// A+C sides
-	for (size_t isub=0;isub<2;isub++)
-	{
-	  const LVL1MUONIF::Lvl1MuSectorLogicDataPhase1* sectorData = &m_mergedInputs->getSectorLogicData(isys, isub, isec, bcid);
-	  if (!sectorData) continue;
+        // A+C sides
+        for (size_t isub=0;isub<2;isub++)
+        {
+          const LVL1MUONIF::Lvl1MuSectorLogicDataPhase1* sectorData = &m_mergedInputs.getSectorLogicData(isys, isub, isec, bcid);
+          if (!sectorData) continue;
 
-	  const unsigned int& ncand_max = LVL1MUONIF::NCAND[isys];
-	  for (unsigned int icand=0;icand<ncand_max;icand++)
-	  {
-	    int thresh = sectorData->pt(icand);
-	    if (thresh == -1) continue; // no candidate
+          const unsigned int& ncand_max = LVL1MUONIF::NCAND[isys];
+          for (unsigned int icand=0;icand<ncand_max;icand++)
+          {
+            int thresh = sectorData->pt(icand);
+            if (thresh == -1) continue; // no candidate
+            int roiID = sectorData->roi(icand);
+            if (roiID < 0) continue;
 
-	    //loop over each muon threshold and see if this candidate satisfies it
-/*This will be migrated later along with the changes needed in the TrigConfL1Data package
-	    for (int ithresh=0;ithresh<nThresholds;ithresh++)
-	    {
-	      const TrigConf::TriggerThreshold* thr = m_thresholds[ithresh];
-	      const TrigConf::Run3MuonTriggerThreshold* muthr = thr->run3MuonTriggerThreshold();
-	      bool passed=false;
-	      if (isys == LVL1MUONIF::Lvl1MuCTPIInputPhase1::idBarrelSystem())
-	      {
-		if ((int)muthr->rpcThr()+1 >= thresh) passed=true;
-	      }
-	      else
-	      {
-		if ((int)muthr->tgcThr()+1 >= thresh) passed=true;
-	      }
-	      if (passed) multiplicities[ithresh]++;
-	    }
-*/
+            // Build the DAQ word
+            uint32_t daq_word=0;
 
-	    //build the daq word here
-	    uint32_t daq_word=0;
-	    uint32_t ROI_MASK=0;
-	    uint32_t OL_MASK=0;
-	    uint32_t OL_SHIFT=0;
-	    uint32_t SECTOR_MASK = 0;
-	    uint32_t SECTORID_SHIFT = MuCTPI_RDO::CAND_SECTOR_ADDRESS_SHIFT+1;
-	    uint32_t SUBSYS_SHIFT = MuCTPI_RDO::CAND_SECTOR_ADDRESS_SHIFT+6;
-	    uint32_t SUBSYS_MASK = 0x3;
-	    uint32_t SUBSYS_ID = 0; // default for barrel
-	    if (isys == 0) 
-	    {
-	      ROI_MASK = MuCTPI_RDO::BARREL_ROI_MASK;
-	      OL_MASK = MuCTPI_RDO::BARREL_OL_MASK;
-	      OL_SHIFT = MuCTPI_RDO::BARREL_OL_SHIFT;
-	      SECTOR_MASK = MuCTPI_RDO::BARREL_SECTORID_MASK;
-	    }
-	    else if (isys == 1) 
-	    {
-	      ROI_MASK = MuCTPI_RDO::ENDCAP_ROI_MASK;
-	      OL_MASK = MuCTPI_RDO::ENDCAP_OL_MASK;
-	      OL_SHIFT = MuCTPI_RDO::ENDCAP_OL_SHIFT;
-	      SECTOR_MASK = MuCTPI_RDO::ENDCAP_SECTORID_MASK;
-	      SUBSYS_ID = 2; // not a typo!
-	    }
-	    else if (isys == 2) 
-	    {
-	      ROI_MASK = MuCTPI_RDO::FORWARD_ROI_MASK;
-	      SECTOR_MASK = MuCTPI_RDO::FORWARD_SECTORID_MASK;
-	      SUBSYS_ID = 1; // not a typo!
-	    }
-	    //General formula for each subword:
-	    //daq_word |= (subword & MuCTPI_RDO::MASK) << MuCTPI_RDO::SHIFT
-	    daq_word |= (sectorData->is2candidatesInSector() & MuCTPI_RDO::CAND_OVERFLOW_MASK) << MuCTPI_RDO::CAND_OVERFLOW_SHIFT;
-	    daq_word |= (sectorData->is2candidates(icand)    & MuCTPI_RDO::ROI_OVERFLOW_MASK)  << MuCTPI_RDO::ROI_OVERFLOW_SHIFT;
-	    daq_word |= (sectorData->roi(icand)              & ROI_MASK)                       << MuCTPI_RDO::ROI_SHIFT;
-	    daq_word |= (sectorData->ovl(icand)              & OL_MASK)                        << OL_SHIFT;
-	    daq_word |= (thresh                              & MuCTPI_RDO::CAND_PT_MASK)       << MuCTPI_RDO::CAND_PT_SHIFT;
-	    //	    daq_word |= (sectorData->bcid()                  & MuCTPI_RDO::CAND_BCID_MASK)     << MuCTPI_RDO::CAND_BCID_SHIFT; // bcid not included in this word (yet?)
+            // Some definitions that are different between subsystems
+            uint32_t ROI_MASK=0;
+            uint32_t SECTOR_MASK = 0;
+            uint32_t SUBSYS_MASK = 0x3;
+            uint32_t SUBSYS_ID = 0; // default for barrel
+            if (isys == 0) 
+            {
+              ROI_MASK = MuCTPI_RDO::BARREL_ROI_MASK;
+              SECTOR_MASK = MuCTPI_RDO::BARREL_SECTORID_MASK;
+            }
+            else if (isys == 1) 
+            {
+              ROI_MASK = MuCTPI_RDO::ENDCAP_ROI_MASK;
+              SECTOR_MASK = MuCTPI_RDO::ENDCAP_SECTORID_MASK;
+              SUBSYS_ID = 2; // not a typo!
+            }
+            else if (isys == 2) 
+            {
+              ROI_MASK = MuCTPI_RDO::FORWARD_ROI_MASK;
+              SECTOR_MASK = MuCTPI_RDO::FORWARD_SECTORID_MASK;
+              SUBSYS_ID = 1; // not a typo!
+            }
 
-	    //set the address information
-	    daq_word |= (isub      & MuCTPI_RDO::SECTOR_HEMISPHERE_MASK) << MuCTPI_RDO::CAND_SECTOR_ADDRESS_SHIFT;
-	    daq_word |= (isec      & SECTOR_MASK)                        << SECTORID_SHIFT;
-	    daq_word |= (SUBSYS_ID & SUBSYS_MASK)                        << SUBSYS_SHIFT;
-	    
-	    //there are other items that are less important. let's ignore them for the moment
-	    m_daq_data.push_back(daq_word);
-	  }
-	}
-      }
-    }
-  
-    //build the CTP words
-    unsigned int current_ctp_word=0;
-    int pos=0;
-    int word_size = sizeof(current_ctp_word)*8;
+            //General formula for each subword:
+            //daq_word |= (subword & MuCTPI_RDO::MASK) << MuCTPI_RDO::SHIFT
+            
+            //ROI word
+            daq_word |= (sectorData->roi(icand)              & ROI_MASK)                       << MuCTPI_RDO::RUN3_ROI_SHIFT;
+
+            //PT word
+            daq_word |= (thresh                              & MuCTPI_RDO::RUN3_CAND_PT_MASK)       << MuCTPI_RDO::RUN3_CAND_PT_SHIFT;
+
+            //CANDIDIATE FLAGS
+            if (isys == 0) 
+            {
+              daq_word |= (sectorData->ovl(icand)              & MuCTPI_RDO::RUN3_BARREL_OL_MASK) << MuCTPI_RDO::RUN3_BARREL_OL_SHIFT;
+              daq_word |= (sectorData->is2candidates(icand)    & MuCTPI_RDO::ROI_OVERFLOW_MASK)   << MuCTPI_RDO::RUN3_ROI_OVERFLOW_SHIFT;
+            }
+            else
+            {
+              daq_word |= (sectorData->charge(icand)           & 0x1) << MuCTPI_RDO::RUN3_CAND_TGC_CHARGE_SIGN_SHIFT;
+              daq_word |= (sectorData->bw2or3(icand)           & 0x1) << MuCTPI_RDO::RUN3_CAND_TGC_BW2OR3_SHIFT;
+              daq_word |= (sectorData->innercoin(icand)        & 0x1) << MuCTPI_RDO::RUN3_CAND_TGC_INNERCOIN_SHIFT;
+              daq_word |= (sectorData->goodmf(icand)           & 0x1) << MuCTPI_RDO::RUN3_CAND_TGC_GOODMF_SHIFT;
+            }
+
+            //CANDIDATE VETO FLAG
+            daq_word |= (sectorData->veto(icand)             & 0x1)                            << MuCTPI_RDO::RUN3_CAND_VETO_SHIFT;
+
+            //SECTOR FLAGS
+            daq_word |= (sectorData->is2candidatesInSector() & MuCTPI_RDO::CAND_OVERFLOW_MASK) << MuCTPI_RDO::RUN3_CAND_OVERFLOW_SHIFT;
+
+            //SECTOR ADDRESS
+            daq_word |= (isub      & MuCTPI_RDO::SECTOR_HEMISPHERE_MASK)   << MuCTPI_RDO::RUN3_CAND_SECTOR_ADDRESS_SHIFT;
+            daq_word |= (isec      & SECTOR_MASK)                          << MuCTPI_RDO::RUN3_CAND_SECTORID_SHIFT;
+            daq_word |= (SUBSYS_ID & SUBSYS_MASK)                          << MuCTPI_RDO::RUN3_SUBSYS_ADDRESS_SHIFT;
+
+
+            // Add extra bit in front to flag that this is a RUN3 RoI
+            daq_word |= 0x1 << 31;
+
+            //find the trigger decisions
+            std::vector<std::pair<std::shared_ptr<TrigConf::L1Threshold>, bool> > decisions = m_trigThresholdDecisionTool->getThresholdDecisions(
+              daq_word, m_l1menu->thresholds("MU"), m_l1menu->thrExtraInfo().MU());
+            m_daq_data.push_back(DAQData(daq_word, decisions));
+
+            //
+            // Perform multiplicity counting
+            //
+
+            //if this candidate has been flagged as overlapping, stop here and don't count it in the multiplicity
+            if (sectorData->veto(icand)) continue;
+
+            //basic check that the size vectors are equal
+            if (decisions.size() != thresholds.size()) return "Threshold vector different size than decision vector";
+
+            //loop over each muon threshold passed and see if this candidate satisfies it.
+            //if so, increment the multiplicity of this threshold
+            for (unsigned ithresh=0;ithresh<decisions.size();ithresh++)
+            {
+              //check that the pointers are ordered correctly
+              if (decisions[ithresh].first != thresholds[ithresh]) return "Invalid threshold ordering";
+              if (decisions[ithresh].second) 
+              {
+                ++multiplicities[ithresh];
+              }
+            }
+          } // N Cand
+        } // N Subsys
+      } // N Sectors
+    } // N Systems
+
+    //build the CTP words with bitset:
+    //first build the bitset that contains the full word
+    const TrigConf::L1Connector & optConn = m_l1menu->connector("MuCTPiOpt0");
+
+    std::bitset<256> full_ctp_word = 0;
+    unsigned int lastPos = 0;
     for (int i=0;i<nThresholds;i++)
     {
-      //buffer to add at the word at the end of the block, if necessary
-      unsigned int word_to_add=0;
-      bool add_word=false; // need this in case the word needs to be added but its empty
-
-      //truncate the thresholds if they're over the number of specified bits
-      int nbits = m_thresholds[i]->bitnum();
-      int maxsize = std::pow(2,nbits)-1;
-      if (multiplicities[i] > maxsize) multiplicities[i] = maxsize; 
-
-      //assign the individual multiplicity word to the CTP word
-      if (pos+nbits <= word_size) 
-      {
-	//assign the word
-	current_ctp_word |= multiplicities[i] << pos;
-
-	//add it to the word list if its full (or we're at the end of the threshold list) and reset
-	if (pos+nbits == word_size || i == nThresholds-1)
-	{
-	  word_to_add=current_ctp_word;
-	  add_word=true;
-	  pos=0;
-	}
-	else
-	{
-	  //increment the position
-	  pos += nbits;
-	}
+      if(!optConn.hasLine(thresholds[i]->name())) { // not all thresholds are on the multiplicity output line
+        continue;
       }
-      else
-      {//handle cases where the individual multiplicity word is split between two 32-bit words
-	//truncate the multiplicity by the remaining length
-	int remaining_length = word_size-pos;
-	int mask = 0;
-	for (int j=0;j<remaining_length;j++) mask |= 0x1 << j;
-	int mult_trunc = multiplicities[i] & mask;
+      auto & triggerline = optConn.triggerLine(thresholds[i]->name());
+      unsigned nbits = triggerline.endbit() - triggerline.startbit() + 1;
+      lastPos = std::max(lastPos,triggerline.endbit()); // keep track of highest bit
 
-	//add this to the current word
-	current_ctp_word |= mult_trunc << pos;
+      unsigned int maxMult = pow2.at(nbits)-1; // multiplicity caped at 2**nbits-1
+      std::bitset<256> mult = ( multiplicities[i]>maxMult ? maxMult : multiplicities[i] ); // needs to be a bitset<256> in order to shift it by more than 32
 
-	//add the current word to the CTP word list
-	word_to_add=current_ctp_word;
-	add_word=true;
-
-	//reset the current word and add the remainder to the new word
-	current_ctp_word = multiplicities[i] >> remaining_length;
-
-	//recalculate the position
-	pos += nbits;
-	pos -= word_size;
-      }
-
-      //add the word if its not empty, or if we're at the end of the loop;
-      if (add_word || i == nThresholds-1) 
-      {
-	m_ctp_words.push_back(word_to_add);
-      }
+      full_ctp_word |= (mult << triggerline.startbit());
     }
+
+    // now divide up into a vector of 32-bit unsigned ints
+    const std::bitset<256> u32i_mask = 0xffffffff;
+    unsigned n32_ints = lastPos/32 + 1;
+    // if (lastPos % 32 != 0) n32_ints += 1;
+    for (unsigned i=0;i<n32_ints;i++)
+    {
+      unsigned int word = static_cast<unsigned int>((full_ctp_word & u32i_mask).to_ulong());
+      m_ctp_words.push_back(word);
+      full_ctp_word >>= 32;
+    }
+
+    return "";
   }
   
   void TriggerProcessor::makeTopoSelections()
   {
-    
+    //reserved for topo selection functionality
   }
 
 
-  const std::vector<unsigned int>& TriggerProcessor::getCTPData()
+  const std::vector<unsigned int>& TriggerProcessor::getCTPData() const
   {
     return m_ctp_words;
   }
 
 
-  const std::vector<unsigned int>& TriggerProcessor::getDAQData()
+  const std::vector<DAQData>& TriggerProcessor::getDAQData() const
   {
     return m_daq_data;
   }
+
 }
+

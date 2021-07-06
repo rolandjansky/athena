@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -21,6 +21,7 @@
 
 #include "GaudiKernel/ITHistSvc.h"
 
+#include "TFile.h"
 #include "TH1I.h"
 
 #include <set>
@@ -89,9 +90,44 @@ SCT_CalibBsErrorTool::book() {
 
 bool
 SCT_CalibBsErrorTool::read(const std::string& fileName) {
-   ATH_MSG_ERROR("Reding BsError histograms from " << fileName.c_str() << " is not supported!");
+   bool result{true};
+   //pointers to the histos are deleted by m_thistSvc methods
+   m_phistoVector.clear();
+   TFile* fileHitmap{TFile::Open(fileName.c_str())};
+   ATH_MSG_INFO("opening Hitmap file : " << fileName.c_str());
+
+   if (fileHitmap==nullptr) {
+      ATH_MSG_ERROR("can not open Hitmap file : " << fileName.c_str());
+      return result;
+   }
+   //histogram for numbers of events
+   m_numberOfEventsHisto = static_cast<TH1I*>(fileHitmap->Get("GENERAL/events"));
+   if (m_numberOfEventsHisto==nullptr) {
+      ATH_MSG_ERROR("Error in reading EventNumber histogram");
+   }
+   //histograms for each wafer
+   SCT_ID::const_id_iterator waferItr{m_waferItrBegin};
+   for (; waferItr not_eq m_waferItrEnd; ++waferItr) {
+      const Identifier& waferId{*waferItr};
+      const std::string formattedPosition{formatPosition(waferId, m_pSCTHelper)};
+      std::string name{detectorPaths[bec2Index(m_pSCTHelper->barrel_ec(waferId))] + formattedPosition};
+      TH1F* hitmapHisto_tmp{static_cast<TH1F*>(fileHitmap->Get(name.c_str()))};
+      if (hitmapHisto_tmp==nullptr) {
+         ATH_MSG_ERROR("Error in reading BSErrors histogram");
+      } else {
+         m_phistoVector.push_back(hitmapHisto_tmp);
+      }
+   }
+   return result;
+}
+
+/*
+bool
+SCT_CalibBsErrorTool::read(const std::string& fileName) {
+   ATH_MSG_ERROR("Reading BsError histograms from " << fileName.c_str() << " is not supported!");
    return false;
 }
+*/
 
 bool
 SCT_CalibBsErrorTool::fill(const bool fromData) {
@@ -122,8 +158,9 @@ SCT_CalibBsErrorTool::fillFromData() {
   //--- Number of event
   m_numberOfEventsHisto->Fill( 1 );
   //--- Loop over BSErrors
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
   for (int type = 0; type < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++type) {
-    const std::set<IdentifierHash> errorSet{m_bytestreamErrorsTool->getErrorSet(type)};
+    const std::set<IdentifierHash> errorSet{m_bytestreamErrorsTool->getErrorSet(type, ctx)};
     for(const auto& idHash : errorSet) {
       Identifier waferId{m_pSCTHelper->wafer_id(idHash)};
       fillBsErrorsForWafer(waferId, type);

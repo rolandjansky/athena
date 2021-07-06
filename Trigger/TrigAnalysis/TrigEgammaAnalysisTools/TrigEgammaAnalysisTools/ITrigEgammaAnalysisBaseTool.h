@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ITrigEgammaAnalysisBaseTool.h
@@ -8,21 +8,9 @@
 #define ITrigEgammaAnalysisBaseTool_H
 
 #include "AsgTools/IAsgTool.h"
-#include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/IInterface.h"
 #include "TrigHLTMonitoring/IHLTMonTool.h"
 #include "TrigEgammaAnalysisTools/ITrigEgammaPlotTool.h"
-#include "TrigEgammaEmulationTool/ITrigEgammaEmulationTool.h"
-
-//#include "StoreGate/StoreGateSvc.h"
-
-#include "xAODEgamma/Egamma.h"
-#include "TrigConfHLTData/HLTTriggerElement.h"
-
-#include "TH1.h"
-#include "TH2.h"
-#include "TTree.h"
-#include <utility>
+//#include "TrigEgammaEmulationTool/ITrigEgammaEmulationTool.h"
 
 
 class ITrigEgammaAnalysisBaseTool : virtual public asg::IAsgTool {
@@ -39,7 +27,7 @@ public:
   virtual void setDetail(bool)=0;
   virtual void setTP(bool)=0;
   virtual void setEmulation(bool)=0;
-  virtual void setEmulationTool(ToolHandle<Trig::ITrigEgammaEmulationTool>)=0;
+  //virtual void setEmulationTool(ToolHandle<Trig::ITrigEgammaEmulationTool>)=0;
   virtual void setAvgMu(const float, const float)=0;
   virtual void setPVertex(const float, const float)=0;
   virtual void setSGContainsRnn(bool)=0;

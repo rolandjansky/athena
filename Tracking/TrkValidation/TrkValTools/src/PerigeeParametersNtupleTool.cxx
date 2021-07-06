@@ -173,21 +173,21 @@ StatusCode Trk::PerigeeParametersNtupleTool::fillTrackData (
   //----------------------------------------------
   // fill track parameters in ntuple
   const Trk::Perigee* perpars = track.perigeeParameters();
-  if (perpars != NULL && fillTrackPerigee(perpars).isFailure()) {
+  if (perpars != nullptr && fillTrackPerigee(perpars).isFailure()) {
     msg(MSG::WARNING) << "Perigee parameters could not be written to ntuple" << endmsg;
   }
-  if (perpars == NULL) {
+  if (perpars == nullptr) {
     if ( // track.info().author() == Trk::Track::SiSPSeededTrackFinder && 
         !m_extrapolator.empty() ) {
       ATH_MSG_VERBOSE ("try extrapolate SiSPSeeded track to perigee");
       const Trk::PerigeeSurface perSurf;
       perpars = dynamic_cast<const Trk::Perigee *>
         (m_extrapolator->extrapolate(track, perSurf, Trk::anyDirection, false, Trk::nonInteracting));
-      if (perpars != NULL && fillTrackPerigee(perpars).isFailure()) {
+      if (perpars != nullptr && fillTrackPerigee(perpars).isFailure()) {
         msg(MSG::WARNING) << "Newly made perigee parameters could not be "
                           << "written to ntuple" << endmsg;
       }
-      if (perpars != NULL) delete perpars;
+      if (perpars != nullptr) delete perpars;
     } else 
       msg(MSG::WARNING) << "No perigee parameters, but they are the main validation object!"
                         << endmsg;
@@ -205,7 +205,7 @@ StatusCode Trk::PerigeeParametersNtupleTool::fillTrackParticleData
   //----------------------------------------------
   // fill track parameters in ntuple
   const Trk::Perigee* perpars = particle.perigee();
-  if (perpars != NULL && fillTrackPerigee(perpars).isFailure())
+  if (perpars != nullptr && fillTrackPerigee(perpars).isFailure())
     ATH_MSG_WARNING ("Perigee parameters could not be written to ntuple");
   return StatusCode::SUCCESS;
 }
@@ -222,13 +222,13 @@ StatusCode Trk::PerigeeParametersNtupleTool::fillProtoTrajectoryData
 {
   ATH_MSG_VERBOSE ("in fillProtoTrajectoryData(protoTraj, indx)");
   
-  if (myPerigee != NULL) {
+  if (myPerigee != nullptr) {
     if (fillTrackPerigee(myPerigee).isFailure()) {
       ATH_MSG_WARNING ("Newly made perigee parameters could not be written to ntuple");
     }
   } else {
     ProtoTrajectory::const_iterator it = trajectory.begin();
-    const Trk::TrackParameters* nearestParam   = 0;
+    const Trk::TrackParameters* nearestParam   = nullptr;
     double smallest_perp = 999999.;
     for ( ; it!= trajectory.end(); ++it) {
       if (!it->isOutlier() && (it->smoothedTrackParameters())) {
@@ -238,11 +238,11 @@ StatusCode Trk::PerigeeParametersNtupleTool::fillProtoTrajectoryData
         }
       }
     }
-    if (nearestParam!=NULL) {
+    if (nearestParam!=nullptr) {
       const Trk::PerigeeSurface   perSurf;
       const Trk::Perigee* perpars = dynamic_cast<const Trk::Perigee *>
         (m_extrapolator->extrapolate(*nearestParam, perSurf, Trk::anyDirection, false, Trk::pion));
-      if (perpars != NULL && fillTrackPerigee(perpars).isFailure()) {
+      if (perpars != nullptr && fillTrackPerigee(perpars).isFailure()) {
         ATH_MSG_WARNING ("Newly made perigee parameters could not be written to ntuple");
       }
       delete perpars;
@@ -278,7 +278,7 @@ StatusCode Trk::PerigeeParametersNtupleTool::fillTrackTruthData ( const TrackPar
     m_mc_energy     = genParticle->momentum().e();
   }
 
-  if (truePerigee == NULL) return StatusCode::SUCCESS; // fake fakes don't have true perigee
+  if (truePerigee == nullptr) return StatusCode::SUCCESS; // fake fakes don't have true perigee
 
   m_mc_d0      = truePerigee->parameters()[Trk::d0];
   m_mc_z0      = truePerigee->parameters()[Trk::z0];

@@ -28,10 +28,6 @@ if AODFlags.FastSimulation:
    if jobproperties.FastSimulation.doAtlfastICorrection == True:
        include ( "AtlfastCorrectionAlgs/AtlfastCDivide.py" )
 
-# run Fake HLT for streaming 
-if AODFlags.Streaming:
-    protectedInclude( "AnalysisTriggerAlgs/FakeHLT_jobOptions.py" )
-
 from CaloRec.CaloCellFlags import jobproperties
 if jobproperties.CaloCellFlags.doFastCaloSim.statusOn:
     protectedInclude ("AtlfastAlgs/Atlfast_FastCaloSim_MuonFragment.py")

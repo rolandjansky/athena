@@ -1,6 +1,4 @@
-################################################################################
-# Package: TrigOutputHandling
-################################################################################
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigOutputHandling )
@@ -14,8 +12,8 @@ atlas_add_library( TrigOutputHandlingLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigOutputHandling
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} GaudiKernel AthViews AthenaBaseComps RootUtils TrigSteeringEvent TrigSerializeResultLib TrigConfData xAODTrigCalo xAODTrigRinger xAODTrigEgamma xAODEgamma xAODBTagging xAODTrigger xAODTracking xAODTrigMuon xAODMuon xAODTau xAODTrigBphys xAODTrigMissingET DecisionHandlingLib AthenaMonitoringKernelLib TrigPartialEventBuildingLib TrigSerializeTPLib AthContainersRoot TrigCompositeUtilsLib TrigCostMonitorMTLib
-		   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} PathResolver )
+                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} GaudiKernel AthViews AthenaBaseComps RootUtils TrigSteeringEvent TrigSerializeResultLib TrigConfData xAODTrigCalo xAODTrigRinger xAODTrigEgamma xAODEgamma xAODBTagging xAODTrigger xAODTracking xAODTrigMuon xAODMuon xAODTau xAODTrigBphys xAODTrigMissingET  xAODTrigMinBias xAODHIEvent xAODForward DecisionHandlingLib AthenaMonitoringKernelLib TrigPartialEventBuildingLib TrigSerializeTPLib AthContainersRoot TrigCompositeUtilsLib TrigCostMonitorLib ByteStreamData
+		           PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} PathResolver )
 
 
 atlas_add_component( TrigOutputHandling
@@ -29,7 +27,7 @@ atlas_install_joboptions( share/*.py )
 # Tests:
 atlas_add_test( void_record_test
       SOURCES test/void_record_test.cxx
-      LINK_LIBRARIES TrigOutputHandlingLib
+      LINK_LIBRARIES TrigOutputHandlingLib TestTools
       ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
       POST_EXEC_SCRIPT nopost.sh
       PROPERTIES TIMEOUT 300
@@ -37,16 +35,16 @@ atlas_add_test( void_record_test
 
 atlas_add_test( serial_deserial_test
       SOURCES test/serial_deserial_test.cxx
-      LINK_LIBRARIES TrigOutputHandlingLib
+      LINK_LIBRARIES TrigOutputHandlingLib CxxUtils TestTools
       ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
       POST_EXEC_SCRIPT nopost.sh
-      PROPERTIES TIMEOUT 300
+      PROPERTIES TIMEOUT 300 DISABLED True
       )
 
 atlas_add_test( schema_evolution_test
       SOURCES test/schema_evolution_test.cxx
-      LINK_LIBRARIES TrigOutputHandlingLib
+      LINK_LIBRARIES TrigOutputHandlingLib CxxUtils TestTools
       ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
       POST_EXEC_SCRIPT nopost.sh
-      PROPERTIES TIMEOUT 300
+      PROPERTIES TIMEOUT 300 DISABLED True
       )

@@ -1,354 +1,315 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
+
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-SensitiveDetectorMasterTool=CompFactory.SensitiveDetectorMasterTool
-FastSimulationMasterTool=CompFactory.FastSimulationMasterTool
-
-from BCM_G4_SD.BCM_G4_SDToolConfig import BCMSensorSDCfg
-from BLM_G4_SD.BLM_G4_SDToolConfig import BLMSensorSDCfg
-
-from PixelG4_SD.PixelG4_SDToolConfig import PixelSensorSDCfg
-from PixelG4_SD.PixelG4_SDToolConfig import PixelSensor_CTBCfg
-
-from SCT_G4_SD.SCT_G4_SDToolConfig import SctSensorSDCfg
-from SCT_G4_SD.SCT_G4_SDToolConfig import SLHC_SctSensorSD_GmxCfg #Change name?
-from SCT_G4_SD.SCT_G4_SDToolConfig import SctSensor_CTBCfg
-
-from TRT_G4_SD.TRT_G4_SDToolConfig import TRTSensitiveDetectorCfg
-from TRT_G4_SD.TRT_G4_SDToolConfig import TRTSensitiveDetector_CTBCfg
-
-
-from LArG4SD.LArG4SDToolConfig import LArEMBSensitiveDetectorCfg, LArEMECSensitiveDetectorCfg, LArFCALSensitiveDetectorCfg, LArHECSensitiveDetectorCfg, LArMiniFCALSensitiveDetectorToolCfg, LArDeadSensitiveDetectorToolCfg, LArActiveSensitiveDetectorToolCfg, LArInactiveSensitiveDetectorToolCfg
-
-from TileGeoG4SD.TileGeoG4SDToolConfig import TileGeoG4SDCfg, TileCTBGeoG4SDCfg
-
-from TileGeoG4Calib.TileGeoG4CalibConfigNew import TileGeoG4CalibSDCfg, TileCTBGeoG4CalibSDCfg
-from MuonG4SD.MuonG4SDToolConfig import CSCSensitiveDetectorCfg, MDTSensitiveDetectorCfg, RPCSensitiveDetectorCfg, MDTSensitiveDetectorCosmicsCfg, RPCSensitiveDetectorCosmicsCfg, TGCSensitiveDetectorCosmicsCfg, sTGCSensitiveDetectorCfg, MicromegasSensitiveDetectorCfg, CSCSensitiveDetectorCosmicsCfg, TGCSensitiveDetectorCfg
-from MinBiasScintillator.MinBiasScintillatorToolConfig import MinBiasScintillatorSDCfg
-from LArG4FastSimulation.LArG4FastSimulationConfigNew import EMBFastShowerCfg, EMECFastShowerCfg, FCALFastShowerCfg, FCAL2FastShowerCfg
-from G4FastSimulation.G4FastSimulationConfigNew import SimpleFastKillerCfg, DeadMaterialShowerCfg
-
-def generateFastSimulationListCfg(ConfigFlags):
+def FastSimulationToolListCfg(ConfigFlags):
     result = ComponentAccumulator()
-    FastSimulationList = []
+    tools = []
     if ConfigFlags.Detector.GeometryBpipe:
         #if hasattr(simFlags, 'ForwardDetectors') and simFlags.ForwardDetectors.statusOn and simFlags.ForwardDetectors() == 2:
         #    FastSimulationList += ['ForwardTransportModel']
         if ConfigFlags.Sim.BeamPipeSimMode != "Normal":
-            FastSimulationList += [ result.popToolsAndMerge(SimpleFastKillerCfg(ConfigFlags)) ]
+            from G4FastSimulation.G4FastSimulationConfigNew import SimpleFastKillerCfg
+            tools += [ result.popToolsAndMerge(SimpleFastKillerCfg(ConfigFlags)) ]
     if ConfigFlags.Detector.GeometryLAr:
         if ConfigFlags.Sim.LArParameterization > 0:
             # FIXME If we're only using Frozen Showers in the FCAL do
             # we really need to set up the EMB and EMEC as well?
-            FastSimulationList += [result.popToolsAndMerge(EMBFastShowerCfg(ConfigFlags))]
-            FastSimulationList += [result.popToolsAndMerge(EMECFastShowerCfg(ConfigFlags))]
-            FastSimulationList += [result.popToolsAndMerge(FCALFastShowerCfg(ConfigFlags))]
-            FastSimulationList += [result.popToolsAndMerge(FCAL2FastShowerCfg(ConfigFlags))]
+            from LArG4FastSimulation.LArG4FastSimulationConfigNew import EMBFastShowerCfg, EMECFastShowerCfg, FCALFastShowerCfg, FCAL2FastShowerCfg
+            tools += [ result.popToolsAndMerge(EMBFastShowerCfg(ConfigFlags)) ]
+            tools += [ result.popToolsAndMerge(EMECFastShowerCfg(ConfigFlags)) ]
+            tools += [ result.popToolsAndMerge(FCALFastShowerCfg(ConfigFlags)) ]
+            tools += [ result.popToolsAndMerge(FCAL2FastShowerCfg(ConfigFlags)) ]
             if ConfigFlags.Sim.LArParameterization > 1:
-                 FastSimulationList += [ result.popToolsAndMerge(DeadMaterialShowerCfg(ConfigFlags)) ]
+                from G4FastSimulation.G4FastSimulationConfigNew import DeadMaterialShowerCfg
+                tools += [ result.popToolsAndMerge(DeadMaterialShowerCfg(ConfigFlags)) ]
         elif ConfigFlags.Sim.LArParameterization == 0:
             print( "getFastSimulationMasterTool INFO No Frozen Showers" )
     #if ConfigFlags.Detector.GeometryMuon:
     #    if hasattr(simFlags, 'CavernBG') and simFlags.CavernBG.statusOn and simFlags.CavernBG.get_Value() != 'Read' and\
     #            not (hasattr(simFlags, 'RecordFlux') and simFlags.RecordFlux.statusOn and simFlags.RecordFlux()):
     #        FastSimulationList += ['NeutronFastSim']
-    result.setPrivateTools(FastSimulationList)
+    result.setPrivateTools(tools)
     return result
 
 
 def FastSimulationMasterToolCfg(ConfigFlags, **kwargs):
     result = ComponentAccumulator()
-    FastSimulationList = result.popToolsAndMerge(generateFastSimulationListCfg(ConfigFlags))
-    kwargs.setdefault("FastSimulations", FastSimulationList)
-    result.addPublicTool(FastSimulationMasterTool(name="FastSimulationMasterTool", **kwargs))
+    kwargs.setdefault("FastSimulations", result.popToolsAndMerge(FastSimulationToolListCfg(ConfigFlags)))
+    FastSimulationMasterTool = CompFactory.FastSimulationMasterTool
+    result.setPrivateTools(FastSimulationMasterTool(name="FastSimulationMasterTool", **kwargs))
     return result
 
 
 def EmptyFastSimulationMasterToolCfg(ConfigFlags, **kwargs):
     result = ComponentAccumulator()
-    result.addPublicTool(FastSimulationMasterTool(name="EmptyFastSimulationMasterTool", **kwargs))
+    FastSimulationMasterTool = CompFactory.FastSimulationMasterTool
+    tool = result.popToolsAndMerge(FastSimulationMasterTool(name="EmptyFastSimulationMasterTool", **kwargs))
+    result.setPrivateTools(tool)
     return result
 
 
-def generateFwdSensitiveDetectorList(ConfigFlags):
-    SensitiveDetectorList=[]
-    if ConfigFlags.Detector.SimulateLucid:
-        SensitiveDetectorList += [ 'LUCID_SensitiveDetector' ]
-    if ConfigFlags.Detector.SimulateForward:
-        if ConfigFlags.Detector.SimulateZDC:
-            SensitiveDetectorList += [ 'ZDC_PixelSD', 'ZDC_StripSD' ]
-        if ConfigFlags.Detector.SimulateALFA:
-            SensitiveDetectorList += [ 'ALFA_SensitiveDetector' ]
-        if ConfigFlags.Detector.SimulateAFP:
-            SensitiveDetectorList += [ 'AFP_SensitiveDetector' ]
-            #SensitiveDetectorList += [ 'AFP_SiDSensitiveDetector', 'AFP_TDSensitiveDetector' ]
+def FwdSensitiveDetectorListCfg(ConfigFlags):
+    # TODO: migrate to CA
+    result = ComponentAccumulator()
+    tools = []
+    if ConfigFlags.Detector.EnableLucid:
+        tools += [ 'LUCID_SensitiveDetector' ]
+    if ConfigFlags.Detector.EnableForward:
+        if ConfigFlags.Detector.EnableZDC:
+            tools += [ 'ZDC_PixelSD', 'ZDC_StripSD' ]
+        if ConfigFlags.Detector.EnableALFA:
+            tools += [ 'ALFA_SensitiveDetector' ]
+        if ConfigFlags.Detector.EnableAFP:
+            tools += [ 'AFP_SensitiveDetector' ]
+            #tools += [ 'AFP_SiDSensitiveDetector', 'AFP_TDSensitiveDetector' ]
 
-    return SensitiveDetectorList
+    result.setPrivateTools(tools)
+    return result
 
 
-def generateTrackFastSimSensitiveDetectorList(ConfigFlags):
-    SensitiveDetectorList=[]
+def TrackFastSimSensitiveDetectorListCfg(ConfigFlags):
+    result = ComponentAccumulator()
+    tools = []
+
     #if (ConfigFlags.Detector.Muon_on() and simFlags.CavernBG.statusOn and simFlags.CavernBG.get_Value() != 'Read' and 'Write' in simFlags.CavernBG.get_Value()) or (hasattr(simFlags, 'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn):
-    #if ((ConfigFlags.Detector.SimulateMuon) and (ConfigFlags.Sim.CavernBG != 'Read') and ('Write' in ConfigFlags.Sim.CavernBG)) or ConfigFlags.Sim.StoppedParticleFile:
-    if False: 
-        SensitiveDetectorList += [ 'TrackFastSimSD' ]
-    return SensitiveDetectorList
+    #if ((ConfigFlags.Detector.EnableMuon) and (ConfigFlags.Sim.CavernBG != 'Read') and ('Write' in ConfigFlags.Sim.CavernBG)) or ConfigFlags.Sim.StoppedParticleFile:
+    # if False:
+    #     SensitiveDetectorList += [ 'TrackFastSimSD' ]
+
+    result.setPrivateTools(tools)
+    return result
 
 
-def generateITkSensitiveDetectorList(ConfigFlags):
-
+def ITkSensitiveDetectorListCfg(ConfigFlags):
     result = ComponentAccumulator()
-    SensitiveDetectorList=[]
+    tools = []
 
-    if ConfigFlags.Detector.SimulateITkPixel:
-        accITkPixel, toolITkPixel = PixelSensorSDCfg(ConfigFlags)
-        SensitiveDetectorList += [ toolITkPixel ]
-        result.merge(accITkPixel)
-    if ConfigFlags.Detector.SimulateITkStrip:
-        accITkStrip,toolITkStrip = SLHC_SctSensorSD_GmxCfg(ConfigFlags) #This tool should be renamed, and maybe moved to separate package?
-        SensitiveDetectorList += [ toolITkStrip ]
-        result.merge(accITkStrip)
-    return result, SensitiveDetectorList #List of tools here now! (CALL IT TOOL LIST?)
+    if ConfigFlags.Detector.EnableITkPixel:
+        from PixelG4_SD.PixelG4_SDToolConfig import ITkPixelSensorSDCfg
+        tools += [ result.popToolsAndMerge(ITkPixelSensorSDCfg(ConfigFlags)) ]
+        pass
+    if ConfigFlags.Detector.EnableITkStrip:
+        from SCT_G4_SD.SCT_G4_SDToolConfig import ITkStripSensorSDCfg
+        tools += [ result.popToolsAndMerge(ITkStripSensorSDCfg(ConfigFlags)) ]
+    
+    result.setPrivateTools(tools)
+    return result
 
-def generateInDetSensitiveDetectorList(ConfigFlags):
 
+def HGTDSensitiveDetectorListCfg(ConfigFlags):
     result = ComponentAccumulator()
-    SensitiveDetectorList=[]
+    tools = []
 
-    #EDIT THIS LATER(geoflags...)...!!
-    isRUN2 = (ConfigFlags.GeoModel.Run in ["RUN2", "RUN3"]) or (ConfigFlags.GeoModel.Run=="UNDEFINED" )#and geoFlags.isIBL()) #isIBL may cause issues later....
-    isRUN1 = not (isRUN2)
+    if ConfigFlags.Detector.EnableHGTD:
+        # TODO: disabled pending infrastructure updates
+        # from HGTD_G4.HGTD_G4_SDToolConfig import HgtdSensorSDCfg
+        # tools += [ result.popToolsAndMerge(HgtdSensorSDCfg(ConfigFlags)) ]
+        pass
 
-    if ConfigFlags.Detector.SimulatePixel:
-        if isRUN1 or isRUN2:
-            if ConfigFlags.Detector.SimulateBCM:
-                accBCM, toolBCM = BCMSensorSDCfg(ConfigFlags)
-                SensitiveDetectorList += [ toolBCM ]
-                result.merge(accBCM)
-                accBLM, toolBLM = BLMSensorSDCfg(ConfigFlags)
-                SensitiveDetectorList += [ toolBLM ]
-                result.merge(accBLM)
-        accPixel, toolPixel = PixelSensorSDCfg(ConfigFlags)
-        SensitiveDetectorList += [ toolPixel ]
-        result.merge(accPixel)
-    if ConfigFlags.Detector.SimulateSCT:
-        accSCT,toolSCT = SctSensorSDCfg(ConfigFlags)
-        SensitiveDetectorList += [ toolSCT ]
-        result.merge(accSCT)
-    if ConfigFlags.Detector.SimulateTRT:
-        accTRT, toolTRT = TRTSensitiveDetectorCfg(ConfigFlags)
-        SensitiveDetectorList += [ toolTRT ]
-        result.merge(accTRT)
-    return result, SensitiveDetectorList #List of tools here now! (CALL IT TOOL LIST?)
+    result.setPrivateTools(tools)
+    return result
 
 
-def generateCaloSensitiveDetectorList(ConfigFlags):
+def InDetSensitiveDetectorListCfg(ConfigFlags):
     result = ComponentAccumulator()
-    SensitiveDetectorList=[]
+    tools = []
 
-    if ConfigFlags.Detector.SimulateLAr:
-        accLArEMB = LArEMBSensitiveDetectorCfg(ConfigFlags)
-        accLArEMEC = LArEMECSensitiveDetectorCfg(ConfigFlags)
-        accLArFCAL = LArFCALSensitiveDetectorCfg(ConfigFlags)
-        accLArHEC = LArHECSensitiveDetectorCfg(ConfigFlags)
-        accLArMiniFCAL = LArMiniFCALSensitiveDetectorToolCfg(ConfigFlags)
+    if ConfigFlags.Detector.EnablePixel:
+        from PixelG4_SD.PixelG4_SDToolConfig import PixelSensorSDCfg
+        tools += [ result.popToolsAndMerge(PixelSensorSDCfg(ConfigFlags)) ]
+    if ConfigFlags.Detector.EnableSCT:
+        from SCT_G4_SD.SCT_G4_SDToolConfig import SctSensorSDCfg
+        tools += [ result.popToolsAndMerge(SctSensorSDCfg(ConfigFlags)) ]
+    if ConfigFlags.Detector.EnableTRT:
+        from TRT_G4_SD.TRT_G4_SDToolConfig import TRTSensitiveDetectorCfg
+        tools += [ result.popToolsAndMerge(TRTSensitiveDetectorCfg(ConfigFlags)) ]
+    if ConfigFlags.Detector.EnableBCM:
+        from BCM_G4_SD.BCM_G4_SDToolConfig import BCMSensorSDCfg
+        tools += [ result.popToolsAndMerge(BCMSensorSDCfg(ConfigFlags)) ]
+        from BLM_G4_SD.BLM_G4_SDToolConfig import BLMSensorSDCfg
+        tools += [ result.popToolsAndMerge(BLMSensorSDCfg(ConfigFlags)) ]
 
-        SensitiveDetectorList += [  result.popToolsAndMerge(accLArEMB),
-                                    result.popToolsAndMerge(accLArEMEC),
-                                    result.popToolsAndMerge(accLArFCAL),
-                                    result.popToolsAndMerge(accLArHEC),
-                                    result.popToolsAndMerge(accLArMiniFCAL)
-                                   ]
-        #todo migrate below>>>
-        #if hasattr(DetFlags.simulate, 'HGTD_on') and DetFlags.simulate.HGTD_on():
-        #if ConfigFlags.Detector.SimulateHGTD:
-        if False:
-            SensitiveDetectorList += [ 'HGTDSensorSD' ]
-        else:
-            accMinBiasScintillator = MinBiasScintillatorSDCfg(ConfigFlags)
-            SensitiveDetectorList += [ result.popToolsAndMerge(accMinBiasScintillator) ]
+    result.setPrivateTools(tools)
+    return result
+
+
+def CaloSensitiveDetectorListCfg(ConfigFlags):
+    result = ComponentAccumulator()
+    tools = []
+
+    if ConfigFlags.Detector.EnableLAr:
+        from LArG4SD.LArG4SDToolConfig import LArEMBSensitiveDetectorCfg, LArEMECSensitiveDetectorCfg, LArFCALSensitiveDetectorCfg, LArHECSensitiveDetectorCfg, LArMiniFCALSensitiveDetectorToolCfg
+        tools += [ result.popToolsAndMerge(LArEMBSensitiveDetectorCfg(ConfigFlags)) ]
+        tools += [ result.popToolsAndMerge(LArEMECSensitiveDetectorCfg(ConfigFlags)) ]
+        tools += [ result.popToolsAndMerge(LArFCALSensitiveDetectorCfg(ConfigFlags)) ]
+        tools += [ result.popToolsAndMerge(LArHECSensitiveDetectorCfg(ConfigFlags)) ]
+        tools += [ result.popToolsAndMerge(LArMiniFCALSensitiveDetectorToolCfg(ConfigFlags)) ]
+
+        if ConfigFlags.Detector.EnableMBTS:
+            from MinBiasScintillator.MinBiasScintillatorToolConfig import MinBiasScintillatorSDCfg
+            tools += [ result.popToolsAndMerge(MinBiasScintillatorSDCfg(ConfigFlags)) ]
 
         if ConfigFlags.Sim.CalibrationRun in ['LAr', 'LAr+Tile']:
-            SensitiveDetectorList += [ result.popToolsAndMerge(LArDeadSensitiveDetectorToolCfg(ConfigFlags)) ]
-            SensitiveDetectorList += [ result.popToolsAndMerge(LArActiveSensitiveDetectorToolCfg(ConfigFlags)) ]
-            SensitiveDetectorList += [ result.popToolsAndMerge(LArInactiveSensitiveDetectorToolCfg(ConfigFlags)) ]
+            from LArG4SD.LArG4SDToolConfig import LArDeadSensitiveDetectorToolCfg, LArActiveSensitiveDetectorToolCfg, LArInactiveSensitiveDetectorToolCfg
+            tools += [ result.popToolsAndMerge(LArDeadSensitiveDetectorToolCfg(ConfigFlags)) ]
+            tools += [ result.popToolsAndMerge(LArActiveSensitiveDetectorToolCfg(ConfigFlags)) ]
+            tools += [ result.popToolsAndMerge(LArInactiveSensitiveDetectorToolCfg(ConfigFlags)) ]
         elif ConfigFlags.Sim.CalibrationRun == 'DeadLAr':
-            accDeadSensitiveDetector = LArDeadSensitiveDetectorToolCfg(ConfigFlags)
-            SensitiveDetectorList += [ result.popToolsAndMerge(accDeadSensitiveDetector) ]
+            from LArG4SD.LArG4SDToolConfig import LArDeadSensitiveDetectorToolCfg
+            tools += [ result.popToolsAndMerge(LArDeadSensitiveDetectorToolCfg(ConfigFlags)) ]
 
-    if ConfigFlags.Detector.SimulateTile:
+    if ConfigFlags.Detector.EnableTile:
         if ConfigFlags.Sim.CalibrationRun in ['Tile', 'LAr+Tile']:
-            accTile = TileGeoG4CalibSDCfg(ConfigFlags)
-            SensitiveDetectorList += [ result.popToolsAndMerge(accTile) ] # mode 1 : With CaloCalibrationHits
+            from TileGeoG4Calib.TileGeoG4CalibConfigNew import TileGeoG4CalibSDCfg
+            tools += [ result.popToolsAndMerge(TileGeoG4CalibSDCfg(ConfigFlags)) ]  # mode 1 : With CaloCalibrationHits
         else:
-            accTile = TileGeoG4SDCfg(ConfigFlags)
-            SensitiveDetectorList += [ result.popToolsAndMerge(accTile) ]      # mode 0 : No CaloCalibrationHits
+            from TileGeoG4SD.TileGeoG4SDToolConfig import TileGeoG4SDCfg
+            tools += [ result.popToolsAndMerge(TileGeoG4SDCfg(ConfigFlags)) ]       # mode 0 : No CaloCalibrationHits
 
     if ConfigFlags.Sim.RecordStepInfo:
-        SensitiveDetectorList += [ 'FCS_StepInfoSensitiveDetector' ]
+        from ISF_FastCaloSimSD.ISF_FastCaloSimSDToolConfig import FCS_StepInfoSDToolCfg
+        tools += [ result.popToolsAndMerge(FCS_StepInfoSDToolCfg(ConfigFlags)) ]
 
-    result.setPrivateTools(SensitiveDetectorList)
+    result.setPrivateTools(tools)
     return result
 
 
-def generateMuonSensitiveDetectorList(ConfigFlags):
+def MuonSensitiveDetectorListCfg(ConfigFlags):
     result = ComponentAccumulator()
-    SensitiveDetectorList=[]
-    
-    if ConfigFlags.Detector.SimulateMuon:
-        if ConfigFlags.Beam.Type == 'cosmics':
-            if ConfigFlags.Detector.SimulateMDT : 
-                accMDT = MDTSensitiveDetectorCosmicsCfg(ConfigFlags)
-                SensitiveDetectorList += [ result.popToolsAndMerge(accMDT) ]
-            if ConfigFlags.Detector.SimulateRPC : 
-                accRPC = RPCSensitiveDetectorCosmicsCfg(ConfigFlags)
-                SensitiveDetectorList += [ result.popToolsAndMerge(accRPC) ]
-            if ConfigFlags.Detector.SimulateTGC : 
-                accTGC = TGCSensitiveDetectorCosmicsCfg(ConfigFlags)
-                SensitiveDetectorList += [ result.popToolsAndMerge(accTGC) ]
-        else:
-            if ConfigFlags.Detector.SimulateMDT :
-                accMDT =  MDTSensitiveDetectorCfg(ConfigFlags)
-                SensitiveDetectorList += [ result.popToolsAndMerge(accMDT) ]
-            if ConfigFlags.Detector.SimulateRPC : 
-                accRPC = RPCSensitiveDetectorCfg(ConfigFlags) 
-                SensitiveDetectorList += [ result.popToolsAndMerge(accRPC) ]
-            if ConfigFlags.Detector.SimulateTGC :
-                accTGC = TGCSensitiveDetectorCfg(ConfigFlags)
-                SensitiveDetectorList += [ result.popToolsAndMerge(accTGC) ]
-        
+    tools = []
 
-        #if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or ConfigFlags.GeoModel.Run =="RUN3" :
-        if False:
-        #if ConfigFlags.SimulateNewSmallWheel or ConfigFlags.GeoModel.Run =="RUN3" :
-            if ConfigFlags.Detector.Simulate.sTGC :
-                acc_sTGC = sTGCSensitiveDetectorCfg(ConfigFlags)
-                SensitiveDetectorList += [ result.popToolsAndMerge(acc_sTGC) ]
-            if ConfigFlags.Detector.Simulate.Micromegas :
-                accMicromegas = MicromegasSensitiveDetectorCfg(ConfigFlags)
-                SensitiveDetectorList += [ result.popToolsAndMerge(accMicromegas) ]
-        elif ConfigFlags.Detector.SimulateCSC:
-            # CSCs built instead of NSW
-            if ConfigFlags.Beam.Type == 'cosmics':
-                accCSC = CSCSensitiveDetectorCosmicsCfg(ConfigFlags)
-                SensitiveDetectorList += [ result.popToolsAndMerge(accCSC) ]
-            else:
-                accCSC = CSCSensitiveDetectorCfg(ConfigFlags)
-                SensitiveDetectorList += [ result.popToolsAndMerge(accCSC) ]
+    if ConfigFlags.Beam.Type == 'cosmics':
+        if ConfigFlags.Detector.EnableMDT:
+            from MuonG4SD.MuonG4SDToolConfig import MDTSensitiveDetectorCosmicsCfg
+            tools += [ result.popToolsAndMerge(MDTSensitiveDetectorCosmicsCfg(ConfigFlags)) ]
+        if ConfigFlags.Detector.EnableRPC:
+            from MuonG4SD.MuonG4SDToolConfig import RPCSensitiveDetectorCosmicsCfg
+            tools += [ result.popToolsAndMerge(RPCSensitiveDetectorCosmicsCfg(ConfigFlags)) ]
+        if ConfigFlags.Detector.EnableTGC:
+            from MuonG4SD.MuonG4SDToolConfig import TGCSensitiveDetectorCosmicsCfg
+            tools += [ result.popToolsAndMerge(TGCSensitiveDetectorCosmicsCfg(ConfigFlags)) ]
+        if ConfigFlags.Detector.EnableCSC:
+            from MuonG4SD.MuonG4SDToolConfig import CSCSensitiveDetectorCosmicsCfg
+            tools += [ result.popToolsAndMerge(CSCSensitiveDetectorCosmicsCfg(ConfigFlags)) ]
+    else:
+        if ConfigFlags.Detector.EnableMDT:
+            from MuonG4SD.MuonG4SDToolConfig import MDTSensitiveDetectorCfg
+            tools += [ result.popToolsAndMerge(MDTSensitiveDetectorCfg(ConfigFlags)) ]
+        if ConfigFlags.Detector.EnableRPC:
+            from MuonG4SD.MuonG4SDToolConfig import RPCSensitiveDetectorCfg
+            tools += [ result.popToolsAndMerge(RPCSensitiveDetectorCfg(ConfigFlags)) ]
+        if ConfigFlags.Detector.EnableTGC:
+            from MuonG4SD.MuonG4SDToolConfig import TGCSensitiveDetectorCfg
+            tools += [ result.popToolsAndMerge(TGCSensitiveDetectorCfg(ConfigFlags)) ]
+        if ConfigFlags.Detector.EnableCSC:
+            from MuonG4SD.MuonG4SDToolConfig import CSCSensitiveDetectorCfg
+            tools += [ result.popToolsAndMerge(CSCSensitiveDetectorCfg(ConfigFlags)) ]
 
-    result.setPrivateTools(SensitiveDetectorList)
+    if ConfigFlags.Detector.EnablesTGC :
+        from MuonG4SD.MuonG4SDToolConfig import sTGCSensitiveDetectorCfg
+        tools += [ result.popToolsAndMerge(sTGCSensitiveDetectorCfg(ConfigFlags)) ]
+    if ConfigFlags.Detector.EnableMM :
+        from MuonG4SD.MuonG4SDToolConfig import MicromegasSensitiveDetectorCfg
+        tools += [ result.popToolsAndMerge(MicromegasSensitiveDetectorCfg(ConfigFlags)) ]
+
+    result.setPrivateTools(tools)
     return result
 
 
-def generateEnvelopeSensitiveDetectorList(ConfigFlags):
-    SensitiveDetectorList=[]
+def EnvelopeSensitiveDetectorListCfg(ConfigFlags):
+    # TODO: migrate to CA
+    result = ComponentAccumulator()
+    tools = []
     if ConfigFlags.Beam.Type == 'cosmics' and not ConfigFlags.Sim.ReadTR:
-        SensitiveDetectorList+=['CosmicRecord']
-    return SensitiveDetectorList
-
-
-def generateSensitiveDetectorList(ConfigFlags):
-    result = ComponentAccumulator()
-    SensitiveDetectorList=[]
-    SensitiveDetectorList += generateEnvelopeSensitiveDetectorList(ConfigFlags) # to update
-
-    if ConfigFlags.Detector.SimulateID:
-        acc_InDetSensitiveDetector, InDetSensitiveDetectorList = generateInDetSensitiveDetectorList(ConfigFlags)
-        SensitiveDetectorList += InDetSensitiveDetectorList
-
-    if ConfigFlags.Detector.SimulateITk:
-        acc_ITkSensitiveDetector, ITkSensitiveDetectorList = generateITkSensitiveDetectorList(ConfigFlags)
-        SensitiveDetectorList += ITkSensitiveDetectorList
-
-    acc_CaloSensitiveDetector = generateCaloSensitiveDetectorList(ConfigFlags)
-    SensitiveDetectorList+=result.popToolsAndMerge(acc_CaloSensitiveDetector)
-
-    accMuon = generateMuonSensitiveDetectorList(ConfigFlags)
-    SensitiveDetectorList += result.popToolsAndMerge(accMuon)
-
-
-    SensitiveDetectorList += generateTrackFastSimSensitiveDetectorList(ConfigFlags)
-    SensitiveDetectorList += generateFwdSensitiveDetectorList(ConfigFlags)
-
-    if ConfigFlags.Detector.SimulateID:
-        result.merge(acc_InDetSensitiveDetector)
-    if ConfigFlags.Detector.SimulateITk:
-        result.merge(acc_ITkSensitiveDetector)
-
-    result.setPrivateTools(SensitiveDetectorList)
+        tools+=['CosmicRecord']
+    result.setPrivateTools(tools)
     return result
 
 
-def generateTestBeamSensitiveDetectorList(ConfigFlags):
+def SensitiveDetectorListCfg(ConfigFlags):
     result = ComponentAccumulator()
-    SensitiveDetectorList=[]
+    tools = []
+
+    tools += result.popToolsAndMerge(EnvelopeSensitiveDetectorListCfg(ConfigFlags))
+    tools += result.popToolsAndMerge(InDetSensitiveDetectorListCfg(ConfigFlags))
+    tools += result.popToolsAndMerge(ITkSensitiveDetectorListCfg(ConfigFlags))
+    tools += result.popToolsAndMerge(HGTDSensitiveDetectorListCfg(ConfigFlags))
+    tools += result.popToolsAndMerge(CaloSensitiveDetectorListCfg(ConfigFlags))
+    tools += result.popToolsAndMerge(MuonSensitiveDetectorListCfg(ConfigFlags))
+    tools += result.popToolsAndMerge(TrackFastSimSensitiveDetectorListCfg(ConfigFlags))
+    tools += result.popToolsAndMerge(FwdSensitiveDetectorListCfg(ConfigFlags))
+
+    result.setPrivateTools(tools)
+    return result
+
+
+def TestBeamSensitiveDetectorListCfg(ConfigFlags):
+    result = ComponentAccumulator()
+    tools = []
 
     if "tb_Tile2000_2003" in ConfigFlags.GeoModel.AtlasVersion:
-        if ConfigFlags.Detector.SimulateTile:
+        if ConfigFlags.Detector.EnableTile:
             if ConfigFlags.Sim.CalibrationRun in ['Tile', 'LAr+Tile']:
-                accTileCTB = TileCTBGeoG4CalibSDCfg(ConfigFlags)
-                SensitiveDetectorList += [ result.popToolsAndMerge( accTileCTB) ] # mode 1 : With CaloCalibrationHits
+                from TileGeoG4Calib.TileGeoG4CalibConfigNew import TileCTBGeoG4CalibSDCfg
+                tools += [ result.popToolsAndMerge(TileCTBGeoG4CalibSDCfg(ConfigFlags)) ] # mode 1 : With CaloCalibrationHits
             else:
-                accTileCTB =  TileCTBGeoG4SDCfg(ConfigFlags)
-                SensitiveDetectorList += [ result.popToolsAndMerge( accTileCTB ) ]      # mode 0 : No CaloCalibrationHits
-                if ConfigFlags.Detector.SimulateCalo:
-                    SensitiveDetectorList += [ 'MuonWallSD' ]
-        return result, SensitiveDetectorList
+                from TileGeoG4SD.TileGeoG4SDToolConfig import TileCTBGeoG4SDCfg
+                tools += [ result.popToolsAndMerge(TileCTBGeoG4SDCfg(ConfigFlags)) ]      # mode 0 : No CaloCalibrationHits
+                tools += [ 'MuonWallSD' ]
+        result.setPrivateTools(tools)
+        return result
 
-    if ConfigFlags.Detector.SimulatePixel:
-        toolPixel = PixelSensor_CTBCfg()
-        SensitiveDetectorList += [ toolPixel ]
-    if ConfigFlags.Detector.SimulateSCT:
-        toolSCT = SctSensor_CTBCfg()
-        SensitiveDetectorList += [ toolSCT ]
-    if ConfigFlags.Detector.SimulateTRT:
-        toolTRT = TRTSensitiveDetector_CTBCfg()
-        SensitiveDetectorList += [ toolTRT ]
-    if ConfigFlags.Detector.SimulateLAr:
-        SensitiveDetectorList += [ 'LArEMBSensitiveDetector' ]
+    if ConfigFlags.Detector.EnablePixel:
+        from PixelG4_SD.PixelG4_SDToolConfig import PixelSensor_CTBCfg
+        tools += [ result.popToolsAndMerge(PixelSensor_CTBCfg(ConfigFlags)) ]
+    if ConfigFlags.Detector.EnableSCT:
+        from SCT_G4_SD.SCT_G4_SDToolConfig import SctSensor_CTBCfg
+        tools += [ result.popToolsAndMerge(SctSensor_CTBCfg(ConfigFlags)) ]
+    if ConfigFlags.Detector.EnableTRT:
+        from TRT_G4_SD.TRT_G4_SDToolConfig import TRTSensitiveDetector_CTBCfg
+        tools += [ result.popToolsAndMerge(TRTSensitiveDetector_CTBCfg(ConfigFlags)) ]
+    if ConfigFlags.Detector.EnableLAr:
+        from LArG4SD.LArG4SDToolConfig import LArEMBSensitiveDetectorCfg
+        tools += [ result.popToolsAndMerge(LArEMBSensitiveDetectorCfg(ConfigFlags)) ]
         if 'LAr' in ConfigFlags.Sim.CalibrationRun:
-            SensitiveDetectorList += [ 'LArH8CalibSensitiveDetector' ] # mode 1 : With CaloCalibrationHits
-    if ConfigFlags.Detector.SimulateTile:
+            tools += [ 'LArH8CalibSensitiveDetector' ] # mode 1 : With CaloCalibrationHits
+    if ConfigFlags.Detector.EnableTile:
         if ConfigFlags.Sim.CalibrationRun in ['Tile', 'LAr+Tile']:
-            accTileCTB = TileCTBGeoG4CalibSDCfg(ConfigFlags)
-            SensitiveDetectorList += [ result.popToolsAndMerge( accTileCTB ) ] # mode 1 : With CaloCalibrationHits
+            from TileGeoG4Calib.TileGeoG4CalibConfigNew import TileCTBGeoG4CalibSDCfg
+            tools += [ result.popToolsAndMerge(TileCTBGeoG4CalibSDCfg(ConfigFlags)) ] # mode 1 : With CaloCalibrationHits
         else:
-            accTileCTB =  TileCTBGeoG4SDCfg(ConfigFlags)
-            SensitiveDetectorList += [ result.popToolsAndMerge( accTileCTB ) ]      # mode 0 : No CaloCalibrationHits
-            SensitiveDetectorList += [ 'MuonWallSD' ]
-    #if ConfigFlags.Detector.geometry.Muon_on():
-    if ConfigFlags.Detector.SimulateMuon:
-        SensitiveDetectorList += [ 'MuonEntryRecord' ]
-    SensitiveDetectorList += generateMuonSensitiveDetectorList(ConfigFlags)
+            from TileGeoG4SD.TileGeoG4SDToolConfig import TileCTBGeoG4SDCfg
+            tools += [ result.popToolsAndMerge(TileCTBGeoG4SDCfg(ConfigFlags)) ]      # mode 0 : No CaloCalibrationHits
+            tools += [ 'MuonWallSD' ]
+    if ConfigFlags.Detector.EnableMuon:
+        tools += [ 'MuonEntryRecord' ]
+    tools += result.popToolsAndMerge(MuonSensitiveDetectorListCfg(ConfigFlags))
 
-    result.setPrivateTools(SensitiveDetectorList)
+    result.setPrivateTools(tools)
     return result
 
 
 def SensitiveDetectorMasterToolCfg(ConfigFlags, name="SensitiveDetectorMasterTool", **kwargs):
     result = ComponentAccumulator()
     if "ATLAS" in ConfigFlags.GeoModel.AtlasVersion:
-        accSensitiveDetector = generateSensitiveDetectorList(ConfigFlags)
-        kwargs.setdefault("SensitiveDetectors", result.popToolsAndMerge(accSensitiveDetector)) #list of tools
+        kwargs.setdefault("SensitiveDetectors", result.popToolsAndMerge(SensitiveDetectorListCfg(ConfigFlags)))
     elif "tb_Tile2000_2003" in ConfigFlags.GeoModel.AtlasVersion:
-
-        accSensitiveDetector = generateTestBeamSensitiveDetectorList(ConfigFlags)
-        kwargs.setdefault("SensitiveDetectors", result.popToolsAndMerge(accSensitiveDetector) ) #list of tools here!
+        kwargs.setdefault("SensitiveDetectors", result.popToolsAndMerge(TestBeamSensitiveDetectorListCfg(ConfigFlags)))
     elif "tb_LArH6" in ConfigFlags.GeoModel.AtlasVersion:
         pass
     elif "ctbh8" in ConfigFlags.GeoModel.AtlasVersion:
+        kwargs.setdefault("SensitiveDetectors", result.popToolsAndMerge(TestBeamSensitiveDetectorListCfg(ConfigFlags)))
 
-        accSensitiveDetector = generateTestBeamSensitiveDetectorList(ConfigFlags)
-        kwargs.setdefault("SensitiveDetectors", result.popToolsAndMerge(accSensitiveDetector) ) #list of tools here!
-
-    result.addPublicTool(SensitiveDetectorMasterTool(name, **kwargs)) #note -this is still a public tool
+    result.setPrivateTools(CompFactory.SensitiveDetectorMasterTool(name, **kwargs))
     return result
 
 
-def getEmptySensitiveDetectorMasterTool(name="EmptySensitiveDetectorMasterTool", **kwargs):
+def EmptySensitiveDetectorMasterToolCfg(name="EmptySensitiveDetectorMasterTool", **kwargs):
     result = ComponentAccumulator()
-    result.addPublicTool(SensitiveDetectorMasterTool(name, **kwargs))
+    tool = result.popToolsAndMerge(CompFactory.SensitiveDetectorMasterTool(name, **kwargs))
+    result.setPrivateTools(tool)
     return result

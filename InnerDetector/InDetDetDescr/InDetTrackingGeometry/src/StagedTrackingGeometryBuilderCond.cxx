@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////
@@ -27,6 +27,7 @@
 #include "TrkSurfaces/DiscBounds.h"
 //Athena
 #include "CxxUtils/checker_macros.h"
+#include "AthenaKernel/IOVInfiniteRange.h"
 //Gaudi
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/MsgStream.h"
@@ -132,7 +133,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::StagedTrackingGeome
    
    ////////////////////////////////////////////////////////////////////////////////////////////////////////    
    // The Overall Geometry
-   Trk::TrackingGeometry* trackingGeometry = 0;   
+   Trk::TrackingGeometry* trackingGeometry = nullptr;   
 
    // get the dimensions from the envelope service 
    const RZPairVector& envelopeDefs = m_enclosingEnvelopeSvc->getInDetRZBoundary();
@@ -146,8 +147,8 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::StagedTrackingGeome
    double maximumLayerExtendZ   = 0.;
    double maximumLayerRadius    = 0.;
    std::vector<InDet::LayerSetup> layerSetups;
-   EventIDRange range;
-   for ( auto& lProvider : m_layerProviders){
+   EventIDRange range = IOVInfiniteRange::infiniteMixed();
+   for ( const auto & lProvider : m_layerProviders){
        // screen output 
        ATH_MSG_DEBUG( "[ LayerBuilder : '" << lProvider->identification() << "' ] being processed. " );
        // retrieve the layers
@@ -198,7 +199,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::StagedTrackingGeome
         
         // now check what is in the cache 
            // [a] nothing in the cache or new setup is compatible (in this case sectorZ are updated in all setups)
-        if (!layerSetupCache.size() || setupFitsCache(lSetup,layerSetupCache) ){
+        if (layerSetupCache.empty() || setupFitsCache(lSetup,layerSetupCache) ){
             ATH_MSG_VERBOSE("       -> cache is empty or new sector fits cache setup - add this one to the cache.");
         } else {
             // [b] cache is not empty - let's see what is going on:
@@ -217,7 +218,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::StagedTrackingGeome
    }
    
    // check if the cache is empty
-   if (layerSetupCache.size()){
+   if (!layerSetupCache.empty()){
        ATH_MSG_DEBUG( "[ STEP 3 ] : Flush the remaining cache into the ID detector volume vector." );
        // set the maximum radius to the last layer radius    
        double flushRadius = 0.5*(maximumLayerRadius  + envelopeVolumeRadius);
@@ -388,7 +389,7 @@ InDet::LayerSetup InDet::StagedTrackingGeometryBuilderCond::estimateLayerSetup(c
   return InDet::LayerSetup(idName, m_colorCodesConfig[ilS], 
                            negLayers, cenLayers, posLayers,
                            cenMinR, cenMaxR, cenMaxZ, m_layerBinningTypeCenter[ilS], 
-                           posLayers.size(), posMinR, posMaxR, posMinZ, posMaxZ, m_layerBinningTypeEndcap[ilS]);
+                           !posLayers.empty(), posMinR, posMaxR, posMinZ, posMaxZ, m_layerBinningTypeEndcap[ilS]);
 }
 
 
@@ -397,7 +398,7 @@ void InDet::StagedTrackingGeometryBuilderCond::estimateLayerDimensions(const std
                                                                    double& rMin, double& rMax, double& zMin, double& zMax) const
 {
     // parse through the layers and estimate
-      for (auto& layer : layers){
+      for (const auto & layer : layers){
           // the thickness of the layer needs to be taken into account 
           double thickness = layer->thickness();
           // get the center
@@ -478,7 +479,7 @@ bool InDet::StagedTrackingGeometryBuilderCond::setupFitsCache(LayerSetup& layerS
 bool InDet::StagedTrackingGeometryBuilderCond::ringLayout(const std::vector<const Trk::Layer*>& layers, std::vector<double>& rmins, std::vector<double>& rmaxs) const {
     // get the maximum extent in z
     ATH_MSG_INFO("Checking for Ring layout ... ");
-    for (auto& ring : layers){
+    for (const auto & ring : layers){
         // Surface
         const Trk::Surface&     ringSurface = ring->surfaceRepresentation(); 
         const Trk::DiscBounds*  ringBounds  = dynamic_cast<const Trk::DiscBounds*>(&(ringSurface.bounds()));
@@ -517,7 +518,7 @@ const Trk::TrackingVolume* InDet::StagedTrackingGeometryBuilderCond::createTrack
         // now sort the necessary layers --- for the sub volumes
         std::vector< std::vector< const Trk::Layer*> > groupedDiscs(ringRmins.size(), std::vector< const Trk::Layer*>() );
         // second loop over the rings
-        for (auto& ring : layers){
+        for (const auto & ring : layers){
             // Surface
             const Trk::Surface&     ringSurface = ring->surfaceRepresentation(); 
             const Trk::DiscBounds*  ringBounds  = dynamic_cast<const Trk::DiscBounds*>(&(ringSurface.bounds()));
@@ -580,7 +581,7 @@ const Trk::TrackingVolume* InDet::StagedTrackingGeometryBuilderCond::createFlush
 (std::vector<InDet::LayerSetup>& layerSetupCache, double innerRadius, double& outerRadius, double extendZ) const
 {
   // the return volume 
-  const Trk::TrackingVolume* flushVolume = 0;
+  const Trk::TrackingVolume* flushVolume = nullptr;
   // 
   if (layerSetupCache.size() == 1 ){
     ATH_MSG_VERBOSE("       -> single sector setup - synchronising from inner (" << innerRadius << ") to outer (" << outerRadius << ") radius.");
@@ -678,14 +679,14 @@ const Trk::TrackingVolume* InDet::StagedTrackingGeometryBuilderCond::packVolumeT
                                                        volumeBase+"::NegativeSector",
                                                        m_buildBoundaryLayers,
                                                        m_replaceJointBoundaries) : 
-                                             (negVolSize ? negVolumes[0] : 0);
+                                             (negVolSize ? negVolumes[0] : nullptr);
   const Trk::TrackingVolume* centralVolume = (cenVolSize > 1) ?
          m_trackingVolumeCreator->createContainerTrackingVolume(centralVolumes,
                                                        *m_materialProperties,
                                                        volumeBase+"::CentralSector",
                                                        m_buildBoundaryLayers,
                                                        m_replaceJointBoundaries) :
-                                              (cenVolSize ? centralVolumes[0] : 0) ;
+                                              (cenVolSize ? centralVolumes[0] : nullptr) ;
                                               
    const Trk::TrackingVolume* positiveVolume = ( posVolSize > 1) ?
          m_trackingVolumeCreator->createContainerTrackingVolume(posVolumes,
@@ -693,7 +694,7 @@ const Trk::TrackingVolume* InDet::StagedTrackingGeometryBuilderCond::packVolumeT
                                                        volumeBase+"::PositiveSector",
                                                        m_buildBoundaryLayers,
                                                        m_replaceJointBoundaries) : 
-                                               (posVolSize ? posVolumes[0] : 0);
+                                               (posVolSize ? posVolumes[0] : nullptr);
    
    if (!negativeVolume && !positiveVolume){
        ATH_MSG_DEBUG( "No negative/positive sector given - no packing needed, returning central container!" );

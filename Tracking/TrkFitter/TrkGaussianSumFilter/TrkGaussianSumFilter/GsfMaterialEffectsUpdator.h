@@ -12,9 +12,11 @@
 #ifndef TrkGsfMaterialEffectsUpdator_H
 #define TrkGsfMaterialEffectsUpdator_H
 
+#include "TrkGaussianSumFilter/IMultiStateMaterialEffectsUpdator.h"
+#include "TrkGaussianSumFilterUtils/GsfCombinedMaterialEffects.h"
+//
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "TrkGaussianSumFilter/IMultiStateMaterialEffectsUpdator.h"
 
 namespace Trk {
 
@@ -83,18 +85,32 @@ private:
     PropDirection direction = anyDirection,
     ParticleHypothesis particleHypothesis = nonInteracting) const;
 
-  /** Method to calculate the updated momentum based on material effects */
-  bool updateP(AmgVector(5) &, double) const;
-
 private:
-  ToolHandle<IMultiStateMaterialEffects> m_materialEffects{
+  GsfCombinedMaterialEffects m_materialEffects{};
+
+  Gaudi::Property<bool> m_useReferenceMaterial{ this,
+                                                "UseReferenceMaterial",
+                                                false,
+                                                "" };
+
+  Gaudi::Property<double> m_momentumCut{ this,
+                                         "MinimalMomentum",
+                                         250. * Gaudi::Units::MeV,
+                                         "" };
+
+  Gaudi::Property<std::string> m_parameterisationFileName{
     this,
-    "MaterialEffects",
-    "Trk::GsfCombinedMaterialEffects/GsfCombinedMaterialEffects",
-    ""
+    "BetheHeitlerParameterisationFileName",
+    "GeantSim_LT01_cdf_nC6_O5.par",
+    "Parametrization of Bethe Heitler material effects"
   };
-  bool m_useReferenceMaterial;
-  double m_momentumCut;
+
+  Gaudi::Property<std::string> m_parameterisationFileNameHighX0{
+    this,
+    "BetheHeitlerParameterisationFileNameHighX0",
+    "GeantSim_GT01_cdf_nC6_O5.par",
+    "Parametrization of Bethe Heitler material effects for high X0"
+  };
 };
 
 } // end Trk namespace

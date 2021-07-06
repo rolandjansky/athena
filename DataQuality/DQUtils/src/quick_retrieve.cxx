@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #define likely(x)       __builtin_expect((x),1)
@@ -99,14 +99,14 @@ typedef boost::function<PyObject* (const IObject&)> payload_fetcher_t;
 // A function to signal that a conversion object could not be found
 PyObject *no_conversion_available(const IObject&) {return NULL;}
 
-// Helpers to create python strings from Blob and std::string
+// Helpers to create python strings/byte objects from Blob and std::string
 PyObject *qr_PyString_FromBlob(const coral::Blob& blob)
 {
     const char* data = reinterpret_cast<const char*>(blob.startingAddress());
 #if PY_VERSION_HEX < 0x03000000
     return PyString_FromStringAndSize(data, blob.size());
 #else
-    return PyUnicode_FromStringAndSize(data, blob.size());
+    return PyBytes_FromStringAndSize(data, blob.size());
 #endif
 }
 

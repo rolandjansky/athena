@@ -1,14 +1,10 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
-from JetMonitoring.JetMonitoringConf import JetAttributeHisto, HistoDefinitionTool, JetMonitoringTool, JetKinematicHistos, HistosForJetSelection, LeadingJetsRelations, HIEfficiencyResponseHistos, HIJetUEMonitoring
+from JetMonitoring.JetMonitoringConf import JetKinematicHistos, HistosForJetSelection, LeadingJetsRelations, HIEfficiencyResponseHistos, HIJetUEMonitoring
 
 from JetMonitoring.JetHistoManager import jetHistoManager as jhm
 from JetMonitoring.JetAttributeHistoManager   import attributeHistoManager
 from JetMonitoring.HistoDefinitionHelpers import createHistoDefTool as hdef
-
-import six
 
 # The dict below defines default specification to plot Jet attributes.
 # Specifications are given in a 1-line compact format.
@@ -295,7 +291,7 @@ def selectionAndHistos( selectType, histos, selectionName="", histoNameSuffix=""
     selTool.HistoTools = interpretedTools
 
     # set other args if any:
-    for k,v in six.iteritems(otherArgs):
+    for k,v in otherArgs.items():
         setattr(selTool, k, v)
     return selTool
 

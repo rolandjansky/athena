@@ -33,20 +33,34 @@ namespace xAOD {
          static const SG::AuxElement::ConstAccessor< Link_t > acc( "truthParticleLink" );
 
          // Check if such a link exists on the object:
-         if( ! acc.isAvailable( p ) ) {
-            return nullptr;
+         if( acc.isAvailable( p ) ) {
+            // Get the link:
+            const Link_t& link = acc( p );
+
+            // Check if the link is valid:
+            if( link.isValid() ) {
+               // Everything has passed, let's return the pointer:
+               return *link;
+            }
          }
 
-         // Get the link:
-         const Link_t& link = acc( p );
+         /// Alternative name - this may work in case of TRUTH3 / small truth collections
+         static const SG::AuxElement::ConstAccessor< Link_t > acc_alt( "TruthLink" );
 
-         // Check if the link is valid:
-         if( ! link.isValid() ) {
-            return nullptr;
+         // Check if such a link exists on the object:
+         if( acc_alt.isAvailable( p ) ) {
+            // Get the link:
+            const Link_t& link_alt = acc_alt( p );
+
+            // Check if the link is valid:
+            if( link_alt.isValid() ) {
+               // Everything has passed, let's return the pointer:
+               return *link_alt;
+            }
          }
 
-         // Everything has passed, let's return the pointer:
-         return *link;
+         // Everything has failed, nothing to return
+         return nullptr;
       }
 
       /// @param p The particle that we want to find the truth type of

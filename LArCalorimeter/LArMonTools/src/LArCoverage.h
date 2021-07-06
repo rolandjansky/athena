@@ -1,6 +1,6 @@
 //Dear emacs, this is -*-c++-*-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -27,13 +27,15 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "LArCabling/LArCablingLegacyService.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
+#include "LArRecConditions/LArBadChannelMask.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArRecConditions/LArBadChannelCont.h"
 #include "CaloConditions/CaloNoise.h"
 
 #include <string>
 #include <map>
+#include <memory>
 
 class LArEM_ID;
 class LArOnlineID;
@@ -79,12 +81,13 @@ private:
   const LArHEC_ID*   m_LArHEC_IDHelper;
   const CaloIdManager*       m_caloIdMgr;
 
-  LArOnlineIDStrHelper* m_strHelper;
+  std::unique_ptr<LArOnlineIDStrHelper> m_strHelper;
   ITHistSvc* m_rootStore;
   /** Handle to LArCablingService */
   ToolHandle<LArCablingLegacyService> m_larCablingService;  
   /** Handle to bad-channel tools */
-  ToolHandle<ILArBadChannelMasker> m_badChannelMask;
+  LArBadChannelMask m_bcMask;
+  Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{}, "Bad-Channel categories to mask"}; 
 
   SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey{this, "EventInfoKey", "EventInfo"};
   SG::ReadHandleKey<LArRawChannelContainer> m_rawChannelsKey{this, "LArRawChannelKey", "LArRawChannels"};
@@ -123,10 +126,10 @@ private:
   TH2I_LW* m_hCoverageHWHECA;  TH2I_LW* m_hCoverageHWHECC;
   TH2I_LW* m_hCoverageHWFCALA; TH2I_LW* m_hCoverageHWFCALC;
 
-  // CaloNoiseTool histograms
-  TProfile_LW* m_hCaloNoiseToolEM[4];
-  TProfile_LW* m_hCaloNoiseToolHEC[4];
-  TProfile_LW* m_hCaloNoiseToolFCAL[4];
+  // CaloNoise histograms
+  TProfile_LW* m_hCaloNoiseEM[4];
+  TProfile_LW* m_hCaloNoiseHEC[4];
+  TProfile_LW* m_hCaloNoiseFCAL[4];
 
   // Bad Channels from DB
   TH2I_LW*   m_hBadChannelsBarrelA;

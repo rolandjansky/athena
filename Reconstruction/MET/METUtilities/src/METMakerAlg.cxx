@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "METMakerAlg.h"
@@ -185,7 +185,7 @@ namespace met {
     // Electrons
     if(!m_ElectronContainerKey.empty()) {
       ConstDataVector<ElectronContainer> metElectrons(SG::VIEW_ELEMENTS);
-      for(const auto& el : *Electrons) {
+      for(const auto el : *Electrons) {
     	if(accept(el)) {
     	  metElectrons.push_back(el);
 
@@ -193,7 +193,7 @@ namespace met {
       }
       if( m_metmaker->rebuildMET("RefEle", xAOD::Type::Electron, newMet,
     				 metElectrons.asDataVector(),
-    				 &metHelper, objScale).isFailure() ) {
+    				 metHelper, objScale).isFailure() ) {
     	ATH_MSG_WARNING("Failed to build electron term.");
       }
       ATH_MSG_DEBUG("Selected " << metElectrons.size() << " MET electrons. "
@@ -203,14 +203,14 @@ namespace met {
     // Photons
     if(!m_PhotonContainerKey.empty()) {
       ConstDataVector<PhotonContainer> metPhotons(SG::VIEW_ELEMENTS);
-      for(const auto& ph : *Gamma) {
+      for(const auto ph : *Gamma) {
     	if(accept(ph)) {
     	  metPhotons.push_back(ph);
     	}
       }
       if( m_metmaker->rebuildMET("RefGamma", xAOD::Type::Photon, newMet,
     				 metPhotons.asDataVector(),
-    				 &metHelper, objScale).isFailure() ) {
+    				 metHelper, objScale).isFailure() ) {
     	ATH_MSG_WARNING("Failed to build photon term.");
       }
       ATH_MSG_DEBUG("Selected " << metPhotons.size() << " MET photons. "
@@ -220,14 +220,14 @@ namespace met {
     // Taus
     if(!m_TauJetContainerKey.empty()) {
       ConstDataVector<TauJetContainer> metTaus(SG::VIEW_ELEMENTS);
-      for(const auto& tau : *TauJets) {
+      for(const auto tau : *TauJets) {
     	if(accept(tau)) {
     	  metTaus.push_back(tau);
     	}
       }
       if( m_metmaker->rebuildMET("RefTau", xAOD::Type::Tau, newMet,
     				 metTaus.asDataVector(),
-    				 &metHelper, objScale).isFailure() ){
+    				 metHelper, objScale).isFailure() ){
     	ATH_MSG_WARNING("Failed to build tau term.");
       }
       ATH_MSG_DEBUG("Selected " << metTaus.size() << " MET taus. "
@@ -237,7 +237,7 @@ namespace met {
     // Muons
     if(!m_MuonContainerKey.empty()) {
       ConstDataVector<MuonContainer> metMuons(SG::VIEW_ELEMENTS);
-      for(const auto& mu : *Muons) {
+      for(const auto mu : *Muons) {
     	if(accept(mu)) {
     	  metMuons.push_back(mu);
     	}
@@ -246,7 +246,7 @@ namespace met {
       if(m_doTruthLep) objScale = MissingETBase::UsageHandler::OnlyTrack;
       if( m_metmaker->rebuildMET("Muons", xAOD::Type::Muon, newMet,
     				 metMuons.asDataVector(),
-    				 &metHelper, objScale).isFailure() ) {
+    				 metHelper, objScale).isFailure() ) {
     	ATH_MSG_WARNING("Failed to build muon term.");
       }
       ATH_MSG_DEBUG("Selected " << metMuons.size() << " MET muons. "
@@ -254,7 +254,7 @@ namespace met {
     }
 
     if( m_metmaker->rebuildJetMET("RefJet", m_softclname, m_softtrkname, newMet,
-				  Jets.cptr(), coreMet.cptr(), &metHelper, false ).isFailure() ) {
+				  Jets.cptr(), coreMet.cptr(), metHelper, false ).isFailure() ) {
       ATH_MSG_WARNING("Failed to build jet and soft terms.");
     }
     ATH_MSG_DEBUG("Of " << Jets.cptr()->size()  << " jets, "

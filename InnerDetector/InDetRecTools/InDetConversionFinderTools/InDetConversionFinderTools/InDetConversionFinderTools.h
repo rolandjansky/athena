@@ -26,8 +26,6 @@
 #include "InDetConversionFinderTools/SingleTrackConversionTool.h"
 #include "InDetConversionFinderTools/ConversionFinderUtils.h"
 #include "InDetConversionFinderTools/VertexPointEstimator.h"
-#include "InDetConversionFinderTools/ConversionPostSelector.h"
-#include "InDetConversionFinderTools/SingleTrackConversionTool.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 
 #include "TrkParticleBase/TrackParticleBaseCollection.h"
@@ -63,9 +61,9 @@ public:
   virtual StatusCode finalize() override;
 
   //!< Remove standalone TRT tracks
-  bool m_removeTrt;
+  bool m_removeTrt{};
   //!< Conversions or V0s
-  bool m_isConversion;
+  bool m_isConversion{};
   //!< Decorate vertices with values used for vertex selection
   bool m_decorateVertices;
 

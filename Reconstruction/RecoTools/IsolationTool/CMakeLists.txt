@@ -28,7 +28,7 @@ atlas_add_library( IsolationToolLib
    IsolationCorrectionsLib RecoToolInterfaces
    TrackVertexAssociationToolLib
    ${extra_lib}
-   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} CaloGeoHelpers FourMomUtils
+   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} CaloGeoHelpers FourMomUtils PathResolver
    ${extra_lib_private}
    )
 

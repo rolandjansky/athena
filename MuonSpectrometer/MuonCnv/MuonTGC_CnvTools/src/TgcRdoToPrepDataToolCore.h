@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CNVTOOLS_TGCRDOTOPREPDATATOOLCORE_H
@@ -17,9 +17,11 @@
 #include "TGCcablingInterface/ITGCcablingSvc.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "CxxUtils/CachedValue.h"
 
 #include <string>
 #include <vector>
+#include <atomic>
 
 namespace MuonGM 
 {
@@ -39,7 +41,7 @@ namespace Muon
    * This class was developed by Takashi Kubota. 
    */  
 
-  class TgcRdoToPrepDataToolCore : virtual public IMuonRdoToPrepDataTool, virtual public AthAlgTool
+  class TgcRdoToPrepDataToolCore : public extends<AthAlgTool, IMuonRdoToPrepDataTool>
     {
     public:
       /** Constructor */
@@ -47,9 +49,6 @@ namespace Muon
       
       /** Destructor */
       virtual ~TgcRdoToPrepDataToolCore()=default;
-      
-      /** Query the IMuonRdoToPrepDataTool interface */
-      virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIf) override;
       
       /** Standard AthAlgTool initialize method */
       virtual StatusCode initialize() override;
@@ -61,22 +60,36 @@ namespace Muon
        *  @param requestedIdHashVect          Vector of hashes to convert i.e. the hashes of ROD collections in a 'Region of Interest'  
        *  @return selectedIdHashVect This is the subset of requestedIdVect which were actually found to contain data   
        *  (i.e. if you want you can use this vector of hashes to optimise the retrieval of data in subsequent steps.) */ 
-      virtual StatusCode decode(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& idWithDataVect) override;
+      virtual StatusCode decode(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& idWithDataVect) const override;
 
       /** Print Input RDO for debugging */ 
-      virtual void printInputRdo() override;
+      virtual void printInputRdo() const override;
       
-      /** Print PRD for debugging */
-      virtual void printPrepData() override;
-
-      /** Resolve possible conflicts with IProperty::interfaceID() */
-      static const InterfaceID& interfaceID() { return IMuonRdoToPrepDataTool::interfaceID(); }
       
     protected:
       /** The number of recorded Bunch Crossings (BCs) is 3. Previous, current and next BCs */
       enum NBC {
         NBC = 3
       };
+
+      struct State {
+        /** TgcPrepRawData (hit PRD) containers */
+        TgcPrepDataContainer* m_tgcPrepDataContainer[NBC+1] = {0};
+        std::unordered_map<Identifier, TgcPrepDataCollection*> m_tgcPrepDataCollections[NBC+1];
+        /** TgcCoinData (coincidence PRD) containers */ 
+        TgcCoinDataContainer* m_tgcCoinDataContainer[NBC] = {0};
+        std::unordered_map<Identifier, TgcCoinDataCollection*> m_tgcCoinDataCollections[NBC];
+      };
+
+      struct CablingInfo {
+        const ITGCcablingSvc* m_tgcCabling = nullptr;
+        /** Flag to distinguish 12-fold cabling and 8-fold cabling */
+        bool m_is12fold = true;
+        /** Conversion from hash to onlineId */  
+        std::vector<uint16_t> m_hashToOnlineId;
+        int m_MAX_N_ROD = 0;
+      };
+      CxxUtils::CachedValue<CablingInfo> m_cablingInfo;
 
       /** Sub detector IDs are 103 and 104 for TGC A side and C side, respectively */
       enum SUB_DETCTOR_ID {
@@ -164,87 +177,112 @@ namespace Muon
         WD_MAP_SIZE = 2*BIT_POS_INPUT_SIZE
       };
 
-      /** Select decoder based on RDO type (Hit or Coincidence (Tracklet, HiPt and SL)) */
-      void selectDecoder(const TgcRdo::const_iterator& itD, const TgcRdo* rdoColl); 
+
+      /** Print PRD for debugging */
+      void printPrepDataImpl(const TgcPrepDataContainer* const* tgcPrepDataContainer,
+                             const TgcCoinDataContainer* const* tgcCoinDataContainer) const;
+
+      using getHitCollection_func = std::function<TgcPrepDataCollection* (Identifier, int locId)>;
+      using getCoinCollection_func = std::function<TgcCoinDataCollection* (Identifier, int locId)>;
       
+      /** Select decoder based on RDO type (Hit or Coincidence (Tracklet, HiPt and SL)) */
+      void selectDecoder(getHitCollection_func& getHitCollection,
+                         getCoinCollection_func& getCoinCollection,
+                         const TgcRawData& rd,
+                         const TgcRdo* rdoColl) const;
+
       /** Decode RDO's of Hit */
-      StatusCode decodeHits(const TgcRdo::const_iterator& itD);
+      StatusCode decodeHits(getHitCollection_func& getHitCollection,
+                            const TgcRawData& rd) const;
       /** Decode RDO's of Tracklet */
-      StatusCode decodeTracklet(const TgcRdo::const_iterator& itD);
+      StatusCode decodeTracklet(getCoinCollection_func& getCoinCollection,
+                                const TgcRawData& rd) const;
       /** Decode RDO's of Tracklet EIFI */
-      StatusCode decodeTrackletEIFI(const TgcRdo::const_iterator& itD);
+      StatusCode decodeTrackletEIFI(getCoinCollection_func& getCoinCollection,
+                                    const TgcRawData& rd) const;
       /** Decode RDO's of HiPt */
-      StatusCode decodeHiPt(const TgcRdo::const_iterator& itD);
+      StatusCode decodeHiPt(getCoinCollection_func& getCoinCollection,
+                            const TgcRawData& rd) const;
       /** Decode RDO's of Inner */
-      StatusCode decodeInner(const TgcRdo::const_iterator& itD);
+      StatusCode decodeInner(getCoinCollection_func& getCoinCollection,
+                             const TgcRawData& rd) const;
       /** Decode RDO's of SectorLogic */
-      StatusCode decodeSL(const TgcRdo::const_iterator& itD, const TgcRdo* rdoColl);
+      StatusCode decodeSL(getCoinCollection_func& getCoinCollection,
+                          const TgcRawData& rd,
+                          const TgcRdo* rdoColl) const;
       
       /** Get bitpos from channel and SlbType */
-      int getbitpos(int channel, TgcRawData::SlbType slbType);
+      int getbitpos(int channel, TgcRawData::SlbType slbType) const;
       /** Get channel from bitpos and SlbType */
-      int getchannel(int bitpos, TgcRawData::SlbType slbType);
+      int getchannel(int bitpos, TgcRawData::SlbType slbType) const;
 
       /** Get r, phi and eta from x, y and z */
-      bool getRPhiEtafromXYZ(const double x, const double y, const double z, double& r,  double& phi, double& eta);
+      bool getRPhiEtafromXYZ(const double x, const double y, const double z, double& r,  double& phi, double& eta) const;
       /** Get r from eta and z */
-      bool getRfromEtaZ(const double eta, const double z, double& r);
+      bool getRfromEtaZ(const double eta, const double z, double& r) const;
       /** Get eta from r and z */
-      bool getEtafromRZ(const double r, const double z, double& eta);
+      bool getEtafromRZ(const double r, const double z, double& eta) const;
       
       /** Check the rdo is already converted or not */
-      bool isAlreadyConverted(std::vector<const TgcRdo*>& rdoCollVec, const TgcRdo* rdoColl) const;
+      bool isAlreadyConverted(const std::vector<const TgcRdo*>& decodedRdoCollVec,
+                              const std::vector<const TgcRdo*>& rdoCollVec,
+                              const TgcRdo* rdoColl) const;
       
       /** Check the IdHash is already requested or not */
-      bool isRequested(std::vector<IdentifierHash>& requestedIdHashVect, IdentifierHash tgcHashId) const;
+      bool isRequested(const std::vector<IdentifierHash>& requestedIdHashVect,
+                       IdentifierHash tgcHashId) const;
       
       /** Check offline ID is OK for TgcReadoutElement */
-      bool isOfflineIdOKForTgcReadoutElement(const MuonGM::TgcReadoutElement* descriptor, const Identifier channelId);
+      bool isOfflineIdOKForTgcReadoutElement(const MuonGM::TgcReadoutElement* descriptor, const Identifier channelId) const;
 
       /** Fill selected IdentifierHash vector */  
-      void fillIdentifierHashVector(std::vector<IdentifierHash>& selectedIdHashVect);
+      void fillIdentifierHashVector(const State& state,
+                                    std::vector<IdentifierHash>& selectedIdHashVect) const;
 
       /** Show IdentifierHash vector */ 
-      void showIdentifierHashVector(std::vector<IdentifierHash>& idHashVect);
+      void showIdentifierHashVector(const State& state, std::vector<IdentifierHash>& idHashVect) const;
       /** Show all IdentifierHash */
-      void showIdentifierHash();
+      void showIdentifierHash(const State& state) const;
       
       /** Check an IdentifierHash is in any TgcPrepDataContainers */
-      bool isIdentifierHashFoundInAnyTgcPrepDataContainer(const IdentifierHash Hash) const;
+      bool isIdentifierHashFoundInAnyTgcPrepDataContainer(const State& state,
+                                                          const IdentifierHash Hash) const;
       /** Check an IdentifierHash is in any TgcCoinDataContainers */
-      bool isIdentifierHashFoundInAnyTgcCoinDataContainer(const IdentifierHash Hash) const;
+      bool isIdentifierHashFoundInAnyTgcCoinDataContainer(const State& state,
+                                                          const IdentifierHash Hash) const;
       
       /** Retrieve slbId, subMatrix and position from Tracklet RDO */
-      bool getTrackletInfo(const TgcRdo::const_iterator& itD, int& tmp_slbId, int& tmp_subMatrix, int& tmp_position);
+      bool getTrackletInfo(const TgcRawData& rd,
+                           int& tmp_slbId, int& tmp_subMatrix, int& tmp_position) const;
       
       /** Get ROI row from RDO */
-      int getRoiRow(const TgcRdo::const_iterator& itD) const;
+      int getRoiRow(const TgcRawData& rd) const;
       /** Check SL RDO is at the chamber boundary */
-      bool isIncludedInChamberBoundary(const TgcRdo::const_iterator& itD) const;
+      bool isIncludedInChamberBoundary(const TgcRawData& rd) const;
       
       /** Get bitPos etc of TGC3 wire for HiPt */
-      void getBitPosOutWire(const TgcRdo::const_iterator& itD, int& slbsubMatrix, int* bitpos_o);
+      void getBitPosOutWire(const TgcRawData& rd, int& slbsubMatrix, int* bitpos_o) const;
       /** Get bitPos etc of TGC1 wire for HiPt */
-      void getBitPosInWire(const TgcRdo::const_iterator& itD, const int DeltaBeforeConvert,
+      void getBitPosInWire(const TgcRawData& rd, const int DeltaBeforeConvert,
                            int* bitpos_i, int* slbchannel_i, int* slbId_in, int* sbLoc_in, int& sswId_i,
-                           const int* bitpos_o, int* slbchannel_o, const int slbId_o);
+                           const int* bitpos_o, int* slbchannel_o, const int slbId_o) const;
       /** Get bitPos etc of TGC3 strip for HiPt */
-      void getBitPosOutStrip(const TgcRdo::const_iterator& itD, int& slbsubMatrix, int* bitpos_o);
+      void getBitPosOutStrip(const TgcRawData& rd, int& slbsubMatrix, int* bitpos_o) const;
       /** Get bitPos etc of TGC1 strip for HiPt */
-      void getBitPosInStrip(const TgcRdo::const_iterator& itD, const int DeltaBeforeConvert,
+      void getBitPosInStrip(const TgcRawData& rd, const int DeltaBeforeConvert,
                             int* bitpos_i, int* slbchannel_i, int& sbLoc_i, int& sswId_i,
-                            const int* bitpos_o, int* slbchannel_o);
+                            const int* bitpos_o, int* slbchannel_o) const;
       /** Get bitPos etc of wire for SL */
-      void getBitPosWire(const TgcRdo::const_iterator& itD, const int hitId_w, const int sub_w, int& subMatrix_w, 
-			 int* bitpos_w);
+      void getBitPosWire(const TgcRawData& rd, const int hitId_w, const int sub_w, int& subMatrix_w, 
+			 int* bitpos_w) const;
       /** Get bitPos etc of strip for SL */
-      void getBitPosStrip(const int hitId_s, const int sub_s, int& subMatrix_s, int* bitpos_s);
+      void getBitPosStrip(const int hitId_s, const int sub_s, int& subMatrix_s, int* bitpos_s) const;
       
       /** Get delta (sagitta) before converion for HiPt */
-      int getDeltaBeforeConvert(const TgcRdo::const_iterator& itD) const;
+      int getDeltaBeforeConvert(const TgcRawData& rd) const;
       
       /** Check if a chamber in BigWheel is a backward chamber or a forward chamber */
-      bool isBackwardBW(const TgcRdo::const_iterator& itD) const;
+      bool isBackwardBW(const TgcRawData& rd) const;
       
       /** Get the width of a wire channel in the r direction */
       double getWidthWire(const MuonGM::TgcReadoutElement* descriptor, const int gasGap, const int channel) const;
@@ -252,54 +290,56 @@ namespace Muon
       double getWidthStrip(const MuonGM::TgcReadoutElement* descriptor, const int gasGap, const int channel, 
 			   const Identifier channelId) const;
       /** Get wire geometry (width, r, z) for SL */ 
-      bool getSLWireGeometry(const Identifier* channelId_wire, double& width_wire, double& r_wire, double& z_wire);
+      bool getSLWireGeometry(const Identifier* channelId_wire, double& width_wire, double& r_wire, double& z_wire) const;
       /** Get strip geometry (width, theta) for SL */ 
       bool getSLStripGeometry(const Identifier* channelId_strip, const bool isBackWard, const bool isAside, 
-			      double& width_strip, double& theta_strip);
+			      double& width_strip, double& theta_strip) const;
       /** Get position and offline ID of TGC3 wire for HiPt */ 
       bool getPosAndIdWireOut(const MuonGM::TgcReadoutElement** descriptor_o, const Identifier* channelIdOut,
                               const int* gasGap_o, const int* channel_o,
                               double& width_o, double& hit_position_o, Amg::Vector2D& tmp_hitPos_o,
-                              Identifier& channelIdOut_tmp);
+                              Identifier& channelIdOut_tmp) const;
       /** Get position and offline ID of TGC3 strip for HiPt */ 
       bool getPosAndIdStripOut(const MuonGM::TgcReadoutElement** descriptor_o, const Identifier* channelIdOut,
                                const int* gasGap_o, const int* channel_o,
                                double& width_o, double& hit_position_o, Amg::Vector2D& tmp_hitPos_o,
                                Identifier& channelIdOut_tmp,
-                               const bool isBackward, const bool isAside);
+                               const bool isBackward, const bool isAside) const;
       /** Get position and offline ID of TGC1 wire for HiPt */ 
       bool getPosAndIdWireIn(const MuonGM::TgcReadoutElement** descriptor_i, const Identifier* channelIdIn,
                              const int* gasGap_i, const int* channel_i,
                              double& width_i, double& hit_position_i, Amg::Vector2D& tmp_hitPos_i,
-                             Identifier& channelIdIn_tmp);
+                             Identifier& channelIdIn_tmp) const;
       /** Get position and offline ID of TGC1 strip for HiPt */ 
       bool getPosAndIdStripIn(const MuonGM::TgcReadoutElement** descriptor_i, const Identifier* channelIdIn,
                               const int* gasGap_i, const int* channel_i,
                               double& width_i, double& hit_position_i, Amg::Vector2D& tmp_hitPos_i,
                               Identifier& channelIdIn_tmp,
-                              const bool isBackward, const bool isAside);
+                              const bool isBackward, const bool isAside) const;
       
       /** Get ReadoutID of HiPt from RDOHighPtID */  
-      bool getHiPtIds(const TgcRdo::const_iterator& itD, int& sswId_o, int& sbLoc_o, int& slbId_o);
+      bool getHiPtIds(const TgcRawData& rd, int& sswId_o, int& sbLoc_o, int& slbId_o) const;
 
       /** Get ReadoutID of SL from RDO */  
-      bool getSLIds(const bool isStrip, const TgcRdo::const_iterator& itD, Identifier* channelId, 
+      bool getSLIds(const bool isStrip, const TgcRawData& rd, Identifier* channelId, 
 		    int& index, int& chip, int& hitId, int& sub, int& sswId, int& sbLoc, int& subMatrix, int *bitpos, 
 		    const bool isBoundary=false, const TgcRdo* rdoColl=0, 
-		    const int index_w=-1, const int chip_w=-1, const int hitId_w=-1, const int sub_w=-1);
+		    const int index_w=-1, const int chip_w=-1, const int hitId_w=-1, const int sub_w=-1) const;
       /** Get strip sbLoc of Endcap chamber boundary from HiPt Strip */
-      bool getSbLocOfEndcapStripBoundaryFromHiPt(const TgcRdo::const_iterator& itD, int& sbLoc, 
+      bool getSbLocOfEndcapStripBoundaryFromHiPt(const TgcRawData& rd,
+                                                 int& sbLoc,
 						 const TgcRdo* rdoColl, 
-						 const int index_w, const int chip_w, const int hitId_w, const int sub_w);
+						 const int index_w, const int chip_w, const int hitId_w, const int sub_w) const;
       /** Get strip sbLoc of Endcap chamber boundary from Tracklet Strip */
-      bool getSbLocOfEndcapStripBoundaryFromTracklet(const TgcRdo::const_iterator& itD, int& sbLoc, 
+      bool getSbLocOfEndcapStripBoundaryFromTracklet(const TgcRawData& rd,
+                                                     int& sbLoc,
 						     const TgcRdo* rdoColl, 
-						     const int index_w, const int chip_w, const int hitId_w, const int sub_w);
+						     const int index_w, const int chip_w, const int hitId_w, const int sub_w) const;
       /** Get trackletIds of three Tracklet Strip candidates in the Endcap boudary */ 
       void getEndcapStripCandidateTrackletIds(const int roi, int &trackletIdStripFirst, 
 					      int &trackletIdStripSecond, int &trackletIdStripThird) const;
 
-      StatusCode getCabling();
+      const CablingInfo*  getCabling() const;
 
       /** Get SL local position */
       const Amg::Vector2D* getSLLocalPosition(const MuonGM::TgcReadoutElement* readout, const Identifier, const double eta, const double phi) const; 
@@ -311,13 +351,9 @@ namespace Muon
       /* TGC Cabling service */
       const ITGCcablingSvc* m_tgcCabling;
 
-      /** TgcPrepRawData (hit PRD) containers */
-      TgcPrepDataContainer* m_tgcPrepDataContainer[NBC+1];
       /** TgcPrepRawData container key for current BC */ 
       std::string m_outputCollectionLocation;      
       
-      /** TgcCoinData (coincidence PRD) containers */ 
-      TgcCoinDataContainer* m_tgcCoinDataContainer[NBC];
       /** TgcCoinData container key for current BC */ 
       std::string m_outputCoinCollectionLocation;
       
@@ -329,18 +365,6 @@ namespace Muon
       /** Switch for the coincince decoding */
       bool m_fillCoinData; 
       
-      /** Switch for keeping Track of FullEvent Decoding */
-      bool m_fullEventDone[NBC+1];
-
-      /** Flag to check the ROB with an onlineId is already decoded */  
-      std::vector<bool> m_decodedOnlineId;  
-
-      /** Conversion from hash to onlineId */  
-      std::vector<uint16_t> m_hashToOnlineId;
-
-      /** Vector of RDO collections already decoded in the event */
-      std::vector<const TgcRdo*> m_decodedRdoCollVec;
-
       /** Switch for error message disabling on one invalid channel in 
 	  sector A09 seen in 2008 data, at least run 79772 - 91800. 
 	  bug #48828: TgcRdoToTgcDigit WARNING ElementID not found for 
@@ -354,19 +378,16 @@ namespace Muon
       const static double s_cutDropPrdsWithZeroWidth; // 0.1 mm
 
       /** long to count the numbers of RDOs and PRDs */
-      long m_nHitRDOs;
-      long m_nHitPRDs;
-      long m_nTrackletRDOs; 
-      long m_nTrackletPRDs; 
-      long m_nTrackletEIFIRDOs; 
-      long m_nTrackletEIFIPRDs; 
-      long m_nHiPtRDOs; 
-      long m_nHiPtPRDs; 
-      long m_nSLRDOs;  
-      long m_nSLPRDs; 
-
-      /** Flag to distinguish 12-fold cabling and 8-fold cabling */
-      bool m_is12fold;
+      mutable std::atomic<long> m_nHitRDOs;
+      mutable std::atomic<long> m_nHitPRDs;
+      mutable std::atomic<long> m_nTrackletRDOs; 
+      mutable std::atomic<long> m_nTrackletPRDs; 
+      mutable std::atomic<long> m_nTrackletEIFIRDOs; 
+      mutable std::atomic<long> m_nTrackletEIFIPRDs; 
+      mutable std::atomic<long> m_nHiPtRDOs; 
+      mutable std::atomic<long> m_nHiPtPRDs; 
+      mutable std::atomic<long> m_nSLRDOs;  
+      mutable std::atomic<long> m_nSLPRDs; 
 
       SG::ReadHandleKey<TgcRdoContainer> m_rdoContainerKey;//"TGCRDO"
 
@@ -374,7 +395,7 @@ namespace Muon
       SG::WriteHandleKeyArray<TgcPrepDataContainer> m_outputprepdataKeys;
 
       /** Aboid compiler warning **/
-      virtual StatusCode decode( const std::vector<uint32_t>& /*robIds*/ ) override {return StatusCode::FAILURE;}
+      virtual StatusCode decode( const std::vector<uint32_t>& /*robIds*/ ) const override {return StatusCode::FAILURE;}
    }; 
 } // end of namespace
 

@@ -1,9 +1,10 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """Define method to construct configured Tile pulse for muon receiver algorithm"""
 
 from TileSimAlgs.TileHitVecToCntConfig import TileHitVecToCntCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 
 def TilePulseForTileMuonReceiverCfg(flags, **kwargs):
     """Return component accumulator with configured Tile muon receiver algorithm
@@ -77,12 +78,15 @@ def TilePulseForTileMuonReceiverCfg(flags, **kwargs):
         kwargs['TileRawChannelBuilderMF'] = rawChanBuilder
 
 
-    kwargs.setdefault('IntegerDigits', not flags.Digitization.PileUpPremixing)
+    kwargs.setdefault('IntegerDigits', flags.Common.ProductionStep != ProductionStep.PileUpPresampling)
 
-    if flags.Digitization.PileUpPremixing:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault('MuonReceiverDigitsContainer', flags.Overlay.BkgPrefix + 'MuRcvDigitsCnt')
     else:
         kwargs.setdefault('MuonReceiverDigitsContainer', 'MuRcvDigitsCnt')
+
+    if flags.Common.ProductionStep == ProductionStep.Overlay and flags.Concurrency.NumThreads > 0:
+        kwargs.setdefault('Cardinality', flags.Concurrency.NumThreads)
 
     TilePulseForTileMuonReceiver=CompFactory.TilePulseForTileMuonReceiver
     acc.addEventAlgo(TilePulseForTileMuonReceiver(**kwargs), primary = True)
@@ -107,7 +111,7 @@ def TilePulseForTileMuonReceiverOutputCfg(flags, **kwargs):
     muRcvDigitsCnt = str(muRcvDigitsCnt).split('+').pop()
     outputItemList = ['TileDigitsContainer#' + muRcvDigitsCnt]
 
-    if not flags.Digitization.PileUpPremixing:
+    if flags.Common.ProductionStep != ProductionStep.PileUpPresampling:
         if hasattr(tilePulseForMuRcv, 'MuonReceiverRawChannelContainer'):
             muRcvRawChCnt = tilePulseForMuRcv.MuonReceiverRawChannelContainer
         else:
@@ -138,7 +142,7 @@ if __name__ == "__main__":
     ConfigFlags.Input.Files = defaultTestFiles.HITS
     ConfigFlags.Output.RDOFileName = 'myRDO.pool.root'
     ConfigFlags.IOVDb.GlobalTag = 'OFLCOND-MC16-SDR-16'
-    ConfigFlags.Digitization.Pileup = False
+    ConfigFlags.Digitization.PileUp = False
 
     ConfigFlags.fillFromArgs()
     ConfigFlags.lock()

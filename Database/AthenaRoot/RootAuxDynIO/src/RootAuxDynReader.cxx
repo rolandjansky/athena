@@ -174,7 +174,7 @@ namespace RootAuxDynIO
    }
 
    
-   IRootAuxDynReader*
+   std::unique_ptr<IRootAuxDynReader>
    getReaderForBranch(TBranch *branch)
    {
       if( isAuxDynBranch(branch) ) {
@@ -188,7 +188,7 @@ namespace RootAuxDynIO
          TClass *storeTC = tc->GetBaseClass("SG::IAuxStoreHolder");
          if( storeTC ) {  
             int store_holder_offset = tc->GetBaseClassOffset( storeTC );
-            return new RootAuxDynReader(branch, store_holder_offset);
+            return std::make_unique<RootAuxDynReader>(branch, store_holder_offset);
          }
       }
       return nullptr;

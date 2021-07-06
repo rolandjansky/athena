@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from copy import deepcopy
 
@@ -8,11 +8,20 @@ log = logging.getLogger( __name__ )
 
 def splitInterSignatureChainDict(chainDict):
     listOfSplitChainDicts = []
+
+    move_jets = 'Bjet' in chainDict['signatures']
+
+    #Bjet and jet always go together, and the overall dict needs to have signature 'Bjet'
+
     for chainPart in chainDict['chainParts']:
         thisSignature = chainPart['signature']
-        chainPartAdded = False        
+        chainPartAdded = False
+
         for splitChainDict in listOfSplitChainDicts:
-            if thisSignature == splitChainDict['chainParts'][0]['signature']:            
+            splitSignature = splitChainDict['chainParts'][0]['signature']
+            if thisSignature == splitSignature or \
+               (move_jets and thisSignature == 'Jet' and splitSignature == 'Bjet') or \
+               (move_jets and thisSignature == 'Bjet' and splitSignature == 'Jet'):
                 splitChainDict['chainParts'] += [chainPart]
                 chainPartAdded = True
                 break
@@ -22,6 +31,11 @@ def splitInterSignatureChainDict(chainDict):
             newSplitChainDict['signature'] = chainPart['signature']
             listOfSplitChainDicts += [newSplitChainDict]
             
+    if move_jets:
+        for newDict in listOfSplitChainDicts:
+            if newDict['signature'] == 'Jet':
+                newDict['signature'] = 'Bjet'
+
     #special code to handle chains with "AND" in the name
     #jet,ht and bjet jet chains belong to the same signature
     #so an extra key is needed to make sure the part are treated separately
@@ -124,32 +138,3 @@ def splitChainInLegs(chainName):
             onePartChainDict['chainName'] = legName(chainName, count)            
             listOfChainDicts += [onePartChainDict]
       return listOfChainDicts
-
-          
-def setupTopoStartFrom(topoThresholds, theChainDef):
-    from TrigGenericAlgs.TrigGenericAlgsConf import MergeTopoStarts
-
-    if len(topoThresholds) > 1:
-        from TrigGenericAlgs.TrigGenericAlgsLegacyConfig import MergeTopoStartsConfig
-        m = MergeTopoStartsConfig("testInstance")
-        log.debug(m)
-
-    te0 = None
-    te1 = None 
-    outTE = None
-    
-    for i in range(len(topoThresholds)):
-        if i == 0:
-            te0 = topoThresholds[i]
-            continue
-        te1 = topoThresholds[i]
-        combTes = te0+"_"+te1
-        outTE = "L2_merged_"+combTes
-        theMergeTopoStarts = MergeTopoStarts("MergeTopoStarts_"+combTes)
-        theChainDef.addSequence( theMergeTopoStarts,[te0,te1], outTE)   
-        theChainDef.addSignatureL2([outTE])   
-        te0=outTE
-
-    return te0
-
-

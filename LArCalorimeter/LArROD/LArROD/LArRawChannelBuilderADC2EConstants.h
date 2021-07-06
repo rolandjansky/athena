@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -28,9 +28,10 @@ class LArRawChannelBuilderADC2EConstants
 				     const std::string& name,
 				     const IInterface* parent);
   
-  bool ADC2E(std::vector<float>& Ramps, MsgStream* pLog);
+  virtual bool ADC2E(const EventContext& ctx,
+                     std::vector<float>& Ramps, MsgStream* pLog) override;
 
-  StatusCode initTool();
+  virtual StatusCode initTool() override;
   
  private:
   

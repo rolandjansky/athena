@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -17,9 +17,8 @@ Muon::STGC_RawDataProviderTool::STGC_RawDataProviderTool(
 						       const std::string& t,
 						       const std::string& n,
 						       const IInterface*  p) :
-  AthAlgTool(t, n, p)
+  base_class(t, n, p)
 {
-  declareInterface<IMuonRawDataProviderTool>(this);
 }
 
 //================ Destructor =================================================
@@ -31,7 +30,7 @@ Muon::STGC_RawDataProviderTool::~STGC_RawDataProviderTool()
 
 StatusCode Muon::STGC_RawDataProviderTool::initialize()
 {
-  StatusCode sc = AthAlgTool::initialize();
+  ATH_CHECK( AthAlgTool::initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -40,13 +39,13 @@ StatusCode Muon::STGC_RawDataProviderTool::initialize()
 
 StatusCode Muon::STGC_RawDataProviderTool::finalize()
 {
-  StatusCode sc = AthAlgTool::finalize();
-  return sc;
+  ATH_CHECK( AthAlgTool::finalize() );
+  return StatusCode::SUCCESS;
 }
 
 //============================================================================================
 
-StatusCode Muon::STGC_RawDataProviderTool::convert(const ROBFragmentList& ) 
+StatusCode Muon::STGC_RawDataProviderTool::convert(const ROBFragmentList& ) const
 {    
   ATH_MSG_ERROR("STGC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs) Not yet implemented.");
   
@@ -54,18 +53,18 @@ StatusCode Muon::STGC_RawDataProviderTool::convert(const ROBFragmentList& )
 }
 
 StatusCode  Muon::STGC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs, 
-						   const std::vector<IdentifierHash>&) 
+						   const std::vector<IdentifierHash>&) const
 {
   return convert(vecRobs);
 }
 
-StatusCode  Muon::STGC_RawDataProviderTool::convert()
+StatusCode  Muon::STGC_RawDataProviderTool::convert() const
 {
   ATH_MSG_ERROR("STGC_RawDataProviderTool::convert() Not yet implemented.");
   return StatusCode::FAILURE;
 }
 
-StatusCode  Muon::STGC_RawDataProviderTool::convert(const std::vector<IdentifierHash>& )
+StatusCode  Muon::STGC_RawDataProviderTool::convert(const std::vector<IdentifierHash>& ) const
 {
   ATH_MSG_ERROR("STGC_RawDataProviderTool::convert(const std::vector<IdentifierHash>& rdoIdhVect) Not yet implemented.");
   return StatusCode::FAILURE;

@@ -37,9 +37,7 @@ namespace Trk {
         /** AlgTool initialize method */
         StatusCode initialize();
         
-        /** AlgTool finalize method */
-        StatusCode finalize();
-        
+
         /** process the layer material - after material creation and before loading */
         const LayerMaterialProperties* processLayerMaterial(const LayerIndex& layIndex, const LayerMaterialProperties& lmp) const;
 

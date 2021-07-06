@@ -1,7 +1,6 @@
 // Dear emacs, this is -*- c++ -*-
-/* Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration */
+/* Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration */
 
-// $Id: EventFormatMetaDataTool.cxx 651874 2015-03-05 14:16:19Z krasznaa $
 
 // System include(s):
 #include <algorithm>
@@ -28,7 +27,7 @@ EventFormatMetaDataTool::EventFormatMetaDataTool(const std::string& type,
 StatusCode
     EventFormatMetaDataTool::initialize() {
       // Greet the user:
-      ATH_MSG_DEBUG("Initialising - Package version: " << PACKAGE_VERSION);
+      ATH_MSG_DEBUG("Initialising");
       ATH_MSG_DEBUG("  " << m_inputMetaStore);
       ATH_MSG_DEBUG("  " << m_outputMetaStore);
       ATH_MSG_DEBUG("  " << m_outputKey);

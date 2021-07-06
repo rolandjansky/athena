@@ -1,7 +1,7 @@
 // -*- C++ -*- 
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETRECTOOLS_TRACKVERTEXASSOCIATIONTOOL_H
@@ -16,6 +16,8 @@
 #include "xAODTracking/VertexContainer.h" 
 #include "TrackVertexAssociationTool/ITrackVertexAssociationTool.h"
 #include "AsgTools/ToolHandle.h"
+#include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgDataHandles/WriteHandleKey.h"
 
 #include <string>
 ///////////////////////////////////////////////
@@ -40,7 +42,7 @@
 /// This old part of the code may disappear in the future.
 ////////////////////////////////////////////////////////////////////
 
-class TrackVertexAssociationTool :  virtual public asg::AsgTool,
+class TrackVertexAssociationTool :  public asg::AsgTool,
                                     virtual public IJetExecuteTool
 {
   ASG_TOOL_CLASS(TrackVertexAssociationTool,IJetExecuteTool)

@@ -3,6 +3,8 @@
 # Declare the package name:
 atlas_subdir( ParticleJetTools )
 
+find_package( ROOT )
+
 # Component(s) in the package:
 if( XAOD_STANDALONE )
    atlas_add_library( ParticleJetToolsLib

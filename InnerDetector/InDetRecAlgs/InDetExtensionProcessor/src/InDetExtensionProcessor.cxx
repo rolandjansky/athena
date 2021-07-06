@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,13 +11,15 @@
 
 #include "InDetExtensionProcessor/InDetExtensionProcessor.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
-#include "TrkToolInterfaces/ITrackScoringTool.h"
-#include "TrkRIO_OnTrack/RIO_OnTrack.h"
-#include "TrkPrepRawData/PrepRawData.h"
 #include "TrkParameters/TrackParameters.h"
+#include "TrkPrepRawData/PrepRawData.h"
+#include "TrkRIO_OnTrack/RIO_OnTrack.h"
+#include "TrkToolInterfaces/ITrackScoringTool.h"
 #include <algorithm> //for std::transform
 #include <cmath> //for std::abs
 #include <functional> //for std::plus<>
+#include <memory>
+
 
 
 //==================================================================================================
@@ -379,7 +381,7 @@ InDet::InDetExtensionProcessor::createExtendedTracks(const EventContext& ctx,
           if (m_keepFailedExtensionOnTrack) {
             ntrk.reset(trackPlusExtension(ctx,thisTrack, pThisExtensionPair->second));
           } else {
-            ntrk.reset(new Trk::Track(*thisTrack));
+            ntrk = std::make_unique<Trk::Track>(*thisTrack);
           }
           ntrk->info().setPatternRecognitionInfo(Trk::TrackInfo::InDetExtensionProcessor);
           newTracks->push_back(std::move(ntrk));
@@ -415,7 +417,7 @@ void InDet::InDetExtensionProcessor::incrementRegionCounter(std::array<int, 4>& 
     ATH_MSG_ERROR("track pointer zero, should not happen!");
     return;
   }
-  const auto pTrackParameters {track->trackParameters()};
+  const auto *const pTrackParameters {track->trackParameters()};
   // use first parameter
   if (not pTrackParameters) {
     ATH_MSG_WARNING("No track parameters, needed for statistics code in Trk::SimpleAmbiguityProcessorTool!");
@@ -436,23 +438,23 @@ InDet::InDetExtensionProcessor::trackPlusExtension(
   const std::vector<const Trk::MeasurementBase*>& extension) const
 {
   const auto& trackStatesOnSurfaces{ *(siTrack->trackStateOnSurfaces()) };
-  auto pExtendedTrajectory = new DataVector<const Trk::TrackStateOnSurface>;
+  auto pExtendedTrajectory = DataVector<const Trk::TrackStateOnSurface>();
 
-  pExtendedTrajectory->reserve(trackStatesOnSurfaces.size() + extension.size());
+  pExtendedTrajectory.reserve(trackStatesOnSurfaces.size() + extension.size());
   int nSiStates = 0, nExtStates = 0;
   // copy existing si track as first part to new track - including all track pars since fit does not change
   auto cloneTSOS = [](const Trk::TrackStateOnSurface* pTSOS) {
                      return new Trk::TrackStateOnSurface(*pTSOS);
                    };
   std::transform(trackStatesOnSurfaces.begin(), trackStatesOnSurfaces.end(), std::back_inserter(
-                   *pExtendedTrajectory), cloneTSOS);
+                   pExtendedTrajectory), cloneTSOS);
   nSiStates += trackStatesOnSurfaces.size();
   // copy proposed (but failed) extension as second part onto new track - all hits flagged as outliers.
   constexpr auto outlierDigit {1 << Trk::TrackStateOnSurface::Outlier};
   constexpr std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> outlierPattern(outlierDigit);
   //create new track state on surface
   auto createNewTSOS = [outlierPattern](const Trk::MeasurementBase* pm) -> const Trk::TrackStateOnSurface*{
-                         return new Trk::TrackStateOnSurface(pm->clone(), 0, 0, 0, outlierPattern);
+                         return new Trk::TrackStateOnSurface(pm->clone(), nullptr, nullptr, nullptr, outlierPattern);
                        };
   //Adding to cosmic tracks beginning or end depending on the direction of track
   auto addNewTSOS_ForCosmics = [&pExtendedTrajectory, siTrack, createNewTSOS](const Trk::MeasurementBase* pm) {
@@ -461,24 +463,24 @@ InDet::InDetExtensionProcessor::trackPlusExtension(
                                  const double inprod = (pm->associatedSurface().center() - perigee->position()).dot(
                                    perigee->momentum());
                                  if (inprod < 0) {
-                                   pExtendedTrajectory->insert(pExtendedTrajectory->begin(), createNewTSOS(pm));
+                                   pExtendedTrajectory.insert(pExtendedTrajectory.begin(), createNewTSOS(pm));
                                  } else {
-                                   pExtendedTrajectory->push_back(createNewTSOS(pm));
+                                   pExtendedTrajectory.push_back(createNewTSOS(pm));
                                  }
                                };
   //actual copying done here, using preceding lambda functions
   if (not m_cosmics) {
-    std::transform(extension.begin(), extension.end(), std::back_inserter(*pExtendedTrajectory), createNewTSOS);
+    std::transform(extension.begin(), extension.end(), std::back_inserter(pExtendedTrajectory), createNewTSOS);
   } else {
     //difficult to use std::transform here, since don't know whether back or front are added to
-    for (const auto pMeasurementBase: extension) {
+    for (const auto *const pMeasurementBase: extension) {
       addNewTSOS_ForCosmics(pMeasurementBase);
     }
   }
-  nExtStates += pExtendedTrajectory->size();
+  nExtStates += pExtendedTrajectory.size();
   const auto& pFitQuality {siTrack->fitQuality()};
   Trk::Track* extTrack =
-    new Trk::Track(siTrack->info(), pExtendedTrajectory, (pFitQuality ? pFitQuality->clone() : nullptr));
+    new Trk::Track(siTrack->info(), std::move(pExtendedTrajectory), (pFitQuality ? pFitQuality->clone() : nullptr));
   if (m_trackSummaryTool.isEnabled()) {
     m_trackSummaryTool->computeAndReplaceTrackSummary(ctx,*extTrack, nullptr, m_suppressHoleSearch);
   }

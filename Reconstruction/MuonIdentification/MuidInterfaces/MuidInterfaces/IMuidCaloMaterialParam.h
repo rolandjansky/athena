@@ -3,7 +3,6 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// IMuidCaloMaterialParam.h, (c) ATLAS Combined Muon software
 ///////////////////////////////////////////////////////////////////
 
 #ifndef MUIDINTERFACES_IMUIDCALOMATERIALPARAM_H
@@ -12,64 +11,54 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "TrkParameters/TrackParameters.h"
 
-namespace Trk
-{
-    class ITrackingVolumeDisplayer;
+namespace Trk {
     class Surface;
     class TrackStateOnSurface;
-}
+}  // namespace Trk
 
+namespace Rec {
 
-namespace Rec
-{
- 
-class CaloLayer;
-   
-/** Interface ID for IMuidCaloMaterialParam*/  
-static const InterfaceID IID_IMuidCaloMaterialParam("IMuidCaloMaterialParam", 1, 0);
-  
-/**@class IMuidCaloMaterialParam
+    class CaloLayer;
 
-Base class for MuidCaloMaterialParam AlgTool
+    /** Interface ID for IMuidCaloMaterialParam*/
+    static const InterfaceID IID_IMuidCaloMaterialParam("IMuidCaloMaterialParam", 1, 0);
 
- The parametrization represents the Coulomb scattering between the InDet
- and MuonSpectrometer entrance.
+    /**@class IMuidCaloMaterialParam
 
- Parametrized positions and thicknesses (CaloLayers) are produced
- as a function of eta assuming any track will 'see' 2 scattering centres,
- taken from an inner and an outer layer.
-     
-@author Alan.Poppleton@cern.ch
-*/
-class IMuidCaloMaterialParam : virtual public IAlgTool
-{
-public:
+    Base class for MuidCaloMaterialParam AlgTool
 
-    /**Virtual destructor*/
-    virtual ~IMuidCaloMaterialParam(){}
-       
-    /** AlgTool and IAlgTool interface methods */
-    static const InterfaceID&			interfaceID() { return IID_IMuidCaloMaterialParam; }
+     The parametrization represents the Coulomb scattering between the InDet
+     and MuonSpectrometer entrance.
 
-    /**IMuidCaloMaterialParam interface:
-       return inner/middle/outer surface corresponding to eta value */
-    virtual const Trk::Surface*			innerSurface  (double eta) const = 0;
-    virtual const Trk::Surface*			middleSurface (double eta) const = 0;
-    virtual const Trk::Surface*			outerSurface  (double eta) const = 0;
-  
-    /**IMuidCaloMaterialParam interface:
-       calorimeter layer radiation thickness corresponding to eta value */
-    virtual double				radiationThickness (double eta) const = 0;
+     Parametrized positions and thicknesses (CaloLayers) are produced
+     as a function of eta assuming any track will 'see' 2 scattering centres,
+     taken from an inner and an outer layer.
 
-    /**IMuidCaloMaterialParam interface:
-       TrackStateOnSurface for parameters at a scattering surface */
-    virtual const Trk::TrackStateOnSurface*	trackStateOnSurface (
-	const Trk::TrackParameters*) const = 0;
+    @author Alan.Poppleton@cern.ch
+    */
+    class IMuidCaloMaterialParam : virtual public IAlgTool {
+    public:
+        /**Virtual destructor*/
+        virtual ~IMuidCaloMaterialParam() {}
 
-};
- 
-}	// end of namespace
+        /** AlgTool and IAlgTool interface methods */
+        static const InterfaceID& interfaceID() { return IID_IMuidCaloMaterialParam; }
 
-#endif // MUIDINTERFACES_IMUIDCALOMATERIALPARAM_H
+        /**IMuidCaloMaterialParam interface:
+           return inner/middle/outer surface corresponding to eta value */
+        virtual const Trk::Surface* innerSurface(double eta) const = 0;
+        virtual const Trk::Surface* middleSurface(double eta) const = 0;
+        virtual const Trk::Surface* outerSurface(double eta) const = 0;
 
+        /**IMuidCaloMaterialParam interface:
+           calorimeter layer radiation thickness corresponding to eta value */
+        virtual double radiationThickness(double eta) const = 0;
 
+        /**IMuidCaloMaterialParam interface:
+           TrackStateOnSurface for parameters at a scattering surface */
+        virtual std::unique_ptr<Trk::TrackStateOnSurface> trackStateOnSurface(const Trk::TrackParameters& params) const = 0;
+    };
+
+}  // namespace Rec
+
+#endif  // MUIDINTERFACES_IMUIDCALOMATERIALPARAM_H

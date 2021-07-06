@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -30,6 +30,7 @@
 #include "Identifier/Identifier.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 
 //InnerDetector
 #include "InDetIdentifier/SCT_ID.h"
@@ -94,7 +95,7 @@ class SCTCalib : public AthAlgorithm {
 
       const SCT_ID*                                               m_pSCTHelper{nullptr};
       SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
-      SG::ReadHandleKey<EventInfo>                                m_eventInfoKey{this, "EventInfoKey", "ByteStreamEventInfo"};
+      SG::ReadHandleKey<xAOD::EventInfo>                          m_eventInfoKey{this, "EventInfoKey", "EventInfo", ""};
 
       ToolHandle<SCTCalibWriteTool>                   m_pCalibWriteTool{this, "SCTCalibWriteTool", "SCTCalibWriteTool", "Tool to write out data from calibration loop"};
       ToolHandle<ISCT_ConfigurationConditionsTool>    m_ConfigurationConditionsTool{this, "SCT_ConfigurationConditionsTool", "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration"};
@@ -144,11 +145,11 @@ class SCTCalib : public AthAlgorithm {
       BooleanProperty m_histBefore2010{this, "HistBefore2010", false, "True if HIST is from 2009 or earlier"};
 
       BooleanProperty m_doHitMaps{this, "DoHitMaps", true};
-      IntegerProperty m_nLbsMerged{this, "LbsPerWindow", 20};
+      BooleanProperty m_doHitMapsLB{this, "DoHitMapsLB", true};
+      IntegerProperty m_nLbsMerged{this, "LbsPerWindow", 30};
       BooleanProperty m_readHitMaps{this, "ReadHitMaps", false};
       BooleanProperty m_doBSErrors{this, "DoBSErrors", false};
       BooleanProperty m_doNoisyStrip{this, "DoNoisyStrip", true};
-      BooleanProperty m_doNoisyLB{this, "DoNoisyLB", true};
       BooleanProperty m_doHV{this, "DoHV", false};
       BooleanProperty m_doDeadStrip{this, "DoDeadStrip", false};
       BooleanProperty m_doDeadChip{this, "DoDeadChip", false};
@@ -194,11 +195,15 @@ class SCTCalib : public AthAlgorithm {
       FloatProperty           m_noisyThr4DeadFinding{this, "NoisyThr4DeadFinding", 1.500E-3};
       BooleanProperty         m_deadChipUploadTest{this, "DeadChipUploadTest", true};
       BooleanProperty         m_deadStripUploadTest{this, "DeadStripUploadTest", true};
+      BooleanProperty         m_deadNotQuiet{this, "DeadNotQuiet", true};
+      FloatProperty           m_quietThresholdStrip{this, "QuietThresholdStrip", 0.5};
+      FloatProperty           m_quietThresholdChip{this, "QuietThresholdChip", 0.5};
 
       BooleanProperty         m_noiseOccupancyTriggerAware{this, "NoiseOccupancyTriggerAware", true};
       UnsignedIntegerProperty m_noiseOccupancyMinStat{this, "NoiseOccupancyMinStat", 50000};
       UnsignedIntegerProperty m_rawOccupancyMinStat{this, "RawOccupancyMinStat", 50000};
       UnsignedIntegerProperty m_efficiencyMinStat{this, "EfficiencyMinStat", 50000};
+      BooleanProperty         m_efficiencyDoChips{this, "EfficiencyDoChips", true};
       UnsignedIntegerProperty m_BSErrorDBMinStat{this, "BSErrorDBMinStat", 50000};
       UnsignedIntegerProperty m_LorentzAngleMinStat{this, "LorentzAngleMinStat", 50000};
 
@@ -224,6 +229,7 @@ class SCTCalib : public AthAlgorithm {
       StringProperty m_rawOccupancySummaryFile{this,"RawOccupancySummaryFile", "RawOccupancySummaryFile.xml", "Output XML for summary of raw occupancy"};
       StringProperty m_efficiencySummaryFile{this, "EfficiencySummaryFile", "EfficiencySummaryFile.xml", "Output XML for summary of efficiency"};
       StringProperty m_efficiencyModuleFile{this, "EfficiencyModuleFile", "EfficiencyModuleSummary.xml", "Output XML for efficiency"};
+      StringProperty m_efficiencyChipFile{this, "EfficiencyChipFile", "EfficiencyChipSummary.xml", "Output XML for chip efficiency"};
       StringProperty m_BSErrorSummaryFile{this, "BSErrorSummaryFile", "BSErrorSummaryFile.xml", "Output XML for summary of BS Errors"};
       StringProperty m_BSErrorModuleFile{this, "BSErrorModuleFile", "BSErrorModuleSummary.xml", "Output XML for summary of BS Errors"};
       StringProperty m_LorentzAngleFile{this, "LorentzAngleFile", "LorentzAngleFile.xml", "Output XML for noise occupancy"};
@@ -290,6 +296,9 @@ class SCTCalib : public AthAlgorithm {
       std::string
       xmlChannelEfficiencyDataString(const Identifier& waferId, const float efficiency, const SCT_SerialNumber& serial, const int side) const;
 
+      std::string
+      xmlChannelEfficiencyDataStringChip(const Identifier& waferId, const float efficiency, const float efficiency_bcid, const SCT_SerialNumber& serial, const int side, const int chip) const;
+
       std::pair<int, bool>
       getNumNoisyStrips(const Identifier& waferId) const;
 
@@ -298,9 +307,9 @@ class SCTCalib : public AthAlgorithm {
 
       StatusCode
       writeModuleListToCool ATLAS_NOT_THREAD_SAFE // Thread unsafe SCTCalibWriteTool::createCondObjects method is used.
-                           (const std::map<Identifier, std::set<Identifier>>& moduleListAll,
-                            const std::map<Identifier, std::set<Identifier>>& moduleListNew,
-                            const std::map<Identifier, std::set<Identifier>>& moduleListRef);
+      (const std::map<Identifier, std::set<Identifier>>& moduleListAll,
+       const std::map<Identifier, std::set<Identifier>>& moduleListNew,
+       const std::map<Identifier, std::set<Identifier>>& moduleListRef);
       std::string
       getStripList(const std::set<Identifier>& stripIdList) const;
 

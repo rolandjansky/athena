@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -44,11 +44,7 @@ StatusCode DerivationFramework::MuonTrackParticleThinning::initialize()
     ATH_CHECK(m_muonKey.initialize());
     // Set up the text-parsing machinery for selectiong the muon directly according to user cuts
     if (!m_selectionString.empty()) {
-	    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-	    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
-	    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-	    m_parser = std::make_unique<ExpressionParsing::ExpressionParser>(proxyLoaders);
-	    m_parser->loadExpression(m_selectionString);
+       ATH_CHECK(initializeParser(m_selectionString) );
     }
     return StatusCode::SUCCESS;
 }
@@ -57,7 +53,7 @@ StatusCode DerivationFramework::MuonTrackParticleThinning::finalize()
 {
     ATH_MSG_VERBOSE("finalize() ...");
     ATH_MSG_INFO("Processed "<< m_ntot <<" tracks, "<< m_npass<< " were retained ");
-    m_parser.reset();
+    ATH_CHECK( finalizeParser() );
     return StatusCode::SUCCESS;
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -57,21 +57,6 @@ namespace InDet{
     declareProperty("RoIs", m_roiCollectionKey = std::string(""), "RoIs to read in");
     declareProperty("isRoI_Seeded", m_roiSeeded = false, "Use RoI");
     declareProperty("ClusterContainerCacheKey", m_clusterContainercacheKey, "Optional External Pixel cluster Cache");
-    // error strategy <-- this is now in the MergedPixelTool
-    //
-    // 0 : broad errors (cluster width/sqrt(12) )
-    //     as in old clustering code (release 6 and 7)
-    // 1 : narrow errors (pixel pitch/sqrt(12.) )
-    //     DEFAULT - should be more accurate, 
-    //     and still conservative
-    // 2 : parameterization as a function of eta & cluster size
-    //     same as in atrecon (fortran code)
-    //       declareProperty("ErrorStrategy",m_errorStrategy); <-- this is now in the MergedPixelTool
-    // position strategy
-    //
-    // 0 : arithmetic mean of pixel position
-    // 1 : simple charge interpolation
-    //       declareProperty("PositionStrategy",m_positionStrategy); <-- this is now in the MergedPixelTool
   }
   
   //-----------------------------------------------------------------------------
@@ -87,6 +72,9 @@ namespace InDet{
     if (m_roiSeeded) {
       ATH_CHECK( m_roiCollectionKey.initialize() );
       ATH_CHECK(m_regionSelector.retrieve());
+    }else{
+      m_regionSelector.disable();
+      ATH_CHECK( m_roiCollectionKey.initialize(false) );
     }
 
     m_clusterContainerLinkKey = m_clusterContainerKey.key();
@@ -96,6 +84,14 @@ namespace InDet{
     ATH_CHECK( m_ambiguitiesMapKey.initialize() );
     ATH_CHECK( m_clusterContainercacheKey.initialize(!m_clusterContainercacheKey.key().empty()) );
 
+    if ( !m_monTool.empty() ) {
+       ATH_CHECK(m_monTool.retrieve() );
+    }
+    else {
+       ATH_MSG_INFO("Monitoring tool is empty");
+    }
+
+
     ATH_MSG_DEBUG( "Initialize done !" );
     return StatusCode::SUCCESS;
   }
@@ -103,11 +99,14 @@ namespace InDet{
   //----------------------------------------------------------------------------
   // Execute method:
   StatusCode PixelClusterization::execute(const EventContext& ctx) const {
+    //Monitoring Tool Configuration
+    auto mnt_timer_Total                 = Monitored::Timer<std::chrono::milliseconds>("TIME_Total");
+    
   
 
     SG::WriteHandle<PixelClusterContainer> clusterContainer(m_clusterContainerKey, ctx);
     if(m_clusterContainercacheKey.key().empty()){
-      ATH_CHECK( clusterContainer.record (std::make_unique<PixelClusterContainer>(m_idHelper->wafer_hash_max())) );
+      ATH_CHECK( clusterContainer.record (std::make_unique<PixelClusterContainer>(m_idHelper->wafer_hash_max(), EventContainers::Mode::OfflineFast)) );
     }else{
       SG::UpdateHandle<PixelClusterContainerCache> clusterContainercache(m_clusterContainercacheKey, ctx);
       ATH_CHECK(clusterContainercache.isValid());
@@ -191,15 +190,10 @@ namespace InDet{
     ATH_MSG_DEBUG("clusterContainer->numberOfCollections() " <<  clusterContainer->numberOfCollections());
     ATH_CHECK(ambiguitiesMap.isValid());
     ATH_MSG_DEBUG( "PixelClusterAmbiguitiesMap recorded in StoreGate");
+    auto monTime = Monitored::Group(m_monTool, mnt_timer_Total);
     return StatusCode::SUCCESS;
   }
-  //----------------------------------------------------------------------------
-  // Finalize method:
-  StatusCode PixelClusterization::finalize(){
-    ATH_MSG_INFO( "PixelClusterization::finalize() " << PACKAGE_VERSION );
-    return StatusCode::SUCCESS;
-  }
-  
+
 }// namespace closure
 
 

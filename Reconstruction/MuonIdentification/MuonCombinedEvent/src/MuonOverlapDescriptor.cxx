@@ -3,6 +3,10 @@
 */
 
 //// label with (c) ATLAS Experiment Software
+#include <utility>
+
+
+
 #include "MuonCombinedEvent/MuonOverlapDescriptor.h"
 #include "GaudiKernel/MsgStream.h"
 
@@ -20,7 +24,7 @@ Rec::MuonOverlapDescriptor::MuonOverlapDescriptor (bool SharesIDTrack,
       m_totalPrecisionHits(TotalPrecisionHits),
       m_sharedSpectroPhiHits(SharedSpectroPhiHits),
       m_totalSpectroPhiHits(TotalSpectroPhiHits),
-      m_intersection(msIntersection)
+      m_intersection(std::move(msIntersection))
 {}
 
 /** defect constructor */
@@ -63,11 +67,11 @@ Rec::MuonOverlapDescriptor& Rec::MuonOverlapDescriptor::operator=(const MuonOver
 
 /** summary method if there is any overlap */
 bool Rec::MuonOverlapDescriptor::hasOverlap(unsigned int toleratedSharedhits) const {
-  if ( sharesIndetTrack() || sharesSpectroTrack() || 
+  return sharesIndetTrack() || sharesSpectroTrack() || 
+
        nSharedPrecisionHits()>toleratedSharedhits ||
-       nSharedSpectroPhiHits()>toleratedSharedhits )
-    return true;
-  else return false;
+
+       nSharedSpectroPhiHits()>toleratedSharedhits;
 }
 
 /** MsgStream output */

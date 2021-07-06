@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGC_LinearSegmentMakerTool/TGC_LinearSegmentMakerTool.h"
@@ -34,7 +34,7 @@ TGC_LinearSegmentMakerTool::TGC_LinearSegmentMakerTool(const std::string& type, 
 StatusCode
 TGC_LinearSegmentMakerTool::initialize()
 {
-    ATH_MSG_INFO("Initializing TGC_LinearSegmentMakerTool - package version " << PACKAGE_VERSION);
+    ATH_MSG_INFO("Initializing TGC_LinearSegmentMakerTool");
 
     const MuonGM::MuonDetectorManager* muDetMgr=nullptr;
     ATH_CHECK(detStore()->retrieve(muDetMgr));
@@ -110,18 +110,28 @@ TGC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
             double rho = pHit->globalPosition().perp();
             w *= rho * rho;
             Muon::Fit2D::Point* pPt =
-                new Muon::Fit2D::Point(iHit, pHit->globalPosition().z(), pHit->globalPosition().phi(), w, (void*)pHit);
+              new Muon::Fit2D::Point(iHit,
+                                     pHit->globalPosition().z(),
+                                     pHit->globalPosition().phi(),
+                                     w,
+                                     (const void*)pHit);
             phiPoints.push_back(pPt);
             const MuonGM::TgcReadoutElement* dEl =
                 dynamic_cast<const MuonGM::TgcReadoutElement*>(pHit->detectorElement());
             if (dEl) phiStations.insert(dEl->getStationName());
         } else {
-            Muon::Fit2D::Point* pPt =
-                new Muon::Fit2D::Point(iHit, pHit->globalPosition().z(), pHit->globalPosition().perp(), w, (void*)pHit);
-            rhoPoints.push_back(pPt);
-            const MuonGM::TgcReadoutElement* dEl =
-                dynamic_cast<const MuonGM::TgcReadoutElement*>(pHit->detectorElement());
-            if (dEl) rhoStations.insert(dEl->getStationName());
+          Muon::Fit2D::Point* pPt =
+            new Muon::Fit2D::Point(iHit,
+                                   pHit->globalPosition().z(),
+                                   pHit->globalPosition().perp(),
+                                   w,
+                                   (const void*)pHit);
+          rhoPoints.push_back(pPt);
+          const MuonGM::TgcReadoutElement* dEl =
+            dynamic_cast<const MuonGM::TgcReadoutElement*>(
+              pHit->detectorElement());
+          if (dEl)
+            rhoStations.insert(dEl->getStationName());
         }
     }
     std::vector<const Muon::MuonSegment*>* pMuonSegs = NULL;
@@ -258,7 +268,7 @@ TGC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
             }
         }
         Muon::MuonSegment* pMuonSeg = new Muon::MuonSegment(
-            pSegPos, pSegDir, pcov, const_cast<Trk::PlaneSurface*>(pSurface->clone()), pRios, pFitQuality);
+            pSegPos, pSegDir, pcov, pSurface->clone(), pRios, pFitQuality);
         if (msgLvl(MSG::DEBUG))
             //            pMuonSeg->dump(log);
             ATH_MSG_DEBUG("Created a new Muon::MuonSegment");

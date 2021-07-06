@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -32,6 +32,7 @@
 
 #include "TRT_DetElementsRoadTool_xk/TRT_DetElementsRoadMaker_xk.h"
 #include "TRT_DetElementsRoadTool_xk/TRT_DetElementsComparison.h"
+#include <cmath>
 
 
 ///////////////////////////////////////////////////////////////////
@@ -69,19 +70,12 @@ InDet::TRT_DetElementsRoadMaker_xk::~TRT_DetElementsRoadMaker_xk()
 StatusCode InDet::TRT_DetElementsRoadMaker_xk::initialize()
 {
   StatusCode sc = AlgTool::initialize();
-
   if(m_fieldmode == "NoField") m_fieldModeEnum = Trk::NoField;
   else if(m_fieldmode == "MapSolenoid") m_fieldModeEnum = Trk::FastField;
   else m_fieldModeEnum = Trk::FullField;
-
   // Get propagator tool
-  if (m_proptool.retrieve().isFailure() ) {
-    ATH_MSG_FATAL("Failed to retrieve tool " << m_proptool);
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_INFO("Retrieved tool " << m_proptool);
-  }
-
+  ATH_CHECK (m_proptool.retrieve());
+  ATH_MSG_INFO("Retrieved tool " << m_proptool);
   ATH_CHECK(m_roadDataKey.initialize());
   ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
 
@@ -137,9 +131,9 @@ MsgStream& InDet::TRT_DetElementsRoadMaker_xk::dumpConditions( MsgStream& out ) 
   const TRT_DetElementsLayerVectors_xk &layer = *getLayers();
 
   int maps = 0;
-  if(layer[0].size()) ++maps;
-  if(layer[1].size()) ++maps;
-  if(layer[2].size()) ++maps;
+  if(!layer[0].empty()) ++maps;
+  if(!layer[1].empty()) ++maps;
+  if(!layer[2].empty()) ++maps;
 
   out<<"|----------------------------------------------------------------------"
      <<"-------------------|"
@@ -155,7 +149,7 @@ MsgStream& InDet::TRT_DetElementsRoadMaker_xk::dumpConditions( MsgStream& out ) 
 
   if(!maps || !msgLvl(MSG::VERBOSE)) return out;
 
-  if(layer[1].size()) {
+  if(!layer[1].empty()) {
     int nl = layer[1].size();
     int nc = 0;
     for(unsigned int i=0; i!=layer[1].size(); ++i) nc+=layer[1][i].nElements();
@@ -187,7 +181,7 @@ MsgStream& InDet::TRT_DetElementsRoadMaker_xk::dumpConditions( MsgStream& out ) 
        <<std::endl;
 
   }
-  if(layer[0].size()) {
+  if(!layer[0].empty()) {
 
     int nl = layer[0].size();
     int nc = 0;
@@ -220,7 +214,7 @@ MsgStream& InDet::TRT_DetElementsRoadMaker_xk::dumpConditions( MsgStream& out ) 
     out<<"|------|-----------|------------|------------|------------|------|"
        <<std::endl;
   }
-  if(layer[2].size()) {
+  if(!layer[2].empty()) {
     int nl = layer[2].size();
     int nc = 0;
     for(unsigned int i=0; i!=layer[2].size(); ++i) nc+=layer[2][i].nElements();
@@ -282,84 +276,33 @@ std::ostream& InDet::TRT_DetElementsRoadMaker_xk::dump( std::ostream& out ) cons
 // Main methods for road builder
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoad
+std::vector<const InDetDD::TRT_BaseElement*>
+InDet::TRT_DetElementsRoadMaker_xk::detElementsRoad
 (const EventContext& ctx,
  MagField::AtlasFieldCache& fieldCache,
- const Trk::TrackParameters& Tp,Trk::PropDirection D,
- std::vector<const InDetDD::TRT_BaseElement*>& R) const
+ const Trk::TrackParameters& Tp,Trk::PropDirection D) const
 {
-
-  double qp   = fabs(500.*Tp.parameters()[4]) ; if( qp < 1.e-10  ) qp = 1.e-10;
-  double S    = m_step/qp                     ; if( S  > 200.    ) S  = 200.  ; if(D<0) S=-S;
-
+  double qp   = std::abs(500.*Tp.parameters()[4]) ; 
+  if( qp < 1.e-10  ) qp = 1.e-10;
+  double S    = m_step/qp                     ; 
+  if( S  > 200.    ) S  = 200.  ; 
+  if(D<0) S=-S;
   Trk::CylinderBounds CB = getBound(fieldCache, Tp);
-
   double rminTRT = getTRTMinR();
-
+  std::vector<const InDetDD::TRT_BaseElement*> result;
   if( CB.r() > rminTRT) {
     Trk::MagneticFieldMode fieldModeEnum(m_fieldModeEnum);
     if(!fieldCache.solenoidOn()) fieldModeEnum = Trk::NoField;
     Trk::MagneticFieldProperties fieldprop(fieldModeEnum);
-
     std::list<Amg::Vector3D> G;
     m_proptool->globalPositions(ctx, G,Tp,fieldprop,CB,S,Trk::pion);
-
     if(G.size() > 1 ) {
-      detElementsRoadATL(G,R);
+      detElementsRoadATL(G,result);
     }
   }
-
-  if (msgLvl(MSG::VERBOSE)) {
-    dumpEvent(msg(MSG::VERBOSE),R.size());
-    dumpConditions(msg(MSG::VERBOSE));
-    msg(MSG::VERBOSE) << endmsg;
-  }
+  return result;
 }
 
-///////////////////////////////////////////////////////////////////
-// Main methods for road builder
-///////////////////////////////////////////////////////////////////
-
-void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoad
-(const EventContext& ctx,
- MagField::AtlasFieldCache& fieldCache,
- const Trk::TrackParameters& Tp,
- Trk::PropDirection D,
- std::vector<std::pair<const InDetDD::TRT_BaseElement*,const Trk::TrackParameters*> >& R) const
-{
- std::vector<const InDetDD::TRT_BaseElement*> RE;
- detElementsRoad(ctx, fieldCache, Tp,D,RE);
-
- if (msgLvl(MSG::VERBOSE)) {
-    dumpEvent(msg(MSG::VERBOSE), R.size());
-    dumpConditions(msg(MSG::VERBOSE));
-    msg(MSG::VERBOSE) << endmsg;
- }
-
- std::vector<const InDetDD::TRT_BaseElement*>::const_iterator r=RE.begin(),re=RE.end();
- if(r==re) return;
-
- Trk::MagneticFieldMode fieldModeEnum(m_fieldModeEnum);
- if(!fieldCache.solenoidOn()) fieldModeEnum = Trk::NoField;
- Trk::MagneticFieldProperties fieldprop(fieldModeEnum);
-
- const Trk::TrackParameters* tp0 =
-   m_proptool->propagate(ctx, Tp,(*r)->surface(),D,false,fieldprop,Trk::pion);
- if(!tp0) return;
-
- std::pair<const InDetDD::TRT_BaseElement*,const Trk::TrackParameters*> EP0((*r),tp0);
- R.push_back(EP0);
-
- for(++r; r!=re; ++r) {
-
-   const Trk::TrackParameters* tp =
-     m_proptool->propagate(ctx, (*tp0),(*r)->surface(),D,false,fieldprop,Trk::pion);
-   if(!tp) return;
-
-   std::pair<const InDetDD::TRT_BaseElement*,const Trk::TrackParameters*> EP((*r),tp);
-   R.push_back(EP); tp0=tp;
- }
-}
 
 ///////////////////////////////////////////////////////////////////
 // Main methods for road builder using input list global positions
@@ -378,7 +321,7 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoadATL
   const TRT_DetElementsLayerVectors_xk &layer = *getLayers();
 
   float Po[6] = {float((*g).x()),float((*g).y()),float((*g).z()),
-		 float(sqrt((*g).x()*(*g).x()+(*g).y()*(*g).y())),m_width,0.};
+		 float(std::sqrt((*g).x()*(*g).x()+(*g).y()*(*g).y())),m_width,0.};
 
   for(; n0!=(int)layer[0].size(); ++n0) {if(Po[2] > layer[0][n0].z()) break;}
   for(; n1!=(int)layer[1].size(); ++n1) {if(Po[3] < layer[1][n1].r()) break;}
@@ -396,12 +339,13 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoadATL
   for(++g; g!=ge; ++g) {
 
     float Pn[4] = {float((*g).x()),float((*g).y()),float((*g).z()),
-		   float(sqrt((*g).x()*(*g).x()+(*g).y()*(*g).y()))};
+		   float(std::sqrt((*g).x()*(*g).x()+(*g).y()*(*g).y()))};
 
     float dx = Pn[0]-Po[0];
     float dy = Pn[1]-Po[1];
     float dz = Pn[2]-Po[2];
-    float st = sqrt(dx*dx+dy*dy+dz*dz); if(st <=0.) continue;
+    float st = std::sqrt(dx*dx+dy*dy+dz*dz); 
+    if(st <=0.) continue;
     float ds = 1./st;
     float A[3]= {dx*ds,dy*ds,dz*ds};
 
@@ -509,7 +453,7 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoadCTB
   const TRT_DetElementsLayerVectors_xk &layer = *getLayers();
 
   float Po[6] = {float((*g).x()),float((*g).y()),float((*g).z()),
-		 float(sqrt((*g).x()*(*g).x()+(*g).y()*(*g).y())),m_width,0.};
+		 float(std::sqrt((*g).x()*(*g).x()+(*g).y()*(*g).y())),m_width,0.};
 
   for(; n1!=(int)layer[1].size(); ++n1) {if(Po[3] < layer[1][n1].r()) break;}
 
@@ -525,12 +469,12 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoadCTB
   for(++g; g!=ge; ++g) {
 
     float Pn[4] = {float((*g).x()),float((*g).y()),float((*g).z()),
-		   float(sqrt((*g).x()*(*g).x()+(*g).y()*(*g).y()))};
+		   float(std::sqrt((*g).x()*(*g).x()+(*g).y()*(*g).y()))};
 
     float dx = Pn[0]-Po[0];
     float dy = Pn[1]-Po[1];
     float dz = Pn[2]-Po[2];
-    float st = sqrt(dx*dx+dy*dy+dz*dz);
+    float st = std::sqrt(dx*dx+dy*dy+dz*dz);
     float ds = 1./st;
     float A[3]= {dx*ds,dy*ds,dz*ds};
 
@@ -610,22 +554,22 @@ Trk::CylinderBounds InDet::TRT_DetElementsRoadMaker_xk::getBound
 
   const Trk::CylinderBounds bounds = get_bounds();
 
-  if( fabs(zfield) < .0000001    ) return bounds;
+  if( std::abs(zfield) < .0000001    ) return bounds;
 
   const AmgVector(5)&  Vp = Tp.parameters();
 
-  double cur  = zfield*Vp[4]/sin(Vp[3]);
+  double cur  = zfield*Vp[4]/std::sin(Vp[3]);
 
-  if( fabs(cur)*bounds.r() < cor ) return bounds;
+  if( std::abs(cur)*bounds.r() < cor ) return bounds;
 
   double rad  = 1./cur;
-  if(cor*fabs(rad) > bounds.r()  ) return bounds;
+  if(cor*std::abs(rad) > bounds.r()  ) return bounds;
 
   const  Amg::Vector3D& Gp = Tp.position()  ;
   double sn,cs; sincos(Vp[2],&sn,&cs);
   double xc   = Gp.x()+sn*rad            ;
   double yc   = Gp.y()-cs*rad            ;
-  double rm   = (sqrt(xc*xc+yc*yc)+fabs(rad))*cor;
+  double rm   = (std::sqrt(xc*xc+yc*yc)+std::abs(rad))*cor;
   if( rm          > bounds.r()   ) return bounds;
   Trk::CylinderBounds CB(rm,bounds.halflengthZ());
   return CB;

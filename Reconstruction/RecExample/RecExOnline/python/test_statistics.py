@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 Test statistic functions.
 """
@@ -8,6 +8,7 @@ import numpy as np
 import scipy.stats
 import scipy.interpolate
 import scipy.special
+import statsmodels.api as sm
 import warnings
 import distributions as distr
 from sympy import binomial, log
@@ -94,7 +95,7 @@ def ks_2samp(data1, data2, binned=False):
     (0.07999999999999996, 0.41126949729859719)
 
     """
-    if binned == True:
+    if binned is True:
         cdf1 = np.cumsum(data1)
         cdf2 = np.cumsum(data2)
         n1 = cdf1[-1]
@@ -106,7 +107,7 @@ def ks_2samp(data1, data2, binned=False):
         n1 = data1.shape[0]
         n2 = data2.shape[0]
         ndf = float("nan")
-        if binned == False:
+        if binned is False:
             data1 = np.sort(data1)
             data2 = np.sort(data2)
             data_all = np.concatenate([data1, data2])
@@ -129,7 +130,7 @@ def ks_2samp(data1, data2, binned=False):
     en = np.sqrt(n1 * n2 / float(n1 + n2))
     try:
         prob = scipy.stats.distributions.kstwobign.sf((en + 0.12 + 0.11 / en) * d)
-    except:
+    except Exception:
         prob = 1.0
     if DEBUG:
         global statistic_seq
@@ -169,7 +170,7 @@ def chi2_2samp(data1, data2, normed=True, binned=True):
     This code is modified from scipy.stats.chisquare and extended with supporting on
     2 sample cases and shape comparison test. 
     """
-    if binned == True:
+    if binned is True:
         filter = ~((data1 == 0.) & (data2 == 0.))
         data1 = data1[filter] 
         data2 = data2[filter] 
@@ -385,7 +386,7 @@ def _anderson_ksamp_right(samples, Z, Zstar, k, n, N):
     A2kN = 0.
     lj = Z.searchsorted(Zstar[:-1], 'right') - Z.searchsorted(Zstar[:-1],  'left')
     Bj = lj.cumsum()
-    for i in arange(0, k):
+    for i in range(0, k):
         s = np.sort(samples[i])
         Mij = s.searchsorted(Zstar[:-1], side='right')
         inner = lj / float(N) * (N * Mij - Bj * n[i])**2 / (Bj * (N - Bj))

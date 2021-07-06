@@ -36,10 +36,10 @@ namespace Trk {
   struct SurfaceNtupleBranch {
 
     /** initialize class for writing */
-    void initForWrite(TTree& tree, std::string prefix = "" );
+    void initForWrite(TTree& tree, const std::string& prefix = "" );
 
     /** initialize class for reading */
-    void initForRead(TTree& tree, std::string prefix = "" );
+    void initForRead(TTree& tree, const std::string& prefix = "" );
     
     /** fill a vector */
     void fill( const Trk::Surface& surface );

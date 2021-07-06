@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef RPCRODDecode_H
-#define RPCRODDecode_H
+#ifndef TrigT1RPChardware_RPCRODDecode_H
+#define TrigT1RPChardware_RPCRODDecode_H
 
 #include "TrigT1RPChardware/Lvl1Def.h"
 #include "TrigT1RPChardware/RPCRODStructure.h"

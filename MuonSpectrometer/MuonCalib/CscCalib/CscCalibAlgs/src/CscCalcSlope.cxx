@@ -400,7 +400,7 @@ namespace MuonCalib {
 
           for(int stripItr = 0; stripItr <numStrips; stripItr++)
           {
-            Identifier stripId =m_cscRdoDecoderTool->channelIdentifier(cluster, stripItr);
+            Identifier stripId =m_cscRdoDecoderTool->channelIdentifier(cluster, &m_idHelperSvc->cscIdHelper(), stripItr);
             IdentifierHash cscChannelHashId;
             m_idHelperSvc->cscIdHelper().get_channel_hash(stripId, cscChannelHashId);
             int stripHash = cscChannelHashId;

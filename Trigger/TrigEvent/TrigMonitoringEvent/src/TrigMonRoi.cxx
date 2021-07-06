@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // C/C++
@@ -7,9 +7,8 @@
 #include <iostream>
 #include <sstream>
 
-// Local
+#include "AthenaKernel/errorcheck.h"
 #include "TrigMonitoringEvent/TrigMonRoi.h"
-#include "TrigMonMSG.h"
 
 namespace RoiBits
 {
@@ -24,14 +23,7 @@ namespace RoiBits
   //const uint32_t shiftFree = 20;
 }
 
-namespace MSGService
-{
-  static TrigMonMSG msg("TrigMonRoi");
-}
-
-using namespace std;
-
-//--------------------------------------------------------------------------------------      
+//--------------------------------------------------------------------------------------
 TrigMonRoi::TrigMonRoi()
   :m_word(1, 0)
 {
@@ -91,7 +83,8 @@ void TrigMonRoi::setNL1th(unsigned int lt)
     m_word[1] |= (lt << RoiBits::shiftL1);
   }
   else {
-    MSGService::msg.Log("setL1thresholds error! Value is out of range: ",MSG::ERROR);
+    REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "TrigMonRoi")
+      << "setL1thresholds error! Value is out of range: " << lt;
   }
 }
 
@@ -140,7 +133,8 @@ void TrigMonRoi::addVar(const TrigMonVar &var)
     m_var_key.push_back(var.getKey());
     m_var_val.push_back(var.getData());
   } else {
-    MSGService::msg.Log("Cannot add a var with key < 9 (internal use only) ",MSG::ERROR);
+    REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "TrigMonRoi")
+      << "Cannot add a var with key < 9 (internal use only)";
   }
 }
 
@@ -273,7 +267,7 @@ float TrigMonRoi::getVarVal( const uint32_t key ) const
 //--------------------------------------------------------------------------------------      
 void TrigMonRoi::print(std::ostream &os)
 {
-  os << str(*this) << endl;
+  os << str(*this) << std::endl;
 }
 
 //--------------------------------------------------------------------------------------  

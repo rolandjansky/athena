@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRPC_CNVTOOL_IRPC_RDO_Decoder_H
@@ -12,8 +12,6 @@ class RpcDigit;
 class RpcFiredChannel;
 class RpcCablingCondData;
 
-static const InterfaceID IID_IRPC_RDO_Decoder("Muon::IRPC_RDO_Decoder", 1, 0);
-
 namespace Muon {
 
 /** This class provides conversion from RDO data to RPC RDO
@@ -21,8 +19,8 @@ namespace Muon {
 
 class IRPC_RDO_Decoder : virtual public IAlgTool {
 
-public: 
-  static const InterfaceID& interfaceID( ) { return IID_IRPC_RDO_Decoder; };
+public:
+  DeclareInterfaceID( IRPC_RDO_Decoder, 1, 0 );
   
 
   virtual std::vector<RpcDigit*>* getDigit(const RpcFiredChannel* fChan,

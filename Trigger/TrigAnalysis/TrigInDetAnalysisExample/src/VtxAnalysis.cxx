@@ -72,7 +72,7 @@ void VtxAnalysis::initialise() {
 
 
 
-  hnvtx   = new TH1F( "vx_nvtx", ";number of vertices",   100, -0.5,  100.5   );
+  hnvtx   = new TH1F( "vx_nvtx", ";number of vertices",   101, -0.5,  100.5   );
   hzed    = new TH1F( "vx_zed",   ";vtx z [mm]",          100, -250,   250   );
   hntrax  = new TH1F( "vx_ntrax", ";number of tracks",    100,   vnbins );
 
@@ -81,7 +81,7 @@ void VtxAnalysis::initialise() {
   addHistogram( hntrax );
 
 
-  hnvtx_rec  = new TH1F( "vx_nvtx_rec",  ";number of vertices",   100, -0.5,  100.5   );
+  hnvtx_rec  = new TH1F( "vx_nvtx_rec",  ";number of vertices",   101, -0.5,  100.5   );
   hzed_rec   = new TH1F( "vx_zed_rec",   ";vtx z [mm]",           100, -250,   250   );
   hntrax_rec = new TH1F( "vx_ntrax_rec", ";number of tracks",     100,  vnbins );
 
@@ -105,7 +105,7 @@ void VtxAnalysis::initialise() {
 
   eff_zed   = new TProfile( "vx_zed_eff", "zed_eff;efficiency;offline vtx z [mm]",       50, -250,  250   );
   eff_ntrax = new TProfile( "vx_ntrax_eff", "ntrax_eff;number of tracks;efficiency",    100, vnbins );
-  eff_nvtx  = new TProfile( "vx_nvtx_eff",  "nvtx_eff;number of vertices;efficiency",  100, -0.5,  100.5   );
+  eff_nvtx  = new TProfile( "vx_nvtx_eff",  "nvtx_eff;number of vertices;efficiency",  101, -0.5,  100.5   );
   eff_mu    = new TProfile( "vx_mu_eff",     "mu_eff;<#mu>;efficiency",                 61, -0.5,  60.5   );
   eff_lb    = new TProfile( "vx_lb_eff",     "lb_eff;lumi block;efficiency",           151, -0.5,  3019.5   );
  

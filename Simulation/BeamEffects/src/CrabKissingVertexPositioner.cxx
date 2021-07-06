@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// CrabKissingVertexPositioner.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 // class header include
 #include "CrabKissingVertexPositioner.h"
@@ -29,35 +25,9 @@ namespace Simulation
   CrabKissingVertexPositioner::CrabKissingVertexPositioner( const std::string& t,
                                                             const std::string& n,
                                                             const IInterface* p )
-    : base_class(t,n,p),
-      m_rndGenSvc("AthRNGSvc", n),
-      m_randomEngine(0),
-      m_randomEngineName("VERTEX"),
-      m_bunchShapeProp("GAUSS"),
-      m_bunchShape(BunchShape::GAUSS),
-      m_bunchLength(75.),// 75.0 mm
-      m_betaStar(150.),
-      m_epsilon(2.5e-3),
-      m_alphaPar(0.),
-      m_alphaX(295e-6),
-      m_thetaX(295e-6)
+    : base_class(t,n,p)
   {
-    // declare properties for the configuration
-    declareProperty( "RandomSvc"    , m_rndGenSvc,        ""                                                );
-    declareProperty( "RandomStream" , m_randomEngineName, "Name of the random number stream"                );
-    declareProperty( "BunchShape"   , m_bunchShapeProp,   "GAUSS or FLAT"                                   );
     m_bunchShapeProp.declareUpdateHandler(&CrabKissingVertexPositioner::BunchShapeHandler, this);
-    declareProperty( "BunchLength"  , m_bunchLength,      ""                                                );
-    declareProperty( "BetaStar"     , m_betaStar,         "beta* in the parallel (kissing) plane, units: mm");
-    declareProperty( "Epsilon"      , m_epsilon,          "Normalized emittance, unit: mm"                  );
-    declareProperty( "AlfaParallel" , m_alphaPar,         "Kissing angle (Radians)"                         );
-    declareProperty( "AlfaX"        , m_alphaX,           ""                                                );
-    declareProperty( "ThetaX"       , m_thetaX,           ""                                                );
-  }
-
-  /** Destructor */
-  CrabKissingVertexPositioner::~CrabKissingVertexPositioner()
-  {
   }
 
   void CrabKissingVertexPositioner::BunchShapeHandler(Gaudi::Details::PropertyBase&)

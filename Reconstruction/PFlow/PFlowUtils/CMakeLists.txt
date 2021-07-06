@@ -9,7 +9,7 @@ atlas_add_library( PFlowUtilsLib
    PUBLIC_HEADERS PFlowUtils
    LINK_LIBRARIES AsgTools xAODPFlow )
 
-if( NOT XAOD_STANDALONE )
+if( NOT XAOD_ANALYSIS )
    atlas_add_component( PFlowUtils
       src/*.h src/*.cxx src/components/*.cxx
       LINK_LIBRARIES AthContainers AthenaBaseComps xAODJet xAODPFlow xAODTruth

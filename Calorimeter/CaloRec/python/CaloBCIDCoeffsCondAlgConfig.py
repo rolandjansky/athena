@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # File: CaloRec/python/CaloBCIDCoeffsCondAlgConfig.py
 # Created: Mar 2020, sss
@@ -35,6 +35,9 @@ def CaloBCIDCoeffsCondAlgCfg (flags):
         result.addCondAlgo(LArShapeSymAlg("LArPileUpShapeSymCondAlg",ReadKey="LArShape32",WriteKey="LArShape32Sym"))
 
         ShapeKey = 'LArShape32Sym'
+
+        from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
+        result.merge (LArElecCalibDbCfg (flags, ['OFC']))
     else:
         from LArRecUtils.LArADC2MeVCondAlgConfig import LArADC2MeVCondAlgCfg
         from LArRecUtils.LArRecUtilsConfig import LArOFCCondAlgCfg, LArAutoCorrTotalCondAlgCfg

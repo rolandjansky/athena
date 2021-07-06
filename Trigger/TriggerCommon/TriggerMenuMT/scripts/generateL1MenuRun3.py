@@ -20,7 +20,10 @@ def generateL1Menu(menu, cmdline):
     from AthenaCommon.Logging import logging
     log = logging.getLogger(sys.argv[0].split('/')[-1])
     log.setLevel(logging.INFO)
-    logging.getLogger("TriggerMenuMT.LVL1.Lvl1Menu").setLevel(logging.INFO)
+    logging.getLogger("Menu.L1.L1MenuConfig").setLevel(logging.INFO)
+    if cmdline.verbose:
+        log.setLevel(logging.DEBUG)
+        logging.getLogger("Menu.L1.L1MenuConfig").setLevel(logging.DEBUG)
 
     # setup
 
@@ -28,17 +31,21 @@ def generateL1Menu(menu, cmdline):
     from TriggerMenuMT.L1.L1MenuConfig import L1MenuConfig
     l1cfg = L1MenuConfig( menu )
 
-    from TrigConfigSvc.TrigConfigSvcCfg import getL1MenuFileName
+    from TrigConfigSvc.TrigConfigSvcCfg import getL1MenuFileName, getBunchGroupSetFileName
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.Trigger.triggerMenuSetup = menu
-    l1cfg.writeJSON( outputFile = getL1MenuFileName(ConfigFlags), destdir = cmdline.dest)
+    l1cfg.writeJSON(outputFile=getL1MenuFileName(ConfigFlags),
+                    bgsOutputFile=getBunchGroupSetFileName(ConfigFlags),
+                    destdir=cmdline.dest)
 
     return l1cfg.l1menu
 
 
 def generateDefaultMCBunchgroupSet(cmdline):
-    from TriggerMenuMT.L1.Base.BunchGroupSet import createMCDefaultBunchGroupSet
-    bgs = createMCDefaultBunchGroupSet()
+    from TriggerMenuMT.L1.Base.Limits import Limits
+    from TriggerMenuMT.L1.Base.BunchGroupSet import createDefaultBunchGroupSet
+    Limits.setLimits(CTPVersion=4)
+    bgs = createDefaultBunchGroupSet()
     bgs.writeJSON( outputFile = "L1BunchGroupSet.json", destdir = cmdline.dest)
     
 

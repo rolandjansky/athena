@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArROD/LArRawChannelSimpleBuilder.h"
@@ -7,8 +7,11 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "LArIdentifier/LArOnlID_Exception.h"
+#include "LArIdentifier/LArOnlineID.h"
 #include "StoreGate/ReadHandle.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/WriteHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "LArElecCalib/ILArPedestal.h"
 
@@ -25,7 +28,6 @@ LArRawChannelSimpleBuilder::LArRawChannelSimpleBuilder (const std::string& name,
   m_fcalId(0),
   m_hecId(0),
   m_onlineHelper(0),
-  m_adc2mevTool("LArADC2MeVTool"),
   m_peakParabolaTool("LArParabolaPeakTool"),
   m_iPedestal(0)// jobO ?
 {
@@ -43,7 +45,6 @@ LArRawChannelSimpleBuilder::LArRawChannelSimpleBuilder (const std::string& name,
  declareProperty("AverageScaleEM",m_averageScaleEM=2.6); 
  declareProperty("AverageScaleHEC",m_averageScaleHEC=2.6); 
  declareProperty("AverageScaleFCAL",m_averageScaleFCAL=1.8); 
- declareProperty("ADC2MeVTool",m_adc2mevTool);
 
  // m_peakParabolaTool = NULL ; // FIXME RS use empty ToolHandle - python
 
@@ -72,9 +73,7 @@ StatusCode LArRawChannelSimpleBuilder::initialize()
 {
   ATH_MSG_DEBUG( "In Initialize."  );
 
-  if (m_useRampDB) {
-    ATH_CHECK( m_adc2mevTool.retrieve() );
-  }
+  ATH_CHECK( m_adc2mevKey.initialize (m_useRampDB) );
   
   if ( m_mode == "PARABOLA"){
     if (m_peakParabolaTool.retrieve().isFailure())
@@ -134,6 +133,12 @@ StatusCode LArRawChannelSimpleBuilder::execute (const EventContext& ctx) const
   if(!cabling) {
      ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
      return StatusCode::FAILURE;
+  }
+
+  const LArADC2MeV* adc2mev = nullptr;
+  if (m_useRampDB) {
+    SG::ReadCondHandle<LArADC2MeV> adc2mevH (m_adc2mevKey, ctx);
+    adc2mev = *adc2mevH;
   }
 
   //loop twice over the digits. In the first pass the best window is
@@ -260,11 +265,6 @@ StatusCode LArRawChannelSimpleBuilder::execute (const EventContext& ctx) const
 
       if ( iloop == 0 ) {
 
-        if (pSum == 0) {
-          ATH_MSG_ERROR( " don't have pSum pointer." );
-          continue;
-        }
-  
 	if ( pSum->size() == 0) 
 //	  pSum->resize(nSamples-nAverage+1,0);
 	  pSum->resize(nSamples,0);
@@ -466,9 +466,9 @@ StatusCode LArRawChannelSimpleBuilder::execute (const EventContext& ctx) const
 	if (m_useRampDB) {
 	  float ADCPeakPower=ADCPeak;
 	  //ADC2MeV (a.k.a. Ramp)   
-	  const std::vector<float>& ramp=m_adc2mevTool->ADC2MEV(chid,gain);
+	  LArVectorProxy ramp = adc2mev->ADC2MEV(chid,gain);
 	  //Check ramp coefficents
-	  if (ramp.size()>0 && ramp[1]<500 && ramp[1]>0) {
+	  if (ramp.size()>1 && ramp[1]<500 && ramp[1]>0) {
 	    energy=0;
 	    for (unsigned i=1;i<ramp.size();i++)
 	      {energy+=ramp[i]*ADCPeakPower; //pow(ADCPeak,i);
@@ -541,13 +541,13 @@ StatusCode LArRawChannelSimpleBuilder::execute (const EventContext& ctx) const
       unsigned int i;
       float tmpSum = 0;
 
-      for(i=0;i<fSumEM.size();i++) {
-	if (i == 0 || fSumEM[i] > tmpSum ) {
-	  nMinEM = i;
-	  tmpSum = fSumEM[i];
-	}
-      }
       if ( fSumEM.size() > 0 ) {
+        for(i=0;i<fSumEM.size();i++) {
+	  if (i == 0 || fSumEM[i] > tmpSum ) {
+	    nMinEM = i;
+	    tmpSum = fSumEM[i];
+	  }
+        }
 	ATH_MSG_DEBUG( "Found best EM window starting at sample <" << nMinEM << ">"  );
       }
 

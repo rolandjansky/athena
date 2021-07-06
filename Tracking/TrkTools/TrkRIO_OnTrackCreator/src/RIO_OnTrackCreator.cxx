@@ -26,35 +26,10 @@
 Trk::RIO_OnTrackCreator::RIO_OnTrackCreator(const std::string& t,
 			      const std::string& n,
 			      const IInterface* p)
-  :  AthAlgTool(t,n,p),
-     m_idHelper(nullptr),
-     m_pixClusCor        ("InDet::PixelClusterOnTrackTool/PixelClusterOnTrackTool", this),
-     m_sctClusCor        ("InDet::SCT_ClusterOnTrackTool/SCT_ClusterOnTrackTool", this),
-     m_trt_Cor           ("InDet::TRT_DriftCircleOnTrackTool/TRT_DriftCircleOnTrackTool", this),
-     m_muonDriftCircleCor("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackTool", this),
-     m_muonClusterCor    ("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackTool", this),
-     m_mmClusterCor      ("Muon::MMClusterOnTrackCreator/MMClusterOnTrackTool", this),
-     m_mode ("all"),
-     m_nwarning (new int(0)),
-     m_doPixel(true),
-     m_doSCT(true),
-     m_doTRT(true)
- {
-   declareInterface<IRIO_OnTrackCreator>(this);
-   declareProperty("ToolPixelCluster"   ,m_pixClusCor);
-   declareProperty("ToolSCT_Cluster"    ,m_sctClusCor);
-   declareProperty("ToolTRT_DriftCircle",m_trt_Cor);
-   declareProperty("ToolMuonDriftCircle",m_muonDriftCircleCor);
-   declareProperty("ToolMuonCluster"    ,m_muonClusterCor);
-   declareProperty("ToolMuonMMCluster"  ,m_mmClusterCor);
-   declareProperty("Mode"               ,m_mode);
- }
+  :  AthAlgTool(t,n,p){}
 
 // destructor
-Trk::RIO_OnTrackCreator::~RIO_OnTrackCreator()
-{
-  delete m_nwarning;
-} 
+Trk::RIO_OnTrackCreator::~RIO_OnTrackCreator() = default;
 
 // initialise
 StatusCode Trk::RIO_OnTrackCreator::initialize()
@@ -113,8 +88,10 @@ StatusCode Trk::RIO_OnTrackCreator::initialize()
     ATH_CHECK(m_muonClusterCor.retrieve());
     ATH_MSG_INFO("Retrieved tool " << m_muonClusterCor);
 
-    ATH_CHECK(m_mmClusterCor.retrieve());
-    ATH_MSG_INFO("Retrieved tool " << m_mmClusterCor);
+    if (!m_mmClusterCor.empty()){
+      ATH_CHECK(m_mmClusterCor.retrieve());
+      ATH_MSG_INFO("Retrieved tool " << m_mmClusterCor);  
+    }
   } else{
     m_muonClusterCor.disable();
     m_muonDriftCircleCor.disable();

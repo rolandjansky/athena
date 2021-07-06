@@ -1,17 +1,11 @@
-from __future__ import print_function
-from future.utils import iteritems
-from builtins import object
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.transform
 #
 # @brief Main package for new style ATLAS job transforms
 # @details Core class for ATLAS job transforms
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: transform.py 785618 2016-11-21 22:03:04Z uworlika $
-# 
-
-__version__ = '$Revision'
+#
 
 import argparse
 import os
@@ -255,7 +249,7 @@ class transform(object):
             # Need to know if any input or output files were set - if so then we suppress the
             # corresponding parameters from AMI
             inputFiles = outputFiles = False
-            for k, v in iteritems(self._argdict):
+            for k, v in self._argdict.items():
                 if k.startswith('input') and isinstance(v, argFile):
                     inputFiles = True
                 elif k.startswith('output') and isinstance(v, argFile):
@@ -272,7 +266,7 @@ class transform(object):
                 from PyJobTransforms.trfAMI import TagInfo
                 tag=TagInfo(self._argdict['AMIConfig'].value)
                 updateDict = {}
-                for k, v in iteritems(dict(tag.trfs[0])):
+                for k, v in dict(tag.trfs[0]).items():
                     # Convert to correct internal key form
                     k = cliToKey(k)
                     if inputFiles and k.startswith('input'):
@@ -308,10 +302,15 @@ class transform(object):
                 extraParameters.update(updateDict)
                 
             # Process anything we found
-            for k,v in iteritems(extraParameters):
+            for k,v in extraParameters.items():
                 msg.debug('Found this extra argument: {0} with value: {1} ({2})'.format(k, v, type(v)))
-                if k not in self.parser._argClass:
+                if k not in self.parser._argClass and k not in self.parser._argAlias:
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_ERROR'), 'Argument "{0}" not known (try "--help")'.format(k))
+                # Check if it is an alias
+                if k in self.parser._argAlias:
+                    msg.debug('Resolving alias from {0} to {1}'.format(k, self.parser._argAlias[k]))
+                    k = self.parser._argAlias[k]
+                # Check if argument has already been set
                 if k in self._argdict:
                     msg.debug('Ignored {0}={1} as extra parameter because this argument was given on the command line.'.format(k, v))
                     continue
@@ -324,7 +323,7 @@ class transform(object):
 
             # Set the key name as an argument property - useful to be able to look bask at where this
             # argument came from
-            for k, v in iteritems(self._argdict):
+            for k, v in self._argdict.items():
                 if isinstance(v, argument):
                     v.name = k
                     
@@ -489,7 +488,7 @@ class transform(object):
         self._inputData = list()
         self._outputData = list()
         
-        for key, value in iteritems(self._argdict):
+        for key, value in self._argdict.items():
             # Note specifier [A-Za-z0-9_]+? makes this match non-greedy (avoid swallowing the optional 'File' suffix)
             m = re.match(r'(input|output|tmp)([A-Za-z0-9_]+?)(File)?$', key)
             # N.B. Protect against taking argunents which are not type argFile
@@ -541,7 +540,7 @@ class transform(object):
     def _doSteering(self, steeringDict = None):
         if not steeringDict:
             steeringDict = self._argdict['steering'].value
-        for substep, steeringValues in iteritems(steeringDict):
+        for substep, steeringValues in steeringDict.items():
             foundSubstep = False
             for executor in self._executors:
                 if executor.name == substep or executor.substep == substep:
@@ -721,7 +720,7 @@ class transform(object):
     def getFiles(self, io = None):
         res = []
         msg.debug('Looking for file arguments matching: io={0}'.format(io))
-        for argName, arg in iteritems(self._argdict):
+        for argName, arg in self._argdict.items():
             if isinstance(arg, argFile):
                 msg.debug('Argument {0} is argFile type ({1!s})'.format(argName, arg))
                 if io is not None and arg.io != io:

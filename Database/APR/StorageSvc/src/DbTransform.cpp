@@ -5,6 +5,7 @@
 #include "PersistentDataModel/Guid.h"
 #include "StorageSvc/DbTransform.h"
 #include "StorageSvc/DbTypeInfo.h"
+#include "CxxUtils/checker_macros.h"
 #include <algorithm>
 #include <map>
 
@@ -28,7 +29,7 @@ namespace {
     ShapeVector m_ownedShapes;
    
     static _Init& instance()  {
-      static _Init _inst;
+      static _Init _inst ATLAS_THREAD_SAFE; // Protected by shapesMutex
       return _inst;
     }
     _Init() {}

@@ -37,8 +37,9 @@ StatusCode MdtRdoToMdtPrepData::initialize()
 
     //Nullify key from scheduler if not needed  
     if(!m_seededDecoding){
-      m_roiCollectionKey = "";
-      m_mdtCollection="";
+      ATH_CHECK(m_roiCollectionKey.initialize(false));
+      ATH_CHECK(m_mdtCollection.initialize(false));
+      m_regsel_mdt.disable();
     }
     if(m_seededDecoding){
       ATH_CHECK(m_roiCollectionKey.initialize());
@@ -60,7 +61,6 @@ StatusCode MdtRdoToMdtPrepData::execute()
     
     std::vector<IdentifierHash> myVector;
     std::vector<IdentifierHash> myVectorWithData;
-    myVector.reserve(0); // empty vector 
 
     if(m_seededDecoding){//decoding from trigger roi
       bool decoded = false;

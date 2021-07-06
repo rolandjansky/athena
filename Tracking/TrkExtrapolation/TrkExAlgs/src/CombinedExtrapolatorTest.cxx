@@ -21,8 +21,8 @@ Trk::CombinedExtrapolatorTest::CombinedExtrapolatorTest(const std::string& name,
   :
   AthAlgorithm(name,pSvcLocator),
   m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-  m_gaussDist(0),
-  m_flatDist(0),
+  m_gaussDist(nullptr),
+  m_flatDist(nullptr),
   m_sigmaD0(17.*Gaudi::Units::micrometer),                   
   m_minZ0(-25000.),
   m_maxZ0(+25000.),
@@ -30,8 +30,8 @@ Trk::CombinedExtrapolatorTest::CombinedExtrapolatorTest(const std::string& name,
   m_maxEta(3.),                    
   m_minP(0.5*Gaudi::Units::GeV),                      
   m_maxP(50000.*Gaudi::Units::GeV),
-  m_outerBoundary(0),
-  m_trackingGeometry(0),
+  m_outerBoundary(nullptr),
+  m_trackingGeometry(nullptr),
   m_particleType(Trk::muon)
 {
   // used algorithms and alg tools

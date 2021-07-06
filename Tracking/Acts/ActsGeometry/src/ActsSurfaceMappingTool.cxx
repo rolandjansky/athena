@@ -38,7 +38,8 @@ ActsSurfaceMappingTool::initialize()
 
   m_trackingGeometry = m_trackingGeometryTool->trackingGeometry();
 
-  Acts::Navigator navigator(m_trackingGeometry);
+  Acts::Navigator navigator( Acts::Navigator::Config{ m_trackingGeometry } );
+  
   // Make stepper and propagator
   SlStepper stepper;
   StraightLinePropagator propagator = StraightLinePropagator(std::move(stepper), std::move(navigator));
@@ -51,7 +52,7 @@ ActsSurfaceMappingTool::initialize()
       std::move(propagator),
       makeActsAthenaLogger(this, "SurfaceMaterialMapper"));
 
-  m_geoContext = m_trackingGeometryTool->getNominalGeometryContext().any();
+  m_geoContext = m_trackingGeometryTool->getNominalGeometryContext().context();
 
   ATH_MSG_INFO("ACTS Surface Mapper successfully initialized");
   return StatusCode::SUCCESS;

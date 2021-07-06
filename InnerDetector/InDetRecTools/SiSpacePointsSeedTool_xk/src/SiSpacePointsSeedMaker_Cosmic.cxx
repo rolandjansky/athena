@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,6 +13,8 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "SiSpacePointsSeedTool_xk/SiSpacePointsSeedMaker_Cosmic.h"
+
+#include <cmath>
 
 #include <iomanip>
 #include <ostream>
@@ -188,7 +190,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newRegion
   erase(data);
   data.i_spforseed = data.l_spforseed.begin();
 
-  float irstep = 1./m_r_rstep;
+  float irstep = 1.f/m_r_rstep;
   float errorsc[4] = {16.,16.,100.,16.};
 
   SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
@@ -203,14 +205,14 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newRegion
 
   // Get pixels space points containers from store gate 
   //
-  if (m_pixel && vPixel.size()) {
+  if (m_pixel && !vPixel.empty()) {
 
     SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel, ctx};
     if (spacepointsPixel.isValid()) {
       // Loop through all trigger collections
       //
       for (const IdentifierHash& l: vPixel) {
-	auto w = spacepointsPixel->indexFindPtr(l);
+	const auto *w = spacepointsPixel->indexFindPtr(l);
 	if (w==nullptr) continue;
         for (const Trk::SpacePoint* sp: *w) {
 	  float r = sp->r();
@@ -230,7 +232,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newRegion
 
   // Get sct space points containers from store gate 
   //
-  if (m_sct && vSCT.size()) {
+  if (m_sct && !vSCT.empty()) {
 
     SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT, ctx};
     if (spacepointsSCT.isValid()) {
@@ -238,7 +240,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newRegion
       // Loop through all trigger collections
       //
       for (const IdentifierHash& l: vSCT) {
-	auto w = spacepointsSCT->indexFindPtr(l);
+	const auto *w = spacepointsSCT->indexFindPtr(l);
 	if (w==nullptr) continue;
         for (const Trk::SpacePoint* sp: *w) {
 	  float r = sp->r();
@@ -486,8 +488,8 @@ MsgStream& InDet::SiSpacePointsSeedMaker_Cosmic::dumpEvent(EventData& data, MsgS
 
 void InDet::SiSpacePointsSeedMaker_Cosmic::buildFrameWork() 
 {
-  m_rapcut  = fabs(m_rapcut);
-  m_dzdrmax = 1./tan(2.*atan(exp(-m_rapcut)));
+  m_rapcut  = std::abs(m_rapcut);
+  m_dzdrmax = 1.f/std::tan(2.f*std::atan(std::exp(-m_rapcut)));
   m_dzdrmin = -m_dzdrmax;
 
   // Build radius sorted containers
@@ -692,7 +694,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3Sp(const EventContext& ctx
   if (!K) return production3SpWithoutField(data);
 
   float ipt = 100000000.;
-  if (m_ptmin!=0.) ipt= 1./fabs(.9*m_ptmin);
+  if (m_ptmin!=0.) ipt= 1.f/std::abs(.9f*m_ptmin);
 
   const int   ZI[SizeZ]= {5,6,7,8,9,10,4,3,2,1,0};
   std::vector<InDet::SiSpacePointForSeed*>::iterator rt[9],rte[9],rb[9],rbe[9];
@@ -737,7 +739,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3SpWithoutField(EventData& 
 { 
 
   float ipt = 100000000.;
-  if (m_ptmin!=0.) ipt= 1./fabs(.9*m_ptmin);
+  if (m_ptmin!=0.) ipt= 1.f/std::abs(.9f*m_ptmin);
   const int   ZI[SizeZ]= {5,6,7,8,9,10,4,3,2,1,0};
   std::vector<InDet::SiSpacePointForSeed*>::iterator rt[9],rte[9],rb[9],rbe[9];
 
@@ -821,8 +823,8 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3Sp
 
 	float x  = dx*ax+dy*ay ;
 	float y  =-dx*ay+dy*ax ;
-	float r2 = 1./(x*x+y*y);
-	float dr = sqrt(r2);
+	float r2 = 1.f/(x*x+y*y);
+	float dr = std::sqrt(r2);
 	data.Tz[Nb] = -dz*dr;
         
 	if (data.Tz[Nb]<m_dzdrmin || data.Tz[Nb]>m_dzdrmax) continue;
@@ -857,8 +859,8 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3Sp
 
 	float x  = dx*ax+dy*ay;
 	float y  =-dx*ay+dy*ax;
-	float r2 = 1./(x*x+y*y);
-	float dr = sqrt(r2);
+	float r2 = 1.f/(x*x+y*y);
+	float dr = std::sqrt(r2);
 	data.Tz[Nt] = dz*dr;
 	if (data.Tz[Nt]<m_dzdrmin || data.Tz[Nt]>m_dzdrmax) continue;
 	
@@ -880,16 +882,16 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3Sp
     for (int b=Nb-1; b>=0; --b) {
       float SA  = 1.+data.Tz[b]*data.Tz[b];
       for (int t=Nb; t<Nt; ++t) {
-	float Ts = .5*(data.Tz[b]+data.Tz[t]);
+	float Ts = .5f*(data.Tz[b]+data.Tz[t]);
 	float dt =  data.Tz[b]-data.Tz[t]    ;
 	float dT = dt*dt-data.Er[b]-data.Er[t]-2.*data.R[b]*data.R[t]*(Ts*Ts*covr0+covz0);
 	if ( dT > 0. && dT > (ipt*ipt)*COF*SA ) continue;
 	float dU = data.U[t]-data.U[b]; if (dU == 0.) continue;
 	float A  = (data.V[t]-data.V[b])/dU                  ;
 	float B  =  data.V[t]-A*data.U[t]                    ;
-	float S2 = 1.+A*A                              ;
-	float S  = sqrt(S2)                            ;
-	float BK = fabs(B*K)                           ;
+	float S2 = 1.f+A*A                              ;
+	float S  = std::sqrt(S2)                            ;
+	float BK = std::abs(B*K)                           ;
 	if (BK > ipt*S) continue                       ; // Momentum    cut
 	dT       -= ((BK*BK)*COF*SA/S2)                ;
 	if (dT > 0.) continue                          ; // Polar angle cut
@@ -946,8 +948,8 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3SpWithoutField
 
 	float dx = X-(*r)->x();
 	float dz = Z-(*r)->z();
-	float r2 = 1./(dx*dx+dy*dy);
-	float dr = sqrt(r2);
+	float r2 = 1.f/(dx*dx+dy*dy);
+	float dr = std::sqrt(r2);
 	data.Tz[Nb]  = dz*dr;
 	if (data.Tz[Nb]<m_dzdrmin || data.Tz[Nb]>m_dzdrmax) continue;
 
@@ -978,8 +980,8 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3SpWithoutField
 
 	float dx = (*r)->x()-X;
 	float dz = (*r)->z()-Z;
-	float r2 = 1./(dx*dx+dy*dy);
-	float dr = sqrt(r2);
+	float r2 = 1.f/(dx*dx+dy*dy);
+	float dr = std::sqrt(r2);
 	data.Tz[Nt]  = dz*dr;
 	if (data.Tz[Nt]<m_dzdrmin || data.Tz[Nt]>m_dzdrmax) continue;
 
@@ -999,7 +1001,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3SpWithoutField
     // Three space points comparison
     //
     for (int b=Nb-1; b>=0; --b) {
-      float SA = 1.+data.Tz[b]*data.Tz[b];
+      float SA = 1.f+data.Tz[b]*data.Tz[b];
       for (int t=Nb; t<Nt; ++t) {
 	// Azimuth angle cut
 	//
@@ -1008,9 +1010,9 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3SpWithoutField
 	
 	// Polar angle cut
 	//
-	float Ts = .5*(data.Tz[b]+data.Tz[t]);
+	float Ts = .5f*(data.Tz[b]+data.Tz[t]);
 	float dT =  data.Tz[b]-data.Tz[t]    ;
-	dT        = dT*dT-data.Er[b]-data.Er[t]-2.*data.R[b]*data.R[t]*(Ts*Ts*covr0+covz0);
+	dT        = dT*dT-data.Er[b]-data.Er[t]-2.f*data.R[b]*data.R[t]*(Ts*Ts*covr0+covz0);
 	dT       -= (ipt*ipt)*COF*SA    ;
 	if ( dT > 0. ) continue          ;
 
@@ -1159,4 +1161,11 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::initializeEventData(EventData& data) 
                   SizeRFZ,
                   0, // sizeRFZV not used
                   false); // checkEta not used
+}
+
+void InDet::SiSpacePointsSeedMaker_Cosmic::writeNtuple(const SiSpacePointsSeed*, const Trk::Track*, int, long) const{
+}
+
+bool InDet::SiSpacePointsSeedMaker_Cosmic::getWriteNtupleBoolProperty() const{
+    return false;
 }

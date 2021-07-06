@@ -6,9 +6,8 @@
 # art-athena-mt: 8
 # art-output: serial
 # art-output: threadOne
-# art-output: threadTwo
-# art-output: threadFive
+# art-output: threadEight
 
 export ATHENA_CORE_NUMBER=8
 
-test_compare_SerialAndThreadedAthenas.sh BTagging/RecExRecoTest_ART_btagging_fromESD.py
+test_compare_SerialAndThreadedAthenas.sh RecExRecoTest/RecExRecoTest_ART_FlavorTagging_fromESD.py

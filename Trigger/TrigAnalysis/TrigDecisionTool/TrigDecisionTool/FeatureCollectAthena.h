@@ -37,9 +37,6 @@
 
 // for template specializations
 
-#include "TrigSteeringEvent/TrigPassBits.h"
-#include "TrigSteeringEvent/TrigPassFlags.h"
-
 #include "AnalysisTriggerEvent/Muon_ROI.h"
 #include "AnalysisTriggerEvent/EmTau_ROI.h"
 #include "AnalysisTriggerEvent/Jet_ROI.h"

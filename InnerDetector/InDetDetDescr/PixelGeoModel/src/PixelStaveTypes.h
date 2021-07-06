@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelStaveTypes_H
@@ -14,7 +14,7 @@ class IGeometryDBSvc;
 class PixelStaveTypes {
 
 public :
-  PixelStaveTypes(const IGeometryDBSvc * db, IRDBRecordset_ptr table);
+  PixelStaveTypes(const IGeometryDBSvc * db, const IRDBRecordset_ptr& table);
   int getFluidType(int layer, int phiModule) const;
   int getBiStaveType(int layer, int phiModule) const;
 

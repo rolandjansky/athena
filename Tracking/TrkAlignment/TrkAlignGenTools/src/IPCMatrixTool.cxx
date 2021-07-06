@@ -24,7 +24,7 @@ namespace Trk {
   IPCMatrixTool::IPCMatrixTool(const std::string& type, const std::string& name,
 			       const IInterface* parent)
     : AthAlgTool(type,name,parent)
-    , m_ipcmat(0)
+    , m_ipcmat(nullptr)
   {
     declareInterface<IMatrixTool>(this);
     
@@ -32,14 +32,14 @@ namespace Trk {
     declareProperty("IPCMatrixName", m_ipcmatMatName = "/tmp/ipcmat.dat"); 
     declareProperty("IPCVectorName", m_ipcmatVecName = "/tmp/ipcvec.dat"); 
 
-    m_logStream = 0;
+    m_logStream = nullptr;
   }
 
   //_______________________________________________________________________
   IPCMatrixTool::~IPCMatrixTool()
   {
-    if (0!=m_ipcmat) delete m_ipcmat;
-    m_ipcmat = NULL;
+    if (nullptr!=m_ipcmat) delete m_ipcmat;
+    m_ipcmat = nullptr;
 
   }
   
@@ -63,7 +63,7 @@ namespace Trk {
   StatusCode IPCMatrixTool::allocateMatrix(int nDoF) 
   {
     
-    if (0!=m_ipcmat) ATH_MSG_ERROR("IPCMat already exists!");
+    if (nullptr!=m_ipcmat) ATH_MSG_ERROR("IPCMat already exists!");
     m_ipcmat = new IPCMat(msgSvc());
     
     if (m_ipcmat->init()!=StatusCode::SUCCESS) {

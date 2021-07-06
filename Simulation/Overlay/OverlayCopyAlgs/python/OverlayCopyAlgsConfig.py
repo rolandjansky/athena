@@ -1,6 +1,6 @@
 """Define methods to construct configured overlay copy algorithms
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -31,7 +31,7 @@ def CopyCaloCalibrationHitContainerAlgCfg(flags, collectionName, name="CopyCaloC
     return acc
 
 
-def CopyInTimeJetTruthInfoCfg(flags, name="CopyInTimeJetTruthInfo", **kwargs):
+def CopyInTimeAntiKt4JetTruthInfoCfg(flags, name="CopyInTimeAntiKt4JetTruthInfo", **kwargs):
     """Return a ComponentAccumulator for the in-time pile-up jets copying"""
     acc = ComponentAccumulator()
 
@@ -47,7 +47,7 @@ def CopyInTimeJetTruthInfoCfg(flags, name="CopyInTimeJetTruthInfo", **kwargs):
     return acc
 
 
-def CopyOutOfTimeJetTruthInfoCfg(flags, name="CopyOutOfTimeJetTruthInfo", **kwargs):
+def CopyOutOfTimeAntiKt4JetTruthInfoCfg(flags, name="CopyOutOfTimeAntiKt4JetTruthInfo", **kwargs):
     """Return a ComponentAccumulator for the out-of-time pile-up jets copying"""
     acc = ComponentAccumulator()
 
@@ -63,11 +63,86 @@ def CopyOutOfTimeJetTruthInfoCfg(flags, name="CopyOutOfTimeJetTruthInfo", **kwar
     return acc
 
 
+def CopyInTimeAntiKt6JetTruthInfoCfg(flags, name="CopyInTimeAntiKt6JetTruthInfo", **kwargs):
+    """Return a ComponentAccumulator for the in-time pile-up jets copying"""
+    acc = ComponentAccumulator()
+
+    kwargs.setdefault("BkgInputKey",
+                      flags.Overlay.BkgPrefix + "InTimeAntiKt6TruthJets")
+    kwargs.setdefault("OutputKey", "InTimeAntiKt6TruthJets")
+
+    # Copy jets
+    CopyJetTruthInfo = CompFactory.CopyJetTruthInfo
+    alg = CopyJetTruthInfo(name, **kwargs)
+    acc.addEventAlgo(alg)
+
+    return acc
+
+
+def CopyOutOfTimeAntiKt6JetTruthInfoCfg(flags, name="CopyOutOfTimeAntiKt6JetTruthInfo", **kwargs):
+    """Return a ComponentAccumulator for the out-of-time pile-up jets copying"""
+    acc = ComponentAccumulator()
+
+    kwargs.setdefault("BkgInputKey",
+                      flags.Overlay.BkgPrefix + "OutOfTimeAntiKt6TruthJets")
+    kwargs.setdefault("OutputKey", "OutOfTimeAntiKt6TruthJets")
+
+    # Copy jets
+    CopyJetTruthInfo = CompFactory.CopyJetTruthInfo
+    alg = CopyJetTruthInfo(name, **kwargs)
+    acc.addEventAlgo(alg)
+
+    return acc
+
+
 def CopyJetTruthInfoAlgsCfg(flags, **kwargs):
     """Return a ComponentAccumulator for the CopyJetTruthInfo algorithms"""
     acc = ComponentAccumulator()
-    acc.merge(CopyInTimeJetTruthInfoCfg(flags, **kwargs))
-    acc.merge(CopyOutOfTimeJetTruthInfoCfg(flags, **kwargs))
+    allowedContainers = [
+        flags.Overlay.BkgPrefix + "InTimeAntiKt4TruthJets",
+        flags.Overlay.BkgPrefix + "OutOfTimeAntiKt4TruthJets",
+        flags.Overlay.BkgPrefix + "InTimeAntiKt6TruthJets",
+        flags.Overlay.BkgPrefix + "OutOfTimeAntiKt6TruthJets"
+    ]
+    availableContainers = []
+
+    # Detect the list of track record collections
+    for container in allowedContainers:
+        if not flags.Overlay.DataOverlay and container in flags.Input.Collections: #SecondaryCollections
+            availableContainers.append(container)
+    if allowedContainers[0] in availableContainers:
+        acc.merge(CopyInTimeAntiKt4JetTruthInfoCfg(flags, **kwargs))
+    if allowedContainers[1] in availableContainers:
+        acc.merge(CopyOutOfTimeAntiKt4JetTruthInfoCfg(flags, **kwargs))
+    if allowedContainers[2] in availableContainers:
+        acc.merge(CopyInTimeAntiKt6JetTruthInfoCfg(flags, **kwargs))
+    if allowedContainers[3] in availableContainers:
+        acc.merge(CopyOutOfTimeAntiKt6JetTruthInfoCfg(flags, **kwargs))
+    return acc
+
+
+def CopyPileupParticleTruthInfoCfg(flags, name="CopyPileupParticleTruthInfo", **kwargs):
+    """Return a ComponentAccumulator for the in-time pile-up jets copying"""
+    acc = ComponentAccumulator()
+
+    requiredContainer = flags.Overlay.BkgPrefix + "TruthPileupParticles"
+
+
+    # Detect the list of track record collections
+    if not flags.Overlay.DataOverlay and requiredContainer in flags.Input.Collections: # SecondaryCollections
+        kwargs.setdefault("BkgInputKey", requiredContainer)
+        kwargs.setdefault("OutputKey", "TruthPileupParticles")
+        # Copy jets
+        CopyPileupParticleTruthInfo = CompFactory.CopyPileupParticleTruthInfo
+        alg = CopyPileupParticleTruthInfo(name, **kwargs)
+        acc.addEventAlgo(alg)
+
+        if flags.Output.doWriteRDO:
+            from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+            acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
+                "xAOD::TruthParticleContainer#TruthPileupParticles",
+                "xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux."
+            ]))
     return acc
 
 
@@ -180,7 +255,11 @@ def CopyJetTruthInfoOutputCfg(flags, **kwargs):
             "xAOD::JetContainer#InTimeAntiKt4TruthJets",
             "xAOD::JetAuxContainer#InTimeAntiKt4TruthJetsAux.",
             "xAOD::JetContainer#OutOfTimeAntiKt4TruthJets",
-            "xAOD::JetAuxContainer#OutOfTimeAntiKt4TruthJetsAux."
+            "xAOD::JetAuxContainer#OutOfTimeAntiKt4TruthJetsAux.",
+            "xAOD::JetContainer#InTimeAntiKt6TruthJets",
+            "xAOD::JetAuxContainer#InTimeAntiKt6TruthJetsAux.",
+            "xAOD::JetContainer#OutOfTimeAntiKt6TruthJets",
+            "xAOD::JetAuxContainer#OutOfTimeAntiKt6TruthJetsAux."
         ]))
     return acc
 
@@ -275,11 +354,11 @@ def CopyCaloCalibrationHitContainersCfg(flags, **kwargs):
 def CopyJetTruthInfoCfg(flags, **kwargs):
     """Return overlay configuration for the CopyJetTruthInfo algorithms"""
 
+    acc = ComponentAccumulator()
     if flags.Overlay.DataOverlay:
-        return ComponentAccumulator()
+        return acc
 
-    acc = CopyInTimeJetTruthInfoCfg(flags, **kwargs)
-    acc.merge(CopyOutOfTimeJetTruthInfoCfg(flags, **kwargs))
+    acc.merge(CopyJetTruthInfoAlgsCfg(flags, **kwargs))
     acc.merge(CopyJetTruthInfoOutputCfg(flags, **kwargs))
 
     return acc

@@ -3,6 +3,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 LArRawCalibDataReadingAlg=CompFactory.LArRawCalibDataReadingAlg
 
 def LArRawCalibDataReadingCfg(configFlags,gain="HIGH",doAccDigit=False,doAccCalibDigit=False,doCalibDigit=False):
@@ -36,14 +37,18 @@ if __name__=="__main__":
     log.setLevel(DEBUG)
 
     ConfigFlags.LAr.doAlign=False
-    ConfigFlags.Input.Files = ["/eos/atlas/atlastier0/rucio/data20_calib/calibration_LArElec-Pedestal-32s-High-All/00374735/data20_calib.00374735.calibration_LArElec-Pedestal-32s-High-All.daq.RAW/data20_calib.00374735.calibration_LArElec-Pedestal-32s-High-All.daq.RAW._lb0000._SFO-3._0001.data"]
+    ConfigFlags.Input.Files = ["/eos/atlas/atlastier0/rucio/data20_calib/calibration_LArElec-Pedestal-32s-High-All/00383505/data20_calib.00383505.calibration_LArElec-Pedestal-32s-High-All.daq.RAW/data20_calib.00383505.calibration_LArElec-Pedestal-32s-High-All.daq.RAW._lb0000._SFO-3._0001.data"]
     ConfigFlags.lock()
 
-    acc=LArRawCalibDataReadingCfg(ConfigFlags)
+    acc = MainServicesCfg( ConfigFlags )
+    from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
+    acc.merge(AtlasGeometryCfg(ConfigFlags))
+    acc.merge(LArRawCalibDataReadingCfg(ConfigFlags,doAccCalibDigit=True))
     
     from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg 
     acc.merge(LArOnOffIdMappingCfg(ConfigFlags))
 
-    f=open("LArRawCalibDataReading.pkl","wb")
-    acc.store(f)
-    f.close()
+    #f=open("LArRawCalibDataReading.pkl","wb")
+    #acc.store(f)
+    #f.close()
+    acc.run(-1,OutputLevel=DEBUG)

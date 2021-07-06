@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -29,10 +29,10 @@ TrigT1CaloDataAccessV2::TrigT1CaloDataAccessV2(const std::string& name /*="TrigT
 
 StatusCode TrigT1CaloDataAccessV2::initialize()
 {
-	ATH_MSG_INFO("Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION);
-	// Retrieve Tool
-	CHECK(m_tool.retrieve());
+  ATH_MSG_INFO("Initializing " << name());
+
+  // Retrieve Tool
+  CHECK(m_tool.retrieve());
 
   return StatusCode::SUCCESS;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -72,12 +72,12 @@ namespace InDet{
       void set
       (const Trk::MagneticFieldProperties&, const AtlasFieldCacheCondObj* );
 
-      bool initiateForPrecisionSeed     (bool,const InDetDD::TRT_BaseElement*&,
+      bool initiateForPrecisionSeed     (bool,const InDetDD::TRT_BaseElement*,
 					 InDet::TRT_DriftCircleCollection::const_iterator&,
 					 InDet::TRT_DriftCircleCollection::const_iterator&,
 					 std::pair<Amg::Vector3D,double>&, const double*,double);
 
-      bool initiateForTRTSeed           (bool,const InDetDD::TRT_BaseElement*&,
+      bool initiateForTRTSeed           (bool,const InDetDD::TRT_BaseElement*,
 					 InDet::TRT_DriftCircleCollection::const_iterator&,
 					 InDet::TRT_DriftCircleCollection::const_iterator&,
 					 std::pair<Amg::Vector3D,double>&, const double*,double);
@@ -111,7 +111,7 @@ namespace InDet{
 	(TRT_TrajectoryElement_xk*,Trk::PatternTrackParameters&,double);
 
       void polarAngleEstimation
-	(TRT_TrajectoryElement_xk*,Amg::Vector3D&,Amg::Vector3D&,double,double,double*);
+	(TRT_TrajectoryElement_xk*,Amg::Vector3D&,Amg::Vector3D&,double,double,double*) const;
 
       bool addCluster
 	(Trk::PatternTrackParameters&,Trk::PatternTrackParameters&,double&);

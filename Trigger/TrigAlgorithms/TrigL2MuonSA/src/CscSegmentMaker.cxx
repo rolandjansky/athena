@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -55,7 +55,7 @@ ReturnCode CscSegmentMaker::FindSuperPointCsc( const TrigL2MuonSA::CscHits &cscH
         
 	//outlier or not
         double width = (cscHit.MeasuresPhi == 0 ) ? m_max_residual_eta : m_max_residual_phi;
-        if ( width < fabs(cscHit.Residual) )  continue;
+        if ( width < std::abs(cscHit.Residual) )  continue;
         
         
         int cathodelayer = 2*(cscHit.WireLayer-1)+  cscHit.MeasuresPhi;//cathodelayer is in [0,7]
@@ -99,17 +99,17 @@ ReturnCode CscSegmentMaker::FindSuperPointCsc( const TrigL2MuonSA::CscHits &cscH
 	    double tgcmid2z = tgcFitResult.tgcMid2[3];
 	    double phimiddle = tgcFitResult.phi;
 	    double dPhidz = tgcFitResult.dPhidZ;
-	    if( 0.75e-6<fabs(dPhidz) ) large_dphidz=true;
+	    if( 0.75e-6<std::abs(dPhidz) ) large_dphidz=true;
 	    double tgcmidZ = (tgcmid1z+tgcmid2z)/2.;
 	    double outerz = outerSP->Z;
 	    
             //calculate SP
 	    CscSegment cscsegment_ext = segmentAtFirstLayer(hashSP, &cscsegment);
 	    double phiMod = m_cscregdict->phiMod(hashSP);
-	    double CSCR=cscsegment_ext.x()*cos(phiMod)+cscsegment_ext.y()*sin(phiMod);
+	    double CSCR=cscsegment_ext.x()*std::cos(phiMod)+cscsegment_ext.y()*std::sin(phiMod);
 	    double CSCZ=cscsegment_ext.z();
-	    double PhiAtCsc = phimiddle/* - fabs(CSCZ-tgcmidZ)*dPhidz*/;
-	    double CSCSPR = CSCR/cos( m_util.calc_dphi(PhiAtCsc,phiMod) );
+	    double PhiAtCsc = phimiddle/* - std::abs(CSCZ-tgcmidZ)*dPhidz*/;
+	    double CSCSPR = CSCR/std::cos( m_util.calc_dphi(PhiAtCsc,phiMod) );
 	    
 	    
 	    superPoint->Z = CSCZ;
@@ -124,8 +124,8 @@ ReturnCode CscSegmentMaker::FindSuperPointCsc( const TrigL2MuonSA::CscHits &cscH
 			  << ",nHitsEta=" << cscsegment_ext.nHitEta() << ",Chi2="<< cscsegment_ext.chiSquare());
 	    
 	    //calculate outerSP's correction (dphidz of tgcFitResult)
-	    double phiouter = phimiddle+fabs(outerz-tgcmidZ)*dPhidz;
-	    outerCorFactor = cos( m_util.calc_dphi(phiouter,phiMod) )/cos( m_util.calc_dphi(phimiddle,phiMod) );
+	    double phiouter = phimiddle+std::abs(outerz-tgcmidZ)*dPhidz;
+	    outerCorFactor = std::cos( m_util.calc_dphi(phiouter,phiMod) )/std::cos( m_util.calc_dphi(phimiddle,phiMod) );
 	    ATH_MSG_DEBUG("outerCorFactor=" << outerCorFactor);
 	    
 	  }//if there is a segment.
@@ -197,7 +197,7 @@ ReturnCode  CscSegmentMaker::make_segment(int mod_hash, TrigL2MuonSA::CscHits cl
       double z = cschit.z;
       
         //move to local coordinate system
-      Amg::Vector3D vect(r*cos(phi),r*sin(phi),z);
+      Amg::Vector3D vect(r*std::cos(phi),r*std::sin(phi),z);
       Amg::Vector3D loc_vect = gToLocal*vect;      
 
         //building localCscHit object
@@ -215,10 +215,10 @@ ReturnCode  CscSegmentMaker::make_segment(int mod_hash, TrigL2MuonSA::CscHits cl
       
       
       if(0==loc_hit.measphi) {
-        if(m_max_residual_eta>fabs(loc_hit.residual)) hits_loc_eta[cschit.WireLayer-1].push_back( loc_hit );
+        if(m_max_residual_eta>std::abs(loc_hit.residual)) hits_loc_eta[cschit.WireLayer-1].push_back( loc_hit );
       }
       if(1==loc_hit.measphi) {
-        if(m_max_residual_phi>fabs(loc_hit.residual))  hits_loc_phi[cschit.WireLayer-1].push_back( loc_hit );
+        if(m_max_residual_phi>std::abs(loc_hit.residual))  hits_loc_phi[cschit.WireLayer-1].push_back( loc_hit );
       }
     }//ihit
   }//clyr
@@ -300,7 +300,7 @@ ReturnCode  CscSegmentMaker::make_segment(int mod_hash, TrigL2MuonSA::CscHits cl
   seg2d.residual=99999.;
   for(unsigned int iseg4=0; iseg4< seg2d_4hitCollection.size(); ++iseg4){
     
-    if( fabs( seg2d_4hitCollection[iseg4].residual ) < fabs(seg2d.residual) ){
+    if( std::abs( seg2d_4hitCollection[iseg4].residual ) < std::abs(seg2d.residual) ){
       seg2d=seg2d_4hitCollection[iseg4];
       exist=true;
       ATH_MSG_DEBUG("seg2d.residual=" << seg2d.residual);
@@ -308,7 +308,7 @@ ReturnCode  CscSegmentMaker::make_segment(int mod_hash, TrigL2MuonSA::CscHits cl
   }
   for(unsigned int iseg3=0; iseg3< seg2d_3hitCollection.size(); ++iseg3){
     
-    if( fabs( seg2d_3hitCollection[iseg3].residual ) < fabs(seg2d.residual) ){
+    if( std::abs( seg2d_3hitCollection[iseg3].residual ) < std::abs(seg2d.residual) ){
       seg2d=seg2d_3hitCollection[iseg3];
       exist=true;
       ATH_MSG_DEBUG("seg2d.residual=" << seg2d.residual);
@@ -552,10 +552,10 @@ ReturnCode CscSegmentMaker::make_4dsegment(const local2dSegment &seg2d_eta,
   
 
   ATH_MSG_DEBUG("rzshift=" << rzshift << " phizshift=" << phizshift << " diff=" << (rzshift-phizshift)
-                << " angle=" << ( 0.5*M_PI - atan(a_phi) ) << " b_phi=" << b_phi /*<< " Newb_phi=" << Newb_phi*/ );
+                << " angle=" << ( 0.5*M_PI - std::atan(a_phi) ) << " b_phi=" << b_phi /*<< " Newb_phi=" << Newb_phi*/ );
   
   
-  double norm = sqrt( a_phi*a_phi + a_eta*a_eta + 1 );
+  double norm = std::sqrt( a_phi*a_phi + a_eta*a_eta + 1 );
   
   
   
@@ -595,7 +595,7 @@ ReturnCode CscSegmentMaker::getModuleSP(int mod_hashes[2],
     double phiMod = m_cscregdict->phiMod(imod);
     double dphi = m_util.calc_dphi(phiMod, tgcFitResult.phi);
     ATH_MSG_DEBUG("getModuleSP()::(phi,side) modlue:(" << phiMod << "," << stationeta << ") tgcroad:(" << tgcFitResult.phi << "," << side << ")");
-    if( fabs(dphi)>M_PI/8. || side != stationeta) continue;
+    if( std::abs(dphi)>M_PI/8. || side != stationeta) continue;
 
     
     if(7!=phibin){
@@ -691,7 +691,7 @@ ReturnCode CscSegment::set(double x, double y, double z, double px, double py, d
   m_px=px;
   m_py=py;
   m_pz=pz;
-  double r = sqrt( x*x + y*y );
+  double r = std::sqrt( x*x + y*y );
   m_slopeRZ = ( px*x+py*y )/( r*pz );
   m_interceptRZ = r - slopeRZ()*z;
   m_chisquare = chisquare;
@@ -710,7 +710,7 @@ ReturnCode CscSegment::set( Amg::Vector3D &seg_pos, Amg::Vector3D &seg_dir, doub
   m_px = seg_dir(Amg::px);
   m_py = seg_dir(Amg::py);
   m_pz = seg_dir(Amg::pz);
-  double r = sqrt( x()*x() + y()*y() );
+  double r = std::sqrt( x()*x() + y()*y() );
   m_slopeRZ = ( px()*x()+py()*y() )/( r*pz() );
   m_interceptRZ = r - slopeRZ()*z(); 
   m_chisquare = chisquare;

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ###############################################################
 ## @file   TrigPSCPythonSetup.py
@@ -32,11 +32,6 @@ else:
    ### TriggerFlags
    from TriggerJobOpts.TriggerFlags import TriggerFlags
    TriggerFlags.doHLT.set_Value_and_Lock(True)
-
-   ### By default do not run in validation mode (do not lock this one!)
-   from TriggerJobOpts.TriggerFlags import TriggerFlags
-   TriggerFlags.Online.doValidation = False
-   del TriggerFlags
 
    ### Athena configuration -----------------------------------------------------
    from GaudiPython import *                   # noqa: F401, F403
@@ -185,6 +180,25 @@ else:
 
       if PscConfig.exitAfterDump:
          theApp.exit(0)
+      elif PscConfig.reloadAfterDump:
+         argv = []
+         for arg_index, arg in enumerate(sys.argv):
+            if arg == '--dump-config-reload':
+               continue
+            if arg in ['--precommand', '-c', '--postcommand', '-C']:
+               continue
+            if arg_index > 0 and sys.argv[arg_index-1] in ['--precommand', '-c', '--postcommand', '-C']:
+               continue
+            if arg.startswith('--precommand') or arg.startswith('--postcommand'):
+               continue
+            argv.append(arg)
+
+         argv[-1] = fname+'.json'
+         print('Restarting %s from %s ...' % (argv[0], argv[-1]))
+         sys.stdout.flush()
+         sys.stderr.flush()
+         os.execvp(argv[0], argv)
+
    else:
       # storeJobOptionsCatalogue calls setup() itself, so we only need it here
       theApp.setup()

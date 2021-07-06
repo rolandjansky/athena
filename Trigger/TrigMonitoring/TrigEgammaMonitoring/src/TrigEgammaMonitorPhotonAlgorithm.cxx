@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigEgammaMonitorPhotonAlgorithm.h"
@@ -21,6 +21,7 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::initialize()
 {
   
   ATH_CHECK(TrigEgammaMonitorAnalysisAlgorithm::initialize());
+
   ATH_CHECK(m_offPhotonKey.initialize());
 
 
@@ -59,7 +60,7 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::fillHistograms( const EventContext&
         
         ATH_MSG_DEBUG("Start Chain Analysis ============================= " << trigger << " " << info.trigName);
           
-        std::vector< std::pair<const xAOD::Egamma*, const TrigCompositeUtils::Decision * >> pairObjs;
+        std::vector< std::pair<std::shared_ptr<const xAOD::Egamma>, const TrigCompositeUtils::Decision * >> pairObjs;
     
         if ( executeNavigation( ctx, info.trigName,info.trigThrHLT,info.trigPidType,pairObjs).isFailure() ) 
         {
@@ -67,10 +68,14 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::fillHistograms( const EventContext&
             return StatusCode::SUCCESS;
         }
 
-
-        fillDistributions( pairObjs, info );
-        fillEfficiencies( pairObjs, info );
-        fillResolutions( pairObjs, info );
+        std::vector< std::pair<const xAOD::Egamma*, const TrigCompositeUtils::Decision*>> pairObjsRaw;
+        pairObjsRaw.reserve(pairObjs.size());
+        for (const auto& itr : pairObjs) {
+          pairObjsRaw.emplace_back(itr.first.get(), itr.second);
+        }
+        fillDistributions( pairObjsRaw, info );
+        fillEfficiencies( pairObjsRaw, info );
+        fillResolutions( pairObjsRaw, info );
 
 
         ATH_MSG_DEBUG("End Chain Analysis ============================= " << trigger);
@@ -85,7 +90,7 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::fillHistograms( const EventContext&
 
 
 StatusCode TrigEgammaMonitorPhotonAlgorithm::executeNavigation( const EventContext& ctx, std::string trigItem, float etthr, std::string pidName,  
-                                                       std::vector<std::pair<const xAOD::Egamma*, const TrigCompositeUtils::Decision * >> &pairObjs) 
+                                                       std::vector<std::pair<std::shared_ptr<const xAOD::Egamma>, const TrigCompositeUtils::Decision * >> &pairObjs) 
   const
 {
   ATH_MSG_DEBUG("Apply navigation selection");
@@ -102,7 +107,7 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::executeNavigation( const EventConte
 
   const std::string decor="is"+pidName;
 
-  for(const auto& eg : *offPhotons ){
+  for(const auto eg : *offPhotons ){
       const TrigCompositeUtils::Decision *dec=nullptr; 
       if(!eg->caloCluster()){
           ATH_MSG_DEBUG("No caloCluster");
@@ -127,12 +132,11 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::executeNavigation( const EventConte
               continue;
           }
       }
-      xAOD::Photon *ph = new xAOD::Photon(*eg);
+      const auto ph = std::make_shared<const xAOD::Photon>(*eg);
       ph->auxdecor<bool>(decor)=static_cast<bool>(true);
-      match()->match(ph, trigItem, dec, TrigDefs::includeFailedDecisions);
+      match()->match(ph.get(), trigItem, dec, TrigDefs::includeFailedDecisions);
       //match()->match(ph, trigItem, dec);
-      std::pair< const xAOD::Photon*, const TrigCompositeUtils::Decision * > pair(ph,dec);
-      pairObjs.push_back(pair);
+      pairObjs.emplace_back(ph, dec);
 
   }
 

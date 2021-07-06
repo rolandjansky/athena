@@ -6,8 +6,8 @@
 #include "AthLinks/ElementLink.h"
 #include "TrigT1Result/RoIBResult.h"
 
-#include "TrigHypoCommonTools/IL1InfoHypoTool.h"
-#include "TrigHypoCommonTools/L1InfoHypo.h"
+#include "IL1InfoHypoTool.h"
+#include "L1InfoHypo.h"
 
 
 L1InfoHypo::L1InfoHypo(const std::string& name, ISvcLocator* pSvcLocator)
@@ -41,7 +41,7 @@ StatusCode L1InfoHypo::execute(const EventContext& context) const {
     std::vector<IL1InfoHypoTool::L1Info> hypoToolInput;
     for (const TrigCompositeUtils::Decision* previousDecision: *previousDecisionsHandle) {
         
-        TrigCompositeUtils::Decision* d = TrigCompositeUtils::newDecisionIn( decisions, previousDecision, "", context );
+        TrigCompositeUtils::Decision* d = TrigCompositeUtils::newDecisionIn( decisions, previousDecision, TrigCompositeUtils::hypoAlgNodeName(), context );
 
         TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
         TrigCompositeUtils::decisionIDs(previousDecision, previousDecisionIDs);

@@ -1,13 +1,13 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 from AtlasGeoModel.GeoModelConfig import GeoModelCfg
 MuonDetectorTool=CompFactory.MuonDetectorTool
 Muon__MuonIdHelperSvc=CompFactory.Muon.MuonIdHelperSvc
 AGDDtoGeoSvc=CompFactory.AGDDtoGeoSvc
 MuonAGDDTool, NSWAGDDTool=CompFactory.getComps("MuonAGDDTool","NSWAGDDTool",)
-
 
 def MuonIdHelperSvcCfg(flags):
     acc = ComponentAccumulator()
@@ -28,7 +28,8 @@ def MuonDetectorToolCfg(flags):
         )
     detTool.UseConditionDb = 1
     detTool.UseIlinesFromGM = 1
-    enableAlignment = flags.Common.Project != 'AthSimulation' and not flags.Detector.SimulateMuon and not (flags.Detector.OverlayMuon and flags.Input.isMC)
+    enableAlignment = flags.Common.Project != 'AthSimulation' \
+        and (flags.Common.ProductionStep != ProductionStep.Simulation or flags.Overlay.DataOverlay)
     if enableAlignment:
         # Condition DB is needed only if A-lines or B-lines are requested
         if not (not flags.Muon.Align.UseALines and flags.Muon.Align.UseBLines=='none'):
@@ -71,7 +72,7 @@ def MuonDetectorToolCfg(flags):
     else:
         detTool.UseConditionDb = 0
         detTool.UseAsciiConditionData = 0
-        if flags.Detector.SimulateMuon:
+        if flags.Common.ProductionStep == ProductionStep.Simulation:
             detTool.FillCacheInitTime = 0
 
     ## Additional material in the muon system
@@ -89,7 +90,8 @@ def MuonDetectorToolCfg(flags):
 
     # call fill cache of MuonDetectorTool such that all MdtReadoutElement caches are filled
     # already during initialize() -> this will increase memory -> needs to be measured
-    detTool.FillCacheInitTime = 1
+    detTool.FillCacheInitTime = 1 
+
     # turn on/off caching of MdtReadoutElement surfaces
     detTool.CachingFlag = 1
 
@@ -118,7 +120,6 @@ def MuonAlignmentCondAlgCfg(flags):
         acc.merge(addFolders( flags, ['/MUONALIGN/TGC/SIDEC'], 'MUONALIGN_OFL', className='CondAttrListCollection'))
 
     MuonAlign = MuonAlignmentCondAlg()
-    if flags.Muon.MuonTrigger: MuonAlign.DoRecRoiSvcUpdate = True # this should be removed as soon as RPC/TGCRecRoiSvc are migrated to use the MuonDetectorCondAlg
     MuonAlign.ParlineFolders = ["/MUONALIGN/MDT/BARREL",
                                 "/MUONALIGN/MDT/ENDCAP/SIDEA",
                                 "/MUONALIGN/MDT/ENDCAP/SIDEC",
@@ -150,28 +151,40 @@ def MuonAlignmentCondAlgCfg(flags):
             acc.merge(addFolders( flags, '/MUONALIGN/MDT/ASBUILTPARAMS', 'MUONALIGN_OFL', className='CondAttrListCollection'))
             MuonAlign.ParlineFolders += ["/MUONALIGN/MDT/ASBUILTPARAMS"]
             pass
-
     acc.addCondAlgo(MuonAlign)
-    return acc
 
+    if flags.IOVDb.DatabaseInstance != 'COMP200' and \
+                'HLT' not in flags.IOVDb.GlobalTag and not flags.Common.isOnline:
+        acc.merge(addFolders( flags, '/MUONALIGN/ERRS', 'MUONALIGN_OFL', className='CondAttrListCollection'))
+        acc.addCondAlgo(CompFactory.MuonAlignmentErrorDbAlg("MuonAlignmentErrorDbAlg"))
+    
+    return acc
 
 def MuonDetectorCondAlgCfg(flags):
     acc = MuonAlignmentCondAlgCfg(flags)
     MuonDetectorCondAlg = CompFactory.MuonDetectorCondAlg
     MuonDetectorManagerCond = MuonDetectorCondAlg()
+    
+    # temporary way to pass MM correction for passivation
+    from MuonGeoModel.MMPassivationFlag import MMPassivationFlag
+    MuonDetectorManagerCond.MMPassivationCorrection = MMPassivationFlag.correction
+
     detTool = acc.popToolsAndMerge(MuonDetectorToolCfg(flags))
     MuonDetectorManagerCond.MuonDetectorTool = detTool
     acc.addCondAlgo(MuonDetectorManagerCond)
     return acc
 
 
-def MuonGeoModelCfg(flags):
+def MuonGeoModelCfg(flags, forceDisableAlignment=False):
     acc=GeoModelCfg(flags)
     gms=acc.getPrimary()
     detTool = acc.popToolsAndMerge(MuonDetectorToolCfg(flags))
+    detTool.FillCacheInitTime = 0 # We do not need to fill cache for the MuonGeoModel MuonDetectorTool, just for the condAlg
     gms.DetectorTools += [ detTool ]
-    enableAlignment = flags.Common.Project != 'AthSimulation' and not flags.Detector.SimulateMuon and not (flags.Detector.OverlayMuon and flags.Input.isMC)
-    if enableAlignment:
+
+    enableAlignment = flags.Common.Project != 'AthSimulation' \
+        and (flags.Common.ProductionStep != ProductionStep.Simulation or flags.Overlay.DataOverlay)
+    if enableAlignment and not forceDisableAlignment:
         acc.merge(MuonDetectorCondAlgCfg(flags))
 
     acc.merge(MuonIdHelperSvcCfg(flags)) # This line can be removed once the configuration methods for all 258 components which directly use this service are updated!!

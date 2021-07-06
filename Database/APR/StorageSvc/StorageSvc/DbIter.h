@@ -84,7 +84,8 @@ namespace pool  {
     /// Access to current object handle (CONST)
     const DbHandle<T>& handle() const   {    return m_obj;                    }
     /// Dereference operator
-    T* object()  const                  {    return m_obj.ptr();              }
+    const T* object()  const            {    return m_obj.ptr();              }
+    T* object()                         {    return m_obj.ptr();              }
     /// Access to cursor token
     const Token* token() const          {    return &m_token;                 }
     /// Scan the container

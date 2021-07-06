@@ -33,7 +33,7 @@ TrackHandle_TrkSegment::TrackHandle_TrkSegment(TrackCollHandleBase* ch, const Tr
 : TrackHandleBase(ch),
   m_nhits_pixel(0), m_nhits_sct(0), m_nhits_trt(0), m_nhits_muon_phi(0), m_nhits_rpc(0), m_nhits_mdt(0), 
   m_nhits_tgc(0), m_nhits_csc(0), m_hitInfoStatus(-1),
-  m_segment(segment), m_points(0)
+  m_segment(segment), m_points(nullptr)
 {
 }
 //____________________________________________________________________
@@ -77,7 +77,7 @@ void TrackHandle_TrkSegment::ensureTouchedMuonChambersInitialised() const
   std::vector < const Trk::MeasurementBase * >::const_iterator tsos_iter, tsos_end(m_segment->containedMeasurements().end());
   for (tsos_iter = m_segment->containedMeasurements().begin(); tsos_iter != tsos_end; ++tsos_iter) {
     meas = *tsos_iter;
-    muonDetEl = meas ? dynamic_cast<const MuonGM::MuonReadoutElement*>(meas->associatedSurface().associatedDetectorElement() ) : 0;
+    muonDetEl = meas ? dynamic_cast<const MuonGM::MuonReadoutElement*>(meas->associatedSurface().associatedDetectorElement() ) : nullptr;
     if (muonDetEl)
       registerTouchedMuonChamber(muonDetEl->parentStationPV());
   }
@@ -130,10 +130,9 @@ const std::vector< Amg::Vector3D > * TrackHandle_TrkSegment::provide_pathInfoPoi
     //TK: Fixme: globalPosition can cause a crash!
     
     Amg::Vector2D localPos(m_segment->localParameters()[Trk::loc1], m_segment->localParameters()[Trk::loc2]);
-    const Amg::Vector3D* globalPos = m_segment->associatedSurface().localToGlobal(localPos);
-    Amg::Vector3D pointA(globalPos->x()-xOffset,globalPos->y()-yOffset,globalPos->z()-zOffset);
-    Amg::Vector3D pointB(globalPos->x()+xOffset,globalPos->y()+yOffset,globalPos->z()+zOffset);
-    delete globalPos;
+    const Amg::Vector3D globalPos = m_segment->associatedSurface().localToGlobal(localPos);
+    Amg::Vector3D pointA(globalPos.x()-xOffset,globalPos.y()-yOffset,globalPos.z()-zOffset);
+    Amg::Vector3D pointB(globalPos.x()+xOffset,globalPos.y()+yOffset,globalPos.z()+zOffset);
     
     bool hasnonmdtchamber(false);
     bool outsidechamber, success;

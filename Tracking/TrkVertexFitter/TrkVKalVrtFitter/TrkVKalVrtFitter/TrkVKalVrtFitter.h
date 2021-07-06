@@ -383,36 +383,39 @@ namespace Trk{
         //  Origin of global reference frame.
         //  (0,0,0) by default but can be changed by input tracks
         //
-        double m_refFrameX = 0, m_refFrameY = 0, m_refFrameZ = 0;
-        std::vector < TrkMatControl > m_trkControl;
+        double m_refFrameX = 0;
+        double m_refFrameY = 0;
+        double m_refFrameZ = 0;
+        std::vector<TrkMatControl> m_trkControl;
 
         //
         // Arrays needed for fitting kernel
         //
-        double m_apar[NTrMaxVFit][5];   //used only for fit preparation
-        double m_awgt[NTrMaxVFit][15];  //used only for fit preparation
+        double m_apar[NTrMaxVFit][5];  // used only for fit preparation
+        double m_awgt[NTrMaxVFit][15]; // used only for fit preparation
         long int m_ich[NTrMaxVFit];
         double m_parfs[NTrMaxVFit][3];
 
         VKalAtlasMagFld m_fitField;
         VKalVrtControl m_vkalFitControl;
+        const EventContext* m_eventContext = nullptr;
         MagField::AtlasFieldCache m_fieldCache;
 
-        const TrackParameters *  m_globalFirstHit = nullptr;
+        const TrackParameters* m_globalFirstHit = nullptr;
 
-        double m_save_xyzfit[3];  //  Save vertex after successful fit
+        double m_save_xyzfit[3]; //  Save vertex after successful fit
 
-        int m_FitStatus = 0;    /* Fit Status flag*/
-                                /* =0 - no fit. All "after fit" routines fail*/
-                                /* >1 - good fit. "After fit" routines work*/
+        int m_FitStatus = 0; /* Fit Status flag*/
+                             /* =0 - no fit. All "after fit" routines fail*/
+                             /* >1 - good fit. "After fit" routines work*/
 
         //
         // Array for full error matrix
         //
         std::vector<double> m_ErrMtx;
 
-        int m_planeCnstNDOF = 0;  /* NDOF addition if plane constraint is used */
-        std::vector<double>    m_ApproximateVertex;
+        int m_planeCnstNDOF = 0; /* NDOF addition if plane constraint is used */
+        std::vector<double> m_ApproximateVertex;
 
         bool m_useAprioriVertex = false;
         bool m_useThetaCnst = false;
@@ -422,19 +425,21 @@ namespace Trk{
         bool m_usePassNear = false;
         bool m_usePassWithTrkErr = false;
 
-        std::vector<double>    m_VertexForConstraint;
-        std::vector<double>    m_CovVrtForConstraint;
-        double                 m_massForConstraint = -1;
-        std::vector<double>    m_partMassCnst;
-        std::vector< std::vector<int> >    m_partMassCnstTrk;
+        std::vector<double> m_VertexForConstraint;
+        std::vector<double> m_CovVrtForConstraint;
+        double m_massForConstraint = -1;
+        std::vector<double> m_partMassCnst;
+        std::vector<std::vector<int>> m_partMassCnstTrk;
         int m_Robustness = 0;
         double m_RobustScale = 1;
-        std::vector<double>    m_MassInputParticles;
+        std::vector<double> m_MassInputParticles;
 
         std::unique_ptr<CascadeState> m_cascadeState;
 
         State()
-          : m_vkalFitControl (VKalVrtControlBase(&m_fitField,nullptr,nullptr,nullptr,this)) {
+          : m_vkalFitControl(
+              VKalVrtControlBase(&m_fitField, nullptr, nullptr, nullptr, this))
+        {
           m_ApproximateVertex.reserve(3);
         }
       };

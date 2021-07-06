@@ -25,6 +25,10 @@ std::string nodeIDPrinter(const std::string& name,
                           const std::optional<bool>& pass,
                           const std::string& time="");
 
+std::string nodeIDPrinter(const std::string& name,
+                          const std::optional<bool>& pass,
+                          const std::string& time);
+
 
 std::string nodeIDPrinter(const std::string& name,
                           int nodeID,

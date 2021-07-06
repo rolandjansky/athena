@@ -159,7 +159,11 @@ StatusCode TruthTestTool::processEvent()
     if (currentGenEventIter!=mcCollection->end() ) {
       {
         auto  vtx = HepMC::signal_process_vertex(*currentGenEventIter);
+#ifdef HEPMC3
+        if (!vtx && (*currentGenEventIter)->vertices().size()>0) vtx=((*currentGenEventIter)->vertices()).front();
+#else
         if (!vtx && (*currentGenEventIter)->vertices_size()>0) vtx=*((*currentGenEventIter)->vertices_begin());
+#endif
         if ( vtx )
         {  
           m_x_vert->Fill( vtx->position().x() );
@@ -171,18 +175,23 @@ StatusCode TruthTestTool::processEvent()
       int nvtx=0;
       int nvtx_sec=0;
       float mx=0.,my=0.,mz=0.;
-      for (HepMC::GenEvent::vertex_const_iterator vtx=(*currentGenEventIter)->vertices_begin(); 
-           vtx!=(*currentGenEventIter)->vertices_end();++vtx) {
+#ifdef HEPMC3
+      for (auto vtx: (*currentGenEventIter)->vertices()) {
+#else      
+      for (HepMC::GenEvent::vertex_const_iterator vtxit=(*currentGenEventIter)->vertices_begin(); 
+           vtxit!=(*currentGenEventIter)->vertices_end();++vtxit) {
+        auto vtx=*vtxit;
+#endif
 
-        double x = (*vtx)->position().x();
-        double y = (*vtx)->position().y();
-        double z = (*vtx)->position().z();
-        double r = sqrt(x*x+y*y);
+        double x = vtx->position().x();
+        double y = vtx->position().y();
+        double z = vtx->position().z();
+        double r = std::sqrt(x*x+y*y);
         m_vtx_r->Fill(r);
         m_vtx_z->Fill(z);
         m_vtx_zr_indet->Fill(z, r);
         m_vtx_xy_indet->Fill(x, y);
-        if ( HepMC::barcode(*vtx)>-20000 ) {
+        if ( HepMC::barcode(vtx)>-20000 ) {
           mx+=x;
           my+=y;
           mz+=z;
@@ -210,16 +219,14 @@ StatusCode TruthTestTool::processEvent()
         char fname[80];
         sprintf(fname,"%s.event%d.txt",m_key.c_str(),evtnum);
         std::ofstream of(fname);
-        (*currentGenEventIter)->print(of); // verbose output
+        HepMC::Print::line(of,*(*currentGenEventIter)); // verbose output
         of.close();
       }
 
       int npart_prim=0, npart_sec=0;
-      HepMC::GenEvent::particle_const_iterator currentGenParticleIter;
-      for (currentGenParticleIter= (*currentGenEventIter)->particles_begin(); 
-           currentGenParticleIter!= (*currentGenEventIter)->particles_end(); ++currentGenParticleIter) {
+      for (auto currentGenParticle: *(*currentGenEventIter)) {
 
-        const HepMC::FourVector mom = (*currentGenParticleIter)->momentum();
+        const HepMC::FourVector mom = currentGenParticle->momentum();
         m_px_truth->Fill( mom.x() );
         m_py_truth->Fill( mom.y() );
         m_pz_truth->Fill( mom.z() );
@@ -230,16 +237,16 @@ StatusCode TruthTestTool::processEvent()
         m_eta_truth->Fill( mom.eta() );
         m_phi_truth->Fill( mom.phi() );
 
-        if(std::abs((*currentGenParticleIter)->pdg_id())==211) {
+        if(std::abs(currentGenParticle->pdg_id())==211) {
           m_pion_mass->Fill(mom.m());
         }
-        m_barcode_small->Fill(HepMC::barcode(*currentGenParticleIter));
-        m_barcode_large->Fill(HepMC::barcode(*currentGenParticleIter));
-        int barcode = HepMC::barcode(*currentGenParticleIter);
+        m_barcode_small->Fill(HepMC::barcode(currentGenParticle));
+        m_barcode_large->Fill(HepMC::barcode(currentGenParticle));
+        int barcode = HepMC::barcode(currentGenParticle);
         m_log_barcode_large->Fill( barcode > 0 ? log(barcode) : -1);
-        m_particle_status->Fill((*currentGenParticleIter)->status());
+        m_particle_status->Fill(currentGenParticle->status());
 
-        int pdg = (*currentGenParticleIter)->pdg_id();
+        int pdg = currentGenParticle->pdg_id();
         int particleType = 100;
         switch ( abs(pdg) ) {
           case 22:
@@ -275,13 +282,14 @@ StatusCode TruthTestTool::processEvent()
         particleType = (pdg<0) ? -particleType : particleType;
         m_particle_type->Fill( particleType );
 
-        if ( HepMC::barcode(*currentGenParticleIter)<200000 ) {
-          m_p_gen->Fill( mom.rho() );
-          m_log_p_gen->Fill( log(mom.rho()) );
+        if ( HepMC::barcode(currentGenParticle)<200000 ) {
+          double momentum=std::sqrt(mom.x()*mom.x()+mom.y()*mom.y()+mom.z()*mom.z());
+          m_p_gen->Fill( momentum );
+          m_log_p_gen->Fill( std::log(momentum) );
           m_eta_gen->Fill( mom.eta() );
           m_phi_gen->Fill( mom.phi() );
           ++npart_prim;
-          if ( HepMC::barcode(*currentGenParticleIter)<10000 ) {
+          if ( HepMC::barcode(currentGenParticle)<10000 ) {
             m_n_generations ->Fill(0);
           }
           else {
@@ -290,7 +298,7 @@ StatusCode TruthTestTool::processEvent()
         }
         else {
           ++npart_sec;
-          const int gen = HepMC::barcode(*currentGenParticleIter)/ 1000000 +2;
+          const int gen = HepMC::barcode(currentGenParticle)/ 1000000 +2;
           m_n_generations ->Fill(gen);
         }
       }

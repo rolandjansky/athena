@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -22,9 +22,6 @@
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
 #include "InDetRawData/InDetRawDataCollection.h"
 #include "InDetRawData/PixelRDORawData.h"
-#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "PixelGeoModel/IBLParameterSvc.h"
-#include "TrkSurfaces/RectangleBounds.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 #include "GaudiKernel/ServiceHandle.h"
@@ -46,8 +43,6 @@ namespace InDet {
     
     rowcolID(int ncl, int row, int col, int tot, int lvl1, Identifier id):
       NCL(ncl), ROW(row), COL(col), TOT(tot), LVL1(lvl1), ID(id) {};
-      
-    ~rowcolID() {};      
     
     int        NCL;
     int        ROW;
@@ -82,8 +77,10 @@ namespace InDet {
     // Called by the PixelPrepRawDataFormation algorithm once for every pixel 
     // module (with non-empty RDO collection...). 
     // It clusters together the RDOs with a pixell cell side in common.
-    virtual PixelClusterCollection *clusterize(const InDetRawDataCollection<PixelRDORawData>& RDOs,
-                                               const PixelID& pixelID) const;
+    // N.B.: This method is called from the clusterization method of the base class
+    PixelClusterCollection* doClusterization(const InDetRawDataCollection<PixelRDORawData>& RDOs,
+					     const PixelID& pixelID,
+					     const InDetDD::SiDetectorElement* element) const override;
 
     // Once the lists of RDOs which makes up the clusters have been found by the
     // clusterize() method, this method is called for each of these lists.
@@ -107,25 +104,16 @@ namespace InDet {
                               double splitProb2=0.) const;
 
     ///Retrieve the necessary services in initialize                
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
         
     ///Statistics output                
-    StatusCode finalize();
+    virtual StatusCode finalize() override;
 
 
   private:
     MergedPixelsTool();
     MergedPixelsTool(const MergedPixelsTool&);
     MergedPixelsTool &operator=(const MergedPixelsTool&);
-
-    // Determines if a pixel cell (whose identifier is the first argument) is 
-    // a ganged pixel. If this is the case, the last argument assumes the 
-    // value of the identifier of the cell it is ganged with. 
-    // The second argument is the pixel module the hit belongs to.
-
-    bool isGanged(const Identifier& rdoID,
-                  const InDetDD::SiDetectorElement* element,
-                  Identifier & gangedID) const;
 
     void addClusterNumber(const int& r, 
                           const int& Ncluster,
@@ -138,14 +126,11 @@ namespace InDet {
                           std::vector<rowcolID>& collectionID) const;
                        
 
-    ServiceHandle<IBLParameterSvc>                      m_IBLParameterSvc;
-
-    BooleanProperty m_addCorners{this, "AddCorners", true};
     BooleanProperty m_checkDuplicatedRDO{this, "CheckDuplicatedRDO", false, "Check duplicated RDOs using isDuplicated method"};
+     ToolHandle< ClusterMakerTool > m_clusterMaker{this, "globalPosAlg", "InDet::ClusterMakerTool"};
 
-    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
-
-    bool m_IBLAbsent{true};
+     IntegerProperty m_posStrategy{this, "posStrategy", 0};
+     IntegerProperty m_errorStrategy{this, "errorStrategy", 1};
 
     mutable std::atomic_uint m_processedClusters{0};    //!< statistics output
     mutable std::atomic_bool m_printw{true};

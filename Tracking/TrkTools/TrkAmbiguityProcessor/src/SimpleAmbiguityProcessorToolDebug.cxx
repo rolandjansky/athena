@@ -617,9 +617,8 @@ void Trk::SimpleAmbiguityProcessorToolDebug::findTrueTracks(const TrackCollectio
       // initialise history tracing
       m_trackHistory.insert(std::make_pair(*trackIt,*trackIt));
 	
-      ElementLink<TrackCollection> tracklink;
-      tracklink.setElement(const_cast<Trk::Track*>(*trackIt));
-      tracklink.setStorableObject(*recTracks);
+      ElementLink<TrackCollection> tracklink (*recTracks,
+                                              trackIt - recTracks->begin());
       const ElementLink<TrackCollection> tracklink2=tracklink;
 	
       // check if the track has a valid agreement in TrackToTruth

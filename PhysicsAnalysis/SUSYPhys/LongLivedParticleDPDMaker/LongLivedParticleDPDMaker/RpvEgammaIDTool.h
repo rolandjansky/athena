@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////
@@ -18,6 +18,8 @@
 
 // DerivationFramework includes
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
+#include "xAODEgamma/EgammaContainer.h"
+#include "StoreGate/ReadHandleKey.h"
 
 namespace DerivationFramework {
 
@@ -46,8 +48,9 @@ namespace DerivationFramework {
 
   private:
     std::vector<std::string> m_qualFlags;
-    std::string m_collName;
-    std::string m_sgPrefix;
+    SG::ReadHandleKey<xAOD::EgammaContainer> m_collNameKey { this, "CollectionName", "ElectronCollection", ""};
+    SG::WriteHandleKey<std::vector<int>> m_egammaSelectionKey { this, "EGammaSelectionKey", "DVPhotonsLoose", ""};
+    std::string m_selectionString;
 
   };
  

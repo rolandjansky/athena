@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaMonitoring/AthenaMonManager.h"
@@ -95,8 +95,8 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
 
       ATH_MSG_DEBUG(" cluster charge = " << clu_charge << "\t cluster time = " << clu_time );
 
-     // unsigned int noStrips = stripIds.size();  // no. of strips in this cluster = stripIds.size()
-      auto noStrips = Monitored::Scalar<int> ("noStrips",stripIds.size());
+      unsigned int noStrips = stripIds.size();  // no. of strips in this cluster = stripIds.size()
+      auto noStrips_mon = Monitored::Scalar<int> ("noStrips_mon",noStrips);
       Identifier clusId = iClus.identify();
 
       // get the cluster coordinates
@@ -107,7 +107,6 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
       int stationPhi  = m_idHelperSvc->cscIdHelper().stationPhi(clusId);
       int wireLayer = m_idHelperSvc->cscIdHelper().wireLayer(clusId);
       int measuresPhi = m_idHelperSvc->cscIdHelper().measuresPhi(clusId);
-
 
       auto x = Monitored::Scalar<float> ("x",iClus.globalPosition().x());
       auto y = Monitored::Scalar<float> ("y",iClus.globalPosition().y());
@@ -175,13 +174,13 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
         bool found_id = true;
         std::vector <const CscStripPrepData*> stripVec;
         std::vector <float> fStripIDs;
-      //  auto fStripIDs = Monitored::Collection("fStripIDs",fStripIDs);
+
         float maxStripCharge = 0., maxStipId = 0.;
         int sIdx = 0, mxIdx = 0; // index-counter and index of max strip in the vector of Id's
 
-        auto clus_phi = Monitored::Scalar<int>("clus_phi", (int)measuresPhi);
-        auto clus_eta = Monitored::Scalar<int>("clus_eta", (int)(!measuresPhi));
-        fill("CscClusMonitor",noStrips, secLayer,clus_phi, clus_eta);
+        auto clus_phi_mon = Monitored::Scalar<int>("clus_phi_mon", (int)measuresPhi);
+        auto clus_eta_mon = Monitored::Scalar<int>("clus_eta_mon", (int)(!measuresPhi));
+        fill("CscClusMonitor",noStrips_mon, secLayer,clus_phi_mon, clus_eta_mon);
 
       // fill cluster width (no. of strips per cluster) 
         if(measuresPhi) {
@@ -230,14 +229,14 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
             } // end for loop on strip collection
             ATH_MSG_DEBUG ( " " << (found_strip? "FoundStrip " : "NoStripFound ") << " with max sampling = " << maxsampChVal);
           } // end if found_id
-        }
+        } // end for loop over strips
 
          auto fStripIDs_col = Monitored::Collection("fStripIDs_col",fStripIDs);
          ATH_MSG_DEBUG ( " Max Strip charge = " << maxStripCharge  << " and strip Id = " << maxStipId << " and index = " << mxIdx);
          float qmax = 0., qleft = 0., qright = 0., qsum = 0.;
         // if we are here and loop over strips is successful we should have found_id = true
         // and the size of strip-ID-vector == size of strips-vector
-        bool size_ids_coll = (noStrips == (int)stripVec.size() ? true : false) ;
+        bool size_ids_coll = (noStrips == stripVec.size() ? true : false) ;
 
         if(found_id && size_ids_coll ) {
           // store results of three strips (Qmax, Qleft, Qright)
@@ -296,27 +295,23 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
 
           // fill signal/noise histograms
           auto signal_mon = Monitored::Scalar<int>("signal_mon",(int)signal);
-          auto noise_mon = Monitored::Scalar<int>("noise_mon",(int)!(signal));
-          for(unsigned int j =0; j < fStripIDs.size(); j++)
-          {
-            fill("CscClusMonitor",fStripIDs_col, secLayer, signal_mon, noise_mon);
-          }
+          auto noise_mon = Monitored::Scalar<int>("noise_mon",(int)!(signal));         
           auto clus_phi = Monitored::Scalar<int>("clus_phi", (int)measuresPhi );
           auto clus_eta = Monitored::Scalar<int>("clus_eta", (int)(!measuresPhi) );
           auto clus_phiSig = Monitored::Scalar<int>("clus_phiSig", (int)measuresPhi && (signal));
           auto clus_etaSig = Monitored::Scalar<int>("clus_etaSig", (int)(!measuresPhi) && (signal));
           auto clus_phiNoise = Monitored::Scalar<int>("clus_phiNoise", (int)measuresPhi && !(signal));
           auto clus_etaNoise = Monitored::Scalar<int>("clus_etaNoise", (int)(!measuresPhi) && !(signal));
-
-          auto sideA = Monitored::Scalar<int>("sideA",(int)(stationEta==1) && (signal));
-          auto sideC = Monitored::Scalar<int>("sideC",(int)(stationEta==-1) && (signal));
-          fill("CscClusMonitor",secLayer,sideA,sideC);
+          auto sideA = Monitored::Scalar<int>("sideA",(int)((stationEta==1) && (signal)));
+          auto sideC = Monitored::Scalar<int>("sideC",(int)((stationEta==-1) && (signal)));
+          auto sideA_phiSig = Monitored::Scalar<int>("sideA_phiSig", (int)(signal && stationEta==1 && !measuresPhi) );
+          auto sideC_phiSig = Monitored::Scalar<int>("sideC_phiSig", (int)(signal && stationEta==-1 && !measuresPhi) );
 
           if(signal)  sigclusCount[ns][nl]++;
 
           auto clu_charge_kiloele = Monitored::Scalar<float>("clu_charge_kiloele", (iClus.charge()*kiloele));
 
-          fill("CscClusMonitor",QmaxADC, secLayer, noStrips, secLayer, QsumADC, clu_time, clu_charge_kiloele, clus_phi, clus_eta, clus_phiSig, clus_etaSig, clus_phiNoise, clus_etaNoise, signal_mon, noise_mon, sideA, sideC);
+          fill("CscClusMonitor",fStripIDs_col, QmaxADC, secLayer, noStrips_mon, QsumADC, clu_time, clu_charge_kiloele, clus_phi, clus_eta, clus_phiSig, clus_etaSig, clus_phiNoise, clus_etaNoise, signal_mon, noise_mon, sideA, sideC, sideA_phiSig, sideC_phiSig);
 
           ATH_MSG_DEBUG ( " End of strip fits " ); 
 
@@ -354,14 +349,14 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
         auto scount_mon = Monitored::Scalar<int>("scount_mon",scount);
         auto count_diff = Monitored::Scalar<int>("count_diff",(count-scount));
 
-        auto mphi_true = Monitored::Scalar<int>("mphi_true",(int)mphi && count == 1);
-        auto mphi_false = Monitored::Scalar<int>("mphi_false",(int)!(mphi) && count == 1);
+        auto mphi_true = Monitored::Scalar<int>("mphi_true",(int)(mphi && count));
+        auto mphi_false = Monitored::Scalar<int>("mphi_false",(int)(!(mphi) && count));
 
-        auto scount_phi_true = Monitored::Scalar<int>("scount_phi_true", (int)mphi && count == 1 && scount == 1);
-        auto scount_phi_false = Monitored::Scalar<int>("scount_phi_false", (int)mphi && count == 1 && scount == 0);
+        auto scount_phi_true = Monitored::Scalar<int>("scount_phi_true", (int)mphi && count && scount);
+        auto scount_phi_false = Monitored::Scalar<int>("scount_phi_false", (int)mphi && count && !scount);
 
-        auto scount_eta_true = Monitored::Scalar<int>("scount_eta_true", (int)!(mphi) && count == 1 && scount == 1);
-        auto scount_eta_false = Monitored::Scalar<int>("scount_eta_false", (int)!(mphi) && count == 1 && scount == 0);
+        auto scount_eta_true = Monitored::Scalar<int>("scount_eta_true", (int)!(mphi) && count && scount);
+        auto scount_eta_false = Monitored::Scalar<int>("scount_eta_false", (int)!(mphi) && count && !scount);
 
         auto secLayer = Monitored::Scalar<float>("secLayer",(sec + 0.2 * (lay - 1) + 0.1));
 

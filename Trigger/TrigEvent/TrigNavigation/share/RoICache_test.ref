@@ -14,7 +14,6 @@ JobOptionsSvc        INFO # (8,1): AuditorSvc.Auditors += ["AlgContextAuditor"]
 JobOptionsSvc        INFO # (9,1): StoreGateSvc.OutputLevel = 1
 JobOptionsSvc        INFO # (10,1): StoreGateSvc.ActivateHistory = 0
 JobOptionsSvc        INFO # (14,1): MessageSvc.useColors = 0
-JobOptionsSvc        INFO # (30,1): ToolSvc.Navigation.ReferenceAllClasses = 1
 JobOptionsSvc        INFO # (36,1): ToolSvc.Navigation.OutputLevel = 1
 JobOptionsSvc        INFO # (37,1): Holder_test.OutputLevel = 1
 JobOptionsSvc        INFO Job options successfully read in from ../share/test2.txt
@@ -28,8 +27,9 @@ ApplicationMgr       INFO Application Manager Configured successfully
 ClassIDSvc           INFO  getRegistryEntries: read 5881 CLIDRegistry entries for module ALL
 TrigSerializeCn...   INFO initialize()
 StoreGateSvc        DEBUG Property update for OutputLevel : new value = 1
-StoreGateSvc      VERBOSE Initializing StoreGateSvc - package version StoreGate-00-00-00
 StoreGateSvc        DEBUG Service base class initialized successfully
+StoreGateSvc      VERBOSE Initializing StoreGateSvc
+StoreGateSvc_Impl VERBOSE Initializing StoreGateSvc_Impl
 StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc
 StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
@@ -40,7 +40,6 @@ ApplicationMgr Ready
 RoICache_test        INFO LINE:95 Test progress fine:  SG pointer: 0x17bafc0
 RoICache_test        INFO LINE:103 Test progress fine:  ToolSvc pointer obtained: 0x17be200
 ToolSvc.Navigation  DEBUG Property update for OutputLevel : new value = 1
-ToolSvc.Navigation  DEBUG Navigation::initialize() got TrigSerializeCnvSvc
 ToolSvc.NavigationVERBOSE type: TestA(6421) container: DataVector<TestA>(64210)label: "" subTypeIndex: 0 container not allocated yet
 ToolSvc.NavigationVERBOSE type: TestC(7800) container: DataVector<TestC>(78001)label: "" subTypeIndex: 0 container not allocated yet
 ToolSvc.NavigationVERBOSE type: TrigNavTest::TestBContainer(96422) container: TrigNavTest::TestBContainer(96422)label: "" subTypeIndex: 0 container not allocated yet

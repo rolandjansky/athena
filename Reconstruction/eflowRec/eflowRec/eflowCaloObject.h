@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EFLOWEVENT_EFLOWCALOOBJECT_H
@@ -75,9 +75,9 @@ public:
   void clearLinks() { m_trackClusterLinks.clear(); }
 
   /* Calculate total tracks energy, total tracks energy variance, total cluster energy for subtraction */
-  double getExpectedEnergy();
-  double getExpectedVariance();
-  double getClusterEnergy() ;
+  double getExpectedEnergy() const;
+  double getExpectedVariance() const;
+  double getClusterEnergy() const ;
 
   void simulateShower(eflowLayerIntegrator *integrator, eflowEEtaBinnedParameters* binnedParameters, bool useUpdated2015ChargedShowerSubtraction);
 

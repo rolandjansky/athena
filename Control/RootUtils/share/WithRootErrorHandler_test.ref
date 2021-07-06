@@ -1,0 +1,9 @@
+RootUtils/WithRootErrorHandler_test
+test1
+Error in <foo1>: Bar1
+try1: Bar2
+Error in <foo2>: Bar2
+try2: Bar3
+try1: Bar3
+Error in <foo3>: Bar3
+try2: Bar4

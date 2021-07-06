@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef EVENTSAVERFLATNTUPLE_H_
@@ -283,6 +283,7 @@ namespace top {
 
     //some event weights
     float m_weight_mc;
+    float m_weight_beamspot;
     float m_weight_pileup;
     ///-- Pileup SF systematics --///
     float m_weight_pileup_UP;
@@ -403,6 +404,8 @@ namespace top {
     float m_weight_photonSF_ID_DOWN = 0.;
     float m_weight_photonSF_effIso_UP = 0.;
     float m_weight_photonSF_effIso_DOWN = 0.;
+    float m_weight_photonSF_Trigger_UNCERT_UP = 0.;
+    float m_weight_photonSF_Trigger_UNCERT_DOWN = 0.;
 
     // nominal b-tagging SF [WP]
     std::unordered_map<std::string, float> m_weight_bTagSF;
@@ -620,6 +623,7 @@ namespace top {
     std::vector<float> m_ph_true_origin;
     std::vector<float> m_ph_faketype;
     std::vector<float> m_ph_iso;
+    std::unordered_map<std::string, std::vector<char> > m_ph_trigMatched;
 
     //taus
     std::vector<float> m_tau_pt;
@@ -732,7 +736,9 @@ namespace top {
 
     std::unordered_map<std::string, std::vector<float> > m_ljet_substructure;
     std::unordered_map<std::string, std::vector<char> > m_ljet_isTagged;
+    std::unordered_map<std::string, std::vector<char> > m_ljet_taggingPassedRangeCheck;
     std::unordered_map<std::string, std::vector<float> > m_ljet_tagSF;
+    std::unordered_map<std::string, std::vector<std::vector<float>> > m_ljet_tagSFSysVars;
 
     //track jets
     std::vector<float> m_tjet_pt;
@@ -1397,6 +1403,7 @@ namespace top {
 
     const std::unordered_map<std::string, std::vector<float> >& ljet_substructure() const {return m_ljet_substructure;}
     const std::unordered_map<std::string, std::vector<char> >& ljet_isTagged() const {return m_ljet_isTagged;}
+    const std::unordered_map<std::string, std::vector<char> >& ljet_taggingPassedRangeCheck() const {return m_ljet_taggingPassedRangeCheck;}
     const std::vector<char>& ljet_isTagged(const std::string& taggerName) {return m_ljet_isTagged[taggerName];}
 
     //track jets

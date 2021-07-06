@@ -54,7 +54,9 @@ def addNTUPMergeSubsteps(executorSet):
         for (inData, outData) in iter(zip(inDataList, outDataList)):
             executorSet.add(NTUPMergeExecutor(name='NTUPLEMerge'+inData.replace('_',''), exe='hadd', inData=[inData], outData=[outData], exeArgs=[]))
         # Physics Validation NTUP
-        executorSet.add(NTUPMergeExecutor(name='NTUPLEMergePHYSVAL', exe='hadd', inData=['NTUP_PHYSVAL'], outData=['NTUP_PHYSVAL_MRG'], exeArgs=[]))
+        executorSet.add(NTUPMergeExecutor(name='NTUPLEMergePHYSVAL', exe='hadd', inData=['NTUP_PHYSVAL'], outData=['NTUP_PHYSVAL_MRG0'], exeArgs=[]))
+        #add post processing for some Pull histograms in ID track monitoring
+        executorSet.add(NTUPMergeExecutor(name='NTUPLEMergePHYSVALPostProc', exe='postProcessIDPVMHistos', inData=['NTUP_PHYSVAL_MRG0'], outData=['NTUP_PHYSVAL_MRG'], exeArgs=[]))
         # Extra Tier-0 NTUPs
         extraNTUPs = getExtraDPDList(NTUPOnly = True)
         for ntup in extraNTUPs:

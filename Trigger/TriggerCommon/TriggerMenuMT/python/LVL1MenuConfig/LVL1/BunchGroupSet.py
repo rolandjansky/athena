@@ -4,7 +4,7 @@ from .Limits import Limits
 from .Lvl1Flags import Lvl1Flags
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger("TriggerMenuMT.LVL1MenuConfig.LVL1.BunchGroupSet")
+log = logging.getLogger(__name__)
 
 def setDefaultBunchGroupDefinition(bgs):
     """

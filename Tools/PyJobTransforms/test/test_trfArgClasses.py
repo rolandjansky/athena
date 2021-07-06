@@ -1,16 +1,12 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @Package test_trfArgClasses.py
 #  @brief Unittests for test_trfArgClasses.py
 #  @author graeme.andrew.stewart@cern.ch
-#  @version $Id: test_trfArgClasses.py 770616 2016-08-29 14:17:19Z uworlika $
 #  @note Tests of ATLAS specific file formats moved to test_trfArgClassesATLAS.py
 
-from __future__ import print_function
-from builtins import str
-from builtins import object
 import unittest
 
 import logging

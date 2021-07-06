@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <string>
@@ -41,7 +41,7 @@ using namespace pool;
 
 #include <iostream>
 
-CmdLineArgs2::CmdLineArgs2( std::string name ) 
+CmdLineArgs2::CmdLineArgs2( const std::string& name ) 
   : m_argsfine( false ),
     m_ignoreMissingArgs( false ),
     m_id(name)
@@ -50,7 +50,7 @@ CmdLineArgs2::CmdLineArgs2( std::string name )
 }
 
 
-CmdLineArgs2::CmdLineArgs2( QualList& quals, std::string name ) 
+CmdLineArgs2::CmdLineArgs2( QualList& quals, const std::string& name ) 
   : m_argsfine( false ),
     m_ignoreMissingArgs( false ),
     m_quals(quals),
@@ -72,14 +72,14 @@ CmdLineArgs2::initTypes()
 
 
 bool 
-CmdLineArgs2::hasQual( const std::string arg ) const
+CmdLineArgs2::hasQual( const std::string& arg ) const
 {
   return ( find(arg) != end() );
 }
 
 
 bool
-CmdLineArgs2::getOpt( const std::string opt, std::string &optval ) const
+CmdLineArgs2::getOpt( const std::string& opt, std::string &optval ) const
 {
    const_iterator i = find(opt);
    if( i == end() )
@@ -89,7 +89,7 @@ CmdLineArgs2::getOpt( const std::string opt, std::string &optval ) const
 }
 
 bool
-CmdLineArgs2::getOpt( const std::string opt, int &optval ) const
+CmdLineArgs2::getOpt( const std::string& opt, int &optval ) const
 {
    const_iterator i = find(opt);
    if( i == end() )
@@ -100,7 +100,7 @@ CmdLineArgs2::getOpt( const std::string opt, int &optval ) const
 }
 
 bool
-CmdLineArgs2::getOpts( const std::string opt, std::vector<std::string> &optvalvec ) const
+CmdLineArgs2::getOpts( const std::string& opt, std::vector<std::string> &optvalvec ) const
 {
    const_iterator iter = find(opt);
    if( iter == end() )

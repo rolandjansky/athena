@@ -9,7 +9,7 @@ atlas_subdir( MuonCondCool )
 atlas_add_component( MuonCondCool
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests GaudiKernel MuonCondData AthenaKernel MuonCondInterface MuonCondSvcLib MuonIdHelpersLib )
+                     LINK_LIBRARIES AthenaBaseComps StoreGateLib GaudiKernel MuonCondData AthenaKernel MuonCondInterface MuonCondSvcLib MuonIdHelpersLib )
 
 # Install files from the package:
 atlas_install_headers( MuonCondCool )

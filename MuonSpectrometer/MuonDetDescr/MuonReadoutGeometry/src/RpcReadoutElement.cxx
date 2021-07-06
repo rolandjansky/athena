@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -8,15 +8,27 @@
 ***************************************************************************/
 
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
-#include "MuonReadoutGeometry/RpcReadoutSet.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoFullPhysVol.h"
-#include "GeoPrimitives/CLHEPtoEigenConverter.h"
+
+#include <GaudiKernel/IMessageSvc.h>
+#include <GeoModelKernel/GeoDefinitions.h>
+#include <GeoModelKernel/GeoLogVol.h>
+#include <GeoModelKernel/GeoPVConstLink.h>
+#include <GeoModelKernel/GeoVFullPhysVol.h>
+#include <GeoModelKernel/GeoVPhysVol.h>
+#include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GeoModelKernel/GeoFullPhysVol.h"
+#include "GeoModelUtilities/GeoVisitVolumes.h"
+#include "MuonReadoutGeometry/GenericRPCCache.h"
+#include "MuonReadoutGeometry/RpcReadoutSet.h"
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/RectangleBounds.h"
-#include "AthenaKernel/getMessageSvc.h"
-#include <TString.h> // for Form
+#include "TrkSurfaces/Surface.h"
+#include "TrkSurfaces/SurfaceBounds.h"
+
+#include <TString.h>
+#include <cmath>
+#include <stdexcept>
 
 namespace {
   static constexpr double const& rpc3GapLayerThickness = 11.8; // gas vol. + ( bakelite + graphite + PET )x2
@@ -50,24 +62,21 @@ namespace MuonGM {
 
     if (mgr->MinimalGeoFlag() == 0) {
       if (GeoFullPhysVol* pvc = dynamic_cast<GeoFullPhysVol*> (pv)) {
-	unsigned int nchildvol = pvc->getNChildVols();
 	int lgg = 0;
 	int llay = 0;
 	std::string::size_type npos;
-	for (unsigned ich=0; ich<nchildvol; ++ich) {
-	  PVConstLink pc = pvc->getChildVol(ich);
+        for (const GeoVolumeVec_t::value_type& p1 : geoGetVolumes (pvc)) {
+          const GeoVPhysVol* pc = p1.first;
 	  std::string childname = (pc->getLogVol())->getName();
 	  if ((npos = childname.find("layer")) != std::string::npos ) {
 	    llay ++;
-	    unsigned int nch1 = pc->getNChildVols();
 	    lgg = 0;
-	    for (unsigned ngv=0; ngv<nch1; ++ngv) {
-	      PVConstLink pcgv = pc->getChildVol(ngv);
+            for (const GeoVolumeVec_t::value_type& p2 : geoGetVolumes (pc)) {
+              const GeoVPhysVol* pcgv = p2.first;
 	      std::string childname1 = (pcgv->getLogVol())->getName();
 	      if ((npos = childname1.find("gas volume")) != std::string::npos ) {
 		lgg ++;
-		PVConstLink pcgg = pcgv->getChildVol(0);
-		GeoTrf::Transform3D trans = pvc->getXToChildVol(ich)*pc->getXToChildVol(ngv)*pcgv->getXToChildVol(0);
+		GeoTrf::Transform3D trans = p1.second*p2.second*pcgv->getXToChildVol(0);
 		m_Xlg[llay-1][lgg-1] = trans;
 	      }
 	    }
@@ -221,6 +230,7 @@ namespace MuonGM {
 
     // if there's a DED at the bottom, the Rpc is rotated by 180deg around its local y axis
     // gg numbering is swapped
+    // except for BI chambers (with 3 gas gaps -> this is taken into account in localTopGasGap()
     // -> eta strip n. 1 (offline id) is "last" eta strip (local)
     int lstrip = strip;
     int lgg = gasGap;
@@ -273,7 +283,16 @@ namespace MuonGM {
 					 <<" lstrip, ldoublerZ "<<lstrip<<" "<<ldoubletZ<<endmsg;
 #endif
       }
-        
+
+    // the only RPCs in ATLAS which have 3 gasGaps (layers) are BI RPCs and those only have 1 doubletPhi
+    if (m_nlayers==3 && ldoubletPhi!=1) {
+#ifdef NDEBUG
+      MsgStream log(Athena::getMessageSvc(),"RpcReadoutElement");
+#endif
+      if (log.level()<=MSG::WARNING) log << MSG::WARNING<<"localStripPos() - found ldoubletPhi="<<ldoubletPhi<<" for BI RPC which cannot be true, setting to 1"<<endmsg;
+      ldoubletPhi=1;
+    }
+
     Amg::Vector3D localP(
 				    localGasGapDepth(lgg),
 				    localStripSCoord(ldoubletZ, ldoubletPhi, measPhi, lstrip),
@@ -289,8 +308,8 @@ namespace MuonGM {
   {
     const GenericRPCCache* r = manager()->getGenericRpcDescriptor();
     double xgg=0;
-    if (m_nlayers==3) { // the BIS RPCs are the only ones with 3 gas gaps, they don't have an inner support structure
-      xgg = -rpc3GapLayerThickness + (gasGap-1)*rpc3GapLayerThickness - 0.74; // the values from MuonGeoModel have an offset of 0.74, TO BE INVESTIGATED
+    if (m_nlayers==3) { // the BI RPCs are the only ones with 3 gas gaps, they don't have an inner support structure
+      xgg = -rpc3GapLayerThickness + (gasGap-1)*rpc3GapLayerThickness - 0.74; // the values from MuonGeoModel have an offset of 0.74, TO BE INVESTIGATED, cf. ATLASSIM-5021
     } else {
       xgg = -m_Rsize/2. + m_exthonthick + r->stripPanelThickness + r->GasGapThickness/2.;
       if (gasGap == 1) return xgg;
@@ -363,7 +382,7 @@ namespace MuonGM {
     }
 
     bool topgg = false;
-    if (lgg==2) topgg=true;    
+    if (lgg==2 && m_nlayers!=3) topgg=true;    // BI chambers have 3 gaps and are never rotated
     return topgg;
   }
 
@@ -390,7 +409,7 @@ namespace MuonGM {
     }
 
     bool topgg = false;
-    if (lgg==2) topgg=true;    
+    if (lgg==2 && m_nlayers!=3) topgg=true;    // BI chambers have 3 gaps and are never rotated
     return topgg;
   }
 
@@ -1014,7 +1033,7 @@ __attribute__ ((flatten))
     if( phipanel > (int)m_phiDesigns.size() ) {
       MsgStream log(Athena::getMessageSvc(),"RpcReadoutElement");
       log << MSG::WARNING << " bad identifier, no MuonStripDesign found " << endmsg;
-      return 0;
+      return nullptr;
     }
     return manager()->rpcIdHelper()->measuresPhi(id) ? &m_phiDesigns[phipanel-1] : &m_etaDesigns[phipanel-1];
   }

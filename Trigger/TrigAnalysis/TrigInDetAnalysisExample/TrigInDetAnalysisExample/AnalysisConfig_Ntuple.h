@@ -13,8 +13,6 @@
 #define TrigInDetAnalysisExample_AnalysisConfig_Ntuple_H
 
 #include "TrigHLTMonitoring/IHLTMonTool.h"
-// #include "AthenaBaseComps/AthAlgorithm.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 #include "TrigInDetAnalysis/TIDAEvent.h"
 #include "TrigInDetAnalysis/TIDAVertex.h"
@@ -138,9 +136,6 @@ protected:
   virtual void book();
 
   virtual void finalize();
-
-  IBeamCondSvc*  m_iBeamCondSvc;
-  IBeamCondSvc*  m_iOnlineBeamCondSvc;
   
   bool           m_useBeamCondSvc;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDTDIGITTOMDTRDO_H
@@ -12,7 +12,7 @@
 #include "MuonCablingData/MuonMDT_CablingMap.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
-
+#include "MuonCondData/MdtCondDbData.h"
 /////////////////////////////////////////////////////////////////////////////
 
 class MdtDigitToMdtRDO : public AthReentrantAlgorithm {
@@ -34,13 +34,26 @@ class MdtDigitToMdtRDO : public AthReentrantAlgorithm {
   StatusCode fillTagInfo() const;
 
  protected:
+      bool m_BMEpresent{false};
+      int  m_BME_station_name{-1};
+      ///
+      bool m_BMGpresent{false};
+      int m_BMG_station_name{-1};
+      int m_BIS_station_name{-1};
+      
+      ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+      SG::WriteHandleKey<MdtCsmContainer> m_csmContainerKey{this,"OutputObjectName","MDTCSM","WriteHandleKey for Output MdtCsmContainer"};
+      SG::ReadHandleKey<MdtDigitContainer> m_digitContainerKey{this,"InputObjectName","MDT_DIGITS","ReadHandleKey for Input MdtDigitContainer"};
+      SG::ReadCondHandleKey<MuonMDT_CablingMap> m_cablingKey{this, "CablingKey", "MuonMDT_CablingMap", "Key of MuonMDT_CablingMap"};
+      SG::ReadCondHandleKey<MdtCondDbData> m_condKey{this, "ConditionsKey",  "MdtCondDbData", "Key of MDT condition data"};
 
-  bool m_BMEpresent{false};
-  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-  SG::WriteHandleKey<MdtCsmContainer> m_csmContainerKey{this,"OutputObjectName","MDTCSM","WriteHandleKey for Output MdtCsmContainer"};
-  SG::ReadHandleKey<MdtDigitContainer> m_digitContainerKey{this,"InputObjectName","MDT_DIGITS","ReadHandleKey for Input MdtDigitContainer"};
-  SG::ReadCondHandleKey<MuonMDT_CablingMap> m_readKey{this, "ReadKey", "MuonMDT_CablingMap", "Key of MuonMDT_CablingMap"};
-
+     /// Create from the module_id a MdtCsmContainer
+     /// -- cabling_ptr: Pointer to the cached cabling map from the conditions
+     /// -- Identifier:  Identifier of the current chamber
+     /// -- moduleHash: 
+     /// -- need_second: Create the second CSM needed for BME and BIS78 (Run-III)
+     std::unique_ptr<MdtCsm> make_csm(const MuonMDT_CablingMap* cabling_ptr, const Identifier module_id, IdentifierHash module_hash, bool need_second) const;
+     
 };
 
 #endif

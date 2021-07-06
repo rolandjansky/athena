@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FlavorTagDiscriminants/DL2HighLevel.h"
@@ -12,6 +12,7 @@
 #include "lwtnn/LightweightGraph.hh"
 #include "lwtnn/NanReplacer.hh"
 
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS // Needed to silence Boost pragma message
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/exceptions.hpp>
@@ -79,7 +80,7 @@ namespace FlavorTagDiscriminants {
       // current flavor tagging developments and AFT-438.
       {"IP[23]D(Neg)?_[pbc](b|c|u|tau)"_r, floattype},
       {"SV1(Flip)?_[pbc](b|c|u|tau)"_r, floattype},
-      {"(rnnip|iprnn)(flip)?_p(b|c|u|tau)"_r, floattype},
+      {"(rnnip|iprnn|dips[^_]*)(flip)?_p(b|c|u|tau)"_r, floattype},
       {"(JetFitter|SV1|JetFitterSecondaryVertex)(Flip)?_[Nn].*"_r, EDMType::INT},
       {"(JetFitter|SV1|JetFitterSecondaryVertex).*"_r, EDMType::FLOAT},
       {"pt|abs_eta|eta"_r, EDMType::CUSTOM_GETTER},
@@ -99,6 +100,7 @@ namespace FlavorTagDiscriminants {
       {"JetFitterSecondaryVertex_.*"_r, "JetFitterSecondaryVertex_isDefaults"},
       {"JetFitterSecondaryVertexFlip_.*"_r, "JetFitterSecondaryVertexFlip_isDefaults"},
       {"rnnip_.*"_r, "rnnip_isDefaults"},
+      {"dips[^_]*_.*"_r, ""},
       {"rnnipflip_.*"_r, "rnnipflip_isDefaults"},
       {"iprnn_.*"_r, ""},
       {"smt_.*"_r, "softMuon_isDefaults"},
@@ -137,6 +139,7 @@ namespace FlavorTagDiscriminants {
 
     TypeRegexes trk_type_regexes {
       {"numberOf.*"_r, EDMType::UCHAR},
+      {"btagIp_(d|z)0.*"_r, EDMType::FLOAT},
       {".*_(d|z)0.*"_r, EDMType::CUSTOM_GETTER},
       {"(log_)?(ptfrac|dr).*"_r, EDMType::CUSTOM_GETTER}
     };
@@ -153,6 +156,7 @@ namespace FlavorTagDiscriminants {
     TrkSelRegexes trk_select_regexes {
       {".*_ip3d_.*"_r, TrackSelection::IP3D_2018},
       {".*_all_.*"_r, TrackSelection::ALL},
+      {".*_dipsLoose202102_.*"_r, TrackSelection::DIPS_LOOSE_202102},
     };
     std::vector<DL2TrackSequenceConfig> trk_config = get_track_input_config(
       trk_names, trk_type_regexes, trk_sort_regexes, trk_select_regexes);
@@ -172,8 +176,8 @@ namespace FlavorTagDiscriminants {
   DL2HighLevel::~DL2HighLevel() = default;
   DL2HighLevel::DL2HighLevel(DL2HighLevel&&) = default;
 
-  void DL2HighLevel::decorate(const xAOD::Jet& jet) const {
-    m_dl2->decorate(jet);
+  void DL2HighLevel::decorate(const xAOD::BTagging& btag) const {
+    m_dl2->decorate(btag);
   }
 
   DL2DataDependencyNames DL2HighLevel::getDataDependencyNames() const

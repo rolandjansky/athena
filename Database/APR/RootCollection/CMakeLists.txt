@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( RootCollection )
@@ -19,9 +19,9 @@ atlas_add_library( RootCollection
                    PUBLIC_HEADERS RootCollection
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} RootUtils
+                   LINK_LIBRARIES ${ROOT_LIBRARIES}
                    PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaKernel CollectionBase
-                   FileCatalog GaudiKernel POOLCore PersistencySvc PersistentDataModel RootUtils )
+                   FileCatalog GaudiKernel POOLCore PersistencySvc PersistentDataModel )
 
 atlas_add_library( RootCollectionComponents
                    src/components/*.cpp
@@ -31,12 +31,12 @@ atlas_add_library( RootCollectionComponents
 atlas_add_test( read_test
                 SOURCES
                 test/read_test.cxx
-                LINK_LIBRARIES ${CORAL_LIBRARIES} CollectionBase PersistentDataModel RootCollection )
+                LINK_LIBRARIES ${CORAL_LIBRARIES} CollectionBase PersistentDataModel RootCollection CxxUtils )
 
 atlas_add_test( update_test
                 SOURCES
                 test/update_test.cxx
-                LINK_LIBRARIES ${CORAL_LIBRARIES} CollectionBase PersistentDataModel RootCollection )
+                LINK_LIBRARIES ${CORAL_LIBRARIES} CollectionBase PersistentDataModel RootCollection CxxUtils )
 
 set_tests_properties( RootCollection_update_test_ctest
                       PROPERTIES DEPENDS RootCollection_read_test_ctest )

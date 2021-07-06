@@ -38,7 +38,7 @@ namespace xAODMaker {
 
   StatusCode VertexCnvAlg::initialize() {
 
-    ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
+    ATH_MSG_INFO( "Initializing" );
     ATH_MSG_INFO( "AODContainerName  = " << m_aod.name() );
     ATH_MSG_INFO( "xAODContainerName = " << m_xaodout.name() );
     ATH_MSG_INFO( "TPContainerName = " << m_TPContainerName );

@@ -1,6 +1,6 @@
 //Dear emacs, this is -*-c++-*-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTINFOMGT_TAGINFOMGR_H
@@ -31,6 +31,7 @@
 
 #include <map>
 #include <set>
+#include <shared_mutex>
 
 //<<<<<< PUBLIC TYPES                                                   >>>>>>
 
@@ -208,7 +209,10 @@ private:
     TagInfo                        m_tagInfo;
 
     /// List of listeners notified when the TagInfo changed
-    std::set< Listener* >       m_listeners;
+    std::set< Listener* >          m_listeners;
+
+    /// mutex to protect internal data in MT
+    mutable std::shared_mutex      m_mutex   ATLAS_THREAD_SAFE;
 };
 
 

@@ -59,7 +59,8 @@ TileBchPrbs::initPrbDesc()
   prbNames[TileBchPrbs::IgnoreCs               ] = "Ignore cesium";
   prbNames[TileBchPrbs::UnstableCs             ] = "Unstable cesium";
   prbNames[TileBchPrbs::WrongBCID              ] = "Wrong BCID";
-  prbNames[TileBchPrbs::TimingDmuBcOffset      ] = "Timing DMU BC offset";
+  prbNames[TileBchPrbs::TimingDmuBcOffsetPos   ] = "Timing DMU BC offset (positive)";
+  prbNames[TileBchPrbs::TimingDmuBcOffsetNeg   ] = "Timing DMU BC offset (negative)";
   prbNames[TileBchPrbs::BurntIntegrator        ] = "Burnt Integrator";
 
   //=== DSP
@@ -75,7 +76,8 @@ TileBchPrbs::initPrbDesc()
 
   //=== online channel
   prbNames[TileBchPrbs::OnlineBadTiming        ] = "Online bad timing";
-  prbNames[TileBchPrbs::OnlineTimingDmuBcOffset] = "Online timing DMU BC offset";
+  prbNames[TileBchPrbs::OnlineTimingDmuBcOffsetPos] = "Online timing DMU BC offset (positive)";
+  prbNames[TileBchPrbs::OnlineTimingDmuBcOffsetNeg] = "Online timing DMU BC offset (negative)";
   prbNames[TileBchPrbs::OnlineWrongBCID        ] = "Online wrong BCID";
 
   //=== online adc

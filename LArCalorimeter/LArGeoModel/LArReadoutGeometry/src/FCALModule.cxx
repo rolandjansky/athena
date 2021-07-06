@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArReadoutGeometry/FCAL_ChannelMap.h"
@@ -120,7 +120,7 @@ void FCALModule::setManager (FCALDetectorManager* fcalManager)
   m_manager = fcalManager;
   const FCAL_ChannelMap *cMap = m_manager->getChannelMap();
   FCAL_ChannelMap::tileMap_const_iterator t,begin=cMap->begin(m_Mod),end=cMap->end(m_Mod);
-  for (t=begin;t!=end;t++) {
+  for (t=begin;t!=end;++t) {
     FCALTile tile(this,t);
     m_tileList.push_back(tile);
   }

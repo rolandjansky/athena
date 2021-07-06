@@ -7,14 +7,14 @@
 namespace Trk {
 // constructor with parameters
 inline Trk::ResidualPull::ResidualPull(
-  const std::vector<double>& residual,
-  const std::vector<double>& pull,
+  std::vector<double> residual,
+  std::vector<double> pull,
   bool pullValid,
   Trk::ResidualPull::ResidualType type,
   int parameterKey,
   double sineStripAngle)
-  : m_residual(residual)
-  , m_pull(pull)
+  : m_residual(std::move(residual))
+  , m_pull(std::move(pull))
   , m_pullValid(pullValid)
   , m_residualType(type)
   , m_parameterKey(parameterKey)

@@ -1,20 +1,20 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MCTRUTHCLASSIFIER_MCTRUTHCLASSIFIERDEFS_H
 #define MCTRUTHCLASSIFIER_MCTRUTHCLASSIFIERDEFS_H
 /********************************************************************
 
-NAME:     MCTruthClassifierDefs.h 
+NAME:     MCTruthClassifierDefs.h
 PACKAGE:  atlasoff/PhysicsAnalysis/MCTruthClassifier
 
 AUTHORS:  O. Fedin
 CREATED:  Oct 2007
 
-PURPOSE:  
-          
-Updated:  
+PURPOSE:
+
+Updated:
 
 For more information, please see the twiki page:
 https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MCTruthClassifier
@@ -28,7 +28,7 @@ https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MCTruthClassifier
 
 namespace MCTruthPartClassifier {
 
-  enum ParticleType {
+  enum ParticleType : unsigned int {
     Unknown           =  0,
     UnknownElectron   =  1,
     IsoElectron       =  2,
@@ -71,7 +71,7 @@ namespace MCTruthPartClassifier {
     UnknownJet        =  38
   };
 
-  enum ParticleOrigin {
+  enum ParticleOrigin : unsigned int {
     NonDefined    = 0,
 
     SingleElec    = 1,
@@ -125,7 +125,7 @@ namespace MCTruthPartClassifier {
     QCD           = 45
   };
 
-  enum ParticleOutCome {
+  enum ParticleOutCome : unsigned int {
     NonDefinedOutCome  =  0,
     UnknownOutCome     =  1,
     UnConverted        =  2,
@@ -268,4 +268,4 @@ namespace MCTruthPartClassifier {
   struct ROOT6_NamespaceAutoloadHook{};
 }
 
-#endif // MCTRUTHCLASSIFIER_MCTRUTHCLASSIFIERDEFS_H 
+#endif // MCTRUTHCLASSIFIER_MCTRUTHCLASSIFIERDEFS_H

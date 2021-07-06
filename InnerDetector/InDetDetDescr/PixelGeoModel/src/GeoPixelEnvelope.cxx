@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoPixelEnvelope.h"
@@ -52,7 +52,7 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
   // This can either be a simple tube or a more general PCON.
   // 
   const GeoShape * envelopeShape;
-  InDetDD::Zone * pixZone = 0; 
+  InDetDD::Zone * pixZone = nullptr; 
   if (m_gmt_mgr->PixelSimpleEnvelope()) {
     double rmin = m_gmt_mgr->PixelRMin();
     double rmax = m_gmt_mgr->PixelRMax();
@@ -78,7 +78,7 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
   const GeoLogVol* envelopeLog = new GeoLogVol("Pixel",envelopeShape,air);
   GeoFullPhysVol* envelopePhys = new GeoFullPhysVol(envelopeLog);
 
-  GeoPixelServices * pixServices = 0;
+  GeoPixelServices * pixServices = nullptr;
   if(m_gmt_mgr->DoServices() ) {
     // Takes ownership of pixZone
     pixServices = new GeoPixelServices(m_DDmgr, m_gmt_mgr, pixZone);

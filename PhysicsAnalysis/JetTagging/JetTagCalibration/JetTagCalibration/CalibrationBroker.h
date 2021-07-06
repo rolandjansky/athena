@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGCALIBRATION_CALIBRATIONBROKER_H
@@ -69,7 +69,7 @@ public:
 			     bool status);
 
   std::map<std::string, std::string> m_ossMap;
-  inline void storeStr(const std::string& folder, const std::string& channel, const std::string& histoname, std::string oss) {
+  inline void storeStr(const std::string& folder, const std::string& channel, const std::string& histoname, const std::string& oss) {
     std::string key = folder + channel + histoname;
     m_ossMap[key] = oss;//m_ossMap.insert( std::make_pair(key,oss) );
   }
@@ -82,7 +82,7 @@ public:
   struct calibMV2{    std::vector<std::string> inputVars;    std::string str;    TObject* obj;  };
   std::map<std::string, calibMV2> m_calibMap;
   inline void storeCalib(const std::string& folder, const std::string& channel, const std::string& histoname,
-		       std::vector<std::string> inputVars, std::string str, TObject* obj ) {
+		       const std::vector<std::string>& inputVars, const std::string& str, TObject* obj ) {
     std::string channelAlias = this->channelAlias(channel);
     std::string key = folder + channelAlias + histoname;
     calibMV2 calib;    calib.inputVars = inputVars;    calib.str=str;    calib.obj=obj;

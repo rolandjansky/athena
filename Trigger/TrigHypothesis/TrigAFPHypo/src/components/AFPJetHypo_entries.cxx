@@ -1,3 +1,5 @@
-#include "TrigAFPHypo/TrigAFPJetAllTE.h"
-DECLARE_COMPONENT( TrigAFPJetAllTE )
+#include "../TrigAFPDijetComboHypoTool.h"
+#include "../AFPProtonTransportTool.h"
 
+DECLARE_COMPONENT( TrigAFPDijetComboHypoTool )
+DECLARE_COMPONENT( AFPProtonTransportTool )

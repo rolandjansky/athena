@@ -23,7 +23,7 @@ if not 'VertexTreeName' in jobConfig:                jobConfig['VertexTreeName']
 if not 'BeamSpotToolList' in jobConfig:              jobConfig['BeamSpotToolList'] = ['InDetBeamSpotRooFit','InDetBeamSpotVertex']
 
 #Event selection options
-if not 'UseBCID' in jobConfig:                 jobConfig['UseBCID'] = []
+if not 'UseBCID' in jobConfig:                       jobConfig['UseBCID'] = []
 if not 'UseFilledBCIDsOnly' in jobConfig:            jobConfig['UseFilledBCIDsOnly'] = True
 
 #Vertex Selection Options
@@ -31,23 +31,23 @@ if not 'MinTracksPerVtx' in jobConfig:            jobConfig['MinTracksPerVtx'] =
 if not 'MaxTracksPerVtx' in jobConfig:            jobConfig['MaxTracksPerVtx'] = 1000000
 if not 'MinVtxNum' in jobConfig:                  jobConfig['MinVtxNum'] = 100
 if not 'MaxVtxChi2' in jobConfig:                 jobConfig['MaxVtxChi2'] = 10
-if not 'MaxTransverseErr' in jobConfig:            jobConfig['MaxTransverseErr'] = 1000000
-if not 'VertexTypes' in jobConfig:                   jobConfig['VertexTypes'] = ['PriVtx']
+if not 'MaxTransverseErr' in jobConfig:           jobConfig['MaxTransverseErr'] = 1000000
+if not 'VertexTypes' in jobConfig:                jobConfig['VertexTypes'] = ['PriVtx']
 if not 'MinVtxProb' in jobConfig:                 jobConfig['MinVtxProb'] = .001
-if not 'VertexContainer' in jobConfig:               jobConfig['VertexContainer'] = 'PrimaryVertices'
+if not 'VertexContainer' in jobConfig:            jobConfig['VertexContainer'] = 'PrimaryVertices'
 
 #Options for sorting vertices into fits
 if not 'LumiRange' in jobConfig:                  jobConfig['LumiRange'] = 0
-if not 'RunRange' in jobConfig:                 jobConfig['RunRange'] = 0
+if not 'RunRange' in jobConfig:                   jobConfig['RunRange'] = 0
 
 #if not 'GroupFitsByBCID' in jobConfig:               jobConfig['GroupFitsByBCID'] = False
 #if not 'GroupFitsByPileup' in jobConfig:             jobConfig['GroupFitsByPileup'] = False
-if not 'GroupFitsBy' in jobConfig:                   jobConfig['GroupFitsBy'] = 'none'
-if not 'EventRange' in jobConfig:             jobConfig['EventRange'] = 0
+if not 'GroupFitsBy' in jobConfig:                jobConfig['GroupFitsBy'] = 'none'
+if not 'EventRange' in jobConfig:                 jobConfig['EventRange'] = 0
 
 #Fit Options
-if not 'InitialKFactor' in jobConfig:                jobConfig['InitialKFactor'] = 1.0
-if not 'ConstantKFactor' in jobConfig:               jobConfig['ConstantKFactor'] = False
+if not 'InitialKFactor' in jobConfig:             jobConfig['InitialKFactor'] = 1.0
+if not 'ConstantKFactor' in jobConfig:            jobConfig['ConstantKFactor'] = False
 
 #Fit Options for official fit only
 if not 'MaxSigmaTr' in jobConfig:                    jobConfig['MaxSigmaTr'] = 20.
@@ -62,6 +62,9 @@ if not 'RooFitMaxTransverseErr' in jobConfig:        jobConfig['RooFitMaxTransve
 if not 'FixWidth' in jobConfig:                      jobConfig['FixWidth'] =  False
 
 # General job setup
+from AthenaCommon.ConcurrencyFlags import jobproperties as jp
+print ( 'Number of threads: ',jp.ConcurrencyFlags.NumThreads()  )   
+
 include("InDetBeamSpotExample/AutoConfFragment.py")
 include("InDetBeamSpotExample/ReadInDetRecFragment.py")
 include("InDetBeamSpotExample/JobSetupFragment.py")
@@ -104,7 +107,6 @@ ToolSvc += CfgMgr.InDet__InDetBeamSpotRooFit(name            = 'InDetBeamSpotRoo
                                              vtxResCut       = jobConfig['RooFitMaxTransverseErr'])
 
 printfunc (ToolSvc.InDetBeamSpotRooFit)
-
 topSequence += CfgMgr.InDet__InDetBeamSpotFinder(name                = 'InDetBeamSpotFinder',
                                                  #job options
                                                  OutputLevel         = min(INFO,jobConfig['outputlevel']),
@@ -143,9 +145,6 @@ if jobConfig['UseFilledBCIDsOnly']:
      bunchCrossingTool.OutputLevel=ERROR
      topSequence.InDetBeamSpotFinder.BCTool = bunchCrossingTool
 
-printfunc (topSequence.InDetBeamSpotFinder)
-
-#from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += CfgMgr.THistSvc()
 ServiceMgr.THistSvc.Output+=[ "INDETBEAMSPOTFINDER DATAFILE='%s' OPT='RECREATE'" % jobConfig['histfile'] ]
 
@@ -158,3 +157,9 @@ jobConfig['jobpostprocsteps'] += ' MergeNt BeamSpotNt PlotBeamSpot LinkResults A
 
 # Print jobConfig parameters
 include("InDetBeamSpotExample/PrintConfFragment.py")
+
+print(topSequence)
+from AthenaCommon.AlgSequence import dumpMasterSequence
+dumpMasterSequence()
+
+

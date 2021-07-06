@@ -7,6 +7,9 @@
 #include "FlavorTagDiscriminants/DL2Tool.h"
 #include "FlavorTagDiscriminants/BTagAugmenterTool.h"
 #include "FlavorTagDiscriminants/BTagMuonAugmenterTool.h"
+#include "FlavorTagDiscriminants/BTagDecoratorAlg.h"
+#include "FlavorTagDiscriminants/BTagToJetLinkerAlg.h"
+#include "FlavorTagDiscriminants/BTagTrackLinkCopyAlg.h"
 
 using namespace FlavorTagDiscriminants;
 
@@ -15,4 +18,6 @@ DECLARE_COMPONENT(HbbTagTool)
 DECLARE_COMPONENT(DL2Tool)
 DECLARE_COMPONENT(BTagAugmenterTool)
 DECLARE_COMPONENT(BTagMuonAugmenterTool)
-
+DECLARE_COMPONENT(BTagDecoratorAlg)
+DECLARE_COMPONENT(BTagToJetLinkerAlg)
+DECLARE_COMPONENT(BTagTrackLinkCopyAlg)

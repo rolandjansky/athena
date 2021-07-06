@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -39,9 +39,9 @@ void test1()
     ClusterTOB cluster_fix0; // one cluster fixed at eta=0
     ClusterTOB cluster_var; // one cluster scanning eta values
 
-    for(double ieta : {23, int(23.5), 24}) {
+    for(double ieta : {10*2.30, 10*2.35, 10*2.40}) {
         cluster_var.setEta(ieta);
-        auto cosh_val = TSU::Hyperbolic::Cosh.at(abs(cluster_fix0.eta() - cluster_var.eta()));
+        auto cosh_val = TSU::Hyperbolic::Coshleg.at(static_cast<int>(abs(cluster_fix0.eta() - cluster_var.eta())));
         cout<<"delta eta: "
             <<" abs("<<cluster_fix0.eta()<<" - "<<cluster_var.eta()<<")"
             <<" = "<<abs(cluster_fix0.eta() - cluster_var.eta())
@@ -55,24 +55,24 @@ void test2()
 {
     cout << "** test2: L1TopoSimulationUtils KFLUT correction vs. et and eta**\n";
     TCS::KFLUT  kflut;
-
+    
     // use roughly the center of the bins defined in KFLUT.cxx + one outsider
     for(const double eta : {0.05, 0.2, 0.41, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 2.9, 3.1, 3.5}) {
-        for(const unsigned int et : {4, 12, 24, 48, 96, 360}) {
-            int iet = kflut.getetbin(et);
-            int ieta = kflut.getetabin(std::abs(eta));
-            double corrfactor = kflut.getcorrKF(iet, ieta);
-            const bool large = corrfactor>+0.5;
-            const bool small = corrfactor<-0.5;
-            if(small or large) {
-                cout<<" et "<<et<<" ["<<iet<<"], "
-                    <<" eta "<<eta<<" ["<<ieta<<"] : "
-                    <<corrfactor<<(large ? " >>>" :
-                                   small ? " <<<" :
-                                   "")
-                    <<endl;
-            }
-        } // for(et)
+      for(const unsigned int et : {4, 12, 24, 48, 96, 360}) {
+	int iet = kflut.getetbin(et);
+	int ieta = kflut.getetabin(std::abs(eta));
+	double corrfactor = kflut.getcorrKF(iet, ieta);
+	const bool large = corrfactor>+0.5;
+	const bool small = corrfactor<-0.5;
+	if(small or large) {
+	  cout<<" et "<<et<<" ["<<iet<<"], "
+	      <<" eta "<<eta<<" ["<<ieta<<"] : "
+	      <<corrfactor<<(large ? " >>>" :
+			     small ? " <<<" :
+			     "")
+	      <<endl;
+	}
+      } // for(et)
     } // for(eta)
 }
 
@@ -174,11 +174,10 @@ int test4()
 
 
 int main()
-{
+{  
   test1();
   test2();
   test3();
   int result = test4();
-
   return result;
 }

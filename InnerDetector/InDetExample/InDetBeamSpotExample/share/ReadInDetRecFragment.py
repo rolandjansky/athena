@@ -34,6 +34,7 @@ if not 'doRobustReco' in jobConfig:                  jobConfig['doRobustReco'] =
 if not 'doTruth' in jobConfig:                       jobConfig['doTruth'] = False
 if not 'doPrintIndetConfig' in jobConfig:            jobConfig['doPrintIndetConfig'] = False
 if not 'jobpostprocsteps' in jobConfig:              jobConfig['jobpostprocsteps'] = ''
+if not 'doExpressProcessing' in jobConfig:           jobConfig['doExpressProcessing'] = True
 
 # WARNING: Be very careful if you ever change the default for commissioning, since it may
 #          break beam spot reconstruction! Setting rec.commissioning=True seems to not only
@@ -90,6 +91,10 @@ if jobConfig['commissioning']:
   from RecExConfig.RecFlags import rec
   rec.Commissioning = True
   rec.doMonitoring = False
+
+if jobConfig['doExpressProcessing']:
+  from RecExConfig.RecFlags import rec  
+  rec.doExpressProcessing = True
 
 #--------------------------------------------------------------
 # Control - standard options (as in jobOptions.py)
@@ -214,6 +219,16 @@ InDetFlags.doPRDFormation        = False                       # those two will 
 InDetFlags.doSpacePointFormation = redoPatternRecoAndTracking  # preProcessing is false
 InDetFlags.doNewTracking      = redoPatternRecoAndTracking
 InDetFlags.doLowPt            = jobConfig['doLowPt']
+InDetFlags.doBeamGas   = False
+InDetFlags.doBackTracking = False
+InDetFlags.doVeryLowPt = False
+InDetFlags.doTRTStandalone = False
+InDetFlags.doForwardTracks = False
+InDetFlags.doLargeD0 = False
+InDetFlags.doR3LargeD0 = False
+InDetFlags.doLowPtLargeD0 = False
+InDetFlags.doCaloSeededAmbi = False
+
 if jobConfig['doRobustReco']:
     try:
         InDetFlags.doRobustReco = True

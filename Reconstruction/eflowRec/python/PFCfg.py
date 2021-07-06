@@ -1,41 +1,42 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 def PFTrackSelectorAlgCfg(inputFlags,algName,useCaching=True):
-    PFTrackSelector=CompFactory.PFTrackSelector
-    PFTrackSelector=PFTrackSelector(algName)
+    PFTrackSelectorFactory=CompFactory.PFTrackSelector
+    PFTrackSelector=PFTrackSelectorFactory(algName)
 
     from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg    
-    Trk__ParticleCaloExtensionTool=CompFactory.Trk.ParticleCaloExtensionTool
+    Trk__ParticleCaloExtensionToolFactory=CompFactory.Trk.ParticleCaloExtensionTool
     result = AtlasExtrapolatorCfg(inputFlags)
-    pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = result.popPrivateTools())
+    pcExtensionTool = Trk__ParticleCaloExtensionToolFactory(Extrapolator = result.popPrivateTools())
 
     eflowTrackCaloExtensionTool=CompFactory.eflowTrackCaloExtensionTool
     TrackCaloExtensionTool=eflowTrackCaloExtensionTool(TrackCaloExtensionTool=pcExtensionTool)
-    if False is useCaching:
+    if (not useCaching):
       TrackCaloExtensionTool.PFParticleCache = ""
 
     PFTrackSelector.trackExtrapolatorTool = TrackCaloExtensionTool
 
-    InDet__InDetTrackSelectionTool=CompFactory.InDet.InDetTrackSelectionTool
-    TrackSelectionTool = InDet__InDetTrackSelectionTool("PFTrackSelectionTool")
+    InDet__InDetTrackSelectionToolFactory=CompFactory.InDet.InDetTrackSelectionTool
+    TrackSelectionTool = InDet__InDetTrackSelectionToolFactory("PFTrackSelectionTool")
 
     TrackSelectionTool.CutLevel = "TightPrimary"
     TrackSelectionTool.minPt = 500.0 
     
     PFTrackSelector.trackSelectionTool = TrackSelectionTool
 
-    result.addEventAlgo (PFTrackSelector)
+    result.addEventAlgo (PFTrackSelector, primary=True)
 
     return result
 
 def getPFClusterSelectorTool(clustersin,calclustersin,algName):
 
-    PFClusterSelectorTool = CompFactory.PFClusterSelectorTool
-    PFClusterSelectorTool = PFClusterSelectorTool(algName)
-    if clustersin:
+    PFClusterSelectorToolFactory = CompFactory.PFClusterSelectorTool
+    PFClusterSelectorTool = PFClusterSelectorToolFactory(algName)
+    if clustersin is not None:
         PFClusterSelectorTool.clustersName = clustersin
-    if calclustersin:
+    if calclustersin is not None:
         PFClusterSelectorTool.calClustersName = calclustersin
 
     return PFClusterSelectorTool
@@ -50,19 +51,19 @@ def getPFTrackClusterMatchingTool(inputFlags,matchCut,distanceType,clusterPositi
 
 
 def getPFCellLevelSubtractionTool(inputFlags,toolName):
-    PFCellLevelSubtractionTool = CompFactory.PFCellLevelSubtractionTool
-    PFCellLevelSubtractionTool = PFCellLevelSubtractionTool(toolName)
+    PFCellLevelSubtractionToolFactory = CompFactory.PFCellLevelSubtractionTool
+    PFCellLevelSubtractionTool = PFCellLevelSubtractionToolFactory(toolName)
     
     eflowCellEOverPTool_mc12_JetETMiss = CompFactory.eflowCellEOverPTool_mc12_JetETMiss
     PFCellLevelSubtractionTool.eflowCellEOverPTool = eflowCellEOverPTool_mc12_JetETMiss()
 
-    if(True is inputFlags.PF.EOverPMode):
+    if(inputFlags.PF.EOverPMode):
         PFCellLevelSubtractionTool.CalcEOverP = True
         PFCellLevelSubtractionTool.nMatchesInCellLevelSubtraction = -1
     else:
         PFCellLevelSubtractionTool.nMatchesInCellLevelSubtraction = 1
 
-    if(True is inputFlags.PF.EOverPMode):
+    if(inputFlags.PF.EOverPMode):
         PFCellLevelSubtractionTool.PFTrackClusterMatchingTool = getPFTrackClusterMatchingTool(inputFlags,0.2,"EtaPhiSquareDistance","PlainEtaPhi","CalObjBldMatchingTool")
     else:
         PFCellLevelSubtractionTool.PFTrackClusterMatchingTool = getPFTrackClusterMatchingTool(inputFlags,1.64,"EtaPhiSquareSignificance","GeomCenterEtaPhi","CalObjBldMatchingTool")
@@ -72,8 +73,8 @@ def getPFCellLevelSubtractionTool(inputFlags,toolName):
     return PFCellLevelSubtractionTool
 
 def getPFRecoverSplitShowersTool(inputFlags,toolName):
-    PFRecoverSplitShowersTool = CompFactory.PFRecoverSplitShowersTool
-    PFRecoverSplitShowersTool = PFRecoverSplitShowersTool(toolName)
+    PFRecoverSplitShowersToolFactory = CompFactory.PFRecoverSplitShowersTool
+    PFRecoverSplitShowersTool = PFRecoverSplitShowersToolFactory(toolName)
 
     eflowCellEOverPTool_mc12_JetETMiss = CompFactory.eflowCellEOverPTool_mc12_JetETMiss
     PFRecoverSplitShowersTool.eflowCellEOverPTool = eflowCellEOverPTool_mc12_JetETMiss("eflowCellEOverPTool_mc12_JetETMiss_Recover")
@@ -85,11 +86,12 @@ def getPFRecoverSplitShowersTool(inputFlags,toolName):
     return PFRecoverSplitShowersTool
 
 def getPFMomentCalculatorTool(inputFlags, momentsToCalculateList):
-    PFMomentCalculatorTool = CompFactory.PFMomentCalculatorTool
-    PFMomentCalculatorTool = PFMomentCalculatorTool("PFMomentCalculatorTool")
+    result=ComponentAccumulator()
+    PFMomentCalculatorToolFactory = CompFactory.PFMomentCalculatorTool
+    PFMomentCalculatorTool = PFMomentCalculatorToolFactory("PFMomentCalculatorTool")
 
     from CaloRec.CaloTopoClusterConfig import getTopoMoments
-    PFClusterMomentsMaker = getTopoMoments(inputFlags)
+    PFClusterMomentsMaker = result.popToolsAndMerge(getTopoMoments(inputFlags))
     if (len(momentsToCalculateList) > 0):
         PFClusterMomentsMaker.MomentsNames = momentsToCalculateList
     PFMomentCalculatorTool.CaloClusterMomentsMaker = PFClusterMomentsMaker
@@ -97,12 +99,13 @@ def getPFMomentCalculatorTool(inputFlags, momentsToCalculateList):
     PFClusterCollectionTool = CompFactory.PFClusterCollectionTool
     PFMomentCalculatorTool.PFClusterCollectionTool = PFClusterCollectionTool("PFClusterCollectionTool")
 
-    if(True is inputFlags.PF.useCalibHitTruthClusterMoments):
+    if(inputFlags.PF.useCalibHitTruthClusterMoments):
         PFMomentCalculatorTool.UseCalibHitTruth=True
         from CaloRec.CaloTopoClusterConfig import getTopoCalibMoments
         PFMomentCalculatorTool.CaloCalibClusterMomentsMaker2 = getTopoCalibMoments(inputFlags)
 
-    return PFMomentCalculatorTool
+    result.setPrivateTools(PFMomentCalculatorTool)
+    return result
 
 def getPFLCCalibTool(inputFlags):
     PFLCCalibTool = CompFactory.PFLCCalibTool
@@ -122,27 +125,146 @@ def getPFLCCalibTool(inputFlags):
 
     return PFLCCalibTool
 
-def getChargedPFOCreatorAlgorithm(inputFlags,chargedPFOOutputName):
-    PFOChargedCreatorAlgorithm = CompFactory.PFOChargedCreatorAlgorithm
-    PFOChargedCreatorAlgorithm = PFOChargedCreatorAlgorithm("PFOChargedCreatorAlgorithm")
+def getChargedPFOCreatorAlgorithm(inputFlags,chargedPFOOutputName,eflowObjectsInputName=None):
+    PFOChargedCreatorAlgorithmFactory = CompFactory.PFOChargedCreatorAlgorithm
+    PFOChargedCreatorAlgorithm = PFOChargedCreatorAlgorithmFactory("PFOChargedCreatorAlgorithm")
     if chargedPFOOutputName:
         PFOChargedCreatorAlgorithm.PFOOutputName = chargedPFOOutputName
-    if(True is inputFlags.PF.EOverPMode):
+    if(inputFlags.PF.EOverPMode):
         PFOChargedCreatorAlgorithm.PFOOutputName="EOverPChargedParticleFlowObjects"
+    if eflowObjectsInputName is not None:
+        PFOChargedCreatorAlgorithm.eflowCaloObjectContainerName = eflowObjectsInputName
 
     return PFOChargedCreatorAlgorithm
 
-def getNeutralPFOCreatorAlgorithm(inputFlags,neutralPFOOutputName):
-
-    PFONeutralCreatorAlgorithm = CompFactory.PFONeutralCreatorAlgorithm
-    PFONeutralCreatorAlgorithm =  PFONeutralCreatorAlgorithm("PFONeutralCreatorAlgorithm")
+def getNeutralPFOCreatorAlgorithm(inputFlags,neutralPFOOutputName,eflowObjectsInputName=None):
+    PFONeutralCreatorAlgorithmFactory = CompFactory.PFONeutralCreatorAlgorithm
+    PFONeutralCreatorAlgorithm =  PFONeutralCreatorAlgorithmFactory("PFONeutralCreatorAlgorithm")
     if neutralPFOOutputName:
         PFONeutralCreatorAlgorithm.PFOOutputName = neutralPFOOutputName
-    if(True is inputFlags.PF.EOverPMode):
+    if(inputFlags.PF.EOverPMode):
         PFONeutralCreatorAlgorithm.PFOOutputName="EOverPNeutralParticleFlowObjects"
-    if(True is inputFlags.PF.useCalibHitTruthClusterMoments and True is inputFlags.PF.addClusterMoments):
+    if(inputFlags.PF.useCalibHitTruthClusterMoments and inputFlags.PF.addClusterMoments):
         PFONeutralCreatorAlgorithm.UseCalibHitTruth=True
+    if eflowObjectsInputName is not None:
+        PFONeutralCreatorAlgorithm.eflowCaloObjectContainerName = eflowObjectsInputName    
 
     PFONeutralCreatorAlgorithm.DoClusterMoments=inputFlags.PF.addClusterMoments
         
     return PFONeutralCreatorAlgorithm
+
+def getChargedFlowElementCreatorAlgorithm(inputFlags,chargedFlowElementOutputName):    
+    FlowElementChargedCreatorAlgorithmFactory = CompFactory.PFChargedFlowElementCreatorAlgorithm
+    FlowElementChargedCreatorAlgorithm = FlowElementChargedCreatorAlgorithmFactory("PFChargedFlowElementCreatorAlgorithm")
+    if chargedFlowElementOutputName:
+        FlowElementChargedCreatorAlgorithm.FlowElementOutputName=chargedFlowElementOutputName
+    if(inputFlags.PF.EOverPMode):
+        FlowElementChargedCreatorAlgorithm.FlowElementOutputName="EOverPChargedParticleFlowObjects"
+
+    return FlowElementChargedCreatorAlgorithm
+
+def getNeutralFlowElementCreatorAlgorithm(inputFlags,neutralFlowElementOutputName):
+    FlowElementNeutralCreatorAlgorithmFactory = CompFactory.PFNeutralFlowElementCreatorAlgorithm
+    FlowElementNeutralCreatorAlgorithm = FlowElementNeutralCreatorAlgorithmFactory("PFNeutralFlowElementCreatorAlgorithm")
+    if neutralFlowElementOutputName:
+        FlowElementNeutralCreatorAlgorithm.FlowElementOutputName=neutralFlowElementOutputName
+    if(inputFlags.PF.EOverPMode):
+        FlowElementNeutralCreatorAlgorithm.FlowElementOutputName="EOverPNeutralParticleFlowObjects"
+    if(inputFlags.PF.useCalibHitTruthClusterMoments and inputFlags.PF.addClusterMoments):
+        FlowElementNeutralCreatorAlgorithm.useCalibHitTruth=True
+
+
+    return FlowElementNeutralCreatorAlgorithm
+
+def getEGamFlowElementAssocAlgorithm(inputFlags,neutral_FE_cont_name="",charged_FE_cont_name="",AODTest=False):
+    
+    PFEGamFlowElementLinkerAlgorithmFactory=CompFactory.PFEGamFlowElementAssoc
+    PFEGamFlowElementLinkerAlgorithm=PFEGamFlowElementLinkerAlgorithmFactory("PFEGamFlowElementAssoc")
+
+    #set an an alternate name if needed
+    #this uses some gaudi core magic, namely that you can change the name of the handle as it is a callable attribute, despite the attribute not being explicitly listed in the header
+    #for a key of type SG::WriteDecorHandle<xAOD::SomeCont>someKey{this,"SpecificContainerName","myContainerName","other-labels"}
+    #setting algorithm.SpecificContainerName="myNewContainerName" changes parameter "myContainerName"
+    #(also applies to ReadHandles)
+    if(neutral_FE_cont_name!=""):
+        PFEGamFlowElementLinkerAlgorithm.JetEtMissNeutralFlowElementContainer=neutral_FE_cont_name
+        
+    if(charged_FE_cont_name!=""):
+        PFEGamFlowElementLinkerAlgorithm.JetEtMissChargedFlowElementContainer=charged_FE_cont_name
+
+    # as per muon block, if run on AOD as a test (where the links are already defined), need to rename the output containers to be something new
+    if(AODTest):
+        # do electron container renaming first
+        EL_NFE_Link=str(PFEGamFlowElementLinkerAlgorithm.ElectronNeutralFEDecorKey)
+
+        PFEGamFlowElementLinkerAlgorithm.ElectronNeutralFEDecorKey=EL_NFE_Link.replace("FELinks","CustomFELinks")
+
+        EL_CFE_Link=str(PFEGamFlowElementLinkerAlgorithm.ElectronChargedFEDecorKey)
+        PFEGamFlowElementLinkerAlgorithm.ElectronChargedFEDecorKey=EL_CFE_Link.replace("FELinks","CustomFELinks")
+
+        
+        NFE_EL_Link=str(PFEGamFlowElementLinkerAlgorithm.NeutralFEElectronDecorKey)
+        PFEGamFlowElementLinkerAlgorithm.NeutralFEElectronDecorKey=NFE_EL_Link.replace("FE","CustomFE")
+
+        CFE_EL_Link=str(PFEGamFlowElementLinkerAlgorithm.ChargedFEElectronDecorKey)
+        PFEGamFlowElementLinkerAlgorithm.ChargedFEElectronDecorKey=CFE_EL_Link.replace("FE","CustomFE")
+
+
+        # now do same with photons
+        PH_NFE_Link=str(PFEGamFlowElementLinkerAlgorithm.PhotonNeutralFEDecorKey)
+        PFEGamFlowElementLinkerAlgorithm.PhotonNeutralFEDecorKey=PH_NFE_Link.replace("FELinks","CustomFELinks")
+        PH_CFE_Link=str(PFEGamFlowElementLinkerAlgorithm.PhotonChargedFEDecorKey)
+        PFEGamFlowElementLinkerAlgorithm.PhotonChargedFEDecorKey=PH_CFE_Link.replace("FELinks","CustomFELinks")
+
+        NFE_PH_Link=str(PFEGamFlowElementLinkerAlgorithm.NeutralFEPhotonDecorKey)
+        PFEGamFlowElementLinkerAlgorithm.NeutralFEPhotonDecorKey=NFE_PH_Link.replace("FE","CustomFE")
+
+        CFE_PH_Link=str(PFEGamFlowElementLinkerAlgorithm.ChargedFEPhotonDecorKey)
+        PFEGamFlowElementLinkerAlgorithm.ChargedFEPhotonDecorKey=CFE_PH_Link.replace("FE","CustomFE")
+
+
+        
+    return PFEGamFlowElementLinkerAlgorithm
+
+def getMuonFlowElementAssocAlgorithm(inputFlags,neutral_FE_cont_name="",charged_FE_cont_name="",LinkNeutralFEClusters=True,useMuonTopoClusters=False,AODTest=False):
+    
+    PFMuonFlowElementLinkerAlgorithmFactory=CompFactory.PFMuonFlowElementAssoc
+    PFMuonFlowElementLinkerAlgorithm=PFMuonFlowElementLinkerAlgorithmFactory("PFMuonFlowElementAssoc")
+
+    #set an an alternate name if needed
+    #this uses some gaudi core magic, namely that you can change the name of the handle as it is a callable attribute, despite the attribute not being explicitly listed in the header as such
+    #for a key of type SG::WriteDecorHandle<xAOD::SomeCont>someKey{this,"SpecificContainerName","myContainerName","other-labels"}
+    #setting algorithm.SpecificContainerName="myNewContainerName" changes parameter "myContainerName" to "myNewContainerName"
+    if(neutral_FE_cont_name!=""):
+        #update the readhandle
+        PFMuonFlowElementLinkerAlgorithm.JetEtMissNeutralFlowElementContainer=neutral_FE_cont_name
+        #update the write handle for the link
+        
+    if(charged_FE_cont_name!=""):
+        PFMuonFlowElementLinkerAlgorithm.JetEtMissChargedFlowElementContainer=charged_FE_cont_name
+
+    
+    PFMuonFlowElementLinkerAlgorithm.m_LinkNeutralFEClusters=LinkNeutralFEClusters
+    PFMuonFlowElementLinkerAlgorithm.m_UseMuonTopoClusters=useMuonTopoClusters
+
+    #prototype on AOD with the linkers already defined - so need to rename the output links to something besides their default name.
+
+    if(AODTest):
+        # use same Gaudi trick to rename the container input name.         
+        MuonFELink=str(PFMuonFlowElementLinkerAlgorithm.MuonContainer_chargedFELinks)
+        PFMuonFlowElementLinkerAlgorithm.MuonContainer_chargedFELinks=MuonFELink.replace("FELinks","CustomFELinks")
+        
+        PFMuonFlowElementLinkerAlgorithm.MuonContainer_neutralFELinks=str(PFMuonFlowElementLinkerAlgorithm.MuonContainer_neutralFELinks).replace("FELinks","CustomFELinks")
+                                                                                                                        
+        PFMuonFlowElementLinkerAlgorithm.JetETMissNeutralFlowElementContainer_FE_MuonLinks=str(PFMuonFlowElementLinkerAlgorithm.JetETMissNeutralFlowElementContainer_FE_MuonLinks).replace("MuonLinks","CustomMuonLinks")
+        PFMuonFlowElementLinkerAlgorithm.JetETMissChargedFlowElements_FE_MuonLinks=str(PFMuonFlowElementLinkerAlgorithm.JetETMissChargedFlowElements_FE_MuonLinks).replace("MuonLinks","CustomMuonLinks")
+        
+        # and because debug info is also written, need to rename each handle for this too.... - might want to change this in future/re-work it so that a rename -> no debug info saved by default.
+        PFMuonFlowElementLinkerAlgorithm.FlowElementContainer_FE_efrac_matched_muon=str(PFMuonFlowElementLinkerAlgorithm.FlowElementContainer_FE_efrac_matched_muon).replace("FE","CustomFE")
+        PFMuonFlowElementLinkerAlgorithm.MuonContainer_muon_efrac_matched_FE=str(PFMuonFlowElementLinkerAlgorithm.MuonContainer_muon_efrac_matched_FE).replace("FE","CustomFE")
+        PFMuonFlowElementLinkerAlgorithm.FlowElementContainer_nMatchedMuons=str(PFMuonFlowElementLinkerAlgorithm.FlowElementContainer_nMatchedMuons).replace("FE","CustomFE")
+        
+        
+        
+        
+    return PFMuonFlowElementLinkerAlgorithm

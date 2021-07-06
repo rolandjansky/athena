@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /* @file CaloTPCnv/test/CaloClusterContainerCnv_test.cxx
  * @author scott snyder <snyder@bnl.gov>
  * @date Feb, 2010
@@ -27,6 +25,7 @@
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include "TestTools/leakcheck.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include <cassert>
 
 
@@ -330,6 +329,7 @@ void testit (const CaloClusterContainer& clust, int version)
 int main()
 {
   errorcheck::ReportMessage::hideErrorLocus();
+  (void)Gaudi::Hive::currentContext();
   SGTest::initTestStore();
   Athena::getMessageSvc();
   AthenaBarCodeImpl abci;

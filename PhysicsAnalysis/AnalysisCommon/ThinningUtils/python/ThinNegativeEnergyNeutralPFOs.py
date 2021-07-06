@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -18,16 +18,18 @@ class ThinNegativeEnergyNeutralPFOs(Configured):
                 StreamName = 'StreamAOD'
             )
             from RecExConfig.ObjKeyStore import cfgKeyStore
-            if cfgKeyStore.isInInput('xAOD::FlowElementContainer', 'JetETMissNeutralFlowElements',):
-                theNegativeEnergyNeutralPFOsThinner.NeutralPFOsFEKey = "JetETMissNeutralFlowElements"
+            if cfgKeyStore.isInInput('xAOD::FlowElementContainer', 'JetETMissNeutralParticleFlowObjects',):
+                theNegativeEnergyNeutralPFOsThinner.NeutralPFOsKey = "JetETMissNeutralParticleFlowObjects"
+            if cfgKeyStore.isInInput('xAOD::FlowElementContainer', 'JetETMissLCNeutralParticleFlowObjects',):
+                theNegativeEnergyNeutralPFOsThinner.LCNeutralPFOsKey = "JetETMissLCNeutralParticleFlowObjects"
             print (theNegativeEnergyNeutralPFOsThinner)
 
             CHSnPFOsThinAlg = None
 
 
             from JetRec.JetRecFlags import jetFlags
-            if (jetFlags.useTracks or
-                cfgKeyStore.isInInput ('xAOD::PFOContainer',
+            if ((jetFlags.Enabled() and jetFlags.useTracks) or
+                cfgKeyStore.isInInput ('xAOD::FlowElementContainer',
                                        'CHSNeutralParticleFlowObjects')):
                 CHSnPFOsThinAlg = ThinNegativeEnergyNeutralPFOsAlg(
                     "ThinNegativeEnergyCHSNeutralPFOsAlg",

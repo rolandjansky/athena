@@ -77,6 +77,13 @@ void contents( std::vector<std::string>& keys,
 	       const std::string& pattern="", 
 	       const std::string& path="" );
 
+void contents( std::vector<std::string>& keys, 
+	       TDirectory* td, 
+	       const std::string& directory="", 
+	       const std::vector<std::string>& patterns=std::vector<std::string>(), 
+	       const std::string& path="" );
+
+
 double realmax( TH1* h, bool include_error=true, double lo=0, double hi=0 );
 double realmin( TH1* h, bool include_error=true, double lo=0, double hi=0 );
 
@@ -115,6 +122,23 @@ void xrange(TH1* h, bool symmetric=true );
 
 /// copy the TTree of release info from one directory to another
 void copyReleaseInfo( TFile* finput, TFile* foutdir );
+
+
+class true_mean { 
+
+public: 
+  
+  true_mean( TH1F* h );
+
+  double mean() const  { return m_mean; } 
+  double error() const { return m_error; } 
+
+private:
+  
+  double m_mean;
+  double m_error;
+  
+};
 
 
 /// class to store information about axes, limits, whether it is 
@@ -313,13 +337,10 @@ public:
   Legend() : m_leg(0) { } 
 
   Legend(double x1, double x2, double y1, double y2) { 
-    m_leg = new TLegend( m_x[0]=x1, m_y[0]=y1, m_x[1]=x2, m_y[1]=y2);
-    m_leg->SetBorderSize(0);
-    m_leg->SetTextFont(42);
-    m_leg->SetTextSize(0.04);
-    m_leg->SetFillStyle(3000);
-    m_leg->SetFillColor(0);
-    m_leg->SetLineColor(0);
+    m_x[0]=x1;
+    m_y[0]=y1;
+    m_x[1]=x2;
+    m_y[1]=y2;
   }
 
 
@@ -331,11 +352,8 @@ public:
 
   TLegend* legend() { return m_leg; } 
 
-  TLegend* operator->() { return m_leg; }
-
   size_t size() const { 
-    if ( m_leg ) return m_leg->GetNRows();
-    else        return 0;
+    return m_entries.size();
   }  
 
   double TextSize() const { return m_leg->GetTextSize(); }
@@ -346,6 +364,43 @@ public:
 
   double width() const { return m_x[1]-m_x[0]; }
 
+  void AddEntry( TObject* tobj, const std::string& s, const std::string& type="p" ) { 
+    m_obj.push_back( tobj );
+    m_entries.push_back( s );
+    m_type.push_back( type );
+  }
+
+  void Draw() { 
+    
+    /// ha ! don't actually create the legend until we want to draw it, 
+    /// then we can determine the size etc automatically
+
+    double y0 = 0;
+
+    if ( m_y[0]>0.5 ) { 
+      y0 = m_y[1] - m_entries.size()*0.05;
+    }
+    else { 
+      y0 = m_y[0];
+      m_y[1] = y0 + m_entries.size()*0.05;
+    }
+      
+    m_leg = new TLegend( m_x[0], y0, m_x[1], m_y[1] );
+     
+    m_leg->SetBorderSize(0);
+    m_leg->SetTextFont(42);
+    m_leg->SetTextSize(0.04);
+    m_leg->SetFillStyle(3000);
+    m_leg->SetFillColor(0);
+    m_leg->SetLineColor(0);
+    
+    for ( size_t i=0 ; i<m_entries.size() ; i++ ) { 
+      m_leg->AddEntry( m_obj[i], m_entries[i].c_str(), m_type[i].c_str() );
+    }
+
+    m_leg->Draw();
+  }
+
 
 private:
 
@@ -353,6 +408,10 @@ private:
 
   double m_x[2];
   double m_y[2];
+
+  std::vector<TObject*>    m_obj;
+  std::vector<std::string> m_entries;
+  std::vector<std::string> m_type;
 
 }; 
 
@@ -392,7 +451,7 @@ public:
     m_htest(_htest), m_href(_href),
     m_tgtest(_tgtest), m_tgref(_tgref),
     m_plotfilename(s),
-    m_max_entries(2),
+    m_max_entries(4),
     m_entries(0), 
     m_trim_errors(false)
   {
@@ -424,11 +483,7 @@ public:
 
   bool  trim_errors() const { return m_trim_errors; } 
 
-  void Draw( int i, Legend& _leg, bool mean=false, bool first=true ) { 
-
-    Legend leg = _leg;
-
-    //    std::cout << "\thref() " << href() << "\thtest() " << htest() << std::endl;  
+  void Draw( int i, Legend& leg, bool mean=false, bool first=true, bool drawlegend=false ) { 
 
     if ( htest() ) {
       gStyle->SetOptStat(0);
@@ -446,7 +501,7 @@ public:
       if ( htest() ) std::cout << "\tentries " << plotable( htest() );
       std::cout << std::endl;
 
-      if(first)  {
+      if ( first )  {
 
 	if ( tgtest() ) { 
 	    zeroErrors(htest());
@@ -510,10 +565,6 @@ public:
 
       std::string key = m_plotfilename;
 
-      //      std::cout << "adding key " << key << std::endl; 
-      
-      //      std::cout << "cost size " << key.size() << std::endl;
-
       static TH1D* hnull = new TH1D("hnull", "", 1, 0, 1);
       hnull->SetMarkerColor(kWhite);
       hnull->SetLineColor(kWhite);
@@ -529,44 +580,67 @@ public:
 	bool displayref = false;
 	if ( meanplotref && href() ) { 
 	  displayref = true;
-	  std::sprintf( meanrefc, " <t> = %3.2f #pm %3.2f ms (ref)", href()->GetMean(), href()->GetMeanError() );
+	  true_mean muref( href() );
+	  std::sprintf( meanrefc, " <t> = %3.2f #pm %3.2f ms (ref)", muref.mean(), muref.error() );
 	}
 	else { 
 	  std::sprintf( meanrefc, "%s", "" );
 	}
 
-	char meanc[64];
-	std::sprintf( meanc, " <t> = %3.2f #pm %3.2f ms", htest()->GetMean(), htest()->GetMeanError() );
-	
-	std::cout << "alg: " << m_plotfilename << " " << meanc << "\tref: " << meanrefc << std::endl;
 
+	true_mean mutest( htest() );
+	char meanc[64];
+	std::sprintf( meanc, " <t> = %3.2f #pm %3.2f ms", mutest.mean(), mutest.error() );
 	
 	std::string dkey = key;
-	if ( dkey.find( "TIME_" )!=std::string::npos ) dkey.erase( dkey.find( "TIME_" ), 5 );
-	
+
+	std::string remove[7] = { "TIME_", "Time_", "All_", "Algorithm_", "Class_", "HLT_", "Chain_HLT_" };
+
+	if ( dkey.find("Chain")!=std::string::npos ) {
+	  if ( dkey.find("__")!=std::string::npos ) dkey.erase( 0, dkey.find("__")+2 );
+	} 
+	  
+
+	for ( int ir=0 ; ir<7 ; ir++ ) { 
+	  if ( dkey.find( remove[ir] )!=std::string::npos ) dkey.erase( dkey.find( remove[ir]), remove[ir].size() );
+	} 
+
 	std::string rkey = dkey;
+
 
 	if ( LINEF || leg.size() < m_max_entries ) { 
 	  dkey += std::string(" : ");
-	  leg->AddEntry( htest(), (dkey+meanc).c_str(), "p" );
-	  //  leg->AddEntry( hnull, meanc, "p" ); // leave this commented until we decide we really want to go with one line 
-	  
+
+	  if ( (dkey+meanc).size()>58 ) { 
+	    leg.AddEntry( htest(), dkey.c_str(), "p" );
+	    leg.AddEntry( hnull,   meanc,        "p" ); 
+	  }
+	  else { 
+	    leg.AddEntry( htest(), (dkey+meanc).c_str(), "p" );
+	  }	  
+
 	  if ( displayref ) { 
 	    rkey += std::string(" : ");
-	    leg->AddEntry( hnull, "", "l" );
-	    leg->AddEntry( href(), (rkey+meanrefc).c_str(), "l" );
-	    //  leg->AddEntry( hnull, meanrefc, "l" );  // leave this commented until we decide we really want to go with one line 
+	    //  leg.AddEntry( hnull, "", "l" );
+
+	    if ( (rkey+meanrefc).size()>58 ) { 
+	      leg.AddEntry( href(), rkey.c_str(), "l" );
+	      leg.AddEntry( hnull,  meanrefc,     "l" ); 
+	    }
+	    else {
+	      leg.AddEntry( href(), (rkey+meanrefc).c_str(), "l" );
+	    }
 	  }
 	}
 
       }
       else { 
-	if ( LINEF || leg.size()<m_max_entries ) leg->AddEntry( htest(), key.c_str(), "p" );
+	if ( LINEF || leg.size()<m_max_entries ) leg.AddEntry( htest(), key.c_str(), "p" );
       }
 
       m_entries++;
 
-      leg->Draw();
+      if ( drawlegend ) leg.Draw();
 
     }
   }
@@ -672,7 +746,7 @@ public:
     bool first = true;
     double _max = 0;
     for ( unsigned i=0 ; i<size() ; i++ ) {
-      // double rmref  = realmin( at(i).href(), false );
+      //      double rmref  = realmin( at(i).href(), false );
       double rmtest = ::realmax( at(i).htest(), false, lo, hi );
       if ( rmtest!=0 && ( first || _max<rmtest ) ) _max = rmtest;
       if ( rmtest!=0 ) first = false;
@@ -688,9 +762,7 @@ public:
 
     double tmax = realmax(lo,hi);
     double tmin = realmin(lo,hi);
-    
-    //    std::cout << "\tname: " << m_name << "\ttmin: " << tmin << "\ttmax: " << tmax << "\tlog: " << m_logy << std::endl; 
-
+   
     m_max = scale*tmin;
     
     if ( m_logy ) m_min = tmin;
@@ -698,14 +770,6 @@ public:
     for ( unsigned i=0 ; i<size() ; i++ ) {
       if ( at(i).href() ) at(i).href()->SetMaximum(scale*tmax);
       at(i).htest()->SetMaximum(scale*tmax);
-
-      //      if ( m_logy ) {
-      //	at(i).href()->SetMinimum(tmin);
-      //	at(i).htest()->SetMinimum(tmin);
-      //      }
-
-      //   std::cout << "refmax  : " << at(i).href()->GetMaximum()  << std::endl;
-      //   std::cout << "testmax : " << at(i).htest()->GetMaximum() << std::endl;
     } 
 
   }
@@ -734,16 +798,6 @@ public:
     for ( unsigned i=0 ; i<size() ; i++ ) {
       if ( at(i).href() ) at(i).href()->SetMinimum(scale*tmin);
       at(i).htest()->SetMinimum(scale*tmin);
-
-      //      if ( m_logy ) { 
-      //	if ( at(i).href()->GetMinimum()<=0 )  at(i).href()->GetMinimum(1e-4);
-      //	if ( at(i).htest()->GetMinimum()<=0 ) at(i).htest()->GetMinimum(1e-4);
-      //      }
-
-      //      if ( contains( at(i).href()->GetName(), "sigma" ) ) { 
-      //	std::cout << "refmin  : " << at(i).href()->GetMinimum()  << std::endl;
-      //	std::cout << "testmin : " << at(i).htest()->GetMinimum() << std::endl;
-      //      } 
     }
   }
  
@@ -757,11 +811,6 @@ public:
 	if ( at(i).href() ) if ( at(i).href()->GetMinimum()<=0 )  at(i).href()->GetMinimum(1e-4);
 	if ( at(i).htest()->GetMinimum()<=0 ) at(i).htest()->GetMinimum(1e-4);
       }
-      
-      //      if ( contains( at(i).href()->GetName(), "sigma" ) ) { 
-      //	std::cout << "refmin  : " << at(i).href()->GetMinimum()  << std::endl;
-      //	std::cout << "testmin : " << at(i).htest()->GetMinimum() << std::endl;
-      //      } 
     }
   }
   
@@ -781,15 +830,28 @@ public:
     
     std::vector<double> v(2,0);
     
-    if ( size()>0 ) v = ::findxrangeuser( at(0).htest(), symmetric );
+    TH1F* hf = at(0).htest();
 
-    bool first = true;
+    double vlo  =  1e21;
+    double vhi  = -1e21;
+    
+    if ( hf->GetBinLowEdge(1)<vlo )                 vlo = hf->GetBinLowEdge(1);
+    if ( hf->GetBinLowEdge(hf->GetNbinsX()+1)>vhi ) vhi = hf->GetBinLowEdge( hf->GetNbinsX()+1 );
+      
+    if ( size()>0 ) v = ::findxrangeuser( hf, symmetric );
+
+    bool first = false;
 
     for ( unsigned i=1 ; i<size() ; i++ ) { 
   
-      if ( ::empty( at(i).htest() ) ) continue;
+      hf = at(i).htest();
 
-      std::vector<double> limits = ::findxrangeuser( at(i).htest(), symmetric );
+      if ( ::empty( hf ) ) continue;
+
+      if ( hf->GetBinLowEdge(1)<vlo )                 vlo = hf->GetBinLowEdge(1);
+      if ( hf->GetBinLowEdge(hf->GetNbinsX()+1)>vhi ) vhi = hf->GetBinLowEdge( hf->GetNbinsX()+1 );
+
+      std::vector<double> limits = ::findxrangeuser( hf, symmetric );
 
       double lo = limits[0];
       double hi = limits[1];
@@ -805,6 +867,21 @@ public:
 
       first = false;
     }
+
+    double upper = ( v[1]-v[0] )*1.1 + v[0];
+    double lower = v[0] - ( v[1]-v[0] )*0.1; 
+
+    if ( m_logx ) {
+      double dx = std::log10(v[1])-std::log10(v[0]);
+      upper = std::pow(10,dx*1.1 + std::log10(v[0]));
+      lower = std::pow(10,std::log10(v[0]) - dx*0.1); 
+    }
+
+    if ( lower<vlo ) lower = vlo;
+    if ( upper>vhi ) upper = vhi;
+
+    v[0] = lower;
+    v[1] = upper;
     
     return v;
   }
@@ -867,7 +944,6 @@ public:
     double rmin = realmin();    
     if ( rmin<0 ) { 
       std::cout << "\tlimits \t" << m_name << "\tmin " << rmin << "\tmax " << rmax << std::endl; 
-      std::cout << "\tlimits \t" << m_name << "\tmin " << rmin << "\tmax " << rmax << std::endl; 
     }
   }
 
@@ -883,9 +959,9 @@ public:
   }
 
   void Draw_i( Legend& leg, bool means=false ) {  
-    
-    bool first = true;
 
+    bool first = true;
+    
     if ( m_logy ) {
       /// increase the number of log labels if only a few decades
       for ( unsigned i=0 ; i<size() ; i++, first=false ) { 
@@ -899,8 +975,8 @@ public:
 
     for ( unsigned i=0 ; i<size() ; i++ ) at(i).trim_errors( m_trim_errors );
 
-    for ( unsigned i=0 ; i<size() ; i++, first=false ) at(i).Draw( i, leg, means, first );
-    if ( watermark ) DrawLabel(0.1, 0.02, "built on "+stime()+release, kBlack, 0.03 );
+    for ( unsigned i=0 ; i<size() ; i++,  first=false ) at(i).Draw( i, leg, means, first, (i==size()-1) );
+    if ( watermark ) DrawLabel(0.1, 0.02, "built "+stime()+release, kBlack, 0.03 );
 
     gPad->SetLogy(m_logy);
     gPad->SetLogx(m_logx);

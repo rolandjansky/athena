@@ -1,7 +1,7 @@
 /* // -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -41,8 +41,8 @@ class CMAreadout : public RPCtrigDataObject
                                                   {return m_CMAconfiguration;}
     int sector(void)             const {return m_sector;}
     const CMAidentity& id(void)  const {return m_cma_identity;}
-    Matrix* low_pt_matrix(void)  const {return m_low_pt_matrix;}
-    Matrix* high_pt_matrix(void) const {return m_high_pt_matrix;}
+    const Matrix* low_pt_matrix(void)  const {return m_low_pt_matrix;}
+    const Matrix* high_pt_matrix(void) const {return m_high_pt_matrix;}
     MatrixReadOut** give_matrix_readout(void);
 };
 

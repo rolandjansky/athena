@@ -590,18 +590,10 @@ StatusCode AANTupleStream::initialize_subAlgos()
       ATH_MSG_INFO (" -> creating sub-algorithm " << (*it));
       sc =  createSubAlgorithm( theType,theName, algo );
       if (sc.isFailure())
-	{
-	  ATH_MSG_FATAL (" ERROR creating sub-alg." << (*it));
-	  return StatusCode::FAILURE;
-	}
-
-      // force subAlgorithm to set his properties now (reading the jobOptions
-      sc = algo->setProperties();
-      if (sc.isFailure())
-	{
-	  ATH_MSG_FATAL (" ERROR setting properties for this sub-algorithm.");
-	  return StatusCode::FAILURE;
-	}
+        {
+          ATH_MSG_FATAL (" ERROR creating sub-alg." << (*it));
+          return StatusCode::FAILURE;
+        }
     }
 
   return sc;

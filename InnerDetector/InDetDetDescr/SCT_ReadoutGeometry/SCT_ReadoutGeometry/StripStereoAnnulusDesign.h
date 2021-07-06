@@ -30,7 +30,7 @@
 // Base class
 #include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
 
-#include "InDetReadoutGeometry/SiCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
 #include "TrkSurfaces/AnnulusBounds.h"
 
 #include "CLHEP/Geometry/Vector3D.h" // For unused phiMeasureSegment
@@ -63,12 +63,12 @@ public:
 
     ~StripStereoAnnulusDesign() = default;
 
-    HepGeom::Point3D<double> sensorCenter() const;
+    Amg::Vector3D sensorCenter() const;
 
     // Copy constructor and assignment:
     StripStereoAnnulusDesign(const StripStereoAnnulusDesign &design);
     StripStereoAnnulusDesign &operator = (const StripStereoAnnulusDesign &design);
-    void getStripRow(SiCellId cellId, int *strip, int *row) const;
+    void getStripRow(SiCellId cellId, int *strip, int *row) const final;
     int strip1Dim(int strip, int row) const;
     SiLocalPosition stripPosAtR(int strip, int row, double r) const;
     int diodesInRow(const int row) const;
@@ -170,7 +170,7 @@ public:
     virtual DetectorShape shape() const;
 
    // Transform from SiHit to GeoModel frame
-   const HepGeom::Transform3D SiHitToGeoModel() const;
+   const Amg::Transform3D SiHitToGeoModel() const;
 
    double sinStripAngleReco(double phiCoord, double etaCoord) const;
 
@@ -196,9 +196,12 @@ private:
     const double m_stereo;
     const double m_R;
     const double m_lengthBF;
-    Trk::AnnulusBounds m_bounds;
+    Trk::AnnulusBounds m_bounds;  
+    //members to avoid repeating cos/sin calculations
     const double m_sinStereo;
     const double m_cosStereo;
+    const double m_sinNegStereo;
+    const double m_cosNegStereo;
 };
 
 ///////////////////////////////////////////////////////////////////

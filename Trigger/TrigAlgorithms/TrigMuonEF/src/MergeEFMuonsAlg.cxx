@@ -1,7 +1,7 @@
 /*
   Merge muon containers from inside-out and outside-in reconstruction
   
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MergeEFMuonsAlg.h"
@@ -10,8 +10,6 @@
 MergeEFMuonsAlg::MergeEFMuonsAlg(const std::string& name, ISvcLocator* pSvcLocator )
 :AthReentrantAlgorithm(name, pSvcLocator)
 {
-
-
 }
 
 StatusCode MergeEFMuonsAlg::initialize(){
@@ -20,13 +18,6 @@ StatusCode MergeEFMuonsAlg::initialize(){
   renounce(m_muonInsideOutContainerKey);
   ATH_CHECK(m_muonInsideOutContainerKey.initialize());
   ATH_CHECK(m_muonOutputKey.initialize());
-  return StatusCode::SUCCESS;
-}
-
-StatusCode MergeEFMuonsAlg::finalize()
-{
-  ATH_MSG_DEBUG("Finalization");
-
   return StatusCode::SUCCESS;
 }
 

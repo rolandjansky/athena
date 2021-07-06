@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaKernel/errorcheck.h"
@@ -78,7 +78,6 @@ namespace xAODMaker {
 	ATH_CHECK(incSvc.retrieve());
 	incSvc->addListener( this, "BeginRun", 10);
 
-        ATH_MSG_DEBUG("Initializing; package version: " << PACKAGE_VERSION );
         ATH_MSG_DEBUG("AODContainerName = " << m_aodContainerKey.key() );
         ATH_MSG_DEBUG("xAOD TruthEventContainer name = " << m_xaodTruthEventContainerKey.key() );
         ATH_MSG_DEBUG("xAOD TruthPileupEventContainer name = " << m_xaodTruthPUEventContainerKey.key());
@@ -220,6 +219,8 @@ namespace xAODMaker {
 	    // Event weights
 	    vector<float> weights;
 	    for (const double& w : genEvt->weights()) weights.push_back((float)(w));
+	    //AV This to be decided. It is always a good idea to have a default weight 1.0. 
+	    //if (weights.empty()) weights.push_back(1.0); 
 	    xTruthEvent->setWeights(weights);
                     
 	    // Heavy ion info
@@ -462,12 +463,6 @@ namespace xAODMaker {
     void xAODTruthCnvAlg::fillVertex(xAOD::TruthVertex* tv, HepMC::ConstGenVertexPtr gv) {
         tv->setId(gv->id());
         tv->setBarcode(HepMC::barcode(gv));
-        
-        // No vertex weights
-        // vector<float> weights;
-        // for (const double& w : gv->weights()) weights.push_back((float)w);
-        // tv->setWeights(weights);
-        
         tv->setX(gv->position().x());
         tv->setY(gv->position().y());
         tv->setZ(gv->position().z());
@@ -531,7 +526,17 @@ namespace xAODMaker {
 #ifdef HEPMC3
         ///Here comes the fix. Note that HepMC2.06.11 also contains the fix
         md->setMcChannelNumber(mcChannelNumber);
-        std::vector<std::string> orderedWeightNameVec=genEvt.weight_names();
+        std::vector<std::string> orderedWeightNameVec;
+        if (!genEvt.run_info()) {
+          for (size_t i=0; i<genEvt.weights().size();i++) orderedWeightNameVec.push_back(std::to_string(i));
+        } else {
+          if (!genEvt.run_info()->weight_names().empty()) {
+            orderedWeightNameVec = genEvt.weight_names();
+          } else {
+            //AV This to be decided. It is always a good idea to have a default weight 1.0.
+            //orderedWeightNameVec.push_back("0");
+          }
+        }
         md->setWeightNames(orderedWeightNameVec);
 #else 
         // FIXME: class member protection violation here.
@@ -547,10 +552,10 @@ namespace xAODMaker {
         //The map from the HepMC record pairs the weight names with a corresponding index,
         //it is not guaranteed that the indices are ascending when iterating over the map
         std::sort(orderedWeightNameVec.begin(), orderedWeightNameVec.end(),
-                  [&](std::string i, std::string j){return weightNameMap.at(i) < weightNameMap.at(j);});
+                  [&](const std::string& i, const std::string& j){return weightNameMap.at(i) < weightNameMap.at(j);});
                             
         md->setMcChannelNumber(mcChannelNumber);
-        md->setWeightNames( std::move(orderedWeightNameVec) );
+        md->setWeightNames( orderedWeightNameVec );
 #endif
 
 	if(!metaFields.lhefGenerator.empty()) {

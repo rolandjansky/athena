@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -67,7 +67,7 @@ namespace xAOD {
    defineComponents( const std::vector< std::string >& componentNames ) {
 
       // Make sure that we aren't killing off something that already exists
-      if( nameAcc( *this ).size() > 0) {
+      if( !nameAcc( *this ).empty()) {
          throw std::runtime_error( "Attempt to redefine component list for "
                                    "xAOD::TrigMissingET object" );
       }

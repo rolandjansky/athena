@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //#####################################################
@@ -61,9 +61,7 @@ class TBBeamQualityDoubleHitsMonTool: public MonitorToolBase
   float m_scintadcmax; 
   int m_scintnum;
   
-  bool m_isBooked; 
   std::string m_histoPath;
-  std::string m_path;
   
   //histograms  
   IHistogram2D** m_histo_double;

@@ -51,22 +51,11 @@ excludeTracePattern.append ("*/IOVDbSvc/CondDB.py")
 excludeTracePattern.append("*/TrigConfigSvcConfig.py")
 excludeTracePattern.append("*/LArCalib.py")
 excludeTracePattern.append("*/_xmlplus/*")
-excludeTracePattern.append("*/InDetTrigRecExample/EFInDetConfig.py")
 excludeTracePattern.append("*/CaloClusterCorrection/CaloSwEtaoff*")
 excludeTracePattern.append("*/PyUtils/Helpers.py")
 excludeTracePattern.append("*/RecExConfig/RecoFunctions.py")
-excludeTracePattern.append("*/TrigEgammaHypo/TrigEFElectronHypoMonitoring.py")
 excludeTracePattern.append("*/PerfMonComps/DomainsRegistry.py")
 excludeTracePattern.append("*/CaloClusterCorrection/common.py")
-excludeTracePattern.append("*/TrigIDSCAN/TrigIDSCAN_Config.py")
-excludeTracePattern.append("*/TrigSiTrack/TrigSiTrack_Config.py")
-excludeTracePattern.append("*/TrigEgammaHypo/TrigEFElectronHypoConfig.py")
-excludeTracePattern.append("*/TrigEgammaHypo/TrigL2CaloHypoMonitoring.py")
-excludeTracePattern.append("*/TrigBphysHypo/TrigL2BMuMuFexMonitoring.py")
-excludeTracePattern.append("*/TrigBphysHypo/TrigL2TrkMassFexMonitoring.py")
-excludeTracePattern.append("*/TrigL2TrkMassFexMonitoring.py")
-excludeTracePattern.append("*/TrigBphysHypo/TrigL2TrkMassFexMonitoring.py")
-excludeTracePattern.append("*/TrigmuComb/TrigmuCombConfig.py")
 excludeTracePattern.append("*/D3PDMakerCoreComps/MakerAlg.py")
 excludeTracePattern.append("*/D3PDMakerCoreComps/D3PDObject.py")
 excludeTracePattern.append("*/RecExConfig/RecoFunctions.py")
@@ -352,16 +341,6 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
                                   )
         pass
 
-    # Schedule the AODSelect setup
-    #if rec.doAODSelect():
-    #    try:
-    #        include("AODSelect/AODSelect_setupOptions.py")
-    #    except Exception:
-    #        treatException("Could not load AODSelect/AODSelect_setupOptions.py !")
-    #        rec.doAODSelect = False
-    #        pass
-    #    pass
-
     #This block may not be needed... something to check if somebody has time!
     if rec.DPDMakerScripts()!=[]:
         if globalflags.InputFormat()=='pool':
@@ -384,16 +363,6 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
         logAnaCommon_topOptions.info( "Including %s...",DPDMakerName )
         include(DPDMaker)
         pass
-
-    # Schedule the AODSelect algorithms
-    #if rec.doAODSelect():
-    #    try:
-    #        include("AODSelect/AODSelect_mainOptions.py")
-    #    except Exception:
-    #        treatException("Could not load AODSelect/AODSelect_mainOptions.py !")
-    #        rec.doAODSelect = False
-    #        pass
-    #    pass
 
     #SkimDecision objects may once migrate to CutFlowSvc or DecisionSvc, but not yet
     #logAnaCommon_topOptions.info( "primDPD.WriteSkimDecisions =  %s", primDPD.WriteSkimDecisions() )

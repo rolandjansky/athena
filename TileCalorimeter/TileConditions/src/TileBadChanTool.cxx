@@ -81,7 +81,9 @@ StatusCode TileBadChanTool::finalize() {
 
 //
 //____________________________________________________________________
-CaloBadChannel TileBadChanTool::caloStatus(Identifier cell_id) const {
+CaloBadChannel
+TileBadChanTool::caloStatus(const EventContext& ctx, Identifier cell_id) const
+{
 
   CaloBadChannel::BitWord res = 0;
 
@@ -94,7 +96,7 @@ CaloBadChannel TileBadChanTool::caloStatus(Identifier cell_id) const {
     std::abort();
   }
 
-  SG::ReadCondHandle<TileBadChannels> badChannels(m_badChannelsKey);
+  SG::ReadCondHandle<TileBadChannels> badChannels(m_badChannelsKey,ctx);
 
   IdentifierHash hash1_id(elem->onl1());
   IdentifierHash hash2_id(elem->onl2());

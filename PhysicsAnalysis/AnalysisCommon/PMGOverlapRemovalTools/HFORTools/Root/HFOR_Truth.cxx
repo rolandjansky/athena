@@ -131,7 +131,7 @@ HFORType HFOR_Truth::findOverlap(const xAOD::TruthEventContainer& truthEvent,
   std::map <int, std::vector<const xAOD::TruthParticle* > > fsQuarksMap ;
 
   //Scan the container and find the final state quarks
-  for (const auto& truth : truthEvent ) {
+  for (const auto *truth : truthEvent ) {
     //std::cout << "---> " <<  truth->crossSection() << "  " << truth->crossSectionError() << std::endl ;
     if (truth != nullptr) {
       //nVert = truth->nTruthVertices();

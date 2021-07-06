@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -51,8 +51,6 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
             # run vertex finder only in case vertexing is available. This check can also be done in TauAlgorithmsHolder instead doing it here. 
             from InDetRecExample.InDetJobProperties import InDetFlags
             from tauRec.tauRecFlags import jobproperties
-            doMVATrackClassification = tauFlags.tauRecMVATrackClassification()
-            doRNNTrackClassification = tauFlags.tauRecRNNTrackClassification()
 
             if tauFlags.isStandalone() or InDetFlags.doVertexFinding():
                 tools.append(taualgs.getTauVertexFinder(doUseTJVA=self.do_TJVA))
@@ -61,11 +59,9 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
             tools.append(taualgs.getTauClusterFinder())
             tools.append(taualgs.getTauVertexedClusterDecorator())
 
-            if doRNNTrackClassification:
-                tools.append(taualgs.getTauTrackRNNClassifier())
-            elif doMVATrackClassification:
-                tools.append(taualgs.getTauTrackClassifier())
             if jobproperties.Beam.beamType()!="cosmics":
+                if tauFlags.tauRecRNNTrackClassification():
+                    tools.append(taualgs.getTauTrackRNNClassifier())
                 tools.append(taualgs.getEnergyCalibrationLC())
             
             tools.append(taualgs.getCellVariables())
@@ -75,13 +71,15 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
             if self.doPi0Clus:
                 tools.append(taualgs.getPi0ClusterFinder())
             
-            from tauRec.tauRecFlags import tauFlags
             tools+=tauFlags.tauRecToolsDevToolList()
                         
         except Exception:
             mlog.error("could not append tools to TauBuilder")
             traceback.print_exc()
             return False
+
+        # set path to calibration area
+        TauRecConfigured.AddToolsToToolSvc(self, tools)
         
         # run first part of Tau Builder
         TauRecConfigured.WrapTauRecToolExecHandle(self, tool=tools)

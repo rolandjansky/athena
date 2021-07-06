@@ -1,5 +1,6 @@
+// -*- c++ -*-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef XAODCALOEVENT_VERSIONS_CALOCLUSTER_V1_H
 #define XAODCALOEVENT_VERSIONS_CALOCLUSTER_V1_H
@@ -10,11 +11,15 @@ extern "C" {
 }
 #include <bitset>
 #include <memory>
+#include <vector>
+#include <limits>
+
+#include <cmath>
 
 // xAOD include(s):
 #include "xAODBase/IParticle.h"
 
-//Defintion of CaloSamples (enum)
+//Definition of CaloSamples (enum)
 #include "CaloGeoHelpers/CaloSampling.h"
 
 #include "xAODCaloEvent/CaloClusterBadChannelData.h"
@@ -45,10 +50,11 @@ namespace xAOD {
    /// Description of a calorimeter cluster
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    /// @author Walter Lampl <Walter.Lampl@cern.ch>
+   /// @author Peter Loch <Peter.Loch@cern.ch>
    ///
-   /// $Revision: 794609 $
-   /// $Date: 2017-01-30 16:51:25 +0100 (Mon, 30 Jan 2017) $
-   ///
+   /// @since 23-March-2021: added methods to set and retrieve second 
+   ///                       moment of cell time distribution (persistified
+   ///                       as a cluster moment)
    class CaloCluster_v1 : public IParticle {
      friend class ::CaloClusterChangeSignalState;
 
@@ -57,6 +63,20 @@ namespace xAOD {
      typedef float flt_t;
 
      typedef CaloSampling::CaloSample CaloSample;
+
+     ///@brief Type for number-of-cells-in-sampling counter. 
+     ///
+     /// The total number of cells in a given cluster from any given sampling is limited to
+     /// [0,255] and thus stored in an 8-bit word. 
+     typedef uint8_t ncells_t;
+     ///@brief Store type for number-of-cells-in-sampling counter
+     ///
+     /// Due to the severe change of granularity of @c EME2 from the inner to the
+     /// outer wheel, clusters spanning the region around @f$ |\eta| = 2.5 @f$ provide
+     /// the exclusive count of @c EME2 cells together with the count of cells in the
+     /// inner wheel. The persistent store to hold both counts for one given index 
+     /// (given by @c CaloSampling::CaloSample) therefore holds two 8-bit words/sampling. 
+     typedef std::vector<uint16_t> ncells_store_t;
 
       /// @name Public types
       /// @{
@@ -105,8 +125,8 @@ namespace xAOD {
          DELTA_PHI         = 301,
          /// Angular shower axis deviation (\f$\theta\f$) from IP-to-Center
          DELTA_THETA       = 302,
-         /// Angular shower axis deviation from IP-to-Center
-         DELTA_ALPHA       = 303,
+         /// Angular shower axis deviation (\f$\Delta\alpha\f$) from IP-to-Center
+         DELTA_ALPHA       = 303, 
          CENTER_X          = 401, ///< Cluster Centroid (\f$x\f$)
          CENTER_Y          = 402, ///< Cluster Centroid (\f$y\f$)
          CENTER_Z          = 403, ///< Cluster Centroid (\f$z\f$)
@@ -155,6 +175,10 @@ namespace xAOD {
          DM_WEIGHT         = 903, ///< Dead-material weight (E_dm/E_ooc)
          /// Confidence Level of a tile calorimeter cluster to be noise
          TILE_CONFIDENCE_LEVEL = 904,
+	 /// Second moment of cell time distribution in cluster
+	 SECOND_TIME      = 910,
+	 /// Number of cells in sampling layer
+	 NCELL_SAMPLING   = 920,
 
          VERTEX_FRACTION = 1000, /**< Vertex fraction of this cluster wrt. primary vertex of the event. Calculated in CaloRec/CaloClusterVertexFractionMaker.cxx */
          NVERTEX_FRACTION = 1001, /**< slightly updated vertex fraction more pile up independent (similar to nJVF) */
@@ -344,7 +368,7 @@ namespace xAOD {
 
    public:
 
-     /// @name Energy/Eta/Phi per sampling
+     /// @name Energy/Eta/Phi/number of cells per sampling
      /// @{
      /// Retrieve energy in a given sampling
      float eSample(const CaloSample sampling) const;
@@ -366,6 +390,46 @@ namespace xAOD {
      float etasize(const CaloSample sampling) const;
      /*! \brief Returns cluster size in \f$ \varphi \f$ for a given sampling */
      float phisize(const CaloSample sampling) const;
+
+     /// @brief Returns number of cells in given sampling
+     ///
+     /// This method returns the number of cells in a given sampling. All cells with @f$ E \neq 0 @f$ are
+     /// counted, independent of the signal quality. Due to the strong reduction of the readout granularity
+     /// of the electromagnmetic endcaps for @f$ |\eta| > 2.5 @f$ the returned number of cells in @c EME2 can be 
+     /// customized for clusters spanning this boundary. By default (@c isInnerWheel=false ) the number of
+     /// all cells in @c EME2 is returned (inclusive count, consistent with the behaviour for all other
+     /// samplings). For @c isInnerWheel=true the number of @c EME2 cells in the inner wheel are returned.     
+     ///
+     /// @param samp         sampling id 
+     /// @param isInnerWheel returns number of cells in small wheel (for @c EME2 only) 
+     int numberCellsInSampling(const CaloSample samp,bool isInnerWheel=false) const; 
+
+     /// @brief Set the number of cells in a sampling layer
+     void setNumberCellsInSampling(CaloSampling::CaloSample samp, int ncells,bool isInnerWheel=false); 
+
+     /// @brief Return total number of cells in cluster
+     ///
+     /// This method sums up the number of cells in all samplings. This should be identical to @c CaloCluster_v1::size()
+     /// for clusters which still have all included cells linked.
+     ///
+     /// @return Number of cells in cluster (> 0) for clusters that have the number of cells in sampling moment
+     /// @c NCELL_SAMPLING set. In case this moment is not available, 0 is returned. 
+     int numberCells() const; 
+
+     /// @brief Get number of cells for all sampling layer
+     ///
+     /// This returns the number of cells in all sampling layers covered by the cluster, in a 
+     /// basic data type (c.f. @c retrieveMoment, which returns the internally used data store
+     /// type) defined by the client. Only the inclucive number of cells per sampling are
+     /// considered.
+     template<class CDATA>
+     bool getNumberCellsInSampling(CDATA& cdata) const {
+       ncells_store_t clist;
+       if ( !retrieveMoment(NCELL_SAMPLING,clist) ) { return false; }
+       cdata.clear(); cdata.reserve(clist.size());
+       for ( auto cn : clist ) { cdata.push_back(extractLowerCount<typename CDATA::value_type>(cn)); }
+       return true;
+     }
 
 
      /**@brief Get the energy in one layer of the EM Calo
@@ -424,6 +488,18 @@ namespace xAOD {
      /// Retrieve individual moment - no check for existance! Returns -999 on error
      double getMomentValue( MomentType type) const;
 
+     /// Insert number of cells/sampling moment (non-scalar)
+     ///
+     /// @warning Due to the store complexity, clients should use the 
+     /// @c xAOD::CaloCluster_v1::setNumberCellsInSampling method.
+     void insertMoment( MomentType type, const ncells_store_t& values);
+
+     /// Retrieve non-scalar moments
+     ///
+     /// @warning Due to the store complexity, clients should use the 
+     /// @c xAOD::CaloCluster_v1::numberCellsInSampling method.
+     bool retrieveMoment( MomentType type, ncells_store_t& values) const;
+
      /// @}
 
 
@@ -444,6 +520,16 @@ namespace xAOD {
      void setTime(flt_t);
      /// Access cluster time
      flt_t time() const;
+     /// Set second moment of cell timing distribution
+     void setSecondTime(flt_t stime); 
+     /// Access second moment of cell timing distribution
+     ///
+     /// For clusters read from persistent storage, this method returns the value
+     /// stored for the @c SECOND_TIME moment.
+     ///
+     /// @retval 0 if (1) moment is not available, (2) the cluster time could not be calculated, 
+     ///           or (3) the cluster has only one cell or all cells have exactly the same time.  
+     flt_t secondTime() const; 
 
      /// Access to sampling pattern (one bit per sampling) (Method may be removed later)
      unsigned samplingPattern() const;
@@ -591,12 +677,29 @@ namespace xAOD {
 
      /// Current signal state
      State m_signalState;
-     ///Unique ptr to cell links. For cluster building
+     /// Unique ptr to cell links. For cluster building
      /// transient only , holds cells owned by the cluster if non-nullptr
      std::unique_ptr<CaloClusterCellLink> m_cellLinks;
 
-     ///Reco status (transient only)
+     /// Reco status (transient only)
      CaloRecoStatus m_recoStatus;
+
+     /// Second cell time moment (transient only)
+     double m_secondTime = { -1. };
+
+     ///@name Managing compound cell-in-sampling counting data 
+     ///@{
+     template<class UNSIGNED> UNSIGNED extractLowerCount(ncells_store_t::value_type cdata)  const { return static_cast<UNSIGNED>(cdata & 0x00ff); }        ///< extract lower cell count from data
+     template<class UNSIGNED> UNSIGNED extractUpperCount(ncells_store_t::value_type cdata)  const { return static_cast<UNSIGNED>( (cdata & 0xff00)>>8 ); } ///< extract upper cell count from data
+     template<class UNSIGNED> ncells_store_t::value_type setLowerCount(ncells_store_t::value_type cdata,UNSIGNED clower)                            ///< add lower cell count to data
+     { return static_cast<ncells_store_t::value_type>((cdata & 0xff00)|(clower & 0x00ff)); }
+     template<class UNSIGNED> ncells_store_t::value_type setUpperCount(ncells_store_t::value_type cdata,UNSIGNED cupper)                            ///< add upper cell count to data 
+     { return static_cast<ncells_store_t::value_type>((cdata & 0x00ff)|((cupper & 0x00ff)<<8)); }
+     template<class UNSIGNED> UNSIGNED lowerCellCountBound() const { return static_cast<UNSIGNED>(std::numeric_limits<ncells_t>::lowest()); }  ///< lower value boundary for cell count 
+     template<class UNSIGNED> UNSIGNED upperCellCountBound() const { return static_cast<UNSIGNED>(std::numeric_limits<ncells_t>::max()); }     ///< upper boundary for cell count
+     template<class UNSIGNED,class CCTYPE> CCTYPE adjustToRange(UNSIGNED count) const                                                          ///< reduce value range to min and max counts  
+     { return static_cast<CCTYPE>(std::min(std::max(count,lowerCellCountBound< UNSIGNED >()),upperCellCountBound< UNSIGNED >())); }
+     ///@}
 
      unsigned sampVarIdx(const CaloSample) const;
 
@@ -605,6 +708,7 @@ namespace xAOD {
 
      bool setSamplVarFromAcc(const Accessor<std::vector<float> >& acc,
 			     const CaloSample sampling, const float value);
+
    public:
 #if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
 
@@ -635,6 +739,16 @@ namespace xAOD {
       */
      bool setLink(CaloClusterCellLinkContainer* CCCL,
                   IProxyDict* sg = nullptr);
+
+
+     /**@brief Push the CaloClusterCellLink object into the cell-link container and hand-over ownership to it
+      * @param CCCL pointer to the CaloClusterCellLinkContainer
+      * @param EventContext Explicitly specify the EventContext to use for the ElementLink.
+      * @return true on success
+      */
+     bool setLink(CaloClusterCellLinkContainer* CCCL,
+                  const EventContext& ctx);
+
 
      /**@brief Get a pointer to the CaloClusterCellLink object (const version)
       * @return ptr to CaloClusterCellLink obj, NULL if no valid link

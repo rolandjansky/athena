@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDT_Response/MDT_Response.h"
@@ -7,7 +7,6 @@
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RanluxEngine.h"
 #include "CLHEP/Random/RandPoisson.h"
-#include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandFlat.h"
 
 #include "TH1.h"

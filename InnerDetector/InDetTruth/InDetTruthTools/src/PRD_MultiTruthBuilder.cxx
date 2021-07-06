@@ -9,7 +9,7 @@
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SiReadoutCellId.h"
+#include "ReadoutGeometryBase/SiReadoutCellId.h"
 //#include <stdexcept>
 //#include <ext/functional>
 
@@ -64,6 +64,9 @@ void PRD_MultiTruthBuilder::addPrepRawDatum(PRD_MultiTruthCollection *prdTruth,
       ATH_MSG_VERBOSE ( "Pixel=" << m_idHelperPixel->eta_index(*nextRDO) << "," <<m_idHelperPixel->phi_index(*nextRDO) << " does not match any SDO");
     }
 
+    bool isPixel = m_idHelperPixel->is_pixel( *nextRDO );
+    bool isSCT = m_idHelperPixel->is_sct( *nextRDO );
+
     if(iter != simDataMap->end() )  {
       gotSDO = true;
       // Got an SDO.  Try to associate the PRD to MC particles we have info about.
@@ -72,25 +75,36 @@ void PRD_MultiTruthBuilder::addPrepRawDatum(PRD_MultiTruthCollection *prdTruth,
       std::vector< InDetSimData::Deposit >::const_iterator nextdeposit = deposits.begin();
       std::vector< InDetSimData::Deposit >::const_iterator lastdeposit = deposits.end();
       for( ; nextdeposit!=lastdeposit; ++nextdeposit) {
-	const HepMcParticleLink& particleLink = nextdeposit->first;
+        const HepMcParticleLink& particleLink = nextdeposit->first;
 
-	ATH_MSG_VERBOSE("addPrepRawDatum(): Barcode " << particleLink.barcode());
+        ATH_MSG_VERBOSE("addPrepRawDatum(): Barcode " << particleLink.barcode() << " with charge " << nextdeposit->second );
 
-	if (particleLink.isValid()) {
-	  gotValidParticle = true;
-	  // Associate the particle to the PRD. But don't add duplicates.
-	  // Note: it may be more efficient to filter out duplicates among particles for the current PRD, then check-and-add the reduced set to the large multimap.
-	  // But may be not for the typically small RDO/PRD ratio.
-	  typedef PRD_MultiTruthCollection::iterator truthiter;
-	  std::pair<truthiter, truthiter> r = prdTruth->equal_range(prd->identify());
-          if(r.second == std::find_if(r.first, r.second, 
-                          [ particleLink ](const PRD_MultiTruthCollection::value_type &prd_to_truth) {
-                             return prd_to_truth.second == particleLink;
-                          } ))
-            {
-	      prdTruth->insert(std::make_pair(prd->identify(), particleLink));
-	    }
-	}
+        //  Confirm that the energy deposited in the RDO is significant
+        if( isPixel  &&  nextdeposit->second < m_pixelThreshold ){  
+          ATH_MSG_VERBOSE("addPrepRawDatum() ignored PIXEL: Barcode " << particleLink.barcode() << " with charge " << nextdeposit->second );
+          continue;
+        }
+
+        if( isSCT  &&  nextdeposit->second < m_sctThreshold ){  
+          ATH_MSG_VERBOSE("addPrepRawDatum() ignored SCT: Barcode " << particleLink.barcode() << " with charge " << nextdeposit->second );
+          continue;
+        }
+
+        if (particleLink.isValid()) {
+          gotValidParticle = true;
+          // Associate the particle to the PRD. But don't add duplicates.
+          // Note: it may be more efficient to filter out duplicates among particles for the current PRD, then check-and-add the reduced set to the large multimap.
+          // But may be not for the typically small RDO/PRD ratio.
+          typedef PRD_MultiTruthCollection::iterator truthiter;
+          std::pair<truthiter, truthiter> r = prdTruth->equal_range(prd->identify());
+                if(r.second == std::find_if(r.first, r.second, 
+                                [ particleLink ](const PRD_MultiTruthCollection::value_type &prd_to_truth) {
+                                  return prd_to_truth.second == particleLink;
+                                } ))
+                  {
+              prdTruth->insert(std::make_pair(prd->identify(), particleLink));
+            }
+        }
       }
     }
   }

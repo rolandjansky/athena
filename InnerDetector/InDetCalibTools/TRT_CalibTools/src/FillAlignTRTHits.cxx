@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -21,7 +21,6 @@ PURPOSE: Tool
 #include "FillAlignTRTHits.h"
 #include "TRT_CalibData/TrackInfo.h"
 #include "TrkTrack/Track.h"
-#include "TrkParameters/TrackParameters.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
@@ -353,7 +352,7 @@ bool FillAlignTRTHits::fill(const Trk::Track* aTrack, TRT::TrackInfo* output,
 							if(HitOnTrackToRemove){
 								unbiasedTrkParameters = m_updator->removeFromState(*(HitOnTrackToRemove->trackParameters()),
 								                                                   HitOnTrackToRemove->measurementOnTrack()->localParameters(),
-								                                                   HitOnTrackToRemove->measurementOnTrack()->localCovariance());
+								                                                   HitOnTrackToRemove->measurementOnTrack()->localCovariance()).release();
 								ATH_MSG_DEBUG ("TrackParameters 1: " << *(HitOnTrackToRemove->trackParameters()));
 							}
 							else if (msgLvl(MSG::DEBUG)) {

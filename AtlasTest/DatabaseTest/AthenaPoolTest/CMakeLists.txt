@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaPoolTest )
@@ -22,7 +22,7 @@ atlas_add_component( AthenaPoolTest
                      src/FakeTrackBuilder.cxx
                      src/RDOReaderDoubleSelector.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaPoolTestData CaloDetDescrLib CaloEvent CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities GeoPrimitives Identifier EventInfo GaudiKernel InDetIdentifier InDetReadoutGeometry InDetRawData InDetCompetingRIOsOnTrack InDetPrepRawData InDetRIO_OnTrack LArRecEvent TrkSurfaces TrkCompetingRIOsOnTrack TrkEventPrimitives TrkMaterialOnTrack TrkParameters TrkTrack TrkVertexOnTrack EventInfoMgtLib )
+                     LINK_LIBRARIES AthenaPoolTestData CaloDetDescrLib CaloEvent CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib AthenaPoolUtilities GeoPrimitives Identifier EventInfo GaudiKernel InDetIdentifier InDetReadoutGeometry InDetRawData InDetCompetingRIOsOnTrack InDetPrepRawData InDetRIO_OnTrack LArRecEvent TrkSurfaces TrkCompetingRIOsOnTrack TrkEventPrimitives TrkMaterialOnTrack TrkParameters TrkTrack TrkVertexOnTrack EventInfoMgtLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
@@ -37,10 +37,12 @@ function (athenapooltest_run_test testName jo pattern)
                   LOG_IGNORE_PATTERN "DEBUG Try item:|AthenaAttribute.*DB=|AtlasRelease|Release version"
                   PROPERTIES TIMEOUT 900 )
   if( ARG_DEPENDS )
+    set( _alldeps  )
     foreach( _dep ${ARG_DEPENDS} )
-      set_tests_properties( AthenaPoolTest_${testName}_ctest
-                            PROPERTIES DEPENDS AthenaPoolTest_${_dep}_ctest )
+      list( APPEND _alldeps AthenaPoolTest_${_dep}_ctest )
     endforeach()
+    set_tests_properties( AthenaPoolTest_${testName}_ctest
+                          PROPERTIES DEPENDS "${_alldeps}" )
   endif()
 endfunction (athenapooltest_run_test)
 
@@ -124,12 +126,6 @@ atlas_add_test( DoubleEventSelectorOverlayTestMT
                 LOG_SELECT_PATTERN "^DoubleEvent.*WARNING|ERROR"
                 PROPERTIES TIMEOUT 900 )
 
-# Test of explicit collection write/read
-#athenapooltest_run_test( LArCellContWriteReg LArCellContWriter_jobOptionsReg
-#                         "LArCellContFake" )
-#athenapooltest_run_test( LArCellContReadReg LArCellContReader_jobOptionsReg
-#                         "LArCellContFake" )
-# 
 # LFN test
 #athenapooltest_run_test( LArCellContWriteStep1 LArCellContWriter_jobOptionsStep1
 #                         "LArCellContFake" )
@@ -163,19 +159,6 @@ atlas_add_test( DoubleEventSelectorOverlayTestMT
 # AthenaPoolTestWrite - write out implicit collection with athena pool test data
 #athenapooltest_run_test( AthenaPoolTestWrite2 AthenaPoolTestWrite
 #                         "^AthenaPoolTestD" )
-# LArCellContWriteRegStep2 - write out explicit collection with LArCellCont
-#athenapooltest_run_test( LArCellContWriteRegStep2 LArCellContWriter_jobOptionsRegStep2
-#                         "LArCellContFake" )
-# LArCellContWriteRegStep3 - write out explicit collection with LArCellCont 
-# in separate step
-#athenapooltest_run_test( LArCellContWriteRegStep3 LArCellContWriter_jobOptionsRegStep3
-#                         "LArCellContFake" )
-# LArCellContReadRegStep1 - read in LArCellCont
-#athenapooltest_run_test( LArCellContReadRegStep1 LArCellContReader_jobOptionsRegStep1
-#                         "LArCellContFake" )
-# LArCellContReadRegStep2 - read in athena pool test data
-#athenapooltest_run_test( LArCellContReadRegStep2 LArCellContReader_jobOptionsRegStep2
-#                         "LArCellContFake" )
 
 # Check for adding DetDescr tags to event info object:
 athenapooltest_run_test( EventInfoWrite EventInfoWrite

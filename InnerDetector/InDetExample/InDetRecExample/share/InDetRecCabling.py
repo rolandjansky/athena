@@ -17,11 +17,6 @@ if DetFlags.detdescr.pixel_on() and not 'PixelCabling' in dir():
   from AthenaCommon.AlgSequence import AthSequencer
   condSeq = AthSequencer("AthCondSeq")
 
-  useNewDeadmapFormat = False
-  if not useNewDeadmapFormat:
-    if not (conddb.folderRequested("/PIXEL/PixMapOverlay") or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
-      conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay","/PIXEL/PixMapOverlay", className='CondAttrListCollection')
-
   if not hasattr(condSeq, "PixelConfigCondAlg"):
     from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
 
@@ -30,12 +25,13 @@ if DetFlags.detdescr.pixel_on() and not 'PixelCabling' in dir():
       from PixelDigitization.PixelDigitizationConfig import PixelConfigCondAlg_MC, IdMapping
       condSeq += PixelConfigCondAlg_MC()
       IdMappingDat=IdMapping()
-
     elif (globalflags.DataSource=='data'):
       from RecExConfig.AutoConfiguration import GetRunNumber
       runNum = GetRunNumber()
       IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
-      if (runNum<222222):
+      if (runNum is None):
+        IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
+      elif (runNum<222222):
         IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
       else:
         # Even though we are reading from COOL, set the correct fallback map.
@@ -70,10 +66,6 @@ if DetFlags.detdescr.pixel_on() and not 'PixelCabling' in dir():
         alg.EndcapTimeOffset=[100.0,100.0,100.0]
         alg.DBMTimeOffset=[100.0,100.0,100.0]
 
-      if athenaCommonFlags.isOnline():
-        alg.ReadDeadMapKey = ''
-      if useNewDeadmapFormat:
-        alg.ReadDeadMapKey = ''
       condSeq += alg
 
   #####################
@@ -82,9 +74,9 @@ if DetFlags.detdescr.pixel_on() and not 'PixelCabling' in dir():
   if (conddb.dbdata=="CONDBR2" or (conddb.dbmc=="OFLP200" and geoFlags.isIBL()==True)) and not conddb.folderRequested("/PIXEL/HitDiscCnfg"):
     conddb.addFolderSplitMC("PIXEL","/PIXEL/HitDiscCnfg","/PIXEL/HitDiscCnfg", className="AthenaAttributeList")
 
-  if not hasattr(condSeq, 'PixelHitDiscCnfgAlg'):
-    from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelHitDiscCnfgAlg
-    condSeq += PixelHitDiscCnfgAlg(name="PixelHitDiscCnfgAlg")
+    if not hasattr(condSeq, 'PixelHitDiscCnfgAlg'):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelHitDiscCnfgAlg
+      condSeq += PixelHitDiscCnfgAlg(name="PixelHitDiscCnfgAlg")
 
   if not conddb.folderRequested("/PIXEL/ReadoutSpeed"):
     if not (globalflags.DataSource() == 'geant4'):
@@ -110,7 +102,7 @@ if DetFlags.detdescr.pixel_on() and not 'PixelCabling' in dir():
     if (globalflags.DataSource=='data'):
       from RecExConfig.AutoConfiguration import GetRunNumber
       runNum = GetRunNumber()
-      if (runNum<222222):
+      if (runNum is not None and runNum<222222):
         alg.ReadKey = ''
       # data-overlay does not need DB for cabling. 
       if (globalflags.isOverlay()):

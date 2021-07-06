@@ -74,8 +74,9 @@ StatusCode TgcRdoToTgcPrepData::initialize(){
   }
   //Nullify key from scheduler if not needed
   if(!m_seededDecoding){
-    m_roiCollectionKey = "";
-    m_tgcCollection="";
+    ATH_CHECK(m_roiCollectionKey.initialize(false));
+    ATH_CHECK(m_tgcCollection.initialize(false));
+    m_regsel_tgc.disable();
   }
   if(m_seededDecoding){
     ATH_CHECK(m_roiCollectionKey.initialize());

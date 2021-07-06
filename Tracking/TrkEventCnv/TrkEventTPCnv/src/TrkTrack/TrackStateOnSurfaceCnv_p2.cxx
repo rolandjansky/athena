@@ -22,15 +22,15 @@
 void TrackStateOnSurfaceCnv_p2::
 persToTrans( const Trk::TrackStateOnSurface_p2 *persObj, Trk::TrackStateOnSurface *transObj, MsgStream &log )
 {
-  ITPConverterFor<Trk::MeasurementBase>	*measureCnv = 0;
+  ITPConverterFor<Trk::MeasurementBase>	*measureCnv = nullptr;
   const Trk::MeasurementBase* meas =  createTransFromPStore( &measureCnv, persObj->m_measurementOnTrack, log );
 
-  ITPConverterFor<Trk::TrackParameters>	*paramsCnv = 0;
+  ITPConverterFor<Trk::TrackParameters>	*paramsCnv = nullptr;
   const Trk::TrackParameters* trackParameters = dynamic_cast<const Trk::TrackParameters*>(createTransFromPStore( &paramsCnv, persObj->m_trackParameters, log ));
 
   const Trk::FitQualityOnSurface* fitQoS = createTransFromPStore( &m_fitQCnv, persObj->m_fitQualityOnSurface, log );
 
-  ITPConverterFor<Trk::MaterialEffectsBase> *matBaseCnv = 0;
+  ITPConverterFor<Trk::MaterialEffectsBase> *matBaseCnv = nullptr;
   const Trk::MaterialEffectsBase* materialEffects = createTransFromPStore( &matBaseCnv, persObj->m_materialEffects, log );
 
   *transObj = Trk::TrackStateOnSurface (meas,

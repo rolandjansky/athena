@@ -54,7 +54,7 @@ theApp.EvtMax = -1
 MessageSvc = svcMgr.MessageSvc
 MessageSvc.OutputLevel = Lvl.INFO
 MessageSvc.infoLimit = 1000000
-if vars().has_key('inFileName'):
+if 'inFileName' in dir():
   svcMgr.EventSelector.InputCollections = inFileName
 
 include ("CaloLocalHadCalib/GetLCDeadMaterialTree_jobOptions.py") 

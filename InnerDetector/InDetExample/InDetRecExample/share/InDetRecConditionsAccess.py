@@ -45,12 +45,7 @@ if DetFlags.pixel_on():
     #################
     # Module status #
     #################
-    useNewDeadmapFormat = False
     useNewChargeFormat  = False
-
-    if not useNewDeadmapFormat:
-        if not (conddb.folderRequested("/PIXEL/PixMapOverlay") or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
-            conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay","/PIXEL/PixMapOverlay", className='CondAttrListCollection')
 
     if not hasattr(condSeq, "PixelConfigCondAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
@@ -63,7 +58,9 @@ if DetFlags.pixel_on():
             from RecExConfig.AutoConfiguration import GetRunNumber
             runNum = GetRunNumber()
             IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
-            if (runNum<222222):
+            if (runNum is None):
+                IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
+            elif (runNum<222222):
                 IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
             else:
                 # Even though we are reading from COOL, set the correct fallback map.
@@ -80,6 +77,7 @@ if DetFlags.pixel_on():
 
             alg = PixelConfigCondAlg(name="PixelConfigCondAlg", 
                                      CablingMapFileName=IdMappingDat)
+
             if jobproperties.Beam.beamType() == 'cosmics':
                 alg.BarrelTimeJitter=[25.0,25.0,25.0,25.0]
                 alg.EndcapTimeJitter=[25.0,25.0,25.0]
@@ -91,40 +89,44 @@ if DetFlags.pixel_on():
                 alg.EndcapTimeOffset=[100.0,100.0,100.0]
                 alg.DBMTimeOffset=[100.0,100.0,100.0]
 
-            if athenaCommonFlags.isOnline():
-                alg.ReadDeadMapKey = ''
-            if useNewDeadmapFormat:
-                alg.ReadDeadMapKey = ''
             condSeq += alg
 
-    if useNewDeadmapFormat:
+    if not (athenaCommonFlags.isOnline() or conddb.dbdata=='COMP200'):
         if not conddb.folderRequested("/PIXEL/PixelModuleFeMask"):
             conddb.addFolder("PIXEL_OFL", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
-        if not hasattr(condSeq, "PixelDeadMapCondAlg"):
-            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
-            alg = PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
-            if athenaCommonFlags.isOnline():
-                alg.ReadKey = ""
-            condSeq += alg
+            # TODO: once global tag is updated, this line should be removed. (Current q221 uses too old MC global-tag!!!! (before RUN-2!!))
+            if globalflags.DataSource=='data':
+                conddb.addOverride("/PIXEL/PixelModuleFeMask","PixelModuleFeMask-RUN2-DATA-UPD4-05")
+            else:
+                conddb.addOverride("/PIXEL/PixelModuleFeMask","PixelModuleFeMask-SIM-MC16-000-03")
 
-    if globalflags.DataSource=='data' and InDetFlags.usePixelDCS():
-        if not conddb.folderRequested("/PIXEL/DCS/FSMSTATE"):
-            conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATE", className="CondAttrListCollection")
-        if not conddb.folderRequested("/PIXEL/DCS/FSMSTATUS"):
-            conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATUS", className="CondAttrListCollection")
+    if not hasattr(condSeq, "PixelDeadMapCondAlg"):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
+        alg = PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
+        if athenaCommonFlags.isOnline() or conddb.dbdata=='COMP200':
+            alg.ReadKey = ''
+        condSeq += alg
 
     if not hasattr(condSeq, "PixelDCSCondStateAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStateAlg
         alg = PixelDCSCondStateAlg(name="PixelDCSCondStateAlg")
-        if athenaCommonFlags.isOnline():
+        if athenaCommonFlags.isOnline() or globalflags.DataSource!='data' or globalflags.isOverlay() or not InDetFlags.usePixelDCS():
             alg.ReadKeyState = ''
+        else :
+            if not conddb.folderRequested("/PIXEL/DCS/FSMSTATE"):
+                conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATE", className="CondAttrListCollection")
+            alg.ReadKeyState = '/PIXEL/DCS/FSMSTATE'
         condSeq += alg
 
     if not hasattr(condSeq, "PixelDCSCondStatusAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStatusAlg
         alg = PixelDCSCondStatusAlg(name="PixelDCSCondStatusAlg")
-        if athenaCommonFlags.isOnline():
+        if athenaCommonFlags.isOnline() or globalflags.DataSource!='data' or globalflags.isOverlay() or not InDetFlags.usePixelDCS():
             alg.ReadKeyStatus = ''
+        else :
+            if not conddb.folderRequested("/PIXEL/DCS/FSMSTATUS"):
+                conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATUS", className="CondAttrListCollection")
+            alg.ReadKeyStatus = '/PIXEL/DCS/FSMSTATUS'
         condSeq += alg
 
     #####################
@@ -342,8 +344,8 @@ if DetFlags.haveRIO.SCT_on():
     else :
         InDetSCT_ConditionsSummaryTool.ConditionsTools= [ InDetSCT_ConfigurationConditionsTool,
                                                           InDetSCT_FlaggedConditionTool,
-                                                          InDetSCT_MonitorConditionsTool,
-                                                          InDetSCT_ReadCalibDataTool ]
+                                                          InDetSCT_ReadCalibDataTool,
+                                                          InDetSCT_MonitorConditionsTool ]
         if InDetFlags.useSctDCS():
             InDetSCT_ConditionsSummaryTool.ConditionsTools += [ InDetSCT_DCSConditionsTool ]
 
@@ -368,7 +370,7 @@ if DetFlags.haveRIO.SCT_on():
             if condTool != InDetSCT_FlaggedConditionTool:
                 condTools.append(condTool)
     InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools = condTools
-        
+
     # Setup Lorentz angle tool.
     from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // INCLUDE HEADER FILES:
@@ -975,6 +975,7 @@ TestCaloDDE::read_volumes()
 void
 TestCaloDDE::update()
 {
+  [[maybe_unused]]
   Transform3D delta =  RotateZ3D(0.01);
 }
 

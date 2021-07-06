@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -56,7 +56,7 @@ namespace Trk
     bool operator==(const Charged& rOther) const
     {
       constexpr double tolerance = 1e-8;
-      return fabs(charge() - rOther.charge()) < tolerance;
+      return std::abs(charge() - rOther.charge()) < tolerance;
     }
 
     /** Inequality operator */

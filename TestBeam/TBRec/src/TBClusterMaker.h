@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBCLUSTERMAKER_H
@@ -18,11 +18,12 @@
 
 class CaloDetDescrManager; 
 class CaloDetDescrElement;
-class ICalorimeterNoiseTool;
 
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloRec/CaloClusterCollectionProcessor.h"
 #include "CaloGeoHelpers/CaloSampling.h"
+#include "CaloConditions/CaloNoise.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include <map>
 #include <vector>
@@ -92,13 +93,13 @@ class TBClusterMaker: public AthAlgTool, virtual public CaloClusterCollectionPro
   /** Services */
   const CaloDetDescrManager* m_calo_DDM;
   const CaloCell_ID* m_calo_id;
-  IToolSvc* m_toolSvc;
-  ICalorimeterNoiseTool* m_noiseTool;
+
+  SG::ReadCondHandleKey<CaloNoise> m_elecNoiseKey
+    { this, "ElecNoiseKey", "electronicNoise", "SG key for electronic noise" };
   
   /** Names */
   std::string m_caloCellContainerName;
   std::string m_clusterContainerName;
-  std::string m_noiseToolName; 
   std::vector<std::string> m_samplingNames;
 
   std::map<std::string, CaloSampling::CaloSample> m_samplingFromNameLookup;

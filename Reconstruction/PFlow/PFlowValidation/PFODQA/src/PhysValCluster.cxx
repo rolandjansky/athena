@@ -1,27 +1,27 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PhysValCluster.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "GaudiKernel/EventContext.h"
 
 PhysValCluster::PhysValCluster (const std::string& type, const std::string& name, const IInterface* parent ) : ManagedMonitorToolBase( type, name, parent ) {
-  declareProperty( "ClusterContainerName", m_clusterContainerName="");
 }
 
-PhysValCluster::~PhysValCluster() {}
-
 StatusCode PhysValCluster::initialize(){
-  ATH_CHECK(ManagedMonitorToolBase::initialize());
-  return StatusCode::SUCCESS;
+  ATH_CHECK(m_clusterContainerName.initialize());
+  ATH_CHECK(m_eventInfoName.initialize());
+  return ManagedMonitorToolBase::initialize();
 }
 
 
 StatusCode PhysValCluster::bookHistograms(){
 
-  std::string theName = "TopoClusters/TopoClusters_JetETMiss/JetETMiss_"+m_clusterContainerName;
+  std::string theName = "TopoClusters/TopoClusters_JetETMiss/JetETMiss_"+m_clusterContainerName.key();
 
-  m_clusterValidationPlots.reset(new ClusterValidationPlots(0,theName, theName));
+  m_clusterValidationPlots.reset(new ClusterValidationPlots(0,theName, m_clusterContainerName));
   m_clusterValidationPlots->setDetailLevel(100);
   m_clusterValidationPlots->initialize();
   std::vector<HistData> hists = m_clusterValidationPlots->retrieveBookedHistograms();
@@ -36,30 +36,22 @@ StatusCode PhysValCluster::bookHistograms(){
 
 StatusCode PhysValCluster::fillHistograms(){
 
-  const xAOD::CaloClusterContainer* theClusterContainer = NULL;
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  SG::ReadHandle<xAOD::EventInfo> evInfoHdl{m_eventInfoName, ctx}; 
+  if(!evInfoHdl.isValid()){
+     ATH_MSG_ERROR("Do not have EventInfo with key " << m_eventInfoName.key());
+     return StatusCode::FAILURE;
+  }
 
-  if( evtStore()->contains<xAOD::CaloClusterContainer>(m_clusterContainerName)){
+  SG::ReadHandle<xAOD::CaloClusterContainer> clusHdl{m_clusterContainerName, ctx};
 
-    ATH_CHECK( evtStore()->retrieve(theClusterContainer,m_clusterContainerName) );
-
-    if (!theClusterContainer){
-      ATH_MSG_WARNING(" Have NULL pointer to xAOD::CaloClusterContainer ");
-      return StatusCode::FAILURE;
-    }
-  
-    xAOD::CaloClusterContainer::const_iterator firstCluster = theClusterContainer->begin();
-    xAOD::CaloClusterContainer::const_iterator lastCluster = theClusterContainer->end();
-
-    for (; firstCluster != lastCluster; ++firstCluster) {
-      const xAOD::CaloCluster* theCluster = *firstCluster;
-      m_clusterValidationPlots->fill(*theCluster);
+  if(clusHdl.isValid()){
+    for(auto cluster: *clusHdl) {
+      m_clusterValidationPlots->fill(*cluster,*evInfoHdl);
     }
   }
-  else ATH_MSG_WARNING(" Cluster container : " << m_clusterContainerName << " not found");
+  else ATH_MSG_WARNING(" Cluster container : " << m_clusterContainerName.key() << " not found");
   return StatusCode::SUCCESS;
 
 }
 
-StatusCode PhysValCluster::procHistograms(){
-   return StatusCode::SUCCESS;
-}

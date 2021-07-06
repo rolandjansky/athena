@@ -94,6 +94,12 @@ public:
     return new CompactBinnedArray1DT(m_arrayObjects, m_array, m_binUtility->clone());
   }
 
+  CompactBinnedArray1DT* clone(const std::vector<T*>& ptrs) const
+  {
+    assert (ptrs.size() == m_arrayObjects.size());
+    return new CompactBinnedArray1DT(ptrs, m_array, m_binUtility->clone());
+  }
+
   /**Virtual Destructor*/
   ~CompactBinnedArray1DT() { delete m_binUtility; }
 

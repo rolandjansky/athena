@@ -1,10 +1,11 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-#
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
 # Author: J. Poveda (Ximo.Poveda@cern.ch)
 # TileRawChannel creation from TileDigits 
 # TileRawChannelMaker algorithm using
 
 from AthenaCommon.Logging import logging
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 import traceback
 
 from RecExConfig.Configured import Configured
@@ -24,8 +25,12 @@ class TileRawChannelGetter_DigiHSTruth ( Configured)  :
     def configure(self):
 
         mlog = logging.getLogger( 'TileRawChannelGetter::configure:' )
-        mlog.info ("entering")        
-        
+        mlog.info ("entering")
+
+        self._TileRawChannelBuilderFitFilter = None
+        self._TileRawChannelBuilderFitFilterCool = None
+        self._TileRawChannelBuilderOptATLAS_DigiHSTruth = None
+
         # Instantiation of the C++ algorithm
         try:        
             from TileRecUtils.TileRecUtilsConf import TileRawChannelMaker               
@@ -39,11 +44,25 @@ class TileRawChannelGetter_DigiHSTruth ( Configured)  :
 
         # Configure TileInfoLoader
         from AthenaCommon.AppMgr import ServiceMgr
-        if not hasattr( ServiceMgr, "TileInfoLoader" ):
-            from TileConditions.TileInfoConfigurator import TileInfoConfigurator
-            tileInfoConfigurator = TileInfoConfigurator()
+
+        from TileConditions.TileInfoConfigurator import TileInfoConfigurator
+        tileInfoConfigurator = TileInfoConfigurator()
 
         from TileRecUtils.TileRecFlags import jobproperties
+
+        # true for real data, false for MC - GlobalFlags.DataSource.is_data()
+        # true for nominal ATLAS configuration - GlobalFlags.DetGeo.is_atlas()
+        from AthenaCommon.GlobalFlags import globalflags
+
+        tileBeamElemContainer=""
+        tileDigitsContainer=""
+        tileRawChannelContainer=""
+
+        if not globalflags.isOverlay():
+            from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
+            TileDQstatusAlgDefault (TileRawChannelContainer = tileRawChannelContainer,
+                                    TileDigitsContainer = tileDigitsContainer,
+                                    TileBeamElemContainer = tileBeamElemContainer)
 
         # set time window for amplitude correction if it was not set correctly before
         if jobproperties.TileRecFlags.TimeMaxForAmpCorrection() <= jobproperties.TileRecFlags.TimeMinForAmpCorrection() :
@@ -56,12 +75,6 @@ class TileRawChannelGetter_DigiHSTruth ( Configured)  :
                 jobproperties.TileRecFlags.TimeMinForAmpCorrection = -halfBS
                 jobproperties.TileRecFlags.TimeMaxForAmpCorrection = halfBS
 
-        NoiseFilterTools = []
-        if jobproperties.TileRecFlags.noiseFilter() == 1:
-            from TileRecUtils.TileRecUtilsConf import TileRawChannelNoiseFilter
-            theTileRawChannelNoiseFilter = TileRawChannelNoiseFilter()
-            NoiseFilterTools += [theTileRawChannelNoiseFilter]
-
         TileFrameLength = ServiceMgr.TileInfoLoader.NSamples
         if TileFrameLength!=7:
             mlog.info("disabling reading of OFC from COOL because Nsamples!=7")
@@ -71,6 +84,60 @@ class TileRawChannelGetter_DigiHSTruth ( Configured)  :
         
         # run optimal filter only if readDigits is set
         if jobproperties.TileRecFlags.readDigits():
+
+            from AthenaCommon.AlgSequence import AlgSequence
+            topSequence = AlgSequence()
+
+            TilePulseTypes = {0 : 'PHY', 1 : 'PHY', 2 : 'LAS', 4 : 'PHY', 8 : 'CIS'}
+            TilePulse = TilePulseTypes[jobproperties.TileRecFlags.TileRunType()]
+
+            from TileConditions.TileCondToolConf import getTileCondToolOfcCool
+            toolOfcCool = None
+            toolOfcCoolOF1 = None
+
+            NoiseFilterTools = []
+            TileRawChannelContainerDSP = ''
+            if jobproperties.TileRecFlags.noiseFilter() == 1:
+
+
+
+                from TileRecUtils.TileRecUtilsConf import TileRawChannelNoiseFilter
+                theTileRawChannelNoiseFilter = TileRawChannelNoiseFilter()
+                if not athenaCommonFlags.isOnline():
+                    theTileRawChannelNoiseFilter.TileCondToolNoiseSample.TileOnlineSampleNoise = ''
+                NoiseFilterTools += [theTileRawChannelNoiseFilter]
+
+
+            if (jobproperties.TileRecFlags.doTileMF()
+                or (not jobproperties.TileRecFlags.OfcFromCOOL()
+                    and (jobproperties.TileRecFlags.doTileOF1()
+                         or jobproperties.TileRecFlags.doTileWiener()
+                         or jobproperties.TileRecFlags.doTileOpt2()
+                         or jobproperties.TileRecFlags.doTileOptATLAS()))):
+
+                tileInfoConfigurator.setupCOOLPULSE(type = TilePulse)
+                tileInfoConfigurator.setupCOOLAutoCr()
+
+            elif jobproperties.TileRecFlags.doTileFitCool():
+                tileInfoConfigurator.setupCOOLPULSE(type = TilePulse)
+
+            if jobproperties.TileRecFlags.OfcFromCOOL():
+                if (jobproperties.TileRecFlags.doTileMF()
+                    or jobproperties.TileRecFlags.doTileWiener()
+                    or jobproperties.TileRecFlags.doTileOpt2()
+                    or jobproperties.TileRecFlags.doTileOptATLAS()):
+
+                    tileInfoConfigurator.setupCOOLOFC(type = TilePulse)
+                    toolOfcCool = getTileCondToolOfcCool('COOL', TilePulse)
+
+                if jobproperties.TileRecFlags.doTileOF1():
+                    tileInfoConfigurator.setupCOOLOFC(type = TilePulse, ofcType = 'OF1')
+
+                    if not toolOfcCoolOF1:
+                        toolOfcCoolOF1 = getTileCondToolOfcCool('COOL', TilePulse, 'OF1', 'TileCondToolOfcCoolOF1')
+
+                
+      
             if jobproperties.TileRecFlags.doTileOptATLAS():
                 try:
                     from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderOpt2Filter
@@ -81,20 +148,9 @@ class TileRawChannelGetter_DigiHSTruth ( Configured)  :
                     return False
                 
                 # setup COOL to get OFCs
-                toolOfcCool = None
                 if jobproperties.TileRecFlags.OfcFromCOOL():
-                    from TileConditions.TileInfoConfigurator import TileInfoConfigurator
-                    tileInfoConfigurator = TileInfoConfigurator()
-                    tileInfoConfigurator.setupCOOLOFC()
-                    from TileConditions.TileCondToolConf import getTileCondToolOfcCool
-                    toolOfcCool = getTileCondToolOfcCool('COOL')
-                else:
-                    from TileConditions.TileInfoConfigurator import TileInfoConfigurator
-                    tileInfoConfigurator = TileInfoConfigurator()
-                    tileInfoConfigurator.setupCOOLPHYPULSE()
-                    tileInfoConfigurator.setupCOOLAutoCr()
+                    theTileRawChannelBuilderOptATLAS.TileCondToolOfc = toolOfcCool
                     
-                #TileRawChannelBuilderOptATLAS Options:
                 theTileRawChannelBuilderOptATLAS.TileRawChannelContainer = "TileRawChannelCnt_DigiHSTruth"
                 theTileRawChannelBuilderOptATLAS.RunType         = jobproperties.TileRecFlags.TileRunType()
                 theTileRawChannelBuilderOptATLAS.calibrateEnergy = jobproperties.TileRecFlags.calibrateEnergy()
@@ -109,30 +165,24 @@ class TileRawChannelGetter_DigiHSTruth ( Configured)  :
                 theTileRawChannelBuilderOptATLAS.MaxIterations = 1 # just one iteration
                 theTileRawChannelBuilderOptATLAS.Minus1Iteration = False # assume that max sample is at t=0
                 theTileRawChannelBuilderOptATLAS.AmplitudeCorrection = jobproperties.TileRecFlags.correctAmplitude()
-                if jobproperties.TileRecFlags.OfcFromCOOL():
-                    theTileRawChannelBuilderOptATLAS.TileCondToolOfc = toolOfcCool
-
+                theTileRawChannelBuilderOptATLAS.TimeCorrection = jobproperties.TileRecFlags.correctTimeNI()
                 theTileRawChannelBuilderOptATLAS.AmpMinForAmpCorrection = jobproperties.TileRecFlags.AmpMinForAmpCorrection()
                 if jobproperties.TileRecFlags.TimeMaxForAmpCorrection() > jobproperties.TileRecFlags.TimeMinForAmpCorrection():
                     theTileRawChannelBuilderOptATLAS.TimeMinForAmpCorrection = jobproperties.TileRecFlags.TimeMinForAmpCorrection()
                     theTileRawChannelBuilderOptATLAS.TimeMaxForAmpCorrection = jobproperties.TileRecFlags.TimeMaxForAmpCorrection()
+
+                theTileRawChannelBuilderOptATLAS.DSPContainer = TileRawChannelContainerDSP
                 
-                mlog.info(" adding now TileRawChannelBuilderOpt2Filter with name TileRawChannelBuilderOptATLAS to the aglorithm: %s",
+                mlog.info(" adding now TileRawChannelBuilderOpt2Filter with name TileRawChannelBuilderOptATLAS to the algorithm: %s",
                           theTileRawChannelMaker.name())
-
+                
                 theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderOptATLAS]
-            
+                self._TileRawChannelBuilderOptATLAS_DigiHSTruth = theTileRawChannelBuilderOptATLAS
 
-            #jobproperties.TileRecFlags.print_JobProperties('tree&value')
-
-            # now add algorithm to topSequence
-            # this should always come at the end
 
             mlog.info(" now adding to topSequence")        
-            from AthenaCommon.AlgSequence import AlgSequence
-            topSequence = AlgSequence()
-            theTileRawChannelMaker.TileDigitsContainer = "TileDigitsCnt_DigiHSTruth"
 
+            '''
             if jobproperties.TileRecFlags.noiseFilter() == 2:
                 # Instantiation of the C++ algorithm
                 try:
@@ -144,9 +194,13 @@ class TileRawChannelGetter_DigiHSTruth ( Configured)  :
                     return False
                 #theTileRawCorrelatedNoise.UseMeanFiles = False
                 #theTileRawCorrelatedNoise.PMTOrder = True
-                theTileRawChannelMaker.TileDigitsContainer = "NewDigitsContainer"
+                jobproperties.TileRecFlags.TileDigitsContainer = "NewDigitsContainer"
                 topSequence += theTileRawCorrelatedNoise
+            '''
 
+            jobproperties.TileRecFlags.print_JobProperties('tree&value')
+
+            theTileRawChannelMaker.TileDigitsContainer = "TileDigitsCnt_DigiHSTruth"
             topSequence += theTileRawChannelMaker
 
         else:
@@ -167,7 +221,11 @@ class TileRawChannelGetter_DigiHSTruth ( Configured)  :
 
     def TileRChMaker_DigiHSTruth(self):
         return self._TileRChMaker_DigiHSTruth
-   
+
+    def TileRawChannelBuilderOptATLAS(self):
+        return self._TileRawChannelBuilderOptATLAS_DigiHSTruth
+
+
 ##    # would work only if one output object type
 ##    def outputKey(self):
 ##        return self._output[self._outputType]

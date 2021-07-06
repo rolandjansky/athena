@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * JetHT.cpp
@@ -15,7 +15,6 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
-#include "TH1F.h"
 
 #include "L1TopoAlgorithms/JetHT.h"
 #include "L1TopoCommon/Exception.h"

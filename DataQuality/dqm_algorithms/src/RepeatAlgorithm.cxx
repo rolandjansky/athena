@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -118,12 +118,13 @@ execute( const std::string& name, const TObject& data, const dqm_core::Algorithm
     }
     tags[ireference->GetName() + std::string("|Status")] = subResult->status_; 
     if ( dqm_algorithms::tools::GetFirstFromMap("RepeatAlgorithm--ResultsNEntries", config.getParameters(), 0) > 0 ) {
-      TH1* hireference = dynamic_cast<TH1*>(ireference);
-      if (hireference) {
-	tags[ireference->GetName() + std::string("|NEntries")] = hireference->GetEntries();
-      } else {
-	throw dqm_core::BadConfig( ERS_HERE, "RepeatAlgorithm", std::string("Reference ") + ireference->GetName() + " is not TH1, yet we want to get # entries" );
-      }
+
+       if( ireference->IsA()->InheritsFrom( "TH1" )){
+          TH1* hireference = dynamic_cast<TH1*>(ireference);
+          if (hireference) {
+            tags[ireference->GetName() + std::string("|NEntries")] = hireference->GetEntries();
+          } 
+       }
     }
 
     if (subResult->getObject()) {
@@ -154,16 +155,16 @@ ConfigureSubAlg(const dqm_core::AlgorithmConfig& config, TObject* reference)
   
   auto rv(new dqm_core::test::DummyAlgorithmConfig(reference));
 
-  for (const auto parVal : config.getParameters()) {
+  for (const auto& parVal : config.getParameters()) {
     if (parVal.first.find("AuxAlgName--") == std::string::npos
 	&& parVal.first.find("RepeatAlgorithm--") == std::string::npos) {
       rv->addParameter(parVal.first, parVal.second);
     }
   }
-  for (const auto grthr : config.getGreenThresholds()) {
+  for (const auto& grthr : config.getGreenThresholds()) {
     rv->addGreenThreshold(grthr.first, grthr.second);
   }
-  for (const auto rdthr : config.getRedThresholds()) {
+  for (const auto& rdthr : config.getRedThresholds()) {
     rv->addRedThreshold(rdthr.first, rdthr.second);
   }
   return rv;

@@ -91,14 +91,14 @@ StatusCode Trk::GeantFollowerHelper::initialize()
   m_validationTree->Branch("TrkStepLocY",  m_treeData->m_trk_ly,     "trkstepLY[g4steps]/F");
 
   // now register the Tree
-  ITHistSvc* tHistSvc = 0;
+  ITHistSvc* tHistSvc = nullptr;
   if (service("THistSvc",tHistSvc).isFailure()){
     ATH_MSG_ERROR( "Could not find Hist Service -> Switching ValidationMode Off !" );
-    delete m_validationTree; m_validationTree = 0;
+    delete m_validationTree; m_validationTree = nullptr;
   }
   if ((tHistSvc->regTree(m_validationTreeFolder, m_validationTree)).isFailure()) {
     ATH_MSG_ERROR( "Could not register the validation Tree -> Switching ValidationMode Off !" );
-    delete m_validationTree; m_validationTree = 0;
+    delete m_validationTree; m_validationTree = nullptr;
   }
 
   ATH_MSG_INFO("initialize() successful" );

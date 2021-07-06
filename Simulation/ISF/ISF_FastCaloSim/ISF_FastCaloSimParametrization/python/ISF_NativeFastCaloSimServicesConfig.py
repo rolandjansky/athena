@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """
 Tools configurations for ISF_NativeFastCaloSimServices
@@ -38,10 +38,6 @@ def getEmptyCellBuilderTool(name="ISF_EmptyCellBuilderTool", **kwargs):
 def getFastHitConvertTool(name="ISF_FastHitConvertTool",**kwargs):
     from FastCaloSimHit.FastCaloSimHitConf import FastHitConvertTool 
     return FastHitConvertTool(name,**kwargs)
-
-def getCaloNoiseTool(name="ISF_FCS_CaloNoiseTool", **kwargs):
-    from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-    return CaloNoiseToolDefault(name, **kwargs )
 
 def getAddNoiseCellBuilderTool(name="ISF_AddNoiseCellBuilderTool", **kwargs):
     from FastCaloSim.AddNoiseCellBuilderToolDefault import AddNoiseCellBuilderToolDefault

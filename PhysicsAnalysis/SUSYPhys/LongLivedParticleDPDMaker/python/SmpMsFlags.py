@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.JobProperties import JobProperty
 from AthenaCommon.JobProperties import jobproperties
@@ -23,7 +23,6 @@ class SmpMs_triggerFilterFlags(JobProperty):
           "EF_mu60_slow_tight",
           "EF_mu60_slow_outOfTime_tight"
           ]
-    pass
 primRPVLLDESDM.add_JobProperty(SmpMs_triggerFilterFlags)
 
 
@@ -34,5 +33,4 @@ class SmpMs_muonFilterFlags(JobProperty):
     cutEtMin = 40*Units.GeV
     cutContainerMu='all'
     usingAOD=False
-    pass
 primRPVLLDESDM.add_JobProperty(SmpMs_muonFilterFlags)

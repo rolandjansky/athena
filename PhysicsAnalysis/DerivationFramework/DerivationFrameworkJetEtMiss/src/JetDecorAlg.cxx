@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetDecorAlg.cxx
@@ -161,7 +161,7 @@ namespace DerivationFramework {
          JetContainer* ncCont = const_cast< JetContainer* >( origCont );
          ncCont->setStore( ncstore );
 
-         for(const auto& jet_source : *inputJets) {
+         for(const auto jet_source : *inputJets) {
             const Jet* cjet_target = static_cast<const Jet*>(*dec_origlink(*jet_source));
             if(!cjet_target) {
                ATH_MSG_WARNING("Invalid target jet returned!");

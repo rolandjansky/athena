@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -24,10 +24,6 @@
 #include "ZdcByteStream/ZdcByteStreamRawDataV2.h"
 #include "ZdcByteStream/ZdcToString.h"
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
-
 //==================================================================================================
 ZdcByteStreamRawDataV2::ZdcByteStreamRawDataV2(const std::string& name, ISvcLocator* pSvcLocator) :
 	AthReentrantAlgorithm(name, pSvcLocator)
@@ -39,19 +35,9 @@ ZdcByteStreamRawDataV2::ZdcByteStreamRawDataV2(const std::string& name, ISvcLoca
 
 
 //==================================================================================================
-ZdcByteStreamRawDataV2::~ZdcByteStreamRawDataV2()
-{
-}
-//==================================================================================================
-
-
-//==================================================================================================
 StatusCode ZdcByteStreamRawDataV2::initialize()
 {
-	msg(MSG::INFO) << "Initializing " << name() << " - package version " << PACKAGE_VERSION
-			<< endmsg;
-
-        ATH_CHECK( m_ZdcTriggerTowerContainerLocation.initialize() );
+    ATH_CHECK( m_ZdcTriggerTowerContainerLocation.initialize() );
 	return StatusCode::SUCCESS;
 }
 //==================================================================================================
@@ -69,15 +55,6 @@ StatusCode ZdcByteStreamRawDataV2::execute (const EventContext& ctx) const
           (m_ZdcTriggerTowerContainerLocation, ctx);
 
 	msg(MSG::DEBUG) << ZdcToString(*ttCollection) << endmsg;
-
-	return StatusCode::SUCCESS;
-}
-//==================================================================================================
-
-
-//==================================================================================================
-StatusCode ZdcByteStreamRawDataV2::finalize()
-{
 
 	return StatusCode::SUCCESS;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -26,13 +26,14 @@
 #include "CxxUtils/sincos.h"
 #include <iomanip>
 #include <iostream>
+#include <cmath>
 
 const Trk::NoBounds Trk::PlaneSurface::s_boundless;
 
 // default constructor
 Trk::PlaneSurface::PlaneSurface()
   : Trk::Surface()
-  , m_bounds()
+  , m_bounds(nullptr)
 {}
 
 
@@ -42,10 +43,18 @@ Trk::PlaneSurface::PlaneSurface(const PlaneSurface& psf, const Amg::Transform3D&
   , m_bounds(psf.m_bounds)
 {}
 
+#if defined(FLATTEN) && defined(__GNUC__)
+// We compile this function with optimization, even in debug builds; otherwise,
+// the heavy use of Eigen makes it too slow.  However, from here we may call
+// to out-of-line Eigen code that is linked from other DSOs; in that case,
+// it would not be optimized.  Avoid this by forcing all Eigen code
+// to be inlined here if possible.
+__attribute__ ((flatten))
+#endif
 // constructor from CurvilinearUVT
 Trk::PlaneSurface::PlaneSurface(const Amg::Vector3D& position, const CurvilinearUVT& curvUVT)
   : Trk::Surface()
-  , m_bounds(new Trk::NoBounds())
+  , m_bounds(nullptr) // curvilinear surfaces are boundless
 {
   Amg::Translation3D curvilinearTranslation(position.x(), position.y(), position.z());
   // create the rotation
@@ -53,101 +62,112 @@ Trk::PlaneSurface::PlaneSurface(const Amg::Vector3D& position, const Curvilinear
   curvilinearRotation.col(0) = curvUVT.curvU();
   curvilinearRotation.col(1) = curvUVT.curvV();
   curvilinearRotation.col(2) = curvUVT.curvT();
-  // curvilinear surfaces are boundless
-  Trk::Surface::m_transform = std::make_unique<Amg::Transform3D>();
-  (*Trk::Surface::m_transform) = curvilinearRotation;
-  Trk::Surface::m_transform->pretranslate(position);
+  Amg::Transform3D transform{};
+  transform = curvilinearRotation;
+  transform.pretranslate(position);
+  Trk::Surface::m_transforms = std::make_unique<Transforms>(transform);
 }
 
 // construct form TrkDetElementBase
-Trk::PlaneSurface::PlaneSurface(const Trk::TrkDetElementBase& detelement, Amg::Transform3D* transf)
+Trk::PlaneSurface::PlaneSurface(const Trk::TrkDetElementBase& detelement, const Amg::Transform3D & transf)
   : Trk::Surface(detelement)
-  , m_bounds()
+  , m_bounds(nullptr)
 {
-  m_transform=std::unique_ptr<Amg::Transform3D>(transf);
+  Trk::Surface::m_transforms = std::make_unique<Transforms>(transf);
 }
 
-// construct form SiDetectorElement
+// construct form TrkDetElementBase
+Trk::PlaneSurface::PlaneSurface(const Trk::TrkDetElementBase& detelement)
+  : Trk::Surface(detelement)
+  , m_bounds(nullptr)
+{
+  //
+}
+
+// construct from SiDetectorElement
 Trk::PlaneSurface::PlaneSurface(const Trk::TrkDetElementBase& detelement,
                                 const Identifier& id,
-                                Amg::Transform3D* transf)
+                                const Amg::Transform3D & transf)
   : Trk::Surface(detelement, id)
-  , m_bounds()
+  , m_bounds(nullptr)
 {
-  m_transform=std::unique_ptr<Amg::Transform3D>(transf);
+  Trk::Surface::m_transforms = std::make_unique<Transforms>(transf);
+}
+
+// construct from SiDetectorElement
+Trk::PlaneSurface::PlaneSurface(const Trk::TrkDetElementBase& detelement,
+                                const Identifier& id)
+  : Trk::Surface(detelement, id)
+  , m_bounds(nullptr)
+{
+  //
 }
 
 // construct planar surface without bounds
-Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans)
+Trk::PlaneSurface::PlaneSurface(const Amg::Transform3D& htrans)
   : Trk::Surface(htrans)
-  , m_bounds()
-{}
-
-// construct planar surface without bounds
-Trk::PlaneSurface::PlaneSurface(std::unique_ptr<Amg::Transform3D> htrans)
-  : Trk::Surface(std::move(htrans))
-  , m_bounds()
+  , m_bounds(nullptr)
 {}
 
 // construct rectangle module
-Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans, double halephi, double haleta)
+Trk::PlaneSurface::PlaneSurface(const Amg::Transform3D & htrans, double halephi, double haleta)
   : Trk::Surface(htrans)
-  , m_bounds(new Trk::RectangleBounds(halephi, haleta))
+  , m_bounds(std::make_shared<Trk::RectangleBounds>(halephi, haleta))
 {}
 
 // construct trapezoidal module with parameters
-Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans, double minhalephi, double maxhalephi, double haleta)
+Trk::PlaneSurface::PlaneSurface(const Amg::Transform3D & htrans, double minhalephi, double maxhalephi, double haleta)
   : Trk::Surface(htrans)
-  , m_bounds(new Trk::TrapezoidBounds(minhalephi, maxhalephi, haleta))
+  , m_bounds(std::make_shared<Trk::TrapezoidBounds>(minhalephi, maxhalephi, haleta))
 {}
 
 // construct annulus module with parameters
-Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans, Trk::AnnulusBounds* tbounds)
+Trk::PlaneSurface::PlaneSurface(const Amg::Transform3D & htrans, Trk::AnnulusBounds* tbounds)
   : Trk::Surface(htrans)
   , m_bounds(tbounds)
 {}
 
 // construct rectangle surface by giving RectangleBounds
-Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans, Trk::RectangleBounds* rbounds)
+Trk::PlaneSurface::PlaneSurface(const Amg::Transform3D& htrans, Trk::RectangleBounds* rbounds)
   : Trk::Surface(htrans)
   , m_bounds(rbounds)
 {}
 
 // construct triangle surface by giving TriangleBounds
-Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans, Trk::TriangleBounds* rbounds)
+Trk::PlaneSurface::PlaneSurface(const Amg::Transform3D & htrans, Trk::TriangleBounds* rbounds)
   : Trk::Surface(htrans)
   , m_bounds(rbounds)
 {}
 
 // construct trapezoidal module with parameters
-Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans, Trk::TrapezoidBounds* tbounds)
+Trk::PlaneSurface::PlaneSurface(const Amg::Transform3D & htrans, Trk::TrapezoidBounds* tbounds)
   : Trk::Surface(htrans)
   , m_bounds(tbounds)
 {}
 
 // construct rotated trapezoidal module with parameters
-Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans, Trk::RotatedTrapezoidBounds* tbounds)
+Trk::PlaneSurface::PlaneSurface(const Amg::Transform3D & htrans, Trk::RotatedTrapezoidBounds* tbounds)
   : Trk::Surface(htrans)
   , m_bounds(tbounds)
 {}
 
 // construct diamond module with parameters
-Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans, Trk::DiamondBounds* tbounds)
+Trk::PlaneSurface::PlaneSurface(const Amg::Transform3D & htrans, Trk::DiamondBounds* tbounds)
   : Trk::Surface(htrans)
   , m_bounds(tbounds)
 {}
 
 // construct elliptic module with parameters
-Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans, Trk::EllipseBounds* tbounds)
+Trk::PlaneSurface::PlaneSurface(const Amg::Transform3D & htrans, Trk::EllipseBounds* tbounds)
   : Trk::Surface(htrans)
   , m_bounds(tbounds)
 {}
 
 // construct module with shared boundaries - change to reference
-Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans, Trk::SharedObject<const Trk::SurfaceBounds>& tbounds)
-  : Trk::Surface(htrans)
-  , m_bounds(tbounds)
-{}
+Trk::PlaneSurface::PlaneSurface(
+    const Amg::Transform3D & htrans,
+    Trk::SharedObject<const Trk::SurfaceBounds>& tbounds)
+    : Trk::Surface(htrans), m_bounds(tbounds) {}
 
 bool
 Trk::PlaneSurface::operator==(const Trk::Surface& sf) const
@@ -186,7 +206,7 @@ Trk::PlaneSurface::localToGlobalDirection(const Trk::LocalDirection& locdir, Amg
   CxxUtils::sincos scXZ(locdir.angleXZ());
   CxxUtils::sincos scYZ(locdir.angleYZ());
 
-  double norm = 1. / sqrt(scYZ.cs * scYZ.cs * scXZ.sn * scXZ.sn + scYZ.sn * scYZ.sn);
+  double norm = 1. / std::sqrt(scYZ.cs * scYZ.cs * scXZ.sn * scXZ.sn + scYZ.sn * scYZ.sn);
 
   // decide on the sign
   double sign = (scXZ.sn < 0.) ? -1. : 1.;
@@ -202,15 +222,18 @@ Trk::PlaneSurface::globalToLocalDirection(const Amg::Vector3D& glodir, Trk::Loca
 {
   // bring the global direction into the surface frame
   Amg::Vector3D d(transform().inverse().linear() * glodir);
-  ldir = Trk::LocalDirection(atan2(d.z(), d.x()), atan2(d.z(), d.y()));
+  ldir = Trk::LocalDirection(std::atan2(d.z(), d.x()), std::atan2(d.z(), d.y()));
 }
 
 bool
-Trk::PlaneSurface::isOnSurface(const Amg::Vector3D& glopo, Trk::BoundaryCheck bchk, double tol1, double tol2) const
+Trk::PlaneSurface::isOnSurface(const Amg::Vector3D& glopo,  
+                               const Trk::BoundaryCheck& bchk, 
+                               double tol1, double tol2) const
 {
   Amg::Vector3D loc3Dframe = (transform().inverse()) * glopo;
-  if (fabs(loc3Dframe(2)) > (s_onSurfaceTolerance + tol1))
+  if (std::abs(loc3Dframe(2)) > (s_onSurfaceTolerance + tol1)){
     return false;
+  }
   return (bchk ? bounds().inside(Amg::Vector2D(loc3Dframe(0), loc3Dframe(1)), tol1, tol2) : true);
 }
 
@@ -226,7 +249,7 @@ Trk::PlaneSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, const 
 
   const double A = dir.dot(N); // ignore sign
   if (A == 0.) {               // direction parallel to surface
-    if (fabs(d) < tol) {
+    if (std::abs(d) < tol) {
       return Trk::DistanceSolution(1, 0., true, 0.);
     }
       return Trk::DistanceSolution(0, d, true, 0.);
@@ -258,9 +281,9 @@ Trk::PlaneSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, const 
     s = -z / az;
     ns = 1;
   }
-  double dist = fabs(z);
+  double dist = std::abs(z);
   if (!bound)
-    return Trk::DistanceSolution(ns, fabs(z), true, s);
+    return Trk::DistanceSolution(ns, std::abs(z), true, s);
 
   // Min distance to surface
   //
@@ -271,7 +294,7 @@ Trk::PlaneSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, const 
 
   double d = bounds().minDistance(lp);
   if (d > 0.)
-    dist = sqrt(dist * dist + d * d);
+    dist = std::sqrt(dist * dist + d * d);
 
   return Trk::DistanceSolution(ns, dist, true, s);
 }

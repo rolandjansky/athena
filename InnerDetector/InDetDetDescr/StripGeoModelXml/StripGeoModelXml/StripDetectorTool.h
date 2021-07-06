@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef StripGeoModelXml_STRIPDETECTORTOOL_H
@@ -19,7 +19,6 @@
 class IGeoModelSvc;
 class IRDBAccessSvc;
 class IGeoDbTagSvc;
-class IGeometryDBSvc;
 
 namespace InDetDD {
     class SCT_DetectorManager;
@@ -45,7 +44,6 @@ private:
     InDetDD::SiCommonItems *m_commonItems;
     ServiceHandle<IGeoModelSvc> m_geoModelSvc;
     ServiceHandle<IRDBAccessSvc> m_rdbAccessSvc;
-    ServiceHandle<IGeometryDBSvc> m_geometryDBSvc;
     ServiceHandle< IGeoDbTagSvc > m_geoDbTagSvc;
     //   ADA   ServiceHandle<ISiLorentzAngleSvc> m_lorentzAngleSvc;
 };

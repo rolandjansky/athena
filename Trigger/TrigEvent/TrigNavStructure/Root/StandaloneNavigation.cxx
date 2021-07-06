@@ -16,7 +16,10 @@ HLT::StandaloneNavigation::~StandaloneNavigation(){
 }
 
 bool HLT::StandaloneNavigation::serializeHolders( std::vector<uint32_t>& output ) const {
-  for ( auto holder: m_holderstorage.getAllHolders()) {
+  std::lock_guard<std::recursive_mutex> lock(getMutex());
+  const TrigHolderStructure& holderstorage = getHolderStorage();
+
+  for ( auto holder: holderstorage.getAllHolders()) {
     // put size placeholder
     const size_t holderSizeIndex = output.size();
     output.push_back(0);
@@ -31,6 +34,9 @@ bool HLT::StandaloneNavigation::serializeHolders( std::vector<uint32_t>& output 
 
 bool HLT::StandaloneNavigation::deserializeHolders(std::vector<uint32_t>::const_iterator& start,  const std::vector<uint32_t>::const_iterator& end) {  
   using namespace std;
+  std::lock_guard<std::recursive_mutex> lock(getMutex());
+  TrigHolderStructure& holderstorage = getHolderStorage();
+
   do {
     if ( start == end ) // no holders at all
       break;
@@ -50,7 +56,7 @@ bool HLT::StandaloneNavigation::deserializeHolders(std::vector<uint32_t>::const_
     //create holder
     auto holder = std::make_shared<TypelessHolder>(clid, label, sub);
 
-    bool status = m_holderstorage.registerHolder(holder);
+    bool status = holderstorage.registerHolder(holder);
     if(!status){
       std::cerr << "ERROR registering a holder" << std::endl; 
     }

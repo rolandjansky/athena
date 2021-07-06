@@ -1,11 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
-/**
- */
-
 
 #include "AthenaKernel/errorcheck.h"
 
@@ -278,7 +273,6 @@ void SCFillerTool::dumpHashTables( const CaloCellContainer& p ) {
     int key = scID;
     std::vector<const CaloCell*> v = (*it).second;
     int nl = v.size();
-    std::vector<const CaloCell*>::iterator vit;
     int pn = ((key >> 28) & 0x1) ? 1: -1;
     int calo = ((key >> 24) & 0xf)*pn;
     int region =  (key>>20) & 0xf;
@@ -289,8 +283,8 @@ void SCFillerTool::dumpHashTables( const CaloCellContainer& p ) {
       std::cout << "SCFillerTool::dumpHashTables() ===> scID = " << scID << " calo,pn,region,lay,ieta,jphi: " << calo << ", " << pn << ", " << region  << ", " << lay << ", " << ieta << ", " << jphi << std::endl;
       std::cout << "SCFillerTool::dumpHashTables() ===> scID = " << scID << " No. of cells: " << nl << std::endl;
       std::cout << "SCFillerTool::dumpHashTables() ===>        " ;
-      for( vit=v.begin(); vit!= v.end(); vit++) {
-	std::cout << *vit << ", " ;
+      for (const CaloCell* cell : v) {
+	std::cout << cell << ", " ;
       }
       std::cout << "" << std::endl;
     }

@@ -59,14 +59,14 @@ namespace Trk {
 
       If no prd-to-track map is given the processor will create
       one internally (exported to storegate).*/
-      virtual TrackCollection*  process(const TrackCollection*, Trk::PRDtoTrackMap *prdToTrackMap) const override;
-      virtual TrackCollection*  process(const TracksScores* scoredTracks) const override;
+      virtual const TrackCollection*  process(const TrackCollection*, Trk::PRDtoTrackMap *prdToTrackMap) const override;
+      virtual const TrackCollection*  process(const TracksScores* scoredTracks) const override;
 
       /** statistics output to be called by algorithm during finalize. */
       virtual void statistics() override;
     private:
 
-      TrackCollection*  
+      const TrackCollection*  
       processVector(const TrackCollection &tracks, Trk::PRDtoTrackMap *prdToTrackMap) const;
 
       /**Add passed TrackCollection, and Trk::PrepRawData from tracks to caches
@@ -78,7 +78,7 @@ namespace Trk {
                   TrackScoreMap& trackScoreTrackMap,
                   Trk::PRDtoTrackMap &prdToTrackMap) const;
 
-      TrackCollection *
+      const TrackCollection *
       solveTracks(TrackScoreMap &trackScoreTrackMap,
                  Trk::PRDtoTrackMap &prdToTrackMap,
                  std::vector<std::unique_ptr<const Trk::Track> > &trackDustbin,

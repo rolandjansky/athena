@@ -10,7 +10,7 @@
 #define BCM_RAWDATABYTESTREAMCNV_BCM_RAWDATAPROVIDER_H
 
 #include "InDetBCM_RawData/BCM_RDO_Container.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -18,7 +18,7 @@
 class IROBDataProviderSvc;
 class BCM_RawDataProviderTool;
 
-class BCM_RawDataProvider : public AthAlgorithm
+class BCM_RawDataProvider : public AthReentrantAlgorithm
 {
 public:
 
@@ -29,7 +29,7 @@ public:
   virtual StatusCode initialize() override;
 
   //! Execute
-  virtual StatusCode execute() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
 
   //! Finalize
   virtual StatusCode finalize() override

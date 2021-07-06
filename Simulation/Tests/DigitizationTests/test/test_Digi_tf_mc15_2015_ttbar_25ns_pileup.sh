@@ -30,11 +30,12 @@ Digi_tf.py \
 --postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' 'HITtoRDO:from AthenaCommon.CfgGetter import getPublicTool;getPublicTool("MergeMcEventCollTool").OnlySaveSignalTruth=True;condSeq.LArAutoCorrTotalCondAlg.deltaBunch=1' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --pileupFinalBunch 6 \
---preExec    'all:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)' \
---preInclude 'HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_run222525_v1.py' \
+--preExec 'all:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArDigitization.LArDigitizationFlags import jobproperties;jobproperties.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(True);' \
+--preInclude 'all:LArConfiguration/LArConfigRun2Old.py' 'HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_run222525_v1.py' \
 --skipEvents 0
 
 rc=$?
+status=$rc
 echo  "art-result: $rc Digi_tf.py"
 rc1=-9999
 rc2=-9999
@@ -50,6 +51,7 @@ then
     # Do reference comparisons
     art.py compare ref --diff-pool $DigiOutFileName   /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigiOutFileName
     rc1=$?
+    status=$rc1
 fi
 echo  "art-result: $rc1 diff-pool"
 #
@@ -59,6 +61,7 @@ if [ $rc -eq 0 ]
 then
     art.py compare ref --mode=semi-detailed --diff-root $DigiOutFileName /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigiOutFileName
     rc2=$?
+    status=$rc2
 fi
 echo  "art-result: $rc2 diff-root"
 #
@@ -66,6 +69,7 @@ if [ $rc -eq 0 ]
 then
     checkFile ./$DigiOutFileName
     rc3=$?
+    status=$rc3
 fi
 echo "art-result: $rc3 checkFile"
 #
@@ -76,5 +80,8 @@ then
     ArtJobName=$2
     art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=semi-detailed
     rc4=$?
+    status=$rc4
 fi
 echo  "art-result: $rc4 regression"
+
+exit $status

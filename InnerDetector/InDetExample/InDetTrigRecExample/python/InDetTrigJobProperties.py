@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ##
 ## @file InDetTrigRecExample/python/InDetTrigJobProperties.py
@@ -30,13 +30,13 @@ __all__    = [ "InDetTrigJobProperties" ]
 ##-----------------------------------------------------------------------------
 ## Import
 
-from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
+from AthenaCommon.JobProperties import JobProperty
 from AthenaCommon.JobProperties import jobproperties
 
 ##-----------------------------------------------------------------------------
 ## 0th step: define infrastructure JPs DO NOT MODIFY THEM!!!
 
-from InDetRecExample.InDetJobProperties import Enabled, InDetFlagsJobProperty
+from InDetRecExample.InDetJobProperties import InDetFlagsJobProperty
 
 ## this is the culprit why we cannot just inherit and copy properties
 class InDetTrigFlagsJobProperty(JobProperty):

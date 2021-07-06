@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArNoisyROMonAlg.h"
@@ -43,15 +43,20 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
   { // extra namespace for mutex
      std::lock_guard<std::mutex> lock(m_lock);
      if(!m_knownFilled) { // first time fill known Bad and MNB FEBs
+        // get the EventInfo, to know if we are in simulation
+        const xAOD::EventInfo* ei = nullptr;
+        if (evtStore()->retrieve(ei).isFailure()) {
+           ATH_MSG_WARNING ( " Cannot access to event info, assume we are working on data " );
+        }
         SG::ReadCondHandle<LArBadFebCont> badHdl{m_badFebKey, ctx};
         const LArBadFebCont *badCont{*badHdl};
         if(badCont) {
-           if(badCont->begin() == badCont->end()) {
+           if(!ei || ((!ei->eventType( xAOD::EventInfo::IS_SIMULATION )) && badCont->begin() == badCont->end()) ) {
                 ATH_MSG_WARNING("List of known Bad FEBs empty !? ");
            } else {
               auto sl=Monitored::Scalar<unsigned>("slotBad",0);
               auto FT=Monitored::Scalar<unsigned>("FTBad",0);
-              for(LArBadFebCont::BadChanVec::const_iterator i = badCont->begin(); i!=badCont->end(); i++) {
+              for(LArBadFebCont::BadChanVec::const_iterator i = badCont->begin(); i!=badCont->end(); ++i) {
                 HWIdentifier chid(i->first);
                 sl = m_LArOnlineIDHelper->slot(chid);
                 FT = m_LArOnlineIDHelper->feedthrough(chid);
@@ -68,12 +73,12 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
         SG::ReadCondHandle<LArBadFebCont> mnbHdl(m_MNBFebKey, ctx);
         const LArBadFebCont* mnbCont{*mnbHdl};
         if(mnbCont) {
-           if(mnbCont->begin() == mnbCont->end()) {
+           if(!ei || ((!ei->eventType( xAOD::EventInfo::IS_SIMULATION )) && mnbCont->begin() == mnbCont->end()) ) {
                 ATH_MSG_WARNING("List of known MNB FEBs empty !? ");
            } else {
               auto sl=Monitored::Scalar<unsigned>("slotMNB",0);
               auto FT=Monitored::Scalar<unsigned>("FTMNB",0);
-              for(LArBadFebCont::BadChanVec::const_iterator i = mnbCont->begin(); i!=mnbCont->end(); i++) {
+              for(LArBadFebCont::BadChanVec::const_iterator i = mnbCont->begin(); i!=mnbCont->end(); ++i) {
                 HWIdentifier chid(i->first);
                 sl = m_LArOnlineIDHelper->slot(chid);
                 FT = m_LArOnlineIDHelper->feedthrough(chid);
@@ -307,15 +312,15 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
   // Event found noisy by Std method
   uint8_t BadFEBPartitions = noisyRO->BadFEBFlaggedPartitions();
   if ( BadFEBPartitions != 0) {
+    auto LBStd = Monitored::Scalar<unsigned>("LBStd",LBN);
+    auto LBStdV = Monitored::Scalar<unsigned>("LBStd_Veto",LBN);
     for (size_t i= 0;i<m_partitions.size();i++){
       if ( (BadFEBPartitions & partMask[i]) != 0 ) {
-        auto LBStd = Monitored::Scalar<unsigned>("LBNStd",LBN);
         fill(m_tools[m_histoGroups.at(i/2).at(m_partitions[i])],LBStd);
 	if ( m_doTrigger ) {
            fillTriggerHisto(i,trigbits,L1trigbits);
         }
 	if ( ! burstveto ) {
-           auto LBStdV = Monitored::Scalar<unsigned>("LBNStd_Veto",LBN);
            fill(m_tools[m_histoGroups.at(i/2).at(m_partitions[i])],LBStdV);
         }
       }
@@ -325,12 +330,12 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
   // event flagged by # of saturated quality cells
   uint8_t SatTightPartitions = noisyRO->SatTightFlaggedPartitions();
   if ( eventInfo->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::TIGHTSATURATEDQ) ) {
+    auto LBSat = Monitored::Scalar<unsigned>("LBSat",LBN);
+    auto LBSatV = Monitored::Scalar<unsigned>("LBSat_Veto",LBN);
     for (size_t i= 0;i<m_partitions.size();i++){
       if ( (SatTightPartitions & partMask[i]) != 0 ) {
-        auto LBSat = Monitored::Scalar<unsigned>("LBNSat",LBN);
         fill(m_tools[m_histoGroups.at(i/2).at(m_partitions[i])],LBSat);
 	if ( ! burstveto ) {
-           auto LBSatV = Monitored::Scalar<unsigned>("LBNSat_Veto",LBN);
            fill(m_tools[m_histoGroups.at(i/2).at(m_partitions[i])],LBSatV);
         }
       }
@@ -341,12 +346,12 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
   // event flagged by tight-MNB
   uint8_t MNBTightPartitions = noisyRO->MNBTightFlaggedPartitions();
   if ( MNBTightPartitions != 0) {
+    auto LBMTight = Monitored::Scalar<unsigned>("LBMNBTight",LBN);
+    auto LBMTightV = Monitored::Scalar<unsigned>("LBMNBTight_Veto",LBN);
     for (size_t i= 0;i<m_partitions.size();i++){
       if ( (MNBTightPartitions & partMask[i]) != 0 ) {
-         auto LBMTight = Monitored::Scalar<unsigned>("LBNMNBTight",LBN);
          fill(m_tools[m_histoGroups.at(i/2).at(m_partitions[i])],LBMTight);
 	 if ( ! burstveto ) {
-            auto LBMTightV = Monitored::Scalar<unsigned>("LBNMNBTight_Veto",LBN);
             fill(m_tools[m_histoGroups.at(i/2).at(m_partitions[i])],LBMTightV);
          }
       }
@@ -356,12 +361,12 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
   // event flagged by tight-MNB-PsVeto
   uint8_t MNBTight_PsVetoPartitions = noisyRO->MNBTight_PsVetoFlaggedPartitions();
   if ( MNBTight_PsVetoPartitions != 0) {
+    auto LBMTight_PsVeto = Monitored::Scalar<unsigned>("LBMNBTight_PsVeto",LBN);
+    auto LBMTight_PsVetoV = Monitored::Scalar<unsigned>("LBMNBTight_PsVeto_Veto",LBN);
     for (size_t i= 0;i<m_partitions.size();i++){
       if ( (MNBTight_PsVetoPartitions & partMask[i]) != 0 ) {
-         auto LBMTight_PsVeto = Monitored::Scalar<unsigned>("LBNMNBTight_PsVeto",LBN);
          fill(m_tools[m_histoGroups.at(i/2).at(m_partitions[i])],LBMTight_PsVeto);
          if ( ! burstveto ) {
-            auto LBMTight_PsVetoV = Monitored::Scalar<unsigned>("LBNMNBTight_PsVeto_Veto",LBN);
             fill(m_tools[m_histoGroups.at(i/2).at(m_partitions[i])],LBMTight_PsVetoV);
          }
       }
@@ -371,12 +376,12 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
   // event flagged by loose-MNB
   uint8_t MNBLoosePartitions = noisyRO->MNBLooseFlaggedPartitions();
   if ( MNBLoosePartitions != 0) {
+    auto LBMLoose = Monitored::Scalar<unsigned>("LBMNBLoose",LBN);
+    auto LBMLooseV = Monitored::Scalar<unsigned>("LBMNBLoose_Veto",LBN);
     for (size_t i= 0;i<m_partitions.size();i++){
       if ( (MNBLoosePartitions & partMask[i]) != 0 ) {
-         auto LBMLoose = Monitored::Scalar<unsigned>("LBNMNBLoose",LBN);
          fill(m_tools[m_histoGroups.at(i/2).at(m_partitions[i])],LBMLoose);
 	 if ( ! burstveto ) {
-            auto LBMLooseV = Monitored::Scalar<unsigned>("LBNMNBLoose_Veto",LBN);
             fill(m_tools[m_histoGroups.at(i/2).at(m_partitions[i])],LBMLooseV);
          }
       }

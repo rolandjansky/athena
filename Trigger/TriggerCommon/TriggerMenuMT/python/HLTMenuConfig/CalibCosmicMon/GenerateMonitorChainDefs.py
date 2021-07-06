@@ -1,12 +1,12 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
-from TriggerMenuMT.HLTMenuConfig.CalibCosmicMon.MonitorChainConfiguration import MonitorChainConfiguration as MonitorChainConfiguration
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
+from ..Menu.ChainDictTools import splitChainDict
+from .MonitorChainConfiguration import MonitorChainConfiguration
+from ..Menu.ChainMerging import mergeChainDefs
 
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.CalibCosmicMon.generateChainConfigs' )
+log = logging.getLogger(__name__)
 log.info("Importing %s",__name__)
 
 

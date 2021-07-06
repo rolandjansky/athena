@@ -21,7 +21,9 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "AthContainers/DataVector.h"
 #include "AthLinks/ElementLink.h"
+#include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/Chrono.h"
+#include "GaudiKernel/ToolVisitor.h"
 
 #include "StoreGate/StoreGateSvc.h"             // Storegate stuff
 #include "StoreGate/DataHandle.h"
@@ -29,6 +31,29 @@
 #include "SGTools/StlVectorClids.h"
 
 ///////////////////////////////////////////////////////////////////////////////
+namespace {
+   inline void renounceInputs([[maybe_unused]] const std::unordered_set<std::string> &outputs, std::vector< const DataObjID *> &output_ids, AlgTool *a_tool) {
+      for ( const DataObjID *a_data_id : output_ids ) {
+         a_tool->renounceInput( *a_data_id );
+      }
+   }
+   inline void collectOutputs(std::unordered_set<std::string> &outputs, std::vector< const DataObjID *> &output_ids, const AlgTool *a_tool) {
+      for ( const DataObjID &a_data_id : a_tool->outputDataObjs() ) {
+         if (outputs.insert( a_data_id.key() ).second) {
+            output_ids.push_back( &a_data_id );
+         }
+      }
+   }
+   template <typename Callable, typename = std::enable_if_t<std::is_invocable_r_v<void, Callable, IAlgTool*>>>
+   inline void visitTools(IAlgTool &a_tool_interface, Callable &func) {
+      const AlgTool *alg_tool = dynamic_cast<AlgTool *>(&a_tool_interface);
+      if (alg_tool) {
+         func(&a_tool_interface);
+         std::vector<IAlgTool *> &non_const_tools ATLAS_THREAD_SAFE = const_cast< std::vector<IAlgTool *> &>( alg_tool->tools() );
+         ToolVisitor::visit(  non_const_tools, func);
+      }
+   }
+}
 
 DerivationFramework::DerivationKernel::DerivationKernel(const std::string& name, ISvcLocator* pSvcLocator) :
 AthFilterAlgorithm(name, pSvcLocator),
@@ -98,8 +123,50 @@ StatusCode DerivationFramework::DerivationKernel::initialize() {
 	ATH_MSG_INFO("Skimming will be run before augmentation. Make sure your skimming does not depend on variables calculated in the augmentation step!");
     }
 
+    std::unordered_set<std::string> outputs;
+    std::vector<const DataObjID *> output_ids;
+    auto output_collector = [&outputs, &output_ids](IAlgTool *a_tool_interface) {
+       const AlgTool *alg_tool = dynamic_cast<AlgTool *>(a_tool_interface);
+       if (alg_tool) {
+          collectOutputs(outputs,output_ids, alg_tool);
+       }
+    };
+    auto renounce_and_collect_outputs = [&outputs, &output_ids](IAlgTool *a_tool_interface) {
+       AlgTool *alg_tool = dynamic_cast<AlgTool *>(a_tool_interface);
+       if (alg_tool) {
+          renounceInputs(outputs,output_ids, alg_tool);
+          collectOutputs(outputs,output_ids, alg_tool);
+       }
+    };
+    auto renouncer = [&outputs, &output_ids](IAlgTool *a_tool_interface) {
+       AlgTool *alg_tool = dynamic_cast<AlgTool *>(a_tool_interface);
+       if (alg_tool) {
+          renounceInputs(outputs,output_ids, alg_tool);
+       }
+    };
+
+    // collection and renouncing has to happen in the order the tools are called
+    // during execute.
+    if (m_runSkimmingFirst) {
+       for (ToolHandle<ISkimmingTool> &a_tool_handle : m_skimmingTools ) {
+          visitTools(*a_tool_handle, output_collector);
+       }
+       for (ToolHandle<IAugmentationTool> &a_tool_handle : m_augmentationTools ) {
+          visitTools(*a_tool_handle, renounce_and_collect_outputs);
+       }
+    }
+    else {
+       for (ToolHandle<IAugmentationTool> &a_tool_handle : m_augmentationTools ) {
+          visitTools(*a_tool_handle, output_collector);
+       }
+       for (ToolHandle<ISkimmingTool> &a_tool_handle : m_skimmingTools ) {
+          visitTools(*a_tool_handle, renounce_and_collect_outputs);
+       }
+    }
+    for (ToolHandle<IThinningTool> &a_tool_handle : m_thinningTools ) {
+       visitTools(*a_tool_handle, renouncer);
+    }
     return StatusCode::SUCCESS;
-    
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

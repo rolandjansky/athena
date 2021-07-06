@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file: JobOptCfg.py
 # @purpose: a customized Configurable class for the PerfMonSvc
@@ -145,11 +145,11 @@ class PerfMonSvc( _PerfMonSvc ):
                     ioLabels = [ "streamRDO","streamESD",
                                  "streamAOD","streamTAG",
                                  "inputBackNav","inputFile" ]
-                    for l in ioLabels:
+                    for z in ioLabels:
                         try:
-                            ioContainers.extend(keystore[l].list())
+                            ioContainers.extend(keystore[z].list())
                         except AttributeError:
-                            for k,v in keystore[l].items():
+                            for k,v in keystore[z].items():
                                 ioContainers += [ "%s#%s" % (k,c) for c in v ]
                     pass
                 ## collect everything

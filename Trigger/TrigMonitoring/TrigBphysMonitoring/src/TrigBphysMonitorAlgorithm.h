@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGBPHYSMONITORING_TRIGBPHYSMONITORALGORITHM_H
@@ -28,6 +28,7 @@ private:
   StatusCode fillContainerHists(const EventContext& ctx) const;
   StatusCode fillChainHists(const EventContext& ctx) const;
   
-  void fillContainer(const xAOD::TrigBphys* bphysObject, SG::ReadHandleKey<xAOD::TrigBphysContainer> trigBphysContainerKey) const;
+  void fillContainer(const xAOD::TrigBphys* bphysObject,
+                     const SG::ReadHandleKey<xAOD::TrigBphysContainer>& trigBphysContainerKey) const;
 };
 #endif

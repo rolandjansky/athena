@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
  
 #include "InDetSecVxFinderTool/JetFitterV0FinderTool.h"
@@ -87,7 +87,7 @@ const Trk::TwoTrackVerticesInJet* JetFitterV0FinderTool::doV0Finding( const xAOD
     if ( not firstTrackAlreadyStored )
       tracksToUseInFirstFit.push_back( firstTrack );
 
-    positionsOfSeedingVertices.push_back( Trk::PositionAndWeight( v0candidate->position(),1 ) );
+    positionsOfSeedingVertices.emplace_back( v0candidate->position(),1 );
   }
 
 
@@ -122,7 +122,7 @@ const Trk::TwoTrackVerticesInJet* JetFitterV0FinderTool::doV0Finding( const xAOD
 
   // We need to use normal pointers instead of smart pointers since the code breaks.
   // We have to fix this issue in the future
-  const Trk::TwoTrackVerticesInJet *twoTrackVerticesInJet = new Trk::TwoTrackVerticesInJet( v0candidates,
+  const Trk::TwoTrackVerticesInJet *twoTrackVerticesInJet = new Trk::TwoTrackVerticesInJet( std::move(v0candidates),
                                                                                             std::vector< const Trk::TrackParticleBase* >() );
   return twoTrackVerticesInJet;
 }
@@ -386,7 +386,7 @@ Amg::Vector3D JetFitterV0FinderTool::computeSeedDirection( const xAOD::Vertex& p
   JFseedDirection.normalize();
   ATH_MSG_VERBOSE( "Jet Direction would be: " << JFseedDirection );
 
-  if ( positionsOfSeedingVertices.size() == 0 )
+  if ( positionsOfSeedingVertices.empty() )
     return JFseedDirection;
 
   Amg::Vector3D theSeedVertex = m_mode3dfinder->getMode( primaryVertex.x(),primaryVertex.y(),positionsOfSeedingVertices );

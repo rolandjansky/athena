@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // contact: jmaurer@cern.ch
@@ -25,6 +25,10 @@
 #include <functional>
 #include <algorithm>
 #include <initializer_list>
+
+// standalone single-threaded executable:
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 #define MSGSOURCE "TrigGlobEffCorrValidation"
 

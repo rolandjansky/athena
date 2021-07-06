@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( InDetOverlay )
@@ -17,23 +17,23 @@ set( _jobOPath "${_jobOPath}:$ENV{JOBOPTSEARCHPATH}" )
 atlas_add_test( BCMOverlay_test
                 SOURCES test/BCMOverlay_test.cxx src/BCMOverlay.cxx
                 INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-                LINK_LIBRARIES AthenaBaseComps GaudiKernel CxxUtils StoreGateLib SGtests GeneratorObjects InDetBCM_RawData InDetSimData ${GTEST_LIBRARIES} )
+                LINK_LIBRARIES ${GTEST_LIBRARIES} AthenaBaseComps CxxUtils InDetBCM_RawData StoreGateLib TestTools )
 
 atlas_add_test( PixelOverlay_test
                 SOURCES test/PixelOverlay_test.cxx src/PixelOverlay.cxx
                 INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-                LINK_LIBRARIES AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData CxxUtils StoreGateLib SGtests GeneratorObjects InDetIdentifier InDetSimData TrkTrack ${GTEST_LIBRARIES} )
+                LINK_LIBRARIES ${GTEST_LIBRARIES} CxxUtils IDC_OverlayBase InDetRawData StoreGateLib TestTools )
 
 atlas_add_test( SCTOverlay_test
                 SOURCES test/SCTOverlay_test.cxx src/SCTOverlay.cxx
-                INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-                LINK_LIBRARIES AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData CxxUtils StoreGateLib SGtests GeneratorObjects InDetIdentifier InDetSimData TrkTrack IdDictParser ${GTEST_LIBRARIES}
+                INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
+                LINK_LIBRARIES ${GTEST_LIBRARIES} CxxUtils GaudiKernel IDC_OverlayBase IdDictParser InDetIdentifier InDetRawData StoreGateLib TestTools
                 ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 
 atlas_add_test( TRTOverlay_test
                 SOURCES test/TRTOverlay_test.cxx src/TRTOverlay.cxx
                 INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
-                LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData StoreGateLib SGtests GeneratorObjects InDetIdentifier InDetSimData TrkTrack TRT_ConditionsServicesLib TRT_ElectronPidToolsLib IdDictParser ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES}
+                LINK_LIBRARIES ${CLHEP_LIBRARIES} ${GMOCK_LIBRARIES} ${GTEST_LIBRARIES} AthenaBaseComps AthenaKernel AtlasHepMCLib CxxUtils GaudiKernel GeneratorObjects IDC_OverlayBase IdDictParser InDetIdentifier InDetRawData InDetSimData StoreGateLib TRT_ConditionsServicesLib TRT_ElectronPidToolsLib
                 ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 
 # Needed for the plugin service to see the test components
@@ -45,10 +45,10 @@ atlas_add_component( InDetOverlay
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData StoreGateLib SGtests GeneratorObjects InDetBCM_RawData InDetIdentifier InDetSimData TrkTrack TRT_ConditionsServicesLib TRT_ElectronPidToolsLib)
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel AtlasHepMCLib GaudiKernel IDC_OverlayBase InDetBCM_RawData InDetIdentifier InDetRawData InDetSimData StoreGateLib TRT_ConditionsServicesLib TRT_ElectronPidToolsLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/StoreGateTestCommon.txt )
 
 # Configuration tests

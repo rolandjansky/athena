@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ActsGeometry/ActsPropStepRootWriterSvc.h"
@@ -120,8 +120,6 @@ ActsPropStepRootWriterSvc::writeThread()
 void
 ActsPropStepRootWriterSvc::doWrite(const StepVector& steps, size_t evtNum)
 {
-  using ag = Acts::GeometryIdentifier;
-
   m_eventNum = evtNum;
   m_s_pX.clear();
   m_s_pY.clear();

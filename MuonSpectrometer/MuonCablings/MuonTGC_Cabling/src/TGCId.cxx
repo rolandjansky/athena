@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTGC_Cabling/TGCId.h"
@@ -135,10 +135,10 @@ void TGCId::setOctant(int v_octant)  {
 int TGCId::getSectorModule(void) const {
   if(m_sector==-1) return -1;
 
-  static int moduleEndcap[6]={ 0, 1, 3, 4, 6, 7};
-  static int moduleForward[3]={ 2, 5, 8};
-  static int moduleEI[3]={  9, 10, 11};
-  static int moduleFI[3]={ 12, 13, 14};
+  static const int moduleEndcap[6]={ 0, 1, 3, 4, 6, 7};
+  static const int moduleForward[3]={ 2, 5, 8};
+  static const int moduleEI[3]={  9, 10, 11};
+  static const int moduleFI[3]={ 12, 13, 14};
  
   if(isEndcap()){
     if(isInner()) return moduleEI[getSectorInOctant()];
@@ -156,10 +156,10 @@ void TGCId::setSectorModule(int sectorModule) {
   if(m_octant <0) return;
 
   const int MaxModuleInOctant = 15;
-  static int regionId[MaxModuleInOctant] ={ 
+  static const int regionId[MaxModuleInOctant] ={ 
     0, 0, 1, 0, 0, 1, 0, 0, 1, 2, 2, 2, 3, 3, 3 
   } ;
-  static int sectorId[MaxModuleInOctant] ={ 
+  static const int sectorId[MaxModuleInOctant] ={ 
     0, 1, 0, 2, 3, 1, 4, 5, 2, 0, 1, 2, 0, 1, 2 
   };  
 

@@ -1,20 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 // L1Decoder includes
 #include "EMRoIsUnpackingTool.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "AthenaMonitoringKernel/Monitored.h"
-#include "TrigConfL1Data/CTPConfig.h"
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-EMRoIsUnpackingTool::EMRoIsUnpackingTool( const std::string& type, 
+EMRoIsUnpackingTool::EMRoIsUnpackingTool( const std::string& type,
                                           const std::string& name, 
                                           const IInterface* parent ) 
   : RoIsUnpackingToolBase(type, name, parent),
@@ -35,7 +28,7 @@ StatusCode EMRoIsUnpackingTool::initialize() {
 }
 
 StatusCode EMRoIsUnpackingTool::start() {
-  ATH_CHECK( decodeMapping( [](const std::string& name ){ return name.find("EM") == 0;  } ) );
+  ATH_CHECK( decodeMapping( [](const std::string& name ){ return name.find("EM") == 0 or name.find(getProbeThresholdName("EM")) == 0; } ) );
   return StatusCode::SUCCESS;
 }
 
@@ -71,8 +64,8 @@ StatusCode EMRoIsUnpackingTool::finalize()
 
 
 StatusCode EMRoIsUnpackingTool::unpack( const EventContext& ctx,
-					const ROIB::RoIBResult& roib,
-					const HLT::IDSet& activeChains ) const {
+          const ROIB::RoIBResult& roib,
+          const HLT::IDSet& activeChains ) const {
   using namespace TrigCompositeUtils;
 
   // create and record the collections needed
@@ -82,47 +75,55 @@ StatusCode EMRoIsUnpackingTool::unpack( const EventContext& ctx,
   auto recRoIs = handle2.ptr();
   SG::WriteHandle<DecisionContainer> handle3 = createAndStore(m_decisionsKey, ctx ); 
   auto decisionOutput = handle3.ptr();
+  SG::WriteHandle<DecisionContainer> handle4 = createAndStore(m_decisionsKeyProbe, ctx ); 
+  auto decisionOutputProbe = handle4.ptr();
 
   // RoIBResult contains vector of EM fragments
   for ( auto& emTauFragment : roib.eMTauResult() ) {
     for ( auto& roi : emTauFragment.roIVec() ) {
       uint32_t roIWord = roi.roIWord();      
       if ( not ( LVL1::TrigT1CaloDefs::EMRoIWordType == roi.roIType() ) )  {
-	ATH_MSG_DEBUG( "Skipping RoI as it is not EM threshold " << roIWord );
-	continue;
+        ATH_MSG_DEBUG( "Skipping RoI as it is not EM threshold " << roIWord );
+        continue;
       }
       
       auto recRoI = new LVL1::RecEmTauRoI( roIWord, &m_emThresholds );
       recRoIs->push_back( recRoI );
       
       auto trigRoI = new TrigRoiDescriptor( roIWord, 0u ,0u,
-					    recRoI->eta(), recRoI->eta()-m_roIWidth, recRoI->eta()+m_roIWidth,
-					    recRoI->phi(), recRoI->phi()-m_roIWidth, recRoI->phi()+m_roIWidth );
+              recRoI->eta(), recRoI->eta()-m_roIWidth, recRoI->eta()+m_roIWidth,
+              recRoI->phi(), recRoI->phi()-m_roIWidth, recRoI->phi()+m_roIWidth );
       trigRoIs->push_back( trigRoI );
-			  
+        
       ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw( 8 ) << roIWord << MSG::dec );      
 
-      auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, "L1" ); // This "L1" denotes an initial node with no parents
+      // The l1DecoderNodeName denotes an initial node with no parents
+      Decision* decisionMain = TrigCompositeUtils::newDecisionIn( decisionOutput, l1DecoderNodeName() ); 
+      Decision* decisionProbe = TrigCompositeUtils::newDecisionIn( decisionOutputProbe, l1DecoderNodeName() );
 
       std::vector<unsigned> passedThresholdIDs;
+
       for ( auto th: m_emThresholds ) {
-	
-	ATH_MSG_VERBOSE( "Checking if the threshold " << th->name() << " passed" );
-	if ( recRoI->passedThreshold( th->thresholdNumber() ) ) {
-	  passedThresholdIDs.push_back( HLT::Identifier( th->name() ) );
-	  ATH_MSG_DEBUG( "Passed Threshold name " << th->name() );
-	  addChainsToDecision( HLT::Identifier( th->name() ), decision, activeChains );
-	  ATH_MSG_DEBUG( "Labeled object with chains: " << [&](){ 
-	      TrigCompositeUtils::DecisionIDContainer ids; 
-	      TrigCompositeUtils::decisionIDs( decision, ids ); 
-	      return std::vector<TrigCompositeUtils::DecisionID>( ids.begin(), ids.end() ); }() );
-	}
+        ATH_MSG_VERBOSE( "Checking if the threshold " << th->name() << " passed" );
+        if ( recRoI->passedThreshold( th->thresholdNumber() ) ) {
+          passedThresholdIDs.push_back( HLT::Identifier( th->name() ) );
+          const std::string thresholdProbeName = getProbeThresholdName(th->name());
+          ATH_MSG_DEBUG( "Passed Threshold names " << th->name() << " and " << thresholdProbeName);
+          addChainsToDecision( HLT::Identifier( th->name() ), decisionMain, activeChains );
+          addChainsToDecision( HLT::Identifier( thresholdProbeName ), decisionProbe, activeChains );
+        }
       }
-      decision->setDetail( "thresholds", passedThresholdIDs );
-      decision->setObjectLink( initialRoIString(), ElementLink<TrigRoiDescriptorCollection>( m_trigRoIsKey.key(), trigRoIs->size()-1 ) );
-      decision->setObjectLink( initialRecRoIString(), ElementLink<DataVector<LVL1::RecEmTauRoI>>( m_recRoIsKey.key(), recRoIs->size()-1 ) );
+
+      decisionMain->setDetail( "thresholds", passedThresholdIDs );
+      decisionMain->setObjectLink( initialRoIString(), ElementLink<TrigRoiDescriptorCollection>( m_trigRoIsKey.key(), trigRoIs->size()-1 ) );
+      decisionMain->setObjectLink( initialRecRoIString(), ElementLink<DataVector<LVL1::RecEmTauRoI>>( m_recRoIsKey.key(), recRoIs->size()-1 ) );
+
+      decisionProbe->setDetail( "thresholds", passedThresholdIDs );
+      decisionProbe->setObjectLink( initialRoIString(), ElementLink<TrigRoiDescriptorCollection>( m_trigRoIsKey.key(), trigRoIs->size()-1 ) );
+      decisionProbe->setObjectLink( initialRecRoIString(), ElementLink<DataVector<LVL1::RecEmTauRoI>>( m_recRoIsKey.key(), recRoIs->size()-1 ) );
     }     
   }
+
   for ( auto roi: *trigRoIs ) {
     ATH_MSG_DEBUG( "RoI Eta: " << roi->eta() << " Phi: " << roi->phi() << " RoIWord: " << roi->roiWord() );
   }

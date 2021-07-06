@@ -3,7 +3,7 @@
 */
 
 #include <xAODRootAccess/Init.h>
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/StandaloneToolHandle.h"
 #include "JetInterface/IJetExecuteTool.h"
 #include "xAODJet/JetContainer.h"
 
@@ -30,7 +30,7 @@ int main() {
   evt.getEntry(0);
 
   //example of configuring the tool
-   asg::AnaToolHandle<IJetExecuteTool> myTool("JetReclusteringTool/testRCJets");
+   asg::StandaloneToolHandle<IJetExecuteTool> myTool("JetReclusteringTool/testRCJets");
    ANA_CHECK(myTool.setProperty("InputJetContainer",  "AntiKt4LCTopoJets"));
    ANA_CHECK(myTool.setProperty("OutputJetContainer", "MyNewJets"));
    ANA_CHECK(myTool.setProperty("ReclusterRadius",    1.0));

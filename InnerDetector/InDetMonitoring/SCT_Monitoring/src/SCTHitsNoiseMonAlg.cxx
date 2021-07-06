@@ -130,7 +130,7 @@ StatusCode SCTHitsNoiseMonAlg::generalHistsandNoise(const std::array<std::unorde
 
   bool isSelectedTrigger{false};
   // EDAVIES - have now changed back to using L1_RD0_EMPTY
-  if (m_doTrigger) {
+  if (m_doTrigger and !m_trigDecTool.empty()) {
     if (AthMonitorAlgorithm::dataType() != AthMonitorAlgorithm::DataType_t::cosmics) {
       if (m_trigDecTool->isPassed(m_NOTriggerItem)) {
         isSelectedTrigger = true;

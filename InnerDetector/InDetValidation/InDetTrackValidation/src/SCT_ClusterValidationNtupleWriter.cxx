@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -244,8 +244,6 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::initialize() {
 
 StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
 
-  StatusCode sc = StatusCode::SUCCESS;
-
   //-------------
   // get some event properties    
   SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
@@ -309,7 +307,7 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
   // Retrieve containers which are required
 
   // Container with SCT RIOs
-  m_riocontainer = 0;
+  m_riocontainer = nullptr;
   if ( m_fillCluster.value()) {
     SG::ReadHandle<SCT_ClusterContainer> h_riocontainer(m_jo_riocontainername);
     if (not h_riocontainer.isValid()) {
@@ -320,7 +318,7 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
   }
 
   // SpacePoint container
-  const SpacePointContainer* p_spContainer = 0;
+  const SpacePointContainer* p_spContainer = nullptr;
   if (m_fillSpacePoint.value()) {
     SG::ReadHandle<SpacePointContainer> h_spContainer(m_spacePointContainerName);
     if (not h_spContainer.isValid()) {
@@ -332,7 +330,7 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
 
   // RDO container
   typedef SCT_RDORawData SCTRawDataType;
-  const SCT_RDO_Container* p_rdocontainer = 0;
+  const SCT_RDO_Container* p_rdocontainer = nullptr;
   std::vector<Identifier> RDOsOnTracks;
   if (m_fillRDO.value()) {
     SG::ReadHandle<SCT_RDO_Container> h_rdocontainer(m_dataObjectName);
@@ -350,13 +348,13 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
         // assemble list of RDOs on Tracks   
         for (int i=0; i<(int)tracks->size(); i++) {
           const Trk::Track *track=(*tracks)[i];
-          if (track == 0) {
+          if (track == nullptr) {
             ATH_MSG_ERROR("no pointer to track!");
             break;
           }
           // Get pointer to track state on surfaces
           const DataVector<const Trk::TrackStateOnSurface>* trackStates=track->trackStateOnSurfaces();
-          if (trackStates == 0) {
+          if (trackStates == nullptr) {
             ATH_MSG_WARNING("for current track is TrackStateOnSurfaces == Null, no data will be written for this track");
           } else {
             // Loop over all track states on surfaces
@@ -368,7 +366,7 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
                 // Get Pointer to prepRawDataObject
                 const InDet::SiCluster *RawDataClus
                   = dynamic_cast<const InDet::SiCluster*>(clus->prepRawData());
-                if (RawDataClus==0) {
+                if (RawDataClus==nullptr) {
                   ATH_MSG_WARNING("SiCluster WITHOUT prepRawData!!!!");
                   break;
                 }
@@ -388,7 +386,7 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
 
     
     // Fill clusters
-  if (m_fillCluster.value() && m_riocontainer !=0) {
+  if (m_fillCluster.value() && m_riocontainer !=nullptr) {
 
     int RIOindex = 0;
 
@@ -431,7 +429,7 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
    
         Identifier clId = (*rioIterator)->identify();  
         const SCT_Cluster& cluster = **rioIterator;
-        InDet::SiWidth  width = cluster.width();
+        const InDet::SiWidth&  width = cluster.width();
         m_SctDeltaPhi->push_back(float(width.phiR()));
         m_SctLayerDisk->push_back(int(m_sctid->layer_disk(clId)));
         m_SctEtaModule->push_back(int(m_sctid->eta_module(clId)));
@@ -463,7 +461,7 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
 
   //////// fill SpacePoint stuff if required////////////////////////////////////////////////////////////////
 
-  if (m_fillSpacePoint.value() && p_spContainer != 0) {
+  if (m_fillSpacePoint.value() && p_spContainer != nullptr) {
     DataVector<Trk::SpacePoint>::const_iterator p_sp;
     std::pair<IdentifierHash, IdentifierHash> sp_clusInfo;
     //loop over SCT space points collections
@@ -493,7 +491,7 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
     }
   }
   //// Get the RDO information /////////////////////////////////////////////////////////////////////
-  if (m_fillRDO.value() && p_rdocontainer !=0) {
+  if (m_fillRDO.value() && p_rdocontainer !=nullptr) {
 
     SCT_RDO_Container::const_iterator col_it  = p_rdocontainer->begin();
     SCT_RDO_Container::const_iterator lastCol = p_rdocontainer->end();
@@ -540,7 +538,7 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
         m_sct_numHitsInWafer->push_back(totalNumberOfStrips);
         m_sct_waferHash->push_back(theHashOfTheRDOCollection);
         const SCT3_RawData* rdo3 = dynamic_cast<const SCT3_RawData*>(*p_rdo);
-        if (rdo3!=0) {
+        if (rdo3!=nullptr) {
           m_sct_tbin->push_back(rdo3->getTimeBin());
         } else {
           m_sct_tbin->push_back(-1);
@@ -641,45 +639,45 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::finalize() {
   delete m_scterr_channel;
   delete m_scterr_type;
 
-  m_rioLoc1=0;
-  m_rioSurfaceX=0;
-  m_rioSurfaceY=0;
-  m_rioSurfaceZ=0;
-  m_SctBarrelEndcap=0;
-  m_SctLayerDisk=0;
-  m_SctEtaModule=0;
-  m_SctPhiModule=0;
-  m_SctSide=0;
-  m_SctDeltaPhi=0;
-  m_SctHitErr=0;
-  m_sp_bec=0;
-  m_sp_layer=0;
-  m_sp_eta=0;
-  m_sp_phi=0;
-  m_sp_x=0;
-  m_sp_y=0;
-  m_sp_z=0;
-  m_sct_rdoGroupSize=0;
-  m_sct_rdoIsOnTrack=0;
-  m_sct_layer=0;
-  m_sct_eta=0;
-  m_sct_phi=0;
-  m_sct_side=0;
-  m_sct_barrelec=0;
-  m_sct_firstStrip=0;
-  m_sct_numHitsInWafer=0;
-  m_sct_waferHash=0;
-  m_sct_tbin=0;
-  m_sct_rodid=0;
-  m_sct_channel=0;
-  m_scterr_bec=0;
-  m_scterr_layer=0;
-  m_scterr_eta=0;
-  m_scterr_phi=0;
-  m_scterr_side=0;
-  m_scterr_rodid=0;
-  m_scterr_channel=0;
-  m_scterr_type=0;
+  m_rioLoc1=nullptr;
+  m_rioSurfaceX=nullptr;
+  m_rioSurfaceY=nullptr;
+  m_rioSurfaceZ=nullptr;
+  m_SctBarrelEndcap=nullptr;
+  m_SctLayerDisk=nullptr;
+  m_SctEtaModule=nullptr;
+  m_SctPhiModule=nullptr;
+  m_SctSide=nullptr;
+  m_SctDeltaPhi=nullptr;
+  m_SctHitErr=nullptr;
+  m_sp_bec=nullptr;
+  m_sp_layer=nullptr;
+  m_sp_eta=nullptr;
+  m_sp_phi=nullptr;
+  m_sp_x=nullptr;
+  m_sp_y=nullptr;
+  m_sp_z=nullptr;
+  m_sct_rdoGroupSize=nullptr;
+  m_sct_rdoIsOnTrack=nullptr;
+  m_sct_layer=nullptr;
+  m_sct_eta=nullptr;
+  m_sct_phi=nullptr;
+  m_sct_side=nullptr;
+  m_sct_barrelec=nullptr;
+  m_sct_firstStrip=nullptr;
+  m_sct_numHitsInWafer=nullptr;
+  m_sct_waferHash=nullptr;
+  m_sct_tbin=nullptr;
+  m_sct_rodid=nullptr;
+  m_sct_channel=nullptr;
+  m_scterr_bec=nullptr;
+  m_scterr_layer=nullptr;
+  m_scterr_eta=nullptr;
+  m_scterr_phi=nullptr;
+  m_scterr_side=nullptr;
+  m_scterr_rodid=nullptr;
+  m_scterr_channel=nullptr;
+  m_scterr_type=nullptr;
 
   return StatusCode::SUCCESS;
 }

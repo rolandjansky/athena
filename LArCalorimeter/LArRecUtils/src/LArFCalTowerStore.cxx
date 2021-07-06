@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -161,6 +161,7 @@ bool LArFCalTowerStore::buildLookUp(const CaloCell_ID& cellIdHelper,
 	      double eta = -0.5 * log((r-zCell)/(r+zCell));
 	      double phi = correctPhi.fix(atan2(y,x));
 	      // get indices
+              // cppcheck-suppress duplicateAssignExpression
 	      CaloTowerContainer::index_t etaIndex = theTowers->flagOutOfRange();
 	      CaloTowerContainer::index_t phiIndex =theTowers->flagOutOfRange();
 	      if ( theTowers->getTowerIndices(eta,phi,etaIndex,phiIndex) ){

@@ -32,7 +32,6 @@ namespace SH
   void SampleLocal ::
   testInvariant () const
   {
-    RCU_INVARIANT (this != 0);
     for (FilesIter file = m_files.begin(),
 	   end = m_files.end(); file != end; ++ file)
     {

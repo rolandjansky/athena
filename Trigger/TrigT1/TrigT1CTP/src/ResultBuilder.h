@@ -95,8 +95,8 @@ namespace LVL1CTP {
       std::vector<std::string> firedItems(const std::vector<uint32_t>& triggerWords) const;
 
       // configuration information
-      mutable ThresholdMap*         m_thrConfigMap ATLAS_THREAD_SAFE { nullptr };    //!< Map between threshold objects and their CTP-internal description
-      mutable ItemMap*              m_itemConfigMap ATLAS_THREAD_SAFE { nullptr };   //!< Map between item objects and their CTP-internal description
+      mutable std::unique_ptr<ThresholdMap>         m_thrConfigMap ATLAS_THREAD_SAFE { nullptr };    //!< Map between threshold objects and their CTP-internal description
+      mutable std::unique_ptr<ItemMap>              m_itemConfigMap ATLAS_THREAD_SAFE { nullptr };   //!< Map between item objects and their CTP-internal description
       mutable InternalTriggerMap    m_internalTrigger ATLAS_THREAD_SAFE;             //!< internal triggers BGRP and RNDM
       unsigned int                  m_ctpVersionNumber { 4 };      //!< CTP data format version (4 in most of Run 2 and in Run 3) 
       CTPdataformatVersion*         m_ctpDataFormat { nullptr };   //!< CTP data format details

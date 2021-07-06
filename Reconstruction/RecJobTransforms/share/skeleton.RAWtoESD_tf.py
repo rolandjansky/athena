@@ -110,14 +110,6 @@ if hasattr(runArgs,"inputRDO_FILTFile"):
     globalflags.InputFormat.set_Value_and_Lock('pool')
     athenaCommonFlags.PoolRDOInput.set_Value_and_Lock( runArgs.inputRDO_FILTFile )
 
-if hasattr(runArgs,"inputRDO_FTKFile"):
-    rec.readRDO.set_Value_and_Lock( True )
-    rec.doFTK.set_Value_and_Lock(True);
-    globalflags.InputFormat.set_Value_and_Lock('pool')
-    athenaCommonFlags.PoolRDOInput.set_Value_and_Lock( runArgs.inputRDO_FTKFile )
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    TriggerFlags.doFTK=True;
-    
 # EVNT (?)
 if hasattr(runArgs,"inputEVNTFile"):
     #specific settings for AtlfastIIF
@@ -182,17 +174,6 @@ if hasattr(runArgs,"outputHIST_ESD_INTFile"):
     rec.doMonitoring.set_Value_and_Lock(True)
     from AthenaMonitoring.DQMonFlags import DQMonFlags
     DQMonFlags.histogramFile.set_Value_and_Lock( runArgs.outputHIST_ESD_INTFile )
-    
-if hasattr(runArgs, "outputTXT_FTKIPFile"):
-    rec.doCalo.set_Value_and_Lock(False)
-    rec.doInDet.set_Value_and_Lock(True)
-    rec.doMuon.set_Value_and_Lock(False)
-    rec.doJetMissingETTag.set_Value_and_Lock(False)
-    rec.doEgamma.set_Value_and_Lock(False)
-    rec.doMuonCombined.set_Value_and_Lock(False)
-    rec.doTau.set_Value_and_Lock(False)
-    rec.doTrigger.set_Value_and_Lock(False)
-    rec.UserAlgs=["FastTrackSimWrap/FastTrackSimWrap_jobOptions.py"]
     
 # Event display tarballs    
 if hasattr(runArgs, 'outputTXT_JIVEXMLTGZFile'):

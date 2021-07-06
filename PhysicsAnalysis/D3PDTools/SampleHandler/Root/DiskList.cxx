@@ -29,7 +29,6 @@ namespace SH
   void DiskList :: 
   testInvariant () const
   {
-    RCU_INVARIANT (this != 0);
     RCU_INVARIANT (m_state <= S_BROKEN);
   }
 

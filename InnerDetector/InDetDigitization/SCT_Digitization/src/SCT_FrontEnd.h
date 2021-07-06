@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -29,7 +29,7 @@
 
 // Inheritance
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "SCT_Digitization/ISCT_FrontEnd.h"
+#include "SiDigitization/IFrontEnd.h"
 
 // Athena
 #include "SiDigitization/SiChargedDiodeCollection.h"
@@ -43,7 +43,7 @@
 #include <mutex>
 #include <vector>
 
-class ISCT_Amp;
+class IAmplifier;
 class SCT_ID;
 
 namespace InDetDD {
@@ -62,14 +62,12 @@ namespace CLHEP {
  */
 
 struct SCT_FrontEndData {
-  std::vector<float> m_Offset; //!< generate offset per channel
   std::vector<float> m_GainFactor; //!< generate gain per channel  (added to the gain per chip from calib data)
-  std::vector<float> m_NoiseFactor; //!< Kondo: 31/08/07 noise per channel (actually noise per chip from calib data)
   std::vector<double> m_Analogue[3];  //!< To hold the noise and amplifier response
   std::vector<int> m_StripHitsOnWafer; //!< Info about which strips are above threshold
 };
 
-class  SCT_FrontEnd : public extends<AthAlgTool, ISCT_FrontEnd> {
+class  SCT_FrontEnd : public extends<AthAlgTool, IFrontEnd> {
 
  public:
 
@@ -89,16 +87,17 @@ class  SCT_FrontEnd : public extends<AthAlgTool, ISCT_FrontEnd> {
   /**
    * process the collection of pre digits: needed to go through all single-strip pre-digits to calculate
    * the amplifier response add noise (this could be moved elsewhere later) apply threshold do clustering
+   * stripMax is for benefit of ITkStrips which can have different numbers of strips for module - for SCT this is always 768
    */
   virtual void process(SiChargedDiodeCollection& collection, CLHEP::HepRandomEngine* rndmEngine) const override;
-  StatusCode doSignalChargeForHits(SiChargedDiodeCollection& collectione, SCT_FrontEndData& data) const;
-  StatusCode doThresholdCheckForRealHits(SiChargedDiodeCollection& collectione, SCT_FrontEndData& data) const;
-  StatusCode doThresholdCheckForCrosstalkHits(SiChargedDiodeCollection& collection, SCT_FrontEndData& data) const;
-  StatusCode doClustering(SiChargedDiodeCollection& collection, SCT_FrontEndData& data) const;
-  StatusCode prepareGainAndOffset(SiChargedDiodeCollection& collection, const Identifier& moduleId, CLHEP::HepRandomEngine* rndmEngine, SCT_FrontEndData& data) const;
-  StatusCode prepareGainAndOffset(SiChargedDiodeCollection& collection, int side, const Identifier& moduleId, CLHEP::HepRandomEngine* rndmEngine, SCT_FrontEndData& data) const;
-  StatusCode randomNoise(SiChargedDiodeCollection& collection, const Identifier& moduleId, CLHEP::HepRandomEngine* rndmEngine, SCT_FrontEndData& data) const;
-  StatusCode randomNoise(SiChargedDiodeCollection& collection, const Identifier& moduleId, int side, CLHEP::HepRandomEngine* rndmEngine, SCT_FrontEndData& data) const;
+  StatusCode doSignalChargeForHits(SiChargedDiodeCollection& collectione, SCT_FrontEndData& data, const int& stripMax) const;
+  StatusCode doThresholdCheckForRealHits(SiChargedDiodeCollection& collectione, SCT_FrontEndData& data, const int& stripMax) const;
+  StatusCode doThresholdCheckForCrosstalkHits(SiChargedDiodeCollection& collection, SCT_FrontEndData& data, const int& stripMax) const;
+  StatusCode doClustering(SiChargedDiodeCollection& collection, SCT_FrontEndData& data, const int& stripMax) const;
+  StatusCode prepareGainAndOffset(SiChargedDiodeCollection& collection, const Identifier& moduleId, CLHEP::HepRandomEngine* rndmEngine, SCT_FrontEndData& data, const int& stripMax) const;
+  StatusCode prepareGainAndOffset(SiChargedDiodeCollection& collection, int side, const Identifier& moduleId, CLHEP::HepRandomEngine* rndmEngine, SCT_FrontEndData& data, const int& stripMax) const;
+  StatusCode randomNoise(SiChargedDiodeCollection& collection, const Identifier& moduleId, CLHEP::HepRandomEngine* rndmEngine, SCT_FrontEndData& data, const int& stripMax) const;
+  StatusCode randomNoise(SiChargedDiodeCollection& collection, const Identifier& moduleId, int side, CLHEP::HepRandomEngine* rndmEngine, SCT_FrontEndData& data, const int& stripMax) const;
   StatusCode addNoiseDiode(SiChargedDiodeCollection& collection, int strip, int tbin) const;
   float meanValue(std::vector<float>& calibDataVect) const;
   StatusCode initVectors(int strips, SCT_FrontEndData& data) const;
@@ -131,13 +130,16 @@ class  SCT_FrontEnd : public extends<AthAlgTool, ISCT_FrontEnd> {
   ShortProperty m_data_readout_mode{this, "DataReadOutMode", Condensed, "Front End Data Read out mode Mode: 0 is condensed mode and 1 is expanded mode"};
   BooleanProperty m_useCalibData{this, "UseCalibData", true, "Flag to set the use of calibration data for noise, Gain,offset etc."};
 
-  ToolHandle<ISCT_Amp> m_sct_amplifier{this, "SCT_Amp", "SCT_Amp", "Handle the Amplifier tool"}; //!< Handle the Amplifier tool
+  ToolHandle<IAmplifier> m_sct_amplifier{this, "SCT_Amp", "SCT_Amp", "Handle the Amplifier tool"}; //!< Handle the Amplifier tool
   ToolHandle<ISCT_ReadCalibChipDataTool> m_ReadCalibChipDataTool{this, "SCT_ReadCalibChipDataTool", "SCT_ReadCalibChipDataTool", "Tool to retrieve chip calibration information"}; //!< Handle to the Calibration ConditionsTool
 
   const InDetDD::SCT_DetectorManager* m_SCTdetMgr{nullptr}; //!< Handle to SCT detector manager
   const SCT_ID* m_sct_id{nullptr}; //!< Handle to SCT ID helper
 
-  mutable std::atomic_int m_strip_max{768}; //!< For SLHC studies
+  //Allow a different DetMgr to be used
+  StringProperty m_detMgrName{this, "DetectorManager", "SCT", "Name of DetectorManager to retrieve"};
+  
+
 };
 
 #endif //SCT_FRONTEND_H

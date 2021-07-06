@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // class header include
@@ -20,9 +20,6 @@ Simulation::ZeroLifetimePositioner::ZeroLifetimePositioner( const std::string& n
                                                             ISvcLocator* pSvcLocator )
   : base_class(name, pSvcLocator)
 {
-  declareProperty("ApplyPatch", m_applyPatch, "");
-  declareProperty("RemovePatch", m_removePatch, "");
-  declareProperty("PDGCodesToCheck", m_pdgCodesToCheck, "");
 }
 
 

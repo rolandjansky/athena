@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // This file is basically a concatenation of all the *.cxx files.
@@ -8,11 +8,11 @@
 
 #include "PixelDetectorDC1DC2.h"
 
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
+#include "ReadoutGeometryBase/InDetDD_Defs.h"
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
-#include "PixelReadoutGeometry/PixelDiodeMatrix.h"
+#include "ReadoutGeometryBase/PixelDiodeMatrix.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
-#include "InDetReadoutGeometry/SiCommonItems.h"
+#include "ReadoutGeometryBase/SiCommonItems.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetIdentifier/PixelID.h"
 
@@ -151,7 +151,7 @@ double GeoPixelCable::Length() {
   return zmax-zmin-m_epsilon;
 }
 
-double GeoPixelCable::Thickness() {
+double GeoPixelCable::Thickness() const {
   //
   // This is calculated from the Gaudi::Units::rad length of the cables and their mass
   // I have to go back on this later when I'll have defined a material
@@ -1074,7 +1074,7 @@ GeoPixelServices::GeoPixelServices(InDetDD::PixelDetectorManager* ddmgr,
   m_nframe = 0;
 }
 
-void GeoPixelServices::initialize(std::string a)
+void GeoPixelServices::initialize(const std::string& a)
 {
   //
   // Here I inizialize the geometry information contained in the vectors
@@ -1094,7 +1094,7 @@ void GeoPixelServices::initialize(std::string a)
     // service which is not attached to any LD.
     //
     if(LD != -1) m_gmt_mgr->SetCurrentLD(LD);
-    if(LD ==-1 || m_gmt_mgr->isLDPresent() == true) {
+    if(LD ==-1 || m_gmt_mgr->isLDPresent()) {
       double zpos,halflength;
 //
 // Retrieve/calculate the parameters for the volume.
@@ -1122,11 +1122,7 @@ void GeoPixelServices::initialize(std::string a)
       //
       //
       bool twovolumes;
-      if(zpos > 0.00001 && r[0] >0.) {
-        twovolumes = true;
-      } else {
-        twovolumes = false;
-      }
+      twovolumes = zpos > 0.00001 && r[0] >0.;
       // only once for the inside endcaps as I already have two endcaps!
       if(m_gmt_mgr->isEndcap() && a == "Inside") twovolumes = false;
       m_rmin.push_back(fabs(r[0]));
@@ -1597,9 +1593,9 @@ OraclePixGeoManager::OraclePixGeoManager()
     m_initialLayout(false), 
     m_dc1Geometry(false),
     m_alignable(true),
-    m_commonItems(0),
-    m_pDDmgr(0),
-    m_pMatMgr(0)
+    m_commonItems(nullptr),
+    m_pDDmgr(nullptr),
+    m_pMatMgr(nullptr)
 {
 
 
@@ -1620,8 +1616,8 @@ OraclePixGeoManager::OraclePixGeoManager()
 
   // Get version tag and node for Pixel.
   DecodeVersionKey versionKey("Pixel");
-  std::string detectorKey  = versionKey.tag();
-  std::string detectorNode = versionKey.node();
+  const std::string& detectorKey  = versionKey.tag();
+  const std::string& detectorNode = versionKey.node();
 
   m_versionTag = rdbSvc->getChildTag("Pixel", versionKey.tag(), versionKey.node());
 
@@ -1732,38 +1728,22 @@ bool OraclePixGeoManager::isLDPresent() {
   if(isBarrel()) {
     if (m_initialLayout && m_currentLD == 1) return false;
     std::string a=uscore+std::to_string(m_currentLD);
-    if((*m_PixelBarrelGeneral)[0]->getInt("USELAYER"+a) == 1) {
-      return true;
-    } else {
-      return false;
-    } 
+    return (*m_PixelBarrelGeneral)[0]->getInt("USELAYER"+a) == 1; 
   }
   if(isEndcap() ) {
     if (m_initialLayout && m_currentLD == 1) return false;
     std::string a=uscore+std::to_string(m_currentLD);
-    if((*m_PixelEndcapGeneral)[0]->getInt("USEDISK"+a) == 1) {
-      return true;
-    } else {
-      return false;
-    }
+    return (*m_PixelEndcapGeneral)[0]->getInt("USEDISK"+a) == 1;
   }    
   return false;
 }
 
 
 bool OraclePixGeoManager::isBarrel() {
-  if(m_BarrelEndcap == 0) {
-    return true;
-  } else {
-    return false;
-  }
+  return m_BarrelEndcap == 0;
 }
 bool OraclePixGeoManager::isEndcap() {
-  if(m_BarrelEndcap == 1) {
-    return true;
-  } else {
-    return false;
-  }
+  return m_BarrelEndcap == 1;
   return false;
 }
 /////////////////////////////////////////////////////////
@@ -1772,7 +1752,7 @@ bool OraclePixGeoManager::isEndcap() {
 // which thickness is given in % of r.l.
 //
 /////////////////////////////////////////////////////////
-double OraclePixGeoManager::CalculateThickness(double tck,string mat) {
+double OraclePixGeoManager::CalculateThickness(double tck,const string& mat) {
   const GeoMaterial* material =  m_pMatMgr->getMaterial(mat);
   double rl = material->getRadLength();
   material->ref();
@@ -2112,7 +2092,7 @@ bool OraclePixGeoManager::Alignable() const {
 
 
 PixelDetectorManager* OraclePixGeoManager::GetPixelDDManager() {
-  if(m_pDDmgr == NULL) {
+  if(m_pDDmgr == nullptr) {
   //
   // retrieve the pointer to the DD manager
   //

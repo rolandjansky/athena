@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -25,6 +25,8 @@
 
 #include <algorithm>
 #include <cmath>
+#include <utility>
+
 using std::max;
 
 GeoPixelDetailedStaveSupport::GeoPixelDetailedStaveSupport(InDetDD::PixelDetectorManager* ddmgr,
@@ -32,7 +34,6 @@ GeoPixelDetailedStaveSupport::GeoPixelDetailedStaveSupport(InDetDD::PixelDetecto
   : GeoPixelStaveSupport (ddmgr, mgr),
     m_transform(GeoTrf::Transform3D::Identity())
 {
-  m_staveEnvelopShape=0;
   m_bVerbose = (m_gmt_mgr->msgLvl(MSG::DEBUG));
   m_physVol = Build();
 
@@ -435,7 +436,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build ( ) {
   omega_shape->addVertex(foam2x,foam2y);
   omega_shape->addVertex(foam1x,foam1y); 
 
-  GeoLogVol * omega_logVol = 0;
+  GeoLogVol * omega_logVol = nullptr;
   // Create composite material made of omega+glue if a thickness of glue is defined is DB
   if(OmegaGlueThick<0.0001)
     {
@@ -508,7 +509,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build ( ) {
     }
 
   // Create composite material made of faceplate + grease if a thickness of grease is defined is DB
-  GeoLogVol * faceplate_logVol = 0;
+  GeoLogVol * faceplate_logVol = nullptr;
   if(FacePlateGreaseThick<0.0001)
     {
       m_gmt_mgr->msg(MSG::INFO)<<"** FacePlate : without grease"<<endmsg;
@@ -572,7 +573,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build ( ) {
 
   double wingZmin=0., wingZmax=0.;
   int nbModuleSvc = m_gmt_mgr->PixelModuleServiceNumber();    
-  GeoLogVol * wingflex_logVol = 0;
+  GeoLogVol * wingflex_logVol = nullptr;
   double wingFlexPosX = 0.;
   double wingFlexPosY = 0.;
 
@@ -615,7 +616,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build ( ) {
       if(!(ModuleNumber_flex%2==1&&iModule==0))lname<<"A";
 
       // scaled material
-      const GeoMaterial* scaledFlexMaterial=0;
+      const GeoMaterial* scaledFlexMaterial=nullptr;
       if(bFlexAndWing){ 
 	std::string flexMatName=m_gmt_mgr->IBLFlexMaterial(iModule+1,"staveA");
 	scaledFlexMaterial= m_mat_mgr->getMaterial(flexMatName);
@@ -633,7 +634,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build ( ) {
       //      GeoTransform* cableflex_xform = new GeoTransform(GeoTrf::Transform3D(Gaudi::Units::HepRotation(0.0,0.0,-fabs(flex_angle)),cableflex_pos));
       GeoTransform* cableflex_xform = new GeoTransform(GeoTrf::Transform3D(cableflex_pos*GeoTrf::RotateZ3D(fabs(flex_angle))));
 
-      GeoLogVol * cableflex_logVol = 0;
+      GeoLogVol * cableflex_logVol = nullptr;
       if(bFlexAndWing||bFlexConstantThickness)
 	cableflex_logVol= new GeoLogVol(lname.str(),cableflex_shape,scaledFlexMaterial);
       else
@@ -731,9 +732,9 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build ( ) {
 
 	  GeoTrf::Translation3D cableflex_pos2((flex1x+flex2x+flex3x+flex4x)*0.25,(flex1y+flex2y+flex3y+flex4y)*0.25,-ModulePosZ-flexGapZ*0.5);
 	  GeoTransform* cableflex_xform2 = new GeoTransform(GeoTrf::Transform3D(cableflex_pos2*GeoTrf::RotateZ3D(fabs(flex_angle))));
-	  GeoLogVol * cableflex_logVol = 0;
+	  GeoLogVol * cableflex_logVol = nullptr;
 
-	  const GeoMaterial* scaledFlexMaterial=0;
+	  const GeoMaterial* scaledFlexMaterial=nullptr;
 	  if(bFlexAndWing){ 
 	    std::string flexMatName=m_gmt_mgr->IBLFlexMaterial(iModule+1,"staveC");
 	    scaledFlexMaterial= m_mat_mgr->getMaterial(flexMatName);
@@ -826,7 +827,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build ( ) {
   const GeoTube* coolingPipe = new GeoTube(0.0,TubeOuterDiam*0.5,MiddleSectionLength*0.5);
   const GeoTube* coolingPipeInner = new GeoTube(0.0,TubeInnerDiam*0.5,MiddleSectionLength*0.5);
 
-  GeoLogVol * cp_logVol = 0;
+  GeoLogVol * cp_logVol = nullptr;
   // Create composite material made of omega+glue if a thickness of glue is defined is DB
   if(TubeGlueThick<0.0001)
     {
@@ -888,12 +889,12 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build ( ) {
   // ------------------------------------------------------------------------------------------------------------
   // ------------------------------------------------------------------------------------------------------------
 
-  m_endblockAPhysVol=0;
-  m_endblockCPhysVol=0;
+  m_endblockAPhysVol=nullptr;
+  m_endblockCPhysVol=nullptr;
   m_endblockZpos=0.;
   m_endblockLength=0.;
-  m_endblockFlexPhysVol=0;
-  m_endblockFlexTrf=0;
+  m_endblockFlexPhysVol=nullptr;
+  m_endblockFlexTrf=nullptr;
   
   m_endblockLength=MechanicalStaveEndBlockLength-safetyMarginZ*4.;
 
@@ -921,9 +922,9 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build ( ) {
   endblock_shape->addVertex(plate4x,plate4y);
   
   const GeoMaterial* endblock_material_weight = m_mat_mgr->getMaterialForVolume("pix::EndblockA_IBLwght",endblock_shape->volume());
-  GeoLogVol * endblock_logVol = 0;
-  GeoLogVol * endblockA_logVol = 0;
-  GeoLogVol * endblockC_logVol = 0;
+  GeoLogVol * endblock_logVol = nullptr;
+  GeoLogVol * endblockA_logVol = nullptr;
+  GeoLogVol * endblockC_logVol = nullptr;
   if(endblock_material_weight){
     double endblockOmegaOverlap=m_gmt_mgr->IBLStaveMechanicalStaveEndBlockOmegaOverlap();
     double omegaStaveVolume = omega_shape->volume();
@@ -1008,7 +1009,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build ( ) {
   // Box and coordinates
   GeoBox * cableflex_shape = new GeoBox(EndblockFlexThickness*0.5,FlexWidth*0.5,(m_endblockLength+m_endblockSrvLength)*.5);
 
-  const GeoMaterial* scaledFlexMaterial=0;
+  const GeoMaterial* scaledFlexMaterial=nullptr;
   if(bFlexAndWing){ 
     std::string flexMatName=m_gmt_mgr->IBLFlexMaterial(1,"doglegA");
     scaledFlexMaterial= m_mat_mgr->getMaterial(flexMatName);
@@ -1040,9 +1041,9 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build ( ) {
   // -----------  service cooling pipe
   // ------------------------------------------------------------------------------------------------------------
 
-  m_serviceCoolPipePhysVol = 0;
-  m_serviceCoolPipeTrfA = 0;
-  m_serviceCoolPipeTrfC = 0;
+  m_serviceCoolPipePhysVol = nullptr;
+  m_serviceCoolPipeTrfA = nullptr;
+  m_serviceCoolPipeTrfC = nullptr;
 
   if(bFlexAndWing){
 
@@ -1194,7 +1195,7 @@ void GeoPixelDetailedStaveSupport::computeStaveEnvelopTransformAndSize(double mo
   
 }
 
-GeoPhysVol* GeoPixelDetailedStaveSupport::getEndblockEnvelopShape(int iObject) const 
+GeoPhysVol* GeoPixelDetailedStaveSupport::getEndblockEnvelopShape(int iObject)
 {
   if(iObject==1)
     return m_endblockFlexPhysVol;
@@ -1208,10 +1209,10 @@ GeoPhysVol* GeoPixelDetailedStaveSupport::getEndblockEnvelopShape(int iObject) c
   return m_serviceCoolPipePhysVol;
 }
 
-GeoTransform* GeoPixelDetailedStaveSupport::getEndblockEnvelopShapeTrf(int iObject) const
+GeoTransform* GeoPixelDetailedStaveSupport::getEndblockEnvelopShapeTrf(int iObject)
 {
   if(iObject==0)
-    return 0;
+    return nullptr;
   else if(iObject==1)
     return m_endblockFlexTrf;
   else if(iObject==2)
@@ -1228,7 +1229,7 @@ GeoSimplePolygonBrep* GeoPixelDetailedStaveSupport::computeStaveEnvelopShape( do
 
   if(m_bVerbose)m_gmt_mgr->msg(MSG::DEBUG)<<"GeoSimplePolygonBrep* GeoPixelDetailedStaveSupport::computeStaveEnvelopShape( double safetyMargin )"<<endmsg;
 
-  if(safetyMargin<0 || m_staveEnvelopShape==0 || m_staveEnvelopShape->getNVertices()<=0)
+  if(safetyMargin<0 || m_staveEnvelopShape==nullptr || m_staveEnvelopShape->getNVertices()<=0)
     return m_staveEnvelopShape;
 
   // stave envelop shape (translated vs stave offsets / module)
@@ -1365,11 +1366,13 @@ void GeoPixelDetailedStaveSupport::GetSurroundingConvexShape(std::vector<double>
 
   if(m_bVerbose)m_gmt_mgr->msg(MSG::DEBUG)<<"Convex shape "<<iException.size()<<endmsg;
 
-  if(iException.size()==0)
+  if(iException.empty())
     for(int i=0; i<(int)xVertices.size(); i++)iException.push_back(0);
 
   std::vector<int>iRemoved;
-  for(int i=0; i<(int)xVertices.size(); i++)iRemoved.push_back(0);
+  iRemoved.reserve((int)xVertices.size());
+
+for(int i=0; i<(int)xVertices.size(); i++)iRemoved.push_back(0);
 
   // removing process is based on the sign of Z component of vector product (Pi-1,Pi)x(Pi,Pi+1)
   //     for each set of successive points Pi-1, Pi, Pi+1 
@@ -1658,7 +1661,7 @@ GeoTrf::Vector3D GeoPixelDetailedStaveSupport::NormalizeDir(GeoTrf::Vector3D v)
 
 GeoTrf::Vector3D GeoPixelDetailedStaveSupport::NeighbourPoint_Rad(GeoTrf::Vector3D p, GeoTrf::Vector3D v, double delta)
 {
-  GeoTrf::Vector3D vNorm=NormalizeDir(v);
+  GeoTrf::Vector3D vNorm=NormalizeDir(std::move(v));
   double xnew=p.x()+delta*vNorm.x();
   double ynew=p.y()+delta*vNorm.y();
   return GeoTrf::Vector3D(xnew,ynew,0.0);
@@ -1666,7 +1669,7 @@ GeoTrf::Vector3D GeoPixelDetailedStaveSupport::NeighbourPoint_Rad(GeoTrf::Vector
 
 GeoTrf::Vector3D GeoPixelDetailedStaveSupport::NeighbourPoint_Perp(GeoTrf::Vector3D p, GeoTrf::Vector3D v, double delta, int iDir)
 {
-  GeoTrf::Vector3D vNorm=NormalizeDir(v);
+  GeoTrf::Vector3D vNorm=NormalizeDir(std::move(v));
   double xnew=p.x()-iDir*delta*vNorm.y();
   double ynew=p.y()+iDir*delta*vNorm.x();
   return GeoTrf::Vector3D(xnew,ynew,0.0);

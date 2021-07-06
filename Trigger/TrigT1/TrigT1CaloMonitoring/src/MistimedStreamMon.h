@@ -25,7 +25,6 @@
 
 #include "xAODTrigL1Calo/TriggerTower.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
-#include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
 class TH1F_LW;
 
@@ -95,14 +94,14 @@ private:
   ToolHandle<Trig::TrigDecisionTool> m_trigDec;
 
   /// Histograms booked flag
-  bool m_histBooked;
+  bool m_histBooked{};
   // Histograms
   
   // Overview histos
   // Overall selected events and cut flow of analysis
-  TH1F_LW* m_h_1d_cutFlow_mistimedStreamAna;  
+  TH1F_LW* m_h_1d_cutFlow_mistimedStreamAna{};  
   // Selected events per lumi block
-  TH1F_LW* m_h_1d_selectedEvents_mistimedStreamAna;
+  TH1F_LW* m_h_1d_selectedEvents_mistimedStreamAna{};
     
   //Variables for the properties
   /// Root directory
@@ -112,13 +111,13 @@ private:
   /// L1Calo conditions                                                                               
   ServiceHandle<L1CaloCondSvc> m_l1CondSvc;
   /// Database container for the run parameters
-  L1CaloRunParametersContainer* m_runParametersContainer;
+  L1CaloRunParametersContainer* m_runParametersContainer{};
   /// Database container for the readout configuration
-  L1CaloReadoutConfigContainer* m_readoutConfigContainer;
+  L1CaloReadoutConfigContainer* m_readoutConfigContainer{};
 
   //Control maximum number of histograms per job
-  int m_maxHistos;
-  int m_curHistos;
+  int m_maxHistos{};
+  int m_curHistos{};
   
   //  Athena hist service
   ServiceHandle<ITHistSvc> m_thistSvc;

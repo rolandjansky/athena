@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -18,7 +18,7 @@ Trk::MaterialInteraction::dEdl_ionization(double p,
                                           const Trk::Material* mat,
                                           Trk::ParticleHypothesis particle,
                                           double& sigma,
-                                          double& kazL) const
+                                          double& kazL)
 {
 
   //
@@ -103,7 +103,7 @@ double
 Trk::MaterialInteraction::dEdl_radiation(double p,
                                          const Trk::Material* mat,
                                          Trk::ParticleHypothesis particle,
-                                         double& sigma) const
+                                         double& sigma)
 {
   sigma = 0.;
   if (mat->x0() == 0.)
@@ -142,7 +142,7 @@ Trk::MaterialInteraction::dEdl_radiation(double p,
 
 /** multiple scattering as function of dInX0 */
 double
-Trk::MaterialInteraction::sigmaMS(double dInX0, double p, double beta) const
+Trk::MaterialInteraction::sigmaMS(double dInX0, double p, double beta)
 {
 
   if (dInX0 == 0. || p == 0. || beta == 0.)
@@ -165,7 +165,7 @@ Trk::MaterialInteraction::PDG_energyLoss_ionization(
   Trk::ParticleHypothesis particle,
   double& sigma,
   double& kazL,
-  double path) const
+  double path)
 {
   // kinetic variables
   // and the electron mass in MeV

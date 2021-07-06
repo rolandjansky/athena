@@ -25,7 +25,7 @@ class HIJetUEMonitoring : public JetHistoBase {
   ~HIJetUEMonitoring(){};
   virtual StatusCode initialize() ;
   virtual int buildHistos();
-  virtual int fillHistosFromJet(const xAOD::Jet &j);
+  virtual int fillHistosFromJet(const xAOD::Jet &j, float weight);
   //  virtual int getEventShape();
 
  private:

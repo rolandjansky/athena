@@ -55,8 +55,6 @@ class VtxBasedFilterTool : public TruthParticleFilterBaseTool
   /////////////////////////////////////////////////////////////////// 
  public: 
 
-  // Copy constructor: 
-
   /// Constructor with parameters: 
   VtxBasedFilterTool( const std::string& type,
 		      const std::string& name, 
@@ -65,9 +63,6 @@ class VtxBasedFilterTool : public TruthParticleFilterBaseTool
   /// Destructor: 
   virtual ~VtxBasedFilterTool(); 
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 
@@ -100,11 +95,11 @@ class VtxBasedFilterTool : public TruthParticleFilterBaseTool
 
   /** Check if a given vertex is satisfying any selection criterion
    */
-  bool isAccepted( const HepMC::GenVertex* vtx ) const;
+  bool isAccepted( HepMC::ConstGenVertexPtr vtx ) const;
 
   /** Helper method to copy a given vertex and add it to a GenEvent
    */
-  StatusCode addVertex( const HepMC::GenVertex* srcVtx, 
+  StatusCode addVertex( HepMC::ConstGenVertexPtr srcVtx, 
 			HepMC::GenEvent* evt ) const;
 
   /** @brief Helper method to check if this @c HepMC::GenVertex looks
@@ -119,7 +114,7 @@ class VtxBasedFilterTool : public TruthParticleFilterBaseTool
    *   - check that there are 2 incoming partons. This is done using
    *  a @c McVtxFilter predicate.
    */
-  bool isFromHardScattering( const HepMC::GenVertex* vtx ) const;
+  bool isFromHardScattering( HepMC::ConstGenVertexPtr vtx ) const;
   
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 
@@ -158,11 +153,5 @@ class VtxBasedFilterTool : public TruthParticleFilterBaseTool
   
 }; 
 
-/// I/O operators
-//////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-/// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 #endif //> MCPARTICLETOOLS_VTXBASEDFILTERTOOL_H

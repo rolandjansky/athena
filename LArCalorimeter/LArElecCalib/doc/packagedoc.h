@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -21,10 +21,7 @@ href="http://isscvs.cern.ch/cgi-bin/viewcvs-all.cgi/offline/LArCalorimeter/LArRa
   The LArElecCalib package contains of following classes:
 
   - ILArAdc2GeV
-  - ILArADC2MeVTool
   - ILArAutoCorr
-  - ILArAutoCorrNoiseTool
-  - ILArAutoCorrTotalTool
   - ILArCableAttenuation
   - ILArCableLength
   - ILArCaliPulseParams
@@ -44,7 +41,6 @@ href="http://isscvs.cern.ch/cgi-bin/viewcvs-all.cgi/offline/LArCalorimeter/LArRa
   - ILArNoise
   - ILArOFC
   - ILArOFC_Shape
-  - ILArOFCTool
   - ILArPedestal
   - ILArPhaseTool
   - ILArPhysCaliTdiff

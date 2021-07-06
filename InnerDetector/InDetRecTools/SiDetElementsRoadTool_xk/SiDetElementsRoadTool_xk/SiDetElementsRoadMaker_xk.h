@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -154,6 +154,7 @@ namespace InDet{
     StringProperty m_pix{this, "PixManagerLocation", "Pixel", "PIX manager location"};
     StringProperty m_sct{this, "SCTManagerLocation", "SCT", "SCT manager location"};
     StringProperty m_fieldmode{this, "MagneticFieldMode", "MapSolenoid", "Mode of magnetic field"};
+    BooleanProperty m_ITkGeometry{this, "ITkGeometry", false};
     //@}
 
     /// @name Data members, which are updated only in initialize

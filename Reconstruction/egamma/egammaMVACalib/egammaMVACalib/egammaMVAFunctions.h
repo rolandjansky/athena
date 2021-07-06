@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAMVACALIB_EGAMMAMVAFUNCTIONS
@@ -13,9 +13,6 @@
 #include "xAODCaloEvent/CaloCluster.h"
 #include "egammaMVALayerDepth.h"
 
-// for the ConversionHelper (deprecated?)
-#include <AsgMessaging/AsgMessaging.h>
-
 #include "TLorentzVector.h"
 
 #include <functional>
@@ -25,11 +22,22 @@
 #include <memory>
 #include <stdexcept>
 
+// for the ConversionHelper (deprecated?)
+#include <AsgMessaging/AsgMessaging.h>
 
 /**
  * These functions are for calculating variables used by the
- * MVA calibration
+ * MVA calibration. The user can use the functions
+ * - egammaMVAFunctions::initializeElectronFuncs
+ * - egammaMVAFunctions::initializeUnconvertedPhotonFuncs
+ * - egammaMVAFunctions::initializeConvertedPhotonFuncs
+ * the will return an unordered map with key a string, corresponding
+ * to the variable to be computed and as a value the function, with
+ * signature float(const xAOD::Egamma*).
  **/
+
+// Changing the definition of the functions means breaking backward
+// compatibility with previous version of the MVA calibrations.
 
 namespace egammaMVAFunctions
 {
@@ -79,12 +87,12 @@ namespace egammaMVAFunctions
 
   inline float compute_calibHitsShowerDepth(const std::array<float, 4>& cl, float eta)
   {
-    const std::array<float, 4> radius(get_MVAradius(eta));
-
-    // loop unrolling
     const float denominator = cl[0] + cl[1] + cl[2] + cl[3];
     if (denominator == 0) return 0.;
 
+    const std::array<float, 4> radius(get_MVAradius(eta));
+
+    // loop unrolling
     return (radius[0] * cl[0]
           + radius[1] * cl[1]
           + radius[2] * cl[2]
@@ -134,7 +142,7 @@ namespace egammaMVAFunctions
     if (!tp) return 0;
     for (unsigned int i = 0; i < tp->numberOfParameters(); ++i) {
       if (tp->parameterPosition(i) == xAOD::FirstMeasurement) {
-	return hypot(tp->parameterPX(i), tp->parameterPY(i));
+        return hypot(tp->parameterPX(i), tp->parameterPY(i));
       }
     }
     return tp->pt();
@@ -190,12 +198,33 @@ namespace egammaMVAFunctions
     }
   }
 
+  // using template to avoid rewriting code for 1st, 2nd track and
+  // for all the summary types
+  template<int itrack, xAOD::SummaryType summary>
+  inline int compute_convtrkXhits(const xAOD::Photon* ph) {
+      const auto vx = ph->vertex();
+      if (!vx) return 0.;
+
+      if (vx->trackParticle(0)) {
+        uint8_t hits;
+        if (vx->trackParticle(itrack)->summaryValue(hits, summary)) {
+          return hits;
+        }
+      }
+      return 0.;
+  }
+
+  inline int compute_convtrk1nPixHits(const xAOD::Photon* ph) { return compute_convtrkXhits<0, xAOD::numberOfPixelHits>(ph); }
+  inline int compute_convtrk2nPixHits(const xAOD::Photon* ph) { return compute_convtrkXhits<1, xAOD::numberOfPixelHits>(ph); }
+  inline int compute_convtrk1nSCTHits(const xAOD::Photon* ph) { return compute_convtrkXhits<0, xAOD::numberOfSCTHits>(ph); }
+  inline int compute_convtrk2nSCTHits(const xAOD::Photon* ph) { return compute_convtrkXhits<1, xAOD::numberOfSCTHits>(ph); }
+
   // The functions to return the dictionaries of functions,
   // i.e., the variable name to function
 
   /// Define the map type since it's long
   using funcMap_t = std::unordered_map<std::string,
-				       std::function<float(const xAOD::Egamma*, const xAOD::CaloCluster*)> >;
+                              	       std::function<float(const xAOD::Egamma*, const xAOD::CaloCluster*)> >;
 
   /// A function to build the map for electrons
   std::unique_ptr<funcMap_t> initializeElectronFuncs(bool useLayerCorrected);
@@ -207,7 +236,7 @@ namespace egammaMVAFunctions
   std::unique_ptr<funcMap_t> initializeConvertedPhotonFuncs(bool useLayerCorrected);
 
 
-  /// The ConversionHelper struct is stll used by egammaMVATree 
+  /// The ConversionHelper struct is stll used by egammaMVATree in PhysicsAnalysis
   /// but not the functions in the dictionaries above. We could deprecate them
   struct ConversionHelper : asg::AsgMessaging
   {
@@ -295,6 +324,8 @@ namespace egammaMVAFunctions
     const xAOD::TrackParticle* m_tp1;
     float m_pt1conv, m_pt2conv;
   };
-}
+
+
+} // end namespace
 
 #endif

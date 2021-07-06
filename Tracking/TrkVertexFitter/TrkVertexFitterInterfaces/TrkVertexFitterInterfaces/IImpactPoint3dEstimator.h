@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVERTEXFITTERINTERFACES_IIMPACTPOINT3DESTIMATOR_H
@@ -8,6 +8,7 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkNeutralParameters/NeutralParameters.h"
+#include <memory> //for unique_ptr
 
 /**
  * @class Trk::ImpactPoint3dEstimator

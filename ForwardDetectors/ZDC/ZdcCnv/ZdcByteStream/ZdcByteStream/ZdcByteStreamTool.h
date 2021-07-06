@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -58,13 +58,11 @@ public:
 						  const std::string& name,
 						  const IInterface* parent);
 
-	virtual ~ZdcByteStreamTool();
-
 	/// AlgTool InterfaceID
 	static const InterfaceID& interfaceID();
 
-	virtual StatusCode initialize();
-	virtual StatusCode finalize();
+	virtual StatusCode initialize() override;
+	virtual StatusCode finalize() override;
 
 	/// Convert ROB fragments to ZdcCollection
 	StatusCode convert(	const IROBDataProviderSvc::VROBFRAG& robFrags,

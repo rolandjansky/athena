@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -102,7 +102,8 @@ StatusCode TileCondToolOfc::getOfcWeights(unsigned int drawerIdx
                                           , unsigned int gain
                                           , float& phase
                                           , bool of2
-                                          , TileOfcWeightsStruct& weights) const
+                                          , TileOfcWeightsStruct& weights
+                                          , const EventContext& ctx) const
 {
   ATH_MSG_DEBUG( "TileCondToolOfc weights, drawerIdx:" << drawerIdx
                 << " channel: " << channel
@@ -180,7 +181,7 @@ StatusCode TileCondToolOfc::getOfcWeights(unsigned int drawerIdx
   {
     for (int i = 0; i < m_nSamples; i++) {
       m_tileToolPulseShape->getPulseShapeYDY(drawerIdx, channel, gain
-                                             , phase + 25 * (i - m_t0Sample), py, pdy);
+                                             , phase + 25 * (i - m_t0Sample), py, pdy, ctx);
 
       PulseShape[i][0] = py;
       DPulseShape[i][0] = pdy;

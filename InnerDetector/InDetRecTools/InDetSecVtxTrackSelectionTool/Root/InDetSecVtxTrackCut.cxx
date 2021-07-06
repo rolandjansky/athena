@@ -89,7 +89,7 @@ StatusCode InDet::FuncSummaryValueCut<N>::initialize()
 template <size_t N>
 bool InDet::FuncSummaryValueCut<N>::result() const
 {
-  std::array<uint8_t,N> results; // member variable to store the results
+  std::array<uint8_t,N> results{}; // member variable to store the results
   
   for (size_t i=0; i<N; ++i) {
     if (!m_summaryAccessors[i]) {

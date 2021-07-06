@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_ITILECONDTOOLNOISE_H
 #define TILECONDITIONS_ITILECONDTOOLNOISE_H
 
 #include "GaudiKernel/IAlgTool.h"
+#include "GaudiKernel/EventContext.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
 
 class ITileCondToolNoise : virtual public IAlgTool {
@@ -19,7 +20,8 @@ class ITileCondToolNoise : virtual public IAlgTool {
   }
   
   virtual float getNoise(unsigned int drawerIdx, unsigned int channel, unsigned int adc, 
-			 TileRawChannelUnit::UNIT unit=TileRawChannelUnit::ADCcounts) const = 0;
+			                   TileRawChannelUnit::UNIT unit,
+                         const EventContext &ctx) const = 0;
 
 };
 

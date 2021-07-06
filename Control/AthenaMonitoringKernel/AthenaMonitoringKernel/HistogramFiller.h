@@ -14,6 +14,8 @@
 #include "AthenaMonitoringKernel/IHistogramProvider.h"
 #include "AthenaMonitoringKernel/IMonitoredVariable.h"
 
+class TProfile;
+
 namespace Monitored {
 
   // Forward declare generic histogram filler (see HistogramFillerUtils.h)
@@ -110,7 +112,12 @@ namespace Monitored {
      */
     virtual unsigned fill( const VariablesPack& ) const = 0;
 
-
+    /**
+     * @brief Ensure histogram exists
+     */
+    void touch() const {
+      histogram<void>();
+    }
 
 
     const std::vector<std::string>& histogramVariablesNames() const {

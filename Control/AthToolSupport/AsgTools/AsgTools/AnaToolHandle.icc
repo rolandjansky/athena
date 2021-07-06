@@ -21,15 +21,15 @@ namespace asg
   {
 #ifdef XAOD_STANDALONE
     StatusCode makeToolRootCore (const std::string& type,
-				 const std::string& name,
-				 AsgTool*& tool);
+                                 const std::string& name,
+                                 AsgTool*& tool);
 #else
+    StatusCode readToolConfig (AsgToolConfig& config, const std::string& toolName);
     StatusCode copyPropertiesInCatalogue( const std::string& fromTool, const std::string& toTool );
     StatusCode hasPropertiesInCatalogue( const std::string& toolName );
     StatusCode addPropertyToCatalogue( const std::string& toolName, const std::string& property, const std::string& val);
     StatusCode removePropertyFromCatalogue( const std::string& toolName, const std::string& property);
     StatusCode toolExists( const std::string& fullName, interfaceType_t*& tool );
-    // StatusCode factoryExists( const std::string& type );
 #endif
 
 
@@ -79,7 +79,8 @@ namespace asg
       ///   out of memory II
     public:
       AnaToolShare (const ToolHandle<interfaceType_t>& val_th,
-		    AnaToolCleanup val_cleanup);
+      		    std::shared_ptr<void> val_cleanup,
+                    std::vector<std::function<StatusCode ()>>&& extraInit);
 
 
       /// \brief the tool we contain
@@ -99,9 +100,13 @@ namespace asg
     private:
       ToolHandle<interfaceType_t> m_th;
 
-      /// \brief resources to release shen we are releasing the tool
+      /// \brief resources to release when we are releasing the tool
     private:
-      AnaToolCleanup m_cleanup;
+      std::vector<std::function<StatusCode ()>> m_extraInit;
+
+      /// \brief resources to release when we are releasing the tool
+    private:
+      std::shared_ptr<void> m_cleanup;
     };
 
 
@@ -158,7 +163,8 @@ namespace asg
     public:
       StatusCode
       makeShare (const std::string& name,
-		 const AnaToolConfig& config,
+		 const AsgToolConfig& config,
+                 std::vector<std::function<StatusCode ()>>&& extraInit,
 		 std::shared_ptr<AnaToolShare>& result);
 
 
@@ -173,399 +179,6 @@ namespace asg
       mutable std::recursive_mutex m_mutex;
       typedef std::lock_guard<std::recursive_mutex> lock_t;
     };
-
-
-
-#ifndef XAOD_STANDALONE
-    /// \brief manage a single property in the job options service
-
-    struct PropertyValueManager
-    {
-      PropertyValueManager (const std::string& val_toolName,
-			    const std::string& val_name)
-	: m_toolName (val_toolName), m_name (val_name)
-      {
-      }
-
-      ~PropertyValueManager ()
-      {
-	if (m_cleanup)
-	  detail::removePropertyFromCatalogue (m_toolName, m_name).ignore();
-      }
-
-      std::string m_toolName;
-      std::string m_name;
-      bool m_cleanup = false;
-    };
-
-
-
-    /// \brief a \ref AnaToolProperty containing a regular value for
-    /// Athena
-
-    class AnaToolPropertyValueAthena : public AnaToolProperty
-    {
-    public:
-      template<typename Type>
-      AnaToolPropertyValueAthena (const Type& val_value)
-	: m_value (Gaudi::Utils::toString (val_value))
-      {
-      }
-
-    public:
-      virtual StatusCode
-      applyPropertyAthena (const std::string& toolName,
-			   const std::string& name,
-			   AnaToolCleanup& cleanup)
-	const override;
-
-    private:
-      std::string m_value;
-    };
-#endif
-
-
-
-
-
-#ifdef XAOD_STANDALONE
-    /// \brief a \ref AnaToolProperty containing a regular value in
-    /// RootCore
-
-    template<typename Type>
-    class AnaToolPropertyValueRootCore : public AnaToolProperty
-    {
-    public:
-      AnaToolPropertyValueRootCore (const Type& val_value)
-	: m_value (val_value)
-      {}
-
-    public:
-      virtual StatusCode
-      applyPropertyRootCore (AsgTool& tool, const std::string& name,
-			     AnaToolCleanup& /*cleanup*/)
-	const override
-      {
-	using namespace msgToolHandle;
-	ANA_CHECK (tool.setProperty (name, m_value));
-	return StatusCode::SUCCESS;
-      }
-
-    private:
-      Type m_value;
-    };
-#endif
-
-
-
-
-
-    /// \brief a \ref AnaToolProperty containing an \ref AnaToolConfig
-    /// for configuring a private sub-tool
-
-    template<typename Type>
-    class AnaToolPropertyPrivateTool : public AnaToolProperty
-    {
-    public:
-      AnaToolPropertyPrivateTool (const AnaToolConfig& val_config)
-	: m_config (val_config)
-      {}
-
-#ifdef XAOD_STANDALONE
-    public:
-      virtual StatusCode
-      applyPropertyRootCore (AsgTool& tool, const std::string& name,
-			     AnaToolCleanup& cleanup)
-	const override
-      {
-	using namespace msgToolHandle;
-	ToolHandle<Type> th;
-	AnaToolCleanup mycleanup;
-	ANA_CHECK (m_config.makeTool (name, &tool, th, mycleanup));
-	cleanup.addCleanup (std::move (mycleanup));
-	ANA_CHECK (tool.setProperty (name, th));
-	return StatusCode::SUCCESS;
-      }
-#endif
-
-#ifndef XAOD_STANDALONE
-    private:
-      virtual StatusCode
-      applyPropertyAthena (const std::string& toolName,
-			   const std::string& name,
-			   AnaToolCleanup& cleanup)
-	const override
-      {
-	using namespace msgToolHandle;
-	ANA_CHECK (m_config.applyPropertiesAthena (toolName + "." + name, cleanup));
-
-	// this is so we clear out properties from catalogue when tool
-	// is destroyed.  DISABLED: as we no longer release tools in Athena
-	// std::shared_ptr<PropertyValueManager> manager
-	//   (new PropertyValueManager (th.name(), name));
-	// cleanup.addCleanup (manager);
-
-	// for athena we hand our property to the joboptions svc
-        ANA_CHECK (detail::addPropertyToCatalogue (toolName, name, m_config.type() + "/" + name));
-	// manager->m_cleanup = true;
-	return StatusCode::SUCCESS;
-      }
-#endif
-
-    private:
-      AnaToolConfig m_config;
-    };
-
-
-
-
-
-#ifndef XAOD_STANDALONE
-    /// \brief a \ref AnaToolProperty copying a tool configuration
-    /// from the job options service to a new place
-
-    class AnaToolPropertyCopyTool : public AnaToolProperty
-    {
-    public:
-      AnaToolPropertyCopyTool (const std::string& val_type,
-                               const std::string& val_name);
-
-    private:
-      virtual StatusCode
-      applyPropertyAthena (const std::string& toolName,
-			   const std::string& name,
-			   AnaToolCleanup& cleanup)
-	const override;
-
-      /// \brief the type of the tool to create
-    private:
-      std::string m_type;
-
-      /// \brief the name of the source tool
-    private:
-      std::string m_name;
-    };
-#endif
-
-
-
-
-
-    /// \brief a \ref AnaToolProperty containing an \ref AnaToolConfig
-    /// for configuring a public sub-tool
-
-    template<typename Type>
-    class AnaToolPropertyPublicTool : public AnaToolProperty
-    {
-    public:
-      AnaToolPropertyPublicTool (const std::string& val_name,
-				 const AnaToolConfig& val_config)
-	: m_name (val_name), m_config (val_config)
-      {}
-
-#ifdef XAOD_STANDALONE
-    public:
-      virtual StatusCode
-      applyPropertyRootCore (AsgTool& tool, const std::string& name,
-			     AnaToolCleanup& cleanup)
-	const override
-      {
-	using namespace msgToolHandle;
-	std::shared_ptr<AnaToolShare> share;
-	ANA_CHECK (AnaToolShareList::singleton().makeShare
-		     (m_name, m_config, share));
-	cleanup.addCleanup (share);
-	ToolHandle<Type> myth;
-	ANA_CHECK (toolHandleCast (myth, share->th()));
-	ANA_CHECK (tool.setProperty (name, myth));
-	return StatusCode::SUCCESS;
-      }
-#endif
-
-#ifndef XAOD_STANDALONE
-    private:
-      virtual StatusCode
-      applyPropertyAthena (const std::string& toolName,
-			   const std::string& name,
-			   AnaToolCleanup& cleanup)
-	const override
-      {
-	using namespace msgToolHandle;
-	std::shared_ptr<AnaToolShare> share;
-	ANA_CHECK (AnaToolShareList::singleton().makeShare
-		     (m_name, m_config, share));
-	cleanup.addCleanup (share);
-
-	ToolHandle<Type> th;
-	ANA_CHECK (toolHandleCast (th, share->th()));
-
-	// this is so we clear out properties from catalogue when tool
-	// is destroyed.  DISABLED: we no longer clear out tools after
-	// we are done with them
-	// std::shared_ptr<PropertyValueManager> manager
-	//   (new PropertyValueManager (th.name(), name));
-	// cleanup.addCleanup (manager);
-
-	// for athena we hand our property to the joboptions svc
-	ANA_CHECK (detail::addPropertyToCatalogue (toolName, name, th.typeAndName()));
-        // manager->m_cleanup = true;
-	return StatusCode::SUCCESS;
-      }
-#endif
-
-    private:
-      std::string m_name;
-      AnaToolConfig m_config;
-    };
-
-
-
-
-
-#ifdef XAOD_STANDALONE
-    template<typename Type> void AnaToolConfig ::
-    registerNew ()
-    {
-      m_factory = [] (AsgTool*& tool, const std::string& name) -> StatusCode {
-	tool = new Type (name); return StatusCode::SUCCESS;};
-    }
-#endif
-
-
-
-#ifdef XAOD_STANDALONE
-    template<typename Type> StatusCode AnaToolConfig ::
-    setProperty (const std::string& val_name, const Type& val_value)
-    {
-      std::shared_ptr<detail::AnaToolProperty> anaProperty
-	(new detail::AnaToolPropertyValueRootCore<Type> (val_value));
-      addProperty (val_name, anaProperty);
-      return StatusCode::SUCCESS;
-    }
-#else
-    template<typename Type> StatusCode AnaToolConfig ::
-    setProperty (const std::string& val_name, const Type& val_value)
-    {
-      using namespace msgToolHandle;
-      std::shared_ptr<detail::AnaToolProperty> anaProperty
-	(new detail::AnaToolPropertyValueAthena (val_value));
-      addProperty (val_name, anaProperty);
-      return StatusCode::SUCCESS;
-    }
-#endif
-
-
-
-    template<typename Type> StatusCode AnaToolConfig ::
-    setProperty (const std::string& val_name,
-		 const AnaToolHandle<Type>& val_value)
-    {
-      using namespace msgToolHandle;
-
-      // once initialized the AnaToolHandle is not that different from
-      // a regular ToolHandle and we just use it as such
-      if (val_value.isInitialized())
-	return setProperty (val_name, val_value.getHandle());
-
-      switch (val_value.mode())
-      {
-      case AnaToolHandleMode::EMPTY:
-	return setProperty (val_name, ToolHandle<Type> ());
-      case AnaToolHandleMode::CREATE_PRIVATE:
-	{
-	  std::shared_ptr<AnaToolPropertyPrivateTool<Type> > anaProperty
-	    (new AnaToolPropertyPrivateTool<Type> (val_value.config()));
-	  addProperty (val_name, anaProperty);
-	}
-	return StatusCode::SUCCESS;
-      case AnaToolHandleMode::CREATE_SHARED:
-      case AnaToolHandleMode::RETRIEVE_SHARED:
-	{
-	  std::shared_ptr<AnaToolPropertyPublicTool<Type> > anaProperty
-	    (new AnaToolPropertyPublicTool<Type> (val_value.name(), val_value.config()));
-	  addProperty (val_name, anaProperty);
-	}
-	return StatusCode::SUCCESS;
-      case AnaToolHandleMode::USER:
-	return setProperty (val_name, val_value.getHandle());
-      }
-      return StatusCode::FAILURE; //compiler dummy
-    }
-
-
-
-#ifndef XAOD_STANDALONE
-    template<typename Type> StatusCode AnaToolConfig ::
-    setProperty (const std::string& val_name,
-		 const ToolHandle<Type>& val_value)
-    {
-      using namespace msgToolHandle;
-
-      //strip the parent name
-      if (val_value.empty())
-        return setProperty (val_name, std::string ());
-      else if (val_value.isPublic())
-      {
-        return setProperty (val_name,
-                            val_value.type() + "/" + val_value.name());
-      } else
-      {
-        std::shared_ptr<AnaToolPropertyCopyTool> shared
-          (new AnaToolPropertyCopyTool
-           (val_value.type(), val_value.parentName() + "." + val_value.name()));
-        addProperty (val_name, shared);
-        return StatusCode::SUCCESS;
-      }
-    }
-
-
-
-    template<typename Type> StatusCode AnaToolConfig ::
-    setProperty (const std::string& val_name,
-		 const ToolHandleArray<Type>& val_value)
-    {
-      using namespace msgToolHandle;
-
-      std::vector<std::string> tools;
-      // loop over toolhandles in array, strip off any parent naming
-      // and set property with the result
-      for (auto& toolHandle : val_value)
-      {
-	if (toolHandle.empty())
-	{
-	  ANA_MSG_ERROR ("trying to initialize ToolHandleArray property " << val_name << " with empty handle");
-	  return StatusCode::FAILURE;
-	}
-
-	//strip the parent name
-	std::string tool_name = toolHandle.name();
-	tools.push_back (toolHandle.type() + "/" + tool_name);
-      }
-
-      return setProperty (val_name, tools);
-    }
-#endif
-
-
-
-
-    template<typename ToolType> StatusCode AnaToolConfig ::
-    makeTool (const std::string& name,
-              parentType_t *parent,
-	      ToolHandle<ToolType>& th,
-	      AnaToolCleanup& cleanup) const
-    {
-      using namespace msgUserCode;
-      ToolHandle<interfaceType_t> baseTH;
-      AnaToolCleanup baseCleanup;
-      ANA_CHECK (makeBaseTool (name, parent, baseTH, baseCleanup));
-      ANA_CHECK (toolHandleCast (th, baseTH));
-      cleanup.swap (baseCleanup);
-#ifndef XAOD_STANDALONE
-      baseTH->release ();
-#endif
-      return StatusCode::SUCCESS;
-    }
   }
 
 
@@ -587,6 +200,7 @@ namespace asg
     // General requirements
     CHECK_INVARIANT (&*this != nullptr);
     CHECK_INVARIANT (m_handleUser != nullptr);
+    CHECK_INVARIANT (m_name == m_config.name());
 
 #undef CHECK_INVARIANT
   }
@@ -631,6 +245,7 @@ namespace asg
     {
       m_toolPtr = that.m_toolPtr;
       m_mode = that.m_mode;
+      m_extraInit = that.m_extraInit;
       m_cleanup = that.m_cleanup;
     }
 
@@ -665,8 +280,9 @@ namespace asg
     that.testInvariant ();
 #endif
 
-    m_cleanup.swap (that.m_cleanup);
-    m_config.swap (that.m_config);
+    std::swap (m_extraInit, that.m_extraInit);
+    std::swap (m_cleanup, that.m_cleanup);
+    std::swap (m_config, that.m_config);
     m_name.swap (that.m_name);
     std::swap (m_parentPtr, that.m_parentPtr);
     {
@@ -773,7 +389,7 @@ namespace asg
 
 
 
-  template <class T> template <class T2>
+  template<typename T> template<typename T2>
   StatusCode AnaToolHandle<T> ::
   setProperty (const std::string& property, const T2& value)
   {
@@ -789,6 +405,127 @@ namespace asg
 #endif
 
     return m_config.setProperty (property, value);
+  }
+
+
+
+  template<typename T> template<typename T2>
+  StatusCode AnaToolHandle<T> ::
+  setProperty (const std::string& property,
+               const ToolHandle<T2>& value)
+  {
+    using namespace msgToolHandle;
+
+#ifndef NDEBUG
+    this->testInvariant ();
+    if (isInitialized())
+    {
+      ANA_MSG_FATAL ("AnaToolHandle has already been initialized: " << *this);
+      std::abort();
+    }
+#endif
+
+    ANA_MSG_DEBUG ("adding sub-tool from ToolHandle: " << value);
+    if (value.empty())
+      return setProperty (property, std::string ());
+#ifndef XAOD_STANDALONE
+    else if (value.isPublic())
+#else
+    else if (value.parentName() == "ToolSvc")
+#endif
+    {
+      return setProperty (property,
+                          value.type() + "/" + value.name());
+    } else
+    {
+#ifndef XAOD_STANDALONE
+      AsgToolConfig subToolConfig;
+      ANA_CHECK (detail::readToolConfig (subToolConfig, value.parentName() + "." + value.name()));
+      ANA_CHECK (m_config.addPrivateTool (property, subToolConfig));
+      return StatusCode::SUCCESS;
+#else
+      return setProperty (property, value.name());
+#endif
+    }
+  }
+
+
+
+  template<typename T> template<typename T2>
+  StatusCode AnaToolHandle<T> ::
+  setProperty (const std::string& property,
+               const AnaToolHandle<T2>& value)
+  {
+    using namespace msgToolHandle;
+
+#ifndef NDEBUG
+    this->testInvariant ();
+    if (isInitialized())
+    {
+      ANA_MSG_FATAL ("AnaToolHandle has already been initialized: " << *this);
+      std::abort();
+    }
+#endif
+
+    // once initialized the AnaToolHandle is not that different from
+    // a regular ToolHandle and we just use it as such
+    if (value.isInitialized())
+      return setProperty (property, value.getHandle());
+
+    ANA_MSG_DEBUG ("adding sub-tool from AnaToolHandle with mode " << unsigned (value.mode()) << " and name " << value.name());
+    switch (value.mode())
+    {
+    case detail::AnaToolHandleMode::EMPTY:
+      return setProperty (property, ToolHandle<T2> ());
+    case detail::AnaToolHandleMode::CREATE_PRIVATE:
+      return m_config.addPrivateTool (property, value.config());
+    case detail::AnaToolHandleMode::CREATE_SHARED:
+    case detail::AnaToolHandleMode::RETRIEVE_SHARED:
+      m_extraInit.emplace_back ([toolhandle = value] () mutable -> StatusCode
+      {
+        ANA_CHECK (toolhandle.initialize());
+        return StatusCode::SUCCESS;
+      });
+      return m_config.setProperty (property, value.name());
+    case detail::AnaToolHandleMode::USER:
+      return setProperty (property, value.getHandle());
+    }
+    return StatusCode::FAILURE; //compiler dummy
+  }
+
+
+
+  template<typename T> template<typename T2>
+  StatusCode AnaToolHandle<T> ::
+  setProperty (const std::string& property,
+               const ToolHandleArray<T2>& value)
+  {
+    using namespace msgToolHandle;
+
+#ifndef NDEBUG
+    this->testInvariant ();
+    if (isInitialized())
+    {
+      ANA_MSG_FATAL ("AnaToolHandle has already been initialized: " << *this);
+      std::abort();
+    }
+#endif
+
+    std::vector<std::string> tools;
+    // loop over toolhandles in array, strip off any parent naming
+    // and set property with the result
+    for (auto& toolHandle : value)
+    {
+      if (toolHandle.empty())
+      {
+        ANA_MSG_ERROR ("trying to initialize ToolHandleArray property " << property << " with empty handle");
+        return StatusCode::FAILURE;
+      }
+
+      tools.push_back (toolHandle.type() + "/" + toolHandle.name());
+    }
+
+    return setProperty (property, tools);
   }
 
 
@@ -814,18 +551,20 @@ namespace asg
     std::shared_ptr<detail::AnaToolShare> sharedTool;
     const detail::AnaToolHandleMode mode = getMode (sharedTool);
 
-    ToolHandle<T> th;
-    detail::AnaToolCleanup cleanup;
+    ToolHandle<T> th (typeAndName(), m_parentPtr);
+    std::shared_ptr<void> cleanup;
 
     switch (mode)
     {
     case detail::AnaToolHandleMode::EMPTY:
       break;
     case detail::AnaToolHandleMode::CREATE_PRIVATE:
-      ANA_CHECK (m_config.makeTool (m_name, m_parentPtr, th, cleanup));
+      for (auto& extraInit : m_extraInit)
+        ANA_CHECK (extraInit());
+      ANA_CHECK (m_config.makeTool (th, cleanup, true));
       break;
     case detail::AnaToolHandleMode::CREATE_SHARED:
-      ANA_CHECK (detail::AnaToolShareList::singleton().makeShare (m_name, m_config, sharedTool));
+      ANA_CHECK (detail::AnaToolShareList::singleton().makeShare (m_name, m_config, std::move (m_extraInit), sharedTool));
       // FALLTHROUGH
     case detail::AnaToolHandleMode::RETRIEVE_SHARED:
       assert (sharedTool != nullptr);
@@ -834,7 +573,7 @@ namespace asg
       if (!th.empty())
         th->release ();
 #endif
-      cleanup.addCleanup (sharedTool);
+      cleanup = sharedTool;
       break;
     case detail::AnaToolHandleMode::USER:
       th = *m_handleUser;
@@ -856,7 +595,7 @@ namespace asg
       th->release ();
 #endif
     m_mode = mode;
-    m_cleanup.swap (cleanup);
+    std::swap (m_cleanup, cleanup);
     m_toolPtr = toolPtr;
     m_isInitialized = true;
 
@@ -1029,19 +768,6 @@ namespace asg
 
 
 
-#ifdef XAOD_STANDALONE
-  template <class T> template <class T2> void AnaToolHandle<T> ::
-  setTypeRegisterNew (std::string val_type)
-  {
-    using namespace msgToolHandle;
-
-    m_config.registerNew<T2> ();
-    setType (std::move (val_type));
-  }
-#endif
-
-
-
   template <class T> bool
   AnaToolHandle<T> ::
   isUserConfigured () const noexcept
@@ -1148,15 +874,6 @@ namespace asg
       return detail::AnaToolHandleMode::CREATE_SHARED;
     else
       return detail::AnaToolHandleMode::CREATE_PRIVATE;
-
-
-    /// \todo check whether we still need any of this code to determin
-    /// if a tool handle is empty
-    /*
-    //handle is empty if: it wasn't user configured and our type and name are not set, or it is user configured and the member handle is empty
-    return( (  isUserConfigured() && ( m_handleUser->empty() || m_handleUser->typeAndName()=="PublicToolHandle('')" || m_handleUser->typeAndName()=="PrivateToolHandle('')" ) )
-	    || ( (!isUserConfigured() && type()=="" && name()=="") ) );
-    */
   }
 
 
@@ -1179,11 +896,7 @@ namespace asg
 #ifndef NDEBUG
     this->testInvariant ();
 #endif
-    if (name().empty())
-      return m_config.type();
-    if (m_config.type().empty())
-      return name();
-    return m_config.type() + "/" + name();
+    return m_config.typeAndName();
   }
 
 
@@ -1226,6 +939,7 @@ namespace asg
     }
 #endif
 
+    m_config.setName (val_name);
     m_name = std::move (val_name);
     if (m_originalTypeAndName.empty() &&
         !this->type().empty() && !this->name().empty())
@@ -1280,8 +994,7 @@ namespace asg
 
 
   template<class T> StatusCode AnaToolHandle<T> ::
-  makeToolRetrieve
-    (T*& toolPtr, ToolHandle<T>& toolHandle) const
+  makeToolRetrieve (T*& toolPtr, ToolHandle<T>& toolHandle) const
   {
     using namespace msgToolHandle;
 
@@ -1320,7 +1033,7 @@ namespace asg
 
 
 
-  template<class T> const detail::AnaToolConfig& AnaToolHandle<T> ::
+  template<class T> const AsgToolConfig& AnaToolHandle<T> ::
   config () const
   {
 #ifndef NDEBUG

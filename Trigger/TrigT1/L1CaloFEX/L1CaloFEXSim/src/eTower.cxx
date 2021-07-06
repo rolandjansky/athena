@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -55,6 +55,13 @@ namespace LVL1 {
       m_et[i] = 0;
       m_et_float[i] = 0.0;
     }
+
+    m_etSplits.clear();
+    m_etSplits.resize(14);
+    for (unsigned int i=0; i<m_etSplits.size(); i++){
+      m_etSplits[i] = 0;
+    }
+
   }
 
   /** Clear and resize Identifier value vector */
@@ -131,6 +138,9 @@ namespace LVL1 {
       float et_half = et*0.5;
       addET(et_half, cell);
       addET(et_half, cell+1);
+
+      m_etSplits[cell] = 1;
+      m_etSplits[cell+1] = 1;
 
       unsigned int ecode1 = eFEXCompression::Compress(m_et_float[cell]);
       int outET1 = eFEXCompression::Expand(ecode1);

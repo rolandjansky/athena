@@ -1,7 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
-# $Id: AthenaPoolUtilitiesTestConfig.cmake 780067 2016-10-24 14:39:09Z krasznaa $
 # @file AthenaPoolUtilities/share/AthenaPoolUtilitiesTestConfig.make
 # @author sss
 # @date May, 2016
@@ -20,19 +19,20 @@ function( run_tpcnv_legacy_test testName refName )
    atlas_get_package_name( pkgName )
 
    # Find the test runner script:
-   find_file( _testSkel run_tpcnv_legacy_test.sh.in
-      PATH_SUFFIXES share scripts
-      PATHS ${AthenaPoolUtilitiesTest_DIR}/..
-      ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/cmake/modules
+   find_file( ATLAS_TPCNV_LEGACY_TEST_RUNNER "run_tpcnv_legacy_test.sh.in"
+      PATH_SUFFIXES "share" "scripts"
+      PATHS "${AthenaPoolUtilitiesTest_DIR}/.."
+      "${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/cmake/modules"
       ${CMAKE_MODULE_PATH} )
-   if( NOT _testSkel )
+   if( NOT ATLAS_TPCNV_LEGACY_TEST_RUNNER )
       message( WARNING "Couldn't find run_tpcnv_legacy_test.sh.in" )
       return()
    endif()
+   mark_as_advanced( ATLAS_TPCNV_LEGACY_TEST_RUNNER )
 
    # Create the script that will be run:
-   configure_file( ${_testSkel}
-      ${CMAKE_CURRENT_BINARY_DIR}/tpcnv_legacy_${testName}.sh
+   configure_file( "${ATLAS_TPCNV_LEGACY_TEST_RUNNER}"
+      "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/tpcnv_legacy_${testName}.sh"
       @ONLY )
 
     set( _env )
@@ -42,7 +42,8 @@ function( run_tpcnv_legacy_test testName refName )
 
    # Create a test with it:
    atlas_add_test( ${testName}
-      SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/tpcnv_legacy_${testName}.sh
+      SCRIPT
+      "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/tpcnv_legacy_${testName}.sh"
       PROPERTIES TIMEOUT 600
       POST_EXEC_SCRIPT "post_tpcnvtest.sh ${testName}" ${_env} )
 
@@ -56,19 +57,20 @@ function( run_tpcnv_test testName refName )
    atlas_get_package_name( pkgName )
 
    # Find the test runner script:
-   find_file( _testSkel run_tpcnv_test.sh.in
-      PATH_SUFFIXES share scripts
-      PATHS ${AthenaPoolUtilitiesTest_DIR}/..
-      ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/cmake/modules
+   find_file( ATLAS_TPCNV_TEST_RUNNER "run_tpcnv_test.sh.in"
+      PATH_SUFFIXES "share" "scripts"
+      PATHS "${AthenaPoolUtilitiesTest_DIR}/.."
+      "${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/cmake/modules"
       ${CMAKE_MODULE_PATH} )
-   if( NOT _testSkel )
+   if( NOT ATLAS_TPCNV_TEST_RUNNER )
       message( WARNING "Couldn't find run_tpcnv_test.sh.in" )
       return()
    endif()
+   mark_as_advanced( ATLAS_TPCNV_TEST_RUNNER )
 
    # Create the script that will be run:
-   configure_file( ${_testSkel}
-      ${CMAKE_CURRENT_BINARY_DIR}/tpcnv_${testName}.sh
+   configure_file( "${ATLAS_TPCNV_TEST_RUNNER}"
+      "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/tpcnv_${testName}.sh"
       @ONLY )
 
     set( _env )
@@ -78,7 +80,8 @@ function( run_tpcnv_test testName refName )
 
    # Create a test with it:
    atlas_add_test( ${testName}
-      SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/tpcnv_${testName}.sh
+      SCRIPT
+      "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/tpcnv_${testName}.sh"
       PROPERTIES TIMEOUT 600
       POST_EXEC_SCRIPT "post_tpcnvtest.sh ${testName}" ${_env} )
 

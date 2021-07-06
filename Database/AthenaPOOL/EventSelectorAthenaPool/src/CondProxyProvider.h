@@ -59,6 +59,7 @@ private: // data
    ServiceHandle<IAthenaPoolCnvSvc> m_athenaPoolCnvSvc;
 
    mutable PoolCollectionConverter* m_poolCollectionConverter ATLAS_THREAD_SAFE;
+   unsigned int m_contextId;
 
 private: // properties
    /// InputCollections, vector with names of the input collections.

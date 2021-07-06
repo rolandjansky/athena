@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -109,6 +109,10 @@ namespace InDet {
     virtual const SiSpacePointsSeed* next(const EventContext& ctx, EventData& data) const override;
     //@}
 
+    virtual void writeNtuple(const SiSpacePointsSeed* seed, const Trk::Track* track, int seedType, long eventNumber) const override;
+
+    virtual bool getWriteNtupleBoolProperty() const override;
+
     ///////////////////////////////////////////////////////////////////
     /// @name Print internal tool parameters and status
     ///////////////////////////////////////////////////////////////////
@@ -182,10 +186,10 @@ namespace InDet {
     int m_outputlevel{0};
     int m_fNmax{0};
     int m_r_size{0};
-    int m_rfz_b[SizeRFZ];
-    int m_rfz_t[SizeRFZ];
-    int m_rfz_ib[SizeRFZ][SizeI];
-    int m_rfz_it[SizeRFZ][SizeI];
+    int m_rfz_b[SizeRFZ]{};
+    int m_rfz_t[SizeRFZ]{};
+    int m_rfz_ib[SizeRFZ][SizeI]{};
+    int m_rfz_it[SizeRFZ][SizeI]{};
     float m_dzdrmin{0.};
     float m_dzdrmax{0.};
     float m_iptmin{0.};

@@ -7,7 +7,7 @@
 
 #include <ostream>
 
-class L1CaloRxCoolChannelId {
+class L1CaloRxCoolChannelId final {
 	friend std::ostream& operator<<(std::ostream& output, const L1CaloRxCoolChannelId& r);
 
 public:
@@ -17,7 +17,7 @@ public:
   L1CaloRxCoolChannelId(unsigned int crate, unsigned int module, unsigned int inputConn, unsigned int inputPair, unsigned int outputConn, unsigned int outputPair);
   L1CaloRxCoolChannelId(unsigned int id);
   L1CaloRxCoolChannelId(const L1CaloRxCoolChannelId& id);
-  virtual ~L1CaloRxCoolChannelId() {};
+  ~L1CaloRxCoolChannelId() = default;
 
   unsigned int crate()     const { return (unsigned int) m_id/1024; };
   unsigned int module()    const { return (unsigned int) m_id%1024/64; };

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETGEOMODELUTILS_TOPLEVELPLACEMENTS_H
@@ -19,7 +19,7 @@ class TopLevelPlacements
   
 public:
 
-  TopLevelPlacements(IRDBRecordset_ptr topLevelTable);
+  TopLevelPlacements(const IRDBRecordset_ptr& topLevelTable);
   ~TopLevelPlacements();
 
   bool  present(const std::string & partName) const;
@@ -34,7 +34,7 @@ private:
     GeoTrf::Transform3D transform;
   };
 
-  void fillPlacements(IRDBRecordset_ptr topLevelTable);
+  void fillPlacements(const IRDBRecordset_ptr& topLevelTable);
   GeoTrf::Transform3D partTransform(const IRDBRecord* record) const;
   Part * getPart(const std::string & partName) const;
 

@@ -45,7 +45,7 @@ HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
 AtRndmGenSvc        DEBUG Property update for OutputLevel : new value = 1
-AtRndmGenSvc         INFO Initializing AtRndmGenSvc - package version RngComps-00-00-00
+AtRndmGenSvc         INFO Initializing AtRndmGenSvc
  INITIALISING RANDOM NUMBER STREAMS. 
 IncidentSvc         DEBUG Adding [EndEvent] listener 'AtRndmGenSvc' with priority 100
 IncidentSvc         DEBUG Adding [AfterReseedIncident] listener 'AtRndmGenSvc' with priority 100
@@ -95,7 +95,7 @@ Final status of PITHIA engine
 AtRndmGenSvc         INFO  FINALISING 
 AtRndmGenSvc        DEBUG  wrote seeds to test_AtRndmGenSvc.out
 AtRndmGenSvc2       DEBUG Property update for OutputLevel : new value = 1
-AtRndmGenSvc2        INFO Initializing AtRndmGenSvc2 - package version RngComps-00-00-00
+AtRndmGenSvc2        INFO Initializing AtRndmGenSvc2
  INITIALISING RANDOM NUMBER STREAMS. 
 IncidentSvc         DEBUG Adding [EndEvent] listener 'AtRndmGenSvc2' with priority 100
 IncidentSvc         DEBUG Adding [AfterReseedIncident] listener 'AtRndmGenSvc2' with priority 100
@@ -113,7 +113,7 @@ Final status of PITHIA engine for AtRndmGenSvc2
 AtRndmGenSvc2        INFO  FINALISING 
 AtRndmGenSvc2       DEBUG  wrote seeds to test2_AtRndmGenSvc.out
 AtRndmGenSvc3       DEBUG Property update for OutputLevel : new value = 1
-AtRndmGenSvc3        INFO Initializing AtRndmGenSvc3 - package version RngComps-00-00-00
+AtRndmGenSvc3        INFO Initializing AtRndmGenSvc3
  INITIALISING RANDOM NUMBER STREAMS. 
 IncidentSvc         DEBUG Adding [EndEvent] listener 'AtRndmGenSvc3' with priority 100
 IncidentSvc         DEBUG Adding [AfterReseedIncident] listener 'AtRndmGenSvc3' with priority 100

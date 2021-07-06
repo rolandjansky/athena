@@ -162,33 +162,37 @@ namespace top {
     throw std::runtime_error("Cannot determine the derivation stream. Please report.");
   }
 
-  void parseCutBookkeepers(const xAOD::CutBookkeeperContainer *cutBookKeepers,
+  void parseCutBookkeepers(xAOD::TEvent& xaodEvent, const std::size_t size,
       std::vector<std::string> &names, std::vector<float>& sumW, const bool isHLLHC) {
-    std::vector<int> maxCycle;
-    for (const xAOD::CutBookkeeper *cbk : *cutBookKeepers) {
-      // skip RDO and ESD numbers, which are nonsense; and
-      // skip the derivation number, which is the one after skimming
-      // we want the primary xAOD numbers
-      if ((cbk->inputStream() != "StreamAOD") && !(isHLLHC && cbk->inputStream() == "StreamDAOD_TRUTH1"))
-        continue;
-      // only accept "AllExecutedEvents" bookkeeper (0th MC weight)
-      // or "AllExecutedEvents_NonNominalMCWeight_XYZ" where XYZ is the MC weight index
-      if (!((cbk->name() == "AllExecutedEvents")
-            || (cbk->name().find("AllExecutedEvents_NonNominalMCWeight_") != std::string::npos)))
-        continue;
-      const std::string name = cbk->name();
-      auto pos_name = std::find(names.begin(), names.end(), name);
-      // is it a previously unencountered bookkeeper? If yes append its name to the vector of names
-      // if not no need, but we must check the corresponding entry for the sum of weights exist
-      if (pos_name == names.end()) {
-        names.push_back(name);
-        maxCycle.push_back(cbk->cycle());
-        sumW.push_back(cbk->sumOfEventWeights());
-      } else if (cbk->cycle() > maxCycle.at(pos_name - names.begin())) {
-        maxCycle.at(pos_name - names.begin()) = cbk->cycle();
-        sumW.at(pos_name - names.begin()) = cbk->sumOfEventWeights();
-      } else {
-        continue;
+
+    // workaround for PMGTruthWeightTool returning ZERO weights, when sample has ONLY ONE weight...
+    const std::size_t modifiedSize = (size == 0) ? 1 : size;
+
+    for (std::size_t icbk = 0; icbk < modifiedSize; ++icbk) {
+      const std::string cbkName = (icbk == 0) ? "CutBookkeepers" : "CutBookkeepers_weight_" + std::to_string(icbk);
+      const xAOD::CutBookkeeperContainer* cutBookKeepers = nullptr;
+      top::check(xaodEvent.retrieveMetaInput(cutBookKeepers, cbkName), "Cannot retrieve CutBookkeepers: " + cbkName);
+
+      std::vector<int> maxCycle;
+      for (const xAOD::CutBookkeeper *cbk : *cutBookKeepers) {
+        // skip RDO and ESD numbers, which are nonsense; and
+        // skip the derivation number, which is the one after skimming
+        // we want the primary xAOD numbers
+        if ((cbk->inputStream() != "StreamAOD") && !(isHLLHC && cbk->inputStream() == "StreamDAOD_TRUTH1"))
+          continue;
+        if (cbk->name() != "AllExecutedEvents") continue;
+        const std::string name = cbk->name() + "_weight_" + std::to_string(icbk);
+        auto pos_name = std::find(names.begin(), names.end(), name);
+        // is it a previously unencountered bookkeeper? If yes append its name to the vector of names
+        // if not no need, but we must check the corresponding entry for the sum of weights exist
+        if (pos_name == names.end()) {
+          names.push_back(name);
+          maxCycle.push_back(cbk->cycle());
+          sumW.push_back(cbk->sumOfEventWeights());
+        } else if (cbk->cycle() > maxCycle.at(pos_name - names.begin())) {
+          maxCycle.at(pos_name - names.begin()) = cbk->cycle();
+          sumW.at(pos_name - names.begin()) = cbk->sumOfEventWeights();
+        }
       }
     }
   }
@@ -215,7 +219,7 @@ namespace top {
       const std::vector<std::string>& pmg_weight_names) {
 
     // prefix in the bookkeeper names to remove
-    static const std::string name_prefix = "AllExecutedEvents_NonNominalMCWeight_";
+    static const std::string name_prefix = "AllExecutedEvents_weight_";
 
     // check if we have more than one MC generator weight, in that case we have to do the renaming
     if (pmg_weight_names.size() > 1) {
@@ -228,13 +232,9 @@ namespace top {
       // rename the bookkeepers based on the weight names from PMGTool
       // this names are then also written into the sumWeights TTree in output files
       for (std::string &name : bookkeeper_names) {
-        if (name == "AllExecutedEvents") {
-          name = pmg_weight_names.at(0);
-        } else {
-          // erase "AllExecutedEvents_NonNominalMCWeight_" prefix
-          int index = std::stoi(name.erase(0, name_prefix.size()));
-          name = pmg_weight_names.at(index);
-        }
+        // erase "AllExecutedEvents_weight_" prefix
+        int index = std::stoi(name.erase(0, name_prefix.size()));
+        name = pmg_weight_names.at(index);
       }
     } else {
       // expect only one MC weight in this sample, hence only one AllExecutedEvents* bookeeeper

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        PrimaryDPDFlags
@@ -701,14 +701,6 @@ except ImportError :
     # This is here for backwards compatibility
     from RecExCommon.RecoFunctions import AddValidItemToList
     pass
-
-#Add D2PDMakers too
-#try:
-#    from D2PDMaker.D2PDFlags import listAODtoD2PD,listESDtoD2PD
-#    AddValidItemToList(listAODtoD2PD,listAODtoDPD)
-#    AddValidItemToList(listESDtoD2PD,listESDtoDPD)
-#except:
-#    print "Unable to import listAODtoD2PD. This requires D2PDMaker-00-00-55-08 or D2PDMaker-00-00-62"
 
 #Now build the list of all known DPDs
 AddValidItemToList(listRAWtoDPD,listAllKnownDPD)

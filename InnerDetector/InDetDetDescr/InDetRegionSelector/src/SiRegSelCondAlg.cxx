@@ -8,7 +8,7 @@
  **   @date   Sun 22 Sep 2019 10:21:50 BST
  **
  **
- **   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ **   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -155,7 +155,7 @@ StatusCode SiRegSelCondAlg::execute(const EventContext& ctx)  const
       if (element->isPixel()) {
 
 	const PixelID* pixelId = dynamic_cast<const PixelID*>(element->getIdHelper());
-	if ( pixelId!=0 ) { 
+	if ( pixelId!=nullptr ) { 
 	  barrelEC  = pixelId->barrel_ec(element->identify());
 	  if ( std::fabs(barrelEC)>3 ) continue; // skip DBM modules
 	  layerDisk = pixelId->layer_disk(element->identify());
@@ -168,7 +168,7 @@ StatusCode SiRegSelCondAlg::execute(const EventContext& ctx)  const
       } else { // it's an SCT element
 
 	const SCT_ID* sctId = dynamic_cast<const SCT_ID*>(element->getIdHelper());
-	if ( sctId!=0 ) {      
+	if ( sctId!=nullptr ) {      
 	  barrelEC  = sctId->barrel_ec(element->identify());
 	  layerDisk = sctId->layer_disk(element->identify());
 	  // Avoid use of SCT_CablingTool. Instead of

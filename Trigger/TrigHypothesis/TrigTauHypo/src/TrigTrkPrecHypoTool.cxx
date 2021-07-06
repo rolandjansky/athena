@@ -55,13 +55,7 @@ StatusCode TrigTrkPrecHypoTool::initialize()
 
   ATH_MSG_DEBUG( "Tool configured for chain/id: " << m_decisionId  );
 
-  ATH_MSG_DEBUG( " REGTEST: TrigTrkPrecHypoTool will cut on "                           );
-  ATH_MSG_DEBUG( " REGTEST: Lower pt cut for track selection: " << m_lowerTrackPtCut   );
-  ATH_MSG_DEBUG( " REGTEST: Tracks in core <= "                 << m_tracksInCoreCut   );  
-  ATH_MSG_DEBUG( " REGTEST: Tracks in outer <= "                << m_tracksInIsoCut    );  
-  ATH_MSG_DEBUG( " REGTEST: Relax High pT: "                    << m_relax_highpt      );
-  ATH_MSG_DEBUG( " REGTEST: Relax High pT Threshold: "           << m_highpt_threshold );
-  ATH_MSG_DEBUG( " REGTEST: ------ "                                                   );
+  ATH_MSG_DEBUG( " REGTEST: Simple pass-trhough hypo, no selection is applied" );
 
 
   ATH_MSG_DEBUG( "Initialization of TrigTrkPrecHypoTool completed successfully" );
@@ -74,15 +68,6 @@ bool TrigTrkPrecHypoTool::decide( const ITrigTrkPrecHypoTool::TrackingInfo& inpu
   ATH_MSG_DEBUG( "REGTEST:"<< name() << ": in execute()" );
 
   bool pass = false;
-
-  using namespace Monitored;
-
-  auto nTracksInCore     = Monitored::Scalar<int>( "nTracksInCore", -1);
-  auto nTracksInIso      = Monitored::Scalar<int>( "nTracksInIso", -1);
-  auto PassedCuts        = Monitored::Scalar<int>( "CutCounter", -1 );
-
-  // general reset
-  PassedCuts = 0;
 
   //get RoI descriptor
   auto roiDescriptor = input.roi;
@@ -102,7 +87,6 @@ bool TrigTrkPrecHypoTool::decide( const ITrigTrkPrecHypoTool::TrackingInfo& inpu
 
   }
 
-  PassedCuts++;
   pass = true;
   
   ATH_MSG_DEBUG( " REGTEST: TE accepted !! " );

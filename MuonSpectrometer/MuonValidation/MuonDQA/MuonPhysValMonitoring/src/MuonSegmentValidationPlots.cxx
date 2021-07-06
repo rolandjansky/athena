@@ -23,20 +23,20 @@ MuonSegmentValidationPlots::~MuonSegmentValidationPlots()
   if (m_oTruthMuonSegmPlots) delete m_oTruthMuonSegmPlots;  
 }
 
-void MuonSegmentValidationPlots::fill(const xAOD::MuonSegment* truthMuSeg, const xAOD::MuonSegment* muSeg)
+void MuonSegmentValidationPlots::fill(const xAOD::MuonSegment* truthMuSeg, const xAOD::MuonSegment* muSeg, float weight)
 {
   if (truthMuSeg) 
-    m_oTruthMuonSegmPlots->fill( *truthMuSeg );
+    m_oTruthMuonSegmPlots->fill( *truthMuSeg, weight );
   if (muSeg)
-    m_oRecoSegmPlots->fill(*muSeg);
+    m_oRecoSegmPlots->fill(*muSeg, weight);
   
   if ( (truthMuSeg) && (muSeg) ) {    
-    m_oMatchedMuonSegmPlots->fill( *truthMuSeg );
-    m_oMatchedMuonSegmDiffPlots->fill( *truthMuSeg, *muSeg );
+    m_oMatchedMuonSegmPlots->fill( *truthMuSeg, weight );
+    m_oMatchedMuonSegmDiffPlots->fill( *truthMuSeg, *muSeg, weight );
   }
 }
 
-void MuonSegmentValidationPlots::fill(const xAOD::MuonSegment* muSeg)
+void MuonSegmentValidationPlots::fill(const xAOD::MuonSegment* muSeg, float weight )
 {
-  m_oRecoSegmPlots->fill(*muSeg);
+  m_oRecoSegmPlots->fill(*muSeg, weight);
 }

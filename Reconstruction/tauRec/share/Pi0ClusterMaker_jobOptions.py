@@ -100,7 +100,6 @@ if jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib():
     #DMTool.HadDMCoeffKey       = "HadDMCoeff2"
     #DMTool.ClusterRecoStatus   = 0
     #DMTool.WeightModeDM        = 2 
-    #DMTool.CaloNoiseTool       = theCaloNoiseTool
     
     LCDeadMaterial   = CaloLCDeadMaterialTool("LCDeadMaterial")
     LCDeadMaterial.HadDMCoeffKey       = "HadDMCoeff2"

@@ -3,7 +3,7 @@
 __all__ = ['log', 'idgen', 'binstr', 'get_smk_psk_Name', 'oldStyle']
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger("TriggerConfigL1")
+log = logging.getLogger(__name__)
 
 # Old CTP = Old CTP
 def oldStyle():
@@ -36,6 +36,7 @@ idgen = idgen()
 # turns an integer into a binary representation string of given width ( for the reverse just use int('10011',2) )
 def binstr(value, width):
     return ''.join([str( value >> i & 1 ) for i in range( width-1, -1, -1 ) ])
+
 
 def get_smk_psk_Name(menuName):
     import re

@@ -1,6 +1,5 @@
-// emacs: this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 //
 //   @file    RoiSerialise.h        
@@ -8,20 +7,14 @@
 //            utilities to serialise and deserialise to and from  
 //            std::vector<IRoiDescriptor*> TrigRoiDescriptorCollection etc
 //                   
-//  
-//
-//   $Id: serialise.h, v0.0   Sat 31 Oct 2015 08:21:54 CET sutt $
-
-#ifndef ROIUTIL_SERIALISE_H
-#define ROIUTIL_SERIALISE_H
+#ifndef TRIGROICONVERSION_SERIALISE_H
+#define TRIGROICONVERSION_SERIALISE_H
 
 
 #include <vector>
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
- 
-
 
 namespace RoiUtil { 
 
@@ -49,5 +42,4 @@ namespace RoiUtil {
   
 }
 
-#endif  // ROIUTIL_SERIALISE_H
-
+#endif

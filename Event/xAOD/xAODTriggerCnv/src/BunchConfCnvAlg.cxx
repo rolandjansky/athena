@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: BunchConfCnvAlg.cxx 583381 2014-02-14 15:58:20Z krasznaa $
@@ -22,7 +22,7 @@ namespace xAODMaker {
       : AthAlgorithm( name, svcLoc ),
         m_bcConf( "Trig::TrigConfBunchCrossingTool/BunchCrossingTool" ),
         m_metaStore( "MetaDataStore", name ),
-        m_bcc( 0 ) {
+        m_bcc( nullptr ) {
 
       declareProperty( "EventName", m_eventName = "BunchConfKey" );
       declareProperty( "MetaName", m_metaName = "BunchConfiguration" );
@@ -34,7 +34,7 @@ namespace xAODMaker {
    StatusCode BunchConfCnvAlg::initialize() {
 
       // Greet the user:
-      ATH_MSG_INFO( "Initialising - Package version: " << PACKAGE_VERSION );
+      ATH_MSG_INFO( "Initialising" );
       ATH_MSG_DEBUG( "  EventName = " << m_eventName );
       ATH_MSG_DEBUG( "  MetaName  = " << m_metaName );
 

@@ -95,7 +95,7 @@ namespace Trk {
 								       Amg::Vector3D position,
                                                                        unsigned int index ) const;
         /** distance calculations */
-        void evaluateDistance(Trk::TargetSurface& tt, Amg::Vector3D pos, Amg::Vector3D mom,
+        void evaluateDistance(Trk::TargetSurface& tt, const Amg::Vector3D& pos, const Amg::Vector3D& mom,
                               Trk::TargetSurfaceVector&ts, bool trueOrdered) const;
                                                            
 	/** handle extrapolation step */

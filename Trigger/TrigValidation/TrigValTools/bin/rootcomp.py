@@ -114,7 +114,7 @@ def main():
       opts.skip += ["GeneralOpInfo"]                  # release number, etc.
       opts.skip += ["MessageSvc/MessageCount"]        # MessageSvc
       opts.skip += ["TrigSteer_.*/Rate"]              # Rate monitoring
-      opts.skip += ["TrigSignatureMoniMT/.*Rate"]     # Rate monitoring
+      opts.skip += ["TrigSignatureMoni/.*Rate"]       # Rate monitoring
       opts.skip += ["IOVDbRunRange","IOVDbBytesRead"] # conditions data IOVs and size
       opts.skip += ["TrigOpMonitor/.*BytesRead"]      # conditions data size
       opts.skip += ["/ROBMonitor/DataVolumeFractionForSD"]  # Volume data fraction profile diff

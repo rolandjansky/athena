@@ -135,12 +135,12 @@ else:
                                                                       WriteFirstN                  = -1)
 
 from AthenaCommon.GlobalFlags import globalflags
-print "HIGG2D1.py globalflags.DataSource()", globalflags.DataSource()
+print ("HIGG2D1.py globalflags.DataSource(): %s" %globalflags.DataSource())
 
 if globalflags.DataSource()=='geant4':
     ToolSvc += HIGG2D1TruthThinningTool
     thinningTools.append(HIGG2D1TruthThinningTool)
-print "HIGG2D1.py thinningTools", thinningTools
+print ("HIGG2D1.py thinningTools: %s" %thinningTools)
 
 #====================================================================
 # SKIMMING TOOLS 
@@ -148,7 +148,7 @@ print "HIGG2D1.py thinningTools", thinningTools
 
 ## Trigger requirement 
 from AthenaCommon.BeamFlags import jobproperties
-print "HIGG2D1.py jobproperties.Beam.energy()", jobproperties.Beam.energy()
+print ("HIGG2D1.py jobproperties.Beam.energy(): %f GeV" %jobproperties.Beam.energy())
 # 13 TeV
 singleElectronTriggerRequirement=["L1_EM.*"]
 diElectronTriggerRequirement=["L1_2EM.*", "L1_3EM.*"]
@@ -165,10 +165,10 @@ if jobproperties.Beam.energy()==4000000.0:
 triggerRequirement=singleElectronTriggerRequirement+diElectronTriggerRequirement+singleMuonTriggerRequirement+diMuonTriggerRequirement+electronMuonTriggerRequirement
 # 8 TeV MC does not have trigger information
 SkipTriggerRequirement=((globalflags.DataSource()=='geant4') and (jobproperties.Beam.energy()==4000000.0))
-print "HIGG2D1.py SkipTriggerRequirement", SkipTriggerRequirement
+print ("HIGG2D1.py SkipTriggerRequirement: %r" %SkipTriggerRequirement)
 if SkipTriggerRequirement:
     triggerRequirement=[]
-print "HIGG2D1.py triggerRequirement", triggerRequirement
+print ("HIGG2D1.py triggerRequirement: %s" %triggerRequirement)
 
 from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__SkimmingToolHIGG2
 SkimmingToolHIGG2D1 = DerivationFramework__SkimmingToolHIGG2(name                     = "SkimmingToolHIGG2D1",
@@ -190,7 +190,7 @@ SkimmingToolHIGG2D1 = DerivationFramework__SkimmingToolHIGG2(name               
                                                              InvariantMassCut         =  5.*Units.GeV,
                                                              Trigger2L                = triggerRequirement)
 ToolSvc += SkimmingToolHIGG2D1
-print SkimmingToolHIGG2D1
+print (SkimmingToolHIGG2D1)
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
@@ -235,3 +235,4 @@ HIGG2D1SlimmingHelper.IncludeMuonTriggerContent = True
 HIGG2D1SlimmingHelper.IncludeEGammaTriggerContent = True
 
 HIGG2D1SlimmingHelper.AppendContentToStream(HIGG2D1Stream)
+

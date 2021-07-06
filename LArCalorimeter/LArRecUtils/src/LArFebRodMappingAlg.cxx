@@ -14,18 +14,6 @@
 #include <algorithm>
 #include <iterator>
 
-LArFebRodMappingAlg::LArFebRodMappingAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_readKey("/LAR/Identifier/FebRodMap"),
-  m_writeKey("LArFebRodMap","LArFebRodMap"),
-  m_condSvc("CondSvc",name)
-{
-  declareProperty("ReadKey",m_readKey);
-  declareProperty("WriteKey",m_writeKey);
-}
-
-LArFebRodMappingAlg::~LArFebRodMappingAlg() {}
-
 StatusCode LArFebRodMappingAlg::initialize() {
 
   ATH_MSG_DEBUG("initializing");
@@ -61,6 +49,8 @@ StatusCode LArFebRodMappingAlg::execute() {
     ATH_MSG_ERROR("Failed to retrieve CondAttributeListCollection with key " << m_readKey.key());
     return StatusCode::FAILURE;
   }
+  writeHandle.addDependency(readHandle);
+
 
   const LArOnlineID* onlineID;
   ATH_CHECK(detStore()->retrieve(onlineID,"LArOnlineID"));
@@ -93,21 +83,14 @@ StatusCode LArFebRodMappingAlg::execute() {
 
   msg(MSG::INFO) << "Done reading Feb/Rod mapping. Found " << nFebRod << " Febs and " <<  febRodMap->m_readoutModuleIDVec.size() << " Rods" << endmsg;
 
-  // Define validity of the output cond object and record it
-  EventIDRange rangeW;
-  if(!readHandle.range(rangeW)) {
-    ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
-    return StatusCode::FAILURE;
-  }
-
-  if(writeHandle.record(rangeW,febRodMap.release()).isFailure()) {
+  if(writeHandle.record(std::move(febRodMap)).isFailure()) {
     ATH_MSG_ERROR("Could not record LArFebRodMapping object with " 
 		  << writeHandle.key() 
-		  << " with EventRange " << rangeW
+		  << " with EventRange " << writeHandle.getRange()
 		  << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+  ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " << writeHandle.getRange() << " into Conditions Store");
 
  
   return StatusCode::SUCCESS;

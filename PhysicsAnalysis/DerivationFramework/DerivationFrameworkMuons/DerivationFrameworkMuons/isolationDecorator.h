@@ -1,15 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// isolationDecorator.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 #ifndef DERIVATIONFRAMEWORK_isolationDecorator_H
 #define DERIVATIONFRAMEWORK_isolationDecorator_H
 
-#include<string>
-#include<vector>
+#include <string>
+#include <vector>
 
 // Gaudi & Athena basics
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -17,28 +14,26 @@
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "RecoToolInterfaces/ITrackIsolationTool.h"
 #include "RecoToolInterfaces/ICaloTopoClusterIsolationTool.h"
-#include "ExpressionEvaluation/ExpressionParser.h"
+#include "ExpressionEvaluation/ExpressionParserUser.h"
 
 namespace DerivationFramework {
-  /** @class isolationDecorator
-      @author Dongliang.Zhang@cern.ch
-     */
-  class isolationDecorator : public AthAlgTool, public IAugmentationTool {
+  class isolationDecorator : public ExpressionParserUser<AthAlgTool>, public IAugmentationTool {
     
   public: 
     /** Constructor with parameters */
     isolationDecorator( const std::string& t, const std::string& n, const IInterface* p);
     
     /** Destructor */
-    ~isolationDecorator();
+    virtual ~isolationDecorator()=default;
  
-    // Athena algtool's Hooks
-    StatusCode  initialize();
-    StatusCode  finalize();
     
-    virtual StatusCode addBranches() const;
+    StatusCode  initialize() override;   
+    
+    StatusCode addBranches() const override;
     
   private:
+    StatusCode decorate(const xAOD::IParticle* part, const int iso_type, const float val) const;
+    
     std::string m_containerName;
     std::string m_selectionString;
     std::string m_prefix;
@@ -56,8 +51,9 @@ namespace DerivationFramework {
     std::vector<int> m_topoetcones;
     xAOD::CaloCorrection m_caloCorrList;
 
-    ExpressionParsing::ExpressionParser *m_parser;
-    std::vector< SG::AuxElement::Decorator< float >* > m_decorators;
+    std::map<int, SG::AuxElement::Decorator< float > > m_decorators;
+    
+    
   }; 
 }
 #endif //

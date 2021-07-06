@@ -48,7 +48,7 @@ public:
   { std::abort(); }
   virtual int maxNumberOfErrors() const override
   { std::abort(); }
-  
+
   virtual const Trk::Surface* getSurface(const Identifier& id) const override;
   void addSurface (std::unique_ptr<Trk::Surface> surf);
 
@@ -95,7 +95,7 @@ class TestElement
 public:
   TestElement (unsigned int val);
   virtual Identifier identify() const override final;
-    
+
   virtual IdentifierHash identifyHash() const override final
   { std::abort(); }
   virtual const Amg::Transform3D & transform() const override
@@ -118,6 +118,9 @@ public:
   { std::abort(); }
   virtual const Amg::Vector3D & normal(const Identifier& /*id*/) const override
   { std::abort(); }
+  virtual Trk::DetectorElemType detectorType() const override{
+    return Trk::DetectorElemType::Silicon; //should be fine for a test
+  }
 
   Identifier m_id;
 };
@@ -138,6 +141,7 @@ Identifier TestElement::identify() const
 void compare (const Trk::Surface& s1,
               const Trk::Surface& s2)
 {
+  //std::cout<<s1.name()<<" == "<<s2.name()<<"\n";
   assert (s1.name() == s2.name());
   assert (s1.isFree() == s2.isFree());
   if (s1.isFree()) {
@@ -155,7 +159,7 @@ void compare (const Trk::Surface& s1,
 template <class CNV>
 void testit (const Trk::Surface& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   CNV cnv;
   cnv.setCnvToolName ("TestCnvTool");
   Trk::Surface_p2 pers;
@@ -190,7 +194,7 @@ void add_det_surface (unsigned int val)
 {
   auto detel = std::make_unique<TestElement> (val);
   auto surf = make_surf<SURF>() (*detel.release());
-  
+
   ToolHandle<Trk::IEventCnvSuperTool> h ("TestCnvTool");
   TestCnvTool* tool = dynamic_cast<TestCnvTool*> (&*h);
   if (tool) tool->addSurface (std::move (surf));
@@ -218,22 +222,22 @@ void test1 ATLAS_NOT_THREAD_SAFE ()
   testit<StraightLineSurfaceCnv_p2> (*h->getSurface (Identifier (3)));
   testit<SaggedLineSurfaceCnv_p2> (*h->getSurface (Identifier (4)));
 
-  Trk::DiscSurface disc (std::make_unique<Amg::Transform3D>(Amg::getRotateX3D (0.5)));
+  Trk::DiscSurface disc (Amg::Transform3D(Amg::getRotateX3D (0.5)));
   testit<DiscSurfaceCnv_p2> (disc);
 
-  Trk::ConeSurface cone (std::make_unique<Amg::Transform3D>(Amg::getRotateY3D (0.5)));
+  Trk::ConeSurface cone (Amg::Transform3D(Amg::getRotateY3D (0.5)));
   testit<ConeSurfaceCnv_p2> (cone);
 
-  Trk::CylinderSurface cyl (std::make_unique<Amg::Transform3D>(Amg::getRotateZ3D (0.5)));
+  Trk::CylinderSurface cyl (Amg::Transform3D(Amg::getRotateZ3D (0.5)));
   testit<CylinderSurfaceCnv_p2> (cyl);
 
-  Trk::PerigeeSurface per (std::make_unique<Amg::Transform3D>(Amg::getRotateX3D (0.7)));
+  Trk::PerigeeSurface per (Amg::Transform3D(Amg::getRotateX3D (0.7)));
   testit<PerigeeSurfaceCnv_p2> (per);
 
-  Trk::PlaneSurface plane (std::make_unique<Amg::Transform3D>(Amg::getRotateX3D (0.7)));
+  Trk::PlaneSurface plane (Amg::Transform3D(Amg::getRotateX3D (0.7)));
   testit<PlaneSurfaceCnv_p2> (plane);
 
-  Trk::StraightLineSurface sl (std::make_unique<Amg::Transform3D>(Amg::getRotateY3D (0.7)));
+  Trk::StraightLineSurface sl (Amg::Transform3D(Amg::getRotateY3D (0.7)));
   testit<StraightLineSurfaceCnv_p2> (sl);
 }
 

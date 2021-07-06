@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -55,7 +55,7 @@ public:
   }
 
   double getError() const {return m_error;}
-  
+
 private:
 
   double DoGaussLegendreIntegration(const eflowRange& range, int nOrder){
@@ -64,8 +64,8 @@ private:
 
     /* Array offset for legendre weights/roots */
     int j = nOrder * (nOrder - 1) / 2;
-    double* roots   = legendreRoots   + j;
-    double* weights = legendreWeights + j;
+    const double* roots   = legendreRoots   + j;
+    const double* weights = legendreWeights + j;
 
     double rangeCenter    = range.getCenter();
     double rangeHalfWidth = range.getWidth()/2;
@@ -125,14 +125,14 @@ public:
 
   inline void setEtaSq(double xSq) { m_etaSq = xSq; }
 
-  inline double evaluateStdExp(double rSq) { return m_norm * exp(-rSq * m_oneOverTwoSigmaSq); }
-  inline double evaluateLookupExp(double rSq) { return m_lookupExp->evaluate(rSq * m_oneOverTwoSigmaSq)*m_norm; }
+  inline double evaluateStdExp(double rSq) const { return m_norm * exp(-rSq * m_oneOverTwoSigmaSq); }
+  inline double evaluateLookupExp(double rSq) const { return m_lookupExp->evaluate(rSq * m_oneOverTwoSigmaSq)*m_norm; }
 
   /** The evaluate method for the integration. The implementation depends on the template parameter */
   inline double evaluate(double y);
 
 private:
-  eflowLookupExp* m_lookupExp;
+  const eflowLookupExp* m_lookupExp;
   double m_oneOverTwoSigmaSq;
   double m_norm;
   double m_etaSq;

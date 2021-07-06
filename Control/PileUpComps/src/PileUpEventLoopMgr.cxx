@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -11,7 +11,6 @@
 // Athena includes
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "AthenaKernel/errorcheck.h"
-#include "AthenaKernel/ITimeKeeper.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "AthenaKernel/EventContextClid.h"
 
@@ -64,7 +63,7 @@ PileUpEventLoopMgr::PileUpEventLoopMgr(const std::string& name,
     m_caches(this),
     m_maxCollPerXing(23.0),
     m_xingFreq(25), m_firstXing(-2), m_lastXing(+1),
-    m_timeKeeper("",name), m_allowSubEvtsEOF(true),
+    m_allowSubEvtsEOF(true),
     m_xingByXing(false), m_isEventOverlayJob(false),
     m_failureMode(1),
     m_evinfName( c_pileUpEventInfoObjName ),
@@ -89,7 +88,6 @@ PileUpEventLoopMgr::PileUpEventLoopMgr(const std::string& name,
   declareProperty("lastXing", m_lastXing, "time of last xing / XingFrequency (0th xing is 1st after trigger)");
   declareProperty("MaxMinBiasCollPerXing", m_maxCollPerXing, "Set to digitization numberOfCollisions prop. for variable-mu and RunDMC jobs.");
   declareProperty("bkgCaches", m_caches, "list of tools managing bkg events");
-  declareProperty("TimeKeeper", m_timeKeeper, "time keeper service, terminates event loop if needed. NOP by default");
   declareProperty("AllowSubEvtsEOF", m_allowSubEvtsEOF, "if true(default) an EOF condition in the BkgStreamsCaches is not considered to be an error IF maxevt=-1 (loop over all available events)");
   declareProperty("XingByXing", m_xingByXing, "if set to true we will not cache bkg events from one xing to then next. This greatly increases the amount of I/O and greatly reduces the memory required to run a job");
   declareProperty("IsEventOverlayJob", m_isEventOverlayJob, "if set to true will prevent the BCID from being overridden.");
@@ -122,21 +120,7 @@ PileUpEventLoopMgr::~PileUpEventLoopMgr() {}
 //=========================================================================
 StatusCode PileUpEventLoopMgr::initialize()
 {
-  //-------------------------------------------------------------------------
-  // Process Properties
-  //-------------------------------------------------------------------------
-  try
-    {
-      CHECK(setProperties());
-      // configure our MsgStream
-      m_msg.get().setLevel( m_outputLevel.value() );
-    }
-  catch (...)
-    {
-      ATH_MSG_WARNING ( "Caught exception thrown reading in properties" );
-    }
-
-  ATH_MSG_INFO ( "Initializing " << this->name() << " - package version " << PACKAGE_VERSION ) ;
+  ATH_MSG_INFO ( "Initializing " << this->name() ) ;
   if(!m_allowSerialAndMPToDiffer)
     {
       ATH_MSG_WARNING ( "AllowSerialAndMPToDiffer=False! This will incur serious performance penalties! But Serial and MP output will be the same." );
@@ -158,19 +142,6 @@ StatusCode PileUpEventLoopMgr::initialize()
   // Setup Event Selector
   //-------------------------------------------------------------------------
   CHECK(this->setupStreams());
-  //-------------------------------------------------------------------------
-  // Setup TimeKeeper service
-  //-------------------------------------------------------------------------
-
-  // We do not expect a TimeKeeper necessarily being declared
-  if (!m_timeKeeper.empty())
-    {
-      CHECK(m_timeKeeper.retrieve());
-    }
-  else
-    {
-      ATH_MSG_INFO ( "No TimeKeeper selected. No time limit control on event loop." );
-    }
 
   // Get the value of SkipEvents. It is needed for seeking
   SmartIF<IProperty> prpMgr(serviceLocator());
@@ -218,7 +189,7 @@ StatusCode PileUpEventLoopMgr::initialize()
 //=========================================================================
 StatusCode PileUpEventLoopMgr::finalize()
 {
-  ATH_MSG_INFO ( "Finalizing " << this->name() << " - package version " << PACKAGE_VERSION );
+  ATH_MSG_INFO ( "Finalizing " << this->name() );
 
   //we need to release all our BkgStreamCaches
   ToolHandleArray<IBkgStreamsCache>::iterator cacheIterator(m_caches.begin());
@@ -305,10 +276,8 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
   const xAOD::EventInfo*  pEvent(nullptr), *pEventSignal(nullptr);
   
   // loop over events if the maxevt (received as input) is different from -1.
-  // if evtmax is -1 it means infinite loop (till time limit that is)
-  bool noTimeLimit(false);
+  // if evtmax is -1 it means infinite loop
   while( (maxevt == -1 || m_nevt < maxevt) &&
-         (noTimeLimit = (m_timeKeeper.empty() || m_timeKeeper->nextIter()) )  &&
          0 != (pEvent = m_origStream.nextEventPre()) )
     {
       if (m_isEventOverlayJob) {
@@ -568,7 +537,7 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
       total_nevt--;
     }
 
-  return (noTimeLimit ? StatusCode::SUCCESS : StatusCode::FAILURE);
+  return StatusCode::SUCCESS;
 
 }
 
@@ -652,7 +621,7 @@ StatusCode PileUpEventLoopMgr::executeAlgorithms(const EventContext& ctx)
   // Call the execute() method of all top algorithms
   for ( ListAlg::iterator ita = m_topAlgList.begin();
         ita != m_topAlgList.end();
-        ita++ )
+        ++ita )
     {
       StatusCode sc = (*ita)->sysExecute( ctx );
       // this duplicates what is already done in Algorithm::sysExecute, which
@@ -748,7 +717,7 @@ StatusCode PileUpEventLoopMgr::executeEvent( EventContext&& ctx )
 
       // Call the execute() method of all output streams
       for (ListAlg::iterator ito = m_outStreamList.begin();
-           ito != m_outStreamList.end(); ito++ )
+           ito != m_outStreamList.end(); ++ito )
         {
           sc = (*ito)->sysExecute( ctx );
           if( !sc.isSuccess() )

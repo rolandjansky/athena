@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -11,7 +11,6 @@
 // muons. Inherits from derivation framework components.
 
 #include "PrimaryDPDMaker/DRAW_ZMUMUSkimmingTool.h"
-#include "xAODMuon/MuonContainer.h"
 #include <vector>
 #include <string>
 
@@ -20,15 +19,11 @@ DerivationFramework::DRAW_ZMUMUSkimmingTool::DRAW_ZMUMUSkimmingTool( const std::
                                                  const std::string& n,
                                                  const IInterface* p ) : 
   AthAlgTool(t,n,p),
-  m_ntot(0),
-  m_npass(0),
-  m_muonSGKey("Muons"),
   m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
   m_nMuons(1),
   m_muonPtCut(20.0)
   {
     declareInterface<DerivationFramework::ISkimmingTool>(this);
-    declareProperty("MuonContainerKey", m_muonSGKey);
     declareProperty("MuonSelectorTool", m_muonSelectionTool); 
     declareProperty("MinimumNumberOfMuons", m_nMuons);
     declareProperty("MuonPtCut", m_muonPtCut);	
@@ -42,6 +37,7 @@ DerivationFramework::DRAW_ZMUMUSkimmingTool::~DRAW_ZMUMUSkimmingTool() {
 StatusCode DerivationFramework::DRAW_ZMUMUSkimmingTool::initialize()
 {
      ATH_MSG_VERBOSE("initialize() ...");
+     ATH_CHECK(m_muonSGKey.initialize());
      return StatusCode::SUCCESS;
 }
 StatusCode DerivationFramework::DRAW_ZMUMUSkimmingTool::finalize()
@@ -56,19 +52,11 @@ bool DerivationFramework::DRAW_ZMUMUSkimmingTool::eventPassesFilter() const
 {
      ++m_ntot;
 
-     // Retrieve muon container	
-     const xAOD::MuonContainer* muons(0);
-     StatusCode sc = evtStore()->retrieve(muons,m_muonSGKey);	
-     if (sc.isFailure()) {
-	ATH_MSG_ERROR("No muon collection with name " << m_muonSGKey << " found in StoreGate!");
-	return(false);
-     } 
-     
+     SG::ReadHandle<xAOD::MuonContainer> muons{m_muonSGKey};
      // Loop over muons, count up and set decision
-     xAOD::MuonContainer::const_iterator muItr;
      unsigned int nGoodMu(0);
-     for (muItr=muons->begin(); muItr!=muons->end(); ++muItr) {  
-	if ( m_muonSelectionTool->accept(**muItr) && (*muItr)->pt() > m_muonPtCut ) ++nGoodMu;
+     for (const xAOD::Muon* muItr : *muons) {
+	if ( m_muonSelectionTool->accept(*muItr) && muItr->pt() > m_muonPtCut ) ++nGoodMu;
      }
      bool acceptEvent(false);
      if (nGoodMu >= m_nMuons) { 

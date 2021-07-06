@@ -7,6 +7,6 @@ atlas_subdir( MuonCombinedAlgs )
 atlas_add_component( MuonCombinedAlgs
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AthenaMonitoringKernelLib xAODCaloEvent xAODMuon xAODTruth xAODTracking GaudiKernel MuonSegment MuonRecToolInterfaces MuonLayerEvent MuonCombinedEvent MuonCombinedToolInterfaces MuonPrepRawData StoreGateLib TrkSegment TrkTrack TrkToolInterfaces)
+                     LINK_LIBRARIES AthenaBaseComps AthenaMonitoringKernelLib xAODCaloEvent xAODMuon xAODMuonCnvLib xAODTruth xAODTracking GaudiKernel MuonSegment MuonRecToolInterfaces MuonLayerEvent MuonCombinedEvent MuonCombinedToolInterfaces MuonPrepRawData StoreGateLib TrkSegment TrkTrack TrkToolInterfaces)
 
 atlas_install_python_modules( python/MuonCombinedAlgsMonitoring.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

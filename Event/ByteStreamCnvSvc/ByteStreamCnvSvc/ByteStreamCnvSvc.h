@@ -78,15 +78,6 @@ private:
    /// Services for writing output
    std::map<std::string, ByteStreamOutputSvc*> m_ioSvcMap;
 
-   /// flags for Simulation EventType
-   Gaudi::Property<bool> m_isSimulation;
-   /// flags for TestBeam EventType
-   Gaudi::Property<bool> m_isTestbeam;
-   /// flags for Calibration EventType
-   Gaudi::Property<bool> m_isCalibration;
-   /// flags for getting Detector Mask from COOL
-   Gaudi::Property<bool> m_getDetectorMask;
-
    /// Event store.
    ServiceHandle<StoreGateSvc> m_evtStore;
 

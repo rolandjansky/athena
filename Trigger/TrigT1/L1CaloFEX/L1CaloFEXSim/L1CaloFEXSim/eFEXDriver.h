@@ -14,12 +14,12 @@
 #include "L1CaloFEXSim/eSuperCellTowerMapper.h"
 #include "L1CaloFEXToolInterfaces/IeFEXSysSim.h"
 #include "L1CaloFEXSim/eFEXSim.h"
-#include "L1CaloFEXSim/eTowerContainer.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "L1CaloFEXSim/eFEXOutputCollection.h"
 #include "xAODTrigger/eFexEMRoIContainer.h"
+#include "L1CaloFEXSim/eFakeTower.h"
 
 class CaloIdManager;
 
@@ -53,6 +53,7 @@ class eFEXDriver : public AthAlgorithm
   ToolHandle<IeTowerBuilder> m_eTowerBuilderTool {this, "eTowerBuilderTool", "LVL1::eTowerBuilder", "Tool that builds eTowers for simulation"};
   ToolHandle<IeSuperCellTowerMapper> m_eSuperCellTowerMapperTool {this, "eSuperCellTowerMapperTool", "LVL1::eSuperCellTowerMapper", "Tool that maps supercells to eTowers"};
   ToolHandle<IeFEXSysSim> m_eFEXSysSimTool {this, "eFEXSysSimTool", "LVL1::eFEXSysSim", "Tool that creates the eFEX System Simulation"};
+  ToolHandle<IeFakeTower> m_eFakeTowerTool {this, "eFakeTower", "LVL1::eFakeTower", "Tool that loads test vectors"};
 
   std::map<Identifier, std::pair<int,int> > m_cell_to_tower_map;
 

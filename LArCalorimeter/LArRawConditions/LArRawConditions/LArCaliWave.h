@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -18,6 +18,8 @@
  * 03 Dec, 2006: G. Rosenbaum
  * Add functions to support putting four bits of info regarding which calib lines are pulsed into m_DAC
  * First 16 bits are DAC value, bits 17-20 are which of four possible calib lines are pulsed.
+ * 15 May 2021: P. Strizenec
+ * Separating DAC and pulsedInt into two variables, for SuperCell processing needs more bits for DAC
 
 
  */
@@ -58,11 +60,13 @@ public:
 		theVector,
 		double dt,
 		int DAC, 
+                int isPulsed,
 		unsigned flag=0);
 
     LArCaliWave(unsigned nSamples,
 		double dt,
 		int DAC, 
+                int isPulsed,
 		unsigned flag=0);
 
     LArCaliWave(const std::vector<double>& vAmpl, 
@@ -70,6 +74,7 @@ public:
 		const std::vector<int>& vTrig,
 		double dt,
 		int DAC, 
+                int isPulsed,
 		unsigned flag=0);
 
     virtual ~LArCaliWave() = default;
@@ -86,6 +91,7 @@ public:
  protected:
 
   int m_DAC;
+  int m_isPulsed;
 
 };
 
@@ -108,20 +114,22 @@ inline
 LArCaliWave::LArCaliWave(const std::vector<double>& theVector,
 			 double dt,
 			 int DAC, 
+                         int isPulsed,
 			 unsigned flag)
 	:  
 	LArWaveCumul(theVector,dt,flag),
-	m_DAC(DAC) 
+	m_DAC(DAC),m_isPulsed(isPulsed) 
 {}
 
 inline
 LArCaliWave::LArCaliWave(unsigned nSamples,
 			 double dt,
 			 int DAC, 
+                         int isPulsed,
 			 unsigned flag) 
 	:  
 	LArWaveCumul(nSamples,dt,flag), 
-	m_DAC(DAC)
+	m_DAC(DAC),m_isPulsed(isPulsed)
 {}
 
 inline
@@ -130,10 +138,11 @@ LArCaliWave::LArCaliWave(const std::vector<double>& vAmpl,
 			 const std::vector<int>& vTrig,
 			 double dt,
 			 int DAC, 
+                         int isPulsed,
 			 unsigned flag)
 	:  
 	LArWaveCumul(vAmpl,vErr,vTrig,dt,flag), 
-	m_DAC(DAC)
+	m_DAC(DAC),m_isPulsed(isPulsed)
 {}
  
 /*old one*/
@@ -147,17 +156,14 @@ inline
 int 
 LArCaliWave::getDAC() const   
 {
-  if(m_DAC<0)
     return m_DAC;
-  else
-    return (m_DAC & 0xFFFF);
 }
 
 inline
 int 
 LArCaliWave::getIsPulsedInt() const   
 { 
-  return (m_DAC>>16);
+  return m_isPulsed;
 }
 
 

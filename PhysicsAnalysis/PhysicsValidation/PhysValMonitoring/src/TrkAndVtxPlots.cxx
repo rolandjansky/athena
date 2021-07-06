@@ -4,6 +4,8 @@
 
 #include "TrkAndVtxPlots.h"
 
+
+
 using CLHEP::GeV;
 
 namespace PhysVal{
@@ -22,22 +24,23 @@ void TrkAndVtxPlots::initializePlots(){
   mu  = Book1D("mu", "Pileup; mu ;Events", 120, 0., 120);
 }
 
-void TrkAndVtxPlots::fill(const xAOD::Vertex* vtx){
-
-  vtx_x->Fill(vtx->x());
-  vtx_y->Fill(vtx->y());
-  vtx_z->Fill(vtx->z());
-
-}
-
-  void TrkAndVtxPlots::fill(const xAOD::TrackParticle* /*trk*/){
+ void TrkAndVtxPlots::fill(const xAOD::Vertex* vtx,const xAOD::EventInfo* evt){
+    
+   vtx_x->Fill(vtx->x(),evt->beamSpotWeight());
+   vtx_y->Fill(vtx->y(),evt->beamSpotWeight());
+   vtx_z->Fill(vtx->z(),evt->beamSpotWeight());
 
 }
 
-  void TrkAndVtxPlots::fill(unsigned int ntrack, unsigned int nvertex, float pileup){
-  ntrk->Fill(ntrack);
-  nvtx->Fill(nvertex);
-  mu->Fill(pileup);
+  void TrkAndVtxPlots::fill(const xAOD::TrackParticle* /*trk*/, const xAOD::EventInfo* evt){
+   std::cout << "filling TrackAndVertex plots with BS weight: " << evt->beamSpotWeight();
+}
+
+  void TrkAndVtxPlots::fill(unsigned int ntrack, unsigned int nvertex, float pileup,const xAOD::EventInfo* evt){
+
+  ntrk->Fill(ntrack,evt->beamSpotWeight());
+  nvtx->Fill(nvertex,evt->beamSpotWeight());
+  mu->Fill(pileup,evt->beamSpotWeight());
 }
 
 }

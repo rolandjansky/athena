@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 //  BaseTOBoAlg.h
 //  TopoCore
@@ -14,7 +14,7 @@
 #include "L1TopoInterfaces/ParameterSpace.h"
 #include "L1TopoInterfaces/AlgFactory.h"
 #include "L1TopoCommon/StatusCode.h"
-
+#include "L1TopoEvent/GenericTOB.h"
 
 #include <vector>
 #include <string>
@@ -28,7 +28,7 @@ namespace TCS {
 
    class ConfigurableAlg : public TrigConf::TrigConfMessaging {
    protected:
-      enum AlgType { NONE, SORT, DECISION };
+      enum AlgType { NONE, SORT, DECISION, COUNT };
 
    public:
 
@@ -40,6 +40,8 @@ namespace TCS {
 
       // setting the class name
       void setClassName(const std::string & className) { m_className = className; }
+
+      void setLegacyMode(bool isLegacyTopo) {m_isLegacyTopo=isLegacyTopo;}
 
       // accessors
       const std::string & name() const { return m_name; }
@@ -57,6 +59,24 @@ namespace TCS {
       bool isSortingAlg() const { return m_algType == SORT; }
 
       bool isDecisionAlg() const { return m_algType == DECISION; }
+
+      bool isCountingAlg() const { return m_algType == COUNT; }
+
+      bool isLegacyTopo() const { return m_isLegacyTopo; }
+
+      // Kinematic calculation
+      unsigned int calcDeltaPhiBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+      unsigned int calcDeltaEtaBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+      unsigned int calcInvMassBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+      unsigned int calcTMassBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+      unsigned int calcDeltaR2BW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+      unsigned long quadraticSumBW(int i1, int i2);
+      unsigned int calcDeltaPhi(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+      unsigned int calcDeltaEta(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+      unsigned int calcInvMass(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+      unsigned int calcTMass(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+      unsigned int calcDeltaR2(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+
 
       // const access to parameter
       const Parameter & parameter(const std::string & parameterName) const;
@@ -76,8 +96,8 @@ namespace TCS {
        */
       void setL1TopoHistSvc(std::shared_ptr<IL1TopoHistSvc>);
 
-      void bookHist(std::vector<std::string> &regName, const std::string name,const std::string title, const int binx, const float xmin, const float xmax);
-      void bookHist(std::vector<std::string> &regName, const std::string name,const std::string title, const int binx, const float xmin, const float xmax, const int biny, const float ymin, const float ymax);
+      void bookHist(std::vector<std::string> &regName, const std::string& name,const std::string& title, const int binx, const int xmin, const int xmax);
+      void bookHist(std::vector<std::string> &regName, const std::string& name,const std::string& title, const int binx, const int xmin, const int xmax, const int biny, const int ymin, const int ymax);
 
 
    protected:
@@ -97,13 +117,15 @@ namespace TCS {
 
       void fillHist2D(const std::string & histName, double x, double y);
       
+     
    private:
 
       class ConfigurableAlgImpl;
       std::unique_ptr<ConfigurableAlgImpl> m_impl;
 
       void defineParameter(const Parameter &);
-
+      std::string ToString(const int val);
+     
       std::string    m_name {""};
       std::string    m_className {""};
 
@@ -114,6 +136,7 @@ namespace TCS {
 
       AlgType  m_algType; // stores type of alg (Sorting or Decision)
 
+      bool m_isLegacyTopo;
 
    };
 

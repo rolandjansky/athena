@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file AthenaPoolCnvSvc/src/exceptions.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -12,6 +11,7 @@
 
 
 #include "AthenaPoolCnvSvc/exceptions.h"
+#include "CxxUtils/exctrace.h"
 #include "GaudiKernel/System.h"
 #include <sstream>
 
@@ -58,7 +58,7 @@ std::string excUnsupportedVersion_format (const std::type_info& ti,
                                           const Guid& guid)
 {
   std::ostringstream os;
-  os << "AthenaPoolCnvSvc::::ExcUnsupported version: "
+  os << "AthenaPoolCnvSvc::::ExcUnsupportedVersion: "
      << "Unsupported persistent version of "
      << System::typeinfoName(ti)
      << " found; guid: " << guid.toString();
@@ -86,6 +86,67 @@ ExcUnsupportedVersion::ExcUnsupportedVersion (const std::type_info& ti,
 void throwExcUnsupportedVersion (const std::type_info& ti, const Guid& guid)
 {
   throw ExcUnsupportedVersion (ti, guid);
+}
+
+
+//*************************************************************************
+
+
+/// Helper: format exception error string.
+std::string excCaughtException_format (const char* fnname,
+                                       const char* action,
+                                       const std::exception& ex,
+                                       const std::type_info& ti,
+                                       const std::string& key)
+{
+  std::ostringstream os;
+  os << "AthenaPoolCnvSvc::::ExcCaughtException: "
+     << "Caught exception in " << fnname
+     << " while " << action
+     << System::typeinfoName(ti) << "/" << key
+     << ": " << System::typeinfoName(typeid(ex)) << ": " << ex.what();
+  return os.str();
+}
+
+
+/**
+ * @brief Constructor.
+ * @param fnname Name of the function being executed.
+ * @param action What we were doing when we caught the exception.
+ * @param ex The caught exception.
+ * @param ti The class being thinned.
+ * @param key Key of the class being thinned.
+ */
+ExcCaughtException::ExcCaughtException (const char* fnname,
+                                        const char* action,
+                                        const std::exception& ex,
+                                        const std::type_info& ti,
+                                        const std::string& key)
+  : std::runtime_error (excCaughtException_format (fnname, action, ex, ti, key))
+{
+}
+
+
+/**
+ * @brief Throw a AthenaPoolCnvSvc::ExcCaughtException exception.
+ * @param fnname Name of the function being executed.
+ * @param action What we were doing when we caught the exception.
+ * @param ex The caught exception.
+ * @param ti The class being thinned.
+ * @param key Key of the class being thinned.
+ *
+ * Will also print a stack trace if exctrace is enabled.
+ */
+void throwExcCaughtException (const char* fnname,
+                              const char* action,
+                              const std::exception& ex,
+                              const std::type_info& ti,
+                              const std::string& key)
+{
+  std::cout.flush();
+  std::cerr.flush();
+  CxxUtils::exctrace (ex);
+  throw ExcCaughtException (fnname, action, ex, ti, key);
 }
 
 

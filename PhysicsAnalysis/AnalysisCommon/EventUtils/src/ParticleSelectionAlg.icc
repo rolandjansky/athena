@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -9,8 +9,6 @@
 #include "xAODCore/AuxContainerBase.h"
 #include "AthContainers/ConstDataVector.h"
 #include "xAODEventInfo/EventInfo.h"
-#include "xAODTracking/VertexContainer.h"
-#include "xAODTracking/Vertex.h"
 #include "xAODCutFlow/CutBookkeeperContainer.h"
 #include "PATCore/AcceptInfo.h"
 #include "PATCore/AcceptData.h"
@@ -81,6 +79,32 @@ StatusCode ParticleSelectionAlg::selectParticles(const xAOD::IParticleContainer*
     // The default object pass value. As soon as one cut is not passed, then
     // the remainder of the cuts will not even be tried
     bool passEverything = true;
+
+    //------------- for the AsgSelectionTools --------------
+    // Loop over all selection tools
+    ATH_MSG_VERBOSE("Loop over all selection tools");
+    for ( std::size_t toolIdx=0; toolIdx < m_selTools.size(); ++toolIdx ){
+      if (passEverything){
+        ATH_MSG_VERBOSE("Now going to try AsgSelectionTools number " << toolIdx );
+        const asg::AcceptData acceptData = m_selTools[toolIdx]->accept(part);
+        if (!m_doCutFlow){ passEverything &= static_cast<bool>(acceptData); }
+        else {
+          const std::size_t cbkStartIdx = m_selToolIdxOffset[toolIdx];
+          const unsigned int nCuts = acceptData.getNCuts();
+          for ( unsigned int iCut=0; iCut<nCuts; ++iCut ){
+            passEverything &= acceptData.getCutResult(iCut);
+            if (passEverything){
+              const std::size_t currentCBKIdx = cbkStartIdx + iCut;
+              xAOD::CutBookkeeper* cutBK = cutBKCont->at(currentCBKIdx);
+              cutBK->addNAcceptedEvents(1);
+              cutBK->addSumOfEventWeights(eventWeight);
+              cutBK->addSumOfEventWeightsSquared(eventWeight*eventWeight);
+            }
+          }
+        } // Done doing detailed particle cut-flow for this tool
+        ATH_MSG_VERBOSE("AsgSelectionTools number " << toolIdx << " passed/failed: " << passEverything );
+      }
+    }
 
     //------------- for the ExpressionParsing in this algorithm --------------
     ATH_MSG_VERBOSE("Looking at expression parser result: " << passEverything);

@@ -1,11 +1,13 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s):
 #include <MuonMomentumCorrections/MuonCalibrationPeriodTool.h>
 
 #include "AsgDataHandles/ReadHandle.h"
+
+#include <TString.h>
 
 namespace CP {
 

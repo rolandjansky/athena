@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -84,7 +84,7 @@ TBAlgoSequencer::initialize()
 	  acceptedAlgos++;
 	}
       numberOfAlgorithms++;
-      subAlgos++;
+      ++subAlgos;
     }
 
   ////////////////////////
@@ -163,7 +163,7 @@ TBAlgoSequencer::execute()
 	}
       // iterator and counter increments
       algoIndex++;
-      algoCounter++;
+      ++algoCounter;
     }
   // this is the trick - catch it before the framework terminates the job!  
   return StatusCode::SUCCESS;
@@ -216,24 +216,19 @@ TBAlgoSequencer::finalize()
   ATH_MSG_INFO
     ( "-------------------------------------------------------- " );
   
-  std::map<std::string,unsigned int>::iterator 
-    firstReject = m_rejectPattern.begin();
-  std::map<std::string,unsigned int>::iterator
-    firstAccept = m_acceptPattern.begin();
-
-  for ( ; firstReject != m_rejectPattern.end() ; firstReject++ )
+  for (const std::pair<const std::string, unsigned int>& p : m_rejectPattern)
     {
       double percentReject = m_eventCounter > 0
-	? ((double)(*firstReject).second)/((double)m_eventCounter)*100.
+	? ((double)p.second)/((double)m_eventCounter)*100.
 	: 100;
       msg() << MSG::INFO
 	  << "Algorithm ";
       msg().width(20);
       msg() << MSG::INFO
-	  << (*firstReject).first
+	  << p.first
 	  << " rejected "
 	  << std::setw(6)
-	  << (*firstReject).second
+	  << p.second
 	  << " events (";
       msg() << MSG::INFO
 	  << std::setprecision(5)
@@ -247,19 +242,19 @@ TBAlgoSequencer::finalize()
     ( "Accept patterns: " );
   ATH_MSG_INFO
     ( "-------------------------------------------------------- " );
-  for ( ; firstAccept != m_acceptPattern.end() ; firstAccept++ )
+  for (const std::pair<const std::string, unsigned int>& p : m_acceptPattern)
     {
       double percentAccept = m_eventCounter > 0
-	? ((double)(*firstAccept).second)/((double)m_eventCounter)*100.
+	? ((double)p.second)/((double)m_eventCounter)*100.
 	: 100;
       msg() << MSG::INFO
 	  << "Algorithm ";
       msg().width(20);
       msg() << MSG::INFO
-	  << (*firstAccept).first
+	  << p.first
 	  << " accepted "
 	  << std::setw(6)
-	  << (*firstAccept).second
+	  << p.second
 	  << " events (";
       msg().setf(std::ios::fixed);
       msg() << MSG::INFO

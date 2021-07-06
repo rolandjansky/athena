@@ -11,11 +11,12 @@
 
 #include "MuonPrepRawData/TgcPrepDataContainer.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "CxxUtils/checker_macros.h"
 
 namespace Muon 
 {
-  class TgcPrepDataReplicationTool3BCtoAllBC 
-    : virtual public ITgcPrepDataReplicationTool, virtual public AthAlgTool
+  class ATLAS_NOT_THREAD_SAFE TgcPrepDataReplicationTool3BCtoAllBC 
+    : public extends<AthAlgTool, ITgcPrepDataReplicationTool>
   {
     public:
       /** Constructor */
@@ -24,15 +25,9 @@ namespace Muon
       /** Destructor */
       virtual ~TgcPrepDataReplicationTool3BCtoAllBC()=default;
 
-      /** Provide InterfaceID */
-      static const InterfaceID& interfaceID() { return ITgcPrepDataReplicationTool::interfaceID(); };
-
-      /** Query interface */
-      virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIF) override;
-
       virtual StatusCode initialize() override;
-      virtual StatusCode replicate() override;
-      StatusCode convert3BCtoAllBC();
+      virtual StatusCode replicate() const override;
+      StatusCode convert3BCtoAllBC() const;
 
       
     private:

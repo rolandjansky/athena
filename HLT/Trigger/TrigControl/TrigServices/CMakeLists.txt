@@ -10,7 +10,7 @@ find_package( Boost COMPONENTS filesystem thread system )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 find_package( tdaq COMPONENTS omniORB4 omnithread ipc is owl )
-find_package( tdaq-common COMPONENTS CTPfragment eformat eformat_write hltinterface )
+find_package( tdaq-common COMPONENTS CTPfragment eformat eformat_write hltinterface ers )
 find_package( TBB )
 
 # Component(s) in the package:
@@ -22,7 +22,8 @@ atlas_add_component( TrigServices
                      ${TDAQ-COMMON_LIBRARIES} ${TDAQ_LIBRARIES} ${CORAL_LIBRARIES}
                      AthenaBaseComps AthenaInterprocess AthenaKernel AthenaMonitoringKernelLib AthenaPoolUtilities
                      ByteStreamCnvSvcBaseLib ByteStreamData EventInfoUtils GaudiKernel RDBAccessSvcLib StoreGateLib TrigKernel
-                     TrigDataAccessMonitoringLib TrigOutputHandlingLib TrigSteeringEvent TrigSteerMonitorLib xAODEventInfo xAODTrigger )
+                     TrigDataAccessMonitoringLib TrigOutputHandlingLib TrigSteeringEvent TrigSteerMonitorLib xAODEventInfo
+                     xAODTrigger TrigT1Result )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py

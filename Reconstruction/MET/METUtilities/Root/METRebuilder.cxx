@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // METRebuilder.cxx
@@ -536,7 +536,7 @@ namespace met {
         return StatusCode::FAILURE;
       }
 
-      for(const auto& vx : *PV) {
+      for(const auto vx : *PV) {
 	if(vx->vertexType()==VxType::PriVtx)
 
           {pv = vx; break;}

@@ -9,7 +9,6 @@
    and information on the match quality
 	 
    @author Alan.Poppleton@cern.ch
-  (c) ATLAS Combined Muon software
 */
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -67,7 +66,7 @@ public:
 	       const Trk::Track*		extrapolatedTrack,
 	       const Trk::Track*		indetTrack,
 	       const Trk::Track*		spectrometerTrack,
-	       FieldIntegral			fieldIntegral			= FieldIntegral(),
+	       const FieldIntegral&			fieldIntegral			= FieldIntegral(),
 	       double				innerMatchChi2			= 999999.,
 	       int				innerMatchDoF			= 0,
 	       double				innerMatchProb			= 0.,
@@ -75,15 +74,15 @@ public:
 	       double				outerMatchChi2			= 999999.,
 	       int				outerMatchDoF			= 0,
 	       double				outerMatchProb			= 0.,
-	       ScatteringAngleSignificance	scatAngleSignificance = ScatteringAngleSignificance());
+	       const ScatteringAngleSignificance&	scatAngleSignificance = ScatteringAngleSignificance());
 
     // constructor for vertex associated track
     MuonMatch (const Trk::Track*		combinedTrack,
 	       const TrackParticle*		indetParticle,
 	       const TrackParticle*		spectrometerParticle,
 	       const Trk::RecVertex*		vertex,
-	       FieldIntegral			fieldIntegral = FieldIntegral(),
-	       ScatteringAngleSignificance	scatAngleSignificance = ScatteringAngleSignificance());
+	       const FieldIntegral&			fieldIntegral = FieldIntegral(),
+	       const ScatteringAngleSignificance&	scatAngleSignificance = ScatteringAngleSignificance());
        
     // "copy" constructor with steal of combined track 
     MuonMatch (MuonMatch&);
@@ -107,13 +106,11 @@ public:
     // set and steal EDM methods
     void			extrapolatedRefit (const Trk::Track* refittedTrack);
     void			extrapolatedTrack (const Trk::Track* extrapolatedTrack);
-    Trk::Track*			stealCombinedTrack (void);
-    Trk::Track*			stealExtrapolatedRefit (void);
     
     // other attributes (set and accessor methods)
     bool			bestMatch (void) const;
     void			bestMatch (bool);
-    void			fieldIntegral (FieldIntegral value);
+    void			fieldIntegral (const FieldIntegral& value);
     FieldIntegral		fieldIntegral (void) const;
     void			innerMatch (double matchChi2, int matchDoF, double matchProb);
     double			innerMatchChi2 (void) const;
@@ -128,7 +125,7 @@ public:
     double			outerMatchChi2 (void) const;
     int				outerMatchDoF (void) const;
     double			outerMatchProb (void) const;
-    void			scatteringAngleSignificance (ScatteringAngleSignificance value);
+    void			scatteringAngleSignificance (const ScatteringAngleSignificance& value);
     ScatteringAngleSignificance	scatteringAngleSignificance (void) const;
      
     // deprecated

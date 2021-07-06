@@ -12,45 +12,38 @@
 #include <string>
 
 // Athena/Gaudi include(s):
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "xAODForwardCnv/IMBTSModuleCnvTool.h"
+#include "xAODForward/MBTSModuleContainer.h"
 
-namespace xAODMaker {
+namespace xAODMaker
+{
 
-   /**
-    * update for mbts
+  /**
     *  @short Algorithm creating xAOD::MBTSModules from TileCellContainer
     *
     *         This algorithm can be used to translate the TileCells coming
     *         from an AOD, and create xAOD::MBTSModule objects out of them
-    *         for an output xAOD.
-    *
-    *
+    *         for an output xAOD. Technically all it does is to call the converting tool.
     */
-   class MBTSModuleCnvAlg : public AthAlgorithm {
+  class MBTSModuleCnvAlg : public AthReentrantAlgorithm
+  {
 
-   public:
-     ///@brief Regular algorithm constructor
-     MBTSModuleCnvAlg( const std::string& name, ISvcLocator* svcLoc );
-     
-      ///@brief Function initialising the algorithm
-     virtual StatusCode initialize();
-     ///@brief Function executing the algorithm
-     virtual StatusCode execute();
-     
-   private:
+  public:
+    MBTSModuleCnvAlg(const std::string &name, ISvcLocator *svcLoc);
 
-     ///@brief  The key of the input MBTSModuleContainer
-     std::string m_aodContainerName;
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute(const EventContext &ctx) const override;
 
-     ///@brief The key for the output xAOD::MBTSModuleContainer
-     std::string m_xaodContainerName;
+  private:
+    SG::ReadHandleKey<TileCellContainer> m_inputKey{this, "MBTSContainerKey", "MBTSContainer"};
 
-     /** @brief Handle to the converter tool */
-     ToolHandle<IMBTSModuleCnvTool>                 m_cnvTool;
+    SG::WriteHandleKey<xAOD::MBTSModuleContainer> m_outputKey{this, "AODContainerKey", "MBTSModules"};
 
+    /** @brief Handle to the converter tool */
+    ToolHandle<IMBTSModuleCnvTool> m_cnvTool{this, "CnvTool", "xAODMaker::MBTSModuleCnvTool/MBTSModuleCnvTool", "The converter tool for MBTSModules"};
 
   }; // class MBTSModuleCnvAlg
 

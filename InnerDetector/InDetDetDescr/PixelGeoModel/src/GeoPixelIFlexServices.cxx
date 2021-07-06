@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -27,10 +27,10 @@ GeoPixelIFlexServices::GeoPixelIFlexServices(InDetDD::PixelDetectorManager* ddmg
                                              int iSection)
   : GeoVPixelFactory(ddmgr, mgr),
   m_section(iSection),
-  m_supportPhysA(0),
-  m_supportPhysC(0),
-  m_xformSupportA(0),
-  m_xformSupportC(0)
+  m_supportPhysA(nullptr),
+  m_supportPhysC(nullptr),
+  m_xformSupportA(nullptr),
+  m_xformSupportC(nullptr)
 {
 }
 
@@ -48,7 +48,7 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
   int nSectors = m_gmt_mgr->NPixelSectors();
 
   // check if sectors are properly defined
-  if(nSectors==0) return 0;
+  if(nSectors==0) return nullptr;
   double angle=360./(double)nSectors*Gaudi::Units::deg;
 
   double zmin=0., zmax=0.;
@@ -146,8 +146,8 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
   cpPhysVolC->add(cp_service_inner_xform);
   cpPhysVolC->add(cp_service_inner_logPVC);
 
-  GeoLogVol* flex_logVolA = 0;
-  GeoLogVol* flex_logVolC = 0;
+  GeoLogVol* flex_logVolA = nullptr;
+  GeoLogVol* flex_logVolC = nullptr;
 
   double flex_angle = -15.001*Gaudi::Units::deg;
   if(m_gmt_mgr->PixelStaveAxe()==1)   
@@ -178,7 +178,7 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
     GeoBox * flex_shapeA = new GeoBox((flex_rmax-flex_rmin)*.5, flex_width*.5, halfLengthA);
     GeoBox * flex_shapeC = new GeoBox((flex_rmax-flex_rmin)*.5, flex_width*.5, halfLengthC);
     const GeoMaterial* flex_material = m_mat_mgr->getMaterial(flexMatName);
-    if(flex_material==0)
+    if(flex_material==nullptr)
     {
       m_gmt_mgr->msg(MSG::ERROR)<<"-> error while reading material "<<flexMatName<<__FILE__<< ":"<< __LINE__<<endmsg;
       std::abort();
@@ -206,7 +206,7 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
     m_gmt_mgr->msg(MSG::DEBUG)<<"IFlex material : "<<m_section<<" "<<IflexMatName<<endmsg;
     const GeoMaterial* Iflex_material = m_mat_mgr->getMaterial(IflexMatName);
     
-    if(Iflex_material==0)
+    if(Iflex_material==nullptr)
     {
       m_gmt_mgr->msg(MSG::ERROR)<<"-> error while reading material "<<IflexMatName<<__FILE__<< ":"<< __LINE__<<endmsg;
       std::abort();
@@ -291,5 +291,5 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
   //  std::cout<<"Section final C  "<<m_section<<" - "<<middleC-halfLengthC<<" "<<middleC+halfLengthC<<"    "<<middleC<<std::endl;
   //  std::cout<<"Section ---"<<std::endl;
 
-  return 0;
+  return nullptr;
 }

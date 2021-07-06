@@ -55,18 +55,16 @@ include( "TileConditions/TileConditions_jobOptions.py" )
 include( "LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 
 #=============================================================
-# Add CaloNoiseToolDefault
+# Add CaloNoise
 #=============================================================
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theCaloNoiseTool = CaloNoiseToolDefault()
-ToolSvc += theCaloNoiseTool
+from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+CaloNoiseCondAlg ('totalNoise')
 
 #============================================================
 # Add TileMuId2DBAlg
 #============================================================
 from TileCalibAlgs.TileCalibAlgsConf import TileMuId2DBAlg
 theTileMuId2DBAlg = TileMuId2DBAlg("TileMuId2DBAlg")
-theTileMuId2DBAlg.noiseTool = theCaloNoiseTool
 topSequence += theTileMuId2DBAlg
 
 #============================================================

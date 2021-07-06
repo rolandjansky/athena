@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 inline Trk::TrackStateOnSurface*
@@ -11,31 +11,31 @@ Trk::TrackStateOnSurface::clone() const
 inline const Trk::FitQualityOnSurface*
 Trk::TrackStateOnSurface::fitQualityOnSurface() const
 {
-  return m_fitQualityOnSurface;
+  return m_fitQualityOnSurface.get();
 }
 
 inline const Trk::TrackParameters*
 Trk::TrackStateOnSurface::trackParameters() const
 {
-  return m_trackParameters;
+  return m_trackParameters.get();
 }
 
 inline const Trk::MeasurementBase*
 Trk::TrackStateOnSurface::measurementOnTrack() const
 {
-  return m_measurementOnTrack;
+  return m_measurementOnTrack.get();
 }
 
 inline const Trk::MaterialEffectsBase*
 Trk::TrackStateOnSurface::materialEffectsOnTrack() const
 {
-  return m_materialEffectsOnTrack;
+  return m_materialEffectsOnTrack.get();
 }
 
 inline const Trk::AlignmentEffectsOnTrack*
 Trk::TrackStateOnSurface::alignmentEffectsOnTrack() const
 {
-  return m_alignmentEffectsOnTrack;
+  return m_alignmentEffectsOnTrack.get();
 }
 
 inline bool
@@ -52,7 +52,6 @@ Trk::TrackStateOnSurface::variety() const
 {
   return Trk::TrackStateOnSurface::SingleComponent;
 }
-
 
 inline void
 Trk::TrackStateOnSurface::setFlags()
@@ -74,7 +73,8 @@ Trk::TrackStateOnSurface::setFlags()
   }
 }
 
-inline const std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>&
+inline const std::bitset<
+  Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>&
 Trk::TrackStateOnSurface::types() const
 {
   return m_typeFlags;

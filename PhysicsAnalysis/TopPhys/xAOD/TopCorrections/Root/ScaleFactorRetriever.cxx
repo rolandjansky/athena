@@ -25,16 +25,20 @@ namespace top {
     declareProperty("config", m_config);
   }
 
+  size_t ScaleFactorRetriever::s_warn_counter = 0;
+
   StatusCode ScaleFactorRetriever::initialize() {
     ATH_MSG_INFO("Initialising " << this->name());
 
     std::shared_ptr<std::vector<std::string> > selectors = m_config->allSelectionNames();
 
     for (std::string selPtr : *selectors) {
-      std::vector<std::string> muonTrig_Tight = m_config->muonTriggers_Tight(selPtr);
-      std::vector<std::string> electronTrig_Tight = m_config->electronTriggers_Tight(selPtr);
-      std::vector<std::string> muonTrig_Loose = m_config->muonTriggers_Loose(selPtr);
-      std::vector<std::string> electronTrig_Loose = m_config->electronTriggers_Loose(selPtr);
+      std::vector<std::pair<std::string, int> > muonTrig_Tight = m_config->muonTriggers_Tight(selPtr);
+      std::vector<std::pair<std::string, int> > electronTrig_Tight = m_config->electronTriggers_Tight(selPtr);
+      std::vector<std::pair<std::string, int> > photonTrig_Tight = m_config->photonTriggers_Tight(selPtr);
+      std::vector<std::pair<std::string, int> > muonTrig_Loose = m_config->muonTriggers_Loose(selPtr);
+      std::vector<std::pair<std::string, int> > electronTrig_Loose = m_config->electronTriggers_Loose(selPtr);
+      std::vector<std::pair<std::string, int> > photonTrig_Loose = m_config->photonTriggers_Loose(selPtr);
 
       for (auto trig : muonTrig_Tight)
         m_muonTriggers_Tight.push_back(trig);
@@ -45,6 +49,11 @@ namespace top {
         m_electronTriggers_Tight.push_back(trig);
       for (auto trig : electronTrig_Loose)
         m_electronTriggers_Loose.push_back(trig);
+      
+      for (auto trig : photonTrig_Tight)
+        m_photonTriggers_Tight.push_back(trig);
+      for (auto trig : photonTrig_Loose)
+        m_photonTriggers_Loose.push_back(trig);
     }
 
     return StatusCode::SUCCESS;
@@ -89,6 +98,7 @@ namespace top {
     top::check(eventInfo, "Failed to retrieve SystematicEvent");
     const bool electronTriggerIsEmpty = event.m_isLoose ? m_electronTriggers_Loose.empty() : m_electronTriggers_Tight.empty();
     const bool muonTriggerIsEmpty     = event.m_isLoose ? m_muonTriggers_Loose.empty()     : m_muonTriggers_Tight.empty();
+    const bool photonTriggerIsEmpty   = event.m_isLoose ? m_photonTriggers_Loose.empty()   : m_photonTriggers_Tight.empty();
 
     // Create a hard-coded map linking top::topSFSyst <-> EventInfo decoration
     switch (SFSyst) {
@@ -140,6 +150,22 @@ namespace top {
       }
       break;
 
+    case top::topSFSyst::PHOTON_EFF_TRIGGER_UNCERTAINTY_UP:
+      if (photonTriggerIsEmpty) {
+        sf = 1;
+      } else {
+        sf = eventInfo->auxdataConst<float>(prefix + "PH_EFF_TRIGGER_Uncertainty__1up");
+      }
+      break;
+
+    case top::topSFSyst::PHOTON_EFF_TRIGGER_UNCERTAINTY_DOWN:
+      if (photonTriggerIsEmpty) {
+        sf = 1;
+      } else {
+        sf = eventInfo->auxdataConst<float>(prefix + "PH_EFF_TRIGGER_Uncertainty__1down");
+      }
+      break;
+
     default:
       // Nominal weight
       sf = eventInfo->auxdataConst<float>(prefix);
@@ -150,19 +176,39 @@ namespace top {
 
   float ScaleFactorRetriever::triggerSF(const top::Event& event,
                                         const top::topSFSyst SFSyst) const {
+
+    // if it has photon triggers return 1;
+    if (event.m_isLoose) {
+      if (!m_photonTriggers_Loose.empty()) return 1.;
+    } else {
+      if (!m_photonTriggers_Tight.empty()) return 1.;
+    }
+
     return(m_preferGlobalTriggerSF &&
            m_config->useGlobalTrigger() ? globalTriggerSF(event, SFSyst) : oldTriggerSF(event, SFSyst));
   }
 
-  float ScaleFactorRetriever::oldTriggerSF(const top::Event& event,
-                                           const top::topSFSyst SFSyst) const {
-    std::string electronID = m_config->electronID();
-    if (event.m_isLoose) {
-      electronID = m_config->electronIDLoose();
+  float ScaleFactorRetriever::triggerSFPhoton(const top::Event& event,
+                                              const top::topSFSyst SFSyst) const {
+
+    if (!m_config->useGlobalTrigger()) {
+      if (s_warn_counter < 5) {
+        ATH_MSG_WARNING("Photon trigger SFs are currently supported only for the global triggers");
+        ++s_warn_counter;
+      }
+      return 1.;
     }
 
+    return globalTriggerSF(event, SFSyst);
+  }
+
+  float ScaleFactorRetriever::oldTriggerSF(const top::Event& event,
+                                           const top::topSFSyst SFSyst) const {
+    bool retrieveLoose = (event.m_isLoose && !m_config->applyTightSFsInLooseTree());
+    std::string electronID = m_config->electronID();
     std::string muonID = m_config->muonQuality();
-    if (event.m_isLoose) {
+    if (retrieveLoose) {
+      electronID = m_config->electronIDLoose();
       muonID = m_config->muonQualityLoose();
     }
 
@@ -172,28 +218,28 @@ namespace top {
     for (auto elPtr : event.m_electrons) {
       bool trigMatch = false;
 
-      for (const auto& trigger : event.m_isLoose ? m_electronTriggers_Loose : m_electronTriggers_Tight) {
-        std::string trig = "TRIGMATCH_" + trigger;
+      for (const auto& trigger : retrieveLoose ? m_electronTriggers_Loose : m_electronTriggers_Tight) {
+        std::string trig = "TRIGMATCH_" + trigger.first;
         if (elPtr->isAvailable<char>(trig)) {
           if (elPtr->auxdataConst<char>(trig) == 1) trigMatch = true;
         }
       }
 
-      if (trigMatch) triggerSFvec.push_back(electronSF_Trigger(*elPtr, electronID, SFSyst, event.m_isLoose));
+      if (trigMatch) triggerSFvec.push_back(electronSF_Trigger(*elPtr, electronID, SFSyst, retrieveLoose));
     }
 
     // Loop over muons
     for (auto muPtr : event.m_muons) {
       bool trigMatch = false;
 
-      for (const auto& trigger : event.m_isLoose ? m_muonTriggers_Loose : m_muonTriggers_Tight) {
-        std::string trig = "TRIGMATCH_" + trigger;
+      for (const auto& trigger : retrieveLoose ? m_muonTriggers_Loose : m_muonTriggers_Tight) {
+        std::string trig = "TRIGMATCH_" + trigger.first;
         if (muPtr->isAvailable<char>(trig)) {
           if (muPtr->auxdataConst<char>(trig) == 1) trigMatch = true;
         }
       }
 
-      if (trigMatch) triggerSFvec.push_back(muonSF_Trigger(*muPtr, muonID, SFSyst, event.m_isLoose));
+      if (trigMatch) triggerSFvec.push_back(muonSF_Trigger(*muPtr, muonID, SFSyst, retrieveLoose));
     }
 
     // for the cutflow histograms, in case the lepton triggers have not been checked yet
@@ -209,6 +255,7 @@ namespace top {
   std::vector<float> ScaleFactorRetriever::electronSFSystVariationVector(const top::Event& event,
                                                                          const top::topSFComp SFComp, int var) const {
     std::vector<float> sf;
+
     if (abs(var) != 1) {
       ATH_MSG_ERROR("ScaleFactorRetriever::electronSFSystVariationVector must be called with var=+1 (up) or -1 (down)");
       return sf;
@@ -219,8 +266,9 @@ namespace top {
       return sf;
     }
 
+    bool retrieveLoose = (event.m_isLoose && !m_config->applyTightSFsInLooseTree());
     std::string decorationName = "EL_SF_";
-    if(event.m_isLoose && !m_config->applyTightSFsInLooseTree() && SFComp != top::topSFComp::RECO) decorationName = "EL_LOOSE_SF_";
+    if(retrieveLoose && SFComp != top::topSFComp::RECO) decorationName = "EL_LOOSE_SF_";
     std::string electronID = "";
     std::string electronIso = "";
 
@@ -228,7 +276,7 @@ namespace top {
     if (SFComp == top::topSFComp::ID) {
       decorationName += "ID_";
       electronID = m_config->electronID();
-      if (event.m_isLoose && !m_config->applyTightSFsInLooseTree()) {
+      if (retrieveLoose) {
         electronID = m_config->electronIDLoose();
       }
       decorationName += electronID;
@@ -237,7 +285,7 @@ namespace top {
     if (SFComp == top::topSFComp::ISOLATION) {
       decorationName += "Iso_";
       electronIso = m_config->electronIsolationSF();
-      if (event.m_isLoose && !m_config->applyTightSFsInLooseTree()) {
+      if (retrieveLoose) {
         electronIso = m_config->electronIsolationSFLoose();
       }
       decorationName += electronIso;
@@ -255,14 +303,13 @@ namespace top {
         ATH_MSG_ERROR(
           "ScaleFactorRetriever::electronSFSystVariationVector error in accessing decoration " << decorationName);
       }
-
       if (sf.size() == 0) sf = std::vector<float>(sf_aux.size(), leptonSF(event, top::topSFSyst::nominal));
       if (sf.size() != sf_aux.size()) ATH_MSG_ERROR(
           "ScaleFactorRetriever::electronSFSystVariationVector error in size of vector of electron SFs");
       double oldSF = 1.;
-      if (SFComp == top::topSFComp::RECO) oldSF = electronSF_Reco(*elPtr, top::topSFSyst::nominal,event.m_isLoose);
-      if (SFComp == top::topSFComp::ID) oldSF = electronSF_ID(*elPtr, electronID, top::topSFSyst::nominal,event.m_isLoose);
-      if (SFComp == top::topSFComp::ISOLATION) oldSF = electronSF_Isol(*elPtr, electronIso, top::topSFSyst::nominal,event.m_isLoose);
+      if (SFComp == top::topSFComp::RECO) oldSF = electronSF_Reco(*elPtr, top::topSFSyst::nominal, retrieveLoose);
+      if (SFComp == top::topSFComp::ID) oldSF = electronSF_ID(*elPtr, electronID, top::topSFSyst::nominal, retrieveLoose);
+      if (SFComp == top::topSFComp::ISOLATION) oldSF = electronSF_Isol(*elPtr, electronIso, top::topSFSyst::nominal, retrieveLoose);
 
       for (unsigned int i = 0; i < sf.size(); i++) {
         sf[i] *= (sf_aux[i] / oldSF);
@@ -278,12 +325,13 @@ namespace top {
                                          const top::topSFComp SFComp) const {
     float sf(1.);
 
+    // determine if we should retrieve loose or tight SFs
+    bool retrieveLoose = (event.m_isLoose && !m_config->applyTightSFsInLooseTree());
+
     std::string electronID = m_config->electronID();
-    if (event.m_isLoose && !m_config->applyTightSFsInLooseTree()) {
-      electronID = m_config->electronIDLoose();
-    }
     std::string electronIso = m_config->electronIsolationSF();
-    if (event.m_isLoose && !m_config->applyTightSFsInLooseTree()) {
+    if (retrieveLoose) {
+      electronID = m_config->electronIDLoose();
       electronIso = m_config->electronIsolationSFLoose();
     }
 
@@ -299,11 +347,14 @@ namespace top {
           !elPtr->auxdataConst<char>("passPreORSelection")) continue; // in case one want the tight SFs in the loose
                                                                       // tree, need to only take the tight leptons
 
-      reco *= electronSF_Reco(*elPtr, SFSyst,event.m_isLoose);
-      id *= electronSF_ID(*elPtr, electronID, SFSyst,event.m_isLoose);
-      isol *= electronSF_Isol(*elPtr, electronIso, SFSyst,event.m_isLoose);
-      chargeid *= electronSF_ChargeID(*elPtr, electronID, electronIso, SFSyst,event.m_isLoose);
-      chargemisid *= electronSF_ChargeMisID(*elPtr, electronID, electronIso, SFSyst,event.m_isLoose);
+      reco *= electronSF_Reco(*elPtr, SFSyst, retrieveLoose);
+      id *= electronSF_ID(*elPtr, electronID, SFSyst, retrieveLoose);
+      isol *= electronSF_Isol(*elPtr, electronIso, SFSyst, retrieveLoose);
+      chargeid *= electronSF_ChargeID(*elPtr, electronID, electronIso, SFSyst, retrieveLoose);
+      // Charge MisID is not supported for PLVTight/Loose, we already printed a warning message in TopEgammaCPTools
+      if (electronIso != "PLVTight" && electronIso != "PLVLoose") {
+	chargemisid *= electronSF_ChargeMisID(*elPtr, electronID, electronIso, SFSyst, retrieveLoose);
+      }
     }
 
     sf = reco * id * isol; // *chargeid*chargemisid; // let the charge id scale factors out until further tested by
@@ -325,8 +376,11 @@ namespace top {
                                             const top::topSFComp SFComp) const {
     float sf(1.);
 
+    // determine if we should retrieve loose or tight SFs
+    bool retrieveLoose = (event.m_isLoose && !m_config->applyTightSFsInLooseTree());
+
     std::string fwdElectronID = m_config->fwdElectronID();
-    if (event.m_isLoose) {
+    if (retrieveLoose) {
       fwdElectronID = m_config->fwdElectronIDLoose();
     }
 
@@ -339,7 +393,7 @@ namespace top {
     // Loop over electrons
     for (auto elPtr : event.m_fwdElectrons) {
       //currently on ID SFs are supported for fwd electrons
-      id *= fwdElectronSF_ID(*elPtr, fwdElectronID, SFSyst, event.m_isLoose);
+      id *= fwdElectronSF_ID(*elPtr, fwdElectronID, SFSyst, retrieveLoose);
     }
 
     sf = reco * id * isol;
@@ -356,24 +410,28 @@ namespace top {
 
   float ScaleFactorRetriever::electronSF_Trigger(const xAOD::Electron& x,
                                                  const top::topSFSyst SFSyst,
-                                                 bool isLoose) const {
-    return electronSF_Trigger(x, (isLoose ? m_config->electronIDLoose() : m_config->electronID()), SFSyst, isLoose);
+                                                 bool useLooseDef) const {
+    return electronSF_Trigger(x,
+        (useLooseDef ? m_config->electronIDLoose() : m_config->electronID()),
+        SFSyst, useLooseDef);
   }
 
   float ScaleFactorRetriever::electronEff_Trigger(const xAOD::Electron& x,
                                                   const top::topSFSyst SFSyst,
-                                                  bool isLoose) const {
-    return electronEff_Trigger(x, (isLoose ? m_config->electronIDLoose() : m_config->electronID()), SFSyst, isLoose);
+                                                  bool useLooseDef) const {
+    return electronEff_Trigger(x,
+        (useLooseDef ? m_config->electronIDLoose() : m_config->electronID()),
+        SFSyst, useLooseDef);
   }
 
   float ScaleFactorRetriever::electronSF_Trigger(const xAOD::Electron& x,
                                                  const std::string& id,
                                                  const top::topSFSyst SFSyst,
-                                                 bool isLoose) const {
+                                                 bool useLooseDef) const {
     float sf(1.);
     
     std::string prefix="EL";
-    if(isLoose) prefix+="_LOOSE";
+    if (useLooseDef) prefix+="_LOOSE";
 
     if (x.isAvailable<float>(prefix+"_SF_Trigger_" + id)) {
       sf = x.auxdataConst<float>(prefix+"_SF_Trigger_" + id);
@@ -397,11 +455,11 @@ namespace top {
   float ScaleFactorRetriever::electronEff_Trigger(const xAOD::Electron& x,
                                                   const std::string& id,
                                                   const top::topSFSyst SFSyst,
-                                                  bool isLoose) const {
+                                                  bool useLooseDef) const {
     float eff(1.);
     
     std::string prefix="EL";
-    if(isLoose) prefix+="_LOOSE";
+    if (useLooseDef) prefix+="_LOOSE";
 
     if (x.isAvailable<float>(prefix+"_EFF_Trigger_" + id)) {
       eff = x.auxdataConst<float>(prefix+"_EFF_Trigger_" + id);
@@ -424,11 +482,11 @@ namespace top {
 
   float ScaleFactorRetriever::electronSF_Reco(const xAOD::Electron& x,
                                               const top::topSFSyst SFSyst,
-                                              bool isLoose) const {
+                                              bool useLooseDef) const {
     float sf(1.);
     
     std::string prefix="EL";
-    if(isLoose) prefix+="_LOOSE";
+    if(useLooseDef) prefix+="_LOOSE";
 
     if (x.isAvailable<float>(prefix+"_SF_Reco")) {
       sf = x.auxdataConst<float>(prefix+"_SF_Reco");
@@ -451,24 +509,28 @@ namespace top {
 
   float ScaleFactorRetriever::electronSF_ID(const xAOD::Electron& x,
                                             const top::topSFSyst SFSyst,
-                                            bool isLoose) const {
-    return electronSF_ID(x, (isLoose ? m_config->electronIDLoose() : m_config->electronID()), SFSyst, isLoose);
+                                            bool useLooseDef) const {
+    return electronSF_ID(x,
+        (useLooseDef ? m_config->electronIDLoose() : m_config->electronID()),
+        SFSyst, useLooseDef);
   }
 
   float ScaleFactorRetriever::fwdElectronSF_ID(const xAOD::Electron& x,
                                                const top::topSFSyst SFSyst,
-                                               bool isLoose) const {
-    return fwdElectronSF_ID(x, (isLoose ? m_config->fwdElectronIDLoose() : m_config->fwdElectronID()), SFSyst, isLoose);
+                                               bool useLooseDef) const {
+    return fwdElectronSF_ID(x,
+        (useLooseDef ? m_config->fwdElectronIDLoose() : m_config->fwdElectronID()),
+        SFSyst, useLooseDef);
   }
 
   float ScaleFactorRetriever::electronSF_ID(const xAOD::Electron& x,
                                             const std::string& id,
                                             const top::topSFSyst SFSyst,
-                                            bool isLoose) const {
+                                            bool useLooseDef) const {
     float sf(1.);
     
     std::string prefix="EL";
-    if(isLoose) prefix+="_LOOSE";
+    if(useLooseDef) prefix+="_LOOSE";
 
     if (x.isAvailable<float>(prefix+"_SF_ID_" + id)) {
       sf = x.auxdataConst<float>(prefix+"_SF_ID_" + id);
@@ -492,11 +554,11 @@ namespace top {
   float ScaleFactorRetriever::fwdElectronSF_ID(const xAOD::Electron& x,
                                                const std::string& id,
                                                const top::topSFSyst SFSyst,
-                                               bool isLoose) const {
+                                               bool useLooseDef) const {
     float sf(1.);
     
     std::string prefix="FWDEL";
-    if(isLoose) prefix+="_LOOSE";
+    if (useLooseDef) prefix+="_LOOSE";
 
     if (x.isAvailable<float>(prefix+"_SF_ID_" + id)) {
       sf = x.auxdataConst<float>(prefix+"_SF_ID_" + id);
@@ -519,19 +581,20 @@ namespace top {
 
   float ScaleFactorRetriever::electronSF_Isol(const xAOD::Electron& x,
                                               const top::topSFSyst SFSyst,
-                                              bool isLoose) const {
-    return electronSF_Isol(x, (isLoose ? m_config->electronIsolationSFLoose() : m_config->electronIsolationSF()),
-                           SFSyst, isLoose);
+                                              bool useLooseDef) const {
+    return electronSF_Isol(x,
+        (useLooseDef ? m_config->electronIsolationSFLoose() : m_config->electronIsolationSF()),
+        SFSyst, useLooseDef);
   }
 
   float ScaleFactorRetriever::electronSF_Isol(const xAOD::Electron& x,
                                               const std::string& iso,
                                               const top::topSFSyst SFSyst,
-                                              bool isLoose) const {
+                                              bool useLooseDef) const {
     float sf(1.);
     
     std::string prefix="EL";
-    if(isLoose) prefix+="_LOOSE";
+    if (useLooseDef) prefix+="_LOOSE";
 
     if (x.isAvailable<float>(prefix+"_SF_Iso_" + iso)) {
       sf = x.auxdataConst<float>(prefix+"_SF_Iso_" + iso);
@@ -555,19 +618,21 @@ namespace top {
 
   float ScaleFactorRetriever::electronSF_ChargeID(const xAOD::Electron& x,
                                                   const top::topSFSyst SFSyst,
-                                                  bool isLoose) const {
-    return electronSF_ChargeID(x, (isLoose ? m_config->electronIDLoose() : m_config->electronID()),
-                               (isLoose ? m_config->electronIsolationLoose() : m_config->electronIsolation()), SFSyst, isLoose);
+                                                  bool useLooseDef) const {
+    return electronSF_ChargeID(x,
+        (useLooseDef ? m_config->electronIDLoose() : m_config->electronID()),
+        (useLooseDef ? m_config->electronIsolationLoose() : m_config->electronIsolation()),
+        SFSyst, useLooseDef);
   }
 
   float ScaleFactorRetriever::electronSF_ChargeID(const xAOD::Electron& x,
                                                   const std::string& id, const std::string& iso,
                                                   const top::topSFSyst SFSyst,
-                                                  bool isLoose) const {
+                                                  bool useLooseDef) const {
     float sf(1.);
     
     std::string prefix="EL";
-    if(isLoose) prefix+="_LOOSE";
+    if (useLooseDef) prefix+="_LOOSE";
 
     if (x.isAvailable<float>(prefix+"_SF_ChargeID_" + id + "_" + iso)) {
       sf = x.auxdataConst<float>(prefix+"_SF_ChargeID_" + id + "_" + iso);
@@ -589,20 +654,21 @@ namespace top {
 
   float ScaleFactorRetriever::electronSF_ChargeMisID(const xAOD::Electron& x,
                                                      const top::topSFSyst SFSyst,
-                                                     bool isLoose) const {
-    return electronSF_ChargeMisID(x, (isLoose ? m_config->electronIDLoose() : m_config->electronID()),
-                                  (isLoose ? m_config->electronIsolationLoose() : m_config->electronIsolation()),
-                                  SFSyst, isLoose);
+                                                     bool useLooseDef) const {
+    return electronSF_ChargeMisID(x,
+        (useLooseDef ? m_config->electronIDLoose() : m_config->electronID()),
+        (useLooseDef ? m_config->electronIsolationLoose() : m_config->electronIsolation()),
+        SFSyst, useLooseDef);
   }
 
   float ScaleFactorRetriever::electronSF_ChargeMisID(const xAOD::Electron& x,
                                                      const std::string& id, const std::string& iso,
                                                      const top::topSFSyst SFSyst,
-                                                     bool isLoose) const {
+                                                     bool useLooseDef) const {
     float sf(1.);
     
     std::string prefix="EL";
-    if(isLoose) prefix+="_LOOSE";
+    if (useLooseDef) prefix+="_LOOSE";
 
     if (x.isAvailable<float>(prefix+"_SF_ChargeMisID_" + id + "_" + iso)) {
       sf = x.auxdataConst<float>(prefix+"_SF_ChargeMisID_" + id + "_" + iso);
@@ -641,10 +707,13 @@ namespace top {
                                      const top::topSFComp SFComp) const {
     float sf(1.);
 
+    // determine if we should retrieve loose or tight SFs
+    bool retrieveLoose = (event.m_isLoose && !m_config->applyTightSFsInLooseTree());
+
     std::string muonID = m_config->muonQuality();
     std::string muonIso = m_config->muonIsolationSF();
 
-    if (event.m_isLoose && !m_config->applyTightSFsInLooseTree()) {
+    if (retrieveLoose) {
       muonID = m_config->muonQualityLoose();
       muonIso = m_config->muonIsolationSFLoose();
     }
@@ -660,8 +729,8 @@ namespace top {
           !muPtr->auxdataConst<char>("passPreORSelection")) continue; // in case one want the tight SFs in the loose
                                                                       // tree, need to only take the tight leptons
 
-      id *= muonSF_ID(*muPtr, muonID, SFSyst, event.m_isLoose);
-      isol *= muonSF_Isol(*muPtr, muonIso, SFSyst, event.m_isLoose);
+      id *= muonSF_ID(*muPtr, muonID, SFSyst, retrieveLoose);
+      isol *= muonSF_Isol(*muPtr, muonIso, SFSyst, retrieveLoose);
 
       if (m_config->applyTTVACut())                                       // if not using TTVA cut, leave SF set to 1.0
         TTVA *= muonSF_TTVA(*muPtr, SFSyst);
@@ -680,18 +749,20 @@ namespace top {
 
   float ScaleFactorRetriever::muonSF_Trigger(const xAOD::Muon& x,
                                              const top::topSFSyst SFSyst,
-                                             bool isLoose) const {
-    return muonSF_Trigger(x, (isLoose ? m_config->muonQualityLoose() : m_config->muonQuality()), SFSyst, isLoose);
+                                             bool useLooseDef) const {
+    return muonSF_Trigger(x,
+        (useLooseDef ? m_config->muonQualityLoose() : m_config->muonQuality()),
+        SFSyst, useLooseDef);
   }
 
   float ScaleFactorRetriever::muonSF_Trigger(const xAOD::Muon& x,
                                              const std::string& id,
                                              const top::topSFSyst SFSyst,
-                                             bool isLoose) const {
+                                             bool useLooseDef) const {
     float sf(1.);
     
     std::string prefix="MU";
-    if(isLoose) prefix+="_LOOSE";
+    if(useLooseDef) prefix+="_LOOSE";
 
     if (x.isAvailable<float>(prefix+"_SF_Trigger_" + id)) {
       sf = x.auxdataConst<float>(prefix+"_SF_Trigger_" + id);
@@ -725,21 +796,23 @@ namespace top {
 
     return sf;
   }
-
+  
   float ScaleFactorRetriever::muonEff_Trigger(const xAOD::Muon& x,
                                               const top::topSFSyst SFSyst,
-                                              bool isLoose) const {
-    return muonEff_Trigger(x, (isLoose ? m_config->muonQualityLoose() : m_config->muonQuality()), SFSyst, isLoose);
+                                              bool useLooseDef) const {
+    return muonEff_Trigger(x,
+        (useLooseDef ? m_config->muonQualityLoose() : m_config->muonQuality()),
+        SFSyst, useLooseDef);
   }
 
   float ScaleFactorRetriever::muonEff_Trigger(const xAOD::Muon& x,
                                               const std::string& id,
                                               const top::topSFSyst SFSyst,
-                                              bool isLoose) const {
+                                              bool useLooseDef) const {
     float eff(1.);
     
     std::string prefix="MU";
-    if(isLoose) prefix+="_LOOSE";
+    if (useLooseDef) prefix+="_LOOSE";
 
     if (x.isAvailable<float>(prefix+"_EFF_Trigger_" + id)) {
       eff = x.auxdataConst<float>(prefix+"_EFF_Trigger_" + id);
@@ -776,16 +849,18 @@ namespace top {
 
   float ScaleFactorRetriever::muonSF_ID(const xAOD::Muon& x,
                                         const top::topSFSyst SFSyst,
-                                        bool isLoose) const {
-    return muonSF_ID(x, (isLoose ? m_config->muonQualityLoose() : m_config->muonQuality()), SFSyst, isLoose);
+                                        bool useLooseDef) const {
+    return muonSF_ID(x,
+        (useLooseDef ? m_config->muonQualityLoose() : m_config->muonQuality()),
+        SFSyst, useLooseDef);
   }
 
   float ScaleFactorRetriever::muonSF_ID(const xAOD::Muon& x,
                                         const std::string& id,
                                         const top::topSFSyst SFSyst,
-                                        bool isLoose) const {
+                                        bool useLooseDef) const {
     std::string decoration = "MU_SF_ID_";
-    if(isLoose) decoration = "MU_LOOSE_SF_ID_";
+    if (useLooseDef) decoration = "MU_LOOSE_SF_ID_";
     decoration+=id;
     
     switch (SFSyst) {
@@ -891,18 +966,20 @@ namespace top {
 
   float ScaleFactorRetriever::muonSF_Isol(const xAOD::Muon& x,
                                           const top::topSFSyst SFSyst,
-                                          bool isLoose) const {
-    return muonSF_Isol(x, (isLoose ? m_config->muonIsolationSFLoose() : m_config->muonIsolationSF()), SFSyst, isLoose);
+                                          bool useLooseDef) const {
+    return muonSF_Isol(x,
+        (useLooseDef ? m_config->muonIsolationSFLoose() : m_config->muonIsolationSF()),
+        SFSyst, useLooseDef);
   }
 
   float ScaleFactorRetriever::muonSF_Isol(const xAOD::Muon& x,
                                           const std::string& iso,
                                           const top::topSFSyst SFSyst,
-                                          bool isLoose) const {
+                                          bool useLooseDef) const {
     float sf(1.);
     
     std::string prefix="MU";
-    if(isLoose) prefix+="_LOOSE";
+    if (useLooseDef) prefix+="_LOOSE";
 
     if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso)) {
       sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso);
@@ -1072,13 +1149,15 @@ namespace top {
     float sf(1.);
     float reco(1.);
     float isol(1.);
+    float trigger(1.);
 
     for (auto photon : event.m_photons) {
       reco *= photonSF_Reco(*photon, SFSyst);
       isol *= photonSF_Isol(*photon, SFSyst, event.m_isLoose);
     }
+    trigger = triggerSFPhoton(event, SFSyst);
 
-    sf = reco * isol;
+    sf = reco * isol * trigger;
 
     return sf;
   }
@@ -1266,4 +1345,5 @@ namespace top {
     ATH_MSG_INFO("    LeptonEventWeight  : " << std::to_string(leptonSF(event, top::topSFSyst::nominal)));
     ATH_MSG_INFO("    B-TagEventWeight   : " << std::to_string(btagSF(event, top::topSFSyst::nominal)));
   }
+
 }  // namespace top

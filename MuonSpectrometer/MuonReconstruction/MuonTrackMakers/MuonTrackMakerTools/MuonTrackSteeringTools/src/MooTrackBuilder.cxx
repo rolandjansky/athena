@@ -1,1526 +1,1442 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MooTrackBuilder.h"
 
+#include <set>
+
 #include "AthenaKernel/Timeout.h"
-#include "SortMuPatHits.h"
-#include "MuPatTrack.h"
-#include "MuPatSegment.h"
+#include "CxxUtils/checker_macros.h"
+#include "MuPatPrimitives/MuPatSegment.h"
+#include "MuPatPrimitives/MuPatTrack.h"
+#include "MuPatPrimitives/SortMuPatHits.h"
+#include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
+#include "MuonRIO_OnTrack/MMClusterOnTrack.h"
+#include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
+#include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
+#include "MuonSegmentMakerUtils/CompareMuonSegmentKeys.h"
+#include "MuonSegmentMakerUtils/MuonSegmentKey.h"
+#include "MuonTrackMakerUtils/MuonGetClosestParameters.h"
+#include "MuonTrackMakerUtils/MuonTSOSHelper.h"
 #include "MuonTrackMakerUtils/SortMeasurementsByPosition.h"
 #include "MuonTrackMakerUtils/SortTracksByHitNumber.h"
 #include "TrkEventPrimitives/ResidualPull.h"
 #include "TrkSegment/SegmentCollection.h"
-
-#include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
-#include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
-#include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
-#include "MuonSegmentMakerUtils/MuonSegmentKey.h"
-#include "MuonSegmentMakerUtils/CompareMuonSegmentKeys.h"
-#include "MuonTrackMakerUtils/MuonTSOSHelper.h"
-#include "MuonTrackMakerUtils/MuonGetClosestParameters.h"
-
-#include <set>
-
-#include "CxxUtils/checker_macros.h"
 ATLAS_CHECK_FILE_THREAD_SAFETY;
 
 namespace Muon {
 
-
-  MooTrackBuilder::MooTrackBuilder(const std::string& t,const std::string& n,const IInterface* p)  :
-    AthAlgTool(t,n,p)
-  {
-    declareInterface<IMuonSegmentTrackBuilder>(this);
-    declareInterface<MooTrackBuilder>(this);
-    declareInterface<IMuonTrackRefiner>(this);
-    declareInterface<IMuonTrackBuilder>(this);
-  }
-
-  StatusCode MooTrackBuilder::initialize() {
-
-    ATH_CHECK( m_fitter.retrieve() );
-    ATH_CHECK( m_slFitter.retrieve() );
-    ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
-    if( !m_errorOptimisationTool.empty() ) ATH_CHECK( m_errorOptimisationTool.retrieve() );
-    ATH_CHECK( m_candidateHandler.retrieve() );
-    ATH_CHECK( m_candidateMatchingTool.retrieve() );
-    if( !m_hitRecoverTool.empty() ) ATH_CHECK( m_hitRecoverTool.retrieve() );
-    ATH_CHECK( m_muonChamberHoleRecoverTool.retrieve() );
-    ATH_CHECK( m_trackExtrapolationTool.retrieve() );
-    ATH_CHECK( m_idHelperSvc.retrieve() );
-    ATH_CHECK( m_edmHelperSvc.retrieve() );
-    ATH_CHECK( m_printer.retrieve() );
-    ATH_CHECK( m_trackToSegmentTool.retrieve() );
-    ATH_CHECK( m_seededSegmentFinder.retrieve() );
-    ATH_CHECK( m_mdtRotCreator.retrieve() );
-    ATH_CHECK( m_compRotCreator.retrieve() );
-    ATH_CHECK( m_propagator.retrieve() );
-    ATH_CHECK( m_pullCalculator.retrieve() );
-    ATH_CHECK( m_trackSummaryTool.retrieve() );
-
-    return StatusCode::SUCCESS;
-  }
-
-
-  StatusCode MooTrackBuilder::finalize(){
-    if(  m_nTimedOut > 0 && m_ncalls > 0 ) {
-      double scale = 1./m_ncalls;
-      ATH_MSG_INFO(" Number of calls that timed out " << m_nTimedOut << " fraction of total calls " << scale*m_nTimedOut );
-    }
-    return StatusCode::SUCCESS;
-  }
-
-  std::unique_ptr<Trk::Track> MooTrackBuilder::refit(Trk::Track& track ) const {
-
-    // use slFitter for straight line fit, or toroid off, otherwise use normal Fitter
-      
-    if( m_edmHelperSvc->isSLTrack(track) ) return m_slFitter->refit(track);
-
-    // Also check if toriod is off:
-    MagField::AtlasFieldCache    fieldCache;
-    // Get field cache object
-    EventContext ctx = Gaudi::Hive::currentContext();
-    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
-    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-  
-    if (fieldCondObj == nullptr) {
-      ATH_MSG_ERROR("refit: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
-      return std::unique_ptr<Trk::Track>();
-    }
-    fieldCondObj->getInitializedCache (fieldCache);
-    if( !fieldCache.toroidOn() ) return m_slFitter->refit(track);
-
-    // if not refit tool specified do a pure refit
-    if( m_errorOptimisationTool.empty() ) return m_fitter->refit(track);
-    std::unique_ptr<Trk::Track> optTrack=m_errorOptimisationTool->optimiseErrors(&track);
-    return optTrack;
-  }
-
-  void MooTrackBuilder::refine( MuPatTrack& track ) const {
-
-    std::unique_ptr<Trk::Track> finalTrack(m_hitRecoverTool->recover(track.track()));
-    if( !finalTrack ) {
-      ATH_MSG_WARNING(" final track lost, this should not happen " );
-    }
-    ATH_MSG_VERBOSE("refine: after recovery " << std::endl
-        << m_printer->print(*finalTrack) << std::endl
-        << m_printer->printStations(*finalTrack) );
-
-    // generate a track summary for this track
-    if (m_trackSummaryTool.isEnabled()) {
-      m_trackSummaryTool->computeAndReplaceTrackSummary(*finalTrack, nullptr, false);
+    MooTrackBuilder::MooTrackBuilder(const std::string& t, const std::string& n, const IInterface* p) : AthAlgTool(t, n, p) {
+        declareInterface<IMuonSegmentTrackBuilder>(this);
+        declareInterface<MooTrackBuilder>(this);
+        declareInterface<IMuonTrackRefiner>(this);
+        declareInterface<IMuonTrackBuilder>(this);
     }
 
-    bool recalibrateMDTHits = m_recalibrateMDTHits;
-    bool recreateCompetingROTs = true;
-    std::unique_ptr<Trk::Track> recalibratedTrack = recalibrateHitsOnTrack(*finalTrack,recalibrateMDTHits,
-                 recreateCompetingROTs);
-    if( !recalibratedTrack ){
-      ATH_MSG_WARNING(" failed to recalibrate hits on track " << std::endl
-          << m_printer->print(*finalTrack) );
-    }
-    else finalTrack.swap(recalibratedTrack);
+    StatusCode MooTrackBuilder::initialize() {
+        ATH_CHECK(m_fitter.retrieve());
+        ATH_CHECK(m_slFitter.retrieve());
+        ATH_CHECK(m_fieldCacheCondObjInputKey.initialize());
+        if (!m_errorOptimisationTool.empty()) ATH_CHECK(m_errorOptimisationTool.retrieve());
+        ATH_CHECK(m_candidateHandler.retrieve());
+        ATH_CHECK(m_candidateMatchingTool.retrieve());
+        ATH_CHECK(m_muonChamberHoleRecoverTool.retrieve());
+        ATH_CHECK(m_trackExtrapolationTool.retrieve());
+        ATH_CHECK(m_idHelperSvc.retrieve());
+        ATH_CHECK(m_edmHelperSvc.retrieve());
+        ATH_CHECK(m_printer.retrieve());
+        ATH_CHECK(m_trackToSegmentTool.retrieve());
+        ATH_CHECK(m_seededSegmentFinder.retrieve());
+        ATH_CHECK(m_mdtRotCreator.retrieve());
+        ATH_CHECK(m_compRotCreator.retrieve());
+        ATH_CHECK(m_propagator.retrieve());
+        ATH_CHECK(m_pullCalculator.retrieve());
+        ATH_CHECK(m_trackSummaryTool.retrieve());
 
-    std::unique_ptr<Trk::Track> refittedTrack = refit(*finalTrack);
-    if( !refittedTrack ){
-      ATH_MSG_VERBOSE(" failed to refit track " << std::endl
-          << m_printer->print(*finalTrack) << std::endl
-          << m_printer->printStations(*finalTrack) );
-    }
-    else finalTrack.swap(refittedTrack);
-
-    // redo holes as they are dropped in the fitter
-    std::unique_ptr<Trk::Track> finalTrackWithHoles(m_muonChamberHoleRecoverTool->recover(*finalTrack));
-    if( !finalTrackWithHoles ) {
-      ATH_MSG_WARNING(" failed to add holes to final track, this should not happen " );
-    }
-    else finalTrack.swap(finalTrackWithHoles);
-
-    std::unique_ptr<Trk::Track> entryRecordTrack(m_trackExtrapolationTool->extrapolate( *finalTrack ));
-    if( entryRecordTrack ){
-      finalTrack.swap(entryRecordTrack);
-      ATH_MSG_VERBOSE(" track at muon entry record " << std::endl
-          << m_printer->print(*finalTrack) );
+        return StatusCode::SUCCESS;
     }
 
-    m_candidateHandler->updateTrack( track, finalTrack );
-  }
-
-  MuonSegment* MooTrackBuilder::combineToSegment( const MuonSegment& seg1, const MuonSegment& seg2,
-                                                  const PrepVec* externalPhiHits) const {
-
-    // try to get track
-    std::unique_ptr<Trk::Track> track = combine( seg1, seg2, externalPhiHits );
-
-    if( !track ) return nullptr;
-
-    // create MuonSegment
-    MuonSegment* seg = m_trackToSegmentTool->convert(*track);
-    if( !seg ){
-      ATH_MSG_WARNING( " conversion of track failed!! " );
-    }
-
-    return seg;
-  }
-
-  std::unique_ptr<Trk::Track> MooTrackBuilder::combine( const MuonSegment& seg1, const MuonSegment& seg2, const PrepVec* externalPhiHits ) const {
-    // convert segments
-    MuPatSegment* segInfo1 = m_candidateHandler->createSegInfo(seg1);
-    if( !segInfo1 ) return nullptr;
-
-    MuPatSegment* segInfo2 = m_candidateHandler->createSegInfo(seg2);
-    if( !segInfo2 ) {
-      delete segInfo1;
-      return std::unique_ptr<Trk::Track>();
-    }
-
-    // call fit()
-    std::unique_ptr<Trk::Track> track = combine(*segInfo1,*segInfo2,externalPhiHits);
-    delete segInfo1;
-    delete segInfo2;
-
-    // return result
-    return track;
-  }
-
-  MuonSegment* MooTrackBuilder::combineToSegment( const MuPatCandidateBase& firstCandidate, const MuPatCandidateBase& secondCandidate, const PrepVec* externalPhiHits ) const {
-
-    // try to get track
-    std::unique_ptr<Trk::Track> track = combine( firstCandidate, secondCandidate, externalPhiHits );
-
-    if( !track ) return nullptr;
-
-    // create MuonSegment
-    MuonSegment* seg = m_trackToSegmentTool->convert(*track);
-    if( !seg ){
-      ATH_MSG_WARNING( " conversion of track failed!! " );
-    }
-
-    return seg;
-  }
-
-  std::unique_ptr<Trk::Track> MooTrackBuilder::combine( const MuPatCandidateBase& firstCandidate, const MuPatCandidateBase& secondCandidate,
-							const PrepVec* externalPhiHits ) const {
-
-    ++m_ncalls;
-
-    if (m_doTimeOutChecks && Athena::Timeout::instance().reached() ) {
-      ATH_MSG_DEBUG("Timeout reached. Aborting sequence." );
-      ++m_nTimedOut;
-      return std::unique_ptr<Trk::Track>();
-    }
-
-
-    std::set<MuonStationIndex::StIndex> stations;
-    stations.insert(firstCandidate.stations().begin(),firstCandidate.stations().end());
-    stations.insert(secondCandidate.stations().begin(),secondCandidate.stations().end());
-    unsigned int nstations = stations.size();
-    bool slFit = nstations == 1 || ( nstations == 2 &&
-                                     ( stations.count( MuonStationIndex::EM ) &&
-                                     ( stations.count( MuonStationIndex::BO ) || stations.count( MuonStationIndex::EO ) ) ) );
-    if( msgLvl(MSG::DEBUG) ) {
-      msg(MSG::DEBUG) << MSG::DEBUG << " combining entries: nstations " << nstations << " types:";
-      for( std::set<MuonStationIndex::StIndex>::iterator it=stations.begin(); it!=stations.end();++it ){
-        msg(MSG::DEBUG) << MSG::DEBUG << "  " << MuonStationIndex::stName(*it);
-      }
-      if( slFit ) {
-        msg(MSG::DEBUG) << " doing SL fit ";
-      } else {
-        msg(MSG::DEBUG) << " doing curved fit ";
-      }
-      msg(MSG::DEBUG) << endmsg;
-    }
-
-    const MuPatTrack* trkCan1 = dynamic_cast<const MuPatTrack*>(&firstCandidate);
-    const MuPatTrack* trkCan2 = dynamic_cast<const MuPatTrack*>(&secondCandidate);
-
-    const MuPatSegment* segCan1 = dynamic_cast<const MuPatSegment*>(&firstCandidate);
-    const MuPatSegment* segCan2 = dynamic_cast<const MuPatSegment*>(&secondCandidate);
-
-    const MuPatTrack* candidate = 0;
-    const MuPatSegment*  segment = 0;
-    if( trkCan1 && segCan2 ){
-      candidate = trkCan1;
-      segment   = segCan2;
-    }else if(  trkCan2 && segCan1 ){
-      candidate = trkCan2;
-      segment   = segCan1;
-    }
-
-    // check whether this combination was already tried, if yes reject the combination
-    if( candidate && segment ){
-      ATH_MSG_DEBUG(" Track/segment combination" );
-      for( std::vector<MuPatSegment*>::const_iterator esit = candidate->excludedSegments().begin();
-           esit != candidate->excludedSegments().end(); ++esit ) {
-        if(*esit == segment) {
-          ATH_MSG_DEBUG(" Rejected segment based on exclusion list" );
-          return std::unique_ptr<Trk::Track>();
+    StatusCode MooTrackBuilder::finalize() {
+        if (m_nTimedOut > 0 && m_ncalls > 0) {
+            double scale = 1. / m_ncalls;
+            ATH_MSG_INFO(" Number of calls that timed out " << m_nTimedOut << " fraction of total calls " << scale * m_nTimedOut);
         }
-      }
+        return StatusCode::SUCCESS;
     }
 
-    // the following bit of code checks whether the current combination of segments was already tested
-    if( m_useTrackingHistory ){
-      // create a set of all segments of the would-be candidate
-      std::set<const MuPatSegment*> segments;
-      if( (segCan1 && segCan2) ){
-        segments.insert(segCan1);
-        segments.insert(segCan2);
-      }
-      if( candidate && segment ){
-        segments.insert(segment);
-        std::vector<MuPatSegment*>::const_iterator tsit = candidate->segments().begin();
-        std::vector<MuPatSegment*>::const_iterator tsit_end = candidate->segments().end();
-        for( ;tsit != tsit_end;++tsit ) segments.insert(*tsit);
-      }
-      // now loop over the segments and check if any of them is associated with a track that contains all of the segments
-      std::set<const MuPatSegment*>::iterator sit = segments.begin();
-      std::set<const MuPatSegment*>::iterator sit_end = segments.end();
+    std::unique_ptr<Trk::Track> MooTrackBuilder::refit(Trk::Track& track) const {
+        // use slFitter for straight line fit, or toroid off, otherwise use normal Fitter
+        const EventContext& ctx = Gaudi::Hive::currentContext();
 
-      for( ;sit!=sit_end;++sit ){
-        // loop over the tracks associated with the current segment
-        std::set<MuPatTrack*>::const_iterator tit = (*sit)->tracks().begin();
-        std::set<MuPatTrack*>::const_iterator tit_end = (*sit)->tracks().end();
-        for( ;tit!=tit_end;++tit ){
+        if (m_edmHelperSvc->isSLTrack(track)) return m_slFitter->refit(track);
 
-          // loop over the segments associated with the track
-          std::set<MuPatSegment*> foundSegments;
-          std::vector<MuPatSegment*>::const_iterator tsit = (*tit)->segments().begin();
-          std::vector<MuPatSegment*>::const_iterator tsit_end = (*tit)->segments().end();
-          for( ;tsit != tsit_end ; ++ tsit ) {
-            if( segments.count(*tsit) ) foundSegments.insert(*tsit);
-          }
+        // Also check if toriod is off:
+        MagField::AtlasFieldCache fieldCache;
+        // Get field cache object
+        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+        const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
 
-          // if all segments are already part of an existing track, don't perform the fit
-          if( foundSegments.size() == segments.size() ){
-            ATH_MSG_DEBUG("Combination already part of an existing track");
+        if (!fieldCondObj) {
+            ATH_MSG_ERROR("refit: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
             return nullptr;
-          }
+        }
+        fieldCondObj->getInitializedCache(fieldCache);
+        if (!fieldCache.toroidOn()) return m_slFitter->refit(track);
 
-          // if all segments but one are already part of an existing track, check the exclusion list
-          if( candidate && !candidate->excludedSegments().empty() && foundSegments.size() == segments.size() - 1 ){
-            // create destination vector for segments that are not found
-            std::vector<const MuPatSegment*> unassociatedSegments(segments.size(),0);
-            std::vector<const MuPatSegment*>::iterator it = std::set_difference( segments.begin(),segments.end(),
-                          foundSegments.begin(),foundSegments.end(),
-                          unassociatedSegments.begin() );
-            const MuPatSegment* zero = 0;
-            unassociatedSegments.erase(std::find(unassociatedSegments.begin(),unassociatedSegments.end(),zero),unassociatedSegments.end());
+        // if not refit tool specified do a pure refit
+        if (m_errorOptimisationTool.empty()) return m_fitter->refit(track);
+        std::unique_ptr<Trk::Track> optTrack = m_errorOptimisationTool->optimiseErrors(track, ctx);
+        return optTrack;
+    }
 
-            // check whether any pointers found
-            if( it != unassociatedSegments.begin() ){
+    void MooTrackBuilder::refine(MuPatTrack& track, GarbageContainer& trash_bin) const {
+        const EventContext& ctx = Gaudi::Hive::currentContext();
 
-              // this should always be one as we required the difference to be one!
-              if( unassociatedSegments.size() != 1 ) {
-                ATH_MSG_DEBUG("Inconsistent result from set difference: size result " << unassociatedSegments.size()
-                  << " candidate " << segments.size() << " found " << foundSegments.size() );
-                return nullptr;
-              }
+        std::unique_ptr<Trk::Track> finalTrack(m_muonChamberHoleRecoverTool->recover(track.track(), ctx));
+        if (!finalTrack) { ATH_MSG_WARNING(" final track lost, this should not happen "); }
+        ATH_MSG_VERBOSE("refine: after recovery " << std::endl
+                                                  << m_printer->print(*finalTrack) << std::endl
+                                                  << m_printer->printStations(*finalTrack));
 
-              // check that the result is indeed part of the original set
-              if( !segments.count(unassociatedSegments.front()) ){
-                ATH_MSG_DEBUG("Segment point not part of the original set, aborting!");
-                return nullptr;
-              }
+        // generate a track summary for this track
+        if (m_trackSummaryTool.isEnabled()) { m_trackSummaryTool->computeAndReplaceTrackSummary(*finalTrack, nullptr, false); }
 
-              // now check whether the segment is part of the excluded segments
-              std::vector<MuPatSegment*>::const_iterator pos =  std::find(candidate->excludedSegments().begin(),
-                          candidate->excludedSegments().end(),
-                          unassociatedSegments.front() );
-              if( pos != candidate->excludedSegments().end() ){
-                ATH_MSG_DEBUG("Segment found in exclusion list, not performing fit");
-                return nullptr;
-              }
+        bool recalibrateMDTHits = m_recalibrateMDTHits;
+        bool recreateCompetingROTs = true;
+        std::unique_ptr<Trk::Track> recalibratedTrack = recalibrateHitsOnTrack(*finalTrack, recalibrateMDTHits, recreateCompetingROTs);
+        if (!recalibratedTrack) {
+            ATH_MSG_WARNING(" failed to recalibrate hits on track " << std::endl << m_printer->print(*finalTrack));
+        } else
+            finalTrack.swap(recalibratedTrack);
+
+        std::unique_ptr<Trk::Track> refittedTrack = refit(*finalTrack);
+        if (!refittedTrack) {
+            ATH_MSG_VERBOSE(" failed to refit track " << std::endl
+                                                      << m_printer->print(*finalTrack) << std::endl
+                                                      << m_printer->printStations(*finalTrack));
+        } else
+            finalTrack.swap(refittedTrack);
+
+        // redo holes as they are dropped in the fitter
+        std::unique_ptr<Trk::Track> finalTrackWithHoles(m_muonChamberHoleRecoverTool->recover(*finalTrack, ctx));
+        if (!finalTrackWithHoles) {
+            ATH_MSG_WARNING(" failed to add holes to final track, this should not happen ");
+        } else
+            finalTrack.swap(finalTrackWithHoles);
+
+        std::unique_ptr<Trk::Track> entryRecordTrack(m_trackExtrapolationTool->extrapolate(*finalTrack, ctx));
+        if (entryRecordTrack) {
+            finalTrack.swap(entryRecordTrack);
+            ATH_MSG_VERBOSE(" track at muon entry record " << std::endl << m_printer->print(*finalTrack));
+        }
+
+        m_candidateHandler->updateTrack(track, finalTrack, trash_bin);
+    }
+
+    MuonSegment* MooTrackBuilder::combineToSegment(const MuonSegment& seg1, const MuonSegment& seg2, const PrepVec* externalPhiHits) const {
+        // try to get track
+        std::unique_ptr<Trk::Track> track = combine(seg1, seg2, externalPhiHits);
+
+        if (!track) return nullptr;
+
+        // create MuonSegment
+        MuonSegment* seg = m_trackToSegmentTool->convert(*track);
+        if (!seg) { ATH_MSG_WARNING(" conversion of track failed!! "); }
+
+        return seg;
+    }
+
+    std::unique_ptr<Trk::Track> MooTrackBuilder::combine(const MuonSegment& seg1, const MuonSegment& seg2,
+                                                         const PrepVec* externalPhiHits) const {
+        GarbageContainer trash_bin;
+
+        // convert segments
+        std::unique_ptr<MuPatSegment> segInfo1{m_candidateHandler->createSegInfo(seg1, trash_bin)};
+        if (!segInfo1) return nullptr;
+
+        std::unique_ptr<MuPatSegment> segInfo2{m_candidateHandler->createSegInfo(seg2, trash_bin)};
+        if (!segInfo2) { return nullptr; }
+
+        // call fit()
+        std::unique_ptr<Trk::Track> track = combine(*segInfo1, *segInfo2, externalPhiHits);
+
+        // return result
+        return track;
+    }
+
+    MuonSegment* MooTrackBuilder::combineToSegment(const MuPatCandidateBase& firstCandidate, const MuPatCandidateBase& secondCandidate,
+                                                   const PrepVec* externalPhiHits) const {
+        // try to get track
+        std::unique_ptr<Trk::Track> track = combine(firstCandidate, secondCandidate, externalPhiHits);
+
+        if (!track) return nullptr;
+
+        // create MuonSegment
+        MuonSegment* seg = m_trackToSegmentTool->convert(*track);
+        if (!seg) { ATH_MSG_WARNING(" conversion of track failed!! "); }
+
+        return seg;
+    }
+
+    std::unique_ptr<Trk::Track> MooTrackBuilder::combine(const MuPatCandidateBase& firstCandidate,
+                                                         const MuPatCandidateBase& secondCandidate, const PrepVec* externalPhiHits) const {
+        ++m_ncalls;
+
+        if (m_doTimeOutChecks && Athena::Timeout::instance().reached()) {
+            ATH_MSG_DEBUG("Timeout reached. Aborting sequence.");
+            ++m_nTimedOut;
+            return nullptr;
+        }
+
+        std::set<MuonStationIndex::StIndex> stations;
+        stations.insert(firstCandidate.stations().begin(), firstCandidate.stations().end());
+        stations.insert(secondCandidate.stations().begin(), secondCandidate.stations().end());
+        unsigned int nstations = stations.size();
+        bool slFit = nstations == 1 || (nstations == 2 && (stations.count(MuonStationIndex::EM) &&
+                                                           (stations.count(MuonStationIndex::BO) || stations.count(MuonStationIndex::EO))));
+        if (msgLvl(MSG::DEBUG)) {
+            msg(MSG::DEBUG) << MSG::DEBUG << " combining entries: nstations " << nstations << " types:";
+            for (std::set<MuonStationIndex::StIndex>::iterator it = stations.begin(); it != stations.end(); ++it) {
+                msg(MSG::DEBUG) << MSG::DEBUG << "  " << MuonStationIndex::stName(*it);
             }
-          }
-        }
-      }
-    }
-
-
-    // use slFitter for straight line fit, or toroid off, otherwise use normal Fitter
-    if( slFit ) return std::unique_ptr<Trk::Track>(m_slFitter->fit(firstCandidate,secondCandidate,externalPhiHits));
-
-    EventContext ctx = Gaudi::Hive::currentContext();
-    MagField::AtlasFieldCache    fieldCache;
-    // Get field cache object
-    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
-    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-  
-    if (fieldCondObj == nullptr) {
-      ATH_MSG_ERROR("combine: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
-      return std::unique_ptr<Trk::Track>();
-    }
-    fieldCondObj->getInitializedCache (fieldCache);
-    if( !fieldCache.toroidOn() ) return std::unique_ptr<Trk::Track>(m_slFitter->fit(firstCandidate,secondCandidate,externalPhiHits));
-
-    return m_fitter->fit(firstCandidate,secondCandidate,externalPhiHits);
-  }
-
-
-  std::unique_ptr<Trk::Track> MooTrackBuilder::combine( const Trk::Track& track, const MuonSegment& seg,
-                                        const PrepVec* externalPhiHits ) const {
-    // convert segments
-    std::unique_ptr<Trk::Track> inTrack=std::make_unique<Trk::Track>(track);
-    std::unique_ptr<MuPatTrack> candidate(m_candidateHandler->createCandidate(inTrack));
-    if( !candidate ) return std::unique_ptr<Trk::Track>();
-
-    std::unique_ptr<MuPatSegment> segInfo(m_candidateHandler->createSegInfo(seg));
-    if( !segInfo ) {
-      return std::unique_ptr<Trk::Track>();
-    }
-
-    // call fit()
-    std::unique_ptr<Trk::Track> newTrack = combine(*candidate,*segInfo,externalPhiHits);
-
-    // return result
-    return newTrack;
-  }
-
-
-  std::vector<std::unique_ptr<Trk::Track> > MooTrackBuilder::combineWithSegmentFinding( const Trk::Track& track, const MuonSegment& seg,
-													  const PrepVec* externalPhiHits ) const {
-    // convert segments
-    std::vector<std::unique_ptr<Trk::Track> > emptyVec;
-    std::unique_ptr<Trk::Track> inTrack=std::make_unique<Trk::Track>(track);
-    std::unique_ptr<MuPatTrack> candidate = m_candidateHandler->createCandidate(inTrack);
-    if( !candidate ) return emptyVec;
-
-    std::unique_ptr<MuPatSegment> segInfo(m_candidateHandler->createSegInfo(seg));
-    if( !segInfo ) return emptyVec;
-
-    // call fit()
-    return combineWithSegmentFinding(*candidate,*segInfo,externalPhiHits);
-  }
-
-
-  Trk::TrackParameters* MooTrackBuilder::findClosestParameters( const Trk::Track& track, const Amg::Vector3D& pos ) const {
-    // are we in the endcap?
-    bool isEndcap = m_edmHelperSvc->isEndcap(track);
-
-    // position of segment
-    double posSeg = isEndcap ? pos.z() : pos.perp();
-
-    // position closest parameters
-    double closest = 1e8;
-    const Trk::TrackParameters* closestParameters = 0;
-    bool closestIsMeasured = false;
-
-    // loop over track and calculate residuals
-    const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
-    if( !states ){
-      ATH_MSG_DEBUG(" track without states! " );
-      return nullptr;
-    }
-
-    // loop over TSOSs
-    DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit = states->begin();
-    DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit_end = states->end();
-    for( ; tsit!=tsit_end ; ++tsit ){
-
-      // check whether state is a measurement
-      const Trk::MeasurementBase* meas = (*tsit)->measurementOnTrack();
-      if( !meas ){
-        continue;
-      }
-
-      const Trk::TrackParameters* pars = (*tsit)->trackParameters();
-      if( !pars ){
-        continue;
-      }
-
-      // check whether measured parameters
-      bool isMeasured = pars->covariance();
-
-      // skip all none measured TrackParameters as soon as we found one with a measurement
-      if( closestIsMeasured && !isMeasured ) continue;
-
-      // calculate position parameters and compare with position segment
-      double posPars = isEndcap ? pars->position().z() : pars->position().perp();
-      double diffPos = fabs(posPars - posSeg);
-
-      // accept if measured parameters or the current accepted parameters are not yet measured
-      if( (isMeasured && !closestIsMeasured) || diffPos < closest ){
-        closest = diffPos;
-        closestParameters = pars;
-        closestIsMeasured = isMeasured;
-
-        // if we are within 100 mm take current
-        if( closest < 100.  ) {
-          break;
-        }
-      }
-    }
-
-    // return clone of parameters
-    if( closestParameters ) return closestParameters->clone();
-    return nullptr;
-  }
-
-
-  Trk::TrackParameters* MooTrackBuilder::getClosestParameters( const MuPatCandidateBase& candidate, const Trk::Surface& surf ) const {
-
-    // cast to segment, return segment parameters if cast success
-    const MuPatSegment* segCandidate = dynamic_cast<const MuPatSegment*>(&candidate);
-    if( segCandidate ) return segCandidate->entryPars().clone();
-
-    // for a track candidate, return the closest parameter on the track
-    const MuPatTrack& trkCandidate = dynamic_cast<const MuPatTrack&>(candidate);
-    return getClosestParameters( trkCandidate.track(), surf );
-  }
-
-
-  Trk::TrackParameters* MooTrackBuilder::getClosestParameters( const Trk::Track& track, const Trk::Surface& surf ) const {
-    return MuonGetClosestParameters::closestParameters(track,surf);
-  }
-
-
-  std::vector<std::unique_ptr<Trk::Track> > MooTrackBuilder::combineWithSegmentFinding( const Trk::Track& track,
-											const Trk::TrackParameters& pars,
-											const std::set<Identifier>& chIds,
-											const PrepVec* patternPhiHits ) const {
-    // convert track
-    std::unique_ptr<Trk::Track> inTrack=std::make_unique<Trk::Track>(track);
-    std::unique_ptr<MuPatTrack> can = m_candidateHandler->createCandidate(inTrack);
-    if( !can ){
-      return std::vector<std::unique_ptr<Trk::Track> >();
-    }
-
-    return combineWithSegmentFinding(*can,pars,chIds,patternPhiHits);
-  }
-
-
-  std::vector<std::unique_ptr<Trk::Track> > MooTrackBuilder::combineWithSegmentFinding( const MuPatTrack& candidate,
-											const MuPatSegment& segInfo,
-											const PrepVec* externalPhiHits ) const {
-
-    /** second stage segment matching:
-        - estimate segment parameters at segment position using fit of track + segment position
-        - redo segment finding using the predicted parameters as seed
-        - redo segment association
-    */
-
-    const MuonSegment& seg  = *segInfo.segment;
-    std::vector<std::unique_ptr<Trk::Track> > newTracks;
-
-    // get chamber Id of segment
-    std::set<Identifier> chIds = m_edmHelperSvc->chamberIds(seg);
-
-    if( chIds.empty() ) return newTracks;
-
-
-    // for now do not redo segment making for CSCs
-    if( m_idHelperSvc->isCsc( *chIds.begin() ) ){
-      if( m_candidateMatchingTool->match(candidate,segInfo,true) ) {
-	std::unique_ptr<Trk::Track> newtrack(m_fitter->fit(candidate,segInfo,externalPhiHits));
-        if(newtrack) newTracks.push_back(std::move(newtrack));
-        return newTracks;
-      }else{
-        return newTracks;
-      }
-    }
-
-    const Trk::Track& track = candidate.track();
-    ATH_MSG_DEBUG(" in combineWithSegmentFinding " );
-    ATH_MSG_VERBOSE(" segment " << m_printer->print(seg) );
-
-    // find track parameters on segment surface
-    std::unique_ptr<Trk::TrackParameters> closestPars(findClosestParameters(track,seg.globalPosition()));
-
-    if( !closestPars ) {
-      ATH_MSG_WARNING( " unable to find closest TrackParameters " );
-      return newTracks;
-    }
-
-    ATH_MSG_VERBOSE(" closest parameter " << m_printer->print(*closestPars) );
-
-    // propagate to segment surface
-    std::unique_ptr<Trk::TrackParameters> exPars(m_propagator->propagate(*closestPars,seg.associatedSurface(),Trk::anyDirection,
-									 false,m_magFieldProperties));
-
-    if( !exPars ) {
-      ATH_MSG_WARNING( " Propagation failed!! " );
-      return newTracks;
-    }
-
-    ATH_MSG_VERBOSE(" extrapolated parameter " << m_printer->print(*exPars) );
-
-    return combineWithSegmentFinding(candidate,*exPars,chIds,externalPhiHits);
-  }
-
-
-  void MooTrackBuilder::removeDuplicateWithReference( std::unique_ptr<Trk::SegmentCollection>& segments,
-                  std::vector<const MuonSegment*>& referenceSegments) const {
-
-    if( referenceSegments.empty() ) return;
-
-    ATH_MSG_DEBUG(" Removing duplicates from segment vector of size " << segments->size()
-                  << " reference size " << referenceSegments.size() );
-
-    CompareMuonSegmentKeys compareSegmentKeys;
-
-    // create a vector with pairs of MuonSegmentKey and a pointer to the corresponding segment to resolve ambiguities
-    std::vector< std::pair<MuonSegmentKey,Trk::SegmentCollection::iterator > > segKeys;
-    segKeys.reserve(segments->size());
-
-    // loop over reference segments and make keys
-    Trk::SegmentCollection::iterator sit = segments->begin();
-    Trk::SegmentCollection::iterator sit_end = segments->end();
-    for( ; sit!=sit_end;++sit){
-      Trk::Segment* tseg=*sit;
-      MuonSegment* mseg=dynamic_cast<MuonSegment*>(tseg);
-      segKeys.push_back( std::make_pair(MuonSegmentKey(*mseg),sit));
-    }
-
-    // create a vector with pairs of MuonSegmentKey and a pointer to the corresponding segment to resolve ambiguities
-    std::vector< MuonSegmentKey> referenceSegKeys;
-    referenceSegKeys.reserve(referenceSegments.size());
-
-    // loop over reference segments and make keys
-    std::vector<const MuonSegment*>::iterator vit=referenceSegments.begin();
-    std::vector<const MuonSegment*>::iterator vit_end=referenceSegments.end();
-    for( ; vit!=vit_end;++vit){
-      referenceSegKeys.push_back( MuonSegmentKey(**vit) );
-    }
-
-    // loop over segments and compare the current segment with the reference ones
-    std::vector< std::pair<MuonSegmentKey,Trk::SegmentCollection::iterator> >::iterator skit = segKeys.begin();
-    std::vector< std::pair<MuonSegmentKey,Trk::SegmentCollection::iterator> >::iterator skit_end = segKeys.end();
-    for( ;skit!=skit_end;++skit ){
-
-      bool isDuplicate = false;
-
-      std::vector<MuonSegmentKey>::iterator rskit = referenceSegKeys.begin();
-      std::vector<MuonSegmentKey>::iterator rskit_end = referenceSegKeys.end();
-
-      for( ;rskit!=rskit_end;++rskit ){
-        CompareMuonSegmentKeys::OverlapResult overlapResult = compareSegmentKeys( *rskit, skit->first );
-        if( overlapResult == CompareMuonSegmentKeys::Identical ) {
-          ATH_MSG_DEBUG(" discarding identical segment");
-          isDuplicate = true;
-          break;
-        }else if( overlapResult == CompareMuonSegmentKeys::SuperSet ){
-          // reference segment superset of current: discard
-          ATH_MSG_DEBUG(" discarding (subset) ");
-          isDuplicate = true;
-          break;
-        }
-      }
-      if( isDuplicate ) segments->erase(skit->second);
-    }
-
-  }
-
-
-  std::vector<std::unique_ptr<Trk::Track> > MooTrackBuilder::combineWithSegmentFinding( const MuPatTrack& candidate,
-											const Trk::TrackParameters& pars,
-											const std::set<Identifier>& chIds,
-											const PrepVec* externalPhiHits ) const {
-    std::vector<std::unique_ptr<Trk::Track> > newTracks;
-
-    if( chIds.empty() ) return newTracks;
-
-    if( !m_idHelperSvc->isMdt(*chIds.begin()) ) {
-      ATH_MSG_WARNING("combineWithSegmentFinding called with CSC hits!! retuning zero pointer");
-      return newTracks;
-    }
-
-    // redo segment finding
-    std::unique_ptr<Trk::SegmentCollection> segments=m_seededSegmentFinder->find(pars,chIds);
-
-    // check whether we got segments
-    if( !segments ) {
-      ATH_MSG_DEBUG(" failed to find new segments " );
-      return newTracks;
-    }
-    if( segments->empty() ){
-      ATH_MSG_DEBUG(" got empty vector!! " );
-      return newTracks;
-    }
-
-    unsigned int nseg=segments->size();
-    if( m_useExclusionList ){
-      std::vector<const MuonSegment*> referenceSegments;
-      for( std::vector<MuPatSegment*>::const_iterator esit = candidate.excludedSegments().begin();
-           esit != candidate.excludedSegments().end(); ++esit ) {
-        if( (*esit)->segment ) referenceSegments.push_back((*esit)->segment);
-      }
-      removeDuplicateWithReference( segments, referenceSegments );
-    }
-
-    if( msgLvl(MSG::DEBUG) && segments->size()!=nseg ) {
-      msg(MSG::DEBUG) << MSG::DEBUG << " Rejected segments based on exclusion list, number of removed segments: "
-                      << nseg - segments->size() << " total " << segments->size() << endmsg;
-    }
-
-    if( !segments->empty() ){
-
-      // loop over segments
-      Trk::SegmentCollection::iterator sit = segments->begin();
-      Trk::SegmentCollection::iterator sit_end = segments->end();
-      for( ;sit!=sit_end;++sit ){
-
-        if( !*sit ) continue;
-        Trk::Segment* tseg=*sit;
-        MuonSegment* mseg=dynamic_cast<MuonSegment*>(tseg);
-
-        if( msgLvl(MSG::DEBUG) ){
-          msg(MSG::DEBUG) << MSG::DEBUG << " adding segment " << m_printer->print(*mseg);
-          if( msgLvl(MSG::VERBOSE) ) {
-            msg(MSG::DEBUG)  << std::endl << m_printer->print(mseg->containedMeasurements()) << endmsg;
-            if( msgLvl(MSG::VERBOSE) && candidate.track().measurementsOnTrack() )
-              msg(MSG::DEBUG)  << " track " << m_printer->print(candidate.track()) << std::endl
-                << m_printer->print(candidate.track().measurementsOnTrack()->stdcont()) << endmsg;
-          }else{
-            msg(MSG::DEBUG)  << endmsg;
-          }
-        }
-        MuPatSegment* segInfo = m_candidateHandler->createSegInfo(*mseg);
-
-        if( !m_candidateMatchingTool->match(candidate,*segInfo,true) ){
-          delete segInfo;
-          continue;
-        }
-
-	std::unique_ptr<Trk::Track> segTrack=m_fitter->fit(candidate,*segInfo,externalPhiHits);
-        delete segInfo;
-
-        if( !segTrack ) continue;
-
-        ATH_MSG_DEBUG(" found new track " << m_printer->print(*segTrack) );
-        newTracks.push_back(std::move(segTrack));
-      }
-    }
-
-    if(!newTracks.empty()) ATH_MSG_DEBUG(" found new tracks for segment " << newTracks.size() );
-
-    return newTracks;
-  }
-
-
-  std::unique_ptr<Trk::Track> MooTrackBuilder::recalibrateHitsOnTrack( const Trk::Track& track, bool doMdts, bool doCompetingClusters ) const {
-    // loop over track and calculate residuals
-    const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
-    if( !states ){
-      ATH_MSG_DEBUG(" track without states, discarding track " );
-      return std::unique_ptr<Trk::Track>();
-    }
-    if( msgLvl(MSG::DEBUG) ) {
-      msg(MSG::DEBUG) << MSG::DEBUG << " recalibrating hits on track " << std::endl
-                      << m_printer->print(track );
-
-      if( msgLvl(MSG::VERBOSE) ){
-        if( track.measurementsOnTrack() ) msg(MSG::DEBUG) << std::endl << m_printer->print( track.measurementsOnTrack()->stdcont() ) << endmsg;
-      }else{
-        msg(MSG::DEBUG) << endmsg;
-      }
-
-    }
-    // vector to store states, the boolean indicated whether the state was create in this routine (true) or belongs to the track (false)
-    // If any new state is created, all states will be cloned and a new track will beformed from them.
-    std::vector< std::pair<bool,const Trk::TrackStateOnSurface* > > newStates;
-    newStates.reserve(states->size()+5);
-
-    // loop over TSOSs
-    DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit = states->begin();
-    DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit_end = states->end();
-    for( ; tsit!=tsit_end ; ++tsit ){
-
-      if( !*tsit ) continue; //sanity check
-
-      // check whether state is a measurement
-      const Trk::TrackParameters* pars = (*tsit)->trackParameters();
-      if( !pars ) {
-        newStates.push_back( std::make_pair(false,*tsit) );
-        continue;
-      }
-
-      // check whether state is a measurement
-      const Trk::MeasurementBase* meas = (*tsit)->measurementOnTrack();
-      if( !meas ) {
-        newStates.push_back( std::make_pair(false,*tsit) );
-        continue;
-      }
-
-      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
-
-      // Not a ROT, else it would have had an identifier. Keep the TSOS.
-      if( !id.is_valid() || !m_idHelperSvc->isMuon(id) ){
-        newStates.push_back( std::make_pair(false,*tsit) );
-        continue;
-      }
-
-      ATH_MSG_VERBOSE(" new measurement " << m_idHelperSvc->toString(id) );
-
-      if( m_idHelperSvc->isMdt(id) ) {
-
-        if( doMdts ){
-          const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(meas);
-          if( !mdt ){
-            ATH_MSG_WARNING( " Measurement with MDT identifier that is not a MdtDriftCircleOnTrack " );
-            continue;
-          }
-          const Trk::RIO_OnTrack* newMdt = m_mdtRotCreator->correct( *mdt->prepRawData(), *pars );
-          if( !newMdt ) {
-            ATH_MSG_WARNING( " Failed to recalibrate MDT " );
-            continue;
-          }
-          Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createMeasTSOSWithUpdate( **tsit,
-                                                                                     newMdt,
-                                                                                     pars->clone(),
-                                                                                     (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ?
-                                                                                     Trk::TrackStateOnSurface::Outlier : Trk::TrackStateOnSurface::Measurement);
-          newStates.push_back( std::make_pair(true,tsos) );
-
-        }else{
-          newStates.push_back( std::make_pair(false,*tsit) );
-        }
-
-      }else if( m_idHelperSvc->isCsc(id) ) {
-
-        newStates.push_back( std::make_pair(false,*tsit) );
-
-      }else if(  m_idHelperSvc->isTrigger(id) ){
-
-        if( doCompetingClusters ){
-          tsit = insertClustersWithCompetingRotCreation( tsit, tsit_end, newStates );
-        }else{
-          newStates.push_back( std::make_pair(false,*tsit) );
-        }
-
-      }else if( m_idHelperSvc->isMM(id) || m_idHelperSvc->issTgc(id)){
-        newStates.push_back( std::make_pair(false,*tsit) );
-      }else{
-        ATH_MSG_WARNING( " unknown Identifier " );
-      }
-
-    }
-
-    ATH_MSG_DEBUG(" original track had " << states->size()
-                  << " TSOS, adding " << newStates.size() - states->size() << " new TSOS " );
-
-    // states were added, create a new track
-    DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>();
-    trackStateOnSurfaces->reserve( newStates.size() );
-    std::vector< std::pair<bool,const Trk::TrackStateOnSurface* > >::iterator nit = newStates.begin();
-    std::vector< std::pair<bool,const Trk::TrackStateOnSurface* > >::iterator nit_end = newStates.end();
-    for( ;nit!=nit_end;++nit ){
-      // add states. If nit->first is true we have a new state. If it is false the state is from the old track and has to be cloned
-      trackStateOnSurfaces->push_back( nit->first ? nit->second : nit->second->clone() );
-    }
-    return std::make_unique<Trk::Track>( track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone():0 );
-
-  }
-
-
-  DataVector<const Trk::TrackStateOnSurface>::const_iterator
-  MooTrackBuilder::insertClustersWithCompetingRotCreation( DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit,
-                                                           DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit_end,
-                                                           std::vector< std::pair<bool,const Trk::TrackStateOnSurface* > >& states
-                                                           ) const {
-    // iterator should point to a valid element
-    if( tsit == tsit_end ) {
-      ATH_MSG_WARNING( " iterator pointing to end of vector, this should no happen " );
-      return --tsit;
-    }
-
-    // check whether state is a measurement
-    const Trk::MeasurementBase* meas = (*tsit)->measurementOnTrack();
-    const Trk::TrackParameters* pars = (*tsit)->trackParameters();
-    if( !meas  || !pars ){
-      ATH_MSG_WARNING( " iterator pointing to a TSOS without a measurement or TrackParameters " );
-      if( tsit+1 == tsit_end ) --tsit;
-      return tsit;
-    }
-
-    ATH_MSG_VERBOSE(" inserting with competing ROT creation " );
-
-    // loop over states until we reached the last tgc hit in this detector element
-    // keep trackof the identifiers and the states
-    std::list<const Trk::PrepRawData*> etaPrds;
-    std::list<const Trk::PrepRawData*> phiPrds;
-    const Trk::TrkDetElementBase* currentDetEl = 0;
-    std::vector< std::pair<bool,const Trk::TrackStateOnSurface* > > newStates;
-    // keep track of outliers as we might have to drop them..
-    std::vector< std::pair<bool,const Trk::TrackStateOnSurface* > > outlierStates;
-    bool hasPhi = false;
-    bool hasEta = false;
-
-    for( ;tsit!=tsit_end;++tsit ){
-
-      if( !*tsit ) continue;
-
-      // check whether state is a measurement, keep if not
-      const Trk::MeasurementBase* meas = (*tsit)->measurementOnTrack();
-      if( !meas ) {
-        newStates.push_back( std::make_pair(false,*tsit) );
-        continue;
-      }
-
-      // get identifier, keep state if it has no identifier.
-      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
-      if( !id.is_valid() ) {
-        newStates.push_back( std::make_pair(false,*tsit) );
-        continue;
-      }
-
-
-      // sanity check, this SHOULD be a RPC, TGC or CSC measurement
-      if( !( m_idHelperSvc->isTrigger(id) ) ){
-        break;
-      }
-
-      bool measuresPhi = m_idHelperSvc->measuresPhi(id);
-      if( !hasPhi && measuresPhi )  hasPhi = true;
-      if( !hasEta && !measuresPhi ) hasEta = true;
-
-      // check whether state is a measurement
-      if( (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ) {
-        outlierStates.push_back( std::make_pair(measuresPhi,*tsit) );
-        continue;
-      }
-
-      // check whether we are still in the same chamber, stop loop if not
-
-      ATH_MSG_VERBOSE(" handling " << m_idHelperSvc->toString(id) );
-
-      std::list<const Trk::PrepRawData*>& prdList = measuresPhi ? phiPrds : etaPrds;
-      const MuonClusterOnTrack* clus = dynamic_cast<const MuonClusterOnTrack*>(meas);
-      if( clus ){
-        const Trk::TrkDetElementBase* detEl = clus->detectorElement();
-        if( !currentDetEl ) currentDetEl = detEl;
-        if( detEl != currentDetEl ){
-          ATH_MSG_VERBOSE(" new detector element stopping " );
-          break;
-        }
-        prdList.push_back(clus->prepRawData());
-      }else{
-        // split competing ROTs into constituents
-        const CompetingMuonClustersOnTrack* comp = dynamic_cast<const CompetingMuonClustersOnTrack*>(meas);
-        if( comp ) {
-
-          const Trk::TrkDetElementBase* detEl = 0;
-          if( comp->containedROTs().empty() ) {
-            ATH_MSG_WARNING( " CompetingROT without constituents "  );
-            break;
-          }
-          detEl = comp->containedROTs().front()->detectorElement();
-          if( !currentDetEl ) currentDetEl = detEl;
-          if( detEl != currentDetEl ) {
-            ATH_MSG_VERBOSE(" new detector element stopping " );
-            break;
-          }
-          std::vector<const MuonClusterOnTrack*>::const_iterator clit = comp->containedROTs().begin();
-          std::vector<const MuonClusterOnTrack*>::const_iterator clit_end = comp->containedROTs().end();
-          for( ;clit!=clit_end;++clit ) {
-            prdList.push_back((*clit)->prepRawData());
-          }
-
-        }else{
-          ATH_MSG_WARNING( " Unknown trigger hit type! "  );
-          continue;
-        }
-      }
-    }
-
-    // now that we have the lists of prds we can create the competing rots
-    if( !etaPrds.empty() ){
-      const CompetingMuonClustersOnTrack* etaCompRot = m_compRotCreator->createBroadCluster(etaPrds,0.);
-      if( !etaCompRot ){
-        ATH_MSG_WARNING( " Failed to create CompetingMuonClustersOnTrack for eta hits! "  );
-      }else{
-
-        const Trk::TrackParameters* etaPars = 0;
-        // check whether original parameters are on surface, if so clone original parameters
-        if( etaCompRot->associatedSurface() == pars->associatedSurface() ){
-          etaPars = pars->clone();
-        }else{
-          etaPars = m_propagator->propagate(*pars,etaCompRot->associatedSurface(),Trk::anyDirection,
-                                            false,m_magFieldProperties);
-        }
-        if( !etaPars ){
-          ATH_MSG_WARNING( " Failed to calculate TrackParameters for eta hits! "  );
-          delete etaCompRot;
-        }else{
-          Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createMeasTSOS( etaCompRot, etaPars, Trk::TrackStateOnSurface::Measurement );
-          newStates.push_back( std::make_pair(true,tsos) );
-        }
-      }
-    }
-
-    if( !phiPrds.empty() ){
-      const CompetingMuonClustersOnTrack* phiCompRot = m_compRotCreator->createBroadCluster(phiPrds,0.);
-      if( !phiCompRot ){
-        ATH_MSG_WARNING( " Failed to create CompetingMuonClustersOnTrack for phi hits! "  );
-      }else{
-
-        const Trk::TrackParameters* phiPars = 0;
-        // check whether original parameters are on surface, if so clone original parameters
-        if(phiCompRot->associatedSurface() == pars->associatedSurface() ){
-          phiPars = pars->clone();
-        }else{
-          phiPars = m_propagator->propagate(*pars,phiCompRot->associatedSurface(),Trk::anyDirection,
-                                            false,m_magFieldProperties);
-        }
-        if( !phiPars ){
-          ATH_MSG_WARNING( " Failed to calculate TrackParameters for phi hits! "  );
-          delete phiCompRot;
-        }else{
-          Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createMeasTSOS( phiCompRot, phiPars, Trk::TrackStateOnSurface::Measurement );
-          newStates.push_back( std::make_pair(true,tsos) );
-        }
-      }
-    }
-
-    // add outliers if there was no measurement on track in the same projection
-    std::vector< std::pair<bool,const Trk::TrackStateOnSurface* > >::iterator outIt = outlierStates.begin();
-    std::vector< std::pair<bool,const Trk::TrackStateOnSurface* > >::iterator outIt_end = outlierStates.end();
-    for( ;outIt!=outIt_end;++outIt ){
-      if( hasPhi && outIt->first )  newStates.push_back( std::make_pair(false,outIt->second) );
-      else if( hasEta && !outIt->first ) newStates.push_back( std::make_pair(false,outIt->second));
-      else if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << " Dropping outlier " << endmsg;
-    }
-
-
-    // sort all states in this chamber
-    std::stable_sort(newStates.begin(),newStates.end(),SortTSOSByDistanceToPars(pars) );
-
-    // insert the states into
-    states.insert( states.end(),newStates.begin(),newStates.end() );
-
-    // iterator should point to the last TGC in this chamber
-    return --tsit;
-  }
-
-  std::pair<std::unique_ptr<Trk::Track>,std::unique_ptr<Trk::Track> > MooTrackBuilder::splitTrack( const Trk::Track& track ) const {
-
-    // use slFitter for straight line fit, or toroid off, otherwise use normal Fitter
-      
-    if ( m_edmHelperSvc->isSLTrack(track) ) return m_slFitter->splitTrack(track);
-      
-    EventContext ctx = Gaudi::Hive::currentContext();
-    MagField::AtlasFieldCache    fieldCache;
-    // Get field cache object
-    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
-    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-  
-    if (fieldCondObj == nullptr) {
-      ATH_MSG_ERROR("splitTrack: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
-      std::pair<std::unique_ptr<Trk::Track>,std::unique_ptr<Trk::Track> > emptyPair;
-      return emptyPair;
-    }
-    fieldCondObj->getInitializedCache (fieldCache);
-
-    if ( !fieldCache.toroidOn() ) return m_slFitter->splitTrack(track);
-
-    return m_fitter->splitTrack(track);
-
-  }
-
-  std::vector<std::unique_ptr<MuPatTrack> > MooTrackBuilder::find( MuPatCandidateBase& candidate, const std::vector<MuPatSegment*>& segVec ) const {
-
-    std::vector<std::unique_ptr<MuPatTrack> > candidates;
-    // check whether we have segments
-    if( segVec.empty() ) return candidates;
-
-    std::set<MuPatSegment*> usedSegments;
-    std::map<MuPatSegment*,MuPatSegment*> slSegments;
-
-    //int looseQualityLevel = 1; // Not used for the moment
-    bool tightQualityCuts = false;
-    ATH_MSG_DEBUG(" find: " << m_candidateHandler->print(candidate,0)
-                  << std::endl << m_candidateHandler->print(segVec,0) );
-
-    // store whether segment was added to at least one candidates
-
-    // vector to store candidate extensions
-    std::vector< std::pair<MuPatSegment*,std::unique_ptr<Trk::Track> > > extensions;
-    extensions.reserve( segVec.size() );
-
-    // loop over segments
-    std::vector<MuPatSegment*>::const_iterator sit = segVec.begin();
-    std::vector<MuPatSegment*>::const_iterator sit_end = segVec.end();
-    for( ;sit!=sit_end;++sit ){
-
-      if( usedSegments.count(*sit) ) continue;
-
-      // check whether chamber is already included in candidate
-      if( candidate.shareChambers(**sit) ) {
-        ATH_MSG_VERBOSE("addStationToSeed:: already on candidate " << std::endl
-                        << m_printer->print(*(*sit)->segment) );
-        continue;
-      }
-
-      if( !m_candidateMatchingTool->match(candidate,**sit,tightQualityCuts) ) {
-        ATH_MSG_VERBOSE(" track/segment combination rejected based on angular matching " << std::endl
-                        << m_printer->print(*(*sit)->segment) );
-        continue;
-      }
-
-      ATH_MSG_VERBOSE("combining: " << m_printer->print(*(*sit)->segment) );
-
-      // try to combine track with segment
-      std::unique_ptr<Trk::Track> track = combine(candidate,**sit,0);
-
-      // additional check in case the candidate is a MuPatTrack
-      MuPatTrack* trkCan = dynamic_cast<MuPatTrack*>(&candidate);
-      MuPatSegment* segCan = dynamic_cast<MuPatSegment*>(&candidate);
-      if( trkCan ) {
-
-        if( !track ) {
-          trkCan->addExcludedSegment(*sit);
-          continue;
-        }
-
-        // is the new track better
-        SortTracksByHitNumber sortTracks;
-        if( !sortTracks(*track,trkCan->track()) ){
-          ATH_MSG_VERBOSE(" rejecting track as new segment results in worse fit" );
-          continue;
-        }
-
-        // check whether the track cleaner didn't remove one of the already added chamber layers
-        // loop over hits
-        std::set<MuonStationIndex::StIndex> stationLayersOnTrack;
-        std::vector<const Trk::MeasurementBase*>::const_iterator mit = track->measurementsOnTrack()->stdcont().begin();
-        std::vector<const Trk::MeasurementBase*>::const_iterator mit_end = track->measurementsOnTrack()->stdcont().end();
-        for( ;mit!=mit_end;++mit ){
-
-          const Trk::MeasurementBase* meas = *mit;
-
-          Identifier id = m_edmHelperSvc->getIdentifier(*meas);
-          if( !id.is_valid() || m_idHelperSvc->isTrigger(id) ) {
-            continue;
-          }
-
-          stationLayersOnTrack.insert(m_idHelperSvc->stationIndex(id));
-        }
-
-        bool hasAllLayers = true;
-        std::set<MuonStationIndex::StIndex>::iterator stIt = candidate.stations().begin();
-        std::set<MuonStationIndex::StIndex>::iterator stIt_end = candidate.stations().end();
-        for( ;stIt!=stIt_end;++stIt ) {
-          if( !stationLayersOnTrack.count(*stIt) ){
-            ATH_MSG_VERBOSE(" missing layer " << MuonStationIndex::stName(*stIt) );
-            hasAllLayers = false;
-          }
-        }
-
-        if( !hasAllLayers ) {
-          ATH_MSG_VERBOSE(" rejecting track as one of the chamber layers of the candidate was removed " );
-          continue;
-        }
-      }
-
-      if( !track ) {
-        continue;
-      }
-
-
-      usedSegments.insert(*sit);
-
-      // now loop over segments once more and try to add SL overlap if missed
-      // first check that segment is not an overlap segment
-      if( !(*sit)->hasSLOverlap() ){
-
-	std::unique_ptr<MuPatTrack> newCandidate;
-        // loop over segments
-        std::vector<MuPatSegment*>::const_iterator sit1 = segVec.begin();
-        std::vector<MuPatSegment*>::const_iterator sit1_end = segVec.end();
-        for( ;sit1!=sit1_end;++sit1 ){
-
-          // select segments is different chamber
-          if( (*sit)->chIndex == (*sit1)->chIndex ) continue;
-
-          if( !newCandidate ) {
-	    std::unique_ptr<Trk::Track> trkTrkCan=std::make_unique<Trk::Track>(*track);
-            if( trkCan ){
-              // copy candidate and add segment
-              newCandidate = std::make_unique<MuPatTrack>(*trkCan);
-              m_candidateHandler->extendWithSegment(*newCandidate,**sit,trkTrkCan);
-            }else if( segCan ){
-              newCandidate = m_candidateHandler->createCandidate( *segCan,**sit,trkTrkCan);
+            if (slFit) {
+                msg(MSG::DEBUG) << " doing SL fit ";
+            } else {
+                msg(MSG::DEBUG) << " doing curved fit ";
             }
-            if( !newCandidate ) break;
-          }
-
-          if( !m_candidateMatchingTool->match(*newCandidate,**sit1,tightQualityCuts) ) {
-            ATH_MSG_VERBOSE("track/segment combination rejected based on angular matching " << std::endl
-                << m_printer->print(*(*sit)->segment) );
-            continue;
-          }
-          ATH_MSG_VERBOSE("adding SL overlap " << m_printer->print(*(*sit1)->segment) );
-	  std::unique_ptr<Trk::Track> slOverlapTrack = combine( *track, *(*sit1)->segment );
-          if( !slOverlapTrack ) continue;
-
-          // is the new track better
-          SortTracksByHitNumber sortTracks;
-          if( !sortTracks(*slOverlapTrack,*track) ){
-            ATH_MSG_VERBOSE(" rejecting track as new segment results in worse fit" );
-            slOverlapTrack.reset();
-            continue;
-          }
-          ATH_MSG_VERBOSE("adding SL overlap ok, new track" << m_printer->print(*slOverlapTrack) << std::endl << m_printer->printStations(*slOverlapTrack) );
-
-          track.swap(slOverlapTrack);
-          usedSegments.insert(*sit1);
-          slSegments[*sit] = *sit1;
-          break;
+            msg(MSG::DEBUG) << endmsg;
         }
-      }
 
-      ATH_MSG_VERBOSE(" Track found " << m_printer->print(*track) );
+        const MuPatTrack* trkCan1 = dynamic_cast<const MuPatTrack*>(&firstCandidate);
+        const MuPatTrack* trkCan2 = dynamic_cast<const MuPatTrack*>(&secondCandidate);
 
-      // add new solution
-      extensions.push_back( std::make_pair(*sit,std::move(track)) );
+        const MuPatSegment* segCan1 = dynamic_cast<const MuPatSegment*>(&firstCandidate);
+        const MuPatSegment* segCan2 = dynamic_cast<const MuPatSegment*>(&secondCandidate);
 
-    } // for (sit)
-
-    // loop over solutions and add them
-    if ( extensions.size() >= 1 ) {
-
-      candidates.reserve(extensions.size());
-
-      // additional check in case the candidate is a MuPatTrack
-      MuPatTrack* trkCan = dynamic_cast<MuPatTrack*>(&candidate);
-      MuPatSegment* segCan = dynamic_cast<MuPatSegment*>(&candidate);
-
-      std::vector< std::pair<MuPatSegment*,std::unique_ptr<Trk::Track> > >::iterator eit = extensions.begin();
-      // if more than 1 extensions are found, first add the copies
-      std::vector< std::pair<MuPatSegment*,std::unique_ptr<Trk::Track> > >::iterator eit_end = extensions.end();
-      // start from the second one to make copies based on the existing candidates
-      for( ; eit!=eit_end; ++eit ){
-	std::unique_ptr<MuPatTrack> newCandidate;
-	//std::unique_ptr<Trk::Track> inTrack=std::make_unique<Trk::Track>(*eit->second);
-        if( trkCan ){
-          // copy candidate and add segment
-          newCandidate = std::make_unique<MuPatTrack>(*trkCan);
-          m_candidateHandler->extendWithSegment(*newCandidate,*eit->first,eit->second);
-        }else if( segCan ){
-          newCandidate = m_candidateHandler->createCandidate( *segCan,*eit->first,eit->second);
+        const MuPatTrack* candidate = nullptr;
+        const MuPatSegment* segment = nullptr;
+        if (trkCan1 && segCan2) {
+            candidate = trkCan1;
+            segment = segCan2;
+        } else if (trkCan2 && segCan1) {
+            candidate = trkCan2;
+            segment = segCan1;
         }
-        ATH_MSG_DEBUG(" " << m_printer->print(*eit->first->segment) );
-        MuPatSegment* slOverlap = slSegments[eit->first];
 
-        if( slOverlap ){
-          ATH_MSG_DEBUG("SLOverlap " << m_printer->print(*slOverlap->segment) );
-          // hack to allow me to add a second segment without changing the track
-	  std::unique_ptr<Trk::Track> nullTrack;
-          newCandidate->addSegment(slOverlap,nullTrack);
+        // check whether this combination was already tried, if yes reject the combination
+        if (candidate && segment) {
+            ATH_MSG_DEBUG(" Track/segment combination");
+            for (std::vector<MuPatSegment*>::const_iterator esit = candidate->excludedSegments().begin();
+                 esit != candidate->excludedSegments().end(); ++esit) {
+                if (*esit == segment) {
+                    ATH_MSG_DEBUG(" Rejected segment based on exclusion list");
+                    return nullptr;
+                }
+            }
         }
-        candidates.push_back(std::move(newCandidate));
 
-        if( msgLvl(MSG::DEBUG) ) {
-          msg(MSG::DEBUG) << " creating new candidate " << candidates.back().get()
-                          << std::endl << m_printer->print(candidates.back()->track())
-                          << std::endl << m_printer->printStations(candidates.back()->track()) << endmsg;
+        // the following bit of code checks whether the current combination of segments was already tested
+        if (m_useTrackingHistory) {
+            // create a set of all segments of the would-be candidate
+            std::set<const MuPatSegment*> segments;
+            if ((segCan1 && segCan2)) {
+                segments.insert(segCan1);
+                segments.insert(segCan2);
+            }
+            if (candidate && segment) {
+                segments.insert(segment);
+                std::vector<MuPatSegment*>::const_iterator tsit = candidate->segments().begin();
+                std::vector<MuPatSegment*>::const_iterator tsit_end = candidate->segments().end();
+                for (; tsit != tsit_end; ++tsit) segments.insert(*tsit);
+            }
+            // now loop over the segments and check if any of them is associated with a track that contains all of the segments
+            std::set<const MuPatSegment*>::iterator sit = segments.begin();
+            std::set<const MuPatSegment*>::iterator sit_end = segments.end();
+
+            for (; sit != sit_end; ++sit) {
+                // loop over the tracks associated with the current segment
+                std::set<MuPatTrack*>::const_iterator tit = (*sit)->tracks().begin();
+                std::set<MuPatTrack*>::const_iterator tit_end = (*sit)->tracks().end();
+                for (; tit != tit_end; ++tit) {
+                    // loop over the segments associated with the track
+                    std::set<MuPatSegment*> foundSegments;
+                    std::vector<MuPatSegment*>::const_iterator tsit = (*tit)->segments().begin();
+                    std::vector<MuPatSegment*>::const_iterator tsit_end = (*tit)->segments().end();
+                    for (; tsit != tsit_end; ++tsit) {
+                        if (segments.count(*tsit)) foundSegments.insert(*tsit);
+                    }
+
+                    // if all segments are already part of an existing track, don't perform the fit
+                    if (foundSegments.size() == segments.size()) {
+                        ATH_MSG_DEBUG("Combination already part of an existing track");
+                        return nullptr;
+                    }
+
+                    // if all segments but one are already part of an existing track, check the exclusion list
+                    if (candidate && !candidate->excludedSegments().empty() && foundSegments.size() == segments.size() - 1) {
+                        // create destination vector for segments that are not found
+                        std::vector<const MuPatSegment*> unassociatedSegments(segments.size(), nullptr);
+                        std::vector<const MuPatSegment*>::iterator it = std::set_difference(
+                            segments.begin(), segments.end(), foundSegments.begin(), foundSegments.end(), unassociatedSegments.begin());
+                        const MuPatSegment* zero = nullptr;
+                        unassociatedSegments.erase(std::find(unassociatedSegments.begin(), unassociatedSegments.end(), zero),
+                                                   unassociatedSegments.end());
+
+                        // check whether any pointers found
+                        if (it != unassociatedSegments.begin()) {
+                            // this should always be one as we required the difference to be one!
+                            if (unassociatedSegments.size() != 1) {
+                                ATH_MSG_DEBUG("Inconsistent result from set difference: size result "
+                                              << unassociatedSegments.size() << " candidate " << segments.size() << " found "
+                                              << foundSegments.size());
+                                return nullptr;
+                            }
+
+                            // check that the result is indeed part of the original set
+                            if (!segments.count(unassociatedSegments.front())) {
+                                ATH_MSG_DEBUG("Segment point not part of the original set, aborting!");
+                                return nullptr;
+                            }
+
+                            // now check whether the segment is part of the excluded segments
+                            std::vector<MuPatSegment*>::const_iterator pos = std::find(
+                                candidate->excludedSegments().begin(), candidate->excludedSegments().end(), unassociatedSegments.front());
+                            if (pos != candidate->excludedSegments().end()) {
+                                ATH_MSG_DEBUG("Segment found in exclusion list, not performing fit");
+                                return nullptr;
+                            }
+                        }
+                    }
+                }
+            }
         }
-      }
-    }
-    return candidates;
-  }
 
-  bool MooTrackBuilder::isSplitTrack( const Trk::Track& track1, const Trk::Track& track2 ) const {
+        // use slFitter for straight line fit, or toroid off, otherwise use normal Fitter
+        if (slFit) return std::unique_ptr<Trk::Track>(m_slFitter->fit(firstCandidate, secondCandidate, externalPhiHits));
 
-    // some loose association cuts
-    const DataVector<const Trk::TrackParameters>* parsVec1 = track1.trackParameters();
-    if( !parsVec1 || parsVec1->empty() ){
-      ATH_MSG_WARNING(" isSplitTrack::Track without parameters! " );
-      return false;
-    }
-    const Trk::TrackParameters* pars1 = parsVec1->front();
-    if( !pars1 ){
-      ATH_MSG_WARNING(" isSplitTrack::Track without NULL pointer in parameter vector! " );
-      return false;
-    }
+        EventContext ctx = Gaudi::Hive::currentContext();
+        MagField::AtlasFieldCache fieldCache;
+        // Get field cache object
+        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+        const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
 
-    const DataVector<const Trk::TrackParameters>* parsVec2 = track2.trackParameters();
-    if( !parsVec2 || parsVec2->empty() ){
-      ATH_MSG_WARNING(" isSplitTrack::Track without parameters! " );
-      return false;
-    }
-    const Trk::TrackParameters* pars2 = parsVec2->front();
-    if( !pars2 ){
-      ATH_MSG_WARNING(" isSplitTrack::Track without NULL pointer in parameter vector! " );
-      return false;
+        if (!fieldCondObj) {
+            ATH_MSG_ERROR("combine: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+            return nullptr;
+        }
+        fieldCondObj->getInitializedCache(fieldCache);
+        if (!fieldCache.toroidOn()) return std::unique_ptr<Trk::Track>(m_slFitter->fit(firstCandidate, secondCandidate, externalPhiHits));
+
+        return m_fitter->fit(firstCandidate, secondCandidate, externalPhiHits);
     }
 
-    if( !m_candidateMatchingTool->sameSide( pars1->momentum().unit(),pars1->position(),pars2->position(),true) ){
-      ATH_MSG_DEBUG(" tracks in opposite hemispheres " );
-      return false;
+    std::unique_ptr<Trk::Track> MooTrackBuilder::combine(const Trk::Track& track, const MuonSegment& seg,
+                                                         const PrepVec* externalPhiHits) const {
+        GarbageContainer trash_bin;
+
+        // convert segments
+        std::unique_ptr<Trk::Track> inTrack = std::make_unique<Trk::Track>(track);
+        std::unique_ptr<MuPatTrack> candidate(m_candidateHandler->createCandidate(inTrack, trash_bin));
+        if (!candidate) return nullptr;
+
+        std::unique_ptr<MuPatSegment> segInfo(m_candidateHandler->createSegInfo(seg, trash_bin));
+        if (!segInfo) { return nullptr; }
+
+        // call fit()
+        std::unique_ptr<Trk::Track> newTrack = combine(*candidate, *segInfo, externalPhiHits);
+
+        // return result
+        return newTrack;
     }
 
-    double sinTheta1 = sin(pars1->momentum().theta());
-    double sinTheta2 = sin(pars2->momentum().theta());
-    double deltaSinTheta = sinTheta1 - sinTheta2;
-    if( fabs(deltaSinTheta) > 1. ) {
-      ATH_MSG_DEBUG(" too large opening angle in theta " << deltaSinTheta );
-      //return false;
-    }
-    double sinPhi1 = sin(pars1->momentum().phi());
-    double sinPhi2 = sin(pars2->momentum().phi());
-    double deltaSinPhi = sinPhi1 - sinPhi2;
-    if( fabs(deltaSinPhi) > 1. ){
-      ATH_MSG_DEBUG(" too large opening angle in phi " << deltaSinPhi );
-      //return false;
-    }
+    std::vector<std::unique_ptr<Trk::Track> > MooTrackBuilder::combineWithSegmentFinding(const Trk::Track& track, const MuonSegment& seg,
+                                                                                         const PrepVec* externalPhiHits) const {
+        GarbageContainer trash_bin;
+        // convert segments
+        std::vector<std::unique_ptr<Trk::Track> > emptyVec;
+        std::unique_ptr<Trk::Track> inTrack = std::make_unique<Trk::Track>(track);
+        std::unique_ptr<MuPatTrack> candidate = m_candidateHandler->createCandidate(inTrack, trash_bin);
+        if (!candidate) return emptyVec;
 
+        std::unique_ptr<MuPatSegment> segInfo(m_candidateHandler->createSegInfo(seg, trash_bin));
+        if (!segInfo) return emptyVec;
 
-    const Trk::Track* referenceTrack = 0;
-    const Trk::Track* otherTrack = 0;
-
-    // first check whether the tracks have a momentum measurement
-    bool isSL1 = m_edmHelperSvc->isSLTrack(track1);
-    bool isSL2 = m_edmHelperSvc->isSLTrack(track2);
-
-    // now decide which track to use as reference
-    if( isSL1 && !isSL2 ) {
-      referenceTrack = &track2;
-      otherTrack     = &track1;
-    }else if( !isSL1 && isSL2 ){
-      referenceTrack = &track1;
-      otherTrack     = &track2;
-    }else{
-      SortTracksByHitNumber sortTracks;
-      bool pickFirst = sortTracks(track1,track2);
-      if( pickFirst ){
-        referenceTrack = &track1;
-        otherTrack     = &track2;
-      }else{
-        referenceTrack = &track2;
-        otherTrack     = &track1;
-      }
+        // call fit()
+        return combineWithSegmentFinding(*candidate, *segInfo, trash_bin, externalPhiHits);
     }
 
-    ATH_MSG_DEBUG(" close tracks " << std::endl
-                  << m_printer->print(*referenceTrack) << std::endl
-                  << m_printer->print(*otherTrack) );
+    Trk::TrackParameters* MooTrackBuilder::findClosestParameters(const Trk::Track& track, const Amg::Vector3D& pos) const {
+        // are we in the endcap?
+        bool isEndcap = m_edmHelperSvc->isEndcap(track);
 
+        // position of segment
+        double posSeg = isEndcap ? pos.z() : pos.perp();
 
-    // get iterators to TSOSs
-    const DataVector<const Trk::TrackStateOnSurface>* statesRef = referenceTrack->trackStateOnSurfaces();
-    if( !statesRef ){
-      ATH_MSG_WARNING(" track without states, cannot perform cleaning " );
-      return false;
+        // position closest parameters
+        double closest = 1e8;
+        const Trk::TrackParameters* closestParameters = nullptr;
+        bool closestIsMeasured = false;
+
+        // loop over track and calculate residuals
+        const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
+        if (!states) {
+            ATH_MSG_DEBUG(" track without states! ");
+            return nullptr;
+        }
+
+        // loop over TSOSs
+        DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit = states->begin();
+        DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit_end = states->end();
+        for (; tsit != tsit_end; ++tsit) {
+            // check whether state is a measurement
+            const Trk::MeasurementBase* meas = (*tsit)->measurementOnTrack();
+            if (!meas) { continue; }
+
+            const Trk::TrackParameters* pars = (*tsit)->trackParameters();
+            if (!pars) { continue; }
+
+            // check whether measured parameters
+            bool isMeasured = pars->covariance();
+
+            // skip all none measured TrackParameters as soon as we found one with a measurement
+            if (closestIsMeasured && !isMeasured) continue;
+
+            // calculate position parameters and compare with position segment
+            double posPars = isEndcap ? pars->position().z() : pars->position().perp();
+            double diffPos = fabs(posPars - posSeg);
+
+            // accept if measured parameters or the current accepted parameters are not yet measured
+            if ((isMeasured && !closestIsMeasured) || diffPos < closest) {
+                closest = diffPos;
+                closestParameters = pars;
+                closestIsMeasured = isMeasured;
+
+                // if we are within 100 mm take current
+                if (closest < 100.) { break; }
+            }
+        }
+
+        // return clone of parameters
+        if (closestParameters) return closestParameters->clone();
+        return nullptr;
     }
-    DataVector<const Trk::TrackStateOnSurface>::const_iterator refTSOS = statesRef->begin();
-    DataVector<const Trk::TrackStateOnSurface>::const_iterator refTSOS_end = statesRef->end();
 
-    const DataVector<const Trk::TrackStateOnSurface>* statesOther = otherTrack->trackStateOnSurfaces();
-    if( !statesOther ){
-      ATH_MSG_WARNING(" track without states, cannot perform cleaning " );
-      return false;
+    Trk::TrackParameters* MooTrackBuilder::getClosestParameters(const MuPatCandidateBase& candidate, const Trk::Surface& surf) const {
+        // cast to segment, return segment parameters if cast success
+        const MuPatSegment* segCandidate = dynamic_cast<const MuPatSegment*>(&candidate);
+        if (segCandidate) return segCandidate->entryPars().clone();
+
+        // for a track candidate, return the closest parameter on the track
+        const MuPatTrack& trkCandidate = dynamic_cast<const MuPatTrack&>(candidate);
+        return getClosestParameters(trkCandidate.track(), surf);
     }
-    DataVector<const Trk::TrackStateOnSurface>::const_iterator otherTSOS = statesOther->begin();
-    DataVector<const Trk::TrackStateOnSurface>::const_iterator otherTSOS_end = statesOther->end();
 
-    DistanceAlongParameters distAlongPars;
+    Trk::TrackParameters* MooTrackBuilder::getClosestParameters(const Trk::Track& track, const Trk::Surface& surf) const {
+        return MuonGetClosestParameters::closestParameters(track, surf);
+    }
 
-    unsigned int nmatching(0);
-    unsigned int noff(0);
+    std::vector<std::unique_ptr<Trk::Track> > MooTrackBuilder::combineWithSegmentFinding(const Trk::Track& track,
+                                                                                         const Trk::TrackParameters& pars,
+                                                                                         const std::set<Identifier>& chIds,
+                                                                                         const PrepVec* patternPhiHits) const {
+        GarbageContainer trash_bin;
+        // convert track
+        std::unique_ptr<Trk::Track> inTrack = std::make_unique<Trk::Track>(track);
+        std::unique_ptr<MuPatTrack> can = m_candidateHandler->createCandidate(inTrack, trash_bin);
+        if (!can) { return std::vector<std::unique_ptr<Trk::Track> >(); }
 
+        return combineWithSegmentFinding(*can, pars, chIds, trash_bin, patternPhiHits);
+    }
 
-    // keep track of previous distance and parameters as well
-    double prevDist = 1e10;
-    const Trk::TrackParameters* prevPars = 0;
+    std::vector<std::unique_ptr<Trk::Track> > MooTrackBuilder::combineWithSegmentFinding(const MuPatTrack& candidate,
+                                                                                         const MuPatSegment& segInfo,
+                                                                                         GarbageContainer& trash_bin,
+                                                                                         const PrepVec* externalPhiHits) const {
+        /** second stage segment matching:
+            - estimate segment parameters at segment position using fit of track + segment position
+            - redo segment finding using the predicted parameters as seed
+            - redo segment association
+        */
 
-    // now loop over the TSOSs of both tracks and compare hit by hit
-    while( refTSOS != refTSOS_end && otherTSOS != otherTSOS_end ){
+        const MuonSegment& seg = *segInfo.segment;
+        std::vector<std::unique_ptr<Trk::Track> > newTracks;
 
-      const Trk::TrackParameters* parsRef = (*refTSOS)->trackParameters();
-      if( !parsRef ){
-        ++refTSOS;
-        continue;
-      }
+        // get chamber Id of segment
+        std::set<Identifier> chIds = m_edmHelperSvc->chamberIds(seg);
 
-      const Trk::TrackParameters* parsOther = (*otherTSOS)->trackParameters();
-      if( !parsOther ){
-        ++otherTSOS;
-        continue;
-      }
+        if (chIds.empty()) return newTracks;
 
-      double dist = distAlongPars( *parsRef, *parsOther );
+        // for now do not redo segment making for CSCs
+        if (m_idHelperSvc->isCsc(*chIds.begin())) {
+            if (m_candidateMatchingTool->match(candidate, segInfo, true)) {
+                std::unique_ptr<Trk::Track> newtrack(m_fitter->fit(candidate, segInfo, externalPhiHits));
+                if (newtrack) newTracks.push_back(std::move(newtrack));
+                return newTracks;
+            } else {
+                return newTracks;
+            }
+        }
 
-      if( dist > 0. ){
-        prevDist = dist;
-        prevPars = parsRef;
-        ++refTSOS;
-        continue;
-      }else{
+        const Trk::Track& track = candidate.track();
+        ATH_MSG_DEBUG(" in combineWithSegmentFinding ");
+        ATH_MSG_VERBOSE(" segment " << m_printer->print(seg));
 
-        const Trk::TrackParameters* closestPars = 0;
-        if( prevPars && fabs(prevDist) < fabs(dist) ){
-          closestPars = prevPars;
-        }else{
-          closestPars = parsRef;
+        // find track parameters on segment surface
+        std::unique_ptr<Trk::TrackParameters> closestPars(findClosestParameters(track, seg.globalPosition()));
+
+        if (!closestPars) {
+            ATH_MSG_WARNING(" unable to find closest TrackParameters ");
+            return newTracks;
+        }
+
+        ATH_MSG_VERBOSE(" closest parameter " << m_printer->print(*closestPars));
+
+        // propagate to segment surface
+        std::unique_ptr<Trk::TrackParameters> exPars(
+            m_propagator->propagate(*closestPars, seg.associatedSurface(), Trk::anyDirection, false, m_magFieldProperties));
+
+        if (!exPars) {
+            ATH_MSG_WARNING(" Propagation failed!! ");
+            return newTracks;
+        }
+
+        ATH_MSG_VERBOSE(" extrapolated parameter " << m_printer->print(*exPars));
+
+        return combineWithSegmentFinding(candidate, *exPars, chIds, trash_bin, externalPhiHits);
+    }
+
+    void MooTrackBuilder::removeDuplicateWithReference(std::unique_ptr<Trk::SegmentCollection>& segments,
+                                                       std::vector<const MuonSegment*>& referenceSegments) const {
+        if (referenceSegments.empty()) return;
+
+        ATH_MSG_DEBUG(" Removing duplicates from segment vector of size " << segments->size() << " reference size "
+                                                                          << referenceSegments.size());
+
+        CompareMuonSegmentKeys compareSegmentKeys{};
+
+        // create a vector with pairs of MuonSegmentKey and a pointer to the corresponding segment to resolve ambiguities
+        std::vector<std::pair<MuonSegmentKey, Trk::SegmentCollection::iterator> > segKeys;
+        segKeys.reserve(segments->size());
+
+        // loop over reference segments and make keys
+        Trk::SegmentCollection::iterator sit = segments->begin();
+        Trk::SegmentCollection::iterator sit_end = segments->end();
+        for (; sit != sit_end; ++sit) {
+            Trk::Segment* tseg = *sit;
+            MuonSegment* mseg = dynamic_cast<MuonSegment*>(tseg);
+            segKeys.push_back(std::make_pair(MuonSegmentKey(*mseg), sit));
+        }
+
+        // create a vector with pairs of MuonSegmentKey and a pointer to the corresponding segment to resolve ambiguities
+        std::vector<MuonSegmentKey> referenceSegKeys;
+        referenceSegKeys.reserve(referenceSegments.size());
+
+        // loop over reference segments and make keys
+        std::vector<const MuonSegment*>::iterator vit = referenceSegments.begin();
+        std::vector<const MuonSegment*>::iterator vit_end = referenceSegments.end();
+        for (; vit != vit_end; ++vit) { referenceSegKeys.push_back(MuonSegmentKey(**vit)); }
+
+        // loop over segments and compare the current segment with the reference ones
+        std::vector<std::pair<MuonSegmentKey, Trk::SegmentCollection::iterator> >::iterator skit = segKeys.begin();
+        std::vector<std::pair<MuonSegmentKey, Trk::SegmentCollection::iterator> >::iterator skit_end = segKeys.end();
+        for (; skit != skit_end; ++skit) {
+            bool isDuplicate = false;
+
+            std::vector<MuonSegmentKey>::iterator rskit = referenceSegKeys.begin();
+            std::vector<MuonSegmentKey>::iterator rskit_end = referenceSegKeys.end();
+
+            for (; rskit != rskit_end; ++rskit) {
+                CompareMuonSegmentKeys::OverlapResult overlapResult = compareSegmentKeys(*rskit, skit->first);
+                if (overlapResult == CompareMuonSegmentKeys::Identical) {
+                    ATH_MSG_DEBUG(" discarding identical segment");
+                    isDuplicate = true;
+                    break;
+                } else if (overlapResult == CompareMuonSegmentKeys::SuperSet) {
+                    // reference segment superset of current: discard
+                    ATH_MSG_DEBUG(" discarding (subset) ");
+                    isDuplicate = true;
+                    break;
+                }
+            }
+            if (isDuplicate) segments->erase(skit->second);
+        }
+    }
+
+    std::vector<std::unique_ptr<Trk::Track> > MooTrackBuilder::combineWithSegmentFinding(const MuPatTrack& candidate,
+                                                                                         const Trk::TrackParameters& pars,
+                                                                                         const std::set<Identifier>& chIds,
+                                                                                         GarbageContainer& trash_bin,
+                                                                                         const PrepVec* externalPhiHits) const {
+        std::vector<std::unique_ptr<Trk::Track> > newTracks;
+
+        if (chIds.empty()) return newTracks;
+
+        if (!m_idHelperSvc->isMdt(*chIds.begin())) {
+            ATH_MSG_WARNING("combineWithSegmentFinding called with CSC hits!! retuning zero pointer");
+            return newTracks;
+        }
+
+        // redo segment finding
+        std::unique_ptr<Trk::SegmentCollection> segments = m_seededSegmentFinder->find(pars, chIds);
+
+        // check whether we got segments
+        if (!segments) {
+            ATH_MSG_DEBUG(" failed to find new segments ");
+            return newTracks;
+        }
+        if (segments->empty()) {
+            ATH_MSG_DEBUG(" got empty vector!! ");
+            return newTracks;
+        }
+
+        unsigned int nseg = segments->size();
+        if (m_useExclusionList) {
+            std::vector<const MuonSegment*> referenceSegments;
+            for (std::vector<MuPatSegment*>::const_iterator esit = candidate.excludedSegments().begin();
+                 esit != candidate.excludedSegments().end(); ++esit) {
+                if ((*esit)->segment) referenceSegments.push_back((*esit)->segment);
+            }
+            removeDuplicateWithReference(segments, referenceSegments);
+        }
+
+        if (msgLvl(MSG::DEBUG) && segments->size() != nseg) {
+            msg(MSG::DEBUG) << MSG::DEBUG
+                            << " Rejected segments based on exclusion list, number of removed segments: " << nseg - segments->size()
+                            << " total " << segments->size() << endmsg;
+        }
+
+        if (!segments->empty()) {
+            // loop over segments
+            Trk::SegmentCollection::iterator sit = segments->begin();
+            Trk::SegmentCollection::iterator sit_end = segments->end();
+            for (; sit != sit_end; ++sit) {
+                if (!*sit) continue;
+                Trk::Segment* tseg = *sit;
+                MuonSegment* mseg = dynamic_cast<MuonSegment*>(tseg);
+
+                if (msgLvl(MSG::DEBUG)) {
+                    msg(MSG::DEBUG) << MSG::DEBUG << " adding segment " << m_printer->print(*mseg);
+                    if (msgLvl(MSG::VERBOSE)) {
+                        msg(MSG::DEBUG) << std::endl << m_printer->print(mseg->containedMeasurements()) << endmsg;
+                        if (msgLvl(MSG::VERBOSE) && candidate.track().measurementsOnTrack())
+                            msg(MSG::DEBUG) << " track " << m_printer->print(candidate.track()) << std::endl
+                                            << m_printer->print(candidate.track().measurementsOnTrack()->stdcont()) << endmsg;
+                    } else {
+                        msg(MSG::DEBUG) << endmsg;
+                    }
+                }
+                std::unique_ptr<MuPatSegment> segInfo{m_candidateHandler->createSegInfo(*mseg, trash_bin)};
+
+                if (!m_candidateMatchingTool->match(candidate, *segInfo, true)) { continue; }
+
+                std::unique_ptr<Trk::Track> segTrack = m_fitter->fit(candidate, *segInfo, externalPhiHits);
+
+                if (!segTrack) continue;
+
+                ATH_MSG_DEBUG(" found new track " << m_printer->print(*segTrack));
+                newTracks.push_back(std::move(segTrack));
+            }
+        }
+
+        if (!newTracks.empty()) ATH_MSG_DEBUG(" found new tracks for segment " << newTracks.size());
+
+        return newTracks;
+    }
+
+    std::unique_ptr<Trk::Track> MooTrackBuilder::recalibrateHitsOnTrack(const Trk::Track& track, bool doMdts,
+                                                                        bool doCompetingClusters) const {
+        // loop over track and calculate residuals
+        const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
+        if (!states) {
+            ATH_MSG_DEBUG(" track without states, discarding track ");
+            return nullptr;
+        }
+        if (msgLvl(MSG::DEBUG)) {
+            msg(MSG::DEBUG) << MSG::DEBUG << " recalibrating hits on track " << std::endl << m_printer->print(track);
+
+            if (msgLvl(MSG::VERBOSE)) {
+                if (track.measurementsOnTrack())
+                    msg(MSG::DEBUG) << std::endl << m_printer->print(track.measurementsOnTrack()->stdcont()) << endmsg;
+            } else {
+                msg(MSG::DEBUG) << endmsg;
+            }
+        }
+        // vector to store states, the boolean indicated whether the state was create in this routine (true) or belongs to the track (false)
+        // If any new state is created, all states will be cloned and a new track will beformed from them.
+        std::vector<std::pair<bool, const Trk::TrackStateOnSurface*> > newStates;
+        newStates.reserve(states->size() + 5);
+
+        // loop over TSOSs
+        DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit = states->begin();
+        DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit_end = states->end();
+        for (; tsit != tsit_end; ++tsit) {
+            if (!*tsit) continue;  // sanity check
+
+            // check whether state is a measurement
+            const Trk::TrackParameters* pars = (*tsit)->trackParameters();
+            if (!pars) {
+                newStates.push_back(std::make_pair(false, *tsit));
+                continue;
+            }
+
+            // check whether state is a measurement
+            const Trk::MeasurementBase* meas = (*tsit)->measurementOnTrack();
+            if (!meas) {
+                newStates.push_back(std::make_pair(false, *tsit));
+                continue;
+            }
+
+            Identifier id = m_edmHelperSvc->getIdentifier(*meas);
+
+            // Not a ROT, else it would have had an identifier. Keep the TSOS.
+            if (!id.is_valid() || !m_idHelperSvc->isMuon(id)) {
+                newStates.push_back(std::make_pair(false, *tsit));
+                continue;
+            }
+
+            ATH_MSG_VERBOSE(" new measurement " << m_idHelperSvc->toString(id));
+
+            if (m_idHelperSvc->isMdt(id)) {
+                if (doMdts) {
+                    const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(meas);
+                    if (!mdt) {
+                        ATH_MSG_WARNING(" Measurement with MDT identifier that is not a MdtDriftCircleOnTrack ");
+                        continue;
+                    }
+                    const Trk::RIO_OnTrack* newMdt = m_mdtRotCreator->correct(*mdt->prepRawData(), *pars);
+                    if (!newMdt) {
+                        ATH_MSG_WARNING(" Failed to recalibrate MDT ");
+                        continue;
+                    }
+                    Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createMeasTSOSWithUpdate(
+                        **tsit, newMdt, pars->clone(),
+                        (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ? Trk::TrackStateOnSurface::Outlier
+                                                                         : Trk::TrackStateOnSurface::Measurement);
+                    newStates.push_back(std::make_pair(true, tsos));
+
+                } else {
+                    newStates.push_back(std::make_pair(false, *tsit));
+                }
+
+            } else if (m_idHelperSvc->isCsc(id)) {
+                newStates.push_back(std::make_pair(false, *tsit));
+
+            } else if (m_idHelperSvc->isTrigger(id)) {
+                if (doCompetingClusters) {
+                    tsit = insertClustersWithCompetingRotCreation(tsit, tsit_end, newStates);
+                } else {
+                    newStates.push_back(std::make_pair(false, *tsit));
+                }
+
+            } else if (m_idHelperSvc->isMM(id) || m_idHelperSvc->issTgc(id)) {
+                newStates.push_back(std::make_pair(false, *tsit));
+            } else {
+                ATH_MSG_WARNING(" unknown Identifier ");
+            }
+        }
+
+        ATH_MSG_DEBUG(" original track had " << states->size() << " TSOS, adding " << newStates.size() - states->size() << " new TSOS ");
+
+        // states were added, create a new track
+        auto trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
+        trackStateOnSurfaces.reserve(newStates.size());
+        std::vector<std::pair<bool, const Trk::TrackStateOnSurface*> >::iterator nit = newStates.begin();
+        std::vector<std::pair<bool, const Trk::TrackStateOnSurface*> >::iterator nit_end = newStates.end();
+        for (; nit != nit_end; ++nit) {
+            // add states. If nit->first is true we have a new state. If it is false the state is from the old track and has to be cloned
+            trackStateOnSurfaces.push_back(nit->first ? nit->second : nit->second->clone());
+        }
+        return std::make_unique<Trk::Track>(track.info(), std::move(trackStateOnSurfaces),
+                                            track.fitQuality() ? track.fitQuality()->clone() : nullptr);
+    }
+
+    DataVector<const Trk::TrackStateOnSurface>::const_iterator MooTrackBuilder::insertClustersWithCompetingRotCreation(
+        DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit,
+        DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit_end,
+        std::vector<std::pair<bool, const Trk::TrackStateOnSurface*> >& states) const {
+        // iterator should point to a valid element
+        if (tsit == tsit_end) {
+            ATH_MSG_WARNING(" iterator pointing to end of vector, this should no happen ");
+            return --tsit;
         }
 
         // check whether state is a measurement
-        const Trk::MeasurementBase* meas = (*otherTSOS)->measurementOnTrack();
-        if( meas && (*otherTSOS)->type(Trk::TrackStateOnSurface::Measurement) ){
+        const Trk::MeasurementBase* meas = (*tsit)->measurementOnTrack();
+        const Trk::TrackParameters* pars = (*tsit)->trackParameters();
+        if (!meas || !pars) {
+            ATH_MSG_WARNING(" iterator pointing to a TSOS without a measurement or TrackParameters ");
+            if (tsit + 1 == tsit_end) --tsit;
+            return tsit;
+        }
 
-          Identifier id = m_edmHelperSvc->getIdentifier(*meas);
-          // skip pseudo measurements
-          if( !id.is_valid() ) {
-            prevDist = dist;
-            prevPars = parsRef;
-            ++otherTSOS;
-            continue;
-          }
-          if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << m_idHelperSvc->toString(id);
+        ATH_MSG_VERBOSE(" inserting with competing ROT creation ");
 
-          const Trk::TrackParameters* impactPars = m_propagator->propagate(*closestPars,meas->associatedSurface(),Trk::anyDirection,
-                                                                           false,m_magFieldProperties);
-          if( impactPars ) {
+        // loop over states until we reached the last tgc hit in this detector element
+        // keep trackof the identifiers and the states
+        std::list<const Trk::PrepRawData*> etaPrds;
+        std::list<const Trk::PrepRawData*> phiPrds;
+        const Trk::TrkDetElementBase* currentDetEl = nullptr;
+        std::vector<std::pair<bool, const Trk::TrackStateOnSurface*> > newStates;
+        // keep track of outliers as we might have to drop them..
+        std::vector<std::pair<bool, const Trk::TrackStateOnSurface*> > outlierStates;
+        bool hasPhi = false;
+        bool hasEta = false;
 
-            double residual = 1e10;
-            double pull     = 1e10;
-            // pointer to resPull
-            const Trk::ResidualPull* resPull = m_pullCalculator->residualPull( meas, impactPars, Trk::ResidualPull::Unbiased );
-            if( resPull && resPull->pull().size() == 1 ) {
-              if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "  residual " << m_printer->print(*resPull);
-              residual = resPull->residual().front();
-              pull     = resPull->pull().front();
-              delete resPull;
-            }else{
-              ATH_MSG_WARNING("failed to calculate residual and pull" );
+        for (; tsit != tsit_end; ++tsit) {
+            if (!*tsit) continue;
+
+            // check whether state is a measurement, keep if not
+            const Trk::MeasurementBase* meas = (*tsit)->measurementOnTrack();
+            if (!meas) {
+                newStates.push_back(std::make_pair(false, *tsit));
+                continue;
             }
 
-            bool inBounds = false;
-            Amg::Vector2D locPos;
-            bool ok = meas->associatedSurface().globalToLocal(impactPars->position(),impactPars->momentum(),locPos);
-            delete impactPars;
-            if( ok ){
-              if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "  lpos (" << locPos[Trk::locX] << "," << locPos[Trk::locY] << ")";
-              double tol1 = 50.;
-              double tol2 = tol1;
-              Identifier id = m_edmHelperSvc->getIdentifier(*meas);
-              if( msgLvl(MSG::VERBOSE) && m_idHelperSvc->isMdt(id) ) {
-                const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(meas);
-                if( mdt ){
-                  int layer = m_idHelperSvc->mdtIdHelper().tubeLayer(id);
-                  int tube = m_idHelperSvc->mdtIdHelper().tube(id);
-                  double halfTubeLen = 0.5*mdt->detectorElement()->getActiveTubeLength(layer,tube);
-                  if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "  range " << halfTubeLen;
+            // get identifier, keep state if it has no identifier.
+            Identifier id = m_edmHelperSvc->getIdentifier(*meas);
+            if (!id.is_valid()) {
+                newStates.push_back(std::make_pair(false, *tsit));
+                continue;
+            }
+
+            // sanity check, this SHOULD be a RPC, TGC or CSC measurement
+            if (!(m_idHelperSvc->isTrigger(id))) { break; }
+
+            bool measuresPhi = m_idHelperSvc->measuresPhi(id);
+            if (!hasPhi && measuresPhi) hasPhi = true;
+            if (!hasEta && !measuresPhi) hasEta = true;
+
+            // check whether state is a measurement
+            if ((*tsit)->type(Trk::TrackStateOnSurface::Outlier)) {
+                outlierStates.push_back(std::make_pair(measuresPhi, *tsit));
+                continue;
+            }
+
+            // check whether we are still in the same chamber, stop loop if not
+
+            ATH_MSG_VERBOSE(" handling " << m_idHelperSvc->toString(id));
+
+            std::list<const Trk::PrepRawData*>& prdList = measuresPhi ? phiPrds : etaPrds;
+            const MuonClusterOnTrack* clus = dynamic_cast<const MuonClusterOnTrack*>(meas);
+            if (clus) {
+                const Trk::TrkDetElementBase* detEl = clus->detectorElement();
+                if (!currentDetEl) currentDetEl = detEl;
+                if (detEl != currentDetEl) {
+                    ATH_MSG_VERBOSE(" new detector element stopping ");
+                    break;
                 }
-              }
-              inBounds = meas->associatedSurface().insideBounds(locPos,tol1,tol2);
-              if( msgLvl(MSG::VERBOSE) ){
-                if( inBounds ) msg(MSG::VERBOSE) << " inBounds ";
-                else           msg(MSG::VERBOSE) << " outBounds ";
-              }
-            }else{
-              ATH_MSG_WARNING("globalToLocal failed" );
+                prdList.push_back(clus->prepRawData());
+            } else {
+                // split competing ROTs into constituents
+                const CompetingMuonClustersOnTrack* comp = dynamic_cast<const CompetingMuonClustersOnTrack*>(meas);
+                if (comp) {
+                    const Trk::TrkDetElementBase* detEl = nullptr;
+                    if (comp->containedROTs().empty()) {
+                        ATH_MSG_WARNING(" CompetingROT without constituents ");
+                        break;
+                    }
+                    detEl = comp->containedROTs().front()->detectorElement();
+                    if (!currentDetEl) currentDetEl = detEl;
+                    if (detEl != currentDetEl) {
+                        ATH_MSG_VERBOSE(" new detector element stopping ");
+                        break;
+                    }
+                    std::vector<const MuonClusterOnTrack*>::const_iterator clit = comp->containedROTs().begin();
+                    std::vector<const MuonClusterOnTrack*>::const_iterator clit_end = comp->containedROTs().end();
+                    for (; clit != clit_end; ++clit) { prdList.push_back((*clit)->prepRawData()); }
+
+                } else {
+                    ATH_MSG_WARNING(" Unknown trigger hit type! ");
+                    continue;
+                }
             }
-
-            if( inBounds && ( fabs(residual) < 20. || fabs(pull) < 10. ) ){
-              ATH_MSG_VERBOSE(" --> matching " );
-              ++nmatching;
-            }else{
-              ATH_MSG_VERBOSE(" --> off " );
-              ++noff;
-            }
-
-          }else{
-            ATH_MSG_DEBUG("failed to extrapolate parameters to surface" );
-          }
-
-
         }
 
-        prevDist = dist;
-        prevPars = parsRef;
-        ++otherTSOS;
-        continue;
-      }
-    }
-
-    // if more hits are compatible with reference track than are not consider as split track
-    if( nmatching > noff ) return true;
-
-    return false;
-  }
-
-  TrackCollection* MooTrackBuilder::mergeSplitTracks( const TrackCollection& tracks ) const {
-
-    // vector to store good track, boolean is used to identify whether the track was created in this routine or is from the collection
-    std::vector< std::pair<bool,std::unique_ptr<Trk::Track> > > goodTracks;
-    goodTracks.reserve(tracks.size());
-    bool foundSplitTracks = false;
-
-    ATH_MSG_DEBUG(" trying to merge split tracks, collection size " << tracks.size() );
-
-    // loop over tracks
-    TrackCollection::const_iterator tit = tracks.begin();
-    TrackCollection::const_iterator tit_end = tracks.end();
-    for( ;tit!=tit_end;++tit ){
-
-      // pointer to merged track
-      std::unique_ptr<Trk::Track> mergedTrack;
-
-      // compare them to all good tracks and look for split tracks
-      std::vector< std::pair<bool,std::unique_ptr<Trk::Track> > >::iterator git = goodTracks.begin();
-      std::vector< std::pair<bool,std::unique_ptr<Trk::Track> > >::iterator git_end = goodTracks.end();
-      for( ;git!=git_end;++git ){
-        // check whether track is split
-        bool isSplit = isSplitTrack( *git->second, **tit );
-        if( isSplit ){
-
-          // if we found a potential split track, try to combine them
-	  std::unique_ptr<Trk::Track> track1=std::make_unique<Trk::Track>(*git->second);
-	  std::unique_ptr<Trk::Track> track2=std::make_unique<Trk::Track>(**tit);
-	  std::unique_ptr<MuPatTrack> can1 = m_candidateHandler->createCandidate(track1);
-	  std::unique_ptr<MuPatTrack> can2 = m_candidateHandler->createCandidate(track2);
-
-          mergedTrack = combine(*can1,*can2);
-
-          // we have found a split track and have successfully merged it
-          // replace the track in goodTracks with the new one
-          if( mergedTrack ){
-            ATH_MSG_DEBUG(" origninal tracks " << std::endl
-                          << m_printer->print(*git->second) << std::endl << m_printer->printStations(*git->second) << std::endl
-                          << m_printer->print(**tit) << std::endl << m_printer->printStations(**tit) << std::endl
-                          << " merged track " << std::endl
-                          << m_printer->print(*mergedTrack) << std::endl << m_printer->printStations(*mergedTrack) );
-            foundSplitTracks = true;
-            // check whether this is a new track, if so delete the old one before overwriting it
-            git->first = true;
-            git->second.swap(mergedTrack);
-            break;
-          }else{
-            ATH_MSG_VERBOSE(" failed to merge tracks " << std::endl
-                            << m_printer->print(*git->second) << std::endl << m_printer->printStations(*git->second) << std::endl
-                            << m_printer->print(**tit) << std::endl << m_printer->printStations(**tit) );
-          }
+        // now that we have the lists of prds we can create the competing rots
+        if (!etaPrds.empty()) {
+            const CompetingMuonClustersOnTrack* etaCompRot = m_compRotCreator->createBroadCluster(etaPrds, 0.);
+            if (!etaCompRot) {
+                ATH_MSG_WARNING(" Failed to create CompetingMuonClustersOnTrack for eta hits! ");
+            } else {
+                const Trk::TrackParameters* etaPars = nullptr;
+                // check whether original parameters are on surface, if so clone original parameters
+                if (etaCompRot->associatedSurface() == pars->associatedSurface()) {
+                    etaPars = pars->clone();
+                } else {
+                    // ownership relinquished, should be treated in createMeasTSOS
+                    etaPars =
+                        m_propagator->propagate(*pars, etaCompRot->associatedSurface(), Trk::anyDirection, false, m_magFieldProperties)
+                            .release();
+                }
+                if (!etaPars) {
+                    ATH_MSG_WARNING(" Failed to calculate TrackParameters for eta hits! ");
+                    delete etaCompRot;
+                } else {
+                    Trk::TrackStateOnSurface* tsos =
+                        MuonTSOSHelper::createMeasTSOS(etaCompRot, etaPars, Trk::TrackStateOnSurface::Measurement);
+                    newStates.push_back(std::make_pair(true, tsos));
+                }
+            }
         }
-      }
 
-      // if this track was not merged with another track insert it into goodTracks
-      if( !mergedTrack ){
-	std::unique_ptr<Trk::Track> newTrack=std::make_unique<Trk::Track>(**tit);
-        goodTracks.push_back( std::make_pair(false,std::move(newTrack)) );
-      }
+        if (!phiPrds.empty()) {
+            const CompetingMuonClustersOnTrack* phiCompRot = m_compRotCreator->createBroadCluster(phiPrds, 0.);
+            if (!phiCompRot) {
+                ATH_MSG_WARNING(" Failed to create CompetingMuonClustersOnTrack for phi hits! ");
+            } else {
+                const Trk::TrackParameters* phiPars = nullptr;
+                // check whether original parameters are on surface, if so clone original parameters
+                if (phiCompRot->associatedSurface() == pars->associatedSurface()) {
+                    phiPars = pars->clone();
+                } else {
+                    // ownership relinquished, handled in createMeasTSOS
+                    phiPars =
+                        m_propagator->propagate(*pars, phiCompRot->associatedSurface(), Trk::anyDirection, false, m_magFieldProperties)
+                            .release();
+                }
+                if (!phiPars) {
+                    ATH_MSG_WARNING(" Failed to calculate TrackParameters for phi hits! ");
+                    delete phiCompRot;
+                } else {
+                    Trk::TrackStateOnSurface* tsos =
+                        MuonTSOSHelper::createMeasTSOS(phiCompRot, phiPars, Trk::TrackStateOnSurface::Measurement);
+                    newStates.push_back(std::make_pair(true, tsos));
+                }
+            }
+        }
+
+        // add outliers if there was no measurement on track in the same projection
+        std::vector<std::pair<bool, const Trk::TrackStateOnSurface*> >::iterator outIt = outlierStates.begin();
+        std::vector<std::pair<bool, const Trk::TrackStateOnSurface*> >::iterator outIt_end = outlierStates.end();
+        for (; outIt != outIt_end; ++outIt) {
+            if (hasPhi && outIt->first)
+                newStates.push_back(std::make_pair(false, outIt->second));
+            else if (hasEta && !outIt->first)
+                newStates.push_back(std::make_pair(false, outIt->second));
+            else if (msgLvl(MSG::DEBUG))
+                msg(MSG::DEBUG) << " Dropping outlier " << endmsg;
+        }
+
+        // sort all states in this chamber
+        std::stable_sort(newStates.begin(), newStates.end(), SortTSOSByDistanceToPars(pars));
+
+        // insert the states into
+        states.insert(states.end(), newStates.begin(), newStates.end());
+
+        // iterator should point to the last TGC in this chamber
+        return --tsit;
     }
 
-    // did we find any?
-    if( !foundSplitTracks ) return nullptr;
-    // loop over the new track vector and create a new TrackCollection
-    TrackCollection* newTracks = new TrackCollection();
-    newTracks->reserve(goodTracks.size());
-    std::vector< std::pair<bool,std::unique_ptr<Trk::Track> > >::iterator git = goodTracks.begin();
-    std::vector< std::pair<bool,std::unique_ptr<Trk::Track> > >::iterator git_end = goodTracks.end();
-    for( ;git!=git_end;++git ){
-      //TrackCollection will take ownership
-      newTracks->push_back(std::move(git->second));
+    std::pair<std::unique_ptr<Trk::Track>, std::unique_ptr<Trk::Track> > MooTrackBuilder::splitTrack(const Trk::Track& track) const {
+        // use slFitter for straight line fit, or toroid off, otherwise use normal Fitter
+
+        if (m_edmHelperSvc->isSLTrack(track)) return m_slFitter->splitTrack(track);
+
+        EventContext ctx = Gaudi::Hive::currentContext();
+        MagField::AtlasFieldCache fieldCache;
+        // Get field cache object
+        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+        const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+
+        if (fieldCondObj == nullptr) {
+            ATH_MSG_ERROR("splitTrack: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+            std::pair<std::unique_ptr<Trk::Track>, std::unique_ptr<Trk::Track> > emptyPair;
+            return emptyPair;
+        }
+        fieldCondObj->getInitializedCache(fieldCache);
+
+        if (!fieldCache.toroidOn()) return m_slFitter->splitTrack(track);
+
+        return m_fitter->splitTrack(track);
     }
-    return newTracks;
-  }
 
-  void MooTrackBuilder::cleanUp() const {
-    m_candidateHandler->cleanUp();
+    std::vector<std::unique_ptr<MuPatTrack> > MooTrackBuilder::find(MuPatCandidateBase& candidate, const std::vector<MuPatSegment*>& segVec,
+                                                                    GarbageContainer& trash_bin) const {
+        std::vector<std::unique_ptr<MuPatTrack> > candidates;
+        // check whether we have segments
+        if (segVec.empty()) return candidates;
 
-  }
+        std::set<MuPatSegment*> usedSegments;
+        std::map<MuPatSegment*, MuPatSegment*> slSegments;
 
-}
+        // int looseQualityLevel = 1; // Not used for the moment
+        bool tightQualityCuts = false;
+        ATH_MSG_DEBUG(" find: " << m_candidateHandler->print(candidate, 0) << std::endl << m_candidateHandler->print(segVec, 0));
+
+        // store whether segment was added to at least one candidates
+
+        // vector to store candidate extensions
+        std::vector<std::pair<MuPatSegment*, std::unique_ptr<Trk::Track> > > extensions;
+        extensions.reserve(segVec.size());
+
+        // loop over segments
+        std::vector<MuPatSegment*>::const_iterator sit = segVec.begin();
+        std::vector<MuPatSegment*>::const_iterator sit_end = segVec.end();
+        for (; sit != sit_end; ++sit) {
+            if (usedSegments.count(*sit)) continue;
+
+            // check whether chamber is already included in candidate
+            if (candidate.shareChambers(**sit)) {
+                ATH_MSG_VERBOSE("addStationToSeed:: already on candidate " << std::endl << m_printer->print(*(*sit)->segment));
+                continue;
+            }
+
+            if (!m_candidateMatchingTool->match(candidate, **sit, tightQualityCuts)) {
+                ATH_MSG_VERBOSE(" track/segment combination rejected based on angular matching " << std::endl
+                                                                                                 << m_printer->print(*(*sit)->segment));
+                continue;
+            }
+
+            ATH_MSG_VERBOSE("combining: " << m_printer->print(*(*sit)->segment));
+
+            // try to combine track with segment
+            std::unique_ptr<Trk::Track> track = combine(candidate, **sit, nullptr);
+
+            // additional check in case the candidate is a MuPatTrack
+            MuPatTrack* trkCan = dynamic_cast<MuPatTrack*>(&candidate);
+            MuPatSegment* segCan = dynamic_cast<MuPatSegment*>(&candidate);
+            if (trkCan) {
+                if (!track) {
+                    trkCan->addExcludedSegment(*sit);
+                    continue;
+                }
+
+                // is the new track better
+                SortTracksByHitNumber sortTracks;
+                if (!sortTracks(*track, trkCan->track())) {
+                    ATH_MSG_VERBOSE(" rejecting track as new segment results in worse fit");
+                    continue;
+                }
+
+                // check whether the track cleaner didn't remove one of the already added chamber layers
+                // loop over hits
+                std::set<MuonStationIndex::StIndex> stationLayersOnTrack;
+                std::vector<const Trk::MeasurementBase*>::const_iterator mit = track->measurementsOnTrack()->stdcont().begin();
+                std::vector<const Trk::MeasurementBase*>::const_iterator mit_end = track->measurementsOnTrack()->stdcont().end();
+                for (; mit != mit_end; ++mit) {
+                    const Trk::MeasurementBase* meas = *mit;
+
+                    Identifier id = m_edmHelperSvc->getIdentifier(*meas);
+                    if (!id.is_valid() || m_idHelperSvc->isTrigger(id)) { continue; }
+
+                    stationLayersOnTrack.insert(m_idHelperSvc->stationIndex(id));
+                }
+
+                bool hasAllLayers = true;
+                std::set<MuonStationIndex::StIndex>::iterator stIt = candidate.stations().begin();
+                std::set<MuonStationIndex::StIndex>::iterator stIt_end = candidate.stations().end();
+                for (; stIt != stIt_end; ++stIt) {
+                    if (!stationLayersOnTrack.count(*stIt)) {
+                        ATH_MSG_VERBOSE(" missing layer " << MuonStationIndex::stName(*stIt));
+                        hasAllLayers = false;
+                    }
+                }
+
+                if (!hasAllLayers) {
+                    ATH_MSG_VERBOSE(" rejecting track as one of the chamber layers of the candidate was removed ");
+                    continue;
+                }
+            }
+
+            if (!track) { continue; }
+
+            usedSegments.insert(*sit);
+
+            // now loop over segments once more and try to add SL overlap if missed
+            // first check that segment is not an overlap segment
+            if (!(*sit)->hasSLOverlap()) {
+                std::unique_ptr<MuPatTrack> newCandidate;
+                // loop over segments
+                std::vector<MuPatSegment*>::const_iterator sit1 = segVec.begin();
+                std::vector<MuPatSegment*>::const_iterator sit1_end = segVec.end();
+                for (; sit1 != sit1_end; ++sit1) {
+                    // select segments is different chamber
+                    if ((*sit)->chIndex == (*sit1)->chIndex) continue;
+
+                    if (!newCandidate) {
+                        std::unique_ptr<Trk::Track> trkTrkCan = std::make_unique<Trk::Track>(*track);
+                        if (trkCan) {
+                            // copy candidate and add segment
+                            newCandidate = std::make_unique<MuPatTrack>(*trkCan);
+                            m_candidateHandler->extendWithSegment(*newCandidate, **sit, trkTrkCan, trash_bin);
+                        } else if (segCan) {
+                            newCandidate = m_candidateHandler->createCandidate(*segCan, **sit, trkTrkCan, trash_bin);
+                        }
+                        if (!newCandidate) break;
+                    }
+
+                    if (!m_candidateMatchingTool->match(*newCandidate, **sit1, tightQualityCuts)) {
+                        ATH_MSG_VERBOSE("track/segment combination rejected based on angular matching "
+                                        << std::endl
+                                        << m_printer->print(*(*sit)->segment));
+                        continue;
+                    }
+                    ATH_MSG_VERBOSE("adding SL overlap " << m_printer->print(*(*sit1)->segment));
+                    std::unique_ptr<Trk::Track> slOverlapTrack = combine(*track, *(*sit1)->segment);
+                    if (!slOverlapTrack) continue;
+
+                    // is the new track better
+                    SortTracksByHitNumber sortTracks;
+                    if (!sortTracks(*slOverlapTrack, *track)) {
+                        ATH_MSG_VERBOSE(" rejecting track as new segment results in worse fit");
+                        slOverlapTrack.reset();
+                        continue;
+                    }
+                    ATH_MSG_VERBOSE("adding SL overlap ok, new track" << m_printer->print(*slOverlapTrack) << std::endl
+                                                                      << m_printer->printStations(*slOverlapTrack));
+
+                    track.swap(slOverlapTrack);
+                    usedSegments.insert(*sit1);
+                    slSegments[*sit] = *sit1;
+                    break;
+                }
+            }
+
+            ATH_MSG_VERBOSE(" Track found " << m_printer->print(*track));
+
+            // add new solution
+            extensions.push_back(std::make_pair(*sit, std::move(track)));
+
+        }  // for (sit)
+
+        // loop over solutions and add them
+        if (extensions.size() >= 1) {
+            candidates.reserve(extensions.size());
+
+            // additional check in case the candidate is a MuPatTrack
+            MuPatTrack* trkCan = dynamic_cast<MuPatTrack*>(&candidate);
+            MuPatSegment* segCan = dynamic_cast<MuPatSegment*>(&candidate);
+
+            std::vector<std::pair<MuPatSegment*, std::unique_ptr<Trk::Track> > >::iterator eit = extensions.begin();
+            // if more than 1 extensions are found, first add the copies
+            std::vector<std::pair<MuPatSegment*, std::unique_ptr<Trk::Track> > >::iterator eit_end = extensions.end();
+            // start from the second one to make copies based on the existing candidates
+            for (; eit != eit_end; ++eit) {
+                std::unique_ptr<MuPatTrack> newCandidate;
+                // std::unique_ptr<Trk::Track> inTrack=std::make_unique<Trk::Track>(*eit->second);
+                if (trkCan) {
+                    // copy candidate and add segment
+                    newCandidate = std::make_unique<MuPatTrack>(*trkCan);
+                    m_candidateHandler->extendWithSegment(*newCandidate, *eit->first, eit->second, trash_bin);
+                } else if (segCan) {
+                    newCandidate = m_candidateHandler->createCandidate(*segCan, *eit->first, eit->second, trash_bin);
+                }
+                ATH_MSG_DEBUG(" " << m_printer->print(*eit->first->segment));
+                MuPatSegment* slOverlap = slSegments[eit->first];
+
+                if (slOverlap) {
+                    ATH_MSG_DEBUG("SLOverlap " << m_printer->print(*slOverlap->segment));
+                    // hack to allow me to add a second segment without changing the track
+                    std::unique_ptr<Trk::Track> nullTrack;
+                    newCandidate->addSegment(slOverlap, nullTrack);
+                }
+                candidates.push_back(std::move(newCandidate));
+
+                ATH_MSG_DEBUG(" creating new candidate " << candidates.back().get() << std::endl
+                                                         << m_printer->print(candidates.back()->track()) << std::endl
+                                                         << m_printer->printStations(candidates.back()->track()));
+            }
+        }
+        return candidates;
+    }
+
+    bool MooTrackBuilder::isSplitTrack(const Trk::Track& track1, const Trk::Track& track2) const {
+        // some loose association cuts
+        const DataVector<const Trk::TrackParameters>* parsVec1 = track1.trackParameters();
+        if (!parsVec1 || parsVec1->empty()) {
+            ATH_MSG_WARNING(" isSplitTrack::Track without parameters! ");
+            return false;
+        }
+        const Trk::TrackParameters* pars1 = parsVec1->front();
+        if (!pars1) {
+            ATH_MSG_WARNING(" isSplitTrack::Track without NULL pointer in parameter vector! ");
+            return false;
+        }
+
+        const DataVector<const Trk::TrackParameters>* parsVec2 = track2.trackParameters();
+        if (!parsVec2 || parsVec2->empty()) {
+            ATH_MSG_WARNING(" isSplitTrack::Track without parameters! ");
+            return false;
+        }
+        const Trk::TrackParameters* pars2 = parsVec2->front();
+        if (!pars2) {
+            ATH_MSG_WARNING(" isSplitTrack::Track without NULL pointer in parameter vector! ");
+            return false;
+        }
+
+        if (!m_candidateMatchingTool->sameSide(pars1->momentum().unit(), pars1->position(), pars2->position(), true)) {
+            ATH_MSG_DEBUG(" tracks in opposite hemispheres ");
+            return false;
+        }
+
+        double sinTheta1 = sin(pars1->momentum().theta());
+        double sinTheta2 = sin(pars2->momentum().theta());
+        double deltaSinTheta = sinTheta1 - sinTheta2;
+        if (fabs(deltaSinTheta) > 1.) {
+            ATH_MSG_DEBUG(" too large opening angle in theta " << deltaSinTheta);
+            // return false;
+        }
+        double sinPhi1 = sin(pars1->momentum().phi());
+        double sinPhi2 = sin(pars2->momentum().phi());
+        double deltaSinPhi = sinPhi1 - sinPhi2;
+        if (fabs(deltaSinPhi) > 1.) {
+            ATH_MSG_DEBUG(" too large opening angle in phi " << deltaSinPhi);
+            // return false;
+        }
+
+        const Trk::Track* referenceTrack = nullptr;
+        const Trk::Track* otherTrack = nullptr;
+
+        // first check whether the tracks have a momentum measurement
+        bool isSL1 = m_edmHelperSvc->isSLTrack(track1);
+        bool isSL2 = m_edmHelperSvc->isSLTrack(track2);
+
+        // now decide which track to use as reference
+        if (isSL1 && !isSL2) {
+            referenceTrack = &track2;
+            otherTrack = &track1;
+        } else if (!isSL1 && isSL2) {
+            referenceTrack = &track1;
+            otherTrack = &track2;
+        } else {
+            SortTracksByHitNumber sortTracks;
+            bool pickFirst = sortTracks(track1, track2);
+            if (pickFirst) {
+                referenceTrack = &track1;
+                otherTrack = &track2;
+            } else {
+                referenceTrack = &track2;
+                otherTrack = &track1;
+            }
+        }
+
+        ATH_MSG_DEBUG(" close tracks " << std::endl << m_printer->print(*referenceTrack) << std::endl << m_printer->print(*otherTrack));
+
+        // get iterators to TSOSs
+        const DataVector<const Trk::TrackStateOnSurface>* statesRef = referenceTrack->trackStateOnSurfaces();
+        if (!statesRef) {
+            ATH_MSG_WARNING(" track without states, cannot perform cleaning ");
+            return false;
+        }
+        DataVector<const Trk::TrackStateOnSurface>::const_iterator refTSOS = statesRef->begin();
+        DataVector<const Trk::TrackStateOnSurface>::const_iterator refTSOS_end = statesRef->end();
+
+        const DataVector<const Trk::TrackStateOnSurface>* statesOther = otherTrack->trackStateOnSurfaces();
+        if (!statesOther) {
+            ATH_MSG_WARNING(" track without states, cannot perform cleaning ");
+            return false;
+        }
+        DataVector<const Trk::TrackStateOnSurface>::const_iterator otherTSOS = statesOther->begin();
+        DataVector<const Trk::TrackStateOnSurface>::const_iterator otherTSOS_end = statesOther->end();
+
+        DistanceAlongParameters distAlongPars;
+
+        unsigned int nmatching(0);
+        unsigned int noff(0);
+
+        // keep track of previous distance and parameters as well
+        double prevDist = 1e10;
+        const Trk::TrackParameters* prevPars = nullptr;
+
+        // now loop over the TSOSs of both tracks and compare hit by hit
+        while (refTSOS != refTSOS_end && otherTSOS != otherTSOS_end) {
+            const Trk::TrackParameters* parsRef = (*refTSOS)->trackParameters();
+            if (!parsRef) {
+                ++refTSOS;
+                continue;
+            }
+
+            const Trk::TrackParameters* parsOther = (*otherTSOS)->trackParameters();
+            if (!parsOther) {
+                ++otherTSOS;
+                continue;
+            }
+
+            double dist = distAlongPars(*parsRef, *parsOther);
+
+            if (dist > 0.) {
+                prevDist = dist;
+                prevPars = parsRef;
+                ++refTSOS;
+                continue;
+            } else {
+                const Trk::TrackParameters* closestPars = nullptr;
+                if (prevPars && fabs(prevDist) < fabs(dist)) {
+                    closestPars = prevPars;
+                } else {
+                    closestPars = parsRef;
+                }
+
+                // check whether state is a measurement
+                const Trk::MeasurementBase* meas = (*otherTSOS)->measurementOnTrack();
+                if (meas && (*otherTSOS)->type(Trk::TrackStateOnSurface::Measurement)) {
+                    Identifier id = m_edmHelperSvc->getIdentifier(*meas);
+                    // skip pseudo measurements
+                    if (!id.is_valid()) {
+                        prevDist = dist;
+                        prevPars = parsRef;
+                        ++otherTSOS;
+                        continue;
+                    }
+                    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << m_idHelperSvc->toString(id);
+                    // unique ptr ownership retained. Original code deleted impactPars
+                    auto impactPars =
+                        m_propagator->propagate(*closestPars, meas->associatedSurface(), Trk::anyDirection, false, m_magFieldProperties);
+                    if (impactPars) {
+                        double residual = 1e10;
+                        double pull = 1e10;
+                        // pointer to resPull
+                        const Trk::ResidualPull* resPull =
+                            m_pullCalculator->residualPull(meas, impactPars.get(), Trk::ResidualPull::Unbiased);
+                        if (resPull && resPull->pull().size() == 1) {
+                            if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "  residual " << m_printer->print(*resPull);
+                            residual = resPull->residual().front();
+                            pull = resPull->pull().front();
+                            delete resPull;
+                        } else {
+                            ATH_MSG_WARNING("failed to calculate residual and pull");
+                        }
+
+                        bool inBounds = false;
+                        Amg::Vector2D locPos;
+                        bool ok = meas->associatedSurface().globalToLocal(impactPars->position(), impactPars->momentum(), locPos);
+                        // delete impactPars;
+                        if (ok) {
+                            if (msgLvl(MSG::VERBOSE))
+                                msg(MSG::VERBOSE) << "  lpos (" << locPos[Trk::locX] << "," << locPos[Trk::locY] << ")";
+                            double tol1 = 50.;
+                            double tol2 = tol1;
+                            Identifier id = m_edmHelperSvc->getIdentifier(*meas);
+                            if (msgLvl(MSG::VERBOSE) && m_idHelperSvc->isMdt(id)) {
+                                const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(meas);
+                                if (mdt) {
+                                    int layer = m_idHelperSvc->mdtIdHelper().tubeLayer(id);
+                                    int tube = m_idHelperSvc->mdtIdHelper().tube(id);
+                                    double halfTubeLen = 0.5 * mdt->detectorElement()->getActiveTubeLength(layer, tube);
+                                    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "  range " << halfTubeLen;
+                                }
+                            }
+
+                            // for MM, perform the bound check from the detector element to take into account edge passivation
+                            const MMClusterOnTrack* mmClusterOnTrack = dynamic_cast<const MMClusterOnTrack*>(meas);
+                            if (mmClusterOnTrack) {
+                                inBounds = mmClusterOnTrack->detectorElement()->insideActiveBounds(id, locPos, tol1, tol2);
+                            } else {
+                                inBounds = meas->associatedSurface().insideBounds(locPos, tol1, tol2);
+                            }
+
+                            if (msgLvl(MSG::VERBOSE)) {
+                                if (inBounds)
+                                    msg(MSG::VERBOSE) << " inBounds ";
+                                else
+                                    msg(MSG::VERBOSE) << " outBounds ";
+                            }
+                        } else {
+                            ATH_MSG_WARNING("globalToLocal failed");
+                        }
+
+                        if (inBounds && (fabs(residual) < 20. || fabs(pull) < 10.)) {
+                            ATH_MSG_VERBOSE(" --> matching ");
+                            ++nmatching;
+                        } else {
+                            ATH_MSG_VERBOSE(" --> off ");
+                            ++noff;
+                        }
+
+                    } else {
+                        ATH_MSG_DEBUG("failed to extrapolate parameters to surface");
+                    }
+                }
+
+                prevDist = dist;
+                prevPars = parsRef;
+                ++otherTSOS;
+                continue;
+            }
+        }
+
+        // if more hits are compatible with reference track than are not consider as split track
+        if (nmatching > noff) return true;
+
+        return false;
+    }
+
+    TrackCollection* MooTrackBuilder::mergeSplitTracks(const TrackCollection& tracks, GarbageContainer& trash_bin) const {
+        // vector to store good track, boolean is used to identify whether the track was created in this routine or is from the collection
+        std::vector<std::pair<bool, std::unique_ptr<Trk::Track> > > goodTracks;
+        goodTracks.reserve(tracks.size());
+        bool foundSplitTracks = false;
+
+        ATH_MSG_DEBUG(" trying to merge split tracks, collection size " << tracks.size());
+
+        // loop over tracks
+        TrackCollection::const_iterator tit = tracks.begin();
+        TrackCollection::const_iterator tit_end = tracks.end();
+        for (; tit != tit_end; ++tit) {
+            // pointer to merged track
+            std::unique_ptr<Trk::Track> mergedTrack;
+
+            // compare them to all good tracks and look for split tracks
+            std::vector<std::pair<bool, std::unique_ptr<Trk::Track> > >::iterator git = goodTracks.begin();
+            std::vector<std::pair<bool, std::unique_ptr<Trk::Track> > >::iterator git_end = goodTracks.end();
+            for (; git != git_end; ++git) {
+                // check whether track is split
+                bool isSplit = isSplitTrack(*git->second, **tit);
+                if (isSplit) {
+                    // if we found a potential split track, try to combine them
+                    std::unique_ptr<Trk::Track> track1 = std::make_unique<Trk::Track>(*git->second);
+                    std::unique_ptr<Trk::Track> track2 = std::make_unique<Trk::Track>(**tit);
+                    std::unique_ptr<MuPatTrack> can1 = m_candidateHandler->createCandidate(track1, trash_bin);
+                    std::unique_ptr<MuPatTrack> can2 = m_candidateHandler->createCandidate(track2, trash_bin);
+
+                    mergedTrack = combine(*can1, *can2);
+
+                    // we have found a split track and have successfully merged it
+                    // replace the track in goodTracks with the new one
+                    if (mergedTrack) {
+                        ATH_MSG_DEBUG(" origninal tracks " << std::endl
+                                                           << m_printer->print(*git->second) << std::endl
+                                                           << m_printer->printStations(*git->second) << std::endl
+                                                           << m_printer->print(**tit) << std::endl
+                                                           << m_printer->printStations(**tit) << std::endl
+                                                           << " merged track " << std::endl
+                                                           << m_printer->print(*mergedTrack) << std::endl
+                                                           << m_printer->printStations(*mergedTrack));
+                        foundSplitTracks = true;
+                        // check whether this is a new track, if so delete the old one before overwriting it
+                        git->first = true;
+                        git->second.swap(mergedTrack);
+                        break;
+                    } else {
+                        ATH_MSG_VERBOSE(" failed to merge tracks " << std::endl
+                                                                   << m_printer->print(*git->second) << std::endl
+                                                                   << m_printer->printStations(*git->second) << std::endl
+                                                                   << m_printer->print(**tit) << std::endl
+                                                                   << m_printer->printStations(**tit));
+                    }
+                }
+            }
+
+            // if this track was not merged with another track insert it into goodTracks
+            if (!mergedTrack) {
+                std::unique_ptr<Trk::Track> newTrack = std::make_unique<Trk::Track>(**tit);
+                goodTracks.push_back(std::make_pair(false, std::move(newTrack)));
+            }
+        }
+
+        // did we find any?
+        if (!foundSplitTracks) return nullptr;
+        // loop over the new track vector and create a new TrackCollection
+        TrackCollection* newTracks = new TrackCollection();
+        newTracks->reserve(goodTracks.size());
+        std::vector<std::pair<bool, std::unique_ptr<Trk::Track> > >::iterator git = goodTracks.begin();
+        std::vector<std::pair<bool, std::unique_ptr<Trk::Track> > >::iterator git_end = goodTracks.end();
+        for (; git != git_end; ++git) {
+            // TrackCollection will take ownership
+            newTracks->push_back(std::move(git->second));
+        }
+        return newTracks;
+    }
+
+}  // namespace Muon

@@ -18,9 +18,11 @@ class TrigFastTrackFinderMonitoring(GenericMonitoringTool):
         self.addTrackHistograms(type)
         if doResMon:
             self.addResidualHistograms()
+        if type=='jet':
+            self.addUTTHistograms()
 
     def addSPHistograms(self, type):
-        if type=='FS' or type=='JetFS' or type=='FullScan' or type=='fullScan':
+        if type=='FS' or type=='JetFS' or type=='FullScan' or type=='fullScan' or type=='fullScanUTT' or type=='jet':
             self.defineHistogram('roi_nSPsPIX', path='EXPERT',type='TH1F',title="Number of Pixel SPs", xbins = 500, xmin=-0.5, xmax=49999.5)
             self.defineHistogram('roi_nSPsSCT', path='EXPERT',type='TH1F',title="Number of SCT SPs", xbins = 500, xmin=-0.5, xmax=99999.5)
             self.defineHistogram('roi_phiWidth',path='EXPERT',type='TH1F',title="Phi width of the input RoI",xbins = 100, xmin=0, xmax=6.4)
@@ -41,18 +43,33 @@ class TrigFastTrackFinderMonitoring(GenericMonitoringTool):
                              xlabels=["Start","GetRoI","GetSPs","ZFinder","Triplets","TrackMaker","TrackFitter","TrackConverter"])
 
     def addTimingHistograms(self, type):
-        if type=='FS' or type=='JetFS' or type=='FullScan' or type=='fullScan':
+        if type=='FS' or type=='JetFS' or type=='FullScan' or type=='fullScan' or type=='fullScanUTT' or type=='jet':
             self.defineHistogram('roi_nSPs, TIME_PattReco',   path='EXPERT',type='TH2F',title="PattReco time; nSPs",    xbins = 200, xmin=0.0, xmax=200000.0, ybins = 100, ymin=0.0, ymax=40000.0)
             self.defineHistogram('roi_nTracks, TIME_PattReco',path='EXPERT',type='TH2F',title="PattReco time; nTracks", xbins = 50,  xmin=0.0, xmax=10000.0,  ybins = 100, ymin=0.0, ymax=40000.0)
+            self.defineHistogram('TIME_Total',             path='EXPERT',type='TH1F',title="Total time (ms)",           xbins = 200, xmin=0.0, xmax=15000.0)
             self.defineHistogram('TIME_PattReco',             path='EXPERT',type='TH1F',title="Pure PattReco time (ms)",     xbins = 200, xmin=0.0, xmax=40000.0)
             self.defineHistogram('TIME_SpacePointConversion', path='EXPERT',type='TH1F',title="SP Conversion time (ms)",     xbins = 200, xmin=0.0, xmax=200.0)
             self.defineHistogram('TIME_ZFinder',              path='EXPERT',type='TH1F',title="ZFinder time (ms)",           xbins = 200, xmin=0.0, xmax=40000.0)
             self.defineHistogram('TIME_Triplets',             path='EXPERT',type='TH1F',title="Triplets Making time (ms)",   xbins = 200, xmin=0.0, xmax=40000.0)
             self.defineHistogram('TIME_CmbTrack',             path='EXPERT',type='TH1F',title="Combined Tracking time (ms)", xbins = 200, xmin=0.0, xmax=40000.0)
             self.defineHistogram('TIME_TrackFitter',          path='EXPERT',type='TH1F',title="Track Fitter time (ms)",      xbins = 200, xmin=0.0, xmax=2000.0)
+            if type=='jet':
+                self.defineHistogram('TIME_HitDV',            path='EXPERT',type='TH1F',title="Hit-based DV search (ms)",    xbins = 200, xmin=0.0, xmax=200.0)
+                self.defineHistogram('TIME_dEdxTrk',          path='EXPERT',type='TH1F',title="Large dEdx search (ms)",      xbins = 200, xmin=0.0, xmax=20.0)
+        elif type=='fullScanLRT':
+            self.defineHistogram('roi_nSPs, TIME_PattReco',   path='EXPERT',type='TH2F',title="PattReco time; nSPs",    xbins = 200, xmin=0.0, xmax=3000.0, ybins = 100, ymin=0.0, ymax=500.0)
+            self.defineHistogram('roi_nTracks, TIME_PattReco',path='EXPERT',type='TH2F',title="PattReco time; nTracks", xbins = 50,  xmin=0.0, xmax=200.0,  ybins = 100, ymin=0.0, ymax=500.0)
+            self.defineHistogram('TIME_Total',             path='EXPERT',type='TH1F',title="Total time (ms)",           xbins = 200, xmin=0.0, xmax=5000.0)
+            self.defineHistogram('TIME_PattReco',             path='EXPERT',type='TH1F',title="Pure PattReco time (ms)",     xbins = 200, xmin=0.0, xmax=2000.0)
+            self.defineHistogram('TIME_SpacePointConversion', path='EXPERT',type='TH1F',title="SP Conversion time (ms)",     xbins = 200, xmin=0.0, xmax=200.0)
+            self.defineHistogram('TIME_ZFinder',              path='EXPERT',type='TH1F',title="ZFinder time (ms)",           xbins = 200, xmin=0.0, xmax=1000.0)
+            self.defineHistogram('TIME_Triplets',             path='EXPERT',type='TH1F',title="Triplets Making time (ms)",   xbins = 200, xmin=0.0, xmax=400.0)
+            self.defineHistogram('TIME_CmbTrack',             path='EXPERT',type='TH1F',title="Combined Tracking time (ms)", xbins = 200, xmin=0.0, xmax=2000.0)
+            self.defineHistogram('TIME_TrackFitter',          path='EXPERT',type='TH1F',title="Track Fitter time (ms)",      xbins = 200, xmin=0.0, xmax=200.0)
         else:
             self.defineHistogram('roi_nSPs, TIME_PattReco',   path='EXPERT',type='TH2F',title="PattReco time; nSPs",    xbins = 200, xmin=0.0, xmax=3000.0, ybins = 100, ymin=0.0, ymax=400.0)
             self.defineHistogram('roi_nTracks, TIME_PattReco',path='EXPERT',type='TH2F',title="PattReco time; nTracks", xbins = 50,  xmin=0.0, xmax=200.0,  ybins = 100, ymin=0.0, ymax=400.0)
+            self.defineHistogram('TIME_Total',             path='EXPERT',type='TH1F',title="Total time (ms)",           xbins = 200, xmin=0.0, xmax=5000.0)
             self.defineHistogram('TIME_PattReco',             path='EXPERT',type='TH1F',title="Pure PattReco time (ms)",     xbins = 200, xmin=0.0, xmax=400.0)
             self.defineHistogram('TIME_SpacePointConversion', path='EXPERT',type='TH1F',title="SP Conversion time (ms)",     xbins = 200, xmin=0.0, xmax=20.0)
             self.defineHistogram('TIME_ZFinder',              path='EXPERT',type='TH1F',title="ZFinder time (ms)",           xbins = 200, xmin=0.0, xmax=1000.0)
@@ -63,9 +80,12 @@ class TrigFastTrackFinderMonitoring(GenericMonitoringTool):
 
 
     def addTrackHistograms(self, type):
-        if type=='FS' or type=='JetFS' or type=='FullScan' or type=='fullScan':
+        if type=='FS' or type=='JetFS' or type=='FullScan' or type=='fullScan' or type=='fullScanUTT' or type=='jet':
             self.defineHistogram('roi_nSeeds',     path='EXPERT',type='TH1F',title="Number of seeds",xbins = 1000, xmin=-0.5, xmax=99999.5)
             self.defineHistogram('roi_nTracks',    path='EXPERT',type='TH1F',title="Number of Tracks",xbins = 100, xmin=-0.5, xmax=9999.5)
+        elif type=='fullScanLRT':
+            self.defineHistogram('roi_nSeeds',     path='EXPERT',type='TH1F',title="Number of seeds",xbins = 1000, xmin=-0.5, xmax=99999.5)
+            self.defineHistogram('roi_nTracks',    path='EXPERT',type='TH1F',title="Number of Tracks",xbins = 100, xmin=-0.5, xmax=5000.5)
         else:
             self.defineHistogram('roi_nSeeds',     path='EXPERT',type='TH1F',title="Number of seeds",xbins =  100, xmin=-0.5, xmax=4999.5)
             self.defineHistogram('roi_nTracks',    path='EXPERT',type='TH1F',title="Number of Tracks",xbins =  50, xmin=-0.5, xmax=199.5)
@@ -86,6 +106,10 @@ class TrigFastTrackFinderMonitoring(GenericMonitoringTool):
             self.defineHistogram('trk_a0',     path='EXPERT',type='TH1F',title="a0",xbins = 100, xmin=-300, xmax=300)
             self.defineHistogram('trk_a0beam', path='EXPERT',type='TH1F',title="a0beam",xbins = 100, xmin=-300, xmax=300)
             self.defineHistogram('trk_z0',     path='EXPERT',type='TH1F',title="z0",xbins = 100, xmin=-800, xmax=800)
+        elif type=='fullScanLRT':
+            self.defineHistogram('trk_a0',     path='EXPERT',type='TH1F',title="a0",xbins = 100, xmin=-300, xmax=300)
+            self.defineHistogram('trk_a0beam', path='EXPERT',type='TH1F',title="a0beam",xbins = 100, xmin=-300, xmax=300)
+            self.defineHistogram('trk_z0',     path='EXPERT',type='TH1F',title="z0",xbins = 100, xmin=-550, xmax=550)
         else:
             self.defineHistogram('trk_a0',     path='EXPERT',type='TH1F',title="a0",xbins = 200, xmin=-10, xmax=10)
             self.defineHistogram('trk_a0beam', path='EXPERT',type='TH1F',title="a0beam",xbins = 200, xmin=-10, xmax=10)
@@ -144,23 +168,46 @@ class TrigFastTrackFinderMonitoring(GenericMonitoringTool):
         self.defineHistogram('hit_SCTEndcapL9PhiResidual',path='EXPERT',type='TH1F',title="SCT Endcap L9 hit-track phi residual",xbins = 100, xmin=-0.5, xmax=0.5)
         self.defineHistogram('hit_SCTEndcapPull',         path='EXPERT',type='TH1F',title="SCT EC hit-track pull",xbins = 100, xmin=-5., xmax=5.)
 
+    def addUTTHistograms(self):
+        self.defineHistogram('trk_dedx',           path='EXPERT',type='TH1F',title="Track dEdx (pT > 3 GeV)", xbins = 140, xmin=-0.5, xmax=6.5)
+        self.defineHistogram('trk_dedx_nusedhits', path='EXPERT',type='TH1F',title="Nr of used hits for dEdx",xbins =  11, xmin=-0.5, xmax=10.5)
+        #
+        self.defineHistogram('disTrk_nVtx',        path='EXPERT',type='TH1F',title="Nr of Vertex for disTrk",xbins =  11, xmin=-0.5, xmax=10.5)
+        self.defineHistogram('disTrk_xVtx',        path='EXPERT',type='TH1F',title="X position of primary vertex for disTrk", xbins =  50, xmin=-5, xmax=5)
+        self.defineHistogram('disTrk_yVtx',        path='EXPERT',type='TH1F',title="Y position of primary vertex for disTrk", xbins =  50, xmin=-5, xmax=5)
+        self.defineHistogram('disTrk_zVtx',        path='EXPERT',type='TH1F',title="Z position of primary vertex for disTrk", xbins = 150, xmin=-150, xmax=150)
+        #
+        self.defineHistogram('disFailTrk_n',       path='EXPERT',type='TH1F',title="Nr of disFailTrk", xbins = 50, xmin=0, xmax=3000)
+        self.defineHistogram('disFailTrk_nclone',  path='EXPERT',type='TH1F',title="Nr of disFailTrk (after clone removal)", xbins = 50, xmin=0, xmax=3000)
+        self.defineHistogram('disFailTrk_ncand',   path='EXPERT',type='TH1F',title="Nr of disFailTrk (after pre-selection)", xbins = 50, xmin=0, xmax=3000)
+        self.defineHistogram('disCombTrk_n',       path='EXPERT',type='TH1F',title="Nr of disCombTrk", xbins = 20, xmin=0, xmax=100)
+        self.defineHistogram('disCombTrk_nclone',  path='EXPERT',type='TH1F',title="Nr of disCombTrk (after clone removal)", xbins = 20, xmin=0, xmax=100)
+        self.defineHistogram('disCombTrk_ncand',   path='EXPERT',type='TH1F',title="Nr of disCombTrk (after pre-selection)", xbins = 20, xmin=0, xmax=100)
+        #
+        self.defineHistogram('TIME_disTrkZVertex',     path='EXPERT',type='TH1F',title="UTT z-vertexing time (ms)",         xbins = 100, xmin=0.0, xmax= 50.0)
+        self.defineHistogram('TIME_disappearingTrack', path='EXPERT',type='TH1F',title="Disappearing track reco time (ms)", xbins = 150, xmin=0.0, xmax=300.0)
+
+
+
+
 
 remap  = {
     "Muon"     : "muon",
     "MuonFS"   : "muon",
     "MuonLate" : "muon",
-    "MuonCore" : "muonCore",
+    "MuonCore" : "muon",
     "MuonIso"  : "muonIso",
     "eGamma"   : "electron",
     "Electron" : "electron",
     "Tau"      : "tau",
     "TauCore"  : "tauCore",
     "TauIso"   : "tauIso",
-    "Jet"      : "bjet",
+    "Jet"      : "Bjet",
     "JetFS"    : "fullScan",
     "FS"       : "fullScan",
     "bjetVtx"  : "bjetVtx",
     "FullScan" : "fullScan",
+    "fullScanUTT" : "fullScan",
     "BeamSpot" : "beamSpot",
     "Bphysics" : "bphysics",
     "Cosmic"   : "cosmics",
@@ -168,27 +215,18 @@ remap  = {
     "minBias"  : "minBias400"
 }
 
-lrtSliceNames = ["electronLRT", "muonLRT", "tauLRT", "bjetLRT", "fullScanLRT"]
-
 class TrigFastTrackFinderBase(TrigFastTrackFinder):
     __slots__ = []
-    def __init__(self, name, slice_name):
+    def __init__(self, name, slice_name, conditionsTool=None):
         TrigFastTrackFinder.__init__(self,name)
 
         #Remapping should be now covered by SliceConfigurationSetting
-        remapped_type = slice_name
 
-        #There are still some places which relies on this remapping such as:
-        #https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigTools/TrigInDetConf/python/TrigInDetSequence.py
-        #I guess eventually this should be removed
-        if slice_name in remap:
-            remapped_type = remap[slice_name]
+        from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 
-        isLRT = False
+        config = getInDetTrigConfig( slice_name )
 
-        if remapped_type in lrtSliceNames:
-            isLRT = True
-
+        remapped_type = config.name
 
         #Global keys/names for collections
         from TrigInDetConfig.InDetTrigCollectionKeys import TrigPixelKeys, TrigSCTKeys
@@ -196,7 +234,6 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
 
         self.useNewLayerNumberScheme = True
 
-        self.OutputCollectionSuffix = slice_name
         from AthenaCommon.AppMgr import ToolSvc
 
         numberingTool = TrigL2LayerNumberTool(name = "TrigL2LayerNumberTool_FTF")
@@ -204,13 +241,9 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         ToolSvc += numberingTool
         self.LayerNumberTool = numberingTool
 
-        from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
-
-        # GPU offloading config begins
+        # GPU offloading config begins - perhaps set from configure
 
         self.useGPU = False
-
-        #if type == "FS" : self.useGPU = True
 
         if self.useGPU :
             from TrigInDetAccelerationTool.TrigInDetAccelerationToolConf import TrigInDetAccelerationTool
@@ -220,27 +253,21 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
 
         # GPU offloading config ends
 
-        self.doResMon = InDetTrigSliceSettings[('doResMon',remapped_type)]
+        self.doResMon = config.doResMon
 
         # switch between Run-2/3 monitoring
         self.MonTool = TrigFastTrackFinderMonitoring(slice_name, self.doResMon)
-        from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
-        self.TrackSummaryTool = InDetTrigFastTrackSummaryTool
 
-        # why is this TrigFastTrackFinderMonitoring() line added twice ???
-        # Run3 monitoring
-        #        self.MonTool = TrigFastTrackFinderMonitoring(type, self.doResMon)
-
-        #Spacepoint conversion
+        # Spacepoint conversion
         from TrigOnlineSpacePointTool.TrigOnlineSpacePointToolConf import TrigSpacePointConversionTool
         spTool = TrigSpacePointConversionTool().clone('TrigSpacePointConversionTool_' + remapped_type)
-        spTool.DoPhiFiltering = InDetTrigSliceSettings[('doSpPhiFiltering',remapped_type)]
-        spTool.UseNewLayerScheme = self.useNewLayerNumberScheme
-        spTool.UseBeamTilt = False
+        spTool.DoPhiFiltering        = config.DoPhiFiltering
+        spTool.UseNewLayerScheme     = self.useNewLayerNumberScheme
+        spTool.UseBeamTilt           = False
         spTool.PixelSP_ContainerName = TrigPixelKeys.SpacePoints
         spTool.SCT_SP_ContainerName  = TrigSCTKeys.SpacePoints
-        spTool.layerNumberTool = numberingTool
-        spTool.UsePixelSpacePoints = InDetTrigSliceSettings[('usePixelSP',remapped_type)]
+        spTool.layerNumberTool       = numberingTool
+        spTool.UsePixelSpacePoints   = config.UsePixelSpacePoints
 
         from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
         from RegionSelector.RegSelToolConfig import makeRegSelTool_SCT
@@ -248,7 +275,6 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         spTool.RegSelTool_Pixel = makeRegSelTool_Pixel()
         spTool.RegSelTool_SCT   = makeRegSelTool_SCT()
 
-        spTool.UsePixelSpacePoints=InDetTrigSliceSettings[('usePixelSP',remapped_type)]
 
         ToolSvc += spTool
         self.SpacePointProviderTool=spTool
@@ -259,27 +285,56 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         if remapped_type=="cosmics":
           self.Triplet_nMaxPhiSlice = 2 #Divide detector in 2 halves for cosmics
 
-        self.LRT_Mode = isLRT
+        self.LRT_Mode = config.isLRT
+
+        if config.LRT_D0Min is not None:
+            self.LRT_D0Min = config.LRT_D0Min
+
+        if config.LRT_HardMinPt is not None:
+            self.LRT_HardMinPt = config.LRT_HardMinPt
 
         self.Triplet_MaxBufferLength = 3
-        self.doSeedRedundancyCheck = InDetTrigSliceSettings[('checkRedundantSeeds',remapped_type)]
-        self.Triplet_D0Max        = InDetTrigSliceSettings[('d0SeedMax',remapped_type)]
-        self.Triplet_D0_PPS_Max   = InDetTrigSliceSettings[('d0SeedPPSMax',remapped_type)]
-        self.TrackInitialD0Max = InDetTrigSliceSettings[('d0TrackMax',remapped_type)]
-        self.TrackZ0Max = InDetTrigSliceSettings[('z0TrackMax',remapped_type)]
+        self.doSeedRedundancyCheck = config.doSeedRedundancyCheck
+        self.Triplet_D0Max         = config.Triplet_D0Max
+        self.Triplet_D0_PPS_Max    = config.Triplet_D0_PPS_Max
+        self.TrackInitialD0Max     = config.TrackInitialD0Max
+        self.TrackZ0Max            = config.TrackZ0Max
 
-        self.TripletDoPSS   = False
-        self.pTmin = InDetTrigSliceSettings[('pTmin',remapped_type)]
-        self.DoubletDR_Max = InDetTrigSliceSettings[('dRdoubletMax',remapped_type)]
-        self.SeedRadBinWidth = InDetTrigSliceSettings[('seedRadBinWidth',remapped_type)]
+        self.TripletDoPPS    = config.TripletDoPPS
+        self.TripletDoPSS    = False
+        self.pTmin           = config.pTmin
+        self.DoubletDR_Max   = config.DoubletDR_Max
+        self.SeedRadBinWidth = config.SeedRadBinWidth
+
+        if config.UseTrigSeedML is not None:
+            self.UseTrigSeedML = config.UseTrigSeedML
 
         if remapped_type=="cosmics":
           self.Doublet_FilterRZ = False
 
+        self.dodEdxTrk = config.dodEdxTrk
+        if config.dodEdxTrk:
+            self.dEdxTrk = "HLT_dEdxTrk"
+            self.dEdxHit = "HLT_dEdxHit"
+
+        self.doHitDV = config.doHitDV
+        if config.doHitDV:
+            self.doHitDV_Seeding = True
+            self.RecJetRoI = "HLT_RecJETRoIs"
+            self.HitDVTrk  = "HLT_HitDVTrk"
+            self.HitDVSP   = "HLT_HitDVSP"
+
+        self.doDisappearingTrk = config.doDisappearingTrk
+        if config.doDisappearingTrk:
+            self.DisTrkCand = "HLT_DisTrkCand"
+
+
         ## SCT and Pixel detector elements road builder
         from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiDetElementsRoadMaker
         InDetTrigSiDetElementsRoadMaker_FTF = InDetTrigSiDetElementsRoadMaker.clone('InDetTrigSiDetElementsRoadMaker_FTF')
-        InDetTrigSiDetElementsRoadMaker_FTF.RoadWidth = 10.0
+
+        InDetTrigSiDetElementsRoadMaker_FTF.RoadWidth = config.RoadWidth
+
         if remapped_type=="cosmics":
           from InDetTrigRecExample.InDetTrigConfigRecLoadToolsCosmics import InDetTrigSiDetElementsRoadMakerCosmics
           InDetTrigSiDetElementsRoadMaker_FTF = InDetTrigSiDetElementsRoadMakerCosmics.clone('InDetTrigSiDetElementsRoadMaker_FTF')
@@ -287,9 +342,14 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
 
         from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiComTrackFinder
         InDetTrigSiComTrackFinder_FTF = InDetTrigSiComTrackFinder.clone("InDetTrigSiComTrackFinder_FTF")
-        from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
-        from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsSummaryTool
-        InDetTrigSiComTrackFinder_FTF.SctSummaryTool = SCT_ConditionsSummaryTool(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryToolWithoutFlagged'))
+        if conditionsTool is None:
+          from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
+          from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
+          sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryToolWithoutFlagged'))
+          sct_ConditionsSummaryToolSetupWithoutFlagged.setup()
+          InDetTrigSiComTrackFinder_FTF.SctSummaryTool = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
+        else:
+          InDetTrigSiComTrackFinder_FTF.SctSummaryTool = conditionsTool
         ToolSvc += InDetTrigSiComTrackFinder_FTF
 
 
@@ -298,17 +358,22 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         if remapped_type=="cosmics":
           from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutsCosmics
           TrackingCuts = EFIDTrackingCutsCosmics
-        if isLRT:
+        if config.isLRT:
             from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutLRT
             TrackingCuts = EFIDTrackingCutLRT
 
         from SiTrackMakerTool_xk.SiTrackMakerTool_xkConf import InDet__SiTrackMaker_xk
 
+        if config.nClustersMin is not None:
+            nClustersMin = config.nClustersMin
+        else:
+            nClustersMin = TrackingCuts.minClusters()
+
         TrackMaker_FTF = InDet__SiTrackMaker_xk(name = 'InDetTrigSiTrackMaker_FTF_'+slice_name,
                                               RoadTool       = InDetTrigSiDetElementsRoadMaker_FTF,
                                               CombinatorialTrackFinder = InDetTrigSiComTrackFinder_FTF,
-                                              pTmin          = InDetTrigSliceSettings[('pTmin',remapped_type)],
-                                              nClustersMin   = TrackingCuts.minClusters(),
+                                              pTmin          = config.pTmin,
+                                              nClustersMin   = nClustersMin,
                                               nHolesMax      = TrackingCuts.nHolesMax(),
                                               nHolesGapMax   = TrackingCuts.nHolesGapMax(),
                                               SeedsFilterLevel = 0, # Do not use built-in seeds filter
@@ -333,21 +398,22 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         #theTrigInDetTrackFitter.correctClusterPos = False #Flag to control whether to correct cluster position
         theTrigInDetTrackFitter.correctClusterPos = True  #temporarily to true to improve err(z0) estimates
 
-
-
         from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigRotCreator
         theTrigInDetTrackFitter.ROTcreator = InDetTrigRotCreator
         ToolSvc += theTrigInDetTrackFitter
         self.trigInDetTrackFitter = theTrigInDetTrackFitter
+
         from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+
         if slice_name=='eGamma' and InDetTrigFlags.doBremRecovery():
           theTrigInDetTrackFitterBrem = TrigInDetTrackFitter(name='theTrigInDetTrackFitterBrem',
                                                              doBremmCorrection = True)
           ToolSvc += theTrigInDetTrackFitterBrem
           self.trigInDetTrackFitter = theTrigInDetTrackFitterBrem
 
-        self.doZFinder = InDetTrigSliceSettings[('doZFinder',remapped_type)]
+        self.doZFinder = config.doZFinder
         if (self.doZFinder):
+          self.doZFinderOnly = config.doZFinderOnly
           from IDScanZFinder.IDScanZFinderConf import TrigZFinder
           theTrigZFinder = TrigZFinder( name="TrigZFinder_"+remapped_type )
           theTrigZFinder.NumberOfPeaks = 3
@@ -366,18 +432,21 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
           self.doFastZVertexSeeding = True
           self.zVertexResolution = 1
 
-        TrackMaker_FTF.InputClusterContainerName = ""
-        TrackMaker_FTF.InputHadClusterContainerName = ""
+        if not config.doZFinderOnly:
 
+          TrackMaker_FTF.InputClusterContainerName = ""
+          TrackMaker_FTF.InputHadClusterContainerName = ""
 
-        from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
-        self.TrackSummaryTool = InDetTrigFastTrackSummaryTool
+          from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
+          self.TrackSummaryTool = InDetTrigFastTrackSummaryTool
 
-        if remapped_type == "tauCore":
-          from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigTrackSummaryToolWithHoleSearch
-          self.TrackSummaryTool = InDetTrigTrackSummaryToolWithHoleSearch
+          if config.holeSearch_FTF :
+              from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigTrackSummaryToolWithHoleSearch
+              self.TrackSummaryTool = InDetTrigTrackSummaryToolWithHoleSearch
 
-        self.doCloneRemoval = InDetTrigSliceSettings[('doCloneRemoval',remapped_type)]
+          self.doCloneRemoval = config.doCloneRemoval
+          self.TracksName     = config.trkTracks_FTF()
+
 
 
 class TrigFastTrackFinder_Muon(TrigFastTrackFinderBase):

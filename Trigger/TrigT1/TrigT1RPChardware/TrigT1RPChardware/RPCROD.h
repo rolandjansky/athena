@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef RPCROD_H
-#define RPCROD_H
+#ifndef TrigT1RPChardware_RPCROD_H
+#define TrigT1RPChardware_RPCROD_H
 
 #include<iostream>
 #include "TrigT1RPChardware/RXReadOut.h"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelAthErrorMonAlg.h"
@@ -74,8 +74,10 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
   float num_errormodules_per_cat[ErrorCategory::COUNT][PixLayers::COUNT] = {{0}};
   float num_errormodules_per_cat_rodmod[ErrorCategoryRODMOD::COUNT][PixLayers::COUNT] = {{0}};
 
-  // Generate femcc_errwords and per LB maps, all _per module_, including IBL.
+  // Generate femcc_errwords, ROB error and per LB maps.
   VecAccumulator2DMap femcc_errwords_maps("FEMCCErrorwords");
+  VecAccumulator2DMap trunc_rob_errors_maps("TruncatedROBErrors", true);
+  VecAccumulator2DMap masked_rob_errors_maps("MaskedROBErrors", true);
   VecAccumulator2DMap all_errors_maps("ErrorsLB");
   VecAccumulator2DMap modsync_errors_maps("ErrorsModSyncLB");
   VecAccumulator2DMap rodsync_errors_maps("ErrorsRODSyncLB");
@@ -117,16 +119,13 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
 
   const int maxHash = m_pixelid->wafer_hash_max(); // 2048
 
-  // Loop over modules
-  for (int modHash=0; modHash<maxHash; modHash++) {
+  // Loop over modules except DBM, s.a.
+  for (int modHash=12; modHash<maxHash-12; modHash++) {
     Identifier waferID = m_pixelid->wafer_id(modHash);
     int pixlayer = getPixLayersID(m_pixelid->barrel_ec(waferID), m_pixelid->layer_disk(waferID) );
     int nFE;
     bool is_fei4;
-    if (pixlayer == PixLayers::kDBMC || pixlayer == PixLayers::kDBMA) {
-      nFE = 1;  
-      is_fei4 = true;
-    } else if (pixlayer == PixLayers::kIBL) {
+    if (pixlayer == PixLayers::kIBL) {
       nFE = 1; // IBL 3D
       if (m_pixelid->eta_module(waferID)>-7 && m_pixelid->eta_module(waferID)<6) nFE = 2; //IBL Planar
       is_fei4 = true;
@@ -135,16 +134,25 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
       is_fei4 = false;
     }
     // flagging/counting categorized errors per module.
-    bool has_err_cat[ErrorCategory::COUNT][nFEIBL2D] = {false};
-    int nerrors_cat_rodmod[ErrorCategoryRODMOD::COUNT][nFEIBL2D] = {0};
+    bool has_err_cat[ErrorCategory::COUNT][nFEIBL2D] = {{false}};
+    int nerrors_cat_rodmod[ErrorCategoryRODMOD::COUNT][nFEIBL2D] = {{0}};
 
     // count number of words w/ MCC/FE flags per module
     unsigned int num_femcc_errwords = 0;
 
+    uint64_t mod_errorword = m_pixelCondSummaryTool->getBSErrorWord(modHash, ctx);
+
+    // extracting ROB error information
+    //
+    if ( PixelByteStreamErrors::hasError(mod_errorword, PixelByteStreamErrors::TruncatedROB) ) {
+      trunc_rob_errors_maps.add(pixlayer, waferID, m_pixelid, 1.0);
+    }
+    if ( PixelByteStreamErrors::hasError(mod_errorword, PixelByteStreamErrors::MaskedROB) ) {
+      masked_rob_errors_maps.add(pixlayer, waferID, m_pixelid, 1.0);
+    }
     // getting module_error information (only fei3 layers)
     //
     if (!is_fei4) {
-      uint64_t mod_errorword = m_pixelCondSummaryTool->getBSErrorWord(modHash, ctx);
       std::bitset<kNumErrorStatesFEI3> stateFEI3 = getErrorStateFEI3Mod(mod_errorword);  
       num_errors[pixlayer]+=stateFEI3.count();
       for (unsigned int state = 0; state < stateFEI3.size(); ++state) {
@@ -161,7 +169,7 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
     for (int iFE=0; iFE<nFE; iFE++) {
 
       int offsetFE = (1+iFE)*maxHash + modHash;    // (FE index+1)*2048 + moduleHash
-      uint64_t fe_errorword = m_pixelCondSummaryTool->getBSErrorWord(offsetFE, ctx);
+      uint64_t fe_errorword = m_pixelCondSummaryTool->getBSErrorWord(modHash, offsetFE, ctx);
 
       fillErrorCatRODmod(fe_errorword, is_fei4, nerrors_cat_rodmod, iFE);
 
@@ -207,7 +215,7 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
 	  Identifier pixelIDperFEI4 = m_pixelCablingSvc->getPixelIdfromHash(modHash, iFE, 1, 1);
 	  // index = offset + (serviceCode)*(#IBL*nFE) + (moduleHash-156)*nFE + FE
           int serviceCodeCounterIndex = serviceRecordFieldOffset + serviceCodeOffset + moduleOffset + iFE;
-          uint64_t serviceCodeCounter = m_pixelCondSummaryTool->getBSErrorWord(serviceCodeCounterIndex, ctx);
+          uint64_t serviceCodeCounter = m_pixelCondSummaryTool->getBSErrorWord(modHash, serviceCodeCounterIndex, ctx);
 	  if (serviceCodeCounter>0) {
 
 	    float payload = serviceCodeCounter; // NB: + 1, as in rel 21, is now added upstream
@@ -236,41 +244,44 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
       if (pixlayer == PixLayers::kIBL) {
 	pixID = m_pixelCablingSvc->getPixelIdfromHash(modHash, iFE, 1, 1);
       }
-
-      for (int i = 0; i < ErrorCategoryRODMOD::COUNT; i++) {
-	if (nerrors_cat_rodmod[i][iFE]) {
-	  if (getErrorCategory(i+1)!=99) has_err_cat[getErrorCategory(i+1)][iFE] = true;
-	  num_errormodules_per_cat_rodmod[i][pixlayer]++;
-	  if (!m_doOnline) {
-	    all_errors_maps.add(pixlayer, pixID, m_pixelid, nerrors_cat_rodmod[i][iFE]);
-	    if (i<ErrorCategoryRODMOD::kTruncROD+1) {
-	      error_maps_per_cat_rodmod[i].add(pixlayer, pixID, m_pixelid, 1.0);
-	      if (i==0) modsync_errors_maps.add(pixlayer, pixID, m_pixelid, 1.0);
-	      if (i==1) rodsync_errors_maps.add(pixlayer, pixID, m_pixelid, 1.0);
+      if (pixID.is_valid()) {
+	for (int i = 0; i < ErrorCategoryRODMOD::COUNT; i++) {
+	  if (nerrors_cat_rodmod[i][iFE]) {
+	    if (getErrorCategory(i+1)!=99) has_err_cat[getErrorCategory(i+1)][iFE] = true;
+	    num_errormodules_per_cat_rodmod[i][pixlayer]++;
+	    if (!m_doOnline) {
+	      all_errors_maps.add(pixlayer, pixID, m_pixelid, nerrors_cat_rodmod[i][iFE]);
+	      if (i<ErrorCategoryRODMOD::kTruncROD+1) {
+		error_maps_per_cat_rodmod[i].add(pixlayer, pixID, m_pixelid, 1.0);
+		if (i==0) modsync_errors_maps.add(pixlayer, pixID, m_pixelid, 1.0);
+		if (i==1) rodsync_errors_maps.add(pixlayer, pixID, m_pixelid, 1.0);
+	      }
 	    }
 	  }
 	}
-      }
-      for (int i = 0; i < ErrorCategory::COUNT; i++) {
-	if (has_err_cat[i][iFE]) {
-	  num_errormodules_per_cat[i][pixlayer]++;
-	  if (!m_doOnline) {
-	    error_maps_per_cat[i].add(pixlayer, pixID, m_pixelid, 1.0);
+	for (int i = 0; i < ErrorCategory::COUNT; i++) {
+	  if (has_err_cat[i][iFE]) {
+	    num_errormodules_per_cat[i][pixlayer]++;
+	    if (!m_doOnline) {
+	      error_maps_per_cat[i].add(pixlayer, pixID, m_pixelid, 1.0);
+	    }
 	  }
 	}
-      }
-
-    // filling nActive modules per layer for later normalization
-    // for IBL (and DBM) normalization isdone by number of FEI4 
-      if ( (pixlayer != PixLayers::kIBL && m_pixelCondSummaryTool->isActive(modHash) == true) ||
-	   (pixlayer == PixLayers::kIBL && m_pixelCondSummaryTool->isActive(modHash, pixID) == true) ) {
-	nActive_layer[pixlayer]++;
+	
+	// filling nActive modules per layer for later normalization
+	// for IBL normalization is done by number of FEI4 
+	if ( (pixlayer != PixLayers::kIBL && m_pixelCondSummaryTool->isActive(modHash) == true) ||
+	     (pixlayer == PixLayers::kIBL && m_pixelCondSummaryTool->isActive(modHash, pixID) == true) ) {
+	  nActive_layer[pixlayer]++;
+	}
+      } else {
+	ATH_MSG_ERROR("PixelMonitoring: got invalid pixID " << pixID);
       }
     } // loop over FEs
 
   } // loop over modules
 
-  // normalization by active modules (or FE's in IBL/DBM case)
+  // normalization by active modules (or FE's in IBL case)
   //
   for (int i = 0; i < PixLayers::COUNT; i++) {
     if (nActive_layer[i]>0) {
@@ -297,6 +308,8 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
   }
   // Fill the accumulated maps
   fill2DProfLayerAccum(femcc_errwords_maps);
+  fill2DProfLayerAccum(trunc_rob_errors_maps);
+  fill2DProfLayerAccum(masked_rob_errors_maps);
   fill2DProfLayerAccum(all_errors_maps);
   fill2DProfLayerAccum(modsync_errors_maps);
   fill2DProfLayerAccum(rodsync_errors_maps);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //#####################################################
@@ -56,16 +56,14 @@ StatusCode TBBeamQuality::initialize()
   ATH_MSG_INFO  ("-----------------------------------");
   
   unsigned int toolCtr = 0;
-  ToolHandleArray<TBBeamQualityTool>::iterator first_tool = m_bqtools.begin();
-  ToolHandleArray<TBBeamQualityTool>::iterator last_tool = m_bqtools.end();
-  for ( ;first_tool != last_tool; first_tool++)
+  for (ToolHandle<TBBeamQualityTool>& tool : m_bqtools)
     { 
       toolCtr ++;
       ATH_MSG_INFO 
         (" Tool Name: "
-	 <<(*first_tool)->name()
+	 <<tool->name()
 	 <<" Tool Type: "
-	 <<(*first_tool)->type() );
+	 <<tool->type() );
     }
   return StatusCode::SUCCESS;
 }//init
@@ -89,24 +87,22 @@ StatusCode TBBeamQuality::execute()
   }
  
   // invoke tools
-  ToolHandleArray<TBBeamQualityTool>::iterator first_Tool = m_bqtools.begin();
-  ToolHandleArray<TBBeamQualityTool>::iterator last_Tool = m_bqtools.end();
   
   // setting event to success
   bool successFlag = true;
-  while ( successFlag && first_Tool != last_Tool )
+  for (ToolHandle<TBBeamQualityTool>& tool : m_bqtools)
     {
-      m_bqtotalCounter[*first_Tool]++;
-      successFlag = (*first_Tool)->accept(m_bqparticle) == StatusCode::SUCCESS;
-      if ( successFlag )
+      m_bqtotalCounter[tool]++;
+      if( tool->accept(m_bqparticle) == StatusCode::SUCCESS )
 	{
-	  m_bqacceptCounter[*first_Tool]++;
+	  m_bqacceptCounter[tool]++;
 	}
       else
 	{
-	  m_bqrejectCounter[*first_Tool]++;
+	  m_bqrejectCounter[tool]++;
+          successFlag = false;
+          break;
 	}
-      first_Tool++;
     }
   
   setFilterPassed(successFlag);
@@ -117,20 +113,17 @@ StatusCode TBBeamQuality::execute()
 StatusCode TBBeamQuality::finalize()
 { //finalize
   // print summary
-  ToolHandleArray<TBBeamQualityTool>::iterator first_Tool = m_bqtools.begin();
-  ToolHandleArray<TBBeamQualityTool>::iterator last_Tool = m_bqtools.end();
-  
   ATH_MSG_INFO
     ( "************ Beam Quality Tool ************" );
-  for (; first_Tool != last_Tool; first_Tool++ )
+  for (ToolHandle<TBBeamQualityTool>& tool : m_bqtools)
     {
       ATH_MSG_INFO
-        ((*first_Tool)->name() <<" : "
+        (tool->name() <<" : "
 	  << "(Total/Accept/Rejected)"
 	  << " ("
-	  << m_bqtotalCounter[*first_Tool]  << "/"
-	  << m_bqacceptCounter[*first_Tool] << "/"
-	  << m_bqrejectCounter[*first_Tool] 
+	  << m_bqtotalCounter[tool]  << "/"
+	  << m_bqacceptCounter[tool] << "/"
+	  << m_bqrejectCounter[tool] 
           << ")" );
     } 
   return StatusCode::SUCCESS;

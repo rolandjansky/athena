@@ -43,7 +43,7 @@ class IPCMat {
 
   StatusCode init(void);
   StatusCode allocate(int);
-  StatusCode write(const std::string,bool);
+  StatusCode write(const std::string&,bool);
   StatusCode end();
   StatusCode incMat(uint32_t,uint32_t,double);
   StatusCode incVec(uint32_t,double);

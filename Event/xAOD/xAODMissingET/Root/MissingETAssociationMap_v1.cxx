@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODMissingET/versions/MissingETAssociationMap_v1.h"
@@ -11,8 +11,12 @@
 #include "xAODBase/IParticleContainer.h"
 #include "xAODBase/ObjectType.h"
 
-#include <iterator>
+#include "xAODPFlow/FEHelpers.h"
+
 #include <cstdio>
+#include <iterator>
+#include <utility>
+
 
 using namespace xAOD;
 
@@ -29,8 +33,9 @@ MissingETAssociationMap_v1::MissingETAssociationMap_v1(SG::OwnershipPolicy own, 
 {
 }
 
-MissingETAssociationMap_v1::MissingETAssociationMap_v1(MissingETAssociationMap_v1::iterator first, MissingETAssociationMap_v1::iterator last,
-						   SG::OwnershipPolicy own, SG::IndexTrackingPolicy trackIndices)
+MissingETAssociationMap_v1::MissingETAssociationMap_v1(const MissingETAssociationMap_v1::iterator& first,
+                                                       const MissingETAssociationMap_v1::iterator& last,
+                                                       SG::OwnershipPolicy own, SG::IndexTrackingPolicy trackIndices)
   : DataVector<MissingETAssociation_v1>(first,last,own,trackIndices)
 {
 }
@@ -87,7 +92,7 @@ MissingETAssociationMap_v1::iterator MissingETAssociationMap_v1::f_find(const Je
 void MissingETAssociationMap_v1::f_setJetConstMap(std::map<ElementLink<IParticleContainer>, size_t> map)
 {
   m_jetConstLinks.clear();
-  m_jetConstLinks = map;
+  m_jetConstLinks = std::move(map);
 }
 
 void MissingETAssociationMap_v1::f_clearJetConstMap()
@@ -133,7 +138,7 @@ MissingETAssociationMap_v1::iterator MissingETAssociationMap_v1::findByJetConst(
   return findByJetConst(el);
 }
 
-MissingETAssociationMap_v1::const_iterator MissingETAssociationMap_v1::findByJetConst(ElementLink<IParticleContainer> constLink) const
+MissingETAssociationMap_v1::const_iterator MissingETAssociationMap_v1::findByJetConst(const ElementLink<IParticleContainer>& constLink) const
 {
   MissingETAssociationMap_v1::const_iterator iAssoc(this->end());
   size_t index = findIndexByJetConst(constLink);
@@ -143,7 +148,7 @@ MissingETAssociationMap_v1::const_iterator MissingETAssociationMap_v1::findByJet
   return iAssoc;
 }
 
-MissingETAssociationMap_v1::iterator MissingETAssociationMap_v1::findByJetConst(ElementLink<IParticleContainer> constLink)
+MissingETAssociationMap_v1::iterator MissingETAssociationMap_v1::findByJetConst(const ElementLink<IParticleContainer>& constLink)
 {
   MissingETAssociationMap_v1::iterator iAssoc(this->end());
   size_t index = findIndexByJetConst(constLink);
@@ -160,11 +165,16 @@ size_t MissingETAssociationMap_v1::findIndexByJetConst(const IParticle* pConst) 
   return findIndexByJetConst(el);
 }
 
-size_t MissingETAssociationMap_v1::findIndexByJetConst(ElementLink<IParticleContainer> constLink) const
+size_t MissingETAssociationMap_v1::findIndexByJetConst(const ElementLink<IParticleContainer>& constLink) const
 {
   size_t index = MissingETBase::Numerical::invalidIndex();
   std::map<ElementLink<IParticleContainer>, size_t>::const_iterator iConstMap = m_jetConstLinks.find(constLink);
-  if (iConstMap==m_jetConstLinks.end()) for (std::map<ElementLink<IParticleContainer>, size_t>::const_iterator jConstMap = m_jetConstLinks.begin(); jConstMap!=m_jetConstLinks.end(); jConstMap++) if (*(jConstMap->first)==*constLink) iConstMap = jConstMap;
+  if (iConstMap==m_jetConstLinks.end()) {
+    for (std::map<ElementLink<IParticleContainer>, size_t>::const_iterator jConstMap = m_jetConstLinks.begin(); jConstMap!=m_jetConstLinks.end(); ++jConstMap)
+    {
+      if (*(jConstMap->first)==*constLink) iConstMap = jConstMap;
+    }
+  }
   if(iConstMap!=m_jetConstLinks.end()) {
     index = iConstMap->second;
     const_iterator fAssoc(this->begin());
@@ -178,7 +188,7 @@ const MissingETAssociation_v1* MissingETAssociationMap_v1::getMiscAssociation() 
   MissingETAssociationMap_v1::const_reverse_iterator rIter(this->rbegin());
   MissingETAssociationMap_v1::const_reverse_iterator fAssoc(this->rend());
   while ( rIter != fAssoc && !(*rIter)->isMisc() ) { ++rIter; }
-  return rIter != fAssoc ? *rIter : (MissingETAssociation_v1*)0;
+  return rIter != fAssoc ? *rIter : (MissingETAssociation_v1*)nullptr;
 }
 
 MissingETAssociation_v1* MissingETAssociationMap_v1::getMiscAssociation()
@@ -186,7 +196,7 @@ MissingETAssociation_v1* MissingETAssociationMap_v1::getMiscAssociation()
   MissingETAssociationMap_v1::reverse_iterator rIter(this->rbegin());
   MissingETAssociationMap_v1::reverse_iterator fAssoc(this->rend());
   while ( rIter != fAssoc && !(*rIter)->isMisc() ) { ++rIter; }
-  return rIter != fAssoc ? *rIter : (MissingETAssociation_v1*)0;
+  return rIter != fAssoc ? *rIter : (MissingETAssociation_v1*)nullptr;
 }
 
 bool MissingETAssociationMap_v1::identifyOverlaps()
@@ -210,26 +220,27 @@ const xAOD::IParticleContainer* MissingETAssociationMap_v1::getUniqueSignals(con
   MissingETBase::Types::const_signal_vector_t* uniques = new MissingETBase::Types::const_signal_vector_t(SG::VIEW_ELEMENTS);
   for(IParticleContainer::const_iterator iSig=signals->begin();
       iSig!=signals->end(); ++iSig) {
+    xAOD::Type::ObjectType objType = (*iSig)->type();
+    if(objType == xAOD::Type::FlowElement) objType = FEHelpers::signalToXAODType(static_cast<const xAOD::FlowElement&>(**iSig));
     switch(p) {
     case MissingETBase::UsageHandler::TrackCluster:      
-      if((*iSig)->type()==xAOD::Type::CaloCluster
-	 || (*iSig)->type()==xAOD::Type::TrackParticle) {break;}
+      if(objType==xAOD::Type::CaloCluster
+      || objType==xAOD::Type::TrackParticle) {break;}
       else {continue;}
     case MissingETBase::UsageHandler::OnlyCluster:
-      if((*iSig)->type()==xAOD::Type::CaloCluster) {break;}
+      if(objType==xAOD::Type::CaloCluster) {break;}
       else {continue;}
     case MissingETBase::UsageHandler::OnlyTrack:
-      if((*iSig)->type()==xAOD::Type::TrackParticle) {break;}
+      if(objType==xAOD::Type::TrackParticle) {break;}
       else {continue;}
     case MissingETBase::UsageHandler::ParticleFlow:
-      if((*iSig)->type()==xAOD::Type::ParticleFlow) {break;}
-      else if((*iSig)->type()==xAOD::Type::FlowElement && ((static_cast<const xAOD::FlowElement*>(*iSig))->signalType() & xAOD::FlowElement::PFlow)) {break;}
+      if(objType==xAOD::Type::ParticleFlow) {break;}
       else {continue;}
     case MissingETBase::UsageHandler::TruthParticle:
-      if((*iSig)->type()==xAOD::Type::TruthParticle) {break;}
+      if(objType==xAOD::Type::TruthParticle) {break;}
       else {continue;}
     case MissingETBase::UsageHandler::AllCalo:
-      if((*iSig)->type()!=xAOD::Type::TrackParticle) {break;}
+      if(objType!=xAOD::Type::TrackParticle) {break;}
       else {continue;}
     default: {continue;}
     }
@@ -255,11 +266,11 @@ const xAOD::IParticleContainer* MissingETAssociationMap_v1::getUniqueSignals(con
   return uniques->asDataVector();
 }
 
-const xAOD::IParticleContainer* MissingETAssociationMap_v1::getOverlapRemovedSignals(const MissingETAssociationHelper* helper,const xAOD::IParticleContainer* signals,MissingETBase::UsageHandler::Policy p) const
+const xAOD::IParticleContainer* MissingETAssociationMap_v1::getOverlapRemovedSignals(const MissingETAssociationHelper& helper,const xAOD::IParticleContainer* signals,MissingETBase::UsageHandler::Policy p) const
 {
   MissingETBase::Types::const_signal_vector_t* uniques = new MissingETBase::Types::const_signal_vector_t(SG::VIEW_ELEMENTS);
-  for(const auto& sig : *signals) {
-    if(!MissingETAssociation_v1::testPolicy(sig->type(),p)) continue;
+  for(const auto *const sig : *signals) {
+    if(!MissingETAssociation_v1::testPolicy(*sig,p)) continue;
     
     size_t assocIndex = findIndexByJetConst(sig);
     if(assocIndex==MissingETBase::Numerical::invalidIndex()) {

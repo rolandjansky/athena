@@ -7,6 +7,7 @@ Definitions of exec steps (main job) in Trigger ART tests
 '''
 
 import os
+import re
 
 from TrigValTools.TrigValSteering.Step import Step
 from TrigValTools.TrigValSteering.Input import is_input_defined, get_input
@@ -33,6 +34,9 @@ class ExecStep(Step):
         self.use_pickle = False
         self.imf = True
         self.perfmon = True
+        self.fpe_auditor = True
+        self.costmon = False
+        self.malloc = False
         self.prmon = True
         self.config_only = False
         self.auto_report_result = True
@@ -148,6 +152,83 @@ class ExecStep(Step):
         else:
             self.misconfig_abort('Failed to find job options file %s', self.job_options)
 
+    def add_precommand(self, precommand):
+        if self.type == 'athena':
+            precommand_arg_names = ['-c ', '--command = ', '--command ']
+        elif self.type == 'athenaHLT':
+            precommand_arg_names = ['-c ', '--precommand = ', '--precommand ']
+        elif self.type in ['Reco_tf', 'Trig_reco_tf']:
+            precommand_arg_names = ['--preExec ', '--preExec = ']
+        else:
+            self.log.warning('add_precommand() undefined for ExecStep with type="%s"', self.type)
+            return
+
+        if not precommand.endswith(';'):
+            precommand += ';'
+
+        opt_pattern_str = '('
+        for arg_name in precommand_arg_names:
+            if len(opt_pattern_str) > 1:
+                opt_pattern_str += '|'
+            opt_pattern_str += r'{a:s}".*"|{a:s}\'.*\''.format(a=arg_name.replace(' ', r'\s*'))
+        opt_pattern_str += ')'
+        opt_pattern = re.compile(opt_pattern_str)
+        match = re.search(opt_pattern, self.args)
+        if not match:
+            self.args += ' {:s}"{:s}"'.format(precommand_arg_names[0], precommand)
+            return
+        opt_match = match.group(0)
+
+        # Refine the match to avoid matching '--preExec "foo" --postExec "bar"'
+        refine_pattern = re.compile(r'(--\w*\s*"|--\w*\s*\'|--\w*="|--\w*=\')')
+        refine_matches = re.findall(refine_pattern, opt_match)
+        if len(refine_matches) > 1:
+            opt_match = opt_match[0:opt_match.find(refine_matches[1])]
+
+        old_cmd_pattern = re.compile(r'(".*"|\'.*\')')
+        old_cmd_match = re.search(old_cmd_pattern, opt_match)
+        if not old_cmd_match:
+            self.misconfig_abort('Failed to add precommand ' + precommand + ' to step ' + self.name)
+        old_cmd = old_cmd_match.group(0)
+
+
+
+        # Transform case
+        if self.type.endswith('_tf'):
+            new_cmd = '--preExec {:s} "{:s}" '.format(old_cmd, precommand)
+            self.args = self.args.replace(opt_match, new_cmd)
+            return
+
+
+        # athena(HLT) case
+        old_cmd = old_cmd[1:-1]
+        new_cmd = old_cmd
+        if not new_cmd.endswith(';'):
+            new_cmd += ';'
+        new_cmd += precommand
+        self.args = self.args.replace(old_cmd, new_cmd)
+
+    def add_hlt_jo_modifier(self, modifier):
+        '''
+        Same as add_precommand but checks if using HLT job options where the modifier is applicable
+        and prepends the transform step name in case of transforms
+        '''
+        if self.type in ['athena', 'athenaHLT'] and 'runHLT_standalone' not in self.job_options:
+            self.log.debug('Skip adding modifier %s to step %s because it does not use runHLT_standalone job options',
+                           modifier, self.name)
+            return
+        elif self.type in ['Reco_tf', 'Trig_reco_tf']:
+            if 'inputBS_RDOFile' in self.args:
+                modifier = 'BSRDOtoRAW:' + modifier
+            elif 'outputRDO_TRIGFile' in self.args or 'doRDO_TRIG' in self.args:
+                modifier = 'RDOtoRDOTrigger:' + modifier
+            else:
+                self.log.debug('Skip adding modifier %s to step %s because it is a transform which does not run Trigger',
+                            modifier, self.name)
+                return
+
+        return self.add_precommand(modifier)
+
     def configure_args(self, test):
         self.log.debug('Configuring args for step %s', self.name)
         if self.args is None:
@@ -168,6 +249,15 @@ class ExecStep(Step):
                 athenaopts += ' --imf'
             if self.perfmon:
                 athenaopts += ' --perfmon'
+            if self.malloc:
+                athenaopts += " --stdcmalloc "
+
+        # Enable CostMonitoring/FPEAuditor
+        if self.type != 'other':
+            if self.costmon:
+                self.add_hlt_jo_modifier('forceCostMonitoring=True')
+            if self.fpe_auditor:
+                self.add_hlt_jo_modifier('fpeAuditor=True')
 
         # Run config-only if requested
         if self.config_only :
@@ -212,7 +302,7 @@ class ExecStep(Step):
         if self.max_events is None:
             if test.art_type == 'build':
                 if test.package_name == 'TrigP1Test':
-                    self.max_events = 100
+                    self.max_events = 80
                 else:
                     self.max_events = 20
             else:
@@ -244,8 +334,7 @@ class ExecStep(Step):
         if len(self.input) > 0:
             if self.input_object is not None:
                 if self.type == 'athenaHLT':
-                    # athenaHLT can only take one input file
-                    input_str = self.input_object.paths[0]
+                    input_str = ' --file='.join(self.input_object.paths)
                 else:
                     input_str = ','.join(self.input_object.paths)
             else:

@@ -116,7 +116,7 @@ LVL1::L1TopoSimulationTest::execute() {
 
    // Printout the decision bits
    cout << "Printing out decisions" << endl;
-   cout << m_OfftopoSteering->simulationResult().globalDecision();
+   cout << m_OfftopoSteering->simulationResult().globalOutput();
 
    return StatusCode::SUCCESS;
 }

@@ -17,6 +17,7 @@ class McEventCollection;
 
 #include "AtlasHepMC/GenParticle_fwd.h"
 #include "AtlasHepMC/GenVertex_fwd.h"
+#include "AtlasHepMC/HeavyIon.h"
 /** @class MergeMcEventCollTool
  *  @brief a PileUpTool to merge MC truth collection in the overlay store
  *
@@ -67,9 +68,9 @@ private:
   //** Ensure that any GenEvent::HeavyIon info is stored in the signal GenEvent.
   StatusCode saveHeavyIonInfo(const McEventCollection *pMcEvtColl);
   //** Classify the current GenParticle according to the MC Truth Taskforce requirements
-  MergeMcEventCollTool::puType classifyVertex(const HepMC::GenParticlePtr  pCurrentVertexParticle, const HepMC::GenVertexPtr  pCurrentParticleProductionVertex, double currentEventTime);
+  MergeMcEventCollTool::puType classifyVertex(HepMC::ConstGenParticlePtr  pCurrentVertexParticle, HepMC::ConstGenVertexPtr  pCurrentParticleProductionVertex, double currentEventTime);
   //** Check if the current GenVertex contains beam particles
-  bool isInitialCollisionVertex(const HepMC::GenVertexPtr  pCurrentVertex) const;
+  bool isInitialCollisionVertex(HepMC::ConstGenVertexPtr  pCurrentVertex) const;
   //** Check whether the current McEventCollection has already been truth-filtered
   bool isTruthFiltertedMcEventCollection(const McEventCollection *pMcEvtColl) const;
   //** Map from GenEvent to puType FIXME: Simpler to key the map on GenEvent* ?

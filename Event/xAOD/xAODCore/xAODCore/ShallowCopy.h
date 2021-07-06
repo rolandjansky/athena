@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ShallowCopy.h 766390 2016-08-04 11:18:59Z wlampl $
@@ -20,25 +20,110 @@
 #include "xAODCore/ShallowAuxContainer.h"
 #include "xAODCore/ShallowAuxInfo.h"
 
+#ifndef XAOD_STANDALONE
+#include <GaudiKernel/ThreadLocalContext.h>
+#else
+class EventContext;
+#endif
+
+
 namespace xAOD {
 
   /// Function to prepare an object to be stored in a shallow-copy container
   ///
-  /// To be used by shallowCopyContainer. The default implementation 
-  /// here is dummy, just calling the default constructor. Can be 
-  /// overloaded for types that require special treatment 
+  /// To be used by shallowCopyContainer. The default implementation
+  /// here is dummy, just calling the default constructor. Can be
+  /// overloaded for types that require special treatment
   /// (like xAOD::CaloCluster)
   /// @param elem: Input object, ignored in this implementation
-  /// @returns A uniqe_ptr to the object to be push_back'ed into the 
-  ///          shallow-copy container. 
+  /// @returns A uniqe_ptr to the object to be push_back'ed into the
+  ///          shallow-copy container.
 
   template< class T >
   std::unique_ptr<T> prepareElementForShallowCopy(const T* /*elem*/) {
     return std::make_unique<T>();
   }
 
+  namespace detail{
+  /// Impl function for shallow copy container
+  /// @param cont The container to make a shallow copy of
+  /// @param ctx The currentEventContext
+  /// @returns A pair of unique_ptr to the created objects.
+  template<class T>
+  std::pair<std::unique_ptr<T>, std::unique_ptr<ShallowAuxContainer>>
+  shallowCopyContainerImpl(const T& cont,
+                           DataLink<SG::IConstAuxStore>& link){
+
+    if (!link.cptr()) {
+      // This can happen when we read the input file in standalone
+      // mode in branch access mode. That's unfortunately not
+      // compatible with using a shallow copy auxiliary store.
+      std::cout << "xAOD::shallowCopyContainer ERROR Couldn't set up "
+                << "DataLink to the original container's auxiliary store"
+                << std::endl;
+      std::cout << "xAOD::shallowCopyContainer ERROR Are you using the "
+                << "xAOD::TEvent::kBranchAccess access mode?" << std::endl;
+      return {};
+    }
+
+    // Create the new DV container:
+    auto newCont = std::make_unique<T>();
+
+    // Add the required number of elements to it:
+    newCont->reserve(cont.size());
+    for (size_t i = 0; i < cont.size(); ++i) {
+      newCont->push_back(prepareElementForShallowCopy(cont[i]));
+    }
+
+    // Create a new shallow auxiliary container:
+    auto aux = std::make_unique<ShallowAuxContainer>(link);
+
+    // Connect it to the interface container:
+    newCont->setStore(aux.get());
+
+    // Return the new objects:
+    return std::make_pair(std::move(newCont), std::move(aux));
+  }
+  }//end namespace detail
+
+  /// Function making a shallow copy of a constant container
+  ///
+  /// This function can be used to make a shallow copy of an existing
+  /// (constant) container. It is most useful when reading an input file,
+  /// and/or applying systematic variations on a container.
+  ///
+  /// @param cont The container to make a shallow copy of
+  /// @param ctx The currentEventContext
+  /// @returns A pair of unique_ptr to the created objects.
+  ///
+  /// In Analysis Base it can be still called by using
+  /// Gaudi::Hive::currentContext() as 2nd argument,
+  /// although in practice is ignored as we do not really have
+  /// an actual EventContext type.
+  ///
+  /// Be aware: If CONT has decorations, then the scheduler won't automatically
+  /// known that they are available on the copy.  To make that happen, see
+  /// StoreGate/ShallowCopyDecorDeps.h.
+
+  template<class T>
+  std::pair<std::unique_ptr<T>, std::unique_ptr<ShallowAuxContainer>>
+  shallowCopyContainer(const T& cont,
+                       [[maybe_unused]] const EventContext& ctx
+  ){
+#ifndef XAOD_STANDALONE
+    DataLink<SG::IConstAuxStore> link (cont.getConstStore(), ctx);
+#else
+    //Note that in AnalysisBase
+    //- EventContext, is not a complete type, we have no class.
+    //- We do not have a DataLink ctor with EventContext
+    //- The return value of currentContext() can not be used.
+    DataLink<SG::IConstAuxStore> link(cont.getConstStore());
+#endif
+    return detail::shallowCopyContainerImpl(cont,link);
+  }
 
    /// Function making a shallow copy of a constant container
+   //
    ///
    /// This function can be used to make a shallow copy of an existing
    /// (constant) container. It is most useful when reading an input file,
@@ -54,40 +139,9 @@ namespace xAOD {
    ///
    template< class T >
    std::pair< T*, ShallowAuxContainer* > shallowCopyContainer( const T& cont ) {
-
-      // Create a DataLink, to check if we'll be successful:
-      DataLink< SG::IConstAuxStore > link( cont.getConstStore() );
-      if( ! link.cptr() ) {
-         // This can happen when we read the input file in standalone
-         // mode in branch access mode. That's unfortunately not
-         // compatible with using a shallow copy auxiliary store.
-         std::cout << "xAOD::shallowCopyContainer ERROR Couldn't set up "
-                   << "DataLink to the original container's auxiliary store"
-                   << std::endl;
-         std::cout << "xAOD::shallowCopyContainer ERROR Are you using the "
-                   << "xAOD::TEvent::kBranchAccess access mode?"
-                   << std::endl;
-         std::pair< T*, ShallowAuxContainer* > dummy;
-         return dummy;
-      }
-
-      // Create the new DV container:
-      T* newCont = new T();
-
-      // Add the required number of elements to it:
-      newCont->reserve( cont.size() );
-      for( size_t i = 0; i < cont.size(); ++i ) {
-	newCont->push_back(prepareElementForShallowCopy(cont[i]));
-      }
-
-      // Create a new shallow auxiliary container:
-      ShallowAuxContainer* aux = new ShallowAuxContainer( link );
-
-      // Connect it to the interface container:
-      newCont->setStore( aux );
-
-      // Return the new objects:
-      return std::make_pair( newCont, aux );
+     DataLink<SG::IConstAuxStore> link (cont.getConstStore());
+     auto tmp = detail::shallowCopyContainerImpl(cont, link);
+     return std::make_pair(tmp.first.release(), tmp.second.release());
    }
 
    /// Function making a shallow copy of a constant standalone object

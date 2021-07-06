@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -146,7 +146,7 @@ bool DerivationFramework::SkimmingToolHIGG2::eventPassesFilter() const
 {
   m_ntot++;
   bool acceptEvent(false);
-  StatusCode sc(StatusCode::SUCCESS, true);
+  StatusCode sc(StatusCode::SUCCESS);
 
   // Retrieve EventInfo
   const xAOD::EventInfo *eventInfo(nullptr);

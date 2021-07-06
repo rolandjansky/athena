@@ -61,7 +61,7 @@ int SharedWriterTool::makePool(int /*maxevt*/, int nprocs, const std::string& to
     return -1;
   }
 
-  m_nprocs = (nprocs==-1?sysconf(_SC_NPROCESSORS_ONLN):nprocs);
+  m_nprocs = (nprocs==-1?sysconf(_SC_NPROCESSORS_ONLN):nprocs) + 1;
   m_subprocTopDir = topdir;
 
   m_writer = 0;
@@ -80,18 +80,18 @@ int SharedWriterTool::makePool(int /*maxevt*/, int nprocs, const std::string& to
     else {
       m_writer = writeClientsProp.value().size();
     }
-    propertyName = "StreamMetaDataOnly";
-    bool streamMetaDataOnly(false);
-    BooleanProperty streamMetaDataOnlyProp(propertyName,streamMetaDataOnly);
-    if(propertyServer->getProperty(&streamMetaDataOnlyProp).isFailure()) {
-      ATH_MSG_INFO("Conversion service does not have StreamMetaDataOnly property");
+    propertyName = "ParallelCompression";
+    bool parallelCompression(false);
+    BooleanProperty parallelCompressionProp(propertyName,parallelCompression);
+    if(propertyServer->getProperty(&parallelCompressionProp).isFailure()) {
+      ATH_MSG_INFO("Conversion service does not have ParallelCompression property");
     }
     else {
       IService* poolSvc;
       if(serviceLocator()->service("PoolSvc", poolSvc).isFailure() || poolSvc==0) {
         ATH_MSG_ERROR("Error retrieving PoolSvc");
       }
-      else if(streamMetaDataOnlyProp.value()) {
+      else if(parallelCompressionProp.value()) {
         propertyServer = dynamic_cast<IProperty*>(poolSvc);
         if (propertyServer==0 || propertyServer->setProperty("FileOpen", "update").isFailure()) {
           ATH_MSG_ERROR("Could not change PoolSvc FileOpen Property");
@@ -203,6 +203,13 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedWriterTool::bootstrap_f
     return outwork;
 
   ATH_MSG_INFO("File descriptors re-opened in the AthenaMP Shared Writer PID=" << getpid());
+
+  // Try to initialize AthenaRootSharedWriterSvc early on
+  IAthenaSharedWriterSvc* sharedWriterSvc;
+  StatusCode sc = serviceLocator()->service("AthenaRootSharedWriterSvc", sharedWriterSvc);
+  if(sc.isFailure() || sharedWriterSvc == nullptr) {
+    ATH_MSG_WARNING("Error retrieving AthenaRootSharedWriterSvc from SharedWriterTool::bootstrap_func()");
+  }
 
   // Use IDataShare to make ConversionSvc a Share Server
   IDataShare* cnvSvc = dynamic_cast<IDataShare*>(m_cnvSvc);

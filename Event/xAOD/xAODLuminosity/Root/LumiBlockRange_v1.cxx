@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: LumiBlockRange_v1.cxx 647501 2015-02-17 14:22:33Z krasznaa $
@@ -18,7 +18,7 @@ namespace xAOD {
    }
 
    LumiBlockRange_v1::LumiBlockRange_v1( const LumiBlockRange_v1& parent )
-      : SG::AuxElement() {
+      : SG::AuxElement(parent) {
 
       // Create a private store with the parent's payload:
       makePrivateStore( parent );

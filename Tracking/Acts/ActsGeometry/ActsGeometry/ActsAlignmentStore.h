@@ -10,7 +10,7 @@
 #include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/CondCont.h"
 
-#include "Acts/Utilities/Definitions.hpp"
+#include "Acts/Definitions/Algebra.hpp"
 
 #include <stdexcept>
 
@@ -22,13 +22,13 @@ class ActsAlignmentStore : public GeoAlignmentStore
     ActsAlignmentStore() {}
     ActsAlignmentStore(const GeoAlignmentStore& gas);
 
-    void setTransform(const ActsDetectorElement* key, const Acts::Transform3D&);
-    const Acts::Transform3D* getTransform(const ActsDetectorElement* key) const;
+    void setTransform(const ActsDetectorElement* key, const Acts::Transform3&);
+    const Acts::Transform3* getTransform(const ActsDetectorElement* key) const;
 
     void append(const GeoAlignmentStore& gas);
 
   private:
-    TransformMap<ActsDetectorElement, Acts::Transform3D> m_transforms;
+    TransformMap<ActsDetectorElement, Acts::Transform3> m_transforms;
 };
 
 CLASS_DEF(ActsAlignmentStore, 58496671, 1)

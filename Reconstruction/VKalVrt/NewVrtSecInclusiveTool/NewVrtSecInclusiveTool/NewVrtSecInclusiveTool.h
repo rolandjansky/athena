@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -31,11 +31,14 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+//Remove in boost > 1.76 when the boost iterator issue
+//is solved see ATLASRECTS-6358
+#define BOOST_ALLOW_DEPRECATED_HEADERS
 #include "boost/graph/adjacency_list.hpp"
 //
 #include "xAODTruth/TruthEventContainer.h"
 #include "TrkExInterfaces/IExtrapolator.h"
-//
+#include "BeamSpotConditionsData/BeamSpotData.h"
 #include "VxSecVertex/VxSecVertexInfo.h"
 #include "NewVrtSecInclusiveTool/IVrtInclusive.h"
 
@@ -44,7 +47,6 @@ class TH2D;
 class TH1F;
 class TProfile;
 class TTree;
-class IBeamCondSvc;
 
 namespace Trk{
   class TrkVKalVrtFitter;
@@ -105,7 +107,6 @@ namespace Rec {
       TH1D* m_hb_impact{};
       TH1D* m_hb_impactR{};
       TH2D* m_hb_impactRZ{};
-      TH1D* m_hb_pileupRat{};
       TH1D* m_hb_trkD0{};
       TH1D* m_hb_trkZ{};
       TH1F* m_hb_ntrksel{};
@@ -131,32 +132,33 @@ namespace Rec {
 
       long int m_cutSctHits{};
       long int m_cutPixelHits{};
+      long int m_cutTRTHits{};
       long int m_cutSiHits{};
       long int m_cutBLayHits{};
       long int m_cutSharedHits{};
       double m_cutPt{};
       double m_cutZVrt{};
-      double m_cutA0{};
+      double m_cutD0Max{};
+      double m_cutD0Min{};
       double m_cutChi2{};
       double m_sel2VrtProbCut{};
       double m_globVrtProbCut{};
       double m_maxSVRadiusCut{};
       double m_selVrtSigCut{};
       double m_trkSigCut{};
-      float m_a0TrkErrorCut{};
-      float m_zTrkErrorCut{};
-      float m_VrtMassLimit{};
-      float m_Vrt2TrMassLimit{};
-      float m_Vrt2TrPtLimit{};
+      float m_vrtMassLimit{};
+      float m_vrt2TrMassLimit{};
+      float m_vrt2TrPtLimit{};
       float m_antiPileupSigRCut{};
       float m_dRdZRatioCut{};
       float m_v2tIniBDTCut{};
       float m_v2tFinBDTCut{};
       float m_vertexMergeCut{};
-      float m_trackDetachCut{};
       float m_beampipeR{};
+      float m_firstPixelLayerR{};
       float m_removeTrkMatSignif{};
       float m_fastZSVCut{};
+      float m_cosSVPVCut{};
 
       bool m_fillHist{};
       bool m_useVertexCleaning{};
@@ -165,8 +167,8 @@ namespace Rec {
 
       std::unique_ptr<MVAUtils::BDT> m_SV2T_BDT;
 
-      ServiceHandle< IBeamCondSvc > m_beamService; 
-      //ToolHandle<Trk::IVertexFitter>  m_fitterSvc;
+      SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
+
       ToolHandle<Trk::IExtrapolator>  m_extrapolator{this,"ExtrapolatorName","Trk::Extrapolator/Extrapolator"};
       ToolHandle<Trk::TrkVKalVrtFitter>  m_fitSvc;
       //Trk::TrkVKalVrtFitter*   m_fitSvc{};
@@ -195,8 +197,11 @@ namespace Rec {
        int   nTrk;
        float pttrk[maxNTrk];
        float d0trk[maxNTrk];
+       float etatrk[maxNTrk];
        float Sig3D[maxNTrk];
+       float dRdZrat[maxNTrk];
        int   idHF[maxNTrk];
+       int   trkTRT[maxNTrk];
        int   n2Vrt;
        int   VrtTrkHF[maxNVrt];
        int   VrtTrkI[maxNVrt];
@@ -215,7 +220,8 @@ namespace Rec {
        float VrtProb[maxNVrt];
        float VrtHR1[maxNVrt];
        float VrtHR2[maxNVrt];
-       float VrtSinSPM[maxNVrt];
+       float VrtDZ[maxNVrt];
+       float VrtCosSPM[maxNVrt];
        float VMinPtT[maxNVrt];
        float VMinS3DT[maxNVrt];
        float VMaxS3DT[maxNVrt];
@@ -231,7 +237,7 @@ namespace Rec {
        float NVrtM[maxNVrt];
        float NVrtPt[maxNVrt];
        float NVrtEta[maxNVrt];
-       float NVrtSinSPM[maxNVrt];
+       float NVrtCosSPM[maxNVrt];
        float NVMinPtT[maxNVrt];
        float NVMinS3DT[maxNVrt];
        float NVMaxS3DT[maxNVrt];
@@ -240,6 +246,8 @@ namespace Rec {
        float NVrtSig2D[maxNVrt];
        float NVrtProb[maxNVrt];
        float NVrtBDT[maxNVrt];
+       float NVrtHR1[maxNVrt];
+       float NVrtHR2[maxNVrt];
      };
      DevTuple*  m_curTup;
 //
@@ -248,8 +256,7 @@ namespace Rec {
 
 
      struct Vrt2Tr 
-     {   
-         int badVrt=0;
+     {
          Amg::Vector3D     fitVertex;
          TLorentzVector    momentum;
          long int   vertexCharge;
@@ -257,16 +264,15 @@ namespace Rec {
          std::vector<double> chi2PerTrk;
          std::vector< std::vector<double> > trkAtVrt;
          double chi2=0.;
-         double dRSVPV=-1.;
      };
 
 
 // For multivertex version only
 
-      boost::adjacency_list<boost::listS, boost::vecS, boost::undirectedS> *m_compatibilityGraph{};
+      std::unique_ptr<boost::adjacency_list<boost::listS, boost::vecS, boost::undirectedS> > m_compatibilityGraph{};
       float m_chiScale[11]{};
       struct WrkVrt 
-     {   bool Good=true;
+      {  bool Good=true;
          std::deque<long int> selTrk;
          Amg::Vector3D     vertex;
          TLorentzVector    vertexMom;
@@ -275,9 +281,7 @@ namespace Rec {
          std::vector<double> chi2PerTrk;
          std::vector< std::vector<double> > trkAtVrt;
          double chi2{};
-         int nCloseVrt=0;
-         double dCloseVrt=1000000.;
-	 double projectedVrt=0.;
+         double projectedVrt=0.;
          int detachedTrack=-1;
       };
 
@@ -287,19 +291,6 @@ namespace Rec {
 //
       std::vector<xAOD::Vertex*> getVrtSecMulti(  workVectorArrxAOD * inpParticlesxAOD, const xAOD::Vertex  & primVrt) const;
 
-      void  trackClassification(std::vector<WrkVrt> *WrkVrtSet, 
-                                std::vector< std::deque<long int> > *TrkInVrt) const;
-
-      double maxOfShared(std::vector<WrkVrt> *WrkVrtSet, 
-                         std::vector< std::deque<long int> > *TrkInVrt,
-			 long int & selectedTrack,
-			 long int & selectedVertex) const;
-      void removeTrackFromVertex(std::vector<WrkVrt> *WrkVrtSet, 
-                                 std::vector< std::deque<long int> > *TrkInVrt,
-				 long int selectedTrack,
-				 long int selectedVertex) const;
-//
-//
 
       void printWrkSet(const std::vector<WrkVrt> * WrkSet, const std::string &name ) const;
 
@@ -308,64 +299,50 @@ namespace Rec {
       double massV0(const std::vector< std::vector<double> >& TrkAtVrt, double massP, double massPi ) const;
 
 
-      TLorentzVector MomAtVrt(const std::vector<double>& inpTrk) const; 
-      double           VrtRadiusError(const Amg::Vector3D & secVrt, const std::vector<double>  & vrtErr) const;
+      TLorentzVector momAtVrt(const std::vector<double>& inpTrk) const; 
+      double  vrtRadiusError(const Amg::Vector3D & secVrt, const std::vector<double>  & vrtErr) const;
 
       int   nTrkCommon( std::vector<WrkVrt> *WrkVrtSet, int indexV1, int indexV2) const;
-      double minVrtVrtDist( std::vector<WrkVrt> *WrkVrtSet, int & indexV1, int & indexV2) const;
-      double minVrtVrtDistNext( std::vector<WrkVrt> *WrkVrtSet, int & indexV1, int & indexV2) const;
+      double minVrtVrtDist( std::vector<WrkVrt> *WrkVrtSet, int & indexV1, int & indexV2, std::vector<double> & check) const;
       bool isPart( std::deque<long int> test, std::deque<long int> base) const;
-      void Clean1TrVertexSet(std::vector<WrkVrt> *WrkVrtSet) const;
+      std::vector<double> estimVrtPos( int nTrk, std::deque<long int> &selTrk, std::map<long int,std::vector<double>> & vrt) const;
 
-      double VrtVrtDist(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                  const std::vector<double> VrtErr,double& Signif ) const;
-      double VrtVrtDist2D(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                  const std::vector<double> VrtErr,double& Signif ) const;
-      double VrtVrtDist(const Amg::Vector3D & Vrt1, const std::vector<double>& VrtErr1,
-                        const Amg::Vector3D & Vrt2, const std::vector<double>& VrtErr2) const;
-      double VrtVrtDist(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                        const std::vector<double> SecVrtErr, const TLorentzVector & Dir) const;
+      double vrtVrtDist(const xAOD::Vertex & primVrt, const Amg::Vector3D & secVrt, 
+                                  const std::vector<double>& vrtErr,double& signif ) const;
+      double vrtVrtDist2D(const xAOD::Vertex & primVrt, const Amg::Vector3D & secVrt, 
+                                  const std::vector<double>& vrtErr,double& signif ) const;
+      double vrtVrtDist(const Amg::Vector3D & vrt1, const std::vector<double>& vrtErr1,
+                        const Amg::Vector3D & vrt2, const std::vector<double>& vrtErr2) const;
       double PntPntDist(const Amg::Vector3D & Vrt1, const Amg::Vector3D & Vrt2) const;
 
-      void DisassembleVertex(std::vector<WrkVrt> *WrkVrtSet, int iv, 
-                             std::vector<const xAOD::TrackParticle*>  AllTracks,
-                             Trk::IVKalState& istate) const;
-					  
-      double ProjSV_PV(const Amg::Vector3D & SV, const xAOD::Vertex & PV, const TLorentzVector & Direction) const;
+
+      double projSV_PV(const Amg::Vector3D & SV, const xAOD::Vertex & PV, const TLorentzVector & Direction) const;
       double MomProjDist(const Amg::Vector3D & SV, const xAOD::Vertex & PV, const TLorentzVector & Direction) const;
 
- 
       double distToMatLayerSignificance(Vrt2Tr & Vrt) const;
-
-      StatusCode refitVertex( std::vector<WrkVrt> *WrkVrtSet, int SelectedVertex,
-                              std::vector<const xAOD::TrackParticle*> & SelectedTracks,
-                              Trk::IVKalState& istate,
-                              bool ifCovV0) const;
 
       double refitVertex( WrkVrt &Vrt,std::vector<const xAOD::TrackParticle*> & SelectedTracks,
                           Trk::IVKalState& istate,
                           bool ifCovV0) const;
- 
-      int mostHeavyTrk(WrkVrt V, std::vector<const xAOD::TrackParticle*> AllTracks) const;
- 
-      double mergeAndRefitVertices( std::vector<WrkVrt> *WrkVrtSet, int V1, int V2, WrkVrt & newvrt,
-                                    std::vector<const xAOD::TrackParticle*> & AllTrackList,
-                                    Trk::IVKalState& istate) const;
-      void   mergeAndRefitOverlapVertices( std::vector<WrkVrt> *WrkVrtSet, int V1, int V2,
-                                           std::vector<const xAOD::TrackParticle*> & AllTrackLis,
-                                           Trk::IVKalState& istate) const;
 
-      double  improveVertexChi2( std::vector<WrkVrt> *WrkVrtSet, int V, std::vector<const xAOD::TrackParticle*> & AllTracks,
+      int mostHeavyTrk(WrkVrt V, std::vector<const xAOD::TrackParticle*> AllTracks) const;
+      double refineVerticesWithCommonTracks( WrkVrt &v1, WrkVrt &v2, std::vector<const xAOD::TrackParticle*> & allTrackList,
+                                                        Trk::IVKalState& istate) const;
+      double mergeAndRefitVertices( WrkVrt & v1, WrkVrt & v2, WrkVrt & newvrt,
+                                    std::vector<const xAOD::TrackParticle*> & AllTrackList,
+                                    Trk::IVKalState& istate, int robKey =0) const;
+
+      double  improveVertexChi2( WrkVrt &vertex, std::vector<const xAOD::TrackParticle*> & allTracks,
                                  Trk::IVKalState& istate,
                                  bool ifCovV0) const;
 
       void selGoodTrkParticle( workVectorArrxAOD * xAODwrk,
-                               const xAOD::Vertex  & PrimVrt) const;
+                               const xAOD::Vertex  & primVrt) const;
 
 
 
-      void select2TrVrt(std::vector<const xAOD::TrackParticle*>  & SelectedTracks,
-                        const xAOD::Vertex       & PrimVrt) const;
+      void select2TrVrt(std::vector<const xAOD::TrackParticle*> & SelectedTracks, const xAOD::Vertex  & primVrt,
+                        std::map<long int,std::vector<double>> & vrt) const;
 
 
      void  getPixelDiscs   (const xAOD::TrackParticle* Part, int &d0Hit, int &d1Hit, int &d2Hit) const;

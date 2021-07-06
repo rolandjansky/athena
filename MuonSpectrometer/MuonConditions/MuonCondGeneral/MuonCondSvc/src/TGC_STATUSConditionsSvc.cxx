@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondSvc/TGC_STATUSConditionsSvc.h"
@@ -37,12 +37,8 @@ TGC_STATUSConditionsSvc::~TGC_STATUSConditionsSvc()
 
 StatusCode TGC_STATUSConditionsSvc::initialize()
 {
-  ATH_MSG_INFO( "Initializing "
-		 << name() 
-		 << " - version" 
-		 << PACKAGE_VERSION 
-                );
-  
+  ATH_MSG_INFO( "Initializing " );
+
   StoreGateSvc * detStore;
   StatusCode status = service("DetectorStore",detStore);
   if (status.isFailure()) {

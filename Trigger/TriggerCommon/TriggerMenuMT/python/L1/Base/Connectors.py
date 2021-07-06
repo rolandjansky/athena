@@ -8,7 +8,7 @@ from AthenaCommon.Logging import logging
 
 from .TopoAlgorithms import AlgCategory
 
-log = logging.getLogger("Menu.L1.Base.Connectors")
+log = logging.getLogger(__name__)
 
 class CType(Enum):
     CTPIN = (1, 'ctpin')
@@ -56,13 +56,15 @@ class MenuConnectorsCollection(object):
 
     def __init__(self):
         self.connectors = odict()
-        self.inverseLookup = {}
 
     def __iter__(self):
         return iter(self.connectors.values())
 
     def __contains__(self, name):
         return name in self.connectors
+
+    def __getitem__(self, name):
+        return self.connectors[name]
 
     def addConnector(self, connDef):
         name, cformat, ctype, legacy, boardName = map(connDef.__getitem__,["name", "format", "type", "legacy", "board"])
@@ -73,6 +75,8 @@ class MenuConnectorsCollection(object):
         log.debug("Adding connector %s, format %s, legacy set to %s, and connType %s", name, cformat, legacy, ctype)
         if CType.from_str(ctype) is CType.ELEC:
             newConnector = ElectricalConnector(name, cformat, legacy, connDef)
+        elif CType.from_str(ctype) is CType.CTPIN:
+            newConnector = CtpinConnector(name, legacy, connDef)
         else:
             newConnector = OpticalConnector(name, cformat, ctype, legacy, connDef)
         self.connectors[name] = newConnector
@@ -87,8 +91,6 @@ class MenuConnectorsCollection(object):
             except KeyError:
                 # for connectors without zeroBias threshold
                 pass
-        
-
 
     def json(self):
         confObj = odict()
@@ -133,6 +135,29 @@ class Connector(object):
         return confObj
 
 
+class CtpinConnector(Connector):
+    __slots__ = [ 'name', 'legacy', 'triggerLines']
+    def __init__(self, name, legacy, connDef):
+        """
+        @param name name of the connector
+        @param legacy is 'true' for legacy L1Calo connectors
+        """
+        super(CtpinConnector,self).__init__(connDef = connDef)
+
+        # connectors contain all the triggerlines in a flat "thresholds" list
+        startbit = 0
+        for thrName in connDef["thresholds"]:
+            nbits = connDef["nbitsDefault"]
+            if type(thrName)==tuple:
+                (thrName,nbits) = thrName
+            if thrName is None:
+                startbit += nbits
+                continue
+            tl = TriggerLine( name = thrName, startbit = startbit, nbits = nbits)
+            startbit += nbits
+            self.addTriggerLine(tl)
+
+
 class OpticalConnector(Connector):
     __slots__ = [ 'name', 'cformat', 'ctype', 'legacy', 'triggerLines']
     def __init__(self, name, cformat, ctype, legacy, connDef):
@@ -158,7 +183,7 @@ class OpticalConnector(Connector):
                 startbit += nbits
                 self.addTriggerLine(tl)
         else:
-            raise RuntimeError("Property 'format' of connector %s is '%s' but must be either 'multiplicity' or 'topological'" % (name,connDef["format"]))
+            raise RuntimeError("Property 'format' of connector %s is '%s' but must be either 'multiplicity' or 'topological', however 'topological' is not yet implemented" % (name,connDef["format"]))
 
 
 class ElectricalConnector(Connector):

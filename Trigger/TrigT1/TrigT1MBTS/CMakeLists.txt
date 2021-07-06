@@ -11,4 +11,5 @@ atlas_add_component( TrigT1MBTS
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps GaudiKernel TileEvent TileIdentifier TrigConfInterfaces TrigConfL1Data TrigT1Interfaces )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps GaudiKernel TileEvent 
+                     TileIdentifier TrigConfInterfaces TrigConfL1Data TrigConfData TrigT1Interfaces )

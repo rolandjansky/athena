@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSelectorTool/InDetCosmicTrackSelectorTool.h"
@@ -74,12 +74,12 @@ namespace InDet
     // first ask track for summary
     std::unique_ptr<Trk::TrackSummary> summaryUniquePtr;
     const Trk::TrackSummary * summary = track.trackSummary();
-    if (summary == 0 && m_trackSumToolAvailable) {
+    if (summary == nullptr && m_trackSumToolAvailable) {
       summaryUniquePtr = m_trackSumTool->summary(track);
       summary = summaryUniquePtr.get();
     }
 
-    if (0==summary) {
+    if (nullptr==summary) {
       ATH_MSG_DEBUG( "Track preselection: cannot create a track summary. This track will not pass." );
       return false;
     }
@@ -132,13 +132,13 @@ namespace InDet
       return false;
 
     const Trk::TrackSummary * summary = track.trackSummary();
-    if (0==summary ) {
+    if (nullptr==summary ) {
       ATH_MSG_DEBUG( "TrackParticleBase does not have a Track Summary. Rejected." );
       return false;
     }
     const Trk::Track *  otrack= track.originalTrack();
 
-    if(otrack==0){
+    if(otrack==nullptr){
       ATH_MSG_DEBUG(  "TrackParticleBase does not contain the original cosmic track. Rejected." );
       return false;
     }
@@ -188,13 +188,13 @@ namespace InDet
   bool InDetCosmicTrackSelectorTool::decision(const Trk::TrackParameters* track, const Trk::Vertex *, const Trk::ParticleHypothesis) const
   {
     // checking pointer first
-    if(0==track) {
+    if(nullptr==track) {
       ATH_MSG_DEBUG( "Track preselection: Zero pointer to parameterbase* received (most likely a track without perigee). This track will not pass." );
       return false;
     }
 
     // getting the  perigee parameters of the track
-    const Trk::Perigee * perigee(0);
+    const Trk::Perigee * perigee(nullptr);
     perigee = dynamic_cast<const Trk::Perigee *>(track);
 
     if(!perigee || !perigee->covariance()) {
@@ -218,7 +218,7 @@ namespace InDet
     }
 
     // only check pt if mag. field is on
-    EventContext ctx = Gaudi::Hive::currentContext();
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
     const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
     if (fieldCondObj == nullptr) {

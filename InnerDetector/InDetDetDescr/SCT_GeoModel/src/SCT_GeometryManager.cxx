@@ -1,12 +1,16 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
+
+#include <memory>
+
+
 
 #include "SCT_GeoModel/SCT_GeometryManager.h"
 
 #include "InDetGeoModelUtils/DistortedMaterialManager.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SiCommonItems.h"
+#include "ReadoutGeometryBase/SiCommonItems.h"
 #include "SCT_GeoModel/SCT_BarrelParameters.h"
 #include "SCT_GeoModel/SCT_BarrelModuleParameters.h"
 #include "SCT_GeoModel/SCT_DataBase.h"
@@ -116,12 +120,12 @@ SCT_GeometryManager::operator=(const SCT_GeometryManager& right) {
     m_athenaComps = right.m_athenaComps;
     m_commonItems = right.m_commonItems;
     m_rdb = right.m_rdb;
-    m_barrelParameters.reset(new SCT_BarrelParameters(m_rdb));
-    m_barrelModuleParameters.reset(new SCT_BarrelModuleParameters(m_rdb));
-    m_forwardParameters.reset(new SCT_ForwardParameters(m_rdb));
-    m_forwardModuleParameters.reset(new SCT_ForwardModuleParameters(m_rdb));
-    m_generalParameters.reset(new SCT_GeneralParameters(m_rdb));
-    m_distortedMatManager.reset(new InDetDD::DistortedMaterialManager());
+    m_barrelParameters = std::make_unique<SCT_BarrelParameters>(m_rdb);
+    m_barrelModuleParameters = std::make_unique<SCT_BarrelModuleParameters>(m_rdb);
+    m_forwardParameters = std::make_unique<SCT_ForwardParameters>(m_rdb);
+    m_forwardModuleParameters = std::make_unique<SCT_ForwardModuleParameters>(m_rdb);
+    m_generalParameters = std::make_unique<SCT_GeneralParameters>(m_rdb);
+    m_distortedMatManager = std::make_unique<InDetDD::DistortedMaterialManager>();
   }
   return *this;
 }

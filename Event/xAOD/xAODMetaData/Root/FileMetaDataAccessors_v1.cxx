@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: FileMetaDataAccessors_v1.cxx 685184 2015-07-23 20:25:43Z cranshaw $
@@ -54,11 +54,11 @@ namespace xAOD {
       default:
          std::cerr << "xAOD::FileMetaData_v1    ERROR No string accessor for "
                    << "type: " << type << std::endl;
-         return 0;
+         return nullptr;
       }
 
       // Just to make sure the compiler doesn't complain:
-      return 0;
+      return nullptr;
    }
 
    const SG::AuxElement::Accessor< float >*
@@ -72,11 +72,11 @@ namespace xAOD {
       default:
          std::cerr << "xAOD::FileMetaData_v1    ERROR No float accessor for "
                    << "type: " << type << std::endl;
-         return 0;
+         return nullptr;
       }
 
       // Just to make sure the compiler doesn't complain:
-      return 0;
+      return nullptr;
    }
 
    const SG::AuxElement::Accessor< char >*
@@ -89,11 +89,11 @@ namespace xAOD {
       default:
          std::cerr << "xAOD::FileMetaData_v1    ERROR No char accessor for "
                    << "type: " << type << std::endl;
-         return 0;
+         return nullptr;
       }
 
       // Just to make sure the compiler doesn't complain:
-      return 0;
+      return nullptr;
    }
 
 } // namespace xAOD

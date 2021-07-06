@@ -14,14 +14,13 @@
 
 #include "xAODTracking/TrackParticleContainer.h"
 
-#include "AthenaKernel/IClassIDSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "xAODTrigger/TrigNavigation.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigNavigation/Navigation.h"
-#include "GaudiKernel/ToolHandle.h"
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
@@ -189,6 +188,8 @@ class TrigEDMChecker : public AthAnalysisAlgorithm  {
    bool m_doDumpNavigation;
    StatusCode dumpNavigation();
    Gaudi::Property<std::string> m_dumpNavForChain {this, "DumpNavigationForChain", "", "Optional chain to restrict navigation dump info."};
+   Gaudi::Property<bool> m_excludeFailedHypoNodes {this, "excludeFailedHypoNodes", false,
+    "Optional flag to exclude nodes which fail the hypothesis tool for a chain when dumping navigation graphs."};
 
    /**
     * @brief Dump information on TrigComposite collections
@@ -209,10 +210,11 @@ class TrigEDMChecker : public AthAnalysisAlgorithm  {
    /**
     * @brief Construct graph of HLT navigation in Run-3
     * @param returnValue String to populate with dot graph.
+    * @param pass When using a chain filter, if the chain group passed raw.
     *
     * Navigates all TrigComposite objects in store gate and forms a relational graph in the dot format
     */
-   StatusCode TrigCompositeNavigationToDot(std::string& returnValue);
+   StatusCode TrigCompositeNavigationToDot(std::string& returnValue, bool& pass);
 
    ToolHandle<Rec::IMuonPrintingTool>            m_muonPrinter;
 

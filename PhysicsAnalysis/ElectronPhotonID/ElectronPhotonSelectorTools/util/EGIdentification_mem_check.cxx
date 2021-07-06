@@ -15,13 +15,13 @@ http://valgrind.org/docs/manual/faq.html#faq.deflost
 #include "EgammaAnalysisInterfaces/IAsgForwardElectronIsEMSelector.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/StandaloneToolHandle.h"
 #include "AsgMessaging/MessageCheck.h"
 
 int main(){
   using namespace asg::msgUserCode;
   ANA_CHECK_SET_TYPE (int);
-  asg::AnaToolHandle<IAsgElectronLikelihoodTool> MediumLH("AsgElectronLikelihoodTool/MediumLH");
+  asg::StandaloneToolHandle<IAsgElectronLikelihoodTool> MediumLH("AsgElectronLikelihoodTool/MediumLH");
   ANA_CHECK(MediumLH.setProperty("WorkingPoint", "MediumLHElectron"));
   ANA_CHECK(MediumLH.initialize());
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -15,8 +15,7 @@
 #ifndef TRIGT2HISTOPRMVTX_TRIGT2HISTOPRMVTXBASE_H
 #define TRIGT2HISTOPRMVTX_TRIGT2HISTOPRMVTXBASE_H
 
-
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
@@ -24,8 +23,6 @@
 class HistoVertexHelper;
 class TrigInDetTrack;
 class TrigInDetTrackCollection;
-class TrigT2HistoPrmVtx;
-class TrigT2HistoPrmVtxAllTE;
 
 namespace Rec { 
   class TrackParticleContainer;
@@ -33,38 +30,14 @@ namespace Rec {
 }
 
 
-class TrigT2HistoPrmVtxBase {
+class TrigT2HistoPrmVtxBase : public AthAlgorithm {
 
  public:
+  TrigT2HistoPrmVtxBase( const std::string&, ISvcLocator* );
 
-  friend class TrigT2HistoPrmVtx;
-  friend class TrigT2HistoPrmVtxAllTE;
+  virtual StatusCode initialize() override;
 
-  TrigT2HistoPrmVtxBase(MsgStream&, unsigned int);
-  TrigT2HistoPrmVtxBase(const TrigT2HistoPrmVtxBase&);
-  ~TrigT2HistoPrmVtxBase();
-
-  TrigT2HistoPrmVtxBase& operator=(const TrigT2HistoPrmVtxBase&);
-
-  /** @brief To check if phi RoI is in [-Pi;Pi] range. */
-  float phiCorr(float);
-  /** @brief To get d0 and z0 refered to the BeamSpot */
-  void IPCorr(float, float, float &, float &, float, float, float);
-
-  /**
-   * @brief To perform track selection at LVL2 in order to evaluate the likelihood weight.
-   * @return boolean variable set to true if the track has been selected
-   *
-   * This method is called for all the tracks in a certain collection and perform track selection
-   * with the following default criteria (different selection criteria can be set through declareProperty):
-   *
-   * - chi square > 50 
-   * - number of space points in the silicon detectors >= 4
-   * - transverse impact parameter >= 1mm
-   * - longitudinal impact parameter >= 2mm
-   *
-   */
-  bool l2TrackSel(const TrigInDetTrack*&, unsigned int, float, float);
+ protected:
   /**
    * @brief To perform track selection at EF in order to evaluate the likelihood weight.
    * @return boolean variable set to true if the track has been selected
@@ -80,23 +53,18 @@ class TrigT2HistoPrmVtxBase {
    * - longitudinal impact parameter >= 2mm
    *
    */
-  bool efTrackSel(const xAOD::TrackParticle*&, unsigned int, float, float);
+  bool trackSel(const xAOD::TrackParticle*, unsigned int, float, float);
 
   /** @brief To calculate, through a sliding window approach, the three positions of the window in the histogram that maximize the entries of longitudinal impact parameter. */
-  void findPrmVtx();
+  void findPrmVtx( std::unique_ptr< HistoVertexHelper >& );
 
- private:
+ protected:
 
   /** @brief To retrieve selected tracks in percentage. */ 
   float totSelectedTracks() const {
     if (!m_totTracks) return -0.1;
     else return (float)m_totSelTracks/(float)m_totTracks;
   };
-
-  /** @brief To use properly message service. */
-  MsgStream m_log;
-  /** @brief To use properly message service. */
-  unsigned int m_logLvl; 
 
   /** @brief Vector of primary vertex candidates (the first candidate is assumed to be the best). */
   std::vector<float> m_zPrmVtx;
@@ -118,52 +86,34 @@ class TrigT2HistoPrmVtxBase {
   /** @brief Number of selected tracks for all the RoIs. */
   unsigned int m_totSelTracks_All;
 
-  /** @brief Pointer to HistoVertexHelper class. */
-  HistoVertexHelper* m_hisVtx;
+
 
   /** @brief DeclareProperty: track reconstruction algorithm at LVL2. */
-  int m_algo;
-  /** @brief DeclareProperty: string corresponding to the trigger level in which the algorithm is running. */
-  std::string m_instance;
+  Gaudi::Property< int > m_algo {this,"AlgoId",0,"track reconstruction algorithm at LVL2"};
   /** @brief DeclareProperty: bin number for histogramming method. */
-  int m_nBins;
+  Gaudi::Property< int > m_nBins {this,"NumBins",0,"bin number for histogramming method."};
 
   /** @brief DeclareProperty: string corresponding to reference vertex used */
-  bool m_useBeamSpot;
+  Gaudi::Property< bool > m_useBeamSpot {this,"UseBeamSpot",false,"string corresponding to reference vertex used"};
   /** @brief DeclareProperty: switch to perform track-RoI eta/phi matching when selecting tracks. */
-  bool m_useEtaPhiTrackSel;
+  Gaudi::Property< bool > m_useEtaPhiTrackSel {this,"UseEtaPhiTrackSel",false,"switch to perform track-RoI eta/phi matching when selecting tracks"};
 
-  /** @brief DeclareProperty: lower bound of the chi square of the reconstructed track at LVL2 (to perform track selection). */
-  float m_l2TrkSelChi2;
-  /** @brief DeclareProperty: lower bound of the number of hits on b-layer of reconstructed track at LVL2 (to perform track selection). */
-  int m_l2TrkSelBLayer;
-  /** @brief DeclareProperty: lower bound of the number of hits in silicon detectors of reconstructed track at LVL2 (to perform track selection). */
-  int m_l2TrkSelSiHits;
-  /** @brief DeclareProperty: upper bound of transverse impact parameter of reconstructed track at LVL2 (to perform track selection). */
-  float m_l2TrkSelD0;
-  /** @brief DeclareProperty: lower bound of pT of the reconstructed track at L2 (to perform track selection). */
-  float m_l2TrkSelPt;
-  /** @brief DeclareProperty: lower bound of the chi square of the reconstructed track at EF (to perform track selection). */
-  float m_efTrkSelChi2;
-  /** @brief DeclareProperty: lower bound of the number of hits on b-layer of reconstructed track at EF (to perform track selection). */
-  int m_efTrkSelBLayer;
-  /** @brief DeclareProperty: lower bound of the number of hits in pixel detector of reconstructed track at EF (to perform track selection). */
-  int m_efTrkSelPixHits;
-  /** @brief DeclareProperty: lower bound of the number of hits in silicon detectors of reconstructed track at EF (to perform track selection). */
-  int m_efTrkSelSiHits;
-  /** @brief DeclareProperty: upper bound of transverse impact parameter of reconstructed track at EF (to perform track selection). */
-  float m_efTrkSelD0;
-  /** @brief DeclareProperty: lower bound of pT of the reconstructed track at EF (to perform track selection). */
-  float m_efTrkSelPt;
-
-  /** @brief Beam spot position and precision. */
-  float m_xBeamSpot,m_yBeamSpot,m_zBeamSpot;
-  float m_xBeamSpotTilt,m_yBeamSpotTilt;
-  float m_xBeamSpotSigma,m_yBeamSpotSigma,m_zBeamSpotSigma;
+  /** @brief DeclareProperty: lower bound of the chi square of the reconstructed track at HLT (to perform track selection). */
+  Gaudi::Property< float > m_hltTrkSelChi2 {this,"HLTTrkSel_Chi2",0.0,"lower bound of the chi square of the reconstructed track at HLT (to perform track selection)"};
+  /** @brief DeclareProperty: lower bound of the number of hits on b-layer of reconstructed track at HLT (to perform track selection). */
+  Gaudi::Property< int > m_hltTrkSelBLayer {this,"HLTTrkSel_BLayer",1,"lower bound of the number of hits on b-layer of reconstructed track at HLT (to perform track selection)"};
+  /** @brief DeclareProperty: lower bound of the number of hits in pixel detector of reconstructed track at HLT (to perform track selection). */
+  Gaudi::Property< int > m_hltTrkSelPixHits {this,"HLTTrkSel_PixHits",2,"lower bound of the number of hits in pixel detector of reconstructed track at HLT (to perform track selection)"};
+  /** @brief DeclareProperty: lower bound of the number of hits in silicon detectors of reconstructed track at HLT (to perform track selection). */
+  Gaudi::Property< int > m_hltTrkSelSiHits {this,"HLTTrkSel_SiHits",7,"lower bound of the number of hits in silicon detectors of reconstructed track at HLT (to perform track selection)"};
+  /** @brief DeclareProperty: upper bound of transverse impact parameter of reconstructed track at HLT (to perform track selection). */
+  Gaudi::Property< float > m_hltTrkSelD0 {this,"HLTTrkSel_D0",1*Gaudi::Units::mm,"upper bound of transverse impact parameter of reconstructed track at HLT (to perform track selection)"};
+  /** @brief DeclareProperty: lower bound of pT of the reconstructed track at HLT (to perform track selection). */
+  Gaudi::Property< float > m_hltTrkSelPt {this,"HLTTrkSel_Pt",1*Gaudi::Units::GeV,"lower bound of pT of the reconstructed track at HLT (to perform track selection)"};
 
   /** @brief DeclareProperty: to monitor track selection for likelihood methods. */
+  //  Gaudi::Property< std::vector<float> > m_listCutApplied {this,"ListCutApplied",{},"to monitor track selection for likelihood methods"};
   std::vector<float> m_listCutApplied;
-
 };
  
 #endif 

@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 ### configure trigger filters
 
 if len(primRPVLLDESDM.SmpCaloId_triggerFilterFlags.TriggerNames) == 0:
@@ -28,7 +29,6 @@ for trigName in primRPVLLDESDM.SmpCaloId_triggerFilterFlags.TriggerNames:
     topSequence += TriggerFilter( TriggerFilterName,
                                   trigger = trigName)
     triggerFilterNames.append( TriggerFilterName )
-    pass
 
 # Create a combined filter by ORing together all the trigger filters
 combinedTriggerFilterName = "SmpCaloId_CombinedTriggerFilter"
@@ -38,10 +38,8 @@ cmdstring = ""
 for triggerFilterName in triggerFilterNames :
     if triggerFilterCounter > 0 :
         cmdstring += " or "
-        pass
     cmdstring += triggerFilterName
     triggerFilterCounter += 1
-    pass
 topSequence.SmpCaloId_CombinedTriggerFilter.cmdstring = cmdstring
 filtersToBookkeep+=["SmpCaloId_CombinedTriggerFilter"]
 
@@ -126,10 +124,8 @@ cmdstring = ""
 for offlineFilterName in offlineObjectFilterNames :
     if offlineFilterCounter > 0 :
         cmdstring += " or "
-        pass
     cmdstring += offlineFilterName
     offlineFilterCounter += 1
-    pass
 print("NICK cmdstring of OfflineObjectFilter is ",cmdstring)
 topSequence.SmpCaloId_CombinedOfflineFilter.cmdstring=cmdstring
 filtersToBookkeep+=["SmpCaloId_CombinedOfflineFilter"]
@@ -147,7 +143,6 @@ topSequence.SmpCaloIdCombinedFilter.cmdstring="SmpCaloId_CombinedTriggerFilter a
 
 if topCmdString.__len__() > 0:
     topCmdString+=" or "
-    pass
 topCmdString+="SmpCaloIdCombinedFilter"
 
 filtersToBookkeep+=["SmpCaloIdCombinedFilter"]

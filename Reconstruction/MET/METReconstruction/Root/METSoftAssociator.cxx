@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // METSoftAssociator.cxx
@@ -91,7 +91,7 @@ namespace met {
 
     if(!m_fecollKey.key().empty()){
       // PFOs have been provided as FlowElements
-      const IParticleContainer* uniquePFOs = metMap->getUniqueSignals(constits.pfoCont,MissingETBase::UsageHandler::Policy::ParticleFlow);
+      const IParticleContainer* uniquePFOs = metMap->getUniqueSignals(constits.feCont,MissingETBase::UsageHandler::Policy::ParticleFlow);
       if(m_decorateSoftTermConst) {
         dec_softConst(*metCoreTrk) = std::vector<ElementLink<IParticleContainer> >();
         dec_softConst(*metCoreTrk).reserve(uniquePFOs->size());
@@ -135,7 +135,7 @@ namespace met {
         dec_softConst(*metCoreCl) = std::vector<ElementLink<IParticleContainer> >();
         dec_softConst(*metCoreCl).reserve(uniquePFOs->size());
       }
-      for(const auto& sig : *uniquePFOs) {
+      for(const auto sig : *uniquePFOs) {
         const PFO *pfo = static_cast<const PFO*>(sig);
         if (pfo->isCharged()) { // Charged PFOs
           // We set a small -ve pt for cPFOs that were rejected
@@ -177,7 +177,7 @@ namespace met {
       SG::ReadHandle<xAOD::CaloClusterContainer> lctc(m_lcmodclus_key);
       SG::ReadHandle<xAOD::CaloClusterContainer> emtc(m_emmodclus_key);
 
-      for(const auto& cl : *uniqueClusters) {
+      for(const auto cl : *uniqueClusters) {
         if (cl->e()>FLT_MIN) {
           if(m_useModifiedClus) {
             if(lctc.isValid() && emtc.isValid()) {
@@ -207,7 +207,7 @@ namespace met {
       }
 
       if(constits.pv) {
-        for(const auto& trk : *uniqueTracks) {
+        for(const auto trk : *uniqueTracks) {
           ATH_MSG_VERBOSE("Test core track with pt " << trk->pt());
           if(acceptTrack(static_cast<const TrackParticle*>(trk),constits.pv) && isGoodEoverP(static_cast<const TrackParticle*>(trk))) {
             ATH_MSG_VERBOSE("Add core track with pt " << trk->pt());

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/SCT_ServMatFactoryFS.h"
@@ -103,12 +103,12 @@ void SCT_ServMatFactoryFS::create(GeoPhysVol *motherP,GeoPhysVol *motherM)
 
     double volumeCut = 0;
 
-    const GeoTubs* tubeUp = 0;      //
-    const GeoTubs* tubeDown = 0;    // Turn some booleans into single placements.
-    const GeoTube* tube = 0;        // Shapes for such placements
-    const GeoCons* cons = 0;        //
+    const GeoTubs* tubeUp = nullptr;      //
+    const GeoTubs* tubeDown = nullptr;    // Turn some booleans into single placements.
+    const GeoTube* tube = nullptr;        // Shapes for such placements
+    const GeoCons* cons = nullptr;        //
 
-    const GeoPcon* servicePcon = 0; // helper shape 
+    const GeoPcon* servicePcon = nullptr; // helper shape 
 
     const GeoShape* serviceTube = serviceTubeTmp;
     if( tubeHelper.volData().maxRadius() > minRofGap && tubeHelper.volData().phiStart() < phiWid/2.)  {
@@ -149,7 +149,7 @@ void SCT_ServMatFactoryFS::create(GeoPhysVol *motherP,GeoPhysVol *motherM)
 	// Here we have SctHSP pcon
 	// Break it into 4 individual placements: 1 tube, 1 cone and 2 tubs
 	servicePcon = dynamic_cast<const GeoPcon*>(serviceTube);
-	if(servicePcon==0 || servicePcon->getNPlanes()!=3) continue;
+	if(servicePcon==nullptr || servicePcon->getNPlanes()!=3) continue;
 
 	// Shape 1. Tube. Rmax = Rmin of the cutout
 	tube = new GeoTube(servicePcon->getRMinPlane(0),
@@ -175,7 +175,7 @@ void SCT_ServMatFactoryFS::create(GeoPhysVol *motherP,GeoPhysVol *motherM)
     std::string materialName = tubeHelper.materialName();
     const GeoMaterial* material = m_materialManager->getMaterialForVolume(materialName, serviceTubeTmp->volume()-volumeCut);
    
-    if(tubeUp==0) {
+    if(tubeUp==nullptr) {
       const GeoLogVol* servLog = new GeoLogVol(logName,serviceTube,material);
       GeoVPhysVol* servPhys = new GeoPhysVol(servLog);
  

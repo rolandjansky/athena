@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoPixelDisk.h"
@@ -35,7 +35,7 @@ GeoVPhysVol* GeoPixelDisk::Build( ) {
   // it is 360 deg / 24 modules = 15 deg	 	
   int nbECSector = m_gmt_mgr->PixelECNSectors1();
   if(nbECSector==0){
-    return 0;
+    return nullptr;
   }
   //   
   // Dimensions from class methods.

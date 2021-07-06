@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/PixelServMatFactoryDC3.h"
@@ -136,7 +136,7 @@ void PixelServMatFactoryDC3::create(GeoPhysVol *mother)
     o << ii;
     std::string logName = "PixServ"+o.str();    
 
-    const GeoShape* serviceTube   = 0;
+    const GeoShape* serviceTube   = nullptr;
     if (ii==0 || ii==2 || ii==6 || ii==1){
        double angGapWid    = M_PI/40.;
        double angSectorWid = M_PI/6.;

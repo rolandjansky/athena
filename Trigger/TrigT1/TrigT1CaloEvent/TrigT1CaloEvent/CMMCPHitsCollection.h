@@ -9,7 +9,6 @@
 
 /** Container class for CMMCPHits objects */
 
-using namespace LVL1;
-typedef DataVector<CMMCPHits> CMMCPHitsCollection;
+typedef DataVector<LVL1::CMMCPHits> CMMCPHitsCollection;
 
 #endif

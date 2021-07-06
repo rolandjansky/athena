@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // This source file implements all of the functions related to <OBJECT>
@@ -11,15 +11,17 @@
 #include "xAODBase/IParticleHelpers.h"
 #include "xAODTracking/TrackParticlexAODHelpers.h"
 
-#include "ElectronPhotonFourMomentumCorrection/IEgammaCalibrationAndSmearingTool.h"
-#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
-#include "ElectronPhotonShowerShapeFudgeTool/IElectronPhotonShowerShapeFudgeTool.h"
-#include "ElectronPhotonSelectorTools/IEGammaAmbiguityTool.h"
-#include "PhotonEfficiencyCorrection/IAsgPhotonEfficiencyCorrectionTool.h"
+#include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
+#include "EgammaAnalysisInterfaces/IEGammaAmbiguityTool.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonEfficiencyCorrectionTool.h"
 
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
-#include "IsolationSelection/IIsolationCloseByCorrectionTool.h"
+
+// Helper for object quality
+#include "EgammaAnalysisHelpers/PhotonHelpers.h"
 
 #ifndef XAOD_STANDALONE // For now metadata is Athena-only
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
@@ -53,32 +55,10 @@ StatusCode SUSYObjDef_xAOD::GetPhotons(xAOD::PhotonContainer*& copy, xAOD::Shall
     photons=copy;
   }  
 
-  bool cached_doIsoSig = m_doPhIsoSignal;
   for (const auto& photon : *copy) {
     ATH_CHECK( this->FillPhoton(*photon, m_photonBaselinePt, m_photonBaselineEta) );
-    if(m_doIsoCloseByOR) //switch off isolation for now if close-by OR corrections were requested
-      m_doPhIsoSignal = false;
     this->IsSignalPhoton(*photon, m_photonPt, m_photonEta);
   }
-
-  //apply close-by corrections to isolation if requested
-  if(m_doIsoCloseByOR){
-    // stores the electrons in a vector
-    std::vector<const xAOD::IParticle*> pVec;
-    for(auto pobj: *copy) {
-      pVec.push_back((const xAOD::IParticle*) pobj);
-    }
-
-    //restore isSignal settings
-    m_doPhIsoSignal = cached_doIsoSig;
-
-    //correct isolation and propagate to signal deco
-    for (const auto& photon : *copy) {
-      dec_isol(*photon) = m_isoCloseByTool->acceptCorrected(*photon, pVec);
-      if(m_doPhIsoSignal) dec_signal(*photon) &= dec_isol(*photon); //add isolation to signal deco if requested
-    }
-  }
-
 
   if (recordSG) {
     ATH_CHECK( evtStore()->record(copy, "STCalib" + photonkey + m_currentSyst.name()) );
@@ -92,19 +72,25 @@ StatusCode SUSYObjDef_xAOD::FillPhoton(xAOD::Photon& input, float ptcut, float e
 
   ATH_MSG_VERBOSE( "Starting FillPhoton on ph with pre-calibration pt=" << input.pt() );
 
+  if ( !input.caloCluster() ) {
+     ATH_MSG_WARNING( "FillPhoton: no caloCluster found: " << input.caloCluster() );
+     return StatusCode::SUCCESS;
+  }
+
   if (m_debug) {
     ATH_MSG_INFO( "PHOTON eta: " << input.eta() );
     ATH_MSG_INFO( "PHOTON phi: " << input.phi() );
     ATH_MSG_INFO( "PHOTON cl eta: " << input.caloCluster()->eta() );
     ATH_MSG_INFO( "PHOTON cl phi: " << input.caloCluster()->phi() );
     ATH_MSG_INFO( "PHOTON cl e: " << input.caloCluster()->e() );
-    ATH_MSG_INFO( "PHOTON OQ: " << acc_OQ(input) );
+    ATH_MSG_INFO( "PHOTON OQ: " << input.OQ() );
     ATH_MSG_INFO( "PHOTON author: " << input.author() );
   }
 
   dec_baseline(input) = false;
   dec_selected(input) = 0;
   dec_isol(input) = false;
+  dec_isEM(input) = 0;
 
   // Author cuts needed according to https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EGammaIdentificationRun2#Photon_authors
   if ( !(input.author() & (xAOD::EgammaParameters::AuthorPhoton + xAOD::EgammaParameters::AuthorAmbiguous)) )
@@ -113,8 +99,8 @@ StatusCode SUSYObjDef_xAOD::FillPhoton(xAOD::Photon& input, float ptcut, float e
   if (m_egammaCalibTool->applyCorrection(input)  != CP::CorrectionCode::Ok)
     ATH_MSG_ERROR("FillPhoton: EgammaCalibTool applyCorrection failed");
 
-  if (m_isoCorrTool->applyCorrection(input)  != CP::CorrectionCode::Ok)
-    ATH_MSG_ERROR("FillPhoton: IsolationCorrectionTool applyCorrection failed");
+  //disable if (m_isoCorrTool->applyCorrection(input)  != CP::CorrectionCode::Ok)
+  //disable   ATH_MSG_ERROR("FillPhoton: IsolationCorrectionTool applyCorrection failed");
 
   ATH_MSG_VERBOSE( "FillPhoton: post-calibration pt=" << input.pt() );
 
@@ -131,24 +117,40 @@ StatusCode SUSYObjDef_xAOD::FillPhoton(xAOD::Photon& input, float ptcut, float e
     return StatusCode::SUCCESS;
 
   //Photon quality as in https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EGammaIdentificationRun2#Photon_cleaning
-  uint32_t ph_OQ = acc_OQ(input); 
-  bool ph_good_timing = (m_photonAllowLate || (ph_OQ&67108864)==0);  
-  if( (ph_OQ&1073741824)!=0 ||
-      ( (ph_OQ&134217728)!=0 && (input.showerShapeValue(xAOD::EgammaParameters::Reta) >0.98 || input.showerShapeValue(xAOD::EgammaParameters::f1) >0.4 || !ph_good_timing)))
-    {
-      return StatusCode::SUCCESS;
-    }
-
-  if (!isAtlfast() && !isData()) {
-    if ( m_electronPhotonShowerShapeFudgeTool->applyCorrection(input) != CP::CorrectionCode::Ok)
-      ATH_MSG_ERROR("FillPhoton - fudge tool: applyCorrection failed");
+  bool passPhCleaning = false;
+  if (acc_passPhCleaning.isAvailable(input) && acc_passPhCleaningNoTime.isAvailable(input)) {
+    if ( (!m_photonAllowLate && acc_passPhCleaning(input)) || (m_photonAllowLate && acc_passPhCleaningNoTime(input)) ) passPhCleaning = true;
+  } else {
+    ATH_MSG_VERBOSE ("DFCommonPhotonsCleaning is not found in DAOD..");
+    if ( (!m_photonAllowLate && PhotonHelpers::passOQquality(&input)) || 
+         ( m_photonAllowLate && PhotonHelpers::passOQqualityDelayed(&input)) ) passPhCleaning = true;
   }
+  if (!passPhCleaning) return StatusCode::SUCCESS;
 
-  if (!m_photonSelIsEMBaseline->accept(&input) )return StatusCode::SUCCESS;
+
+  bool passBaseID = false;
+  if (m_acc_photonIdBaseline.isAvailable(input)) {
+    passBaseID = bool(m_acc_photonIdBaseline(input));
+    //disable m_photonSelIsEM->accept(&input);
+    //disable dec_isEM(input) = bool(m_photonSelIsEM->IsemValue());
+  } else {
+    ATH_MSG_VERBOSE ("DFCommonPhotonsIsEMxxx variables are not found. Calculating the ID from Photon ID tool..");
+    if (!isAtlfast() && !isData()) {
+      if ( m_electronPhotonShowerShapeFudgeTool->applyCorrection(input) != CP::CorrectionCode::Ok)
+        ATH_MSG_ERROR("FillPhoton - fudge tool: applyCorrection failed");
+    }
+    passBaseID = bool(m_photonSelIsEMBaseline->accept(&input));
+    //disable m_photonSelIsEM->accept(&input);
+    //disable dec_isEM(input) = bool(m_photonSelIsEM->IsemValue());
+  }
+  if (!passBaseID) return StatusCode::SUCCESS;
+
+  //--- Do baseline isolation check
+  if ( !( m_photonBaselineIso_WP.empty() ) &&  !( m_isoBaselineTool->accept(input) ) ) return StatusCode::SUCCESS;
 
   dec_baseline(input) = true;
   dec_selected(input) = 2;
-  dec_isol(input) = m_isoTool->accept(input);
+  if (!m_photonIso_WP.empty()) dec_isol(input) = bool(m_isoTool->accept(input));
 
   ATH_MSG_VERBOSE("FillPhoton: passed baseline selection.");
   return StatusCode::SUCCESS;
@@ -166,9 +168,9 @@ bool SUSYObjDef_xAOD::IsSignalPhoton(const xAOD::Photon& input, float ptcut, flo
 
   if ( input.pt() < ptcut ) return false;
   if ( etacut==DUMMYDEF ){
-    if(fabs(input.eta()) > m_photonEta ) return false;
+    if(fabs(input.caloCluster()->etaBE(2)) > m_photonEta ) return false;
   }
-  else if ( fabs(input.eta()) > etacut ) return false;
+  else if ( fabs(input.caloCluster()->etaBE(2)) > etacut ) return false;
 
   if (m_photonCrackVeto){
     if  ( fabs( input.caloCluster()->etaBE(2) ) >1.37 &&  fabs( input.caloCluster()->etaBE(2) ) <1.52) {
@@ -176,20 +178,26 @@ bool SUSYObjDef_xAOD::IsSignalPhoton(const xAOD::Photon& input, float ptcut, flo
     }
   }
 
-
   if (dec_isol(input) || !m_doPhIsoSignal) {
     ATH_MSG_VERBOSE( "IsSignalPhoton: passed isolation");
   } else return false;
 
-  if (!m_photonSelIsEM->accept(&input) ) return false;
-
+  bool passID = false;
+  if (m_acc_photonId.isAvailable(input)) {
+    passID = m_acc_photonId(input);
+  } else {
+    ATH_MSG_VERBOSE ("DFCommonPhotonsIsEMxxx variables are not found. Calculating the ID from Photon ID tool..");
+    passID = bool(m_photonSelIsEM->accept(&input));
+  }
+  if ( !passID ) return false;
+  
   dec_signal(input) = true;
 
   return true;
 }
 
 
-double SUSYObjDef_xAOD::GetSignalPhotonSF(const xAOD::Photon& ph, const bool effSF, const bool isoSF) const
+double SUSYObjDef_xAOD::GetSignalPhotonSF(const xAOD::Photon& ph, const bool effSF, const bool isoSF, const bool triggerSF) const
 {
   double sf(1.);
 
@@ -213,26 +221,41 @@ double SUSYObjDef_xAOD::GetSignalPhotonSF(const xAOD::Photon& ph, const bool eff
     sf *= sf_iso;
   }
 
-  ATH_MSG_VERBOSE( " ScaleFactor " << sf );
+  if (triggerSF) {
+
+    double sf_trigger = 1.;
+
+    CP::CorrectionCode res = m_photonTriggerSFTool->getEfficiencyScaleFactor( ph, sf_trigger );
+    if (res == CP::CorrectionCode::OutOfValidityRange) ATH_MSG_WARNING(" GetSignalPhotonSF: getEfficiencyScaleFactor out of validity range");
+
+    sf *= sf_trigger;
+  }
+
+  ATH_MSG_VERBOSE( "ScaleFactor " << sf );
 
   dec_effscalefact(ph) = sf;
   return sf;
 }
 
 
-double SUSYObjDef_xAOD::GetSignalPhotonSFsys(const xAOD::Photon& ph, const CP::SystematicSet& systConfig, const bool effSF, const bool isoSF)
+double SUSYObjDef_xAOD::GetSignalPhotonSFsys(const xAOD::Photon& ph, const CP::SystematicSet& systConfig, const bool effSF, const bool isoSF, const bool triggerSF)
 {
   double sf(1.);
 
   //Set the new systematic variation
   StatusCode ret = m_photonEfficiencySFTool->applySystematicVariation(systConfig);
   if (ret != StatusCode::SUCCESS) {
-    ATH_MSG_ERROR("Cannot configure AsgPhotonEfficiencyCorrectionTool for systematic var. " << systConfig.name() );
+    ATH_MSG_ERROR("Cannot configure AsgPhotonEfficiencyCorrectionTool (reco) for systematic var. " << systConfig.name() );
   }
 
   ret = m_photonIsolationSFTool->applySystematicVariation(systConfig);
   if (ret != StatusCode::SUCCESS) {
-    ATH_MSG_ERROR("Cannot configure AsgPhotonEfficiencyCorrectionTool for systematic var. " << systConfig.name() );
+    ATH_MSG_ERROR("Cannot configure AsgPhotonEfficiencyCorrectionTool (iso) for systematic var. " << systConfig.name() );
+  }
+
+  ret = m_photonTriggerSFTool->applySystematicVariation(systConfig);
+  if (ret != StatusCode::SUCCESS) {
+    ATH_MSG_ERROR("Cannot configure AsgPhotonEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
   }
 
   if (effSF) {
@@ -253,6 +276,16 @@ double SUSYObjDef_xAOD::GetSignalPhotonSFsys(const xAOD::Photon& ph, const CP::S
     if (res == CP::CorrectionCode::OutOfValidityRange) ATH_MSG_WARNING(" GetSignalPhotonSF: getEfficiencyScaleFactor out of validity range");
 
     sf *= sf_iso;
+  }
+
+  if (triggerSF) {
+
+    double sf_trigger = 1.;
+
+    CP::CorrectionCode res = m_photonTriggerSFTool->getEfficiencyScaleFactor( ph, sf_trigger );
+    if (res == CP::CorrectionCode::OutOfValidityRange) ATH_MSG_WARNING(" GetSignalPhotonSF: getEfficiencyScaleFactor out of validity range");
+
+    sf *= sf_trigger;
   }
 
   //Roll back to current sys
@@ -263,23 +296,28 @@ double SUSYObjDef_xAOD::GetSignalPhotonSFsys(const xAOD::Photon& ph, const CP::S
 
   ret = m_photonIsolationSFTool->applySystematicVariation(m_currentSyst);
   if (ret != StatusCode::SUCCESS) {
-    ATH_MSG_ERROR("Cannot configure AsgPhotonEfficiencyCorrectionTool for systematic var. " << systConfig.name() );
+    ATH_MSG_ERROR("Cannot configure AsgPhotonEfficiencyCorrectionTool (iso) for systematic var. " << systConfig.name() );
   }
 
-  ATH_MSG_VERBOSE( " ScaleFactor " << sf );
+  ret = m_photonTriggerSFTool->applySystematicVariation(m_currentSyst);
+  if (ret != StatusCode::SUCCESS) {
+    ATH_MSG_ERROR("Cannot configure AsgPhotonEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
+  }
+
+  ATH_MSG_VERBOSE( "ScaleFactor " << sf );
 
   dec_effscalefact(ph) = sf;
   return sf;
 }
 
 
-double SUSYObjDef_xAOD::GetTotalPhotonSF(const xAOD::PhotonContainer& photons, const bool effSF, const bool isoSF) const
+double SUSYObjDef_xAOD::GetTotalPhotonSF(const xAOD::PhotonContainer& photons, const bool effSF, const bool isoSF, const bool triggerSF) const
 {
 
   double sf(1.);
 
-  for (const auto& photon : photons) {
-    if (dec_signal(*photon) && dec_passOR(*photon)) { sf *= this->GetSignalPhotonSF(*photon, effSF, isoSF); }
+  for (const xAOD::Photon* photon : photons) {
+    if (dec_signal(*photon) && dec_passOR(*photon)) { sf *= this->GetSignalPhotonSF(*photon, effSF, isoSF, triggerSF); }
   }
 
   return sf;
@@ -287,18 +325,16 @@ double SUSYObjDef_xAOD::GetTotalPhotonSF(const xAOD::PhotonContainer& photons, c
 }
 
 
-double SUSYObjDef_xAOD::GetTotalPhotonSFsys(const xAOD::PhotonContainer& photons, const CP::SystematicSet& systConfig, const bool effSF, const bool isoSF)
+double SUSYObjDef_xAOD::GetTotalPhotonSFsys(const xAOD::PhotonContainer& photons, const CP::SystematicSet& systConfig, const bool effSF, const bool isoSF, const bool triggerSF)
 {
 
   double sf(1.);
 
-  for (const auto& photon : photons) {
-    if (dec_signal(*photon) && dec_passOR(*photon)) { sf *= this->GetSignalPhotonSFsys(*photon, systConfig, effSF, isoSF); }
+  for (const xAOD::Photon* photon : photons) {
+    if (dec_signal(*photon) && dec_passOR(*photon)) { sf *= this->GetSignalPhotonSFsys(*photon, systConfig, effSF, isoSF, triggerSF); }
   }
 
   return sf;
-
 }
-
 
 }

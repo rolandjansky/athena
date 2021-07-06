@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -23,9 +23,9 @@
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
-#include "PixelReadoutGeometry/PixelDiodeMatrix.h"
-#include "InDetReadoutGeometry/SiCommonItems.h"
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
+#include "ReadoutGeometryBase/PixelDiodeMatrix.h"
+#include "ReadoutGeometryBase/SiCommonItems.h"
+#include "ReadoutGeometryBase/InDetDD_Defs.h"
 
 #include <algorithm> //for std::min, std::max
 #include <vector>
@@ -102,7 +102,7 @@ GeoPixelSiCrystal::GeoPixelSiCrystal(InDetDD::PixelDetectorManager* ddmgr,
 
   } else {
     // No empty rows.
-    if (!m_gmt_mgr->slhc() && !m_gmt_mgr->ibl()) {
+    if (!m_gmt_mgr->ibl()) {
       m_gmt_mgr->msg(MSG::WARNING) << "GeoPixelSiCrystal: No ganged pixels" << endmsg;
     } else {
       if (m_gmt_mgr->msgLvl(MSG::DEBUG)) m_gmt_mgr->msg(MSG::DEBUG) << "GeoPixelSiCrystal: No ganged pixels" << endmsg;
@@ -146,7 +146,7 @@ GeoVPhysVol* GeoPixelSiCrystal::Build() {
   std::string logname{"siLog"};
   // There is not a strong need to give the blayer a different name but leave it for now. 
   if(m_isBLayer) logname = "siBLayLog";
-  auto logVolume = new GeoLogVol(logname,siBox,siMat);
+  auto *logVolume = new GeoLogVol(logname,siBox,siMat);
   //(sar) ...to here
 
 

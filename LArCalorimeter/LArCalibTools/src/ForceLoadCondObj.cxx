@@ -5,7 +5,7 @@
 // ForceLoadCondObj.cxx
 
 #include "StoreGate/StoreGateSvc.h"
-#include "AthenaKernel/IClassIDSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "LArCalibTools/ForceLoadCondObj.h"
 

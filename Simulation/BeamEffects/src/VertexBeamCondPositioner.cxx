@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// VertexBeamCondPositioner.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 // class header include
 #include "VertexBeamCondPositioner.h"
@@ -29,19 +25,7 @@ namespace Simulation
   VertexBeamCondPositioner::VertexBeamCondPositioner( const std::string& t,
                                                       const std::string& n,
                                                       const IInterface* p )
-    : base_class(t,n,p),
-      m_rndGenSvc("AthRNGSvc", n),
-      m_randomEngine(0),
-      m_randomEngineName("VERTEX")
-  {
-    // declare properties for the configuration
-    declareProperty( "RandomSvc", m_rndGenSvc );
-    declareProperty( "RandomStream", m_randomEngineName );
-    declareProperty( "SimpleTimeSmearing", m_timeSmearing = false );
-  }
-
-  /** Destructor */
-  VertexBeamCondPositioner::~VertexBeamCondPositioner()
+    : base_class(t,n,p)
   {
   }
 

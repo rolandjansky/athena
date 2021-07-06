@@ -1,13 +1,11 @@
 Py:Athena            INFO including file "AthenaPoolMultiTest/ExampleStreamConfig.py"
 PoolSvc              INFO Setting up APR FileCatalog and Streams
-OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
 DecisionSvc          INFO Inserting stream: StreamAllP with no Algs
-StreamAllP.Stre...   INFO Initializing StreamAllP.StreamAllPTool - package version AthenaServices-00-00-00
+StreamAllP.Stre...   INFO Initializing StreamAllP.StreamAllPTool
 StreamAllP.Stre...   INFO Initializing StreamAllP.StreamAllP_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
 StreamAllP           INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/StreamAllP_MakeEventStreamInfo','xAODMaker::EventFormatStreamHelperTool/StreamAllP_MakeEventFormat','xAODMaker::FileMetaDataCreatorTool/FileMetaDataCreatorTool','Athena::ThinningCacheTool/ThinningCacheTool_StreamAllP'])
 StreamAllP           INFO Data output: AthenaPoolMultiTest_Propagate.root
 StreamAllP           INFO I/O reinitialization...
-StreamAllP.File...   INFO Invalid "/TagInfo" handle
 StorageSvc           INFO EventStreamInfo_p3 [11DF1B8C-0DEE-4687-80D7-E74B520ACBB4]
 StreamAllP           INFO Metadata records written: 21
 ItemListSvc         DEBUG STREAM StreamAllP has (10) items

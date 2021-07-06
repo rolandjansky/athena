@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 ###############################################################
 #
 # Job options file to run simple algorithm computing noise per cell
@@ -12,6 +12,7 @@ globalflags.DataSource.set_Value_and_Lock('geant4')
 
 DetFlags.detdescr.all_setOn()
 DetFlags.Muon_setOff()
+DetFlags.ALFA_setOff()
 
 DetFlags.readRDOPool.LAr_setOn()
 DetFlags.makeRIO.LAr_setOn()
@@ -38,10 +39,14 @@ from AthenaCommon.AppMgr import theApp
 svcMgr.EventSelector.InputCollections = [
 "calib0.007061.singlepart_e_E100.digit.RDO.v12003101_tid003422._00351.pool.root.2"
 ]
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+athenaCommonFlags.FilesInput = svcMgr.EventSelector.InputCollections
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
 
 # the Tile, LAr and Calo detector description package
-from AthenaCommon.GlobalFlags import jobproperties
-jobproperties.Global.DetDescrVersion='ATLAS-CSC-01-00-00'
+#from AthenaCommon.GlobalFlags import jobproperties
+#jobproperties.Global.DetDescrVersion='ATLAS-CSC-01-00-00'
 
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
@@ -61,11 +66,16 @@ jobproperties.CaloRecFlags.doCaloTopoCluster = False
 
 include( "CaloRec/CaloRec_jobOptions.py" )
 
+from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
+LArADC2MeVCondAlgDefault()
+
 from CaloCondPhysAlgs.CaloCondPhysAlgsConf import CaloCellNoiseAlg
 myNoise = CaloCellNoiseAlg("CaloCellNoiseAlg")
 myNoise.doMC = True
 myNoise.readNtuple = False
 myNoise.doFit = True
+myNoise.TotalNoiseKey = ''
+myNoise.ElecNoiseKey = ''
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()

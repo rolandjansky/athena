@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CoralDB/Encodable.h"
@@ -26,7 +26,7 @@ std::ostream& operator<<(std::ostream& os, const Encodable& s) {
     encode_mapping[uchar(0)] = '0';
   }
 
-  for(std::string::const_iterator i=s.begin(); i!=s.end(); i++) {
+  for(std::string::const_iterator i=s.begin(); i!=s.end(); ++i) {
     char c = encode_mapping[uchar(*i)];
     if(c) {
       os.put('\\');

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 /**
@@ -25,8 +25,8 @@ SiliconID::SiliconID(void)
   :
   m_wafer_hash_max(0),
   m_pixel_wafer_hash_max(0),
-  m_pixel_helper(0),
-  m_sct_helper(0)
+  m_pixel_helper(nullptr),
+  m_sct_helper(nullptr)
 {}
 
 SiliconID::SiliconID(const PixelID* pixel_helper, const SCT_ID* sct_helper)

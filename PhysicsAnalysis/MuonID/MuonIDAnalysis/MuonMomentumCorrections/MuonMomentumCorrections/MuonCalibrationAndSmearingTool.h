@@ -9,6 +9,7 @@
 #include "AsgTools/AnaToolHandle.h"
 #include "AsgTools/AsgTool.h"
 #include "AsgDataHandles/ReadHandleKey.h"
+#include "PATInterfaces/SystematicsCache.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
@@ -51,7 +52,7 @@ namespace MCAST {
 class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearingTool, public virtual ISystematicsTool, public asg::AsgTool {
 
   // Create a proper constructor for Athena
-  ASG_TOOL_CLASS2( MuonCalibrationAndSmearingTool, CP::IMuonCalibrationAndSmearingTool, CP::ISystematicsTool )
+  ASG_TOOL_CLASS3( MuonCalibrationAndSmearingTool, CP::IMuonCalibrationAndSmearingTool, CP::ISystematicsTool, CP::IReentrantSystematicsTool )
 
   public:
     // Interface methods that must be defined
@@ -178,6 +179,9 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
       double SagittaBias;
     };
 
+    // calculate the parameter set for the given systematic
+    StatusCode calcSystematicVariation ( const SystematicSet& systConfig, ParameterSet& param ) const;
+
     SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this, "EventInfoContName", "EventInfo", "event info key"};
 
     bool  m_useExternalSeed;
@@ -225,8 +229,8 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     std::vector< std::string > m_MacroRegionName;
     std::vector< double > m_MacroRegionInnerEta;
 
-    std::unordered_map< SystematicSet, ParameterSet > m_Parameters;
-    ParameterSet *m_currentParameters;
+    SystematicsCache< ParameterSet > m_Parameters {this};
+    const ParameterSet *m_currentParameters {nullptr};
 
     double m_StatCombPtThreshold;
     double m_HighPtSystThreshold;

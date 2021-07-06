@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # art-description: Run Trigger on data with athena and write ByteStream output, then run offline reco
 # art-type: build
@@ -9,7 +9,7 @@ from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 from TrigValTools.TrigValSteering.Common import find_file
 from TrigAnalysisTest.TrigAnalysisSteps import add_analysis_steps
 
-menu_name = 'LS2_v1_TriggerValidation_mc_prescale'
+menu_name = 'LS2_v1_TriggerValidation_prescale'
 
 # Run athena BS->BS job
 BStoBS = ExecStep.ExecStep("BStoBS")
@@ -19,9 +19,9 @@ BStoBS.input = 'data'
 BStoBS.threads = 1
 BStoBSPreExec = ''.join([
   'setMenu=\'{:s}\';'.format(menu_name),
+  'doL1Sim=True;',  # Run L1 simulation
   'rewriteLVL1=True;',  # Write L1 result to BS
   'doWriteBS=True;',    # Write HLT result to BS
-  'forceEnableAllChains=True;',  # Ignore L1 decisions in seeding chains
 ])
 BStoBS.args = ' -c "{:s}"'.format(BStoBSPreExec)
 
@@ -53,7 +53,6 @@ recoPreExec = ' '.join([
   "ConfigFlags.Trigger.triggerMenuSetup=\'{:s}\';".format(menu_name),
   "from TriggerJobOpts.TriggerFlags import TriggerFlags;",
   "TriggerFlags.configForStartup=\'HLToffline\';",
-  "TriggerFlags.inputHLTconfigFile.set_Value_and_Lock(\'NONE\');",
   "TriggerFlags.AODEDMSet.set_Value_and_Lock(\'AODFULL\');"])
 reco = ExecStep.ExecStep('Tier0Reco')
 reco.type = 'Reco_tf'

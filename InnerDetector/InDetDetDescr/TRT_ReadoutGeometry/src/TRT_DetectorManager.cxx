@@ -9,7 +9,6 @@
 #include "TRT_ReadoutGeometry/TRT_BarrelElement.h"
 #include "TRT_ReadoutGeometry/TRT_EndcapElement.h"
 #include "InDetReadoutGeometry/ExtendedAlignableTransform.h"
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
 #include "TRT_ReadoutGeometry/TRT_Conditions.h"
 
 #include "GeoModelKernel/GeoXF.h"

@@ -1,9 +1,9 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 class SCT_DCSConditionsToolSetup:
     "Class to simplify setup of SCT_DCSConditionsTool and required conditions algorithms"
 
-    def __init__(self):
+    def __init__(self, prefix='InDet'):
         self.stateFolder = "/SCT/DCS/CHANSTAT"
         self.hvFolder = "/SCT/DCS/HV"
         self.tempFolder = "/SCT/DCS/MODTEMP"
@@ -12,9 +12,9 @@ class SCT_DCSConditionsToolSetup:
         self.readAllDBFolders = True
         self.returnHVTemp = True
 
-        self.stateAlgName = "SCT_DCSConditionsStatCondAlg"
-        self.hvAlgName = "SCT_DCSConditionsHVCondAlg"
-        self.tempAlgName = "SCT_DCSConditionsTempCondAlg"
+        self.stateAlgName = prefix+"SCT_DCSConditionsStatCondAlg"
+        self.hvAlgName = prefix+"SCT_DCSConditionsHVCondAlg"
+        self.tempAlgName = prefix+"SCT_DCSConditionsTempCondAlg"
 
         self.stateAlg = None
         self.hvAlg = None

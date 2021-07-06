@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // CTP data format include(s):
@@ -11,7 +11,7 @@
 #include "TrigT1Result/CTP_RDO.h"
 
 // Local include(s):
-#include "TrigT1ResultByteStream/CTPByteStreamTool.h"
+#include "CTPByteStreamTool.h"
 
 /// Unique interface ID of the tool that identifies it to the framweork
 static const InterfaceID IID_ICTPByteStreamTool( "CTPByteStreamTool", 1, 0 );
@@ -30,33 +30,9 @@ const InterfaceID& CTPByteStreamTool::interfaceID() {
  */
 CTPByteStreamTool::CTPByteStreamTool( const std::string& type, const std::string& name,
                                       const IInterface* parent )
-  : AthAlgTool( type, name, parent ), m_srcIdMap( 0 ) {
+  : AthAlgTool( type, name, parent ) {
   
   declareInterface< CTPByteStreamTool >( this );
-}
-
-/**
- * The destructor doesn't do anything.
- */
-CTPByteStreamTool::~CTPByteStreamTool() {
-
-}
-
-/**
- * The function creates a CTPSrcIdMap object that is used in the conversion
- * and initialises the base class.
- */
-StatusCode CTPByteStreamTool::initialize() {
-  m_srcIdMap = new CTPSrcIdMap();
-  return StatusCode::SUCCESS;
-}
-
-/**
- * The function deletes the CTPSrcIdMap object and finalises the base class.
- */
-StatusCode CTPByteStreamTool::finalize() {
-  delete m_srcIdMap;
-  return StatusCode::SUCCESS;
 }
 
 
@@ -87,7 +63,7 @@ StatusCode CTPByteStreamTool::convert( const CTP_RDO* result, RawEventWrite* re 
   FullEventAssembler< CTPSrcIdMap >::RODDATA* theROD;
 
   // Source ID of CTP
-  const uint32_t rodId = m_srcIdMap->getRodID();
+  const uint32_t rodId = m_srcIdMap.getRodID();
 
   ATH_MSG_DEBUG(" ROD ID:" << MSG::hex << rodId);
 
@@ -122,7 +98,7 @@ StatusCode CTPByteStreamTool::convert( const ROBF* rob, CTP_RDO*& result ) {
   MsgStream log( msgSvc(), name() );
   ATH_MSG_DEBUG("executing convert() from ROBFragment to RDO");
   
-  const uint32_t ctpRodId = m_srcIdMap->getRodID();
+  const uint32_t ctpRodId = m_srcIdMap.getRodID();
   const uint32_t rodId = rob->rod_source_id();
 
   ATH_MSG_DEBUG(" expected ROD sub-detector ID: " << std::hex << ctpRodId 

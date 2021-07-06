@@ -5,7 +5,6 @@
 #include "TrigConfHLTData/HLTStreamTag.h"
 #include <iostream>
 #include <sstream>
-#include <iostream>
 #include <fstream>
 
 using namespace std;

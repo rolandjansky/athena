@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: DbSession.h 726071 2016-02-25 09:23:05Z krasznaa $
@@ -45,14 +45,14 @@ namespace pool  {
     friend class DbSessionObj;
   private:
     /// Assign transient object properly (including reference counting)
-    void switchPtr(const DbSessionObj* obj)  const;
+    void switchPtr(DbSessionObj* obj);
   public:
     /// Constructor
     DbSession();
     /// Copy constructor
     DbSession(const DbSession& copy);
     /// Object constructor
-    DbSession(const DbSessionObj* session);
+    DbSession(DbSessionObj* session);
     /// Standard destructor
     virtual ~DbSession();
     /// Assignment operator   
@@ -74,11 +74,11 @@ namespace pool  {
     /// Add domain to session
     DbStatus add(DbDomainObj* dom) const;
     /// Find domain in session
-    DbStatus remove(const DbDomainObj* dom) const;
+    DbStatus remove(const DbDomainObj* dom);
     /// Open the session in a given mode
     DbStatus open();
     /// Close the session
-    DbStatus close() const;
+    DbStatus close();
     /// Allow access to the Database implementation
     IOODatabase* db(const DbType& typ)   const;
   };

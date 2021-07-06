@@ -11,7 +11,7 @@ def ELG_jediState(sample) :
         print ("    lsetup panda")
         return 99
 
-    jediTaskID = int(sample.getMetaDouble("nc_jediTaskID", 0))
+    jediTaskID = int(sample.meta().castDouble("nc_jediTaskID", 0))
 
     if jediTaskID < 100 :
         print ("Sample " + sample.name() + " does not have a jediTaskID")

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MONTECARLOREACTUTILS_EFFVAL_H
@@ -21,9 +21,6 @@ class Value {
 
   virtual ~Value();
   
-  // assignment
-  Value& operator= (const Value& v);
-
   //  redefine this operator for the efficiency
   Value& operator += (const Value& eff);
 
@@ -41,7 +38,6 @@ class Value {
   void setValue(float val) {m_value = val;}
   void setErrorHigh(float ehi) {m_errorhigh = ehi;}
   void setErrorLow(float elo) {m_errorlow = elo;}
-  void setBinNumber(int bin) {m_binno = bin;}
   
   // reset value and efficiencies
   virtual void reset() {m_value = 0.0 ; m_errorhigh = 0; m_errorlow = 0; }
@@ -51,11 +47,6 @@ class Value {
   float m_value;
   float m_errorhigh;
   float m_errorlow;
-
-  // bin number. Should no be used.
-  // Keep it for historical reason.
-  int m_binno ;
-
 };
 
 // class to save the efficiency value 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloJiveXML/CaloClusterRetriever.h"
@@ -21,12 +21,12 @@ namespace JiveXML {
    **/
   CaloClusterRetriever::CaloClusterRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_typeName("Cluster"){
-
+    m_typeName("Cluster"),
+    m_sgKeyFavourite ("LArClusterEM")
+  {
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
     
-    m_sgKeyFavourite = "LArClusterEM";
     declareProperty("FavouriteClusterCollection" ,m_sgKeyFavourite,
         "Collection to be first in output, shown in Atlantis without switching");
     declareProperty("OtherClusterCollections" ,m_otherKeys,
@@ -43,7 +43,7 @@ namespace JiveXML {
     
     ATH_MSG_DEBUG( "in retrieveAll()"  );
     
-    const DataHandle<CaloClusterContainer> iterator, end;
+    SG::ConstIterator<CaloClusterContainer> iterator, end;
     const CaloClusterContainer* ccc;
 
     //obtain the default collection first
@@ -67,7 +67,7 @@ namespace JiveXML {
 //        return false;
       }
       
-      for (; iterator!=end; iterator++) {
+      for (; iterator!=end; ++iterator) {
 
         std::string::size_type position = iterator.key().find("HLTAutoKey",0);
         if ( m_doWriteHLT ){ position = 99; } // override SG key find
@@ -75,7 +75,7 @@ namespace JiveXML {
         if ( position != 0 ){  // SG key doesn't contain HLTAutoKey         
 	  if (iterator.key()!=m_sgKeyFavourite) {
              ATH_MSG_DEBUG( "Trying to retrieve all " << dataTypeName() << " (" << iterator.key() << ")"  );
-             DataMap data = getData(iterator);
+             DataMap data = getData(&*iterator);
              if ( FormatTool->AddToEvent(dataTypeName(), iterator.key()+"_ESD", &data).isFailure()){
 	       ATH_MSG_WARNING( "Collection " << iterator.key() << " not found in SG "  );
 	    }else{

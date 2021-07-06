@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -7,6 +7,7 @@
 
 #include "MuonRPC_CnvTools/IRPC_RDO_Decoder.h"
 #include "MuonTrigCoinData/RpcCoinDataContainer.h"
+#include "MuonCnvToolInterfaces/IDC_Helper.h"
 
 //***
 // Plan with this MT code is to allow the const-cast approach to occur in Core in a single-thread manner
@@ -16,10 +17,36 @@
 // complexities of the Core decoding, this is the more reasonable approach to a first MT-safe implementation
 //***
 
+Muon::RpcRdoToPrepDataToolMT::MyState::MyState (const RpcIdHelper& idHelper,
+                                                MsgStream& msg)
+  : m_localPrepData (idHelper.module_hash_max()),
+    m_localCoinData (idHelper.module_hash_max()),
+    m_getPrepCollection ([&] (Identifier id) -> Muon::RpcPrepDataCollection*
+      {
+        Muon::RpcPrepDataCollection*& mappedCollection = m_rpcPrepDataCollections[id];
+        if (!mappedCollection) {
+          mappedCollection =  Muon::IDC_Helper::addCollection<RpcPrepDataContainer, RpcIdHelper>
+            (id, m_rpcPrepDataContainer, idHelper, msg);
+        }
+        return mappedCollection;
+      }),
+    m_getCoinCollection ([&] (Identifier id) -> Muon::RpcCoinDataCollection*
+      {
+        Muon::RpcCoinDataCollection*& mappedCollection = m_rpcCoinDataCollections[id];
+        if (!mappedCollection) {
+          mappedCollection = Muon::IDC_Helper::addCollection<RpcCoinDataContainer, RpcIdHelper>
+            (id, m_rpcCoinDataContainer, idHelper, msg);
+        }
+        return mappedCollection;
+      })
+{
+  m_rpcPrepDataContainer = &m_localPrepData;
+  m_rpcCoinDataContainer = &m_localCoinData;
+}
+
 Muon::RpcRdoToPrepDataToolMT::RpcRdoToPrepDataToolMT( const std::string& type, const std::string& name,
 						  const IInterface* parent ) 
-  : AthAlgTool( type, name, parent ),
-    RpcRdoToPrepDataToolCore( type, name, parent )
+  : base_class( type, name, parent )
 {
   declareProperty("RpcPrdContainerCacheKey", m_prdContainerCacheKey, 
     "Optional external cache for the RPC PRD container");
@@ -44,25 +71,50 @@ StatusCode Muon::RpcRdoToPrepDataToolMT::initialize()
 
 StatusCode Muon::RpcRdoToPrepDataToolMT::finalize()
 {   
-  ATH_MSG_DEBUG("Cleaning local-thread containers");
-  ATH_MSG_DEBUG("Deleting PRD container");
-  delete m_rpcPrepDataContainer;
-  if (m_producePRDfromTriggerWords){
-    ATH_MSG_DEBUG("Deleting Coin container");
-    delete m_rpcCoinDataContainer;
-  }
-  return RpcRdoToPrepDataToolCore::finalize();
+  ATH_CHECK( RpcRdoToPrepDataToolCore::finalize() );
+  return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::RpcRdoToPrepDataToolMT::manageOutputContainers (bool& firstTimeInTheEvent)
+
+/// This code is thread-safe as we will propagate local thread collection contents to a thread-safe one
+StatusCode Muon::RpcRdoToPrepDataToolMT::decode ( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect ) const
+{
+  ATH_MSG_DEBUG("Calling Core decode function from MT decode function (hash vector)");
+  MyState state (m_idHelperSvc->rpcIdHelper(), msg());
+
+  ATH_CHECK( decodeImpl( state,
+                         state.m_getPrepCollection,
+                         state.m_getCoinCollection,
+                         idVect, selectedIdVect, true ) );
+  ATH_MSG_DEBUG("Core decode processed in MT decode (hash vector)");
+
+  ATH_CHECK( transferAndRecordPrepData (state.m_localPrepData) );
+  ATH_CHECK( transferAndRecordCoinData (state.m_localCoinData) );
+  return StatusCode::SUCCESS;
+}
+
+/// This code is thread-safe as we will propagate local thread collection contents to a thread-safe one
+StatusCode Muon::RpcRdoToPrepDataToolMT::decode ( const std::vector<uint32_t>& robIds ) const
+{
+  ATH_MSG_DEBUG("Calling Core decode function from MT decode function (ROB vector)");
+  MyState state (m_idHelperSvc->rpcIdHelper(), msg());
+
+  ATH_CHECK( decodeImpl( state,
+                         state.m_getPrepCollection,
+                         state.m_getCoinCollection,
+                         robIds, true ) );
+  ATH_MSG_DEBUG("Core decode processed in MT decode (ROB vector)");
+
+  ATH_CHECK( transferAndRecordPrepData (state.m_localPrepData) );
+  ATH_CHECK( transferAndRecordCoinData (state.m_localCoinData) );
+  return StatusCode::SUCCESS;
+}
+
+StatusCode
+Muon::RpcRdoToPrepDataToolMT::transferAndRecordPrepData (Muon::RpcPrepDataContainer& localContainer) const
 {
   // We will need to retrieve from cache even in different threads
   SG::WriteHandle< Muon::RpcPrepDataContainer >rpcPRDHandle(m_rpcPrepDataContainerKey);
-  // In MT, we always want to treat this as if its the first time in the event
-  firstTimeInTheEvent = true;
-  // Clear vectors which get filled
-  m_decodedOfflineHashIds.clear();
-  m_decodedRobIds.clear();
 
   // Caching of PRD container
   const bool externalCachePRD = !m_prdContainerCacheKey.key().empty();
@@ -91,157 +143,108 @@ StatusCode Muon::RpcRdoToPrepDataToolMT::manageOutputContainers (bool& firstTime
     }
     ATH_MSG_DEBUG("Created container using cache for " << m_prdContainerCacheKey.key());
   }
-  // Pass the container from the handle
-  m_rpcPrepDataContainerFromCache = rpcPRDHandle.ptr();
 
-  // Handle coin data if being used
-  if (m_producePRDfromTriggerWords){
-    SG::WriteHandle< Muon::RpcCoinDataContainer >rpcCoinHandle(m_rpcCoinDataContainerKey);
-    const bool externalCacheCoinData = !m_coindataContainerCacheKey.key().empty();
-    if(!externalCacheCoinData){
-      // without the cache we just record the container
-      StatusCode status = rpcCoinHandle.record(std::make_unique<Muon::RpcCoinDataContainer>(m_idHelperSvc->rpcIdHelper().module_hash_max()));
-      if (status.isFailure() || !rpcCoinHandle.isValid() )   {
-        ATH_MSG_FATAL("Could not record container of RPC Coin Data Container at " << m_rpcCoinDataContainerKey.key()); 
-        return StatusCode::FAILURE;
-      }
-      ATH_MSG_DEBUG("Created container " << m_rpcCoinDataContainerKey.key());
-    } 
-    else {
-      // use the cache to get the container
-      SG::UpdateHandle<RpcCoinDataCollection_Cache> update(m_coindataContainerCacheKey);
-      if (!update.isValid()){
-        ATH_MSG_FATAL("Invalid UpdateHandle " << m_coindataContainerCacheKey.key());
-        return StatusCode::FAILURE;
-      }
-      StatusCode status = rpcCoinHandle.record(std::make_unique<Muon::RpcCoinDataContainer>(update.ptr()));
-      if (status.isFailure() || !rpcCoinHandle.isValid() )   {
-        ATH_MSG_FATAL("Could not record container of RPC Coin Data Container using cache " 
-          << m_coindataContainerCacheKey.key() << " - " <<m_rpcCoinDataContainerKey.key()); 
-        return StatusCode::FAILURE;
-      }
-      ATH_MSG_DEBUG("Created container using cache for " << m_coindataContainerCacheKey.key());
-    }
-    // Pass the container from the handle
-    m_rpcCoinDataContainerFromCache = rpcCoinHandle.ptr();
-  }
-
-  // To prevent a memory leak, delete the pointer if it exists
-  if(m_rpcPrepDataContainer){
-    delete m_rpcPrepDataContainer;
-  }
-  if (m_rpcCoinDataContainer){
-    delete m_rpcCoinDataContainer;
-  }
-
-  m_rpcPrepDataContainer = new Muon::RpcPrepDataContainer(m_idHelperSvc->rpcIdHelper().module_hash_max());
-  if (m_producePRDfromTriggerWords){
-    m_rpcCoinDataContainer = new Muon::RpcCoinDataContainer(m_idHelperSvc->rpcIdHelper().module_hash_max());
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-/// This code is thread-safe as we will propagate local thread collection contents to a thread-safe one
-StatusCode Muon::RpcRdoToPrepDataToolMT::decode ( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect ){
-  ATH_MSG_DEBUG("Calling Core decode function from MT decode function (hash vector)");
-  StatusCode status = Muon::RpcRdoToPrepDataToolCore::decode( idVect, selectedIdVect );
-  if (status.isFailure()){
-    ATH_MSG_FATAL("Error processing Core decode from MT (hash vector)");
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_DEBUG("Core decode processed in MT decode (hash vector)");
-  status = transferOutputToCache();
-  if (status.isFailure()){
-    ATH_MSG_FATAL("Error processing container transfer from local to cache (hash vector)");
-    return StatusCode::FAILURE;
-  }
-  return StatusCode::SUCCESS;
-}
-
-/// This code is thread-safe as we will propagate local thread collection contents to a thread-safe one
-StatusCode Muon::RpcRdoToPrepDataToolMT::decode ( const std::vector<uint32_t>& robIds ){
-  ATH_MSG_DEBUG("Calling Core decode function from MT decode function (ROB vector)");
-  StatusCode status = Muon::RpcRdoToPrepDataToolCore::decode( robIds );
-  if (status.isFailure()){
-    ATH_MSG_FATAL("Error processing Core decode from MT (ROB vector)");
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_DEBUG("Core decode processed in MT decode (ROB vector)");
-  status = transferOutputToCache();
-  if (status.isFailure()){
-    ATH_MSG_FATAL("Error processing container transfer from local to cache (ROB vector)");
-    return StatusCode::FAILURE;
-  }
-  return StatusCode::SUCCESS;
-}
-
-StatusCode Muon::RpcRdoToPrepDataToolMT::transferOutputToCache(){
-  // This function should be called at the end of the Core decode function
-  ATH_MSG_DEBUG("Transferring local decoding from Core to cache container inside MT");
-
-  // Take m_rpcPrepDataContainer and transfer contents to m_rpcPrepDataContainerFromCache
-  auto prd_hashes = m_rpcPrepDataContainer->GetAllCurrentHashes(); //deliberately GetAllCurrentHashes
+  // Take localContainer and transfer contents to rpcPRDHandle
+  auto prd_hashes = localContainer.GetAllCurrentHashes(); //deliberately GetAllCurrentHashes
   for (auto hash : prd_hashes) {
     // Remove collection from local-thread container and place into unique_ptr to move to cache
-    std::unique_ptr<Muon::RpcPrepDataCollection> coll ( m_rpcPrepDataContainer->removeCollection(hash) );
+    std::unique_ptr<Muon::RpcPrepDataCollection> coll ( localContainer.removeCollection(hash) );
     // Check if it is present in the cache container
-    bool isHashInCache = m_rpcPrepDataContainerFromCache->tryAddFromCache(hash);
+    bool isHashInCache = rpcPRDHandle->tryAddFromCache(hash);
     if (isHashInCache) {
       ATH_MSG_DEBUG("PRD hash " << hash << " exists inside cache container");
       continue;
     }
     // If not present, get a write lock for the hash and move collection
-    RpcPrepDataContainer::IDC_WriteHandle lock = m_rpcPrepDataContainerFromCache->getWriteHandle( hash );
-    StatusCode status_lock = lock.addOrDelete(std::move( coll ) );
-    if (status_lock.isFailure()) {
-      ATH_MSG_ERROR ( "Could not insert RpcPrepDataCollection into RpcPrepDataContainer..." );
-      return StatusCode::FAILURE;
-    }
+    RpcPrepDataContainer::IDC_WriteHandle lock = rpcPRDHandle->getWriteHandle( hash );
+    ATH_CHECK( lock.addOrDelete(std::move( coll ) ) );
     ATH_MSG_DEBUG("PRD hash " << hash << " has been moved to cache container");
   }
 
-  // Take m_rpcCoinDataContainer and transfer contents to m_rpcCoinDataContainerFromCache
-  auto coin_hashes = m_rpcCoinDataContainer->GetAllCurrentHashes(); //deliberately GetAllCurrentHashes
+  if (msgLvl(MSG::DEBUG)){
+    for (const auto &[hash, ptr] : rpcPRDHandle->GetAllHashPtrPair()){
+      ATH_MSG_DEBUG("Contents of CONTAINER in this view : " << hash);
+    }
+  }
+
+  // For additional information on the contents of the cache-based container, this function can be used
+  //printMTPrepData (*rpcPRDHandle);
+
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode
+Muon::RpcRdoToPrepDataToolMT::transferAndRecordCoinData (Muon::RpcCoinDataContainer& localContainer) const
+{
+  if (!m_producePRDfromTriggerWords) {
+    return StatusCode::SUCCESS;
+  }
+
+  // Handle coin data if being used
+  SG::WriteHandle< Muon::RpcCoinDataContainer >rpcCoinHandle(m_rpcCoinDataContainerKey);
+  const bool externalCacheCoinData = !m_coindataContainerCacheKey.key().empty();
+  if(!externalCacheCoinData){
+    // without the cache we just record the container
+    StatusCode status = rpcCoinHandle.record(std::make_unique<Muon::RpcCoinDataContainer>(m_idHelperSvc->rpcIdHelper().module_hash_max()));
+    if (status.isFailure() || !rpcCoinHandle.isValid() )   {
+      ATH_MSG_FATAL("Could not record container of RPC Coin Data Container at " << m_rpcCoinDataContainerKey.key()); 
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_DEBUG("Created container " << m_rpcCoinDataContainerKey.key());
+  } 
+  else {
+    // use the cache to get the container
+    SG::UpdateHandle<RpcCoinDataCollection_Cache> update(m_coindataContainerCacheKey);
+    if (!update.isValid()){
+      ATH_MSG_FATAL("Invalid UpdateHandle " << m_coindataContainerCacheKey.key());
+      return StatusCode::FAILURE;
+    }
+    StatusCode status = rpcCoinHandle.record(std::make_unique<Muon::RpcCoinDataContainer>(update.ptr()));
+    if (status.isFailure() || !rpcCoinHandle.isValid() )   {
+      ATH_MSG_FATAL("Could not record container of RPC Coin Data Container using cache " 
+                    << m_coindataContainerCacheKey.key() << " - " <<m_rpcCoinDataContainerKey.key()); 
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_DEBUG("Created container using cache for " << m_coindataContainerCacheKey.key());
+  }
+
+  // Take localContainer and transfer contents to rpcCoinHandle
+  auto coin_hashes = localContainer.GetAllCurrentHashes(); //deliberately GetAllCurrentHashes
   for (auto hash : coin_hashes) {
     // Remove collection from local-thread container and place into unique_ptr to move to cache
-    std::unique_ptr<Muon::RpcCoinDataCollection> coll ( m_rpcCoinDataContainer->removeCollection(hash) );
+    std::unique_ptr<Muon::RpcCoinDataCollection> coll ( localContainer.removeCollection(hash) );
     // Check if it is present in the cache container
-    bool isHashInCache = m_rpcCoinDataContainerFromCache->tryAddFromCache(hash);
+    bool isHashInCache = rpcCoinHandle->tryAddFromCache(hash);
     if (isHashInCache) {
       ATH_MSG_DEBUG("Coin hash " << hash << " exists inside cache container");
       continue;
     }
     // If not present, get a write lock for the hash and move collection
-    RpcCoinDataContainer::IDC_WriteHandle lock = m_rpcCoinDataContainerFromCache->getWriteHandle( hash );
-    StatusCode status_lock = lock.addOrDelete(std::move( coll ) );
-    if (status_lock.isFailure()) {
-      ATH_MSG_ERROR ( "Could not insert RpcCoinDataCollection into RpcCoinDataContainer..." );
-      return StatusCode::FAILURE;
-    }
+    RpcCoinDataContainer::IDC_WriteHandle lock = rpcCoinHandle->getWriteHandle( hash );
+    ATH_CHECK( lock.addOrDelete(std::move( coll ) ) );
     ATH_MSG_DEBUG("Coin hash " << hash << " has been moved to cache container");
   }
 
   if (msgLvl(MSG::DEBUG)){
-     for (const auto &[hash, ptr] : m_rpcPrepDataContainerFromCache->GetAllHashPtrPair()){
-       ATH_MSG_DEBUG("Contents of CONTAINER in this view : " << hash);
-     }
-     for (const auto &[hash, ptr] : m_rpcPrepDataContainer->GetAllHashPtrPair()){
-       ATH_MSG_DEBUG("Contents of LOCAL in this view : " << hash);
-     }
+    for (const auto &[hash, ptr] : rpcCoinHandle->GetAllHashPtrPair()){
+      ATH_MSG_DEBUG("Contents of LOCAL in this view : " << hash);
+    }
   }
-  // For additional information on the contents of the cache-based container, this function can be used
-  //printMT();
 
+  // For additional information on the contents of the cache-based container, this function can be used
+  //printMTCoinData (*rpcCoinHandle);
+  
   return StatusCode::SUCCESS;
 }
 
-void Muon::RpcRdoToPrepDataToolMT::printMT()
+
+void Muon::RpcRdoToPrepDataToolMT::printMTPrepData (Muon::RpcPrepDataContainer& prepData) const
 {
   msg (MSG::INFO) << "********************************************************************************************************" << endmsg;
   msg (MSG::INFO) << "***************** Listing RpcPrepData collections content **********************************************" << endmsg;
   
-  if (m_rpcPrepDataContainerFromCache->size() <= 0)msg (MSG::INFO) << "No RpcPrepRawData collections found" << endmsg;
+  if (prepData.size() <= 0)msg (MSG::INFO) << "No RpcPrepRawData collections found" << endmsg;
   
   int ncoll = 0;
   int ict = 0;
@@ -250,8 +253,8 @@ void Muon::RpcRdoToPrepDataToolMT::printMT()
   int icteta = 0;
   int icttrg = 0;
   msg (MSG::INFO) <<"--------------------------------------------------------------------------------------------"<<endmsg;
-  for (IdentifiableContainer<Muon::RpcPrepDataCollection>::const_iterator rpcColli = m_rpcPrepDataContainerFromCache->begin();
-       rpcColli!=m_rpcPrepDataContainerFromCache->end(); ++rpcColli) {
+  for (IdentifiableContainer<Muon::RpcPrepDataCollection>::const_iterator rpcColli = prepData.begin();
+       rpcColli!=prepData.end(); ++rpcColli) {
 
     const Muon::RpcPrepDataCollection* rpcColl = *rpcColli;
         
@@ -261,22 +264,22 @@ void Muon::RpcRdoToPrepDataToolMT::printMT()
       int icc = 0;
       int iccphi = 0;
       int icceta = 0;
-      for (it_rpcPrepData=rpcColl->begin(); it_rpcPrepData != rpcColl->end(); it_rpcPrepData++) {
+      for (const RpcPrepData* rpc : *rpcColl) {
 	icc++;
 	ict++;
-	if (m_idHelperSvc->rpcIdHelper().measuresPhi((*it_rpcPrepData)->identify())) {
+	if (m_idHelperSvc->rpcIdHelper().measuresPhi(rpc->identify())) {
 	  iccphi++;
 	  ictphi++;
-	  if ((*it_rpcPrepData)->ambiguityFlag()>1) ictamb++;
+	  if (rpc->ambiguityFlag()>1) ictamb++;
 	}
 	else {    
 	  icceta++;
 	  icteta++;
 	}                    
 	msg (MSG::INFO) <<ict<<" in this coll. "<<icc<<" prepData id = "
-			<<m_idHelperSvc->rpcIdHelper().show_to_string((*it_rpcPrepData)->identify())
-			<<" time "<<(*it_rpcPrepData)->time()
-			<<" ambiguityFlag "<<(*it_rpcPrepData)->ambiguityFlag()<<endmsg;
+			<<m_idHelperSvc->rpcIdHelper().show_to_string(rpc->identify())
+			<<" time "<<rpc->time()
+			<<" ambiguityFlag "<<rpc->ambiguityFlag()<<endmsg;
       }
       ncoll++;
       msg (MSG::INFO) <<"*** Collection "<<ncoll<<" Summary: "
@@ -291,23 +294,26 @@ void Muon::RpcRdoToPrepDataToolMT::printMT()
 		  <<ictphi<<" phi hits / "
 		  <<icteta<<" eta hits "<<endmsg;
   msg (MSG::INFO) <<"--------------------------------------------------------------------------------------------"<<endmsg;
-  
+}
+
+void Muon::RpcRdoToPrepDataToolMT::printMTCoinData (Muon::RpcCoinDataContainer& coinData) const
+{
   msg (MSG::INFO) << "********************************************************************************************************" << endmsg;
   msg (MSG::INFO) << "***************** Listing RpcCoinData collections content **********************************************" << endmsg;
   
-  if (m_rpcCoinDataContainerFromCache->size() <= 0)msg (MSG::INFO) << "No RpcCoinData collections found" << endmsg;
+  if (coinData.size() <= 0)msg (MSG::INFO) << "No RpcCoinData collections found" << endmsg;
   
-  ncoll = 0;
-  ict = 0;
-  ictphi = 0;
-  icteta = 0;
+  int ncoll = 0;
+  int ict = 0;
+  int ictphi = 0;
+  int icteta = 0;
   int ictphilc = 0;
   int ictphihc = 0;
   int ictetalc = 0;
   int ictetahc = 0;
   msg (MSG::INFO) <<"--------------------------------------------------------------------------------------------"<<endmsg;
-  for (IdentifiableContainer<Muon::RpcCoinDataCollection>::const_iterator rpcColli = m_rpcCoinDataContainerFromCache->begin();
-       rpcColli!=m_rpcCoinDataContainerFromCache->end(); ++rpcColli) {
+  for (IdentifiableContainer<Muon::RpcCoinDataCollection>::const_iterator rpcColli = coinData.begin();
+       rpcColli!=coinData.end(); ++rpcColli) {
 
     const Muon::RpcCoinDataCollection* rpcColl = *rpcColli;
         
@@ -322,19 +328,19 @@ void Muon::RpcRdoToPrepDataToolMT::printMT()
       int iccphihc = 0;
       int iccetalc = 0;
 
-      for (it_rpcCoinData=rpcColl->begin(); it_rpcCoinData != rpcColl->end(); it_rpcCoinData++) {
+      for (const RpcCoinData* rpc : *rpcColl) {
 	icc++;
 	ict++;
 
-	if (m_idHelperSvc->rpcIdHelper().measuresPhi((*it_rpcCoinData)->identify())) {
+	if (m_idHelperSvc->rpcIdHelper().measuresPhi(rpc->identify())) {
 	        
 	  iccphi++;
 	  ictphi++;
-	  if ( (*it_rpcCoinData)->isLowPtCoin() ) {
+	  if ( rpc->isLowPtCoin() ) {
 	    iccphilc++;
 	    ictphilc++;
 	  }
-	  else if ((*it_rpcCoinData)->isHighPtCoin()) {
+	  else if (rpc->isHighPtCoin()) {
 	    iccphihc++;
 	    ictphihc++;
 	  }                    
@@ -342,22 +348,22 @@ void Muon::RpcRdoToPrepDataToolMT::printMT()
 	else {
 	  icceta++;
 	  icteta++;
-	  if ( (*it_rpcCoinData)->isLowPtCoin() ) {
+	  if ( rpc->isLowPtCoin() ) {
 	    iccetalc++;
 	    ictetalc++;
 	  }
-	  else if ((*it_rpcCoinData)->isHighPtCoin()) {
+	  else if (rpc->isHighPtCoin()) {
 	    iccetahc++;
 	    ictetahc++;
 	  }
 	}                    
 	msg (MSG::INFO) <<ict<<" in this coll. "<<icc<<" coinData id = "
-			<<m_idHelperSvc->rpcIdHelper().show_to_string((*it_rpcCoinData)->identify())
-			<<" time "<<(*it_rpcCoinData)->time()<<" ijk = "<<(*it_rpcCoinData)->ijk()
+			<<m_idHelperSvc->rpcIdHelper().show_to_string(rpc->identify())
+			<<" time "<<rpc->time()<<" ijk = "<<rpc->ijk()
 			<<" cm/pad/sl ids = "
-			<<(*it_rpcCoinData)->parentCmId()<<"/"<<(*it_rpcCoinData)->parentPadId()<<"/"<<(*it_rpcCoinData)->parentSectorId()<<"/"
+			<<rpc->parentCmId()<<"/"<<rpc->parentPadId()<<"/"<<rpc->parentSectorId()<<"/"
 			<<" isLowPtCoin/HighPtCoin/LowPtInputToHighPt "
-			<<(*it_rpcCoinData)->isLowPtCoin() <<"/"<<(*it_rpcCoinData)->isHighPtCoin() <<"/"<<(*it_rpcCoinData)->isLowPtInputToHighPtCm() 
+			<<rpc->isLowPtCoin() <<"/"<<rpc->isHighPtCoin() <<"/"<<rpc->isLowPtInputToHighPtCm() 
 			<<endmsg;
       }
       ncoll++;
@@ -382,4 +388,19 @@ void Muon::RpcRdoToPrepDataToolMT::printMT()
 		  <<ictetahc<<" eta highPt coincidences  "
 		  <<endmsg;
   msg (MSG::INFO) <<"--------------------------------------------------------------------------------------------"<<endmsg;
+}
+
+
+void Muon::RpcRdoToPrepDataToolMT::printPrepData() const
+{
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
+  SG::ReadHandleKey<Muon::RpcPrepDataContainer> prepDataKey (m_rpcPrepDataContainerKey.key());
+  prepDataKey.initialize().ignore();
+  
+  SG::ReadHandleKey<Muon::RpcCoinDataContainer> prepCoinKey (m_rpcCoinDataContainerKey.key());
+  prepCoinKey.initialize().ignore();
+  
+  printPrepDataImpl(*SG::makeHandle(prepDataKey, ctx).get(),
+                    *SG::makeHandle(prepCoinKey, ctx).get());
 }

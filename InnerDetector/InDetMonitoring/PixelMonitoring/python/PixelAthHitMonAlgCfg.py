@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -12,7 +12,8 @@ from PixelMonitoring.PixelAthMonitoringBase import define1DProfLumiLayers, defin
 from PixelMonitoring.PixelAthMonitoringBase import define1DLayers
 from PixelMonitoring.PixelAthMonitoringBase import layers, lumibinsx, bcidbinsx
 from PixelMonitoring.PixelAthMonitoringBase import addOnTrackTxt, addOnTrackToPath, fullDressTitle
-from PixelMonitoring.PixelAthMonitoringBase import runtext
+from PixelMonitoring.PixelAthMonitoringBase import runtext, ReadingDataErrLabels
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags ### test of 100LB histograms
 
 def PixelAthHitMonAlgCfg(helper, alg, **kwargs):
     '''
@@ -25,6 +26,8 @@ def PixelAthHitMonAlgCfg(helper, alg, **kwargs):
     doLumiBlock = kwargs.get('doLumiBlock', False)
     doFEPlots  = kwargs.get('doFEPlots',  False)
 
+    forceOnline = doOnline and not athenaCommonFlags.isOnline
+
     ontrack = False
 
     path        = '/Pixel/Hits/'
@@ -32,6 +35,12 @@ def PixelAthHitMonAlgCfg(helper, alg, **kwargs):
     pathGroup   = addOnTrackToPath(path, ontrack)
 
     hitGroup = helper.addGroup(alg, 'Hit')
+
+    varName = 'hitdataread_err;ReadingHitDataErr'
+    title = 'Number of Hit data reading errors;error type;# events'
+    hitGroup.defineHistogram(varName,
+                             type='TH1I', path=pathGroup, title=title,
+                             xbins=len(ReadingDataErrLabels), xmin=-0.5, xmax=-0.5+len(ReadingDataErrLabels), xlabels=ReadingDataErrLabels)
 
     varName = 'pixhitsmontool_lb,nhits_per_event'
     title = fullDressTitle('Average number of pixel hits per event per LB', ontrack, ';lumi block', ';# hits/event')
@@ -55,11 +64,17 @@ def PixelAthHitMonAlgCfg(helper, alg, **kwargs):
     yaxistext      = ';# hits/pixel/event'
     define1DProfLumiLayers(helper, alg, histoGroupName, title, pathGroup, yaxistext, type='TProfile')
 
-    if doOnline:
-        histoGroupName = addOnTrackTxt('AvgOccRatioToIBLPerLumi', ontrack)
+    histoGroupName = addOnTrackTxt('AvgOccRatioToIBLPerLumi', ontrack)
+    if not doOnline:
         title          = addOnTrackTxt('Relative to IBL pixel occupancy per event per LB', ontrack, True)
         yaxistext      = ';occ. ratio to IBL'
         define1DProfLumiLayers(helper, alg, histoGroupName, title, pathGroup, yaxistext, type='TProfile')
+    else:
+        if forceOnline : athenaCommonFlags.isOnline = True
+        title          = addOnTrackTxt('Relative to IBL pixel occupancy per event per LB for last 100LB', ontrack, True)
+        histname       = addOnTrackTxt('AvgOccRatioToIBLPerLumiLast100LB', ontrack)
+        define1DProfLumiLayers(helper, alg, histoGroupName, title, pathGroup, ';occ. ratio to IBL', type='TProfile', opt='kLive=100', histname=histname)
+        if forceOnline : athenaCommonFlags.isOnline = False
 
     histoGroupName = 'HitToT'
     title = 'Hit ToT'
@@ -68,13 +83,19 @@ def PixelAthHitMonAlgCfg(helper, alg, **kwargs):
     histoGroupName = 'HitMap' 
     title = 'hit map'
     define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F')
-    if doLumiBlock:
-        define2DProfHist(helper, alg, histoGroupName, title, pathLowStat, type='TH2F', lifecycle='lowStat', histname='HitMapLB')
 
     if doFEPlots:
         histoGroupName = 'HitFEMap' 
         title = 'hit map per FE'
         define2DProfPerFEHist(helper, alg, histoGroupName, title, path, type='TH2F')
+
+    if doLumiBlock:
+        if not doFEPlots:
+            define2DProfHist(helper, alg, histoGroupName, title, pathLowStat, type='TH2F', lifecycle='lumiblock', histname='HitMapLB')
+        else:
+            define2DProfPerFEHist(helper, alg, histoGroupName, title, pathLowStat, type='TH2F', lifecycle='lumiblock', histname='HitFEMapLB')
+
+
 
     histoname = 'AvgOccPerBCID'
     for layer in layers:

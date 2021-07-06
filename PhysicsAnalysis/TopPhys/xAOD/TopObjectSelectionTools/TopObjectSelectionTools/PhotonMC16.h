@@ -12,7 +12,8 @@
 #include "TopObjectSelectionTools/IsolationTools.h"
 
 #include "ElectronPhotonSelectorTools/AsgPhotonIsEMSelector.h"
-
+#include "EgammaAnalysisInterfaces/IAsgDeadHVCellRemovalTool.h"
+#include "AsgTools/AnaToolHandle.h"
 namespace top {
 /**
  * @brief Photon selection for top analyses.
@@ -105,6 +106,10 @@ namespace top {
     std::unique_ptr<top::IsolationBase> m_isolation;
 
     mutable bool m_usePhotonShowerShapeVariables;
+
+    // Removing photon clusters from EMEC bad HV regions
+    // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EGammaIdentificationRun2#Removal_of_Electron_Photon_clust
+    asg::AnaToolHandle<IAsgDeadHVCellRemovalTool> m_deadHVTool;
   };
 }  // namespace top
 #endif  // TOPOBJECTSELECTIONTOOLS_PHOTONMC16_H_

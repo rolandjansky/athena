@@ -44,8 +44,6 @@ public:
 
    virtual const CLID& listID() = 0;
 
-   virtual void setCollMetadataKeys(const std::vector<std::string>& keys) = 0;
-
    /// Gaudi boilerplate
    static const InterfaceID& interfaceID();
 };

@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUREC_TAUVERTEXVARIABLES_H
-#define	TAUREC_TAUVERTEXVARIABLES_H
+#ifndef TAURECTOOLS_TAUVERTEXVARIABLES_H
+#define TAURECTOOLS_TAUVERTEXVARIABLES_H
 
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
@@ -43,4 +43,4 @@ private:
     ToolHandle<Trk::IVertexSeedFinder> m_SeedFinder {this, "SeedFinder", "Trk::CrossDistancesSeedFinder"};
 };
 
-#endif	/* TAUREC_TAUVERTEXVARIABLES_H */
+#endif	// TAURECTOOLS_TAUVERTEXVARIABLES_H

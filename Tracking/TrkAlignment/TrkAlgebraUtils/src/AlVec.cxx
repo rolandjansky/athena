@@ -8,18 +8,18 @@
 #include "TrkAlgebraUtils/AlMat.h"
 #include "TrkAlgebraUtils/AlSymMat.h"
 
-#include <iomanip>
-#include <fstream>
-#include <stdint.h>
-#include <math.h>
+#include <cmath>
+#include <cstdint>
 #include <exception>
+#include <fstream>
+#include <iomanip>
 
 namespace Trk {
 
 //______________________________________________________________________________
 AlVec::AlVec() {
   m_size = 0;
-  m_ptr_data = 0;  // set pointer to null
+  m_ptr_data = nullptr;  // set pointer to null
   m_pathbin="./";
   m_pathtxt="./";
 }
@@ -523,7 +523,7 @@ StatusCode AlVec::ReadPartial(const std::string &filename, double &scale,
 }
 
 //______________________________________________________________________________
-StatusCode AlVec::CheckVecVersion(const std::string filename, bool &StdUnits){
+StatusCode AlVec::CheckVecVersion(const std::string& filename, bool &StdUnits){
   std::ifstream invec((filename).c_str(), std::ios::binary);
   if(invec.fail())
     return StatusCode::FAILURE;

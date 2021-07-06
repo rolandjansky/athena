@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -31,20 +31,21 @@
 #include "TTree.h"
 #include "TRandom.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 #include "LArCafJobs/ILArShapeDumperTool.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArRecConditions/LArBadChannelCont.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "CaloConditions/CaloNoise.h"
 
+#include "LArRawConditions/LArADC2MeV.h"
+#include "LumiBlockData/BunchCrossingCondData.h"
+#include "LArRecConditions/LArBadChannelMask.h"
+
 
 class MsgStream;
 class StoreGateSvc;
 class ILArPedestal;
 class CaloDetDescrManager;
-class ILArBadChannelMasker;
-class ILArADC2MeVTool;
 class ILArShape;
 class ILArAutoCorr;
 class HWIdentifier;
@@ -97,10 +98,15 @@ class LArShapeDumper : public AthAlgorithm
   bool m_dumpDisc;
   std::vector<std::string> m_triggerNames;
 
-  ToolHandle<ILArShapeDumperTool> m_dumperTool;
-  ToolHandle<ILArBadChannelMasker> m_badChannelMasker;
-  ToolHandle<ILArADC2MeVTool> m_adc2mevTool; 
-  //  ToolHandle<LArOFPeakRecoTool> m_peakReco;
+  ToolHandle<ILArShapeDumperTool> m_dumperTool{this,"LArShapeDumperTool","LArShapeDumperTool"};
+
+  LArBadChannelMask m_bcMask;
+  Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{}, "Bad-Channel categories to patch"};
+
+
+
+  SG::ReadCondHandleKey<LArADC2MeV>   m_adc2mevKey{this,"ADC2MeVKey","LArADC2MeV","SG Key of ADC2MeV conditions object"};
+ 
   ToolHandle<Trig::TrigDecisionTool> m_trigDec;
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
@@ -109,9 +115,11 @@ class LArShapeDumper : public AthAlgorithm
 
   ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;  // for tests...
 
-  ToolHandle<Trig::IBunchCrossingTool> m_bcidTool;
- 
-  const ILArPedestal* m_larPedestal;
+  SG::ReadCondHandleKey<BunchCrossingCondData> m_bcDataKey {this, "BunchCrossingCondDataKey", "BunchCrossingData" ,"SG Key of BunchCrossing CDO"};
+
+
+  SG::ReadCondHandleKey<ILArPedestal> m_pedestalKey{this,"PedestalKey","LArPedestal","SG Key of LArPedestal object"};
+
   const CaloDetDescrManager* m_caloDetDescrMgr;
   const LArOnlineID* m_onlineHelper;
   const DataHandle<ILArAutoCorr> m_autoCorr;
@@ -125,7 +133,7 @@ class LArShapeDumper : public AthAlgorithm
   bool m_onlyEmptyBC;
 
   LArSamples::DataStore* m_samples;
-  LArSamples::RunData* m_runData;
+  std::unique_ptr<LArSamples::RunData> m_runData;
   std::vector<const Trig::ChainGroup*> m_triggerGroups;
   TRandom m_random;
 };

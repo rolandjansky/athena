@@ -1,27 +1,15 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: $
 #ifndef XAODTRIGGERCNV_TRIGNAVIGATIONCNVTOOL_H
 #define XAODTRIGGERCNV_TRIGNAVIGATIONCNVTOOL_H
 
-// System include(s):
-extern "C" {
-#   include <stdint.h>
-}
-#include <vector>
-
 // Gaudi/Athena include(s):
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
 
 // Trigger include(s):
 #include "TrigSteeringEvent/HLTResult.h" 
-#include "TrigConfInterfaces/IHLTConfigSvc.h"
 
 // Local include(s):
 #include "xAODTriggerCnv/ITrigNavigationCnvTool.h"
@@ -35,9 +23,6 @@ namespace xAODMaker {
     *         object into an xAOD::TrigNavigation one.
     *
     * @author Tomasz Bold
-    *
-    * $Revision:$
-    * $Date: $
     */
   class TrigNavigationCnvTool : public AthAlgTool,
 				public virtual ITrigNavigationCnvTool {

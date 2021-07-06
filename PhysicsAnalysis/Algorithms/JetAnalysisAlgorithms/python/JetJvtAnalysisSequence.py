@@ -6,7 +6,7 @@ from AnaAlgorithm.DualUseConfig import createAlgorithm
 
 def makeJetJvtAnalysisSequence( dataType, jetCollection,
                                 preselection = '',
-                                disableFJvt = False,
+                                enableFJvt = False,
                                 globalSF = True,
                                 runSelection = True,
                                 enableCutflow = False ):
@@ -15,7 +15,7 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
     Keyword arguments:
       dataType -- The data type to run on ("data", "mc" or "afii")
       jetCollection -- The jet container to run on
-      disableFJvt -- Whether to disable forward JVT calculations
+      enableFJvt -- Whether to enable forward JVT calculations
       globalSF -- Whether to calculate per event scale factors
       runSelection -- Whether to run selection
       enableCutflow -- Whether or not to dump the cutflow
@@ -37,7 +37,7 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
 
     # Set up the per-event jet efficiency scale factor calculation algorithm
     if dataType != 'data' and globalSF:
-        from JetAnalysisSequence import jvtSysts, fjvtSysts
+        from .JetAnalysisSequence import jvtSysts, fjvtSysts
 
         alg = createAlgorithm( 'CP::AsgEventScaleFactorAlg', 'JvtEventScaleFactorAlg' )
         alg.preselection = preselection + '&&no_jvt' if preselection else 'no_jvt'
@@ -50,7 +50,7 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
                     inputPropName = { 'jets' : 'particles',
                                       'eventInfo' : 'eventInfo' } )
 
-        if not disableFJvt:
+        if enableFJvt:
             alg = createAlgorithm( 'CP::AsgEventScaleFactorAlg', 'ForwardJvtEventScaleFactorAlg' )
             alg.preselection = preselection + '&&no_fjvt' if preselection else 'no_fjvt'
             alg.scaleFactorInputDecoration = 'fjvt_effSF_%SYS%'
@@ -66,7 +66,7 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
         cutlist.append('jvt_selection')
         cutlength.append(1)
 
-        if not disableFJvt:
+        if enableFJvt:
             cutlist.append('fjvt_selection')
             cutlength.append(1)
 

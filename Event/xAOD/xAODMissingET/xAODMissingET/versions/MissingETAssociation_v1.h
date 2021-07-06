@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODMISSINGET_VERSIONS_MISSINGETASSOCIATION_v1_H
@@ -29,7 +29,7 @@ namespace xAOD
   {
   public:
 
-    static bool testPolicy(unsigned int type, MissingETBase::UsageHandler::Policy p);
+    static bool testPolicy(const xAOD::IParticle& part, MissingETBase::UsageHandler::Policy p);
 
     /*! @brief Vector sum of constituents for subtractive overlap removal */                                                                                                            
     class ConstVec
@@ -235,7 +235,7 @@ namespace xAOD
 		     const std::vector<unsigned char>& overlapTypes);  /*!< @brief Set overlap indices and types for a given contributing object referenced by pointer */
     bool setOverlaps(size_t objIdx,const std::vector<size_t>& overlapIndices,
 		     const std::vector<unsigned char>& overlapTypes);           /*!< @brief Set overlap indices and types for a given contributing object referenced by index */
-    void setOverrideMom(std::map<const IParticle*,ConstVec> pOverride);         /*!< @brief Set override momenta */
+    void setOverrideMom(const std::map<const IParticle*,ConstVec>& pOverride);         /*!< @brief Set override momenta */
     std::map<const IParticle*,ConstVec> overrideMom();                          /*!< @brief Get override momenta */
     void addOverrideMom(std::map<const IParticle*,ConstVec> &pOverride);        /*!< @brief Extend override momentum map */
 
@@ -285,22 +285,22 @@ namespace xAOD
     bool identifyOverlaps(size_t objIdx);                                 /*!< @brief Search association for particles that share constituents with this one */
     bool identifyOverlaps(const IParticle* pPart);                        /*!< @brief Search association for particles that share constituents with this one */
 
-    bool hasOverlaps(const MissingETAssociationHelper* helper, size_t objIdx,MissingETBase::UsageHandler::Policy p=MissingETBase::UsageHandler::OnlyCluster) const;
+    bool hasOverlaps(const MissingETAssociationHelper& helper, size_t objIdx,MissingETBase::UsageHandler::Policy p=MissingETBase::UsageHandler::OnlyCluster) const;
                                                                           /*!< @brief Check if any selected particles overlap this one */
-    bool hasOverlaps(const MissingETAssociationHelper* helper, const IParticle* pPart,
+    bool hasOverlaps(const MissingETAssociationHelper& helper, const IParticle* pPart,
 		     MissingETBase::UsageHandler::Policy p=MissingETBase::UsageHandler::OnlyCluster) const;
                                                                           /*!< @brief Check if any selected particles overlap this one */
 
     bool hasAlternateConstVec() const;
     xAOD::JetFourMom_t getAlternateConstVec() const;
 
-    ConstVec overlapCalVec(const MissingETAssociationHelper* helper) const;    /*!< @brief Retrieve total cluster-based vector to be subtracted from the jet */
-    ConstVec overlapTrkVec(const MissingETAssociationHelper* helper) const;    /*!< @brief Retrieve total track-based vector to be subtracted from the jet */
+    ConstVec overlapCalVec(const MissingETAssociationHelper& helper) const;    /*!< @brief Retrieve total cluster-based vector to be subtracted from the jet */
+    ConstVec overlapTrkVec(const MissingETAssociationHelper& helper) const;    /*!< @brief Retrieve total track-based vector to be subtracted from the jet */
 
     bool containsSignal(const IParticle* pSig) const;                     /*!< @brief Check if this signal object matches the constituents of any contributing objects */
     bool containsPhysics(const IParticle* pPhys) const;                   /*!< @brief Check if this physics object matches any contributing objects */
     bool isMisc() const;                                                  /*!< @brief Check if this association is a miscellaneous association */
-    bool checkUsage(const MissingETAssociationHelper* helper, const IParticle* pSig, MissingETBase::UsageHandler::Policy p) const; /*!< @brief Check if this signal object matches the constituents of any flagged contributing objects */
+    bool checkUsage(const MissingETAssociationHelper& helper, const IParticle* pSig, MissingETBase::UsageHandler::Policy p) const; /*!< @brief Check if this signal object matches the constituents of any flagged contributing objects */
 
     /*! @name Allocating and accessing objects in the contribution
      *  @anchor contrib_alloc
@@ -354,6 +354,9 @@ namespace xAOD
     /*!@}*/
 
   protected:
+
+    static bool testPolicy(xAOD::Type::ObjectType type, MissingETBase::UsageHandler::Policy p);
+
     /// Function initialising the object to work in standalone mode
     void createPrivateStore();
 
@@ -425,6 +428,24 @@ namespace xAOD
     /*!@}*/
   private:
     std::map<const IParticle*,ConstVec> m_override;
+
+    static const SG::AuxElement::Accessor<std::vector<float> > m_acc_calpx;
+    static const SG::AuxElement::Accessor<std::vector<float> > m_acc_calpy;
+    static const SG::AuxElement::Accessor<std::vector<float> > m_acc_calpz;
+    static const SG::AuxElement::Accessor<std::vector<float> > m_acc_cale;
+    static const SG::AuxElement::Accessor<std::vector<float> > m_acc_calsumpt;
+
+    static const SG::AuxElement::Accessor<std::vector<float> > m_acc_trkpx;
+    static const SG::AuxElement::Accessor<std::vector<float> > m_acc_trkpy;
+    static const SG::AuxElement::Accessor<std::vector<float> > m_acc_trkpz;
+    static const SG::AuxElement::Accessor<std::vector<float> > m_acc_trke;
+    static const SG::AuxElement::Accessor<std::vector<float> > m_acc_trksumpt;
+
+    static const SG::AuxElement::Accessor<float> m_acc_jettrkpx;
+    static const SG::AuxElement::Accessor<float> m_acc_jettrkpy;
+    static const SG::AuxElement::Accessor<float> m_acc_jettrkpz;
+    static const SG::AuxElement::Accessor<float> m_acc_jettrke;
+    static const SG::AuxElement::Accessor<float> m_acc_jettrksumpt;
 
   }; // MissingETAssociation_v1
 }

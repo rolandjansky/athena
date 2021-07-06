@@ -34,6 +34,13 @@ def get_parser():
                         metavar='PATH',
                         help='Path to the git checkout of the athena repository.'
                              'If empty, try to guess from the environment')
+    parser.add_argument('-p', '--patch',
+                        action='store_true',
+                        help='Create a git patch file with the count differences')
+    parser.add_argument('-m', '--matchingOnly',
+                        action='store_true',
+                        help='Ignore added and removed chains, and only compare counts for chains ' + \
+                             'present in both reference and input file')
     parser.add_argument('-v', '--verbose',
                         action='store_true',
                         help='Increase output verbosity')
@@ -120,7 +127,7 @@ def print_step_diff(inp_data, ref_data, key):
                 logging.info('      %d: %d -> %d', step, ref_count, inp_count)
 
 
-def print_diff(inp_dict, ref_dict):
+def print_diff(inp_dict, ref_dict, matching_only=False):
     retcode = 0
     chains_not_in_ref = [c[0] for c in inp_dict.items() if c[0] not in ref_dict]
     chains_not_in_inp = [c[0] for c in ref_dict.items() if c[0] not in inp_dict]
@@ -128,7 +135,7 @@ def print_diff(inp_dict, ref_dict):
 
     # New chains (missing in reference)
     n_new_chains = len(chains_not_in_ref)
-    if n_new_chains > 0:
+    if n_new_chains > 0 and not matching_only:
         retcode = 1
         logging.info('Found %d new chain%s added:', n_new_chains, 's' if n_new_chains > 1 else '')
         for chain_name in chains_not_in_ref:
@@ -136,7 +143,7 @@ def print_diff(inp_dict, ref_dict):
 
     # Removed chains (missing in test file)
     n_removed_chains = len(chains_not_in_inp)
-    if n_removed_chains > 0:
+    if n_removed_chains > 0 and not matching_only:
         retcode = 1
         logging.info('Found %d chain%s removed:', n_removed_chains, 's' if n_removed_chains > 1 else '')
         for chain_name in chains_not_in_inp:
@@ -218,10 +225,11 @@ def main():
     if (not inp_dict) or (not ref_dict):
         return 1
 
-    retcode = print_diff(inp_dict, ref_dict)
+    retcode = print_diff(inp_dict, ref_dict, args.matchingOnly)
     if retcode:
         logging.error('Trigger counts differ from the reference. If the above differences are intended, update the reference')
-        create_patch(inp_path, ref_path)
+        if args.patch:
+            create_patch(inp_path, ref_path)
     else:
         logging.info('Trigger counts match the reference')
 

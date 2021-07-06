@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // PhotonVertexSelectionAlg.cxx
@@ -64,22 +64,22 @@ namespace CP {
     ATH_CHECK( evtStore()->record(vxOut, m_outVxColl) );
     ATH_CHECK( evtStore()->record(vxOutAux, m_outVxColl+"Aux.") );
 
-    const PhotonContainer* photons(0);
+    const PhotonContainer* photons(nullptr);
     ATH_CHECK( evtStore()->retrieve(photons, m_inGamColl) );
 
     ConstDataVector<PhotonContainer> photons_presel(SG::VIEW_ELEMENTS);
-    for(const auto& ph : *photons) {
+    for(const auto ph : *photons) {
       if(acceptPhoton(*ph)) photons_presel.push_back( ph );
     }
 
-    const Vertex* photonVx(0);
+    const Vertex* photonVx(nullptr);
     if( m_vxSelTool->getVertex(*photons_presel.asDataVector(), photonVx).isSuccess() && photonVx) {
       *vxOut->front() = *photonVx; // deep copy of photon vertex, to record
       vxOut->front()->setVertexType(VxType::PriVtx);
     } else {
-      const VertexContainer* vxIn(0);
+      const VertexContainer* vxIn(nullptr);
       ATH_CHECK( evtStore()->retrieve(vxIn, m_inVxColl) );
-      for(const auto& vx : *vxIn) {
+      for(const auto vx : *vxIn) {
 	if(vx->vertexType()==VxType::PriVtx) *vxOut->front() = *vx;
       }
     }

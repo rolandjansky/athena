@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -11,60 +11,63 @@
 #define MUONREADOUTGEOMETRY_RPCREADOUTELEMENT_H
 
 #include "MuonReadoutGeometry/MuonClusterReadoutElement.h"
+
+#include "Identifier/Identifier.h"
+#include "Identifier/IdentifierHash.h"
+#include "MuonIdHelpers/RpcIdHelper.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MuonStripDesign.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
+
+#include <memory>
+#include <string>
+#include <vector>
+
+class GeoVFullPhysVol;
+
+namespace Muon {
+  class CombinedMuonAlignModule;
+  class RpcAlignModule;
+}
 
 //<<<<<< PUBLIC DEFINES >>>>>>
 #define maxphipanels  2
 #define maxetapanels  2
 
-namespace Trk{
-  class RectangleBounds;
-  class PlaneSurface;
-}
-
-namespace Muon {
-  class RpcAlignModule;
-  class CombinedMuonAlignModule;
-}
-
 namespace MuonGM {
   /**
-     An RpcReadoutElement corresponds to a single RPC module; therefore 
+     An RpcReadoutElement corresponds to a single RPC module; therefore
      typicaly a barrel muon station contains:
-     - 4 RpcReadoutElements in the middle layer, two adjacent to each 
-     other (in z) on the inner side (low-pt plane) and two on the 
+     - 4 RpcReadoutElements in the middle layer, two adjacent to each
+     other (in z) on the inner side (low-pt plane) and two on the
      outer side (pivot plane);
-     - 2 RpcReadoutElements in the outer layer (inner or outer side 
-     depends on the Large or Small sector type). 
+     - 2 RpcReadoutElements in the outer layer (inner or outer side
+     depends on the Large or Small sector type).
      RpcReadoutElements are identified by StationName, StationEta, StationPhi,
-     Technology=2, doubletR, doubletZ and doubletPhi (the latter being 
-     actually needed only in a few special cases). Therefore the granularity 
-     of the data-collections is less fine-grained than the granularity of the 
-     geometry description (1 collection -> 2 RpcReadoutElements, typically). 
-   
+     Technology=2, doubletR, doubletZ and doubletPhi (the latter being
+     actually needed only in a few special cases). Therefore the granularity
+     of the data-collections is less fine-grained than the granularity of the
+     geometry description (1 collection -> 2 RpcReadoutElements, typically).
+
      Pointers to all RpcReadoutElements are created in the build() method of
      the MuonChamber class, and are held in arrays by the MuonDetectorManager,
-     which is responsible for storing, deleting and providing access to these 
-     objects. 
+     which is responsible for storing, deleting and providing access to these
+     objects.
 
      An RpcReadoutElement holds properties related to its internal structure
-     (i.e. number of strip panels) and general geometrical properties (size); 
-     it implements tracking interfaces and provide access to typical 
+     (i.e. number of strip panels) and general geometrical properties (size);
+     it implements tracking interfaces and provide access to typical
      readout-geometry information: i.e. number of strips, strip positions, etc.
 
-     The globalToLocalCoords and globalToLocalTransform methods (+ their 
-     opposite) define the link between the ATLAS global reference frame and 
+     The globalToLocalCoords and globalToLocalTransform methods (+ their
+     opposite) define the link between the ATLAS global reference frame and
      the internal (geo-model defined) local reference frame of any gas gap
      volume (which is the frame where local coordinates of SimHits, in output
      from G4, are expressed).
   */
 
-  class MuonDetectorManager;
   class RpcReadoutSet;
- 
-  class RpcReadoutElement: public MuonClusterReadoutElement 
+
+  class RpcReadoutElement final: public MuonClusterReadoutElement
   {
     friend class Muon::RpcAlignModule;
     friend class Muon::CombinedMuonAlignModule;
@@ -75,67 +78,77 @@ namespace MuonGM {
     RpcReadoutElement(GeoVFullPhysVol* pv, std::string stName,
 		      int zi, int fi, bool is_mirrored,
 		      MuonDetectorManager* mgr);
-    
+
     /** destructor */
-    ~RpcReadoutElement();                  
-                      
-    int getDoubletR() const; //!< return DoubletR value for the given readout element 
-    int getDoubletZ() const; //!< return DoubletZ value for the given readout element 
-    int getDoubletPhi() const; //!< return DoubletPhi value for the given readout element, be aware that one RE can contain two DoubletPhis!!!! 
-    bool hasDEDontop() const; //!< return whether the RPC is 'up-side-down' 
+    ~RpcReadoutElement();
+
+    int getDoubletR() const; //!< return DoubletR value for the given readout element
+    int getDoubletZ() const; //!< return DoubletZ value for the given readout element
+    int getDoubletPhi() const; //!< return DoubletPhi value for the given readout element, be aware that one RE can contain two DoubletPhis!!!!
+    bool hasDEDontop() const; //!< return whether the RPC is 'up-side-down'
 
     /** function to be used to check whether a given Identifier is contained in the readout element */
     virtual bool containsId(Identifier id) const override;
 
     /** returns whether the RE is in the ribs of the muon spectrometer */
     bool inTheRibs() const;
-    
-    int Nphigasgaps() const; //!< returns the number of phi gas gaps 
-    int NphiStripPanels() const; //!< returns the number of phi strip panels (1 or 2) 
-    int NetaStripPanels() const; //!< returns the number of eta strip panels (should always be 1) 
-    int NphiStrips() const; //!< returns the number of phi strips 
-    int NetaStrips() const; //!< returns the number of eta strips 
-    int Nstrips(int measphi) const; //!< returns the number of strips for the phi or eta plane 
-    double StripWidth(int measphi) const; //!< returns the strip width for the phi or eta plane 
-    double StripLength(int measphi) const; //!< returns the strip length for the phi or eta plane 
-    double StripPitch(int measphi) const; //!< returns the strip pitch for the phi or eta plane 
-    double StripPanelDead(int measphi) const; //!< returns strip panel dead area for the phi or eta plane 
-    double stripPanelSsize(int measphi) const; //!< returns strip panel S size for the phi or eta plane 
-    double stripPanelZsize(int measphi) const; //!< returns strip panel Z size for the phi or eta plane 
-    double gasGapSsize() const; //!< returns the gas gap S size 
-    double gasGapZsize() const; //!< returns the gas gap Z size 
 
-    /** distance to readout. 
+    int Nphigasgaps() const; //!< returns the number of phi gas gaps
+    int NphiStripPanels() const; //!< returns the number of phi strip panels (1 or 2)
+    int NetaStripPanels() const; //!< returns the number of eta strip panels (should always be 1)
+    int NphiStrips() const; //!< returns the number of phi strips
+    int NetaStrips() const; //!< returns the number of eta strips
+    int Nstrips(int measphi) const; //!< returns the number of strips for the phi or eta plane
+    double StripWidth(int measphi) const; //!< returns the strip width for the phi or eta plane
+    double StripLength(int measphi) const; //!< returns the strip length for the phi or eta plane
+    double StripPitch(int measphi) const; //!< returns the strip pitch for the phi or eta plane
+    double StripPanelDead(int measphi) const; //!< returns strip panel dead area for the phi or eta plane
+    double stripPanelSsize(int measphi) const; //!< returns strip panel S size for the phi or eta plane
+    double stripPanelZsize(int measphi) const; //!< returns strip panel Z size for the phi or eta plane
+    double gasGapSsize() const; //!< returns the gas gap S size
+    double gasGapZsize() const; //!< returns the gas gap Z size
+
+    /** distance to readout.
 	If the local position is outside the active volume, the function first shift the position back into the active volume */
-    virtual double distanceToReadout( const Amg::Vector2D& pos, const Identifier& id ) const override;
+    virtual double distanceToReadout( const Amg::Vector2D& pos, const Identifier& id ) const override final;
 
-    /** strip number corresponding to local position. 
+    /** strip number corresponding to local position.
 	If the local position is outside the active volume, the function first shift the position back into the active volume */
-    virtual int stripNumber( const Amg::Vector2D& pos, const Identifier& id ) const override;
+    virtual int stripNumber( const Amg::Vector2D& pos, const Identifier& id ) const override final;
 
-    /** strip position 
+    /** strip position
 	If the strip number is outside the range of valid strips, the function will return false */
-    virtual bool stripPosition( const Identifier& id, Amg::Vector2D& pos ) const override;
+    virtual bool stripPosition( const Identifier& id, Amg::Vector2D& pos ) const override final;
 
     /** number of layers in phi/eta projection, same for eta/phi planes */
-    virtual int numberOfLayers( bool measPhi = true ) const override;
+    virtual int numberOfLayers( bool measPhi = true ) const override final;
     void setNumberOfLayers(const int = 2);
 
     /** number of strips per layer */
-    virtual int numberOfStrips( const Identifier& layerId )   const override;
-    virtual int numberOfStrips( int , bool measuresPhi ) const override;
+    virtual int numberOfStrips( const Identifier& layerId )   const override final;
+    virtual int numberOfStrips( int , bool measuresPhi ) const override final;
 
-    /** space point position for a given pair of phi and eta identifiers 
+    /** space point position for a given pair of phi and eta identifiers
 	The LocalPosition is expressed in the reference frame of the phi surface.
 	If one of the identifiers is outside the valid range, the function will return false */
-    virtual bool spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector2D& pos ) const override;
+    virtual bool spacePointPosition(const Identifier& phiId,
+                                    const Identifier& etaId,
+                                    Amg::Vector2D& pos) const override final;
 
+    /** Global space point position for a given pair of phi and eta identifiers
+        If one of the identifiers is outside the valid range, the function will
+       return false */
+    virtual bool spacePointPosition(const Identifier& phiId,
+                                    const Identifier& etaId,
+                                    Amg::Vector3D& pos) const override final;
 
-    /** Global space point position for a given pair of phi and eta identifiers 
-	If one of the identifiers is outside the valid range, the function will return false */
-    virtual bool spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector3D& pos ) const override;
+    /** TrkDetElementInterface */
+    virtual Trk::DetectorElemType detectorType() const override final
+    {
+      return Trk::DetectorElemType::Rpc;
+    }
 
-    /** space point position for a pair of phi and eta local positions and a layer identifier 
+    /** space point position for a pair of phi and eta local positions and a layer identifier
 	The LocalPosition is expressed in the reference frame of the phi projection.
     */
     void spacePointPosition( const Amg::Vector2D& phiPos, const Amg::Vector2D& etaPos, Amg::Vector2D& pos ) const;
@@ -144,25 +157,25 @@ namespace MuonGM {
     const Amg::Vector3D  REcenter() const;
 
     /** @brief function to fill tracking cache */
-    virtual void         fillCache() override;
-    virtual void         refreshCache() override {clearCache(); fillCache();}
+    virtual void         fillCache() override final;
+    virtual void         refreshCache() override final {clearCache(); fillCache();}
 
     /** @brief returns the hash to be used to look up the surface and transform in the MuonClusterReadoutElement tracking cache */
-    int surfaceHash( const Identifier& id ) const override;
+    virtual int surfaceHash( const Identifier& id ) const override final;
 
     /** @brief returns the hash to be used to look up the surface and transform in the MuonClusterReadoutElement tracking cache */
     int surfaceHash( int dbPhi, int gasGap, int measPhi) const;
 
     /** @brief returns the hash to be used to look up the normal and center in the MuonClusterReadoutElement tracking cache */
-    int layerHash( const Identifier& id ) const override;
+    virtual int layerHash( const Identifier& id ) const override final;
     /** @brief returns the hash to be used to look up the normal and center in the MuonClusterReadoutElement tracking cache */
     int layerHash( int dbPhi, int gasGap) const;
-  
+
     /** returns the hash function to be used to look up the surface boundary for a given identifier */
-    virtual int  boundaryHash(const Identifier& id) const override;
+    virtual int  boundaryHash(const Identifier& id) const override final;
 
     /** @brief returns whether the current identifier corresponds to a phi measurement */
-    virtual bool measuresPhi(const Identifier& id) const override;
+    virtual bool measuresPhi(const Identifier& id) const override final;
 
     /** @brief initialize the design classes for this readout element */
     void initDesign();
@@ -183,8 +196,8 @@ namespace MuonGM {
     void set_etastriplength(double );
     void set_first_phistrip_s(double* );
     void set_first_etastrip_z(double* );
-    
-    
+
+
     /** local MuonGeoModel to global transforms and positions, only to be used by digitization */
     const Amg::Vector3D stripPanelPos(Identifier id) const;
     const Amg::Vector3D stripPanelPos(IdentifierHash id) const;
@@ -214,11 +227,11 @@ namespace MuonGM {
     double localStripSCoord(int doubletZ, int doubletPhi, int measphi, int strip) const;
     double localStripZCoord(int doubletZ, int doubletPhi, int measphi, int strip) const;
     double localGasGapDepth(int gasGap) const;
-    const Amg::Vector3D localGasGapPos(Identifier id) const; 
-    const Amg::Vector3D localGasGapPos(int dbZ, int dbP, int gg) const; 
-    const Amg::Vector3D gasGapPos(Identifier id) const; 
-    const Amg::Vector3D gasGapPos(int dbZ, int dbP, int gg) const; 
-    bool rotatedRpcModule() const; 
+    const Amg::Vector3D localGasGapPos(Identifier id) const;
+    const Amg::Vector3D localGasGapPos(int dbZ, int dbP, int gg) const;
+    const Amg::Vector3D gasGapPos(Identifier id) const;
+    const Amg::Vector3D gasGapPos(int dbZ, int dbP, int gg) const;
+    bool rotatedRpcModule() const;
     bool localTopGasGap(Identifier id) const;
     bool localTopGasGap(int gasGap) const;
     bool rotatedGasGap(Identifier id) const;
@@ -239,28 +252,28 @@ namespace MuonGM {
     void setZTranslation(const float z);
 
   private:
-    
+
     /** returns the MuonStripDesign class for the given identifier */
     const MuonStripDesign* getDesign( const Identifier& id ) const;
 
     int m_dbR, m_dbZ, m_dbPhi;
     bool m_hasDEDontop;
-    int m_nlayers;  // default=2, all BIS RPCs always have 3 gas gaps
+    int m_nlayers;  // default=2, all BI RPCs always have 3 gas gaps, need this flag since amdb only supports a maximum of 2 gas gaps, so this is steering the hardcoded third gas gap for Run3/4 layouts based on amdb primary numbers
 
     int m_nphigasgaps;
     int m_netagasgaps;
     double m_gasgapssize;
     double m_gasgapzsize;
 
-    int m_nphistrippanels;                
-    int m_netastrippanels;                
-    int m_nphistripsperpanel;             
+    int m_nphistrippanels;
+    int m_netastrippanels;
+    int m_nphistripsperpanel;
     int m_netastripsperpanel;
-    double m_phistripwidth;               
-    double m_etastripwidth;               
-    double m_phistrippitch;               
-    double m_etastrippitch;               
-    double m_phistriplength;              
+    double m_phistripwidth;
+    double m_etastripwidth;
+    double m_phistrippitch;
+    double m_etastrippitch;
+    double m_phistriplength;
     double m_etastriplength;
     double m_phipaneldead,  m_etapaneldead;
     double m_exthonthick;
@@ -272,7 +285,7 @@ namespace MuonGM {
     Amg::Transform3D m_Xlg[3][2];
 
     const Amg::Transform3D localToGlobalStripPanelTransf(int dbZ, int dbPhi, int gasGap) const;
-    const Amg::Vector3D localStripPanelPos(int dbZ, int dbP, int gg) const; 
+    const Amg::Vector3D localStripPanelPos(int dbZ, int dbP, int gg) const;
 
     std::vector<MuonStripDesign> m_phiDesigns;
     std::vector<MuonStripDesign> m_etaDesigns;
@@ -280,9 +293,9 @@ namespace MuonGM {
 
     float m_y_translation;
     float m_z_translation;
-    
+
   };
-  
+
   inline int RpcReadoutElement::getDoubletR() const   {return m_dbR;}
   inline int RpcReadoutElement::getDoubletZ() const   {return m_dbZ;}
   inline int RpcReadoutElement::getDoubletPhi() const {return m_dbPhi;}
@@ -322,7 +335,7 @@ namespace MuonGM {
     return surfaceHash(manager()->rpcIdHelper()->doubletPhi(id),manager()->rpcIdHelper()->gasGap(id),manager()->rpcIdHelper()->measuresPhi(id));
   }
 
-  inline const Amg::Vector3D  RpcReadoutElement::REcenter()    const { 
+  inline const Amg::Vector3D  RpcReadoutElement::REcenter()    const {
     if (NphiStripPanels() == 1) return MuonClusterReadoutElement::center(0);
     return 0.5*(MuonClusterReadoutElement::center(0)+MuonClusterReadoutElement::center(2));
   }
@@ -331,8 +344,8 @@ namespace MuonGM {
     return layerHash(manager()->rpcIdHelper()->doubletPhi(id),manager()->rpcIdHelper()->gasGap(id));
   }
 
-  inline int  RpcReadoutElement::boundaryHash(const Identifier& id) const { 
-    return ( measuresPhi(id)? 0:1 ); 
+  inline int  RpcReadoutElement::boundaryHash(const Identifier& id) const {
+    return ( measuresPhi(id)? 0:1 );
   }
 
   inline bool RpcReadoutElement::measuresPhi( const Identifier& id ) const {
@@ -364,7 +377,7 @@ namespace MuonGM {
     return numberOfStrips(1,manager()->rpcIdHelper()->measuresPhi(layerId));
   }
   inline int RpcReadoutElement::numberOfStrips( int , bool measuresPhi ) const {
-    return Nstrips(measuresPhi); 
+    return Nstrips(measuresPhi);
   }
 
   inline bool RpcReadoutElement::spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector2D& pos ) const {

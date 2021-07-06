@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthenaPoolCnvSvc/test/T_AthenaPoolTPCnvCnv_test.cxx
@@ -44,7 +44,7 @@ public:
       m_pers2 (nullptr)
   {}
 
-  virtual void setObjPtr(void*& obj, const Token* /*token*/) const override
+  virtual void setObjPtr(void*& obj, const Token* /*token*/) override
   {
     if (m_pers2) {
       obj = new XCont_p2 (*m_pers2);
@@ -59,7 +59,6 @@ public:
       std::abort();
   }
 
-  std::string m_name;
   XCont* m_pers0;
   XCont_p1* m_pers1;
   XCont_p2* m_pers2;

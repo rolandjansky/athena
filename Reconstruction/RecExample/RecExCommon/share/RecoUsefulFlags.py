@@ -111,8 +111,3 @@ try:
     from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
 except Exception:
     printfunc ("WARNING could not load primDPD")
-
-try:
-    from D2PDMaker.D2PDFlags import D2PDFlags
-except Exception:
-    printfunc ("WARNING could not load D2PDFlags")

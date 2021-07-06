@@ -2,6 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "TrigErrorMonTool.h"
+#include "AthenaKernel/AthStatusCode.h"
 #include "GaudiKernel/IAlgExecStateSvc.h"
 
 // =============================================================================
@@ -17,6 +18,9 @@ StatusCode TrigErrorMonTool::initialize() {
   ATH_CHECK(m_monTool.retrieve(DisableTool{m_monTool.name().empty()}));
   ATH_CHECK(m_algToChainTool.retrieve(DisableTool{m_algToChainTool.name().empty()}));
   ATH_CHECK(m_aess.retrieve());
+  
+  if (!m_trigCostSvcHandle.empty()) ATH_CHECK(m_trigCostSvcHandle.retrieve());
+
   return StatusCode::SUCCESS;
 }
 
@@ -35,6 +39,7 @@ StatusCode TrigErrorMonTool::finalize() {
 // =============================================================================
 std::unordered_map<std::string_view, StatusCode> TrigErrorMonTool::algExecErrors(const EventContext& eventContext) const {
   std::unordered_map<std::string_view, StatusCode> algErrors;
+  bool wasTimeout = false;
   for (const auto& [key, state] : m_aess->algExecStates(eventContext)) {
     if (!state.execStatus().isSuccess()) {
       ATH_MSG_DEBUG("Algorithm " << key << " returned StatusCode " << state.execStatus().message()
@@ -53,7 +58,25 @@ std::unordered_map<std::string_view, StatusCode> TrigErrorMonTool::algExecErrors
         Monitored::Group(m_monTool, monErrorChainNames, monErrorCode);
       }
 
+      if (state.execStatus() == Athena::Status::TIMEOUT) {
+        // Print report of most time consuming algorithms
+        wasTimeout = true;
+      }
     }
   }
+
+  if (wasTimeout && !m_trigCostSvcHandle.empty()){
+    std::string timeoutReport;
+    if (m_trigCostSvcHandle->generateTimeoutReport(eventContext, timeoutReport) == StatusCode::FAILURE){
+      ATH_MSG_ERROR("Generating timeout algorithm report failed.");
+    }
+    else if (timeoutReport.empty()){
+      ATH_MSG_INFO("CostMonitoring not active in this event. A list of slow algorithms is not available.");
+    }
+    else {
+      ATH_MSG_ERROR(timeoutReport);
+    }
+  }
+
   return algErrors;
 }

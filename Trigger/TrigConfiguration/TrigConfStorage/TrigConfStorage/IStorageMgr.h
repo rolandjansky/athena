@@ -20,7 +20,6 @@
 #include "TrigConfStorage/IHLTPrescaleSetLoader.h"
 #include "TrigConfStorage/IHLTPrescaleSetCollectionLoader.h"
 #include "TrigConfStorage/IJobOptionTableLoader.h"
-#include "TrigConfStorage/ILoader.h"
 #include "TrigConfStorage/ILutCamLoader.h"
 #include "TrigConfStorage/IMasterTableLoader.h"
 #include "TrigConfStorage/IMenuLoader.h"

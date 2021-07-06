@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGC_Hid2RESrcID.h" 
@@ -12,15 +12,8 @@
 #include "eformat/SourceIdentifier.h" 
 using eformat::helper::SourceIdentifier; 
 
-// Initialize the cabling service. 
-void Muon::TGC_Hid2RESrcID::set(const ITGCcablingSvc* p_cabling) {
-  m_cabling=p_cabling;
-  m_robIDs.clear();
-  this->fillAllRobIds();
-}
-
 // get source ID for a RDO
-uint32_t Muon::TGC_Hid2RESrcID::getRodID(const TgcRdo *rdo)
+uint32_t Muon::TGC_Hid2RESrcID::getRodID(const TgcRdo *rdo) const
 {
   // get Source ID
   SourceIdentifier sid(static_cast<eformat::SubDetector>(rdo->subDetectorId()),
@@ -31,7 +24,7 @@ uint32_t Muon::TGC_Hid2RESrcID::getRodID(const TgcRdo *rdo)
 }
 
 // get source ID for a RDO 
-uint32_t Muon::TGC_Hid2RESrcID::getRodID(uint16_t subDetectorId, uint16_t rodId)
+uint32_t Muon::TGC_Hid2RESrcID::getRodID(uint16_t subDetectorId, uint16_t rodId) const
 {
   // get Source ID
   SourceIdentifier sid(static_cast<eformat::SubDetector>(subDetectorId), rodId);
@@ -41,11 +34,12 @@ uint32_t Muon::TGC_Hid2RESrcID::getRodID(uint16_t subDetectorId, uint16_t rodId)
 }
 
 // get source ID for an TgcDigitCollection 
-uint32_t Muon::TGC_Hid2RESrcID::getRodID(const Identifier& offlineId) const
+uint32_t Muon::TGC_Hid2RESrcID::getRodID(const Identifier& offlineId,
+                                         const ITGCcablingSvc* cabling) const
 {
   int subDetectorId;
   int rodId;
-  m_cabling->getReadoutIDfromElementID(offlineId,subDetectorId,rodId);
+  cabling->getReadoutIDfromElementID(offlineId,subDetectorId,rodId);
 
   // get Source ID
   SourceIdentifier sid(static_cast<eformat::SubDetector>(subDetectorId),
@@ -64,7 +58,7 @@ uint32_t Muon::TGC_Hid2RESrcID::getRobID(uint32_t rod_id) const
 }
 
 // mapping SrcID from ROB to ROS  
-uint32_t Muon::TGC_Hid2RESrcID::getRosID(uint32_t rob_id) 
+uint32_t Muon::TGC_Hid2RESrcID::getRosID(uint32_t rob_id) const
 {
   //  Change Module Type to ROS, moduleid = 0  
   SourceIdentifier id(rob_id);
@@ -75,7 +69,7 @@ uint32_t Muon::TGC_Hid2RESrcID::getRosID(uint32_t rob_id)
 }
 
 // mapping SrcID from ROS to Det  
-uint32_t Muon::TGC_Hid2RESrcID::getDetID(uint32_t ros_id) 
+uint32_t Muon::TGC_Hid2RESrcID::getDetID(uint32_t ros_id) const
 {
   //  ROS to DET
   SourceIdentifier id(ros_id);

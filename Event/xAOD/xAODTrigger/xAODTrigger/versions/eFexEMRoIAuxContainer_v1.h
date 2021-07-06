@@ -37,24 +37,21 @@ namespace xAOD {
       eFexEMRoIAuxContainer_v1();
 
    private:
-      std::vector< uint32_t > word0;
-      std::vector< uint32_t > word1;
+      std::vector< uint32_t > Word0;
+      std::vector< uint32_t > Word1;
       std::vector< uint8_t >  eFexNumber;
-      std::vector< uint16_t > retaEnv;
-      std::vector< uint16_t > retaCore;
-      std::vector< uint16_t > rhadHad;
-      std::vector< uint16_t > rhadEM;
-      std::vector< uint16_t > wstotNumerator;
-      std::vector< uint16_t > wstotDenominator;
-     //std::vector< uint16_t > et;
-     //std::vector< uint8_t >  eta;
-     //std::vector< uint8_t >  phi;
+      std::vector< uint8_t >  shelfNumber;
+      std::vector< uint16_t > RetaEnv;
+      std::vector< uint16_t > RetaCore;
+      std::vector< uint16_t > RhadHad;
+      std::vector< uint16_t > RhadEM;
+      std::vector< uint16_t > WstotNumerator;
+      std::vector< uint16_t > WstotDenominator;
 
-      std::vector< float > et;
-      std::vector< float >  eta;
-      std::vector< float >  phi;
+      std::vector< float >    et;
+      std::vector< float >    eta;
+      std::vector< float >    phi;
       std::vector< char >     isTOB;
-      std::vector< uint32_t > thrPattern;
 
    }; // class eFexEMRoIAuxContainer_v1
 

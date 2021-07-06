@@ -10,13 +10,13 @@ TrigConf::HLTPrescalesSet::HLTPrescalesSet()
 TrigConf::HLTPrescalesSet::HLTPrescalesSet(const boost::property_tree::ptree & data) 
    : DataStructure(data)
 {
-   update();
+   load();
 }
 
 TrigConf::HLTPrescalesSet::~HLTPrescalesSet() = default;
 
 void
-TrigConf::HLTPrescalesSet::update()
+TrigConf::HLTPrescalesSet::load()
 {
    m_name = getAttribute("name");
    const auto & prescales = data().get_child("prescales");
@@ -40,6 +40,13 @@ TrigConf::HLTPrescalesSet::update()
    }
 }
 
+void
+TrigConf::HLTPrescalesSet::clear()
+{
+   m_psk = 0;
+   m_prescales.clear();
+   m_prescalesByHash.clear();
+}
 
 std::size_t 
 TrigConf::HLTPrescalesSet::size() const

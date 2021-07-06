@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "JetRecTools/PuppiWeightTool.h"
 
@@ -11,6 +11,7 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODBase/IParticleHelpers.h"
 #include "xAODCore/ShallowAuxContainer.h"
+#include "AsgDataHandles/ReadHandle.h"
 
 using namespace std;
 

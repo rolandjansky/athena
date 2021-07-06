@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_ReadoutGeometry/TRT_BaseElement.h"
@@ -11,7 +11,6 @@
 #include "GeoModelUtilities/GeoAlignmentStore.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
-#include "GeoModelUtilities/GeoAlignmentStore.h"
 #include "InDetIdentifier/TRT_ID.h"
 
 #include <vector>
@@ -87,7 +86,7 @@ TRT_BaseElement::transform() const
   if (not m_surfaceCache) {
     createSurfaceCache();
   }
-  return *(m_surfaceCache->transform());
+  return m_surfaceCache->transform();
 }
 
 const Amg::Vector3D&
@@ -96,7 +95,7 @@ TRT_BaseElement::center() const
   if (not m_surfaceCache) {
     createSurfaceCache();
   }
-  return *(m_surfaceCache->center());
+  return m_surfaceCache->center();
 }
 
 const Amg::Vector3D&
@@ -147,7 +146,7 @@ TRT_BaseElement::transform(const Identifier& id) const
     createSurfaceCache(id);
   }
   // forward the transform of the cache
-  return *(m_strawSurfacesCache[straw]->transform());
+  return m_strawSurfacesCache[straw]->transform();
 }
 
 const Amg::Transform3D&
@@ -158,7 +157,7 @@ TRT_BaseElement::strawTransform(unsigned int straw) const
     createSurfaceCache(id);
   }
   // forward the transform of the cache
-  return *(m_strawSurfacesCache[straw]->transform());
+  return m_strawSurfacesCache[straw]->transform();
 }
 
 const Amg::Vector3D&
@@ -179,7 +178,7 @@ TRT_BaseElement::center(const Identifier& id) const
     createSurfaceCache(id);
   }
   // forward the transform of the cache
-  return *(m_strawSurfacesCache[straw]->center());
+  return m_strawSurfacesCache[straw]->center();
 }
 
 const Trk::StraightLineSurface&
@@ -201,7 +200,7 @@ TRT_BaseElement::strawTransform(int straw) const
     createSurfaceCache(id);
   }
   // forward the transform of the cache
-  return *(m_strawSurfacesCache[straw]->transform());
+  return m_strawSurfacesCache[straw]->transform();
 }
 
 const Amg::Vector3D&
@@ -212,7 +211,7 @@ TRT_BaseElement::strawCenter(int straw) const
     createSurfaceCache(id);
   }
   // forward the transform of the cache
-  return *(m_strawSurfacesCache[straw]->center());
+  return m_strawSurfacesCache[straw]->center();
 }
 
 Amg::Vector3D
@@ -228,7 +227,7 @@ TRT_BaseElement::strawAxis(int straw) const
 const HepGeom::Transform3D
 TRT_BaseElement::transformCLHEP() const
 {
-  return Amg::EigenTransformToCLHEP(*(m_surfaceCache->transform()));
+  return Amg::EigenTransformToCLHEP(m_surfaceCache->transform());
 }
 
 const HepGeom::Point3D<double>
@@ -276,8 +275,6 @@ void
 TRT_BaseElement::createSurfaceCache(Identifier id) const
 {
   int straw = m_idHelper->straw(id);
-  // get the StrawTransform from GeoModel
-  HepGeom::Transform3D cStrawTransform = calculateStrawTransform(straw);
 
   // convert neccessary parts to Amg
   if (!m_strawSurfacesCache[straw]) {
@@ -296,12 +293,11 @@ TRT_BaseElement::createSurfaceCacheHelper(int straw) const
 {
   // get the StrawTransform from GeoModel
   HepGeom::Transform3D cStrawTransform = calculateStrawTransform(straw);
-  auto sTransform = std::make_unique<Amg::Transform3D>(
-    Amg::CLHEPTransformToEigen(cStrawTransform));
-  auto sCenter = std::make_unique<Amg::Vector3D>(sTransform->translation());
+  auto sTransform =
+    Amg::Transform3D(Amg::CLHEPTransformToEigen(cStrawTransform));
+  auto sCenter = Amg::Vector3D(sTransform.translation());
   // create the surface cache & fill it
-  return std::make_unique<SurfaceCache>(
-    sTransform.release(), sCenter.release(), nullptr, nullptr);
+  return std::make_unique<SurfaceCache>(sTransform, sCenter, nullptr, nullptr);
 }
 
 void

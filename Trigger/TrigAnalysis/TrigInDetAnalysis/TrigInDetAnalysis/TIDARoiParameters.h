@@ -13,7 +13,7 @@
  **     @author  mark sutton
  **     @date    Wed  4 Mar 2015 16:09:33 CET 
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -38,7 +38,7 @@ public:
 		    double zed,  double zedMinus,   double zedPlus );
 
 
-  TIDARoiParameters(const TIDARoiParameters& p );
+  TIDARoiParameters(const TIDARoiParameters& p ) = default;
 
 
   virtual ~TIDARoiParameters();

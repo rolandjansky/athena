@@ -72,8 +72,8 @@ StatusCode AthenaPoolTestDataWriter::execute()
     IAthenaPoolTestCollection* col1 = new IAthenaPoolTestCollection();
     IAthenaPoolTestCollection* col2 = new IAthenaPoolTestCollection();
     IAthenaPoolTestCollection* col3 = new IAthenaPoolTestCollection();
-    IAthenaPoolTestCollection* col4 = 0;
-    IAthenaPoolTestCollection* col5 = 0;
+    IAthenaPoolTestCollection* col4 = nullptr;
+    IAthenaPoolTestCollection* col5 = nullptr;
     if (!m_partialCreate) {
         col4 = new IAthenaPoolTestCollection();
         col5 = new IAthenaPoolTestCollection();
@@ -160,7 +160,7 @@ StatusCode AthenaPoolTestDataWriter::execute()
  
 
     if (m_partialCreate && m_readOtherHalf) {
-	const IAthenaPoolTestCollection* col = 0;
+	const IAthenaPoolTestCollection* col = nullptr;
 	ATH_CHECK( evtStore()->retrieve(col, "AthenaPoolTestCollection_4") );
 
         ATH_MSG_DEBUG("Collection of C's" );
@@ -183,7 +183,7 @@ StatusCode AthenaPoolTestDataWriter::execute()
     if (m_partialCreate && m_readFirstHalf) {
 	// Try to first read the collections that we want to write
 	// again => this should give and error!!
-	const IAthenaPoolTestCollection* col = 0;
+	const IAthenaPoolTestCollection* col = nullptr;
 	ATH_CHECK( evtStore()->retrieve(col, "AthenaPoolTestCollection_1") );
 	ATH_CHECK( evtStore()->retrieve(col, "AthenaPoolTestCollection_2") );
 	ATH_CHECK( evtStore()->retrieve(col, "AthenaPoolTestCollection_3") );
@@ -402,7 +402,7 @@ StatusCode AthenaPoolTestDataWriter::execute()
 
     // Write a PileupEventInfo
 
-    const EventInfo * evt = 0;
+    const EventInfo * evt = nullptr;
     ATH_CHECK( evtStore()->retrieve( evt, "McEventInfo" ) );
     // Add in weight
     EventType* eventType = const_cast<EventType*>(evt->event_type());
@@ -522,7 +522,7 @@ StatusCode AthenaPoolTestDataWriter::execute()
     auto newEvt = std::make_unique<EventInfo>(*evt);
 
     // pOverEvent->addSubEvt(25, PileUpTimeEventIndex::MinimumBias, newEvt, storeGate);
-    pOverEvent->addSubEvt(25, PileUpTimeEventIndex::MinimumBias, std::move(newEvt), 0);
+    pOverEvent->addSubEvt(25, PileUpTimeEventIndex::MinimumBias, std::move(newEvt), nullptr);
     ATH_CHECK( evtStore()->record(pOverEvent, "OverlayEvent") );
 
     // Printout

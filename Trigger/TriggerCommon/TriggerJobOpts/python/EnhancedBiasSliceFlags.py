@@ -1,12 +1,9 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """ EnhancedBias slice specific flags  """
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from TriggerJobOpts.CommonSignatureHelper import CommonSignatureHelper
-
-__doc__="EnhancedBias slice specific flags  "
-
 
 _flags = []
 
@@ -32,13 +29,5 @@ class EnhancedBiasSlice(JobPropertyContainer, CommonSignatureHelper):
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 TriggerFlags.add_Container(EnhancedBiasSlice)
 
-# add add common slice flags
-#TriggerFlags.EnhancedBiasSlice.import_JobProperties('TriggerJobOpts.CommonSignatureFlags')
-
 for flag in _flags:
     TriggerFlags.EnhancedBiasSlice.add_JobProperty(flag)
-del _flags
-
-# make an alias
-EnhancedBiasSliceFlags = TriggerFlags.EnhancedBiasSlice
-

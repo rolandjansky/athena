@@ -24,11 +24,6 @@ parser.add_option( '-u', '--unit-test', dest='unit_test',
 import ROOT
 ROOT.xAOD.Init().ignore()
 
-# this forces the jet algorithms dictionary to be loaded before
-# anything else, which works around some strange dictionary issues I
-# don't understand.
-ROOT.CP.JetCalibrationAlg ("dummy", None)
-
 # ideally we'd run over all of them, but we don't have a mechanism to
 # configure per-sample right now
 
@@ -61,9 +56,7 @@ job.options().setDouble( ROOT.EL.Job.optMaxEvents, 500 )
 from JetAnalysisAlgorithms.JetAnalysisAlgorithmsTest import makeSequence
 algSeq = makeSequence (dataType, jetContainer)
 print (algSeq) # For debugging
-for alg in algSeq:
-    job.algsAdd( alg )
-    pass
+algSeq.addSelfToJob( job )
 
 # Set up an output file for the job:
 job.outputAdd( ROOT.EL.OutputStream( 'ANALYSIS' ) )

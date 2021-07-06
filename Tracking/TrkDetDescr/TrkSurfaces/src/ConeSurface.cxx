@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -19,7 +19,7 @@
 // default constructor
 Trk::ConeSurface::ConeSurface()
   : Trk::Surface()
-  , m_bounds()
+  , m_bounds(nullptr)
   , m_referencePoint(nullptr)
   , m_rotSymmetryAxis(nullptr)
 {}
@@ -33,7 +33,8 @@ Trk::ConeSurface::ConeSurface(const ConeSurface& csf)
 {}
 
 // copy constructor with shift
-Trk::ConeSurface::ConeSurface(const ConeSurface& csf, const Amg::Transform3D& transf)
+Trk::ConeSurface::ConeSurface(const ConeSurface& csf,
+                              const Amg::Transform3D& transf)
   : Trk::Surface(csf, transf)
   , m_bounds(csf.m_bounds)
   , m_referencePoint(nullptr)
@@ -41,23 +42,30 @@ Trk::ConeSurface::ConeSurface(const ConeSurface& csf, const Amg::Transform3D& tr
 {}
 
 // constructor by opening angle and whether its symmetric or a single cone
-Trk::ConeSurface::ConeSurface(Amg::Transform3D* htrans, double alpha, bool symmetric)
+Trk::ConeSurface::ConeSurface(const Amg::Transform3D& htrans,
+                              double alpha,
+                              bool symmetric)
   : Trk::Surface(htrans)
-  , m_bounds(new Trk::ConeBounds(alpha, symmetric))
+  , m_bounds(std::make_shared<Trk::ConeBounds>(alpha, symmetric))
   , m_referencePoint(nullptr)
   , m_rotSymmetryAxis(nullptr)
 {}
 
 // constructor by opening angle and its z values
-Trk::ConeSurface::ConeSurface(Amg::Transform3D* htrans, double alpha, double zmin, double zmax, double halfPhi)
+Trk::ConeSurface::ConeSurface(const Amg::Transform3D& htrans,
+                              double alpha,
+                              double zmin,
+                              double zmax,
+                              double halfPhi)
   : Trk::Surface(htrans)
-  , m_bounds(new Trk::ConeBounds(alpha, zmin, zmax, halfPhi))
+  , m_bounds(std::make_shared<Trk::ConeBounds>(alpha, zmin, zmax, halfPhi))
   , m_referencePoint(nullptr)
   , m_rotSymmetryAxis(nullptr)
 {}
 
 // constructor by ConeBounds
-Trk::ConeSurface::ConeSurface(Amg::Transform3D* htrans, Trk::ConeBounds* cbounds)
+Trk::ConeSurface::ConeSurface(const Amg::Transform3D& htrans,
+                              Trk::ConeBounds* cbounds)
   : Trk::Surface(htrans)
   , m_bounds(cbounds)
   , m_referencePoint(nullptr)
@@ -67,15 +75,12 @@ Trk::ConeSurface::ConeSurface(Amg::Transform3D* htrans, Trk::ConeBounds* cbounds
 }
 
 // constructor from transform, bounds not set.
-Trk::ConeSurface::ConeSurface(std::unique_ptr<Amg::Transform3D> htrans)
-  : Trk::Surface(std::move(htrans))
+Trk::ConeSurface::ConeSurface(const Amg::Transform3D& htrans)
+  : Trk::Surface(htrans)
   , m_bounds(nullptr)
   , m_referencePoint(nullptr)
   , m_rotSymmetryAxis(nullptr)
 {}
-
-// destructor (will call destructor from base class which deletes objects)
-Trk::ConeSurface::~ConeSurface() = default;
 
 Trk::ConeSurface&
 Trk::ConeSurface::operator=(const ConeSurface& csf)
@@ -254,7 +259,7 @@ Trk::ConeSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, const A
 
   Amg::Vector3D Cntr = center(); // tip of the cone (i.e. join between halves)
   Amg::Vector3D N = normal();    // this is the z-direction of the cone in
-                                 // global coordiantes i believe
+                                               // global coordiantes i believe
 
   Amg::Vector3D dPos = pos - Cntr; // pos w.r.t. cone tip
   double posLength = sqrt(dPos.dot(dPos));
@@ -264,7 +269,7 @@ Trk::ConeSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, const A
   double posProjAngle = acos(posProj / posLength);
   double currDist = posLength * sin(posProjAngle - atan(bounds().tanAlpha()));
   // solution on the surface
-  if (fabs(currDist) < tol)
+  if (std::abs(currDist) < tol)
     return Trk::DistanceSolution(1, currDist, true, 0.);
 
   // transform to a frame with the cone along z, with the tip a 0
@@ -286,31 +291,38 @@ Trk::ConeSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, const A
 
   double d2bound = 0.;
   if (bound && solns.solutions != Trk::none) {
-    const Amg::Vector2D* p = nullptr;
-    if (fabs(solns.first) < fabs(solns.second))
+    std::optional<Amg::Vector2D> p = std::nullopt;
+    if (std::abs(solns.first) < std::abs(solns.second)){
       p = Surface::globalToLocal(locFramePos + solns.first * locFrameDir);
-    else
+    }
+    else{
       p = Surface::globalToLocal(locFramePos + solns.second * locFrameDir);
+    }
     if (p) {
       d2bound = bounds().minDistance(*p);
-      delete p;
     }
-    if (d2bound < 0)
+    if (d2bound < 0){
       d2bound = 0;
+    }
   }
   double totDist = d2bound > 0. ? sqrt(d2bound * d2bound + currDist * currDist) : currDist;
 
   switch (solns.solutions) {
-  case Trk::none:
+  case Trk::none:{
     return Trk::DistanceSolution(0, totDist, true, 0., 0.);
-  case Trk::one:
+  }
+  case Trk::one:{
     return Trk::DistanceSolution(1, totDist, true, solns.first);
-  case Trk::two:
-    if (fabs(solns.first) < fabs(solns.second))
+  }
+  case Trk::two:{
+    if (std::abs(solns.first) < std::abs(solns.second)){
       return Trk::DistanceSolution(2, totDist, true, solns.first, solns.second);
+    }
     return Trk::DistanceSolution(2, totDist, true, solns.second, solns.first);
-  default:
+  }
+  default:{
     return Trk::DistanceSolution(0, totDist, true, 0., 0.);
+  }
   };
 }
 
@@ -327,5 +339,5 @@ Trk::ConeSurface::pathCorrection(const Amg::Vector3D& pos, const Amg::Vector3D& 
     normalC = transform() * normalC;
   // back in global frame
   double cAlpha = normalC.dot(mom.unit());
-  return (cAlpha != 0.) ? fabs(1. / cAlpha) : 1.; // ST undefined for cAlpha=0
+  return (cAlpha != 0.) ? std::abs(1. / cAlpha) : 1.; // ST undefined for cAlpha=0
 }

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import division
 
@@ -148,7 +148,7 @@ class IOVSet(list):
         """
         if not self:
             return [], []        
-        return zip(*sorted(self.by_channel.iteritems()))
+        return zip(*sorted(self.by_channel.items()))
             
     def empty(self, content=None):
         """

@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # This helper script is meant to set up a valid value for the
 # LCG_RELEASE_BASE environment variable for the builds.
@@ -9,16 +10,8 @@
 #
 
 if [ -z "${LCG_RELEASE_BASE}" ]; then
-
-    if [ -d /cvmfs/sft.cern.ch/lcg/releases ]; then
-        export LCG_RELEASE_BASE=/cvmfs/sft.cern.ch/lcg/releases
-    elif [ -d /afs/cern.ch/sw/lcg/releases ]; then
-        export LCG_RELEASE_BASE=/afs/cern.ch/sw/lcg/releases
-    elif [ -d /cvmfs/atlas.cern.ch/repo/sw/software/21.0/sw/lcg/releases ]; then
-        export LCG_RELEASE_BASE=/cvmfs/atlas.cern.ch/repo/sw/software/21.0/sw/lcg/releases
-    fi
+    export LCG_RELEASE_BASE=/cvmfs/sft.cern.ch/lcg/releases
     echo "Set LCG_RELEASE_BASE = ${LCG_RELEASE_BASE}"
-
 else
     echo "Leaving LCG_RELEASE_BASE = ${LCG_RELEASE_BASE}"
 fi

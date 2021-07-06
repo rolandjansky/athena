@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import logger
-import ami
+import TopExamples.logger as logger
+import TopExamples.ami as ami
 
 import ROOT
 

@@ -1,111 +1,92 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SiHitAnalysis.h"
 
-// Section of includes for Pixel and SCT tests
-#include "InDetSimEvent/SiHitCollection.h"
 #include "GeoAdaptors/GeoSiHit.h"
 
 #include "TH1.h"
 #include "TH2.h"
 #include "TTree.h"
-#include "TString.h"
 
-#include <algorithm>
-#include <math.h>
-#include <functional>
-#include <iostream>
 
-//m_collection:  "PixelHits", "SCT_Hits", "BCMHits" and "BLMHits" 
 SiHitAnalysis::SiHitAnalysis(const std::string& name, ISvcLocator* pSvcLocator)
    : AthAlgorithm(name, pSvcLocator)
-   , m_h_hits_x(0)
-   , m_h_hits_y(0)
-   , m_h_hits_z(0)
-   , m_h_hits_r(0)
-   , m_h_xy(0)
-   , m_h_zr(0)
-   , m_h_hits_time(0)
-   , m_h_hits_eloss(0)
-   , m_h_hits_step(0)
-   , m_h_hits_barcode(0)
-   , m_h_time_eloss(0)
-   , m_h_z_eloss(0)
-   , m_h_r_eloss(0)
-   , m_hits_x(0)
-   , m_hits_y(0)
-   , m_hits_z(0)
-   , m_hits_r(0)
-   , m_hits_time(0)
-   , m_hits_eloss(0)
-   , m_hits_step(0)
-   , m_hits_barcode(0)
-     
-   , m_collection("BCMHits")
-   , m_expert("off")
-     
-   , m_tree(0)
-   , m_ntupleFileName("/SiHitAnalysis/")
-   , m_path("/SiHitAnalysis/")
-   , m_thistSvc("THistSvc", name)
 {
-  declareProperty("CollectionName",  m_collection="BCMHits");
-  declareProperty("ExpertMode", m_expert = "off");
-  declareProperty("NtupleFileName", m_ntupleFileName);
-  declareProperty("HistPath", m_path);
 }
 
-StatusCode SiHitAnalysis::initialize() {
-  ATH_MSG_DEBUG( "Initializing SiHitAnalysis" );
+StatusCode SiHitAnalysis::initialize()
+{
+  ATH_MSG_DEBUG("Initializing SiHitAnalysis");
 
   std::string detName("Pixel");
   std::string ntupName("SiPixel");
-  
-  if (m_collection=="PixelHits") {
+
+  if (m_hitsContainerKey.key()=="PixelHits") {
     detName = "Pixel";
     ntupName = "SiPixel";
   }
-  else if (m_collection=="SCT_Hits") {
+  else if (m_hitsContainerKey.key()=="ITkPixelHits") {
+    detName = "ITkPixel";
+    ntupName = "SiITkPixel";
+  }
+  else if (m_hitsContainerKey.key()=="SCT_Hits") {
     detName = "SCT";
     ntupName = "SiSCT";
   }
-  else if (m_collection=="BCMHits") {
+  else if (m_hitsContainerKey.key()=="ITkStripHits") {
+    detName = "ITkStrip";
+    ntupName = "SiITkStrip";
+  }
+  else if (m_hitsContainerKey.key()=="BCMHits") {
     detName = "BCM";
     ntupName = "SiBCM";
   }
-  else if (m_collection=="BLMHits") {
+  else if (m_hitsContainerKey.key()=="BLMHits") {
     detName = "BLM";
     ntupName = "SiBLM";
   }
   else {
-    ATH_MSG_ERROR("SiHitsAnalysis for "<< name()<<"not supported!!! \n");
+    ATH_MSG_ERROR("SiHitsAnalysis for " << m_hitsContainerKey.key() << " not supported!!!");
     return StatusCode::FAILURE;
   }
 
   // Grab the Ntuple and histogramming service for the tree
-  CHECK(m_thistSvc.retrieve());
+  ATH_CHECK(m_thistSvc.retrieve());
 
   /** Histograms**/
   float bin_down = -600;
   float bin_up = 600;
   float radius_up = 600;
   float radius_down = 200;
-  if (detName=="Pixel") {
+  float z_max = 1200;
+  if (detName == "Pixel") {
     bin_down = -170;
     bin_up = 170;
     radius_up = 170;
     radius_down = 0;
+  } else if (detName == "ITkPixel") {
+    bin_down = -325;
+    bin_up = 325;
+    radius_up = 325;
+    radius_down = 0;
+    z_max = 3000;
+  } else if (detName == "ITkStrip") {
+    bin_down = -1000;
+    bin_up = 1000;
+    radius_up = 1000;
+    radius_down = 0;
+    z_max = 3000;
   }
-  
+
   m_h_hits_x = new TH1D(("h_"+detName+"_x").c_str(),("h_"+detName+"_x").c_str(), 100,bin_down, bin_up);
   m_h_hits_x->StatOverflows();
 
   m_h_hits_y = new TH1D(("h_"+detName+"_y").c_str(), ("h_"+detName+"_y").c_str(), 100,bin_down,bin_up);
   m_h_hits_y->StatOverflows();
 
-  m_h_hits_z = new TH1D(("h_"+detName+"_z").c_str(), ("h_"+detName+"_z").c_str(), 200,-1200,1200);
+  m_h_hits_z = new TH1D(("h_"+detName+"_z").c_str(), ("h_"+detName+"_z").c_str(), 200,-z_max,z_max);
   m_h_hits_z->StatOverflows();
 
   m_h_hits_r = new TH1D(("h_"+detName+"_r").c_str(), ("h_"+detName+"_r").c_str(), 100,radius_down,radius_up);
@@ -114,7 +95,7 @@ StatusCode SiHitAnalysis::initialize() {
   m_h_xy = new TH2D(("h_"+detName+"_xy").c_str(), ("h_"+detName+"_xy").c_str(), 100,bin_down,bin_up,100, bin_down, bin_up);
   m_h_xy->StatOverflows();
 
-  m_h_zr = new TH2D(("h_"+detName+"_zr").c_str(), ("h_"+detName+"_zr").c_str(), 100,-1200,1200.,100, radius_down, radius_up);
+  m_h_zr = new TH2D(("h_"+detName+"_zr").c_str(), ("h_"+detName+"_zr").c_str(), 100,-z_max, z_max, 100, radius_down, radius_up);
   m_h_zr->StatOverflows();
 
   m_h_hits_time = new TH1D(("h_"+detName+"_time").c_str(), ("h_"+detName+"_time").c_str(), 100,0,500);
@@ -132,36 +113,53 @@ StatusCode SiHitAnalysis::initialize() {
   m_h_time_eloss = new TH2D(("h_"+detName+"_time_eloss").c_str(), ("h_"+detName+" Eloss vs. time").c_str(),100, 0,500,100,0,50);
   m_h_time_eloss->StatOverflows();
 
-  m_h_z_eloss = new TH2D(("h_"+detName+"_z_eloss").c_str(), ("h_"+detName+" Eloss vs. z").c_str(),100, -1200,1200,100,0,50);
+  m_h_z_eloss = new TH2D(("h_"+detName+"_z_eloss").c_str(), ("h_"+detName+" Eloss vs. z").c_str(),100, -z_max,z_max,100,0,50);
   m_h_z_eloss->StatOverflows();
 
   m_h_r_eloss = new TH2D(("h_"+detName+"_r_eloss").c_str(), ("h_"+detName+ " Eloss vs. r").c_str(),100, radius_down,radius_down,100,0,50);
   m_h_r_eloss->StatOverflows();
 
-  CHECK(m_thistSvc->regHist(m_path + m_h_hits_x->GetName(), m_h_hits_x));
-  CHECK(m_thistSvc->regHist(m_path + m_h_hits_y->GetName(), m_h_hits_y));
-  CHECK(m_thistSvc->regHist(m_path + m_h_hits_z->GetName(), m_h_hits_z));
-  CHECK(m_thistSvc->regHist(m_path + m_h_hits_r->GetName(), m_h_hits_r));
-  CHECK(m_thistSvc->regHist( m_path+m_h_xy->GetName(), m_h_xy));
-  CHECK(m_thistSvc->regHist( m_path+m_h_zr->GetName(), m_h_zr));
-  CHECK(m_thistSvc->regHist(m_path + m_h_hits_time->GetName(), m_h_hits_time));
-  CHECK(m_thistSvc->regHist(m_path + m_h_hits_eloss->GetName(), m_h_hits_eloss));
-  CHECK(m_thistSvc->regHist(m_path + m_h_hits_step->GetName(), m_h_hits_step));
-  CHECK(m_thistSvc->regHist(m_path + m_h_hits_barcode->GetName(), m_h_hits_barcode));
-  
+  m_h_barrel_endcap = new TH1D(("h_"+detName+"_barrel_endcap").c_str(), ("h_"+detName+ " barrel/endcap").c_str(), 10, -5, 5);
+  m_h_barrel_endcap->StatOverflows();
+
+  m_h_layer_disk = new TH1D(("h_"+detName+"_layer_disk").c_str(), ("h_"+detName+ " layer/disk").c_str(), 10, 0, 10);
+  m_h_layer_disk->StatOverflows();
+
+  m_h_module_eta = new TH1D(("h_"+detName+"_module_eta").c_str(), ("h_"+detName+ " module in #eta").c_str(), 100, 0, 100);
+  m_h_module_eta->StatOverflows();
+
+  m_h_module_phi = new TH1D(("h_"+detName+"_module_phi").c_str(), ("h_"+detName+ " module in #phi").c_str(), 100, 0, 100);
+  m_h_module_phi->StatOverflows();
+
+  ATH_CHECK(m_thistSvc->regHist(m_histPath + m_h_hits_x->GetName(), m_h_hits_x));
+  ATH_CHECK(m_thistSvc->regHist(m_histPath + m_h_hits_y->GetName(), m_h_hits_y));
+  ATH_CHECK(m_thistSvc->regHist(m_histPath + m_h_hits_z->GetName(), m_h_hits_z));
+  ATH_CHECK(m_thistSvc->regHist(m_histPath + m_h_hits_r->GetName(), m_h_hits_r));
+  ATH_CHECK(m_thistSvc->regHist(m_histPath + m_h_xy->GetName(), m_h_xy));
+  ATH_CHECK(m_thistSvc->regHist(m_histPath + m_h_zr->GetName(), m_h_zr));
+  ATH_CHECK(m_thistSvc->regHist(m_histPath + m_h_hits_time->GetName(), m_h_hits_time));
+  ATH_CHECK(m_thistSvc->regHist(m_histPath + m_h_hits_eloss->GetName(), m_h_hits_eloss));
+  ATH_CHECK(m_thistSvc->regHist(m_histPath + m_h_hits_step->GetName(), m_h_hits_step));
+  ATH_CHECK(m_thistSvc->regHist(m_histPath + m_h_hits_barcode->GetName(), m_h_hits_barcode));
+
   //To be filled only when the expert mode is on.
-  if (m_expert == "on") {
-    CHECK(m_thistSvc->regHist(m_path + m_h_time_eloss->GetName(), m_h_time_eloss));
-    CHECK(m_thistSvc->regHist(m_path + m_h_z_eloss->GetName(), m_h_z_eloss));
-    CHECK(m_thistSvc->regHist(m_path + m_h_r_eloss->GetName(), m_h_r_eloss));
+  if (m_expert.value()) {
+    ATH_CHECK(m_thistSvc->regHist(m_histPath + m_h_time_eloss->GetName(), m_h_time_eloss));
+    ATH_CHECK(m_thistSvc->regHist(m_histPath + m_h_z_eloss->GetName(), m_h_z_eloss));
+    ATH_CHECK(m_thistSvc->regHist(m_histPath + m_h_r_eloss->GetName(), m_h_r_eloss));
   }
 
-  CHECK(m_thistSvc.retrieve());
+  ATH_CHECK(m_thistSvc->regHist(m_histPath + m_h_barrel_endcap->GetName(), m_h_barrel_endcap));
+  ATH_CHECK(m_thistSvc->regHist(m_histPath + m_h_layer_disk->GetName(), m_h_layer_disk));
+  ATH_CHECK(m_thistSvc->regHist(m_histPath + m_h_module_eta->GetName(), m_h_module_eta));
+  ATH_CHECK(m_thistSvc->regHist(m_histPath + m_h_module_phi->GetName(), m_h_module_phi));
+
+  ATH_CHECK(m_thistSvc.retrieve());
 
   /** now add branches and leaves to the tree */
   m_tree = new TTree(ntupName.c_str(), ntupName.c_str());
-  std::string fullNtupleName =  "/" + m_ntupleFileName + "/" + detName;
-  CHECK(m_thistSvc->regTree(fullNtupleName,m_tree));
+  std::string fullNtupleName =  "/" + m_ntuplePath + "/" + detName;
+  ATH_CHECK(m_thistSvc->regTree(fullNtupleName,m_tree));
 
   if (m_tree){
     m_tree->Branch((detName+"_x").c_str(), &m_hits_x);
@@ -172,18 +170,27 @@ StatusCode SiHitAnalysis::initialize() {
     m_tree->Branch((detName+"_eloss").c_str(), &m_hits_eloss);
     m_tree->Branch((detName+"_step").c_str(), &m_hits_step);
     m_tree->Branch((detName+"_barcode").c_str(), &m_hits_barcode);
+
+    m_tree->Branch((detName+"_barrel_endcap").c_str(), &m_barrel_endcap);
+    m_tree->Branch((detName+"_layer_disk").c_str(), &m_layer_disk);
+    m_tree->Branch((detName+"_module_eta").c_str(), &m_module_eta);
+    m_tree->Branch((detName+"_module_phi").c_str(), &m_module_phi);
   }
   else {
     ATH_MSG_ERROR("No tree found!");
   }
-  
+
+  // Initialize keys
+  ATH_CHECK(m_hitsContainerKey.initialize());
+
   return StatusCode::SUCCESS;
-}		 
+}
 
 
-StatusCode SiHitAnalysis::execute() {
-  ATH_MSG_DEBUG( "In SiHitAnalysis::execute()" );
-  
+StatusCode SiHitAnalysis::execute()
+{
+  ATH_MSG_DEBUG("In SiHitAnalysis::execute()");
+
   m_hits_x->clear();
   m_hits_y->clear();
   m_hits_z->clear();
@@ -192,46 +199,61 @@ StatusCode SiHitAnalysis::execute() {
   m_hits_eloss->clear();
   m_hits_step->clear();
   m_hits_barcode->clear();
-  
-  const DataHandle<SiHitCollection> p_collection;
-  if (evtStore()->retrieve(p_collection, m_collection) == StatusCode::SUCCESS) {
-    for (SiHitConstIterator i_hit = p_collection->begin(); i_hit != p_collection->end() ;++i_hit) {
-      GeoSiHit ghit(*i_hit);
+
+  m_barrel_endcap->clear();
+  m_layer_disk->clear();
+  m_module_eta->clear();
+  m_module_phi->clear();
+
+  SG::ReadHandle<SiHitCollection> hitCollection(m_hitsContainerKey);
+  if (hitCollection.isValid()) {
+    for (const SiHit &hit : *hitCollection) {
+      GeoSiHit ghit(hit);
       HepGeom::Point3D<double> p = ghit.getGlobalPosition();
       m_h_hits_x->Fill(p.x());
       m_h_hits_y->Fill(p.y());
       m_h_hits_z->Fill(p.z());
       m_h_hits_r->Fill(p.perp());
       m_h_xy->Fill(p.x(), p.y());
-      m_h_zr->Fill(p.z(),p.perp());
-      m_h_hits_eloss->Fill(i_hit->energyLoss());
-      m_h_hits_time->Fill(i_hit->meanTime());  
-      double step_length=(i_hit->localStartPosition() - i_hit->localEndPosition()).mag();
+      m_h_zr->Fill(p.z(), p.perp());
+      m_h_hits_eloss->Fill(hit.energyLoss());
+      m_h_hits_time->Fill(hit.meanTime());
+      double step_length = (hit.localStartPosition() - hit.localEndPosition()).mag();
       m_h_hits_step->Fill(step_length);
-      m_h_hits_barcode->Fill(i_hit->particleLink().barcode());
-      
-      if (m_expert == "on") {
-	m_h_time_eloss->Fill(i_hit->meanTime(), i_hit->energyLoss());
-	if (i_hit->getBarrelEndcap()==0) {
-	  m_h_z_eloss->Fill(p.z(), i_hit->energyLoss());
-	}
-	else {
-	  m_h_r_eloss->Fill(p.perp(), i_hit->energyLoss());
-	}
+      m_h_hits_barcode->Fill(hit.particleLink().barcode());
+
+      if (m_expert.value()) {
+        m_h_time_eloss->Fill(hit.meanTime(), hit.energyLoss());
+        if (hit.getBarrelEndcap() == 0) {
+          m_h_z_eloss->Fill(p.z(), hit.energyLoss());
+        }
+        else {
+          m_h_r_eloss->Fill(p.perp(), hit.energyLoss());
+        }
       }
-      
+
+      m_h_barrel_endcap->Fill(hit.getBarrelEndcap());
+      m_h_layer_disk->Fill(hit.getLayerDisk());
+      m_h_module_eta->Fill(hit.getEtaModule());
+      m_h_module_phi->Fill(hit.getPhiModule());
+
       m_hits_x->push_back(p.x());
       m_hits_y->push_back(p.y());
       m_hits_z->push_back(p.z());
       m_hits_r->push_back(p.perp());
-      m_hits_eloss->push_back(i_hit->energyLoss());
-      m_hits_time->push_back(i_hit->meanTime()); 
+      m_hits_eloss->push_back(hit.energyLoss());
+      m_hits_time->push_back(hit.meanTime());
       m_hits_step->push_back(step_length);
-      m_hits_barcode->push_back(i_hit->particleLink().barcode());    
+      m_hits_barcode->push_back(hit.particleLink().barcode());
+
+      m_barrel_endcap->push_back(hit.getBarrelEndcap());
+      m_layer_disk->push_back(hit.getLayerDisk());
+      m_module_eta->push_back(hit.getEtaModule());
+      m_module_phi->push_back(hit.getPhiModule());
     } // End while hits
   } // End statuscode success upon retrieval of hits
 
-  if (m_tree) m_tree->Fill();
+  if (m_tree != nullptr) m_tree->Fill();
 
   return StatusCode::SUCCESS;
 }

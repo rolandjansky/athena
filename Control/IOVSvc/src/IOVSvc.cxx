@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*****************************************************************************
@@ -18,12 +18,11 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/IToolSvc.h"
-
-#include "AthenaKernel/IClassIDSvc.h"
-#include "AthenaKernel/DataBucketBase.h"
-
-#include "IOVSvc/IIOVSvcTool.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/IConversionSvc.h"
+
+#include "AthenaKernel/DataBucketBase.h"
+#include "IOVSvc/IIOVSvcTool.h"
 
 using SG::DataProxy;
 using SG::TransientAddress;
@@ -89,35 +88,32 @@ IOVSvc::~IOVSvc() {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 StatusCode IOVSvc::initialize() {
-  StatusCode status = AthService::initialize();
-  msg().setLevel( m_outputLevel.value() );
 
-  ATH_MSG_DEBUG( "Initializing IOVSvc version " << PACKAGE_VERSION  );
-  ATH_MSG_DEBUG( "AthService initialized"  );
+  msg().setLevel( m_outputLevel.value() );
+  ATH_MSG_DEBUG( "Initializing IOVSvc" );
 
   if (!p_sgs.isValid()) {
     ATH_MSG_ERROR("could not get the Event Store");
-    status = StatusCode::FAILURE;
+    return StatusCode::FAILURE;
   }
 
   if (!p_detStore.isValid()) {
     ATH_MSG_ERROR("could not get the Detector Store");
-    status = StatusCode::FAILURE;
+    return StatusCode::FAILURE;
   }
 
   if (!p_condSvc.isValid()) {
     ATH_MSG_ERROR("could not get the ConditionSvc");
-    status = StatusCode::FAILURE;
+    return StatusCode::FAILURE;
   }
 
-  return status;
+  return StatusCode::SUCCESS;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 StatusCode IOVSvc::finalize()
 {
-  ATH_CHECK( AthService::finalize() );
   ATH_MSG_DEBUG( "Service finalised successfully" );
   return StatusCode::SUCCESS;
 }
@@ -406,7 +402,7 @@ IOVSvc::getRange(const CLID& clid, const std::string& key,
 StatusCode 
 IOVSvc::getRangeFromDB(const CLID& clid, const std::string& key, 
                        IOVRange& range, std::string& tag,
-                       std::unique_ptr<IOpaqueAddress>& ioa) const { 
+                       std::unique_ptr<IOpaqueAddress>& ioa) const {
 
   std::lock_guard<std::recursive_mutex> lock(m_lock);
 
@@ -416,7 +412,19 @@ IOVSvc::getRangeFromDB(const CLID& clid, const std::string& key,
                    << fullProxyName(clid,key) << " not registered"  );
     return StatusCode::FAILURE;
   } else {
-    return ist->getRangeFromDB( clid, key, range, tag, ioa );
+    
+    //Get current time form thread-local context
+    const EventContext& context = Gaudi::Hive::currentContext();
+    const EventIDBase& eventID = context.eventID();
+    uint32_t event = eventID.lumi_block();
+    uint32_t run   = eventID.run_number();
+    IOVTime curTime;
+    curTime.setRunEvent(run,event);
+    // get ns timestamp from event
+    curTime.setTimestamp(1000000000L*(uint64_t)eventID.time_stamp() + eventID.time_stamp_ns_offset());
+
+
+    return ist->getRangeFromDB( clid, key, range, tag, ioa, curTime );
   }
 
 }
@@ -855,7 +863,7 @@ IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id,
   // In that case, when we delete the address, it will
   // follow an invalid pointer.  So be sure to delete
   // the address before the object is added to CondCont.
-  ioa.release();
+  ioa.reset();
 
   // DataObject *d2 = static_cast<DataObject*>(v);
   

@@ -8,5 +8,6 @@
 
       double precision function drangen(dummy)
       double precision dummy,dranf
-      drangen=dranf(dummy)
+      integer idummy = dummy
+      drangen=dranf(idummy)
       end

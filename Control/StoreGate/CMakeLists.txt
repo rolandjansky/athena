@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( StoreGate )
@@ -28,6 +28,8 @@ function( _add_test name )
    cmake_parse_arguments( ARG "" "LOG_IGNORE_PATTERN" "" ${ARGN} )
    if( ARG_LOG_IGNORE_PATTERN )
       set( extra_arg LOG_IGNORE_PATTERN ${ARG_LOG_IGNORE_PATTERN} )
+   else()
+      set( extra_arg LOG_IGNORE_PATTERN "FATAL uncheckedSetTypePackageForID" ) # temporary: ATEAM-731
    endif()
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx

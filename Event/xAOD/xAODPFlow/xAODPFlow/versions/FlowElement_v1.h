@@ -1,6 +1,6 @@
 // this files is  -*- c++ -*-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef XAODPFLOW_VERSIONS_FLOWELEMENT_V1_H
 #define XAODPFLOW_VERSIONS_FLOWELEMENT_V1_H
@@ -76,7 +76,7 @@ namespace xAOD {
     virtual Type::ObjectType type() const override ;
     
     void setP4(float pt, float eta, float phi, float m) ;
-    void setP4(FourMom_t p4);
+    void setP4(const FourMom_t& p4);
     ///@}
 
     // *************************************************

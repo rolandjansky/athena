@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -120,14 +120,6 @@ EMConversionBuilder::executeRec(const EventContext& ctx, egammaRec* egRec) const
   std::vector<ElementLink<xAOD::VertexContainer>> vertices;
   egRec->setVertices(vertices);
   ATH_CHECK(vertexExecute(ctx, egRec, conversions.cptr()));
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-EMConversionBuilder::hltExecute(egammaRec* egRec,
-                                const xAOD::VertexContainer* conversions) const
-{
-  ATH_CHECK(vertexExecute(Gaudi::Hive::currentContext(), egRec, conversions));
   return StatusCode::SUCCESS;
 }
 

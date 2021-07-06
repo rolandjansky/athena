@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -24,9 +24,7 @@ std::atomic<unsigned int> Trk::Surface::s_numberOfFreeInstantiations{ 0 };
 #endif
 
 Trk::Surface::Surface()
-  : m_transform(nullptr)
-  , m_center(nullptr)
-  , m_normal(nullptr)
+  : m_transforms(nullptr)
   , m_associatedDetElement(nullptr)
   , m_associatedDetElementId()
   , m_associatedLayer(nullptr)
@@ -36,36 +34,35 @@ Trk::Surface::Surface()
 #ifndef NDEBUG
   s_numberOfInstantiations++;     // EDM Monitor
   s_numberOfFreeInstantiations++; // EDM Monitor
+
 #endif
 }
 
-Trk::Surface::Surface(Amg::Transform3D* tform)
-  : m_transform(nullptr)
-  , m_center(nullptr)
-  , m_normal(nullptr)
+#if defined(FLATTEN) && defined(__GNUC__)
+// We compile this function with optimization, even in debug builds; otherwise,
+// the heavy use of Eigen makes it too slow.  However, from here we may call
+// to out-of-line Eigen code that is linked from other DSOs; in that case,
+// it would not be optimized.  Avoid this by forcing all Eigen code
+// to be inlined here if possible.
+__attribute__((flatten))
+#endif
+Trk::Surface::Surface(const Amg::Transform3D& tform)
+  : m_transforms(std::make_unique<Transforms>(tform))
   , m_associatedDetElement(nullptr)
   , m_associatedDetElementId()
   , m_associatedLayer(nullptr)
   , m_materialLayer(nullptr)
   , m_owner(Trk::noOwn)
 {
-  m_transform=std::unique_ptr<Amg::Transform3D>(tform);
+
 #ifndef NDEBUG
   s_numberOfInstantiations++; // EDM Monitor - increment one instance
   s_numberOfFreeInstantiations++;
 #endif
 }
 
-Trk::Surface::Surface(std::unique_ptr<Amg::Transform3D> tform)
-  : Surface(tform.release())
-{
-  // No EDM monitor here since we delegate to the previous constructor.
-}
-
 Trk::Surface::Surface(const Trk::TrkDetElementBase& detelement)
-  : m_transform(nullptr)
-  , m_center(nullptr)
-  , m_normal(nullptr)
+  : m_transforms(nullptr)
   , m_associatedDetElement(&detelement)
   , m_associatedDetElementId()
   , m_associatedLayer(nullptr)
@@ -78,9 +75,7 @@ Trk::Surface::Surface(const Trk::TrkDetElementBase& detelement)
 }
 
 Trk::Surface::Surface(const Trk::TrkDetElementBase& detelement, const Identifier& id)
-  : m_transform(nullptr)
-  , m_center(nullptr)
-  , m_normal(nullptr)
+  : m_transforms(nullptr)
   , m_associatedDetElement(&detelement)
   , m_associatedDetElementId(id)
   , m_associatedLayer(nullptr)
@@ -92,20 +87,23 @@ Trk::Surface::Surface(const Trk::TrkDetElementBase& detelement, const Identifier
 #endif
 }
 
+#if defined(FLATTEN) && defined(__GNUC__)
+// We compile this function with optimization, even in debug builds; otherwise,
+// the heavy use of Eigen makes it too slow.  However, from here we may call
+// to out-of-line Eigen code that is linked from other DSOs; in that case,
+// it would not be optimized.  Avoid this by forcing all Eigen code
+// to be inlined here if possible.
+__attribute__ ((flatten))
+#endif
 // copy constructor - Attention! sets the associatedDetElement to 0 and the identifier to invalid
 Trk::Surface::Surface(const Surface& sf)
-  : m_transform(nullptr)
-  , m_center(nullptr)
-  , m_normal(nullptr)
+  : m_transforms(std::make_unique<Transforms>(sf.transform()))
   , m_associatedDetElement(nullptr)
   , m_associatedDetElementId()
   , m_associatedLayer(sf.m_associatedLayer)
   , m_materialLayer(sf.m_materialLayer)
   , m_owner(Trk::noOwn)
 {
-
-  m_transform = std::make_unique<Amg::Transform3D>(sf.transform());
-
 #ifndef NDEBUG
   s_numberOfInstantiations++; // EDM Monitor - increment one instance
   // this is by definition a free surface since a copy is not allowed to point to the det element
@@ -113,19 +111,31 @@ Trk::Surface::Surface(const Surface& sf)
 #endif
 }
 
-// copy constructor with shift - Attention! sets the associatedDetElement to 0 and the identifieer to invalid
-// also invalidates the material layer
+#if defined(FLATTEN) && defined(__GNUC__)
+// We compile this function with optimization, even in debug builds; otherwise,
+// the heavy use of Eigen makes it too slow.  However, from here we may call
+// to out-of-line Eigen code that is linked from other DSOs; in that case,
+// it would not be optimized.  Avoid this by forcing all Eigen code
+// to be inlined here if possible.
+__attribute__((flatten))
+#endif
+// copy constructor with shift - Attention! sets the associatedDetElement to 0
+// and the identifier to invalid also invalidates the material layer
 Trk::Surface::Surface(const Surface& sf, const Amg::Transform3D& shift)
-  : m_transform(sf.m_transform ? std::make_unique<Amg::Transform3D>(shift * (*(sf.m_transform)))
-                               : std::make_unique<Amg::Transform3D>(shift))
-  , m_center((sf.m_center) ? std::make_unique<const Amg::Vector3D>(shift * (*(sf.m_center))) : nullptr)
-  , m_normal(nullptr)
+  : m_transforms(nullptr)
   , m_associatedDetElement(nullptr)
   , m_associatedDetElementId()
   , m_associatedLayer(nullptr)
   , m_materialLayer(nullptr)
   , m_owner(Trk::noOwn)
 {
+
+  if (sf.m_transforms) {
+    m_transforms = std::make_unique<Transforms>(
+      shift * sf.m_transforms->transform, shift * sf.m_transforms->center);
+  } else {
+    m_transforms = std::make_unique<Transforms>(Amg::Transform3D(shift));
+  }
 #ifndef NDEBUG
   s_numberOfInstantiations++; // EDM Monitor - increment one instance
   // this is by definition a free surface since a copy is not allowed to point to the det element
@@ -138,8 +148,9 @@ Trk::Surface::~Surface()
 {
 #ifndef NDEBUG
   s_numberOfInstantiations--; // EDM Monitor - decrement one instance
-  if (isFree())
+  if (isFree()){
     s_numberOfFreeInstantiations--;
+  }
 #endif
 }
 
@@ -149,10 +160,7 @@ Trk::Surface&
 Trk::Surface::operator=(const Trk::Surface& sf)
 {
   if (this != &sf) {
-    m_transform.release();
-    m_center.release();
-    m_normal.release();
-    m_transform = std::make_unique<Amg::Transform3D>(sf.transform());
+    m_transforms = std::make_unique<Transforms>(sf.transform());
     m_associatedDetElement = nullptr;
     m_associatedDetElementId = Identifier();
     m_associatedLayer = sf.m_associatedLayer;
@@ -163,36 +171,32 @@ Trk::Surface::operator=(const Trk::Surface& sf)
 }
 
 // returns the LocalPosition on a surface of a GlobalPosition
-Amg::Vector2D*
+std::optional<Amg::Vector2D>
 Trk::Surface::positionOnSurface(const Amg::Vector3D& glopo,
                                 const BoundaryCheck& bchk,
                                 double tol1,
                                 double tol2) const
 {
-  Amg::Vector2D* posOnSurface = globalToLocal(glopo, tol1);
+  std::optional<Amg::Vector2D> posOnSurface = globalToLocal(glopo, tol1);
   if (!bchk){
     return posOnSurface;
   }
   if (posOnSurface && insideBounds(*posOnSurface, tol1, tol2)){
     return posOnSurface;
   }
-  delete posOnSurface;
-  return nullptr;
+  return std::nullopt;
 }
 
 // checks if GlobalPosition is on Surface and inside bounds
 bool
 Trk::Surface::isOnSurface(const Amg::Vector3D& glopo,
-                          BoundaryCheck bchk,
+                          const BoundaryCheck& bchk,
                           double tol1,
                           double tol2) const
 {
-  const Amg::Vector2D* posOnSurface = positionOnSurface(glopo, bchk, tol1, tol2);
-  if (posOnSurface) {
-    delete posOnSurface;
-    return true;
-  }
-    return false;
+  std::optional<Amg::Vector2D> posOnSurface =
+    positionOnSurface(glopo, bchk, tol1, tol2);
+  return static_cast<bool>(posOnSurface);
 }
 
 // return the measurement frame

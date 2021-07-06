@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """Configuration of tools for Moore muon reconstruction"""
 
@@ -24,7 +24,6 @@ from AthenaCommon.ConfiguredFactory import getProperty
 from IOVDbSvc.CondDB import conddb
 
 from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber
-
 from .MuonRecTools import MuonExtrapolator, MuonChi2TrackFitter
 from .MuonRecUtils import ConfiguredBase,ExtraFlags
 
@@ -32,6 +31,10 @@ from .MuonRecUtils import ConfiguredBase,ExtraFlags
 from .MuonRecFlags import muonRecFlags
 from .MuonStandaloneFlags import muonStandaloneFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+
+from InDetRecExample import TrackingCommon
 #==============================================================
 
 # call  setDefaults to update flags
@@ -98,7 +101,7 @@ class MooSegmentCombinationFinder(CfgMgr.Muon__MooSegmentCombinationFinder,Confi
     __slots__ = ()
     
     def __init__(self,name="MooSegmentFinder",**kwargs):
-
+        reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
         kwargs.setdefault( "SegmentCombiner", "MuonCurvedSegmentCombiner" )
         kwargs.setdefault( "SegmentCombinationCleaner", "MuonSegmentCombinationCleanerTool" )
         if( muonStandaloneFlags.reconstructionMode() == 'collisions'): 
@@ -109,9 +112,9 @@ class MooSegmentCombinationFinder(CfgMgr.Muon__MooSegmentCombinationFinder,Confi
         kwargs.setdefault( "MdtSegmentMaker", "MuonPatternSegmentMaker" )
         kwargs.setdefault( "DoSegmentCombinations", False )
         kwargs.setdefault( "DoSegmentCombinationCleaning", False )
-        kwargs.setdefault( "DoCscSegments", muonRecFlags.doCSCs() )
+        kwargs.setdefault( "DoCscSegments", reco_cscs )
         kwargs.setdefault( "DoMdtSegments", muonRecFlags.doMDTs() )
-        if muonRecFlags.doCSCs():
+        if reco_cscs:
             kwargs.setdefault( "Csc2dSegmentMaker","Csc2dSegmentMaker" )
             kwargs.setdefault( "Csc4dSegmentMaker", "Csc4dSegmentMaker" )
         else:
@@ -206,11 +209,7 @@ def MooTrackFitter(name="MooTrackFitter", extraFlags=None, **kwargs):
         oldFitterName = getProperty(fitter,"Fitter").getName()
         newFitterName = namePrefix + oldFitterName + namePostfix
         fitter.Fitter = getPublicToolClone(newFitterName,oldFitterName)
-
-        oldFitterName = getProperty(fitter,"FitterPreFit").getName()
-        newFitterName = namePrefix + oldFitterName + namePostfix
-        fitter.FitterPreFit = getPublicToolClone(newFitterName,oldFitterName)
- 
+     
     return fitter 
     
 # end of factory function MooTrackFitter
@@ -316,13 +315,14 @@ def MCTBSLFitter(name="MCTBSLFitter", **kwargs):
 
 def MCTBSLFitterMaterialFromTrack(name="MCTBSLFitterMaterialFromTrack", **kwargs):
     kwargs["GetMaterialFromTrack"]=True
-    kwargs.setdefault("ExtrapolationTool", "Trk::Extrapolator/MuonStraightLineExtrapolator")
-    #kwargs.setdefault("PropagatorTool", "Trk::STEP_Propagator/MuonStraightLinePropagator") #will switch to this once it's ready
+    kwargs.setdefault("ExtrapolationTool", getPublicTool("MuonStraightLineExtrapolator"))
     kwargs["PropagatorTool"]=getPublicTool("MuonRK_Propagator")
     return MCTBSLFitter(name, **kwargs)
-
-def MuonSeededSegmentFinder(name="MuonSeededSegmentFinder",**kwargs):
     
+def MuonSeededSegmentFinder(name="MuonSeededSegmentFinder",**kwargs):
+    reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
+    reco_stgcs = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
+    reco_mm =  muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()  
     if "SegmentMaker" not in kwargs or "SegmentMakerNoHoles" not in kwargs:
         if beamFlags.beamType() == 'collisions':
           
@@ -337,9 +337,9 @@ def MuonSeededSegmentFinder(name="MuonSeededSegmentFinder",**kwargs):
         kwargs.setdefault("SegmentMaker", segMaker)
         kwargs.setdefault("SegmentMakerNoHoles", segMaker)
 
-        if not MuonGeometryFlags.hasCSC(): kwargs.setdefault("CscPrepDataContainer","")
-        if not MuonGeometryFlags.hasSTGC(): kwargs.setdefault("sTgcPrepDataContainer","")
-        if not MuonGeometryFlags.hasMM(): kwargs.setdefault("MMPrepDataContainer","")
+        if not reco_cscs: kwargs.setdefault("CscPrepDataContainer","")
+        if not reco_stgcs: kwargs.setdefault("sTgcPrepDataContainer","")
+        if not reco_mm: kwargs.setdefault("MMPrepDataContainer","")
     
     return CfgMgr.Muon__MuonSeededSegmentFinder(name,**kwargs)
 
@@ -376,6 +376,9 @@ def MuonTrackCleaner(name,extraFlags=None,**kwargs):
   kwargs.setdefault("Fitter",        getPrivateTool('MCTBFitterMaterialFromTrack') )
   kwargs.setdefault("SLFitter",      getPrivateTool('MCTBSLFitterMaterialFromTrack'))
   kwargs.setdefault("MdtRotCreator", getPrivateTool('MdtDriftCircleOnTrackCreator'))
+  if TriggerFlags.MuonSlice.doTrigMuonConfig:
+      kwargs.setdefault("Iterate", False)
+      kwargs.setdefault("RecoverOutliers", False)
   # kwargs.setdefault("CompRotCreator", getPrivateTool('TriggerChamberClusterOnTrackCreator')) Not in DB
   
   return CfgMgr.Muon__MuonTrackCleaner(name,**kwargs)
@@ -401,8 +404,11 @@ def MuonChamberHoleRecoveryTool(name="MuonChamberHoleRecoveryTool",extraFlags=No
 
     if doSegmentT0Fit:
         kwargs.setdefault("AddMeasurements", False)
-
-    if muonRecFlags.doCSCs():
+    reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
+    reco_stgcs = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
+    reco_mm =  muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()  
+    
+    if reco_cscs:
         if muonRecFlags.enableErrorTuning() or globalflags.DataSource() == 'data':
             kwargs.setdefault("CscRotCreator","CscBroadClusterOnTrackCreator")
         else:
@@ -415,8 +421,8 @@ def MuonChamberHoleRecoveryTool(name="MuonChamberHoleRecoveryTool",extraFlags=No
     # add in missing C++ dependency. TODO: fix in C++
     getPublicTool("ResidualPullCalculator")
 
-    if not MuonGeometryFlags.hasSTGC(): kwargs.setdefault("sTgcPrepDataContainer","")
-    if not MuonGeometryFlags.hasMM(): kwargs.setdefault("MMPrepDataContainer","")
+    if not reco_stgcs: kwargs.setdefault("sTgcPrepDataContainer","")
+    if not reco_mm: kwargs.setdefault("MMPrepDataContainer","")
 
     #MDT conditions information not available online
     if(athenaCommonFlags.isOnline):
@@ -442,17 +448,21 @@ class MuonSegmentRegionRecoveryTool(CfgMgr.Muon__MuonSegmentRegionRecoveryTool,C
       kwargs.setdefault("MDTRegionSelector", makeRegSelTool_MDT())
       kwargs.setdefault("RPCRegionSelector", makeRegSelTool_RPC())
       kwargs.setdefault("TGCRegionSelector", makeRegSelTool_TGC())
-      if MuonGeometryFlags.hasCSC():
+      reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
+      reco_stgcs = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
+      reco_mm =  muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()  
+  
+      if reco_cscs:
           from RegionSelector.RegSelToolConfig import makeRegSelTool_CSC
           kwargs.setdefault("CSCRegionSelector", makeRegSelTool_CSC())
       else:
           kwargs.setdefault("CSCRegionSelector", "")
-      if MuonGeometryFlags.hasSTGC():
+      if reco_stgcs:
           from RegionSelector.RegSelToolConfig import makeRegSelTool_sTGC
           kwargs.setdefault("STGCRegionSelector", makeRegSelTool_sTGC())
       else:
           kwargs.setdefault("STGCRegionSelector", "")
-      if MuonGeometryFlags.hasMM():
+      if reco_mm:
           from RegionSelector.RegSelToolConfig import makeRegSelTool_MM
           kwargs.setdefault("MMRegionSelector", makeRegSelTool_MM())
       else:
@@ -522,7 +532,11 @@ class MuonTrackExtrapolationTool(CfgMgr.Muon__MuonTrackExtrapolationTool,Configu
         self.applyUserDefaults(kwargs,name)
         super(MuonTrackExtrapolationTool,self).__init__(name,**kwargs)
 
-MuonTrackExtrapolationTool.setDefaultProperties( TrackingGeometrySvc=ServiceMgr.AtlasTrackingGeometrySvc )
+if TrackingCommon.use_tracking_geometry_cond_alg:
+  cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
+  MuonTrackExtrapolationTool.setDefaultProperties(TrackingGeometryReadKey=cond_alg.TrackingGeometryWriteKey)
+else:
+  MuonTrackExtrapolationTool.setDefaultProperties( TrackingGeometrySvc=ServiceMgr.AtlasTrackingGeometrySvc )
 if beamFlags.beamType() == 'cosmics':
     MuonTrackExtrapolationTool.setDefaultProperties( Cosmics = True )
 
@@ -537,7 +551,8 @@ getPublicTool("MCTBSLFitter")
 getPublicTool("MCTBFitterMaterialFromTrack")
 getPublicTool("MuonSeededSegmentFinder")
 mCHRT = getPublicTool("MuonChamberHoleRecoveryTool")
-if not MuonGeometryFlags.hasCSC():
+reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()   
+if not reco_cscs:
     mCHRT.CscRotCreator = ""
     mCHRT.CscPrepDataContainer = ""
 getPublicTool("MuonTrackSelectorTool")

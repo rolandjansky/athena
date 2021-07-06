@@ -57,7 +57,7 @@ theApp.EvtMax = -1
 
 from RecExConfig.AutoConfiguration import GetProjectName,ConfigureTriggerStream
 ConfigureTriggerStream()
-print rec.triggerStream()
+print (rec.triggerStream())
 
 
 ## TDT
@@ -126,5 +126,5 @@ svcMgr.MessageSvc.debugLimit = 5000000
 
 svcMgr.IOVDbSvc.OutputLevel=DEBUG
 
-print theApp
+print (theApp)
 

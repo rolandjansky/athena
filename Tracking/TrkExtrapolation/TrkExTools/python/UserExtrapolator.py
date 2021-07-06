@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ######################################################
 # UserExtrapolator module
@@ -30,7 +30,7 @@ class UserExtrapolator( AtlasExtrapolator ):
         from CaloMaterialEffectsOnTrackProvider.ConfCaloMaterialEffectsOnTrackProvider import ConfCaloMaterialEffectsOnTrackProvider as ConfMEOTP
         meotpName = self.getName()+'CaloMEOTP'
         MEOTP = ConfMEOTP(meotpName)
-        if self.thisIndex is -1:
+        if self.thisIndex == -1:
             ToolSvc += MEOTP
 
             meotps = TheTileVolumeBuilder.MaterialEffectsOnTrackProviders

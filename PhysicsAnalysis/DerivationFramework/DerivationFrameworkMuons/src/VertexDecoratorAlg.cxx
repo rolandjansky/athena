@@ -1,9 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-
-//**********************************************************************
 
 #include "DerivationFrameworkMuons/VertexDecoratorAlg.h"
 #include <InDetTrackSelectionTool/IInDetTrackSelectionTool.h>
@@ -21,15 +18,7 @@ VertexDecoratorAlg::VertexDecoratorAlg(const std::string& name, ISvcLocator* pSv
     declareProperty("VertxContainer", m_VertexContainer);
     declareProperty("Prefix" , m_decorationPrefix);
     declareProperty("TrackSelectionTool", m_trkselTool );
-
 }
-
-//**********************************************************************
-
-VertexDecoratorAlg::~VertexDecoratorAlg() {
-}
-
-//**********************************************************************
 
 StatusCode VertexDecoratorAlg::initialize() {
     m_filterTracks = m_trkselTool.isSet();
@@ -40,26 +29,18 @@ StatusCode VertexDecoratorAlg::initialize() {
     return StatusCode::SUCCESS;
 }
 
-//**********************************************************************
-
-StatusCode VertexDecoratorAlg::finalize() {
-
-    return StatusCode::SUCCESS;
-}
-
-//**********************************************************************
 
 StatusCode VertexDecoratorAlg::execute() {
 
     ATH_MSG_DEBUG("in execute");
     const xAOD::VertexContainer* Vertices = nullptr;
     ATH_CHECK(evtStore()->retrieve(Vertices, m_VertexContainer));
-    for (const auto& vertex  : *Vertices ){
+    for (const auto vertex  : *Vertices ){
         unsigned int n_Trks = 0;
         float sum_pt = 0;
         for (unsigned int t = 0 ; t < vertex->nTrackParticles(); ++t){
              const xAOD::TrackParticle* track = vertex->trackParticle(t);
-             if (track == nullptr){
+             if (!track){
                 ATH_MSG_DEBUG("Track "<<t<<" is a nullptr");
                 continue;
             }
@@ -74,4 +55,4 @@ StatusCode VertexDecoratorAlg::execute() {
     return StatusCode::SUCCESS;
 }
 
-//**********************************************************************
+

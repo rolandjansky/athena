@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ShallowAuxInfo.h 671678 2015-06-02 12:28:46Z krasznaa $
@@ -31,6 +31,7 @@ namespace xAOD {
    public:
       /// Flag that we should _not_ use the xAOD aux store pool converter
       /// for this type.
+      // cppcheck-suppress duplInheritedMember
       static constexpr bool supportsThinning = false;
 
       /// Default constructor

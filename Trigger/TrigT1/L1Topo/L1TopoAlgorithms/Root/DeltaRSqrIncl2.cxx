@@ -11,13 +11,10 @@
 **********************************/
 
 #include <cmath>
-#include "TH1F.h"
-#include "TH2F.h"
 
 #include "L1TopoAlgorithms/DeltaRSqrIncl2.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
-#include "L1TopoSimulationUtils/Kinematics.h"
 
 REGISTER_ALG_TCS(DeltaRSqrIncl2)
 
@@ -105,7 +102,7 @@ TCS::DeltaRSqrIncl2::processBitCorrect( const std::vector<TCS::TOBArray const *>
                   tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
                   ++tob2) {
                  // test DeltaR2Min, DeltaR2Max
-                 unsigned int deltaR2 = TSU::Kinematics::calcDeltaR2BW( *tob1, *tob2 );
+                 unsigned int deltaR2 = calcDeltaR2BW( *tob1, *tob2 );
                  TRG_MSG_DEBUG("Jet1 = " << **tob1 << ", Jet2 = " << **tob2 << ", deltaR2 = " << deltaR2);
                  for(unsigned int i=0; i<numberOutputBits(); ++i) {
                    bool accept = false;
@@ -152,7 +149,7 @@ TCS::DeltaRSqrIncl2::process( const std::vector<TCS::TOBArray const *> & input,
                  tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
                  ++tob2) {
                // test DeltaR2Min, DeltaR2Max
-               unsigned int deltaR2 = TSU::Kinematics::calcDeltaR2( *tob1, *tob2 );
+               unsigned int deltaR2 = calcDeltaR2( *tob1, *tob2 );
 
                TRG_MSG_DEBUG("Jet1 = " << **tob1 << ", Jet2 = " << **tob2 << ", deltaR2 = " << deltaR2);
                for(unsigned int i=0; i<numberOutputBits(); ++i) {

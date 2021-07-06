@@ -112,7 +112,7 @@ void compare (const Muon::MuonSegment& p1,
 
 void testit (const Muon::MuonSegment& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   MuonSegmentCnv_p2 cnv;
   SegmentCollectionCnv_tlp3 tlcnv;
   cnv.setTopConverter (&tlcnv, TPObjRef::typeID_t());

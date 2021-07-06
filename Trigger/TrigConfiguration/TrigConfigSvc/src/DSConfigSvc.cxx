@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -7,13 +7,9 @@
 #include "GaudiKernel/Incident.h"
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/IIOVDbSvc.h"
-
-#include "CoolKernel/Record.h"
-
 #include "StoreGate/DataHandle.h"
-
-#include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "CoolKernel/Record.h"
 
 // Trigger configuration include(s):
 #include "TrigConfBase/TrigDBConnectionConfig.h"
@@ -31,16 +27,14 @@
 #include "TrigConfHLTData/HLTChainList.h"
 #include "TrigConfHLTData/HLTSequenceList.h"
 #include "TrigConfHLTData/HLTPrescaleSet.h"
-#include "TrigConfHLTData/HLTStreamTag.h"
 
-#include "TrigConfStorage/StorageMgr.h"
-#include "TrigConfStorage/TrigConfCoolFolderSpec.h"
+#include "TrigConfStorage/IStorageMgr.h"
 #include "TrigConfStorage/TrigConfCoolL1PayloadConverters.h"
 #include "TrigConfStorage/TrigConfCoolHLTPayloadConverters.h"
 #include "TrigConfStorage/DBLoader.h"
 
 // Local include(s):
-#include "./DSConfigSvc.h"
+#include "DSConfigSvc.h"
 
 #include "boost/lexical_cast.hpp"
 
@@ -91,12 +85,8 @@ TrigConf::DSConfigSvc::DSConfigSvc( const std::string& name,
 }
 
 
-TrigConf::DSConfigSvc::~DSConfigSvc()
-{}
-
-
 StatusCode
-TrigConf::DSConfigSvc::initialize() {
+TrigConf::DSConfigSvc::initialize ATLAS_NOT_THREAD_SAFE () {
 
    CHECK(ConfigSvcBase::initialize());
 
@@ -138,31 +128,10 @@ TrigConf::DSConfigSvc::initialize() {
 
 
 StatusCode
-TrigConf::DSConfigSvc::queryInterface( const InterfaceID& riid,
-                                       void** ppvIF ) {
-
-   if( riid == ITrigConfigSvc::interfaceID() ) {
-      *ppvIF = static_cast< ITrigConfigSvc* >( this );
-   } else if( riid == IProperty::interfaceID() ) {
-      *ppvIF = static_cast< IProperty* >( this );
-   } else if ( riid == IL1TopoConfigSvc::interfaceID() )  {
-      *ppvIF = static_cast< IL1TopoConfigSvc* >(this);
-   } else if( riid == ILVL1ConfigSvc::interfaceID() )  {
-      *ppvIF = static_cast< ILVL1ConfigSvc* >( this );
-   } else if( riid == IHLTConfigSvc::interfaceID() )  {
-      *ppvIF = static_cast< IHLTConfigSvc* >( this );
-   } else {
-      return AthService::queryInterface( riid, ppvIF );
-   }
-
-   addRef();
-   return StatusCode::SUCCESS;
-}
-
-
-StatusCode
-TrigConf::DSConfigSvc::registerCallbackForFolder( const std::string& foldername,
-                                                  bool multichannel ) {
+TrigConf::DSConfigSvc::registerCallbackForFolder ATLAS_NOT_THREAD_SAFE ( const std::string& foldername,
+                                                                         bool multichannel )
+   // Thread unsafe detStore()->regFcn (callback) is used.
+{
 
    if( ! hasFolder( foldername ) ) return StatusCode::SUCCESS;
 
@@ -184,7 +153,7 @@ TrigConf::DSConfigSvc::registerCallbackForFolder( const std::string& foldername,
 
 
 StatusCode
-TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
+TrigConf::DSConfigSvc::update ATLAS_NOT_THREAD_SAFE ( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
 
    // callback function to update beamspot cache when condDB data changes
    //I = 0; // not used, suppress compiler warnings
@@ -243,9 +212,9 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
       if( updated_SMK ) {
          ATH_MSG_INFO( "  Changed from " << old_masterkey << " to " << m_masterKey );
       }
-      if( (m_configSrc.find("TRIGGERDBREPR") == 0) || 
-          (m_configSrc.find("TRIGGERDBMC") == 0) || 
-          (m_configSrc.find("TRIGGERDBATN") == 0) ) {
+      if( (m_configSrc.compare(0, 13, "TRIGGERDBREPR") == 0) || 
+          (m_configSrc.compare(0, 11, "TRIGGERDBMC") == 0) || 
+          (m_configSrc.compare(0, 12, "TRIGGERDBATN") == 0) ) {
           /* this is for reprocessing or MC runs
            * in this case we connect to the specified TriggerDB
            * 
@@ -359,13 +328,13 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
          m_hltFrame.theHLTChainList().clear();
          m_hltFrame.theHLTSequenceList().clear();
          size_t nChains(0);
-         for(CondAttrListCollection::const_iterator attrListIt = hltMenuAttrColl->begin(); attrListIt != hltMenuAttrColl->end(); attrListIt++ ) {
+         for(CondAttrListCollection::const_iterator attrListIt = hltMenuAttrColl->begin(); attrListIt != hltMenuAttrColl->end(); ++attrListIt ) {
             const CondAttrListCollection::AttributeList& attrList = attrListIt->second;
             m_hltFrame.theHLTChainList().addHLTChain( createHLTChain( attrList, &m_hltFrame.theHLTSequenceList() ) );
             nChains++;
          }
          ATH_MSG_INFO( "  Number of chains: " << nChains );
-         ATH_MSG_DEBUG( m_hltFrame.chains() );
+         ATH_MSG_DEBUG( m_hltFrame.getHLTChainList() );
       }
 
 
@@ -456,7 +425,7 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
          CHECK( m_detstore->retrieve( hltgrpAtrColl, TRIGGER_CONF_HLTGRP ) );
          ATH_MSG_INFO( "Updating trigger configuration: HLT chain groups" );
          size_t nGroups(0);
-         for(CondAttrListCollection::const_iterator attrListIt = hltgrpAtrColl->begin(); attrListIt != hltgrpAtrColl->end(); attrListIt++ ) {
+         for(CondAttrListCollection::const_iterator attrListIt = hltgrpAtrColl->begin(); attrListIt != hltgrpAtrColl->end(); ++attrListIt ) {
             const CondAttrListCollection::AttributeList& attrList = attrListIt->second;
             addGroupsToHltChain( attrList, m_hltFrame.theHLTChainList() );
             nGroups++;
@@ -875,17 +844,6 @@ TrigConf::DSConfigSvc::set_HltPrescaleSetFromChainlist() {
 //    m_prescaleSet->setId( m_hltPsKey );
 }
 
-StatusCode
-TrigConf::DSConfigSvc::updatePrescaleSets(uint /*requestcount*/) {
-   return StatusCode::SUCCESS;
-}
-
-// This method is called by TrigSteer on *every* event (keep it fast)
-// This is never used in connection with COOL configuration data
-StatusCode
-TrigConf::DSConfigSvc::assignPrescalesToChains(uint /*lumiblock*/) {
-   return StatusCode::SUCCESS;
-}
 
 bool 
 TrigConf::DSConfigSvc::hasFolder( const std::string& folder_name ){

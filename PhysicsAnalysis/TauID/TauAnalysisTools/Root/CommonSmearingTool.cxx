@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Framework include(s):
@@ -16,7 +16,7 @@
 // tauRecTools include(s)
 #include "tauRecTools/MvaTESVariableDecorator.h"
 #include "tauRecTools/MvaTESEvaluator.h"
-#include "tauRecTools/CombinedP4FromRecoTaus.h"
+#include "tauRecTools/TauCombinedTES.h"
 
 using namespace TauAnalysisTools;
 /*
@@ -77,14 +77,12 @@ CommonSmearingTool::CommonSmearingTool(const std::string& sName)
   , m_bIsConfigured(false)
   , m_tMvaTESVariableDecorator("MvaTESVariableDecorator", this)
   , m_tMvaTESEvaluator("MvaTESEvaluator", this)
-  , m_tCombinedP4FromRecoTaus("CombinedP4FromRecoTaus", this)
+  , m_tTauCombinedTES("TauCombinedTES", this)
   , m_eCheckTruth(TauAnalysisTools::Unknown)
   , m_bNoMultiprong(false)
   , m_bPtTauEtaCalibIsAvailable(false)
   , m_bPtTauEtaCalibIsAvailableIsChecked(false)
 {
-  m_mSystematics = {};
-
   declareProperty("InputFilePath",       m_sInputFilePath       = "" );
   declareProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck = false );
   declareProperty("ApplyFading",         m_bApplyFading         = true );
@@ -106,7 +104,7 @@ CommonSmearingTool::~CommonSmearingTool()
 }
 
 /*
-  - Find the root files with smearing inputs on afs/cvmfs using PathResolver
+  - Find the root files with smearing inputs on cvmfs using PathResolver
     (more info here:
     https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/PathResolver)
   - Call further functions to process and define NP strings and so on
@@ -144,9 +142,9 @@ StatusCode CommonSmearingTool::initialize()
 
   if (m_bApplyCombinedTES || m_bApplyMVATES) // CombinedTES has to be available for MVA fix
   {
-    ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tCombinedP4FromRecoTaus, CombinedP4FromRecoTaus));
-    ATH_CHECK(m_tCombinedP4FromRecoTaus.setProperty("WeightFileName", "CalibLoopResult_v04-04.root"));
-    ATH_CHECK(m_tCombinedP4FromRecoTaus.initialize());
+    ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tTauCombinedTES, TauCombinedTES));
+    ATH_CHECK(m_tTauCombinedTES.setProperty("WeightFileName", "CombinedTES_R22_v0.root"));
+    ATH_CHECK(m_tTauCombinedTES.initialize());
   }
 
 
@@ -179,8 +177,10 @@ CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
   if (m_bApplyMVATES)
   {    
     // veto MVA TES for unreasonably low resolution values
-    bool bVeto = dynamic_cast<CombinedP4FromRecoTaus*>(m_tCombinedP4FromRecoTaus.get())->getUseCaloPtFlag(xTau);
-
+    bool bVeto = false;
+    if (auto combp4 = dynamic_cast<TauCombinedTES*>(m_tTauCombinedTES.get())) {
+      bVeto = combp4->getUseCaloPtFlag(xTau);
+    }
     if (xTau.nTracks() > 0 and xTau.nTracks() < 6)
     {
       static SG::AuxElement::ConstAccessor<float> accPtFinalCalib("ptFinalCalib");
@@ -211,17 +211,17 @@ CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
   {
     // TODO: only call eventInitialize once per event, probably via migration to
     // AsgMetadataTool
-    if (m_tCombinedP4FromRecoTaus->eventInitialize().isFailure())
+    if (m_tTauCombinedTES->eventInitialize().isFailure())
       return CP::CorrectionCode::Error;
-    if (m_tCombinedP4FromRecoTaus->execute(xTau).isFailure())
+    if (m_tTauCombinedTES->execute(xTau).isFailure())
       return CP::CorrectionCode::Error;
 
     if (xTau.nTracks() > 0 and xTau.nTracks() < 6)
     {
-      xTau.setP4(xTau.auxdata<float>("pt_combined"),
-                 xTau.auxdata<float>("eta_combined"),
-                 xTau.auxdata<float>("phi_combined"),
-                 xTau.auxdata<float>("m_combined"));
+      xTau.setP4(xTau.auxdata<float>("ptCombined"),
+                 xTau.auxdata<float>("etaCombined"),
+                 xTau.auxdata<float>("phiCombined"),
+                 xTau.auxdata<float>("mCombined"));
     }
   }
 
@@ -255,15 +255,15 @@ CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
   if (m_sSystematicSet->size() > 0)
   {
     // get uncertainties summed in quadrature
-    double dTotalSystematic2 = 0;
-    double dDirection = 0;
+    double dTotalSystematic2 = 0.;
+    double dDirection = 0.;
     for (auto syst : *m_sSystematicSet)
     {
       // check if systematic is available
       auto it = m_mSystematicsHistNames.find(syst.basename());
 
       // get uncertainty value
-      double dUncertaintySyst = 0;
+      double dUncertaintySyst = 0.;
       tmpCorrectionCode = getValue(it->second+sProng,
                                    xTau,
                                    dUncertaintySyst);
@@ -282,10 +282,10 @@ CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
     }
 
     // now use dDirection to use up/down uncertainty
-    dDirection = (dDirection > 0) ? +1 : -1;
+    dDirection = (dDirection > 0.) ? 1. : -1.;
 
     // finally apply uncertainty (eff * ( 1 +/- \sum  )
-    dCorrection *= 1 + dDirection * sqrt(dTotalSystematic2);
+    dCorrection *= 1 + dDirection * std::sqrt(dTotalSystematic2);
   }
 
   // finally apply correction
@@ -369,7 +369,7 @@ StatusCode CommonSmearingTool::applySystematicVariation ( const CP::SystematicSe
   }
 
   // sanity checks if systematic set is supported
-  double dDirection = 0;
+  double dDirection = 0.;
   CP::SystematicSet sSystematicSetAvailable;
   for (auto sSyst : sSystematicSet)
   {
@@ -419,7 +419,7 @@ StatusCode CommonSmearingTool::beginEvent()
   if (m_bIsConfigured)
     return StatusCode::SUCCESS;
 
-  const xAOD::EventInfo* xEventInfo = 0;
+  const xAOD::EventInfo* xEventInfo = nullptr;
   ATH_CHECK(evtStore()->retrieve(xEventInfo,"EventInfo"));
   m_bIsData = !(xEventInfo->eventType( xAOD::EventInfo::IS_SIMULATION));
   m_bIsConfigured=true;
@@ -590,7 +590,7 @@ CP::CorrectionCode CommonSmearingTool::getValue(const std::string& sHistName,
     {
       TF1 f("",sTitle.c_str(), 0, 1000);
       if (sHistName.find("sf_") != std::string::npos)
-        dEfficiencyScaleFactor = (dEfficiencyScaleFactor -1) *f.Eval(m_fX(xTau)) + 1;
+        dEfficiencyScaleFactor = (dEfficiencyScaleFactor -1.) *f.Eval(m_fX(xTau)) + 1.;
       else
         dEfficiencyScaleFactor *= f.Eval(m_fX(xTau));
     }

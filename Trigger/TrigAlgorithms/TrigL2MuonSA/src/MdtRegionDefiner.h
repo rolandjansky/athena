@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MDTREGIONDEFINER_H
@@ -9,7 +9,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
-#include "TrigT1Interfaces/RecMuonRoI.h"
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
@@ -47,12 +47,12 @@ namespace TrigL2MuonSA {
     void setRpcGeometry(bool use_rpc){m_use_rpc = use_rpc;};
     
   public:
-    StatusCode getMdtRegions(const LVL1::RecMuonRoI*           p_roi,
+    StatusCode getMdtRegions(const TrigRoiDescriptor*          p_roids,
 			     const TrigL2MuonSA::RpcFitResult& rpcFitResult,
 			     TrigL2MuonSA::MuonRoad&           muonRoad,
 			     TrigL2MuonSA::MdtRegion&          mdtRegion) const;
     
-    StatusCode getMdtRegions(const LVL1::RecMuonRoI*           p_roi,
+    StatusCode getMdtRegions(const TrigRoiDescriptor*          p_roids,
 			     const TrigL2MuonSA::TgcFitResult& tgcFitResult,
 			     TrigL2MuonSA::MuonRoad&           muonRoad,
 			     TrigL2MuonSA::MdtRegion&          mdtRegion) const;
@@ -70,12 +70,12 @@ namespace TrigL2MuonSA {
         
     void find_station_sector(std::string name, int phi, bool& endcap, int& chamber, int& sector) const;
 
-    StatusCode computePhi(const LVL1::RecMuonRoI*           p_roi,
+    StatusCode computePhi(const TrigRoiDescriptor*          p_roids,
 			  const TrigL2MuonSA::RpcFitResult& rpcFitResult,
 			  const TrigL2MuonSA::MdtRegion&    mdtRegion,
 			  TrigL2MuonSA::MuonRoad&           muonRoad) const;
       
-    StatusCode computePhi(const LVL1::RecMuonRoI*           p_roi,
+    StatusCode computePhi(const TrigRoiDescriptor*          p_roids,
 			  const TrigL2MuonSA::TgcFitResult& tgcFitResult,
 			  const TrigL2MuonSA::MdtRegion&    mdtRegion,
 			  TrigL2MuonSA::MuonRoad&           muonRoad) const;

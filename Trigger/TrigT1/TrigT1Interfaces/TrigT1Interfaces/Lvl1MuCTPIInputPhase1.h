@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGT1INTERFACES_LVL1MUCTPIINPUTPHASE1_H
 #define TRIGT1INTERFACES_LVL1MUCTPIINPUTPHASE1_H
@@ -29,8 +29,6 @@ namespace LVL1MUONIF {
     *    @see LVL1MUONIF::Lvl1MuEndcapSectorLogicDataPhase1
     *    @see LVL1MUONIF::Lvl1MuForwardSectorLogicDataPhase1
     *
-    * $Revision: 782811 $
-    * $Date: 2016-11-07 18:20:40 +0100 (Mon, 07 Nov 2016) $
     */
    class Lvl1MuCTPIInputPhase1 {
 
@@ -68,10 +66,14 @@ namespace LVL1MUONIF {
 
 
       const Lvl1MuSectorLogicDataPhase1& getSectorLogicData( size_t systemAddress,
-                                                       size_t subSystemAddress,
-                                                       size_t sectorAddress,
-						       int    bcid=0        ) const;
-
+							     size_t subSystemAddress,
+							     size_t sectorAddress,
+							     int    bcid=0        ) const;
+      std::shared_ptr<Lvl1MuSectorLogicDataPhase1> getSectorLogicDataPtr( size_t systemAddress,
+									  size_t subSystemAddress,
+									  size_t sectorAddress,
+									  int    bcid=0        ) const;
+      
       void setSectorLogicData( const Lvl1MuSectorLogicDataPhase1& data,
                                size_t systemAddress,
                                size_t subSystemAddress,
@@ -108,25 +110,25 @@ namespace LVL1MUONIF {
 
      friend std::ostream& operator<<( std::ostream&, const Lvl1MuCTPIInputPhase1& );
 
+     size_t getSystemIndex(size_t systemAddress,
+			   size_t subSystemAddress,
+			   size_t sectorAddress ) const;
+
+     size_t getBcidIndex(size_t systemAddress,
+                         int    bcid=0) const;
+
+     typedef std::vector<std::shared_ptr <Lvl1MuSectorLogicDataPhase1> > Lvl1MuVect;
+     typedef std::pair<int, Lvl1MuVect>  Lvl1MuVectWithBC;
+     const std::vector<Lvl1MuVectWithBC>& getData(MuonSystem system) const;
+
    private:
 
       size_t reserve( size_t systemAddress ,
 		      int    bcid=0         );
      
-      size_t getSystemIndex(size_t systemAddress,
-			    size_t subSystemAddress,
-			    size_t sectorAddress ) const;
-
-     size_t getBcidIndex(size_t systemAddress,
-                         int    bcid=0) const;
-
      bool m_isFilledOutOfTimeCandidates[NumberOfMuonSystem];
-
      
-     typedef std::vector<std::shared_ptr <Lvl1MuSectorLogicDataPhase1> > Lvl1MuVect;
-     typedef std::pair<int, Lvl1MuVect>  Lvl1MuVectWithBC; 
      std::vector<Lvl1MuVectWithBC> m_data[ NumberOfMuonSystem ];
-
    }; // class Lvl1MuCTPIInputPhase1
    
    inline size_t Lvl1MuCTPIInputPhase1::idBarrelSystem() { return Barrel; }
@@ -174,6 +176,10 @@ namespace LVL1MUONIF {
        }
        return -1;
      }
+
+   inline const std::vector<Lvl1MuCTPIInputPhase1::Lvl1MuVectWithBC>&
+     Lvl1MuCTPIInputPhase1::getData(Lvl1MuCTPIInputPhase1::MuonSystem system) const
+   { return m_data[system]; }
    
 } // namespace LVL1MUONIF
 

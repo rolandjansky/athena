@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetMonitoring/JetKinematicHistos.h"
@@ -64,7 +64,11 @@ int JetKinematicHistos::buildHistos(){
                m_e_high     = bookHisto( new TH1F(prefixn+"E_high"   ,  "Jet Energy pT.gt.200 GeV;Energy (GeV);Entries", 100,1, 2000) );
              }
 
-  if(m_doN) m_njet  = bookHisto( new TH1F(prefixn+"num"  ,  "Jet number;Number of jets;Entries", 40,0,40) );  
+  if(m_doN){
+    m_njet  = bookHisto( new TH1F(prefixn+"num"  ,  "Jet multiplicity;Number of jets;Entries", 40,0,40) );  
+    m_njet_passJVT = bookHisto( new TH1F(prefixn+"num_passJVT"  ,  "Jet multiplicity (passing JVT cut);Number of jets (passing JVT);Entries", 40,0,40) );
+    m_njet_failJVT = bookHisto( new TH1F(prefixn+"num_failJVT"  ,  "Jet multiplicity (failing JVT cut);Number of jets (failing JVT);Entries", 40,0,40) );
+  }
   if(m_doOccupancy) m_occupancyEtaPhi = bookHisto( new TH2F(prefixn+"OccupancyEtaPhi", "Occupancy;#eta;#phi;Entries", 50,-5,5,50,-3.1416,3.1416) );
   if(m_doAveragePt) m_averagePtEtaPhi = bookHisto( new TProfile2D(prefixn+"AveragePtEtaPhi", "Average P_{T};#eta;#phi;Entries", 50,-5,5,50,-3.1416,3.1416) );
   if(m_doAverageE) m_averageE_EtaPhi = bookHisto( new TProfile2D(prefixn+"AverageE_EtaPhi", "Average E;#eta;#phi;Entries", 50,-5,5,50,-3.1416,3.1416) );
@@ -96,42 +100,68 @@ int JetKinematicHistos::buildHistos(){
 
 
 
-int JetKinematicHistos::fillHistosFromContainer(const xAOD::JetContainer & cont){
+int JetKinematicHistos::fillHistosFromContainer(const xAOD::JetContainer & cont, float weight){
   // fill the N if needed. 
-  if (m_doN) m_njet->Fill( cont.size() );
+  if (m_doN){
+    m_njet->Fill( cont.size(), weight );
+
+    int counter_passJVT = 0;
+    int counter_failJVT = 0;
+
+    float JVT_cut = 0.50;
+
+    if(cont.size() > 0){
+      if(cont[0]->isAvailable<float>("Jvt")){
+	xAOD::JetInput::Type inputtype = cont[0]->getInputType();
+	if(inputtype == xAOD::JetInput::EMTopoOrigin || inputtype == xAOD::JetInput::LCTopoOrigin)
+	  JVT_cut = 0.59;
+      }
+    }
+
+    for(auto *jet : cont){
+      if(jet->isAvailable<float>("Jvt")){
+        if(jet->getAttribute<float>("Jvt") > JVT_cut) counter_passJVT++;
+        else counter_failJVT++;
+      }
+    }
+
+    m_njet_passJVT->Fill( counter_passJVT, weight);
+    m_njet_failJVT->Fill( counter_failJVT, weight);
+  }
+
   // Perform the loop over jets in the base class :
-  return JetHistoBase::fillHistosFromContainer(cont);
+  return JetHistoBase::fillHistosFromContainer(cont, weight);
 }
 
 
-int JetKinematicHistos::fillHistosFromJet(const xAOD::Jet &j){
+int JetKinematicHistos::fillHistosFromJet(const xAOD::Jet &j, float weight){
 
   if(m_jetScale != "JetAssignedScaleMomentum" && !j.isAvailable<float>(m_jetScale+"_pt")){
-    if(m_doNConstit) m_nConstit->Fill( j.numConstituents() );
+    if(m_doNConstit) m_nConstit->Fill( j.numConstituents(), weight );
     return 0;
   }
 
   // m_jetScale is a property of the base tool
   const xAOD::JetFourMom_t p4 = j.jetP4(m_jetScale);
-  m_pt->Fill( p4.Pt()*toGeV );
-  m_eta->Fill( p4.Eta() );
-  m_phi->Fill( p4.Phi() );
+  m_pt->Fill( p4.Pt()*toGeV, weight );
+  m_eta->Fill( p4.Eta(), weight );
+  m_phi->Fill( p4.Phi(), weight );
   if (p4.Pt()*toGeV > 200.0){ // high eta
-    m_pt_high->Fill( p4.Pt()*toGeV );
-    m_eta_high->Fill( p4.Eta() );
-    if(m_doE) m_e_high->Fill( p4.E()*toGeV );
-    if(m_doM) m_m_high->Fill( p4.M()*toGeV );
-    if(m_doNConstit) m_nConstit_high->Fill( j.numConstituents() );
+    m_pt_high->Fill( p4.Pt()*toGeV, weight );
+    m_eta_high->Fill( p4.Eta(), weight );
+    if(m_doE) m_e_high->Fill( p4.E()*toGeV, weight );
+    if(m_doM) m_m_high->Fill( p4.M()*toGeV, weight );
+    if(m_doNConstit) m_nConstit_high->Fill( j.numConstituents(), weight );
   }
 
-  if(m_doE) m_e->Fill( p4.E()*toGeV );
-  if(m_doM) m_m->Fill( p4.M()*toGeV );
+  if(m_doE) m_e->Fill( p4.E()*toGeV, weight );
+  if(m_doM) m_m->Fill( p4.M()*toGeV, weight );
   
-  if(m_doOccupancy) m_occupancyEtaPhi->Fill( p4.Eta(), p4.Phi() );
-  if(m_doAveragePt) m_averagePtEtaPhi->Fill( p4.Eta(), p4.Phi() , p4.Pt()*toGeV);
-  if(m_doAverageE) m_averageE_EtaPhi->Fill( p4.Eta(), p4.Phi() , p4.E()*toGeV);
+  if(m_doOccupancy) m_occupancyEtaPhi->Fill( p4.Eta(), p4.Phi(), weight );
+  if(m_doAveragePt) m_averagePtEtaPhi->Fill( p4.Eta(), p4.Phi() , p4.Pt()*toGeV, weight);
+  if(m_doAverageE) m_averageE_EtaPhi->Fill( p4.Eta(), p4.Phi() , p4.E()*toGeV, weight);
 
-  if(m_doNConstit) m_nConstit->Fill( j.numConstituents() );
+  if(m_doNConstit) m_nConstit->Fill( j.numConstituents(), weight );
   return 0;
 }
 

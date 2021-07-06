@@ -141,6 +141,7 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
         
 	for(int idbz=1; idbz!= 4; idbz++){
       bool isValid = false;
+      if (krpcstationName > rpcIdHelper.stationNameIndexMax()) continue;
       Identifier rpcId = rpcIdHelper.channelID(krpcstationName, ieta, irpcstationPhi, krpcdoubletR, idbz, 1, 1, 1, 1, false, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, isValid
       if (!isValid) continue;
     	const MuonGM::RpcReadoutElement* rpc = muonMgr->getRpcReadoutElement(rpcId);
@@ -334,6 +335,7 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
  
 	for(int iz   =      1; iz   !=   lastdoubletZ+1; iz++	){ 
 
+    if (iname > rpcIdHelper.stationNameIndexMax()) continue;
     Identifier rpcId = rpcIdHelper.channelID(iname, keta, iphi, ir, iz, 1, 1, 1, 1); // last 4 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip
     if (!rpcId.is_valid()) continue;
 	  const MuonGM::RpcReadoutElement* rpc = muonMgr->getRpcReadoutElement(rpcId);

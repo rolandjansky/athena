@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -49,17 +49,23 @@ public:
   /**Default Constructor - needed for persistency*/
   RectangleBounds();
 
-  /**Constructor with halflength in x (phi) and halflength in y (eta)*/
-  RectangleBounds(double halex, double haley);
-
   /**Copy constructor*/
   RectangleBounds(const RectangleBounds& recbo);
 
-  /**Destructor*/
-  virtual ~RectangleBounds();
-
   /**Assignment Operator*/
   RectangleBounds& operator=(const RectangleBounds& recbo);
+
+  /**Move constructor*/
+  RectangleBounds(RectangleBounds&& recbo) noexcept  = default;
+
+  /**Move Assignment Operator*/
+  RectangleBounds& operator=(RectangleBounds&& recbo) noexcept = default;
+
+  /**Destructor*/
+  virtual ~RectangleBounds() = default;
+
+  /**Constructor with halflength in x (phi) and halflength in y (eta)*/
+  RectangleBounds(double halex, double haley);
 
   /**Equality operator*/
   virtual bool operator==(const SurfaceBounds& sbo) const override final;

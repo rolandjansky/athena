@@ -1,0 +1,26 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
+# Declare the package name:
+atlas_subdir( MuonNSWCommonDecode )
+
+# Use tdaq-common packages
+find_package( tdaq-common COMPONENTS DataReader EventStorage eformat ers)
+find_package( Boost )
+
+# Component(s) in the package:
+atlas_add_library (MuonNSWCommonDecode
+                   src/NSWCommonDecoder.cxx 
+                   src/NSWElink.cxx
+                   src/VMMChannel.cxx
+		   src/sTGCMapper.cxx
+                   PUBLIC_HEADERS MuonNSWCommonDecode
+                   INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${Boost_LIBRARIES})
+
+atlas_add_executable (test_nsw_common_decoder
+		      src/test/test_nsw_common_decoder.cxx
+                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
+		      LINK_LIBRARIES
+		        MuonNSWCommonDecode
+			${TDAQ-COMMON_LIBRARIES} ${Boost_LIBRARIES})
+

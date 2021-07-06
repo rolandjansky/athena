@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -78,9 +78,9 @@ Amg::Vector3D eflowTrackCaloPoints::getDirection(eflowCalo::LAYER layer) {
 }
 
 Amg::Vector3D eflowTrackCaloPoints::parToPosition(const Trk::TrackParameters* trackPars) {
-  return (trackPars != 0) ? trackPars->position() : m_nullVector;
+  return (trackPars != nullptr) ? trackPars->position() : m_nullVector;
 }
 
 Amg::Vector3D eflowTrackCaloPoints::parToDirection(const Trk::TrackParameters* trackPars) {
-  return (trackPars != 0) ? trackPars->momentum() : m_nullVector;
+  return (trackPars != nullptr) ? trackPars->momentum() : m_nullVector;
 }

@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrigDecisionTool.h 775686 2016-09-28 16:26:51Z lheinric $
@@ -122,6 +122,9 @@ namespace Trig {
 
     std::vector<uint32_t>* getKeys();
 
+    void setForceConfigUpdate(bool b, bool forceForAllSlots = false);
+    bool getForceConfigUpdate();
+
     ToolHandle<TrigConf::ITrigConfigTool> m_configTool{this, "ConfigTool", "TrigConf::xAODConfigTool"};    //!< trigger configuration service handle
 
     //full Athena
@@ -142,15 +145,15 @@ namespace Trig {
       "For use when reading old ESD/AOD with only a TrigDec::TrigDecision and no xAOD::TrigDecision"};
 
     SG::SlotSpecificObj< std::vector<uint32_t> > m_configKeysCache; //!< cache for config keys. only update CacheGlobalMemory when these change
+    SG::SlotSpecificObj< std::atomic<bool> > m_forceConfigUpdate; //!< Cache for registering new input files.
 
     #else // Analysis or standalone 
 
     std::vector<uint32_t>  m_configKeysCache; //!< cache for config keys. only update CacheGlobalMemory when these change 
+    bool m_forceConfigUpdate; //!< Cache for registering new input files
 
     #endif
 
-    HLT::TrigNavStructure* m_navigation;
-    
     Gaudi::Property<bool> m_acceptMultipleInstance{this, "AcceptMultipleInstance", false};
 
     SG::ReadHandleKey<xAOD::TrigNavigation> m_navigationKey {this, "NavigationKey", "TrigNavigation",
@@ -162,7 +165,7 @@ namespace Trig {
       "Allowed tokens are 'TriggerElement' or 'TrigComposite'"}; //!< Note: Temporary property
 
     SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_HLTSummaryKeyIn {this, "HLTSummary",
-      "HLTNav_Summary", "HLT summary container Key"};
+      "HLTNav_Summary_OnlineSlimmed", "HLT summary container Key"};
 
     SG::ReadHandleKey<xAOD::TrigDecision> m_decisionKey {this, "TrigDecisionKey", "xTrigDecision",
       "Storegate key of Trigger Decision"};

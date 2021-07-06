@@ -5,46 +5,38 @@
 #ifndef MUONALIGNMENTDATA_MUONALIGNMENTPAR_H
 #define MUONALIGNMENTDATA_MUONALIGNMENTPAR_H
 
-#include "Identifier/Identifier.h"
-
-
 #include <string>
 
+#include "Identifier/Identifier.h"
 
 class MuonAlignmentPar {
+public:
+    MuonAlignmentPar();
+    virtual ~MuonAlignmentPar() = default;
 
- public:
+    Identifier identify() const { return m_stationId; }
+    std::string key() const { return m_stationKey; }
 
-  MuonAlignmentPar();
-  virtual ~MuonAlignmentPar()=default;
+    void setAmdbId(const std::string& type, int jff, int jzz, int job);
+    void getAmdbId(std::string& type, int& jff, int& jzz, int& job) const;
 
-  Identifier  identify() const {return m_stationId;}
-  std::string key()      const {return m_stationKey;}
+    bool isNew() const { return m_isNew; }
+    void isNew(bool newPar) { m_isNew = newPar; }
 
-  void setAmdbId(const std::string& type, int jff, int jzz, int job);
-  void getAmdbId(std::string& type, int& jff, int& jzz, int& job) const;
+protected:
+    // Identifier
+    Identifier m_stationId;
 
-  bool isNew() const        {return m_isNew;}
-  void isNew(bool newPar)   {m_isNew = newPar;}
+    // geomodel key
+    std::string m_stationKey;
 
- protected:
-  
-  // Identifier
-  Identifier m_stationId;
-  
-  // geomodel key
-  std::string m_stationKey;
+    // Amdb identifier
+    std::string m_Type;
+    int m_Jff;
+    int m_Jzz;
+    int m_Job;
 
-  // Amdb identifier 
-  std::string m_Type;
-  int m_Jff;
-  int m_Jzz;
-  int m_Job;
-
-  bool m_isNew;
-
+    bool m_isNew;
 };
-
-
 
 #endif  // MUONALIGNMENTDATA_MUONALIGNMENTPAR_H

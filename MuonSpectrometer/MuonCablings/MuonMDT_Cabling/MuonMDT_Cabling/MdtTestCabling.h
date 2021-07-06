@@ -16,7 +16,6 @@
  ***********************************************/
 
 #include "GaudiKernel/IChronoStatSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
@@ -29,10 +28,9 @@ class MdtTestCabling : public AthAlgorithm {
  public:
 
   MdtTestCabling(const std::string& name, ISvcLocator* pSvcLocator);
-  ~MdtTestCabling();
+  ~MdtTestCabling()=default;
 
   virtual StatusCode initialize();
-  virtual StatusCode finalize();
   virtual StatusCode execute();
 
  private:

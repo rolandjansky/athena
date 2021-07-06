@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AthMessageSvc.cpp,v 1.27 2008/10/21 16:25:55 marcocle Exp $
 
 #include "GaudiKernel/Kernel.h"
 #include "GaudiKernel/StatusCode.h"
@@ -17,7 +16,8 @@
 
 using namespace std;
 
-static std::string levelNames[MSG::NUM_LEVELS];
+static const std::string levelNames[MSG::NUM_LEVELS] = {"NIL",     "VERBOSE", "DEBUG", "INFO",
+                                                        "WARNING", "ERROR",   "FATAL", "ALWAYS"};
 
 // Constructor
 LoggedMessageSvc::LoggedMessageSvc( const std::string& name, ISvcLocator* svcloc )
@@ -84,15 +84,6 @@ LoggedMessageSvc::LoggedMessageSvc( const std::string& name, ISvcLocator* svcloc
     m_thresholdProp[ic].declareUpdateHandler(&LoggedMessageSvc::setupThreshold, this);
   }
 
-  levelNames[0] = "NIL";
-  levelNames[1] = "VERBOSE";
-  levelNames[2] = "DEBUG";
-  levelNames[3] = "INFO";
-  levelNames[4] = "WARNING";
-  levelNames[5] = "ERROR";
-  levelNames[6] = "FATAL";
-  levelNames[7] = "ALWAYS";
-
   for (int i=0; i<MSG::NUM_LEVELS; ++i) {
       m_msgCount[i] = 0;
   }
@@ -121,12 +112,8 @@ StatusCode LoggedMessageSvc::initialize() {
   if( sc.isFailure() ) return sc;
   // hack since in Gaudi v30, msgSvc() now returns a const SmartIF<IMessageSvc>
   // Release pointer to myself done in Service base class
-  SmartIF<IMessageSvc> &si = const_cast<SmartIF<IMessageSvc>&> (msgSvc());
+  SmartIF<IMessageSvc> &si ATLAS_THREAD_SAFE = const_cast<SmartIF<IMessageSvc>&> (msgSvc());
   si.reset();
-
-  // Set my own properties
-  sc = setProperties();
-  if (sc.isFailure()) return sc;
 
 #ifdef _WIN32
   m_color = false;
@@ -617,22 +604,9 @@ void LoggedMessageSvc::reportMessage( const Message& msg )    {
 // Purpose: dispatches a message to the relevant streams.
 // ---------------------------------------------------------------------------
 //
-void LoggedMessageSvc::reportMessage (const char* source,
-                                int type,
-                                const char* message) {
-  Message msg( source, type, message);
-  reportMessage( msg );
-}
-
-//#############################################################################
-// ---------------------------------------------------------------------------
-// Routine: reportMessage
-// Purpose: dispatches a message to the relevant streams.
-// ---------------------------------------------------------------------------
-//
-void LoggedMessageSvc::reportMessage (const std::string& source,
-                                int type,
-                                const std::string& message) {
+void LoggedMessageSvc::reportMessage (std::string source,
+                                      int type,
+                                      std::string message) {
   Message msg( source, type, message);
   reportMessage( msg );
 }
@@ -645,7 +619,7 @@ void LoggedMessageSvc::reportMessage (const std::string& source,
 //
 
 void LoggedMessageSvc::reportMessage (const StatusCode& key,
-                                const std::string& source)
+                                      std::string_view source)
 {
   std::lock_guard<std::recursive_mutex> lock(m_messageMapMutex);
 
@@ -657,7 +631,7 @@ void LoggedMessageSvc::reportMessage (const StatusCode& key,
       msg.setSource( source );
       std::ostringstream os1;
       os1 << "Status Code " << key.getCode() << std::ends;
-      Message stat_code1( source, msg.getType(), os1.str() );
+      Message stat_code1( std::string{source}, msg.getType(), os1.str() );
       reportMessage( stat_code1 );
       reportMessage( msg );
       first++;
@@ -668,7 +642,7 @@ void LoggedMessageSvc::reportMessage (const StatusCode& key,
     mesg.setSource( source );
       std::ostringstream os2;
     os2 << "Status Code " << key.getCode() << std::ends;
-    Message stat_code2( source,  mesg.getType(), os2.str() );
+    Message stat_code2( std::string{source},  mesg.getType(), os2.str() );
     reportMessage( stat_code2 );
     reportMessage( mesg );
   }
@@ -770,12 +744,11 @@ void LoggedMessageSvc::eraseStream( std::ostream* stream )    {
 // ---------------------------------------------------------------------------
 //
 
-void LoggedMessageSvc::insertMessage( const StatusCode& key, const Message& msg )
+void LoggedMessageSvc::insertMessage( const StatusCode& key, Message msg )
 {
   std::lock_guard<std::recursive_mutex> lock(m_messageMapMutex);
 
-  typedef MessageMap::value_type value_type;
-  m_messageMap.insert( value_type( key, msg ) );
+  m_messageMap.emplace( key, std::move( msg ) );
 }
 
 //#############################################################################
@@ -903,10 +876,13 @@ int LoggedMessageSvc::messageCount( MSG::Level level) const   {
 
 // ---------------------------------------------------------------------------
 void
-LoggedMessageSvc::incrInactiveCount(MSG::Level level, const std::string& source) {
+LoggedMessageSvc::incrInactiveCount(MSG::Level level, std::string_view source) {
 
-  ++(m_inactiveMap[source].msg[level]);
-
+  auto entry = m_inactiveMap.find( source );
+  if ( entry == m_inactiveMap.end() ) {
+    entry = m_inactiveMap.emplace( source, MsgAry{} ).first;
+  }
+  ++entry->second.msg[level];
 }
 
 // ---------------------------------------------------------------------------

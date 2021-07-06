@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ZDC_DIGITIZATION_TOOL_H
@@ -9,7 +9,7 @@
 #include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 #include "ZDC_SimEvent/ZDC_SimStripHit_Collection.h"
 #include "ZDC_SimEvent/ZDC_SimPixelHit_Collection.h"
 #include "HitManagement/TimedHitCollection.h"
@@ -23,7 +23,9 @@
 #include <vector>
 #include <utility> /* pair */
 
-class IAtRndmGenSvc;
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class ZDC_PileUpTool: public PileUpToolBase {
 
@@ -70,9 +72,8 @@ class ZDC_PileUpTool: public PileUpToolBase {
   void SetDumps(bool, bool);
 
   ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "mergeSvc", "PileUpMergeSvc", ""};
-  ServiceHandle<IAtRndmGenSvc>  m_atRndmGenSvc{this, "RndmSvc", "AtRndmGenSvc",
-      "Random Number Service used in ZDC digitization"};
-  CLHEP::HepRandomEngine       *m_rndEngine{nullptr};
+  ServiceHandle<IAthRNGSvc> m_randomSvc{this, "RndmSvc", "AthRNGSvc", ""};
+  Gaudi::Property<std::string> m_randomStreamName{this, "RandomStreamName", "ZDCRndEng", ""};
 
   Gaudi::Property<std::string> m_SimStripHitCollectionName{this, "SimStripHitCollection" , "ZDC_SimStripHit_Collection",
       "Name of the input Collection of the simulated Strip Hits"};

@@ -13,7 +13,6 @@ __doc__="Decoding of chain name into a dictionary"
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
-import re
 
 def getOverallL1item(chainName):
     """
@@ -24,7 +23,7 @@ def getOverallL1item(chainName):
     """
     assert '_L1' in chainName, 'ERROR IN CHAIN {}, missing L1 seed at the end i.e. _L1...' .format(chainName)
 
-    from TriggerMenuMT.LVL1MenuConfig.LVL1Menu.L1Seeds import getSpecificL1Seeds
+    from .L1Seeds import getSpecificL1Seeds
     from TrigConfIO.L1TriggerConfigAccess import L1MenuAccess
     from TrigConfigSvc.TrigConfigSvcCfg import getL1MenuFileName
 
@@ -43,8 +42,9 @@ def getOverallL1item(chainName):
         # During the transition period to the new menu format it is important to pick the correct kind based
         # on the temporary TriggerFlag readLVL1FromJSON.
         from TriggerJobOpts.TriggerFlags import TriggerFlags
-        if TriggerFlags.readLVL1FromJSON():
-            lvl1name = getL1MenuFileName()
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        if ConfigFlags.Trigger.readLVL1FromJSON:
+            lvl1name = getL1MenuFileName(ConfigFlags)
             lvl1access = L1MenuAccess(lvl1name)
             itemsDict = lvl1access.items(includeKeys = ['name','ctpid','triggerType'])
         else:
@@ -66,10 +66,6 @@ def getOverallL1item(chainName):
 
 def getL1item(chainName):
     mainL1 = getOverallL1item(chainName)
-    #replace the '_' left-closest-to ETA by '.' so that L1J75_31ETA49 becomes L1J75.31ETA49
-    if 'ETA' in mainL1:
-        r = re.compile("_(?P<eta>..ETA..)")
-        mainL1 = r.sub(".\\g<eta>", mainL1)
     return mainL1
 
 def getAllThresholdsFromItem(item):
@@ -186,23 +182,28 @@ def analyseChainName(chainName, L1thresholds, L1item):
     hltChainNameShort = '_'.join(cparts)
 
     # ---- identify the topo algorithm and add to genchainDict -----
-    from .SignatureDicts import AllowedTopos
+    from .SignatureDicts import AllowedTopos, AllowedTopos_comb
     topo = ''
     topos=[]
+    extraComboHypos = []
     toposIndexed={}
     topoindex = -5
     for cindex, cpart in enumerate(cparts):
-        if  cpart in AllowedTopos:
+        if cpart in AllowedTopos:
             log.debug('" %s" is in this part of the name %s -> topo alg', AllowedTopos, cpart)
             topo = cpart
             topoindex = cindex
             toposIndexed.update({topo : topoindex})
             hltChainNameShort=hltChainNameShort.replace('_'+cpart, '')
             topos.append(topo)
+        if cpart in AllowedTopos_comb:
+             log.debug('[analyseChainName] chain part %s is a combined topo hypo, adding to extraComboHypo', cpart)
+             extraComboHypos.append(cpart)
 
     genchainDict['topo'] = topos
+    genchainDict['extraComboHypos'] = extraComboHypos
 
-    # replace these lines belwo with cparts = chainName.split("_")
+    # replace these lines below with cparts = chainName.split("_")
     for t, i in enumerate(toposIndexed):
         if (t in cparts):
             log.debug('topo %s with index %s', t, i)
@@ -271,7 +272,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
         elif cpart =='noalg':
             multichainindex.append(hltChainNameShort.index(cpart))
             buildDict( 'Streaming', 'streamer')
-            break # stop loop here so mb doesn't get picked up from min bias slice as it's streaming info
+            break # stop loop here so that further parts like noalg_idmon are discarded, this allows have copies with different output streams and prescales. Caveat: all noalg chains go into the Streaming slice
         else:
             for chainCategory in [(['mb'], 'MinBias', 'mb'),
                                   (['hi'], 'HeavyIon', 'mb'),
@@ -324,7 +325,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
         # verify if all thresholds are mentioned in chain parts, if they are not then one of the indices will be -1
         assert all( [i > 0 for i in indices] ), "Some thresholds are not part of the chain name name {}, {}".format(chainName, L1thresholds)
         # verify that the order of threshold and order of threshold mentioned in the name (there they are prexixed by L1) is identical, else there may be mistake
-        assert sorted(indices), "The order of L1 threshlds mentioned in chain name {} are not the same as threshold passed {}".format(chainName, L1thresholds)
+        assert sorted(indices), "The order of L1 thresholds mentioned in chain name {} are not the same as threshold passed {}".format(chainName, L1thresholds)
 
     for chainindex, chainparts in enumerate(multichainparts):
         chainProperties = {} #will contain properties for one part of chain if multiple parts
@@ -338,15 +339,18 @@ def analyseChainName(chainName, L1thresholds, L1item):
 
         chainpartsNoL1 = chainparts
         parts=chainpartsNoL1.split('_')
+        if None in parts:
+            log.error("[analyseChainName] chainpartsNoL1 -> parts: %s -> %s", chainpartsNoL1, parts)
+            raise Exception("[analyseChainName] parts contains None, please identify how this is happening")
         parts=list(filter(None,parts))
-
+        log.debug("[analyseChainName] chainpartsNoL1 %s, parts %s", chainpartsNoL1, parts)
+        
         chainProperties['trigType']=mdicts[chainindex]['trigType']
         chainProperties['extra']=mdicts[chainindex]['extra']
         multiplicity = mdicts[chainindex]['multiplicity'] if not mdicts[chainindex]['multiplicity'] == '' else '1'
         chainProperties['multiplicity'] = multiplicity
         chainProperties['threshold']=mdicts[chainindex]['threshold']
         chainProperties['signature']=mdicts[chainindex]['signature']
-        chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern(mdicts[chainindex]['signature'], mdicts[chainindex]['extra'])
 
         # if we have a L1 topo in a multi-chain then we want to remove it from the chain name
         # but only if it's the same as the L1item_main; otherwise it belongs to chain part and we q
@@ -372,7 +376,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
         for t in genchainDict['topo']:
             if (t in AllowedTopos_Bphysics):
                 chainProperties['signature'] = 'Bphysics'
-                chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern('Bphysics', mdicts[chainindex]['extra'])
+                chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern('Bphysics', chainProperties['extra'])
 
 
 
@@ -388,11 +392,9 @@ def analyseChainName(chainName, L1thresholds, L1item):
 
         # ---- check remaining parts for complete matches in allowedPropertiesAndValues Dict ----
         # ---- unmatched = list of tokens that are not found in the allowed values as a whole ----
-        parts = filter(None, parts)     #removing empty strings from list
 
         matchedparts = []
         for pindex, part in enumerate(parts):
-            origpart = part
             for prop, allowedValues in allowedSignaturePropertiesAndValues.items():
                 if part in allowedValues:
                     if type(chainProperties[prop]) is list:
@@ -430,15 +432,12 @@ def analyseChainName(chainName, L1thresholds, L1item):
                         if (chainProperties['signature'] in ['Egamma', 'Muon'] )& (prop in ['trkInfo','hypoInfo']):
                             chainProperties[prop] = part
                             part = part.replace(part,'')
-                        elif (chainProperties['signature'] in ['Jet'] )& (prop in ['gscThreshold']):
-                            chainProperties[prop] = part
-                            part = part.replace(part,'')
                         else:
                             chainProperties[prop] = aV
                             part = part.replace(aV,'')
                             break # done with allowed values for that property
 
-            assert len(part.split()) == 0, "These parts of the chain name {} are not understood {}".format(origpart,part)
+            assert len(part.split()) == 0, "These parts of the chain name {} are not understood: {}".format(chainpartsNoL1,part)
 
 
         # ---- remove properties that aren't allowed in the chain properties for a given siganture ----
@@ -449,9 +448,15 @@ def analyseChainName(chainName, L1thresholds, L1item):
             forbiddenValue = chainProperties.pop(fb)
             assert forbiddenValue == '', "Property {} not allowed for signature '{}', but specified '{}'".format (fb, chainProperties['signature'], forbiddenValue)
 
+        # ---- set the alignment group here, once we have fully worked out the properties ----
+        # ---- this is for the benefit of the probe leg in T&P chains ----
+        if 'larnoiseburst' in chainName:
+            chainProperties['alignmentGroup'] = 'JetMET'
+        else:
+            chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern(mdicts[chainindex]['signature'], chainProperties['extra'])
+
         # ---- the info of the general and the specific chain parts dict ----
         allChainProperties.append(chainProperties)
-
 
     # ---- depending on if signatures are different in this chain, break up the chainProperties dictionary ----
     # ---- finally also taking care of the signature key ----
@@ -468,6 +473,13 @@ def analyseChainName(chainName, L1thresholds, L1item):
     return genchainDict
 
 
+def flattenChainGroups(A):
+    rt = []
+    for i in A:
+        if isinstance(i,list): rt.extend(flattenChainGroups(i))
+        else: rt.append(i)
+    return rt
+
 def dictFromChainName(chainInfo):
     """
     Transforms ChainProp into the ChainDict
@@ -476,7 +488,7 @@ def dictFromChainName(chainInfo):
     ---- Loop over all chains (keys) in dictionary ----
     ---- Then complete the dict with other info    ----
     Default input format will be namedtuple:
-    ChainProp: ['name', 'L1Thresholds'=[], 'stream', 'groups', 'merging'=[], 'topoStartFrom'=False],
+    ChainProp: ['name', 'L1Thresholds'=[], 'stream', 'groups', 'merging'=[], 'topoStartFrom'=False, 'monGroups' = []],
     but for nwo plain chain name is also supported
     
     """
@@ -492,17 +504,20 @@ def dictFromChainName(chainInfo):
         mergingOffset   = -1
         mergingOrder    = []
         topoStartFrom   = ''
+        monGroups       = []
 
     elif 'ChainProp' in str(type(chainInfo)):	
         #this is how we define chains in the menu - the normal behaviour of this function
         chainName       = chainInfo.name
         l1Thresholds    = chainInfo.l1SeedThresholds
         stream          = chainInfo.stream
-        groups          = chainInfo.groups
+        groups          = flattenChainGroups(chainInfo.groups)
         mergingStrategy = chainInfo.mergingStrategy
         mergingOffset   = chainInfo.mergingOffset
         mergingOrder    = chainInfo.mergingOrder
         topoStartFrom   = chainInfo.topoStartFrom
+        monGroups       = chainInfo.monGroups
+
         
     else:
         assert True, "Format of chainInfo passed to genChainDict not known"
@@ -521,6 +536,7 @@ def dictFromChainName(chainInfo):
     chainDict['mergingOffset']   = mergingOffset
     chainDict['mergingOrder']    = mergingOrder
     chainDict['topoStartFrom']   = topoStartFrom
+    chainDict['monGroups']       = monGroups
     chainDict['chainNameHash']   = string2hash(chainDict['chainName'])
 
 

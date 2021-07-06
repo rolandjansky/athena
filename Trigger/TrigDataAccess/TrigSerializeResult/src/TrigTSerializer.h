@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -14,6 +14,7 @@
 #ifndef TRIGTSERIALIZER_H
 #define TRIGTSERIALIZER_H
 
+#include "Gaudi/Property.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "CxxUtils/checker_macros.h"
 #include "TrigSerializeResult/ITrigSerializerToolBase.h"
@@ -69,8 +70,11 @@ private:
   void do_follow_ptr(const std::string nameOfClass, void* instance);
   void add_previous_streamerinfos();
   
-  static void streamerErrorHandler(Int_t level, Bool_t abort_bool,
+  static bool streamerErrorHandler(Int_t level, Bool_t abort_bool,
 				   const char* location, const char *msg);
+  static bool bsDictWarningFilter(Int_t level, Bool_t abort_bool,
+				   const char* location, const char *msg);
+
   void prepareForTBuffer(const std::string &nameOfClass);
   void restoreAfterTBuffer(const std::string &nameOfClass);
 
@@ -79,11 +83,17 @@ private:
   uint32_t  m_guid[4];  
 
   // for error handling
-  ErrorHandlerFunc_t  m_defaultHandler;
   static   bool       s_decodingError;
   //static   bool       m_reportError;
   uint32_t  m_IgnoreErrLvl;
   std::map<std::string, uint32_t>   m_errCount;
+
+  /// IgnoreMissingDicts
+  StringArrayProperty m_ignoreMissingDicts   {
+     this, "IgnoreMissingDicts", {},
+     "Suppress warining about missing dictionaries", "OrderedSet<std::string>" };
+  /// static copy of the IgnoreMissingDicts property for the static error handler
+  static std::vector<std::string>    s_dictsToIgnore;
 };
 
 #undef REFLEX_NS

@@ -421,6 +421,13 @@ class doNewMonitoring(JobProperty):
     StoredValue=True
 list+=[doNewMonitoring]
 
+class triggerMixedMode(JobProperty):
+    """ Enable R21 HLT/L1 trigger monitoring on Run 2 data """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+list+=[triggerMixedMode]
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the DQMon flag container

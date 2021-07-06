@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/StandaloneToolHandle.h"
 #include "AsgAnalysisInterfaces/IObservableTool.h"
 #include "PATInterfaces/ISystematicsTool.h"
 
@@ -82,22 +82,22 @@ int main() {
    static const int verboseLevel = 3;
 #endif // XAOD_STANDALONE
 
-   asg::AnaToolHandle<IObservableTool> myTool("ParticleScaleFactorTool/tool1");
+   asg::StandaloneToolHandle<IObservableTool> myTool("ParticleScaleFactorTool/tool1");
    ANA_CHECK( myTool.setProperty( "File", "test.root" ) );
    ANA_CHECK( myTool.setProperty( "OutputLevel", verboseLevel ) );
    ANA_CHECK( myTool.initialize() );
 
-   asg::AnaToolHandle<IObservableTool> myTool2("ParticleScaleFactorTool/tool2");
+   asg::StandaloneToolHandle<IObservableTool> myTool2("ParticleScaleFactorTool/tool2");
    ANA_CHECK( myTool2.setProperty( "File", "test2.root" ) );
    ANA_CHECK( myTool2.setProperty( "OutputLevel", verboseLevel ) ); //debugging
    ANA_CHECK( myTool2.initialize() );
 
-   asg::AnaToolHandle<IObservableTool> myTool3("ParticleScaleFactorTool/tool3");
+   asg::StandaloneToolHandle<IObservableTool> myTool3("ParticleScaleFactorTool/tool3");
    ANA_CHECK( myTool3.setProperty( "File", "test3.root" ) );
    ANA_CHECK( myTool3.setProperty( "OutputLevel", verboseLevel ) ); //debugging
    ANA_CHECK( myTool3.initialize() );
 
-   asg::AnaToolHandle<IObservableTool> myTool4("ParticleScaleFactorTool/tool4");
+   asg::StandaloneToolHandle<IObservableTool> myTool4("ParticleScaleFactorTool/tool4");
    ANA_CHECK( myTool4.setProperty( "File", "test4.root" ) );
    ANA_CHECK( myTool4.setProperty( "OutputLevel", verboseLevel ) ); //debugging
    ANA_CHECK( myTool4.initialize() );
@@ -115,12 +115,14 @@ int main() {
 
    CP::SystematicSet s; s.insert(CP::SystematicVariation("mySyst",1));
 
-   dynamic_cast<CP::ISystematicsTool*>(&*myTool4)->applySystematicVariation(s).ignore();
+   auto isyst4 = dynamic_cast<CP::ISystematicsTool*>(&*myTool4);
+   if (!isyst4) std::abort();
+   isyst4->applySystematicVariation(s).ignore();
    std::cout << myTool4->evaluate(e) << std::endl; //should print 5.0
 
    s.clear(); s.insert(CP::SystematicVariation("mySyst",-1));
 
-   dynamic_cast<CP::ISystematicsTool*>(&*myTool4)->applySystematicVariation(s).ignore();
+   isyst4->applySystematicVariation(s).ignore();
    std::cout << myTool4->evaluate(e) << std::endl; //should print 1.0
 
    return 0; //zero = success

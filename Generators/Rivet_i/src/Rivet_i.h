@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RIVET_I_H
@@ -8,6 +8,8 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "Rivet/AnalysisHandler.hh"
+
+#include "AtlasHepMC/GenEvent.h"
 
 #include <vector>
 #include <string>

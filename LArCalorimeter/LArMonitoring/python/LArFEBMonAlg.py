@@ -60,8 +60,19 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
        persClass="AthenaAttributeList"
        fld="/LAR/Configuration/DSPThresholdFlat/Thresholds"
        if isRun3Cfg():
-          iovDbSvc=helper.resobj.getService("IOVDbSvc")
-          condLoader=helper.resobj.getCondAlgo("CondInputLoader")
+          havethem=False
+          for c in helper.resobj.getServices(): 
+              if c.getName()=="IOVDbSvc":
+                 iovDbSvc=c
+                 condLoader=helper.resobj.getCondAlgo("CondInputLoader")
+                 havethem=True
+                 break
+              pass
+          if not havethem:
+             from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
+             helper.resobj.merge(IOVDbSvcCfg(inputFlags))
+             condLoader=helper.resobj.getCondAlgo("CondInputLoader")
+             iovDbSvc=helper.resobj.getService("IOVDbSvc")
        else:   
           from AthenaCommon import CfgGetter
           iovDbSvc=CfgGetter.getService("IOVDbSvc")
@@ -77,7 +88,8 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
        db='LAR_ONL'
        obj='LArDSPThresholdsComplete'
        if isRun3Cfg():
-           helper.resobj.addFolderList(inputFlags,[(fld,db,obj)])
+           from IOVDbSvc.IOVDbSvcConfig import addFolders
+           helper.resobj.merge(addFolders(inputFlags,fld,db,obj))
        else:
            conddb.addFolder (db, fld, className=obj)
        larFEBMonAlg.Run1DSPThresholdsKey = 'LArDSPThresholds'
@@ -94,7 +106,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
     summary_hist_path='Summary/'
     
     #-- TTree for corrupted events timestamp
-    Group.defineTree('timestamp,time_ns,febHwId,febError;LArCorrupted', 
+    Group.defineTree('timestamp,time_ns,febHwId,febErrorType;LArCorrupted', 
                      path=summary_hist_path,
                      title='Timestamps of corrupted LAr events',
                      treedef='timestamp/i:time_ns/i:febHwId/vector<int>:febErrorType/vector<int>')
@@ -151,7 +163,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.EvtRej_Bins, xmin=lArDQGlobals.EvtRej_Min, xmax=lArDQGlobals.EvtRej_Max,
                                   xlabels=lArDQGlobals.EvtRej_labels)
-    Group.defineHistogram('EvtRej,EvtRejYield1D;RAW_EventsRejectedYield', 
+    Group.defineHistogram('EvtRej,EvtRejYield1D;EventsRejectedYield', 
                                   title='Data corruption yield:Corruption type:Yield(%)',
                                   type='TProfile',
                                   path=summary_hist_path,
@@ -204,17 +216,17 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
 
     if isOnline:     
        Group.defineHistogram('LBf,EvtRejYield;RAW_EventsRejectedLB',
-                                titile='% of events rejected in current LB (online only)',
+                                title='% of events rejected in current LB (online only)',
                                 type='TProfile',
                                 path=summary_hist_path,
                                 xbins=1, xmin=0, xmax=1, xlabels=['% of events'])
        Group.defineHistogram('LB,streamBin,LArEvSizePart;eventSizeStreamVsLB',
-                                titile='LAr event size per stream per LB (w/o ROS headers)',
+                                title='LAr event size per stream per LB (w/o ROS headers)',
                                 type='TProfile2D',
                                 path=summary_hist_path,
                                 xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max,
                                 ybins=len(larFEBMonAlg.Streams),ymin=-0.5, ymax= len(larFEBMonAlg.Streams)-0.5,
-                                ylabels=larFEBMonAlg.Streams 
+                                ylabels=list(larFEBMonAlg.Streams) 
                                 )
 
     # Now per partition histograms
@@ -376,17 +388,17 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
 
        if isOnline:
           darray.defineHistogram('LBf,erronl;RAW_EventsRejectedLB',
-                                titile='% of events rejected in current LB (online only)',
+                                title='% of events rejected in current LB (online only)',
                                 type='TProfile',
                                 path=hist_path,
                                 xbins=1, xmin=0, xmax=1, xlabels=['% of events'])
           darray.defineHistogram('LB,streamBin,LArEvSizePart;eventSizeStreamVsLB',
-                                titile='LAr event size per stream per LB (w/o ROS headers)',
+                                title='LAr event size per stream per LB (w/o ROS headers)',
                                 type='TProfile2D',
                                 path=hist_path,
                                 xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max,
                                 ybins=len(larFEBMonAlg.Streams),ymin=-0.5, ymax= len(larFEBMonAlg.Streams)-0.5,
-                                ylabels=larFEBMonAlg.Streams
+                                ylabels=list(larFEBMonAlg.Streams)
                                 )
        pass
 

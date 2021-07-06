@@ -1,4 +1,5 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+add_definitions(-g -O2)
 
 # Declare the package name:
 atlas_subdir( DerivationFrameworkTools )

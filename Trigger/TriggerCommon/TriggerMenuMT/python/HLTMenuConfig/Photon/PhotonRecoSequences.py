@@ -2,89 +2,10 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from TrigEDMConfig.TriggerEDMRun3 import recordable
-from AthenaCommon.CFElements import parOR
 
 #logging
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Photon.PhotonRecoSequences' )  
-
-def precisionPhotonRecoSequence(RoIs):
-    """ With this function we will setup the sequence of offline EgammaAlgorithms so to make a photon for TrigEgamma 
-
-    Sequence of algorithms is the following:
-      - egammaRecBuilder/TrigEgammaRecPhoton creates egammaObjects out of clusters and tracks. Here, at HLT photons we will only use clusters. 
-      - photonSuperClusterBuilder algorithm will create superclusters out of the toposlusters and tracks in egammaRec under the photon hypothesis
-          https://gitlab.cern.ch/atlas/athena/blob/master/Reconstruction/egamma/egammaAlgs/python/egammaSuperClusterBuilder.py#L26 
-      - TopoEgammBuilder will create photons and electrons out of trakcs and SuperClusters. Here at HLT photons the aim is to ignore electrons and not use tracks at all.
-          https://gitlab.cern.ch/atlas/athena/blob/master/Reconstruction/egamma/egammaAlgs/src/topoEgammaBuilder.cxx
-    """
-
-
-    log.debug('precisionPhotonRecoSequence(RoIs = %s)',RoIs)
-
-    # First the data verifiers:
-    # Here we define the data dependencies. What input needs to be available for the Fexs (i.e. TopoClusters from precisionCalo) in order to run
-    from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precisionCaloMenuDefs
-    import AthenaCommon.CfgMgr as CfgMgr
-    ViewVerify = CfgMgr.AthViews__ViewDataVerifier("PrecisionPhotonPhotonViewDataVerifier")
-    ViewVerify.DataObjects = [( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+%s' % precisionCaloMenuDefs.precisionCaloClusters ),
-                              ( 'CaloCellContainer' , 'StoreGateSvc+CaloCells' )]
-
-
-    # Retrieve the factories now
-    from TriggerMenuMT.HLTMenuConfig.Photon.TrigPhotonFactories import TrigEgammaRecPhoton, TrigPhotonSuperClusterBuilder, TrigTopoEgammaPhotons
-
-
-
-
-
-
-
-
-    log.debug('retrieve(precisionPhotonRecoSequence,None,RoIs = %s)',RoIs)
-
-    # The sequence of these algorithms
-    thesequence = parOR( "precisionPhotonAlgs") # This thing creates the sequence with name precisionPhotonAlgs
-    thesequence += ViewVerify
-
-    # Add to the sequence the three steps:
-    #  - TrigEgammaBuilder, TrigPhotonSuperClusters, TrigTopoEgammaPhotons
-    TrigEgammaAlgo = TrigEgammaRecPhoton()
-    TrigEgammaAlgo.InputTopoClusterContainerName = precisionCaloMenuDefs.precisionCaloClusters
-    thesequence += TrigEgammaAlgo
-
-    trigPhotonAlgo = TrigPhotonSuperClusterBuilder()
-    trigPhotonAlgo.InputEgammaRecContainerName = TrigEgammaAlgo.egammaRecContainer
-    thesequence += trigPhotonAlgo
-
-    trigTopoEgammaAlgo = TrigTopoEgammaPhotons()
-    trigTopoEgammaAlgo.SuperPhotonRecCollectionName = trigPhotonAlgo.SuperPhotonRecCollectionName
-    collectionOut = trigTopoEgammaAlgo.PhotonOutputName
-    thesequence += trigTopoEgammaAlgo
-
-    # Add CaloIsolationTool
-    from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import TrigPhotonIsoBuilderCfg
-    isoBuilder = TrigPhotonIsoBuilderCfg()
-    thesequence += isoBuilder
-
-    #online monitoring for topoEgammaBuilder
-    from TriggerMenuMT.HLTMenuConfig.Photon.TrigPhotonFactories import PrecisionPhotonTopoMonitorCfg
-    PrecisionPhotonRecoMonAlgo = PrecisionPhotonTopoMonitorCfg()
-    PrecisionPhotonRecoMonAlgo.PhotonKey = trigTopoEgammaAlgo.PhotonOutputName
-    thesequence += PrecisionPhotonRecoMonAlgo
-
-    #online monitoring for TrigPhotonSuperClusterBuilder
-    from TriggerMenuMT.HLTMenuConfig.Photon.TrigPhotonFactories import PrecisionPhotonSuperClusterMonitorCfg
-    PrecisionPhotonSuperClusterMonAlgo = PrecisionPhotonSuperClusterMonitorCfg()
-    PrecisionPhotonSuperClusterMonAlgo.InputEgammaRecContainerName = trigPhotonAlgo.SuperPhotonRecCollectionName
-    thesequence += PrecisionPhotonSuperClusterMonAlgo
-
-    return (thesequence, collectionOut)
-
-
-
-
-
+log = logging.getLogger(__name__)
 
 
 
@@ -93,7 +14,7 @@ def l2PhotonAlgCfg( flags ):
     #from TrigEgammaHypo.TrigL2PhotonFexMTConfig import L2PhotonFex_1
     from AthenaConfiguration.ComponentFactory import CompFactory
 
-    photonFex= CompFactory.TrigEgammaFastPhotonFexMT("EgammaFastPhotonFex_1")
+    photonFex= CompFactory.TrigEgammaFastPhotonReAlgo("EgammaFastPhotonFex_1")
     #photonFex= L2PhotonFex_1()
     photonFex.TrigEMClusterName = recordable("HLT_FastCaloEMClusters")
     photonFex.PhotonsName = recordable("HLT_FastPhotons")
@@ -113,9 +34,9 @@ def photonViewDataVerifierCfg():
     return result
 
 def l2PhotonRecoCfg( flags ):
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewRecoCA
 
-    reco = InViewReco("L2PhotonReco")
+    reco = InViewRecoCA("L2PhotonReco")
     reco.inputMaker().RequireParentView = True
     reco.inputMaker().RoIsLink="initialRoI"
 
@@ -135,7 +56,7 @@ def l2PhotonRecoCfg( flags ):
 def l2PhotonHypoCfg( flags, Photons='Unspecified', RunInView=True):
     from AthenaConfiguration.ComponentFactory import CompFactory
 
-    l2PhotonHypo = CompFactory.TrigEgammaFastPhotonHypoAlgMT()
+    l2PhotonHypo = CompFactory.TrigEgammaFastPhotonHypoAlg()
     l2PhotonHypo.Photons = Photons
     l2PhotonHypo.RunInView = RunInView
 
@@ -148,8 +69,8 @@ def generatePhotonsCfg( flags ):
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, ChainStep, Chain, RecoFragmentsPool
 
     from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoToolFromDict
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastCaloHypoAlgMT
-    l2CaloHypo              = TrigEgammaFastCaloHypoAlgMT("EgammaFastPhotonCaloHypo")
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastCaloHypoAlg
+    l2CaloHypo              = TrigEgammaFastCaloHypoAlg("EgammaFastPhotonCaloHypo")
     l2CaloHypo.CaloClusters = 'L2CaloEMClusters'
 
 
@@ -171,8 +92,8 @@ def generatePhotonsCfg( flags ):
     l2PhotonReco = RecoFragmentsPool.retrieve( l2PhotonRecoCfg, flags )
     acc.merge( l2PhotonReco )
     
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastPhotonHypoAlgMT
-    l2PhotonHypo = TrigEgammaFastPhotonHypoAlgMT()
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastPhotonHypoAlg
+    l2PhotonHypo = TrigEgammaFastPhotonHypoAlg()
     l2PhotonHypo.Photons = "L2Photons"
     l2PhotonHypo.RunInView=True
 

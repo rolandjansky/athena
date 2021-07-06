@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """ToolFactory to instantiate  TrigEMBremCollectionBuilder
 with default configuration"""
@@ -9,20 +9,20 @@ from AthenaCommon.Logging import logging
 # import base class
 from egammaAlgs import egammaAlgsConf
 from egammaRec.Factories import AlgFactory
-from egammaTools.egammaExtrapolators import (AtlasPublicExtrapolator,
-                                             egammaExtrapolator)
+from egammaTools.egammaExtrapolators import egammaExtrapolator
 
 # default configuration of the EMBremCollectionBuilder
 from InDetRecExample.InDetJobProperties import InDetFlags
 from RecExConfig.RecFlags import rec
 from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys_GSF
 
+log = logging.getLogger(__name__)
+
 class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
     __slots__ = ()
 
     def __init__(self, name="TrigEgammaBremCollectionBuilder", **kw):
-        mlog = logging.getLogger(name + '::__init__')
-        mlog.info("entering")
+        log.debug("entering")
 
         super(TrigEgammaBremCollectionBuilder, self).__init__(name, **kw)
 
@@ -70,10 +70,27 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
         GSFBuildTRT_ElectronPidTool = None
         if DetFlags.haveRIO.TRT_on() and not InDetFlags.doSLHC(
         ) and not InDetFlags.doHighPileup():
-            GSFBuildTRT_ElectronPidTool = (
-                TrackingCommon.getInDetTRT_ElectronPidTool(
+
+            from TrigInDetConfig.InDetTrigCollectionKeys import TrigTRTKeys
+            from AthenaCommon.GlobalFlags import globalflags
+            TrigTRTRDOs = "TRT_RDOs"
+            if globalflags.DataSource() == "data":
+                TrigTRTRDOs = TrigTRTKeys.RDOs
+
+            TRT_LocalOccupancyTool = TrackingCommon.getInDetTRT_LocalOccupancy(
+                TRT_RDOContainerName=TrigTRTRDOs,
+                TRT_DriftCircleCollection="",
+                isTrigger=True)
+
+            TRT_ToT_dEdx_Tool = TrackingCommon.getInDetTRT_dEdxTool(
+                    TRT_LocalOccupancyTool=TRT_LocalOccupancyTool,
+                    AssociationTool="InDetTrigPrdAssociationTool")
+
+            GSFBuildTRT_ElectronPidTool = TrackingCommon.getInDetTRT_ElectronPidTool(
                     name="GSFBuildTRT_ElectronPidTool",
-                    private=True))
+                    private=True,
+                    TRT_LocalOccupancyTool=TRT_LocalOccupancyTool,
+                    TRT_ToT_dEdx_Tool=TRT_ToT_dEdx_Tool)
 
         #
         #  InDet Track Summary Helper, no Association and no hole
@@ -113,7 +130,6 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
         GSFBuildInDetParticleCreatorTool = Trk__TrackParticleCreatorTool(
             name="GSFBuildInDetParticleCreatorTool",
             KeepParameters=True,
-            Extrapolator=AtlasPublicExtrapolator(),
             UseTrackSummaryTool=False)
         #
         #  Track slimming (private not in ToolSvc)

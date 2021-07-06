@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -504,6 +504,13 @@ bool psc::Psc::prepareForRun (const ptree& args)
   };
   if(!callOnEventLoopMgr<ITrigEventLoopMgr>(prep, "prepareForRun").isSuccess()) {
     return false;
+  }
+
+  if ( Py_IsInitialized() ) {
+    // After prepareForRun the HLTMPPU will fork the workers. Tell the Python
+    // interpreter this is happening to avoid deadlocks (ATR-23428).
+    ERS_DEBUG(1, "Pre-fork initialization of Python interpreter");
+    PyOS_BeforeFork();
   }
 
   return true;

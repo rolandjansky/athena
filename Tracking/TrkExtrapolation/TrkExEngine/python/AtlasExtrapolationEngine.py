@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ######################################################
 # AtlasExtrapolationEngine module
@@ -10,6 +10,8 @@
 
 # import the ExtrapolationEngine configurable
 from TrkExEngine.TrkExEngineConf import Trk__ExtrapolationEngine as ExEngine
+from InDetRecExample.TrackingCommon import createAndAddCondAlg
+from InDetRecExample import TrackingCommon
 
 # define the class
 class AtlasExtrapolationEngine( ExEngine ):
@@ -17,10 +19,15 @@ class AtlasExtrapolationEngine( ExEngine ):
     def __init__(self,name = 'Extrapolation', nameprefix = 'Atlas', ToolOutputLevel = None, TrackingGeometrySvc = None):
        
         # get the correct TrackingGeometry setup
+        AtlasTrackingGeometrySvc=None
+        AtlasTrackingGeometryCondAlg=None
         if not TrackingGeometrySvc :
-            from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
-            from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-            AtlasTrackingGeometrySvc = svcMgr.AtlasTrackingGeometrySvc  # noqa: F811
+            if TrackingCommon.use_tracking_geometry_cond_alg :
+                AtlasTrackingGeometryCondAlg = createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
+            else :
+                from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
+                from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+                AtlasTrackingGeometrySvc = svcMgr.AtlasTrackingGeometrySvc  # noqa: F811
         else :
             AtlasTrackingGeometrySvc = TrackingGeometrySvc
 
@@ -68,7 +75,8 @@ class AtlasExtrapolationEngine( ExEngine ):
         StaticNavigator.PropagationEngine        = StaticPropagator
         StaticNavigator.MaterialEffectsEngine    = MaterialEffectsEngine
         # Geometry name
-        StaticNavigator.TrackingGeometry         = AtlasTrackingGeometrySvc.TrackingGeometryName
+        StaticNavigator.TrackingGeometrySvc         = ''      if AtlasTrackingGeometryCondAlg is not None else AtlasTrackingGeometrySvc
+        StaticNavigator.TrackingGeometryReadKey     = AtlasTrackingGeometryCondAlg.TrackingGeometryWriteKey  if AtlasTrackingGeometryCondAlg is not None else ''
         # configure output formatting               
         StaticNavigator.OutputPrefix             = '[SN] - '
         StaticNavigator.OutputPostfix            = ' - '
@@ -98,7 +106,8 @@ class AtlasExtrapolationEngine( ExEngine ):
                           ExtrapolationEngines   = [ StaticExtrapolator ],
                           PropagationEngine      = StaticPropagator,
                           NavigationEngine       = StaticNavigator,
-                          TrackingGeometrySvc    = AtlasTrackingGeometrySvc,
+                          TrackingGeometrySvc    = ''      if AtlasTrackingGeometryCondAlg is not None else AtlasTrackingGeometrySvc,
+                          TrackingGeometryReadKey= AtlasTrackingGeometryCondAlg.TrackingGeometryWriteKey  if AtlasTrackingGeometryCondAlg is not None else '',
                           OutputPrefix           = '[ME] - ',
                           OutputPostfix          = ' - ')
         # set the output level

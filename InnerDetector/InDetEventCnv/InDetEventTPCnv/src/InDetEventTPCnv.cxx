@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // generate the T/P converter entries
@@ -22,11 +22,9 @@
 #include "InDetEventTPCnv/PixelClusterContainer_p2.h"
 #include "InDetEventTPCnv/PixelClusterContainer_p3.h"
 #include "InDetEventTPCnv/SCT_ClusterContainer_p2.h"
-#include "InDetEventTPCnv/PixelClusterContainer_tlp1.h"
 #include "InDetEventTPCnv/SCT_ClusterContainer_tlp1.h"
 #include "InDetEventTPCnv/TRT_DriftCircleContainer_tlp1.h"
 #include "InDetEventTPCnv/InDetPrepRawData/PixelGangedClusterAmbiguities_p1.h"
-#include "InDetEventTPCnv/TRT_DriftCircleContainer_tlp1.h"
 #include "InDetEventTPCnv/InDetCompetingRIOsOnTrack/CompetingPixelClustersOnTrack_p1.h"
 #include "InDetEventTPCnv/InDetCompetingRIOsOnTrack/CompetingSCT_ClustersOnTrack_p1.h"
 #include "InDetEventTPCnv/InDetCompetingRIOsOnTrack/CompetingTRT_DriftCirclesOnTrack_p1.h"

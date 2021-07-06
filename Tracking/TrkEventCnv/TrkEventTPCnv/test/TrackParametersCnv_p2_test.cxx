@@ -71,7 +71,7 @@ void compare (const Trk::TrackParameters& p1,
               
 void testit (const Trk::TrackParameters& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   TrackParametersCnv_p2 cnv;
   TrackCollectionCnv_tlp5 tlcnv;
   cnv.setRuntimeTopConverter (&tlcnv);
@@ -93,40 +93,41 @@ void test1 ATLAS_NOT_THREAD_SAFE ()
     for (int j=0; j < 5; j++)
       cov(i,j) = 100*(i+1)*(j+1);
 
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
+
   Trk::PerigeeSurface psurf (Amg::Vector3D (50, 100, 150));
-  Trk::Perigee trans1 (100, 200, 1.5, 0.5, 1e-3, psurf, nullptr);
+  Trk::Perigee trans1 (100, 200, 1.5, 0.5, 1e-3, psurf, std::nullopt);
   testit (trans1);
 
   Trk::Perigee trans1c (100, 200, 1.5, 0.5, 1e-3, psurf,
-                        new AmgSymMatrix(5) (cov));
+                        cov);
   testit (trans1c);
 
   Trk::PlaneSurface plsurf (Amg::Vector3D (100, 50, 150),
                             Trk::CurvilinearUVT (Amg::Vector3D (150, 100, 50)));
-  Trk::AtaPlane trans2 (200, 100, 1.4, 0.7, 2e-3, plsurf, nullptr);
+  Trk::AtaPlane trans2 (200, 100, 1.4, 0.7, 2e-3, plsurf, std::nullopt);
   testit (trans2);
 
   Trk::AtaPlane trans2c (200, 100, 1.4, 0.7, 2e-3, plsurf,
-                         new AmgSymMatrix(5) (cov));
+                         cov);
   testit (trans2c);
 
   Trk::StraightLineSurface slsurf
-    (std::make_unique<Amg::Transform3D>(Amg::getRotateX3D (0.5)));
-  Trk::AtaStraightLine trans3 (200, 100, 1.4, 0.7, 2e-3, slsurf, nullptr);
+    (Amg::Transform3D(Amg::getRotateX3D (0.5)));
+  Trk::AtaStraightLine trans3 (200, 100, 1.4, 0.7, 2e-3, slsurf, std::nullopt);
   testit (trans3);
 
   Trk::AtaStraightLine trans3c (200, 100, 1.4, 0.7, 2e-3, slsurf,
-                                new AmgSymMatrix(5) (cov));
+                                cov);
   testit (trans3c);
 
   Trk::ConeSurface csurf
-    (std::make_unique<Amg::Transform3D>(Amg::getRotateX3D (0.5)).release(), 0.45);
-  Trk::AtaCone trans4 (200, 100, 1.4, 0.7, 2e-3, csurf, nullptr);
+    (Amg::Transform3D(Amg::getRotateX3D (0.5)), 0.45);
+  Trk::AtaCone trans4 (200, 100, 1.4, 0.7, 2e-3, csurf, std::nullopt);
   testit (trans4);
 
   Trk::AtaCone trans4c (200, 100, 1.4, 0.7, 2e-3, csurf,
-                        new AmgSymMatrix(5) (cov));
+                        cov);
   testit (trans4c);
 }
 

@@ -269,8 +269,8 @@ inline Amg::Vector3D GeoMMHit::getTrkGlobalPosition() const {
         return Amg::Vector3D(0,0,0);
     }
     Amg::Vector3D trkLocP = getTrkLocalPosition();
-    const Amg::Vector3D *pp= (mmdet->surface(offid)).Trk::Surface::localToGlobal(Amg::Vector2D(trkLocP.x(),trkLocP.y()));
-    Amg::Vector3D trkGloP = Amg::Vector3D(pp->x(),pp->y(),pp->z());
+    const Amg::Vector3D pp = (mmdet->surface(offid)).Trk::Surface::localToGlobal(Amg::Vector2D(trkLocP.x(),trkLocP.y()));
+    Amg::Vector3D trkGloP = Amg::Vector3D(pp.x(),pp.y(),pp.z());
     return trkGloP;
 
 }

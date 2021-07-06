@@ -30,7 +30,7 @@ namespace Trk
 
 //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
-IntersectorWrapper::IntersectorWrapper	(const std::string& type, 
+IntersectorWrapper::IntersectorWrapper	(const std::string& type,
                                          const std::string& name,
                                          const IInterface* parent)
   :AthAlgTool		(type, name, parent),
@@ -57,17 +57,17 @@ IntersectorWrapper::initialize(){
 
   if (!m_linePropagator.empty()) {
     ATH_CHECK( m_linePropagator.retrieve());
-  } 
+  }
   return StatusCode::SUCCESS;
 }
 
-  
+
 StatusCode IntersectorWrapper::finalize()
 {
   return StatusCode::SUCCESS;
 }
 
-NeutralParameters*
+std::unique_ptr<NeutralParameters>
 IntersectorWrapper::propagate (const NeutralParameters&		parameters,
                                const Surface&			surface,
                                PropDirection			dir,
@@ -77,7 +77,7 @@ IntersectorWrapper::propagate (const NeutralParameters&		parameters,
   return m_linePropagator->propagate(parameters,surface,dir,boundsCheck,curvilinear);
 }
 
-TrackParameters*
+std::unique_ptr<TrackParameters>
 IntersectorWrapper::propagate (const EventContext&              /*ctx*/,
                                const TrackParameters&		parameters,
                                const Surface&			surface,
@@ -91,10 +91,10 @@ IntersectorWrapper::propagate (const EventContext&              /*ctx*/,
   Cache cache{};
   findIntersection(cache,parameters,surface, dir);
   createParameters(cache,surface,boundsCheck,curvilinear);
-  return cache.m_parameters;
+  return std::move(cache.m_parameters);
 }
 
-TrackParameters*
+std::unique_ptr<TrackParameters>
 IntersectorWrapper::propagate (const EventContext&              /*ctx*/,
                                const TrackParameters&		parameters,
                                const Surface&			surface,
@@ -110,10 +110,10 @@ IntersectorWrapper::propagate (const EventContext&              /*ctx*/,
   Cache cache{};
   findIntersection(cache,parameters,surface,dir);
   createParameters(cache,surface,boundsCheck,curvilinear);
-  return cache.m_parameters;
+  return std::move(cache.m_parameters);
 }
 
-TrackParameters*
+std::unique_ptr<TrackParameters>
 IntersectorWrapper::propagateParameters (const EventContext&              /*ctx*/,
                                          const TrackParameters&		parameters,
                                          const Surface&			surface,
@@ -128,10 +128,10 @@ IntersectorWrapper::propagateParameters (const EventContext&              /*ctx*
   Cache cache{};
   findIntersection(cache,parameters,surface,dir);
   createParameters(cache,surface,boundsCheck,curvilinear);
-  return cache.m_parameters;
+  return std::move(cache.m_parameters);
 }
 
-TrackParameters*
+std::unique_ptr<TrackParameters>
 IntersectorWrapper::propagateParameters (const EventContext&              /*ctx*/,
                                          const TrackParameters&		parameters,
                                          const Surface&			surface,
@@ -146,7 +146,7 @@ IntersectorWrapper::propagateParameters (const EventContext&              /*ctx*
   Cache cache{};
   findIntersection(cache,parameters,surface,dir);
   createParameters(cache,surface,boundsCheck,curvilinear);
-  return cache.m_parameters;
+  return std::move(cache.m_parameters);
 }
 
 const IntersectionSolution*
@@ -161,7 +161,7 @@ IntersectorWrapper::intersect (const EventContext&              /*ctx*/,
   findIntersection(cache,parameters,surface);
   IntersectionSolution* solution = new IntersectionSolution;
   if (cache.m_intersection) {
-    solution->push_back(cache.m_intersection.release());
+    solution->push_back(std::move(cache.m_intersection));
   }
   return solution;
 }
@@ -183,7 +183,7 @@ IntersectorWrapper::globalPositions (const EventContext&              /*ctx*/,
 //<<<<<< PRIVATE MEMBER FUNCTION DEFINITIONS                            >>>>>>
 
 void
-IntersectorWrapper::createParameters (Cache& cache, 
+IntersectorWrapper::createParameters (Cache& cache,
                                       const Surface&	surface,
                                       const BoundaryCheck& 	/*boundsCheck*/,
                                       bool		curvilinear) const
@@ -194,22 +194,22 @@ IntersectorWrapper::createParameters (Cache& cache,
   // curvilinear special (simple) case
   if (curvilinear)
   {
-    cache.m_parameters=new CurvilinearParameters(cache.m_intersection->position(),
+    cache.m_parameters=std::make_unique<CurvilinearParameters>(cache.m_intersection->position(),
                                                  cache.m_intersection->direction().phi(),
                                                  cache.m_intersection->direction().theta(),
                                                  cache.m_qOverP);
     return;
   }
 
-  cache.m_parameters=surface.createTrackParameters(cache.m_intersection->position(),
+  cache.m_parameters=surface.createUniqueTrackParameters(cache.m_intersection->position(),
                                                    cache.m_intersection->direction(),
-                                                   cache.m_charge,nullptr);
+                                                   cache.m_charge,std::nullopt);
   // unrecognized Surface
   if( !cache.m_parameters ) ATH_MSG_WARNING( " Failed to create parameters " );
 }
 
 void
-IntersectorWrapper::findIntersection (Cache& cache, 
+IntersectorWrapper::findIntersection (Cache& cache,
                                       const TrackParameters&	parameters,
                                       const Surface&		surface,
                                       PropDirection	       	dir) const

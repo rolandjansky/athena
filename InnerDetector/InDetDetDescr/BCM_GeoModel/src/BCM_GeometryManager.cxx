@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BCM_GeoModel/BCM_GeometryManager.h"
@@ -15,7 +15,7 @@ BCM_ModuleParameters* BCM_GeometryManager::Module(int module_number)
   if((mask & m_on) == mask)
     return &(m_moduli[module_number]);
   else
-    return NULL;
+    return nullptr;
 }
 
 void BCM_GeometryManager::ModuleOn(int module_number)

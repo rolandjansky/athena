@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Set up the project.
 cmake_minimum_required( VERSION 3.6 )
@@ -12,7 +12,7 @@ set( ATLAS_FLAKE8 flake8_atlas --select ATL,F,E101,E7,E9,W6
                                --ignore ATL238,ATL9,E701,E702,E704,E741
                                --enable-extensions ATL902
    CACHE STRING "Default flake8 command" )
-set( ATLAS_PYTHON_CHECKER ${ATLAS_FLAKE8} --filterFiles AthenaConfiguration
+set( ATLAS_PYTHON_CHECKER ${ATLAS_FLAKE8}
    CACHE STRING "Python checker command to run during Python module compilation" )
 
 # Find the ATLAS CMake code:
@@ -63,9 +63,9 @@ lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )
 
 # Generate replacement rules for the installed paths:
 set( _replacements )
-if( NOT "$ENV{NICOS_PROJECT_HOME}" STREQUAL "" )
-   get_filename_component( _buildDir $ENV{NICOS_PROJECT_HOME} PATH )
-   list( APPEND _replacements ${_buildDir} "\${AthGeneration_DIR}/../../../.." )
+if( NOT "$ENV{ATLAS_BUILD_DIR}" STREQUAL "" )
+   list( APPEND _replacements "$ENV{ATLAS_BUILD_DIR}/install"
+                              "\${AthGeneration_DIR}/../../../.." )
 endif()
 if( NOT "$ENV{TDAQ_RELEASE_BASE}" STREQUAL "" )
    list( APPEND _replacements $ENV{TDAQ_RELEASE_BASE}

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # Script to set $LD_PRELOAD, steered by the following environment variables:
 #
@@ -9,6 +9,7 @@
 #   $USETCMALLOCMINIMAL     : use minimal version of tcmalloc
 #   $ATLASMKLLIBDIR_PRELOAD : location of Intel math library
 #   $USEIMF                 : use Intel math library
+#   $USEEXCTRACE            : preload exception trace collector
 #   $ATHENA_ADD_PRELOAD     : preload user specific library
 #   $ATHENA_DROP_RELOAD     : are we in drop/reload mode?
 #
@@ -79,6 +80,20 @@ if [ "$USEIMF" = "1" ] || [ "$USEIMF" = "true" ]; then
         ld_preload "$IMF_LIB1"
         ld_preload "$IMF_LIB2"
     fi
+fi
+
+#
+# Exception trace collector
+#
+if [ "$USEEXCTRACE" = "1" ] || [ "$USEEXCTRACE" = "true" ]; then
+    # Abuse which to search for the library.
+    EXCTRACE_LIB=`PATH=$LD_LIBRARY_PATH /usr/bin/which libexctrace_collector.so`
+    if [ "$EXCTRACE_LIB" = "" ]; then
+        error "ERROR: Cannot find libexctrace_collector.so"
+        exit 1
+    fi
+    echo "Preloading `basename $EXCTRACE_LIB`"
+    ld_preload "$EXCTRACE_LIB"
 fi
 
 #

@@ -76,6 +76,19 @@ class InfoHelperPtAbsEta : public InfoHelper
         }
 };
 
+class InfoHelperPtAbsMass : public InfoHelper
+{
+    public:
+        InfoHelperPtAbsMass(const ValidityHistogram& validHist, const float energyScale, const CompMassDef::TypeEnum massDef)
+            : InfoHelper(validHist,energyScale,massDef) {}
+        virtual InfoHelperPtAbsMass* clone() const { return new InfoHelperPtAbsMass(*this); }
+
+        virtual bool isValid(const xAOD::Jet& jet) const
+        {
+	    return m_validHist.getValue(jet.pt()*m_energyScale,getAbsMass(jet));
+	}
+};
+
 class InfoHelperPtMass : public InfoHelper
 {
     public:
@@ -113,6 +126,32 @@ class InfoHelperPtMassAbsEta : public InfoHelper
         {
             return m_validHist.getValue(jet.pt()*m_energyScale,getMassOverPt(jet),fabs(jet.eta()));
         }
+};
+
+class InfoHelperPtAbsMassEta : public InfoHelper
+{
+    public:
+        InfoHelperPtAbsMassEta(const ValidityHistogram& validHist, const float energyScale, const CompMassDef::TypeEnum massDef)
+	    : InfoHelper(validHist,energyScale,massDef) {}
+        virtual InfoHelperPtAbsMassEta* clone() const { return new InfoHelperPtAbsMassEta(*this); }
+
+        virtual bool isValid(const xAOD::Jet& jet) const
+        {
+	     return m_validHist.getValue(jet.pt()*m_energyScale,getAbsMass(jet)*m_energyScale,jet.eta());
+	}
+};
+
+class InfoHelperPtAbsMassAbsEta : public InfoHelper
+{
+    public:
+        InfoHelperPtAbsMassAbsEta(const ValidityHistogram& validHist, const float energyScale, const CompMassDef::TypeEnum massDef)
+	    : InfoHelper(validHist,energyScale,massDef) {}
+        virtual InfoHelperPtAbsMassAbsEta* clone() const { return new InfoHelperPtAbsMassAbsEta(*this); }
+
+        virtual bool isValid(const xAOD::Jet& jet) const
+        {
+	     return m_validHist.getValue(jet.pt()*m_energyScale,getAbsMass(jet)*m_energyScale,fabs(jet.eta()));
+	}
 };
 
 class InfoHelpereLOGmOe : public InfoHelper
@@ -157,19 +196,20 @@ class InfoHelpereLOGmOeAbsEta : public InfoHelper
 
 double InfoHelper::getAbsMass(const xAOD::Jet& jet) const
 {
-    bool isSimpleCase = (m_massDef == CompMassDef::UNKNOWN || m_massDef == CompMassDef::FourVecMass);
-    JetFourMomAccessor scale(isSimpleCase ? "" : CompMassDef::getJetScaleString(m_massDef).Data());
-    SG::AuxElement::ConstAccessor<float> scaleTAMoment(isSimpleCase ? "" : "JetTrackAssistedMassCalibrated");
-    
-    if (isSimpleCase)
+    // Check for the simple case (where we want the default four-vector itself)
+    if (m_massDef == CompMassDef::UNKNOWN || m_massDef == CompMassDef::FourVecMass)
         return jet.m();
-
-    // Check if the specified scale is available and return it if so
+    
+    // Not the simple case, check for the specified four-vector instead and return it if it is available
+    JetFourMomAccessor scale(CompMassDef::getJetScaleString(m_massDef).Data());
     if (scale.isAvailable(jet))
         return scale(jet).M();
-    // Fall-back on the TA moment as a float if applicable
+
+    // Fall-back on the TA moment as a float if applicable (legacy support)
+    SG::AuxElement::ConstAccessor<float> scaleTAMoment("JetTrackAssistedMassCalibrated");
     if (m_massDef == CompMassDef::TAMass && scaleTAMoment.isAvailable(jet))
         return scaleTAMoment(jet);
+
     // Fall-back on the calo mass as the 4-vec if applicable (legacy support)
     if (m_massDef == CompMassDef::CaloMass)
         return jet.m();
@@ -180,19 +220,20 @@ double InfoHelper::getAbsMass(const xAOD::Jet& jet) const
 
 double InfoHelper::getMassOverPt(const xAOD::Jet& jet) const
 {
-    bool isSimpleCase = (m_massDef == CompMassDef::UNKNOWN || m_massDef == CompMassDef::FourVecMass);
-    JetFourMomAccessor scale(isSimpleCase ? "" : CompMassDef::getJetScaleString(m_massDef).Data());
-    SG::AuxElement::ConstAccessor<float> scaleTAMoment(isSimpleCase ? "" : "JetTrackAssistedMassCalibrated");
-    
-    if (isSimpleCase)
+    // Check for the simple case (where we want the default four-vector itself)
+    if (m_massDef == CompMassDef::UNKNOWN || m_massDef == CompMassDef::FourVecMass)
         return jet.m()/jet.pt();
-
-    // Check if the specified scale is available and return it if so
+    
+    // Not the simple case, check for the specified four-vector instead and return it if it is available
+    JetFourMomAccessor scale(CompMassDef::getJetScaleString(m_massDef).Data());
     if (scale.isAvailable(jet))
         return scale(jet).M()/scale(jet).Pt();
-    // Fall-back on the TA moment as a float if applicable
+    
+    // Fall-back on the TA moment as a float if applicable (legacy support)
+    SG::AuxElement::ConstAccessor<float> scaleTAMoment("JetTrackAssistedMassCalibrated");
     if (m_massDef == CompMassDef::TAMass && scaleTAMoment.isAvailable(jet))
         return scaleTAMoment(jet)/jet.pt();
+    
     // Fall-back on the calo mass as the 4-vec if applicable (legacy support)
     if (m_massDef == CompMassDef::CaloMass)
         return jet.m()/jet.pt();
@@ -204,19 +245,20 @@ double InfoHelper::getMassOverPt(const xAOD::Jet& jet) const
 
 double InfoHelper::getMassOverE(const xAOD::Jet& jet) const
 {
-    bool isSimpleCase = (m_massDef == CompMassDef::UNKNOWN || m_massDef == CompMassDef::FourVecMass);
-    JetFourMomAccessor scale(isSimpleCase ? "" : CompMassDef::getJetScaleString(m_massDef).Data());
-    SG::AuxElement::ConstAccessor<float> scaleTAMoment(isSimpleCase ? "" : "JetTrackAssistedMassCalibrated");
-    
-    if (isSimpleCase)
+    // Check for the simple case (where we want the default four-vector itself)
+    if (m_massDef == CompMassDef::UNKNOWN || m_massDef == CompMassDef::FourVecMass)
         return jet.m()/jet.e();
 
-    // Check if the specified scale is available and return it if so
+    // Not the simple case, check for the specified four-vector instead and return it if it is available
+    JetFourMomAccessor scale(CompMassDef::getJetScaleString(m_massDef).Data());
     if (scale.isAvailable(jet))
         return scale(jet).M()/scale(jet).E();
-    // Fall-back on the TA moment as a float if applicable
+    
+    // Fall-back on the TA moment as a float if applicable (legacy support)
+    SG::AuxElement::ConstAccessor<float> scaleTAMoment("JetTrackAssistedMassCalibrated");
     if (m_massDef == CompMassDef::TAMass && scaleTAMoment.isAvailable(jet))
         return scaleTAMoment(jet)/jet.e();
+    
     // Fall-back on the calo mass as the 4-vec if applicable (legacy support)
     if (m_massDef == CompMassDef::CaloMass)
         return jet.m()/jet.e();
@@ -341,6 +383,9 @@ StatusCode ValidityHistogram::initialize(TFile* histFile)
         case CompParametrization::PtAbsEta:
             m_helper = new InfoHelperPtAbsEta(*this,m_energyScale);
             break;
+        case CompParametrization::PtAbsMass:
+	    m_helper = new InfoHelperPtAbsMass(*this,m_energyScale,m_massDef);
+	    break;
         case CompParametrization::PtMass:
             m_helper = new InfoHelperPtMass(*this,m_energyScale,m_massDef);
             break;
@@ -350,6 +395,12 @@ StatusCode ValidityHistogram::initialize(TFile* histFile)
         case CompParametrization::PtMassAbsEta:
             m_helper = new InfoHelperPtMassAbsEta(*this,m_energyScale,m_massDef);
             break;
+        case CompParametrization::PtAbsMassEta:
+	    m_helper = new InfoHelperPtAbsMassEta(*this,m_energyScale,m_massDef);
+	    break;
+        case CompParametrization::PtAbsMassAbsEta:
+	    m_helper = new InfoHelperPtAbsMassAbsEta(*this,m_energyScale,m_massDef);
+	    break;
         case CompParametrization::eLOGmOe:
             m_helper = new InfoHelpereLOGmOe(*this,m_energyScale,m_massDef);
             break;

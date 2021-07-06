@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ut_xaodtrigger_trigcomposite_test.cxx 761887 2016-07-14 13:16:16Z tbold $
@@ -56,7 +56,7 @@ int populateObject(xAOD::TrigComposite* obj) {
 
    // create a MuonRoIContainer in order to have "valid" ElementLinks
    // they will have made up SG key hashes but they are internally "valid"
-   auto mrc = new xAOD::MuonRoIContainer();
+   auto *mrc = new xAOD::MuonRoIContainer();
    for (unsigned int i = 0; i<20; i++){
      xAOD::MuonRoI* roi = new xAOD::MuonRoI();
      mrc->push_back( roi );
@@ -245,7 +245,7 @@ int main() {
    // Copy over all other links
    SIMPLE_ASSERT( fullCopy->copyAllLinksFrom( obj ) == true );
    // Add another too
-   auto mrc = new xAOD::MuonRoIContainer();
+   auto *mrc = new xAOD::MuonRoIContainer();
    for (unsigned int i = 0; i<20; i++){
      xAOD::MuonRoI* roi = new xAOD::MuonRoI();
      mrc->push_back( roi );

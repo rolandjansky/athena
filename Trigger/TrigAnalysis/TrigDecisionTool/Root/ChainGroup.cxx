@@ -631,36 +631,79 @@ Trig::ChainGroup::~ChainGroup() {}
 
 void
 Trig::ChainGroup::update(const TrigConf::HLTChainList* confChains,
-                         const TrigConf::ItemContainer* confItems) {
+                         const TrigConf::ItemContainer* confItems,
+                         const bool parseAsRegex) {
 
    m_confChains.clear();
    m_confItems.clear();
    m_names.clear();
+   m_names.reserve(m_patterns.size());
 
 
    // protect against genConf failure
    if (!(confChains && confItems) ) return;
 
-   for(std::vector< std::string >::const_iterator it = m_patterns.begin();
-       it != m_patterns.end(); ++it) {
-      // find chains matching pattern     
-      boost::regex compiled(*it);
-      boost::cmatch what;
+   if (parseAsRegex) {
 
-      for(TrigConf::HLTChain* ch : *confChains) {
-         if ( boost::regex_match(ch->chain_name().c_str(), what, compiled) ) {
-            m_confChains.insert(ch);
-            m_names.push_back(ch->chain_name());
-         }
-      }
+     for(std::vector< std::string >::const_iterator it = m_patterns.begin();
+         it != m_patterns.end(); ++it) {
+        // find chains matching pattern     
+        boost::regex compiled(*it);
+        boost::cmatch what;
 
-      for(TrigConf::TriggerItem* item : *confItems) {
-         if ( boost::regex_match( item->name().c_str(), what, compiled) ) {
-            m_confItems.insert(item);
-            m_names.push_back(item->name());
-         }
-      }
-   }
+        for(TrigConf::HLTChain* ch : *confChains) {
+           if ( boost::regex_match(ch->chain_name().c_str(), what, compiled) ) {
+              m_confChains.insert(ch);
+              m_names.push_back(ch->chain_name());
+           }
+        }
+
+        for(TrigConf::TriggerItem* item : *confItems) {
+           if ( boost::regex_match( item->name().c_str(), what, compiled) ) {
+              m_confItems.insert(item);
+              m_names.push_back(item->name());
+           }
+        }
+     }
+   
+   } else { // Do not parse as regex
+
+     for(const std::string& what : m_patterns) {
+
+        bool found_it = false;
+
+        for(TrigConf::HLTChain* ch : *confChains) {
+           if (ch->chain_name() == what) {
+              m_confChains.insert(ch);
+              m_names.push_back(ch->chain_name());
+              found_it = true;
+              break;
+           }
+        }
+
+        if (found_it) {
+           continue;
+        }
+
+        for(TrigConf::TriggerItem* item : *confItems) {
+           if (item->name() == what) {
+              m_confItems.insert(item);
+              m_names.push_back(item->name());
+              found_it = true;
+              break;
+           }
+        }
+
+        if (found_it) {
+           continue;
+        }
+
+        ATH_MSG_WARNING("Explicitly requested '" << what << "' be added to a ChainGroup"
+          << " but this item or chain could not be found in the menu");
+     }
+
+   } // parseAsRegex
+
    m_prescale = calculatePrescale(TrigDefs::Physics);
 }
 

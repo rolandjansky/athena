@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -19,14 +19,18 @@ const RCBase *MakeShaperef::process(const DOMElement *element, GmxUtil &gmxUtil)
 //
 //    Get the referenced shape
 //
-    const XMLCh *idref = element->getAttribute(XMLString::transcode("ref"));
+
+    XMLCh * ref_tmp = XMLString::transcode("ref");
+    XMLCh * shapes_tmp = XMLString::transcode("shapes");
+
+    const XMLCh *idref = element->getAttribute(ref_tmp);
     DOMDocument *doc = element->getOwnerDocument();
     DOMElement *shape = doc->getElementById(idref);
 //
 //    Check it is the right sort: it's parent should be a shapes
 //
     DOMNode *parent = shape->getParentNode();
-    if (XMLString::compareIString(parent->getNodeName(), XMLString::transcode("shapes")) != 0) {
+    if (XMLString::compareIString(parent->getNodeName(), shapes_tmp) != 0) {
         OUTPUT_STREAM;
         msglog << MSG::FATAL << "Error processing <shaperef> tag: An IDREF for a shape did not refer to a shape.\nShape ref was " << 
                idref << "; exiting" << endmsg;
@@ -38,6 +42,8 @@ const RCBase *MakeShaperef::process(const DOMElement *element, GmxUtil &gmxUtil)
     char *toRelease = XMLString::transcode(shape->getNodeName());
     string tag(toRelease);
     XMLString::release(&toRelease);
+    XMLString::release(&ref_tmp);
+    XMLString::release(&shapes_tmp);
 //
 //    Find and return it
 //

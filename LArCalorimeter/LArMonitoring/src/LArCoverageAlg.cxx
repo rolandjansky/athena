@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -81,8 +81,9 @@ LArCoverageAlg::initialize()
   ATH_CHECK( detStore()->retrieve(m_LArOnlineIDHelper, "LArOnlineID") );
   ATH_CHECK( m_BCKey.initialize() );
   ATH_CHECK( m_BFKey.initialize() );
+
   /** retrieve bad channel tool */
-  ATH_CHECK( m_badChannelMask.retrieve() );
+   ATH_CHECK(m_bcMask.buildBitMask(m_problemsToMask,msg()));
 
   /** Initialize cabling key */
   ATH_CHECK(m_cablingKey.initialize());
@@ -97,7 +98,7 @@ LArCoverageAlg::initialize()
   /** tool maps (arrays of histograms) */
   m_CaloNoiseGroupArrEM = Monitored::buildToolMap<int>(m_tools,m_CaloNoiseToolGroupName+"EM",m_Nsample);
   m_CaloNoiseGroupArrHEC = Monitored::buildToolMap<int>(m_tools,m_CaloNoiseToolGroupName+"HEC",m_Nsample);
-  m_CaloNoiseGroupArrFCAL = Monitored::buildToolMap<int>(m_tools,m_CaloNoiseToolGroupName+"FCAL",m_Nsample);
+  m_CaloNoiseGroupArrFCAL = Monitored::buildToolMap<int>(m_tools,m_CaloNoiseToolGroupName+"FCal",m_Nsample);
 
   m_CoverageToolArrayEMBA = Monitored::buildToolMap<int>(m_tools,m_CoverageHWGroupName+"EMBA",m_availableErrorCodes);
   m_CoverageToolArrayEMECA = Monitored::buildToolMap<int>(m_tools,m_CoverageHWGroupName+"EMECA",m_availableErrorCodes);
@@ -136,16 +137,16 @@ LArCoverageAlg::fillHistograms( const EventContext& ctx ) const
   auto mon_FtSlot = Monitored::Scalar<int>("mon_FtSlot",-1);
   std::vector<LArChanHelp> the_coverageMap(0);
   //Note for when we'll have the proper histogram class: the feedthrough-slot coverage plot must be filled with the latest value, the eta-phi coverage plot must be filled with the maximum value
-  auto mon_ChanFtSlot = Monitored::Collection("mon_ChanFtSlot",the_coverageMap,[](const LArChanHelp ch){return ch.getChFtSlot();});
-  auto mon_Channels = Monitored::Collection("mon_Channels",the_coverageMap,[](const LArChanHelp ch){return ch.getChNumber();});
-  auto mon_Eta = Monitored::Collection("mon_Eta",the_coverageMap,[](const LArChanHelp ch){return ch.getChEta();});
-  auto mon_Phi = Monitored::Collection("mon_Phi",the_coverageMap,[](const LArChanHelp ch){return ch.getChPhi();});
+  auto mon_ChanFtSlot = Monitored::Collection("mon_ChanFtSlot",the_coverageMap,[](const LArChanHelp& ch){return ch.getChFtSlot();});
+  auto mon_Channels = Monitored::Collection("mon_Channels",the_coverageMap,[](const LArChanHelp& ch){return ch.getChNumber();});
+  auto mon_Eta = Monitored::Collection("mon_Eta",the_coverageMap,[](const LArChanHelp& ch){return ch.getChEta();});
+  auto mon_Phi = Monitored::Collection("mon_Phi",the_coverageMap,[](const LArChanHelp& ch){return ch.getChPhi();});
 
   //cutmasks for filling the proper partition
-  auto mon_isSampling0 = Monitored::Collection("isSampl0",the_coverageMap,[](const LArChanHelp ch){return (ch.getChSampling()==0);});
-  auto mon_isSampling1 = Monitored::Collection("isSampl1",the_coverageMap,[](const LArChanHelp ch){return (ch.getChSampling()==1);});
-  auto mon_isSampling2 = Monitored::Collection("isSampl2",the_coverageMap,[](const LArChanHelp ch){return (ch.getChSampling()==2);});
-  auto mon_isSampling3 = Monitored::Collection("isSampl3",the_coverageMap,[](const LArChanHelp ch){return (ch.getChSampling()==3);});
+  auto mon_isSampling0 = Monitored::Collection("isSampl0",the_coverageMap,[](const LArChanHelp& ch){return (ch.getChSampling()==0);});
+  auto mon_isSampling1 = Monitored::Collection("isSampl1",the_coverageMap,[](const LArChanHelp& ch){return (ch.getChSampling()==1);});
+  auto mon_isSampling2 = Monitored::Collection("isSampl2",the_coverageMap,[](const LArChanHelp& ch){return (ch.getChSampling()==2);});
+  auto mon_isSampling3 = Monitored::Collection("isSampl3",the_coverageMap,[](const LArChanHelp& ch){return (ch.getChSampling()==3);});
 
   /** Coverage map 
    * each line is a FEB, each column a sampling (needed for eta-phi plots): coverageMapHWEMBA[ft*(Nslot)+slot-1][sampling]=channelStatus. 
@@ -189,6 +190,11 @@ LArCoverageAlg::fillHistograms( const EventContext& ctx ) const
     lb1 = (float)GetEventInfo(ctx)->lumiBlock();
     fill(m_CaloNoiseToolGroupName,lb1,lb1_x);
   }
+
+
+  /** Retrieve BadChannels */
+  SG::ReadCondHandle<LArBadChannelCont> bch{m_BCKey,ctx};
+  const LArBadChannelCont* bcCont{*bch};  
 
 
   ATH_MSG_DEBUG( "collect known faulty FEBs" );
@@ -261,7 +267,7 @@ LArCoverageAlg::fillHistograms( const EventContext& ctx ) const
 
 
       /** Fill Bad Channels histograms  */
-      flag = DBflag(id);
+      flag = DBflag(id,bcCont);
       if (flag!=0) {//only fill bad channels
 	std::string the_side= (etaChan >= 0 ? "A" : "C");
 	if(m_LArOnlineIDHelper->isEMBchannel(id)){
@@ -288,7 +294,7 @@ LArCoverageAlg::fillHistograms( const EventContext& ctx ) const
      */
     if ( (provenanceChan&0x00ff) == 0x00a5 || (provenanceChan&0x1000) == 0x1000 ){
 
-      if(m_badChannelMask->cellShouldBeMasked(id)) cellContent=2;
+      if(m_bcMask.cellShouldBeMasked(bcCont,id)) cellContent=2;
       else if(energyChan != 0) cellContent=3;
     }
 
@@ -403,10 +409,8 @@ LArCoverageAlg::fillHistograms( const EventContext& ctx ) const
 
 
 /*---------------------------------------------------------*/
-int LArCoverageAlg::DBflag(HWIdentifier onID) const
+int LArCoverageAlg::DBflag(HWIdentifier onID, const LArBadChannelCont* bcCont) const
 {
-  SG::ReadCondHandle<LArBadChannelCont> bch{m_BCKey};
-  const LArBadChannelCont* bcCont{*bch};
   if(!bcCont) {
     ATH_MSG_WARNING( "Do not have Bad chan container " << m_BCKey.key() );
     return -1;

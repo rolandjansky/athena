@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODTau/TauJet.h"
@@ -204,7 +204,7 @@ StatusCode PanTau::Tool_FeatureExtractor::calculateBasicFeatures(PanTau::PanTauS
     for(unsigned int iConst=0; iConst<nConstituents; iConst++) {
       PanTau::TauConstituent* curConstituent = curList[iConst];
       SumCharge += curConstituent->getCharge();
-      AbsCharge += fabs((double)curConstituent->getCharge());
+      AbsCharge += std::abs((double)curConstituent->getCharge());
     }
   }
     
@@ -486,7 +486,7 @@ StatusCode PanTau::Tool_FeatureExtractor::calculateFeatures(PanTau::PanTauSeed* 
     if(tauConstituentType != PanTau::TauConstituent::t_Charged) {
       double mvaCorrection = 0.0;
       double  etaCurConst = list_TypeConstituents_SortBDT[iTypeConst]->p4().Eta();
-      int     etaBinIndex = m_HelperFunctions.getBinIndex(m_Config_CellBased_BinEdges_Eta, fabs(etaCurConst));
+      int     etaBinIndex = m_HelperFunctions.getBinIndex(m_Config_CellBased_BinEdges_Eta, std::abs(etaCurConst));
       int     numTrack    = inSeed->getTauJet()->nTracks();
       if(numTrack == 1) { mvaCorrection = m_Config_CellBased_EtaBinned_Pi0MVACut_1prong.at(etaBinIndex); }
       else              { mvaCorrection = m_Config_CellBased_EtaBinned_Pi0MVACut_3prong.at(etaBinIndex); }
@@ -604,7 +604,7 @@ StatusCode PanTau::Tool_FeatureExtractor::calculateFeatures(PanTau::PanTauSeed* 
 	ATH_MSG_DEBUG("\t\tBuilding di-shot mass of shots " << iShot << " & " << jShot);
 	TLorentzVector          tlv_DiShot    = cur_iShot + cur_jShot;
 	double                  curDiShotMass = tlv_DiShot.M();
-	double                  curpi0Diff    = fabs(curDiShotMass - 134.98);
+	double                  curpi0Diff    = std::abs(curDiShotMass - 134.98);
 	ATH_MSG_DEBUG("\t\tit is: " << curDiShotMass);
 	if(curpi0Diff < bestPi0Diff) bestDiShotMass = curDiShotMass;
 	if(curDiShotMass > maxDiShotMass) maxDiShotMass = curDiShotMass;
@@ -1083,8 +1083,8 @@ StatusCode PanTau::Tool_FeatureExtractor::addImpactParameterFeatures(PanTau::Pan
       if(isnan(signfD0) == false) tauFeatures->addFeature(inputAlgName + "_" + featureNamePrefix + "_TransSignfIPTrack" + indexTrk + "_SortByEt", signfD0);
       if(isnan(signfZ0) == false) tauFeatures->addFeature(inputAlgName + "_" + featureNamePrefix + "_LongSignfIPTrack" + indexTrk + "_SortByEt", signfZ0);
 
-      impactParameters.push_back(fabs(recoD0));
-      impactParameterSignf.push_back(fabs(signfD0));
+      impactParameters.push_back(std::abs(recoD0));
+      impactParameterSignf.push_back(std::abs(signfD0));
     }
 
   }//end loop over tracks

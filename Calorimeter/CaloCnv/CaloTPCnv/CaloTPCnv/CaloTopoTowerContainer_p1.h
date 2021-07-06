@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOATHENAPOOL_CALOTOPOTOWERCONTAINER_P1_H
@@ -22,8 +22,8 @@ class CaloTopoTowerContainer_p1
   double m_minimumCellEnergy;
   double m_minimumClusterEnergy;
   bool   m_useCellWeights;
-  bool   m_useNoiseTool;
-  bool   m_usePileUpNoise;
+  bool   m_useNoiseTool = false;  // now unused
+  bool   m_usePileUpNoise = false; // now unused
   float  m_noiseSigma;
   float  m_cellESignificanceThreshold;
   bool   m_caloSelection;

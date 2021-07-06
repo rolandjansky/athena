@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * TransverseMassInclusive1.cpp
@@ -14,50 +14,16 @@
 #include <string>
 #include <sstream>
 #include <vector>
-#include "TH1F.h"
 
 #include "L1TopoAlgorithms/TransverseMassInclusive1.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
-// Bitwise implementation utils
-#include "L1TopoSimulationUtils/L1TopoDataTypes.h"
-#include "L1TopoSimulationUtils/Trigo.h"
-#include "L1TopoSimulationUtils/Hyperbolic.h"
-#include "L1TopoSimulationUtils/Kinematics.h"
 
 //
 REGISTER_ALG_TCS(TransverseMassInclusive1)
 
 // not the best solution but we will move to athena where this comes for free
 #define LOG std::cout << "TCS::TransverseMassInclusive1:     "
-
-
-
-
-namespace {
-   unsigned int
-   calcTMass(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-      double dphi = fabs( tob1->phiDouble() - tob2->phiDouble() );
-      if(dphi>M_PI)
-         dphi = 2*M_PI - dphi;
-      
-      double cosphi = cos ( dphi);
-      double tmass2 = 2*tob1->Et()*tob2->Et()*(1 - cosphi);
-      return round( tmass2 );
-   }
-
-   unsigned int
-   calcTMassBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-      auto bit_cosphi = TSU::L1TopoDataTypes<9,7>(TSU::Trigo::Cos.at(abs(tob1->phi() - tob2->phi())));
-      TSU::L1TopoDataTypes<11,0> bit_Et1(tob1->Et());
-      TSU::L1TopoDataTypes<11,0> bit_Et2(tob2->Et());
-      TSU::L1TopoDataTypes<22,0> bit_tmass2 = 2*bit_Et1*bit_Et2*(1.  - bit_cosphi);
-      return int(bit_tmass2) ;
-     // end bitwise implementation
-   }
-                                                                        
-      
-}
 
 
 TCS::TransverseMassInclusive1::TransverseMassInclusive1(const std::string & name) : DecisionAlg(name)

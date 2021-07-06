@@ -11,7 +11,7 @@
  * We need to check the design for
  * these.
  */
-inline Trk::TrackParameters*
+inline std::unique_ptr<Trk::TrackParameters>
 Trk::IPropagator::propagate(const EventContext&,
                             const TrackParameters&,
                             std::vector<DestSurf>&,
@@ -27,7 +27,7 @@ Trk::IPropagator::propagate(const EventContext&,
   return nullptr;
 }
 
-inline Trk::TrackParameters*
+inline std::unique_ptr<Trk::TrackParameters>
 Trk::IPropagator::propagateT(const EventContext&,
                              const TrackParameters&,
                              std::vector<DestSurf>&,
@@ -44,7 +44,7 @@ Trk::IPropagator::propagateT(const EventContext&,
   return nullptr;
 }
 
-inline Trk::TrackParameters*
+inline std::unique_ptr<Trk::TrackParameters>
 Trk::IPropagator::propagateT(const EventContext&,
                              const TrackParameters&,
                              Trk::TargetSurfaces&,
@@ -69,7 +69,7 @@ Trk::IPropagator::propagate(const EventContext&,
   return Trk::ExtrapolationCode::FailureConfiguration;
 }
 
-inline Trk::TrackParameters*
+inline std::unique_ptr<Trk::TrackParameters>
 Trk::IPropagator::propagateM(
   const EventContext&,
   const TrackParameters&,
@@ -120,7 +120,7 @@ Trk::IPropagator::propagateStep(const EventContext&,
 //  Propagation interface:
 //    The propagation method called by the TrkExtrapolator. The extrapolator
 //    is responsible for the underlying logic of which surface to go to.
-inline Trk::TrackParameters*
+inline std::unique_ptr<Trk::TrackParameters>
 Trk::IPropagator::propagate(const Trk::TrackParameters& parm,
                             const Trk::Surface& sf,
                             Trk::PropDirection dir,
@@ -145,7 +145,7 @@ Trk::IPropagator::propagate(const Trk::TrackParameters& parm,
     The propagation method called by the TrkExtrapolator. The propagator
     finds the closest surface.
 */
-inline Trk::TrackParameters*
+inline std::unique_ptr<Trk::TrackParameters>
 Trk::IPropagator::propagate(const Trk::TrackParameters& parm,
                             std::vector<Trk::DestSurf>& sfs,
                             Trk::PropDirection dir,
@@ -175,7 +175,7 @@ Trk::IPropagator::propagate(const Trk::TrackParameters& parm,
     The propagation method called by the TrkExtrapolator. The propagator
     finds the closest surface. Timing included.
 */
-inline Trk::TrackParameters*
+inline std::unique_ptr<Trk::TrackParameters>
 Trk::IPropagator::propagateT(const Trk::TrackParameters& parm,
                              std::vector<Trk::DestSurf>& sfs,
                              Trk::PropDirection dir,
@@ -207,7 +207,7 @@ Trk::IPropagator::propagateT(const Trk::TrackParameters& parm,
     The propagation method called by the TrkExtrapolator. The propagator
     finds the closest surface. Timing included.
 */
-inline Trk::TrackParameters*
+inline std::unique_ptr<Trk::TrackParameters>
 Trk::IPropagator::propagateT(const Trk::TrackParameters& parm,
                              Trk::TargetSurfaces& sfs,
                              Trk::PropDirection dir,
@@ -247,7 +247,7 @@ Trk::IPropagator::propagate(Trk::ExCellCharged& eCell,
     The propagation method with internal material collection. The propagator
     finds the closest surface.
 */
-inline Trk::TrackParameters*
+inline std::unique_ptr<Trk::TrackParameters>
 Trk::IPropagator::propagateM(
   const Trk::TrackParameters& parm,
   std::vector<Trk::DestSurf>& sfs,
@@ -282,7 +282,7 @@ Trk::IPropagator::propagateM(
 /** Propagation interface:
     The propagation method including the return of the TransportJacobian matrix.
 */
-inline Trk::TrackParameters*
+inline std::unique_ptr<Trk::TrackParameters>
 Trk::IPropagator::propagate(const Trk::TrackParameters& parm,
                             const Trk::Surface& sf,
                             Trk::PropDirection dir,
@@ -310,7 +310,7 @@ Trk::IPropagator::propagate(const Trk::TrackParameters& parm,
 /** Propagation interface without Covariance matrix propagation
     the pathlength has to be returned for eventual following propagateCovariance
 */
-inline Trk::TrackParameters*
+inline std::unique_ptr<Trk::TrackParameters>
 Trk::IPropagator::propagateParameters(const Trk::TrackParameters& parm,
                                       const Trk::Surface& sf,
                                       Trk::PropDirection dir,
@@ -331,7 +331,7 @@ Trk::IPropagator::propagateParameters(const Trk::TrackParameters& parm,
                              tVol);
 }
 
-inline Trk::TrackParameters*
+inline std::unique_ptr<Trk::TrackParameters>
 Trk::IPropagator::propagateParameters(const Trk::TrackParameters& parm,
                                       const Trk::Surface& sf,
                                       Trk::PropDirection dir,

@@ -21,7 +21,7 @@ namespace Muon {
     ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_mdtCreator.retrieve());
     ATH_CHECK(m_clusterCreator.retrieve());
-    if( !m_recoValidationTool.empty() ) ATH_CHECK(m_recoValidationTool.retrieve());
+    ATH_CHECK(m_mmClusterCreator.retrieve());
     return StatusCode::SUCCESS;
   }
 
@@ -94,10 +94,7 @@ namespace Muon {
       ATH_MSG_VERBOSE(" globalToLocal failed for " << m_idHelperSvc->toString(id) );
       return 0;
     }
-	    
-    // fill validation content
-    if( !m_recoValidationTool.empty() ) m_recoValidationTool->add(intersection,mdt,localPosition.x(),err_precision );
-    
+	  
     // bound checks
     double tubeHalfLen = 0.5*detEl->getActiveTubeLength( m_idHelperSvc->mdtIdHelper().tubeLayer(id),m_idHelperSvc->mdtIdHelper().tube(id) );
     double distanceAlongTube = localPosition[Trk::locZ];
@@ -156,8 +153,13 @@ namespace Muon {
       return 0;
     }
     if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << endmsg;
-
-    const MuonClusterOnTrack* cluster = m_clusterCreator->createRIO_OnTrack( clus, intersect ); 
+    
+    const MuonClusterOnTrack *cluster = nullptr;
+    if (m_idHelperSvc->isMM(clus.identify())) {
+        cluster = m_mmClusterCreator->createRIO_OnTrack(clus, intersect);
+    } else {
+         cluster = m_clusterCreator->createRIO_OnTrack(clus, intersect);
+    }
     if( !cluster ){
       ATH_MSG_VERBOSE("  --- cluster creation failed ");
       return 0;

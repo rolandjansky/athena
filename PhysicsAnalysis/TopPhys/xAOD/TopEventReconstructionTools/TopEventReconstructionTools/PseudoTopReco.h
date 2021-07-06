@@ -67,7 +67,8 @@ namespace top {
   private:
     // config file
     std::shared_ptr<top::TopConfig> m_config;
-    float m_bTagCutValue;
+    // commented out variables are unused.  experts please check and remove
+    // float m_bTagCutValue;
 
     std::string m_leptonType;
 
@@ -82,8 +83,9 @@ namespace top {
     TLorentzVector m_top_lep;
     TLorentzVector m_top_had;
     TLorentzVector m_ttbar;
-    double m_nu_px, m_nu_py, m_nu_pz, m_met_et;
-    double m_ht, m_R_lb, m_R_Wb_had, m_R_Wb_lep;
+    // commented out variables are unused.  experts please check and remove
+    double m_nu_px, m_nu_py/*, m_nu_pz*/, m_met_et;
+    // double m_ht, m_R_lb, m_R_Wb_had, m_R_Wb_lep;
 
     const double KinemEdge = 13.9e6;
     const double mWPDG = 80.399;

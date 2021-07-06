@@ -29,7 +29,7 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODCore/ShallowCopy.h"
 
-#include <AsgTools/AnaToolHandle.h>
+#include <AsgTools/StandaloneToolHandle.h>
 #include "AsgTools/AsgTool.h"
 #include "PATInterfaces/CorrectionCode.h"
 
@@ -100,7 +100,7 @@ int main( int argc, char* argv[] )
   }
 
   // Initialize the tool
-  asg::AnaToolHandle<CP::IJetTileCorrectionTool> tool_jtc;
+  asg::StandaloneToolHandle<CP::IJetTileCorrectionTool> tool_jtc;
   tool_jtc.setTypeAndName("CP::JetTileCorrectionTool/JetTileCorrectionTool");
   
   //Set properties if needed

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*
  *   */
@@ -15,7 +15,6 @@
  **/
 
 #include "HLTCaloCellMaker.h"
-#include "TrigT2CaloCommon/ITrigCaloDataAccessSvc.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
 HLTCaloCellMaker::HLTCaloCellMaker(const std::string & name, ISvcLocator* pSvcLocator)
@@ -34,12 +33,10 @@ HLTCaloCellMaker::HLTCaloCellMaker(const std::string & name, ISvcLocator* pSvcLo
   declareProperty("TileEMSCaleKey", m_tileEMScaleKey);
 }
 
-HLTCaloCellMaker::~HLTCaloCellMaker()
-{
-}
-
 StatusCode HLTCaloCellMaker::initialize() {
-  ATH_CHECK( m_roiCollectionKey.initialize() );
+
+  ATH_CHECK( m_roiCollectionKey.initialize(SG::AllowEmpty) );
+
   if ( m_roiMode )
     ATH_CHECK( m_cellContainerKey.initialize() );
   else
@@ -56,12 +53,22 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
   auto timer = Monitored::Timer("TIME_exec");
   auto clN = Monitored::Scalar  ("Cells_N",-999.0);
 
-  auto roisHandle = SG::makeHandle( m_roiCollectionKey, context );
-  if ( not roisHandle.isValid() ) {
-    ATH_MSG_ERROR("Cell maker did not get a valid RoIs collection");
-    return StatusCode::FAILURE;
+  const bool seedLess = m_roiCollectionKey.empty();
+  const TrigRoiDescriptorCollection* roiCollection; 
+  if (!seedLess){
+    auto roisHandle = SG::makeHandle( m_roiCollectionKey, context );
+    if ( not roisHandle.isValid() ) {
+      ATH_MSG_ERROR("Cell maker did not get a valid RoIs collection");
+      return StatusCode::FAILURE;
+    }
+    roiCollection = roisHandle.cptr();
+  } 
+  else { // it is seedLess
+    TrigRoiDescriptorCollection* roiCol = new TrigRoiDescriptorCollection();
+    TrigRoiDescriptor* FS = new TrigRoiDescriptor(true);
+    roiCol->push_back( FS );
+    roiCollection = const_cast<TrigRoiDescriptorCollection*>(roiCol);
   }
-  const TrigRoiDescriptorCollection* roiCollection = roisHandle.cptr();
   ATH_MSG_DEBUG("Operating on " << roiCollection->size() <<"RoI(s)");
 
   // datahandle 
@@ -138,6 +145,8 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
       auto ss = cellContainer.record( std::move(cdv) );
       ATH_CHECK( ss );
 
+      // we have to take care of this
+      if ( seedLess ) { delete roiCollection; }
       return StatusCode::SUCCESS;
     }
 
@@ -214,5 +223,6 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 
 
    
+  if ( seedLess ) { delete roiCollection; }
   return StatusCode::SUCCESS;
 }

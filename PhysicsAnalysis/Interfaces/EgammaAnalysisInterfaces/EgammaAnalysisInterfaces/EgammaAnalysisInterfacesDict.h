@@ -15,6 +15,8 @@
 
 #include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
 
+#include "EgammaAnalysisInterfaces/IegammaMVACalibTool.h"
+#include "EgammaAnalysisInterfaces/IegammaMVASvc.h"
 #include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
 
 #include "EgammaAnalysisInterfaces/IAsgPhotonEfficiencyCorrectionTool.h"

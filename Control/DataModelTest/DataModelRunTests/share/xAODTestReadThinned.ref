@@ -22,11 +22,11 @@ AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
 ClassIDSvc           INFO  getRegistryEntries: read 3362 CLIDRegistry entries for module ALL
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr
 ClassIDSvc           INFO  getRegistryEntries: read 2023 CLIDRegistry entries for module ALL
 PyComponentMgr       INFO Initializing PyComponentMgr...
 LoadWriteDicts       INFO Initializing LoadWriteDicts...
-MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
+MetaDataSvc          INFO Initializing MetaDataSvc
 AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
@@ -66,7 +66,6 @@ RootDatabase.open    INFO xaodthinned1.root File version:62006
 ClassIDSvc           INFO  getRegistryEntries: read 10589 CLIDRegistry entries for module ALL
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 ClassIDSvc           INFO  getRegistryEntries: read 2 CLIDRegistry entries for module ALL
-OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
 xaodthinned1.root    INFO Database being retired...

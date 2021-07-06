@@ -1,16 +1,12 @@
 #!/usr/bin/env python
 """Run tests on G4Geometry Tool configuration
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-from __future__ import print_function
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
 if __name__ == '__main__':
-  from AthenaConfiguration.MainServicesConfig import MainServicesCfg
-  import os
-
   # Set up logging and config behaviour
   from AthenaCommon.Logging import log
   from AthenaCommon.Constants import DEBUG
@@ -21,39 +17,36 @@ if __name__ == '__main__':
 
   #import config flags
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
-  
+  from AthenaConfiguration.Enums import ProductionStep
+  ConfigFlags.Common.ProductionStep = ProductionStep.Simulation
+
   from AthenaConfiguration.TestDefaults import defaultTestFiles
   inputDir = defaultTestFiles.d
   ConfigFlags.Input.Files = defaultTestFiles.EVNT
 
-  ConfigFlags.Detector.GeometryPixel = True
-  ConfigFlags.Detector.GeometrySCT = True
-  ConfigFlags.Detector.GeometryTRT = True
-  ConfigFlags.Detector.SimulateMuon = True
-  ConfigFlags.Detector.SimulateID = True
-  ConfigFlags.Detector.SimulateCalo = True
-  ConfigFlags.Detector.SimulateBpipe = True
-  ConfigFlags.Detector.SimulateFwdRegion = True
-  ConfigFlags.Detector.GeometryLAr = True
-  ConfigFlags.Detector.GeometryTile = True
+  import os
+  if "AthSimulation_DIR" in os.environ:
+    detectors =['Bpipe', 'BCM', 'DBM',  'Pixel', 'SCT', 'TRT', 'LAr', 'Tile', 'CSC', 'MDT', 'RPC', 'TGC'] # FwdRegion geometry not currently included in AthSimulation
+  else:
+    detectors =['Bpipe', 'BCM', 'DBM',  'Pixel', 'SCT', 'TRT', 'LAr', 'Tile', 'CSC', 'MDT', 'RPC', 'TGC', 'FwdRegion']
+
+  # Setup detector flags
+  from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
+  setupDetectorsFromList(ConfigFlags, detectors, toggle_geometry=True)
+
   #turn the forward region off
-  ConfigFlags.Detector.GeometryLucid = False
-  ConfigFlags.Detector.GeometryZDC = False
-  ConfigFlags.Detector.GeometryALFA = False
-  ConfigFlags.Detector.GeometryAFP = False
   ConfigFlags.Sim.WorldRRange = 15000
   ConfigFlags.Sim.WorldZRange = 27000
 
   ConfigFlags.Sim.TwissFileNomReal = "nominal" #so it doesn't crash
 
-  # Finalize 
+  # Finalize
   ConfigFlags.lock()
 
 
   from G4AtlasTools.G4GeometryToolConfig import BeamPipeGeoDetectorToolCfg
   from G4AtlasTools.G4GeometryToolConfig import PixelGeoDetectorToolCfg
   from G4AtlasTools.G4GeometryToolConfig import SCTGeoDetectorToolCfg
-  from G4AtlasTools.G4GeometryToolConfig import TRTGeoDetectorToolCfg
   from G4AtlasTools.G4GeometryToolConfig import IDETEnvelopeCfg
   from G4AtlasTools.G4GeometryToolConfig import ATLASEnvelopeCfg
   from G4AtlasTools.G4GeometryToolConfig import CALOEnvelopeCfg

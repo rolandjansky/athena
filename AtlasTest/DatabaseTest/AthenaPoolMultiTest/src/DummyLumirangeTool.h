@@ -22,14 +22,12 @@
 #include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/WriteHandleKey.h"
-#include "DBDataModel/CollectionMetadata.h"
 
 #include <map>
 
 //<<<<<< PUBLIC TYPES                                                   >>>>>>
 
 class IAddressCreator;
-class CollectionMetadata;
 
 /**
  * @class DummyLumirangeTool
@@ -61,10 +59,6 @@ protected:
   StringProperty   m_storeName;
   IntegerProperty  m_lumigran, m_firstrun;
   IntegerProperty  m_rangesize, m_blocksperrun, m_lumitot;
-
-private:
-  SG::WriteHandleKey<CollectionMetadataContainer> m_wcmd
-  { this, "WCmd", "", "" };
 
 };
 

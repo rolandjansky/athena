@@ -17,4 +17,10 @@ TRT_BaseElement::defTransform() const
   return getMaterialGeom()->getDefAbsoluteTransform();
 }
 
+inline Trk::DetectorElemType
+TRT_BaseElement::detectorType() const
+{
+  return Trk::DetectorElemType::TRT;
+}
+
 }

@@ -19,6 +19,7 @@ def setupMenu():
 
     TriggerFlags.MuonSlice.signatures = [
         ChainProp(name='HLT_mu4_cosmic_L1MU4_EMPTY', l1SeedThresholds=['MU4'], stream=['CosmicMuons'], groups=['RATE:Cosmic_Muon','BW:Muon']),
+        ChainProp(name='HLT_mu4_cosmic_L1MU4', l1SeedThresholds=['MU4'], stream=['CosmicMuons'], groups=['RATE:Cosmic_Muon','BW:Muon']),
         ChainProp(name='HLT_mu4_msonly_cosmic_L1MU4_EMPTY', l1SeedThresholds=['MU4'], stream=['CosmicMuons'], groups=['RATE:Cosmic_Muon','BW:Muon']),
      ]
 

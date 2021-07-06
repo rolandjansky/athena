@@ -19,7 +19,7 @@ ClassIDSvc           INFO  getRegistryEntries: read 2887 CLIDRegistry entries fo
 ARSTest1            ERROR Bad InputRemaps string: bad1
 ARSTest1            ERROR Bad InputRemaps string: bad2
 ARSTest1            ERROR Can't find CLID for InputRemaps string: foo#asdasd->zzz
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr
 HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready

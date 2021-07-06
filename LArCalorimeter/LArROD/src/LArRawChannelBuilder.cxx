@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArROD/LArRawChannelBuilder.h"
@@ -10,9 +10,7 @@
 #include "LArElecCalib/ILArPedestal.h"
 //#include "LArElecCalib/ILArRamp.h"
 #include "LArElecCalib/ILArOFC.h"
-#include "LArElecCalib/ILArOFCTool.h"
 #include "LArElecCalib/ILArShape.h"
-#include "LArElecCalib/ILArADC2MeVTool.h"
 #include "LArElecCalib/ILArGlobalTimeOffset.h"
 #include "LArElecCalib/ILArFEBTimeOffset.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -20,6 +18,7 @@
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/WriteHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include <math.h>
 
@@ -30,12 +29,9 @@ using CLHEP::picosecond;
 
 LArRawChannelBuilder::LArRawChannelBuilder (const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator),
-  m_OFCTool("LArOFCTool"),
-  m_adc2mevTool("LArADC2MeVTool/LArADC2MeVToolDefault"),
   m_onlineHelper(NULL),
   //m_roiMap("LArRoI_Map"),
   m_useTDC(false),
-  m_useOFCTool(false),
   m_Ecut(256*MeV),
   m_initialTimeSampleShift(0),
   m_ramp_max(),
@@ -64,7 +60,6 @@ LArRawChannelBuilder::LArRawChannelBuilder (const std::string& name, ISvcLocator
  {
    //m_useIntercept={false,false,false,false};
  declareProperty("UseTDC",                    m_useTDC);
- declareProperty("UseOFCTool",                m_useOFCTool);
  declareProperty("Ecut",                      m_Ecut);
  declareProperty("UseHighGainRampIntercept",  m_useIntercept[CaloGain::LARHIGHGAIN]=false);
  declareProperty("UseMedGainRampIntercept",   m_useIntercept[CaloGain::LARMEDIUMGAIN]=false);
@@ -84,8 +79,6 @@ LArRawChannelBuilder::LArRawChannelBuilder (const std::string& name, ISvcLocator
  declareProperty("ShapeMode",                 m_shapeMode=0); 
  declareProperty("SkipSaturCellsMode",        m_skipSaturCells=0);
  declareProperty("ADCMax",                    m_AdcMax=4095);
- declareProperty("ADC2MeVTool", 	      m_adc2mevTool);
- declareProperty("OFCTool",                   m_OFCTool);
  declareProperty("firstSample",               m_firstSample,"  first sample used in shape");
  declareProperty("PedestalKey",		      m_pedestalKey);
  declareProperty("ShapesKey",		      m_shapesKey);
@@ -96,10 +89,8 @@ StatusCode LArRawChannelBuilder::initialize()
 {
   ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
 
-  if (m_useOFCTool) {
-    ATH_CHECK( m_OFCTool.retrieve() );
-  }
-  ATH_CHECK( m_adc2mevTool.retrieve() );
+  ATH_CHECK( m_ofcKey.initialize() );
+  ATH_CHECK( m_adc2mevKey.initialize() );
   
   // ***
   
@@ -186,7 +177,6 @@ StatusCode LArRawChannelBuilder::execute()
   //Pointer to conditions data objects 
   const ILArFEBTimeOffset* larFebTimeOffset=NULL;
   const ILArPedestal* larPedestal=NULL;
-  const ILArOFC* larOFC=NULL;
   const ILArShape* larShape=NULL;
   //Retrieve Digit Container
 
@@ -197,16 +187,17 @@ StatusCode LArRawChannelBuilder::execute()
     return StatusCode::FAILURE;
   }
 
+  SG::ReadCondHandle<LArADC2MeV> adc2mev (m_adc2mevKey, ctx);
+
   //Pointer to input data container
   SG::ReadHandle<LArDigitContainer> digitContainer (m_dataLocation, ctx);
   
   //Retrieve calibration data
   ATH_CHECK( detStore()->retrieve(larPedestal,m_pedestalKey) );
   ATH_CHECK( detStore()->retrieve(larShape,m_shapesKey) );
+
   ATH_MSG_DEBUG( "Retrieving LArOFC object"  );
-  if (!m_useOFCTool) {  //OFC-Conditions object only needed if OFC's not computed on-the-fly
-    ATH_CHECK( detStore()->retrieve(larOFC) );
-  }
+  SG::ReadCondHandle<ILArOFC> larOFC (m_ofcKey, ctx);
 
   //retrieve TDC
   if (m_useTDC) { //All this timing business is only necessary if the readout and the beam are not in phase (Testbeam)
@@ -331,11 +322,7 @@ StatusCode LArRawChannelBuilder::execute()
     // Optimal Filtering Coefficients
     ILArOFC::OFCRef_t ofc_a;
     ILArOFC::OFCRef_t ofc_b;
-    if (m_useOFCTool) { //Use OFC-Tool to compute OFC on-the-fly
-      ofc_a=m_OFCTool->OFC_a(chid,gain);
-      ofc_b=m_OFCTool->OFC_b(chid,gain);//retrieve only when needed
-    }
-    else {// get OFC from Conditions Store
+    {// get OFC from Conditions Store
       float febTimeOffset=0;
       const HWIdentifier febid=m_onlineHelper->feb_Id(chid);
       if (larFebTimeOffset)
@@ -435,7 +422,7 @@ StatusCode LArRawChannelBuilder::execute()
     ATH_MSG_VERBOSE( "ADC Height calculated " << ADCPeak << " TimeBin=" << OFCTimeBin   );
      
     //ADC2MeV (a.k.a. Ramp)   
-    const std::vector<float>& ramp=m_adc2mevTool->ADC2MEV(chid,gain);
+    LArVectorProxy ramp = adc2mev->ADC2MEV(chid,gain);
     //Check ramp coefficents
     if (ramp.size()==0) {
       noEnergy++;
@@ -468,10 +455,7 @@ StatusCode LArRawChannelBuilder::execute()
     //Check if energy is above threshold for time & quality calculation
     if (energy>m_Ecut) {
       highE++;
-      if (m_useOFCTool)  //Use OFC-Tool to compute OFC on-the-fly
-	ofc_b=m_OFCTool->OFC_b(chid,gain);
-      else 
-	ofc_b=larOFC->OFC_b(chid,gain,OFCTimeBin);
+      ofc_b=larOFC->OFC_b(chid,gain,OFCTimeBin);
       if (ofc_b.size() != ofc_a.size()) {//don't have proper number of coefficients
         if (msgLvl (MSG::DEBUG)) {
 	  if (ofc_b.size()==0)

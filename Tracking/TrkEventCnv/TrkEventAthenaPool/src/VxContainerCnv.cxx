@@ -64,7 +64,7 @@ VxContainer * VxContainerCnv::createTransient()
     static pool::Guid p1_guid( "AFA5FE76-EEC6-4BD1-B704-B5747F729291" );
     static pool::Guid p0_guid( "639B478A-7355-4430-B6FC-F0A6148A2E87" );
 
-  VxContainer *p_collection = 0;
+  VxContainer *p_collection = nullptr;
   if( compareClassGuid( p2_guid ) ) {
   //  std::cout << "VxContainerCnv::createTransient: do new TP 2" << std::endl;  
      usingTPCnvForReading( m_TPConverter );

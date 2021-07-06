@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: DbOption.cpp 726071 2016-02-25 09:23:05Z krasznaa $
@@ -47,7 +47,7 @@ std::string DbOption::typeName() const  {
 }
 
 /// Set the option value
-DbStatus DbOption::i_setValue(const std::type_info& typ, void* value)  {
+DbStatus DbOption::i_setValue(const std::type_info& typ, const void* value)  {
   if ( typ == typeid(bool) )
     return setValue(DbColumn::BOOL, value);
   else if ( typ == typeid(char) )
@@ -146,7 +146,7 @@ DbStatus DbOption::i_getValue(const std::type_info& typ, void* value) const {
 }
 
 /// Set the option value
-DbStatus DbOption::setValue(DbColumn::Type typ, void* value) {
+DbStatus DbOption::setValue(DbColumn::Type typ, const void* value) {
   m_type = typ;
   switch(type())   {
   case DbColumn::UCHAR:

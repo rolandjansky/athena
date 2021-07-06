@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfL1Data/L1DataDef.h"
@@ -56,7 +56,7 @@ registerTriggerType(ALFA, 64)
 void
 TrigConf::L1DataDef::printMaxThresholds() {
    cout << "L1 Version: " << g_l1Version << endl;
-   for(auto & x: typeConfigs()) {
+   for(auto & x: g_typeConfigs) {
       cout << "Maximum number of thresholds for type " << setw(6) << x.second.name << " : " << x.second.max << endl;
    }
 }

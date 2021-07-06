@@ -47,7 +47,6 @@ if (WhichInput == "ESD") :
     TriggerFlags.doID = True
     TriggerFlags.doEF = True
     TriggerFlags.doLVL2 = True
-    #TriggerFlags.enableMonitoring = [ ]
     TriggerFlags.Slices_all_setOff()
     TriggerFlags.EgammaSlice.setAll()
 #    TriggerFlags.triggerMenuSetup = "default"
@@ -101,7 +100,6 @@ elif (WhichInput == "RDO"):
     TriggerFlags.doID = True
     TriggerFlags.doEF = True
     TriggerFlags.doLVL2 = True
-    #TriggerFlags.enableMonitoring = [ ]
     #TriggerFlags.triggerMenuSetup = "MC_lumi1E31_no_prescale"
     TriggerFlags.triggerMenuSetup = 'default'
 
@@ -164,8 +162,6 @@ elif (WhichInput == "BS"):
     TriggerFlags.configurationSourceList.lock()
     TriggerFlags.doLVL2 = True
     TriggerFlags.doEF = True
-    TriggerFlags.doFEX = True
-    TriggerFlags.doHypo = True
 
     #TriggerFlags.triggerMenuSetup = "MC_lumi1E31_no_prescale"
     TriggerFlags.triggerMenuSetup = 'default'

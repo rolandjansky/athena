@@ -1,6 +1,6 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 // METSignificance.h
 // Header file for class METSignificance
@@ -88,7 +88,7 @@ namespace met {
     asg::AnaToolHandle<IJetCalibrationTool>                   m_jetCalibTool;
     asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool>   m_muonCalibrationAndSmearingTool;
     asg::AnaToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_egammaCalibTool;
-    asg::AnaToolHandle<ITauToolBase>                          m_tCombinedP4FromRecoTaus;
+    asg::AnaToolHandle<ITauToolBase>                          m_tauCombinedTES;
 
     StatusCode AddMuon    (const xAOD::IParticle* obj, float &pt_reso, float &phi_reso, float avgmu);
     StatusCode AddElectron(const xAOD::IParticle* obj, float &pt_reso, float &phi_reso, float avgmu);

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        KinkedTrackFlags.py
@@ -36,7 +36,6 @@ class KinkedTrack_containerFlags(JobProperty):
     METTermName = "FinalTrk" # or "FinalClus" ??
     egClusterCollectionName = "egammaClusters"
     msTrackCollectionName = "MuonSpectrometerTrackParticles"
-    pass
 primRPVLLDESDM.add_JobProperty(KinkedTrack_containerFlags)
 
 class KinkedTrack_singleJetMetFilterFlags(JobProperty):
@@ -187,7 +186,7 @@ class KinkedTrack_singleJetMetFilterFlags(JobProperty):
     cutEtaMax = 3.2
     doLeptonVeto = True
     requireIsolatedTrack = True
-    electronIDKey = "Tight"
+    electronIDKey = "LHTight"
     muonIDKey = "Medium"
     leptonPtMax = 20.0*Units.GeV
     leptonEtaMax = 2.5
@@ -196,7 +195,6 @@ class KinkedTrack_singleJetMetFilterFlags(JobProperty):
     cutMetMinForMultiJets = 170.0*Units.GeV
     jetMetDphiMin = 1.0
     preScaleStublet = 10
-    pass
 primRPVLLDESDM.add_JobProperty(KinkedTrack_singleJetMetFilterFlags)
 
 class KinkedTrack_ZeeFilterFlags(JobProperty):
@@ -246,7 +244,7 @@ class KinkedTrack_ZeeFilterFlags(JobProperty):
     doTriggerMatch = False
     electronPtMin = 40*Units.GeV
     electronEtaMax = 2.5
-    electronIDKeys = ["Tight"]
+    electronIDKeys = ["LHTight"]
     clusterEtMin = 15*Units.GeV
     clusterEtaMax = 2.5
     diElectronMassLow = (91.1876-40)*Units.GeV
@@ -254,7 +252,6 @@ class KinkedTrack_ZeeFilterFlags(JobProperty):
     deltaPhiMax = 1.5
     preScaleClusterEtMax = 60.0*Units.GeV
     preScale = 5
-    pass
 primRPVLLDESDM.add_JobProperty(KinkedTrack_ZeeFilterFlags)
 
 class KinkedTrack_ZmumuFilterFlags(JobProperty):
@@ -288,7 +285,6 @@ class KinkedTrack_ZmumuFilterFlags(JobProperty):
     deltaPhiMax = 1.5
     preScaleTrackPtMax = 60.0*Units.GeV
     preScale = 5
-    pass
 primRPVLLDESDM.add_JobProperty(KinkedTrack_ZmumuFilterFlags)
 
 

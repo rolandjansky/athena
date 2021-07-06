@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -165,16 +165,11 @@ CPSimMon::~CPSimMon()
 /*---------------------------------------------------------*/
 {}
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
-
 /*---------------------------------------------------------*/
 StatusCode CPSimMon::initialize()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endmsg;
+  msg(MSG::INFO) << "Initializing " << name() << endmsg;
 
   m_debug = msgLvl(MSG::DEBUG);
 
@@ -1350,7 +1345,7 @@ void CPSimMon::compare(const CpmTobRoiMap &roiSimMap,
 //  Compare simulated CMX TOBs with data
 
 void CPSimMon::compare(const CmxCpTobMap &simMap, const CmxCpTobMap &datMap,
-                       const std::vector<int> parityMap, ErrorVector &errorsCPM,
+                       const std::vector<int> & parityMap, ErrorVector &errorsCPM,
                        ErrorVector &errorsCMX) {
   if (m_debug)
     msg(MSG::DEBUG) << "Compare simulated CMX TOBs with data" << endmsg;

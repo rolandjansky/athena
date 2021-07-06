@@ -4,7 +4,7 @@ from .L1Topo.L1TopoMenu import L1TopoMenu
 from .L1Topo.L1TopoFlags import L1TopoFlags
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger("TriggerConfigL1Topo")
+log = logging.getLogger(__name__)
 
 class TriggerConfigL1Topo(object):
     

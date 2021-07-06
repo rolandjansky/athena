@@ -95,7 +95,7 @@ ActsCaloTrackingVolumeBuilder::trackingVolume(
   }
 
   std::shared_ptr<Acts::TrackingVolume> calo
-      = Acts::TrackingVolume::create(Acts::Transform3D::Identity(),
+      = Acts::TrackingVolume::create(Acts::Transform3::Identity(),
                                      caloVolBounds,
                                      std::move(boxStore),
                                      std::move(cellVols),
@@ -245,7 +245,7 @@ ActsCaloTrackingVolumeBuilder::trackingVolume(
   double caloDZ1 = caloVolBounds->get(CCVBBV::eHalfLengthZ);
   double caloDZ2 = caloVolBounds->get(CCVBBV::eHalfLengthZcutout);
 
-  Acts::Vector3D caloChokeRPos
+  Acts::Vector3 caloChokeRPos
     = {caloRMin + (caloRMax - caloRMin)/2., 0, 0};
 
   std::vector<Acts::TrackingVolumeOrderPosition> tVolOrdPosNeg;
@@ -260,8 +260,8 @@ ActsCaloTrackingVolumeBuilder::trackingVolume(
           tVolOrdPosNeg, std::move(binUtilityPosNeg));
 
   double chokeZOffset = caloDZ2 + (caloDZ1 - caloDZ2)/2.;
-  Acts::Transform3D posTrf(Acts::Translation3D(Acts::Vector3D::UnitZ() * chokeZOffset));
-  Acts::Transform3D negTrf(Acts::Translation3D(Acts::Vector3D::UnitZ()* -1 *chokeZOffset));
+  Acts::Transform3 posTrf(Acts::Translation3(Acts::Vector3::UnitZ() * chokeZOffset));
+  Acts::Transform3 negTrf(Acts::Translation3(Acts::Vector3::UnitZ()* -1 *chokeZOffset));
 
   auto posNegCylBounds = std::make_shared<Acts::CylinderVolumeBounds>(
        caloRMin, caloRMax, (caloDZ1 - caloDZ2) / 2.);
@@ -276,9 +276,9 @@ ActsCaloTrackingVolumeBuilder::trackingVolume(
 
   // now build the central pseudocontainer
   std::vector<Acts::TrackingVolumeOrderPosition> tVolOrderedCtr;
-  tVolOrderedCtr.push_back(std::make_pair(idContainer, Acts::Vector3D(caloRMed / 2., 0, 0)));
+  tVolOrderedCtr.push_back(std::make_pair(idContainer, Acts::Vector3(caloRMed / 2., 0, 0)));
   tVolOrderedCtr.push_back(std::make_pair(calo,
-        Acts::Vector3D(caloRMed +
+        Acts::Vector3(caloRMed +
           (caloRMax- caloRMed) / 2., 0, 0)));
 
   std::vector<float> ctrBoundaries = {0, float(caloRMed), float(caloRMax)};
@@ -292,7 +292,7 @@ ActsCaloTrackingVolumeBuilder::trackingVolume(
           tVolOrderedCtr, std::move(binUtilityCtr));
 
 
-  auto ctrContainer = Acts::TrackingVolume::create(Acts::Transform3D::Identity(),
+  auto ctrContainer = Acts::TrackingVolume::create(Acts::Transform3::Identity(),
                           std::make_shared<Acts::CylinderVolumeBounds>(
                           caloRMin, caloRMax, caloDZ2),
                           tVolArrCtr);
@@ -303,7 +303,7 @@ ActsCaloTrackingVolumeBuilder::trackingVolume(
   // and now combine those together into another one
   Acts::TrackingVolumeArrayCreator tvac{Acts::TrackingVolumeArrayCreator::Config{}};
 
-  auto mainContainer = Acts::TrackingVolume::create(Acts::Transform3D::Identity(),
+  auto mainContainer = Acts::TrackingVolume::create(Acts::Transform3::Identity(),
       std::make_shared<Acts::CylinderVolumeBounds>(
       caloRMin, caloRMax, caloDZ1),
       tvac.trackingVolumeArray(gctx, {negContainer, ctrContainer, posContainer},
@@ -334,8 +334,8 @@ ActsCaloTrackingVolumeBuilder::makeCaloVolumeBounds(const std::vector<std::uniqu
   // We check what the min radius at small z, and then we turn it around and
   // check z bounds at lower radii.
   for (const auto& box : boxStore) {
-    Acts::Vector3D vmin = box->min().cast<double>();
-    Acts::Vector3D vmax = box->max().cast<double>();
+    Acts::Vector3 vmin = box->min().cast<double>();
+    Acts::Vector3 vmax = box->max().cast<double>();
 
     double vrmin = perp(vmin);
     double vrmax = perp(vmax);
@@ -355,8 +355,8 @@ ActsCaloTrackingVolumeBuilder::makeCaloVolumeBounds(const std::vector<std::uniqu
   }
 
   for (const auto& box : boxStore) {
-    Acts::Vector3D vmin  = box->min().cast<double>();
-    Acts::Vector3D vmax  = box->max().cast<double>();
+    Acts::Vector3 vmin  = box->min().cast<double>();
+    Acts::Vector3 vmax  = box->max().cast<double>();
     double         vrmin = perp(vmin);
     double         vrmax = perp(vmax);
 
@@ -402,7 +402,7 @@ ActsCaloTrackingVolumeBuilder::makeCaloVolumeBounds(const std::vector<std::uniqu
 
   ATH_MSG_VERBOSE("Inside volume transform: \n" << insideVolume->transform().matrix());
 
-  if (!insideVolume->transform().isApprox(Acts::Transform3D::Identity())) {
+  if (!insideVolume->transform().isApprox(Acts::Transform3::Identity())) {
     ATH_MSG_VERBOSE("Inside volume transform is not unity.");
     
     // transformation matrix is NOT unity. Let's check:
@@ -410,17 +410,17 @@ ActsCaloTrackingVolumeBuilder::makeCaloVolumeBounds(const std::vector<std::uniqu
     // - Translation is only along z axis
     const auto& trf = insideVolume->transform();
   
-    Acts::RotationMatrix3D rot = trf.rotation();
-    bool unityRot = rot.isApprox(Acts::RotationMatrix3D::Identity());
+    Acts::RotationMatrix3 rot = trf.rotation();
+    bool unityRot = rot.isApprox(Acts::RotationMatrix3::Identity());
 
     ATH_MSG_VERBOSE("\n" << rot);
 
     // dot product with Z axis is about 1 => ok
-    const Acts::Vector3D trl = trf.translation();
-    bool transZOnly = std::abs(1 - std::abs(Acts::Vector3D::UnitZ().dot(trl.normalized()))) < 1e-6;
+    const Acts::Vector3 trl = trf.translation();
+    bool transZOnly = std::abs(1 - std::abs(Acts::Vector3::UnitZ().dot(trl.normalized()))) < 1e-6;
 
     ATH_MSG_VERBOSE("TRL "<< trl.transpose());
-    ATH_MSG_VERBOSE("TRL "<< trl.normalized().dot(Acts::Vector3D::UnitZ()));
+    ATH_MSG_VERBOSE("TRL "<< trl.normalized().dot(Acts::Vector3::UnitZ()));
 
     if(!unityRot || !transZOnly) {
       ATH_MSG_ERROR("The ID appears to be shifted from the origin. I cannot handle this.");
@@ -491,7 +491,7 @@ ActsCaloTrackingVolumeBuilder::build_endcap(double z,
   double z_max     = z + dz;
 
   double         r_min, r_max;
-  Acts::Vector3D p1, p2, p3, p4, p5, p6, p7, p8;
+  Acts::Vector3 p1, p2, p3, p4, p5, p6, p7, p8;
 
   // inner face
   r_min = std::tan(theta_min) * z_min;
@@ -512,17 +512,17 @@ ActsCaloTrackingVolumeBuilder::build_endcap(double z,
   p8 << r_max * std::cos(phi_min), r_max * std::sin(phi_min), z_max;
 
   double         r_mid = std::tan(theta) * z_min;
-  Acts::Vector3D center;
+  Acts::Vector3 center;
   center.x() = r_mid * std::cos(phi);
   center.y() = r_mid * std::sin(phi);
   center.z() = z;
 
-  Acts::Transform3D glob2vol = Acts::Transform3D::Identity();
-  glob2vol *= Acts::AngleAxis3D(-phi, Acts::Vector3D::UnitZ());
-  glob2vol *= Acts::AngleAxis3D(
-      -theta, Acts::Vector3D::UnitZ().cross(center).normalized());
+  Acts::Transform3 glob2vol = Acts::Transform3::Identity();
+  glob2vol *= Acts::AngleAxis3(-phi, Acts::Vector3::UnitZ());
+  glob2vol *= Acts::AngleAxis3(
+      -theta, Acts::Vector3::UnitZ().cross(center).normalized());
   glob2vol
-      *= Acts::Translation3D(-(p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8) / 8.);
+      *= Acts::Translation3(-(p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8) / 8.);
 
   p1 = glob2vol * p1;
   p2 = glob2vol * p2;
@@ -536,7 +536,7 @@ ActsCaloTrackingVolumeBuilder::build_endcap(double z,
   auto globalToLocal = glob2vol.inverse();
 
   auto cubo = std::make_shared<Acts::GenericCuboidVolumeBounds>(
-      std::array<Acts::Vector3D, 8>({{p1, p2, p3, p4, p5, p6, p7, p8}}));
+      std::array<Acts::Vector3, 8>({{p1, p2, p3, p4, p5, p6, p7, p8}}));
   Acts::AbstractVolume vol(globalToLocal, std::move(cubo));
 
   return vol;
@@ -564,7 +564,7 @@ ActsCaloTrackingVolumeBuilder::build_barrel(double r,
   double r_max = r + dr;
 
   double         z_min, z_max;
-  Acts::Vector3D p1, p2, p3, p4, p5, p6, p7, p8;
+  Acts::Vector3 p1, p2, p3, p4, p5, p6, p7, p8;
 
   // inner face
   z_min = r_min / std::tan(theta_min);
@@ -584,17 +584,17 @@ ActsCaloTrackingVolumeBuilder::build_barrel(double r,
   p7 << r_max * std::cos(phi_max), r_max * std::sin(phi_max), z_max;
   p8 << r_max * std::cos(phi_max), r_max * std::sin(phi_max), z_min;
 
-  Acts::Vector3D center;
+  Acts::Vector3 center;
   center.x() = r * std::cos(phi);
   center.y() = r * std::sin(phi);
   center.z() = r / std::tan(theta);
 
-  Acts::Transform3D glob2vol = Acts::Transform3D::Identity();
-  glob2vol *= Acts::AngleAxis3D(-phi, Acts::Vector3D::UnitZ());
-  glob2vol *= Acts::AngleAxis3D(
-      -theta, Acts::Vector3D::UnitZ().cross(center).normalized());
+  Acts::Transform3 glob2vol = Acts::Transform3::Identity();
+  glob2vol *= Acts::AngleAxis3(-phi, Acts::Vector3::UnitZ());
+  glob2vol *= Acts::AngleAxis3(
+      -theta, Acts::Vector3::UnitZ().cross(center).normalized());
   glob2vol
-      *= Acts::Translation3D(-(p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8) / 8.);
+      *= Acts::Translation3(-(p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8) / 8.);
 
   p1 = glob2vol * p1;
   p2 = glob2vol * p2;
@@ -608,7 +608,7 @@ ActsCaloTrackingVolumeBuilder::build_barrel(double r,
   auto globalToLocal = glob2vol.inverse();
 
   auto cubo = std::make_shared<Acts::GenericCuboidVolumeBounds>(
-      std::array<Acts::Vector3D, 8>({{p1, p2, p3, p4, p5, p6, p7, p8}}));
+      std::array<Acts::Vector3, 8>({{p1, p2, p3, p4, p5, p6, p7, p8}}));
 
   Acts::AbstractVolume vol(globalToLocal, std::move(cubo));
 
@@ -628,7 +628,7 @@ ActsCaloTrackingVolumeBuilder::build_box(double x, double dx, double y, double d
   z_min = z - dz;
   z_max = z + dz;
 
-  Acts::Vector3D p1, p2, p3, p4, p5, p6, p7, p8;
+  Acts::Vector3 p1, p2, p3, p4, p5, p6, p7, p8;
 
   // inner face
   p1 << x_min, y_min, z_min;
@@ -642,9 +642,9 @@ ActsCaloTrackingVolumeBuilder::build_box(double x, double dx, double y, double d
   p7 << x_max, y_max, z_max;
   p8 << x_max, y_min, z_max;
 
-  Acts::Transform3D glob2vol = Acts::Transform3D::Identity();
+  Acts::Transform3 glob2vol = Acts::Transform3::Identity();
   glob2vol
-      *= Acts::Translation3D(-(p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8) / 8.);
+      *= Acts::Translation3(-(p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8) / 8.);
 
   p1 = glob2vol * p1;
   p2 = glob2vol * p2;
@@ -658,7 +658,7 @@ ActsCaloTrackingVolumeBuilder::build_box(double x, double dx, double y, double d
   auto globalToLocal = glob2vol.inverse();
 
   auto cubo = std::make_shared<Acts::GenericCuboidVolumeBounds>(
-      std::array<Acts::Vector3D, 8>({{p1, p2, p3, p4, p5, p6, p7, p8}}));
+      std::array<Acts::Vector3, 8>({{p1, p2, p3, p4, p5, p6, p7, p8}}));
   Acts::AbstractVolume vol(globalToLocal, std::move(cubo));
 
   return vol;

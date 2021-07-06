@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
                           jFEXCompression.cxx  -  description
@@ -12,9 +12,9 @@
 
 namespace LVL1 {
 
-const int jFEXCompression::s_steps[] = {25, 50, 100, 200, 400, 102400};
-const int jFEXCompression::s_minET[] = {-750, 1600, 6400, 25600, 102400, 200000};
-const int jFEXCompression::s_minCode[] = {2, 96, 192, 384, 768, 1012};
+const int jFEXCompression::s_steps[] = {25, 50, 100, 200, 400};
+const int jFEXCompression::s_minET[] = {-3150, 6400, 25600, 102400, 409600};
+const int jFEXCompression::s_minCode[] = {2, 384, 768, 1536, 3072};
 
 unsigned int jFEXCompression::Compress(int Et) {
 
@@ -48,8 +48,8 @@ int jFEXCompression::Expand(unsigned int code) {
 
   // Deal with special codes first:
   if (code == s_NoData)  return 0;
-  if (code == s_LArInvalid || code == s_LArReserved || code > s_LArMaxCode) return s_error; 
-  if (code == s_LArOverflow || code == s_LArSaturated) return s_maxET;
+  if (code == s_LArInvalid || (code > s_LArOverflow && code < s_LArInvalid)) return s_error; 
+  if (code == s_LArOverflow) return s_maxET;
 
   /** Now expand code into an ET value.
       Start by finding what range the code is in */

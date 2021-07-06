@@ -144,7 +144,15 @@ include("BFieldAth/BFieldAth_jobOptions.py")
 
 # LEVEL 5: Extrapolator
 
-include('TrkDetDescrSvc/AtlasTrackingGeometrySvc.py')
+from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
+geom_svc=None
+geom_cond_key=''
+if not use_tracking_geometry_cond_alg :
+	from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+	acc = TrackingGeometrySvcCfg(flags)
+	geom_svc = acc.getPrimary()
+else :
+	geom_cond_key = 'AtlasTrackingGeometry'
 
 if InDetFlags.propagatorType() is "STEP":
   from TrkExSTEP_Propagator.TrkExSTEP_PropagatorConf import Trk__STEP_Propagator as Propagator
@@ -166,7 +174,9 @@ if InDetFlags.doPrintConfigurables: print      InDetPropagator
 #
 from TrkExTools.TrkExToolsConf import Trk__Navigator
 InDetNavigator = Trk__Navigator(name                = 'InDetNavigator',
-                                TrackingGeometrySvc = AtlasTrackingGeometrySvc)
+			TrackingGeometrySvc = geom_svc,
+			TrackingGeometryKey = geom_cond_key
+                                )
 ToolSvc += InDetNavigator
 if InDetFlags.doPrintConfigurables: print      InDetNavigator
 
@@ -213,6 +223,17 @@ InDetExtrapolator = Trk__Extrapolator(name                    = 'InDetExtrapolat
                                       DoCaloDynamic           = False)
 ToolSvc += InDetExtrapolator
 if InDetFlags.doPrintConfigurables: print      InDetExtrapolator  
+
+from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__FullLinearizedTrackFactory
+InDetFullLinearizedTrackFactory = Trk__FullLinearizedTrackFactory('InDetFullLinearizedTrackFactory', Extrapolator = InDetTrigExtrapolator)
+ToolSvc += InDetFullLinearizedTrackFactory
+
+from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__TrackToVertexIPEstimator
+InDetTrackToVertexIPEstimator = Trk__TrackToVertexIPEstimator( 'InDetTrackToVertexIPEstimator',
+                                                               Extrapolator = InDetExtrapolator,
+                                                               LinearizedTrackFactory = InDetFullLinearizedTrackFactory)
+ToolSvc += InDetTrackToVertexIPEstimator
+
 
 
 # LEVEL 4
@@ -311,10 +332,11 @@ if (InDetFlags.doPrimaryVertex3DFinding()):
                                                        )
 else:
   from TrkVertexSeedFinderTools.TrkVertexSeedFinderToolsConf import Trk__ZScanSeedFinder
-  InDetVtxSeedFinder = Trk__ZScanSeedFinder(name = "InDetZScanSeedFinder"
-                                              #Mode1dFinder = # default, no setting needed
-                                              )
-    
+  InDetVtxSeedFinder = Trk__ZScanSeedFinder(name = "InDetZScanSeedFinder",
+                                            IPEstimator = InDetTrackToVertexIPEstimator
+                                            #Mode1dFinder = # default, no setting needed
+                                            )
+
 ToolSvc += InDetVtxSeedFinder
 if InDetFlags.doPrintConfigurables: print      InDetVtxSeedFinder
 

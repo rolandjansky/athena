@@ -9,7 +9,7 @@ find_package( ROOT COMPONENTS Core MathCore )
 # Component(s) in the package:
 #the library is used by the MCP software https://gitlab.cern.ch/atlas-mcp/MuonPerformanceAnalysis
 atlas_add_library( DerivationFrameworkMuonsLib
-   DerivationFrameworkMuons/*.h src/*.cxx src/components/*.cxx
+   DerivationFrameworkMuons/*.h src/*.cxx
    PUBLIC_HEADERS DerivationFrameworkMuons
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools AthContainers AthenaBaseComps AthenaKernel CaloEvent CaloGeoHelpers DerivationFrameworkInterfaces ExpressionEvaluationLib FourMomUtils GaudiKernel ICaloTrkMuIdTools InDetTrackSelectionToolLib MCTruthClassifierLib RecoToolInterfaces TrigDecisionToolLib TrigMuonMatchingLib TrkExInterfaces TrkParameters TrkSurfaces muonEvent xAODBase xAODCaloEvent xAODEventInfo xAODJet xAODMuon xAODPrimitives xAODTracking xAODTruth )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ReadoutGeometry/StripBoxDesign.h"
@@ -19,9 +19,9 @@ StripBoxDesign::StripBoxDesign(const SiDetectorDesign::Axis stripDirection,
                                const int nRows,
                                const int nStrips,
                                const double pitch,
-                               const double length) : 
-    SCT_ModuleSideDesign(thickness, true, true, true, 1, nRows * nStrips, nRows * nStrips, 0, false, carrier,
-                         readoutSide, stripDirection, thicknessDirection) {
+                               const double length,
+			       const double zShift) : 
+    SCT_ModuleSideDesign(thickness, true, true, true, 1, nRows * nStrips, nRows * nStrips, 0, false, carrier,readoutSide, stripDirection, thicknessDirection) {
     if (nRows <= 0) {
         throw std::runtime_error(
                   "ERROR: StripBoxDesign called with non-positive number of rows");
@@ -31,6 +31,7 @@ StripBoxDesign::StripBoxDesign(const SiDetectorDesign::Axis stripDirection,
     m_nStrips = nStrips;
     m_pitch = pitch;
     m_length = length;
+    m_zShift = zShift;
 
     double width = m_nStrips * m_pitch;
     double fullLength = m_nRows * m_length;
@@ -64,10 +65,10 @@ void StripBoxDesign::neighboursOfCell(const SiCellId &cellId,
     int stripP = strip + 1;
 
     if (stripM >= 0) {
-        neighbours.push_back(stripM);
+        neighbours.emplace_back(stripM);
     }
     if (stripP < m_nStrips) {
-        neighbours.push_back(stripP);
+        neighbours.emplace_back(stripP);
     }
 
     return;
@@ -88,14 +89,16 @@ SiCellId StripBoxDesign::cellIdOfPosition(SiLocalPosition const &pos) const {
 
         return SiCellId(); // return an invalid id
     }
-
-    int row = static_cast<int>(std::floor(pos.xEta() / m_length) + m_nRows / 2);
-    if (row < 0 || row >= m_nRows) {
-
+    int row=0;
+    if(m_nRows>1){
+      row = static_cast<int>(std::floor(pos.xEta() / m_length) + m_nRows / 2);
+      if (row < 0 || row >= m_nRows) {
+	
         return SiCellId(); // return an invalid id
+      }
     }
     int strip1D = strip1Dim(strip, row);
-
+    
     return SiCellId(strip1D, 0);
 }
 
@@ -246,6 +249,11 @@ void StripBoxDesign::distanceToDetectorEdge(SiLocalPosition const & pos,
 
   const GeoTrf::Transform3D StripBoxDesign::SiHitToGeoModel() const {
     return GeoTrf::RotateY3D(90.*GeoModelKernelUnits::deg);
-}
+  }
 
+  const  Amg::Transform3D StripBoxDesign::moduleShift() const{
+    //local x is global Z (along strip)  
+    return Amg::Translation3D(m_zShift,0.0, 0.0) * Amg::RotationMatrix3D::Identity();
+  }
+  
 } // namespace InDetDD

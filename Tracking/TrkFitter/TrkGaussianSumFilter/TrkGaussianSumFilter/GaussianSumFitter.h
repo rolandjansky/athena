@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -9,9 +9,10 @@
  * @brief  Class for fitting according to the Gaussian Sum Filter  formalism
  */
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/EventContext.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
+#include "TrkGaussianSumFilterUtils/GsfMeasurementUpdator.h"
+#include "TrkGaussianSumFilterUtils/QuickCloseComponentsMultiStateMerger.h"
+//
 #include "TrkCaloCluster_OnTrack/CaloCluster_OnTrack.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"
 #include "TrkEventPrimitives/PropDirection.h"
@@ -19,12 +20,14 @@
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkFitterUtils/FitterTypes.h"
 #include "TrkFitterUtils/TrackFitInputPreparator.h"
-#include "TrkGaussianSumFilter/GsfMeasurementUpdator.h"
-#include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
-#include "TrkGaussianSumFilter/QuickCloseComponentsMultiStateMerger.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
+//
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ToolHandle.h"
+//
 #include <atomic>
 
 namespace Trk {
@@ -53,7 +56,6 @@ public:
   using ITrackFitter::fit;
 
   /** Refit a track using the Gaussian Sum Filter */
-
   virtual std::unique_ptr<Track> fit(
     const EventContext& ctx,
     const Track&,
@@ -83,7 +85,7 @@ public:
     const ParticleHypothesis particleHypothesis =
       nonInteracting) const override final;
 
-  /** Refit a track adding a PrepRawDataSet - Not done! */
+  /** Refit a track adding a PrepRawDataSet*/
   virtual std::unique_ptr<Track> fit(
     const EventContext& ctx,
     const Track&,
@@ -91,9 +93,7 @@ public:
     const RunOutlierRemoval runOutlier = false,
     const ParticleHypothesis matEffects = nonInteracting) const override final;
 
-  /** Refit a track adding a RIO_OnTrack set
-      - This has no form of outlier rejection and will use all hits on orginal
-     track... i.e. very basic impleneation at the moment*/
+  /** Refit a track adding a RIO_OnTrack set*/
   virtual std::unique_ptr<Track> fit(
     const EventContext& ctx,
     const Track&,
@@ -101,7 +101,7 @@ public:
     const RunOutlierRemoval runOutlier = false,
     const ParticleHypothesis matEffects = nonInteracting) const override final;
 
-  /** Combine two tracks by refitting - Not done! */
+  /** Combine two tracks by refitting */
   virtual std::unique_ptr<Track> fit(
     const EventContext& ctx,
     const Track&,
@@ -117,12 +117,8 @@ private:
     const SmoothedTrajectory&,
     const ParticleHypothesis particleHypothesis = nonInteracting) const;
 
-  //* Calculate the fit quality */
-  std::unique_ptr<Trk::FitQuality> buildFitQuality(
-    const Trk::SmoothedTrajectory&) const;
-
   /** Gsf smoothe trajectory*/
-  std::unique_ptr<SmoothedTrajectory> fit(
+  SmoothedTrajectory fit(
     const EventContext& ctx,
     Trk::IMultiStateExtrapolator::Cache&,
     const ForwardTrajectory&,
@@ -130,8 +126,9 @@ private:
     const CaloCluster_OnTrack* ccot = nullptr) const;
 
   /** Method for combining the forwards fitted state and the smoothed state */
-  MultiComponentState combine(const MultiComponentState&,
-                              const MultiComponentState&) const;
+  MultiComponentState combine(
+    const MultiComponentState&,
+    const MultiComponentState&) const;
 
   /** Methof to add the CaloCluster onto the track */
   MultiComponentState addCCOT(
@@ -196,7 +193,6 @@ private:
     "state in final trajectory"
   };
 
-
   Gaudi::Property<bool> m_reintegrateOutliers{ this,
                                                "ReintegrateOutliers",
                                                true,
@@ -229,8 +225,7 @@ private:
 
   PropDirection m_directionToPerigee;
 
-  std::unique_ptr<TrkParametersComparisonFunction>
-    m_trkParametersComparisonFunction;
+  TrkParametersComparisonFunction m_trkParametersComparisonFunction;
 
   std::unique_ptr<TrackFitInputPreparator> m_inputPreparator;
   std::vector<double> m_sortingReferencePoint;

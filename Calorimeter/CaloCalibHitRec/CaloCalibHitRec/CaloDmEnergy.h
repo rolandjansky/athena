@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /* ****************************************************************************
@@ -47,7 +47,7 @@ class CaloDmCell
     Identifier m_id;
     float m_energy_total;
 
-    void Add(CaloCalibrationHit *hit);
+    void Add(const CaloCalibrationHit *hit);
 
     inline float eta() const { return m_element->eta(); }
     inline float deta() const { return m_element->deta();}

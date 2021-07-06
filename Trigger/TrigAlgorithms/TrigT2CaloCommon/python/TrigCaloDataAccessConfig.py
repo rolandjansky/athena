@@ -1,12 +1,12 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
-def createLArRoI_Map( flags ):
+def LArRoIMapCfg( flags ):
     acc = ComponentAccumulator()
     LArRoI_Map=CompFactory.LArRoI_Map
 
-    from IOVDbSvc.IOVDbSvcConfig import addFolders
     from LArCabling.LArCablingConfig import LArFebRodMappingCfg, LArCalibIdMappingCfg
 
     LArCablingLegacyService=CompFactory.LArCablingLegacyService
@@ -17,13 +17,9 @@ def createLArRoI_Map( flags ):
 
     CaloTriggerTowerService=CompFactory.CaloTriggerTowerService
     triggerTowerTool = CaloTriggerTowerService()                                              
-    acc.merge(addFolders(flags, ['/LAR/Identifier/LArTTCellMapAtlas'], 'LAR'))
-    acc.merge(addFolders(flags, ['/LAR/Identifier/OnOffIdMap'], 'LAR'))
-                                       
-    acc.merge(addFolders(flags, ['/CALO/Identifier/CaloTTOnOffIdMapAtlas', 
-                                 '/CALO/Identifier/CaloTTOnAttrIdMapAtlas',
-                                 '/CALO/Identifier/CaloTTPpmRxIdMapAtlas'], 'CALO'))
-    
+    from CaloConditions.CaloConditionsConfig import LArTTCellMapCfg, CaloTTIdMapCfg
+    acc.merge(LArTTCellMapCfg(flags))
+    acc.merge(CaloTTIdMapCfg(flags))
     LArRoI_Map = LArRoI_Map()
     LArRoI_Map.CablingSvc = cablingTool 
     LArRoI_Map.TriggerTowerSvc = triggerTowerTool
@@ -31,6 +27,43 @@ def createLArRoI_Map( flags ):
     
     return acc
 
+CaloDataAccessSvcDependencies = [('TileEMScale'       , 'ConditionStore+TileEMScale'),
+                                 ('TileBadChannels'   , 'ConditionStore+TileBadChannels'),
+                                 ('IRegSelLUTCondData', 'ConditionStore+RegSelLUTCondData_TTEM'), 
+                                 ('IRegSelLUTCondData', 'ConditionStore+RegSelLUTCondData_TTHEC'), 
+                                 ('IRegSelLUTCondData', 'ConditionStore+RegSelLUTCondData_TILE'), 
+                                 ('IRegSelLUTCondData', 'ConditionStore+RegSelLUTCondData_FCALEM'), 
+                                 ('IRegSelLUTCondData', 'ConditionStore+RegSelLUTCondData_FCALHAD'),
+                                 ('LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' ),
+                                 ('LArFebRodMapping'  , 'ConditionStore+LArFebRodMap' ),
+                                 ('LArMCSym'          , 'ConditionStore+LArMCSym')]
+
+
+def CaloOffsetCorrectionCfg(flags):
+
+    acc = ComponentAccumulator()
+    if not flags.Input.isMC and flags.Common.isOnline:
+        from IOVDbSvc.IOVDbSvcConfig import addFolders
+        acc.merge(addFolders(flags, "/LAR/ElecCalibFlat/OFC",'LAR_ONL', className = 'CondAttrListCollection'))  
+        larCondSvc = CompFactory.LArFlatConditionSvc()
+        larCondSvc.OFCInput="/LAR/ElecCalibFlat/OFC"
+        acc.addService(larCondSvc)
+        acc.addService(CompFactory.ProxyProviderSvc(ProviderNames=[larCondSvc.name]))  
+        acc.addCondAlgo(CompFactory.getComp('LArFlatConditionsAlg<LArOFCFlat>')(ReadKey="/LAR/ElecCalibFlat/OFC", WriteKey='LArOFC'))
+        from LumiBlockComps.LuminosityCondAlgConfig import LuminosityCondAlgCfg
+        acc.merge(LuminosityCondAlgCfg(flags))
+
+    from CaloRec.CaloBCIDAvgAlgConfig import CaloBCIDAvgAlgCfg
+    acc.merge(CaloBCIDAvgAlgCfg(flags))
+    from LArRecUtils.LArRecUtilsConfig import LArMCSymCondAlgCfg
+    acc.merge( LArMCSymCondAlgCfg( flags ) )
+    from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
+    monTool = GenericMonitoringTool('MonTool')
+    monTool.defineHistogram('TIME_exec', path='EXPERT', type='TH1F', title="CaloBCIDAvgAlg execution time; time [ us ] ; Nruns", xbins=80, xmin=0.0, xmax=4000)
+    acc.getEventAlgo("CaloBCIDAvgAlg").MonTool = monTool
+    return acc
+
+@AccumulatorCache
 def trigCaloDataAccessSvcCfg( flags ):    
 
     acc = ComponentAccumulator()
@@ -40,13 +73,25 @@ def trigCaloDataAccessSvcCfg( flags ):
     from LArGeoAlgsNV.LArGMConfig import LArGMCfg
     acc.merge( LArGMCfg( flags ) )
 
-    from TileGeoModel.TileGMConfig import TileGMCfg    
+    from TileGeoModel.TileGMConfig import TileGMCfg
     acc.merge( TileGMCfg( flags ) )
-
-    from RegionSelector.RegSelConfig import regSelCfg
-    acc.merge( regSelCfg( flags ) )
     
-    acc.merge( createLArRoI_Map( flags ) )
+    acc.merge( LArRoIMapCfg( flags ) )
+
+    from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg, LArFebRodMappingCfg
+    acc.merge( LArOnOffIdMappingCfg( flags ))
+    acc.merge( LArFebRodMappingCfg( flags ))
+
+    #setup region selector
+    from RegionSelector.RegSelToolConfig import (regSelTool_TTEM_Cfg,regSelTool_TTHEC_Cfg,
+                                                 regSelTool_FCALEM_Cfg,regSelTool_FCALHAD_Cfg,regSelTool_TILE_Cfg)
+
+    svc.RegSelToolEM = acc.popToolsAndMerge(regSelTool_TTEM_Cfg(flags))
+    svc.RegSelToolHEC = acc.popToolsAndMerge(regSelTool_TTHEC_Cfg(flags))
+    svc.RegSelToolFCALEM = acc.popToolsAndMerge(regSelTool_FCALEM_Cfg(flags))
+    svc.RegSelToolFCALHAD = acc.popToolsAndMerge(regSelTool_FCALHAD_Cfg(flags))
+    svc.RegSelToolTILE = acc.popToolsAndMerge(regSelTool_TILE_Cfg(flags))
+
 
     # Needed by bad channel maskers, refrerenced from LArCellCont.
     from LArBadChannelTool.LArBadChannelConfig import LArBadChannelCfg, LArBadFebCfg
@@ -58,6 +103,12 @@ def trigCaloDataAccessSvcCfg( flags ):
 
     from TileConditions.TileBadChannelsConfig import TileBadChannelsCondAlgCfg
     acc.merge( TileBadChannelsCondAlgCfg(flags) )
+
+    if flags.Trigger.calo.doOffsetCorrection:
+        from AthenaCommon.CFElements import parOR
+        eventAcc = ComponentAccumulator(parOR("HLTBeginSeq"))
+        eventAcc.merge(CaloOffsetCorrectionCfg(flags), sequenceName="HLTBeginSeq")
+        acc.merge(eventAcc)
 
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
     import math
@@ -86,41 +137,33 @@ def trigCaloDataAccessSvcCfg( flags ):
 
 
 if __name__ == "__main__":
-
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior = 1
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.Input.isMC=False
     ConfigFlags.lock()
     acc = ComponentAccumulator()
+    from AthenaCommon.CFElements import parOR
+
+    acc.addSequence(parOR("HLTBeginSeq"))
     
     from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
     acc.merge( ByteStreamReadCfg( ConfigFlags ) )
 
     acc.merge( trigCaloDataAccessSvcCfg( ConfigFlags ) )
+
     
     TestCaloDataAccess=CompFactory.TestCaloDataAccess
     testAlg = TestCaloDataAccess()
     acc.addEventAlgo(testAlg)    
     
-    # disable RegSel fro ID and muons, will change this to use flags once MR for it is integrated
-    regSel = acc.getService("RegSelSvc")
-
-    regSel.enableID    = False
-    regSel.enablePixel = False
-    regSel.enableSCT   = False
-    regSel.enableTRT   = False
-    regSel.enableMuon  = False
-    regSel.enableRPC   = False
-    regSel.enableMDT   = False
-    regSel.enableTGC   = False
-    regSel.enableCSC   = False
-
     acc.printConfig(True)
 
-    print(acc.getPublicTool("LArRoI_Map"))
+    print(acc.getPublicTool("LArRoI_Map"))  # noqa: ATL901
 
-    print("running this configuration")
+    print("running this configuration")  # noqa: ATL901
     of = open("test.pkl", "wb")
     acc.store(of)
     of.close()

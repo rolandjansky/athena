@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -91,7 +91,7 @@ Trk::MeasurementVectorNtupleTool::MeasurementVectorNtupleTool(
   declareProperty("HoleSearchTool",               m_holeSearchTool,                       "Tool to search for holes on track");
                     // these are for detector-internal validation, unless an
                     // specific <-> general index hit mapper is there.
-  declareProperty("PixelNtupleHelperTools",       m_PixelNtupleHelperToolHandles,    
+  declareProperty("PixelNtupleHelperTools",       m_PixelNtupleHelperToolHandles,
                   "List of Pixel validation tools");
   declareProperty("SCTNtupleHelperTools",         m_SCTNtupleHelperToolHandles,           "List of SCT validation tools");
   declareProperty("TRTNtupleHelperTools",         m_TRTNtupleHelperToolHandles,           "List of TRT validation tools");
@@ -141,10 +141,10 @@ StatusCode Trk::MeasurementVectorNtupleTool::initialize() {
   if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
     ATH_MSG_ERROR ("Could not get AtlasDetectorID helper" );
     return StatusCode::FAILURE;
-  } 
+  }
   m_detTypeHelper = new MeasurementTypeID(m_idHelper);
 
-  StatusCode sc(StatusCode::SUCCESS, true);
+  StatusCode sc(StatusCode::SUCCESS);
   // ----------------------------------
   // use updator to get unbiased states
   if ( ! m_updatorHandle.empty() ) {
@@ -156,7 +156,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::initialize() {
     m_updator = &(*m_updatorHandle);
   } else {
     ATH_MSG_DEBUG ("No Updator for unbiased track states given, use normal states!");
-    m_updator = 0;
+    m_updator = nullptr;
   }
 
   // need an Atlas id-helper to identify sub-detectors, take the one from detStore
@@ -264,7 +264,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::initialize() {
     m_GeneralHelperTools.push_back(&(*(*itTools)));
     m_helperToolWarning[&(*(*itTools))] = false;
   }
-  
+
   // get the ResidualPullCalculator
   if (m_residualPullCalculator.empty()) {
     msg(MSG::INFO) << "No residual/pull calculator for general hit residuals configured."
@@ -290,7 +290,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::initialize() {
     }
   }
 
-  ATH_MSG_DEBUG ("successfully initialized in " << name()); 
+  ATH_MSG_DEBUG ("successfully initialized in " << name());
   return StatusCode::SUCCESS;
 }
 
@@ -327,20 +327,20 @@ StatusCode Trk::MeasurementVectorNtupleTool::addNtupleItems( TTree* tree ) const
     ATH_MSG_DEBUG ("added branches to ntuple");
     //-----------------
     // add items  *** Note: Documentation is in the header file, doxygen and wikis! ***
-    // 
+    //
     tree->Branch("TrackStatesUnbiased", &m_isUnbiased        );
     m_isUnbiased=999;
-    
+
     if (!m_residualPullCalculator.empty()) {
       tree->Branch("pullLocX",            &m_pullLocX            );
       tree->Branch("pullLocY",            &m_pullLocY            );
       tree->Branch("residualLocX",        &m_residualLocX        );
       tree->Branch("residualLocY",        &m_residualLocY        );
     }
-    
+
     tree->Branch("DetectorType",        &m_DetectorType      );
     tree->Branch("outlierFlag",         &m_isOutlier         );
-    
+
     tree->Branch("nPixelHits",          &m_nPixelHits        );
     tree->Branch("nSCTHits",            &m_nSCTHits          );
     tree->Branch("nTRTHits",            &m_nTRTHits          );
@@ -348,7 +348,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::addNtupleItems( TTree* tree ) const
     tree->Branch("nCSCHits",            &m_nCSCHits          );
     tree->Branch("nRPCHits",            &m_nRPCHits          );
     tree->Branch("nTGCHits",            &m_nTGCHits          );
-    
+
     tree->Branch("pixelHitIndex",       &m_pixelHitIndex     );
     tree->Branch("sctHitIndex",         &m_sctHitIndex       );
     tree->Branch("trtHitIndex",         &m_trtHitIndex       );
@@ -356,10 +356,10 @@ StatusCode Trk::MeasurementVectorNtupleTool::addNtupleItems( TTree* tree ) const
     tree->Branch("cscHitIndex",         &m_cscHitIndex       );
     tree->Branch("rpcHitIndex",         &m_rpcHitIndex       );
     tree->Branch("tgcHitIndex",         &m_tgcHitIndex       );
-    
+
     ATH_MSG_VERBOSE ("added own branches to ntuple");
 
-    StatusCode sc(StatusCode::SUCCESS,true);
+    StatusCode sc(StatusCode::SUCCESS);
     ToolHandleArray< IValidationNtupleHelperTool >::const_iterator itTools;
     // get all the given ntuple helper tools for Pixel
     itTools = m_PixelNtupleHelperToolHandles.begin();
@@ -464,7 +464,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
   //----------------------------------------------
   // fill info about trackstates in ntuple
   const DataVector<const Trk::TrackStateOnSurface>* trackStates=track.trackStateOnSurfaces();
-  if (trackStates == 0) {
+  if (trackStates == nullptr) {
     msg(MSG::WARNING) << "current track does not have any TrackStateOnSurface vector, no data will be written for this track" << endmsg;
     return StatusCode::FAILURE;
   }
@@ -476,7 +476,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
        it!=trackStates->end();
        it++) {
 
-    
+
     if (!(*it)) {
       msg(MSG::WARNING) << "TrackStateOnSurface == Null" << endmsg;
       continue;
@@ -495,8 +495,8 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
       } // end if (!measurement)
       TrackState::MeasurementType detectorType = m_detTypeHelper->defineType(measurement);
       const Trk::TrackParameters* theParameters = (*it)->trackParameters();
-      const Trk::TrackParameters* unbiasedParameters = NULL;
-  
+      const Trk::TrackParameters* unbiasedParameters = nullptr;
+
       // -----------------------------------------
       // use unbiased track states or normal ones?
       // unbiased track parameters are tried to retrieve if the updator tool
@@ -504,14 +504,14 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
       //    for the current track (ie. if one trial to get unbiased track states
       //    fails, for all following track states of the current track the biased state
       //    will be used).
-      if (theParameters && m_updator && (m_isUnbiased==1) 
+      if (theParameters && m_updator && (m_isUnbiased==1)
           && (detectorType!=TrackState::Pseudo)
 	  && (! (*it)->type(Trk::TrackStateOnSurface::Outlier)) ) {
         if ( theParameters->covariance() ) {
             // Get unbiased state
           unbiasedParameters = m_updator->removeFromState( *theParameters,
                                measurement->localParameters(),
-                               measurement->localCovariance());
+                               measurement->localCovariance()).release();
           if (unbiasedParameters) {
             theParameters = unbiasedParameters;
             ATH_MSG_VERBOSE ("successfully calculated unbiased state");
@@ -536,7 +536,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
       } // end if m_updator
 
       m_DetectorType->push_back((int)detectorType);
-      ATH_MSG_VERBOSE ("meas #" << stateIndexCounter << 
+      ATH_MSG_VERBOSE ("meas #" << stateIndexCounter <<
                        ": detector technology identified as " << detectorType);
 
       if ((fillMeasurementData(measurement,
@@ -577,7 +577,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
       }
     } // end loop on holes
     delete holesOnTrack;
-    holesOnTrack = 0;
+    holesOnTrack = nullptr;
   }
 
   return StatusCode::SUCCESS;
@@ -586,7 +586,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
 //////////////////////////////////////
 /// fill trackparticle data into variables without actually writing the record
 //////////////////////////////////////
-StatusCode Trk::MeasurementVectorNtupleTool::fillTrackParticleData 
+StatusCode Trk::MeasurementVectorNtupleTool::fillTrackParticleData
 ( const Trk::TrackParticleBase&) const
 {
 
@@ -598,7 +598,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackParticleData
 //////////////////////////////////////
 // fill ntuple data of a given proto-trajectory (function used for fitter validation)
 //////////////////////////////////////
-StatusCode Trk::MeasurementVectorNtupleTool::fillProtoTrajectoryData 
+StatusCode Trk::MeasurementVectorNtupleTool::fillProtoTrajectoryData
 (  const Trk::ProtoTrajectory&,
    const int,
    const Trk::Perigee*,
@@ -742,7 +742,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillMeasurementData(
 
     ATH_MSG_VERBOSE ("in fillMeasurementData");
 
-    if (!isOutlier && trkParameters==NULL) {
+    if (!isOutlier && trkParameters==nullptr) {
       ATH_MSG_VERBOSE ("Given TrackParameters == NULL");
       if(!m_trkParametersWarning) {
         // warn once only!
@@ -752,7 +752,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillMeasurementData(
         m_trkParametersWarning = true;
       }
     }
-    
+
     m_isOutlier->push_back(isOutlier? 1 : 0);
     if (!m_residualPullCalculator.empty()) {
       // --------------------------------------
@@ -780,7 +780,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillMeasurementData(
             if (!m_pullWarning && !isOutlier) {  // warn only once!!!
               m_pullWarning = true;
               msg(MSG::WARNING) << "no covariance of the track parameters given, can not compute pull!" << endmsg;
-              msg(MSG::INFO) << "Detector type "<< detectorType 
+              msg(MSG::INFO) << "Detector type "<< detectorType
 			     << (isOutlier? " (flagged as outlier)" : "(not an outlier)") << endmsg;
               msg(MSG::INFO) << "you may want to use the jobOption 'IgnoreMissingTrackCovarianceForPulls' to calculate it anyhow." << endmsg;
               msg(MSG::INFO) << "No further warnings will be given for this type of situation." << endmsg;

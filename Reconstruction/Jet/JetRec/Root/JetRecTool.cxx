@@ -23,7 +23,7 @@
 #include "AsgDataHandles/ReadHandle.h"
 #include "AsgDataHandles/WriteHandle.h"
 
-#if !defined (GENERATIONBASE) && !defined (XAOD_STANDALONE)
+#if !defined (GENERATIONBASE) && !defined (XAOD_ANALYSIS)
   #include "AthenaMonitoringKernel/Monitored.h"
 #endif
 
@@ -42,7 +42,7 @@ using xAOD::Jet;
 JetRecTool::JetRecTool(std::string myname)
 : AsgTool(myname),
   m_intool("",this),
-#ifdef XAOD_STANDALONE
+#ifdef XAOD_ANALYSIS
   m_hpjr("",this),
 #else
   m_hpjr("JetPseudojetRetriever/jpjr",this),
@@ -114,7 +114,7 @@ StatusCode JetRecTool::initialize() {
       m_ppjr = new JetPseudojetRetriever(name()+"_retriever");
 #else
       m_ppjr = nullptr;
-#endif 
+#endif
   }
   ATH_MSG_INFO("Jet reconstruction mode: " << mode);
   // Check/set the input jet collection name.
@@ -207,7 +207,7 @@ StatusCode JetRecTool::initialize() {
   for ( auto& clk : m_conclocks) {
     clk.Reset();
   }
-  
+
   ATH_MSG_INFO(prefix << "Input collection names:");
   for (const auto& name : m_incolls) ATH_MSG_INFO(prefix << "  " << name);
   ATH_MSG_INFO(prefix << "Output collection names:");
@@ -219,7 +219,7 @@ StatusCode JetRecTool::initialize() {
   m_conclock.Reset();
   m_nevt = 0;
 
-#if !defined (GENERATIONBASE) && !defined (XAOD_STANDALONE)
+#if !defined (GENERATIONBASE) && !defined (XAOD_ANALYSIS)
   if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
 #endif
 
@@ -318,14 +318,15 @@ const JetContainer* JetRecTool::build() const {
   }
 
 
-#if !defined (GENERATIONBASE) && !defined (XAOD_STANDALONE)
+#if !defined (GENERATIONBASE) && !defined (XAOD_ANALYSIS)
   // monitor jet multiplicity and basic jet kinematics
-  auto njets = Monitored::Scalar<int>("nJets");
-  auto pt    = Monitored::Collection("pt",  *jetsHandle, [c=m_mevtogev]( const xAOD::Jet* jet ) { return jet->pt()*c; });
-  auto et    = Monitored::Collection("et",  *jetsHandle, [c=m_mevtogev]( const xAOD::Jet* jet ) { return jet->p4().Et()*c; });
-  auto eta   = Monitored::Collection("eta", *jetsHandle, []( const xAOD::Jet* jet ) { return jet->eta(); });
-  auto phi   = Monitored::Collection("phi", *jetsHandle, []( const xAOD::Jet* jet ) { return jet->phi(); });
-  auto mon   = Monitored::Group(m_monTool,njets,pt,et,eta,phi);
+  auto njets = Monitored::Scalar<int>("JET_n");
+  auto pt    = Monitored::Collection("JET_pt",  *jetsHandle, [c=m_mevtogev]( const xAOD::Jet* jet ) { return jet->pt()*c; });
+  auto et    = Monitored::Collection("JET_et",  *jetsHandle, [c=m_mevtogev]( const xAOD::Jet* jet ) { return jet->p4().Et()*c; });
+  auto mass  = Monitored::Collection("JET_m",   *jetsHandle, [c=m_mevtogev]( const xAOD::Jet* jet ) { return jet->m()*c; });
+  auto eta   = Monitored::Collection("JET_eta", *jetsHandle, []( const xAOD::Jet* jet ) { return jet->eta(); });
+  auto phi   = Monitored::Collection("JET_phi", *jetsHandle, []( const xAOD::Jet* jet ) { return jet->phi(); });
+  auto mon   = Monitored::Group(m_monTool,njets,pt,et,mass,eta,phi);
   njets      = jetsHandle->size();
 #endif
 
@@ -419,22 +420,22 @@ int JetRecTool::outputContainerNames(std::vector<std::string>& connames) {
 }
 
 //**********************************************************************
- 
+
  void JetRecTool::setInputJetContainer(const xAOD::JetContainer* cont) {
-   m_trigInputJetsForGrooming = cont; 
+   m_trigInputJetsForGrooming = cont;
  }
 
 //**********************************************************************
 
 std::unique_ptr<PseudoJetContainer> JetRecTool::collectPseudoJets() const{
-  // PseudoJetContainer used for jet finding 
-  
+  // PseudoJetContainer used for jet finding
+
   m_inpclock.Start(false);
-  
+
   auto allPseudoJets = std::make_unique<PseudoJetContainer>();
 
   ATH_MSG_DEBUG("Fetching pseudojet inputs.");
-    
+
   for (const auto& pjcontkey : m_psjsin) {
     SG::ReadHandle<PseudoJetContainer> h_newpsjs( pjcontkey );
     ATH_MSG_DEBUG("Adding PseudoJetContainers for: " << h_newpsjs.key());
@@ -452,9 +453,9 @@ std::unique_ptr<PseudoJetContainer> JetRecTool::collectPseudoJets() const{
 }
 
 //**********************************************************************
- 
+
 std::unique_ptr<xAOD::JetContainer> JetRecTool::fillOutputContainer() const{
-  
+
   if (!m_finder.empty()) {return findJets();}
   if (!m_groomer.empty()) {return groomJets();}
   return copyJets();
@@ -480,7 +481,7 @@ const xAOD::JetContainer* JetRecTool::getOldJets() const{
   if ( pjetsin == 0 ) {
     ATH_MSG_ERROR("Unable to retrieve input jet container: " << m_incoll.key());
   } else {
-    ATH_MSG_DEBUG("Input collection " << m_incoll.key() 
+    ATH_MSG_DEBUG("Input collection " << m_incoll.key()
                   << " jet multiplicity is "<< pjetsin->size());
   }
     m_totclock.Stop();
@@ -512,14 +513,14 @@ std::unique_ptr<xAOD::JetContainer> JetRecTool::makeOutputContainer() const{
 //**********************************************************************
 
 std::unique_ptr<xAOD::JetContainer> JetRecTool::findJets() const {
-  
+
   m_actclock.Start(false);
   ATH_MSG_DEBUG("Finding jets.");
-  
+
   // The new jet collection.
   auto jets = makeOutputContainer();
-  
-  // PseudoJetContainer used for jet finding 
+
+  // PseudoJetContainer used for jet finding
   auto pseudoJets = collectPseudoJets();
 
   m_finder->find(*pseudoJets, *jets, m_inputtype);
@@ -531,9 +532,9 @@ std::unique_ptr<xAOD::JetContainer> JetRecTool::findJets() const {
 //**********************************************************************
 
 std::unique_ptr<xAOD::JetContainer> JetRecTool::groomJets() const{
-  
+
   m_actclock.Start(false);
-  
+
   // The new jet collection.
   auto jets = makeOutputContainer();
 
@@ -544,16 +545,16 @@ std::unique_ptr<xAOD::JetContainer> JetRecTool::groomJets() const{
     ATH_MSG_WARNING("Grooming: but input jets not found ");
     return jets;
   }
-  
+
   ATH_MSG_DEBUG("Grooming " << jetsIn->size() << " jets.");
 
-  // PseudoJetContainer used for jet finding 
+  // PseudoJetContainer used for jet finding
   auto pseudoJets = collectPseudoJets();
-  
+
   for (const auto ijet : *jetsIn){ m_groomer->groom(*ijet,
                                                     *pseudoJets,
                                                     *jets);}
-  
+
   m_actclock.Stop();
   return jets;
 }
@@ -561,10 +562,10 @@ std::unique_ptr<xAOD::JetContainer> JetRecTool::groomJets() const{
 //**********************************************************************
 
 std::unique_ptr<xAOD::JetContainer> JetRecTool::copyJets() const{
-  
+
   // The new jet collection.
   auto jets = makeOutputContainer();
-  
+
   // Retrieve the old jet collection.
   auto jetsIn = getOldJets();
 
@@ -581,7 +582,7 @@ std::unique_ptr<xAOD::JetContainer> JetRecTool::copyJets() const{
     jets->push_back(pnewjet);
     *pnewjet = *poldjet;
   }
-  
+
   m_actclock.Stop();
   return jets;
 }

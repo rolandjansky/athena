@@ -30,43 +30,43 @@ namespace PFO {
     }
   }
 
-  void PFOAttributePlots::fill(const xAOD::PFO& PFO){
+  void PFOAttributePlots::fill(const xAOD::PFO& PFO, const xAOD::EventInfo& eventInfo){
 
     float layerEnergyEM3 = 0.0;
     bool gotAttribute = PFO.attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_EM3,layerEnergyEM3);
-    if (true == gotAttribute) m_PFO_LAYER_ENERGY_EM3->Fill(layerEnergyEM3);
+    if (true == gotAttribute) m_PFO_LAYER_ENERGY_EM3->Fill(layerEnergyEM3,eventInfo.beamSpotWeight());
     else m_PFO_LAYER_ENERGY_EM3->Fill(-1.0);
 
     float layerEnergyHEC0 = 0.0;
     gotAttribute = PFO.attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_HEC0,layerEnergyHEC0);
-    if (true == gotAttribute) m_PFO_LAYER_ENERGY_HEC0->Fill(layerEnergyHEC0);
+    if (true == gotAttribute) m_PFO_LAYER_ENERGY_HEC0->Fill(layerEnergyHEC0,eventInfo.beamSpotWeight());
     else m_PFO_LAYER_ENERGY_HEC0->Fill(-1.0);
   
     float layerEnergyHEC = 0.0;
     gotAttribute = PFO.attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_HEC,layerEnergyHEC);
-    if (true == gotAttribute) m_PFO_LAYER_ENERGY_HEC->Fill(layerEnergyHEC);
+    if (true == gotAttribute) m_PFO_LAYER_ENERGY_HEC->Fill(layerEnergyHEC,eventInfo.beamSpotWeight());
     else m_PFO_LAYER_ENERGY_HEC->Fill(-1.0);
 
     float layerEnergyTile0 = 0.0;
     gotAttribute = PFO.attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_Tile0,layerEnergyTile0);
-    if (true == gotAttribute) m_PFO_LAYER_ENERGY_Tile0->Fill(layerEnergyTile0);
+    if (true == gotAttribute) m_PFO_LAYER_ENERGY_Tile0->Fill(layerEnergyTile0,eventInfo.beamSpotWeight());
     else m_PFO_LAYER_ENERGY_Tile0->Fill(-1.0);
 
     float timing = 0.0;
     gotAttribute = PFO.attribute<float>(xAOD::PFODetails::eflowRec_TIMING,timing);
-    if (true == gotAttribute) m_PFO_TIMING->Fill(timing);
+    if (true == gotAttribute) m_PFO_TIMING->Fill(timing,eventInfo.beamSpotWeight());
     else m_PFO_TIMING->Fill(-50);
 
   }
-  void PFOAttributePlots::fill(const xAOD::FlowElement& FE){
+  void PFOAttributePlots::fill(const xAOD::FlowElement& FE, const xAOD::EventInfo& eventInfo){
     float timing=-50;
     static SG::AuxElement::ConstAccessor<float>acc_FE_Timing("PF_TIMING");
     if(acc_FE_Timing.isAvailable(FE)){
       timing=acc_FE_Timing(FE);
-      m_FE_TIMING->Fill(timing);
+      m_FE_TIMING->Fill(timing,eventInfo.beamSpotWeight());
     }
     else{
-      m_FE_TIMING->Fill(timing);
+      m_FE_TIMING->Fill(timing,eventInfo.beamSpotWeight());
     }
   } // end of FE fill function
 } // end of PFO namespace

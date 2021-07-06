@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #=======================================================================
 # File:   RecExConfig/python/RecFlags.py
@@ -277,6 +277,13 @@ class doPerfMon(JobProperty):
 class doDetailedPerfMon(JobProperty):
     """ If True monitor software performance, with doFastMon=False.
     See https://twiki.cern.ch/twiki/bin/view/Atlas/PerfMonComps
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+#
+class doDetailedPerfMonMT(JobProperty):
+    """ If True monitor software performance, using doFullMonMT=True.
     """
     statusOn=True
     allowedTypes=['bool']
@@ -717,7 +724,7 @@ class doAFP(JobProperty):
     """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=True
+    StoredValue=False
     def _undo_action(self):
         if not jobproperties.Rec.doLucid and not jobproperties.Rec.doZdc and not jobproperties.Rec.doAlfa and not jobproperties.Rec.doFwdRegion and jobproperties.Rec.doForwardDet  :
             jobproperties.Rec.doForwardDet=False
@@ -931,13 +938,6 @@ class LCGCMTVersion(JobProperty):
     statusOn=True
     allowedTypes=['str']
     StoredValue="n/a"
-#
-class doAODSelect(JobProperty):
-    """ decision, if AODSelect should be running
-    """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=True
 
 class doRDOTrigger(JobProperty):
     """ decision, if RDO->RDO with trigger should be running
@@ -1018,7 +1018,7 @@ jobproperties.add_Container(Rec)
 _list_Rec=[TAGFromRDO, doTagRawSummary , doBeamBackgroundFiller, \
 OutputLevel, RootHistoOutput, RootNtupleOutput, UserAlgs, UserExecs, UserFlags, doDPD, DPDMakerScripts, LoadGeometry, doAOD, doAODCaloCells, doESD,\
 doAODall, doCBNT, doPyDump, doMonitoring, doCheckDictionary, doCheckJOT,CBNTAthenaAware,\
-doDetailedAuditor, doSGAuditor, doFastMemoryAuditor, doMemoryAuditor, OutputSuffix, OutputFileNameForRecoStep, doPerfMon, doDetailedPerfMon, doSemiDetailedPerfMon, doRecoTiming, doDumpMC, doDumpPoolInputContent, doDumpProperties,\
+doDetailedAuditor, doSGAuditor, doFastMemoryAuditor, doMemoryAuditor, OutputSuffix, OutputFileNameForRecoStep, doPerfMon, doDetailedPerfMon, doSemiDetailedPerfMon, doDetailedPerfMonMT, doRecoTiming, doDumpMC, doDumpPoolInputContent, doDumpProperties,\
 doDumpTDS, doDumpTES, doFloatingPointException, oldFlagCompatibility, oldFlagTopSteering,oldFlagLandMine,\
 doEdmMonitor, doHist, doJiveXML, doPersint,doVP1, doNameAuditor, \
 doRestrictedESD, doShowSizeStatistics, doTimeLimit, doTruth,\
@@ -1026,7 +1026,7 @@ doWriteAOD, doWritexAOD, doWriteESD, doWriteDPD, doWriteBS, doWriteRDO, doWriteT
 readESD, AMITag, AutoConfiguration, RunNumber, triggerStream, projectName, \
 doInDet,doLArg,doTile,doCalo,doMuon,doForwardDet,doLucid,doZdc,doAlfa,doAFP,doFwdRegion,doJetMissingETTag,doEgamma,doMuonCombined,doTau,doFTK,doTrigger,doBTagging, Production, doPhysValMonHists, \
 doHeavyIon, doHIP, doLowPt, doMinimalRec, noESDTrigger,doFileMetaData,ScopingLevel, Commissioning, oldRecExCommissionConfig, mergingStreamName, LCGCMTVersion, \
-AtlasReleaseVersion, inputFileFromAthenaVersion, doApplyAODFix, doAODSelect, doRDOTrigger, doFastPhysMonitoring, RootFastPhysMonOutput,doWriteCalibHits, doTriggerFilter, triggerFilterList, doContainerRemapping, doPhysicsValidationAugmentation, doESDReconstruction, doExpressProcessing, doPersistencyOptimization, doCaloRinger, doAODMerging]
+AtlasReleaseVersion, inputFileFromAthenaVersion, doApplyAODFix, doRDOTrigger, doFastPhysMonitoring, RootFastPhysMonOutput,doWriteCalibHits, doTriggerFilter, triggerFilterList, doContainerRemapping, doPhysicsValidationAugmentation, doESDReconstruction, doExpressProcessing, doPersistencyOptimization, doCaloRinger, doAODMerging]
 for j in _list_Rec:
     jobproperties.Rec.add_JobProperty(j)
 del _list_Rec

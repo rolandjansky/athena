@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoModelXml/MakeMaterial.h"
@@ -26,7 +26,17 @@ double rho;
 char *fracString;
 double fraction;
 char *qString;
-const XMLCh *ref = XMLString::transcode("ref");
+XMLCh *ref = XMLString::transcode("ref");
+XMLCh *materials_tmp = XMLString::transcode("materials");
+XMLCh *density_tmp = XMLString::transcode("density");  
+XMLCh *densitysf_tmp = XMLString::transcode("densitysf");
+XMLCh *name_tmp = XMLString::transcode("name");
+XMLCh* elementref_tmp = XMLString::transcode("elementref");
+XMLCh *fraction_tmp = XMLString::transcode("fraction");
+XMLCh *chemicalref_tmp = XMLString::transcode("chemicalref");
+XMLCh *elemcontent_tmp = XMLString::transcode("elemcontent");
+XMLCh *quantity_tmp = XMLString::transcode("quantity");
+XMLCh *materialref_tmp = XMLString::transcode("materialref"); 
 const XMLCh *idref;
 DOMDocument *doc = element->getOwnerDocument();
 char *toRelease;
@@ -36,7 +46,7 @@ char *toRelease;
 //    Get material density scale-factor for the block of materials this one is in 
 //
     DOMNode *parent = element->getParentNode();
-    if (XMLString::compareIString(parent->getNodeName(), XMLString::transcode("materials")) != 0) {
+    if (XMLString::compareIString(parent->getNodeName(), materials_tmp) != 0) {
         msglog << MSG::FATAL << "Asked to make a material for non-material element. Parent element was " << 
                              XMLString::transcode(parent->getNodeName()) << "; error in gmx file; exiting" << endmsg;
         exit(1);
@@ -44,17 +54,17 @@ char *toRelease;
     double scaleFactor(1.0);
     DOMElement *el = dynamic_cast<DOMElement *> (parent);
 //    if (el->hasAttribute(XMLString::transcode("densitysf"))) { // Guaranteed by DTD; don't recheck.
-        densitySF = XMLString::transcode(el->getAttribute(XMLString::transcode("densitysf")));
+        densitySF = XMLString::transcode(el->getAttribute(densitysf_tmp));
         scaleFactor = gmxUtil.evaluate(densitySF);
 //    }
 //
 //    Get my name
 //
-    name = XMLString::transcode(element->getAttribute(XMLString::transcode("name")));
+    name = XMLString::transcode(element->getAttribute(name_tmp));
 //
 //   Get my density
 //
-    density = XMLString::transcode(element->getAttribute(XMLString::transcode("density")));
+    density = XMLString::transcode(element->getAttribute(density_tmp));
     rho = gmxUtil.evaluate(density) * scaleFactor;
     XMLString::release(&density);
 //
@@ -65,7 +75,7 @@ char *toRelease;
 //
 //   Add my element contents
 //
-    DOMNodeList *elRefs = element->getElementsByTagName(XMLString::transcode("elementref"));
+    DOMNodeList *elRefs = element->getElementsByTagName(elementref_tmp);
     int nElRefs = elRefs->getLength();
     for (int i = 0; i < nElRefs; ++i) {
         DOMElement *elRef = dynamic_cast<DOMElement *>(elRefs->item(i));
@@ -83,7 +93,7 @@ char *toRelease;
 
         GeoElement *geoElem = (GeoElement *) gmxUtil.tagHandler.element.process(elem, gmxUtil);
 
-        fracString = XMLString::transcode(elRef->getAttribute(XMLString::transcode("fraction")));
+        fracString = XMLString::transcode(elRef->getAttribute(fraction_tmp));
         fraction = gmxUtil.evaluate(fracString);
         XMLString::release(&fracString);
         material->add(geoElem, fraction);
@@ -91,7 +101,7 @@ char *toRelease;
 //
 //   Add my chemical contents
 //
-    DOMNodeList *chemRefs = element->getElementsByTagName(XMLString::transcode("chemicalref"));
+    DOMNodeList *chemRefs = element->getElementsByTagName(chemicalref_tmp);
     int nChemRefs = chemRefs->getLength();
     for (int i = 0; i < nChemRefs; ++i) {
         DOMElement *chemRef = dynamic_cast<DOMElement *>(chemRefs->item(i));
@@ -107,12 +117,12 @@ char *toRelease;
             exit(999); // Should do better...
         }
 
-        fracString = XMLString::transcode(chemRef->getAttribute(XMLString::transcode("fraction")));
+        fracString = XMLString::transcode(chemRef->getAttribute(fraction_tmp));
         fraction = gmxUtil.evaluate(fracString);
         XMLString::release(&fracString);
 
         // Loop over chemical contents, adding each element to this material
-        DOMNodeList *chemEls = chem->getElementsByTagName(XMLString::transcode("elemcontent"));
+        DOMNodeList *chemEls = chem->getElementsByTagName(elemcontent_tmp);
         int nChemEls = chemEls->getLength();
         vector<GeoElement *> geoElem;
         vector<double> atomicWeight;
@@ -135,7 +145,7 @@ char *toRelease;
             geoElem.push_back((GeoElement *) gmxUtil.tagHandler.element.process(elem, gmxUtil));
             atomicWeight.push_back(geoElem.back()->getA());
 
-            qString = XMLString::transcode(chemEl->getAttribute(XMLString::transcode("quantity")));
+            qString = XMLString::transcode(chemEl->getAttribute(quantity_tmp));
             formula.push_back(gmxUtil.evaluate(qString));
             XMLString::release(&qString);
 
@@ -149,7 +159,7 @@ char *toRelease;
 //
 //   Add my material contents
 //
-    elRefs = element->getElementsByTagName(XMLString::transcode("materialref"));
+    elRefs = element->getElementsByTagName(materialref_tmp);
     nElRefs = elRefs->getLength();
     for (int i = 0; i < nElRefs; ++i) {
         DOMElement *elRef = dynamic_cast<DOMElement *>(elRefs->item(i));
@@ -167,13 +177,26 @@ char *toRelease;
 
         GeoMaterial *geoMaterial = (GeoMaterial *) gmxUtil.tagHandler.material.process(elem, gmxUtil);
 
-        fracString = XMLString::transcode(elRef->getAttribute(XMLString::transcode("fraction")));
+        fracString = XMLString::transcode(elRef->getAttribute(fraction_tmp));
         fraction = gmxUtil.evaluate(fracString);
         XMLString::release(&fracString);
         material->add(geoMaterial, fraction);
     }
 
     material->lock(); // Calculate my params and prevent modification
+
+  XMLString::release(&ref);
+  XMLString::release(&materials_tmp);
+  XMLString::release(&density_tmp);  
+  XMLString::release(&densitysf_tmp);
+  XMLString::release(&name_tmp);
+  XMLString::release(&elementref_tmp);
+  XMLString::release(&fraction_tmp);
+  XMLString::release(&chemicalref_tmp);
+  XMLString::release(&elemcontent_tmp);
+  XMLString::release(&quantity_tmp);
+  XMLString::release(&materialref_tmp);
+
 
     return (const RCBase *) material;
 }

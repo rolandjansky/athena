@@ -40,9 +40,9 @@ def InDetSiTrackerSpacePointFinderCfg(flags, name = "InDetSiTrackerSpacePointFin
     kwargs.setdefault("SpacePointsPixelName", 'PixelSpacePoints') # InDetKeys.PixelSpacePoints
     kwargs.setdefault("SpacePointsSCTName", 'SCT_SpacePoints') # InDetKeys.SCT_SpacePoints
     kwargs.setdefault("SpacePointsOverlapName", 'OverlapSpacePoints') # InDetKeys.OverlapSpacePoints)
-    kwargs.setdefault("ProcessPixels", flags.Detector.RecoPixel)
-    kwargs.setdefault("ProcessSCTs", flags.Detector.RecoSCT)
-    kwargs.setdefault("ProcessOverlaps", flags.Detector.RecoSCT)
+    kwargs.setdefault("ProcessPixels", flags.Detector.EnablePixel)
+    kwargs.setdefault("ProcessSCTs", flags.Detector.EnableSCT)
+    kwargs.setdefault("ProcessOverlaps", flags.Detector.EnableSCT)
 
     if flags.InDet.doDBMstandalone:
         kwargs.setdefault("OverlapLimitEtaMax", 5.0)
@@ -72,11 +72,11 @@ def InDetPRD_MultiTruthMakerSiCfg(flags, name="InDetPRD_MultiTruthMakerSi", **kw
         kwargs.setdefault("TruthNameSCT", 'PRD_MultiTruthSCT') # InDetKeys.SCT_ClustersTruth()
         kwargs.setdefault("TruthNameTRT", "")
          # a bit complicated, but this is how the truth maker gets to know which detector is on
-        if (not flags.Detector.RecoPixel or not flags.InDet.doPixelPRDFormation):
+        if (not flags.Detector.EnablePixel or not flags.InDet.doPixelPRDFormation):
             kwargs.setdefault("PixelClusterContainerName", "")
             kwargs.setdefault("SimDataMapNamePixel", "")
             kwargs.setdefault("TruthNamePixel", "")
-        if (not flags.Detector.RecoSCT or not flags.InDet.doSCT_PRDFormation):
+        if (not flags.Detector.EnableSCT or not flags.InDet.doSCT_PRDFormation):
             kwargs.setdefault("SCTClusterContainerName", "")
             kwargs.setdefault("SimDataMapNameSCT", "")
             kwargs.setdefault("TruthNameSCT", "")
@@ -98,11 +98,11 @@ def InDetPRD_MultiTruthMakerSiPUCfg(flags, name="InDetPRD_MultiTruthMakerSiPU", 
         kwargs.setdefault("TruthNameSCT", 'PRD_PU_MultiTruthSCT') # InDetKeys.SCT_PU_ClustersTruth()
         kwargs.setdefault("TruthNameTRT", "")
          # a bit complicated, but this is how the truth maker gets to know which detector is on
-        if (not flags.Detector.RecoPixel or not flags.InDet.doPixelPRDFormation):
+        if (not flags.Detector.EnablePixel or not flags.InDet.doPixelPRDFormation):
             kwargs.setdefault("PixelClusterContainerName", "")
             kwargs.setdefault("SimDataMapNamePixel", "")
             kwargs.setdefault("TruthNamePixel", "")
-        if (not flags.Detector.RecoSCT or not flags.InDet.doSCT_PRDFormation):
+        if (not flags.Detector.EnableSCT or not flags.InDet.doSCT_PRDFormation):
             kwargs.setdefault("SCTClusterContainerName", "")
             kwargs.setdefault("SimDataMapNameSCT", "")
             kwargs.setdefault("TruthNameSCT", "")
@@ -174,11 +174,11 @@ def InDetRecPreProcessingSiliconCfg(flags, **kwargs):
         #
         # --- Slim BCM RDOs by zero-suppressing
         #   
-        if flags.Detector.RecoBCM:
+        if flags.Detector.EnableBCM:
             from InDetConfig.TrackRecoConfig import BCM_ZeroSuppressionCfg
             acc.merge(BCM_ZeroSuppressionCfg(flags))
         
-        if flags.Detector.RecoPixel or flags.Detector.RecoSCT:
+        if flags.Detector.EnablePixel or flags.Detector.EnableSCT:
             #
             # --- SiLorentzAngleTool
             #
@@ -198,7 +198,7 @@ def InDetRecPreProcessingSiliconCfg(flags, **kwargs):
         #
         # -- Pixel Clusterization
         #
-        if (flags.Detector.RecoPixel and flags.InDet.doPixelPRDFormation) or redoPatternRecoAndTracking:
+        if (flags.Detector.EnablePixel and flags.InDet.doPixelPRDFormation) or redoPatternRecoAndTracking:
             #
             # --- do we use new splittig or not ?
             #
@@ -230,7 +230,7 @@ def InDetRecPreProcessingSiliconCfg(flags, **kwargs):
         #
         # --- SCT Clusterization
         #
-        if flags.Detector.RecoSCT and flags.InDet.doSCT_PRDFormation:
+        if flags.Detector.EnableSCT and flags.InDet.doSCT_PRDFormation:
             #
             # --- SCT_Clusterization algorithm
             #
@@ -271,11 +271,6 @@ if __name__ == "__main__":
     ConfigFlags.Detector.GeometrySCT   = True
     ConfigFlags.InDet.doPixelClusterSplitting = True
 
-    ConfigFlags.Detector.RecoIBL = True
-    ConfigFlags.Detector.RecoPixel = True
-    ConfigFlags.Detector.RecoSCT = True
-    ConfigFlags.Detector.RecoTRT = True
-    
     numThreads=1
     ConfigFlags.Concurrency.NumThreads=numThreads
     ConfigFlags.Concurrency.NumConcurrentEvents=numThreads
@@ -307,11 +302,17 @@ if __name__ == "__main__":
     top_acc.merge(PixelAlignCondAlgCfg(ConfigFlags))
     top_acc.merge(PixelDetectorElementCondAlgCfg(ConfigFlags))
 
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelHitDiscCnfgAlgCfg
+    top_acc.merge(PixelHitDiscCnfgAlgCfg(ConfigFlags))
+
+    from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConfig import PixelRawDataProviderAlgCfg
+    top_acc.merge(PixelRawDataProviderAlgCfg(ConfigFlags))
+
     top_acc.merge(InDetRecPreProcessingSiliconCfg(ConfigFlags))
 
     iovsvc = top_acc.getService('IOVDbSvc')
     iovsvc.OutputLevel=5
 
-    top_acc.getService('StoreGateSvc').Dump = True
-    top_acc.printConfig(withDetails = True, summariseProps = True)
+    top_acc.printConfig()
     top_acc.run(25)
+    top_acc.store(open("test_SiliconPreProcessing.pkl", "wb"))

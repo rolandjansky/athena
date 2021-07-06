@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file  AthContainers/tools/DVLDataBucket.icc
@@ -77,6 +77,7 @@ template <class T>
 DVLDataBucket<T>::DVLDataBucket (T* data)
   : DataBucket<T> (data)
 {
+  // cppcheck-suppress useInitializationList
   m_clid = DataBucket<T>::classID();
   m_ti = testViewVector (*this->ptr(), m_clid);
 }
@@ -91,6 +92,7 @@ template <class U>
 DVLDataBucket<T>::DVLDataBucket (std::unique_ptr<U> data)
   : DataBucket<T> (std::move (data))
 {
+  // cppcheck-suppress useInitializationList
   m_clid = DataBucket<T>::classID();
   m_ti = testViewVector (*this->ptr(), m_clid);
 }

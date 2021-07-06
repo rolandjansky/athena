@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -91,6 +91,9 @@ namespace LVL1 {
     /** Get vector of all ET values in MeV */
     std::vector<int> getETs() const {return m_et;};
 
+    /** Get vector of INT which describe whether a slot shared split ET from two different supercells - required information for production of CSV input files */
+    std::vector<int> getETSplits() const {return m_etSplits;};
+
     /** Get ET of a specified cell in MeV FLOAT VERSION */
     float getET_float(unsigned int layer, int cell = 0) const;
 
@@ -131,6 +134,7 @@ namespace LVL1 {
     std::vector<Identifier> m_scID;
     std::vector<int> m_et;    
     std::vector<float> m_et_float;
+    std::vector<int> m_etSplits;
     int m_tower_id;
     int m_posneg = 0;
     int m_noisecutPS = 100;

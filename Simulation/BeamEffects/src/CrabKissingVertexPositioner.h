@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// VertexBeamCondPositioner.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef BEAMEFFECTS_CRABKISSINGVERTEXPOSITIONER_H
 #define BEAMEFFECTS_CRABKISSINGVERTEXPOSITIONER_H 1
@@ -51,7 +47,7 @@ namespace Simulation
       CrabKissingVertexPositioner( const std::string& t, const std::string& n, const IInterface* p );
 
       /** Destructor */
-      ~CrabKissingVertexPositioner();
+     virtual ~CrabKissingVertexPositioner() = default;
 
       /** Athena algtool's Hooks */
       StatusCode  initialize() override final;
@@ -66,22 +62,22 @@ namespace Simulation
       double getDisplacement(double bunchSize, double angle1, double angle2,
                              CLHEP::HepRandomEngine* rng) const;
       double beamspotFunction(double displacement, double angle1, double angle2) const;
-      SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
-      ServiceHandle<IAthRNGSvc>       m_rndGenSvc;
-      ATHRNG::RNGWrapper*             m_randomEngine;             //!< Slot-local RNG
-      std::string                     m_randomEngineName;         //!< Name of the random number stream
 
-      StringProperty m_bunchShapeProp;
+      SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
+      ServiceHandle<IAthRNGSvc>   m_rndGenSvc{this, "RandomSvc", "AthRNGSvc"};
+      ATHRNG::RNGWrapper*             m_randomEngine{};             //!< Slot-local RNG
+      Gaudi::Property<std::string>     m_randomEngineName{this, "RandomStream", "VERTEX", "Name of the random number stream"};
+      Gaudi::Property<std::string> m_bunchShapeProp{this, "BunchShape", "GAUSS", "GAUSS or FLAT"};
       void BunchShapeHandler(Gaudi::Details::PropertyBase&);
       enum BunchShape{GAUSS,FLAT,NSHAPES};
-      BunchShape m_bunchShape; // GAUSS or FLAT
-      double m_bunchLength; //!< Parameter in the Z distribution of the beamspot
+      BunchShape m_bunchShape{BunchShape::GAUSS}; // GAUSS or FLAT
+      Gaudi::Property<double> m_bunchLength{this, "BunchLength", 75., "75.0 mm"}; //!< Parameter in the Z distribution of the beamspot
       /// parameters according to S.Fartoukh Phys.Rev.ST Accel.Beams 17 (2014) no.11, 111001 ----------------------------
-      double m_betaStar; // beta* in the parallel (kissing) plane, we assume betax=betay, units: mm
-      double m_epsilon; // Normalized emittance, unit: mm
-      double m_alphaPar; // Kissing angle
-      double m_alphaX;
-      double m_thetaX;
+      Gaudi::Property<double> m_betaStar{this, "BetaStar", 150., "beta* in the parallel (kissing) plane, we assume betax=betay, units: mm"};
+      Gaudi::Property<double> m_epsilon{this, "Epsilon", 2.5e-3, "Normalized emittance, unit: mm"};
+      Gaudi::Property<double> m_alphaPar{this, "AlfasParallel", 0., "Kissing angle (Radians)"}; // Kissing angle
+      Gaudi::Property<double> m_alphaX{this, "AlfaX", 295e-6};
+      Gaudi::Property<double> m_thetaX{this, "ThetaX", 295e-6};
       // ----------------------------------------------------------------------------------------------------------------
   };
 

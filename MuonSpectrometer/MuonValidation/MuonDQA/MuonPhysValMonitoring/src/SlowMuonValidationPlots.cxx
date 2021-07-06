@@ -28,21 +28,21 @@ SlowMuonValidationPlots::~SlowMuonValidationPlots()
   }  
 }
 
-void SlowMuonValidationPlots::fill(const xAOD::SlowMuon& smu, const xAOD::Muon& mu)
+void SlowMuonValidationPlots::fill(const xAOD::SlowMuon& smu, const xAOD::Muon& mu, float weight)
 {
-  fillRecoMuonPlots(smu,mu);
+  fillRecoMuonPlots(smu,mu, weight);
 }
-void SlowMuonValidationPlots::fill( const xAOD::TruthParticle* truthMu, const xAOD::SlowMuon* smu, const xAOD::Muon* mu )
+void SlowMuonValidationPlots::fill( const xAOD::TruthParticle* truthMu, const xAOD::SlowMuon* smu, const xAOD::Muon* mu , float weight )
 {
-  if (smu) fillRecoMuonPlots(*smu,*mu);
+  if (smu) fillRecoMuonPlots(*smu,*mu, weight);
   if ( (smu) && (truthMu) ) {
-    m_oSlowMuonMatchedPlots->fill(*smu);
+    m_oSlowMuonMatchedPlots->fill(*smu, weight);
   }
 }
 
-void SlowMuonValidationPlots::fillRecoMuonPlots(const xAOD::SlowMuon& smu, const xAOD::Muon& /*mu*/)
+void SlowMuonValidationPlots::fillRecoMuonPlots(const xAOD::SlowMuon& smu, const xAOD::Muon& /*mu*/, float weight)
 {
   //fill hists for all muons
-  m_oSlowMuonRecoPlots->fill(smu);
+  m_oSlowMuonRecoPlots->fill(smu, weight);
 }
 

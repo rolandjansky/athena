@@ -7,6 +7,6 @@ atlas_subdir( TrkExRungeKuttaPropagator )
 atlas_add_component( TrkExRungeKuttaPropagator
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel TrkEventPrimitives TrkNeutralParameters
-                     TrkParameters TrkExInterfaces TrkGeometry TrkSurfaces TrkPatternParameters TrkExUtils
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel TrkParameters TrkSurfaces TrkEventPrimitives TrkNeutralParameters
+                     TrkExInterfaces TrkGeometry TrkPatternParameters TrkExUtils
                      MagFieldElements MagFieldConditions CxxUtils )

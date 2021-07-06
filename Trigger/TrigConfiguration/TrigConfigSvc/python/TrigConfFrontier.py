@@ -1,26 +1,9 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
-from __future__ import print_function
-
-from future import standard_library
-standard_library.install_aliases()
-from builtins import map
-from builtins import str
-from builtins import zip
-from builtins import object
 from AthenaCommon.Logging import logging
 import time
 import sys
-
-
-# useFrontierClient 
-# True: one uses the python bindings of frontier_client from the TrigConfDBConnection package
-# False: one uses a purely python-based implementation
-useFrontierClient = False
 
 
 def getServerUrls(frontier_servers):
@@ -42,32 +25,33 @@ def testUrl(url):
         return False
     return True
 
+def resolveUrl(url):
+    """
+    Expects input string to be a URL or $FRONTIER_SERVER
+    Returns an accessible URL or None"""
+    import re
+    if re.match("http://",url): # simple URL specification http://...
+        return url if testUrl(url) else None
+
+    if re.match(r'\(serverurl=(.*?)\)',url): # syntax of FRONTIER_SERVER
+        for url in getServerUrls(url):
+            if testUrl(url):
+                return url     
+        return None
+
+
 def getFrontierCursor(url, schema, loglevel = logging.INFO):
     log = logging.getLogger( "TrigConfFrontier.py" )
     log.setLevel(loglevel)
-    if useFrontierClient:
-        log.info("Using frontier_client from TrigConfDBConnection")
-        return FrontierCursor2( url = url, schema = schema)
+    url = resolveUrl(url)
+    if url is None:
+        log.warning("Cannot find a valid frontier connection, will not return a Frontier cursor")
+        return None
     else:
-        log.info("Using a pure python implementation of frontier")
-        return FrontierCursor( url = url, schema = schema)
+        log.info(f"Will use Frontier server at {url}")
+
+    return FrontierCursor( url = url, schema = schema)
         
-# used by FrontierCursor2
-def resolvebindvars(query, bindvars):
-    """Replaces the bound variables :xyz with a ? in the query and
-    adding the value behind a : at the end"""
-    log = logging.getLogger( "TrigConfFrontier.py" )
-    log.info("Query: %s", query)
-    log.info("bound variables: %r", bindvars)
-    import re
-    varsextract = re.findall(':([A-z0-9]*)',query)
-    values = list(map(bindvars.get, varsextract))
-    log.debug("Resolving bound variable %r with %r", varsextract,values)
-    appendix = ":".join([str(v) for v in values])
-    queryWithQuestionMarks = re.sub(':[A-z0-9]*','?', query)
-    query = queryWithQuestionMarks + ':' + appendix
-    log.info("Resolved query new style: %s", query)
-    return query
 
 # used by FrontierCursor
 def replacebindvars(query, bindvars):
@@ -88,76 +72,6 @@ def replacebindvars(query, bindvars):
     return query
 
 
-            
-
-
-class FrontierCursor2(object):
-    def __init__(self, url, schema, refreshFlag=False):
-        log = logging.getLogger( "TrigConfFrontier.py" )
-        self.url = url
-        self.schema = schema
-        self.refreshFlag = refreshFlag
-        from TrigConfDBConnection import frontier_client as fc
-        fc.init("PyFrontier","debug")
-        log.debug("Frontier URL      : %s", self.url)
-        log.debug("Schema            : %s", self.schema)
-        log.debug("Refresh cache     : %s", self.refreshFlag)
-
-
-    def execute(self, query, bindvars={}):
-        if len(bindvars)>0:
-            query = resolvebindvars(query,bindvars)
-            
-        from TrigConfDBConnection import frontier_client as fc
-        log = logging.getLogger( "TrigConfFrontier.py" )
-        log.debug("Executing query : %s", query)
-
-        conn = fc.Connection(self.url)
-        session = fc.Session(conn)
-
-        doReload = self.refreshFlag
-        conn.setReload(doReload)
-        
-        queryStart = time.localtime()
-        log.debug("Query started: %s", time.strftime("%m/%d/%y %H:%M:%S %Z", queryStart))
-
-        t1 = time.time()
-        req = fc.Request("frontier_request:1:DEFAULT", fc.encoding_t.BLOB)
-        param = fc.Request.encodeParam(query)
-        req.addKey("p1",param)
-        
-        session.getData([req])
-        t2 = time.time()
-
-        #session.printHeader()
-        
-        #nfield = session.getNumberOfFields()
-        #print ("\nNumber of fields:", nfield, "\n")
-    
-        #nrec = session.getNumberOfRecords()
-        #print ("\nResult contains", nrec, "objects.\n")
-        
-        #session.printRecords2()
-        queryEnd = time.localtime()
-        
-        self.result = [r for r in session.getRecords2()]
-        log.debug("Query ended: %s", time.strftime("%m/%d/%y %H:%M:%S %Z", queryEnd))
-        log.debug("Query time: %s seconds", (t2-t1))
-        log.debug("Result size: %i entries", len(self.result))
-            
-    def fetchall(self):
-        return self.result
-
-    def __str__(self):
-        s =  "FrontierCursor2:\n"
-        s += "Using Frontier URL: %s\n" % self.url
-        s += "Schema: %s\n" % self.schema
-        s += "Refresh cache:  %s" % self.refreshFlag
-        return s
-
-
-
-    
 class FrontierCursor(object):
     def __init__(self, url, schema, refreshFlag=False, doDecode=True, retrieveZiplevel="zip"):
         self.url = url + "/Frontier"
@@ -181,7 +95,7 @@ class FrontierCursor(object):
         log.debug("Refresh cache : %s", self.refreshFlag)
         log.debug("Query         : %s", query)
         
-        import base64, zlib, urllib.request, urllib.error, urllib.parse, time
+        import base64, zlib, urllib.request, urllib.error, urllib.parse
 
         self.result = None
 
@@ -200,8 +114,6 @@ class FrontierCursor(object):
 
         queryStart = time.localtime()
         log.debug("Query started: %s", time.strftime("%m/%d/%y %H:%M:%S %Z", queryStart))
-
-        print(request)
 
         t1 = time.time()
         result = urllib.request.urlopen(request,None,10).read().decode()
@@ -308,26 +220,15 @@ def testQuery(query, bindvars):
 
     from TrigConfigSvc.TrigConfigSvcUtils import interpretConnection
     connectionParameters = interpretConnection("TRIGGERDBMC")
-    for url in getServerUrls( connectionParameters['url'] ):
-        if not testUrl(url):
-            log.info("Skipping %s (failing connection test)", url)
-            continue
-        log.info("Testing %s", url)
-        cursor = getFrontierCursor( url = url, schema = connectionParameters['schema'])
-        cursor.execute(query, bindvars)
-        log.info("Raw response:")
-        print(cursor.result)
-        cursor.decodeResult()
-        log.info("Decoded response:")
-        log.info(cursor.result[0][0])        
-        if cursor.result[0][0] != 'MC_pp_v7':
-            return 1
-        break
-    return 0
-
-
-def testBindVarResolution(query, bindvars):
-    resolvebindvars(query, bindvars)
+    cursor = getFrontierCursor( url = connectionParameters['url'], schema = connectionParameters['schema'])
+    cursor.execute(query, bindvars)
+    log.info("Raw response:")
+    print(cursor.result)
+    cursor.decodeResult()
+    log.info("Decoded response:")
+    log.info(cursor.result[0][0])        
+    if cursor.result[0][0] != 'MC_pp_v7':
+        return 1
     return 0
 
     
@@ -339,6 +240,5 @@ if __name__=="__main__":
     query = "select distinct HPS.HPS_NAME from ATLAS_CONF_TRIGGER_RUN2_MC.HLT_PRESCALE_SET HPS where HPS.HPS_ID = :psk"
     bindvars = { "psk": 260 }
 
-    res = testBindVarResolution(query, bindvars) # query resolution for c++ frontier client
-    res = max(res, testQuery(query, bindvars)) # pure python frontier query
+    res = testQuery(query, bindvars)  # pure python frontier query
     sys.exit(res)

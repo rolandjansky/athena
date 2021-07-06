@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -90,7 +90,7 @@ SCT_SkiAux::build()
   // width
   double xHarnessPos = 0;
   double yHarnessPos = 0;
-  if(m_harness != 0) {
+  if(m_harness != nullptr) {
     double radiusHarness = m_innerRadius +
       0.5 * m_harness->thickness() + 
       m_skiPowerTape->powerTapeThickness();
@@ -110,7 +110,7 @@ SCT_SkiAux::build()
   double radiusTape = m_innerRadius +
     0.5 * m_skiPowerTape->thickness() + 
     m_skiPowerTape->powerTapeThickness();
-  if(m_harness != 0) {radiusTape += m_harness->thickness();}
+  if(m_harness != nullptr) {radiusTape += m_harness->thickness();}
   double xTapePos = radiusTape * cos(m_powerTapePhiOffset);
   double yTapePos = radiusTape * sin(m_powerTapePhiOffset);
 
@@ -139,7 +139,7 @@ SCT_SkiAux::build()
   double halfAngleBracket   = atan(0.5 * m_bracket->width()/m_innerRadius);
   double halfAnglePowerTape = atan(0.5 * m_skiPowerTape->width()/m_innerRadius);
   // Harness and power tape are at same phi
-  if(m_harness != 0) { 
+  if(m_harness != nullptr) { 
     double halfAngleHarness   = atan(0.5 * m_harness->width()/m_innerRadius);
     halfAnglePowerTape = std::max(halfAnglePowerTape, halfAngleHarness);
   }
@@ -182,7 +182,7 @@ SCT_SkiAux::build()
   }
 
   // Position the harness
-  if(m_harness != 0) {
+  if(m_harness != nullptr) {
     GeoTrf::Translation3D posHarness(xHarnessPos, yHarnessPos, 0);
     GeoTrf::RotateZ3D rotHarness(m_powerTapePhiOffset);
     skiAux->add(new GeoTransform(GeoTrf::Transform3D(posHarness*rotHarness)));

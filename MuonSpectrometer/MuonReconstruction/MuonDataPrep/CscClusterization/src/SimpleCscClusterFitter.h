@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SimpleCscClusterFitter_H
@@ -20,13 +20,12 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 namespace Muon {
-class CscPrepData;
+    class CscPrepData;
 }
 
 class SimpleCscClusterFitter : virtual public ICscClusterFitter, public AthAlgTool {
-
-  public:
-    SimpleCscClusterFitter(std::string, std::string, const IInterface*);
+public:
+    SimpleCscClusterFitter(const std::string&, const std::string&, const IInterface*);
 
     ~SimpleCscClusterFitter() = default;
 
@@ -36,22 +35,21 @@ class SimpleCscClusterFitter : virtual public ICscClusterFitter, public AthAlgTo
     using ICscClusterFitter::fit;
     Results fit(const StripFitList& sfits) const;
     Results fit(const StripFitList& sfits, double dposdz) const;
-    double  getCorrectedError(const Muon::CscPrepData* pclu, double slope) const;
+    double getCorrectedError(const Muon::CscPrepData* pclu, double slope) const;
 
-  private:
+private:
     // Properties
-    std::string m_option;                   // Fitting option: MEAN, PEAK, ...
-    double      m_intrinsic_cluster_width;  // Intrinsic widh for error calculation
-    bool        m_use_peakthreshold;
-    double      m_defaultErrorScaler_eta;
-    double      m_defaultErrorScaler_phi;
+    std::string m_option;              // Fitting option: MEAN, PEAK, ...
+    double m_intrinsic_cluster_width;  // Intrinsic widh for error calculation
+    bool m_use_peakthreshold;
+    double m_defaultErrorScaler_eta;
+    double m_defaultErrorScaler_phi;
 
-    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc",
-                                                        "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     /** retrieve MuonDetectorManager from the conditions store */
-    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey{
-        this, "DetectorManagerKey", "MuonDetectorManager", "Key of input MuonDetectorManager condition data"};
+    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey{this, "DetectorManagerKey", "MuonDetectorManager",
+                                                                            "Key of input MuonDetectorManager condition data"};
 
     ToolHandle<ICscAlignmentTool> m_alignmentTool{
         this,

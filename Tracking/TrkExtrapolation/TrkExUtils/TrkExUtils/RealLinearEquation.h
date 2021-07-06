@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -9,24 +9,24 @@
 #ifndef TRKEXUTILS_REALLINEAREQUATION_H
 #define TRKEXUTILS_REALLINEAREQUATION_H
 
-#include <utility>
 #include <cmath>
+#include <utility>
 
 namespace Trk {
-  
-  /** @struct RealLinearEquation
-      Mathematic struct for solving real linear equation
-   
-     <b>Mathematical motivation</b>:<br>
-     
-     - 2D: The equation is given by:<br>
-     @f$ y(x') = k \cdot x' + d  @f$
-     
-       The constructor is called from a point @f$ p=(p_x,p_y) @f$ that fullfills
-       the equation, an incline @f$ k @f$ and a parameter @f$ x' @f$.
-     
-    @author Andreas.Salzburger@cern.ch   
-   */
+
+/** @struct RealLinearEquation
+    Mathematic struct for solving real linear equation
+
+   <b>Mathematical motivation</b>:<br>
+
+   - 2D: The equation is given by:<br>
+   @f$ y(x') = k \cdot x' + d  @f$
+
+     The constructor is called from a point @f$ p=(p_x,p_y) @f$ that fullfills
+     the equation, an incline @f$ k @f$ and a parameter @f$ x' @f$.
+
+  @author Andreas.Salzburger@cern.ch
+ */
 
 struct RealLinearEquation
 {
@@ -45,5 +45,5 @@ struct RealLinearEquation
 
 } // end of namespace
 
-#endif  
+#endif
 

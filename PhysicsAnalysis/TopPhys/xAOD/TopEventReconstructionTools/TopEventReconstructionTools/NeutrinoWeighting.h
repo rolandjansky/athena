@@ -92,8 +92,9 @@ namespace top {
     ///Delta eta sampling size.  For the mass we don't need to sample so many points.
     int etaSize;
 
-    ///Top Quark Mass constraint.
-    double topMass;
+    // commented out variables are unused.  experts please check and remove
+    // ///Top Quark Mass constraint.
+    // double topMass;
 
     ///B jet mass constraint.
     double m_bmass;

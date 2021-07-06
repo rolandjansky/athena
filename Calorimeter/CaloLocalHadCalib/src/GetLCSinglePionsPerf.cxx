@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -478,6 +478,7 @@ StatusCode GetLCSinglePionsPerf::initialize()
   delete [] xbins;
 
   ATH_CHECK( m_clusterBasicCollName.initialize() );
+  ATH_CHECK( m_clusterCollNames.initialize() );
   ATH_CHECK( m_CalibrationHitContainerNames.initialize() );
   ATH_CHECK( m_DMCalibrationHitContainerNames.initialize() );
 
@@ -998,27 +999,24 @@ int GetLCSinglePionsPerf::fill_moments (const xAOD::CaloClusterContainer& clusCo
   double engCalibTot = 0.0;
   std::vector<double > engCalibTotSmp;
   engCalibTotSmp.resize(CaloSampling::Unknown, 0.0);
-  std::vector<const CaloCalibrationHitContainer * >::const_iterator it;
-  for (it=v_cchc.begin();it!=v_cchc.end();it++) {
-    CaloCalibrationHitContainer::const_iterator chIter  = (*it)->begin();
-    CaloCalibrationHitContainer::const_iterator chIterE = (*it)->end();
+  for (const CaloCalibrationHitContainer* cchc : v_cchc) {
     //loop over cells in calibration container
-    for(;chIter!=chIterE;chIter++)  {
-      Identifier myId = (*chIter)->cellID();
+    for (const CaloCalibrationHit* hit : *cchc) {
+      Identifier myId = hit->cellID();
       if(!myId.is_valid()) {
-        std::cout << "Error! Bad identifier " << myId << " in container '" << (*it)->Name() << "',"
+        std::cout << "Error! Bad identifier " << myId << " in container '" << cchc->Name() << "',"
         << " AtlasDetectorID says '" << m_id_helper->show_to_string(myId) << "'" << std::endl;
         continue;
       }
       if(!m_id_helper->is_lar(myId) && !m_id_helper->is_tile(myId)) {
-        std::cout << "Error! Bad identifier (nor lar or tile) " << myId << " in container '" << (*it)->Name() << "',"
+        std::cout << "Error! Bad identifier (nor lar or tile) " << myId << " in container '" << cchc->Name() << "',"
         << " AtlasDetectorID says '" << m_id_helper->show_to_string(myId) << "'" << std::endl;
         continue;
       }
 
       CaloSampling::CaloSample nsmp = CaloSampling::CaloSample(m_calo_id->calo_sample(myId));
-      engCalibTot += (*chIter)->energyTotal();
-      engCalibTotSmp[nsmp] += (*chIter)->energyTotal();
+      engCalibTot += hit->energyTotal();
+      engCalibTotSmp[nsmp] += hit->energyTotal();
     }
   }
 
@@ -1026,23 +1024,21 @@ int GetLCSinglePionsPerf::fill_moments (const xAOD::CaloClusterContainer& clusCo
   double engCalibDeadTot = 0.0;
   std::vector<double > engCalibDeadTotInArea;
   engCalibDeadTotInArea.resize(CaloDmDescrArea::DMA_MAX,0.0);
-  for (it=v_dmcchc.begin();it!=v_dmcchc.end();it++) {
-    CaloCalibrationHitContainer::const_iterator chIter  = (*it)->begin();
-    CaloCalibrationHitContainer::const_iterator chIterE = (*it)->end();
+  for (const CaloCalibrationHitContainer* dmcchc : v_dmcchc) {
     //loop over cells in calibration container
-    for(;chIter!=chIterE;chIter++)  {
-      Identifier myId = (*chIter)->cellID();
+    for (const CaloCalibrationHit* hit : *dmcchc) {
+      Identifier myId = hit->cellID();
       if(!myId.is_valid()) {
-        std::cout << "GetLCSinglePionsPerf::fill_moments() -> Error! Bad dead material identifier " << myId << " in container '" << (*it)->Name() << "',"
+        std::cout << "GetLCSinglePionsPerf::fill_moments() -> Error! Bad dead material identifier " << myId << " in container '" << dmcchc->Name() << "',"
         << " AtlasDetectorID says '" << m_id_helper->show_to_string(myId) << "'" << std::endl;
         continue;
       }
       if(!m_id_helper->is_lar_dm(myId) && !m_id_helper->is_tile_dm(myId)) {
-        std::cout << "GetLCSinglePionsPerf::fill_moments() -> Error! Bad dead material identifier (nor lar_dm or tile_dm) " << myId << " in container '" << (*it)->Name() << "',"
+        std::cout << "GetLCSinglePionsPerf::fill_moments() -> Error! Bad dead material identifier (nor lar_dm or tile_dm) " << myId << " in container '" << dmcchc->Name() << "',"
         << " AtlasDetectorID says '" << m_id_helper->show_to_string(myId) << "'" << std::endl;
         continue;
       }
-      engCalibDeadTot += (*chIter)->energyTotal();
+      engCalibDeadTot += hit->energyTotal();
       //
       CaloDmDescrElement* myCDDE(nullptr);
       myCDDE = m_caloDmDescrManager->get_element(myId);
@@ -1051,8 +1047,8 @@ int GetLCSinglePionsPerf::fill_moments (const xAOD::CaloClusterContainer& clusCo
         continue;
       }
       int nDmArea = m_caloDmDescrManager->get_dm_area(myId);
-      engCalibDeadTotInArea[nDmArea] += (*chIter)->energyTotal();
-      engCalibDeadTotInArea[CaloDmDescrArea::DMA_ALL] += (*chIter)->energyTotal();
+      engCalibDeadTotInArea[nDmArea] += hit->energyTotal();
+      engCalibDeadTotInArea[CaloDmDescrArea::DMA_ALL] += hit->energyTotal();
     }
   }
 //   double engCalibDeadTotWithPres = engCalibDeadTot + engCalibTotSmp[CaloSampling::PreSamplerB]
@@ -1075,7 +1071,7 @@ int GetLCSinglePionsPerf::fill_moments (const xAOD::CaloClusterContainer& clusCo
     ++iClus;
     clsMoments[iClus].resize(m_validMoments.size(),0.0);
     int iMoment=0;
-    for(moment_name_vector::const_iterator im=m_validMoments.begin(); im!=m_validMoments.end(); im++, iMoment++){
+    for(moment_name_vector::const_iterator im=m_validMoments.begin(); im!=m_validMoments.end(); ++im, ++iMoment){
       double mx;
       if( theCluster->retrieveMoment((*im).second, mx) ) {
         clsMoments[iClus][iMoment] = mx;
@@ -1129,7 +1125,7 @@ int GetLCSinglePionsPerf::fill_moments (const xAOD::CaloClusterContainer& clusCo
 
   // filling histograms
   int iMoment=0;
-  for(moment_name_vector::const_iterator im=m_validMoments.begin(); im!=m_validMoments.end(); im++, iMoment++){
+  for(moment_name_vector::const_iterator im=m_validMoments.begin(); im!=m_validMoments.end(); ++im, ++iMoment){
     double xnorm = 0.0;
     switch ( (*im).second ) {
       case xAOD::CaloCluster::ENG_CALIB_TOT:
@@ -1223,47 +1219,42 @@ int GetLCSinglePionsPerf::fill_calibhits (const xAOD::CaloClusterContainer& clus
 
   // calculate total calibration energy int active+inactive hits
   double engCalibTot = 0.0;
-  std::vector<const CaloCalibrationHitContainer * >::const_iterator it;
-  for (it=v_cchc.begin();it!=v_cchc.end();it++) {
-    CaloCalibrationHitContainer::const_iterator chIter  = (*it)->begin();
-    CaloCalibrationHitContainer::const_iterator chIterE = (*it)->end();
+  for (const CaloCalibrationHitContainer* cchc : v_cchc) {
     //loop over cells in calibration container
-    for(;chIter!=chIterE;chIter++)  {
-      Identifier myId = (*chIter)->cellID();
+    for (const CaloCalibrationHit* hit : *cchc) {
+      Identifier myId = hit->cellID();
       if(!myId.is_valid()) {
-        std::cout << "Error! Bad identifier " << myId << " in container '" << (*it)->Name() << "',"
+        std::cout << "Error! Bad identifier " << myId << " in container '" << cchc->Name() << "',"
         << " AtlasDetectorID says '" << m_id_helper->show_to_string(myId) << "'" << std::endl;
         continue;
       }
       if(!m_id_helper->is_lar(myId) && !m_id_helper->is_tile(myId)) {
-        std::cout << "Error! Bad identifier (nor lar or tile) " << myId << " in container '" << (*it)->Name() << "',"
+        std::cout << "Error! Bad identifier (nor lar or tile) " << myId << " in container '" << cchc->Name() << "',"
         << " AtlasDetectorID says '" << m_id_helper->show_to_string(myId) << "'" << std::endl;
         continue;
       }
-      engCalibTot += (*chIter)->energyTotal();
+      engCalibTot += hit->energyTotal();
     }
   }
 
   // calibration energy in dead material
   double engCalibDeadTot = 0.0;
   double engDefaultCalculator = 0.0;
-  for (it=v_dmcchc.begin();it!=v_dmcchc.end();it++) {
-    CaloCalibrationHitContainer::const_iterator chIter  = (*it)->begin();
-    CaloCalibrationHitContainer::const_iterator chIterE = (*it)->end();
+  for (const CaloCalibrationHitContainer* dmcchc : v_dmcchc) {
     //loop over cells in calibration container
-    for(;chIter!=chIterE;chIter++)  {
-      Identifier myId = (*chIter)->cellID();
+    for (const CaloCalibrationHit* hit : *dmcchc) {
+      Identifier myId = hit->cellID();
       if(!myId.is_valid()) {
-        std::cout << "GetLCSinglePionsPerf::fill_moments() -> Error! Bad dead material identifier " << myId << " in container '" << (*it)->Name() << "',"
+        std::cout << "GetLCSinglePionsPerf::fill_moments() -> Error! Bad dead material identifier " << myId << " in container '" << dmcchc->Name() << "',"
         << " AtlasDetectorID says '" << m_id_helper->show_to_string(myId) << "'" << std::endl;
         continue;
       }
       if(!m_id_helper->is_lar_dm(myId) && !m_id_helper->is_tile_dm(myId)) {
-        std::cout << "GetLCSinglePionsPerf::fill_moments() -> Error! Bad dead material identifier (nor lar_dm or tile_dm) " << myId << " in container '" << (*it)->Name() << "',"
+        std::cout << "GetLCSinglePionsPerf::fill_moments() -> Error! Bad dead material identifier (nor lar_dm or tile_dm) " << myId << " in container '" << dmcchc->Name() << "',"
         << " AtlasDetectorID says '" << m_id_helper->show_to_string(myId) << "'" << std::endl;
         continue;
       }
-      engCalibDeadTot += (*chIter)->energyTotal();
+      engCalibDeadTot += hit->energyTotal();
       //
       CaloDmDescrElement* myCDDE(nullptr);
       myCDDE = m_caloDmDescrManager->get_element(myId);
@@ -1272,7 +1263,7 @@ int GetLCSinglePionsPerf::fill_calibhits (const xAOD::CaloClusterContainer& clus
         continue;
       }
       int nDmArea = m_caloDmDescrManager->get_dm_area(myId);
-      if(nDmArea == CaloDmDescrArea::DMA_DEFCALC)  engDefaultCalculator += (*chIter)->energyTotal();
+      if(nDmArea == CaloDmDescrArea::DMA_DEFCALC)  engDefaultCalculator += hit->energyTotal();
     }
   }
 

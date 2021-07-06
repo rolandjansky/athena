@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -166,7 +166,7 @@ namespace InDet{
       std::string                              m_multiTruthCollectionTRTName; //!< Name of TRT TruthCollection
       bool                                     m_phaseMode   ; //!< Switch to destinguish between phase calculation and full reco
       std::string                              m_ntrtmanager ; //!< Name of TRT det. manager 
-      const TRT_ID*                            m_trtid       ; 
+      const TRT_ID*                            m_trtid{}       ; 
 
       SG::ReadHandleKey<InDet::TRT_DriftCircleContainer> m_trtname{this,"TRT_ClustersContainer","TRT_DriftCircles","RHK to retrieve TRT_DriftCircles"}; //!< TRTs   container 
       SG::ReadHandleKey<Trk::PRDtoTrackMap>       m_prdToTrackMap
@@ -213,7 +213,7 @@ namespace InDet{
 
       /** Evaluate how many dc match this seed
        */
-      int evaluate_seed(int endcap,int zslice,int sector,double *p, TRT_TrackSegmentsMaker_ECcosmics::EventData &event_data) const;
+      int evaluate_seed(int endcap,int zslice,int sector,const double *p, TRT_TrackSegmentsMaker_ECcosmics::EventData &event_data) const;
 
       /** Create segment out of a seed
        */

@@ -8,57 +8,48 @@
 //  collection to any corresponding tracks from an inner detector collection.
 //  Perform a full track-fit to the resultant combined tracks.
 //
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef MUIDINTERFACES_IMUIDMATCHMAKER_H
 #define MUIDINTERFACES_IMUIDMATCHMAKER_H
 
 #include "GaudiKernel/IAlgTool.h"
-#include "TrkTrack/TrackCollection.h"
 #include "TrkParameters/TrackParameters.h"
+#include "TrkTrack/TrackCollection.h"
 
 class PerigeeParameters;
 class MuidTrackContainer;
 
+namespace Rec {
 
-namespace Rec
-{
-  
-/** Interface ID for IMuidMatchMaker*/  
-static const InterfaceID IID_IMuidMatchMaker("IMuidMatchMaker", 1, 0);
-  
-/**@class IMuidMatchMaker
+    /** Interface ID for IMuidMatchMaker*/
+    static const InterfaceID IID_IMuidMatchMaker("IMuidMatchMaker", 1, 0);
 
-Base class for MuidMatchMaker AlgTool
-     
-     
-@author Alan.Poppleton@cern.ch
-*/
-class IMuidMatchMaker : virtual public IAlgTool
-{
-public:
+    /**@class IMuidMatchMaker
 
-    /**Virtual destructor*/
-    virtual ~IMuidMatchMaker(){}
-       
-    /** AlgTool and IAlgTool interface methods */
-    static const InterfaceID&		interfaceID() { return IID_IMuidMatchMaker; }
-
-    /**IMuidMatchMaker interface:
-       back convert perigee (legacy function needed during migration) */
-    virtual PerigeeParameters*		convertPerigee (const Trk::Perigee* trkPerigee) const = 0;
-    
-    /**IMuidMatchMaker interface:
-       algorithmic code for matching muon spectrometer to inner detector */
-    virtual MuidTrackContainer*		execute(
-	const TrackCollection*		extrapolatedTracks,
-	const TrackCollection*		indetTracks,
-	const TrackCollection*		spectrometerTracks) = 0;
-};
- 
-}	// end of namespace
-
-#endif // MUIDINTERFACES_IMUIDMATCHMAKER_H
+    Base class for MuidMatchMaker AlgTool
 
 
+    @author Alan.Poppleton@cern.ch
+    */
+    class IMuidMatchMaker : virtual public IAlgTool {
+    public:
+        /**Virtual destructor*/
+        virtual ~IMuidMatchMaker() {}
+
+        /** AlgTool and IAlgTool interface methods */
+        static const InterfaceID& interfaceID() { return IID_IMuidMatchMaker; }
+
+        /**IMuidMatchMaker interface:
+           back convert perigee (legacy function needed during migration) */
+        virtual PerigeeParameters* convertPerigee(const Trk::Perigee* trkPerigee) const = 0;
+
+        /**IMuidMatchMaker interface:
+           algorithmic code for matching muon spectrometer to inner detector */
+        virtual MuidTrackContainer* execute(const TrackCollection* extrapolatedTracks, const TrackCollection* indetTracks,
+                                            const TrackCollection* spectrometerTracks) = 0;
+    };
+
+}  // namespace Rec
+
+#endif  // MUIDINTERFACES_IMUIDMATCHMAKER_H

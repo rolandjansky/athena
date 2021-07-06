@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -74,12 +74,12 @@ def CscRdoToCscPrepData(name="CscRdoToCscPrepData", **kwargs):
 def MM_PrepDataProviderTool(name="MM_PrepDataProviderTool", **kwargs): 
   kwargs.setdefault("ClusterBuilderTool","SimpleMMClusterBuilderTool")
   kwargs.setdefault("NSWCalibTool","NSWCalibTool")
-  from MuonMM_CnvTools.MuonMM_CnvToolsConf import Muon__MmRdoToPrepDataTool
-  return Muon__MmRdoToPrepDataTool(name,**kwargs)
+  from MuonMM_CnvTools.MuonMM_CnvToolsConf import Muon__MmRdoToPrepDataToolMT
+  return Muon__MmRdoToPrepDataToolMT(name,**kwargs)
 
 def STGC_PrepDataProviderTool(name="STGC_PrepDataProviderTool", **kwargs): 
   kwargs.setdefault("ClusterBuilderTool","SimpleSTgcClusterBuilderTool")
-  from MuonSTGC_CnvTools.MuonSTGC_CnvToolsConf import Muon__sTgcRdoToPrepDataTool
-  return Muon__sTgcRdoToPrepDataTool(name,**kwargs)
+  from MuonSTGC_CnvTools.MuonSTGC_CnvToolsConf import Muon__sTgcRdoToPrepDataToolMT
+  return Muon__sTgcRdoToPrepDataToolMT(name,**kwargs)
 
 ### algorithms for other technologies can use C++ defaults

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelDetectorFactorySR1.h"
@@ -19,8 +19,8 @@
 #include "GaudiKernel/SystemOfUnits.h"
 
 // InDetReadoutGeometry
-#include "InDetReadoutGeometry/SiCommonItems.h" 
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
+#include "ReadoutGeometryBase/SiCommonItems.h" 
+#include "ReadoutGeometryBase/InDetDD_Defs.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 
 #include "PixelGeoModelAthenaComps.h"
@@ -34,7 +34,7 @@ using InDetDD::SiCommonItems;
 PixelDetectorFactorySR1::PixelDetectorFactorySR1(PixelGeoModelAthenaComps * athenaComps,
 						 const PixelSwitches & switches)
   : InDetDD::DetectorFactoryBase(athenaComps),
-    m_detectorManager(0)
+    m_detectorManager(nullptr)
 {
   // Create the detector manager
   m_detectorManager = new PixelDetectorManager(detStore());
@@ -133,12 +133,12 @@ void PixelDetectorFactorySR1::create (GeoPhysVol *world)
     msg(MSG::ERROR) << "SR1 geometry must have 1 part" << endmsg;
   }
 
-  GeoVPhysVol* physVol = 0;   
-  GeoAlignableTransform * transform = 0;
+  GeoVPhysVol* physVol = nullptr;   
+  GeoAlignableTransform * transform = nullptr;
 
-  GeoPixelServices * pixServices = 0;
+  GeoPixelServices * pixServices = nullptr;
   if(m_geometryManager->DoServices() ) {
-    pixServices = new GeoPixelServices(m_detectorManager, m_geometryManager, 0);
+    pixServices = new GeoPixelServices(m_detectorManager, m_geometryManager, nullptr);
   } 
   
   // Top level transform

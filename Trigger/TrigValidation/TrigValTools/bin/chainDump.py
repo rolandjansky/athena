@@ -50,6 +50,9 @@ def get_parser():
                         const='chainDump.yml',
                         help='Produce a small yaml file including condensed counts information for test file only '
                              '(no ref) with the given name or %(const)s if no name is given')
+    parser.add_argument('--yamlL1',
+                        action='store_true',
+                        help='Include the L1 count information to the yaml file')
     parser.add_argument('--fracTolerance',
                         metavar='FRAC',
                         type=float,
@@ -66,13 +69,13 @@ def get_parser():
                         metavar='HISTS',
                         nargs='+',
                         default=[
-                            'HLTFramework/TrigSignatureMoniMT/SignatureAcceptance',
-                            'HLTFramework/../HLTFramework/TrigSignatureMoniMT/SignatureAcceptance',
+                            'HLTFramework/TrigSignatureMoni/SignatureAcceptance',
+                            'HLTFramework/../HLTFramework/TrigSignatureMoni/SignatureAcceptance',
                             'TrigSteer_HLT/ChainAcceptance',
                             'TrigSteer_HLT/NumberOfActiveTEs',
-                            'HLTFramework/TrigSignatureMoniMT/DecisionCount',
+                            'HLTFramework/TrigSignatureMoni/DecisionCount',
                             'CTPSimulation/L1ItemsAV',
-                            'L1/CTPSimulation/output/tavByName'],
+                            'L1/CTPSimulation/output/tavById'],
                         help='Histograms to use for counts dump. All existing '
                              'histograms from the list are used, default = %(default)s')
     parser.add_argument('--totalHists',
@@ -87,13 +90,13 @@ def get_parser():
                         metavar='DICT',
                         nargs='+',
                         default=[
-                            'HLTFramework/TrigSignatureMoniMT/SignatureAcceptance:HLTChain',
-                            'HLTFramework/../HLTFramework/TrigSignatureMoniMT/SignatureAcceptance:HLTStep',
+                            'HLTFramework/TrigSignatureMoni/SignatureAcceptance:HLTChain',
+                            'HLTFramework/../HLTFramework/TrigSignatureMoni/SignatureAcceptance:HLTStep',
                             'TrigSteer_HLT/ChainAcceptance:HLTChain',
                             'TrigSteer_HLT/NumberOfActiveTEs:HLTTE',
-                            'HLTFramework/TrigSignatureMoniMT/DecisionCount:HLTDecision',
+                            'HLTFramework/TrigSignatureMoni/DecisionCount:HLTDecision',
                             'CTPSimulation/L1ItemsAV:L1AV',
-                            'L1/CTPSimulation/output/tavByName:L1AV'],
+                            'L1/CTPSimulation/output/tavById:L1AV'],
                         help='Dictionary defining names of output text files for each '
                              'histogram, default = %(default)s')
     return parser
@@ -322,7 +325,7 @@ def write_txt_output(json_dict, diff_only=False):
                     outfile.write(line+'\n')
 
 
-def make_light_dict(full_dict):
+def make_light_dict(full_dict, includeL1Counts):
     light_dict = dict()
     for chain in full_dict['HLTChain']['counts'].items():
         chain_name = chain[0]
@@ -356,6 +359,11 @@ def make_light_dict(full_dict):
 
         extract_steps('HLTStep', 'stepCounts')
         extract_steps('HLTDecision', 'stepFeatures')
+
+    if includeL1Counts and 'L1AV' in full_dict:
+        light_dict.update(
+            {name:{"eventCount": counts["count"]} for name,counts in full_dict["L1AV"]["counts"].items()}
+        )
 
     return light_dict
 
@@ -474,7 +482,7 @@ def main():
 
     if args.yaml:
         logging.info('Writing results extract to %s', args.yaml)
-        light_dict = make_light_dict(json_dict)
+        light_dict = make_light_dict(json_dict, includeL1Counts = args.yamlL1)
         with open(args.yaml, 'w') as outfile:
             yaml.dump(light_dict, outfile, sort_keys=True)
 

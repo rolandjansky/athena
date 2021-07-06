@@ -43,7 +43,6 @@ MuonEDMPrinterTool::initialize()
 {
     ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_edmHelperSvc.retrieve());
-    ATH_CHECK(m_summaryHelper.retrieve());
     ATH_CHECK(m_pullCalculator.retrieve());
 
     ATH_CHECK(m_DetectorManagerKey.initialize());
@@ -139,11 +138,9 @@ MuonEDMPrinterTool::printStations(const Trk::Track& track) const
     // check if the track already has a MuonTrackSummary, if not calculate it using the helper
     const Trk::TrackSummary* summary = track.trackSummary();
     if (summary) muonSummary = summary->muonTrackSummary();
-    Trk::TrackSummary tmpSummary;
     if (!muonSummary) {
-        m_summaryHelper->addDetailedTrackSummary(track, tmpSummary);
-        muonSummary = tmpSummary.muonTrackSummary();
-        if (!muonSummary) return "failed to create MuonTrackSummary ";
+	ATH_MSG_WARNING("No muon summary is present");
+	return "";
     }
 
     return print(*muonSummary);

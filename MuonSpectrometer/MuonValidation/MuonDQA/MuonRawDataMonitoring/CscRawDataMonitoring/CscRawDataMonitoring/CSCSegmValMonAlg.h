@@ -58,7 +58,7 @@ class CSCSegmValMonAlg : public AthMonitorAlgorithm {
     "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
     "Handle to the service providing the IMuonEDMHelperSvc interface" };
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-  SG::ReadHandleKey<Trk::SegmentCollection> m_segmKey{this,"SegmentKey","MuonSegments","muon segments"};
+  SG::ReadHandleKey<Trk::SegmentCollection> m_segmKey{this,"SegmentKey","TrackMuonSegments","muon segments"};
 
   Gaudi::Property<std::vector<std::string>> m_sampSelTriggers{this,"EventSelTriggers",{}};
   Gaudi::Property<bool> m_doEvtSel{this,"DoEventSelection",false};

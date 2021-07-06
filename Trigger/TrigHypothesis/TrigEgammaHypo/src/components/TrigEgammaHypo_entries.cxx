@@ -1,65 +1,35 @@
-#include "TrigEgammaHypo/TrigL2CaloHypo.h"
-#include "TrigEgammaHypo/TrigL2ElectronFex.h"
-#include "TrigEgammaHypo/TrigL2PhotonFex.h"
-#include "TrigEgammaHypo/TrigL2ElectronHypo.h"
-#include "../TrigEgammaFastPhotonFexMT.h"
-#include "TrigEgammaHypo/TrigL2PhotonHypo.h"
-#include "TrigEgammaHypo/TrigEFDielectronMassHypo.h"
-#include "TrigEgammaHypo/TrigEFDielectronMassFex.h"
-#include "TrigEgammaHypo/TrigEFMtAllTE.h"
-#include "TrigEgammaHypo/TrigEFCaloCalibFex.h"
-#include "TrigEgammaHypo/TrigEFCaloHypo.h"
-#include "TrigEgammaHypo/TrigEFElectronHypo.h"
-#include "TrigEgammaHypo/TrigEFPhotonHypo.h"
-#include "TrigEgammaHypo/TrigEFTrackHypo.h"
-#include "TrigEgammaHypo/TrigL2CaloLayersHypo.h"
-#include "../TrigEgammaFastCaloHypoAlgMT.h"
-#include "../TrigEgammaFastCaloHypoToolInc.h"
-#include "../TrigEgammaPrecisionCaloHypoToolInc.h"
-#include "../TrigEgammaPrecisionEtcutHypoTool.h"
-#include "../TrigEgammaPrecisionPhotonHypoToolInc.h"
-#include "../TrigEgammaPrecisionElectronHypoToolInc.h"
+#include "../TrigEgammaFastCaloHypoAlg.h"
+#include "../TrigEgammaFastCaloHypoTool.h"
+#include "../TrigEgammaPrecisionCaloHypoTool.h"
+#include "../TrigEgammaPrecisionTrackingHypoTool.h"
+#include "../TrigEgammaPrecisionPhotonHypoTool.h"
+#include "../TrigEgammaPrecisionElectronHypoTool.h"
 #include "../TrigEgammaFastElectronHypoTool.h"
-#include "../TrigEgammaFastElectronFexMT.h"
-#include "../TrigEgammaFastElectronHypoAlgMT.h"
-#include "../TrigEgammaFastPhotonHypoAlgMT.h"
+#include "../TrigEgammaFastElectronHypoAlg.h"
+#include "../TrigEgammaFastPhotonHypoAlg.h"
 #include "../TrigEgammaFastPhotonHypoTool.h"
-#include "../TrigEgammaPrecisionCaloHypoAlgMT.h"
-#include "../TrigEgammaPrecisionEtcutHypoAlgMT.h"
-#include "../TrigEgammaPrecisionPhotonHypoAlgMT.h"
-#include "../TrigEgammaPrecisionElectronHypoAlgMT.h"
-#include "../TrigEgammaMassHypoTool.h"
-#include "../TrigEgammaDPhiHypoTool.h"
+#include "../TrigEgammaPrecisionCaloHypoAlg.h"
+#include "../TrigEgammaPrecisionTrackingHypoAlg.h"
+#include "../TrigEgammaPrecisionPhotonHypoAlg.h"
+#include "../TrigEgammaPrecisionElectronHypoAlg.h"
+#include "../TrigEgammaTLAPhotonHypoAlg.h"
+#include "../combos/TrigEgammaTopoHypoTool.h"
+#include "../TrigEgammaTLAPhotonHypoTool.h"
 
-DECLARE_COMPONENT( TrigL2CaloHypo )
-DECLARE_COMPONENT( TrigL2ElectronFex )
-DECLARE_COMPONENT( TrigL2PhotonFex )
-DECLARE_COMPONENT( TrigL2ElectronHypo )
-DECLARE_COMPONENT( TrigEgammaFastPhotonFexMT )
-DECLARE_COMPONENT( TrigL2PhotonHypo )
-DECLARE_COMPONENT( TrigEFDielectronMassHypo )
-DECLARE_COMPONENT( TrigEFDielectronMassFex )
-DECLARE_COMPONENT( TrigEFMtAllTE )
-DECLARE_COMPONENT( TrigEFCaloCalibFex )
-DECLARE_COMPONENT( TrigEFCaloHypo )
-DECLARE_COMPONENT( TrigEFElectronHypo )
-DECLARE_COMPONENT( TrigEFPhotonHypo )
-DECLARE_COMPONENT( TrigEFTrackHypo )
-DECLARE_COMPONENT( TrigL2CaloLayersHypo )
-DECLARE_COMPONENT( TrigEgammaFastCaloHypoAlgMT )
-DECLARE_COMPONENT( TrigEgammaFastElectronHypoAlgMT )
-DECLARE_COMPONENT( TrigEgammaFastPhotonHypoAlgMT )
-DECLARE_COMPONENT( TrigEgammaFastCaloHypoToolInc )
-DECLARE_COMPONENT( TrigEgammaPrecisionCaloHypoToolInc )
-DECLARE_COMPONENT( TrigEgammaPrecisionEtcutHypoTool )
-DECLARE_COMPONENT( TrigEgammaPrecisionPhotonHypoToolInc )
-DECLARE_COMPONENT( TrigEgammaPrecisionElectronHypoToolInc )
+DECLARE_COMPONENT( TrigEgammaTLAPhotonHypoAlg )
+DECLARE_COMPONENT( TrigEgammaTLAPhotonHypoTool )
+DECLARE_COMPONENT( TrigEgammaFastCaloHypoAlg )
+DECLARE_COMPONENT( TrigEgammaFastElectronHypoAlg )
+DECLARE_COMPONENT( TrigEgammaFastPhotonHypoAlg )
+DECLARE_COMPONENT( TrigEgammaFastCaloHypoTool )
+DECLARE_COMPONENT( TrigEgammaPrecisionCaloHypoTool )
+DECLARE_COMPONENT( TrigEgammaPrecisionTrackingHypoTool )
+DECLARE_COMPONENT( TrigEgammaPrecisionPhotonHypoTool )
+DECLARE_COMPONENT( TrigEgammaPrecisionElectronHypoTool )
 DECLARE_COMPONENT( TrigEgammaFastElectronHypoTool )
-DECLARE_COMPONENT( TrigEgammaFastElectronFexMT )
 DECLARE_COMPONENT( TrigEgammaFastPhotonHypoTool )
-DECLARE_COMPONENT( TrigEgammaPrecisionCaloHypoAlgMT )
-DECLARE_COMPONENT( TrigEgammaPrecisionEtcutHypoAlgMT )
-DECLARE_COMPONENT( TrigEgammaPrecisionPhotonHypoAlgMT )
-DECLARE_COMPONENT( TrigEgammaPrecisionElectronHypoAlgMT )
-DECLARE_COMPONENT( TrigEgammaMassHypoTool )
-DECLARE_COMPONENT( TrigEgammaDPhiHypoTool )
+DECLARE_COMPONENT( TrigEgammaPrecisionCaloHypoAlg )
+DECLARE_COMPONENT( TrigEgammaPrecisionTrackingHypoAlg )
+DECLARE_COMPONENT( TrigEgammaPrecisionPhotonHypoAlg )
+DECLARE_COMPONENT( TrigEgammaPrecisionElectronHypoAlg )
+DECLARE_COMPONENT( TrigEgammaTopoHypoTool )

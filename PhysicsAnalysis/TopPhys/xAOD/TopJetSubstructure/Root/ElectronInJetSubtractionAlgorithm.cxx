@@ -9,7 +9,8 @@
 
 namespace top {
   ElectronInJetSubtractionAlgorithm::ElectronInJetSubtractionAlgorithm() :
-    m_doLooseCuts(false),
+    // commented out variables are unused.  experts please check and remove
+    // m_doLooseCuts(false),
     m_passPreORSelection("passPreORSelection"),
     m_passPreORSelectionLoose("passPreORSelectionLoose") {
   }

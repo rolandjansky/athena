@@ -6,7 +6,7 @@ import L1TopoHardware.L1TopoHardware as HW
 
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger('Menu.L1.Config.TopoAlgoDefMUTCPI.py')
+log = logging.getLogger(__name__)
 
 class TopoAlgoDefMuctpi:
 
@@ -28,7 +28,7 @@ class TopoAlgoDefMuctpi:
 
             obj1 = "%s%s%s%s" % ((str(d.mult) if d.mult>1 else ""), d.otype1, str(d.ocut1), d.olist)
             obj2 = "-%s%s%s" % (d.otype2, str(d.ocut2), d.olist)
-            toponame = "%iDR%i-%s%s%s"  % (d.minDr, d.maxDr, "ONEBARREL-" if d.onebarrel==1 else "", obj1, "" if d.mult>1 else obj2)
+            toponame = "MUCTP-%iDR%i-%s%s%s"  % (d.minDr, d.maxDr, "ONEBARREL-" if d.onebarrel==1 else "", obj1, "" if d.mult>1 else obj2)
 
             log.debug("Define %s", toponame)
 
@@ -45,7 +45,6 @@ class TopoAlgoDefMuctpi:
                 alg.addgeneric('InputWidth2', HW.OutputWidthSelectMU) 
                 alg.addgeneric('MaxTob1', HW.OutputWidthSelectMU)
                 alg.addgeneric('MaxTob2', HW.OutputWidthSelectMU)
-
 
             alg.addgeneric('NumResultBits', 1)
             alg.addvariable('MinET1', d.ocut1)

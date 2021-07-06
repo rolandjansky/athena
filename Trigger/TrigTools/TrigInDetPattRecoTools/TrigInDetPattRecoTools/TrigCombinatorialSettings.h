@@ -28,6 +28,8 @@ public:
     m_tripletPtMin      = 2500.0;//was 1000.0
     m_tripletDoPSS      = false; // Allow Pixel SCT SCT seeds?
     m_tripletDoPPS      = true; // Allow Pixel Pixel SCT seeds?
+    m_tripletDoConfirm  = false; // Use another Pixel spacepoint to confirm a triplet
+    m_curv_delta        = 0.001; //max difference in track curvature for triplet confirmation
     m_doubletFilterRZ   = true;
     m_tripletDtCut      = 3.0;//in sigmas of mult.scattering for m_tripletPtMin track at eta=0
     m_magFieldZ = 2.0;//switch to configured value
@@ -46,6 +48,7 @@ public:
 
   float m_doubletD0Max;
   float m_doublet_dR_Max;
+  float m_doublet_dR_Max_Confirm;
   float m_magFieldZ;
   float m_tripletD0Max;
   float m_tripletD0_PPS_Max;
@@ -53,6 +56,8 @@ public:
   float m_seedRadBinWidth;
   bool  m_tripletDoPSS;
   bool  m_tripletDoPPS;
+  bool  m_tripletDoConfirm;
+  float m_curv_delta;
   bool  m_doubletFilterRZ;
   float m_tripletDtCut;
   int m_nMaxPhiSlice;

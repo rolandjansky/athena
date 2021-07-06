@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // C/C++
@@ -8,16 +8,8 @@
 #include <sstream>
 #include <set>
 
-// Local
 #include "TrigMonitoringEvent/TrigMonTE.h"
-#include "TrigMonMSG.h"
-
-using namespace std;
-
-namespace MSGService
-{
-  static TrigMonMSG msg("TrigMonTE");
-}
+#include "AthenaKernel/errorcheck.h"
 
 namespace SeqBits
 {
@@ -86,7 +78,8 @@ TrigMonTE::Type TrigMonTE::getType() const
   case 3: return kL1TH;
   default: break;
   }
-  MSGService::msg.Log("TrigMonTE::getType error! Bad value", MSG::ERROR);
+  REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "TrigMonTE")
+    << "getType error! Bad value";
   return kELEM;
 }
 
@@ -124,13 +117,13 @@ const std::vector<TrigMonVar> TrigMonTE::getVar() const
 //--------------------------------------------------------------------------------------      
 void TrigMonTE::print(std::ostream &os)
 {
-  os << str(*this) << endl;
+  os << str(*this) << std::endl;
 }
 
 //--------------------------------------------------------------------------------------      
 std::string str(const TrigMonTE &o)
 {
-  stringstream s;
+  std::stringstream s;
   
   s << "TrigMonTE id=" << o.getId() << " status=";
   if     (o.getType() == TrigMonTE::kINIT) s << "init";
@@ -142,11 +135,11 @@ std::string str(const TrigMonTE &o)
   
   s << std::endl << "   children " << o.getChildIndex().size() << ": ";
   for(unsigned int i = 0; i < o.getChildIndex().size(); ++i) s << o.getChildIndex()[i] << " ";
-  s << endl;
+  s << std::endl;
 
   s << std::endl << "   parents " << o.getParentIndex().size() << ":  ";
   for(unsigned int i = 0; i < o.getParentIndex().size(); ++i) s << o.getParentIndex()[i] << " ";
-  s << endl;
+  s << std::endl;
 
   s << std::endl << "   features " << o.getClid().size() << ": ";
   for(unsigned int i = 0; i < o.getClid().size(); ++i) s << o.getClid()[i] << " ";

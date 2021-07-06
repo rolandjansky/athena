@@ -28,6 +28,8 @@ public:
 
 private:
 
+  ServiceHandle< StoreGateSvc > m_metaDataStore{
+    "StoreGateSvc/MetaDataStore", name()};
   int m_nPass;
   int m_nCount;
 

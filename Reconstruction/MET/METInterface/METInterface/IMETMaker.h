@@ -1,4 +1,4 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
+/////////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
@@ -22,6 +22,8 @@
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODMissingET/MissingETAssociationMap.h"
 #include "xAODJet/JetContainer.h"
+#include "xAODPFlow/PFOContainer.h" 
+
 
 class IMETMaker :  virtual public asg::IAsgTool {
   ASG_TOOL_INTERFACE(IMETMaker)
@@ -37,17 +39,17 @@ public:
                                 xAOD::Type::ObjectType metType,
                                 xAOD::MissingETContainer* metCont,
                                 const xAOD::IParticleContainer* collection,
-                                xAOD::MissingETAssociationHelper* helper,
+                                xAOD::MissingETAssociationHelper& helper,
                                 MissingETBase::UsageHandler::Policy objScale=MissingETBase::UsageHandler::PhysicsObject) = 0;
   // Default method that uses standard overlap removal policy
   virtual StatusCode rebuildMET(xAOD::MissingET* met,
                                 const xAOD::IParticleContainer* collection,
-                                xAOD::MissingETAssociationHelper* helper,
+                                xAOD::MissingETAssociationHelper& helper,
                                 MissingETBase::UsageHandler::Policy objScale=MissingETBase::UsageHandler::PhysicsObject) = 0;
   // Full implementation with option flags
   virtual StatusCode rebuildMET(xAOD::MissingET* met,
                                 const xAOD::IParticleContainer* collection,
-                                xAOD::MissingETAssociationHelper* helper,
+                                xAOD::MissingETAssociationHelper& helper,
                                 MissingETBase::UsageHandler::Policy p,
                                 bool removeOverlap,
                                 MissingETBase::UsageHandler::Policy objScale=MissingETBase::UsageHandler::PhysicsObject) = 0;
@@ -63,7 +65,7 @@ public:
                                    xAOD::MissingETContainer* metCont,
                                    const xAOD::JetContainer* jets,
                                    const xAOD::MissingETContainer* metCoreCont,
-                                   xAOD::MissingETAssociationHelper* helper,
+                                   xAOD::MissingETAssociationHelper& helper,
                                    bool doJetJVT) = 0;
   // Version with two soft terms
   virtual StatusCode rebuildJetMET(const std::string& metJetKey,
@@ -72,12 +74,12 @@ public:
                                    xAOD::MissingETContainer* metCont,
                                    const xAOD::JetContainer* jets,
                                    const xAOD::MissingETContainer* metCoreCont,
-                                   xAOD::MissingETAssociationHelper* helper,
+                                   xAOD::MissingETAssociationHelper& helper,
                                    bool doJetJVT) = 0;
   // Full version receiving MET pointers
   virtual StatusCode rebuildJetMET(xAOD::MissingET* metJet,
                                    const xAOD::JetContainer* jets,
-                                   xAOD::MissingETAssociationHelper* helper,
+                                   xAOD::MissingETAssociationHelper& helper,
                                    xAOD::MissingET* metSoftClus,
                                    const xAOD::MissingET* coreSoftClus,
                                    xAOD::MissingET* metSoftTrk,
@@ -92,22 +94,43 @@ public:
                                    xAOD::MissingETContainer* metCont,
                                    const xAOD::JetContainer* jets,
                                    const xAOD::MissingETContainer* metCoreCont,
-                                   xAOD::MissingETAssociationHelper* helper,
+                                   xAOD::MissingETAssociationHelper& helper,
                                    bool doJetJVT) = 0;
   // Full version receiving MET pointers
   virtual StatusCode rebuildTrackMET(xAOD::MissingET* metJet,
                                    const xAOD::JetContainer* jets,
-                                   xAOD::MissingETAssociationHelper* helper,
+                                   xAOD::MissingETAssociationHelper& helper,
                                    xAOD::MissingET* metSoftTrk,
                                    const xAOD::MissingET* coreSoftTrk,
                                    bool doJetJVT) = 0;
+
 
   ///////////////////////////////////////////////////////////////////
   // Additional utility commands
   ///////////////////////////////////////////////////////////////////
 
+  virtual StatusCode retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* cpfo, const xAOD::PFOContainer* npfo,
+			  xAOD::MissingETAssociationHelper& metHelper,
+			  xAOD::PFOContainer *OR_cpfos,
+			  xAOD::PFOContainer *OR_npfos,
+			  bool retainMuon = false,
+			  const xAOD::IParticleContainer* muonCollection=0) = 0;//,  
+			  //MissingETBase::UsageHandler::Policy p); //jetOR
+
+  virtual StatusCode retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* pfo,
+			  xAOD::MissingETAssociationHelper& metHelper,
+			  const xAOD::PFOContainer **OR_pfos,
+			  bool retainMuon,
+			  const xAOD::IParticleContainer* muonCollection=0) = 0;
+
+  virtual const xAOD::PFOContainer* retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* signals,
+			  xAOD::MissingETAssociationHelper& helper,
+			  bool retainMuon = false,
+			  const xAOD::IParticleContainer* muonCollection=0, 
+			  MissingETBase::UsageHandler::Policy p=MissingETBase::UsageHandler::ParticleFlow) = 0; //jetOR
+
   virtual StatusCode markInvisible(const xAOD::IParticleContainer* collection,
-				   xAOD::MissingETAssociationHelper* helper,
+				   xAOD::MissingETAssociationHelper& helper,
 				   xAOD::MissingETContainer* metCont) = 0;
 };
 

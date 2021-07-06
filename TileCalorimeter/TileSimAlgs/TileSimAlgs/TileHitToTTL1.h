@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -35,7 +35,7 @@
 #include "TileConditions/TileCablingSvc.h"
 
 // Atlas includes
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
@@ -67,18 +67,26 @@ class TileCablingService;
  Noise can be added to every sample and threshold can be applied. Dead/half-gain PMTs
  are also accounted for in this algorithm.
  */
-class TileHitToTTL1: public AthAlgorithm {
+class TileHitToTTL1: public AthReentrantAlgorithm {
   public:
 
-    TileHitToTTL1(std::string name, ISvcLocator* pSvcLocator); //!< Constructor
+    using AthReentrantAlgorithm::AthReentrantAlgorithm;
+    virtual ~TileHitToTTL1() = default; //!< Destructor
 
-    virtual ~TileHitToTTL1(); //!< Destructor                          
-
-    StatusCode initialize(); //!< initialize method      
-    StatusCode execute();    //!< execute method   
-    StatusCode finalize();   //!< finalize method   
+    virtual StatusCode initialize() override; //!< initialize method      
+    virtual StatusCode execute(const EventContext &ctx) const override;    //!< execute method
+    virtual StatusCode finalize() override;   //!< finalize method   
 
   private:
+
+    Gaudi::Property<bool> m_maskBadChannels{this,
+        "maskBadChannels", true, "If true then bad channels are masked"};
+
+    Gaudi::Property<std::string> m_infoName{this,
+        "TileInfoName", "TileInfo", "TileInfo object name"};
+
+    Gaudi::Property<std::string> m_TileTTL1Type{this,
+        "TileTTL1Type", "Standard", "Name of Trigger Type"};
 
     SG::ReadHandleKey<TileHitContainer> m_hitContainerKey{this,"TileHitContainer","TileHitCnt",
                                                           "input Tile hit container key"};
@@ -91,31 +99,28 @@ class TileHitToTTL1: public AthAlgorithm {
                                                                  "TileTTL1MBTS",
                                                                  "Output Tile MBTS TTL1 container key"};
 
-    std::string m_infoName;          //!< name of TileInfo object in TES
-    std::string m_TileTTL1Type;      //!< name of Trigger Type
-    bool m_cosmicsType;              //!< if true => use dediated cosmcis TTL1
+    bool m_cosmicsType{false};              //!< if true => use dediated cosmcis TTL1
 
-    const TileID* m_tileID;   //!< Pointer to TileID helper
-    const TileTBID* m_tileTBID; //!< Pointer to TileID helper
-    const TileHWID* m_tileHWID; //!< Pointer to TileHWID helper
-    const TileInfo* m_tileInfo; //!< Pointer to TileInfo
-    const CaloLVL1_ID* m_TT_ID; //!< Pointer to TT Identifier
-    const TileCablingService* m_cabling; //!< Pointer to the TileCablingService instance
+    const TileID* m_tileID{nullptr};   //!< Pointer to TileID helper
+    const TileTBID* m_tileTBID{nullptr}; //!< Pointer to TileID helper
+    const TileHWID* m_tileHWID{nullptr}; //!< Pointer to TileHWID helper
+    const TileInfo* m_tileInfo{nullptr}; //!< Pointer to TileInfo
+    const CaloLVL1_ID* m_TT_ID{nullptr}; //!< Pointer to TT Identifier
+    const TileCablingService* m_cabling{nullptr}; //!< Pointer to the TileCablingService instance
 
-    std::vector<double> m_TTL1Shape;          //!< vector to store the pulse shape for the TT
 
     // Variables for the trigger towers
-    int m_nSamples;     //!< number of time slices for each channel
-    int m_iTrig;          //!< index of the triggering time slice
+    int m_nSamples{0};     //!< number of time slices for each channel
+    int m_iTrig{0};          //!< index of the triggering time slice
 
     // Variables for the MBTS
-    int m_MBTSnSamples; //!< number of time slices for each chan for MBTS TTL1
-    int m_MBTSiTrig;      //!< index of the triggering time slice for MBTS TTL1
+    int m_MBTSnSamples{0}; //!< number of time slices for each chan for MBTS TTL1
+    int m_MBTSiTrig{0};      //!< index of the triggering time slice for MBTS TTL1
 
-    int m_lastTower;    //!< last tower (needed for the loops)
+    int m_lastTower{15};    //!< total number of towers in TileCal
 
-    bool m_tileNoise;   //!< If true => generate noise for the TileTTL1 creation
-    bool m_tileThresh;  //!< If true => apply threshold on the conversion to TileTTL1
+    bool m_tileNoise{false};   //!< If true => generate noise for the TileTTL1 creation
+    bool m_tileThresh{false};  //!< If true => apply threshold on the conversion to TileTTL1
 
     /**
      * @brief Name of Tile cabling service
@@ -130,7 +135,6 @@ class TileHitToTTL1: public AthAlgorithm {
     ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
         "TileCondToolEmscale", "TileCondToolEmscale", "Tile EM scale calibration tool"};
 
-    bool m_maskBadChannels;      //!< if true then bad channels are masked
     ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
         "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
 

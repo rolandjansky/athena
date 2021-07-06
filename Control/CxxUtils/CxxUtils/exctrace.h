@@ -1,10 +1,9 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file CxxUtils/exctrace.h
  * @author scott snyder <snyder@bnl.gov>
@@ -44,7 +43,7 @@ namespace CxxUtils {
  * @param e The exception to print.
  * @param fd The file descriptor to which to write.
  */
-void exctrace ATLAS_NOT_THREAD_SAFE (const std::exception& e, IOFD fd = IOFD_INVALID);
+void exctrace (const std::exception& e, IOFD fd = IOFD_INVALID);
 
 
 } // namespace CxxUtils

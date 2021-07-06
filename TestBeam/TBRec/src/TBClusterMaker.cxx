@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBClusterMaker.h"
@@ -7,7 +7,6 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
-#include "CaloInterface/ICalorimeterNoiseTool.h"
 
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -17,7 +16,7 @@
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
 #include "CaloGeoHelpers/proxim.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"
-#include "GaudiKernel/ListItem.h"
+#include "StoreGate/ReadCondHandle.h"
 
 //#############################################################################
 
@@ -32,14 +31,10 @@ TBClusterMaker::TBClusterMaker(const std::string& type,
     m_maxIter(4),
     m_CellEnergyInADC(false),
     m_calo_DDM(0),
-    m_calo_id(0),
-    m_toolSvc(0),
-    m_noiseTool(0)
+    m_calo_id(0)
 {
   // CaloCell Container Name
   declareProperty("caloCellContainerName",m_caloCellContainerName="AllCalo");
-  // Calonoise tool name
-  declareProperty("noiseToolName",m_noiseToolName);
   // Names of used calorimeter samplings
   declareProperty("samplingNames",m_samplingNames);
   // Cone cuts for each (!!) sampling used
@@ -78,27 +73,7 @@ StatusCode TBClusterMaker::initialize(){
   m_calo_DDM  = CaloDetDescrManager::instance(); 
   m_calo_id   = m_calo_DDM->getCaloCell_ID();
 
-  // allocate ToolSvc
-  StatusCode sc = service("ToolSvc", m_toolSvc);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "cannot allocate ToolSvc" << endmsg;
-    return sc;
-  }
-    
-  IAlgTool* algtool;
-  ListItem ntool(m_noiseToolName);	  
-  sc = m_toolSvc->retrieveTool(ntool.type(), ntool.name(), algtool);
-  if (sc.isFailure()) {
-    log << MSG::ERROR
-	<< "Unable to find tool for " << m_noiseToolName
-	<< endmsg;
-    return sc;
-  }
-  else {
-    log << MSG::INFO << "Noise Tool "
-	<< m_noiseToolName << " is selected!" << endmsg;
-  }
-  m_noiseTool = dynamic_cast<ICalorimeterNoiseTool*>(algtool);
+  ATH_CHECK( m_elecNoiseKey.initialize() );
 
   // setup calorimeter module and sampling lookup tables
   if ((this->setupLookupTables()).isFailure()) {
@@ -124,7 +99,7 @@ StatusCode TBClusterMaker::initialize(){
   std::vector<std::string>::const_iterator sampling = m_samplingNames.begin();
   std::vector<float>::const_iterator cut = m_coneCuts.begin();
   m_samplingConeCuts.resize (CaloSampling::getNumberOfSamplings());
-  for (; sampling != m_samplingNames.end(); sampling++, cut++) {
+  for (; sampling != m_samplingNames.end(); ++sampling, ++cut) {
      CaloSampling::CaloSample idSamp = m_samplingFromNameLookup[*sampling];
     if (idSamp == CaloSampling::Unknown) {
       log << MSG::FATAL << " Unknown sampling: \042" << *sampling << "\042 "
@@ -137,7 +112,7 @@ StatusCode TBClusterMaker::initialize(){
       m_samplingConeCuts[idSamp] = *cut;
       CaloCell_ID::SUBCALO idCalo = m_caloLookup[idSamp];
       std::vector<CaloCell_ID::SUBCALO>::iterator it=m_calos.begin();
-      for (;it!=m_calos.end();it++) if (*it == idCalo) break;
+      for (;it!=m_calos.end();++it) if (*it == idCalo) break;
       if (it == m_calos.end()) m_calos.push_back(idCalo);
   }
   log << MSG::INFO << endmsg;
@@ -156,13 +131,13 @@ StatusCode TBClusterMaker::initialize(){
 }
 
 
-StatusCode TBClusterMaker::execute(const EventContext& /*ctx*/,
+StatusCode TBClusterMaker::execute(const EventContext& ctx,
                                    xAOD::CaloClusterContainer* clusCont) const
 {
-  //static CaloPhiRange range;
-
   MsgStream log(msgSvc(), name());
   log << MSG::DEBUG << "in execute()" << endmsg;
+
+  SG::ReadCondHandle<CaloNoise> elecNoise (m_elecNoiseKey, ctx);
 
   /////////////////
   // Data Access //
@@ -194,15 +169,14 @@ StatusCode TBClusterMaker::execute(const EventContext& /*ctx*/,
   int nIter = 0;
   for (; nIter<m_maxIter+1; nIter++) {
     // loop over calorimeters
-    std::vector<CaloCell_ID::SUBCALO>::const_iterator calo=m_calos.begin();
-    for (; calo!=m_calos.end(); calo++) {
+    for (CaloCell_ID::SUBCALO calo : m_calos) {
       // loop over cells of the current calorimeter
-      CaloCellContainer::const_iterator itc= cellContainer->beginConstCalo(*calo);
-      int cindex=cellContainer->indexFirstCellCalo(*calo);
-      for (; itc!=cellContainer->endConstCalo(*calo); itc++,cindex++) {
+      CaloCellContainer::const_iterator itc= cellContainer->beginConstCalo(calo);
+      int cindex=cellContainer->indexFirstCellCalo(calo);
+      for (; itc!=cellContainer->endConstCalo(calo); ++itc,++cindex) {
 	const CaloCell* cell = (*itc);
 	double e = cell->energy();
-        double noiseRMS = m_noiseTool->getNoise(cell, ICalorimeterNoiseTool::ELECTRONICNOISE);
+        double noiseRMS = elecNoise->getNoise(cell->ID(), cell->gain());
 	if(noiseRMS <= 0.) noiseRMS = 0.0001;
 	double eSigma = e/noiseRMS;
         CaloSampling::CaloSample idSample=(CaloSampling::CaloSample) m_calo_id->calo_sample(cell->ID());

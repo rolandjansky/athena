@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -80,7 +80,7 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
 //
     int ntrk=0;
     std::vector<const TrackParameters*>   tmpInputC(0);
-    StatusCode sc; sc.setChecked(); 
+    StatusCode sc;
     double closestHitR=1.e6;   //VK needed for FirstMeasuredPointLimit if this hit itself is absent
     if(m_firstMeasuredPoint){               //First measured point strategy
        //------
@@ -183,7 +183,7 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParameters*
 //------  extract information about selected tracks
 //
     int ntrk=0;
-    StatusCode sc; sc.setChecked();
+    StatusCode sc;
     if(!InpTrkC.empty()){
       sc=CvtTrackParameters(InpTrkC,ntrk,state);
       if(sc.isFailure())return StatusCode::FAILURE;

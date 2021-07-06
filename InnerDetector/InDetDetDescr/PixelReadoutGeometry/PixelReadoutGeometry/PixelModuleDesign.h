@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -9,15 +9,15 @@
 ///////////////////////////////////////////////////////////////////
 
 
-#ifndef INDETREADOUTGEOMETRY_PIXELMODULEDESIGN_H
-#define INDETREADOUTGEOMETRY_PIXELMODULEDESIGN_H
+#ifndef PIXELREADOUTGEOMETRY_PIXELMODULEDESIGN_H
+#define PIXELREADOUTGEOMETRY_PIXELMODULEDESIGN_H
 
 // Base class
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
 
 // Data member classes
-#include "PixelReadoutGeometry/PixelDiodeMap.h"
-#include "PixelReadoutGeometry/PixelReadoutScheme.h"
+#include "ReadoutGeometryBase/PixelDiodeMap.h"
+#include "ReadoutGeometryBase/PixelReadoutScheme.h"
 
 // Other includes
 #include "CxxUtils/CachedUniquePtr.h"
@@ -68,16 +68,17 @@ namespace InDetDD {
            number of diode rows connected to one circuit */
       
       PixelModuleDesign(const double thickness,
-			const int circuitsPerColumn,
-			const int circuitsPerRow,
-			const int cellColumnsPerCircuit,
-			const int cellRowsPerCircuit,
-			const int diodeColumnsPerCircuit,
-			const int diodeRowsPerCircuit,
-			std::shared_ptr<const PixelDiodeMatrix> matrix,
-			InDetDD::CarrierType carrierType,
-			int readoutSide = -1,
-			bool is3D=false);
+                        const int circuitsPerColumn,
+                        const int circuitsPerRow,
+                        const int cellColumnsPerCircuit,
+                        const int cellRowsPerCircuit,
+                        const int diodeColumnsPerCircuit,
+                        const int diodeRowsPerCircuit,
+                        std::shared_ptr<const PixelDiodeMatrix> matrix,
+                        InDetDD::CarrierType carrierType,
+                        int readoutSide = -1,
+                        bool is3D=false,
+                        InDetDD::DetectorType detectorType = InDetDD::Undefined);
     
       // Destructor:
       virtual ~PixelModuleDesign() = default;
@@ -204,6 +205,7 @@ namespace InDetDD {
       enum ReadoutTechnology{FEI3,FEI4,RD53};
       ReadoutTechnology getReadoutTechnology() const;
 
+      virtual DetectorType type() const final;
 
       ///////////////////////////////////////////////////////////////////
       // Non-const methods:
@@ -243,6 +245,7 @@ namespace InDetDD {
       PixelReadoutScheme m_readoutScheme;
       CxxUtils::CachedUniquePtr<Trk::RectangleBounds> m_bounds;
       bool m_is3D;
+      InDetDD::DetectorType m_detectorType;
     
     };
     
@@ -343,6 +346,13 @@ namespace InDetDD {
     } 
 
     inline PixelModuleDesign::ReadoutTechnology PixelModuleDesign::getReadoutTechnology() const {
+      if (m_detectorType == InDetDD::DetectorType::PixelBarrel
+          || m_detectorType == InDetDD::DetectorType::PixelEndcap
+          || m_detectorType == InDetDD::DetectorType::PixelInclined)
+      {
+        return RD53;
+      }
+
       const int maxRow = m_readoutScheme.rowsPerCircuit();
       const int maxCol = m_readoutScheme.columnsPerCircuit();
       if (maxRow*maxCol>26000) { return FEI4; }
@@ -351,4 +361,4 @@ namespace InDetDD {
 
 } // namespace InDetDD
 
-#endif // INDETREADOUTGEOMETRY_PIXELMODULEDESIGN_H
+#endif // READOUTGEOMETRYBASE_PIXELMODULEDESIGN_H

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LengthIntegrator.h"
@@ -97,29 +97,33 @@ namespace G4UA
   //---------------------------------------------------------------------------
   // Constructor
   //---------------------------------------------------------------------------
-  LengthIntegrator::LengthIntegrator(const std::string& histSvcName)
+  LengthIntegrator::LengthIntegrator(const std::string& histSvcName, bool doHistos=false)
     : m_g4pow(0),
       m_hSvc(histSvcName, "LengthIntegrator"),
+      m_doHistos(doHistos),
       m_etaPrimary(0), m_phiPrimary(0),
       m_rzProfRL(nullptr), m_rzProfIL(nullptr)
   {
     // Protect concurrent access to the non-thread-safe hist svc
     std::lock_guard<std::mutex> lock(gHistSvcMutex);
 
-    // Register the RZ profiles. The other profiles need to wait until the end
-    // of the events as they are created only if used.
-    const char* radName = "/lengths/radLen/RZRadLen";
-    if(!getHist(m_hSvc, radName, m_rzProfRL)) {
-      m_rzProfRL = new TProfile2D("RZRadLen","RZRadLen",1000,-25000.,25000.,2000,0.,15000.);
-      regHist(m_hSvc, radName, m_rzProfRL);
-    }
 
-    const char* intName = "/lengths/intLen/RZIntLen";
-    if(!getHist(m_hSvc, intName, m_rzProfIL)) {
-      m_rzProfIL = new TProfile2D("RZIntLen","RZIntLen",1000,-25000.,25000.,2000,0.,15000.);
-      regHist(m_hSvc, intName, m_rzProfIL);
+    if(m_doHistos){
+      // Register the RZ profiles. The other profiles need to wait until the end
+      // of the events as they are created only if used.
+      const char* radName = "/lengths/radLen/RZRadLen";
+      if(!getHist(m_hSvc, radName, m_rzProfRL)) {
+	m_rzProfRL = new TProfile2D("RZRadLen","RZRadLen",1000,-25000.,25000.,2000,0.,15000.);
+	regHist(m_hSvc, radName, m_rzProfRL);
+      }
+      
+      const char* intName = "/lengths/intLen/RZIntLen";
+      if(!getHist(m_hSvc, intName, m_rzProfIL)) {
+	m_rzProfIL = new TProfile2D("RZIntLen","RZIntLen",1000,-25000.,25000.,2000,0.,15000.);
+	regHist(m_hSvc, intName, m_rzProfIL);
+      }
+      
     }
-    
     m_tree = new TTree( "TheLarch", "And now, the Larch" );
     //Add Braches to the tree
     //Particle properties
@@ -136,8 +140,11 @@ namespace G4UA
     m_tree->Branch("collected_X0",              &m_collected_X0); //Vector
     m_tree->Branch("collected_L0",              &m_collected_L0); //Vector
    
-    m_tree->Branch("collected_hitr",            &m_collected_hitr); //Vector
-    m_tree->Branch("collected_hitz",            &m_collected_hitz); //Vector
+    m_tree->Branch("collected_inhitr",            &m_collected_hitr); //Vector
+    m_tree->Branch("collected_inhitz",            &m_collected_hitz); //Vector
+
+    m_tree->Branch("collected_outhitr",          &m_collected_outhitr); //Vector
+    m_tree->Branch("collected_outhitz",          &m_collected_outhitz); //Vector
 
     m_tree->Branch("collected_material",        &m_collected_material); //Vector
     m_tree->Branch("collected_density",         &m_collected_density); //Vector
@@ -187,28 +194,31 @@ namespace G4UA
   {
     // Lazily protect this whole code from concurrent access
     std::lock_guard<std::mutex> lock(gHistSvcMutex);
+    
+    if(m_doHistos){
 
-    // Loop over volumes
-    for (const auto& it : m_detThickMap) {
-
-      // If histos already exist, then fill them
-      if (m_etaMapRL.find(it.first) != m_etaMapRL.end()) {
-        m_etaMapRL[it.first]->Fill(m_etaPrimary, it.second.first, 1.);
-        m_phiMapRL[it.first]->Fill(m_phiPrimary, it.second.first, 1.);
-
-        m_etaMapIL[it.first]->Fill(m_etaPrimary, it.second.second, 1.);
-        m_phiMapIL[it.first]->Fill(m_phiPrimary, it.second.second, 1.);
-      }
-      // New detector volume; register it
-      else {
-        regAndFillHist(it.first, it.second);
-      }
-
-    } // Loop over detectors
-
-
+      // Loop over volumes
+      for (const auto& it : m_detThickMap) {
+	
+	// If histos already exist, then fill them
+	if (m_etaMapRL.find(it.first) != m_etaMapRL.end()) {
+	  m_etaMapRL[it.first]->Fill(m_etaPrimary, it.second.first, 1.);
+	  m_phiMapRL[it.first]->Fill(m_phiPrimary, it.second.first, 1.);
+	  
+	  m_etaMapIL[it.first]->Fill(m_etaPrimary, it.second.second, 1.);
+	  m_phiMapIL[it.first]->Fill(m_phiPrimary, it.second.second, 1.);
+	}
+	// New detector volume; register it
+	else {
+	  regAndFillHist(it.first, it.second);
+	}
+	
+      } // Loop over detectors
+      
+    }
+    
     fillNtuple(); 
-
+    
  }
 
 
@@ -368,6 +378,7 @@ namespace G4UA
       else
 	type=s;
     }
+
     return type;
   }
   
@@ -385,11 +396,15 @@ namespace G4UA
       m_collected_hitr.clear();
       m_collected_hitz.clear();
 
+      m_collected_outhitr.clear();
+      m_collected_outhitz.clear();
+
       m_collected_material.clear();
       m_collected_density.clear();
       m_collected_volume.clear();
       
       m_collected_groupedmaterial.clear();
+      m_collected_volumetype.clear();
 
   }
 
@@ -432,8 +447,8 @@ namespace G4UA
     m_collected_hitr.push_back(hitPoint.perp());
     m_collected_hitz.push_back(hitPoint.z());
 
-    m_collected_hitr.push_back(endPoint.perp());
-    m_collected_hitz.push_back(endPoint.z());
+    m_collected_outhitr.push_back(endPoint.perp());
+    m_collected_outhitz.push_back(endPoint.z());
 
     std::string groupmaterial = getMaterialClassification(matName);
 
@@ -442,19 +457,20 @@ namespace G4UA
     m_collected_groupedmaterial.push_back(groupmaterial);
     m_collected_volumetype.push_back(volumetype);
 
-    // Protect concurrent histo filling
-    {
-      static std::mutex mutex_instance;
-      std::lock_guard<std::mutex> lock(mutex_instance);
-      m_rzProfRL->Fill( hitPoint.z() , hitPoint.perp() , thickstepRL , 1. );
-      m_rzProfIL->Fill( hitPoint.z() , hitPoint.perp() , thickstepIL , 1. );
-      m_rzProfRL->Fill( endPoint.z() , endPoint.perp() , thickstepRL , 1. );
-      m_rzProfIL->Fill( endPoint.z() , endPoint.perp() , thickstepIL , 1. );
+    if(m_doHistos){
+      // Protect concurrent histo filling
+      {
+	static std::mutex mutex_instance;
+	std::lock_guard<std::mutex> lock(mutex_instance);
+	m_rzProfRL->Fill( hitPoint.z() , hitPoint.perp() , thickstepRL , 1. );
+	m_rzProfIL->Fill( hitPoint.z() , hitPoint.perp() , thickstepIL , 1. );
+	m_rzProfRL->Fill( endPoint.z() , endPoint.perp() , thickstepRL , 1. );
+	m_rzProfIL->Fill( endPoint.z() , endPoint.perp() , thickstepIL , 1. );
+      }
     }
-
-
+    
   }
-
+  
   /// note that this should be called from a section protected by a mutex, since it talks to the THitSvc
 
   TProfile2D* LengthIntegrator::getOrCreateProfile(const std::string& regName, const TString& histoname, const TString& xtitle, int nbinsx, float xmin, float xmax,const TString& ytitle, int nbinsy,float ymin, float ymax,const TString& ztitle){

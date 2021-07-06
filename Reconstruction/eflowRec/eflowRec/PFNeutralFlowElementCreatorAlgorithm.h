@@ -22,24 +22,41 @@ public:
   StatusCode execute(const EventContext& ctx) const;
 
 private:
-
-  /** Create the chargedneutral FE */ 
-  StatusCode createNeutralFlowElement(const eflowCaloObject& energyFlowCaloObject, xAOD::FlowElementContainer* neutralFEContainer) const;
+  /** Create the chargedneutral FE */
+  StatusCode createNeutralFlowElement(
+    const eflowCaloObject& energyFlowCaloObject,
+    xAOD::FlowElementContainer* neutralFEContainer) const;
 
   /** Function to add cluster moments onto FE */
-  void addMoment(const xAOD::CaloCluster::MomentType& momentType, const std::string& feAttribute, const xAOD::CaloCluster& theCluster, xAOD::FlowElement& theFE) const;
- 
-  /** Function to add caluster sampling energies onto FE */
-  void addSamplingEnergy(const xAOD::CaloCluster::CaloSample& sampling, const std::string& feAttribute, const xAOD::CaloCluster& theCluster, xAOD::FlowElement& theFE) const;
+  void addMoment(const xAOD::CaloCluster::MomentType& momentType,
+                 const SG::AuxElement::Accessor< float >& feAttribute,
+                 const xAOD::CaloCluster& theCluster,
+                 xAOD::FlowElement& theFE) const;
 
   /** Toggle usage of calibration hit truth - false by default */
-  Gaudi::Property<bool> m_useCalibHitTruth{this,"UseCalibHitTruth",false,"Toggle usage of calibration hit truth - false by default"};
+  Gaudi::Property<bool> m_useCalibHitTruth{
+    this,
+    "UseCalibHitTruth",
+    false,
+    "Toggle usage of calibration hit truth - false by default"
+  };
 
   /** ReadHandleKey for eflowCaloObjectContainer */
-  SG::ReadHandleKey<eflowCaloObjectContainer> m_eflowCaloObjectContainerReadHandleKey{this,"eflowCaloObjectContainerName","eflowCaloObjects","ReadHandleKey for eflowCaloObjectContainer"};
-  
-  /** WriteHandleKey for neutral FE */
-  SG::WriteHandleKey<xAOD::FlowElementContainer> m_neutralFEContainerWriteHandleKey{this,"FEOutputName","JetETMissNeutralFlowElements","WriteHandleKey for neutral FlowElements"};
+  SG::ReadHandleKey<eflowCaloObjectContainer>
+    m_eflowCaloObjectContainerReadHandleKey{
+      this,
+      "eflowCaloObjectContainerName",
+      "eflowCaloObjects",
+      "ReadHandleKey for eflowCaloObjectContainer"
+    };
 
+  /** WriteHandleKey for neutral FE */
+  SG::WriteHandleKey<xAOD::FlowElementContainer>
+    m_neutralFEContainerWriteHandleKey{
+      this,
+      "FEOutputName",
+      "JetETMissNeutralParticleFlowObjects",
+      "WriteHandleKey for neutral FlowElements"
+    };
 };
 #endif

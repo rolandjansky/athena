@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkAlignGenTools/BeamspotVertexPreProcessor.h"
@@ -28,6 +28,7 @@
 
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrack/Track.h"
+#include "TrkTrackSummary/TrackSummary.h"
 #include "TrkTrack/LinkToTrack.h"
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "TrkParticleBase/TrackParticleBase.h"
@@ -57,6 +58,7 @@ BeamspotVertexPreProcessor::BeamspotVertexPreProcessor(const std::string & type,
   , m_runOutlierRemoval(false)
   , m_selectVertices(true)
   , m_particleNumber(3)                          // 3=pion, 0=non-interacting
+  , m_doTrkSelection (true)
   , m_doBSTrackSelection(false)
   , m_doAssociatedToPVSelection(true)
   , m_constraintMode(0)
@@ -89,6 +91,7 @@ BeamspotVertexPreProcessor::BeamspotVertexPreProcessor(const std::string & type,
   declareProperty("AlignModuleTool",           m_alignModuleTool          );
   declareProperty("ParticleNumber",            m_particleNumber           );
   declareProperty("TrackSelector",             m_trkSelector              );
+  declareProperty("DoTrackSelection",          m_doTrkSelection           );
   declareProperty("BSConstraintTrackSelector", m_BSTrackSelector          );
   declareProperty("DoBSTrackSelection",        m_doBSTrackSelection       );
   declareProperty("DoAssociatedToPVSelection", m_doAssociatedToPVSelection);
@@ -105,11 +108,11 @@ BeamspotVertexPreProcessor::BeamspotVertexPreProcessor(const std::string & type,
 
 
   std::vector<std::string> defaultInterestedVertexContainers;
-  defaultInterestedVertexContainers.push_back("PrimaryVertices");       // MD: Maybe only the first container?
+  defaultInterestedVertexContainers.emplace_back("PrimaryVertices");       // MD: Maybe only the first container?
   //defaultInterestedVertexContainers.push_back("V0UnconstrVertices");  //   : does not seem to exist in files -> check later again
   m_interestedVertexContainers = defaultInterestedVertexContainers;
 
-  m_logStream = 0;
+  m_logStream = nullptr;
 }
 
 //________________________________________________________________________
@@ -328,14 +331,13 @@ void BeamspotVertexPreProcessor::prepareAllTracksVector(){
 
   // do clean up firstly
   m_allTracksVector.clear();
-  const xAOD::VertexContainer* thisContainer = 0;
+  const xAOD::VertexContainer* thisContainer = nullptr;
   //xAODVertices
   std::vector<std::string>::const_iterator strs_iter = m_interestedVertexContainers.begin();
   std::vector<std::string>::const_iterator strs_end  = m_interestedVertexContainers.end();
 
   for(; strs_iter != strs_end; ++strs_iter){
 
-    StatusCode sc = evtStore()->retrieve( thisContainer, *strs_iter);
     if (evtStore()->contains<xAOD::VertexContainer>(*strs_iter)) {
       if (evtStore()->retrieve(thisContainer,*strs_iter).isFailure() ) {
         ATH_MSG_DEBUG ("Could not retrieve xAOD vertex container with key "+(*strs_iter));
@@ -355,7 +357,7 @@ void BeamspotVertexPreProcessor::prepareAllTracksVector(){
           if ((*vtxIter)->vxTrackAtVertexAvailable()){
 
             std::vector<VxTrackAtVertex> vtxTracks = (*vtxIter)->vxTrackAtVertex();
-            m_allTracksVector.push_back(std::make_pair(*vtxIter,vtxTracks));
+            m_allTracksVector.emplace_back(*vtxIter,vtxTracks);
           }
           else {
             ATH_MSG_DEBUG("this vertex did not pass the vxTrackAtVertexAvailable() call...");
@@ -371,7 +373,7 @@ void BeamspotVertexPreProcessor::prepareAllTracksVector(){
 
 const xAOD::Vertex* BeamspotVertexPreProcessor::findVertexCandidate(const Track* track) const {
 
-  const xAOD::Vertex* findVxCandidate = 0;
+  const xAOD::Vertex* findVxCandidate = nullptr;
   //VxTrackAtVertex* findVxTrack = 0;
 
   std::vector< std::pair< const xAOD::Vertex*, std::vector<VxTrackAtVertex> > >::const_iterator iter    = m_allTracksVector.begin();
@@ -412,7 +414,7 @@ const VertexOnTrack* BeamspotVertexPreProcessor::provideVotFromVertex(const Trac
 
   ATH_MSG_DEBUG("findVtx in provideVotFromVertex: "<<findVtx);
 
-  if (!( 0==findVtx) ) {
+  if (!( nullptr==findVtx) ) {
     vtx    = findVtx;
 
     if( m_doFullVertexConstraint ) {
@@ -549,7 +551,7 @@ const VertexOnTrack* BeamspotVertexPreProcessor::provideVotFromBeamspot(const Tr
 
   if(m_constraintMode == 0) {
 
-    Amg::Vector3D  globPos(BSC);
+    const Amg::Vector3D&  globPos(BSC);
     surface = new PerigeeSurface(globPos);
 
     // create a measurement for the beamspot
@@ -632,7 +634,7 @@ void BeamspotVertexPreProcessor::provideVtxBeamspot(const AlignVertex* b, AmgSym
 
 const Track* BeamspotVertexPreProcessor::doConstraintRefit(ToolHandle<Trk::IGlobalTrackFitter>& fitter, const Track* track,  const VertexOnTrack* vot, const ParticleHypothesis& particleHypothesis) const{
 
-  const Track* newTrack = 0;
+  const Track* newTrack = nullptr;
 
   if(vot){
 
@@ -645,7 +647,7 @@ const Track* BeamspotVertexPreProcessor::doConstraintRefit(ToolHandle<Trk::IGlob
 
     if( m_doFullVertexConstraint ) {
       // get track parameters at the vertex:
-      PerigeeSurface         surface=vot->associatedSurface();
+      const PerigeeSurface&         surface=vot->associatedSurface();
       ATH_MSG_DEBUG(" Track reference surface will be:  " << surface);
       const TrackParameters* parsATvertex=m_extrapolator->extrapolate(*track, surface);
 
@@ -664,8 +666,8 @@ const Track* BeamspotVertexPreProcessor::doConstraintRefit(ToolHandle<Trk::IGlob
 
 bool BeamspotVertexPreProcessor::doBeamspotConstraintTrackSelection(const Track* track) {
 
-  const xAOD::VertexContainer* vertices = 0;
-  const xAOD::Vertex* vertex = 0;
+  const xAOD::VertexContainer* vertices = nullptr;
+  const xAOD::Vertex* vertex = nullptr;
   bool haveVertex = false;
 
   // retrieve the primary vertex if needed
@@ -718,10 +720,10 @@ bool BeamspotVertexPreProcessor::doBeamspotConstraintTrackSelection(const Track*
 
 AlignTrack* BeamspotVertexPreProcessor::doTrackRefit(const Track* track) {
 
-  AlignTrack * alignTrack = 0;
-  const Track* newTrack = 0;
-  const VertexOnTrack* vot = 0;
-  const xAOD::Vertex*    vtx = 0;
+  AlignTrack * alignTrack = nullptr;
+  const Track* newTrack = nullptr;
+  const VertexOnTrack* vot = nullptr;
+  const xAOD::Vertex*    vtx = nullptr;
   AlignTrack::AlignTrackType type = AlignTrack::Unknown;
   // configuration of the material effects needed for track fitter
   ParticleSwitcher particleSwitch;
@@ -733,6 +735,8 @@ AlignTrack* BeamspotVertexPreProcessor::doTrackRefit(const Track* track) {
       fitter = m_SLTrackFitter;
 
   IGlobalTrackFitter::AlignmentCache alignCache;
+
+  ATH_MSG_DEBUG( "doTrackRefit ** START ** ");
 
   if(m_doPrimaryVertexConstraint){
     vot = provideVotFromVertex(track, vtx);
@@ -793,7 +797,7 @@ AlignTrack* BeamspotVertexPreProcessor::doTrackRefit(const Track* track) {
       }
   }
 
-
+  
 
 
 
@@ -823,7 +827,7 @@ AlignTrack* BeamspotVertexPreProcessor::doTrackRefit(const Track* track) {
     }
     delete newTrack;
 
-    if( m_doFullVertexConstraint && vtx!=0 && type == AlignTrack::VertexConstrained ){
+    if( m_doFullVertexConstraint && vtx!=nullptr && type == AlignTrack::VertexConstrained ){
     // try to log the track-vertex association in the AlignVertex object:
       bool ifound=false;
       for (AlignVertex* ivtx : m_AlignVertices) {
@@ -858,6 +862,7 @@ AlignTrack* BeamspotVertexPreProcessor::doTrackRefit(const Track* track) {
   // garbage collection:
   if(vot)  delete vot;
 
+  ATH_MSG_DEBUG( "doTrackRefit ** COMPLETED ** "); 
   return alignTrack;
 }
 
@@ -870,7 +875,7 @@ DataVector<Track> * BeamspotVertexPreProcessor::processTrackCollection(const Dat
   ATH_MSG_DEBUG("BeamspotVertexPreProcessor::processTrackCollection()");
 
   if( !tracks || (tracks->size()==0) )
-    return 0;
+    return nullptr;
 
   // Clear the AlignVertex container (will destruct the objects it owns as well!)
   m_AlignVertices.clear();
@@ -887,28 +892,39 @@ DataVector<Track> * BeamspotVertexPreProcessor::processTrackCollection(const Dat
   // loop over tracks
   TrackCollection::const_iterator itr     = tracks->begin();
   TrackCollection::const_iterator itr_end = tracks->end();
+  
+  ATH_MSG_DEBUG( "Starting loop on input track collection: "<<index);
   for ( ; itr != itr_end; ++itr, ++index) {
     ATH_MSG_DEBUG("Processing track "<<index);
     const Track* track = *itr;
-    AlignTrack * alignTrack = 0;
+    AlignTrack * alignTrack = nullptr;
     if (not track) continue;
 
     // check whether the track passes the basic selection
-    if ((not m_trkSelector.empty()) and (not m_trkSelector->accept(*track))) continue;
-
+    if (m_doTrkSelection) {
+      ATH_MSG_DEBUG( "Testing track selection on track: "<<index);
+      if ((not m_trkSelector.empty()) and (not m_trkSelector->accept(*track))) continue;
+    } // appliying track selection
 
     if(m_refitTracks){
+      ATH_MSG_DEBUG( "Refitting track: "<<index );
       alignTrack = doTrackRefit(track);
 
       // 2nd track check after refit
       if(alignTrack && !m_trkSelector.empty()) {
-        // do not check for FullVertex tracks:
+	// refitted track loses the summary information, restoring it here
+	alignTrack->setTrackSummary( std::make_unique<Trk::TrackSummary> (*track->trackSummary()) );
+	// do not check for FullVertex tracks:
         if( !(alignTrack->getVtx()) ) {
-          if(!m_trkSelector->accept(*alignTrack))
-             continue;
-        }
+	  if( m_doTrkSelection && !m_trkSelector->accept(*alignTrack))
+	    continue;
+	}
       }
-    } else{
+      else {
+        ATH_MSG_DEBUG( "Refit of track " << index << " ended with no alignTrack" );
+      }
+    } else {
+      ATH_MSG_DEBUG( "No Track refit for track " << index << " --> building new aligntrack");
       alignTrack = new AlignTrack(*track);
       alignTrack->setOriginalTrack(track);
       alignTrack->setType(AlignTrack::Original);
@@ -917,6 +933,7 @@ DataVector<Track> * BeamspotVertexPreProcessor::processTrackCollection(const Dat
     if (alignTrack)  newTrks->push_back(alignTrack);
   } // end of loop over tracks
 
+  ATH_MSG_INFO( "Processing of input track collection completed (size: " << tracks->size() << "). Size of the alignTrack collection: " << newTrks->size() ); 
   // delete the collection if it's empty
   if (newTrks->size()==0) {
     delete newTrks;

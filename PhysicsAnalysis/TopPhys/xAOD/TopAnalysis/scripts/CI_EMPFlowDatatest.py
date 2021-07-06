@@ -8,12 +8,12 @@ from PathResolver import PathResolver
 from CI_test import CITest
 import sys,ROOT
 
-cutfilename = "validation-cuts-pflow.txt"
+cutfilename = "validation-cuts.txt"
 cutfilepath = ROOT.PathResolver.find_file(cutfilename,
                                           "DATAPATH",
                                           ROOT.PathResolver.RecursiveSearch)
 
-returnCode = CITest("TOPQ1 DATA",
+returnCode = CITest("DAOD_PHYS DATA",
                     cutfilename,
                     cutfilepath,
                     "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/AnalysisTop/ContinuousIntegration/Data/p4173/"+
@@ -21,7 +21,7 @@ returnCode = CITest("TOPQ1 DATA",
                     [("#NEvents.*","NEvents 3000")])
 
 if returnCode != 0:
-    print "Error in EMPFlow TOPQ1 Data"
+    print("Error in DAOD_PHYS Data")
     sys.exit(returnCode)
 
 # -- Return 0 as all tests were successful -- #

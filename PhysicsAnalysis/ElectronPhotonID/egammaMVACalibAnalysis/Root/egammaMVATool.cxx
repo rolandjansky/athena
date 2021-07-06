@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaMVACalibAnalysis/egammaMVATool.h"
@@ -101,7 +101,6 @@ std::set<std::string> egammaMVATool::guess_variables(const std::string& filename
   TFile f(filename.c_str());
   std::unique_ptr<TObjArray> formulae(dynamic_cast<TObjArray*>(f.Get("formulae")));
   formulae->SetOwner(true);  // by default TObjArray doesn't own elements
-  if (not formulae) { ATH_MSG_FATAL("cannot find formulae in " << filename); }
 
   // TODO: use regex parsing (regex supported only in gcc 4.9, TPRegexp sucks)
   const std::vector<std::string> all_possible_variables = {

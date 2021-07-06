@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -44,7 +44,7 @@ static const DbPrintLvl::MsgLevel dbg_lvl = DbPrintLvl::Debug;
 
 
 // Standard Constructor
-DbDatabaseObj::DbDatabaseObj( const DbDomain& dom, 
+DbDatabaseObj::DbDatabaseObj( DbDomain&       dom, 
                               const string&   pfn, 
                               const string&   fid, 
                               DbAccessMode    mod) 
@@ -144,12 +144,12 @@ DbStatus DbDatabaseObj::cleanup()  {
 }
 
 // Add association entry
-DbStatus DbDatabaseObj::makeLink(const Token* pTok, Token::OID_t& refLnk) {
+DbStatus DbDatabaseObj::makeLink(Token* pTok, Token::OID_t& refLnk) {
   if ( pTok )   {
     int   is_dbTok  = (typeid(*pTok) == typeid(DbToken));
     LinkMap::iterator i;
     if ( is_dbTok )   {
-      DbToken* pdbTok = (DbToken*)pTok;
+      DbToken* pdbTok = static_cast<DbToken*>(pTok);
       pdbTok->setKey(DbToken::TOKEN_CONT_KEY);
       i = m_linkMap.find(pdbTok->contKey());
     }
@@ -609,7 +609,7 @@ DbStatus DbDatabaseObj::retire()  {
 }
 
 /// Access to sections if availible
-const DbDatabaseObj::ContainerSections& DbDatabaseObj::sections(const string& cnt) const   {
+const DbDatabaseObj::ContainerSections& DbDatabaseObj::sections(const string& cnt)   {
   Sections::const_iterator i = m_sections.find(cnt);
   if ( i == m_sections.end() ) {
     static const ContainerSections s_sect(1,DbSection());
@@ -740,7 +740,7 @@ DbStatus DbDatabaseObj::getLink(const Token::OID_t& oid, int merge_section, Toke
 }
 
 
-std::string DbDatabaseObj::cntName(const Token& token) {
+std::string DbDatabaseObj::cntName(Token& token) {
   if ( 0 == m_info ) open();
   if ( 0 != m_info )    {
     int lnk = m_indexMap[token.oid().first]; // Map link to index
@@ -758,7 +758,9 @@ std::string DbDatabaseObj::cntName(const Token& token) {
       if ( lnk < int(m_linkVec.size()) )   {
 	DbToken* link = m_linkVec[lnk];
         if ( link != 0 ) {
-          if ( token.contID().empty() ) const_cast<Token*>(&token)->setCont(link->contID());
+          if ( token.contID().empty() ) {
+            token.setCont(link->contID());
+          }
           return link->contID(); // in ##Links
         }
       }

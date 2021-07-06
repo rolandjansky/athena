@@ -60,7 +60,7 @@ class corr_HV_EMBPS {
 
    // store HV corrections for 6 periods, and 2 sides
    // each histogram has 8 bins in eta (deltaEta=0.4) and 32 bins in phi (2pi/32)
-   TProfile2D* m_hHV[6][2];
+   TProfile2D* m_hHV[6][2]{};
    TFile* m_file;
 
 };

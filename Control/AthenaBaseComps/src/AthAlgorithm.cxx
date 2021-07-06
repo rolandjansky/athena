@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthAlgorithm.cxx 
@@ -22,9 +22,8 @@
 // Constructors
 ////////////////
 AthAlgorithm::AthAlgorithm( const std::string& name, 
-			    ISvcLocator* pSvcLocator,
-			    const std::string& version ) : 
-  ::AthCommonDataStore<AthCommonMsg<Algorithm>>   ( name, pSvcLocator, version )
+                            ISvcLocator* pSvcLocator ) :
+  ::AthCommonDataStore<AthCommonMsg<Algorithm>>   ( name, pSvcLocator )
 {
   // Set up to run AthAlgorithmDHUpdate in sysInitialize before
   // merging dependency lists.  This extends the output dependency

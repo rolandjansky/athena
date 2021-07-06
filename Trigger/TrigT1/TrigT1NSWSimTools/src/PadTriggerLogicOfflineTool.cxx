@@ -28,6 +28,7 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
+#include "RegSelLUT/RegSelSiLUT.h"
 
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
@@ -55,8 +56,7 @@ PadTriggerLogicOfflineTool::PadTriggerLogicOfflineTool(const std::string& type, 
     m_phiIdBits(0),
     m_useSimple4of4(false),
     m_doNtuple(false),
-    m_tdrLogic(),
-    m_lutCreatorToolsTGC ("sTGC_RegionSelectorTable",this) {
+    m_tdrLogic() {
     declareInterface<NSWL1::IPadTriggerLogicTool>(this);
     declareProperty("TimeJitter", m_PadEfficiency = 1.0, "pad trigger efficiency (tmp placeholder)");
     declareProperty("PhiIdBits", m_phiIdBits = 6, "Number of bit to compute Phi-Id of pad triggers");
@@ -80,9 +80,9 @@ StatusCode PadTriggerLogicOfflineTool::initialize() {
     // retrieve the Incident Service
     ATH_CHECK(m_incidentSvc.retrieve());
     m_incidentSvc->addListener(this,IncidentType::BeginEvent);
-    ATH_CHECK(m_lutCreatorToolsTGC.retrieve());
     ATH_CHECK(detStore()->retrieve(m_detManager));
     ATH_CHECK(m_idHelperSvc.retrieve());
+    ATH_CHECK(m_regSelTableKey.initialize());
     return StatusCode::SUCCESS;
 }
 //------------------------------------------------------------------------------
@@ -249,7 +249,11 @@ StatusCode PadTriggerLogicOfflineTool::get_tree_from_histsvc( TTree*&tree)
     ITHistSvc* tHistSvc=nullptr;
     m_validation_tree.clear_ntuple_variables();
     ATH_CHECK(service("THistSvc", tHistSvc));
-    std::string algoname = dynamic_cast<const INamedInterface*>(parent())->name();
+    auto iname = dynamic_cast<const INamedInterface*>(parent());
+    if (!iname) {
+      return StatusCode::FAILURE;
+    }
+    std::string algoname = iname->name();
     std::string treename = PadTriggerValidationTree::treename_from_algoname(algoname);  
     ATH_CHECK(tHistSvc->getTree(treename, tree));
     return StatusCode::SUCCESS;
@@ -459,7 +463,8 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
 
     //get the module Identifier using the pad's
     m_idHelperSvc->stgcIdHelper().get_hash( padIdentifier, moduleHashId, &ModuleContext );
-    const auto regSelector = m_lutCreatorToolsTGC->getLUT();
+    SG::ReadCondHandle<IRegSelLUTCondData> rh_stgcLUT(m_regSelTableKey);
+    auto regSelector = dynamic_cast<const RegSelSiLUT*>(rh_stgcLUT->payload());
     const RegSelModule* thismodule=regSelector->Module(moduleHashId);
 
     float stationPhiMin=thismodule->phiMin();

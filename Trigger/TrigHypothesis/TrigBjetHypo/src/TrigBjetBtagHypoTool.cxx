@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -13,7 +13,6 @@
 // ************************************************
 
 #include "TrigCompositeUtils/HLTIdentifier.h"
-#include "AthenaMonitoringKernel/Monitored.h"
 
 #include "TrigBjetBtagHypoTool.h"
 

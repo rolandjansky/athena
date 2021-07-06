@@ -28,7 +28,7 @@ print("Initial flag container")
 acf.dump()
 
 acfPrime=acf.clone()
-acfPrime.flag3 = 42
+acfPrime.x.flag3 = 42
 
 print("Cloned flag container")
 acfPrime.dump()

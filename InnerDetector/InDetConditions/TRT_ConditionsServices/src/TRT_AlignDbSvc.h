@@ -90,12 +90,12 @@ class TRT_AlignDbSvc: public AthService, virtual public ITRT_AlignDbSvc
   const Amg::Transform3D* getAlignmentTransformPtr(const Identifier& ident, unsigned int level) const;
   
   /** tweak L1 DB for global folders for an identifier */
-  StatusCode tweakGlobalFolder(Identifier ident, Amg::Transform3D trans ); 
+  StatusCode tweakGlobalFolder(Identifier ident, const Amg::Transform3D& trans ); 
 
  private:  
 
   /** set Level 1 AlignableTransform for an identifier */
-  StatusCode setAlignTransformL1(Identifier ident, Amg::Transform3D trans);
+  StatusCode setAlignTransformL1(Identifier ident, const Amg::Transform3D& trans);
   
   /** set Level 2 AlignableTransform for an identifier */
   StatusCode setAlignTransformL2(Identifier ident, Amg::Transform3D trans);
@@ -112,34 +112,34 @@ class TRT_AlignDbSvc: public AthService, virtual public ITRT_AlignDbSvc
   const Amg::Transform3D* getAlignmentTransformL2Ptr(Identifier const& ident) const ;
 
   /** tweak Level 1 AlignableTransform for an identifier */
-  StatusCode tweakAlignTransformL1(Identifier ident, Amg::Transform3D trans);
+  StatusCode tweakAlignTransformL1(Identifier ident, const Amg::Transform3D& trans);
 
   /** tweak Level 2 AlignableTransform for an identifier */
-  StatusCode tweakAlignTransformL2(Identifier ident, Amg::Transform3D trans);
+  StatusCode tweakAlignTransformL2(Identifier ident, const Amg::Transform3D& trans);
 
   /** tweak Level 3 AlignableTransform for an identifier */
   StatusCode tweakAlignTransformL3(Identifier ident, Amg::Transform3D trans);
 
   /** get AlignableTransform pointer for an object key */
-  AlignableTransform* getTransPtr(const std::string key) const;
+  AlignableTransform* getTransPtr(const std::string& key) const;
 
   /** get const AlignableTransform pointer for an object key */
-  const AlignableTransform* cgetTransPtr(const std::string key) const;
+  const AlignableTransform* cgetTransPtr(const std::string& key) const;
 
   /** Returns the ring for a given strawLayer */
-  int getRingForStrawLayer(int strawlayer) const;
+  static int getRingForStrawLayer(int strawlayer) ;
   
   /** Returns the true if the input key is from the old endcap scheme*/
-  bool isOldKey(std::string input) const;
+  bool isOldKey(const std::string& input) const;
 
   /** Return the prefix tag for a given calibration folder */
-  std::string prefixtag(std::string key) const;
+  static std::string prefixtag(const std::string& key) ;
 
   /** Convert from an int to a string */
-  std::string intToString(int input) const;
+  static std::string intToString(int input) ;
 
   /** Output the transform to the cout, for debugging */
-  void printTransform(std::string thisName,  const Amg::Transform3D& transform) const;
+  static void printTransform(const std::string& thisName,  const Amg::Transform3D& transform) ;
 
   /** Output the conditions objects currently in memory */
   void printCondObjects() const ;
@@ -152,7 +152,7 @@ class TRT_AlignDbSvc: public AthService, virtual public ITRT_AlignDbSvc
   StatusCode createAlignObjectsWhichDoNotAlreadyExist();
 
   /** Return the object key for a given identifier and data type */
-  std::string findkey(const Identifier& ident, std::string type) const;
+  std::string findkey(const Identifier& ident, const std::string& type) const;
 
   ServiceHandle<StoreGateSvc> m_detStore;
   ServiceHandle<ITRT_StrawAlignDbSvc> m_trtStrawAlignDbSvc;

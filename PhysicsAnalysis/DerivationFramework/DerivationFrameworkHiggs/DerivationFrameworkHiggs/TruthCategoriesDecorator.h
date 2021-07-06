@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tool to decorate the EventInfo object with truth categories informations 
@@ -25,9 +25,6 @@
 // Note: must include TLorentzVector before the next one
 #include "TLorentzVector.h"
 #include "TruthRivetTools/HiggsTemplateCrossSectionsDefs.h"
-#include "xAODEventInfo/EventInfo.h"
-#include "xAODTruth/TruthEventContainer.h"
-#include "StoreGate/WriteDecorHandleKeyArray.h"
 
 class IHiggsTruthCategoryTool;
 class IxAODtoHepMCTool;
@@ -44,16 +41,8 @@ namespace DerivationFramework {
     virtual StatusCode addBranches() const;
 
   private:
-    ToolHandle<IxAODtoHepMCTool> m_xAODtoHepMCTool;
-    ToolHandle<IHiggsTruthCategoryTool> m_higgsTruthCatTool;
-
-    SG::WriteDecorHandleKeyArray<xAOD::EventInfo> m_eventInfoIntDecors{this, "EventInfoIntDecors", {}, "List of int EventInfo decorations to be filled"};
-    SG::WriteDecorHandleKeyArray<xAOD::EventInfo> m_eventInfoFloatDecors{this, "EventInfoFloatDecors", {}, "List of float EventInfo decorations to be filled"};
-    SG::WriteDecorHandleKeyArray<xAOD::EventInfo> m_eventInfoVectorFloatDecors{this, "EventInfoVectorFloatDecors", {}, "List of vector float EventInfo decorations to be filled"};
-    SG::ReadHandleKey<xAOD::TruthEventContainer> m_truthEventCont{this,"TruthEventCont","TruthEvents","truth event container"};
-    std::vector<std::string> m_eventInfoIntDecorNames;
-    std::vector<std::string> m_eventInfoFloatDecorNames;
-    std::vector<std::string> m_eventInfoVectorFloatDecorNames;
+    ToolHandle<IxAODtoHepMCTool> m_xAODtoHepMCTool; 
+    ToolHandle<IHiggsTruthCategoryTool> m_higgsTruthCatTool;    
 
     // Path to TEnv file containing MC-channel-numbre <-> HiggsProdMode map
     TEnv *m_config;
@@ -76,8 +65,8 @@ namespace DerivationFramework {
     HTXS::HiggsProdMode getHiggsProductionMode(uint32_t mc_channel_number,HTXS::tH_type &th_type) const;
  
     // Methods for decoration of four vectors
-    float getFloatDecor(const std::string key, const TLorentzVector p4) const;
-    std::vector<float> getVectorFloatDecor(const std::string key, const std::vector<TLorentzVector> p4s) const;
+    void decorateFourVec  ( const xAOD::EventInfo *eventInfo, TString prefix, const TLorentzVector p4 ) const;
+    void decorateFourVecs ( const xAOD::EventInfo *eventInfo, TString prefix, const std::vector<TLorentzVector> p4s ) const;
 
 
   }; /// class

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthContainers/test/DataVector_test.icc
@@ -941,6 +941,7 @@ void test2_push_back()
   D* pd = make_comp<D>(2);
   assert (vb.push_back (pd) == pd);
   D* pd12 = make_comp<D>(12);
+  // cppcheck-suppress assertWithSideEffect
   assert (vb.emplace_back (pd12) == pd12);
   myassert (vb.size() == 3);
   myassert (vb[0]->x == 1);
@@ -1022,10 +1023,12 @@ void test2_push_back()
 
     std::unique_ptr<B> ub = make_comp_unique<B>(20);
     B* ubptr = ub.get();
+    // cppcheck-suppress assertWithSideEffect
     assert (vb_u.push_back (std::move (ub)) == ubptr);
 
     std::unique_ptr<D> ud = make_comp_unique<D>(21);
     D* udptr = ud.get();
+    // cppcheck-suppress assertWithSideEffect
     assert (vb_u.push_back (std::move (ud)) == udptr);
     CHECK_INDICES(vb_u);
     checkaux(vb_u);
@@ -1266,8 +1269,10 @@ void test2_begin_end_const1()
   myassert (i != cv.end());
   myassert (i != cv.cend());
   myassert ((*i)->x == 2);
+  // cppcheck-suppress postfixOperator
   i++;
   myassert (i == cv.end());
+  // cppcheck-suppress postfixOperator
   i--;
   myassert ((*i)->x == 2);
   --i;
@@ -1305,9 +1310,11 @@ void test2_rbegin_rend_const1()
   myassert (i != cv.rend());
   myassert (i != cv.crend());
   myassert ((*i)->x == 1);
+  // cppcheck-suppress postfixOperator
   i++;
   myassert (i == cv.rend());
   myassert (i == cv.crend());
+  // cppcheck-suppress postfixOperator
   i--;
   myassert ((*i)->x == 1);
   --i;
@@ -1422,6 +1429,7 @@ void test2_elementproxy()
     CHECK_INDICES (vd1);
 
     // Unless it's the same element.
+    // cppcheck-suppress selfAssignment
     vb1[0] = vb1[0];
     B* bb = vb1[0];
     vb1[0] = bb;
@@ -3333,6 +3341,7 @@ void test2_insert_range1()
   {
     T* tt[] = {new T(1), new T(2)};
     DV v;
+    // cppcheck-suppress pointerOutOfBounds
     v.insert (v.begin(), tt, tt+2);
     myassert (v.size() == 2);
     myassert (v[0]->x == 1);
@@ -3344,6 +3353,7 @@ void test2_insert_range1()
   {
     T* tt[] = {new T(1), new T(2)};
     DV v (SG::VIEW_ELEMENTS);
+    // cppcheck-suppress pointerOutOfBounds
     v.insert (v.begin(), tt, tt+2);
     myassert (v.size() == 2);
     myassert (v[0]->x == 1);
@@ -3714,6 +3724,7 @@ void test2_assign1()
     DV v;
     v.push_back (new T(0));
     T* t[] = {new T(1), new T(2)};
+    // cppcheck-suppress pointerOutOfBounds
     v.assign (t, t+2);
     assert (v.size() == 2);
     assert (v[0]->x == 1);
@@ -3727,6 +3738,7 @@ void test2_assign1()
     DV v (SG::VIEW_ELEMENTS);
     v.push_back (new T(0));
     T* t[] = {new T(1), new T(2)};
+    // cppcheck-suppress pointerOutOfBounds
     v.assign (t, t+2);
     CHECK_INDICES(v);
   }
@@ -3816,6 +3828,7 @@ void test2_assign()
   B* t[] = {new B(1), new B(2)};
   bool caught = false;
   try {
+    // cppcheck-suppress pointerOutOfBounds
     vb.assign (t, t+2);
   }
   catch (SG::ExcInsertionInBaseClass&) {
@@ -4457,6 +4470,7 @@ void test2_iter_swap_memb1()
   CHECK_INDICES(v);
   CHECK_INDICES(v3);
   assert (v[1]->x == 100);
+  // cppcheck-suppress assertWithSideEffect
   assert (v3.front()->x == 1);
 }
 template <class DV>
@@ -4692,6 +4706,7 @@ void test2_iter_swap1()
   CHECK_INDICES(v);
   CHECK_INDICES(v3);
   assert (v[1]->x == 100);
+  // cppcheck-suppress assertWithSideEffect
   assert (v3.front()->x == 1);
 }
 template <class DV>
@@ -5010,11 +5025,11 @@ void test2_remove2 (bool testClearIndex)
   CHECK_INDICES(v1);
 
   DV v2 = v1;
-  std::remove (v2.begin(), v2.end(), v2[5]);
+  (void)std::remove (v2.begin(), v2.end(), v2[5]);
   checkaux(v1);
   CHECK_INDICES(v1);
 
-  std::remove (v1.begin(), v1.end(), v1[5]);
+  (void)std::remove (v1.begin(), v1.end(), v1[5]);
   checkaux(v1);
   CHECK_INDICES(v1);
   for (int i=0, j=0; i < N-1; i++, j++) {
@@ -5025,11 +5040,11 @@ void test2_remove2 (bool testClearIndex)
   checkauxZero (v1, N-1);
 
   v2 = v1;
-  std::remove_if (v2.begin(), v2.end()-1, Pred<T>(3));
+  (void)std::remove_if (v2.begin(), v2.end()-1, Pred<T>(3));
   checkaux(v1);
   CHECK_INDICES(v1);
 
-  std::remove_if (v1.begin(), v1.end()-1, Pred<T>(3));
+  (void)std::remove_if (v1.begin(), v1.end()-1, Pred<T>(3));
   checkaux(v1);
   CHECK_INDICES(v1);
   for (int i=0, j=0; i < N-2; i++, j++) {
@@ -5044,11 +5059,11 @@ void test2_remove2 (bool testClearIndex)
   // 0 1 2 4 6 7 8 9 x x
 
   v2 = v1;
-  std::remove (v2.rbegin()+2, v2.rend(), v2[4]);
+  (void)std::remove (v2.rbegin()+2, v2.rend(), v2[4]);
   checkaux(v1);
   CHECK_INDICES(v1);
 
-  std::remove (v1.rbegin()+2, v1.rend(), v1[4]);
+  (void)std::remove (v1.rbegin()+2, v1.rend(), v1[4]);
   checkaux(v1);
   CHECK_INDICES(v1);
   for (int i=1, j=0; i < N-2; i++, j++) {
@@ -5066,11 +5081,11 @@ void test2_remove2 (bool testClearIndex)
   // x 0 1 2 4 7 8 9 x x
 
   v2 = v1;
-  std::remove_if (v2.rbegin()+2, v2.rend()-1, Pred<T>(7));
+  (void)std::remove_if (v2.rbegin()+2, v2.rend()-1, Pred<T>(7));
   checkaux(v1);
   CHECK_INDICES(v1);
 
-  std::remove_if (v1.rbegin()+2, v1.rend()-1, Pred<T>(7));
+  (void)std::remove_if (v1.rbegin()+2, v1.rend()-1, Pred<T>(7));
   checkaux(v1);
   CHECK_INDICES(v1);
   for (int i=2, j=0; i < N-2; i++, j++) {
@@ -5092,7 +5107,7 @@ void test2_remove2 (bool testClearIndex)
   v1.setStore (v1.getConstStore());
   bool caught = false;
   try {
-    std::remove (v1.begin(), v1.end(), v1[2]);
+    (void)std::remove (v1.begin(), v1.end(), v1[2]);
   }
   catch (SG::ExcConstAuxData&) {
     caught = true;
@@ -5149,7 +5164,7 @@ void test2_unique1()
     CHECK_INDICES(v);
 
     DV v2 = v;
-    std::unique (v2.begin(), v2.end(), BPred<T>());
+    (void)std::unique (v2.begin(), v2.end(), BPred<T>());
     checkaux(v);
     CHECK_INDICES(v);
 
@@ -5287,7 +5302,7 @@ void test2_unique1()
     v.setStore (v.getConstStore());
     bool caught = false;
     try {
-      std::unique (v.begin(), v.end(), BPred<T>());
+      (void)std::unique (v.begin(), v.end(), BPred<T>());
     }
     catch (SG::ExcConstAuxData&) {
       caught = true;
@@ -5913,6 +5928,7 @@ void test2_move1()
     assert (v1.size() == 0);
 
     DV v3;
+    v3.push_back (make_comp_unique<T>(5));
     v3 = std::move (v2);
     assert (v3.size() == 4);
     assert (v3[0]->x == 1);
@@ -5925,7 +5941,7 @@ void test2_move1()
 
     assert (v2.size() == 0);
 
-    check_dtor_log();
+    check_dtor_log (5);
   }
   clear_dtor_log();
 }

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from HIJetRec.HIJetRecFlags import HIJetFlags
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -8,8 +8,8 @@ from JetRec.JetRecFlags import jetFlags
 def AddToOutputList(tname, objType='xAOD::JetContainer') :
 
     #filter container based on package flags
-    if HIJetFlags.UnsubtractedSuffix() in tname and not HIJetFlags.WriteUnsubtracted() : return
-    if HIJetFlags.SeedSuffix() in tname and not HIJetFlags.WriteSeeds() : return
+    if HIJetFlags.UnsubtractedSuffix() in str(tname) and not HIJetFlags.WriteUnsubtracted() : return
+    if HIJetFlags.SeedSuffix() in str(tname) and not HIJetFlags.WriteSeeds() : return
 
     has_key=False
     for k in HIJetFlags.HIJetOutputList() :
@@ -72,10 +72,8 @@ def AddHIJetFinder(R=0.4) :
     myMods=jtm.modifiersMap["HI_Unsubtr"]
     #myMods += AddPtAssociationTools(R)
     finder=jtm.addJetFinder(cname, "AntiKt", R, "HI",myMods,
-                            consumers=None, ivtxin=None,
-                            ghostArea=0.0, ptmin = 0., ptminFilter= 5000)
+                            consumers=None, ghostArea=0.0, ptmin = 0., ptminFilter= 5000)
     jtm.HIJetRecs+=[finder]
-
 
 def AddPtAssociationTools(R, doTracks=True) :
     tlist=[]
@@ -84,14 +82,14 @@ def AddPtAssociationTools(R, doTracks=True) :
         tname='hitrackassoc_04'
         if tname not in jtm.tools:
             JetPtAssociationTool=CompFactory.JetPtAssociationTool
-            jtm.add(JetPtAssociationTool(tname, JetContainer=cname, AssociationName="GhostTrack"))
+            jtm.add(JetPtAssociationTool(tname, JetContainer=cname, MatchingJetContainer=cname, AssociationName="GhostTrack"))
         tlist += [ jtm.tools[tname] ]
     if jetFlags.useTruth():
         cname='AntiKt%dTruthJets' % int(10*R)
         tname='truthassoc_0%d' % int(10*R)
         if tname not in jtm.tools:
             JetPtAssociationTool=CompFactory.JetPtAssociationTool
-            jtm.add(JetPtAssociationTool(tname, JetContainer=cname, AssociationName="GhostTruth"))
+            jtm.add(JetPtAssociationTool(tname, JetContainer=cname, MatchingJetContainer=cname, AssociationName="GhostTruth"))
         tlist += [ jtm.tools[tname] ]
     return tlist
 
@@ -120,7 +118,7 @@ def MakeModulatorTool(mod_key, **kwargs) :
 
 def MakeSubtractionTool(shapeKey, moment_name='', momentOnly=False, **kwargs) :
     HIJetConstituentSubtractionTool=CompFactory.HIJetConstituentSubtractionTool
-    suffix=shapeKey
+    suffix=shapeKey.toStringProperty()
     if momentOnly : suffix+='_'+moment_name
 
     if 'modulator' in kwargs.keys() : mod_tool=kwargs['modulator']
@@ -189,14 +187,9 @@ def ApplySubtractionToClusters(**kwargs) :
 
     if do_cluster_moments :
         CaloClusterMomentsMaker=CompFactory.CaloClusterMomentsMaker
-        from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-        theCaloNoiseTool = CaloNoiseToolDefault()
-        from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc += theCaloNoiseTool
 
         HIClusterMoments = CaloClusterMomentsMaker ("HIClusterMoments")
         #HIClusterMoments.MaxAxisAngle = 20*deg
-        #HIClusterMoments.CaloNoiseTool = theCaloNoiseTool
         #HIClusterMoments.UsePileUpNoise = False
         HIClusterMoments.MinBadLArQuality = 4000
         HIClusterMoments.MomentsNames = ["CENTER_MAG",
@@ -371,7 +364,8 @@ def HITruthParticleCopy() :
 def BuildHarmonicName(shape_key, **kwargs) :
     tname=shape_key
     if 'harmonics' in kwargs.keys() :
-        for n in kwargs['harmonics'] : tname += '_V%d' % n
+        for n in kwargs['harmonics'] :
+            tname = str(tname) + str('_V%d' % n)
     return tname
 
 def GetNullModulator() :

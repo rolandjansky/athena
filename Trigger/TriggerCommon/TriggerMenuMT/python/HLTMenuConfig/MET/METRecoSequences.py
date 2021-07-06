@@ -1,36 +1,13 @@
-#
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 
 from .AlgInputConfig import AlgInputConfig, InputConfigRegistry
 from AthenaCommon.Logging import logging
-from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import (
-    cellRecoSequence,
-    caloClusterRecoSequence,
-    LCCaloClusterRecoSequence,
-)
-from eflowRec.PFHLTSequence import PFHLTSequence
-from ..Jet.JetRecoConfiguration import defineJetConstit, interpretJetCalibDefault
-from ..Jet.JetRecoConfiguration import recoKeys as jetRecoKeys
-from ..Jet.JetTrackingConfig import JetTrackingSequence, trkcollskeys
-from ..Jet.JetRecoSequences import jetRecoSequence, getTrkColls
-from JetRecConfig.ConstModHelpers import getConstitModAlg, aliasToInputDef
+
 from ..Menu.MenuComponents import RecoFragmentsPool
-from TrigEFMissingET.TrigEFMissingETConf import (
-    HLT__MET__CVFAlg,
-    HLT__MET__CVFPrepAlg,
-    HLT__MET__PFOPrepAlg,
-    ApproximateTrackToLayerTool,
-)
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from ..Menu.SignatureDicts import JetChainParts_Default
-from InDetTrackSelectionTool.InDetTrackSelectionToolConf import (
-    InDet__InDetTrackSelectionTool,
-)
-from TrackVertexAssociationTool.TrackVertexAssociationToolConf import (
-    CP__TrackVertexAssociationTool,
-)
+
 import copy
 
 log = logging.getLogger(__name__)
@@ -38,16 +15,25 @@ log = logging.getLogger(__name__)
 
 def jetRecoDictForMET(**recoDict):
     """ Get a jet reco dict that's usable for the MET slice """
-    jrd = {k: recoDict.get(k, JetChainParts_Default[k]) for k in jetRecoKeys}
-    if "jetDataType" in recoDict:
-        # Allow for the renaming dataType -> jetDataType
-        jrd["dataType"] = recoDict["jetDataType"]
-        if jrd["dataType"] == "pf":
-            # We only use em calibration for PFOs
-            jrd["calib"] = "em"
-    # For various reasons, we can store the constituent modifiers separately
-    # to the data type, so we have to add that back in
-    jrd["dataType"] = recoDict.get("constitmod", "") + jrd["dataType"]
+    from ..Jet.JetRecoConfiguration import interpretJetCalibDefault
+    from ..Jet.JetRecoConfiguration import recoKeys as jetRecoKeys
+    from ..Menu.SignatureDicts import JetChainParts_Default
+
+    jrd = {
+        k: recoDict.get(k, JetChainParts_Default[k])
+        for k in jetRecoKeys
+    }
+    # Rename the cluster calibration
+    try:
+        jrd["clusterCalib"] = recoDict["calib"]
+    except KeyError:
+        pass
+    # Fill constitMod
+    jrd["constitMod"] = recoDict.get("constitmod", "")
+    # We only use em calibration for PFOs
+    if jrd["constitType"] == "pf":
+        jrd["clusterCalib"] = "em"
+    # Interpret jet calibration
     if jrd["jetCalib"] == "default":
         jrd["jetCalib"] = interpretJetCalibDefault(jrd)
     return jrd
@@ -65,10 +51,19 @@ class CellInputConfig(AlgInputConfig):
         return []
 
     def create_sequence(self, inputs, RoIs, recoDict):
+        from ..CommonSequences.CaloSequences import cellRecoSequence
+
         cellSeq, cellName = RecoFragmentsPool.retrieve(
             cellRecoSequence, flags=None, RoIs=RoIs
         )
         return cellSeq, {"Cells": cellName}
+
+    def create_accumulator(self, flags, inputs, RoIs, recoDict):
+        from TrigCaloRec.TrigCaloRecConfig import hltCaloCellMakerCfg
+
+        comp_name = "HLTCaloCellMaker_FS"
+        acc = hltCaloCellMakerCfg(flags, name=comp_name, roisKey=RoIs)
+        return acc, {"Cells": acc.getEventAlgo(comp_name).CellsName}
 
 
 default_inputs.add_input(CellInputConfig())
@@ -83,6 +78,13 @@ class ClusterInputConfig(AlgInputConfig):
         return []
 
     def create_sequence(self, inputs, RoIs, recoDict):
+        from ..CommonSequences.CaloSequences import (
+            caloClusterRecoSequence,
+            LCCaloClusterRecoSequence,
+        )
+        from ..Jet.JetRecoConfiguration import defineJetConstit
+        from JetRecConfig.JetRecConfig import getConstitModAlg_nojetdef
+
         calib = recoDict["calib"]
         if calib == "em":
             tcSeq, clusterName = RecoFragmentsPool.retrieve(
@@ -98,25 +100,55 @@ class ClusterInputConfig(AlgInputConfig):
         if recoDict.get("constitmod"):
             # Force the datatype to topoclusters
             recoDict = copy.copy(recoDict)
-            recoDict["jetDataType"] = "tc"
+            recoDict["constitType"] = "tc"
             jetRecoDict = jetRecoDictForMET(**recoDict)
-            constit = aliasToInputDef(
-                defineJetConstit(jetRecoDict, clustersKey=clusterName)
-            )
-            constit_mod_seq = getConstitModAlg(constit)
+            constit = defineJetConstit(jetRecoDict, clustersKey=clusterName)
+            # we pass the context argument to make sure the properties inside our JetConstit are tuned according to trkopt
+            constit_mod_seq = getConstitModAlg_nojetdef(constit,context=jetRecoDict.get("trkopt","default"))
             sequences.append(constit_mod_seq)
             # Update the name to the modified container name
             clusterName = constit.containername
 
         return [tcSeq], {"Clusters": clusterName}
 
+    def create_accumulator(self, flags, inputs, RoIs, recoDict):
+        from ..CommonSequences.CaloConfig import CaloClusterCfg
+        from ..CommonSequences.FullScanDefs import em_clusters, lc_clusters
+        from ..Jet.JetRecoConfiguration import defineJetConstit
+        from JetRecConfig.JetRecConfig import getConstitModAlg_nojetdef
+
+        if recoDict["calib"] == "em":
+            doLC = False
+            clustername = em_clusters
+        elif recoDict["calib"] == "lcw":
+            doLC = True
+            clustername = lc_clusters
+        else:
+            raise ValueError(
+                f"Invalid value for cluster calibration: {recoDict['calib']}"
+            )
+
+        acc = CaloClusterCfg(flags, doLCCalib=doLC)
+
+        if recoDict.get("constitmod"):
+            # Force the datatype to topoclusters
+            recoDict = copy.copy(recoDict)
+            recoDict["constitType"] = "tc"
+            jetRecoDict = jetRecoDictForMET(**recoDict)
+            constit = defineJetConstit(jetRecoDict, clustersKey=clustername)
+            for a in getConstitModAlg_nojetdef(constit, context=jetRecoDict.get("trkopt","default")):                
+                acc.addEventAlgo(a)
+            clustername = constit.containername
+
+        return acc, {"Clusters": clustername}
+
 
 default_inputs.add_input(ClusterInputConfig())
 
 
 class EMClusterInputConfig(AlgInputConfig):
-    """ Input config that forces the clusters produced to be at the EM scale
-    
+    """Input config that forces the clusters produced to be at the EM scale
+
     We have this so that we can force PFOs to be produced at the EM scale,
     however a better solution would probably be to add 'em' to the trigger name
     or to change the 'calib' default to be "default" and then have the algorithm
@@ -131,10 +163,18 @@ class EMClusterInputConfig(AlgInputConfig):
         return []
 
     def create_sequence(self, inputs, RoIs, recoDict):
+        from ..CommonSequences.CaloSequences import caloClusterRecoSequence
+
         tcSeq, clusterName = RecoFragmentsPool.retrieve(
             caloClusterRecoSequence, flags=None, RoIs=RoIs
         )
         return [tcSeq], {"EMClusters": clusterName}
+
+    def create_accumulator(self, flags, inputs, RoIs, recoDict):
+        from ..CommonSequences.CaloConfig import CaloClusterCfg
+        from ..CommonSequences.FullScanDefs import em_clusters
+
+        return CaloClusterCfg(flags, doLCCalib=False), {"EMClusters": em_clusters}
 
 
 default_inputs.add_input(EMClusterInputConfig())
@@ -142,8 +182,9 @@ default_inputs.add_input(EMClusterInputConfig())
 
 class TrackingInputConfig(AlgInputConfig):
     def __init__(self):
+        from JetRecConfig.StandardJetContext import jetContextDic
         super().__init__(
-            produces=copy.copy(trkcollskeys),
+            produces=copy.copy(jetContextDic['trackKeys']),
             step=1,
         )
 
@@ -152,10 +193,17 @@ class TrackingInputConfig(AlgInputConfig):
         return []
 
     def create_sequence(self, inputs, RoIs, recoDict):
+        from ..Jet.JetTrackingConfig import JetTrackingSequence
+
         trkSeq, trkColls = RecoFragmentsPool.retrieve(
             JetTrackingSequence, flags=None, trkopt="ftf", RoIs=RoIs
         )
         return [trkSeq], trkColls
+
+    def create_accumulator(self, flags, inputs, RoIs, recoDict):
+        from ..Jet.JetTrackingConfig import JetTrackingCfg
+
+        return JetTrackingCfg(flags, "ftf", RoIs)
 
 
 default_inputs.add_input(TrackingInputConfig())
@@ -172,24 +220,30 @@ class PFOInputConfig(AlgInputConfig):
         return "Clusters" if recoDict["calib"] == "em" else "EMClusters"
 
     def dependencies(self, recoDict):
-        return [self._input_clusters(recoDict), "Tracks", "Vertices", "TVA"]
+        return [self._input_clusters(recoDict), "Tracks", "Vertices", "TVA", "Cells"]
 
     def create_sequence(self, inputs, RoIs, recoDict):
+        from eflowRec.PFHLTSequence import PFHLTSequence
+        from ..Jet.JetRecoConfiguration import defineJetConstit
+        from JetRecConfig.JetRecConfig import getConstitModAlg_nojetdef
+
         pfSeq, pfoPrefix = RecoFragmentsPool.retrieve(
             PFHLTSequence,
             flags=None,
             clustersin=inputs[self._input_clusters(recoDict)],
             tracktype="ftf",
+            cellsin=inputs["Cells"],
         )
         # The jet constituent modifier sequence here is to apply the correct weights
         # and decorate the PV matching decoration. If we've specified constituent
         # modifiers those are also applied.
         recoDict = copy.copy(recoDict)
         # Force the jet data type to the correct thing
-        recoDict["jetDataType"] = "pf"
+        recoDict["constitType"] = "pf"
         jetRecoDict = jetRecoDictForMET(trkopt="ftf", **recoDict)
-        constit = aliasToInputDef(defineJetConstit(jetRecoDict, pfoPrefix=pfoPrefix))
-        constit_mod_seq = getConstitModAlg(constit)
+        constit = defineJetConstit(jetRecoDict, pfoPrefix=pfoPrefix)
+        # we pass the context argument to make sure the properties inside our JetConstit are tuned according to trkop
+        constit_mod_seq = getConstitModAlg_nojetdef(constit,context=jetRecoDict.get("trkopt","default"))
         # Update the PFO prefix
         pfoPrefix = constit.containername
         if pfoPrefix.endswith("ParticleFlowObjects"):
@@ -199,6 +253,44 @@ class PFOInputConfig(AlgInputConfig):
             allSeqs.append(constit_mod_seq)
         return (
             allSeqs,
+            {
+                "PFOPrefix": pfoPrefix,
+                "cPFOs": pfoPrefix + "ChargedParticleFlowObjects",
+                "nPFOs": pfoPrefix + "NeutralParticleFlowObjects",
+            },
+        )
+
+    def create_accumulator(self, flags, inputs, RoIs, recoDict):
+        from eflowRec.PFHLTConfig import PFCfg
+        from ..Jet.JetRecoConfiguration import defineJetConstit
+        from JetRecConfig.JetRecConfig import getConstitModAlg_nojetdef
+
+        acc = PFCfg(
+            flags,
+            tracktype="ftf",
+            clustersin=inputs[self._input_clusters(recoDict)],
+            calclustersin="",
+            tracksin=inputs["Tracks"],
+            verticesin=inputs["Vertices"],
+            cellsin=inputs["Cells"],
+        )
+        # The jet constituent modifier sequence here is to apply the correct weights
+        # and decorate the PV matching decoration. If we've specified constituent
+        # modifiers those are also applied.
+        recoDict = copy.copy(recoDict)
+        # Force the jet data type to the correct thing
+        recoDict["constitType"] = "pf"
+        jetRecoDict=jetRecoDictForMET(trkopt="ftf", **recoDict)
+        constit = defineJetConstit(jetRecoDict, pfoPrefix="HLT_ftf")
+        # we pass the context argument to make sure the properties inside our JetConstit are tuned according to trkop        
+        acc.addEventAlgo( getConstitModAlg_nojetdef(constit,context=jetRecoDict.get("trkopt","default")) ) # WARNING getConstitModAlg_nojetdef could return None, however this won't happen for PFlow
+        # Update the PFO prefix
+        pfoPrefix = constit.containername
+        if pfoPrefix.endswith("ParticleFlowObjects"):
+            pfoPrefix = pfoPrefix[:-19]
+
+        return (
+            acc,
             {
                 "PFOPrefix": pfoPrefix,
                 "cPFOs": pfoPrefix + "ChargedParticleFlowObjects",
@@ -220,19 +312,46 @@ class MergedPFOInputConfig(AlgInputConfig):
         return ["PFOPrefix", "cPFOs", "nPFOs"]
 
     def create_sequence(self, inputs, RoIs, recoDict):
-        prepAlg = RecoFragmentsPool.retrieve(
-            HLT__MET__PFOPrepAlg,
+        from TrigEFMissingET.TrigEFMissingETConf import HLT__MET__PFOPrepAlg
+
+        # Alg generator for RecoFragmentsPool
+        # Need to unpack dict as not hashable
+        def getPFOPrepAlg(_, **inputs):
+            return HLT__MET__PFOPrepAlg(
+                f"{inputs['PFOPrefix']}METTrigPFOPrepAlg",
+                InputNeutralKey=inputs["nPFOs"],
+                InputChargedKey=inputs["cPFOs"],
+                OutputKey=f"{inputs['PFOPrefix']}METTrigCombinedParticleFlowObjects",
+                OutputCategoryKey="PUClassification",
+            )
+
+        prepAlg = RecoFragmentsPool.retrieve(getPFOPrepAlg, None, **inputs)
+        return (
+            [prepAlg],
+            {
+                "MergedPFOs": prepAlg.OutputKey,
+                "PFOPUCategory": prepAlg.OutputCategoryKey,
+            },
+        )
+
+    def create_accumulator(self, flags, inputs, RoIs, recoDict):
+        from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+        from AthenaConfiguration.ComponentFactory import CompFactory
+
+        acc = ComponentAccumulator()
+        alg = CompFactory.getComp("HLT::MET::PFOPrepAlg")(
             f"{inputs['PFOPrefix']}METTrigPFOPrepAlg",
             InputNeutralKey=inputs["nPFOs"],
             InputChargedKey=inputs["cPFOs"],
             OutputKey=f"{inputs['PFOPrefix']}METTrigCombinedParticleFlowObjects",
             OutputCategoryKey="PUClassification",
         )
+        acc.addEventAlgo(alg)
         return (
-            [prepAlg],
+            acc,
             {
-                "MergedPFOs": prepAlg.OutputKey,
-                "PFOPUCategory": prepAlg.OutputCategoryKey,
+                "MergedPFOs": alg.OutputKey,
+                "PFOPUCategory": alg.OutputCategoryKey,
             },
         )
 
@@ -248,26 +367,71 @@ class CVFClusterInputConfig(AlgInputConfig):
         return ["Clusters", "Tracks", "Vertices"]
 
     def create_sequence(self, inputs, RoIs, recoDict):
-        trkopt = "ftf"
-        cvfAlg = RecoFragmentsPool.retrieve(
+        from TrigEFMissingET.TrigEFMissingETConf import (
             HLT__MET__CVFAlg,
-            f"{recoDict['calib']}{trkopt}ClusterCVFAlg",
-            InputClusterKey=inputs["Clusters"],
-            InputTrackKey=inputs["Tracks"],
-            InputVertexKey=inputs["Vertices"],
-            OutputCVFKey="CVF",
-            TrackSelectionTool=InDet__InDetTrackSelectionTool(CutLevel="TightPrimary"),
-            TVATool=CP__TrackVertexAssociationTool(
-                WorkingPoint="Loose", VertexContainer=inputs["Vertices"]
-            ),
-            ExtensionTool=ApproximateTrackToLayerTool(),
-        )
-        prepAlg = RecoFragmentsPool.retrieve(
             HLT__MET__CVFPrepAlg,
-            f"{recoDict['calib']}{trkopt}ClusterCVFPrepAlg",
-            InputClusterKey=inputs["Clusters"],
-            InputCVFKey=cvfAlg.OutputCVFKey,
-            OutputCategoryKey="PUClassification",
+            ApproximateTrackToLayerTool,
+        )
+        from InDetTrackSelectionTool.InDetTrackSelectionToolConf import (
+            InDet__InDetTrackSelectionTool,
+        )
+        from TrackVertexAssociationTool.getTTVAToolForReco import getTTVAToolForReco
+
+        trkopt = "ftf"
+        # Alg generator for RecoFragmentsPool
+        # Need to unpack dict as not hashable
+        # We can only use ** once, so manually
+        # extract the inputs
+        def getCVFAlg(_, inputClusters, inputTracks, inputVertices, **recoDict):
+            return HLT__MET__CVFAlg(
+                f"{recoDict['calib']}{trkopt}ClusterCVFAlg",
+                InputClusterKey=inputClusters,
+                InputTrackKey=inputTracks,
+                InputVertexKey=inputVertices,
+                OutputCVFKey="CVF",
+                TrackSelectionTool=InDet__InDetTrackSelectionTool(
+                    CutLevel="TightPrimary"
+                ),
+                # Note: Currently (March 2021), this is configured to not use the TTVA decorations
+                # provided by tracking CP. This will work with the current configured WP.
+                #
+                # If you need the decorations, you need to make sure to pass
+                # this method the correct alg sequence to add to, since it needs
+                # to schedule an algorithm to provide the information.
+                TVATool=getTTVAToolForReco(
+                    WorkingPoint="Custom",
+                    d0_cut=2.0,
+                    dzSinTheta_cut=2.0,
+                    addDecoAlg=False,
+                    TrackContName=inputTracks,
+                    VertexContName=inputVertices,
+                ),
+                ExtensionTool=ApproximateTrackToLayerTool(),
+            )
+
+        cvfAlg = RecoFragmentsPool.retrieve(
+            getCVFAlg,
+            None,
+            inputClusters=inputs["Clusters"],
+            inputTracks=inputs["Tracks"],
+            inputVertices=inputs["Vertices"],
+            **recoDict,
+        )
+
+        def getCVFPrepAlg(_, inputClusters, inputCVFKey, **recoDict):
+            return HLT__MET__CVFPrepAlg(
+                f"{recoDict['calib']}{trkopt}ClusterCVFPrepAlg",
+                InputClusterKey=inputClusters,
+                InputCVFKey=inputCVFKey,
+                OutputCategoryKey="PUClassification",
+            )
+
+        prepAlg = RecoFragmentsPool.retrieve(
+            getCVFPrepAlg,
+            None,
+            inputClusters=inputs["Clusters"],
+            inputCVFKey=cvfAlg.OutputCVFKey,
+            **recoDict,
         )
         return (
             [cvfAlg, prepAlg],
@@ -279,7 +443,7 @@ default_inputs.add_input(CVFClusterInputConfig())
 
 
 class JetInputConfig(AlgInputConfig):
-    """ Helper input config for jets
+    """Helper input config for jets
 
     Note that if the jets require JVT but are topo jets there is nothing in the
     recoDict (unless the calibration is gsc) to force tracking to run. Therefore
@@ -301,12 +465,12 @@ class JetInputConfig(AlgInputConfig):
         """ Whether or not this reco configuration requires tracks """
         if recoDict.get("forceTracks", False):
             return True
-        if recoDict["jetDataType"] in ["pf", "csskpf"]:
+        if recoDict["constitType"] == "pf":
             return True
-        elif recoDict["jetDataType"] in ["tc", "sktc", "cssktc"]:
+        elif recoDict["constitType"] == "tc":
             return "gsc" in recoDict["jetCalib"]
         else:
-            raise ValueError(f"Unexpected jetDataType {recoDict['jetDataType']}")
+            raise ValueError(f"Unexpected constitType {recoDict['constitType']}")
 
     def dependencies(self, recoDict):
         deps = [self._input_clusters(recoDict)]
@@ -315,11 +479,13 @@ class JetInputConfig(AlgInputConfig):
         return deps
 
     def create_sequence(self, inputs, RoIs, recoDict):
+        from ..Jet.JetRecoSequences import jetRecoSequence, getTrkColls
+
         trkopt = "ftf" if self._use_tracks(recoDict) else "notrk"
         recoDict = {k: v for k, v in recoDict.items() if k != "forceTracks"}
         jetRecoDict = jetRecoDictForMET(trkopt=trkopt, **recoDict)
         # hard code to em (for now) - there are no LC jets in EDM
-        jetRecoDict["calib"] = "em"
+        jetRecoDict["clusterCalib"] = "em"
 
         # Extract the track collections part from our input dict
         trkcolls = {} if trkopt == "notrk" else getTrkColls(inputs)
@@ -332,6 +498,26 @@ class JetInputConfig(AlgInputConfig):
             **jetRecoDict,
         )
         return [jetSeq], {"Jets": jetName, "JetDef": jetDef}
+
+    def create_accumulator(self, flags, inputs, RoIs, recoDict):
+        from ..Jet.JetRecoConfig import JetRecoCfg
+        from ..Jet.JetRecoSequences import getTrkColls
+
+        trkopt = "ftf" if self._use_tracks(recoDict) else "notrk"
+        recoDict = {k: v for k, v in recoDict.items() if k != "forceTracks"}
+        jetRecoDict = jetRecoDictForMET(trkopt=trkopt, **recoDict)
+        # hard code to em (for now) - there are no LC jets in EDM
+        jetRecoDict["clusterCalib"] = "em"
+
+        trkcolls = {} if trkopt == "notrk" else getTrkColls(inputs)
+
+        acc, jetName, jetDef = JetRecoCfg(
+            flags,
+            clustersKey=inputs[self._input_clusters(recoDict)],
+            trkcolls=trkcolls,
+            **jetRecoDict,
+        )
+        return acc, {"Jets": jetName, "JetDef": jetDef}
 
 
 default_inputs.add_input(JetInputConfig())

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DERIVATIONFRAMEWORK_TRUTHCOLLECTIONMAKER_H
@@ -12,15 +12,14 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+#include "ExpressionEvaluation/ExpressionParserUser.h"
+
 // Forward declarations
 class StoreGateSvc;
-namespace ExpressionParsing {
-  class ExpressionParser;
-}
 
 namespace DerivationFramework {
 
-  class TruthCollectionMaker : public AthAlgTool, public IAugmentationTool {
+  class TruthCollectionMaker : public ExpressionParserUser<AthAlgTool>, public IAugmentationTool {
     public: 
       TruthCollectionMaker(const std::string& t, const std::string& n, const IInterface* p);
       ~TruthCollectionMaker();
@@ -29,7 +28,6 @@ namespace DerivationFramework {
       virtual StatusCode addBranches() const;
 
     private:
-      ExpressionParsing::ExpressionParser *m_partParser;
       mutable unsigned int m_ntotpart, m_npasspart;
       std::string m_particlesKey;
       std::string m_collectionName; 

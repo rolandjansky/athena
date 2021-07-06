@@ -74,7 +74,6 @@ TrigConf::XMLMenuLoader::load(Menu& menu) {
             if(sval.find("TAP") != string::npos) monMask |= TAP;
             if(sval.find("TAV") != string::npos) monMask |= TAV;
          }
-         //cout << "JOERG " << sval << " ==> " << monMask << endl;
          item->setMonitor( monMask );
       }
 

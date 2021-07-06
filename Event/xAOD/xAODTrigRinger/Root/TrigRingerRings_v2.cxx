@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -44,12 +44,12 @@ namespace xAOD{
    
        // Check if the link is available:
        if( ! acc.isAvailable( *this ) ) {
-          return 0;
+          return nullptr;
        }
        // Check if the link is valid:
        const EMClusterLink_t& link = acc( *this );
        if( ! link.isValid() ) {
-          return 0;
+          return nullptr;
        }
    
        // Return the pointer:

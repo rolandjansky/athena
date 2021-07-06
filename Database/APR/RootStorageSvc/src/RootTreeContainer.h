@@ -1,14 +1,14 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
 //    Root Database implementation
 //--------------------------------------------------------------------
 //
-//    Package    : RootStorageSvc (The POOL project)
+//    Package    : APR RootStorageSvc (former POOL project)
 //
-//    Author     : M.Frank
+//    Author     : M.Frank M.Nowak S.Snyder
 //====================================================================
 #ifndef POOL_ROOTTREECONTAINER_H
 #define POOL_ROOTTREECONTAINER_H 1
@@ -18,6 +18,7 @@
 // Framework include files
 #include "StorageSvc/DbDatabase.h"
 #include "StorageSvc/DbContainerImp.h"
+#include "RootAuxDynIO/RootAuxDynIO.h"
 
 #include <map>
 #include <vector>
@@ -72,7 +73,7 @@ namespace pool  {
       // extra variables used by Aux dynamic
       size_t            rows_written = 0;
       // AuxDyn reader if used by this branch
-      IRootAuxDynReader*aux_reader = nullptr;
+      std::unique_ptr<IRootAuxDynReader> aux_reader;
       int               aux_iostore_IFoffset = -1;
       bool              is_basic_type = false;
       bool              written = false;
@@ -113,7 +114,8 @@ namespace pool  {
         if (clazz) {
           if (!dummy) {
             using std::placeholders::_1;
-            std::function<void(void*)> del = std::bind (&TClass::Destructor, clazz, _1, false);
+            void(TClass::*dxtor)(void*, Bool_t) = &TClass::Destructor;
+            std::function<void(void*)> del = std::bind(dxtor, clazz, _1, false);
             dummyptr = dummy_ptr_t (clazz->New(), std::move(del));
             dummy = dummyptr.get();
           }
@@ -194,7 +196,7 @@ namespace pool  {
     virtual DbStatus close();
 
     /// Open the container for object access
-    virtual DbStatus open(const DbDatabase& dbH, 
+    virtual DbStatus open(DbDatabase& dbH, 
                           const std::string& nam, 
                           const DbTypeInfo* info,
                           DbAccessMode mod);

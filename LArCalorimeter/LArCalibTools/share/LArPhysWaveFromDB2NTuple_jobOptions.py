@@ -134,7 +134,7 @@ if not 'LArInputWaveFolder' in dir():
     conddb.addFolder("",LArCalib_Flags.LArPhysWaveFolder+"<key>"+LArInputWaveKey+"</key><dbConnection>"+DBConnectionWave+"</dbConnection>"+ChannelSelection)
 else:    
     InputTagSpecPhysWave = LArCalibFolderTag(LArInputWaveFolder,LArInputWaveTag)
-    print 'Input tag: ',InputTagSpecPhysWave," in folder: ",LArInputWaveFolder
+    print ('Input tag: ',InputTagSpecPhysWave," in folder: ",LArInputWaveFolder)
     conddb.addFolder("",LArInputWaveFolder+"<key>"+LArInputWaveKey+"</key><dbConnection>"+DBConnectionWave+"</dbConnection>"+ChannelSelection)
 
    

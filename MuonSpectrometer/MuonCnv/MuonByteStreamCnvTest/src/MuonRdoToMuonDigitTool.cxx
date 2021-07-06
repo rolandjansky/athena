@@ -85,9 +85,6 @@ StatusCode MuonRdoToMuonDigitTool::initialize() {
   ATH_CHECK( m_acSvc.retrieve() );
   ATH_CHECK( m_idHelperSvc.retrieve() );
 
-  /** CSC calibratin tool for the Condtiions Data base access */
-  ATH_CHECK( m_cscCalibTool.retrieve() );
-
   ATH_CHECK(m_mdtRdoKey.initialize(m_decodeMdtRDO));
   ATH_CHECK(m_mdtDigitKey.initialize(m_decodeMdtRDO));
   ATH_CHECK(m_cscRdoKey.initialize(m_decodeCscRDO));
@@ -103,11 +100,11 @@ StatusCode MuonRdoToMuonDigitTool::initialize() {
 
   if (m_decodeMdtRDO) ATH_CHECK( m_mdtRdoDecoderTool.retrieve() );
   if (m_decodeCscRDO) ATH_CHECK( m_cscRdoDecoderTool.retrieve() );
+  if (m_decodeCscRDO) ATH_CHECK( m_cscCalibTool.retrieve() );
   if (m_decodeRpcRDO) ATH_CHECK( m_rpcRdoDecoderTool.retrieve() );
   if (m_decodeTgcRDO) ATH_CHECK( m_tgcRdoDecoderTool.retrieve() );
   if (m_decodesTgcRDO) ATH_CHECK( m_stgcRdoDecoderTool.retrieve() );
   if (m_decodeMmRDO) ATH_CHECK( m_mmRdoDecoderTool.retrieve() );
-
   ATH_CHECK(m_rpcReadKey.initialize());
 
   return StatusCode::SUCCESS;
@@ -413,10 +410,10 @@ StatusCode MuonRdoToMuonDigitTool::decodeCsc(const CscRawDataCollection& rdoColl
       for (const CscRawData* data : rdoColl) {
 	uint16_t width = data->width();
         //        Identifier stationId = decoder.stationIdentifier(data);
-        Identifier stationId = m_cscRdoDecoderTool->stationIdentifier(data);
+        Identifier stationId = m_cscRdoDecoderTool->stationIdentifier(data,&m_idHelperSvc->cscIdHelper());
 	for (int j=0; j<width; ++j) {
           //          Identifier channelId = decoder.channelIdentifier(data, j);
-          Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(data, j);
+          Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(data, &m_idHelperSvc->cscIdHelper(),j);
 	  std::vector<uint16_t> samples;
 	  bool extractSamples = data->samples(j, numSamples, samples);
 	  if (!extractSamples) {

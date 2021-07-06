@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -231,7 +231,7 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::find(const EventContext &/*ctx
 
   if ((int)event_data.m_listHitCenter.size()<m_minHitsAboveTOT) return;
 
-  if (event_data.m_segmentDriftCircles.size()) { // debug only
+  if (!event_data.m_segmentDriftCircles.empty()) { // debug only
     msg(MSG::WARNING) << "TRT_TrackSegmentsMaker_BarrelCosmics::find() probably called twice per event? or newEvent / newRegion have not been called. check your program" << endmsg;
     event_data.clear(); return;
   }
@@ -285,7 +285,7 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::find(const EventContext &/*ctx
 
     if ( countAssociatedHits[0]+countAssociatedHits[1] < m_minHitsAboveTOT ) continue;
 
-    if (m_magneticField) segFit(measx, measy, countMeas, 0, par+3);
+    if (m_magneticField) segFit(measx, measy, countMeas, nullptr, par+3);
 
     ATH_MSG_DEBUG("countAssociatedHits " << countAssociatedHits[0] << " "
                   << countAssociatedHits[1] << " m_minHitsAboveTOT " << m_minHitsAboveTOT );
@@ -300,7 +300,7 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::find(const EventContext &/*ctx
   int nFoundSegments = x0.size(); if (nFoundSegments>10) nFoundSegments = 10; // number of found segments
   {
      for (int i=0; i<nFoundSegments; i++) {
-        event_data.m_segmentDriftCircles.push_back(std::vector<const InDet::TRT_DriftCircle *>());
+        event_data.m_segmentDriftCircles.emplace_back();
      }
   }
 
@@ -410,7 +410,7 @@ Trk::TrackSegment *InDet::TRT_TrackSegmentsMaker_BarrelCosmics::next(InDet::ITRT
 
   return (event_data.m_segmentDriftCirclesCount<event_data.m_segments.size())
      ?(event_data.m_segments[event_data.m_segmentDriftCirclesCount++])
-     :0;
+     :nullptr;
 }
 
 
@@ -693,7 +693,7 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::convert(std::vector<const InDe
 			 (hits[iPivot]->detectorElement())->surface(hits[iPivot]->identify()).center().z() );
   
 
-  Amg::Transform3D* htrans = new Amg::Transform3D(Amg::Translation3D(hepVec)*Amg::RotationMatrix3D::Identity());
+  Amg::Transform3D htrans = Amg::Transform3D(Amg::Translation3D(hepVec)*Amg::RotationMatrix3D::Identity());
   
   
 
@@ -748,7 +748,7 @@ if (1) { // limit the scope of all these variables
   Amg::RotationMatrix3D linerot=surf.transform().rotation();
   Amg::Vector3D         firstcenter=surf.center();
   Amg::Vector3D         faketransl(firstcenter.x(),firstcenter.y()-5.,firstcenter.z());
-  Amg::Transform3D *    faketransf=new Amg::Transform3D(linerot* Amg::Translation3D(faketransl));
+  Amg::Transform3D     faketransf = Amg::Transform3D(linerot* Amg::Translation3D(faketransl));
   Trk::StraightLineSurface *pseudoSurface = new Trk::StraightLineSurface( faketransf, 99999., 99999. );  
 
   Trk::PseudoMeasurementOnTrack *pseudo = new Trk::PseudoMeasurementOnTrack( pseudoPar, pseudocov, *pseudoSurface );
@@ -859,7 +859,7 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::findOld(TRT_TrackSegmentsMaker
 
   if ((int)event_data.m_listHitCenter.size()<m_minHitsAboveTOT) return;
 
-  if (event_data.m_segmentDriftCircles.size()) { // debug only
+  if (!event_data.m_segmentDriftCircles.empty()) { // debug only
     ATH_MSG_WARNING("find probably called twice per event? or newEvent / newRegion have not been called. check your program" );
     event_data.clear(); return;
   }
@@ -911,7 +911,7 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::findOld(TRT_TrackSegmentsMaker
   int nFoundSegments = x0.size();
   if (nFoundSegments>10) nFoundSegments = 10; // number of found segments
   for (int i=0; i<nFoundSegments; i++) {
-     event_data.m_segmentDriftCircles.push_back(std::vector<const InDet::TRT_DriftCircle *>());
+     event_data.m_segmentDriftCircles.emplace_back();
   }
 
   for (unsigned int i=0; i<event_data.m_listHits.size(); i++) {

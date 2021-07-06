@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef jetsubstructuremomenttools_validator_header
@@ -16,7 +16,7 @@ class TH1;
 
 class Validator :
   virtual public IJetExecuteTool,
-  virtual public asg::AsgTool {
+  public asg::AsgTool {
     ASG_TOOL_CLASS(Validator, IJetExecuteTool)
 
     public:

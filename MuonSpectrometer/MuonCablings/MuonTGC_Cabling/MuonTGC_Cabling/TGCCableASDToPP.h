@@ -46,7 +46,7 @@ private:
 
   StatusCode getUpdateInfo(const int side,  
 			   const int sector,  
-			   const std::string blockname, 
+			   const std::string& blockname, 
 			   std::vector<std::vector<int> >& info); 
 
   TGCDatabase* getDatabase(const int side,  
@@ -56,7 +56,7 @@ private:
 
   StatusCode updateIndividualDatabase(const int side,  
 				      const int sector,  
-				      const std::string blockname,  
+				      const std::string& blockname,  
 				      TGCDatabase*& database);
 
   TGCDatabase* m_FWDdb[TGCIdBase::MaxSideType][TGCId::NumberOfForwardSector];

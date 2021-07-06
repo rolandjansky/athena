@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCSSCControllerOut_hh
@@ -9,11 +9,13 @@
 
 namespace LVL1TGCTrigger {
 
-enum {MaxNumberOfPhiInSSC = 2};
-enum {MaxNumberOfChamberInR = 5};
+class TGCSSCControllerOut
+{
+ public:
+  enum {MaxNumberOfPhiInSSC = 2};
+  enum {MaxNumberOfChamberInR = 5};
 
-class TGCSSCControllerOut {
-public: 
+ public: 
   TGCSSCControllerOut(TGCRegionType region=ENDCAP);
   
   bool hasChamberBoundary(int ssc) const;

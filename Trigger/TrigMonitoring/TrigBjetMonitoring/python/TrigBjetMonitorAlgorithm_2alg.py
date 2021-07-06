@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file TrigBjetMonitorAlgorithm.py
@@ -71,15 +71,7 @@ def TrigBjetMonConfig(inputFlags):
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
     # standard one that is included with AthMonitorAlgorithm.
 
-    # # First, add a tool that's set up by a different configuration function. 
-    # # In this case, CaloNoiseToolCfg returns its own component accumulator, 
-    # # which must be merged with the one from this function.
-    # from CaloTools.CaloNoiseToolConfig import CaloNoiseToolCfg
-    # caloNoiseAcc, caloNoiseTool = CaloNoiseToolCfg(inputFlags)
-    # result.merge(caloNoiseAcc)
-    # trigBjetMonAlg.CaloNoiseTool = caloNoiseTool
-
-    # # Then, add a tool that doesn't have its own configuration function. In
+    # # Add a tool that doesn't have its own configuration function. In
     # # this example, no accumulator is returned, so no merge is necessary.
     # from MyDomainPackage.MyDomainPackageConf import MyDomainTool
     # trigBjetMonAlg.MyDomainTool = MyDomainTool()

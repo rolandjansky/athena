@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1NSW_NSWL1SIMULATION_H
@@ -7,15 +7,10 @@
 
 // Basic includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaMonitoring/IMonitorToolBase.h"
 #include "CxxUtils/checker_macros.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "Gaudi/Property.h"
-
-// monitoring from HLT
-#include "TrigInterfaces/IMonitoredAlgo.h"
-
-
 
 // NSWL1SimTools includes
 #include "TrigT1NSWSimTools/IPadTdsTool.h"
@@ -28,7 +23,6 @@
 #include "TrigT1NSWSimTools/IPadTriggerLookupTool.h"
 
 // Forward includes
-class IMonitorToolBase;
 class TTree;
 
 
@@ -53,17 +47,16 @@ namespace NSWL1 {
    */
 
   class ATLAS_NOT_THREAD_SAFE  // use of TTree in execute
-  NSWL1Simulation: public AthAlgorithm, public IMonitoredAlgo {
+  NSWL1Simulation: public AthAlgorithm {
 
   public:
 
     NSWL1Simulation( const std::string& name, ISvcLocator* pSvcLocator );
-    ~NSWL1Simulation();
 
-    virtual StatusCode initialize();
-    virtual StatusCode start();
-    virtual StatusCode execute();
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode start() override;
+    virtual StatusCode execute() override;
+    virtual StatusCode finalize() override;
 
     //! handle to result builder (for easy data access), now returning a dummy int
     int resultBuilder() const;
@@ -87,10 +80,6 @@ namespace NSWL1 {
     TTree*       m_tree;                                    //!< analysis ntuple
     unsigned int m_current_run;                             //!< current run number
     unsigned int m_current_evt;                             //!< current event number
-
-
-    // put monitoring variables here
-    std::vector<int> m_counters;                            //!< counters, see @link NSWL1Simulation::NSWL1Simulation @endlink
 
 
     // properties: steering flags

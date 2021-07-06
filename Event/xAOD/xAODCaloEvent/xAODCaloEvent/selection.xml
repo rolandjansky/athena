@@ -1,11 +1,12 @@
-<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
+<!-- Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
 
    <!-- xAOD::CaloCluster interface type(s). -->
    <class name="xAOD::CaloCluster_v1" >
-      <field name="m_signalState"  transient="true" />
-      <field name="m_cellLinks"    transient="true" />
-      <field name="m_recoStatus"   transient="true" />
+      <field name="m_signalState"       transient="true" />
+      <field name="m_cellLinks"         transient="true" />
+      <field name="m_recoStatus"        transient="true" />
+      <field name="m_secondTime"        transient="true" />
    </class>
    <read sourceClass="xAOD::CaloCluster_v1" version="[1-]"
          targetClass="xAOD::CaloCluster_v1" source="" target="m_signalState" >
@@ -17,6 +18,12 @@
          targetClass="xAOD::CaloCluster_v1" source="" target="m_cellLinks" >
      <![CDATA[
         m_cellLinks = 0;
+     ]]>
+   </read>
+   <read sourceClass="xAOD::CaloCluster_v1" version="[1-]"
+	 targetClass="xAOD::CaloCluster_v1" source="" target="m_secondTime" >
+     <![CDATA[
+	 m_secondTime = -999;
      ]]>
    </read>
    <class name="xAOD::CaloClusterContainer_v1"

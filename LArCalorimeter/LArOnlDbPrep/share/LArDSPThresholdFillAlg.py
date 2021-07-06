@@ -54,14 +54,13 @@ from CaloTools.CaloNoiseFlags import jobproperties
 #jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(1.45*30/8)
 jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(-1.)
 
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theCaloNoiseTool = CaloNoiseToolDefault()
-theCaloNoiseTool.OutputLevel=INFO
-theCaloNoiseTool.RescaleForHV=False
-ToolSvc+=theCaloNoiseTool
-
+# Turn this off before configuring CaloNoiseCondAlg.
 from CaloRec.CaloCellFlags import jobproperties
 jobproperties.CaloCellFlags.doLArHVCorr = False
+
+from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+CaloNoiseCondAlg ('totalNoise')
+CaloNoiseCondAlg ('electronicNoise')
 
 conddb.addOverride("/CALO/Ofl/Noise/PileUpNoiseLumi","CALOOflNoisePileUpNoiseLumi-RUN2-UPD1-00")
 if 'pileupsqlite' in dir():
@@ -74,15 +73,6 @@ if 'noisesqlite' in dir():
 if 'RunSince' not in dir():
    RunSince=0
 
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-theLArBadChannelMasker=LArBadChannelMasker("LArBadChannelMasker")
-theLArBadChannelMasker.DoMasking=True
-theLArBadChannelMasker.ProblemsToMask=[
-    "highNoiseHG","highNoiseMG","highNoiseLG"
-    ]
-##    "deadReadout","deadPhys","deadCalib","short","almostDead",
-ToolSvc+=theLArBadChannelMasker
-
 from LArOnlDbPrep.LArOnlDbPrepConf import LArDSPThresholdFillInline
 theLArDSPThresholdFillAlg=LArDSPThresholdFillInline()
 theLArDSPThresholdFillAlg.OutputLevel=INFO
@@ -90,7 +80,9 @@ theLArDSPThresholdFillAlg.Key=folder
 theLArDSPThresholdFillAlg.OutFile=fileName+".txt"
 theLArDSPThresholdFillAlg.mode=ModeType
 theLArDSPThresholdFillAlg.MaskBadChannels=True
-theLArDSPThresholdFillAlg.BadChannelMasker=theLArBadChannelMasker
+theLArDSPThresholdFillAlg.ProblemsToMask=[
+    "highNoiseHG","highNoiseMG","highNoiseLG"
+    ]
 theLArDSPThresholdFillAlg.NameOfSet=setName
 # Set masked channel thresholds lower for diagnostics
 #theLArDSPThresholdFillAlg.MaskedtQThreshold=0.
@@ -110,7 +102,6 @@ if ModeType=="noise":
     theLArDSPThresholdFillAlg.sigmaNoiseQt=Qtval
     theLArDSPThresholdFillAlg.usePileupNoiseSamples=Samppileup
     theLArDSPThresholdFillAlg.usePileupNoiseQt=Qtpileup
-    theLArDSPThresholdFillAlg.NoiseTool=theCaloNoiseTool
 
 
 if fill:

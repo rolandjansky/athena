@@ -1,12 +1,12 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from enum import Enum, unique
-
-from past.builtins import cmp
+from functools import total_ordering
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger("Menu.L1.Base.ThresholdType")
+log = logging.getLogger(__name__)
 
+@total_ordering
 @unique
 class ThrType( Enum ):
 
@@ -39,12 +39,18 @@ class ThrType( Enum ):
     @staticmethod
     def NIMTypes():
         return [ ThrType.BCM, ThrType.BCMCMB, ThrType.LUCID, ThrType.ZDC, ThrType.BPTX, ThrType.CALREQ, ThrType.MBTS, ThrType.MBTSSI, ThrType.NIM ]
-    
+
+    def __lt__(self,other):
+        return self.name < other
+
+    def __eq__(self,other):
+        return self.name == other
+
+    def __hash__(self):
+        return hash(self.name)
+
     def __repr__(self):
         return self.name
 
     def __str__(self):
         return self.name
-
-    def __cmp__(self,other):
-        return cmp(self.name, other)

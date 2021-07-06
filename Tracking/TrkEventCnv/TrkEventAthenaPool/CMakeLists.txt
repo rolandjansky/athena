@@ -15,6 +15,7 @@ atlas_add_poolcnv_library( TrkEventAthenaPoolPoolCnv
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
+atlas_install_scripts( test/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 # Set up (a) test(s) for the converter(s):
 find_package( AthenaPoolUtilitiesTest )
@@ -22,22 +23,22 @@ find_package( AthenaPoolUtilitiesTest )
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( TRKEVENTATHENAPOOL_REFERENCE_TAG
        TrkEventAthenaPoolReference-03-00-00 )
-  run_tpcnv_legacy_test( TrkEventTPCnv_14.5.0   AOD-14.5.0-full
+  run_tpcnv_test( TrkEventTPCnv_14.5.0   AOD-14.5.0-full
                   REQUIRED_LIBRARIES TrackParticleAthenaPoolPoolCnv
                   REFERENCE_TAG ${TRKEVENTATHENAPOOL_REFERENCE_TAG} )
-  run_tpcnv_legacy_test( TrkEventTPCnv_15.6.7   AOD-15.6.7-full
+  run_tpcnv_test( TrkEventTPCnv_15.6.7   AOD-15.6.7-full
                   REQUIRED_LIBRARIES TrackParticleAthenaPoolPoolCnv
                   REFERENCE_TAG ${TRKEVENTATHENAPOOL_REFERENCE_TAG} )
-  run_tpcnv_legacy_test( TrkEventTPCnv_16.6.2.1 AOD-16.6.2.1-full
+  run_tpcnv_test( TrkEventTPCnv_16.6.2.1 AOD-16.6.2.1-full
                   REQUIRED_LIBRARIES TrackParticleAthenaPoolPoolCnv
                   REFERENCE_TAG ${TRKEVENTATHENAPOOL_REFERENCE_TAG} )
-  run_tpcnv_legacy_test( TrkEventTPCnv_17.2.8   AOD-17.2.8-full
+  run_tpcnv_test( TrkEventTPCnv_17.2.8   AOD-17.2.8-full
                   REQUIRED_LIBRARIES TrackParticleAthenaPoolPoolCnv
                   REFERENCE_TAG ${TRKEVENTATHENAPOOL_REFERENCE_TAG} )
-  run_tpcnv_legacy_test( TrkEventTPCnv_18.0.0   AOD-18.0.0-full
+  run_tpcnv_test( TrkEventTPCnv_18.0.0   AOD-18.0.0-full
                   REQUIRED_LIBRARIES TrackParticleAthenaPoolPoolCnv
                   REFERENCE_TAG ${TRKEVENTATHENAPOOL_REFERENCE_TAG} )
-  run_tpcnv_legacy_test( TrkEventTPCnv_20.1.7.2 ESD-20.1.7.2
+  run_tpcnv_test( TrkEventTPCnv_20.1.7.2 ESD-20.1.7.2
                   REQUIRED_LIBRARIES TrackParticleAthenaPoolPoolCnv
                   REFERENCE_TAG ${TRKEVENTATHENAPOOL_REFERENCE_TAG} )
 else()

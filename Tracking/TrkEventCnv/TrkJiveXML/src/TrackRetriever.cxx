@@ -402,19 +402,19 @@ namespace JiveXML {
 			typedef std::pair< TrackCollection , std::string > tracksNamePair;
 			std::vector< tracksNamePair > requestedTrackColls;
 			//First try to get hold of the priorty track collection
-			const TrackCollection* tracks = NULL ;
+			const TrackCollection* tracks = nullptr ;
 			if (evtStore()->retrieve(tracks, m_PriorityTrackCollection).isFailure()){
 				ATH_MSG_WARNING( "Unable to retrieve requested priority track collection "<< m_PriorityTrackCollection);
 			} else {
 				//Add this to the list of requested collections
-				requestedTrackColls.push_back(tracksNamePair(*tracks,m_PriorityTrackCollection));
+				requestedTrackColls.emplace_back(*tracks,m_PriorityTrackCollection);
 			}
 
 			//If we have been given an explicit list, try to retrieve these in the order
 			//they were given
 			std::vector<std::string>::iterator CollNameItr = m_OtherTrackCollections.begin();
 			for ( ; CollNameItr != m_OtherTrackCollections.end(); ++CollNameItr){
-				const TrackCollection* tracks = NULL ;
+				const TrackCollection* tracks = nullptr ;
 				if (evtStore()->retrieve(tracks, (*CollNameItr)).isFailure()){
 					ATH_MSG_WARNING( "Unable to retrieve requested track collection " << (*CollNameItr) );
 				continue ;
@@ -422,7 +422,7 @@ namespace JiveXML {
 				//skip if it's priority collection again
 				if ((*CollNameItr) == m_PriorityTrackCollection){ continue; }
 				//Add them to the list of requested collections
-				requestedTrackColls.push_back(tracksNamePair(*tracks,(*CollNameItr)));
+				requestedTrackColls.emplace_back(*tracks,(*CollNameItr));
 			} // end OtherCollections loop
 			//If no collections had been requested explicitly, loop over all of them
 			if (m_OtherTrackCollections.empty()) {
@@ -455,7 +455,7 @@ namespace JiveXML {
 				continue ;
 
 				//Add this to the list of requested collections
-				requestedTrackColls.push_back(tracksNamePair(*tracks,trackCollIter.key()));
+				requestedTrackColls.emplace_back(*tracks,trackCollIter.key());
 			} //loop over all track collections
 		}
 
@@ -482,7 +482,7 @@ namespace JiveXML {
 			* StoreGate key can be either 'TruthCollection' or just 'Truth' suffix. Check both.
 			* Using 'SG::contains' check first, avoids spitting out SG warnings
 			*/
-			const TrackTruthCollection *truthCollection = NULL ;
+			const TrackTruthCollection *truthCollection = nullptr ;
 			//Check for given truth collection
 			if ( collectionName == m_PriorityTrackCollection ){
 				if ( evtStore()->contains<TrackTruthCollection>(m_TrackTruthCollection) ){

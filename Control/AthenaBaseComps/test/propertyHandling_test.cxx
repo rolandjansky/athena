@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -218,7 +218,6 @@ void test1 (ISvcLocator* svcLoc)
   std::cout << "test1\n";
 
   MyAthAlgorithm alg ("alg", svcLoc);  alg.addRef();
-  //assert (alg.setProperties().isSuccess());
   assert (alg.sysInitialize().isSuccess());
 
   assert (alg.rkey.clid() == 293847295);
@@ -315,7 +314,7 @@ void test2 (ISvcLocator* svcLoc)
 
   MyAthAlgorithm alg ("alg", svcLoc);  alg.addRef();
   MyAthAlgTool tool ("MyAthAlgTool", "tool", &alg);   tool.addRef();
-  assert (tool.setProperties().isSuccess());
+  tool.bindPropertiesTo(svcLoc->getOptsSvc());
   assert (tool.sysInitialize().isSuccess());
 
   assert (tool.rkey.clid() == 293847295);

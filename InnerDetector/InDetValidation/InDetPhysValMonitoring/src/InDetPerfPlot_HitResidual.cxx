@@ -101,7 +101,7 @@ InDetPerfPlot_HitResidual::initializePlots() {
 }
 
 void
-InDetPerfPlot_HitResidual::fill(const xAOD::TrackParticle& trkprt) {
+InDetPerfPlot_HitResidual::fill(const xAOD::TrackParticle& trkprt, float weight) {
   const static bool hitDetailsAvailable = trkprt.isAvailable<std::vector<int> >("measurement_region");
 
   if (!hitDetailsAvailable) {
@@ -146,29 +146,29 @@ InDetPerfPlot_HitResidual::fill(const xAOD::TrackParticle& trkprt) {
         }
         if ((width > 0) or (det ==TRT)){//TRT does not have defined cluster width 
           // introduce cluster width histograms
-          fillHisto(m_phiWidth[det][region], width);
-          fillHisto(m_etaWidth[det][region], etaWidth);
-          fillHisto(m_residualx[det][region], residualLocX);
+          fillHisto(m_phiWidth[det][region], width, weight);
+          fillHisto(m_etaWidth[det][region], etaWidth, weight);
+          fillHisto(m_residualx[det][region], residualLocX, weight);
           const bool hasYCoordinate = (det != SCT)and(det != TRT); // SCT & TRT do not have LocY
           if (hasYCoordinate) {
-            fillHisto(m_residualy[det][region], residualLocY);
+            fillHisto(m_residualy[det][region], residualLocY, weight);
           }
-          fillHisto(m_pullx[det][region], pullLocX);
+          fillHisto(m_pullx[det][region], pullLocX, weight);
           if (hasYCoordinate) { // SCT & TRT do not have LocY
-            fillHisto(m_pully[det][region], pullLocY);
+            fillHisto(m_pully[det][region], pullLocY, weight);
           }
           if ((det == TRT) or (width < 0)) {
             continue;
           }
           if (width == 1) {
-            fillHisto(m_residualx_1hit[det][region], residualLocX);
+            fillHisto(m_residualx_1hit[det][region], residualLocX, weight);
             if (hasYCoordinate) {
-              fillHisto(m_residualy_1hit[det][region], residualLocY);
+              fillHisto(m_residualy_1hit[det][region], residualLocY, weight);
             }
           } else {
-            fillHisto(m_residualx_2ormorehits[det][region], residualLocX);
+            fillHisto(m_residualx_2ormorehits[det][region], residualLocX, weight);
             if (hasYCoordinate) {
-              fillHisto(m_residualy_2ormorehits[det][region], residualLocY);
+              fillHisto(m_residualy_2ormorehits[det][region], residualLocY, weight);
             }
           }
         }

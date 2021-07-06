@@ -134,7 +134,7 @@ def InDetCosmicsEventPhaseCfg(flags, InputTrackCollections, name = 'InDetCosmics
 # --------------------------------------------------------------------------------
 def TRTPhaseCfg(flags, self, InputTrackCollections = [], **kwargs):
     acc = ComponentAccumulator()
-    if flags.InDet.doPRDFormation and flags.Detector.RecoTRT:
+    if flags.Detector.EnableTRT and flags.InDet.doPRDFormation:
         acc.merge(TRTPhaseCondCfg(flags))
         #    
         # --- calculation of the event phase from all 3 input collections
@@ -152,7 +152,7 @@ if __name__ == "__main__":
     ConfigFlags.Concurrency.NumThreads=numThreads
     ConfigFlags.Concurrency.NumConcurrentEvents=numThreads # Might change this later, but good enough for the moment.
 
-    ConfigFlags.Detector.RecoTRT = True
+    # TODO: TRT only?
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.RDO
@@ -161,9 +161,6 @@ if __name__ == "__main__":
 
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     top_acc = MainServicesCfg(ConfigFlags)
-
-    msgService = top_acc.getService('MessageSvc')
-    msgService.Format = "S:%s E:%e % F%138W%S%7W%R%T  %0W%M"
     
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     top_acc.merge(PoolReadCfg(ConfigFlags))

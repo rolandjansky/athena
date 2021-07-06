@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef INDETETADEPENDENTCUTS_INDETETADEPENDENTCUTSSVC_H
 #define INDETETADEPENDENTCUTS_INDETETADEPENDENTCUTSSVC_H
@@ -18,9 +18,9 @@
 #include "GaudiKernel/ISvcLocator.h"
 
 namespace InDet {
-  class InDetEtaDependentCutsSvc: virtual public IInDetEtaDependentCutsSvc,
-                                  public AthService {
-
+  class InDetEtaDependentCutsSvc final
+    : virtual public IInDetEtaDependentCutsSvc, public AthService
+  {
     /////////////////////////////////////////////////////////////////// 
     // Public methods: 
     /////////////////////////////////////////////////////////////////// 

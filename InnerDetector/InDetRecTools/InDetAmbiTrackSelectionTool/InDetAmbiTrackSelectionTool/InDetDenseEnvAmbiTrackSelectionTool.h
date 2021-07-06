@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -238,8 +238,8 @@ namespace InDet
         if (ATH_UNLIKELY(!x)) return true;
         if (ATH_UNLIKELY(!y)) return false;
         if (ATH_UNLIKELY(!x->trackParameters()  and !y->trackParameters())) return false;
-        if (ATH_UNLIKELY(!x->trackParameters() && x->trackParameters()->size() <= 0) ) return true;
-        if (ATH_UNLIKELY(!y->trackParameters() && y->trackParameters()->size() <= 0) ) return false;
+        if (ATH_UNLIKELY(!x->trackParameters() || x->trackParameters()->size() <= 0) ) return true;
+        if (ATH_UNLIKELY(!y->trackParameters() || y->trackParameters()->size() <= 0) ) return false;
         return std::fabs( (*x->trackParameters())[0]->parameters()[Trk::qOverP]) < std::fabs( (*y->trackParameters())[0]->parameters()[Trk::qOverP]) ;
       }
     };
@@ -267,8 +267,8 @@ namespace InDet
         m_type.resize(m_nTSoS,OtherTsos);    
         m_detType.resize(m_nTSoS,-1.);
         m_hitIsShared.resize(m_nTSoS, 0 );
-        m_splitProb1.resize(m_nTSoS,-1.) ;
-        m_splitProb2.resize(m_nTSoS,-1.) ;
+        m_splitProb1.resize(m_nTSoS,-1.f) ;
+        m_splitProb2.resize(m_nTSoS,-1.f) ;
         m_RIO.resize(m_nTSoS,0);
       };
         
@@ -340,13 +340,31 @@ namespace InDet
 
     /** Specific logic for identifing conversions with the goal 
      * of passing those tracks through to the final collection 
-     * will as little loss as possible
+     * with as little loss as possible
      * */
     bool performConversionCheck(const Trk::Track* ptrTrack,
         Trk::PRDtoTrackMap &prd_to_track_map,
         TrackHitDetails& trackHitDetails,
         TSoS_Details& tsosDetails,
         CacheEntry* ent) const;
+
+    /** Specific logic for identifing boosted light particle
+     * decays in jet topologies (tau and b), with the goal 
+     * of passing those tracks through to the final collection 
+     * with as little loss as possible
+     * */
+    bool performHadDecayCheck(const Trk::Track* ptrTrack,
+        Trk::PRDtoTrackMap &prd_to_track_map,
+        TrackHitDetails& trackHitDetails,
+        TSoS_Details& tsosDetails,
+        CacheEntry* ent) const;
+
+    /** Handle update of the shared hit counts if 
+     * either a conversion or a dense hadronic decay
+     * was identified using one of the methods above.
+     **/ 
+    void updateSharedForCollimated(TrackHitDetails& trackHitDetails,
+          TSoS_Details& tsosDetails) const; 
 
 
     /** Update the pixel clusters split information*/

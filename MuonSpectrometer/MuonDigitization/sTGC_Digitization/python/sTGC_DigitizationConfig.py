@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #
 # Import sTGC_Digitization job properties
@@ -22,12 +22,13 @@ def sTgcDigitizationTool(name="sTgcDigitizationTool",**kwargs):
         kwargs.setdefault("LastXing",  sTGC_LastXing() )  # this should match the range for the sTGC in Digitization/share/MuonDigitization.py   
     kwargs.setdefault("InputObjectName", "sTGCSensitiveDetector")
     kwargs.setdefault("OutputObjectName", "sTGC_DIGITS")
-    if jobproperties.Digitization.PileUpPremixing and 'OverlayMT' in jobproperties.Digitization.experimentalDigi():
+    if jobproperties.Digitization.PileUpPresampling and 'LegacyOverlay' not in jobproperties.Digitization.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         kwargs.setdefault("OutputSDOName", overlayFlags.bkgPrefix() + "sTGC_SDO")
     else:
         kwargs.setdefault("OutputSDOName", "sTGC_SDO")
     kwargs.setdefault("doToFCorrection", True)
+    kwargs.setdefault("doEfficiencyCorrection", False)
     kwargs.setdefault("SmearingTool","STgcCalibSmearingTool")
     if 'NewMerge' in jobproperties.Digitization.experimentalDigi():
         kwargs.setdefault("UseMcEventCollectionHelper",True)

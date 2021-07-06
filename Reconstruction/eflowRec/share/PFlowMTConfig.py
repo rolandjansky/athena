@@ -1,7 +1,13 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from eflowRec.eflowRecFlags import jobproperties
+
 from eflowRec.eflowRecConf import PFLeptonSelector
 PFLeptonSelector=PFLeptonSelector("PFLeptonSelector")
+if False == jobproperties.eflowRecFlags.useElectrons:
+  PFLeptonSelector.selectElectrons=False
+if False == jobproperties.eflowRecFlags.useMuons:
+  PFLeptonSelector.selectMuons=False
 topSequence += PFLeptonSelector
 
 from eflowRec.eflowRecConf import PFTrackSelector
@@ -49,12 +55,13 @@ PFAlgorithm.SubtractionToolList  = []
 from eflowRec.eflowRecConf import PFCellLevelSubtractionTool
 PFCellLevelSubtractionTool = PFCellLevelSubtractionTool("PFCellLevelSubtractionTool")
 
-from eflowRec.eflowRecConf import eflowCellEOverPTool_mc12_JetETMiss
-CellEOverPTool=eflowCellEOverPTool_mc12_JetETMiss()
+if jobproperties.eflowRecFlags.useRun2_mc20_EOverP:
+  from eflowRec.eflowRecConf import eflowCellEOverPTool_Run2_mc20_JetETMiss
+  PFCellLevelSubtractionTool.eflowCellEOverPTool = eflowCellEOverPTool_Run2_mc20_JetETMiss()
+else:
+  from eflowRec.eflowRecConf import eflowCellEOverPTool_mc12_JetETMiss
+  PFCellLevelSubtractionTool.eflowCellEOverPTool = eflowCellEOverPTool_mc12_JetETMiss()
 
-PFCellLevelSubtractionTool.eflowCellEOverPTool=CellEOverPTool
-
-from eflowRec.eflowRecFlags import jobproperties
 if jobproperties.eflowRecFlags.eflowAlgType == "EOverP":
    PFCellLevelSubtractionTool.CalcEOverP = True
    PFCellLevelSubtractionTool.nMatchesInCellLevelSubtraction = -1
@@ -90,9 +97,10 @@ PFAlgorithm.SubtractionToolList += [PFCellLevelSubtractionTool]
 from eflowRec.eflowRecConf import PFRecoverSplitShowersTool
 PFRecoverSplitShowersTool = PFRecoverSplitShowersTool("PFRecoverSplitShowersTool")
 
-CellEOverPTool_Recover=eflowCellEOverPTool_mc12_JetETMiss("eflowCellEOverPTool_mc12_JetETMiss_Recover")
-
-PFRecoverSplitShowersTool.eflowCellEOverPTool=CellEOverPTool_Recover
+if jobproperties.eflowRecFlags.useRun2_mc20_EOverP:
+  PFRecoverSplitShowersTool.eflowCellEOverPTool=eflowCellEOverPTool_Run2_mc20_JetETMiss("eflowCellEOverPTool_Run2_mc20_JetETMiss_Recover")
+else:
+  PFRecoverSplitShowersTool.eflowCellEOverPTool=eflowCellEOverPTool_mc12_JetETMiss("eflowCellEOverPTool_mc12_JetETMiss_Recover")
 
 if jobproperties.eflowRecFlags.recoverIsolatedTracks == True:
    PFRecoverSplitShowersTool.RecoverIsolatedTracks = True
@@ -223,65 +231,43 @@ PFAlgorithm.BaseToolList += [PFLCCalibTool]
 
 topSequence += PFAlgorithm
 
-from eflowRec.eflowRecConf import PFOChargedCreatorAlgorithm
-PFOChargedCreatorAlgorithm = PFOChargedCreatorAlgorithm("PFOChargedCreatorAlgorithm")
-
+from eflowRec.eflowRecConf import PFChargedFlowElementCreatorAlgorithm
+PFOChargedCreatorAlgorithm = PFChargedFlowElementCreatorAlgorithm("PFOChargedCreatorAlgorithm")
 if jobproperties.eflowRecFlags.eflowAlgType == "EOverP":
-   PFOChargedCreatorAlgorithm.PFOOutputName="EOverPChargedParticleFlowObjects"
+   PFOChargedCreatorAlgorithm.FlowElementOutputName="EOverPChargedParticleFlowObjects"
    PFOChargedCreatorAlgorithm.EOverPMode=True
-
 topSequence += PFOChargedCreatorAlgorithm
 
-from eflowRec.eflowRecConf import PFONeutralCreatorAlgorithm
-PFONeutralCreatorAlgorithm =  PFONeutralCreatorAlgorithm("PFONeutralCreatorAlgorithm")
+from eflowRec.eflowRecConf import PFNeutralFlowElementCreatorAlgorithm
+PFONeutralCreatorAlgorithm =  PFNeutralFlowElementCreatorAlgorithm("PFONeutralCreatorAlgorithm")
 if jobproperties.eflowRecFlags.useCalibHitTruth:
    PFONeutralCreatorAlgorithm.UseCalibHitTruth=True
-
 if jobproperties.eflowRecFlags.eflowAlgType == "EOverP":
-   PFONeutralCreatorAlgorithm.PFOOutputName="EOverPNeutralParticleFlowObjects"
+   PFONeutralCreatorAlgorithm.FlowElementOutputName="EOverPNeutralParticleFlowObjects"
    PFONeutralCreatorAlgorithm.EOverPMode=True
-
-if True == jobproperties.eflowRecFlags.provideShowerSubtractedClusters:
-    PFONeutralCreatorAlgorithm.AddShowerSubtractedClusters = True
-
 topSequence += PFONeutralCreatorAlgorithm
-from eflowRec.eflowRecFlags import jobproperties # set reco flags for eFlowRec algorithms
-jobproperties.eflowRecFlags.usePFEGammaPFOAssoc.set_Value_and_Lock(True)
 
+from eflowRec.eflowRecConf import PFLCNeutralFlowElementCreatorAlgorithm
+PFOLCNeutralCreatorAlgorithm = PFLCNeutralFlowElementCreatorAlgorithm("PFLCNeutralFlowElementCreatorAlgorithm")
+if jobproperties.eflowRecFlags.eflowAlgType == "EOverP":
+   PFOLCNeutralCreatorAlgorithm.FEInputContainerName="EOverPNeutralParticleFlowObjects"
+   PFOLCNeutralCreatorAlgorithm.FELCOutputName="EOverPLCNeutralParticleFlowObjects"
+topSequence += PFOLCNeutralCreatorAlgorithm
 
-if jobproperties.eflowRecFlags.usePFEGammaPFOAssoc:
+if jobproperties.eflowRecFlags.usePFFlowElementAssoc:
 
-   from eflowRec.eflowRecConf import PFEGammaPFOAssoc
-   PFEGammaPFOAssoc=PFEGammaPFOAssoc("PFEGammaPFOAssoc")
-   topSequence += PFEGammaPFOAssoc
+   # Electron/Photon linkers to flow elements
+   from eflowRec.eflowRecConf import PFEGamFlowElementAssoc
+   PFEGamFlowElementAssocAlg=PFEGamFlowElementAssoc("PFEGamFlowElementAssoc")
+   topSequence +=PFEGamFlowElementAssocAlg
 
-
-#Add new FlowElement creators
-if jobproperties.eflowRecFlags.useFlowElements:
-  from eflowRec.eflowRecConf import PFChargedFlowElementCreatorAlgorithm
-  PFChargedFlowElementCreatorAlgorithm = PFChargedFlowElementCreatorAlgorithm("PFChargedFlowElementCreatorAlgorithm")
-  topSequence += PFChargedFlowElementCreatorAlgorithm
-
-  from eflowRec.eflowRecConf import PFNeutralFlowElementCreatorAlgorithm
-  PFNeutralFlowElementCreatorAlgorithm = PFNeutralFlowElementCreatorAlgorithm("PFNeutralFlowElementCreatorAlgorithm")
-  topSequence += PFNeutralFlowElementCreatorAlgorithm
-
-  from eflowRec.eflowRecConf import PFLCNeutralFlowElementCreatorAlgorithm
-  PFLCNeutralFlowElementCreatorAlgorithm = PFLCNeutralFlowElementCreatorAlgorithm("PFLCNeutralFlowElementCreatorAlgorithm")
-  topSequence += PFLCNeutralFlowElementCreatorAlgorithm
-
-  # Electron/Photon linkers to flow elements
-  from eflowRec.eflowRecConf import PFEGamFlowElementAssoc
-  PFEGamFlowElementAssocAlg=PFEGamFlowElementAssoc("PFEGamFlowElementAssoc")
-  topSequence +=PFEGamFlowElementAssocAlg
-
-  # Muon linker to flow elements
-  from eflowRec.eflowRecConf import PFMuonFlowElementAssoc
-  PFMuonFlowElementAssocAlg=PFMuonFlowElementAssoc("PFMuonFlowElementAssocAlgorithm")
-  #Gaudi switch to add the experimental linker between muon clusters and neutral flow elements (FE)
-  PFMuonFlowElementAssocAlg.m_LinkNeutralFEClusters=True
-  PFMuonFlowElementAssocAlg.m_UseMuonTopoClusters=False # requires m_LinkNeutralFEClusters=True and if set to True= Retrieves TopoClusters from Aux. If not, cell-match muon calocluster to NFE topocluster.
-  topSequence += PFMuonFlowElementAssocAlg
+   # Muon linker to flow elements
+   from eflowRec.eflowRecConf import PFMuonFlowElementAssoc
+   PFMuonFlowElementAssocAlg=PFMuonFlowElementAssoc("PFMuonFlowElementAssocAlgorithm")
+   #Gaudi switch to add the experimental linker between muon clusters and neutral flow elements (FE)
+   PFMuonFlowElementAssocAlg.m_LinkNeutralFEClusters=True
+   PFMuonFlowElementAssocAlg.m_UseMuonTopoClusters=False # requires m_LinkNeutralFEClusters=True and if set to True= Retrieves TopoClusters from Aux. If not, cell-match muon calocluster to NFE topocluster.
+   topSequence += PFMuonFlowElementAssocAlg
 
       
 

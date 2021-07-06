@@ -1,35 +1,37 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDALGS_MUONCOMBINEDINDETEXTENSIONALG_H
 #define MUONCOMBINEDALGS_MUONCOMBINEDINDETEXTENSIONALG_H
 
+#include <string>
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
 #include "MuonCombinedEvent/InDetCandidateToTagMap.h"
+#include "MuonCombinedToolInterfaces/IMuonCombinedInDetExtensionTool.h"
 #include "MuonPrepRawData/MMPrepDataContainer.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "TrkTrack/TrackCollection.h"
-#include "MuonCombinedToolInterfaces/IMuonCombinedInDetExtensionTool.h"
 
-#include <string>
-
+// uses (further down the call chain) the MuPatHitTool that has a mutable cache of pointers to-be-deleted at the end of the event
+// thus, currently, the MuonCombinedInDetExtensionAlg cannot become an AthReentrantAlgorithm
 class MuonCombinedInDetExtensionAlg : public AthReentrantAlgorithm {
-  public:
+public:
     MuonCombinedInDetExtensionAlg(const std::string& name, ISvcLocator* pSvcLocator);
-    ~MuonCombinedInDetExtensionAlg()=default;
+    ~MuonCombinedInDetExtensionAlg() = default;
 
-    StatusCode initialize();
-    StatusCode execute(const EventContext& ctx) const;
+    StatusCode initialize() override;
+    StatusCode execute(const EventContext& ctx) const override;
 
-  private:
-    ToolHandleArray<MuonCombined::IMuonCombinedInDetExtensionTool> m_muonCombinedInDetExtensionTools{this,"MuonCombinedInDetExtensionTools",{}};
+private:
+    ToolHandleArray<MuonCombined::IMuonCombinedInDetExtensionTool> m_muonCombinedInDetExtensionTools{
+        this, "MuonCombinedInDetExtensionTools", {}};
     SG::ReadHandleKey<InDetCandidateCollection> m_indetCandidateCollectionName{
         this,
         "InDetCandidateLocation",
@@ -93,16 +95,14 @@ class MuonCombinedInDetExtensionAlg : public AthReentrantAlgorithm {
     SG::WriteHandleKey<Trk::SegmentCollection> m_segments{
         this,
         "SegmentCollection",
-        "MuGirlSegments",
-        "Segment collection",
+        "",
+        "specify segment collection",
     };
 
     Gaudi::Property<bool> m_usePRDs{this, "usePRDs", false};
     Gaudi::Property<bool> m_hasCSC{this, "HasCSC", true};
     Gaudi::Property<bool> m_hasSTGC{this, "HasSTgc", true};
     Gaudi::Property<bool> m_hasMM{this, "HasMM", true};
-
 };
-
 
 #endif

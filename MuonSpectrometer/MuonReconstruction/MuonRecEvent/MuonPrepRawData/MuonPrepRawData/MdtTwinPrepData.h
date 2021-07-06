@@ -61,7 +61,7 @@ namespace Muon
 		    const Identifier &id,
 		    const IdentifierHash &collectionHash,
 		    const Amg::Vector2D& driftRadiusXTwin,
-		    const Amg::MatrixX* errDriftRadiusXTwin,
+		    const Amg::MatrixX& errDriftRadiusXTwin,
 		    const MuonGM::MdtReadoutElement* detEl,
 		    const int tdc,
 		    const int adc,
@@ -91,10 +91,10 @@ namespace Muon
   private:
 
     /** @brief TDC value of twin tube - typical TDC spectra can go from 0 up to 2500.*/
-    int m_tdcTwin;
+    int m_tdcTwin{};
 
     /** @brief ADC value of twin tube - typical ADC spectra can go from 0 up to 250.*/
-    int m_adcTwin;
+    int m_adcTwin{};
     
     /** copy content into this object. DOES NOT clear! */
     void copy( const MdtTwinPrepData& prd);
@@ -117,13 +117,19 @@ namespace Muon
 
     // return globalPosition:
     inline const Amg::Vector3D& MdtTwinPrepData::globalPosition() const
-      {
-	if (not m_globalPosition) m_globalPosition.set(std::unique_ptr<const Amg::Vector3D>(detectorElement()->surface(identify()).Trk::Surface::localToGlobal(localPosition())));
-
-	if (not m_globalPosition) throw Trk::PrepRawDataUndefinedVariable();
-    
-	return *m_globalPosition;
+    {
+      if (not m_globalPosition){
+        m_globalPosition.set(std::make_unique<const Amg::Vector3D>(
+          detectorElement()
+            ->surface(identify())
+            .Trk::Surface::localToGlobal(localPosition())));
       }
+
+      if (not m_globalPosition)
+        throw Trk::PrepRawDataUndefinedVariable();
+
+      return *m_globalPosition;
+    }
 
     inline void MdtTwinPrepData::copy( const MdtTwinPrepData& RIO){
       m_tdcTwin = RIO.tdcTwin();

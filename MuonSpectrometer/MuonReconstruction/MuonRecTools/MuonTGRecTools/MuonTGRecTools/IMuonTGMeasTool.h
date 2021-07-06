@@ -5,54 +5,45 @@
 #ifndef MUONTGRECTOOLS_IMUONTGMEASTOOL_H
 #define MUONTGRECTOOLS_IMUONTGMEASTOOL_H
 
+#include "EventPrimitives/EventPrimitives.h"
 #include "GaudiKernel/IAlgTool.h"
-#include "TrkGeometry/TrackingGeometry.h"
 #include "MuonTGRecTools/MuonTGHits.h"
 #include "MuonTGRecTools/MuonTGSegments.h"
-#include "EventPrimitives/EventPrimitives.h"
+#include "TrkGeometry/TrackingGeometry.h"
 
-namespace Muon{
+namespace Muon {
 
- /** @class IMuonTGMeasTool
+    /** @class IMuonTGMeasTool
 
-     contain application tools for (muon) tracking geometry
-          
-     @author Sarka.Todorova@cern.ch
-     */
+        contain application tools for (muon) tracking geometry
 
-static const InterfaceID IID_IMuonTGMeasTool("IMuonTGMeasTool", 1, 0);
- 
-class IMuonTGMeasTool : virtual public IAlgTool  {
+        @author Sarka.Todorova@cern.ch
+        */
 
-public:
+    class IMuonTGMeasTool : virtual public IAlgTool {
+    public:
+        /** Virtual destructor */
+        virtual ~IMuonTGMeasTool() = default;
 
-  /** Virtual destructor */
-  virtual ~IMuonTGMeasTool() {};
+        /** AlgTool interface method */
+        static const InterfaceID& interfaceID() {
+            static const InterfaceID IID_IMuonTGMeasTool("IMuonTGMeasTool", 1, 0);
+            return IID_IMuonTGMeasTool;
+        };
 
-  /** AlgTool interface method */
-  static const InterfaceID& interfaceID()
-     { return IID_IMuonTGMeasTool; };
+        virtual const Trk::TrackParameters* layerToDetEl(const Trk::Layer*, const Trk::TrackParameters*, Identifier) const = 0;
+        virtual const Trk::TrackParameters* detElToLayer(const Trk::Layer*, const Trk::TrackParameters*, Identifier) const = 0;
+        virtual const Trk::RIO_OnTrack* measToLayer(const Trk::Layer*, const Trk::TrackParameters*, const Trk::RIO_OnTrack*) const = 0;
+        virtual double residual(const Trk::Layer*, const Trk::TrackParameters*, const Trk::RIO_OnTrack*) const = 0;
+        virtual double residual(const Trk::Layer*, const Trk::TrackParameters*, Identifier) const = 0;
+        virtual double residual(const Trk::TrackParameters*, const Trk::RIO_OnTrack*) const = 0;
+        virtual double residual(const Trk::TrackParameters*, Identifier&) const = 0;
+        virtual const Identifier nearestDetEl(const Trk::Layer*, const Trk::TrackParameters*, bool measPhi, double& pitch) const = 0;
+        virtual const Trk::Layer* associatedLayer(Identifier id, Amg::Vector3D& gp) const = 0;
+        virtual const Trk::Layer* associatedLayer(Identifier id, const Trk::TrackingVolume* vol) const = 0;
+        virtual const Trk::Layer* match(Identifier id, const Trk::Layer* lay) const = 0;
+    };
 
-  virtual const std::vector<const Trk::PrepRawData*>* getMeasurementOnLayer(const Trk::Layer* lay) const=0;
-  virtual const std::vector<const Trk::PrepRawData*>* getEtaPhiMeasurementOnLayer(const Trk::Layer* lay, bool phi) const=0;
-  virtual const std::vector<const Trk::Segment*>* getSegments(const Trk::DetachedTrackingVolume* station) const=0;
-  virtual const MuonTGSegments* getAllSegments() const=0;
-  virtual const MuonTGHits* getAllHits() const=0;
-  virtual const Trk::TrackParameters* layerToDetEl(const Trk::Layer*, const Trk::TrackParameters*, Identifier ) const=0;
-  virtual const Trk::TrackParameters* detElToLayer(const Trk::Layer*, const Trk::TrackParameters*, Identifier ) const=0;
-  virtual const Trk::RIO_OnTrack* measToLayer(const Trk::Layer*, const Trk::TrackParameters*, const Trk::RIO_OnTrack* ) const=0;
-  virtual double residual(const Trk::Layer* , const Trk::TrackParameters*, const Trk::RIO_OnTrack*) const=0;
-  virtual double residual(const Trk::Layer* , const Trk::TrackParameters*, Identifier) const=0;
-  virtual double residual(const Trk::TrackParameters*, const Trk::RIO_OnTrack*) const=0;
-  virtual double residual(const Trk::TrackParameters*, Identifier&) const=0;
-  virtual const Identifier nearestDetEl(const Trk::Layer*, const Trk::TrackParameters*, bool measPhi, double& pitch) const=0; 
-  virtual const Trk::Layer* associatedLayer(Identifier id, Amg::Vector3D& gp) const=0; 
-  virtual const Trk::Layer* associatedLayer(Identifier id, const Trk::TrackingVolume* vol) const=0; 
-  virtual const Trk::Layer* match(Identifier id, const Trk::Layer* lay) const=0;
-  
-};
+}  // namespace Muon
 
-} 
-
-#endif //MUONTGRECTOOLS_IMUONTGMEASTOOL_H
-
+#endif  // MUONTGRECTOOLS_IMUONTGMEASTOOL_H

@@ -28,32 +28,64 @@ TrigEgammaMatchingToolMT::TrigEgammaMatchingToolMT( const std::string& name ):
 {;}
 
 
-
+//!=======================================================================
 
 StatusCode TrigEgammaMatchingToolMT::initialize() 
 {
   ATH_CHECK(tdt().retrieve());
 
   ATH_CHECK( m_emTauRoIKey.initialize() );
-  m_keys[ "Electron"]   = "HLT_egamma_Electrons" ;
-  m_keys[ "Photon"]     = "HLT_egamma_Photons" ;
-  m_keys[ "Track"]      = "";
-  m_keys[ "EFCalo"]     = "HLT_CaloEMClusters" ;
-  m_keys[ "L2Electron"] = "HLT_L2Electrons" ;
-  m_keys[ "L2Photon"]   = "HLT_L2Photons" ;
-  m_keys[ "L2Calo"]     = "HLT_L2CaloEMClusters" ;
-  m_keys[ "L1Calo"]     = "LVL1EmTauRoIs" ;
+  ATH_CHECK( m_ringerKey.initialize() );
+
+
+  m_keys[ "Electrons"]         = "HLT_egamma_Electrons" ;
+  m_keys[ "Electrons_GSF"]     = "HLT_egamma_Electrons_GSF" ; // gsf
+  m_keys[ "Electrons_LRT"]     = "HLT_egamma_Electrons_LRT" ; // lrt
+  m_keys[ "Photons"]           = "HLT_egamma_Photons" ;
+  // intermediate steps
+  m_keys[ "PrecisionCalo"]     = "HLT_CaloEMClusters" ;
+  m_keys[ "PrecisionCalo_LRT"] = "HLT_CaloEMClusters_LRT" ; // lrt
+  // Fast steps
+  m_keys[ "FastElectrons"]     = "HLT_FastElectrons" ;
+  m_keys[ "FastElectrons_LRT"] = "HLT_FastElectrons_LRT" ; // lrt
+  m_keys[ "FastPhotons"]       = "HLT_FastPhotons" ;
+  m_keys[ "FastCalo"]          = "HLT_FastCaloEMClusters" ;
+  // L1
+  m_keys[ "L1Calo"]            = "LVL1EmTauRoIs" ;
 
   return StatusCode::SUCCESS;
 }
 
 
+//!=======================================================================
 
 std::string TrigEgammaMatchingToolMT::key( std::string key) const
 {
   return m_keys.at(key); 
 }
 
+//!=======================================================================
+
+bool TrigEgammaMatchingToolMT::isPassed(const xAOD::Egamma *eg,const std::string &trigger, unsigned int condition ) const
+{
+    const TrigCompositeUtils::Decision *dec=nullptr;
+    if( match( eg, trigger, dec ) ){
+      if( dec ){
+        if(xAOD::EgammaHelpers::isElectron(eg)){
+          std::string key = this->key("Electrons");
+          if(boost::contains(trigger,"gsf")) key=this->key("Electrons_GSF");
+          if(boost::contains(trigger,"lrt")) key=this->key("Electrons_LRT");
+          return ancestorPassed<xAOD::ElectronContainer>(dec, trigger,key, condition);
+        }
+        if(xAOD::EgammaHelpers::isPhoton(eg)){
+          return ancestorPassed<xAOD::PhotonContainer>(dec, trigger, key("Photons"), condition);
+        }
+      }
+    }
+    return false;
+}
+
+//!=======================================================================
 
 bool TrigEgammaMatchingToolMT::match(const xAOD::Egamma *eg,const std::string &trigger, const TrigCompositeUtils::Decision *&dec, unsigned int condition ) const
 {
@@ -89,66 +121,72 @@ bool TrigEgammaMatchingToolMT::match(const xAOD::Egamma *eg,const std::string &t
 }
 
 
-bool TrigEgammaMatchingToolMT::match(const xAOD::Egamma *eg,const std::string &trigger, unsigned int condition ) const
-{
-    const TrigCompositeUtils::Decision *dec=nullptr;
-    if( match( eg, trigger, dec ) ){
-      if( dec ){
-        if(xAOD::EgammaHelpers::isElectron(eg)){
-          return ancestorPassed<xAOD::ElectronContainer>(dec, trigger,key("Electron"), condition);
-        }
-        if(xAOD::EgammaHelpers::isPhoton(eg)){
-          return ancestorPassed<xAOD::PhotonContainer>(dec, trigger, key("Photon"), condition);
-        }
-      }
-    }
-    return false;
-}
-
-
+//!=======================================================================
 
 bool TrigEgammaMatchingToolMT::matchHLTPhoton(const xAOD::Photon *eg,const std::string &trigger, const TrigCompositeUtils::Decision *&dec, unsigned int condition ) const
 { 
   ATH_MSG_DEBUG("Match HLT Photon");
-  return closestObject<xAOD::PhotonContainer>( eg, dec, trigger, key("Photon"), condition );
+  return closestObject<xAOD::PhotonContainer>( eg, dec, trigger, key("Photons"), condition );
 }
 
+//!=======================================================================
 
 bool TrigEgammaMatchingToolMT::matchHLTElectron(const xAOD::Electron *eg,const std::string &trigger, const TrigCompositeUtils::Decision *&dec, unsigned int condition ) const
 { 
-  ATH_MSG_DEBUG("Match HLT Electron");
-  return closestObject<xAOD::ElectronContainer>( eg, dec , trigger, key("Electron"), condition );
+  if (boost::contains(trigger,"gsf")){
+      ATH_MSG_DEBUG("Matched HLT Electron GSF");
+      return closestObject<xAOD::ElectronContainer>( eg, dec , trigger, key("Electrons_GSF"), condition );
+    }else if(boost::contains(trigger,"lrt")){
+      ATH_MSG_DEBUG("Matched HLT Electron LRT");
+      return closestObject<xAOD::ElectronContainer>( eg, dec , trigger, key("Electrons_LRT"), condition );
+    }else {
+      ATH_MSG_DEBUG("Matched HLT Electron");
+      return closestObject<xAOD::ElectronContainer>( eg, dec , trigger, key("Electrons"), condition );     
+    }
 }
 
+//!=======================================================================
 
 bool TrigEgammaMatchingToolMT::matchHLTCalo(const xAOD::Egamma *eg,const std::string &trigger, const TrigCompositeUtils::Decision *&dec, unsigned int condition ) const
 { 
   ATH_MSG_DEBUG("Match HLT Calo");
-  return closestObject<xAOD::CaloClusterContainer>( eg, dec, trigger, key("EFCalo"), condition );
+  if(boost::contains(trigger,"lrt")){
+    return closestObject<xAOD::CaloClusterContainer>( eg, dec, trigger, key("PrecisionCalo_LRT"), condition );
+  }else{
+    return closestObject<xAOD::CaloClusterContainer>( eg, dec, trigger, key("PrecisionCalo"), condition );
+  }
 }
 
+//!=======================================================================
 
 bool TrigEgammaMatchingToolMT::matchL2Photon(const xAOD::Photon *eg,const std::string &trigger, const TrigCompositeUtils::Decision *&dec, unsigned int condition ) const
 {
   ATH_MSG_DEBUG("Match L2 Photon");
-  return closestObject<xAOD::TrigPhotonContainer>( eg, dec, trigger, key("L2Photon"), condition );
+  return closestObject<xAOD::TrigPhotonContainer>( eg, dec, trigger, key("FastPhotons"), condition );
 }
   
+//!=======================================================================
 
 bool TrigEgammaMatchingToolMT::matchL2Electron(const xAOD::Electron *eg,const std::string &trigger, const TrigCompositeUtils::Decision *&dec, unsigned int condition ) const
 {
-  ATH_MSG_DEBUG("Match L2 Photon");
-  return closestObject<xAOD::TrigElectronContainer>( eg, dec, trigger, key("L2Electron"), condition );
+  ATH_MSG_DEBUG("Match L2 Electron");
+  if(boost::contains(trigger,"lrt")){
+    return closestObject<xAOD::TrigElectronContainer>( eg, dec, trigger, key("FastElectrons_LRT"), condition );
+  }else{
+    return closestObject<xAOD::TrigElectronContainer>( eg, dec, trigger, key("FastElectrons"), condition );
+  }
 }
 
+//!=======================================================================
 
 bool TrigEgammaMatchingToolMT::matchL2Calo(const xAOD::Egamma *eg,const std::string &trigger, const TrigCompositeUtils::Decision *&dec, unsigned int condition ) const
 {
   ATH_MSG_DEBUG("Match L2 Calo");
-  return closestObject<xAOD::TrigEMClusterContainer>( eg, dec, trigger, key("L2Calo") , condition);
+  return closestObject<xAOD::TrigEMClusterContainer>( eg, dec, trigger, key("FastCalo") , condition);
 }
   
-  
+//!=======================================================================
+
 bool TrigEgammaMatchingToolMT::matchL1( const xAOD::Egamma* eg, const std::string &trigger, const TrigCompositeUtils::Decision *&dec, unsigned int condition ) const
 {
   ATH_MSG_DEBUG("Match L1 Calo");
@@ -163,13 +201,51 @@ bool TrigEgammaMatchingToolMT::matchL1( const xAOD::Egamma* eg, const std::strin
       dec=initRoi.source;
       return true;                                                
     }                                                             
-  }                                                               
-                                                                     
+  }                                                                                                                            
   return false;
 }
 
-
+//!=======================================================================
  
+const xAOD::EmTauRoI* TrigEgammaMatchingToolMT::getL1Feature( const TrigCompositeUtils::Decision *dec ) const
+{
+  if( !dec )  return nullptr;
+  auto initRoi = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(dec, "initialRoI"); 
+  if( !initRoi.isValid() ) return nullptr;
+
+  SG::ReadHandle<xAOD::EmTauRoIContainer> l1_cont( m_emTauRoIKey, Gaudi::Hive::currentContext());
+  if( !l1_cont.isValid() ) return nullptr;
+
+  for( const auto *l1 : *l1_cont ){
+    if ( l1->roiType() != xAOD::EmTauRoI::RoIType::EMRoIWord) continue;
+    if((*initRoi.link)->roiWord()==l1->roiWord()){
+      return l1;
+    }
+  }
+  return nullptr;
+} 
+
+//!=======================================================================
+
+const xAOD::TrigRingerRings* TrigEgammaMatchingToolMT::getRingsFeature( const TrigCompositeUtils::Decision *dec ) const
+{
+  if( !dec )  return nullptr;
+  auto initRoi = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(dec, "initialRoI"); 
+  if( !initRoi.isValid() ) return nullptr;
+  
+  SG::ReadHandle<xAOD::TrigRingerRingsContainer> rg_cont( m_ringerKey, Gaudi::Hive::currentContext() );
+
+  if( !rg_cont.isValid() ) return nullptr;
+
+  for( const auto *rg : *rg_cont ){
+    if(rg->emCluster()->RoIword()==(*initRoi.link)->roiWord())
+      return rg;
+  }
+  return nullptr;
+} 
+
+
+
 
 
 

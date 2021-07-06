@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCDATABASEINPP_HH
@@ -14,7 +14,7 @@ class TGCDatabaseInPP : public TGCDatabase
 {
 public:
   // Constructor & Destructor
-  TGCDatabaseInPP (std::string filename, std::string blockname)
+  TGCDatabaseInPP (const std::string& filename, const std::string& blockname)
     : TGCDatabase(TGCDatabase::InPP, filename, blockname), 
     m_NIndexDBIn(0) 
   {

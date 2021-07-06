@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetMonitoring/HIEfficiencyResponseHistos.h"
@@ -96,7 +96,7 @@ int HIEfficiencyResponseHistos::buildHistos(){
 }
 
 
-int HIEfficiencyResponseHistos::fillHistosFromContainer(const xAOD::JetContainer &cont){
+int HIEfficiencyResponseHistos::fillHistosFromContainer(const xAOD::JetContainer &cont, float weight){
   m_n=2;
   m_harmonic=m_n-1;
   m_eventShape=nullptr;
@@ -141,29 +141,29 @@ int HIEfficiencyResponseHistos::fillHistosFromContainer(const xAOD::JetContainer
 
     if (fabs(refjet->eta()) > 2.1 ) continue;
     //   if (refPt<100 ) continue;
-    m_eff1->Fill(refPt, dr<0.1 ?  1 : 0 ); // 0 weight if not matching close enough
-    m_eff2->Fill(refPt, dr<0.2 ?  1 : 0 ); // 0 weight if not matching close enough
-    m_eff3->Fill(refPt, dr<0.3 ?  1 : 0 ); // 0 weight if not matching close enough
+    m_eff1->Fill(refPt, dr<0.1 ?  weight : 0 ); // 0 weight if not matching close enough
+    m_eff2->Fill(refPt, dr<0.2 ?  weight : 0 ); // 0 weight if not matching close enough
+    m_eff3->Fill(refPt, dr<0.3 ?  weight : 0 ); // 0 weight if not matching close enough
 
     if (m_FCalET > 2.7){
-      m_eff1_0_10->Fill(refPt, dr<0.1 ?  1 : 0 ); // 0 weight if not matching close enough
-      m_eff2_0_10->Fill(refPt, dr<0.2 ?  1 : 0 ); // 0 weight if not matching close enough
-      m_eff3_0_10->Fill(refPt, dr<0.3 ?  1 : 0 ); // 0 weight if not matching close enough
+      m_eff1_0_10->Fill(refPt, dr<0.1 ?  weight : 0 ); // 0 weight if not matching close enough
+      m_eff2_0_10->Fill(refPt, dr<0.2 ?  weight : 0 ); // 0 weight if not matching close enough
+      m_eff3_0_10->Fill(refPt, dr<0.3 ?  weight : 0 ); // 0 weight if not matching close enough
     }
     if (m_FCalET < 2.7 && m_FCalET > 1.75 ){//10-20%
-      m_eff1_10_20->Fill(refPt, dr<0.1 ?  1 : 0 ); // 0 weight if not matching close enough
-      m_eff2_10_20->Fill(refPt, dr<0.2 ?  1 : 0 ); // 0 weight if not matching close enough
-      m_eff3_10_20->Fill(refPt, dr<0.3 ?  1 : 0 ); // 0 weight if not matching close enough
+      m_eff1_10_20->Fill(refPt, dr<0.1 ?  weight : 0 ); // 0 weight if not matching close enough
+      m_eff2_10_20->Fill(refPt, dr<0.2 ?  weight : 0 ); // 0 weight if not matching close enough
+      m_eff3_10_20->Fill(refPt, dr<0.3 ?  weight : 0 ); // 0 weight if not matching close enough
     }
     if (m_FCalET < 1.75 && m_FCalET > 0.65 ){//20-40%
-      m_eff1_20_40->Fill(refPt, dr<0.1 ?  1 : 0 ); // 0 weight if not matching close enough
-      m_eff2_20_40->Fill(refPt, dr<0.2 ?  1 : 0 ); // 0 weight if not matching close enough
-      m_eff3_20_40->Fill(refPt, dr<0.3 ?  1 : 0 ); // 0 weight if not matching close enough
+      m_eff1_20_40->Fill(refPt, dr<0.1 ?  weight : 0 ); // 0 weight if not matching close enough
+      m_eff2_20_40->Fill(refPt, dr<0.2 ?  weight : 0 ); // 0 weight if not matching close enough
+      m_eff3_20_40->Fill(refPt, dr<0.3 ?  weight : 0 ); // 0 weight if not matching close enough
     }
     if (m_FCalET < 0.20 ){//60-100%
-      m_eff1_60_100->Fill(refPt, dr<0.1 ?  1 : 0 ); // 0 weight if not matching close enough
-      m_eff2_60_100->Fill(refPt, dr<0.2 ?  1 : 0 ); // 0 weight if not matching close enough
-      m_eff3_60_100->Fill(refPt, dr<0.3 ?  1 : 0 ); // 0 weight if not matching close enough
+      m_eff1_60_100->Fill(refPt, dr<0.1 ?  weight : 0 ); // 0 weight if not matching close enough
+      m_eff2_60_100->Fill(refPt, dr<0.2 ?  weight : 0 ); // 0 weight if not matching close enough
+      m_eff3_60_100->Fill(refPt, dr<0.3 ?  weight : 0 ); // 0 weight if not matching close enough
     }
     m_deltaRclosest->Fill( dr );
     float Acos = std::acos(std::cos(2*(matched->getAttribute<float>("JetEtaJESScaleMomentum_phi") - m_psiN_FCal)));
@@ -171,40 +171,41 @@ int HIEfficiencyResponseHistos::fillHistosFromContainer(const xAOD::JetContainer
     // while (diff > TMath::Pi()/2. ) diff = TMath::Pi() - diff;
 
     if( dr < 0.2) {
-      double relDiff = ( matched->pt()* toGeV - refPt )/refPt;
-      m_etres->Fill( relDiff );
+      double relDiff = -999.;
+      if (refPt > 0.) relDiff = ( matched->pt()* toGeV - refPt )/refPt;
+      m_etres->Fill( relDiff, weight );
       m_etres_eta->Fill( refjet->eta(), relDiff);
       if (matched->pt()* toGeV > 100) {
-	m_etres_eta_hpt->Fill( refjet->eta(), relDiff);
-	m_etres_pt_hpt_RP->Fill( m_psiN_FCal, relDiff );
-	m_etres_pt_hpt_2Dphi->Fill( Acos, relDiff );
+	m_etres_eta_hpt->Fill( refjet->eta(), relDiff, weight);
+	m_etres_pt_hpt_RP->Fill( m_psiN_FCal, relDiff, weight );
+	m_etres_pt_hpt_2Dphi->Fill( Acos, relDiff, weight );
       }
-      m_etres_pt->Fill( refPt, relDiff);
-      m_etres_pt_2Dphi->Fill( Acos, relDiff );
-      m_etres_pt_RP->Fill( m_psiN_FCal, relDiff );
+      m_etres_pt->Fill( refPt, relDiff, weight);
+      m_etres_pt_2Dphi->Fill( Acos, relDiff, weight );
+      m_etres_pt_RP->Fill( m_psiN_FCal, relDiff, weight );
       if (m_FCalET > 2.7){
-	m_etres_0_10->Fill( relDiff );
-	m_etres_eta_0_10->Fill( refjet->eta(), relDiff);
-	if (matched->pt()* toGeV > 100) m_etres_eta_hpt_0_10->Fill( refjet->eta(), relDiff);
-	m_etres_pt_0_10->Fill( refPt, relDiff);
+	m_etres_0_10->Fill( relDiff, weight );
+	m_etres_eta_0_10->Fill( refjet->eta(), relDiff, weight);
+	if (matched->pt()* toGeV > 100) m_etres_eta_hpt_0_10->Fill( refjet->eta(), relDiff, weight);
+	m_etres_pt_0_10->Fill( refPt, relDiff, weight);
       }
       if (m_FCalET < 2.7 && m_FCalET > 1.75 ){//10-20%
-	m_etres_10_20->Fill( relDiff );
-	m_etres_eta_10_20->Fill( refjet->eta(), relDiff);
-	if (matched->pt()* toGeV > 100) m_etres_eta_hpt_10_20->Fill( refjet->eta(), relDiff);
-	m_etres_pt_10_20->Fill( refPt, relDiff);
+	m_etres_10_20->Fill( relDiff, weight );
+	m_etres_eta_10_20->Fill( refjet->eta(), relDiff, weight);
+	if (matched->pt()* toGeV > 100) m_etres_eta_hpt_10_20->Fill( refjet->eta(), relDiff, weight);
+	m_etres_pt_10_20->Fill( refPt, relDiff, weight);
       }
       if (m_FCalET < 1.75 && m_FCalET > 0.65 ){//20-40%
-	m_etres_20_40->Fill( relDiff );
-	m_etres_eta_20_40->Fill( refjet->eta(), relDiff);
-	if (matched->pt()* toGeV > 100) m_etres_eta_hpt_20_40->Fill( refjet->eta(), relDiff);
-	m_etres_pt_20_40->Fill( refPt, relDiff);
+	m_etres_20_40->Fill( relDiff, weight );
+	m_etres_eta_20_40->Fill( refjet->eta(), relDiff, weight);
+	if (matched->pt()* toGeV > 100) m_etres_eta_hpt_20_40->Fill( refjet->eta(), relDiff, weight);
+	m_etres_pt_20_40->Fill( refPt, relDiff, weight);
       }
       if (m_FCalET < 0.20 ){//60-100%
-	m_etres_60_100->Fill( relDiff );
-	m_etres_eta_60_100->Fill( refjet->eta(), relDiff);
-	if (matched->pt()* toGeV > 100) m_etres_eta_hpt_60_100->Fill( refjet->eta(), relDiff);
-	m_etres_pt_60_100->Fill( refPt, relDiff);
+	m_etres_60_100->Fill( relDiff, weight );
+	m_etres_eta_60_100->Fill( refjet->eta(), relDiff, weight);
+	if (matched->pt()* toGeV > 100) m_etres_eta_hpt_60_100->Fill( refjet->eta(), relDiff, weight);
+	m_etres_pt_60_100->Fill( refPt, relDiff, weight);
       }
 
     }

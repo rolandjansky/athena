@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCCABLING_HH
@@ -16,6 +16,8 @@
 #include "TGCcabling/TGCCableHPBToSL.h"
 #include "TGCcabling/TGCCableSLBToSSW.h"
 #include "TGCcabling/TGCCableSSWToROD.h"
+#include "CxxUtils/checker_macros.h"
+#include <mutex>
 
 namespace LVL1TGCCabling8
 {
@@ -44,7 +46,7 @@ public:
 
   // virtual method  of TGCCabligBase   
   // slbIn --> AsdOut
-  virtual TGCIdBase* getASDOutChannel(const TGCIdBase* slb_in ) const ; 
+  virtual TGCIdBase* getASDOutChannel(const TGCIdBase* slb_in ) const override; 
 
 
   /////////////////////////////////////////////////////
@@ -155,7 +157,10 @@ private:
   TGCCableSSWToROD* m_cableSSWToROD;
   TGCCabling (void) {}
 
-  mutable std::map<int, TGCModuleId*> m_slbModuleIdMap; 
+  // Protected by mutex.
+  mutable std::map<int, TGCModuleId*> m_slbModuleIdMap ATLAS_THREAD_SAFE;
+  mutable std::mutex m_mutex;
+
   int getIndexFromReadoutWithoutChannel(const TGCIdBase::SideType side, 
 					const int rodId, 
 					const int sswId, 

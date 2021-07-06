@@ -29,4 +29,25 @@ atlas_add_library( TruthUtils
    TruthUtils/*.h Root/*.cxx
    PUBLIC_HEADERS TruthUtils
    INCLUDE_DIRS ${extra_includes}
-   LINK_LIBRARIES ${extra_libs} )
+   LINK_LIBRARIES ${extra_libs}
+   PRIVATE_LINK_LIBRARIES CxxUtils )
+
+# Dictionary
+atlas_add_dictionary( TruthUtilsDict
+                      TruthUtils/TruthUtilsDict.h
+                      TruthUtils/selection.xml
+                      LINK_LIBRARIES TruthUtils )
+
+# Python module
+atlas_install_python_modules( python/*.py )# POST_BUILD_CMD ${ATLAS_FLAKE8} )
+
+# Install helper utility
+atlas_install_runtime( util/generator-weights.py )
+
+# Install files from the package:
+atlas_install_runtime( share/*.txt )
+
+# Run tests:
+atlas_add_test( WeightHelpersTest
+                SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/testWeightHelpers.py
+                PROPERTIES TIMEOUT 300 )

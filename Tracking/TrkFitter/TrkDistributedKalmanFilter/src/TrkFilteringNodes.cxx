@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -295,7 +295,7 @@ namespace Trk
     m_pPRD=pPRD;m_nodeType=1;m_ndof=2;
   }
 
-  TrkPixelNode::TrkPixelNode(TrkPlanarSurface* pS,double chi2Cut, double pos[2], double cov[4])
+  TrkPixelNode::TrkPixelNode(TrkPlanarSurface* pS,double chi2Cut, const double pos[2], const double cov[4])
   {
     m_pSurface=pS;m_chi2Cut=chi2Cut;
     m_m[0]=pos[0];m_m[1]=pos[1];

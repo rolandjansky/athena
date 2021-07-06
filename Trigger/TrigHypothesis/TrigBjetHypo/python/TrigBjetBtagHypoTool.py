@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 
@@ -105,15 +105,13 @@ def getBjetBtagHypoConfiguration( name,conf_dict ):
 
     tool.MethodTag = tagger
     tool.BTaggingCut = tb
-    tool.cFraction = 0.03
+    tool.cFraction = 0.018
 
     return tool
 
 ####################################################################################################
 
 if __name__ == "__main__":
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    TriggerFlags.enableMonitoring=['Validation']
 
     t = TrigBjetBtagHypoToolFromName( "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J15","HLT_j45_ftf_subjesgscIS_boffperf_split_L1J15" )
     assert t, "can't configure boffperf chain"

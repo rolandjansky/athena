@@ -26,18 +26,20 @@
 #include "fastjet/PseudoJet.hh"
 #include "JetRec/PseudoJetContainer.h"
 
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgDataHandles/WriteHandleKey.h"
+#include "AsgTools/PropertyWrapper.h"
+#include "AnaAlgorithm/AnaReentrantAlgorithm.h"
 
-class PseudoJetAlgorithm : public AthReentrantAlgorithm { 
+class PseudoJetAlgorithm : public EL::AnaReentrantAlgorithm { 
 
 public: 
 
-  // No need for a specialised constructor
-  using AthReentrantAlgorithm::AthReentrantAlgorithm;
+  // Can't use "using ctor" because of incompatiblity with pyroot in AnalysisBase
+  PseudoJetAlgorithm(const std::string & n, ISvcLocator* l) : EL::AnaReentrantAlgorithm(n,l) {}
 
   /// Athena algorithm's Hooks
-  virtual StatusCode  initialize() override;
-  virtual StatusCode  finalize() override {};
+  virtual StatusCode  initialize() override final;
 
   // Standard execute, forwards to createAndRecord
   virtual StatusCode  execute(const EventContext& ctx) const override final;
@@ -51,33 +53,30 @@ private:
   virtual void print() const;
 
   std::vector<fastjet::PseudoJet> 
-  createPseudoJets(const xAOD::IParticleContainer* ) const;
+  createPseudoJets(const xAOD::IParticleContainer&) const;
 
 private:
 
   /// Input collection name.
-  SG::ReadHandleKey<xAOD::IParticleContainer> m_incoll{"InputContainer", "", "The input IParticleContainer name"};
+  SG::ReadHandleKey<xAOD::IParticleContainer> m_incoll{this, "InputContainer", "", "The input IParticleContainer name"};
 
   /// Output collection name.
-  SG::WriteHandleKey<PseudoJetContainer> m_outcoll{"OutputContainer", "", "The output PseudoJetContainer name"};
+  SG::WriteHandleKey<PseudoJetContainer> m_outcoll{this, "OutputContainer", "", "The output PseudoJetContainer name"};
 
   /// Label for the collection.
-  Gaudi::Property<std::string> m_label{"Label", "", "String label identifying the pseudojet type"};
+  Gaudi::Property<std::string> m_label{this, "Label", "", "String label identifying the pseudojet type"};
 
   /// Flag indicating to skip objects with E<0.
-  Gaudi::Property<bool> m_skipNegativeEnergy{"SkipNegativeEnergy", false, "Whether to skip negative energy inputs"};
-
-  /// Ghost scale factor.
-  Gaudi::Property<double> m_ghostscale{"GhostScale", 0.0, "Scale factor to convert PJs into ghosts that don't affect jet kinematics"};
+  Gaudi::Property<bool> m_skipNegativeEnergy{this, "SkipNegativeEnergy", false, "Whether to skip negative energy inputs"};
 
   /// Flag indicating to treat objects with E<0 as ghosts  (useful for HI)
-  Gaudi::Property<bool> m_negEnergyAsGhosts{"TreatNegativeEnergyAsGhost", false, "Whether to convert negative energy inputs into ghosts"};
+  Gaudi::Property<bool> m_negEnergyAsGhosts{this, "TreatNegativeEnergyAsGhost", false, "Whether to convert negative energy inputs into ghosts"};
 
   /// Internal steering flags
   /// Set in initialize()
-  bool m_isGhost{false}; /// Determinines whether the PJs should be made ghosts
-  bool m_emtopo;         /// True if inputs are EM-scale topo clusters.
-  bool m_pflow;          /// True if inputs are PFlow
+  bool m_isGhost{false}; /// Determines whether the PJs should be made ghosts
+  bool m_emtopo{false};  /// True if inputs are EM-scale topo clusters.
+  bool m_pflow{false};   /// True if inputs are PFlow
 
 }; 
 

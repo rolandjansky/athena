@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -47,41 +47,48 @@ class ConeSurface : public Surface
 
 public:
   /** The surface type static constexpr */
-  static constexpr SurfaceType staticType = Surface::Cone;
+  static constexpr SurfaceType staticType = SurfaceType::Cone;
 
   /**Default Constructor*/
   ConeSurface();
 
-  /**Constructor form HepTransform and an opening angle */
-  ConeSurface(Amg::Transform3D* htrans, double alpha, bool symmetric = false);
+  /**Assignment operator*/
+  ConeSurface& operator=(const ConeSurface& csf);
 
-  /**Constructor form HepTransform, radius halfphi, and halflenght*/
-  ConeSurface(Amg::Transform3D* htrans,
+  /**Copy constructor */
+  ConeSurface(const ConeSurface& csf);
+
+  /** Move constructor */
+  ConeSurface(ConeSurface&& annbo) = default;
+  /** Move assignment */
+  ConeSurface& operator=(ConeSurface&& sbo) = default;
+
+  /**Destructor*/
+  virtual ~ConeSurface() = default ;
+
+  /**Constructor form Transform and an opening angle */
+  ConeSurface(const Amg::Transform3D& htrans,
+              double alpha,
+              bool symmetric = false);
+
+  /**Constructor form Transform, radius halfphi, and halflenght*/
+  ConeSurface(const Amg::Transform3D& htrans,
               double alpha,
               double locZmin,
               double locZmax,
               double halfPhi = M_PI);
 
-  /**Constructor from HepTransform and CylinderBounds
+  /**Constructor from Transform and CylinderBounds
     - ownership of the bounds is passed
     */
-  ConeSurface(Amg::Transform3D* htrans, ConeBounds* cbounds);
+  ConeSurface(const Amg::Transform3D& htrans, ConeBounds* cbounds);
 
-  /**Constructor from HepTransform by unique_ptr.
+  /**Constructor from Amg Transform by ref.
      - bounds is not set. */
-  ConeSurface(std::unique_ptr<Amg::Transform3D> htrans);
-
-  /**Copy constructor */
-  ConeSurface(const ConeSurface& csf);
+  ConeSurface(const Amg::Transform3D& htrans);
 
   /**Copy constructor with shift */
   ConeSurface(const ConeSurface& csf, const Amg::Transform3D& transf);
-
-  /**Destructor*/
-  virtual ~ConeSurface();
-
-  /**Assignment operator*/
-  ConeSurface& operator=(const ConeSurface& csf);
 
   /**Equality operator*/
   virtual bool operator==(const Surface& sf) const override;
@@ -91,56 +98,76 @@ public:
 
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * charged */
-  virtual ParametersT<5, Charged, ConeSurface>* createTrackParameters(
+  virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
     double l1,
     double l2,
     double phi,
     double theta,
     double qop,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * charged*/
-  virtual ParametersT<5, Charged, ConeSurface>* createTrackParameters(
+  virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * neutral */
-  virtual ParametersT<5, Neutral, ConeSurface>* createNeutralParameters(
+  virtual NeutralTrackParametersUniquePtr createUniqueNeutralParameters(
     double l1,
     double l2,
     double phi,
     double theta,
     double qop,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * neutral */
-  virtual ParametersT<5, Neutral, ConeSurface>* createNeutralParameters(
+
+  virtual NeutralTrackParametersUniquePtr createUniqueNeutralParameters(
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters */
   template<int DIM, class T>
-  ParametersT<DIM, T, ConeSurface>* createParameters(double l1,
-                                                     double l2,
-                                                     double phi,
-                                                     double theta,
-                                                     double qop,
-                                                     AmgSymMatrix(DIM) * cov = 0) const;
+  std::unique_ptr<ParametersT<DIM, T, ConeSurface>> createUniqueParameters(
+    double l1,
+    double l2,
+    double phi,
+    double theta,
+    double qop,
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters */
   template<int DIM, class T>
-  ParametersT<DIM, T, ConeSurface>* createParameters(
+  std::unique_ptr<ParametersT<DIM, T, ConeSurface>> createUniqueParameters(
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
-    AmgSymMatrix(DIM) * cov = 0) const;
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
+
+  /** Use the Surface as a ParametersBase constructor, from local parameters */
+  template<int DIM, class T>
+  ParametersT<DIM, T, ConeSurface> createParameters(
+    double l1,
+    double l2,
+    double phi,
+    double theta,
+    double qop,
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
+
+  /** Use the Surface as a ParametersBase constructor, from global parameters */
+  template<int DIM, class T>
+  ParametersT<DIM, T, ConeSurface> createParameters(
+    const Amg::Vector3D& position,
+    const Amg::Vector3D& momentum,
+    double charge,
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
 
   /** Return the surface type */
   virtual SurfaceType type() const override final;
@@ -150,7 +177,7 @@ public:
     - the default implementation is the the RotationMatrix3D of the transform */
   virtual Amg::RotationMatrix3D measurementFrame(
     const Amg::Vector3D& glopos,
-    const Amg::Vector3D& glomom) const override;
+    const Amg::Vector3D& glomom) const override final;
 
   /** Returns a global reference point:
      For the Cylinder this is @f$ (R*cos(\phi), R*sin(\phi),0)*transform() @f$
@@ -158,14 +185,12 @@ public:
     */
   virtual const Amg::Vector3D& globalReferencePoint() const override;
 
-  /**Return method for surface normal information
-     at a given local point, overwrites the normal() from base class.*/
-  virtual const Amg::Vector3D& normal() const override;
+  // using from the base class
+  using Trk::Surface::normal;
 
   /**Return method for surface normal information
      at a given local point, overwrites the normal() from base class.*/
-  virtual const Amg::Vector3D* normal(
-    const Amg::Vector2D& locpo) const override;
+  virtual Amg::Vector3D normal(const Amg::Vector2D& locpo) const override final;
 
   /**Return method for the rotational symmetry axis - the z-Axis of the
    * HepTransform */
@@ -196,7 +221,7 @@ public:
    * allocation - boolean checks if on surface */
   virtual bool globalToLocal(const Amg::Vector3D& glob,
                              const Amg::Vector3D& mom,
-                             Amg::Vector2D& loc) const override final; 
+                             Amg::Vector2D& loc) const override final;
 
   /** fast straight line intersection schema - provides closest intersection and
   (signed) path length
@@ -258,9 +283,9 @@ protected:
   //!< bounds (shared)
   SharedObject<const ConeBounds> m_bounds;
   //!< The global reference point (== a point on thesurface)
-  CxxUtils::CachedUniquePtrT<Amg::Vector3D> m_referencePoint;
+  CxxUtils::CachedUniquePtr<Amg::Vector3D> m_referencePoint;
   //!< The rotational symmetry axis
-  CxxUtils::CachedUniquePtrT<Amg::Vector3D> m_rotSymmetryAxis;
+  CxxUtils::CachedUniquePtr<Amg::Vector3D> m_rotSymmetryAxis;
 };
 
 } // end of namespace

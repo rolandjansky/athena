@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
 // $Id$
 /**
@@ -81,7 +81,7 @@ public:
    * @param p The object to delete.
    *
    * The object @c p will be queued for deletion once a grace period
-   * has passed for all slots.  In contrast to using @c updater,
+   * has passed for all slots.  In contrast to using @c update,
    * this does not change the current object.  It also does not mark
    * the current slot as having completed the grace period (so this can
    * be called by a thread running outside of a slot context).

@@ -1,14 +1,12 @@
 
 /*
- *   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
-#include <iostream>
-#include <random>
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "CaloEvent/CaloConstCellContainer.h"
-#include "CompareCells.h"
-#include <sys/time.h>
 
+#include "CompareCells.h"
+#include "CaloEvent/CaloConstCellContainer.h"
+
+#include <iostream>
 CompareCells::CompareCells( const std::string& name,
                                         ISvcLocator* pSvcLocator ) :
   ::AthReentrantAlgorithm( name, pSvcLocator ),
@@ -18,12 +16,11 @@ CompareCells::CompareCells( const std::string& name,
   m_calocellcollectionKey = "AllCalo";
 }
 
-CompareCells::~CompareCells() {}
-
 StatusCode CompareCells::initialize() {
   CHECK( m_dataAccessSvc.retrieve() );
   CHECK( m_calocellcollectionKey.initialize() );
   CHECK( m_bcidAvgKey.initialize() );
+  CHECK( m_mcsymKey.initialize() );
   return StatusCode::SUCCESS;
 }
 
@@ -31,10 +28,10 @@ StatusCode CompareCells::execute( const EventContext& context ) const {
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
 
   CaloConstCellContainer c(SG::VIEW_ELEMENTS);
-  m_dataAccessSvc->loadFullCollections( context, c).ignore();
+  m_dataAccessSvc->loadFullCollections( context,  c).ignore();
 
   TileCellCollection mbts (SG::VIEW_ELEMENTS); // testing
-  m_dataAccessSvc->loadMBTS( context, mbts).ignore();
+  m_dataAccessSvc->loadMBTS( context,  mbts).ignore();
 
   ATH_MSG_DEBUG("MBTS Dump");
   for (size_t i=0;i<mbts.size(); ++i)

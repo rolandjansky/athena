@@ -41,13 +41,6 @@ topSequence.SCTHitAnalysis.NtupleFileName='/SiHitAnalysis/ntuples/'
 topSequence.BCMHitAnalysis.NtupleFileName='/SiHitAnalysis/ntuples/'
 topSequence.BLMHitAnalysis.NtupleFileName='/SiHitAnalysis/ntuples/'
 
-
-#Add some more TH2 histograms
-topSequence.PixelHitAnalysis.ExpertMode= "off"
-topSequence.SCTHitAnalysis.ExpertMode= "off"
-topSequence.BCMHitAnalysis.ExpertMode= "off"
-topSequence.BLMHitAnalysis.ExpertMode= "off"
-
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
 ServiceMgr.THistSvc.Output += [ "SiHitAnalysis DATAFILE='SiHitAnalysis.root' OPT='RECREATE'" ]
@@ -66,4 +59,3 @@ AthenaPoolCnvSvc.UseDetailChronoStat = TRUE
 from RecExConfig.AutoConfiguration import *
 ConfigureFieldAndGeo() # Configure the settings for the geometry
 include("RecExCond/AllDet_detDescr.py") # Actually load the geometry
-#include("TrkDetDescrSvc/AtlasTrackingGeometrySvc.py" ) # Tracking geometry, handy for ID work

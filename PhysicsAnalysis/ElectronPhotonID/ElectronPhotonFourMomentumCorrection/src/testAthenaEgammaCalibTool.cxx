@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // EDM include(s):
@@ -41,7 +41,7 @@ StatusCode testAthenaEgammaCalibTool::initialize()
 
 StatusCode testAthenaEgammaCalibTool::execute()
 {
-  const xAOD::EventInfo* event_info = 0;
+  const xAOD::EventInfo* event_info = nullptr;
   ATH_CHECK( evtStore()->retrieve( event_info) );
 
   const xAOD::ElectronContainer* electrons;
@@ -58,14 +58,14 @@ StatusCode testAthenaEgammaCalibTool::execute()
   const CP::SystematicSet& recommendedSystematics = registry.recommendedSystematics();
   std::vector<CP::SystematicSet> sysList;
   // this is the nominal set
-  sysList.push_back(CP::SystematicSet());
+  sysList.emplace_back();
 
   ATH_MSG_INFO("SIZE of the systematics set:" << recommendedSystematics.size()); 
    
   for(CP::SystematicSet::const_iterator sysItr = recommendedSystematics.begin();
       sysItr != recommendedSystematics.end(); ++sysItr)
     {
-      sysList.push_back(CP::SystematicSet());
+      sysList.emplace_back();
       sysList.back().insert(*sysItr);
     }
    
@@ -111,7 +111,7 @@ StatusCode testAthenaEgammaCalibTool::execute()
   //test the correctedCopy method
   unsigned int j = 0; 
   for (; el_it != el_it_last; ++el_it, ++j) { 
-    xAOD::Electron *copy_el = NULL; // new object 
+    xAOD::Electron *copy_el = nullptr; // new object 
     if (m_EgammaCalibrationAndSmearingTool->correctedCopy( **el_it, copy_el) != CP::CorrectionCode::Ok){ 
       ATH_MSG_WARNING("Could not apply correction to new electron object"); 
       continue; 

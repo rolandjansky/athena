@@ -9,7 +9,7 @@ atlas_subdir( MuonCurvedSegmentCombiner )
 atlas_add_component( MuonCurvedSegmentCombiner
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel MuonEDM_AssociationObjects StoreGateLib SGtests Identifier MuonReadoutGeometry MuonIdHelpersLib MuonPattern MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces TrkCompetingRIOsOnTrack TrkEventPrimitives TrkParameters TrkPrepRawData TrkRIO_OnTrack MuonSegmentCombinerToolInterfaces MuonSegmentMakerToolInterfaces )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel MuonEDM_AssociationObjects StoreGateLib Identifier MuonReadoutGeometry MuonIdHelpersLib MuonPattern MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces TrkCompetingRIOsOnTrack TrkEventPrimitives TrkParameters TrkPrepRawData TrkRIO_OnTrack MuonSegmentCombinerToolInterfaces MuonSegmentMakerToolInterfaces )
 
 # Install files from the package:
 atlas_install_headers( MuonCurvedSegmentCombiner )

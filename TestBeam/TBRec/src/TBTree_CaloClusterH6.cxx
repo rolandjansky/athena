@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // class TBTree_CaloClusterH6 // make ROOT Tree for H6 CaloCluster
@@ -9,9 +9,7 @@
 
 #include "TBTree_CaloClusterH6.h"
 #include "TBRec/TBH6RunHeader.h"
-
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ListItem.h"
+#include "StoreGate/ReadCondHandle.h"
 
 #include "PathResolver/PathResolver.h"
 
@@ -26,11 +24,9 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloCluster.h"
 #include "CaloEvent/CaloClusterContainer.h"
-#include "CaloInterface/ICaloNoiseTool.h"
 
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArElecCalib/ILArPedestal.h"
-#include "LArElecCalib/ILArADC2MeVTool.h"
 
 #include "TBEvent/TBEventInfo.h"
 #include "TBEvent/TBTrack.h"
@@ -45,7 +41,6 @@ TBTree_CaloClusterH6::TBTree_CaloClusterH6(const std::string& name,
   m_nEventRejected(0),
   m_nEventAccepted(0),
   m_nEventRandomTrigger(0),
-  m_addNoise(true),
   m_addMoments(false),
   m_addGain(false),
   m_addTime(false),
@@ -96,7 +91,6 @@ TBTree_CaloClusterH6::TBTree_CaloClusterH6(const std::string& name,
   m_cell_id(0),
   m_cell_ind_cluster(0),
   m_cell_energy(0),
-  m_cell_noise(0),
   m_cell_gain(0),
   m_cell_time(0),
   m_cell_quality(0),
@@ -110,7 +104,6 @@ TBTree_CaloClusterH6::TBTree_CaloClusterH6(const std::string& name,
   m_beam_slope_y(0),
   m_wtcNOverflow(0),
   m_wtcSignal(0),
-  m_digitContainerName("FREE"),
   m_caloCellContainerName("AllCalo"),
   m_clusterContainerName("TBClusters"),
   m_WTCContainerName("TailCatcher"),
@@ -120,19 +113,13 @@ TBTree_CaloClusterH6::TBTree_CaloClusterH6(const std::string& name,
   m_tree(0),
   m_calo_id(0),
   m_calo_dd_man(0),
-  m_noiseTool(0),
-  m_OFNoiseSupp(0),
-  m_adc2mevTool(0),
   m_txtFileWithXY("xcryo_ytable.txt")
 { 
   declareProperty("ClusterContainer",m_clusterContainerName);
   declareProperty("CellContainer",m_caloCellContainerName);
-  declareProperty("NoiseToolName",m_noiseToolName);
-  declareProperty("OFNoiseSuppToolName",m_OFNoiseSuppToolName);
   declareProperty("RootFileName",m_rootfile_name);
   declareProperty("TBTreeName",m_TBTreeName);
   declareProperty("Suffix", m_suffix);
-  declareProperty("addNoise", m_addNoise);
   declareProperty("addBeamTrack", m_addBeamTrack);
   declareProperty("addMoments", m_addMoments);
   declareProperty("addGain", m_addGain);
@@ -180,7 +167,6 @@ StatusCode TBTree_CaloClusterH6::initialize()
   m_cell_id = new std::vector<int>;
   m_cell_ind_cluster = new std::vector<int>;
   m_cell_energy = new std::vector<float>;
-  if (m_addNoise) m_cell_noise = new std::vector<float>;
   if (m_addGain) m_cell_gain = new std::vector<int>;
   if (m_addTime) m_cell_time = new std::vector<float>;
   if (m_addQuality) m_cell_quality = new std::vector<float>;
@@ -257,8 +243,6 @@ StatusCode TBTree_CaloClusterH6::initialize()
   m_tree->Branch(("cl_cell_id"+m_suffix).c_str(), &m_cell_id);
   m_tree->Branch(("cl_cell_clu_ind"+m_suffix).c_str(), &m_cell_ind_cluster);
   m_tree->Branch(("cl_cell_ener"+m_suffix).c_str(), &m_cell_energy);
-  if (m_addNoise)
-    m_tree->Branch(("cl_cell_noise"+m_suffix).c_str(), &m_cell_noise);
   if (m_addGain) 
     m_tree->Branch(("cl_cell_gain"+m_suffix).c_str(), &m_cell_gain);
   if (m_addTime) 
@@ -296,31 +280,7 @@ StatusCode TBTree_CaloClusterH6::initialize()
   m_calo_dd_man = CaloDetDescrManager::instance(); 
   m_calo_id   = m_calo_dd_man->getCaloCell_ID();
 
-  // allocate ToolSvc
-  IToolSvc* toolSvc;
-  ATH_CHECK( service("ToolSvc", toolSvc) );
-
-  if (m_addNoise) {
-    IAlgTool* algtool;
-    ATH_CHECK( toolSvc->retrieveTool("LArADC2MeVTool", algtool) );
-    m_adc2mevTool=dynamic_cast<ILArADC2MeVTool*>(algtool);
-    if (!m_adc2mevTool) {
-      ATH_MSG_ERROR ( "Unable to d-cast LArADC2MeV" );
-      return StatusCode::FAILURE;
-    }
-  }
-
-  ListItem ntool(m_noiseToolName);	  
-  ATH_CHECK( toolSvc->retrieveTool(ntool.type(), ntool.name(), m_noiseTool) );
-  ATH_MSG_INFO ( "Noise Tool " << m_noiseToolName << " is selected!" );
-  
-  if (m_addNoise) {
-    ListItem ntool(m_OFNoiseSuppToolName);
-    ATH_CHECK( toolSvc->retrieveTool(ntool.type(), ntool.name(), m_OFNoiseSupp) );
-    ATH_MSG_INFO ("Noise Tool " << m_OFNoiseSuppToolName << " is selected!" );
-    // Translate offline ID into online ID
-    ATH_CHECK( m_cablingKey.initialize() );
-  }
+  ATH_CHECK( m_elecNoiseKey.initialize() );
   
   ATH_MSG_INFO ( "end of initialize()" );
   return StatusCode::SUCCESS;
@@ -381,7 +341,6 @@ void TBTree_CaloClusterH6::clear()
   m_cell_id->clear(); 
   m_cell_ind_cluster->clear();
   m_cell_energy->clear(); 
-  if (m_addNoise) m_cell_noise->clear();
   if (m_addGain) m_cell_gain->clear(); 
   if (m_addTime) m_cell_time->clear(); 
   if (m_addQuality) m_cell_quality->clear(); 
@@ -442,7 +401,6 @@ StatusCode TBTree_CaloClusterH6::execute()
     if (m_addGain) m_cell_gain->clear();
     if (m_addTime) m_cell_time->clear();
     if (m_addQuality) m_cell_quality->clear();
-    if (m_addNoise) m_cell_noise->clear();
     // Get cell information
     const CaloCellContainer* cellContainer;
     sc = evtStore()->retrieve(cellContainer, m_caloCellContainerName);
@@ -455,9 +413,7 @@ StatusCode TBTree_CaloClusterH6::execute()
       return sc;
     }
     // Cell loop
-    CaloCellContainer::const_iterator itc = cellContainer->begin();
-    for (;itc!=cellContainer->end(); itc++) {
-      const CaloCell* cell = (*itc);
+    for (const CaloCell* cell : *cellContainer) {
       const Identifier id = cell->ID();
       for (int icell=0; icell<(int)m_cell_id->size(); icell++) {
           if ((int)id.get_identifier32().get_compact() == (*m_cell_id)[icell]) {
@@ -477,6 +433,8 @@ StatusCode TBTree_CaloClusterH6::execute()
 
   // Do first event initialization (run header filling)
   if (m_first) {
+    SG::ReadCondHandle<CaloNoise> elecNoise (m_elecNoiseKey);
+
     m_first = false;
     // Fill run header
     m_nRun = theEventInfo->getRunNum();
@@ -512,9 +470,7 @@ StatusCode TBTree_CaloClusterH6::execute()
     
     // Cell loop
     int icell=0;
-    CaloCellContainer::const_iterator itc = cellContainer->begin();
-    for (;itc!=cellContainer->end(); itc++) {
-      const CaloCell* cell = (*itc);
+    for (const CaloCell* cell : *cellContainer) {
       const CaloDetDescrElement* caloDDE = cell->caloDDE();
       const Identifier id = cell->ID();
       rh->SetCellID(icell,id.get_identifier32().get_compact());
@@ -537,7 +493,7 @@ StatusCode TBTree_CaloClusterH6::execute()
       rh->SetCellCalo(icell,m_calo_id->sub_calo(id));
       rh->SetCellSampling(icell,m_calo_id->calo_sample(id));
       rh->SetCellNoiseRMS(icell,
-	 m_noiseTool->getNoise(cell,ICalorimeterNoiseTool::ELECTRONICNOISE));
+                          elecNoise->getNoise(id, cell->gain()));
       icell++;
     }
     rh->SetCellNum(icell+1);
@@ -576,16 +532,15 @@ StatusCode TBTree_CaloClusterH6::execute()
       m_nEventRejected++;
       return StatusCode::FAILURE;
     }
-    DataVector< TBScintillator >::const_iterator its = wtc->begin();
     ATH_MSG_VERBOSE("scint name/signal/overflow flag:");
     short novflow = 0;
     float signal = 0;
     int nScint = 0; int nLayer = 0;
-    for (; its != wtc->end(); its++) {
-      ATH_MSG_VERBOSE((*its)->getDetectorName()<<"/"<<(*its)->getSignal()<<
-                      "/"<<(*its)->isSignalOverflow()<<" ");
-      if ((*its)->isSignalOverflow()) novflow++;
-      signal += (*its)->getSignal();
+    for (const TBScintillator* scint : *wtc) {
+      ATH_MSG_VERBOSE(scint->getDetectorName()<<"/"<<scint->getSignal()<<
+                      "/"<<scint->isSignalOverflow()<<" ");
+      if (scint->isSignalOverflow()) novflow++;
+      signal += scint->getSignal();
       if (nScint == lastScintInLayer[nLayer]) {
 	m_wtcNOverflow->push_back(novflow);
 	m_wtcSignal->push_back(signal);
@@ -677,9 +632,7 @@ StatusCode TBTree_CaloClusterH6::execute()
 
   int clu_ind = 0;
   float eAbsTotal = 0.;
-  CaloClusterContainer::const_iterator it_clu = clusterContainer->begin();
-  for (; it_clu!=clusterContainer->end(); it_clu++) {
-    const CaloCluster* cluster = (*it_clu);
+  for (const CaloCluster* cluster : *clusterContainer) {
     m_nCells += cluster->getNumberOfCells();
     m_nCellCluster->push_back((int)cluster->getNumberOfCells());
     m_eCluster->push_back((float)cluster->energy());
@@ -690,7 +643,6 @@ StatusCode TBTree_CaloClusterH6::execute()
     m_etaTotal += fabs((float)cluster->energy())*(float)cluster->eta();
     m_phiTotal += fabs((float)cluster->energy())*(float)cluster->phi();
     //m_cell_energy->reserve(m_nCells);
-    //if (m_addNoise) m_cell_noise->reserve(m_nCells);
     //if (m_addGain) m_cell_gain->reserve(m_nCells);
     //if (m_addTime) m_cell_time->reserve(m_nCells);
     //if (m_addQuality) m_cell_quality->reserve(m_nCells);
@@ -723,10 +675,6 @@ StatusCode TBTree_CaloClusterH6::execute()
       if (m_calo_id->calo_sample(id) == (int)CaloSampling::FCAL2)
 	m_eFCAL2 += (float)cell->energy();
     }
-    // Add noise vector
-    if (m_addNoise) {
-      ATH_CHECK( this->getNoise(cluster) );
-    }
     
     // Add cluster moments
     if (m_addMoments) {
@@ -749,7 +697,7 @@ StatusCode TBTree_CaloClusterH6::execute()
       float m1_dens = -9999;
       float m2_dens = -9999;
       CaloCluster::moment_iterator it_mom=cluster->beginMoment(false);
-      for (; it_mom != cluster->endMoment(false); it_mom++) {
+      for (; it_mom != cluster->endMoment(false); ++it_mom) {
 	switch ( it_mom.getMomentType() ) {
 	case CaloClusterMoment::FIRST_ETA:
 	  m1_eta = it_mom.getMoment().getValue();
@@ -869,105 +817,3 @@ StatusCode TBTree_CaloClusterH6::getXcryoYtable(float &x, float &y, float &e) {
   return StatusCode::FAILURE;
 }
 
-StatusCode TBTree_CaloClusterH6::getNoise(CaloCluster const * const cluster) {
-  // Constants for EMEC correction
-  float EMEC_eta1=2.5; float EMEC_eta2=2.8; float EMEC_eta3=3.2;
-  float EMEC_eta0_1 = 0.5*(EMEC_eta1 + EMEC_eta2);
-  float EMEC_eta0_2 = 0.5*(EMEC_eta2 + EMEC_eta3);
-  float EMEC_beta1=1.04; float EMEC_alpha1=0.55;
-  float EMEC_beta2=1.00; float EMEC_alpha2=0.55;
-  const float ramp_corr(1.045);
-  const float ramp_corr_eta1=2.8; 
-  const float ramp_corr_eta2=2.9;
-  const float EMEC_rescale=1.215;
-
-  const float inv_ramp_corr = 1. / ramp_corr;
-  const float inv_EMEC_rescale = 1. / EMEC_rescale;
-
-  const LArDigitContainer* digitContainer = 0;
-  const ILArPedestal* larPedestal = 0;
-
-  StatusCode sc=evtStore()->retrieve(digitContainer,m_digitContainerName);
-  if(sc.isFailure()) {
-    ATH_MSG_ERROR ( "Can't retrieve LArDigitContainer with key " <<
-                    m_digitContainerName << "from StoreGate." );
-    return StatusCode::FAILURE;
-  }
-  
-  ATH_CHECK( detStore()->retrieve(larPedestal) );
-
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
-  const LArOnOffIdMapping* cabling{*cablingHdl};
-  if(!cabling) {
-      ATH_MSG_ERROR ( "Do not have cabling mapping from key " << m_cablingKey.key() );
-      return StatusCode::FAILURE;
-  }
-  // Loop over cluster cells
-  CaloCluster::cell_iterator itc=cluster->cell_begin();
-  for (; itc!=cluster->cell_end(); itc++) {
-    float noise = 0;
-    const CaloCell* cell = (*itc);
-    const Identifier id = cell->ID();
-    float eta = cell->eta();
-    const CaloGain::CaloGain gain= cell->gain();
-    HWIdentifier chid;
-    try {
-      chid = cabling->createSignalChannelID(id);
-    }
-    catch ( const LArID_Exception& except) {
-      ATH_MSG_ERROR("HWId not found: "<<(const std::string&)except);
-      return StatusCode::FAILURE;
-    }
-    // Find the cell data in the DigitContainer
-    LArDigitContainer::const_iterator cont_it=digitContainer->begin();
-    for (;cont_it!=digitContainer->end(); cont_it++) {
-      if (chid !=(*cont_it)->channelID()) continue;
-      const std::vector<short>& samples=(*cont_it)->samples();
-      noise = samples[0];
-      break;
-    }
-    if (cont_it == digitContainer->end()) {
-      ATH_MSG_ERROR("Samples are not found for cell with HWId = "<<
-                    chid.get_identifier32().get_compact());
-      return StatusCode::FAILURE;
-    }
-    // Get pedestal
-    float pedestal=larPedestal->pedestal(chid,gain);
-    if (pedestal >= (1.0+LArElecCalib::ERRORCODE)) {
-      float val = m_noiseTool->
-      getNoise(cell,ICalorimeterNoiseTool::ELECTRONICNOISE);
-      noise = m_rndm.Gaus(0,val);
-      ATH_MSG_WARNING("No pedestal found for HWId = "<< chid.get_identifier32().get_compact() <<
-                      " gain = "<<(int)gain<<". Generated(sigma="<<val<<
-                      ") noise taken: "<<noise);
-      return StatusCode::SUCCESS;
-    }
-    noise -= pedestal;
-    // Apply OF noise suppression factor
-    noise *= m_OFNoiseSupp->
-      getNoise(cell,ICalorimeterNoiseTool::ELECTRONICNOISE);
-    // Apply ADCtoMeV factor
-    const std::vector<float>& ramp=m_adc2mevTool->ADC2MEV(chid,gain);
-    if (ramp.size()==0) {
-      ATH_MSG_ERROR("No ADC2MeV data found for channel HWId = "
-                    << chid.get_identifier32().get_compact() <<", gain = "<<(int)gain);
-      return StatusCode::FAILURE;
-    }
-    noise *= ramp[1];
-    // EMEC corrections =======================================================
-    if (cell->caloDDE()->is_lar_em_endcap()) {
-      // Cell level correction of EMEC eta-dependent response
-      if (eta > EMEC_eta1 && eta < EMEC_eta2) {
-	noise *= EMEC_beta1/(1 + EMEC_alpha1*(eta - EMEC_eta0_1));
-      }
-      else if (eta > EMEC_eta2 && eta < EMEC_eta3) {
-	noise *= EMEC_beta2/(1 + EMEC_alpha2*(eta - EMEC_eta0_2));
-      }
-      if (eta > ramp_corr_eta1 && eta < ramp_corr_eta2) noise *= inv_ramp_corr;
-      noise *= inv_EMEC_rescale;
-    }
-    // End of EMEC corrections ================================================
-    m_cell_noise->push_back(noise);
-  }       // for (itc)
-  return StatusCode::SUCCESS;
-}

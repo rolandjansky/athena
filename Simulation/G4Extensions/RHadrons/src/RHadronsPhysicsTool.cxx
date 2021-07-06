@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // class header
@@ -190,13 +190,13 @@ void RHadronsPhysicsTool::ConstructProcess()
         pmanager = particle->GetProcessManager();
       }
       G4ProcessVector *pros = pmanager->GetProcessList();
-      for (int pi=0; pi<pros->size(); ++pi) {
+      for (unsigned int pi=0; pi<pros->size(); ++pi) {
         if ((*pros)[pi]->GetProcessType()==fDecay) {
           pmanager->RemoveProcess(pi);
           break;
         }
       }
-      for (int pi=0; pi<pros->size(); ++pi) {
+      for (unsigned int pi=0; pi<pros->size(); ++pi) {
         if ((*pros)[pi]->GetProcessType()==fDecay) {
           ATH_MSG_WARNING ( "There is another decay process for this particle already defined!" );
           pmanager ->DumpInfo();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -76,8 +76,8 @@ TileRawChannelBuilder::TileRawChannelBuilder(const std::string& type
   declareProperty("calibrateEnergy", m_calibrateEnergy = false);
   declareProperty("correctTime", m_correctTime = false);
   declareProperty("AmpMinForAmpCorrection", m_ampMinThresh = 15.0);
-  declareProperty("TimeMinForAmpCorrection", m_timeMinThresh = -25.0);
-  declareProperty("TimeMaxForAmpCorrection", m_timeMaxThresh =  25.0);
+  declareProperty("TimeMinForAmpCorrection", m_timeMinThresh = -12.5);
+  declareProperty("TimeMaxForAmpCorrection", m_timeMaxThresh =  12.5);
   declareProperty("RunType", m_runType = 0);
   declareProperty("DataPoolSize", m_dataPoollSize = -1);
   declareProperty("UseDSPCorrection", m_useDSP = true);
@@ -410,7 +410,7 @@ void TileRawChannelBuilder::fill_drawer_errors(const EventContext& ctx,
 
           msg(MSG::VERBOSE) << "ChErr ";
           int ch = 0;
-          while (ch < MAX_CHANNELS) {
+          while (ch < MAX_CHANNELS-2) {
             msg(MSG::VERBOSE) << " " << m_error[ch++];
             msg(MSG::VERBOSE) << " " << m_error[ch++];
             msg(MSG::VERBOSE) << " " << m_error[ch++];
@@ -435,7 +435,7 @@ void TileRawChannelBuilder::fill_drawer_errors(const EventContext& ctx,
 }
 
 const char * TileRawChannelBuilder::BadPatternName(float ped) {
-  static const char * const errname[25] = {
+  static const char * const errname[26] = {
       "-10 - good signal",
       "-9 - underflow",
       "-8 - overflow",
@@ -460,7 +460,7 @@ const char * TileRawChannelBuilder::BadPatternName(float ped) {
       "11 - jump down in last sample in low gain",
       "12 - jump up in one sample above const",
       "13 - jump down in one sample below const",
-      "14 - unrecoverable timing jump"
+      "14 - unrecoverable timing jump",
       "15 - unknown error"
   };
   
@@ -590,7 +590,7 @@ StatusCode TileRawChannelBuilder::commitContainer()
   } else {
 
     for (ToolHandle<ITileRawChannelTool>& noiseFilterTool : m_noiseFilterTools) {
-      if (noiseFilterTool->process(*m_rawChannelCnt.get()).isFailure()) {
+      if (noiseFilterTool->process(*m_rawChannelCnt.get(), ctx).isFailure()) {
         ATH_MSG_ERROR( " Error status returned from noise filter " );
       } else {
         ATH_MSG_DEBUG( "Noise filter applied to the container" );

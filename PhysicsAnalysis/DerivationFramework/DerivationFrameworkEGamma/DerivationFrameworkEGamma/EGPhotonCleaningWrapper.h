@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -9,28 +9,51 @@
 #ifndef DERIVATIONFRAMEWORK_EGPHOTONCLEANINGWRAPPER_H
 #define DERIVATIONFRAMEWORK_EGPHOTONCLEANINGWRAPPER_H
 
-#include <string>
-
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
+//
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-
+//
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteDecorHandle.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "xAODEgamma/PhotonContainer.h"
+//
+#include <string>
 namespace DerivationFramework {
 
-  class EGPhotonCleaningWrapper : public AthAlgTool, public IAugmentationTool {
-    public: 
-      EGPhotonCleaningWrapper(const std::string& t, const std::string& n, const IInterface* p);
+class EGPhotonCleaningWrapper
+  : public AthAlgTool
+  , public IAugmentationTool
+{
+public:
+  EGPhotonCleaningWrapper(const std::string& t,
+                          const std::string& n,
+                          const IInterface* p);
 
-      StatusCode initialize();
-      StatusCode finalize();
-      virtual StatusCode addBranches() const;
+  virtual StatusCode initialize() override final;
+  virtual StatusCode addBranches() const override final;
 
-    private:
-      ToolHandle<IElectronPhotonShowerShapeFudgeTool> m_fudgeMCTool;
-      std::string m_sgName;
-      std::string m_containerName;
-  }; 
+private:
+  ToolHandle<IElectronPhotonShowerShapeFudgeTool> m_fudgeMCTool{
+    this,
+    "EGammaFudgeMCTool",
+    "",
+    "Handle to the Fudging Tool"
+  };
+  SG::ReadHandleKey<xAOD::PhotonContainer> m_containerName{ this,
+                                                            "ContainerName",
+                                                            "",
+                                                            "Input" };
+
+  // Write decoration handle keys
+  // these are not really configuarable
+  SG::WriteDecorHandleKey<xAOD::PhotonContainer> m_decoratorPass{};
+  SG::WriteDecorHandleKey<xAOD::PhotonContainer> m_decoratorPassDelayed{};
+  std::string m_sgName;
+};
 }
 
 #endif // DERIVATIONFRAMEWORK_EGSELECTIONTOOLWRAPPER_H

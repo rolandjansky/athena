@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelGeoModelXml/ITkPixelDetectorTool.h"
@@ -7,7 +7,7 @@
 #include "PixelGeoModelXml/PixelOptions.h"
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
-#include "InDetReadoutGeometry/SiCommonItems.h"
+#include "ReadoutGeometryBase/SiCommonItems.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
@@ -29,12 +29,11 @@ ITkPixelDetectorTool::ITkPixelDetectorTool(const std::string &type,
     m_detectorName("ITkPixel"),
     m_alignable(false),
     m_gmxFilename(""),
-    m_manager(0),
-    m_athenaComps(0),
-    m_commonItems(0),
+    m_manager(nullptr),
+    m_athenaComps(nullptr),
+    m_commonItems(nullptr),
     m_geoModelSvc("GeoModelSvc", name),
     m_rdbAccessSvc("RDBAccessSvc", name),
-    m_geometryDBSvc("InDetGeometryDBSvc", name),
     m_geoDbTagSvc{"GeoDbTagSvc", name}
 
     {
@@ -45,7 +44,6 @@ ITkPixelDetectorTool::ITkPixelDetectorTool(const std::string &type,
     declareProperty("Alignable", m_alignable);
     declareProperty("GmxFilename", m_gmxFilename);
     declareProperty("RDBAccessSvc", m_rdbAccessSvc);
-    declareProperty("GeometryDBSvc", m_geometryDBSvc);
     declareProperty("GeoModelSvc", m_geoModelSvc);
     declareProperty("GeoDbTagSvc", m_geoDbTagSvc);
 
@@ -64,7 +62,6 @@ StatusCode ITkPixelDetectorTool::create() {
     // Get the detector configuration.
     ATH_CHECK(m_geoDbTagSvc.retrieve());
     ATH_CHECK(m_rdbAccessSvc.retrieve());
-    ATH_CHECK(m_geometryDBSvc.retrieve());
     GeoModelExperiment *theExpt;
     ATH_CHECK(detStore()->retrieve(theExpt, "ATLAS"));
     const PixelID *idHelper;
@@ -76,7 +73,6 @@ StatusCode ITkPixelDetectorTool::create() {
     m_athenaComps = new InDetDD::AthenaComps("PixelGeoModelXml");
     m_athenaComps->setDetStore(&*(detStore()));
     m_athenaComps->setRDBAccessSvc(&*m_rdbAccessSvc);
-    m_athenaComps->setGeometryDBSvc(&*m_geometryDBSvc);
     m_athenaComps->setGeoDbTagSvc(&*m_geoDbTagSvc);
 
 
@@ -105,7 +101,7 @@ StatusCode ITkPixelDetectorTool::create() {
 //    Get the Database Access Service and from there the pixel version tag
 //
     std::string pixelVersionTag = m_rdbAccessSvc->getChildTag("Pixel", versionKey.tag(), versionKey.node());
-    ATH_MSG_INFO( "Pixel Version: " << pixelVersionTag <<  "  Package Version: " << PACKAGE_VERSION );
+    ATH_MSG_INFO( "Pixel Version: " << pixelVersionTag );
 //
 //   Check if pixel version tag is empty. If so, then the pixel cannot be built.
 //   This may or may not be intentional. We just issue an INFO message.
@@ -172,7 +168,7 @@ StatusCode ITkPixelDetectorTool::clear() {
     SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<InDetDD::PixelDetectorManager>::ID(),m_manager->getName());
     if(proxy) {
         proxy->reset();
-        m_manager = 0;
+        m_manager = nullptr;
     }
     return StatusCode::SUCCESS;
 }

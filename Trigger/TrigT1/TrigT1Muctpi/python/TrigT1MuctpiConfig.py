@@ -283,3 +283,38 @@ class L1MuctpiTool_on_AOD( DefaultL1MuctpiTool ):
     self.RoIOutputLocID = "not_used_1"
     self.CTPOutputLocID = "not_used_2"
 
+
+def L1MuctpiToolRDOCfg(flags, name = "L1Muctpi"):
+  """ 
+  Configures L1MuctpiTool for running on MC
+  """
+  lutFile = None
+  period = None
+  # TODO clarify IBL dependence
+  if flags.GeoModel.Run == "RUN2"  or flags.GeoModel.Run == "UNDEFINED":
+    lutFile = "TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002_modifiedBB.xml"
+    period = "RUN2"
+  from AthenaConfiguration.ComponentFactory import CompFactory
+  from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+  acc = ComponentAccumulator()
+  from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
+  acc.merge(L1ConfigSvcCfg(flags))
+  tool = CompFactory.LVL1MUCTPI.L1MuctpiTool(name, 
+                                            LVL1ConfigSvc=acc.getService("LVL1ConfigSvc"),
+                                            OverlapStrategyName = "LUT",
+                                            DumpLUT = False,
+                                            LUTXMLFile = lutFile,
+                                            RunPeriod = period,
+                                            FlaggingMode = False,
+                                            MultiplicityStrategyName = "INCLUSIVE", 
+                                            InputSource = "RDO",
+                                            RDOLocID = "MUCTPI_RDO",
+                                            GeometryXMLFile = "TrigConfMuctpi/TestMioctGeometry_2016_05_30_CS_2600573263.xml",
+                                            DoNIMOutput = True,
+                                            # The bit settings were extracted from here:
+                                            #   https://savannah.cern.ch/bugs/?90300#comment14
+                                            NIMBarrelBit = 29,
+                                            NIMEndcapBit = 30,
+                                            )
+  acc.addPublicTool(tool, primary=True)
+  return acc

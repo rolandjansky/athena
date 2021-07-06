@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EvtRangeScatterer.h"
@@ -23,8 +23,8 @@
 #include <cstdlib>
 
 EvtRangeScatterer::EvtRangeScatterer(const std::string& type
-			       , const std::string& name
-			       , const IInterface* parent)
+				     , const std::string& name
+				     , const IInterface* parent)
   : AthenaMPToolBase(type,name,parent)
   , m_processorChannel("")
   , m_eventRangeChannel("")
@@ -212,6 +212,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::exec_func(
   std::string strReady("Ready for events");
   std::string strStopProcessing("No more events");
   std::string processorWaitRequest("");
+  int workerPid{-1};
 
   ATH_MSG_INFO("Starting main loop");
 
@@ -225,6 +226,12 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::exec_func(
 	usleep(1000);
       }
       ATH_MSG_INFO("One of the processors is ready for the next range");
+      // Get PID from the request and Update m_pid2RangeID
+      workerPid = std::atoi(processorWaitRequest.c_str());
+      auto it = m_pid2RangeID.find(workerPid);
+      if(it!=m_pid2RangeID.end()) {
+	m_pid2RangeID.erase(it);
+      }
     }    
 
     // Signal the Pilot that AthenaMP is ready for event processing
@@ -239,7 +246,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::exec_func(
       eventRange = eventRange.substr(0,carRet);
 
     // Break the loop if no more ranges are expected
-    if(eventRange.compare(strStopProcessing)==0) {
+    if(eventRange.find(strStopProcessing)!=std::string::npos) {
       ATH_MSG_INFO("Stopped the loop. Last message from the Event Range Channel: " << eventRange);
       break;
     }
@@ -335,6 +342,12 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::exec_func(
 	usleep(1000);
       }
       ATH_MSG_INFO("One of the processors is ready for the next range");
+      // Get PID from the request and Update m_pid2RangeID
+      workerPid = std::atoi(processorWaitRequest.c_str());
+      auto it = m_pid2RangeID.find(workerPid);
+      if(it!=m_pid2RangeID.end()) {
+	m_pid2RangeID.erase(it);
+      }
     }
     
     // Send to the Processor: RangeID,evtToken[,evtToken] 
@@ -344,8 +357,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::exec_func(
     procReportPending++;
 
     // Get PID from the request and Update m_pid2RangeID
-    int pid = std::atoi(processorWaitRequest.c_str());
-    m_pid2RangeID[pid] = rangeID;
+    m_pid2RangeID[workerPid] = rangeID;
     processorWaitRequest.clear();
 
     ATH_MSG_INFO("Sent response to the processor : " << message2ProcessorStr);
@@ -360,29 +372,32 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::exec_func(
       // We already have one processor waiting for the answer
       emptyMess4Processor = malloc(1);
       socket2Processor->send(emptyMess4Processor,1);
-      ATH_MSG_INFO("Set one processor free");
+      ATH_MSG_INFO("Set worker PID=" << workerPid << " free");
+      processorWaitRequest.clear();
     }
-    for(int i(0); i<(processorWaitRequest.empty()?m_nprocs:m_nprocs-1); ++i) {
+    bool endLoop{false};
+    while(true) {
       ATH_MSG_DEBUG("Going to set another processor free");
-      while(getNewRangeRequest(socket2Processor,socket2Pilot,procReportPending).empty()) {
-	pollFailedPidQueue(sharedFailedPidQueue,socket2Pilot,procReportPending);
+      while(processorWaitRequest.empty()) {
+	processorWaitRequest = getNewRangeRequest(socket2Processor,socket2Pilot,procReportPending);
+	if(pollFailedPidQueue(sharedFailedPidQueue,socket2Pilot,procReportPending)==-1) {
+	  endLoop = true;
+	  break;
+	}
 	usleep(1000);
+      }
+      if(endLoop) break;
+      // Remove worker from m_pid2RangeID
+      workerPid = std::atoi(processorWaitRequest.c_str());
+      auto it = m_pid2RangeID.find(workerPid);
+      if(it!=m_pid2RangeID.end()) {
+	m_pid2RangeID.erase(it);
       }
       emptyMess4Processor = malloc(1);
       socket2Processor->send(emptyMess4Processor,1);
-      ATH_MSG_INFO("Set one processor free");
-    }
-
-    ATH_MSG_INFO("Still " << procReportPending << " pending reports");
-    
-    // Final round of colecting output file names from processors
-    while(procReportPending>0) {
-      std::string strProcessorRequest = getNewRangeRequest(socket2Processor,socket2Pilot,procReportPending);
-      if(!strProcessorRequest.empty()) {
-	ATH_MSG_WARNING("Unexpected message received from a processor at this stage : " << strProcessorRequest);
-      }
-      pollFailedPidQueue(sharedFailedPidQueue,socket2Pilot,procReportPending);
-      usleep(1000);
+      ATH_MSG_INFO("Set worker PID=" << workerPid << " free");
+      ATH_MSG_INFO("Still " << procReportPending << " pending reports");
+      processorWaitRequest.clear();
     }
   }
 
@@ -509,22 +524,26 @@ std::string EvtRangeScatterer::getNewRangeRequest(yampl::ISocket* socket2Process
   return strProcessorRequest;
 }
 
-void EvtRangeScatterer::pollFailedPidQueue(AthenaInterprocess::SharedQueue*  sharedFailedPidQueue
-					, yampl::ISocket* socket2Pilot
-					, int& procReportPending)
+pid_t EvtRangeScatterer::pollFailedPidQueue(AthenaInterprocess::SharedQueue* sharedFailedPidQueue
+					    , yampl::ISocket* socket2Pilot
+					    , int& procReportPending)
 {
-  pid_t pid;
-  if(sharedFailedPidQueue->try_receive_basic<pid_t>(pid)) {
+  pid_t pid{0};
+  if(sharedFailedPidQueue->try_receive_basic<pid_t>(pid)
+     && pid!=-1) {
     ATH_MSG_INFO("Procesor with PID=" << pid << " has failed!");
-    if(m_pid2RangeID.find(pid)!=m_pid2RangeID.end()) {
+    auto itPid = m_pid2RangeID.find(pid);
+    if(itPid!=m_pid2RangeID.end()) {
       ATH_MSG_WARNING("The failed RangeID = " << m_pid2RangeID[pid] << " will be reported to Pilot");
 
       std::string errorStr("ERR_ATHENAMP_PROCESS " + m_pid2RangeID[pid] + ": Failed to process event range");
       void* errorMessage = malloc(errorStr.size());
       memcpy(errorMessage,errorStr.data(),errorStr.size());
       socket2Pilot->send(errorMessage,errorStr.size());
+      --procReportPending;
+      m_pid2RangeID.erase(pid);
     }
-    procReportPending--;
     ATH_MSG_INFO("Reports pending: " << procReportPending);
   } 
+  return pid;
 }

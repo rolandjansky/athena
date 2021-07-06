@@ -9,8 +9,6 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "boost/lexical_cast.hpp"
-
 #include "./CaloInfoLoader.h"
 
 #include <CoralBase/Attribute.h>

@@ -43,6 +43,7 @@ MDT_RegSelCondAlg::MDT_RegSelCondAlg(const std::string& name, ISvcLocator* pSvcL
 StatusCode MDT_RegSelCondAlg::initialize() {
   ATH_CHECK(MuonRegSelCondAlg::initialize());
   ATH_CHECK(m_cablingKey.initialize());
+  ATH_CHECK(m_condKey.initialize(!m_condKey.empty()));
   return StatusCode::SUCCESS;
 }
 
@@ -57,7 +58,17 @@ std::unique_ptr<RegSelSiLUT> MDT_RegSelCondAlg::createTable( const EventContext&
     ATH_MSG_ERROR("Failed to retrieve validity range for " << cabling.key());
     return std::unique_ptr<RegSelSiLUT>(nullptr);
   }   
-
+    
+   const MdtCondDbData* conditions_ptr = nullptr;
+   
+   if (!m_condKey.empty()){
+       SG::ReadCondHandle<MdtCondDbData> conditions(m_condKey, ctx);
+       if( !conditions.range( id_range ) ) {
+            ATH_MSG_ERROR("Failed to retrieve validity range for " << conditions.key());
+            return std::unique_ptr<RegSelSiLUT>(nullptr);
+       }
+       conditions_ptr = conditions.cptr();
+  }
   /// create the new lookup table
 
   const MuonGM::MuonDetectorManager* manager = nullptr; // again 0 would do as well here 
@@ -93,7 +104,10 @@ std::unique_ptr<RegSelSiLUT> MDT_RegSelCondAlg::createTable( const EventContext&
       ATH_MSG_DEBUG("Failed retrieving ExpandedIdentifier for PRD Identifier = " << Id.getString() << ". Skipping to the next PRD.");
       continue;
     }
-      
+    if (conditions_ptr && !conditions_ptr->isGood(Id)) {
+        ATH_MSG_DEBUG("Channel is marked as dead");
+        continue;
+    }
     int detid   = ( exp_id[2]<0 ? -1 : 1 );
     int layerid = exp_id[1]+1;
          
@@ -357,7 +371,7 @@ std::unique_ptr<RegSelSiLUT> MDT_RegSelCondAlg::createTable( const EventContext&
     
     // std::cout << " -> " << detid << std::endl;
 
-    uint32_t RobId = cabling->getROBId(Idhash);
+    uint32_t RobId = cabling->getROBId(Idhash, msgStream());
     
     RegSelModule m( zmin, zmax, rmin, rmax, phimin, phimax, layerid, detid, RobId, Idhash );
     

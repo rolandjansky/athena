@@ -8,6 +8,7 @@
 /** @file IMetaDataSvc.h
  *  @brief This file contains the class definition for the IMetaDataSvc class.
  *  @author Marcin Nowak
+ *  @author Frank Berghaus
  **/
 
 #include "GaudiKernel/INamedInterface.h"
@@ -108,17 +109,16 @@ StatusCode IMetaDataSvc::record(T* pObject, const TKEY& key)
 {
    std::lock_guard lock(m_mutex);
    MetaCont<T>* container = outputDataStore()->tryRetrieve< MetaCont<T> >(key);
+   StatusCode sc = StatusCode::FAILURE;
    if( !container ) {
       auto cont_uptr = std::make_unique< MetaCont<T> >();
-      if( cont_uptr->insert( currentRangeID() , pObject) ) {
-         StatusCode sc = outputDataStore()->record( std::move(cont_uptr), key );
-         if (sc.isSuccess()) recordHook(typeid(T));
-         return sc;
-      }
-      return StatusCode::FAILURE;
+      if( cont_uptr->insert( currentRangeID() , pObject) )
+         sc = outputDataStore()->record( std::move(cont_uptr), key );
+   } else {
+      if (container->insert(currentRangeID(), pObject)) sc = StatusCode::SUCCESS;
    }
-   if( container->insert( currentRangeID() , pObject) )  return StatusCode::SUCCESS;
-   return StatusCode::FAILURE;
+   if (sc.isSuccess()) recordHook(typeid(T));
+   return sc;
 }
 
 
@@ -126,7 +126,6 @@ template <typename T, typename TKEY>
 StatusCode IMetaDataSvc::record(std::unique_ptr<T> pUnique, const TKEY& key)
 {
    if( this->record( pUnique.get(), key ).isSuccess() ) {
-      recordHook(typeid(T));
       pUnique.release();
       return StatusCode::SUCCESS;
    }
@@ -141,14 +140,20 @@ StatusCode IMetaDataSvc::remove(const TKEY& key, bool ignoreIfAbsent)
    std::lock_guard lock(m_mutex);
    // change erase to setting nullptr?
    MetaCont<T>* container = outputDataStore()->tryRetrieve< MetaCont<T> >(key);
-   removeHook(typeid(T));
-   if( container and container->erase( currentRangeID() ) )  return StatusCode::SUCCESS;
+   if (container && container->erase(currentRangeID())) {
+     if (container->entries() == 0u) removeHook(typeid(T));
+     return StatusCode::SUCCESS;
+   }
    return ignoreIfAbsent? StatusCode::SUCCESS : StatusCode::FAILURE;
 }
 
 template <typename T, typename TKEY>
 bool IMetaDataSvc::contains(const TKEY& key) {
-  return outputDataStore()->contains< MetaCont<T> >(key);
+  if (!outputDataStore()->contains< MetaCont<T> >(key))
+    return false;
+  const MetaCont<T>* container =
+      outputDataStore()->tryConstRetrieve< MetaCont<T> >(key);
+  return container && container->valid(currentRangeID());
 }
 
 #endif

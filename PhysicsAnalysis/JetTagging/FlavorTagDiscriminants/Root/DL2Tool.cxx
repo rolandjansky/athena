@@ -33,13 +33,19 @@ namespace FlavorTagDiscriminants {
     return StatusCode::SUCCESS;
   }
 
-  void DL2Tool::decorate(const xAOD::Jet& jet) const {
+  void DL2Tool::decorate(const xAOD::BTagging& jet) const {
     ATH_MSG_DEBUG("Decoration from: " + m_props.nnFile);
     m_dl2->decorate(jet);
   }
 
   std::set<std::string> DL2Tool::getDecoratorKeys() const {
     return m_dl2->getDataDependencyNames().bTagOutputs;
+  }
+  std::set<std::string> DL2Tool::getAuxInputKeys() const {
+    return m_dl2->getDataDependencyNames().bTagInputs;
+  }
+  std::set<std::string> DL2Tool::getConstituentAuxInputKeys() const {
+    return m_dl2->getDataDependencyNames().trackInputs;
   }
 
 }

@@ -1,15 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_MasterTableLoader
 #define TrigConf_MasterTableLoader
-/*
-  MasterTableLoader.h
-*/
+
 #include "TrigConfStorage/IMasterTableLoader.h"
 #include "TrigConfStorage/DBLoader.h"
 
+#include <string>
 
 namespace TrigConf {
 
@@ -34,7 +33,8 @@ namespace TrigConf {
       bool load(CTPConfig& ctpc);
       bool load(Muctpi& muctpi);
       bool load(TXC::L1TopoMenu& l1topo);
-      bool loadMasterKeys(int SuperMasterKey, int& Lvl1MasterKey); 
+   private:
+      bool loadMasterKeys(int SuperMasterKey, int& Lvl1MasterKey, std::string & menuName); 
 
       /**@brief next run configuration key (depreciated)*/
       int mt_id_for_next_run();

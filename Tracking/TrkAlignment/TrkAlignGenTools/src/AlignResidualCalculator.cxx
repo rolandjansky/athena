@@ -25,17 +25,17 @@ namespace Trk {
   //______________________________________________________________
   AlignResidualCalculator::AlignResidualCalculator(const std::string& type, const std::string& name,
            const IInterface* parent)
-    
-    : AthAlgTool(type,name,parent)    
+
+    : AthAlgTool(type,name,parent)
     , m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator")
     , m_updator("Trk::KalmanUpdator/TrkKalmanUpdator")
     , m_qOverP{}
     , m_previousQOverP{}
     , m_nDoF{}
-    , m_chi2ForMeasType(0)
+    , m_chi2ForMeasType(nullptr)
   {
     declareInterface<IAlignResidualCalculator>(this);
-    
+
     declareProperty("ResidualPullCalculator",   m_pullCalculator);
     declareProperty("ResidualType",             m_resType = HitOnly);
     declareProperty("IncludeScatterers",        m_includeScatterers = false );
@@ -51,10 +51,10 @@ namespace Trk {
 
   //________________________________________________________________________
   StatusCode AlignResidualCalculator::initialize()
-  {  
+  {
     // get residual pull calculator
     if (m_pullCalculator.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Could not get " << m_pullCalculator << endmsg; 
+      msg(MSG::FATAL) << "Could not get " << m_pullCalculator << endmsg;
       return StatusCode::FAILURE;
     }
     ATH_MSG_INFO("Retrieved " << m_pullCalculator);
@@ -62,7 +62,7 @@ namespace Trk {
     // get updator
     if(m_resType==Unbiased) {
       if (m_updator.retrieve().isFailure()) {
-        msg(MSG::FATAL) << "Could not get " << m_updator << endmsg; 
+        msg(MSG::FATAL) << "Could not get " << m_updator << endmsg;
         return StatusCode::FAILURE;
       }
       ATH_MSG_INFO("Retrieved " << m_pullCalculator);
@@ -78,26 +78,26 @@ namespace Trk {
   {
     return StatusCode::SUCCESS;
   }
-  
+
   //________________________________________________________________________
   double AlignResidualCalculator::setResiduals(AlignTSOSCollection* atsosColl,const Track* track)
   {
-    bool useNewTrack = (track!=0);
+    bool useNewTrack = (track!=nullptr);
     return setResiduals(atsosColl->begin(), atsosColl->end(), track, useNewTrack);
   }
-  
+
   //________________________________________________________________________
   double AlignResidualCalculator::setResiduals(AlignTrack* alignTrack,const Track* track)
   {
-    bool useNewTrack = (track!=0);
+    bool useNewTrack = (track!=nullptr);
     const Track* newTrack = (useNewTrack) ? track : alignTrack;
     return setResiduals(alignTrack->firstAtsos(), alignTrack->lastAtsos(), newTrack, useNewTrack);
   }
-  
+
   //________________________________________________________________________
   double AlignResidualCalculator::setResiduals(AlignTSOSCollection::iterator firstAtsos,
                                                AlignTSOSCollection::iterator lastAtsos,
-                                               const Track* track, bool newTrack) 
+                                               const Track* track, bool newTrack)
   {
     m_nDoF=0;
     m_matchedTSOS.clear();
@@ -108,7 +108,7 @@ namespace Trk {
       m_chi2ForMeasType[i]=0.;
 
     //ATH_MSG_DEBUG("in setResiduals with newTrack="<<newTrack);
-    
+
     if (!track&&newTrack) { ATH_MSG_ERROR("no track!"); return 0.; }
 
     int    ntsos(0);
@@ -125,11 +125,11 @@ namespace Trk {
       const MaterialEffectsBase*         meb        = tsos->materialEffectsOnTrack();
       const Trk::MaterialEffectsOnTrack* meot       = dynamic_cast<const MaterialEffectsOnTrack*>(meb);
       //const ScatteringAngles*            scatterer = (meot) ? meot->scatteringAngles() : 0;
-      
+
       // if scatterer, add scattering parameters
       //int nScattererDim=0;
-      if (m_includeScatterers && meb && meot) { 
-        //nScattererDim = (scatterer) ? 2 : 1;      
+      if (m_includeScatterers && meb && meot) {
+        //nScattererDim = (scatterer) ? 2 : 1;
         accumulateScattering(tsos);
       }
       //ATH_MSG_DEBUG("scattererDim="<<nScattererDim);
@@ -142,23 +142,23 @@ namespace Trk {
       m_chi2ForMeasType[imeasType] += dchi2;
       ATH_MSG_DEBUG("adding "<<dchi2<<", m_chi2ForMeasType["<<imeasType<<"]="<<m_chi2ForMeasType[imeasType]);
     }
-    
-    return chi2;///(double)m_nDoF;  
+
+    return chi2;///(double)m_nDoF;
   }
-  
+
   //_______________________________________________________________________
   double
   AlignResidualCalculator::setResidualsOnATSOS(AlignTSOS * atsos, const TrackStateOnSurface * tsos)
   {
     // this method does the following:
-    // 1. gets residuals (measurement and scattering dimensions), 
-    // 2. adds to AlignTSOS, and 
-    // 3. returns contribution to chi2 from this ATSOS 
- 
+    // 1. gets residuals (measurement and scattering dimensions),
+    // 2. adds to AlignTSOS, and
+    // 3. returns contribution to chi2 from this ATSOS
+
     ATH_MSG_DEBUG("in setResidualsOnATSOS");
 
     atsos->clearResiduals();
- 
+
     double dchi2(0.);
 
     // scattering residual(s) and/or energy loss first
@@ -168,13 +168,13 @@ namespace Trk {
       // when using unbiased residuals including scatterers doesn't make sense
       if(m_resType == Unbiased)
         ATH_MSG_WARNING("When using unbiased residuals including scatterers doesn't make sense!");
-      
+
       const MaterialEffectsBase*         meb        = tsos->materialEffectsOnTrack();
       const Trk::MaterialEffectsOnTrack* meot       = dynamic_cast<const MaterialEffectsOnTrack*>(meb);
-      const ScatteringAngles*            scatterer  = (meot) ? meot->scatteringAngles() : 0;
-      
+      const ScatteringAngles*            scatterer  = (meot) ? meot->scatteringAngles() : nullptr;
+
       int nscatparam=0;
-      if (meb && meot) 
+      if (meb && meot)
         nscatparam = (scatterer) ? 2 : 1;
 
       for (int iparam=0;iparam<nscatparam;iparam++) {
@@ -200,13 +200,13 @@ namespace Trk {
               errSq  *= errSq;
             }
           }
-          else{ 
-            ATH_MSG_WARNING("scatterer has no TrackParameters!"); 
+          else{
+            ATH_MSG_WARNING("scatterer has no TrackParameters!");
           }
 
           Residual res(HitOnly,Scatterer,ParamDefs(iparam),residual,errSq);
-          atsos->addResidual(res); 
-    
+          atsos->addResidual(res);
+
           dchi2 += res.residualNorm()*res.residualNorm();
           m_nDoF++;
         }
@@ -227,7 +227,7 @@ namespace Trk {
           errSq*=errSq;
 
           Residual res(HitOnly,EnergyDeposit,ParamDefs(0),residual,errSq);
-          atsos->addResidual(res);  
+          atsos->addResidual(res);
           dchi2 += res.residualNorm()*res.residualNorm();
           m_nDoF++;
         }
@@ -236,7 +236,7 @@ namespace Trk {
 
     // residuals from measurement
     if (atsos->rio() || atsos->crio()) {
-      
+
       int nparams = (atsos->measType()==TrackState::Pixel) ? 2 : 1;
       for (int iparam=0;iparam<nparams;iparam++) {
 
@@ -244,21 +244,21 @@ namespace Trk {
         double residual(-999.);
 
         if ( atsos->measType()!=TrackState::unidentified &&
-            (atsos->rio()!=0 || atsos->crio()!=0) ) {
+            (atsos->rio()!=nullptr || atsos->crio()!=nullptr) ) {
 
           const MeasurementBase* mesb = tsos->measurementOnTrack();
 
           const TrackParameters * trackPars = tsos->trackParameters();
-          const ResidualPull * resPull = 0;
+          const ResidualPull * resPull = nullptr;
 
           if ( trackPars ) {
 
             if (m_resType == Unbiased) {
               // Get unbiased state
-              const Trk::TrackParameters * unbiasedTrackPars = 
+              const Trk::TrackParameters * unbiasedTrackPars =
                   m_updator->removeFromState(*trackPars,
                                              mesb->localParameters(),
-                                             mesb->localCovariance());
+                                             mesb->localCovariance()).release();
               if (unbiasedTrackPars) {
                 trackPars = unbiasedTrackPars;
                 // AlignTSOS desctructor takes care of deleting unbiasedTrackPars
@@ -303,11 +303,11 @@ namespace Trk {
         m_nDoF++;
       }
     }
-    return dchi2; 
+    return dchi2;
   }
 
   //________________________________________________________________________
-  void AlignResidualCalculator::accumulateScattering(const TrackStateOnSurface* tsos) 
+  void AlignResidualCalculator::accumulateScattering(const TrackStateOnSurface* tsos)
   {
 
     const MaterialEffectsOnTrack* meot       = dynamic_cast<const MaterialEffectsOnTrack*>(tsos->materialEffectsOnTrack());
@@ -322,15 +322,15 @@ namespace Trk {
     if (!dynamic_cast<const CaloEnergy*>(energyLoss)) {
       m_previousQOverP     = m_qOverP;
     }
-    
+
     return;
   }
-  
+
   //________________________________________________________________________
-  const TrackStateOnSurface* 
+  const TrackStateOnSurface*
   AlignResidualCalculator::getMatchingTSOS(const AlignTSOS* atsos, const Track* track) const
   {
-    const TrackStateOnSurface* tsos(0);
+    const TrackStateOnSurface* tsos(nullptr);
 
     if (atsos->rio() || atsos->crio()) {
 
@@ -341,7 +341,7 @@ namespace Trk {
         const MeasurementBase* mesb = itTsos->measurementOnTrack();
         const RIO_OnTrack* rio = dynamic_cast<const RIO_OnTrack*>(mesb);
         const CompetingRIOsOnTrack* crio = dynamic_cast<const CompetingRIOsOnTrack*>(mesb);
-        
+
         if (!rio && crio) {
           rio = &(crio->rioOnTrack(0));
         }
@@ -350,7 +350,7 @@ namespace Trk {
           ATH_MSG_DEBUG("matched TSOS with identifier: "<<rio->identify());
           tsos=itTsos;
           break;
-        } 
+        }
       }
       ATH_MSG_DEBUG("done with measurement");
     }
@@ -358,7 +358,7 @@ namespace Trk {
 
       const Amg::Vector3D origPosition=atsos->trackParameters()->position();
       double distance2(1.e27);
-      
+
       // loop over track and get closest TSOS
       for (const TrackStateOnSurface* itTsos : *track->trackStateOnSurfaces()) {
         if (itTsos->type(TrackStateOnSurface::Outlier))
@@ -372,13 +372,13 @@ namespace Trk {
           distance2=newdist2;
           tsos=itTsos;
         }
-      }      
+      }
       ATH_MSG_DEBUG("done with scatterer");
-    } 
-    if (!tsos) return 0;   
-    const Amg::Vector3D addPosition=tsos->trackParameters()->position();    
+    }
+    if (!tsos) return nullptr;
+    const Amg::Vector3D addPosition=tsos->trackParameters()->position();
     if (std::find(m_matchedTSOS.begin(),m_matchedTSOS.end(),tsos)==m_matchedTSOS.end()) {
-      m_matchedTSOS.push_back(tsos);       
+      m_matchedTSOS.push_back(tsos);
       ATH_MSG_DEBUG("added tsos with pos: "<<addPosition);
     }
     else {
@@ -387,5 +387,5 @@ namespace Trk {
     }
     return tsos;
   }
-    
+
 } // end namespace

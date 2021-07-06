@@ -18,7 +18,7 @@ namespace Muon
   class sTgcRdoToPrepDataTool;
 
   /** @brief Class to represent sTgc measurements. */
-  class sTgcPrepData :   public MuonCluster
+  class sTgcPrepData final:   public MuonCluster
   {
 
     friend class Muon::sTgcRdoToPrepDataTool;
@@ -50,7 +50,7 @@ namespace Muon
 		  const IdentifierHash &idDE,
 		  const Amg::Vector2D& locpos,
 		  const std::vector<Identifier>& rdoList,
-		  const Amg::MatrixX* locErrMat,
+		  const Amg::MatrixX& locErrMat,
 		  const MuonGM::sTgcReadoutElement* detEl,
 		  const int charge,
 		  const short int time,
@@ -64,7 +64,31 @@ namespace Muon
 		  const IdentifierHash &idDE,
 		  const Amg::Vector2D& locpos,
 		  const std::vector<Identifier>& rdoList,
-		  const Amg::MatrixX* locErrMat,
+		  const Amg::MatrixX& locErrMat,
+		  const MuonGM::sTgcReadoutElement* detEl,
+		  const int charge = 0,
+		  const short int time   = 0,
+		  const uint16_t bcBitMap=0);
+
+    sTgcPrepData( const Identifier& RDOId,
+		  const IdentifierHash &idDE,
+		  const Amg::Vector2D& locpos,
+		  std::vector<Identifier>&& rdoList,
+		  Amg::MatrixX&& locErrMat,
+		  const MuonGM::sTgcReadoutElement* detEl,
+		  const int charge,
+		  const short int time,
+		  const uint16_t bcBitMap,
+		  const std::vector<uint16_t>& stripNumbers,
+		  const std::vector<short int>& stripTimes,
+		  const std::vector<int>& stripCharges );
+
+
+    sTgcPrepData( const Identifier& RDOId,
+		  const IdentifierHash &idDE,
+		  const Amg::Vector2D& locpos,
+		  std::vector<Identifier>&& rdoList,
+		  Amg::MatrixX&& locErrMat,
 		  const MuonGM::sTgcReadoutElement* detEl,
 		  const int charge = 0,
 		  const short int time   = 0,
@@ -76,23 +100,23 @@ namespace Muon
     virtual ~sTgcPrepData();
 
     /** @brief Returns the global position*/
-    virtual const Amg::Vector3D& globalPosition() const override;
+    virtual const Amg::Vector3D& globalPosition() const override final;
 
     /** @brief Returns the detector element corresponding to this PRD.
 	The pointer will be zero if the det el is not defined (i.e. it was not passed in by the ctor)*/
     virtual const MuonGM::sTgcReadoutElement* detectorElement() const override final;
 
     /** Interface method checking the type*/
-    virtual bool type(Trk::PrepRawDataType::Type type) const override final
+    virtual bool type(Trk::PrepRawDataType type) const override final
     {
       return type == Trk::PrepRawDataType::sTgcPrepData;
     }
 
     /** @brief Dumps information about the PRD*/
-    virtual MsgStream&    dump( MsgStream&    stream) const override;
+    virtual MsgStream&    dump( MsgStream&    stream) const override final;
 
     /** @brief Dumps information about the PRD*/
-    virtual std::ostream& dump( std::ostream& stream) const override;
+    virtual std::ostream& dump( std::ostream& stream) const override final;
 
     /** @brief Returns the bcBitMap of this PRD
 	bit2 for Previous BC, bit1 for Current BC, bit0 for Next BC */
@@ -139,7 +163,11 @@ namespace Muon
   // return globalPosition:
   inline const Amg::Vector3D& sTgcPrepData::globalPosition() const
   {
-    if (not m_globalPosition) m_globalPosition.set(std::unique_ptr<const Amg::Vector3D>(m_detEl->surface(identify()).Trk::Surface::localToGlobal(localPosition())));
+    if (not m_globalPosition) {
+      m_globalPosition.set(std::make_unique<const Amg::Vector3D>(
+        m_detEl->surface(identify())
+          .Trk::Surface::localToGlobal(localPosition())));
+    }
 
     if (not m_globalPosition) throw Trk::PrepRawDataUndefinedVariable();
     return *m_globalPosition;

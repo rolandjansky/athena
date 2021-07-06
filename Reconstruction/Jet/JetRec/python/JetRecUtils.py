@@ -1,16 +1,27 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-from AthenaCommon.AppMgr import ToolSvc
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import Logging
 jetlog = Logging.logging.getLogger('JetRec_jobOptions')
 
-def retrieveAODList():
+def retrieveAODList(enableOutputOverride = False):
     from JetRec.JetRecFlags import jetFlags, JetContentDetail
     from RecExConfig.RecFlags import rec
 
+    if (not enableOutputOverride) and (not jetFlags.writeJetsToAOD()):
+        return []
+
+    jetPileUpTruthList = []
+    if rec.doTruth():
+      jetPileUpTruthList += [
+        'xAOD::JetContainer#InTimeAntiKt4TruthJets',            'xAOD::JetAuxContainer#InTimeAntiKt4TruthJetsAux.',
+        'xAOD::JetContainer#OutOfTimeAntiKt4TruthJets',         'xAOD::JetAuxContainer#OutOfTimeAntiKt4TruthJetsAux.',
+      ]
+
     if rec.doWriteESD():
-        return jetFlags.jetAODList()
+        jetAODList = jetFlags.jetAODList()
+        if rec.doTruth():
+          jetAODList += jetPileUpTruthList 
+        return jetAODList
     # then we are merging or doing a AOD ?
     # We can not simply copy what we have from input since some
     # jobs starts from empty files. See ATEAM-191.
@@ -30,13 +41,13 @@ def retrieveAODList():
         'xAOD::EventShape#TopoClusterIsoCentralEventShape',         'xAOD::EventShapeAuxInfo#TopoClusterIsoCentralEventShapeAux.',
         'xAOD::EventShape#TopoClusterIsoForwardEventShape',         'xAOD::EventShapeAuxInfo#TopoClusterIsoForwardEventShapeAux.',
 
-        'xAOD::PFOContainer#CHSChargedParticleFlowObjects',         'xAOD::ShallowAuxContainer#CHSChargedParticleFlowObjectsAux.',
-        'xAOD::PFOContainer#CHSNeutralParticleFlowObjects',         'xAOD::ShallowAuxContainer#CHSNeutralParticleFlowObjectsAux.',
-
         'xAOD::JetContainer#AntiKt4EMPFlowJets',                    'xAOD::JetAuxContainer#AntiKt4EMPFlowJetsAux.',
         'xAOD::JetContainer#AntiKt4EMTopoJets',                     'xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.',
         'xAOD::JetContainer#AntiKt4LCTopoJets',                     'xAOD::JetAuxContainer#AntiKt4LCTopoJetsAux.',
         ]
+
+    if rec.doTruth():
+      l += jetPileUpTruthList
 
     if jetFlags.detailLevel()>=JetContentDetail.Full:
         l += [
@@ -55,7 +66,7 @@ def retrieveAODList():
                 'xAOD::JetContainer#AntiKt4TruthJets',                  'xAOD::JetAuxContainer#AntiKt4TruthJetsAux.',
                 'xAOD::JetContainer#AntiKt4TruthWZJets',                'xAOD::JetAuxContainer#AntiKt4TruthWZJetsAux.',
                 'xAOD::JetContainer#CamKt12TruthJets',                  'xAOD::JetAuxContainer#CamKt12TruthJetsAux.',
-                'xAOD::JetContainer#CamKt12TruthWZJets',                'xAOD::JetAuxContainer#CamKt12TruthWZJetsAux.',
+                'xAOD::JetContainer#CamKt12TruthWZJets',                'xAOD::JetAuxContainer#CamKt12TruthWZJetsAux.',                
                 ]
 
     if jetFlags.detailLevel()>=JetContentDetail.Validation:
@@ -103,7 +114,6 @@ def buildJetContName(finder, mainParam, input, variableRMassScale=0, variableRMi
     return buildJetAlgName(finder, mainParam, variableRMassScale, variableRMinRadius) +input+"Jets" # could be more elaborated...
 
 def interpretJetName(jetcollName,  finder = None,input=None, mainParam=None):
-    myname = "JetRecUtils: "
     from AthenaCommon import Logging
     jetlog = Logging.logging.getLogger('JetRecUtils')
     # first step : guess the finder, input , mainParam, if needed

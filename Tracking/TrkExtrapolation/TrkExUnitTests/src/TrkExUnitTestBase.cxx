@@ -7,6 +7,10 @@
 //////////////////////////////////////////////////////////////////
 
 // TrkExUnitTests
+#include <memory>
+
+
+
 #include "TrkExUnitTests/TrkExUnitTestBase.h"
 
 Trk::TrkExUnitTestBase::TrkExUnitTestBase(const std::string& name, ISvcLocator* pSvcLocator) :
@@ -24,9 +28,9 @@ StatusCode Trk::TrkExUnitTestBase::initialize() {
   ATH_MSG_INFO("Creating random number services, call bookTree() and initializeTest()");
 
   // intialize the random number generators
-  m_gaussDist.reset(new Rndm::Numbers(randSvc(), Rndm::Gauss(0., 1.)));
-  m_flatDist.reset(new Rndm::Numbers(randSvc(), Rndm::Flat(0., 1.)));
-  m_landauDist.reset(new Rndm::Numbers(randSvc(), Rndm::Landau(0., 1.)));
+  m_gaussDist = std::make_unique<Rndm::Numbers>(randSvc(), Rndm::Gauss(0., 1.));
+  m_flatDist = std::make_unique<Rndm::Numbers>(randSvc(), Rndm::Flat(0., 1.));
+  m_landauDist = std::make_unique<Rndm::Numbers>(randSvc(), Rndm::Landau(0., 1.));
 
   if (bookTree().isFailure()) {
     ATH_MSG_FATAL("Could not book the TTree object");

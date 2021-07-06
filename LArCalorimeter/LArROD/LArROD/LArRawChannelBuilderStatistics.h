@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -29,7 +29,7 @@ class LArRawChannelBuilderStatistics
   ulonglong returnErrorCountSqPerEvent(unsigned int nerr);
   unsigned long returnEvents();
   
-  void setErrorString(unsigned int nerr, std::string s);
+  void setErrorString(unsigned int nerr, const std::string& s);
   std::string returnErrorString(unsigned int nerr);
   
   unsigned int returnBitPattern();

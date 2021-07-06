@@ -82,8 +82,8 @@ protected:
   std::vector<PseudoJet> m_pjVec0;
   std::vector<PseudoJet> m_pjVec1;
 
-  IParticleExtractor* m_pExtractor_noghost;
-  IParticleExtractor* m_pExtractor_ghost;
+  std::unique_ptr<const IParticleExtractor> m_pExtractor_noghost{};
+  std::unique_ptr<const IParticleExtractor> m_pExtractor_ghost{};
 
   Jet* m_testjet0;
   Jet* m_testjet1;
@@ -108,7 +108,7 @@ TEST_F(PseudoJetContainerTriggerTest, test_noghost) {
 
 
   // create the PseudoContainer
-  PseudoJetContainer psc(m_pExtractor_noghost, m_pjVec0);
+  PseudoJetContainer psc(std::move(m_pExtractor_noghost), m_pjVec0);
 
   // check the pseudojet accessors
   EXPECT_TRUE(*psc.casVectorPseudoJet() == m_pjVec0);
@@ -138,7 +138,7 @@ TEST_F(PseudoJetContainerTriggerTest, test_ghost) {
   // The jet containers have a JetAuxContainer, and are stored in the test store
 
   // create the PseudoContainer
-  PseudoJetContainer psc(m_pExtractor_ghost, m_pjVec0);
+  PseudoJetContainer psc(std::move(m_pExtractor_ghost), m_pjVec0);
 
   // check the pseudojet accessors
   EXPECT_TRUE(*psc.casVectorPseudoJet() == m_pjVec0);
@@ -174,8 +174,8 @@ TEST_F(PseudoJetContainerTriggerTest, test_append) {
   bool debug{true};
   
   // create the PseudoContainers
-  PseudoJetContainer psc0(m_pExtractor_noghost, m_pjVec0);
-  PseudoJetContainer psc1(m_pExtractor_ghost, m_pjVec1);
+  PseudoJetContainer psc0(std::move(m_pExtractor_noghost), m_pjVec0);
+  PseudoJetContainer psc1(std::move(m_pExtractor_ghost), m_pjVec1);
 
   psc0.append(&psc1);
 

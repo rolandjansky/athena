@@ -47,12 +47,20 @@ const std::vector<std::pair<const xAOD::Vertex*, size_t> > hardScatterMatches( c
 
   //loop and look
   for ( auto vxit : vxContainer ) {
-    const std::vector<VertexTruthMatchInfo> & info =  matchInfoDecor( *vxit );
-    for ( size_t i = 0; i < info.size(); ++i ) {
-      if ( isHardScatterEvent( std::get<0>(info[i]) ) ) {
-        result.push_back( std::make_pair(vxit, i) );
-        break;
+    try{
+      const std::vector<VertexTruthMatchInfo> & info =  matchInfoDecor( *vxit );
+      if (!matchInfoDecor.isAvailable(*vxit)){
+        return result;
       }
+      for ( size_t i = 0; i < info.size(); ++i ) {
+        if ( isHardScatterEvent( std::get<0>(info[i]) ) ) {
+          result.push_back( std::make_pair(vxit, i) );
+          break;
+        }
+      }
+    }
+    catch (SG::ExcBadAuxVar &){
+        return result;
     }
 
   }

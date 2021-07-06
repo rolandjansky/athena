@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOMODELSVC_GEOMODELSVC_H
 #define GEOMODELSVC_GEOMODELSVC_H
 
-#include "GeoModelKernel/GeoPVConstLink.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelInterfaces/IGeoModelTool.h"
@@ -16,9 +15,12 @@
 #include "AthenaBaseComps/AthService.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "EventInfoMgt/ITagInfoMgr.h"
-#include <fstream>
 
 class ISvcLocator;
+class GMDBManager;
+namespace GeoModelIO {
+  class ReadGeoModel;
+}
 
 template <class TYPE> class SvcFactory;
 
@@ -27,24 +29,24 @@ class GeoModelSvc : public AthService, virtual public IGeoModelSvc,
 {
 public:
 
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
     // Query the interfaces.
     //   Input: riid, Requested interface ID
     //          ppvInterface, Pointer to requested interface
     //   Return: StatusCode indicating SUCCESS or FAILURE.
     // N.B. Don't forget to release the interface after use!!!
-    virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
+    virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
 
     /// Callback from TagInfoMgr on TagInfo change
     virtual void       tagInfoUpdated() override final;
 
     StatusCode compareTags();
 
-    virtual const IGeoModelTool* getTool(std::string toolName) const;
+    virtual const IGeoModelTool* getTool(std::string toolName) const override;
 
-    virtual StatusCode clear();
+    virtual StatusCode clear() override;
 
     friend class SvcFactory<GeoModelSvc>;
 
@@ -53,18 +55,10 @@ public:
 
     // Standard Destructor
     virtual ~GeoModelSvc();
-
-
-protected:
-
-    //     StatusCode append( IGeoModelTool* pddTool, 
-    // 		       std::vector<IGeoModelTool*>* theTools ); 
-    //     StatusCode decodeNames( StringArrayProperty& theNames, 
-    //        						std::vector<IGeoModelTool*>* theTools ); 
 	
 private:
 
-    ToolHandleArray< IGeoModelTool > m_detectorTools; // Detector Tools
+    ToolHandleArray< IGeoModelTool > m_detectorTools;
 
     ISvcLocator*        m_pSvcLocator;
 
@@ -87,7 +81,6 @@ private:
     std::string           m_CavernInfraVersionOverride;
     std::string           m_ForwardDetectorsVersionOverride;
 
-    bool          m_printMaterials;               // Print the contents of the Material Manager at the end of geoInit
     bool          m_callBackON;                   // Register callback for Detector Tools
     bool          m_ignoreTagDifference;          // Keep going if TagInfo and property tags are different
                                                   // when geometry configured manually 
@@ -98,32 +91,41 @@ private:
     int           m_supportedGeometry;            // Supported geometry flag is set in jobOpt and is equal to major release version
     bool          m_ignoreTagSupport;             // If true then don't check SUPPORT flag for ATLAS tag
 
-    const std::string & atlasVersion()         const {return m_AtlasVersion; }
-    const std::string & inDetVersionOverride() const {return m_InDetVersionOverride ;}
-    const std::string & pixelVersionOverride() const {return m_PixelVersionOverride ;}
-    const std::string & SCT_VersionOverride()  const {return m_SCT_VersionOverride  ;}
-    const std::string & TRT_VersionOverride()  const {return m_TRT_VersionOverride  ;}
-    const std::string & LAr_VersionOverride()  const {return m_LAr_VersionOverride  ;}
-    const std::string & tileVersionOverride()  const {return m_TileVersionOverride  ;}
-    const std::string & muonVersionOverride()  const {return m_MuonVersionOverride  ;}
-    const std::string & caloVersionOverride()  const {return m_CaloVersionOverride  ;}
-    const std::string & magFieldVersionOverride()     const {return m_MagFieldVersionOverride  ;}
-    const std::string & cavernInfraVersionOverride()  const {return m_CavernInfraVersionOverride  ;}
-    const std::string & forwardDetectorsVersionOverride()  const {return m_ForwardDetectorsVersionOverride  ;}
+    GeoModelIO::ReadGeoModel* m_sqliteReader{nullptr};
+    GMDBManager*              m_sqliteDbManager{nullptr};
 
-    const std::string & inDetVersion()         const {return m_geoDbTagSvc->inDetVersion(); }
-    const std::string & pixelVersion()         const {return m_geoDbTagSvc->pixelVersion(); }
-    const std::string & SCT_Version()          const {return m_geoDbTagSvc->SCT_Version(); }
-    const std::string & TRT_Version()          const {return m_geoDbTagSvc->TRT_Version(); }
-    const std::string & LAr_Version()          const {return m_geoDbTagSvc->LAr_Version(); }
-    const std::string & tileVersion()          const {return m_geoDbTagSvc->tileVersion(); }
-    const std::string & muonVersion()          const {return m_geoDbTagSvc->muonVersion(); }
-    const std::string & caloVersion()          const {return m_geoDbTagSvc->caloVersion(); }
-    const std::string & magFieldVersion()      const {return m_geoDbTagSvc->magFieldVersion(); }
-    const std::string & cavernInfraVersion()   const {return m_geoDbTagSvc->cavernInfraVersion(); }
-    const std::string & forwardDetectorsVersion()   const {return m_geoDbTagSvc->forwardDetectorsVersion(); }
+    Gaudi::Property<std::string> m_sqliteDb { this
+	, "SQLiteDB"
+	, ""
+	, "Path to the persistent GeoModel description file in SQLite format"
+	};
 
-    GeoModel::GeoConfig geoConfig() const {return m_geoDbTagSvc->geoConfig();}
+    virtual const std::string & atlasVersion()         const override {return m_AtlasVersion; }
+    virtual const std::string & inDetVersionOverride() const override {return m_InDetVersionOverride ;}
+    virtual const std::string & pixelVersionOverride() const override {return m_PixelVersionOverride ;}
+    virtual const std::string & SCT_VersionOverride()  const override {return m_SCT_VersionOverride  ;}
+    virtual const std::string & TRT_VersionOverride()  const override {return m_TRT_VersionOverride  ;}
+    virtual const std::string & LAr_VersionOverride()  const override {return m_LAr_VersionOverride  ;}
+    virtual const std::string & tileVersionOverride()  const override {return m_TileVersionOverride  ;}
+    virtual const std::string & muonVersionOverride()  const override {return m_MuonVersionOverride  ;}
+    virtual const std::string & caloVersionOverride()  const override {return m_CaloVersionOverride  ;}
+    virtual const std::string & magFieldVersionOverride()     const override {return m_MagFieldVersionOverride  ;}
+    virtual const std::string & cavernInfraVersionOverride()  const override {return m_CavernInfraVersionOverride  ;}
+    virtual const std::string & forwardDetectorsVersionOverride()  const override {return m_ForwardDetectorsVersionOverride  ;}
+
+    virtual const std::string & inDetVersion()         const override {return m_geoDbTagSvc->inDetVersion(); }
+    virtual const std::string & pixelVersion()         const override {return m_geoDbTagSvc->pixelVersion(); }
+    virtual const std::string & SCT_Version()          const override {return m_geoDbTagSvc->SCT_Version(); }
+    virtual const std::string & TRT_Version()          const override {return m_geoDbTagSvc->TRT_Version(); }
+    virtual const std::string & LAr_Version()          const override {return m_geoDbTagSvc->LAr_Version(); }
+    virtual const std::string & tileVersion()          const override {return m_geoDbTagSvc->tileVersion(); }
+    virtual const std::string & muonVersion()          const override {return m_geoDbTagSvc->muonVersion(); }
+    virtual const std::string & caloVersion()          const override {return m_geoDbTagSvc->caloVersion(); }
+    virtual const std::string & magFieldVersion()      const override {return m_geoDbTagSvc->magFieldVersion(); }
+    virtual const std::string & cavernInfraVersion()   const override {return m_geoDbTagSvc->cavernInfraVersion(); }
+    virtual const std::string & forwardDetectorsVersion()   const override {return m_geoDbTagSvc->forwardDetectorsVersion(); }
+
+    virtual GeoModel::GeoConfig geoConfig() const override {return m_geoDbTagSvc->geoConfig();}
 
     StatusCode geoInit ();
     StatusCode fillTagInfo() const;

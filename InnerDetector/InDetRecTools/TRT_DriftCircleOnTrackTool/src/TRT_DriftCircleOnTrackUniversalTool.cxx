@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -75,9 +75,9 @@ const Trk::RIO_OnTrack* InDet::TRT_DriftCircleOnTrackUniversalTool::correct
 (const Trk::PrepRawData& rio,const Trk::TrackParameters& TP) const
 {
   const InDet::TRT_DriftCircle* DC = dynamic_cast<const InDet::TRT_DriftCircle*>(&rio);
-  if(!DC) return 0;
+  if(!DC) return nullptr;
 
-  const Trk::RIO_OnTrack *rot=NULL;
+  const Trk::RIO_OnTrack *rot=nullptr;
 
   //now decide about tube or precision hit
 

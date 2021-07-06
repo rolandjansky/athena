@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -23,7 +23,7 @@
                                               const std::string& histName,
                                               int minCycle, int maxCycle ) {
   // Lets first make some checks
-  if (!cbkCont) return 0;
+  if (!cbkCont) return nullptr;
 
   // Get the maximum cycle number that we need to worry about
   const int cbkMaxCycle = cbkCont->maxCycle();

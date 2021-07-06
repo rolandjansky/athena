@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * Based on InvariantMassInclusive2 and DeltaRSqrIncl2. 01/03/2019.
@@ -16,14 +16,6 @@
 #include "L1TopoAlgorithms/InvariantMassInclusiveDeltaRSqrIncl2.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
-// Bitwise implementation utils
-#include "L1TopoSimulationUtils/L1TopoDataTypes.h"
-#include "L1TopoSimulationUtils/Trigo.h"
-#include "L1TopoSimulationUtils/Hyperbolic.h"
-#include "L1TopoSimulationUtils/Kinematics.h"
-//
-#include "TH1F.h"
-#include "TH2F.h"
 
 #include <cmath>
 
@@ -159,9 +151,9 @@ TCS::InvariantMassInclusiveDeltaRSqrIncl2::processBitCorrect( const std::vector<
                  tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
                  ++tob2) {
                 // Inv Mass calculation
-                unsigned int invmass2 = TSU::Kinematics::calcInvMassBW( *tob1, *tob2 );
+                unsigned int invmass2 = calcInvMassBW( *tob1, *tob2 );
 		// test DeltaR2Min, DeltaR2Max                                                                                                
-		unsigned int deltaR2 = TSU::Kinematics::calcDeltaR2BW( *tob1, *tob2 );
+		unsigned int deltaR2 = calcDeltaR2BW( *tob1, *tob2 );
 		TRG_MSG_DEBUG("Jet1 = " << **tob1 << ", Jet2 = " << **tob2 << ", invmass2 = " << invmass2 << ", deltaR2 = " << deltaR2);
                 const int eta1 = (*tob1)->eta();
                 const int eta2 = (*tob2)->eta();
@@ -216,9 +208,9 @@ TCS::InvariantMassInclusiveDeltaRSqrIncl2::process( const std::vector<TCS::TOBAr
                  tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
                  ++tob2) {
 	      // Inv Mass calculation
-	      unsigned int invmass2 = TSU::Kinematics::calcInvMass( *tob1, *tob2 );
+	      unsigned int invmass2 = calcInvMass( *tob1, *tob2 );
 	      // test DeltaR2Min, DeltaR2Max                                                                                                  
-	      unsigned int deltaR2 = TSU::Kinematics::calcDeltaR2( *tob1, *tob2 );
+	      unsigned int deltaR2 = calcDeltaR2( *tob1, *tob2 );
 	      TRG_MSG_DEBUG("Jet1 = " << **tob1 << ", Jet2 = " << **tob2 << ", invmass2 = " << invmass2 << ", deltaR2 = " << deltaR2);
 	      const int eta1 = (*tob1)->eta();
 	      const int eta2 = (*tob2)->eta();

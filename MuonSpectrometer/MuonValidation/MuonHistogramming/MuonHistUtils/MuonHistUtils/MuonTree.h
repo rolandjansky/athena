@@ -43,7 +43,7 @@ namespace Muon{
     uint32_t m_lumiBlock;
     unsigned long long m_eventNumber;
     uint32_t m_mcChannelNumber;
-    
+    Float_t m_mcBeamSpotWeight;
     //
     //Reco variables
     //

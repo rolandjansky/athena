@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -22,14 +22,17 @@
 #include "TrkDetDescrUtils/BinnedArray2D.h"
 #include "TrkDetDescrUtils/BinnedArray1D.h"
 #include "TrkDetDescrUtils/BinUtility.h"
-#include "TrkDetDescrUtils/BinUtility.h"
 // GeoPrimitives
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
 // InDetDD
-#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
 #include "TRT_ReadoutGeometry/TRT_Numerology.h"
+#include "TRT_ReadoutGeometry/TRT_BarrelElement.h"
+#include "TRT_ReadoutGeometry/TRT_EndcapElement.h"
 #include "InDetIdentifier/TRT_ID.h"
+// Athena
+#include "AthenaKernel/IOVInfiniteRange.h"
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/SmartDataPtr.h"
@@ -72,8 +75,6 @@ namespace {
 // constructor
 InDet::TRT_LayerBuilderCond::TRT_LayerBuilderCond(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
-  m_trtMgr(0),
-  m_trtMgrLocation("TRT"),
   m_layerStrawRadius(2.0*Gaudi::Units::mm),
   m_layerThickness(0.1*Gaudi::Units::mm),
   m_modelGeometry(true),
@@ -90,7 +91,6 @@ InDet::TRT_LayerBuilderCond::TRT_LayerBuilderCond(const std::string& t, const st
 {
   declareInterface<Trk::ILayerBuilderCond>(this);
   // properties from outside
-  declareProperty("TRT_DetManagerLocation",       m_trtMgrLocation);
   declareProperty("LayerThickness",               m_layerThickness);
   // material binning
   declareProperty("BarrelLayerBinsZ"            , m_barrelLayerBinsZ);
@@ -116,41 +116,39 @@ InDet::TRT_LayerBuilderCond::~TRT_LayerBuilderCond()
 // initialize
 StatusCode InDet::TRT_LayerBuilderCond::initialize()
 {
-   ATH_MSG_INFO( "initialize()" );
-   // get TRT Detector Description Manager
-   if ((detStore()->retrieve(m_trtMgr, m_trtMgrLocation)).isFailure())
-     ATH_MSG_ERROR( "Could not get TRT_DetectorManager, no layers for TRT Detector will be built. " );
+   ATH_MSG_DEBUG( "initialize()" );
+   // get TRT Detector Description
+   ATH_CHECK(m_readKeyTRTContainer.initialize());
 
    return StatusCode::SUCCESS;
 }
 
-// finalize
-StatusCode InDet::TRT_LayerBuilderCond::finalize()
-{
-    ATH_MSG_INFO( "finalize() successful" );
-
-    return StatusCode::SUCCESS;
-}
-
 
 /** LayerBuilderCond interface method - returning Barrel-like layers */
-//FIXME: context object is unused, elements are retrieved from m_trtMgr instead of CondSvc
-std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet::TRT_LayerBuilderCond::cylindricalLayers(const EventContext&) const
+std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet::TRT_LayerBuilderCond::cylindricalLayers(const EventContext& ctx) const
 {
 
-  //create dummy infinite range
-  EventIDRange range;
-  if (!m_trtMgr) return std::pair<EventIDRange,const std::vector<const Trk::CylinderLayer* >* >(range,nullptr);
 
   ATH_MSG_DEBUG( "Building cylindrical layers for the TRT " );
 
   PtrVectorWrapper<Trk::CylinderLayer> barrelLayers;
 
+
+  //create dummy infinite range
+  EventIDRange range=IOVInfiniteRange::infiniteMixed();
+
+  SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> readHandleTRTContainer{m_readKeyTRTContainer,ctx};
+  const InDetDD::TRT_DetElementContainer* trtContainer{*readHandleTRTContainer};
+  if(trtContainer == nullptr){
+    ATH_MSG_ERROR("Aligned TRT could not be retrieved from CondStore: " << m_readKeyTRTContainer);
+    std::pair<EventIDRange,const std::vector<const Trk::CylinderLayer* >* >(range,nullptr);
+  }
+  
   // get Numerology and Id HElper
-  const InDetDD::TRT_Numerology* trtNums = m_trtMgr->getNumerology();
+  const InDetDD::TRT_Numerology* trtNums = trtContainer->getTRTNumerology();
 
   // get the TRT ID Helper
-  const TRT_ID* trtIdHelper = 0;
+  const TRT_ID* trtIdHelper = nullptr;
   if (detStore()->retrieve(trtIdHelper, "TRT_ID").isFailure()) {
      ATH_MSG_ERROR("Could not get TRT ID helper");
      return std::pair<EventIDRange,const std::vector<const Trk::CylinderLayer* >* >(range,nullptr);
@@ -180,7 +178,7 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
        {
          for (int iposneg=0; iposneg<2; ++iposneg){
             // get the element
-            const InDetDD::TRT_BarrelElement* trtbar = m_trtMgr->getBarrelElement(iposneg, ring, phisec, layer);
+            const InDetDD::TRT_BarrelElement* trtbar = trtContainer->getBarrelDetElement(iposneg, ring, phisec, layer);
 
             // get overall dimensions only one time
             const Trk::PlaneSurface*    elementSurface = dynamic_cast<const Trk::PlaneSurface*>(&(trtbar->surface()));
@@ -241,7 +239,7 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
      // create the layers
      for ( ; layerRadiusIter != layerRadiusIterEnd; ++layerRadiusIter ) {
        // ----- prepare the BinnedLayerMaterial -----------------------------------------------------
-       Trk::BinnedLayerMaterial* layerMaterial = 0;
+       Trk::BinnedLayerMaterial* layerMaterial = nullptr;
        // -- material with 1D binning
        Trk::BinUtility layerBinUtility1DZ(m_barrelLayerBinsZ,-layerHalflength, layerHalflength, Trk::open, Trk::binZ);
        if (m_barrelLayerBinsPhi==1){
@@ -313,7 +311,7 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
                  // positive and negative sector
                  for (int posneg=0; posneg<2; ++posneg){
                      // sort the elements
-                     const InDetDD::TRT_BarrelElement* currentElement = m_trtMgr->getBarrelElement(posneg, ring, phisec, layer);
+                     const InDetDD::TRT_BarrelElement* currentElement = trtContainer->getBarrelDetElement(posneg, ring, phisec, layer);
                      // get overall dimensions only one time
                      const Trk::PlaneSurface*    elementSurface = dynamic_cast<const Trk::PlaneSurface*>(&(currentElement->surface()));
                      if (!elementSurface) {
@@ -336,11 +334,11 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
                      layerSectorPosition = elementSurface->center();
 
                      // now register the two surfaces
-                     aSurfaces->push_back(new Trk::PlaneSurface(new Amg::Transform3D(Amg::getTransformFromRotTransl(elementRotation, innerCenter))));
-                     aSurfaces->push_back(new Trk::PlaneSurface(new Amg::Transform3D(Amg::getTransformFromRotTransl(elementRotation, outerCenter))));
+                     aSurfaces->push_back(new Trk::PlaneSurface(Amg::Transform3D(Amg::getTransformFromRotTransl(elementRotation, innerCenter))));
+                     aSurfaces->push_back(new Trk::PlaneSurface(Amg::Transform3D(Amg::getTransformFromRotTransl(elementRotation, outerCenter))));
 
                      // now register it to for building the array
-                     layerApproachSurfaces.push_back( std::pair< Trk::SharedObject<const Trk::ApproachSurfaces>, Amg::Vector3D >( Trk::SharedObject<const Trk::ApproachSurfaces>(aSurfaces),elementCenter));
+                     layerApproachSurfaces.emplace_back( Trk::SharedObject<const Trk::ApproachSurfaces>(aSurfaces),elementCenter);
                      // screen output
                      ATH_MSG_VERBOSE("---> Sector " << phisec << " - posneg - " << posneg << " - with central phi = " << elementSurface->center().phi() );
                      // sector phi centers
@@ -362,13 +360,12 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
                        takeSmallerBigger(phiMin, phiMax, currentPhi);
                        // make the ordering position
                        Amg::Vector3D strawOrderPos(currentStraw->center());
-                       //Trk::SharedObject<const Trk::Surface> sharedSurface(currentStraw, true);
                        /*
                         * The above line was using the nodel (not delete option for the old shared object
                         * now that SharedObject is a shared_ptr typeded do the same with empty deleter
                         */
                        Trk::SharedObject<const Trk::Surface> sharedSurface(currentStraw, Trk::do_not_delete<const Trk::Surface>);
-                       strawsPerPhiSecLayer.push_back(Trk::SurfaceOrderPosition(sharedSurface, strawOrderPos));
+                       strawsPerPhiSecLayer.emplace_back(sharedSurface, strawOrderPos);
                        // and record
                        ++sectorStraws;
                      } // loop over straws done
@@ -393,7 +390,7 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
                  Trk::BinnedArray2D<Trk::Surface>* layerStrawPhiSector = new Trk::BinnedArray2D<Trk::Surface>(strawsPerPhiSecLayer,layerStrawPhiZUtility);
                  ATH_MSG_VERBOSE("---> Sector " << phisec << " - BinnedArray for straws prepared for " << strawsPerPhiSecLayer.size() << " straws.");
                  // fill the array
-                 layerSectorArrays.push_back(std::pair< Trk::BinnedArray<Trk::Surface>*, Amg::Vector3D >(layerStrawPhiSector, layerSectorPosition));
+                 layerSectorArrays.emplace_back(layerStrawPhiSector, layerSectorPosition);
                 // ---------------- enf of phi sector ----------------------------------------------------
               } // loop over PhiSectors done
 
@@ -445,7 +442,7 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
               // do not give every layer material properties
               if (assignMaterial) {
                  // ----- prepare the BinnedLayerMaterial -----------------------------------------------------
-                 Trk::BinnedLayerMaterial* layerMaterial = 0;
+                 Trk::BinnedLayerMaterial* layerMaterial = nullptr;
                  // -- material with 1D binning
                  Trk::BinUtility layerBinUtilityZ(m_barrelLayerBinsZ, -layerHalflength, layerHalflength, Trk::open, Trk::binZ );
                  if (m_barrelLayerBinsPhi==1){
@@ -480,20 +477,27 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
    }
 
   // return what you have
+  range = readHandleTRTContainer.getRange();
   return std::make_pair(range,barrelLayers.release());
 }
 
-//TODO: context object is unused, elements are retrieved from m_trtMgr instead of CondSvc
-std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT_LayerBuilderCond::discLayers(const EventContext&) const
+std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT_LayerBuilderCond::discLayers(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG( "Building disc-like layers for the TRT " );
 
   //create dummy infinite range
-  EventIDRange range;
+  EventIDRange range=IOVInfiniteRange::infiniteMixed();
 
-  const InDetDD::TRT_Numerology* trtNums = m_trtMgr->getNumerology();
+  SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> readHandleTRTContainer{m_readKeyTRTContainer, ctx};
+  const InDetDD::TRT_DetElementContainer* trtContainer{*readHandleTRTContainer};
+  if(trtContainer == nullptr){
+    ATH_MSG_ERROR("Aligned TRT could not be retrieved from CondStore: " << m_readKeyTRTContainer);
+    std::pair<EventIDRange,const std::vector<const Trk::CylinderLayer* >* >(range,nullptr);
+  }
+
+  const InDetDD::TRT_Numerology* trtNums = trtContainer->getTRTNumerology();
   // get the TRT ID Helper
-  const TRT_ID* trtIdHelper = 0;
+  const TRT_ID* trtIdHelper = nullptr;
   if (detStore()->retrieve(trtIdHelper, "TRT_ID").isFailure()) {
      ATH_MSG_ERROR("Could not get TRT ID helper");
      return std::pair<EventIDRange,const std::vector<const Trk::DiscLayer* >* >(range,nullptr);
@@ -508,7 +512,7 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
   double zMin = 10e10;
   double zMax = 0.;
 
-  const Trk::DiscBounds* sectorDiscBounds = 0;
+  const Trk::DiscBounds* sectorDiscBounds = nullptr;
 
   // preloop for overall numbers
   for (unsigned int iwheel=0; iwheel<nEndcapWheels; ++iwheel)
@@ -516,7 +520,7 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
        unsigned int nEndcapLayers = trtNums->getNEndcapLayers(iwheel);
        numTotalLayers += nEndcapLayers;
        for (unsigned int ilayer = 0; ilayer<nEndcapLayers; ++ilayer){
-         const InDetDD::TRT_EndcapElement* sectorDiscElement = m_trtMgr->getEndcapElement(0, iwheel, ilayer, 0);
+         const InDetDD::TRT_EndcapElement* sectorDiscElement = trtContainer->getEndcapDetElement(0, iwheel, ilayer, 0);
 
          // get a reference element for dimensions
          if (!sectorDiscBounds){
@@ -533,7 +537,7 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
       return std::pair<EventIDRange,const std::vector<const Trk::DiscLayer* >* >(range,nullptr);
   }
 
-  Trk::DiscBounds* fullDiscBounds = sectorDiscBounds ? new Trk::DiscBounds(sectorDiscBounds->rMin(), sectorDiscBounds->rMax()) : 0;
+  Trk::DiscBounds* fullDiscBounds = sectorDiscBounds ? new Trk::DiscBounds(sectorDiscBounds->rMin(), sectorDiscBounds->rMax()) : nullptr;
   if (!fullDiscBounds) {
       ATH_MSG_WARNING( "fullDiscBounds do not exist ... aborting and returning 0 !" );
       return std::pair<EventIDRange,const std::vector<const Trk::DiscLayer* >* >(range,nullptr);
@@ -542,7 +546,7 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
   PtrVectorWrapper<Trk::DiscLayer> endcapLayers;
 
   // the BinUtility for the material
-  Trk::BinnedLayerMaterial* layerMaterial = 0;
+  Trk::BinnedLayerMaterial* layerMaterial = nullptr;
   // -- material with 1D binning
   Trk::BinUtility layerBinUtilityR(m_endcapLayerBinsR,
                                          fullDiscBounds->rMin(),
@@ -594,8 +598,8 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
       // build the layers actually
       for ( ; zPosIter != zPosIterEnd; ++zPosIter){
          ATH_MSG_VERBOSE( "  --> Creating a layer at z pos    : " << (*zPosIter) );
-         Amg::Transform3D* zPosTrans = new Amg::Transform3D;
-         (*zPosTrans) = Amg::Translation3D(0.,0.,(*zPosIter));
+         Amg::Transform3D zPosTrans =
+           Amg::Transform3D(Amg::Translation3D(0., 0., (*zPosIter)));
          endcapLayers->push_back(new Trk::DiscLayer(zPosTrans,
                                                     fullDiscBounds->clone(),
                                                     *layerMaterial,
@@ -624,7 +628,7 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
          // check if dynamic cast worked
          if (fullDiscBounds){
           // get a reference element for dimensions
-           const InDetDD::TRT_EndcapElement* sectorDiscElement = m_trtMgr->getEndcapElement(iposneg, iwheel, ilayer, 0);
+           const InDetDD::TRT_EndcapElement* sectorDiscElement = trtContainer->getEndcapDetElement(iposneg, iwheel, ilayer, 0);
 
            // take the position, but not the rotation (the rotation has to be standard)
            Amg::Vector3D fullDiscPosition(sectorDiscElement->surface().transform().translation());
@@ -649,7 +653,7 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
 
            for (unsigned int iphisec=0; iphisec<nEndcapPhiSectors; ++iphisec){
                ATH_MSG_VERBOSE("Building sector " << iphisec << " of endcap wheel " << iwheel );
-                const InDetDD::TRT_EndcapElement* currentElement = m_trtMgr->getEndcapElement(iposneg, iwheel, ilayer, iphisec);
+                const InDetDD::TRT_EndcapElement* currentElement = trtContainer->getEndcapDetElement(iposneg, iwheel, ilayer, iphisec);
                 unsigned int nstraws = currentElement->nStraws();
                 for (unsigned int istraw=0; istraw<nstraws; istraw++){
                     Identifier strawId = trtIdHelper->straw_id(currentElement->identify(), istraw);
@@ -660,7 +664,7 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
                     takeSmaller(zMin,zPos);
                     takeBigger(zMax,zPos);
                     Trk::SharedObject<const Trk::Surface> sharedSurface(currentStraw, [](const Trk::Surface*){});
-                    strawPerEndcapLayer.push_back(Trk::SurfaceOrderPosition(sharedSurface, strawOrderPos));
+                    strawPerEndcapLayer.emplace_back(sharedSurface, strawOrderPos);
                     ++numberOfStraws;
                 }
            }
@@ -672,12 +676,11 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
            }
            Trk::BinUtility* currentBinUtility = new Trk::BinUtility(numberOfStraws, -M_PI, M_PI, Trk::closed, Trk::binPhi);
            Trk::BinnedArray<Trk::Surface>*  strawArray = new Trk::BinnedArray1D<Trk::Surface>(strawPerEndcapLayer, currentBinUtility);
-           Trk::DiscLayer* currentLayer = 0;
+           Trk::DiscLayer* currentLayer = nullptr;
 
            // redefine the discZ
            discZ = 0.5*(zMin+zMax);
-           Amg::Transform3D* fullDiscTransform = new Amg::Transform3D;
-           (*fullDiscTransform) = Amg::Translation3D(0.,0.,discZ);
+           Amg::Transform3D fullDiscTransform = Amg::Transform3D(Amg::Translation3D(0.,0.,discZ));
 
            ATH_MSG_VERBOSE("TRT Disc being build at z Position " << discZ << " ( from " << zMin << " / " << zMax << " )");
 
@@ -688,8 +691,8 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
            const Amg::Vector3D asnPosition(0.,0.,zMax+m_layerStrawRadius);
 
            // create new surfaces
-           Amg::Transform3D* asnTransform = new Amg::Transform3D(Amg::Translation3D(asnPosition));
-           Amg::Transform3D* aspTransform = new Amg::Transform3D(Amg::Translation3D(aspPosition));
+           Amg::Transform3D  asnTransform = Amg::Transform3D(Amg::Translation3D(asnPosition));
+           Amg::Transform3D  aspTransform = Amg::Transform3D(Amg::Translation3D(aspPosition));
            // order in an optimised way for collision direction
            if (discZ > 0.){
                aSurfaces->push_back( new Trk::DiscSurface(asnTransform, fullDiscBounds->clone()) );
@@ -725,9 +728,10 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
     } // model/real geometry
   } // end of posneg loop
 
-  delete layerMaterial; layerMaterial = 0;
-  delete fullDiscBounds; fullDiscBounds = 0;
+  delete layerMaterial; layerMaterial = nullptr;
+  delete fullDiscBounds; fullDiscBounds = nullptr;
 
+  range = readHandleTRTContainer.getRange();
   return std::make_pair(range,endcapLayers.release());
 }
 

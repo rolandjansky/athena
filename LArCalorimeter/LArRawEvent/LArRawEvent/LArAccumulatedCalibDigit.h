@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -62,7 +62,7 @@ private:
   uint32_t m_nTriggers;
 
   /** @brief DAC-Value*/
-  uint16_t m_DAC;
+  uint32_t m_DAC;
 
   /** @brief Delay-Value and isPulsed boolean encoded in this variable*/
   uint16_t m_delayPulsed;
@@ -77,7 +77,7 @@ public:
   LArAccumulatedCalibDigit(HWIdentifier & channel_value, CaloGain::CaloGain gain_value, 
 			   const std::vector < uint32_t >& sampleSum_value, 
 			   const std::vector < uint32_t >& sample2Sum_value,
-			   uint32_t nTrigger_value,  uint16_t DAC_value=0, uint16_t delay_value=0, 
+			   uint32_t nTrigger_value,  uint32_t DAC_value=0, uint16_t delay_value=0, 
 			   uint16_t isPulsed_value=false, uint16_t nStep_value=0, uint16_t iStep_value=0) : 
     m_hardwareID(channel_value), m_gain(gain_value), m_sampleSum(sampleSum_value), m_sample2Sum(sample2Sum_value),
     m_nTriggers(nTrigger_value), m_DAC(DAC_value), 
@@ -87,7 +87,7 @@ public:
   
   /** @brief Constructor (initialize for later accumulation) */
   LArAccumulatedCalibDigit(HWIdentifier & channel_value, CaloGain::CaloGain gain_value, 
-			   uint32_t nsamples=7, uint16_t DAC_value=0, uint16_t delay_value=0, 
+			   uint32_t nsamples=7, uint32_t DAC_value=0, uint16_t delay_value=0, 
 			   uint16_t isPulsed_value=false, uint16_t nStep_value=0, uint16_t iStep_value=0) : 
     m_hardwareID(channel_value), m_gain(gain_value), 
     m_nTriggers(0), m_DAC(DAC_value),

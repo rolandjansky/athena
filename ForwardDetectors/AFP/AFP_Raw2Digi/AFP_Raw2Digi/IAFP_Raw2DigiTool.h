@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IAFP_RAW2DIGITOOL_H
@@ -26,17 +26,17 @@ public:
   ///
   /// This is the method that should be called in order to obtain AFP
   /// hits in form of xAOD::AFPSiHitContainer. It should read input raw data from StoreGate and save output also to StoreGate.
-  virtual StatusCode recoSiHits() = 0;
+  virtual StatusCode recoSiHits(const EventContext &ctx) const = 0;
 
   /// @brief Translates RawData to xAOD::AFPToFHit and saves it to StoreGate
   ///
   /// This is the method that should be called in order to obtain AFP
   /// hits in form of xAOD::AFPToFHitContainer. It should read input
   /// raw data from StoreGate and save output also to StoreGate.
-  virtual StatusCode recoToFHits() = 0;
+  virtual StatusCode recoToFHits(const EventContext &ctx) const = 0;
 
   /// Call all reconstruction steps
-  virtual StatusCode recoAll() = 0;
+  virtual StatusCode recoAll(const EventContext &ctx) const = 0;
 };
 
 

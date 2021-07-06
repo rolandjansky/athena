@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( PixelCalibAlgs )
@@ -18,4 +18,11 @@ atlas_add_library( PixelCalibAlgsLib
 
 atlas_add_component( PixelCalibAlgs
    src/components/*.cxx
-   LINK_LIBRARIES PixelCalibAlgsLib )
+   LINK_LIBRARIES GaudiKernel InDetByteStreamErrors PixelConditionsData PixelCalibAlgsLib )
+
+atlas_add_executable( makeInactiveModuleList
+   Application/makeInactiveModuleList.C
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} PixelConditionsData PixelCalibAlgsLib )
+
+atlas_install_runtime ( share/HashVSdcsID.dat share/table_Run2.txt share/PixelMapping_Run2.dat )

@@ -24,6 +24,7 @@
 
 #include <map>
 #include <typeinfo>
+#include <set>
 
 // Forward declarations
 class IAddressCreator;
@@ -155,7 +156,7 @@ private: // data
    std::map<CLID, std::string> m_toolForClid;
    std::map<std::string, std::string> m_streamForKey;
 
-   std::map<CLID, unsigned int> m_handledClasses;
+   std::set<CLID> m_handledClasses;
 
 private: // properties
    /// MetaDataContainer, POOL container name for MetaData.

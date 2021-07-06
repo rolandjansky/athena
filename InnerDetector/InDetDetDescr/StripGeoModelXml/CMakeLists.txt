@@ -8,7 +8,7 @@ atlas_add_library( StripGeoModelXmlLib
                    src/*.cxx
                    PUBLIC_HEADERS StripGeoModelXml
                    LINK_LIBRARIES GaudiKernel GeoModelUtilities GeoModelXml InDetGeoModelUtils SCT_ReadoutGeometry
-                   PRIVATE_LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} AthenaPoolUtilities DetDescrConditions GeoModelInterfaces GeometryDBSvcLib InDetReadoutGeometry InDetSimEvent PathResolver RDBAccessSvcLib SGTools StoreGateLib )
+                   PRIVATE_LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} AthenaPoolUtilities DetDescrConditions GeoModelInterfaces GeometryDBSvcLib InDetReadoutGeometry ReadoutGeometryBase  InDetSimEvent PathResolver RDBAccessSvcLib SGTools StoreGateLib )
 
 atlas_add_component( StripGeoModelXml
                      src/components/*.cxx

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -19,19 +19,15 @@ class LArHVData {
   friend class LArHVCondAlg; //The conditions alg filling this object 
 
   public: 
-   LArHVData() { }
-   ~LArHVData () { } 
+  LArHVData() = default;
+  ~LArHVData () = default;
 
-  /** @brief struct for HV and weight pair 
+  /** @brief struct for HV, current and weight 
    */
   struct HV_t {
+  HV_t(float ihv, float icurr, float iweight) : 
+    hv(ihv),current(icurr),weight(iweight) {};
     float hv;
-    float weight; 
-  }; 
-
-  /** @brief  struct for Current and weight pair 
-   */
-  struct CURRENT_t {
     float current;
     float weight; 
   }; 
@@ -40,19 +36,16 @@ class LArHVData {
 
   /** brief  Given a Offline Readout ID, return values of HV and Weight 
    */
-  StatusCode getHV(const Identifier& id, std::vector< HV_t > & v  ) const ; 
-
-  /**  Given a Offline Readout ID, return values of Current and Weight 
-   */
-  StatusCode getCurrent(const Identifier& id, std::vector< CURRENT_t > & v  ) const ; 
+  const std::vector<LArHVData::HV_t> & getHV(const Identifier& id) const;
 
   typedef std::map<Identifier, std::vector<HV_t> > hvMap;
-  typedef std::map<Identifier, std::vector<CURRENT_t> > currMap;
 
   private:
   hvMap m_voltage;
-  currMap  m_current;
   std::set<Identifier> m_updatedCells;
+
+  const std::vector<LArHVData::HV_t> m_empty {};
+
 };
 
 inline 

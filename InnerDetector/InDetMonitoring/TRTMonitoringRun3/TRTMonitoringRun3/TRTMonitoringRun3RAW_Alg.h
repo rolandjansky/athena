@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRTMONITORINGRUN3RAW_ALG_H
@@ -32,6 +32,7 @@
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
 #include "InDetByteStreamErrors/TRT_BSErrContainer.h"
+#include "TRT_ConditionsServices/ITRT_ByteStream_ConditionsSvc.h"
 
 // STDLIB
 #include <string>
@@ -46,6 +47,7 @@ class AtlasDetectorID;
 class TRT_ID;
 class Identifier;
 class ITRT_StrawStatusSummaryTool;
+class ITRT_ByteStream_ConditionsSvc;
 
 class TRTMonitoringRun3RAW_Alg : public AthMonitorAlgorithm {
 public:
@@ -72,6 +74,7 @@ private:
     bool m_doStraws;
     bool m_doExpert;
     bool m_doChips;
+    bool m_doTracksMon;
     bool m_doRDOsMon;
     bool m_doShift;
     bool m_doMaskStraws;
@@ -82,8 +85,10 @@ private:
     
     BooleanProperty m_ArgonXenonSplitter{this, "doArgonXenonSeparation", true};
     
-    int m_totalEvents{0};
     FloatProperty m_longToTCut{this, "LongToTCut", 9.375};
+    
+    Gaudi::Property<std::vector<int>> m_strawMax {this,"strawMax", {-1, -1}};
+    Gaudi::Property<std::vector<int>> m_iChipMax {this,"iChipMax", {-1, -1}};
     
     int m_min_si_hits;
     int m_min_pixel_hits;
@@ -115,6 +120,7 @@ private:
     // Services
     ToolHandle<ITRT_StrawStatusSummaryTool> m_sumTool;
     ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc;
+    ServiceHandle<ITRT_ByteStream_ConditionsSvc> m_BSSvc;
 
     // Data handles
     SG::ReadHandleKey<TRT_RDO_Container>   m_rdoContainerKey{this,       "TRTRawDataObjectName",   "TRT_RDOs",      "Name of TRT RDOs container"};

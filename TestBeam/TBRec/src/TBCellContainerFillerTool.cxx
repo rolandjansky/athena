@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBCellContainerFillerTool.h"
@@ -29,8 +29,6 @@ StatusCode TBCellContainerFillerTool::initialize()
 
   m_theCaloDDM = CaloDetDescrManager::instance() ;
   m_theCaloCCIDM   = m_theCaloDDM->getCaloCell_ID() ;
-
-  if(!m_theCaloDDM || !m_theCaloCCIDM) return StatusCode::FAILURE;
 
   m_hashMax = m_theCaloCCIDM->calo_cell_hash_max();
 

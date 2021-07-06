@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConfigSvc_JobOptionsSvc
@@ -8,7 +8,6 @@
 #include <string>
 #include <vector>
 
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "Gaudi/Interfaces/IOptionsSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -31,7 +30,7 @@ namespace TrigConf {
    *  - `DB`:   Read properties from DB, connection string in `PATH`, see \ref parseDBString
    *
    */
-  class JobOptionsSvc : public extends<AthService, TrigConf::IJobOptionsSvc, ::IJobOptionsSvc, Gaudi::Interfaces::IOptionsSvc> {
+  class JobOptionsSvc : public extends<AthService, TrigConf::IJobOptionsSvc, Gaudi::Interfaces::IOptionsSvc> {
     using AthService::getProperties;
 
   public:
@@ -83,44 +82,10 @@ namespace TrigConf {
     {
       return m_optsvc->broadcast(filter, value, defaults);
     }
-    ///@}
 
-    /// @name IJobOptionsSvc interface
-    /// Most interfaces are just forwards to the "real" JobOptionsSvc.
-    ///@{
-    virtual StatusCode setMyProperties(const std::string& client, IProperty* me) override
+    virtual StatusCode readOptions(std::string_view, std::string_view) override
     {
-      return m_josvc->setMyProperties(client, me);
-    }
-
-    virtual StatusCode addPropertyToCatalogue(const std::string& client,
-                                              const Gaudi::Details::PropertyBase& property) override
-    {
-      return m_josvc->addPropertyToCatalogue(client, property);
-    }
-
-    virtual StatusCode removePropertyFromCatalogue(const std::string& client,
-                                                   const std::string& name) override
-    {
-      return m_josvc->removePropertyFromCatalogue(client, name);
-    }
-
-    virtual const std::vector<const Gaudi::Details::PropertyBase*>*
-    getProperties(const std::string& client) const override
-    {
-      return m_josvc->getProperties(client);
-    }
-
-    virtual const Gaudi::Details::PropertyBase* getClientProperty(const std::string& client,
-                                              const std::string& name) const override
-    {
-      return m_josvc->getClientProperty(client, name);
-    }
-
-    virtual std::vector<std::string> getClients() const override { return m_josvc->getClients(); }
-    virtual StatusCode readOptions(const std::string&, const std::string&) override
-    {
-      throw std::runtime_error("TrigConf::JobOptionsSvc::readOptions() is deprecated");
+      throw std::runtime_error("TrigConf::JobOptionsSvc::readOptions() is not supported");
     }
     ///@}
 
@@ -150,7 +115,6 @@ namespace TrigConf {
     Gaudi::Property<std::string> m_dump{this, "DUMPFILE", {}, "Dump job properties into JSON file"};
 
     /// handle to the "real" IOptionsSvc
-    ServiceHandle<::IJobOptionsSvc> m_josvc;
     ServiceHandle<Gaudi::Interfaces::IOptionsSvc> m_optsvc;
   };
 

@@ -89,15 +89,15 @@ public:
                                   HepMC::GenEvent* ev_out);
 
   /// Add a @c GenParticle (and its production vertex) to a @c GenEvent.
-  virtual StatusCode addParticle (const HepMC::GenParticle* p,
+  virtual StatusCode addParticle (HepMC::GenParticlePtr p,
                                   HepMC::GenEvent* ev);
 
   /// Add a @c GenVertex to a @c GenEvent.
-  virtual StatusCode addVertex (const HepMC::GenVertex* p,
+  virtual StatusCode addVertex (HepMC::GenVertexPtr p,
                                 HepMC::GenEvent* ev);
 
   /// Test to see if we want to keep a particle.
-  virtual bool isAccepted (const HepMC::GenParticle* p);
+  virtual bool isAccepted (HepMC::ConstGenParticlePtr p);
 
   /// Return the container of isolation energies that we built.
   StatusCode isolations (TruthEtIsolationsContainer const* & isocont);

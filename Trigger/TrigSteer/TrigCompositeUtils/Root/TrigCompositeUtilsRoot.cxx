@@ -1,13 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // See similar workaround the lack of CLID in standalone releases in TrigComposite_v1.h
 #include "xAODBase/IParticleContainer.h"
-#ifdef XAOD_STANDALONE
-#include "xAODCore/CLASS_DEF.h"
-CLASS_DEF( xAOD::IParticleContainer, 1241842700, 1 )
-#endif // XAOD_STANDALONE
 
 #include "AsgDataHandles/WriteHandle.h"
 #include "AsgDataHandles/ReadHandle.h"
@@ -22,6 +18,8 @@ CLASS_DEF( xAOD::IParticleContainer, 1241842700, 1 )
 
 static const SG::AuxElement::Accessor< std::vector<TrigCompositeUtils::DecisionID> > readWriteAccessor("decisions");
 static const SG::AuxElement::ConstAccessor< std::vector<TrigCompositeUtils::DecisionID> > readOnlyAccessor("decisions");
+
+
 
 namespace TrigCompositeUtils {  
 
@@ -166,7 +164,7 @@ namespace TrigCompositeUtils {
 
 
   HLT::Identifier createLegName(const HLT::Identifier& chainIdentifier, size_t counter) {
-    if (chainIdentifier.name().substr(0,4) != "HLT_") {
+    if (!isChainId(chainIdentifier)) {
       throw std::runtime_error("TrigCompositeUtils::createLegName chainIdentifier '"+chainIdentifier.name()+"' does not start 'HLT_'");
     }
     if (counter > 999) {
@@ -179,7 +177,7 @@ namespace TrigCompositeUtils {
 
   
   HLT::Identifier getIDFromLeg(const HLT::Identifier& legIdentifier) {
-    if (legIdentifier.name().find("HLT_",0)==0 ){
+    if (isChainId(legIdentifier)){
       return legIdentifier;
     } else if (isLegId(legIdentifier)){
       return HLT::Identifier(legIdentifier.name().substr(7));
@@ -188,9 +186,22 @@ namespace TrigCompositeUtils {
     }
   }
 
+  int32_t getIndexFromLeg(const HLT::Identifier& legIdentifier) {
+    if (isChainId(legIdentifier)){
+      return 0;
+    } else if (!isLegId(legIdentifier)) {
+      return -1;
+    }
+    return std::stoi( legIdentifier.name().substr(3,3) ); 
+  }
+
   
   bool isLegId(const HLT::Identifier& legIdentifier) {
-    return (legIdentifier.name().find("leg",0)==0);
+    return (legIdentifier.name().substr(0,3) == "leg");
+  }
+
+  bool isChainId(const HLT::Identifier& chainIdentifier) {
+    return (chainIdentifier.name().substr(0,4) == "HLT_");
   }
   
   
@@ -199,7 +210,7 @@ namespace TrigCompositeUtils {
 
     if ( hasLinkToPrevious(start) ) {
       const ElementLinkVector<DecisionContainer> seeds = getLinkToPrevious(start);
-      for (const ElementLink<DecisionContainer>& seedEL : seeds) {
+      for (const ElementLink<DecisionContainer> seedEL : seeds) {
         const Decision* result = find( *seedEL, filter );
         if (result) return result;
       }
@@ -214,6 +225,15 @@ namespace TrigCompositeUtils {
 
   bool HasObjectCollection::operator()( const Decision* composite ) const {
     return composite->hasObjectCollectionLinks( m_name );
+  }
+
+  const Decision* getTerminusNode(SG::ReadHandle<DecisionContainer>& container) {
+    for (const Decision* decision : *container) {
+      if (decision->name() == summaryPassNodeName()) {
+        return decision;
+      }
+    }
+    return nullptr;
   }
 
  std::vector<const Decision*> getRejectedDecisionNodes(asg::EventStoreType* eventStore, const DecisionIDContainer ids) {
@@ -243,9 +263,6 @@ namespace TrigCompositeUtils {
       // Get and check this container
       if ( key.find("HLTNav_") != 0 ) {
         continue; // Only concerned about the decision containers which make up the navigation, they have name prefix of HLTNav
-      }
-      if ( key == "HLTNav_Summary" ) {
-        continue; //  This is where accepted paths start. We are looking for rejected ones
       }
       SG::ReadHandle<DecisionContainer> containerRH(key);
       if (!containerRH.isValid()) {
@@ -310,6 +327,7 @@ namespace TrigCompositeUtils {
   void recursiveGetDecisionsInternal(const Decision* node, 
     const Decision* comingFrom, 
     NavGraph& navGraph, 
+    std::set<const Decision*>& fullyExploredFrom,
     const DecisionIDContainer ids,
     const bool enforceDecisionOnNode) {
 
@@ -320,6 +338,14 @@ namespace TrigCompositeUtils {
 
     // This Decision object is part of this path through the Navigation
     navGraph.addNode(node, comingFrom);
+
+#if TRIGCOMPUTILS_ENABLE_EARLY_EXIT == 1
+    // Note we have to do this check here (after calling addNode) rather than just before calling recursiveGetDecisionsInternal
+    if (fullyExploredFrom.count(node) == 1) {
+      // We have fully explored this branch
+      return;
+    }
+#endif
     
     // Continue to the path(s) by looking at this Decision object's seed(s)
     if ( hasLinkToPrevious(node) ) {
@@ -327,9 +353,13 @@ namespace TrigCompositeUtils {
       for ( ElementLink<DecisionContainer> seed : getLinkToPrevious(node)) {
         const Decision* seedDecision = *(seed); // Dereference ElementLink
         // Sending true as final parameter for enforceDecisionOnStartNode as we are recursing away from the supplied start node
-        recursiveGetDecisionsInternal(seedDecision, node, navGraph, ids, /*enforceDecisionOnNode*/ true);
+        recursiveGetDecisionsInternal(seedDecision, node, navGraph, fullyExploredFrom, ids, /*enforceDecisionOnNode*/ true);
       }
     }
+
+    // Have fully explored down from this point
+    fullyExploredFrom.insert(node);
+
     return;
   }
 
@@ -338,49 +368,158 @@ namespace TrigCompositeUtils {
     const DecisionIDContainer ids,
     const bool enforceDecisionOnStartNode) {
 
+    std::set<const Decision*> fullyExploredFrom;
     // Note: we do not require navGraph to be an empty graph. We can extend it.
-    recursiveGetDecisionsInternal(start, /*comingFrom*/nullptr, navGraph, ids, enforceDecisionOnStartNode);
+    recursiveGetDecisionsInternal(start, /*comingFrom*/nullptr, navGraph, fullyExploredFrom, ids, enforceDecisionOnStartNode);
     
     return;
   }
 
 
-  bool typelessFindLinks(const Decision* start, const std::string& linkName,
-    std::vector<uint32_t>& keyVec, std::vector<uint32_t>& clidVec, std::vector<uint16_t>& indexVec,
-    const unsigned int behaviour, std::set<const Decision*>* visitedCache)
+  void recursiveFlagForThinning(NavGraph& graph, 
+    const bool keepOnlyFinalFeatures,
+    const std::vector<std::string>& nodesToDrop)
   {
-    using namespace msgFindLink;
-    if (visitedCache != nullptr) {
-      // We only need to recursivly explore back from each node in the graph once.
-      // We can keep a record of nodes which we have already explored, these we can safely skip over.
-      if (visitedCache->count(start) == 1) {
-        return false; // Early exit
+    std::set<NavGraphNode*> fullyExploredFrom;
+    for (NavGraphNode* finalNode : graph.finalNodes()) {
+      recursiveFlagForThinningInternal(finalNode, /*modeKeep*/true, fullyExploredFrom, keepOnlyFinalFeatures, nodesToDrop);
+    }
+  }
+
+
+  void recursiveFlagForThinningInternal(NavGraphNode* node,
+    bool modeKeep,
+    std::set<NavGraphNode*>& fullyExploredFrom,
+    const bool keepOnlyFinalFeatures,
+    const std::vector<std::string>& nodesToDrop)
+  {
+
+    // If modeKeep == true, then by default we are KEEPING the nodes as we walk the navigation,
+    // otherwise by default we are THINNING the nodes
+    bool keep = modeKeep;
+
+    // The calls to node->node() here are going from the transient NavGraphNode 
+    // to the underlying const Decision* from the input collection
+
+    if (keepOnlyFinalFeatures) {
+      // Check if we have reached the first feature
+      if ( modeKeep == true && node->node()->hasObjectLink(featureString()) ) {
+        // We keep this node, and its immidiate parents (InputMaker nodes) as these have the ROI link which we also want
+        keep = true;
+        // TODO - these calls mean we bypass the nodesToDrop check here, any other way?
+        // TODO One solution here is to impliment a link-move option, move the ROI
+        // TODO from the InputMaker node down to the HypoAlg node
+        for (NavGraphNode* seed : node->seeds()) {
+          seed->keep();
+        }
+        // We change the default behaviour to be modeKeep = false
+        // such that by default we start to NOT flag all the parent nodes to be kept
+        modeKeep = false;
+      }
+      if (node->node()->name() == l1DecoderNodeName()) {
+        // We also keep the initial node from the L1 decoder
+        keep = true;
       }
     }
 
+    // Check also against NodesToDrop
+    for (const std::string& toDrop : nodesToDrop) {
+      if (node->node()->name() == toDrop) {
+        keep = false;
+        break;
+      }
+    }
+
+    // Inform the node that it should NOT be thinned away.
+    if (keep) {
+      node->keep();
+    }
+
+    for (NavGraphNode* seed : node->seeds()) {
+#if TRIGCOMPUTILS_ENABLE_EARLY_EXIT == 1
+      if (fullyExploredFrom.count(seed) == 1) {
+        // We have fully explored this branch
+        continue;
+      }
+#endif
+      // Recursivly call all the way up the graph to the initial nodes from the L1 decoder
+      recursiveFlagForThinningInternal(seed, modeKeep, fullyExploredFrom, keepOnlyFinalFeatures, nodesToDrop);
+    }
+
+    // Have fully explored down from this point
+    fullyExploredFrom.insert(node);
+  }
+
+
+  bool typelessFindLinks(const Decision* start, const std::string& linkName,
+    std::vector<uint32_t>& keyVec, std::vector<uint32_t>& clidVec, std::vector<uint16_t>& indexVec,
+    const unsigned int behaviour, std::set<const Decision*>* fullyExploredFrom)
+  {
+    using namespace msgFindLink;
+
+    // As the append vectors are user-supplied, perform some input validation. 
+    if (keyVec.size() != clidVec.size() or clidVec.size() != indexVec.size()) {
+      ANA_MSG_WARNING("In typelessFindLinks, keyVec, clidVec, indexVec must all be the same size. Instead have:"
+        << keyVec.size() << ", " << clidVec.size()  << ", " << indexVec.size());
+      return false;
+    }
+    // Locate named links. Both collections of links and individual links are supported.
     bool found = false;
+    std::vector<uint32_t> tmpKeyVec;
+    std::vector<uint32_t> tmpClidVec;
+    std::vector<uint16_t> tmpIndexVec;
     if (start->hasObjectCollectionLinks(linkName)) {
-      found = start->typelessGetObjectCollectionLinks(linkName, keyVec, clidVec, indexVec);
+      found = start->typelessGetObjectCollectionLinks(linkName, tmpKeyVec, tmpClidVec, tmpIndexVec);
     }
     if (start->hasObjectLink(linkName)) {
-      uint32_t key, clid;
-      uint16_t index;
-      found |= start->typelessGetObjectLink(linkName, key, clid, index);
-      keyVec.push_back(key);
-      clidVec.push_back(clid);
-      indexVec.push_back(index);
+      uint32_t tmpKey, tmpClid;
+      uint16_t tmpIndex;
+      found |= start->typelessGetObjectLink(linkName, tmpKey, tmpClid, tmpIndex);
+      tmpKeyVec.push_back(tmpKey);
+      tmpClidVec.push_back(tmpClid);
+      tmpIndexVec.push_back(tmpIndex);
+    }
+    // De-duplicate
+    for (size_t tmpi = 0; tmpi < tmpKeyVec.size(); ++tmpi) {
+      bool alreadyAdded = false;
+      const uint32_t tmpKey = tmpKeyVec.at(tmpi);
+      const uint32_t tmpClid = tmpClidVec.at(tmpi);
+      const uint16_t tmpIndex = tmpIndexVec.at(tmpi);
+      for (size_t veci = 0; veci < keyVec.size(); ++veci) {
+        if (keyVec.at(veci) == tmpKey 
+          and clidVec.at(veci) == tmpClid
+          and indexVec.at(veci) == tmpIndex)
+        {
+          alreadyAdded = true;
+          break;
+        }
+      }
+      if (!alreadyAdded) {
+        keyVec.push_back( tmpKey );
+        clidVec.push_back( tmpClid );
+        indexVec.push_back( tmpIndex );
+      }
     }
     // Early exit
     if (found && behaviour == TrigDefs::lastFeatureOfType) {
       return true;
     }
     // If not Early Exit, then recurse
-    for (const auto& seed : getLinkToPrevious(start)) {
-      found |= typelessFindLinks(*seed, linkName, keyVec, clidVec, indexVec, behaviour, visitedCache);
+    for (const auto seed : getLinkToPrevious(start)) {
+#if TRIGCOMPUTILS_ENABLE_EARLY_EXIT == 1
+      if (fullyExploredFrom != nullptr) {
+        // We only need to recursively explore back from each node in the graph once.
+        // We can keep a record of nodes which we have already explored, these we can safely skip over.
+        if (fullyExploredFrom->count(start) == 1) {
+          continue; 
+        }
+      }
+#endif
+      found |= typelessFindLinks(*seed, linkName, keyVec, clidVec, indexVec, behaviour, fullyExploredFrom);
     }
     // Fully explored this node
-    if (visitedCache != nullptr) {
-      visitedCache->insert(start);
+    if (fullyExploredFrom != nullptr) {
+      fullyExploredFrom->insert(start);
     }
     return found;
   }
@@ -395,14 +534,14 @@ namespace TrigCompositeUtils {
     // only want the most recent.
     // Hence we can supply TrigDefs::lastFeatureOfType.                                                         /--> parent3(link)
     // We can still have more then one link found if there is a branch in the navigation. E.g. start --> parent1 --> parent2(link)
-    // If both parent2 and parent3 posessed an admisable ElementLink, then the warning below will trigger, and only one of the
+    // If both parent2 and parent3 possessed an admissible ElementLink, then the warning below will trigger, and only one of the
     // links will be returned (whichever of parent2 or parent3 happened to be the first seed of parent1).
     std::vector<uint32_t> keyVec;
     std::vector<uint32_t> clidVec;
     std::vector<uint16_t> indexVec;
-    std::set<const xAOD::TrigComposite*> visitedCache;
+    std::set<const xAOD::TrigComposite*> fullyExploredFrom;
 
-    const bool result = typelessFindLinks(start, linkName, keyVec, clidVec, indexVec, TrigDefs::lastFeatureOfType, &visitedCache);
+    const bool result = typelessFindLinks(start, linkName, keyVec, clidVec, indexVec, TrigDefs::lastFeatureOfType, &fullyExploredFrom);
     if (!result) {
       return false; // Nothing found
     }
@@ -417,13 +556,64 @@ namespace TrigCompositeUtils {
     return true; 
   }
 
+  Combinations buildCombinations(
+    const std::string& chainName,
+    const std::vector<LinkInfo<xAOD::IParticleContainer>>& features,
+    const std::vector<std::size_t>& legMultiplicities,
+    const std::function<bool(const std::vector<LinkInfo<xAOD::IParticleContainer>>&)>& filter)
+  {
+    Combinations combinations(filter);
+    combinations.reserve(legMultiplicities.size());
+    if (legMultiplicities.size() == 1)
+      combinations.addLeg(legMultiplicities.at(0), features);
+    else
+      for (std::size_t legIdx = 0; legIdx < legMultiplicities.size(); ++legIdx)
+      {
+        HLT::Identifier legID = createLegName(chainName, legIdx);
+        std::vector<LinkInfo<xAOD::IParticleContainer>> legFeatures;
+        for (const LinkInfo<xAOD::IParticleContainer>& info : features)
+          if (isAnyIDPassing(info.source, {legID.numeric()}))
+            legFeatures.push_back(info);
+      combinations.addLeg(legMultiplicities.at(legIdx), std::move(legFeatures));
+      }
+    return combinations;
+  }
+
+
+  Combinations buildCombinations(
+    const std::string& chainName,
+    const std::vector<LinkInfo<xAOD::IParticleContainer>>& features,
+    const std::vector<std::size_t>& legMultiplicities,
+    FilterType filter)
+  {
+    return buildCombinations(chainName, features, legMultiplicities, getFilter(filter));
+  }
+
+  Combinations buildCombinations(
+    const std::string& chainName,
+    const std::vector<LinkInfo<xAOD::IParticleContainer>>& features,
+    const TrigConf::HLTChain *chainInfo,
+    const std::function<bool(const std::vector<LinkInfo<xAOD::IParticleContainer>>&)>& filter)
+  {
+    return buildCombinations(chainName, features, chainInfo->leg_multiplicities(), filter);
+  }
+
+  Combinations buildCombinations(
+    const std::string& chainName,
+    const std::vector<LinkInfo<xAOD::IParticleContainer>>& features,
+    const TrigConf::HLTChain *chainInfo,
+    FilterType filter)
+  {
+    return buildCombinations(chainName, features, chainInfo, getFilter(filter));
+  }
+
 
   std::string dump( const Decision* tc, std::function< std::string( const Decision* )> printerFnc ) {
     std::string ret; 
     ret += printerFnc( tc );
     if ( hasLinkToPrevious(tc) ) {
       const ElementLinkVector<DecisionContainer> seeds = getLinkToPrevious(tc);
-      for (const ElementLink<DecisionContainer>& seedEL : seeds) {
+      for (const ElementLink<DecisionContainer> seedEL : seeds) {
         ret += " -> " + dump( *seedEL, printerFnc );
       }
     }
@@ -455,5 +645,37 @@ namespace TrigCompositeUtils {
     return Decision::s_seedString;
   }
   
+  const std::string& l1DecoderNodeName(){
+    return Decision::s_l1DecoderNodeNameString;
+  }
+
+  const std::string& filterNodeName(){
+    return Decision::s_filterNodeNameString;
+  }
+
+  const std::string& inputMakerNodeName(){
+    return Decision::s_inputMakerNodeNameString;
+  }
+
+  const std::string& hypoAlgNodeName(){
+    return Decision::s_hypoAlgNodeNameString;
+  }
+
+  const std::string& comboHypoAlgNodeName(){
+    return Decision::s_comboHypoAlgNodeNameString;
+  }
+
+  const std::string& summaryFilterNodeName(){
+    return Decision::s_summaryFilterNodeNameString;
+  }
+
+  const std::string& summaryPassNodeName(){
+    return Decision::s_summaryPassNodeNameString;
+  }
+
+  const std::string& summaryPrescaledNodeName(){
+    return Decision::s_summaryPrescaledNodeNameString;
+  }
+
 }
 

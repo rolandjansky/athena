@@ -33,47 +33,41 @@
 #ifndef MUONDIGITIZATION_MDT_DIGITIZATIONTOOL_H
 #define MUONDIGITIZATION_MDT_DIGITIZATIONTOOL_H
 
+#include <sstream>
+#include <string>
+#include <vector>
+
+#include "AthenaKernel/IAthRNGSvc.h"
+#include "CLHEP/Geometry/Point3D.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandomEngine.h"
+#include "GaudiKernel/PhysicalConstants.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-
 #include "HitManagement/TimedHitCollection.h"
-#include "MuonSimEvent/MDTSimHitCollection.h"
-#include "MuonSimEvent/MDTSimHit.h"
-#include "PileUpTools/PileUpToolBase.h"
 #include "Identifier/Identifier.h"
-
-#include "xAODEventInfo/EventInfo.h"             // NEW EDM
-#include "xAODEventInfo/EventAuxInfo.h"          // NEW EDM
-
-
-
-#include "MDT_Response/MDT_Response.h"
-#include "MDT_Digitization/MDT_SortedHitVector.h"
-
-#include <string>
-#include <sstream>
-#include <vector>
-#include "GaudiKernel/PhysicalConstants.h"
-#include "CLHEP/Random/RandomEngine.h"
-#include "CLHEP/Geometry/Point3D.h"
-#include "AthenaKernel/IAthRNGSvc.h"
-#include "CLHEP/Random/RandGaussZiggurat.h"
-
-#include "MuonCondData/MdtCondDbData.h"
 #include "MDT_Digitization/IMDT_DigitizationTool.h"
-#include "PileUpTools/PileUpMergeSvc.h"
+#include "MDT_Digitization/MDT_SortedHitVector.h"
+#include "MDT_Response/MDT_Response.h"
 #include "MdtCalibSvc/MdtCalibrationDbTool.h"
+#include "MuonCondData/MdtCondDbData.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonSimEvent/MDTSimHit.h"
+#include "MuonSimEvent/MDTSimHitCollection.h"
+#include "PileUpTools/PileUpMergeSvc.h"
+#include "PileUpTools/PileUpToolBase.h"
+#include "xAODEventInfo/EventAuxInfo.h"  // NEW EDM
+#include "xAODEventInfo/EventInfo.h"     // NEW EDM
 
-//Outputs
-#include "MuonSimData/MuonSimDataCollection.h"
-#include "MuonSimData/MuonSimData.h"
+// Outputs
 #include "MuonDigitContainer/MdtDigitContainer.h"
+#include "MuonSimData/MuonSimData.h"
+#include "MuonSimData/MuonSimDataCollection.h"
 
-namespace MuonGM{
-  class MuonDetectorManager;
-  class MdtReadoutElement;
-}
+namespace MuonGM {
+    class MuonDetectorManager;
+    class MdtReadoutElement;
+}  // namespace MuonGM
 
 class MdtHitIdHelper;
 class MdtCondDbData;
@@ -99,160 +93,164 @@ class MdtCondDbData;
 */
 class MuonSimDataCollection;
 
-
 class MdtDigitizationTool : public PileUpToolBase {
+public:
+    MdtDigitizationTool(const std::string& type, const std::string& name, const IInterface* pIID);
+    virtual ~MdtDigitizationTool() = default;
 
- public:
-  MdtDigitizationTool(const std::string& type, const std::string& name, const IInterface* pIID);
-  virtual ~MdtDigitizationTool() = default;
+    /** Initialize */
+    virtual StatusCode initialize() override final;
 
-  /** Initialize */
-  virtual StatusCode initialize() override final;
+    /** When being run from PileUpToolsAlgs, this method is called at the start of the subevts loop. Not able to access SubEvents */
+    StatusCode prepareEvent(const EventContext& ctx, const unsigned int /*nInputEvents*/) override final;
 
-  /** When being run from PileUpToolsAlgs, this method is called at the start of the subevts loop. Not able to access SubEvents */
-  StatusCode prepareEvent(const EventContext& ctx, const unsigned int /*nInputEvents*/) override final;
+    /** When being run from PileUpToolsAlgs, this method is called for each active bunch-crossing to process current SubEvents bunchXing is
+     * in ns */
+    virtual StatusCode processBunchXing(int bunchXing, SubEventIterator bSubEvents, SubEventIterator eSubEvents) override final;
+    /** When being run from PileUpToolsAlgs, this method is called at the end of the subevts loop. Not (necessarily) able to access
+     * SubEvents */
+    StatusCode mergeEvent(const EventContext& ctx) override final;
 
-  /** When being run from PileUpToolsAlgs, this method is called for each active bunch-crossing to process current SubEvents bunchXing is in ns */
-   virtual StatusCode processBunchXing(
-                                int bunchXing,
-                                SubEventIterator bSubEvents,
-                                SubEventIterator eSubEvents
-                                ) override final;
-  /** When being run from PileUpToolsAlgs, this method is called at the end of the subevts loop. Not (necessarily) able to access SubEvents */
-  StatusCode mergeEvent(const EventContext& ctx) override final;
+    /** alternative interface which uses the PileUpMergeSvc to obtain
+    all the required SubEvents. */
+    virtual StatusCode processAllSubEvents(const EventContext& ctx) override final;
 
-  /** alternative interface which uses the PileUpMergeSvc to obtain
-  all the required SubEvents. */
-  virtual StatusCode processAllSubEvents(const EventContext& ctx) override final;
+    struct GeoCorOut {
+        GeoCorOut(double sSag, double sTrack, Amg::Vector3D lp, double lSag) :
+            sagSign(sSag), trackingSign(sTrack), localPosition(lp), localSag(lSag) {}
+        double sagSign;               // sign indicating wether the particle passed above or below the wire
+        double trackingSign;          // sign in tracking convention indicating whether the particle passed left ot right of the wire
+        Amg::Vector3D localPosition;  // point of closest approach of the particle to the wire
+        double localSag;
+    };
 
-  struct GeoCorOut {
-  GeoCorOut( double sSag, double sTrack, Amg::Vector3D lp, double lSag ) : sagSign(sSag), trackingSign(sTrack), localPosition(lp), localSag(lSag) {}
-    double sagSign;            // sign indicating wether the particle passed above or below the wire
-    double trackingSign;       // sign in tracking convention indicating whether the particle passed left ot right of the wire
-    Amg::Vector3D localPosition;  // point of closest approach of the particle to the wire
-    double localSag;
-  };
+private:
+    CLHEP::HepRandomEngine* getRandomEngine(const std::string& streamName, const EventContext& ctx) const;
+    int digitizeTime(double time, bool isHPTDC, CLHEP::HepRandomEngine* rndmEngine) const;
+    double minimumTof(Identifier DigitId, const MuonGM::MuonDetectorManager* detMgr) const;
 
- private:
-  CLHEP::HepRandomEngine*   getRandomEngine(const std::string& streamName, const EventContext& ctx) const;
-  int                       digitizeTime(double time, bool isHPTDC, CLHEP::HepRandomEngine *rndmEngine) const;
-  double                    minimumTof(Identifier DigitId, const MuonGM::MuonDetectorManager* detMgr) const;
+    bool insideMatchingWindow(double time) const;
+    bool insideMaskWindow(double time) const;
+    bool checkMDTSimHit(const MDTSimHit& hit) const;
 
-  bool                      insideMatchingWindow(double time) const;
-  bool                      insideMaskWindow(double time) const;
-  bool                      checkMDTSimHit(const MDTSimHit& hit) const;
+    bool handleMDTSimhit(const TimedHitPtr<MDTSimHit>& phit, CLHEP::HepRandomEngine* twinRndmEngine,
+                         CLHEP::HepRandomEngine* toolRndmEngine);
+    bool createDigits(MdtDigitContainer* digitContainer, MuonSimDataCollection* sdoContainer, CLHEP::HepRandomEngine* rndmEngine);
 
-  bool                      handleMDTSimhit(const TimedHitPtr<MDTSimHit>& phit, CLHEP::HepRandomEngine *twinRndmEngine, CLHEP::HepRandomEngine *toolRndmEngine);
-  bool                      createDigits(MdtDigitContainer* digitContainer, MuonSimDataCollection* sdoContainer, CLHEP::HepRandomEngine *rndmEngine);
+    // calculate local hit position in local sagged wire frame, also returns whether the hit passed above or below the wire
+    GeoCorOut correctGeometricalWireSag(const MDTSimHit& hit, const Identifier& id, const MuonGM::MdtReadoutElement* element) const;
 
-  // calculate local hit position in local sagged wire frame, also returns whether the hit passed above or below the wire
-  GeoCorOut correctGeometricalWireSag( const MDTSimHit& hit, const Identifier& id, const MuonGM::MdtReadoutElement* element ) const ;
+    MDT_SortedHitVector m_hits;
 
-  MDT_SortedHitVector        m_hits;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+    MdtHitIdHelper* m_muonHelper{};
 
-  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-  MdtHitIdHelper*            m_muonHelper{};
+    MDTSimHit applyDeformations(const MDTSimHit&, const MuonGM::MdtReadoutElement*, const Identifier&);
 
-  MDTSimHit applyDeformations(const MDTSimHit&,const MuonGM::MdtReadoutElement*,const Identifier&);
+    const MuonGM::MuonDetectorManager* m_MuonGeoMgr{};
 
-  const MuonGM::MuonDetectorManager* m_MuonGeoMgr{};
+    ToolHandle<IMDT_DigitizationTool> m_digiTool{this, "DigitizationTool", "MDT_Response_DigiTool",
+                                                 "Tool which handle the digitization process"};
+    std::list<MDTSimHitCollection*> m_MDTHitCollList;
 
-  ToolHandle <IMDT_DigitizationTool> m_digiTool{this, "DigitizationTool", "MDT_Response_DigiTool", "Tool which handle the digitization process"};
-  std::list<MDTSimHitCollection*> m_MDTHitCollList;
+    // TDC ELECTRONICS
+    Gaudi::Property<double> m_offsetTDC{this, "OffsetTDC", 800., "TDC offset used if no calibration data is found"};
+    Gaudi::Property<double> m_signalSpeed{this, "SignalSpeed", Gaudi::Units::c_light};
+    Gaudi::Property<double> m_ns2TDCAMT{this, "ns2TDCAMT", 0.78125, "Conversion factor TDC/ns for AMT chips"};
+    Gaudi::Property<double> m_ns2TDCHPTDC{this, "ns2TDCHPTDC", 0.1953125, "Conversion factor TDC/ns for HPTDC chips"};
+    Gaudi::Property<double> m_resTDC{this, "ResolutionTDC", 0.5, "TDC resolution"};
 
-  //TDC ELECTRONICS
-  Gaudi::Property<double> m_offsetTDC{this, "OffsetTDC", 800., "TDC offset"};
-  Gaudi::Property<double> m_signalSpeed{this, "SignalSpeed",Gaudi::Units::c_light, "Light speed" };
-  Gaudi::Property<double> m_ns2TDCAMT{this, "ns2TDCAMT", 0.78125, "Conversion factor TDC/ns for AMT chips"};
-  Gaudi::Property<double> m_ns2TDCHPTDC{this, "ns2TDCHPTDC", 0.1953125, "Conversion factor TDC/ns for HPTDC chips"};
-  Gaudi::Property<double> m_resTDC{this, "ResolutionTDC", 0.5, "TDC resolution"};
+    // CONFIGURATION
+    Gaudi::Property<bool> m_checkMDTSimHits{this, "CheckSimHits", true, "Control on the hit validity"};
+    Gaudi::Property<bool> m_useTof{this, "UseTof", true, "Option for the tof calculation"};
+    Gaudi::Property<bool> m_useAttenuation{this, "UseAttenuation", false, ""};
+    Gaudi::Property<bool> m_useProp{this, "UseProp", true, ""};
 
-  //CONFIGURATION
-  Gaudi::Property<bool>   m_checkMDTSimHits {this, "CheckSimHits", true, "Control on the hit validity"};
-  Gaudi::Property<bool>   m_useTof{this, "UseTof", true, "Option for the tof calculation"};
-  Gaudi::Property<bool>   m_useAttenuation{this, "UseAttenuation", false, ""};
-  Gaudi::Property<bool>   m_useProp{this, "UseProp", true, ""};
+    // WIRE SAG
+    Gaudi::Property<bool> m_useWireSagGeom{this, "UseWireSagGeom", false, "Option for the wire sagitta correction"};
+    Gaudi::Property<bool> m_useWireSagRT{this, "UseWireSagRT", false, "Option for the wire sagitta correction"};
 
-  //WIRE SAG
-  Gaudi::Property<bool>   m_useWireSagGeom{this, "UseWireSagGeom", false, "Option for the wire sagitta correction"};
-  Gaudi::Property<bool>   m_useWireSagRT{this, "UseWireSagRT", false, "Option for the wire sagitta correction"};
+    // TWIN TUBE
+    Gaudi::Property<bool> m_useTwin{this, "UseTwin", false, ""};
+    Gaudi::Property<bool> m_useAllBOLTwin{this, "UseAllBOLTwin", false, ""};
+    Gaudi::Property<double> m_resTwin{this, "ResolutionTwinTube", 1.05, "Twin Tube resolution"};
 
-  //TWIN TUBE
-  Gaudi::Property<bool>   m_useTwin{this, "UseTwin", false, ""};
-  Gaudi::Property<bool>   m_useAllBOLTwin{this, "UseAllBOLTwin", false, ""};
-  Gaudi::Property<double> m_resTwin{this, "ResolutionTwinTube", 1.05, "Twin Tube resolution"};
+    // TIMING SCHEME
+    Gaudi::Property<bool> m_useTimeWindow{this, "UseTimeWindow", true, ""};
+    Gaudi::Property<double> m_bunchCountOffset{this, "BunchCountOffset", -200., "Bunch crossing offset"};
+    Gaudi::Property<double> m_matchingWindow{this, "MatchingWindow", 1000., "Matching window"};
+    Gaudi::Property<double> m_maskWindow{this, "MaskWindow", 250., "Masked window"};
+    Gaudi::Property<double> m_deadTime{this, "DeadTime", 700., "MDT drift tube dead time"};
+    Gaudi::Property<bool> m_DiscardEarlyHits{this, "DiscardEarlyHits", true, ""};
 
-  //TIMING SCHEME
-  Gaudi::Property<bool>   m_useTimeWindow{this, "UseTimeWindow", true, ""};
-  Gaudi::Property<double> m_bunchCountOffset{this, "BunchCountOffset", -200., "Bunch crossing offset"};
-  Gaudi::Property<double> m_matchingWindow{this, "MatchingWindow", 1000., "Matching window"};
-  Gaudi::Property<double> m_maskWindow{this, "MaskWindow", 250., "Masked window"};
-  Gaudi::Property<double> m_deadTime{this, "DeadTime", 700., "MDT drift tube dead time"};
-  Gaudi::Property<bool>   m_DiscardEarlyHits{this, "DiscardEarlyHits", true, ""};
+    // COSMICS
+    Gaudi::Property<bool> m_useOffSet1{this, "UseOffSet1", true, ""};
+    Gaudi::Property<bool> m_useOffSet2{this, "UseOffSet2", true, ""};
 
-  //COSMICS
-  Gaudi::Property<bool> m_useOffSet1{this, "UseOffSet1", true, ""};
-  Gaudi::Property<bool> m_useOffSet2{this, "UseOffSet2", true, ""};
+    // Conditions Database
+    Gaudi::Property<bool> m_UseDeadChamberSvc{this, "UseDeadChamberSvc", false, ""};
+    // B-lines
+    Gaudi::Property<bool> m_useDeformations{this, "UseDeformations", false, ""};
 
-  //Conditions Database
-  Gaudi::Property<bool> m_UseDeadChamberSvc{this, "UseDeadChamberSvc",   false, ""};
-  Gaudi::Property<bool> m_t0_from_DB{this, "GetT0FromBD", false, ""};
+    // MULTI-CHARGE PARTICLES DIGITIZATION
+    Gaudi::Property<bool> m_DoQballCharge{this, "DoQballCharge", false, "dEdx for Qballs with account of electric charge"};
 
-  //B-lines
-  Gaudi::Property<bool> m_useDeformations{this, "UseDeformations", false, ""};
+    // STATIONS TO MASK
+    Gaudi::Property<std::vector<std::string>> m_maskedStations{this, "MaskedStations", {}, "Stations to be masked at digi level"};
+    struct maskedStation {
+        maskedStation(std::string n, std::string e, std::string p) :
+            maskedName(n), maskedEta(e), maskedPhi(p), imaskedEta(0), imaskedPhi(0) {
+            if (e != "*") {
+                std::istringstream v1(maskedEta);
+                v1 >> imaskedEta;
+            }
+            if (p != "*") {
+                std::istringstream v1(maskedPhi);
+                v1 >> imaskedPhi;
+            }
+        }
+        std::string maskedName;
+        std::string maskedEta;
+        std::string maskedPhi;
+        int imaskedEta;
+        int imaskedPhi;
+    };
 
-  //MULTI-CHARGE PARTICLES DIGITIZATION
-  Gaudi::Property<bool> m_DoQballCharge{this, "DoQballCharge", false, "dEdx for Qballs with account of electric charge"};
+    std::vector<maskedStation> m_vMaskedStations;
 
-  //STATIONS TO MASK
-  Gaudi::Property< std::vector<std::string> > m_maskedStations{this, "MaskedStations", {}, "Stations to be masked at digi level"};
-  struct maskedStation {
-  maskedStation(std::string n, std::string e, std::string p):
-    maskedName(n),maskedEta(e),maskedPhi(p),imaskedEta(0),imaskedPhi(0)
-    {
-      if (e!="*") {std::istringstream v1(maskedEta);v1>>imaskedEta;}
-      if (p!="*") {std::istringstream v1(maskedPhi);v1>>imaskedPhi;}
-    }
-    std::string maskedName;
-    std::string maskedEta;
-    std::string maskedPhi;
-    int imaskedEta;
-    int imaskedPhi;
-  };
+    // list of Identifiers returned by the Conditions Service to mask stations
+    std::vector<Identifier> m_IdentifiersToMask;
 
-  std::vector<maskedStation> m_vMaskedStations;
+    // pile-up
+    std::unique_ptr<TimedHitCollection<MDTSimHit>> m_thpcMDT{};  // the hits
 
-  //list of Identifiers returned by the Conditions Service to mask stations
-  std::vector<Identifier> m_IdentifiersToMask;
+    // pileup truth veto
+    Gaudi::Property<bool> m_includePileUpTruth{this, "IncludePileUpTruth", true, "Include pile-up truth info"};
 
-  //pile-up
-  TimedHitCollection<MDTSimHit>* m_thpcMDT{}; // the hits
-
-  //pileup truth veto
-  Gaudi::Property<bool> m_includePileUpTruth{this, "IncludePileUpTruth", true, "Include pile-up truth info"};
-
-  ///////////////////////////////////////////////////////////////////
-  // Access to the event methods:
-  ///////////////////////////////////////////////////////////////////
-  // Get next event and extract collection of hit collections:
-  StatusCode                getNextEvent(const EventContext& ctx);
-  StatusCode doDigitization(const EventContext& ctx, MdtDigitContainer* digitContainer, MuonSimDataCollection* sdoContainer);
-  MdtDigitCollection*       getDigitCollection(Identifier elementId, MdtDigitContainer* digitContainer);
-  void                fillMaps(const MDTSimHit * mdtHit, const Identifier digitId,
-                               const double driftR);
+    ///////////////////////////////////////////////////////////////////
+    // Access to the event methods:
+    ///////////////////////////////////////////////////////////////////
+    // Get next event and extract collection of hit collections:
+    StatusCode getNextEvent(const EventContext& ctx);
+    StatusCode doDigitization(const EventContext& ctx, MdtDigitContainer* digitContainer, MuonSimDataCollection* sdoContainer);
+    MdtDigitCollection* getDigitCollection(Identifier elementId, MdtDigitContainer* digitContainer);
+    void fillMaps(const MDTSimHit* mdtHit, const Identifier digitId, const double driftR);
 
 protected:
-  ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "PileUpMergeSvc", "PileUpMergeSvc", ""}; // Pile up service
-  BooleanProperty m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
-  SG::ReadHandleKey<MDTSimHitCollection> m_hitsContainerKey{this, "InputObjectName", "MDT_Hits", ""}; // name of the input objects
-  std::string m_inputObjectName{""};
-  SG::WriteHandleKey<MdtDigitContainer> m_outputObjectKey{this,"OutputObjectName","MDT_DIGITS","WriteHandleKey for Output MdtDigitContainer"};
-  SG::WriteHandleKey<MuonSimDataCollection> m_outputSDOKey{this,"OutputSDOName","MDT_SDO","WriteHandleKey for Output MuonSimDataCollection"};
+    ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "PileUpMergeSvc", "PileUpMergeSvc", ""};  // Pile up service
+    BooleanProperty m_onlyUseContainerName{this, "OnlyUseContainerName", true,
+                                           "Don't use the ReadHandleKey directly. Just extract the container name from it."};
+    SG::ReadHandleKey<MDTSimHitCollection> m_hitsContainerKey{this, "InputObjectName", "MDT_Hits", ""};  // name of the input objects
+    std::string m_inputObjectName{""};
+    SG::WriteHandleKey<MdtDigitContainer> m_outputObjectKey{this, "OutputObjectName", "MDT_DIGITS",
+                                                            "WriteHandleKey for Output MdtDigitContainer"};
+    SG::WriteHandleKey<MuonSimDataCollection> m_outputSDOKey{this, "OutputSDOName", "MDT_SDO",
+                                                             "WriteHandleKey for Output MuonSimDataCollection"};
 
-  ServiceHandle <IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};      // Random number service
+    ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};  // Random number service
 
-  ToolHandle<MdtCalibrationDbTool> m_calibrationDbTool{this, "CalibrationDbTool", "MdtCalibrationDbTool", ""};
-  SG::ReadCondHandleKey<MdtCondDbData> m_readKey{this, "ReadKey", "MdtCondDbData", "Key of MdtCondDbData"};
+    ToolHandle<MdtCalibrationDbTool> m_calibrationDbTool{this, "CalibrationDbTool", "MdtCalibrationDbTool", ""};
+    SG::ReadCondHandleKey<MdtCondDbData> m_readKey{this, "ReadKey", "MdtCondDbData", "Key of MdtCondDbData"};
 };
 
 #endif

@@ -6,7 +6,6 @@
 #define TRIGSISPACEPOINT_H
 #include<utility>
 #include "Identifier/Identifier.h"
-#include <utility>
 #include "InDetPrepRawData/SiCluster.h"
 #include "TrigInDetEvent/TrigSiSpacePointBase.h"
 

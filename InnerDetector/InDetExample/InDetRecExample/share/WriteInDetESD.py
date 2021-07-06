@@ -87,7 +87,10 @@ if InDetFlags.doDBMstandalone() or InDetFlags.doDBM():
       InDetESDList += ["TrackTruthCollection#"+InDetKeys.DBMTracks()+'TruthCollection'] 
       InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.DBMTracks()+'DetailedTruth'] 
    if InDetFlags.doxAOD(): 
-      excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation" 
+      excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-TTVA_AMVFVertices_forReco.-TTVA_AMVFWeights_forReco" 
+      # remove track decorations used internally by FTAG software
+      excludedAuxData += ".-TrackCompatibility.-VxTrackAtVertex.-btagIp_d0Uncertainty.-btagIp_z0SinThetaUncertainty.-btagIp_z0SinTheta.-btagIp_d0.-btagIp_trackMomentum.-btagIp_trackDisplacement"
+
       InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODDBMTrackParticleContainer()] 
       InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODDBMTrackParticleContainer()+'Aux.' + excludedAuxData] 
 
@@ -135,19 +138,19 @@ if globalflags.InputFormat()=='bytestream':
    InDetESDList+=['IDCInDetBSErrContainer#'+InDetKeys.SCT_ByteStreamErrs()]
 
 if InDetFlags.doxAOD():
-  excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation."
-  if not InDetFlags.KeepFirstParameters() :
-      excludedAuxData += '-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition'
+
+  excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-TTVA_AMVFVertices_forReco.-TTVA_AMVFWeights_forReco"
+
+  if not (InDetFlags.KeepFirstParameters() or InDetFlags.keepAdditionalHitsOnTrackParticle()):
+    excludedAuxData += '.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition'
 
   excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
 
-  if InDetFlags.keepAdditionalHitsOnTrackParticle():
-   excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation"
   InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODTrackParticleContainer()]
   InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODTrackParticleContainer()+'Aux.' + excludedAuxData]
 
-  from  InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
-  from  InDetPhysValMonitoring.ConfigUtils import extractCollectionPrefix
+  from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
+  from InDetPhysValMonitoring.ConfigUtils import extractCollectionPrefix
   for col in InDetPhysValFlags.validateExtraTrackCollections() :
     prefix=extractCollectionPrefix(col)
     InDetESDList+=['xAOD::TrackParticleContainer#'+prefix+'TrackParticles']
@@ -176,10 +179,8 @@ if InDetFlags.doxAOD():
   if InDetFlags.doConversions():
     InDetESDList+=['xAOD::VertexContainer#'+InDetKeys.Conversions()]
     InDetESDList+=['xAOD::VertexAuxContainer#'+InDetKeys.Conversions() +'Aux.' + excludedVertexAuxData]
-
-  if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
-    InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODLargeD0TrackParticleContainer()]
-    InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODLargeD0TrackParticleContainer()+'Aux.' + excludedAuxData]
+  InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODLargeD0TrackParticleContainer()]
+  InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODLargeD0TrackParticleContainer()+'Aux.' + excludedAuxData]
   if InDetFlags.doTrackSegmentsPixel():
     InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODPixelTrackParticleContainer()]
     InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODPixelTrackParticleContainer()+'Aux.' + excludedAuxData]

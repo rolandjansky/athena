@@ -52,20 +52,20 @@ public:
    virtual bool pass( const HepMC::GenEvent* evt,
                       const McEventCollection* coll = 0 ) const;
    /// Function selecting GenParticle objects
-   virtual bool pass( const HepMC::GenParticle* part,
+   virtual bool pass( HepMC::ConstGenParticlePtr part,
                       const McEventCollection* coll = 0 ) const;
    /// Function selecting GenVertex objects
-   virtual bool pass( const HepMC::GenVertex* vtx,
+   virtual bool pass( HepMC::ConstGenVertexPtr vtx,
                       const McEventCollection* coll = 0 ) const;
 
 private:
 
-  bool isBCHadron(const HepMC::GenParticle* part) const;
+  bool isBCHadron(HepMC::ConstGenParticlePtr part) const;
   bool isBC(int pdg) const;
   bool isKeep(int pdg) const;
-  bool isRequested( const HepMC::GenParticle* part) const;
-  bool passParticleCuts( const HepMC::GenParticle* part) const;
-  bool isLeptonicWZ(const HepMC::GenParticle* part) const;
+  bool isRequested( HepMC::ConstGenParticlePtr part) const;
+  bool passParticleCuts( HepMC::ConstGenParticlePtr part) const;
+  bool isLeptonicWZ(HepMC::ConstGenParticlePtr part) const;
 
 
 

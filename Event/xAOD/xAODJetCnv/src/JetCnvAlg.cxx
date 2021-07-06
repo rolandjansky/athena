@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetCnvAlg.cxx 
@@ -63,7 +63,7 @@ StatusCode JetCnvAlg::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
-  if( m_xaodJetCollectionName == "" ) m_xaodJetCollectionName = m_inputJetCollectionName;
+  if( m_xaodJetCollectionName.empty() ) m_xaodJetCollectionName = m_inputJetCollectionName;
 
   CHECK( m_cnvTool.retrieve() );
 

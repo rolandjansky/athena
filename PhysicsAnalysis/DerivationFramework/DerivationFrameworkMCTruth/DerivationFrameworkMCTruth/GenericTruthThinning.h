@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -20,14 +20,12 @@
 #include "StoreGate/ThinningHandleKey.h"
 #include "GaudiKernel/ToolHandle.h"
 
-namespace ExpressionParsing {
-  class ExpressionParser;
-}
-
+#include "ExpressionEvaluation/ExpressionParserUser.h"
 
 namespace DerivationFramework {
 
-  class GenericTruthThinning : public extends<AthAlgTool, IThinningTool> {
+  enum EGenericTruthThinningParser { kGenericTruthThinningPartParser,kGenericTruthThinningParserNum };
+  class GenericTruthThinning : public extends<ExpressionParserUser<AthAlgTool,kGenericTruthThinningParserNum>, IThinningTool> {
     public: 
       GenericTruthThinning(const std::string& t, const std::string& n, const IInterface* p);
       virtual ~GenericTruthThinning();
@@ -36,8 +34,6 @@ namespace DerivationFramework {
       virtual StatusCode doThinning() const override;
 
     private:
-      //ExpressionParsing::ExpressionParser *m_vertParser;
-      ExpressionParsing::ExpressionParser *m_partParser;
       mutable std::atomic<unsigned int> m_ntotvtx, m_ntotpart, m_npassvtx, m_npasspart;
       StringProperty m_streamName
         { this, "StreamName", "", "Name of the stream being thinned" };

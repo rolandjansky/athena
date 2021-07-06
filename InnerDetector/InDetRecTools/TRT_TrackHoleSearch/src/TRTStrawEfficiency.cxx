@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // TRTStrawEfficiency.cxx
@@ -39,8 +39,8 @@ TRTStrawEfficiency::TRTStrawEfficiency(const std::string& name, ISvcLocator* pSv
 	  m_trt_hole_finder("TRTTrackHoleSearchTool"),
 	  m_hist_svc("THistSvc", name),
 	  m_TRTStrawNeighbourSvc("TRT_StrawNeighbourSvc", name),
-	  m_tree(0),
-	  m_TRT_ID(0),
+	  m_tree(nullptr),
+	  m_TRT_ID(nullptr),
 	  m_num_events(0),
 	  m_num_tracks(0),
 	  m_num_preselected_tracks(0),
@@ -161,7 +161,7 @@ StatusCode TRTStrawEfficiency::execute() {
 
 	// loop over tracks
 	ATH_MSG_DEBUG( "This event has " << tracks->size() << " tracks." );
-	for (auto track : *tracks) {
+	for (const auto *track : *tracks) {
 		m_num_tracks++;
 
 		// clear branches
@@ -198,7 +198,7 @@ StatusCode TRTStrawEfficiency::execute() {
 		}
 
 		// count hits
-		for (auto trackState : *track_states) {
+		for (const auto *trackState : *track_states) {
 			if (trackState->type(Trk::TrackStateOnSurface::Measurement)) {
 				if (dynamic_cast<const InDet::TRT_DriftCircleOnTrack*> (trackState->measurementOnTrack())) m_n_trt_hits++;
 				else if (dynamic_cast<const InDet::SCT_ClusterOnTrack*> (trackState->measurementOnTrack())) m_n_sct_hits++;
@@ -230,7 +230,7 @@ StatusCode TRTStrawEfficiency::execute() {
 		ATH_MSG_DEBUG( "  This track passed preselection." );
 		m_num_preselected_tracks++;
 
-		for (auto trackState : *track_states ) {
+		for (const auto *trackState : *track_states ) {
 			if (trackState->type(Trk::TrackStateOnSurface::Measurement)) {
 				fill_hit_data(*trackState);
 			}
@@ -244,7 +244,7 @@ StatusCode TRTStrawEfficiency::execute() {
 			m_n_pixel_holes = 0;
 			m_n_sct_holes = 0;
 			m_n_trt_holes = 0;
-			for (auto hole : *holes) {
+			for (const auto *hole : *holes) {
 				if (hole->type(Trk::TrackStateOnSurface::Hole)) {
 					int hole_det = fill_hole_data(*hole);
 					switch (hole_det) {
@@ -483,7 +483,7 @@ int TRTStrawEfficiency::fill_hit_data(const Trk::TrackStateOnSurface& hit) {
 	m_hit_locR.push_back( det == 3 ? track_parameters->parameters()[Trk::locR] : -1 );
 
 	const Trk::MeasurementBase* measurement = hit.measurementOnTrack();
-	const InDet::TRT_DriftCircleOnTrack* trtcircle = 0;
+	const InDet::TRT_DriftCircleOnTrack* trtcircle = nullptr;
 	if(measurement) {
 		trtcircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*> (measurement);
 	}	else {
@@ -494,20 +494,20 @@ int TRTStrawEfficiency::fill_hit_data(const Trk::TrackStateOnSurface& hit) {
 		ATH_MSG_DEBUG("fill_hit_data(hit): null trtcircle");
 	}
 
-	m_hit_R.push_back( (det == 3)&&(trtcircle != 0) ? trtcircle->localParameters()[Trk::driftRadius] : -1 );
-	m_hit_HL.push_back( (det == 3)&&(trtcircle != 0) ? trtcircle->highLevel() : -1 );
+	m_hit_R.push_back( (det == 3)&&(trtcircle != nullptr) ? trtcircle->localParameters()[Trk::driftRadius] : -1 );
+	m_hit_HL.push_back( (det == 3)&&(trtcircle != nullptr) ? trtcircle->highLevel() : -1 );
 
 	// unbiased trk parameters
-	const Trk::TrackParameters* unbiased_track_parameters = nullptr;
-	unbiased_track_parameters = m_updator->removeFromState(*(hit.trackParameters()),
-	                                                       hit.measurementOnTrack()->localParameters(),
-	                                                       hit.measurementOnTrack()->localCovariance());
+  std::unique_ptr<Trk::TrackParameters> unbiased_track_parameters =
+    m_updator->removeFromState(
+      *(hit.trackParameters()),
+      hit.measurementOnTrack()->localParameters(),
+      hit.measurementOnTrack()->localCovariance());
 
-	m_hit_ub_locR.push_back( det == 3 && unbiased_track_parameters ? unbiased_track_parameters->parameters()[Trk::locR] : -1 );
+  m_hit_ub_locR.push_back( det == 3 && unbiased_track_parameters ? unbiased_track_parameters->parameters()[Trk::locR] : -1 );
 	m_hit_ub_x.push_back( unbiased_track_parameters ? unbiased_track_parameters->position().x() : -1 );
 	m_hit_ub_y.push_back( unbiased_track_parameters ? unbiased_track_parameters->position().y() : -1 );
 	m_hit_ub_z.push_back( unbiased_track_parameters ? unbiased_track_parameters->position().z() : -1 );
-	delete unbiased_track_parameters;
 
 	// ------- added by dan -------
 	int is_tube_hit = -1;
@@ -516,7 +516,7 @@ int TRTStrawEfficiency::fill_hit_data(const Trk::TrackStateOnSurface& hit) {
 		if (is_tube_hit) m_n_tube_hits++;
 	}
 
-	m_hit_tube_hit.push_back( (det == 3)&&(measurement != 0) ? is_tube_hit : -1);
+	m_hit_tube_hit.push_back( (det == 3)&&(measurement != nullptr) ? is_tube_hit : -1);
 
 	// ----------------------------
 

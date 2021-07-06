@@ -7,8 +7,6 @@
 
 #include <vector>
 
-#include "TrkExInterfaces/IExtrapolator.h"
-#include "TrkParameters/TrackParameters.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonDetDescrUtils/MuonSectorMapping.h"
@@ -16,58 +14,57 @@
 #include "MuonRecToolInterfaces/IMuonSystemExtensionTool.h"
 #include "MuonStationIndex/MuonStationIndex.h"
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "TrkParameters/TrackParameters.h"
 #include "xAODTracking/TrackParticle.h"
 
 namespace Trk {
-class Surface;
+    class Surface;
 }
 
 namespace Muon {
 
-class MuonSystemExtension;
+    class MuonSystemExtension;
 
-class MuonSystemExtensionTool : virtual public IMuonSystemExtensionTool, public AthAlgTool {
-  public:
-    typedef std::vector<MuonLayerSurface> SurfaceVec;
+    class MuonSystemExtensionTool : virtual public IMuonSystemExtensionTool, public AthAlgTool {
+    public:
+        typedef std::vector<MuonLayerSurface> SurfaceVec;
 
-    /** Default AlgTool functions */
-    MuonSystemExtensionTool(const std::string& type, const std::string& name, const IInterface* parent);
-    virtual ~MuonSystemExtensionTool(){};
-    StatusCode initialize();
+        /** Default AlgTool functions */
+        MuonSystemExtensionTool(const std::string& type, const std::string& name, const IInterface* parent);
+        virtual ~MuonSystemExtensionTool(){};
+        StatusCode initialize();
 
-    /** get muon system extension */
-    bool muonSystemExtension(const xAOD::TrackParticle&  indetTrackParticle,
-                             const MuonSystemExtension*& muonSystemExtention) const;
+        /** get muon system extension */
+        bool muonSystemExtension(const xAOD::TrackParticle& indetTrackParticle, const MuonSystemExtension*& muonSystemExtention) const;
 
-  private:
-    /** initialize geometry */
-    bool initializeGeometry();
-    bool initializeGeometryBarrel(int sector, const Amg::AngleAxis3D& sectorRotation);
-    bool initializeGeometryEndcap(int sector, MuonStationIndex::DetectorRegionIndex regionIndex,
-                                  const Amg::AngleAxis3D& sectorRotation);
+    private:
+        /** initialize geometry */
+        bool initializeGeometry();
+        bool initializeGeometryBarrel(int sector, const Amg::AngleAxis3D& sectorRotation);
+        bool initializeGeometryEndcap(int sector, MuonStationIndex::DetectorRegionIndex regionIndex,
+                                      const Amg::AngleAxis3D& sectorRotation);
 
+        /** get surfaces to be intersected for a given start parameters */
+        SurfaceVec getSurfacesForIntersection(const Trk::TrackParameters& muonEntryPars) const;
 
-    /** get surfaces to be intersected for a given start parameters */
-    SurfaceVec getSurfacesForIntersection(const Trk::TrackParameters& muonEntryPars) const;
+        ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtensionTool{
+            this,
+            "ParticleCaloExtensionTool",
+            "Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool",
+        };
+        ToolHandle<Trk::IExtrapolator> m_extrapolator{
+            this,
+            "Extrapolator",
+            "Trk::Extrapolator/AtlasExtrapolator",
+        };
 
-    ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtensionTool{
-        this,
-        "ParticleCaloExtensionTool",
-        "Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool",
+        /** reference surfaces per region and sector */
+        std::vector<std::vector<SurfaceVec> > m_referenceSurfaces;
+
+        /** sector mapping helper */
+        MuonSectorMapping m_sectorMapping;
     };
-    ToolHandle<Trk::IExtrapolator> m_extrapolator{
-        this,
-        "Extrapolator",
-        "Trk::Extrapolator/AtlasExtrapolator",
-    };
-
-    /** reference surfaces per region and sector */
-    std::vector<std::vector<SurfaceVec> > m_referenceSurfaces;
-
-    /** sector mapping helper */
-    MuonSectorMapping m_sectorMapping;
-};
 }  // namespace Muon
-
 
 #endif

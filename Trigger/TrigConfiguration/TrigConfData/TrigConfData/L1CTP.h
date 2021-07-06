@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCONFDATA_L1CTP_H
@@ -43,17 +43,33 @@ namespace TrigConf {
 
       const std::string & optical(size_t conn) const;
 
+      /**
+       * @brief CTP monitors
+       * @return map from monitor name to pair<multiplicity, threshold>
+       */
       const std::map<std::string, std::pair<size_t,std::string>> ctpMon() const { return m_ctpmon; }
+
+      /**
+       * @brief CTPIN monitors
+       * @return map from monitor name to pair<multiplicity, threshold>
+       */
+      const std::map<std::string, std::pair<size_t,std::string>> ctpinMon() const { return m_ctpinMon; }
+
+      /** Clearing the configuration data */
+      virtual void clear() override;
 
    private:
 
-      virtual void update() { load(); };
+      /** Update the internal data after modification of the data object */
+      virtual void update() override { load(); };
       void load();
+
       std::string m_ctpin[3][4];
       std::string m_electrical[3];
       std::string m_optical[12];
 
       std::map<std::string, std::pair<size_t,std::string>> m_ctpmon;
+      std::map<std::string, std::pair<size_t,std::string>> m_ctpinMon;
    };
 }
 

@@ -15,6 +15,7 @@
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "MuonTGC_CnvTools/ITGC_RodDecoder.h"
 #include "TGCcablingInterface/ITGCcablingSvc.h"
+#include "CxxUtils/CachedPointer.h"
 
 class TgcRdoContainer;
 
@@ -57,11 +58,11 @@ namespace Muon {
       /** ID converter */
       TGC_Hid2RESrcID                     m_hid2re;
       /** TGC cabling Svc */
-      const ITGCcablingSvc                *m_cabling;
+      CxxUtils::CachedPointer<const ITGCcablingSvc> m_cabling;
       /** Rob Data Provider handle */
       ServiceHandle<IROBDataProviderSvc>  m_robDataProvider;
 
-      StatusCode getCabling();
+      const ITGCcablingSvc* getCabling() const;
     };
 } // end of namespace
 

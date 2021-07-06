@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetPruner.h
@@ -19,7 +19,7 @@
 #include "AsgTools/ToolHandle.h"
 
 class JetPruner
-: virtual public asg::AsgTool,
+: public asg::AsgTool,
   virtual public IJetGroomer {
 ASG_TOOL_CLASS(JetPruner, IJetGroomer)
 

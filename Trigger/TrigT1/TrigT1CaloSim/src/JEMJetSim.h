@@ -33,6 +33,7 @@
 
  // LVL1 Calo Trigger
  #include "TrigT1CaloToolInterfaces/IL1JEMJetTools.h"
+#include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
  namespace LVL1 {
 
@@ -86,10 +87,11 @@
    DataVector<JetCMXData>* m_JetCMXData;
 
    /** Where to find the JetElements */
-   std::string   m_JetElementLocation;
+   SG::ReadHandleKey<xAOD::JetElementContainer> m_JetElementInputKey { this, "JetElementLocation", TrigT1CaloDefs::JetElementLocation, "Input JetElement container" };
+
    /** Locations of outputs in StoreGate */
-   std::string   m_JEMTobRoILocation;
-   std::string   m_JetCMXDataLocation;
+   SG::WriteHandleKey<DataVector<JEMTobRoI> > m_JEMTobRoIOutputKey { this, "JEMTOBRoILocation", TrigT1CaloDefs::JEMTobRoILocation, "Output Jet ROI container" };
+   SG::WriteHandleKey<DataVector<JetCMXData> > m_JetCMXDataOutputKey { this, "JetCMXDataLocation", TrigT1CaloDefs::JetCMXDataLocation, "Output Jet CMX data container" };
    
    /** The essentials - data access, configuration, tools */
    ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;

@@ -62,9 +62,10 @@ namespace InDet {
 
     ~InDetJetFitterVxFinder();
 
+    virtual
     Trk::VxSecVertexInfo* findSecVertex(const xAOD::Vertex & /*primaryVertex*/,
 					const TLorentzVector & /*jetMomentum*/,
-					const std::vector<const xAOD::IParticle*> & /*inputTracks*/ ) const
+					const std::vector<const xAOD::IParticle*> & /*inputTracks*/ ) const override
     {
       /* not implemented */
       return 0;

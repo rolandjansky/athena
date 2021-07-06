@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: DbColumn.cpp 726071 2016-02-25 09:23:05Z krasznaa $
@@ -84,8 +84,8 @@ DbStatus DbColumn::fromString( const string& string_rep)  {
   int nread = 0;
   for(size_t i = 0; i < sizeof(itm)/sizeof(itm[0]); ++i)   {
     p1 = ::strstr(p1, itm[i]);
-    const char* pp1 = p1+strlen(itm[i]);
     if ( p1 )    {
+      const char* pp1 = p1+strlen(itm[i]);
       const char* p2 = ::strstr(pp1, "}");
       if ( p2 )   {
         std::string s (pp1, p2-pp1);

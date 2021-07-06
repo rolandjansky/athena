@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -10,8 +10,9 @@
 #ifndef MUONREADOUTGEOMETRY_RPCREADOUTSET_H
 #define MUONREADOUTGEOMETRY_RPCREADOUTSET_H
 
-#include "MuonIdHelpers/RpcIdHelper.h"
 #include "Identifier/Identifier.h"
+
+class RpcIdHelper;
 
 namespace MuonGM {
 

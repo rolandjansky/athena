@@ -539,11 +539,13 @@ DataVector<T, BASE>& DataVector<T, BASE>::operator= (const DataVector& rhs)
  */
 template <class T, class BASE>
 DataVector<T, BASE>&
-DataVector<T, BASE>::operator= (DataVector<T, BASE>&& rhs)
+DataVector<T, BASE>::operator= (DataVector<T, BASE>&& rhs) noexcept
 {
   if (this != &rhs) {
     // Ensure we're not being called via a base class.
     testInsert ("assignment operator");
+
+    this->clear();                // Release any currently-owned elements.
 
     SG::AuxVectorBase::operator= (std::move (rhs));
     this->m_ownPolicy = rhs.m_ownPolicy;
@@ -2158,11 +2160,13 @@ DATAVECTOR& DATAVECTOR::operator= (const DataVector& rhs)
  * Any auxiliary data will be moved along with the container contents.
  */
 template <class T>
-DATAVECTOR& DATAVECTOR::operator= (DATAVECTOR&& rhs)
+DATAVECTOR& DATAVECTOR::operator= (DATAVECTOR&& rhs) noexcept
 {
   if (this != &rhs) {
     // Ensure we're not being called via a base class.
     testInsert ("assignment operator");
+
+    this->clear();                // Release any currently-owned elements.
 
     SG::AuxVectorBase::operator= (std::move (rhs));
     this->m_ownPolicy = rhs.m_ownPolicy;

@@ -1,16 +1,17 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( BeamPipeGeoModel )
 
 # External dependencies:
-find_package( GeoModelCore )
+find_package( GeoModel COMPONENTS GeoModelKernel )
 
 # Component(s) in the package:
 atlas_add_library( BeamPipeGeoModelLib
                    src/*.cxx
                    PUBLIC_HEADERS BeamPipeGeoModel
-                   LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} AthenaKernel GeoModelUtilities
+		   INCLUDE_DIRS ${GEOMODEL_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${GEOMODEL_LIBRARIES} AthenaKernel GeoModelUtilities
                    PRIVATE_LINK_LIBRARIES GaudiKernel GeoModelInterfaces RDBAccessSvcLib SGTools StoreGateLib )
 
 atlas_add_component( BeamPipeGeoModel

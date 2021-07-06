@@ -74,7 +74,7 @@ void compare (const Muon::MMPrepDataContainer& p1,
 
 void testit (const Muon::MMPrepDataContainer& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   Muon::MMPrepDataContainerCnv_p1 cnv;
   Muon::MMPrepDataContainer_p1 pers;
   cnv.transToPers (&trans1, &pers, log);
@@ -116,7 +116,7 @@ makeclusts (const MuonGM::MuonDetectorManager& muo_dd)
          clusHash,
          locpos,
          rdoList,
-         new Amg::MatrixX(cov),
+         cov,
          muo_dd.getMMReadoutElement (clusId));
       cl->setAuthor (Muon::MMPrepData::ProjectionClusterBuilder);
       coll->push_back (std::move (cl));

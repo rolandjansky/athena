@@ -23,7 +23,7 @@ persToTrans( const Muon::RpcPrepData_p1 *persObj, Muon::RpcPrepData *transObj,Ms
                                   transObj->collectionHash(),
                                   locpos,
                                   std::vector<Identifier>(),
-                                  nullptr, // locErrMat,
+                                  {}, // locErrMat,
                                   transObj->detectorElement(),
                                   persObj->m_time,
                                   persObj->m_triggerInfo,

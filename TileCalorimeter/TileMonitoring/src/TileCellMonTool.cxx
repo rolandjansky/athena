@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /// ********************************************************************
@@ -1077,7 +1077,7 @@ StatusCode TileCellMonTool::fillHistograms() {
                        ShiftLumiHist(m_TileDigiEnergyLB[partition][drw][vecInd], m_delta_lumiblock);
                        m_OldLumiArray2[partition][drw][vecInd] = current_lumiblock;
                      }
-                     m_TileDigiEnergyLB[partition][drw][vecInd]->Fill(0,ch2digi[ch1],ene1,1.);
+                     m_TileDigiEnergyLB[partition][drw][vecInd]->Fill(0.,ch2digi[ch1],ene1,1.);
                    }
 
                    m_delta_lumiblock = current_lumiblock - m_OldLumiArray1[partition][drw][vecInd];
@@ -1087,7 +1087,7 @@ StatusCode TileCellMonTool::fillHistograms() {
                        ShiftLumiHist(m_TileDigiTimeLB[partition][drw][vecInd], m_delta_lumiblock);
                        m_OldLumiArray1[partition][drw][vecInd] = current_lumiblock;
                      }
-                     m_TileDigiTimeLB[partition][drw][vecInd]->Fill(0,ch2digi[ch1],t1,1.);
+                     m_TileDigiTimeLB[partition][drw][vecInd]->Fill(0.,ch2digi[ch1],t1,1.);
                    }
 
                  } else {// End of Online
@@ -1120,7 +1120,7 @@ StatusCode TileCellMonTool::fillHistograms() {
                       ShiftLumiHist(m_TileDigiEnergyLB[partition2][drw][vecInd], m_delta_lumiblock);
                       m_OldLumiArray2[partition2][drw][vecInd] = current_lumiblock;
                     }
-                    m_TileDigiEnergyLB[partition2][drw][vecInd]->Fill(0,ch2digi[ch2],ene2,1.);
+                    m_TileDigiEnergyLB[partition2][drw][vecInd]->Fill(0.,ch2digi[ch2],ene2,1.);
                   }
 
                   m_delta_lumiblock = current_lumiblock - m_OldLumiArray1[partition2][drw][vecInd];
@@ -1130,7 +1130,7 @@ StatusCode TileCellMonTool::fillHistograms() {
                       ShiftLumiHist(m_TileDigiTimeLB[partition2][drw][vecInd], m_delta_lumiblock);
                       m_OldLumiArray1[partition2][drw][vecInd] = current_lumiblock;
                     }
-                    m_TileDigiTimeLB[partition2][drw][vecInd]->Fill(0,ch2digi[ch2],t2,1.);
+                    m_TileDigiTimeLB[partition2][drw][vecInd]->Fill(0.,ch2digi[ch2],t2,1.);
                   }
 
                 } else {// End of Online
@@ -1170,8 +1170,8 @@ StatusCode TileCellMonTool::fillHistograms() {
           bool fillEneAndTimeDiff(m_fillTimeAndEnergyDiffHistograms);
 
           // avoid double peak structure in energy and time balance histograms
-          if ((gn1 == 0 && gn2 == 1 && (ene1 < 2000 || std::abs(ene1 / ene2) > 5))
-              || (gn1 == 1 && gn2 == 0 && (ene2 < 2000 || std::abs(ene2 / ene1) > 5))) {
+          if ((gn1 == 0 && gn2 == 1 && (ene1 < 2000 || ene2 < 10 || std::abs(ene1 / ene2) > 5))
+              || (gn1 == 1 && gn2 == 0 && (ene2 < 2000 || ene1 < 10 || std::abs(ene2 / ene1) > 5))) {
 
             fillEneAndTimeDiff = false;
           }

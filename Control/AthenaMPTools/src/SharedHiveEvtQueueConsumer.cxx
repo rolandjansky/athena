@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SharedHiveEvtQueueConsumer.h"
@@ -7,15 +7,16 @@
 #include "AthenaInterprocess/ProcessGroup.h"
 #include "AthenaInterprocess/Incidents.h"
 
-#include "AthenaKernel/IEventSeek.h"
+#include "AthenaKernel/IDataShare.h"
 #include "AthenaKernel/IEvtSelectorSeek.h"
-#include "AthenaKernel/IEventShare.h"
+#include "AthenaKernel/IHybridProcessorHelper.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IIoComponentMgr.h"
 #include "GaudiKernel/IFileMgr.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IIncidentSvc.h"
+#include "GaudiKernel/IConversionSvc.h"
 
 #include <sys/stat.h>
 #include <sstream>
@@ -38,30 +39,17 @@ namespace SharedHiveEvtQueueConsumer_d {
 }
 
 SharedHiveEvtQueueConsumer::SharedHiveEvtQueueConsumer(const std::string& type
-					       , const std::string& name
-					       , const IInterface* parent)
+						       , const std::string& name
+						       , const IInterface* parent)
   : AthenaMPToolBase(type,name,parent)
-  , m_useSharedReader(false)
-  , m_isPileup(false)
-  , m_isRoundRobin(false)
-  , m_nEventsBeforeFork(0)
-  , m_debug(false)
   , m_rankId(-1)
   , m_chronoStatSvc("ChronoStatSvc", name)
-  , m_evtSeek(0)
   , m_evtSelSeek(0)
   , m_evtContext(0)
-  , m_evtShare(0)
   , m_sharedEventQueue(0)
   , m_sharedRankQueue(0)
 {
   declareInterface<IAthenaMPTool>(this);
-
-  declareProperty("UseSharedReader",m_useSharedReader);
-  declareProperty("IsPileup",m_isPileup);
-  declareProperty("IsRoundRobin",m_isRoundRobin);
-  declareProperty("EventsBeforeFork",m_nEventsBeforeFork);
-  declareProperty("Debug", m_debug);
 
   m_subprocDirPrefix = "worker_";
 }
@@ -77,50 +65,30 @@ SharedHiveEvtQueueConsumer::~SharedHiveEvtQueueConsumer()
 StatusCode SharedHiveEvtQueueConsumer::initialize()
 {
   ATH_MSG_DEBUG("In initialize");
-  if(m_isPileup) {
-    m_evtProcessor = ServiceHandle<IEventProcessor>("PileUpEventLoopMgr",name());
-    ATH_MSG_INFO("The job running in pileup mode");
-  }
-  else {
-    ATH_MSG_INFO("The job running in non-pileup mode");
-  }
 
   StatusCode sc = AthenaMPToolBase::initialize();
   if(!sc.isSuccess())
     return sc;
 
-  // For pile-up jobs use event loop manager for seeking
-  // otherwise use event selector
-  if(m_isPileup) {
-    m_evtSeek = dynamic_cast<IEventSeek*>(m_evtProcessor.operator->());
-    if(!m_evtSeek) {
-      ATH_MSG_ERROR("Unable to dyn-cast PileUpEventLoopMgr to IEventSeek");
-      return StatusCode::FAILURE;
-    }
-  }
-  else {
-    sc = serviceLocator()->service(m_evtSelName,m_evtSelSeek);
-    if(sc.isFailure() || m_evtSelSeek==0) {
-      ATH_MSG_ERROR("Error retrieving IEvtSelectorSeek");
-      return StatusCode::FAILURE;
-    }
-    ATH_CHECK( evtSelector()->createContext (m_evtContext) );
-  }
-
-  if(m_useSharedReader) {
-    sc = serviceLocator()->service(m_evtSelName,m_evtShare);
-    if(sc.isFailure() || m_evtShare==0) {
-      ATH_MSG_ERROR("Error retrieving IEventShare");
-      return StatusCode::FAILURE;
-    }
-  }
-
-  sc = m_chronoStatSvc.retrieve();
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("Cannot get ChronoStatSvc.");
+  sc = serviceLocator()->service(m_evtSelName,m_evtSelSeek);
+  if(sc.isFailure() || m_evtSelSeek==0) {
+    ATH_MSG_ERROR("Error retrieving IEvtSelectorSeek");
     return StatusCode::FAILURE;
   }
-  
+  ATH_CHECK( evtSelector()->createContext (m_evtContext) );
+
+  ATH_CHECK(m_chronoStatSvc.retrieve());
+
+  IConversionSvc* cnvSvc = 0;
+  sc = serviceLocator()->service("AthenaPoolCnvSvc",cnvSvc);
+  m_dataShare = dynamic_cast<IDataShare*>(cnvSvc);
+  if(sc.isFailure() || m_dataShare==0) {
+    if(m_useSharedWriter) {
+      ATH_MSG_ERROR("Error retrieving AthenaPoolCnvSvc " << cnvSvc);
+      return StatusCode::FAILURE;
+    }
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -269,7 +237,6 @@ SharedHiveEvtQueueConsumer::subProcessLogs(std::vector<std::string>& filenames)
 std::unique_ptr<AthenaInterprocess::ScheduledWork>
 SharedHiveEvtQueueConsumer::bootstrap_func()
 {
-
   if (m_debug) {
     ATH_MSG_INFO("Bootstrap worker PID " << getpid() << " - waiting for SIGUSR1");
     sigset_t mask, oldmask;
@@ -353,16 +320,16 @@ SharedHiveEvtQueueConsumer::bootstrap_func()
     return outwork;
 
   ATH_MSG_INFO("File descriptors re-opened in the AthenaMP event worker PID=" << getpid());
-
   
-  // ________________________ Make Shared RAW Reader Client ________________________
-  if(m_useSharedReader) {
-    if(!m_evtShare->makeClient(m_rankId).isSuccess()) {
-      ATH_MSG_ERROR("Failed to make the event selector a share client");
+  // ________________________ Make Shared Writer Client ________________________
+
+  if(m_useSharedWriter && m_dataShare) {
+    IProperty* propertyServer = dynamic_cast<IProperty*>(m_dataShare);
+    if (propertyServer==0 || propertyServer->setProperty("MakeStreamingToolClient", m_rankId + 1).isFailure()) {
+      ATH_MSG_ERROR("Could not change AthenaPoolCnvSvc MakeClient Property");
       return outwork;
-    }
-    else {
-      ATH_MSG_DEBUG("Successfully made the event selector a share client");
+    } else {
+      ATH_MSG_DEBUG("Successfully made the conversion service a share client");
     }
   }
 
@@ -387,24 +354,6 @@ SharedHiveEvtQueueConsumer::bootstrap_func()
     ATH_MSG_DEBUG("Successfully restarted the event selector");
   }
 
-  // ________________________ Restart background event selectors in pileup jobs ________________________
-  if(m_isPileup) {
-    const std::list<IService*>& service_list = serviceLocator()->getServices();
-    std::list<IService*>::const_iterator itSvc = service_list.begin(),
-      itSvcLast = service_list.end();
-    for(;itSvc!=itSvcLast;++itSvc) {
-      IEvtSelector* evtsel = dynamic_cast<IEvtSelector*>(*itSvc);
-      if(evtsel && (evtsel != m_evtSelector)) {
-	if((*itSvc)->start().isSuccess())
-	  ATH_MSG_DEBUG("Restarted event selector " << (*itSvc)->name());
-	else {
-	  ATH_MSG_ERROR("Failed to restart event selector " << (*itSvc)->name());
-	  return outwork;
-	}
-      }
-    }
-  }
-
   // ________________________ Worker dir: chdir ________________________
   if(chdir(worker_rundir.string().c_str())==-1) {
     ATH_MSG_ERROR("Failed to chdir to " << worker_rundir.string());
@@ -421,14 +370,13 @@ SharedHiveEvtQueueConsumer::bootstrap_func()
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-std::unique_ptr<AthenaInterprocess::ScheduledWork> 
-SharedHiveEvtQueueConsumer::exec_func()
+std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedHiveEvtQueueConsumer::exec_func()
 {
   ATH_MSG_INFO("Exec function in the AthenaMP worker PID=" << getpid());
 
   bool all_ok(true);
 
-  if (! initHive().isSuccess()) {
+  if (!initHive().isSuccess()) {
     ATH_MSG_FATAL("unable to initialize Hive");
     all_ok = false;
   }
@@ -451,141 +399,118 @@ SharedHiveEvtQueueConsumer::exec_func()
     }
   }
 
-
-  // ________________________ This is needed only for PileUp jobs __________________________________
-  // **
-  // If either EventsBeforeFork or SkipEvents is nonzero, first we need to advance the event selector
-  // by EventsBeforeFork+SkipEvents and only after that start seeking on the PileUpEventLoopMgr
-  // **
-  if(m_isPileup && all_ok) {
-    if (!m_evtSelSeek) {
-      StatusCode sc = serviceLocator()->service(m_evtSelName,m_evtSelSeek);
-      if(sc.isFailure() || m_evtSelSeek==0) {
-        ATH_MSG_ERROR("Error retrieving Event Selector with IEvtSelectorSeek interface for PileUp job");
-        all_ok = false;
-      }
-      if (evtSelector()->createContext (m_evtContext).isFailure()) {
-        ATH_MSG_ERROR("Error creating IEventSelector context.");
-        all_ok = false;
-      }
-    }
-    if (all_ok) {
-      if((m_nEventsBeforeFork+skipEvents)
-	 && m_evtSelSeek->seek(*m_evtContext, m_nEventsBeforeFork+skipEvents).isFailure()) {
-	ATH_MSG_ERROR("Unable to seek to " << m_nEventsBeforeFork+skipEvents);    
-	all_ok = false;
-      }
-    }
+  IHybridProcessorHelper* hybridHelper = dynamic_cast<IHybridProcessorHelper*>(m_evtProcessor.get());
+  if(!hybridHelper) {
+    ATH_MSG_FATAL("Failed to acquire IHybridProcessorHelper interface");
+    all_ok = false;
   }
-  // ________________________ This is needed only for PileUp jobs __________________________________
+  // Reset the application return code.
+  hybridHelper->resetAppReturnCode();
 
-
+  int finishedEvts =0;
+  int createdEvts =0;
   long intmask = pow(0x100,sizeof(int))-1; // Mask for decoding event number from the value posted to the queue
-  int nEvt(m_nEventsBeforeFork);
-  int nEventsProcessed(0);
   long evtnumAndChunk(0);
-
-  unsigned evtCounter(0);
+//  unsigned evtCounter(0);
   int evtnum(0), chunkSize(1);
 
-  // For the round robin we need to know the maximum number of events for this job
-  if(m_isRoundRobin) {
-    evtnumAndChunk = 1;
-    while(evtnumAndChunk>0) {
-      if(!m_sharedEventQueue->try_receive_basic<long>(evtnumAndChunk)) {
-        usleep(1000);
-      }
-    }
-    evtnumAndChunk *= -1;
+  ATH_MSG_INFO("Starting loop on events");
+
+  StatusCode sc(StatusCode::SUCCESS);
+
+  while(!m_sharedEventQueue->try_receive_basic<long>(evtnumAndChunk)) {
+    ATH_MSG_DEBUG("Event queue is empty");
+    usleep(1000);
   }
-  
-  if(all_ok) {
-    while(true) {
-      if(m_isRoundRobin) {
-	evtnum = skipEvents + m_nprocs*evtCounter + m_rankId; 
-	if(evtnum>=evtnumAndChunk+skipEvents) {
-          break;
-        }
-	evtCounter++;
+  bool loop_ended = (evtnumAndChunk<0);
+  if(!loop_ended) {
+    ATH_MSG_DEBUG("Received value from the queue 0x" << std::hex << evtnumAndChunk << std::dec);
+    chunkSize = evtnumAndChunk >> (sizeof(int)*8);
+    evtnum = evtnumAndChunk & intmask;
+    ATH_MSG_INFO("Received from the queue: event num=" << evtnum << " chunk size=" << chunkSize);
+    hybridHelper->setCurrentEventNum(++evtnum);
+  }
+
+  bool no_more_events = false;
+
+  while(!loop_ended) {
+    ATH_MSG_DEBUG(" -> createdEvts: " << createdEvts);
+
+    if(!hybridHelper->terminateLoop()         // No scheduled loop termination
+       && !no_more_events                     // We are not yet done getting events
+       && m_schedulerSvc->freeSlots()>0) {    // There are still free slots in the scheduler
+      ATH_MSG_DEBUG("createdEvts: " << createdEvts << ", freeslots: " << m_schedulerSvc->freeSlots());
+
+      auto ctx = m_evtProcessor->createEventContext();
+      if(!ctx.valid()) {
+        sc = StatusCode::FAILURE;
       }
       else {
-	if(!m_sharedEventQueue->try_receive_basic<long>(evtnumAndChunk)) {
-	  // The event queue is empty, but we should check whether there are more events to come or not
-	  ATH_MSG_DEBUG("Event queue is empty"); 
-	  usleep(1000);
-	  continue;
-	}
-	if(evtnumAndChunk<=0) {
-	  evtnumAndChunk *= -1;
-	  ATH_MSG_DEBUG("No more events are expected. The total number of events for this job = " << evtnumAndChunk);
-	  break;
-	}
-	while (m_schedulerSvc->freeSlots() < 1) {
-	  ATH_MSG_DEBUG("waiting for a free scheduler slot");
-	  usleep(1000000);
-	}
+        sc = m_evtProcessor->executeEvent(std::move(ctx));
+      }
 
-	ATH_MSG_DEBUG("Received value from the queue 0x" << std::hex << evtnumAndChunk << std::dec);
-	chunkSize = evtnumAndChunk >> (sizeof(int)*8);
-	evtnum = evtnumAndChunk & intmask;
-	ATH_MSG_INFO("Received from the queue: event num=" << evtnum << " chunk size=" << chunkSize);
+      if (sc.isFailure()) {
+        ATH_MSG_ERROR("Terminating event processing loop due to errors");
+        loop_ended = true;
       }
-      nEvt+=chunkSize;
-      StatusCode sc;
-      if(m_useSharedReader) {
-	sc = m_evtShare->share(evtnum);
-	if(sc.isFailure()){
-	  ATH_MSG_ERROR("Unable to share " << evtnum);
-	  all_ok=false;
-	  break;
-	} else {
-	  ATH_MSG_INFO("Share of " << evtnum << " succeeded");
+      else {
+	++createdEvts;
+	if(--chunkSize==0) {
+	  // Fetch next chunk
+	  while(!m_sharedEventQueue->try_receive_basic<long>(evtnumAndChunk)) {
+	    ATH_MSG_DEBUG("Event queue is empty");
+	    usleep(1000);
+	  }
+	  if(evtnumAndChunk<0) {
+	    no_more_events = true;
+	    evtnumAndChunk *= -1;
+	    ATH_MSG_DEBUG("No more events are expected. The total number of events for this job = " << evtnumAndChunk);
+	  }
+	  else {
+	    ATH_MSG_DEBUG("Received value from the queue 0x" << std::hex << evtnumAndChunk << std::dec);
+	    chunkSize = evtnumAndChunk >> (sizeof(int)*8);
+	    evtnum = evtnumAndChunk & intmask;
+	    ATH_MSG_INFO("Received from the queue: event num=" << evtnum << " chunk size=" << chunkSize);
+	  }
 	}
-      } else {
-	m_chronoStatSvc->chronoStart("AthenaMP_seek");
-        if (m_evtSeek) {
-          sc=m_evtSeek->seek(evtnum);
-        }
-        else {
-          sc=m_evtSelSeek->seek(*m_evtContext, evtnum);
-        }
-	if(sc.isFailure()){
-	  ATH_MSG_ERROR("Unable to seek to " << evtnum);
-	  all_ok=false;
-	  break;
-	} else {
-	  ATH_MSG_INFO("Seek to " << evtnum << " succeeded");
+	// Advance to the next event
+	if(!no_more_events) {
+	  hybridHelper->setCurrentEventNum(++evtnum);
 	}
-	m_chronoStatSvc->chronoStop("AthenaMP_seek");
       }
-      m_chronoStatSvc->chronoStart("AthenaMP_nextEvent");
-      sc = m_evtProcessor->nextEvent(chunkSize);
-      nEventsProcessed += chunkSize;
-      if(sc.isFailure()){
-	if(chunkSize==1)
-	  ATH_MSG_ERROR("Unable to process event " << evtnum);
-	else
-	  ATH_MSG_ERROR("Unable to process the chunk (" << evtnum << "," << evtnum+chunkSize-1 << ")");
-	all_ok=false;
-	break;
-      }
-      m_chronoStatSvc->chronoStop("AthenaMP_nextEvent"); 
     }
-  }
+    else {
+      // all the events were created but not all finished or the slots were
+      // all busy: the scheduler should finish its job
+      ATH_MSG_DEBUG("Draining the scheduler");
+
+      // Pull out of the scheduler the finished events
+      int ir = hybridHelper->drainScheduler(finishedEvts,true);
+      if(ir < 0) {
+        // some sort of error draining scheduler;
+        loop_ended = true;
+        sc = StatusCode::FAILURE;
+      }
+      else if(ir == 0) {
+	// no more events in scheduler
+        if(no_more_events) {
+          // We are done
+          loop_ended = true;
+          sc = StatusCode::SUCCESS;
+        }
+      }
+      else {
+        // keep going!
+      }
+    }
+  } // end main loop on finished events
 
   if(all_ok) {
     if(m_evtProcessor->executeRun(0).isFailure()) {
       ATH_MSG_ERROR("Could not finalize the Run");
       all_ok=false;
     } else {
-      StatusCode sc;
-      if (m_evtSeek) {
-        sc = m_evtSeek->seek(evtnumAndChunk+skipEvents);
-      }
-      else {
-        sc = m_evtSelSeek->seek(*m_evtContext, evtnumAndChunk+skipEvents);
-      }
-      if(sc.isFailure()) { 
+      if(m_evtSelSeek->seek(*m_evtContext, evtnumAndChunk+skipEvents).isFailure()) { 
 	ATH_MSG_DEBUG("Seek past maxevt to " << evtnumAndChunk+skipEvents << " returned failure. As expected...");
       }
     }
@@ -599,7 +524,7 @@ SharedHiveEvtQueueConsumer::exec_func()
   *(int*)(outdata) = (all_ok?0:1); // Error code: for now use 0 success, 1 failure
   AthenaMPToolBase::Func_Flag func = AthenaMPToolBase::FUNC_EXEC;
   memcpy((char*)outdata+sizeof(int),&func,sizeof(func));
-  memcpy((char*)outdata+sizeof(int)+sizeof(func),&nEventsProcessed,sizeof(int));
+  memcpy((char*)outdata+sizeof(int)+sizeof(func),&createdEvts,sizeof(int));
 
   outwork->data = outdata;
   outwork->size = outsize;
@@ -728,7 +653,7 @@ SharedHiveEvtQueueConsumer::initHive() {
       }
     }      
 
-    m_evtProcessor = ServiceHandle<IEventProcessor>("AthenaHiveEventLoopMgr",name());
+    m_evtProcessor = ServiceHandle<IEventProcessor>("AthenaMtesEventLoopMgr",name());
 
     if (m_evtProcessor.retrieve().isFailure()) {
       ATH_MSG_ERROR("could not setup " << m_evtProcessor.typeAndName());

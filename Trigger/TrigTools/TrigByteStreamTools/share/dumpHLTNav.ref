@@ -1,0 +1,906 @@
+Py:dumpHLTNav        INFO Opening /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data20_test/data_test.00386043.physics_Main.daq.RAW._lb0007._SFO-1._0001.data
+==================== Event: 372, Run: 386043, LB: 7, Global_ID: 1882877 ====================
+- ROB SourceID: TDAQ_HLT, module=0 (opt=0)
+  - HLTNav_EgammaFastElectronHypoMT
+    - Element #0
+      - name: 
+      - decisions: { 1703681121 }
+      - decorations:
+        - remap_linkColKeys = { 747404318, 1059160703 }
+        - remap_linkColIndices = { 0, 0 }
+    - Element #1
+      - name: 
+      - decisions: { 1703681121 }
+      - decorations:
+        - remap_linkColKeys = { 747404318, 1059160703 }
+        - remap_linkColIndices = { 1, 0 }
+    - Element #2
+      - name: 
+      - decisions: { 1703681121 }
+      - decorations:
+        - remap_linkColKeys = { 747404318, 1059160703 }
+        - remap_linkColIndices = { 2, 0 }
+    - Element #3
+      - name: 
+      - decisions: { 1703681121 }
+      - decorations:
+        - remap_linkColKeys = { 747404318, 1059160703 }
+        - remap_linkColIndices = { 3, 0 }
+    - Element #4
+      - name: 
+      - decisions: { 1703681121 }
+      - decorations:
+        - remap_linkColKeys = { 747404318, 1059160703 }
+        - remap_linkColIndices = { 4, 0 }
+    - Element #5
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 747404318, 1059160703 }
+        - remap_linkColIndices = { 5, 0 }
+    - Element #6
+      - name: 
+      - decisions: { 1703681121 }
+      - decorations:
+        - remap_linkColKeys = { 747404318, 1059160703 }
+        - remap_linkColIndices = { 6, 0 }
+    - Element #7
+      - name: 
+      - decisions: { 1703681121 }
+      - decorations:
+        - remap_linkColKeys = { 747404318, 1059160703 }
+        - remap_linkColIndices = { 7, 0 }
+  - HLTNav_ElectronEgammaFastCaloHypo
+    - Element #0
+      - name: ElectronEgammaFastCaloHypo
+      - decisions: { 1703681121 }
+      - decorations:
+        - remap_linkColKeys = { 479031894, 38343384, 934054982, 980651412 }
+        - remap_linkColIndices = { 0, 0, 1, 0 }
+  - HLTNav_ElectronprecisionCaloHypo
+    - Element #0
+      - name: ElectronprecisionCaloHypo
+      - decisions: { 1703681121 }
+      - decorations:
+        - remap_linkColKeys = { 200651841, 872138759, 934054982 }
+        - remap_linkColIndices = { 0, 0, 1 }
+    - Element #1
+      - name: ElectronprecisionCaloHypo
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 200651841, 872138759, 934054982 }
+        - remap_linkColIndices = { 1, 0, 1 }
+  - HLTNav_ElectronprecisionEtcutHypo
+    - Element #0
+      - name: ElectronprecisionEtcutHypo
+      - decisions: { 1703681121 }
+      - decorations:
+        - remap_linkColKeys = { 200651841, 119565281 }
+        - remap_linkColIndices = { 0, 0 }
+  - HLTNav_FStep1_1FastCalo_electron__L1EM
+    - Element #0
+      - name: F
+      - decisions: { 1703681121 }
+  - HLTNav_FStep1_1PhotonFastCalo__L1EM
+    - Element #0
+      - name: F
+      - decisions: { 1045486446 }
+  - HLTNav_FStep2_1fast_electron__ElectronEgammaFastCaloHypo
+    - Element #0
+      - name: F
+      - decisions: { 1703681121 }
+  - HLTNav_FStep3_1precisionCalo_electron__EgammaFastElectronHypoMT
+    - Element #0
+      - name: F
+      - decisions: { 1703681121 }
+    - Element #1
+      - name: F
+      - decisions: { 1703681121 }
+    - Element #2
+      - name: F
+      - decisions: { 1703681121 }
+    - Element #3
+      - name: F
+      - decisions: { 1703681121 }
+    - Element #4
+      - name: F
+      - decisions: { 1703681121 }
+    - Element #5
+      - name: F
+      - decisions: { 1703681121 }
+    - Element #6
+      - name: F
+      - decisions: { 1703681121 }
+  - HLTNav_FStep4_1precisionTracking_electron__ElectronprecisionCaloHypo
+    - Element #0
+      - name: F
+      - decisions: { 1703681121 }
+  - HLTNav_IMfastCalo
+    - Element #0
+      - name: IM
+      - decisions: { 1045486446, 1703681121 }
+  - HLTNav_IMl2Electron
+    - Element #0
+      - name: IM
+      - decisions: { 1703681121 }
+  - HLTNav_IMprecisionCalo
+    - Element #0
+      - name: IM
+      - decisions: { 1703681121 }
+  - HLTNav_IMprecisionEtcut
+    - Element #0
+      - name: IM
+      - decisions: { 1703681121 }
+  - HLTNav_L1EM
+    - Element #0
+      - name: L1
+      - decisions: {}
+    - Element #1
+      - name: L1
+      - decisions: { 1045486446, 1703681121 }
+    - Element #2
+      - name: L1
+      - decisions: {}
+    - Element #3
+      - name: L1
+      - decisions: {}
+  - HLTNav_L1FSNOSEED
+    - Element #0
+      - name: L1
+      - decisions: {}
+  - HLTNav_L1J
+    - Element #0
+      - name: L1
+      - decisions: {}
+  - HLTNav_L1MET
+    - Element #0
+      - name: L1
+      - decisions: {}
+  - HLTNav_L1TAU
+    - Element #0
+      - name: L1
+      - decisions: {}
+  - HLTNav_PhotonEgammaFastCaloHypo
+    - Element #0
+      - name: PhotonEgammaFastCaloHypo
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 479031894, 38343384, 934054982, 980651412 }
+        - remap_linkColIndices = { 0, 0, 1, 0 }
+  - HLTNav_Summary
+    - Element #0
+      - name: HLTPassRaw
+      - decisions: { 1703681121 }
+    - Element #1
+      - name: HLTPrescaled
+      - decisions: {}
+    - Element #2
+      - name: F
+      - decisions: { 1703681121 }
+==================== Event: 373, Run: 386043, LB: 7, Global_ID: 1862814 ====================
+- ROB SourceID: TDAQ_HLT, module=0 (opt=0)
+  - HLTNav_ComboHypo_merged_stepA_cell_stepA_tcpufit_METHypo_cell
+    - Element #0
+      - name: CH
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 730749741 }
+        - remap_linkColIndices = { 0 }
+  - HLTNav_ComboHypo_merged_stepA_cell_stepA_tcpufit_METHypo_tcpufit
+    - Element #0
+      - name: CH
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 399440413 }
+        - remap_linkColIndices = { 0 }
+  - HLTNav_EgammaFastElectronHypoMT
+    - Element #0
+      - name: 
+      - decisions: { 1703681121 }
+      - decorations:
+        - remap_linkColKeys = { 747404318, 1059160703 }
+        - remap_linkColIndices = { 0, 0 }
+    - Element #1
+      - name: 
+      - decisions: { 1703681121 }
+      - decorations:
+        - remap_linkColKeys = { 747404318, 1059160703 }
+        - remap_linkColIndices = { 1, 0 }
+    - Element #2
+      - name: 
+      - decisions: { 1703681121 }
+      - decorations:
+        - remap_linkColKeys = { 747404318, 1059160703 }
+        - remap_linkColIndices = { 2, 0 }
+    - Element #3
+      - name: 
+      - decisions: { 1703681121 }
+      - decorations:
+        - remap_linkColKeys = { 747404318, 1059160703 }
+        - remap_linkColIndices = { 3, 0 }
+    - Element #4
+      - name: 
+      - decisions: { 1703681121 }
+      - decorations:
+        - remap_linkColKeys = { 747404318, 1059160703 }
+        - remap_linkColIndices = { 4, 0 }
+    - Element #5
+      - name: 
+      - decisions: { 1703681121 }
+      - decorations:
+        - remap_linkColKeys = { 747404318, 1059160703 }
+        - remap_linkColIndices = { 5, 0 }
+    - Element #6
+      - name: 
+      - decisions: { 1703681121 }
+      - decorations:
+        - remap_linkColKeys = { 747404318, 1059160703 }
+        - remap_linkColIndices = { 6, 0 }
+  - HLTNav_ElectronEgammaFastCaloHypo
+    - Element #0
+      - name: ElectronEgammaFastCaloHypo
+      - decisions: { 1703681121 }
+      - decorations:
+        - remap_linkColKeys = { 479031894, 38343384, 934054982, 980651412 }
+        - remap_linkColIndices = { 0, 0, 0, 0 }
+  - HLTNav_ElectronprecisionCaloHypo
+    - Element #0
+      - name: ElectronprecisionCaloHypo
+      - decisions: { 1703681121 }
+      - decorations:
+        - remap_linkColKeys = { 200651841, 872138759, 934054982 }
+        - remap_linkColIndices = { 0, 0, 0 }
+  - HLTNav_ElectronprecisionEtcutHypo
+    - Element #0
+      - name: ElectronprecisionEtcutHypo
+      - decisions: { 1703681121 }
+      - decorations:
+        - remap_linkColKeys = { 200651841, 119565281 }
+        - remap_linkColIndices = { 0, 0 }
+  - HLTNav_FStep1_1FastCalo_electron__L1EM
+    - Element #0
+      - name: F
+      - decisions: { 1703681121 }
+  - HLTNav_FStep1_1MVA_tau__L1TAU
+    - Element #0
+      - name: F
+      - decisions: { 1747754287 }
+  - HLTNav_FStep1_1PhotonFastCalo__L1EM
+    - Element #0
+      - name: F
+      - decisions: { 1045486446 }
+  - HLTNav_FStep1_CaloRecoPTStep_jet_em__L1J
+    - Element #0
+      - name: F
+      - decisions: { 9543810, 219711753, 540369970, 710546402, 2074989613, 4176355792 }
+  - HLTNav_FStep1_MainStep_jet_a10_tc_lcw_subjes__L1J
+    - Element #0
+      - name: F
+      - decisions: { 3327656707 }
+  - HLTNav_FStep1_MainStep_jet_a10r_tc_em_subjesIS__L1J
+    - Element #0
+      - name: F
+      - decisions: { 1151767619 }
+  - HLTNav_FStep1_MainStep_jet_a10t_tc_lcw_jes__L1J
+    - Element #0
+      - name: F
+      - decisions: { 436385969, 1295975955, 2296827117 }
+  - HLTNav_FStep1_MainStep_jet_a4_tc_em_subjesIS__L1J
+    - Element #0
+      - name: F
+      - decisions: { 2199422919, 2659902019 }
+  - HLTNav_FStep1_merged_stepA_cell_stepA_tcpufit__L1MET
+    - Element #0
+      - name: F
+      - decisions: { 178780160, 3426416161 }
+  - HLTNav_FStep1_stepA_cell__L1MET
+    - Element #0
+      - name: F
+      - decisions: { 531141817 }
+  - HLTNav_FStep1_stepA_mht__L1MET
+    - Element #0
+      - name: F
+      - decisions: { 532175988 }
+  - HLTNav_FStep1_stepA_pfsum__L1MET
+    - Element #0
+      - name: F
+      - decisions: { 1890237897 }
+  - HLTNav_FStep1_stepA_tcpufit__L1MET
+    - Element #0
+      - name: F
+      - decisions: { 2803198799 }
+  - HLTNav_FStep1_stepA_trkmht__L1MET
+    - Element #0
+      - name: F
+      - decisions: { 1055916731 }
+  - HLTNav_FStep2_1FTFCore_tau__TauL2CaloMVAHypo
+    - Element #0
+      - name: F
+      - decisions: { 1747754287 }
+  - HLTNav_FStep2_1fast_electron__ElectronEgammaFastCaloHypo
+    - Element #0
+      - name: F
+      - decisions: { 1703681121 }
+  - HLTNav_FStep2_MainStep_jet_a4_pf_em_subjesgscIS_ftf_nopresel__StreamerHypoMT_caloReco
+    - Element #0
+      - name: F
+      - decisions: { 9543810 }
+  - HLTNav_FStep2_MainStep_jet_a4_tc_em_subjesgscIS_ftf_nopresel__StreamerHypoMT_caloReco
+    - Element #0
+      - name: F
+      - decisions: { 219711753, 540369970, 710546402, 2074989613, 4176355792 }
+  - HLTNav_FStep2_stepB_pfsum__METPassThroughHypo_pfsum_step0
+    - Element #0
+      - name: F
+      - decisions: { 1890237897 }
+  - HLTNav_FStep2_stepB_trkmht__METPassThroughHypo_trkmht_step0
+    - Element #0
+      - name: F
+      - decisions: { 1055916731 }
+  - HLTNav_FStep3_1precisionCalo_electron__EgammaFastElectronHypoMT
+    - Element #0
+      - name: F
+      - decisions: { 1703681121 }
+    - Element #1
+      - name: F
+      - decisions: { 1703681121 }
+    - Element #2
+      - name: F
+      - decisions: { 1703681121 }
+    - Element #3
+      - name: F
+      - decisions: { 1703681121 }
+    - Element #4
+      - name: F
+      - decisions: { 1703681121 }
+    - Element #5
+      - name: F
+      - decisions: { 1703681121 }
+    - Element #6
+      - name: F
+      - decisions: { 1703681121 }
+  - HLTNav_FStep4_1precisionTracking_electron__ElectronprecisionCaloHypo
+    - Element #0
+      - name: F
+      - decisions: { 1703681121 }
+  - HLTNav_IMFTFCore
+    - Element #0
+      - name: IM
+      - decisions: { 1747754287 }
+  - HLTNav_IM_Jet_TrackingStep
+    - Element #0
+      - name: IM
+      - decisions: { 9543810, 219711753, 540369970, 710546402, 1055916731, 1890237897, 2074989613, 4176355792 }
+  - HLTNav_IMclusterFS
+    - Element #0
+      - name: IM
+      - decisions: { 9543810, 178780160, 219711753, 436385969, 531141817, 532175988, 540369970, 710546402, 1055916731, 1151767619, 1295975955, 1890237897, 2074989613, 2199422919, 2296827117, 2659902019, 2803198799, 3327656707, 3426416161, 4176355792 }
+  - HLTNav_IMfastCalo
+    - Element #0
+      - name: IM
+      - decisions: { 1045486446, 1703681121 }
+  - HLTNav_IMl2Electron
+    - Element #0
+      - name: IM
+      - decisions: { 1703681121 }
+  - HLTNav_IMprecisionCalo
+    - Element #0
+      - name: IM
+      - decisions: { 1703681121 }
+  - HLTNav_IMprecisionEtcut
+    - Element #0
+      - name: IM
+      - decisions: { 1703681121 }
+  - HLTNav_IMtauCaloMVA
+    - Element #0
+      - name: IM
+      - decisions: { 1747754287 }
+  - HLTNav_JetHypoMT_a10_tc_lcw_subjes
+    - Element #0
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 127227708, 692506953 }
+        - remap_linkColIndices = { 0, 0 }
+    - Element #1
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 127227708, 692506953 }
+        - remap_linkColIndices = { 0, 1 }
+  - HLTNav_JetHypoMT_a10r_tc_em_subjesIS
+    - Element #0
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 127227708, 1033619373 }
+        - remap_linkColIndices = { 0, 0 }
+    - Element #1
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 127227708, 1033619373 }
+        - remap_linkColIndices = { 0, 1 }
+    - Element #2
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 127227708, 1033619373 }
+        - remap_linkColIndices = { 0, 2 }
+    - Element #3
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 127227708, 1033619373 }
+        - remap_linkColIndices = { 0, 3 }
+    - Element #4
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 127227708, 1033619373 }
+        - remap_linkColIndices = { 0, 4 }
+  - HLTNav_JetHypoMT_a10t_tc_lcw_jes
+    - Element #0
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 127227708, 700592637 }
+        - remap_linkColIndices = { 0, 0 }
+    - Element #1
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 127227708, 700592637 }
+        - remap_linkColIndices = { 0, 1 }
+  - HLTNav_JetHypoMT_a4_pf_em_subjesgscIS_ftf_nopresel
+    - Element #0
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 524125022, 6287203 }
+        - remap_linkColIndices = { 0, 0 }
+    - Element #1
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 524125022, 6287203 }
+        - remap_linkColIndices = { 0, 1 }
+    - Element #2
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 524125022, 6287203 }
+        - remap_linkColIndices = { 0, 2 }
+    - Element #3
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 524125022, 6287203 }
+        - remap_linkColIndices = { 0, 3 }
+    - Element #4
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 524125022, 6287203 }
+        - remap_linkColIndices = { 0, 4 }
+    - Element #5
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 524125022, 6287203 }
+        - remap_linkColIndices = { 0, 5 }
+    - Element #6
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 524125022, 6287203 }
+        - remap_linkColIndices = { 0, 6 }
+    - Element #7
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 524125022, 6287203 }
+        - remap_linkColIndices = { 0, 7 }
+    - Element #8
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 524125022, 6287203 }
+        - remap_linkColIndices = { 0, 8 }
+    - Element #9
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 524125022, 6287203 }
+        - remap_linkColIndices = { 0, 9 }
+  - HLTNav_JetHypoMT_a4_tc_em_subjesIS
+    - Element #0
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 127227708, 438481156 }
+        - remap_linkColIndices = { 0, 0 }
+    - Element #1
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 127227708, 438481156 }
+        - remap_linkColIndices = { 0, 1 }
+    - Element #2
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 127227708, 438481156 }
+        - remap_linkColIndices = { 0, 2 }
+    - Element #3
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 127227708, 438481156 }
+        - remap_linkColIndices = { 0, 3 }
+    - Element #4
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 127227708, 438481156 }
+        - remap_linkColIndices = { 0, 4 }
+    - Element #5
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 127227708, 438481156 }
+        - remap_linkColIndices = { 0, 5 }
+    - Element #6
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 127227708, 438481156 }
+        - remap_linkColIndices = { 0, 6 }
+    - Element #7
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 127227708, 438481156 }
+        - remap_linkColIndices = { 0, 7 }
+  - HLTNav_JetHypoMT_a4_tc_em_subjesgscIS_ftf_nopresel
+    - Element #0
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 524125022, 836019067 }
+        - remap_linkColIndices = { 0, 0 }
+    - Element #1
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 524125022, 836019067 }
+        - remap_linkColIndices = { 0, 1 }
+    - Element #2
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 524125022, 836019067 }
+        - remap_linkColIndices = { 0, 2 }
+    - Element #3
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 524125022, 836019067 }
+        - remap_linkColIndices = { 0, 3 }
+    - Element #4
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 524125022, 836019067 }
+        - remap_linkColIndices = { 0, 4 }
+    - Element #5
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 524125022, 836019067 }
+        - remap_linkColIndices = { 0, 5 }
+    - Element #6
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 524125022, 836019067 }
+        - remap_linkColIndices = { 0, 6 }
+    - Element #7
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 524125022, 836019067 }
+        - remap_linkColIndices = { 0, 7 }
+  - HLTNav_L1EM
+    - Element #0
+      - name: L1
+      - decisions: { 1045486446, 1703681121 }
+    - Element #1
+      - name: L1
+      - decisions: {}
+    - Element #2
+      - name: L1
+      - decisions: {}
+    - Element #3
+      - name: L1
+      - decisions: {}
+    - Element #4
+      - name: L1
+      - decisions: {}
+  - HLTNav_L1FSNOSEED
+    - Element #0
+      - name: L1
+      - decisions: { 268928384, 1026959128, 1168752081, 2742079961, 3765216228, 4154240531 }
+  - HLTNav_L1J
+    - Element #0
+      - name: L1
+      - decisions: { 9543810, 219711753, 436385969, 540369970, 710546402, 1151767619, 1295975955, 2074989613, 2199422919, 2296827117, 2659902019, 3327656707, 4176355792 }
+  - HLTNav_L1MET
+    - Element #0
+      - name: L1
+      - decisions: { 115518400, 178780160, 531141817, 532175988, 1055916731, 1890237897, 2803198799, 3426416161 }
+  - HLTNav_L1TAU
+    - Element #0
+      - name: L1
+      - decisions: { 1747754287 }
+    - Element #1
+      - name: L1
+      - decisions: {}
+  - HLTNav_METHypo_cell
+    - Element #0
+      - name: 
+      - decisions: { 531141817, 178780160 }
+      - decorations:
+        - remap_linkColKeys = { 127227708, 996258882 }
+        - remap_linkColIndices = { 0, 0 }
+  - HLTNav_METHypo_mht
+    - Element #0
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 127227708, 972048818 }
+        - remap_linkColIndices = { 0, 0 }
+  - HLTNav_METHypo_pfsum
+    - Element #0
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 524125022, 529799289 }
+        - remap_linkColIndices = { 0, 0 }
+  - HLTNav_METHypo_tcpufit
+    - Element #0
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 127227708, 266270523 }
+        - remap_linkColIndices = { 0, 0 }
+  - HLTNav_METHypo_trkmht
+    - Element #0
+      - name: 
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 524125022, 499901064 }
+        - remap_linkColIndices = { 0, 0 }
+  - HLTNav_METPassThroughHypo_pfsum_step0
+    - Element #0
+      - name: 
+      - decisions: { 1890237897 }
+      - decorations:
+        - remap_linkColKeys = { 127227708, 372952377 }
+        - remap_linkColIndices = { 0, 0 }
+  - HLTNav_METPassThroughHypo_trkmht_step0
+    - Element #0
+      - name: 
+      - decisions: { 1055916731 }
+      - decorations:
+        - remap_linkColKeys = { 127227708, 372952377 }
+        - remap_linkColIndices = { 0, 0 }
+  - HLTNav_PhotonEgammaFastCaloHypo
+    - Element #0
+      - name: PhotonEgammaFastCaloHypo
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 479031894, 38343384, 934054982, 980651412 }
+        - remap_linkColIndices = { 0, 0, 0, 0 }
+  - HLTNav_StreamerHypoMT_caloReco
+    - Element #0
+      - name: 
+      - decisions: { 219711753, 710546402, 2074989613, 4176355792, 9543810, 540369970 }
+      - decorations:
+        - remap_linkColKeys = { 127227708, 372952377 }
+        - remap_linkColIndices = { 0, 0 }
+  - HLTNav_Summary
+    - Element #0
+      - name: HLTPassRaw
+      - decisions: { 268928384, 531141817, 1026959128, 1168752081, 1703681121, 2742079961, 3765216228, 4154240531 }
+    - Element #1
+      - name: HLTPrescaled
+      - decisions: {}
+    - Element #2
+      - name: F
+      - decisions: { 1703681121 }
+    - Element #3
+      - name: F
+      - decisions: { 531141817 }
+    - Element #4
+      - name: F
+      - decisions: { 268928384, 1026959128, 1168752081, 2742079961, 3765216228, 4154240531 }
+  - HLTNav_TauL2CaloMVAHypo
+    - Element #0
+      - name: TauL2CaloMVAHypo
+      - decisions: { 1747754287 }
+      - decorations:
+        - remap_linkColKeys = { 604601177, 342825773, 219951040 }
+        - remap_linkColIndices = { 0, 0, 0 }
+  - HLTNav_TrackPreSelHypo_RejectEmpty
+    - Element #0
+      - name: TrackPreSelHypoAlg_RejectEmpty
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 762019972, 930058764 }
+        - remap_linkColIndices = { 0, 0 }
+==================== Event: 374, Run: 386043, LB: 7, Global_ID: 1881003 ====================
+- ROB SourceID: TDAQ_HLT, module=0 (opt=0)
+  - HLTNav_EgammaFastElectronHypoMT
+    - Element #0
+      - name: 
+      - decisions: { 1703681121 }
+      - decorations:
+        - remap_linkColKeys = { 747404318, 1059160703 }
+        - remap_linkColIndices = { 0, 0 }
+    - Element #1
+      - name: 
+      - decisions: { 1703681121 }
+      - decorations:
+        - remap_linkColKeys = { 747404318, 1059160703 }
+        - remap_linkColIndices = { 1, 0 }
+    - Element #2
+      - name: 
+      - decisions: { 1703681121 }
+      - decorations:
+        - remap_linkColKeys = { 747404318, 1059160703 }
+        - remap_linkColIndices = { 2, 0 }
+  - HLTNav_ElectronEgammaFastCaloHypo
+    - Element #0
+      - name: ElectronEgammaFastCaloHypo
+      - decisions: { 1703681121 }
+      - decorations:
+        - remap_linkColKeys = { 479031894, 38343384, 934054982, 980651412 }
+        - remap_linkColIndices = { 0, 0, 3, 0 }
+  - HLTNav_ElectronprecisionCaloHypo
+    - Element #0
+      - name: ElectronprecisionCaloHypo
+      - decisions: { 1703681121 }
+      - decorations:
+        - remap_linkColKeys = { 200651841, 872138759, 934054982 }
+        - remap_linkColIndices = { 0, 0, 3 }
+    - Element #1
+      - name: ElectronprecisionCaloHypo
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 200651841, 872138759, 934054982 }
+        - remap_linkColIndices = { 1, 0, 3 }
+    - Element #2
+      - name: ElectronprecisionCaloHypo
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 200651841, 872138759, 934054982 }
+        - remap_linkColIndices = { 2, 0, 3 }
+  - HLTNav_ElectronprecisionEtcutHypo
+    - Element #0
+      - name: ElectronprecisionEtcutHypo
+      - decisions: { 1703681121 }
+      - decorations:
+        - remap_linkColKeys = { 200651841, 119565281 }
+        - remap_linkColIndices = { 0, 0 }
+  - HLTNav_FStep1_1FastCalo_electron__L1EM
+    - Element #0
+      - name: F
+      - decisions: { 1703681121 }
+  - HLTNav_FStep1_1PhotonFastCalo__L1EM
+    - Element #0
+      - name: F
+      - decisions: { 1045486446 }
+  - HLTNav_FStep1_PEBInfoWriter_CostMonDS__L1FSNOSEED
+    - Element #0
+      - name: F
+      - decisions: { 843341480 }
+  - HLTNav_FStep2_1fast_electron__ElectronEgammaFastCaloHypo
+    - Element #0
+      - name: F
+      - decisions: { 1703681121 }
+  - HLTNav_FStep3_1precisionCalo_electron__EgammaFastElectronHypoMT
+    - Element #0
+      - name: F
+      - decisions: { 1703681121 }
+    - Element #1
+      - name: F
+      - decisions: { 1703681121 }
+    - Element #2
+      - name: F
+      - decisions: { 1703681121 }
+  - HLTNav_FStep4_1precisionTracking_electron__ElectronprecisionCaloHypo
+    - Element #0
+      - name: F
+      - decisions: { 1703681121 }
+  - HLTNav_IMfastCalo
+    - Element #0
+      - name: IM
+      - decisions: { 1045486446, 1703681121 }
+  - HLTNav_IMl2Electron
+    - Element #0
+      - name: IM
+      - decisions: { 1703681121 }
+  - HLTNav_IMpeb_CostMonDS
+    - Element #0
+      - name: IM
+      - decisions: { 843341480 }
+  - HLTNav_IMprecisionCalo
+    - Element #0
+      - name: IM
+      - decisions: { 1703681121 }
+  - HLTNav_IMprecisionEtcut
+    - Element #0
+      - name: IM
+      - decisions: { 1703681121 }
+  - HLTNav_L1EM
+    - Element #0
+      - name: L1
+      - decisions: {}
+    - Element #1
+      - name: L1
+      - decisions: {}
+    - Element #2
+      - name: L1
+      - decisions: {}
+    - Element #3
+      - name: L1
+      - decisions: { 1045486446, 1703681121 }
+  - HLTNav_L1FSNOSEED
+    - Element #0
+      - name: L1
+      - decisions: { 843341480 }
+  - HLTNav_L1J
+    - Element #0
+      - name: L1
+      - decisions: {}
+  - HLTNav_L1MET
+    - Element #0
+      - name: L1
+      - decisions: {}
+  - HLTNav_L1TAU
+    - Element #0
+      - name: L1
+      - decisions: {}
+    - Element #1
+      - name: L1
+      - decisions: {}
+  - HLTNav_PEBInfoWriter_CostMonDS
+    - Element #0
+      - name: 
+      - decisions: { 843341480 }
+      - decorations:
+        - remap_linkColKeys = { 105658581, 486731958, 372952377 }
+        - remap_linkColIndices = { 0, 0, 0 }
+        - PEBROBList = { 8126465 }
+        - PEBSubDetList = {}
+  - HLTNav_PhotonEgammaFastCaloHypo
+    - Element #0
+      - name: PhotonEgammaFastCaloHypo
+      - decisions: {}
+      - decorations:
+        - remap_linkColKeys = { 479031894, 38343384, 934054982, 980651412 }
+        - remap_linkColIndices = { 0, 0, 3, 0 }
+  - HLTNav_Summary
+    - Element #0
+      - name: HLTPassRaw
+      - decisions: { 843341480, 1703681121 }
+    - Element #1
+      - name: HLTPrescaled
+      - decisions: {}
+    - Element #2
+      - name: F
+      - decisions: { 1703681121 }
+    - Element #3
+      - name: F
+      - decisions: { 843341480 }

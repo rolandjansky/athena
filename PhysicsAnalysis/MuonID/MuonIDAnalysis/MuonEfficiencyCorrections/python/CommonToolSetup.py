@@ -11,26 +11,25 @@ def AssembleIO(stream="TRIGGERSFTESTER"):
         print ("INFO: Old athfile-cache found. Will delete it otherwise athena just freaks out. This little boy")
         os.system("rm %s/athfile-cache.ascii.gz" % (os.getcwd()))
     from GaudiSvc.GaudiSvcConf import THistSvc
-    from AthenaCommon.JobProperties import jobproperties
-    import AthenaPoolCnvSvc.ReadAthenaPool
+    import AthenaPoolCnvSvc.ReadAthenaPool  # noqa: F401 (setup POOL reading)
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
     from AthenaServices.AthenaServicesConf import AthenaEventLoopMgr
-    from AthenaCommon.AppMgr import ServiceMgr
+    from AthenaCommon.AppMgr import theApp, ServiceMgr
     from PathResolver import PathResolver
     ServiceMgr += AthenaEventLoopMgr(EventPrintoutInterval=5000)
    
     ServiceMgr += THistSvc()
-    OutFileName = "SFTest.root" if not "outFile" in globals() else outFile
+    OutFileName = globals().get("outFile", "SFTest.root")
     ServiceMgr.THistSvc.Output += ["%s DATAFILE='%s' OPT='RECREATE'"%(stream,OutFileName)]
     ROOTFiles = []
     
     if "inputFile" in globals():
-        print ("Use the following %s as input" % (inputFile))
+        print ("Use the following %s as input" % globals()["inputFile"])
         ROOTFiles = []
-        ResolvedInFile = PathResolver.FindCalibFile(inputFile)
-        ReolvedInDir = PathResolver.FindCalibDirectory(inputFile)
+        ResolvedInFile = PathResolver.FindCalibFile(globals()["inputFile"])
+        ReolvedInDir = PathResolver.FindCalibDirectory(globals()["inputFile"])
         if os.path.isfile(ResolvedInFile): 
-            print ("INFO: Found file %s"%(inputFile))
+            print ("INFO: Found file %s" % globals()["inputFile"])
             ROOTFiles.append(ResolvedInFile)
                                              
         elif os.path.isdir(ReolvedInDir):
@@ -38,26 +37,26 @@ def AssembleIO(stream="TRIGGERSFTESTER"):
               if DirEnt.rfind(".root") != -1:
                   if DirEnt.find(ReolvedInDir) != -1 : ROOTFiles.append(DirEnt)
                   else: ROOTFiles.append("%s/%s"%(ReolvedInDir,DirEnt))
-        else: raise RuntimeError("Invalid input " + inputFile)
+        else: raise RuntimeError("Invalid input " + globals()["inputFile"])
         if len(ROOTFiles) == 0: raise RuntimeError("No ROOT files could be loaded as input")
         ServiceMgr.EventSelector.InputCollections = ROOTFiles
         acf.FilesInput = ROOTFiles
        
     if "nevents" in globals():
-        print ("Only run on %i events" % (int(nevents)))
-        theApp.EvtMax = int (nevents)
+        print ("Only run on %i events" % globals()["nevents"])
+        theApp.EvtMax = int (globals()["nevents"])
     if "nskip" in globals():
-        print ("Skip the first %i events" % (int(nskip)))
-        ServiceMgr.EventSelector.SkipEvents = int(nksip)
+        print ("Skip the first %i events" % globals("nskip"))
+        ServiceMgr.EventSelector.SkipEvents = int(globals("nskip"))
 
     
     
 def GetTriggerSFTool(MuonWP="Medium", Binning="fine"):
     from AthenaCommon.AppMgr import ToolSvc
-    from AthenaCommon import CfgMgr, GlobalFlags
+    from AthenaCommon import CfgMgr
     ToolName = "TriggerSFTool_%s_%s"%(MuonWP,Binning)
     if not hasattr(ToolSvc, ToolName):
-        from MuonEfficiencyCorrections.MuonEfficiencyCorrectionsConf import CP__MuonTriggerScaleFactors
+        from MuonEfficiencyCorrections.MuonEfficiencyCorrectionsConf import CP__MuonTriggerScaleFactors  # noqa: F401
         TriggerTool = CfgMgr.CP__MuonTriggerScaleFactors(ToolName)
         TriggerTool.MuonQuality = MuonWP
         TriggerTool.Binning = Binning
@@ -67,10 +66,10 @@ def GetTriggerSFTool(MuonWP="Medium", Binning="fine"):
 
 def GetMuonEfficiencyTool(MuonWP="Medium", Release="", CustomInput = "", BreakDownSystematics=False, UncorrelateSystematics=False):
     from AthenaCommon.AppMgr import ToolSvc
-    from AthenaCommon import CfgMgr, GlobalFlags
+    from AthenaCommon import CfgMgr
     ToolName = "MuonEfficiencyTool_%s%s"%(MuonWP, Release if len(Release) == 0 else "_"+Release)
     if not hasattr(ToolSvc,ToolName):
-        from MuonEfficiencyCorrections.MuonEfficiencyCorrectionsConf import CP__MuonEfficiencyScaleFactors
+        from MuonEfficiencyCorrections.MuonEfficiencyCorrectionsConf import CP__MuonEfficiencyScaleFactors  # noqa: F401
         EffiTool = CfgMgr.CP__MuonEfficiencyScaleFactors(ToolName)
         EffiTool.WorkingPoint = MuonWP
         EffiTool.LowPtThreshold = 15.e3
@@ -84,9 +83,9 @@ def GetMuonEfficiencyTool(MuonWP="Medium", Release="", CustomInput = "", BreakDo
 
 def GetSelectionTool():
     from AthenaCommon.AppMgr import ToolSvc
-    from AthenaCommon import CfgMgr, GlobalFlags
+    from AthenaCommon import CfgMgr
     if not hasattr(ToolSvc, "selectionTool"):
-        from MuonSelectorTools.MuonSelectorToolsConf import CP__MuonSelectionTool
+        from MuonSelectorTools.MuonSelectorToolsConf import CP__MuonSelectionTool  # noqa: F401
         selTool = CfgMgr.CP__MuonSelectionTool("selectionTool")        
         ToolSvc += selTool
     return getattr(ToolSvc,"selectionTool")
@@ -104,7 +103,7 @@ def GetPRWTool(
     from AthenaCommon.AppMgr import ToolSvc
     from AthenaCommon import CfgMgr
     if not hasattr(ToolSvc, "prwTool"):
-        from PileupReweighting.PileupReweightingConf import CP__PileupReweightingTool
+        from PileupReweighting.PileupReweightingConf import CP__PileupReweightingTool  # noqa: F401
         prwTool = CfgMgr.CP__PileupReweightingTool("prwTool")
         prwTool.ConfigFiles = PRWMCConfigFiles
         prwTool.LumiCalcFiles = PRWLumiCalcFiles  

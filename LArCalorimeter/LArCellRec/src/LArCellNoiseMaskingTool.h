@@ -1,3 +1,4 @@
+//Dear emacs, this is -*-c++-*-
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -6,9 +7,9 @@
 #define LARCELLREC_LARCELLNOISEMASKINGTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
+#include "LArRecConditions/LArBadChannelMask.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 
 class LArCellNoiseMaskingTool
   : public extends<AthAlgTool, ICaloCellMakerTool>
@@ -27,8 +28,17 @@ public:
 
 
  private:
-  ToolHandle<ILArBadChannelMasker> m_maskingTool;
-  ToolHandle<ILArBadChannelMasker> m_maskingSporadicTool;
+  Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{},
+      "Bad-Channel categories to mask entirly"}; 
+  Gaudi::Property<std::vector<std::string> > m_sporadicProblemsToMask{this,"SporadicProblemsToMask",{},
+      "Bad-Channel categories to mask in case of sporadic noise"}; 
+  SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey {this, "BadChanKey", "LArBadChannel", 
+      "SG key for LArBadChan object"};
+  
+  
+  LArBadChannelMask m_noiseMask;
+  LArBadChannelMask m_sporadicNoiseMask;
+  
   int m_qualityCut;
   std::vector<int> m_caloNums ;
   bool m_maskNoise;

@@ -9,7 +9,6 @@
 
 #include "TrigConfL1Data/ThresholdConfig.h"
 #include "TrigConfL1Data/TriggerThreshold.h"
-#include "TrigConfInterfaces/IHLTConfigSvc.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 // L1Decoder includes
@@ -24,6 +23,7 @@ class RoIsUnpackingEmulationTool : public RoIsUnpackingToolBase {
                               const std::string& name, 
                               const IInterface* parent );
 
+  using RoIsUnpackingToolBase::unpack;
   virtual StatusCode unpack(const EventContext& ctx,
                             const ROIB::RoIBResult& roib,
                             const HLT::IDSet& activeChains) const override;

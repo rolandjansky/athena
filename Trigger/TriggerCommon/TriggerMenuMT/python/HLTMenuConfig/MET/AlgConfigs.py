@@ -1,21 +1,12 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from .ConfigHelpers import AlgConfig
 from ..Menu.SignatureDicts import METChainParts
 import GaudiKernel.SystemOfUnits as Units
 import TrigEFMissingET.PUClassification as PUClassification
-from TrigEFMissingET.TrigEFMissingETConf import (
-    HLT__MET__CellFex,
-    HLT__MET__TCFex,
-    HLT__MET__TCPufitFex,
-    HLT__MET__MHTFex,
-    HLT__MET__TrkMHTFex,
-    HLT__MET__PFSumFex,
-    HLT__MET__MHTPufitFex,
-    HLT__MET__PUSplitPufitFex,
-)
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 
 from AthenaCommon.Logging import logging
@@ -24,7 +15,7 @@ log = logging.getLogger(__name__)
 
 
 def test_configs():
-    """ Make sure that all algorithms defined in the METChainParts have
+    """Make sure that all algorithms defined in the METChainParts have
     configurations
 
     Really, this is mainly to have something sensible to call in the
@@ -37,9 +28,10 @@ def test_configs():
                 break
         else:
             unknown_algs.append(alg)
-    assert len(unknown_algs) == 0, (
-        "The following EFrecoAlgs do not have AlgConfig classes: "
-        "{}".format(unknown_algs)
+    assert (
+        len(unknown_algs) == 0
+    ), "The following EFrecoAlgs do not have AlgConfig classes: " "{}".format(
+        unknown_algs
     )
 
 
@@ -51,8 +43,8 @@ class CellConfig(AlgConfig):
     def __init__(self, **recoDict):
         super(CellConfig, self).__init__(inputs=["Cells"], **recoDict)
 
-    def make_fex(self, name, inputs):
-        return HLT__MET__CellFex(name, CellName=inputs["Cells"])
+    def make_fex_accumulator(self, flags, name, inputs):
+        return CompFactory.getComp("HLT::MET::CellFex")(name, CellName=inputs["Cells"])
 
 
 class TCConfig(AlgConfig):
@@ -63,8 +55,10 @@ class TCConfig(AlgConfig):
     def __init__(self, calib, **recoDict):
         super(TCConfig, self).__init__(inputs=["Clusters"], calib=calib, **recoDict)
 
-    def make_fex(self, name, inputs):
-        return HLT__MET__TCFex(name, ClusterName=inputs["Clusters"])
+    def make_fex_accumulator(self, flags, name, inputs):
+        return CompFactory.getComp("HLT::MET::TCFex")(
+            name, ClusterName=inputs["Clusters"]
+        )
 
 
 class TCPufitConfig(AlgConfig):
@@ -77,8 +71,10 @@ class TCPufitConfig(AlgConfig):
             inputs=["Clusters"], calib=calib, **recoDict
         )
 
-    def make_fex(self, name, inputs):
-        return HLT__MET__TCPufitFex(name, ClusterName=inputs["Clusters"])
+    def make_fex_accumulator(self, flags, name, inputs):
+        return CompFactory.getComp("HLT::MET::TCPufitFex")(
+            name, ClusterName=inputs["Clusters"]
+        )
 
 
 class MHTConfig(AlgConfig):
@@ -89,8 +85,8 @@ class MHTConfig(AlgConfig):
     def __init__(self, **recoDict):
         super(MHTConfig, self).__init__(inputs=["Jets"], **recoDict)
 
-    def make_fex(self, name, inputs):
-        return HLT__MET__MHTFex(name, JetName=inputs["Jets"])
+    def make_fex_accumulator(self, flags, name, inputs):
+        return CompFactory.getComp("HLT::MET::MHTFex")(name, JetName=inputs["Jets"])
 
 
 # NB: TrkMHT isn't ready to run with PF jets yet - for that we need to add an
@@ -107,20 +103,21 @@ class TrkMHTConfig(AlgConfig):
             **recoDict
         )
 
-    def make_fex(self, name, inputs):
-        fex = HLT__MET__TrkMHTFex(
+    def make_fex_accumulator(self, flags, name, inputs):
+        return CompFactory.getComp("HLT::MET::TrkMHTFex")(
             name,
             JetName=inputs["Jets"],
             TrackName=inputs["Tracks"],
             VertexName=inputs["Vertices"],
             TVAName=inputs["TVA"],
             TrackLinkName=inputs["GhostTracksLabel"],
+            TrackSelTool=CompFactory.getComp("InDet::InDetTrackSelectionTool")(
+                CutLevel="Loose",
+                maxZ0SinTheta=1.5,
+                maxD0overSigmaD0=3,
+                minPt=1 * Units.GeV,
+            ),
         )
-        fex.TrackSelTool.CutLevel = "Loose"
-        fex.TrackSelTool.maxZ0SinTheta = 1.5
-        fex.TrackSelTool.maxD0overSigmaD0 = 3
-        fex.TrackSelTool.minPt = 1 * Units.GeV
-        return fex
 
 
 class PFSumConfig(AlgConfig):
@@ -131,9 +128,11 @@ class PFSumConfig(AlgConfig):
     def __init__(self, **recoDict):
         super(PFSumConfig, self).__init__(inputs=["cPFOs", "nPFOs"], **recoDict)
 
-    def make_fex(self, name, inputs):
-        return HLT__MET__PFSumFex(
-            name, NeutralPFOName=inputs["nPFOs"], ChargedPFOName=inputs["cPFOs"],
+    def make_fex_accumulator(self, flags, name, inputs):
+        return CompFactory.getComp("HLT::MET::PFSumFex")(
+            name,
+            NeutralPFOName=inputs["nPFOs"],
+            ChargedPFOName=inputs["cPFOs"],
         )
 
 
@@ -147,8 +146,8 @@ class PFOPufitConfig(AlgConfig):
             inputs=["MergedPFOs", "PFOPUCategory"], **recoDict
         )
 
-    def make_fex(self, name, inputs):
-        return HLT__MET__PUSplitPufitFex(
+    def make_fex_accumulator(self, flags, name, inputs):
+        return CompFactory.getComp("HLT::MET::PUSplitPufitFex")(
             name,
             InputName=inputs["MergedPFOs"],
             InputCategoryName=inputs["PFOPUCategory"],
@@ -166,8 +165,8 @@ class CVFPufitConfig(AlgConfig):
             inputs=["Clusters", "CVFPUCategory"], **recoDict
         )
 
-    def make_fex(self, name, inputs):
-        return HLT__MET__PUSplitPufitFex(
+    def make_fex_accumulator(self, flags, name, inputs):
+        return CompFactory.getComp("HLT::MET::PUSplitPufitFex")(
             name,
             InputName=inputs["Clusters"],
             InputCategoryName=inputs["CVFPUCategory"],
@@ -182,7 +181,7 @@ class MHTPufitConfig(AlgConfig):
 
     def __init__(self, **recoDict):
         inputs = ["Jets", "JetDef"]
-        if "pf" in recoDict["jetDataType"]:
+        if recoDict["constitType"] == "pf":
             inputs += ["MergedPFOs"]
         else:
             inputs += ["Clusters"]
@@ -190,26 +189,22 @@ class MHTPufitConfig(AlgConfig):
             inputs=inputs, forceTracks=True, **recoDict
         )
 
-    def make_fex(self, name, inputs):
+    def make_fex_accumulator(self, flags, name, inputs):
         calibHasAreaSub = "sub" in self.recoDict
         if calibHasAreaSub:
             from JetRecConfig.JetRecConfig import instantiateAliases
-            from JetRecConfig.JetInputConfig import buildEventShapeAlg
+            from JetRecConfig.JetInputConfig import getEventShapeName
 
             instantiateAliases(inputs["JetDef"])
-            evtShapeAlg = buildEventShapeAlg(inputs["JetDef"], "HLT_")
-
-            rhoKey = evtShapeAlg.EventDensityTool.OutputContainer
+            rhoKey = getEventShapeName(inputs["JetDef"], "HLT_")
         else:
             rhoKey = ""
-        if "pf" in self.recoDict["jetDataType"]:
-            inputName = inputs["MergedPFOs"]
-        else:
-            inputName = inputs["Clusters"]
-        return HLT__MET__MHTPufitFex(
+        return CompFactory.getComp("HLT::MET::MHTPufitFex")(
             name,
             InputJetsName=inputs["Jets"],
-            InputName=inputName,
+            InputName=inputs[
+                "MergedPFOs" if self.recoDict["constitType"] == "pf" else "Clusters"
+            ],
             JetCalibIncludesAreaSub=calibHasAreaSub,
             JetEventShapeName=rhoKey,
         )

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Include import include
 from IOVDbSvc.CondDB import conddb
@@ -7,16 +7,26 @@ if conddb.isMC:
     include("LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py")
 else:
     include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
-
+if "SuperCells" not in dir(): 
+    SuperCells = False
 from LArRecUtils.LArRecUtilsConf import LArADC2MeVCondAlg 
 from AthenaCommon.AlgSequence import AthSequencer
-from LArCabling.LArCablingAccess import LArOnOffIdMapping
+
+if SuperCells:
+    from LArCabling.LArCablingAccess import LArOnOffIdMappingSC
+else:
+    from LArCabling.LArCablingAccess import LArOnOffIdMapping
+
 condSeq = AthSequencer("AthCondSeq")
 
 
 def LArADC2MeVCondAlgDefault():
 
-    LArOnOffIdMapping()
+    if SuperCells:
+        LArOnOffIdMappingSC()
+    else:
+        LArOnOffIdMapping()
+    
     condSeq = AthSequencer("AthCondSeq")
     if hasattr (condSeq,"LArADC2MeVCondAlg"):
         return getattr(condSeq,"LArADC2MeVCondAlg")

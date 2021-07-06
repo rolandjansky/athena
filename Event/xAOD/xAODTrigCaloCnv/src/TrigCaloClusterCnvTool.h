@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigCaloClusterCnvTool.h 785764 2016-11-22 15:40:18Z ssnyder $
 #ifndef XAODTRIGCALOCNV_TRIGCALOCLUSTERCNVTOOL_H
 #define XAODTRIGCALOCNV_TRIGCALOCLUSTERCNVTOOL_H
 
@@ -23,9 +22,6 @@ namespace xAODMaker {
     *         defined in ITrigCaloClusterCnvTool.
     *
     * @author Arantxa Ruiz Martinez <aranzazu.ruiz.martinez@cern.ch>
-    *
-    * $Revision: 785764 $
-    * $Date: 2016-11-22 16:40:18 +0100 (Tue, 22 Nov 2016) $
     */
    class TrigCaloClusterCnvTool : public AthAlgTool,
 				  public virtual ITrigCaloClusterCnvTool {
@@ -34,9 +30,6 @@ namespace xAODMaker {
       /// Regular AlgTool constructor
       TrigCaloClusterCnvTool( const std::string& type, const std::string& name,
 			      const IInterface* parent );
-
-      /// Function initialising the tool
-      virtual StatusCode initialize() override;
 
       /// Function that fills an existing xAOD::TrigCaloCluster
       virtual StatusCode convert( const TrigCaloClusterContainer* aod,

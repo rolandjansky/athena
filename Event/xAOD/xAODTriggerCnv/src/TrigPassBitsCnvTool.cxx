@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -22,15 +22,6 @@ namespace xAODMaker {
     declareInterface< ITrigPassBitsCnvTool >( this );
   }
 
-  StatusCode TrigPassBitsCnvTool::initialize() {
-
-    // Greet the user:
-    ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
-
-    // Return gracefully:
-    return StatusCode::SUCCESS;
-  }
-  
   /**
    * This is the important function of the tool. It takes the TrigPassBits object
    * from a TrigPassBits collection, and fills an xAOD::TrigPassBitsContainer with it.
@@ -45,7 +36,7 @@ namespace xAODMaker {
   {
     ATH_MSG_VERBOSE( "in TrigPassBitsCnvTool::convert" );
     // If there is no TrigPassBits to convert:
-    if( ! aod->size() ) {
+    if( aod->empty() ) {
       ATH_MSG_DEBUG( "No TrigPassBits objects received on the input" );
       return StatusCode::SUCCESS;
     }

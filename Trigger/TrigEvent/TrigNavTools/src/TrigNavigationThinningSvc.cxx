@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigNavigationThinningSvc.h"
+#include "TrigNavTools/TrigNavigationThinningSvcMutex.h"
 #include "getLabel.h"
 #include "TrigDecisionTool/ChainGroup.h"
 #include "TrigConfHLTData/HLTTriggerElement.h"
@@ -11,14 +12,15 @@
 #include "TrigNavigation/Holder.h"
 #include "AthenaKernel/ThinningDecisionBase.h"
 #include "AthenaKernel/getThinningCache.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include <sstream>
 #include <iostream>
 
+std::mutex TrigNavigationThinningSvcMutex::s_mutex ATLAS_THREAD_SAFE;
 
 using HLT::TrigNavTools::SlimmingHelper;
 using namespace HLT;
-
 
 /**********************************************************************
  *
@@ -192,7 +194,11 @@ StatusCode TrigNavigationThinningSvc::dropFeatures(State& state) const
   //HLT::NavigationCore::FeaturesStructure::const_iterator types_iterator;
   //typedef  std::map<uint16_t, HLTNavDetails::IHolder*> HoldersBySubType;
   //std::map<uint16_t, HLTNavDetails::IHolder*>::const_iterator holders_iterator;
-  for( auto h : state.navigation.m_holderstorage.getAllHolders<HLTNavDetails::IHolder>() ) {
+
+  std::lock_guard<std::recursive_mutex> lock(state.navigation.getMutex());
+  const TrigHolderStructure& holderstorage = state.navigation.getHolderStorage();
+
+  for( auto h : holderstorage.getAllHolders<HLTNavDetails::IHolder>() ) {
     if(!h) { // check if h is null
       ATH_MSG_WARNING("holder.second is null pointer; skipping...");
       continue;
@@ -281,15 +287,19 @@ StatusCode TrigNavigationThinningSvc::dropChains(State& state) const {
 StatusCode TrigNavigationThinningSvc::doSlimming( const EventContext& ctx,
                                                   std::vector<uint32_t>& slimmed_and_serialized) const {
 
+  ATH_MSG_DEBUG(name() << " is obtaining the TrigNavigationThinningSvc lock in slot " << ctx.slot() << " for event " << ctx.eventID().event_number() );
+  std::lock_guard<std::mutex> lock(TrigNavigationThinningSvcMutex::s_mutex);
+
   // grab the navigation
   Trig::ExpertMethods *navAccess = m_trigDecisionTool->ExperimentalAndExpertMethods();
   navAccess->enable();
-  // FIXME: const_cast
-  HLT::NavigationCore *cnav = const_cast<HLT::NavigationCore*>(navAccess->getNavigation());
+  // protected by above lock
+  HLT::NavigationCore *cnav ATLAS_THREAD_SAFE = const_cast<HLT::NavigationCore*>(navAccess->getNavigation());
 
   if(cnav == 0) {
     ATH_MSG_WARNING ( "Could not get navigation from Trigger Decision Tool" );
     ATH_MSG_WARNING ( "Navigation will not be slimmed in this event" );
+    ATH_MSG_DEBUG(name() << " is releasing the TrigNavigationThinningSvc lock");
     return StatusCode::SUCCESS;
   }
     
@@ -309,6 +319,7 @@ StatusCode TrigNavigationThinningSvc::doSlimming( const EventContext& ctx,
       CHECK( (this->*function)(state) );
     }
   }
+  ATH_MSG_DEBUG(name() << " is releasing the TrigNavigationThinningSvc lock");
   return StatusCode::SUCCESS;
 }
 
@@ -326,7 +337,7 @@ TrigNavigationThinningSvc::lateFillConfiguration(State& state) const {
   // ??? Originally, this was done once and cached in the tool.
   //     If this takes too long, consider storing it in the detector store.
   auto chainGroup = m_trigDecisionTool->getChainGroup(m_chainsRegex);
-  ATH_MSG_INFO("Will keep information related to this chains" << chainGroup->getListOfTriggers());
+  ATH_MSG_DEBUG("Will keep information related to this chains" << chainGroup->getListOfTriggers());
   auto confTEs = chainGroup->getHLTTriggerElements();
   for ( auto& vec: confTEs) {
     for ( auto confTEPtr: vec) {
@@ -357,7 +368,7 @@ StatusCode TrigNavigationThinningSvc::removeTriggerElement(State& state,
 
   if ( m_report )  ATH_MSG_VERBOSE("Removeing TE of ID: " << te->getId() << " removing same RoI relations" );
   // for those in the same RoI, we need only remove the relationship from ones who are related
-  std::vector<TriggerElement*>& sameRoI = te->m_relations[TriggerElement::sameRoIRelation];
+  const std::vector<TriggerElement*>& sameRoI = te->getRelated(TriggerElement::sameRoIRelation);
 
   for( auto nodeInRoI : sameRoI ) {
     if ( m_report )  ATH_MSG_VERBOSE("Removeing TE of ID: " << te->getId() << " bypassing same RoI relation " );
@@ -592,7 +603,7 @@ TrigNavigationThinningSvc::propagateFeaturesToChildren(const TriggerElement *te)
 
   const std::vector<TriggerElement::FeatureAccessHelper>& features = te->getFeatureAccessHelpers() ;
 
-  std::vector<TriggerElement*> children = te->m_relations[TriggerElement::seedsRelation];
+  const std::vector<TriggerElement*> children = te->getRelated(TriggerElement::seedsRelation);
   for( auto ch: children ) {
     if ( m_report ) ATH_MSG_VERBOSE("Propagating features to child: " << ch << " " << ch->getId() );
     // add the parents features to the front of the child features list features list
@@ -729,7 +740,11 @@ namespace {
 StatusCode TrigNavigationThinningSvc::syncThinning(State& state) const {
   const EventContext& ctx = Gaudi::Hive::currentContext();
   ATH_MSG_DEBUG ( "Running the syncThinning" );
-  auto holders = state.navigation.m_holderstorage.getAllHolders<HLTNavDetails::IHolder>();
+
+  std::lock_guard<std::recursive_mutex> lock(state.navigation.getMutex());
+  const TrigHolderStructure& holderstorage = state.navigation.getHolderStorage();
+
+  auto holders = holderstorage.getAllHolders<HLTNavDetails::IHolder>();
   for(auto holder : holders) {
     const IProxyDict* ipd = Atlas::getExtendedEventContext(ctx).proxy();
     if ( not ipd->proxy(holder->containerClid(), holder->label() ) ) {
@@ -750,7 +765,7 @@ StatusCode TrigNavigationThinningSvc::syncThinning(State& state) const {
 	// Since this is quite tricky code it is outsourced to a helper class IndexRecalculator.
 	
 	IndexRecalculator recalculator( dec );
-	// nowe we need to go over the TEs
+	// now we need to go over the TEs
 	for ( const auto& te: state.navigation.getAllTEs() ) {
 	  for ( auto& fea: te->getFeatureAccessHelpers() ) {
 	    if ( fea.getCLID() == holder->typeClid() 
@@ -759,8 +774,9 @@ StatusCode TrigNavigationThinningSvc::syncThinning(State& state) const {
 	      uint32_t end   = fea.getIndex().objectsEnd();
 	      uint32_t newEnd = recalculator.getNewIndex(end);
 	      uint32_t newBegin = recalculator.getNewIndex(begin);
-	      
-	      const_cast<HLT::TriggerElement::ObjectIndex&>(fea.getIndex()).updateBeginAndEnd(newBegin, newEnd);
+
+          HLT::TriggerElement::ObjectIndex& idx ATLAS_THREAD_SAFE = const_cast<HLT::TriggerElement::ObjectIndex&>(fea.getIndex());
+          idx.updateBeginAndEnd(newBegin, newEnd);
 	      //ATH_MSG_DEBUG( "Indices changed to " << newBegin << " " << newEnd);
 
 	    }	  

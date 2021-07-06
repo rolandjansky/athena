@@ -1,9 +1,11 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """Define method to construct configured Tile muon receiver decision algorithm"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
+
 
 def TileMuonReceiverDecisionCfg(flags, **kwargs):
     """Return component accumulator with configured Tile muon receiver decision algorithm
@@ -26,7 +28,7 @@ def TileMuonReceiverDecisionCfg(flags, **kwargs):
                                                 MuonReceiverEneThreshCellD6andD5High = 600)
 
 
-    if flags.Digitization.PileUpPremixing:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         muRcvDecisionAlg.TileMuonReceiverContainer = flags.Overlay.BkgPrefix + 'TileMuRcvCnt'
 
     from TileConditions.TileInfoLoaderConfig import TileInfoLoaderCfg

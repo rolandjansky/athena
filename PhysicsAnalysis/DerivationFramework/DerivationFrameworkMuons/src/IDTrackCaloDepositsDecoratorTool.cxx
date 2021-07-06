@@ -1,30 +1,18 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-/*
- * IDTrackCaloDepositsDecoratorTool.cxx
- *
- *  Created on: Sep 29, 2015
- *      Author: goblirsc
- */
-
 
 #include "DerivationFrameworkMuons/IDTrackCaloDepositsDecoratorTool.h"
-
-#ifndef XAOD_ANALYSIS
 #include "muonEvent/DepositInCalo.h"
 #include "CaloEvent/CaloCellContainer.h"
-#endif
+
 
 #include "xAODMuon/Muon.h"
 #include "xAODTracking/TrackParticle.h"
 
-IDTrackCaloDepositsDecoratorTool::IDTrackCaloDepositsDecoratorTool(
-		std::string myname) :
+IDTrackCaloDepositsDecoratorTool::IDTrackCaloDepositsDecoratorTool(const std::string& myname) :
 		AsgTool(myname),
-#ifndef XAOD_ANALYSIS
 		m_trkDepositInCalo("TrackDepositInCaloTool/TrackDepositInCaloTool"),
-#endif
 		m_dec_EMB1_dep("EMB1_dep"),
 		m_dec_EMB1_eloss("EMB1_eloss"),
 		m_dec_EMB2_dep("EMB2_dep"),
@@ -56,25 +44,19 @@ IDTrackCaloDepositsDecoratorTool::IDTrackCaloDepositsDecoratorTool(
 		m_dec_HEC2_dep("HEC2_dep"),
 		m_dec_HEC2_eloss("HEC2_eloss"),
 		m_dec_HEC3_dep("HEC3_dep"),
-		m_dec_HEC3_eloss("HEC3_eloss")
-{
-#ifndef XAOD_ANALYSIS
+		m_dec_HEC3_eloss("HEC3_eloss"){
 	declareProperty("TrackDepositInCaloTool", m_trkDepositInCalo);
-#endif
 }
 
 StatusCode IDTrackCaloDepositsDecoratorTool::initialize() {
-
-#ifndef XAOD_ANALYSIS
 	ATH_CHECK(m_trkDepositInCalo.retrieve());
-#endif
 	return StatusCode::SUCCESS;
 
 }
 
 StatusCode IDTrackCaloDepositsDecoratorTool::decorate(const xAOD::IParticle* part) const 
 {
-	static SG::AuxElement::Decorator< bool > appliedDec( "AppliedIso" );
+	static const  SG::AuxElement::ConstAccessor< bool > appliedDec( "AppliedIso" );
 
 	// remember if we already decorated a track, saves CPU time
 	if (part->isAvailable<bool>("AppliedCaloDep") && part->auxdataConst<bool>("AppliedCaloDep")){
@@ -87,7 +69,7 @@ StatusCode IDTrackCaloDepositsDecoratorTool::decorate(const xAOD::IParticle* par
 
 StatusCode IDTrackCaloDepositsDecoratorTool::recompute_and_decorate(const xAOD::IParticle* part) const
 {
-	static SG::AuxElement::Decorator< bool > appliedDec( "AppliedCaloDep" );
+	static const SG::AuxElement::Decorator< bool > appliedDec( "AppliedCaloDep" );
 	ATH_MSG_DEBUG("Recomputing calo deposition by hand");
 
 	const xAOD::TrackParticle* tp = dynamic_cast<const xAOD::TrackParticle*>(part);
@@ -103,19 +85,15 @@ StatusCode IDTrackCaloDepositsDecoratorTool::recompute_and_decorate(const xAOD::
 		return StatusCode::FAILURE;
 	}
 
-
-#ifndef XAOD_ANALYSIS
-	const CaloCellContainer* caloCellCont = 0;
+	const CaloCellContainer* caloCellCont = nullptr;
 	std::vector<DepositInCalo> deposits = m_trkDepositInCalo->getDeposits(&(tp->perigeeParameters()), caloCellCont);
 	appliedDec(*part) = true;
+	
+	for (const auto& it : deposits)  {
+		CaloCell_ID::CaloSample sample = it.subCaloId();
 
-	std::vector<DepositInCalo>::const_iterator it = deposits.begin();
-	for (;it!=deposits.end(); it++) {
-
-		CaloCell_ID::CaloSample sample = it->subCaloId();
-
-		double dep   = it->energyDeposited();
-		double eloss = it->muonEnergyLoss();
+		float dep   = it.energyDeposited();
+		float eloss = it.muonEnergyLoss();
 
 		if (sample==CaloCell_ID::EMB1) {
 			m_dec_EMB1_dep(*part) = dep;
@@ -189,6 +167,5 @@ StatusCode IDTrackCaloDepositsDecoratorTool::recompute_and_decorate(const xAOD::
 			m_dec_HEC3_eloss(*part) = eloss;
 		}
 	}
-#endif
 	return StatusCode::SUCCESS;
 }

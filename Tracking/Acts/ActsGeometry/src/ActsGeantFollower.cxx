@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -19,33 +19,27 @@
 #include "G4DynamicParticle.hh"
 #include "G4Track.hh"
 
-ActsGeantFollower::ActsGeantFollower(const Config& config)
-  : m_config(config)
-  , m_helperPointer(nullptr)
-{}
+ActsGeantFollower::ActsGeantFollower(){}
 
 void ActsGeantFollower::BeginOfEventAction(const G4Event*)
 {
-  m_helperPointer->beginEvent();
+  m_helper->beginEvent();
 }
 
 void ActsGeantFollower::EndOfEventAction(const G4Event*)
 {
-  m_helperPointer->endEvent();
+  m_helper->endEvent();
 }
 
 void ActsGeantFollower::BeginOfRunAction(const G4Run*)
 {
-  if(m_config.helper.retrieve()!=StatusCode::SUCCESS)
+  if(m_helper.retrieve()!=StatusCode::SUCCESS)
     {
       G4ExceptionDescription description;
       description << "Cannot retrieve ActsGeantFollower helper";
       G4Exception("ActsGeantFollower", "ActsGeantFollower1", FatalException, description);
       return;
     }
-
-  m_helperPointer = (&(*m_config.helper));
-
   return;
 }
 
@@ -80,7 +74,7 @@ void ActsGeantFollower::UserSteppingAction(const G4Step* aStep)
           // the position information
           double X0             = mat->GetRadlen();
           // update the track follower
-          m_helperPointer->trackParticle(g4Position,g4Momentum,g4DynParticle->GetPDGcode(),g4DynParticle->GetCharge(),steplength,X0);
+          m_helper->trackParticle(g4Position,g4Momentum,g4DynParticle->GetPDGcode(),g4DynParticle->GetCharge(),steplength,X0);
         }
       else
          {

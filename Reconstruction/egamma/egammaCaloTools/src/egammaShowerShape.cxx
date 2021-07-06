@@ -151,6 +151,7 @@ StatusCode egammaShowerShape::execute(const xAOD::CaloCluster& cluster,
   info.e237 = egammaMiddleShapeInfo.e237;
   info.e277 = egammaMiddleShapeInfo.e277;
   info.etaw = egammaMiddleShapeInfo.etaw;
+  info.width = egammaMiddleShapeInfo.width;
   info.phiw = egammaMiddleShapeInfo.phiw;
   info.poscs2 = egammaMiddleShapeInfo.poscs2;
 

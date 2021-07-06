@@ -20,7 +20,8 @@ CostMonDS, JetDS, PhotonDS
 # WARNING: ID=0 is reserved for full HLT result
 DataScoutingIdentifiers = {
     'CostMonDS': 1,
-    'JetDS': 5
+    'JetDS': 5,
+    'PhotonDS' : 6
 }
 
 
@@ -29,6 +30,7 @@ TruncationThresholds = {
     0: 5*(1024**2),  # Main: 5 MB
     1: 2*(1024**2),  # CostMonDS: 2 MB
     5: 1*(1024**2),  # JetDS: 1 MB
+    6: 1*(1024**2),  # PhotonDS: 1 MB
 }
 
 

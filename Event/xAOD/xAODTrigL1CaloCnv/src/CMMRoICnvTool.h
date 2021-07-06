@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CMMRoICnvTool.h 576007 2013-12-17 18:07:37Z morrisj $
 #ifndef XAODTRIGL1CALOCNV_CMMROICNVTOOL_H
 #define XAODTRIGL1CALOCNV_CMMROICNVTOOL_H
 
@@ -24,8 +23,6 @@ namespace xAODMaker {
     *
     * @author John Morris <john.morris@cern.ch>
     *
-    * $Revision: 576007 $
-    * $Date: 2013-12-17 19:07:37 +0100 (Tue, 17 Dec 2013) $
     */
    class CMMRoICnvTool : public AthAlgTool,
                          public virtual ICMMRoICnvTool {
@@ -35,12 +32,9 @@ namespace xAODMaker {
       CMMRoICnvTool( const std::string& type, const std::string& name,
                      const IInterface* parent );
 
-      /// Function initialising the tool
-      virtual StatusCode initialize();
-
       /// Function that fills an existing xAOD::EmTauRoIContainer
       virtual StatusCode convert( const LVL1::CMMRoI* esd,
-                                  xAOD::CMMRoI* xaod );
+                                  xAOD::CMMRoI* xaod ) override;
 
    }; // class CMMRoICnvTool
 

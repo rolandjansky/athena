@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -39,7 +39,8 @@ Interface definition for eFEXegAlgo
     virtual std::unique_ptr<eFEXegTOB> geteFEXegTOB() = 0;
     virtual unsigned int getET() = 0;
     virtual void getWindowET(int layer, int jPhi, int SCID, unsigned int &) = 0;
-    virtual bool haveSeed() = 0;
+    virtual bool hasSeed() = 0;
+    virtual unsigned int getSeed() = 0;
     virtual void getCoreEMTowerET(unsigned int & et) = 0;
     virtual void getCoreHADTowerET(unsigned int & et) = 0;
 

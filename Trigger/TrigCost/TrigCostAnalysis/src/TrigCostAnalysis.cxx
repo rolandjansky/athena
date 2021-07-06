@@ -1,6 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
+
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS // silence Boost pragma message (fixed in Boost 1.76)
+#include <boost/property_tree/json_parser.hpp>
 
 #include "GaudiKernel/ThreadLocalContext.h"
 #include "TrigConfHLTData/HLTUtils.h"
@@ -15,9 +18,13 @@
 #include "monitors/MonitorGlobal.h"
 #include "monitors/MonitorThreadOccupancy.h"
 #include "monitors/MonitorROS.h"
+#include "monitors/MonitorChain.h"
+#include "monitors/MonitorChainAlgorithm.h"
+
 
 TrigCostAnalysis::TrigCostAnalysis( const std::string& name, ISvcLocator* pSvcLocator ) :
-  AthHistogramAlgorithm(name, pSvcLocator),
+  AthAlgorithm(name, pSvcLocator),
+  m_metadataTree(nullptr),
   m_fullEventDumps(0),
   m_maxViewsNumber(0) {
 }
@@ -30,6 +37,7 @@ StatusCode  TrigCostAnalysis::initialize() {
   ATH_CHECK( m_costDataKey.initialize() );
   ATH_CHECK( m_rosDataKey.initialize() );
   ATH_CHECK( m_HLTMenuKey.initialize() );
+
 
   if (!m_enhancedBiasTool.name().empty()) {
     ATH_CHECK( m_enhancedBiasTool.retrieve() );
@@ -51,6 +59,9 @@ StatusCode  TrigCostAnalysis::initialize() {
       TrigConf::HLTUtils::file2hashes(hashFile);
     }
   }
+  
+  ATH_CHECK( m_histSvc->regTree("/COSTSTREAM/metadata", std::make_unique<TTree>("metadata", "metadata")) );
+  ATH_CHECK( m_histSvc->getTree("/COSTSTREAM/metadata", m_metadataTree) );
   
   return StatusCode::SUCCESS;
 }
@@ -80,6 +91,38 @@ StatusCode TrigCostAnalysis::start() {
       if (algType.find("EventViewCreatorAlgorithm") != std::string::npos) {
         ATH_MSG_VERBOSE(algType << " is identified as a ViewCreator");
         m_storeIdentifiers.insert(algName);
+      }
+    }
+  }
+
+  // Call TrigConf::HLTUtils::string2hash(chain.name()) for all the chains to cache the hash to name mapping
+  std::vector<TrigConf::Chain> chains;
+  ATH_CHECK( m_algToChainTool->getAllChains(chains));
+  for (const TrigConf::Chain& chain : chains) {
+    HLT::Identifier(chain.name());
+    TrigConf::HLTUtils::string2hash(chain.name());
+
+    // Populate legs' names
+    const size_t legsSize {chain.legMultiplicities().size()};
+    for (size_t counter = 0; legsSize > 1 && counter < legsSize; ++counter){
+      HLT::Identifier l = TrigCompositeUtils::createLegName(chain.namehash(), counter);
+      TrigConf::HLTUtils::string2hash(l.name());
+    }
+  }
+
+  // Save identifiers and classes for additional HLTJobOptions map
+  if (not m_additionalHashList.empty()){
+    for (const std::string& entry : m_additionalHashList){
+      size_t breakPoint = entry.find("/");
+      if (breakPoint != std::string::npos){
+        std::string algType = entry.substr(0, breakPoint);
+        const std::string algName = entry.substr(breakPoint+1, entry.size());
+        while(algType.find(":") != std::string::npos) {
+          algType.replace(algType.find(":"), 1, "_");
+        }
+        m_algTypeMap[ TrigConf::HLTUtils::string2hash(algName, "ALG") ] = algType;
+      } else {
+        TrigConf::HLTUtils::string2hash(entry, "ALG");
       }
     }
   }
@@ -123,8 +166,16 @@ float TrigCostAnalysis::getWeight(const EventContext& context) {
 }
 
 
-TH1* TrigCostAnalysis::bookGetPointer_fwd(TH1* hist, const std::string& tDir) {
-  return bookGetPointer(hist, tDir);
+TH1* TrigCostAnalysis::bookGetPointer(TH1* hist, const std::string& tDir) {
+  std::string histName(hist->GetName());
+  std::string bookingString = "/COSTSTREAM/" + tDir + "/" + histName;
+
+  if (!((m_histSvc->regHist(bookingString, hist)).isSuccess())) {
+    ATH_MSG_WARNING( "Problem registering histogram with name " << histName);
+    return nullptr;
+  }
+
+  return hist;
 }
 
 
@@ -149,13 +200,44 @@ StatusCode TrigCostAnalysis::execute() {
   SG::ReadHandle<xAOD::TrigCompositeContainer> rosDataHandle(m_rosDataKey, context);
   ATH_CHECK( rosDataHandle.isValid() );
 
+  // Save indexes of algorithm in costDataHandle
+  std::map<std::string, std::set<size_t>> chainToAlgIdx;
+  std::map<std::string, std::vector<TrigConf::Chain>> algToChain;
+  ATH_CHECK( m_algToChainTool->getChainsForAllAlgs(context, algToChain) );
+  for (const xAOD::TrigComposite* tc : *costDataHandle) {
+    const uint32_t nameHash = tc->getDetail<TrigConf::HLTHash>("alg");
+    const std::string name = TrigConf::HLTUtils::hash2string(nameHash, "ALG");
+
+    for (const TrigConf::Chain& chain : algToChain[name]){
+      chainToAlgIdx[chain.name()].insert(tc->index());
+    }
+  }
+
+  const std::set<TrigCompositeUtils::DecisionID> seededChains = m_algToChainTool->retrieveActiveChains(context, "HLTNav_L1");
+  std::vector<TrigCompositeUtils::AlgToChainTool::ChainInfo> seededChainsInfo;
+
+  // Skip empty events, where only cost chain was active
+  bool skipMonitoringThisEvent = false;
+  if ((seededChains.size() == 1 && seededChains.count(TrigConf::HLTUtils::string2hash("HLT_noalg_CostMonDS_L1All")))
+    || (seededChains.size() == 2 && seededChains.count(TrigConf::HLTUtils::string2hash("HLT_noalg_CostMonDS_L1All")) && seededChains.count(TrigConf::HLTUtils::string2hash("HLT_noalg_L1All"))) ){
+    skipMonitoringThisEvent = true;
+  }
+
+  for (auto id : seededChains){
+      TrigCompositeUtils::AlgToChainTool::ChainInfo chainInfo;
+      ATH_CHECK(m_algToChainTool->getChainInfo(context, id, chainInfo));
+      seededChainsInfo.push_back(chainInfo);
+  }
+
   const uint32_t onlineSlot = getOnlineSlot( costDataHandle.get() );
   CostData costData;
   ATH_CHECK( costData.set(costDataHandle.get(), rosDataHandle.get(), onlineSlot) );
   costData.setRosToRobMap(m_rosToRob);
+  costData.setChainToAlgMap(chainToAlgIdx);
+  costData.setSeededChains(seededChainsInfo);
   costData.setLb( context.eventID().lumi_block() );
   costData.setTypeMap( m_algTypeMap );
-  if (!m_enhancedBiasTool.name().empty()) {
+  if (!m_enhancedBiasTool.name().empty() && !m_enhancedBiasTool->isMC()) {
     double liveTime = m_enhancedBiasTool->getEBLiveTime(context);
     bool liveTimeIsPerEvent = true;
     if (liveTime == 0.0) { // Note: This comes from a direct "return 0.", hence no delta
@@ -165,7 +247,7 @@ StatusCode TrigCostAnalysis::execute() {
     costData.setLivetime( liveTime, liveTimeIsPerEvent );
   }
 
-  ATH_CHECK( range->newEvent( costData, getWeight(context) ) );
+  ATH_CHECK( range->newEvent( costData, getWeight(context), skipMonitoringThisEvent ) );
 
   if (checkDoFullEventDump(context, costData)) {
     ATH_CHECK( dumpEvent(context) );
@@ -208,6 +290,13 @@ StatusCode TrigCostAnalysis::registerMonitors(MonitoredRange* range) {
   if (m_doMonitorROS) {
     ATH_CHECK( range->addMonitor(std::make_unique<MonitorROS>("ROS_HLT", range)) );
     ATH_MSG_DEBUG("Registering ROS_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
+  }
+  if (m_doMonitorChain) {
+    ATH_CHECK( range->addMonitor(std::make_unique<MonitorChain>("Chain_HLT", range)) );
+    ATH_MSG_INFO("Registering Chain_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
+  }if (m_doMonitorChainAlgorithm) {
+    ATH_CHECK( range->addMonitor(std::make_unique<MonitorChainAlgorithm>("Chain_Algorithm_HLT", range)) );
+    ATH_MSG_INFO("Registering Chain_Algorihtm_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
   }
   // if (m_do...) {}
   return StatusCode::SUCCESS;
@@ -314,5 +403,57 @@ StatusCode TrigCostAnalysis::dumpEvent(const EventContext& context) const {
 
 StatusCode TrigCostAnalysis::finalize() {
   ATH_MSG_VERBOSE("In finalize()");
+
+  writeMetadata();
   return StatusCode::SUCCESS;
+}
+
+
+void TrigCostAnalysis::writeMetadata() {
+  if (!m_metadataTree) {
+    return;
+  }
+
+  auto runNumber = m_enhancedBiasTool->getRunNumber();
+  m_metadataTree->Branch("runNumber", &runNumber);
+
+  SG::ReadHandle<TrigConf::HLTMenu>  hltMenuHandle = SG::makeHandle( m_HLTMenuKey );
+  std::string menuStr;
+  if ( hltMenuHandle.isValid() ){
+    std::stringstream ss;
+    boost::property_tree::json_parser::write_json(ss, hltMenuHandle->data());
+    menuStr = ss.str();
+    m_metadataTree->Branch("HLTMenu", &menuStr);
+  }
+
+  bool ChainMonitor = (const bool&) m_doMonitorChain;
+  bool ChainAlgorithmMonitor = (const bool&) m_doMonitorChainAlgorithm;
+  bool AlgorithmMonitor = (const bool&) m_doMonitorAlgorithm;
+  bool AlgorithmClassMonitor = (const bool&) m_doMonitorAlgorithmClass;
+  bool ROSMonitor = (const bool&) m_doMonitorROS;
+  bool GlobalsMonitor = (const bool&) m_doMonitorGlobal;
+  bool ThreadMonitor = (const bool&) m_doMonitorThreadOccupancy;
+
+  m_metadataTree->Branch("ChainMonitor", &ChainMonitor);
+  m_metadataTree->Branch("ChainAlgorithmMonitor", &ChainAlgorithmMonitor);
+  m_metadataTree->Branch("AlgorithmMonitor", &AlgorithmMonitor);
+  m_metadataTree->Branch("AlgorithmClassMonitor", &AlgorithmClassMonitor);
+  m_metadataTree->Branch("ROSMonitor", &ROSMonitor);
+  m_metadataTree->Branch("GlobalsMonitor", &GlobalsMonitor);
+  m_metadataTree->Branch("ThreadMonitor", &ThreadMonitor);
+
+  float BaseEventWeight = (const float&) m_baseEventWeight;
+  std::string AdditionalHashMap = (const std::string&) m_additionalHashMap;
+  bool DoEBWeighting = (const bool&) m_useEBWeights;
+
+  m_metadataTree->Branch("AdditionalHashMap", &AdditionalHashMap);
+  m_metadataTree->Branch("DoEBWeighting", &DoEBWeighting);
+  m_metadataTree->Branch("BaseEventWeight", &BaseEventWeight);
+
+  std::string atlasProject = std::getenv("AtlasProject");
+  std::string atlasVersion = std::getenv("AtlasVersion");
+  m_metadataTree->Branch("AtlasProject", &atlasProject);
+  m_metadataTree->Branch("AtlasVersion", &atlasVersion);
+
+  m_metadataTree->Fill();
 }

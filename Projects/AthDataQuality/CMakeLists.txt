@@ -1,14 +1,14 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Set up the project.
 cmake_minimum_required( VERSION 3.6 )
 file( READ ${CMAKE_SOURCE_DIR}/version.txt _version )
 string( STRIP ${_version} _version )
-project( AthDataQuality VERSION ${_version} LANGUAGES CXX )
+project( AthDataQuality VERSION ${_version} LANGUAGES C CXX )
 unset( _version )
 
 # Set the version of tdaq-common to use for the build:
-set( TDAQ-COMMON_VERSION "04-02-01" CACHE STRING
+set( TDAQ-COMMON_VERSION "04-03-00" CACHE STRING
    "The version of tdaq-common to use for the build" )
 set( TDAQ-COMMON_ATROOT
    "$ENV{TDAQ_RELEASE_BASE}/tdaq-common/tdaq-common-${TDAQ-COMMON_VERSION}"
@@ -18,9 +18,9 @@ set( TDAQ-COMMON_ATROOT
 find_package( AtlasCMake REQUIRED )
 
 # Build the project against LCG:
-set( LCG_VERSION_POSTFIX "python3_ATLAS_2"
+set( LCG_VERSION_POSTFIX "_ATLAS_5"
    CACHE STRING "Version postfix for the LCG release to use" )
-set( LCG_VERSION_NUMBER 98
+set( LCG_VERSION_NUMBER 100
    CACHE STRING "Version number for the LCG release to use" )
 find_package( LCG ${LCG_VERSION_NUMBER} EXACT REQUIRED )
 
@@ -30,6 +30,17 @@ find_package( GSL )
 find_package( PNG )
 find_package( TBB )
 find_package( TIFF )
+
+# Disable flake8.
+set( ATLAS_FLAKE8 true   # <- this is the shell builtin `true`
+   CACHE STRING "Default flake8 command" )
+set( ATLAS_PYTHON_CHECKER ""
+   CACHE STRING "Python checker command to run during Python module compilation" )
+
+# Set up the build/runtime environment:
+set( AthDataQualityReleaseEnvironment_DIR ${CMAKE_SOURCE_DIR}/cmake CACHE PATH
+   "Path to AthDataQualityReleaseEnvironmentConfig.cmake" )
+find_package( AthDataQualityReleaseEnvironment REQUIRED )
 
 # Make CMake find the project specific code we have here:
 list( INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake )
@@ -45,10 +56,9 @@ lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )
 
 # Generate replacement rules for the installed paths:
 set( _replacements )
-if( NOT "$ENV{NICOS_PROJECT_HOME}" STREQUAL "" )
-   get_filename_component( _buildDir $ENV{NICOS_PROJECT_HOME} PATH )
-   list( APPEND _replacements ${_buildDir}
-      "\${AthDataQuality_DIR}/../../../.." )
+if( NOT "$ENV{ATLAS_BUILD_DIR}" STREQUAL "" )
+   list( APPEND _replacements "$ENV{ATLAS_BUILD_DIR}/install"
+                              "\${AthDataQuality_DIR}/../../../.." )
 endif()
 if( NOT "$ENV{TDAQ_RELEASE_BASE}" STREQUAL "" )
    list( APPEND _replacements $ENV{TDAQ_RELEASE_BASE}

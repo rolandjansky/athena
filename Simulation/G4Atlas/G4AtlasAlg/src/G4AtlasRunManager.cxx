@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "G4AtlasAlg/G4AtlasRunManager.h"
@@ -24,10 +24,10 @@ G4AtlasRunManager::G4AtlasRunManager()
   : G4RunManager()
   , m_msg("G4AtlasRunManager")
   , m_recordFlux(false)
-  , m_senDetTool("SensitiveDetectorMasterTool")
   , m_fastSimTool("FastSimulationMasterTool")
   , m_physListSvc("PhysicsListSvc", "G4AtlasRunManager")
   , m_detGeoSvc("DetectorGeometrySvc", "G4AtlasRunManager")
+  , m_volumeSmartlessLevel({})
 {  }
 
 
@@ -59,33 +59,6 @@ void G4AtlasRunManager::InitializeGeometry()
     abort(); // to keep Coverity happy
   }
 
-  // Set smartlessness
-  G4LogicalVolumeStore *logicalVolumeStore = G4LogicalVolumeStore::GetInstance();
-  if (logicalVolumeStore->size() == 0) {
-      ATH_MSG_ERROR( "G4 logical volume store is empty." );
-  }
-  const G4String muonSys("Muon::MuonSys");
-  const G4String embSTAC("LArMgr::LAr::EMB::STAC");
-  bool ilvMuonSys = false, ilvEmbSTAC = false;
-  for (auto* ilv : *logicalVolumeStore ) {
-    if ( ilv->GetName() == muonSys ) {
-      ilv->SetSmartless( 0.1 );
-      ATH_MSG_INFO( "Set smartlessness for Muon::MuonSys to 0.1" );
-      ilvMuonSys = true;
-    }
-    else if ( ilv->GetName() == embSTAC ) {
-      ilv->SetSmartless( 0.5 );
-      ATH_MSG_INFO( "Set smartlessness for LArMgr::LAr::EMB::STAC to 0.5" );
-      ilvEmbSTAC = true;
-    }
-  }
-  if (ilvMuonSys == false) {
-      ATH_MSG_INFO( "Muon::MuonSys not in G4 logical volume store. Smartlessness not set." );
-  }
-  if (ilvEmbSTAC == false) {
-      ATH_MSG_INFO( "LArMgr::LAr::EMB::STAC not in G4 logical volume store. Smartlessness not set." );
-  }
-
   // Create/assign detector construction
   G4RunManager::SetUserInitialization(m_detGeoSvc->GetDetectorConstruction());
   if (userDetector) {
@@ -93,21 +66,6 @@ void G4AtlasRunManager::InitializeGeometry()
   }
   else {
     ATH_MSG_WARNING( " User Detector not set!!! Geometry NOT initialized!!!" );
-  }
-
-  // Geometry has been initialized.
-  if (m_senDetTool.retrieve().isFailure()) { //svcLocator->service("SensitiveDetector",m_senDetSvc).isFailure())
-    ATH_MSG_ERROR ( "Could not retrieve the SD master tool" );
-    G4ExceptionDescription description;
-    description << "InitializeGeometry: Failed to retrieve ISensitiveDetectorMasterTool.";
-    G4Exception("G4AtlasRunManager", "CouldNotRetrieveSDMaster", FatalException, description);
-    abort(); // to keep Coverity happy
-  }
-  if(m_senDetTool->initializeSDs().isFailure()) {
-    G4ExceptionDescription description;
-    description << "InitializeGeometry: Call to ISensitiveDetectorMasterTool::initializeSDs failed.";
-    G4Exception("G4AtlasRunManager", "FailedToInitializeSDs", FatalException, description);
-    abort(); // to keep Coverity happy
   }
   return;
 }

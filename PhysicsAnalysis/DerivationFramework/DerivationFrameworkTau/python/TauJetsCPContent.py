@@ -1,11 +1,11 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 TauJetsCPContent = [
 "AntiKt4LCTopoJets",
 "InDetTrackParticles",
 "InDetTrackParticlesAux.phi.vertexLink.theta.qOverP.truthParticleLink.truthMatchProbability",
 "TauJets",
-"TauJetsAux.pt.eta.phi.m.tauTrackLinks.jetLink.vertexLink.secondaryVertexLink.charge.isTauFlags.BDTJetScore.BDTEleScore.ptFinalCalib.etaFinalCalib.phiFinalCalib.mFinalCalib.electronLink.EleMatchLikelihoodScore.pt_combined.eta_combined.phi_combined.m_combined.BDTJetScoreSigTrans.BDTEleScoreSigTrans.PanTau_DecayMode.RNNJetScore.RNNJetScoreSigTrans.seedJetWidth.seedJetJvt.seedTrackWidthPt1000.seedTrackWidthPt500.truthParticleLink.truthJetLink",
+"TauJetsAux.pt.eta.phi.m.tauTrackLinks.jetLink.vertexLink.secondaryVertexLink.charge.isTauFlags.ptFinalCalib.etaFinalCalib.phiFinalCalib.mFinalCalib.ptCombined.etaCombined.phiCombined.mCombined.PanTau_DecayMode.RNNJetScore.RNNJetScoreSigTrans.RNNEleScore.RNNEleScoreSigTrans.seedJetWidth.seedJetJvt.seedTrackWidthPt1000.seedTrackWidthPt500.truthParticleLink.truthJetLink",
 "TauTracks",
 "TauTracksAux.pt.eta.phi.flagSet.trackLinks",
 "TruthTaus",

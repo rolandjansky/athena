@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthenaPoolCnvSvc/test/T_AthenaPoolViewVectorCnv_test.cxx
@@ -100,7 +100,7 @@ public:
       m_pers_old (nullptr)
   {}
 
-  virtual void setObjPtr(void*& obj, const Token* token) const override
+  virtual void setObjPtr(void*& obj, const Token* token) override
   {
     if (m_pers) {
       auto vvb = new ViewVector<DataVector<Y_v2> > (*m_pers);
@@ -113,7 +113,6 @@ public:
     }
   }
 
-  std::string m_name;
   ViewVector<DataVector<Y_v2> >* m_pers;
   YCont_v2_pers2* m_pers_old;
 };

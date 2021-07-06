@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 """
@@ -13,12 +13,12 @@ import sys
 class PyStep(Step):
    """Step calling a python function"""
 
-   def __init__(self, func, name=None):
+   def __init__(self, func, **kwargs):
+      name = kwargs.get('name') or func.__name__
       super(PyStep, self).__init__(name)
       self.func = func
+      self.func_kwargs = dict([(k,v) for k,v in kwargs.items() if k != 'name'])
       self.output_stream = Step.OutputStream.STDOUT_ONLY
-      if self.name is None:
-         self.name = self.func.__name__
 
    def run(self, dry_run=False):
 
@@ -35,7 +35,7 @@ class PyStep(Step):
       else:
          try:
             with contextlib.redirect_stdout(dest), contextlib.redirect_stderr(dest):
-               self.result = self.func()
+               self.result = self.func(**self.func_kwargs)
 
             # Poor man's implementation of 'tee'
             if self.output_stream == self.OutputStream.FILE_AND_STDOUT:

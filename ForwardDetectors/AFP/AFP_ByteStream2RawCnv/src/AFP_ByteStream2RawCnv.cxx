@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // AFP_ByteStream2RawCnv includes
@@ -49,6 +49,14 @@ StatusCode AFP_ByteStream2RawCnv::initialize() {
     ATH_MSG_DEBUG("Retrieved service " << m_robDataProvider << "...");
   }
 
+   if (m_wordReadout.retrieve().isFailure()) {
+    ATH_MSG_WARNING("Failed to retrieve service " << m_wordReadout
+		    << "...");
+    return StatusCode::SUCCESS;
+  } else {
+    ATH_MSG_DEBUG("Retrieved service " << m_wordReadout << "...");
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -58,7 +66,7 @@ StatusCode AFP_ByteStream2RawCnv::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode AFP_ByteStream2RawCnv::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, AFP_RawContainer *rawContainer) {
+StatusCode AFP_ByteStream2RawCnv::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, AFP_RawContainer *rawContainer) const {
   ATH_MSG_DEBUG("AFP_ByteStream2RawCnv::fillColelction rob_source_id: in decimal="<<std::dec<<robFrag->rob_source_id()<<",  in hex=0x"<<std::hex<<robFrag->rob_source_id()<<std::dec);
 
   try {
@@ -114,43 +122,44 @@ StatusCode AFP_ByteStream2RawCnv::fillCollection(const OFFLINE_FRAGMENTS_NAMESPA
 
   const uint32_t size = robFrag->rod_ndata();
   for (unsigned i = 0; i < size; i++) {
-    m_wordReadout.setWord(vint[i]);
+    uint32_t the_word=vint[i];
+    uint32_t the_link=m_wordReadout->link(the_word);
 
-    if (m_wordReadout.isHeader()) {
+    if (m_wordReadout->isHeader(the_word)) {
       AFP_RawCollectionHead* collectionHead = nullptr;
-      if ( isLinkToF (m_wordReadout.link()) ) {
+      if ( isLinkToF (the_link) ) {
 	// prepare collection for time-of-flight
-	collectionToF = getCollectionToF(//m_wordReadout.link(), robFrag->rob_source_id(), 
+	collectionToF = getCollectionToF(//m_wordReadout->link(), robFrag->rob_source_id(), 
                                            rawContainer);
 	collectionHead = collectionToF;
       }
-      else if ( isLinkSi (m_wordReadout.link()) ) {
+      else if ( isLinkSi (the_link) ) {
 	// prepare collection for silicon detector
-	collectionSi = getCollectionSi(//m_wordReadout.link(), robFrag->rob_source_id(), 
+	collectionSi = getCollectionSi(//m_wordReadout->link(), robFrag->rob_source_id(), 
                                          rawContainer);
 	collectionHead = collectionSi;
       }
       else {
-        ATH_MSG_WARNING("Unidentified value of link="<<m_wordReadout.link()<<" for header record.");
+        ATH_MSG_WARNING("Unidentified value of link="<<the_link<<" for header record.");
         return StatusCode::SUCCESS;
       }
 
       if (!collectionHead) {
         ATH_MSG_WARNING("nullptr returned by getCollection(link = "
-			<< m_wordReadout.link() << ", robID = " << robFrag->rob_source_id() <<")");
+			<< the_link << ", robID = " << robFrag->rob_source_id() <<")");
         return StatusCode::SUCCESS;
       }
 
       // set head collection informaiton
-      collectionHead->setLvl1Id(m_wordReadout.getBits(14, 10));
-      collectionHead->setLink(m_wordReadout.link());
-      collectionHead->setFrontendFlag(m_wordReadout.getBits(15, 15));
-      collectionHead->setBcId(m_wordReadout.getBits(9, 0));
+      collectionHead->setLvl1Id(m_wordReadout->getBits(the_word, 14, 10));
+      collectionHead->setLink(the_link);
+      collectionHead->setFrontendFlag(m_wordReadout->getBits(the_word, 15, 15));
+      collectionHead->setBcId(m_wordReadout->getBits(the_word, 9, 0));
       collectionHead->setRobId(robFrag->rob_source_id());
     }
-    else if (m_wordReadout.isData()) {
+    else if (m_wordReadout->isData(the_word)) {
       // fill time-of-flight collection
-      if ( isLinkToF (m_wordReadout.link()) ) {
+      if ( isLinkToF (the_link) ) {
 
 	// check if collection is available
 	if ( !collectionToF ) {
@@ -159,15 +168,15 @@ StatusCode AFP_ByteStream2RawCnv::fillCollection(const OFFLINE_FRAGMENTS_NAMESPA
 	}
 
 	AFP_ToFRawData& ToFData = collectionToF->newDataRecord();
-	ToFData.setHeader( m_wordReadout.getBits (23, 21) );
-	ToFData.setEdge( m_wordReadout.getBits (20, 20) );
-	ToFData.setChannel( m_wordReadout.getBits (19, 16) );
-	ToFData.setPulseLength( m_wordReadout.getBits (15, 10) );
-	ToFData.setTime( m_wordReadout.getBits (9, 0) );
+	ToFData.setHeader( m_wordReadout->getBits (the_word, 23, 21) );
+	ToFData.setEdge( m_wordReadout->getBits (the_word, 20, 20) );
+	ToFData.setChannel( m_wordReadout->getBits (the_word, 19, 16) );
+	ToFData.setPulseLength( m_wordReadout->getBits (the_word, 15, 10) );
+	ToFData.setTime( m_wordReadout->getBits (the_word, 9, 0) );
 
-	setDataHeader (&ToFData);
+	setDataHeader (the_word, &ToFData);
       }
-      else if ( isLinkSi (m_wordReadout.link()) ) {
+      else if ( isLinkSi (the_link) ) {
 	// fill silicon detector collection
 
 	// check if collection is available
@@ -177,27 +186,27 @@ StatusCode AFP_ByteStream2RawCnv::fillCollection(const OFFLINE_FRAGMENTS_NAMESPA
 	}
 
 	// check first silicon hit information
-	if (m_wordReadout.getBits(7, 4) != s_siNoHitMarker) {
+	if (m_wordReadout->getBits(the_word, 7, 4) != s_siNoHitMarker) {
 	  AFP_SiRawData& siData = collectionSi->newDataRecord();
-	  siData.setColumn (m_wordReadout.getBits(23, 17));
-	  siData.setRow (m_wordReadout.getBits(16, 8));
-	  siData.setTimeOverThreshold (m_wordReadout.getBits(7, 4));
+	  siData.setColumn (m_wordReadout->getBits(the_word, 23, 17));
+	  siData.setRow (m_wordReadout->getBits(the_word, 16, 8));
+	  siData.setTimeOverThreshold (m_wordReadout->getBits(the_word, 7, 4));
 	  
-	  setDataHeader (&siData);
+	  setDataHeader (the_word, &siData);
 	}
 
 	// check second silicon hit information
-	if (m_wordReadout.getBits(3, 0) != s_siNoHitMarker) {
+	if (m_wordReadout->getBits(the_word, 3, 0) != s_siNoHitMarker) {
 	  AFP_SiRawData& siData = collectionSi->newDataRecord();
-	  siData.setColumn (m_wordReadout.getBits(23, 17));
-	  siData.setRow (m_wordReadout.getBits(16, 8) + 1);
-	  siData.setTimeOverThreshold (m_wordReadout.getBits(3, 0));
+	  siData.setColumn (m_wordReadout->getBits(the_word, 23, 17));
+	  siData.setRow (m_wordReadout->getBits(the_word, 16, 8) + 1);
+	  siData.setTimeOverThreshold (m_wordReadout->getBits(the_word, 3, 0));
 
-	  setDataHeader (&siData);
+	  setDataHeader (the_word, &siData);
 	}
       }
       else {
-	ATH_MSG_WARNING("Not recognised value of link="<<m_wordReadout.link()<<" for data record.");
+	ATH_MSG_WARNING("Not recognised value of link="<<the_link<<" for data record.");
 	return StatusCode::SUCCESS;
       }
 
@@ -210,7 +219,7 @@ StatusCode AFP_ByteStream2RawCnv::fillCollection(const OFFLINE_FRAGMENTS_NAMESPA
 
 AFP_SiRawCollection *
 AFP_ByteStream2RawCnv::getCollectionSi(//const unsigned int link, const unsigned int robId,
-				       AFP_RawContainer *container) {
+				       AFP_RawContainer *container) const {
 
   if (!container) {
     ATH_MSG_WARNING("NULL pointer passed in argument: container. NULL pointer returned.");
@@ -234,7 +243,7 @@ AFP_ByteStream2RawCnv::getCollectionSi(//const unsigned int link, const unsigned
 
 AFP_ToFRawCollection *
 AFP_ByteStream2RawCnv::getCollectionToF(// const unsigned int link, const unsigned int robId,
-					AFP_RawContainer *container) {
+					AFP_RawContainer *container) const {
 
   if (!container) {
     ATH_MSG_WARNING("NULL pointer passed in argument: container. NULL pointer returned.");
@@ -256,8 +265,8 @@ AFP_ByteStream2RawCnv::getCollectionToF(// const unsigned int link, const unsign
   return &newCollection;
 }
 
-void AFP_ByteStream2RawCnv::setDataHeader (AFP_RawDataCommonHead* dataHead) const
+void AFP_ByteStream2RawCnv::setDataHeader (uint32_t the_word, AFP_RawDataCommonHead* dataHead) const
 {
-  dataHead->setLink (m_wordReadout.link());
-  dataHead->setHitDiscConfig (m_wordReadout.getBits(29, 28));
+  dataHead->setLink (m_wordReadout->link(the_word));
+  dataHead->setHitDiscConfig (m_wordReadout->getBits(the_word, 29, 28));
 }

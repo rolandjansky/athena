@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DatabaseHandler.h"
@@ -79,7 +79,8 @@ pool::PersistencySvc::DatabaseHandler::containers()
    m_storageExplorer.containers( m_fileDescriptor, containerTokens );
    for ( std::vector<const Token*>::const_iterator iToken = containerTokens.begin();
          iToken != containerTokens.end(); ++iToken ) {
-      result.push_back( m_storageSvc.getContName(m_fileDescriptor, **iToken) );
+      Token tok (*iToken);
+      result.push_back( m_storageSvc.getContName(m_fileDescriptor, tok) );
    }
    return result;
 }
@@ -192,7 +193,7 @@ bool
 pool::PersistencySvc::DatabaseHandler::attribute( const std::string& attributeName,
                                                   void* data,
                                                   const std::type_info& typeInfo,
-                                                  const std::string& option ) const
+                                                  const std::string& option )
 {
   pool::DbOption databaseOption( attributeName, option );
   pool::DbStatus sc = m_storageExplorer.getDatabaseOption( m_fileDescriptor, databaseOption );
@@ -227,7 +228,7 @@ pool::PersistencySvc::DatabaseHandler::setAttribute( const std::string& attribut
 
 
 pool::DbDatabase::Redirections
-pool::PersistencySvc::DatabaseHandler::redirections() const
+pool::PersistencySvc::DatabaseHandler::redirections()
 {
   pool::DbDatabase::Redirections redirections;
   m_storageExplorer.dbRedirections( m_fileDescriptor, redirections );

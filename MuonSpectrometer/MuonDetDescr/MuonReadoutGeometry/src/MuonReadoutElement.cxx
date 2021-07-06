@@ -37,8 +37,8 @@ namespace MuonGM {
     m_statname = "XXX0";
     m_techname = "TTT0";
     m_descratzneg  = false;
-    m_parentStationPV = PVConstLink(0);
-    m_parentMuonStation = 0;
+    m_parentStationPV = PVConstLink(nullptr);
+    m_parentMuonStation = nullptr;
     m_indexOfREinMuonStation = -999;
     m_hasCutouts = false;
 
@@ -102,7 +102,7 @@ namespace MuonGM {
     if ( m_parentStationPV ) return;
 
     std::string::size_type npos;
-    PVConstLink pStat = PVConstLink(0);
+    PVConstLink pStat = PVConstLink(nullptr);
     PVConstLink myphysvol( getMaterialGeom() );
     
     std::string name = (myphysvol->getLogVol())->getName();
@@ -113,7 +113,7 @@ namespace MuonGM {
       for (unsigned int k=0; k<10; k++) 
         {
 	  pStat = myphysvol->getParent();
-	  if ( pStat == PVConstLink(0) ) break;
+	  if ( pStat == PVConstLink(nullptr) ) break;
 	  name = (pStat->getLogVol())->getName();
 	  if ((npos = name.find("Station")) != std::string::npos) {
 	    break;
@@ -138,7 +138,7 @@ namespace MuonGM {
   void MuonReadoutElement::setIndexOfREinMuonStation() 
   {
     PVConstLink par = parentStationPV();
-    if (par == PVConstLink(0)) {
+    if (par == PVConstLink(nullptr)) {
       throw std::runtime_error(Form("File: %s, Line: %d\nMuonReadoutElement::setIndexOfREinMuonStation() - parent station not found", __FILE__, __LINE__));
     }
     Query<unsigned int > c = par->indexOf(getMaterialGeom());
@@ -152,7 +152,7 @@ namespace MuonGM {
   Amg::Transform3D MuonReadoutElement::toParentStation() const
   {
     PVConstLink par = parentStationPV();
-    if (par == PVConstLink(0)) {
+    if (par == PVConstLink(nullptr)) {
       throw std::runtime_error(Form("File: %s, Line: %d\nMuonReadoutElement::toParentStation() - parent not found", __FILE__, __LINE__));
     }
     

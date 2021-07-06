@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -64,6 +64,17 @@
 #include <fstream>
 #include <memory>
 
+
+namespace {
+ // thresholds for the shortest and longest strips
+ // values from https://indico.cern.ch/event/1002207/contributions/4240818
+ // slide 10
+
+ static constexpr float maxNoise = 2600;
+ static constexpr float minNoise = 1000;
+
+}
+
 using namespace MuonGM;
 
 /*******************************************************************************/
@@ -98,6 +109,7 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
   m_n_StrRespID(),
   m_n_StrRespCharge(),
   m_n_StrRespTime() {}
+  
 
 /*******************************************************************************/
 // member function implementation
@@ -105,6 +117,9 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
 StatusCode MM_DigitizationTool::initialize() {
 
 	ATH_MSG_DEBUG ("MM_DigitizationTool:: in initialize()") ;
+
+	ATH_CHECK(m_rndmSvc.retrieve());
+  
 
 	// Initialize transient detector store and MuonGeoModel OR MuonDetDescrManager
 	if(detStore()->contains<MuonGM::MuonDetectorManager>( "Muon" )){
@@ -192,6 +207,7 @@ StatusCode MM_DigitizationTool::initialize() {
     TF1* lorentzAngleFunction;
 
     ATH_CHECK(m_calibrationTool->mmGasProperties(vDrift, longDiff, transDiff, interactionDensityMean, interactionDensitySigma,  lorentzAngleFunction));
+    float peakTime = m_calibrationTool->peakTime();
 
 	m_driftVelocity = vDrift;
 
@@ -202,14 +218,14 @@ StatusCode MM_DigitizationTool::initialize() {
 	m_StripsResponseSimulation->setInteractionDensityMean(interactionDensityMean);
 	m_StripsResponseSimulation->setInteractionDensitySigma(interactionDensitySigma);
 	m_StripsResponseSimulation->setLorentzAngleFunction(lorentzAngleFunction);
-	m_StripsResponseSimulation->initialize(m_randomSeed);
+	m_StripsResponseSimulation->initialize();
 
 	// ElectronicsResponseSimulation Creation
 	m_ElectronicsResponseSimulation = std::make_unique<MM_ElectronicsResponseSimulation>();
-	m_ElectronicsResponseSimulation->setPeakTime(m_peakTime); // VMM peak time parameter
+	m_ElectronicsResponseSimulation->setPeakTime(peakTime); // VMM peak time parameter
 	m_ElectronicsResponseSimulation->setTimeWindowLowerOffset(m_timeWindowLowerOffset);
+	m_timeWindowUpperOffset += peakTime; // account for peak time in time window
 	m_ElectronicsResponseSimulation->setTimeWindowUpperOffset(m_timeWindowUpperOffset);
-	m_ElectronicsResponseSimulation->setElectronicsThreshold(m_electronicsThreshold);
 	m_ElectronicsResponseSimulation->setStripdeadtime(m_stripdeadtime);
 	m_ElectronicsResponseSimulation->setARTdeadtime(m_ARTdeadtime);
 	m_ElectronicsResponseSimulation->setNeighborLogic(m_vmmNeighborLogic);
@@ -238,8 +254,38 @@ StatusCode MM_DigitizationTool::initialize() {
 
 	if (m_doSmearing) ATH_MSG_INFO("Running in smeared mode!");
 
+  // get shortest and longest strip length for threshold scaling
+  //
+  Identifier tmpId; // temporary identifier to work with ReadoutElement
+  
+  // identifier for first gas gap in a large MM sector, layer is eta layer, station Eta = 1 to get shortest strip
+  tmpId = m_idHelperSvc->mmIdHelper().channelID("MML",1,1,1,1,1); 
+  
+  const MuonGM::MMReadoutElement* detectorReadoutElement = m_MuonGeoMgr->getMMReadoutElement(tmpId);
+  int stripNumberShortestStrip = (detectorReadoutElement->getDesign(tmpId))->nMissedBottomEta + 1;
+  Identifier tmpIdShortestStrip = m_idHelperSvc->mmIdHelper().channelID("MML",1,1,1,1,stripNumberShortestStrip); // identifier for first gas gap in a large MM sector, layer is eta layer
+  float shortestStripLength = detectorReadoutElement->stripLength(tmpIdShortestStrip);
+
+  // identifier for first gas gap in a large MM sector, layer is eta layer, station Eta = 2 to get the longest strip
+  Identifier tmpId2 = m_idHelperSvc->mmIdHelper().channelID("MML",2,1,1,1,1);
+  
+  detectorReadoutElement = m_MuonGeoMgr->getMMReadoutElement(tmpId2);
+  int stripNumberLongestStrip = (detectorReadoutElement->getDesign(tmpId))->totalStrips - (detectorReadoutElement->getDesign(tmpId))->nMissedTopEta;
+  Identifier tmpIdLongestStrip = m_idHelperSvc->mmIdHelper().channelID("MML",2,1,1,1,stripNumberLongestStrip); // identifier for first gas gap in a large MM sector, layer is eta layer
+  float longestStripLength = detectorReadoutElement->stripLength(tmpIdLongestStrip);
+
+  // now get the slope and intercept for the threshold scaling
+  // function is m_noiseSlope * stripLength + m_noiseIntercept
+  m_noiseSlope = (maxNoise - minNoise)/(longestStripLength-shortestStripLength);
+  m_noiseIntercept = minNoise - m_noiseSlope*shortestStripLength;
+
+
+  ATH_MSG_DEBUG(" Shortest strip number: " << stripNumberShortestStrip  << " length: " << shortestStripLength << " longest strip number: " << stripNumberLongestStrip << " length " << longestStripLength);
+
 	ATH_MSG_DEBUG ( "Configuration  MM_DigitizationTool " );
 	ATH_MSG_DEBUG ( "DigitizationTool       " << m_digitTool           );
+	ATH_MSG_INFO ( "RndmSvc                " << m_rndmSvc             );
+	ATH_MSG_INFO ( "RndmEngine             " << m_rndmEngineName      );
 	ATH_MSG_DEBUG ( "InputObjectName        " << m_inputObjectName     );
 	ATH_MSG_DEBUG ( "OutputObjectName       " << m_outputDigitCollectionKey.key());
 	ATH_MSG_DEBUG ( "OutputSDOName          " << m_outputSDO_CollectionKey.key());
@@ -430,6 +476,8 @@ StatusCode MM_DigitizationTool::finalize() {
 /*******************************************************************************/
 StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
 
+  CLHEP::HepRandomEngine* rndmEngine = getRandomEngine(m_rndmEngineName, ctx);
+
   // create and record the Digit container in StoreGate
   SG::WriteHandle<MmDigitContainer> digitContainer(m_outputDigitCollectionKey, ctx);
   ATH_CHECK(digitContainer.record(std::make_unique<MmDigitContainer>(m_idHelperSvc->mmIdHelper().detectorElement_hash_max())));
@@ -561,18 +609,15 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
 		      );
       
       // For collection of inputs to throw back in SG
-      
-    MMSimHit* copyHit = new MMSimHit(hitID,
-                                     m_globalHitTime+m_eventTime,
-                                     globalHitPosition,
-                                     hit.particleEncoding(),
-                                     hit.kineticEnergy(),
-                                     hit.globalDirection(),
-                                     hit.depositEnergy(),
-                                     particleLink
-                                     );
-      
-      inputSimHitColl->Insert(*copyHit);
+     
+      inputSimHitColl->Emplace(hitID,
+		       m_globalHitTime+m_eventTime,
+		       globalHitPosition,
+		       hit.particleEncoding(),
+		       hit.kineticEnergy(),
+		       hit.globalDirection(),
+		       hit.depositEnergy(),
+		       particleLink);
       
       // remove hits in masked multiplet
       if( m_maskMultiplet == m_idHelperSvc->mmIdHelper().multilayer(layerID) ) continue;
@@ -758,8 +803,8 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
 	continue;
       }
       
-      // Perform Bound Check
-      if( !surf.insideBounds(positionOnSurface) ){
+      // Perform Bound Check (making the call from the detector element to consider edge passivation)
+      if( !detectorReadoutElement->insideActiveBounds(layerID, positionOnSurface) ) {
 	m_exitcode = 1;
 	if(m_writeOutputFile) m_ntuple->Fill();
 	ATH_MSG_DEBUG( "m_exitcode = 1 : shiftTimeOffset = "
@@ -895,15 +940,22 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       sdoContainer->insert ( std::make_pair ( digitID, simData ) );
       ATH_MSG_DEBUG(" added MM SDO " <<  sdoContainer->size());
       
-      
       m_n_hitStripID=stripNumber;
       m_n_hitDistToChannel=distToChannel;
       m_n_hitIncomingAngle=inAngle_XZ;
       m_n_hitIncomingAngleRads = inAngle_XZ * CLHEP::degree;
       m_n_hitOnSurface_x=positionOnSurface.x();
       m_n_hitOnSurface_y = positionOnSurface.y();
+
+      float gainFraction = 1.0;
+      if ( m_doSmearing ) {
+        // build identifier including the strip since layerId does not contain teh strip number
+        Identifier id = m_idHelperSvc->mmIdHelper().channelID(layerID, m_idHelperSvc->mmIdHelper().multilayer(layerID), m_idHelperSvc->mmIdHelper().gasGap(layerID), stripNumber);
+        ATH_CHECK(m_smearingTool->getGainFraction(id, gainFraction));
+      }
+      double stripPitch = detectorReadoutElement->getDesign(layerID)->channelWidth(positionOnSurface); 
       
-      MM_StripToolOutput tmpStripOutput = m_StripsResponseSimulation->GetResponseFrom(stripDigitInput);
+      MM_StripToolOutput tmpStripOutput = m_StripsResponseSimulation->GetResponseFrom(stripDigitInput,gainFraction, stripPitch, rndmEngine);
       MM_ElectronicsToolInput stripDigitOutput( tmpStripOutput.NumberOfStripsPos(), tmpStripOutput.chipCharge(), tmpStripOutput.chipTime(), digitID , hit.kineticEnergy());
       
       // This block is purely validation
@@ -947,15 +999,6 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
     // VMM Simulation
     //
 
-    // get the threshold scale factor from the gain factor of the smearing tool
-    float thresholdScaleFactor = 1.0;
-    if ( m_doSmearing ) {
-      float gainFraction = 1.0;
-      ATH_CHECK(m_smearingTool->getGainFraction(layerID,gainFraction));
-      /// now transform the gain fraction into a threshold scale factor
-      thresholdScaleFactor = 1. / gainFraction;
-    }
-    
     // Combine all strips (for this VMM) into a single VMM-level object
     //
     MM_ElectronicsToolInput stripDigitOutputAllHits = combinedStripResponseAllHits(v_stripDigitOutput);
@@ -964,13 +1007,13 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
     
     // Create Electronics Output with peak finding setting
     //
-    MM_DigitToolOutput electronicsPeakOutput( m_ElectronicsResponseSimulation->getPeakResponseFrom(stripDigitOutputAllHits, thresholdScaleFactor) );
+    MM_DigitToolOutput electronicsPeakOutput( m_ElectronicsResponseSimulation->getPeakResponseFrom(stripDigitOutputAllHits) );
     if(!electronicsPeakOutput.isValid())
       ATH_MSG_DEBUG ( "MM_DigitizationTool::doDigitization() -- there is no electronics response (peak finding mode) even though there is a strip response." );
     
     // Create Electronics Output with threshold setting
     //
-    MM_DigitToolOutput electronicsThresholdOutput( m_ElectronicsResponseSimulation->getThresholdResponseFrom(stripDigitOutputAllHits,thresholdScaleFactor) );
+    MM_DigitToolOutput electronicsThresholdOutput( m_ElectronicsResponseSimulation->getThresholdResponseFrom(stripDigitOutputAllHits) );
     if(!electronicsThresholdOutput.isValid())
       ATH_MSG_DEBUG ( "MM_DigitizationTool::doDigitization() -- there is no electronics response (threshold mode) even though there is a strip response." );
     
@@ -1143,9 +1186,13 @@ MM_ElectronicsToolInput MM_DigitizationTool::combinedStripResponseAllHits(const 
 	std::vector <int> v_stripStripResponseAllHits;
 	std::vector < std::vector <float> > v_timeStripResponseAllHits;
 	std::vector < std::vector <float> > v_qStripResponseAllHits;
+	std::vector<float> v_stripThresholdResponseAllHits;
 	v_stripStripResponseAllHits.clear();
 	v_timeStripResponseAllHits.clear();
 	v_qStripResponseAllHits.clear();
+	v_stripThresholdResponseAllHits.clear();
+	v_stripThresholdResponseAllHits.clear();
+
 
 	Identifier digitID;
 	float max_kineticEnergy = 0.0;
@@ -1176,6 +1223,17 @@ MM_ElectronicsToolInput MM_DigitizationTool::combinedStripResponseAllHits(const 
 				v_stripStripResponseAllHits.push_back(strip_id);
 				v_timeStripResponseAllHits.push_back(i_stripDigitOutput.chipTime()[i]);
 				v_qStripResponseAllHits.push_back(i_stripDigitOutput.chipCharge()[i]);
+				if(m_useThresholdScaling) {
+
+					Identifier id = m_idHelperSvc->mmIdHelper().channelID(digitID, m_idHelperSvc->mmIdHelper().multilayer(digitID), m_idHelperSvc->mmIdHelper().gasGap(digitID), strip_id);
+					const MuonGM::MMReadoutElement* detectorReadoutElement = m_MuonGeoMgr->getMMReadoutElement(id);
+					float stripLength = detectorReadoutElement->stripLength(id);
+					float threshold = (m_noiseSlope*stripLength + m_noiseIntercept) * m_thresholdScaleFactor;
+					v_stripThresholdResponseAllHits.push_back(threshold);        
+				}
+				else {
+					v_stripThresholdResponseAllHits.push_back(m_electronicsThreshold);
+				}
 			}
 		}
 	}
@@ -1183,6 +1241,7 @@ MM_ElectronicsToolInput MM_DigitizationTool::combinedStripResponseAllHits(const 
 	MM_ElectronicsToolInput stripDigitOutputAllHits( v_stripStripResponseAllHits,
 													v_qStripResponseAllHits,
 													v_timeStripResponseAllHits,
+													v_stripThresholdResponseAllHits,
 													digitID,
 													max_kineticEnergy
 													);
@@ -1193,4 +1252,12 @@ MM_ElectronicsToolInput MM_DigitizationTool::combinedStripResponseAllHits(const 
 bool MM_DigitizationTool::checkMMSimHit( const MMSimHit& /*hit*/ ) const {
 	return true;
 }
+
+CLHEP::HepRandomEngine* MM_DigitizationTool::getRandomEngine(const std::string& streamName, const EventContext& ctx) const
+{
+		ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this, streamName);
+		rngWrapper->setSeed( streamName, ctx );
+		return rngWrapper->getEngine(ctx);
+}
+
 

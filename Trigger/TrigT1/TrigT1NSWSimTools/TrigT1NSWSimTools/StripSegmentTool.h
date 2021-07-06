@@ -13,9 +13,9 @@
 
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRDO/NSW_TrigRawDataContainer.h"
-#include "RegSelLUT/IRegionIDLUT_Creator.h"
 #include "TrigT1NSWSimTools/PadTrigger.h"
 #include "TrigT1NSWSimTools/TriggerTypes.h"
+#include "IRegionSelector/IRegSelLUTCondData.h"
 
 class IIncidentSvc;
 class TTree;
@@ -54,6 +54,7 @@ namespace NSWL1 {
     
   private:
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+	SG::ReadCondHandleKey<IRegSelLUTCondData> m_regSelTableKey{this, "RegSelLUT", "RegSelLUTCondData_STGC", "sTGC Region Selector lookup table"};
         // methods implementing the internal data processing
 
         StatusCode book_branches();                             //!< book the branches to analyze the StripTds behavior                                                                                           
@@ -99,8 +100,6 @@ namespace NSWL1 {
         float m_dtheta_min;
         float m_dtheta_max;          
         
-    protected:
-        ToolHandle<IRegionIDLUT_Creator> m_lutCreatorToolsTGC;     
     
   };  // end of StripSegmentTool class
     

@@ -423,6 +423,7 @@ class HLTMuonMonTool : public IHLTMonTool
   // isolation cut for ztp
   double m_ztp_ptcone30rel_cut;
   double m_ztp_EF_ptcone30rel_cut;
+  SG::ReadDecorHandleKey<xAOD::MuonContainer> m_muonIsoKey{this, "MuonIsoKey", "Muons.ptcone30"};
 
   //2d histos parameter
 

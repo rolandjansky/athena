@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //simple includes to force the CLASS_DEF etc to be encountered during compile
@@ -32,3 +32,26 @@
 #include "xAODTrigger/RoiDescriptorStoreAuxInfo.h"
 #include "xAODTrigger/eFexEMRoIContainer.h"
 #include "xAODTrigger/eFexEMRoIAuxContainer.h"
+
+#include "xAODTrigger/eFexTauRoIContainer.h"
+#include "xAODTrigger/eFexTauRoIAuxContainer.h"
+
+#include "xAODTrigger/jFexSRJetRoIContainer.h"
+#include "xAODTrigger/jFexSRJetRoIAuxContainer.h"
+
+#include "xAODTrigger/jFexLRJetRoIContainer.h"
+#include "xAODTrigger/jFexLRJetRoIAuxContainer.h"
+
+#include "xAODTrigger/jFexTauRoIContainer.h"
+#include "xAODTrigger/jFexTauRoIAuxContainer.h"
+
+#include "xAODTrigger/jFexSumETRoIContainer.h"
+#include "xAODTrigger/jFexSumETRoIAuxContainer.h"
+
+#include "xAODTrigger/jFexMETRoIContainer.h"
+#include "xAODTrigger/jFexMETRoIAuxContainer.h"
+
+#include "xAODTrigger/gFexJetRoIContainer.h"
+#include "xAODTrigger/gFexJetRoIAuxContainer.h"
+#include "xAODTrigger/gFexGlobalRoIContainer.h"
+#include "xAODTrigger/gFexGlobalRoIAuxContainer.h"

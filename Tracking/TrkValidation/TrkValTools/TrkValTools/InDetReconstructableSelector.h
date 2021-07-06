@@ -41,7 +41,7 @@ namespace Trk {
     
     /** @brief main method performing the genparticle selection; it works on the entire
         collection. It is a factory. */
-    virtual std::vector<const HepMC::GenParticle *>*
+    virtual std::vector<HepMC::ConstGenParticlePtr>*
       selectGenSignal (const McEventCollection*) const;
 
   private:

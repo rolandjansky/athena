@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
@@ -6,7 +6,30 @@ def AthenaMonitoringCfg(flags):
     import logging
     local_logger = logging.getLogger('AthenaMonitoringCfg')
     info = local_logger.info
+    debug = local_logger.debug
+    error = local_logger.error
     result = ComponentAccumulator()
+
+    if flags.DQ.Environment == 'AOD':
+        info('Scheduling rebuild of standard jets')
+        from JetRecConfig.JetRecConfig import JetRecCfg
+        from JetRecConfig.StandardSmallRJets import AntiKt4EMTopo, AntiKt4EMPFlow, AntiKt4LCTopo
+        result.merge(JetRecCfg(flags, AntiKt4EMTopo))
+        result.merge(JetRecCfg(flags, AntiKt4LCTopo))
+        result.merge(JetRecCfg(flags, AntiKt4EMPFlow))
+        info('Scheduling b-tagging of rebuilt jets')
+        from BTagging.BTagRun3Config import BTagRecoSplitCfg
+        result.merge(BTagRecoSplitCfg(flags, ['AntiKt4EMTopo']))
+        result.merge(BTagRecoSplitCfg(flags, ['AntiKt4EMPFlow']))
+        info('Scheduling rebuild of standard MET')
+        from METReconstruction.METAssociatorCfg import METAssociatorCfg
+        result.merge(METAssociatorCfg(flags, 'AntiKt4EMTopo'))
+        result.merge(METAssociatorCfg(flags, 'AntiKt4LCTopo'))
+        result.merge(METAssociatorCfg(flags, 'AntiKt4EMPFlow'))
+        from CaloTools.CaloNoiseCondAlgConfig import CaloNoiseCondAlgCfg
+        result.merge(CaloNoiseCondAlgCfg(flags)) # Prereq for Calo MET
+        from METReconstruction.METCalo_Cfg import METCalo_Cfg
+        result.merge(METCalo_Cfg(flags))
 
     if flags.DQ.Steering.doPixelMon:
         info('Set up Pixel monitoring')
@@ -92,5 +115,22 @@ def AthenaMonitoringCfg(flags):
         info('Set up LVL1Calo monitoring')
         from TrigT1CaloMonitoring.LVL1CaloMonitoringConfig import LVL1CaloMonitoringConfig
         result.merge(LVL1CaloMonitoringConfig(flags))
+
+    # Check for potentially duplicated histogram definitions
+    definedhists = {}
+    for algo in result.getEventAlgos():
+        import os.path, json
+        if hasattr(algo, 'GMTools'):
+            for t in algo.GMTools:
+                for h in t.Histograms:
+                    ho = json.loads(h)
+                    fullpath = os.path.join(ho['convention'], t.HistPath, ho['path'], ho['alias'])
+                    if fullpath in definedhists:
+                        previous = definedhists[fullpath]
+                        error(f'Multiple definition of histogram {fullpath} by:\n\t{algo.getName()}/{t.getName()} ({ho}) and\n\t{previous[0]}/{previous[1]} ({previous[2]})')
+                        raise ValueError()
+                    definedhists[fullpath] = (algo.getName(), t.getName(), ho)
+
+    debug('Passed histogram duplication check')
         
     return result

@@ -48,13 +48,21 @@ StatusCode GenParticlePerigeeFillerTool::book()
   return StatusCode::SUCCESS;
 }
 
+#ifdef HEPMC3
+StatusCode GenParticlePerigeeFillerTool::fill (const HepMC::ConstGenParticlePtr& particle)
+#else
 StatusCode GenParticlePerigeeFillerTool::fill (const HepMC::GenParticle& particle)
+#endif
 {
 
   this->clearData();
 
   // truth track parameters at perigee
+#ifdef HEPMC3
+  const Trk::TrackParameters *perigee = m_truthToTrack->makePerigeeParameters(particle);
+#else
   const Trk::TrackParameters *perigee = m_truthToTrack->makePerigeeParameters(&particle);
+#endif
   if(perigee) {
     *m_ok = 1;
     *m_d0 = perigee->parameters()[Trk::d0];

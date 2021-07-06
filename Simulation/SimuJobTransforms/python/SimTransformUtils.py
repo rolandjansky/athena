@@ -1,6 +1,6 @@
 from __future__ import division
 from builtins import range
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @brief Module with Digitization transform options and substep
 
@@ -16,9 +16,44 @@ def pileUpCalc(nSignalEvts, refreshRate, nSubEvtPerBunch,nBunches):
     return totalSubEvts
 
 
+### get number of events in a file
+def getNBkgEventsPerFile(initialList, logger):
+    nBkgEventsPerFile = 5000
+    try:
+        from PyUtils.MetaReader import read_metadata
+        metadata = read_metadata(initialList[0])
+        metadata = metadata[initialList[0]]  # promote all keys one level up
+        nBkgEventsPerFile = int(metadata['nentries'])
+        print('{} -> __Test__001__:\n{}'.format(__file__, nBkgEventsPerFile))
+        logger.info('Number of background events per file (read from file) = %s.', nBkgEventsPerFile )
+    except Exception:
+        import traceback
+        traceback.print_exc()
+        logger.warning('Failed to count the number of background events in %s. Assuming 5000 - if this is an overestimate the job may die.', initialList[0])
+    return nBkgEventsPerFile
+
+
+### Calculate random offset into the input PU files
+def getInputColOffset(initialList, jobNumber, logger):
+    offsetrnd = 0
+    if ( jobNumber>=0 ):
+        nBkgEventsPerFile = getNBkgEventsPerFile(initialList, logger)
+        #Turn jobNumber into a random number following https://en.wikipedia.org/wiki/Xorshift
+        #x ^= x << 13;
+        #x ^= x >> 17;
+        #x ^= x << 5;
+        offsetrnd = int( jobNumber + nBkgEventsPerFile*len(initialList) )
+        offsetrnd = offsetrnd ^ (offsetrnd << 13)
+        offsetrnd = offsetrnd ^ (offsetrnd >> 17)
+        offsetrnd = offsetrnd ^ (offsetrnd << 15)
+        offsetrnd = offsetrnd % (nBkgEventsPerFile*len(initialList))
+        logger.info('Event offset into the collection = %s',offsetrnd)
+    return offsetrnd
+
+
 ### Preparing the list of required input PU files
 import math
-def makeBkgInputCol(initialList, nBkgEvtsPerCrossing, correctForEmptyBunchCrossings, logger):
+def makeBkgInputCol(initialList, nBkgEvtsPerCrossing, correctForEmptyBunchCrossings, logger, eventoffset=0):
     uberList = []
 
     nSignalEvts = 1000
@@ -42,18 +77,7 @@ def makeBkgInputCol(initialList, nBkgEvtsPerCrossing, correctForEmptyBunchCrossi
                 traceback.print_exc()
         logger.info('Number of signal events (read from files) = %s.', nSignalEvts )
 
-    nBkgEventsPerFile = 5000
-    try:
-        from PyUtils.MetaReader import read_metadata
-        metadata = read_metadata(initialList[0])
-        metadata = metadata[initialList[0]]  # promote all keys one level up
-        nBkgEventsPerFile = int(metadata['nentries'])
-        print('{} -> __Test__001__:\n{}'.format(__file__, nBkgEventsPerFile))
-        logger.info('Number of background events per file (read from file) = %s.', nBkgEventsPerFile )
-    except Exception:
-        import traceback
-        traceback.print_exc()
-        logger.warning('Failed to count the number of background events in %s. Assuming 5000 - if this is an overestimate the job may die.', initialList[0])
+    nBkgEventsPerFile = getNBkgEventsPerFile(initialList, logger)
 
     from Digitization.DigitizationFlags import digitizationFlags
     from AthenaCommon.BeamFlags import jobproperties
@@ -63,12 +87,17 @@ def makeBkgInputCol(initialList, nBkgEvtsPerCrossing, correctForEmptyBunchCrossi
         nbunches = int(math.ceil(float(nbunches) * float(digitizationFlags.bunchSpacing.get_Value())/float(jobproperties.Beam.bunchSpacing.get_Value())))
     logger.info('Simulating a maximum of %s colliding-bunch crossings (%s colliding+non-colliding total) per signal event', nbunches, Nbunches)
     nBkgEventsForJob = pileUpCalc(float(nSignalEvts), 1.0, float(nBkgEvtsPerCrossing), nbunches)
-    logger.info('Number of background events required: %s. Number of background events in input files: %s', nBkgEventsForJob, (nBkgEventsPerFile*len(initialList)) )
+
+    # Add the event offset to the number of required background events to ensure a sufficient duplication of the minbias files
+    nBkgEventsForJob += eventoffset
+
+    logger.info('Number of background events required: %s, including %s for the offset. Number of background events in input files: %s', nBkgEventsForJob, eventoffset, (nBkgEventsPerFile*len(initialList)) )
     numberOfRepetitionsRequired =float(nBkgEventsForJob)/float(nBkgEventsPerFile*len(initialList))
     NumberOfRepetitionsRequired = 1 + int(math.ceil(numberOfRepetitionsRequired))
     for i in range(0, NumberOfRepetitionsRequired):
         uberList+=initialList
     logger.info('Expanding input list from %s to %s', len(initialList), len(uberList))
+    
     return uberList
 
 
@@ -171,6 +200,7 @@ def addAFII_HITSMergeSubstep(executorSet):
 
 def addDigitizationSubstep(executorSet):
     executorSet.add(athenaExecutor(name = 'HITtoRDO', skeletonFile = 'SimuJobTransforms/skeleton.HITtoRDO.py',
+                                              skeletonCA='SimuJobTransforms.HITtoRDO_Skeleton',
                                               substep = 'h2r', tryDropAndReload = False,
                                               inData = ['HITS'], outData = ['RDO','RDO_FILT'], runtimeRunargs =
                                               {'LowPtMinbiasHitsFile' : 'runArgs.inputLowPtMinbiasHitsFile',

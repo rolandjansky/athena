@@ -26,7 +26,7 @@ namespace MuonCombined {
     
     /** Constructor a link to a combined track and a list of segment ElementLinks as input
     */
-    MuGirlTag( ElementLink<TrackCollection> comblink, const std::vector<ElementLink<Trk::SegmentCollection> >& segLinks );
+    MuGirlTag( const ElementLink<TrackCollection>& comblink, const std::vector<ElementLink<Trk::SegmentCollection> >& segLinks );
 
     /** Constructor taking a list of segments
     */

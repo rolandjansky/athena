@@ -88,7 +88,7 @@ TGCSLPreSelectorOut* TGCSLPreSelector::select()
     if(m_coincidenceOut[ssc]!=0){
       for( pt=1; pt<=NumberOfPtLevel; pt+=1){
 	if((m_coincidenceOut[ssc]->getHit(pt))
-	   &&(nCan[pt]<NCandidateInSLPreSelector)){
+	   &&(nCan[pt]<TGCSLPreSelectorOut::NCandidateInSLPreSelector)){
 	  out->setIdSSC(pt, nCan[pt], ssc);
 	  out->setR(pt, nCan[pt], m_coincidenceOut[ssc]->getR());
 	  out->setPhi(pt, nCan[pt], m_coincidenceOut[ssc]->getPhi());

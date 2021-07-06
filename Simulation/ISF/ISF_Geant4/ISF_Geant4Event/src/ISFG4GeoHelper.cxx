@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_Geant4Event/ISFG4GeoHelper.h"
@@ -146,7 +146,7 @@ bool iGeant4::ISFG4GeoHelper::checkVolumeDepth(G4LogicalVolume* lv, int volLevel
   } // Check of volume name
 
   // Going through the volume depth
-  for (int i=0; i<lv->GetNoDaughters(); ++i) {
+  for (unsigned int i=0; i<lv->GetNoDaughters(); ++i) {
     Cavern = Cavern || checkVolumeDepth( lv->GetDaughter(i)->GetLogicalVolume() , volLevel , depth+1 );
   }
   if (depth==0 && !Cavern && volLevel>1) {

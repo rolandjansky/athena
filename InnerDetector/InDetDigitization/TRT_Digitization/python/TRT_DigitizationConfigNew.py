@@ -1,9 +1,10 @@
 """Define methods to construct configured TRT Digitization tools and algorithms
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 from TRT_PAI_Process.TRT_PAI_ProcessConfigNew import TRT_PAI_Process_XeToolCfg
@@ -41,7 +42,8 @@ def TRT_DigitizationBasicToolCfg(flags, name="TRT_DigitizationBasicTool", **kwar
     acc.merge(MagneticFieldSvcCfg(flags))
     PartPropSvc = CompFactory.PartPropSvc
     acc.addService(PartPropSvc(InputFile="PDGTABLE.MeV"))
-    if flags.Detector.Overlay and not flags.Input.isMC:
+    # TODO: move this data overlay in a separate place
+    if flags.Common.ProductionStep == ProductionStep.Overlay and flags.Overlay.DataOverlay:
         acc.merge(addFolders(flags, "/TRT/Cond/DigVers", "TRT_OFL", tag="TRTCondDigVers-Collisions-01", db="OFLP200",
                              className = 'AthenaAttributeList'))
     else:
@@ -75,7 +77,7 @@ def TRT_DigitizationToolCfg(flags, name="TRTDigitizationTool", **kwargs):
     acc = ComponentAccumulator()
     rangetool = acc.popToolsAndMerge(TRT_RangeCfg(flags))
     acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
-    if flags.Digitization.PileUpPremixing:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("OutputObjectName", flags.Overlay.BkgPrefix + "TRT_RDOs")
         kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "TRT_SDO_Map")
     else:

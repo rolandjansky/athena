@@ -12,8 +12,8 @@ using namespace TopObjectSelectionTools;
 namespace top {
   MuonMC15::MuonMC15(const double ptcut, IsolationBase* isolation, const bool applyTTVACut) :
     m_ptcut(ptcut),
-    m_muonSelectionTool("CP::MuonSelectionTool"),
-    m_muonSelectionToolLoose("CP::MuonSelectionToolLoose"),
+    m_muonSelectionTool("MuonSelectionTool"),
+    m_muonSelectionToolLoose("MuonSelectionToolLoose"),
     m_isolation(isolation),
     m_applyTTVACut(applyTTVACut) {
     top::check(m_muonSelectionTool.retrieve(), "Failed to retrieve muonSelectionTool");
@@ -81,8 +81,6 @@ namespace top {
   void MuonMC15::print(std::ostream& os) const {
     os << "MuonMC15\n"
        << "    * pT > " << m_ptcut << "\n"
-//         << "    * |eta| < " << m_etamax << "\n"
-//         << "    * quality=" <<  m_quality << " (tight=0, medium=1, loose=2, v.loose=3)\n"
        << "    * Everything else from muon tool - fill this in?\n";
 
     if (!m_isolation) os << "    * No isolation requirement\n";

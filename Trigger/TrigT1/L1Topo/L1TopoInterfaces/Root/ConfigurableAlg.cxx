@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 //  BaseTOBoAlg.cpp
 //  TopoCore
@@ -8,12 +8,17 @@
 #include "L1TopoInterfaces/ConfigurableAlg.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/IL1TopoHistSvc.h"
+// Bitwise implementation utils
+#include "L1TopoSimulationUtils/L1TopoDataTypes.h"
+#include "L1TopoSimulationUtils/Trigo.h"
+#include "L1TopoSimulationUtils/Hyperbolic.h"
+#include "L1TopoSimulationUtils/Kinematics.h"
 
 #include "TH1.h"
 #include "TH2.h"
 #include <iostream>
+#include <sstream>
 
-using namespace std;
 using namespace TCS;
 
 
@@ -32,13 +37,13 @@ public:
          delete h;
    }
    
-   void setL1TopoHistSvc(shared_ptr<IL1TopoHistSvc> histSvc) {
+   void setL1TopoHistSvc(std::shared_ptr<IL1TopoHistSvc> histSvc) {
       m_histSvc = histSvc;
    }
 
    void registerHist(TH1 * h) {
       // histograms in the L1Topo framework are put in a algorithm specific folder
-      string newHistName = m_name + "/" + h->GetName();
+      std::string newHistName = m_name + "/" + h->GetName();
       h->SetName(newHistName.c_str());
 
       if( m_histSvc ) {
@@ -50,7 +55,7 @@ public:
   
    void registerHist(TH2 * h) {
       // histograms in the L1Topo framework are put in a algorithm specific folder
-      string newHistName = m_name + "/" + h->GetName();
+      std::string newHistName = m_name + "/" + h->GetName();
       h->SetName(newHistName.c_str());
 
       if( m_histSvc ) {
@@ -85,10 +90,10 @@ private:
    std::string m_name;
 
    // histogram service
-   shared_ptr<IL1TopoHistSvc> m_histSvc;
+   std::shared_ptr<IL1TopoHistSvc> m_histSvc;
 
    // store histograms locally if no hist service is available
-   vector<TH1 *> m_localHistStore;
+   std::vector<TH1 *> m_localHistStore;
 
 };
 
@@ -102,12 +107,85 @@ ConfigurableAlg::ConfigurableAlg(const  std::string & name, AlgType algType) :
    m_impl(new ConfigurableAlgImpl(name)),
    m_name(name),
    m_parameters(name),
-   m_algType(algType)
+   m_algType(algType),
+   m_isLegacyTopo(false)
 {}
 
 
 ConfigurableAlg::~ConfigurableAlg()
 {}
+
+// Kinematic Calculation
+unsigned int
+ConfigurableAlg::calcDeltaPhiBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+  if (m_isLegacyTopo)
+    {return TSU::Kinematics::calcDeltaPhiBWLegacy(tob1,tob2);}
+  else
+    {return TSU::Kinematics::calcDeltaPhiBW(tob1,tob2);}
+}
+
+unsigned int
+ConfigurableAlg::calcDeltaEtaBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+  if (m_isLegacyTopo)
+    {return TSU::Kinematics::calcDeltaEtaBWLegacy(tob1,tob2);}
+  else
+    {return TSU::Kinematics::calcDeltaEtaBW(tob1,tob2);}
+}
+
+unsigned int
+ConfigurableAlg::calcInvMassBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+  if (m_isLegacyTopo)
+    {return TSU::Kinematics::calcInvMassBWLegacy(tob1,tob2);}
+  else
+    {return TSU::Kinematics::calcInvMassBW(tob1,tob2);}
+}
+
+unsigned int
+ConfigurableAlg::calcTMassBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+  if (m_isLegacyTopo)
+    {return TSU::Kinematics::calcTMassBWLegacy(tob1,tob2);}
+  else
+    {return TSU::Kinematics::calcTMassBW(tob1,tob2);}
+}
+
+unsigned int
+ConfigurableAlg::calcDeltaR2BW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+  if (m_isLegacyTopo)
+    {return TSU::Kinematics::calcDeltaR2BWLegacy(tob1,tob2);}
+  else
+    {return TSU::Kinematics::calcDeltaR2BW(tob1,tob2);}
+}
+
+unsigned long
+ConfigurableAlg::quadraticSumBW(int i1, int i2) {
+  return TSU::Kinematics::quadraticSumBW(i1, i2);
+}
+
+unsigned int
+ConfigurableAlg::calcDeltaPhi(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+  return TSU::Kinematics::calcDeltaPhi(tob1,tob2);
+}
+
+unsigned int
+ConfigurableAlg::calcDeltaEta(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+  return TSU::Kinematics::calcDeltaEta(tob1,tob2);
+}
+
+unsigned int
+ConfigurableAlg::calcInvMass(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+  return TSU::Kinematics::calcInvMass(tob1,tob2);
+}
+
+unsigned int
+ConfigurableAlg::calcTMass(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+  return TSU::Kinematics::calcTMass(tob1,tob2);
+}
+
+unsigned int
+ConfigurableAlg::calcDeltaR2(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+  return TSU::Kinematics::calcDeltaR2(tob1,tob2);
+}
+
 
 // define parameters to be called by developer
 void
@@ -180,14 +258,16 @@ void ConfigurableAlg::registerHist(TH2 * h) {
    m_impl->registerHist(h);
 }
 
-void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::string name,const std::string title, const int binx, const float xmin, const float xmax) {
-  string newTitle = to_string((int)xmin)+title+to_string((int)xmax);
-  std::string newname=name+"_"+to_string((int)xmin)+title+to_string((int)xmax);
-  std::replace( newname.begin(), newname.end(), '-', 'n');
-  std::replace( newname.begin(), newname.end(), ' ', '_');
-  regName.push_back(m_name+"/"+newname);
+void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::string& name,const std::string& title, const int binx, const int xmin, const int xmax) {
+  std::string xmin_str = ToString(xmin);
+  std::string xmax_str = ToString(xmax);
+  std::string newTitle = xmin_str+title+xmax_str;
+  std::string newName = name+"_"+xmin_str+title+xmax_str;
+  std::replace( newName.begin(), newName.end(), '-', 'n');
+  std::replace( newName.begin(), newName.end(), ' ', '_');
+  regName.push_back(m_name+"/"+newName);
 
-  float xmin_new,xmax_new;
+  int xmin_new,xmax_new;
   if ( xmin > 0.0)
     { xmin_new=0.0; }
   else
@@ -211,22 +291,26 @@ void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::str
     xmax_new=70;
   }
 
-  TH1 *h = new TH1F(newname.c_str(),newTitle.c_str(),binx,xmin_new,xmax_new);
+  TH1 *h = new TH1F(newName.c_str(),newTitle.c_str(),binx,xmin_new,xmax_new);
   h->GetXaxis()->SetTitle(title.c_str());
   m_impl->registerHist(h);
 }
 
-void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::string name,const std::string title, const int binx, const float xmin, const float xmax, const int biny, const float ymin, const float ymax) {
+void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::string& name,const std::string& title, const int binx, const int xmin, const int xmax, const int biny, const int ymin, const int ymax) {
   auto usPos = title.find(" vs ");
-  string xName = title.substr(0,usPos);
-  string yName = title.substr(usPos+4);
-  string newTitle = to_string((int)xmin)+xName+to_string((int)xmax)+" vs "+to_string((int)ymin)+yName+to_string((int)ymax);
-  std::string newname=name+"_"+to_string((int)xmin)+xName+to_string((int)xmax)+"_"+to_string((int)ymin)+yName+to_string((int)ymax);
-  std::replace( newname.begin(), newname.end(), '-', 'n');
-  std::replace( newname.begin(), newname.end(), ' ', '_');
-  regName.push_back(m_name+"/"+newname);
+  std::string xName = title.substr(0,usPos);
+  std::string yName = title.substr(usPos+4);
+  std::string xmin_str = ToString(xmin);
+  std::string xmax_str = ToString(xmax);
+  std::string ymin_str = ToString(ymin);
+  std::string ymax_str = ToString(ymax);
+  std::string newTitle = xmin_str+xName+xmax_str+" vs "+ymin_str+yName+ymax_str;
+  std::string newName = name+"_"+xmin_str+xName+xmax_str+"_"+ymin_str+yName+ymax_str;
+  std::replace( newName.begin(), newName.end(), '-', 'n');
+  std::replace( newName.begin(), newName.end(), ' ', '_');
+  regName.push_back(m_name+"/"+newName);
 
-  float xmin_new,xmax_new;
+  int xmin_new,xmax_new;
   if ( xmin > 0.0)
     { xmin_new=0.0; }
   else
@@ -240,7 +324,7 @@ void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::str
   else
     { xmax_new=1.5*xmax; }
 
-  float ymin_new,ymax_new;
+  int ymin_new,ymax_new;
   if ( ymin > 0.0)
     { ymin_new=0.0; }
   else
@@ -272,7 +356,7 @@ void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::str
     ymax_new=70;
   }
 
-  TH2 *h = new TH2F(newname.c_str(),newTitle.c_str(),binx,xmin_new,xmax_new,biny,ymin_new,ymax_new);
+  TH2 *h = new TH2F(newName.c_str(),newTitle.c_str(),binx,xmin_new,xmax_new,biny,ymin_new,ymax_new);
   h->GetXaxis()->SetTitle(xName.c_str());
   h->GetYaxis()->SetTitle(yName.c_str());
   m_impl->registerHist(h);
@@ -286,13 +370,20 @@ void ConfigurableAlg::fillHist2D(const std::string & histName, double x, double 
   m_impl->fillHist2D(histName,x,y);
 }
 
+std::string ConfigurableAlg::ToString(const int val)
+{
+  const int val_int = static_cast<int>(val);
+  std::ostringstream temp;
+  temp << val_int;
+  return temp.str();
+}
 
 namespace TCS {
 
    std::ostream &
    operator<<(std::ostream & o, const TCS::ConfigurableAlg & alg) {
 
-      o << "algorithm '" << alg.fullname() << "'" << endl;
+      o << "algorithm '" << alg.fullname() << "'" << std::endl;
       o << alg.parameters();
       return o;
 

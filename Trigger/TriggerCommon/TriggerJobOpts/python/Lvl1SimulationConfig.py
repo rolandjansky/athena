@@ -1,49 +1,38 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
+## @brief this function sets up the top L1 simulation sequence 
+##
+## it covers the two cases of running L1 in the MC simulation and for rerunning on data 
 
 
-def Lvl1SimulationSequence( flags = None ):
+from AthenaCommon.Logging import logging
+from AthenaCommon.CFElements import seqAND
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+from AthenaCommon import CfgMgr
+
+def Lvl1SimulationSequence_Common( ConfigFlags ):
     """ 
-    Configure L1 simulation for Athena MT jobs
-
-    The code is structure in a way that should be easier to change once New JO system with ComponentAccumulators will be in use
+    Configure L1 simulation for Athena MT data jobs on MC or data (data only with rerun L1)
     """
-    # for the New JO migration
-    #    from AthenaCommon.ComponentAccumulator import ComponentAccumulator
-    #    acc = ComponentAccumulator()
-    # all tools then should be added to the acc, cond folders as well.
-    # L1ConfigSvc CA has to be imported and merged
-    # at the end the sequence added to the CA
-    #
-    from AthenaCommon.Logging import logging
-    log = logging.getLogger('TriggerJobOpts.Lvl1Simulation')
-    from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
-    from AthenaCommon.CFElements import seqAND
-    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    from AthenaCommon.AlgSequence import AthSequencer
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
 
-    # this configuration of the LVL1ConfigSvc is only temporary
-    TriggerFlags.readLVL1configFromXML = True
-    TriggerFlags.outputLVL1configFile = None
-    log.info("setting up LVL1ConfigSvc, including the menu generation")
-    from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc, getL1TopoConfigSvc
-    svcMgr += conf2toConfigurable(getL1ConfigSvc(flags))
-    svcMgr += conf2toConfigurable(getL1TopoConfigSvc(flags))
+    log = logging.getLogger('TriggerJobOpts.Lvl1SimulationConfig')
+
+    if not ConfigFlags.Input.isMC:
+        from AthenaCommon.DetFlags import DetFlags
+        DetFlags.detdescr.ALFA_setOff()
 
     ##################################################
-    # Calo
+    # Calo rerun on data
     ##################################################
+    l1CaloSimSeq = seqAND('L1CaloSimSeq',[])
+    if ConfigFlags.Trigger.enableL1CaloLegacy:
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
 
-    if flags.Trigger.enableL1CaloLegacy:
+        if not ConfigFlags.Input.isMC:
+            from TrigT1CaloByteStream.LVL1CaloRun2ByteStreamConfig import LVL1CaloRun2ReadBSCfg
+            CAtoGlobalWrapper(LVL1CaloRun2ReadBSCfg, ConfigFlags)
 
-        from TrigT1CaloSim.TrigT1CaloSimRun2Config import Run2TriggerTowerMaker
-        caloTowerMaker              = Run2TriggerTowerMaker("Run2TriggerTowerMaker25ns")
-        caloTowerMaker.ExtraInputs   = ["LArTTL1Container#LArTTL1EM", "LArTTL1Container#LArTTL1HAD", "TileTTL1Container#TileTTL1Cnt" ]
-        caloTowerMaker.ZeroSuppress = True
-        caloTowerMaker.CellType     = 3
-
-        from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__Run2CPMTowerMaker
-        from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__Run2JetElementMaker
         from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__CPMSim
         from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__JEMJetSim
         from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__JEMEnergySim
@@ -52,180 +41,229 @@ def Lvl1SimulationSequence( flags = None ):
         from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__EnergyCMX
         from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__RoIROD
 
-        from TrigT1MBTS.TrigT1MBTSConf import LVL1__TrigT1MBTS
-        from TrigT1ZDC.TrigT1ZDCConf import LVL1__TrigT1ZDC
 
-        l1CaloSim = seqAND('l1CaloSim',[
-            caloTowerMaker,
-            #LVL1__Run2CPMTowerMaker( 'CPMTowerMaker', ExtraInputs=["XYZ#1"], ExtraOutputs=["XYZ#2"]) ,
-            LVL1__Run2CPMTowerMaker( 'CPMTowerMaker') ,
-            LVL1__Run2JetElementMaker( 'JetElementMaker'),
-            LVL1__CPMSim( 'CPMSim' ) ,
-            LVL1__JEMJetSim( 'JEMJetSim' ) ,
-            LVL1__JEMEnergySim( 'JEMEnergySim' ) ,
-            LVL1__CPCMX( 'CPCMX' ) ,
-            LVL1__JetCMX( 'JetCMX' ) ,
-            LVL1__EnergyCMX( 'EnergyCMX' ) ,
-            LVL1__RoIROD( 'RoIROD' ),
-            LVL1__TrigT1MBTS(),
-            LVL1__TrigT1ZDC()
+        l1CaloSimSeq = seqAND('L1CaloLegacySimSeq',[
         ])
 
-        from IOVDbSvc.CondDB import conddb
-        L1CaloFolderList = []
-        #L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Calibration/Physics/PprChanCalib"]
-        L1CaloFolderList += ["/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib"]
-        #L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Conditions/RunParameters"]
-        #L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Conditions/DerivedRunPars"]
-        #L1CaloFolderList += ["/TRIGGER/Receivers/Conditions/VgaDac"]
-        #L1CaloFolderList += ["/TRIGGER/Receivers/Conditions/Strategy"]
-        L1CaloFolderList += ["/TRIGGER/L1Calo/V2/Conditions/DisabledTowers"]
-        L1CaloFolderList += ["/TRIGGER/L1Calo/V2/Calibration/PpmDeadChannels"]
-        L1CaloFolderList += ["/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults"]
+        if ConfigFlags.Input.isMC:
+            from TrigT1CaloSim.TrigT1CaloSimRun2Config import Run2TriggerTowerMaker
+            caloTowerMaker              = Run2TriggerTowerMaker("Run2TriggerTowerMaker25ns")
+            caloTowerMaker.ZeroSuppress = True
+            caloTowerMaker.CellType     = 3
+            l1CaloSimSeq += caloTowerMaker
+            from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__Run2CPMTowerMaker
+            l1CaloSimSeq += LVL1__Run2CPMTowerMaker( 'CPMTowerMaker')
+            from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__Run2JetElementMaker
+            l1CaloSimSeq += LVL1__Run2JetElementMaker( 'JetElementMaker')
 
-        for l1calofolder in L1CaloFolderList:
-            #conddb.addFolderWithTag("TRIGGER_OFL", l1calofolder, "HEAD")
-            conddb.addFolder( "TRIGGER_OFL", l1calofolder )
+            from IOVDbSvc.CondDB import conddb
+            L1CaloFolderList = []
+            L1CaloFolderList += ["/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib"]
+            L1CaloFolderList += ["/TRIGGER/L1Calo/V2/Conditions/DisabledTowers"]
+            L1CaloFolderList += ["/TRIGGER/L1Calo/V2/Calibration/PpmDeadChannels"]
+            L1CaloFolderList += ["/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults"]
+    
+            for l1calofolder in L1CaloFolderList:
+                conddb.addFolder( "TRIGGER_OFL", l1calofolder )
 
-    if flags.Trigger.enableL1Phase1:
-        from AthenaCommon import CfgMgr
-        l1CaloSim += CfgMgr.LVL1__eFEXDriver('MyeFEXDriver')
+        l1CaloSimSeq += [
+          LVL1__CPMSim( 'CPMSim' ) ,
+          LVL1__JEMJetSim( 'JEMJetSim' ) ,
+          LVL1__JEMEnergySim( 'JEMEnergySim' ) ,
+          LVL1__CPCMX( 'CPCMX' ) ,
+          LVL1__JetCMX( 'JetCMX' ),
+          LVL1__EnergyCMX( 'EnergyCMX' ) ,
+          LVL1__RoIROD( 'RoIROD' ),
+        ]
+
+        if ConfigFlags.Input.isMC:
+            from TrigT1MBTS.TrigT1MBTSConf import LVL1__TrigT1MBTS
+            l1CaloSimSeq += [
+              LVL1__TrigT1MBTS(UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON),
+            ]
+
+    if ConfigFlags.Trigger.enableL1CaloPhase1:
+        #Adding the floating point simulation for now. 
+        from TrigT1CaloFexPerf.Rel22L1PerfSequence import setupRun3L1CaloPerfSequence
+        setupRun3L1CaloPerfSequence(skipCTPEmulation=True, sequence = l1CaloSimSeq)
+
+        from TrigT1CaloFexPerf.L1PerfControlFlags import L1Phase1PerfFlags as simflags
+        # Here we have to add the SuperCell Emulation when running on Run 2 data
+        if ConfigFlags.Input.isMC:
+          SCellType = "SCell"
+        else:
+          SCellType = simflags.Calo.SCellType()
+        log.info("Using supercell container %s", SCellType )
+        l1CaloSimSeq += CfgMgr.LVL1__eFEXDriver('eFEXDriver',
+            SCell=SCellType )
+        l1CaloSimSeq.eFEXDriver.eSuperCellTowerMapperTool.SCell=SCellType
+        l1CaloSimSeq.eFEXDriver.eFEXSysSimTool.SCell=SCellType
+
+        # jFEX part
+        l1CaloSimSeq += CfgMgr.LVL1__jFEXDriver('jFEXDriver',
+            SCell=SCellType )
+        l1CaloSimSeq.jFEXDriver.jSuperCellTowerMapperTool.SCell=SCellType
+        l1CaloSimSeq.jFEXDriver.jFEXSysSimTool.SCell=SCellType
 
     ##################################################
     # Muons
     ##################################################
-    
-    from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import MuonRdoToMuonDigitTool
-    MuonRdoToMuonDigitTool = MuonRdoToMuonDigitTool (DecodeMdtRDO = False,
-                                                     DecodeRpcRDO = True,
-                                                     DecodeTgcRDO = True,
-                                                     DecodeCscRDO = False,
-                                                     DecodeSTGC_RDO = False,
-                                                     DecodeMM_RDO = False,
-                                                     # for those subdetectors where the decoding is turned off, no need to create a RDO_Decoder ToolHandle
-                                                     mdtRdoDecoderTool="",
-                                                     cscRdoDecoderTool="",
-                                                     stgcRdoDecoderTool="",
-                                                     mmRdoDecoderTool="",
-                                                     RpcDigitContainer = "RPC_DIGITS_L1",
-                                                     TgcDigitContainer = "TGC_DIGITS_L1")
-    
-    MuonRdoToMuonDigitTool.cscCalibTool = "CscCalibTool"
-    from AthenaCommon.AppMgr import ToolSvc
-    ToolSvc += MuonRdoToMuonDigitTool
 
-    from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import MuonRdoToMuonDigit
-    from TrigT1RPCsteering.TrigT1RPCsteeringConf import TrigT1RPC    
-    from TrigT1TGC.TrigT1TGCConf import LVL1TGCTrigger__LVL1TGCTrigger
-
-    TrigT1RPC.useRun3Config = flags.Trigger.enableL1Phase1
-    LVL1TGCTrigger__LVL1TGCTrigger.useRun3Config = flags.Trigger.enableL1Phase1
-
-    if flags.Trigger.enableL1Phase1:
-        # Placeholder for phase-I MUCTPI simulation
-        log.info("Configuring Phase-I MUCTPI simulation")
-        from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1
-        from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1Tool
-
-        ToolSvc += L1MuctpiPhase1Tool("MUCTPI_AthTool")
-        ToolSvc.MUCTPI_AthTool.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
-
-        muctpi = L1MuctpiPhase1()
-        muctpi.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
-
-    else:
-        log.info("Configuring legacy (Run 2) MUCTPI simulation")
-        from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi
-        from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
-
-        ToolSvc += L1MuctpiTool("L1MuctpiTool")
-        ToolSvc.L1MuctpiTool.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
-
-        muctpi = L1Muctpi()
-        muctpi.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
-
-    # Sets up and configures the muon alignment and detector manager
-    from MuonRecExample import MuonAlignConfig # noqa: F401
-
-    l1MuonSim = seqAND("l1MuonSim", [
-        
-        MuonRdoToMuonDigit( "MuonRdoToMuonDigit",
-                            MuonRdoToMuonDigitTool = ToolSvc.MuonRdoToMuonDigitTool),
-
-        TrigT1RPC("TrigT1RPC",
-                  Hardware          = True, # not sure if needed, not there in old config, present in JO
-                  DataDetail        = False,
-                  RPCbytestream     = False,
-                  RPCbytestreamFile = "",
-                  RPCDigitContainer = "RPC_DIGITS_L1"),
-        
-        # based on Trigger/TrigT1/TrigT1TGC/python/TrigT1TGCConfig.py
-        # interesting is that this JO sets inexisting properties, commented out below
-        LVL1TGCTrigger__LVL1TGCTrigger("LVL1TGCTrigger",
-                                       InputData_perEvent  = "TGC_DIGITS_L1", 
-                                       MuCTPIInput_TGC     = "L1MuctpiStoreTGC",
-                                       MaskFileName12      = "TrigT1TGCMaskedChannel._12.db"),
-        muctpi
-    ])
-    
-    # only needed for MC
-    conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_EIFI", className="CondAttrListCollection")
-    conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_BW", className="CondAttrListCollection")
-    conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_TILE", className="CondAttrListCollection")
-    #COOL DB will be used.
-    from PathResolver import PathResolver
-    bwCW_Run3_filePath=PathResolver.FindCalibFile("TrigT1TGC_CW/BW/CW_BW_Run3.v01.db")
-    conddb.addFolder(bwCW_Run3_filePath,"/TGC/TRIGGER/CW_BW_RUN3 <tag>TgcTriggerCwBwRun3-01</tag>", className='CondAttrListCollection')
-
-    condSeq = AthSequencer("AthCondSeq")
-    from MuonCondSvc.MuonCondSvcConf import TGCTriggerDbAlg
-    condSeq += TGCTriggerDbAlg()
-    from TGCTriggerCondSvc.TGCTriggerCondSvcConf import TGCTriggerCondAlg
-    condSeq += TGCTriggerCondAlg()
-    ##################################################
-    # Topo
-    ##################################################
-
-    l1TopoSim = None
-    from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
-    l1TopoSim = L1TopoSimulation()
-    l1TopoSim.MuonInputProvider.ROIBResultLocation = "" #disable input from RoIBResult
-    if flags.Trigger.enableL1Phase1:
-        l1TopoSim.MuonInputProvider.MuctpiSimTool = ToolSvc.MUCTPI_AthTool
-    else:
-        l1TopoSim.MuonInputProvider.MuctpiSimTool = ToolSvc.L1MuctpiTool
-    # enable the reduced (coarse) granularity topo simulation
-    # currently only for MC
-    from AthenaCommon.GlobalFlags  import globalflags
-    if globalflags.DataSource()!='data':
-        l1TopoSim.MuonInputProvider.MuonEncoding = 1
-    else:
-        l1TopoSim.MuonInputProvider.MuonEncoding = 0
+    from TriggerJobOpts.Lvl1MuonSimulationConfigOldStyle import Lvl1MuonSimulationSequence
+    l1MuonSimSeq = Lvl1MuonSimulationSequence(ConfigFlags)
+    isMUCTPIOutputProvided = True
 
     ##################################################
-    # CTP
+    # L1 Topo 
     ##################################################
+    from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulationOldStyleCfg
+    l1Phase1TopoSimSeq = L1TopoSimulationOldStyleCfg(ConfigFlags, isLegacy=False)
+    l1LegacyTopoSimSeq = L1TopoSimulationOldStyleCfg(ConfigFlags, isLegacy=True)
+
+    # TODO: at the moment, both simulation are running but they should be configured based on the phase1 flags (ATR-23319)
+    isL1TopoLegacyOutputProvided = False
+    if ConfigFlags.Trigger.enableL1CaloLegacy:
+        isL1TopoLegacyOutputProvided = True
+    isL1TopoOutputProvided = True
+    if ConfigFlags.Trigger.enableL1MuonPhase1 or ConfigFlags.Trigger.enableL1CaloPhase1:
+        isL1TopoOutputProvided = True
 
     from TrigT1CTP.TrigT1CTPConfig import CTPSimulationInReco
     ctp             = CTPSimulationInReco("CTPSimulation")
-    ctp.DoLUCID     = False
-    ctp.DoBCM       = False
-    ctp.DoL1Topo    = not flags.Trigger.enableL1Phase1
-    ctp.UseNewConfig = True
+    ctp.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
     ctp.TrigConfigSvc = svcMgr.LVL1ConfigSvc
-    ctpSim      = seqAND("ctpSim", [ctp])
+    ctp.DoL1CaloLegacy = ConfigFlags.Trigger.enableL1CaloLegacy # to en/disable all L1CaloLegacy treatment (Mult and Topo)
 
-    if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1Phase1:
+    if ConfigFlags.Beam.Type == 'cosmics' and ConfigFlags.Input.isMC:  # this is to allow the simulation of cosmics triggers in MC
+        ctp.ForceBunchGroupPattern = False
+
+    # muon input
+    if not isMUCTPIOutputProvided:
+        ctp.MuctpiInput = ""
+    # topo input
+    ctp.LegacyTopoInput = "L1TopoLegacyToCTPLocation"
+    ctp.TopoInput = "L1TopoToCTPLocation"
+    if not isL1TopoLegacyOutputProvided:
+        ctp.LegacyTopoInput = ""
+    if not isL1TopoOutputProvided:
+        ctp.TopoInput = ""
+    if not ConfigFlags.Trigger.enableL1MuonPhase1: # Run 2 simulation of MUCTPI sends a slightly different format to the CTP
+        ctp.MuonMultiplicityRun2Format = True
+    ctp.jFexJetInput = ""
+    ctp.jFexLJetInput = ""
+    ctp.gFexJetInput = ""
+    ctp.gFexMETPufitInput = ""
+    ctp.gFexMETRhoInput = ""
+    ctp.gFexMETJwoJInput = ""
+    ctp.eFexClusterInput = ""
+    ctp.eFexTauInput = ""
+    ctpSimSeq = seqAND("CTPSimSeq", [ctp])
+
+    if ConfigFlags.Trigger.enableL1CaloLegacy or not ConfigFlags.Trigger.enableL1MuonPhase1:
         from TrigT1RoIB.TrigT1RoIBConfig import RoIBuilder
         roib = RoIBuilder("RoIBuilder")
-        roib.DoCalo = flags.Trigger.enableL1CaloLegacy
-        roib.DoMuon = not flags.Trigger.enableL1Phase1
-        ctpSim += [roib]
+        roib.DoCalo = ConfigFlags.Trigger.enableL1CaloLegacy
+        roib.DoMuon = not ConfigFlags.Trigger.enableL1MuonPhase1
+        ctpSimSeq += [roib]
 
-    #l1Sim = seqAND("l1Sim", [caloTowerMaker] )
-    if l1TopoSim:
-      l1Sim = seqAND("l1Sim", [l1CaloSim, l1MuonSim, l1TopoSim, ctpSim] )
+    ##################################################
+    # Combination of all parts
+    ##################################################
+    if l1Phase1TopoSimSeq and l1LegacyTopoSimSeq:
+      l1SimSeq = seqAND("L1SimSeq", [l1CaloSimSeq, l1MuonSimSeq, l1LegacyTopoSimSeq, l1Phase1TopoSimSeq, ctpSimSeq] )
+    elif not l1Phase1TopoSimSeq and l1LegacyTopoSimSeq:
+      l1SimSeq = seqAND("L1SimSeq", [l1CaloSimSeq, l1MuonSimSeq, l1LegacyTopoSimSeq, ctpSimSeq] )
+    elif l1Phase1TopoSimSeq and not l1LegacyTopoSimSeq:
+      l1SimSeq = seqAND("L1SimSeq", [l1CaloSimSeq, l1MuonSimSeq, l1Phase1TopoSimSeq, ctpSimSeq] )
     else:
-      l1Sim = seqAND("l1Sim", [l1CaloSim, l1MuonSim, ctpSim] )
+      l1SimSeq = seqAND("L1SimSeq", [l1CaloSimSeq, l1MuonSimSeq, ctpSimSeq] )
 
-    return l1Sim
+    return l1SimSeq
+
+
+def Lvl1SimulationSequence( ConfigFlags ):
+    """ 
+    Configure L1 simulation for Athena MT jobs
+    """
+
+    log = logging.getLogger('TriggerJobOpts.L1Simulation')
+    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
+    from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc
+
+    # this configuration of the LVL1ConfigSvc is only temporary
+    TriggerFlags.readLVL1configFromXML = True
+    TriggerFlags.outputLVL1configFile = None
+    svcMgr += conf2toConfigurable(getL1ConfigSvc(ConfigFlags))
+
+    log.info("UseNewConfig = %s", ConfigFlags.Trigger.readLVL1FromJSON)
+    l1SimSeq = Lvl1SimulationSequence_Common( ConfigFlags )
+
+    return l1SimSeq
+
+
+
+def Lvl1SimulationCfg(flags):
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    acc = ComponentAccumulator()
+
+    from AthenaCommon.CFElements import seqAND
+    acc.addSequence(seqAND('L1SimSeq'), parentName='AthAlgSeq')
+    
+    acc.addSequence(seqAND('L1CaloLegacySimSeq'), parentName='L1SimSeq')
+    from TrigT1CaloSim.TrigT1CaloSimRun2Config import L1LegacyCaloSimCfg
+    acc.merge(L1LegacyCaloSimCfg(flags), sequenceName='L1CaloLegacySimSeq')
+
+    acc.addSequence(seqAND('L1MuonLegacySimSeq'), parentName='L1SimSeq')
+    from TriggerJobOpts.Lvl1MuonSimulationConfig import Lvl1MuonSimulationCfg
+    acc.merge(Lvl1MuonSimulationCfg(flags), sequenceName='L1MuonLegacySimSeq')
+
+    acc.addSequence(seqAND('L1LegacyTopoSimSeq'), parentName='L1SimSeq')
+    from L1TopoSimulation.L1TopoSimulationConfig import L1LegacyTopoSimulationCfg
+    acc.merge(L1LegacyTopoSimulationCfg(flags), sequenceName='L1LegacyTopoSimSeq')
+    
+    acc.addSequence(seqAND('L1TopoSimSeq'), parentName='L1SimSeq')
+    from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulationCfg
+    acc.merge(L1TopoSimulationCfg(flags), sequenceName='L1TopoSimSeq')
+    
+    acc.addSequence(seqAND('L1CTPSimSeq'), parentName='L1SimSeq')
+    from TrigT1CTP.CTPSimulationConfig import CTPSimulationCfg
+    acc.merge(CTPSimulationCfg(flags), sequenceName="L1CTPSimSeq")
+
+
+    return acc
+
+if __name__ == '__main__':    
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior = 1
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+    flags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.RDO.e4993_s3214_r11315/RDO.17533168._000001.pool.root.1']
+    flags.Common.isOnline=False
+    flags.Exec.MaxEvents=25
+    flags.Concurrency.NumThreads = 1
+    flags.Concurrency.NumConcurrentEvents=1
+    flags.Scheduler.ShowDataDeps=True
+    flags.Scheduler.CheckDependencies=True
+    flags.Scheduler.ShowDataFlow=True
+
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    acc = MainServicesCfg(flags)
+
+    from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
+    acc.merge(PoolReadCfg(flags))
+
+    acc.merge(Lvl1SimulationCfg(flags))
+    from AthenaCommon.Constants import DEBUG
+    acc.getEventAlgo("CTPSimulation").OutputLevel=DEBUG  # noqa: ATL900
+
+    acc.printConfig(withDetails=True, summariseProps=True, printDefaults=True)
+    with open("L1Sim.pkl", "wb") as p:
+        acc.store(p)
+        p.close()
+
+    status = acc.run()
+    
+    if status.isFailure():
+        import sys
+        sys.exit(1)

@@ -404,7 +404,7 @@ namespace MuonCalib {
 
             Chrono chronoStrip(m_chronoSvc,"stripItr");
             // WP Added
-            Identifier channelId =m_cscRdoDecoderTool->channelIdentifier(cluster, stripItr);
+            Identifier channelId =m_cscRdoDecoderTool->channelIdentifier(cluster, &m_idHelperSvc->cscIdHelper(), stripItr);
             IdentifierHash cscChannelHashId;
             m_idHelperSvc->cscIdHelper().get_channel_hash(channelId, cscChannelHashId);
 

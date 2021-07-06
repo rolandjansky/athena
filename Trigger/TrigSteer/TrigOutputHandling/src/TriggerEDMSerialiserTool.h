@@ -6,10 +6,10 @@
 
 #include <string>
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "xAODCore/AuxSelection.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
-#include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IAthenaSerializeSvc.h"
 #include "AthenaKernel/IDictLoaderSvc.h"
 #include "AthenaMonitoringKernel/Monitored.h"
@@ -184,6 +184,11 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
    * Obtain version from the actual type name
    */
   static std::string version( const std::string& name );
+
+  /**
+   * Build a list of module IDs to serialise based on the stream tags
+   */
+  static std::set<uint16_t> activeModuleIDs(const HLT::HLTResultMT& result);
 
 };
 

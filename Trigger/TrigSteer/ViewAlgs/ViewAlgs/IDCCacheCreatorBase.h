@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#pragma once
+#ifndef ViewAlgs_IDCCacheCreatorBase_h
+#define ViewAlgs_IDCCacheCreatorBase_h
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include <atomic>
@@ -56,3 +57,4 @@ StatusCode IDCCacheCreatorBase::createValueContainer(const SG::WriteHandleKey<T>
     return StatusCode::SUCCESS;
 }
 
+#endif

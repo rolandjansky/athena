@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -18,6 +18,7 @@
 #include "InDetPrepRawData/SiCluster.h"
 #include "TrkTrack/Track.h"
 #include "VxVertex/VxTrackAtVertex.h"
+#include <cmath>
 
 using HepGeom::Point3D;
 
@@ -55,7 +56,7 @@ namespace InDet {
   ConversionFinderUtils::countHits(
     const DataVector<const Trk::MeasurementBase>* mb,
     int& ntrt,
-    int& nclus) const
+    int& nclus) 
   {
 
     DataVector<const Trk::MeasurementBase>::const_iterator its,
@@ -90,7 +91,7 @@ namespace InDet {
    */
   double
   ConversionFinderUtils::trRatio(
-    const DataVector<const Trk::MeasurementBase>* mb) const
+    const DataVector<const Trk::MeasurementBase>* mb) 
   {
 
     DataVector<const Trk::MeasurementBase>::const_iterator itp=mb->begin(), itpe=mb->end();
@@ -118,7 +119,7 @@ namespace InDet {
    */
   double
   ConversionFinderUtils::momFraction(const Trk::TrackParameters* per1,
-                                     const Trk::TrackParameters* per2) const
+                                     const Trk::TrackParameters* per2) 
   {
 
     const Amg::Vector3D& mom_pos = per1->momentum();
@@ -158,8 +159,8 @@ namespace InDet {
 
     //check if measurements are on the same surface
     if (first_pos_meas->associatedSurface() == first_neg_meas->associatedSurface()) distance =
-      sqrt(pow(trk_hit_pos[0] - trk_hit_neg[0],2.) + pow(trk_hit_pos[1] - trk_hit_neg[1],2.) +
-	   pow(trk_hit_pos[2] - trk_hit_neg[2],2.));
+      std::sqrt(std::pow(trk_hit_pos[0] - trk_hit_neg[0],2.) + std::pow(trk_hit_pos[1] - trk_hit_neg[1],2.) +
+	   std::pow(trk_hit_pos[2] - trk_hit_neg[2],2.));
 
 
     //if not choose the track with the fist measurement closest to 000 and calculate the distance
@@ -185,7 +186,7 @@ namespace InDet {
       Amg::Vector3D position = perigee->position();
       double p = momentum.mag();
       Amg::Vector3D delta = position - ref_point;
-      distance = sqrt(pow(delta.mag(),2.) - pow((delta.adjoint()*momentum)[0]/p,2.));
+      distance = std::sqrt(std::pow(delta.mag(),2.) - std::pow((delta.adjoint()*momentum)[0]/p,2.));
     }
 
     ATH_MSG_DEBUG("Distance between two tracks = "<<distance);
@@ -196,7 +197,7 @@ namespace InDet {
    * return first track parameters
    */
   const Trk::TrackParameters*
-  ConversionFinderUtils::getTrkParameters(const Trk::Track* track) const
+  ConversionFinderUtils::getTrkParameters(const Trk::Track* track) 
   {
     const DataVector<const Trk::TrackStateOnSurface>* tsos = track->trackStateOnSurfaces();
     if(!tsos) return nullptr;
@@ -219,7 +220,7 @@ namespace InDet {
    */
   const Trk::TrackParameters*
   ConversionFinderUtils::getTrkParticleParameters(
-    const Trk::TrackParticleBase* track) const
+    const Trk::TrackParticleBase* track) 
   {
 
     std::vector<const Trk::TrackParameters*>::const_iterator vpb = track->trackParameters().begin();
@@ -231,7 +232,7 @@ namespace InDet {
   /* add recalculated perigees to the track*/
   const Trk::Track*
   ConversionFinderUtils::addNewPerigeeToTrack(const Trk::Track* track,
-                                              const Trk::Perigee* mp) const
+                                              const Trk::Perigee* mp) 
   {
 
     // fitQuality from track
@@ -239,9 +240,9 @@ namespace InDet {
     if(!fq) return nullptr;
 
     // output datavector of TSOS
-    DataVector<const Trk::TrackStateOnSurface>*	    ntsos = new DataVector<const Trk::TrackStateOnSurface>;
+    auto	 ntsos = DataVector<const Trk::TrackStateOnSurface>();
     const DataVector<const Trk::TrackStateOnSurface>* tsos = track->trackStateOnSurfaces();
-    if(!tsos) {delete ntsos; return nullptr;}
+    if(!tsos) {return nullptr;}
     DataVector<const Trk::TrackStateOnSurface>::const_iterator its,itse = tsos->end();
     for(its=tsos->begin();its!=itse;++its) {
 
@@ -249,20 +250,20 @@ namespace InDet {
       typePattern.set(Trk::TrackStateOnSurface::Perigee);
       const Trk::TrackStateOnSurface* per_tsos =
         ((*its)->type(Trk::TrackStateOnSurface::Perigee))
-          ? new Trk::TrackStateOnSurface(nullptr, mp->clone(), nullptr, nullptr, typePattern)
+          ? new Trk::TrackStateOnSurface(nullptr, mp->uniqueClone(), nullptr, nullptr, typePattern)
           : (*its)->clone();
-      ntsos->push_back(per_tsos);
+      ntsos.push_back(per_tsos);
     }
 
     //Construct the new track
     Trk::TrackInfo info;
-    Trk::Track* newTrk = new Trk::Track(info, ntsos, fq);
+    Trk::Track* newTrk = new Trk::Track(info, std::move(ntsos), fq);
     return newTrk;
   }
 
   xAOD::Vertex*
   ConversionFinderUtils::correctVxCandidate(xAOD::Vertex* initVxCandidate,
-                                            Amg::Vector3D guessVertex) const
+                                            Amg::Vector3D guessVertex) 
   {
     Amg::Vector3D correctVertex(initVxCandidate->position().x()+guessVertex.x(),
 			     initVxCandidate->position().y()+guessVertex.y(),
@@ -280,7 +281,11 @@ namespace InDet {
       AmgSymMatrix(5) em(*(vtxPer->covariance()));
       Trk::PerigeeSurface surface (globalVertexPosition);
 
-      Trk::TrackParameters* tmpMeasPer = surface.createParameters<5,Trk::Charged>(0.,0.,iv[2],iv[3],iv[4],&em);
+      Trk::TrackParameters* tmpMeasPer =
+        surface
+          .createUniqueParameters<5, Trk::Charged>(
+            0., 0., iv[2], iv[3], iv[4], std::move(em))
+          .release();
 
       Trk::VxTrackAtVertex trkV(vtxTrack.trackQuality().chiSquared(),
                                 tmpMeasPer);

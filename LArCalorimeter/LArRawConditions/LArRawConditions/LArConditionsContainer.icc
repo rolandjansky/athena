@@ -18,7 +18,6 @@
  */
 // Services/helpers
 #include "LArIdentifier/LArOnlineID.h"
-#include "CaloIdentifier/CaloCell_ID.h"
 
 #include <algorithm>
 #include <deque>
@@ -1146,6 +1145,11 @@ LArConditionsContainer<T>::initialize()
 	      m_groupType = ExtendedSubDetGrouping;
 	      
 	    }
+	    else if (subset->groupingType() == SuperCells) {
+	      m_groupType = SuperCells;
+	    }
+		     
+
 	    // Setup group mapping
 	    StatusCode sc = initializeBase();
 	    if (sc != StatusCode::SUCCESS) return (sc);
@@ -1205,3 +1209,25 @@ LArConditionsContainer<T>::initialize()
 
 
 
+template<class T> 
+bool LArConditionsContainer<T>::merge(const LArConditionsContainer<T>& other) {
+  unsigned nOverwrites=0;
+  //Loop over gains
+  for (unsigned gain=0;gain<other.nGains();++gain) {
+    auto it=other.begin(gain);
+    auto it_e=other.end(gain);
+    //Loop over channels
+    for (;it!=it_e;++it) {
+      const HWIdentifier hwid=it.channelId();
+      const T& payload=*it;
+      if (!payload.isEmpty()) {
+	const T& currentPayload=const_cast<const LArConditionsContainer<T>* >(this) -> get(hwid,gain);
+	if (!currentPayload.isEmpty()) {
+	  ++nOverwrites;
+	}
+	this->setPdata(hwid,payload,gain);
+      }
+    }//end loop over channels
+  }//end loop over gains
+  return (nOverwrites!=0);
+}

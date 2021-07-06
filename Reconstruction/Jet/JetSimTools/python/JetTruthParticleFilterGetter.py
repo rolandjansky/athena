@@ -1,11 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from JetSimTools.JetSimToolsConf import JetTruthParticleFilter, JetTruthParticleSelectorTool
 
 from JetRec.JetGetters import getStandardInputCollection
 from JetRec.JetAlgConfiguration import checkAndUpdateOptions
 
-from AthenaCommon.SystemOfUnits import *
 from RecExConfig.Configured import Configured
 from AthenaCommon.AlgSequence import AlgSequence
 import logging

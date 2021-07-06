@@ -46,7 +46,6 @@ namespace SH
   void TagList ::
   testInvariant () const
   {
-    RCU_INVARIANT (this != 0);
     for (TagsIter tag = m_tags.begin(),
 	   end = m_tags.end(); tag != end; ++ tag)
     {

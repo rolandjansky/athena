@@ -1,16 +1,13 @@
 #!/usr/bin/env python
 """Run tests on G4Geometry Tool configuration
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 
 from __future__ import print_function
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 if __name__ == '__main__':
-  from AthenaConfiguration.MainServicesConfig import MainServicesCfg
-  import os
-
   # Set up logging and config behaviour
   from AthenaCommon.Logging import log
   from AthenaCommon.Constants import DEBUG
@@ -21,25 +18,23 @@ if __name__ == '__main__':
 
   #import config flags
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
+  from AthenaConfiguration.Enums import ProductionStep
+  ConfigFlags.Common.ProductionStep = ProductionStep.Simulation
 
   from AthenaConfiguration.TestDefaults import defaultTestFiles
   inputDir = defaultTestFiles.d
   ConfigFlags.Input.Files = defaultTestFiles.EVNT
 
-  ConfigFlags.Detector.GeometryPixel = True
-  ConfigFlags.Detector.GeometrySCT = True
-  ConfigFlags.Detector.GeometryTRT = True
-  ConfigFlags.Detector.SimulateMuon = True
-  ConfigFlags.Detector.SimulateID = True
-  ConfigFlags.Detector.SimulateCalo = True
-  ConfigFlags.Detector.SimulateBpipe = True
-  ConfigFlags.Detector.SimulateFwdRegion = True
-  ConfigFlags.Detector.GeometryLAr = True
-  ConfigFlags.Detector.GeometryTile = True
-  ConfigFlags.Detector.GeometryLucid = True
-  ConfigFlags.Detector.GeometryZDC = True
-  ConfigFlags.Detector.GeometryALFA = True
-  ConfigFlags.Detector.GeometryAFP = True
+  import os
+  if "AthSimulation_DIR" in os.environ:
+    detectors =['Bpipe', 'BCM', 'DBM',  'Pixel', 'SCT', 'TRT', 'LAr', 'Tile', 'CSC', 'MDT', 'RPC', 'TGC'] # Forward Detector geometry not currently included in AthSimulation
+  else:
+    detectors =['Bpipe', 'BCM', 'DBM',  'Pixel', 'SCT', 'TRT', 'LAr', 'Tile', 'CSC', 'MDT', 'RPC', 'TGC', 'FwdRegion', 'Lucid', 'ZDC', 'ALFA', 'AFP']
+
+  # Setup detector flags
+  from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
+  setupDetectorsFromList(ConfigFlags, detectors, toggle_geometry=True)
+
   ConfigFlags.Sim.WorldRRange = 15000
   ConfigFlags.Sim.WorldZRange = 27000
 
@@ -96,14 +91,15 @@ if __name__ == '__main__':
 
   tool = cfg.popToolsAndMerge(ZDCGeoDetectorToolCfg(ConfigFlags))
   cfg.addPublicTool(tool)
-  
+
   tool = cfg.popToolsAndMerge(AFPGeoDetectorToolCfg(ConfigFlags))
   cfg.addPublicTool(tool)
 
   tool = cfg.popToolsAndMerge(ATLASEnvelopeCfg(ConfigFlags))
   cfg.addPublicTool(tool)
 
-  cfg.addPublicTool(MaterialDescriptionToolCfg(ConfigFlags))
+  tool = cfg.popToolsAndMerge(MaterialDescriptionToolCfg(ConfigFlags))
+  cfg.addPublicTool(tool)
 
   cfg.printConfig(withDetails=True, summariseProps = True)
   ConfigFlags.dump()

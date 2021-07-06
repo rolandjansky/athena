@@ -282,7 +282,7 @@ IsolationBuilder::initializeIso(
       xAOD::Iso::IsolationType isoType =
         static_cast<xAOD::Iso::IsolationType>(isoInts[flavor][type]);
       isoFlav = xAOD::Iso::isolationFlavour(isoType);
-      ATH_MSG_DEBUG("Saw isoType " << isoType << " and isoFlav " << isoFlav);
+      ATH_MSG_DEBUG("Saw isoType " << xAOD::Iso::toString(isoType) << " and isoFlav " << xAOD::Iso::toString(isoFlav));
       if (oldIsoFlav != xAOD::Iso::numIsolationFlavours &&
           oldIsoFlav != isoFlav) {
         ATH_MSG_FATAL("Configuration error:  can only have one type of "
@@ -397,12 +397,11 @@ IsolationBuilder::addCaloIsoCorrections(
     }
 
     cisoH.corrBitsetDeco = bitsetName;
-    ATH_MSG_DEBUG("Initializing " << cisoH.corrBitsetDeco.key());
+    ATH_MSG_DEBUG("Initializing non extra corr : " << cisoH.corrBitsetDeco.key());
     ATH_CHECK(cisoH.corrBitsetDeco.initialize());
   }
 
   for (size_t corrType = 0; corrType < corInts[flavor].size(); corrType++) {
-
     // iterate over the calo isolation corrections
     const auto cor = static_cast<unsigned int>(corInts[flavor][corrType]);
     if (!corrsAreExtra)
@@ -412,10 +411,8 @@ IsolationBuilder::addCaloIsoCorrections(
 
     if (isCoreCor(isoCor)) {
       std::string isoCorName = prefix;
-
       if (isoCor != xAOD::Iso::core57cells) {
-        isoCorName += xAOD::Iso::toString(
-          isoFlav); // since this doesn't depend on the flavor, just have one
+        isoCorName += xAOD::Iso::toString(isoFlav); // since this doesn't depend on the flavor, just have one
       }
 
       // a core correction; only store core energy, not the core area
@@ -428,12 +425,10 @@ IsolationBuilder::addCaloIsoCorrections(
       cisoH.coreCorDeco[isoCor].setOwner(this);
       ATH_MSG_DEBUG("initializing " << cisoH.coreCorDeco[isoCor].key());
       ATH_CHECK(cisoH.coreCorDeco[isoCor].initialize());
-    } else if (isoCor == xAOD::Iso::pileupCorrection) {
-      // do not store pileup corrections as they are rho * pi * (R**2 -
-      // areaCore) and rho is stored...
-      continue;
     } else {
       // noncore correction
+      if (isoCor == xAOD::Iso::pileupCorrection && !m_storepileupCorrection)
+	continue;
       cisoH.noncoreCorDeco.emplace(
         isoCor, SG::WriteDecorHandleKeyArray<xAOD::IParticleContainer>());
       auto& vec = cisoH.noncoreCorDeco[isoCor];

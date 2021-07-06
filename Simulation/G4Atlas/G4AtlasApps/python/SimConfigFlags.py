@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 
@@ -40,7 +40,17 @@ def createSimConfigFlags():
     # Do full simulation + digitisation + reconstruction chain
     scf.addFlag("Sim.DoFullChain", False)
 
-    scf.addFlag("Sim.G4Version", "geant4.10.1.patch03.atlas02")
+    def _check_G4_version(prevFlags):
+        from AthenaConfiguration.AutoConfigFlags import GetFileMD
+        version = GetFileMD(prevFlags.Input.Files).get('G4Version', '')
+        if not version:
+            from os import environ
+            version = str(environ.get('G4VERS', ''))
+        if not version:
+            raise ValueError("Unknown G4 version")
+        return version
+
+    scf.addFlag("Sim.G4Version", _check_G4_version)
     scf.addFlag("Sim.PhysicsList", "FTFP_BERT_ATL")
     scf.addFlag("Sim.NeutronTimeCut", 150.) # Sets the value for the neutron out of time cut in G4
     scf.addFlag("Sim.NeutronEnergyCut", -1.) # Sets the value for the neutron energy cut in G4
@@ -50,7 +60,7 @@ def createSimConfigFlags():
     scf.addFlag("Sim.RecordStepInfo",False)
     scf.addFlag("Sim.StoppedParticleFile", False)
     scf.addFlag("Sim.BeamPipeSimMode", "Normal")  ## ["Normal", "FastSim", "EGammaRangeCuts", "EGammaPRangeCuts"]
-    scf.addFlag("Sim.LArParameterization", 2)  ## 0 = No frozen showers, 1 = Frozen Showers, 2 = DeadMaterial Frozen Showers
+    scf.addFlag("Sim.LArParameterization", 0)  ## 0 = No frozen showers, 1 = Frozen Showers, 2 = DeadMaterial Frozen Showers
 
     #For BeameffectsAlg
     scf.addFlag("Sim.Vertex.Source", "CondDB" ) #"CondDB", "VertexOverrideEventFile.txt", "VertexOverride.txt","LongBeamspot"
@@ -91,6 +101,10 @@ def createSimConfigFlags():
             doID = False
             doCALO = False
             doMUON = False
+        elif simstr in ("ATLFASTIIF_G4MS"):
+            doID = True
+            doCALO = True
+            doMUON = True
         elif simstr in ("ATLFASTII", "G4FastCalo"):
             doID = False
             doCALO = True
@@ -126,14 +140,6 @@ def createSimConfigFlags():
     scf.addFlag("Sim.Fatras.HadronIntProb", 1.) # hadronic interaction scale factor
     scf.addFlag("Sim.Fatras.GaussianMixtureModel", True) # use Gaussian mixture model for Multiple Scattering
     scf.addFlag("Sim.Fatras.BetheHeitlerScale", 1.) # scale to Bethe-Heitler contribution
-
-    # Run dependent simulation
-    # map from runNumber to timestamp; migrated from RunDMCFlags.py
-    def getRunToTimestampDict():
-        # this wrapper is intended to avoid an initial import
-        from G4AtlasApps.RunToTimestampData import RunToTimestampDict
-        return RunToTimestampDict
-    scf.addFlag("Sim.RunToTimestampDict", lambda prevFlags: getRunToTimestampDict())
 
     scf.addFlag("Sim.BeamPipeCut", 100.0)
     scf.addFlag("Sim.TightMuonStepping", False)

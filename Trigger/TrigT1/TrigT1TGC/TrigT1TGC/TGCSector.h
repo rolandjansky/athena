@@ -1,45 +1,44 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCSector_h
 #define TGCSector_h
 
 #include "TrigT1TGC/TGCArguments.h"
-#include "TrigT1TGC/TGCDatabaseManager.h"
 #include "TrigT1TGC/TGCTimingManager.h"
 #include "TrigT1TGC/TGCReadoutIndex.h"
-#include "TrigT1TGC/TGCConnectionInPP.h"
-#include "TrigT1TGC/TGCConnectionPPToSL.h"
-#include "TrigT1TGC/TGCConnectionASDToPP.h"
-#include "TrigT1TGC/TGCRPhiCoincidenceMap.h"
 
-
-#include "TrigT1TGC/TGCASDOut.h"
-#include "TrigT1TGC/TGCPatchPanel.h"
-
-#include "TrigT1TGC/TGCWireDoubletSB.h"
-#include "TrigT1TGC/TGCStripDoubletSB.h"
-#include "TrigT1TGC/TGCWireTripletSB.h"
-#include "TrigT1TGC/TGCStripTripletSB.h"
-#include "TrigT1TGC/TGCInnerSB.h"
-
-
-#include "TrigT1TGC/TGCWireHighPtBoard.h"
-#include "TrigT1TGC/TGCStripHighPtBoard.h"
-
-#include "TrigT1TGC/TGCSectorLogic.h"
 #include "TrigT1TGC/TGCTMDB.h"
 #include "TrigT1TGC/TGCNSW.h"
-#include "TrigT1TGC/TGCGoodMF.h"
 
 namespace LVL1TGCTrigger {
 
-class TGCEIFICoincidenceMap;
+class TGCDatabaseManager;
+class TGCConnectionPPToSL;
+class TGCConnectionHPBToSL;
+class TGCConnectionPPToSB;
+class TGCConnectionASDToPP;
+class TGCConnectionSBToHPB;
+class TGCASDOut;
+class TGCPatchPanel;
+class TGCSlaveBoard;
+class TGCHighPtBoard;
+class TGCSectorLogic;
 
-class TGCSector {
 
-public:
+enum TGCPatchPanelType { NOPP=-1,
+                         WTPP=0, WDPP, STPP, SDPP, WIPP, SIPP,
+                         TotalNumPatchPanelType };
+
+
+class TGCSector
+{
+ public:
+  enum{ NumberOfHighPtBoardType = 2 };
+  enum{ NumberOfPatchPanelType = 6 };
+
+ public:
   TGCSector(TGCArguments*,
 	    int idIn, 
 	    TGCRegionType type, 
@@ -49,7 +48,7 @@ public:
 	    std::shared_ptr<const TGCNSW>             nsw
 	    );
 
-  TGCSector(TGCArguments*);
+  TGCSector();
 
 private:
   // copy constructor and assignement operator are hidden
@@ -91,11 +90,6 @@ private:
 
 
   void setModule(const TGCConnectionPPToSL* connection);
-  void setRPhiMap(const TGCRPhiCoincidenceMap* map, 
-		  const TGCEIFICoincidenceMap* mapI=0);
-  void setTileMuMap(const TGCTileMuCoincidenceMap* map);
-  void setNSWMap(std::shared_ptr<const TGCNSWCoincidenceMap> mapNSW);
-  void setGoodMFMap(std::shared_ptr<const TGCGoodMF> mapGoodMF);
   void connectPPToSB(const TGCConnectionPPToSB* connection);
   void connectSBToHPB(const TGCConnectionSBToHPB* connection);
   void connectHPBToSL(const TGCConnectionHPBToSL* connection);
@@ -132,7 +126,7 @@ private:
   std::shared_ptr<const TGCNSW>  m_NSW;
 
   TGCArguments* m_tgcArgs;
-
+  const TGCDatabaseManager* m_dbMgr;
 };
 
 inline 

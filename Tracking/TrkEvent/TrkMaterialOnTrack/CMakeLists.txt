@@ -7,8 +7,8 @@ atlas_subdir( TrkMaterialOnTrack )
 atlas_add_library( TrkMaterialOnTrack
                    src/*.cxx
                    PUBLIC_HEADERS TrkMaterialOnTrack
-                   LINK_LIBRARIES TrkEventPrimitives
-                   PRIVATE_LINK_LIBRARIES GaudiKernel TrkSurfaces )
+                   LINK_LIBRARIES TrkEventPrimitives TrkSurfaces
+                   PRIVATE_LINK_LIBRARIES GaudiKernel)
 
 atlas_add_dictionary( TrkMaterialOnTrackDict
                       TrkMaterialOnTrack/TrkMaterialOnTrackDict.h

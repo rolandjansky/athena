@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger('Menu.L1.Config.TopoMultiplicityAlgoDef')
+log = logging.getLogger(__name__)
 
 from ..Base.TopoAlgos import EMMultiplicityAlgo, TauMultiplicityAlgo, JetMultiplicityAlgo, XEMultiplicityAlgo
 
@@ -36,8 +36,8 @@ class TopoAlgoDefMultiplicity(object):
                                        nbits = 3)
             tm.registerTopoAlgo(alg)
 
-        jJThresholds = [ "jJ12", "jJ12.0ETA23", "jJ15", "jJ15.0ETA25", "jJ20", "jJ25", "jJ25.0ETA23", "jJ30", 
-                         "jJ35.0ETA23", "jJ40.0ETA25", "jJ40", "jJ50", "jJ85", "jJ100", "jJ15.31ETA49", "jJ20.31ETA49", "jJ75.31ETA49" ]
+        jJThresholds = [ "jJ12", "jJ12p0ETA25", "jJ15", "jJ15p0ETA25", "jJ20", "jJ25", "jJ25p0ETA23", "jJ30", 
+                         "jJ35p0ETA23", "jJ40p0ETA25", "jJ40", "jJ50", "jJ85", "jJ100", "jJ15p31ETA49", "jJ20p31ETA49", "jJ75p31ETA49" ]
 
         for jJet in jJThresholds:
             alg = JetMultiplicityAlgo( name = jJet,

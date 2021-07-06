@@ -8,11 +8,11 @@ from AthenaCommon.AppMgr import ServiceMgr
 
 from SimuJobTransforms.SimBeamSpotShapeFilter import *
 
-include("InDetBeamSpotService/BeamCondSvc.py")
-if not hasattr(ServiceMgr, 'BeamCondSvc'):
-  from InDetBeamSpotService.InDetBeamSpotServiceConf import BeamCondSvc
-  beamcondsvc = BeamCondSvc('BeamCondSvc')
-  ServiceMgr += beamcondsvc
+include("BeamSpotConditions/BeamCondAlgSetup.py")
+#if not hasattr(ServiceMgr, 'BeamCondSvc'):
+#  from InDetBeamSpotService.InDetBeamSpotServiceConf import BeamCondSvc
+#  beamcondsvc = BeamCondSvc('BeamCondSvc')
+#  ServiceMgr += beamcondsvc
 
 bsFilter = SimBeamSpotShapeFilter()
 if 'targetSigmaX' in locals():

@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -22,7 +22,6 @@ TBTailCatcherRawMonTool::TBTailCatcherRawMonTool(const std::string & type,
 				 const std::string & name,
 				 const IInterface* parent)
   : MonitorToolBase(type, name, parent),
-    m_isBooked(false),
     m_histo_tcScintADC(nullptr),
     m_histo_tcreco(nullptr),
     m_histo_tcTotal(nullptr),
@@ -53,9 +52,6 @@ TBTailCatcherRawMonTool::~TBTailCatcherRawMonTool()
 StatusCode TBTailCatcherRawMonTool:: initialize()
 /*---------------------------------------------------------*/
 {
-  //set to true whitin bookHist() 
-  m_isBooked = false;
-
   return StatusCode::SUCCESS;
 }
 
@@ -163,7 +159,7 @@ StatusCode TBTailCatcherRawMonTool::mybookHists()
 	   std::string htitle = "TailCatcher Scintillator ";
 
 	   if(m_monitor_tailcatcher_raw) {
-	     iter++;
+             ++iter;
 	     hname += "/BeamDetectors/TailCatcher/";
 	     hname += name;
 	     hname += m_scintNames[i];
@@ -177,7 +173,7 @@ StatusCode TBTailCatcherRawMonTool::mybookHists()
 	   }
 
 	   if(m_monitor_tailcatcher_reco) {
-	     iterreco++;
+	     ++iterreco;
 	     hname = m_path;
 	     hname += "/BeamDetectors/TailCatcher/";
 	     hname += name;
@@ -245,7 +241,7 @@ StatusCode TBTailCatcherRawMonTool::fillHists()
 	if(!scint->isADCOverflow()){	
 	  m_histo_tcScintADC[nameind]->fill(scint->getADCSignal(),1.0);
 	}
-	it_tcScint++;
+	++it_tcScint;
       }
     }
   }  // End of tailcatcher fill
@@ -276,7 +272,7 @@ StatusCode TBTailCatcherRawMonTool::fillHists()
 	  m_histo_tcreco[nameind]->fill(scint->getSignal(),1.0);
 	  sum+=scint->getSignal();
 	}
-	it_tcScint++;
+	++it_tcScint;
       }
       m_histo_tcTotal->fill(sum,1.0);
     }

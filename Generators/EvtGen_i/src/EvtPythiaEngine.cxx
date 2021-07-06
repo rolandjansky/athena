@@ -47,36 +47,36 @@ EvtPythiaEngine::EvtPythiaEngine(std::string xmlDir, bool convertPhysCodes,
   // get the required behaviour.
 
   EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Creating generic Pythia generator"<<std::endl;
-  _genericPythiaGen = new Pythia8::Pythia(xmlDir);
-  _genericPartData = _genericPythiaGen->particleData;
+  m_genericPythiaGen = new Pythia8::Pythia(xmlDir);
+  m_genericPartData = m_genericPythiaGen->particleData;
 
   EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Creating alias Pythia generator"<<std::endl;
-  _aliasPythiaGen  = new Pythia8::Pythia(xmlDir);
-  _aliasPartData = _aliasPythiaGen->particleData;
+  m_aliasPythiaGen  = new Pythia8::Pythia(xmlDir);
+  m_aliasPartData = m_aliasPythiaGen->particleData;
 
-  _thePythiaGenerator = 0;
-  _daugPDGVector.clear(); _daugP4Vector.clear();
+  m_thePythiaGenerator = 0;
+  m_daugPDGVector.clear(); m_daugP4Vector.clear();
 
-  _convertPhysCodes = convertPhysCodes;
+  m_convertPhysCodes = convertPhysCodes;
 
   // Specify if we are going to use the random number generator (engine)
   // from EvtGen for Pythia 8.
-  _useEvtGenRandom = useEvtGenRandom;
+  m_useEvtGenRandom = useEvtGenRandom;
 
-  _evtgenRandom = new EvtPythiaRandom();
+  m_evtgenRandom = new EvtPythiaRandom();
 
-  _initialised = false;
+  m_initialised = false;
 
 }
 
 EvtPythiaEngine::~EvtPythiaEngine() {
 
-  delete _genericPythiaGen; _genericPythiaGen = 0;
-  delete _aliasPythiaGen; _aliasPythiaGen = 0;
+  delete m_genericPythiaGen; m_genericPythiaGen = 0;
+  delete m_aliasPythiaGen; m_aliasPythiaGen = 0;
 
-  delete _evtgenRandom; _evtgenRandom = 0;
+  delete m_evtgenRandom; m_evtgenRandom = 0;
 
-  _thePythiaGenerator = 0;
+  m_thePythiaGenerator = 0;
 
   this->clearDaughterVectors();
   this->clearPythiaModeMap();
@@ -84,27 +84,27 @@ EvtPythiaEngine::~EvtPythiaEngine() {
 }
 
 void EvtPythiaEngine::clearDaughterVectors() {
-  _daugPDGVector.clear();
-  _daugP4Vector.clear();
+  m_daugPDGVector.clear();
+  m_daugP4Vector.clear();
 }
 
 void EvtPythiaEngine::clearPythiaModeMap() {
 
   PythiaModeMap::iterator iter;
-  for (iter = _pythiaModeMap.begin(); iter != _pythiaModeMap.end(); ++iter) {
+  for (iter = m_pythiaModeMap.begin(); iter != m_pythiaModeMap.end(); ++iter) {
 
     std::vector<int> modeVector = iter->second;
     modeVector.clear();
 
   }
 
-  _pythiaModeMap.clear();
+  m_pythiaModeMap.clear();
 
 }
 
 void EvtPythiaEngine::initialise() {
 
-  if (_initialised) {return;}
+  if (m_initialised) {return;}
 
   this->clearPythiaModeMap();
 
@@ -112,24 +112,24 @@ void EvtPythiaEngine::initialise() {
 
   // Hadron-level processes only (hadronized, string fragmentation and secondary decays).
   // We do not want to generate the full pp or e+e- event structure etc..
-  _genericPythiaGen->readString("ProcessLevel:all = off");
-  _aliasPythiaGen->readString("ProcessLevel:all = off");
+  m_genericPythiaGen->readString("ProcessLevel:all = off");
+  m_aliasPythiaGen->readString("ProcessLevel:all = off");
 
   // Apply any other physics (or special particle) requirements/cuts etc..
   this->updatePhysicsParameters();
 
   // Set the random number generator
-  if (_useEvtGenRandom == true) {
+  if (m_useEvtGenRandom == true) {
 
-    _genericPythiaGen->setRndmEnginePtr(_evtgenRandom);
-    _aliasPythiaGen->setRndmEnginePtr(_evtgenRandom);
+    m_genericPythiaGen->setRndmEnginePtr(m_evtgenRandom);
+    m_aliasPythiaGen->setRndmEnginePtr(m_evtgenRandom);
 
   }
 
-  _genericPythiaGen->init();
-  _aliasPythiaGen->init();
+  m_genericPythiaGen->init();
+  m_aliasPythiaGen->init();
 
-  _initialised = true;
+  m_initialised = true;
 
 }
 
@@ -150,7 +150,7 @@ bool EvtPythiaEngine::doDecay(EvtParticle* theParticle) {
   // we wanted via the specifications made to the decay.dec file, even though event-by-event
   // the EvtGen decay channel and the Pythia decay channel may be different.
 
-  if (_initialised == false) {this->initialise();}
+  if (m_initialised == false) {this->initialise();}
   
   if (theParticle == 0) {
     EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Error in EvtPythiaEngine::doDecay. The mother particle is null. Not doing any Pythia decay."<<std::endl;
@@ -167,14 +167,14 @@ bool EvtPythiaEngine::doDecay(EvtParticle* theParticle) {
   int isAlias = particleId.isAlias();
 
   // Choose the generator depending if we have an aliased (parent) particle or not
-  _thePythiaGenerator = _genericPythiaGen;
-  if (isAlias == 1) {_thePythiaGenerator = _aliasPythiaGen;}
+  m_thePythiaGenerator =m_genericPythiaGen;
+  if (isAlias == 1) {m_thePythiaGenerator = m_aliasPythiaGen;}
 
-  //_thePythiaGenerator->settings.listChanged();
+  //m_thePythiaGenerator->settings.listChanged();
 
   // Need to use the reference to the Pythia8::Event object,
   // otherwise it will just return a new empty, default event object.
-  Pythia8::Event& theEvent = _thePythiaGenerator->event;
+  Pythia8::Event& theEvent = m_thePythiaGenerator->event;
   theEvent.reset();
 
   // Initialise the event to be the particle rest frame
@@ -193,7 +193,7 @@ bool EvtPythiaEngine::doDecay(EvtParticle* theParticle) {
   bool generatedEvent(false);
   for (iTrial = 0; iTrial < 10; iTrial++) {
     
-    generatedEvent = _thePythiaGenerator->next();
+    generatedEvent = m_thePythiaGenerator->next();
     if (generatedEvent) {break;}
     
   }
@@ -234,7 +234,7 @@ bool EvtPythiaEngine::doDecay(EvtParticle* theParticle) {
 
 void EvtPythiaEngine::storeDaughterInfo(EvtParticle* theParticle, int startInt) {
   
-  Pythia8::Event& theEvent = _thePythiaGenerator->event;
+  Pythia8::Event& theEvent = m_thePythiaGenerator->event;
 
   std::vector<int> daugList = theEvent.daughterList(startInt);
 
@@ -272,8 +272,8 @@ void EvtPythiaEngine::storeDaughterInfo(EvtParticle* theParticle, int startInt) 
 	EvtVector4R daughterP4(E, px, py, pz);
 
 	// Now store the EvtId and 4-momentum in the internal vectors
-	_daugPDGVector.push_back(daugPDGInt);
-	_daugP4Vector.push_back(daughterP4);
+	m_daugPDGVector.push_back(daugPDGInt);
+	m_daugP4Vector.push_back(daughterP4);
 
 	// Set the status flag for the Pythia particle to let us know
 	// that we have already considered it to avoid double counting.
@@ -298,7 +298,7 @@ void EvtPythiaEngine::createDaughterEvtParticles(EvtParticle* theParent) {
   // It would be easier to just use the decay channel number that Pythia chose to use 
   // for the particle decay, but this is not accessible from the Pythia interface at present.
 
-  int nDaughters = _daugPDGVector.size();
+  int nDaughters = m_daugPDGVector.size();
   std::vector<EvtId> daugAliasIdVect(0);
 
   EvtId particleId = theParent->getId();
@@ -314,7 +314,7 @@ void EvtPythiaEngine::createDaughterEvtParticles(EvtParticle* theParent) {
     pythiaAliasInt = conjPartId.getAlias();
   }
 
-  std::vector<int> pythiaModes = _pythiaModeMap[pythiaAliasInt];
+  std::vector<int> pythiaModes = m_pythiaModeMap[pythiaAliasInt];
 
   // Loop over all available Pythia decay modes and find the channel that matches
   // the daughter ids. Set each daughter id to also use the alias integer.
@@ -345,7 +345,7 @@ void EvtPythiaEngine::createDaughterEvtParticles(EvtParticle* theParent) {
 	  EvtId daugId = decayModel->getDaug(iModeDaug);
 	  int daugPDGId = EvtPDL::getStdHep(daugId);
 	  // Pythia has used the right PDG codes for this decay mode, even for conjugate modes
-	  int pythiaPDGId = _daugPDGVector[iModeDaug];
+	  int pythiaPDGId = m_daugPDGVector[iModeDaug];
 
 	  if (daugPDGId == pythiaPDGId) {
 	    daugAliasIdVect.push_back(daugId);
@@ -376,7 +376,7 @@ void EvtPythiaEngine::createDaughterEvtParticles(EvtParticle* theParent) {
     int iPyDaug(0);
     for (iPyDaug = 0; iPyDaug < nDaughters; iPyDaug++) {
 
-      int daugPDGCode = _daugPDGVector[iPyDaug];
+      int daugPDGCode = m_daugPDGVector[iPyDaug];
       EvtId daugPyId = EvtPDL::evtIdFromStdHep(daugPDGCode);
       daugAliasIdVect.push_back(daugPyId);
 
@@ -396,7 +396,7 @@ void EvtPythiaEngine::createDaughterEvtParticles(EvtParticle* theParent) {
     // Set the correct 4-momentum for each daughter particle.
     if (theDaughter != 0) {
       EvtId theDaugId = daugAliasIdVect[iDaug];
-      const EvtVector4R theDaugP4 = _daugP4Vector[iDaug];
+      const EvtVector4R theDaugP4 = m_daugP4Vector[iDaug];
       theDaughter->init(theDaugId, theDaugP4);
     }
     
@@ -423,7 +423,7 @@ void EvtPythiaEngine::updateParticleLists() {
 
   // Reset the _addedPDGCodes map that keeps track
   // of any new particles added to the Pythia input data stream
-  _addedPDGCodes.clear();
+  m_addedPDGCodes.clear();
 
   for (iPDL = 0; iPDL < nPDL; iPDL++) {
 
@@ -445,17 +445,17 @@ void EvtPythiaEngine::updateParticleLists() {
 
       // Decide what generator to use depending on ether we have 
       // an alias particle or not
-      _thePythiaGenerator = _genericPythiaGen;
-      _theParticleData = _genericPartData;
+      m_thePythiaGenerator = m_genericPythiaGen;
+      m_theParticleData = m_genericPartData;
       if (isAlias == 1) {
-	_thePythiaGenerator = _aliasPythiaGen;
-	_theParticleData = _aliasPartData;
+	m_thePythiaGenerator = m_aliasPythiaGen;
+	m_theParticleData = m_aliasPartData;
       }
 
       // Find the Pythia particle name given the standard PDG code integer
-      std::string dataName = _theParticleData.name(PDGCode);
+      std::string dataName = m_theParticleData.name(PDGCode);
       bool alreadyStored(false);
-      if (_addedPDGCodes.find(std::abs(PDGCode)) != _addedPDGCodes.end()) {alreadyStored = true;}
+      if (m_addedPDGCodes.find(std::abs(PDGCode)) != m_addedPDGCodes.end()) {alreadyStored = true;}
 
       if (dataName == " " && alreadyStored == false) {
 
@@ -568,7 +568,7 @@ void EvtPythiaEngine::updatePythiaDecayTable(EvtId& particleId, int aliasInt, in
 	    
 	  } // Daughter list
 
-	  _thePythiaGenerator->readString(oss.str());
+	  m_thePythiaGenerator->readString(oss.str());
 		
 	} // is Pythia
 
@@ -589,14 +589,14 @@ void EvtPythiaEngine::updatePythiaDecayTable(EvtId& particleId, int aliasInt, in
 
   } // Loop over modes
 
-  _pythiaModeMap[aliasInt] = pythiaModes;
+  m_pythiaModeMap[aliasInt] = pythiaModes;
 
   // Now, renormalise the decay branching fractions to sum to 1.0
   std::ostringstream rescaleStr;
   rescaleStr.setf(std::ios::scientific);
   rescaleStr << PDGCode << ":rescaleBR = 1.0";
   
-  _thePythiaGenerator->readString(rescaleStr.str());
+  m_thePythiaGenerator->readString(rescaleStr.str());
 
 }
 
@@ -614,7 +614,7 @@ int EvtPythiaEngine::getModeInt(EvtDecayBase* decayModel) {
     }
   }
 
-  if (_convertPhysCodes) {
+  if (m_convertPhysCodes) {
 
     // Extra code to convert the old Pythia decay model integer MDME(ICC,2) to the new one.
     // This should be removed eventually after updating decay.dec files to use
@@ -727,14 +727,14 @@ void EvtPythiaEngine::createPythiaParticle(EvtId& particleId, int PDGCode) {
       << tau0;
   
   // Pass this information to Pythia
-  _thePythiaGenerator->readString(oss.str());
+  m_thePythiaGenerator->readString(oss.str());
 
   // Also store the absolute value of the PDG entry
   // to keep track of which new particles have been added,
   // which also automatically includes the anti-particle.
   // We need to avoid creating new anti-particles when
   // they already exist when the particle was added.
-  _addedPDGCodes[absPDGCode] = 1;
+  m_addedPDGCodes[absPDGCode] = 1;
 
 }
 
@@ -749,13 +749,13 @@ void EvtPythiaEngine::updatePhysicsParameters() {
 
   // Set the multiplicity level for hadronic weak decays
   std::string multiWeakCut("ParticleDecays:multIncreaseWeak = 2.0");
-  _genericPythiaGen->readString(multiWeakCut);
-  _aliasPythiaGen->readString(multiWeakCut);
+  m_genericPythiaGen->readString(multiWeakCut);
+  m_aliasPythiaGen->readString(multiWeakCut);
 
   // Set the multiplicity level for all other decays
   std::string multiCut("ParticleDecays:multIncrease = 4.5");
-  _genericPythiaGen->readString(multiCut);
-  _aliasPythiaGen->readString(multiCut);
+  m_genericPythiaGen->readString(multiCut);
+  m_aliasPythiaGen->readString(multiCut);
 
   //Now read in any custom configuration entered in the XML
   GeneratorCommands commands = EvtExtGeneratorCommandsTable::getInstance()->getCommands("PYTHIA");
@@ -784,7 +784,7 @@ void EvtPythiaEngine::updatePhysicsParameters() {
       std::vector<std::string>::iterator it2 = commandStrings.begin();
       for( ; it2!=commandStrings.end(); it2++) {
         EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Configuring generic Pythia generator: " << (*it2) <<std::endl;
-        _genericPythiaGen->readString(*it2);
+        m_genericPythiaGen->readString(*it2);
       }
     }
     if(generator == "ALIAS" || generator == "Alias" || generator == "alias" ||
@@ -792,7 +792,7 @@ void EvtPythiaEngine::updatePhysicsParameters() {
       std::vector<std::string>::iterator it2 = commandStrings.begin();
       for( ; it2!=commandStrings.end(); it2++) {
         EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Configuring alias Pythia generator: " << (*it2) <<std::endl;
-        _aliasPythiaGen->readString(*it2);
+        m_aliasPythiaGen->readString(*it2);
       }
     }
   }

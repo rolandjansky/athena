@@ -12,7 +12,7 @@ namespace top {
   PileupScaleFactorCalculator::PileupScaleFactorCalculator(const std::string& name) :
     asg::AsgTool(name),
     m_config(nullptr),
-    m_pileupReweightingTool("CP::PileupReweightingTool"),
+    m_pileupReweightingTool("PileupReweightingTool"),
     m_systNominal(CP::SystematicSet()),
     m_systDataSFUp(CP::SystematicSet()),
     m_systDataSFDown(CP::SystematicSet()) {

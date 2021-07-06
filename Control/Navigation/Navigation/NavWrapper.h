@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef NAVIGATION_NAVWRAPPER_H
@@ -201,9 +201,9 @@ class NavWrapper<NavigableTerminalNode>
 public:
 
   /*! \brief Default constructor */
-  NavWrapper<NavigableTerminalNode>() { };
+  NavWrapper() { };
   /*! \brief Base class destructor */
-  virtual ~NavWrapper<NavigableTerminalNode>() { };
+  virtual ~NavWrapper() { };
 
   /*!{ \brief Do-nothing visitor */
   virtual void fillToken(INavigationToken& /*rToken*/) const { };

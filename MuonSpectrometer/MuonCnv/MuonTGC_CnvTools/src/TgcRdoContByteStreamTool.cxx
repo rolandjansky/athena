@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TgcRdoContByteStreamTool.h"
@@ -14,8 +14,7 @@
 // contructor
 Muon::TgcRdoContByteStreamTool::TgcRdoContByteStreamTool
 (const std::string& type, const std::string& name, const IInterface* parent)
-  :  AthAlgTool(type,name,parent),
-     m_hid2re(0) 
+  :  base_class(type,name,parent)
 {
   declareInterface<Muon::ITGC_RDOtoByteStreamTool>(this);
 }
@@ -24,7 +23,6 @@ Muon::TgcRdoContByteStreamTool::TgcRdoContByteStreamTool
 // destructor 
 Muon::TgcRdoContByteStreamTool::~TgcRdoContByteStreamTool()
 {
-  delete m_hid2re;   m_hid2re=0;
 }
 
 
@@ -32,7 +30,9 @@ Muon::TgcRdoContByteStreamTool::~TgcRdoContByteStreamTool()
 StatusCode Muon::TgcRdoContByteStreamTool::initialize()
 {
   // create TGC RDO ID to source ID mapper
-  m_hid2re = new TGC_Hid2RESrcID;
+  m_hid2re = std::make_unique<TGC_Hid2RESrcID>();
+
+  ATH_CHECK( m_byteStreamCnvSvc.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -46,11 +46,12 @@ StatusCode Muon::TgcRdoContByteStreamTool::finalize()
 
 
 // convert TGC RDO to ByteStream
-StatusCode Muon::TgcRdoContByteStreamTool::convert(const TgcRdoContainer* cont, RawEventWrite* re, 
-						   MsgStream& log)
+StatusCode Muon::TgcRdoContByteStreamTool::convert(const TgcRdoContainer* cont) const
 {
-  // clear FullEventAssembler
-  m_fea.clear();
+  // Get the event assembler
+  FullEventAssembler<TGC_Hid2RESrcID>* fea = nullptr;
+  ATH_CHECK( m_byteStreamCnvSvc->getFullEventAssembler (fea,
+                                                        "TgcRdoContByteStream") );
 
   // event assembler
   FullEventAssembler<TGC_Hid2RESrcID>::RODDATA * theROD;
@@ -76,14 +77,11 @@ StatusCode Muon::TgcRdoContByteStreamTool::convert(const TgcRdoContainer* cont, 
   for(; it_map != it_map_end; ++it_map)
     { 
       // get ROD data address
-      theROD = m_fea.getRodData((*it_map).first); 
+      theROD = fea->getRodData((*it_map).first); 
 
       // fill ROD data
       ((*it_map).second).fillROD( *theROD ) ; 
     } 
-
-  // Finnally, fill full event
-  m_fea.fill(re,log); 
 
   return StatusCode::SUCCESS; 
 }

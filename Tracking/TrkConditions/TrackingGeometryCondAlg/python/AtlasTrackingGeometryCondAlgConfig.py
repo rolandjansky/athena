@@ -1,10 +1,12 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-Trk__TrackingGeometryCondAlg=CompFactory.Trk__TrackingGeometryCondAlg
+Trk__TrackingGeometryCondAlg=CompFactory.Trk.TrackingGeometryCondAlg
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
-from SubDetectorEnvelopes.SubDetectorEnvelopesConfig import getEnvelopeDefSvc
+from SubDetectorEnvelopes.SubDetectorEnvelopesConfigNew import EnvelopeDefSvcCfg 
+
+from GaudiKernel.GaudiHandles import PrivateToolHandleArray
 
 # This file is a placeholder - the entire way we build geometry needs to be rewritten so this is to unblock new configuration developments for the moment.
 # It is based on: https://gitlab.cern.ch/atlas/athena/blob/master/Tracking/TrkDetDescr/TrkDetDescrSvc/python/AtlasTrackingGeometrySvc.py#L112
@@ -28,14 +30,14 @@ def _setupCondDB(flags, CoolDataBaseFolder, quiet=True):
     result.merge( addFoldersSplitOnline(flags,'GLOBAL',[cfolder],[cfolder],splitMC=True) )
     return result
     
-def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, namePrefix='', setLayerAssociation = True, buildTrtStrawLayers = False):
+def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, namePrefix='', nameSuffix='',setLayerAssociation = True, buildTrtStrawLayers = False):
   # Based on https://gitlab.cern.ch/atlas/athena/blob/master/InnerDetector/InDetDetDescr/InDetTrackingGeometry/python/ConfiguredInDetTrackingGeometryBuilder.py
   # A lot of comments below are to help people understand differences from the above, in case we need to revert some simplifications I made
   # i.e. this is far from complete, but is better than what was there before.
-  
-  # beampipe        
-  InDet__BeamPipeBuilder=CompFactory.InDet__BeamPipeBuilderCond
-  beamPipeBuilder = InDet__BeamPipeBuilder(name=namePrefix+'BeamPipeBuilder')
+
+  # beampipe
+  InDet__BeamPipeBuilder=CompFactory.InDet.BeamPipeBuilderCond
+  beamPipeBuilder = InDet__BeamPipeBuilder(name=namePrefix+'BeamPipeBuilder'+nameSuffix)
 
   result.addPublicTool(beamPipeBuilder)
   layerbuilders = []
@@ -44,18 +46,25 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
 
   # Pixel
   if flags.Detector.GeometryPixel:
-    InDet__SiLayerBuilder=CompFactory.InDet__SiLayerBuilderCond
-    PixelLayerBuilder = InDet__SiLayerBuilder(name=namePrefix+'PixelLayerBuilder')
+    # for Pixel DetectorElement conditions data :
+    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
+    result.merge(PixelGeometryCfg( flags ))
+
+    InDet__SiLayerBuilder=CompFactory.InDet.SiLayerBuilderCond
+    PixelLayerBuilder = InDet__SiLayerBuilder(name=namePrefix+'PixelLayerBuilder'+nameSuffix)
     PixelLayerBuilder.PixelCase            = True
     PixelLayerBuilder.Identification       = 'Pixel'
     PixelLayerBuilder.SiDetManagerLocation = 'Pixel'
     # additional layers - handle with care !
-    PixelLayerBuilder.BarrelAdditionalLayerRadii      = [ 130 ]   # The PST
+    PixelLayerBuilder.BarrelAdditionalLayerRadii      = [ 130.0 ]   # The PST
     PixelLayerBuilder.BarrelAdditionalLayerType       = [ 0 ]     # -- will shift volume boundary to PST
     PixelLayerBuilder.EndcapAdditionalLayerPositionsZ = [ -1900. , 1900. ] # DBM
     PixelLayerBuilder.EndcapAdditionalLayerType       = [  1 , 1 ] # DBM
     # Pixel barrel specifications
-    # Since we don't have TrkDetFlags, using defaults here.
+    PixelLayerBuilder.BarrelLayerBinsZ     = 1
+    PixelLayerBuilder.BarrelLayerBinsPhi   = 1
+    PixelLayerBuilder.EndcapLayerBinsR     = 1
+    PixelLayerBuilder.EndcapLayerBinsPhi   = 1
     
     # set the layer association
     PixelLayerBuilder.SetLayerAssociation  = setLayerAssociation
@@ -70,17 +79,28 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
     colors        += [ 3 ]
 
   if flags.Detector.GeometrySCT:
+    # for SCT DetectorElement conditions data :
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
+    result.merge(SCT_GeometryCfg( flags ))
+
     # SCT building
-    InDet__SiLayerBuilder=CompFactory.InDet__SiLayerBuilderCond
-    SCT_LayerBuilder = InDet__SiLayerBuilder(name=namePrefix+'SCT_LayerBuilder')
+    InDet__SiLayerBuilder=CompFactory.InDet.SiLayerBuilderCond
+    SCT_LayerBuilder = InDet__SiLayerBuilder(name=namePrefix+'SCT_LayerBuilder'+nameSuffix)
     SCT_LayerBuilder.PixelCase                       = False
     SCT_LayerBuilder.Identification                  = 'SCT'
     SCT_LayerBuilder.SiDetManagerLocation            = 'SCT'
     # additionall layers - handle with care !
-    SCT_LayerBuilder.EndcapAdditionalLayerPositionsZ = [ -2850 , 2850 ] 
+    SCT_LayerBuilder.BarrelAdditionalLayerRadii      = []   
+    SCT_LayerBuilder.BarrelAdditionalLayerType      = []   
+
+    SCT_LayerBuilder.EndcapAdditionalLayerPositionsZ = [ -2850. , 2850. ] 
     SCT_LayerBuilder.EndcapAdditionalLayerType       = [  0 , 0 ] 
-    # SCT barrel specifications - use defaults
-    # SCT endcap specifications - use defaults           
+    SCT_LayerBuilder.BarrelLayerBinsZ                = 1
+    SCT_LayerBuilder.BarrelLayerBinsPhi              = 1
+    # SCT endcap specifications                          
+    SCT_LayerBuilder.EndcapLayerBinsR                = 1
+    SCT_LayerBuilder.EndcapLayerBinsPhi              = 1
+    SCT_LayerBuilder.EndcapComplexRingBinning        = True         
     # set the layer association                   
     SCT_LayerBuilder.SetLayerAssociation             = setLayerAssociation        
     # the binning type of the layer     
@@ -93,9 +113,13 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
     binnings      += [ SCT_LayerBinning ]
     colors        += [ 4 ]
 
-  if flags.Detector.GeometryTRT:                                                      
-    InDet__TRT_LayerBuilder=CompFactory.InDet__TRT_LayerBuilderCond
-    TRT_LayerBuilder = InDet__TRT_LayerBuilder(name=namePrefix+'TRT_LayerBuilder')
+  if flags.Detector.GeometryTRT:
+    # for TRT DetectorElement conditions data :
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
+    result.merge(TRT_GeometryCfg( flags ))
+
+    InDet__TRT_LayerBuilder=CompFactory.InDet.TRT_LayerBuilderCond
+    TRT_LayerBuilder = InDet__TRT_LayerBuilder(name=namePrefix+'TRT_LayerBuilder'+nameSuffix)
     # TRT barrel specifications - assume defaults
     # SCT endcap specifications - assume defaults
                        
@@ -113,44 +137,51 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
     colors        += [ 5 ]
 
   # helpers for the InDetTrackingGeometry Builder : layer array creator
-  Trk__LayerArrayCreator=CompFactory.Trk__LayerArrayCreator
-  InDetLayerArrayCreator = Trk__LayerArrayCreator(name = 'InDetLayerArrayCreator')
+  Trk__LayerArrayCreator=CompFactory.Trk.LayerArrayCreator
+  InDetLayerArrayCreator = Trk__LayerArrayCreator(name = namePrefix+'InDetLayerArrayCreator'+nameSuffix)
   InDetLayerArrayCreator.EmptyLayerMode           = 2 # deletes empty material layers from arrays
   # add to ToolSvc
   result.addPublicTool(InDetLayerArrayCreator)  
 
   # helpers for the InDetTrackingGeometry Builder : volume array creator
-  Trk__TrackingVolumeArrayCreator=CompFactory.Trk__TrackingVolumeArrayCreator
-  InDetTrackingVolumeArrayCreator                       = Trk__TrackingVolumeArrayCreator(name = 'InDetTrackingVolumeArrayCreator')
+  Trk__TrackingVolumeArrayCreator=CompFactory.Trk.TrackingVolumeArrayCreator
+  InDetTrackingVolumeArrayCreator                       = Trk__TrackingVolumeArrayCreator(name = namePrefix+'InDetTrackingVolumeArrayCreator'+nameSuffix)
   # add to ToolSvc
   result.addPublicTool(InDetTrackingVolumeArrayCreator)  
 
-  # helpers for the InDetTrackingGeometry Builder : tracking voluem helper for glueing
-  Trk__TrackingVolumeHelper=CompFactory.Trk__TrackingVolumeHelper
-  InDetTrackingVolumeHelper                             = Trk__TrackingVolumeHelper(name ='InDetTrackingVolumeHelper')
+  # helpers for the InDetTrackingGeometry Builder : tracking volume helper for gluing
+  Trk__TrackingVolumeHelper=CompFactory.Trk.TrackingVolumeHelper
+  InDetTrackingVolumeHelper                             = Trk__TrackingVolumeHelper(name =namePrefix+'InDetTrackingVolumeHelper'+nameSuffix)
   # the material bins - assume defaults
   # add to ToolSvc
   result.addPublicTool(InDetTrackingVolumeHelper)  
   
   # helpers for the InDetTrackingGeometry Builder : cylinder volume creator
-  Trk__CylinderVolumeCreator=CompFactory.Trk__CylinderVolumeCreator
-  InDetCylinderVolumeCreator = Trk__CylinderVolumeCreator(name = 'InDetCylinderVolumeCreator')
-  # give it the layer array creator - assume defaults
+  Trk__CylinderVolumeCreator=CompFactory.Trk.CylinderVolumeCreator
+  InDetCylinderVolumeCreator = Trk__CylinderVolumeCreator(name = namePrefix+'InDetCylinderVolumeCreator'+nameSuffix)
+  # give it the layer array creator
+  InDetCylinderVolumeCreator.LayerArrayCreator = InDetLayerArrayCreator
   # specifiy the binning, passive layers, entry layers - assume defaults
   # add to ToolSvc
   result.addPublicTool(InDetCylinderVolumeCreator)  
 
+  if (namePrefix+name+nameSuffix).find('CondCond')>=0 :
+      raise Exception('Invalid name composition %s + %s + %s ' % (namePrefix,name,nameSuffix))
   # the tracking geometry builder
-  InDet__RobustTrackingGeometryBuilder=CompFactory.InDet__RobustTrackingGeometryBuilderCond
-  return InDet__RobustTrackingGeometryBuilder(namePrefix+name,
-                                                BeamPipeBuilder   = beamPipeBuilder,
-                                                LayerBuilders     = layerbuilders,
-                                                LayerBinningType  = binnings,
-                                                ColorCodes        = colors,
-                                                EnvelopeDefinitionSvc = envelopeDefinitionSvc,
-                                                VolumeEnclosureDiscPositions = [ 3000., 3450. ],
-                                                TrackingVolumeCreator     = InDetCylinderVolumeCreator,
-                                                LayerArrayCreator         = InDetLayerArrayCreator)
+  InDet__RobustTrackingGeometryBuilder=CompFactory.InDet.RobustTrackingGeometryBuilderCond
+  return InDet__RobustTrackingGeometryBuilder(namePrefix+name+nameSuffix,
+                                              BeamPipeBuilder   = beamPipeBuilder,
+                                              LayerBuilders     = layerbuilders,
+                                              LayerBinningType  = binnings,
+                                              ColorCodes        = colors,
+                                              EnvelopeDefinitionSvc = envelopeDefinitionSvc,
+                                              VolumeEnclosureDiscPositions = [ 3000., 3450. ],
+                                              TrackingVolumeCreator     = InDetCylinderVolumeCreator,
+                                              LayerArrayCreator         = InDetLayerArrayCreator,
+                                              ReplaceAllJointBoundaries=True,
+                                              VolumeEnclosureCylinderRadii=[],
+                                              BuildBoundaryLayers=True,
+                                              ExitVolumeName='InDet::Containers::InnerDetector')
 
                                                 # FIXME - not sure what to do about the following:
                                                 # BuildBoundaryLayers       = TrkDetFlags.InDetBuildMaterialBoundaries(),
@@ -163,23 +194,29 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
                                                 # Barrel Entry layers (in old config) etc were removed in 323990adfce581a635ae1809fd2ecc6a093a704c (!)
   
 # Replaces https://gitlab.cern.ch/atlas/athena/blob/master/Calorimeter/CaloTrackingGeometry/python/ConfiguredCaloTrackingGeometryBuilder.py
-def _getCaloTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, trackingVolumeHelper, namePrefix=''):
+def _getCaloTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, trackingVolumeHelper, namePrefix='',nameSuffix=''):
   # The following replaces LArCalorimeter/LArTrackingGeometry/python/ConfiguredLArVolumeBuilder.py
-  LAr__LArVolumeBuilder=CompFactory.LAr__LArVolumeBuilder
-  lArVolumeBuilder = LAr__LArVolumeBuilder(TrackingVolumeHelper = trackingVolumeHelper,)
+  LAr__LArVolumeBuilder=CompFactory.LAr.LArVolumeBuilder
+  lArVolumeBuilder = LAr__LArVolumeBuilder(namePrefix+'LArVolumeBuilder'+nameSuffix,
+                                           TrackingVolumeHelper = trackingVolumeHelper,)
   result.addPublicTool(lArVolumeBuilder)
   
   # The following replaces TileCalorimeter/TileTrackingGeometry/python/ConfiguredTileVolumeBuilder.py
-  Tile__TileVolumeBuilder=CompFactory.Tile__TileVolumeBuilder
-  tileVolumeBuilder = Tile__TileVolumeBuilder( TrackingVolumeHelper = trackingVolumeHelper,  )
+  Tile__TileVolumeBuilder=CompFactory.Tile.TileVolumeBuilder
+  tileVolumeBuilder = Tile__TileVolumeBuilder( namePrefix+'TileVolumeBuilder'+nameSuffix,
+                                               TrackingVolumeHelper = trackingVolumeHelper,)
   result.addPublicTool(tileVolumeBuilder)
   
-  Calo__CaloTrackingGeometryBuilder=CompFactory.Calo__CaloTrackingGeometryBuilderCond
-  return Calo__CaloTrackingGeometryBuilder(namePrefix+name, LArVolumeBuilder = lArVolumeBuilder,
-                                                   TileVolumeBuilder = tileVolumeBuilder,
-                                                   TrackingVolumeHelper = trackingVolumeHelper,
-                                                   EnvelopeDefinitionSvc = envelopeDefinitionSvc,
-                                                   )
+  Calo__CaloTrackingGeometryBuilder=CompFactory.Calo.CaloTrackingGeometryBuilderCond
+  return Calo__CaloTrackingGeometryBuilder(namePrefix+name+nameSuffix,
+                                           LArVolumeBuilder = lArVolumeBuilder,
+                                           TileVolumeBuilder = tileVolumeBuilder,
+                                           TrackingVolumeHelper = trackingVolumeHelper,
+                                           EnvelopeDefinitionSvc = envelopeDefinitionSvc,
+                                           EntryVolumeName = "InDet::Containers::EntryVolume",
+                                           ExitVolumeName = "Calo::Container",
+                                           GapLayerEnvelope=5.0
+                                           )
 
 # Originally this function would use was TrkDetFlags.MaterialSource() and TrkDetFlags.MaterialValidation(). For new configuration, (temporarily?) pass as parameters.
 # https://gitlab.cern.ch/atlas/athena/blob/master/Tracking/TrkDetDescr/TrkDetDescrSvc/python/AtlasTrackingGeometrySvc.py#L112
@@ -187,54 +224,75 @@ def TrackingGeometryCondAlgCfg( flags , name = 'AtlasTrackingGeometryCondAlg', d
     """
     Sets up the Tracking Geometry Conditions Algorithm
     """
+    namePrefix=''
+    nameSuffix='Cond'
     result = ComponentAccumulator()
     atlas_tracking_geometry_name = 'AtlasTrackingGeometry'
-    Trk__GeometryBuilder=CompFactory.Trk__GeometryBuilderCond
-    atlas_geometry_builder = Trk__GeometryBuilder(name = 'AtlasGeometryBuilder')
+    Trk__GeometryBuilder=CompFactory.Trk.GeometryBuilderCond
+    atlas_geometry_builder = Trk__GeometryBuilder(name = 'AtlasGeometryBuilder',
+                                                  WorldDimension=[],
+                                                  WorldMaterialProperties=[], 
+                                                  TrackingVolumeArrayCreator=CompFactory.Trk.TrackingVolumeArrayCreator(name="TrackingVolumeArrayCreator"), 
+                                                  TrackingVolumeHelper = CompFactory.Trk.TrackingVolumeHelper(name="TrackingVolumeHelper") )
 
-    atlas_env_def_service = getEnvelopeDefSvc()
-    result.addService(atlas_env_def_service)  
+    envelopSvcCfg= EnvelopeDefSvcCfg(flags)
+    atlas_env_def_service=envelopSvcCfg.getPrimary()
+    result.merge(envelopSvcCfg)
 
     # Depending on the job configuration, setup the various detector builders, and add to atlas_geometry_builder
     if flags.Detector.GeometryID:
       # TODO Not sure how to handle TrkDetFlags, specifically ISF_FatrasCustomGeometry, XMLFastCustomGeometry, SLHC_Geometry
       # So, here we only setup the default InDet geometry builder!
-      inDetTrackingGeometryBuilder = _getInDetTrackingGeometryBuilder(name ='InDetTrackingGeometryBuilder', flags=flags, result=result, envelopeDefinitionSvc=atlas_env_def_service)
-      result.addPublicTool(inDetTrackingGeometryBuilder)
+      inDetTrackingGeometryBuilder = _getInDetTrackingGeometryBuilder(name ='InDetTrackingGeometryBuilder',
+                                                                      flags=flags,
+                                                                      result=result,
+                                                                      envelopeDefinitionSvc=atlas_env_def_service,
+                                                                      buildTrtStrawLayers=flags.Beam.Type=='cosmics',
+                                                                      namePrefix=namePrefix,
+                                                                      nameSuffix=nameSuffix)
       
       atlas_geometry_builder.InDetTrackingGeometryBuilder = inDetTrackingGeometryBuilder
       
     if flags.Detector.GeometryCalo:
-      Trk__CylinderVolumeCreator=CompFactory.Trk__CylinderVolumeCreator
-      caloVolumeCreator = Trk__CylinderVolumeCreator("CaloVolumeCreator")
+      Trk__CylinderVolumeCreator=CompFactory.Trk.CylinderVolumeCreator
+      caloVolumeCreator = Trk__CylinderVolumeCreator(namePrefix+"CaloVolumeCreator"+nameSuffix)
       result.addPublicTool(caloVolumeCreator)
 
-      Trk__TrackingVolumeHelper=CompFactory.Trk__TrackingVolumeHelper
-      trackingVolumeHelper = Trk__TrackingVolumeHelper(name='TrackingVolumeHelper')
+      Trk__TrackingVolumeHelper=CompFactory.Trk.TrackingVolumeHelper
+      trackingVolumeHelper = Trk__TrackingVolumeHelper(name=namePrefix+'TrackingVolumeHelper'+nameSuffix)
       result.addPublicTool(trackingVolumeHelper)
 
-      caloTrackingGeometryBuilder = _getCaloTrackingGeometryBuilder(name ='CaloTrackingGeometryBuilder', flags=flags, result=result, envelopeDefinitionSvc=atlas_env_def_service, trackingVolumeHelper=trackingVolumeHelper)
-      result.addPublicTool(caloTrackingGeometryBuilder)
+      caloTrackingGeometryBuilder = _getCaloTrackingGeometryBuilder(name ='CaloTrackingGeometryBuilder',
+                                                                    flags=flags,
+                                                                    result=result,
+                                                                    envelopeDefinitionSvc=atlas_env_def_service,
+                                                                    trackingVolumeHelper=trackingVolumeHelper,
+                                                                    namePrefix=namePrefix,
+                                                                    nameSuffix=nameSuffix)
       atlas_geometry_builder.CaloTrackingGeometryBuilder = caloTrackingGeometryBuilder
 
     if flags.Detector.GeometryMuon:
       # Copied from from MuonTrackingGeometry.ConfiguredMuonTrackingGeometry import MuonTrackingGeometryBuilder
-      Muon__MuonStationTypeBuilder=CompFactory.Muon__MuonStationTypeBuilder
-      muonStationTypeBuilder= Muon__MuonStationTypeBuilder(name = 'MuonStationTypeBuilder')
-      result.addPublicTool(muonStationTypeBuilder)
-    
-      Muon__MuonStationBuilder=CompFactory.Muon__MuonStationBuilder
-      muonStationBuilder= Muon__MuonStationBuilder(name = 'MuonStationBuilder')
+      # Add the muon geometry model to the CA
+      from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
+      result.merge(MuonGeoModelCfg(flags))
+      muonStationTypeBuilder=CompFactory.Muon.MuonStationTypeBuilder(name = 'MuonStationTypeBuilder')
+
+      Muon__MuonStationBuilder=CompFactory.Muon.MuonStationBuilderCond
+      muonStationBuilder= Muon__MuonStationBuilder(name = namePrefix+'MuonStationBuilder'+nameSuffix)
       muonStationBuilder.StationTypeBuilder = muonStationTypeBuilder
-      result.addPublicTool(muonStationBuilder)
 
-      Muon__MuonInertMaterialBuilder=CompFactory.Muon__MuonInertMaterialBuilder
-      muonInertMaterialBuilder= Muon__MuonInertMaterialBuilder(name = 'MuonInertMaterialBuilder')
-      result.addPublicTool(muonInertMaterialBuilder)
+      Muon__MuonInertMaterialBuilder=CompFactory.Muon.MuonInertMaterialBuilderCond
+      muonInertMaterialBuilder= Muon__MuonInertMaterialBuilder(name = namePrefix+'MuonInertMaterialBuilder'+nameSuffix)
 
-      Muon__MuonTrackingGeometryBuilder=CompFactory.Muon__MuonTrackingGeometryBuilderCond
-      muonTrackingGeometryBuilder= Muon__MuonTrackingGeometryBuilder(name = 'MuonTrackingGeometryBuilder', EnvelopeDefinitionSvc=atlas_env_def_service)
-      result.addPublicTool(muonTrackingGeometryBuilder)
+      Muon__MuonTrackingGeometryBuilder=CompFactory.Muon.MuonTrackingGeometryBuilderCond
+      muonTrackingGeometryBuilder= Muon__MuonTrackingGeometryBuilder(name = namePrefix+'MuonTrackingGeometryBuilder'+nameSuffix,
+                                                                     EnvelopeDefinitionSvc=atlas_env_def_service,
+                                                                     MuonStationBuilder = muonStationBuilder,
+                                                                     InertMaterialBuilder=muonInertMaterialBuilder
+                                                                     )
+      muonTrackingGeometryBuilder.EntryVolumeName = 'MuonSpectrometerEntrance'
+      muonTrackingGeometryBuilder.ExitVolumeName  = 'Muon::Containers::MuonSystem'
     
       atlas_geometry_builder.MuonTrackingGeometryBuilder = muonTrackingGeometryBuilder
     
@@ -244,26 +302,25 @@ def TrackingGeometryCondAlgCfg( flags , name = 'AtlasTrackingGeometryCondAlg', d
     if flags.TrackingGeometry.MaterialSource == 'COOL':
        CoolDataBaseFolder = '/GLOBAL/TrackingGeo/LayerMaterialV2' # Was from TrkDetFlags.MaterialStoreGateKey()
        # the material provider
-       Trk__LayerMaterialProvider=CompFactory.Trk__LayerMaterialProvider
+       Trk__LayerMaterialProvider=CompFactory.Trk.LayerMaterialProvider
        atlasMaterialProvider = Trk__LayerMaterialProvider('AtlasMaterialProvider', LayerMaterialMapName=CoolDataBaseFolder)
        atlas_geometry_processors += [ atlasMaterialProvider ]
 
        # Setup DBs
        result.merge(_setupCondDB(flags, CoolDataBaseFolder))
     elif  flags.TrackingGeometry.MaterialSource == 'Input':
-      Trk__InputLayerMaterialProvider=CompFactory.Trk__InputLayerMaterialProvider
+      Trk__InputLayerMaterialProvider=CompFactory.Trk.InputLayerMaterialProvider
       atlasMaterialProvider = Trk__InputLayerMaterialProvider('AtlasMaterialProvider')
       atlas_geometry_processors += [ atlasMaterialProvider ]
       
     if doMaterialValidation:
-      Trk__LayerMaterialInspector=CompFactory.Trk__LayerMaterialInspector
+      Trk__LayerMaterialInspector=CompFactory.Trk.LayerMaterialInspector
       atlasLayerMaterialInspector = Trk__LayerMaterialInspector('AtlasLayerMaterialInspector')
       atlas_geometry_processors += [ atlasLayerMaterialInspector ]
 
     condAlg = Trk__TrackingGeometryCondAlg( name, GeometryBuilder = atlas_geometry_builder,
                                     TrackingGeometryWriteKey = atlas_tracking_geometry_name,
-                                    GeometryProcessors = atlas_geometry_processors, 
-                                    BuildGeometryFromTagInfo = True)
+                                    GeometryProcessors = PrivateToolHandleArray(atlas_geometry_processors))
     result.addCondAlgo(condAlg, primary = True)
 
     return result

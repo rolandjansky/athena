@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MonteCarloReactUtils/EffVal.h"
@@ -8,18 +8,9 @@ using namespace MonteCarloReact;
 using namespace std;
 
 Value::Value(float v, float hi, float lo) : 
-  m_value(v), m_errorhigh(hi), m_errorlow(lo), m_binno(-1) {;}
+  m_value(v), m_errorhigh(hi), m_errorlow(lo) {;}
   
 Value::~Value() {;}
-
-// assignment
-Value& Value::operator= (const Value& v) {
-  if (this == &v) return *this ;
-  m_value = v.getValue() ; 
-  m_errorhigh = v.getErrorHigh(); 
-  m_errorlow = v.getErrorLow() ;
-  return *this ;
-}
 
 //  redefine this operator for the efficiency
 Value& Value::operator += (const Value& eff) {

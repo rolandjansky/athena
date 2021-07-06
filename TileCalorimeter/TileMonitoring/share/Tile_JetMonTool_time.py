@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from __future__ import print_function
@@ -244,6 +244,7 @@ ToolSvc += jvt
 cleaning = CfgMgr.JetCleaningTool("MyCleaningTool")
 cleaning.CutLevel = "LooseBad"
 cleaning.DoUgly = False
+cleaning.JetContainer = jetContainer
 ToolSvc += cleaning
 ecTool                 = CfgMgr.ECUtils__EventCleaningTool("MyEventCleaningTool")
 ecTool.JetCleaningTool = cleaning
@@ -252,6 +253,7 @@ ecTool.EtaCut          = 2.4
 ecTool.JvtDecorator    = "passJvt"
 ecTool.OrDecorator     = "passOR"
 ecTool.CleaningLevel   = cleaning.CutLevel
+ecTool.JetContainer    = jetContainer
 ToolSvc += ecTool
 
 from TileMonitoring.TileMonitoringConf import TileJetMonTool

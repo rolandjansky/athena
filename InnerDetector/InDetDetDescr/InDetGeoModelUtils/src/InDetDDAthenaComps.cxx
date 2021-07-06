@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
@@ -7,10 +7,10 @@
 namespace InDetDD {
   AthenaComps::AthenaComps(const std::string& msgStreamName)
     : m_msg(msgStreamName),
-    m_detStore(0),
-    m_geoDbTagSvc(0),
-    m_rdbAccessSvc(0),
-    m_geometryDBSvc(0)
+    m_detStore(nullptr),
+    m_geoDbTagSvc(nullptr),
+    m_rdbAccessSvc(nullptr),
+    m_geometryDBSvc(nullptr)
   {}
 
   void

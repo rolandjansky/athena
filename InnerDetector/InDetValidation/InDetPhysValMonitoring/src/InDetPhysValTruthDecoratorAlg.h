@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETPHYSVALMONITORING_INDETPHYSVALTRUTHDECORATORTOOL_H
@@ -42,8 +42,8 @@ public:
 private:
   bool decorateTruth(const xAOD::TruthParticle& particle,
                      std::vector< std::pair<SG::WriteDecorHandle<xAOD::TruthParticleContainer,float>,
-                                            const SG::AuxElement::ConstAccessor<float> &> > &float_decor,
-                                            const Amg::Vector3D& beamPos) const;
+                                            bool > > &float_decor,
+                     const Amg::Vector3D& beamPos) const;
 
   PublicToolHandle<Trk::IExtrapolator> m_extrapolator
      {this,"Extrapolator","Trk::Extrapolator/AtlasExtrapolator",""};

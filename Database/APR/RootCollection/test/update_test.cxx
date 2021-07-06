@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cstdio> // For sprintf on gcc45
@@ -25,6 +25,8 @@
 #include <memory>
 #include "CoralBase/Attribute.h"
 
+#include "CxxUtils/checker_macros.h"
+
 #include "TInterpreter.h"
 #include "TClass.h"
 
@@ -40,10 +42,10 @@ public:
 
   ~TestDriver() {}
 
-  void write();
-  void read();
-  void update();
-  void query();
+  void write ATLAS_NOT_THREAD_SAFE ();
+  void read ATLAS_NOT_THREAD_SAFE ();
+  void update ATLAS_NOT_THREAD_SAFE ();
+  void query ATLAS_NOT_THREAD_SAFE ();
 
 
 private:
@@ -67,7 +69,7 @@ TestDriver::TestDriver( const std::string& name,
 
 
 void
-TestDriver::write()
+TestDriver::write ATLAS_NOT_THREAD_SAFE ()
 {
    cout << "Creating CollectionService" << endl;
    unique_ptr<CollectionService> serviceHandle(new CollectionService());
@@ -122,7 +124,7 @@ TestDriver::write()
    
 
 void
-TestDriver::read()
+TestDriver::read ATLAS_NOT_THREAD_SAFE ()
 {
    cout << "Creationg CollectionService" << endl;
    unique_ptr<CollectionService> serviceHandle(new CollectionService());
@@ -153,7 +155,7 @@ TestDriver::read()
 
 
 void
-TestDriver::update()
+TestDriver::update ATLAS_NOT_THREAD_SAFE ()
 {
    cout << "Creationg CollectionService" << endl;
    unique_ptr<CollectionService> serviceHandle(new CollectionService());
@@ -198,7 +200,7 @@ TestDriver::update()
     
 
 void
-TestDriver::query() {
+TestDriver::query ATLAS_NOT_THREAD_SAFE () {
    
     cout << endl << endl;
    cout << "Creationg CollectionService" << endl;
@@ -252,7 +254,7 @@ TestDriver::query() {
 
 
 
-int main( int argc, char ** )
+int main ATLAS_NOT_THREAD_SAFE ( int argc, char ** )
 {
   TClass::GetClass("map<string,string>");
 

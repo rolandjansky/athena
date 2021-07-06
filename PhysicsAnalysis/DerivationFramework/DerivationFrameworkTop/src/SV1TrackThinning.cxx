@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -7,10 +7,6 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "DerivationFrameworkTop/SV1TrackThinning.h"
-#include "ExpressionEvaluation/ExpressionParser.h"
-#include "ExpressionEvaluation/SGxAODProxyLoader.h"
-#include "ExpressionEvaluation/SGNTUPProxyLoader.h"
-#include "ExpressionEvaluation/MultipleProxyLoader.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODBTagging/BTagging.h"
@@ -28,8 +24,7 @@ DerivationFramework::SV1TrackThinning::SV1TrackThinning(const std::string& t,
     m_ntot(0),
     m_npass(0),
     m_jetSGKey(""),
-    m_selectionString(""),
-    m_parser(0)
+    m_selectionString("")
 {
     declareProperty("JetKey", m_jetSGKey);
     declareProperty("SelectionString", m_selectionString);
@@ -52,12 +47,8 @@ StatusCode DerivationFramework::SV1TrackThinning::initialize()
     } else { ATH_MSG_INFO("Inner detector track particles associated with objects in " << m_jetSGKey << " will be retained in this format with the rest being thinned away");}
 
     // Set up the text-parsing machinery for selectiong the jet directly according to user cuts
-    if (m_selectionString!="") {
-        ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-        proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
-        proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-        m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
-        m_parser->loadExpression(m_selectionString);
+    if (!m_selectionString.empty()) {
+       ATH_CHECK(initializeParser(m_selectionString) );
     }
     return StatusCode::SUCCESS;
 }
@@ -66,6 +57,7 @@ StatusCode DerivationFramework::SV1TrackThinning::finalize()
 {
     ATH_MSG_VERBOSE("finalize() ...");
     ATH_MSG_INFO("Processed "<< m_ntot <<" tracks, "<< m_npass<< " were retained ");
+    ATH_CHECK(finalizeParser() );
     return StatusCode::SUCCESS;
 }
 
@@ -97,7 +89,7 @@ StatusCode DerivationFramework::SV1TrackThinning::doThinning() const
     std::vector<const xAOD::Jet*> jetToCheck; jetToCheck.clear();
 
     // Execute the text parser if requested
-    if (m_selectionString!="") {
+    if (!m_selectionString.empty()) {
         std::vector<int> entries =  m_parser->evaluateAsVector();
         unsigned int nEntries = entries.size();
         // check the sizes are compatible

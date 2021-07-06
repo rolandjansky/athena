@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -23,9 +23,6 @@ namespace xAODMaker {
     *         defined in IJetCnvTool.
     *
     * @author P-A Delsart
-    *
-    * $Revision$
-    * $Date$
     */
   class JetCnvTool : public AthAlgTool,
                      public virtual IJetCnvTool {
@@ -34,9 +31,6 @@ namespace xAODMaker {
     /// Regular AlgTool constructor
     JetCnvTool( const std::string& type, const std::string& name,
                 const IInterface* parent );
-    
-    /// Function initialising the tool
-    virtual StatusCode initialize() override;
     
     /// Function that fills an existing xAOD::MuonRoIContainer
     virtual StatusCode convert( const JetCollection* aodCont,

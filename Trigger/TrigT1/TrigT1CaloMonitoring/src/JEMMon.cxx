@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ===========================================================================
@@ -42,7 +42,6 @@
 #include "TrigT1CaloUtils/QuadLinear.h"
 #include "TrigT1CaloUtils/DataError.h"
 #include "TrigT1CaloUtils/CoordToHardware.h"
-#include "TrigT1Interfaces/Coordinate.h"
 #include "TrigT1Interfaces/JEPRoIDecoder.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigT1Interfaces/Coordinate.h"
@@ -110,16 +109,11 @@ JEMMon::~JEMMon()
 /*---------------------------------------------------------*/
 {}
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
-
 /*---------------------------------------------------------*/
 StatusCode JEMMon::initialize()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endmsg;
+  msg(MSG::INFO) << "Initializing " << name() << endmsg;
 
   StatusCode sc;
 

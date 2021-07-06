@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CABLING_TGCDATABASEINPP_HH
@@ -31,7 +31,7 @@ public:
   enum INDEXIN {NIndexIn=3, IndexInMin=0, IndexInMax=2};
 
   /** Constructor */
-  TGCDatabaseInPP(std::string filename, std::string blockname);
+  TGCDatabaseInPP(const std::string& filename, const std::string& blockname);
   /** Copy constructor */
   TGCDatabaseInPP(const TGCDatabaseInPP&);
   /** Destructor */ 

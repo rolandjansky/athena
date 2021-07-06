@@ -19,9 +19,8 @@
 #include "TrkParameters/TrackParameters.h"
 #include "xAODTracking/TrackParticle.h" 
 #include "GaudiKernel/ToolHandle.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include <vector>
-
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 namespace Rec {
   class TrackParticle;
@@ -75,9 +74,7 @@ public:
 
  private:
 
-  /* the beam condition service **/
-  IBeamCondSvc* m_iBeamCondSvc;
-  std::string   m_beamCondSvcName;
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
   /* Track to vertex extrapolator **/
   ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool;

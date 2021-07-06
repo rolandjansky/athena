@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Trigger BS->RDO_TRIG athena test of the Dev_pp_run3_v1 menu
 # art-type: build
@@ -15,12 +15,11 @@ ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
 ex.threads = 1
 precommand = ''.join([
-  "setMenu='LS2_v1';",  # LS2_v1 soon to be renamed to Dev_pp_run3_v1
+  "setMenu='LS2_v1_TriggerValidation_prescale';",  # LS2_v1 soon to be renamed to Dev_pp_run3_v1
+  "doL1Sim=True;",
   "doWriteBS=False;",
   "doWriteRDOTrigger=True;",
-  "forceEnableAllChains=True;",
-  "fpeAuditor=True;",
-  "failIfNoProxy=True;"
+  'doRuntimeNaviVal=True', # Perform runtime graph vaidation in this test
 ])
 ex.args = '-c "{:s}"'.format(precommand)
 
@@ -34,9 +33,9 @@ test.check_steps = CheckSteps.default_check_steps(test)
 # Ultimately there should be no per-event messages
 msgcount = test.get_step("MessageCount")
 msgcount.thresholds = {
-  'WARNING': 600,
-  'INFO': 1200,
-  'other': 80
+  'WARNING': 800,  # TODO: Fix the warnings and decrease the limit, ATR-23548, ATR-22942
+  'INFO': 750,
+  'other': 20
 }
 msgcount.required = True # make the test exit code depend on this step
 
@@ -45,6 +44,8 @@ chaindump = test.get_step("ChainDump")
 chaindump.args = '--json --yaml ref_data_v1Dev_build.new'
 refcomp = CheckSteps.ChainCompStep("CountRefComp")
 refcomp.input_file = 'ref_data_v1Dev_build.new'
+refcomp.args += ' --patch'
+refcomp.reference_from_release = True # installed from TriggerTest/share
 refcomp.required = True # Final exit code depends on this step
 CheckSteps.add_step_after_type(test.check_steps, CheckSteps.ChainDumpStep, refcomp)
 

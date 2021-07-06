@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,9 +11,9 @@
 
 class MsgStream;
 
+#include "TrkEventPrimitives/PropDirection.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkSurfaces/PlaneSurface.h"
-#include "TrkEventPrimitives/PropDirection.h"
 // STL sorting
 #include <algorithm>
 
@@ -25,242 +25,200 @@ class DiamondBounds;
 class EllipseBounds;
 class LayerMaterialProperties;
 
-  /** 
-   @class PlaneLayer
-   
-   Class to describe a planar detector layer for tracking, 
-   it inhertis from both, Layer base class and PlaneSurface class
-       
-   @author Andreas.Salzburger@cern.ch 
-   */
+/**
+ @class PlaneLayer
 
-  class PlaneLayer : virtual public PlaneSurface, public Layer {
-      
-      public:
-        /**Default Constructor*/
-        PlaneLayer(){}
-        
-        /**Constructor with PlaneSurface 
-           components and MaterialProperties 
-           - rectangle bounds */
-        PlaneLayer(Amg::Transform3D* transform,
-                   RectangleBounds* rbounds,
-                   const LayerMaterialProperties& laymatprop,
-                   double thickness = 0.,
-                   OverlapDescriptor* od = nullptr,
-                  int laytyp=int(Trk::active));
-                   
-        /**Constructor with PlaneSurface 
-           components and MaterialProperties 
-           - trapezoidal bounds */
-        PlaneLayer(Amg::Transform3D* transform,
-                   TrapezoidBounds* tbounds,
-                   const LayerMaterialProperties& laymatprop,
-                   double thickness = 0.,
-                   OverlapDescriptor* od = nullptr,
-                   int laytyp=int(Trk::active));
-                    
-       /**Constructor with PlaneSurface 
-           components and MaterialProperties 
-           - diamond bounds */
-        PlaneLayer(Amg::Transform3D* transform,
-                   DiamondBounds* tbounds,
-                   const LayerMaterialProperties& laymatprop,
-                   double thickness = 0.,
-                   OverlapDescriptor* od = nullptr,
-                   int laytyp=int(Trk::active));
-                   
-        /**Constructor with PlaneSurface 
-           components and MaterialProperties 
-           - ellipse bounds */
-        PlaneLayer(Amg::Transform3D* transform,
-                   EllipseBounds* tbounds,
-                   const LayerMaterialProperties& laymatprop,
-                   double thickness = 0.,
-                   OverlapDescriptor* od = nullptr,
-                   int laytyp=int(Trk::active));
+ Class to describe a planar detector layer for tracking,
+ it inhertis from both, Layer base class and PlaneSurface class
 
-        /**Constructor with PlaneSurface 
-           and MaterialProperties */
+ @author Andreas.Salzburger@cern.ch
+ */
 
-        PlaneLayer(Trk::PlaneSurface* plane,
-                   const LayerMaterialProperties& laymatprop,
-                   double thickness = 0.,
-                   OverlapDescriptor* od = nullptr,
-                   int laytyp=int(Trk::active));
+class PlaneLayer final : virtual public PlaneSurface, public Layer {
+ public:
+  /**Default Constructor*/
+  PlaneLayer() {}
 
-        /**Constructor with PlaneSurface 
-           components and MaterialProperties 
-           - shared bounds */
-	PlaneLayer(Amg::Transform3D* transform,
-		   Trk::SharedObject<const Trk::SurfaceBounds>& tbounds,
-		   const Trk::LayerMaterialProperties& laymatprop,
-		   double thickness = 0.,
-		   Trk::OverlapDescriptor* olap = nullptr,
-		   int laytyp=int(Trk::active));
-                           
-        /**Constructor with PlaneSurface 
-        components and pointer to SurfaceArray (passing ownership),
-        - rectangle bounds */
-        PlaneLayer(Amg::Transform3D* transform,
-                   RectangleBounds* rbounds,
-                   SurfaceArray* surfaceArray,
-                   double thickness = 0.,
-                   OverlapDescriptor* od = nullptr,
-                   int laytyp=int(Trk::active));
-         
-         /**Constructor with PlaneSurface 
-        components and pointer to SurfaceArray (passing ownership),
-        - trapezoidal bounds */
-        PlaneLayer(Amg::Transform3D* transform,
-                   TrapezoidBounds* tbounds,
-                   SurfaceArray* surfaceArray,
-                   double thickness = 0.,
-                   OverlapDescriptor* od = nullptr,
-                   int laytyp=int(Trk::active));
-         
-         /**Constructor with PlaneSurface 
-        components and pointer to SurfaceArray (passing ownership),
-        - diamond bounds */
-        PlaneLayer(Amg::Transform3D* transform,
-                   DiamondBounds* tbounds,
-                   SurfaceArray* surfaceArray,
-                   double thickness = 0.,
-                   OverlapDescriptor* od = nullptr,
-                   int laytyp=int(Trk::active));
-                                  
-        /**Constructor with PlaneSurface components, 
-           MaterialProperties and pointer SurfaceArray (passing ownership) 
-           - rectangle bounds */
-        PlaneLayer(Amg::Transform3D* transform,
-                   RectangleBounds* rbounds,
-                   SurfaceArray* surfaceArray,
-                   const LayerMaterialProperties& laymatprop,
-                   double thickness = 0.,
-                   OverlapDescriptor* od = nullptr,
-                   int laytyp=int(Trk::active)); 
-        
-        /**Constructor with PlaneSurface components, 
-           MaterialProperties and pointer SurfaceArray (passing ownership) 
-           - trapezoidal bounds */
-        PlaneLayer(Amg::Transform3D* transform,
-                   TrapezoidBounds* rbounds,
-                   SurfaceArray* surfaceArray,
-                   const LayerMaterialProperties& laymatprop,
-                   double thickness = 0.,
-                   OverlapDescriptor* od = nullptr,
-                   int laytyp=int(Trk::active)); 
-        
-        /**Constructor with PlaneSurface components, 
-           MaterialProperties and pointer SurfaceArray (passing ownership) 
-           - diamond bounds */
-        PlaneLayer(Amg::Transform3D* transform,
-                   DiamondBounds* rbounds,
-                   SurfaceArray* surfaceArray,
-                   const LayerMaterialProperties& laymatprop,
-                   double thickness = 0.,
-                   OverlapDescriptor* od = nullptr,
-                   int laytyp=int(Trk::active)); 
-                           
-       /**Copy constructor of PlaneLayer*/
-        PlaneLayer(const PlaneLayer& pla);
+  /**Constructor with PlaneSurface
+     components and MaterialProperties
+     - rectangle bounds */
+  PlaneLayer(const Amg::Transform3D & transform, RectangleBounds* rbounds,
+             const LayerMaterialProperties& laymatprop, double thickness = 0.,
+             OverlapDescriptor* od = nullptr, int laytyp = int(Trk::active));
 
-       /**Copy constructor with shift*/
-        PlaneLayer(const PlaneLayer& pla, const Amg::Transform3D& tr);
-        
-        /**Assignment operator for PlaneLayers */
-        PlaneLayer& operator=(const PlaneLayer&);
-               
-        /**Destructor*/
-        virtual ~PlaneLayer() override{}   
-    
-        /** Transforms the layer into a Surface representation for extrapolation */
-        virtual const PlaneSurface& surfaceRepresentation() const override;
+  /**Constructor with PlaneSurface
+     components and MaterialProperties
+     - trapezoidal bounds */
+  PlaneLayer(const Amg::Transform3D & transform, TrapezoidBounds* tbounds,
+             const LayerMaterialProperties& laymatprop, double thickness = 0.,
+             OverlapDescriptor* od = nullptr, int laytyp = int(Trk::active));
 
-        /** getting the MaterialProperties back - for pre-update*/ 
-        
-        virtual double preUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                               Trk::PropDirection dir) const override;
+  /**Constructor with PlaneSurface
+      components and MaterialProperties
+      - diamond bounds */
+  PlaneLayer(const Amg::Transform3D & transform, DiamondBounds* tbounds,
+             const LayerMaterialProperties& laymatprop, double thickness = 0.,
+             OverlapDescriptor* od = nullptr, int laytyp = int(Trk::active));
 
-        /** getting the MaterialProperties back - for post-update*/ 
-        
-        virtual double  postUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                                 Trk::PropDirection dir) const override;
+  /**Constructor with PlaneSurface
+     components and MaterialProperties
+     - ellipse bounds */
+  PlaneLayer(const Amg::Transform3D & transform, EllipseBounds* tbounds,
+             const LayerMaterialProperties& laymatprop, double thickness = 0.,
+             OverlapDescriptor* od = nullptr, int laytyp = int(Trk::active));
 
-        /** move the Layer */
-        virtual void moveLayer(Amg::Transform3D& shift) override final;
-        /** move the Layer */
-        virtual void moveLayer
-        ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& shift) const override final
-        {
-          const_cast<PlaneLayer*>(this)->moveLayer(shift);
-        }
+  /**Constructor with PlaneSurface
+     and MaterialProperties */
 
-     private:
-       /** Resize the layer to the tracking volume - not implemented */
-       virtual void resizeLayer(const VolumeBounds&, double) override final {}
-       /** Resize the layer to the tracking volume - not implemented */
-       virtual void resizeLayer
-       ATLAS_NOT_THREAD_SAFE(const VolumeBounds&, double) const override final
-       {}
+  PlaneLayer(Trk::PlaneSurface* plane,
+             const LayerMaterialProperties& laymatprop, double thickness = 0.,
+             OverlapDescriptor* od = nullptr, int laytyp = int(Trk::active));
 
-       /** Resize the layer to the tracking volume - not implemented */
-       virtual void resizeAndRepositionLayer(const VolumeBounds&,
-                                             const Amg::Vector3D&,
-                                             double) override final
-       {}
-       /** Resize the layer to the tracking volume - not implemented */
-       virtual void resizeAndRepositionLayer
-       ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
-                             const Amg::Vector3D&,
-                             double) const override final
-       {}
-  };
+  /**Constructor with PlaneSurface
+     components and MaterialProperties
+     - shared bounds */
+  PlaneLayer(const Amg::Transform3D & transform,
+             Trk::SharedObject<const Trk::SurfaceBounds>& tbounds,
+             const Trk::LayerMaterialProperties& laymatprop,
+             double thickness = 0., Trk::OverlapDescriptor* olap = nullptr,
+             int laytyp = int(Trk::active));
 
-  /** @class PlaneLayerSorterX
-     Functor for PlaneLayer X-Sorting */
-     
-  class PlaneLayerSorterX {
-    public:       
-       /** Default Constructor */
-       PlaneLayerSorterX()
-       {}
-      
-       bool operator() (const PlaneLayer* one, const PlaneLayer* two) const                
-       { return ( one->center().x() <  two->center().x() ); }
-       
-  };
-  
-  /** @class PlaneLayerSorterY
-     Functor for PlaneLayer Y-Sorting */
-     
-  class PlaneLayerSorterY {
-    public:       
-       /** Default Constructor */
-       PlaneLayerSorterY()
-       {}
-      
-       bool operator() (const PlaneLayer* one, const PlaneLayer* two) const                
-       { return ( one->center().y() <  two->center().y() ); }
-       
-  };
-  
-  /** @class PlaneLayerSorterZ
-     Functor for PlaneLayer Z-Sorting */
-     
-  class PlaneLayerSorterZ {
-    public:       
-       /** Default Constructor */
-       PlaneLayerSorterZ()
-       {}
-      
-       bool operator() (const PlaneLayer* one, const PlaneLayer* two) const                
-       { return ( one->center().z() <  two->center().z() ); }
-       
-  };  
+  /**Constructor with PlaneSurface
+  components and pointer to SurfaceArray (passing ownership),
+  - rectangle bounds */
+  PlaneLayer(const Amg::Transform3D & transform, RectangleBounds* rbounds,
+             SurfaceArray* surfaceArray, double thickness = 0.,
+             OverlapDescriptor* od = nullptr, int laytyp = int(Trk::active));
 
+  /**Constructor with PlaneSurface
+ components and pointer to SurfaceArray (passing ownership),
+ - trapezoidal bounds */
+  PlaneLayer(const Amg::Transform3D & transform, TrapezoidBounds* tbounds,
+             SurfaceArray* surfaceArray, double thickness = 0.,
+             OverlapDescriptor* od = nullptr, int laytyp = int(Trk::active));
 
-} // end of namespace
+  /**Constructor with PlaneSurface
+ components and pointer to SurfaceArray (passing ownership),
+ - diamond bounds */
+  PlaneLayer(const Amg::Transform3D & transform, DiamondBounds* tbounds,
+             SurfaceArray* surfaceArray, double thickness = 0.,
+             OverlapDescriptor* od = nullptr, int laytyp = int(Trk::active));
 
-#endif // TRKGEOMETY_PLANELAYER_H
+  /**Constructor with PlaneSurface components,
+     MaterialProperties and pointer SurfaceArray (passing ownership)
+     - rectangle bounds */
+  PlaneLayer(const Amg::Transform3D & transform, RectangleBounds* rbounds,
+             SurfaceArray* surfaceArray,
+             const LayerMaterialProperties& laymatprop, double thickness = 0.,
+             OverlapDescriptor* od = nullptr, int laytyp = int(Trk::active));
+
+  /**Constructor with PlaneSurface components,
+     MaterialProperties and pointer SurfaceArray (passing ownership)
+     - trapezoidal bounds */
+  PlaneLayer(const Amg::Transform3D & transform, TrapezoidBounds* rbounds,
+             SurfaceArray* surfaceArray,
+             const LayerMaterialProperties& laymatprop, double thickness = 0.,
+             OverlapDescriptor* od = nullptr, int laytyp = int(Trk::active));
+
+  /**Constructor with PlaneSurface components,
+     MaterialProperties and pointer SurfaceArray (passing ownership)
+     - diamond bounds */
+  PlaneLayer(const Amg::Transform3D & transform, DiamondBounds* rbounds,
+             SurfaceArray* surfaceArray,
+             const LayerMaterialProperties& laymatprop, double thickness = 0.,
+             OverlapDescriptor* od = nullptr, int laytyp = int(Trk::active));
+
+  /**Copy constructor of PlaneLayer*/
+  PlaneLayer(const PlaneLayer& pla);
+
+  /**Copy constructor with shift*/
+  PlaneLayer(const PlaneLayer& pla, const Amg::Transform3D& tr);
+
+  /**Assignment operator for PlaneLayers */
+  PlaneLayer& operator=(const PlaneLayer&);
+
+  /**Destructor*/
+  virtual ~PlaneLayer() override {}
+
+  /** Transforms the layer into a Surface representation for extrapolation */
+  virtual const PlaneSurface& surfaceRepresentation() const override final;
+
+  /** getting the MaterialProperties back - for pre-update*/
+
+  virtual double preUpdateMaterialFactor(
+      const Trk::TrackParameters& par,
+      Trk::PropDirection dir) const override final;
+
+  /** getting the MaterialProperties back - for post-update*/
+
+  virtual double postUpdateMaterialFactor(
+      const Trk::TrackParameters& par,
+      Trk::PropDirection dir) const override final;
+
+  /** move the Layer */
+  virtual void moveLayer(Amg::Transform3D& shift) override final;
+  /** move the Layer */
+  virtual void moveLayer
+  ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& shift) const override final {
+    const_cast<PlaneLayer*>(this)->moveLayer(shift);
+  }
+
+ private:
+  /** Resize the layer to the tracking volume - not implemented */
+  virtual void resizeLayer(const VolumeBounds&, double) override final {}
+  /** Resize the layer to the tracking volume - not implemented */
+  virtual void resizeLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
+                                                 double) const override final {}
+
+  /** Resize the layer to the tracking volume - not implemented */
+  virtual void resizeAndRepositionLayer(const VolumeBounds&,
+                                        const Amg::Vector3D&,
+                                        double) override final {}
+  /** Resize the layer to the tracking volume - not implemented */
+  virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE(
+      const VolumeBounds&, const Amg::Vector3D&, double) const override final {}
+};
+
+/** @class PlaneLayerSorterX
+   Functor for PlaneLayer X-Sorting */
+
+class PlaneLayerSorterX {
+ public:
+  /** Default Constructor */
+  PlaneLayerSorterX() {}
+
+  bool operator()(const PlaneLayer* one, const PlaneLayer* two) const {
+    return (one->center().x() < two->center().x());
+  }
+};
+
+/** @class PlaneLayerSorterY
+   Functor for PlaneLayer Y-Sorting */
+
+class PlaneLayerSorterY {
+ public:
+  /** Default Constructor */
+  PlaneLayerSorterY() {}
+
+  bool operator()(const PlaneLayer* one, const PlaneLayer* two) const {
+    return (one->center().y() < two->center().y());
+  }
+};
+
+/** @class PlaneLayerSorterZ
+   Functor for PlaneLayer Z-Sorting */
+
+class PlaneLayerSorterZ {
+ public:
+  /** Default Constructor */
+  PlaneLayerSorterZ() {}
+
+  bool operator()(const PlaneLayer* one, const PlaneLayer* two) const {
+    return (one->center().z() < two->center().z());
+  }
+};
+
+}  // namespace Trk
+
+#endif  // TRKGEOMETY_PLANELAYER_H
 

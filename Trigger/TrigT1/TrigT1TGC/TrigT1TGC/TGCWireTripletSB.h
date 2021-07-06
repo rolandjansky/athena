@@ -1,28 +1,29 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TGCWireTripletSB_hh
-#define TGCWireTripletSB_hh
+#ifndef TrigT1TGC_TGCWireTripletSB_hh
+#define TrigT1TGC_TGCWireTripletSB_hh
 
 #include "TrigT1TGC/TGCSlaveBoard.h"
 
 namespace LVL1TGCTrigger {
 
-const int LengthOfWTSBCoincidenceOut = 100;
-const int NChAdjInWTSB = 2;
-const int NumberOfWireTripletSBData = 3;
+class TGCWireTripletSB: public TGCSlaveBoard 
+{
+ private:
+  static constexpr int s_LengthOfWTSBCoincidenceOut = 100;
+  static constexpr int s_NChAdjInWTSB = 2;
+  static constexpr int s_NumberOfWireTripletSBData = 3;
 
-class TGCWireTripletSB: public TGCSlaveBoard {
-
-public:
+ public:
   TGCWireTripletSB(const TGCWireTripletSB& right);
   TGCWireTripletSB& operator=(const TGCWireTripletSB& right);
 
-  TGCWireTripletSB( TGCArguments* );
+  TGCWireTripletSB();
   virtual ~TGCWireTripletSB(){};
 
-protected:
+ protected:
   virtual void doCoincidence();
   virtual void createSlaveBoardOut();
 

@@ -30,9 +30,6 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
 
             #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "PixelRDO_Container/PixelRDOs" ]
             #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "Trk::PixelClusterContainer/PixelOnlineClusters" ]
-        else:
-            if not conddb.folderRequested('PIXEL/PixReco'):
-                conddb.addFolder('PIXEL_OFL','/PIXEL/PixReco')
 
     if DetFlags.overlay.SCT_on():
 
@@ -77,7 +74,9 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
                              className = 'AthenaAttributeList')
 
         from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
-        TRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name="TRT_LocalOccupancy", isTrigger= False )
+        TRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name="TRT_LocalOccupancy", isTrigger= False,
+                                                       TRT_RDOContainerName="",
+                                                       TRT_DriftCircleCollection="")
 
         job += CfgGetter.getAlgorithm("TRT_OverlayDigitization")
         job += CfgGetter.getAlgorithm("TRTOverlay")

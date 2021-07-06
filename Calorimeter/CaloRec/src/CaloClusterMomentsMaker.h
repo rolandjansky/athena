@@ -1,5 +1,6 @@
+
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -8,7 +9,8 @@
 /**
  * @class CaloClusterMomentsMaker
  * @author Sven Menke <menke@mppmu.mpg.de>
- * @date 28-February-2005
+ * @author Peter Loch <loch@physics.arizona.edu>
+ * @date 23-March-2021
  * @brief Calculate moments for CaloCluster objects
  *
  * This is a CaloClusterCollectionProcessor which can be plugged into a
@@ -25,7 +27,10 @@
  * Note that only cells with positive energy are used in this definition.
  * Common variables to calculate first and second moments of are
  * \f$\phi\f$, \f$\eta\f$, and radial and longitudinal distances from
- * the shower axis and the shower center, respectively.  */
+ * the shower axis and the shower center, respectively. 
+ * 
+ * @since 23-March-2021: second moment of cell time distribution is calculated
+ */
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -133,6 +138,18 @@ class CaloClusterMomentsMaker: public AthAlgTool, virtual public CaloClusterColl
    * @brief if set to true use abs E value of cells to calculate 
    * cluster moments */
    bool m_absOpt;
+
+   /**
+    * @brief Retrieve second moment of cell times and store as moment */
+   bool m_secondTime = { false };
+
+   /**
+    * @brief store number of cells per sampling layer as moment */
+   bool m_nCellsPerSampling = { false };
+
+   /**
+    * @brief Transition from outer to inner wheel in EME2 */
+   double m_etaInnerWheel = { 2.52 };
 };
 
 #endif // CALOCLUSTERMOMENTSMAKER_H

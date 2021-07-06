@@ -20,8 +20,8 @@ class MuonSegmentValidationPlots: public PlotBase {
     Muon::MuonSegmentTruthRelatedPlots     *m_oMatchedMuonSegmDiffPlots;
     Muon::MuonSegmentPlots                 *m_oTruthMuonSegmPlots;
 
-    void fill(const xAOD::MuonSegment* truthMuSeg, const xAOD::MuonSegment* muSeg);
-    void fill(const xAOD::MuonSegment* muSeg);
+    void fill(const xAOD::MuonSegment* truthMuSeg, const xAOD::MuonSegment* muSeg, float weight=1.0);
+    void fill(const xAOD::MuonSegment* muSeg, float weight=1.0);
 };
 
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -213,6 +213,7 @@ StatusCode SCTCalib::initialize() {
       ATH_MSG_INFO("------------> Reading from ByteStream <-------------");
       m_calibEvtInfoTool->setSource("BS");
       ATH_CHECK(m_eventInfoKey.initialize());
+      ATH_MSG_INFO("m_eventInfoKey.initialize() was successful");
    }
 
 
@@ -267,8 +268,11 @@ StatusCode SCTCalib::initialize() {
 
    //--- Booking histograms for hitmaps
    if (m_doHitMaps) m_calibHitmapTool->book();
+   //--- Booking histograms for BSErrors
+   if (m_doHitMaps and m_doBSErrors) m_calibBsErrTool->book();
+
    //--- Reading histograms for hitmaps
-   if ((not m_doHitMaps and not m_doNoisyLB) and m_readHitMaps) {
+   if ((not m_doHitMaps and not m_doHitMapsLB) and m_readHitMaps) {
       ATH_MSG_INFO("Set CalibEventInfo for m_readHitMaps == true");
       m_calibEvtInfoTool->setSource("HIST");
       m_calibHitmapTool->read("./SCTHitMaps.root");
@@ -279,11 +283,12 @@ StatusCode SCTCalib::initialize() {
       //m_calibEvtInfoTool->setLumiBlock(0);
       //m_calibEvtInfoTool->setBunchCrossing(0);
       m_calibLbTool->read("./SCTLB.root");
+      if (m_doBSErrors) {
+         m_calibBsErrTool->read("./SCTBSErrors.root");
+      }
    }
-   //--- Booking histograms for BSErrors
-   if (m_doBSErrors) m_calibBsErrTool->book();
    //--- Hit-vs-LB for LBs in noisy links/chips
-   if (m_doNoisyLB) m_calibLbTool->book();
+   if (m_doHitMapsLB) m_calibLbTool->book();
 
    //--- Check statistics for NoiseOccupancy
    if (m_doNoiseOccupancy and notEnoughStatistics(m_noiseOccupancyMinStat, m_numberOfEventsHist)) return StatusCode::FAILURE;
@@ -316,18 +321,20 @@ SCTCalib::notEnoughStatistics(const int required, const int obtained, const std:
 // Execute - on event by event
 //////////////////////////////////////////////////////////////////////////////////
 StatusCode SCTCalib::execute() {
+
+   const bool majorityIsGoodOrUnused{(m_useMajority and m_MajorityConditionsTool->isGood()) or !m_useMajority};
+
    ATH_MSG_DEBUG("----- in execute() ----- ");
    if (m_readBS) {
-      SG::ReadHandle<EventInfo> evt{m_eventInfoKey};
+      ATH_MSG_DEBUG("in execute(): m_eventInfoKey = " << m_eventInfoKey);
+      SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfoKey);
       if (not evt.isValid()) {
          ATH_MSG_FATAL("Unable to get the EventInfo");
          return StatusCode::FAILURE;
       }
-      const EventInfo* evt_ptr{&(*evt)};
-      ATH_MSG_VERBOSE(SCT_CalibAlgs::eventInfoAsString(evt_ptr));
       //--- TimeStamp/LB range analyzed
-      const int timeStamp{static_cast<int>(evt->event_ID()->time_stamp())};
-      const int lumiBlock{static_cast<int>(evt->event_ID()->lumi_block())};
+      const int timeStamp{static_cast<int>(evt->timeStamp())};
+      const int lumiBlock{static_cast<int>(evt->lumiBlock())};
       int timeStampBeginOld;
       int timeStampEndOld;
       m_calibEvtInfoTool->getTimeStamps(timeStampBeginOld, timeStampEndOld);
@@ -338,17 +345,21 @@ StatusCode SCTCalib::execute() {
       m_calibEvtInfoTool->setLumiBlock(std::min(lumiBlock, lbBeginOld), std::max(lumiBlock, lbEndOld));
       m_calibEvtInfoTool->setLumiBlock(lumiBlock);
       m_calibEvtInfoTool->setTimeStamp(timeStamp);
+      if (m_doHitMapsLB and majorityIsGoodOrUnused) {
+         m_calibLbTool->setLb(evt->lumiBlock());
+      }
    }
 
-   const bool majorityIsGoodOrUnused{(m_useMajority and m_MajorityConditionsTool->isGood()) or !m_useMajority};
    //--- Fill histograms for (1) Number of events and (2) Hitmaps
    if (m_doHitMaps and majorityIsGoodOrUnused) m_calibHitmapTool->fill(m_readBS);
 
    //--- Fill histograms for (1) Number of events and (2) Hits as a function of LB
-   if (m_doNoisyLB and majorityIsGoodOrUnused) m_calibLbTool->fill(m_readBS);
+   if (m_doHitMapsLB and majorityIsGoodOrUnused) {
+      m_calibLbTool->fill(m_readBS);
+   }
 
    //--- Fill histograms for (1) Number of events and (2) BSErrors
-   if (m_doBSErrors) m_calibBsErrTool->fill(m_readBS);
+   if (m_doHitMaps and m_doBSErrors) m_calibBsErrTool->fill(m_readBS);
 
    //--- Increment event counter : to be ready for the next event loop
    m_calibEvtInfoTool->incrementCounter();
@@ -378,13 +389,11 @@ StatusCode SCTCalib::stop ATLAS_NOT_THREAD_SAFE () { // Thread unsafe getNoisySt
 
    //--- Find noisy strips from hitmaps
    const bool doNoisyStripAnalysis{((!m_doHitMaps and m_readHitMaps) or !m_readHitMaps) and m_doNoisyStrip};
-   ATH_MSG_INFO("tried to get noisy strips");
    if (doNoisyStripAnalysis) {
       if (getNoisyStrip().isFailure()) {
          ATH_MSG_ERROR("Failed to run getNoisyStrip()");
          return StatusCode::FAILURE;
       }
-      ATH_MSG_INFO("get noisy strips: successful");
    }
 
    //--- Upload hv
@@ -484,7 +493,6 @@ StatusCode SCTCalib::finalize() {
       }
    }
 
-   ATH_MSG_INFO("Thank-you for using SCT_CalibAlgs, version " << PACKAGE_VERSION);
    return StatusCode::SUCCESS;
 }
 
@@ -700,7 +708,7 @@ StatusCode SCTCalib::getDeadStrip ATLAS_NOT_THREAD_SAFE () { // Thread unsafe SC
 
    for (int i{0}; i<n_barrels; i++) {
       meanOccupancy_Barrel[i]/=static_cast<double>(m_numberOfEvents*nbins*2*numEnabledModules_B[i]);
-      ATH_MSG_INFO("Barrel : layer=" << i << ", meanOccupancy=" << meanOccupancy_Barrel[i] << ", #enabledModule=" << numEnabledModules_B[i]);
+      ATH_MSG_INFO("Barrel : layer=" << i << ", meanOccupancy=" << meanOccupancy_Barrel[i] << ", nbins:" << nbins << ", #enabledModule=" << numEnabledModules_B[i]);
    }
 
    for (int i{0}; i<n_disks; i++) {
@@ -825,14 +833,16 @@ StatusCode SCTCalib::getDeadStrip ATLAS_NOT_THREAD_SAFE () { // Thread unsafe SC
             }
 
             if (!(defectStrip.empty())) {
+               //// different threshold meaning for dead and quiet strips
+               double threshold = m_deadStripSignificance;
+               if (!m_deadNotQuiet) threshold = m_quietThresholdStrip;
                if (m_writeToCool) {
-                  if (m_pCalibWriteTool->createListStrip(moduleId, m_pSCTHelper, 10000, "DEAD", m_deadStripSignificance, defectStrip).isFailure()) {
+                  if (m_pCalibWriteTool->createListStrip(moduleId, m_pSCTHelper, 10000, "DEAD", threshold, defectStrip).isFailure()) {
                      ATH_MSG_ERROR("Could not create list");
                      return StatusCode::FAILURE;
                   }
                }
-
-               if (addToXML4DB(m_outDeadStrips, waferId, "DEAD", m_deadStripSignificance, defectStrip.c_str()).isFailure()) {
+               if (addToXML4DB(m_outDeadStrips, waferId, "DEAD", threshold, defectStrip.c_str()).isFailure()) {
                   ATH_MSG_ERROR("Could not add dead strips to the summary");
                   return StatusCode::FAILURE;
                }
@@ -841,14 +851,17 @@ StatusCode SCTCalib::getDeadStrip ATLAS_NOT_THREAD_SAFE () { // Thread unsafe SC
             }
 
             if (!(defectChip.empty())) {
+               //// different threshold meaning for dead and quiet chips
+               double threshold = m_deadChipSignificance;
+               if (!m_deadNotQuiet) threshold = m_quietThresholdChip;
                if (m_writeToCool) {
-                  if (m_pCalibWriteTool->createListChip(moduleId, m_pSCTHelper, 10000, "DEAD", m_deadChipSignificance, defectChip).isFailure()) {
+                  if (m_pCalibWriteTool->createListChip(moduleId, m_pSCTHelper, 10000, "DEAD", threshold, defectChip).isFailure()) {
                      ATH_MSG_ERROR("Could not create list");
                      return StatusCode::FAILURE;
                   }
                }
 
-               if (addToXML4DB(m_outDeadChips, waferId, "DEAD", m_deadChipSignificance, defectChip.c_str()).isFailure()) {
+               if (addToXML4DB(m_outDeadChips, waferId, "DEAD", threshold, defectChip.c_str()).isFailure()) {
                   ATH_MSG_ERROR("Could not add dead chips to the summary");
                   return StatusCode::FAILURE;
                }
@@ -1044,7 +1057,7 @@ StatusCode SCTCalib::getDeadStrip ATLAS_NOT_THREAD_SAFE () { // Thread unsafe SC
          }
       } //end DeadLink
 
-      if (n_noHitsStrip>0) {
+      if (n_noHitsStrip>0 || !m_deadNotQuiet) {
          int n_deadStripInWafer{0};
          int n_deadChipInWafer{0};
 
@@ -1061,12 +1074,13 @@ StatusCode SCTCalib::getDeadStrip ATLAS_NOT_THREAD_SAFE () { // Thread unsafe SC
          for (int j{0}; j<n_chipPerSide; j++) {
             isDead=false;
             int chipNum{side==0 ? j : j+6};
-            if (numHitsInChip[j]==0 and !disabledChip[chipNum]) {
+            if ( !disabledChip[chipNum] && (numHitsInChip[j]==0 || !m_deadNotQuiet) ) {
                if (!isNoHitLink) n_checkedChip++;
                double sum_binomial{ROOT::Math::binomial_cdf(0, meanOccupancy, m_numberOfEvents*(n_stripPerChip-n_disabledInChip[j]))};
-               if (sum_binomial<deadChipDefinition) {
-                  ATH_MSG_INFO("DEADCHIP : " << moduleId << ", side=" << side
-                               << ", chip(online)=" << (side==0 ? j : j+n_chipPerSide));
+               //// with criterion to identify quiet chips
+               if ((m_deadNotQuiet && sum_binomial<deadChipDefinition) ||
+                     (!m_deadNotQuiet && numHitsInChip[j]/(m_numberOfEvents*(n_stripPerChip-n_disabledInChip[j])) < meanOccupancy*m_quietThresholdChip)) {
+                  ATH_MSG_INFO("DEADCHIP : " << moduleId << ", side=" << side << ", chip(online)=" << (side==0 ? j : j+n_chipPerSide));
                   isDead=true;
                   n_deadChip++;
                   n_deadChipInWafer++;
@@ -1088,9 +1102,11 @@ StatusCode SCTCalib::getDeadStrip ATLAS_NOT_THREAD_SAFE () { // Thread unsafe SC
             for (int j{0}; j<n_stripPerChip*n_chipPerSide; j++) {
                numHitsInStripOnlineOrder[j] = side==0 ? numHitsInStrip[j] : numHitsInStrip[n_stripPerChip*n_chipPerSide-j];
                isDead=false;
-               if (numHitsInStripOnlineOrder[j]==0) {
+               if (numHitsInStripOnlineOrder[j]==0 || !m_deadNotQuiet) {
                   double sum_binomial{ROOT::Math::binomial_cdf(0, meanOccExceptDeadChip, m_numberOfEvents)};
-                  if (sum_binomial<deadStripDefinition) {
+                  //// with criterion to identify quiet strips
+                  if ((m_deadNotQuiet && sum_binomial<deadStripDefinition) ||
+                        (!m_deadNotQuiet && numHitsInStripOnlineOrder[j]/m_numberOfEvents < meanOccExceptDeadChip*m_quietThresholdStrip)) {
                      ATH_MSG_INFO("DEADSTRIP : " << moduleId << ", side=" << side << ", strip(offline)=" << j);
                      isDead=true;
                      n_deadStrip++;
@@ -1106,7 +1122,7 @@ StatusCode SCTCalib::getDeadStrip ATLAS_NOT_THREAD_SAFE () { // Thread unsafe SC
                beforeIsDead = isDead;
             }
          }
-      } //go to next wafer itr
+      } //if (n_noHitsStrip>0)
    } //Wafer Loop end
 
 
@@ -1429,7 +1445,7 @@ StatusCode SCTCalib::getRawOccupancy ATLAS_NOT_THREAD_SAFE () // Thread unsafe S
                   std::ostringstream streamHist;
                   streamHist << detector_part << "_" << iDisk << "_" << iSide;
                   std::string hitsmapname{stemItr->first + streamHist.str()};
-                  TH2D* hist_tmp{dynamic_cast<TH2D*>(m_inputHist->Get(hitsmapname.c_str()))};
+                  TH2F* hist_tmp{dynamic_cast<TH2F*>(m_inputHist->Get(hitsmapname.c_str()))};
                   unsigned long long n_hits{static_cast<unsigned long long>(hist_tmp->GetBinContent(iEta+1, iPhi+1))};
                   float raw_occu{0};
                   if (m_numberOfEvents!=0) {
@@ -1460,7 +1476,7 @@ StatusCode SCTCalib::getRawOccupancy ATLAS_NOT_THREAD_SAFE () // Thread unsafe S
                std::ostringstream streamHist;
                streamHist << iLayer << "_" << iSide;
                std::string hitsmapname{"/run_" + std::to_string(m_runNumber.value()) + "/SCT/SCTB/hits/hitsmap_" + streamHist.str()};
-               TH2D* hist_tmp{dynamic_cast<TH2D*>(m_inputHist->Get(hitsmapname.c_str()))};
+               TH2F* hist_tmp{dynamic_cast<TH2F*>(m_inputHist->Get(hitsmapname.c_str()))};
                unsigned long long n_hits{static_cast<unsigned long long>(hist_tmp->GetBinContent(iEta+1, iPhi+1))};
                float raw_occu{0};
                if (m_numberOfEvents!=0) {
@@ -1581,6 +1597,24 @@ StatusCode SCTCalib::getEfficiency ATLAS_NOT_THREAD_SAFE () { // Thread unsafe S
            << xmlValue("Events", m_numberOfEvents) << linefeed
            << "  <modules>" << std::endl;
 
+   const char* outputEfficiencyFileNameChip{m_efficiencyChipFile.value().c_str()};
+   std::ofstream outFileChip{outputEfficiencyFileNameChip, std::ios::out};
+   if (!outFileChip.good()) {
+      ATH_MSG_ERROR("Unable to open EfficiencyFile for chips : " << outputEfficiencyFileNameChip);
+      return StatusCode::FAILURE;
+   }
+
+   if (m_efficiencyDoChips) {
+      std::string xslNameChip{"EfficiencyChipInfo.xsl"};
+      outFileChip << xmlHeader << linefeed << associateStylesheet(xslNameChip) << linefeed << "<run>" << std::endl;
+      outFileChip << xmlValue("RunNumber", m_runNumber.value()) << linefeed
+                  << xmlValue("StartTime", m_utcBegin) << linefeed
+                  << xmlValue("EndTime", m_utcEnd) << linefeed
+                  << xmlValue("Duration", m_calibEvtInfoTool->duration()) << linefeed
+                  << xmlValue("LB", m_LBRange) << linefeed
+                  << xmlValue("Events", m_numberOfEvents) << linefeed
+                  << "  <chips>" << std::endl;
+   }
 
    //--- Endcaps
    for (stemItr=EC_stems.begin(); stemItr!=EC_stems.end(); stemItr++) {
@@ -1619,6 +1653,33 @@ StatusCode SCTCalib::getEfficiency ATLAS_NOT_THREAD_SAFE () { // Thread unsafe S
                   IdentifierHash waferHash{m_pSCTHelper->wafer_hash(waferId)};
                   SCT_SerialNumber sn{m_CablingTool->getSerialNumberFromHash(waferHash)};
                   outFile << xmlChannelEfficiencyDataString(waferId, eff, sn, iSide) << std::endl;
+
+                  //--- Loop over chips
+                  if (m_efficiencyDoChips) {
+                     for (int iChip{0}; iChip<n_chipPerSide; ++iChip) {
+                        std::string detector_part_chip;
+                        detector_part_chip.erase();
+                        std::ostringstream streamProfChip;
+                        if ((*stemItr).second==ENDCAP_C) {
+                           detector_part_chip = "m_eff";
+                           streamProfChip << detector_part_chip << "_" << "chip" << iChip<< "_" << iDisk << "_" << iSide;
+                        } else {
+                           detector_part_chip = "p_eff";
+                           streamProfChip << detector_part_chip << "_" << "chip" << iChip<< "_" << iDisk << "_" << iSide;
+                        }
+                        std::string effchipmapname{stemItr->first + "chip" + std::to_string(iChip) + "/" + streamProfChip.str()};
+                        TProfile2D* profChip_tmp{dynamic_cast<TProfile2D*>(m_inputHist->Get(effchipmapname.c_str()))};
+                        global_bin = profChip_tmp->GetBin(iEta+1, iPhi+1);
+                        eff = static_cast<float>(profChip_tmp->GetBinContent(global_bin));
+
+                        std::string effchipmapname_bcid1 = effchipmapname+"_bcid";
+                        TProfile2D* profChip_tmp_bcid1 = (TProfile2D*) m_inputHist->Get( effchipmapname_bcid1.c_str() );
+                        global_bin_bcid1 = profChip_tmp_bcid1->GetBin( iEta+1, iPhi+1 );
+                        eff_bcid1 = (float)profChip_tmp_bcid1->GetBinContent( global_bin_bcid1 );
+                        outFileChip << xmlChannelEfficiencyDataStringChip(waferId, eff, eff_bcid1, sn, iSide, iChip) << std::endl;
+                     }
+                  }
+
                   //--- DB writing
                   if (m_writeToCool) {
                      if (m_pCalibWriteTool->createListEff(waferId, m_pSCTHelper, eff_entry, eff).isFailure()) {
@@ -1659,6 +1720,27 @@ StatusCode SCTCalib::getEfficiency ATLAS_NOT_THREAD_SAFE () { // Thread unsafe S
                IdentifierHash waferHash{m_pSCTHelper->wafer_hash(waferId)};
                SCT_SerialNumber sn{m_CablingTool->getSerialNumberFromHash(waferHash)};
                outFile << xmlChannelEfficiencyDataString(waferId, eff, sn, iSide) << std::endl;
+
+               //--- Loop over chips
+               if (m_efficiencyDoChips) {
+                  for (int iChip{0}; iChip<n_chipPerSide; ++iChip) {
+                     std::ostringstream streamProfChip;
+                     streamProfChip << "chip" << iChip << "_" << iLayer << "_" << iSide;
+
+                     std::string effchipmapname{"/run_" + std::to_string(m_runNumber.value()) + "/SCT/SCTB/eff/chip" + std::to_string(iChip) + "/eff_" + streamProfChip.str()};
+                     TProfile2D* profChip_tmp{dynamic_cast<TProfile2D*>(m_inputHist->Get(effchipmapname.c_str()))};
+                     global_bin = profChip_tmp->GetBin(iEta+1, iPhi+1);
+                     eff = static_cast<float>(profChip_tmp->GetBinContent(global_bin));
+
+                     std::string effchipmapname_bcid1 = effchipmapname+"_bcid";
+                     TProfile2D* profChip_tmp_bcid1 = (TProfile2D*) m_inputHist->Get( effchipmapname_bcid1.c_str() );
+                     int global_bin_bcid1 = profChip_tmp_bcid1->GetBin( iEta+1, iPhi+1 );
+                     float eff_bcid1 = (float)profChip_tmp_bcid1->GetBinContent( global_bin_bcid1 );
+
+                     outFileChip << xmlChannelEfficiencyDataStringChip(waferId, eff, eff_bcid1, sn, iSide, iChip) << std::endl;
+                  }
+               }
+
                //--- DB writing
                if (m_writeToCool) {
                   if (m_pCalibWriteTool->createListEff(waferId, m_pSCTHelper, eff_entry, eff).isFailure()) {
@@ -1677,6 +1759,10 @@ StatusCode SCTCalib::getEfficiency ATLAS_NOT_THREAD_SAFE () { // Thread unsafe S
    outFile << "  </modules>" << std::endl;
    outFile << "</run>" << std::endl;
 
+   if (m_efficiencyDoChips) {
+      outFileChip << "  </chips>" << std::endl;
+      outFileChip << "</run>" << std::endl;
+   }
 
    //--- Summary XML output
    std::ostringstream summaryList;
@@ -2635,6 +2721,24 @@ SCTCalib::xmlChannelEfficiencyDataString(const Identifier& waferId, const float 
    return os.str();
 }
 
+
+std::string
+SCTCalib::xmlChannelEfficiencyDataStringChip(const Identifier& waferId, const float efficiency, const float efficiency_bcid, const SCT_SerialNumber& serial, const int side, const int chip) const {
+   std::ostringstream os;
+   os << "   <chip>" << std::endl
+      << "  " << xmlValue("SN", serial.str()) << std::endl
+      << "  " << xmlValue("SampleSize", "10000") << std::endl
+      << "  " << xmlValue("barrel_endcap", m_pSCTHelper->barrel_ec(waferId)) << std::endl
+      << "  " << xmlValue("Layer", m_pSCTHelper->layer_disk(waferId)) << linefeed
+      << "  " << xmlValue("Eta", m_pSCTHelper->eta_module(waferId)) << std::endl
+      << "  " << xmlValue("Phi", m_pSCTHelper->phi_module(waferId)) << std::endl
+      << "  " << xmlValue("Side",  side )<<std::endl
+      << "  " << xmlValue("Chip",  chip )<<std::endl
+      << "  " << xmlValue("Efficiency", efficiency) << std::endl
+      << "  " << xmlValue("Efficiency_bcid", efficiency_bcid) << std::endl
+      << "   </chip>";
+   return os.str();
+}
 
 std::pair<int, bool>
 SCTCalib::getNumNoisyStrips(const Identifier& waferId) const {

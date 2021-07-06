@@ -5,20 +5,20 @@
 #ifndef MUONBYTESTREAM_MDTROD_ENCODER_H
 #define MUONBYTESTREAM_MDTROD_ENCODER_H
 
-#include "MuonRDO/MdtCsm.h"
 #include <stdint.h>
 
 #include "ByteStreamData/RawEvent.h"
+#include "MuonRDO/MdtCsm.h"
 
 class MdtIdHelper;
 
 namespace MuonGM {
-   class MuonDetectorManager;
+    class MuonDetectorManager;
 }
 
 // #include "MuonByteStream/RPC_Hid2RESrcID.h"
 
-/** This class provides conversion from LArRawChannel to ROD format. 
+/** This class provides conversion from LArRawChannel to ROD format.
    * @author H. Ma
    * @version  0-0-1 , Oct 7, 2002
 
@@ -34,46 +34,38 @@ namespace MuonGM {
    * Conversion from MdtAmtHit and MdtCsm to MROD format
    */
 
-class MdtROD_Encoder
-{
+class MdtROD_Encoder {
+public:
+    /** constructor
+     */
+    MdtROD_Encoder(const MdtIdHelper& mdtIdHelper);
 
-public: 
+    /** destructor
+     */
+    ~MdtROD_Encoder();
 
-	/** constructor 
-	*/
-	MdtROD_Encoder (const MdtIdHelper& mdtIdHelper); 
+    /** initialize the map
+     */
 
+    /** add Mdt Csms to the current list
+     */
+    void add(const MdtCsm* csm);
 
-	/** destructor 
-	*/
-	~MdtROD_Encoder(); 
+    /** clear the current csm list
+     */
+    void clear();
 
-	/** initialize the map 
-	*/
+    /** convert all Csm in the current list to
+      a vector of 32bit words
+    */
 
-	/** add Mdt Csms to the current list 
-	*/ 
-        void add(const MdtCsm* csm); 
+    void fillROD(std::vector<uint32_t>& v);
 
-	/** clear the current csm list
-	*/ 
-        void clear(); 
-
-	/** convert all Csm in the current list to 
-	  a vector of 32bit words
-	*/ 
-
-        void fillROD(std::vector<uint32_t>& v) ; 
-
-
-private: 
-
-	//	RPC_Hid2RESrcID* m_hid2re; 
-	std::vector<const MdtCsm*> m_vMdtCsm;
-	const MdtIdHelper& m_mdtIdHelper;
-	int m_BMGid;
-} ; 
+private:
+    //	RPC_Hid2RESrcID* m_hid2re;
+    std::vector<const MdtCsm*> m_vMdtCsm;
+    const MdtIdHelper& m_mdtIdHelper;
+    int m_BMGid;
+};
 
 #endif
-
-

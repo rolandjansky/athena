@@ -86,7 +86,7 @@ public:
 	IdentifierHash tower_hash_binary_search (Identifier towerId) const;
 
 	/** initialization from the identifier dictionary*/
-	virtual int  initialize_base_from_dictionary (const IdDictMgr& dict_mgr, const std::string& group_name, const std::string& t_pre);
+	virtual int  initialize_base_from_dictionary (const IdDictMgr& dict_mgr, const std::string& t_pre);
 
 	/**  tower hash table max size */
 	size_type     tower_hash_max (void) const;

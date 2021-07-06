@@ -43,8 +43,8 @@ StatusCode CscRdoToCscPrepData::initialize(){
 
     //Nullify key from scheduler if not needed  
     if(!m_seededDecoding){
-      m_roiCollectionKey = "";
-      m_cscCollection="";
+      ATH_CHECK(m_roiCollectionKey.initialize(false));
+      ATH_CHECK(m_cscCollection.initialize(false));
     }
     if(m_seededDecoding){
       ATH_CHECK(m_roiCollectionKey.initialize());
@@ -71,7 +71,7 @@ StatusCode CscRdoToCscPrepData::execute() {
       SG::ReadHandle<TrigRoiDescriptorCollection> muonRoI(m_roiCollectionKey);
       if(!muonRoI.isValid()){
 	ATH_MSG_WARNING("Cannot retrieve muonRoI "<<m_roiCollectionKey.key());
-	return StatusCode::SUCCESS;
+	return StatusCode::FAILURE;
       }
       else{
 	for(auto roi : *muonRoI){

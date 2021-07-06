@@ -8,7 +8,7 @@ import re
 
 from .ThresholdType import ThrType
 
-log = logging.getLogger("Menu.L1.Base.TopoAlgos") 
+log = logging.getLogger(__name__)
 
 ##
 ## These classes are base classes for the auto-generated algorithm python representations

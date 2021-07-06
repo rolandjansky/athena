@@ -15,12 +15,13 @@ def namedtuple_with_defaults(typename, field_names, default_values=()):
 
 # namedtuple class with some defaults set for those entries that do not require settings
 ChainProp = namedtuple_with_defaults("ChainProp", 
-                                     ['name', 'l1SeedThresholds', 'stream', 'groups', 'mergingStrategy', 'mergingOrder', 'mergingOffset', 'topoStartFrom'],
+                                     ['name', 'l1SeedThresholds', 'stream', 'groups', 'mergingStrategy', 'mergingOrder', 'mergingOffset', 'topoStartFrom','monGroups'],
                                      {'stream':['Main'],
                                       'l1SeedThresholds': [], 
                                       'mergingStrategy':'auto', 
                                       'mergingOrder': [], 
                                       'mergingOffset': -1, 
-                                      'topoStartFrom': False})
+                                      'topoStartFrom': False,
+                                      'monGroups' : []})
 
 

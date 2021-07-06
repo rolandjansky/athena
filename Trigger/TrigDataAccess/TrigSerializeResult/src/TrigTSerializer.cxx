@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///
@@ -31,6 +31,7 @@
 #include "PathResolver/PathResolver.h"
 
 #include "DataModelRoot/RootType.h"
+#include "RootUtils/WithRootErrorHandler.h"
 #include "CxxUtils/no_sanitize_undefined.h"
 
 #define  TRIGTSERHEADER  0xf00dbeef
@@ -217,7 +218,13 @@ void* TBufferFileWorkaround::ReadObjectAnyNV(const TClass *clCast)
 } // namespace ROOT8367Workaround
 
 
-bool TrigTSerializer::s_decodingError;
+bool TrigTSerializer::s_decodingError = false;
+std::vector<std::string>    TrigTSerializer::s_dictsToIgnore = {
+   "CosmicMuonCollection_tlp1", "MdtTrackSegmentCollection_tlp1",
+   "CosmicMuonCollection_p1", "CosmicMuon_p1", "MdtTrackSegmentCollection_p1",
+   "MdtTrackSegment_p1", "MdtTrackSegmentCollection_p2", "PanTauDetails_p1",
+   "SG::IAuxStoreCompression"
+};
 
 TrigTSerializer::TrigTSerializer(const std::string& toolname, const std::string& type, const IInterface* parent) : AthAlgTool(toolname, type, parent) {
   declareInterface<ITrigSerializerToolBase>( this );
@@ -232,6 +239,15 @@ TrigTSerializer::~TrigTSerializer(){
 StatusCode TrigTSerializer::initialize(){
   ATH_MSG_DEBUG( "TrigTSerializer::initialize " << name() );
 
+  // copy missing dictionary names from the property to the static member
+  s_dictsToIgnore.insert( std::end(s_dictsToIgnore), std::begin(m_ignoreMissingDicts.value()), std::end(m_ignoreMissingDicts.value()) );
+  std::string msg;
+  for( auto n:s_dictsToIgnore ) {
+     if( not msg.empty() ) msg += ", ";
+     msg += n;
+  }
+  ATH_MSG_DEBUG( "Suppressing missing dictionary warnings for: " << msg );
+     
   if (!m_onlineMode)
     add_previous_streamerinfos();
 
@@ -257,7 +273,26 @@ StatusCode TrigTSerializer::finalize(){
   return StatusCode::SUCCESS;
 }
 
-void TrigTSerializer::add_previous_streamerinfos(){
+bool TrigTSerializer::bsDictWarningFilter(int level, bool abort_bool,
+                                            const char* location, const char *msg)
+{
+   if( level == kWarning and gDebug == 0 ) {
+      if( strstr(msg, "no dictionary for class") ) {
+         for( std::string &type : s_dictsToIgnore ) {
+            if( strstr(msg, type.c_str()) ) {
+               return false;
+            }
+         }
+      }
+   }
+   DefaultErrorHandler(level,abort_bool, location, msg);
+   return false;
+}
+
+
+void TrigTSerializer::add_previous_streamerinfos()
+{
+  RootUtils::WithRootErrorHandler hand( bsDictWarningFilter );
   //temporary 
   std::string extStreamerInfos = "bs-streamerinfos.root";
   std::string extFile = PathResolver::find_file (extStreamerInfos, "DATAPATH");
@@ -288,7 +323,7 @@ void TrigTSerializer::add_previous_streamerinfos(){
 }
 
 
-void TrigTSerializer::streamerErrorHandler(int level, bool abort_bool,
+bool TrigTSerializer::streamerErrorHandler(int level, bool abort_bool,
 					   const char* location, const char *msg){
    if( level > kInfo ) {
       //MN: ignore stuff below kWarning
@@ -300,6 +335,8 @@ void TrigTSerializer::streamerErrorHandler(int level, bool abort_bool,
    }
    ::DefaultErrorHandler(level,abort_bool, location, msg);
    gErrorIgnoreLevel = oldLvl;
+
+   return false;
 }
 
 void TrigTSerializer::prepareForTBuffer(const std::string &nameOfClass){
@@ -311,8 +348,6 @@ void TrigTSerializer::prepareForTBuffer(const std::string &nameOfClass){
     gErrorIgnoreLevel = kError+1;   
   } 
   s_decodingError = false;
-
-  m_defaultHandler = ::SetErrorHandler(streamerErrorHandler);
 }
 
 void TrigTSerializer::restoreAfterTBuffer(const std::string &nameOfClass){
@@ -329,7 +364,6 @@ void TrigTSerializer::restoreAfterTBuffer(const std::string &nameOfClass){
     }
   }
 
-  ::SetErrorHandler(m_defaultHandler);
   gErrorIgnoreLevel = m_IgnoreErrLvl;
 }
 
@@ -370,7 +404,10 @@ void TrigTSerializer::serialize(const std::string &nameOfClass, void* instance, 
     ATH_MSG_DEBUG( "writing instance " << instance << " to buffer for noc " << noc   );
     
     prepareForTBuffer(noc);
-    buff->WriteObjectAny(instance, pclass);
+    {
+      RootUtils::WithRootErrorHandler hand (streamerErrorHandler);
+      buff->WriteObjectAny(instance, pclass);
+    }
     restoreAfterTBuffer(noc);
     
     ATH_MSG_DEBUG( "wrote buffer of length " << buff->Length()  );
@@ -539,8 +576,11 @@ void* TrigTSerializer::deserialize(const std::string &nameOfClass, const std::ve
   TObject *pobj = NULL;
   if (pclass){
     prepareForTBuffer(noc);
-    //pobj = (TObject *)(buff->ReadObjectAny(pclass));
-    pobj = (TObject *)(ROOT8367Workaround::TBufferFileWorkaround::doReadObjectAny (buff, pclass));
+    {
+      RootUtils::WithRootErrorHandler hand (streamerErrorHandler);
+      //pobj = (TObject *)(buff->ReadObjectAny(pclass));
+      pobj = (TObject *)(ROOT8367Workaround::TBufferFileWorkaround::doReadObjectAny (buff, pclass));
+    }
     restoreAfterTBuffer(noc);
     //ErrorHandlerFunc_t oldhandler= ::SetErrorHandler(streamerErrorHandler);
     //SetErrorHandler(oldhandler);

@@ -612,18 +612,13 @@ if ( ShortCorrector ):
    
 if ( StripsXtalkCorr ) :
 
-   from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
    from LArCalibUtils.LArCalibUtilsConf import LArStripsCrossTalkCorrector
    theLArStripsCrossTalkCorrector = LArStripsCrossTalkCorrector()
    theLArStripsCrossTalkCorrector.KeyList = GainList
    theLArStripsCrossTalkCorrector.ADCsaturation = ADCsaturation
-   theLArStripsCrossTalkCorrector.NoXtalkCorr=LArBadChannelMasker("NoXtalkCorr",
-                                                               DoMasking=True,
-                                                               ProblemsToMask=["deadReadout","deadPhys","deadCalib","almostDead"]
+   theLArStripsCrossTalkCorrector.NoXtalkCorr=["deadReadout","deadPhys","deadCalib","almostDead"]
                                                                )
-   theLArStripsCrossTalkCorrector.DontUseForXtalkCorr=LArBadChannelMasker("DontUseForXtalkCorr",
-                                                                       DoMasking=True,
-                                                                       ProblemsToMask=["short","peculiarCalibrationLine"]
+   theLArStripsCrossTalkCorrector.DontUseForXtalkCorr=["short","peculiarCalibrationLine"]
                                                                        )                           
    theLArStripsCrossTalkCorrector.AcceptableDifference=25.0 #in per-cent                                                                       
    topSequence +=theLArStripsCrossTalkCorrector
@@ -640,7 +635,6 @@ if ( AllWavesPerCh ) :
    LArAccumulatedCalibDigitContSplitter.KeyList         = GainList
    LArAccumulatedCalibDigitContSplitter.KeyOutputList = ContNameSplitted
    LArAccumulatedCalibDigitContSplitter.NumberSplitted  = MaxCalLinePerCh
-   LArAccumulatedCalibDigitContSplitter.UseDacAndIsPulsedIndex = True
    LArAccumulatedCalibDigitContSplitter.OutputLevel = ERROR
    topSequence += LArAccumulatedCalibDigitContSplitter
 
@@ -714,15 +708,9 @@ if CorrectBadChannels:
    #theLArCaliWavePatcher.PatchMethod="PhiNeighbor" ##take the first neigbour
    theLArCaliWavePatcher.PatchMethod="PhiAverage" ##do an aveage in phi after removing bad and empty event
    theLArCaliWavePatcher.OutputLevel=INFO
-   
-   from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-   theLArRCBMasker=LArBadChannelMasker("LArRCBMasker")
-   theLArRCBMasker.DoMasking=True
-   theLArRCBMasker.ProblemsToMask=[
+   theLArCaliWavePatcher.ProblemsToPatch=[
       "deadCalib","deadReadout","deadPhys","almostDead","short",
       ]
-   ToolSvc+=theLArRCBMasker
-   theLArCaliWavePatcher.MaskingTool=theLArRCBMasker
    topSequence+=theLArCaliWavePatcher
 
 ##########################################################################
@@ -734,16 +722,9 @@ if CorrectBadChannels:
 if ( doLArCalibDataQuality  ) :
 
    from LArCalibDataQuality.LArCalibDataQualityConf import LArCaliWaveValidationAlg
-   from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-   theLArDelayValBCMask=LArBadChannelMasker("DelayValBCMask",
-                                            DoMasking=True,
-                                            ProblemsToMask=["deadReadout","deadCalib","deadPhys","almostDead",
-                                                            "highNoiseHG","highNoiseMG","highNoiseLG"]
-                                            )
-   svcMgr.ToolSvc+=theLArDelayValBCMask
-                    
    theCaliWaveValidationAlg=LArCaliWaveValidationAlg()
-   theCaliWaveValidationAlg.BadChannelMaskingTool=theLArDelayValBCMask
+   theCaliWaveValidationAlg.ProblemsToMask=["deadReadout","deadCalib","deadPhys","almostDead",
+                                            "highNoiseHG","highNoiseMG","highNoiseLG"]
    theCaliWaveValidationAlg.ValidationKey=KeyOutput
    theCaliWaveValidationAlg.ReferenceKey="LArCaliWaveRef"
    theCaliWaveValidationAlg.MsgLevelForDeviations=INFO
@@ -752,7 +733,8 @@ if ( doLArCalibDataQuality  ) :
    
    ## second instance of the validation tool to detect "bad" channel 
    theBadCaliWave=LArCaliWaveValidationAlg("theBadCaliWave")
-   theBadCaliWave.BadChannelMaskingTool=theLArDelayValBCMask
+   theBadCaliWave.ProblemsToMask=["deadReadout","deadCalib","deadPhys","almostDead",
+                                  "highNoiseHG","highNoiseMG","highNoiseLG"]
    theBadCaliWave.ValidationKey=KeyOutput
    theBadCaliWave.ReferenceKey="LArCaliWaveRef"
    theBadCaliWave.MsgLevelForDeviations=INFO

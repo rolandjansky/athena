@@ -15,6 +15,7 @@
 #include "TrkParameters/TrackParameters.h"
 #include "CxxUtils/CachedValue.h"
 #include <atomic>
+#include <memory>
 class MsgStream;
 class TrackCnv_p1;
 class TrackCnv_p2;
@@ -27,6 +28,7 @@ namespace Trk
     class TrackSummary;
     class TrackSummaryTool;
     class FitQuality;
+    using TrackStates = DataVector<const TrackStateOnSurface>;
     /**
      * @brief The ATLAS Track class.
      * 
@@ -118,21 +120,20 @@ namespace Trk
         * @param[in] info Information about who created this track, and its properties.			            
         * @param[in] trackStateOnSurfaces Vector of TrackStateOnSurface objects.            
         * @param[in] fitQuality Fit quality of the tracks. *			                    
-        */									            
-       Track( const TrackInfo& info,						            
-              DataVector<const TrackStateOnSurface>* trackStateOnSurfaces,	            
-              const FitQuality* fitQuality);  		            
+        */
+       Track(const TrackInfo& info,
+             TrackStates&& trackStateOnSurfaces,
+             const FitQuality* fitQuality);
 
-       Track( const Track& rhs); //!< copy constructor				            
+       Track(const Track& rhs); //!< copy constructor
 
-       Track &operator= (const Track & rhs); //!< assignment operator		            
+       Track& operator=(const Track& rhs); //!< assignment operator
 
-       Track( Track&& rhs) noexcept; //!< move constructor				            
+       Track(Track&& rhs) = default; //!< move constructor
 
-       Track &operator= (Track && rhs) noexcept; //!< move assignment operator		            
+       Track& operator=(Track&& rhs) = default; //!< move assignment operator
 
-
-       virtual ~Track (); //!< destructor					            
+       virtual ~Track(); //!< destructor
 
        /**
         * returns true if the track has non-nullptr 
@@ -216,7 +217,7 @@ namespace Trk
         /** 
         * Set the TrackStateOnSurfaces. The Trk::Track takes ownership 		            
         */				            
-       void setTrackStateOnSurfaces(DataVector<const TrackStateOnSurface>* input);
+       void setTrackStateOnSurfaces(DataVector<const TrackStateOnSurface>&& input);
  
        /**									            
         * Returns a const ref to info of a const tracks.           
@@ -280,22 +281,22 @@ namespace Trk
         */
        void copyHelper(const Track& rhs);
 
-       /**									   
-        * TrackStateOnSurface							   
-        *									   
-        * These objects link the various parameters related to a surface,	   
-        * for example, TrackParameter, RIO_OnTrack and FitQualityOnSurface	   
-        */									   
-       DataVector<const TrackStateOnSurface>* m_trackStateVector{nullptr};		   
+       /**
+        * TrackStateOnSurface
+        *
+        * These objects link the various parameters related to a surface,
+        * for example, TrackParameter, RIO_OnTrack and FitQualityOnSurface
+        */
+       TrackStates m_trackStateVector{};
 
-        /**									   
-        * A vector of TrackParameters: these can be any of the classes that	   
-        * derive from Trk::TrackParameters, for example, Perigee, MeasuredPerigee, 
-        * AtaCylinder etc.							   
-        *									   
-        * It is created in the return method by looping over all		   
-        * Trk::TrackStateOnSurface adding their pointers to the payload 
-        * of m_cachedParameterVector				   
+       /**
+        * A vector of TrackParameters: these can be any of the classes that
+        * derive from Trk::TrackParameters, for example, Perigee,
+        * MeasuredPerigee, AtaCylinder etc.
+        *
+        * It is created in the return method by looping over all
+        * Trk::TrackStateOnSurface adding their pointers to the payload
+        * of m_cachedParameterVector
         */									   
        CxxUtils::CachedValue<DataVector<const TrackParameters>> m_cachedParameterVector;	   
     
@@ -330,7 +331,7 @@ namespace Trk
         * A pointer to the Track's FitQuality. This is guaranteed to		   
         * exist and will never be null. 					   
         */									   
-       const FitQuality*   m_fitQuality{nullptr};					   
+       std::unique_ptr<const FitQuality> m_fitQuality{nullptr};
         									        									   
        /**									   
         * Datamember to cache the TrackSummary  				   

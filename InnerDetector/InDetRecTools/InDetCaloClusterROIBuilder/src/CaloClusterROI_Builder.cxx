@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloClusterROI_Builder.h"
@@ -110,7 +110,7 @@ const Trk::Surface*  InDet::CaloClusterROI_Builder::getCaloSurface( const xAOD::
 //--------------------------------------------------------------------------------------------
 {
  
-  const Trk::Surface* destinationSurface = 0;
+  const Trk::Surface* destinationSurface = nullptr;
   
   // Determine if we want to extrapolate to the barrel or endcap.  If in the crack choose the 
   // detector with largest amount of energy in the second sampling layer 
@@ -138,7 +138,7 @@ const Trk::LocalParameters*  InDet::CaloClusterROI_Builder::getClusterLocalParam
   double tantheta = tan(theta);
   double phi = cluster->phi();
   
-  Trk::LocalParameters* newLocalParameters(0);
+  Trk::LocalParameters* newLocalParameters(nullptr);
  
   if (  xAOD::EgammaHelpers::isBarrel( cluster ) ){
     //Two corindate in a cyclinder are 

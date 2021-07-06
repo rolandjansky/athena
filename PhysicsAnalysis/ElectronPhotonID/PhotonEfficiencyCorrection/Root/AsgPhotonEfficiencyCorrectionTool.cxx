@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -14,10 +14,10 @@
 #include "PhotonEfficiencyCorrection/AsgPhotonEfficiencyCorrectionTool.h"
 
 // STL includes
-#include <string>
 #include <cfloat>
+#include <climits>
 #include <iostream>
-#include <limits.h>
+#include <string>
 
 // Include the return object
 #include "PATCore/PATCoreEnums.h"
@@ -45,11 +45,11 @@ typedef Root::TPhotonEfficiencyCorrectionTool::Result Result;
 // =============================================================================
 // Standard constructor
 // =============================================================================
-AsgPhotonEfficiencyCorrectionTool::AsgPhotonEfficiencyCorrectionTool( std::string myname ) : 
+AsgPhotonEfficiencyCorrectionTool::AsgPhotonEfficiencyCorrectionTool( const std::string& myname ) : 
   AsgTool(myname),
-  m_rootTool_unc(0),
-  m_rootTool_con(0),
-  m_appliedSystematics(0),
+  m_rootTool_unc(nullptr),
+  m_rootTool_con(nullptr),
+  m_appliedSystematics(nullptr),
   m_sysSubstring("")
 {
 
@@ -64,7 +64,7 @@ AsgPhotonEfficiencyCorrectionTool::AsgPhotonEfficiencyCorrectionTool( std::strin
   declareProperty( "CorrectionFileNameUnconv", m_corrFileNameUnconv="",
                    "File that stores the correction factors for simulation for unconverted photons");
 				   
-  declareProperty("MapFilePath", m_mapFile = "" ,
+  declareProperty("MapFilePath", m_mapFile = "PhotonEfficiencyCorrection/2015_2018/rel21.2/Summer2020_Rec_v1/map1.txt",
                   "Full path to the map file");  
 				  
   declareProperty( "ForceDataType", m_dataTypeOverwrite=-1,
@@ -106,11 +106,11 @@ StatusCode AsgPhotonEfficiencyCorrectionTool::initialize()
   std::vector < std::string > corrFileNameList;
 
   // First check if the tool is initialized using the input files or map
-  if(m_mapFile.size()){ // using map file
+  if(!m_mapFile.empty()){ // using map file
      corrFileNameList.push_back(getFileName(m_isoWP,m_trigger,true));	// converted photons input
 	 corrFileNameList.push_back(getFileName(m_isoWP,m_trigger,false));  // unconverted photons input
   }
-  else if(m_corrFileNameConv.size() && m_corrFileNameUnconv.size()){ // initialize the tool using input files (old scheme)
+  else if(!m_corrFileNameConv.empty() && !m_corrFileNameUnconv.empty()){ // initialize the tool using input files (old scheme)
   	corrFileNameList.push_back(m_corrFileNameConv);
 	corrFileNameList.push_back(m_corrFileNameUnconv);
   }
@@ -140,7 +140,8 @@ StatusCode AsgPhotonEfficiencyCorrectionTool::initialize()
   if( corrFileNameList[0].find(m_file_prefix_ID) != std::string::npos) m_sysSubstring="ID_";
   if( corrFileNameList[0].find(m_file_prefix_ISO) != std::string::npos) m_sysSubstring="ISO_";
   if( corrFileNameList[0].find(m_file_prefix_Trig) != std::string::npos) m_sysSubstring="TRIGGER_";
-  if(m_sysSubstring == "") {ATH_MSG_ERROR ( "Invalid input file" ); return StatusCode::FAILURE;}
+  if( corrFileNameList[0].find(m_file_prefix_TrigEff) != std::string::npos) m_sysSubstring="TRIGGER_";
+  if(m_sysSubstring.empty()) {ATH_MSG_ERROR ( "Invalid input file" ); return StatusCode::FAILURE;}
 
   // Configure the underlying Root tool
   m_rootTool_con->addFileName( corrFileNameList[0] );
@@ -418,7 +419,7 @@ applySystematicVariation ( const CP::SystematicSet& systConfig )
 // Map Key Feature
 //===============================================================================
 // Gets the correction filename from map
-std::string AsgPhotonEfficiencyCorrectionTool::getFileName(std::string isoWP, std::string trigWP, bool isConv) {  
+std::string AsgPhotonEfficiencyCorrectionTool::getFileName(const std::string& isoWP, const std::string& trigWP, bool isConv) {  
 
   // First locate the map file:
   std::string mapFileName = PathResolverFindCalibFile( m_mapFile );

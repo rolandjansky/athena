@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <stdexcept>
@@ -7,7 +7,7 @@
 #include "AthViews/View.h"
 #include "SGTools/transientKey.h"
 
-SimpleView::SimpleView( std::string Name, bool AllowFallThrough, std::string const& storeName ) :
+SimpleView::SimpleView( std::string const& Name, bool AllowFallThrough, std::string const& storeName ) :
   m_store( storeName, Name ),
   m_roi(),
   m_name( Name ),
@@ -120,7 +120,6 @@ SG::DataProxy * SimpleView::findProxy( const CLID& id, const std::string& key, c
  */
 SG::DataProxy * SimpleView::proxy( const void* const pTransient ) const
 {
-  throw std::runtime_error( "Not implemented: SimpleView::proxy" );
   return m_store->proxy( pTransient );
 }
 

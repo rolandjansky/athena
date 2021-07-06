@@ -12,7 +12,6 @@ abstract MuonCalib::MuonCondITool classes.
                                                                                 
 @section MuonCondTool_MuonCondToolOverview Class Overview
 The MuonCondTool package contains the following Tools  
-- MuonCalib::MuonDetectorStatusDbTool: access information on the tube status directly by COOL Database Folders
 - MuonCalib::MuonAlignmentDbTool:  access information on A and B lines from COOL Database Folders
 
 Both tools register a callback to update in the TDS the data objetcs

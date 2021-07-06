@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
  */
 
 #include "BunchCrossingCondAlg.h"
@@ -300,8 +300,8 @@ std::vector<float> BunchCrossingCondAlg::tokenize( const std::string& pattern ) 
   ATH_MSG_VERBOSE("Input to tokenize: " << pattern);
   
   std::vector< float > result;
-  const char* c= &(*pattern.begin());
-  const char* cEnd= &(*pattern.end());
+  const char* c= pattern.data();
+  const char* cEnd= c + pattern.size();
   while(c<cEnd) {
     //This loop swallows actually any string containing numbers
     //separated by non-numbers

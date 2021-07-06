@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -35,7 +35,7 @@ def getMUON0TriggerContainers():
 
 class MuonsDxAODStreamConfigurer:
     commonItems = []
-    MUON0OnlyItems = ["CosmicMuonCollection#HLT_CosmicMuons", "MuonCaloEnergyContainer#MuonCaloEnergyCollection"]
+    MUON0OnlyItems = []
 #     MUON1OnlyItems = ['CaloClusterCellLinkContainer#MuonClusterCollection_links', 'CaloCellContainer#AODCellContainer']
     MUON1OnlyItems = [] ## will be done in MUON1
     MUON2OnlyItems = []

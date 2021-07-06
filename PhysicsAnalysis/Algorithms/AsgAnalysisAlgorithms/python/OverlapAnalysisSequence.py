@@ -10,6 +10,7 @@ def makeOverlapAnalysisSequence( dataType,
                                  doEleEleOR = False, doElectrons = True,
                                  doMuons = True, doJets = True, doTaus = True,
                                  doPhotons = True, doFatJets = False,
+                                 enableUserPriority = False,
                                  bJetLabel = '',
                                  boostedLeptons = False,
                                  postfix = '',
@@ -68,6 +69,10 @@ def makeOverlapAnalysisSequence( dataType,
       doXXXX     -- these flags enable/disable object types to
                     configure tools for: doElectrons, doMuons,
                     doJets, doTaus, doPhotons, doFatJets.
+      enableUserPriority -- If enabled, the Ele-, Mu-, Tau- and PhoJetOR tools
+                            will respect the user priority in the inputLabel.
+                            E.g. SUSYTools assigns all signal objects the
+                            priority 2 and pre-selected jets the priority 1.
       bJetLabel -- Flag to select b-jets with. If left empty, no b-jets are used
                    in the overlap removal.
       boostedLeptons -- Set to True to enable boosted lepton overlap removal
@@ -101,6 +106,7 @@ def makeOverlapAnalysisSequence( dataType,
                        'ORUtils::MuPFJetOverlapTool' )
        alg.overlapTool.MuPFJetORT.InputLabel = inputLabel
        alg.overlapTool.MuPFJetORT.OutputLabel = outputLabel
+       alg.overlapTool.MuPFJetORT.BJetLabel = bJetLabel
        alg.overlapTool.MuPFJetORT.LinkOverlapObjects = linkOverlapObjects
        alg.overlapTool.MuPFJetORT.OutputPassValue = True
        pass
@@ -134,6 +140,7 @@ def makeOverlapAnalysisSequence( dataType,
         alg.overlapTool.EleJetORT.LinkOverlapObjects = linkOverlapObjects
         alg.overlapTool.EleJetORT.BJetLabel = bJetLabel
         alg.overlapTool.EleJetORT.UseSlidingDR = boostedLeptons
+        alg.overlapTool.EleJetORT.EnableUserPriority = enableUserPriority
         alg.overlapTool.EleJetORT.OutputPassValue = True
         pass
 
@@ -146,6 +153,7 @@ def makeOverlapAnalysisSequence( dataType,
         alg.overlapTool.MuJetORT.LinkOverlapObjects = linkOverlapObjects
         alg.overlapTool.MuJetORT.BJetLabel = bJetLabel
         alg.overlapTool.MuJetORT.UseSlidingDR = boostedLeptons
+        alg.overlapTool.MuJetORT.EnableUserPriority = enableUserPriority
         alg.overlapTool.MuJetORT.OutputPassValue = True
         pass
 
@@ -179,6 +187,7 @@ def makeOverlapAnalysisSequence( dataType,
         alg.overlapTool.TauJetORT.OutputLabel = outputLabel
         alg.overlapTool.TauJetORT.LinkOverlapObjects = linkOverlapObjects
         alg.overlapTool.TauJetORT.DR = 0.2
+        alg.overlapTool.TauJetORT.EnableUserPriority = enableUserPriority
         alg.overlapTool.TauJetORT.OutputPassValue = True
         pass
 
@@ -209,6 +218,7 @@ def makeOverlapAnalysisSequence( dataType,
         alg.overlapTool.PhoJetORT.InputLabel = inputLabel
         alg.overlapTool.PhoJetORT.OutputLabel = outputLabel
         alg.overlapTool.PhoJetORT.LinkOverlapObjects = linkOverlapObjects
+        alg.overlapTool.PhoJetORT.EnableUserPriority = enableUserPriority
         alg.overlapTool.PhoJetORT.OutputPassValue = True
         pass
 

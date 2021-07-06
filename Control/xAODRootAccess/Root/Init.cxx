@@ -74,7 +74,8 @@ namespace xAOD {
             "xAOD::TauJet_v1",
             "xAOD::PFO_v1",
             "xAOD::TrigElectron_v1",
-            "xAOD::L2CombinedMuon_v1"}) {
+            "xAOD::L2CombinedMuon_v1",
+            "xAOD::Particle_v1"}) {
         // silently ignore missing classes, because this gets used in
         // all projects, and not all projects contain all xAOD classes
         static constexpr Bool_t LOAD = kTRUE;

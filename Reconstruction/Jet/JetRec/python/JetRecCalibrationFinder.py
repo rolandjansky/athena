@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # JetRecCalibrationFinder.py
 
@@ -49,15 +49,19 @@ class JetRecCalibrationFinder:
     "reco"            : "JES_MC15cRecommendation_May2016_rel21.config",
     "trigger"         : "JES_Full2012dataset_Preliminary_Trigger.config",
     "triggerNoPileup" : "JES_Full2012dataset_Preliminary_Trigger_NoPileup.config",
-    "trigger2016"     : "JES_data2016_data2015_Recommendation_Dec2016_Trigger.config",
+    "trigger2016"     : "JES_MC15cRecommendation_May2016_Trigger.config",
     "triggerTrim"     : "JES_MC15recommendation_FatJet_June2015.config",
     "pflow"           : "JES_MC15cRecommendation_PFlow_Aug2016_rel21.config"
   }
 
+  # Default the calibration area tag to that used for T0 reconstruction for consistency
+  # This is based on the initial R21 production in 2016
   def find(self, alg, rad, inpin, seq, configkeyin, evsprefix, calibareatag="00-04-77"):
     from JetCalibTools.JetCalibToolsConf import JetCalibrationTool
     from JetRec.JetRecStandardToolManager import jtm
     inp = inpin
+    if inpin == "PFlowCustomVtx":
+      inp = "EMPFlow"
     # Find the configuration file.
     configkey = configkeyin
     if configkey == "": configkey = "reco"
@@ -110,6 +114,8 @@ class JetRecCalibrationFinder:
         evssuf="EMCPFlowEventShape"
       elif inpin == "LCPFlow":
         evssuf="LCPFlowEventShape"
+      elif inpin == "PFlowCustomVtx":
+        evssuf="PFlowCustomVtxEventShape"
       else:
         evssuf="INVALID"
         jetlog.info( myname + "  ERROR: Invalid input specifier: " + inp )

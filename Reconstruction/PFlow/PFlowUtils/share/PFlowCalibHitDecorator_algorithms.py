@@ -14,4 +14,5 @@ from PFlowUtils.PFlowUtilsConf import PFlowCalibPFODecoratorAlgorithm
 PFlowCalibPFODecoratorAlgorithm = PFlowCalibPFODecoratorAlgorithm()
 PFlowCalibPFOTruthAttributerTool = CalibClusterTruthAttributerTool("PFlowCalibPFOTruthAttributerTool")
 PFlowCalibPFODecoratorAlgorithm.TruthAttributerTool = PFlowCalibPFOTruthAttributerTool
+
 topSequence+=PFlowCalibPFODecoratorAlgorithm

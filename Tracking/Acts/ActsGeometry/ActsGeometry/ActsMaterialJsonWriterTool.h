@@ -15,7 +15,7 @@
 #include "ActsGeometryInterfaces/IActsMaterialJsonWriterTool.h"
 
 // ACTS
-#include "Acts/Plugins/Json/JsonGeometryConverter.hpp"
+#include "Acts/Plugins/Json/MaterialMapJsonConverter.hpp"
 
 namespace Acts {
   class TrackingGeometry;
@@ -35,7 +35,7 @@ public:
 
   virtual
   void
-  write(const Acts::JsonGeometryConverter::DetectorMaterialMaps& detMaterial) const override;
+  write(const Acts::MaterialMapJsonConverter::DetectorMaterialMaps& detMaterial) const override;
 
   virtual
   void
@@ -44,7 +44,7 @@ public:
 
 private:
 
-  Acts::JsonGeometryConverter::Config m_cfg;
+  Acts::MaterialMapJsonConverter::Config m_cfg;
 
   Gaudi::Property<std::string> m_filePath{this, "OutputFile", "material-maps.json", "Output json file for the Material Map"};
   Gaudi::Property<bool> m_processSensitives{this, "processSensitives", true, "Write sensitive surface to the json file"};
@@ -53,7 +53,7 @@ private:
   Gaudi::Property<bool> m_processBoundaries{this, "processBoundaries", true, "Write boundary surface to the json file"};
   Gaudi::Property<bool> m_processVolumes{this, "processVolumes", true, "Write volume to the json file"};
   Gaudi::Property<bool> m_processDenseVolumes{this, "processDenseVolumes", false, "Write dense volume to the json file"};
-  Gaudi::Property<bool> m_processnonmaterial{this, "processnonmaterial", false, "Add proto material to all surfaces and volumes"};
+  Gaudi::Property<bool> m_processNonMaterial{this, "processNonMaterial", false, "Add proto material to all surfaces and volumes"};
 };
 
 #endif

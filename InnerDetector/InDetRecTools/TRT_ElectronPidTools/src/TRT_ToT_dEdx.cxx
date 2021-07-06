@@ -41,7 +41,7 @@ TRT_ToT_dEdx::TRT_ToT_dEdx(const std::string& t, const std::string& n, const IIn
   AthAlgTool(t,n,p),
   m_TRTStrawSummaryTool("TRT_StrawStatusSummaryTool",this),
   m_assoTool("InDet::InDetPRD_AssociationToolGangedPixels"),
-  m_localOccTool()
+  m_localOccTool("",this)
 {
   declareInterface<ITRT_ToT_dEdx>(this);
   declareProperty("TRTStrawSummaryTool",    m_TRTStrawSummaryTool);
@@ -216,7 +216,8 @@ TRT_ToT_dEdx::isGoodHit(const EventContext& ctx,
 double
 TRT_ToT_dEdx::dEdx(const EventContext& ctx,
                    const Trk::Track* track,
-                   bool useHitsHT) const
+                   bool useHitsHT,
+                   std::optional<float> localOccupancy) const
 {
   ATH_MSG_DEBUG("dEdx()");
 
@@ -280,7 +281,7 @@ TRT_ToT_dEdx::dEdx(const EventContext& ctx,
 
     ToTsum = std::accumulate(vecToT.begin(), vecToT.end(), 0);
     if (m_correctionType == kTrackBased) {
-      correctionFactor=trackOccupancyCorrection(ctx,track, useHitsHT);
+      correctionFactor=trackOccupancyCorrection(ctx,track, useHitsHT,localOccupancy);
     } else {
       correctionFactor=correctNormalization(ctx,nVtx);
     }
@@ -383,10 +384,11 @@ TRT_ToT_dEdx::dEdx(const EventContext& ctx,
     double ToTsum = ToTsumXe*nhitsXe + ToTsumAr*nhitsAr + ToTsumKr*nhitsKr;
 
 	  if (m_correctionType == kTrackBased) {
-      correctionFactor = trackOccupancyCorrection(ctx,track, useHitsHT);
-    } else {
-      correctionFactor = correctNormalization(ctx,nVtx);
-    }
+            correctionFactor =
+              trackOccupancyCorrection(ctx, track, true, localOccupancy);
+          } else {
+            correctionFactor = correctNormalization(ctx, nVtx);
+          }
     ToTsum *= correctionFactor;
 
     return ToTsum/nhits;
@@ -1155,6 +1157,10 @@ TRT_ToT_dEdx::hitOccupancyCorrection(const EventContext& ctx,
     }
   }
 
+  if (!driftcircle) {
+    return 0.;
+  }
+
   const Trk::TrackParameters* trkP = itr->trackParameters();
   Identifier DCId = driftcircle->identify();
   int isHT = driftcircle->highLevel();
@@ -1224,16 +1230,20 @@ TRT_ToT_dEdx::hitOccupancyCorrection(const EventContext& ctx,
 double
 TRT_ToT_dEdx::trackOccupancyCorrection(const EventContext& ctx,
                                        const Trk::Track* track,
-                                       bool useHitsHT) const
+                                       bool useHitsHT,
+                                       std::optional<float> localOccupancy) const
 {
   SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey,ctx};
   const TRTDedxcorrection* dEdxCorrection{*readHandle};
 
   double corr=-999.;
-  double trackOcc = m_localOccTool->LocalOccupancy(ctx,*track);
+
+  double trackOcc = localOccupancy != std::nullopt
+                     ? *localOccupancy
+                     : m_localOccTool->LocalOccupancy(ctx, *track);
   const Trk::TrackParameters* perigee = track->perigeeParameters();
-  const Amg::VectorX& parameterVector = perigee->parameters();
-  double theta  = parameterVector[Trk::theta];
+  const AmgVector(Trk::TrackParameters::dim)& parameterVector = perigee->parameters();
+  double theta = parameterVector[Trk::theta];
   double trackEta = -log(tan(theta/2.0));
 
   // the correction constants were determined in 100 bins of 0.04 in the eta range between -2 and 2

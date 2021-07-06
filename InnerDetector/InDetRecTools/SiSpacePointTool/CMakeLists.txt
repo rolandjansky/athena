@@ -8,7 +8,7 @@ atlas_add_library( SiSpacePointToolLib
                    src/*.cxx
                    PUBLIC_HEADERS SiSpacePointTool
                    LINK_LIBRARIES AthenaBaseComps GeoPrimitives InDetPrepRawData TrkSpacePoint
-                   PRIVATE_LINK_LIBRARIES InDetIdentifier InDetReadoutGeometry SiSpacePoint )
+                   PRIVATE_LINK_LIBRARIES InDetIdentifier ReadoutGeometryBase InDetReadoutGeometry SiSpacePoint )
 
 atlas_add_component( SiSpacePointTool
                      src/components/*.cxx

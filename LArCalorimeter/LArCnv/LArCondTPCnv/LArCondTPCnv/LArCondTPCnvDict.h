@@ -14,6 +14,7 @@
 
 #include "LArCondTPCnv/LArCaliWaveSubset_p1.h"
 #include "LArCondTPCnv/LArCaliWaveSubset_p2.h"
+#include "LArCondTPCnv/LArCaliWaveSubset_p3.h"
 #include "LArCondTPCnv/LArPhysWaveSubset_p1.h"
 #include "LArCondTPCnv/LArAutoCorrSubset_p1.h"
 #include "LArCondTPCnv/LArOFCSubset_p1.h"

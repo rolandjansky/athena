@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // CscBipolarStripFitter.cxx
@@ -21,23 +21,13 @@
 
 using Muon::CscStripPrepData;
 
-typedef ICscStripFitter::Result     Result;
-typedef ICscStripFitter::ChargeList ChargeList;
+typedef ICscStripFitter::Result Result;
+using ChargeList = ICscStripFitter::ChargeList;
 
 //**********************************************************************
 
-CscBipolarStripFitter::CscBipolarStripFitter(const std::string& type, const std::string& aname, const IInterface *parent)
-    : AthAlgTool(type, aname, parent),
-      m_phelper(0),
-      m_n(0),
-      m_n2(0),
-      m_zmax(0),
-      m_bipolarNormalization(0),
-      m_tsampling(0),
-      m_powcachez(0),
-      m_powcachezn(0)
-{
-
+CscBipolarStripFitter::CscBipolarStripFitter(const std::string &type, const std::string &aname, const IInterface *parent) :
+    AthAlgTool(type, aname, parent), m_phelper(nullptr), m_n(0), m_n2(0), m_zmax(0), m_bipolarNormalization(0), m_tsampling(0) {
     declareInterface<ICscStripFitter>(this);
     declareProperty("chargeError", m_qerr = 5500.0);
     declareProperty("timeError", m_terr = 5.0);
@@ -48,10 +38,7 @@ CscBipolarStripFitter::CscBipolarStripFitter(const std::string& type, const std:
 
 //**********************************************************************
 
-StatusCode
-CscBipolarStripFitter::initialize()
-{
-
+StatusCode CscBipolarStripFitter::initialize() {
     ATH_MSG_DEBUG("Initializing " << name());
 
     ATH_MSG_DEBUG("Properties for " << name() << ":");
@@ -64,37 +51,30 @@ CscBipolarStripFitter::initialize()
     /** CSC calibratin tool for the Condtiions Data base access */
     ATH_CHECK_RECOVERABLE(m_cscCalibTool.retrieve());
 
-    const MuonGM::MuonDetectorManager* muDetMgr=nullptr;
+    const MuonGM::MuonDetectorManager *muDetMgr = nullptr;
     ATH_CHECK_RECOVERABLE(detStore()->retrieve(muDetMgr));
     ATH_MSG_DEBUG("Retrieved geometry.");
 
     m_phelper = muDetMgr->cscIdHelper();
 
-    m_n          = m_cscCalibTool->getNumberOfIntegration();   // 12.;
-    m_n2         = m_cscCalibTool->getNumberOfIntegration2();  // 11.66;
-    m_powcachez  = -9999.;
-    m_powcachezn = -9999.;
-    m_zmax       = m_n + m_n2 + 2. - sqrt((m_n + 2. + m_n2) * (m_n + 2. + m_n2) - 4. * m_n * (m_n2 + 1));
+    m_n = m_cscCalibTool->getNumberOfIntegration();    // 12.;
+    m_n2 = m_cscCalibTool->getNumberOfIntegration2();  // 11.66;
+    m_zmax = m_n + m_n2 + 2. - sqrt((m_n + 2. + m_n2) * (m_n + 2. + m_n2) - 4. * m_n * (m_n2 + 1));
     m_zmax *= 0.5;
     // m_n+1 - sqrt(m_n+1.0);
-    m_bipolarNormalization = FindPow(m_zmax) * (1 - m_zmax / (m_n2 + 1)) * exp(-m_zmax);
-    // FindPow(m_zmax)*(1-m_zmax/(m_n+1))*exp(-m_zmax);
+    m_bipolarNormalization = FindPow(m_zmax) * (1 - m_zmax / (m_n2 + 1)) * std::exp(-m_zmax);
+    // FindPow(m_zmax)*(1-m_zmax/(m_n+1))*std::exp(-m_zmax);
     m_tsampling = m_cscCalibTool->getSamplingTime() / 2.;  //   50/2 =   25.;
-
 
     return StatusCode::SUCCESS;
 }
 
 //**********************************************************************
 
-Result
-CscBipolarStripFitter::fit(const ChargeList &chgs, double period, Identifier &stripId) const
-{
-
+Result CscBipolarStripFitter::fit(const ChargeList &chgs, double period, Identifier &stripId) const {
     ATH_MSG_DEBUG("Fitting with sample time " << period);
     ATH_MSG_DEBUG(" Number of charges =" << chgs.size() << "  Charges: " << chgs);
     Result res;
-
 
     IdentifierHash stripHash;
     if (m_phelper->get_channel_hash(stripId, stripHash)) {
@@ -104,29 +84,26 @@ CscBipolarStripFitter::fit(const ChargeList &chgs, double period, Identifier &st
     }
     ATH_MSG_DEBUG("CalibCscStripFitter:: " << stripId << "  " << (unsigned int)stripHash);
 
-
     ////// double m_x[4];
     ////// for(unsigned int i=0;i<chgs.size();i++) {
     //////   m_x[i] = chgs[i];
     ////// }
     double initValues[3];
-    for (int i = 0; i < 3; ++i) {
-        initValues[i] = 0.;
-    }
+    for (int i = 0; i < 3; ++i) { initValues[i] = 0.; }
     //  int imax = -1;
     initValues[2] = 8.;  // m_width
     //////  double samplemax = FindInitValues(m_x,initValues,&imax);
 
     double noise = m_cscCalibTool->stripNoise(stripHash);
-    res.status   = 0;
+    res.status = 0;
     if (m_qerr > 0)
         res.dcharge = m_qerr;
     else
         res.dcharge = noise;
 
-    res.dtime  = m_terr;
+    res.dtime = m_terr;
     res.charge = initValues[0];
-    res.time   = initValues[1];
+    res.time = initValues[1];
 
     initValues[1] = res.time - 2.5;
     //  int imeas =4;
@@ -139,7 +116,7 @@ CscBipolarStripFitter::fit(const ChargeList &chgs, double period, Identifier &st
 
     // Add an error proportional to the charge.
     double dqprop = m_qerrprop * res.charge;
-    res.dcharge   = sqrt(res.dcharge * res.dcharge + dqprop * dqprop);
+    res.dcharge = sqrt(res.dcharge * res.dcharge + dqprop * dqprop);
     // Display result.
     ATH_MSG_DEBUG("  Status: " << res.status);
     ATH_MSG_DEBUG("  Charge: " << res.charge);
@@ -149,17 +126,15 @@ CscBipolarStripFitter::fit(const ChargeList &chgs, double period, Identifier &st
     return res;
 }
 
-double
-CscBipolarStripFitter::FindInitValues(double *x, double *initValues, int *maxsample) const
-{
+double CscBipolarStripFitter::FindInitValues(double *x, double *initValues, int *maxsample) {
     // find maximum sample imax:
-    double    peakingTime = -99.;  // interpolated peaking time in samples
-    double    amplitude   = -99.;  // interpolated amplitude
-    double    amin, amax;
-    int       imax      = 0;
+    double peakingTime = -99.;  // interpolated peaking time in samples
+    double amplitude = -99.;    // interpolated amplitude
+    double amin, amax;
+    int imax = 0;
     const int numSample = 4;
-    amax                = x[0];
-    amin                = x[0];
+    amax = x[0];
+    amin = x[0];
     for (int j = 1; j < numSample; j++) {
         if (amax < x[j]) {
             amax = x[j];
@@ -173,7 +148,7 @@ CscBipolarStripFitter::FindInitValues(double *x, double *initValues, int *maxsam
     if ((imax == 0) || (imax == numSample - 1))  // no interpolation possible
     {
         peakingTime = imax;
-        amplitude   = amax;
+        amplitude = amax;
     } else  // do parabolic interpolation
     {
         double a, b, c;  // coeffients of parabola y=a*x*x+b*x+c
@@ -182,7 +157,7 @@ CscBipolarStripFitter::FindInitValues(double *x, double *initValues, int *maxsam
         c = x[imax];
 
         peakingTime = -0.5 * b / a;
-        amplitude   = a * peakingTime * peakingTime + b * peakingTime + c;
+        amplitude = a * peakingTime * peakingTime + b * peakingTime + c;
         peakingTime += imax;  // it was relative to imax
     }
 
@@ -192,48 +167,37 @@ CscBipolarStripFitter::FindInitValues(double *x, double *initValues, int *maxsam
     return x[imax];
 }
 
-double
-CscBipolarStripFitter::FindPow(double z) const
-{
-    if (fabs(m_powcachez - z) < 1.e-4) return m_powcachezn;
-
-    // double zpower = z*z*z;
-    // zpower *= zpower;
-    // zpower *= zpower;
-    double zpower = exp(m_n * log(z));
-    m_powcachez   = z;
-    m_powcachezn  = zpower;
+double CscBipolarStripFitter::FindPow(double z) const {
+    double zpower = std::exp(m_n * std::log(z));
     return zpower;
 }
 
-void
-CscBipolarStripFitter::InvertMatrix(double matrix[][3], const int dim, int *correspdim) const
-{
+void CscBipolarStripFitter::InvertMatrix(double matrix[][3], const int dim, const int *correspdim) {
     // invert 2x2 or 3x3 symmetric matrix
     if (dim == 1) {
-        int ii         = correspdim[0];
+        int ii = correspdim[0];
         matrix[ii][ii] = 1. / matrix[ii][ii];
 
     } else if (dim == 2) {
-        int    ii          = correspdim[0];
-        int    jj          = correspdim[1];
+        int ii = correspdim[0];
+        int jj = correspdim[1];
         double determinant = -matrix[jj][ii] * matrix[ii][jj] + matrix[ii][ii] * matrix[jj][jj];
-        // if(fabs(determinant)<1.e-13)
+        // if(std::abs(determinant)<1.e-13)
         // std::cout<<" zero determinant "<<std::endl;
-        double i00     = matrix[ii][ii];
+        double i00 = matrix[ii][ii];
         matrix[ii][ii] = matrix[jj][jj] / determinant;
         matrix[jj][jj] = i00 / determinant;
         matrix[ii][jj] = -matrix[ii][jj] / determinant;
         matrix[jj][ii] = matrix[ii][jj];
 
     } else if (dim == 3) {
-        double sm12        = matrix[0][1] * matrix[0][1];
-        double sm13        = matrix[0][2] * matrix[0][2];
-        double sm23        = matrix[1][2] * matrix[1][2];
-        double determinant = matrix[0][0] * matrix[1][1] * matrix[2][2] - matrix[0][0] * sm23 - sm12 * matrix[2][2]
-                             + 2. * matrix[0][1] * matrix[0][2] * matrix[1][2] - matrix[1][1] * sm13;
+        double sm12 = matrix[0][1] * matrix[0][1];
+        double sm13 = matrix[0][2] * matrix[0][2];
+        double sm23 = matrix[1][2] * matrix[1][2];
+        double determinant = matrix[0][0] * matrix[1][1] * matrix[2][2] - matrix[0][0] * sm23 - sm12 * matrix[2][2] +
+                             2. * matrix[0][1] * matrix[0][2] * matrix[1][2] - matrix[1][1] * sm13;
 
-        // if(fabs(determinant)<1.e-13)
+        // if(std::abs(determinant)<1.e-13)
         // std::cout << "zero determinant"<<std::endl;
         double i00 = matrix[1][1] * matrix[2][2] - sm23;
         double i11 = matrix[0][0] * matrix[2][2] - sm13;
@@ -256,41 +220,37 @@ CscBipolarStripFitter::InvertMatrix(double matrix[][3], const int dim, int *corr
     }
 }
 
-void
-CscBipolarStripFitter::InvertSymmetric4x4(double W[][4]) const
-{
-    double Determinant = W[0][3] * W[0][3] * W[1][2] * W[1][2] - 2. * W[0][2] * W[0][3] * W[1][2] * W[1][3]
-                         + W[0][2] * W[0][2] * W[1][3] * W[1][3] - W[0][3] * W[0][3] * W[1][1] * W[2][2]
-                         + 2. * W[0][1] * W[0][3] * W[1][3] * W[2][2] - W[0][0] * W[1][3] * W[1][3] * W[2][2]
-                         + 2. * W[0][2] * W[0][3] * W[1][1] * W[2][3] - 2. * W[0][1] * W[0][3] * W[1][2] * W[2][3]
-                         - 2. * W[0][1] * W[0][2] * W[1][3] * W[2][3] + 2. * W[0][0] * W[1][2] * W[1][3] * W[2][3]
-                         + W[0][1] * W[0][1] * W[2][3] * W[2][3] - W[0][0] * W[1][1] * W[2][3] * W[2][3]
-                         - W[0][2] * W[0][2] * W[1][1] * W[3][3] + 2. * W[0][1] * W[0][2] * W[1][2] * W[3][3]
-                         - W[0][0] * W[1][2] * W[1][2] * W[3][3] - W[0][1] * W[0][1] * W[2][2] * W[3][3]
-                         + W[0][0] * W[1][1] * W[2][2] * W[3][3];
+void CscBipolarStripFitter::InvertSymmetric4x4(double W[][4]) {
+    double Determinant =
+        W[0][3] * W[0][3] * W[1][2] * W[1][2] - 2. * W[0][2] * W[0][3] * W[1][2] * W[1][3] + W[0][2] * W[0][2] * W[1][3] * W[1][3] -
+        W[0][3] * W[0][3] * W[1][1] * W[2][2] + 2. * W[0][1] * W[0][3] * W[1][3] * W[2][2] - W[0][0] * W[1][3] * W[1][3] * W[2][2] +
+        2. * W[0][2] * W[0][3] * W[1][1] * W[2][3] - 2. * W[0][1] * W[0][3] * W[1][2] * W[2][3] -
+        2. * W[0][1] * W[0][2] * W[1][3] * W[2][3] + 2. * W[0][0] * W[1][2] * W[1][3] * W[2][3] + W[0][1] * W[0][1] * W[2][3] * W[2][3] -
+        W[0][0] * W[1][1] * W[2][3] * W[2][3] - W[0][2] * W[0][2] * W[1][1] * W[3][3] + 2. * W[0][1] * W[0][2] * W[1][2] * W[3][3] -
+        W[0][0] * W[1][2] * W[1][2] * W[3][3] - W[0][1] * W[0][1] * W[2][2] * W[3][3] + W[0][0] * W[1][1] * W[2][2] * W[3][3];
 
-    W[0][1] = W[3][0] * W[3][1] * W[2][2] - W[3][0] * W[2][1] * W[3][2] - W[2][0] * W[3][1] * W[3][2]
-              + W[1][0] * W[3][2] * W[3][2] + W[2][0] * W[2][1] * W[3][3] - W[1][0] * W[2][2] * W[3][3];
-    W[0][2] = -W[3][0] * W[2][1] * W[3][1] + W[2][0] * W[3][1] * W[3][1] + W[3][0] * W[1][1] * W[3][2]
-              - W[1][0] * W[3][1] * W[3][2] - W[2][0] * W[1][1] * W[3][3] + W[1][0] * W[2][1] * W[3][3];
-    W[0][3] = W[3][0] * W[2][1] * W[2][1] - W[2][0] * W[2][1] * W[3][1] - W[3][0] * W[1][1] * W[2][2]
-              + W[1][0] * W[3][1] * W[2][2] + W[2][0] * W[1][1] * W[3][2] - W[1][0] * W[2][1] * W[3][2];
-    W[1][2] = W[3][0] * W[3][0] * W[2][1] - W[2][0] * W[3][0] * W[3][1] - W[1][0] * W[3][0] * W[3][2]
-              + W[0][0] * W[3][1] * W[3][2] + W[1][0] * W[2][0] * W[3][3] - W[0][0] * W[2][1] * W[3][3];
+    W[0][1] = W[3][0] * W[3][1] * W[2][2] - W[3][0] * W[2][1] * W[3][2] - W[2][0] * W[3][1] * W[3][2] + W[1][0] * W[3][2] * W[3][2] +
+              W[2][0] * W[2][1] * W[3][3] - W[1][0] * W[2][2] * W[3][3];
+    W[0][2] = -W[3][0] * W[2][1] * W[3][1] + W[2][0] * W[3][1] * W[3][1] + W[3][0] * W[1][1] * W[3][2] - W[1][0] * W[3][1] * W[3][2] -
+              W[2][0] * W[1][1] * W[3][3] + W[1][0] * W[2][1] * W[3][3];
+    W[0][3] = W[3][0] * W[2][1] * W[2][1] - W[2][0] * W[2][1] * W[3][1] - W[3][0] * W[1][1] * W[2][2] + W[1][0] * W[3][1] * W[2][2] +
+              W[2][0] * W[1][1] * W[3][2] - W[1][0] * W[2][1] * W[3][2];
+    W[1][2] = W[3][0] * W[3][0] * W[2][1] - W[2][0] * W[3][0] * W[3][1] - W[1][0] * W[3][0] * W[3][2] + W[0][0] * W[3][1] * W[3][2] +
+              W[1][0] * W[2][0] * W[3][3] - W[0][0] * W[2][1] * W[3][3];
 
-    W[1][3] = -W[2][0] * W[3][0] * W[2][1] + W[2][0] * W[2][0] * W[3][1] + W[1][0] * W[3][0] * W[2][2]
-              - W[0][0] * W[3][1] * W[2][2] - W[1][0] * W[2][0] * W[3][2] + W[0][0] * W[2][1] * W[3][2];
-    W[2][3] = W[2][0] * W[3][0] * W[1][1] - W[1][0] * W[3][0] * W[2][1] - W[1][0] * W[2][0] * W[3][1]
-              + W[0][0] * W[2][1] * W[3][1] + W[1][0] * W[1][0] * W[3][2] - W[0][0] * W[1][1] * W[3][2];
+    W[1][3] = -W[2][0] * W[3][0] * W[2][1] + W[2][0] * W[2][0] * W[3][1] + W[1][0] * W[3][0] * W[2][2] - W[0][0] * W[3][1] * W[2][2] -
+              W[1][0] * W[2][0] * W[3][2] + W[0][0] * W[2][1] * W[3][2];
+    W[2][3] = W[2][0] * W[3][0] * W[1][1] - W[1][0] * W[3][0] * W[2][1] - W[1][0] * W[2][0] * W[3][1] + W[0][0] * W[2][1] * W[3][1] +
+              W[1][0] * W[1][0] * W[3][2] - W[0][0] * W[1][1] * W[3][2];
 
-    double W00 = -W[3][1] * W[3][1] * W[2][2] + 2. * W[2][1] * W[3][1] * W[3][2] - W[1][1] * W[3][2] * W[3][2]
-                 - W[2][1] * W[2][1] * W[3][3] + W[1][1] * W[2][2] * W[3][3];
-    double W11 = -W[3][0] * W[3][0] * W[2][2] + 2. * W[2][0] * W[3][0] * W[3][2] - W[0][0] * W[3][2] * W[3][2]
-                 - W[2][0] * W[2][0] * W[3][3] + W[0][0] * W[2][2] * W[3][3];
-    double W22 = -W[3][0] * W[3][0] * W[1][1] + 2. * W[1][0] * W[3][0] * W[3][1] - W[0][0] * W[3][1] * W[3][1]
-                 - W[1][0] * W[1][0] * W[3][3] + W[0][0] * W[1][1] * W[3][3];
-    double W33 = -W[2][0] * W[2][0] * W[1][1] + 2. * W[1][0] * W[2][0] * W[2][1] - W[0][0] * W[2][1] * W[2][1]
-                 - W[1][0] * W[1][0] * W[2][2] + W[0][0] * W[1][1] * W[2][2];
+    double W00 = -W[3][1] * W[3][1] * W[2][2] + 2. * W[2][1] * W[3][1] * W[3][2] - W[1][1] * W[3][2] * W[3][2] -
+                 W[2][1] * W[2][1] * W[3][3] + W[1][1] * W[2][2] * W[3][3];
+    double W11 = -W[3][0] * W[3][0] * W[2][2] + 2. * W[2][0] * W[3][0] * W[3][2] - W[0][0] * W[3][2] * W[3][2] -
+                 W[2][0] * W[2][0] * W[3][3] + W[0][0] * W[2][2] * W[3][3];
+    double W22 = -W[3][0] * W[3][0] * W[1][1] + 2. * W[1][0] * W[3][0] * W[3][1] - W[0][0] * W[3][1] * W[3][1] -
+                 W[1][0] * W[1][0] * W[3][3] + W[0][0] * W[1][1] * W[3][3];
+    double W33 = -W[2][0] * W[2][0] * W[1][1] + 2. * W[1][0] * W[2][0] * W[2][1] - W[0][0] * W[2][1] * W[2][1] -
+                 W[1][0] * W[1][0] * W[2][2] + W[0][0] * W[1][1] * W[2][2];
 
     for (int i = 0; i < 3; i++) {
         for (int j = 1; j < 4; j++) {
@@ -304,23 +264,19 @@ CscBipolarStripFitter::InvertSymmetric4x4(double W[][4]) const
     W[2][2] = W22 / Determinant;
     W[3][3] = W33 / Determinant;
 }
-void
-CscBipolarStripFitter::Derivative(double A[][3], double fp[][1], double p0[][1], int imeas, int *meas) const
-{
+void CscBipolarStripFitter::Derivative(double A[][3], double fp[][1], double p0[][1], int imeas, const int *meas) const {
     // calculate the derivatives and the 0th order approximation
     // around the ADC samplings
     double norm = p0[0][0];
     // double parm[3]={1.,p0[1][0],p0[2][0]};
     for (int i = 0; i < imeas; i++) {
-        int    ii             = meas[i];
-        double z              = (ii - p0[1][0]) * m_tsampling / p0[2][0];
-        double repquant       = 0.;
+        int ii = meas[i];
+        double z = (ii - p0[1][0]) * m_tsampling / p0[2][0];
+        double repquant = 0.;
         double dFdzNormalized = 0.;
         if (z > 0.) {
-            repquant = FindPow(z) * exp(-z) / m_bipolarNormalization;
-            dFdzNormalized =
-                repquant
-                * (m_n / z + z / (m_n2 + 1) - (m_n + 1.) / (m_n2 + 1.) - 1.);  // repquant*(m_n/z+z/(m_n+1)-2.);
+            repquant = FindPow(z) * std::exp(-z) / m_bipolarNormalization;
+            dFdzNormalized = repquant * (m_n / z + z / (m_n2 + 1) - (m_n + 1.) / (m_n2 + 1.) - 1.);  // repquant*(m_n/z+z/(m_n+1)-2.);
         }
 
         A[ii][0] = repquant * (1. - z / (m_n2 + 1.));  // repquant*(1.-z/(m_n+1.));
@@ -329,16 +285,14 @@ CscBipolarStripFitter::Derivative(double A[][3], double fp[][1], double p0[][1],
 
         // double normOverZmax = norm/m_bipolarNormalization;
         double commonpart = norm * dFdzNormalized;  //(z,parm);
-        A[ii][1]          = commonpart * (-m_tsampling / p0[2][0]);
-        A[ii][2]          = commonpart * (-z / p0[2][0]);
+        A[ii][1] = commonpart * (-m_tsampling / p0[2][0]);
+        A[ii][2] = commonpart * (-z / p0[2][0]);
     }
     // end of derivative/zeroth order calculations
 }
 
-int
-CscBipolarStripFitter::TheFitter(double *x, const double ex, double *initValues, int imeas, int *meas, int ipar,
-                                 int *par, double *chi2, double *result) const
-{
+int CscBipolarStripFitter::TheFitter(double *x, const double ex, const double *initValues, int imeas, int *meas, int ipar, int *par, double *chi2,
+                                     double *result) const {
     // maximum iterations
     const int maxIter = 7;
     // tolerances
@@ -373,7 +327,7 @@ CscBipolarStripFitter::TheFitter(double *x, const double ex, double *initValues,
     // WW.invert(ierr);
     InvertSymmetric4x4(W);
 
-    // Taylor expansion of the bipolar pulse model around the
+    // Taylor std::expansion of the bipolar pulse model around the
     // samplings : F(x) = F(p0) + A *(p-p0) + higher.order
     // CLHEP::HepMatrix fp(4,1,0); // the matrix of 0th order approximation
     double fp[4][1];
@@ -381,18 +335,16 @@ CscBipolarStripFitter::TheFitter(double *x, const double ex, double *initValues,
     double A[4][3];
     for (int i = 0; i < 4; ++i) {
         fp[i][0] = 0.;
-        for (int j = 0; j < 3; ++j) {
-            A[i][j] = 0.;
-        }
+        for (int j = 0; j < 3; ++j) { A[i][j] = 0.; }
     }
     // remarks :
     // if the pulse peaks in the last sampling fit with a constant shaping time
     // if the pulse peaks in the first sampling fit without using the last sampling
     // (too large contribution to the chi2
-    int    counter             = 0;
-    bool   converged           = false;
-    double amplitudeChangeOld  = 0.;
-    bool   diverganceCandidate = false;
+    int counter = 0;
+    bool converged = false;
+    double amplitudeChangeOld = 0.;
+    bool diverganceCandidate = false;
     // CLHEP::HepMatrix weight(3,3,1); // weight matrix allocated once
     // the non-fitted parts are taken care appropriately
     // at least if the fitting parameters or measurements
@@ -404,9 +356,7 @@ CscBipolarStripFitter::TheFitter(double *x, const double ex, double *initValues,
 
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 4; ++j) {
-            if (j < 3) {
-                weight[i][j] = 0.;
-            }
+            if (j < 3) { weight[i][j] = 0.; }
             residFactor[i][j] = 0.;
         }
     }
@@ -423,9 +373,7 @@ CscBipolarStripFitter::TheFitter(double *x, const double ex, double *initValues,
 
         double helpmatrix[4][3];
         for (int i = 0; i < 4; ++i) {
-            for (int j = 0; j < 3; ++j) {
-                helpmatrix[i][j] = 0.;
-            }
+            for (int j = 0; j < 3; ++j) { helpmatrix[i][j] = 0.; }
         }
 
         for (int i = 0; i < imeas; i++) {
@@ -441,7 +389,7 @@ CscBipolarStripFitter::TheFitter(double *x, const double ex, double *initValues,
         for (int i = 0; i < ipar; i++) {
             int ii = par[i];
             for (int j = i; j < ipar; j++) {
-                int jj         = par[j];
+                int jj = par[j];
                 weight[ii][jj] = 0.;
                 for (int k = 0; k < imeas; k++) {
                     int kk = meas[k];
@@ -459,9 +407,7 @@ CscBipolarStripFitter::TheFitter(double *x, const double ex, double *initValues,
         // residFactor = weight*(A.T()*W);
         double helpmatrix2[3][4];
         for (int i = 0; i < 3; ++i) {
-            for (int j = 0; j < 4; ++j) {
-                helpmatrix2[i][j] = 0.;
-            }
+            for (int j = 0; j < 4; ++j) { helpmatrix2[i][j] = 0.; }
         }
 
         for (int i = 0; i < ipar; i++) {
@@ -478,7 +424,7 @@ CscBipolarStripFitter::TheFitter(double *x, const double ex, double *initValues,
         for (int i = 0; i < ipar; i++) {
             int ii = par[i];
             for (int j = 0; j < imeas; j++) {
-                int jj              = meas[j];
+                int jj = meas[j];
                 residFactor[ii][jj] = 0.;
                 for (int k = 0; k < ipar; k++) {
                     int kk = par[k];
@@ -489,9 +435,7 @@ CscBipolarStripFitter::TheFitter(double *x, const double ex, double *initValues,
         }
 
         double paramDiff[3];
-        for (int i = 0; i < 3; ++i) {
-            paramDiff[i] = 0.;
-        }
+        for (int i = 0; i < 3; ++i) { paramDiff[i] = 0.; }
 
         for (int i = 0; i < ipar; i++) {
             int ii = par[i];
@@ -510,26 +454,22 @@ CscBipolarStripFitter::TheFitter(double *x, const double ex, double *initValues,
         if (peakingTime < -0.5 || peakingTime > 3.) p0[1][0] = initValues[1];
 
         if (p0[0][0] < 0.) p0[0][0] = initValues[0];
-        double amplitudeChangeNew = fabs(paramDiff[0]);
-        if (fabs(paramDiff[0]) < fitTolerance0 && fabs(paramDiff[1]) < fitTolerance1) {
+        double amplitudeChangeNew = std::abs(paramDiff[0]);
+        if (std::abs(paramDiff[0]) < fitTolerance0 && std::abs(paramDiff[1]) < fitTolerance1) {
             converged = true;
             // calculate chi2
             // (m-fp).T()*W*(m-fp)
             double residual[4];
-            for (int i = 0; i < 4; ++i) {
-                residual[i] = 0.;
-            }
+            for (int i = 0; i < 4; ++i) { residual[i] = 0.; }
 
             for (int i = 0; i < imeas; i++) {
-                int ii      = meas[i];
+                int ii = meas[i];
                 residual[i] = m[ii][0] - fp[ii][0];
             }
 
             double tmpChi2 = 0.;
             double helpmatrixchi2[4][1];
-            for (int i = 0; i < 4; ++i) {
-                helpmatrixchi2[i][0] = 0.;
-            }
+            for (int i = 0; i < 4; ++i) { helpmatrixchi2[i][0] = 0.; }
             for (int i = 0; i < imeas; i++) {
                 int ii = meas[i];
                 for (int k = 0; k < imeas; k++) {
@@ -579,7 +519,6 @@ CscBipolarStripFitter::TheFitter(double *x, const double ex, double *initValues,
         std::cout<<std::endl;
       }
     */
-
 
     result[0] = p0[0][0];
     result[1] = m_zmax * p0[2][0] / m_tsampling + p0[1][0];

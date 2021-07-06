@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TriggerMatchingTool/MatchingImplementation.h"
@@ -12,7 +12,7 @@ MatchingImplementation::MatchingImplementation(MatchingTool& mt, double threshol
   m_strategies[Trig::MatchingStrategy::MinimalSum] = std::unique_ptr<IAssociationStrategy>(new MinimalSumAssociation());
 }
 
-Trig::TrigDecisionTool* MatchingImplementation::tdt(){
+const Trig::TrigDecisionTool* MatchingImplementation::tdt() const {
   return m_tool.m_trigDecTool.operator->();
 }
 

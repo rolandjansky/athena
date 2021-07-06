@@ -26,6 +26,4 @@
 <class name="LArBadChannelState::CoolChannelData"/>
 <class name="std::pair<bool,LArBadChannelEnum::ProblemType>"/> 
 
-<class name="ILArBadChannelMasker"/>
-
 </lcgdict>

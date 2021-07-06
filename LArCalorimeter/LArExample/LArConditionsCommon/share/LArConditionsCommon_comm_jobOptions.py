@@ -104,7 +104,6 @@ def addLArFolder (db, obj, cls, qual=''):
     return
 
 
-#Load HVScaleCorr. For run 2,these constants are also used by the CaloNoiseToolDB 
 if (haveElecCalibInline):
     from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArHVScaleCorrFlat_ as LArHVScaleCorrCondFlatAlg
     addLArFlatFolder (ONLDB, 'HVScaleCorr', LArHVScaleCorrCondFlatAlg, sqlDB)
@@ -164,7 +163,7 @@ if larCondFlags.LoadElecCalib():
           addLArFolder ('LAR_OFL', larCondFlags.MphysOverMcalFolder(),
                         'LArMphysOverMcalComplete', sqlDB)
 
-      #6. HVScaleCorr -> moved outside of the if loadElecCalib clause b/c it's now used by the CaloNoiseTool
+      #6. HVScaleCorr -> moved outside 
 
       #7. OFCs
       if larCondFlags.OFCShapeFolder()=="":

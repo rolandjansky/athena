@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /* @file CaloCellLinkContainerCnv_p2_test.cxx
@@ -449,6 +449,7 @@ void test_thinning()
 void tests()
 {
   std::cout << "test1\n";
+  (void)Gaudi::Hive::currentContext();
   Athena::getMessageSvc();
   // Get proxies created outside of leak checking.
   ElementLink<CaloCellContainer> dum1 (cont_name, 0);

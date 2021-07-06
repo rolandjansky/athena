@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonLayerSegmentFinderTool.h"
@@ -33,8 +33,7 @@ MuonLayerSegmentFinderTool::initialize()
     if (m_idHelperSvc->hasCSC() && !m_csc4dSegmentFinder.empty()) ATH_CHECK(m_csc4dSegmentFinder.retrieve());
     ATH_CHECK(m_clusterSegmentFinder.retrieve());
     ATH_CHECK(m_clusterSegMakerNSW.retrieve());
-    if (!m_recoValidationTool.empty()) ATH_CHECK(m_recoValidationTool.retrieve());
-    ATH_CHECK(m_houghDataPerSectorVecKey.initialize());
+    ATH_CHECK(m_houghDataPerSectorVecKey.initialize(!m_houghDataPerSectorVecKey.empty()));
     return StatusCode::SUCCESS;
 }
 
@@ -150,9 +149,7 @@ MuonLayerSegmentFinderTool::findMdtSegmentsFromHough(
         if (maximum.hough) maxwidth *= maximum.hough->m_binsize;
         float pull = residual / sqrt(errx * errx + maxwidth * maxwidth / 12.);
 
-        // fill validation content
-        if (!m_recoValidationTool.empty()) m_recoValidationTool->add(intersection, maximum);
-
+        
         ATH_MSG_DEBUG("   Hough maximum " << maximum.max << " position (" << refPos << "," << maximum.pos
                                           << ") residual " << residual << " pull " << pull << " angle " << maximum.theta
                                           << " residual " << residualTheta);

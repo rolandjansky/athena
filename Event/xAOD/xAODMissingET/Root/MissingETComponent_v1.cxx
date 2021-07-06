@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODMissingET/versions/MissingETComponent_v1.h"
@@ -93,7 +93,7 @@ MissingETComponent_v1::MissingETComponent_v1( const MissingET* pmetObj,
 }
 
 MissingETComponent_v1::MissingETComponent_v1(const MissingETComponent_v1& compDescr)
-  : SG::AuxElement()
+  : SG::AuxElement(compDescr)
 { this->makePrivateStore(&compDescr); }
 
 MissingETComponent_v1::MissingETComponent_v1(const MissingETComponent_v1& compDescr,MissingETBase::Types::bitmask_t sw)
@@ -248,7 +248,7 @@ bool MissingETComponent_v1::setWeight(size_t pIdx,double wpx,double wpy,double w
 
 bool MissingETComponent_v1::setMET(const MissingET* pmetObj,MissingETBase::Types::bitmask_t sw)
 { 
-  bool wasSet(this->f_metLink().getStorableObjectPointer() != 0);
+  bool wasSet(this->f_metLink().getStorableObjectPointer() != nullptr);
   f_setObject<MissingET,MissingETBase::Types::metlink_t>(pmetObj,this->f_metLink());
   this->f_statusWord() = sw;
   return wasSet;
@@ -256,14 +256,14 @@ bool MissingETComponent_v1::setMET(const MissingET* pmetObj,MissingETBase::Types
 
 bool MissingETComponent_v1::setMET(const MissingETContainer_v1* pmetCont,size_t pmetIdx,MissingETBase::Types::bitmask_t sw)
 {
-  bool wasSet(this->f_metLink().getStorableObjectPointer() != 0);
+  bool wasSet(this->f_metLink().getStorableObjectPointer() != nullptr);
   this->f_metLink().toIndexedElement(*pmetCont,pmetIdx);
   this->f_statusWord() = sw;
   return wasSet; }
 
 bool MissingETComponent_v1::setMetLink(const MissingETBase::Types::metlink_t& metLnk)
 {
-  bool wasSet(this->f_metLink().getStorableObjectPointer() != 0);
+  bool wasSet(this->f_metLink().getStorableObjectPointer() != nullptr);
   this->f_metLink() = metLnk;
   return wasSet; }
 
@@ -302,7 +302,7 @@ std::vector<const IParticle*> MissingETComponent_v1::objects() const
 std::vector<const IParticle*> MissingETComponent_v1::objects(MissingETBase::Types::weight_vector_t& kinePars) const
 {
   size_t nEnt(this->objectLinks().size());
-  std::vector<const IParticle*> pVec(nEnt,(const IParticle*)0);
+  std::vector<const IParticle*> pVec(nEnt,(const IParticle*)nullptr);
   kinePars.clear(); kinePars.resize(nEnt,Weight(0.,0.,0.)); 
   for ( size_t idx(0); idx < nEnt; ++idx ) 
     { pVec[idx] = *(this->objectLinks().at(idx)); kinePars.at(idx) = Weight(this->wpx().at(idx),this->wpy().at(idx),this->wet().at(idx)); }

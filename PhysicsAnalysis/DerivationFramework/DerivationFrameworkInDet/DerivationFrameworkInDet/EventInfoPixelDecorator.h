@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -19,11 +19,11 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODTracking/TrackMeasurementValidationContainer.h"
 #include "xAODEventInfo/EventInfo.h"
-#include "ExpressionEvaluation/ExpressionParser.h"
+#include "ExpressionEvaluation/ExpressionParserUser.h"
 
 namespace DerivationFramework {
 
-  class EventInfoPixelDecorator : public AthAlgTool, public IAugmentationTool {
+  class EventInfoPixelDecorator : public ExpressionParserUser<AthAlgTool>, public IAugmentationTool {
     public: 
       EventInfoPixelDecorator(const std::string& type, const std::string& name, const IInterface* parent);
 
@@ -32,7 +32,6 @@ namespace DerivationFramework {
       virtual StatusCode addBranches() const;
 
     private:
-      std::unique_ptr<ExpressionParsing::ExpressionParser> m_parser;
       Gaudi::Property<std::string> m_selectionString
          { this, "SelectionString", "" , "" };
 

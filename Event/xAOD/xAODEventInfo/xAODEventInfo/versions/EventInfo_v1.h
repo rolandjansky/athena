@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: EventInfo_v1.h 727083 2016-03-01 15:20:50Z krasznaa $
@@ -400,7 +400,7 @@ namespace xAOD {
       /// Set the event flags for a particular sub-detector
       bool setEventFlags( EventFlagSubDet subDet, uint32_t flags );
       /// Set one particular bit of one particular sub-detector
-      bool setEventFlagBit( EventFlagSubDet subDet, size_t bit );
+      bool setEventFlagBit( EventFlagSubDet subDet, size_t bit ) const;
       /// Reset one particular bit of one particular sub-detector
       bool resetEventFlagBit( EventFlagSubDet subDet, size_t bit );
 

@@ -5,7 +5,7 @@ import sys
 from CoolRunQuery.utils.AtlRunQueryTimer import timer
 from CoolRunQuery.utils.AtlRunQueryUtils import GetRanges
 
-from .AtlRunQuerySelectorBase import Selector, RunLBBasedCondition, TimeBasedCondition
+from CoolRunQuery.selector.AtlRunQuerySelectorBase import Selector, RunLBBasedCondition, TimeBasedCondition
 
 class LHCSelector(Selector):
     def __init__(self, name, lhc=[], addArg=''):
@@ -399,12 +399,14 @@ class LuminositySelector(RunLBBasedCondition):
 
         channel, condtag = self.__interpretTag(tag)
 
-        self._dbfolderkey='COOLOFL_TRIGGER::/TRIGGER/OFLLUMI/LBLESTOFL'
+        if self.isRun2():
+            self._dbfolderkey='COOLOFL_TRIGGER::/TRIGGER/OFLLUMI/OflPrefLumi'
+        else:
+            self._dbfolderkey='COOLOFL_TRIGGER::/TRIGGER/OFLLUMI/LBLESTOFL'
         if condtag:
             self._dbfolderkey += "#" + condtag
 
         self._channelKeys = [(channel,'ofllumi:%i:%s' % (channel,condtag), 'LBAvInstLumi')]
-
 
         super(LuminositySelector,self).__init__(name=name,
                                                 dbfolderkey = self._dbfolderkey,
@@ -429,10 +431,30 @@ class LuminositySelector(RunLBBasedCondition):
         self.setSchemaFolderTag(self._dbfolderkey)
         self.setChannelKeys(self._channelKeys)
 
-
     def __interpretTag(self, tag):
         # default settings
         channel = 0  # 'ATLAS_PREFERRED' algorithm
+        condtag = None
+        
+        tt = tag.split()
+        if len(tt) == 1:
+            # format: "luminosity <channel_number>" OR "luminosity <COOL tag>"
+            try:
+                channel = int(tt[0])
+            except ValueError:
+                condtag = tt[0]
+        elif len(tt) == 2: 
+            # format: "luminosity <channel_number> <COOL tag>"
+            try:
+                channel = int(tt[0])
+            except ValueError:
+                channel = 0
+            condtag = tt[1]
+
+        if condtag is not None:
+            print ("Using channel %i and conditions tag %s" % (channel, condtag))
+            return channel, condtag
+
         if self.isRun2():
             import sys
             from PyCool import cool
@@ -454,27 +476,16 @@ class LuminositySelector(RunLBBasedCondition):
             except ImportError as ex:
                 print ("WARNING: ImportError, can not read conditions tag (likely an afs permission issue): ",ex)
                 condtag = "OflPrefLumi-RUN2-UPD4-10"
-            print (condtag)
+            except SyntaxError as ex:
+                print ("WARNING: SyntaxError, can not read conditions tag (need to understand where the py3 code is located): ",ex)
+                condtag = "OflPrefLumi-RUN2-UPD4-10"
         else:
             condtag = "OflLumi-UPD2-006"
             
-        tt = tag.split()
-        if len(tt) == 1:
-            # format: "luminosity <channel_number>" OR "luminosity <COOL tag>"
-            try:
-                channel = int(tt[0])
-            except ValueError:
-                condtag = tt[0]
-        elif len(tt) == 2: 
-            # format: "luminosity <channel_number> <COOL tag>"
-            try:
-                channel = int(tt[0])
-            except ValueError:
-                channel = 0
-            condtag = tt[1]
+        print ("Using channel %i and conditions tag %s" % (channel, condtag))
         return channel, condtag
 
-            
+
     def __str__(self):
         if self.applySelection:
             return "SELOUT Checking if number of events matches %r" % self.cutRange
@@ -566,3 +577,58 @@ class BeamspotSelector(RunLBBasedCondition):
         Run.BeamspotSource = '%s, COOL tag: %s' % (whatitis, self.condtag)
         for run in runlist:
             run.stats['Beamspot'] = whatitis
+
+if __name__ == "__main__":
+
+    from CoolRunQuery.selector.AtlRunQuerySelectorBase import Selector
+    from CoolRunQuery.selector.AtlRunQuerySelectorRuntime import RunTimeSelector
+
+    runNumbers =  "251103,251106,251363,251367,251371,251663,251666,251667,251669,266904,"
+    runNumbers += "266919,267073,251863,251869,251873,251876,251880,252009,252044,252072,"
+    runNumbers += "252099,252115,267148,267152,267162,252179,252186,252194,252198,252207,"
+    runNumbers += "252220,252222,252223,252226,252233,252376,252380,252390,267167,252402,"
+    runNumbers += "252404,252589,252604,252608,252662,252663,252838,252840,252844,252854,"
+    runNumbers += "253009,253010,253014,267638,267639"
+
+    #runNumbers = "251103,251106"
+
+    Selector._conddb = "CONDBR2" # set Run 2 for entire query
+
+    print(Selector.condDB())
+
+
+    sel = LuminositySelector(name = 'lumiSelector 0 OflPrefLumi-RUN2-UPD4-10')
+    sel.applySelection = False
+
+    # the run selector
+    rtSel = RunTimeSelector(name = 'runtime', runlist = runNumbers.split(","))
+
+    # find the begin and end of each interesting run
+    runlist = rtSel.select()
+
+    from CoolRunQuery.AtlRunQuerySelectorWorker import SelectorWorker
+
+    SelectorWorker.addSelector(selector=sel, priority=1)
+    sd = SelectorWorker.findSelectorDescriptor(sel.name)
+    sd.doesSelect = False
+
+    selectionOutput = []
+    # Selectors can implement an initialize function which runs after any constructor and setShow 
+    for sd in SelectorWorker.getOrderedSelectorList():
+        s = sd.selector
+        if hasattr(s, 'initialize'):
+            with timer("initializing selector '%s'" % s.name):
+                s.verbose = True
+                s.initialize()
+
+    # apply the selectors to initial run list
+    for s in SelectorWorker.selectors():
+        with timer("run selector '%s'" % s.name):
+            s.verbose = True
+            runlist = s.select(runlist)
+            selectionOutput += ["%s" % s.__str__()]
+        with timer("run AfterQuery for selector '%s'" % s.name):
+            s.runAfterQuery(runlist)
+
+    #for r in runlist:
+    #    print(r.__dict__)

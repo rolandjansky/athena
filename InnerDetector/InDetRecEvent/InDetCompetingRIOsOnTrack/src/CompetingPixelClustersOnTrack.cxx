@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -16,14 +16,14 @@
 InDet::CompetingPixelClustersOnTrack::CompetingPixelClustersOnTrack():
         Trk::CompetingRIOsOnTrack(),
         m_globalPosition{},
-        m_containedChildRots(0)
+        m_containedChildRots(nullptr)
         {}
 
 // copy constructor
 InDet::CompetingPixelClustersOnTrack::CompetingPixelClustersOnTrack(const InDet::CompetingPixelClustersOnTrack& compROT) :
         Trk::CompetingRIOsOnTrack(compROT),
         m_globalPosition{},
-        m_containedChildRots(0) {
+        m_containedChildRots(nullptr) {
     m_containedChildRots = new std::vector< const InDet::PixelClusterOnTrack* >;
     std::vector< const InDet::PixelClusterOnTrack* >::const_iterator rotIter = compROT.m_containedChildRots->begin();
     for (; rotIter!=compROT.m_containedChildRots->end(); ++rotIter) {
@@ -68,7 +68,7 @@ InDet::CompetingPixelClustersOnTrack& InDet::CompetingPixelClustersOnTrack::oper
     return (*this);
 }
 
-InDet::CompetingPixelClustersOnTrack& InDet::CompetingPixelClustersOnTrack::operator=(InDet::CompetingPixelClustersOnTrack&& compROT) {
+InDet::CompetingPixelClustersOnTrack& InDet::CompetingPixelClustersOnTrack::operator=(InDet::CompetingPixelClustersOnTrack&& compROT)  noexcept {
     if (this!=&compROT) {
         // move operator of base class
         Trk::CompetingRIOsOnTrack::operator=(std::move(compROT));
@@ -122,7 +122,7 @@ bool InDet::CompetingPixelClustersOnTrack::ROTsHaveCommonSurface(const bool) con
 
 const Amg::Vector3D& InDet::CompetingPixelClustersOnTrack::globalPosition() const {
     if (not m_globalPosition) {
-        m_globalPosition.set(std::unique_ptr<const Amg::Vector3D>(associatedSurface().localToGlobal(localParameters())));
+        m_globalPosition.set(std::make_unique<const Amg::Vector3D>(associatedSurface().localToGlobal(localParameters())));
     }
     return *m_globalPosition;
 }

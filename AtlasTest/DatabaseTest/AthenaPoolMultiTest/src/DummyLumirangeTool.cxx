@@ -37,8 +37,6 @@
 #include <typeinfo>
 #include <ctime>
 
-#include "DBDataModel/CollectionMetadata.h"
-
 #include "DummyLumirangeTool.h"
 
 // Standard Constructor
@@ -53,7 +51,6 @@ DummyLumirangeTool::DummyLumirangeTool(const std::string& name,
     m_blocksperrun(200),
     m_lumitot(1000)
 {
-    m_wcmd = name;
     declareProperty("StoreName",    m_storeName, "Store to find input metadata during finalize");
     declareProperty("Granularity",  m_lumigran,  "skip size");
     declareProperty("FirstRun",     m_firstrun,  "beginning run number");
@@ -68,16 +65,6 @@ DummyLumirangeTool::initialize()
 {
    ATH_MSG_DEBUG("In initialize ");
 
-   ATH_CHECK( m_wcmd.initialize() );
-
-   std::map<std::string, std::string> defMeta;
-
-   // First grab metadata from input
-   ServiceHandle<StoreGateSvc> metadataStore(m_storeName, this->name());
-   StatusCode status = metadataStore.retrieve();
-   if (status.isSuccess()) {
-      ATH_MSG_DEBUG("Found metadata store, MetaDataStore");   
-   }
 
    Root::TGoodRunsList grl;
    int lumicount = 0;
@@ -105,25 +92,6 @@ DummyLumirangeTool::initialize()
 
    Root::TGoodRunsListWriter blue;
    blue.SetGoodRunsList(grl);
-   defMeta.insert(std::make_pair("OutputLumirange",
-                                 std::string(blue.GetXMLString())
-                 )              );
-
-   ATH_MSG_DEBUG("Filled a metadata container of size " << defMeta.size());
-
-   CollectionMetadata* def = new CollectionMetadata(defMeta);
-   auto cont = std::make_unique<CollectionMetadataContainer>();
-   cont->push_back (def);
-
-   SG::WriteHandle<CollectionMetadataContainer> wcmd(m_wcmd);
-   ATH_CHECK( wcmd.record (std::move (cont)) );
-   ATH_MSG_DEBUG("Stored CollectionMetadataContainer in " << m_storeName);
-   ATH_MSG_DEBUG("Size: " << def->size());
-   ATH_MSG_DEBUG("Contents: ");
-   CollectionMetadata::const_iterator i = def->begin();
-   for (CollectionMetadata::const_iterator j=i; j != def->end(); ++j) {
-     ATH_MSG_DEBUG("    "<<j->first<<" "<<j->second);
-   }
 
    return AthAlgorithm::initialize();
 }

@@ -11,7 +11,7 @@ double                        CaloTowerGeometrySvc::m_invalidValue = -999.;
 
 CaloTowerGeometrySvc::CaloTowerGeometrySvc(const std::string& name,ISvcLocator* pSvcLocator)
   : AthService(name,pSvcLocator)
-  , m_caloDDM((const CaloDetDescrManager*)0)
+  , m_caloDDM((const CaloDetDescrManager*)nullptr)
   , m_logFileName("logfile")
   , m_towerEtaWidth(0.)
   , m_towerPhiWidth(0.)
@@ -118,7 +118,7 @@ StatusCode CaloTowerGeometrySvc::initialize()
     // 
     std::string logFileName = m_logFileName+"."+this->name()+".dat";
     std::ofstream logfile;
-    logfile.open(logFileName); for ( auto mlog : logger ) { logfile << mlog << std::endl; } logfile.close();
+    logfile.open(logFileName); for ( const auto& mlog : logger ) { logfile << mlog << std::endl; } logfile.close();
   }
   return f_setupTowerGrid(); 
 }
@@ -347,7 +347,7 @@ StatusCode CaloTowerGeometrySvc::access(IdentifierHash cellHash,std::vector<inde
 }
 
 CaloTowerGeometrySvc::elementvector_t CaloTowerGeometrySvc::getTowers(const CaloCell* pCell) const
-{ return pCell != 0 ? this->getTowers(f_caloDDE(pCell)->calo_hash()) : elementvector_t(); }
+{ return pCell != nullptr ? this->getTowers(f_caloDDE(pCell)->calo_hash()) : elementvector_t(); }
 
 CaloTowerGeometrySvc::elementvector_t CaloTowerGeometrySvc::getTowers(IdentifierHash cellHash) const
 {
@@ -384,8 +384,8 @@ double CaloTowerGeometrySvc::cellWeight(IdentifierHash cellHash,index_t towerIdx
 
 CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::etaIndex(IdentifierHash cellHash) const
 {
-  const auto cdde = f_caloDDE(cellHash); 
-  return cdde != 0 ? etaIndex(cdde->eta()) : invalidIndex(); 
+  const auto *const cdde = f_caloDDE(cellHash); 
+  return cdde != nullptr ? etaIndex(cdde->eta()) : invalidIndex(); 
 }
 
 CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::etaIndex(double eta) const
@@ -397,8 +397,8 @@ CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::etaIndex(double eta) const
 
 CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::phiIndex(IdentifierHash cellHash) const
 {
-  const auto cdde = f_caloDDE(cellHash);
-  return cdde != 0 ? phiIndex(cdde->phi()) : invalidIndex(); 
+  const auto *const cdde = f_caloDDE(cellHash);
+  return cdde != nullptr ? phiIndex(cdde->phi()) : invalidIndex(); 
 }
 
 CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::phiIndex(double phi) const

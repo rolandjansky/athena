@@ -13,6 +13,7 @@
 #include <vector>
 #include <memory>
 #include <type_traits>
+#include <optional>
 #include "boost/property_tree/ptree.hpp"
 
 namespace TrigConf {
@@ -72,9 +73,11 @@ namespace TrigConf {
 
       /** Clearing the configuration data
        * 
+       * should be overloaded by derived object that have to clear data
+       * 
        * leads to an uninitialized object
        */
-      void clear();
+      virtual void clear();
 
       /** Access to the underlying data, if needed */
       const ptree & data() const {

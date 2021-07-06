@@ -50,7 +50,6 @@ if rec.doAFP() and rec.doESD():
     from AFP_Raw2Digi.AFP_Raw2DigiConf import AFP_Raw2Digi
     
     topSequence+=AFP_Raw2Digi()
-    pass
 
-  # tracks reconstruction
-  #include("AFP_LocReco/AFP_LocReco_joboption.py")
+    # tracks reconstruction
+    include("AFP_LocReco/AFP_LocReco_joboption.py")

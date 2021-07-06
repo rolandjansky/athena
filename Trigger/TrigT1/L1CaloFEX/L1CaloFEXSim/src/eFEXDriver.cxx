@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+    Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -21,6 +21,7 @@
 #include "L1CaloFEXSim/eFEXSim.h"
 #include "L1CaloFEXSim/eFEXOutputCollection.h"
 #include "L1CaloFEXSim/eFEXegTOB.h"
+#include "L1CaloFEXSim/eFakeTower.h"
 
 #include "TROOT.h"
 #include "TH1.h"
@@ -37,10 +38,10 @@
 #include <cassert>
 #include "SGTools/TestStore.h"
 
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ITHistSvc.h"
-
 #include <ctime>
+
+#include <iostream>
+#include <fstream>
 
 #define DEBUG_VHB 1
 
@@ -65,19 +66,6 @@ StatusCode eFEXDriver::initialize()
 
   m_numberOfEvents = 1;
 
-  ServiceHandle<ITHistSvc> histSvc("THistSvc","");
-  StatusCode scHist = histSvc.retrieve();
-  if (scHist ==  StatusCode::FAILURE) {ATH_MSG_ERROR("Failed to retrieve THistSvc"); }
-
-  //Reta
-  TH1F* hReta = new TH1F("Reta", "Reta",20,0,1);
-  hReta->GetXaxis()->SetTitle("TObs Reta");
-  hReta->GetYaxis()->SetTitle("Events");
-  
-  StatusCode scReg = histSvc->regHist("/ISO/Reta", hReta); 
-  if (scReg ==  StatusCode::FAILURE) {ATH_MSG_ERROR("Failed to define stream"); }
-
-
   ATH_CHECK( m_eTowerBuilderTool.retrieve() );
 
   ATH_CHECK( m_eSuperCellTowerMapperTool.retrieve() );
@@ -87,6 +75,13 @@ StatusCode eFEXDriver::initialize()
   ATH_CHECK( m_eTowerContainerSGKey.initialize() );
 
   ATH_CHECK( m_eEDMKey.initialize() );
+
+  // test vector code for validation
+  // if(false){ // replace SuperCell Et with the values from the online simulation test vector
+  //   ATH_CHECK( m_eFakeTowerTool.retrieve() );
+  //   std::string inputfile = "/afs/cern.ch/work/t/tqiu/public/testvector/";
+  //   ATH_CHECK( m_eFakeTowerTool->init(inputfile) );
+  // }
 
   //ATH_CHECK( m_eFEXOutputCollectionSGKey.initialize() );
 
@@ -146,6 +141,38 @@ StatusCode eFEXDriver::finalize()
   ATH_CHECK(m_eSuperCellTowerMapperTool->AssignSuperCellsToTowers(local_eTowerContainerRaw));
   ATH_CHECK(m_eSuperCellTowerMapperTool->AssignTriggerTowerMapper(local_eTowerContainerRaw));
 
+  // STEP 3.5 - Set up a the first CSV file if necessary (should only need to be done if the mapping changes, which should never happen unless major changes to the simulation are required)
+  if(false){ // CSV CODE TO BE RE-INTRODUCED VERY SOON
+    if(m_numberOfEvents == 1){
+      std::ofstream sc_tower_map;
+      sc_tower_map.open("./sc_tower_map.csv");
+      sc_tower_map << "#eTowerID,scID,slot,isSplit" << "\n";
+      
+      DataVector<LVL1::eTower>::iterator thistower;
+      for (thistower = local_eTowerContainerRaw->begin(); thistower != local_eTowerContainerRaw->end(); thistower++){
+        int slotcount = 0;
+        for (int layer = 0; layer<=4; layer++){
+          std::vector<Identifier> scIDs = (*thistower)->getLayerSCIDs(layer);
+          std::vector<int> splits = (*thistower)->getETSplits();
+          for (long unsigned int ncell = 0; ncell < scIDs.size(); ncell++){
+            sc_tower_map << (*thistower)->id() << "," << scIDs[ncell] << "," << slotcount << "," << splits[slotcount] << "\n";
+            slotcount++;
+          }
+        }
+      }
+      sc_tower_map.close();
+      
+    }
+  }
+
+  // test vector code for validation
+  // if(false){ // replace SuperCell Et with the values from the online simulation test vector
+  //   ATH_CHECK( m_eFakeTowerTool->loadnext() );
+  //   ATH_CHECK( m_eFakeTowerTool->seteTowers(local_eTowerContainerRaw.get()) );
+  //   ATH_CHECK( m_eFakeTowerTool->execute() );
+  // }
+
+
   // STEP 4 - Write the completed eTowerContainer into StoreGate (move the local copy in memory)
   SG::WriteHandle<LVL1::eTowerContainer> eTowerContainerSG(m_eTowerContainerSGKey/*, ctx*/);
   //std::unique_ptr<LVL1::eTowerContainer> my_eTowerContainerRaw(local_eTowerContainerRaw);
@@ -190,6 +217,8 @@ StatusCode eFEXDriver::finalize()
       myRoI = it;
       ATH_MSG_DEBUG("EDM eFex Number: " 
 		    << +myRoI->eFexNumber() // returns an 8 bit unsigned integer referring to the eFEX number 
+        << " shelf: " 
+        << +myRoI->shelfNumber() // returns an 8 bit unsigned integer referring to the shelf number
 		    << " et: " 
 		    << myRoI->et() // returns the et value of the EM cluster in MeV
 		    << " eta: "

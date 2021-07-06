@@ -13,6 +13,9 @@ import re
 from enum import Enum
 from collections import Counter
 
+from AthenaCommon.Logging import logging
+log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Combined' )
+logging.getLogger().info("Importing %s",__name__)
 
 class TriggerLevel(Enum):
     HLT = "HLT"
@@ -121,9 +124,14 @@ class StructuredChainNames(MenuVerification):
         sig_type_pattern = re.compile(
             r"\d*[egj]?({})\d+s?".format(signature_types))
         def items_in_order(part):
+            #part    = part.replace("leg","p") #if we leave the word leg, the findall(..) function will find a 'g' 
             indices = [self._signature_type_order.index(x) for x in 
                        sig_type_pattern.findall(part)]
-            return indices == sorted(indices)
+            rr =  indices == sorted(indices)
+            if not rr:
+                log.error("[StructuredChainNames::items_in_order] %s NOT SORTED!", indices)
+
+            return rr
 
         def are_signatures_in_order(name_parts):
             to_check = ["_".join(p for p in name_parts if "-" not in p)]
@@ -131,13 +139,23 @@ class StructuredChainNames(MenuVerification):
             topo_parts = [p for p in name_parts if "-" in p]
             for topo in topo_parts:
                 to_check.extend(topo.split("-"))
-            return all(items_in_order(part) for part in to_check)
+            res = all(items_in_order(part) for part in to_check)
+            if not res:
+                for part in to_check:
+                    if not items_in_order(part):
+                        log.error("[StructuredChainNames::are_signatures_in_order] %s not in order!", part)
+            return res
 
         # Name must begin with the trigger level, and contain at least one item.
         parts = name.split("_")
-        return all((len(parts) > 1,
+
+        result= all((len(parts) > 1,
                     parts[0] == self._trigger_level.value,
                     are_signatures_in_order(parts[1:])))
+        if not result:
+            log.error("[StructuredChainNames::_matches_shared_conventions] chain deosn't match convention: parts[0] = %s, value = %s, parts[1:] = %s, signature_types = %s", 
+                      parts[0], self._trigger_level.value, parts[1:], signature_types)
+        return result
 
 
 class RestrictedCTPIDs(MenuVerification):
@@ -166,11 +184,34 @@ class PartialEventBuildingChecks(MenuVerification):
         eb_identifiers = EventBuildingInfo.getAllEventBuildingIdentifiers()
 
         for chain_name, chain_config in config['chains'].items():
-            peb_identifiers = [idf for idf in eb_identifiers if idf in chain_name]
+            peb_identifiers = [idf for idf in eb_identifiers if '_'+idf+'_' in chain_name]
             peb_writers = [seq for seq in chain_config['sequencers'] if 'PEBInfoWriter' in seq]
 
-            if len(peb_identifiers) == 0 and len(peb_writers) == 0:
-                # Not a PEB chain
+            is_peb_chain = (len(peb_identifiers) > 0 or len(peb_writers) > 0)
+
+            # Check streaming configuration
+            for stream_name in chain_config['streams']:
+                if stream_name not in config['streams']:
+                    self.failures.append(
+                        'Stream {:s} for chain {:s} is not defined in streaming configuration'.format(
+                            stream_name, chain_name))
+
+                is_feb_stream = config['streams'][stream_name]['forceFullEventBuilding']
+
+                if is_peb_chain and is_feb_stream:
+                    self.failures.append(
+                        'PEB chain {:s} streamed to a full-event-building stream {:s} '
+                        '(forceFullEventBuilding=True)'.format(
+                            chain_name, stream_name))
+
+                elif not is_peb_chain and not is_feb_stream:
+                    self.failures.append(
+                        'Full-event-building chain {:s} streamed to the stream {:s} which allows partial '
+                        'event building (forceFullEventBuilding=False)'.format(
+                            chain_name, stream_name))
+
+            if not is_peb_chain:
+                # Not a PEB chain, skip further PEB-specific checks
                 continue
 
             if len(peb_identifiers) != 1:
@@ -186,16 +227,6 @@ class PartialEventBuildingChecks(MenuVerification):
                         '{:s} PEB sequence name {:s} doesn\'t end with PEB identifier {:s}'.format(
                             chain_name, peb_writers[0], peb_identifiers[0]))
 
-            for stream_name in chain_config['streams']:
-                if stream_name not in config['streams']:
-                    self.failures.append(
-                        'Stream {:s} for chain {:s} is not defined in streaming configuration'.format(
-                            stream_name, chain_name))
-
-                if config['streams'][stream_name]['forceFullEventBuilding']:
-                    self.failures.append(
-                        'PEB chain {:s} streamed to a full-event-building stream {:s}'.format(
-                            chain_name, stream_name))
 
 
 menu_tests = {

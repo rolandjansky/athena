@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigEFMissingET/ExtendTrackToLayerTool.h"
+#include "ExtendTrackToLayerTool.h"
 #include "TrkCaloExtension/CaloExtensionHelpers.h"
 
 ExtendTrackToLayerTool::ExtendTrackToLayerTool(const std::string &name) : asg::AsgTool(name)

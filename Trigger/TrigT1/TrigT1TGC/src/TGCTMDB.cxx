@@ -1,31 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// ====================================================================
-/*
-        TGCTMDB.cc
-                                      
-*/
-// ====================================================================
-
-#include <iostream>
-#include <iomanip>
 
 #include "TrigT1TGC/TGCTMDB.h"
-#include "TrigT1TGC/TGCTMDBOut.h"
 
 namespace LVL1TGCTrigger {
 
-// ====================================================================
-//
-// class description
-//
-// ====================================================================
-
-//////////////////////
 TGCTMDB::TGCTMDB()
-//////////////////////
 {
   for (int side=0; side < 2; side++) {
     for (int mod=0; mod < NumberOfTileModule; mod++) {
@@ -34,18 +15,14 @@ TGCTMDB::TGCTMDB()
   }
 }
 
-//////////////////////
 TGCTMDB::~TGCTMDB()
-//////////////////////
 {
   for (int idx=0; idx<2*NumberOfTileModule; idx++){
     delete m_buffer[idx]; 
   }
 }
 
-///////////////////////////////////////////////////////////////
 TGCTMDB::TGCTMDB(const TGCTMDB& right)
-/////////////////////////////////////////////////////////////
 {
   for (int idx=0; idx<2*NumberOfTileModule; idx++){
     m_buffer[idx] = 0; 
@@ -53,10 +30,7 @@ TGCTMDB::TGCTMDB(const TGCTMDB& right)
   *this= right;
 }
 
-
-/////////////////////////////////////////////////////////////
-TGCTMDB& TGCTMDB::operator=(const TGCTMDB& right)
-/////////////////////////////////////////////////////////////
+TGCTMDB& TGCTMDB::operator = (const TGCTMDB& right)
 {
   if (this != &right) {
     for (int idx=0; idx<2*NumberOfTileModule; idx++){
@@ -67,18 +41,14 @@ TGCTMDB& TGCTMDB::operator=(const TGCTMDB& right)
   return *this;
 }
   
-/////////////////////////////////////////////////////////////
 const TGCTMDBOut* TGCTMDB::getOutput(int side, int mod) const
-/////////////////////////////////////////////////////////////
 {
   if ( (side<0)||(side>1) ) return 0;
   if ( (mod<0)||(mod>=NumberOfTileModule) ) return 0;
   return m_buffer[side*NumberOfTileModule + mod] ;
 }
 
-/////////////////////////////////////////////////////////////
 const TGCTMDBOut* TGCTMDB::getOutput(int side, int sector, int mod) const
-/////////////////////////////////////////////////////////////
 {
   if ((side<0)||(side>1)) return 0;
   if ((sector<0)||(sector>47)) return 0;
@@ -97,54 +67,48 @@ const TGCTMDBOut* TGCTMDB::getOutput(int side, int sector, int mod) const
   return m_buffer[side*NumberOfTileModule + moduleID];
 }
 
-/////////////////////////////////////////////////////////////
-void  TGCTMDB::setOutput(int side, int module, int hit56, int hit6)
-/////////////////////////////////////////////////////////////
+void TGCTMDB::setOutput(const int side, const int module,
+                        const TGCTMDBOut::TileModuleHit hit56,
+                        const TGCTMDBOut::TileModuleHit hit6)
 {
   if ( (side<0)||(side>1) ) return;
   if ( (module<0)||(module>=NumberOfTileModule) ) return;
-  m_buffer[side*NumberOfTileModule +module]->SetHit56(hit56);
-  m_buffer[side*NumberOfTileModule +module]->SetHit6(hit6);
+  m_buffer[side*NumberOfTileModule +module]->setHit56(hit56);
+  m_buffer[side*NumberOfTileModule +module]->setHit6(hit6);
 }
 
-/////////////////////////////////////////////////////////////
-void  TGCTMDB::eraseOutput()
-/////////////////////////////////////////////////////////////
+void TGCTMDB::eraseOutput()
 {
   for (int idx=0; idx<2*NumberOfTileModule; idx++){
-    m_buffer[idx]->Clear(); 
+    m_buffer[idx]->clear(); 
   }
 }
 
-/////////////////////////////////////////////////////////////
-int  TGCTMDB::getInnerTileBits(int side, int sector) const
-///////////////////////////////////////////////////////////////
+int TGCTMDB::getInnerTileBits(int side, int sector) const
 {
   int inner_tile = 0;  
 
   for (int ii = 0; ii < 4; ii++) {
-    int hit56 = getOutput(side, sector, ii)->GetHit56();
-    int hit6  = getOutput(side, sector, ii)->GetHit6();
+    TGCTMDBOut::TileModuleHit hit56 = getOutput(side, sector, ii)->getHit56();
+    TGCTMDBOut::TileModuleHit hit6  = getOutput(side, sector, ii)->getHit6();
 
-    int tmp_56 = (hit56 == 1 || hit56 == 2) ? 1 : 0; 
-    int tmp_6  = (hit6  == 1 || hit6  == 2) ? 1 : 0; 
+    int tmp_56 = (hit56 == TGCTMDBOut::TM_LOW || hit56 == TGCTMDBOut::TM_HIGH) ? 1 : 0;
+    int tmp_6  = (hit6  == TGCTMDBOut::TM_LOW || hit6  == TGCTMDBOut::TM_HIGH) ? 1 : 0;
     
     int tmp_all = (tmp_6 << 1) | (tmp_56);
-    
+
     inner_tile |= (tmp_all << (ii*2));
   }
 
   return inner_tile;
 }
 
-/////////////////////////////
-void TGCTMDB::Print() const
-/////////////////////////////
+void TGCTMDB::print() const
 {
   for (int idx=0; idx<2*NumberOfTileModule; idx++){
-    m_buffer[idx]->Print(); 
+    m_buffer[idx]->print(); 
   }
 }
   
 
-} //end of namespace bracket
+}   // end of namespace

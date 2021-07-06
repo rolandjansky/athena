@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -172,7 +172,7 @@ namespace InDet {
 
 
       double VrtVrtDist(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                  const std::vector<double> VrtErr,double& Signif ) const;
+                                  const std::vector<double>& VrtErr,double& Signif ) const;
  
 
       double FitCommonVrt(std::vector<const xAOD::TrackParticle*>& ListSecondTracks,

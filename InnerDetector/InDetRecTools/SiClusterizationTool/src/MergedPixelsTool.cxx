@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -18,10 +18,9 @@
 #include "InDetPrepRawData/SiWidth.h"
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SiLocalPosition.h"
+#include "ReadoutGeometryBase/SiLocalPosition.h"
 #include "InDetIdentifier/PixelID.h"
 #include "SiClusterizationTool/ClusterMakerTool.h"
-#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
@@ -35,19 +34,22 @@ namespace InDet {
   MergedPixelsTool::MergedPixelsTool(const std::string &type,
                                      const std::string &name,
                                      const IInterface *parent) :
-                                     PixelClusteringToolBase(type,name,parent),
-                                     m_IBLParameterSvc("IBLParameterSvc",name)
+                                     PixelClusteringToolBase(type,name,parent)
     {
       declareInterface<IPixelClusteringTool>(this);
     }
   
   StatusCode  MergedPixelsTool::initialize(){
-    if (m_IBLParameterSvc.retrieve().isFailure()) { 
-      ATH_MSG_WARNING( "Could not retrieve IBLParameterSvc"); 
-    } else { 
-      m_IBLParameterSvc->setBoolParameters(m_IBLAbsent,"IBLAbsent");
-    }  
-    ATH_CHECK(m_pixelDetEleCollKey.initialize());
+    if ( m_clusterMaker.retrieve().isFailure() )
+    {
+      ATH_MSG_FATAL(m_clusterMaker.propertyName() << ": Failed to retrieve tool " << m_clusterMaker.type());
+      return StatusCode::FAILURE;
+    }
+    else
+    {
+      ATH_MSG_INFO(m_clusterMaker.propertyName() << ": Retrieved tool " << m_clusterMaker.type());
+    }
+
     return PixelClusteringToolBase::initialize();
   }
 
@@ -114,8 +116,9 @@ namespace InDet {
       bool hasGanged = false;  
       for (; rdosBegin!= rdosEnd; ++rdosBegin) {
         // compute cluster lvl1
+        
         if ( (*lvl1) < lvl1min ) lvl1min=(*lvl1);
-        lvl1++;
+        ++lvl1;
         // process identifier
         const Identifier rId =  *rdosBegin;
         const int row = pixelID.phi_index(rId);
@@ -153,7 +156,7 @@ namespace InDet {
           colMax = col;
           qColMax = realtot;
         }
-        tot++;
+        ++tot;
       }
       
       const int numberOfPixels = group.size();
@@ -197,8 +200,8 @@ namespace InDet {
           deltay = sensorThickness*std::abs(globalPos.z())/globalPos.perp();
           if(deltay > (design->etaPitch()) ) deltay = design->etaPitch();
         } else {
-          deltax = 10*micrometer*sqrt(sensorThickness/(250*micrometer));
-          deltay = 10*micrometer*sqrt(sensorThickness/(250*micrometer));
+          deltax = 10*micrometer*std::sqrt(sensorThickness/(250*micrometer));
+          deltay = 10*micrometer*std::sqrt(sensorThickness/(250*micrometer));
         }
         InDetDD::SiLocalPosition pos1 = design->positionFromColumnRow(colMin,rowMin);
         InDetDD::SiLocalPosition pos2 = design->positionFromColumnRow(colMax,rowMin);
@@ -250,7 +253,8 @@ namespace InDet {
           << (position)[1]);
   
       if(!m_clusterMaker){
-        PixelCluster* cluster = new PixelCluster(id,position,DVid,lvl1min,totgroup,siWidth,element,0);
+        PixelCluster* cluster = new PixelCluster(
+          id, position, DVid, lvl1min, totgroup, siWidth, element, {});
         return cluster;
       } else {
         ATH_MSG_VERBOSE("Cluster omega old = " << etaRow <<  " " << etaCol);       
@@ -270,28 +274,6 @@ namespace InDet {
           return cluster;
       }
   }
-  //--------------------------------------------------------------------------
-  // Determines if a pixel cell (whose identifier is the first argument) is 
-  // a ganged pixel. If this is the case, the last argument assumes the 
-  // value of the identifier of the cell it is ganged with. 
-  // The second argument is the pixel module the hit belongs to.
-  
-  
-  bool MergedPixelsTool::isGanged(const Identifier& rdoID,
-                                  const InDetDD::SiDetectorElement* element,  
-                                  Identifier& gangedID) const
-  {
-    // returns true for ganged pixels. If true returns Identifier of pixel
-    InDetDD::SiCellId cellID = element->cellIdFromIdentifier (rdoID);
-    if (element->numberOfConnectedCells (cellID) > 1) {
-      InDetDD::SiCellId gangedCellID = element->connectedCell (cellID,1);
-      gangedID = element->identifierFromCellId (gangedCellID);
-      return true;
-    } else {
-      gangedID = Identifier();
-      return false;
-    }
-  } 
   
 
   //-----------------------------------------------------------------------
@@ -299,49 +281,18 @@ namespace InDet {
   // It clusters together the RDOs with a pixell cell side in common
   // using connected component analysis based on four-cell 
   // or eight-cell (if m_addCorners == true) connectivity
-  PixelClusterCollection*  MergedPixelsTool::clusterize(const InDetRawDataCollection<PixelRDORawData> &collection,
-                                                        const PixelID& pixelID) const {
-    
-    // Size of RDO's collection:
-    const unsigned int RDO_size = collection.size();
-    if ( RDO_size==0) {
-        // Empty RDO collection
-        ATH_MSG_DEBUG (" areNeighbours - problems ");
-        return nullptr;
-    }
-    
-    // Get Identifier and IdentifierHash for these RDOs
-    const Identifier elementID = collection.identify();
+  PixelClusterCollection*  MergedPixelsTool::doClusterization(const InDetRawDataCollection<PixelRDORawData> &collection,
+							      const PixelID& pixelID,
+							      const InDetDD::SiDetectorElement* element) const {
     const IdentifierHash idHash = collection.identifyHash();
-    
-    // If module is bad, do not create a cluster collection
-    if (m_useModuleMap && !(m_summaryTool->isGood(idHash))) 
-      return nullptr;
-    
-    // Get detector info.
-    // Find detector element for these RDOs
 
-    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
-    const InDetDD::SiDetectorElementCollection* pixelDetEle(*pixelDetEleHandle);
-    if (not pixelDetEleHandle.isValid() or pixelDetEle==nullptr) {
-      ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
-      return nullptr;
-    }
-    const InDetDD::SiDetectorElement* element = pixelDetEle->getDetectorElement(idHash);
-    
-    const Trk::RectangleBounds *mybounds=dynamic_cast<const Trk::RectangleBounds *>(&element->surface().bounds());
-    if (not mybounds) {
-      ATH_MSG_ERROR("Dynamic cast failed at "<<__LINE__<<" of MergedPixelsTool.cxx.");
-      return nullptr;
-    }
-    
     // loop on the rdo collection and save the relevant quantities for each fired pixel
     // rowcolID contains: number of connected pixels, phi/eta pixel indices, tot, lvl1, rdo identifier
     std::vector<rowcolID> collectionID;
     std::unordered_set<Identifier> setOfIdentifiers{};
-    for(const auto & rdo : collection) {
+    for(const auto *const rdo : collection) {
       const Identifier rdoID= rdo->identify();
-      if (m_useModuleMap and !(m_summaryTool->isGood(idHash,rdoID))) continue;
+      if (!isGoodRDO(idHash, rdoID)) continue;
       //check for duplication:
       //add to set of existing identifiers. If it fails (.second = false) then skip it.
       if (not setOfIdentifiers.insert(rdoID).second)   continue;
@@ -367,7 +318,7 @@ namespace InDet {
     
     // Sort pixels in ascending columns order
     // 
-    if(collectionID.empty()) return 0;    
+    if(collectionID.empty()) return nullptr;    
     if(collectionID.size() > 1) std::sort(collectionID.begin(),collectionID.end(),pixel_less);
     
     // initialize the networks
@@ -456,6 +407,7 @@ namespace InDet {
 
     // Make a new pixel cluster collection
     //
+    const Identifier elementID = collection.identify();
     PixelClusterCollection  *clusterCollection = new PixelClusterCollection(idHash);
     clusterCollection->setIdentifier(elementID);
     clusterCollection->reserve(Ncluster);

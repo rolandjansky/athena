@@ -69,7 +69,7 @@ void compare (const InDet::TRT_DriftCircleContainer& p1,
 
 void testit (const InDet::TRT_DriftCircleContainer& trans1, const TRT_ID& trt_id)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   TRT_DriftCircleContainerCnv_p2 cnv;
   cnv.setIdHelper(&trt_id);
   cnv.setUseDetectorElement(false);
@@ -109,7 +109,7 @@ makeclusts (const TRT_ID& trt_id)
         (clusId,
          locpos,
          rdoList,
-         new Amg::MatrixX(cov),
+         Amg::MatrixX(cov),
          nullptr,
          54321);
       coll->push_back (std::move (cl));
@@ -125,7 +125,7 @@ makeclusts (const TRT_ID& trt_id)
 void test1 ATLAS_NOT_THREAD_SAFE (const TRT_ID& trt_id)
 {
   std::cout << "test1\n";
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
 
   {
     // Do it once without leak checking to get services initialized.
@@ -151,7 +151,7 @@ const TRT_ID& make_dd()
   trt_id->initialize_from_dictionary (idd);
 
   ISvcLocator* svcLoc = Gaudi::svcLocator();
-  StoreGateSvc* detStore = 0;
+  StoreGateSvc* detStore = nullptr;
   assert ( svcLoc->service("DetectorStore", detStore).isSuccess() );
   assert ( detStore->record (std::move (trt_id), "TRT_ID") );
 

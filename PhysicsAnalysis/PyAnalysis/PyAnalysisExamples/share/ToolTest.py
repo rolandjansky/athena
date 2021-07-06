@@ -30,7 +30,7 @@ tool.setPython(tool)
 
 # set proxy
 def convFunc():
-    ptr = cppyy.libPyROOT.MakeNullPointer(g.MyObj)
+    ptr = cppyy.libPyROOT.MakeNullPointer(g.AthPyEx.MyObj)
     proxy = g.PyReverseProxy.getProxy("MyObj_Proxy")
     proxy.getObj(ptr)
     return ptr
@@ -40,16 +40,16 @@ proxy.setFunc(convFunc)
 counter=567
 # callback
 def py_execute(obj):
-    print "PyExecute begin"
-    print "   name : %s" % obj.name()
-    print "      A : %s" % obj.getA()
-    print "setA float in Python"
+    print ("PyExecute begin")
+    print ("   name : %s" % obj.name())
+    print ("      A : %s" % obj.getA())
+    print ("setA float in Python")
     obj.setA(1.22)
-    print "setA int in Python"    
+    print ("setA int in Python"    )
     global counter
     obj.setA(counter)
     counter += 1
-    print "PyExecute end"    
+    print ("PyExecute end"    )
     return True
 tool.py_execute = py_execute
 

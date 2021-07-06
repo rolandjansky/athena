@@ -1,0 +1,28 @@
+# this file contains pairs of names of components renamed between rec ex cond and Run3 conf
+# output
+StreamESD = OutputStreamESD
+StreamESD.StreamESD_MakeEventFormat = OutputStreamESD.StreamESD_MakeEventFormat
+StreamESD.StreamESDTool = OutputStreamESD.StreamESDTool
+StreamESD.StreamESD_MakeEventStreamInfo = OutputStreamESD.StreamESD_MakeEventStreamInfo
+StreamESD.ThinningCacheTool_StreamESD = OutputStreamESD.ThinningCacheTool_StreamESD
+StreamESD.FileMetaDataCreatorTool = OutputStreamESD.FileMetaDataCreatorTool
+#
+StreamAOD = OutputStreamAOD
+StreamAOD.StreamAOD_MakeEventFormat = OutputStreamAOD.StreamAOD_MakeEventFormat
+StreamAOD.StreamAODTool = OutputStreamAOD.StreamAODTool
+StreamAOD.StreamAOD_MakeEventStreamInfo = OutputStreamAOD.StreamAOD_MakeEventStreamInfo
+StreamAOD.ThinningCacheTool_StreamAOD = OutputStreamAOD.TThinningCacheTool_StreamAOD
+
+#calo
+CaloTopoCluster = CaloTopoClustersMaker
+CaloTopoCluster.TopoSplitter = CaloTopoClustersMaker.TopoSplitter
+CaloTopoCluster.TopoMaker = CaloTopoClustersMaker.TopoMaker
+CaloTopoCluster.TopoMoments = CaloTopoClustersMaker.TopoMoments
+CaloTopoCluster.CaloClusterBadChannelList = CaloTopoClustersMaker.CaloClusterBadChannelList
+CaloTopoCluster.CaloClusterBadChannelList.CaloBadChanTool = CaloTopoClustersMaker.CaloClusterBadChannelList.CaloBadChanTool
+CaloTopoCluster.CaloClusterBadChannelList.CaloBadChanTool.TileBadChanTool = CaloTopoClustersMaker.CaloClusterBadChannelList.CaloBadChanTool.TileBadChanTool
+# ID
+InDetSCTRawDataProvider = SCTRawDataProvider
+InDetPixelRawDataProvider = PixelRawDataProvider
+InDetPixelRawDataProvider.RegSelTool_Pixel = PixelRawDataProvider.RegSelTool_Pixel
+InDetPixelClusterization.InDetMergedPixelsTool.PixelConditionsSummaryTool = InDetPixelClusterization.InDetMergedPixelsTool.InDetPixelConditionsSummaryTool

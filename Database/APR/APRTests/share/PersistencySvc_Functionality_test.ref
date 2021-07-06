@@ -1,31 +1,23 @@
 [OVAL] Creating the test driver.
 [OVAL] Creating a file catalog
-WARNING: $POOL_CATALOG is not defined
-using default `xmlcatalog_file:PoolFileCatalog.xml'
 [OVAL] Loading the shared libraries.
 Loading library test_TestDictionaryDict
-[OVAL] Testing the plugins...
-[OVAL] ...done
 [OVAL] Writing objects in the database.
 Creating the persistency service
 Writing 100 objects of each type
-RootDatabase.open Success pool1.root File version:60602
-RootDatabase.open Success pool2.root File version:60602
 Committing the transaction.
 Committing the transaction.
+XMLCatalog           INFO File 'PoolFileCatalog.xml' does not exist. New file created.
 [OVAL] ...done
 [OVAL] Reading the objects back from the database.
 Creating the persistency service
 Reading back the objects.
-RootDatabase.open Success pool1.root File version:60602
-RootDatabase.open Success pool2.root File version:60602
 Committing the transaction.
 [OVAL] ...done
 [OVAL] Clearing the tokens.
 [OVAL] ...done
 [OVAL] Reading the objects back from the database as implicit collections.
 Creating the persistency service
-RootDatabase.open Success pool1.root File version:60602
 Container : SimpleTestClass_Container
 100 objects found in the container.
 Container : TestClassPrimitives_Container

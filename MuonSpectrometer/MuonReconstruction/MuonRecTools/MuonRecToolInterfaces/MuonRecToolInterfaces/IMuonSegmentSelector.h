@@ -7,33 +7,25 @@
 
 #include "GaudiKernel/IAlgTool.h"
 
-static const InterfaceID IID_IMuonSegmentSelector
-    ("Muon::IMuonSegmentSelector",1,0);
+static const InterfaceID IID_IMuonSegmentSelector("Muon::IMuonSegmentSelector", 1, 0);
 
 namespace Muon {
 
-  class MuonSegment;
+    class MuonSegment;
 
-  /** Interface for tools resolving ambigueties and remove outliers in Muon::MuonSegment objects */
-  class IMuonSegmentSelector : virtual public IAlgTool 
-  {      
+    /** Interface for tools resolving ambigueties and remove outliers in Muon::MuonSegment objects */
+    class IMuonSegmentSelector : virtual public IAlgTool {
     public:
-    
-    static const InterfaceID& interfaceID();
+        static const InterfaceID& interfaceID();
 
-    /** @brief Tool to select segments
-	@param segment a reference to a segment
-	@return boolean whether segment is selected or not
-    */
-    virtual const bool select( const MuonSegment& segment ) const = 0;
+        /** @brief Tool to select segments
+            @param segment a reference to a segment
+            @return boolean whether segment is selected or not
+        */
+        virtual const bool select(const MuonSegment& segment) const = 0;
+    };
 
-  };
-  
-  inline const InterfaceID& IMuonSegmentSelector::interfaceID()
-  {
-    return IID_IMuonSegmentSelector;
-  }
-} // end of name space
+    inline const InterfaceID& IMuonSegmentSelector::interfaceID() { return IID_IMuonSegmentSelector; }
+}  // namespace Muon
 
-#endif // IMuonSegmentSelector_H
-
+#endif  // IMuonSegmentSelector_H

@@ -20,10 +20,10 @@ class MuonValidationPlots:public PlotBase {
   MuonValidationPlots(PlotBase* pParent, std::string sDir, std::vector<int> wps, std::vector<unsigned int> authors, bool isData, bool doBinnedResolutionPlots, bool doSplitSAFMuons, bool doMuonTree=false );
 
     virtual ~MuonValidationPlots();
-    void fill(const xAOD::Muon& mu);
+    void fill(const xAOD::Muon& mu,float weight=1.0);
     bool isGoodTruthTrack(const xAOD::TruthParticle& truthMu);
-    void fill(const xAOD::TruthParticle& truthMu);
-    void fill(const xAOD::TruthParticle* truthMu, const xAOD::Muon* mu, const xAOD::TrackParticleContainer* MSTracks);
+    void fill(const xAOD::TruthParticle& truthMu,float weight=1.0);
+    void fill(const xAOD::TruthParticle* truthMu, const xAOD::Muon* mu, const xAOD::TrackParticleContainer* MSTracks,float weight=1.0);
     Muon::MuonTree* getMuonTree();
     void fillTreeBranches(const xAOD::Muon& mu);
     void fillTreeBranches(const xAOD::TruthParticle& truthMu);
@@ -46,8 +46,8 @@ class MuonValidationPlots:public PlotBase {
     std::vector<Muon::RecoMuonPlotOrganizer*> m_oRecoMuonPlots_SiAssocFwrdMu;
   
  private:
-    void fillRecoMuonPlots(const xAOD::Muon& mu);
-    void fillTruthMuonPlots(const xAOD::TruthParticle &truthMu);
+    void fillRecoMuonPlots(const xAOD::Muon& mu,float weight=1.0);
+    void fillTruthMuonPlots(const xAOD::TruthParticle &truthMu,float weight=1.0);
 
     bool m_isData;
     bool m_doSeparateSAFMuons;

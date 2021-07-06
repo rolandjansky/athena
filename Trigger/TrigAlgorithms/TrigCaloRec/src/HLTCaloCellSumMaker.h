@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  *   */
 
 /**
@@ -27,10 +27,9 @@
 class HLTCaloCellSumMaker: public AthReentrantAlgorithm {
      public:
         HLTCaloCellSumMaker(const std::string & name, ISvcLocator* pSvcLocator);
-        ~HLTCaloCellSumMaker();
 
-        StatusCode execute(const EventContext& context ) const ;
-        StatusCode initialize();
+        virtual StatusCode execute(const EventContext& context ) const override;
+        virtual StatusCode initialize() override;
      private:
 
         SG::ReadHandleKey<ConstDataVector<CaloCellContainerVector> > m_cellContainerVKey;

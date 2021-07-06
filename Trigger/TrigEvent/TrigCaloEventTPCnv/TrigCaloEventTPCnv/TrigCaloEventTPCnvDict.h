@@ -52,8 +52,6 @@
 #include "TrigCaloEventTPCnv/RingerRingsContainer_p2.h"
 #include "TrigCaloEventTPCnv/RingerRings_p2.h"
 
-#include "TrigCaloEventTPCnv/TrigEMCluster_p2.h"
-
 #include "TrigCaloEventTPCnv/TrigEMClusterContainer_tlp1.h"
 #include "TrigCaloEventTPCnv/TrigEMClusterContainer_p1.h"
 #include "TrigCaloEventTPCnv/TrigEMCluster_tlp1.h"

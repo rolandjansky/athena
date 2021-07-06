@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -41,7 +41,7 @@ public:
   ~JetTagCalibCondData();
 
   /** Resize the data members */
-  void resize(const std::vector<std::string> sizeHisto);
+  void resize(const std::vector<std::string>& sizeHisto);
   void clear();
   void printAliasesStatus() const; 
   void printHistosStatus() const; 

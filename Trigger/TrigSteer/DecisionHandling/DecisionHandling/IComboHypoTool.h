@@ -20,7 +20,7 @@
 typedef std::map<TrigCompositeUtils::DecisionID, ElementLinkVector<TrigCompositeUtils::DecisionContainer>> LegDecisionsMap;
 
  /**
-  * @brief LegDecision is pair needed to use single elements, wihtout loosing the leg name
+  * @brief LegDecision is pair needed to use single elements, without loosing the leg name
   **/
 typedef std::pair <TrigCompositeUtils::DecisionID, ElementLink<TrigCompositeUtils::DecisionContainer> > LegDecision;
 

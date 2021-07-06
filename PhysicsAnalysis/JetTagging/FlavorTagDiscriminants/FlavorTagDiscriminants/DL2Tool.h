@@ -7,7 +7,7 @@
 #define DL2_TOOL_H
 
 #include "AsgTools/AsgTool.h"
-#include "FlavorTagDiscriminants/ISingleJetDecorator.h"
+#include "FlavorTagDiscriminants/IBTagDecorator.h"
 
 namespace FlavorTagDiscriminants {
 
@@ -19,9 +19,9 @@ namespace FlavorTagDiscriminants {
     std::map<std::string,std::string> variableRemapping;
   };
 
-  class DL2Tool : public asg::AsgTool, virtual public ISingleJetDecorator
+  class DL2Tool : public asg::AsgTool, virtual public IBTagDecorator
   {
-    ASG_TOOL_CLASS(DL2Tool, ISingleJetDecorator )
+    ASG_TOOL_CLASS(DL2Tool, IBTagDecorator )
   public:
     DL2Tool(const std::string& name);
     ~DL2Tool();
@@ -29,9 +29,11 @@ namespace FlavorTagDiscriminants {
     StatusCode initialize() override;
 
     // returns 0 for success
-    virtual void decorate(const xAOD::Jet& jet) const override;
+    virtual void decorate(const xAOD::BTagging& jet) const override;
 
     virtual std::set<std::string> getDecoratorKeys() const override;
+    virtual std::set<std::string> getAuxInputKeys() const override;
+    virtual std::set<std::string> getConstituentAuxInputKeys() const override;
   private:
     DL2Properties m_props; //!
     std::unique_ptr<DL2HighLevel> m_dl2; //!

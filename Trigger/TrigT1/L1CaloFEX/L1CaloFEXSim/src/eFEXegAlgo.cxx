@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -279,7 +279,7 @@ void LVL1::eFEXegAlgo::getWindowET(int layer, int jPhi, int SCID, unsigned int &
   
 void eFEXegAlgo::setSeed() {
 
-  m_haveseed = false;
+  m_hasSeed = false;
   unsigned int tmpID = 999;
   unsigned int maxET = 0;
   
@@ -324,7 +324,7 @@ void eFEXegAlgo::setSeed() {
   
   if(tmpID!=999) {
     m_seedID = tmpID;
-    m_haveseed = true;
+    m_hasSeed = true;
     unsigned int tmp_et_1, tmp_et_2;
     getWindowET(2,0,m_seedID,tmp_et_1);
     getWindowET(2,2,m_seedID,tmp_et_2);

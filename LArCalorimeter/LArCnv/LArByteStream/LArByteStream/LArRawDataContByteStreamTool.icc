@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARBYTESTREAM_LARRAWDATACONTBYTESTREAMTOOL_ICC
@@ -20,7 +20,7 @@ bool LArRawDataContByteStreamTool::checkGainConsistency(const COLLECTION* coll) 
  if (it==it_e) //empty container
    return true;
  int fixgain=(*it)->gain();
- for (;it!=it_e;it++)
+ for (;it!=it_e;++it)
    if (fixgain!=(*it)->gain())
       return false;
  return true;
@@ -32,8 +32,11 @@ bool LArRawDataContByteStreamTool::checkGainConsistency(const COLLECTION* coll) 
 // The Following collection types are included :
 // LArAccumulatedCalibDigit, LArAccumulatedDigit, LArCalibDigit, LArDigit,
 // LArFebHeader and LArRawChannel
-template <class COLLECTION >
-StatusCode LArRawDataContByteStreamTool::convert(const RawEvent* re, COLLECTION* coll, CaloGain::CaloGain gain) const
+template <class COLLECTION, typename ...ARGS >
+StatusCode LArRawDataContByteStreamTool::convert(const RawEvent* re,
+                                                 COLLECTION* coll,
+                                                 CaloGain::CaloGain gain,
+                                                 ARGS&&... args) const
 {
         RobIndex_t robIndex;
 	if (prepareRobIndex(re, robIndex).isFailure()){
@@ -74,7 +77,8 @@ StatusCode LArRawDataContByteStreamTool::convert(const RawEvent* re, COLLECTION*
               ATH_MSG_VERBOSE ( "Calling RodDecoder for source ID " << MSG::hex 
                                 << robFrag.rod_source_id() << MSG::dec );
 	      m_decoder->fillCollection(robFrag,
-                                        p,n,*coll,gain); // ..and decode them.
+                                        p,n,*coll,gain,
+                                        std::forward<ARGS>(args)...); // ..and decode them.
             }
             catch (eformat::Issue& ex) {
               ATH_MSG_WARNING ( " exception thrown by ROBFragment, badly corrupted event. Abort decoding " );

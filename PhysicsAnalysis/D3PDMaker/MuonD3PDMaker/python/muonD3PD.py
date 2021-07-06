@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
 #
 # @file MuonD3PDMaker/python/muonD3PD.py
 # @author srivas prasad <srivas.prasad@cern.ch>
@@ -10,13 +9,11 @@
 
 
 import D3PDMakerCoreComps
-from D3PDMakerConfig.D3PDMakerFlags                    import D3PDMakerFlags
 from EventCommonD3PDMaker.EventInfoD3PDObject          import EventInfoD3PDObject
 from EventCommonD3PDMaker.LBMetadataConfig             import LBMetadataConfig
 from MuonD3PDMaker.MuonD3PDMakerFlags                  import MuonD3PDFlags
 from MuonD3PDMaker.MuonD3PDObject                      import MuonD3PDObject
 from MuonD3PDMaker.MuonSegmentD3PDObject               import MuonSegmentD3PDObject
-from MuonD3PDMaker.MuonTriggerBitsD3PDObject           import MuonTriggerBitsD3PDObject
 from RecExConfig.RecFlags                              import rec
 from AthenaCommon.AlgSequence                          import AlgSequence
 topSequence = AlgSequence()
@@ -44,18 +41,6 @@ def muonD3PD (file,
                                       streamNameRoot = streamNameRoot)
     alg += EventInfoD3PDObject        (**_args (10, 'EventInfo', kw))
 
-    if D3PDMakerFlags.DoTrigger():
-
-        # Segregate trigger decision flags in a separate tree.
-        trigalg = D3PDMakerCoreComps.MakerAlg(tuplename + 'TrigDec',
-                                              seq,
-                                              file = file,
-                                              D3PDSvc = D3PDSvc,
-                                              streamNameRoot = streamNameRoot)
-        trigalg += EventInfoD3PDObject        (0)
-        alg.trigDecisionTree = trigalg
-    
-        
     # Muon blocks
     alg += MuonD3PDObject             (**_args (10, 'Muons', kw,
                                                 sgkey='Muons',
@@ -123,10 +108,6 @@ def muonD3PD (file,
         from MuonD3PDMaker.TrackRecordD3PDObject            import TrackRecordD3PDObject
         alg += TrackRecordD3PDObject (**_args(10, 'MuonEntryLayerFilter', kw))
         
-    # Trigger
-    if D3PDMakerFlags.DoTrigger():
-        alg += MuonTriggerBitsD3PDObject      (**_args ( 2, 'MuonTriggerBits', kw))
-
     alg.MetadataTools += [LBMetadataConfig()]
 
     return alg

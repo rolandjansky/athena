@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -17,8 +17,12 @@
 // DerivationFramework includes
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 
+#include "StoreGate/ReadHandleKey.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODMissingET/MissingETContainer.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 #include<string>
 #include<vector>
@@ -59,12 +63,12 @@ namespace DerivationFramework {
     float m_trigMatchDeltaR;
     bool m_doTrigMatch;
 
-    std::string m_electronSGKey;
+    SG::ReadHandleKey<xAOD::ElectronContainer> m_electronSGKey { this, "ElectronContainerKey", "ElectronCollection", ""};
     std::vector<std::string> m_electronIDKeys;
     float m_electronPtCut;
     float m_electronEtaMax;
 
-    std::string m_clusterSGKey;
+    SG::ReadHandleKey<xAOD::CaloClusterContainer> m_clusterSGKey { this, "ClusterContainerKey", "egammaClusters", ""};
     float m_clusterEtCut;
     float m_clusterEtaMax;
 
@@ -72,7 +76,11 @@ namespace DerivationFramework {
     float m_diEleMassHigh;
     float m_dPhiMax;
 
-    std::string m_sgKeyPrefix;
+    SG::WriteHandleKey<std::vector<float>> m_KinkTrkDiEleMassKey { this, "KinkTrkDiEleMassKey", "KinkTrkDiEleMass", ""};
+    SG::WriteHandleKey<std::vector<float>> m_KinkTrkProbeEleEtKey { this, "KinkTrkProbeEleEtKey", "KinkTrkProbeEleEt", ""};
+
+    SG::WriteHandleKey<std::vector<float> > m_diEleMassKey;
+    SG::WriteHandleKey<std::vector<float> > m_probeEleEtKey;
 
   }; 
  

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TauJetReaderAlg.cxx 632174 2014-11-29 15:23:36Z krasznaa $
@@ -23,7 +23,7 @@ namespace xAODMaker {
    StatusCode TauJetReaderAlg::initialize() {
 
       // Greet the user:
-      ATH_MSG_INFO( "Initialising - Package version: " << PACKAGE_VERSION );
+      ATH_MSG_INFO( "Initialising" );
       ATH_MSG_DEBUG( "SGKey = " << m_sgKey );
 
       // Return gracefully:
@@ -33,7 +33,7 @@ namespace xAODMaker {
    StatusCode TauJetReaderAlg::execute() {
 
       // Retrieve the tau container:
-      const xAOD::TauJetContainer* taus = 0;
+      const xAOD::TauJetContainer* taus = nullptr;
       ATH_CHECK( evtStore()->retrieve( taus, m_sgKey ) );
 
       // Print some info about them:

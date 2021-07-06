@@ -105,6 +105,79 @@ namespace top {
     os << "    * Approximate Mini Isolation\n";
     os << "        * iso/pT > " << m_fraction << "\n";
   }
+  
+  AntiMuonIsolation::AntiMuonIsolation(const std::string& workingPoint) :
+        m_workingPoint(workingPoint) {
+    if (m_workingPoint.substr(0,9) != "AntiMuon_") {
+      ATH_MSG_WARNING("Ignoring isolation working point \""
+          << workingPoint
+          << "\" which is not appropriate for AntiMuons.\n"
+          << "Will use \"AntiMuon_nominal\" instead.");
+      m_workingPoint = "AntiMuon_nominal";
+    }
+    else if (m_workingPoint != "AntiMuon_nominal"
+      && m_workingPoint != "AntiMuon_shapeSyst1"
+      && m_workingPoint != "AntiMuon_shapeSyst2") {
+      ATH_MSG_ERROR("Cannot use undefined isolation working point "
+          << workingPoint
+          << " for AntiMuons.\n"
+          << "Should be one of \"AntiMuon_nominal\", \"AntiMuon_shapeSyst1\", \"AntiMuon_shapeSyst2\".");
+      throw std::runtime_error("Attempt to use inappropriate isolation working point for AntiMuons");
+    }
+  }
+  
+  bool AntiMuonIsolation::passSelection(const xAOD::IParticle& p) const {
+    //muons
+    if (p.type() != xAOD::Type::Muon) {
+      ATH_MSG_ERROR("Cannot use this function for anything else but muons");
+      throw std::runtime_error("Cannot use this function for anything else but muons");
+    }
+    
+    const xAOD::Muon* mu = dynamic_cast<const xAOD::Muon*>(&p);
+    if (mu == nullptr) {
+      ATH_MSG_ERROR("Impossible to cast pointer to xAOD::IParticle into pointer to xAOD::Muon");
+      throw std::runtime_error("Impossible to cast pointer to xAOD::IParticle into pointer to xAOD::Muon");
+    }
+    
+    if (mu->energyLossType() != xAOD::Muon::NotIsolated) return false;
+
+    float eloss = 0;
+    bool ok = mu->parameter(eloss, xAOD::Muon::EnergyLoss);
+    if (ok && eloss > 6000) return false;
+
+    float etcone20 = 0, ptvarcone40 = 0;
+    ok = mu->isolation(etcone20, xAOD::Iso::etcone20);
+    if (ok && etcone20 / mu->pt() < 0.03) return false;
+
+    ok = mu->isolation(ptvarcone40, xAOD::Iso::ptvarcone40);
+    if (m_workingPoint == "AntiMuon_nominal") {
+      if (ok && ptvarcone40 / mu->pt() > 0.1) return false;
+    }
+    else if (m_workingPoint == "AntiMuon_shapeSyst1") {
+      if (ok && ptvarcone40 / mu->pt() > 0.05) return false;
+    }
+    else if (m_workingPoint == "AntiMuon_shapeSyst2") {
+      if (ok && (ptvarcone40 / mu->pt() <= 0.05 || ptvarcone40 / mu->pt() > 0.1)) return false;
+    }
+
+    return true;
+  }
+
+  void AntiMuonIsolation::print(std::ostream& os) const {
+    os << "    * AntiMuon Isolation : " << m_workingPoint << "\n";
+    os << "        * energyLossType : NotIsolated\n";
+    os << "        * EnergyLoss <= 6 GeV\n";
+    os << "        * etcone20/pT > 0.03\n";
+    if (m_workingPoint == "AntiMuon_nominal") {
+      os << "        * ptvarcone40/pT <= 0.1\n";
+    }
+    else if (m_workingPoint == "AntiMuon_shapeSyst1") {
+      os << "        * ptvarcone40/pT <= 0.05\n";
+    }
+    else if (m_workingPoint == "AntiMuon_shapeSyst2") {
+      os << "        * 0.05 < ptvarcone40/pT <= 0.1\n";
+    }
+  }
 
   StandardIsolation::StandardIsolation(const std::string& tightLeptonIsolation,
                                        const std::string& looseLeptonIsolation) :
@@ -123,6 +196,23 @@ namespace top {
     if (tightLeptonIsolation == "None") m_doTightIsolation = false;
 
     if (looseLeptonIsolation == "None") m_doLooseIsolation = false;
+    
+    if ( tightLeptonIsolation == "AntiMuon_nominal"
+      || tightLeptonIsolation == "AntiMuon_shapeSyst1"
+      || tightLeptonIsolation == "AntiMuon_shapeSyst2" ) {
+      ATH_MSG_ERROR("Cannot use isolation working point "
+          << tightLeptonIsolation
+          << " which is suitable for AntiMuons only.");
+      throw std::runtime_error("Attempt to use inappropriate isolation working point, suitable for AntiMuons only");
+    }
+    if ( looseLeptonIsolation == "AntiMuon_nominal"
+      || looseLeptonIsolation == "AntiMuon_shapeSyst1"
+      || looseLeptonIsolation == "AntiMuon_shapeSyst2" ) {
+      ATH_MSG_ERROR("Cannot use isolation working point "
+          << looseLeptonIsolation
+          << " which is suitable for AntiMuons only.");
+      throw std::runtime_error("Attempt to use inappropriate isolation working point, suitable for AntiMuons only");
+    }
   }
 
   bool StandardIsolation::passSelection(const xAOD::IParticle& p) const {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -28,7 +28,7 @@ const uint32_t CpmSubBlockV1::s_pairPinMask;
 const uint32_t CpmSubBlockV1::s_dataIdMask;
 
 const int      CpmSubBlockV1::s_indicatorBit;
-const int      CpmSubBlockV1::s_threshWordId;
+const uint32_t CpmSubBlockV1::s_threshWordId;
 const uint32_t CpmSubBlockV1::s_threshMask;
 
 const int      CpmSubBlockV1::s_pairsPerPin;

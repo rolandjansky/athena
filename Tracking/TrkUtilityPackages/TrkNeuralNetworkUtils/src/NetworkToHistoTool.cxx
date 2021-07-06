@@ -114,7 +114,7 @@ NetworkToHistoTool::histsFromNetwork(const TTrainedNetwork* trainedNetwork)
   typedef TTrainedNetwork::Input Input; 
   std::vector<Input> inputs = trainedNetwork->getInputs(); 
 
-  if (inputs.size() == 0) { 
+  if (inputs.empty()) { 
     return outputHistos; 
   }
   assert(inputs.size() == nInput); 
@@ -150,7 +150,7 @@ NetworkToHistoTool::networkFromHists(const std::map<std::string,const TH1*>& inp
 
   const TH1* histoLayersInfo = getHist ("LayersInfo");
 
-  if (histoLayersInfo==0)
+  if (histoLayersInfo==nullptr)
   {
     throw std::runtime_error(" Could not find LayersInfo histogram..."); 
   }
@@ -161,7 +161,9 @@ NetworkToHistoTool::networkFromHists(const std::map<std::string,const TH1*>& inp
     (std::floor(histoLayersInfo->GetBinContent(1)+0.5));
 
   std::vector<Int_t> nHiddenLayerSize;
-  for (Int_t i=0;i<nHidden;++i)
+  nHiddenLayerSize.reserve(nHidden);
+
+for (Int_t i=0;i<nHidden;++i)
   {
     nHiddenLayerSize.push_back( (Int_t)std::floor
 				(histoLayersInfo->GetBinContent(2+i)+0.5));

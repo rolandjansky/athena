@@ -13,13 +13,7 @@ TRTELEMON=False
 local_logger = logging.getLogger('DataQualitySteering_jobOptions')
 
 if DQMonFlags.doMonitoring():
-   if not DQMonFlags.doNewMonitoring():
-      if DQMonFlags.useTrigger():
-         if not hasattr(ToolSvc, DQMonFlags.nameTrigDecTool()):
-            local_logger.debug("trigger decision tool not found, including it now")
-            include("AthenaMonitoring/TrigDecTool_jobOptions.py")
-
-
+   def doOldStylePreSetup():
       # don't set up lumi access if in MC or enableLumiAccess == False
       if globalflags.DataSource.get_Value() != 'geant4' and DQMonFlags.enableLumiAccess():
          if athenaCommonFlags.isOnline:
@@ -37,8 +31,106 @@ if DQMonFlags.doMonitoring():
          from LumiBlockComps.TrigLiveFractionCondAlgDefault import TrigLiveFractionCondAlgDefault 
          TrigLiveFractionCondAlgDefault()
 
+   def doOldStylePostSetup(addlSequences=[]):
+      #------------------------#
+      # Trigger chain steering #
+      #------------------------#
+      trigMap = DQMonFlags.triggerChainMap.get_Value()
+      for toolName, trigChain in six.iteritems(trigMap):
+         local_logger.debug("Applying trigger %s to %s", trigChain, toolName)
+         if hasattr(ToolSvc,toolName):
+            tool = getattr(ToolSvc,toolName)
+            tool.TriggerChain = trigChain
+         else:
+            local_logger.debug("%s is not found in ToolSvc. Cannot set trigger chain!", toolName)
+
+      # force conditions update because the converter can't do it
+      if DQMonFlags.monManEnvironment in ('tier0ESD', 'AOD'):
+         from AthenaCommon.AlgSequence import AthSequencer
+         from AthenaMonitoring.AthenaMonitoringConf import ForceIDConditionsAlg
+         asq = AthSequencer("AthBeginSeq") 
+         asq += [ForceIDConditionsAlg()]
+
+      local_logger.debug('DQ Post-Setup Configuration')
+      import re
+      from AthenaMonitoring.EventFlagFilterTool import GetEventFlagFilterTool
       from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
-      from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
+
+      # now the DQ tools are private, extract them from the set of monitoring algorithms
+      toolset = set()
+      from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
+      local_logger.info(f'Configuring LWHist ROOT backend flag to {jobproperties.ConcurrencyFlags.NumThreads()>0} because NumThreads is {jobproperties.ConcurrencyFlags.NumThreads()}')
+
+      for sq in [topSequence] + addlSequences:
+         for _ in sq:
+            if isinstance(_, AthenaMonManager):
+               toolset.update(_.AthenaMonTools)
+
+               # in MT the initialization can be in random order ... force all managers to have common setup
+               _.FileKey             = DQMonFlags.monManFileKey()
+               _.ManualDataTypeSetup = DQMonFlags.monManManualDataTypeSetup()
+               _.DataType            = DQMonFlags.monManDataType()
+               _.Environment         = DQMonFlags.monManEnvironment()
+               _.LBsInLowStatInterval = DQMonFlags.monManLBsInLowStatInterval()
+               _.LBsInMediumStatInterval = DQMonFlags.monManLBsInMediumStatInterval()
+               _.LBsInHighStatInterval = DQMonFlags.monManLBsInHighStatInterval()
+               _.ManualRunLBSetup    = DQMonFlags.monManManualRunLBSetup()
+               _.Run                 = DQMonFlags.monManRun()
+               _.LumiBlock           = DQMonFlags.monManLumiBlock()
+               _.ROOTBackend         = (jobproperties.ConcurrencyFlags.NumThreads()>0)
+
+      for tool in toolset:
+         # stop lumi access if we're in MC or enableLumiAccess == False
+         if 'EnableLumi' in dir(tool):
+            if globalflags.DataSource.get_Value() == 'geant4' or not DQMonFlags.enableLumiAccess():
+               tool.EnableLumi = False
+            else:
+               tool.EnableLumi = True
+         # if we have the FilterTools attribute, assume this is in fact a
+         # monitoring tool
+         if hasattr(tool, 'FilterTools'):
+            # if express: use ATLAS Ready filter
+            local_logger.debug('Setting up filters for tool %s', tool)
+            if rec.triggerStream()=='express':
+               local_logger.info('Stream is express and we will add ready tool for %s', tool)
+               tool.FilterTools += [GetAtlasReadyFilterTool()]
+            # if requested: configure a generic event cleaning tool
+            if not athenaCommonFlags.isOnline() and any(re.match(_, tool.name()) for _ in DQMonFlags.includeInCleaning()):
+               if tool.name() in DQMonFlags.specialCleaningConfiguration():
+                  config_ = DQMonFlags.specialCleaningConfiguration()[tool.name()].copy()
+                  for _ in config_:
+                     try:
+                        config_[_] = bool(config_[_])
+                     except:
+                        local_logger.error('Unable to enact special event cleaning configuration for tool %s; cannot cast %s=%s to bool', tool.name(), _, config_[_])
+                  config_['name'] = 'DQEventFlagFilterTool_%s' % tool.name()
+                  tool.FilterTools += [GetEventFlagFilterTool(**config_)]
+                  del config_
+                  local_logger.info('Configurating special event cleaning for tool %s', tool)
+               else:
+                  local_logger.info('Configuring generic event cleaning for tool %s', tool)
+                  tool.FilterTools += [GetEventFlagFilterTool('DQEventFlagFilterTool')]
+            else:
+               local_logger.info('NOT configuring event cleaning for tool %s', tool)
+
+            # give all the tools the trigger translator
+            if DQMonFlags.useTrigger():
+               tool.TrigDecisionTool = getattr(ToolSvc, DQMonFlags.nameTrigDecTool())
+               tool.TriggerTranslatorTool = getattr(ToolSvc, DQMonFlags.nameTrigTransTool())
+
+            if DQMonFlags.monToolPostExec():
+               postprocfunc = eval(DQMonFlags.monToolPostExec())
+               local_logger.debug('Applying postexec transform to  ===> %s', tool)
+               postprocfunc(tool)
+               del postprocfunc
+
+   if not DQMonFlags.doNewMonitoring():
+      if DQMonFlags.useTrigger():
+         if not hasattr(ToolSvc, DQMonFlags.nameTrigDecTool()):
+            local_logger.debug("trigger decision tool not found, including it now")
+            include("AthenaMonitoring/TrigDecTool_jobOptions.py")
+
+      doOldStylePreSetup()
 
       #---------------------------#
       # Inner detector monitoring #
@@ -62,18 +154,19 @@ if DQMonFlags.doMonitoring():
       #--------------------#
       # Trigger monitoring #
       #--------------------#
-      if DQMonFlags.doLVL1CaloMon():
-         try:
-            include("TrigT1CaloMonitoring/TrigT1CaloMonitoring_forRecExCommission.py")
-            include("TrigT1Monitoring/TrigT1Monitoring_forRecExCommission.py")
-         except Exception:
-            treatException("DataQualitySteering_jobOptions.py: exception when setting up L1 Calo monitoring")
 
       if DQMonFlags.doCTPMon():
          try:
             include("TrigT1CTMonitoring/TrigT1CTMonitoringJobOptions_forRecExCommission.py")
          except Exception:
             treatException("DataQualitySteering_jobOptions.py: exception when setting up central trigger monitoring")
+
+      if DQMonFlags.doLVL1CaloMon():
+         try:
+            include("TrigT1CaloMonitoring/TrigT1CaloMonitoring_forRecExCommission.py")
+            include("TrigT1Monitoring/TrigT1Monitoring_forRecExCommission.py")
+         except Exception:
+            treatException("DataQualitySteering_jobOptions.py: exception when setting up L1 Calo monitoring")
 
       if DQMonFlags.doHLTMon():
          try:
@@ -125,6 +218,11 @@ if DQMonFlags.doMonitoring():
       # LAr monitoring   #
       #------------------#
       if DQMonFlags.doLArMon():
+         from LArMonTools.LArMonFlags import LArMonFlags
+         if LArMonFlags.doLArCollisionTimeMon():
+            #Schedule algorithms producing collision timing
+            include("LArClusterRec/LArClusterCollisionTime_jobOptions.py")
+            include("LArCellRec/LArCollisionTime_jobOptions.py")
          try:
             LArMon = AthenaMonManager(name="LArMonManager",
                            FileKey             = DQMonFlags.monManFileKey(),
@@ -231,111 +329,18 @@ if DQMonFlags.doMonitoring():
          except Exception:
             treatException("DataQualitySteering_jobOptions.py: exception when setting up HI monitoring")
 
-      #------------------------#
-      # Trigger chain steering #
-      #------------------------#
-      trigMap = DQMonFlags.triggerChainMap.get_Value()
-      for toolName, trigChain in six.iteritems(trigMap):
-         local_logger.debug("Applying trigger %s to %s", trigChain, toolName)
-         if hasattr(ToolSvc,toolName):
-            tool = getattr(ToolSvc,toolName)
-            tool.TriggerChain = trigChain
-         else:
-            local_logger.debug("%s is not found in ToolSvc. Cannot set trigger chain!", toolName)
-
       #--------------------------#
       # Post-setup configuration #
       #--------------------------#
-      # force conditions update because the converter can't do it
-      if DQMonFlags.monManEnvironment in ('tier0ESD', 'AOD'):
-         from AthenaCommon.AlgSequence import AthSequencer
-         from AthenaMonitoring.AthenaMonitoringConf import ForceIDConditionsAlg
-         asq = AthSequencer("AthBeginSeq") 
-         asq += [ForceIDConditionsAlg()]
-
-      if rec.triggerStream()=='express':
-         include("AthenaMonitoring/AtlasReadyFilterTool_jobOptions.py")
-      local_logger.debug('DQ Post-Setup Configuration')
-      import re
-      from AthenaMonitoring.EventFlagFilterTool import GetEventFlagFilterTool
-
-      # now the DQ tools are private, extract them from the set of monitoring algorithms
-      toolset = set()
-      from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
-      for _ in topSequence:
-         if isinstance(_, AthenaMonManager):
-            toolset.update(_.AthenaMonTools)
-
-            # in MT the initialization can be in random order ... force all managers to have common setup
-            _.FileKey             = DQMonFlags.monManFileKey()
-            _.ManualDataTypeSetup = DQMonFlags.monManManualDataTypeSetup()
-            _.DataType            = DQMonFlags.monManDataType()
-            _.Environment         = DQMonFlags.monManEnvironment()
-            _.LBsInLowStatInterval = DQMonFlags.monManLBsInLowStatInterval()
-            _.LBsInMediumStatInterval = DQMonFlags.monManLBsInMediumStatInterval()
-            _.LBsInHighStatInterval = DQMonFlags.monManLBsInHighStatInterval()
-            _.ManualRunLBSetup    = DQMonFlags.monManManualRunLBSetup()
-            _.Run                 = DQMonFlags.monManRun()
-            _.LumiBlock           = DQMonFlags.monManLumiBlock()
-
-      for tool in toolset:
-         # stop lumi access if we're in MC or enableLumiAccess == False
-         if 'EnableLumi' in dir(tool):
-            if globalflags.DataSource.get_Value() == 'geant4' or not DQMonFlags.enableLumiAccess():
-               tool.EnableLumi = False
-            else:
-               tool.EnableLumi = True
-         # if we have the FilterTools attribute, assume this is in fact a
-         # monitoring tool
-         if hasattr(tool, 'FilterTools'):
-            # if express: use ATLAS Ready filter
-            local_logger.debug('Setting up filters for tool %s', tool)
-            if rec.triggerStream()=='express':
-               local_logger.info('Stream is express and we will add ready tool for %s', tool)
-               tool.FilterTools += [GetAtlasReadyFilterTool()]
-            # if requested: configure a generic event cleaning tool
-            if not athenaCommonFlags.isOnline() and any(re.match(_, tool.name()) for _ in DQMonFlags.includeInCleaning()):
-               if tool.name() in DQMonFlags.specialCleaningConfiguration():
-                  config_ = DQMonFlags.specialCleaningConfiguration()[tool.name()].copy()
-                  for _ in config_:
-                     try:
-                        config_[_] = bool(config_[_])
-                     except:
-                        local_logger.error('Unable to enact special event cleaning configuration for tool %s; cannot cast %s=%s to bool', tool.name(), _, config_[_])
-                  config_['name'] = 'DQEventFlagFilterTool_%s' % tool.name()
-                  tool.FilterTools += [GetEventFlagFilterTool(**config_)]
-                  del config_
-                  local_logger.info('Configurating special event cleaning for tool %s', tool)
-               else:
-                  local_logger.info('Configuring generic event cleaning for tool %s', tool)
-                  tool.FilterTools += [GetEventFlagFilterTool('DQEventFlagFilterTool')]
-            else:
-               local_logger.info('NOT configuring event cleaning for tool %s', tool)
-
-            # give all the tools the trigger translator
-            if DQMonFlags.useTrigger():
-               tool.TrigDecisionTool = monTrigDecTool
-               tool.TriggerTranslatorTool = monTrigTransTool
-
-            if DQMonFlags.monToolPostExec():
-               postprocfunc = eval(DQMonFlags.monToolPostExec())
-               local_logger.debug('Applying postexec transform to  ===> %s', tool)
-               postprocfunc(tool)
-               del postprocfunc
+      doOldStylePostSetup()
 
    else:
       local_logger.info("DQ: setting up ConfigFlags")
+      from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
+      # Translate all needed flags from old jobProperties to a new AthConfigFlag Container
+      ConfigFlags = getNewConfigFlags()
       from AthenaConfiguration.AllConfigFlags import ConfigFlags
-      if globalflags.InputFormat() == 'bytestream':
-         ConfigFlags.Input.Files=athenaCommonFlags.BSRDOInput()
-      elif globalflags.InputFormat() == 'pool':
-         ConfigFlags.Input.Files=svcMgr.EventSelector.InputCollections
 
-      from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
-      ConfigFlags.GeoModel.Align.Dynamic=InDetGeometryFlags.useDynamicAlignFolders()
-      ConfigFlags.Detector.GeometryPixel=DetFlags.pixel_on()
-      ConfigFlags.Detector.GeometrySCT=DetFlags.SCT_on()
-      ConfigFlags.Detector.GeometryTRT=DetFlags.TRT_on()
       ConfigFlags.InDet.usePixelDCS=InDetFlags.usePixelDCS()
       ConfigFlags.InDet.doTIDE_Ambi=InDetFlags.doTIDE_Ambi()
 
@@ -354,10 +359,11 @@ if DQMonFlags.doMonitoring():
 
       Steering = ConfigFlags.DQ.Steering
       Steering.doGlobalMon=DQMonFlags.doGlobalMon()
-      Steering.doLVL1CaloMon=DQMonFlags.doLVL1CaloMon()
-      Steering.doCTPMon=DQMonFlags.doCTPMon()
-      # do not enable new HLT monitoring if we are not in Run 3 EDM
-      Steering.doHLTMon=DQMonFlags.doHLTMon() and ConfigFlags.Trigger.EDMVersion == 3
+      # do not enable new trigger monitoring in mixed mode if we are not in Run 3 EDM
+      mixedModeFlag = (DQMonFlags.triggerMixedMode() and ConfigFlags.Trigger.EDMVersion == 2)
+      Steering.doHLTMon=DQMonFlags.doHLTMon() and not mixedModeFlag
+      Steering.doLVL1CaloMon=DQMonFlags.doLVL1CaloMon() and not mixedModeFlag
+      Steering.doCTPMon=DQMonFlags.doCTPMon() and not mixedModeFlag
       Steering.doPixelMon=DQMonFlags.doPixelMon()
       Steering.doSCTMon=DQMonFlags.doSCTMon()
       Steering.doTRTMon=DQMonFlags.doTRTMon()
@@ -376,6 +382,34 @@ if DQMonFlags.doMonitoring():
       Steering.doMissingEtMon=DQMonFlags.doMissingEtMon()
       Steering.doTauMon=DQMonFlags.doTauMon()
       Steering.doJetTagMon=DQMonFlags.doJetTagMon()
+
+      # schedule legacy HLT and L1 monitoring if Run 2 EDM
+      if mixedModeFlag and (DQMonFlags.doHLTMon()
+                            or DQMonFlags.doLVL1CaloMon()
+                            or DQMonFlags.doCTPMon()):
+         local_logger.info('Using mixed mode monitoring')
+         include("AthenaMonitoring/TrigDecTool_jobOptions.py")
+         doOldStylePreSetup()
+
+         addlSequences=[]
+         if DQMonFlags.doHLTMon():
+            try:
+               include("TrigHLTMonitoring/HLTMonitoring_topOptions.py")
+            except Exception:
+               treatException("DataQualitySteering_jobOptions.py: exception when setting up HLT monitoring")
+         if DQMonFlags.doLVL1CaloMon():
+            try:
+               include("TrigT1CaloMonitoring/TrigT1CaloMonitoring_forRecExCommission.py")
+               include("TrigT1Monitoring/TrigT1Monitoring_forRecExCommission.py")
+            except Exception:
+               treatException("DataQualitySteering_jobOptions.py: exception when setting up L1 Calo monitoring")
+         if DQMonFlags.doCTPMon():
+            try:
+               include("TrigT1CTMonitoring/TrigT1CTMonitoringJobOptions_forRecExCommission.py")
+               addlSequences.append(CTPMonSeq)
+            except Exception:
+               treatException("DataQualitySteering_jobOptions.py: exception when setting up central trigger monitoring")
+         doOldStylePostSetup(addlSequences)
 
       ConfigFlags.dump()
       ComponentAccumulator.CAtoGlobalWrapper(AthenaMonitoringCfg, ConfigFlags)

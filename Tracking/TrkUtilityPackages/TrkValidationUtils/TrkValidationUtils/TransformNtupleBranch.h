@@ -34,10 +34,10 @@ namespace Trk {
   struct TransformNtupleBranch {
 
     /** initialize class for writing */
-    void initForWrite(TTree& tree, std::string prefix = "" );
+    void initForWrite(TTree& tree, const std::string& prefix = "" );
 
     /** initialize class for reading */
-    void initForRead(TTree& tree, std::string prefix = "" );
+    void initForRead(TTree& tree, const std::string& prefix = "" );
     
     /** fill a transform */
     void fill( const Amg::Transform3D& transform );

@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -64,9 +64,9 @@ class LArPhysWaveTool : public AthAlgTool
   LArWave caliPhysCorr() const;
   //  LArPhysWave physPred ( int mode , LArPhysWave W ) const;
   //  LArPhysWave physPred ( LArPhysWave W ) const;
-  LArWave injResp (LArWave w) const;
+  LArWave injResp (const LArWave& w) const;
   LArWave stepResp () const;
-  LArWave step2Tri (LArWave w) const ;
+  LArWave step2Tri (const LArWave& w) const ;
   double stepPhysCorr ( double t ) const;
   LArWave stepPhysCorr() const;
   LArWave stepCorr() const;

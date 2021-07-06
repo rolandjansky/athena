@@ -1,7 +1,7 @@
 // dear emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONEVENT_MUON_H
@@ -579,7 +579,7 @@ class Muon : public ParticleImpl<
   void set_parameter(MuonParameters::ParamDef index, double value, bool overwrite=false);
 
   /** set the energy loss in the calorimeter */
-  void set_energyLoss ( const CaloEnergy* caloEnergy ) { m_caloEnergyLoss.setElement(const_cast<CaloEnergy*>(caloEnergy)); }
+  void set_energyLoss ( const CaloEnergy* caloEnergy ) { m_caloEnergyLoss.setElement(caloEnergy); }
   /** set the energy loss in the calorimeter */
   void set_energyLossContainer ( const MuonCaloEnergyContainer* cont ) { m_caloEnergyLoss.setStorableObject(*cont); }
   /** set the energy loss in the calorimeter */
@@ -600,11 +600,11 @@ class Muon : public ParticleImpl<
 
   /** set the Calorimeter information */
   void set_cluster( const CaloClusterContainer* cont, const CaloCluster* cluster ) {
-    m_cluster.toContainedElement( *cont, const_cast<CaloCluster*> (cluster));
+    m_cluster.toContainedElement( *cont, cluster);
   }
   /** set the Calorimeter information */
   void set_cluster( const CaloCluster* cluster) {
-     m_cluster.setElement(const_cast<CaloCluster*>(cluster));
+     m_cluster.setElement(cluster);
   }
   /** set the Calorimeter information, by link */
   void set_cluster( const ElementLink<CaloClusterContainer>& cluster) {

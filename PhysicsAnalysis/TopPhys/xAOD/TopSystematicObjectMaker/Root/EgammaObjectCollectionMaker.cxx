@@ -33,32 +33,32 @@ namespace top {
     m_recommendedSystematicsElectrons(),
     m_recommendedSystematicsFwdElectrons(),
 
-    m_calibrationTool("CP::EgammaCalibrationAndSmearingTool"),
+    m_calibrationTool("EgammaCalibrationAndSmearingTool"),
     m_photonFudgeTool("PhotonFudgeTool"),
 
-    m_isolationTool_LooseTrackOnly("CP::IsolationTool_LooseTrackOnly"),
-    m_isolationTool_Loose("CP::IsolationTool_Loose"),
-    m_isolationTool_PflowLoose("CP::IsolationTool_PflowLoose"),
-    m_isolationTool_Tight("CP::IsolationTool_Tight"),
-    m_isolationTool_PflowTight("CP::IsolationTool_PflowTight"),
-    m_isolationTool_Gradient("CP::IsolationTool_Gradient"),
-    m_isolationTool_GradientLoose("CP::IsolationTool_GradientLoose"),
-    m_isolationTool_FixedCutTight("CP::IsolationTool_FixedCutTight"),
-    m_isolationTool_FixedCutTightTrackOnly("CP::IsolationTool_FixedCutTightTrackOnly"),
-    m_isolationTool_TightTrackOnly("CP::IsolationTool_TightTrackOnly"),
-    m_isolationTool_TightTrackOnly_FixedRad("CP::IsolationTool_TightTrackOnly_FixedRad"),
-    m_isolationTool_FixedCutTightCaloOnly("CP::IsolationTool_FixedCutTightCaloOnly"),
-    m_isolationTool_TightCaloOnly("CP::IsolationTool_TightCaloOnly"),
-    m_isolationTool_FixedCutLoose("CP::IsolationTool_FixedCutLoose"),
-    m_isolationTool_FixedCutHighPtCaloOnly("CP::IsolationTool_FixedCutHighPtCaloOnly"),
-    m_isolationTool_FCHighPtCaloOnly("CP::IsolationTool_FCHighPtCaloOnly"),
-    m_isolationTool_HighPtCaloOnly("CP::IsolationTool_HighPtCaloOnly"),
-    m_isolationTool_FCTight("CP::IsolationTool_FCTight"),
-    m_isolationTool_FCLoose("CP::IsolationTool_FCLoose"),
-    m_isolationTool_PLVTight("CP::IsolationTool_PLVTight"),
-    m_isolationTool_PLVLoose("CP::IsolationTool_PLVLoose"),
-//    m_isolationTool_LowPtPLV("CP::IsolationTool_LowPtPLV"),
-    m_isolationCorr("CP::IsolationCorrectionTool") {
+    m_isolationTool_LooseTrackOnly("IsolationTool_LooseTrackOnly"),
+    m_isolationTool_Loose("IsolationTool_Loose"),
+    m_isolationTool_PflowLoose("IsolationTool_PflowLoose"),
+    m_isolationTool_Tight("IsolationTool_Tight"),
+    m_isolationTool_PflowTight("IsolationTool_PflowTight"),
+    m_isolationTool_Gradient("IsolationTool_Gradient"),
+    m_isolationTool_GradientLoose("IsolationTool_GradientLoose"),
+    m_isolationTool_FixedCutTight("IsolationTool_FixedCutTight"),
+    m_isolationTool_FixedCutTightTrackOnly("IsolationTool_FixedCutTightTrackOnly"),
+    m_isolationTool_TightTrackOnly("IsolationTool_TightTrackOnly"),
+    m_isolationTool_TightTrackOnly_FixedRad("IsolationTool_TightTrackOnly_FixedRad"),
+    m_isolationTool_FixedCutTightCaloOnly("IsolationTool_FixedCutTightCaloOnly"),
+    m_isolationTool_TightCaloOnly("IsolationTool_TightCaloOnly"),
+    m_isolationTool_FixedCutLoose("IsolationTool_FixedCutLoose"),
+    m_isolationTool_FixedCutHighPtCaloOnly("IsolationTool_FixedCutHighPtCaloOnly"),
+    m_isolationTool_FCHighPtCaloOnly("IsolationTool_FCHighPtCaloOnly"),
+    m_isolationTool_HighPtCaloOnly("IsolationTool_HighPtCaloOnly"),
+    m_isolationTool_FCTight("IsolationTool_FCTight"),
+    m_isolationTool_FCLoose("IsolationTool_FCLoose"),
+    m_isolationTool_PLVTight("IsolationTool_PLVTight"),
+    m_isolationTool_PLVLoose("IsolationTool_PLVLoose"),
+//    m_isolationTool_LowPtPLV("IsolationTool_LowPtPLV"),
+    m_isolationCorr("IsolationCorrectionTool") {
     declareProperty("config", m_config);
 
     declareProperty("EgammaCalibrationAndSmearingTool", m_calibrationTool);
@@ -116,7 +116,6 @@ namespace top {
     }
 
     if (m_config->useElectrons()) {
-      top::check(m_isolationTool_Gradient.retrieve(), "Failed to retrieve Isolation Tool");
       top::check(m_isolationTool_FCTight.retrieve(), "Failed to retrieve Isolation Tool");
       top::check(m_isolationTool_FCLoose.retrieve(), "Failed to retrieve Isolation Tool");
       top::check(m_isolationTool_FCHighPtCaloOnly.retrieve(), "Failed to retrieve Isolation Tool");
@@ -127,8 +126,6 @@ namespace top {
       top::check(m_isolationTool_TightTrackOnly_FixedRad.retrieve(), "Failed to retrieve Isolation Tool");
       top::check(m_isolationTool_PflowLoose.retrieve(), "Failed to retrieve Isolation Tool");
       top::check(m_isolationTool_PflowTight.retrieve(), "Failed to retrieve Isolation Tool");
-      top::check(m_isolationTool_PLVTight.retrieve(), "Failed to retrieve Isolation Tool");
-      top::check(m_isolationTool_PLVLoose.retrieve(), "Failed to retrieve Isolation Tool");
 //      top::check(m_isolationTool_LowPtPLV.retrieve(), "Failed to retrieve Isolation Tool");
     }
 
@@ -208,8 +205,9 @@ namespace top {
         if (calibratePhotons) {
           top::check(m_calibrationTool->applyCorrection(*photon),
                      "Failed to applyCorrection");
-          top::check(m_isolationCorr->applyCorrection(*photon),
-                     "Failed to apply photon isolation leakage correction");
+          // TODO -- revert back once the isolation corrections are fully settled in R22
+          // top::check(m_isolationCorr->applyCorrection(*photon),
+          //            "Failed to apply photon isolation leakage correction");
 
           // Only apply shower shape fudging on full simulation MC
           if (m_config->isMC() && !m_config->isAFII() && m_recomputePhotonFudge && m_config->getDerivationStream() != "PHYS") {
@@ -342,7 +340,8 @@ namespace top {
                                                                                           // electrons
           if (calibrateElectrons) {
             top::check(m_calibrationTool->applyCorrection(*electron), "Failed to applyCorrection");
-            top::check(m_isolationCorr->applyCorrection(*electron), "Failed to apply leakage correction");
+            // TODO -- revert back once the isolation corrections are fully settled in R22
+            // top::check(m_isolationCorr->applyCorrection(*electron), "Failed to apply leakage correction");
           }
 
           double d0sig = xAOD::TrackingHelpers::d0significance(electron->trackParticle(),
@@ -363,9 +362,6 @@ namespace top {
         char passIsol_Gradient(0);
         char passIsol_FCHighPtCaloOnly(0);
         char passIsol_HighPtCaloOnly(0);
-        if (m_isolationTool_Gradient->accept(*electron)) {
-          passIsol_Gradient = 1;
-        }
         if (m_isolationTool_FCHighPtCaloOnly->accept(*electron)) {
           passIsol_FCHighPtCaloOnly = 1;
         }
@@ -415,16 +411,6 @@ namespace top {
 //	  top::check(m_isolationTool_LowPtPLV->augmentPLV(*electron), "Failed to augment electron with LowPtPLV decorations");
 //	else
 //	  byhand_LowPtPLV(*electron) = 1.1; // decorate the electron ourselves following IFF default
-	if ( PLV_PromptLeptonVeto.isAvailable(*electron) &&
-	     ptvarcone30_TightTTVALooseCone_pt1000.isAvailable(*electron) ) {
-	  AnalysisTop_Isol_PLVTight(*electron) = (m_isolationTool_PLVTight->accept(*electron) ? 1 : 0);
-	  AnalysisTop_Isol_PLVLoose(*electron) = (m_isolationTool_PLVLoose->accept(*electron) ? 1 : 0);
-	}
-	else {
-	  // decorate with special character to indicate failure to retrieve necessary variables
-	  AnalysisTop_Isol_PLVTight(*electron) = 'n';
-	  AnalysisTop_Isol_PLVLoose(*electron) = 'n';
-	}
       }
 
       ///-- set links to original objects- needed for MET calculation --///

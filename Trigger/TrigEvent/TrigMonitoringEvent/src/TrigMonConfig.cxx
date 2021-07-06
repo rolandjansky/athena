@@ -1,21 +1,13 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // C/C++
 #include <algorithm>
 #include <sstream>
 
-// Local
+#include "AthenaKernel/errorcheck.h"
 #include "TrigMonitoringEvent/TrigMonConfig.h"
-#include "TrigMonMSG.h"
-
-using namespace std;
-
-namespace MSGService
-{
-  static TrigMonMSG msg("TrigMonConfig");
-}
 
 //--------------------------------------------------------------------------------------  
 TrigMonConfig::TrigMonConfig()
@@ -65,7 +57,7 @@ void TrigMonConfig::clearStrings()
 }
 
 //--------------------------------------------------------------------------------------  
-void TrigMonConfig::processConfig()
+void TrigMonConfig::processConfig ATLAS_NOT_THREAD_SAFE ()
 {
   //
   // Sync TrigConfVar with global static vector in TrigConfVar.cxx file
@@ -136,7 +128,7 @@ bool TrigMonConfig::keyExists(const std::string &key) const
   // Find key and copy its value
   //
   if(m_pair_key.size() != m_pair_val.size()) {
-    MSGService::msg.Log("TrigMonConfig::KeyExists - logic error!", MSG::ERROR);
+    REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "TrigMonConfig") << "KeyExists - logic error!";
     return false;
   }
 
@@ -156,7 +148,7 @@ bool TrigMonConfig::readValue(const std::string &key, std::string &val) const
   // Find key and copy its value
   //
   if(m_pair_key.size() != m_pair_val.size()) {
-    MSGService::msg.Log("TrigMonConfig::ReadValue - logic error!", MSG::ERROR);
+    REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "TrigMonConfig") << "ReadValue - logic error!";
     return false;
   }
 
@@ -184,9 +176,8 @@ uint32_t TrigMonConfig::getId(const std::string &name, const std::string &key) c
       return fit -> getId();
     }
     else {
-      std::stringstream ss;
-      ss << "TrigMonConfig::getId - failed to find chain: " << name;
-      MSGService::msg.Log(ss.str(), MSG::ERROR);
+      REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "TrigMonConfig")
+        << "getId - failed to find chain: " << name;
       return 0;
     }
   } else if(key == "SEQ") {
@@ -195,9 +186,8 @@ uint32_t TrigMonConfig::getId(const std::string &name, const std::string &key) c
       return fit -> getId();
     }
     else {
-      std::stringstream ss;
-      ss << "TrigMonConfig::getId - failed to find sequence: " << name;
-      MSGService::msg.Log(ss.str(), MSG::ERROR);
+      REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "TrigMonConfig")
+        << "getId - failed to find sequence: " << name;
       return 0;
     }
   } else if(key.find("ALG") != std::string::npos) {
@@ -212,14 +202,12 @@ uint32_t TrigMonConfig::getId(const std::string &name, const std::string &key) c
 	      if(alg.getName() == name) return alg.getNameId();
       }
     }
-    std::stringstream ss;
-    ss << "TrigMonConfig::getId - ERROR! Failed to find algorithm: " << name << ", " << key;
-    MSGService::msg.Log(ss.str(), MSG::ERROR);
+    REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "TrigMonConfig")
+      << "getId - ERROR! Failed to find algorithm: " << name << ", " << key;
     return 0;
   }
-  std::stringstream ss;
-  ss << "TrigMonConfig::getId - ERROR! Failed to match: " << name << ", " << key;
-  MSGService::msg.Log(ss.str(), MSG::ERROR);
+  REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "TrigMonConfig")
+    << "getId - ERROR! Failed to match: " << name << ", " << key;
   return 0;
 }
 
@@ -237,15 +225,13 @@ uint16_t TrigMonConfig::getEncodedId(const std::string &name, const std::string 
       return fit -> getEncodedId();
     }
     else {
-      std::stringstream ss;
-      ss << "TrigMonConfig::getEncoded - failed to find chain: " << name;
-      MSGService::msg.Log(ss.str(), MSG::ERROR);
+      REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "TrigMonConfig")
+        << "getEncoded - failed to find chain: " << name;
       return 0;
     }
   }
-  std::stringstream ss;
-  ss << "TrigMonConfig::getEncoded(" << name << ", " << key << ") - no match found";
-  MSGService::msg.Log(ss.str(), MSG::ERROR);
+  REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "TrigMonConfig")
+    << "getEncoded(" << name << ", " << key << ") - no match found";
   return 0;
 }
 
@@ -263,9 +249,8 @@ const std::string TrigMonConfig::getName(uint32_t id, const std::string &key) co
       return fit -> getName();
     }
     else {
-      std::stringstream ss;
-      ss << "TrigMonConfig::getId - failed to find chain: " << id;
-      MSGService::msg.Log(ss.str(), MSG::ERROR);
+      REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "TrigMonConfig")
+        << "getId - failed to find chain: " << id;
       return "";
     }
   } else if(key == "SEQ") {
@@ -274,9 +259,8 @@ const std::string TrigMonConfig::getName(uint32_t id, const std::string &key) co
       return fit -> getName();
     }
     else {
-      std::stringstream ss;
-      ss << "TrigMonConfig::getId - failed to find sequence: " << id;
-      MSGService::msg.Log(ss.str(), MSG::ERROR);
+      REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "TrigMonConfig")
+        << "getId - failed to find sequence: " << id;
       return "";
     }
   } else if(key.find("ALG") != std::string::npos){
@@ -292,14 +276,14 @@ const std::string TrigMonConfig::getName(uint32_t id, const std::string &key) co
 	if(alg.getNameId() == id) return alg.getName();
       }
     }
-    std::stringstream ss;
-    ss << "TrigMonConfig::getId - failed to find algorithm: " << id;
-    MSGService::msg.Log(ss.str(), MSG::ERROR);
+    REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "TrigMonConfig")
+      << "getId - failed to find algorithm: " << id;
     return "";
   }
-  std::stringstream ss;
-  ss << "TrigMonConfig::getId - failed to match: " << id << ", " << key;
-  MSGService::msg.Log(ss.str(), MSG::ERROR);
+
+  REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "TrigMonConfig")
+    << "getId - failed to match: " << id << ", " << key;
+
   return "";
 }
 

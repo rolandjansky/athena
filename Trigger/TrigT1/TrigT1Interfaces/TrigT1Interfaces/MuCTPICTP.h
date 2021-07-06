@@ -1,9 +1,11 @@
 // Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGT1INTERFACES_MUCTPICTP_H
 #define TRIGT1INTERFACES_MUCTPICTP_H
+
+#include <vector>
 
 namespace LVL1 {
 
@@ -23,16 +25,17 @@ namespace LVL1 {
    public:
       /* constructor and destructor */
       MuCTPICTP( unsigned int word = 0 );
+      MuCTPICTP( std::vector<unsigned int> word);
       ~MuCTPICTP();
 
       /**
        * Return the muon data i.e. <code>(xxxxx|thr6|thr5|thr4|thr3|thr2|thr1)</code>
        */
-      unsigned int muCTPIWord() const;
+      std::vector<unsigned int> muCTPIWord() const;
 
    private:
       /// The only data member
-      const unsigned int m_MuCTPICTPWord;
+     std::vector<unsigned int> m_MuCTPICTPWord;
 
    }; // class MuCTPICTP
 

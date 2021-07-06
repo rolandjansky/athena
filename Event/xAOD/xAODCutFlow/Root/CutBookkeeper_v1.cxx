@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@ namespace xAOD {
 
   //typedef ElementLink< CutBookkeeperContainer_v1>  CutBookkeeperLink_t;
   typedef ElementLink< CutBookkeeperContainer >    CutBookkeeperLink_t;
-  typedef std::vector< xAOD::CutBookkeeperLink_t > CutBookkeeperLinks_t;
+  using CutBookkeeperLinks_t = std::vector<xAOD::CutBookkeeperLink_t>;
 
 
   // ======================================================================
@@ -357,7 +357,7 @@ namespace xAOD {
   // ======================================================================
 
   bool CutBookkeeper_v1::hasParent() const {
-    return ( parentLinkAcc(*this).isValid() ? true : false );
+    return ( parentLinkAcc(*this).isValid() );
   }
 
 
@@ -365,7 +365,7 @@ namespace xAOD {
     if ( parentLinkAcc(*this).isValid() ) {
       return *(parentLinkAcc(*this));
     }
-    return 0;
+    return nullptr;
   }
 
 
@@ -461,7 +461,7 @@ namespace xAOD {
     }
 
     // Finally, add the provided CutBookkeeper as a child
-    childrenLinksAcc(*this).push_back( xAOD::CutBookkeeperLink_t(*ebCont, ebIdx) );
+    childrenLinksAcc(*this).emplace_back(*ebCont, ebIdx );
 
     return;
   }
@@ -572,7 +572,7 @@ namespace xAOD {
     }
 
     // Finally, add the provided CutBookkeeper as a usedOther
-    othersLinksAcc(*this).push_back( xAOD::CutBookkeeperLink_t(*ebCont, ebIdx) );
+    othersLinksAcc(*this).emplace_back(*ebCont, ebIdx );
 
     return;
   }
@@ -653,7 +653,7 @@ namespace xAOD {
     }
 
     // Finally, add the provided CutBookkeeper as a sibling
-    siblingsLinksAcc(*this).push_back( xAOD::CutBookkeeperLink_t(*ebCont, ebIdx) );
+    siblingsLinksAcc(*this).emplace_back(*ebCont, ebIdx );
 
     //synchronize contextual info with the sibling
     siblingEB->addSibling( this );

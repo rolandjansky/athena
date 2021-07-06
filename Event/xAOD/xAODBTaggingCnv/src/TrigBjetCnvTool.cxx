@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigBjetCnvTool.cxx 785653 2016-11-22 06:07:48Z ssnyder $
 
 // EDM include(s):
 #include "TrigParticle/TrigEFBjetContainer.h"
@@ -23,15 +22,6 @@ namespace xAODMaker {
     declareInterface< ITrigBjetCnvTool >( this );
   }
 
-  StatusCode TrigBjetCnvTool::initialize() {
-
-    // Greet the user:
-    ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
-
-    // Return gracefully:
-    return StatusCode::SUCCESS;
-  }
-
   /**
    * This is the important function of the tool. It takes the TrigEFBjet, and fills an xAOD::TrigBjetContainer with them.
    *
@@ -44,7 +34,7 @@ namespace xAODMaker {
                                        xAOD::BTaggingContainer* xaod ) const {
 
     // A small sanity check. The output container should really be empty...
-    if( xaod->size() ) {
+    if( !xaod->empty() ) {
       ATH_MSG_WARNING( "The output xAOD container is not empty (size=="
                        << xaod->size() << ")" );
     }

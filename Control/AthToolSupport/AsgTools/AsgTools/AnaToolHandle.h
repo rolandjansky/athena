@@ -13,6 +13,7 @@
 
 
 #include <AsgTools/AsgTool.h>
+#include <AsgTools/AsgToolConfig.h>
 #include <AsgTools/ToolHandle.h>
 #include <atomic>
 #include <list>
@@ -34,290 +35,6 @@ namespace asg
   namespace detail
   {
     class AnaToolShare;
-
-    /// \brief a class maintaining a list of cleanups to be performed
-    /// when releasing a tool.
-
-    class AnaToolCleanup
-    {
-      //
-      // public interface
-      //
-
-      /// \brief standard swap
-      /// \par Guarantee
-      ///   no-fail
-    public:
-      void swap (AnaToolCleanup& that);
-
-
-      /// \brief add a cleanup to perform
-      ///
-      /// Normally this is added to the end of the list of cleanups,
-      /// but by passing post as false, you can also add it at the
-      /// beginning.
-      ///
-      /// \par Guarantee
-      ///   basic
-      /// \par Failures
-      ///   out of memory II
-    public:
-      void addCleanup (AnaToolCleanup val_cleanup, bool post = true);
-
-      /// \copydoc addCleanup
-    public:
-      void addCleanup (const std::shared_ptr<void>& val_cleanup,
-		       bool post = true);
-
-
-
-      //
-      // private interface
-      //
-
-    private:
-      std::list<std::shared_ptr<void> > m_cleanup;
-    };
-
-
-
-    /// \brief the base class for classes holding property values for
-    /// AnaToolHandle
-
-    class AnaToolProperty
-    {
-      //
-      // public interface
-      //
-
-      /// \brief standard default constructor for base class
-      /// \par Guarantee
-      ///   no-fail
-    public:
-      virtual ~AnaToolProperty () noexcept = default;
-
-#ifdef XAOD_STANDALONE
-      /// \brief apply the property to the given tool in RootCore
-      /// \par Guarantee
-      ///   basic
-      /// \par Failures
-      ///   unknown property\n
-      ///   invalid property type/value\n
-      ///   out of memory II
-    public:
-      virtual StatusCode
-      applyPropertyRootCore (AsgTool& tool, const std::string& name,
-			     AnaToolCleanup& cleanup)
-	const = 0;
-#endif
-
-#ifndef XAOD_STANDALONE
-      /// \brief store the property in the configuration service in
-      /// Athena
-      /// \par Guarantee
-      ///   basic
-      /// \par Failures
-      ///   out of memory II
-    public:
-      virtual StatusCode
-      applyPropertyAthena (const std::string& toolName,
-			   const std::string& name,
-			   AnaToolCleanup& cleanup)
-	const = 0;
-#endif
-    };
-
-
-
-    /// \brief the complete configuration for a tool
-    ///
-    /// This is very much a-kin to the python configurables used
-    /// inside Athena (thanks Steve Farrell for the analogy).
-    /// However, so far this is mostly an internal helper class for
-    /// the \ref AnaToolHandle implementation.
-
-    class AnaToolConfig
-    {
-      //
-      // public interface
-      //
-
-      /// \brief standard swap
-      /// \par Guarantee
-      ///   no-fail
-    public:
-      void swap (AnaToolConfig& that) noexcept;
-
-
-      /// \brief whether we contain no properties
-      /// \par Guarantee
-      ///   no-fail
-    public:
-      bool empty () const noexcept;
-
-
-      /// \brief the type of the tool to create
-      /// \par Guarantee
-      ///   no-fail
-    public:
-      const std::string& type () const noexcept;
-
-      /// \brief set the value of \ref type
-      /// \par Guarantee
-      ///   no-fail
-    public:
-      void setType (std::string type) noexcept;
-
-#ifdef XAOD_STANDALONE
-      /// \brief register the new of the given type as factory
-      ///
-      /// If this is set, it is used instead of \ref type to allocate
-      /// the tool.  This is mostly meant as a stop-gap solution for
-      /// tools which either do not have a dictionary, or which have a
-      /// class structure incompatible with instantiation via the
-      /// dictionary.
-      /// \par Guarantee
-      ///   strong
-      /// \par Failures
-      ///   out of memory I
-    public:
-      template<typename Type>
-      void registerNew ();
-#endif
-
-
-      /// \brief set the property with the given name in the same
-      /// fashion as \ref AnaToolHandle::setProperty
-      /// \par Guarantee
-      ///   strong
-      /// \par Failures
-      ///   out of memory II\n
-      ///   no way to handle value
-    public:
-      template<typename Type> StatusCode
-      setProperty (const std::string& val_name, const Type& val_value);
-
-      /// \copydoc setProperty
-    public:
-      template<typename Type> StatusCode
-      setProperty (const std::string& val_name,
-		   const AnaToolHandle<Type>& val_value);
-
-#ifndef XAOD_STANDALONE
-      /// \copydoc setProperty
-    public:
-      template<typename Type> StatusCode
-      setProperty (const std::string& val_name,
-		   const ToolHandle<Type>& val_value);
-
-      /// \copydoc setProperty
-    public:
-      template<typename Type> StatusCode
-      setProperty (const std::string& val_name,
-		   const ToolHandleArray<Type>& val_value);
-#endif
-
-
-      /// \copydoc setProperty
-    public:
-      StatusCode
-      setProperty (const std::string& val_name,
-		   const char *val_value);
-
-
-      /// \brief add/set the property with the given name
-      /// \par Guarantee
-      ///   strong
-      /// \par Failures
-      ///   out of memory II
-    public:
-      void addProperty (const std::string& name,
-			const std::shared_ptr<AnaToolProperty>& property);
-
-
-      /// \brief make a configured and initialized tool
-      /// \par Guarantee
-      ///   strong
-      /// \par Failures
-      ///   tool creation failures
-    public:
-      template<typename ToolType> StatusCode
-      makeTool (const std::string& name,
-                parentType_t *parent,
-		ToolHandle<ToolType>& th,
-		AnaToolCleanup& cleanup) const;
-
-
-      /// \brief make a configured and initialized tool of the basic type
-      /// \par Guarantee
-      ///   strong
-      /// \par Failures
-      ///   tool creation failures
-    public:
-      StatusCode
-      makeBaseTool (const std::string& name,
-                    parentType_t *parent,
-                    ToolHandle<interfaceType_t>& th,
-                    AnaToolCleanup& cleanup) const;
-
-
-#ifndef XAOD_STANDALONE
-      /// \brief store the properties in the configuration service in
-      /// Athena
-      /// \par Guarantee
-      ///   basic
-      /// \par Failures
-      ///   out of memory II
-    public:
-      StatusCode
-      applyPropertiesAthena (const std::string& toolName,
-			     AnaToolCleanup& cleanup) const;
-#endif
-
-
-
-      //
-      // private interface
-      //
-
-      /// \brief the value of \ref type
-    private:
-      std::string m_type;
-
-      /// \brief the factory to use, if we have one
-    private:
-      std::function<StatusCode (AsgTool*&, const std::string&)> m_factory;
-
-      /// \brief the list of all properties stored
-    private:
-      std::map<std::string,std::shared_ptr<AnaToolProperty> > m_properties;
-
-
-#ifdef XAOD_STANDALONE
-      /// \brief create, configure and initialize the tool (in
-      /// RootCore)
-      /// \par Guarantee
-      ///   strong
-      /// \par Failures
-      ///   tool creation/initialization failures
-    private:
-      StatusCode
-      makeToolRootCore (const std::string& toolName, IAsgTool*& toolPtr,
-			detail::AnaToolCleanup& cleanup) const;
-#endif
-
-
-#ifdef XAOD_STANDALONE
-      /// \brief allocate the tool
-      /// \par Guarantee
-      ///   basic
-      /// \par Failures
-      ///   tool allocation failures
-    private:
-      StatusCode
-      allocateTool (AsgTool*& toolPtr, const std::string& toolName) const;
-#endif
-    };
 
 
 
@@ -589,9 +306,17 @@ namespace asg
     /// \par Failures
     ///   property setting failures
     /// \pre !isInitialized()
+    /// \{
   public:
     template <class T2> StatusCode
     setProperty (const std::string& property, const T2& value);
+    template <class T2> StatusCode
+    setProperty (const std::string& property, const ToolHandle<T2>& value);
+    template <class T2> StatusCode
+    setProperty (const std::string& property, const AnaToolHandle<T2>& value);
+    template <class T2> StatusCode
+    setProperty (const std::string& property, const ToolHandleArray<T2>& value);
+    /// \}
 
 
     /// \brief the type configured for this AnaToolHandle
@@ -606,24 +331,6 @@ namespace asg
     /// \pre !isInitialized()
   public:
     void setType (std::string val_type) noexcept;
-
-#ifdef XAOD_STANDALONE
-    /// \brief set the value of \ref type and a factory based on the
-    /// standard tool constructor
-    ///
-    /// This is mainly for use with RootCore where we occasionally
-    /// have trouble instantiating tools via their dictionaries.  Even
-    /// in that case you shouldn't call this directly, but use the
-    /// \ref ASG_MAKE_ANA_TOOL macro.
-    ///
-    /// \par Guarantee
-    ///   strong
-    /// \par Failures
-    ///   out of memory I
-  public:
-    template<class T2>
-    void setTypeRegisterNew (std::string val_type);
-#endif
 
 
     /// \brief the name configured for this AnaToolHandle
@@ -776,7 +483,7 @@ namespace asg
     /// \par Failures
     ///   out of memory II
   public:
-    const detail::AnaToolConfig& config () const;
+    const AsgToolConfig& config () const;
 
 
     /// \brief whether the user is allowed to configure this with an
@@ -847,36 +554,32 @@ namespace asg
 	  setType (val_type); }
       return StatusCode::SUCCESS; };
 
-  // public:
-  //   [[deprecated]] ("please use either getHandle() or declarePropertyFor() instead")
-  //   ToolHandle<T>& handle () {
-  //     return *m_handleUser;};
-
-#ifdef XAOD_STANDALONE
-  public:
-    template<class T2>
-    [[deprecated("please use setTypeRegisterNew() instead")]]
-    StatusCode makeNew (std::string val_type) {
-      setTypeRegisterNew<T2> (std::move (val_type));
-      return StatusCode::SUCCESS;}
-#endif
-
 
 
     //
     // private interface
     //
 
+    /// \brief any extra initialization we need to do before creating
+    /// the tool
+    ///
+    /// This is mostly/only for creating public tools the tool needs
+    /// to use.  This is not ideal for various reasons, but it is what
+    /// it is, and this is legacy code.
+    ///
+    /// \warn This member has to come before \ref m_cleanup
+  private:
+    std::vector<std::function<StatusCode ()>> m_extraInit;
+
     /// \brief any stuff we need to release as part of cleanup
     ///
-    /// This is protected by \ref m_isInitialized and should not be
-    /// accessed until \ref m_isInitialized is true.
+    /// \warn This member has to come before \ref m_handleUser
   private:
-    detail::AnaToolCleanup m_cleanup;
+    std::shared_ptr<void> m_cleanup;
 
     /// \brief the configuration for this tool
   private:
-    detail::AnaToolConfig m_config;
+    AsgToolConfig m_config;
 
     /// \brief the value of \ref name
   private:
@@ -983,13 +686,8 @@ namespace asg
   (ASG_SET_ANA_TOOL_TYPE(handle,type), StatusCode (StatusCode::SUCCESS))
 
 /// \brief set the tool type on the tool handle, using new in rootcore
-#ifdef XAOD_STANDALONE
-#define ASG_SET_ANA_TOOL_TYPE(handle,type)	\
-  (handle).template setTypeRegisterNew<type> (#type)
-#else
 #define ASG_SET_ANA_TOOL_TYPE(handle,type)	\
   (handle).setType (#type)
-#endif
 
 #include <AsgTools/AnaToolHandle.icc>
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ALFA_Digitization/ALFA_PileUpTool.h"
@@ -12,6 +12,8 @@
 #include "ALFA_SimEv/ALFA_ODHit.h"
 #include "ALFA_RawEv/ALFA_ODDigitCollection.h"
 
+#include "AthenaKernel/RNGWrapper.h"
+#include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandPoissonQ.h"
@@ -20,7 +22,6 @@
 
 #include <map>
 
-#include "PileUpTools/PileUpMergeSvc.h"
 #include "Identifier/Identifier.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
@@ -49,9 +50,6 @@ ALFA_PileUpTool::ALFA_PileUpTool(const std::string& type,
 								const std::string& name,
 								const IInterface* parent) :
   PileUpToolBase(type, name, parent),  
-  m_mergeSvc    	("PileUpMergeSvc", name),
-  m_atRndmGenSvc    ("AtRndmGenSvc"  , name),
-  m_rndEngine		(0), 
   m_sigma0          (0.1),
   m_sigma1          (1.0),
   m_meanE_dep       (0.0863), //MeV 
@@ -81,8 +79,6 @@ ALFA_PileUpTool::ALFA_PileUpTool(const std::string& type,
   declareProperty("ALFA_DigitCollection", m_key_DigitCollection, "Name of the Collection to hold the output from the ALFA main detector digitization"); 
   declareProperty("ALFA_ODDigitCollection", m_key_ODDigitCollection, "Name of the Collection to hold the output from the ALFA OD digitization");
   
-  declareProperty("RndmSvc", m_atRndmGenSvc, "Random Number Service used in ALFA digitization");
-  declareProperty("mergeSvc", m_mergeSvc, "Store to hold the pile-ups");
 
 //  declareProperty("fillRootTree", m_fillRootTree);  
    
@@ -106,14 +102,12 @@ StatusCode ALFA_PileUpTool::initialize(){
   
   ATH_MSG_DEBUG (" Pedestal: " << m_AmplitudeCut);
   
-  if (m_atRndmGenSvc.retrieve().isFailure()) { 
-    ATH_MSG_FATAL ( "Could not retrieve RandomNumber Service!" ); 
-    return StatusCode::FAILURE; 
-  }
-  else { 
-    ATH_MSG_DEBUG ( "Retrieved RandomNumber Service" ); 
-  }
-  
+  ATH_CHECK (m_randomSvc.retrieve());
+  ATH_MSG_DEBUG ( "Retrieved RandomNumber Service" );
+
+  ATH_CHECK (m_mergeSvc.retrieve());
+  ATH_MSG_DEBUG("Retrieved PileUpMergeSvc");
+
   m_mergedALFA_HitList = new ALFA_HitCollection();
   m_mergedALFA_ODHitList = new ALFA_ODHitCollection();
   
@@ -125,19 +119,9 @@ StatusCode ALFA_PileUpTool::initialize(){
 
 // *********************************************************************************
 
-StatusCode ALFA_PileUpTool::processAllSubEvents(const EventContext& /*ctx*/) {
+StatusCode ALFA_PileUpTool::processAllSubEvents(const EventContext& ctx) {
 
   ATH_MSG_DEBUG ("ALFA_PileUpTool::processAllSubEvents()");
-
-  //retrieve the PileUpMergeSvc if necessary
-  if(!m_mergeSvc) {
-    if(!m_mergeSvc.retrieve().isSuccess() || !m_mergeSvc) {
-      ATH_MSG_FATAL("digitize: Could not find PileUpMergeSvc");
-      return StatusCode::FAILURE;
-    }
-    else ATH_MSG_DEBUG("digitize: retrieved PileUpMergeSvc");
-  }
-  else ATH_MSG_DEBUG("digitize: PileUpMergeSvc already available"); 
 
   typedef PileUpMergeSvc::TimedList<ALFA_HitCollection>::type TimedALFAHitCollList;
   typedef PileUpMergeSvc::TimedList<ALFA_ODHitCollection>::type TimedALFAODHitCollList;
@@ -198,9 +182,6 @@ StatusCode ALFA_PileUpTool::processAllSubEvents(const EventContext& /*ctx*/) {
 
   // preparing containers 
   
-  m_rndEngine = m_atRndmGenSvc->GetEngine("ALFARndEng");
-
- 
   if (recordCollection(this->evtStore(), m_key_DigitCollection).isFailure()) { 
     
     ATH_MSG_FATAL ( " ALFA_PileUpTool::processAllSubEvents(): Could not record the empty ALFA digit container in StoreGate " ); return StatusCode::FAILURE; 
@@ -218,8 +199,12 @@ StatusCode ALFA_PileUpTool::processAllSubEvents(const EventContext& /*ctx*/) {
   // filling containers 
   
   ALFA_MD_info(tALFAhit);
-  
-  StatusCode sc = fill_MD_DigitCollection(m_rndEngine);
+
+  // Prepare RNG Service
+  ATHRNG::RNGWrapper* rngWrapper = m_randomSvc->getEngine(this, m_randomStreamName);
+  rngWrapper->setSeed( m_randomStreamName, ctx );
+  CLHEP::HepRandomEngine* rngEngine = rngWrapper->getEngine(ctx);
+  StatusCode sc = fill_MD_DigitCollection(rngEngine);
   if  (sc.isFailure()) {
     ATH_MSG_WARNING ("ALFA_PileUpTool::fill_MD_DigitCollection() failed");  
     return StatusCode::SUCCESS;     
@@ -228,7 +213,7 @@ StatusCode ALFA_PileUpTool::processAllSubEvents(const EventContext& /*ctx*/) {
     
   ALFA_OD_info(tALFAODhit);
   
-  sc = fill_OD_DigitCollection(m_rndEngine);
+  sc = fill_OD_DigitCollection(rngEngine);
   if  (sc.isFailure()) {
     ATH_MSG_WARNING ("ALFA_PileUpTool::fill_OD_DigitCollection() failed");  
     return StatusCode::SUCCESS;     
@@ -308,8 +293,6 @@ StatusCode ALFA_PileUpTool::processBunchXing(int bunchXing,
     ALFA_ODHitCollection::const_iterator eODHitColl = tmpODHitColl->end();
    
     for (; iODHitColl!=eODHitColl; ++iODHitColl) m_mergedALFA_ODHitList->push_back((*iODHitColl));
-    
-    m_rndEngine = m_atRndmGenSvc->GetEngine("ALFARndEng");
   }
   
   return StatusCode::SUCCESS;
@@ -318,12 +301,16 @@ StatusCode ALFA_PileUpTool::processBunchXing(int bunchXing,
 
 
 
-StatusCode ALFA_PileUpTool::mergeEvent(const EventContext& /*ctx*/){
+StatusCode ALFA_PileUpTool::mergeEvent(const EventContext& ctx){
 
 
   ALFA_MD_info(m_mergedALFA_HitList);
-  
-  StatusCode sc = fill_MD_DigitCollection(m_rndEngine);
+
+  // Prepare RNG Service
+  ATHRNG::RNGWrapper* rngWrapper = m_randomSvc->getEngine(this, m_randomStreamName);
+  rngWrapper->setSeed( m_randomStreamName, ctx );
+  CLHEP::HepRandomEngine* rngEngine = rngWrapper->getEngine(ctx);
+  StatusCode sc = fill_MD_DigitCollection(rngEngine);
   if  (sc.isFailure()) {
     ATH_MSG_WARNING ("ALFA_PileUpTool::fill_MD_DigitCollection() failed");  
     return StatusCode::SUCCESS;     
@@ -332,7 +319,7 @@ StatusCode ALFA_PileUpTool::mergeEvent(const EventContext& /*ctx*/){
   
   ALFA_OD_info(m_mergedALFA_ODHitList);
   
-  sc = fill_OD_DigitCollection(m_rndEngine);
+  sc = fill_OD_DigitCollection(rngEngine);
   if  (sc.isFailure()) {
     ATH_MSG_WARNING ("ALFA_PileUpTool::fill_OD_DigitCollection() failed");  
     return StatusCode::SUCCESS;     
@@ -580,10 +567,10 @@ StatusCode ALFA_PileUpTool::fill_MD_DigitCollection(CLHEP::HepRandomEngine* rndE
 	    //             + noise_1 
 		//             + noise_2;
 			
-		amplitude = CLHEP::RandGaussZiggurat::shoot(m_rndEngine, N_photo, sqrt(pow(m_sigma0,2)+N_photo*pow(m_sigma1,2)));
+		amplitude = CLHEP::RandGaussZiggurat::shoot(rndEngine, N_photo, sqrt(pow(m_sigma0,2)+N_photo*pow(m_sigma1,2)));
 
-		//N_photo_CT   = CLHEP::RandPoisson::shoot(m_rndEngine,0.08*m_E_fib[l][i][j]*m_meanN_photo/m_meanE_dep); 		
-		//amplitude_CT = CLHEP::RandGaussQ::shoot (m_rndEngine, N_photo_CT, sqrt(pow(m_sigma0,2)+N_photo_CT*pow(m_sigma1,2)));
+		//N_photo_CT   = CLHEP::RandPoisson::shoot(rndEngine,0.08*m_E_fib[l][i][j]*m_meanN_photo/m_meanE_dep); 		
+		//amplitude_CT = CLHEP::RandGaussQ::shoot (rndEngine, N_photo_CT, sqrt(pow(m_sigma0,2)+N_photo_CT*pow(m_sigma1,2)));
 				 
 				  
 	    if (amplitude >= m_AmplitudeCut )
@@ -610,7 +597,7 @@ StatusCode ALFA_PileUpTool::fill_MD_DigitCollection(CLHEP::HepRandomEngine* rndE
 				{
 					for (int f = j+1; f < 64; f++)
 					{	
-						rand_fib  = CLHEP::RandFlat::shoot(m_rndEngine,0.,1.);
+						rand_fib  = CLHEP::RandFlat::shoot(rndEngine,0.,1.);
 						
 						if ( m_fibres[l][i][f] == 0)
 						{
@@ -623,7 +610,7 @@ StatusCode ALFA_PileUpTool::fill_MD_DigitCollection(CLHEP::HepRandomEngine* rndE
 									
 					for (int f = j-1; f > -1; f--)
 					{	
-						rand_fib = CLHEP::RandFlat::shoot(m_rndEngine,0.,1.);	
+						rand_fib = CLHEP::RandFlat::shoot(rndEngine,0.,1.);	
 							
 						if ( m_fibres[l][i][f] == 0)
 						{

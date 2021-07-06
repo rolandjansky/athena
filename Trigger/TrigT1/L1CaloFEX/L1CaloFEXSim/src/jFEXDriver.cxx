@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+    Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -18,8 +18,10 @@
 #include "L1CaloFEXSim/jSuperCellTowerMapper.h"
 
 #include "L1CaloFEXSim/jFEXSim.h"
-//#include "L1CaloFEXSim/jFEXOutputCollection.h"
-//#include "L1CaloFEXSim/jFEXegTOB.h"
+#include "L1CaloFEXSim/jFEXOutputCollection.h"
+#include "L1CaloFEXSim/jFEXSmallRJetTOB.h"
+#include "L1CaloFEXSim/jFEXLargeRJetTOB.h"
+#include "L1CaloFEXSim/jFEXtauTOB.h"
 
 #include "TROOT.h"
 #include "TH1.h"
@@ -32,11 +34,17 @@
 
 #include "L1CaloFEXSim/jTowerContainer.h"
 
+#include "xAODTrigger/jFexSRJetRoI.h"
+#include "xAODTrigger/jFexSRJetRoIContainer.h" 
+
+#include "xAODTrigger/jFexLRJetRoI.h"
+#include "xAODTrigger/jFexLRJetRoIContainer.h"
+
+#include "xAODTrigger/jFexTauRoI.h"
+#include "xAODTrigger/jFexTauRoIContainer.h" 
+
 #include <cassert>
 #include "SGTools/TestStore.h"
-
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ITHistSvc.h"
 
 #include <ctime>
 
@@ -63,19 +71,6 @@ StatusCode jFEXDriver::initialize()
 
   m_numberOfEvents = 1;
 
-  ServiceHandle<ITHistSvc> histSvc("THistSvc","");
-  StatusCode scHist = histSvc.retrieve();
-  if (scHist ==  StatusCode::FAILURE) {ATH_MSG_ERROR("Failed to retrieve THistSvc"); }
-
-  //Reta
-  TH1F* hReta = new TH1F("Reta", "Reta",20,0,1);
-  hReta->GetXaxis()->SetTitle("TObs Reta");
-  hReta->GetYaxis()->SetTitle("Events");
-  
-  StatusCode scReg = histSvc->regHist("/ISO/Reta", hReta); 
-  if (scReg ==  StatusCode::FAILURE) {ATH_MSG_ERROR("Failed to define stream"); }
-
-
   ATH_CHECK( m_jTowerBuilderTool.retrieve() );
 
   ATH_CHECK( m_jSuperCellTowerMapperTool.retrieve() );
@@ -83,6 +78,10 @@ StatusCode jFEXDriver::initialize()
   ATH_CHECK( m_jFEXSysSimTool.retrieve() );
 
   ATH_CHECK( m_jTowerContainerSGKey.initialize() );
+
+  ATH_CHECK( m_jFexSRJetEDMKey.initialize() );
+  ATH_CHECK( m_jFexLRJetEDMKey.initialize() );
+  ATH_CHECK( m_jFexTauEDMKey.initialize() );
 
   //ATH_CHECK( m_jFEXOutputCollectionSGKey.initialize() );
 
@@ -117,8 +116,9 @@ StatusCode jFEXDriver::finalize()
 
   // STEP 1 TO BE REPLACED IN THE NEAR FUTURE - KEPT HERE FOR REFERENCE
   // STEP 1 - Do some monitoring (code to exported in the future to another algorithm accessing only StoreGate and not appearing in this algorithm)
-  /*
+  
   jFEXOutputCollection* my_jFEXOutputCollection = new jFEXOutputCollection();
+  //std::shared_ptr<jFEXOutputCollection> my_jFEXOutputCollection = std::make_shared<jFEXOutputCollection>();
   bool savetob = true;
   if(savetob)
   {
@@ -131,7 +131,7 @@ StatusCode jFEXDriver::finalize()
     //ATH_CHECK(jFEXOutputCollectionSG.record(std::make_unique<jFEXOutputCollection>()));
     
   }
-  */
+  
 
   // STEP 2 - Make some jTowers and fill the local container
   ATH_CHECK( m_jTowerBuilderTool.retrieve() );
@@ -155,7 +155,12 @@ StatusCode jFEXDriver::finalize()
   // STEP 6 - Run THE jFEXSysSim
   ATH_CHECK(m_jFEXSysSimTool->execute());
 
-  // STEP 7 - Close and clean the event  
+  //STEP 6.5- test the EDMs
+  ATH_CHECK(testSRJetEDM());
+  ATH_CHECK(testLRJetEDM());
+  ATH_CHECK(testTauEDM());
+
+// STEP 7 - Close and clean the event  
   m_jFEXSysSimTool->cleanup();
   m_jSuperCellTowerMapperTool->reset();
   m_jTowerBuilderTool->reset();
@@ -166,6 +171,85 @@ StatusCode jFEXDriver::finalize()
 
   return StatusCode::SUCCESS;
 }
-  
-  
+
+StatusCode jFEXDriver::testSRJetEDM(){
+  const xAOD::jFexSRJetRoI* myRoI = 0;
+  SG::ReadHandle<xAOD::jFexSRJetRoIContainer> myRoIContainer(m_jFexSRJetEDMKey);
+    if(!myRoIContainer.isValid()){
+      ATH_MSG_FATAL("Could not retrieve EDM Container " << m_jFexSRJetEDMKey.key());
+      return StatusCode::FAILURE;
+   }
+
+    ATH_MSG_DEBUG("----got container: " << myRoIContainer.key());
+
+    for(const auto& it : * myRoIContainer){
+      myRoI = it;
+      ATH_MSG_DEBUG("SR Jet EDM jFex Number: "
+            << +myRoI->jFexNumber() // returns an 8 bit unsigned integer referring to the eFEX number
+            << " et: "
+            << myRoI->et() // returns the et value of the EM cluster in MeV
+            << " eta: "
+            << myRoI->eta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
+            << " phi: "
+            << myRoI->phi() // returns a floating point global phi
+            );
+    }
+
+    return StatusCode::SUCCESS;
+}  
+
+StatusCode jFEXDriver::testLRJetEDM(){
+
+  const xAOD::jFexLRJetRoI* myRoI = 0;
+  SG::ReadHandle<xAOD::jFexLRJetRoIContainer> myRoIContainer(m_jFexLRJetEDMKey);
+    if(!myRoIContainer.isValid()){
+      ATH_MSG_FATAL("Could not retrieve EDM Container " << m_jFexLRJetEDMKey.key());
+      return StatusCode::FAILURE;
+   }
+
+    ATH_MSG_DEBUG("----got container: " << myRoIContainer.key());
+
+    for(const auto& it : * myRoIContainer){
+      myRoI = it;
+      ATH_MSG_DEBUG("LR Jet EDM jFex Number: "
+            << +myRoI->jFexNumber() // returns an 8 bit unsigned integer referring to the eFEX number
+            << " et: "
+            << myRoI->et() // returns the et value of the EM cluster in MeV
+            << " eta: "
+            << myRoI->eta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
+            << " phi: "
+            << myRoI->phi() // returns a floating point global phi
+            );
+    }
+
+    return StatusCode::SUCCESS;
+}
+
+StatusCode jFEXDriver::testTauEDM(){
+
+  const xAOD::jFexTauRoI* myRoI = 0;
+  SG::ReadHandle<xAOD::jFexTauRoIContainer> myRoIContainer(m_jFexTauEDMKey);
+    if(!myRoIContainer.isValid()){
+      ATH_MSG_FATAL("Could not retrieve EDM Container " << m_jFexTauEDMKey.key());
+      return StatusCode::FAILURE;
+   }
+
+    ATH_MSG_DEBUG("----got container: " << myRoIContainer.key());
+
+    for(const auto& it : * myRoIContainer){
+      myRoI = it;
+      ATH_MSG_DEBUG("EDM jFex Number: "
+            << +myRoI->jFexNumber() // returns an 8 bit unsigned integer referring to the eFEX number
+            << " et: "
+            << myRoI->et() // returns the et value of the EM cluster in MeV
+            << " eta: "
+            << myRoI->eta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
+            << " phi: "
+            << myRoI->phi() // returns a floating point global phi
+            );
+    }
+
+    return StatusCode::SUCCESS;
+}
+
 } // end of LVL1 namespace

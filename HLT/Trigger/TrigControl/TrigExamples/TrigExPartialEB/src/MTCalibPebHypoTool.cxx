@@ -148,12 +148,16 @@ StatusCode MTCalibPebHypoTool::initialize() {
       return StatusCode::FAILURE;
     }
   }
-  if (msgLvl(MSG::DEBUG) && !m_robAccessDict.empty()) {
-    ATH_MSG_DEBUG(name() << " will execute the following ROB request instructions:");
-    for (const auto& [instr,robVec] : m_robAccessDict) {
-      ATH_MSG_DEBUG("---> Instruction : " << instr.toString());
-      ATH_MSG_DEBUG("     ROB list    : " << idsToString(robVec));
+  if (msgLvl(MSG::DEBUG)) {
+    if (!m_robAccessDict.empty()) {
+      ATH_MSG_DEBUG(name() << " will execute the following ROB request instructions:");
+      for (const auto& [instr,robVec] : m_robAccessDict) {
+        ATH_MSG_DEBUG("---> Instruction : " << instr.toString());
+        ATH_MSG_DEBUG("     ROB list    : " << idsToString(robVec));
+      }
     }
+    ATH_MSG_DEBUG(name() << " PEBROBList = [" << idsToString(m_pebRobList) << "]");
+    ATH_MSG_DEBUG(name() << " PEBSubDetList = [" << idsToString(m_pebSubDetList) << "]");
   }
 
   return StatusCode::SUCCESS;

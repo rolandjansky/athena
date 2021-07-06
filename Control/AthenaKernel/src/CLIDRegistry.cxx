@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
  */
 
 #include "AthenaKernel/CLIDRegistry.h"
@@ -20,8 +20,7 @@ public:
 
   bool addEntry (unsigned long clid,
                  const std::type_info& ti,
-                 const char* typeName, 
-                 const Athena::PackageInfo& pkgInfo,
+                 const char* typeName,
                  const std::string& typeInfoName);
 
 
@@ -95,11 +94,10 @@ CLID CLIDRegistryImpl::typeinfoToCLID (const std::type_info& ti) const
 bool CLIDRegistryImpl::addEntry (unsigned long clid,
                                  const std::type_info& ti,
                                  const char* typeName, 
-                                 const Athena::PackageInfo& pkgInfo,
                                  const std::string& typeInfoName)
 {
   lock_t lock (m_mutex);
-  m_vec.emplace_back (clid, std::string(typeName), pkgInfo, typeInfoName);
+  m_vec.emplace_back (clid, std::string(typeName), typeInfoName);
   m_clid_ti_map[clid] = &ti;
   m_ti_clid_map[&ti] = clid;
   return true;
@@ -157,9 +155,8 @@ CLID CLIDRegistry::typeinfoToCLID (const std::type_info& ti)
 bool CLIDRegistry::addEntry (unsigned long clid,
                              const std::type_info& ti,
                              const char* typeName, 
-                             const Athena::PackageInfo& pkgInfo,
                              const std::string& typeInfoName)
 {
-  return impl().addEntry (clid, ti, typeName, pkgInfo, typeInfoName);
+  return impl().addEntry (clid, ti, typeName, typeInfoName);
 }
 

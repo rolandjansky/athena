@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -28,8 +28,8 @@ void
 TrigEMClusterContainer::print ( void ) const {
 	std::cout << "TrigEMClusterContainer with ";
 	std::cout << size() << " TrigEMClusters" << std::endl;
-	for ( TrigEMClusterContainer::const_iterator i = begin(); i!=end();i++)
-		(*i)->print();
+        for (const TrigEMCluster* c : *this)
+		c->print();
 }
 
 // Simple debug method using MsgStream
@@ -37,8 +37,8 @@ void
 TrigEMClusterContainer::print ( MsgStream& log ) const {
 	log <<MSG::DEBUG<< "TrigEMClusterContainer with ";
 	log <<MSG::DEBUG<< size() << " TrigEMClusters" << endmsg;
-	for ( TrigEMClusterContainer::const_iterator i = begin(); i!=end();i++)
-		(*i)->print(log);
+        for (const TrigEMCluster* c : *this)
+		c->print(log);
 }
 
 // End of file TrigEMClusterContainer.cxx

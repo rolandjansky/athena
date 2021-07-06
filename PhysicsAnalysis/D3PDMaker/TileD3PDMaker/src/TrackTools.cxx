@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -57,33 +57,35 @@ StatusCode TrackTools::finalize(){
 } // TRACKTOOLS::FINALIZE
 
 //==================================================================================================
-const Trk::TrackParameters* TrackTools::getTrackInCellSampling(const TRACK* track, CaloSampling::CaloSample sampling){
+std::unique_ptr<const Trk::TrackParameters> TrackTools::getTrackInCellSampling(const TRACK* track, CaloSampling::CaloSample sampling){
 //==================================================================================================
   if( !m_caloExtensionTool.empty() ){
-    std::unique_ptr<Trk::CaloExtension> extension = m_caloExtensionTool->caloExtension(*track);
-    if(!extension) return 0;
+    std::unique_ptr<Trk::CaloExtension> extension =
+      m_caloExtensionTool->caloExtension(Gaudi::Hive::currentContext(), *track);
+    if (!extension)
+      return nullptr;
 
     Trk::TrackParametersIdHelper  parsIdHelper;
 
-    std::map<CaloSampling::CaloSample,const Trk::TrackParameters*> Samplings;
+    std::map<CaloSampling::CaloSample,const Trk::CurvilinearParameters*> Samplings;
 
     // loop over calo layers, keep track of previous layer
     auto cur = extension->caloLayerIntersections().begin();
     auto prev = cur;
     for( ; cur != extension->caloLayerIntersections().end() ; ++cur ){
       // check that prev and cur are not the same, if not fill if the previous was an entry layer
-      if( prev != cur && parsIdHelper.isEntryToVolume((*prev)->cIdentifier()) )
+      if( prev != cur && parsIdHelper.isEntryToVolume((*prev).cIdentifier()) )
       {
-       	TrackParametersIdentifier id =  (*prev)->cIdentifier();
+       	TrackParametersIdentifier id =  (*prev).cIdentifier();
         CaloSampling::CaloSample sample = parsIdHelper.caloSample(id);
-        Samplings[sample] = *prev;
+        Samplings[sample] = &(*prev);
       }
       prev=cur;
     }
-    if(!Samplings[sampling])  return 0 ;
-    else return Samplings[sampling];
+    if(!Samplings[sampling])  {return nullptr ;}
+    else {return std::make_unique<const Trk::CurvilinearParameters> (*(Samplings[sampling]));}
   }
-  return 0;
+  return nullptr;
 }
 
 //==================================================================================================
@@ -91,8 +93,10 @@ std::vector< double > TrackTools::getXYZEtaPhiInCellSampling(const TRACK* track,
 //==================================================================================================
   std::vector<double> coordinates;
   if( !m_caloExtensionTool.empty() ){
-    std::unique_ptr<Trk::CaloExtension> extension = m_caloExtensionTool->caloExtension(*track);
-    if(!extension) return coordinates;
+    std::unique_ptr<Trk::CaloExtension> extension =
+      m_caloExtensionTool->caloExtension(Gaudi::Hive::currentContext(), *track);
+    if (!extension)
+      return coordinates;
 
     Trk::TrackParametersIdHelper  parsIdHelper;
 
@@ -103,11 +107,11 @@ std::vector< double > TrackTools::getXYZEtaPhiInCellSampling(const TRACK* track,
     auto prev = cur;
     for( ; cur != extension->caloLayerIntersections().end() ; ++cur ){
       // check that prev and cur are not the same, if not fill if the previous was an entry layer
-      if( prev != cur && parsIdHelper.isEntryToVolume((*prev)->cIdentifier()) ) 
+      if( prev != cur && parsIdHelper.isEntryToVolume((*prev).cIdentifier()) ) 
       {
-        TrackParametersIdentifier id =  (*prev)->cIdentifier();
+        TrackParametersIdentifier id =  (*prev).cIdentifier();
         CaloSampling::CaloSample sample = parsIdHelper.caloSample(id);
-        Samplings[sample] = *prev;
+        Samplings[sample] = &(*prev);
       }
       prev=cur;
     }
@@ -253,12 +257,14 @@ double TrackTools::getPathInsideCell(const TRACK *track, const CaloCell *cell){
       default: return 0.;
   } // SWITCH
 
-  const Trk::TrackParameters *pars_entrance = getTrackInCellSampling(track, (CaloSampling::CaloSample)sampling_entrance);
-  const Trk::TrackParameters *pars_exit     = getTrackInCellSampling(track, (CaloSampling::CaloSample)sampling_exit);
+  std::unique_ptr<const Trk::TrackParameters> pars_entrance =
+    getTrackInCellSampling(track, (CaloSampling::CaloSample)sampling_entrance);
+  std::unique_ptr<const Trk::TrackParameters> pars_exit =
+    getTrackInCellSampling(track, (CaloSampling::CaloSample)sampling_exit);
 
   if( !pars_entrance || !pars_exit ) return 0.;
 
-  return getPath(cell, pars_entrance, pars_exit);
+  return getPath(cell, pars_entrance.get(), pars_exit.get());
 } // TrackTools::getPathInsideCell
 
 //=====================================================================================================================================

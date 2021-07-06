@@ -15,6 +15,7 @@
 #include "PersistentDataModel/TokenAddress.h"
 
 // Framework
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/GenericAddress.h"
 #include "GaudiKernel/StatusCode.h"
 
@@ -22,7 +23,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
-#include "AthenaKernel/IClassIDSvc.h"
 
 #include <vector>
 

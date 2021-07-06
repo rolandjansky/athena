@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -9,6 +9,7 @@
 
 
 #include "TileEvent/TileMutableRawChannelContainer.h"
+#include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/IAlgTool.h"
 
@@ -20,7 +21,7 @@ public:
 
   // Update a TileMutableRawChannelContainer,
   // subtracting common mode noise for example.
-  virtual StatusCode process (TileMutableRawChannelContainer& rchCont) const = 0;
+  virtual StatusCode process (TileMutableRawChannelContainer& rchCont, const EventContext &ctx) const = 0;
 };
 
 #endif 

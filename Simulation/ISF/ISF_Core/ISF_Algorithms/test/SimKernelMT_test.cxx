@@ -33,6 +33,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
+#include "AtlasHepMC/Operators.h"
 
 namespace ISFTesting {
 
@@ -310,7 +311,6 @@ protected:
       if(!service) {
         return nullptr;
       }
-      EXPECT_TRUE( service->setProperties().isSuccess() );
       EXPECT_TRUE( service->configure().isSuccess() );
       EXPECT_TRUE( m_svcMgr->addService(service).isSuccess() );
       // assert that finalize() gets called once per test case
@@ -333,7 +333,6 @@ protected:
         return nullptr;
       }
 
-      EXPECT_TRUE( tool->setProperties().isSuccess() );
       EXPECT_TRUE( tool->configure().isSuccess() );
 
       // assert that finalize() gets called once per test case
@@ -406,11 +405,7 @@ protected:
         break;
       }
 
-#ifdef HEPMC3
-      eventsAreEqual = *aVertexIterator == *bVertexIterator;
-#else
       eventsAreEqual = **aVertexIterator == **bVertexIterator;
-#endif
 
       ++aVertexIterator;
       ++bVertexIterator;
@@ -526,7 +521,7 @@ protected:
                                                           11,  // pdg id (e-)
                                                           1  // status
     );
-    auto* genVertex = new HepMC::GenVertex{};
+    auto genVertex = HepMC::newGenVertexPtr();
     genVertex->add_particle_out(genPart);
     genVertex->add_particle_out(genPart2);
     genEvent->add_vertex(genVertex);
@@ -742,7 +737,7 @@ protected:
                                                          1  // status
     );
     HepMC::FourVector pos{9., 8., 7., 678.9};
-    auto* genVertex = new HepMC::GenVertex{pos};
+    auto genVertex = HepMC::newGenVertexPtr(pos);
     genVertex->add_particle_out(genPart);
     genEvent->add_vertex(genVertex);
 

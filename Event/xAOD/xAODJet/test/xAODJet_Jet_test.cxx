@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -234,7 +234,7 @@ int testConstituents ATLAS_NOT_THREAD_SAFE (xAOD::JetContainer& jetCont){
 
   TLorentzVector sum;
   int i=0;
-  for( auto itr = vec.begin(); itr!= vec.end(); itr++){
+  for( auto itr = vec.begin(); itr!= vec.end(); ++itr){
     sum+= TLorentzVector( itr->Px(), itr->Py(), itr->Pz(), itr->E());
     TESTMACRO( jetCont[3+i] == (*itr)->rawConstituent() , "identical constituents from JetConstituentVector at "<< i );
     TESTMACRO( is_equal(stlVec[i].pt(), itr->pt() ), " stlVec and constituent Pt identical at  "<< i );

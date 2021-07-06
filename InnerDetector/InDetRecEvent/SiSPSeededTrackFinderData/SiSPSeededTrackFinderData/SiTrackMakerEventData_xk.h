@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -85,7 +85,7 @@ namespace InDet {
     /// @name Data members updated by many methods
     //@{
     std::multimap<const Trk::PrepRawData*, const Trk::Track*> m_clusterTrack;
-    std::array<double, 9> m_par;
+    std::array<double, 9> m_par{};
     //@}
 
     /// @name Data members updated only by newEvent and newTrigEvent methods

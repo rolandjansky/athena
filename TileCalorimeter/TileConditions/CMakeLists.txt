@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TileConditions )
@@ -17,7 +17,7 @@ atlas_add_library( TileConditionsLib
                    INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} CaloConditions CaloIdentifier AthenaBaseComps AthenaKernel AthenaPoolUtilities Identifier GaudiKernel TileCalibBlobObjs TileIdentifier StoreGateLib SGtests CaloDetDescrLib
+                   LINK_LIBRARIES ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} CaloConditions CaloIdentifier AthenaBaseComps AthenaKernel AthenaPoolUtilities Identifier GaudiKernel TileCalibBlobObjs TileIdentifier StoreGateLib CaloDetDescrLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TileDetDescr PathResolver )
 
 atlas_add_component( TileConditions
@@ -29,7 +29,7 @@ atlas_add_dictionary( TileConditionsDict
                       TileConditions/TileConditionsDict.h
                       TileConditions/selection.xml
                       INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloConditions CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities Identifier GaudiKernel TileCalibBlobObjs TileIdentifier CaloDetDescrLib TileDetDescr PathResolver TileConditionsLib )
+                      LINK_LIBRARIES ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloConditions CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib AthenaPoolUtilities Identifier GaudiKernel TileCalibBlobObjs TileIdentifier CaloDetDescrLib TileDetDescr PathResolver TileConditionsLib )
 
 # Test(s) in the package:
 atlas_add_test( TileCondToolTMDB_test
@@ -71,11 +71,6 @@ atlas_install_runtime( share/*.txt share/Tile2003.* share/Tile2004.* share/TileD
 
 if( NOT SIMULATIONBASE )
     # Configuration tests
-    atlas_add_test( TileCondConfigTest
-    		    SCRIPT python -m TileConditions.TileConditionsConfig
-                    POST_EXEC_SCRIPT nopost.sh )
-
-
     atlas_add_test( TileFolders_test
                    SCRIPT python -m unittest -v TileConditions.TileFolders
                    POST_EXEC_SCRIPT nopost.sh )

@@ -310,10 +310,6 @@ else:
 
 # Only for Data
 
-from AthenaCommon.AppMgr import ServiceMgr;
-import MuonRPC_Cabling.MuonRPC_CablingConfig;
-ServiceMgr.MuonRPC_CablingSvc.RPCTriggerRoadsfromCool=False
-
 # IMPORTANT NOTE: initialization of the flags and locking them is done in InDetRec_jobOptions.py!
 # This way RecExCommon just needs to import the properties without doing anything else!
 # DO NOT SET JOBPROPERTIES AFTER THIS LINE! The change will be ignored!

@@ -1,9 +1,58 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaCommon.Logging import logging
 
+#Muon RecRoiTools
+from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool, getRun3TGCRecRoiTool
 
 # Local (generated) configurable(s):
 from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Conf import LVL1MUCTPIPHASE1__MUCTPI_AthAlg
 from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Conf import LVL1MUCTPIPHASE1__MUCTPI_AthTool
+
+#####
+##New style config
+#####
+
+def getTrigThresholdDecisionTool(name="TrigThresholdDecisionTool"):
+  tool = CompFactory.getComp("LVL1::TrigThresholdDecisionTool")(name)
+  tool.RPCRecRoiTool = getRun3RPCRecRoiTool("RPCRecRoiTool", useRun3Config=True)
+  tool.TGCRecRoiTool = getRun3TGCRecRoiTool("TGCRecRoiTool", useRun3Config=True)
+  return tool
+
+
+def MUCTPI_AthToolCfg(name):
+  tool = CompFactory.getComp("LVL1MUCTPIPHASE1::MUCTPI_AthTool")(name)
+  tool.RPCRecRoiTool = getRun3RPCRecRoiTool("RPCRecRoiTool", useRun3Config=True)
+  tool.TGCRecRoiTool = getRun3TGCRecRoiTool("TGCRecRoiTool", useRun3Config=True)
+  tool.TrigThresholdDecisionTool = getTrigThresholdDecisionTool("TrigThresholdDecisionTool")
+
+  # Create a logger:
+  logger = logging.getLogger( "MUCTPI_AthTool" )
+
+  # Set properties of the LUT overlap handling:
+  tool.OverlapStrategyName = "LUT"
+  
+  # Decide which LUT to use, based on which run we are simulating:
+  tool.LUTXMLFile = "TrigConfMuctpi/overlapRun3_20201214.xml"
+  logger.info( "Configuring MuCTPI simulation with configuration file:" )
+  logger.info( "  "+tool.LUTXMLFile )
+
+  return tool
+
+
+def MUCTPI_AthAlgCfg(name):
+  acc = ComponentAccumulator()
+  alg = CompFactory.getComp("LVL1MUCTPIPHASE1::MUCTPI_AthAlg")(name="MUCTPI_AthAlg")
+  alg.MUCTPI_AthTool = MUCTPI_AthToolCfg(name="MUCTPI_AthTool")
+  acc.addEventAlgo(alg)
+  return acc
+
+
+#####
+##Old style config
+#####
+
 
 class DefaultL1MuctpiPhase1( LVL1MUCTPIPHASE1__MUCTPI_AthAlg ):
 
@@ -14,6 +63,8 @@ class DefaultL1MuctpiPhase1( LVL1MUCTPIPHASE1__MUCTPI_AthAlg ):
   def __init__( self, name = "MUCTPI_AthAlg" ):
 
     LVL1MUCTPIPHASE1__MUCTPI_AthAlg.__init__( self, name )
+
+    self.MUCTPI_AthTool = MUCTPI_AthToolCfg("MUCTPI_AthTool")
 
 
 class L1MuctpiPhase1( DefaultL1MuctpiPhase1 ):
@@ -62,7 +113,7 @@ class L1MuctpiPhase1_on_Data( DefaultL1MuctpiPhase1 ):
     self.RoIOutputLocID = "not_used_1"
     self.CTPOutputLocID = "/Run/L1MuCTPItoCTPLocation"
     self.OverlapStrategyName = "LUT"
-    self.LUTXMLFile = "TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002_modifiedBB_crc_3385316356.xml"
+    self.LUTXMLFile = "TrigConfMuctpi/overlapRun3_20201214.xml"
     self.IsData=1
     self.FlaggingMode = False
 
@@ -106,45 +157,23 @@ class DefaultL1MuctpiPhase1Tool( LVL1MUCTPIPHASE1__MUCTPI_AthTool ):
     # Set properties of the LUT overlap handling:
     self.OverlapStrategyName = "LUT"
     self.DumpLUT = False
-    self.LUTXMLFile = "UNDEFINED"
-    self.RunPeriod = "UNDEFINED"
     self.FlaggingMode = False
     self.MultiplicityStrategyName = "INCLUSIVE"
     self.GeometryXMLFile = "TrigConfMuctpi/L1MuonGeometry_20200629.xml"
 
+    # Set the TGC, RPC, and TrigDecision tools
+    self.RPCRecRoiTool = getRun3RPCRecRoiTool("RPCRecRoiTool", useRun3Config=True)
+    self.TGCRecRoiTool = getRun3TGCRecRoiTool("TGCRecRoiTool", useRun3Config=True)
+    self.TrigThresholdDecisionTool = getTrigThresholdDecisionTool("TrigThresholdDecisionTool")
+
     # Decide which LUT to use, based on which run we are simulating:
-    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
-    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
-    if ( commonGeoFlags.Run() == "RUN1" ) or ( ( commonGeoFlags.Run() == "UNDEFINED" ) and
-                                               ( geoFlags.isIBL() is False ) ):
-      self.LUTXMLFile = "TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002.xml"
-      self.RunPeriod = "RUN1"
-      logger.info( "Configuring MuCTPI simulation with Run 1 configuration file:" )
-      logger.info( "  TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002.xml" )
-      logger.info( "  with a RunPeriod=RUN1" )
-    elif ( commonGeoFlags.Run() == "RUN2" ) or ( ( commonGeoFlags.Run() == "UNDEFINED" ) and
-                                                 ( geoFlags.isIBL() is True ) ):
-      self.LUTXMLFile = "TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002_modifiedBB.xml"
-      self.RunPeriod = "RUN2"
-      logger.info( "Configuring MuCTPI simulation with Run 2 configuration file:" )
-      logger.info( "  TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002_modifiedBB.xml" )
-      logger.info( "  with a RunPeriod=RUN2" )
-    else:
-      self.LUTXMLFile = "TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002_modifiedBB.xml"
-      self.RunPeriod = "RUN2"
-      logger.warning( "Couldn't determine which run to simulate, using Run 2 configuration file:" )
-      logger.warning( "  TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002_modifiedBB.xml" )
-      logger.warning( "  with a RunPeriod=RUN2" )
-
-      pass
-
-
-    # Turn on the NIM output creation by default:
-    self.DoNIMOutput = True
-    # The bit settings were extracted from here:
-    #   https://savannah.cern.ch/bugs/?90300#comment14
-    self.NIMBarrelBit = 29
-    self.NIMEndcapBit = 30
+    #from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
+    #from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
+    self.LUTXMLFile = "TrigConfMuctpi/overlapRun3_20201214.xml"
+    self.RunPeriod  = "RUN3"
+    logger.info( "Configuring MuCTPI simulation with " + self.RunPeriod +" configuration file:" )
+    logger.info( "  "+self.LUTXMLFile )
+    logger.info( "  with a RunPeriod=" + self.RunPeriod )
 
 
 class L1MuctpiPhase1Tool( DefaultL1MuctpiPhase1Tool ):
@@ -194,7 +223,7 @@ class L1MuctpiPhase1Tool_on_Data( DefaultL1MuctpiPhase1Tool ):
     self.RoIOutputLocID = "not_used_1"
     self.CTPOutputLocID = "/Run/L1MuCTPItoCTPLocation"
     self.OverlapStrategyName = "LUT"
-    self.LUTXMLFile = "TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002_modifiedBB_crc_3385316356.xml"
+    self.LUTXMLFile = "TrigConfMuctpi/overlapRun3_20201214.xml"
     self.IsData=1
     self.FlaggingMode = False
 

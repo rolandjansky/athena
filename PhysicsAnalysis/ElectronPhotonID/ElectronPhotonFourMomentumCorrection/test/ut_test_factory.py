@@ -8,7 +8,7 @@ import unittest
 class TestEgammaFactory(unittest.TestCase):
 
     def test_eventinfo(self):
-        event = ROOT.xAOD.TEvent()
+        ROOT.xAOD.TEvent()
         factory = ROOT.EgammaFactory()
         ei1 = factory.create_eventinfo(True, 100000)
         self.assertTrue(ei1.eventType(ROOT.xAOD.EventInfo.IS_SIMULATION))
@@ -16,7 +16,7 @@ class TestEgammaFactory(unittest.TestCase):
         self.assertFalse(ei2.eventType(ROOT.xAOD.EventInfo.IS_SIMULATION))
 
     def test_unconverted(self):
-        event = ROOT.xAOD.TEvent()
+        ROOT.xAOD.TEvent()
         factory = ROOT.EgammaFactory()
 
         runnumber = 10000
@@ -32,11 +32,13 @@ class TestEgammaFactory(unittest.TestCase):
         self.assertAlmostEqual(ph.caloCluster().eta(), eta)
         self.assertAlmostEqual(ph.phi(), phi)
         self.assertAlmostEqual(ph.caloCluster().phi(), phi)
-        self.assertAlmostEqual(ph.caloCluster().auxdata("float")("etaCalo"), eta)
-        self.assertAlmostEqual(ph.caloCluster().auxdata("float")("phiCalo"), phi)
+        self.assertAlmostEqual(
+            ph.caloCluster().auxdata("float")("etaCalo"), eta)
+        self.assertAlmostEqual(
+            ph.caloCluster().auxdata("float")("phiCalo"), phi)
         self.assertAlmostEqual(ph.e(), e, delta=0.01)
         self.assertEqual(ph.caloCluster().e(), e)
-        for i in xrange(3):
+        for i in range(3):
             self.assertGreater(ph.caloCluster().energyBE(i), 0)
 
     def test_converted(self):
@@ -56,15 +58,17 @@ class TestEgammaFactory(unittest.TestCase):
         self.assertAlmostEqual(ph.caloCluster().eta(), eta)
         self.assertAlmostEqual(ph.phi(), phi)
         self.assertAlmostEqual(ph.caloCluster().phi(), phi)
-        self.assertAlmostEqual(ph.caloCluster().auxdata("float")("etaCalo"), eta)
-        self.assertAlmostEqual(ph.caloCluster().auxdata("float")("phiCalo"), phi)
+        self.assertAlmostEqual(
+            ph.caloCluster().auxdata("float")("etaCalo"), eta)
+        self.assertAlmostEqual(
+            ph.caloCluster().auxdata("float")("phiCalo"), phi)
         self.assertAlmostEqual(ph.e(), e, delta=0.01)
         self.assertEqual(ph.caloCluster().e(), e)
-        for i in xrange(3):
+        for i in range(3):
             self.assertGreater(ph.caloCluster().energyBE(i), 0)
 
     def test_photon(self):
-        event = ROOT.xAOD.TEvent()
+         ROOT.xAOD.TEvent()
         factory = ROOT.EgammaFactory()
 
         runnumber = 10000
@@ -89,8 +93,10 @@ class TestEgammaFactory(unittest.TestCase):
         self.assertAlmostEqual(ph.caloCluster().eta(), eta)
         self.assertAlmostEqual(ph.phi(), phi)
         self.assertAlmostEqual(ph.caloCluster().phi(), phi)
-        self.assertAlmostEqual(ph.caloCluster().auxdata("float")("etaCalo"), eta)
-        self.assertAlmostEqual(ph.caloCluster().auxdata("float")("phiCalo"), phi)
+        self.assertAlmostEqual(
+            ph.caloCluster().auxdata("float")("etaCalo"), eta)
+        self.assertAlmostEqual(
+            ph.caloCluster().auxdata("float")("phiCalo"), phi)
         self.assertAlmostEqual(ph.e(), e, delta=0.01)
         self.assertEqual(ph.caloCluster().e(), e)
 
@@ -101,7 +107,7 @@ class TestEgammaFactory(unittest.TestCase):
         tool.applyCorrection(ph, ei)
 
     def test_electron(self):
-        event = ROOT.xAOD.TEvent()
+        ROOT.xAOD.TEvent()
         factory = ROOT.EgammaFactory()
 
         runnumber = 10000
@@ -124,14 +130,16 @@ class TestEgammaFactory(unittest.TestCase):
         self.assertAlmostEqual(el.caloCluster().eta(), eta)
         self.assertAlmostEqual(el.phi(), phi)
         self.assertAlmostEqual(el.caloCluster().phi(), phi)
-        self.assertAlmostEqual(el.caloCluster().auxdata("float")("etaCalo"), eta)
-        self.assertAlmostEqual(el.caloCluster().auxdata("float")("phiCalo"), phi)
+        self.assertAlmostEqual(
+            el.caloCluster().auxdata("float")("etaCalo"), eta)
+        self.assertAlmostEqual(
+            el.caloCluster().auxdata("float")("phiCalo"), phi)
         self.assertAlmostEqual(el.e(), e, delta=0.01)
         self.assertEqual(el.caloCluster().e(), e)
         self.assertAlmostEqual(el.trackParticle().eta(), eta, delta=0.00001)
 
     def test_clean(self):
-        event = ROOT.xAOD.TEvent()
+        ROOT.xAOD.TEvent()
 
         factory = ROOT.EgammaFactory()
         runnumber = 10000
@@ -147,7 +155,7 @@ class TestEgammaFactory(unittest.TestCase):
         self.assertAlmostEqual(el.eta(), 1)
 
     def test_decoration(self):
-        event = ROOT.xAOD.TEvent()
+        ROOT.xAOD.TEvent()
 
         factory = ROOT.EgammaFactory()
         runnumber = 10000
@@ -158,7 +166,6 @@ class TestEgammaFactory(unittest.TestCase):
         el.auxdecor("double")("mydeco")
         el.auxdataConst("double")("mydeco")
 
-        #factory.clear()
         el = factory.create_electron(1, 2, 3, 4, 5, 6, 7)
         el.auxdataConst("double")("mydeco")
 

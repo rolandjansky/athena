@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: JetElement_v1.cxx 638578 2015-01-09 17:00:15Z morrisj $
@@ -200,26 +200,17 @@ namespace xAOD{
 
   bool JetElement_v1::isSaturated()    const
   {
-    if( energy() == m_saturationThreshold ){
-      return true;
-    }
-    return false;
+    return energy() == m_saturationThreshold;
   }
   
   bool JetElement_v1::isEmSaturated()  const
   {
-    if( emEnergy() == m_layerSaturationThreshold ){
-      return true;
-    }
-    return false;
+    return emEnergy() == m_layerSaturationThreshold;
   }
   
   bool JetElement_v1::isHadSaturated() const
   {
-    if( hadEnergy() == m_layerSaturationThreshold ){
-      return true;
-    }
-    return false;    
+    return hadEnergy() == m_layerSaturationThreshold;    
   }
   
   int JetElement_v1::emError()   const

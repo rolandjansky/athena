@@ -33,8 +33,8 @@ namespace Muon
     std::vector<PlotBase*> m_allPlots;
     std::vector<int> m_selPlots;  
     
-    void fill(const xAOD::TruthParticle& truthMu, const xAOD::Muon& mu, const xAOD::TrackParticleContainer* MSTracks);
-    void fill(const xAOD::TruthParticle& truthMu, const xAOD::TrackParticle& mu);
+    void fill(const xAOD::TruthParticle& truthMu, const xAOD::Muon& mu, const xAOD::TrackParticleContainer* MSTracks, float weight=1.0);
+    void fill(const xAOD::TruthParticle& truthMu, const xAOD::TrackParticle& mu, float weight=1.0);
     
     // Truth related plots
     Trk::ParamPlots                 *m_oMatchedPlots;

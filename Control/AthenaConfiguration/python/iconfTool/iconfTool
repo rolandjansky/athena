@@ -3,7 +3,6 @@
 
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import argparse
 import logging.config
 import sys
 from typing import Union
@@ -13,13 +12,13 @@ logger = logging.getLogger(__name__)
 logger.debug("Logger initialized.")
 
 from AthenaConfiguration.iconfTool.gui.wrappers import GuiLoader, DoublePad
-from AthenaConfiguration.iconfTool.models.loaders import ComponentsFileLoader, ComponentsDiffFileLoader
+from AthenaConfiguration.iconfTool.models.loaders import ComponentsFileLoader, ComponentsDiffFileLoader, baseParser
 from AthenaConfiguration.iconfTool.utils import serialization
 
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser()
+    parser = baseParser
     parser.add_argument('-i', '--input', type=str, help='Input file path')
     parser.add_argument('-d', '--diff', type=str, help='Diff input file path')
     parser.add_argument('-c', '--config', type=str,

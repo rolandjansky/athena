@@ -27,7 +27,8 @@ HistoryStore         INFO Initializing HistoryStore - package version StoreGate-
 [93;1mHistogramPersis...WARNING Histograms saving not required.[m
 ApplicationMgr       INFO Application Manager Initialized successfully[m
 ApplicationMgr Ready
-StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-03-01-06[m
+StoreGateSvc      VERBOSE Initializing StoreGateSvc
+StoreGateSvc_Impl VERBOSE Initializing StoreGateSvc_Impl
 StoreGateSvc        DEBUG Service base class initialized successfully[m
 StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc[m
 StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc[m

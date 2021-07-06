@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <math.h>
@@ -8,7 +8,7 @@
 
 #include "JetInputProviderFEX.h"
 #include "TrigT1CaloEvent/JetROI_ClassDEF.h"
-#include "L1TopoEvent/ClusterTOB.h"
+#include "L1TopoEvent/jJetTOB.h"
 #include "L1TopoEvent/TopoInputEvent.h"
 
 // this should go away
@@ -23,11 +23,9 @@ using namespace LVL1;
 JetInputProviderFEX::JetInputProviderFEX(const std::string& type, const std::string& name, 
                                    const IInterface* parent) :
    base_class(type, name, parent),
-   m_histSvc("THistSvc", name),
-   m_gFEXJetLoc ("jRoundJets")
+   m_histSvc("THistSvc", name)
 {
    declareInterface<LVL1::IInputTOBConverter>( this );
-   declareProperty( "gFEXJetInput", m_gFEXJetLoc, "StoreGate location of gFEX Jet inputs" );
 }
 
 JetInputProviderFEX::~JetInputProviderFEX()
@@ -38,10 +36,25 @@ JetInputProviderFEX::initialize() {
 
    CHECK(m_histSvc.retrieve());
 
-   ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", "MissingEnergyInputProviderFEX");
+   ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", "JetInputProviderFEX");
    CHECK(incidentSvc.retrieve());
    incidentSvc->addListener(this,"BeginRun", 100);
    incidentSvc.release().ignore();
+   
+   auto isjEDMvalid = m_jEDMKey.initialize();
+   auto isJEDMvalid = m_JEDMKey.initialize();
+   auto isjTauEDMvalid = m_jTauEDMKey.initialize();
+
+   //Temporarily check EDM status by hand to avoid the crash!
+   if (isjEDMvalid != StatusCode::SUCCESS) {
+     ATH_MSG_WARNING("No EDM found for jFEX small R jets..");
+   }
+   if (isJEDMvalid != StatusCode::SUCCESS) {
+     ATH_MSG_WARNING("No EDM found for jFEX large R jets..");
+   }
+   if (isjTauEDMvalid != StatusCode::SUCCESS) {
+     ATH_MSG_WARNING("No EDM found for jFEX taus..");
+   }
 
    return StatusCode::SUCCESS;
 }
@@ -55,35 +68,73 @@ JetInputProviderFEX::handle(const Incident& incident) {
    string histPath = "/EXPERT/" + name() + "/";
    replace( histPath.begin(), histPath.end(), '.', '/'); 
 
-   auto hPt1 = std::make_unique<TH1I>( "TOBPt1", "Jet TOB Pt 1", 40, 0, 200);
-   hPt1->SetXTitle("p_{T}");
+   //jJet
+   auto hjJetPt = std::make_unique<TH1I>( "jJetTOBPt", "jJet TOB Pt", 40, 0, 200);
+   hjJetPt->SetXTitle("p_{T}");
 
-   auto hPt2 = std::make_unique<TH1I>( "TOBPt2", "Jet TOB Pt 2", 40, 0, 200);
-   hPt2->SetXTitle("p_{T}");
-
-   auto hEtaPhi = std::make_unique<TH2I>( "TOBPhiEta", "Jet TOB Location", 25, -50, 50, 64, 0, 64);
-   hEtaPhi->SetXTitle("#eta");
-   hEtaPhi->SetYTitle("#phi");
+   auto hjJetEtaPhi = std::make_unique<TH2I>( "jJetTOBPhiEta", "jJet TOB Location", 220, -110, 110, 128, 0, 128);
+   hjJetEtaPhi->SetXTitle("#eta");
+   hjJetEtaPhi->SetYTitle("#phi");
 
 
-   if (m_histSvc->regShared( histPath + "TOBPt1", std::move(hPt1), m_hPt1 ).isSuccess()){
-     ATH_MSG_DEBUG("TOBPt1 histogram has been registered successfully for JetProvider.");
+   if (m_histSvc->regShared( histPath + "jJetTOBPt", std::move(hjJetPt), m_hjJetPt ).isSuccess()){
+     ATH_MSG_DEBUG("jJetTOB Pt histogram has been registered successfully from JetProvider.");
    }
    else{
-     ATH_MSG_WARNING("Could not register TOBPt1 histogram for JetProvider");
+     ATH_MSG_WARNING("Could not register jJetTOB Pt histogram from JetProvider");
    }
 
-   if (m_histSvc->regShared( histPath + "TOBPt2", std::move(hPt2), m_hPt2 ).isSuccess()){
-     ATH_MSG_DEBUG("TOBPt2 histogram has been registered successfully for JetProvider.");
+   if (m_histSvc->regShared( histPath + "jJetTOBPhiEta", std::move(hjJetEtaPhi), m_hjJetEtaPhi ).isSuccess()){
+     ATH_MSG_DEBUG("jJetTOB PhiEta histogram has been registered successfully from JetProvider.");
    }
    else{
-     ATH_MSG_WARNING("Could not register TOBPt2 histogram for JetProvider");
+     ATH_MSG_WARNING("Could not register jJetTOB PhiEta histogram from JetProvider");
    }
-   if (m_histSvc->regShared( histPath + "TOBPhiEta", std::move(hEtaPhi), m_hEtaPhi ).isSuccess()){
-     ATH_MSG_DEBUG("TOBPhiEta histogram has been registered successfully for JetProvider.");
+
+   //jLargeRJet
+   auto hjLargeRJetPt = std::make_unique<TH1I>( "jLargeRJetTOBPt", "jLargeRJet TOB Pt", 80, 0, 400);
+   hjLargeRJetPt->SetXTitle("p_{T}");
+
+   auto hjLargeRJetEtaPhi = std::make_unique<TH2I>( "jLargeRJetTOBPhiEta", "jLargeRJet TOB Location", 220, -110, 110, 128, 0, 128);
+   hjLargeRJetEtaPhi->SetXTitle("#eta");
+   hjLargeRJetEtaPhi->SetYTitle("#phi");
+
+
+   if (m_histSvc->regShared( histPath + "jLargeRJetTOBPt", std::move(hjLargeRJetPt), m_hjLargeRJetPt ).isSuccess()){
+     ATH_MSG_DEBUG("jLargeRJetTOB Pt histogram has been registered successfully from JetProvider.");
    }
    else{
-     ATH_MSG_WARNING("Could not register TOBPhiEta histogram for JetProvider");
+     ATH_MSG_WARNING("Could not register jLargeRJetTOB Pt histogram from JetProvider");
+   }
+
+   if (m_histSvc->regShared( histPath + "jLargeRJetTOBPhiEta", std::move(hjLargeRJetEtaPhi), m_hjLargeRJetEtaPhi ).isSuccess()){
+     ATH_MSG_DEBUG("jLargeRJetTOB PhiEta histogram has been registered successfully from JetProvider.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register jLargeRJetTOB PhiEta histogram from JetProvider");
+   }
+
+   //jTau
+   auto hjTauPt = std::make_unique<TH1I>( "jTauTOBPt", "jTau TOB Pt", 40, 0, 200);
+   hjTauPt->SetXTitle("p_{T}");
+
+   auto hjTauEtaPhi = std::make_unique<TH2I>( "jTauTOBPhiEta", "jTau TOB Location", 220, -110, 110, 128, 0, 128);
+   hjTauEtaPhi->SetXTitle("#eta");
+   hjTauEtaPhi->SetYTitle("#phi");
+
+
+   if (m_histSvc->regShared( histPath + "jTauTOBPt", std::move(hjTauPt), m_hjTauPt ).isSuccess()){
+     ATH_MSG_DEBUG("jTauTOB Pt histogram has been registered successfully from JetProvider.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register jTauTOB Pt histogram from JetProvider");
+   }
+
+   if (m_histSvc->regShared( histPath + "jTauTOBPhiEta", std::move(hjTauEtaPhi), m_hjTauEtaPhi ).isSuccess()){
+     ATH_MSG_DEBUG("jTauTOB PhiEta histogram has been registered successfully from JetProvider.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register jTauTOB PhiEta histogram from JetProvider");
    }
 
 
@@ -93,39 +144,128 @@ JetInputProviderFEX::handle(const Incident& incident) {
 StatusCode
 JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
    
-  const xAOD::JetRoIContainer* gFEXJet = nullptr;   // jets from gFEX (will make it an array later)
-  if( evtStore()->contains< xAOD::JetRoIContainer >(m_gFEXJetLoc) ) {
-    CHECK ( evtStore()->retrieve( gFEXJet, m_gFEXJetLoc ) );
-    ATH_MSG_DEBUG( "Retrieved gFEX Jet container '" << m_gFEXJetLoc << "' with size " << gFEXJet->size());
-  }
-  else {
-    ATH_MSG_WARNING("No xAOD::JetRoIContainer with SG key '" << m_gFEXJetLoc.toString() << "' found in the event. No JET input for the L1Topo simulation.");
-    return StatusCode::RECOVERABLE;
-  }
-
-
-  for(const xAOD::JetRoI * topoData : * gFEXJet) {
-
-    ATH_MSG_DEBUG( "JET TOB with : et large = " << setw(4) << topoData->et8x8() << ", et small " << topoData->et4x4()
-		   << ", eta = " << setw(2) <<  topoData->eta() << ", phi = " << topoData->phi()
-		   << ", word = " << hex << topoData->roiWord() << dec
-		   );     
-    
-    TCS::JetTOB jet( topoData->et8x8()/Gaudi::Units::GeV, topoData->et4x4()/Gaudi::Units::GeV, topoData->eta(), topoData->phi(), topoData->roiWord() );
-    jet.setEtaDouble( topoData->eta() );
-    jet.setPhiDouble( topoData->phi() );
-    inputEvent.addJet( jet );
-    m_hPt1->Fill(jet.Et1());
-    m_hPt2->Fill(jet.Et2());
-    m_hEtaPhi->Fill(jet.eta(),jet.phi());
+  SG::ReadHandle<xAOD::jFexSRJetRoIContainer> jContainer(m_jEDMKey);
+  //Temporarily check EDM status by hand to avoid the crash!
+  if(!jContainer.isValid()){
+     ATH_MSG_WARNING("Could not retrieve EDM Container for small R jets " << m_jEDMKey.key() << ". No jFEX input for L1Topo");
      
-    /*
-      Pseudo code for overflow case which we won't consider for the time being 
-      if(has_overflow){
-      inputEvent.setOverflowFromJetInput(true);
-      ATH_MSG_DEBUG("setOverflowFromJetInput : true");
-      }
-    */
+    return StatusCode::SUCCESS;
+  }
+   
+  SG::ReadHandle<xAOD::jFexLRJetRoIContainer> JContainer(m_JEDMKey);
+  //Temporarily check EDM status by hand to avoid the crash!
+  if(!JContainer.isValid()){
+     ATH_MSG_WARNING("Could not retrieve EDM Container for large R jets" << m_JEDMKey.key() << ". No jFEX input for L1Topo");
+     
+    return StatusCode::SUCCESS;
+  }
+   
+  SG::ReadHandle<xAOD::jFexTauRoIContainer> jTauContainer(m_jTauEDMKey);
+  //Temporarily check EDM status by hand to avoid the crash!
+  if(!jTauContainer.isValid()){
+     ATH_MSG_WARNING("Could not retrieve EDM Container for jTaus " << m_jTauEDMKey.key() << ". No jFEX input for L1Topo");
+     
+    return StatusCode::SUCCESS;
+  }
+
+  for(const auto it : * jTauContainer) {
+    const xAOD::jFexTauRoI* jFexRoI = it;
+    ATH_MSG_DEBUG( "EDM jFEX jTau Number: " 
+		   << +jFexRoI->jFexNumber() // returns an 8 bit unsigned integer referring to the jFEX number 
+		   << " et: " 
+		   << jFexRoI->et() // returns the et value of the jet in 200 MeV unit
+		   << " eta: "
+		   << jFexRoI->globalEta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
+		   << " phi: "
+		   << jFexRoI->globalPhi() // returns a floating point global phi
+		   );
+       
+    unsigned int Et = jFexRoI->et()*2; //Convert Et to 100 MeV unit
+    // Eta and phi is local coordinates, need to switch with global coordinates.
+    double phi = jFexRoI->globalPhi()/10.;
+    double eta = jFexRoI->globalEta()/10.;
+   
+    // The 1/0.025 conversion necessary for take correct value from LUT. (0.025 is the finest granularity in phase1 l1muon input)
+    int ieta = round(eta*40.0);
+    // The 1/0.05 conversion necessary for take correct value from LUT. (0.05 is the finest granularity in phase1 l1muon input)
+    unsigned uphi = round(phi*20.0);
+
+    // Avoid the events with 0 Et (events below threshold)
+    if (Et==0) continue;
+
+    TCS::jTauTOB tau( Et, ieta, uphi );
+    tau.setEtaDouble(eta);
+    tau.setPhiDouble(phi);
+    inputEvent.addjTau( tau );
+    m_hjTauPt->Fill(tau.EtDouble());
+    m_hjTauEtaPhi->Fill(tau.eta(),tau.phi()); 
+  }
+  
+  for(const auto it : * JContainer) {
+    const xAOD::jFexLRJetRoI* jFexRoI = it;
+    ATH_MSG_DEBUG( "EDM jFex JJet Number: " 
+		   << +jFexRoI->jFexNumber() // returns an 8 bit unsigned integer referring to the jFEX number 
+		   << " et: " 
+		   << jFexRoI->et() // returns the et value of the jet in 200 MeV unit
+		   << " eta: "
+		   << jFexRoI->globalEta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
+		   << " phi: "
+		   << jFexRoI->globalPhi() // returns a floating point global phi
+		   );
+    
+    unsigned int Et = jFexRoI->et()*2; //Convert Et to 100 MeV unit
+    // Eta and phi is local coordinates, need to switch with global coordinates.
+    double phi = jFexRoI->globalPhi()/10.;
+    double eta = jFexRoI->globalEta()/10.;
+    
+    // The 1/0.025 conversion necessary for take correct value from LUT. (0.025 is the finest granularity in phase1 l1muon input)
+    int ieta = round(eta*40.0);
+    // The 1/0.05 conversion necessary for take correct value from LUT. (0.05 is the finest granularity in phase1 l1muon input)
+    unsigned uphi = round(phi*20.0);
+
+    // Avoid the events with 0 Et (events below threshold)
+    if (Et==0) continue;
+
+    TCS::jLargeRJetTOB jet( Et, ieta, uphi );
+    jet.setEtaDouble(eta);
+    jet.setPhiDouble(phi);
+    inputEvent.addjLargeRJet( jet );
+    m_hjLargeRJetPt->Fill(jet.EtDouble());
+    m_hjLargeRJetEtaPhi->Fill(jet.eta(),jet.phi());
+  }
+  
+  for(const auto it : * jContainer){
+    const xAOD::jFexSRJetRoI* jFexRoI = it;
+    ATH_MSG_DEBUG( "EDM jFex jJet Number: " 
+		   << +jFexRoI->jFexNumber() // returns an 8 bit unsigned integer referring to the jFEX number 
+		   << " et: " 
+		   << jFexRoI->et() // returns the et value of the jet in 200 MeV unit
+		   << " eta: "
+		   << jFexRoI->globalEta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
+		   << " phi: "
+		   << jFexRoI->globalPhi() // returns a floating point global phi
+		   );
+
+    unsigned int Et = jFexRoI->et()*2; //Convert Et to 100 MeV unit
+    // Eta and phi is local coordinates, need to switch with global coordinates.
+    double phi = jFexRoI->globalPhi()/10.;
+    double eta = jFexRoI->globalEta()/10.;
+    
+    // The 1/0.025 conversion necessary for take correct value from LUT. (0.025 is the finest granularity in phase1 l1muon input)
+    int ieta = round(eta*40.0);
+    // The 1/0.05 conversion necessary for take correct value from LUT. (0.05 is the finest granularity in phase1 l1muon input)
+    unsigned uphi = round(phi*20.0);
+
+    // Avoid the events with 0 Et (events below threshold)
+    if (Et==0) continue;
+
+    TCS::jJetTOB jet( Et, ieta, uphi );
+    jet.setEtaDouble(eta);
+    jet.setPhiDouble(phi);
+    inputEvent.addjJet( jet );
+    m_hjJetPt->Fill(jet.EtDouble());
+    m_hjJetEtaPhi->Fill(jet.eta(),jet.phi());
+    
   }
   return StatusCode::SUCCESS;
 }

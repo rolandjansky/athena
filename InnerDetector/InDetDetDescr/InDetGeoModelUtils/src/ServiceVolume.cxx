@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 //
@@ -103,8 +103,8 @@ namespace InDetDD {
     m_zmax(0),
     //m_volId(0),
     m_zsymm(false),
-    m_geoShape(0),
-    m_material(0),
+    m_geoShape(nullptr),
+    m_material(nullptr),
     m_phiLoc(0),
     m_phiWidth(0),
     m_needsRotation(false),
@@ -165,7 +165,7 @@ namespace InDetDD {
       m_safety = safety;
     }
     std::lock_guard<std::mutex> lock(m_mutex);
-    m_geoShape = 0;
+    m_geoShape = nullptr;
   }
 
   void
@@ -221,7 +221,7 @@ namespace InDetDD {
     //	      << halflength << ", "
     //	      << materialName << std::endl;
 
-    const GeoShape* serviceShape = 0;
+    const GeoShape* serviceShape = nullptr;
     double volume = 0;
 
     // Check if service needs to be shifted
@@ -257,7 +257,7 @@ namespace InDetDD {
       serviceShape = shapeTmp;
     } else if (m_shapeType == "PGON3" || m_shapeType == "PGON4") {
       // Outer edge
-      GeoPgon* shapeTmp1 = 0;
+      GeoPgon* shapeTmp1 = nullptr;
       if (m_shapeType == "PGON3") {
         shapeTmp1 = new GeoPgon(m_phiLoc, 2 * M_PI, m_sides);
         shapeTmp1->addPlane(-halflength, 0, m_rmax);
@@ -274,7 +274,7 @@ namespace InDetDD {
       // Don't trust boolean volume calculation.
       volume = shapeTmp1->volume();
       // Inner edge
-      GeoShape* shapeTmp2 = 0;
+      GeoShape* shapeTmp2 = nullptr;
       if (m_rmin == m_rmin2) {
         shapeTmp2 = new GeoTube(0, m_rmin, halflength + 0.1 * Gaudi::Units::mm);
         volume -= 2 * M_PI * m_rmin * m_rmin * halflength;
@@ -317,7 +317,7 @@ namespace InDetDD {
       std::cout << "ServiceVolume: ERROR: Unrecognized shape for services" << m_shapeType << std::endl;
     }
 
-    if (!volume && serviceShape != 0) volume = serviceShape->volume();
+    if (!volume && serviceShape != nullptr) volume = serviceShape->volume();
 
     m_volume = volume;
     m_geoShape.set(serviceShape);
@@ -361,13 +361,13 @@ namespace InDetDD {
     m_splittableR = m_splittableZ = true;
     if (m_shapeType == "CUSTOM") {
       m_splittableR = m_splittableZ = false;
-    } else if (!(m_shapeType == "" || m_shapeType == "TUBE" || m_shapeType == "TUBS")) {
+    } else if (!(m_shapeType.empty() || m_shapeType == "TUBE" || m_shapeType == "TUBS")) {
       m_splittableR = false;
     }
   }
 
   GeoShapeHolder::GeoShapeHolder()
-    : m_geoShape(0)
+    : m_geoShape(nullptr)
   {}
 
   GeoShapeHolder::GeoShapeHolder(const GeoShape* geoShape)
@@ -395,7 +395,7 @@ namespace InDetDD {
   }
   
   GeoShapeHolder&
-  GeoShapeHolder::operator = (GeoShapeHolder&& rhs) {
+  GeoShapeHolder::operator = (GeoShapeHolder&& rhs)  noexcept {
     if (&rhs != this) {
       if (m_geoShape) m_geoShape->unref();//this geoshape will be overwritten, so decrement its reference
       m_geoShape = rhs.m_geoShape; //simply equate the pointers
@@ -416,6 +416,6 @@ namespace InDetDD {
   void
   GeoShapeHolder::reset() {
     if (m_geoShape) m_geoShape->unref();
-    m_geoShape = 0;
+    m_geoShape = nullptr;
   }
 } // end namespace

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * DeltaPhiIncl1.cpp
@@ -12,12 +12,10 @@
 **********************************/
 
 #include <cmath>
-#include "TH1F.h"
 
 #include "L1TopoAlgorithms/DeltaPhiIncl1.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
-#include "L1TopoSimulationUtils/Kinematics.h"
 
 REGISTER_ALG_TCS(DeltaPhiIncl1)
 
@@ -103,7 +101,7 @@ TCS::DeltaPhiIncl1::processBitCorrect( const std::vector<TCS::TOBArray const *> 
                      tob2 != input[0]->end() && distance( input[0]->begin(), tob2) < nLeading2;
                      ++tob2) {
                     // DeltaPhi cuts
-                    unsigned int deltaPhi = TSU::Kinematics::calcDeltaPhiBW( *tob1, *tob2 );
+                    unsigned int deltaPhi = calcDeltaPhiBW( *tob1, *tob2 );
                     std::stringstream msgss;
                     msgss << "  phi1=" << (*tob1)->phi() << " , phi2=" << (*tob2)->phi()
                           << ", DeltaPhi = " << deltaPhi << " -> ";
@@ -154,7 +152,7 @@ TCS::DeltaPhiIncl1::process( const std::vector<TCS::TOBArray const *> & input,
                      tob2 != input[0]->end() && distance( input[0]->begin(), tob2) < nLeading2;
                      ++tob2) {
                     // DeltaPhi cuts
-                    unsigned int deltaPhi = TSU::Kinematics::calcDeltaPhi( *tob1, *tob2 );
+                    unsigned int deltaPhi = calcDeltaPhi( *tob1, *tob2 );
                     std::stringstream msgss;
                     msgss << "    Combination : " << distance( input[0]->begin(), tob1) 
                           << " x " << distance( input[0]->begin(), tob2)

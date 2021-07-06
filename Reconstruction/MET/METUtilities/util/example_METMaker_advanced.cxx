@@ -23,7 +23,7 @@ int main() {
 
 // FrameWork includes
 #include "AsgMessaging/MessageCheck.h"
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/StandaloneToolHandle.h"
 
 #include "xAODMissingET/MissingETAuxContainer.h"
 #include "xAODMissingET/MissingETAssociationMap.h"
@@ -81,7 +81,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
     }
   }
 
-  asg::AnaToolHandle<IJetCalibrationTool> jetCalibrationTool;
+  asg::StandaloneToolHandle<IJetCalibrationTool> jetCalibrationTool;
   ANA_CHECK( ASG_MAKE_ANA_TOOL( jetCalibrationTool, JetCalibrationTool ) );
   jetCalibrationTool.setName("jetCalibTool");
   ANA_CHECK( jetCalibrationTool.setProperty("JetCollection", jetType) );
@@ -104,7 +104,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 #endif
   ANA_CHECK( event->readFrom( ifile.get() ) );
 
-  asg::AnaToolHandle<IMETMaker> metMaker;
+  asg::StandaloneToolHandle<IMETMaker> metMaker;
   metMaker.setTypeAndName("met::METMaker/metMaker");
   ANA_CHECK( metMaker.setProperty("DoMuonEloss", true) );
   ANA_CHECK( metMaker.setProperty("DoRemoveMuonJets", true) );
@@ -173,7 +173,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
       }
       //this line will mark the electron as invisible if it passes the (inv) electron selection cut
       //this removes the particle and associated clusters from the jet and soft term calculations
-      ANA_CHECK( metMaker->markInvisible(metInvisibleElectrons.asDataVector(),&metHelper,newMetContainer) );
+      ANA_CHECK( metMaker->markInvisible(metInvisibleElectrons.asDataVector(),metHelper,newMetContainer) );
       // NOTE: Objects marked as invisible should not also be added as part
       // of another term! However, you can e.g. mark some electrons invisible
       // and compute RefEle with others.
@@ -188,7 +188,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 			       xAOD::Type::Photon,
 			       newMetContainer,
 			       metPhotons.asDataVector(),
-			       &metHelper)
+			       metHelper)
 	   );
     //Taus
     ConstDataVector<xAOD::TauJetContainer> metTaus(SG::VIEW_ELEMENTS);
@@ -199,7 +199,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 			       xAOD::Type::Tau,
 			       newMetContainer,
 			       metTaus.asDataVector(),
-			       &metHelper)
+			       metHelper)
 	   );
     
     //Muons
@@ -212,7 +212,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 			       xAOD::Type::Muon,
 			       newMetContainer,
 			       metMuons.asDataVector(),
-			       &metHelper)
+			       metHelper)
 	   );
     
     met::addGhostMuonsToJets(*muons, *calibJets);
@@ -225,7 +225,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 				    newMetContainer, //adding to this new met container
 				    calibJets,       //using this jet collection to calculate jet met
 				    coreMet,         //core met container
-				    &metHelper,          //with this association map
+				    metHelper,          //with this association map
 				    false            //don't apply jet jvt cut
 				    )
 	     );
@@ -235,7 +235,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 				      newMetContainer,//adding to this new met container
 				      calibJets,	  //using this jet collection to calculate jet track met
 				      coreMet,	  //core met container
-				      &metHelper,	  //with this association map
+				      metHelper,	  //with this association map
 				      false		  //don't apply jet jvt cut
 				      )
 	     );
@@ -256,8 +256,8 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 #endif
   }
 
-#ifndef XAOD_STANDALONE // POOL::TEvent should handle this when changing events
-  app->finalize();
+#ifndef XAOD_STANDALONE
+  ANA_CHECK(app->finalize());
 #endif
 
   xAOD::IOStats::instance().stats().printSmartSlimmingBranchList();

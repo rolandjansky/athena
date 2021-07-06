@@ -11,7 +11,8 @@ def LArClusterCollisionTimeCfg(configFlags):
 
    LArClusterCollisionTimeAlg=CompFactory.LArClusterCollisionTimeAlg
    result.addEventAlgo(LArClusterCollisionTimeAlg("LArClusterCollisionTimeAlg", 
-                                                  OutputName="ClusterCollTime",InputName="LArClusterEM"))
+                                                  OutputName="ClusterCollTime",
+                                                  InputName="egammaClusters"))
 
    return result   
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Pixel Sensitive Detector.
@@ -11,6 +11,7 @@
 
 // For the SD itself
 #include "PixelSensorSD.h"
+#include "PixelSensorGmxSD.h"
 
 // STL includes
 #include <exception>
@@ -30,6 +31,10 @@ G4VSensitiveDetector* PixelSensorSDTool::makeSD() const
   ATH_MSG_DEBUG( "Initializing SD" );
 
   // Create a fresh SD
-  return new PixelSensorSD(name(), m_outputCollectionNames[0]);
+  if (!m_gmxSensor){
+    return new PixelSensorSD(name(), m_outputCollectionNames[0]);
+  } else {
+    return new PixelSensorGmxSD(name(), m_outputCollectionNames[0]);
+  }
 }
 

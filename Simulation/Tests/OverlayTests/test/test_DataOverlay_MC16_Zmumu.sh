@@ -30,6 +30,7 @@ OverlayChain_tf.py \
 --imf False
 
 rc=$?
+status=$rc
 echo "art-result: $rc dataoverlay"
 
 rc2=-9999
@@ -45,6 +46,7 @@ then
     --ignorePatterns "L1TopoMenuLoader.+ERROR." \
     --imf False
     rc2=$?
+    status=$rc2
 fi
 echo "art-result: $rc2 reco"
 
@@ -55,5 +57,8 @@ then
     ArtJobName=$2
     art.py compare grid --entries 10 "${ArtPackage}" "${ArtJobName}" --mode=semi-detailed --file testRTT.RDO.pool.root --diff-root
     rc3=$?
+    status=$rc3
 fi
 echo "art-result: $rc3 regression"
+
+exit $status

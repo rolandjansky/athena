@@ -122,9 +122,9 @@ InDetPlotBase::book(TEfficiency*& pHisto, const std::string& histoIdentifier, co
 }
 
 void
-InDetPlotBase::fillHisto(TProfile* pTprofile, const float bin, const float weight) {
+InDetPlotBase::fillHisto(TProfile* pTprofile, const float bin, const float weight, const float weight2) {
   if (pTprofile and validArguments(bin, weight)) {
-    pTprofile->Fill(bin, weight);
+    pTprofile->Fill(bin, weight,weight2);
   }
 }
 
@@ -151,6 +151,14 @@ InDetPlotBase::fillHisto(TH2* pTh2, const float xval, const float yval) {
   }
 }
 
+//
+void
+InDetPlotBase::fillHisto(TH2* pTh2, const float xval, const float yval, const float weight) {
+  if (pTh2 and validArguments(xval, yval)) {
+    pTh2->Fill(xval, yval, weight);
+  }
+}
+
 void
 InDetPlotBase::fillHisto(TH3* pTh3, const float xval, const float yval, const float zval) {
   if (pTh3 and validArguments(xval, yval, zval)) {
@@ -159,9 +167,9 @@ InDetPlotBase::fillHisto(TH3* pTh3, const float xval, const float yval, const fl
 }
 
 void
-InDetPlotBase::fillHisto(TEfficiency* pTeff,  const float value, const bool accepted) {
+InDetPlotBase::fillHisto(TEfficiency* pTeff,  const float value, const bool accepted, float weight) {
   if (pTeff and validArguments(value)) {
-    pTeff->Fill(accepted, value);
+    pTeff->FillWeighted(accepted, weight, value);
   }
 }
 

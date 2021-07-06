@@ -16,12 +16,10 @@ DecisionSvc          INFO Inserting stream: Stream1 with no Algs
 DecisionSvc          INFO Inserting stream: Stream2 with no Algs
 DecisionSvc          INFO Inserting stream: Stream3 with no Algs
 DecisionSvc          INFO Inserting stream: StreamAll2 with no Algs
-StreamAll2.Stre...   INFO Initializing StreamAll2.StreamAll2Tool - package version AthenaServices-00-00-00
-StreamAll2.Stre...   INFO Initializing StreamAll2.StreamAll2_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
+StreamAll2.Stre...   INFO Initializing StreamAll2.StreamAll2Tool
 StreamAll2           INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/StreamAll2_MakeEventStreamInfo','xAODMaker::EventFormatStreamHelperTool/StreamAll2_MakeEventFormat','xAODMaker::FileMetaDataCreatorTool/FileMetaDataCreatorTool','Athena::ThinningCacheTool/ThinningCacheTool_StreamAll2'])
 StreamAll2           INFO Data output: AthenaPoolMultiTest_StreamAll2.root
 StreamAll2           INFO I/O reinitialization...
-StreamAll2.File...   INFO Invalid "/TagInfo" handle
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 0 run: 0
 Splitter1           DEBUG Trigmask = 1

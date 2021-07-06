@@ -1,9 +1,10 @@
 """Define methods to construct configured BCM Digitization tools and algs
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 from RngComps.RandomServices import RNG
 from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
@@ -38,10 +39,10 @@ def BCM_DigitizationToolCommonCfg(flags, name="BCM_DigitizationTool", **kwargs):
     acc = RNG(flags.Random.Engine)
     kwargs.setdefault("RndmSvc", "AthRNGSvc")
     kwargs.setdefault("HitCollName", "BCMHits")
-    if flags.Digitization.PileUpPremixing:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("OutputRDOKey", flags.Overlay.BkgPrefix + "BCM_RDOs")
         kwargs.setdefault("OutputSDOKey", flags.Overlay.BkgPrefix + "BCM_SDO_Map")
-    elif flags.Detector.OverlayBCM:
+    elif flags.Common.ProductionStep == ProductionStep.Overlay:
         kwargs.setdefault("OnlyUseContainerName", False)
         kwargs.setdefault("OutputRDOKey", flags.Overlay.SigPrefix + "BCM_RDOs")
         kwargs.setdefault("OutputSDOKey", flags.Overlay.SigPrefix + "BCM_SDO_Map")

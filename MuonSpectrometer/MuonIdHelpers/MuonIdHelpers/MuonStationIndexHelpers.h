@@ -6,18 +6,18 @@
 #define MUONIDHELPERS_MUONSTATIONINDEXHELPERS_H
 
 #include <vector>
+
 #include "MuonStationIndex/MuonStationIndex.h"
 
 namespace Muon {
-  class MuonStationIndexHelpers {
-  public:
+    class MuonStationIndexHelpers {
+    public:
+        /** get techonolgies in */
+        static std::vector<MuonStationIndex::TechnologyIndex> technologiesInStation(MuonStationIndex::StIndex stIndex);
 
-    /** get techonolgies in */
-    static std::vector<MuonStationIndex::TechnologyIndex> technologiesInStation( MuonStationIndex::StIndex stIndex );
-
-    /** returns whether a sector is small */
-    static bool isSmall( int sector );
-  };
-}
+        /** returns whether a sector is small */
+        static bool isSmall(int sector);
+    };
+}  // namespace Muon
 
 #endif

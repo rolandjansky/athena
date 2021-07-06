@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -28,6 +28,9 @@ namespace LArSamples {
       /** @brief Constructor  */
       PersistentAccessor(TTree& cellTree, TTree& eventTree, TTree* runTree, TFile* file);
       PersistentAccessor(const TString& fileName);
+
+      PersistentAccessor (const PersistentAccessor&);
+      PersistentAccessor& operator= (const PersistentAccessor&);
 
       static PersistentAccessor* open(const TString& fileName);
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,7 +11,7 @@
 
 #include "Identifier/Identifier.h"
 #include "TrkEventPrimitives/FitQuality.h"
-
+#include <memory>
 #include <vector>
 
 namespace Muon {
@@ -44,18 +44,25 @@ namespace Muon {
     virtual ~MuonSegmentQuality() {}
   
     /** number of holes */    
-    virtual unsigned int numberOfHoles() const;
+    unsigned int numberOfHoles() const;
 
     /** vector of identifiers of channels crossed by the segment but without hit */
     const std::vector<Identifier>& channelsWithoutHit() const;
-
-    virtual MuonSegmentQuality* clone() const;
+    
+    /** bare pointer clone */
+    virtual MuonSegmentQuality* clone() const override final;
+    
+    /** NVI clone to unique_ptr */
+    std::unique_ptr<MuonSegmentQuality> uniqueClone() const {
+      return std::unique_ptr<MuonSegmentQuality>(clone());
+    }
+    
     
     bool isStrict() const; //!< Returns true if the segment was created using strict criteria
   private:
     
-    std::vector<Identifier> m_channelsWithoutHit;
-    bool m_isStrict;
+    std::vector<Identifier> m_channelsWithoutHit{};
+    bool m_isStrict{};
   };
 
 

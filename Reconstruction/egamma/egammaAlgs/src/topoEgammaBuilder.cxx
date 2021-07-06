@@ -1,20 +1,16 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "topoEgammaBuilder.h"
 
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/EventContext.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
-#include "xAODCaloEvent/CaloClusterContainer.h"
 
-#include "egammaRecEvent/egammaRecContainer.h"
 #include "xAODEgamma/EgammaContainer.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/ElectronAuxContainer.h"
@@ -25,9 +21,10 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
 
-// INCLUDE GAUDI HEADER FILES:
 #include <algorithm>
 #include <cmath>
+#include <vector>
+#include <memory>
 
 topoEgammaBuilder::topoEgammaBuilder(const std::string& name,
                                      ISvcLocator* pSvcLocator)
@@ -37,6 +34,8 @@ topoEgammaBuilder::topoEgammaBuilder(const std::string& name,
 StatusCode
 topoEgammaBuilder::initialize()
 {
+  m_deltaEta1Pear = std::make_unique<electronPearShapeAlignmentCorrection>();
+
   // the data handle keys
   ATH_CHECK(m_electronSuperClusterRecContainerKey.initialize(m_doElectrons));
   ATH_CHECK(m_photonSuperClusterRecContainerKey.initialize(m_doPhotons));
@@ -60,7 +59,7 @@ topoEgammaBuilder::initialize()
     m_egammaOQTool.disable();
   }
 
-  //do we actually do ambiguity 
+  //do we actually do ambiguity
   m_doAmbiguity = !m_ambiguityTool.empty();
   if (m_doElectrons && m_doPhotons && m_doAmbiguity) {
     ATH_CHECK(m_ambiguityTool.retrieve());
@@ -81,7 +80,6 @@ StatusCode
 topoEgammaBuilder::execute(const EventContext& ctx) const
 {
 
-  // Chrono name for each Tool
   const EgammaRecContainer* inputElRecs = nullptr;
   const EgammaRecContainer* inputPhRecs = nullptr;
   xAOD::ElectronContainer* electrons = nullptr;
@@ -100,15 +98,15 @@ topoEgammaBuilder::execute(const EventContext& ctx) const
   }
 
   SG::WriteHandle<xAOD::ElectronContainer> electronContainer(m_electronOutputKey, ctx);
-  
+
   ATH_CHECK(electronContainer.record(std::make_unique<xAOD::ElectronContainer>(),
                                      std::make_unique<xAOD::ElectronAuxContainer>()));
 
   SG::WriteHandle<xAOD::PhotonContainer> photonContainer(m_photonOutputKey,ctx);
-  
+
   ATH_CHECK(photonContainer.record(std::make_unique<xAOD::PhotonContainer>(),
                                    std::make_unique<xAOD::PhotonAuxContainer>()));
-  
+
   electrons = electronContainer.ptr();
   photons = photonContainer.ptr();
 
@@ -248,7 +246,7 @@ topoEgammaBuilder::execute(const EventContext& ctx) const
   }
   // Do the ambiguity Links
   if (m_doElectrons && m_doPhotons) {
-    ATH_CHECK(doAmbiguityLinks(electrons, photons));
+    ATH_CHECK(doAmbiguityLinks(ctx,electrons, photons));
   }
 
   return StatusCode::SUCCESS;
@@ -256,6 +254,7 @@ topoEgammaBuilder::execute(const EventContext& ctx) const
 
 StatusCode
 topoEgammaBuilder::doAmbiguityLinks(
+  const EventContext& ctx,
   xAOD::ElectronContainer* electronContainer,
   xAOD::PhotonContainer* photonContainer) const
 {
@@ -287,7 +286,7 @@ topoEgammaBuilder::doAmbiguityLinks(
       if (caloClusterLinks(*(electron->caloCluster())).at(0) ==
           caloClusterLinks(*(photon->caloCluster())).at(0)) {
         ElementLink<xAOD::EgammaContainer> link(*electronContainer,
-                                                electronIndex);
+                                                electronIndex,ctx);
         ELink(*photon) = link;
         break;
       }
@@ -309,7 +308,8 @@ topoEgammaBuilder::doAmbiguityLinks(
 
       if (caloClusterLinks(*(electron->caloCluster())).at(0) ==
           caloClusterLinks(*(photon->caloCluster())).at(0)) {
-        ElementLink<xAOD::EgammaContainer> link(*photonContainer, photonIndex);
+        ElementLink<xAOD::EgammaContainer> link(
+          *photonContainer, photonIndex, ctx);
         ELink(*electron) = link;
         break;
       }
@@ -394,6 +394,15 @@ topoEgammaBuilder::getElectron(const egammaRec* egRec,
                                    xAOD::EgammaParameters::deltaPhi1);
   electron->setTrackCaloMatchValue(static_cast<float>(deltaPhiRescaled[1]),
                                    xAOD::EgammaParameters::deltaPhiRescaled1);
+
+  static const SG::AuxElement::Accessor<float> pear("deltaEta1PearDistortion");
+
+  const float pearShape = m_isTruth ? 0.0
+                                    : m_deltaEta1Pear->getDeltaEtaDistortion(
+                                        electron->caloCluster()->etaBE(2),
+                                        electron->caloCluster()->phiBE(2));
+
+  pear(*electron) = pearShape;
 
   electron->setTrackCaloMatchValue(static_cast<float>(deltaEta[2]),
                                    xAOD::EgammaParameters::deltaEta2);

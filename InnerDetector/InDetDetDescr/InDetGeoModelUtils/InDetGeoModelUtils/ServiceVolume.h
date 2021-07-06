@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetDD_ServiceVolume_H
@@ -24,7 +24,7 @@ namespace InDetDD {
     GeoShapeHolder(const GeoShape *); 
     GeoShapeHolder(const GeoShapeHolder &);
     GeoShapeHolder & operator=(const GeoShapeHolder &);
-    GeoShapeHolder & operator=(GeoShapeHolder &&);
+    GeoShapeHolder & operator=(GeoShapeHolder &&) noexcept;
     ~GeoShapeHolder(); 
     const GeoShape * get() const {return m_geoShape;}
     void set(const GeoShape *);

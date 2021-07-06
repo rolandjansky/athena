@@ -125,12 +125,12 @@ void LArABBADecoder::fillCollection(const ROBFragment* robFrag, LArDigitContaine
 
 
 
-int nFibers = 20;
-int nchannels = 8;
-int Nabbachannels = nFibers * nchannels;
+constexpr int nFibers = 20;
+constexpr int nchannels = 8;
+constexpr int Nabbachannels = nFibers * nchannels;
 
-int fiberSeq[16] = {0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1};
-int adcSeq[16] =   {1,0,1,0,3,2,3,2,5,4,5,4,7,6,7,6};
+constexpr int fiberSeq[16] = {0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1};
+constexpr int adcSeq[16] =   {1,0,1,0,3,2,3,2,5,4,5,4,7,6,7,6};
 
 std::vector< std::vector< std::vector<int> > > abbasamples;
 abbasamples.resize(nFibers);
@@ -152,7 +152,7 @@ for (int fib=0;fib < nFibers; ++fib){
  for (int fib=0;fib < nFibers; fib+=2){
         for (int sam=0; sam < nsamples; sam++){ 
             int zx = sam + (fib/2)*nsamples;
-            std::string wx = string[zx];
+            const std::string &wx = string[zx];
             int k = 0;
             for (int m = 0; m < 16; ++m){ //16 size of fiberSeq array
 		int fiber_number = fiberSeq[m];
@@ -290,10 +290,9 @@ for (std::size_t index_abba_channel_samples = 0; index_abba_channel_samples < ab
     
     HWIdentifier channelID = (*abba_mapping_search).second;
     //std::cout << index_abba_channel_samples << ", channelID: " << channelID << std::endl;
-    std::vector<short> adcValues;
-    adcValues = abba_channel_samples[index_abba_channel_samples];
+    std::vector<short> adcValues = abba_channel_samples[index_abba_channel_samples];
     //std::cout << "size adcValues: " << adcValues.size() << std::endl;
-    scDigit=new LArDigit(channelID,dummyGain,adcValues);
+    scDigit=new LArDigit(channelID,dummyGain,std::move(adcValues));
 
     //std::cout << "channelID: "<< channelID << std::endl;
     //std::cout << "adcValues size: "<< adcValues.size() << std::endl;

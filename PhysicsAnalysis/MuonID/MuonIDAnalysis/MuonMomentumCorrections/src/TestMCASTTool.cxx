@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODMuon/MuonContainer.h"
@@ -26,7 +26,7 @@ TestMCASTTool::TestMCASTTool( const std::string& name, ISvcLocator* svcLoc ) :
 }
 
 StatusCode TestMCASTTool::initialize() {
-  ATH_MSG_INFO( "Initialising - Package version: " << PACKAGE_VERSION );
+  ATH_MSG_INFO( "Initialising" );
   ATH_MSG_DEBUG( "SGKey = " << m_sgKey );
   ATH_MSG_DEBUG( "MuonCalibrationAndSmearingTool   = " << m_MCaSTool );
   ATH_CHECK( m_MCaSTool.retrieve() );

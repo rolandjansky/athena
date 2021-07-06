@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """ Derive from the offline class and override InDetFlags
 """
@@ -6,8 +6,6 @@
 __author__ = "J. Masik"
 __version__= "$Revision$"
 __doc__    = "ConfiguredVertexingTrigCuts"
-
-from AthenaCommon.Include import include
 
 from InDetRecExample.ConfiguredVertexingCuts import ConfiguredVertexingCuts
 

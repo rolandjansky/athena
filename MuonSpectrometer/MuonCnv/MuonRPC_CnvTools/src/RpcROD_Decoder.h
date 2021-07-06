@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONBYTESTREAM_RPCROD_DECODER_H
@@ -13,7 +13,6 @@
 
 #include "MuonRDO/RpcPadContainer.h"
 #include "MuonRDO/RpcPad.h"
-#include "RPCcablingInterface/RpcPadIdHash.h"
 #include "MuonRDO/RpcCoinMatrix.h"
 #include "MuonRDO/RpcFiredChannel.h"
 #include "MuonRDO/RpcSectorLogicContainer.h"
@@ -29,8 +28,6 @@
 #include "GaudiKernel/GaudiException.h"
 #include "RPC_CondCabling/RpcCablingCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
-
-#include "CxxUtils/checker_macros.h"
 
 #include <atomic>
 #include <cassert>
@@ -51,7 +48,7 @@ namespace Muon
   }
   
   
-  class RpcROD_Decoder :virtual public IRpcROD_Decoder,  public AthAlgTool 
+  class RpcROD_Decoder : public extends<AthAlgTool, IRpcROD_Decoder>
   {
     
   public: 
@@ -112,7 +109,7 @@ namespace Muon
     
     //====LBTAG==== Added 02112008 for buffer format check
     int m_printerror;
-    mutable std::atomic_int m_RPCcheckfail[13] ATLAS_THREAD_SAFE;
+    mutable std::atomic_int m_RPCcheckfail[13];
     IntegerProperty m_maxprinterror;
     
     //====LBTAG==== Added 02112008 for buffer format check
@@ -331,7 +328,8 @@ namespace Muon
       throw GaudiException("RpcROD_Decoder::printcheckformat: MessageSvc not found", name(), sc); 
     MsgStream log(msgSvc, "RpcROD_Decoder::printcheckformat");
     log <<  MSG::INFO << " ============ FINAL RPC DATA FORMAT STAT. =========== " << endmsg;
-    log <<  MSG::INFO << " RX Header Errors............." << m_RPCcheckfail[0] << endmsg;
+    int tmp = m_RPCcheckfail[0].load(); 
+    log <<  MSG::INFO << " RX Header Errors............." << tmp << endmsg;
     log <<  MSG::INFO << " RX SubHeader Errors.........." << m_RPCcheckfail[1] << endmsg;
     log <<  MSG::INFO << " PAD Header Errors............" << m_RPCcheckfail[2] << endmsg;
     log <<  MSG::INFO << " PAD/SL SubHeader Errors......" << m_RPCcheckfail[3] << endmsg;

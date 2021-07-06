@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -45,6 +45,7 @@
 
 // Tile includes
 #include "TileConditions/TileCablingService.h"
+#include "TileConditions/TileCablingSvc.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
 #include "TileEvent/TileLaserObject.h"
 #include "TileEvent/TileMuonReceiverContainer.h"
@@ -418,8 +419,14 @@ class TileAANtuple : public AthAlgorithm {
 
     int m_skipEvents;
 
-    SG::ReadHandleKey<TileDQstatus> m_DQstatusKey
-    { this, "TileDQstatus", "TileDQstatus", "TileDQstatus key" };
+    /**
+     * @brief Name of Tile cabling service
+     */
+    ServiceHandle<TileCablingSvc> m_cablingSvc{ this,
+       "TileCablingSvc", "TileCablingSvc", "The Tile cabling service" };
+
+    SG::ReadHandleKey<TileDQstatus> m_DQstatusKey{ this,
+       "TileDQstatus", "TileDQstatus", "TileDQstatus key" };
 };
 
 #endif // TILEREC_TILEAANTUPLE_H

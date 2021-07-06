@@ -3,9 +3,11 @@
 #include "../L1Decoder.h"
 #include "../L1TestDecoder.h"
 #include "../FakeCTP.h"
-#include "L1Decoder/CTPUnpackingToolBase.h"
-#include "L1Decoder/CTPUnpackingTool.h"
+#include "../CTPUnpackingToolBase.h"
+#include "../CTPUnpackingTool.h"
 #include "../CTPUnpackingEmulationTool.h"
+#include "../eFexEMRoIsUnpackingTool.h"
+#include "../eFexEMRoIThresholdsTool.h"
 #include "../EMRoIsUnpackingTool.h"
 #include "../METRoIsUnpackingTool.h"
 #include "../FSRoIsUnpackingTool.h"
@@ -28,6 +30,8 @@ DECLARE_COMPONENT( L1TestDecoder )
 DECLARE_COMPONENT( CTPUnpackingToolBase )
 DECLARE_COMPONENT( CTPUnpackingTool )
 DECLARE_COMPONENT( CTPUnpackingEmulationTool )
+DECLARE_COMPONENT( eFexEMRoIsUnpackingTool )
+DECLARE_COMPONENT( eFexEMRoIThresholdsTool )
 DECLARE_COMPONENT( EMRoIsUnpackingTool )
 DECLARE_COMPONENT( METRoIsUnpackingTool )
 DECLARE_COMPONENT( FSRoIsUnpackingTool )

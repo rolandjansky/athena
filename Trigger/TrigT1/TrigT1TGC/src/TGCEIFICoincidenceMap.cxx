@@ -167,7 +167,7 @@ bool TGCEIFICoincidenceMap::readMap()
   //----- 
   
   std::string fullName;
-  fullName = PathResolver::find_file( dbname.c_str(), "DATAPATH" );
+  fullName = PathResolver::FindCalibDirectory("dev")+"/TrigT1TGC/EIFI/"+dbname;
   bool isFound =( fullName.length() > 0 );
   if( !isFound) {
     ATH_MSG_WARNING(" Could not found " << dbname);

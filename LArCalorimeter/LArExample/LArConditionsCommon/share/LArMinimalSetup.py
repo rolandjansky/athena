@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
 ###########################################################
 # LArMinimalSetup.py:                                     #
 # Minimal Athena setup for LAr Calibration and Monitoring #
@@ -17,7 +19,7 @@ from AthenaCommon.JobProperties import jobproperties
 jobproperties.Global.DetDescrVersion = "ATLAS-R2-2016-01-00-01"
 
 from AthenaCommon.DetFlags import DetFlags
-DetFlags.Calo_setOff()  #Switched off to avoid geometry
+DetFlags.Calo_setOn()  #Switched back  geometry
 DetFlags.ID_setOff()
 DetFlags.Muon_setOff()
 DetFlags.Truth_setOff()
@@ -36,29 +38,3 @@ include( "LArIdCnv/LArIdCnv_joboptions.py" )
 #Get ByteStream Event Selector
 if 'online' not in dir() or not online:
   include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
-
-
-theApp.Dlls += [ "LArByteStream"]
-
-
-# Left to do after that:
-#
-# Specify input file:
-#
-# theByteStreamInputSvc=svcMgr.ByteStreamInputSvc
-# theByteStreamInputSvc.InputDirectory = [InputDir]
-# theByteStreamInputSvc.FilePrefix     = FilePrefix
-# theByteStreamInputSvc.RunNumber      = [RunNumber]
-# theByteStreamInputSvc.RunNumber      = RunNumberList
-# Alternative:
-# theByteStreamInputSvc..FullFileName=["/mydir/myfile.data"]
-#
-# Specify the object you want to read from ByteStream
-#
-# theByteStreamAddressProviderSvc = svcMgr.ByteStreamAddressProviderSvc
-# theByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/HIGH"]
-# theByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/MEDIUM"]
-# theByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/LOW"]
-# theByteStreamAddressProviderSvc.TypeNames += ["LArFebHeaderContainer/LArFebHeader"]
-# 
-# ... and the algorithms you want to run.

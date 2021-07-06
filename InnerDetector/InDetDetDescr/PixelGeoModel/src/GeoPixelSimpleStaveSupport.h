@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELSIMPLESTAVESUPPORT_H
@@ -21,8 +21,8 @@ public:
   virtual double thicknessP() const override {return m_thicknessP;}
   virtual double thicknessN() const override {return m_thicknessN;}
   virtual GeoSimplePolygonBrep* computeStaveEnvelopShape(double) override { return 0;}
-  virtual GeoVPhysVol* getEndblockEnvelopShape(int) const override { return 0;}
-  virtual GeoTransform* getEndblockEnvelopShapeTrf(int) const override {return 0;}
+  virtual GeoVPhysVol* getEndblockEnvelopShape(int) override { return 0;}
+  virtual GeoTransform* getEndblockEnvelopShapeTrf(int) override {return 0;}
   virtual double getEndblockZpos() const override { return 0.; }
   virtual double getServiceZpos() const override { return 0; }
   virtual double getEndblockLength() const override { return 0.; }

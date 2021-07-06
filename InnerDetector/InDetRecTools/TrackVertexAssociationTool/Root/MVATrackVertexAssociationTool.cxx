@@ -1,49 +1,68 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
+// Includes from this package
 #include "TrackVertexAssociationTool/MVATrackVertexAssociationTool.h"
 
+// FrameWork includes
+#include "AthLinks/ElementLink.h"
 #include "AsgDataHandles/ReadHandle.h"
+#include "AsgDataHandles/ReadDecorHandle.h"
+#include "AsgTools/CurrentContext.h"
+#include "PathResolver/PathResolver.h"
+
+// EDM includes
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/TrackingPrimitives.h"
 
-#include "PathResolver/PathResolver.h"
-
+// lwtnn includes
 #include "lwtnn/NNLayerConfig.hh"
 #include "lwtnn/parse_json.hh"
 
+// STL includes
 #include <fstream>
 #include <iterator>
+#include <memory>
+
 #include <stdexcept>
 
 namespace CP {
 
 MVATrackVertexAssociationTool::MVATrackVertexAssociationTool(const std::string& name) :
-  AsgTool(name)
+  AsgTool(name),
+  m_fileName(""),
+  m_inputNames({}),
+  m_inputTypes({}),
+  m_outputName(""),
+  m_isSequential(true),
+  m_wp("Tight"),
+  m_cut(-1.0),
+  m_usePathResolver(true),
+  m_hardScatterDeco("hardScatterVertexLink")
 {
-  // For AnalysisBase
-  #ifdef XAOD_STANDALONE
-  declareProperty("NetworkFileName", m_fileName,        "Name of the input lwtnn network file."                                                              );
-  declareProperty("InputNames",      m_inputNames,      "Vector of the network's input variable names (std::vector<std::string>)."                           );
-  declareProperty("InputTypes",      m_inputTypes,      "Vector of the network's input variable evaluator types (std::vector<CP::MVAEvaluatorInput::Input>).");
-  declareProperty("OutputNodeName",  m_outputName,      "Name of the output node to cut on for TVA."                                                         );
-  declareProperty("IsSequential",    m_isSequential,    "Is the network sequential (true) or functional (false)."                                            );
-  declareProperty("WorkingPoint",    m_wp,              "TVA working point to apply."                                                                        );
-  declareProperty("OutputCut",       m_cut,             "TVA cut value on the output value (set manually with \"Custom\" WP)."                               );
-  declareProperty("UsePathResolver", m_usePathResolver, "Use the PathResolver for finding the input lwtnn network file."                                     );
-  #endif
+  declareProperty("NetworkFileName",     m_fileName,        "Name of the input lwtnn network file.");
+  declareProperty("InputNames",          m_inputNames,      "Vector of the network's input variable names (std::vector<std::string>).");
+  declareProperty("InputTypes",          m_inputTypes,      "Vector of the network's input variable evaluator types (std::vector<CP::MVAEvaluatorInput::Input>).");
+  declareProperty("OutputNodeName",      m_outputName,      "Name of the output node to cut on for TVA.");
+  declareProperty("IsSequential",        m_isSequential,    "Is the network sequential (true) or functional (false).");
+  declareProperty("WorkingPoint",        m_wp,              "TVA working point to apply.");
+  declareProperty("OutputCut",           m_cut,             "TVA cut value on the output value (set manually with \"Custom\" WP).");
+  declareProperty("UsePathResolver",     m_usePathResolver, "Use the PathResolver for finding the input lwtnn network file.");
+  declareProperty("HardScatterLinkDeco", m_hardScatterDeco, "The decoration name of the ElementLink to the hardscatter vertex (found on xAOD::EventInfo)");
 }
 
 StatusCode MVATrackVertexAssociationTool::initialize() {
 
   ATH_MSG_INFO("Initializing MVATrackVertexAssociationTool.");
 
-  // Init EventInfo
+  // Init EventInfo and hardscatter vertex link deco
   ATH_CHECK(m_eventInfo.initialize());
+  m_hardScatterDecoKey = SG::ReadDecorHandleKey<xAOD::EventInfo>(m_eventInfo.key() + m_hardScatterDeco);
+  ATH_CHECK(m_hardScatterDecoKey.initialize());
 
   // Init network
   StatusCode initNetworkStatus = initializeNetwork();
@@ -76,17 +95,24 @@ StatusCode MVATrackVertexAssociationTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-// For Athena
-#ifndef XAOD_STANDALONE
-StatusCode MVATrackVertexAssociationTool::finalize() {
-  ATH_MSG_INFO("Finalizing MVATrackVertexAssociationTool.");
-  return StatusCode::SUCCESS;
-}
-#endif
-
 bool MVATrackVertexAssociationTool::isCompatible(const xAOD::TrackParticle& trk, const xAOD::Vertex& vx) const {
-  float mvaOutput;
+  float mvaOutput = -1.;
   return isMatch(trk, vx, mvaOutput);
+}
+
+bool MVATrackVertexAssociationTool::isCompatible(const xAOD::TrackParticle& trk) const {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfo, ctx);
+  if (!evt.isValid()) {
+    throw std::runtime_error("ERROR in CP::MVATrackVertexAssociationTool::isCompatible : could not retrieve xAOD::EventInfo!");
+  }
+  SG::ReadDecorHandle<xAOD::EventInfo, ElementLink<xAOD::VertexContainer>> hardScatterDeco(m_hardScatterDecoKey, ctx);
+  ElementLink<xAOD::VertexContainer> vtxLink = hardScatterDeco(*evt);
+  if (!vtxLink.isValid()) {
+    throw std::runtime_error("ERROR in CP::MVATrackVertexAssociationTool::isCompatible : hardscatter vertex link is not valid!");
+  }
+  float mvaOutput = -1.;
+  return isMatch(trk, **vtxLink, mvaOutput, evt.get());
 }
 
 xAOD::TrackVertexAssociationMap MVATrackVertexAssociationTool::getMatchMap(std::vector<const xAOD::TrackParticle*>& trk_list, std::vector<const xAOD::Vertex*>& vx_list) const {
@@ -122,7 +148,9 @@ xAOD::TrackVertexAssociationMap MVATrackVertexAssociationTool::getUniqueMatchMap
 // Private methods //
 // --------------- //
 
-bool MVATrackVertexAssociationTool::isMatch(const xAOD::TrackParticle& trk, const xAOD::Vertex& vx, float& mvaOutput) const {
+bool MVATrackVertexAssociationTool::isMatch(const xAOD::TrackParticle& trk, const xAOD::Vertex& vx, float& mvaOutput, const xAOD::EventInfo* evtInfo) const {
+
+  const EventContext& ctx = Gaudi::Hive::currentContext();
 
   // Fake vertex, return false
   if (vx.vertexType() == xAOD::VxType::NoVtx) {
@@ -130,9 +158,16 @@ bool MVATrackVertexAssociationTool::isMatch(const xAOD::TrackParticle& trk, cons
   }
 
   // Retrieve our EventInfo
-  SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfo);
-  if (!evt.isValid()) {
-    throw std::runtime_error("ERROR in CP::MVATrackVertexAssociationTool::isMatch : could not retrieve xAOD::EventInfo.");
+  const xAOD::EventInfo* evt = nullptr;
+  if (!evtInfo) {
+    SG::ReadHandle<xAOD::EventInfo> evttmp(m_eventInfo, ctx);
+    if (!evttmp.isValid()) {
+      throw std::runtime_error("ERROR in CP::MVATrackVertexAssociationTool::isMatch : could not retrieve xAOD::EventInfo!");
+    }
+    evt = evttmp.get();
+  }
+  else {
+    evt = evtInfo;
   }
 
   // Evaluate our network and compare against our TVA cut (">= cut" := associated)
@@ -145,10 +180,11 @@ xAOD::TrackVertexAssociationMap MVATrackVertexAssociationTool::getMatchMapIntern
 
   xAOD::TrackVertexAssociationMap trktovxmap;
 
-  for (const auto& vertex : vx_list) {
+  for (const auto *vertex : vx_list) {
     xAOD::TrackVertexAssociationList trktovxlist;
-    trktovxlist.reserve(100);
-    for (const auto& track : trk_list) {
+    trktovxlist.clear();
+    trktovxlist.reserve(trk_list.size());
+    for (const auto *track : trk_list) {
       if (isCompatible(*track, *vertex)) {
         trktovxlist.push_back(track);
       }
@@ -167,7 +203,7 @@ const xAOD::Vertex* MVATrackVertexAssociationTool::getUniqueMatchVertexInternal(
   float maxValue = -1.0; // MVA output ranges between 0 and 1
   const xAOD::Vertex* bestMatchVertex = nullptr;
 
-  for (const auto& vertex : vx_list) {
+  for (const auto *vertex : vx_list) {
     match = isMatch(trk, *vertex, mvaOutput);
     if (match && (maxValue < mvaOutput)) {
       maxValue = mvaOutput;
@@ -189,14 +225,15 @@ xAOD::TrackVertexAssociationMap MVATrackVertexAssociationTool::getUniqueMatchMap
   xAOD::TrackVertexAssociationMap trktovxmap;
 
   // Initialize map
-  for (const auto& vertex : vx_list) {
+  for (const auto *vertex : vx_list) {
     xAOD::TrackVertexAssociationList trktovxlist;
     trktovxlist.clear();
+    trktovxlist.reserve(trk_list.size());
     trktovxmap[vertex] = trktovxlist;
   }
 
   // Perform matching
-  for (const auto& track : trk_list) {
+  for (const auto *track : trk_list) {
     const xAOD::Vertex* vx_match = getUniqueMatchVertexInternal(*track, vx_list);
     if (vx_match) {
       // Found matched vertex
@@ -215,7 +252,7 @@ StatusCode MVATrackVertexAssociationTool::initializeNetwork() {
     return StatusCode::FAILURE;
   }
   m_inputMap.clear();
-  for (size_t i = 0; i < m_inputNames.size(); i++) {
+  for (std::size_t i = 0; i < m_inputNames.size(); i++) {
     m_inputMap[m_inputNames[i]] = static_cast<MVAInputEvaluator::Input>(m_inputTypes[i]);
   }
   m_inputEval.load(m_inputMap);
@@ -241,7 +278,7 @@ StatusCode MVATrackVertexAssociationTool::initializeNetwork() {
   // For sequential:
   if (m_isSequential) {
     lwt::JSONConfig netDef = lwt::parse_json(netFile);
-    m_network = std::unique_ptr<lwt::LightweightNeuralNetwork>(new lwt::LightweightNeuralNetwork(netDef.inputs, netDef.layers, netDef.outputs));
+    m_network = std::make_unique<lwt::LightweightNeuralNetwork>(netDef.inputs, netDef.layers, netDef.outputs);
   }
   // For functional:
   else {
@@ -251,7 +288,7 @@ StatusCode MVATrackVertexAssociationTool::initializeNetwork() {
       return StatusCode::FAILURE;
     }
     m_inputNodeName = netDef.inputs[0].name;
-    m_graph = std::unique_ptr<lwt::LightweightGraph>(new lwt::LightweightGraph(netDef));
+    m_graph = std::make_unique<lwt::LightweightGraph>(netDef);
   }
 
   return StatusCode::SUCCESS;

@@ -9,19 +9,17 @@
 
 namespace MuonGM {
 
-class MdtComponent: public StandardComponent {
-public:
+    class MdtComponent : public StandardComponent {
+      public:
+        MdtComponent();
+        MdtComponent(const MdtComponent &c);
 
-  MdtComponent();
-  MdtComponent(const MdtComponent& c);
-  
- 
-  double tubelenStepSize;  // step size for tube length in endcap chambers
-  double cutoutTubeXShift; // distance along tube length to shift tube center
+        double tubelenStepSize;  // step size for tube length in endcap chambers
+        double cutoutTubeXShift; // distance along tube length to shift tube center
 
-private:
-  MdtComponent & operator=(const MdtComponent &right);
-};
+      private:
+        MdtComponent &operator=(const MdtComponent &right);
+    };
 } // namespace MuonGM
 
 #endif

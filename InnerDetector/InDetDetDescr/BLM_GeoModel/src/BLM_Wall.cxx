@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BLM_GeoModel/BLM_Wall.h"
@@ -34,7 +34,7 @@ GeoPhysVol* BLM_Wall::BuildClamp(const GeoMaterial* material)
   return blmWallPhys;
 }
 
-GeoPhysVol* BLM_Wall::BuildBlock(double X, double Y, double Z, std::string logname, const GeoMaterial* material)
+GeoPhysVol* BLM_Wall::BuildBlock(double X, double Y, double Z, const std::string& logname, const GeoMaterial* material)
 {
   const GeoBox* blmWallBox = new GeoBox(X/2, Y/2, Z/2);
   const GeoLogVol* blmWallLog = new GeoLogVol(logname, blmWallBox, material);
@@ -105,7 +105,7 @@ GeoPhysVol* BLM_Wall::BuildHolder(const GeoMaterial* material)
 
 GeoPhysVol* BLM_Wall::BuildLayerI(double thick, const GeoMaterial* material, bool hole)
 {
-  if(hole == true)
+  if(hole)
     {
       const GeoShape* blmWallBox = new GeoBox(s_width/2, thick/2, s_extended_length/2);
       const GeoShape* blmWallHole = new GeoTube(0, s_hole_r, thick);

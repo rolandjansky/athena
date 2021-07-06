@@ -77,7 +77,7 @@ void compare (const Muon::CscPrepDataContainer& p1,
 
 void testit (const Muon::CscPrepDataContainer& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   Muon::CscPrepDataContainerCnv_p1 cnv;
   CscPrepDataContainerCnv_tlp1 tlcnv;
   cnv.setRuntimeTopConverter (&tlcnv);
@@ -118,7 +118,7 @@ makeclusts (const MuonGM::MuonDetectorManager& muo_dd)
          clusHash,
          locpos,
          rdoList,
-         new Amg::MatrixX(cov),
+         cov,
          muo_dd.getCscReadoutElement (clusId),
          2.5 + offs,
          3.5 + offs,

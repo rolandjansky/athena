@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -121,8 +121,8 @@ namespace ROIB {
       s << " " << roIVec()[i].getRoiOverflow();
       if (longFormat) s << std::setw(12) << "\n RoI number:";
       s << " " << roIVec()[i].getRoiNumber();
-      if (longFormat) s << std::setw(12) << "\n IsHighestPt:";
-      s << " " << roIVec()[i].getCandidateIsHighestPt();
+      //if (longFormat) s << std::setw(12) << "\n IsHighestPt:";
+      //s << " " << roIVec()[i].getCandidateIsHighestPt();
       if (longFormat) s << std::setw(12) << "\n Overlap:";
       s << " " << roIVec()[i].getOverlapBits();
       s << "] ";
@@ -185,7 +185,7 @@ namespace ROIB {
       log << MSG::DEBUG << "Sector overflow         :  " << it->getSectorOverflow() << endmsg;
       log << MSG::DEBUG << "RoI overflow            :  " << it->getRoiOverflow() << endmsg;
       log << MSG::DEBUG << "RoI number              :  " << it->getRoiNumber() << endmsg;
-      log << MSG::DEBUG << "IsHighestPt             :  " << it->getCandidateIsHighestPt() << endmsg;
+      //log << MSG::DEBUG << "IsHighestPt             :  " << it->getCandidateIsHighestPt() << endmsg;
       log << MSG::DEBUG << "Overlap                 :  " << it->getOverlapBits() << endmsg;
 
     }

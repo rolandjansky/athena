@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAPHYSVALMONITORING_ELECTRONFRWDPLOTS_H
@@ -20,7 +20,7 @@ namespace Egamma{
 class ElectronFrwdPlots:public PlotBase {
     public:
       ElectronFrwdPlots(PlotBase* pParent, const std::string& sDir, const std::string& sParticleType);
-      void fill(const xAOD::Electron& electron, bool isPrompt);
+      void fill(const xAOD::Electron& electron, const xAOD::EventInfo& eventInfo, bool isPrompt) const;
 
       // Reco only information
       Egamma::KinematicsPlots     m_oKinFrwdAllRecoPlots;
@@ -31,6 +31,7 @@ class ElectronFrwdPlots:public PlotBase {
       
       
       TH1* nParticles;
+      TH1* nParticles_weighted;
 
       std::string m_sParticleType;
 

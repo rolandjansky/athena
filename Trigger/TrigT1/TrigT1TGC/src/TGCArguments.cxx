@@ -14,7 +14,8 @@ TGCArguments::TGCArguments()
    m_TILE_MU(false),
    m_USE_CONDDB(false),
    m_useRun3Config(false),
-   m_USE_NSW(false)
+   m_USE_NSW(false),
+   m_NSWSideInfo("")
 {
 }
 
@@ -30,7 +31,7 @@ TGCArguments::~TGCArguments()
   void TGCArguments::set_USE_CONDDB(bool v){ m_USE_CONDDB = v;}
   void TGCArguments::set_useRun3Config(bool v){ m_useRun3Config = v;}
   void TGCArguments::set_USE_NSW(bool v){ m_USE_NSW = v;}
-
+  void TGCArguments::set_NSWSideInfo(std::string v){ m_NSWSideInfo = v;}
   
   MSG::Level TGCArguments::MSGLEVEL() const {return m_MSGLEVEL;}
   bool TGCArguments::SHPT_ORED() const {return m_SHPT_ORED;}
@@ -40,6 +41,6 @@ TGCArguments::~TGCArguments()
   bool TGCArguments::USE_CONDDB() const {return m_USE_CONDDB;}
   bool TGCArguments::useRun3Config() const {return m_useRun3Config;}
   bool TGCArguments::USE_NSW() const {return m_USE_NSW;}
-
+  std::string TGCArguments::NSWSideInfo() const { return m_NSWSideInfo;}
 
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -43,11 +43,11 @@ const Trk::ResidualPull* InDet::SCT_ResidualPullCalculator::residualPull(
 
     // check the input:
     const InDet::SCT_ClusterOnTrack *sctROT = dynamic_cast<const InDet::SCT_ClusterOnTrack*>(measurement);
-    if (!sctROT) return 0;
-    if (!trkPar) return 0;
+    if (!sctROT) return nullptr;
+    if (!trkPar) return nullptr;
 
     // if no covariance for the track parameters is given the pull calculation is not valid
-    bool pullIsValid = trkPar->covariance()!=0;
+    bool pullIsValid = trkPar->covariance()!=nullptr;
 
     // residual and pull are always 1-dim in the end
     std::vector<double> residual(1);
@@ -128,7 +128,7 @@ const Trk::ResidualPull* InDet::SCT_ResidualPullCalculator::residualPull(
 
     // create the Trk::ResidualPull:
     // ParameterKey is always 1, because otherwise we rotated it back
-    return new Trk::ResidualPull(residual, pull, pullIsValid, resType, 1, sinAlpha);
+    return new Trk::ResidualPull(std::move(residual), std::move(pull), pullIsValid, resType, 1, sinAlpha);
 }
 
 

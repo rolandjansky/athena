@@ -49,7 +49,7 @@ namespace Trk {
      *  ownership!)
      */
     using ITruthToTrack::makeProdVertexParameters;
-    virtual const Trk::TrackParameters* makeProdVertexParameters(const HepMC::GenParticle* part) const;
+    virtual const Trk::TrackParameters* makeProdVertexParameters(HepMC::ConstGenParticlePtr part) const;
     virtual const Trk::TrackParameters* makeProdVertexParameters(const xAOD::TruthParticle* part) const;
 
     /** This function produces Trk::TrackParameters corresponding to
@@ -59,7 +59,7 @@ namespace Trk {
        of deleting the returned parameters object.
      */
     using ITruthToTrack::makePerigeeParameters;
-    virtual const Trk::TrackParameters* makePerigeeParameters(const HepMC::GenParticle* part) const;
+    virtual const Trk::TrackParameters* makePerigeeParameters(HepMC::ConstGenParticlePtr part) const;
     virtual const Trk::TrackParameters* makePerigeeParameters(const xAOD::TruthParticle* part) const;
 
   private:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EventInfoTestTool.h"
@@ -15,8 +15,7 @@ EventInfoTestTool::EventInfoTestTool(const std::string& type,
 }
 
 StatusCode EventInfoTestTool::initialize() {
-  ATH_MSG_INFO("Initializing " << name() << " - package version "
-                               << PACKAGE_VERSION);
+  ATH_MSG_INFO("Initializing");
   ATH_CHECK(m_rhkEventInfo.initialize());
   return StatusCode::SUCCESS;
 }

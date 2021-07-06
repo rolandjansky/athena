@@ -1,9 +1,10 @@
 """Define methods to construct configured MDT Digitization tools and algorithms
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from MuonConfig.MuonByteStreamCnvTestConfig import MdtDigitToMdtRDOCfg
@@ -47,7 +48,7 @@ def RT_Relation_DB_DigiToolCfg(flags, name="RT_Relation_DB_DigiTool", **kwargs):
 def MDT_Response_DigiToolCfg(flags, name="MDT_Response_DigiTool",**kwargs):
     """Return a configured MDT_Response_DigiTool"""
     acc = ComponentAccumulator()
-    QballConfig = (flags.Digitization.SpecialConfiguration.get("MDT_QballConfig") == "True")
+    QballConfig = (flags.Digitization.SpecialConfiguration.get("MDT_QballConfig", "False") == "True")
     kwargs.setdefault("DoQballGamma", QballConfig)
     MDT_Response_DigiTool = CompFactory.MDT_Response_DigiTool
     acc.setPrivateTools(MDT_Response_DigiTool(name, **kwargs))
@@ -58,11 +59,8 @@ def MDT_DigitizationToolCommonCfg(flags, name="MdtDigitizationTool", **kwargs):
     """Return ComponentAccumulator with common MdtDigitizationTool config"""
     from MuonConfig.MuonCondAlgConfig import MdtCondDbAlgCfg # MT-safe conditions access
     acc = MdtCondDbAlgCfg(flags)
-    if "GetT0FromBD" in kwargs and kwargs["GetT0FromBD"]:
-        calibDbTool = acc.popToolsAndMerge(MdtCalibrationDbToolCfg(flags))
-        kwargs.setdefault("CalibrationDbTool", calibDbTool)
-    else:
-        kwargs.setdefault("CalibrationDbTool", '')
+    calibDbTool = acc.popToolsAndMerge(MdtCalibrationDbToolCfg(flags))
+    kwargs.setdefault("CalibrationDbTool", calibDbTool)
     kwargs.setdefault("MaskedStations", [])
     kwargs.setdefault("UseDeadChamberSvc", True)
     kwargs.setdefault("DiscardEarlyHits", True)
@@ -86,7 +84,7 @@ def MDT_DigitizationToolCfg(flags, name="MdtDigitizationTool", **kwargs):
     rangetool = acc.popToolsAndMerge(MDT_RangeCfg(flags))
     acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     kwargs.setdefault("OutputObjectName", "MDT_DIGITS")
-    if flags.Digitization.PileUpPremixing:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "MDT_SDO")
     else:
         kwargs.setdefault("OutputSDOName", "MDT_SDO")
@@ -100,7 +98,6 @@ def MDT_OverlayDigitizationToolCfg(flags, name="Mdt_OverlayDigitizationTool", **
     kwargs.setdefault("OnlyUseContainerName", False)
     kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "MDT_DIGITS")
     kwargs.setdefault("OutputSDOName", flags.Overlay.SigPrefix + "MDT_SDO")
-    kwargs.setdefault("GetT0FromBD", flags.Detector.OverlayMDT and not flags.Input.isMC)
     return MDT_DigitizationToolCommonCfg(flags, name, **kwargs)
 
 
@@ -128,7 +125,7 @@ def MDT_DigitizationBasicCfg(flags, **kwargs):
 
 def MDT_OverlayDigitizationBasicCfg(flags, **kwargs):
     """Return ComponentAccumulator with MDT Overlay digitization"""
-    acc = MuonGeoModelCfg(flags)
+    acc = MuonGeoModelCfg(flags, forceDisableAlignment=not flags.Overlay.DataOverlay)
     if "DigitizationTool" not in kwargs:
         tool = acc.popToolsAndMerge(MDT_OverlayDigitizationToolCfg(flags))
         kwargs["DigitizationTool"] = tool

@@ -8,6 +8,7 @@
 #include "TrkValHistUtils/PlotBase.h"
 #include "xAODPFlow/PFO.h"
 #include "xAODPFlow/FlowElement.h"
+#include "xAODEventInfo/EventInfo.h"
 
 namespace PFO {
 
@@ -17,8 +18,8 @@ namespace PFO {
 
     PFOClusterMomentPlots(PlotBase *pParent, std::string sDir, std::string sPFOContainerName, std::string sFEContainerName);
     
-    void fill(const xAOD::PFO& PFO);
-    void fill(const xAOD::FlowElement& FE);
+    void fill(const xAOD::PFO& PFO, const xAOD::EventInfo& eventInfo);
+    void fill(const xAOD::FlowElement& FE, const xAOD::EventInfo& eventInfo);
   private:
 
     /** Histograms inclusive in eta */

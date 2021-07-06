@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELGEOMODEL_GEOPIXELLAYER_H
 #define PIXELGEOMODEL_GEOPIXELLAYER_H
 
 #include "GeoVPixelFactory.h"
+#include "InDetGeoModelUtils/GeoNodePtr.h"
 
 class GeoPhysVol;
 class GeoTransform;
@@ -26,13 +27,13 @@ class GeoPixelLayer : public GeoVPixelFactory {
   GeoTransform* getSupportTrfMidRing(){ return m_xformSupportMidRing; }
 
  private:
-  GeoPhysVol *m_supportPhysA;
-  GeoPhysVol *m_supportPhysC;
-  GeoVPhysVol *m_supportMidRing;
+  GeoNodePtr<GeoPhysVol> m_supportPhysA;
+  GeoNodePtr<GeoPhysVol> m_supportPhysC;
+  GeoNodePtr<GeoVPhysVol> m_supportMidRing;
 
-  GeoTransform *m_xformSupportA;
-  GeoTransform *m_xformSupportC;
-  GeoTransform *m_xformSupportMidRing;
+  GeoNodePtr<GeoTransform> m_xformSupportA;
+  GeoNodePtr<GeoTransform> m_xformSupportC;
+  GeoNodePtr<GeoTransform> m_xformSupportMidRing;
 
 };
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -30,9 +30,9 @@ void  InDet::TRT_Trajectory_xk::set
   m_proptool     = pr                 ;
   m_updatortool  = up                 ;
   m_roadwidth2   = roadwidth*roadwidth;
-  m_zVertexWidth = fabs(zvertexwidth) ;
-  m_impact       = fabs(impact      ) ;
-  m_scale_error  = fabs(scale       ) ;
+  m_zVertexWidth = std::abs(zvertexwidth) ;
+  m_impact       = std::abs(impact      ) ;
+  m_scale_error  = std::abs(scale       ) ;
   for(int i=0; i!=400; ++i) m_elements[i].set(m,pr,up,riod,rion,m_scale_error);
   m_minTRTSegmentpT = minTRTSegmentpT ;
 }
@@ -51,7 +51,7 @@ void  InDet::TRT_Trajectory_xk::set
 
 void InDet::TRT_Trajectory_xk::initiateForPrecisionSeed
 (std::list< std::pair<Amg::Vector3D,double> >      & Gp  ,
- std::vector<const InDetDD::TRT_BaseElement*>        & De  ,
+ const std::vector<const InDetDD::TRT_BaseElement*>        & De  ,
  const TRT_DriftCircleContainer*                   & TRTc,
  const Trk::PatternTrackParameters                 & Tp   )
 {
@@ -69,39 +69,35 @@ void InDet::TRT_Trajectory_xk::initiateForPrecisionSeed
 
   InDet::TRT_DriftCircleCollection::const_iterator ti,te;
 
-  std::vector<const InDetDD::TRT_BaseElement*>::iterator d=De.begin(),de=De.end();
+  std::vector<const InDetDD::TRT_BaseElement*>::const_iterator d=De.begin(),de=De.end();
 
   std::list< std::pair<Amg::Vector3D,double> >::iterator i=Gp.begin(),i0=Gp.begin(),ie=Gp.end();
   if(i0==ie) return;
 
   // Primary trajectory direction calculation
-  //
-  double A[4]; A[3]=Tp.parameters()[4];
-
+  // Tp.parameters()[4] is the (signed) q/p
+  double A[4]={0., 0., 0., Tp.parameters()[4]};
   for(++i; i!=ie; ++i) {
-    if( (*i).second-(*i0).second > 1.) {
-
+    if((*i).second-(*i0).second > 1.) {
       A[0] = (*i).first.x()-(*i0).first.x();
       A[1] = (*i).first.y()-(*i0).first.y();
       A[2] = (*i).first.z()-(*i0).first.z();
-      double As = 1./sqrt(A[0]*A[0]+A[1]*A[1]+A[2]*A[2]);
-      A[0]*=As; A[1]*=As; A[2]*=As; i0=i; break;
+      double As = 1./std::sqrt(A[0]*A[0]+A[1]*A[1]+A[2]*A[2]);
+      A[0]*=As; A[1]*=As; A[2]*=As; 
+      i0=i; 
+      break;
     }
   }
 
   for(i=Gp.begin(); i!=ie; ++i) {
-
-    IdentifierHash id = (*d)->identifyHash(); auto w=(*TRTc).indexFindPtr(id);
+    IdentifierHash id = (*d)->identifyHash(); 
+    const auto *w=(*TRTc).indexFindPtr(id);
     bool q;
     if(w!=nullptr && w->begin()!=w->end()) {
       ti = w->begin(); te = w->end  ();
-
       q = m_elements[m_nElements].initiateForPrecisionSeed(true,(*d),ti,te,(*i),A,m_roadwidth2);
       if(q && m_elements[m_nElements].isCluster()) ++m_naElements;
-
-    }
-    else                                               {
-
+    } else {
       q = m_elements[m_nElements].initiateForPrecisionSeed(false,(*d),ti,te,(*i),A,m_roadwidth2);
     }
     if(q && m_elements[m_nElements].nlinks()) ++m_nElements;
@@ -110,11 +106,10 @@ void InDet::TRT_Trajectory_xk::initiateForPrecisionSeed
     // New trajectory direction calculation
     //
     if( (*i).second-(*i0).second > 50.) {
-
       A[0] = (*i).first.x()-(*i0).first.x();
       A[1] = (*i).first.y()-(*i0).first.y();
       A[2] = (*i).first.z()-(*i0).first.z();
-      double As = 1./sqrt(A[0]*A[0]+A[1]*A[1]+A[2]*A[2]);
+      double As = 1./std::sqrt(A[0]*A[0]+A[1]*A[1]+A[2]*A[2]);
       A[0]*=As; A[1]*=As; A[2]*=As; i0=i;
     }
   }
@@ -130,7 +125,7 @@ void InDet::TRT_Trajectory_xk::initiateForPrecisionSeed
 
 void InDet::TRT_Trajectory_xk::initiateForTRTSeed
 (std::list< std::pair<Amg::Vector3D,double> >      & Gp  ,
- std::vector<const InDetDD::TRT_BaseElement*>        & De  ,
+ const std::vector<const InDetDD::TRT_BaseElement*>        & De  ,
  const TRT_DriftCircleContainer*                   & TRTc,
  const Trk::PatternTrackParameters                 & Tp   )
 {
@@ -151,29 +146,27 @@ void InDet::TRT_Trajectory_xk::initiateForTRTSeed
 
   InDet::TRT_DriftCircleCollection::const_iterator ti,te;
 
-  std::vector<const InDetDD::TRT_BaseElement*>::iterator d=De.begin(),de=De.end();
+  std::vector<const InDetDD::TRT_BaseElement*>::const_iterator d=De.begin(),de=De.end();
 
   std::list< std::pair<Amg::Vector3D,double> >::iterator i=Gp.begin(),i0=Gp.begin(),ie=Gp.end();
   if(i0==ie) return;
 
   // Primary trajectory direction calculation
   //
-  double A[4]; A[3]=Tp.parameters()[4];
-
+  double A[4]={0.,0.,0.,Tp.parameters()[4]}; 
   for(++i; i!=ie; ++i) {
     if( (*i).second-(*i0).second > 1.) {
-
       A[0] = (*i).first.x()-(*i0).first.x();
       A[1] = (*i).first.y()-(*i0).first.y();
       A[2] = (*i).first.z()-(*i0).first.z();
-      double As = 1./sqrt(A[0]*A[0]+A[1]*A[1]+A[2]*A[2]);
+      double As = 1./std::sqrt(A[0]*A[0]+A[1]*A[1]+A[2]*A[2]);
       A[0]*=As; A[1]*=As; A[2]*=As; i0=i; break;
     }
   }
 
   for(i=Gp.begin(); i!=ie; ++i) {
 
-    IdentifierHash id = (*d)->identifyHash(); auto w=(*TRTc).indexFindPtr(id);
+    IdentifierHash id = (*d)->identifyHash(); const auto *w=(*TRTc).indexFindPtr(id);
     bool q;
     if(w!=nullptr && w->begin()!=w->end()) {
 
@@ -203,7 +196,7 @@ void InDet::TRT_Trajectory_xk::initiateForTRTSeed
       A[0] = (*i).first.x()-(*i0).first.x();
       A[1] = (*i).first.y()-(*i0).first.y();
       A[2] = (*i).first.z()-(*i0).first.z();
-      double As = 1./sqrt(A[0]*A[0]+A[1]*A[1]+A[2]*A[2]);
+      double As = 1./std::sqrt(A[0]*A[0]+A[1]*A[1]+A[2]*A[2]);
       A[0]*=As; A[1]*=As; A[2]*=As; i0=i;
     }
   }
@@ -228,7 +221,7 @@ void InDet::TRT_Trajectory_xk::trackFindingWithDriftTime(double DA)
 
     double dmin = m_elements[i].dnegative()-.01;
     double dmax = m_elements[i].dpositive()+.01;
-    if(fabs(dmin) < rcut || fabs(dmax) < rcut) {dmin = -rcut; dmax = rcut;}
+    if(std::abs(dmin) < rcut || std::abs(dmax) < rcut) {dmin = -rcut; dmax = rcut;}
 
     for(int j=0; j!=nl; ++j) {
 
@@ -281,7 +274,7 @@ void InDet::TRT_Trajectory_xk::trackFindingWithoutDriftTime(double DA)
 
     double dmin = m_elements[i].dnegative()-.01;
     double dmax = m_elements[i].dpositive()+.01;
-    if(fabs(dmin) < rcut || fabs(dmax) < rcut) {dmin = -rcut; dmax = rcut;}
+    if(std::abs(dmin) < rcut || std::abs(dmax) < rcut) {dmin = -rcut; dmax = rcut;}
 
     for(int j=0; j!=nl; ++j) {
 
@@ -291,7 +284,7 @@ void InDet::TRT_Trajectory_xk::trackFindingWithoutDriftTime(double DA)
 
       double di= m_elements[i].link(j).distance(); if(di < dmin || di > dmax) continue;
 
-      double d = rs+fabs(m_elements[i].link(j).sdistance()*sr);
+      double d = rs+std::abs(m_elements[i].link(j).sdistance()*sr);
       double s = d *ui;
       double v = di*ui;
       m_U[n] = u; m_V[n++] = v-s; m_U[n] = u; m_V[n++] = v+s;
@@ -358,7 +351,7 @@ void InDet::TRT_Trajectory_xk::trackFindingWithoutDriftTimeBL(double DA)
     if( l<0 || !m_elements[i].link(l).cluster()) continue;
 
     double u = m_elements[i].link(l).way(); if(u==0.) continue; double ui = 1./u;
-    double d = rs+fabs(m_elements[i].link(l).sdistance()*sr);
+    double d = rs+std::abs(m_elements[i].link(l).sdistance()*sr);
     double s = d*ui;
     double v = m_elements[i].link(l).distance()*ui;
     m_U[n] = u; m_V[n++] = v-s; m_U[n] = u; m_V[n++] = v+s;
@@ -382,7 +375,7 @@ bool InDet::TRT_Trajectory_xk::searchStartStop()
     double D = m_elements[e].findCloseLink(m_A,m_B);
     int    b = m_elements[e].bestlink();
     w[e]     = 0;
-    if( D < rs+fabs(m_elements[e].link(b).sdistance()*sr)) {
+    if( D < rs+std::abs(m_elements[e].link(b).sdistance()*sr)) {
 
       if     (m_elements[e].link(b).cluster())  w[e] = 1;
       else if(       D      <      rse       )  w[e] =-1;
@@ -406,8 +399,7 @@ bool InDet::TRT_Trajectory_xk::searchStartStop()
   for(int e = m_lastRoad; e > m_firstTrajectory; --e) {
     if(w[e]>0) {if(W>Wm) {Wm=W; m_lastTrajectory=e;} --W;} else if(w[e]<0) ++W;
   }
-  if((m_lastTrajectory-m_firstTrajectory) < 5 ) return false;
-  return true;
+  return (m_lastTrajectory-m_firstTrajectory) >= 5;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -484,7 +476,7 @@ void  InDet::TRT_Trajectory_xk::radiusCorrection()
   double z0 = m_elements[e ].z        ();
   double r1 = m_elements[el].radiusMax();
   double z1 = m_elements[el].z        ();
-  double dz = z1-z0;  if(fabs(dz) < 1.) return;
+  double dz = z1-z0;  if(std::abs(dz) < 1.) return;
   double rz = (r1-r0)/dz;
   double zv = z0 - r0/rz;
 
@@ -520,7 +512,7 @@ Trk::TrackSegment* InDet::TRT_Trajectory_xk::convert()
 {
 
   // Test quality of propagation to perigee
-  if(fabs(m_parameters.pT()) < m_minTRTSegmentpT) return 0;
+  if(std::abs(m_parameters.pT()) < m_minTRTSegmentpT) return nullptr;
 
   const Trk::Surface* sur = &m_parameters.associatedSurface();
 
@@ -540,7 +532,7 @@ Trk::TrackSegment* InDet::TRT_Trajectory_xk::convert()
 
     const Trk::MeasurementBase* r = m_elements[e].rioOnTrack();
     if(r) {
-      if (fabs(r->associatedSurface().transform()(2,2)) <.5) nendcap++;
+      if (std::abs(r->associatedSurface().transform()(2,2)) <.5) nendcap++;
       else {
         nbarrel++;
         //lastbarrelsurf=&r->associatedSurface();
@@ -549,14 +541,14 @@ Trk::TrackSegment* InDet::TRT_Trajectory_xk::convert()
       rio->push_back(r);
     }
   }
-  if(rio->empty()) {delete rio; return 0;}
+  if(rio->empty()) {delete rio; return nullptr;}
   int bec=0;
   if (nbarrel>0 && nendcap>0) bec=1;
   else if (nbarrel==0 && nendcap>0) bec=2;
   pms=pseudoMeasurements(&(**rio->begin()).associatedSurface(),&(**rio->rbegin()).associatedSurface(),bec);
   if(pms.first) rio->insert(rio->begin(),pms.first);
   if(pms.second) {
-    if (fabs((**rio->rbegin()).associatedSurface().center().z())<2650.) rio->push_back(pms.second);
+    if (std::abs((**rio->rbegin()).associatedSurface().center().z())<2650.) rio->push_back(pms.second);
     else rio->insert(rio->begin()+1,pms.second);
   }
   // Track segment production
@@ -585,7 +577,7 @@ Trk::TrackSegment* InDet::TRT_Trajectory_xk::convert()
 std::pair<const Trk::PseudoMeasurementOnTrack* , const Trk::PseudoMeasurementOnTrack*>
 InDet::TRT_Trajectory_xk::pseudoMeasurements(const Trk::Surface *firstsurf, const Trk::Surface* lastsurf,int bec)
 {
-  const Trk::PseudoMeasurementOnTrack *pmon=0,*pmon2=0;
+  const Trk::PseudoMeasurementOnTrack *pmon=nullptr,*pmon2=nullptr;
   if(!firstsurf || !lastsurf) return std::make_pair(pmon,pmon2);
   double pseudotheta=0;
   const Trk::CylinderBounds *cylb=dynamic_cast<const Trk::CylinderBounds *>(&lastsurf->bounds());
@@ -608,7 +600,7 @@ InDet::TRT_Trajectory_xk::pseudoMeasurements(const Trk::Surface *firstsurf, cons
     pseudopoint = Amg::Vector3D(lastsurf->center().x(),lastsurf->center().y(),tempz);
     pseudorot   = lastsurf->transform().rotation();
   }
-  else if (fabs(lastsurf->center().z())<2650.) {
+  else if (std::abs(lastsurf->center().z())<2650.) {
     //std::cout << "sur center: " << sur->center() << " halfz: " << halfz << " firstsur center: " << firstsur->center() << " halfzfirst: " << halfzfirst << std::endl;
     tempr= lastsurf->center().perp()+halfz;
     tempz=lastsurf->center().z();
@@ -623,11 +615,11 @@ InDet::TRT_Trajectory_xk::pseudoMeasurements(const Trk::Surface *firstsurf, cons
     pseudorot = firstsurf->transform().rotation();
 
   }
-  pseudotheta=atan2(tempr,fabs(tempz));
+  pseudotheta=atan2(tempr,std::abs(tempz));
   //std::cout << "bec: " << bec << " pseudotheta: " << pseudotheta << std::endl;
   if (lastsurf->center().z()<0) pseudotheta=M_PI-pseudotheta;
 
-  Amg::Transform3D*  T = new Amg::Transform3D(Amg::Translation3D(Amg::Vector3D::Zero())*Amg::RotationMatrix3D::Identity());
+  Amg::Transform3D T = Amg::Transform3D(Amg::Translation3D(Amg::Vector3D::Zero())*Amg::RotationMatrix3D::Identity());
   Trk::StraightLineSurface surn(T,100.,1000.);
 
   Trk::PatternTrackParameters P;
@@ -643,15 +635,19 @@ InDet::TRT_Trajectory_xk::pseudoMeasurements(const Trk::Surface *firstsurf, cons
     cov(0,1) = 0.;
     cov(1,1) = .00001;
   }
-  Trk::LocalParameters par = (bec==0) ? Trk::LocalParameters(std::make_pair(0,Trk::locZ),std::make_pair(pseudotheta,Trk::theta)) : Trk::LocalParameters(std::make_pair(0,Trk::locZ));
+  Trk::LocalParameters par =
+    (bec == 0)
+      ? Trk::LocalParameters(
+          std::make_pair(0, Trk::locZ), std::make_pair(pseudotheta, Trk::theta))
+      : Trk::LocalParameters(std::make_pair(0, Trk::locZ));
 
-  pmon =  new Trk::PseudoMeasurementOnTrack(par,cov,surn);
+  pmon = new Trk::PseudoMeasurementOnTrack(par, cov, surn);
 
   if (bec==0) return std::make_pair(pmon,pmon2);
   cov = Amg::MatrixX(1,1);
   cov(0,0) = 100.;
   par = Trk::LocalParameters(std::make_pair(0,Trk::locZ));
-  T    = new Amg::Transform3D(Amg::Translation3D(pseudopoint)*pseudorot);
+  T    = Amg::Transform3D(Amg::Translation3D(pseudopoint)*pseudorot);
   Trk::StraightLineSurface surn2(T,100.,1000.);
 
   pmon2 =  new Trk::PseudoMeasurementOnTrack(par,cov,surn2);
@@ -701,7 +697,7 @@ bool InDet::TRT_Trajectory_xk::trackParametersEstimationForFirstPoint()
 bool InDet::TRT_Trajectory_xk::trackParametersEstimationForFirstPointWithVertexConstraint()
 {
   return m_elements[m_firstTrajectory].trackParametersEstimation
-    (&m_elements[m_lastTrajectory],0,m_parameters,m_zVertexWidth);
+    (&m_elements[m_lastTrajectory],nullptr,m_parameters,m_zVertexWidth);
 
 }
 
@@ -773,7 +769,7 @@ bool InDet::TRT_Trajectory_xk::fitter()
 void InDet::TRT_Trajectory_xk::stabline(int Np,double DA) {
 
   m_A=m_B=0; if(Np<2) return;
-  double Amax =fabs(DA);
+  double Amax =std::abs(DA);
 
   int    i=0;
 
@@ -802,26 +798,26 @@ void InDet::TRT_Trajectory_xk::stabline(int Np,double DA) {
     double U1=-1000., d=0.; int m=0;
     while(i<Np-1) {
       if (m_U[i]==U1) {
-	if(fabs(m_SS[m].m_F=(m_V[i  ]-v0)*d)<Amax) m_SS[m++].m_NA=i;
-        if(fabs(m_SS[m].m_F=(m_V[i+1]-v0)*d)<Amax) m_SS[m++].m_NA=i+1;
+	if(std::abs(m_SS[m].m_F=(m_V[i  ]-v0)*d)<Amax) m_SS[m++].m_NA=i;
+        if(std::abs(m_SS[m].m_F=(m_V[i+1]-v0)*d)<Amax) m_SS[m++].m_NA=i+1;
       }
       else          {
 	d=1./((U1=m_U[i])-u0);
-	if(fabs(m_SS[m].m_F=(m_V[i  ]-v0)*d)<Amax) m_SS[m++].m_NA=i;
-        if(fabs(m_SS[m].m_F=(m_V[i+1]-v0)*d)<Amax) m_SS[m++].m_NA=i+1;
+	if(std::abs(m_SS[m].m_F=(m_V[i  ]-v0)*d)<Amax) m_SS[m++].m_NA=i;
+        if(std::abs(m_SS[m].m_F=(m_V[i+1]-v0)*d)<Amax) m_SS[m++].m_NA=i+1;
       }
       i+=2;
     }
     (i=l);  while(--i>0)  {if(m_U[i]!=u0) {break;}} U1=-1000.;
     while(i>0) {
       if (m_U[i]==U1) {
-	if(fabs(m_SS[m].m_F=(m_V[i  ]-v0)*d)<Amax) m_SS[m++].m_NA=i;
-        if(fabs(m_SS[m].m_F=(m_V[i-1]-v0)*d)<Amax) m_SS[m++].m_NA=i-1;
+	if(std::abs(m_SS[m].m_F=(m_V[i  ]-v0)*d)<Amax) m_SS[m++].m_NA=i;
+        if(std::abs(m_SS[m].m_F=(m_V[i-1]-v0)*d)<Amax) m_SS[m++].m_NA=i-1;
       }
       else          {
 	d=1./((U1=m_U[i])-u0);
-	if(fabs(m_SS[m].m_F=(m_V[i  ]-v0)*d)<Amax) m_SS[m++].m_NA=i;
-        if(fabs(m_SS[m].m_F=(m_V[i-1]-v0)*d)<Amax) m_SS[m++].m_NA=i-1;
+	if(std::abs(m_SS[m].m_F=(m_V[i  ]-v0)*d)<Amax) m_SS[m++].m_NA=i;
+        if(std::abs(m_SS[m].m_F=(m_V[i-1]-v0)*d)<Amax) m_SS[m++].m_NA=i-1;
       }
       i-=2;
     }
@@ -866,7 +862,7 @@ Trk::Track* InDet::TRT_Trajectory_xk::convert(const Trk::Track& Tr)
   const DataVector<const Trk::TrackStateOnSurface>*
     tsos = Tr.trackStateOnSurfaces();
 
-  if(!m_parameters.production((*(tsos->rbegin()))->trackParameters())) return 0;
+  if(!m_parameters.production((*(tsos->rbegin()))->trackParameters())) return nullptr;
 
   double sin2 = 1./sin(m_parameters.parameters()[3]); sin2*= sin2        ;
   double P42  =        m_parameters.parameters()[4] ; P42  = P42*P42*134.;
@@ -918,7 +914,7 @@ Trk::Track* InDet::TRT_Trajectory_xk::convert(const Trk::Track& Tr)
     }
   }
 
-  if(lastTrajectory == m_firstTrajectory || m_ndf < 5 || m_xi2 > 2.*double(m_ndf)) return 0;
+  if(lastTrajectory == m_firstTrajectory || m_ndf < 5 || m_xi2 > 2.*double(m_ndf)) return nullptr;
   m_lastTrajectory = lastTrajectory;
 
   DataVector<const Trk::TrackStateOnSurface>::const_iterator
@@ -926,20 +922,19 @@ Trk::Track* InDet::TRT_Trajectory_xk::convert(const Trk::Track& Tr)
 
   // Change first track parameters of the track
   //
-  if(!Tp.production((*s)->trackParameters())) return 0;
+  if(!Tp.production((*s)->trackParameters())) return nullptr;
   m_parameters = Tpl; updateTrackParameters(Tp);
 
   // Fill new track information
   //
-  DataVector<const Trk::TrackStateOnSurface>*
-    tsosn = new DataVector<const Trk::TrackStateOnSurface>;
+  auto tsosn = DataVector<const Trk::TrackStateOnSurface>();
 
-  tsosn->push_back(new Trk::TrackStateOnSurface(0,Tp.convert(true),0,0,(*s)->types()));
+  tsosn.push_back(new Trk::TrackStateOnSurface(nullptr,Tp.convert(true),nullptr,nullptr,(*s)->types()));
 
   // Copy old information to new track
   //
   for(++s; s!=se; ++s) {
-    tsosn->push_back(new Trk::TrackStateOnSurface(*(*s)));
+    tsosn.push_back(new Trk::TrackStateOnSurface(*(*s)));
   }
 
   // Add new information from TRT without parameters
@@ -949,18 +944,18 @@ Trk::Track* InDet::TRT_Trajectory_xk::convert(const Trk::Track& Tr)
     if(mb) {
       std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>  typePattern;
       typePattern.set(Trk::TrackStateOnSurface::Measurement);
-      tsosn->push_back(new Trk::TrackStateOnSurface(mb,0,0,0,typePattern));
+      tsosn.push_back(new Trk::TrackStateOnSurface(mb,nullptr,nullptr,nullptr,typePattern));
     }
   }
 
   // For last points add new information from TRT with parameters
   //
-  const Trk::MeasurementBase* mb = m_elements[m_lastTrajectory].rioOnTrackSimple();
+  std::unique_ptr<const Trk::MeasurementBase> mb(m_elements[m_lastTrajectory].rioOnTrackSimple());
   if(mb) {
     std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>  typePattern;
     typePattern.set(Trk::TrackStateOnSurface::Measurement);
-    tsosn->push_back
-      (new Trk::TrackStateOnSurface(mb,m_parameters.convert(true),0,0,typePattern));
+    tsosn.push_back
+      (new Trk::TrackStateOnSurface(std::move(mb),m_parameters.convert(true),nullptr,nullptr,typePattern));
   }
 
   // New fit quality production
@@ -971,7 +966,7 @@ Trk::Track* InDet::TRT_Trajectory_xk::convert(const Trk::Track& Tr)
     m_ndf+= fqo->numberDoF ();
   }
   Trk::FitQuality* fq = new Trk::FitQuality(m_xi2,m_ndf);
-  return new Trk::Track (Tr.info(),tsosn,fq);
+  return new Trk::Track (Tr.info(),std::move(tsosn),fq);
 }
 
 ///////////////////////////////////////////////////////////////////

@@ -27,12 +27,19 @@ namespace FlavorTagDiscriminants {
     return StatusCode::SUCCESS;
   }
 
-  void BTagMuonAugmenterTool::decorate(const xAOD::Jet& jet) const {
-    m_aug->augment(jet);
+  void BTagMuonAugmenterTool::decorate(const xAOD::BTagging& btag) const {
+    m_aug->augment(btag);
   }
 
   std::set<std::string> BTagMuonAugmenterTool::getDecoratorKeys() const {
     return m_aug->getDecoratorKeys();
+  }
+  std::set<std::string> BTagMuonAugmenterTool::getAuxInputKeys() const {
+    return m_aug->getAuxInputKeys();
+  }
+  std::set<std::string> BTagMuonAugmenterTool::getConstituentAuxInputKeys()
+    const {
+    return m_aug->getConstituentAuxInputKeys();
   }
 
 }

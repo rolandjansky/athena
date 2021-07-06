@@ -40,11 +40,10 @@ class LArHVFraction;
 #include "CaloInterface/ILArHVFraction.h"
 #include "CaloConditions/CaloNoise.h"
 #include "StoreGate/ReadCondHandleKey.h"
-//#include "fastjet/PseudoJet.hh"
 #include <string>
 #include <vector>
 
-class CaloClusterMomentsMaker_DigiHSTruth final: public extends<AthAlgTool, CaloClusterCollectionProcessor>
+class CaloClusterMomentsMaker_DigiHSTruth: public AthAlgTool, virtual public CaloClusterCollectionProcessor
 {
  public:    
   CaloClusterMomentsMaker_DigiHSTruth(const std::string& type, const std::string& name,

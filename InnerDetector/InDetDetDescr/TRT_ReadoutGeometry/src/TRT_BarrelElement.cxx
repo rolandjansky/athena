@@ -197,7 +197,7 @@ void TRT_BarrelElement::createSurfaceCache() const
 {
  // create the surface cache
  if (!m_surfaceCache) {
-   m_surfaceCache.set(std::move(createSurfaceCacheHelper()));
+   m_surfaceCache.set(createSurfaceCacheHelper());
  }
  // creaete the surface (only if needed, links are still ok even if cache
  // update)
@@ -218,8 +218,7 @@ TRT_BarrelElement::createSurfaceCacheHelper() const{
     center(m_idHelper->straw_id(identify(), lastStraw));
 
   // Calculate center as the average position of the end straws.
-  auto center =
-    std::make_unique<Amg::Vector3D>(0.5 * (centerFirstStraw + centerLastStraw));
+  auto center = Amg::Vector3D(0.5 * (centerFirstStraw + centerLastStraw));
 
   Amg::Vector3D phiAxis = centerLastStraw - centerFirstStraw;
   double width = phiAxis.mag();
@@ -245,24 +244,20 @@ TRT_BarrelElement::createSurfaceCacheHelper() const{
   // local z axis -> cross product of local x and local y
   // translation -> center
 
-  // This constructor takes three points in the two coordinate systems.
-  auto transform = std::make_unique<Amg::Transform3D>();
-
   Amg::RotationMatrix3D rotation;
   rotation.col(0) = phiAxis;
   rotation.col(1) = etaAxis;
   rotation.col(2) = (*normal);
 
-  (*transform) = Amg::Translation3D(*center) * rotation;
+  // This constructor takes three points in the two coordinate systems.
+  auto transform = Amg::Transform3D(Amg::Translation3D(center) * rotation);
 
   // create the element bounds
   auto elementBounds = std::make_unique<Trk::RectangleBounds>(
     0.5 * elementWidth, 0.5 * strawLength());
 
-  return std::make_unique<SurfaceCache>(transform.release(),
-                                        center.release(),
-                                        normal.release(),
-                                        elementBounds.release());
+  return std::make_unique<SurfaceCache>(
+    transform, center, std::move(normal), std::move(elementBounds));
 }
 
 int TRT_BarrelElement::strawDirection() const

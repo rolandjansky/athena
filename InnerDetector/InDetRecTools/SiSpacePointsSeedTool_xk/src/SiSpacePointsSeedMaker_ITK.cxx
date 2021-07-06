@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,6 +15,8 @@
 #include "SiSpacePointsSeedTool_xk/SiSpacePointsSeedMaker_ITK.h"
 
 #include "InDetPrepRawData/SiCluster.h"
+
+#include <cmath>
 
 #include <iomanip>
 #include <ostream>
@@ -65,7 +67,7 @@ StatusCode InDet::SiSpacePointsSeedMaker_ITK::initialize()
     data.nprint=0;
     dump(data, msg(MSG::DEBUG));
   }
-  m_umax = 100.-fabs(m_umax)*300.;
+  m_umax = 100.-std::abs(m_umax)*300.;
 
   m_initialized = true;
 
@@ -134,7 +136,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newEvent(const EventContext& ctx, EventD
 
   data.checketa = data.dzdrmin > 1.;
 
-  float irstep = 1./m_r_rstep;
+  float irstep = 1.f/m_r_rstep;
   int   irmax  = m_r_size-1;
   for (int i=0; i<data.nr; ++i) {
     int n = data.r_index[i];
@@ -283,7 +285,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newRegion
 
   data.i_spforseed_ITK = data.l_spforseed_ITK.begin();
 
-  float irstep = 1./m_r_rstep;
+  float irstep = 1.f/m_r_rstep;
   int   irmax  = m_r_size-1;
 
   data.r_first = 0;
@@ -298,7 +300,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newRegion
 
   // Get pixels space points containers from store gate 
   //
-  if (m_pixel && vPixel.size()) {
+  if (m_pixel && !vPixel.empty()) {
 
     SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel, ctx};
     if (spacepointsPixel.isValid()) {
@@ -306,7 +308,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newRegion
       // Loop through all trigger collections
       //
       for (const IdentifierHash& l: vPixel) {
-	auto w = spacepointsPixel->indexFindPtr(l);
+	const auto *w = spacepointsPixel->indexFindPtr(l);
 	if (w==nullptr) continue;
         for (const Trk::SpacePoint* sp: *w) {
 	  float r = sp->r();
@@ -325,7 +327,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newRegion
 
   // Get sct space points containers from store gate 
   //
-  if (m_sct && vSCT.size()) {
+  if (m_sct && !vSCT.empty()) {
 
     SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT, ctx};
     if (spacepointsSCT.isValid()) {
@@ -333,7 +335,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newRegion
       // Loop through all trigger collections
       //
       for (const IdentifierHash& l: vSCT) {
-	auto w = spacepointsSCT->indexFindPtr(l);
+	const auto *w = spacepointsSCT->indexFindPtr(l);
 	if (w==nullptr) continue;
         for (const Trk::SpacePoint* sp: *w) {
 	  float r = sp->r();
@@ -365,8 +367,8 @@ void InDet::SiSpacePointsSeedMaker_ITK::newRegion
   newRegion(ctx, data, vPixel, vSCT);
   data.trigger = true;
 
-  double dzdrmin = 1./tan(2.*atan(exp(-IRD.etaMinus())));
-  double dzdrmax = 1./tan(2.*atan(exp(-IRD.etaPlus ())));
+  double dzdrmin = 1.f/std::tan(2.f*std::atan(std::exp(-IRD.etaMinus())));
+  double dzdrmax = 1.f/std::tan(2.f*std::atan(std::exp(-IRD.etaPlus ())));
  
   data.zminB        = IRD.zedMinus()-data.zbeam[0]; // min bottom Z
   data.zmaxB        = IRD.zedPlus ()-data.zbeam[0]; // max bottom Z
@@ -762,19 +764,19 @@ bool InDet::SiSpacePointsSeedMaker_ITK::newVertices(EventData& data, const std::
 
 void InDet::SiSpacePointsSeedMaker_ITK::buildFrameWork() 
 {
-  m_ptmin = fabs(m_ptmin);
+  m_ptmin = std::abs(m_ptmin);
   
   if (m_ptmin < 100.) m_ptmin = 100.;
 
   if (m_diversss < m_diver   ) m_diversss = m_diver;
   if (m_divermax < m_diversss) m_divermax = m_diversss;
 
-  if (fabs(m_etamin) < .1) m_etamin = -m_etamax;
-  m_dzdrmax0 = 1./tan(2.*atan(exp(-m_etamax)));
-  m_dzdrmin0 = 1./tan(2.*atan(exp(-m_etamin)));
+  if (std::abs(m_etamin) < .1) m_etamin = -m_etamax;
+  m_dzdrmax0 = 1.f/std::tan(2.f*std::atan(exp(-m_etamax)));
+  m_dzdrmin0 = 1.f/std::tan(2.f*std::atan(exp(-m_etamin)));
   
   m_COF = 134*.05*9.;
-  m_ipt = 1./fabs(.9*m_ptmin);
+  m_ipt = 1.f/std::abs(.9f*m_ptmin);
   m_ipt2 = m_ipt*m_ipt;
 
   // Build radius sorted containers
@@ -921,8 +923,8 @@ void InDet::SiSpacePointsSeedMaker_ITK::buildBeamFrameWork(EventData& data) cons
   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
 
   const Amg::Vector3D &cb = beamSpotHandle->beamPos();
-  double tx = tan(beamSpotHandle->beamTilt(0));
-  double ty = tan(beamSpotHandle->beamTilt(1));
+  double tx = std::tan(beamSpotHandle->beamTilt(0));
+  double ty = std::tan(beamSpotHandle->beamTilt(1));
 
   double ph   = atan2(ty,tx);
   double th   = acos(1./sqrt(1.+tx*tx+ty*ty));
@@ -1163,13 +1165,13 @@ void InDet::SiSpacePointsSeedMaker_ITK::production2Sp(EventData& data) const
 	    float x  = dx*ax+dy*ay;
 	    float y  =-dx*ay+dy*ax;
 	    float xy = x*x+y*y; if (xy == 0.) continue;
-	    float r2 = 1./xy;
+	    float r2 = 1.f/xy;
 	    float Ut = x*r2;
 	    float Vt = y*r2;
-	    float UR = Ut*R+1.; if (UR == 0.) continue;
+	    float UR = Ut*R+1.f; if (UR == 0.) continue;
 	    float A  = Vt*R/UR;
 	    float B  = Vt-A*Ut;
-	    if (fabs(B*data.K) > m_ipt*sqrt(1.+A*A)) continue;
+	    if (std::abs(B*data.K) > m_ipt*sqrt(1.f+A*A)) continue;
             ++nseed;
 	    newSeed(data, (*r), (*r0), Zo);
 	  }
@@ -1295,7 +1297,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
 	if (dR < m_drmin) break;
 	if ((*r)->sur()==sur0 || (surn && surn==(*r)->sun())) continue;
 
-	float Tz = (Z-(*r)->z())/dR, aTz =fabs(Tz);
+	float Tz = (Z-(*r)->z())/dR, aTz =std::abs(Tz);
 
 	if (aTz < data.dzdrmin || aTz > data.dzdrmax) continue;
 	
@@ -1326,7 +1328,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
 
 	if ( (*r)->sur()==sur0 || (surn && surn==(*r)->sun())) continue;
 
-	float Tz = ((*r)->z()-Z)/dR, aTz =fabs(Tz);
+	float Tz = ((*r)->z()-Z)/dR, aTz =std::abs(Tz);
 
 	if (aTz < data.dzdrmin || aTz > data.dzdrmax) continue;
 
@@ -1354,8 +1356,8 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
       float dz  = sp->z()-Z;
       float x   = dx*ax+dy*ay;
       float y   = dy*ax-dx*ay;
-      float r2  = 1./(x*x+y*y);
-      float dr  = sqrt(r2);
+      float r2  = 1.f/(x*x+y*y);
+      float dr  = std::sqrt(r2);
       float tz  = dz*dr;
       if (i < Nb) tz = -tz;
 
@@ -1379,8 +1381,8 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
       float  Erb  = data.Er[b];
       float  Vb   = data.V [b];
       float  Ub   = data.U [b];
-      float  Tzb2 = (1.+Tzb*Tzb);
-      float sTzb2 = sqrt(Tzb2);
+      float  Tzb2 = (1.f+Tzb*Tzb);
+      float sTzb2 = std::sqrt(Tzb2);
       float  CSA  = Tzb2*COFK;
       float ICSA  = Tzb2*ipt2C;
       float imax  = imaxp;
@@ -1393,18 +1395,18 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
 	float dU  = data.U[t]-Ub;
         if (dU == 0.) continue;
 	float A   = (data.V[t]-Vb)/dU;
-	float S2  = 1.+A*A;
+	float S2  = 1.f+A*A;
 	float B   = Vb-A*Ub;
 	float B2  = B*B;
 	if (B2  > ipt2K*S2 || dT*S2 > B2*CSA) continue;
 
-	float Im  = fabs((A-B*R)*R);
+	float Im  = std::abs((A-B*R)*R);
 
 	if (Im <= imax) {
 	  float dr = data.R[b];
           if (data.R[t] < data.R[b]) dr = data.R[t];
-          Im+=fabs((Tzb-data.Tz[t])/(dr*sTzb2));
-	  data.CmSp_ITK.emplace_back(std::make_pair(B/sqrt(S2), data.SP_ITK[t]));
+          Im+=std::abs((Tzb-data.Tz[t])/(dr*sTzb2));
+	  data.CmSp_ITK.emplace_back(std::make_pair(B/std::sqrt(S2), data.SP_ITK[t]));
           data.SP_ITK[t]->setParam(Im);
 	}
       }
@@ -1476,7 +1478,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
 	if (dR < m_drmin) break;
 	if ((*r)->sur()==sur0 || (surn && surn==(*r)->sun())) continue;
 	float Tz = (Z-(*r)->z())/dR;
-        float aTz =fabs(Tz);
+        float aTz =std::abs(Tz);
 	if (aTz < data.dzdrmin || aTz > data.dzdrmax) continue;
 
 	// Comparison with vertices Z coordinates
@@ -1506,7 +1508,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
 
 	if ((*r)->sur()==sur0 || (surn && surn==(*r)->sun())) continue;
 	float Tz = ((*r)->z()-Z)/dR;
-        float aTz = fabs(Tz);
+        float aTz = std::abs(Tz);
 	if (aTz < data.dzdrmin || aTz > data.dzdrmax) continue;
 
 	// Comparison with vertices Z coordinates
@@ -1533,8 +1535,8 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
       float dz  = sp->z()-Z;
       float x   = dx*ax+dy*ay;
       float y   = dy*ax-dx*ay;
-      float r2  = 1./(x*x+y*y);
-      float dr  = sqrt(r2);
+      float r2  = 1.f/(x*x+y*y);
+      float dr  = std::sqrt(r2);
       float tz  = dz*dr;
       if (i < Nb) tz = -tz;
 
@@ -1560,13 +1562,13 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
       float  Erb  = data.Er[b];
       float  Vb   = data.V [b];
       float  Ub   = data.U [b];
-      float  Tzb2 = (1.+Tzb*Tzb);
-      float sTzb2 = sqrt(Tzb2);
+      float  Tzb2 = (1.f+Tzb*Tzb);
+      float sTzb2 = std::sqrt(Tzb2);
       float  CSA  = Tzb2*COFK;
       float ICSA  = Tzb2*ipt2C;
       float imax  = imaxs;
       
-      float Se    = 1./sqrt(1.+Tzb*Tzb);
+      float Se    = 1.f/sqrt(1.f+Tzb*Tzb);
       float Ce    = Se*Tzb;
       float Sx    = Se*ax;
       float Sy    = Se*ay;
@@ -1577,7 +1579,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
 	float dU0   =  data.U[t]-Ub;
         if (dU0 == 0.) continue; 
 	float A0    = (data.V[t]-Vb)/dU0;
-	float C0    = 1./sqrt(1.+A0*A0); 
+	float C0    = 1.f/std::sqrt(1.f+A0*A0); 
 	float S0    = A0*C0;
 	float d0[3] = {Sx*C0-Sy*S0, Sx*S0+Sy*C0, Ce};
 	float rn[3];
@@ -1594,7 +1596,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
 
 	// Top     point
 	//
-	float Ct    = (1.-B0*data.Y[t])*C0;
+	float Ct    = (1.f-B0*data.Y[t])*C0;
 	float St    = (A0+B0*data.X[t])*C0;
 	float dt[3] = {Sx*Ct-Sy*St,Sx*St+Sy*Ct,Ce};
 	float rtDup[3]; //doesnt hide previous declaration of rt
@@ -1605,16 +1607,16 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
 	float xt    = rtDup[0]-rn[0];
 	float yt    = rtDup[1]-rn[1];
 
-	float rb2   = 1./(xb*xb+yb*yb);
-	float rt2   = 1./(xt*xt+yt*yt);
+	float rb2   = 1.f/(xb*xb+yb*yb);
+	float rt2   = 1.f/(xt*xt+yt*yt);
 	
-	float tb    =  (rn[2]-rbDup[2])*sqrt(rb2);
-	float tz    =  (rtDup[2]-rn[2])*sqrt(rt2);
+	float tb    =  (rn[2]-rbDup[2])*std::sqrt(rb2);
+	float tz    =  (rtDup[2]-rn[2])*std::sqrt(rt2);
 
 	float dT  = ((tb-tz)*(tb-tz)-data.R[t]*Rb2z-(Erb+data.Er[t]))-(data.R[t]*Rb2r)*((tb+tz)*(tb+tz));
 	if ( dT > ICSA) continue;
 
-	float Rn    = sqrt(rn[0]*rn[0]+rn[1]*rn[1]);
+	float Rn    = std::sqrt(rn[0]*rn[0]+rn[1]*rn[1]);
 	float Ax    = rn[0]/Rn;
 	float Ay    = rn[1]/Rn;
 
@@ -1626,18 +1628,18 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
 	float dU  = ut-ub;
 	if (dU == 0.) continue;
 	float A   = (vt-vb)/dU;
-	float S2  = 1.+A*A;
+	float S2  = 1.f+A*A;
 	float B   = vb-A*ub;
 	float B2  = B*B;
 	if (B2 > ipt2K*S2 || dT*S2 > B2*CSA) continue;
 
-	float Im  = fabs((A-B*Rn)*Rn);
+	float Im  = std::abs((A-B*Rn)*Rn);
 
 	if (Im <= imax) {
 	  float dr;
 	  data.R[t] < data.R[b] ? dr = data.R[t] : dr = data.R[b];
-	  Im+=fabs((Tzb-data.Tz[t])/(dr*sTzb2));
-	  data.CmSp_ITK.emplace_back(std::make_pair(B/sqrt(S2), data.SP_ITK[t]));
+	  Im+=std::abs((Tzb-data.Tz[t])/(dr*sTzb2));
+	  data.CmSp_ITK.emplace_back(std::make_pair(B/std::sqrt(S2), data.SP_ITK[t]));
 	  data.SP_ITK[t]->setParam(Im);
 	}
 	
@@ -1715,7 +1717,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpTrigger
 	float Tz = (Z-(*r)->z())/dR;
 	float Zo = Z-R*Tz;
         if (Zo < data.zminB || Zo > data.zmaxB) continue;
-	float Zu = Z+(550.-R)*Tz;
+	float Zu = Z+(550.f-R)*Tz;
         if (Zu < data.zminU || Zu > data.zmaxU) continue;
 	data.SP_ITK[Nb] = (*r);
         if (++Nb==m_maxsizeSP) goto breakb;
@@ -1745,7 +1747,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpTrigger
 	float Tz = ((*r)->z()-Z)/dR;
 	float Zo = Z-R*Tz;
         if (Zo < data.zminB || Zo > data.zmaxB) continue;
-	float Zu = Z+(550.-R)*Tz;
+	float Zu = Z+(550.f-R)*Tz;
         if (Zu < data.zminU || Zu > data.zmaxU) continue;
   	data.SP_ITK[Nt] = (*r);
         if (++Nt==m_maxsizeSP) goto breakt;
@@ -1768,8 +1770,8 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpTrigger
       float dz  = sp->z()-Z;
       float x   = dx*ax+dy*ay;
       float y   = dy*ax-dx*ay;
-      float r2  = 1./(x*x+y*y);
-      float dr  = sqrt(r2);
+      float r2  = 1.f/(x*x+y*y);
+      float dr  = std::sqrt(r2);
       float tz  = dz*dr;
       if (i < Nb) tz = -tz;
 
@@ -1795,7 +1797,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpTrigger
       float  Erb  = data.Er[b];
       float  Vb   = data.V [b];
       float  Ub   = data.U [b];
-      float  Tzb2 = (1.+Tzb*Tzb);
+      float  Tzb2 = (1.f+Tzb*Tzb);
       float  CSA  = Tzb2*COFK;
       float ICSA  = Tzb2*ipt2C;
       float imax  = imaxp;
@@ -1807,22 +1809,22 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpTrigger
 	float dU  = data.U[t]-Ub;
         if (dU == 0.) continue;
 	float A   = (data.V[t]-Vb)/dU;
-	float S2  = 1.+A*A;
+	float S2  = 1.f+A*A;
 	float B   = Vb-A*Ub;
 	float B2  = B*B;
 	if (B2  > ipt2K*S2 || dT*S2 > B2*CSA) continue;
 
-	float Im  = fabs((A-B*R)*R);
+	float Im  = std::abs((A-B*R)*R);
 	if (Im > imax) continue;
 
 	// Azimuthal angle test
 	//
 	float y  = 1.;
-	float x  = 2.*B*R-A;
-	float df = fabs(atan2(ay*y-ax*x,ax*y+ay*x)-data.ftrig);
+	float x  = 2.f*B*R-A;
+	float df = std::abs(std::atan2(ay*y-ax*x,ax*y+ay*x)-data.ftrig);
 	if (df > M_PI) df=pi2-df;
 	if (df > data.ftrigW) continue;
-	data.CmSp_ITK.emplace_back(std::make_pair(B/sqrt(S2), data.SP_ITK[t]));
+	data.CmSp_ITK.emplace_back(std::make_pair(B/std::sqrt(S2), data.SP_ITK[t]));
         data.SP_ITK[t]->setParam(Im);
       }
       if (!data.CmSp_ITK.empty()) {
@@ -1892,7 +1894,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newOneSeedWithCurvaturesComparison
   for (; i!=ie; ++i) {
     float u    = (*i).second->param();
     bool                pixt = !(*i).second->spacepoint->clusterList().second;
-    if (pixt && fabs(SPb->z() -(*i).second->z()) > m_dzmaxPPP) continue;
+    if (pixt && std::abs(SPb->z() -(*i).second->z()) > m_dzmaxPPP) continue;
 
     const Trk::Surface* Sui  = (*i).second->sur   ();
     float               Ri   = (*i).second->radius();
@@ -1912,7 +1914,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newOneSeedWithCurvaturesComparison
       if ( (*j).second->sur()==Sui) continue;
       
       float Rj = (*j).second->radius();
-      if (fabs(Rj-Ri) < m_drmin) continue;
+      if (std::abs(Rj-Ri) < m_drmin) continue;
 
       if (in) {
 	if      (Rj > Rma) Rma = Rj;
@@ -2009,7 +2011,7 @@ bool InDet::SiSpacePointsSeedMaker_ITK::isZCompatible
 
   float dZmin = std::numeric_limits<float>::max();
   for (const float& v: data.l_vertex) {
-    float dZ = fabs(v-Zv);
+    float dZ = std::abs(v-Zv);
     if (dZ >= dZmin) break;
     dZmin=dZ;
   }
@@ -2029,7 +2031,7 @@ InDet::SiSpacePointForSeedITK* InDet::SiSpacePointsSeedMaker_ITK::newSpacePoint
   convertToBeamFrameWork(data, sp, r);
 
   if (data.checketa) {
-    float z = (fabs(r[2])+m_zmax);
+    float z = (std::abs(r[2])+m_zmax);
     float x = r[0]*data.dzdrmin;
     float y = r[1]*data.dzdrmin;
     if ((z*z )<(x*x+y*y)) return sps;
@@ -2076,4 +2078,11 @@ void InDet::SiSpacePointsSeedMaker_ITK::initializeEventData(EventData& data) con
                   SizeRFZ,
                   SizeRFZV,
                   m_checketa);
+}
+
+void InDet::SiSpacePointsSeedMaker_ITK::writeNtuple(const SiSpacePointsSeed*, const Trk::Track*, int, long) const{
+}
+
+bool InDet::SiSpacePointsSeedMaker_ITK::getWriteNtupleBoolProperty() const{
+    return false;
 }

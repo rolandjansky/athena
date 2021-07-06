@@ -7,8 +7,9 @@
 
 #include <iostream>
 #include <list>
-#include "MuonCablingTools/ShowRequest.h"
+
 #include "MuonCablingTools/RPCdef.h"
+#include "MuonCablingTools/ShowRequest.h"
 #include "MuonCablingTools/dbline.h"
 #include "RPC_CondCabling/EtaCMA.h"
 #include "RPC_CondCabling/EvenPhiCMA.h"
@@ -16,54 +17,35 @@
 
 namespace RPC_CondCabling {
 
-class CMAcablingdata : public BaseObject
-{
+    class CMAcablingdata : public BaseObject {
     private:
-    typedef std::list < EtaCMA > ETAlist;
+        typedef std::list<EtaCMA> ETAlist;
 
-    bool m_fail;
+        bool m_fail{true};
 
-    int m_number;
-    int m_station;
-    int m_type;
+        ViewType m_view{ViewType::Eta};
+        CMAcoverage m_coverage{CMAcoverage::AllSectors};
+        std::string m_covtag{};
 
-    int m_eta_index;
-    int m_phi_index;
+        ETAlist m_etaCMA;
 
-    int m_lowPt_start_co;
-    int m_lowPt_stop_co;
-    int m_lowPt_number_co;
-
-    int m_highPt_start_co;
-    int m_highPt_stop_co;
-    int m_highPt_number_co;
-
-    ViewType    m_view;
-    CMAcoverage m_coverage;
-    std::string m_covtag;
-
-    ETAlist m_etaCMA;
-
-    void reset_data(void);
-    bool get_data(DBline&);
-    bool confirm_data(ViewType);
+        void reset_data(void);
+        bool get_data(DBline&, CMAparameters::parseParams& params);
+        bool confirm_data(ViewType, const CMAparameters::parseParams& parser);
 
     public:
-    CMAcablingdata();
-    CMAcablingdata(DBline&,int);
-    ~CMAcablingdata();
+        CMAcablingdata(DBline&, int, IMessageSvc*);
+        virtual ~CMAcablingdata() = default;
 
-    std::unique_ptr<EtaCMA> give_eta_cma(void);
+        std::unique_ptr<EtaCMA> give_eta_cma();
 
-    void Print(std::ostream&,bool) const;
-};
+        void Print(std::ostream&, bool) const;
+    };
 
-template <class X> X& operator<< (X& stream, CMAcablingdata& data)
-{
-    data.Print(stream,false);
-    return stream;
-}
+    template <class X> X& operator<<(X& stream, CMAcablingdata& data) {
+        data.Print(stream, false);
+        return stream;
+    }
 
-
-}
+}  // namespace RPC_CondCabling
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -20,7 +20,6 @@
 // data model
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "InDetPrepRawData/PixelCluster.h"
-//#include "InDetCompetingRIOsOnTrack/CompetingPixelClustersOnTrack.h"
 //#include "TrkParameters/AtaStraightLine.h"
 //#include "TrkSurfaces/DiscSurface.h"
 //#include "TrkSurfaces/StraightLineSurface.h"
@@ -120,9 +119,9 @@ const InDet::CompetingPixelClustersOnTrack* InDet::CompetingPixelClustersOnTrack
     std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb > *assgnProbVector = new std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >;
     // type of TRT_BaseElement to check if all RIOs are of same type
     //InDetDD::TRT_BaseElement::Type* TRTtype = 0;
-    const Trk::Surface* detElementSurface = 0;
-    const Trk::TrackParameters* trkParAtRIOsurface = 0;
-    const Trk::TrackParameters* newTrackParameters = 0;
+    const Trk::Surface* detElementSurface = nullptr;
+    const Trk::TrackParameters* trkParAtRIOsurface = nullptr;
+    const Trk::TrackParameters* newTrackParameters = nullptr;
     bool isBarrel = true;
     // maxium assignment propability for choosing the surface....
     //Trk::CompetingRIOsOnTrack::AssignmentProb maximumAssignProb = 0;
@@ -178,7 +177,7 @@ const InDet::CompetingPixelClustersOnTrack* InDet::CompetingPixelClustersOnTrack
                     delete ROTvector;
                     // FIXME: delete entries of ROT vector
                     delete assgnProbVector;
-                    return 0;
+                    return nullptr;
                 } // end if (extrapolation failed)
                 // const Trk::AtaStraightLine* trkParAtRIOsurface1 = new Trk::AtaStraightLine(trkPar.position(), trkPar.momentum(), trkPar.charge(), *RIOsurfacePointer);
                 trkParAtRIOsurface = newTrackParameters;
@@ -225,17 +224,17 @@ const InDet::CompetingPixelClustersOnTrack* InDet::CompetingPixelClustersOnTrack
     } // end for loop
     delete newTrackParameters;
     delete trkParWithoutError;
-    trkParWithoutError = 0;
+    trkParWithoutError = nullptr;
 
     // -------------------------------------
     // test if at least one ROT was created:
-    if (ROTvector->size() <= 0) {
+    if (ROTvector->empty()) {
         ATH_MSG_ERROR("No valid PixelClusterOnTrack could be created:");
         ATH_MSG_ERROR("CompetingPixelClustersOnTrack creation aborted!");
         //clean-up
         delete ROTvector;
         delete assgnProbVector;
-        return 0;
+        return nullptr;
     }
     ATH_MSG_DEBUG("List of competing Pixel ROTs contains "<< ROTvector->size() << " PixelClustersOnTrack");
 
@@ -298,8 +297,8 @@ void InDet::CompetingPixelClustersOnTrackTool::updateCompetingROT(
 		    << trkPar.associatedSurface().center().x() << ", "
 		    << trkPar.associatedSurface().center().y() << ", "
 		    << trkPar.associatedSurface().center().z() << ")");
-    const Trk::TrackParameters* newTrackParameters = 0;
-    const Trk::TrackParameters* trkParAtROTsurface = 0;
+    const Trk::TrackParameters* newTrackParameters = nullptr;
+    const Trk::TrackParameters* trkParAtROTsurface = nullptr;
     // ---------------------------------------------------
     // get trackParameters on the surface of the compROT
     // check if track parameters are expressed on the compROT surface
@@ -326,7 +325,7 @@ void InDet::CompetingPixelClustersOnTrackTool::updateCompetingROT(
                                                                 false, //do noBoundaryCheck!
                                                                 Trk::nonInteracting); // without material interaction
         delete trkParWithoutError;
-        trkParWithoutError = 0;
+        trkParWithoutError = nullptr;
         if (!newTrackParameters){
             ATH_MSG_ERROR("TrackParameters could not be propagated to compROT surface:");
             ATH_MSG_ERROR("    CompetingPixelClustersOnTrack could not be updated!");

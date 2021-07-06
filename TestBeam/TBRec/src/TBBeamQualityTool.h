@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //#####################################################
@@ -32,10 +32,10 @@ class TBBeamQualityTool : public AthAlgTool
   
   virtual ~TBBeamQualityTool();
   
-  virtual StatusCode accept(std::vector<std::string>) = 0;
-  virtual StatusCode reject(std::vector<std::string>);
+  virtual StatusCode accept(const std::vector<std::string>&) = 0;
+  virtual StatusCode reject(const std::vector<std::string>&);
   
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   virtual StatusCode initializeTool();
   

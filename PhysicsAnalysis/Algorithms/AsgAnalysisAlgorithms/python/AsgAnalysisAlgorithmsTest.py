@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # @author Nils Krumnack
 # @author Tadej Novak
 
 from AnaAlgorithm.AlgSequence import AlgSequence
-from AnaAlgorithm.DualUseConfig import createAlgorithm
+from AnaAlgorithm.DualUseConfig import createAlgorithm, createService
 
 def makeOverlapSequence (dataType) :
     algSeq = AlgSequence()
@@ -15,9 +15,9 @@ def makeOverlapSequence (dataType) :
     algSeq.PrimaryVertexSelectorAlg.VertexContainer = 'PrimaryVertices'
     algSeq.PrimaryVertexSelectorAlg.MinVertices = 1
 
-    # Set up the systematics loader/handler algorithm:
-    algSeq += createAlgorithm( 'CP::SysListLoaderAlg', 'SysLoaderAlg' )
-    algSeq.SysLoaderAlg.sigmaRecommended = 1
+    # Set up the systematics loader/handler service:
+    sysService = createService( 'CP::SystematicsSvc', 'SystematicsSvc', sequence = algSeq )
+    sysService.sigmaRecommended = 1
 
     # Include, and then set up the pileup analysis sequence:
     from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
@@ -29,7 +29,7 @@ def makeOverlapSequence (dataType) :
     # Include, and then set up the electron analysis sequence:
     from EgammaAnalysisAlgorithms.ElectronAnalysisSequence import \
         makeElectronAnalysisSequence
-    electronSequence = makeElectronAnalysisSequence( dataType, 'LooseLHElectron.GradientLoose',
+    electronSequence = makeElectronAnalysisSequence( dataType, 'LooseLHElectron.Loose_VarRad',
                                                      recomputeLikelihood = True )
     electronSequence.configure( inputName = 'Electrons',
                                 outputName = 'AnalysisElectrons_%SYS%' )
@@ -58,36 +58,40 @@ def makeOverlapSequence (dataType) :
                            outputName = 'AnalysisJets_%SYS%' )
     algSeq += jetSequence
 
+    # TODO: disabled for now
     # Include, and then set up the tau analysis algorithm sequence:
-    from TauAnalysisAlgorithms.TauAnalysisSequence import makeTauAnalysisSequence
-    tauSequence = makeTauAnalysisSequence( dataType, 'Tight' )
-    tauSequence.configure( inputName = 'TauJets',
-                           outputName = 'AnalysisTauJets_%SYS%' )
-    algSeq += tauSequence
+    # from TauAnalysisAlgorithms.TauAnalysisSequence import makeTauAnalysisSequence
+    # tauSequence = makeTauAnalysisSequence( dataType, 'Tight' )
+    # tauSequence.configure( inputName = 'TauJets',
+    #                        outputName = 'AnalysisTauJets_%SYS%' )
+    # algSeq += tauSequence
 
     # Include, and then set up the overlap analysis algorithm sequence:
     from AsgAnalysisAlgorithms.OverlapAnalysisSequence import \
         makeOverlapAnalysisSequence
-    overlapSequence = makeOverlapAnalysisSequence( dataType, doMuPFJetOR=True, enableCutflow=True )
+    overlapSequence = makeOverlapAnalysisSequence( dataType, doMuPFJetOR=True, doTaus=False, enableCutflow=True )
     overlapSequence.configure(
         inputName = {
             'electrons' : 'AnalysisElectrons_%SYS%',
             'photons'   : 'AnalysisPhotons_%SYS%',
             'muons'     : 'AnalysisMuons_%SYS%',
             'jets'      : 'AnalysisJets_%SYS%',
-            'taus'      : 'AnalysisTauJets_%SYS%' },
+            # 'taus'      : 'AnalysisTauJets_%SYS%'
+        },
         outputName = {
             'electrons' : 'AnalysisElectronsOR_%SYS%',
             'photons'   : 'AnalysisPhotonsOR_%SYS%',
             'muons'     : 'AnalysisMuonsOR_%SYS%',
             'jets'      : 'AnalysisJetsOR_%SYS%',
-            'taus'      : 'AnalysisTauJetsOR_%SYS%' },
+            # 'taus'      : 'AnalysisTauJetsOR_%SYS%'
+        },
         affectingSystematics = {
             'electrons' : electronSequence.affectingSystematics(),
             'photons'   : photonSequence.affectingSystematics(),
             'muons'     : muonSequence.affectingSystematics(),
             'jets'      : jetSequence.affectingSystematics(),
-            'taus'      : tauSequence.affectingSystematics() } )
+            # 'taus'      : tauSequence.affectingSystematics()
+        } )
     algSeq += overlapSequence
 
     # Set up an ntuple to check the job with:
@@ -123,12 +127,13 @@ def makeOverlapSequence (dataType) :
         'AnalysisJetsOR_%SYS%.eta -> jet_OR_%SYS%_eta',
         'AnalysisJetsOR_%SYS%.phi -> jet_OR_%SYS%_phi',
         'AnalysisJetsOR_%SYS%.pt  -> jet_OR_%SYS%_pt',
-        'AnalysisTauJets_%SYS%.eta -> tau_%SYS%_eta',
-        'AnalysisTauJets_%SYS%.phi -> tau_%SYS%_phi',
-        'AnalysisTauJets_%SYS%.pt  -> tau_%SYS%_pt',
-        'AnalysisTauJetsOR_%SYS%.eta -> tau_OR_%SYS%_eta',
-        'AnalysisTauJetsOR_%SYS%.phi -> tau_OR_%SYS%_phi',
-        'AnalysisTauJetsOR_%SYS%.pt  -> tau_OR_%SYS%_pt' ]
+        # 'AnalysisTauJets_%SYS%.eta -> tau_%SYS%_eta',
+        # 'AnalysisTauJets_%SYS%.phi -> tau_%SYS%_phi',
+        # 'AnalysisTauJets_%SYS%.pt  -> tau_%SYS%_pt',
+        # 'AnalysisTauJetsOR_%SYS%.eta -> tau_OR_%SYS%_eta',
+        # 'AnalysisTauJetsOR_%SYS%.phi -> tau_OR_%SYS%_phi',
+        # 'AnalysisTauJetsOR_%SYS%.pt  -> tau_OR_%SYS%_pt'
+    ]
     ntupleMaker.systematicsRegex = '.*'
     algSeq += ntupleMaker
     treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
@@ -145,9 +150,9 @@ def makeEventAlgorithmsSequence (dataType) :
 
     algSeq = AlgSequence()
 
-    # Set up the systematics loader/handler algorithm:
-    algSeq += createAlgorithm( 'CP::SysListLoaderAlg', 'SysLoaderAlg' )
-    algSeq.SysLoaderAlg.sigmaRecommended = 1
+    # Set up the systematics loader/handler service:
+    sysService = createService( 'CP::SystematicsSvc', 'SystematicsSvc', sequence = algSeq )
+    sysService.sigmaRecommended = 1
 
     # Include, and then set up the pileup analysis sequence:
     from AsgAnalysisAlgorithms.EventSelectionAnalysisSequence import \
@@ -179,9 +184,9 @@ def makeGeneratorAlgorithmsSequence (dataType) :
 
     algSeq = AlgSequence()
 
-    # Set up the systematics loader/handler algorithm:
-    algSeq += createAlgorithm( 'CP::SysListLoaderAlg', 'SysLoaderAlg' )
-    algSeq.SysLoaderAlg.sigmaRecommended = 1
+    # Set up the systematics loader/handler service:
+    sysService = createService( 'CP::SystematicsSvc', 'SystematicsSvc', sequence = algSeq )
+    sysService.sigmaRecommended = 1
 
     # Include, and then set up the pileup analysis sequence (to make a copy):
     from AsgAnalysisAlgorithms.PileupAnalysisSequence import \

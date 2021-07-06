@@ -2,7 +2,7 @@
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Jet.JetChainConfiguration")
+log = logging.getLogger(__name__)
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, RecoFragmentsPool
@@ -42,12 +42,30 @@ class JetChainConfiguration(ChainConfigurationBase):
 
         # expect that the L1 seed is the same for all jet parts, otherwise we have a problem
         jChainParts = jetChainParts(self.chainPart)
-        for p in jChainParts:
+        # Register if this is a performance chain, in which case the HLT should be exactly j0_perf
+        self.isPerf = False
+        # Check if we intend to preselect events with calo jets in step 1
+        self.trkpresel = "nopresel"
+        for ip,p in enumerate(jChainParts):
+            if p['addInfo'] == 'perf':
+                # Slightly awkward check but we want to permit any L1, while
+                # restricting HLT to have exactly this form and nothing else
+                if self.chainName != 'HLT_j0_perf_'+self.chainL1Item:
+                        raise RuntimeError(f'Invalid jet \'perf\' chain "{self.chainName}": Only "HLT_j0_perf_[L1]" is permitted!')
+                self.isPerf = True
             l1th = p['L1threshold']
             if self.L1Threshold != '' and self.L1Threshold != l1th:
-                log.error('Cannot configure a jet chain with different L1 thresholds')
-                exit(1)
+                raise RuntimeError('Cannot configure a jet chain with different L1 thresholds')
             self.L1Threshold = l1th
+            # We require that if there is any preselection it is only written
+            # in the last chainPart to avoid inconsistencies -- chain should
+            # look like HLT_jA_jB_jC_preselNjX_L1BLAH
+            if p["trkpresel"]!="nopresel":
+                if ip+1==len(jChainParts): # Last jet chainPart, presel should go here
+                    self.trkpresel=p["trkpresel"]
+                else:
+                    log.error("Likely inconsistency encountered in preselection specification for %s",self.chainName)
+                    raise RuntimeError("Preselection %s specified earlier than in the last chainPart!",p["trkpresel"])
 
         from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoConfiguration import extractRecoDict
         self.recoDict = extractRecoDict(jChainParts)
@@ -65,21 +83,24 @@ class JetChainConfiguration(ChainConfigurationBase):
         # reclustering and trimming workflows
         chainSteps = []
         if self.recoDict["trkopt"]=="ftf":
-            if self.recoDict["trkpresel"]=="nopresel":
+            if self.trkpresel=="nopresel":
                 clustersKey, caloRecoStep = self.getJetCaloRecoChainStep()
                 chainSteps.append( caloRecoStep )
             else:
                 clustersKey, jetPreselStep = self.getJetCaloPreselChainStep()
                 chainSteps.append( jetPreselStep )
-            jetCollectionName, jetTrackingHypoStep = self.getJetTrackingHypoChainStep(clustersKey)
+            jetCollectionName, jetDef, jetTrackingHypoStep = self.getJetTrackingHypoChainStep(clustersKey)
             chainSteps.append( jetTrackingHypoStep )
         else:
-            jetCollectionName, jetCaloHypoStep = self.getJetCaloHypoChainStep()
+            jetCollectionName, jetDef, jetCaloHypoStep = self.getJetCaloHypoChainStep()
             chainSteps.append( jetCaloHypoStep )
 
-        if "JetDS" in self.chainName:
-           TLAStep = self.getJetTLAChainStep(jetCollectionName)
-           chainSteps+= [TLAStep]
+        if self.dict["eventBuildType"]=="JetDS":
+            # Select the TLA jets from the full jet container
+            # rather than the filtered one seen by the hypo
+            # (No diff in practice if the TLA cut is higher than the hypo filter)
+            TLAStep = self.getJetTLAChainStep(jetDef.fullname())
+            chainSteps+= [TLAStep]
         
         myChain = self.buildChain(chainSteps)
 
@@ -95,11 +116,12 @@ class JetChainConfiguration(ChainConfigurationBase):
         stepName = "MainStep_jet_"+jetDefStr
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetCaloHypoMenuSequence
-        jetSeq = RecoFragmentsPool.retrieve( jetCaloHypoMenuSequence, 
-                                             ConfigFlags, **self.recoDict )
+        jetSeq, jetDef = RecoFragmentsPool.retrieve( jetCaloHypoMenuSequence, 
+                                                     ConfigFlags, isPerf=self.isPerf, **self.recoDict )
         jetCollectionName = str(jetSeq.hypo.Alg.Jets)
 
-        return jetCollectionName, ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
+        from TrigGenericAlgs.TrigGenericAlgsConfig import PassthroughComboHypoCfg
+        return jetCollectionName, jetDef ,ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict], comboHypoCfg=PassthroughComboHypoCfg)
 
     def getJetTrackingHypoChainStep(self, clustersKey):
         jetDefStr = jetRecoDictToString(self.recoDict)
@@ -107,59 +129,51 @@ class JetChainConfiguration(ChainConfigurationBase):
         stepName = "MainStep_jet_"+jetDefStr
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetTrackingHypoMenuSequence
-        jetSeq = RecoFragmentsPool.retrieve( jetTrackingHypoMenuSequence,
-                                             ConfigFlags, clustersKey=clustersKey, **self.recoDict )
+        jetSeq, jetDef = RecoFragmentsPool.retrieve( jetTrackingHypoMenuSequence,
+                                                     ConfigFlags, clustersKey=clustersKey,
+                                                     isPerf=self.isPerf, **self.recoDict )
         jetCollectionName = str(jetSeq.hypo.Alg.Jets)
-
-        return jetCollectionName, ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
+        from TrigGenericAlgs.TrigGenericAlgsConfig import PassthroughComboHypoCfg
+        return jetCollectionName, jetDef, ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict], comboHypoCfg=PassthroughComboHypoCfg)
 
     def getJetCaloRecoChainStep(self):
-        stepName = "CaloRecoPTStep_jet_"+self.recoDict["calib"]
+        stepName = "CaloRecoPTStep_jet_"+self.recoDict["clusterCalib"]
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetCaloRecoMenuSequence
         jetSeq, clustersKey = RecoFragmentsPool.retrieve( jetCaloRecoMenuSequence,
-                                                          ConfigFlags, clusterCalib=self.recoDict["calib"] )
+                                                          ConfigFlags, clusterCalib=self.recoDict["clusterCalib"] )
 
-        return str(clustersKey), ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
+        from TrigGenericAlgs.TrigGenericAlgsConfig import PassthroughComboHypoCfg
+        return str(clustersKey), ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict], comboHypoCfg=PassthroughComboHypoCfg)
 
     def getJetCaloPreselChainStep(self):
         # Define a fixed preselection dictionary for prototyping -- we may expand the options
         preselRecoDict = {
             'recoAlg':'a4',
-            'dataType':'tc',
-            'calib':'em',
+            'constitType':'tc',
+            'clusterCalib':'em',
+            'constitMod':'',
             'jetCalib':'subjesIS',
             'trkopt':'notrk',
-            'trkpresel': 'nopresel'
         }
-        preselJetParts = dict(preselRecoDict)
-        preselParts    = self.recoDict["trkpresel"].split('j')
+        from ..Menu.SignatureDicts import JetChainParts_Default
+        preselJetParts = dict(JetChainParts_Default)
+        # Get from the last chainPart... trying to anticipate potential developments
+        # For now they are only in single-threshold chains anyway
+        preselParts    = self.trkpresel.split('j')
         multiplicity   = preselParts[0].split('presel')[1] if preselParts[0] != 'presel' else '1'
         threshold      = preselParts[1]
         chainPartName  = multiplicity+'j'+threshold if multiplicity != '1' else 'j'+threshold
+        preselJetParts.update(preselRecoDict)
         preselJetParts.update(
-            {'L1threshold': 'NOL1SEED',
-             'TLA': '',
-             'addInfo': [],
-             'bConfig': [],
-             'bMatching': [],
-             'bTag': '',
-             'bTracking': '',
+            {'L1threshold': 'FSNOSEED',
              'chainPartName': chainPartName,
-             'cleaning': 'noCleaning',
-             'dataScouting': '',
-             'etaRange': '0eta320',
-             'extra': '',
-             'hypoScenario': 'simple',
-             'jvt': '',
-             'momCuts': '',
              'multiplicity': multiplicity,
-             'scan': 'FS',
-             'signature': 'Jet',
-             'smc': 'nosmc',
              'threshold': threshold,
-             'topo': [],
-             'trigType': 'j'}
+             # fix selections that we don't want even if they
+             # become default
+             'jvt':'',
+             }
         )
         preselChainDict = dict(self.dict)
         preselChainDict['chainParts'] = [preselJetParts]
@@ -169,17 +183,19 @@ class JetChainConfiguration(ChainConfigurationBase):
         stepName = "PreselStep_jet_"+jetDefStr
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetCaloPreselMenuSequence
-        jetSeq, clustersKey = RecoFragmentsPool.retrieve( jetCaloPreselMenuSequence,
-                                                          ConfigFlags, **preselRecoDict )
+        jetSeq, jetDef, clustersKey = RecoFragmentsPool.retrieve( jetCaloPreselMenuSequence,
+                                                                  ConfigFlags, **preselRecoDict )
 
-        return str(clustersKey), ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[preselChainDict])
+        from TrigGenericAlgs.TrigGenericAlgsConfig import PassthroughComboHypoCfg
+        return str(clustersKey), ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[preselChainDict], comboHypoCfg=PassthroughComboHypoCfg)
 
     def getJetTLAChainStep(self, jetCollectionName):
         from TriggerMenuMT.HLTMenuConfig.Jet.JetTLASequences import jetTLAMenuSequence
 
         stepName = "TLAStep_"+jetCollectionName
-        jetSeq = RecoFragmentsPool.retrieve( jetTLAMenuSequence, jetCollectionName )
-        chainStep = ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
+        jetSeq = RecoFragmentsPool.retrieve( jetTLAMenuSequence, None, jetsin=jetCollectionName )
+        from TrigGenericAlgs.TrigGenericAlgsConfig import PassthroughComboHypoCfg
+        chainStep = ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict], comboHypoCfg=PassthroughComboHypoCfg)
 
         return chainStep
 

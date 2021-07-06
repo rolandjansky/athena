@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /// LArNoiseBursts
@@ -8,10 +8,8 @@
 /// Modified by Hideki Okawa
 /// BNL, June, 2012
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IToolSvc.h"
-
-#include "StoreGate/StoreGateSvc.h"
+#include "GaudiKernel/ThreadLocalContext.h"
+#include "StoreGate/ReadCondHandle.h"
 
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/CaloDM_ID.h"
@@ -21,10 +19,6 @@
 #include "CaloIdentifier/LArFCAL_ID.h"
 #include "CaloIdentifier/LArMiniFCAL_ID.h"
 #include "CaloIdentifier/LArID_Exception.h"
-
-
-#include "CaloInterface/ICaloNoiseTool.h"
-#include "CaloInterface/ICalorimeterNoiseTool.h"
 
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
@@ -42,6 +36,7 @@
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "LArRecEvent/LArNoisyROSummary.h"
 #include "LArRecEvent/LArCollisionTime.h"
+#include "CaloConditions/CaloNoise.h"
  
 #include "NavFourMom/IParticleContainer.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"
@@ -93,8 +88,6 @@ LArNoiseBursts::LArNoiseBursts(const std::string& name,
   : AthAlgorithm(name, pSvcLocator),
     m_thistSvc(0),
     m_tree(0),
-    m_calo_noise_tool("CaloNoiseTool/CaloNoiseToolDefault"),
-    m_bc_tool("Trig::TrigConfBunchCrossingTool/BunchCrossingTool"),
     m_trigDec( "Trig::TrigDecisionTool/TrigDecisionTool" ),
     m_LArOnlineIDHelper(0),
     m_LArHVLineIDHelper(0),
@@ -217,11 +210,6 @@ LArNoiseBursts::LArNoiseBursts(const std::string& name,
    declareProperty( "TrigDecisionTool", m_trigDec );
    
    
-   // NEW
-   declareProperty( "ICaloNoiseTool", m_calo_noise_tool );
-   declareProperty( "BCTool", m_bc_tool );
-   //   declareProperty( "SCTClusteringTool",m_sctclustering_tool);
-   
    //event cuts
    declareProperty("SigmaCut", m_sigmacut = 3.0);
    declareProperty("NumberOfBunchesInFront",m_frontbunches = 36);
@@ -276,6 +264,7 @@ StatusCode LArNoiseBursts::initialize() {
   
   ATH_CHECK( m_cablingKey.initialize() );
   ATH_CHECK( m_BCKey.initialize() );
+  ATH_CHECK( m_totalNoiseKey.initialize() );
 
   // Retrieve online ID helper
   const LArOnlineID* LArOnlineIDHelper = nullptr;
@@ -304,13 +293,6 @@ StatusCode LArNoiseBursts::initialize() {
   m_LArHEC_IDHelper  = idHelper->hec_idHelper();
   m_LArFCAL_IDHelper = idHelper->fcal_idHelper();
   
-  if ( m_calo_noise_tool.retrieve().isFailure() ) {
-    ATH_MSG_WARNING ( "Failed to retrieve tool " << m_calo_noise_tool );
-  }else{
-    ATH_MSG_INFO ( "Retrieved tool " << m_calo_noise_tool );
-  }
- 
-
   /** get a handle on the NTuple and histogramming service */
   ATH_CHECK( service("THistSvc", m_thistSvc) );
  
@@ -785,21 +767,30 @@ StatusCode LArNoiseBursts::doEventProperties(){
 
   ATH_MSG_DEBUG("Run Number: "<<run<<", event Id "<<m_nt_evtId<<", bcid = "<<m_nt_bcid);
   
+  SG::ReadCondHandle<BunchCrossingCondData> bccd (m_bcDataKey);
+  const BunchCrossingCondData* bunchCrossing=*bccd;
+  if (!bunchCrossing) {
+    ATH_MSG_ERROR("Failed to retrieve Bunch Crossing obj");
+    return StatusCode::FAILURE;
+  }
 
-  m_nt_isbcidFilled = m_bc_tool->isFilled(m_nt_bcid);
-  m_nt_isbcidInTrain = m_bc_tool->isInTrain(m_nt_bcid);
-  m_nt_bunchtype = m_bc_tool->bcType(m_nt_bcid);
+  m_nt_isbcidFilled = bunchCrossing->isFilled(m_nt_bcid);
+  m_nt_isbcidInTrain = bunchCrossing->isInTrain(m_nt_bcid);
+  m_nt_bunchtype = bunchCrossing->bcType(m_nt_bcid);
   ATH_MSG_DEBUG("BCID is Filled: "<<m_nt_isbcidFilled);
   ATH_MSG_DEBUG("BCID is in Train: "<<m_nt_isbcidInTrain);
   ATH_MSG_DEBUG("bunch type "<<m_nt_bunchtype);
 
-  std::vector<bool> isBunchesInFront = m_bc_tool->bunchesInFront(m_nt_bcid,m_frontbunches);
+  unsigned int distFromFront = bunchCrossing->distanceFromFront(m_nt_bcid,BunchCrossingCondData::BunchCrossings);
+  if(m_frontbunches < distFromFront) distFromFront=m_frontbunches;
+
   bool checkfirstbunch = true;
-  for(unsigned int i=0;i<isBunchesInFront.size();i++){
-     ATH_MSG_DEBUG("bunch "<<i<<" is Filled "<<isBunchesInFront[i]);
-     m_nt_isBunchesInFront.push_back(isBunchesInFront[i]);
-       if(isBunchesInFront[i]==1){
-         if(i!=0){
+  for(unsigned int i=1;i<=distFromFront;i++){
+     bool isFilled=bunchCrossing->isFilled(m_nt_bcid-i);
+     ATH_MSG_DEBUG("bunch "<<i<<" is Filled "<<isFilled);
+     m_nt_isBunchesInFront.push_back(isFilled);
+       if(isFilled){
+         if(i!=1){
            if(checkfirstbunch){
              float time = 25.0*i;
              m_nt_bunchtime = time;
@@ -952,15 +943,16 @@ StatusCode LArNoiseBursts::doEventProperties(){
 //////////////////////////////////////////////////////////////////////////////////////
 StatusCode LArNoiseBursts::doLArNoiseBursts(){
   ATH_MSG_DEBUG ( "in doLarCellInfo " );
+  const EventContext& ctx = Gaudi::Hive::currentContext();
 
-  SG::ReadCondHandle<LArOnOffIdMapping> larCablingHdl(m_cablingKey);
+  SG::ReadCondHandle<LArOnOffIdMapping> larCablingHdl (m_cablingKey, ctx);
   const LArOnOffIdMapping* cabling=*larCablingHdl;
   if(!cabling) {
      ATH_MSG_WARNING("Do not have cabling info, not storing LarCellInfo ");
      return StatusCode::SUCCESS;
   }
 
-  SG::ReadCondHandle<LArBadChannelCont> bcHdl(m_BCKey);
+  SG::ReadCondHandle<LArBadChannelCont> bcHdl (m_BCKey, ctx);
   const LArBadChannelCont* bcCont=*bcHdl;
   if(!bcCont) {
      ATH_MSG_WARNING("Do not have bad chan info, not storing LarCellInfo ");
@@ -1002,33 +994,34 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
   float qfactor;
   CaloGain::CaloGain gain;
 
+  SG::ReadCondHandle<CaloNoise> totalNoise (m_totalNoiseKey, ctx);
+
   if(caloTES) {
-     CaloCellContainer::const_iterator caloItr;
-     for(caloItr=caloTES->begin();caloItr!=caloTES->end();caloItr++){
-       const CaloDetDescrElement* caloDDE = (*caloItr)->caloDDE();
+     for (const CaloCell* cell : *caloTES) {
+       const CaloDetDescrElement* caloDDE = cell->caloDDE();
        if (caloDDE->is_tile())continue;
        HWIdentifier onlID;
-       try {onlID = cabling->createSignalChannelID((*caloItr)->ID());}
+       try {onlID = cabling->createSignalChannelID(cell->ID());}
        catch(LArID_Exception& except) {
-         ATH_MSG_ERROR  ( "LArID_Exception " << m_LArEM_IDHelper->show_to_string((*caloItr)->ID()) << " " << (std::string) except );
-         ATH_MSG_ERROR  ( "LArID_Exception " << m_LArHEC_IDHelper->show_to_string((*caloItr)->ID()) );
-         ATH_MSG_ERROR  ( "LArID_Exception " << m_LArFCAL_IDHelper->show_to_string((*caloItr)->ID()) );
+         ATH_MSG_ERROR  ( "LArID_Exception " << m_LArEM_IDHelper->show_to_string(cell->ID()) << " " << (std::string) except );
+         ATH_MSG_ERROR  ( "LArID_Exception " << m_LArHEC_IDHelper->show_to_string(cell->ID()) );
+         ATH_MSG_ERROR  ( "LArID_Exception " << m_LArFCAL_IDHelper->show_to_string(cell->ID()) );
          continue;
        }
        bool connected = cabling->isOnlineConnected(onlID);
        if(!connected) continue;
-       eCalo = (*caloItr)->energy();
-       qfactor = (*caloItr)->quality();
-       gain = (*caloItr)->gain();
-       //if(qfactor > 0. || (*caloItr)->ID() == Identifier((IDENTIFIER_TYPE)0x33c9500000000000) ) ATH_MSG_DEBUG((*caloItr)->ID()<<" : "<<eCalo<<" "<<qfactor<<" "<<gain<<" prov.: "<<(*caloItr)->provenance());
-       ATH_CHECK(fillCell(onlID, eCalo, qfactor, gain, cabling, bcCont));
+       eCalo = cell->energy();
+       qfactor = cell->quality();
+       gain = cell->gain();
+       //if(qfactor > 0. || cell->ID() == Identifier((IDENTIFIER_TYPE)0x33c9500000000000) ) ATH_MSG_DEBUG(cell->ID()<<" : "<<eCalo<<" "<<qfactor<<" "<<gain<<" prov.: "<<cell->provenance());
+       ATH_CHECK(fillCell(onlID, eCalo, qfactor, gain, cabling, bcCont, **totalNoise));
      }//loop over cells
      ATH_MSG_DEBUG("Done cells "<<nlarcell);
   } else {
      std::vector<HWIdentifier> chdone; 
      if (LArTES_dig) {
        LArRawChannelContainer::const_iterator caloItr;
-       for(caloItr=LArTES_dig->begin();caloItr!=LArTES_dig->end();caloItr++){
+       for(caloItr=LArTES_dig->begin();caloItr!=LArTES_dig->end();++caloItr){
          HWIdentifier onlID=caloItr->identify();
          bool connected = cabling->isOnlineConnected(onlID);
          if(!connected) continue;
@@ -1036,7 +1029,7 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
          qfactor = caloItr->quality();
          gain = caloItr->gain();
          //if(qfactor>0 || cabling->cnvToIdentifier((*caloItr).identify()) == Identifier((IDENTIFIER_TYPE)0x33c9500000000000) ) ATH_MSG_DEBUG(cabling->cnvToIdentifier((*caloItr).identify())<<" : "<<eCalo<<" "<<qfactor<<" "<<gain);
-         ATH_CHECK(fillCell(onlID, eCalo, qfactor, gain, cabling, bcCont));
+         ATH_CHECK(fillCell(onlID, eCalo, qfactor, gain, cabling, bcCont, **totalNoise));
          chdone.push_back(onlID);
        }//loop over raw channels
      }  
@@ -1044,7 +1037,7 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
      // dirty hack, if we are already complete:
      if (nlarcell < 182468 && LArTES) { // add those raw channels, which were not from dig.
        LArRawChannelContainer::const_iterator caloItr;
-       for(caloItr=LArTES->begin();caloItr!=LArTES->end();caloItr++){
+       for(caloItr=LArTES->begin();caloItr!=LArTES->end();++caloItr){
          HWIdentifier onlID=caloItr->identify();
          if(std::find(chdone.begin(), chdone.end(), onlID) != chdone.end()) continue;
          bool connected = cabling->isOnlineConnected(onlID);
@@ -1053,7 +1046,7 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
          qfactor = caloItr->quality();
          gain = caloItr->gain();
          //if(qfactor>0 || cabling->cnvToIdentifier((*caloItr).identify()) == Identifier((IDENTIFIER_TYPE)0x33c9500000000000)  ) ATH_MSG_DEBUG(cabling->cnvToIdentifier((*caloItr).identify())<<" : "<<eCalo<<" "<<qfactor<<" "<<gain);
-         ATH_CHECK(fillCell(onlID, eCalo, qfactor, gain, cabling, bcCont));
+         ATH_CHECK(fillCell(onlID, eCalo, qfactor, gain, cabling, bcCont, **totalNoise));
        }//loop over raw channels
      }  
      ATH_MSG_DEBUG("Done raw chan. "<<nlarcell);
@@ -1062,7 +1055,8 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
   m_nt_larcellsize = nlarcell;
   if(caloTES) {
     m_nt_cellsize    = caloTES->size();
-  } else {
+  }
+  else if (LArTES) {
      m_nt_cellsize = LArTES->size();
   }
   ATH_MSG_INFO ("lar cell size = "<<int(nlarcell));
@@ -1098,10 +1092,6 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
     return StatusCode::SUCCESS;
   }    
 
-  LArDigitContainer::const_iterator it=LArDigitCont->begin();
-  LArDigitContainer::const_iterator it_end=LArDigitCont->end();
-  const LArDigit* pLArDigit;
-  
   bool store_condition = false;
   // CosmicCalo stream : Store detailed infos of cells only if Y3Sigma>1% or burst found by LArNoisyRO
   if(m_CosmicCaloStream){
@@ -1124,8 +1114,7 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
       m_nt_samples.push_back(samples);
       m_nt_gain.push_back(0);
     }
-    for (;it!=it_end;it++) {
-         pLArDigit = *it;  
+    for (const LArDigit* pLArDigit : *LArDigitCont) {
          HWIdentifier id2 = pLArDigit->hardwareID();
          IdentifierHash hashid2 = m_LArOnlineIDHelper->channel_Hash(id2);
           for(unsigned int j=0;j<v_IdHash.size();j++){
@@ -1178,7 +1167,9 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
   
 }
 
-StatusCode LArNoiseBursts::fillCell(HWIdentifier onlID, float eCalo, float qfactor, CaloGain::CaloGain gain, const LArOnOffIdMapping* cabling, const LArBadChannelCont* bcCont){
+StatusCode LArNoiseBursts::fillCell(HWIdentifier onlID, float eCalo, float qfactor, CaloGain::CaloGain gain, const LArOnOffIdMapping* cabling, const LArBadChannelCont* bcCont,
+                                    const CaloNoise& totalNoise)
+{
     const Identifier idd = cabling->cnvToIdentifier(onlID);
     nlarcell++;
     IdentifierHash channelHash = m_LArOnlineIDHelper->channel_Hash(onlID);
@@ -1186,10 +1177,7 @@ StatusCode LArNoiseBursts::fillCell(HWIdentifier onlID, float eCalo, float qfact
     int layer = caloDDE->getLayer();
     //    CaloCell_ID::CaloSample sampling = (*caloItr)->caloDDE()->getSampling();
     float phi = caloDDE->phi();
-    //float noise  = m_calo_noise_tool->getNoise( (*caloItr), ICaloNoiseTool::TOTALNOISE );
-    float noise  = m_calo_noise_tool->totalNoiseRMS( caloDDE, gain);
-    //float noise  = m_calo_noise_tool->elecNoiseRMS( (*caloItr), (*caloItr)->gain(),-1);
-    //float noise  = m_calo_noise_tool->elecNoiseRMS( caloDDE, gain, -1);
+    float noise  = totalNoise.getNoise (idd, gain);
     float significance = eCalo / noise ;
     float eta = caloDDE->eta();
     bool badcell = ! (bcCont->status(onlID)).good();

@@ -213,7 +213,7 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fit(Trk::Trajectory&              tra
     Transformation (rit constructor or rit's base() method) needs offset by +/- 1.
   */
   Trk::Trajectory::reverse_iterator lastPredictedState
-    = Trk::Trajectory::reverse_iterator(++(m_utility->lastFittableState(trajectory)));
+    = Trk::Trajectory::reverse_iterator(++(Trk::ProtoTrajectoryUtility::lastFittableState(trajectory)));
   const MeasurementBase*	   fittableMeasurement = lastPredictedState->measurement();
   const TrackParameters*     forwardTPar  = lastPredictedState->forwardTrackParameters();
   int    previousStatePosOnTraj = lastPredictedState->positionOnTrajectory();
@@ -223,10 +223,10 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fit(Trk::Trajectory&              tra
   if (!fittableMeasurement || !forwardTPar)
     m_utility->dumpTrajectory(trajectory, "DAF-inconsistency");
   // first smoothed TrkParameter is last forward prediction updated with last MBase
-  else smooPar.reset(  m_updator->addToState(*forwardTPar,
+  else smooPar= m_updator->addToState(*forwardTPar,
 					     fittableMeasurement->localParameters(),
 					     fittableMeasurement->localCovariance(),
-                                             fitQual) );
+                                             fitQual);
   if (msgLvl(MSG::INFO)) monitorTrackFits( Call, ( forwardTPar ? forwardTPar->eta() : 1000. ) );
   if(!smooPar) {
     ATH_MSG_WARNING ("first smoother update failed, reject track");
@@ -255,16 +255,18 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fit(Trk::Trajectory&              tra
 
   // use result of forward kalman filter as initial prediction, but scale error matrix.
 
-  AmgSymMatrix(5)* firstErrMtx = initialiseSmoother(*(lastPredictedState->smoothedTrackParameters())->covariance());
+  AmgSymMatrix(5) firstErrMtx = initialiseSmoother(*(lastPredictedState->smoothedTrackParameters())->covariance());
   const AmgVector(5)& par = lastPredictedState->smoothedTrackParameters()->parameters();
-  std::unique_ptr<const TrackParameters> predPar( CREATE_PARAMETERS(*(lastPredictedState->smoothedTrackParameters()),par,firstErrMtx) );
+  std::unique_ptr<const TrackParameters> predPar(CREATE_PARAMETERS(
+    *(lastPredictedState->smoothedTrackParameters()), par, std::move(firstErrMtx)));
   // The first step of backward-filtering is done before any loop because of the
   // specially formed prediction (from the last forward parameters).
-  std::unique_ptr<const TrackParameters> updatedPar( m_updator->addToState(*predPar,
-									   fittableMeasurement->localParameters(),
-									   fittableMeasurement->localCovariance(),
-                                                                           trackQualityIncrement) );
-  if(!updatedPar || !trackQualityIncrement) {
+  std::unique_ptr<const TrackParameters> updatedPar =
+    m_updator->addToState(*predPar,
+                          fittableMeasurement->localParameters(),
+                          fittableMeasurement->localCovariance(),
+                          trackQualityIncrement);
+  if (!updatedPar || !trackQualityIncrement) {
     if (msgLvl(MSG::INFO)) monitorTrackFits( UpdateFailure, predPar->eta() );
     ATH_MSG_INFO (" update using initial measurement failed, reject track");
     return FitterStatusCode::UpdateFailure;
@@ -278,7 +280,7 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fit(Trk::Trajectory&              tra
 
   Trk::Trajectory::reverse_iterator rit = lastPredictedState + 1;
   Trk::Trajectory::reverse_iterator lastSmoothableState
-    = Trk::Trajectory::reverse_iterator(m_utility->firstFittableState(trajectory)) - 1; // this takes outliers into account
+    = Trk::Trajectory::reverse_iterator(Trk::ProtoTrajectoryUtility::firstFittableState(trajectory)) - 1; // this takes outliers into account
   for( ; rit!=trajectory.rend(); rit++) {
     if (!rit->isOutlier()) {
       smooPar_eta_for_monitoring = 1000.;
@@ -343,29 +345,30 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fit(Trk::Trajectory&              tra
       // adjust the momentum + error according to target measurement (brem fit)
       const Trk::DNA_MaterialEffects* detectedMomentumNoise = nullptr;
       Trk::Trajectory::reverse_iterator stateWithNoise
-        = m_utility->previousFittableState(trajectory, rit);
+        = Trk::ProtoTrajectoryUtility::previousFittableState(trajectory, rit);
       if (kalMec.doDNA() && stateWithNoise!=trajectory.rend()) {
-
         const TrackParameters *predPar_temp=predPar.release();
         const TrackParameters *updatedPar_temp=updatedPar.release();
-
-        detectedMomentumNoise =
-          m_dynamicNoiseAdjustor->DNA_Adjust(predPar_temp, // change according to where meas is
-                                             updatedPar_temp, // previous state's pars (start)
-                                             fittableMeasurement, // the meas't
-                                             kalMec,
-                                             Trk::oppositeMomentum,
-                                             stateWithNoise->dnaMaterialEffects());
-        predPar.reset( predPar_temp);
-        updatedPar.reset( updatedPar_temp);
+        Trk::IDynamicNoiseAdjustor::State state{};
+        detectedMomentumNoise = m_dynamicNoiseAdjustor->DNA_Adjust(
+          state,
+          predPar_temp,        // change according to where meas is
+          updatedPar_temp,     // previous state's pars (start)
+          fittableMeasurement, // the meas't
+          kalMec,
+          Trk::oppositeMomentum,
+          stateWithNoise->dnaMaterialEffects());
+        predPar.reset(predPar_temp);
+        updatedPar.reset(updatedPar_temp);
       }
       if (msgLvl(MSG::DEBUG))
         printGlobalParams(rit->positionOnTrajectory(), "  pred", predPar.get(),
                           detectedMomentumNoise );
       // update track parameters (allows for preset LR solution for straws)
-      updatedPar.reset(  m_updator->addToState(*predPar, fittableMeasurement->localParameters(),
-                                               fittableMeasurement->localCovariance(),
-                                               trackQualityIncrement) );
+      updatedPar = m_updator->addToState(*predPar,
+                                         fittableMeasurement->localParameters(),
+                                         fittableMeasurement->localCovariance(),
+                                         trackQualityIncrement);
 
       if (!updatedPar || !trackQualityIncrement) {
         if (msgLvl(MSG::INFO)) monitorTrackFits( UpdateFailure, predPar->eta() );
@@ -387,12 +390,12 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fit(Trk::Trajectory&              tra
       if (rit == lastSmoothableState) { // at the last don't do state combination.
         ATH_MSG_VERBOSE ("Identified state" << (rit->positionOnTrajectory()>9? " " : " 0")<<
                          rit->positionOnTrajectory() << " as last fittable state.");
-        //clone here, as updatedPar is used on next iteration and would be invalid if moved                 
+        //clone here, as updatedPar is used on next iteration and would be invalid if moved
         smooPar.reset( updatedPar->clone() );
       } else {
         if (m_doSmoothing) {
           forwardTPar = rit->forwardTrackParameters();
-          smooPar.reset(  m_updator->combineStates( *forwardTPar, *updatedPar) );
+          smooPar = m_updator->combineStates(*forwardTPar, *updatedPar);
         } else {
           smooPar.reset( updatedPar->clone() );
         }
@@ -470,7 +473,7 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fitWithReference(Trk::Trajectory&    
     Transformation (rit constructor or rit's base() method) needs offset by +/- 1.
   */
   Trk::Trajectory::reverse_iterator lastPredictedState
-    = Trk::Trajectory::reverse_iterator(++(m_utility->lastFittableState(trajectory)));
+    = Trk::Trajectory::reverse_iterator(++(Trk::ProtoTrajectoryUtility::lastFittableState(trajectory)));
   if (!lastPredictedState->measurement() || !lastPredictedState->parametersDifference() ||
       !lastPredictedState->referenceParameters()) {
     m_utility->dumpTrajectory(trajectory, "code inconsistency");
@@ -492,9 +495,10 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fitWithReference(Trk::Trajectory&    
                                          fitQual, /*doFQ=*/true ) );
   const AmgVector(5) x = lastPredictedState->referenceParameters()->parameters()
                        + updatedDifference->first;
-  smooPar.reset(  updatedDifference? CREATE_PARAMETERS(*lastPredictedState->referenceParameters(),
-                                                       x,new AmgSymMatrix(5)(updatedDifference->second)) : nullptr );
-  if (msgLvl(MSG::INFO)) monitorTrackFits( Call, ( smooPar ? smooPar->eta() : 1000. ) );
+  smooPar=updatedDifference? CREATE_PARAMETERS(*lastPredictedState->referenceParameters(),
+                                                       x,AmgSymMatrix(5)(updatedDifference->second)) : nullptr ;
+  if (msgLvl(MSG::INFO))
+    monitorTrackFits(Call, (smooPar ? smooPar->eta() : 1000.));
   if (!smooPar || !fitQual) {
     ATH_MSG_WARNING ("first smoother update failed, reject track");
     if (msgLvl(MSG::INFO)) monitorTrackFits( UpdateFailure,
@@ -513,10 +517,10 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fitWithReference(Trk::Trajectory&    
 // updatedDifference->first  const AmgVector(5)& par = lastPredictedState->smoothedTrackParameters()->parameters();
   // The first step of backward-filtering is done before any loop because of the
   // specially formed prediction: result of FKF with scaled error matrix
-  AmgSymMatrix(5)* firstErrMtx = initialiseSmoother(*(lastPredictedState->smoothedTrackParameters()->covariance()));
+  AmgSymMatrix(5)  firstErrMtx = initialiseSmoother(*(lastPredictedState->smoothedTrackParameters()->covariance()));
   AmgVector(5)     firstDiff   = updatedDifference->first; // make copy and delete
   updatedDifference.reset(
-    m_updator->updateParameterDifference(firstDiff, *firstErrMtx,
+    m_updator->updateParameterDifference(firstDiff, firstErrMtx,
 					 *(lastPredictedState->measurementDifference()),
 					 lastMeasurement->localCovariance(),
 					 lastMeasurement->localParameters().parameterKey(),
@@ -535,7 +539,7 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fitWithReference(Trk::Trajectory&    
   // now do the rest of the forward trajectory by means of a reverse iterated loop
   Trk::Trajectory::reverse_iterator rit = lastPredictedState + 1; // go to one-but-last state
   Trk::Trajectory::reverse_iterator lastSmoothableState
-    = Trk::Trajectory::reverse_iterator(m_utility->firstFittableState(trajectory)) - 1; // this takes outliers into account
+    = Trk::Trajectory::reverse_iterator(Trk::ProtoTrajectoryUtility::firstFittableState(trajectory)) - 1; // this takes outliers into account
   for( ; rit!=trajectory.rend(); rit++) {
 
     smooPar_eta_for_monitoring=1000.;
@@ -570,7 +574,7 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fitWithReference(Trk::Trajectory&    
     updatedDifference.reset();
     if (msgLvl(MSG::DEBUG)) {
       const AmgVector(5) x = rit->referenceParameters()->parameters()+predDiffPar;
-      const Trk::TrackParameters* param = CREATE_PARAMETERS(*rit->referenceParameters(),x,nullptr);
+      const Trk::TrackParameters* param = CREATE_PARAMETERS(*rit->referenceParameters(),x,std::nullopt).release();
       printGlobalParams( rit->positionOnTrajectory(), " extrp", param );
       delete param;
     }
@@ -609,7 +613,7 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fitWithReference(Trk::Trajectory&    
       if (msgLvl(MSG::DEBUG)) {
         const AmgVector(5) x = rit->referenceParameters()->parameters()
                              + updatedDifference->first;
-        const Trk::TrackParameters* param = CREATE_PARAMETERS(*rit->referenceParameters(),x,nullptr);
+        const Trk::TrackParameters* param = CREATE_PARAMETERS(*rit->referenceParameters(),x,std::nullopt).release();
         printGlobalParams (rit->positionOnTrajectory()," updat", param );
         delete param;
       }
@@ -623,10 +627,11 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fitWithReference(Trk::Trajectory&    
     if (rit == lastSmoothableState) { // at the last don't do state combination.
       ATH_MSG_VERBOSE ("Identified state" << (rit->positionOnTrajectory()>9? " " : " 0")<<
                        rit->positionOnTrajectory() << " as last fittable state.");
-      smooPar.reset( CREATE_PARAMETERS(*rit->referenceParameters(),
-                                     (rit->referenceParameters()->parameters()+updatedDifference->first),
-                                       new AmgSymMatrix(5)(updatedDifference->second)) );
-      rit->checkinSmoothedPar(smooPar.release() );
+      smooPar = CREATE_PARAMETERS(
+        *rit->referenceParameters(),
+        (rit->referenceParameters()->parameters() + updatedDifference->first),
+        AmgSymMatrix(5)(updatedDifference->second));
+      rit->checkinSmoothedPar(smooPar.release());
     } else if (m_doSmoothing) {
       std::unique_ptr< std::pair<AmgVector(5),AmgSymMatrix(5)> > smoothedDifference(
         m_updator->updateParameterDifference(*(rit->parametersDifference()),
@@ -641,9 +646,11 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fitWithReference(Trk::Trajectory&    
       }
       const AmgVector(5) x = rit->referenceParameters()->parameters()
                            + smoothedDifference->first;
-      smooPar.reset( CREATE_PARAMETERS(*rit->referenceParameters(),x,
-                                       new AmgSymMatrix(5)(smoothedDifference->second)) );
-      rit->checkinSmoothedPar(smooPar.release() );
+      smooPar =
+        CREATE_PARAMETERS(*rit->referenceParameters(),
+                          x,
+                          AmgSymMatrix(5)(smoothedDifference->second));
+      rit->checkinSmoothedPar(smooPar.release());
     } else {
       smooPar.reset();
       ATH_MSG_VERBOSE ("No fitted track parameters made at this state because doSmoothing is OFF");
@@ -683,13 +690,13 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fitWithReference(Trk::Trajectory&    
 // Seed the backward filter by taking the original cov matrix and
 // - strip away the off-diagonal elements
 // - inflate the errors by a factor, which is tuned to the specific detector.
-AmgSymMatrix(5)* Trk::KalmanSmoother::initialiseSmoother(const AmgSymMatrix(5)& err) const {
+AmgSymMatrix(5) Trk::KalmanSmoother::initialiseSmoother(const AmgSymMatrix(5)& err) const {
   std::vector<bool> isConstraint(5);
-  AmgSymMatrix(5)* cov = new AmgSymMatrix(5)(); // a 5x5 0-matrix
-  cov->setZero();
+  AmgSymMatrix(5) cov; // a 5x5 0-matrix
+  cov.setZero();
   for (int i=0; i<5; ++i) {
     isConstraint[i] = (m_option_relErrorLimit* std::sqrt(err(i,i)) < m_initialErrors[i]);
-    (*cov)(i,i) = isConstraint[i] ? err(i,i)*m_initialCovSeedFactor : m_initialErrors[i]*m_initialErrors[i];
+    (cov)(i,i) = isConstraint[i] ? err(i,i)*m_initialCovSeedFactor : m_initialErrors[i]*m_initialErrors[i];
   }
   if (msgLvl(MSG::DEBUG)) {
     bool weakParIsDetected=false;

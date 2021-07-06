@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelGeometryManager_H
@@ -80,10 +80,6 @@ public:
   // Control whether callbacks get registered
   virtual void SetAlignable(bool flag)=0;
   virtual bool Alignable() const=0;
-
-  // SLHC
-  virtual void SetSLHC(bool flag) = 0;
-  virtual bool slhc() const = 0;
 
   // IBL
   virtual void SetIBL(bool flag) = 0;
@@ -324,11 +320,6 @@ public:
 					double srvZmin, double srvZmax)=0;
   virtual double IBLServiceGetMaxRadialPosition(const std::string& srvName, const std::string& srvType, 
 					double srvZmin, double srvZmax)=0;
-
-  virtual bool PixelLayerSupportCylPresent()=0; 
-  virtual double PixelLayerSupportRMin()=0;
-  virtual double PixelLayerSupportROffset()=0;
-  virtual double PixelLayerSupportThick()=0;
 
   virtual int PixelBiStaveType(int layer, int phi)=0;
   virtual int NPixelSectors()=0;
@@ -626,29 +617,12 @@ public:
   const PixelGeoModelAthenaComps * athenaComps() const {return m_athenaComps;}
 
   /////
-  virtual int    PixelDiskNRings()=0;
-  virtual int    PixelDiskRingNModules()=0;
-  virtual double PixelDiskRMin(bool includeSupports=false)=0;
-  virtual double PixelDiskRMax(bool includeSupports=false)=0;
-  virtual double PixelDiskThickness(double safety=0.01)=0;
-  virtual double PixelRingRcenter()=0;
-  virtual double PixelRingRMin(double safety=0.01)=0;
-  virtual double PixelRingRMax(double safety=0.01)=0;
-  virtual double PixelRingThickness(double safety=0.01)=0;
-  virtual double PixelRingZpos()=0;
-  virtual double PixelRingZoffset()=0;
-  virtual double PixelRingStagger()=0;
-  virtual int    PixelRingSide()=0;
+  virtual double PixelDiskRMin()=0;
   virtual int    PixelDiskNumSupports()=0;
   virtual double PixelDiskSupportRMin(int isup)=0;
   virtual double PixelDiskSupportRMax(int isup)=0;
   virtual double PixelDiskSupportThickness(int isup)=0;
   virtual int    PixelDiskSupportMaterialTypeNum(int isup)=0;
-  virtual double PixelModuleThicknessN()=0;
-  virtual double PixelModuleThicknessP()=0;
-  virtual double PixelModuleThickness()=0;
-  virtual double PixelModuleWidth()=0;
-  virtual double PixelModuleLength()=0;
   virtual int moduleType()=0;
   virtual int moduleType3D()=0;
   virtual bool isAside()=0;

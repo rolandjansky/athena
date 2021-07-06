@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -8,8 +8,6 @@
 // Author: Shimpei Yamamoto (shimpei.yamamoto@cern.ch)
 
 #include "LongLivedParticleDPDMaker/KinkTrkZeeTagTool.h"
-#include "xAODTracking/TrackingPrimitives.h"
-#include "xAODMissingET/MissingETContainer.h"
 #include <vector>
 #include <string>
 
@@ -23,17 +21,14 @@ DerivationFramework::KinkTrkZeeTagTool::KinkTrkZeeTagTool(const std::string& t,
   m_trigNames(std::vector<std::string>()),
   m_trigMatchDeltaR(0.1),
   m_doTrigMatch(false),
-  m_electronSGKey("ElectronCollection"),
   m_electronIDKeys(std::vector<std::string>()),
   m_electronPtCut(0),
   m_electronEtaMax(9999),
-  m_clusterSGKey("egammaClusters"),
   m_clusterEtCut(0),
   m_clusterEtaMax(2.8),
   m_diEleMassLow(50.),
   m_diEleMassHigh(-1),
-  m_dPhiMax(10),
-  m_sgKeyPrefix("KinkTrk")
+  m_dPhiMax(10)
 {
   declareInterface<DerivationFramework::IAugmentationTool>(this);
   declareProperty("TriggerDecisionTool", m_trigDecisionTool);
@@ -41,17 +36,14 @@ DerivationFramework::KinkTrkZeeTagTool::KinkTrkZeeTagTool(const std::string& t,
   declareProperty("Triggers", m_trigNames);
   declareProperty("TriggerMatchDeltaR", m_trigMatchDeltaR);
   declareProperty("RequireTriggerMatch", m_doTrigMatch);
-  declareProperty("ElectronContainerKey", m_electronSGKey);
   declareProperty("ElectronIDKeys", m_electronIDKeys),
   declareProperty("ElectronPtMin", m_electronPtCut);
   declareProperty("ElectronEtaMax", m_electronEtaMax);
-  declareProperty("ClusterContainerKey", m_clusterSGKey);
   declareProperty("ClusterEtMin", m_clusterEtCut);
   declareProperty("ClusterEtaMax", m_clusterEtaMax);
   declareProperty("DiEleMassLow", m_diEleMassLow);
   declareProperty("DiEleMassHigh", m_diEleMassHigh);
-  declareProperty("DeltaPhiMax", m_dPhiMax); 
-  declareProperty("StoreGateKeyPrefix", m_sgKeyPrefix);
+  declareProperty("DeltaPhiMax", m_dPhiMax);
 }
   
 
@@ -81,6 +73,11 @@ StatusCode DerivationFramework::KinkTrkZeeTagTool::initialize()
     ATH_MSG_INFO("TrgMatchTool retrived successfully");
   }
 
+  ATH_CHECK(m_electronSGKey.initialize());
+  ATH_CHECK(m_clusterSGKey.initialize());
+  ATH_CHECK(m_KinkTrkDiEleMassKey.initialize());
+  ATH_CHECK(m_KinkTrkProbeEleEtKey.initialize());
+
   return StatusCode::SUCCESS;
 }
 
@@ -96,15 +93,15 @@ StatusCode DerivationFramework::KinkTrkZeeTagTool::finalize()
 // Augmentation
 StatusCode DerivationFramework::KinkTrkZeeTagTool::addBranches() const
 {
-  std::vector<float> *diEleMass = new std::vector<float>();
-  std::vector<float> *probeEleEt = new std::vector<float>();
+  SG::WriteHandle< std::vector<float> > diEleMass(m_KinkTrkDiEleMassKey);
+  ATH_CHECK(diEleMass.record(std::make_unique< std::vector<float> >()));
 
-  const xAOD::ElectronContainer* electrons(0);
-  ATH_CHECK(evtStore()->retrieve(electrons, m_electronSGKey));	
+  SG::WriteHandle< std::vector<float> > probeEleEt(m_KinkTrkProbeEleEtKey);
+  ATH_CHECK(probeEleEt.record(std::make_unique< std::vector<float> >()));
 
-  const xAOD::CaloClusterContainer* clusters(0);
-  ATH_CHECK(evtStore()->retrieve(clusters, m_clusterSGKey));
-
+  SG::ReadHandle<xAOD::ElectronContainer> electrons(m_electronSGKey);
+  SG::ReadHandle<xAOD::CaloClusterContainer> clusters(m_clusterSGKey);
+	
   for (const auto ele: *electrons) {
     if (!checkTagElectron(ele)) continue;
     for (const auto clu: *clusters) {
@@ -114,25 +111,6 @@ StatusCode DerivationFramework::KinkTrkZeeTagTool::addBranches() const
       probeEleEt->push_back(clu->et());
     }
   }
-
-  // Writing to SG
-  std::string sgKey1(m_sgKeyPrefix+"DiEleMass");
-  if (evtStore()->contains< float >(sgKey1)) {
-    ATH_MSG_ERROR("StoreGate key " << sgKey1 << "already exists.");
-    // avoid mem leak
-    delete probeEleEt;
-    delete diEleMass;
-    return StatusCode::FAILURE;
-  }
-  CHECK(evtStore()->record(diEleMass, sgKey1));
-
-  std::string sgKey2(m_sgKeyPrefix+"ProbeEleEt");
-  if (evtStore()->contains< float >(sgKey2)) {
-    ATH_MSG_ERROR("StoreGate key " << sgKey2 << "already exists.");
-    delete probeEleEt; // avoid mem leak
-    return StatusCode::FAILURE;
-  }
-  CHECK(evtStore()->record(probeEleEt, sgKey2));
 
   return StatusCode::SUCCESS;
 }
@@ -166,7 +144,7 @@ bool DerivationFramework::KinkTrkZeeTagTool::checkCluster(const xAOD::CaloCluste
 
 bool DerivationFramework::KinkTrkZeeTagTool::checkEleClusPair(const xAOD::Electron *ele, const xAOD::CaloCluster *clu) const
 {
-  if (fabs(ele->p4().DeltaPhi(clu->p4())) > m_dPhiMax) return false;
+  if (std::abs(ele->p4().DeltaPhi(clu->p4())) > m_dPhiMax) return false;
   float mass = (ele->p4()+clu->p4()).M();
   if (mass < m_diEleMassLow) return false;
   if (mass > m_diEleMassHigh) return false;
@@ -177,7 +155,7 @@ bool DerivationFramework::KinkTrkZeeTagTool::checkEleClusPair(const xAOD::Electr
 bool DerivationFramework::KinkTrkZeeTagTool::passElectronQuality(const xAOD::Electron *ele) const
 {
   if (ele->pt() < m_electronPtCut) return false;
-  if (fabs(ele->eta()) > m_electronEtaMax) return false;
+  if (std::abs(ele->eta()) > m_electronEtaMax) return false;
   bool passID(false);
   for (unsigned int i=0; i<m_electronIDKeys.size(); i++) {
     if (ele->passSelection(passID, m_electronIDKeys[i])) {
@@ -194,7 +172,7 @@ bool DerivationFramework::KinkTrkZeeTagTool::passElectronQuality(const xAOD::Ele
 bool DerivationFramework::KinkTrkZeeTagTool::passClusterQuality(const xAOD::CaloCluster *clu) const
 {
   if (clu->et() < m_clusterEtCut) return false;
-  if (fabs(clu->eta()) > m_clusterEtaMax) return false;
+  if (std::abs(clu->eta()) > m_clusterEtaMax) return false;
   return true;
 }
 

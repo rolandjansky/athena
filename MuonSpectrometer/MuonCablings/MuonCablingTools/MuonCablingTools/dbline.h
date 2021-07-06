@@ -4,13 +4,13 @@
 
 // INTRODUCTION
 //
-// DBline is a generic class which provides an easy interface to access 
-// formatted data from an input stream. The purpose is to facilitate the 
+// DBline is a generic class which provides an easy interface to access
+// formatted data from an input stream. The purpose is to facilitate the
 // development of the reading routine (for an ASCII database) and, at the same
 // time, to increase its robustness against the varoius changes to which the
 // the database undergoes during the development phase. The flexibility needed
 // to deal with each kind of database, was achieved implementing a set of basic
-// functionalities which can be componed in a easy way to build a generic 
+// functionalities which can be componed in a easy way to build a generic
 // reading routine.
 //
 // Considering a generic database whose data are input line by line, each line
@@ -21,59 +21,59 @@
 // where <Token> can be any character sequence (including the space character)
 // and <set of data> can be one ore more data of different nature that have to
 // be read. DBline implements an "extraction" mechanism which allows to select
-// a <Token> and to read the releted data (only if the token is found) just in 
-// one command line. Since the data input is perfomed line by line, such 
+// a <Token> and to read the releted data (only if the token is found) just in
+// one command line. Since the data input is perfomed line by line, such
 // "extraction" mechanism requires that the token and the data has to be found
 // in the same line of the database. This matches very well the case in which
 // the database is made of a set of control directives given in any order (i.e.
-// a DATACARD file). 
+// a DATACARD file).
 // In order to allow the reading of more complex structures of data which can
 // be spanned on more than one line, each "extraction" returns a boolean value
 // that can be checked in logical expresssion. Thus, it is possible to activate
-// a particular reading schema if a Token is found or to read with it until  
-// another Token is found. Moreover is also possible to build logical 
+// a particular reading schema if a Token is found or to read with it until
+// another Token is found. Moreover is also possible to build logical
 // expression only with "extraction" procedures:
 //
 //
 // OPERATION MODE
 //
-// DBline receives an input line from a generic istream and held it into an 
-// internal buffer to be processed during the extraction of data. The data 
-// requests are send to DBline and are fulfilled only if the PATTERN (i.e. a 
+// DBline receives an input line from a generic istream and held it into an
+// internal buffer to be processed during the extraction of data. The data
+// requests are send to DBline and are fulfilled only if the PATTERN (i.e. a
 // Token, or a set of Tokens) specified by the user is found into the internal
-// buffer. At each succesfull "extraction" the corresponding data (i.e. the 
-// <Token> and the <related data>) are deleted from the internal buffer. 
+// buffer. At each succesfull "extraction" the corresponding data (i.e. the
+// <Token> and the <related data>) are deleted from the internal buffer.
 //
-// The implemented operation mode, in which the user can read and process data 
+// The implemented operation mode, in which the user can read and process data
 // using this class, is made of three sequential step:
-// 
-// 1 - Input request. On each input request only a data line is read (i.e. 
+//
+// 1 - Input request. On each input request only a data line is read (i.e.
 //     data are read until the carriage return character) and is subsequently
-//     stored into an internal buffer for further analysis. This operation 
-//     cause the deletation of data previously present into the internal 
+//     stored into an internal buffer for further analysis. This operation
+//     cause the deletation of data previously present into the internal
 //     buffer. If the input stream is a file it will be automatically connected
 //     to the DBline class to allow incremental input line controlled via class
-//     operators. It is also possible to get input until a token is found; in 
+//     operators. It is also possible to get input until a token is found; in
 //     this case the token is only checked but not extracted (deleted) from the
 //     internal  buffer.
-// 
-// 2 - Extraction of data. An extraction request is made of a Token request 
-//     plus a data request. When a Token is found it is extraced from the 
+//
+// 2 - Extraction of data. An extraction request is made of a Token request
+//     plus a data request. When a Token is found it is extraced from the
 //     internal buffer and the starting position from which the subsequent data
 //     are extraced is updated to the actual Token position inside the line. If
-//     something goes  wrong (no Token found, or line become empty before all 
-//     the requested data are extracted), the extraction stops returning a 
+//     something goes  wrong (no Token found, or line become empty before all
+//     the requested data are extracted), the extraction stops returning a
 //     FALSE status, and all the data extracted from the last succesfull Token
 //     request are restored into the internal buffer. It is possible to request
 //     data without specifying a pattern before; in this case the data are
-//     extracted in a sequential way from the position in which the last 
+//     extracted in a sequential way from the position in which the last
 //     requested Token was found (if no Token has been succesfully found, the
 //     starting position is the beginning of the line). Finally it is also
-//     implemented a mechanism to request more complex pattern, i.e. pattren 
+//     implemented a mechanism to request more complex pattern, i.e. pattren
 //     like  <TOKEN> <data> <SUBTOKEN1> <data> <SUBTOKEN2> <data> .....
 //
-// 3 - Check for error. Before a new input request the internal buffer is 
-//     checked and if there are still data inside an error message is output 
+// 3 - Check for error. Before a new input request the internal buffer is
+//     checked and if there are still data inside an error message is output
 //     showing the data that are going to be deleted. Such data directives
 //     not understood by the reading routine.
 //
@@ -86,7 +86,7 @@
 //----------------------------------------------------------------------------+
 // DBline data(file)        where file is an ifstream object. Instantiate     |
 //                          DBline object and connect a file to it.           |
-//                          04/08/2009 L. Bellagamba -> updated to works in   |  
+//                          04/08/2009 L. Bellagamba -> updated to works in   |
 //                          the same way with ifstream and generic istream    |
 //----------------------------------------------------------------------------+
 //              ******** DATA INPUT FROM ISTREAM ********
@@ -193,18 +193,18 @@
 //    --| }
 //
 // to read the folowing line:  < LABEL 1: 12.6 43 "this is a string" >
-//   
+//
 //    --| float fl; int in; string str;
 //    --| data("LABEL 1:") >> fl >> in >> str;
 //
 // in the following line:
-//  
+//
 //        < FIRST 12.6  SECOND 12  "this is a string"  THIRD 8 >
 //
 // each token can be read in an indipendent way with:
 //
 //    --| float fl; int i1,i2; string str;
-//    --| data("FIRST") >> fl;  
+//    --| data("FIRST") >> fl;
 //    --| data("SECOND") >> i1 >> str;
 //    --| data("THIRD") >> i2;
 //
@@ -226,7 +226,7 @@
 //    --| data.go_until("TOKEN");
 //
 // to read complex structure like:
-//           
+//
 //      < START: "new sequence of data" {                      >
 //      <   Token 1  <data>                                    >
 //      <   Token 2  <data>                                    >
@@ -252,51 +252,42 @@
 //    --| unsigned long int i1;
 //    --| data("value") >> hex() >> i1 >> resetflags();
 
-
-
-
-
-#ifndef DBLINE_H
-#define DBLINE_H
-
+#ifndef MUONCABLINGTOOLS_DBLINE_H
+#define MUONCABLINGTOOLS_DBLINE_H
 
 #include <ctype.h>
-#include <iostream>
-#include <iomanip> 
-#include <string>
-#include <fstream>
-#include <typeinfo>
 #include <stdint.h>
 
+#include <fstream>
+#include <iomanip>
+#include <iostream>
 #include <sstream>
+#include <string>
+#include <typeinfo>
 typedef std::ostringstream __osstream;
 typedef std::istringstream __isstream;
 
-typedef enum result_extraction {not_extracted,extracted} DBstatus;
+typedef enum result_extraction { not_extracted, extracted } DBstatus;
 
-class DBfmt: virtual public std::ios {
-    public:
+class DBfmt : virtual public std::ios {
+public:
     DBfmt();
 };
 
-class DBline: virtual public std::ios
-{
- 
-    private:
+class DBline : virtual public std::ios {
+private:
+    typedef enum exist_quote { no_quote, begin_quote, end_quote, error } quote;
 
-    typedef enum exist_quote {no_quote,begin_quote,end_quote,error} quote;
-
-    std::ios::fmtflags     m_default;
-    std::ifstream*         m_file;
-    std::istream*          m_stream;
-    std::string            m_data,m_backup,m_store;
-    unsigned long int      m_pos;
-    int                    m_line;
-    bool                   m_fail;
-    bool                   m_empty;
-    DBstatus               m_extraction;
-    int                    m_base;
-
+    std::ios::fmtflags m_default;
+    std::ifstream* m_file;
+    std::istream* m_stream;
+    std::string m_data, m_backup, m_store;
+    unsigned long int m_pos;
+    int m_line;
+    bool m_fail;
+    bool m_empty;
+    DBstatus m_extraction;
+    int m_base;
 
     // Private member functions for setting internal status
     void reset_data(void);
@@ -308,15 +299,15 @@ class DBline: virtual public std::ios
     void BadExtraction(void);
 
     // Private member functions for managing the internal buffer
-    void erase_comment(void); 
-    void GetToken(unsigned long int pos,const std::string &token);
+    void erase_comment(void);
+    void GetToken(unsigned long int pos, const std::string& token);
     void GetLine(std::istream& input);
 
     // Private member functions for extracting data
-    template <class type> void GetValue(type &value);
-    void GetValue(std::string &value);
-    quote check_quote(std::string &);
-    void GetStr(std::string &);
+    template <class type> void GetValue(type& value);
+    void GetValue(std::string& value);
+    quote check_quote(std::string&);
+    void GetStr(std::string&);
 
     // Check if internal buffer is empty
     bool check_data(void);
@@ -327,25 +318,28 @@ class DBline: virtual public std::ios
     DBfmt* m_dbfmt_dec;
     bool m_del_dbfmt;
 
-    public:
-
+public:
     DBline();
     DBline(std::ifstream& file);
     DBline(std::istream& stream);
-    ~DBline() {delete m_dbfmt_hex; delete m_dbfmt_oct; delete m_dbfmt_dec;}
-    
+    ~DBline() {
+        delete m_dbfmt_hex;
+        delete m_dbfmt_oct;
+        delete m_dbfmt_dec;
+    }
+
     // Function to connect input file/stream
     void connect(std::ifstream& file);
     void connect(std::istream& stream);
 
     // Function to get the token
-    DBline& token (const std::string &);
-    template <class type> DBline& token (const std::string &,type t);
-    template <class type> DBline& token (const std::string &,type t, int size);
-    void go_until (const std::string &token);
+    DBline& token(const std::string&);
+    template <class type> DBline& token(const std::string&, type t);
+    template <class type> DBline& token(const std::string&, type t, int size);
+    void go_until(const std::string& token);
 
     // Check if exits data into the internal buffer
-    bool empty (void);
+    bool empty(void);
 
     // Dump the processed directives
     const char* dump(void);
@@ -361,70 +355,66 @@ class DBline: virtual public std::ios
     void setdbfmtflag(int);
 
     // Operators for extracting data
-    //DBline& operator>> (unsigned long int &i);
-    DBline& operator>> (unsigned long int *i);
-    //DBline& operator>> (long int &i);
-    DBline& operator>> (long int *i);
-    //DBline& operator>> (unsigned int &i);
-    DBline& operator>> (unsigned int *i);
-    //DBline& operator>> (unsigned short &i);
-    DBline& operator>> (unsigned short *i);
-    DBline& operator>> (int &i);
-    DBline& operator>> (int *i);
-    DBline& operator>> (float &f);
-    DBline& operator>> (float *f);
-    DBline& operator>> (double &f);
-    DBline& operator>> (double *f);
-    DBline& operator>> (std::string &str);
-    DBline& operator>> (std::string *str);
-    DBline& operator>> (char &c);
-    //DBline& operator>> (unsigned char &c);
-    
-    DBline& operator>> (uint8_t &i8);
-    DBline& operator>> (uint16_t &i16);
-    DBline& operator>> (uint32_t &i32);
-    DBline& operator>> (uint64_t &i64);
+    // DBline& operator>> (unsigned long int &i);
+    DBline& operator>>(unsigned long int* i);
+    // DBline& operator>> (long int &i);
+    DBline& operator>>(long int* i);
+    // DBline& operator>> (unsigned int &i);
+    DBline& operator>>(unsigned int* i);
+    // DBline& operator>> (unsigned short &i);
+    DBline& operator>>(unsigned short* i);
+    DBline& operator>>(int& i);
+    DBline& operator>>(int* i);
+    DBline& operator>>(float& f);
+    DBline& operator>>(float* f);
+    DBline& operator>>(double& f);
+    DBline& operator>>(double* f);
+    DBline& operator>>(std::string& str);
+    DBline& operator>>(std::string* str);
+    DBline& operator>>(char& c);
+    // DBline& operator>> (unsigned char &c);
 
+    DBline& operator>>(uint8_t& i8);
+    DBline& operator>>(uint16_t& i16);
+    DBline& operator>>(uint32_t& i32);
+    DBline& operator>>(uint64_t& i64);
 
     // Operator for allowing external manipulation of data
-    DBline& operator>> (DBfmt* f);
+    DBline& operator>>(DBfmt* f);
 
     // Operator for subtoken searching
-    DBline& operator>> (const std::string &token);
+    DBline& operator>>(const std::string& token);
 
     // Operators for incremental input
     DBline& operator++();
     DBline& operator++(int i);
-    DBline& operator+ (int i);
+    DBline& operator+(int i);
 
     // Internal status operators
-    operator bool ();
-    bool operator !();
+    operator bool();
+    bool operator!();
     operator DBstatus();
 
     // Operators for extracting tokens
-    DBline& operator()(const std::string &str);
-    DBline& operator()(const std::string&,int);
-    DBline& operator()(const std::string&,int,int);
+    DBline& operator()(const std::string& str);
+    DBline& operator()(const std::string&, int);
+    DBline& operator()(const std::string&, int, int);
 
     // Member function for unsing input from streams
-    DBline& operator << (std::istream& input);
-    DBline& operator << (std::ifstream& file);
-    
-    // Friend functions for using I/O whit streams
-    friend std::ifstream &operator >> (std::ifstream  &file, DBline &db);
-    friend std::istream  &operator >> (std::istream &stream, DBline &db);
-    friend std::ostream  &operator << (std::ostream &stream, DBline &db);
+    DBline& operator<<(std::istream& input);
+    DBline& operator<<(std::ifstream& file);
 
+    // Friend functions for using I/O whit streams
+    friend std::ifstream& operator>>(std::ifstream& file, DBline& db);
+    friend std::istream& operator>>(std::istream& stream, DBline& db);
+    friend std::ostream& operator<<(std::ostream& stream, DBline& db);
 };
 
-
-DBfmt* hex (void);
+DBfmt* hex(void);
 DBfmt* oct(void);
 DBfmt* dec(void);
 DBfmt* resetflags(void);
 DBfmt* setflags(std::ios::fmtflags);
-DBfmt* setflags(std::ios::fmtflags,std::ios::fmtflags);
-
+DBfmt* setflags(std::ios::fmtflags, std::ios::fmtflags);
 
 #endif

@@ -17,7 +17,9 @@
 
 // Services/helpers
 #include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArOnline_SuperCellID.h"
 #include "CaloIdentifier/CaloCell_ID.h"
+#include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 
 // Gaudi/Athena
 #include "GaudiKernel/Bootstrap.h"
@@ -69,15 +71,42 @@ LArConditionsContainerBase::initializeBase()
 	log << MSG::ERROR << "Cannot get DetectorStore!" << endmsg;
 	return sc;
     }
-    sc = detStore->retrieve(m_onlineHelper,"LArOnlineID");
-    if (sc.isFailure()) {
+
+    if (m_groupType == LArConditionsContainerBase::SuperCells) {
+      //Dealing with supercells, need supercell identifier helper
+      const LArOnline_SuperCellID* onlID;
+      sc = detStore->retrieve(onlID,"LArOnline_SuperCellID");
+      if (sc.isFailure()) {
+	log << MSG::ERROR << "Cannot get LArOnline_SuperCellID!" << endmsg;
+	return sc;
+      }
+      m_onlineHelper=onlID;//cast to base-class
+
+      const CaloCell_SuperCell_ID* oflID;
+      sc = detStore->retrieve(oflID,"CaloCell_SuperCell_ID");
+      if (sc.isFailure()) {
+	log << MSG::ERROR << "Cannot get CaloCell_SuperCell_ID!" << endmsg;
+	return sc;
+      }
+      m_offlineHelper=oflID; //cast to base-class
+    }
+    else {
+      //Regular readout
+      const LArOnlineID* onlID;
+      sc = detStore->retrieve(onlID,"LArOnlineID");
+      if (sc.isFailure()) {
 	log << MSG::ERROR << "Cannot get LArOnlineID!" << endmsg;
 	return sc;
-    }
-    sc = detStore->retrieve(m_offlineHelper,"CaloCell_ID");
-    if (sc.isFailure()) {
+      }
+      m_onlineHelper=onlID;//cast to base-class
+
+      const CaloCell_ID* oflID;
+      sc = detStore->retrieve(oflID,"CaloCell_ID");
+      if (sc.isFailure()) {
 	log << MSG::ERROR << "Cannot get CaloCell_ID!" << endmsg;
 	return sc;
+      }
+      m_offlineHelper=oflID; //cast to base-class
     }
 
     // initialize the grouping
@@ -125,8 +154,12 @@ LArConditionsContainerBase::setGroupingType(const std::string& groupingStr, MsgS
     setGroupingType(LArConditionsContainerBase:: ExtendedFTGrouping);
     return StatusCode::SUCCESS;
   }
+  else if (groupingStr == "SuperCells") {
+    setGroupingType(LArConditionsContainerBase::SuperCells);
+    return StatusCode::SUCCESS;
+  }
 
-  logStr << MSG::ERROR << "Unknown COOL Channel Grouping. Allowed values are: \n" << endmsg;
+  logStr << MSG::ERROR << "Unknown COOL Channel Grouping '"<< groupingStr <<"'.  Allowed values are:" << endmsg;
   logStr << MSG::ERROR << "'Single','SubDetector', 'ExtendedSubDetector','FeedThrough','ExtendedFeedThrough'" << endmsg;
   return StatusCode::FAILURE;
 }
@@ -145,7 +178,7 @@ LArConditionsContainerBase::initGrouping()
 
 	// Not yet known
     }
-    if (SingleGroup == m_groupType) {
+    if (SingleGroup == m_groupType || SuperCells == m_groupType) {
 
 	log << MSG::DEBUG << "Single group "<< endmsg;
 
@@ -476,17 +509,19 @@ LArConditionsContainerBase::groupingTypeToString() const
 	    return ("ExtendedFTGrouping");
         case 5:
 	    return ("ExtendedSubDetGrouping");
+        case 6:
+            return ("SuperCells");
     }
     return ("Unknown");
 }
 
-const LArOnlineID*          
+const LArOnlineID_Base*          
 LArConditionsContainerBase::onlineHelper() const
 {
     return (m_onlineHelper);
 }
 
-const CaloCell_ID*          
+const CaloCell_Base_ID*          
 LArConditionsContainerBase::offlineHelper() const
 {
     return (m_offlineHelper);

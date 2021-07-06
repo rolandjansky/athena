@@ -2,7 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 #include "FolderTypes.h"
-#include "AthenaKernel/IClassIDSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "IOVDbStringFunctions.h"
 #include "CoolKernel/IRecordSpecification.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"

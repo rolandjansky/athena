@@ -26,7 +26,6 @@
 
 /// External classes
 #include "TrigInDetEvent/TrigVertex.h"
-#include "TrigInterfaces/IMonitoredAlgo.h"
 
 #include <string>
 #include <vector>
@@ -97,99 +96,6 @@ namespace PESA
     double         m_DXpull ;
     double         m_DYpull ;
     double         m_DZpull ;
-  };
-
-
-  class MonitoredSplitVertex
-  {
-  public:
-
-    // Registration
-    void declare( IMonitoredAlgo* p, std::string prefix = "", std::string suffix = "" )
-    {
-      const IMonitoredAlgo::ContainerReset reset = IMonitoredAlgo::AutoClear;
-
-      p->declareMonitoredStdContainer( prefix + "1NTrks"   + suffix, m_1NTrks, reset );
-      p->declareMonitoredStdContainer( prefix + "1X"       + suffix, m_1X    , reset );
-      p->declareMonitoredStdContainer( prefix + "1Y"       + suffix, m_1Y    , reset );
-      p->declareMonitoredStdContainer( prefix + "1Z"       + suffix, m_1Z    , reset );
-      p->declareMonitoredStdContainer( prefix + "1Xerr"    + suffix, m_1Xerr , reset );
-      p->declareMonitoredStdContainer( prefix + "1Yerr"    + suffix, m_1Yerr , reset );
-      p->declareMonitoredStdContainer( prefix + "1Zerr"    + suffix, m_1Zerr , reset );
-      p->declareMonitoredStdContainer( prefix + "2NTrks"   + suffix, m_2NTrks, reset );
-      p->declareMonitoredStdContainer( prefix + "2X"       + suffix, m_2X    , reset );
-      p->declareMonitoredStdContainer( prefix + "2Y"       + suffix, m_2Y    , reset );
-      p->declareMonitoredStdContainer( prefix + "2Z"       + suffix, m_2Z    , reset );
-      p->declareMonitoredStdContainer( prefix + "2Xerr"    + suffix, m_2Xerr , reset );
-      p->declareMonitoredStdContainer( prefix + "2Yerr"    + suffix, m_2Yerr , reset );
-      p->declareMonitoredStdContainer( prefix + "2Zerr"    + suffix, m_2Zerr , reset );
-      p->declareMonitoredStdContainer( prefix + "DNTrks"   + suffix, m_DNTrks, reset );
-      p->declareMonitoredStdContainer( prefix + "DX"       + suffix, m_DX    , reset );
-      p->declareMonitoredStdContainer( prefix + "DY"       + suffix, m_DY    , reset );
-      p->declareMonitoredStdContainer( prefix + "DZ"       + suffix, m_DZ    , reset );
-      p->declareMonitoredStdContainer( prefix + "DXerr"    + suffix, m_DXerr , reset );
-      p->declareMonitoredStdContainer( prefix + "DYerr"    + suffix, m_DYerr , reset );
-      p->declareMonitoredStdContainer( prefix + "DZerr"    + suffix, m_DZerr , reset );
-      p->declareMonitoredStdContainer( prefix + "DXpull"   + suffix, m_DXpull, reset );
-      p->declareMonitoredStdContainer( prefix + "DYpull"   + suffix, m_DYpull, reset );
-      p->declareMonitoredStdContainer( prefix + "DZpull"   + suffix, m_DZpull, reset );
-    }
-
-    // Update method
-    void push_back( const T2SplitVertex& split )
-    {
-      m_1NTrks.push_back( split.vertex1().NTrks() );
-      m_1X    .push_back( split.vertex1().X    () );
-      m_1Y    .push_back( split.vertex1().Y    () );
-      m_1Z    .push_back( split.vertex1().Z    () );
-      m_1Xerr .push_back( split.vertex1().Xerr () );
-      m_1Yerr .push_back( split.vertex1().Yerr () );
-      m_1Zerr .push_back( split.vertex1().Zerr () );
-      m_2NTrks.push_back( split.vertex2().NTrks() );
-      m_2X    .push_back( split.vertex2().X    () );
-      m_2Y    .push_back( split.vertex2().Y    () );
-      m_2Z    .push_back( split.vertex2().Z    () );
-      m_2Xerr .push_back( split.vertex2().Xerr () );
-      m_2Yerr .push_back( split.vertex2().Yerr () );
-      m_2Zerr .push_back( split.vertex2().Zerr () );
-      m_DNTrks.push_back( split.DNTrks  () );
-      m_DX    .push_back( split.DX      () );
-      m_DY    .push_back( split.DY      () );
-      m_DZ    .push_back( split.DZ      () );
-      m_DXerr .push_back( split.DXerr   () );
-      m_DYerr .push_back( split.DYerr   () );
-      m_DZerr .push_back( split.DZerr   () );
-      m_DXpull.push_back( split.DXpull  () );
-      m_DYpull.push_back( split.DYpull  () );
-      m_DZpull.push_back( split.DZpull  () );
-    }
-
-  private:
-    // Data members
-    std::vector<unsigned> m_1NTrks;
-    std::vector<double  > m_1X    ;
-    std::vector<double  > m_1Y    ;
-    std::vector<double  > m_1Z    ;
-    std::vector<double  > m_1Xerr ;
-    std::vector<double  > m_1Yerr ;
-    std::vector<double  > m_1Zerr ;
-    std::vector<unsigned> m_2NTrks;
-    std::vector<double  > m_2X    ;
-    std::vector<double  > m_2Y    ;
-    std::vector<double  > m_2Z    ;
-    std::vector<double  > m_2Xerr ;
-    std::vector<double  > m_2Yerr ;
-    std::vector<double  > m_2Zerr ;
-    std::vector<double  > m_DNTrks;
-    std::vector<double  > m_DX    ;
-    std::vector<double  > m_DY    ;
-    std::vector<double  > m_DZ    ;
-    std::vector<double  > m_DXerr ;
-    std::vector<double  > m_DYerr ;
-    std::vector<double  > m_DZerr ;
-    std::vector<double  > m_DXpull;
-    std::vector<double  > m_DYpull;
-    std::vector<double  > m_DZpull;
   };
 
 } // end namespace

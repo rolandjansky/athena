@@ -89,18 +89,18 @@ private:
                           HepMC::GenEvent* ev_out);
 
   /// Add a @c GenParticle (and its production vertex) to a @c GenEvent.
-  StatusCode addParticle (const HepMC::GenParticle* p,
+  StatusCode addParticle (HepMC::ConstGenParticlePtr p,
                           HepMC::GenEvent* ev);
 
   /// Add a @c GenVertex to a @c GenEvent.
-  StatusCode addVertex (const HepMC::GenVertex* p,
+  StatusCode addVertex (HepMC::ConstGenVertexPtr p,
                         HepMC::GenEvent* ev);
 
   /// Test to see if we want to keep a particle.
-  bool acceptParticle (const HepMC::GenParticle* p);
+  bool acceptParticle (HepMC::ConstGenParticlePtr p);
 
   /// Test to see if a particle is a lepton from a tau decay
-  bool isLeptonFromTau(const HepMC::GenParticle* part) const;
+  bool isLeptonFromTau(HepMC::ConstGenParticlePtr part) const;
 
   /// Parameter: SG key for input @c McEventCollection.
   std::string m_mcEventsName;
@@ -142,7 +142,7 @@ private:
   int m_firstHadronBarcode;
 
   // Stores leptons from W/Z decays (final state)
-  std::vector<const HepMC::GenParticle*> m_WZleptons;
+  std::vector<HepMC::ConstGenParticlePtr> m_WZleptons;
 
   // Parameter: photon summation cone (only used if m_excludeWZdecays)
   float m_photonCone;

@@ -67,7 +67,7 @@ StatusCode GenVertexFillerTool::fill (const HepMC::GenVertex& p)
   *m_x = pos.x();
   *m_y = pos.y();
   *m_z = pos.z();
-  *m_barcode = p.barcode();
+  *m_barcode = HepMC::barcode(p);
   if (m_do_id) *m_id = p.id();
 
   return StatusCode::SUCCESS;

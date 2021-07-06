@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -11,6 +11,10 @@
 #define MUONREADOUTGEOMETRY_MUONPADDESIGN_H
 
 #include "GeoPrimitives/GeoPrimitives.h"
+
+#include <cmath>
+#include <utility>
+#include <vector>
 
 namespace MuonGM {
 
@@ -42,9 +46,6 @@ namespace MuonGM {
     double signY;
     double firstRowPos;
     double firstPhiPos;
-    //double xSize;
-    //double minYSize;
-    //double maxYSize;
     
     double Length;
     double sWidth;
@@ -168,7 +169,7 @@ namespace MuonGM {
 
     // calculate the phi width 
 
-    return ( measPhi ? 2.*tan(0.5*inputPhiPitch)*(radialDistance+pos.y()) : inputRowPitch );
+    return ( measPhi ? 2.*std::tan(0.5*inputPhiPitch)*(radialDistance+pos.y()) : inputRowPitch );
 
   }
 

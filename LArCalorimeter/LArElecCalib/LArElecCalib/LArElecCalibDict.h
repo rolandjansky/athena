@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -16,10 +16,7 @@
 
 
 #include "LArElecCalib/LArVectorProxy.h"
-#include "LArElecCalib/ILArADC2MeVTool.h"
 #include "LArElecCalib/ILArAutoCorr.h"
-#include "LArElecCalib/ILArAutoCorrNoiseTool.h"
-#include "LArElecCalib/ILArAutoCorrTotalTool.h"
 //#include "LArElecCalib/ILArAutoCorrDecoderTool.h"
 #include "LArElecCalib/ILArCableAttenuation.h"
 #include "LArElecCalib/ILArCableLength.h"
@@ -37,7 +34,6 @@
 #include "LArElecCalib/ILArMphysOverMcal.h"
 #include "LArElecCalib/ILArNoise.h"
 #include "LArElecCalib/ILArOFC.h"
-#include "LArElecCalib/ILArOFCTool.h"
 #include "LArElecCalib/ILArPedestal.h"
 #include "LArElecCalib/ILArPhysCaliTdiff.h"
 #include "LArElecCalib/ILArRamp.h"

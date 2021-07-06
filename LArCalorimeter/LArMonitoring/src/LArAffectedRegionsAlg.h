@@ -53,9 +53,9 @@ class LArAffectedRegionsAlg: public AthMonitorAlgorithm
   Gaudi::Property<std::string> m_hec1Name {this,"HEC1name","HEC1"};
   Gaudi::Property<std::string> m_hec2Name {this,"HEC2name","HEC2"};
   Gaudi::Property<std::string> m_hec3Name {this,"HEC3name","HEC3"};
-  Gaudi::Property<std::string> m_fcal0Name {this,"FCAL0name","FCAL0"};
-  Gaudi::Property<std::string> m_fcal1Name {this,"FCAL1name","FCAL1"};
-  Gaudi::Property<std::string> m_fcal2Name {this,"FCAL2name","FCAL2"};
+  Gaudi::Property<std::string> m_fcal0Name {this,"FCal0name","FCAL0"};
+  Gaudi::Property<std::string> m_fcal1Name {this,"FCal1name","FCAL1"};
+  Gaudi::Property<std::string> m_fcal2Name {this,"FCal2name","FCAL2"};
 
   //Other properties
   Gaudi::Property<bool> m_IsOnline {this,"IsOnline",false};

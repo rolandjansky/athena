@@ -1,9 +1,9 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from TrigTauRec.TrigTauRecConf import TrigTauRecMergedMT
-from TrigTauRec.TrigTauRecMonitoring import tauMonitoringCaloOnly
+from TrigTauRec.TrigTauRecConf import TrigTauRecMerged
+from TrigTauRec.TrigTauRecMonitoring import tauMonitoringCaloOnly, tauMonitoringCaloOnlyMVA, tauMonitoringPreselection, tauMonitoringPrecision, tauMonitoringPrecisionMVA
 
-class TrigTauRecMerged_TauCaloOnly (TrigTauRecMergedMT) :
+class TrigTauRecMerged_TauCaloOnly (TrigTauRecMerged) :
 
         def __init__(self, name = "TrigTauRecMerged_TauCaloOnly"):
             super( TrigTauRecMerged_TauCaloOnly , self ).__init__( name )
@@ -41,11 +41,13 @@ class TrigTauRecMerged_TauCaloOnly (TrigTauRecMergedMT) :
             self.BeamType = jobproperties.Beam.beamType()
 
 
-class TrigTauRecMerged_TauCaloOnlyMVA (TrigTauRecMergedMT) :
+class TrigTauRecMerged_TauCaloOnlyMVA (TrigTauRecMerged) :
 
         def __init__(self, name = "TrigTauRecMerged_TauCaloOnlyMVA"):
             super( TrigTauRecMerged_TauCaloOnlyMVA , self ).__init__( name )
-
+            self.MonTool = tauMonitoringCaloOnlyMVA()
+            self._mytools = [] 
+          
             import TrigTauRec.TrigTauAlgorithmsHolder as taualgs
             tools = []
 
@@ -79,13 +81,14 @@ class TrigTauRecMerged_TauCaloOnlyMVA (TrigTauRecMergedMT) :
             from AthenaCommon.BeamFlags import jobproperties
             self.BeamType = jobproperties.Beam.beamType()
 
-class TrigTauRecMerged_TauPreselection (TrigTauRecMergedMT) :
+class TrigTauRecMerged_TauPreselection (TrigTauRecMerged) :
 
         __slots__ = [ '_mytools']
         def __init__(self, name = "TrigTauRecMerged_TauPreselection"):
             super( TrigTauRecMerged_TauPreselection , self ).__init__( name )
+            self.MonTool = tauMonitoringPreselection()
             self._mytools = []
-            
+             
             import TrigTauRec.TrigTauAlgorithmsHolder as taualgs
             tools = []
 
@@ -125,10 +128,11 @@ class TrigTauRecMerged_TauPreselection (TrigTauRecMergedMT) :
 
 
 
-class TrigTauRecMerged_TauPrecision (TrigTauRecMergedMT) :
+class TrigTauRecMerged_TauPrecision (TrigTauRecMerged) :
         __slots__ = [ '_mytools']
         def __init__(self, name = "TrigTauRecMerged_TauPrecision"):
             super( TrigTauRecMerged_TauPrecision , self ).__init__( name )
+            self.MonTool = tauMonitoringPrecision()
             self._mytools = []
 
             import TrigTauRec.TrigTauAlgorithmsHolder as taualgs
@@ -139,8 +143,7 @@ class TrigTauRecMerged_TauPrecision (TrigTauRecMergedMT) :
             # Include full set of tools
 
             # Associate RoI vertex or Beamspot to tau - don't use TJVA
-            # Keep this commented out atm
-            #tools.append(taualgs.getTauVertexFinder(doUseTJVA=False)) #don't use TJVA by default
+            tools.append(taualgs.getTauVertexFinder(doUseTJVA=False)) #don't use TJVA by default
 
             # Set LC energy scale (0.2 cone) and intermediate axis (corrected for vertex: useless at trigger)       
             tools.append(taualgs.getTauAxis())
@@ -184,11 +187,12 @@ class TrigTauRecMerged_TauPrecision (TrigTauRecMergedMT) :
             from AthenaCommon.BeamFlags import jobproperties
             self.BeamType = jobproperties.Beam.beamType()
 
-class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMergedMT) :
+class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
 
-        def __init__(self, name = "TrigTauRecMerged_TauPrecisionMVA", doMVATES=False, doTrackBDT=False, doRNN=False):
+        def __init__(self, name = "TrigTauRecMerged_TauPrecisionMVA", doMVATES=False, doTrackBDT=False, doRNN=False, doLLP=False):
         
             super( TrigTauRecMerged_TauPrecisionMVA , self ).__init__( name )
+            self.MonTool = tauMonitoringPrecisionMVA()
 
             import TrigTauRec.TrigTauAlgorithmsHolder as taualgs
             tools = []
@@ -200,8 +204,7 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMergedMT) :
             # Include full set of tools
 
             # Associate RoI vertex or Beamspot to tau - don't use TJVA
-            #Comment this tool for now
-            #tools.append(taualgs.getTauVertexFinder(doUseTJVA=False)) #don't use TJVA by default
+            tools.append(taualgs.getTauVertexFinder(doUseTJVA=False)) #don't use TJVA by default
             # Set LC energy scale (0.2 cone) and intermediate axis (corrected for vertex: useless at trigger)       
 
             tools.append(taualgs.getTauAxis())
@@ -239,7 +242,9 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMergedMT) :
             tools.append(taualgs.getTauCommonCalcVars())
             # Cluster-based sub-structure, with dRMax also
             tools.append(taualgs.getTauSubstructure())
-
+            #Run either nominal or LLP rnn, not both 
+            if doLLP:
+                    doRNN = False
             if doRNN:
                 # RNN tau ID
                 tools.append(taualgs.getTauJetRNNEvaluator(NetworkFile0P="rnnid_config_0p_v3.json",
@@ -247,13 +252,20 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMergedMT) :
                                                            NetworkFile3P="rnnid_config_mp_v3.json",
                                                            MaxTracks=10, 
                                                            MaxClusters=6,
-                                   
-
-
-
-                        MaxClusterDR=1.0))
+                                                           MaxClusterDR=1.0))
                 # flattened RNN score and WP
                 tools.append(taualgs.getTauWPDecoratorJetRNN())
+
+            if doLLP:
+                # RNN tau ID for displaced tau signatures (placeholder configs)
+                tools.append(taualgs.getTauJetRNNEvaluator(NetworkFile0P="llpdev/net_experimental_llz_0p.json",
+                                                           NetworkFile1P="llpdev/net_experimental_llz_1p.json",
+                                                           NetworkFile3P="llpdev/net_experimental_llz_mp.json",
+                                                           MaxTracks=10, 
+                                                           MaxClusters=6,
+                                                           MaxClusterDR=1.0))
+                # flattened RNN score and WP
+                tools.append(taualgs.getTauWPDecoratorJetLLP())
 
 
             for tool in tools:
@@ -265,3 +277,83 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMergedMT) :
             ## add beam type flag
             from AthenaCommon.BeamFlags import jobproperties
             self.BeamType = jobproperties.Beam.beamType()
+
+
+
+# this is the newJO fragment
+class TrigTauDefaultsKeys:
+    VertexContainer = 'PrimaryVertices'
+    TrackContainer ='InDetTrackParticles'
+    LargeD0TrackContainer ='InDetLargeD0TrackParticles'
+
+
+def TrigTauRecMergedOnlyMVACfg(flags):
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    acc = ComponentAccumulator()
+    # prepare tools 
+    tools = []
+    # Set seedcalo energy scale (Full RoI)
+    tools.append(CompFactory.JetSeedBuilder())
+
+    # Set LC energy scale (0.2 cone) and intermediate axis (corrected for vertex: useless at trigger)
+    tools.append(CompFactory.TauAxisSetter(ClusterCone = 0.2,
+                                           VertexCorrection = False))
+    # Decorate the clusters
+    tools.append(CompFactory.TauClusterFinder(JetVertexCorrection = False)) # TODO use JetRec.doVertexCorrection once available
+
+    tools.append(CompFactory.TauVertexedClusterDecorator(SeedJet = flags.Tau.SeedJetCollection,
+                                            VertexCorrection = False))
+
+    # Calibrate to TES
+    tools.append(CompFactory.TauCalibrateLC(calibrationFile = flags.Tau.CalibrateLCConfig,
+                                            Key_vertexInputContainer = ""))
+    # Calculate cell-based quantities: strip variables, EM and Had energies/radii, centFrac, isolFrac and ring energies
+    from AthenaCommon.SystemOfUnits import GeV
+    tools.append(CompFactory.TauCellVariables(StripEthreshold = 0.2*GeV,
+                                                CellCone = 0.2,
+                                                VertexCorrection = False))
+    # Compute MVA TES (ATR-17649), stores MVA TES as default tau pt()
+    tools.append(CompFactory.MvaTESVariableDecorator(Key_vertexInputContainer='',
+                                                     EventShapeKey='',
+                                                     VertexCorrection = False))
+    tools.append(CompFactory.MvaTESEvaluator(WeightFileName = flags.Tau.MvaTESConfig))
+
+    for tool in tools:
+        tool.inTrigger = True
+        tool.calibFolder = 'TrigTauRec/00-11-02/'
+
+
+            ## add beam type flag
+    alg = CompFactory.TrigTauRecMerged("TrigTauRecMergedOnlyMVA",
+                                        BeamType=flags.Beam.Type, 
+                                        Tools=tools)
+
+    alg.Key_trackPartInputContainer = ''
+    alg.Key_trigJetSeedOutputKey = 'HLT_jet_seed' 
+    alg.Key_trigTauJetInputContainer = ''
+    alg.Key_trigTauJetOutputContainer = 'HLT_TrigTauRecMerged_CaloOnly'
+    alg.Key_trigTauTrackInputContainer = ''
+    alg.Key_trigTauTrackOutputContainer = 'HLT_tautrack_dummy' 
+    alg.Key_vertexInputContainer = ''
+    alg.clustersKey = 'HLT_TopoCaloClustersLC'
+    alg.L1RoIKey = 'HLT_TAURoI'
+    alg.RoIInputKey = 'UpdatedCaloRoI'
+    acc.addEventAlgo(alg)
+
+    from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
+    acc.merge(LumiBlockMuWriterCfg(flags))
+    return acc
+
+
+if __name__ == "__main__":
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior = 1
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    flags.Input.Files = defaultTestFiles.RAW
+    flags.lock()
+
+    acc = TrigTauRecMergedOnlyMVACfg(flags)
+    acc.printConfig(withDetails=True, summariseProps=True)
+    acc.wasMerged() # do not run, do not save, we just want to see the config

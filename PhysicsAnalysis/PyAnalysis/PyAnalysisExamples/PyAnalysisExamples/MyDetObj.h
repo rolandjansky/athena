@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PYANALYSISEXAMPLES_MYDETOBJ_H
@@ -8,6 +8,8 @@
 #include <string>
 
 #include "AthenaKernel/CLASS_DEF.h"
+
+namespace AthPyEx {
 
 class MyDetObj
 {
@@ -21,7 +23,9 @@ private:
   std::string m_name;
 };
 
-CLASS_DEF(MyDetObj, 28914872, 1)
+} // namespace AthPyEx
+
+CLASS_DEF(AthPyEx::MyDetObj, 105730742, 1)
 
 #endif
 

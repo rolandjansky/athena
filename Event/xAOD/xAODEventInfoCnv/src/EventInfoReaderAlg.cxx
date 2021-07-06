@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfoReaderAlg.cxx 682548 2015-07-13 13:57:15Z krasznaa $
 
 // EDM include(s):
 #include "xAODEventInfo/EventInfo.h"
@@ -52,7 +51,7 @@ namespace xAODReader {
    StatusCode EventInfoReaderAlg::initialize() {
 
       // Greet the user:
-      ATH_MSG_INFO( "Initialising - Package version: " << PACKAGE_VERSION );
+      ATH_MSG_INFO( "Initialising");
 
       // Return gracefully:
       return StatusCode::SUCCESS;
@@ -61,7 +60,7 @@ namespace xAODReader {
    StatusCode EventInfoReaderAlg::execute() {
 
       // Get the EventInfo object:
-      const xAOD::EventInfo* ei = 0;
+      const xAOD::EventInfo* ei = nullptr;
       ATH_CHECK( evtStore()->retrieve( ei, m_key ) );
 
       // Basic info:

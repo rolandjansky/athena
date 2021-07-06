@@ -72,23 +72,16 @@ StatusCode Trk::GenericGeometryBuilder::initialize()
         ATH_MSG_FATAL("Failed to retrieve EnvelopeSvc " << m_enclosingEnvelopeSvc );
         return StatusCode::FAILURE;
     } else 
-        ATH_MSG_INFO( "Retrieved " << m_enclosingEnvelopeSvc );
+        ATH_MSG_DEBUG( "Retrieved " << m_enclosingEnvelopeSvc );
 
     // Retrieve the tracking volume creator  --------------------------------------------------    
     if (m_trackingVolumeCreator.retrieve().isFailure()) {
         ATH_MSG_FATAL("Failed to retrieve tool " << m_trackingVolumeCreator );
         return StatusCode::FAILURE;
     } else 
-        ATH_MSG_INFO( "Retrieved tool " << m_trackingVolumeCreator );
+        ATH_MSG_DEBUG( "Retrieved tool " << m_trackingVolumeCreator );
 
-    ATH_MSG_INFO( " initialize() successful" );
-    return StatusCode::SUCCESS;
-}
-
-// finalize
-StatusCode Trk::GenericGeometryBuilder::finalize()
-{
-    ATH_MSG_INFO( "finalize() successful." );
+    ATH_MSG_DEBUG( " initialize() successful" );
     return StatusCode::SUCCESS;
 }
 

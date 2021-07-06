@@ -64,7 +64,7 @@ void InDet::PixelClusterContainerCnv_p1::transToPers(const InDet::PixelClusterCo
         persCont->m_PRD.resize(chanEnd);
         for (unsigned int i = 0; i < collection.size(); ++i) {
             const InDet::PixelCluster* chan = collection[i];
-            persCont->m_PRD[i + chanBegin] = toPersistent((CONV**)0, chan, log );
+            persCont->m_PRD[i + chanBegin] = toPersistent((CONV**)nullptr, chan, log );
         }
     }
 }
@@ -96,7 +96,7 @@ void  InDet::PixelClusterContainerCnv_p1::persToTrans(const InDet::InDetPRD_Cont
         }
     }
 
-    InDet::PixelClusterCollection* coll = 0;
+    InDet::PixelClusterCollection* coll = nullptr;
 
     PixelClusterCnv_p1  chanCnv;
     typedef ITPConverterFor<Trk::PrepRawData> CONV;
@@ -111,11 +111,11 @@ void  InDet::PixelClusterContainerCnv_p1::persToTrans(const InDet::InDetPRD_Cont
         coll->setIdentifier(Identifier(pcoll.m_id));
         unsigned int nchans           = pcoll.m_end - pcoll.m_begin;
         coll->resize(nchans);
-        const InDetDD::SiDetectorElement * de = (m_useDetectorElement ? elements->getDetectorElement(collIDHash) : nullptr);
+        const InDetDD::SiDetectorElement * de = (elements ? elements->getDetectorElement(collIDHash) : nullptr);
         // Fill with channels
         for (unsigned int ichan = 0; ichan < nchans; ++ ichan) {
             const TPObjRef pchan = persCont->m_PRD[ichan + pcoll.m_begin];
-            InDet::PixelCluster* chan = dynamic_cast<InDet::PixelCluster*>(createTransFromPStore((CONV**)0, pchan, log ) );
+            InDet::PixelCluster* chan = dynamic_cast<InDet::PixelCluster*>(createTransFromPStore((CONV**)nullptr, pchan, log ) );
             if (chan){
               chan->m_detEl = de;
               (*coll)[ichan] = chan;

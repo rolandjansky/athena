@@ -9,6 +9,7 @@
 
 #include "L1TopoCoreSim/TopoCoreSimResult.h"
 #include "L1TopoCoreSim/DecisionConnector.h"
+#include "L1TopoCoreSim/CountingConnector.h"
 #include "L1TopoConfig/L1TopoMenu.h"
 #include "L1TopoInterfaces/ConfigurableAlg.h"
 #include "L1TopoEvent/DataArray.h"
@@ -32,16 +33,16 @@ TopoCoreSimResult::~TopoCoreSimResult()
 
 bool
 TopoCoreSimResult::triggerDecision(const std::string & triggerName) const {
-   auto x = m_triggerLocation.find(triggerName);
-   if( x == end(m_triggerLocation) )
+   auto x = m_triggerLocationDec.find(triggerName);
+   if( x == end(m_triggerLocationDec) )
       TCS_EXCEPTION("No trigger with name '" << triggerName << "' defined");
    return x->second->decision(triggerName);
 }
 
 const TCS::TOBArray*
 TopoCoreSimResult::triggerOutput(const std::string & triggerName) const {
-   auto x = m_triggerLocation.find(triggerName);
-   if( x == end(m_triggerLocation) )
+   auto x = m_triggerLocationDec.find(triggerName);
+   if( x == end(m_triggerLocationDec) )
       TCS_EXCEPTION("No trigger with name '" << triggerName << "' defined");
    return x->second->output(triggerName);
 }
@@ -49,13 +50,20 @@ TopoCoreSimResult::triggerOutput(const std::string & triggerName) const {
 
 
 TCS::StatusCode
-TopoCoreSimResult::collectResult(TCS::DecisionConnector* outputConn) {
+TopoCoreSimResult::collectResult(TCS::DecisionConnector* outputConn, TCS::CountingConnector* countConn) {
    TCS::StatusCode sc = TCS::StatusCode::SUCCESS;
-   if (outputConn == nullptr ) {
-      sc = m_globalDecision.collectDecision(m_outputConnectors);
-   } else {
+   if ( (outputConn == nullptr ) && (countConn == nullptr) ) {
+      sc = m_globalOutput.collectOutput(m_outputConnectors, m_countConnectors);
+   } else if ( !(outputConn == nullptr ) && (countConn == nullptr) ){
       set<DecisionConnector*> c = { outputConn };
-      sc = m_globalDecision.collectDecision(c);
+      sc = m_globalOutput.collectOutput(c, m_countConnectors);
+   } else if ( (outputConn == nullptr ) && !(countConn == nullptr) ){
+      set<CountingConnector*> c = { countConn };
+      sc = m_globalOutput.collectOutput(m_outputConnectors, c);
+   } else {
+      set<DecisionConnector*> c1 = { outputConn };
+      set<CountingConnector*> c2 = { countConn };
+      sc = m_globalOutput.collectOutput(c1, c2);
    }
    return sc;
 }
@@ -63,16 +71,18 @@ TopoCoreSimResult::collectResult(TCS::DecisionConnector* outputConn) {
 
 TCS::StatusCode
 TopoCoreSimResult::reset() {
-   return m_globalDecision.resetDecision();
+   return m_globalOutput.resetOutput();
 }
 
 
 TCS::StatusCode
-TopoCoreSimResult::setupFromMenu(const std::map<std::string, TCS::DecisionConnector*>& outputConnectorMap) {
+TopoCoreSimResult::setupFromMenu(const std::map<std::string, TCS::DecisionConnector*>& outputConnectorMap, const std::map<std::string, TCS::CountingConnector*>& countConnectorMap) {
+
+   // Set decision trigger lines
 
    m_outputConnectorMap = outputConnectorMap;
 
-   vector<TrigConf::TriggerLine> triggerLines;
+   vector<TrigConf::TriggerLine> triggerLinesDec;
 
    for(auto & x : m_outputConnectorMap) {
       // fill the set
@@ -80,12 +90,31 @@ TopoCoreSimResult::setupFromMenu(const std::map<std::string, TCS::DecisionConnec
 
       // fill the trigger line map (trigger name --> (TCS::DecisionConnector*,unsigned int index) )
       for( const TrigConf::TriggerLine & trigger : x.second->triggers() ) {
-         m_triggerLocation[trigger.name()] = x.second;
-	 triggerLines.push_back(trigger);
+         m_triggerLocationDec[trigger.name()] = x.second;
+	 triggerLinesDec.push_back(trigger);
       }
    }
 
-   m_globalDecision.setTriggerLines(triggerLines);
+   m_globalOutput.setDecisionTriggerLines(triggerLinesDec);
+
+   // Set multiplicity trigger lines
+
+   m_countConnectorMap = countConnectorMap;
+
+   vector<TrigConf::TriggerLine> triggerLinesCount;
+
+   for(auto & x : m_countConnectorMap) {
+      // fill the set
+      m_countConnectors.insert(x.second);
+
+      // fill the trigger line map (trigger name --> (TCS::CountingConnector*,unsigned int index) )
+      for( const TrigConf::TriggerLine & trigger : x.second->triggers() ) {
+         m_triggerLocationCount[trigger.name()] = x.second;
+	      triggerLinesCount.push_back(trigger);
+      }
+   }
+
+   m_globalOutput.setMultiplicityTriggerLines(triggerLinesDec);
 
    return TCS::StatusCode::SUCCESS;
 }
@@ -112,7 +141,7 @@ TCS::TopoCoreSimResult::output(const std::string & connName) const {
 std::ostream&
 operator<<(std::ostream& o, const TCS::TopoCoreSimResult & simRes) {
 
-   o << simRes.globalDecision();
+   o << simRes.globalOutput();
 
    for( const DecisionConnector * conn : simRes.m_outputConnectors ) {
       o << conn->name() << endl;
@@ -131,5 +160,5 @@ void
 TopoCoreSimResult::setMsgLevel( TrigConf::MSGTC::Level lvl ) {
    msg().setLevel( lvl );
 
-   m_globalDecision.msg().setLevel( lvl );
+   m_globalOutput.msg().setLevel( lvl );
 }

@@ -3,7 +3,6 @@
 #
 
 # Temporarily disable Rivet_i until we have LCG_97_ATLAS_2
-- Generators/Rivet_i
 
 + AsgExternal/Asg_Test
 + AtlasTest/TestTools
@@ -62,13 +61,12 @@
 + Database/APR/POOLCore 
 + Database/APR/PersistencySvc
 #+ Database/APR/RelationalCollection
-#+ Database/APR/RootCollection
++ Database/APR/RootCollection
 + Database/APR/RootStorageSvc
 + Database/APR/StorageSvc
 + Database/AthenaPOOL/AthenaPoolCnvSvc
 + Database/AthenaPOOL/AthenaPoolServices
 + Database/AthenaPOOL/AthenaPoolUtilities
-+ Database/AthenaPOOL/DBDataModel
 + Database/AthenaPOOL/EventSelectorAthenaPool
 + Database/AthenaPOOL/OutputStreamAthenaPool
 + Database/AthenaPOOL/PoolSvc
@@ -84,10 +82,12 @@
 + Database/ConnectionManagement/AtlasAuthentication
 + Database/ConnectionManagement/DBReplicaSvc
 + Database/CoraCool
++ Database/DBLock
++ Database/CrestApi
 + Database/IOVDbAthenaPool
 + Database/IOVDbDataModel
 + Database/IOVDbMetaDataTools
-#+ Database/IOVDbPTCnv
++ Database/IOVDbPTCnv
 + Database/IOVDbSvc
 + Database/IOVDbTPCnv
 + Database/PersistentDataModel
@@ -152,7 +152,9 @@
 + Event/xAOD/xAODTruthCnv
 + External/AtlasDataArea
 + External/Pythia8
-+ Generators/Charybdis_i
+- Generators/GenzModuleEvent
+- Generators/MCTester_i
+- Generators/ProtosLHEF_i
 - Generators/TrackRecordGenerator
 + Generators/.*
 + InnerDetector/InDetExample/InDetRecExample
@@ -219,6 +221,7 @@
 #+ Tracking/TrkExtrapolation/TrkExUtils
 #+ Tracking/TrkTools/TrkToolInterfaces
 + PhysicsAnalysis/MCTruthClassifier
++ PhysicsAnalysis/D3PDTools/AnaAlgorithm
 # Ignore everything else
 - .*
 

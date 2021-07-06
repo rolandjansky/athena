@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -237,18 +237,19 @@ void test_const_DVL (StoreGateSvc& sg)
 void test_copy_conversions (StoreGateSvc& sg)
 {
   cout << "*** test_copy_conversions\n";
-  Athena_test::X* x = new Athena_test::X;
+  auto x = std::make_unique<Athena_test::X>();
   x->a = 10;
-  assert (sg.record (x, "x").isSuccess());
+  Athena_test::X* px = x.get();
+  assert (sg.record (std::move(x), "x").isSuccess());
 
   Athena_test::Y* y = nullptr;
   assert (sg.retrieve (y, "x").isFailure());
 
-  assert (sg.setConst (x).isSuccess());
+  assert (sg.setConst (px).isSuccess());
 
   const Athena_test::Y* cy = nullptr;
   assert (sg.retrieve (cy, "x").isSuccess());
-  assert ((char*)cy != (char*)x);
+  assert ((char*)cy != (char*)px);
   assert (cy->a == 20);
   assert (cy->b == 30);
 

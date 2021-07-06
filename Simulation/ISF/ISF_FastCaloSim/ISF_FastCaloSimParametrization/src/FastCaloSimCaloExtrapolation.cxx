@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /* Athena includes */
@@ -123,7 +123,7 @@ bool FastCaloSimCaloExtrapolation::getCaloSurface(TFCSExtrapolationState& result
     int sample=m_surfacelist[i];
     std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
 
-    while (it != hitVector->end() && it->detID != (IDCaloBoundary+sample)) it++;
+    while (it != hitVector->end() && it->detID != (IDCaloBoundary+sample)) ++it;
 
     if(it==hitVector->end()) continue;
 
@@ -165,7 +165,7 @@ bool FastCaloSimCaloExtrapolation::getCaloSurface(TFCSExtrapolationState& result
       // first intersection with sensitive calo layer
       std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
 
-      while(it < hitVector->end() && (*it).detID != 3) it++;   // to be updated
+      while(it < hitVector->end() && (*it).detID != 3) ++it;   // to be updated
 
       if (it == hitVector->end()) return false;  // no calo intersection, abort
 
@@ -359,21 +359,30 @@ void FastCaloSimCaloExtrapolation::extrapolateToID(TFCSExtrapolationState& resul
     if(!extrapolateToCylinder(hitVector, R, Z, extPos, momDir)) continue;
     
     double tolerance = 0.001;
+    
     //test if z inside previous cylinder within some tolerance
+    ATH_MSG_DEBUG("[ExtrapolateToID] Testing condition 1: hit z="<< extPos[Amg::z]);
     if(surfID > 0 && std::abs(extPos[Amg::z]) < m_CaloBoundaryZ[surfID-1] - tolerance) continue;
+    ATH_MSG_DEBUG("[ExtrapolateToID] Passed condition 1.");
 
     //test if r inside next cylinder within some tolerance
+    ATH_MSG_DEBUG("[ExtrapolateToID] Testing condition 2: hit r="<< extPos.perp());
     if(surfID < m_CaloBoundaryR.size()-1 && extPos.perp() < m_CaloBoundaryR[surfID + 1] - tolerance) continue;
+    ATH_MSG_DEBUG("[ExtrapolateToID] Passed condition 2.");
 
+    ATH_MSG_DEBUG("[ExtrapolateToID] Testing condition 3: hit magnitude="<< extPos.mag());
     if(extPosDist >= 0 && extPos.mag() > extPosDist) continue;
-    
+    ATH_MSG_DEBUG("[ExtrapolateToID] Passed condition 3.");
+
     extPosDist = extPos.mag();
 
     result.set_IDCaloBoundary_eta(extPos.eta());
     result.set_IDCaloBoundary_phi(extPos.phi());
     result.set_IDCaloBoundary_r(extPos.perp());
     result.set_IDCaloBoundary_z(extPos[Amg::z]);
-    
+
+    ATH_MSG_DEBUG("[ExtrapolateToID] Setting IDCaloBoundary to eta="<<extPos.eta()<<" phi="<<extPos.phi()<< " r="<<extPos.perp()<<" z="<<extPos.z());
+
     //compute angle between extrapolated position vector and momentum at IDCaloBoundary
     //can be used to correct shower shapes for particles which do not originate from {0,0,0}
     double Angle3D  = Amg::angle(extPos, momDir);
@@ -721,7 +730,7 @@ void FastCaloSimCaloExtrapolation::findPCA(float cylR, float cylZ, Amg::Vector3D
 
   //CASE C: we are inside the Z bounds of the cylinder
   //construct Z axis as straight line surface
-  Trk::StraightLineSurface line(new Amg::Transform3D(Trk::s_idTransform), 0, cylZ);
+  Trk::StraightLineSurface line(Amg::Transform3D(Trk::s_idTransform), 0, cylZ);
   //compute point of closest approach to z axis
   //this is analogous to finding the PCA of two 3D lines
   Trk::Intersection PCACylBounds = line.straightLineIntersection(hitPos1, hitDir.unit(), false, true);
@@ -735,6 +744,14 @@ void FastCaloSimCaloExtrapolation::findPCA(float cylR, float cylZ, Amg::Vector3D
 }
 
 
+#if defined(FLATTEN) && defined(__GNUC__)
+// We compile this package with optimization, even in debug builds; otherwise,
+// the heavy use of Eigen makes it too slow.  However, from here we may call
+// to out-of-line Eigen code that is linked from other DSOs; in that case,
+// it would not be optimized.  Avoid this by forcing all Eigen code
+// to be inlined here if possible.
+__attribute__ ((flatten))
+#endif
 void FastCaloSimCaloExtrapolation::getIterativePCA(float cylR, float cylZ, Amg::Vector3D& BoundA, Amg::Vector3D& BoundB, Amg::Vector3D& PCA) const{
 
     ATH_MSG_DEBUG("[getIterativePCA] Finding PCA iteratively.");
@@ -750,6 +767,9 @@ void FastCaloSimCaloExtrapolation::getIterativePCA(float cylR, float cylZ, Amg::
 
     Amg::Vector3D tmpBoundA, tmpBoundB, tmpOnCylinderBoundA, tmpOnCylinderBoundB;
     Amg::Vector3D resBoundA, resBoundB, resOnCylinderBoundA, resOnCylinderBoundB;
+
+    resBoundA.setZero();
+    resBoundB.setZero();
     
     //initial positions on cylinder and distance to line segment
     Amg::Vector3D OnCylinderBoundA = projectOnCylinder(cylR, cylZ, BoundA);
@@ -843,6 +863,14 @@ int FastCaloSimCaloExtrapolation::circleLineIntersection2D(float circR, Amg::Vec
 }
 
 
+#if defined(FLATTEN) && defined(__GNUC__)
+// We compile this package with optimization, even in debug builds; otherwise,
+// the heavy use of Eigen makes it too slow.  However, from here we may call
+// to out-of-line Eigen code that is linked from other DSOs; in that case,
+// it would not be optimized.  Avoid this by forcing all Eigen code
+// to be inlined here if possible.
+__attribute__ ((flatten))
+#endif
 Amg::Vector3D FastCaloSimCaloExtrapolation::projectOnCylinder(float cylR, float cylZ, Amg::Vector3D& hitPos) const {
         
   Amg::Vector3D closestPointOnCylinder;
@@ -967,13 +995,19 @@ int FastCaloSimCaloExtrapolation::cylinderLineIntersection(float cylR, float cyl
   Amg::Vector3D projDiff = projPointA - projPointB;
 
   //calculate distance from (0,0,0) to line spanned by projPointA and projPointB
-  double t = (projPointA.dot(projDiff))/(projDiff).dot(projDiff);
-  double d = std::sqrt(projPointA.dot(projPointA) - t*t*(projDiff).dot(projDiff));
+  double projDiffNorm2 = projDiff.dot(projDiff);
+  double t  = projPointA.dot(projDiff) / projDiffNorm2;
+  double d2 = projPointA.dot(projPointA) - t*t*projDiffNorm2;
+
+  if(d2 < 0){
+    ATH_MSG_COND("[cylinderLineIntersection] Got negative distance (d2="<<d2<<"). Forcing to 0.", d2 > -0.001);
+    d2 = 0;
+  }
 
   //if distance larger than cylinder radius then there are no intersection and we are done
-  if(d > cylR) return 0;
+  if(d2 > cylR*cylR) return 0;
 
-  double k = std::sqrt((cylR*cylR - d*d)/(projDiff.dot(projDiff)));
+  double k = std::sqrt((cylR*cylR - d2)/projDiffNorm2);
 
   intersectA = pointA + (t+k)*(pointB - pointA);
   intersectB = pointA + (t-k)*(pointB - pointA);
@@ -981,7 +1015,6 @@ int FastCaloSimCaloExtrapolation::cylinderLineIntersection(float cylR, float cyl
   //check if intersection is outside z bounds
   bool IntAisValid = (intersectA[Amg::z] <= cylZ && intersectA[Amg::z] >= -cylZ);
   bool IntBisValid = (intersectB[Amg::z] <= cylZ && intersectB[Amg::z] >= -cylZ);
-
 
   if(IntAisValid && IntBisValid) return 2;
   else if(IntAisValid) return 1;
@@ -1050,6 +1083,14 @@ int FastCaloSimCaloExtrapolation::whichIntersection(float cylR, float cylZ, Amg:
   }
 } 
 
+#if defined(FLATTEN) && defined(__GNUC__)
+// We compile this package with optimization, even in debug builds; otherwise,
+// the heavy use of Eigen makes it too slow.  However, from here we may call
+// to out-of-line Eigen code that is linked from other DSOs; in that case,
+// it would not be optimized.  Avoid this by forcing all Eigen code
+// to be inlined here if possible.
+__attribute__ ((flatten))
+#endif
 double FastCaloSimCaloExtrapolation::getPointLineSegmentDistance(Amg::Vector3D& point, Amg::Vector3D& hitPos1, Amg::Vector3D& hitPos2) const{
 
   Amg::Vector3D hitDir = hitPos2 - hitPos1;

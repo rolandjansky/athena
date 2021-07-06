@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************
@@ -206,11 +206,11 @@ void TrigEgammaNavTPBaseTool::executeTandP(){
 
     clearProbeList(); // Clear Probes after each trigger
     ATH_MSG_DEBUG("Execute TandP BaseTool " << m_offElectrons->size());
-    for(const auto& elTag : *m_offElectrons){
+    for(const auto elTag : *m_offElectrons){
         itag++;
         if( ! isTagElectron(elTag) ) continue;
         unsigned iprobe=0;
-        for(const auto& elProbe : *m_offElectrons){  // Dress the probes with updated Pid decision
+        for(const auto elProbe : *m_offElectrons){  // Dress the probes with updated Pid decision
             iprobe++;
             hist1(m_anatype+"_ProbeCutCounter")->Fill("Electrons",1);
             if(elProbe==elTag) continue;
@@ -266,26 +266,26 @@ void TrigEgammaNavTPBaseTool::executeTandP(){
 void TrigEgammaNavTPBaseTool::matchObjects(const std::string probeTrigItem){
 
     clearPairList();
-    bool isEmulation = getTrigInfo(probeTrigItem).trigIsEmulation;
+    //bool isEmulation = getTrigInfo(probeTrigItem).trigIsEmulation;
 
 
     for(unsigned int i=0;i<m_probeElectrons.size();i++){
         const HLT::TriggerElement *finalFC;
-        if(isEmulation && getEmulation()){  // Collect from  support match
+        /*if(isEmulation && getEmulation()){  // Collect from  support match
           emulation()->match( m_probeElectrons[i], finalFC );
           std::pair<const xAOD::Electron*,const HLT::TriggerElement*> pairProbe(m_probeElectrons[i],finalFC);
           m_pairObj.push_back(pairProbe);
-        }else{
-          // Use matching tool and create pair of offline probe and TE
-          if ( match()->match(m_probeElectrons[i], probeTrigItem, finalFC)){
-              std::pair<const xAOD::Electron*,const HLT::TriggerElement*> pairProbe(m_probeElectrons[i],finalFC);
-              m_pairObj.push_back(pairProbe);
-          } // end of check Probe
-          else {
-              std::pair<const xAOD::Electron*,const HLT::TriggerElement*> pairProbe(m_probeElectrons[i],nullptr);
-              m_pairObj.push_back(pairProbe);
-          } // still include the probe
-        }
+        }else{*/
+        // Use matching tool and create pair of offline probe and TE
+        if ( match()->match(m_probeElectrons[i], probeTrigItem, finalFC)){
+            std::pair<const xAOD::Electron*,const HLT::TriggerElement*> pairProbe(m_probeElectrons[i],finalFC);
+            m_pairObj.push_back(pairProbe);
+        } // end of check Probe
+        else {
+            std::pair<const xAOD::Electron*,const HLT::TriggerElement*> pairProbe(m_probeElectrons[i],nullptr);
+            m_pairObj.push_back(pairProbe);
+        } // still include the probe
+        //}
     }
 }
 
@@ -485,7 +485,7 @@ bool TrigEgammaNavTPBaseTool::isGoodProbeElectron(const xAOD::Electron *el){
         TLorentzVector probeCandidate;
         probeCandidate.SetPtEtaPhiE(el->pt(), el->trackParticle()->eta(), el->trackParticle()->phi(), el->e());
         Int_t jetsAroundProbeElectron = 0; 
-        for(const auto &i_jet : *m_jets){
+        for(const auto i_jet : *m_jets){
             TLorentzVector jet;
             jet.SetPtEtaPhiE(i_jet->pt(), i_jet->eta(), i_jet->phi(), i_jet->e());
             if( (jet.Et() > 20*Gaudi::Units::GeV) && (jet.DeltaR(probeCandidate) < 0.4)) jetsAroundProbeElectron++;

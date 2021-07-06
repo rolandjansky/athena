@@ -15,14 +15,7 @@
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthVertex.h"
 
-//#include "CLHEP/Geometry/Transform3D.h"
-
-//#include "TrkEventPrimitives/GlobalPosition.h"
-//#include "TrkEventPrimitives/GlobalMomentum.h"
-
 #include "HepPDT/ParticleDataTable.hh"
-//#include "TrkParameters/Perigee.h"
-//#include "TrkParameters/AtaPlane.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrackRecord/TrackRecord.h"
 
@@ -65,7 +58,7 @@ StatusCode Trk::TruthTrackRecordToTrack::initialize() {
 }
 
 //================================================================
-const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParameters(const HepMC::GenParticle* part) const {
+const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParameters(HepMC::ConstGenParticlePtr part) const {
 
   if (part == nullptr || m_particleDataTable==nullptr) return nullptr;
 
@@ -124,7 +117,7 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
       
     Amg::Transform3D tmpTransf =  prodSurfaceCentre *  Amg::RotationMatrix3D::Identity();
 
-    Trk::PlaneSurface planeSurface(&tmpTransf, 5., 5. );
+    Trk::PlaneSurface planeSurface(tmpTransf, 5., 5. );
     result = new Trk::AtaPlane(globalPos, globalMom, charge, planeSurface);
 
   } else {
@@ -195,7 +188,7 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
       
     Amg::Transform3D tmpTransf =  prodSurfaceCentre *  Amg::RotationMatrix3D::Identity();
 
-    Trk::PlaneSurface planeSurface(&tmpTransf, 5., 5. );
+    Trk::PlaneSurface planeSurface(tmpTransf, 5., 5. );
     result = new Trk::AtaPlane(globalPos, globalMom, charge, planeSurface);
 
   } else {
@@ -207,7 +200,7 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
 
 
 //================================================================
-const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makePerigeeParameters(const HepMC::GenParticle* part) const {
+const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makePerigeeParameters(HepMC::ConstGenParticlePtr part) const {
   const Trk::TrackParameters* generatedTrackPerigee = nullptr;
 
   if(part && part->production_vertex() && m_particleDataTable && m_extrapolator) {

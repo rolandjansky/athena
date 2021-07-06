@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BCM_GeoModel/BCM_Module.h"
@@ -52,7 +52,7 @@ GeoPhysVol* BCM_Module::Build(const StoredMaterialManager* mat_mgr, const BCM_Mo
   const GeoMaterial* g10 = mat_mgr->getMaterial("std::G10");
   //first try the Diamond
   const GeoMaterial* diamond = mat_mgr->getMaterial("pix::Diamond");
-  if(diamond == NULL)
+  if(diamond == nullptr)
   {
   	diamond = mat_mgr->getMaterial("std::Carbon");
 //  	if(msg)

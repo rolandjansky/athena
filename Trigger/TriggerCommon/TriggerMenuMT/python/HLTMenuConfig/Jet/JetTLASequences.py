@@ -7,7 +7,7 @@ from AthenaCommon.CFElements import parOR, seqAND
 from GaudiKernel.Constants import WARNING
 
 #this can eventually become a TLA/PEB sequence, but let's start with TLA only
-def jetTLASequence(jetsin):
+def jetTLASequence(flags, jetsin):
         
     #make a new reco sequence, empty at this point now
     recoSeq = parOR("JetTLASeq_"+jetsin, [])
@@ -22,26 +22,26 @@ def jetTLASequence(jetsin):
     return (recoSeq, sequenceOut)
 
 #Configure an AthSequence for jet TLA - will eventually also include PEB
-def jetTLAAthSequence(jetsin):
+def jetTLAAthSequence(flags, jetsin):
     from AthenaConfiguration.ComponentFactory import CompFactory
     
     InputMakerAlg = CompFactory.InputMakerForRoI( "IM_Jet_TLAStep" )
     InputMakerAlg.RoITool = CompFactory.ViewCreatorInitialROITool()
     InputMakerAlg.mergeUsingFeature = True
     
-    (JetTLASequence, sequenceOut) = RecoFragmentsPool.retrieve( jetTLASequence, jetsin )
+    (JetTLASequence, sequenceOut) = RecoFragmentsPool.retrieve( jetTLASequence, flags, jetsin=jetsin )
     JetTLAAthSequence =  seqAND("jetTLAAthSequence_"+jetsin,[InputMakerAlg, JetTLASequence ])
 
     return (JetTLAAthSequence, InputMakerAlg, sequenceOut)
 
-def jetTLAMenuSequence(jetsin):
+def jetTLAMenuSequence(flags, jetsin):
 
-    from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetTLAHypoAlgMT
+    from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetTLAHypoAlg
     from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetTLAHypoToolFromDict
     
-    (JetTLAAthSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(jetTLAAthSequence,jetsin)
+    (JetTLAAthSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(jetTLAAthSequence,flags,jetsin=jetsin)
     
-    hypo = TrigJetTLAHypoAlgMT("TrigJetTLAHypoAlgMT_"+jetsin)
+    hypo = TrigJetTLAHypoAlg("TrigJetTLAHypoAlg_"+jetsin)
     hypo.Jets = sequenceOut 
 
     return  MenuSequence( Sequence    = JetTLAAthSequence,

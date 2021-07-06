@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger("Menu.L1.Base.CTPCondition") 
+log = logging.getLogger(__name__)
 
 from .Logic import Logic, LogicType
 

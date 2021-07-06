@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -10,10 +10,6 @@
 // which removes all ID tracks which do not pass a user-defined cut
 
 #include "DerivationFrameworkInDet/JetTrackParticleThinning.h"
-#include "ExpressionEvaluation/ExpressionParser.h"
-#include "ExpressionEvaluation/SGxAODProxyLoader.h"
-#include "ExpressionEvaluation/SGNTUPProxyLoader.h"
-#include "ExpressionEvaluation/MultipleProxyLoader.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "StoreGate/ThinningHandle.h"
@@ -48,20 +44,9 @@ StatusCode DerivationFramework::JetTrackParticleThinning::initialize()
     ATH_MSG_INFO("Inner detector track particles associated with objects in " << m_jetKey.key() << " will be retained in this format with the rest being thinned away");
 
     // Set up the text-parsing machinery for selectiong the jet directly according to user cuts
-    if (!m_selectionString.empty()) {
-	    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-	    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
-	    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-	    m_parser = std::make_unique<ExpressionParsing::ExpressionParser>(proxyLoaders);
-	    m_parser->loadExpression(m_selectionString);
-    }
-
-    if (m_trackSelectionString.empty()) {
-	    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-	    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
-	    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-	    m_trackParser = std::make_unique<ExpressionParsing::ExpressionParser>(proxyLoaders);
-	    m_trackParser->loadExpression(m_trackSelectionString);
+    if (!m_selectionString.empty() || !m_trackSelectionString.empty()) {
+       // order must match enum order EJetTrPThinningParser
+       ATH_CHECK( initializeParser( {m_selectionString, m_trackSelectionString } ));
     }
     return StatusCode::SUCCESS;
 }
@@ -103,7 +88,7 @@ StatusCode DerivationFramework::JetTrackParticleThinning::doThinning() const
     
     // Execute the text parser if requested
     if (!m_selectionString.empty()) {
-        std::vector<int> entries =  m_parser->evaluateAsVector();
+        std::vector<int> entries =  m_parser[kJetSelection]->evaluateAsVector();
         unsigned int nEntries = entries.size();
         // check the sizes are compatible
         if (nJets != nEntries ) {
@@ -144,8 +129,8 @@ StatusCode DerivationFramework::JetTrackParticleThinning::doThinning() const
     }
 
     // Apply a track selection string.
-    if (m_trackParser) {
-      std::vector<int> entries =  m_trackParser->evaluateAsVector();
+    if (!m_trackSelectionString.empty()) {
+      std::vector<int> entries =  m_parser[kTrackThinning]->evaluateAsVector();
       unsigned int nEntries = entries.size();
       // check the sizes are compatible
       if (nTracks != nEntries ) {

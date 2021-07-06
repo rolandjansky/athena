@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_TAUEFFICIENCYTOOL_H
@@ -9,12 +9,10 @@
 
 /*
   author: Dirk Duschinger
-  mail: dirk.duschinger@cern.ch
+  maintainer: Guillermo Hamity
+  mail: guillermo.nicolas.hamity@cern.ch
   documentation in: ../README.rst
-                    or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
-		    or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
+                    https://gitlab.cern.ch/atlas/athena/-/blob/master/PhysicsAnalysis/TauID/TauAnalysisTools/README.rst
 */
 
 // Framework include(s):
@@ -24,14 +22,10 @@
 #include "TauAnalysisTools/ITauEfficiencyCorrectionsTool.h"
 #include "TauAnalysisTools/TauSelectionTool.h"
 #include "TauAnalysisTools/CommonEfficiencyTool.h"
-#include "TauAnalysisTools/TauEfficiencyJetIDTool.h"
-#include "TauAnalysisTools/TauEfficiencyContJetIDTool.h"
-#include "TauAnalysisTools/TauEfficiencyEleIDTool.h"
 #include "TauAnalysisTools/TauEfficiencyTriggerTool.h"
 
 // Tool include(s)
 #include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
-#define TAUANALYSISTOOLS_PRWTOOL_AVAILABLE
 
 namespace TauAnalysisTools
 {
@@ -56,14 +50,17 @@ public:
   /// Function initialising the tool
   virtual StatusCode initialize();
 
+  virtual StatusCode beginInputFile();
+
   /// Print tool configuration
   virtual void printConfig(bool bAlways = true);
 
   /// Get the "tau efficiency" as a return value
   virtual CP::CorrectionCode getEfficiencyScaleFactor( const xAOD::TauJet& xTau,
-      double& eff );
+      double& eff, unsigned int iRunNumber = 0, unsigned int iMu = 0);
   /// Decorate the tau with its efficiency
-  virtual CP::CorrectionCode applyEfficiencyScaleFactor( const xAOD::TauJet& xTau );
+  virtual CP::CorrectionCode applyEfficiencyScaleFactor( const xAOD::TauJet& xTau,
+      unsigned int iRunNumber = 0, unsigned int iMu = 0);
 
   /// returns: whether this tool is affected by the given systematis
   virtual bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const;
@@ -92,12 +89,10 @@ private:
 
   StatusCode initializeWithTauSelectionTool();
 
-  StatusCode initializeTools_2017_moriond();
-  StatusCode initializeTools_2016_fall();
-  StatusCode initializeTools_2016_ichep();
-  StatusCode initializeTools_mc15_moriond();
-  StatusCode initializeTools_mc15_pre_recommendations();
-  StatusCode initializeTools_mc12_final();
+  StatusCode initializeTools_2019_summer();
+
+
+  StatusCode readRandomRunNumber();
 
 private:
 
@@ -107,15 +102,18 @@ private:
   std::string m_sInputFilePathRecoHadTau;
   std::string m_sInputFilePathEleOLRHadTau;
   std::string m_sInputFilePathEleOLRElectron;
+  std::string m_sInputFilePathEleBDTElectron;
   std::string m_sInputFilePathJetIDHadTau;
   std::string m_sInputFilePathContJetIDHadTau;
   std::string m_sInputFilePathEleIDHadTau;
+  std::string m_sInputFilePathDecayModeHadTau;
   std::string m_sInputFilePathTriggerHadTau;
   std::string m_sVarNameBase;
   std::string m_sVarNameRecoHadTau;
   std::string m_sVarNameEleOLRHadTau;
   std::string m_sVarNameEleOLRElectron;
   std::string m_sVarNameJetIDHadTau;
+  std::string m_sVarNameDecayModeHadTau;
   std::string m_sVarNameContJetIDHadTau;
   std::string m_sVarNameEleIDHadTau;
   std::string m_sVarNameTriggerHadTau;
@@ -125,6 +123,7 @@ private:
   std::string m_sTriggerSFMeasurement;
   bool m_bSkipTruthMatchCheck;
   //bool m_bNoMultiprong;
+  bool m_bUseTauSubstructure;
   bool m_bUseIDExclusiveSF;
   bool m_bUseInclusiveEta;
   bool m_bUseTriggerInclusiveEta;
@@ -132,18 +131,19 @@ private:
   bool m_bUseHighPtUncert;
   bool m_bIsData;
   bool m_bIsConfigured;
+  bool m_bReadRandomRunNumber;
   int m_iIDLevel;
-  int m_iEVLevel;
   int m_iOLRLevel;
   int m_iContSysType;
   int m_iTriggerPeriodBinning;
+  std::string m_sMCCampaign;
+  bool m_sAFII;
 
   unsigned int m_iRunNumber;
+  unsigned int m_iMu;
 
   ToolHandle<TauAnalysisTools::ITauSelectionTool> m_tTauSelectionToolHandle;
-#ifdef TAUANALYSISTOOLS_PRWTOOL_AVAILABLE
   ToolHandle<CP::IPileupReweightingTool> m_tPRWTool;
-#endif // TAUANALYSISTOOLS_PRWTOOL_AVAILABLE
   TauSelectionTool* m_tTauSelectionTool;
 
   std::string m_sEventInfoName;

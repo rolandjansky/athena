@@ -13,9 +13,9 @@ if "EVTGENVER" in os.environ:
      evgenConfig.auxfiles += ['2014Inclusive.dec']
      decayfile_str = "2014Inclusive.dec"
 else:
-  print("EVTGENVER not available !!! assuming version != 1.7")
-  evgenConfig.auxfiles += ['2014Inclusive.dec']
-  decayfile_str = "2014Inclusive.dec"
+  print("EVTGENVER not available !!! assuming version == 1.7")
+  evgenConfig.auxfiles += ['2014Inclusive_17.dec']
+  decayfile_str = "2014Inclusive_17.dec"
 
 from EvtGen_i.EvtGen_iConf import EvtInclusiveDecay
 genSeq += EvtInclusiveDecay()

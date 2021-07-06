@@ -86,17 +86,17 @@ if hasattr( runArgs, 'InputType' ) and runArgs.InputType is 'RAW' :
 else :
     ReadBS = False
 
-if hasattr( runArgs, 'splitNoisyStrip' ) :
-    if runArgs.splitNoisyStrip == 0:
-      DoNoisyLB   = True
+if hasattr( runArgs, 'splitHitMap' ) :
+    if runArgs.splitHitMap == 0:
+      DoHitMapsLB = True
       DoHitMaps   = True
       ReadHitMaps = False
-    elif runArgs.splitNoisyStrip == 1:
-      DoNoisyLB   = True
+    elif runArgs.splitHitMap == 1:
+      DoHitMapsLB = True
       DoHitMaps   = True
       ReadHitMaps = True
-    elif runArgs.splitNoisyStrip == 2:
-      DoNoisyLB   = False
+    elif runArgs.splitHitMap == 2:
+      DoHitMapsLB = False
       DoHitMaps   = False
       ReadHitMaps = True
       if EvtMax != 1 :
@@ -108,7 +108,6 @@ if hasattr( runArgs, 'part' ) :
         DoNoisyStrip = True
     else :
         DoNoisyStrip = False
-        DoNoisyLB    = False
     if 'doHV' in runArgs.part :
         DoHV = True
     else :
@@ -121,6 +120,14 @@ if hasattr( runArgs, 'part' ) :
         DoDeadChip = True
     else :
         DoDeadChip = False
+    if 'doQuietStrip' in runArgs.part :
+        DoQuietStrip = True
+    else :
+        DoQuietStrip = False
+    if 'doQuietChip' in runArgs.part :
+        DoQuietChip = True
+    else :
+        DoQuietChip = False
     if 'doNoiseOccupancy' in runArgs.part :
         DoNoiseOccupancy = True
     else :
@@ -251,6 +258,9 @@ if DoHV or DoHIST :
 #--- set flag for creating BSErrors map
 if DoDeadStrip or DoDeadChip :
     DoBSErrors = True
+#--- set flag for creating BSErrors map
+if DoQuietStrip or DoQuietChip :
+    DoBSErrors = True
 
 #--- overwrite EvtMax to 1 only when reading HIST
 if DoHIST :
@@ -306,7 +316,7 @@ print("- Global flag for DataSource             : %s" %( DataSource ))
 print("- Beam flag                              : %s" %( beamType ))
 print("- Flag to read BS                        : %s" %( ReadBS ))
 print("- Flag to run NoisyStrip                 : %s" %( DoNoisyStrip ))
-print("- Flag to run NoisyLB                    : %s" %( DoNoisyLB ))
+print("- Flag to run DoHitMapsLB                : %s" %( DoHitMapsLB ))
 print("- Flag to run HVTrip                     : %s" %( DoHV ))
 print("- Flag to run DeadStrip                  : %s" %( DoDeadStrip ))
 print("- Flag to run DeadChip                   : %s" %( DoDeadChip ))
@@ -443,9 +453,9 @@ from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
 if DoHitMaps :
     ServiceMgr.THistSvc.Output += [ "HitMaps  DATAFILE='"+prefix+"SCTHitMaps.root'  OPT='RECREATE'" ]
-if DoNoisyLB :
+if DoHitMapsLB :
     ServiceMgr.THistSvc.Output += [ "LB       DATAFILE='"+prefix+"SCTLB.root'       OPT='RECREATE'" ]
-if DoBSErrors :
+if DoBSErrors and DoHitMaps :
     ServiceMgr.THistSvc.Output += [ "BSErrors DATAFILE='"+prefix+"SCTBSErrors.root' OPT='RECREATE'" ]
 
 #--------------------------------------------------------------
@@ -503,6 +513,7 @@ SCTCalib.UseCalibration   = UseCalibration   # True  in default
 SCTCalib.UseMajority      = UseMajority      # True  in default
 SCTCalib.UseBSError       = UseBSError       # False in default
 SCTCalib.DoHitMaps        = DoHitMaps        # True  in default
+SCTCalib.DoHitMapsLB      = DoHitMapsLB      # True  in default
 SCTCalib.ReadHitMaps      = ReadHitMaps      # False in default
 SCTCalib.DoBSErrors       = DoBSErrors       # True  in default
 #--- Flags for input files
@@ -511,7 +522,6 @@ SCTCalib.ReadBS         = ReadBS
 if hasattr( runArgs, 'InputType' ) :
     if runArgs.InputType is 'RAW' :
         ServiceMgr.EventSelector.Input = runArgs.inputNames
-#        ServiceMgr.ByteStreamInputSvc.PartName = runArgs.part
     elif runArgs.InputType is 'NTUP_TRKVALID' :
         SCTCalib.InputTrkVal                       = runArgs.inputNames
     elif runArgs.InputType is 'HIST' :
@@ -527,10 +537,15 @@ else :
 
 #--- Methods to run
 SCTCalib.DoNoisyStrip     = DoNoisyStrip      # True  in default
-SCTCalib.DoNoisyLB        = DoNoisyLB         # True  in default
 SCTCalib.DoHV             = DoHV              # False in default
-SCTCalib.DoDeadStrip      = DoDeadStrip       # False in default
-SCTCalib.DoDeadChip       = DoDeadChip        # False in default
+if DoDeadStrip or DoQuietStrip:
+    SCTCalib.DoDeadStrip  = True
+else:
+    SCTCalib.DoDeadStrip  = False
+if DoDeadChip or DoQuietChip:
+    SCTCalib.DoDeadChip   = True
+else:
+    SCTCalib.DoDeadChip   = False
 SCTCalib.DoNoiseOccupancy = DoNoiseOccupancy  # False in default
 SCTCalib.DoRawOccupancy   = DoRawOccupancy    # False in default
 SCTCalib.DoEfficiency     = DoEfficiency      # False in default
@@ -574,12 +589,21 @@ SCTCalib.BusyThr4DeadFinding   = BusyThr4DeadFinding
 SCTCalib.NoisyThr4DeadFinding  = NoisyThr4DeadFinding
 SCTCalib.DeadChipUploadTest    = DeadChipUploadTest
 SCTCalib.DeadStripUploadTest   = DeadStripUploadTest
+if DoDeadStrip or DoDeadChip:
+    DeadNotQuiet               = True
+    SCTCalib.DeadNotQuiet      = True
+else:
+    DeadNotQuiet               = False
+    SCTCalib.DeadNotQuiet      = False
+SCTCalib.QuietThresholdChip    = QuietThresholdChip
+SCTCalib.QuietThresholdStrip   = QuietThresholdStrip
 
 #--- Properties for HIST
 SCTCalib.NoiseOccupancyTriggerAware = NoiseOccupancyTriggerAware
 SCTCalib.NoiseOccupancyMinStat      = NoiseOccupancyMinStat
 SCTCalib.RawOccupancyMinStat        = RawOccupancyMinStat
 SCTCalib.EfficiencyMinStat          = EfficiencyMinStat
+SCTCalib.EfficiencyDoChips          = EfficiencyDoChips
 SCTCalib.BSErrorDBMinStat           = BSErrorDBMinStat
 SCTCalib.LorentzAngleMinStat        = LorentzAngleMinStat
 SCTCalib.LorentzAngleDebugMode      = LorentzAngleDebugMode
@@ -595,9 +619,14 @@ SCTCalib.BadStripsAllFile          = prefix + 'BadStripsAllFile.xml'          # 
 SCTCalib.BadStripsNewFile          = prefix + 'BadStripsNewFile.xml'          # Newly found NoisyStrips
 SCTCalib.BadStripsSummaryFile      = prefix + 'BadStripsSummaryFile.xml'      # Summary of NoisyStrips
 SCTCalib.BadModulesFile            = prefix + 'BadModulesFile.xml'            # HVTrip
-SCTCalib.DeadStripsFile            = prefix + 'DeadStripsFile.xml'            # DeadStrip
-SCTCalib.DeadChipsFile             = prefix + 'DeadChipsFile.xml'             # DeadChip
-SCTCalib.DeadSummaryFile           = prefix + 'DeadSummaryFile.xml'           # Summary of Dead Search
+if ( DoDeadChip or DoDeadStrip) :
+    SCTCalib.DeadStripsFile            = prefix + 'DeadStripsFile.xml'            # DeadStrip
+    SCTCalib.DeadChipsFile             = prefix + 'DeadChipsFile.xml'             # DeadChip
+    SCTCalib.DeadSummaryFile           = prefix + 'DeadSummaryFile.xml'           # Summary of Dead Search
+if ( DoQuietChip or DoQuietStrip ) :
+    SCTCalib.DeadStripsFile            = prefix + 'QuietStripsFile.xml'            # QuietStrip
+    SCTCalib.DeadChipsFile             = prefix + 'QuietChipsFile.xml'             # QuietChip
+    SCTCalib.DeadSummaryFile           = prefix + 'QuietSummaryFile.xml'           # Summary of Quiet Search
 SCTCalib.NoiseOccupancyFile        = prefix + 'NoiseOccupancyFile.xml'        # NoiseOccupancy
 SCTCalib.NoiseOccupancySummaryFile = prefix + 'NoiseOccupancySummaryFile.xml' # Summary of NoiseOccupancy
 SCTCalib.LorentzAngleFile          = prefix + 'LorentzAngleFile.xml'          # LorentzAngle
@@ -605,11 +634,12 @@ SCTCalib.LorentzAngleSummaryFile   = prefix + 'LorentzAngleSummaryFile.xml'   # 
 
 SCTCalib.RawOccupancySummaryFile   = prefix + 'RawOccupancySummaryFile.xml'   # Summary of RawOccupancy
 SCTCalib.EfficiencyModuleFile      = prefix + 'EfficiencyModuleSummary.xml'   # Module Efficiency
+SCTCalib.EfficiencyChipFile        = prefix + 'EfficiencyChipSummary.xml'     # Chip Efficiency
 SCTCalib.EfficiencySummaryFile     = prefix + 'EfficiencySummaryFile.xml'     # Summary of Efficiency
 SCTCalib.BSErrorSummaryFile        = prefix + 'BSErrorSummaryFile.xml'        # Summary of BS Errors
 SCTCalib.BSErrorModuleFile         = prefix + 'BSErrorModuleSummary.xml'      # BS Errors for each module
 
-SCTCalib.OutputLevel     = DEBUG # DEBUG / INFO
+SCTCalib.OutputLevel     = WARNING # DEBUG / INFO / WARNING / ERROR / FATAL
 SCTCalib.AuditAlgorithms = True  # False
 
 print(SCTCalib)
@@ -623,6 +653,6 @@ theApp.EvtMax                      = EvtMax
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 #--------------------------------------------------------------
-ServiceMgr.MessageSvc.OutputLevel = DEBUG
+ServiceMgr.MessageSvc.OutputLevel = WARNING
 ServiceMgr.MessageSvc.debugLimit  = 1000
 ServiceMgr.MessageSvc.infoLimit   = 2000000

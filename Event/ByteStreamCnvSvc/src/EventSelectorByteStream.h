@@ -94,7 +94,7 @@ public:
    /// Seek to a given event number.
    /// @param it [IN/OUT] current event context.
    /// @param evtnum [IN]  The event number to which to seek.
-   virtual StatusCode seek (Context& it, int evtnum) const override;
+   virtual StatusCode seek (Context& /* it */, int evtnum) const override;
 
    /// Return the current event number.
    /// @param it [IN/OUT] current event context.
@@ -126,7 +126,7 @@ public:
    virtual StatusCode io_reinit() override;
 
 protected:
-   typedef std::mutex mutex_t;
+   typedef std::recursive_mutex mutex_t;
    typedef std::lock_guard<mutex_t> lock_t;
 
    //-------------------------------------------------
@@ -149,14 +149,14 @@ private: // internal member functions
    StatusCode previousImpl(Context& it, int jump, lock_t& lock) const;
    StatusCode nextHandleFileTransitionImpl(IEvtSelector::Context& it,
                                            lock_t& lock) const;
-   StatusCode recordAttributeListImpl(std::lock_guard<std::mutex>& lock) const;
+   StatusCode recordAttributeListImpl(lock_t& lock) const;
    StatusCode fillAttributeListImpl(coral::AttributeList *attrList, const std::string &suffix, bool copySource,
                                     lock_t& lock) const;
 
    /// Reinitialize the service when a @c fork() occured/was-issued
    StatusCode reinit(lock_t& lock);
    StatusCode openNewRun(lock_t& lock) const;
-   void nextFile(lock_t& lock) const; 
+   void nextFile(lock_t& lock) const;
    /// Search for event with number evtNum.
    int findEvent(int evtNum, lock_t& lock) const;
    StoreGateSvc* eventStore() const;

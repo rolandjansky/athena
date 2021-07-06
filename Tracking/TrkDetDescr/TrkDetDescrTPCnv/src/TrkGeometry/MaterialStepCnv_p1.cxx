@@ -6,6 +6,10 @@
 // MaterialStepCnv_p1.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
+#include <cmath>
+
+
+
 #include "TrkGeometry/Material.h"
 #include "TrkGeometry/MaterialStep.h"
 #include "TrkDetDescrTPCnv/TrkGeometry/MaterialStepCnv_p1.h"
@@ -18,7 +22,7 @@ void MaterialStepCnv_p1::persToTrans( const Trk::MaterialStep_p1 *persObj,
     transObj->m_hitX         = persObj->materialData[1];
     transObj->m_hitY         = persObj->materialData[2];
     transObj->m_hitZ         = persObj->materialData[3];
-    transObj->m_hitR         = sqrt(transObj->m_hitX*transObj->m_hitX+transObj->m_hitY*transObj->m_hitY);
+    transObj->m_hitR         = std::sqrt(transObj->m_hitX*transObj->m_hitX+transObj->m_hitY*transObj->m_hitY);
     transObj->m_material.X0  = persObj->materialData[4];
     transObj->m_material.L0  = persObj->materialData[5];
     transObj->m_material.A   = persObj->materialData[6];

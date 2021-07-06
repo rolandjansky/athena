@@ -23,16 +23,6 @@ try:
 except ImportError:
     print("WARNING PrimaryDPDFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project.")
 try:
-    from D2PDMaker.D2PDFlags import D2PDFlags
-    listOfFlags.append(D2PDFlags)
-except ImportError:
-    print("WARNING D2PDFlags not available. Requires D2PDMaker-00-00-50 in AtlasAnalysis.")
-try:
-    from TopPhysD2PDMaker.TopPhysD2PDFlags import topPhysDPD
-    listOfFlags.append(topPhysDPD)
-except ImportError:
-    print("WARNING TopPhysD2PDFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project.")
-try:
     from D3PDMakerConfig.D3PDProdFlags import prodFlags
     listOfFlags.append( prodFlags )
 except ImportError:
@@ -41,6 +31,8 @@ except ImportError:
 from PATJobTransforms.DPDUtils import SetupOutputDPDs
 rec.DPDMakerScripts.append(SetupOutputDPDs(runArgs,listOfFlags))
 
+# New-style config
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 ## Input
 if hasattr(runArgs,"inputFile"): athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputFile )
@@ -50,6 +42,7 @@ if hasattr(runArgs,"inputAODFile"):
     rec.readAOD.set_Value_and_Lock( True )
     rec.readRDO.set_Value_and_Lock( False )
     athenaCommonFlags.PoolAODInput.set_Value_and_Lock( runArgs.inputAODFile )
+    ConfigFlags.Input.Files  = athenaCommonFlags.PoolAODInput()
 if hasattr(runArgs,"inputTAGFile") or hasattr(runArgs,"inputTAG_AODFile"):
     #for TAG->AOD->skimmedAOD
     rec.readTAG.set_Value_and_Lock( True )

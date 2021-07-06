@@ -1097,7 +1097,7 @@ MuonDetectorManager::initABlineContainers()
 
 
 StatusCode
-MuonDetectorManager::updateAlignment(const ALineMapContainer& alineData)
+MuonDetectorManager::updateAlignment(const ALineMapContainer& alineData, bool isData)
 {
 #ifdef TESTBLINES
   {
@@ -1118,7 +1118,11 @@ MuonDetectorManager::updateAlignment(const ALineMapContainer& alineData)
 #endif
     MsgStream log(Athena::getMessageSvc(),"MGM::MuonDetectorManager");
     if (alineData.empty()) {
-	log<<MSG::WARNING<<"Empty temporary A-line container - nothing to do here"<<endmsg;
+      if (isData) {
+	log<<MSG::WARNING << "Empty temporary A-line container - nothing to do here" << endmsg;
+      } else {
+	log<<MSG::DEBUG << "Got empty A-line container (expected for MC), not applying A-lines..." << endmsg;
+      }
 	return StatusCode::SUCCESS;
     }
     else log<<MSG::INFO<<"temporary A-line container with size = "<<alineData.size()<<endmsg;
@@ -1246,7 +1250,7 @@ MuonDetectorManager::updateAlignment(const ALineMapContainer& alineData)
 }
 
 StatusCode
-MuonDetectorManager::updateDeformations(const BLineMapContainer& blineData)
+MuonDetectorManager::updateDeformations(const BLineMapContainer& blineData, bool isData)
 {
 #ifdef TESTBLINES
   {
@@ -1270,7 +1274,11 @@ MuonDetectorManager::updateDeformations(const BLineMapContainer& blineData)
 
     if (blineData.empty())
     {
+      if (isData) {
 	log<<MSG::WARNING<<"Empty temporary B-line container - nothing to do here"<<endmsg;
+      } else {
+	log<<MSG::DEBUG << "Got empty B-line container (expected for MC), not applying B-lines..." << endmsg;
+      }
 	return StatusCode::SUCCESS;
     }
     else log<<MSG::INFO<<"temporary B-line container with size = "<<blineData.size()<<endmsg;

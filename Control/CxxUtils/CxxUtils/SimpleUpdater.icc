@@ -1,0 +1,90 @@
+/*
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+ */
+/**
+ * @file CxxUtils/SimpleUpdater.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Dec, 2020
+ * @brief Simple (non-deleting) Updater implementation.
+ */
+
+
+namespace CxxUtils {
+
+
+/**
+ * @brief Move constructor.
+ */
+template <class T>
+SimpleUpdater<T>::SimpleUpdater (SimpleUpdater&& other)
+  : m_obj (static_cast<const T*> (other.m_obj)),
+    m_objs (std::move (other.m_objs))
+{
+}
+
+
+/**
+ * @brief Return a reference to the current object.
+ */
+template <class T>
+inline
+const T& SimpleUpdater<T>::get() const
+{
+  return *m_obj;
+}
+
+
+/**
+ * @brief Install a new object.
+ * @param p The new object to install.
+ * @param ctx Current execution context.
+ *
+ * The existing object should not be deleted until it can no longer
+ * be referenced by any thread.
+ */
+template <class T>
+void SimpleUpdater<T>::update (std::unique_ptr<T> p, const Context_t&)
+{
+  m_objs.push_back (std::move (p));
+  m_obj = m_objs.back().get();
+}
+
+
+/**
+ * @brief Queue an object for later deletion.
+ * @param p The object to delete.
+ *
+ * The object @c p will be queued for deletion once a grace period
+ * has passed for all slots.  In contrast to using @c update,
+ * this does not change the current object.
+ */
+template <class T>
+void SimpleUpdater<T>::discard (std::unique_ptr<T> p)
+{
+  m_objs.push_back (std::move (p));
+}
+
+
+/**
+ * @brief Mark that an event slot is not referencing this object.
+ *
+ * A no-op for @c SimpleUpdater.
+ */
+template <class T>
+void SimpleUpdater<T>::quiescent (const Context_t&)
+{
+}
+
+
+/**
+ * @brief Return the current event context.
+ */
+template <class T>
+const typename SimpleUpdater<T>::Context_t SimpleUpdater<T>::defaultContext()
+{
+  return Context_t();
+}
+
+
+} // namespace CxxUtils
+

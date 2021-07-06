@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "L1TopoCoreSim/StandaloneL1TopoHistSvc.h"
 #include "TFile.h"
@@ -11,7 +11,6 @@
 
 #include "TrigConfBase/TrigConfMessaging.h"
 
-using namespace std;
 
 class StandaloneL1TopoHistSvc::StandaloneL1TopoHistSvcImpl : public TrigConf::TrigConfMessaging
 {
@@ -33,7 +32,7 @@ public:
    void registerHist(TH1 * h) {
       if(h != nullptr) {
          TRG_MSG_DEBUG("Registering histogram " << h->GetName());
-         const string key = h->GetName();
+         const std::string key = h->GetName();
          if( m_hists1D.find(key)  == end(m_hists1D) ) {
             m_hists1D[key] = h;
          } else {
@@ -46,7 +45,7 @@ public:
    void registerHist(TH2 * h) {
       if(h != nullptr) {
          TRG_MSG_DEBUG("Registering histogram " << h->GetName());
-         const string key = h->GetName();
+         const std::string key = h->GetName();
          if( m_hists2D.find(key)  == end(m_hists2D) ) {
             m_hists2D[key] = h;
          } else {
@@ -56,9 +55,9 @@ public:
       }
    }
 
-   TH1 * findHist(const string & histName) {
+   TH1 * findHist(const std::string & histName) {
       auto colPos = histName.find_first_of('/');
-      string realhistName = histName.substr(colPos+1);
+      std::string realhistName = histName.substr(colPos+1);
       auto h = m_hists1D.find(realhistName);
       if( h == end(m_hists1D) ) {
          return nullptr;
@@ -83,17 +82,19 @@ public:
        h->second->Fill(x,y);
    }
 
-   void setBaseDir(const string & baseDir) {
+   void setBaseDir(const std::string & baseDir) {
       m_baseDir = baseDir;
    }
 
    void save() {
 
-      string filename = "L1Topo.root";
-      string basepath = "";
+      std::string filename = "L1Topo.root";
+      std::string basepath = "";
+
+      std::string opt = "RECREATE";
 
       auto colPos = m_baseDir.find_last_of(':');
-      if( colPos != string::npos ) {
+      if( colPos != std::string::npos ) {
          filename = m_baseDir.substr(0, colPos);
          basepath = m_baseDir.substr(colPos+1);
       } else {
@@ -101,14 +102,14 @@ public:
       }
 
 
-      TFile * f = TFile::Open(filename.c_str(),"RECREATE");
+      TFile * f = TFile::Open(filename.c_str(),opt.c_str());
       for( auto h : m_hists1D ) {
 
-         string fullName(h.second->GetName());
-         string path(basepath);
+         std::string fullName(h.second->GetName());
+         std::string path(basepath);
 
          auto slashPos = fullName.find_last_of('/');
-         if(slashPos != string::npos) {
+         if(slashPos != std::string::npos) {
             if(path!="")
                path += "/";
             path += fullName.substr(0,slashPos);
@@ -125,11 +126,11 @@ public:
       }
       for( auto h : m_hists2D ) {
 
-         string fullName(h.second->GetName());
-         string path(basepath);
+         std::string fullName(h.second->GetName());
+         std::string path(basepath);
 
          auto slashPos = fullName.find_last_of('/');
-         if(slashPos != string::npos) {
+         if(slashPos != std::string::npos) {
             if(path!="")
                path += "/";
             path += fullName.substr(0,slashPos);
@@ -151,9 +152,9 @@ public:
 
 private:
 
-   map<string,TH1*>   m_hists1D;
-   map<string,TH2*>   m_hists2D;
-   string             m_baseDir {""};
+   std::map<std::string,TH1*>   m_hists1D;
+   std::map<std::string,TH2*>   m_hists2D;
+   std::string             m_baseDir {""};
 
 };
 

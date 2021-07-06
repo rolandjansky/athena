@@ -17,6 +17,7 @@ using TrigCompositeUtils::decisionIDs;
 using TrigCompositeUtils::insertDecisionIDs;
 using TrigCompositeUtils::createAndStore;
 using TrigCompositeUtils::newDecisionIn;
+using TrigCompositeUtils::filterNodeName;
 
 RoRSeqFilter::RoRSeqFilter( const std::string& name, 
   ISvcLocator* pSvcLocator ) :
@@ -192,8 +193,7 @@ size_t RoRSeqFilter::copyPassing( const DecisionContainer& input,
                                   DecisionContainer& output, const std::set<HLT::Identifier>& topass,
                                   const EventContext& ctx ) const {
   size_t passCounter = 0;
-  for (size_t i = 0; i < input.size(); ++i) {
-    const Decision* inputDecision = input.at(i);
+  for (const Decision* inputDecision : input) {
 
     DecisionIDContainer objDecisions;      
     decisionIDs( inputDecision, objDecisions );
@@ -207,7 +207,7 @@ size_t RoRSeqFilter::copyPassing( const DecisionContainer& input,
 
     if ( not intersection.empty() ) {      
       // This sets up the 'self' link & the 'seed' link (seeds from inputDecision)
-      Decision* decisionCopy = newDecisionIn( &output, inputDecision, "F", ctx );
+      Decision* decisionCopy = newDecisionIn( &output, inputDecision, filterNodeName(), ctx );
 
       // Copy accross only the DecisionIDs which have passed through this Filter for this Decision object. 
       // WARNING: Still need to 100% confirm if the correct set to propagate forward is objDecisions or intersection.

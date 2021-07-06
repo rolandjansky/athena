@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_CBNT_TIMING_H
@@ -13,26 +13,24 @@
 #include "CaloIdentifier/LArEM_ID.h"
  #include "LArCabling/LArOnOffIdMapping.h"
 
-class StoreGateSvc;
 class LArOnlineID;
 
 #include <fstream>
 #include <string>
 
-class StoreGateSvc;
 
 class CBNT_Timing : public CBNT_TBRecBase
 {
  public:
   CBNT_Timing(const std::string & name, ISvcLocator * pSvcLocator);
 
-  ~CBNT_Timing();
+  virtual ~CBNT_Timing();
 
-  //standart algorithm methods
-  virtual StatusCode CBNT_initialize();
-  virtual StatusCode CBNT_execute();
-  virtual StatusCode CBNT_finalize();
-  virtual StatusCode CBNT_clear();
+  //standard algorithm methods
+  virtual StatusCode CBNT_initialize() override;
+  virtual StatusCode CBNT_execute() override;
+  virtual StatusCode CBNT_finalize() override;
+  virtual StatusCode CBNT_clear() override;
 
  private: 
   static const int NOTIME = -999;
@@ -40,7 +38,6 @@ class CBNT_Timing : public CBNT_TBRecBase
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   const LArOnlineID* m_onlineHelper;
-  const LArEM_ID* m_emId;
 
   double m_energy_cut;
   bool m_first_event;

@@ -12,6 +12,7 @@
   <!-- picked up through iterator pattern below. -->
   <!-- <class name="LArShapeP1" /> -->
   <!--<class name="LArShapeP2" />-->
+  <class name="CondMultChanCollection<LArConditionsSubset<LArShapeP> >" />
   <class name="LArConditionsSubset<LArShapeP>"  id="055CF2F5-08D0-4EAA-B154-8CE5B1A599E7" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -35,6 +36,7 @@
   <class name="LArTdriftComplete" />
   <!-- picked up through iterator pattern below. -->
   <!-- <class name="LArTdriftP" /> -->
+  <class name="CondMultChanCollection<LArConditionsSubset<LArTdriftP> >" />
   <class name="LArConditionsSubset<LArTdriftP>"  id="18AE4F30-F828-4715-85AA-6A69DD3C048C" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -59,6 +61,7 @@
   <class name="LArRinjComplete" />
   <!-- picked up through iterator pattern below. -->
   <!-- <class name="LArRinjP" /> -->
+  <class name="CondMultChanCollection<LArConditionsSubset<LArRinjP> >" />
   <class name="LArConditionsSubset<LArRinjP>"  id="D697FEFD-1CA5-427A-9958-C9B9D620DE7F" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -82,6 +85,7 @@
   <class name="LArCableLengthComplete" />
   <!-- picked up through iterator pattern below. -->
   <!-- <class name="LArCableLengthP" /> -->
+  <class name="CondMultChanCollection<LArConditionsSubset<LArCableLengthP> >" />
   <class name="LArConditionsSubset<LArCableLengthP>"  id="338E681C-344B-440D-A3C7-5C4F6455A180" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -105,6 +109,7 @@
   <class name="LArCableAttenuationComplete" />
   <!-- picked up through iterator pattern below. -->
   <!-- <class name="LArCableAttenuationP" /> -->
+  <class name="CondMultChanCollection<LArConditionsSubset<LArCableAttenuationP> >" />
   <class name="LArConditionsSubset<LArCableAttenuationP>"  id="2D460185-63EB-429B-A870-FC850B5A9D0B" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -128,6 +133,7 @@
   <class name="LArTshaperComplete" />
   <!-- picked up through iterator pattern below. -->
   <!-- <class name="LArTshaperP" /> -->
+  <class name="CondMultChanCollection<LArConditionsSubset<LArTshaperP> >" />
   <class name="LArConditionsSubset<LArTshaperP>"  id="8B95ED9B-9F18-43D1-87B0-ABEC64E93B9C" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -151,6 +157,7 @@
   <class name="LArOFCBinComplete" />
   <!-- picked up through iterator pattern below. -->
   <!-- <class name="LArOFCBinP" /> -->
+  <class name="CondMultChanCollection<LArConditionsSubset<LArOFCBinP> >" />
   <class name="LArConditionsSubset<LArOFCBinP>"  id="35090C66-1740-419B-9410-21DA24A5C7CE" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -174,6 +181,7 @@
   <class name="LArEMEC_CphiComplete" />
   <!-- picked up through iterator pattern below. -->
   <!-- <class name="LArEMEC_CphiP" /> -->
+  <class name="CondMultChanCollection<LArConditionsSubset<LArEMEC_CphiP> >" />
   <class name="LArConditionsSubset<LArEMEC_CphiP>"  id="7587DA6F-280F-4EB5-9113-5122CF3B0AC4" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -197,6 +205,7 @@
   <class name="LArEMEC_HValphaComplete" />
   <!-- picked up through iterator pattern below. -->
   <!-- <class name="LArEMEC_HValphaP" /> -->
+  <class name="CondMultChanCollection<LArConditionsSubset<LArEMEC_HValphaP> >" />
   <class name="LArConditionsSubset<LArEMEC_HValphaP>"  id="438C0CE6-BABD-483B-A61A-73F1E7781E63" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -220,6 +229,7 @@
   <class name="LArEMEC_HVbetaComplete" />
   <!-- picked up through iterator pattern below. -->
   <!-- <class name="LArEMEC_HVbetaP" /> -->
+  <class name="CondMultChanCollection<LArConditionsSubset<LArEMEC_HVbetaP> >" />
   <class name="LArConditionsSubset<LArEMEC_HVbetaP>"  id="E3A6D99F-3D6F-420C-BF4A-8B6FAF2527CE" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -245,6 +255,7 @@
   <class name="LArCaliWaveContainer" />
   <!-- picked up through iterator pattern below. -->
   <!-- <class name="LArCaliWaveVec" /> -->
+  <class name="CondMultChanCollection<LArConditionsSubset<LArCaliWaveVec> >" />
   <class name="LArConditionsSubset<LArCaliWaveVec>"  id="ECB4AD6C-FF3A-4255-A0E3-7BD566B96A77" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -270,6 +281,7 @@
   <!-- picked up through iterator pattern below. -->
   <!-- <class name="LArPhysWave" /> -->
   <class name="LArPhysWaveContainer" />
+  <class name="CondMultChanCollection<LArConditionsSubset<LArPhysWave> >" />
   <class name="LArConditionsSubset<LArPhysWave>"
           id="C1108D27-6D30-41E8-892D-2AB127B868C9"  >
     <field name="m_subsetMap" transient="true" />
@@ -368,7 +380,7 @@
 
     <class pattern="*_Rb_tree_iterator*"/>
 
-    <class pattern="*<LArConditionsSubset*" />
+    <!--<class pattern="*<LArConditionsSubset*" />-->
 
     <class name="random_access_iterator_tag" />
 

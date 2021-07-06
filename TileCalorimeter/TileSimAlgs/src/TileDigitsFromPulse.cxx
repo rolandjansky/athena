@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -58,7 +58,7 @@ using CLHEP::RandFlat;
 //
 // Constructor
 //
-TileDigitsFromPulse::TileDigitsFromPulse(std::string name, ISvcLocator* pSvcLocator) :
+TileDigitsFromPulse::TileDigitsFromPulse(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_tileHWID(0),
   m_tileInfo(0)
@@ -222,9 +222,11 @@ StatusCode TileDigitsFromPulse::execute() {
 
 	ATH_MSG_DEBUG("in execute()");
 
+	const EventContext& ctx = Gaudi::Hive::currentContext();
+
 	// Prepare RNG service
 	ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this, m_randomStreamName);
-	rngWrapper->setSeed( m_randomStreamName, Gaudi::Hive::currentContext() );
+	rngWrapper->setSeed( m_randomStreamName, ctx );
 
 	// Create new container for digits
 	auto digitsContainer = std::make_unique<TileMutableDigitsContainer>(true,
@@ -275,7 +277,7 @@ StatusCode TileDigitsFromPulse::execute() {
 						if (gain == 1) {
 							n_inTimeAmp = m_useItADist ? m_itDist->GetRandom() : m_inTimeAmp;
 							if (m_chanPed)
-								ped = m_tileToolNoiseSample->getPed(drawerIdx, channel, gain);
+								ped = m_tileToolNoiseSample->getPed(drawerIdx, channel, gain, TileRawChannelUnit::ADCcounts, ctx);
 							if (random->Rndm() >= m_pileUpFraction)
 								m_ootAmp = 0; //Set oot amplitude to 0 if no pile-up.
 							tFit = random->Gaus(0., m_gausC2C); //C2C phase variation
@@ -299,11 +301,11 @@ StatusCode TileDigitsFromPulse::execute() {
 							}
 						} else {
 							if (m_chanPed)
-								ped = m_tileToolNoiseSample->getPed(drawerIdx, channel, gain);
+								ped = m_tileToolNoiseSample->getPed(drawerIdx, channel, gain, TileRawChannelUnit::ADCcounts, ctx);
 							double deformatedTime = random->Gaus(m_imperfectionMean, m_imperfectionRms); //Widening of pulseshape
 							m_ps[gain]->scalePulse(deformatedTime, deformatedTime); // Deformation of pulse shape by changing its width
 							if (m_chanPed)
-								ped = m_tileToolNoiseSample->getPed(drawerIdx, channel, gain);
+								ped = m_tileToolNoiseSample->getPed(drawerIdx, channel, gain, TileRawChannelUnit::ADCcounts, ctx);
 
 							n_inTimeAmp /= 64;
 							for (int i = 0; i <= m_nPul_eff; i++) {
@@ -321,9 +323,9 @@ StatusCode TileDigitsFromPulse::execute() {
 						m_buf->getValueVector(samples);
 
 						if (m_chanNoise) {
-							double Hfn1 = m_tileToolNoiseSample->getHfn1(drawerIdx, channel, gain);
-							double Hfn2 = m_tileToolNoiseSample->getHfn2(drawerIdx, channel, gain);
-							double Norm = m_tileToolNoiseSample->getHfnNorm(drawerIdx, channel, gain);
+							double Hfn1 = m_tileToolNoiseSample->getHfn1(drawerIdx, channel, gain, ctx);
+							double Hfn2 = m_tileToolNoiseSample->getHfn2(drawerIdx, channel, gain, ctx);
+							double Norm = m_tileToolNoiseSample->getHfnNorm(drawerIdx, channel, gain, ctx);
 							RandGaussQ::shootArray(*rngWrapper, samples.size(), Rndm, 0.0, 1.0);
 							RandFlat::shootArray(*rngWrapper, 1, Rndm_dG, 0.0, 1.0);
 							for (unsigned int js = 0; js < samples.size(); ++js) {
@@ -398,10 +400,10 @@ StatusCode TileDigitsFromPulse::execute() {
 		}
 	}
 
-        SG::WriteHandle<TileRawChannelContainer> rawChannelCnt(m_rawChannelContainerKey);
+        SG::WriteHandle<TileRawChannelContainer> rawChannelCnt(m_rawChannelContainerKey, ctx);
         ATH_CHECK( rawChannelCnt.record(std::move(rawChannelContainer)) );
 
-        SG::WriteHandle<TileDigitsContainer> digitsCnt(m_digitsContainerKey);
+        SG::WriteHandle<TileDigitsContainer> digitsCnt(m_digitsContainerKey, ctx);
         ATH_CHECK( digitsCnt.record(std::move(digitsContainer)) );
 
 	if (!m_simQIE) {

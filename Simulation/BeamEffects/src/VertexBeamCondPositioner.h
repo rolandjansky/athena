@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// VertexBeamCondPositioner.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef BEAMEFFECTS_VERTEXBEAMCONPOSITIONER_H
 #define BEAMEFFECTS_VERTEXBEAMCONPOSITIONER_H 1
@@ -41,7 +37,7 @@ namespace Simulation {
       VertexBeamCondPositioner( const std::string& t, const std::string& n, const IInterface* p );
 
       /** Destructor */
-      ~VertexBeamCondPositioner();
+      ~VertexBeamCondPositioner() = default;
 
       /** Athena algtool's Hooks */
       StatusCode  initialize() override final;
@@ -53,11 +49,11 @@ namespace Simulation {
     private:
 
       SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
-      ServiceHandle<IAthRNGSvc>       m_rndGenSvc;
-      ATHRNG::RNGWrapper*             m_randomEngine;             //!< Slot-local RNG
+      ServiceHandle<IAthRNGSvc> m_rndGenSvc{this, "RandomSvc", "AthRNGSvc"};
+      ATHRNG::RNGWrapper*           m_randomEngine{};             //!< Slot-local RNG
 
-      std::string                     m_randomEngineName;         //!< Name of the random number stream
-      bool                            m_timeSmearing;             //!< Do time smearing
+      Gaudi::Property<std::string>  m_randomEngineName{this, "RandomStream", "VERTEX"};         //!< Name of the random number stream
+      Gaudi::Property<bool>           m_timeSmearing{this, "SimpleTimeSmearing", false};             //!< Do time smearing
 
   };
 

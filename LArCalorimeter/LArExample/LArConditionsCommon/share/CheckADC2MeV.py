@@ -67,7 +67,6 @@ if not doMC:
 else: 
   include( "LArRawConditions/LArRawConditions_MC_jobOptions.py" )
   include( "LArRawConditions/LArIdMap_ATLAS_jobOptions.py" )
-  ToolSvc.LArADC2MeVTool.MCSym = True
 
 
 theApp.Dlls += ["LArCalibUtils"]
@@ -101,7 +100,6 @@ print " created us2MeVs"
 DAC2uAs =  PyKernel.retrieveDet(g.LArDAC2uAMC,"LArDAC2uA")
 print " created DAC2uAs"
 
-# adc2MeV = theApp.toolsvc().create("LArADC2MeVTool","LArADC2MeVTool",interface=g.ILArADC2MeVTool)
 
 #-------------------------------------------------
 def print_adc2mev(sid) :   

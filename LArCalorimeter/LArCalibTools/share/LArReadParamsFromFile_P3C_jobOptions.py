@@ -115,9 +115,9 @@ if not 'OutputDB' in dir():
     OutputDB = "sqlite://;schema=myDB200.db;dbname=COMP200"
 
 if 'OutputSQLiteFile' in dir():
-    print 'OutputSQLiteFile',OutputSQLiteFile 
+    print ('OutputSQLiteFile',OutputSQLiteFile )
     OutputDB = DBConnectionFile(OutputSQLiteFile)
-    print 'OutputDB',OutputDB 
+    print ('OutputDB',OutputDB )
 
 if not 'ParamsFolderName' in dir():
     ParamsFolderName = "/LAR/ElecCalib/DetCellParams"

@@ -2,6 +2,7 @@
 # -- Mar 3, 2016, Lianyou SHAN@bjIHEP
 
 #myPrint = VERBOSE
+from InDetRecExample import TrackingCommon
 myPrint = INFO
 IncSecVtxMultiSeed = False 
 
@@ -56,15 +57,8 @@ ToolSvc += InDetSecVtxTrackSelectorTool
 if (InDetFlags.doPrintConfigurables()):
     printfunc (' InDetSecVtxTrackSelectorTool : ', InDetSecVtxTrackSelectorTool)
 
-##  InDetFlags.doVertexFinding is set off when start ISV from AOD
-if rec.readAOD():
-    printfunc (' Here ')
-    from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__FullLinearizedTrackFactory
-    InDetLinFactory = Trk__FullLinearizedTrackFactory( name        = "FullLinearizedTrackFactoryIncSecVtx",
-                                                       Extrapolator      = InDetExtrapolator )
-    ToolSvc += InDetLinFactory
-    if (InDetFlags.doPrintConfigurables()):
-       printfunc (InDetLinFactory)
+def getFullLinearizedTrackFactoryIncSecVtx() :
+    return TrackingCommon.getInDetFullLinearizedTrackFactory('FullLinearizedTrackFactoryIncSecVtx')
 
 ## two options for seedFinder
 if IncSecVtxMultiSeed :
@@ -187,7 +181,7 @@ InDetIncSecVtxFitterTool = Trk__AdaptiveVertexFitter(name                = "Adap
                                               MaxIterations                = 8000,
                                               MaxDistToLinPoint            = 0.2,
                                               InitialError                 = 0.2,
-                                              LinearizedTrackFactory       = InDetLinFactory,
+                                              LinearizedTrackFactory       = getFullLinearizedTrackFactoryIncSecVtx(),
                                               ImpactPoint3dEstimator       = InDetImpactPoint3dEstimator,
                                               VertexUpdator                = IncSecVertexUpdator, 
                                               AnnealingMaker               = InDetAnnealingMaker,
@@ -205,7 +199,7 @@ InDetSecVtxFinderTool = InDet__InDetIterativeSecVtxFinderTool(name  = "InDetSecV
                                     SecVtxTrackSelector            = InDetSecVtxTrackSelectorTool,
                                     SeedFinder               = InDetIncSecVtxSeedFinder,
                                     ImpactPoint3dEstimator   = InDetImpactPoint3dEstimator,
-                                    LinearizedTrackFactory   = InDetLinFactory,
+                                    LinearizedTrackFactory   = getFullLinearizedTrackFactoryIncSecVtx(),
                                     useBeamConstraint        = False,
 #                                    significanceCutSeeding   = 15.,
                                     significanceCutSeeding   = 9.,

@@ -26,7 +26,18 @@ def getMETMakerAlg(suffix,jetSelection="Tier0",jetColl=""):
     photonSelIsEM = CompFactory.AsgPhotonIsEMSelector("PhotonSelIsEM_METMakerAlg",
                                                  WorkingPoint="TightPhoton")
 
-    tauSel = CompFactory.getComp("TauAnalysisTools::TauSelectionTool")("TauSelectionTool_METMakerAlg")
+    from ROOT import TauAnalysisTools
+    SelectionCuts = TauAnalysisTools.SelectionCuts
+
+    tauSel = CompFactory.getComp("TauAnalysisTools::TauSelectionTool")("TauSelectionTool_METMakerAlg",
+                                                                       ConfigPath = "",
+                                                                       SelectionCuts = int(SelectionCuts.CutPt | SelectionCuts.CutAbsEta | SelectionCuts.CutAbsCharge | SelectionCuts.CutNTrack | SelectionCuts.CutJetIDWP),
+                                                                       PtMin = 20.0,
+                                                                       JetIDWP = TauAnalysisTools.JETIDRNNMEDIUM,
+                                                                       EleOLR = True,
+                                                                       NTracks = (1, 3),
+                                                                       AbsCharge = 1,
+                                                                       AbsEtaRegion = (0.0, 1.37, 1.52, 2.5))
 
     if jetColl=="":
         jetColl = suffix+'Jets'

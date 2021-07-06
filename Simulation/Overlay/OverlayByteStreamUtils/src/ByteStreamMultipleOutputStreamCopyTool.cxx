@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file ByteStreamMultipleOutputStreamCopyTool.cxx
@@ -163,7 +163,7 @@ ByteStreamMultipleOutputStreamCopyTool::~ByteStreamMultipleOutputStreamCopyTool(
 }
 //__________________________________________________________________________
 StatusCode ByteStreamMultipleOutputStreamCopyTool::initialize() {
-  ATH_MSG_INFO( "Initializing " << name() << " - package version " << PACKAGE_VERSION );
+  ATH_MSG_INFO( "Initializing" );
 
   CHECK( ::AlgTool::initialize() );
 

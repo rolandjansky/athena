@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -30,7 +30,6 @@ class LArEM_ID;
 class LArFCAL_ID;
 class LArHEC_ID;
 class TileID;
-class ICaloNoiseTool;
 class LArOnlineID;
 class CaloDetDescrManager ; 
 class Identifier;

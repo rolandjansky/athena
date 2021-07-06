@@ -54,3 +54,7 @@ const std::string& ToolHandleBase::parentName() const {
   static const std::string toolSvcName = "ToolSvc";
   return toolSvcName;
 }
+
+INamedInterface *ToolHandleBase ::parent() const noexcept {
+  return m_parent;
+}

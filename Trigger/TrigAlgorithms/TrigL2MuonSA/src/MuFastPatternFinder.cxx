@@ -1,20 +1,18 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuFastPatternFinder.h"
 
 #include "MuonCalibEvent/MdtCalibHit.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "xAODTrigMuon/TrigMuonDefs.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-TrigL2MuonSA::MuFastPatternFinder::MuFastPatternFinder(const std::string& type, 
+TrigL2MuonSA::MuFastPatternFinder::MuFastPatternFinder(const std::string& type,
 						     const std::string& name,
-						     const IInterface*  parent): 
+						     const IInterface*  parent):
    AthAlgTool(type,name,parent)
 {
 }
@@ -53,9 +51,9 @@ void TrigL2MuonSA::MuFastPatternFinder::doMdtCalibration(TrigL2MuonSA::MdtHitDat
 
    double R    = mdtHit.R;
    //   double InCo = mdtHit.cInCo;
-   double InCo = cos(std::abs(track_phi - phi0))!=0 ? 1./(cos(std::abs(track_phi - phi0))): 0;
-   double X    = (isEndcap)? R*cos(track_phi): R*InCo*cos(track_phi);
-   double Y    = (isEndcap)? R*sin(track_phi): R*InCo*sin(track_phi);
+   double InCo = std::cos(std::abs(track_phi - phi0))!=0 ? 1./(std::cos(std::abs(track_phi - phi0))): 0;
+   double X    = (isEndcap)? R*std::cos(track_phi): R*InCo*std::cos(track_phi);
+   double Y    = (isEndcap)? R*std::sin(track_phi): R*InCo*std::sin(track_phi);
    double Z    = mdtHit.Z;
    const Amg::Vector3D point(X,Y,Z);
    const Amg::Vector3D point0(0.,0.,0.);
@@ -88,8 +86,8 @@ void TrigL2MuonSA::MuFastPatternFinder::doMdtCalibration(TrigL2MuonSA::MdtHitDat
    ATH_MSG_DEBUG("... MDT hit calibrated driftSpace/driftSigma=" << driftSpace << "/" << driftSigma);
 
    const double ZERO_LIMIT = 1e-4;
-   
-   if( fabs(driftSpace) > ZERO_LIMIT ) {
+
+   if( std::abs(driftSpace) > ZERO_LIMIT ) {
       mdtHit.DriftSpace = driftSpace;
       mdtHit.DriftSigma = driftSigma;
    }
@@ -181,8 +179,8 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
 
      ATH_MSG_DEBUG("... chamber/Z/R/aw/bw/residual/rWidth="
 		   << chamber << "/" << Z << "/" << R << "/" << aw << "/" << bw << "/" << residual << "/" << rWidth);
-     
-     if( fabs(residual) > rWidth ) {
+
+     if( std::abs(residual) > rWidth ) {
        mdtHits[i_hit].isOutlier   = 2;
        continue;
      }
@@ -201,18 +199,18 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
      v_mdtLayerHits[chamber][0].ntot_all++;
      v_mdtLayerHits[chamber][0].ResSum += residual;
    }
-   
+
 
    const double DeltaMin = 0.025;
 
    for(unsigned int chamber=0; chamber<=chamber_max; chamber++) {
-     
+
      ATH_MSG_DEBUG(" --- chamber=" << chamber);
-     
+
      double ResMed = 0;
-     
+
      ATH_MSG_DEBUG("removing outliers...");
-     
+
      // remove outlier
      while(1) {
        if (chamber==9) break;//BME skips this loop
@@ -221,14 +219,14 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
        double DistMax  = 0.;
        double Residual = 0.;
        unsigned int i_hit_max = 999999;
-       ResMed = (v_mdtLayerHits[chamber][0].ntot!=0)? 
+       ResMed = (v_mdtLayerHits[chamber][0].ntot!=0)?
 	 v_mdtLayerHits[chamber][0].ResSum/v_mdtLayerHits[chamber][0].ntot : 0.;
        for(unsigned int i_layer=0; i_layer<=i_layer_max; i_layer++) {
 	 for(unsigned int idigi=0; idigi<v_mdtLayerHits[chamber][i_layer].ndigi_all;idigi++) {
-	   
+	
 	   unsigned int i_hit = v_mdtLayerHits[chamber][i_layer].indexes[idigi];
 	   if(mdtHits[i_hit].isOutlier > 0) continue;
-	   double DistMed = fabs(mdtHits[i_hit].Residual - ResMed);
+	   double DistMed = std::abs(mdtHits[i_hit].Residual - ResMed);
 	   if(DistMed>=DistMax) {
 	     DistMax   = DistMed;
 	     Residual  = mdtHits[i_hit].Residual;
@@ -237,25 +235,25 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
 	   }
 	 }
        }
-       ATH_MSG_DEBUG("ResMed=" << ResMed << ": DistMax/layer/i_hit_max/ntot=" 
+       ATH_MSG_DEBUG("ResMed=" << ResMed << ": DistMax/layer/i_hit_max/ntot="
 		     << DistMax << "/" << layer << "/" << i_hit_max << "/" << v_mdtLayerHits[chamber][0].ntot);
        // break conditions
        if(layer == 999999) break;
        if(v_mdtLayerHits[chamber][layer].ndigi==1) break;
        double Mednew = (v_mdtLayerHits[chamber][0].ResSum - Residual)/(v_mdtLayerHits[chamber][0].ntot - 1);
-       double Delta = 2.*fabs((ResMed - Mednew)/(ResMed + Mednew));
+       double Delta = 2.*std::abs((ResMed - Mednew)/(ResMed + Mednew));
        ATH_MSG_DEBUG("Mednew/Delta/DeltaMin=" << Mednew << "/" << Delta << "/" << DeltaMin);
        if(Delta<=DeltaMin) break;
-       
+
        // if not, delete the maxRes and continue;
        v_mdtLayerHits[chamber][0].ResSum = v_mdtLayerHits[chamber][0].ResSum - Residual;
        v_mdtLayerHits[chamber][0].ntot--;
        v_mdtLayerHits[chamber][layer].ndigi--;
        mdtHits[i_hit_max].isOutlier = 2;
      }
-     
+
      ATH_MSG_DEBUG("choosing one at each layer...");
-     
+
      // choose one at each layer, and record it in segment
       TrigL2MuonSA::MdtHits mdtSegment;
       mdtSegment.clear();
@@ -272,8 +270,8 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
 	  for(unsigned int idigi=0;idigi<v_mdtLayerHits[chamber][i_layer].ndigi_all;idigi++) {
 	    unsigned int i_hit = v_mdtLayerHits[chamber][i_layer].indexes[idigi];
 	    if( mdtHits[i_hit].isOutlier > 0 ) continue;
-	    if( fabs(mdtHits[i_hit].Residual) >= ResMax ) {
-	      ResMax = fabs(mdtHits[i_hit].Residual);
+	    if( std::abs(mdtHits[i_hit].Residual) >= ResMax ) {
+	      ResMax = std::abs(mdtHits[i_hit].Residual);
 	      i_hit_max = i_hit;
 	    }
 	  }
@@ -294,15 +292,15 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
 	  mdtSegment.push_back(mdtHits[i_hit]);
 	}
       }
-      
+
       //
       ATH_MSG_DEBUG("nr of hits in segment=" << mdtSegment.size());
       trackPattern.mdtSegments[chamber] = mdtSegment;
-      
+
    } // end loop on stations.
-   
+
    v_trackPatterns.push_back(trackPattern);
-   
+
    return StatusCode::SUCCESS;
 }
 
@@ -312,9 +310,9 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
 double TrigL2MuonSA::MuFastPatternFinder::calc_residual(double aw,double bw,double x,double y) const
 {
    const double ZERO_LIMIT = 1e-4;
-   if( fabs(aw) < ZERO_LIMIT ) return y-bw;
+   if( std::abs(aw) < ZERO_LIMIT ) return y-bw;
    double ia  = 1/aw;
    double iaq = ia*ia;
    double dz  = x - (y-bw)*ia;
-   return dz/sqrt(1.+iaq);
+   return dz/std::sqrt(1.+iaq);
 }

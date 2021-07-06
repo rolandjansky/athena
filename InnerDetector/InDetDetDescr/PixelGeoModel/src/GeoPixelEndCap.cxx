@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoPixelEndCap.h"
 #include "GeoPixelDisk.h"
-#include "GeoPixelDiskSLHC.h"
 #include "GeoPixelECCable.h"
 #include "GeoPixelServices.h"
 #include "GeoModelKernel/GeoTube.h"
@@ -57,15 +56,8 @@ GeoVPhysVol* GeoPixelEndCap::Build( ) {
   //
   // Place the disks and cables on both sides
   //
-  GeoPixelDiskSLHC * pdslhc = 0;
-  GeoPixelDisk * pd = 0;
-  GeoPixelECCable * pecc = 0;
-  if (m_gmt_mgr->slhc()) {
-    pdslhc = new GeoPixelDiskSLHC (m_DDmgr, m_gmt_mgr);
-  } else {
-    pd = new GeoPixelDisk (m_DDmgr, m_gmt_mgr);
-    pecc = new GeoPixelECCable (m_DDmgr, m_gmt_mgr);
-  }  
+  GeoPixelDisk * pd = new GeoPixelDisk (m_DDmgr, m_gmt_mgr);
+  GeoPixelECCable * pecc = new GeoPixelECCable (m_DDmgr, m_gmt_mgr);
   for(int idisk = 0; idisk < ndisks; idisk++) {
     m_gmt_mgr->SetCurrentLD(idisk);
     // Some method is accessing the eta before the disk is built so we set it 
@@ -83,13 +75,7 @@ GeoVPhysVol* GeoPixelEndCap::Build( ) {
       GeoNameTag * tag = new GeoNameTag(nameTag.str());
       GeoAlignableTransform* xform = new GeoAlignableTransform(GeoTrf::TranslateZ3D(zdisk));
 
-      GeoVPhysVol * diskPhys = 0;
-      if (m_gmt_mgr->slhc()) {
-	diskPhys = pdslhc->Build();
-      } else {
-	diskPhys = pd->Build();
-      }	
-
+      GeoVPhysVol * diskPhys = pd->Build();
       ecPhys->add(tag);
       ecPhys->add(new GeoIdentifierTag(idisk));
       ecPhys->add(xform);
@@ -103,20 +89,17 @@ GeoVPhysVol* GeoPixelEndCap::Build( ) {
       //
       // place the cables twice for the two active parts
       //
-      if (pecc && pd) { // Not in SLHC
-	double dz = pd->Thickness()/2. + m_gmt_mgr->PixelECCablesDistance() ;
-	GeoTransform * xformCablesPlus = new GeoTransform(GeoTrf::TranslateZ3D(zdisk+dz));
-	ecPhys->add(xformCablesPlus);
-	ecPhys->add(pecc->Build() );
-	GeoTransform * xformCablesMinus = new GeoTransform(GeoTrf::TranslateZ3D(zdisk-dz));
-	ecPhys->add(xformCablesMinus);
-	ecPhys->add(pecc->Build() );
-      }
+      double dz = pd->Thickness()/2. + m_gmt_mgr->PixelECCablesDistance() ;
+      GeoTransform * xformCablesPlus = new GeoTransform(GeoTrf::TranslateZ3D(zdisk+dz));
+      ecPhys->add(xformCablesPlus);
+      ecPhys->add(pecc->Build() );
+      GeoTransform * xformCablesMinus = new GeoTransform(GeoTrf::TranslateZ3D(zdisk-dz));
+      ecPhys->add(xformCablesMinus);
+      ecPhys->add(pecc->Build() );
     } else {
       if(m_gmt_mgr->msgLvl(MSG::DEBUG))	m_gmt_mgr->msg(MSG::DEBUG) << "Disk " << idisk << " not built" << endmsg;
     }
   }
-  delete pdslhc;
   delete pd;
   delete pecc;
 

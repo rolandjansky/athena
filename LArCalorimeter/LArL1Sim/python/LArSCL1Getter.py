@@ -8,6 +8,19 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 import traceback
 
+from IOVDbSvc.CondDB import conddb
+
+def addLArFlatFolder (db, obj, calg, folder_base='/LAR/ElecCalibFlat/',qual=''):
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSequence = AthSequencer("AthCondSeq")
+
+    folder = folder_base + obj
+    if not conddb.folderRequested(folder):
+      conddb.addFolder(db, folder + qual,
+                     className = 'CondAttrListCollection')
+      condSequence += calg (ReadKey=folder, WriteKey='LAr'+obj+'SC')
+    return
+
 class LArSCL1Getter ( Configured )  :
 
         
@@ -39,19 +52,25 @@ class LArSCL1Getter ( Configured )  :
             traceback.print_exc()
             return False
 
+        from LArCabling.LArCablingAccess import LArOnOffIdMappingSC
+        from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArNoiseSC_ as LArNoiseSCCondAlg
+        from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArPedestalSC_ as LArPedestalSCFlatCondAlg
+        from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArShapeSC_ as LArShapeSCCondAlg
+        from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArfSamplSC_ as LArfSamplSCCondAlg
+        
+
+        LArOnOffIdMappingSC()
+        addLArFlatFolder ('LAR_OFL', 'Shape', LArShapeSCCondAlg,'/LAR/ElecCalibMCSC/')
+        addLArFlatFolder ('LAR_OFL', 'Pedestal', LArPedestalSCFlatCondAlg,'/LAR/ElecCalibMCSC/')
+        addLArFlatFolder ('LAR_OFL', 'Noise', LArNoiseSCCondAlg,'/LAR/ElecCalibMCSC/')
+        addLArFlatFolder ('LAR_OFL', 'fSampl', LArfSamplSCCondAlg,'/LAR/ElecCalibMCSC/')
+        from LArRecUtils.LArAutoCorrNoiseSCCondAlgDefault import LArAutoCorrNoiseSCCondAlgDefault
+        LArAutoCorrNoiseSCCondAlgDefault()
+        from LArRecUtils.LArADC2MeVSCCondAlgDefault import LArADC2MeVSCCondAlgDefault
+        LArADC2MeVSCCondAlgDefault()
         theLArSCL1Maker=LArSCL1Maker()
-        from AthenaCommon.AppMgr import ToolSvc
-        from LArRecUtils.LArAutoCorrNoiseSCToolDefault import LArAutoCorrNoiseSCToolDefault
-        theLArAutoCorrNoiseSCTool = LArAutoCorrNoiseSCToolDefault()
-        ToolSvc+=theLArAutoCorrNoiseSCTool
-        theLArSCL1Maker.AutoCorrNoiseTool = theLArAutoCorrNoiseSCTool
 
-        from LArRecUtils.LArADC2MeVSCToolDefault import LArADC2MeVSCToolDefault
-        theLArADC2MeVSCTool = LArADC2MeVSCToolDefault()
-        ToolSvc+=theLArADC2MeVSCTool
-        theLArSCL1Maker.ADC2MeVTool = theLArADC2MeVSCTool
-
-        theLArSCL1Maker.SCL1ContainerName = "LArDigitSCL1"
+        theLArSCL1Maker.SCL1ContainerName = "LArDigitSCL2"
 
         self._LArSCL1Maker = theLArSCL1Maker
 
@@ -66,26 +85,6 @@ class LArSCL1Getter ( Configured )  :
             mlog.info("digitmaker1 not found in topSequence, using own map in LArSCL1Maker")
             return False
         
-        # now add algorithm to topSequence
-        # this should always come at the end
-        from IOVDbSvc.CondDB import conddb
-        if ( conddb.isMC and not conddb.folderRequested('/LAR/IdentifierOfl/OnOffIdMap_SC') ) :
-            conddb.addFolder("LAR_OFL","<tag>LARIdentifierOflOnOffIdMap_SC-000</tag>/LAR/IdentifierOfl/OnOffIdMap_SC")
-        if ( conddb.isMC and not conddb.folderRequested('/LAR/ElecCalibMCSC/fSampl') ) :
-            conddb.addFolder("LAR_OFL","<tag>LARElecCalibMCSCfSampl-000</tag>/LAR/ElecCalibMCSC/fSampl")
-        if ( conddb.isMC and not conddb.folderRequested('/LAR/ElecCalibMCSC/Pedestal') ) :
-            conddb.addFolder("LAR_OFL","<tag>LARElecCalibMCSCPedestal-000</tag>/LAR/ElecCalibMCSC/Pedestal")
-        if ( conddb.isMC and not conddb.folderRequested('/LAR/ElecCalibMCSC/Noise') ) :
-            conddb.addFolder("LAR_OFL","<tag>LARElecCalibMCSCNoise-000</tag>/LAR/ElecCalibMCSC/Noise")
-        if ( conddb.isMC and not conddb.folderRequested('/LAR/ElecCalibMCSC/Shape') ) :
-            conddb.addFolder("LAR_OFL","<tag>LARElecCalibMCSCShape-000</tag>/LAR/ElecCalibMCSC/Shape")
-
-        from LArRecUtils.LArRecUtilsConf import LArFlatConditionSvc
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        if not hasattr(svcMgr,"LArFlatConditionSvc"):
-           svcMgr+=LArFlatConditionSvc()
-           svcMgr.ProxyProviderSvc.ProviderNames += [ "LArFlatConditionSvc" ]
-        svcMgr.LArFlatConditionSvc.DoSuperCells=True
 
         mlog.info(" now adding to topSequence")        
         topSequence += theLArSCL1Maker

@@ -18,21 +18,26 @@ namespace xAOD {
   const float eFexEMRoI_v1::s_tobEtScale = 100.;
   const float eFexEMRoI_v1::s_xTobEtScale = 25.;
   const float eFexEMRoI_v1::s_towerEtaWidth = 0.1;
-  const float eFexEMRoI_v1::s_minEta = -2.5;
 
    eFexEMRoI_v1::eFexEMRoI_v1()
       : SG::AuxElement() {
 
    }
 
-   void eFexEMRoI_v1::initialize( uint8_t eFexNumber, uint32_t word0, uint32_t word1 ) {
+   void eFexEMRoI_v1::initialize( uint8_t eFexNumber, uint8_t shelf, uint32_t word0, uint32_t word1 ) {
 
       setWord0( word0 );
       setWord1( word1 );
       seteFexNumber( eFexNumber );
-      setTobEt( etTOB() );
-      setEta( etaIndex() );
-      setPhi( phiIndex() );
+      setShelfNumber( shelf );
+
+      /** Quantities derived from TOB data, stored for convenience */
+      setEt( etTOB()*s_tobEtScale );
+      float etaVal = iEta()*s_towerEtaWidth + (seed()+0.5)*s_towerEtaWidth/4;
+      setEta( etaVal );
+      float phiVal = iPhi() * M_PI/32. + M_PI/64.;
+      if (phiVal > M_PI) phiVal = phiVal - 2.*M_PI;
+      setPhi( phiVal );
 
       /** If the object is a TOB then the isTOB should be true.
           For xTOB default is false, but should be set if a matching TOB is found */
@@ -50,6 +55,8 @@ namespace xAOD {
                                          setWord1 )
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexEMRoI_v1, uint8_t, eFexNumber,
                                          seteFexNumber )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexEMRoI_v1, uint8_t, shelfNumber,
+                                         setShelfNumber )
 
    /// Only calculable externally
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexEMRoI_v1, uint16_t, RetaCore,
@@ -64,8 +71,6 @@ namespace xAOD {
                                          setWstotNumerator )
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexEMRoI_v1, uint16_t, WstotDenominator,
                                          setWstotDenominator )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexEMRoI_v1, uint32_t, thrPattern,
-                                         setThrPattern )
 
 
    /// Should be set for xTOB if there is a matching TOB
@@ -73,11 +78,11 @@ namespace xAOD {
                                          setIsTOB )
 
    /// Extracted from data words, stored for convenience
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexEMRoI_v1, uint16_t, tobEt,
-                                         setTobEt )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexEMRoI_v1, uint8_t, iEta,
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexEMRoI_v1, float, et,
+                                         setEt )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexEMRoI_v1, float, eta,
                                          setEta )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexEMRoI_v1, uint8_t, iPhi,
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( eFexEMRoI_v1, float, phi,
                                          setPhi )
 
 
@@ -168,23 +173,6 @@ namespace xAOD {
      }
    }
 
-   /// Methods that require combining results or applying scales
-   /// ET on TOB scale
-   float eFexEMRoI_v1::et() const {
-     return tobEt()*s_tobEtScale;
-   }
-
-   /// Floating point coordinates
-   float eFexEMRoI_v1::eta() const {
-     return (s_minEta + iEta()*s_towerEtaWidth + (seed()+0.5)*s_towerEtaWidth/4);
-   }
-
-   float eFexEMRoI_v1::phi() const {
-     float value = iPhi() * M_PI/32. + M_PI/64.;
-     if (value > M_PI) value = value - 2.*M_PI;
-     return value;
-   }
-
    /// Jet discriminant values. 
    /// Note that these are for convenience & intelligibility, but these should
    /// not be used for bitwise-accurate menu studies
@@ -208,42 +196,48 @@ namespace xAOD {
    /// Methods that decode the eFEX number
 
   /// Return phi index in the range 0-63
-  int eFexEMRoI_v1::phiIndex() const {
+  int eFexEMRoI_v1::iPhi() const {
 
-     /// Get the eFEX index in phi (1-8, unfortunately)
-     unsigned int eFEX = (eFexNumber() >> s_eFexPhiBit) & s_eFexPhiMask;
+     /// Calculate octant (0-7) from eFEX and shelf numbers
+     unsigned int octant = int(eFexNumber()/3) + shelfNumber()*s_shelfPhiWidth;
 
-     /// Find global phi index (0-63) for this window in this eFEX (the -1 is to correct for the eFEX phi index)
-     unsigned int index = s_eFexPhiWidth*eFEX + s_eFexPhiOffset  + fpgaPhi() -1;
+     /// Find global phi index (0-63) for this window in this eFEX 
+     int index = s_eFexPhiWidth*octant + fpgaPhi() + s_eFexPhiOffset;
      if (index >= s_numPhi) index -= s_numPhi;
+
      return index;
    }
 
-   /// Return an eta index in the range 0-49
+   /// Return an eta index in the range -25 -> +24
+   /// Value corresponds to 10*lower eta edge of tower
    /// Note that this may not be the final format!
    /// And you need to combine with the seed() value to get full eta precision
-   int eFexEMRoI_v1::etaIndex() const {
+   int eFexEMRoI_v1::iEta() const {
 
-     /// Get the eFEX number
-     uint8_t eFEX = (eFexNumber() >> s_eFexEtaBit) & s_eFexEtaMask;
+     /// With appropriate constants this should work in one line...
+     int index = s_minEta + (eFexNumber()%3)*s_eFexEtaWidth + fpga()*s_fpgaEtaWidth + fpgaEta();
 
-     /// FPGA min eta
-     uint8_t index = 99; /// Define a default value in case of invalid eFEX number
-
-     switch (eFEX) {
-       case eFexC: index = s_EtaCOffset + fpga()*s_fpgaEtaWidth + (fpga() > 0 ? 1 : 0);
-                   break;
-       case eFexB: index = s_EtaBOffset + fpga()*s_fpgaEtaWidth;
-                   break;
-       case eFexA: index = s_EtaAOffset + fpga()*s_fpgaEtaWidth;
-                   break;
-     }
-
-     /// Add eta location within the FPGA & return value
-     return index + fpgaEta();
+     /// Return value
+     return index;
 
    }
 
+  /// Return phi index in the range used by L1Topo (0->127)
+  int eFexEMRoI_v1::iPhiTopo() const {
+
+     /// Topo use pi/64 steps. Ours are pi/32, so we simply return 2* our integer index
+     return iPhi()*2;
+
+   }
+
+   /// Return an eta index in the range used by L1Topo (-100->+99)
+   int eFexEMRoI_v1::iEtaTopo() const {
+
+     /// This returns e/g seed position as an integer index. 
+     /// Value corresponds to 4*lower eta edge of supercell (so 0 means 0.0 -> 0.025) 
+     return iEta()*4 + seed();
+
+   }
 
 
 } // namespace xAOD

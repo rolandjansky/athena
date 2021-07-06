@@ -1,6 +1,0 @@
-enable=1
-runnumber=166666
-ecm=8000
-jobconf=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest/share/tests/MC14.166666.Herwigpp_EE4CTEQ6L1_jetjet_JZ0.py --outputEVNTFile=EVNT.Herwigpp_jetjet_JZ0.root
-jobdescr="Generator: Herwig++, Process: dijet, Tune: EE4, PDF: CTEQ6L1, sqrt(s): 8 TeV"
-analist="JetAnalysis  EtmissAnalysis"

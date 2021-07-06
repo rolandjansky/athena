@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4UserActions_RadiationMapsMaker_H
@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <string>
+#include <fstream>
 #include "G4UserRunAction.hh"
 #include "G4UserSteppingAction.hh"
 
@@ -28,7 +29,9 @@ namespace G4UA
 	/// Radiation Estimate Web tool for the default values given here.
 	/// They can be configured to other values/ranges for other purposes.
 
-	std::string material = std::string("");
+	std::vector<std::string> materials;
+
+	std::string activationFileName = std::string("");
 	
 	bool posYOnly = false; // set to true for upper hemisphere only
 	
@@ -99,9 +102,9 @@ namespace G4UA
         /// vector of charged hadron flux seen by thread in zoomed area
 	std::vector<double> m_rz_chad;
 
-	///  next two vectors are used only in case maps are needed for a particular material instead of all
+	///  next two vectors are used only in case maps are needed for particular materials instead of all
 
-        /// vector to measure volume fraction of target material in zoomed area
+        /// vector to measure volume fraction of target materials in zoomed area
 	std::vector<double> m_rz_vol;
         /// vector to normalize the volume fraction in zoomed area
 	std::vector<double> m_rz_norm;
@@ -119,9 +122,9 @@ namespace G4UA
         /// vector of charged hadron flux seen by thread in full area
 	std::vector<double> m_full_rz_chad;
 
-	///  next two vectors are used only in case maps are needed for a particular material instead of all
+	///  next two vectors are used only in case maps are needed for particular materials instead of all
 
-        /// vector to measure volume fraction of target material in full area
+        /// vector to measure volume fraction of target materials in full area
 	std::vector<double> m_full_rz_vol;
         /// vector to normalize the volume fraction in full area
 	std::vector<double> m_full_rz_norm;
@@ -139,9 +142,9 @@ namespace G4UA
         /// vector of charged hadron flux seen by thread in 3d
 	std::vector<double> m_3d_chad;
 
-	///  next two vectors are used only in case maps are needed for a particular material instead of all
+	///  next two vectors are used only in case maps are needed for particular materials instead of all
 
-        /// vector to measure volume fraction of target material in 3d
+        /// vector to measure volume fraction of target materials in 3d
 	std::vector<double> m_3d_vol;
         /// vector to normalize the volume fraction in 3d
 	std::vector<double> m_3d_norm;
@@ -220,6 +223,11 @@ namespace G4UA
 	/// vector of time dependent TID in full 2d grid 
 	std::vector<double> m_full_rz_tid_time;
 
+	/// vector of time dependent H_T in zoom 2d grid 
+	std::vector<double> m_rz_ht_time;
+	/// vector of time dependent H_T in full 2d grid 
+	std::vector<double> m_full_rz_ht_time;
+
 	// maps of element fractions 
 
 	/// vector of element fractions in zoom 2d grid 
@@ -231,6 +239,8 @@ namespace G4UA
       };
 
       RadiationMapsMaker(const Config& config);
+
+      ~RadiationMapsMaker();
 
       // initialize maps to 0
       virtual void BeginOfRunAction(const G4Run*) override final;
@@ -254,6 +264,19 @@ namespace G4UA
       TGraph * m_tgnSiB = 0;
       TGraph * m_tgpiSi = 0;
       TGraph * m_tgeSi  = 0;
+
+      TGraph * m_tgHn  = 0;
+      TGraph * m_tgHg  = 0;
+      TGraph * m_tgHp  = 0;
+      TGraph * m_tgHem = 0;
+      TGraph * m_tgHep = 0;
+      TGraph * m_tgHmm = 0;
+      TGraph * m_tgHmp = 0;
+      TGraph * m_tgHpm = 0;
+      TGraph * m_tgHpp = 0;
+      TGraph * m_tgHa  = 0;
+
+      std::ofstream m_activationFile;
       
     }; // class RadiationMapsMaker
   

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -30,13 +30,10 @@ public:
     TrigMuonEFInfoToMuonCnvTool(const std::string& type, const std::string& name, const IInterface* parent);
     
     /// Destructor
-    virtual ~TrigMuonEFInfoToMuonCnvTool();
+    virtual ~TrigMuonEFInfoToMuonCnvTool()=default;
     
     /// initialize the tool
     virtual StatusCode initialize() override;
-    
-    /// finalize the tool
-    virtual StatusCode finalize() override;
     
     /// Convert a single TrigMuonEFInfo object into (maybe multiple) xAOD::Muon objects.
     virtual StatusCode convertTrigMuonEFInfo(const TrigMuonEFInfo& efinfo,

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 
@@ -352,7 +352,7 @@ namespace InDetDD {
     m_last(false),
     m_z(0),
     m_r(0),
-    m_child(0)
+    m_child(nullptr)
   {}
 
   Point::Point(double z, double r)
@@ -361,7 +361,7 @@ namespace InDetDD {
     m_last(false),
     m_z(z),
     m_r(r),
-    m_child(0)
+    m_child(nullptr)
   {}
 
   Segment::Segment(const std::string& label, const Point& start, const Point& end, bool rotated)
@@ -375,7 +375,7 @@ namespace InDetDD {
 
   void
   SegmentList::add(const std::string& label, const Point& start, const Point& end, bool rotated) {
-    m_segments.push_back(Segment(label, start, end, rotated));
+    m_segments.emplace_back(label, start, end, rotated);
   }
 
   void

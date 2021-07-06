@@ -2,7 +2,7 @@
 
 from. TopoOutput import TriggerLine
 from AthenaCommon.Logging import logging
-log = logging.getLogger("TriggerMenuMT.l1topo.L1TopoMenu")
+log = logging.getLogger(__name__)
 
 class L1TopoMenu(object):
 

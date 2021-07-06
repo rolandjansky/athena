@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -80,7 +80,7 @@ StatusCode IDPerfMuonRefitter::execute()
   TrackCollection* muonTrks  = new TrackCollection(SG::OWN_ELEMENTS);
   TrackCollection* muonTrksRefit1  = new TrackCollection(SG::OWN_ELEMENTS);
   TrackCollection* muonTrksRefit2  = new TrackCollection(SG::OWN_ELEMENTS);
-  for (const auto & muon : *pxMuonContainer){
+  for (const auto muon : *pxMuonContainer){
     if (!muon) {
       ATH_MSG_WARNING("CB Muons missing!");
       continue;

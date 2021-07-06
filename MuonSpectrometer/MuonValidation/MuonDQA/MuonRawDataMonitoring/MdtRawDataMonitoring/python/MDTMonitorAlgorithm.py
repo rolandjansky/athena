@@ -1,5 +1,5 @@
 #
-#Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration                                                                                           
+#Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration                                                                                           
 #
 
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -26,6 +26,10 @@ def MdtMonitoringConfig(inputFlags):
     # Make sure muon geometry is configured
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
     result.merge(MuonGeoModelCfg(inputFlags))
+
+    # Fixup for R21 ESD
+    from MuonConfig.MuonSegmentNameFixConfig import MuonSegmentNameFixCfg
+    result.merge(MuonSegmentNameFixCfg(inputFlags))
 
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
@@ -369,7 +373,7 @@ def MdtMonitoringConfig(inputFlags):
                     titleOccvsLbPerRegionPerLayer = "OccupancyVsLB_"+iregion+"OuterPlusExtra"
                     var="lb_mon,y_mon_bin_"+iregion+"_"+ilayer+"PlusExtra;"+titleOccvsLbPerRegionPerLayer
                 elif(ilayer=="Outer"):
-                    titleOccvsLbPerRegionPerLayer = "OccupancyVsLB_"+iregion+ilayer+"PlusExtra"
+                    titleOccvsLbPerRegionPerLayer = "OccupancyVsLB_"+iregion+ilayer
                     var="lb_mon,y_mon_bin_"+iregion+"_"+ilayer+";"+titleOccvsLbPerRegionPerLayer
                 if(iregion=="BA"):
                      maxy=118 # outer sideA
@@ -499,18 +503,26 @@ def MdtMonitoringConfig(inputFlags):
                                              title=title_mdttube+";tubeID;Number of Entries",
                                              path=ch,   xbins=binmax, xmin=1., xmax=binmax+1)
         
-        title_effentries=ch+"MDT_Station_EFFENTRIES"
+        title_effentries=ch+"_MDT_Station_EFFENTRIES"
         var="tube_perch_segs_"+ch+";"+title_effentries
         mdtPerChamberBAGroup.defineHistogram(var,  type='TH1F',
                                              title=title_effentries+";tubeID;Number of Entries",
                                              path=ch,   xbins=binmax, xmin=1., xmax=binmax+1)
 
-        title_effcounts=ch+"MDT_Station_EFFCOUNTS"
+        title_effcounts=ch+"_MDT_Station_EFFCOUNTS"
         var="tube_perch_segs_"+ch+";"+title_effcounts
         mdtPerChamberBAGroup.defineHistogram(var,  type='TH1F',
                                              cutmask='hitcut',
                                              title=title_effcounts+";tubeID;Number of Entries",
                                              path=ch,   xbins=binmax, xmin=1., xmax=binmax+1)
+
+        title_eff=ch+"_MDT_Station_EFFPERTUBE"
+        var_eff="hitcut,tube_perch_segs_"+ch+";"+title_eff
+        mdtPerChamberBAGroup.defineHistogram(var_eff,
+                                             title=title_eff+";tubeID;Efficiency",
+                                             type='TEfficiency',
+                                             path=ch,   xbins=binmax, xmin=1., xmax=binmax+1)
+                                             
 
 
         title_mdtmezz= ch+"_MDT_Station_MEZZ_ADCCut"
@@ -573,17 +585,23 @@ def MdtMonitoringConfig(inputFlags):
                                              title=title_mdttube+";tubeID;Number of Entries",
                                              path=ch,   xbins=binmax, xmin=1., xmax=binmax+1)
 
-        title_effentries=ch+"MDT_Station_EFFENTRIES"
+        title_effentries=ch+"_MDT_Station_EFFENTRIES"
         var="tube_perch_segs_"+ch+";"+title_effentries
         mdtPerChamberBCGroup.defineHistogram(var,  type='TH1F',
                                              title=title_effentries+";tubeID;Number of Entries",
                                              path=ch,   xbins=binmax, xmin=1., xmax=binmax+1)
 
-        title_effcounts=ch+"MDT_Station_EFFCOUNTS"
+        title_effcounts=ch+"_MDT_Station_EFFCOUNTS"
         var="tube_perch_segs_"+ch+";"+title_effcounts
         mdtPerChamberBCGroup.defineHistogram(var,  type='TH1F',
                                              cutmask='hitcut',
                                              title=title_effcounts+";tubeID;Number of Entries",
+                                             path=ch,   xbins=binmax, xmin=1., xmax=binmax+1)
+        title_eff=ch+"_MDT_Station_EFFPERTUBE"
+        var_eff="hitcut,tube_perch_segs_"+ch+";"+title_eff
+        mdtPerChamberBCGroup.defineHistogram(var_eff,
+                                             title=title_eff+";tubeID;Efficiency",
+                                             type='TEfficiency',
                                              path=ch,   xbins=binmax, xmin=1., xmax=binmax+1)
 
         title_mdtmezz= ch+"_MDT_Station_MEZZ_ADCCut"
@@ -650,19 +668,25 @@ def MdtMonitoringConfig(inputFlags):
                                              title=title_mdttube+";tubeID;Number of Entries",
                                              path=ch,   xbins=binmax, xmin=1., xmax=binmax+1)
 
-        title_effentries=ch+"MDT_Station_EFFENTRIES"
+        title_effentries=ch+"_MDT_Station_EFFENTRIES"
         var="tube_perch_segs_"+ch+";"+title_effentries
         mdtPerChamberEAGroup.defineHistogram(var,  type='TH1F',
                                              title=title_effentries+";tubeID;Number of Entries",
                                              path=ch,   xbins=binmax, xmin=1., xmax=binmax+1)
 
-        title_effcounts=ch+"MDT_Station_EFFCOUNTS"
+        title_effcounts=ch+"_MDT_Station_EFFCOUNTS"
         var="tube_perch_segs_"+ch+";"+title_effcounts
         mdtPerChamberEAGroup.defineHistogram(var,  type='TH1F',
                                              cutmask='hitcut',
                                              title=title_effcounts+";tubeID;Number of Entries",
                                              path=ch,   xbins=binmax, xmin=1., xmax=binmax+1)
 
+        title_eff=ch+"_MDT_Station_EFFPERTUBE"
+        var_eff="hitcut,tube_perch_segs_"+ch+";"+title_eff
+        mdtPerChamberEAGroup.defineHistogram(var_eff,
+                                             title=title_eff+";tubeID;Efficiency",
+                                             type='TEfficiency',
+                                             path=ch,   xbins=binmax, xmin=1., xmax=binmax+1)
 
         title_mdtmezz= ch+"_MDT_Station_MEZZ_ADCCut"
         mdtPerChamberEAGroup.defineHistogram("mezz_perch_"+ch+";"+title_mdtmezz,  type='TH1F',
@@ -727,18 +751,26 @@ def MdtMonitoringConfig(inputFlags):
                                              title=title_mdttube+";tubeID;Number of Entries",
                                              path=ch,   xbins=binmax, xmin=0., xmax=binmax)
 
-        title_effentries=ch+"MDT_Station_EFFENTRIES"
+        title_effentries=ch+"_MDT_Station_EFFENTRIES"
         var="tube_perch_segs_"+ch+";"+title_effentries
         mdtPerChamberECGroup.defineHistogram(var,  type='TH1F',
                                              title=title_effentries+";tubeID;Number of Entries",
                                              path=ch,   xbins=binmax, xmin=1., xmax=binmax+1)
 
-        title_effcounts=ch+"MDT_Station_EFFCOUNTS"
+        title_effcounts=ch+"_MDT_Station_EFFCOUNTS"
         var="tube_perch_segs_"+ch+";"+title_effcounts
         mdtPerChamberECGroup.defineHistogram(var,  type='TH1F',
                                              cutmask='hitcut',
                                              title=title_effcounts+";tubeID;Number of Entries",
                                              path=ch,   xbins=binmax, xmin=1., xmax=binmax+1)
+        
+        title_eff=ch+"_MDT_Station_EFFPERTUBE"
+        var_eff="hitcut,tube_perch_segs_"+ch+";"+title_eff
+        mdtPerChamberECGroup.defineHistogram(var_eff,
+                                             title=title_eff+";tubeID;Efficiency",
+                                             type='TEfficiency',
+                                             path=ch,   xbins=binmax, xmin=1., xmax=binmax+1)
+
 
         title_mdtmezz= ch+"_MDT_Station_MEZZ_ADCCut"
         mdtPerChamberECGroup.defineHistogram("mezz_perch_"+ch+";"+title_mdtmezz,  type='TH1F',
@@ -779,7 +811,7 @@ if __name__=='__main__':
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.ESD
-    
+    #ConfigFlags.Input.Files =['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.recon.ESD.e6337_e5984_s3170_r12399_r12253_r12399/ESD.24234434._000058.pool.root.1']
     #ConfigFlags.Input.isMC = True
     #ConfigFlags.Common.isOnline = True
     ConfigFlags.Output.HISTFileName = 'MdtMonitorOutput.root'
@@ -831,5 +863,5 @@ if __name__=='__main__':
 
     #cfg.printConfig(withDetails=True, summariseProps = True)
     
-    cfg.run(1000)
+    cfg.run(-1)
 

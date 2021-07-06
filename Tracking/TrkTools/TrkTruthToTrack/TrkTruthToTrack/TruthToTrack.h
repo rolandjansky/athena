@@ -24,10 +24,12 @@
 #include "TrkToolInterfaces/ITruthToTrack.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkExInterfaces/IExtrapolator.h"
+#include "TrkParameters/TrackParameters.h"
 
 namespace HepPDT { class ParticleDataTable; }
 
 namespace Trk {
+
   
   class TruthToTrack : virtual public ITruthToTrack,
 		       public ::AthAlgTool
@@ -43,14 +45,14 @@ namespace Trk {
 
     /** Implements interface method. */
     using ITruthToTrack::makeProdVertexParameters;
-    virtual const Trk::TrackParameters* makeProdVertexParameters(const HepMC::GenParticle* part) const;
+    virtual const Trk::TrackParameters* makeProdVertexParameters(HepMC::ConstGenParticlePtr part) const;
     virtual const Trk::TrackParameters* makeProdVertexParameters(const xAOD::TruthParticle* part) const;
 
     /** Implements interface method.
      * You can configure an extrapolator through the job options.
      */
     using ITruthToTrack::makePerigeeParameters;
-    virtual const Trk::TrackParameters* makePerigeeParameters(const HepMC::GenParticle* part) const;
+    virtual const Trk::TrackParameters* makePerigeeParameters(HepMC::ConstGenParticlePtr part) const;
     virtual const Trk::TrackParameters* makePerigeeParameters(const xAOD::TruthParticle* part) const;
 
   private:

@@ -35,6 +35,7 @@ class RerunRoIsUnpackingTool : public RoIsUnpackingToolBase
   virtual StatusCode finalize() override;
   virtual StatusCode updateConfiguration() override;
 
+  using RoIsUnpackingToolBase::unpack;
   StatusCode unpack( const EventContext& ctx,
 		     const ROIB::RoIBResult& roib,
 		     const HLT::IDSet& activeChains ) const override;

@@ -536,6 +536,7 @@ namespace top {
       top::check(evtStore()->retrieve(calibratedJetsTDS, m_config->sgKeyTrackJetsTDS(
                                         hash)), "Failed to retrieve track jets");
 
+
       for (auto index : currentSystematic.goodTrackJets()) {
         event.m_trackJets.push_back(calibratedJetsTDS->at(index));
       }

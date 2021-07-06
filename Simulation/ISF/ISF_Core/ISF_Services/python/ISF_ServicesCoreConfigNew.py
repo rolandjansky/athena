@@ -28,9 +28,9 @@ def GeoIDSvcCfg(ConfigFlags, name="ISF_GeoIDSvc", **kwargs):
 
 
 def AFIIEnvelopeDefSvcCfg(ConfigFlags, name="ISF_AFIIEnvelopeDefSvc", **kwargs):
-    result = EnvelopeDefSvcCfg(ConfigFlags)
+    result = ISFEnvelopeDefSvcCfg(ConfigFlags)
     # ATLAS common envlope definitions
-    kwargs.setdefault("ISFEnvelopeDefSvc", result.getService("AtlasGeometry_EnvelopeDefSvc"))
+    kwargs.setdefault("ISFEnvelopeDefSvc", result.getService("ISF_ISFEnvelopeDefSvc"))
     kwargs.setdefault("InDetMaxExtentZ", 3549.5*mm)
     result.addService(CompFactory.ISF.AFIIEnvelopeDefSvc(name, **kwargs))
     return result

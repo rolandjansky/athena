@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBEventInfoStreamerTool.h"
@@ -9,10 +9,10 @@
 #include <ios>
 #include <algorithm>
 
-TBEventInfoStreamerTool::TBEventInfoStreamerTool(const std::string& name,
-						 const std::string& type,
+TBEventInfoStreamerTool::TBEventInfoStreamerTool(const std::string& type,
+						 const std::string& name,
 					         const IInterface* parent)
-  : TBEventStreamerTool(name,type,parent),
+  : TBEventStreamerTool(type,name,parent),
     m_selected_events(0)
 {
    declareInterface<TBEventStreamerTool>(this);

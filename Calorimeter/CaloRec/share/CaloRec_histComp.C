@@ -324,8 +324,7 @@ fclose(fich);
  
   hfile->Write();
 
-  if (hfile) 
-    hfile->Close();
+  hfile->Close();
 }
 
 void CaloRec_makeHist()
@@ -441,7 +440,7 @@ bool almostIdentical(TH1 *h1,TH1 *h2)
   h1->SetLineStyle(2);
   h1->Draw();
 
-  h2->Draw((h1) ? "sames" : "");
+  h2->Draw("sames" );
 
   TLegend *legend=new TLegend(0.7,0.7,0.89,0.85);
   legend->SetTextFont(72);

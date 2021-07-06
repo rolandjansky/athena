@@ -46,7 +46,7 @@ void testValue(double v1, double v2) {
 
 #ifdef XAOD_ANALYSIS
 
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/StandaloneToolHandle.h"
 #include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
 
 #include "TROOT.h"
@@ -63,7 +63,7 @@ int main() {
    evt.setMCChannelNumber(2002);evt.setRunNumber(100);evt.setAverageInteractionsPerCrossing(1.6);
 
    //for the example we have to generate a test file
-   asg::AnaToolHandle<CP::IPileupReweightingTool> prwTool("CP::PileupReweightingTool/prw");
+   asg::StandaloneToolHandle<CP::IPileupReweightingTool> prwTool("CP::PileupReweightingTool/prw");
    ANA_CHECK( prwTool.setProperty( "ConfigFiles", std::vector<std::string>({"example.dummy1.prw.root"}) ) );
    ANA_CHECK( prwTool.setProperty( "LumiCalcFiles",  std::vector<std::string>({"example.dummy.None.lumicalc.root"}) ) );
    ANA_CHECK( prwTool.setProperty( "UseMultiPeriods",true) ); //channel 2000 has periods 100 and 101
@@ -79,7 +79,7 @@ int main() {
    return 0;
 }
 
-#else //AnaToolHandle not yet in AtlasDerivation
+#else //StandaloneToolHandle not yet in AtlasDerivation
 
 int main() {
   return 0;

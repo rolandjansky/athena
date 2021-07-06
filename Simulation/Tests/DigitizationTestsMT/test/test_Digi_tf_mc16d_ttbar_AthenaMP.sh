@@ -37,4 +37,7 @@ Digi_tf.py \
 --skipEvents 0
 
 rc=$?
+status=$rc
 echo  "art-result: $rc Digi_tf.py"
+
+exit $status

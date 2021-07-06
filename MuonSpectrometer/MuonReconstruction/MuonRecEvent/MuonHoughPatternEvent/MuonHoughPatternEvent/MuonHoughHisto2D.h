@@ -123,7 +123,7 @@ class MuonHoughHisto2D
   void resetHisto();
 
   /** actual storage of bin values */
-  unsigned int* m_histBuffer;
+  unsigned int* m_histBuffer{};
   /** size of array */
   unsigned int m_size;
 

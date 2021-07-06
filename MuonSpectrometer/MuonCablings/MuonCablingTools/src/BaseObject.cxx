@@ -1,149 +1,73 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCablingTools/BaseObject.h"
-#include <pthread.h>
 
-static pthread_mutex_t StopDisplayStream = PTHREAD_MUTEX_INITIALIZER;
-
-void
-MessageStream::init_message()
-{
-    m_display = new __osstream;
-}
-
-void
-MessageStream::delete_message()
-{
-    delete m_display;
-}
-
-
-
-BaseObject::BaseObject(ObjectType tag,std::string name) : 
-    m_tag(tag),m_name(name) 
-{
-    m_message = new MessageStream;
-}
-
-BaseObject::BaseObject(ObjectType tag,const char* name) : 
-    m_tag(tag)
-{
-    int i=0;
-    while(name[i]!='\0') ++i;
-    m_name.resize(i);
-    i=0;
-    while(name[i]!='\0')
-    {
-        m_name[i] = name[i];
-	++i;
+namespace {
+    std::string to_string(MSG::Level lvl) {
+        if (lvl == MSG::VERBOSE) return "VEBOSE";
+        if (lvl == MSG::DEBUG) return "DEBUG";
+        if (lvl == MSG::INFO) return "INFO";
+        if (lvl == MSG::WARNING) return "WARNING";
+        if (lvl == MSG::ERROR) return "ERROR";
+        if (lvl == MSG::FATAL) return "FATAL";
+        return "UNKNOWN";
     }
-    m_message = new MessageStream;
+}  // namespace
+
+ObjectType BaseObject::tag() const { return m_tag; }
+std::string BaseObject::name() const { return m_name; }
+
+void BaseObject::dump_message(__osstream& display, MSG::Level lvl) const {
+#ifdef LVL1_STANDALONE
+    std::cout << display.str() << std::endl;
+#else
+    if (m_message) {
+        (*m_message) << lvl << display.str() << endmsg;
+    } else {
+        std::cout << to_string(lvl) << display.str() << std::endl;
+    }
+#endif
+}
+bool BaseObject::msgLevel(MSG::Level lvl) const {
+    if (m_message) return m_message->level() >= lvl;
+    return false;
 }
 
-BaseObject::BaseObject(const BaseObject& obj)
-{
-    m_tag  = obj.tag();
+BaseObject::BaseObject(ObjectType tag, const std::string& obj_name, IMessageSvc* msgSvc) : m_tag{tag}, m_name{obj_name}, m_msgSvc{msgSvc} {
+    /// To be fixed in a follow up MR
+    if (false && !msgSvc) {
+        ISvcLocator* svcLocator = Gaudi::svcLocator();
+        StatusCode sc = svcLocator->service("MessageSvc", msgSvc);
+        if (sc.isFailure()) { std::cout << "Can't locate the MessageSvc" << std::endl; }
+    }
+    m_message = std::make_unique<MsgStream>(msgSvc, obj_name);
+}
+
+BaseObject::BaseObject(const BaseObject& obj) {
+    m_tag = obj.tag();
     m_name = obj.name();
-    m_message = new MessageStream;
+    m_msgSvc = obj.m_msgSvc;
+    if (m_msgSvc) { m_message = std::make_unique<MsgStream>(m_msgSvc, m_name); }
 }
-
-BaseObject::~BaseObject()
-{
-    delete m_message;
-}
-
-
-void
-BaseObject::display_error(__osstream& display) const
-{
-#ifdef LVL1_STANDALONE
-    cout << display.str() << endl;
-#else
-    StatusCode sc;    
-    IMessageSvc*  msgSvc;
-    ISvcLocator* svcLoc = Gaudi::svcLocator( );
-    sc = svcLoc->service( "MessageSvc", msgSvc );
-    if(sc.isSuccess()) {
-        MsgStream log(msgSvc, name() );
-        log << MSG::ERROR << display.str() <<endmsg; 
+BaseObject& BaseObject::operator=(const BaseObject& obj) {
+    if (this != &obj) {
+        m_tag = obj.m_tag;
+        m_name = obj.m_name;
+        m_msgSvc = obj.m_msgSvc;
+        if (m_msgSvc)
+            m_message = std::make_unique<MsgStream>(m_msgSvc, m_name);
+        else
+            m_message.reset();
     }
-#endif
+    return *this;
 }
 
-void
-BaseObject::display_debug(__osstream& display) const
-{
-#ifdef LVL1_STANDALONE
-    cout << display.str() << endl;
-#else
-    StatusCode sc;
-    IMessageSvc*  msgSvc;
-    ISvcLocator* svcLoc = Gaudi::svcLocator( );
-    sc = svcLoc->service( "MessageSvc", msgSvc );
-    if(sc.isSuccess()) {
-        MsgStream log(msgSvc, name() );
-        log << MSG::DEBUG << display.str() <<endmsg; 
-    }
-#endif
-}
+void BaseObject::display_error(__osstream& display) const { dump_message(display, MSG::ERROR); }
 
-void
-BaseObject::display_warning(__osstream& display) const
-{
-#ifdef LVL1_STANDALONE
-    cout << display.str() << endl;
-#else
-    StatusCode sc;    
-    IMessageSvc*  msgSvc;
-    ISvcLocator* svcLoc = Gaudi::svcLocator( );
-    sc = svcLoc->service( "MessageSvc", msgSvc );
-    if(sc.isSuccess()) {
-        MsgStream log(msgSvc, name() );
-        log << MSG::WARNING << display.str() <<endmsg; 
-    }
-#endif
-}
+void BaseObject::display_debug(__osstream& display) const { dump_message(display, MSG::DEBUG); }
 
-void
-BaseObject::display_info(__osstream& display) const
-{
-#ifdef LVL1_STANDALONE
-    cout << display.str() << endl;
-#else
-    StatusCode sc;
-    IMessageSvc*  msgSvc;
-    ISvcLocator* svcLoc = Gaudi::svcLocator( );
-    sc = svcLoc->service( "MessageSvc", msgSvc );
-    if(sc.isSuccess()) {
-        MsgStream log(msgSvc, name() );
-        log << MSG::INFO << display.str() <<endmsg; 
-    }
-#endif
-}
-
-void
-BaseObject::lock() const
-{
-    pthread_mutex_lock(&StopDisplayStream);
-}
-
-
-void
-BaseObject::unlock() const
-{
-    pthread_mutex_unlock(&StopDisplayStream);
-}
-
-BaseObject&
-BaseObject::operator=(const BaseObject& obj)
-{
-    if(this!=&obj) {
-      m_tag  = obj.m_tag;
-      m_name = obj.m_name;
-      delete m_message;
-      m_message = new MessageStream;
-    }
-    return*this;
-}
+void BaseObject::display_warning(__osstream& display) const { dump_message(display, MSG::WARNING); }
+void BaseObject::display_info(__osstream& display) const { dump_message(display, MSG::INFO); }
+void BaseObject::display_verbose(__osstream& display) const { dump_message(display, MSG::VERBOSE); }

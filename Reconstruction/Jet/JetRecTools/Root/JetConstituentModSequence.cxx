@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Source file for the JetConstituentModSequence.h
@@ -23,19 +23,21 @@
 #include "xAODPFlow/FlowElement.h"
 #include "xAODPFlow/FlowElementContainer.h"
 #include "xAODPFlow/FlowElementAuxContainer.h"
+
+#include "AsgDataHandles/WriteHandle.h"
+
+#ifndef XAOD_ANALYSIS
 #include "AthenaMonitoringKernel/Monitored.h"
+#endif
 
 JetConstituentModSequence::JetConstituentModSequence(const std::string &name):
   asg::AsgTool(name),
-  m_trigInputConstits(NULL), m_trigOutputConstits(NULL),m_modifiers(this) {
+  m_trigInputConstits(NULL), m_trigOutputConstits(NULL){
 
 #ifdef ASG_TOOL_ATHENA
   declareInterface<IJetConstituentModifier>(this);
 #endif
-  declareProperty("InputContainer", m_inputContainer, "The input container for the sequence.");
-  declareProperty("OutputContainer", m_outputContainer, "The output container for the sequence.");
   declareProperty("InputType", m_inputType, "The xAOD type name for the input container.");
-  declareProperty("Modifiers", m_modifiers, "List of IJet tools.");
   declareProperty("Trigger", m_trigger=false);
   declareProperty("SaveAsShallow", m_saveAsShallow=true, "Save as shallow copy");
 
@@ -48,8 +50,9 @@ StatusCode JetConstituentModSequence::initialize() {
 
   ATH_CHECK( m_modifiers.retrieve() );
 
+#ifndef XAOD_ANALYSIS
   ATH_CHECK( m_monTool.retrieve( DisableTool{m_monTool.empty()} ) );
-
+#endif
   
   // Set and initialise DataHandleKeys only for the correct input type
   // Die if the input type is unsupported
@@ -65,12 +68,22 @@ StatusCode JetConstituentModSequence::initialize() {
     }
   case xAOD::Type::ParticleFlow:
     {
-      m_inChargedPFOKey = m_inputContainer + "ChargedParticleFlowObjects";
-      m_inNeutralPFOKey = m_inputContainer + "NeutralParticleFlowObjects";
+      std::string inputContainerBase = m_inputContainer;
+      std::string outputContainerBase = m_outputContainer;
 
-      m_outChargedPFOKey = m_outputContainer+"ChargedParticleFlowObjects";
-      m_outNeutralPFOKey = m_outputContainer+"NeutralParticleFlowObjects";
-      m_outAllPFOKey = m_outputContainer+"ParticleFlowObjects";
+      // Know what the user means if they give the full input/output container name in this format
+      size_t pos = inputContainerBase.find("ParticleFlowObjects");
+      if(pos != std::string::npos) inputContainerBase.erase(pos);
+
+      pos = outputContainerBase.find("ParticleFlowObjects");
+      if(pos != std::string::npos) outputContainerBase.erase(pos);
+
+      m_inChargedPFOKey = inputContainerBase + "ChargedParticleFlowObjects";
+      m_inNeutralPFOKey = inputContainerBase + "NeutralParticleFlowObjects";
+
+      m_outChargedPFOKey = outputContainerBase + "ChargedParticleFlowObjects";
+      m_outNeutralPFOKey = outputContainerBase + "NeutralParticleFlowObjects";
+      m_outAllPFOKey = outputContainerBase + "ParticleFlowObjects";
 
       ATH_CHECK(m_inChargedPFOKey.initialize());
       ATH_CHECK(m_inNeutralPFOKey.initialize());
@@ -91,12 +104,23 @@ StatusCode JetConstituentModSequence::initialize() {
     {
       // TODO: This assumes a PFlow-style neutral and charged collection.
       //       More general FlowElements (e.g. CaloClusters) may necessitate a rework here later.
-      m_inChargedFEKey = m_inputContainer + "ChargedFlowElements";
-      m_inNeutralFEKey = m_inputContainer + "NeutralFlowElements";
 
-      m_outChargedFEKey = m_outputContainer+"ChargedFlowElements";
-      m_outNeutralFEKey = m_outputContainer+"NeutralFlowElements";
-      m_outAllFEKey = m_outputContainer+"FlowElements";
+      std::string inputContainerBase = m_inputContainer;
+      std::string outputContainerBase = m_outputContainer;
+
+      // Know what the user means if they give the full input/output container name in this format
+      size_t pos = inputContainerBase.find("ParticleFlowObjects");
+      if(pos != std::string::npos) inputContainerBase.erase(pos);
+
+      pos = outputContainerBase.find("ParticleFlowObjects");
+      if(pos != std::string::npos) outputContainerBase.erase(pos);
+
+      m_inChargedFEKey = inputContainerBase + "ChargedParticleFlowObjects";
+      m_inNeutralFEKey = inputContainerBase + "NeutralParticleFlowObjects";
+
+      m_outChargedFEKey = outputContainerBase + "ChargedParticleFlowObjects";
+      m_outNeutralFEKey = outputContainerBase + "NeutralParticleFlowObjects";
+      m_outAllFEKey = outputContainerBase + "ParticleFlowObjects";
 
       ATH_CHECK(m_inChargedFEKey.initialize());
       ATH_CHECK(m_inNeutralFEKey.initialize());
@@ -115,11 +139,10 @@ StatusCode JetConstituentModSequence::initialize() {
   
 int JetConstituentModSequence::execute() const {
 
+#ifndef XAOD_ANALYSIS
   // Define monitored quantities
-  auto t_exec     = Monitored::Timer<std::chrono::milliseconds>( "TIME_execute"  );
-  auto t_subtract = Monitored::Timer<std::chrono::milliseconds>( "TIME_subtract" );
-  // Explicitly start/stop the timer around the subtraction tool calls
-  t_subtract.start();
+  auto t_exec     = Monitored::Timer<std::chrono::milliseconds>( "TIME_constitmod"  );
+#endif
 
   // Create the shallow copy according to the input type
   switch(m_inputType){
@@ -169,11 +192,9 @@ int JetConstituentModSequence::execute() const {
     
   }
 
-  //Explicitly start/stop the timer around the subtraction tool calls
-  t_subtract.stop();
-
-  auto mon = Monitored::Group(m_monTool, t_exec, t_subtract);
-
+#ifndef XAOD_ANALYSIS
+  auto mon = Monitored::Group(m_monTool, t_exec);
+#endif
   return 0;
 }
 
@@ -221,13 +242,13 @@ JetConstituentModSequence::copyModRecordPFO() const {
   auto outAllPFOHandle = makeHandle(m_outAllPFOKey);
   ATH_CHECK(outAllPFOHandle.record(std::make_unique<xAOD::PFOContainer>(SG::VIEW_ELEMENTS)));
   //    Merge charged & neutral PFOs into the viw container
-  outAllPFOHandle->assign(outNeutralPFOHandle->begin(), outNeutralPFOHandle->end());
-  outAllPFOHandle->insert(outAllPFOHandle->end(),
-                          outChargedPFOHandle->begin(), 
-                          outChargedPFOHandle->end());
+  (*outAllPFOHandle).assign((*outNeutralPFOHandle).begin(), (*outNeutralPFOHandle).end());
+  (*outAllPFOHandle).insert((*outAllPFOHandle).end(),
+			    (*outChargedPFOHandle).begin(), 
+			    (*outChargedPFOHandle).end());
 
   // 3. Now process modifications on all PFOs
-  for (auto t : m_modifiers) {ATH_CHECK(t->process(outAllPFOHandle.ptr()));}
+  for (auto t : m_modifiers) {ATH_CHECK(t->process( &*outAllPFOHandle));}
 
   return StatusCode::SUCCESS;
 }
@@ -273,13 +294,13 @@ StatusCode JetConstituentModSequence::copyModRecordFE() const {
   SG::WriteHandle<xAOD::FlowElementContainer> outAllFEHandle = makeHandle(m_outAllFEKey);
   ATH_CHECK(outAllFEHandle.record(std::make_unique<xAOD::FlowElementContainer>(SG::VIEW_ELEMENTS)));
   //    Merge charged & neutral FEs into the view container
-  outAllFEHandle->assign(outNeutralFEHandle->begin(), outNeutralFEHandle->end());
-  outAllFEHandle->insert(outAllFEHandle->end(),
-                          outChargedFEHandle->begin(), 
-                          outChargedFEHandle->end());
+  (*outAllFEHandle).assign((*outNeutralFEHandle).begin(), (*outNeutralFEHandle).end());
+  (*outAllFEHandle).insert((*outAllFEHandle).end(),
+			   (*outChargedFEHandle).begin(), 
+			   (*outChargedFEHandle).end());
 
   // 3. Now process modifications on all FEs
-  for (auto t : m_modifiers) {ATH_CHECK(t->process(outAllFEHandle.ptr()));}
+  for (auto t : m_modifiers) {ATH_CHECK(t->process(&*outAllFEHandle));}
 
   return StatusCode::SUCCESS;
 }

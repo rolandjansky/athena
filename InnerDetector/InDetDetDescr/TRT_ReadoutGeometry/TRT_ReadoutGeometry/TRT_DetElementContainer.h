@@ -62,8 +62,8 @@ class TRT_DetElementContainer{
   enum {NSTRAWLAYMAXBR=30};
   enum {NSTRAWLAYMAXEC=16};
 
-  TRT_BarrelElement *m_baArray[2][NMODMAX][NPHIMAX][NSTRAWLAYMAXBR];
-  TRT_EndcapElement *m_ecArray[2][NWHEELMAX][NSTRAWLAYMAXEC][NPHIMAX];
+  TRT_BarrelElement *m_baArray[2][NMODMAX][NPHIMAX][NSTRAWLAYMAXBR]{};
+  TRT_EndcapElement *m_ecArray[2][NWHEELMAX][NSTRAWLAYMAXEC][NPHIMAX]{};
   
 };
 

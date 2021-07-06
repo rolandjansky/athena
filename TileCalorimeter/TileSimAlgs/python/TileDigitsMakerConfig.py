@@ -1,9 +1,10 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """Define method to construct configured Tile digits maker algorithm"""
 
 from TileSimAlgs.TileHitVecToCntConfig import TileHitVecToCntCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 
 def TileDigitsMakerCfg(flags, **kwargs):
     """Return component accumulator with configured Tile digits maker algorithm
@@ -14,15 +15,15 @@ def TileDigitsMakerCfg(flags, **kwargs):
         name -- name of TileDigitsMaker algorithm. Defaults to TileDigitsMaker.
         UseCoolPulseShapes -- flag to use pulse shape from database. Defaults to True.
         RndmEvtOverlay -- flag to add PileUp or noise by overlaying random events.
-                          Defaults to Detector.OverlayTile flag.
+                          True if Common.ProductionStep equals to ProductionStep.Overlay.
         MaskBadChannels -- flag to mask channels tagged bad. Defaults to False.
     """
 
     kwargs.setdefault('name', 'TileDigitsMaker')
     kwargs.setdefault('UseCoolPulseShapes', True)
     kwargs.setdefault('MaskBadChannels', False)
-    kwargs.setdefault('RndmEvtOverlay', flags.Detector.OverlayTile)
-    kwargs.setdefault('OnlyUseContainerName', not flags.Detector.OverlayTile)
+    kwargs.setdefault('RndmEvtOverlay', flags.Common.ProductionStep == ProductionStep.Overlay)
+    kwargs.setdefault('OnlyUseContainerName', flags.Common.ProductionStep != ProductionStep.Overlay)
 
     acc = TileHitVecToCntCfg(flags)
 
@@ -46,13 +47,11 @@ def TileDigitsMakerCfg(flags, **kwargs):
     from TileConditions.TileCablingSvcConfig import TileCablingSvcCfg
     acc.merge(TileCablingSvcCfg(flags))
 
-    if 'TileCondToolNoiseSample' not in kwargs:
-        from TileConditions.TileSampleNoiseConfig import TileCondToolNoiseSampleCfg
-        kwargs['TileCondToolNoiseSample'] = acc.popToolsAndMerge(TileCondToolNoiseSampleCfg(flags))
+    from TileConditions.TileSampleNoiseConfig import TileSampleNoiseCondAlgCfg
+    acc.merge( TileSampleNoiseCondAlgCfg(flags) )
 
-    if 'TileCondToolEmscale' not in kwargs:
-        from TileConditions.TileEMScaleConfig import TileCondToolEmscaleCfg
-        kwargs['TileCondToolEmscale'] = acc.popToolsAndMerge(TileCondToolEmscaleCfg(flags))
+    from TileConditions.TileEMScaleConfig import TileEMScaleCondAlgCfg
+    acc.merge( TileEMScaleCondAlgCfg(flags) )
 
     if kwargs['RndmEvtOverlay']:
         tileNoise = False
@@ -80,23 +79,14 @@ def TileDigitsMakerCfg(flags, **kwargs):
         kwargs['RndmSvc'] = None
 
     if kwargs['UseCoolPulseShapes']:
-        if 'TileCondToolPulseShape' not in kwargs:
-            from TileConditions.TilePulseShapeConfig import TileCondToolPulseShapeCfg
-            pulseShapeTool = acc.popToolsAndMerge( TileCondToolPulseShapeCfg(flags) )
-            kwargs['TileCondToolPulseShape'] = pulseShapeTool
-    else:
-        kwargs['TileCondToolPulseShape'] = None
-
+        from TileConditions.TilePulseShapeConfig import TilePulseShapeCondAlgCfg
+        acc.merge( TilePulseShapeCondAlgCfg(flags) )
 
     if kwargs['MaskBadChannels'] or kwargs['RndmEvtOverlay']:
-        if 'TileBadChanTool' not in kwargs:
-            from TileConditions.TileBadChannelsConfig import TileBadChanToolCfg
-            badChannelsTool = acc.popToolsAndMerge( TileBadChanToolCfg(flags) )
-            kwargs['TileBadChanTool'] = badChannelsTool
-    else:
-        kwargs['TileBadChanTool'] = None
+        from TileConditions.TileBadChannelsConfig import TileBadChannelsCondAlgCfg
+        acc.merge( TileBadChannelsCondAlgCfg(flags) )
 
-    if flags.Digitization.PileUpPremixing:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault('TileDigitsContainer', flags.Overlay.BkgPrefix + 'TileDigitsCnt')
     else:
         kwargs.setdefault('TileDigitsContainer', 'TileDigitsCnt')
@@ -111,7 +101,7 @@ def TileDigitsMakerCfg(flags, **kwargs):
         kwargs.setdefault('TileDigitsContainer_DigiHSTruth', '')
 
 
-    kwargs.setdefault('IntegerDigits', not flags.Digitization.PileUpPremixing)
+    kwargs.setdefault('IntegerDigits', flags.Common.ProductionStep != ProductionStep.PileUpPresampling)
 
     TileDigitsMaker=CompFactory.TileDigitsMaker
     digitsMaker = TileDigitsMaker(**kwargs)
@@ -129,14 +119,14 @@ def TileDigitsMakerOutputCfg(flags, **kwargs):
         name -- name of TileDigitsMaker algorithm. Defaults to TileDigitsMaker.
         UseCoolPulseShapes -- flag to use pulse shape from database. Defaults to True.
         RndmEvtOverlay -- flag to add PileUp or noise by overlaying random events.
-                          Defaults to Detector.OverlayTile flag.
+                          True if Common.ProductionStep equals to ProductionStep.Overlay.
         MaskBadChannels -- flag to mask channels tagged bad. Defaults to False.
     """
 
     acc = TileDigitsMakerCfg(flags, **kwargs)
     tileDigitsMaker = acc.getPrimary()
 
-    if flags.Digitization.PileUpPremixing:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         if hasattr(tileDigitsMaker, 'TileDigitsContainer'):
             tileDigitsContainer = tileDigitsMaker.TileDigitsContainer
         else:
@@ -180,7 +170,7 @@ if __name__ == "__main__":
     ConfigFlags.Tile.RunType = 'PHY'
     ConfigFlags.Output.RDOFileName = 'myRDO.pool.root'
     ConfigFlags.IOVDb.GlobalTag = 'OFLCOND-MC16-SDR-16'
-    ConfigFlags.Digitization.Pileup = False
+    ConfigFlags.Digitization.PileUp = False
 
     ConfigFlags.fillFromArgs()
 

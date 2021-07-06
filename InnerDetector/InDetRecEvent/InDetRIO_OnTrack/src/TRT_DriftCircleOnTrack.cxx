@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -45,13 +45,13 @@ InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack(
   m_rio.setElement(RIO);
 
   const Trk::Surface& detElSurf= m_detEl->surface(RIO->identify());
-  if (detElSurf.type() == Trk::Surface::Line) {
+  if (detElSurf.type() == Trk::SurfaceType::Line) {
 
     const Trk::StraightLineSurface& slsf =
       static_cast<const Trk::StraightLineSurface&>(detElSurf);
 
     m_globalPosition =
-      slsf.localToGlobalPos(driftRadius, predictedTrackDirection, predictedLocZ);
+      slsf.localToGlobal(driftRadius, predictedTrackDirection, predictedLocZ);
   }
   Amg::Vector3D  loc_gDirection = predictedTrackDirection; 
   const double dr = driftRadius[Trk::driftRadius];
@@ -142,7 +142,7 @@ InDet::TRT_DriftCircleOnTrack& InDet::TRT_DriftCircleOnTrack::operator=( const I
 
 //move assignment operator:
 InDet::TRT_DriftCircleOnTrack& InDet::TRT_DriftCircleOnTrack::operator=( InDet::TRT_DriftCircleOnTrack&& rot)
-{ 
+ noexcept { 
   if ( &rot != this) {
     Trk::RIO_OnTrack::operator= (rot);
     m_globalPosition        = std::move(rot.m_globalPosition);

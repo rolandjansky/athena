@@ -19,10 +19,17 @@ namespace D3PD {
                        "production vertex" );
    }
 
+#ifdef HEPMC3
+const HepMC::GenVertex* GenParticleVertexAssociationTool::get( const HepMC::GenParticle& p ) {
+      if( m_decay ) return p.end_vertex().get();
+      return p.production_vertex().get();
+}
+#else
    const HepMC::GenVertex* GenParticleVertexAssociationTool::get( const HepMC::GenParticle& p ) {
 
       if( m_decay ) return p.end_vertex();
       return p.production_vertex();
    }
+#endif
 
 } // namespace D3PD

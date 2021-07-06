@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMETMONITORING_TRIGMETMONITORALGORITHM_H
@@ -13,6 +13,11 @@
 #include "xAODTrigger/EnergySumRoI.h" 
 #include "xAODTrigMissingET/TrigMissingETContainer.h" 
 #include "xAODTrigMissingET/TrigMissingETAuxContainer.h" 
+#include "xAODMuon/MuonContainer.h"
+#include "xAODMuon/Muon.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/Electron.h"
+
 
 #include "TrigDecisionInterface/ITrigDecisionTool.h"
 
@@ -27,6 +32,8 @@ class TrigMETMonitorAlgorithm : public AthMonitorAlgorithm {
   double signed_log(double e, double epsilon) const;
 
   SG::ReadHandleKey<xAOD::MissingETContainer> m_offline_met_key;
+  SG::ReadHandleKey<xAOD::ElectronContainer> m_hlt_electron_key;
+  SG::ReadHandleKey<xAOD::MuonContainer> m_hlt_muon_key;
 
   SG::ReadHandleKey<xAOD::EnergySumRoI> m_lvl1_roi_key;
   SG::ReadHandleKey<xAOD::EnergySumRoI> m_lvl1_jnc_key;
@@ -71,9 +78,5 @@ class TrigMETMonitorAlgorithm : public AthMonitorAlgorithm {
   std::string m_HLTChain12;
   std::string m_HLTChain13;
   std::string m_HLTChain14;
-
-  ToolHandle<Trig::ITrigDecisionTool> m_trigDecTool;
-  
-
 };
 #endif

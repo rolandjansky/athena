@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,9 +15,9 @@
 #include "SiDigitization/SiChargedDiodeCollection.h"
 // member classes
 #include "SiDigitization/SiHelper.h"
-#include "InDetReadoutGeometry/SiDetectorDesign.h"
-#include "InDetReadoutGeometry/SiReadoutCellId.h"
-#include "InDetReadoutGeometry/SiCellId.h"
+#include "ReadoutGeometryBase/DetectorDesign.h"
+#include "ReadoutGeometryBase/SiReadoutCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/getMessageSvc.h"
 
@@ -31,7 +31,7 @@ SiChargedDiodeCollection::SiChargedDiodeCollection( ) :
 {
 }
 
-SiChargedDiodeCollection::SiChargedDiodeCollection(const InDetDD::SiDetectorElement* sielement ) :
+SiChargedDiodeCollection::SiChargedDiodeCollection(const InDetDD::SolidStateDetectorElementBase* sielement ) :
   m_chargedDiodes(),
   m_sielement(sielement)
 {
@@ -49,80 +49,7 @@ void SiChargedDiodeCollection::clear() {
   m_orderedChargedDiodes.clear();
 }
 
-// Add a new SiCharge to the collection 
-void SiChargedDiodeCollection::add(const SiCellId & diode,
-				   const SiCharge & charge)
-{
-  // check the pointer is correct
-  if (!diode.isValid()) return;
 
-  // find this diode in the charged diode collection
-  // find it by id in the map. 
-  //
-
-  SiChargedDiodeIterator the_diode = m_chargedDiodes.find(diode);
-
-  if(the_diode != m_chargedDiodes.end() ) {
-    // Add to existing charge
-    (*the_diode).second.add(charge);
-  } else {
-    // if the new diode has not been found in the collection
-    // get the read out cell from the design. 
-    //
-    SiReadoutCellId roCell=design().readoutIdOfCell(diode);
-    if (!roCell.isValid()) { // I don't think this can occur at this stage but cant hurt.
-      MsgStream log(Athena::getMessageSvc(),"SiChargedDiodeCollection");
-      log << MSG::FATAL << "Could not create SiReadoutCellId object !"<< endmsg;
-    }
-    // create a new charged diode
-    SiChargedDiode chargedDiode(m_allocator, diode,roCell);
-    // add the new charge to it
-    chargedDiode.add(charge);
-    if (charge.processType() == SiCharge::extraNoise) SiHelper::noise(chargedDiode,true);
-    // add the new charged diode to the charged diode collection
-    auto p = m_chargedDiodes.emplace(diode,chargedDiode);
-    if (!m_orderedChargedDiodes.empty()) {
-      m_orderedChargedDiodes.insert (&p.first->second);
-    }
-  }
-}
-
-// Add a new SiTotalCharge to the collection 
-void SiChargedDiodeCollection::add(const SiCellId & diode,
-				   const SiTotalCharge & totcharge)
-{
-  // check the pointer is correct
-  if (!diode.isValid()) return;
-
-  // find this diode in the charged diode collection
-  // find it by id in the map. 
-  //
-
-  SiChargedDiodeIterator the_diode = m_chargedDiodes.find(diode);
-
-  if(the_diode != m_chargedDiodes.end() ) {
-    // Add to existing charge
-    (*the_diode).second.add(totcharge);
-  } else {
-    // if the new diode has not been found in the collection
-    // get the read out cell from the design. 
-    //
-    SiReadoutCellId roCell=design().readoutIdOfCell(diode);
-    if (!roCell.isValid()) {  // I don't think this can occur at this stage but cant hurt.
-      MsgStream log(Athena::getMessageSvc(),"SiChargedDiodeCollection");
-      log << MSG::FATAL << "Could not create SiReadoutCellId object !"<< endmsg;
-    }
-    // create a new charged diode
-    SiChargedDiode chargedDiode(m_allocator, diode,roCell);
-    // add the new charge to it
-    chargedDiode.add(totcharge);
-    // add the new charged diode to the charged diode collection
-    auto p = m_chargedDiodes.emplace(diode,chargedDiode);
-    if (!m_orderedChargedDiodes.empty()) {
-      m_orderedChargedDiodes.insert (&p.first->second);
-    }
-  }
-}
 
 bool SiChargedDiodeCollection::AlreadyHit(const InDetDD::SiCellId & siId) {
   if(m_chargedDiodes.find(siId) == m_chargedDiodes.end() ) {

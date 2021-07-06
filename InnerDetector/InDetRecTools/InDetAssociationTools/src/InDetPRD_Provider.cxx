@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -25,16 +25,16 @@
 
 InDet::InDetPRD_Provider::InDetPRD_Provider(const std::string& t, const std::string& n, const IInterface* p):
   AthAlgTool(t,n,p),
-  m_idHelper(0),
-  m_pixIdHelper(0),
+  m_idHelper(nullptr),
+  m_pixIdHelper(nullptr),
   m_pixClusterContainerName(""),
-  m_pixClusterContainer(0),  
-  m_sctIdHelper(0),
+  m_pixClusterContainer(nullptr),  
+  m_sctIdHelper(nullptr),
   m_sctClusterContainerName(""),
-  m_sctClusterContainer(0), 
-  m_trtIdHelper(0),
+  m_sctClusterContainer(nullptr), 
+  m_trtIdHelper(nullptr),
   m_trtDriftCircleContainerName(""),
-  m_trtDriftCircleContainer(0)
+  m_trtDriftCircleContainer(nullptr)
 {
     declareInterface<Trk::IPRD_Provider>(this);
     // PRD container name
@@ -88,7 +88,7 @@ const Trk::PrepRawData* InDet::InDetPRD_Provider::prdFromIdentifier(const Identi
     // check validity of the Identifier
     if (!ide.is_valid()){
         ATH_MSG_VERBOSE("The identifier is not valid ! Return 0.");
-        return 0;
+        return nullptr;
     }
     // is pixel case 
     if ( m_idHelper->is_pixel(ide) &&  m_pixClusterContainer ){
@@ -99,7 +99,7 @@ const Trk::PrepRawData* InDet::InDetPRD_Provider::prdFromIdentifier(const Identi
         ATH_MSG_VERBOSE("Pixel Identifier found as transformed to hash identifier " << (unsigned int)ideHash );
 	    if (!ideHash.is_valid()){
 		    ATH_MSG_VERBOSE("The hash identifier is not valid ! Return 0.");
-		    return 0;
+		    return nullptr;
 	    }
         return prdFromIdentifierContainer<InDet::PixelCluster>(*m_pixClusterContainer,ide,ideHash);
     }
@@ -112,7 +112,7 @@ const Trk::PrepRawData* InDet::InDetPRD_Provider::prdFromIdentifier(const Identi
         ATH_MSG_VERBOSE("SCT Identifier found as transformed to hash identifier " << (unsigned int)ideHash );
         if (!ideHash.is_valid()){
 		    ATH_MSG_VERBOSE("The hash identifier is not valid ! Return 0.");
-		    return 0;
+		    return nullptr;
 	    }
         return prdFromIdentifierContainer<InDet::SCT_Cluster>(*m_sctClusterContainer,ide,ideHash);
     }
@@ -128,9 +128,9 @@ const Trk::PrepRawData* InDet::InDetPRD_Provider::prdFromIdentifier(const Identi
         ATH_MSG_VERBOSE("TRT Identifier found as transformed to hash identifier " << (unsigned int)ideHash );
         if (!ideHash.is_valid()){
 		    ATH_MSG_VERBOSE("The hash identifier is not valid ! Return 0.");
-		    return 0;
+		    return nullptr;
 	    }
         return prdFromIdentifierContainer<InDet::TRT_DriftCircle>(*m_trtDriftCircleContainer,ide,ideHash);
     }
-    return 0;
+    return nullptr;
 }

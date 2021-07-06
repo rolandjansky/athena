@@ -16,8 +16,6 @@ class TGCHighPtChipOut;
 const int PtLow = 0;
 const int PtHigh =1;
 
-const int NumberOfTSBOut = 2; 
-const int NumberOfDSBOut = 3; //look at the HighPt Board
 const int NumberOfAdjacentHPB = 2;
 const int NumberOfChip = 2;
 const int NBlockOfDSBChannel = 6;
@@ -32,8 +30,14 @@ inline TGCHBChip operator++( TGCHBChip &rs, int )
     return rs = (TGCHBChip)(rs + 1);
 }
 
-class TGCHighPtBoard {
-public:
+class TGCHighPtBoard
+{
+ private:
+  static constexpr int s_NumberOfTSBOut = 2;
+  static constexpr int s_NumberOfDSBOut = 3; //look at the HighPt Board
+
+
+ public:
   void clockIn(int bidIn);
   TGCHighPtChipOut* getOutput();
   void eraseOutput();
@@ -88,10 +92,10 @@ protected:
   TGCHighPtBoardOut* m_highPtBoardOut;
   TGCHighPtBoardOut* m_lowPtBoardOut;	//Low-pT Outputs from SLB ASICs.
 
-  TGCSlaveBoard* m_DSB[NumberOfChip][NumberOfDSBOut];
-  TGCSlaveBoard* m_TSB[NumberOfChip][NumberOfTSBOut];
-  TGCSlaveBoardOut* m_DSBOut[NumberOfChip][NumberOfDSBOut];
-  TGCSlaveBoardOut* m_TSBOut[NumberOfChip][NumberOfTSBOut];
+  TGCSlaveBoard* m_DSB[NumberOfChip][s_NumberOfDSBOut];
+  TGCSlaveBoard* m_TSB[NumberOfChip][s_NumberOfTSBOut];
+  TGCSlaveBoardOut* m_DSBOut[NumberOfChip][s_NumberOfDSBOut];
+  TGCSlaveBoardOut* m_TSBOut[NumberOfChip][s_NumberOfTSBOut];
   TGCHighPtBoard* m_adjacentHPB[NumberOfAdjacentHPB];
   TGCSlaveBoardOut* m_decoderInTSB[NumberOfChip][NDecoderInTSB];
   TGCSlaveBoardOut* m_decoderInDSB[NumberOfChip][NDecoderInDSB];
@@ -134,16 +138,16 @@ int TGCHighPtBoard::getType() const
 inline
 void TGCHighPtBoard::setDSB(int connector, TGCSlaveBoard* SBIn)
 {
-  int port = connector%NumberOfDSBOut;
-  int chip = connector/NumberOfDSBOut;
+  int port = connector % s_NumberOfDSBOut;
+  int chip = connector / s_NumberOfDSBOut;
   m_DSB[chip][port] = SBIn;
 }
 
 inline
 void TGCHighPtBoard::setTSB(int connector, TGCSlaveBoard* SBIn)
 {
-  int port = connector%NumberOfTSBOut;
-  int chip = connector/NumberOfTSBOut;
+  int port = connector % s_NumberOfTSBOut;
+  int chip = connector / s_NumberOfTSBOut;
   m_TSB[chip][port] = SBIn;
 }
 

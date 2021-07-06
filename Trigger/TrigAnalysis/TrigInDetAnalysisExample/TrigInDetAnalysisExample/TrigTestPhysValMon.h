@@ -13,8 +13,6 @@
 #define TIDA_TRIGTESTPHYSVALMONTOOL_H
 
 
-#include "InDetBeamSpotService/IBeamCondSvc.h"
-
 #include "TrigHLTMonitoring/IHLTMonTool.h"
 
 #include "TrigInDetAnalysis/TrackFilter.h"

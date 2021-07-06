@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /* ****************************************************************************
@@ -55,13 +55,13 @@ It is a special dead material cell based on dead material calibration hit
 Has a list of neighboring clusters
 **************************************************************************** */
 CaloDmCell::CaloDmCell(const CaloCalibrationHit *hit, const CaloDmDescrElement *element, const CaloDmRegion *region)
+  : m_id (hit->cellID()),
+    m_energy_total (hit->energyTotal()),
+    m_sum_cls_energy (0.0),
+    m_dmarea_n (CaloDmEnergy::DMA_UNCLASS),
+    m_element (element),
+    m_region (region)
 {
-  m_id = hit->cellID();
-  m_energy_total = hit->energyTotal();
-  m_element = element;
-  m_region = region;
-  m_dmarea_n = CaloDmEnergy::DMA_UNCLASS;
-  m_sum_cls_energy = 0.0;
 }
 
 CaloDmCell::~CaloDmCell()
@@ -69,7 +69,7 @@ CaloDmCell::~CaloDmCell()
 }
 
 
-void CaloDmCell::Add(CaloCalibrationHit *hit)
+void CaloDmCell::Add(const CaloCalibrationHit *hit)
 {
   m_energy_total += hit->energyTotal();
 }
@@ -107,8 +107,8 @@ CaloDmEnergy::~CaloDmEnergy()
 {
   m_dmsum_area_etotal.clear();
   m_dmcls_area_etotal.clear();
-  for(std::vector<CaloDmCell *>::iterator it=m_CaloDmCellVector.begin(); it!=m_CaloDmCellVector.end(); it++){
-    delete (*it);
+  for (CaloDmCell* cell : m_CaloDmCellVector) {
+    delete cell;
   }
   m_CaloDmCellVector.clear();
   m_CaloDmCellContainer.clear();
@@ -162,11 +162,11 @@ int CaloDmEnergy::assign2clusters(const std::string &clusterContainerName)
 
   // retreiving DM containers
   std::vector<const CaloCalibrationHitContainer *> v_dmcchc;
-  for (std::vector<std::string>::iterator iter=m_CalibrationContainerNamesDM.begin();iter!=m_CalibrationContainerNamesDM.end();iter++) {
+  for (const std::string& name : m_CalibrationContainerNamesDM) {
     const CaloCalibrationHitContainer* dmcchc = nullptr;
-    sc = m_storeGate->retrieve(dmcchc,*iter);
+    sc = m_storeGate->retrieve(dmcchc,name);
     if (sc.isFailure() ) {
-      log << MSG::WARNING << "Cannot retrieve DM calibration hit container " << *iter << endmsg;
+      log << MSG::WARNING << "Cannot retrieve DM calibration hit container " << name << endmsg;
       return 1;
     } else {
       v_dmcchc.push_back(dmcchc);
@@ -184,8 +184,7 @@ int CaloDmEnergy::assign2clusters(const std::string &clusterContainerName)
   // the procedure needs calibration energy of clusters
   std::vector<double > v_cluster_calib_energy;
   v_cluster_calib_energy.resize(theClusters->size(), 0.0);
-  for(xAOD::CaloClusterContainer::const_iterator ic=theClusters->begin(); ic != theClusters->end(); ic++){
-    const xAOD::CaloCluster *cluster =(*ic);
+  for (const xAOD::CaloCluster *cluster : *theClusters) {
     double x_moment = 0;
     (void)cluster->retrieveMoment( xAOD::CaloCluster::ENG_CALIB_TOT, x_moment);
     v_cluster_calib_energy.push_back(x_moment);
@@ -229,14 +228,13 @@ int CaloDmEnergy::assign2clusters(std::vector<const CaloCalibrationHitContainer 
   Step1: assignment of DM hits to clusters direct neighbours cells
   ****************************************************** */
   int nc=0;
-  for(xAOD::CaloClusterContainer::const_iterator ic=theClusters->begin(); ic != theClusters->end(); ic++){
+  for (const xAOD::CaloCluster *cluster : *theClusters) {
     if(nc < m_max_cluster){
-      const xAOD::CaloCluster *cluster =(*ic);
       if(cluster->e() > m_apars_clust_min_ener && v_cluster_calib_energy[nc] > m_apars_clust_min_ecalib) {
         int cell_indx=0;
         CaloClusterCellLink::const_iterator it_cell = cluster->cell_begin();
         CaloClusterCellLink::const_iterator it_cell_end = cluster->cell_end();
-        for(; it_cell != it_cell_end; it_cell++){
+        for(; it_cell != it_cell_end; ++it_cell){
           const CaloCell* cell = (*it_cell);
           //double cell_energy = cell->energy()*cluster->getCellWeight(it_cell);
           double cell_energy = cell->energy()*(it_cell.weight());
@@ -249,8 +247,7 @@ int CaloDmEnergy::assign2clusters(std::vector<const CaloCalibrationHitContainer 
           std::vector<IdentifierHash > cell_dmnei;
           m_caloDmNeighbours->getNeighbours_DmHitsForCaloCell(cell_id, cell_dmnei);
           // checking CaloDmCell container for these hash_id's
-          for(std::vector<IdentifierHash >::iterator it=cell_dmnei.begin(); it!=cell_dmnei.end(); it++){
-            IdentifierHash dm_hash_id = (*it);
+          for (IdentifierHash dm_hash_id : cell_dmnei) {
 #ifdef DEBUG
             Identifier dm_id;
             if(dm_hash_id < m_caloDM_ID->lar_zone_hash_max()){
@@ -294,13 +291,11 @@ int CaloDmEnergy::assign2clusters(std::vector<const CaloCalibrationHitContainer 
   /* ******************************************************
   Step2: assignment of DM hits to clusters on sampling level
   ****************************************************** */
-  for(std::vector<CaloDmCell *>::iterator it=m_CaloDmCellVector.begin(); it!= m_CaloDmCellVector.end(); it++){
-    CaloDmCell *dmCell = (*it);
+  for (CaloDmCell *dmCell : m_CaloDmCellVector) {
     if( dmCell->m_cls_index.empty() ){ // DM cells assigned to clusters by previous procedure will be skipped
        xAOD::CaloClusterContainer::const_iterator ic;
       nc=0;
-      for(ic=theClusters->begin(); ic != theClusters->end(); ic++){
-        const xAOD::CaloCluster *cluster = (*ic);
+      for (const xAOD::CaloCluster *cluster : *theClusters) {
         if(nc < m_max_cluster){
           if(cluster->e() > m_apars_clust_min_ener && v_cluster_calib_energy[nc] > m_apars_clust_min_ecalib) {
 
@@ -325,8 +320,7 @@ int CaloDmEnergy::assign2clusters(std::vector<const CaloCalibrationHitContainer 
   /* ******************************************************
   saving energy sums in different calo areas for each cluster separately
   ****************************************************** */
-  for(std::vector<CaloDmCell *>::iterator it=m_CaloDmCellVector.begin(); it!= m_CaloDmCellVector.end(); it++){
-    CaloDmCell *dmCell = (*it);
+  for (CaloDmCell *dmCell : m_CaloDmCellVector) {
     if(!dmCell->m_cls_index.empty()) m_dmcls_sum_etotal += dmCell->energyTotal();
     for(unsigned int i_cls=0; i_cls<dmCell->m_cls_index.size(); i_cls++){
       int cls_indx = dmCell->m_cls_index[i_cls];
@@ -342,8 +336,8 @@ int CaloDmEnergy::assign2clusters(std::vector<const CaloCalibrationHitContainer 
             << " v_cluster_calib_energy[i_cls]: " << v_cluster_calib_energy[nc]
             << std::endl;
       }
-      m_dmcls_area_etotal[cls_indx][DMA_ALL] += (*it)->energyTotal()*dm_weight;
-      m_dmcls_area_etotal[cls_indx][(*it)->dmAreaN()] += (*it)->energyTotal()*dm_weight;
+      m_dmcls_area_etotal[cls_indx][DMA_ALL] += dmCell->energyTotal()*dm_weight;
+      m_dmcls_area_etotal[cls_indx][dmCell->dmAreaN()] += dmCell->energyTotal()*dm_weight;
     }
   } // loop over DM cells
 
@@ -413,8 +407,8 @@ int CaloDmEnergy::make_dmcell_vector(std::vector<const CaloCalibrationHitContain
   m_dmsum_area_etotal.clear();
   m_dmsum_area_etotal.resize(DMA_MAX,0.0);
 
-  for(std::vector<CaloDmCell *>::iterator it=m_CaloDmCellVector.begin(); it!=m_CaloDmCellVector.end(); it++) {
-    delete (*it);
+  for (CaloDmCell* cell : m_CaloDmCellVector) {
+    delete cell;
   }
   m_CaloDmCellVector.clear();
   m_CaloDmCellContainer.clear();
@@ -423,17 +417,15 @@ int CaloDmEnergy::make_dmcell_vector(std::vector<const CaloCalibrationHitContain
   int dmhit_n = 0;
   int dmhit_ntotal = 0;
   int dmcell_n = 0;
-  for (std::vector<const CaloCalibrationHitContainer * >::const_iterator itCont=v_dmcchc.begin();itCont!=v_dmcchc.end();itCont++) {
-    const CaloCalibrationHitContainer* hitContainer= (*itCont);
-    CaloCalibrationHitContainer::const_iterator it;
-    for(it = hitContainer->begin(); it!=hitContainer->end(); it++) {
-      m_dmsum_etotal += (*it)->energyTotal();
-      m_dmsum_em += (*it)->energyEM();
-      m_dmsum_nonem += (*it)->energyNonEM();
-      m_dmsum_invisible += (*it)->energyInvisible();
-      m_dmsum_escaped += (*it)->energyEscaped();
+  for (const CaloCalibrationHitContainer* hitContainer : v_dmcchc) {
+    for (const CaloCalibrationHit* hit : *hitContainer) {
+      m_dmsum_etotal += hit->energyTotal();
+      m_dmsum_em += hit->energyEM();
+      m_dmsum_nonem += hit->energyNonEM();
+      m_dmsum_invisible += hit->energyInvisible();
+      m_dmsum_escaped += hit->energyEscaped();
       if(dmhit_n < m_max_dmhit) {
-        Identifier id  = (*it)->cellID();
+        Identifier id  = hit->cellID();
         // Check ID for validity
         if (m_id_helper->is_lar_dm(id) || m_id_helper->is_tile_dm(id)) {
           IdentifierHash id_hash;
@@ -445,25 +437,25 @@ int CaloDmEnergy::make_dmcell_vector(std::vector<const CaloCalibrationHitContain
           }
           int narea = get_area(id, m_caloDmDescrManager->get_element(id)->eta());
           // saving sums of DM energy in different areas
-          m_dmsum_area_etotal[narea] += (*it)->energyTotal();
-          m_dmsum_area_etotal[DMA_ALL] += (*it)->energyTotal();
+          m_dmsum_area_etotal[narea] += hit->energyTotal();
+          m_dmsum_area_etotal[DMA_ALL] += hit->energyTotal();
 
           // DmCell creation: put cell into container if it doesn't exist
           if( !m_CaloDmCellContainer[id_hash] ){
-            CaloDmCell *cell = new CaloDmCell((*it), m_caloDmDescrManager->get_element(id), m_caloDmDescrManager->get_dm_region(id));
+            CaloDmCell *cell = new CaloDmCell(hit, m_caloDmDescrManager->get_element(id), m_caloDmDescrManager->get_dm_region(id));
             cell->SetAreaN(narea);
             m_CaloDmCellContainer[id_hash] = cell;
             dmcell_n++;
             // otherwise add energies into existing hits
           } else{
             CaloDmCell *cell = m_CaloDmCellContainer[id_hash];
-            cell->Add( (*it) );
+            cell->Add( hit );
           }
           dmhit_n++;
         } else {
           log << MSG::WARNING<<"CaloDmEnergy::process() -> Alien identifier "
               << m_id_helper->show_to_string(id)
-              << " in container '" << (*itCont)->Name()
+              << " in container '" << hitContainer->Name()
               << "'." << endmsg ;
         } // is lar_id, tile_id
       }// dmhit_n < m_max_dmhit
@@ -474,8 +466,8 @@ int CaloDmEnergy::make_dmcell_vector(std::vector<const CaloCalibrationHitContain
     } // loop over hits 
   } // loop over containers
 
-  for(std::vector<CaloDmCell *>::iterator it=m_CaloDmCellContainer.begin(); it!=m_CaloDmCellContainer.end(); it++){
-    if( (*it) != 0) m_CaloDmCellVector.push_back((*it));
+  for (CaloDmCell* cell : m_CaloDmCellContainer) {
+    if( cell != 0) m_CaloDmCellVector.push_back(cell);
   }
   return 0;
 }

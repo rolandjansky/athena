@@ -151,7 +151,7 @@ private:
   ServiceHandle<L1CaloCondSvc> m_l1CondSvc;
 
   /// Database container
-  L1CaloRunParametersContainer* m_runParametersContainer;
+  L1CaloRunParametersContainer* m_runParametersContainer{};
 
   /// Root directory name
   std::string m_rootDir;
@@ -160,49 +160,49 @@ private:
   std::string m_triggerTowerLocation;
 
   /// Cut on ADC digits for re-simulation
-  int m_simulationADCCut;
+  int m_simulationADCCut{};
   /// Histograms booked flag
-  bool m_histBooked;
+  bool m_histBooked{};
 
   //=======================
   //   Match/Mismatch plots
   //=======================
 
   // LUT-CP
-  TH2F_LW* m_h_ppm_em_2d_etaPhi_tt_lutCp_SimEqData;  ///< PPM LUT EM Data/Simulation Non-zero Matches
-  TH2F_LW* m_h_ppm_em_2d_etaPhi_tt_lutCp_SimNeData;  ///< PPM LUT EM Data/Simulation Non-zero Mismatches
-  TH2F_LW* m_h_ppm_em_2d_etaPhi_tt_lutCp_SimNoData;  ///< PPM LUT EM Simulation but no Data
-  TH2F_LW* m_h_ppm_em_2d_etaPhi_tt_lutCp_DataNoSim;  ///< PPM LUT EM Data but no Simulation
-  TH2F_LW* m_h_ppm_had_2d_etaPhi_tt_lutCp_SimEqData; ///< PPM LUT HAD Data/Simulation Non-zero Matches
-  TH2F_LW* m_h_ppm_had_2d_etaPhi_tt_lutCp_SimNeData; ///< PPM LUT HAD Data/Simulation Non-zero Mismatches
-  TH2F_LW* m_h_ppm_had_2d_etaPhi_tt_lutCp_SimNoData; ///< PPM LUT HAD Simulation but no Data
-  TH2F_LW* m_h_ppm_had_2d_etaPhi_tt_lutCp_DataNoSim; ///< PPM LUT HAD Data but no Simulation
+  TH2F_LW* m_h_ppm_em_2d_etaPhi_tt_lutCp_SimEqData{};  ///< PPM LUT EM Data/Simulation Non-zero Matches
+  TH2F_LW* m_h_ppm_em_2d_etaPhi_tt_lutCp_SimNeData{};  ///< PPM LUT EM Data/Simulation Non-zero Mismatches
+  TH2F_LW* m_h_ppm_em_2d_etaPhi_tt_lutCp_SimNoData{};  ///< PPM LUT EM Simulation but no Data
+  TH2F_LW* m_h_ppm_em_2d_etaPhi_tt_lutCp_DataNoSim{};  ///< PPM LUT EM Data but no Simulation
+  TH2F_LW* m_h_ppm_had_2d_etaPhi_tt_lutCp_SimEqData{}; ///< PPM LUT HAD Data/Simulation Non-zero Matches
+  TH2F_LW* m_h_ppm_had_2d_etaPhi_tt_lutCp_SimNeData{}; ///< PPM LUT HAD Data/Simulation Non-zero Mismatches
+  TH2F_LW* m_h_ppm_had_2d_etaPhi_tt_lutCp_SimNoData{}; ///< PPM LUT HAD Simulation but no Data
+  TH2F_LW* m_h_ppm_had_2d_etaPhi_tt_lutCp_DataNoSim{}; ///< PPM LUT HAD Data but no Simulation
   
   // LUT-JEP
-  TH2F_LW* m_h_ppm_em_2d_etaPhi_tt_lutJep_SimEqData;  ///< PPM LUT EM Data/Simulation Non-zero Matches
-  TH2F_LW* m_h_ppm_em_2d_etaPhi_tt_lutJep_SimNeData;  ///< PPM LUT EM Data/Simulation Non-zero Mismatches
-  TH2F_LW* m_h_ppm_em_2d_etaPhi_tt_lutJep_SimNoData;  ///< PPM LUT EM Simulation but no Data
-  TH2F_LW* m_h_ppm_em_2d_etaPhi_tt_lutJep_DataNoSim;  ///< PPM LUT EM Data but no Simulation
-  TH2F_LW* m_h_ppm_had_2d_etaPhi_tt_lutJep_SimEqData; ///< PPM LUT HAD Data/Simulation Non-zero Matches
-  TH2F_LW* m_h_ppm_had_2d_etaPhi_tt_lutJep_SimNeData; ///< PPM LUT HAD Data/Simulation Non-zero Mismatches
-  TH2F_LW* m_h_ppm_had_2d_etaPhi_tt_lutJep_SimNoData; ///< PPM LUT HAD Simulation but no Data
-  TH2F_LW* m_h_ppm_had_2d_etaPhi_tt_lutJep_DataNoSim; ///< PPM LUT HAD Data but no Simulation
+  TH2F_LW* m_h_ppm_em_2d_etaPhi_tt_lutJep_SimEqData{};  ///< PPM LUT EM Data/Simulation Non-zero Matches
+  TH2F_LW* m_h_ppm_em_2d_etaPhi_tt_lutJep_SimNeData{};  ///< PPM LUT EM Data/Simulation Non-zero Mismatches
+  TH2F_LW* m_h_ppm_em_2d_etaPhi_tt_lutJep_SimNoData{};  ///< PPM LUT EM Simulation but no Data
+  TH2F_LW* m_h_ppm_em_2d_etaPhi_tt_lutJep_DataNoSim{};  ///< PPM LUT EM Data but no Simulation
+  TH2F_LW* m_h_ppm_had_2d_etaPhi_tt_lutJep_SimEqData{}; ///< PPM LUT HAD Data/Simulation Non-zero Matches
+  TH2F_LW* m_h_ppm_had_2d_etaPhi_tt_lutJep_SimNeData{}; ///< PPM LUT HAD Data/Simulation Non-zero Mismatches
+  TH2F_LW* m_h_ppm_had_2d_etaPhi_tt_lutJep_SimNoData{}; ///< PPM LUT HAD Simulation but no Data
+  TH2F_LW* m_h_ppm_had_2d_etaPhi_tt_lutJep_DataNoSim{}; ///< PPM LUT HAD Data but no Simulation
 
   // BCID
-  TH2F_LW* m_h_ppm_2d_etaPhi_tt_peakf_NonZeroMatches;   ///< PPM PEAKFINDER BCID Data/Simulation Non-zero Matches
-  TH2F_LW* m_h_ppm_2d_etaPhi_tt_peakf_ZeroMatches;      ///< PPM PEAKFINDER BCID Data/Simulation Zero Matches
-  TH2F_LW* m_h_ppm_2d_etaPhi_tt_peakf_SimNoData;        ///< PPM PEAKFINDER BCID Data/Simulation Simulation but no Data
-  TH2F_LW* m_h_ppm_2d_etaPhi_tt_peakf_DataNoSim;        ///< PPM PEAKFINDER BCID Data/Simulation Data but no Simulation
-  TH2F_LW* m_h_ppm_2d_etaPhi_tt_satBcid_NonZeroMatches; ///< PPM SATURATED BCID Data/Simulation Non-zero Matches
-  TH2F_LW* m_h_ppm_2d_etaPhi_tt_satBcid_ZeroMatches;    ///< PPM SATURATED BCID Data/Simulation Zero Matches
-  TH2F_LW* m_h_ppm_2d_etaPhi_tt_satBcid_SimNoData;      ///< PPM SATURATED BCID Data/Simulation Simulation but no Data
-  TH2F_LW* m_h_ppm_2d_etaPhi_tt_satBcid_DataNoSim;      ///< PPM SATURATED BCID Data/Simulation Data but no Simulation
+  TH2F_LW* m_h_ppm_2d_etaPhi_tt_peakf_NonZeroMatches{};   ///< PPM PEAKFINDER BCID Data/Simulation Non-zero Matches
+  TH2F_LW* m_h_ppm_2d_etaPhi_tt_peakf_ZeroMatches{};      ///< PPM PEAKFINDER BCID Data/Simulation Zero Matches
+  TH2F_LW* m_h_ppm_2d_etaPhi_tt_peakf_SimNoData{};        ///< PPM PEAKFINDER BCID Data/Simulation Simulation but no Data
+  TH2F_LW* m_h_ppm_2d_etaPhi_tt_peakf_DataNoSim{};        ///< PPM PEAKFINDER BCID Data/Simulation Data but no Simulation
+  TH2F_LW* m_h_ppm_2d_etaPhi_tt_satBcid_NonZeroMatches{}; ///< PPM SATURATED BCID Data/Simulation Non-zero Matches
+  TH2F_LW* m_h_ppm_2d_etaPhi_tt_satBcid_ZeroMatches{};    ///< PPM SATURATED BCID Data/Simulation Zero Matches
+  TH2F_LW* m_h_ppm_2d_etaPhi_tt_satBcid_SimNoData{};      ///< PPM SATURATED BCID Data/Simulation Simulation but no Data
+  TH2F_LW* m_h_ppm_2d_etaPhi_tt_satBcid_DataNoSim{};      ///< PPM SATURATED BCID Data/Simulation Data but no Simulation
   
   // Mismatch Event Number Histograms
-  TH2I_LW* m_h_ppm_2d_LUT_MismatchEvents_cr0cr1;   ///< PPM LUT Mismatch Event Numbers Crates 0 and 1
-  TH2I_LW* m_h_ppm_2d_LUT_MismatchEvents_cr2cr3;   ///< PPM LUT Mismatch Event Numbers Crates 2 and 3
-  TH2I_LW* m_h_ppm_2d_LUT_MismatchEvents_cr4cr5;   ///< PPM LUT Mismatch Event Numbers Crates 4 and 5
-  TH2I_LW* m_h_ppm_2d_LUT_MismatchEvents_cr6cr7;   ///< PPM LUT Mismatch Event Numbers Crates 6 and 7
+  TH2I_LW* m_h_ppm_2d_LUT_MismatchEvents_cr0cr1{};   ///< PPM LUT Mismatch Event Numbers Crates 0 and 1
+  TH2I_LW* m_h_ppm_2d_LUT_MismatchEvents_cr2cr3{};   ///< PPM LUT Mismatch Event Numbers Crates 2 and 3
+  TH2I_LW* m_h_ppm_2d_LUT_MismatchEvents_cr4cr5{};   ///< PPM LUT Mismatch Event Numbers Crates 4 and 5
+  TH2I_LW* m_h_ppm_2d_LUT_MismatchEvents_cr6cr7{};   ///< PPM LUT Mismatch Event Numbers Crates 6 and 7
   
   // Mismatch Event Number Histograms for LUT-JEP
   //TH2I_LW* m_h_ppm_2d_LUTJEP_MismatchEvents_cr0cr1;   ///< PPM LUT-JEP Mismatch Event Numbers Crates 0 and 1

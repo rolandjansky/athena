@@ -43,7 +43,8 @@ atlas_add_executable( EgEfficiencyCorr_mem_check
 
 #Test
 atlas_add_test(ut_SimpleInitTest
-   SCRIPT EgEfficiencyCorr_mem_check)
+   SCRIPT EgEfficiencyCorr_mem_check
+   LOG_IGNORE_PATTERN "Package.AsgTool...  DEBUG")
 # AnalysisBase-only utilities:
 if( XAOD_STANDALONE )
 

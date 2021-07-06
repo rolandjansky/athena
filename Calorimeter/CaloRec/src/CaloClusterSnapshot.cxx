@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloUtils/CaloClusterStoreHelper.h"
@@ -36,7 +36,8 @@ StatusCode CaloClusterSnapshot::initialize() {
   if (m_setCrossLinks) {
     const CaloClusterMaker* parentAlgo=dynamic_cast<const CaloClusterMaker*>(parent());
     if (!parentAlgo) {
-      ATH_MSG_WARNING( "Configuration problem. Parent is not CaloClusterMaker. Can't set ElementLink to final cluster."  );
+      ATH_MSG_ERROR( "Configuration problem. Parent is not CaloClusterMaker. Can't set ElementLink to final cluster."  );
+      return StatusCode::FAILURE;
     }
     m_finalContName=&(parentAlgo->getOutputContainerName());
   }

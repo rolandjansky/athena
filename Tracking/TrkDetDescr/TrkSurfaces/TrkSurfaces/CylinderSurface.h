@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -52,33 +52,50 @@ class CylinderSurface : public Surface
 
 public:
   /** The surface type static constexpr */
-  static constexpr SurfaceType staticType = Surface::Cylinder;
+  static constexpr SurfaceType staticType = SurfaceType::Cylinder;
 
   /**Default Constructor*/
   CylinderSurface();
 
-  /**Constructor from EigenTransform, radius and halflenght*/
-  CylinderSurface(Amg::Transform3D* htrans, double radius, double hlength);
+  /**Copy constructor */
+  CylinderSurface(const CylinderSurface& csf);
 
-  /**Constructor from EigenTransform, radius halfphi, and halflenght*/
-  CylinderSurface(Amg::Transform3D* htrans,
+  /**Assignment operator*/
+  CylinderSurface& operator=(const CylinderSurface& csf);
+
+  /**Move constructor */
+  CylinderSurface(CylinderSurface&& csf) noexcept = default;
+
+  /**Move Assignment operator*/
+  CylinderSurface& operator=(CylinderSurface&& csf) noexcept = default;
+
+  /**Destructor*/
+  virtual ~CylinderSurface() = default;
+
+  /**Constructor from EigenTransform, radius and halflength*/
+  CylinderSurface(const Amg::Transform3D& htrans,
+                  double radius,
+                  double hlength);
+
+  /**Constructor from EigenTransform, radius halfphi, and halflength*/
+  CylinderSurface(const Amg::Transform3D& htrans,
                   double radius,
                   double hphi,
                   double hlength);
 
   /**Constructor from EigenTransform and CylinderBounds
     - ownership of the bounds is passed */
-  CylinderSurface(Amg::Transform3D* htrans, CylinderBounds* cbounds);
+  CylinderSurface(const Amg::Transform3D& htrans, CylinderBounds* cbounds);
 
   /**Constructor from EigenTransform from unique_ptr.
      - bounds is not set */
-  CylinderSurface(std::unique_ptr<Amg::Transform3D> htrans);
+  CylinderSurface(const Amg::Transform3D& htrans);
 
-  /** Constructor from radius and halflenght - speed optimized for concentric
+  /** Constructor from radius and halflength - speed optimized for concentric
    * volumes */
   CylinderSurface(double radius, double hlength);
 
-  /**Constructor from radius halfphi, and halflenght - speed optimized fron
+  /**Constructor from radius halfphi, and halflength - speed optimized for
    * concentric volumes */
   CylinderSurface(double radius, double hphi, double hlength);
 
@@ -87,17 +104,8 @@ public:
       - speed optimized fron concentric volumes */
   CylinderSurface(CylinderBounds* cbounds);
 
-  /**Copy constructor */
-  CylinderSurface(const CylinderSurface& csf);
-
-  /**Copy constructor with shift */
+   /**Copy constructor with shift */
   CylinderSurface(const CylinderSurface& csf, const Amg::Transform3D& transf);
-
-  /**Destructor*/
-  virtual ~CylinderSurface();
-
-  /**Assignment operator*/
-  CylinderSurface& operator=(const CylinderSurface& csf);
 
   /**Equality operator*/
   virtual bool operator==(const Surface& sf) const override;
@@ -107,57 +115,75 @@ public:
 
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * charged */
-  virtual ParametersT<5, Charged, CylinderSurface>* createTrackParameters(
+  virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
     double l1,
     double l2,
     double phi,
     double theta,
     double qop,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * charged*/
-  virtual ParametersT<5, Charged, CylinderSurface>* createTrackParameters(
+  virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * neutral */
-  virtual ParametersT<5, Neutral, CylinderSurface>* createNeutralParameters(
+  virtual NeutralTrackParametersUniquePtr createUniqueNeutralParameters(
     double l1,
     double l2,
     double phi,
     double theta,
     double qop,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * neutral */
-  virtual ParametersT<5, Neutral, CylinderSurface>* createNeutralParameters(
+  virtual NeutralTrackParametersUniquePtr createUniqueNeutralParameters(
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
-    AmgSymMatrix(5) * cov = nullptr) const override final;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters */
   template<int DIM, class T>
-  ParametersT<DIM, T, CylinderSurface>* createParameters(double l1,
-                                                         double l2,
-                                                         double phi,
-                                                         double theta,
-                                                         double qop,
-                                                         AmgSymMatrix(DIM) *
-                                                           cov = 0) const;
+  std::unique_ptr<ParametersT<DIM, T, CylinderSurface>> createUniqueParameters(
+    double l1,
+    double l2,
+    double phi,
+    double theta,
+    double qop,
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters */
   template<int DIM, class T>
-  const ParametersT<DIM, T, CylinderSurface>* createParameters(
+  std::unique_ptr<ParametersT<DIM, T, CylinderSurface>> createUniqueParameters(
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
-    AmgSymMatrix(DIM) * cov = 0) const;
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
+
+  /** Use the Surface as a ParametersBase constructor, from local parameters */
+  template<int DIM, class T>
+  ParametersT<DIM, T, CylinderSurface> createParameters(
+    double l1,
+    double l2,
+    double phi,
+    double theta,
+    double qop,
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
+
+  /** Use the Surface as a ParametersBase constructor, from global parameters */
+  template<int DIM, class T>
+  ParametersT<DIM, T, CylinderSurface> createParameters(
+    const Amg::Vector3D& position,
+    const Amg::Vector3D& momentum,
+    double charge,
+    std::optional<AmgSymMatrix(DIM)> cov = std::nullopt) const;
 
   /** Return the measurement frame - this is needed for alignment, in particular
      for StraightLine and Perigee Surface
@@ -165,25 +191,22 @@ public:
    */
   virtual Amg::RotationMatrix3D measurementFrame(
     const Amg::Vector3D& glopos,
-    const Amg::Vector3D& glomom) const override;
+    const Amg::Vector3D& glomom) const override final;
 
   /** Return the surface type */
   virtual SurfaceType type() const override final;
 
-   /** Returns a global reference point:
-     For the Cylinder this is @f$ (R*cos(\phi), R*sin(\phi),0)*transform() @f$
-     Where  @f$ \phi @f$ denotes the averagePhi() of the cylinderBounds.
-    */
+  /** Returns a global reference point:
+    For the Cylinder this is @f$ (R*cos(\phi), R*sin(\phi),0)*transform() @f$
+    Where  @f$ \phi @f$ denotes the averagePhi() of the cylinderBounds.
+   */
   virtual const Amg::Vector3D& globalReferencePoint() const override;
 
+  // using from the base class
+  using Trk::Surface::normal;
   /**Return method for surface normal information
      at a given local point, overwrites the normal() from base class.*/
-  virtual const Amg::Vector3D& normal() const override;
-
-  /**Return method for surface normal information
-     at a given local point, overwrites the normal() from base class.*/
-  virtual const Amg::Vector3D* normal(
-    const Amg::Vector2D& locpo) const override;
+  virtual Amg::Vector3D normal(const Amg::Vector2D& locpo) const override final;
 
   /**Return method for the rotational symmetry axis - the z-Axis of the
    * HepTransform */
@@ -205,7 +228,7 @@ public:
 
   /** Specialized for CylinderSurface : LocalParameters to Vector2D */
   virtual Amg::Vector2D localParametersToPosition(
-    const LocalParameters& locpars) const override final; 
+    const LocalParameters& locpars) const override final;
 
   /** Specialized for CylinderSurface : LocalToGlobal method without dynamic
    * memory allocation */
@@ -223,7 +246,7 @@ public:
     within or without check of whether the local position is inside boundaries
     or not */
   virtual bool isOnSurface(const Amg::Vector3D& glopo,
-                           BoundaryCheck bchk = true,
+                           const BoundaryCheck& bchk = true,
                            double tol1 = 0.,
                            double tol2 = 0.) const override;
 
@@ -276,9 +299,9 @@ protected: //!< data members
 
   SharedObject<const CylinderBounds> m_bounds; //!< bounds (shared)
   //!< The global reference point (== a point on the  surface)
-  CxxUtils::CachedUniquePtrT<Amg::Vector3D> m_referencePoint;
+  CxxUtils::CachedUniquePtr<Amg::Vector3D> m_referencePoint;
   //!< The rotational symmetry axis
-  CxxUtils::CachedUniquePtrT<Amg::Vector3D> m_rotSymmetryAxis;
+  CxxUtils::CachedUniquePtr<Amg::Vector3D> m_rotSymmetryAxis;
 };
 
 } // end of namespace

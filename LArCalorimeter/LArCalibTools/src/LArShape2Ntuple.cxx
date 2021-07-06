@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArShape2Ntuple.h"
@@ -13,8 +13,6 @@ LArShape2Ntuple::LArShape2Ntuple(const std::string& name, ISvcLocator* pSvcLocat
   LArCond2NtupleBase(name, pSvcLocator)
 {
   declareProperty("ContainerKey", m_contKey  = "LArShape");
-  //declareProperty("Nsamples",     m_nSamples = 5);
-  //declareProperty("Nphases",      m_nPhases  = 50);
   declareProperty("NtupleName",   m_ntName   = "SHAPE");
   declareProperty("NtupleFile",   m_ntFile   = "FILE1");
   declareProperty("isComplete",   m_isComplete=false);
@@ -28,6 +26,7 @@ LArShape2Ntuple::~LArShape2Ntuple()
 StatusCode LArShape2Ntuple::initialize() {
   m_ntTitle="Pulse Shape";
   m_ntpath=std::string("/NTUPLES/")+m_ntFile+std::string("/")+m_ntName;
+  ATH_CHECK(m_cablingKey.initialize());
   return LArCond2NtupleBase::initialize();
 }
 
@@ -39,7 +38,6 @@ StatusCode LArShape2Ntuple::stop() {
   NTuple::Item<float> timeOffset, phasetime;
   NTuple::Array<float> Shape, ShapeDer;
 
-  //NTuple::Tuple *nt=m_nt;
   
   sc=m_nt->addItem("Gain",gain,-1,2);
   if (sc!=StatusCode::SUCCESS) {
@@ -109,11 +107,9 @@ StatusCode LArShape2Ntuple::stop() {
 
   unsigned cellCounter=0;  
   for ( unsigned igain=CaloGain::LARHIGHGAIN; 
-	igain<CaloGain::LARNGAIN ; ++igain ) {
-    std::vector<HWIdentifier>::const_iterator it = m_onlineId->channel_begin();
-    std::vector<HWIdentifier>::const_iterator it_e = m_onlineId->channel_end();
-    for (;it!=it_e;it++) {
-      const HWIdentifier chid = *it;
+	igain<CaloGain::LARNGAIN ; ++igain )
+  {
+    for (HWIdentifier chid : m_onlineId->channel_range()) {
       if (!cabling->isOnlineConnected(chid)) continue;
       unsigned nPhase=1;
       if (larShapeComplete) nPhase=larShapeComplete->nTimeBins(chid,gain);

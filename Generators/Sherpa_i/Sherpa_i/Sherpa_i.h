@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SHERPA_I_SHERPA_I_H
@@ -24,6 +24,7 @@ public:
   StatusCode genFinalize();
   StatusCode fillEvt(HepMC::GenEvent* evt);
   void getParameters(int &argc, char** &argv);
+  void compilePlugin(std::string);
 
 protected:
   
@@ -46,6 +47,12 @@ protected:
 
   /// Memory required for integration/evgen
   double m_memorymb;
+
+  /// Optional code for plugin library to compile and load at run time
+  std::string m_plugincode;
+
+  /// Variation weight cap factor
+  double m_variation_weight_cap;
 
   double m_xsscale;
   bool m_cleanup;

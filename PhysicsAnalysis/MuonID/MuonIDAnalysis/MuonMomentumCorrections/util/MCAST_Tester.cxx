@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -29,7 +29,7 @@
 #include "xAODCore/tools/IOStats.h"
 #include "xAODCore/tools/ReadStats.h"
 #include "AsgMessaging/Check.h"
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/StandaloneToolHandle.h"
 #include "AsgMessaging/StatusCode.h"
 
 #include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
@@ -97,7 +97,6 @@ int main( int argc, char* argv[] ) {
   //:::  initialize the application and get the event
   ////////////////////////////////////////////////////
   ANA_CHECK (xAOD::Init( APP_NAME ));
-  StatusCode::enableChecking();
 
   //::: Open the input file:
   std::string fileName = argv[1];
@@ -124,7 +123,7 @@ int main( int argc, char* argv[] ) {
   // recommendation by ASG - https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AthAnalysisBase#How_to_use_AnaToolHandle
   ////////////////////////////////////////////////////
   //::: create the tool handle
-  asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool> corrTool; //!
+  asg::StandaloneToolHandle<CP::IMuonCalibrationAndSmearingTool> corrTool; //!
   corrTool.setTypeAndName("CP::MuonCalibrationAndSmearingTool/MuonCorrectionTool");
     //::: set the properties
   StatusCode sc;
@@ -152,7 +151,7 @@ int main( int argc, char* argv[] ) {
   // recommendation by ASG - https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AthAnalysisBase#How_to_use_AnaToolHandle
   ////////////////////////////////////////////////////
   //::: create the tool handle
-  asg::AnaToolHandle<CP::IMuonSelectionTool> selTool; //!
+  asg::StandaloneToolHandle<CP::IMuonSelectionTool> selTool; //!
   selTool.setTypeAndName("CP::MuonSelectionTool/MuonSelectionTool");
 
   //::: retrieve the tool

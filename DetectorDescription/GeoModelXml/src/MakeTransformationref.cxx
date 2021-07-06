@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -17,7 +17,7 @@ using namespace std;
 using namespace xercesc;
 
 const RCBase *MakeTransformationref::make(const DOMElement *element, GmxUtil &gmxUtil) const {
-const XMLCh *ref = XMLString::transcode("ref");
+XMLCh *ref = XMLString::transcode("ref");
 const XMLCh *idref;
 DOMDocument *doc = element->getOwnerDocument();
 char *toRelease;
@@ -41,5 +41,7 @@ char *toRelease;
 //
 //    Process it
 //
+    XMLString::release(&ref);
+    
     return gmxUtil.tagHandler.transformation.process(elem, gmxUtil);
 }

@@ -87,6 +87,7 @@ namespace {
     std::vector<float> mu_TPC_angle;
     std::vector<float> x_ontrack;
     std::vector<float> y_ontrack;
+    std::vector<float> residuals;
   };
 
 }
@@ -216,6 +217,7 @@ StatusCode MMRawDataMonAlg::fillMMOverviewVects( const Muon::MMPrepData* prd, MM
   vects.R_mon.push_back(R);
 
     
+
   //MMS and MML phi sectors
   int phisec=0;
   if (stationNumber%2 == 0) phisec=1;
@@ -355,7 +357,8 @@ StatusCode MMRawDataMonAlg::fillMMSummaryVects( const Muon::MMPrepData* prd, MMS
 
     //    Filling Vectors for both sides, considering each strip  
     Vectors.strip_number.push_back(stripNumbers[sIdx]);
-    Vectors.sector_strip.push_back(get_bin_for_occ_ASide_hist(stationEta,multiplet,gas_gap));
+    if(iside==1)    Vectors.sector_strip.push_back(get_bin_for_occ_ASide_hist(stationEta,multiplet,gas_gap));
+    if(iside==0)    Vectors.sector_strip.push_back(get_bin_for_occ_CSide_hist(stationEta,multiplet,gas_gap));
     
   }
 
@@ -408,27 +411,31 @@ StatusCode MMRawDataMonAlg::fillMMHistograms( const Muon::MMPrepData* ) const{
 void MMRawDataMonAlg::clusterFromTrack(const xAOD::TrackParticleContainer*  muonContainer, int lb) const{
 
   MMSummaryHistogramStruct summaryPlots[2][2][4];
+  MMSummaryHistogramStruct summaryPlots_full[2][16][2][2][4];
   MMOverviewHistogramStruct overviewPlots;
+
   int nmu=0;
 
   for (const xAOD::TrackParticle* meTP  : *muonContainer){
 
     if (meTP) {
       nmu++;
+      auto eta_trk = Monitored::Scalar<float>("eta_trk", meTP->eta());
+      auto phi_trk = Monitored::Scalar<float>("phi_trk", meTP->phi());
 
       // retrieve the original track                                                       
       const Trk::Track* meTrack = meTP->track();
       if (meTrack) {
         // get the vector of measurements on track                                                           
-       
+
 	const DataVector<const Trk::MeasurementBase>* meas = meTrack->measurementsOnTrack();
+
 	
 	for(const Trk::MeasurementBase* it: *meas){
 	
 	  const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(it);
 	  
 	  if (rot) {
-	      
 	    Identifier rot_id = rot->identify();
 	    if (m_idHelperSvc->isMM(rot_id)) {
 	      const Muon::MMClusterOnTrack* cluster = dynamic_cast<const Muon::MMClusterOnTrack*>(rot);
@@ -479,12 +486,71 @@ void MMRawDataMonAlg::clusterFromTrack(const xAOD::TrackParticleContainer*  muon
 		  vects.sector_lb_ASide_eta2_ontrack.push_back(get_bin_for_occ_lb_ASide_pcb_eta2_hist(stEta,multi,gap,PCB,phisec));
 		  
 		  }
-	                      
+
+		float x =		cluster->localParameters()[Trk::loc1] ;
+
+		for (const Trk::TrackStateOnSurface* trkState: *meTrack->trackStateOnSurfaces()) {
+
+		  if(!(trkState)) continue;
+		  Identifier surfaceId = (trkState)->surface().associatedDetectorElementIdentifier();
+		  if(!m_idHelperSvc->isMM(surfaceId)) continue;
+
+		  int trk_stEta= m_idHelperSvc->mmIdHelper().stationEta(surfaceId);
+		  int trk_stPhi= m_idHelperSvc->mmIdHelper().stationPhi(surfaceId);
+		  int trk_multi = m_idHelperSvc->mmIdHelper().multilayer(surfaceId);
+		  int trk_gap=  m_idHelperSvc->mmIdHelper().gasGap(surfaceId);
+		  if(  trk_stPhi==stPhi  and trk_stEta==stEta and trk_multi==multi and trk_gap==gap ){
+		    double x_trk = trkState->trackParameters()->parameters()[Trk::loc1];
+		    double y_trk = trkState->trackParameters()->parameters()[Trk::locY];
+		    
+		    int stPhi16=0;
+		    if (stName=="MML")   stPhi16=2*stPhi-1;
+		    
+		    if (stName=="MMS")  stPhi16=2*stPhi;
+
+		    int iside=0;
+		    if(stEta>0) iside=1;
+
+		    float stereo_angle=		      0.02618;
+		    //		    float stereo_correction=stereo_angle*y_trk;
+		    float stereo_correction=sin(stereo_angle)*y_trk;
+		    if(multi==1 && gap<3) stereo_correction=0;
+		    if(multi==2 && gap>2) stereo_correction=0;
+		    if(multi==1 && gap==3 ) stereo_correction*=-1;
+		    if(multi==2 && gap==1 ) stereo_correction*=-1;
+		    if(multi==1 && gap<3) stereo_angle=0;
+		    if(multi==2 && gap>2) stereo_angle=0;
+		    float res_stereo = (x - x_trk)*cos(stereo_angle) - stereo_correction;
+		    auto residual_mon = Monitored::Scalar<float>("residual", res_stereo);
+		    auto stPhi_mon = Monitored::Scalar<float>("stPhi_mon",stPhi16);
+		    fill("mmMonitor",residual_mon, eta_trk, phi_trk, stPhi_mon);
+		    int abs_stEta= get_sectorEta_from_stationEta(stEta);
+		    auto& vectors = summaryPlots_full[iside][stPhi16-1][abs_stEta-1][multi-1][gap-1];
+		    vectors.residuals.push_back(res_stereo);
+		  }
+		}
 	      } //if cluster
 	    } //isMM
 	  } // if rot
 	} // loop on meas
 	
+	for (int iside=0;iside<2;iside++){
+	std::string MM_sideGroup = "MM_sideGroup"+MM_Side[iside];
+	  for( int statPhi=0; statPhi<16; statPhi++) {
+	    for( int statEta=0; statEta<2; statEta++) {
+	      for( int multiplet=0; multiplet<2; multiplet++) {
+		for( int gas_gap=0; gas_gap<4; gas_gap++) {	
+		  auto& vects=summaryPlots_full[iside][statPhi][statEta][multiplet][gas_gap];;
+		  auto residuals_gap = Monitored::Collection("residuals_"+MM_Side[iside]+"_phi"+std::to_string(statPhi+1)+"_stationEta"+EtaSector[statEta]+"_multiplet"+std::to_string(multiplet+1)+"_gas_gap"+std::to_string(gas_gap+1),vects.residuals);
+		  std::string MM_GapGroup = "MM_GapGroup"+std::to_string(gas_gap+1);
+
+		  fill(MM_sideGroup,residuals_gap);
+		}
+	      }}}}
+
+
+
+
 	for (const Trk::TrackStateOnSurface* trkState: *meTrack->trackStateOnSurfaces()) {
 	  
 	  if(!(trkState)) continue;
@@ -500,13 +566,12 @@ void MMRawDataMonAlg::clusterFromTrack(const xAOD::TrackParticleContainer*  muon
 	  int iside=0;
 	  if(stEta>0) iside=1;
 
-	  auto& Vectors = summaryPlots[iside][multi-1][gap-1];
-	  
+	  auto& Vectors = summaryPlots[iside][multi-1][gap-1];	  
+
 	  //Filling x-y position vectors using the trackStateonSurface 
-	    Vectors.x_ontrack.push_back(pos.x());
-	    Vectors.y_ontrack.push_back(pos.y());
-	
-	  
+	  Vectors.x_ontrack.push_back(pos.x());
+	  Vectors.y_ontrack.push_back(pos.y());
+	    
 	}
       } // if meTrack
     } // if muon

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ##
 #
@@ -69,6 +69,11 @@ if hasattr (ROOT, 'TrigInDetParticleTruth'):
     getattr(ROOT, 'ElementLinkVector<TrigInDetTrackCollection>')
     getattr(ROOT, 'std::vector<Trig3Momentum>')
     ROOT.TrigSpacePointCounts().droppedSctModules()
+hasattr (ROOT, 'xAOD::TruthParticle_v1')
+ROOT.TClass.GetClass('ElementLink<DataVector<xAOD::TruthParticle_v1> >')
+if hasattr (ROOT, 'xAOD::Muon_v1'):
+    ROOT.gROOT.ProcessLine ('#include "xAODMuon/MuonContainer.h"')
+    ROOT.TClass.GetClass('ElementLink<DataVector<xAOD::Muon_v1> >')
 
 
 ### helper methods ------------------------------------------------------------
@@ -1427,7 +1432,7 @@ def dump_TrackSummary (info, f):
 def dump_Surface (info, f):
     fprint (f, typename(info.__class__) + ':')
     dump_Threevec (info.center(), f)
-    dump_Threevec (info.normal(), f)
+    dump_Threevec (PyAthena.Trk.Surface.normal (info), f)
     if (isinstance (info, PyAthena.Trk.DiscSurface) and
         typename(info.bounds().__class__).find ('NoBounds') >= 0):
         bd_class = info.bounds().__class__
@@ -1699,6 +1704,25 @@ def dump_TgcClusterOnTrack (p, f):
     return
     
 
+def dump_sTgcClusterOnTrack (p, f):
+    dump_MuonClusterOnTrack (p, f)
+    dump_EL (p.prepRawDataLink(), f)
+    fprint (f, p.detectorElement().identifyHash().value())
+    return
+    
+
+def dump_MMClusterOnTrack (p, f):
+    dump_MuonClusterOnTrack (p, f)
+    dump_EL (p.prepRawDataLink(), f)
+    fprint (f, p.detectorElement().identifyHash().value())
+    fprint (f, '\n    stripDriftDists: ', list(p.stripDriftDists()))
+    fprint (f, '\n    stripDriftDistErrors:')
+    for m in p.stripDriftDistErrors():
+        fprint ('\n      ')
+        dump_AmgMatrix (m, f)
+    return
+    
+
 def dump_CscClusterOnTrack (p, f):
     dump_MuonClusterOnTrack (p, f)
     dump_EL (p.prepRawDataLink(), f)
@@ -1739,6 +1763,10 @@ def dump_measurement (p, f):
         dump_RpcClusterOnTrack (p, f)
     elif nm == 'Muon::TgcClusterOnTrack':
         dump_TgcClusterOnTrack (p, f)
+    elif nm == 'Muon::sTgcClusterOnTrack':
+        dump_sTgcClusterOnTrack (p, f)
+    elif nm == 'Muon::MMClusterOnTrack':
+        dump_MMClusterOnTrack (p, f)
     elif nm == 'Muon::CscClusterOnTrack':
         dump_CscClusterOnTrack (p, f)
     elif nm == 'Trk::PseudoMeasurementOnTrack':
@@ -3656,8 +3684,8 @@ def dump_CaloTopoTowerContainer (t, f):
     fprint (f, '  ', t.GetMinimumCellEnergy(),
             t.GetMinimumClusterEnergy(),
             t.GetUseCellWeights(),
-            t.GetUseNoiseTool(),
-            t.GetUsePileUpNoise(),
+            False,  # was t.GetUseNoiseTool(), 
+            True,   # was t.GetUsePileUpNoise(),
             t.GetNoiseSigma(),
             t.GetCellESignificanceThreshold(),
             t.GetCaloSelection())
@@ -4676,14 +4704,14 @@ def format_el(x):
     if not key:
         key = '(%d)' % x.key()
     return '%s[%d]' % (key, x.index())
-char_accessor_ = getattr (ROOT, 'SG::AuxElement::ConstAccessor<char>')
+char_accessor_ = getattr (ROOT, 'SG::ConstAuxElement::ConstAccessor<char>')
 class char_accessor:
     def __init__ (self, name):
         self.ac = char_accessor_ (name)
         return
     def __call__ (self, x):
         return ord(self.ac(x))
-uchar_accessor_ = getattr (ROOT, 'SG::AuxElement::ConstAccessor<unsigned char>')
+uchar_accessor_ = getattr (ROOT, 'SG::ConstAuxElement::ConstAccessor<unsigned char>')
 class uchar_accessor:
     def __init__ (self, name):
         self.ac = uchar_accessor_ (name)
@@ -4706,7 +4734,7 @@ accessors = {
     'unsigned char' : uchar_accessor,
     }
 for t in tlist:
-    aname = 'SG::AuxElement::ConstAccessor<' + t
+    aname = 'SG::ConstAuxElement::ConstAccessor<' + t
     if t[-1] == '>': aname += ' '
     aname += '>'
     accessors[t] = getattr (ROOT, aname)
@@ -4770,7 +4798,7 @@ def generic_dump_auxitem (x, auxid, f):
             
     reg=ROOT.SG.AuxTypeRegistry.instance()
     tname = reg.getTypeName (auxid)
-    ac = ROOT.SG.AuxElement.TypelessConstAccessor (reg.getName(auxid))
+    ac = ROOT.SG.ConstAuxElement.TypelessConstAccessor (reg.getName(auxid))
     try:
         buf = ac(x)
     except TypeError:
@@ -5149,6 +5177,8 @@ dumpspecs = [
     ['xAOD::MissingETContainer',             dump_xAOD],
     ['xAOD::MissingETComponentMap_v1',       dump_xAOD],
     ['xAOD::MissingETComponentMap',          dump_xAOD],
+    ['DataVector<xAOD::FlowElement_v1>',     dump_xAOD],
+    ['xAOD::FlowElementContainer',           dump_xAOD],
     ['xAOD::EventInfo_v1',                   dump_xAODObject],
     ['xAOD::EventInfo',                      dump_xAODObject],
     ['xAOD::EventShape_v1',                  dump_xAODObjectNL],

@@ -192,6 +192,40 @@ namespace top {
   };
 
 /**
+ * @brief Apply the cuts relevant for Anti-muon model
+ */
+  class AntiMuonIsolation: public IsolationBase {
+  public:
+    /**
+     * @brief Applies the cuts to etcone and ptcone like we used to in Run-I
+     *
+     * This sets up the isolation tool and configures it with the cuts.
+     */
+    AntiMuonIsolation(const std::string& workingPoint = "AntiMuon_Nominal");
+
+    /**
+     * @brief Does this particle pass the anti-muon isolation cuts?
+     *
+     * @param p Particle that we're worried about.
+     * @return True if it passes the isolation cuts.
+     */
+    virtual bool passSelection(const xAOD::IParticle& p) const override;
+
+    /**
+     * @brief Loose WP not implemented for Anti-muon
+     *
+     * @param p Particle that we're worried about.
+     * @return Always true.
+     */
+    virtual bool passSelectionLoose(const xAOD::IParticle& /*p*/) const override {return true;};
+
+    ///Come on, you really need me to tell you what this does?
+    virtual void print(std::ostream& os) const override;
+  protected:
+    std::string m_workingPoint;
+  };
+
+/**
  * @brief Apply the cuts to etcone and ptcone like we used to in Run-I
  */
   class StandardIsolation: public IsolationBase {

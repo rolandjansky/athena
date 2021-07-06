@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
 */
 
-#ifndef TAUREC_CLUSTERCELLRELINK_H
-#define TAUREC_CLUSTERCELLRELINK_H
+#ifndef TAUREC_CLUSTERCELLRELINKALG_H
+#define TAUREC_CLUSTERCELLRELINKALG_H
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -55,4 +55,4 @@ class ClusterCellRelinkAlg : public AthReentrantAlgorithm
 
 };
 
-#endif // not TAUREC_CLUSTERCELLRELINK_H
+#endif // TAUREC_CLUSTERCELLRELINKALG_H

@@ -1,14 +1,9 @@
-import six
-
-from builtins import zip
-from builtins import range
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfFileUtils
 # @brief Transform utilities to deal with files.
 # @details Mainly used by argFile class.
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfFileUtils.py 696484 2015-09-23 17:20:28Z graemes $
 # @todo make functions timelimited
 
 import logging
@@ -44,7 +39,7 @@ def AthenaFileInfo(fileNames, retrieveKeys = athFileInterestingKeys):
     AthFile.server.flush_cache()
     AthFile.server.disable_pers_cache()
 
-    if isinstance(fileNames, six.string_types):
+    if isinstance(fileNames, str):
         fileNames = [fileNames,]
 
     metaDict = {}

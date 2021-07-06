@@ -5,8 +5,9 @@
 #ifndef ODDPHICMA_H
 #define ODDPHICMA_H
 
-#include <map>
 #include <algorithm>
+#include <map>
+
 #include "RPC_CondCabling/CMAparameters.h"
 #include "RPC_CondCabling/WiredOR.h"
 
@@ -14,44 +15,39 @@ class IMessageSvc;
 
 namespace RPC_CondCabling {
 
-class SectorLogicSetup;
+    class SectorLogicSetup;
 
-class OddPhiCMA : public CMAparameters
-{
-     private:
-     typedef std::map < int,WiredOR*,std::less < int > > WORlink;
- 
-     WORlink m_pivot_WORs;
-     WORlink m_lowPt_WORs;
-     WORlink m_highPt_WORs;     
+    class OddPhiCMA : public CMAparameters {
+    private:
+        typedef std::map<int, WiredOR*, std::less<int> > WORlink;
 
-     bool m_inversion;  
+        WORlink m_pivot_WORs;
+        WORlink m_lowPt_WORs;
+        WORlink m_highPt_WORs;
 
-     bool cable_CMA_channels(void);
-     bool connect(SectorLogicSetup&);
-     bool doInversion(SectorLogicSetup&);
-     void get_confirm_strip_boundaries(int,int);
-     int  get_max_strip_readout(int);
-     bool m_debug;
-     bool m_verbose;
-     IMessageSvc* m_msgSvc;
+        bool m_inversion{false};
 
-     public:
-     OddPhiCMA(int,int,int,CMAcoverage,int,int,int,int,int,int,int,
-               int,int,int,int);
-     OddPhiCMA(const OddPhiCMA&);
-     ~OddPhiCMA();
+        bool cable_CMA_channels(void);
+        bool connect(SectorLogicSetup&);
+        bool doInversion(SectorLogicSetup&);
+        void get_confirm_strip_boundaries(int, int);
+        int get_max_strip_readout(int);
 
-     OddPhiCMA& operator =(const OddPhiCMA&);
+    public:
+        OddPhiCMA(parseParams parse, IMessageSvc* svc);
+        OddPhiCMA(const OddPhiCMA&);
+        virtual ~OddPhiCMA();
 
-     const WORlink& pivot_WORs(void)  const {return m_pivot_WORs;}
-     const WORlink& lowPt_WORs(void)  const {return m_lowPt_WORs;}
-     const WORlink& highPt_WORs(void) const {return m_highPt_WORs;}
+        OddPhiCMA& operator=(const OddPhiCMA&);
 
-     bool inversion(void)             const { return m_inversion;}
+        const WORlink& pivot_WORs(void) const;
+        const WORlink& lowPt_WORs(void) const;
+        const WORlink& highPt_WORs(void) const;
 
-     bool setup(SectorLogicSetup&);
-};
+        bool inversion(void) const;
 
-}
+        bool setup(SectorLogicSetup&);
+    };
+
+}  // namespace RPC_CondCabling
 #endif

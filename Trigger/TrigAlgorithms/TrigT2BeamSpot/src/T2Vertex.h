@@ -26,7 +26,6 @@
 /// External classes
 #include "TrigInDetEvent/TrigVertex.h"
 #include "TrkTrack/TrackCollection.h"
-#include "TrigInterfaces/IMonitoredAlgo.h"
 #include "TMath.h"
 
 #include <string>
@@ -162,81 +161,6 @@ namespace PESA
 
 
   std::ostream& operator<<( std::ostream& os, const T2Vertex& vertex );
-
-
-  class MonitoredVertex
-  {
-  public:
-
-    // Registration
-    void declare( IMonitoredAlgo* p, std::string prefix = "", std::string suffix = "" )
-    {
-      const IMonitoredAlgo::ContainerReset reset = IMonitoredAlgo::AutoClear;
-
-      p->declareMonitoredStdContainer( prefix + "NTrks"      + suffix, m_NTrks     , reset );
-      p->declareMonitoredStdContainer( prefix + "SumPt"      + suffix, m_SumPt     , reset );
-      p->declareMonitoredStdContainer( prefix + "SumPt2"     + suffix, m_SumPt2    , reset );
-      p->declareMonitoredStdContainer( prefix + "Mass"       + suffix, m_Mass      , reset );
-      p->declareMonitoredStdContainer( prefix + "Qual"       + suffix, m_Qual      , reset );
-      p->declareMonitoredStdContainer( prefix + "Chi2Prob"   + suffix, m_Chi2Prob  , reset );
-      p->declareMonitoredStdContainer( prefix + "X"          + suffix, m_X         , reset );
-      p->declareMonitoredStdContainer( prefix + "Y"          + suffix, m_Y         , reset );
-      p->declareMonitoredStdContainer( prefix + "Z"          + suffix, m_Z         , reset );
-      p->declareMonitoredStdContainer( prefix + "XZoom"      + suffix, m_XZoom     , reset );
-      p->declareMonitoredStdContainer( prefix + "YZoom"      + suffix, m_YZoom     , reset );
-      p->declareMonitoredStdContainer( prefix + "ZZoom"      + suffix, m_ZZoom     , reset );
-      p->declareMonitoredStdContainer( prefix + "Xerr"       + suffix, m_Xerr      , reset );
-      p->declareMonitoredStdContainer( prefix + "Yerr"       + suffix, m_Yerr      , reset );
-      p->declareMonitoredStdContainer( prefix + "Zerr"       + suffix, m_Zerr      , reset );
-      p->declareMonitoredStdContainer( prefix + "XY"         + suffix, m_XY        , reset );
-      p->declareMonitoredStdContainer( prefix + "Pull"       + suffix, m_Pull      , reset );
-      p->declareMonitoredStdContainer( prefix + "NTrksInVtx" + suffix, m_NTrksInVtx, reset );
-    }
-
-    // Update method
-    void push_back( const T2Vertex& vertex )
-    {
-      m_NTrks     .push_back( vertex.NTrks     () );
-      m_SumPt     .push_back( vertex.SumPt     () );
-      m_SumPt2    .push_back( vertex.SumPt2    () );
-      m_Mass      .push_back( vertex.Mass      () );
-      m_Qual      .push_back( vertex.Qual      () );
-      m_Chi2Prob  .push_back( vertex.Chi2Prob  () );
-      m_X         .push_back( vertex.X         () );
-      m_Y         .push_back( vertex.Y         () );
-      m_Z         .push_back( vertex.Z         () );
-      m_XZoom     .push_back( vertex.XZoom     () );
-      m_YZoom     .push_back( vertex.YZoom     () );
-      m_ZZoom     .push_back( vertex.ZZoom     () );
-      m_Xerr      .push_back( vertex.Xerr      () );
-      m_Yerr      .push_back( vertex.Yerr      () );
-      m_Zerr      .push_back( vertex.Zerr      () );
-      m_XY        .push_back( vertex.XY        () );
-      m_Pull      .push_back( vertex.Pull      () );
-      m_NTrksInVtx.push_back( vertex.NTrksInVtx() );
-    }
-
-  private:
-    // Data members
-    std::vector<unsigned> m_NTrks     ;
-    std::vector<double  > m_SumPt     ;
-    std::vector<double  > m_SumPt2    ;
-    std::vector<double  > m_Mass      ;
-    std::vector<double  > m_Qual      ;
-    std::vector<double  > m_Chi2Prob  ;
-    std::vector<double  > m_X         ;
-    std::vector<double  > m_Y         ;
-    std::vector<double  > m_Z         ;
-    std::vector<double  > m_XZoom     ;
-    std::vector<double  > m_YZoom     ;
-    std::vector<double  > m_ZZoom     ;
-    std::vector<double  > m_Xerr      ;
-    std::vector<double  > m_Yerr      ;
-    std::vector<double  > m_Zerr      ;
-    std::vector<double  > m_XY        ;
-    std::vector<double  > m_Pull      ;   
-    std::vector<unsigned> m_NTrksInVtx;   
-  };
 
 } // end namespace
 

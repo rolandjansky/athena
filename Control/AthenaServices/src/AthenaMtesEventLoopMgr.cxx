@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaMtesEventLoopMgr.h"
@@ -7,7 +7,6 @@
 #include "OutputStreamSequencerSvc.h"
 
 #include "PersistentDataModel/AthenaAttributeList.h"
-#include "AthenaKernel/ITimeKeeper.h"
 #include "AthenaKernel/IEvtSelectorSeek.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "AthenaKernel/EventContextClid.h"
@@ -57,7 +56,6 @@ AthenaMtesEventLoopMgr::AthenaMtesEventLoopMgr(const std::string& nam
   , m_histoDataMgrSvc( "HistogramDataSvc",         nam )
   , m_histoPersSvc   ( "HistogramPersistencySvc",  nam )
   , m_activeStoreSvc ( "ActiveStoreSvc",           nam )
-  , m_pITK{nullptr}
   , m_currentRun(0)
   , m_firstRun(true)
   , m_tools(this)
@@ -77,10 +75,6 @@ AthenaMtesEventLoopMgr::AthenaMtesEventLoopMgr(const std::string& nam
 		  "Histogram persistency technology to use: ROOT, HBOOK, NONE. "
 		  "By default (empty string) get property value from "
 		  "ApplicationMgr");
-  declareProperty("TimeKeeper", m_timeKeeperName, 
-		  "Name of TimeKeeper to use. NONE or empty string (default) "
-		  "means no time limit control on event loop");
-  m_timeKeeperName.declareUpdateHandler(&AthenaMtesEventLoopMgr::setupTimeKeeper, this);
   declareProperty("HistWriteInterval",    m_writeInterval=0 ,
 		  "histogram write/update interval");
   declareProperty("FailureMode",          m_failureMode=1 , 
@@ -117,6 +111,8 @@ AthenaMtesEventLoopMgr::AthenaMtesEventLoopMgr(const std::string& nam
   declareProperty("UseSecondaryEventNumber", m_useSecondaryEventNumber = false,
                   "In case of DoubleEventSelector use event number from secondary input");
 
+  declareProperty("ESTestPilotMessages", m_testPilotMessages, "List of messages from fake pilot for test mode");
+
   m_scheduledStop = false;
 
 }
@@ -127,8 +123,7 @@ AthenaMtesEventLoopMgr::~AthenaMtesEventLoopMgr()
 
 StatusCode AthenaMtesEventLoopMgr::initialize()    
 {
-  info() << "Initializing " << name()
-         << " - package version " << PACKAGE_VERSION << endmsg;
+  info() << "Initializing " << name() << endmsg;
 
   StatusCode sc = MinimalEventLoopMgr::initialize();
   if(!sc.isSuccess()) {
@@ -180,7 +175,7 @@ StatusCode AthenaMtesEventLoopMgr::initialize()
     
   const std::string& histPersName(m_histPersName.value());
   if(histPersName.empty()) {
-    setProperty(prpMgr->getProperty("HistogramPersistency")).ignore();
+    ATH_CHECK(setProperty(prpMgr->getProperty("HistogramPersistency")));
   }
 
   if(histPersName != "NONE") {
@@ -264,11 +259,6 @@ StatusCode AthenaMtesEventLoopMgr::initialize()
       return StatusCode::FAILURE;
     }
   }
-//-------------------------------------------------------------------------
-// Setup TimeKeeper service
-//-------------------------------------------------------------------------
-  // the time keeper may one day be specified as a property of ApplicationMgr
-  //  setProperty(prpMgr->getProperty("TimeKeeper"));
 
 //-------------------------------------------------------------------------
 // Setup 'Clear-Store' policy
@@ -295,6 +285,15 @@ StatusCode AthenaMtesEventLoopMgr::initialize()
   if(m_useSecondaryEventNumber) {
     info() << "Using secondary event number." << endmsg;
   }
+
+  if( m_testPilotMessages.value().size() > 0 ) {
+     info() << "runnung in standalone TEST MODE" << endmsg;
+     info() << "  test contains " << m_testPilotMessages.value().size() << " event ranges" << endmsg;
+     for( const std::string& range: m_testPilotMessages.value() ) {
+        debug() << "    " << range << endmsg;
+     }
+     m_inTestMode = true;
+  }
   return sc;
 }
 
@@ -307,20 +306,7 @@ AthenaMtesEventLoopMgr::eventStore() const {
 //=========================================================================
 // property handlers
 //=========================================================================
-void 
-AthenaMtesEventLoopMgr::setupTimeKeeper(Gaudi::Details::PropertyBase&) {
-  const std::string& tkName(m_timeKeeperName.value());
-  // We do not expect a TimeKeeper necessarily being declared  
-  if( tkName != "NONE" && tkName.length() != 0) {
-    if (!(serviceLocator()->service( tkName, m_pITK, true)).isSuccess()) 
-      error() << "TimeKeeper not found." << endmsg;
-    else info() << "No TimeKeeper selected. "
-	        << "No time limit control on event loop." 
-	        << endmsg;
-  }
-}
-
-void 
+void
 AthenaMtesEventLoopMgr::setClearStorePolicy(Gaudi::Details::PropertyBase&) {
   const std::string& policyName = m_clearStorePolicy.value();
 
@@ -706,20 +692,22 @@ StatusCode AthenaMtesEventLoopMgr::stop()
 }
 
 
-StatusCode AthenaMtesEventLoopMgr::nextEvent(int /*maxevt*/)
+StatusCode AthenaMtesEventLoopMgr::nextEvent(int maxevt)
 {
+  if(maxevt==0) return StatusCode::SUCCESS;
+
   yampl::ISocketFactory* socketFactory = new yampl::SocketFactory();
   // Create a socket to communicate with the Pilot
-  yampl::ISocket* socket2Pilot = socketFactory->createClientSocket(yampl::Channel(m_eventRangeChannel.value(),yampl::LOCAL),yampl::MOVE_DATA);
+  m_socket = socketFactory->createClientSocket(yampl::Channel(m_eventRangeChannel.value(),yampl::LOCAL),yampl::MOVE_DATA);
 
   // Reset the application return code.
-  Gaudi::setAppReturnCode(m_appMgrProperty, Gaudi::ReturnCode::Success, true).ignore();  
+  resetAppReturnCode();
 
   int finishedEvts =0;
   int createdEvts =0;
   info() << "Starting loop on events" << endmsg;
 
-  StatusCode sc(StatusCode::SUCCESS,true);
+  StatusCode sc(StatusCode::SUCCESS);
 
   // Calculate runtime
   auto start_time = tbb::tick_count::now();
@@ -729,7 +717,7 @@ StatusCode AthenaMtesEventLoopMgr::nextEvent(int /*maxevt*/)
 
   std::unique_ptr<RangeStruct> range;
   while(!range) {
-    range = getNextRange(socket2Pilot);
+    range = getNextRange(m_socket);
     usleep(1000);
   }
 
@@ -771,7 +759,7 @@ StatusCode AthenaMtesEventLoopMgr::nextEvent(int /*maxevt*/)
 	  // Fetch next event range
 	  range.reset();
 	  while(!range) {
-	    range = getNextRange(socket2Pilot);
+	    range = getNextRange(m_socket);
 	    usleep(1000);
 	  }
 	  if(range->eventRangeID.empty()) {
@@ -792,7 +780,7 @@ StatusCode AthenaMtesEventLoopMgr::nextEvent(int /*maxevt*/)
       debug() << "Draining the scheduler" << endmsg;
 
       // Pull out of the scheduler the finished events
-      int ir = drainScheduler(finishedEvts,socket2Pilot);
+      int ir = drainScheduler(finishedEvts,true);
       if(ir < 0) {
 	// some sort of error draining scheduler;
 	loop_ended = true;
@@ -814,7 +802,8 @@ StatusCode AthenaMtesEventLoopMgr::nextEvent(int /*maxevt*/)
 
   info() << "---> Loop Finished (seconds): " << secsFromStart() <<endmsg;
 
-  delete socket2Pilot;
+  delete m_socket;
+  m_socket=nullptr;
   delete socketFactory;
   return sc;
 }
@@ -1193,10 +1182,22 @@ EventContext AthenaMtesEventLoopMgr::createEventContext() {
   return ctx;
 }
 
+void AthenaMtesEventLoopMgr::resetAppReturnCode()
+{
+  Gaudi::setAppReturnCode(m_appMgrProperty, Gaudi::ReturnCode::Success, true).ignore();
+}
+
+void AthenaMtesEventLoopMgr::setCurrentEventNum(int num) {
+  m_currentEvntNum = num;
+}
+
+bool AthenaMtesEventLoopMgr::terminateLoop() {
+  return m_terminateLoop;
+}
 //---------------------------------------------------------------------------
 
 int 
-AthenaMtesEventLoopMgr::drainScheduler(int& finishedEvts,yampl::ISocket* socket){
+AthenaMtesEventLoopMgr::drainScheduler(int& finishedEvts,bool report){
 
   StatusCode sc(StatusCode::SUCCESS);
     
@@ -1262,17 +1263,23 @@ AthenaMtesEventLoopMgr::drainScheduler(int& finishedEvts,yampl::ISocket* socket)
     
     // Some code still needs global context in addition to that passed in the incident
     Gaudi::Hive::setCurrentContext( *thisFinishedEvtContext );
+    info() << "Firing EndProcessing" << endmsg;
     m_incidentSvc->fireIncident(Incident(name(), IncidentType::EndProcessing, *thisFinishedEvtContext ));
 
-    // If we completed an event range, then report it to the pilot
-    OutputStreamSequencerSvc::RangeReport_ptr rangeReport = m_outSeqSvc->getRangeReport();
-    if(rangeReport) {
-      std::string outputFileReport = rangeReport->second + std::string(",ID:")
-	+ rangeReport->first + std::string(",CPU:N/A,WALL:N/A");
-      void* message2pilot = malloc(outputFileReport.size());
-      memcpy(message2pilot,outputFileReport.data(),outputFileReport.size());
-      socket->send(message2pilot,outputFileReport.size());
-      info() << "Reported the output " << outputFileReport << endmsg;
+    if(report) {
+      // If we completed an event range, then report it to the pilot
+      OutputStreamSequencerSvc::RangeReport_ptr rangeReport = m_outSeqSvc->getRangeReport();
+      if(rangeReport) {
+	std::string outputFileReport = rangeReport->second + std::string(",ID:")
+	  + rangeReport->first + std::string(",CPU:N/A,WALL:N/A");
+	if( not m_inTestMode ) {
+	  // In standalone test mode there is no pilot to talk to
+	  void* message2pilot = malloc(outputFileReport.size());
+	  memcpy(message2pilot,outputFileReport.data(),outputFileReport.size());
+	  m_socket->send(message2pilot,outputFileReport.size());
+	}
+	info() << "Reported the output " << outputFileReport << endmsg;
+      }
     }
 
     debug() << "Clearing slot " << thisFinishedEvtContext->slot() 
@@ -1342,18 +1349,28 @@ std::unique_ptr<AthenaMtesEventLoopMgr::RangeStruct> AthenaMtesEventLoopMgr::get
   std::string strReady("Ready for events");
   std::string strStopProcessing("No more events");
 
-  // Signal the Pilot that we are ready for event processing
-  void* ready_message = malloc(strReady.size());
-  memcpy(ready_message,strReady.data(),strReady.size());
-  socket->send(ready_message,strReady.size());
-  void* eventRangeMessage;
-  ssize_t eventRangeSize = socket->recv(eventRangeMessage);
-  std::string range((const char*)eventRangeMessage,eventRangeSize);
-  size_t carRet = range.find('\n');
-  if(carRet!=std::string::npos) range = range.substr(0,carRet);
+  std::string range;
+  if( m_inTestMode ) {
+     static size_t line_n = 0;
+     info() <<"in TEST MODE, Range #" << line_n+1 << endmsg;
+     range = (line_n < m_testPilotMessages.value().size()) ? m_testPilotMessages.value()[line_n++] : strStopProcessing;
+  } else {
+     // Signal the Pilot that we are ready for event processing
+     void* ready_message = malloc(strReady.size());
+     memcpy(ready_message,strReady.data(),strReady.size());
+     socket->send(ready_message,strReady.size());
+     void* eventRangeMessage;
+     ssize_t eventRangeSize = socket->recv(eventRangeMessage);
+     range = std::string((const char*)eventRangeMessage,eventRangeSize);
+     size_t carRet = range.find('\n');
+     if(carRet!=std::string::npos) range = range.substr(0,carRet);
+  }
 
   std::unique_ptr<RangeStruct> result = std::make_unique<RangeStruct>();
-  if(range.compare(strStopProcessing)==0) return result;
+  if(range.compare(strStopProcessing)==0) {
+     info() << "No more events from the server" << endmsg;
+     return result;
+  }
   info() << "Got Event Range from the pilot: " << range << endmsg;
 
   // _____________________ Decode range string _____________________________
@@ -1452,9 +1469,11 @@ std::unique_ptr<AthenaMtesEventLoopMgr::RangeStruct> AthenaMtesEventLoopMgr::get
     // Report the error to the pilot and reset the result, so that the next range can be tried
     warning() << errorStr << endmsg;
     info() << "Ignoring this event range" << endmsg;
-    void* errorMessage = malloc(errorStr.size());
-    memcpy(errorMessage,errorStr.data(),errorStr.size());
-    socket->send(errorMessage,errorStr.size());
+    if( not m_inTestMode ) {
+       void* errorMessage = malloc(errorStr.size());
+       memcpy(errorMessage,errorStr.data(),errorStr.size());
+       socket->send(errorMessage,errorStr.size());
+    }
     result.reset();
   }
 

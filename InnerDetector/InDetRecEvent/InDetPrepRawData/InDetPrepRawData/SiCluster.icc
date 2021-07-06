@@ -29,7 +29,7 @@ SiCluster::gangedPixel() const
 }
 
 inline bool
-SiCluster::type(Trk::PrepRawDataType::Type type) const
+SiCluster::type(Trk::PrepRawDataType type) const
 {
   return type == Trk::PrepRawDataType::SiCluster;
 }
@@ -46,7 +46,7 @@ SiCluster::setDetectorElement(const InDetDD::SiDetectorElement* detEl)
   m_detEl = detEl;
   if (m_detEl) {
     m_globalPosition =
-      m_detEl->surface(identify()).localToGlobalPos(localPosition());
+      m_detEl->surface(identify()).localToGlobal(localPosition());
   }
 }
 

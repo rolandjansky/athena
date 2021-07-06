@@ -1,13 +1,16 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """Script / jobOptions to test PhotonVertexSelectionTool using an AOD from
 mc15_13TeV:mc15_13TeV.341000.PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_gamgam.merge.AOD.e3806_s2608_r7772_r7676"""
 __author__ = "Bruno Lenzi"
 
-defaultFile = "$ASG_TEST_FILE_MC"
-defaultNevents = 10
+import os
+import sys
+
+defaultFile = os.environ.get("ASG_TEST_FILE_MC", None)
+defaultNevents = 5
 
 def printMethod(x):
   print (x)
@@ -39,7 +42,7 @@ def printOutput(container, tool, printMethod = printMethod):
 def setupAthenaJob(algoClass, inputfile = defaultFile, EvtMax = None):
   "Setup athena job"
   import AthenaPoolCnvSvc.ReadAthenaPool # EventSelector
-  from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+  from AthenaCommon.AppMgr import ServiceMgr as svcMgr, theApp
 
   svcMgr.EventSelector.InputCollections = [inputfile]
 
@@ -63,16 +66,15 @@ def setupAthenaJob(algoClass, inputfile = defaultFile, EvtMax = None):
   testAlg = AlgFactory(algoClass,
     PhotonVertexSelectionTool = PhotonVertexSelectionTool)()
 
-  # Maximum events
-  if EvtMax:
-    from Configurables import AthenaStopperAlg
-    AlgFactory( AthenaStopperAlg,  StopCount=EvtMax )()
+  from AthenaCommon.Constants import INFO
+  theApp.setOutputLevel(INFO)
+  theApp.run( EvtMax )
 
 # --------------------------------
 # Athena algorithm and setup
 # --------------------------------
 import os
-if not 'ROOTCOREBIN' in os.environ:
+if 'ROOTCOREBIN' not in os.environ:
   from AthenaPython import PyAthena
   from AthenaPython.PyAthena import StatusCode
 
@@ -82,7 +84,7 @@ if not 'ROOTCOREBIN' in os.environ:
       super(TestPhotonVertexSelection,self).__init__(name = name, containerName = containerName, **kw)
 
     def initialize(self):
-      self.msg.info("initializing [%s]", self.name())
+      self.msg.info("initializing [%s]", self.name)
       self.vertexTool = PyAthena.py_tool(self.PhotonVertexSelectionTool.getFullName(),
         iface='CP::IPhotonVertexSelectionTool')
       if not self.vertexTool:

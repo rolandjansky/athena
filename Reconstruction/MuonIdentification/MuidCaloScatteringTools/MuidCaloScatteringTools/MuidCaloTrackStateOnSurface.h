@@ -13,7 +13,6 @@
   using the IMuidCaloMaterialParam and IMuidCaloEnergy interfaces
 
    @author Alan.Poppleton@cern.ch
-  (c) ATLAS Combined Muon software
 */
 //////////////////////////////////////////////////////////////////////////////
 
@@ -37,88 +36,91 @@
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 namespace Trk {
-class MagneticFieldProperties;
+    class MagneticFieldProperties;
 }  // namespace Trk
 
 namespace Rec {
 
+    class MuidCaloTrackStateOnSurface : public AthAlgTool, virtual public IMuidCaloTrackStateOnSurface {
+    public:
+        MuidCaloTrackStateOnSurface(const std::string& type, const std::string& name, const IInterface* parent);
+        virtual ~MuidCaloTrackStateOnSurface() = default;  // destructor
 
-class MuidCaloTrackStateOnSurface : public AthAlgTool, virtual public IMuidCaloTrackStateOnSurface {
+        StatusCode initialize() override;
+        StatusCode finalize() override;
 
-  public:
-    MuidCaloTrackStateOnSurface(const std::string& type, const std::string& name, const IInterface* parent);
-    ~MuidCaloTrackStateOnSurface(void);  // destructor
+        /**IMuidCaloTrackStateOnSurface interface:
+           to get the 3 scattering and energy deposit TSOS'es representing the calorimeter.
+           The input TrackParameters may be anywhere along the track. */
+        std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>> caloTSOS(const EventContext& ctx,
+                                                                              const Trk::TrackParameters& parameters) const override;
 
-    StatusCode initialize();
-    StatusCode finalize();
+        /**IMuidCaloTrackStateOnSurface interface:
+           to get individually the scattering TSOS'es representing the calorimeter.
+           The input TrackParameters may be anywhere along the track. */
+        std::unique_ptr<Trk::TrackStateOnSurface> innerTSOS(const EventContext& ctx, const Trk::TrackParameters& parameters) const override;
+        std::unique_ptr<Trk::TrackStateOnSurface> outerTSOS(const EventContext& ctx, const Trk::TrackParameters& parameters) const override;
 
-    /**IMuidCaloTrackStateOnSurface interface:
-       to get the 3 scattering and energy deposit TSOS'es representing the calorimeter.
-       The input TrackParameters may be anywhere along the track. */
-    std::vector<const Trk::TrackStateOnSurface*>* caloTSOS(const Trk::TrackParameters& parameters) const;
+        /**IMuidCaloTrackStateOnSurface interface:
+           to get the energy deposit TSOS representing the calorimeter.
+           The input TrackParameters may be anywhere along the track, but when the inner
+           or outer parameters are provided they must be expressed at the appropriate surface.
+           The return TSOS surface is at the material midpoint. */
+        std::unique_ptr<Trk::TrackStateOnSurface> middleTSOS(const EventContext& ctx, const Trk::TrackParameters& middleParameters,
+                                                             const Trk::TrackParameters* innerParameters,
+                                                             const Trk::TrackParameters* outerParameters) const override;
 
-    /**IMuidCaloTrackStateOnSurface interface:
-       to get individually the scattering TSOS'es representing the calorimeter.
-       The input TrackParameters may be anywhere along the track. */
-    const Trk::TrackStateOnSurface* innerTSOS(const Trk::TrackParameters& parameters) const;
-    const Trk::TrackStateOnSurface* outerTSOS(const Trk::TrackParameters& parameters) const;
+    private:
+        // private methods
+        enum SurfaceLayer { Inner, Middle, Outer };
+        const Trk::Surface* getCaloSurface(const double eta, const short layer) const;
 
-    /**IMuidCaloTrackStateOnSurface interface:
-       to get the energy deposit TSOS representing the calorimeter.
-       The input TrackParameters may be anywhere along the track, but when the inner
-       or outer parameters are provided they must be expressed at the appropriate surface.
-       The return TSOS surface is at the material midpoint. */
-    const Trk::TrackStateOnSurface* middleTSOS(const Trk::TrackParameters& middleParameters,
-                                               const Trk::TrackParameters* innerParameters,
-                                               const Trk::TrackParameters* outerParameters) const;
+        std::unique_ptr<const Trk::TrackParameters> getExtrapolatedParameters(const EventContext& ctx,
+                                                                              const Trk::TrackParameters& parameters,
+                                                                              const short layer) const;
 
-  private:
-    // private methods
-    const Trk::TrackParameters* innerParameters(const Trk::TrackParameters& parameters) const;
-    const Trk::TrackParameters* middleParameters(const Trk::TrackParameters& parameters) const;
-    const Trk::TrackParameters* outerParameters(const Trk::TrackParameters& parameters) const;
-    bool                        useEtaPhiFromDirection(const Trk::TrackParameters& parameters) const;
+        bool useEtaPhiFromDirection(const Trk::TrackParameters& parameters) const;
 
-    // helpers, managers, tools
-    ToolHandle<Rec::IMuidCaloEnergy> m_caloEnergyDeposit{
-        this,
-        "CaloEnergyDeposit",
-        "Rec::MuidCaloEnergyTool/MuidCaloEnergyTool",
+        // helpers, managers, tools
+        ToolHandle<Rec::IMuidCaloEnergy> m_caloEnergyDeposit{
+            this,
+            "CaloEnergyDeposit",
+            "Rec::MuidCaloEnergyTool/MuidCaloEnergyTool",
+        };
+        ToolHandle<Rec::IMuidCaloEnergy> m_caloEnergyParam{
+            this,
+            "CaloEnergyParam",
+            "Rec::MuidCaloEnergyTool/MuidCaloEnergyToolParam",
+        };
+        ToolHandle<Rec::IMuidCaloMaterialParam> m_caloMaterialParam{
+            this,
+            "CaloMaterialParam",
+            "Rec::MuidCaloMaterialParam/MuidCaloMaterialParam",
+        };
+        ToolHandle<Trk::IPropagator> m_propagator{
+            this,
+            "Propagator",
+            "Trk::IntersectorWrapper/IntersectorWrapper",
+        };
+
+        Trk::MagneticFieldProperties m_magFieldProperties{Trk::FullField};
+
+        // Read handle for conditions object to get the field cache
+        SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey{this, "AtlasFieldCacheCondObj", "fieldCondObj",
+                                                                                  "Name of the Magnetic Field conditions object key"};
+
+        // configurable cut-off values
+        double m_minCaloRadius;
+        double m_minRemainingEnergy;
+        double m_paramPtCut;
+
+        // counters (for finalize)
+        mutable std::atomic_int m_count{0};
+        mutable std::atomic_int m_countArbitrarySolution{0};
+        mutable std::atomic_int m_countCompleteFailure{0};
+        mutable std::atomic_int m_countInnerFailure{0};
+        mutable std::atomic_int m_countOuterFailure{0};
     };
-    ToolHandle<Rec::IMuidCaloEnergy> m_caloEnergyParam{
-        this,
-        "CaloEnergyParam",
-        "Rec::MuidCaloEnergyTool/MuidCaloEnergyToolParam",
-    };
-    ToolHandle<Rec::IMuidCaloMaterialParam> m_caloMaterialParam{
-        this,
-        "CaloMaterialParam",
-        "Rec::MuidCaloMaterialParam/MuidCaloMaterialParam",
-    };
-    ToolHandle<Trk::IPropagator> m_propagator{
-        this,
-        "Propagator",
-        "Trk::IntersectorWrapper/IntersectorWrapper",
-    };
-
-    Trk::MagneticFieldProperties* m_magFieldProperties;
-
-    // Read handle for conditions object to get the field cache
-    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey{
-        this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
-
-    // configurable cut-off values
-    double m_minCaloRadius;
-    double m_minRemainingEnergy;
-    double m_paramPtCut;
-
-    // counters (for finalize)
-    mutable std::atomic_int m_count;
-    mutable std::atomic_int m_countArbitrarySolution;
-    mutable std::atomic_int m_countCompleteFailure;
-    mutable std::atomic_int m_countInnerFailure;
-    mutable std::atomic_int m_countOuterFailure;
-};
 
 }  // namespace Rec
 

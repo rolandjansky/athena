@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////
@@ -16,6 +16,8 @@
 
 // DerivationFramework includes
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
+#include "xAODMuon/MuonContainer.h"
+#include "StoreGate/ReadHandleKey.h"
 
 namespace DerivationFramework {
 
@@ -43,8 +45,9 @@ namespace DerivationFramework {
     virtual StatusCode addBranches() const;
 
   private:
-    std::string m_collName;
-    std::string m_sgPrefix;
+    SG::ReadHandleKey<xAOD::MuonContainer> m_collNameKey { this, "MuonContainerKey", "Muons", ""};
+    SG::WriteHandleKey<std::vector<float>> m_collNameD0Key { this, "SGPrefixD0", "MuonsD0", ""};
+    SG::WriteHandleKey<std::vector<int>> m_collNameIsCombKey { this, "SGPrefixIsComb", "MuonsisCombined", ""};
 
   }; 
  

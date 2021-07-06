@@ -13,8 +13,8 @@ AtlasG4_tf.py \
 --conditionsTag 'default:OFLCOND-MC16-SDR-14' \
 --physicsList 'FTFP_BERT_ATL' \
 --truthStrategy 'MC15aPlus' \
---postInclude 'PyJobTransforms.prepostincludes.postInclude_UseFrontier' \
---preInclude 'SimuJobTransforms.prepostincludes.preInclude_BeamPipeKill,SimuJobTransforms.prepostincludes.preInclude_FrozenShowersFCalOnly,SimuJobTransforms.prepostincludes.preInclude_TightMuonStepping' \
+--postInclude 'PyJobTransforms.UseFrontier' \
+--preInclude 'SimuJobTransforms.BeamPipeKill,SimuJobTransforms.FrozenShowersFCalOnly,SimuJobTransforms.TightMuonStepping' \
 --DataRunNumber '284500' \
 --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
 --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1" \

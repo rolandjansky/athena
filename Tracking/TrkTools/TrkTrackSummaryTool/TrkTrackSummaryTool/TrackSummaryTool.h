@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKTRACKSUMMARYTOOL_H
@@ -17,7 +17,7 @@
 
 #include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
 #include <bitset>
-#include <memory> //unique_ptr
+#include <memory>
 #include <vector>
 
 class EventContext;
@@ -39,7 +39,8 @@ class RIO_OnTrack;
 class TrackStateOnSurface;
 class MeasurementBase;
 
-class TrackSummaryTool : public extends<AthAlgTool, IExtendedTrackSummaryTool>
+class TrackSummaryTool final
+  : public extends<AthAlgTool, IExtendedTrackSummaryTool>
 {
 
 public:
@@ -65,7 +66,7 @@ public:
   using IExtendedTrackSummaryTool::summary;
   using IExtendedTrackSummaryTool::summaryNoHoleSearch;
   using IExtendedTrackSummaryTool::updateTrack;
-  
+
   virtual void computeAndReplaceTrackSummary(
     const EventContext& ctx,
     Track& track,
@@ -139,7 +140,7 @@ public:
    * collection merging. */
   virtual void updateSharedHitCount(
     Track& track,
-    const Trk::PRDtoTrackMap* pPrdToTrackMap) const override;
+    const Trk::PRDtoTrackMap* pPrdToTrackMap) const override final;
 
   /** Update the shared hit count of the given track summary.
    * @param summary the summary to be updated i.e. a copy of the track summary
@@ -154,11 +155,11 @@ public:
    */
   virtual void updateSharedHitCount(const Track& track,
                                     const Trk::PRDtoTrackMap* pPrdToTrackMap,
-                                    TrackSummary& summary) const override;
+                                    TrackSummary& summary) const override final;
 
   /** method to update the shared hit content only, this is optimised for track
    * collection merging. */
-  virtual void updateSharedHitCount(Track& track) const override;
+  virtual void updateSharedHitCount(Track& track) const override final;
 
   /** Update the shared hit counts, expected hit, PID information and eventually
    * the detailed track summaries.
@@ -220,7 +221,6 @@ private:
     bool doHolesMuon) const;
 
   /** Return the correct tool, matching the passed Identifier*/
-  Trk::IExtendedTrackSummaryHelperTool* getTool(const Identifier& id);
   const Trk::IExtendedTrackSummaryHelperTool* getTool(
     const Identifier& id) const;
 

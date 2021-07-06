@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # This helper script is meant to set up a valid value for the
 # TDAQ_RELEASE_BASE environment variable for the builds.
@@ -9,17 +10,8 @@
 #
 
 if [ -z "${TDAQ_RELEASE_BASE}" ]; then
-
-    if [ -d /cvmfs/atlas.cern.ch/repo/sw/tdaq ]; then
-        export TDAQ_RELEASE_BASE=/cvmfs/atlas.cern.ch/repo/sw/tdaq
-    elif [ -d /afs/cern.ch/atlas/project/tdaq/prod ]; then
-        export TDAQ_RELEASE_BASE=/afs/cern.ch/atlas/project/tdaq/prod
-    else
-        echo "Error: Cannot find TDAQ software installation"
-        return 1
-    fi
+    export TDAQ_RELEASE_BASE=/cvmfs/atlas.cern.ch/repo/sw/tdaq
     echo "Set TDAQ_RELEASE_BASE = ${TDAQ_RELEASE_BASE}"
-
 else
     echo "Leaving TDAQ_RELEASE_BASE = ${TDAQ_RELEASE_BASE}"
 fi

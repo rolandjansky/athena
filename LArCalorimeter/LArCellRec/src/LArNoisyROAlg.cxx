@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -54,7 +54,7 @@ StatusCode LArNoisyROAlg::execute (const EventContext& ctx) const
   SG::ReadCondHandle<LArBadFebCont> badHdl(m_knownBadFEBsVecKey, ctx);
   const LArBadFebCont* badCont=*badHdl;
   if(badCont) {
-     for(LArBadFebCont::BadChanVec::const_iterator i = badCont->begin(); i!=badCont->end(); i++) {
+     for(LArBadFebCont::BadChanVec::const_iterator i = badCont->begin(); i!=badCont->end(); ++i) {
         bf.insert(i->first);
      }
      if(bf.size() == 0) {
@@ -69,7 +69,7 @@ StatusCode LArNoisyROAlg::execute (const EventContext& ctx) const
   SG::ReadCondHandle<LArBadFebCont> MNBHdl(m_knownMNBFEBsVecKey, ctx);
   const LArBadFebCont* MNBCont=*MNBHdl;
   if(MNBCont) {
-     for(LArBadFebCont::BadChanVec::const_iterator i = MNBCont->begin(); i!=MNBCont->end(); i++) {
+     for(LArBadFebCont::BadChanVec::const_iterator i = MNBCont->begin(); i!=MNBCont->end(); ++i) {
         MNBfeb.push_back(HWIdentifier(i->first));
      } 
      if(MNBfeb.size() == 0) {

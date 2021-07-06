@@ -33,7 +33,7 @@ class InDetPerfPlot_HitEfficiency: public InDetPlotBase {
 public:
   InDetPerfPlot_HitEfficiency(InDetPlotBase* pParent, const std::string& dirName);
 
-  void fill(const xAOD::TrackParticle& trkprt);
+  void fill(const xAOD::TrackParticle& trkprt, float weight);
   ~InDetPerfPlot_HitEfficiency() {/** nop **/
   }
 

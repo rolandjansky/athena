@@ -1,7 +1,7 @@
 //Dear emacs, this is -*-c++-*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEMONTOOL_H
@@ -13,7 +13,8 @@
 
 #include "AthenaMonitoring/IDQFilterTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
-#include "CaloInterface/ICalorimeterNoiseTool.h"
+#include "CaloConditions/CaloNoise.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class CaloCell;
 class TileID;
@@ -31,12 +32,12 @@ class TileCalCellMonTool : public CaloMonToolBase {
 
   TileCalCellMonTool(const std::string & type, const std::string& name, 
 		 const IInterface* parent);
-  ~TileCalCellMonTool();
+  virtual ~TileCalCellMonTool();
   
-  virtual StatusCode initialize();
-  virtual StatusCode bookHistograms();
-  virtual StatusCode procHistograms();
-  virtual StatusCode fillHistograms();
+  virtual StatusCode initialize() override;
+  virtual StatusCode bookHistograms() override;
+  virtual StatusCode procHistograms() override;
+  virtual StatusCode fillHistograms() override;
 
 
 private:
@@ -49,10 +50,9 @@ private:
   //Job Properties and other private variables
   SG::ReadHandleKey<CaloCellContainer> m_cellContainerName { this, "CaloCellContainer", "AllCalo", "SG key of the input cell container" };
 
-  bool m_useElectronicNoiseOnly;
   bool m_useTwoGaus;
-  ICalorimeterNoiseTool::CalorimeterNoiseType m_noiseType=ICalorimeterNoiseTool::TOTALNOISE;
-  ToolHandle<ICalorimeterNoiseTool> m_noiseTool;
+  SG::ReadCondHandleKey<CaloNoise> m_noiseKey
+    { this, "NoiseKey", "totalNoise", "SG key for noise" };
 
   // tile energy threshold
   float m_tileThreshold;

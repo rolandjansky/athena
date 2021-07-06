@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -156,7 +156,7 @@ StatusCode TRT_PrepDataToxAOD::execute()
     if( (*it)->empty() ) continue;
     
     // loop over collection and convert to xAOD
-    for( const auto& prd : **it ){
+    for( const auto prd : **it ){
       
       ++counter;
       
@@ -218,11 +218,8 @@ StatusCode TRT_PrepDataToxAOD::execute()
    
             
       //Set Global position
-      const Amg::Vector3D* gpos = prd->detectorElement()->surface(surfaceID).localToGlobal(prd->localPosition());
-      if(gpos){
-        xprd->setGlobalPosition(gpos->x(),gpos->y(),gpos->z());
-        delete gpos;
-      }
+      const Amg::Vector3D gpos = prd->detectorElement()->surface(surfaceID).localToGlobal(prd->localPosition());
+      xprd->setGlobalPosition(gpos.x(),gpos.y(),gpos.z());
 
 
       //TRT hit bit word

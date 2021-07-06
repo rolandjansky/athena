@@ -42,4 +42,4 @@ namespace tauRecTools {
   };
 }
 
-#endif // not TAURECTOOLS_BDTHELPER_H
+#endif // TAURECTOOLS_BDTHELPER_H

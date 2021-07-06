@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /* file contains the implementation for the AthenaSharedMemoryTool class.
@@ -27,6 +27,7 @@ struct ShareEventHeader {
    std::size_t evtCursor;
    unsigned int evtCoreStatusFlag;
    char token[maxTokenLength];
+   char streamPort[maxTokenLength];
 };
 
 //___________________________________________________________________________
@@ -55,7 +56,7 @@ AthenaSharedMemoryTool::~AthenaSharedMemoryTool() {
 
 //___________________________________________________________________________
 StatusCode AthenaSharedMemoryTool::initialize() {
-   ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
+   ATH_MSG_INFO("Initializing " << name());
    if (!::AthAlgTool::initialize().isSuccess()) {
       ATH_MSG_FATAL("Cannot initialize AthAlgTool base class.");
       return(StatusCode::FAILURE);
@@ -99,7 +100,7 @@ StatusCode AthenaSharedMemoryTool::finalize() {
 }
 
 //___________________________________________________________________________
-StatusCode AthenaSharedMemoryTool::makeServer(int num) {
+StatusCode AthenaSharedMemoryTool::makeServer(int num, const std::string& streamPortSuffix) {
    if (m_isServer || m_isClient) {
       ATH_MSG_ERROR("Cannot make AthenaSharedMemoryTool a Server.");
       return(StatusCode::FAILURE);
@@ -118,7 +119,9 @@ StatusCode AthenaSharedMemoryTool::makeServer(int num) {
    shm.truncate(m_maxSize + m_maxDataClients * sizeof(ShareEventHeader));
    m_payload = new boost::interprocess::mapped_region(shm, boost::interprocess::read_write, 0, m_maxSize);
    m_status = new boost::interprocess::mapped_region(shm, boost::interprocess::read_write, m_maxSize, num * sizeof(ShareEventHeader));
-   ShareEventHeader evtH = { ShareEventHeader::UNLOCKED, -1, -1, 0, 0, 0, 0, "" };
+   ShareEventHeader evtH = { ShareEventHeader::UNLOCKED, -1, -1, 0, 0, 0, 0, "", "" };
+   std::memcpy(evtH.streamPort, streamPortSuffix.c_str(), maxTokenLength - 1);
+   evtH.streamPort[maxTokenLength - 1] = 0;
    for (int i = 0; i < num; i++) {
       std::memcpy(static_cast<char*>(m_status->get_address()) + i * sizeof(ShareEventHeader), &evtH, sizeof(ShareEventHeader));
    }
@@ -131,7 +134,7 @@ bool AthenaSharedMemoryTool::isServer() const {
 }
 
 //___________________________________________________________________________
-StatusCode AthenaSharedMemoryTool::makeClient(int num) {
+StatusCode AthenaSharedMemoryTool::makeClient(int num, std::string& streamPortSuffix) {
    if (m_isServer) {
       ATH_MSG_ERROR("Cannot make AthenaSharedMemoryTool a Client.");
       return(StatusCode::FAILURE);
@@ -175,6 +178,7 @@ StatusCode AthenaSharedMemoryTool::makeClient(int num) {
       while (evtH->evtProcessStatus != ShareEventHeader::UNLOCKED) {
          usleep(100);
       }
+      streamPortSuffix.assign(evtH->streamPort);
       m_num = num;
    }
    return(StatusCode::SUCCESS);
@@ -356,7 +360,7 @@ StatusCode AthenaSharedMemoryTool::getObject(void** target, size_t& nbytes, int 
 }
 
 //___________________________________________________________________________
-StatusCode AthenaSharedMemoryTool::clearObject(char** tokenString, int& num) const {
+StatusCode AthenaSharedMemoryTool::clearObject(const char** tokenString, int& num) const {
    if (m_isClient) {
       ShareEventHeader* evtH = static_cast<ShareEventHeader*>(m_status->get_address());
       if (evtH->evtProcessStatus != ShareEventHeader::CLEARED) {
@@ -392,7 +396,10 @@ StatusCode AthenaSharedMemoryTool::clearObject(char** tokenString, int& num) con
          return(StatusCode::SUCCESS);
       }
       if (strncmp(*tokenString, "start", 5) == 0) {
-         ATH_MSG_INFO("Server clearObject() got start, client = " << num);
+         ATH_MSG_INFO("Server clearObject() got start, client = " << num << ", of " << m_num - 1);
+         if (m_dataClients.empty()) { // Annouce all workers to prevent early writer termination
+            for (int i = 1; i < m_num - 1; i++) m_dataClients.insert(i);
+         }
          m_dataClients.insert(num);
          evtH->evtProcessStatus = ShareEventHeader::UNLOCKED;
          num = -1;
@@ -403,7 +410,10 @@ StatusCode AthenaSharedMemoryTool::clearObject(char** tokenString, int& num) con
          m_dataClients.erase(num);
          evtH->evtProcessStatus = ShareEventHeader::UNLOCKED;
          if (m_dataClients.empty()) {
-            ATH_MSG_INFO("Server clearObject() got stop, client ALL");
+            ATH_MSG_INFO("Server clearObject() got stop, client ALL: " << m_num);
+            if (num == m_num - 1) { // mother process
+              return(StatusCode::SUCCESS);
+            }
             return(StatusCode::FAILURE);
          }
          num = -1;

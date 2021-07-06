@@ -837,13 +837,6 @@ if not 'newRDO' in dir() or newRDO is None:
     else:
         newRDO = True
 
-
-#============================================================
-#=== configure BunchCrossingTool
-#============================================================
-from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-ToolSvc += BunchCrossingTool("LHC" if globalflags.DataSource() == "data" else "MC")
-
 #=============================================================
 #=== read ByteStream and reconstruct data
 #=============================================================
@@ -1765,9 +1758,6 @@ if not 'db' in dir():
     from DBReplicaSvc.DBReplicaSvcConf import DBReplicaSvc
     svcMgr += DBReplicaSvc(UseCOOLSQLite=False)
 
-
-if hasattr (svcMgr.ToolSvc, 'CaloNoiseToolDefault'):
-    ToolSvc.CaloNoiseToolDefault.RescaleForHV = False
 
 # Needed during maintanance campaign
 # if doTileMon and doTileMonDigi: ToolSvc.TileDigitsMon.FillPedestalDifference = False

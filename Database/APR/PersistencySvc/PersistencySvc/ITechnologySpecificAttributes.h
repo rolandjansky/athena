@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INCLUDE_PERSISTENCYSVC_ITECHNOLOGYSPECIFICATTRIBUTES_H
@@ -35,7 +35,7 @@ namespace pool {
 
     /// Templated method to retrieve an attribute
     template< class T > T attribute( const std::string& attributeName,
-                                     std::string option = "" ) const {
+                                     std::string option = "" ) {
       T data;
       const std::type_info& typeInfo = typeid(T);
       if ( ! this->attributeOfType( attributeName,
@@ -67,7 +67,7 @@ namespace pool {
     virtual bool attributeOfType( const std::string& attributeName,
                                   void* data,
                                   const std::type_info& typeInfo,
-                                  const std::string& option ) const = 0;
+                                  const std::string& option ) = 0;
 
     /// The actual method setting the attribute data given a name
     virtual bool setAttributeOfType( const std::string& attributeName,

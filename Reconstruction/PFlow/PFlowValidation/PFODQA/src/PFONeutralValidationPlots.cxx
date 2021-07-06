@@ -17,20 +17,18 @@ PFONeutralValidationPlots::PFONeutralValidationPlots(PlotBase* pParent, std::str
                                                                                                                                                           m_FELinkerPlots(this,"",sFEContainerName,true)
 {}
 
-void PFONeutralValidationPlots::fill(const xAOD::PFO& thePFO){
-  m_PFOPlots.fill(thePFO);
-  m_PFOClusterMomentPlots.fill(thePFO);
-  m_PFOCalibHitClusterMomentPlots.fill(thePFO);
-  m_PFOAttributePlots.fill(thePFO);
-  m_PFOEMPlots.fill(thePFO);
+void PFONeutralValidationPlots::fill(const xAOD::PFO& thePFO,const xAOD::EventInfo& eventInfo){
+  m_PFOPlots.fill(thePFO,eventInfo);
+  m_PFOClusterMomentPlots.fill(thePFO,eventInfo);
+  m_PFOCalibHitClusterMomentPlots.fill(thePFO,eventInfo);
+  m_PFOAttributePlots.fill(thePFO,eventInfo);
+  m_PFOEMPlots.fill(thePFO,eventInfo);
 }
 
-void PFONeutralValidationPlots::fill(const xAOD::FlowElement& theFE){
+void PFONeutralValidationPlots::fill(const xAOD::FlowElement& theFE, const xAOD::EventInfo& eventInfo){
   //overload of previous function using FlowElement
-  m_FEPlots.fill(theFE);
-  m_FEClusterMomentPlots.fill(theFE);
-  //m_FECalibHitClusterMomentPlots.fill(theFE); // MC doesn't generally have the relevant calibhits saved. To add at a later date if needed
-  m_FEAttributePlots.fill(theFE);
-  //m_FEEMPlots.fill(theFE);
-  m_FELinkerPlots.fill(theFE);
+  m_FEPlots.fill(theFE,eventInfo);
+  m_FEClusterMomentPlots.fill(theFE,eventInfo);
+  m_FEAttributePlots.fill(theFE,eventInfo);
+  m_FELinkerPlots.fill(theFE,eventInfo);
 }

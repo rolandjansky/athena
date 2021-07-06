@@ -15,7 +15,7 @@ class ChargeDepParamPlots:public PlotBase {
   public:      
     ChargeDepParamPlots(PlotBase *pParent, std::string sDir, std::string sType);
     //void fill(const xAOD::TrackParticle& trkprt);
-    void fill(const xAOD::Muon& mu);
+    void fill(const xAOD::Muon& mu,float weight=1.0);
 
     TH1* q_times_eta;
     TH1* q_over_p;

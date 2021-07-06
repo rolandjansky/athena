@@ -928,6 +928,80 @@
         <reference subregion="PPM_64Channels" />
     </region>
 
+<!-- ======================================================================= -->
+<!--                    Run 3 j/gFEX tower definitions                       -->
+<!-- ======================================================================= -->
+<!--
+     The following part implements the description of the towers used in the
+     jFEX and gFEX
+-->
 
+  <!-- jTowers -->
+<field name="JTsampling">
+    <label name="EM"       value="0" />
+    <label name="Hadronic" value="1" />
+</field>
+
+<subregion name="JTower" >
+    <range field="DetZside" values="negative_lvl1_side positive_lvl1_side" />
+    <range field="JTsampling" values="EM Hadronic" />
+</subregion>
+
+<!-- 0 < |eta| < 2.5 -->
+<region group="Reg_JTower" name="JTower_0"
+        eta0="0.0" deta="0.1" phi0="0.0" dphi="0.1">
+    <reference subregion="JTower" />
+    <range field="JTregion" value="0" />
+    <range field="JTeta" minvalue="0" maxvalue="24" />
+    <range field="JTphi" minvalue="0" maxvalue="63" wraparound="TRUE" />
+</region>
+
+<!-- 2.5 < |eta| 3.1 has large SCs -->
+<region group="Reg_JTower" name="JTower_1"
+          eta0="2.5" deta="0.2" phi0="0.0" dphi="0.2" >
+    <reference subregion="JTower" />
+    <range field="JTregion" value="1" />
+    <range field="JTeta" minvalue="0" maxvalue="2" />
+    <range field="JTphi" minvalue="0" maxvalue="31" wraparound="TRUE" />
+</region>
+
+<!-- gTowers -->
+<!-- Note that this really gives the granularity of the gCaloTowers -->
+<field name="GTsampling">
+    <label name="EM"       value="0" />
+    <label name="Hadronic" value="1" />
+</field>
+
+<subregion name="GTower" >
+    <range field="DetZside" values="negative_lvl1_side positive_lvl1_side" />
+    <range field="GTsampling" values="EM Hadronic" />
+</subregion>
+
+<!-- 0 < |eta| < 2.4 -->
+<region group="Reg_GTower" name="GTower_0"
+        eta0="0.0" deta="0.2" phi0="0.0" dphi="0.2">
+    <reference subregion="GTower" />
+    <range field="GTregion" value="0" />
+    <range field="GTeta" minvalue="0" maxvalue="11" />
+    <range field="GTphi" minvalue="0" maxvalue="31" wraparound="TRUE" />
+</region>
+
+<!-- 2.4 < |eta| < 2.5 -->
+<region group="Reg_GTower" name="GTower_1"
+        eta0="2.4" deta="0.1" phi0="0.0" dphi="0.2">
+    <reference subregion="GTower" />
+    <range field="GTregion" value="1" />
+    <range field="GTeta" minvalue="0" maxvalue="0" />
+    <range field="GTphi" minvalue="0" maxvalue="31" wraparound="TRUE" />
+</region>
+  
+<!-- Up to eta=3.1 -\-> -->
+<region group="Reg_GTower" name="GTower_2" 
+          eta0="2.5" deta="0.2" phi0="0.0" dphi="0.2" >
+    <reference subregion="GTower" />
+    <range field="GTregion" value="2" />
+    <range field="GTeta" minvalue="0" maxvalue="2"/>
+    <range field="GTphi" minvalue="0" maxvalue="31" wraparound="TRUE" />
+</region>
 
 </IdDictionary>

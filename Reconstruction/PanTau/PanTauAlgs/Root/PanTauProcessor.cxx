@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PanTauAlgs/PanTauProcessor.h"
@@ -89,7 +89,7 @@ StatusCode PanTau::PanTauProcessor::executePanTau(xAOD::TauJet& pTau, xAOD::Part
   xAOD::TauJet* curTauJet = &pTau;
 
   //check for null pointer
-  if(curTauJet == 0) {
+  if(curTauJet == nullptr) {
     ATH_MSG_WARNING("Pointer to xAOD::TauJet is 0!");
     return StatusCode::FAILURE;
   }
@@ -154,10 +154,10 @@ StatusCode PanTau::PanTauProcessor::executePanTau(xAOD::TauJet& pTau, xAOD::Part
     
   // Now build the PanTauSeed with the new Constituents
   PanTau::PanTauSeed* curPanTauSeed = new PanTau::PanTauSeed(m_Name_InputAlg,
-							       curTauJet,
-							       l_List_SelectedTauConstituents,
-							       l_List_TauConstituents,
-							       pantauSeed_TechnicalQuality);
+							     curTauJet,
+							     l_List_SelectedTauConstituents,
+							     l_List_TauConstituents,
+							     pantauSeed_TechnicalQuality);
 
   curPanTauSeed->makePrivateStore();
 
@@ -181,7 +181,7 @@ StatusCode PanTau::PanTauProcessor::executePanTau(xAOD::TauJet& pTau, xAOD::Part
 
 void PanTau::PanTauProcessor::fillDefaultValuesToTau(xAOD::TauJet* tauJet) {
   //default four momentum set to previous calibration state: TauEnergyScale
-  TLorentzVector defaultP4 = tauJet->p4();
+  TLorentzVector defaultP4 = tauJet->p4(xAOD::TauJetParameters::TauEnergyScale);
   tauJet->setP4(xAOD::TauJetParameters::PanTauCellBased, defaultP4.Pt(), defaultP4.Eta(), defaultP4.Phi(), defaultP4.M());
     
   //charged

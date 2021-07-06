@@ -8,6 +8,11 @@
 
 namespace LVL1TGCTrigger {
 
+
+const int NumberOfPtLevel = 6;
+
+
+
 class TGCRPhiCoincidenceOut {
 
 public:

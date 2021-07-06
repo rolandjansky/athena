@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -71,7 +71,7 @@ Trk::ForwardKalmanFitter::ForwardKalmanFitter(const std::string& t,const std::st
 {
   // AlgTool stuff
   declareInterface<IForwardKalmanFitter>( this );
-  
+
   // declare all properties needed to configure fitter, defaults
   declareProperty("StateChi2PerNDFPreCut", m_StateChiSquaredPerNumberDoFPreCut=50.f,
                   "coarse pre-cut on the predicted state's chi2/ndf against outliers destabilising the filter - only in effect if called with runOutlier true");
@@ -103,7 +103,7 @@ StatusCode Trk::ForwardKalmanFitter::finalize()
   ATH_MSG_INFO ("finalize() successful in " << name());
   return StatusCode::SUCCESS;
 }
-		
+
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
 // configure the Forward Filter
@@ -128,7 +128,7 @@ StatusCode Trk::ForwardKalmanFitter::configureWithTools(const Trk::IExtrapolator
   m_alignableSurfaceProvider = asp_tool;
   m_recalibrator = mr;
   m_internalDAF  = kpaf;
-  
+
   // protection, if not confiured
   if (!m_updator) {
     ATH_MSG_ERROR ("Updator missing, need to configure with it !");
@@ -160,7 +160,7 @@ StatusCode Trk::ForwardKalmanFitter::configureWithTools(const Trk::IExtrapolator
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-Trk::FitterStatusCode 
+Trk::FitterStatusCode
 Trk::ForwardKalmanFitter::fit(Trk::Trajectory& trajectory,
                               const Trk::PrepRawDataSet& inputPRDColl,
                               const Trk::TrackParameters& estParamNear0,
@@ -175,18 +175,18 @@ Trk::ForwardKalmanFitter::fit(Trk::Trajectory& trajectory,
     ATH_MSG_WARNING  ("internal error: KF can not fit on PRD without a RIO_OnTrackCreator tool!");
     return FitterStatusCode::BadInput;
   }
-  
+
   ATH_MSG_VERBOSE ("Prepare the old start parameters...");
   // copy input TrkParameter into prediction without Errors
   const TrackParameters* updatedPar = estParamNear0.clone();
   Trk::ProtoTrackStateOnSurface* bremStateIfBremFound = nullptr;
-  
+
   // loop over all PreRawData objects in Set
   int itcounter=1;
   PrepRawDataSet::const_iterator it    = inputPRDColl.begin();
   for(  ; it!=inputPRDColl.end(); it++) {
     const Trk::TrackParameters* predPar =
-      this->predict( updatedPar, 
+      this->predict( updatedPar,
                      (*it)->detectorElement()->surface( (*it)->identify() ),
                      controlledMatEffects, itcounter, itcounter);
 
@@ -204,7 +204,7 @@ Trk::ForwardKalmanFitter::fit(Trk::Trajectory& trajectory,
                        << "will be lost in the track fit." );
     }
 
-    Trk::ProtoTrackStateOnSurface predictedState = 
+    Trk::ProtoTrackStateOnSurface predictedState =
       Trk::ProtoTrackStateOnSurface(fittableMeasurement,false,true,itcounter);
     trajectory.push_back(predictedState);
     if (runOutlier) m_utility->identifyMeasurement(predictedState);
@@ -214,18 +214,18 @@ Trk::ForwardKalmanFitter::fit(Trk::Trajectory& trajectory,
       this->buildAndAnalyseTrajectory(trajectory,newestState,updatedPar,predPar,
                                       controlledMatEffects,itcounter,
                                       bremStateIfBremFound,false /*no recalibrate*/);
-    if (stepFwF.isFailure()) { 
+    if (stepFwF.isFailure()) {
       delete updatedPar; delete predPar; return stepFwF;
     }
     stepFwF = this->updateOrSkip(newestState,updatedPar,predPar,itcounter,
                                  runOutlier,bremStateIfBremFound);
-    bremStateIfBremFound = nullptr; 
+    bremStateIfBremFound = nullptr;
     if (stepFwF.isFailure()) { delete updatedPar; return stepFwF; }
     ++itcounter;
 
   }
   delete updatedPar; updatedPar = nullptr;     // clean up
-  int testNumber = m_utility->rankedNumberOfMeasurements(trajectory);
+  int testNumber = Trk::ProtoTrajectoryUtility::rankedNumberOfMeasurements(trajectory);
   if (testNumber < 5) {
     ATH_MSG_DEBUG ("Filtered trajectory has only "<<testNumber<<" and thus too few fittable meas'ts!");
     return FitterStatusCode::FewFittableMeasurements; // master tool (KalmanFitter) will clean up the trajectory...
@@ -252,7 +252,7 @@ Trk::ForwardKalmanFitter::fit(Trk::Trajectory& trajectory,
     return FitterStatusCode::BadInput;
   }
   if (allowRecalibrate) m_utility->identifyMeasurements(trajectory);
-  Trk::Trajectory::iterator it = m_utility->firstFittableState(trajectory);
+  Trk::Trajectory::iterator it = Trk::ProtoTrajectoryUtility::firstFittableState(trajectory);
   const TrackParameters* updatedPar = nullptr;        // delete & remake during filter
   Trk::ProtoTrackStateOnSurface* bremStateIfBremFound = nullptr;
   ATH_MSG_DEBUG ("-F- entering FwFilter with matEff="<<controlledMatEffects.particleType()<<
@@ -278,15 +278,15 @@ Trk::ForwardKalmanFitter::fit(Trk::Trajectory& trajectory,
   } else {
     if (filterStartState>2) {
       // set iterator to *before* new outlier, because we didn't keep the update from there.
-      Trk::Trajectory::iterator testIt = m_utility->firstFittableState(trajectory);
+      Trk::Trajectory::iterator testIt = Trk::ProtoTrajectoryUtility::firstFittableState(trajectory);
       while (testIt != trajectory.end() &&
              testIt->positionOnTrajectory()<filterStartState) {
         it = testIt;
-        testIt = m_utility->nextFittableState(trajectory,it);
+        testIt = Trk::ProtoTrajectoryUtility::nextFittableState(trajectory,it);
       }
     }
-    ATH_MSG_VERBOSE ("-F- start filtering with parameters from "<< 
-                     (filterStartState>2 ? "before this new Outlier state":"the seed") 
+    ATH_MSG_VERBOSE ("-F- start filtering with parameters from "<<
+                     (filterStartState>2 ? "before this new Outlier state":"the seed")
                      << " at pos. " << it->positionOnTrajectory());
 
     if (!it->forwardTrackParameters()) {
@@ -306,7 +306,7 @@ Trk::ForwardKalmanFitter::fit(Trk::Trajectory& trajectory,
       it->checkinForwardPar(predPar);
       return stepFwF;
     }
-    if (filterStartState == 0 ) 
+    if (filterStartState == 0 )
       stepFwF = this->updateOrSkip(it,updatedPar,predPar /* check in again to trajectory*/,
                                    1,runOutlier,bremStateIfBremFound);
     else
@@ -314,8 +314,8 @@ Trk::ForwardKalmanFitter::fit(Trk::Trajectory& trajectory,
                                    filterStartState,runOutlier,bremStateIfBremFound);
     if (stepFwF.isFailure()) {
       ATH_MSG_DEBUG ("-F- first updateOrSkip() failed.");
-      it->checkinForwardPar(predPar); 
-      delete updatedPar; return stepFwF; 
+      it->checkinForwardPar(predPar);
+      delete updatedPar; return stepFwF;
     }
     itcounter = it->positionOnTrajectory()+1;
     ++it;
@@ -333,18 +333,18 @@ Trk::ForwardKalmanFitter::fit(Trk::Trajectory& trajectory,
       this->buildAndAnalyseTrajectory(trajectory,it,updatedPar,predPar,
                                       controlledMatEffects,itcounter,
                                       bremStateIfBremFound,allowRecalibrate);
-    if (stepFwF.isFailure()) { 
+    if (stepFwF.isFailure()) {
       delete updatedPar; delete predPar; return stepFwF;
     }
     stepFwF = this->updateOrSkip(it,updatedPar,predPar,itcounter,
                                  runOutlier,bremStateIfBremFound);
-    bremStateIfBremFound = nullptr; 
+    bremStateIfBremFound = nullptr;
 
     if (stepFwF.isFailure()) { delete updatedPar; return stepFwF; }
   }
 
   delete updatedPar;
-  int testNumber = m_utility->rankedNumberOfMeasurements(trajectory);
+  int testNumber = Trk::ProtoTrajectoryUtility::rankedNumberOfMeasurements(trajectory);
   if (testNumber < 5) {
     ATH_MSG_DEBUG ("Filtered trajectory has only " << testNumber
                    << " and thus too few fittable measurements!");
@@ -361,7 +361,7 @@ Trk::ForwardKalmanFitter::fit(Trk::Trajectory& trajectory,
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 const Trk::TrackParameters* Trk::ForwardKalmanFitter::predict
-(const Trk::TrackParameters*    updatedPar, 
+(const Trk::TrackParameters*    updatedPar,
  const Trk::Surface&            nominalDestSurface,
  const Trk::KalmanMatEffectsController& controlledMatEffects,
  const int                      filterCounter,
@@ -370,11 +370,11 @@ const Trk::TrackParameters* Trk::ForwardKalmanFitter::predict
   if (msgLvl(MSG::DEBUG) && filterCounter == 1)
     printGlobalParams( (tjPositionCounter-1), "  init", updatedPar );
   //  m_log << MSG::DEBUG << "From " << *updatedPar << " to " << destinationSurface << endmsg;
-  
+
   const Trk::Surface& destinationSurface = m_alignableSurfaceProvider              ?
     m_alignableSurfaceProvider->retrieveAlignableSurface(nominalDestSurface):
     nominalDestSurface                                                      ;
-  
+
   const Trk::TrackParameters* predPar = nullptr;
   if (filterCounter == 1) {
 
@@ -386,7 +386,7 @@ const Trk::TrackParameters* Trk::ForwardKalmanFitter::predict
                        << " meas't - no extrapolation needed.");
     } else {
       ATH_MSG_VERBOSE ("-Fp get filter onto 1st surface by direct extrapolation.");
-      if (!m_useExEngine) 
+      if (!m_useExEngine)
 	predPar = m_extrapolator->extrapolateDirectly(*updatedPar, destinationSurface,
 						      Trk::anyDirection,
 						      false, Trk::nonInteracting);
@@ -397,7 +397,7 @@ const Trk::TrackParameters* Trk::ForwardKalmanFitter::predict
         ecc.setParticleHypothesis(Trk::nonInteracting);
         ecc.addConfigurationMode(Trk::ExtrapolationMode::Direct);
         Trk::ExtrapolationCode eCode =  m_extrapolationEngine->extrapolate(ecc, &destinationSurface, false);
-        
+
 	if (eCode.isSuccess() && ecc.endParameters) {
 	  ATH_MSG_INFO ("Forward Kalman Fitter --> extrapolation engine success");
 	  predPar = ecc.endParameters;
@@ -405,18 +405,18 @@ const Trk::TrackParameters* Trk::ForwardKalmanFitter::predict
           ATH_MSG_WARNING ("Forward Kalman Fitter --> extrapolation engine did not succeed");
           predPar = nullptr;
         }
-      }      
+      }
 
     }
 
     /* possible difficulty here
        when the starting track parameters are already at the 1st surface.
        Solutions involve to go backward by a bit (if a certain type of propagator
-       does not check if the surfaces overlap, but are different (Perigee & Line 
+       does not check if the surfaces overlap, but are different (Perigee & Line
        defined at the same point). This has to be recognised, and the TP cloned */
     if (!predPar && destinationSurface.isOnSurface(updatedPar->position(),true,5.0)) {
       const Trk::Perigee* testPer = dynamic_cast<const Trk::Perigee*>(updatedPar);
-      const Trk::StraightLineSurface* wireSurface = 
+      const Trk::StraightLineSurface* wireSurface =
         dynamic_cast<const Trk::StraightLineSurface*>(&destinationSurface);
       if (testPer and wireSurface) {
         predPar = new Trk::AtaStraightLine(updatedPar->parameters()[Trk::loc1],
@@ -428,12 +428,12 @@ const Trk::TrackParameters* Trk::ForwardKalmanFitter::predict
         ATH_MSG_INFO ("-Fp initial Perigee transformed to TrkPars *manually* - this may need a fix!");
       }
     }
-    
+
   } else {
 
     ////////////////////////////////////////////////////////////////////////////
     // --- 2nd case covers filter loop: extrapolate to next surface with full matEffects
-    if (!m_useExEngine) 
+    if (!m_useExEngine)
       predPar = m_extrapolator->extrapolate(*updatedPar,destinationSurface,
 					    Trk::alongMomentum,false,
 					    controlledMatEffects.particleType());
@@ -442,7 +442,7 @@ const Trk::TrackParameters* Trk::ForwardKalmanFitter::predict
       Trk::ExtrapolationCell <Trk::TrackParameters> ecc(*updatedPar, Trk::alongMomentum);
       ecc.setParticleHypothesis(controlledMatEffects.particleType());
       Trk::ExtrapolationCode eCode =  m_extrapolationEngine->extrapolate(ecc, &destinationSurface, false);
-      
+
       if (eCode.isSuccess() && ecc.endParameters) {
 	ATH_MSG_DEBUG ("Forward Kalman Fitter --> extrapolation engine success");
 	predPar = ecc.endParameters;
@@ -478,8 +478,8 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::buildAndAnalyseTrajectory
     ATH_MSG_WARNING ("The Meas'Base extraction failed, software problem!");
     return FitterStatusCode::BadInput;
   }
-  if ( filterCounter>1 && updatedPar!=nullptr 
-       && ( (updatedPar->associatedSurface()) == 
+  if ( filterCounter>1 && updatedPar!=nullptr
+       && ( (updatedPar->associatedSurface()) ==
             (fittableMeasurement->associatedSurface()) )) {
     ATH_MSG_WARNING ("Measurements " << (I<11?"T0":"T") << I-1 <<
                    (I<10?" and T0":" and T") <<I<<" are at the same surface ==> reject track.");
@@ -488,12 +488,12 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::buildAndAnalyseTrajectory
     ATH_MSG_DEBUG ("updatedPar" << *updatedPar << " at surface ptr " << &updatedPar->associatedSurface()
                    << "\n" << updatedPar->associatedSurface());
     ATH_MSG_DEBUG ("fittableMs" << *fittableMeasurement << " at surface ptr "
-                   << &(fittableMeasurement->associatedSurface()) << "\n" 
+                   << &(fittableMeasurement->associatedSurface()) << "\n"
                    << fittableMeasurement->associatedSurface());
      m_utility->dumpTrajectory(T,"TSoS consistency problem");
     return FitterStatusCode::BadInput;
   }
-  
+
   if(!predPar) {
     ATH_MSG_DEBUG ((I<10?"T0":"T") << I << " --- missed surface with "
                    << "extrapolation, flag state as outlier --- " );
@@ -501,9 +501,9 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::buildAndAnalyseTrajectory
       ATH_MSG_INFO ("lost PseudoMeasurement during fwd extrapolation - "
                     << "PM-surface or sorting problem.");
       if (msgLvl(MSG::DEBUG)) {
-        m_utility->identifyMeasurements(T);    
+        m_utility->identifyMeasurements(T);
         m_utility->dumpTrajectory(T,"PseudoMeasurementProblem");
-        if (updatedPar) ATH_MSG_DEBUG ("start surface (updatedPar) " 
+        if (updatedPar) ATH_MSG_DEBUG ("start surface (updatedPar) "
                                       << updatedPar->associatedSurface());
         ATH_MSG_DEBUG ("PM surface " << *fittableMeasurement);
       }
@@ -512,10 +512,10 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::buildAndAnalyseTrajectory
     return Trk::FitterStatusCode::Success;
   }
   if (msgLvl(MSG::DEBUG)) printGlobalParams( predictedState->positionOnTrajectory(), " extrp", predPar );
-  
+
   //// 2a ////////////////////////////////////////////////////////////////
   // Posibly re-calibrate
-    
+
   if (allowRecalibrate && m_recalibrator
       && predictedState->measurementType() == TrackState::TRT)  {
     // the replaceMeas.-method does ownership right and detects if the
@@ -525,7 +525,7 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::buildAndAnalyseTrajectory
       ( m_recalibrator->makePreciseMeasurement(*predictedState->measurement(),*predPar,
                                                TrackState::TRT),
         m_recalibrator->calibrationStatus(*predictedState->measurement(),TrackState::TRT)
-        ); 
+        );
     fittableMeasurement = predictedState->measurement();
   }
 
@@ -534,15 +534,19 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::buildAndAnalyseTrajectory
   ////////////////////////////////////////////////////////////////////
   // search for brem and adjust the error according to target measurement (brem fit)
   if (filterCounter>2) {
-    const Trk::DNA_MaterialEffects* updMomNoise = 
-      !controlledMatEffects.doDNA() ? nullptr :
-      m_dynamicNoiseAdjustor->DNA_Adjust(predPar, // change according to where meas is
-                                         updatedPar, // re-start from old pars
-                                         fittableMeasurement, // the meas't
-                                         controlledMatEffects,
-                                         Trk::alongMomentum);
+    const Trk::DNA_MaterialEffects* updMomNoise = nullptr;
+    if (controlledMatEffects.doDNA()) {
+      Trk::IDynamicNoiseAdjustor::State state{};
+      updMomNoise = m_dynamicNoiseAdjustor->DNA_Adjust(
+        state,
+        predPar,             // change according to where meas is
+        updatedPar,          // re-start from old pars
+        fittableMeasurement, // the meas't
+        controlledMatEffects,
+        Trk::alongMomentum);
+    }
     if (updMomNoise) {
-      Trk::Trajectory::iterator b = m_utility->previousFittableState(T, predictedState);
+      Trk::Trajectory::iterator b = Trk::ProtoTrajectoryUtility::previousFittableState(T, predictedState);
       if (b!=T.end()) {
         b->checkinDNA_MaterialEffects(updMomNoise);
         bremEffectsState = &(*b);
@@ -556,11 +560,11 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::buildAndAnalyseTrajectory
   ////////////////////////////////////////////////////////////////////
   // if it is configured, try mini-DAF in first iteration - sw. OFF in KF.cxx
   if ( m_internalDAF != nullptr && allowRecalibrate ) {
-    const Trk::StraightLineSurface* testNextSurfaceIfWire = 
+    const Trk::StraightLineSurface* testNextSurfaceIfWire =
       dynamic_cast<const Trk::StraightLineSurface*>(&predPar->associatedSurface());
-    const Trk::StraightLineSurface* testOldSurfaceIfWire = 
+    const Trk::StraightLineSurface* testOldSurfaceIfWire =
       dynamic_cast<const Trk::StraightLineSurface*>(&updatedPar->associatedSurface());
-    const Trk::RIO_OnTrack* testROT 
+    const Trk::RIO_OnTrack* testROT
       = dynamic_cast<const Trk::RIO_OnTrack*>(fittableMeasurement);
     double testPredErr  = (predPar->covariance()==nullptr ? 0.0 : std::sqrt( (*predPar->covariance())(Trk::locX,Trk::locX)));
     double testDistance = (predPar->position() - updatedPar->position()).mag();
@@ -582,10 +586,10 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::buildAndAnalyseTrajectory
          // FIXME also look at anticipated fraction of tube hits
          && (testPredErr > std::min(2.0*std::sqrt(fittableMeasurement->localCovariance()(Trk::locX,Trk::locX)),0.4)
              || (std::fabs(testRadius-testPred)>0.5))) {
-      ATH_MSG_DEBUG ("Starting driftcircle L/R solving, observed at state " 
+      ATH_MSG_DEBUG ("Starting driftcircle L/R solving, observed at state "
                      << predictedState->positionOnTrajectory() << " err="<<testPredErr);
 
-      m_internalDAF->filterTrajectoryPiece(T, predictedState, updatedPar, predPar, 12, 
+      m_internalDAF->filterTrajectoryPiece(T, predictedState, updatedPar, predPar, 12,
       					   controlledMatEffects.particleType());
     }
 
@@ -625,22 +629,22 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::updateOrSkip
     AmgVector(5) par;
     par.setZero();
     const std::vector<double> cov0{250., 250., 0.25, 0.25, 0.000001};
-    AmgSymMatrix(5)* cov = new AmgSymMatrix(5);
-    cov->setZero();
+    AmgSymMatrix(5) cov;
+    cov.setZero();
     for (int i=0, j=0; i<5; ++i) {
       if (fittableMeasurement->localParameters().contains(((Trk::ParamDefs)i))) {
         par[((Trk::ParamDefs)i)] = fittableMeasurement->localParameters()[((Trk::ParamDefs)i)];
-        (*cov)(i,i) = fittableMeasurement->localCovariance()(j,j);
+        (cov)(i,i) = fittableMeasurement->localCovariance()(j,j);
         ATH_MSG_VERBOSE ("Stabilise " << i << " with "
 			 << fittableMeasurement->localParameters()[((Trk::ParamDefs)i)] << " and +/- "
                          << fittableMeasurement->localCovariance()(j,j));
         ++j;
       } else {
         par[((Trk::ParamDefs)i)] = predPar->parameters()[((Trk::ParamDefs)i)];
-        (*cov)(i,i) = cov0[i];
+        (cov)(i,i) = cov0[i];
       }
     }
-    updatedPar = CREATE_PARAMETERS(*predPar,par,cov); 
+    updatedPar = CREATE_PARAMETERS(*predPar,par,cov).release();
     fitQuality = new Trk::FitQuality(0.0, fittableMeasurement->localParameters().dimension());
   } else {
 
@@ -649,7 +653,7 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::updateOrSkip
     // make the update
     updatedPar = m_updator->addToState(*predPar, fittableMeasurement->localParameters(),
                                        fittableMeasurement->localCovariance(),
-                                       fitQuality);
+                                       fitQuality).release();
     ////////////////////////////////////////////////////////////////////
     // check that updated parameters are ok and write back to trajectory
     if (!updatedPar) {
@@ -661,7 +665,7 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::updateOrSkip
   }
   if (msgLvl(MSG::DEBUG)) printGlobalParams( predictedState->positionOnTrajectory(),
                                              " updat", updatedPar );
-  
+
   ////////////////////////////////////////////////////////////////////
   // analyse the fit quality, possibly flag as outlier
   if (fitQuality == nullptr) {
@@ -680,7 +684,7 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::updateOrSkip
         ( m_recalibrator->makeBroadMeasurement(*predictedState->measurement(),*predPar,
                                                TrackState::TRT),
           m_recalibrator->calibrationStatus(*predictedState->measurement(),TrackState::TRT)
-          ); 
+          );
       fittableMeasurement = predictedState->measurement();
       ATH_MSG_DEBUG ("Broadened TRT hit instead of outlier");
       delete updatedPar; delete fitQuality; fitQuality=nullptr;
@@ -688,7 +692,7 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::updateOrSkip
       // make the update
       updatedPar = m_updator->addToState(*predPar, fittableMeasurement->localParameters(),
                                          fittableMeasurement->localCovariance(),
-                                         fitQuality);
+                                         fitQuality).release();
       if ( (!updatedPar || !fitQuality ||
            (runOutlier && fitQuality->chiSquared() > m_StateChiSquaredPerNumberDoFPreCut
             * fitQuality->numberDoF())) ) {
@@ -746,7 +750,7 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::enterSeedIntoTrajectory
  bool) const {
 
   // FIXME check that trajectory is empty
-  Trk::Trajectory::iterator ffs = m_utility->firstFittableState(trajectory);
+  Trk::Trajectory::iterator ffs = Trk::ProtoTrajectoryUtility::firstFittableState(trajectory);
   if (ffs->forwardTrackParameters() || ffs->referenceParameters()) {
     ATH_MSG_WARNING (" wrong input? Dont call enterSeedIntoTrajectory on a full trajectory");
     if (ffs->forwardTrackParameters()) delete ffs->checkoutForwardPar();
@@ -759,7 +763,7 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::enterSeedIntoTrajectory
   }
   const Trk::Surface& startSurface = ffs->measurement()->associatedSurface();
   const Trk::TrackParameters* inputParAtStartSurface = nullptr;
-  
+
   // chk if TPar are already in correct local frame: first pointer check (quick) then geometric
   if ( &startSurface ==  &inputPar.associatedSurface() ||
        startSurface == inputPar.associatedSurface() ) {
@@ -779,12 +783,12 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::enterSeedIntoTrajectory
       ecc.setParticleHypothesis(Trk::nonInteracting);
       ecc.addConfigurationMode(Trk::ExtrapolationMode::Direct);
       Trk::ExtrapolationCode eCode =  m_extrapolationEngine->extrapolate(ecc, &startSurface, false);
-      
+
       if (eCode.isSuccess() && ecc.endParameters) {
 	ATH_MSG_DEBUG ("Forward Kalman Fitter --> extrapolation engine success");
 	inputParAtStartSurface = ecc.endParameters;
       } else ATH_MSG_WARNING ("Forward Kalman Fitter --> extrapolation engine did not succeed");
-    }      
+    }
 
     if (inputParAtStartSurface == nullptr) {
       ATH_MSG_WARNING ("-Fe can not transport input param to first measurement => extrap problem or bad input");
@@ -798,11 +802,14 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::enterSeedIntoTrajectory
     }
   }
 
-  AmgSymMatrix(5)* cov = new AmgSymMatrix(5)(); cov->setZero();
-  for (int i=0; i<5; ++i) (*cov)(i,i) = cov0[i];
+  AmgSymMatrix(5) cov ; 
+  cov.setZero();
+  for (int i=0; i<5; ++i) {
+    (cov)(i,i) = cov0[i];
+  }
   const AmgVector(5)& par = inputParAtStartSurface->parameters();
   // TODO: check does one need covariance here?
-  const Trk::TrackParameters* seedPar = CREATE_PARAMETERS((*inputParAtStartSurface),par, cov);
+  const Trk::TrackParameters* seedPar = CREATE_PARAMETERS((*inputParAtStartSurface),par, cov).release();
   if (inputParAtStartSurface != &inputPar) delete inputParAtStartSurface;
   ffs->checkinForwardPar(seedPar);
   ATH_MSG_VERBOSE ("-Fe prepared trajectory with seed parameters on state "<<ffs->positionOnTrajectory());
@@ -818,7 +825,7 @@ void Trk::ForwardKalmanFitter::printGlobalParams(int istate, const std::string& 
   const
 {
   char tt[80]; snprintf(tt,79,"T%.2u",istate);
-  msg(MSG::VERBOSE) << tt << ptype << " GP:" 
+  msg(MSG::VERBOSE) << tt << ptype << " GP:"
         << std::setiosflags(std::ios::fixed | std::ios::showpoint | std::ios::right )
         << std::setw(9) << std::setprecision(2) << param->position()[0]
         << std::setw(9) << std::setprecision(2) << param->position()[1]
@@ -829,6 +836,6 @@ void Trk::ForwardKalmanFitter::printGlobalParams(int istate, const std::string& 
         << std::setw(8) << std::setprecision(0) << param->momentum()[2]
         << std::setprecision(6) << endmsg;
   if (mefot)
-    msg(MSG::VERBOSE) << (istate>9?" T":" T0") << istate << ", Mefot found with " 
+    msg(MSG::VERBOSE) << (istate>9?" T":" T0") << istate << ", Mefot found with "
           << *mefot << endmsg;
 }

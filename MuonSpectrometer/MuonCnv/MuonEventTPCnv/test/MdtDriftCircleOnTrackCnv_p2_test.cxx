@@ -104,7 +104,7 @@ void compare (const Muon::MdtDriftCircleOnTrack& p1,
 
 void testit (const Muon::MdtDriftCircleOnTrack& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   MdtDriftCircleOnTrackCnv_p2 cnv;
   MuonMeasurementsCnv_tlp2 exttlcnv;
   cnv.setRuntimeTopConverter (&exttlcnv);

@@ -29,6 +29,10 @@
 #include <TH1D.h>
 #include <TGraphAsymmErrors.h>
 
+
+#include <cmath>
+
+
 // constructor
 Trk::TruthNtupleTool::TruthNtupleTool(
     const std::string& t,
@@ -177,8 +181,8 @@ StatusCode Trk::TruthNtupleTool::initBranches(const std::vector<const Trk::ITrac
       ATH_MSG_ERROR ("Track links seem to be already initialized! Do NOT call initBranches() twice!");
       return StatusCode::FAILURE;
     }
-    m_TrackLinkIndex.resize(trackCollectionNames.size(), 0);
-    m_mc_prob.resize(trackCollectionNames.size(), 0);
+    m_TrackLinkIndex.resize(trackCollectionNames.size(), nullptr);
+    m_mc_prob.resize(trackCollectionNames.size(), nullptr);
     for (unsigned int trackColIndex = 0; trackColIndex < trackCollectionNames.size(); ++trackColIndex ) {
         m_TrackLinkIndex[trackColIndex] = new std::vector<unsigned int>();
         std::string branchName = "TrackLinkIndex_" + trackCollectionNames[trackColIndex];
@@ -233,9 +237,9 @@ StatusCode Trk::TruthNtupleTool::finalize() {
             }
             msg() << "\n";
             delete m_recoTrackCounts[classifierIndex][clIndex];
-            m_recoTrackCounts[classifierIndex][clIndex] = 0;
+            m_recoTrackCounts[classifierIndex][clIndex] = nullptr;
             delete m_truthTrackCounts[classifierIndex][clIndex];
-            m_truthTrackCounts[classifierIndex][clIndex] = 0;
+            m_truthTrackCounts[classifierIndex][clIndex] = nullptr;
         }
     }
     msg() << endmsg;
@@ -266,13 +270,13 @@ StatusCode Trk::TruthNtupleTool::writeTruthData (
     m_runNumber=evt->runNumber();
     m_eventNumber=evt->eventNumber();
 
-    const HepMC::GenParticle*   genParticle = 0;
-    const Trk::TrackParameters* truePerigee = 0;
+    HepMC::ConstGenParticlePtr   genParticle{nullptr};
+    const Trk::TrackParameters* truePerigee = nullptr;
     for (unsigned int index = 0; index < truthData.size(); index++) {
         genParticle = truthData[index].genParticle;
         truePerigee = truthData[index].truthPerigee;
-        if (genParticle==NULL || truePerigee==NULL) {
-          if (genParticle==NULL) ATH_MSG_WARNING ("NULL pointer to gen particle at index "<<index<<
+        if (genParticle==nullptr || truePerigee==nullptr) {
+          if (genParticle==nullptr) ATH_MSG_WARNING ("NULL pointer to gen particle at index "<<index<<
                                                   ", problem with truth selection logic?");
           else ATH_MSG_DEBUG ("NULL pointer perigee from TruthToTrack. Index is "<<index);
             m_mc_barcode = 0;
@@ -303,7 +307,7 @@ StatusCode Trk::TruthNtupleTool::writeTruthData (
             m_mc_phi0    = truePerigee->parameters()[Trk::phi0];
             m_mc_theta   = truePerigee->parameters()[Trk::theta];
             m_mc_qOverP  = truePerigee->parameters()[Trk::qOverP];
-            m_mc_qOverPt = (sin( m_mc_theta ) != 0.) ? m_mc_qOverP / sin( m_mc_theta ) : 0.;
+            m_mc_qOverPt = (std::sin( m_mc_theta ) != 0.) ? m_mc_qOverP / std::sin( m_mc_theta ) : 0.;
             m_mc_eta     = truePerigee->eta();
             m_mc_prodR   = fabs(genParticle->production_vertex()->position().perp());
             m_mc_prodz   = fabs(genParticle->production_vertex()->position().z());
@@ -320,10 +324,10 @@ StatusCode Trk::TruthNtupleTool::writeTruthData (
 
             // do statistics:
             for (unsigned int classIndex = 0; classIndex < m_classifications.size(); ++classIndex ) {
-                m_truthTrackCounts[classIndex][m_classifications[classIndex]]->Fill(fabs(m_mc_eta));
+                m_truthTrackCounts[classIndex][m_classifications[classIndex]]->Fill(std::fabs(m_mc_eta));
                 if (truthData[index].truthToTrackIndices[0].size() > 0) {
                     // TODO: do statistics for each input track collection
-                    m_recoTrackCounts[classIndex][m_classifications[classIndex]]->Fill(fabs(m_mc_eta));
+                    m_recoTrackCounts[classIndex][m_classifications[classIndex]]->Fill(std::fabs(m_mc_eta));
                 }
                
             }

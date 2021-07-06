@@ -22,6 +22,9 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "TrigT1CaloToolInterfaces/IL1CPMTowerTools.h"
+#include "TrigT1Interfaces/TrigT1CaloDefs.h"
+#include "TrigT1CaloEvent/TriggerTowerCollection.h"
+#include "TrigT1CaloEvent/CPMTower_ClassDEF.h"
 
 
 
@@ -68,18 +71,12 @@ class CPMTowerMaker : public AthAlgorithm
 
   StatusCode initialize() ;
   StatusCode execute() ;
-  StatusCode finalize() ;
-
-
 
  private:
 
-   ToolHandle<LVL1::IL1CPMTowerTools> m_CPMTowerTool;
-
-  /** location of TriggerTowers in TES */
-  std::string m_triggerTowerLocation;
-  /** locations within the TES to store collections of JEs*/
-  std::string   m_cpmTowerLocation ;
+  ToolHandle<LVL1::IL1CPMTowerTools> m_CPMTowerTool;
+  SG::ReadHandleKey<TTCollection> m_triggerTowerLocation { this, "TriggerTowerLocation", TrigT1CaloDefs::TriggerTowerLocation};
+  SG::WriteHandleKey<CPMTCollection> m_cpmTowerLocation { this, "CPMTowerLocation", TrigT1CaloDefs::CPMTowerLocation};
 
 };
 

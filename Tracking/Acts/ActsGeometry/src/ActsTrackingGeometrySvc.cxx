@@ -23,7 +23,7 @@
 #include "Acts/Geometry/TrackingGeometryBuilder.hpp"
 #include "Acts/Geometry/CylinderVolumeBuilder.hpp"
 #include "Acts/Geometry/CylinderVolumeBounds.hpp"
-#include <Acts/Plugins/Json/JsonGeometryConverter.hpp>
+#include <Acts/Plugins/Json/MaterialMapJsonConverter.hpp>
 #include <Acts/Plugins/Json/JsonMaterialDecorator.hpp>
 #include "Acts/Utilities/Logger.hpp"
 #include "Acts/ActsVersion.hpp"
@@ -102,9 +102,9 @@ ActsTrackingGeometrySvc::initialize()
     std::string matFile = m_materialMapInputFile;
     if (matFile.find(".json") != std::string::npos) {
       // Set up the converter first
-      Acts::JsonGeometryConverter::Config jsonGeoConvConfig;
-      jsonGeoConvConfig.name = "JsonGeometryConverter";
-      jsonGeoConvConfig.logger = makeActsAthenaLogger(this, "JsonGeometryConverter");
+      Acts::MaterialMapJsonConverter::Config jsonGeoConvConfig;
+      jsonGeoConvConfig.name = "MaterialMapJsonConverter";
+      jsonGeoConvConfig.logger = makeActsAthenaLogger(this, "MaterialMapJsonConverter");
       // Set up the json-based decorator
       matDeco = std::make_shared<const Acts::JsonMaterialDecorator>(
           jsonGeoConvConfig, m_materialMapInputFile, true, true);
@@ -213,7 +213,7 @@ ActsTrackingGeometrySvc::initialize()
 
   ATH_MSG_VERBOSE("Begin building process");
   m_trackingGeometry = trackingGeometryBuilder
-    ->trackingGeometry(constructionContext.any());
+    ->trackingGeometry(constructionContext.context());
   ATH_MSG_VERBOSE("Building process completed");
 
   ATH_MSG_VERBOSE("Building nominal alignment store");

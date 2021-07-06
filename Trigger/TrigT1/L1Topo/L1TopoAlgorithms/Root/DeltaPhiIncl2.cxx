@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * DeltaPhiIncl2.cpp
@@ -16,12 +16,10 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
-#include "TH1F.h"
 
 #include "L1TopoAlgorithms/DeltaPhiIncl2.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
-#include "L1TopoSimulationUtils/Kinematics.h"
 
 REGISTER_ALG_TCS(DeltaPhiIncl2)
 
@@ -101,7 +99,7 @@ TCS::DeltaPhiIncl2::processBitCorrect( const std::vector<TCS::TOBArray const *> 
                      tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
                      ++tob2) {
                     // test DeltaPhiMin, DeltaPhiMax
-                    unsigned int deltaPhi = TSU::Kinematics::calcDeltaPhiBW( *tob1, *tob2 );
+                    unsigned int deltaPhi = calcDeltaPhiBW( *tob1, *tob2 );
                     for(unsigned int i=0; i<numberOutputBits(); ++i) {
                         bool accept = false;
                         if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
@@ -146,7 +144,7 @@ TCS::DeltaPhiIncl2::process( const std::vector<TCS::TOBArray const *> & input,
                      tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
                      ++tob2) {
                     // test DeltaPhiMin, DeltaPhiMax
-                    unsigned int deltaPhi = TSU::Kinematics::calcDeltaPhi( *tob1, *tob2 );
+                    unsigned int deltaPhi = calcDeltaPhi( *tob1, *tob2 );
                     for(unsigned int i=0; i<numberOutputBits(); ++i) {
                         bool accept = false;
                         if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut

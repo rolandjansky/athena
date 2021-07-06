@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONMDT_CABLING_MDTMEZZANINETYPE_H
@@ -10,16 +10,13 @@
  *  @brief Atlas MDT Mezzanine Type
  *  
  *  This class describes the internal mapping of a 
- *  generic MDT mezzanine type. It is initialized 
- *  by the MuonMDT_CablingSvc from COOL
+ *  generic MDT mezzanine type.
  *
  *  @author Stefano.Rosati@roma1.infn.it
  *
  **/
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/Bootstrap.h"
 
 #include <vector>
@@ -39,7 +36,7 @@ class MdtMezzanineType {
   ~MdtMezzanineType();
 
   /** add a layer type */
-  bool addLayer(uint8_t layerNumber, MdtLayer layer);
+  bool addLayer(uint8_t layerNumber, MdtLayer layer, MsgStream &log);
 
   /** return the mezzanine type */
   uint8_t type() const {return m_type;}
@@ -68,12 +65,8 @@ class MdtMezzanineType {
   uint8_t m_nOfLayers;
 
   /** Array with the layers (maximum 4) */
-  MdtLayer m_layers[5];
+  std::array<MdtLayer, 5> m_layers;
 
-  /** Output level and message service */
-  bool m_debug;
-  MsgStream* m_log;
-  
 };
 
 #endif // MUONMDT_CABLING_MDTMEZZANINETYPE_H

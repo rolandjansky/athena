@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCDoubletSB_hh
@@ -15,9 +15,10 @@ const int NumberOfDoubletSBData = 2;
 class TGCPatchPanelOut;
 class TGCHitPattern;
 
-class TGCDoubletSB: public TGCSlaveBoard {
-public:
-  TGCDoubletSB( const TGCArguments* );
+class TGCDoubletSB : public TGCSlaveBoard
+{
+ public:
+  TGCDoubletSB();
   virtual ~TGCDoubletSB();
 
 protected:

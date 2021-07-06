@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetMonitoring/JetContainerHistoFiller.h"
@@ -52,13 +52,14 @@ int JetContainerHistoFiller::fillHistos(){
     return 0;
   }
 
+  float weight = evtInfo->beamSpotWeight();
 
   /// simply call fillHistosFromContainer() for each tool...
   int count = 0;
   for( auto jtool : m_histoTools){
     ATH_MSG_DEBUG ("Filling hists " << jtool->name() << "..." << jCont);
 
-    count += jtool->fillHistosFromContainer(*jCont);
+    count += jtool->fillHistosFromContainer(*jCont, weight);
   }
 
   return count;    

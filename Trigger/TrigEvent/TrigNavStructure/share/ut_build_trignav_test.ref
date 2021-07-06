@@ -1,24 +1,31 @@
-INFO       LINE:28   
-INFO       LINE:28   Test empty
-DEBUG      LINE:35   Test progressing
-DEBUG      LINE:41   Test progressing
-OK         LINE:46   Empty nav test passed
-INFO       LINE:52   
-INFO       LINE:52   Test singleTE
-DEBUG      LINE:60   Test progressing
-DEBUG      LINE:68   Test progressing
-OK         LINE:74   One TE navigation serialization
-INFO       LINE:79   
-INFO       LINE:79   Test realTEs
-DEBUG      LINE:95   Test progressing
-DEBUG      LINE:102  Test progressing
-DEBUG      LINE:114  Test progressing
-OK         LINE:123  One TE navigation serialization
-INFO       LINE:129  
-INFO       LINE:129  Test truncate
-DEBUG      LINE:136  Test progressing
-DEBUG      LINE:144  Test progressing
-DEBUG      LINE:147  Test progressing
+
+
+ApplicationMgr       INFO Application Manager Configured successfully
+EventLoopMgr      WARNING Unable to locate service "EventSelector" 
+EventLoopMgr      WARNING No events will be processed from external input.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr Ready
+INFO       LINE   
+INFO       LINE   Test empty
+DEBUG      LINE   Test progressing
+DEBUG      LINE   Test progressing
+OK         LINE   Empty nav test passed
+INFO       LINE   
+INFO       LINE   Test singleTE
+DEBUG      LINE   Test progressing
+DEBUG      LINE   Test progressing
+OK         LINE   One TE navigation serialization
+INFO       LINE   
+INFO       LINE   Test realTEs
+DEBUG      LINE  Test progressing
+DEBUG      LINE  Test progressing
+DEBUG      LINE  Test progressing
+OK         LINE  One TE navigation serialization
+INFO       LINE  
+INFO       LINE  Test truncate
+DEBUG      LINE  Test progressing
+DEBUG      LINE  Test progressing
+DEBUG      LINE  Test progressing
 size of the navigation payload smaller than the one required to save TEs. 17 < 18
-DEBUG      LINE:152  Test progressing
-OK         LINE:171  Test passed
+DEBUG      LINE  Test progressing
+OK         LINE  Test passed

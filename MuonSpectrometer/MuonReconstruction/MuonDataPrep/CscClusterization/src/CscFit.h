@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CscFit_H
 #define CscFit_H
 
 #include "GaudiKernel/Bootstrap.h"
-
 #include "TROOT.h"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -15,38 +14,25 @@
 // BNL March 26 2003  --- Ketevi A. Assamagan                              //
 /////////////////////////////////////////////////////////////////////////////
 
-Double_t f1gauss(Double_t *x, Double_t *par);
-Double_t f2gauss(Double_t *x, Double_t *par);
+Double_t f1gauss(const Double_t* x, const Double_t* par);
+Double_t f2gauss(const Double_t* x, const Double_t* par);
 
 class CscFit {
+public:
+    // Constructor
 
- public:
+    CscFit(double sigma);
 
-// Constructor
+    // Fitter
+    void cscfit(double* qstr, int& maxStrip, double& thr, double& da, int& ncl, double* sig, double* zpos, double& error) const;
 
- CscFit(double sigma);
+private:
+    static int icmax(const double* qstr, const int& i1, const int& i2);
+    friend Double_t f1gauss(const Double_t* x, const Double_t* par);
+    friend Double_t f2gauss(const Double_t* x, const Double_t* par);
 
- // Fitter
- void cscfit(double* qstr, int& maxStrip, double& thr, double& da, 
-	     int& ncl, double* sig, double* zpos, double& error);
-
- private:
- 
- int  icmax(double* qstr, const int& i1, const int& i2);
- friend Double_t f1gauss(Double_t *x, Double_t *par);
- friend Double_t f2gauss(Double_t *x, Double_t *par);
-
- private:
-
- double m_sigma;
-
+private:
+    double m_sigma;
 };
 
 #endif
-
-
-
-
-
-
-

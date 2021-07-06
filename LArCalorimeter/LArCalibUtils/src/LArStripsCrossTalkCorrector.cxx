@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArStripsCrossTalkCorrector.h"
@@ -7,7 +7,6 @@
 #include "LArRawEvent/LArAccumulatedCalibDigitContainer.h"
 #include "LArRawEvent/LArFebErrorSummary.h"
 #include "CaloIdentifier/CaloGain.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
 #include "LArRecConditions/LArBadChannel.h"
 #include "LArBadChannelTool/LArBadChannelDBTools.h"
 #include <math.h>
@@ -15,8 +14,6 @@
 
 LArStripsCrossTalkCorrector::LArStripsCrossTalkCorrector(const std::string& name, ISvcLocator* pSvcLocator) : 
   AthAlgorithm(name, pSvcLocator),
-  m_dontUseForCorr("LArBadChannelMasker/DontUseForXtalkCorr",this),
-  m_dontCorrect("LArBadChannelMasker/NoXtalkCorr",this),
   m_onlineHelper(nullptr),
   m_emId(nullptr),
   m_event_counter(0),
@@ -33,10 +30,6 @@ LArStripsCrossTalkCorrector::LArStripsCrossTalkCorrector(const std::string& name
   declareProperty("UseAccumulatedDigits",m_useAccumulatedDigits=true); 
   declareProperty("AcceptableDifference",m_acceptableDifference=20,
 		  "For sanity check: By how much the corrected value may differ from the original one (in %)");
-  declareProperty("DontUseForXtalkCorr",m_dontUseForCorr,
-		  "LArBadChannelMaskingTool telling what types of bad channel should not be taken into accout for xtalk correction of their neighbor");
-  declareProperty("NoXtalkCorr",m_dontCorrect,
-		  "LArBadChannelMaskingTool telling what types of bad channel should be ignored and not x-talk corrected");
   declareProperty("PedestalKey",m_pedKey="Pedestal",
 		  "Key of the pedestal object (to be subtracted)");
    
@@ -59,23 +52,9 @@ StatusCode LArStripsCrossTalkCorrector::initialize() {
   }
   
 
-  sc=m_dontCorrect.retrieve();
-  if (sc!=StatusCode::SUCCESS) {
-    ATH_MSG_ERROR( " Can't get LArBadChannelMaskingTool " << m_dontCorrect.typeAndName() );
-    return sc;
-  }
-  else 
-        ATH_MSG_DEBUG( "Successfully retrieved " << m_dontCorrect.typeAndName() );
-  
-  sc=m_dontUseForCorr.retrieve();
-  if (sc!=StatusCode::SUCCESS) {
-    ATH_MSG_ERROR( " Can't get LArBadChannelMaskingTool " << m_dontUseForCorr.typeAndName() );
-    return sc;
-  }
-  else
-    ATH_MSG_DEBUG(  "Successfully retrieved " << m_dontUseForCorr.typeAndName() );
+  ATH_CHECK(m_dontUseForCorrMask.buildBitMask(m_dontUseForCorr,msg()));
+  ATH_CHECK(m_dontCorrMask.buildBitMask(m_dontCorr,msg()));
 
-    
   ATH_CHECK(m_BCKey.initialize());
   ATH_CHECK(m_BFKey.initialize());
   ATH_CHECK(m_cablingKey.initialize());
@@ -112,9 +91,8 @@ StatusCode LArStripsCrossTalkCorrector::execute()
 }
 
 
-StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits() 
-{
-  MsgStream log(msgSvc(), name());
+StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()  {
+
   StatusCode sc;
   unsigned nSaturation=0;
 
@@ -137,18 +115,19 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()
      return StatusCode::FAILURE;
   }
 
-  std::vector<std::string>::const_iterator key_it=m_keylist.begin();
-  std::vector<std::string>::const_iterator key_it_e=m_keylist.end();
-  
+
+  SG::ReadCondHandle<LArBadChannelCont> bcHdl{m_BCKey};
+  const LArBadChannelCont* bcCont{*bcHdl};
+
   const LArAccumulatedCalibDigitContainer* larAccumulatedCalibDigitContainer;
   
   // now start to deal with digits   
-  
-  for (;key_it!=key_it_e;key_it++) { // Loop over all containers that are to be processed (e.g. different gains)
+
+  for (const std::string& key : m_keylist) { // Loop over all containers that are to be processed (e.g. different gains)
     
-    sc = evtStore()->retrieve(larAccumulatedCalibDigitContainer,*key_it);
+    sc = evtStore()->retrieve(larAccumulatedCalibDigitContainer,key);
     if (sc.isFailure()){ 
-      ATH_MSG_WARNING( "Cannot read LArAccumulatedCalibDigitContainer from StoreGate! key=" << *key_it );
+      ATH_MSG_WARNING( "Cannot read LArAccumulatedCalibDigitContainer from StoreGate! key=" << key );
       continue; // Try next container
     }
     
@@ -157,22 +136,19 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()
     LArAccumulatedCalibDigit inexistingDummy; //Use the address of this object for "cells" that woudl be outside of cryostat
     
     
-    LArAccumulatedCalibDigitContainer::const_iterator it=larAccumulatedCalibDigitContainer->begin();
-    LArAccumulatedCalibDigitContainer::const_iterator it_end=larAccumulatedCalibDigitContainer->end();
-
     HWIdentifier  lastFailedFEB(0);
 
-    if(it == it_end) {
-      ATH_MSG_DEBUG( "LArAccumulatedCalibDigitContainer with key = " << *key_it << " is empty " );
+    if(larAccumulatedCalibDigitContainer->empty()) {
+      ATH_MSG_DEBUG( "LArAccumulatedCalibDigitContainer with key = " << key << " is empty " );
       //return StatusCode::SUCCESS;
       continue; // Try next container
     } else {
-      ATH_MSG_DEBUG( "Processing LArAccumulatedCalibDigitContainer with key = " << *key_it 
+      ATH_MSG_DEBUG( "Processing LArAccumulatedCalibDigitContainer with key = " << key
 			 << ". Size: " << larAccumulatedCalibDigitContainer->size() );
     }
     
     //Get barrel/ec for online Identifier of the first cell in the container
-    HWIdentifier chid=(*it)->hardwareID();      
+    HWIdentifier chid=larAccumulatedCalibDigitContainer->front()->hardwareID();
     const int have_barrel_ec=m_onlineHelper->barrel_ec(chid);
 
     if (have_barrel_ec==1) {
@@ -207,8 +183,7 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()
     ATH_MSG_DEBUG( "Filling Strips lookup table..." ) ;
     int nStrips=0;
     
-    for (;it!=it_end;it++) {  //Loop over all cells to fill Strips lookup table
-      const LArAccumulatedCalibDigit* dig=*it;
+    for (const LArAccumulatedCalibDigit* dig : *larAccumulatedCalibDigitContainer) {  //Loop over all cells to fill Strips lookup table
       chid=dig->hardwareID();     
       if (!(m_onlineHelper->isEMBchannel(chid) || m_onlineHelper->isEMECchannel(chid))) continue; //Deal only with EM calos case
       if (!cabling->isOnlineConnected(chid)) continue; //ignore disconnected channels
@@ -310,9 +285,9 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()
 	  if ( currDig->isPulsed() ) {
 	    chid = currDig->hardwareID();
 	    CaloGain::CaloGain t_gain = currDig->gain();
-	    if (m_dontCorrect->cellShouldBeMasked(chid,t_gain)) {
+	    if (m_dontCorrMask.cellShouldBeMasked(bcCont,chid)) {
 	      ATH_MSG_DEBUG("Strips 0x"  << MSG::hex << chid.get_compact() << MSG::dec << " (Eta = " << ieta << ", Phi = " 
-			    << iphi2 << ") should not be touched accoring to " << m_dontCorrect.typeAndName());
+			    << iphi2 << ") should not be touched accoring to jobConfig");
 	      continue;
 	    }
 
@@ -367,7 +342,7 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()
 		continue;
 	      }
 	      //Check if neighbour is on the bad-channel list
-	      if (m_dontUseForCorr->cellShouldBeMasked(neighDig->hardwareID(),t_gain)) {
+	      if (m_dontUseForCorrMask.cellShouldBeMasked(bcCont,neighDig->hardwareID())) {
 		ATH_MSG_DEBUG("Neighbour " << neighbours[i].dist << " of strip 0x" << MSG::hex << chid.get_compact() << MSG::dec
 			      << " (Eta = " << ieta << ", Phi = " << iphi 
 			      << ") is flagged by the LArBadChannelMaskingTool. Not used for correction.");

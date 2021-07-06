@@ -28,15 +28,19 @@ public:
   {
     if (!trackStateOnSurfaces) {
       VP1Msg::messageDebug("TrackHandle_TrackParticle WARNING: Could not create track due to null TSOS vector");
-      return 0;
+      return nullptr;
     }
     if (trackStateOnSurfaces->size()==0) {
       VP1Msg::messageDebug("TrackHandle_TrackParticle WARNING: Could not create track due to empty TSOS vector");
       delete trackStateOnSurfaces;
-      return 0;
+      return nullptr;
     }
     Trk::TrackInfo ti(Trk::TrackInfo::Unknown,theclass->extrapolationParticleHypothesis());
-    const Trk::Track * trk = new Trk::Track(ti,trackStateOnSurfaces/*track assumes ownership*/,0/*fitquality*/);
+    std::unique_ptr<DataVector<const Trk::TrackStateOnSurface>> sink(trackStateOnSurfaces);
+    const Trk::Track* trk =
+      new Trk::Track(ti,
+                     std::move(*sink),
+                     nullptr /*fitquality*/);
     if (VP1Msg::verbose())
       VP1Msg::messageVerbose("TrackHandle_TrackParticle created track with "
  			     +QString::number(trackStateOnSurfaces->size())+" parameters");
@@ -57,7 +61,7 @@ TrackHandle_TrackParticle::TrackHandle_TrackParticle(TrackCollHandleBase* ch, co
 {
   m_d->theclass = this;
   m_d->trackparticle = tp;
-  m_d->trkTrack = 0;
+  m_d->trkTrack = nullptr;
   m_d->trkTrackInit = false;
 
 }
@@ -110,7 +114,7 @@ const Trk::Track * TrackHandle_TrackParticle::provide_pathInfoTrkTrack() const
     if (needresorting) {
       const Trk::TrackParameters* p = trackpars.at(trackpars.size()-1);
       if (p)
-        trackStateOnSurfaces->push_back(new Trk::TrackStateOnSurface(0,p->clone(),0,0));
+        trackStateOnSurfaces->push_back(new Trk::TrackStateOnSurface(nullptr,p->clone(),nullptr,nullptr));
     }
     unsigned limit(needresorting?trackpars.size()-1:trackpars.size());
 
@@ -121,7 +125,7 @@ const Trk::Track * TrackHandle_TrackParticle::provide_pathInfoTrkTrack() const
         continue;
       if (!common()->trackSanityHelper()->isSafe(p))
         continue;
-      trackStateOnSurfaces->push_back(new Trk::TrackStateOnSurface(0,p->clone(),0,0));
+      trackStateOnSurfaces->push_back(new Trk::TrackStateOnSurface(nullptr,p->clone(),nullptr,nullptr));
     }
   }
 

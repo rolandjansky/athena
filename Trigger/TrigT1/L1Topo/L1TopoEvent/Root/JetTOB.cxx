@@ -1,4 +1,4 @@
-//  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+//  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #include "L1TopoEvent/JetTOB.h"
 
@@ -6,13 +6,13 @@ thread_local TCS::Heap<TCS::JetTOB> TCS::JetTOB::fg_heap("Jet");
 
 // constructors
 // default constructor
-TCS::JetTOB::JetTOB(uint32_t roiWord) :
-   BaseTOB( roiWord )
+TCS::JetTOB::JetTOB(uint32_t roiWord, const std::string& tobName) :
+   BaseTOB( roiWord,tobName )
 {}
 
 // constructor with initial values
-TCS::JetTOB::JetTOB(unsigned int Et1, unsigned int Et2, int eta, int phi, uint32_t roiWord) :
-   BaseTOB( roiWord )
+TCS::JetTOB::JetTOB(unsigned int Et1, unsigned int Et2, int eta, int phi, uint32_t roiWord, const std::string& tobName) :
+   BaseTOB( roiWord,tobName )
    , m_Et1(Et1)
    , m_Et2(Et2)
    , m_eta(eta)

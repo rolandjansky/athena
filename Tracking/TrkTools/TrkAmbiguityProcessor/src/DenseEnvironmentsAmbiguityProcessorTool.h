@@ -46,9 +46,9 @@ namespace Trk {
   The tracks will be refitted if no fitQuality is given at input.
   @return new collections of tracks, with ambiguities resolved. Ownership is passed on 
   (i.e. client handles deletion)*/
-  virtual TrackCollection*  process(const TracksScores *trackScoreTrackMap) const override;
+  virtual const TrackCollection*  process(const TracksScores *trackScoreTrackMap) const override;
 
-  virtual TrackCollection*  process(const TrackCollection*,Trk::PRDtoTrackMap *) const override {return nullptr;};
+  virtual const TrackCollection*  process(const TrackCollection*,Trk::PRDtoTrackMap *) const override {return nullptr;};
 
   /** statistics output to be called by algorithm during finalize. */
   virtual void statistics() override;
@@ -106,7 +106,7 @@ namespace Trk {
         which are removed are made */
     ToolHandle<IAmbiTrackSelectionTool> m_selectionTool;
 
-    bool m_rejectInvalidTracks;
+    bool m_rejectInvalidTracks{};
     /// If enabled, this flag will make the tool restore the hole information from the input track after a refit. 
     /// This is used when we want to use holes from the pattern recognition instead of repeating the hole search
     /// Off by default

@@ -6,11 +6,11 @@
 
 MM_StripResponse::MM_StripResponse() {}
 
-MM_StripResponse::MM_StripResponse(std::vector<MM_IonizationCluster> IonizationClusters, float timeResolution, float stripPitch, int stripID, int minstripID, int maxstripID) : m_timeResolution(timeResolution), m_stripPitch(stripPitch), m_stripID(stripID), m_minstripID(minstripID), m_maxstripID(maxstripID) {
+MM_StripResponse::MM_StripResponse(std::vector<std::unique_ptr<MM_IonizationCluster>>& IonizationClusters, float timeResolution, float stripPitch, int stripID, int minstripID, int maxstripID) : m_timeResolution(timeResolution), m_stripPitch(stripPitch), m_stripID(stripID), m_minstripID(minstripID), m_maxstripID(maxstripID) {
 
 	for (auto& IonizationCluster : IonizationClusters)
-		for (auto& Electron : IonizationCluster.getElectrons())
-			m_Electrons.push_back(Electron);
+		for (auto& Electron : IonizationCluster->getElectrons())
+			m_Electrons.push_back(std::move(Electron));
 
 }
 
@@ -20,19 +20,19 @@ int MM_StripResponse::getNElectrons(){
 
 float MM_StripResponse::getTotalCharge(){
 	float qtot = 0;
-	for(const MM_Electron* electron : m_Electrons) {
+	for(const std::unique_ptr<MM_Electron>& electron : m_Electrons) {
 		qtot += electron->getCharge();
 	}
 	return qtot;
 }
 
-std::vector<MM_Electron*> MM_StripResponse::getElectrons(){
+std::vector<std::unique_ptr<MM_Electron>>& MM_StripResponse::getElectrons(){
 	return m_Electrons;
 }
 
 void MM_StripResponse::timeOrderElectrons() {
 
-	std::sort(m_Electrons.begin(), m_Electrons.end(), [](const MM_Electron* a, const MM_Electron* b) -> bool { return a->getTime() < b->getTime(); });
+	std::sort(m_Electrons.begin(), m_Electrons.end(), [](const std::unique_ptr<MM_Electron>& a, const std::unique_ptr<MM_Electron>& b) -> bool { return a->getTime() < b->getTime(); });
 
 }
 
@@ -61,14 +61,18 @@ void MM_StripResponse::calculateTimeSeries(float /*thetaD*/, int /*gasgap*/) {
 
 
 void MM_StripResponse::simulateCrossTalk(float crossTalk1, float crossTalk2) {
-
-	// Unfortunately get stuck in the loop if you edit the map in the loop
-	//     So make a copy!
-
-	std::map< int, std::map<int,float> > stripChargesCopy1;
-	stripChargesCopy1.insert(m_stripCharges.begin(), m_stripCharges.end());
-
+	// if no cross talk is simulate just skip everything and keep m_stripCharges as it was
 	if (crossTalk1 > 0.){
+
+		// Unfortunately get stuck in the loop if you edit the map in the loop
+		//     So make a copy!
+
+		std::map< int, std::map<int,float> > stripChargesCopy1;
+		stripChargesCopy1.insert(m_stripCharges.begin(), m_stripCharges.end());
+
+		// clear strip charge map since charge on the main strip needs to be scaled
+		m_stripCharges.clear();
+
 		for (auto & stripTimeSeries : stripChargesCopy1){
 			int timeBin = stripTimeSeries.first;
 			for (auto & stripCharge : stripTimeSeries.second ){
@@ -78,16 +82,21 @@ void MM_StripResponse::simulateCrossTalk(float crossTalk1, float crossTalk2) {
 
 				if (stripChargeVal==0.) continue;
 
+        // scale factcor for the charge on the main strip to account for the cross talk charge
+        float chargeScaleFactor = 1.0/ (1. + ( (stripVal-1 > 0) + (stripVal+1 < m_maxstripID) ) * crossTalk1  + ( (stripVal-2 > 0) + (stripVal+2 < m_maxstripID) ) * crossTalk2);
+        stripChargeVal *= chargeScaleFactor;
+        
+        (m_stripCharges[timeBin])[stripVal] += stripChargeVal;
+
+
         // Allow crosstalk between strips that exist.
         // Will check for read out strips in calculateSummaries function
 				if (stripVal-1 > 0) (m_stripCharges[timeBin])[stripVal-1] += stripChargeVal * crossTalk1;
 				if (stripVal+1 < m_maxstripID) (m_stripCharges[timeBin])[stripVal+1] += stripChargeVal * crossTalk1;
-				(m_stripCharges[timeBin])[stripVal] -= stripChargeVal * crossTalk1 * ( (stripVal-1 > 0) + (stripVal+1 < m_maxstripID) );
 
 				if (crossTalk2 > 0.){
 					if (stripVal-2 > 0) (m_stripCharges[timeBin])[stripVal-2] += stripChargeVal * crossTalk2;
 					if (stripVal+2 < m_maxstripID) (m_stripCharges[timeBin])[stripVal+2] += stripChargeVal * crossTalk2;
-					(m_stripCharges[timeBin])[stripVal] -= stripChargeVal * crossTalk2 * ( (stripVal-2 > 0) + (stripVal+2 < m_maxstripID) );
 				}
 			}
 		}

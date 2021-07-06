@@ -1,20 +1,12 @@
 [OVAL] Creating the test driver.
 [OVAL] Creating a file catalog
-WARNING: $POOL_CATALOG is not defined
-using default `xmlcatalog_file:PoolFileCatalog.xml'
 [OVAL] Writing parameters in the database.
 Creating the persistency service
-RootDatabase.open Success pool.root File version:60602
 Committing the transaction.
+XMLCatalog           INFO File 'PoolFileCatalog.xml' does not exist. New file created.
 [OVAL] ...done
 [OVAL] Reading the parameters back from the database.
 Creating the persistency service
-RootDatabase.open Success pool.root File version:60602
-       "FID" : "F0EE5CBD-8B60-6642-B6DD-E18029F6EB07"
-[OVAL] "FORMAT_VSN" : "1.1"
-[OVAL] "PFN" : "pool.root"
-[OVAL] "POOL_VSN" : "1.1"
-[OVAL] "newParameterName" : "newParameterValue"
 Committing the transaction.
 [OVAL] ...done
 [OVAL] Number of floating tokens : 0

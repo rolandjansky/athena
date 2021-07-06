@@ -69,6 +69,7 @@ private:
   bool                                          m_buildCombinedSignal = { false  };         ///< Build topo-clusters within given @f$ y @f$ range, else topo-towers
   double                                        m_energyThreshold;                          ///< Cell energy threshold, default is set in @c m_energyThresholdDef
   double                                        m_clusterRange;                             ///< Range where topo-clusters are used when <tt>m_buildCombinedSignal = true</tt>
+  bool                                          m_removeSamplingData = { true };            ///< Remove sampling data for towers
   /// @}
 
   /// @name Constants and parameters
@@ -85,8 +86,8 @@ private:
 
   ///@name Internally used helpers
   ///@{
-  xAOD::CaloCluster::ClusterSize getClusterSize(uint_t etaBins,uint_t phiBins) const; ///< Returns a cluster size tag from number of eta and phi bins in tower grid
-  xAOD::CaloCluster::ClusterSize getClusterSize(uint_t towerBins) const;              ///< Returns a cluster size tag from number of towers (bins) in tower grid
+  static xAOD::CaloCluster::ClusterSize getClusterSize(uint_t etaBins,uint_t phiBins) ; ///< Returns a cluster size tag from number of eta and phi bins in tower grid
+  static xAOD::CaloCluster::ClusterSize getClusterSize(uint_t towerBins) ;              ///< Returns a cluster size tag from number of towers (bins) in tower grid
   int cleanupCells(CaloClusterCellLink* clk,uint_t nclus) const;                      ///< Checks @c CaloClusterCellLink for consistency
   ///@}
 
@@ -117,7 +118,7 @@ private:
   
   ///@name Helpers
   ///@{
-  bool   filterProtoCluster(const CaloClusterCellLink& clnk)  const; ///< Checks for and removes invalid cell links  
+  static bool   filterProtoCluster(const CaloClusterCellLink& clnk)  ; ///< Checks for and removes invalid cell links  
   bool   checkCellIndices(const CaloCellContainer* pCellCont) const; ///< Checks consistency between cell indices and hash identifiers
   bool   isValidIndex(uint_t idx)                             const; ///< Checks if argument is a valid index value 
   uint_t badIndexValue()                                      const; ///< Returns value indicating a bad index

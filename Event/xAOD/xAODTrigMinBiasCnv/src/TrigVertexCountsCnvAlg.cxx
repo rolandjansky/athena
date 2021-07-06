@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrigVertexCountsCnvAlg.cxx 603353 2014-06-24 12:36:04Z azemla $
@@ -30,7 +30,7 @@ namespace xAODMaker {
    StatusCode TrigVertexCountsCnvAlg::initialize() {
 
       // Greet the user:
-      ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
+      ATH_MSG_INFO( "Initializing" );
       ATH_MSG_DEBUG( " AOD Key: " << m_aodKey );
       ATH_MSG_DEBUG( "xAOD Key: " << m_xaodKey );
 
@@ -44,7 +44,7 @@ namespace xAODMaker {
    StatusCode TrigVertexCountsCnvAlg::execute() {
 
       // Retrieve the AOD container:
-      const TrigVertexCountsCollection* aod = 0;
+      const TrigVertexCountsCollection* aod = nullptr;
       CHECK( evtStore()->retrieve( aod, m_aodKey ) );
 
       // Create the xAOD container and its auxiliary store:

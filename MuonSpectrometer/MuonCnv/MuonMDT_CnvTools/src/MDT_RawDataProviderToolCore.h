@@ -5,62 +5,58 @@
 #ifndef MUONMDTCNVTOOLS_MUONMDTRAWDATAPROVIDERTOOLCORE_H
 #define MUONMDTCNVTOOLS_MUONMDTRAWDATAPROVIDERTOOLCORE_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "ByteStreamData/RawEvent.h" 
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "MdtROD_Decoder.h"
-#include <vector>
 #include <set>
 #include <string>
+#include <vector>
 
-#include "MuonIdHelpers/IMuonIdHelperSvc.h"
-
-#include "MuonCablingData/MuonMDT_CablingMap.h"
-#include "StoreGate/ReadCondHandleKey.h"
-#include "MuonRDO/MdtCsm_Cache.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
+#include "ByteStreamData/RawEvent.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "MdtROD_Decoder.h"
+#include "MuonCablingData/MuonMDT_CablingMap.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonRDO/MdtCsm_Cache.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class MdtCsmContainer;
 
-namespace Muon 
-{
+namespace Muon {
 
-/** @class MDT_RawDataProviderToolCore       
-    @author  Edward Moyse <Edward.Moyse@cern.ch>
-    @author  Mark Owen <markowen@cern.ch>
-*/  
+    /** @class MDT_RawDataProviderToolCore
+        @author  Edward Moyse <Edward.Moyse@cern.ch>
+        @author  Mark Owen <markowen@cern.ch>
+    */
 
-class MDT_RawDataProviderToolCore : public AthAlgTool
-{
-  public:    
-  MDT_RawDataProviderToolCore(const std::string&,const std::string&,const IInterface*);
+    class MDT_RawDataProviderToolCore : public AthAlgTool {
+    public:
+        MDT_RawDataProviderToolCore(const std::string&, const std::string&, const IInterface*);
 
-  /** default destructor */
-  virtual ~MDT_RawDataProviderToolCore()=default;
-    
-  /** standard Athena-Algorithm method */
-  virtual StatusCode initialize();
-  
-  /** Convert method */
-  virtual StatusCode convertIntoContainer( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs, MdtCsmContainer& mdtContainer) const;
+        /** default destructor */
+        virtual ~MDT_RawDataProviderToolCore() = default;
 
-  protected:
+        /** standard Athena-Algorithm method */
+        virtual StatusCode initialize();
 
-  ToolHandle<MdtROD_Decoder> m_decoder{this,"Decoder","MdtROD_Decoder/MdtROD_Decoder"}; 
-  SG::WriteHandleKey<MdtCsmContainer> m_rdoContainerKey{this, "RdoLocation", "MDTCSM", "Name of the MDTCSM produced by RawDataProvider"};
+        /** Convert method */
+        virtual StatusCode convertIntoContainer(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,
+                                                MdtCsmContainer& mdtContainer) const;
 
-  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+    protected:
+        ToolHandle<MdtROD_Decoder> m_decoder{this, "Decoder", "MdtROD_Decoder/MdtROD_Decoder"};
+        SG::WriteHandleKey<MdtCsmContainer> m_rdoContainerKey{this, "RdoLocation", "MDTCSM",
+                                                              "Name of the MDTCSM produced by RawDataProvider"};
 
-  unsigned int m_maxhashtoUse;
+        ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-  // Rob Data Provider handle 
-  ServiceHandle<IROBDataProviderSvc> m_robDataProvider{this,"ROBDataProviderSvc","ROBDataProviderSvc"};
+        unsigned int m_maxhashtoUse;
 
-  SG::ReadCondHandleKey<MuonMDT_CablingMap> m_readKey{this, "ReadKey", "MuonMDT_CablingMap", "Key of MuonMDT_CablingMap"};
+        // Rob Data Provider handle
+        ServiceHandle<IROBDataProviderSvc> m_robDataProvider{this, "ROBDataProviderSvc", "ROBDataProviderSvc"};
 
-
-};
-}
+        SG::ReadCondHandleKey<MuonMDT_CablingMap> m_readKey{this, "ReadKey", "MuonMDT_CablingMap", "Key of MuonMDT_CablingMap"};
+    };
+}  // namespace Muon
 
 #endif

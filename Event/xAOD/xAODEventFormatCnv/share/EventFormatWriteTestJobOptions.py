@@ -17,7 +17,7 @@ from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 from xAODEventFormatCnv.xAODEventFormatCnvConf import xAODMaker__EventFormatStreamHelperTool
 
-
+VERBOSE = 1
 DEBUG = 2
 INFO = 3
 EVENTS_PER_FILE = 5
@@ -32,11 +32,12 @@ def makeStream(name='TestStream'):
         noTag=True,
     )
     # Add dummy items for testing
-    test_stream.AddItem("xAODMakerTest::AVec#TestAVec")
-    test_stream.AddItem("xAODMakerTest::AAuxContainer#TestAAuxContainer.")
-    for tool in test_stream.GetEventStream().HelperTools:
+    test_stream.AddItem("xAODMakerTest::AVec#TestObject")
+    test_stream.AddItem("xAODMakerTest::AAuxContainer#TestObjectAux.")
+    for tool in test_stream.GetMetaDataStream().HelperTools:
         if isinstance(tool, xAODMaker__EventFormatStreamHelperTool):
             tool.TypeNames += ['.*xAODMakerTest::.*']
+            tool.OutputLevel = VERBOSE
             break
     return test_stream
 

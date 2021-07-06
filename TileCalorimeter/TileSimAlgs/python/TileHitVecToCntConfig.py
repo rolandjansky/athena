@@ -1,9 +1,10 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """Define method to construct configured private Tile hit vector to container tool"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
@@ -34,8 +35,8 @@ def TileHitVecToCntToolCfg(flags, **kwargs):
     """
 
     kwargs.setdefault('name', 'TileHitVecToCntTool')
-    kwargs.setdefault('RndmEvtOverlay', flags.Detector.OverlayTile)
-    kwargs.setdefault('OnlyUseContainerName', not flags.Detector.OverlayTile)
+    kwargs.setdefault('RndmEvtOverlay', flags.Common.ProductionStep == ProductionStep.Overlay)
+    kwargs.setdefault('OnlyUseContainerName', flags.Common.ProductionStep != ProductionStep.Overlay)
 
     acc = ComponentAccumulator()
 
@@ -62,7 +63,7 @@ def TileHitVecToCntToolCfg(flags, **kwargs):
     if kwargs['RndmEvtOverlay']:
         kwargs.setdefault('PileUp', False)
     else:
-        kwargs.setdefault('PileUp', flags.Digitization.Pileup)
+        kwargs.setdefault('PileUp', flags.Digitization.PileUp)
 
     if kwargs['PileUp']:
         PileUpMergeSvc=CompFactory.PileUpMergeSvc
@@ -77,7 +78,7 @@ def TileHitVecToCntToolCfg(flags, **kwargs):
     if flags.Digitization.DoXingByXingPileUp: # PileUpTool approach
         kwargs.setdefault("FirstXing", getTileFirstXing() )
         kwargs.setdefault("LastXing",  getTileLastXing() )
-    elif flags.Digitization.Pileup:
+    elif flags.Digitization.PileUp:
         rangetool = acc.popToolsAndMerge(TileRangeCfg(flags))
         acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
 
@@ -101,7 +102,10 @@ def TileHitVecToCntCfg(flags, **kwargs):
         kwargs.setdefault('DigitizationTool', tool)
 
     # choose which alg to attach to, following PileUpToolsCfg
-    if flags.Detector.OverlayTile:
+    if flags.Common.ProductionStep == ProductionStep.Overlay:
+        if flags.Concurrency.NumThreads > 0:
+            kwargs.setdefault('Cardinality', flags.Concurrency.NumThreads)
+
         kwargs.setdefault('name', 'TileHitVecToCnt')
         Alg = CompFactory.TileHitVecToCnt
         acc.addEventAlgo(Alg(**kwargs))
@@ -156,7 +160,7 @@ if __name__ == "__main__":
     ConfigFlags.Input.Files = defaultTestFiles.HITS
     ConfigFlags.Output.RDOFileName = 'myRDO.pool.root'
     ConfigFlags.IOVDb.GlobalTag = 'OFLCOND-MC16-SDR-16'
-    ConfigFlags.Digitization.Pileup = False
+    ConfigFlags.Digitization.PileUp = False
 
     ConfigFlags.fillFromArgs()
     ConfigFlags.lock()

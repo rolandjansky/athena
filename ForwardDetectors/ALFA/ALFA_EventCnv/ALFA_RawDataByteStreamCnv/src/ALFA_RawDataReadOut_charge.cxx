@@ -40,15 +40,15 @@ void ALFA_RawDataReadOut_charge::decodeWord(uint32_t dataWord)
   if (is_TDCch())         // TDC single measurement
     {
       
-      m_PMFId      = getBits(23,19);
-      m_ChannelNumId = getBits(18,13);
-      m_bit12 = (bool) getBits(12,12);
-      m_ChargeChanId  = getBits(11,0);
+      m_PMFId      = getBits(getBitsWord(23,19));
+      m_ChannelNumId = getBits(getBitsWord(18,13));
+      m_bit12 = (bool) getBits(getBitsWord(12,12));
+      m_ChargeChanId  = getBits(getBitsWord(11,0));
       
-      m_MBId   = getBits(7,0); // PMF0 - PMFId 0 -> position from 1-15
-      m_FiberFirmwareId = getBits(15,8); // PMF0 - PMFId 0 
+      m_MBId   = getBits(getBitsWord(7,0)); // PMF0 - PMFId 0 -> position from 1-15
+      m_FiberFirmwareId = getBits(getBitsWord(15,8)); // PMF0 - PMFId 0 
       
-      m_bit27_24 = getBits(27,24);
+      m_bit27_24 = getBits(getBitsWord(27,24));
       
     }
 	
@@ -56,16 +56,16 @@ void ALFA_RawDataReadOut_charge::decodeWord(uint32_t dataWord)
   else if (is_BOT())               // Beginning of TDC
     { 
       // One header bit is used for TDC numbers > 15
-      m_SlotId   = getBits(28,24);
-      m_ecnt_BOT    = getBits(23,12);
-      m_bcId    = getBits(11,0);
+      m_SlotId   = getBits(getBitsWord(28,24));
+      m_ecnt_BOT    = getBits(getBitsWord(23,12));
+      m_bcId    = getBits(getBitsWord(11,0));
     }
   else if (is_EOT())          // End of TDC
     {
-      m_LsbTdcId = getBits(25,24);
-      m_ecnt_EOT    = getBits(23,12);
-      m_wcnt    = getBits(11,0);
-      m_bit24_27 = getBits(27,24);
+      m_LsbTdcId = getBits(getBitsWord(25,24));
+      m_ecnt_EOT    = getBits(getBitsWord(23,12));
+      m_wcnt    = getBits(getBitsWord(11,0));
+      m_bit24_27 = getBits(getBitsWord(27,24));
     }
     
     

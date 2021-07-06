@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TBRec )
@@ -22,8 +22,8 @@ atlas_add_library( TBRecLib
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} CaloEvent CaloGeoHelpers CaloIdentifier AthenaBaseComps AthenaKernel AthContainers GeoPrimitives Identifier EventInfo xAODTracking GaudiKernel LArIdentifier LArRawEvent TBEvent TrkDetDescrUtils TrkParameters TrkTrack CaloRecLib CaloUtilsLib StoreGateLib SGtests LArRawUtilsLib LArCablingLib CaloDetDescrLib TBCaloGeometryLib TBCondRunParLib
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} CaloDmDetDescr CaloSimEvent CondDBObjects xAODCaloEvent LArG4TBSimEvent Particle PathResolver TrkSurfaces TrkEventPrimitives TrkExInterfaces CaloTrackingGeometryLib TrackRecordLib )
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} CaloEvent CaloGeoHelpers CaloIdentifier AthenaBaseComps AthenaKernel AthContainers GeoPrimitives Identifier EventInfo xAODTracking GaudiKernel LArIdentifier LArRawEvent TBEvent TrkDetDescrUtils TrkParameters TrkTrack CaloRecLib CaloUtilsLib StoreGateLib LArRawUtilsLib LArCablingLib CaloDetDescrLib TBCaloGeometryLib TBCondRunParLib
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} CaloDmDetDescr CaloSimEvent CondDBObjects xAODCaloEvent LArG4TBSimEvent Particle PathResolver TrkSurfaces TrkEventPrimitives TrkExInterfaces CaloTrackingGeometryLib TrackRecordLib CaloConditions )
 
 atlas_add_component( TBRec
                      src/components/*.cxx

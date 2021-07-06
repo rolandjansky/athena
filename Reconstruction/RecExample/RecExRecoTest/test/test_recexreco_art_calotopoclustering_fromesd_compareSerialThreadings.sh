@@ -6,8 +6,7 @@
 # art-athena-mt: 8
 # art-output: serial
 # art-output: threadOne
-# art-output: threadTwo
-# art-output: threadFive
+# art-output: threadEight
 
 export ATHENA_CORE_NUMBER=8
 

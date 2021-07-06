@@ -13,7 +13,7 @@ atlas_add_library( TriggerMatchingToolLib
    PUBLIC_HEADERS TriggerMatchingTool
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES AsgTools xAODBase TrigNavStructure TrigDecisionToolLib
-   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} FourMomUtils xAODTrigger )
+   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} FourMomUtils xAODTrigger xAODEgamma)
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( TriggerMatchingTool

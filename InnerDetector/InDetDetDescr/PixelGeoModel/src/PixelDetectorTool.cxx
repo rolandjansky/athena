@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -11,7 +11,7 @@
 #include "PixelSwitches.h" 
 
 #include "PixelReadoutGeometry/PixelDetectorManager.h" 
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
+#include "ReadoutGeometryBase/InDetDD_Defs.h"
 #include "DetDescrConditions/AlignableTransformContainer.h"
 #include "PixelGeoModelAthenaComps.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
@@ -105,7 +105,7 @@ StatusCode PixelDetectorTool::create()
 
   // Print the version tag:
   pixelVersionTag = m_rdbAccessSvc->getChildTag("Pixel", versionKey.tag(), versionKey.node());
-  msg(MSG::INFO) << "Pixel Version: " << pixelVersionTag << "  Package Version: " << PACKAGE_VERSION << endmsg;
+  msg(MSG::INFO) << "Pixel Version: " << pixelVersionTag << endmsg;
   
   
   // Check if version is empty. If so, then the SCT cannot be built. This may or may not be intentional. We
@@ -185,7 +185,6 @@ StatusCode PixelDetectorTool::create()
     switches.setDC1Geometry(m_dc1Geometry);
     switches.setAlignable(m_alignable);
     switches.setInitialLayout(m_initialLayout);
-    if (versionName == "SLHC") switches.setSLHC();
     if (versionName == "IBL") switches.setIBL();
     switches.setDBM(m_buildDBM); //DBM flag
     switches.setDynamicAlignFolders(m_useDynamicAlignFolders);
@@ -194,7 +193,7 @@ StatusCode PixelDetectorTool::create()
     switches.setServicesOnLadder(m_servicesOnLadder);
     switches.setServices(m_services); //Overwrite there for the time being.
 
-    const PixelID * idHelper = 0;
+    const PixelID * idHelper = nullptr;
     if (detStore()->retrieve(idHelper, "PixelID").isFailure()) {
       msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
       return StatusCode::FAILURE;
@@ -256,10 +255,8 @@ StatusCode PixelDetectorTool::create()
 	msg(MSG::ERROR) << "Could not retrieve " <<  m_serviceBuilderTool << ",  some services will not be built." << endmsg;
       }
     } else {
-      if (versionName == "SLHC") {
-	// This will become an error once the tool is ready.
-	//msg(MSG::ERROR) << "Service builder tool not specified. Some services will not be built" << endmsg;
-	msg(MSG::INFO) << "Service builder tool not specified." << endmsg; 
+      if (versionName == "SLHC") { // TODO
+	msg(MSG::ERROR) << "Service builder tool not specified. Some services will not be built" << endmsg;
       } else {
 	msg(MSG::INFO) << "Service builder tool not specified." << endmsg; 
       }	
@@ -278,7 +275,7 @@ StatusCode PixelDetectorTool::create()
     } 
     
     GeoPhysVol *world=&*theExpt->getPhysVol();
-    m_manager = 0;
+    m_manager = nullptr;
  
     if (!m_devVersion) {
       
@@ -337,7 +334,7 @@ StatusCode PixelDetectorTool::clear()
   SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<InDetDD::PixelDetectorManager>::ID(),m_manager->getName());
   if(proxy) {
     proxy->reset();
-    m_manager = 0;
+    m_manager = nullptr;
   }
   return StatusCode::SUCCESS;
 }

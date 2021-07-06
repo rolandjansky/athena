@@ -70,7 +70,7 @@ t3333->Draw("(TimeTotal-TimeSum)/1000");
 
 MyC5->Print("CBNTdump.ps)");
  
-if (hfile) hfile->Close();
+hfile->Close();
 
 }
 

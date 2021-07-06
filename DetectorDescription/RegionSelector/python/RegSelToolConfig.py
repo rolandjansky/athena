@@ -7,11 +7,12 @@
 #
 #   @date    Sun  8 Mar 2020 03:27:57 GMT
 #                 
-#   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration#                 
+#   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration#                 
 #
 
 from AthenaConfiguration.ComponentFactory import CompFactory # CompFactory creates old or new configs depending on the enva
-
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    
 def _condAlgName(detector):
     return "RegSelCondAlg_"+detector
 
@@ -19,12 +20,19 @@ def _createRegSelCondAlg( detector,  CondAlgConstructor ):
     """
     Creates conditions alg that provides data to a RegSel Tool
     """
-    condAlg = CondAlgConstructor( name = _condAlgName( detector ),
-                                  ManagerName = detector,
-                                  PrintTable  = False,
-                                  RegSelLUT = ("RegSelLUTCondData_"+detector) )
+    if detector == "TRT":
+        condAlg = CondAlgConstructor( name = _condAlgName( detector ),
+                                      PrintTable  = False,
+                                      RegSelLUT = ("RegSelLUTCondData_"+detector) )
+    else:
+        condAlg = CondAlgConstructor( name = _condAlgName( detector ),
+                                      ManagerName = detector,
+                                      PrintTable  = False,
+                                      RegSelLUT = ("RegSelLUTCondData_"+detector) )
 
-    if detector == "Pixel":
+    if detector == "MDT" and athenaCommonFlags.isOnline:
+         condAlg.Conditions = "" 
+    elif detector == "Pixel":
         condAlg.DetEleCollKey = "PixelDetectorElementCollection"
         condAlg.PixelCablingCondData = "PixelCablingCondData"
     elif detector == "SCT":
@@ -98,6 +106,11 @@ def makeRegSelTool_MDT() :
     from AthenaCommon.DetFlags import DetFlags
     enabled = DetFlags.detdescr.MDT_on()
     from MuonRegionSelector.MuonRegionSelectorConf import MDT_RegSelCondAlg
+    if enabled and not athenaCommonFlags.isOnline:
+        from AthenaCommon.AlgSequence import AthSequencer
+        from MuonCondAlg.MuonTopCondAlgConfigRUN2 import MdtCondDbAlg
+        condseq = AthSequencer('AthCondSeq')
+        if not hasattr(condseq, "MdtCondDbAlg"): condseq+= MdtCondDbAlg()
     return _makeRegSelTool( "MDT", enabled, MDT_RegSelCondAlg )
 
 def makeRegSelTool_RPC() :
@@ -178,13 +191,18 @@ def makeRegSelTool_TILE() :
 
 ##### new JO counterparts
 
-def regSelToolCfg(flags, detector, CondAlg, CablingConfigCfg=None):
+def regSelToolCfg(flags, detector, CondAlg, CablingConfigCfg=None, DetConditionsCfg=None):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     ca = ComponentAccumulator()
     if CablingConfigCfg:
         ca.merge(CablingConfigCfg(flags))
+    if DetConditionsCfg:
+        ca.merge(DetConditionsCfg(flags))
     ca.setPrivateTools(_createRegSelTool(detector, True))
-    ca.addCondAlgo(_createRegSelCondAlg(detector, CondAlg))
+    the_alg = _createRegSelCondAlg(detector, CondAlg)
+    if detector == "MDT" and flags.Common.isOnline:
+        the_alg.Conditions = ""
+    ca.addCondAlgo(the_alg)
     return ca
 
 # inner detector
@@ -207,7 +225,9 @@ def regSelTool_TRT_Cfg(flags):
 
 def regSelTool_MDT_Cfg(flags):
     from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
-    return regSelToolCfg(flags, "MDT", CompFactory.MDT_RegSelCondAlg, MDTCablingConfigCfg)
+    from MuonConfig.MuonCondAlgConfig import MdtCondDbAlgCfg
+    return regSelToolCfg(flags, "MDT", CompFactory.MDT_RegSelCondAlg, MDTCablingConfigCfg, 
+                        MdtCondDbAlgCfg if not flags.Common.isOnline else None)
 
 def regSelTool_RPC_Cfg(flags):
     from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg
@@ -225,3 +245,19 @@ def regSelTool_STGC_Cfg(flags):
 
 def regSelTool_MM_Cfg(flags):
     return regSelToolCfg(flags, "MM", CompFactory.MM_RegSelCondAlg)
+
+#calo 
+def regSelTool_TTEM_Cfg(flags):
+    return regSelToolCfg(flags, "TTEM", CompFactory.RegSelCondAlg_LAr)
+
+def regSelTool_TTHEC_Cfg(flags):
+    return regSelToolCfg(flags, "TTHEC", CompFactory.RegSelCondAlg_LAr)
+
+def regSelTool_FCALEM_Cfg(flags):
+    return regSelToolCfg(flags, "FCALEM", CompFactory.RegSelCondAlg_LAr)
+
+def regSelTool_FCALHAD_Cfg(flags):
+    return regSelToolCfg(flags, "FCALHAD", CompFactory.RegSelCondAlg_LAr)
+
+def regSelTool_TILE_Cfg(flags):
+    return regSelToolCfg(flags, "TILE", CompFactory.RegSelCondAlg_Tile)

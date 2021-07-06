@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -185,8 +185,8 @@ namespace Trk
      * is found.
      */
 
-    bool 
-    findAmongVertices(const xAOD::Vertex* vertex,const std::vector<xAOD::Vertex*> & previousVertices) const;
+    static bool 
+    findAmongVertices(const xAOD::Vertex* vertex,const std::vector<xAOD::Vertex*> & previousVertices) ;
 
     /**
      * Internal function to collect the weights of the tracks partecipating to all the possible vertices (needed 
@@ -196,7 +196,7 @@ namespace Trk
      */
 
     std::vector<double> 
-    collectWeights(const TrackToVtxLink & tracklink) const;
+    collectWeights(TrackToVtxLink & tracklink) const;
 
     /**
      * Internal function to prepare the compatibility information of all the tracks of the 

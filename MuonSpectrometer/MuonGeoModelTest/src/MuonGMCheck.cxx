@@ -563,15 +563,15 @@ void MuonGMCheck::checkreadoutrpcgeo()
                                              Amg::Vector2D lpos(0.,0.);
                                              fout<<"Check surface.localToGlobal for loc point "<<lpos<<std::endl;
                                              fout<<"                                global    "
-                                                 <<*(rpc->surface(chid)).Trk::Surface::localToGlobal(lpos)<<std::endl;
+                                                 <<(rpc->surface(chid)).Trk::Surface::localToGlobal(lpos)<<std::endl;
                                              lpos = Amg::Vector2D(100.,0.);
                                              fout<<"Check surface.localToGlobal for loc point "<<lpos<<std::endl;
                                              fout<<"                                global    "
-                                                 <<*(rpc->surface(chid)).Trk::Surface::localToGlobal(lpos)<<std::endl;
+                                                 <<(rpc->surface(chid)).Trk::Surface::localToGlobal(lpos)<<std::endl;
                                              lpos = Amg::Vector2D(0.,100.);
                                              fout<<"Check surface.localToGlobal for loc point "<<lpos<<std::endl;
                                              fout<<"                                global    "
-                                                 <<*(rpc->surface(chid)).Trk::Surface::localToGlobal(lpos)<<std::endl;
+                                                 <<(rpc->surface(chid)).Trk::Surface::localToGlobal(lpos)<<std::endl;
                                          }
                                      }
                                      strip+=stripStep;
@@ -626,15 +626,15 @@ void MuonGMCheck::checkreadoutrpcgeo()
                                              Amg::Vector2D lpos(0.,0.);
                                              fout<<"Check surface.localToGlobal for loc point "<<lpos<<std::endl;
                                              fout<<"                                global    "
-                                                 <<*(rpc->surface(chid)).Trk::Surface::localToGlobal(lpos)<<std::endl;
+                                                 <<(rpc->surface(chid)).Trk::Surface::localToGlobal(lpos)<<std::endl;
                                              lpos = Amg::Vector2D(100.,0.);
                                              fout<<"Check surface.localToGlobal for loc point "<<lpos<<std::endl;
                                              fout<<"                                global    "
-                                                 <<*(rpc->surface(chid)).Trk::Surface::localToGlobal(lpos)<<std::endl;
+                                                 <<(rpc->surface(chid)).Trk::Surface::localToGlobal(lpos)<<std::endl;
                                              lpos = Amg::Vector2D(0.,100.);
                                              fout<<"Check surface.localToGlobal for loc point "<<lpos<<std::endl;
                                              fout<<"                                global    "
-                                                 <<*(rpc->surface(chid)).Trk::Surface::localToGlobal(lpos)<<std::endl;
+                                                 <<(rpc->surface(chid)).Trk::Surface::localToGlobal(lpos)<<std::endl;
                                          }
                                      }
                                      strip+=stripStep;
@@ -653,12 +653,12 @@ void MuonGMCheck::checkreadoutrpcgeo()
                                              <<tempGlobalPosition.y()<<", "
                                              <<tempGlobalPosition.z()<<" ";
                                          // Local position
-                                         const Amg::Vector2D *locPosition = rpc->surface(chid).Trk::Surface::globalToLocal(tempGlobalPosition);
+                                         std::optional<Amg::Vector2D> locPosition = rpc->surface(chid).Trk::Surface::globalToLocal(tempGlobalPosition);
                                          fout<<"loc.pos. "
                                              << locPosition->x()<<" "<<locPosition->y();
-                                         const Amg::Vector3D *gPtrk = rpc->surface(chid).Trk::Surface::localToGlobal(*locPosition);
+                                         const Amg::Vector3D gPtrk = rpc->surface(chid).Trk::Surface::localToGlobal(*locPosition);
                                          fout<<" Trk::glob.pos. "
-                                             << gPtrk->x()<<" "<<gPtrk->y()<<" "<<gPtrk->z()<<std::endl;
+                                             << gPtrk.x()<<" "<<gPtrk.y()<<" "<<gPtrk.z()<<std::endl;
                                      }
                                      for (int strip = 1; strip<=rpc->NetaStrips(); strip++)
                                      {
@@ -673,12 +673,12 @@ void MuonGMCheck::checkreadoutrpcgeo()
                                              <<tempGlobalPosition.y()<<", "
                                              <<tempGlobalPosition.z()<<" ";
                                          // Local position
-                                         const Amg::Vector2D *locPosition = rpc->surface(chid).Trk::Surface::globalToLocal(tempGlobalPosition);
+                                         std::optional<Amg::Vector2D> locPosition = rpc->surface(chid).Trk::Surface::globalToLocal(tempGlobalPosition);
                                          fout<<"loc.pos. "
                                              << locPosition->x()<<" "<<locPosition->y();
-                                         const Amg::Vector3D *gPtrk = rpc->surface(chid).Trk::Surface::localToGlobal(*locPosition);
+                                         const Amg::Vector3D gPtrk = rpc->surface(chid).Trk::Surface::localToGlobal(*locPosition);
                                          fout<<" Trk::glob.pos. "
-                                             << gPtrk->x()<<" "<<gPtrk->y()<<" "<<gPtrk->z()<<std::endl;
+                                             << gPtrk.x()<<" "<<gPtrk.y()<<" "<<gPtrk.z()<<std::endl;
                                      }
                                  }
                              }
@@ -1141,17 +1141,30 @@ void MuonGMCheck::checkreadoutmmgeo()
 			 Identifier idgg_lA =  helper.channelID(helper.parentID(idA),iml+1,igg,mmA->numberOfStrips(idA));
 			 Identifier idgg_fC =  helper.channelID(helper.parentID(idC),iml+1,igg,1);
 			 Identifier idgg_lC =  helper.channelID(helper.parentID(idC),iml+1,igg,mmC->numberOfStrips(idC));
-			 const Amg::Vector3D *chCenter_fA = mmA->surface(idgg_fA).Trk::Surface::localToGlobal(lpos);
-			 const Amg::Vector3D *chCenter_lA = mmA->surface(idgg_lA).Trk::Surface::localToGlobal(lpos);
-			 const Amg::Vector3D *chCenter_fC = mmC->surface(idgg_fC).Trk::Surface::localToGlobal(lpos);
-			 const Amg::Vector3D *chCenter_lC = mmC->surface(idgg_lC).Trk::Surface::localToGlobal(lpos);
-			 fout<<"A-side: center of surface for gg "<<igg<<" 1st ch, "<<mmA->numberOfStrips(idA)<<"-th ch: r "<<chCenter_fA->perp()<<" "<<chCenter_lA->perp()
-			     <<" phi "<<chCenter_fA->phi()*invRad<<" "<<chCenter_lA->phi()*invRad<<" z "<<chCenter_fA->z()<<" "<<chCenter_lA->z()<<" "<<helper.show_to_string(idgg_fA)<<std::endl;
-			 fout<<"C-side: center of surface for gg "<<igg<<" 1st ch, "<<mmC->numberOfStrips(idC)<<"-th ch: r "<<chCenter_fC->perp()<<" "<<chCenter_lC->perp()
-			     <<" phi "<<chCenter_fC->phi()*invRad<<" "<<chCenter_lC->phi()*invRad<<" z "<<chCenter_fC->z()<<" "<<chCenter_lC->z()<<" "<<helper.show_to_string(idgg_fC)<<std::endl;
-		       }
-
-		   }
+			 const Amg::Vector3D chCenter_fA = mmA->surface(idgg_fA).Trk::Surface::localToGlobal(lpos);
+			 const Amg::Vector3D chCenter_lA = mmA->surface(idgg_lA).Trk::Surface::localToGlobal(lpos);
+			 const Amg::Vector3D chCenter_fC = mmC->surface(idgg_fC).Trk::Surface::localToGlobal(lpos);
+			 const Amg::Vector3D chCenter_lC = mmC->surface(idgg_lC).Trk::Surface::localToGlobal(lpos);
+                         fout << "A-side: center of surface for gg " << igg
+                              << " 1st ch, " << mmA->numberOfStrips(idA)
+                              << "-th ch: r " << chCenter_fA.perp() << " "
+                              << chCenter_lA.perp() << " phi "
+                              << chCenter_fA.phi() * invRad << " "
+                              << chCenter_lA.phi() * invRad << " z "
+                              << chCenter_fA.z() << " " << chCenter_lA.z()
+                              << " " << helper.show_to_string(idgg_fA)
+                              << std::endl;
+                         fout << "C-side: center of surface for gg " << igg
+                              << " 1st ch, " << mmC->numberOfStrips(idC)
+                              << "-th ch: r " << chCenter_fC.perp() << " "
+                              << chCenter_lC.perp() << " phi "
+                              << chCenter_fC.phi() * invRad << " "
+                              << chCenter_lC.phi() * invRad << " z "
+                              << chCenter_fC.z() << " " << chCenter_lC.z()
+                              << " " << helper.show_to_string(idgg_fC)
+                              << std::endl;
+                     }
+                   }
 	       }
 	   }
        }
@@ -1720,15 +1733,15 @@ void MuonGMCheck::checkreadouttgcgeo()
                          Amg::Vector2D lpos(0.,0.);
                          fout<<"A-side: Check surface.localToGlobal for loc point "<<lpos<<std::endl;
                          fout<<"A-side:                                 global    "
-                             <<*(tgc->surface(fs)).Trk::Surface::localToGlobal(lpos)<<std::endl;
+                             <<(tgc->surface(fs)).Trk::Surface::localToGlobal(lpos)<<std::endl;
                          lpos = Amg::Vector2D(100.,0.);
                          fout<<"A-side: Check surface.localToGlobal for loc point "<<lpos<<std::endl;
                          fout<<"A-side:                                 global    "
-                             <<*(tgc->surface(fs)).Trk::Surface::localToGlobal(lpos)<<std::endl;
+                             <<(tgc->surface(fs)).Trk::Surface::localToGlobal(lpos)<<std::endl;
                          lpos = Amg::Vector2D(0.,100.);
                          fout<<"A-side: Check surface.localToGlobal for loc point "<<lpos<<std::endl;
                          fout<<"A-side:                                 global    "
-                             <<*(tgc->surface(fs)).Trk::Surface::localToGlobal(lpos)<<std::endl;
+                             <<(tgc->surface(fs)).Trk::Surface::localToGlobal(lpos)<<std::endl;
                          //C side: fsn(phi view), fgn(eta view) 
                          fout<<"C-side: tracking local x(phi) axis (surface->transform) = "
                              <<(tgc1->surface(fsn)).transform().linear()*Amg::Vector3D(1,0,0)<<std::endl;
@@ -1739,15 +1752,15 @@ void MuonGMCheck::checkreadouttgcgeo()
                          lpos = Amg::Vector2D(0.,0.);
                          fout<<"C-side: Check surface.localToGlobal for loc point "<<lpos<<std::endl;
                          fout<<"C-side:                                 global    "
-                             <<*(tgc1->surface(fsn)).Trk::Surface::localToGlobal(lpos)<<std::endl;
+                             <<(tgc1->surface(fsn)).Trk::Surface::localToGlobal(lpos)<<std::endl;
                          lpos = Amg::Vector2D(100.,0.);
                          fout<<"C-side: Check surface.localToGlobal for loc point "<<lpos<<std::endl;
                          fout<<"C-side:                                 global    "
-                             <<*(tgc1->surface(fsn)).Trk::Surface::localToGlobal(lpos)<<std::endl;
+                             <<(tgc1->surface(fsn)).Trk::Surface::localToGlobal(lpos)<<std::endl;
                          lpos = Amg::Vector2D(0.,100.);
                          fout<<"C-side: Check surface.localToGlobal for loc point "<<lpos<<std::endl;
                          fout<<"C-side:                                 global    "
-                             <<*(tgc1->surface(fsn)).Trk::Surface::localToGlobal(lpos)<<std::endl;
+                             <<(tgc1->surface(fsn)).Trk::Surface::localToGlobal(lpos)<<std::endl;
                          //A side: fs(phi view), fg(eta view) 
                          fout<<"A-side: tracking local x(eta) axis (surface->transform) = "
                              <<(tgc->surface(fg)).transform().linear()*Amg::Vector3D(1,0,0)<<std::endl;
@@ -1758,15 +1771,15 @@ void MuonGMCheck::checkreadouttgcgeo()
                          lpos = Amg::Vector2D(0.,0.);
                          fout<<"A-side: Check surface.localToGlobal for loc point "<<lpos<<std::endl;
                          fout<<"A-side:                                 global    "
-                             <<*(tgc->surface(fg)).Trk::Surface::localToGlobal(lpos)<<std::endl;
+                             <<(tgc->surface(fg)).Trk::Surface::localToGlobal(lpos)<<std::endl;
                          lpos = Amg::Vector2D(100.,0.);
                          fout<<"A-side: Check surface.localToGlobal for loc point "<<lpos<<std::endl;
                          fout<<"A-side:                                 global    "
-                             <<*(tgc->surface(fg)).Trk::Surface::localToGlobal(lpos)<<std::endl;
+                             <<(tgc->surface(fg)).Trk::Surface::localToGlobal(lpos)<<std::endl;
                          lpos = Amg::Vector2D(0.,100.);
                          fout<<"A-side: Check surface.localToGlobal for loc point "<<lpos<<std::endl;
                          fout<<"A-side:                                 global    "
-                             <<*(tgc->surface(fg)).Trk::Surface::localToGlobal(lpos)<<std::endl;
+                             <<(tgc->surface(fg)).Trk::Surface::localToGlobal(lpos)<<std::endl;
                          //C side: fsn(phi view), fgn(eta view) 
                          fout<<"C-side: tracking local x(eta) axis (surface->transform) = "
                              <<(tgc1->surface(fgn)).transform().linear()*Amg::Vector3D(1,0,0)<<std::endl;
@@ -1777,15 +1790,15 @@ void MuonGMCheck::checkreadouttgcgeo()
                          lpos = Amg::Vector2D(0.,0.);
                          fout<<"C-side: Check surface.localToGlobal for loc point "<<lpos<<std::endl;
                          fout<<"C-side:                                 global    "
-                             <<*(tgc1->surface(fgn)).Trk::Surface::localToGlobal(lpos)<<std::endl;
+                             <<(tgc1->surface(fgn)).Trk::Surface::localToGlobal(lpos)<<std::endl;
                          lpos = Amg::Vector2D(100.,0.);
                          fout<<"C-side: Check surface.localToGlobal for loc point "<<lpos<<std::endl;
                          fout<<"C-side:                                 global    "
-                             <<*(tgc1->surface(fgn)).Trk::Surface::localToGlobal(lpos)<<std::endl;
+                             <<(tgc1->surface(fgn)).Trk::Surface::localToGlobal(lpos)<<std::endl;
                          lpos = Amg::Vector2D(0.,100.);
                          fout<<"C-side: Check surface.localToGlobal for loc point "<<lpos<<std::endl;
                          fout<<"C-side:                                 global    "
-                             <<*(tgc1->surface(fgn)).Trk::Surface::localToGlobal(lpos)<<std::endl;
+                             <<(tgc1->surface(fgn)).Trk::Surface::localToGlobal(lpos)<<std::endl;
                      }
 
                      if (m_check_surfaces_details){
@@ -1802,24 +1815,24 @@ void MuonGMCheck::checkreadouttgcgeo()
                                  <<tempGlobalPosition.y()<<", "
                                  <<tempGlobalPosition.z()<<" ";
                              // Local position
-                             const Amg::Vector2D *locPosition = tgc->surface(chid).Trk::Surface::globalToLocal(tempGlobalPosition);
+                             std::optional<Amg::Vector2D> locPosition = tgc->surface(chid).Trk::Surface::globalToLocal(tempGlobalPosition);
                              fout<<" Z>0 - loc.pos. "
                                  << locPosition->x()<<" "<<locPosition->y();
-                             const Amg::Vector3D *gPtrk = tgc->surface(chid).Trk::Surface::localToGlobal(*locPosition);
+                             const Amg::Vector3D gPtrk = tgc->surface(chid).Trk::Surface::localToGlobal(*locPosition);
                              fout<<" Z>0 - Trk::glob.pos. "
-                                 << gPtrk->x()<<" "<<gPtrk->y()<<" "<<gPtrk->z()<<std::endl;
+                                 << gPtrk.x()<<" "<<gPtrk.y()<<" "<<gPtrk.z()<<std::endl;
                              // global 
                              fout<<"Z<0 - GG: "<<ngg<<" Phi strip: "<<strip
                                  <<" glob.pos. "
                                  <<tempGlobalPosition1.x()<<", "
                                  <<tempGlobalPosition1.y()<<", "
                                  <<tempGlobalPosition1.z()<<" ";
-                             const Amg::Vector2D *locPosition1 = tgc1->surface(chid1).Trk::Surface::globalToLocal(tempGlobalPosition1);
+                             std::optional<Amg::Vector2D> locPosition1 = tgc1->surface(chid1).Trk::Surface::globalToLocal(tempGlobalPosition1);
                              fout<<" Z<0 - loc.pos. "
                                  << locPosition1->x()<<" "<<locPosition1->y();
-                             const Amg::Vector3D *gPtrk1 = tgc1->surface(chid1).Trk::Surface::localToGlobal(*locPosition1);
+                             const Amg::Vector3D gPtrk1 = tgc1->surface(chid1).Trk::Surface::localToGlobal(*locPosition1);
                              fout<<" Z<0 - Trk::glob.pos. "
-                                 << gPtrk1->x()<<" "<<gPtrk1->y()<<" "<<gPtrk1->z()<<std::endl;
+                                 << gPtrk1.x()<<" "<<gPtrk1.y()<<" "<<gPtrk1.z()<<std::endl;
                          }
                          for (int gang = 1; gang<=tgc->getNGangs(ngg+1); gang++)
                          {
@@ -1834,12 +1847,12 @@ void MuonGMCheck::checkreadouttgcgeo()
                                  <<tempGlobalPosition.y()<<", "
                                  <<tempGlobalPosition.z()<<" ";
                              // Local position
-                             const Amg::Vector2D *locPosition = tgc->surface(chid).Trk::Surface::globalToLocal(tempGlobalPosition);
+                             std::optional<Amg::Vector2D> locPosition = tgc->surface(chid).Trk::Surface::globalToLocal(tempGlobalPosition);
                              fout<<" Z>0 - loc.pos. "
                                  << locPosition->x()<<" "<<locPosition->y();
-                             const Amg::Vector3D *gPtrk = tgc->surface(chid).Trk::Surface::localToGlobal(*locPosition);
+                             const Amg::Vector3D gPtrk = tgc->surface(chid).Trk::Surface::localToGlobal(*locPosition);
                              fout<<" Z>0 - Trk::glob.pos. "
-                                 << gPtrk->x()<<" "<<gPtrk->y()<<" "<<gPtrk->z()<<std::endl;
+                                 << gPtrk.x()<<" "<<gPtrk.y()<<" "<<gPtrk.z()<<std::endl;
                              // Global position
                              fout<<"Z<0 - GG: "<<ngg<<" Eta gang: "<<gang
                                  <<" glob.pos. "
@@ -1847,12 +1860,12 @@ void MuonGMCheck::checkreadouttgcgeo()
                                  <<tempGlobalPosition1.y()<<", "
                                  <<tempGlobalPosition1.z()<<" ";
                              // Local position
-                             const Amg::Vector2D *locPosition1 = tgc1->surface(chid1).Trk::Surface::globalToLocal(tempGlobalPosition1);
+                             std::optional<Amg::Vector2D> locPosition1 = tgc1->surface(chid1).Trk::Surface::globalToLocal(tempGlobalPosition1);
                              fout<<" Z<0 - loc.pos. "
                                  << locPosition1->x()<<" "<<locPosition1->y();
-                             const Amg::Vector3D *gPtrk1 = tgc1->surface(chid1).Trk::Surface::localToGlobal(*locPosition1);
+                             const Amg::Vector3D gPtrk1 = tgc1->surface(chid1).Trk::Surface::localToGlobal(*locPosition1);
                              fout<<" Z<0 - Trk::glob.pos. "
-                                 << gPtrk1->x()<<" "<<gPtrk1->y()<<" "<<gPtrk1->z()<<std::endl;
+                                 << gPtrk1.x()<<" "<<gPtrk1.y()<<" "<<gPtrk1.z()<<std::endl;
                          }
                      }
                  }
@@ -2109,15 +2122,15 @@ void MuonGMCheck::checkreadoutcscgeo()
                              Amg::Vector2D lpos(0.,0.);
                              fout<<"A-side: Check surface.localToGlobal for loc point "<<lpos<<std::endl;
                              fout<<"A-side:                                 global    "
-                                 <<*(csc->surface(fszp)).Trk::Surface::localToGlobal(lpos)<<std::endl;
+                                 <<(csc->surface(fszp)).Trk::Surface::localToGlobal(lpos)<<std::endl;
                              lpos = Amg::Vector2D(100.,0.);
                              fout<<"A-side: Check surface.localToGlobal for loc point "<<lpos<<std::endl;
                              fout<<"A-side:                                 global    "
-                                 <<*(csc->surface(fszp)).Trk::Surface::localToGlobal(lpos)<<std::endl;
+                                 <<(csc->surface(fszp)).Trk::Surface::localToGlobal(lpos)<<std::endl;
                              lpos = Amg::Vector2D(0.,100.);
                              fout<<"A-side: Check surface.localToGlobal for loc point "<<lpos<<std::endl;
                              fout<<"A-side:                                 global    "
-                                 <<*(csc->surface(fszp)).Trk::Surface::localToGlobal(lpos)<<std::endl;
+                                 <<(csc->surface(fszp)).Trk::Surface::localToGlobal(lpos)<<std::endl;
                              //C side: fsn(phi view), fgn(eta view) 
                              fout<<"C-side: tracking local x(phi) axis (surface->transform) = "
                                  <<(csc1->surface(fszp1)).transform().linear()*Amg::Vector3D(1,0,0)<<std::endl;
@@ -2128,15 +2141,15 @@ void MuonGMCheck::checkreadoutcscgeo()
                              lpos = Amg::Vector2D(0.,0.);
                              fout<<"C-side: Check surface.localToGlobal for loc point "<<lpos<<std::endl;
                              fout<<"C-side:                                 global    "
-                                 <<*(csc1->surface(fszp1)).Trk::Surface::localToGlobal(lpos)<<std::endl;
+                                 <<(csc1->surface(fszp1)).Trk::Surface::localToGlobal(lpos)<<std::endl;
                              lpos = Amg::Vector2D(100.,0.);
                              fout<<"C-side: Check surface.localToGlobal for loc point "<<lpos<<std::endl;
                              fout<<"C-side:                                 global    "
-                                 <<*(csc1->surface(fszp1)).Trk::Surface::localToGlobal(lpos)<<std::endl;
+                                 <<(csc1->surface(fszp1)).Trk::Surface::localToGlobal(lpos)<<std::endl;
                              lpos = Amg::Vector2D(0.,100.);
                              fout<<"C-side: Check surface.localToGlobal for loc point "<<lpos<<std::endl;
                              fout<<"C-side:                                 global    "
-                                 <<*(csc1->surface(fszp1)).Trk::Surface::localToGlobal(lpos)<<std::endl;
+                                 <<(csc1->surface(fszp1)).Trk::Surface::localToGlobal(lpos)<<std::endl;
                              //A side: fs(phi view), fg(eta view) 
                              fout<<"A-side: tracking local x(eta) axis (surface->transform) = "
                                  <<(csc->surface(fwzp)).transform().linear()*Amg::Vector3D(1,0,0)<<std::endl;
@@ -2147,15 +2160,15 @@ void MuonGMCheck::checkreadoutcscgeo()
                              lpos = Amg::Vector2D(0.,0.);
                              fout<<"A-side: Check surface.localToGlobal for loc point "<<lpos<<std::endl;
                              fout<<"A-side:                                 global    "
-                                 <<*(csc->surface(fwzp)).Trk::Surface::localToGlobal(lpos)<<std::endl;
+                                 <<(csc->surface(fwzp)).Trk::Surface::localToGlobal(lpos)<<std::endl;
                              lpos = Amg::Vector2D(100.,0.);
                              fout<<"A-side: Check surface.localToGlobal for loc point "<<lpos<<std::endl;
                              fout<<"A-side:                                 global    "
-                                 <<*(csc->surface(fwzp)).Trk::Surface::localToGlobal(lpos)<<std::endl;
+                                 <<(csc->surface(fwzp)).Trk::Surface::localToGlobal(lpos)<<std::endl;
                              lpos = Amg::Vector2D(0.,100.);
                              fout<<"A-side: Check surface.localToGlobal for loc point "<<lpos<<std::endl;
                              fout<<"A-side:                                 global    "
-                                 <<*(csc->surface(fwzp)).Trk::Surface::localToGlobal(lpos)<<std::endl;
+                                 <<(csc->surface(fwzp)).Trk::Surface::localToGlobal(lpos)<<std::endl;
                              //C side: fsn(phi view), fgn(eta view) 
                              fout<<"C-side: tracking local x(eta) axis (surface->transform) = "
                                  <<(csc1->surface(fwzp1)).transform().linear()*Amg::Vector3D(1,0,0)<<std::endl;
@@ -2166,15 +2179,15 @@ void MuonGMCheck::checkreadoutcscgeo()
                              lpos = Amg::Vector2D(0.,0.);
                              fout<<"C-side: Check surface.localToGlobal for loc point "<<lpos<<std::endl;
                              fout<<"C-side:                                 global    "
-                                 <<*(csc1->surface(fwzp1)).Trk::Surface::localToGlobal(lpos)<<std::endl;
+                                 <<(csc1->surface(fwzp1)).Trk::Surface::localToGlobal(lpos)<<std::endl;
                              lpos = Amg::Vector2D(100.,0.);
                              fout<<"C-side: Check surface.localToGlobal for loc point "<<lpos<<std::endl;
                              fout<<"C-side:                                 global    "
-                                 <<*(csc1->surface(fwzp1)).Trk::Surface::localToGlobal(lpos)<<std::endl;
+                                 <<(csc1->surface(fwzp1)).Trk::Surface::localToGlobal(lpos)<<std::endl;
                              lpos = Amg::Vector2D(0.,100.);
                              fout<<"C-side: Check surface.localToGlobal for loc point "<<lpos<<std::endl;
                              fout<<"C-side:                                 global    "
-                                 <<*(csc1->surface(fwzp1)).Trk::Surface::localToGlobal(lpos)<<std::endl;
+                                 <<(csc1->surface(fwzp1)).Trk::Surface::localToGlobal(lpos)<<std::endl;
                          }
 
                          
@@ -2670,8 +2683,8 @@ void MuonGMCheck::buildTgcRegionSelectorMap()
       Amg::Vector3D posctr;
       posctr = tgc->globalPosition();
       activeheight = tgc->length();
-      etamin = -logf(tan(atan((posctr.perp()-activeheight/2.)/fabs(posmin.z()))/2.));
-      etamax = -logf(tan(atan((posctr.perp()+activeheight/2.)/fabs(posmax.z()))/2.));
+      etamin = -logf(tan(atan((posctr.perp()-activeheight/2.)/std::abs(posmin.z()))/2.));
+      etamax = -logf(tan(atan((posctr.perp()+activeheight/2.)/std::abs(posmax.z()))/2.));
       if (m_idHelperSvc->tgcIdHelper().stationEta(elemId) < 0) {
 	etamin = -etamin;
 	etamax = -etamax;
@@ -2957,7 +2970,7 @@ void MuonGMCheck::buildCscRegionSelectorMap()
  			ATH_MSG_INFO("--------> phi_max " << phi_max << " mp " << mp_phi_max << " chl " << cl_phi_max << " wl " << wl_phi_max << " strip " << N_phi_max);
  			ATH_MSG_INFO("--------> eta_min " << eta_min << " mp " << mp_eta_min << " chl " << cl_eta_min << " wl " << wl_eta_min << " strip " << N_eta_min);
  			ATH_MSG_INFO("--------> eta_max " << eta_max << " mp " << mp_eta_max << " chl " << cl_eta_max << " wl " << wl_eta_max << " strip " << N_eta_max);
- 			ATH_MSG_INFO("--------> Dphi " << fabs(phi_max-phi_min) << " Deta " << fabs(eta_max-eta_min));
+ 			ATH_MSG_INFO("--------> Dphi " << std::abs(phi_max-phi_min) << " Deta " << std::abs(eta_max-eta_min));
  			
  			if(aux1==51 && aux3==1)	if (phi_min < 0) phi_min += 2.*M_PI;
  			if(aux1==51 && aux3==1)	if (phi_max < 0) phi_max += 2.*M_PI;

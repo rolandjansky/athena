@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArOFC: Algorithm to calculate optimal filtering constants.
@@ -121,13 +121,6 @@ StatusCode LArOFCAlg::initialize(){
     }
   }
 
-
-  /*sc = detStore()->retrieve(m_onlineID); 
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "failed to retrieve LArOnlineID " );
-    return sc;
-  }*/
-  
   if ( m_isSC ) {
     const LArOnline_SuperCellID* ll;
     sc = detStore()->retrieve(ll, "LArOnline_SuperCellID");
@@ -151,8 +144,9 @@ StatusCode LArOFCAlg::initialize(){
       ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
     }
   }
-
-  ATH_CHECK(m_cablingKey.initialize());
+  
+  ATH_CHECK( m_cablingKey.initialize() );
+  if ( m_isSC ) ATH_CHECK( m_cablingKeySC.initialize() );
 
   ATH_MSG_INFO( "Number of wave points needed : " << m_nPoints  ) ;
   if (m_computeV2) {
@@ -174,12 +168,26 @@ StatusCode LArOFCAlg::stop()
   ATH_MSG_INFO( "Number of phases in OFC      : " << m_nPhases  ) ;
   ATH_MSG_INFO( "Spacing between two phases   : " << m_dPhases  ) ;
 
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
-  const LArOnOffIdMapping* cabling{*cablingHdl};
-  if(!cabling) {
-     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key());
-     return StatusCode::FAILURE;
+  
+  const LArOnOffIdMapping* cabling(0);
+  if( m_isSC ){
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKeySC};
+    cabling = {*cablingHdl};
+    if(!cabling) {
+      ATH_MSG_ERROR("Do not have mapping object " << m_cablingKeySC.key());
+      return StatusCode::FAILURE;
+    }
+        
+  }else{
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    cabling = {*cablingHdl};
+    if(!cabling) {
+      ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key());
+      return StatusCode::FAILURE;
+    }
   }
+
+
 
   StatusCode sc;
   if (m_useDelta == 3 || m_useDeltaV2==3){
@@ -207,11 +215,6 @@ StatusCode LArOFCAlg::stop()
       }
     }
     
-    /*sc = detStore()->retrieve(m_calo_dd_man); 
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR( "failed to CaloDetDescrManager " );
-      return sc;
-    }*/
   }
 
   if ( m_timeShift ) {
@@ -267,21 +270,17 @@ StatusCode LArOFCAlg::stop()
     //We need to call them at least once to make sure all caches are filled before we go multi-threaded
     perChannelData_t& chanData=m_allChannelData[0];
 
-    //ToolHandle<ILArAutoCorrDecoderTool> m_AutoCorrDecoder;
     m_AutoCorrDecoder->AutoCorr(chanData.chid,(CaloGain::CaloGain)chanData.gain,m_nSamples);
     if (m_computeV2)
       m_AutoCorrDecoderV2->AutoCorr(chanData.chid,(CaloGain::CaloGain)chanData.gain,m_nSamples);
       
     Identifier id=cabling->cnvToIdentifier(chanData.chid);
     if (m_useDelta==3 || m_useDeltaV2) {
-      //const CaloDetDescrManager* m_calo_dd_man;
       m_calo_dd_man->get_element(id);
     }
 
-    //const LArOnlineID*       m_onlineID; 
     m_onlineID->isFCALchannel(chanData.chid);
 
-    ///const LArOFCBinComplete* m_larPhysWaveBin;
     m_larPhysWaveBin->bin(chanData.chid,(CaloGain::CaloGain)chanData.gain);
 
     //Instanciated the functor and start parallel_for
@@ -677,7 +676,6 @@ StatusCode LArOFCAlg::initPhysWaveContainer(const LArOnOffIdMapping* cabling) {
 	    m_allChannelData.emplace_back(wave, chid,gain);
 	  }
 	}
-	//std::cout << "Got wave size=" << wave->getSize() <<", id=" << it.channelId().get_identifier32().get_compact() << ", gain=" << gain << std::endl;
       } //end loop over channels
     }//end loop over gains
   }//end loop over SG keys
@@ -758,10 +756,6 @@ void  LArOFCAlg::optFilt(const std::vector<float> &gWave, const std::vector<floa
   Eigen::Vector2d Ktemp;
   Eigen::Matrix2d isolInv = isol.inverse();
 
-  //Output vector (eigen version)
-  //Eigen::VectorXd(m_optNpt) a;
-  //Eigen::VectorXd(m_optNpt) b;
-
   //  we solve for the lagrange multiplers
   Ktemp[0] = 1.;
   Ktemp[1] = 0.;
@@ -771,8 +765,6 @@ void  LArOFCAlg::optFilt(const std::vector<float> &gWave, const std::vector<floa
   Ktemp[1] = -1.;
   Atau = isolInv*Ktemp;
 
-  //m_a = HepVector(m_optNpt);
-  //m_b = HepVector(m_optNpt);
   // we express the a and b vectors in terms of the lagrange multipliers
   Eigen::VectorXd OFCa = Amp[0]*acInverse*gResp + Amp[1]*acInverse*gDerivResp;
   Eigen::VectorXd OFCb = Atau[0]*acInverse*gResp + Atau[1]*acInverse*gDerivResp;

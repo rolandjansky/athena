@@ -118,8 +118,10 @@ if rec.doPerfMon() :
             jobproperties.PerfMonFlags.doSemiDetailedMonitoring = rec.doSemiDetailedPerfMon()
             include( "PerfMonComps/PerfMonSvc_jobOptions.py" )
         else:
+            jobproperties.PerfMonFlags.doFastMonMT = True
+            jobproperties.PerfMonFlags.doFullMonMT = rec.doDetailedPerfMonMT()
+            jobproperties.PerfMonFlags.OutputJSON  = "perfmonmt_"+OutFileName+".json"
             include( "PerfMonComps/PerfMonMTSvc_jobOptions.py" )
-            svcMgr.PerfMonMTSvc.jsonFileName = "perfmonmt_"+OutFileName+".json"
 
     except Exception:
         treatException("Could not load PerfMon" )
@@ -197,7 +199,7 @@ if not rec.OutputLevel.isDefault():
 
 #Adjust the message format for threaded vs serial jobs
 if jobproperties.ConcurrencyFlags.NumThreads() > 0:
-    ServiceMgr.MessageSvc.Format = "% F%50W%C%4W%R%e%s%8W%R%T %0W%M"
+    ServiceMgr.MessageSvc.Format = "% F%50W%C%6W%R%e%s%8W%R%T %0W%M"
 else:
     ServiceMgr.MessageSvc.Format = "% F%50W%C%8W%R%T %0W%M" 
 
@@ -238,7 +240,7 @@ if jobproperties.Beam.beamType() == 'cosmics':
     # to remove ER ROR message
     from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
     if not athenaCommonFlags.isOnline():
-        include("InDetBeamSpotService/BeamCondSvc.py")
+        include("BeamSpotConditions/BeamCondAlgSetup.py")
 
     # get rid of event loop WAR NINGS like:
     #  MuTagAllStations                WAR NING p_VxContainer not found at VxPrimaryCandidate

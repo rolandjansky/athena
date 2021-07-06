@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -117,8 +117,8 @@ const InDet::CompetingSCT_ClustersOnTrack* InDet::CompetingSCT_ClustersOnTrackTo
     auto assgnProbVector = std::make_unique<std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >>();
     // type of TRT_BaseElement to check if all RIOs are of same type
     //InDetDD::TRT_BaseElement::Type* TRTtype = 0;
-    const Trk::Surface* detElementSurface = 0;
-    const Trk::TrackParameters* trkParAtRIOsurface = 0;
+    const Trk::Surface* detElementSurface = nullptr;
+    const Trk::TrackParameters* trkParAtRIOsurface = nullptr;
     std::unique_ptr<const Trk::TrackParameters> newTrackParameters;
     bool isBarrel = true;
     // maxium assignment propability for choosing the surface....
@@ -172,7 +172,7 @@ const InDet::CompetingSCT_ClustersOnTrack* InDet::CompetingSCT_ClustersOnTrackTo
                                                                              Trk::nonInteracting)); // without material interaction
                 if (!newTrackParameters){
                     ATH_MSG_ERROR("TrackParameters could not be propagated to PrepRawData surface");
-                    return 0;
+                    return nullptr;
                 } // end if (extrapolation failed)
                 // const Trk::AtaStraightLine* trkParAtRIOsurface1 = new Trk::AtaStraightLine(trkPar.position(), trkPar.momentum(), trkPar.charge(), *RIOsurfacePointer);
                 trkParAtRIOsurface = newTrackParameters.get();
@@ -220,11 +220,11 @@ const InDet::CompetingSCT_ClustersOnTrack* InDet::CompetingSCT_ClustersOnTrackTo
 
     // -------------------------------------
     // test if at least one ROT was created:
-    if (ROTvector.size() <= 0) {
+    if (ROTvector.empty()) {
         ATH_MSG_ERROR("No valid SCT_ClusterOnTrack could be created:");
         ATH_MSG_ERROR("CompetingSCT_ClustersOnTrack creation aborted!");
         //clean-up
-        return 0;
+        return nullptr;
     }
     ATH_MSG_DEBUG("List of competing SCT_ ROTs contains "<< ROTvector.size() << " SCT_ClustersOnTrack");
 
@@ -232,7 +232,9 @@ const InDet::CompetingSCT_ClustersOnTrack* InDet::CompetingSCT_ClustersOnTrackTo
     // normalize assignment probabilities:
     // copy ROTvector to base class vector (vector of RIO_OnTrack) because vector<> does not know inheritance structure
     std::vector< const Trk::RIO_OnTrack* > baseROTvector;
-    for (const InDet::SCT_ClusterOnTrack* rot : ROTvector) {
+    baseROTvector.reserve(ROTvector.size());
+
+for (const InDet::SCT_ClusterOnTrack* rot : ROTvector) {
         baseROTvector.push_back(rot);
     }
     // call normalize()
@@ -286,7 +288,7 @@ void InDet::CompetingSCT_ClustersOnTrackTool::updateCompetingROT(
                                 << trkPar.associatedSurface().center().y() << ", "
                                 << trkPar.associatedSurface().center().z() << ")");
     std::unique_ptr<const Trk::TrackParameters> newTrackParameters;
-    const Trk::TrackParameters* trkParAtROTsurface = 0;
+    const Trk::TrackParameters* trkParAtROTsurface = nullptr;
     // ---------------------------------------------------
     // get trackParameters on the surface of the compROT
     // check if track parameters are expressed on the compROT surface

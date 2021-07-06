@@ -30,7 +30,7 @@ TRT_HWMappingSvc::TRT_HWMappingSvc( const std::string& name,
 				    ISvcLocator* pSvcLocator ) :
   AthService( name, pSvcLocator ),
   m_detStore("DetectorStore",name),
-  m_TRT_ID_Helper(0),
+  m_TRT_ID_Helper(nullptr),
   m_TRTStrawNeighbourSvc("TRT_StrawNeighbourSvc",name)
 {
   // Get properties from job options

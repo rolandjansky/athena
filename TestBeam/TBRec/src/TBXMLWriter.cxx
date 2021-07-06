@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -62,13 +62,11 @@ StatusCode TBXMLWriter::initialize()
   /////////////////////
 
   // loop all writers
-  std::vector<std::string>::iterator firstTool = m_writerToolNames.begin();
-  std::vector<std::string>::iterator lastTool  = m_writerToolNames.end(); 
 
-  for ( ; firstTool != lastTool; firstTool++ )
+  for (const std::string& toolName : m_writerToolNames)
     {
       IAlgTool* algToolPtr;
-      ListItem writerAlgoTool(*firstTool);
+      ListItem writerAlgoTool(toolName);
 
       // pick up tool
       StatusCode checkOut = toolSvcPtr->retrieveTool(writerAlgoTool.type(),
@@ -105,30 +103,12 @@ StatusCode TBXMLWriter::initialize()
       return StatusCode::FAILURE;
     }
 
-  // print out list of tools
-  ATH_MSG_INFO ( " " );
-  ATH_MSG_INFO ( "List of tools in execution sequence:" );
-  ATH_MSG_INFO ( "------------------------------------" );
-  ATH_MSG_INFO ( " " );
-  unsigned int toolCtr = 0;
-  std::vector<TBXMLWriterToolBase*>::iterator fTool = m_writerTools.begin();
-  std::vector<TBXMLWriterToolBase*>::iterator lTool = m_writerTools.end();
-  for ( ; fTool != lTool; fTool++ )
+  for (TBXMLWriterToolBase* tool : m_writerTools)
     {
-      toolCtr++;
-//       log << MSG::INFO 
-// 	  << std::setw(2)     << std::setiosflags(std::ios_base::right)
-// 	  << toolCtr << ".) " << std::resetiosflags(std::ios_base::right)
-// 	  << std::setw(36) << std::setfill('.') 
-// 	  << std::setiosflags(std::ios_base::left) << (*fTool)->type()
-// 	  << std::setfill('.')
-// 	  << (*fTool)->name()
-// 	  << std::setfill(' ')
-// 	  << endmsg;
       // reset statistics
-      m_toolInvoke[(*fTool)->name()] = 0;
-      m_toolReject[(*fTool)->name()] = 0;
-      m_toolAccept[(*fTool)->name()] = 0;
+      m_toolInvoke[tool->name()] = 0;
+      m_toolReject[tool->name()] = 0;
+      m_toolAccept[tool->name()] = 0;
     }
 
   return StatusCode::SUCCESS;
@@ -195,21 +175,17 @@ StatusCode TBXMLWriter::execute()
   // Loop Tools //
   ////////////////
 
-  std::vector<TBXMLWriterToolBase*>::const_iterator firstTool = 
-    m_writerTools.begin();
-  std::vector<TBXMLWriterToolBase*>::const_iterator lastTool =
-    m_writerTools.end();
-  for ( ; firstTool != lastTool; firstTool++ )
+  for (TBXMLWriterToolBase* tool : m_writerTools)
     {
-      StatusCode checkOut = (*firstTool)->writeOut(thisFileStream);
-      m_toolInvoke[(*firstTool)->name()]++;
+      StatusCode checkOut = tool->writeOut(thisFileStream);
+      m_toolInvoke[tool->name()]++;
       if ( checkOut.isFailure() )
 	{
-	  m_toolReject[(*firstTool)->name()]++;
+	  m_toolReject[tool->name()]++;
 	}
       else
 	{
-	  m_toolAccept[(*firstTool)->name()]++;
+	  m_toolAccept[tool->name()]++;
 	}
     }
 
@@ -223,48 +199,6 @@ StatusCode TBXMLWriter::execute()
 
 StatusCode TBXMLWriter::finalize()
 {
-  //////////////////////////
-  // Re-allocate Services //
-  //////////////////////////
-
-  ////////////////
-  // Tool Stats //
-  ////////////////
-
-  ATH_MSG_INFO
-    ( "\n"
-      << "Summary of Tool invocation: (invoked/success/failure)"
-      << "\n"
-      << "---------------------------"
-      );
-
-  std::map<std::string,unsigned int>::const_iterator 
-    firstName = m_toolInvoke.begin();
-  std::map<std::string,unsigned int>::const_iterator 
-    lastName  = m_toolInvoke.end();
-  unsigned int toolCtr = 0;
-  for ( ; firstName != lastName; firstName++ )
-    {
-      toolCtr++;
-//       log << MSG::INFO
-// 	  << std::setw(2)     << std::setiosflags(std::ios_base::right)
-// 	  << toolCtr << ".) " << std::resetiosflags(std::ios_base::right)
-// 	  << std::setw(36) << std::setfill('.') 
-// 	  << std::setiosflags(std::ios_base::left)
-// 	  << (*firstName).first << std::resetiosflags(std::ios_base::left)
-// 	  << std::setfill(' ')
-// 	  << " ("
-// 	  << std::setw(6) << std::setiosflags(std::ios_base::right)
-// 	  << (*firstName).second
-// 	  << "/"
-// 	  << std::setw(6) << std::setiosflags(std::ios_base::right)
-// 	  << m_toolAccept[(*firstName).first]
-// 	  << "/"
-// 	  << std::setw(6) << std::setiosflags(std::ios_base::right)
-// 	  << m_toolReject[(*firstName).first]
-// 	  << ")"
-// 	  << endmsg;
-    }
   return StatusCode::SUCCESS;
 }
 

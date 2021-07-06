@@ -39,20 +39,6 @@ Trk::LayerArrayCreator::~LayerArrayCreator()
 {}
 
 
-// the interface methods
-StatusCode Trk::LayerArrayCreator::initialize()
-{
-    ATH_MSG_INFO( "initialize()" );
-    return StatusCode::SUCCESS;
-}    
-
-StatusCode Trk::LayerArrayCreator::finalize()
-{    
-    ATH_MSG_INFO( "finalize() successful" );    
-    return StatusCode::SUCCESS;
-}
-
-
 Trk::LayerArray* Trk::LayerArrayCreator::cylinderLayerArray(const std::vector<const Trk::CylinderLayer*>& cylLayersInput,
                                                             double rmin, double rmax, Trk::BinningType btype) const
 {  
@@ -123,7 +109,7 @@ Trk::LayerArray* Trk::LayerArrayCreator::cylinderLayerArray(const std::vector<co
               navLayerHalflengthZ = layerSurface.bounds().halflengthZ();
               ATH_MSG_VERBOSE( "bi-equidistant : creating cylindrical NavigationLayer at   radius : " << navigationR );
               Trk::CylinderSurface* navLayerSurface = layerTransform ?
-                      new Trk::CylinderSurface(new Amg::Transform3D(*layerTransform), navigationR, navLayerHalflengthZ) : 
+                      new Trk::CylinderSurface(Amg::Transform3D(*layerTransform), navigationR, navLayerHalflengthZ) : 
                       new Trk::CylinderSurface(navigationR, navLayerHalflengthZ);
               // the navigation layer
               navLayer = new Trk::NavigationLayer(navLayerSurface);
@@ -139,7 +125,7 @@ Trk::LayerArray* Trk::LayerArrayCreator::cylinderLayerArray(const std::vector<co
             // special treatment for the last one
             ATH_MSG_VERBOSE( "bi-equidistant : creating cylindrical NavigationLayer at   radius : " << navigationR+radialStep);
             Trk::CylinderSurface* navLayerSurfacFinal = layerTransform ? 
-                            new Trk::CylinderSurface(new Amg::Transform3D(*layerTransform), navigationR+radialStep, navLayerHalflengthZ) :
+                            new Trk::CylinderSurface(Amg::Transform3D(*layerTransform), navigationR+radialStep, navLayerHalflengthZ) :
                             new Trk::CylinderSurface(navigationR+radialStep, navLayerHalflengthZ);
             // the navigation layer
             navLayer = new Trk::NavigationLayer(navLayerSurfacFinal);
@@ -184,7 +170,7 @@ Trk::LayerArray* Trk::LayerArrayCreator::cylinderLayerArray(const std::vector<co
                 // navigation layer : previous bin
                 double navLayerRadius = 0.5*( (layerRadius-0.5*layerThickness) + boundaries[boundaries.size()-1] );
                 Trk::CylinderSurface* navLayerSurface = layerTransform ? 
-                                    new Trk::CylinderSurface(new Amg::Transform3D(*layerTransform), navLayerRadius, halfLengthZ) :
+                                    new Trk::CylinderSurface(Amg::Transform3D(*layerTransform), navLayerRadius, halfLengthZ) :
                                     new Trk::CylinderSurface(navLayerRadius, halfLengthZ);
                 // material layer : current bin
                 cylinderLayer = checkAndReplaceEmptyLayer(layIter);
@@ -207,7 +193,7 @@ Trk::LayerArray* Trk::LayerArrayCreator::cylinderLayerArray(const std::vector<co
             // close up the array with last bin
             double navLayerRadiusFinal = 0.5*(rmax+boundaries[boundaries.size()-1]);
             Trk::CylinderSurface* navLayerSurfaceFinal = layerTransform ?  
-                                        new Trk::CylinderSurface(new Amg::Transform3D(*layerTransform), navLayerRadiusFinal, halfLengthZ) :
+                                        new Trk::CylinderSurface(Amg::Transform3D(*layerTransform), navLayerRadiusFinal, halfLengthZ) :
                                         new Trk::CylinderSurface(navLayerRadiusFinal, halfLengthZ);
             boundaries.push_back(rmax);
             ATH_MSG_VERBOSE( "arbitrary : creating cylindrical NavigationLayer at radius : " << navLayerRadiusFinal );
@@ -293,7 +279,7 @@ Trk::LayerArray* Trk::LayerArrayCreator::discLayerArray(const std::vector<const 
             double minR = 0.;
             double maxR = 0.;
         
-            Amg::Transform3D* navLayerTransform = nullptr;
+            Amg::Transform3D navLayerTransform;
             Trk::DiscSurface* navLayerSurface   = nullptr;
             double navigationZ                  = 0.;
             // loop over layers
@@ -303,8 +289,7 @@ Trk::LayerArray* Trk::LayerArrayCreator::discLayerArray(const std::vector<const 
                 double currentZ = layerSurface.center().z();
                 // create the navigation Z from current Z    
                 navigationZ = currentZ - 0.5*(zStep);
-                navLayerTransform = new Amg::Transform3D;
-                (*navLayerTransform) = Amg::Translation3D(0.,0.,navigationZ);
+                navLayerTransform = Amg::Transform3D(Amg::Translation3D(0.,0.,navigationZ));
                 navLayerSurface = new Trk::DiscSurface(navLayerTransform, minR, maxR);
                 // push that layer back
                 ATH_MSG_VERBOSE( "bi-equidistant : creating disc-like NavigationLayer at z-Position : " << navigationZ );
@@ -327,8 +312,7 @@ Trk::LayerArray* Trk::LayerArrayCreator::discLayerArray(const std::vector<const 
             }
             // special treatment for last bin
             ATH_MSG_VERBOSE( "bi-equidistant : creating disc-like NavigationLayer at z-Position : " << navigationZ + zStep );
-            navLayerTransform = new Amg::Transform3D;
-            (*navLayerTransform) = Amg::Translation3D(0.,0.,navigationZ+zStep);
+            navLayerTransform = Amg::Transform3D(Amg::Translation3D(0.,0.,navigationZ+zStep));
             navLayerSurface = new Trk::DiscSurface(navLayerTransform, minR, maxR);
             layerOrderVector.emplace_back(
                                         Trk::SharedObject<const Trk::Layer>(new Trk::NavigationLayer(navLayerSurface)),
@@ -381,8 +365,7 @@ Trk::LayerArray* Trk::LayerArrayCreator::discLayerArray(const std::vector<const 
                 double navLayerPositionZ = 0.5*((layerPositionZ-0.5*layerThickness)+boundaries[boundaries.size()-1]);
                 // now fill the layer post slot after navigation layer has been determined
                 // the transform for this
-                Amg::Transform3D* navLayerTransform = new Amg::Transform3D;
-                (*navLayerTransform) = Amg::Translation3D(0.,0.,navLayerPositionZ);
+                Amg::Transform3D navLayerTransform = Amg::Transform3D(Amg::Translation3D(0.,0.,navLayerPositionZ));
                 Trk::DiscSurface* navLayerSurface = new Trk::DiscSurface(navLayerTransform, minR, maxR);
                                             
                 // the material layer
@@ -405,9 +388,10 @@ Trk::LayerArray* Trk::LayerArrayCreator::discLayerArray(const std::vector<const 
             } 
             // final material layer
             double navLayerPositionZFinal = 0.5*(zmax+boundaries[boundaries.size()-1]);
-            Amg::Transform3D* navLayerTransformFinal = new Amg::Transform3D;
-            (*navLayerTransformFinal) = Amg::Translation3D(0.,0.,navLayerPositionZFinal);
-            Trk::DiscSurface* navLayerSurfaceFinal = new Trk::DiscSurface(navLayerTransformFinal, minR, maxR);
+            Amg::Transform3D navLayerTransformFinal = Amg::Transform3D(
+              Amg::Translation3D(0., 0., navLayerPositionZFinal));
+            Trk::DiscSurface* navLayerSurfaceFinal =
+              new Trk::DiscSurface(navLayerTransformFinal, minR, maxR);
             ATH_MSG_VERBOSE( "arbitrary : creating disc-like NavigationLayer at z-Position : " << navLayerPositionZFinal );
             layerOrderVector.emplace_back(
                                         Trk::SharedObject<const Trk::Layer>(new Trk::NavigationLayer(navLayerSurfaceFinal)), 
@@ -539,10 +523,9 @@ Trk::LayerArray* Trk::LayerArrayCreator::planeLayerArray(const std::vector<const
                 Amg::Translation3D(navigationX,navigationY,navigationZ);
                 
                 Trk::PlaneSurface* navLayerSurface = nullptr;
-                Amg::Transform3D* navLayerTransform  = new Amg::Transform3D;
-                (*navLayerTransform)  = Amg::Translation3D(navigationX,0.,0.);
+                Amg::Transform3D navLayerTransform(Amg::Translation3D(navigationX,0.,0.));
 
-                if (fabs(minHalfX)<10e-5) {
+                if (std::abs(minHalfX)<10e-5) {
                     navLayerSurface = new Trk::PlaneSurface(navLayerTransform,
                                                             maxHalfX,
                                                             halfY);
@@ -577,10 +560,9 @@ Trk::LayerArray* Trk::LayerArrayCreator::planeLayerArray(const std::vector<const
             double navigationYFinal   = (bv == Trk::binY) ? navigationPosFinal : 0.;
             double navigationZFinal   = (bv == Trk::binZ) ? navigationPosFinal : 0.;
             
-            Amg::Transform3D* navLayerTransform  = new Amg::Transform3D;
-            (*navLayerTransform)  = Amg::Translation3D(navigationXFinal,navigationYFinal,navigationZFinal);
+            Amg::Transform3D navLayerTransform(Amg::Translation3D(navigationXFinal,navigationYFinal,navigationZFinal));
 
-            Trk::PlaneSurface* navLayerSurface = (fabs(minHalfX)<10e-5) ?
+            Trk::PlaneSurface* navLayerSurface = (std::abs(minHalfX)<10e-5) ?
                     new Trk::PlaneSurface(navLayerTransform, maxHalfX,halfY) :
                     new Trk::PlaneSurface(navLayerTransform, minHalfX, maxHalfX, halfY);
         
@@ -646,10 +628,9 @@ Trk::LayerArray* Trk::LayerArrayCreator::planeLayerArray(const std::vector<const
                 double navLayerPositionY = (bv == Trk::binY) ? 0.5*(layerPosition+boundaries[boundaries.size()-1]) : layerCenter.y();
                 double navLayerPositionZ = (bv == Trk::binZ) ? 0.5*(layerPosition+boundaries[boundaries.size()-1]) : layerCenter.z();
                 Amg::Translation3D navLayerPosition(navLayerPositionX,navLayerPositionY,navLayerPositionZ);
-                Amg::Transform3D* navLayerTransform = new Amg::Transform3D;
-                (*navLayerTransform)  = navLayerPosition;
+                Amg::Transform3D navLayerTransform(navLayerPosition);
                 // create the navigation plane layer        
-                Trk::PlaneSurface* navLayerSurface = (fabs(minHalfX)<10e-5) ?
+                Trk::PlaneSurface* navLayerSurface = (std::abs(minHalfX)<10e-5) ?
                         new Trk::PlaneSurface( navLayerTransform, maxHalfX, halfY ) :
                         new Trk::PlaneSurface( navLayerTransform, minHalfX, maxHalfX, halfY );
                 ATH_MSG_VERBOSE( "arbitrary : creating plane-like NavigationLayer at position : " << navLayerPositionX );
@@ -669,10 +650,9 @@ Trk::LayerArray* Trk::LayerArrayCreator::planeLayerArray(const std::vector<const
             double navLayerPositionYFinal = (bv == Trk::binY) ? 0.5*(posmax+boundaries[boundaries.size()-1]) : layerCenter.y();
             double navLayerPositionZFinal = (bv == Trk::binZ) ? 0.5*(posmax+boundaries[boundaries.size()-1]) : layerCenter.z();
             Amg::Translation3D navLayerPositionFinal(navLayerPositionXFinal,navLayerPositionYFinal,navLayerPositionZFinal);
-            Amg::Transform3D* navLayerTransformFinal = new Amg::Transform3D;
-            (*navLayerTransformFinal)  = navLayerPositionFinal;
+            Amg::Transform3D navLayerTransformFinal(navLayerPositionFinal);
             // create the navigation plane layer        
-            Trk::PlaneSurface* navLayerSurfaceFinal = (fabs(minHalfX)<10e-5) ?
+            Trk::PlaneSurface* navLayerSurfaceFinal = (std::abs(minHalfX)<10e-5) ?
                         new Trk::PlaneSurface( navLayerTransformFinal, maxHalfX, halfY ) :
                         new Trk::PlaneSurface( navLayerTransformFinal, minHalfX, maxHalfX, halfY );
             ATH_MSG_VERBOSE( "arbitrary : creating plane-like NavigationLayer at position : " << 0.5*(posmax+boundaries[boundaries.size()-1]) );

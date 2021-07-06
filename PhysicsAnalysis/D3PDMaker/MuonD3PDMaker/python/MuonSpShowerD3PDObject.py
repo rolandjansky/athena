@@ -1,6 +1,5 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
 #
 # @file MuonD3PDMaker/python/MuonSpShowerD3PDObject.py
 # @author Michiru Kaneda <Michiru.Kaneda@cern.ch>
@@ -8,7 +7,6 @@
 # @brief MuonSpShower filler tool
 #
 
-import D3PDMakerCoreComps
 from D3PDMakerCoreComps.D3PDObject import make_SGDataVector_D3PDObject
 from MuonD3PDMaker.MuonD3PDMakerConf import D3PD__MuonSpShowerFillerTool as MuonSpShowerFillerTool
 

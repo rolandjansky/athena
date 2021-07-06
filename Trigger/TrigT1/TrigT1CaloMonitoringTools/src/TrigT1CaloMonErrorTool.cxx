@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -11,7 +11,6 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/TriggerInfo.h"
 
-#include "xAODTrigL1Calo/CMXCPHitsContainer.h"
 #include "xAODTrigL1Calo/CMXEtSumsContainer.h"
 #include "xAODTrigL1Calo/CMXJetTobContainer.h"
 #include "xAODTrigL1Calo/CMXJetHitsContainer.h"
@@ -98,14 +97,9 @@ TrigT1CaloMonErrorTool::~TrigT1CaloMonErrorTool()
 
 // Initialize
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
-
 StatusCode TrigT1CaloMonErrorTool::initialize()
 {
-  msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endmsg;
+  msg(MSG::INFO) << "Initializing " << name() << endmsg;
 
   return StatusCode::SUCCESS;
 }

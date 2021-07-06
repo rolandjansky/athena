@@ -11,7 +11,7 @@
  *
  * @author Michael Begel  <michael.begel@cern.ch> - Brookhaven National Laboratory
  * @author Lukas Heinrich <lukas.heinrich@cern.ch> - NYU
- * 
+ *
  ***********************************************************************************/
 
 #include <string>
@@ -57,7 +57,7 @@ Trig::CacheGlobalMemory::CacheGlobalMemory() :
   m_confChains(nullptr),
   m_expressStreamContainer(nullptr),
   m_decisionKeyPtr(nullptr),
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
+#ifndef XAOD_ANALYSIS // Full Athena
   m_oldDecisionKeyPtr(nullptr),
   m_oldEventInfoKeyPtr(nullptr),
 #endif
@@ -87,16 +87,18 @@ Trig::CacheGlobalMemory::~CacheGlobalMemory() {
 }
 
 const Trig::ChainGroup* Trig::CacheGlobalMemory::createChainGroup(const std::vector< std::string >& triggerNames,
-                                                                  const std::string& alias) {
+                                                                  const std::string& alias,
+                                                                  const bool parseAsRegex) {
   // mutex in case this is called directly
   std::lock_guard<std::recursive_mutex> lock(m_cgmMutex);
+
   // create a proper key
   std::vector< std::string > key=Trig::keyWrap(triggerNames);
 
   auto res = m_chainGroups.try_emplace (key, nullptr);
   if (res.second) {
     res.first->second = new ChainGroup( key, *this );
-    updateChainGroup(res.first->second);
+    updateChainGroup(res.first->second, parseAsRegex);
     m_chainGroupsRef[key] = res.first->second;
   }
   // this overwrites the pointer in the map each time in case the alias needs defining
@@ -105,17 +107,19 @@ const Trig::ChainGroup* Trig::CacheGlobalMemory::createChainGroup(const std::vec
     if (m_chainGroupsRef.find(key_alias)==m_chainGroupsRef.end()) {
       m_chainGroupsRef[key_alias]=m_chainGroups[key];
     }
-    else { 
+    else {
       if (m_chainGroupsRef[key_alias]!=m_chainGroupsRef[key]) {
         throw std::runtime_error("TrigDecisionTool: The alias "+alias+" already exists and cannot be overwritten.");
       }
     }
   }
+
+
   return m_chainGroupsRef[key];
 }
 
-void Trig::CacheGlobalMemory::updateChainGroup(Trig::ChainGroup* chainGroup) {
-  chainGroup->update(m_confChains, m_confItems);
+void Trig::CacheGlobalMemory::updateChainGroup(Trig::ChainGroup* chainGroup, const bool parseAsRegex) {
+  chainGroup->update(m_confChains, m_confItems, parseAsRegex);
 }
 
 
@@ -147,19 +151,24 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
                                                  0, 0, 0, prescales[ctpid]);
      ATH_MSG_DEBUG( " new configuration for item" << item->name() );
   }
-  ATH_MSG_DEBUG( "Updating configuration, done with L1" );  
-  
+  ATH_MSG_DEBUG( "Updating configuration, done with L1" );
+
   //clear cache completely becuase underlying config objects might have changed
   for(auto& c : m_l2chainsCache){delete c.second;}
-  m_l2chainsCache.clear(); 
+  m_l2chainsCache.clear();
   for(auto& c : m_efchainsCache){delete c.second;}
-  m_efchainsCache.clear(); 
+  m_efchainsCache.clear();
   m_mConfChains.clear();
+
+  // Remember which chain groups we update in the STREAM and GROUP loops. Don't update them a second time below.
+  // Cache the pointer in a short-lived set
+  std::set<const Trig::ChainGroup*> processed_chain_groups;
+
   if ( ! confChains ) {
     ATH_MSG_WARNING( "No chains in configuration, probably run w/o HLT" );
   } else {
 
-    ATH_MSG_DEBUG("Updating Configuration chains. Number of conf chains: " << m_confChains->size()); 
+    ATH_MSG_DEBUG("Updating Configuration chains. Number of conf chains: " << m_confChains->size());
 
     // updating internal map of conf chains (this map is only used for fast lookup)
     for(auto ch : *m_confChains) {
@@ -170,7 +179,7 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
     for(auto ch : *m_confChains) {
       //    std::cerr << "CacheGlobalMemory::update updating chain" << (*cChIt)->chain_name() << std::endl;
       int cntr = ch->chain_counter();
-      if( ch->level()=="L2" ) {       
+      if( ch->level()=="L2" ) {
         m_l2chainsCache[cntr] = new HLT::Chain(ch);
       } else {//merged chains are stored in efchains
         m_efchainsCache[cntr] = new HLT::Chain(ch);
@@ -211,7 +220,9 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
         }
       }
     }
-    //
+
+
+
     std::map<std::string, std::vector<std::string> >::iterator mstIt;
     for (mstIt=m_streams.begin(); mstIt != m_streams.end(); ++mstIt) {
       const std::string alias("STREAM_"+mstIt->first);
@@ -222,11 +233,12 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
           << alias );
         // cg already exists (from previous config, we need to update it)
         preIt->second->m_patterns = mstIt->second;
-        updateChainGroup(preIt->second);  
+        updateChainGroup(preIt->second, /*parseAsRegex=*/ false);
+        processed_chain_groups.insert(preIt->second);
       } else {
-        createChainGroup(mstIt->second,alias);
+        processed_chain_groups.insert( createChainGroup(mstIt->second, alias, /*parseAsRegex=*/ false) );
       }
-      
+
     }
     for (mstIt=m_groups.begin(); mstIt != m_groups.end(); ++mstIt) {
       const std::string alias("GROUP_"+mstIt->first);
@@ -236,9 +248,10 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
         ATH_MSG_INFO( "Replacing predefined, config group based, chain "
           << "group: " << alias );
         preIt->second->m_patterns = mstIt->second;
-        updateChainGroup(preIt->second);
+        updateChainGroup(preIt->second, /*parseAsRegex=*/ false);
+        processed_chain_groups.insert(preIt->second);
       } else {
-        createChainGroup(mstIt->second,alias);
+        processed_chain_groups.insert( createChainGroup(mstIt->second,alias, /*parseAsRegex=*/ false) );
       }
     }
     ATH_MSG_DEBUG( "ChainGroups for streams and configuration groups "
@@ -247,13 +260,13 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
 
 
   // update all previously defined chainGroups
-  for (ChGrIt it=m_chainGroups.begin();
-       it!=m_chainGroups.end();
-       it++) {
+  for (ChGrIt it=m_chainGroups.begin(); it!=m_chainGroups.end(); it++) {
+    if (processed_chain_groups.count(it->second) == 1) {
+      continue; // We already updated this chain group, just above
+    }
     updateChainGroup(it->second);
-  }   
-   ATH_MSG_DEBUG( "Updating configuration, done with ChainGroups defined so "
-                  "far" );
+  }
+   ATH_MSG_DEBUG( "Updating configuration, done with ChainGroups defined so far" );
    ATH_MSG_DEBUG( "Updating configuration done" );
 }
 
@@ -340,15 +353,15 @@ bool Trig::CacheGlobalMemory::assert_decision() {
   // here we unpack the decision. Note: the navigation will be unpacked only on demand (see navigation())
   bool contains_xAOD_decision = false;
 
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
+#ifndef XAOD_ANALYSIS // Full Athena
   bool is_l1result_configured = false;
   bool contains_decision = false;
   bool contains_old_event_info = false;
 #endif
-  
+
   if(!m_unpacker){
     ATH_MSG_INFO("decision not set on first (?) assert. deciding how to unpack");
-   
+
     //Lukas 26-06-2015: we're hard coding the configuration for now
     //but we have setters and getters for m_trigDecisionKey (as CGM datamemer)
     //so we could in the future use the ones set by the python configuration
@@ -360,7 +373,7 @@ bool Trig::CacheGlobalMemory::assert_decision() {
       contains_xAOD_decision = decisionReadHandle.isValid();
     }
 
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
+#ifndef XAOD_ANALYSIS // Full Athena
 
     if (!m_oldDecisionKeyPtr->empty()) {
       SG::ReadHandle<TrigDec::TrigDecision> oldDecisionReadHandle = SG::makeHandle(*m_oldDecisionKeyPtr, context);
@@ -395,27 +408,27 @@ bool Trig::CacheGlobalMemory::assert_decision() {
       setUnpacker(new DecisionUnpackerStandalone(m_decisionKeyPtr, m_run2NavigationKeyPtr));
     }
 #endif
-    
+
   }//if(!m_unpacker)
 
   if(!m_unpacker){
     std::stringstream extra;
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
+#ifndef XAOD_ANALYSIS // Full Athena
     extra << ". Looked for old TrigDec::TrigDecision? "
       << (m_oldDecisionKeyPtr->empty() ? "NO" : "YES")
-      << ", has TrigDec::TrigDecision? " 
+      << ", has TrigDec::TrigDecision? "
       << (contains_decision ? "YES" : "NO")
-      << ", TrigDec::TrigDecision has L1? " 
+      << ", TrigDec::TrigDecision has L1? "
       << (is_l1result_configured ? "YES" : "NO")
       << ". Looked for old EventInfo? "
       << (m_oldEventInfoKeyPtr->empty() ? "NO" : "YES")
-      << ", has old EventInto? "  
+      << ", has old EventInto? "
       << (contains_old_event_info ? "YES" : "NO");
 #endif
     ATH_MSG_ERROR("No source of Trigger Decision in file. "
       << "(Looked for xAOD::TrigDecision? "
       << (m_decisionKeyPtr->empty() ? "NO" : "YES")
-      << ", has xAOD::TrigDecision? " 
+      << ", has xAOD::TrigDecision? "
       << (contains_xAOD_decision ? "YES" : "NO")
       << extra.str()
       << ". Check UseRun1DecisionFormat and UseOldEventInfoDecisionFormat flags if reading pre-xAOD or BS input).");
@@ -440,7 +453,7 @@ StatusCode Trig::CacheGlobalMemory::unpackDecision() {
   ATH_MSG_DEBUG("Unpacking TrigDecision ");
   ATH_MSG_DEBUG("clearing the delete-end-of-event store");
   m_deleteAtEndOfEvent.clear();
-  
+
   bool unpackHLT = ( m_confChains != 0 );
   ATH_CHECK( m_unpacker->unpackDecision( m_itemsByName, m_itemsCache,
           m_l2chainsByName, m_l2chainsCache,
@@ -472,9 +485,7 @@ StatusCode Trig::CacheGlobalMemory::unpackNavigation() {
   return StatusCode::SUCCESS;
 }
 
-Trig::CacheGlobalMemory::AnyTypeDeleter::~AnyTypeDeleter() 
+Trig::CacheGlobalMemory::AnyTypeDeleter::~AnyTypeDeleter()
 {
   clear();
 }
- 
-

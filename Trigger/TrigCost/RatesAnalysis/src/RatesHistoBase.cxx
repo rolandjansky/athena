@@ -27,6 +27,14 @@ RatesHistoBase::RatesHistoBase(const std::string& name, const MsgStream& log, co
     m_data =  std::make_unique<TH1D>("",TString(";Variable;Raw Data"), RatesBinIdentifier_t::kNRATES_BINS, -.5, RatesBinIdentifier_t::kNRATES_BINS - .5);
     m_data->Sumw2(true);
     m_data->SetName("data");
+    // Set bin labels based on RatesBinIdentifier_t
+    m_data->GetXaxis()->SetBinLabel(1, "Actve Raw");
+    m_data->GetXaxis()->SetBinLabel(2, "Active Weighted");
+    m_data->GetXaxis()->SetBinLabel(3, "Pass Raw");
+    m_data->GetXaxis()->SetBinLabel(4, "Pass Weighted OR");
+    m_data->GetXaxis()->SetBinLabel(5, "Pass Weighted AND");
+    m_data->GetXaxis()->SetBinLabel(6, "Express");
+    m_data->GetXaxis()->SetBinLabel(7, "Unique");
     m_dataCachedPtr = m_data.get();
 
   }

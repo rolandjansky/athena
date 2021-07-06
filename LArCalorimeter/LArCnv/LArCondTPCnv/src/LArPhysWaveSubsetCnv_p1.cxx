@@ -16,7 +16,7 @@ LArPhysWaveSubsetCnv_p1::persToTrans(const LArPWPersType* persObj,
 
   unsigned int nfebids = persObj->m_subset.m_febIds.size();
   log<<MSG::DEBUG<<"\t\tTotal febs:"<<nfebids<<endmsg;
-
+  const unsigned int nChannelsPerFeb  = persObj->m_subset.subsetSize();
   unsigned int waveIndex	= 0;
   unsigned int chIndex	= 0;
 
@@ -40,7 +40,7 @@ LArPhysWaveSubsetCnv_p1::persToTrans(const LArPWPersType* persObj,
       
     log<<MSG::DEBUG<<"\t\tsparse?  "<< hasSparseData <<endmsg;
   
-    for (unsigned int j = 0; j < NCHANNELPERFEB; ++j){
+    for (unsigned int j = 0; j < nChannelsPerFeb; ++j){
       bool copyChannel = true;
       if (hasSparseData) {			
         if (!(chansSet & (1 << (j - chansOffset)))) {// Channel is missing data - skip
@@ -148,7 +148,7 @@ LArPhysWaveSubsetCnv_p1::transToPers(const LArPWTransType* transObj,
   log<<MSG::DEBUG<<"total febs:"<<nfebs;
   unsigned int ncorrs	      = transObj->correctionVecSize();
   log<<MSG::DEBUG<<"\t\ttotal corrections: "<<ncorrs<<endmsg;
-
+  const unsigned int nChannelsPerFeb  = transObj->channelVectorSize();
   unsigned int nsubsetsNotEmpty = 0;
   unsigned int nchans           = 0;
 
@@ -163,7 +163,7 @@ LArPhysWaveSubsetCnv_p1::transToPers(const LArPWTransType* transObj,
   {
     unsigned int nfebChans = subsetIt->second.size();
 
-    if (nfebChans != 0 && nfebChans != NCHANNELPERFEB) {
+    if (nfebChans != 0 && nfebChans != nChannelsPerFeb) {
       log << MSG::ERROR << "LArPhysWaveSubsetCnv_p1::transToPers - found incorrect number of channels per feb: " << nfebChans<< endmsg;
       return;
     }

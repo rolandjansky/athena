@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetMonitoring/HistosForJetSelection.h"
@@ -77,7 +77,7 @@ int HistosForJetSelection::buildHistos(){
 
   
   
-int HistosForJetSelection::fillHistosFromContainer(const xAOD::JetContainer & cont){
+int HistosForJetSelection::fillHistosFromContainer(const xAOD::JetContainer & cont, float weight){
 
   ConstDataVector< xAOD::JetContainer > tmpCont(SG::VIEW_ELEMENTS);
   const xAOD::JetContainer * contPtr = NULL;
@@ -132,7 +132,7 @@ int HistosForJetSelection::fillHistosFromContainer(const xAOD::JetContainer & co
   // then fill histos
   for( auto jtool : m_histoTools){
     ATH_MSG_DEBUG ("    Filling  " << jtool->name() << "..." );
-    jtool->fillHistosFromContainer(*contPtr);
+    jtool->fillHistosFromContainer(*contPtr, weight);
   }
   return 0;
 }

@@ -64,7 +64,8 @@ namespace Trk {
     virtual void addDetailedTrackSummary(const Trk::Track& track,
                                          Trk::TrackSummary& summary) const = 0;
 
-
+    virtual void updateExpectedHitInfo(const Trk::Track&,
+                                       Trk::TrackSummary&) const = 0;
   };
   
   inline const InterfaceID& Trk::ITrackSummaryHelperTool::interfaceID()

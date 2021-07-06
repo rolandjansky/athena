@@ -39,6 +39,7 @@
 #include <fstream> 
 #include <cstdlib>
 #include <iostream>
+#include <memory>
 
 class MuonDQAHistList;
 
@@ -131,8 +132,8 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   StatusCode handleEvent_effCalc(const Trk::SegmentCollection* segms);//, const Muon::MdtPrepDataContainer* mdt_container );
 
   bool AinB( int A, std::vector<int> & B );
-  virtual StatusCode  binMdtGlobal( TH2* &, char ecap );
-  virtual StatusCode  binMdtRegional( TH2* &, std::string &xAxis);
+  virtual StatusCode  binMdtGlobal( TH2*, char ecap );
+  virtual StatusCode  binMdtRegional( TH2*, std::string &xAxis );
   virtual StatusCode  binMdtGlobal_byLayer( TH2*, TH2*, TH2*);
   virtual StatusCode binMdtOccVsLB(TH2* &h, int region, int layer);
   virtual StatusCode binMdtOccVsLB_Crate(TH2* &h, int region, int crate);
@@ -176,7 +177,7 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   uint32_t m_firstTime;
   int m_numberOfEvents;
 
-  SG::ReadHandleKey<Trk::SegmentCollection> m_segm_type{this,"Eff_segm_type","MuonSegments","muon segments"};
+  SG::ReadHandleKey<Trk::SegmentCollection> m_segm_type{this,"Eff_segm_type","TrackMuonSegments","muon segments"};
 
   std::string returnString(int i){
     std::stringstream ss;

@@ -1,6 +1,6 @@
 
 /*                                                                                                                                          
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
@@ -100,7 +100,7 @@ namespace InDetDD{
 
   void TRT_DetElementContainer::clear()
   {
-    for (auto p : m_trtcoll) {
+    for (auto *p : m_trtcoll) {
       delete p;
     }
     m_trtcoll.clear();

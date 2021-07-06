@@ -38,75 +38,84 @@ class MuonTGC_CablingSvc : public ITGCcablingSvc
       return  IID_TGCcablingSvc;
     }
   
-  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIF); 
+  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIF) override; 
   
-  virtual StatusCode initialize(void);
-  virtual StatusCode finalize(void);
+  virtual StatusCode initialize(void) override;
+  virtual StatusCode finalize(void) override;
 
   //////  virtual methods of IMuonTGC_CablingSvc
-  virtual TGCCablingBase* getTGCCabling(void) const;  
+  virtual const TGCCablingBase* getTGCCabling(void) const override;
 
   // give max value of ReadoutID parameters
+  virtual
   void getReadoutIDRanges(int& maxRodId,
 			  int& maxSswId,
 			  int& maxSbloc,
 			  int& minChannelId,
-			  int& maxChannelId) const;
+			  int& maxChannelId) const override;
 
-  // give phi-range which a ROD covers  
+  // give phi-range which a ROD covers
+  virtual
   bool getCoveragefromRodID(const int rodID,
 			    double & startPhi,
-			    double & endPhi) const;
+			    double & endPhi) const override;
 
+  virtual
   bool getCoveragefromRodID(const int rodID,
 			    int & startEndcapSector,
 			    int & coverageOfEndcapSector,
 			    int & startForwardSector,
-			    int & coverageOfForwardSector) const;
+			    int & coverageOfForwardSector) const override;
 
 
   // Readout ID is ored
+  virtual
   bool isOredChannel(const int subDetectorID,
 		     const int rodID,
 		     const int sswID,
 		     const int sbLoc,
-		     const int channelID) const;
+		     const int channelID) const override;
 
 
   // Offline ID has adjacent Readout ID
-  bool hasAdjacentChannel(const Identifier & offlineID) const;
+  virtual 
+  bool hasAdjacentChannel(const Identifier & offlineID) const override;
 
 
   // Online ID has adjacent Readout ID
+  virtual
   bool hasAdjacentChannel(const int subsystemNumber,
 			  const int octantNumber,
 			  const int moduleNumber,
 			  const int layerNumber,
 			  const int rNumber,
 			  const int wireOrStrip,
-			  const int channelNumber) const;
+			  const int channelNumber) const override;
 
 
   // readout IDs -> offline IDs
+  virtual
   bool getOfflineIDfromReadoutID(Identifier & offlineID,
 				 const int subDetectorID,
 				 const int rodID,
 				 const int sswID,
 				 const int sbLoc,
 				 const int channelID,
-				 bool orChannel=false) const;
+				 bool orChannel=false) const override;
 
   
   // offline IDs -> readout IDs
+  virtual
   bool getReadoutIDfromOfflineID(const Identifier & offlineID,
 				 int & subDetectorID,
 				 int & rodID,
 				 int & sswID,
 				 int & sbLoc,
 				 int & channelID,
-				 bool adChannel=false) const;
+				 bool adChannel=false) const override;
 
   // offline ID -> online IDs
+  virtual
   bool getOnlineIDfromOfflineID(const Identifier & offlineID,
 				int & subsystemNumber,
 				int & octantNumber,
@@ -114,9 +123,10 @@ class MuonTGC_CablingSvc : public ITGCcablingSvc
 				int & layerNumber,
 				int & rNumber,
 				int & wireOrStrip,
-				int & channelNumber) const;
+				int & channelNumber) const override;
 
   // online IDs -> offline ID
+  virtual
   bool getOfflineIDfromOnlineID(Identifier & offlineID,
 				const int subsystemNumber,
 				const int octantNumber,
@@ -124,9 +134,10 @@ class MuonTGC_CablingSvc : public ITGCcablingSvc
 				const int layerNumber,
 				const int rNumber,
 				const int wireOrStrip,
-				const int channelNumber) const;
+				const int channelNumber) const override;
 
   // readout IDs -> online IDs
+  virtual
   bool getOnlineIDfromReadoutID(const int subDetectorID,
 				const int rodID,
 				const int sswID,
@@ -139,9 +150,10 @@ class MuonTGC_CablingSvc : public ITGCcablingSvc
 				int & rNumber,
 				int & wireOrStrip,
 				int & channelNumber,
-				bool orChannel=false) const;
+				bool orChannel=false) const override;
 
   // online IDs -> readout IDs
+  virtual
   bool getReadoutIDfromOnlineID(int & subDetectorID,
 				int & rodID,
 				int & sswID,
@@ -154,23 +166,26 @@ class MuonTGC_CablingSvc : public ITGCcablingSvc
 				const int rNumber,
 				const int wireOrStrip,
 				const int channelNumber,
-				bool adChannel=false) const;
+				bool adChannel=false) const override;
   
   // element ID -> readout IDs
+  virtual
   bool getReadoutIDfromElementID(const Identifier & elementID,
 				 int & subdetectorID,
-				 int & rodID) const;
+				 int & rodID) const override;
   
   // readout IDs -> element ID
+  virtual
   bool getElementIDfromReadoutID(Identifier & elementID,
 				 const int subDetectorID,
 				 const int rodID,
 				 const int sswID,
 				 const int sbLoc,
 				 const int channelID,
-				 bool orChannel=false) const;
+				 bool orChannel=false) const override;
 
   // HPT ID -> readout ID
+  virtual
   bool getReadoutIDfromHPTID(const int phi,
 			     const bool isAside,
 			     const bool isEndcap,
@@ -179,9 +194,10 @@ class MuonTGC_CablingSvc : public ITGCcablingSvc
 			     int & subsectorID,
 			     int & rodID,
 			     int & sswID,
-			     int & sbLoc) const;
+			     int & sbLoc) const override;
 
   // readout ID -> SLB ID
+  virtual
   bool getSLBIDfromReadoutID(int &phi,
 			     bool & isAside,
 			     bool & isEndcap,
@@ -190,23 +206,26 @@ class MuonTGC_CablingSvc : public ITGCcablingSvc
 			     const int subsectorID,
 			     const int rodID,
 			     const int sswID,
-			     const int sbLoc) const;
+			     const int sbLoc) const override;
 
   // readout ID -> slbAddr
+  virtual
   bool getSLBAddressfromReadoutID(int & slbAddr,
 				  const int subsectorID,
 				  const int rodID,
 				  const int sswID,
-				  const int sbLoc) const;
+				  const int sbLoc) const override;
 
   // readout ID -> RxID
+  virtual
   bool getRxIDfromReadoutID(int & rxId,
 			    const int subsectorID,
 			    const int rodID,
 			    const int sswID,
-			    const int sbLoc) const;
+			    const int sbLoc) const override;
   
   // ROD_ID / SSW_ID / RX_ID -> SLB ID
+  virtual
   bool getSLBIDfromRxID(int &phi,
 			bool & isAside,
 			bool & isEndcap,
@@ -215,9 +234,10 @@ class MuonTGC_CablingSvc : public ITGCcablingSvc
 			const int subsectorID,
 			const int rodID,
 			const int sswID,
-			const int rxId) const;
+			const int rxId) const override;
 
   // SLB ID -> readout ID
+  virtual
   bool getReadoutIDfromSLBID(const int phi,
 			     const bool isAside,
 			     const bool isEndcap,
@@ -226,39 +246,43 @@ class MuonTGC_CablingSvc : public ITGCcablingSvc
 			     int & subsectorID,
 			     int & rodID,
 			     int & sswID,
-			     int & sbLoc) const;
+			     int & sbLoc) const override;
   
   // readout ID -> SL ID
+  virtual
   bool getSLIDfromReadoutID(int & phi,
 			    bool & isAside,
 			    bool & isEndcap,
 			    const int subsectorID,
 			    const int rodID,
 			    const int sswID,
-			    const int sbLoc) const;
+			    const int sbLoc) const override;
 
   // SL ID -> readout ID
+  virtual
   bool getReadoutIDfromSLID(const int phi,
 			    const bool isAside,
 			    const bool isEndcap,
 			    int & subsectorID,
 			    int & rodID,
 			    int & sswID,
-			    int & sbLoc) const;
+			    int & sbLoc) const override;
 
   // HighPtID used in Simulation -> HighPtID in RDO
+  virtual
   bool getRDOHighPtIDfromSimHighPtID(const bool isForward,
                                      const bool isStrip,
                                      int & index,
                                      int & chip,
-                                     int & hitId) const;
+                                     int & hitId) const override;
  
   // HighPtID in RDO -> HighPtID used in Simulation
+  virtual
   bool getSimHighPtIDfromRDOHighPtID(const bool isForward,
                                      const bool isStrip,
                                      int & index,
                                      int & chip,
-                                     int & hitId) const;
+                                     int & hitId) const override;
 
 
   // high pt coincidence IDs -> offline IDs
@@ -272,7 +296,7 @@ class MuonTGC_CablingSvc : public ITGCcablingSvc
 				  const int hpb,
 				  const int chip,
 				  const int hitID,
-				  const int pos ) const ;
+				  const int pos ) const override;
 
   // offline IDs -> high pt coincidence IDs
   virtual 
@@ -285,7 +309,7 @@ class MuonTGC_CablingSvc : public ITGCcablingSvc
 				  int & hpb,
 				  int & chip,
 				  int & hitID,
-				  int & pos) const;
+				  int & pos) const override;
 
   // HPT HitID -> ROI Number
   virtual 
@@ -297,7 +321,7 @@ class MuonTGC_CablingSvc : public ITGCcablingSvc
 				  int sub_wire,
 				  int chip_strip,
 				  int hitId_strip,
-				  int sub_strip) const;
+				  int sub_strip) const override;
 
   // HPT HitID -> ROI Number
   virtual
@@ -307,7 +331,7 @@ class MuonTGC_CablingSvc : public ITGCcablingSvc
 				   int & hpb,
 				   int & chip,
 				   int & hitID,
-				   int & sub) const;
+				   int & sub) const override;
   
   // low pt coincidence IDs -> offline IDs
   virtual
@@ -318,7 +342,7 @@ class MuonTGC_CablingSvc : public ITGCcablingSvc
 					    const int sbLoc,
 					    const int block,
 					    const int pos,
-					    bool middle=false) const;
+					    bool middle=false) const override;
   
   // offline IDs -> low pt coincidence IDs
   virtual 
@@ -329,7 +353,7 @@ class MuonTGC_CablingSvc : public ITGCcablingSvc
 					    int & sbLoc,
 					    int & block,
 					    int & pos, 
-					    bool middle=false) const;
+					    bool middle=false) const override;
 
 
   /////////////////////////////////////////////////////////////
@@ -347,13 +371,13 @@ class MuonTGC_CablingSvc : public ITGCcablingSvc
   ///////////////////////  
 
  private:
-  mutable MuonTGC_Cabling::TGCCabling* m_cabling;
+  MuonTGC_Cabling::TGCCabling* m_cabling;
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   ToolHandle<ITGCCablingDbTool> m_condDataTool{this,"TGCCablingDbTool","TGCCablingDbTool"};
 };
 
 
-inline TGCCablingBase* MuonTGC_CablingSvc::getTGCCabling(void) const
+inline const TGCCablingBase* MuonTGC_CablingSvc::getTGCCabling(void) const
 {
   return m_cabling;
 }  

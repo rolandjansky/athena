@@ -8,7 +8,6 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "CoralBase/AttributeListException.h"
 
-#include "EventInfo/EventInfo.h"
 #include "EventInfo/EventType.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventStreamInfo.h"
@@ -164,16 +163,14 @@ StatusCode HepMCWeightSvc::setWeightNames (const std::map<std::string, std::size
       //use the run-number as the 'channel' ... all weightnames should be the same for the same channel 
 
       //set the start time ... do we set the stop time?  
-      const EventInfo* evt = 0;
-      ServiceHandle<StoreGateSvc> evtStore("StoreGateSvc/StoreGateSvc",name());
-      CHECK( evtStore->retrieve(evt) );
+      const EventContext& ctx{Gaudi::Hive::currentContext()};
       //IOVTime evtTime;
       //evtTime.setRunEvent(evt->event_ID()->run_number(), evt->event_ID()->lumi_block());
       //uint64_t nsTime=evt->event_ID()->time_stamp()*1000000000LL;
       //nsTime += evt->event_ID()->time_stamp_ns_offset();
       //evtTime.setTimestamp(nsTime);
       //cont->addNewStart(evtTime);
-      bool add_status ATLAS_THREAD_SAFE = cont->add(evt->event_ID()->run_number(),myAttributes);
+      bool add_status ATLAS_THREAD_SAFE = cont->add(ctx.eventID().run_number(),myAttributes);
       if (!add_status)
 	ATH_MSG_INFO("Failed to add AttributeList for weight " << stringToStore);
 

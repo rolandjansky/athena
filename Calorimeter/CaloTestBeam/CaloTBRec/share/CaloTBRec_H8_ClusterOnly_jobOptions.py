@@ -18,7 +18,6 @@ CaloTopoClusterEMMaker.TopoCluster.CalorimeterNames=[
 CaloTopoClusterEMMaker.TopoCluster.SeedSamplingNames = [
 	  "PreSamplerB", "EMB1", "EMB2", "EMB3",
 	  "PreSamplerE", "EME1", "EME2", "EME3"]
-CaloTopoClusterEMMaker.TopoCluster.UseCaloNoiseTool=FALSE
 CaloTopoClusterEMMaker.TopoCluster.UsePileUpNoise=FALSE
 CaloTopoClusterEMMaker.TopoCluster.NeighborOption                 = "all3D"
 CaloTopoClusterEMMaker.TopoCluster.NoiseSigma                     = 200.0*MeV

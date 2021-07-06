@@ -12,6 +12,7 @@
 #include "G4AtlasTools/DetectorFieldManagerTool.h"
 #include "../G4ThreadInitTool.h"
 #include "../MaterialDescriptionTool.h"
+#include "../SmartlessnessTool.h"
 
 DECLARE_COMPONENT( DetectorGeometryBase )
 DECLARE_COMPONENT( CylindricalEnvelope )
@@ -27,3 +28,4 @@ DECLARE_COMPONENT( GlobalFieldManagerTool )
 DECLARE_COMPONENT( DetectorFieldManagerTool )
 DECLARE_COMPONENT( G4ThreadInitTool )
 DECLARE_COMPONENT( MaterialDescriptionTool )
+DECLARE_COMPONENT( SmartlessnessTool )

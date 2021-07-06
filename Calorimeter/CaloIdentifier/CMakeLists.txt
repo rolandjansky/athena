@@ -43,14 +43,14 @@ atlas_add_executable( caloCellLookup
 #                SOURCES
 #                test/GTower_ID_test.cxx
 #                INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-#                LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CaloGeoHelpers AthenaKernel AtlasDetDescr IdDict Identifier GaudiKernel TestTools CxxUtils StoreGateLib SGtests IdDictParser PathResolver CaloIdentifier
+#                LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CaloGeoHelpers AthenaKernel AtlasDetDescr IdDict Identifier GaudiKernel TestTools CxxUtils StoreGateLib IdDictParser PathResolver CaloIdentifier
 #                LOG_IGNORE_PATTERN "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
 
 #atlas_add_test( JTower_ID_test
 #                SOURCES
 #                test/JTower_ID_test.cxx
 #                INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-#                LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CaloGeoHelpers AthenaKernel AtlasDetDescr IdDict Identifier GaudiKernel TestTools CxxUtils StoreGateLib SGtests IdDictParser PathResolver CaloIdentifier
+#                LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CaloGeoHelpers AthenaKernel AtlasDetDescr IdDict Identifier GaudiKernel TestTools CxxUtils StoreGateLib IdDictParser PathResolver CaloIdentifier
 #                LOG_IGNORE_PATTERN "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
 
 atlas_add_test( LArEM_ID_test

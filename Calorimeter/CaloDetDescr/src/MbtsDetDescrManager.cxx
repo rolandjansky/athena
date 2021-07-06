@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloDetDescr/MbtsDetDescrManager.h"
@@ -21,9 +21,9 @@ MbtsDetDescrManager::MbtsDetDescrManager():
 
 MbtsDetDescrManager::~MbtsDetDescrManager()
 {
-  MbtsElements::iterator it = m_elements.begin();
-  for(;it!=m_elements.end();it++) 
-    delete it->second;
+  for (auto& p : m_elements) {
+    delete p.second;
+  }
 }
 
 CaloDetDescrElement* MbtsDetDescrManager::get_element(const Identifier& elementId) const

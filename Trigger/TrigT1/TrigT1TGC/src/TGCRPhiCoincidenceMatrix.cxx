@@ -67,10 +67,9 @@ TGCRPhiCoincidenceOut* TGCRPhiCoincidenceMatrix::doCoincidence()
   out->setIdSSC(m_SSCId);
 
   int j0 = -1;
-  int ptMax=-1;
+  int ptMax = 1;
   for( int j=m_nPhiHit-1; j>=0; j-=1){     // left half-SSC has priority when both output same pT
     int subsector;
-    int ptOut = -99;
     int chargeOut = 2;
     int CoincidenceTypeOut=-1;
 
@@ -80,36 +79,36 @@ TGCRPhiCoincidenceOut* TGCRPhiCoincidenceMatrix::doCoincidence()
       subsector = 4*(2*m_SSCId+m_r)+m_phi[j];
     }
     
-
     int type = m_map->getMapType(m_ptR, m_ptPhi[j]);
+
     // calculate pT of muon candidate
+    uint8_t ptOut = 0;   // 0 is no candidate.
     if(tgcArgs()->useRun3Config()){
       //Algorithm for Run3
       int pt=m_map->test_Run3(m_sectorLogic->getOctantID(),m_sectorLogic->getModuleID(),
                             subsector,type,m_dR,m_dPhi[j]); // this function will be implemented. 
       ptOut = std::abs(pt);
       chargeOut = pt<0 ? 0:1;
-      
+      // the charge is inverted on the C-side.
+      chargeOut = m_sideId == 0 ? chargeOut : !chargeOut; 
+
       CoincidenceTypeOut=(type==0);
-    }
-    else{
-      for( int pt=NumberOfPtLevel-1; pt>=0; pt-=1){
-	if(m_map->test(m_sectorLogic->getOctantID(),m_sectorLogic->getModuleID(),subsector,
-		       type, pt,
-		       m_dR,m_dPhi[j])) {
-	  ptOut = pt;
-	  break;
-	}
-      } // loop pt
+
+    } else {    // for Run-2
+      ptOut = m_map->test(m_sectorLogic->getOctantID(),
+                          m_sectorLogic->getModuleID(), subsector,
+                          type, m_dR, m_dPhi[j]);
     }
 
-    // Trigger Out
-    if( ptOut >= ptMax ){
+    // Trigger Out (only pT>0 candidate
+    if(ptOut >= ptMax) {
       ptMax = ptOut;
       out->clear();    
       out->setIdSSC(m_SSCId);
-      if(!tgcArgs()->useRun3Config()){out->setHit(ptMax+1);}// for Run2 Algo
-      else{out->setpT(ptMax);}// for Run3 Algo
+
+      if(!tgcArgs()->useRun3Config()) out->setHit(ptMax);  // for Run2 Algo
+      else                            out->setpT(ptMax);   // for Run3 Algo
+
       out->setR(m_r);
       out->setPhi(m_phi[j]);
       out->setDR(m_dR);
@@ -150,7 +149,7 @@ void TGCRPhiCoincidenceMatrix::setRPhiMap(const TGCRPhiCoincidenceMap* map)
 TGCRPhiCoincidenceMatrix::TGCRPhiCoincidenceMatrix(const TGCArguments* tgcargs,const TGCSectorLogic* sL)
   : m_sectorLogic(sL),
     m_matrixOut(0), m_map(0),
-    m_nPhiHit(0), m_SSCId(0), m_r(0), m_dR(0), m_ptR(0), m_tgcArgs(tgcargs)
+    m_nPhiHit(0), m_SSCId(0), m_r(0), m_dR(0), m_ptR(0), m_sideId(0), m_tgcArgs(tgcargs)
 {
   for (int i=0; i<MaxNPhiHit; i++) {
     m_phi[i]=0;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -54,8 +54,8 @@ namespace LVL1 {
     virtual std::unique_ptr<eFEXegTOB> geteFEXegTOB() override;
     virtual unsigned int getET() override;
     virtual void getWindowET(int layer, int jPhi, int SCID, unsigned int &) override;
-    virtual bool haveSeed() override {return m_haveseed;};
-  
+    virtual bool hasSeed() override {return m_hasSeed;};
+    virtual unsigned int getSeed() override {return m_seedID;};
     virtual void getCoreEMTowerET(unsigned int & et) override;
     virtual void getCoreHADTowerET(unsigned int & et) override;
   private:
@@ -63,7 +63,7 @@ namespace LVL1 {
     bool m_seed_UnD = false; 
     unsigned int m_seedID = 999;
     int m_eFEXegAlgoTowerID[3][3];
-    bool m_haveseed;
+    bool m_hasSeed;
 
     SG::ReadHandleKey<LVL1::eTowerContainer> m_eFEXegAlgo_eTowerContainerKey {this, "MyETowers", "eTowerContainer", "Input container for eTowers"};
 

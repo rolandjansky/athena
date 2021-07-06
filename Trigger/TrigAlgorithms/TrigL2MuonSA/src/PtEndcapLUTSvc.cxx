@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ISvcLocator.h"
@@ -15,20 +15,6 @@
 TrigL2MuonSA::PtEndcapLUTSvc::PtEndcapLUTSvc(const std::string& name, ISvcLocator* sl) :
   AthService(name,sl)
 {
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigL2MuonSA::PtEndcapLUTSvc::queryInterface(const InterfaceID& riid, void** ppvIF)
-{
-  if (TrigL2MuonSA::PtEndcapLUTSvc::interfaceID().versionMatch(riid)) {
-    *ppvIF = (PtEndcapLUTSvc*)this;
-    return StatusCode::SUCCESS;
-  } else {
-    ATH_MSG_DEBUG(name() << " cannot find the interface! Query the interface of the base class.");
-    return AthService::queryInterface(riid, ppvIF);
-  }
 }
 
 // --------------------------------------------------------------------------------

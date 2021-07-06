@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArTCMPhysWavePredictor.h"
@@ -9,6 +9,7 @@
 
 #include "LArRawConditions/LArCaliWaveContainer.h"
 #include "LArRawConditions/LArPhysWaveContainer.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 
 #include <iostream>
 #include <fstream>
@@ -358,7 +359,7 @@ StatusCode LArTCMPhysWavePredictor::stop()
 	  
 	  unsigned ndac = 0 ;
 	  
-	  for (;cont_it!=cont_it_e;cont_it++) { // Loop over available DAC wavwsvalues for the given cell
+	  for (;cont_it!=cont_it_e;++cont_it) { // Loop over available DAC wavwsvalues for the given cell
 	      
 	      const LArCaliWave& larCaliWave = (*cont_it);
 	      int dac = larCaliWave.getDAC() ;

@@ -6,7 +6,7 @@ from .TypeWideThresholdConfig import getTypeWideThresholdConfig
 import L1TopoAlgorithms.L1TopoAlgConfig as AlgConf
 import L1TopoHardware.L1TopoHardware as HW
 from AthenaCommon.Logging import logging
-log = logging.getLogger('Menu.L1.Config.TopoAlgoDefLegacy')
+log = logging.getLogger(__name__)
 
 class TopoAlgoDefLegacy:
 
@@ -23,7 +23,7 @@ class TopoAlgoDefLegacy:
         alg.addvariable('IsoMask', 0)
         tm.registerTopoAlgo(alg)  
 
-                                
+
         alg = AlgConf.ClusterSelect( name = 'TAUabi', inputs = 'ClusterTobArray', outputs = 'TAUabi', algoId = 1 )
         alg.addgeneric('InputWidth',  HW.InputWidthTAU)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSelectTAU )

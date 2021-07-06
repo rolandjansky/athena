@@ -1,10 +1,8 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file egammaD3PDAnalysis/src/egammaTruthAlg.h
  * @author scott snyder <snyder@bnl.gov>
@@ -111,7 +109,8 @@ private:
   float m_photonEtIsoMax;
 
   /// Property: Extrapolation tool to calorimeter.
-  ToolHandle<Trk::IParticleCaloExtensionTool> m_exten;
+  ToolHandle<Trk::IParticleCaloExtensionTool> m_exten
+  { this, "ParticleCaloExtensionTool", "", "Extrapolator to calorimeter." };
 };
 
 

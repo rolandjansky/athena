@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -31,7 +31,7 @@ using namespace std;
 using namespace pool;
 
 
-CollAppendBase::CollAppendBase(std::string name) :
+CollAppendBase::CollAppendBase(const std::string& name) :
       m_thisProgram( name ),
       m_provName("SourceFID_ref"),
       m_provCLID("6F6A12A0-FEEF-484B-9691-94B82B90CDBA"),
@@ -70,7 +70,7 @@ void CollAppendBase::setMetaInfo( MetaInfo* minfo )
       m_log << coral::Error
             << "CollAppendBase::setMetaInfo() can not be used after init()"
             <<  coral::MessageStream::endmsg;
-      exit(51);
+      std::abort();
    }
    delete m_metainfo;
    m_metainfo = minfo;
@@ -276,7 +276,7 @@ pool::CollectionDescription
 CollAppendBase::buildDstDesc(const pool::ICollectionDescription& sourceDesc
                              ,const pool::TokenList &tokens
 			     ,const coral::AttributeList& attribs
-                             ,const string queryopt
+                             ,const string& queryopt
 			     )
 {
    // find which will be the Primary Token in the output collection

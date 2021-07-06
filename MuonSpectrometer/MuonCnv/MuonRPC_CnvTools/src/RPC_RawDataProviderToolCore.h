@@ -11,7 +11,6 @@
 #include "MuonRDO/RpcSectorLogicContainer.h"
 #include "RPC_CondCabling/RpcCablingCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
-#include "RPCcablingInterface/CablingRPCBase.h"
 #include "MuonRPC_CnvTools/IRpcROD_Decoder.h"
 #include "ByteStreamData/RawEvent.h"
 

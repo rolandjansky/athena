@@ -193,9 +193,7 @@ class CondDB:
             if not hasattr (svcMgr, 'PoolSvc'):
                 svcMgr+=PoolSvc()
             # add the standard catalogues
-            for i in self.poolcats:
-                svcMgr.PoolSvc.ReadCatalog+=["prfile:poolcond/PoolCat_%s.xml" % i]
-            # also add entries which will be resolved using ATLAS_POOLCOND_PATH
+            # Set entries which will be resolved using ATLAS_POOLCOND_PATH
             # (if set) - the actual resolution is done inside PoolSvc C++
             for i in self.poolcats:
                 svcMgr.PoolSvc.ReadCatalog+=["apcfile:poolcond/PoolCat_%s.xml" % i]

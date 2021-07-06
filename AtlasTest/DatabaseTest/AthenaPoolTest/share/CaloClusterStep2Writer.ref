@@ -115,7 +115,6 @@ Athena               INFO including file "LArConditionsCommon/LArIdMap_MC_jobOpt
 Athena               INFO including file "LArCondAthenaPool/LArCondAthenaPool_joboptions.py"
 ApplicationMgr       INFO Successfully loaded modules : 
 Athena               INFO including file "LArRawConditions/LArRawConditionsDict_joboptions.py"
-Athena               INFO including file "CaloTools/CaloNoiseTool_jobOptions.py"
 ClassIDSvc           INFO  getRegistryEntries: read 2617 CLIDRegistry entries for module CaloTools
 ApplicationMgr       INFO Successfully loaded modules : CaloTools
 Athena              ERROR inconsistent case used in property name "DLLs" of ApplicationMgr
@@ -134,8 +133,6 @@ Athena               INFO including file "TileConditions/TileConditions_jobOptio
 ClassIDSvc           INFO  getRegistryEntries: read 3657 CLIDRegistry entries for module TileConditions
 ApplicationMgr       INFO Successfully loaded modules : TileConditions
 Athena               INFO including file "TileConditions/TileNoiseOn_jobOptions.py"
-Athena               INFO including file "LArCalibUtils/LArOFCTool_jobOptions.py"
-Athena               INFO including file "LArCalibUtils/LArAutoCorrTotalTool_jobOptions.py"
 Athena               INFO including file "BFieldAth/BFieldAth_jobOptions.py"
 ClassIDSvc           INFO  getRegistryEntries: read 3657 CLIDRegistry entries for module BFieldAth
 ApplicationMgr       INFO Successfully loaded modules : BFieldAth

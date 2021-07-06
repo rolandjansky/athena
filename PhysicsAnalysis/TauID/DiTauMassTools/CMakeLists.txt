@@ -1,7 +1,16 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare a name for the package:
 atlas_subdir( DiTauMassTools )
+
+# Extra dependencies based on the environment:
+set( extra_dep )
+if( XAOD_STANDALONE )
+   set( extra_dep Control/xAODRootAccess
+      Control/AthContainers
+      Event/xAOD/xAODJet )
+else()
+   set( extra_dep GaudiKernel )
+endif()
 
 # Find the external(s):
 find_package( ROOT COMPONENTS Core RIO Math Physics )
@@ -11,13 +20,13 @@ atlas_add_library( DiTauMassToolsLib
    DiTauMassTools/*.h Root/*.cxx
    PUBLIC_HEADERS DiTauMassTools
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools PATInterfaces xAODMissingET xAODEventInfo xAODBase
-   PRIVATE_LINK_LIBRARIES xAODTau )
+   LINK_LIBRARIES AsgTools PATInterfaces xAODMissingET xAODEventInfo xAODBase xAODTau
+   PRIVATE_LINK_LIBRARIES PathResolver )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( DiTauMassTools
       src/components/*.cxx
-      LINK_LIBRARIES DiTauMassToolsLib )
+      LINK_LIBRARIES GaudiKernel DiTauMassToolsLib )
 endif()
 
 atlas_add_dictionary( DiTauMassToolsDict
@@ -27,17 +36,18 @@ atlas_add_dictionary( DiTauMassToolsDict
 
 # Test(s) in the package:
 if( XAOD_STANDALONE )
-   # FIX ME: temporarily disabled as part of the migration of AnalysisBase
-   #         to master
+   atlas_add_test( missingmasstool_test
+      SOURCES test/ut_ditaumasstools_missingmasstool_test.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools AthContainers xAODEventInfo xAODJet
+      xAODTau xAODMissingET xAODRootAccess DiTauMassToolsLib )
 
-   # atlas_add_test( missingmasstool_test
-   #    SOURCES test/ut_ditaumasstools_missingmasstool_test.cxx
-   #    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   #    LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers xAODEventInfo xAODJet
-   #    xAODTau xAODMissingET xAODRootAccess DiTauMassToolsLib )
+   atlas_add_test( missingmasstoolv2_test
+      SOURCES test/ut_ditaumasstools_missingmasstoolv2_test.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools AthContainers xAODEventInfo xAODJet
+      xAODTau xAODMissingET xAODRootAccess DiTauMassToolsLib )  
 
-   # atlas_add_test( missingmasstool_test_python
-   #    SCRIPT test/ut_ditaumasstools_missingmasstool_test_python.py )
 endif()
 
 atlas_add_test( mmcTest

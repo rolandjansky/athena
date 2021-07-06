@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """ Flags for monitoring chains """
 
@@ -21,13 +21,5 @@ class MonitorSlice(JobPropertyContainer, CommonSignatureHelper):
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 TriggerFlags.add_Container(MonitorSlice)
 
-## add add common slice flags
-#TriggerFlags.MonitorSlice.import_JobProperties('TriggerJobOpts.CommonSignatureFlags')
-
 for flag in _flags:
     TriggerFlags.MonitorSlice.add_JobProperty(flag)
-del _flags
-
-## make an alias
-MonitorSliceFlags = TriggerFlags.MonitorSlice
-

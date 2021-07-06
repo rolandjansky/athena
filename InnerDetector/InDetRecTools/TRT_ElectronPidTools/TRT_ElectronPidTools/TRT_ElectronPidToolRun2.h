@@ -11,7 +11,6 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"       // Exchange IN
 
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadCondHandleKey.h"

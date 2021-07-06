@@ -237,7 +237,7 @@ class AtlRunQueryOptions:
     
     def splitCmdline(self,argstring):
         arg = argstring.split()
-        m = zip([x for x in range(len(arg)) if arg[x][0]=='"'],[x for x in range(len(arg)) if arg[x][-1]=='"'])
+        m = list(zip([x for x in range(len(arg)) if arg[x][0]=='"'],[x for x in range(len(arg)) if arg[x][-1]=='"']))
         m.reverse()
         for p in m:
             if p[0]==p[1]:

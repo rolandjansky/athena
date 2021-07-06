@@ -82,9 +82,9 @@ void test1 (SGTest::TestStore& store)
 #ifdef HEPMC3
   //Signal process id is obsolete in HepMC3
   evcoll->push_back (std::make_unique<HepMC::GenEvent>());
-  evcoll.back()->set_event_number(4);
+  evcoll->back()->set_event_number(4);
   evcoll->push_back (std::make_unique<HepMC::GenEvent>());
-  evcoll.back()->set_event_number(5);
+  evcoll->back()->set_event_number(5);
   auto ge = std::make_unique<HepMC::GenEvent>();
   ge->set_event_number(7);
   auto gv = HepMC::newGenVertexPtr();

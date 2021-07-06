@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TriggerMatchingTool/MatchingTool.h"
@@ -17,13 +17,12 @@ MatchingTool::MatchingTool(const std::string& name) :
   m_matchingThreshold(0)
 {
   declareProperty( "TrigDecisionTool", m_trigDecTool);
-
 }
 
 #ifndef XAOD_STANDALONE
 void MatchingTool::updateThreshold(Gaudi::Details::PropertyBase& /*p*/) {
    ATH_MSG_DEBUG("Matching Threshold is updated to:" << m_matchingThreshold);
-   impl()->setThreshold( m_matchingThreshold );
+   m_impl->setThreshold( m_matchingThreshold );
 }
 #endif
 
@@ -32,7 +31,7 @@ MatchingTool::~MatchingTool(){
 }
 
 StatusCode MatchingTool::initialize() {
-  impl()->setThreshold( m_matchingThreshold );
+  m_impl->setThreshold( m_matchingThreshold );
 
   ATH_CHECK( m_trigDecTool.retrieve() );
 
@@ -162,7 +161,7 @@ StatusCode MatchingTool::initialize() {
   return result;
 }
 
-Trig::MatchingImplementation* MatchingTool::impl() const {
+const Trig::MatchingImplementation* MatchingTool::impl() const {
   return m_impl;
 }
 

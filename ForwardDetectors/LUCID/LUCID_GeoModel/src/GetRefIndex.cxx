@@ -11,15 +11,6 @@
 #include "GetRefIndex.h"
 #include "GaudiKernel/PhysicalConstants.h"
 
-double GetRefIndexGas(double lambda, double pressure, double temperature) {
-    
-  double e  = 2.*M_PI*Gaudi::Units::hbarc/(Gaudi::Units::eV*Gaudi::Units::nm)/lambda;
-  double e0 = 17;
-  double k  = 0.25938;
-  double x  = k*pressure/temperature/(1 - pow(e/e0, 2));
-
-  return sqrt((2*x + 1.)/(1. - x));
-}
 
 double GetRefIndexQuartz(double lambda) {
       

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCONFDATA_L1THRESHOLDBASE_H
@@ -50,7 +50,7 @@ namespace TrigConf {
       };
    public:
       typedef typename std::vector<RangeValue>::const_iterator const_iterator;
-      ValueWithEtaDependence(const std::string name) : m_name(name) {};
+      ValueWithEtaDependence(const std::string& name) : m_name(name) {};
       const std::string & name() const { return m_name; }
       bool empty() const;
       size_t size() const;

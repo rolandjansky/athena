@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: PerfStats.cxx 634033 2014-12-05 14:46:38Z krasznaa $
 
 // ROOT include(s):
 #include <TTree.h>
@@ -20,7 +18,7 @@ ClassImp( xAOD::PerfStats )
 namespace xAOD {
 
    // Initialize the static variable(s):
-   PerfStats* PerfStats::s_instance = 0;
+   PerfStats* PerfStats::s_instance = nullptr;
    std::mutex PerfStats::s_mutex;
 
    /// The destructor is a quite important function in this class.
@@ -33,7 +31,7 @@ namespace xAOD {
       // Since this object can only be deleted by deleting the global
       // gPerfStats object, make sure that all the objects get deleted
       // if the user asked for it...
-      s_instance = 0;
+      s_instance = nullptr;
       if( m_otherPerfStats ) {
          delete m_otherPerfStats;
       }
@@ -332,8 +330,8 @@ namespace xAOD {
    /// gPerfStats to point to this object.
    ///
    PerfStats::PerfStats()
-      : m_otherPerfStats( 0 ), m_running( false ), m_startTime( 0.0 ),
-        m_tree( 0 ), m_file( 0 ), m_treeWarningPrinted( false ) {
+      : m_otherPerfStats( nullptr ), m_running( false ), m_startTime( 0.0 ),
+        m_tree( nullptr ), m_file( nullptr ), m_treeWarningPrinted( false ) {
 
       // locked via instance().
 
@@ -347,5 +345,15 @@ namespace xAOD {
       // This object is now the performance monitoring object:
       gPerfStats = this;
    }
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION( 6, 23, 2 )
+   /// Note that this is a private function in @c TVirtualPerfStats, so it is
+   /// not forwarded to @c m_otherPerfStats.
+   ///
+   void PerfStats::SetFile( TFile* file ) {
+
+      m_file = file;
+   }
+#endif // ROOT version
 
 } // namespace xAOD

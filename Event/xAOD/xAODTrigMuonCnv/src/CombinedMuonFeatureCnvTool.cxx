@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id:$
@@ -23,16 +23,6 @@ namespace xAODMaker {
         // Declare the interface(s) provided by the tool:
         declareInterface< ICombinedMuonFeatureCnvTool >( this );
     }
-    
-    StatusCode CombinedMuonFeatureCnvTool::initialize() {
-        
-        // Greet the user:
-        ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
-        
-        // Return gracefully:
-        return StatusCode::SUCCESS;
-    }
-    
     
     StatusCode CombinedMuonFeatureCnvTool::convert( const CombinedMuonFeature* aod,
                                            xAOD::L2CombinedMuon* xaod ) const {

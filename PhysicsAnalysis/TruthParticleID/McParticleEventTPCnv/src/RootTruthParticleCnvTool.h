@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MCPARTICLEEVENTTPCNV_ROOTTRUTHPARTICLECNVTOOL_H
@@ -18,8 +18,8 @@ public:
   /// @{
 
   /// A hook for Athena algorithms
-  virtual StatusCode execute() const;
-  virtual StatusCode execute (const EventContext& ctx) const;
+  virtual StatusCode execute() const override;
+  virtual StatusCode execute (const EventContext& ctx) const override;
 
   /** Converts a @c McEventCollection into an @c TruthParticleContainer (ie:
    *  converts it into an AOD compliant collection).
@@ -29,10 +29,11 @@ public:
    *  @out mcParts a valid pointer to a @c TruthParticleContainer which will
    *       be filled with adaptors to @c HepMC::GenParticles.
    */
+  virtual
   StatusCode convert( const McEventCollection* mcEvts,
                       const unsigned int genEvtIndex,
                       TruthParticleContainer* mcParts,
-                      const ITruthParticleVisitor* visitor ) const;
+                      const ITruthParticleVisitor* visitor ) const override;
 
   /// @}
 
@@ -44,49 +45,49 @@ public:
   /// @name Function(s) inherited from IInterface
   /// @{
   virtual StatusCode queryInterface( const InterfaceID& riid,
-                                     void** ppvInterface );
-  virtual unsigned long addRef();
-  virtual unsigned long release();
-  virtual unsigned long refCount() const;
+                                     void** ppvInterface ) override;
+  virtual unsigned long addRef() override;
+  virtual unsigned long release() override;
+  virtual unsigned long refCount() const override;
   /// @}
 
   /// @name Function(s) inherited from IProperty
   /// @{
-  virtual StatusCode setProperty( const std::string& s );
-  virtual StatusCode setProperty( const std::string& name, const Gaudi::Details::PropertyBase& p );
-  virtual StatusCode setPropertyRepr( const std::string& n, const std::string& r );
+  virtual StatusCode setProperty( const std::string& s ) override;
+  virtual StatusCode setProperty( const std::string& name, const Gaudi::Details::PropertyBase& p ) override;
+  virtual StatusCode setPropertyRepr( const std::string& n, const std::string& r ) override;
 
-  virtual StatusCode getProperty( Gaudi::Details::PropertyBase* p ) const;
-  virtual const Gaudi::Details::PropertyBase& getProperty( const std::string& name ) const;
-  virtual StatusCode getProperty( const std::string& n, std::string& v ) const;
-  virtual const std::vector<Gaudi::Details::PropertyBase*>& getProperties( ) const;
-  virtual bool hasProperty(const std::string& name) const;
+  virtual StatusCode getProperty( Gaudi::Details::PropertyBase* p ) const override;
+  virtual const Gaudi::Details::PropertyBase& getProperty( std::string_view name ) const override;
+  virtual StatusCode getProperty( std::string_view n, std::string& v ) const override;
+  virtual const std::vector<Gaudi::Details::PropertyBase*>& getProperties( ) const override;
+  virtual bool hasProperty(std::string_view name) const override;
   /// @}
 
   /// @name Function(s) inherited from IAlgTool
   /// @{
-  virtual const std::string& type() const;
-  virtual const IInterface* parent() const;
-  virtual StatusCode configure();
-  virtual StatusCode initialize();
-  virtual StatusCode sysInitialize();
-  virtual StatusCode reinitialize();
-  virtual StatusCode sysReinitialize();
-  virtual StatusCode start();
-  virtual StatusCode sysStart();
-  virtual StatusCode restart();
-  virtual StatusCode sysRestart();
-  virtual StatusCode stop();
-  virtual StatusCode sysStop();
-  virtual StatusCode finalize();
-  virtual StatusCode sysFinalize();
-  virtual StatusCode terminate();
-  virtual Gaudi::StateMachine::State FSMState() const;
+  virtual const std::string& type() const override;
+  virtual const IInterface* parent() const override;
+  virtual StatusCode configure() override;
+  virtual StatusCode initialize() override;
+  virtual StatusCode sysInitialize() override;
+  virtual StatusCode reinitialize() override;
+  virtual StatusCode sysReinitialize() override;
+  virtual StatusCode start() override;
+  virtual StatusCode sysStart() override;
+  virtual StatusCode restart() override;
+  virtual StatusCode sysRestart() override;
+  virtual StatusCode stop() override;
+  virtual StatusCode sysStop() override;
+  virtual StatusCode finalize() override;
+  virtual StatusCode sysFinalize() override;
+  virtual StatusCode terminate() override;
+  virtual Gaudi::StateMachine::State FSMState() const override;
   /// @}
 
   /// @name Function(s) inherited from INamedInterface
   /// @{
-  virtual const std::string& name() const;
+  virtual const std::string& name() const override;
   /// @}
 
 };

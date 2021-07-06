@@ -117,7 +117,7 @@ namespace Trk
     const double z0SignificanceCut = m_z0MaxSignificance * m_z0MaxSignificance;
 
     for (const TrackParameters* iparam : perigeeList) {
-      if (iparam && iparam->surfaceType() == Trk::Surface::Perigee) {
+      if (iparam && iparam->surfaceType() == Trk::SurfaceType::Perigee) {
         density.addTrack(*(static_cast<const Perigee*>(iparam)),
                          d0SignificanceCut,
                          z0SignificanceCut);

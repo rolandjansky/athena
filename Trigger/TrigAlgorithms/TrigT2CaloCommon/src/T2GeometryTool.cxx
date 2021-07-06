@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -10,8 +10,6 @@ T2GeometryTool::T2GeometryTool(const std::string &type, const std::string & name
                     const IInterface* parent) : AthAlgTool(type,name,parent)
 {
 
-  declareInterface<IT2GeometryTool>(this);
-  
   declareProperty( "nStripEtaEM0nar" , m_nStripetaEMnar[0] = 4); // 0.1
   declareProperty( "nStripPhiEM0nar" , m_nStripphiEMnar[0] = 1); // 0.098
   declareProperty( "nStripEtaEM1nar" , m_nStripetaEMnar[1] = 32); // 0.1
@@ -65,9 +63,6 @@ T2GeometryTool::T2GeometryTool(const std::string &type, const std::string & name
 
 }
 
-T2GeometryTool::~T2GeometryTool()
-{
-} // End of Destructor
 
 StatusCode T2GeometryTool::initialize()
 {
@@ -75,13 +70,7 @@ StatusCode T2GeometryTool::initialize()
  return StatusCode::SUCCESS; 
 }
 
-StatusCode T2GeometryTool::finalize()
-{
-        ATH_MSG_INFO("in finalize() by TrigDataAccess");
-	// Don't forget to clean up
-        return StatusCode::SUCCESS;
 
-}
 
 const int T2GeometryTool::m_netareg[7] = {3,7,4,3,2,2,3};
 

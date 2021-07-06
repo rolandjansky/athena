@@ -97,9 +97,8 @@ FitMeasurement::FitMeasurement (int		       	hitIndex,
     if (dynamic_cast<const PlaneSurface*>(m_surface))
     {
 	m_normal		= new Amg::Vector3D(m_surface->transform().rotation().col(2));
-	const Amg::Vector3D* posptr = m_surface->localToGlobal(measurementBase->localParameters());
-	m_position      = *posptr;
-	delete posptr;	
+	const Amg::Vector3D posptr = m_surface->localToGlobal(measurementBase->localParameters());
+	m_position = posptr;
 	
 	// special case to get sensor for endcap trapezoids (discs represented as planes)
 	// thus sensor direction rotates according to localX - rather than being parallel
@@ -971,7 +970,7 @@ FitMeasurement::intersection (ExtrapolationType type,
 
 
 void
-FitMeasurement::printHeading (MsgStream& log) const
+FitMeasurement::printHeading (MsgStream& log) 
 {
     log << "                 residual 1........2         r      phi         z"
 	<< "      sigma 1.......2      energy  energyLoss scatteringAngle  integral X0" << std::endl;

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "InDetGeoModelUtils/VolumeBuilder.h"
@@ -19,10 +19,10 @@ namespace InDetDD {
     : m_msg("InDetDDVolumeBuilder"),
     m_region("None"), // Empty refers to a valid region. Set some default so we can check it is actually set.
     m_zcenter(0),
-    m_services(0),
-    m_servEnvelope(0),
-    m_servChild(0),
-    m_matManager(0) {
+    m_services(nullptr),
+    m_servEnvelope(nullptr),
+    m_servChild(nullptr),
+    m_matManager(nullptr) {
     m_splitter.splitAll(zone, services);
   }
 
@@ -31,9 +31,9 @@ namespace InDetDD {
     m_region("None"), // Empty refers to a valid region. Set some default so we can check it is actually set.
     m_zcenter(0),
     m_services(&services),
-    m_servEnvelope(0),
-    m_servChild(0),
-    m_matManager(0)
+    m_servEnvelope(nullptr),
+    m_servChild(nullptr),
+    m_matManager(nullptr)
   {}
 
   VolumeBuilder::VolumeBuilder(const Zone& zone, const std::vector<const ServiceVolume* >& services,
@@ -42,10 +42,10 @@ namespace InDetDD {
     : m_msg("InDetDDVolumeBuilder"),
     m_region("None"), // Empty refers to a valid region. Set some default so we can check it is actually set.
     m_zcenter(0),
-    m_services(0),
+    m_services(nullptr),
     m_servEnvelope(&servEnvelope),
     m_servChild(&servChild),
-    m_matManager(0) {
+    m_matManager(nullptr) {
     m_splitter.splitAll(zone, services);
   }
 
@@ -203,7 +203,7 @@ namespace InDetDD {
     }
     const ServiceVolume& param = *(services()[iElement]);
     // If the subelement does not belong to the current region return 0.
-    if (param.region() != m_region) return 0;
+    if (param.region() != m_region) return nullptr;
 
     const GeoShape* serviceShape = param.getShape();
     double volume = param.origVolume();
@@ -243,8 +243,7 @@ namespace InDetDD {
   bool
   VolumeBuilder::isEnvelopeOrChild(int iElement) {
     const ServiceVolume& param = *(services()[iElement]);
-    if (param.envelopeNum() == 0 && param.envelopeParent() == 0) return false;
-    return true;
+    return !(param.envelopeNum() == 0 && param.envelopeParent() == 0);
   }
 
   int
@@ -273,8 +272,7 @@ namespace InDetDD {
     if (param1.zsymm() == 1) {
       double zmin = (param1.zmin() * param2.zmin());
       double zmax = (param1.zmax() * param2.zmax());
-      if (zmin > 0 && zmax > 0) return true;
-      return false;
+      return zmin > 0 && zmax > 0;
     }
     return true;
   }

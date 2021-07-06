@@ -1,23 +1,24 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1Decoder_L1Decoder_h
 #define L1Decoder_L1Decoder_h
 
+#include "IRoIsUnpackingTool.h"
+#include "IPrescalingTool.h"
+
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
-#include "xAODTrigger/TrigCompositeContainer.h"
 #include "TrigT1Result/RoIBResult.h"
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-#include "TrigTimeAlgs/TrigTimeStamp.h"
 #include "L1Decoder/ICTPUnpackingTool.h"
-#include "IRoIsUnpackingTool.h"
-#include "IPrescalingTool.h"
-#include "TrigCostMonitorMT/ITrigCostMTSvc.h"
+#include "TrigCostMonitor/ITrigCostSvc.h"
 #include "TrigConfxAOD/IKeyWriterTool.h"
+#include "TrigTimeAlgs/TrigTimeStamp.h"
+#include "xAODTrigger/TrigCompositeContainer.h"
 
 /*
   @brief an algorithm used to unpack the RoIB result and provide CTP bits, active chains and RoIs
@@ -69,20 +70,24 @@ private:
     "Enables start-of-event cost monitoring behavior."};
 
   Gaudi::Property<std::string> m_costMonitoringChain{
-    this, "CostMonitoringChain", "HLT_costmonitor_CostMonDS_L1All",
+    this, "CostMonitoringChain", "HLT_noalg_CostMonDS_L1All",
     "Name of the chain which should enable HLT cost montoring."};
 
-  ServiceHandle<ITrigCostMTSvc> m_trigCostSvcHandle {
-    this, "TrigCostMTSvc", "TrigCostMTSvc",
+  ServiceHandle<ITrigCostSvc> m_trigCostSvcHandle {
+    this, "TrigCostSvc", "TrigCostSvc",
     "The trigger cost service" };
 
   ToolHandle<ICTPUnpackingTool> m_ctpUnpacker{
     this, "ctpUnpacker", "CTPUnpackingTool/CTPUnpackingTool",
     "Tool used to unpack the CTP info"};
 
-  ToolHandleArray<IRoIsUnpackingTool> m_roiUnpackers{
-    this, "roiUnpackers", {},
-    "Tools unpacking RoIs"};
+  ToolHandleArray<IRoIsUnpackingTool> m_roiUnpackers_roib{
+    this, "RoIBRoIUnpackers", {},
+    "Tools unpacking Run-2 RoIs from RoIBResult"};
+
+  ToolHandleArray<IRoIsUnpackingTool> m_roiUnpackers_xaod{
+    this, "xAODRoIUnpackers", {},
+    "Tools unpacking xAOD RoIs from L1TriggerResult"};
 
   ToolHandle<IPrescalingTool> m_prescaler{
     this, "prescaler", "PrescalingTool/PrescalingTool",

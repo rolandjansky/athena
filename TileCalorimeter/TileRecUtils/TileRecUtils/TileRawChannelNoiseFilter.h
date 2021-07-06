@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -52,7 +52,7 @@ class TileRawChannelNoiseFilter: public extends<AthAlgTool, ITileRawChannelTool>
     virtual StatusCode finalize() override;
 
     /** process the coherent noise subtruction algorithm and correct TileRawChannel amplitudes */
-    virtual StatusCode process (TileMutableRawChannelContainer& rchCont) const override;
+    virtual StatusCode process (TileMutableRawChannelContainer& rchCont, const EventContext& ctx) const override;
 
 
   private:

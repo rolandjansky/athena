@@ -56,7 +56,7 @@ public:
   
 private:
   AmgSymMatrix(5)*    transErrorMatrix(const Trk :: TrackParameters_p2 *persObj,  MsgStream& log);
-  const Trk::Surface* transSurface(    const Trk :: TrackParameters_p2 *persObj,  Trk::Surface::SurfaceType type,     MsgStream& log);
+  const Trk::Surface* transSurface(    const Trk :: TrackParameters_p2 *persObj,  Trk::SurfaceType type,     MsgStream& log);
   void                fillPersSurface( const Trk :: TrackParameters    *transObj, Trk :: TrackParameters_p2 *persObj, MsgStream& log);
   void                convertTransCurvilinearToPers(const Trk :: TrackParameters    *transObj, Trk :: TrackParameters_p2 *persObj) const;
   bool                isPersistifiableType(const Trk :: TrackParameters    *transObj) const;

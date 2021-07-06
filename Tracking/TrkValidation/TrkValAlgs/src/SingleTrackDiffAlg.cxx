@@ -54,8 +54,8 @@ StatusCode Trk::SingleTrackDiffAlg::execute() {
 
     StatusCode sc = StatusCode::SUCCESS;
 
-    const TrackCollection* referenceTracks = 0;
-    const TrackCollection* comparedTracks = 0;
+    const TrackCollection* referenceTracks = nullptr;
+    const TrackCollection* comparedTracks = nullptr;
     // get reference collection
     if (m_referenceTrackCollection != "") {
         sc = evtStore()->retrieve(referenceTracks, m_referenceTrackCollection);
@@ -100,7 +100,7 @@ StatusCode Trk::SingleTrackDiffAlg::execute() {
     }
     // find track in compared collection which fits best to track in reference collection
     const Perigee* refPerigee = (*refTrackIterator)->perigeeParameters();
-    const Track* compTrack = 0; // later for-loop with large min chi2 will assign a sane track 
+    const Track* compTrack = nullptr; // later for-loop with large min chi2 will assign a sane track 
     if (refPerigee) {
         //double minDeltaqOverP = 1.e20;
         double minChi2 = 1.e30;

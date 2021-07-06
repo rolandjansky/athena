@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -208,11 +208,11 @@ template <class T> Trk::ExtrapolationCode Trk::StaticNavigationEngine::resolvePo
                 << (int(pDir) > 0 ? "' along momentum." : "' opposite momentum.") );
 
     // noLoop= True is used when we have exit from leadVolume 
-
-    if (!eCell.leadVolume) eCell.leadVolume = trackingGeometry().lowestStaticTrackingVolume(eCell.leadParameters->position());
+    const TrackingGeometry &tracking_geometry = trackingGeometry();
+    if (!eCell.leadVolume) eCell.leadVolume = tracking_geometry.lowestStaticTrackingVolume(eCell.leadParameters->position());
     if (!eCell.leadVolume) return Trk::ExtrapolationCode::FailureNavigation;
     const Trk::TrackingVolume* nextVol=0;
-    if ( trackingGeometry().atVolumeBoundary(eCell.leadParameters->position(),
+    if ( tracking_geometry.atVolumeBoundary(eCell.leadParameters->position(),
                                              eCell.leadParameters->momentum(), 
                                              eCell.leadVolume,
                                              nextVol, pDir, 0.01) ) {          // set tolerance globally 

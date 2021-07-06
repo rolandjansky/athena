@@ -1,9 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import inspect
 import warnings
-import numpy as np
-import sys
 
 class HashTool:
     def __init__(self, *args, **parse):

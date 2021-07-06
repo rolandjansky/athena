@@ -1,6 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
+
+#include <utility>
+
+
 
 #include "InDetServMatGeoModel/InDetServMatFactoryDC2.h"
 
@@ -28,8 +32,8 @@
 
 InDetServMatFactoryDC2::InDetServMatFactoryDC2(StoreGateSvc *detStore,ServiceHandle<IRDBAccessSvc> pRDBAccess) :
   m_detStore(detStore),
-  m_rdbAccess(pRDBAccess),
-  m_manager(0),
+  m_rdbAccess(std::move(pRDBAccess)),
+  m_manager(nullptr),
   m_msg("InDetServMatFactoryDC2")
 {
   

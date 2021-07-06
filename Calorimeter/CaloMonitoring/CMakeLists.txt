@@ -17,7 +17,7 @@ atlas_add_component( CaloMonitoring
    LArIdentifier LArRecConditions LArCablingLib MissingETEvent egammaEvent
    ElectronPhotonSelectorToolsLib LWHists TrigDecisionToolLib CaloDetDescrLib
    CaloGeoHelpers AthenaKernel xAODEventInfo LArRecEvent JetEvent
-   RecBackgroundEvent CaloInterfaceLib )
+   RecBackgroundEvent CaloInterfaceLib CaloConditions )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-ignore=F401,F821 )

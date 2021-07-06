@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ACTSGEOMETRYINTERFACES_IACTSEXTRAPOLATIONTOOL_H
@@ -9,6 +9,8 @@
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/EventContext.h"
+#include "TrkEventPrimitives/ParticleHypothesis.h"
+
 #include "ActsGeometry/ActsGeometryContext.h"
 #include "Acts/MagneticField/MagneticFieldContext.hpp"
 
@@ -36,14 +38,16 @@ class IActsExtrapolationTool : virtual public IAlgTool {
   propagationSteps(const EventContext& ctx,
                    const Acts::BoundTrackParameters& startParameters,
                    Acts::NavigationDirection navDir = Acts::forward,
-                   double pathLimit = std::numeric_limits<double>::max()) const = 0;
+                   double pathLimit = std::numeric_limits<double>::max(),
+                   Trk::ParticleHypothesis particleHypo = Trk::pion) const = 0;
 
   virtual
   std::unique_ptr<const Acts::CurvilinearTrackParameters>
   propagate(const EventContext& ctx,
             const Acts::BoundTrackParameters& startParameters,
             Acts::NavigationDirection navDir = Acts::forward,
-            double pathLimit = std::numeric_limits<double>::max()) const = 0;
+            double pathLimit = std::numeric_limits<double>::max(),
+                   Trk::ParticleHypothesis particleHypo = Trk::pion) const = 0;
 
   virtual
   ActsPropagationOutput
@@ -51,7 +55,8 @@ class IActsExtrapolationTool : virtual public IAlgTool {
                    const Acts::BoundTrackParameters& startParameters,
                    const Acts::Surface& target,
                    Acts::NavigationDirection navDir = Acts::forward,
-                   double pathLimit = std::numeric_limits<double>::max()) const = 0;
+                   double pathLimit = std::numeric_limits<double>::max(),
+                   Trk::ParticleHypothesis particleHypo = Trk::pion) const = 0;
 
   virtual
   std::unique_ptr<const Acts::BoundTrackParameters>
@@ -59,7 +64,8 @@ class IActsExtrapolationTool : virtual public IAlgTool {
             const Acts::BoundTrackParameters& startParameters,
             const Acts::Surface& target,
             Acts::NavigationDirection navDir = Acts::forward,
-            double pathLimit = std::numeric_limits<double>::max()) const = 0;
+            double pathLimit = std::numeric_limits<double>::max(),
+                   Trk::ParticleHypothesis particleHypo = Trk::pion) const = 0;
 
   virtual
   const IActsTrackingGeometryTool*

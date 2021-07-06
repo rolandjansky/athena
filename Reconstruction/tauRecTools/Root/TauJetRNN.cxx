@@ -90,7 +90,7 @@ TauJetRNN::~TauJetRNN() {}
 
 float TauJetRNN::compute(const xAOD::TauJet &tau,
                          const std::vector<const xAOD::TauTrack *> &tracks,
-                         const std::vector<const xAOD::CaloCluster *> &clusters) const {
+                         const std::vector<xAOD::CaloVertexedTopoCluster> &clusters) const {
     InputMap scalarInputs;
     InputSequenceMap vectorInputs;
     if (!calculateInputVariables(tau, tracks, clusters, scalarInputs, vectorInputs)) {
@@ -104,7 +104,7 @@ float TauJetRNN::compute(const xAOD::TauJet &tau,
 
 bool TauJetRNN::calculateInputVariables(const xAOD::TauJet &tau,
                   const std::vector<const xAOD::TauTrack *> &tracks,
-                  const std::vector<const xAOD::CaloCluster *> &clusters,
+                  const std::vector<xAOD::CaloVertexedTopoCluster> &clusters,
                   std::map<std::string, std::map<std::string, double>>& scalarInputs,
                   std::map<std::string, std::map<std::string, std::vector<double>>>& vectorInputs) const {
     scalarInputs.clear();

@@ -152,6 +152,8 @@ private:
 
   Gaudi::Property<bool> m_allTrackRemoval{ this, "AllTrackRemoval", true };
 
+  Gaudi::Property<bool> m_storepileupCorrection{ this, "storepileupCorrection", false };
+
   /** @brief Isolation types */
   Gaudi::Property<std::vector<std::vector<int>>> m_elisoInts{
     this,

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //ROOT
@@ -19,7 +19,11 @@
 #include "InDetTruthVertexValidation/InDetVertexTruthMatchTool.h"
 #include "InDetTruthVertexValidation/InDetVertexTruthMatchUtils.h"
 
+#include "AsgMessaging/MessageCheck.h"
+
 int main( int argc, char* argv[] ) {
+
+  using namespace asg::msgUserCode;
 
   const char * APP_NAME = argv[0];
 
@@ -64,9 +68,9 @@ int main( int argc, char* argv[] ) {
 
   //config
   matchTool.msg().setLevel( MSG::DEBUG );
-  matchTool.setProperty( "trackMatchProb", 0.7 );
-  matchTool.setProperty( "vertexMatchWeight", 0.7 );
-  matchTool.initialize();
+  ATH_CHECK( matchTool.setProperty( "trackMatchProb", 0.7 ) );
+  ATH_CHECK( matchTool.setProperty( "vertexMatchWeight", 0.7 ) );
+  ATH_CHECK( matchTool.initialize() );
 
   TFile fout("output.root","RECREATE");
   fout.cd();

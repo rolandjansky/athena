@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ Trk::DirectTrackNtupleWriterTool::DirectTrackNtupleWriterTool(
         AthAlgTool(t,n,p),
         m_ValidationNtupleTools(),
         m_extrapolatorHandle("Trk::Extrapolator/InDetExtrapolator"),
-        m_nt(0),
+        m_nt(nullptr),
         m_doTruth(true)
 {
     declareInterface<IDirectTrackNtupleWriter>(this);
@@ -55,7 +55,7 @@ Trk::DirectTrackNtupleWriterTool::~DirectTrackNtupleWriterTool() {}
 // initialize
 StatusCode Trk::DirectTrackNtupleWriterTool::initialize() {
 
-  StatusCode sc(StatusCode::SUCCESS, true);
+  StatusCode sc(StatusCode::SUCCESS);
     
   // retrive pointer to THistSvc
   ITHistSvc *tHistSvc;

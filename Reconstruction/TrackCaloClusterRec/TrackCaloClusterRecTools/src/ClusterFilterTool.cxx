@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "TrackCaloClusterRecTools/ClusterFilterTool.h"
 #include "TrackCaloClusterRecTools/IParticleToCaloExtensionMap.h"
@@ -56,7 +56,7 @@ bool ClusterFilterTool::rejectCluster(const xAOD::CaloCluster& cluster) const {
   double pt_PV0 = 0.;
   double pt_PVX = 0.;
       
-  for (const auto& track : *allTracks) {
+  for (const auto track : *allTracks) {
     // check compatibility with PVX where X>0
     // retrieve the caloExtensionContainer to get the track position at the calo entrance
     IParticleToCaloExtensionMap * caloExtensionMap = 0;

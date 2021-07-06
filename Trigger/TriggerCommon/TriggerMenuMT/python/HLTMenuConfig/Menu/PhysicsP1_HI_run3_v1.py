@@ -9,7 +9,7 @@
 #['name', 'L1chainParts'=[], 'stream', 'groups', 'merging'=[], 'topoStartFrom'=False],
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
 
-from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import SingleMuonGroup,SinglePhotonGroup,MinBiasGroup
+from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import SingleMuonGroup,SinglePhotonGroup,MinBiasGroup,PrimaryL1MuGroup
 
 HardProbesStream="HardProbes"
 MinBiasStream="MinBias"
@@ -34,7 +34,7 @@ def setupMenu():
     TriggerFlags.TestSlice.signatures = []
 
     TriggerFlags.MuonSlice.signatures = [
-            ChainProp(name='HLT_mu4_L1MU4', stream=[HardProbesStream], groups=SingleMuonGroup),
+            ChainProp(name='HLT_mu4_L1MU4', stream=[HardProbesStream], groups=SingleMuonGroup+PrimaryL1MuGroup),
      ]
 
     TriggerFlags.EgammaSlice.signatures = [
@@ -69,7 +69,7 @@ def setupMenu():
     ]
 
     TriggerFlags.MonitorSlice.signatures   = [
-          ChainProp(name='HLT_costmonitor_CostMonDS_L1All',        l1SeedThresholds=['FSNOSEED'], stream=['CostMonitoring'], groups=['RATE:Monitoring','BW:Other']),
+          ChainProp(name='HLT_noalg_CostMonDS_L1All',        l1SeedThresholds=['FSNOSEED'], stream=['CostMonitoring'], groups=['RATE:Monitoring','BW:Other']),
     ]
 
     # Random Seeded EB chains which select at the HLT based on L1 TBP bits

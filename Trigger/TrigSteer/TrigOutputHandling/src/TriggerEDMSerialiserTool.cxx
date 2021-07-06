@@ -128,6 +128,7 @@ StatusCode TriggerEDMSerialiserTool::addCollectionToSerialise(const std::string&
   boost::split( splitModuleIDs, moduleIDs, [](const char c){ return c == ','; } );
   std::vector<uint16_t> moduleIdVec;
   for ( const auto& module: splitModuleIDs ) moduleIdVec.push_back( std::stoi( module ) );
+  std::sort(moduleIdVec.begin(), moduleIdVec.end());
 
   if (moduleIdVec.empty()) {
     ATH_MSG_ERROR( "No HLT result module IDs given for " << typeKeyAux );
@@ -343,6 +344,9 @@ StatusCode TriggerEDMSerialiserTool::serialiseTPContainer( void* data, const Add
   ATH_CHECK ( converterPersistentType == address.persType );
   ATH_CHECK( serialiseContainer( persistent, address, buffer ) );
 
+  RootType classDesc = RootType::ByNameNoQuiet( address.persType );
+  classDesc.Destruct( persistent );
+
   return StatusCode::SUCCESS;
 }
 
@@ -394,11 +398,39 @@ StatusCode TriggerEDMSerialiserTool::fill( HLT::HLTResultMT& resultToFill, const
   debugInfoData->setStore(debugInfoAux.get());
   ATH_CHECK(debugInfo.record(std::move(debugInfoData), std::move(debugInfoAux)));
 
+  // Find a list of active moduleIDs in this event to skip inactive ones
+  std::set<uint16_t> activeModules = activeModuleIDs(resultToFill);
+  // No active modules means a rejected event, so we shouldn't arrive here
+  // in the first place. Since we did, assume a special running mode and
+  // don't skip any serialisation, but print a warning
+  const bool serialiseToAllModules = activeModules.empty();
+  if (serialiseToAllModules) {
+    ATH_MSG_WARNING("No active module IDs in this event. Forcing all collections to be serialised.");
+  }
+
   // Create buffer for serialised data
   std::vector<uint32_t> buffer;
   buffer.reserve(1000);
 
   for ( const Address& address: m_toSerialise ) {
+    // Check if we need to serialise this object for this event
+    std::vector<uint16_t> addressActiveModuleIds;
+    if (serialiseToAllModules) {
+      addressActiveModuleIds.insert(addressActiveModuleIds.end(),
+                                    address.moduleIdVec.begin(),
+                                    address.moduleIdVec.end());
+    }
+    else {
+      std::set_intersection(address.moduleIdVec.begin(), address.moduleIdVec.end(),
+                            activeModules.begin(), activeModules.end(),
+                            std::back_inserter(addressActiveModuleIds));
+    }
+    if (addressActiveModuleIds.empty()) {
+      ATH_MSG_DEBUG("Streaming of " << address.persTypeName() << " is skipped "
+                    << "because its module IDs are not active in this event");
+      continue;
+    }
+
     buffer.clear();
     ATH_MSG_DEBUG( "Streaming " << address.persTypeName() );
     ATH_CHECK( serialise(address, buffer, evtStore) );
@@ -410,7 +442,7 @@ StatusCode TriggerEDMSerialiserTool::fill( HLT::HLTResultMT& resultToFill, const
     const size_t thisFragmentSize = buffer.size()*sizeof(uint32_t);
     ATH_MSG_DEBUG( "Serialised size of " << address.persTypeName() << " is " << thisFragmentSize << " bytes" );
 
-    for (const uint16_t id : address.moduleIdVec) {
+    for (const uint16_t id : addressActiveModuleIds) {
       // If result not yet truncated, try adding the serialised data
       if (resultToFill.getTruncatedModuleIds().count(id)==0) {
         ATH_CHECK(tryAddData(resultToFill,id,buffer));
@@ -557,4 +589,22 @@ std::string TriggerEDMSerialiserTool::version( const std::string& name ) {
     return name.substr( name.find('_') );
   }
   return "";
+}
+
+std::set<uint16_t> TriggerEDMSerialiserTool::activeModuleIDs(const HLT::HLTResultMT& result) {
+  std::set<uint16_t> activeIDs;
+  for (const eformat::helper::StreamTag& st : result.getStreamTags()) {
+    if (st.robs.empty() && st.dets.empty()) { // Full Event Building stream
+      activeIDs.insert(0); // 0 is the main result ID
+      continue;
+    }
+    for (const uint32_t robid : st.robs) {
+      eformat::helper::SourceIdentifier sid(robid);
+      if (sid.subdetector_id() != eformat::SubDetector::TDAQ_HLT) {
+        continue;
+      }
+      activeIDs.insert(sid.module_id());
+    }
+  }
+  return activeIDs;
 }

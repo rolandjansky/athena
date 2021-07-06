@@ -64,10 +64,10 @@ conddb.setGlobalTag("OFLCOND-SDR-BS7T-04-00")
 #--------------------------------------------------------------
 
 # Add in DoubleEventSelector
-svcMgr.DoubleEventSelector.InputCollections = [ "LArRDO.root" ]
+svcMgr.EventSelector.InputCollections = [ "LArRDO.root" ]
 svcMgr.SecondaryEventSelector.InputCollections = [ "InDetRDO.root" ]
 
-svcMgr.DoubleEventSelector.OutputLevel = DEBUG
+svcMgr.EventSelector.OutputLevel = DEBUG
 svcMgr.SecondaryEventSelector.OutputLevel = DEBUG
 
 #--------------------------------------------------------------

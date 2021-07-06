@@ -1,4 +1,4 @@
-###############################################################
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # Job options file to run:
 #        Digitization
@@ -115,10 +115,10 @@ writeDigitizationMetadata()
 # Pool Output (Change this to use a different file)
 #--------------------------------------------------------------
 if DetFlags.writeRDOPool.any_on():
-    premixing = digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi()
+    presampling = digitizationFlags.PileUpPresampling and 'LegacyOverlay' not in digitizationFlags.experimentalDigi()
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
     from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-    if premixing:
+    if presampling:
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         eventInfoKey = overlayFlags.bkgPrefix() + "EventInfo"
     else:

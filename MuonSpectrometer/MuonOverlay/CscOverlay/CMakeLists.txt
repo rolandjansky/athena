@@ -13,7 +13,7 @@ atlas_add_component( CscOverlay
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel GaudiKernel MuonRDO StoreGateLib SGtests MuonIdHelpersLib CscCalibToolsLib MuonCSC_CnvToolsLib )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel GaudiKernel MuonRDO StoreGateLib MuonIdHelpersLib CscCalibToolsLib MuonCSC_CnvToolsLib )
 
 # Install files from the package:
 atlas_install_headers( CscOverlay )

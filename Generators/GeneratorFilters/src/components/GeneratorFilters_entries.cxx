@@ -1,8 +1,32 @@
+// filters accepted for 22.6
+#include "GeneratorFilters/BSignalFilter.h"
+#include "GeneratorFilters/ChargedTracksWeightFilter.h"
+#include "GeneratorFilters/DecayTimeFilter.h"
+#include "GeneratorFilters/DirectPhotonFilter.h"
+#include "GeneratorFilters/HeavyFlavorHadronFilter.h"
+#include "GeneratorFilters/LeptonFilter.h" 
+#include "GeneratorFilters/MissingEtFilter.h"
+#include "GeneratorFilters/MultiElecMuTauFilter.h"
+#include "GeneratorFilters/QCDTruthJetFilter.h"
+#include "GeneratorFilters/TauFilter.h"
+#include "GeneratorFilters/xAODTauFilter.h"
+
+// slimmers for 22.6
+#include "GeneratorFilters/PileupTruthParticleSlimmer.h"
+#include "GeneratorFilters/TauTruthParticleSlimmer.h"
+
+
+
+
+
+
+
+
 #include "GeneratorFilters/ElectronFilter.h"
-#include "GeneratorFilters/LeptonFilter.h"
 #include "GeneratorFilters/ZtoLeptonFilter.h"
 #include "GeneratorFilters/MultiLeptonFilter.h"
 #include "GeneratorFilters/MultiMuonFilter.h"
+#include "GeneratorFilters/MultiBjetFilter.h"
 #include "GeneratorFilters/BSignalFilter.h"
 #include "GeneratorFilters/ATauFilter.h"
 #include "GeneratorFilters/JetFilter.h"
@@ -10,7 +34,6 @@
 #include "GeneratorFilters/GapJetFilter.h"
 #include "GeneratorFilters/ParticleFilter.h"
 #include "GeneratorFilters/PhotonFilter.h"
-#include "GeneratorFilters/MissingEtFilter.h"
 #include "GeneratorFilters/TauFilter.h"
 #include "GeneratorFilters/TTbarFilter.h"
 #include "GeneratorFilters/TTbarPhotonWhizardHwgFilter.h"
@@ -32,7 +55,6 @@
 #include "GeneratorFilters/MultiObjectsFilter.h"
 #include "GeneratorFilters/MassRangeFilter.h"
 #include "GeneratorFilters/DecayLengthFilter.h"
-#include "GeneratorFilters/MultiElecMuTauFilter.h"
 #include "GeneratorFilters/WeightedBDtoElectronFilter.h"
 #include "GeneratorFilters/JetIntervalFilter.h"
 #include "GeneratorFilters/XXvvGGFilter.h"
@@ -42,13 +64,10 @@
 #include "GeneratorFilters/ChargedTracksFilter.h"
 #include "GeneratorFilters/DecayModeFilter.h"
 #include "GeneratorFilters/DiLeptonMassFilter.h"
-#include "GeneratorFilters/DirectPhotonFilter.h"
-#include "GeneratorFilters/HeavyFlavorHadronFilter.h"
 #include "GeneratorFilters/DstD0K3piFilter.h"
 #include "GeneratorFilters/FourLeptonMassFilter.h"
 #include "GeneratorFilters/FourLeptonInvMassFilter.h"
 #include "GeneratorFilters/HtoVVFilter.h"
-#include "GeneratorFilters/QCDTruthJetFilter.h"
 #include "GeneratorFilters/QCDTruthMultiJetFilter.h"  
 #include "GeneratorFilters/VBFHbbEtaSortingFilter.h"  
 #include "GeneratorFilters/TopCKMFilter.h"
@@ -78,14 +97,35 @@
 #include "GeneratorFilters/BoostedHadTopAndTopPair.h"
 #include "GeneratorFilters/DecaysFinalStateFilter.h"
 #include "GeneratorFilters/HTFilter.h"
-#include "GeneratorFilters/MissingEtFilter.h"
 #include "GeneratorFilters/TrimuMassRangeFilter.h"
+
+
+// filters accepted for 22.6
+DECLARE_COMPONENT( BSignalFilter )
+DECLARE_COMPONENT( ChargedTracksWeightFilter )
+DECLARE_COMPONENT( DirectPhotonFilter )
+DECLARE_COMPONENT( DecayTimeFilter )
+DECLARE_COMPONENT( HeavyFlavorHadronFilter )
+DECLARE_COMPONENT( LeptonFilter )
+DECLARE_COMPONENT( MissingEtFilter )
+DECLARE_COMPONENT( MultiElecMuTauFilter )
+DECLARE_COMPONENT( QCDTruthJetFilter )
+DECLARE_COMPONENT( TauFilter )
+DECLARE_COMPONENT( xAODTauFilter )
+
+//slimmers accepted for 22.6
+DECLARE_COMPONENT( PileupTruthParticleSlimmer )
+DECLARE_COMPONENT( TauTruthParticleSlimmer )
+
+
+
 
 DECLARE_COMPONENT( ElectronFilter )
 DECLARE_COMPONENT( LeptonFilter )
 DECLARE_COMPONENT( ZtoLeptonFilter )
 DECLARE_COMPONENT( MultiLeptonFilter )
 DECLARE_COMPONENT( MultiMuonFilter )
+DECLARE_COMPONENT( MultiBjetFilter )
 DECLARE_COMPONENT( BSignalFilter )
 DECLARE_COMPONENT( ATauFilter )
 DECLARE_COMPONENT( JetFilter )
@@ -93,8 +133,6 @@ DECLARE_COMPONENT( JetForwardFilter )
 DECLARE_COMPONENT( GapJetFilter )
 DECLARE_COMPONENT( ParticleFilter )
 DECLARE_COMPONENT( PhotonFilter )
-DECLARE_COMPONENT( MissingEtFilter )
-DECLARE_COMPONENT( TauFilter )
 DECLARE_COMPONENT( TTbarFilter )
 DECLARE_COMPONENT( TTbarPhotonWhizardHwgFilter )
 DECLARE_COMPONENT( TTbarWToLeptonFilter )
@@ -115,7 +153,6 @@ DECLARE_COMPONENT( AsymJetFilter )
 DECLARE_COMPONENT( MultiObjectsFilter )
 DECLARE_COMPONENT( MassRangeFilter )
 DECLARE_COMPONENT( DecayLengthFilter )
-DECLARE_COMPONENT( MultiElecMuTauFilter )
 DECLARE_COMPONENT( WeightedBDtoElectronFilter )
 DECLARE_COMPONENT( JetIntervalFilter )
 DECLARE_COMPONENT( XXvvGGFilter )
@@ -125,7 +162,6 @@ DECLARE_COMPONENT( DiPhotonFilter )
 DECLARE_COMPONENT( ChargedTracksFilter )
 DECLARE_COMPONENT( DecayModeFilter )
 DECLARE_COMPONENT( DiLeptonMassFilter )
-DECLARE_COMPONENT( DirectPhotonFilter )
 DECLARE_COMPONENT( HeavyFlavorHadronFilter )
 DECLARE_COMPONENT( DstD0K3piFilter )
 DECLARE_COMPONENT( FourLeptonMassFilter )
@@ -161,5 +197,4 @@ DECLARE_COMPONENT( DuplicateEventFilter )
 DECLARE_COMPONENT( BoostedHadTopAndTopPair )
 DECLARE_COMPONENT( DecaysFinalStateFilter )
 DECLARE_COMPONENT( HTFilter )
-DECLARE_COMPONENT( MissingEtFilter )
 DECLARE_COMPONENT( TrimuMassRangeFilter )

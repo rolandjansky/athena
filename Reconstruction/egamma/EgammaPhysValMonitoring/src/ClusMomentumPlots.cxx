@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <utility>
 
 #include "ClusMomentumPlots.h"
+
 using CLHEP::GeV;
 
 namespace Egamma{
@@ -32,7 +33,10 @@ namespace Egamma{
 
   }
 
-  void ClusMomentumPlots::fill(const xAOD::Egamma& egamma){
+  void ClusMomentumPlots::fill(const xAOD::Egamma& egamma, const xAOD::EventInfo& eventInfo) const{
+
+    float weight = 1.;
+    weight = !eventInfo.beamSpotWeight() ? eventInfo.beamSpotWeight() : 1.;
 
     const xAOD::CaloCluster* cluster=egamma.caloCluster();
     if(cluster){
@@ -43,22 +47,22 @@ namespace Egamma{
       double second_r;
       double center_lambda;
       if(cluster->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_MAX,eng_frac_max)){
-      engfracmax->Fill(eng_frac_max);
+	engfracmax->Fill(eng_frac_max,weight);
       }
       if(cluster->retrieveMoment(xAOD::CaloCluster::LONGITUDINAL,lon)){
-	longitudinal->Fill(lon);
+	longitudinal->Fill(lon,weight);
       }
       if(cluster->retrieveMoment(xAOD::CaloCluster::SECOND_LAMBDA,second_lambda)){
-	secondlambda->Fill(second_lambda);
+	secondlambda->Fill(second_lambda,weight);
       }
       if(cluster->retrieveMoment(xAOD::CaloCluster::LATERAL,lat)){
-	lateral->Fill(lat);
+	lateral->Fill(lat,weight);
       }
       if(cluster->retrieveMoment(xAOD::CaloCluster::SECOND_R,second_r)){
-	secondr->Fill(second_r);
+	secondr->Fill(second_r,weight);
       }
       if(cluster->retrieveMoment(xAOD::CaloCluster::CENTER_LAMBDA,center_lambda)){
-	centerlambda->Fill(center_lambda);
+	centerlambda->Fill(center_lambda,weight);
       }
     }
   }

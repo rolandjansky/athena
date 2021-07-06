@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -112,9 +112,9 @@ void InDet::SeedToTrackConversionTool::executeSiSPSeedSegments(SeedToTrackConver
   if (per) {
     std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
     typePattern.set(Trk::TrackStateOnSurface::Perigee);
-    const Trk::TrackStateOnSurface* pertsos = new Trk::TrackStateOnSurface(0, per, 0, 0, typePattern);
-    DataVector<const Trk::TrackStateOnSurface>* traj = new DataVector<const Trk::TrackStateOnSurface>;
-    traj->push_back(pertsos);
+    const Trk::TrackStateOnSurface* pertsos = new Trk::TrackStateOnSurface(nullptr, per, nullptr, nullptr, typePattern);
+    auto traj = DataVector<const Trk::TrackStateOnSurface>();
+    traj.push_back(pertsos);
     for (const Trk::PrepRawData* prd: prdsInSp) {
       const Trk::Surface& surf = prd->detectorElement()->surface(prd->identify());
       const Trk::TrackParameters* thispar = m_extrapolator->extrapolate(*prevpar, surf, Trk::alongMomentum, false, Trk::nonInteracting);
@@ -126,8 +126,8 @@ void InDet::SeedToTrackConversionTool::executeSiSPSeedSegments(SeedToTrackConver
         typePattern.set(Trk::TrackStateOnSurface::Measurement);
         const Trk::RIO_OnTrack* rot = m_rotcreator->correct(*prd, *thispar);
         if (rot) {
-          const Trk::TrackStateOnSurface* tsos = new Trk::TrackStateOnSurface(rot, thispar, 0, 0, typePattern);
-          traj->push_back(tsos);
+          const Trk::TrackStateOnSurface* tsos = new Trk::TrackStateOnSurface(rot, thispar, nullptr, nullptr, typePattern);
+          traj.push_back(tsos);
           prevpar = thispar;
         }
       }
@@ -135,7 +135,7 @@ void InDet::SeedToTrackConversionTool::executeSiSPSeedSegments(SeedToTrackConver
     if (mtrk>0) { // survived seeds set as
       data.trackInfo().setTrackFitter(Trk::TrackInfo::xKalman); // xk seedfinder
     }
-    Trk::Track* t = new Trk::Track(data.trackInfo(), traj, 0);
+    Trk::Track* t = new Trk::Track(data.trackInfo(), std::move(traj), nullptr);
     if (t) data.seedSegmentsCollection()->push_back(t);
   }
 }

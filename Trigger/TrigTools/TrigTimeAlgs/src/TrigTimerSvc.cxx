@@ -1,10 +1,9 @@
 // this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigTimerSvc.cxx,v 1.12 2009-04-15 14:00:22 tbold Exp $
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
 #include "GaudiKernel/ServiceHandle.h"
@@ -47,8 +46,6 @@ StatusCode TrigTimerSvc::queryInterface (const InterfaceID& riid, void** ppvInte
 }
 
 StatusCode TrigTimerSvc::initialize ( ) {
-  
-  ATH_CHECK( setProperties() );
   
   // compile regexes
   m_includeRegex = boost::regex(m_includeName);

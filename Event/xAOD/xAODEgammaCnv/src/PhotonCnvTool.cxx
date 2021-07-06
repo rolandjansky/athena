@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi/Athena include(s):
@@ -33,14 +33,6 @@ namespace xAODMaker {
     
   }
 
-  StatusCode PhotonCnvTool::initialize() {
-
-    ATH_MSG_DEBUG( "Initializing - Package version: " << PACKAGE_VERSION );
-
-    
-    // Return gracefully:
-    return StatusCode::SUCCESS;
-  }
 
   StatusCode PhotonCnvTool::convert( const egammaContainer* aod,
 				     xAOD::PhotonContainer* xaod ) const

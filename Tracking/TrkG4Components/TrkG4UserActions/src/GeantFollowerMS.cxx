@@ -71,7 +71,7 @@ namespace G4UA
     // get the prestep point and follow this guy
     G4StepPoint * g4PreStep  = aStep->GetPreStepPoint();
     G4ThreeVector g4Momentum = g4PreStep->GetMomentum();
-    G4ThreeVector g4Position = g4PreStep->GetPosition();
+    const G4ThreeVector& g4Position = g4PreStep->GetPosition();
 
     G4Track* g4Track = aStep->GetTrack();
     const G4DynamicParticle* g4DynParticle = g4Track->GetDynamicParticle();

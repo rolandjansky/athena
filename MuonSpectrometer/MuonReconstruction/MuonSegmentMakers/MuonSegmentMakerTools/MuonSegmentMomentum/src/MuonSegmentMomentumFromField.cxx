@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentMomentumFromField.h"
@@ -191,10 +191,10 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments( const Muon::MuonSegment
       Trk::TransportJacobian *jac=0;
       Trk::AtaPlane startpar(bestseg->globalPosition(),bestseg->globalDirection().phi(),
  	 		     bestseg->globalDirection().theta(),1/signedMomentum,bestseg->associatedSurface());
-      const Trk::TrackParameters *par=m_propagator->propagateParameters(startpar,worstseg->associatedSurface(),
+      auto par=m_propagator->propagateParameters(startpar,worstseg->associatedSurface(),
 								      (bestseg==myseg1) ? Trk::alongMomentum : Trk::oppositeMomentum,false,
 								      Trk::MagneticFieldProperties(Trk::FullField),jac,Trk::nonInteracting);
-      ATH_MSG_DEBUG("par: " << par << " jac: " << jac );
+      ATH_MSG_DEBUG("par: " << par.get() << " jac: " << jac );
       if (par && jac && (*jac)(1,4)!=0){
         residual = worstseg->localParameters()[Trk::locY] - par->parameters()[Trk::locY];
         resi[i]   = residual; 
@@ -228,7 +228,7 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments( const Muon::MuonSegment
 // do not change momentum beyond last iteration
           if(i<3) signedMomentum = signedMomentum_updated;
         }
-        delete par;
+        //delete par;
         delete jac;
         if (std::abs(residual)<1) break;
       }
@@ -346,7 +346,7 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments_old( const Muon::MuonSeg
     Trk::AtaPlane startpar(bestseg->globalPosition(),bestseg->globalDirection().phi(),bestseg->globalDirection().theta(),
 			   1/signedMomentum,bestseg->associatedSurface());
     Trk::TransportJacobian *jac=0;
-    const Trk::TrackParameters *par=m_propagator->propagateParameters(startpar,worstseg->associatedSurface(),
+    auto par=m_propagator->propagateParameters(startpar,worstseg->associatedSurface(),
 								      (bestseg==myseg1) ? Trk::alongMomentum : Trk::oppositeMomentum,false,
 								      Trk::MagneticFieldProperties(Trk::FullField),jac,Trk::nonInteracting);
     if (par && jac && (*jac)(1,4)!=0){
@@ -354,7 +354,7 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments_old( const Muon::MuonSeg
       double delta_qoverp=residual/(*jac)(1,4);
       signedMomentum=1/(1/signedMomentum+delta_qoverp);
       ATH_MSG_DEBUG("residual: " << residual << " jac " << (*jac)(1,4) << " dp " << delta_qoverp << " signedmomentum: " << signedMomentum);
-      delete par;
+     // delete par;
       delete jac;
       if (std::abs(residual)<1) break;
     }

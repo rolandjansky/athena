@@ -4,6 +4,12 @@
 
 #include <stdint.h>
 
+#include "StoreGate/StoreGateSvc.h"
+#include "GaudiKernel/EventContext.h"
+#include "AthenaKernel/ExtendedEventContext.h"
+#include "SGTools/TestStore.h"
+#include "TestTools/initGaudi.h"
+
 #include "TrigNavStructure/StandaloneNavigation.h"
 #include "testutils.h"
 
@@ -155,6 +161,19 @@ bool truncate() {
 }
 
 int main() {
+
+  // initialize Gaudi, SG
+  ISvcLocator* pSvcLoc;
+  Athena_test::initGaudi(pSvcLoc); 
+  StoreGateSvc* pSG(nullptr);
+  assert( pSvcLoc->service("StoreGateSvc", pSG, true).isSuccess() );
+
+  // Create a context
+  IProxyDict* xdict = &*pSG;
+  xdict = pSG->hiveProxyDict();
+  EventContext ctx(0,0);
+  ctx.setExtension( Atlas::ExtendedEventContext(xdict) );
+  Gaudi::Hive::setCurrentContext (ctx);
 
   if (not empty())
     ABORT("empty() test failed");

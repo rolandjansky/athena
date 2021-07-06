@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTest/LArReadHadDMCoeffFile2.h"
@@ -54,7 +54,7 @@ StatusCode  LArReadHadDMCoeffFile2::finalize()
 /* ***************************************************************************
 reading text file
 *************************************************************************** */
-StatusCode LArReadHadDMCoeffFile2::initDataFromFile(std::string hadDMCoeffFileName)
+StatusCode LArReadHadDMCoeffFile2::initDataFromFile(const std::string& hadDMCoeffFileName)
 {
   char cLine[MAX_BUFFER_LEN];
 

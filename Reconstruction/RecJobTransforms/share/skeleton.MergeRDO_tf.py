@@ -1,9 +1,7 @@
-from __future__ import print_function
-###############################################################
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # Skeleton top job options for RDO merging
 #
-#==============================================================
 
 #import glob, os, re
 import traceback
@@ -35,9 +33,9 @@ if hasattr(runArgs, "maxEvents"):
 
 # Digitization flags
 from Digitization.DigitizationFlags import digitizationFlags
-if hasattr(runArgs, "PileUpPremixing"):
-  merRDOLog.info("Doing pile-up premixing")
-  digitizationFlags.PileUpPremixing = runArgs.PileUpPremixing
+if hasattr(runArgs, "PileUpPresampling"):
+  merRDOLog.info("Doing pile-up presampling")
+  digitizationFlags.PileUpPresampling = runArgs.PileUpPresampling
 
 #from AthenaCommon.GlobalFlags import globalflags
 #if hasattr(runArgs,"geometryVersion"): globalflags.DetDescrVersion.set_Value_and_Lock( runArgs.geometryVersion )
@@ -138,7 +136,7 @@ ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput()
 try:
   ServiceMgr.EventSelector.CollectionType = CollType
 except:
-  print("Reading from file")
+  merRDOLog.info("Reading from file")
 
 SkipEvents=0
 ServiceMgr.EventSelector.SkipEvents = SkipEvents
@@ -151,14 +149,14 @@ if hasattr(runArgs, "outputRDO_MRGFile"):
 else:
   outputFile = "DidNotSetOutputName.root"
 
-if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+if digitizationFlags.PileUpPresampling and 'LegacyOverlay' not in digitizationFlags.experimentalDigi():
   from OverlayCommonAlgs.OverlayFlags import overlayFlags
   eventInfoKey = overlayFlags.bkgPrefix() + "EventInfo"
 else:
   eventInfoKey = "EventInfo"
 
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-StreamRDO = AthenaPoolOutputStream( "StreamRDO", outputFile, asAlg=True, noTag=True, eventInfoKey=eventInfoKey )
+StreamRDO = AthenaPoolOutputStream( "StreamRDO", outputFile, asAlg=True, eventInfoKey=eventInfoKey )
 StreamRDO.TakeItemsFromInput=TRUE;
 # The next line is an example on how to exclude clid's if they are causing a  problem
 #StreamRDO.ExcludeList = ['6421#*']
@@ -167,15 +165,15 @@ StreamRDO.TakeItemsFromInput=TRUE;
 try:
   StreamRDO.AcceptAlgs = AcceptList
 except:
-  print("No accept algs indicated in AcceptList")
+  merRDOLog.info("No accept algs indicated in AcceptList")
 try:
   StreamRDO.RequireAlgs = RequireList
 except:
-  print("No accept algs indicated in RequireList")
+  merRDOLog.info("No accept algs indicated in RequireList")
 try:
   StreamRDO.VetoAlgs = VetoList
 except:
-  print("No accept algs indicated in VetoList")
+  merRDOLog.info("No accept algs indicated in VetoList")
 
 # Perfmon
 from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties

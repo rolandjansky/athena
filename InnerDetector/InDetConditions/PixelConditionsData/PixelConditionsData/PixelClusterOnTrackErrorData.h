@@ -44,13 +44,13 @@ class PixelClusterOnTrackErrorData {
 
 
     // get parametrizations
-    const std::vector<float> getClusterSizeBinsX() const {return m_csx;}
-    const std::vector<float> getClusterSizeBinsY() const {return m_csy;}
-    const std::vector<float> getEtaBins() const {return m_etaref;}
-    const std::vector<float> getIncidenceAngleBins() const {return m_phibins;}
+    const std::vector<float>& getClusterSizeBinsX() const {return m_csx;}
+    const std::vector<float>& getClusterSizeBinsY() const {return m_csy;}
+    const std::vector<float>& getEtaBins() const {return m_etaref;}
+    const std::vector<float>& getIncidenceAngleBins() const {return m_phibins;}
     // IBL
-    const std::vector<float> getEtaIBLBins() const {return m_ibletaref;}
-    const std::vector<float> getIncidenceAngleIBLBins() const {return m_iblphibins;}
+    const std::vector<float>& getEtaIBLBins() const {return m_ibletaref;}
+    const std::vector<float>& getIncidenceAngleIBLBins() const {return m_iblphibins;}
 
 
     // old parametrization (analytical formula)

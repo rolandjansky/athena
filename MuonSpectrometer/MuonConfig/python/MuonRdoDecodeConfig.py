@@ -44,9 +44,8 @@ def MuonPrdCacheCfg():
 
 ## This configuration function sets up everything for decoding RPC RDO to PRD conversion
 #
-# The forTrigger paramater is used to put the algorithm in RoI mode
 # The function returns a ComponentAccumulator and the data-converting algorithm, which should be added to the right sequence by the user
-def RpcRDODecodeCfg(flags, forTrigger=False):
+def RpcRDODecodeCfg(flags, name="RpcRdoToRpcPrepData"):
     from MuonConfig.MuonCondAlgConfig import RpcCondDbAlgCfg # MT-safe conditions access
     acc = RpcCondDbAlgCfg(flags)
 
@@ -64,20 +63,20 @@ def RpcRDODecodeCfg(flags, forTrigger=False):
     if flags.Common.isOnline: 
         RpcRdoToRpcPrepDataTool.ReadKey = "" ## cond data not needed online
 
-    if forTrigger:
+    if flags.Muon.MuonTrigger:
         RpcRdoToRpcPrepDataTool.RpcPrdContainerCacheKey      = MuonPrdCacheNames.RpcCache
         RpcRdoToRpcPrepDataTool.RpcCoinDataContainerCacheKey = MuonPrdCacheNames.RpcCoinCache
 
     # Get the RDO -> PRD alorithm
     RpcRdoToRpcPrepData=CompFactory.RpcRdoToRpcPrepData
-    RpcRdoToRpcPrepData = RpcRdoToRpcPrepData(name          = "RpcRdoToRpcPrepData",
+    RpcRdoToRpcPrepData = RpcRdoToRpcPrepData(name          = name,
                                               DecodingTool  = RpcRdoToRpcPrepDataTool,
                                               PrintPrepData = False )
     # add RegSelTool
     from RegionSelector.RegSelToolConfig import regSelTool_RPC_Cfg
     RpcRdoToRpcPrepData.RegSel_RPC = acc.popToolsAndMerge( regSelTool_RPC_Cfg( flags ) )
 
-    if forTrigger:
+    if flags.Muon.MuonTrigger:
         # Set the algorithm to RoI mode
         RpcRdoToRpcPrepData.DoSeededDecoding = True
         from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
@@ -86,7 +85,7 @@ def RpcRDODecodeCfg(flags, forTrigger=False):
     acc.addEventAlgo(RpcRdoToRpcPrepData)
     return acc
 
-def TgcRDODecodeCfg(flags, forTrigger=False):
+def TgcRDODecodeCfg(flags, name="TgcRdoToTgcPrepData"):
     acc = ComponentAccumulator()
 
     # We need the TGC cabling to be setup
@@ -103,14 +102,14 @@ def TgcRDODecodeCfg(flags, forTrigger=False):
     
     # Get the RDO -> PRD alorithm
     TgcRdoToTgcPrepData=CompFactory.TgcRdoToTgcPrepData
-    TgcRdoToTgcPrepData = TgcRdoToTgcPrepData(name          = "TgcRdoToTgcPrepData",
+    TgcRdoToTgcPrepData = TgcRdoToTgcPrepData(name          = name,
                                               DecodingTool  = TgcRdoToTgcPrepDataTool,
                                               PrintPrepData = False )
     # add RegSelTool
     from RegionSelector.RegSelToolConfig import regSelTool_TGC_Cfg
     TgcRdoToTgcPrepData.RegSel_TGC = acc.popToolsAndMerge( regSelTool_TGC_Cfg( flags ) )
 
-    if forTrigger:
+    if flags.Muon.MuonTrigger:
         # Set the algorithm to RoI mode
         TgcRdoToTgcPrepData.DoSeededDecoding = True
         from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
@@ -119,7 +118,7 @@ def TgcRDODecodeCfg(flags, forTrigger=False):
     acc.addEventAlgo(TgcRdoToTgcPrepData)
     return acc
 
-def MdtRDODecodeCfg(flags, forTrigger=False):
+def MdtRDODecodeCfg(flags, name="MdtRdoToMdtPrepData"):
     acc = ComponentAccumulator()
     from MuonConfig.MuonCalibrationConfig import MdtCalibrationToolCfg
 
@@ -141,14 +140,14 @@ def MdtRDODecodeCfg(flags, forTrigger=False):
 
     # Get the RDO -> PRD alorithm
     MdtRdoToMdtPrepData=CompFactory.MdtRdoToMdtPrepData
-    MdtRdoToMdtPrepData = MdtRdoToMdtPrepData(name          = "MdtRdoToMdtPrepData",
+    MdtRdoToMdtPrepData = MdtRdoToMdtPrepData(name          = name,
                                               DecodingTool  = MdtRdoToMdtPrepDataTool,
                                               PrintPrepData = False)
     # add RegSelTool
     from RegionSelector.RegSelToolConfig import regSelTool_MDT_Cfg
     MdtRdoToMdtPrepData.RegSel_MDT = acc.popToolsAndMerge( regSelTool_MDT_Cfg( flags ) )
 
-    if forTrigger:
+    if flags.Muon.MuonTrigger:
         # Set the algorithm to RoI mode
         MdtRdoToMdtPrepData.DoSeededDecoding = True
         from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
@@ -158,7 +157,7 @@ def MdtRDODecodeCfg(flags, forTrigger=False):
     return acc
 
 
-def CscRDODecodeCfg(flags, forTrigger=False):
+def CscRDODecodeCfg(flags, name="CscRdoToCscPrepData"):
     acc = ComponentAccumulator()
 
     # We need the CSC cabling to be setup
@@ -178,14 +177,14 @@ def CscRDODecodeCfg(flags, forTrigger=False):
     
     # Get the RDO -> PRD alorithm
     CscRdoToCscPrepData=CompFactory.CscRdoToCscPrepData
-    CscRdoToCscPrepData = CscRdoToCscPrepData(name                    = "CscRdoToCscPrepData",
+    CscRdoToCscPrepData = CscRdoToCscPrepData(name                    = name,
                                               CscRdoToCscPrepDataTool = CscRdoToCscPrepDataTool,
                                               PrintPrepData           = False )
     # add RegSelTool
     from RegionSelector.RegSelToolConfig import regSelTool_CSC_Cfg
     CscRdoToCscPrepData.RegSel_CSC = acc.popToolsAndMerge( regSelTool_CSC_Cfg( flags ) )
 
-    if forTrigger:
+    if flags.Muon.MuonTrigger:
         # Set the algorithm to RoI mode
         CscRdoToCscPrepData.DoSeededDecoding = True
         from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
@@ -194,7 +193,7 @@ def CscRDODecodeCfg(flags, forTrigger=False):
     acc.addEventAlgo(CscRdoToCscPrepData)
     return acc
 
-def CscClusterBuildCfg(flags, forTrigger=False):
+def CscClusterBuildCfg(flags, name= "CscThresholdClusterBuilder"):
     acc = ComponentAccumulator()
 
     # Get cluster creator tool
@@ -203,16 +202,34 @@ def CscClusterBuildCfg(flags, forTrigger=False):
   
     #CSC cluster building
     CscThresholdClusterBuilder=CompFactory.CscThresholdClusterBuilder
-    CscClusterBuilder = CscThresholdClusterBuilder(name            = "CscThresholdClusterBuilder",
+    CscClusterBuilder = CscThresholdClusterBuilder(name            = name,
                                                    cluster_builder = CscClusterBuilderTool )
     acc.addEventAlgo(CscClusterBuilder)
 
     return acc
 
+def MuonRDOtoPRDConvertorsCfg(flags):
+    # Schedule RDO conversion 
+    acc = ComponentAccumulator()
+
+    rpcdecodingAcc  = RpcRDODecodeCfg( flags )
+    acc.merge(rpcdecodingAcc)
+
+    tgcdecodingAcc = TgcRDODecodeCfg( flags )
+    acc.merge(tgcdecodingAcc)
+
+    mdtdecodingAcc = MdtRDODecodeCfg( flags )
+    acc.merge(mdtdecodingAcc)
+
+    cscdecodingAcc = CscRDODecodeCfg( flags )
+    acc.merge(cscdecodingAcc)
+
+    cscbuildingAcc = CscClusterBuildCfg( flags )
+    acc.merge(cscbuildingAcc)
+    return acc
 
 # This function runs the decoding on a data file
 def muonRdoDecodeTestData( forTrigger = False ):
-    # Add a flag, forTrigger, which will initially put the ByteStreamDecodeCfg code into "Cached Container" mode
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
 
@@ -234,9 +251,6 @@ def muonRdoDecodeTestData( forTrigger = False ):
     
     cfg=ComponentAccumulator()
 
-    # Seem to need this to read BS properly
-    from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
-    cfg.merge(ByteStreamReadCfg(ConfigFlags ))
 
     # Add the MuonCache to ComponentAccumulator for trigger/RoI testing mode
     if forTrigger:
@@ -244,39 +258,11 @@ def muonRdoDecodeTestData( forTrigger = False ):
         from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheCfg
         cfg.merge( MuonCacheCfg() )
 
-    # Schedule Rpc bytestream data decoding 
-    from MuonConfig.MuonBytestreamDecodeConfig import RpcBytestreamDecodeCfg
-    rpcdecodingAcc  = RpcBytestreamDecodeCfg( ConfigFlags, forTrigger ) 
-    cfg.merge( rpcdecodingAcc )
+    if ConfigFlags.Input.Format == 'BS':
+        from MuonConfig.MuonBytestreamDecodeConfig import MuonByteStreamDecodersCfg
+        cfg.merge( MuonByteStreamDecodersCfg( ConfigFlags) )
 
-    # Schedule Mdt bytestream data decoding 
-    from MuonConfig.MuonBytestreamDecodeConfig import TgcBytestreamDecodeCfg
-    tgcdecodingAcc = TgcBytestreamDecodeCfg( ConfigFlags, forTrigger ) 
-    cfg.merge( tgcdecodingAcc )
-
-    from MuonConfig.MuonBytestreamDecodeConfig import MdtBytestreamDecodeCfg
-    mdtdecodingAcc = MdtBytestreamDecodeCfg( ConfigFlags, forTrigger )
-    cfg.merge( mdtdecodingAcc )
-
-    from MuonConfig.MuonBytestreamDecodeConfig import CscBytestreamDecodeCfg
-    cscdecodingAcc  = CscBytestreamDecodeCfg( ConfigFlags, forTrigger) 
-    cfg.merge( cscdecodingAcc )
-
-    # Schedule RDO conversion 
-    rpcdecodingAcc  = RpcRDODecodeCfg( ConfigFlags )
-    cfg.merge(rpcdecodingAcc)
-
-    tgcdecodingAcc = TgcRDODecodeCfg( ConfigFlags )
-    cfg.merge(tgcdecodingAcc)
-
-    mdtdecodingAcc = MdtRDODecodeCfg( ConfigFlags )
-    cfg.merge(mdtdecodingAcc)
-
-    cscdecodingAcc = CscRDODecodeCfg( ConfigFlags )
-    cfg.merge(cscdecodingAcc)
-
-    cscbuildingAcc = CscClusterBuildCfg( ConfigFlags )
-    cfg.merge(cscbuildingAcc)
+    cfg.merge( MuonRDOtoPRDConvertorsCfg( ConfigFlags) )
 
     # Need to add POOL converter  - may be a better way of doing this?
     cfg.addService( CompFactory.AthenaPoolCnvSvc() )
@@ -320,24 +306,7 @@ def muonRdoDecodeTestMC():
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     # Schedule RDO conversion 
-    # RPC decoding
-    rpcdecodingAcc = RpcRDODecodeCfg( ConfigFlags )
-    cfg.merge(rpcdecodingAcc)
-
-    # TGC decoding
-    tgcdecodingAcc  = TgcRDODecodeCfg( ConfigFlags )
-    cfg.merge(tgcdecodingAcc)
-
-    # MDT decoding
-    mdtdecodingAcc = MdtRDODecodeCfg( ConfigFlags )
-    cfg.merge(mdtdecodingAcc)
-
-    # CSC decoding
-    cscdecodingAcc = CscRDODecodeCfg( ConfigFlags )
-    cfg.merge(cscdecodingAcc)
-
-    cscbuildingAcc = CscClusterBuildCfg( ConfigFlags )
-    cfg.merge(cscbuildingAcc)
+    cfg.merge( MuonRDOtoPRDConvertorsCfg( ConfigFlags) )
 
     log.info('Print Config')
     cfg.printConfig(withDetails=True)

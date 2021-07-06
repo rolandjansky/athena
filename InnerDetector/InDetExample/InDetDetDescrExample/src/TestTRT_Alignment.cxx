@@ -9,7 +9,7 @@
 #include "InDetIdentifier/TRT_ID.h"
 #include "Identifier/Identifier.h"
 #include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
+#include "ReadoutGeometryBase/InDetDD_Defs.h"
 
 #include <iostream>
 #include <vector>

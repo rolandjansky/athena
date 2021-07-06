@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_TrackExtensionAlg/TRT_TrackExtensionAlg.h"
@@ -61,7 +61,7 @@ StatusCode InDet::TRT_TrackExtensionAlg::execute(const EventContext& ctx) const 
 		++counter.m_nTracks;
 
 		std::vector<const Trk::MeasurementBase*>& trkExt = m_trtExtension->extendTrack(ctx, *(*trk), *event_data_p);
-		if( !trkExt.size() ) continue;
+		if( trkExt.empty() ) continue;
 
 		outputTracks->insert( std::make_pair((*trk), trkExt) ); 
 		++counter.m_nTracksExtended;

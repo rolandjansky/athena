@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: JetElementCnvAlg.cxx 576052 2013-12-18 09:13:50Z morrisj $
@@ -30,7 +30,7 @@ namespace xAODMaker {
    StatusCode JetElementCnvAlg::initialize() {
 
       // Greet the user:
-      ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
+      ATH_MSG_INFO( "Initializing" );
       ATH_MSG_DEBUG( " ESD Key: " << m_esdKey );
       ATH_MSG_DEBUG( "xAOD Key: " << m_xaodKey );
 
@@ -44,7 +44,7 @@ namespace xAODMaker {
    StatusCode JetElementCnvAlg::execute() {
       
       // Retrieve the ESD container:
-      const JetElementCollection* esd = 0;
+      const JetElementCollection* esd = nullptr;
       CHECK( evtStore()->retrieve( esd, m_esdKey ) );
       
       // Create the xAOD container and its auxiliary store:

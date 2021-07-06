@@ -406,7 +406,8 @@ bool TRTMonitoringRun3ESD_Alg::checkEventBurst(const TRT_RDO_Container& rdoConta
 //----------------------------------------------------------------------------------//
 StatusCode TRTMonitoringRun3ESD_Alg::fillTRTTracks(const xAOD::TrackParticleContainer& trackCollection,
                                               const xAOD::TrigDecision* trigDecision,
-                                              const ComTime* comTimeObject) const {
+                                              const ComTime* comTimeObject,
+                                              const xAOD::EventInfo& eventInfo) const {
 //----------------------------------------------------------------------------------//
     ATH_MSG_VERBOSE("Filling TRT Tracks Histos");
     
@@ -443,6 +444,9 @@ StatusCode TRTMonitoringRun3ESD_Alg::fillTRTTracks(const xAOD::TrackParticleCont
     auto EvtPhaseDetPhi_B_y             = Monitored::Scalar<float>("EvtPhaseDetPhi_B_y", 0.0);
     auto EvtPhaseDetPhi_E_x             = Monitored::Scalar<float>("EvtPhaseDetPhi_E_x", 0.0);
     auto EvtPhaseDetPhi_E_y             = Monitored::Scalar<float>("EvtPhaseDetPhi_E_y", 0.0);
+    auto NTrksperLB_x                   = Monitored::Scalar<float>("NTrksperLB_x", 0.0);
+    auto NTrksperLB_y                   = Monitored::Scalar<float>("NTrksperLB_y", 0.0);
+    
     
     // TH1F
     auto DriftTimeonTrkDist_B           = Monitored::Scalar<float>("DriftTimeonTrkDist_B", 0.0);
@@ -474,6 +478,8 @@ StatusCode TRTMonitoringRun3ESD_Alg::fillTRTTracks(const xAOD::TrackParticleCont
     auto WireToTrkPosition_E_Ar         = Monitored::Scalar<float>("WireToTrkPosition_E_Ar", 0.0);
     auto WireToTrkPosition_E            = Monitored::Scalar<float>("WireToTrkPosition_E", 0.0);
     auto EvtPhase                       = Monitored::Scalar<float>("EvtPhase", 0.0);
+    auto Summary                        = Monitored::Scalar<float>("Summary", 0.0);
+    auto SummaryWeight                  = Monitored::Scalar<float>("SummaryWeight", 0.0);
 
     // TH2F
     auto RtRelation_B_Ar_x              = Monitored::Scalar<float>("RtRelation_B_Ar_x", 0.0);
@@ -497,6 +503,12 @@ StatusCode TRTMonitoringRun3ESD_Alg::fillTRTTracks(const xAOD::TrackParticleCont
     DataVector<const Trk::TrackParameters>::const_iterator p_trkpariter;
 
     int ntrackstack[2][64];
+    int nTotalTracks = 0;
+    int nTracksB[2] = {0, 0};
+    int nTracksEC[2] = {0, 0};
+    int nTracksEC_B[2] = {0, 0};
+    int nTrksperLB_B = 0;
+    int nTrksperLB_E[2] = {0, 0};
 
     for (int ibe = 0; ibe < 2; ibe++) {
         std::fill(ntrackstack[ibe], ntrackstack[ibe] + 64, 0);
@@ -574,6 +586,10 @@ for (; p_trk != trackCollection.end(); ++p_trk) {
 
         if (!passed_track_preselection) continue;
 
+        nTotalTracks++;
+        int checkB[2] = {0, 0};
+        int checkEC[2] = {0, 0};
+        int checkEC_B[2] = {0, 0};
         int nTRTHitsW[2][2];
         int nTRTHits_side[2][2];
         int nTRTHitsW_perwheel[2][18];
@@ -694,6 +710,21 @@ for (; p_trk != trackCollection.end(); ++p_trk) {
 
             if (thisStrawNumber[ibe] < 0 || thisStrawNumber[ibe] >= s_Straw_max[ibe]) continue;
 
+            if (checkB[iside] == 0 && ibe == 0) {
+                nTracksB[iside]++;
+                checkB[iside] = 1;
+            }
+            
+            if (checkEC[iside] == 0 && ibe == 1) {
+                nTracksEC[iside]++;
+                checkEC[iside] = 1;
+            }
+            
+            if (checkEC_B[iside] == 0 && checkB[iside] == 1 && ibe == 1 ) {
+                nTracksEC_B[iside]++;
+                checkEC_B[iside] = 1;
+            }
+
             Identifier surfaceID;
             const Trk::MeasurementBase *mesb = (*TSOSItBegin)->measurementOnTrack();
             surfaceID = trtCircle->identify();
@@ -706,7 +737,8 @@ for (; p_trk != trackCollection.end(); ++p_trk) {
             if (iside == 0) iphi_module = phi_module;
             else if (iside == 1) iphi_module = phi_module + 32;
 
-            trackfound[ibe][iphi_module] = true;
+            if (iphi_module >= 0  && iphi_module < 64) trackfound[ibe][iphi_module] = true;
+            else ATH_MSG_ERROR("Variable iphi_module is out of range!");
 
             if (((ibe == 0) && (temp_locr < m_DistToStraw)) ||
                 ((ibe == 1) && ((*TSOSItBegin)->type(Trk::TrackStateOnSurface::Measurement) ||
@@ -797,18 +829,24 @@ for (; p_trk != trackCollection.end(); ++p_trk) {
 
                 // Calculate Residuals for hit
                 if (m_doShift && m_doStraws) {
-                    const double pull_b =
-                        ((loc - locR) /
-                         sqrt((loc_err * loc_err * loc_err * loc_err) -
-                              (locR_err * locR_err * locR_err * locR_err)));
+                    bool pull_b_fill;
+                    double pull_b = -999.;
+                    const double diff_loc_err = (loc_err * loc_err * loc_err * loc_err) - (locR_err * locR_err * locR_err * locR_err);
+                    if ( diff_loc_err > 0 ) {
+                        pull_b   = (loc - locR) / sqrt(diff_loc_err);
+                        pull_b_fill = true;
+                    }
+                    else pull_b_fill = false;
                     const double thist0 = m_TRTCalDbTool->getT0(surfaceID);
                     const double trkdrifttime = (!rtr) ? 0 : rtr->drifttime(fabs(locR));
                     const double timeresidual = RawDriftCircle->rawDriftTime() - thist0 - trkdrifttime;
 
                     if (ibe == 0) {
                         if (!isTubeHit) {
-                            Pull_Biased_Barrel = pull_b;
-                            fill("ShiftTRTTrackHistograms"+std::to_string(ibe), Pull_Biased_Barrel);
+                            if (pull_b_fill) {
+                                Pull_Biased_Barrel = pull_b;
+                                fill("ShiftTRTTrackHistograms"+std::to_string(ibe), Pull_Biased_Barrel);
+                            }
                         }
 
                         if (isArgonStraw) {
@@ -834,8 +872,10 @@ for (; p_trk != trackCollection.end(); ++p_trk) {
                         }
                     } else if (ibe == 1) {
                         if (!isTubeHit) {
-                            Pull_Biased_EndCap = pull_b;
-                            fill("ShiftTRTTrackHistograms"+std::to_string(ibe), Pull_Biased_EndCap);
+                            if (pull_b_fill) {
+                                Pull_Biased_EndCap = pull_b;
+                                fill("ShiftTRTTrackHistograms"+std::to_string(ibe), Pull_Biased_EndCap);
+                            }
                         }
 
                         if (isArgonStraw) {
@@ -933,8 +973,13 @@ for (; p_trk != trackCollection.end(); ++p_trk) {
                     }
                 }
 
+                const int driftTimeBin = RawDriftCircle->driftTimeBin();
+                const int firstBinHigh = RawDriftCircle->firstBinHigh();
+                const int lastBinHigh = RawDriftCircle->lastBinHigh();
                 const int trailingEdge = RawDriftCircle->trailingEdge();
                 float trailingEdgeScaled = (trailingEdge + 1) * 3.125;
+
+                if (firstBinHigh || lastBinHigh || driftTimeBin > 0 || trailingEdge < 23) nTRTHitsW[ibe][iside]++;
 
                 if ((trailingEdge < 23) &&
                     !(RawDriftCircle->lastBinHigh()) &&
@@ -1053,6 +1098,7 @@ for (; p_trk != trackCollection.end(); ++p_trk) {
 
             if (ibe == 0) {
                 if ((nTRTHitsW[ibe][0] + nTRTHitsW[ibe][1]) > 0) {
+                    nTrksperLB_B++;
                 }
                 if (comTimeObject) {
                     if (m_doShift && (phi2D[ibe] > 0) && (std::fabs(timeCor) > 1e-8)) {
@@ -1063,8 +1109,7 @@ for (; p_trk != trackCollection.end(); ++p_trk) {
                 }
             } else if (ibe == 1) {
                 for (int iside = 0; iside < 2; iside++) {
-                    if (nTRTHitsW[ibe][iside] > 0) {
-                    }
+                    if (nTRTHitsW[ibe][iside] > 0) nTrksperLB_E[iside]++;
                     if (comTimeObject) {
                         if (nTRTHits_side[ibe][iside] > 5 && (std::fabs(timeCor)
                                                                 > 1e-8)) {
@@ -1108,6 +1153,71 @@ for (; p_trk != trackCollection.end(); ++p_trk) {
                 }
             }
         }
+    }
+
+    if (m_environment != Environment_t::online) {
+        if (m_doShift) {
+            Summary = 0;
+            SummaryWeight = 1.;
+            fill("SmryHistograms", SummaryWeight, Summary);
+            
+            if (m_doTracksMon) {
+                Summary = 1;
+                SummaryWeight = nTotalTracks;
+                fill("SmryHistograms", SummaryWeight, Summary);
+                Summary = 2;
+                SummaryWeight = nTracksB[0];
+                fill("SmryHistograms", SummaryWeight, Summary);
+                Summary = 3;
+                SummaryWeight = nTracksB[1];
+                fill("SmryHistograms", SummaryWeight, Summary);
+                Summary = 4;
+                SummaryWeight = nTracksEC[0];
+                fill("SmryHistograms", SummaryWeight, Summary);
+                Summary = 5;
+                SummaryWeight = nTracksEC[1];
+                fill("SmryHistograms", SummaryWeight, Summary);
+                Summary = 6;
+                SummaryWeight = nTracksEC_B[0];
+                fill("SmryHistograms", SummaryWeight, Summary);
+                Summary = 7;
+                SummaryWeight = nTracksEC_B[1];
+                fill("SmryHistograms", SummaryWeight, Summary);
+            }
+        }
+    
+        if (m_doShift) {
+            const unsigned int lumiBlock = eventInfo.lumiBlock();
+            ATH_MSG_VERBOSE("This is lumiblock : " << lumiBlock);
+            int lastLumiBlock = -99;
+            if ((int)lumiBlock != lastLumiBlock) {
+                lastLumiBlock = lumiBlock;
+            }
+            float evtLumiBlock = 1.;
+            float lumiBlockScale = (evtLumiBlock > 0) ? (1. / evtLumiBlock) : 0;
+    
+            if (m_doTracksMon && evtLumiBlock > 0) {
+                NTrksperLB_x = lastLumiBlock;
+                NTrksperLB_y = (float)nTrksperLB_B * lumiBlockScale;
+                fill("ShiftTRTTrackHistograms0", NTrksperLB_x, NTrksperLB_y);
+    
+                for (int iside = 0; iside < 2; iside++) {
+                    NTrksperLB_x = lastLumiBlock;
+                    NTrksperLB_y = (float)nTrksperLB_E[iside] * lumiBlockScale;
+                    fill("ShiftTRTTrackHistograms1"+std::to_string(iside), NTrksperLB_x, NTrksperLB_y);
+                }
+    
+                nTrksperLB_B = 0;
+    
+                for (int iside = 0; iside < 2; iside++) {
+                    nTrksperLB_E[iside] = 0;
+                }
+
+            }
+        }
+        
+        ATH_MSG_DEBUG("end of event and lumi block");
+        //number of events in lumiblock counter setted to zero since it is end of the run or the lumiblock
     }
 
     return StatusCode::SUCCESS;
@@ -1359,7 +1469,7 @@ StatusCode TRTMonitoringRun3ESD_Alg::fillHistograms( const EventContext& ctx ) c
             ATH_MSG_DEBUG("Could not find com time object " << m_comTimeObjectKey.key() <<
                          " in store");
         }
-        ATH_CHECK( fillTRTTracks(*trackCollection, trigDecision, comTimeObject.isValid() ? comTimeObject.cptr() :  nullptr) );
+        ATH_CHECK( fillTRTTracks(*trackCollection, trigDecision, comTimeObject.isValid() ? comTimeObject.cptr() :  nullptr, *xAODEventInfo) );
     }
 
     if (!m_doTracksMon) {
@@ -1371,8 +1481,8 @@ StatusCode TRTMonitoringRun3ESD_Alg::fillHistograms( const EventContext& ctx ) c
     }
 
     if (passEventBurst) { // ESD files does not have an RDO container to pass event burst, what to do?
-		ATH_CHECK( fillTRTHighThreshold(*trackCollection, *xAODEventInfo) );
-	}
+        ATH_CHECK( fillTRTHighThreshold(*trackCollection, *xAODEventInfo) );
+    }
     
 
 

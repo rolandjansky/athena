@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -18,10 +18,13 @@
 #include "TrkDetDescrUtils/GeometryStatics.h"
 #include "TrkDetDescrUtils/Intersection.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"
+//
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkEventPrimitives/PropDirection.h"
+#include "TrkEventPrimitives/SurfaceTypes.h"
 #include "TrkEventPrimitives/SurfaceUniquePtrT.h"
+//
 #include "TrkParametersBase/Charged.h"
 #include "TrkParametersBase/Neutral.h"
 #include "TrkParametersBase/ParametersBase.h"
@@ -29,10 +32,12 @@
 #include "TrkSurfaces/DistanceSolution.h"
 // Identifier
 #include "Identifier/Identifier.h"
-
+//
 #include "CxxUtils/CachedUniquePtr.h"
 #include "CxxUtils/checker_macros.h"
 #include <atomic>
+#include <memory>
+#include <optional>
 
 class MsgStream;
 class SurfaceCnv_p1;
@@ -76,28 +81,56 @@ class Surface
   friend class ITrackingVolumeHelper;
 
 public:
-  /** @enum SurfaceType
-
-      This enumerator simplifies the persistency & calculations,
-      by saving a dynamic_cast to happen.
-
-      Other is reserved for the GeometrySurfaces implementation.
-
-    */
-  enum SurfaceType
+  /*
+   * struct holding the transform, center, normal,
+   * needed when by surfaces when not delegating
+   * to a detector element
+   */
+  struct Transforms
   {
-    Cone = 0,
-    Cylinder = 1,
-    Disc = 2,
-    Perigee = 3,
-    Plane = 4,
-    Line = 5,
-    Curvilinear = 6,
-    Other = 7
+    // constructor with just a Amg::Transform3D input
+    inline Transforms(const Amg::Transform3D& _transform)
+      : transform(_transform)
+      , center(transform.translation())
+      , normal(transform.rotation().col(2))
+    {}
+
+    // constructor with  Amg::Transform3D and center input
+    inline Transforms(const Amg::Transform3D& _transform,
+                      const Amg::Vector3D& _center)
+      : transform(_transform)
+      , center(_center)
+      , normal(transform.rotation().col(2))
+    {}
+
+    // constructor with  Amg::Transform3D , center and normal input
+    inline Transforms(const Amg::Transform3D& _transform,
+                      const Amg::Vector3D& _center,
+                      const Amg::Vector3D& _normal)
+      : transform(_transform)
+      , center(_center)
+      , normal(_normal)
+    {}
+    Transforms(const Transforms&) = default;
+    Transforms(Transforms&&) = default;
+    Transforms& operator=(const Transforms&) = default;
+    Transforms& operator=(Transforms&&) = default;
+    ~Transforms() = default;
+    //!< Transform3D to orient surface w.r.t to global frame
+    Amg::Transform3D transform;
+    //!< center position of the surface
+    Amg::Vector3D center;
+    //!< normal vector of the surface
+    Amg::Vector3D normal;
   };
+  /** Unique ptr types**/
+  using ChargedTrackParametersUniquePtr =
+    std::unique_ptr<ParametersBase<5, Trk::Charged>>;
+  using NeutralTrackParametersUniquePtr =
+    std::unique_ptr<ParametersBase<5, Trk::Neutral>>;
 
   /**Default Constructor
-   - needed for inherited classes */
+   for inheriting classes */
   Surface();
 
   /**Copy constructor - it resets the associated
@@ -105,28 +138,29 @@ public:
    as the copy cannot be owned by the same detector element as the original */
   Surface(const Surface& sf);
 
+  /**Assignment operator- it sets the associated
+   detector element to 0 and the associated identifier to invalid,
+   as the copy cannot be owned by the same detector element as the original */
+  Surface& operator=(const Surface& sf);
+
+  // Move operators for inheriting classes
+  Surface(Surface&& sf) noexcept = default;
+  Surface& operator=(Surface&& sf) noexcept = default;
+
+  /**Virtual Destructor*/
+  virtual ~Surface();
+
   /**Copy constructor with shift */
   Surface(const Surface& sf, const Amg::Transform3D& transf);
 
-  /**Constructor with HepGeom::Transform3D, passing ownership */
-  Surface(Amg::Transform3D* htrans);
-
-  /**Constructor with HepGeom::Transform3D, by unique_ptr */
-  Surface(std::unique_ptr<Amg::Transform3D> htrans);
+  /**Constructor with Amg::Transform3D reference */
+  Surface(const Amg::Transform3D& htrans);
 
   /**Constructor from TrkDetElement*/
   Surface(const TrkDetElementBase& detelement);
 
   /**Constructor form TrkDetElement and Identifier*/
   Surface(const TrkDetElementBase& detelement, const Identifier& id);
-
-  /**Virtual Destructor*/
-  virtual ~Surface();
-
-  /**Assignment operator- it sets the associated
-   detector element to 0 and the associated identifier to invalid,
-   as the copy cannot be owned by the same detector element as the original */
-  Surface& operator=(const Surface& sf);
 
   /**Equality operator*/
   virtual bool operator==(const Surface& sf) const = 0;
@@ -145,10 +179,10 @@ public:
   const Amg::Transform3D* cachedTransform() const;
 
   /** Returns HepGeom::Transform3D by reference */
-  virtual const Amg::Transform3D& transform() const;
+  const Amg::Transform3D& transform() const;
 
   /** Returns the center position of the Surface */
-  virtual const Amg::Vector3D& center() const;
+  const Amg::Vector3D& center() const;
 
   /** Returns the normal vector of the Surface (i.e. in generall z-axis of
    * rotation) */
@@ -156,7 +190,7 @@ public:
 
   /** Returns a normal vector at a specific local position
    */
-  virtual const Amg::Vector3D* normal(const Amg::Vector2D& lp) const;
+  virtual Amg::Vector3D normal(const Amg::Vector2D& lp) const;
 
   /** Returns a global reference point on the surface,
      for PlaneSurface, StraightLineSurface, PerigeeSurface this is equal to
@@ -182,56 +216,56 @@ public:
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * charged. The caller assumes ownership of the returned ptr.
    */
-  virtual ParametersBase<5, Trk::Charged>* createTrackParameters(
-    double,
-    double,
-    double,
-    double,
-    double,
-    AmgSymMatrix(5) * cov = nullptr) const = 0;
+  virtual ChargedTrackParametersUniquePtr createUniqueTrackParameters(
+    double l1,
+    double l2,
+    double phi,
+    double theat,
+    double qop,
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const = 0;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * charged  The caller assumes ownership of the returned ptr
    */
-  virtual ParametersBase<5, Trk::Charged>* createTrackParameters(
+  virtual ChargedTrackParametersUniquePtr createUniqueTrackParameters(
     const Amg::Vector3D&,
     const Amg::Vector3D&,
     double,
-    AmgSymMatrix(5) * cov = nullptr) const = 0;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const = 0;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * neutral.  The caller assumes ownership of the returned ptr
    */
-  virtual ParametersBase<5, Trk::Neutral>* createNeutralParameters(
-    double,
-    double,
-    double,
-    double,
-    double,
-    AmgSymMatrix(5) * cov = nullptr) const = 0;
+  virtual NeutralTrackParametersUniquePtr createUniqueNeutralParameters(
+    double l1,
+    double l2,
+    double phi,
+    double theat,
+    double qop,
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const = 0;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * neutral. The caller assumes ownership of the returned ptr
    */
-  virtual ParametersBase<5, Trk::Neutral>* createNeutralParameters(
+  virtual NeutralTrackParametersUniquePtr createUniqueNeutralParameters(
     const Amg::Vector3D&,
     const Amg::Vector3D&,
     double charge = 0.,
-    AmgSymMatrix(5) * cov = nullptr) const = 0;
+    std::optional<AmgSymMatrix(5)> cov = std::nullopt) const = 0;
 
-  /** positionOnSurface() returns a pointer to a LocalPosition on the
+  /** positionOnSurface() returns the  LocalPosition on the
     Surface,<br>
     If BoundaryCheck==false it just returns the value of
     globalToLocal (including nullptr possibility),
     if BoundaryCheck==true
-    it checks whether the point is inside bounds or not (returns nullptr
-    pointer in this case).
-    The caller assumes ownership of the returned ptr.
+    it checks whether the point is inside bounds or not (returns
+    std::nullopt in this case).
     */
-  Amg::Vector2D* positionOnSurface(const Amg::Vector3D& glopo,
-                                   const BoundaryCheck& bchk = true,
-                                   double tol1 = 0.,
-                                   double tol2 = 0.) const;
+  std::optional<Amg::Vector2D> positionOnSurface(
+    const Amg::Vector3D& glopo,
+    const BoundaryCheck& bchk = true,
+    double tol1 = 0.,
+    double tol2 = 0.) const;
 
   /** The templated Parameters OnSurface method - checks on surface pointer
    * first */
@@ -243,7 +277,7 @@ public:
     within or without check of whether the local position is inside boundaries
     or not */
   virtual bool isOnSurface(const Amg::Vector3D& glopo,
-                           BoundaryCheck bchk = true,
+                           const BoundaryCheck& bchk = true,
                            double tol1 = 0.,
                            double tol2 = 0.) const;
 
@@ -262,63 +296,28 @@ public:
                              Amg::Vector3D& glob) const = 0;
 
   /** This method returns the GlobalPosition from a LocalPosition
-   * uses the per surface localToGlobal and performs dynamic allocations.
-   * The caller is responsible for deleting the ptr.
+   * uses the per surface localToGlobal.
    */
-  Amg::Vector3D* localToGlobal(const Amg::Vector2D& locpos) const;
-
-  /** This method returns the GlobalPosition from a LocalPosition
-   * uses the per surface localToGlobal. Return by value
-   */
-  Amg::Vector3D localToGlobalPos(const Amg::Vector2D& locpos) const;
+  Amg::Vector3D localToGlobal(const Amg::Vector2D& locpos) const;
 
   /** This method returns the GlobalPosition from a LocalPosition
    * The LocalPosition can be outside Surface bounds - for generality with
    * momentum
-   * Uses the per surface localToGlobal and performs dynamic allocations.
-   * The caller is responsible for deleting the ptr.
    */
-
-  Amg::Vector3D* localToGlobal(const Amg::Vector2D& locpos,
-                               const Amg::Vector3D& glomom) const;
-
-  /** This method returns the GlobalPosition from a LocalPosition
-   * The LocalPosition can be outside Surface bounds - for generality with
-   * momentum
-   * Return by value No memeory allocation
-   */
-  Amg::Vector3D localToGlobalPos(const Amg::Vector2D& locpos,
-                                 const Amg::Vector3D& glomom) const;
+  Amg::Vector3D localToGlobal(const Amg::Vector2D& locpos,
+                              const Amg::Vector3D& glomom) const;
 
   /** This method returns the GlobalPosition from LocalParameters
    * The LocalParameters can be outside Surface bounds.
-   * Uses the per surface localToGlobal and performs dynamic allocations.
-   * The caller is responsible for deleting the ptr.
    */
-  Amg::Vector3D* localToGlobal(const LocalParameters& locpars) const;
-
-  /** This method returns the GlobalPosition from LocalParameters
-   * The LocalParameters can be outside Surface bounds.
-   * Return by value no memory allocation
-   */
-  Amg::Vector3D localToGlobalPos(const LocalParameters& locpars) const;
+  Amg::Vector3D localToGlobal(const LocalParameters& locpars) const;
 
   /** This method returns the GlobalPosition from LocalParameters
    * The LocalParameters can be outside Surface bounds - for generality with
    * momentum
-   * Uses the per surface localToGlobal and performs dynamic allocations.
-   * The caller is responsible for deleting the ptr.
    */
-  Amg::Vector3D* localToGlobal(const LocalParameters& locpars,
-                               const Amg::Vector3D& glomom) const;
-
-  /** This method returns the GlobalPosition from LocalParameters
-   * The LocalParameters can be outside Surface bounds - for generality with
-   * momentum
-   * Return by value no memory allocation
-   */
-  Amg::Vector3D localToGlobalPos(const LocalParameters& locpars,
-                                 const Amg::Vector3D& glomom) const;
+  Amg::Vector3D localToGlobal(const LocalParameters& locpars,
+                              const Amg::Vector3D& glomom) const;
 
   /** Specified by each surface type: GlobalToLocal method without dynamic
    * memory allocation - boolean checks if on surface */
@@ -327,20 +326,20 @@ public:
                              Amg::Vector2D& loc) const = 0;
 
   /** This method returns the LocalPosition from a provided GlobalPosition.
-    If the GlobalPosition is not on the Surface, it returns a NULL pointer.
+    If the GlobalPosition is not on the Surface, it returns nullopt
     This method does not check if the calculated LocalPosition is inside surface
     bounds. If this check is needed, use positionOnSurface - only for planar,
     cylinder surface fully defined*/
-  Amg::Vector2D* globalToLocal(const Amg::Vector3D& glopos,
-                               double tol = 0.) const;
+  std::optional<Amg::Vector2D> globalToLocal(const Amg::Vector3D& glopos,
+                                             double tol = 0.) const;
 
   /** This method returns the LocalPosition from a provided GlobalPosition.
-      If the GlobalPosition is not on the Surface, it returns a NULL pointer.
+      If the GlobalPosition is not on the Surface, it returns a nullopt
       This method does not check if the calculated LocalPosition is inside
      surface bounds. If this check is needed, use positionOnSurface - for
      generality with momentum */
-  Amg::Vector2D* globalToLocal(const Amg::Vector3D& glopos,
-                               const Amg::Vector3D& glomom) const;
+  std::optional<Amg::Vector2D> globalToLocal(const Amg::Vector3D& glopos,
+                                             const Amg::Vector3D& glomom) const;
 
   /** Optionally specified by each surface type : LocalParameters to Vector2D */
   virtual Amg::Vector2D localParametersToPosition(
@@ -364,7 +363,7 @@ public:
   template<class T>
   Intersection straightLineIntersection(const T& pars,
                                         bool forceDir = false,
-                                        Trk::BoundaryCheck bchk = false) const
+                                        const Trk::BoundaryCheck& bchk = false) const
   {
     return straightLineIntersection(
       pars.position(), pars.momentum().unit(), forceDir, bchk);
@@ -400,6 +399,9 @@ public:
 
   /** Return 'true' if this surface is own by the detector element */
   bool isActive() const;
+
+  /** Set the transform updates center and normal*/
+  void setTransform(const Amg::Transform3D& trans);
 
   /** Set ownership for const*/
   void setOwner ATLAS_NOT_CONST_THREAD_SAFE(SurfaceOwner x) const;
@@ -447,31 +449,23 @@ public:
 protected:
   friend class ::SurfaceCnv_p1;
 
-  /** Private members are in principle implemented as pointers to
-   * objects for easy checks if they are already declared or not */
+  //!< Owning Pointer to the Transforms struct*/
+  std::unique_ptr<Transforms> m_transforms = nullptr;
 
-  //!< Transform3D to orient surface w.r.t to global frame
-  std::unique_ptr<Amg::Transform3D> m_transform;
-  //!< center position of the surface
-  CxxUtils::CachedUniquePtr<Amg::Vector3D> m_center;
-  //!< normal vector of the surface
-  CxxUtils::CachedUniquePtr<Amg::Vector3D> m_normal;
-
-  /** Pointers to the a TrkDetElementBase */
-  const TrkDetElementBase* m_associatedDetElement;
+  /** Not owning Pointer to the TrkDetElementBase*/
+  const TrkDetElementBase* m_associatedDetElement = nullptr;
   Identifier m_associatedDetElementId;
 
   /**The associated layer Trk::Layer
    - layer in which the Surface is be embedded
+   (not owning)
    */
-  const Layer* m_associatedLayer;
-
+  const Layer* m_associatedLayer = nullptr;
   /** Possibility to attach a material descrption
   - potentially given as the associated material layer
-    don't delete, it's the TrackingGeometry's job to do so
+    (not owning)
   */
-  const Layer* m_materialLayer;
-
+  const Layer* m_materialLayer = nullptr;
   /** enum for surface owner : 0  free surface */
   SurfaceOwner m_owner;
 

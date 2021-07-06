@@ -1,0 +1,31 @@
+/*
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
+
+namespace CLHEP {
+
+inline RandBinomialFixedP::RandBinomialFixedP(HepRandomEngine & anEngine, long n,
+                                                              double p, long Nmaxlookup )
+: RandBinomial( anEngine, n, p ) {initLookupTable(Nmaxlookup,p);}
+
+inline RandBinomialFixedP::RandBinomialFixedP(HepRandomEngine * anEngine, long n,
+                                                              double p, long Nmaxlookup )
+: RandBinomial( anEngine, n, p ) {initLookupTable(Nmaxlookup,p);}
+
+inline double RandBinomialFixedP::operator()() {
+  return fire( localEngine.get(), defaultN );
+}
+
+inline double RandBinomialFixedP::operator()( long n ) {
+  return fire( localEngine.get(), n );
+}
+
+inline double RandBinomialFixedP::fire() {
+  return fire( localEngine.get(), defaultN );
+}
+
+inline double RandBinomialFixedP::fire( long n ) {
+  return fire( localEngine.get(), n );
+}
+
+}  // namespace CLHEP

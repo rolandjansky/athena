@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## set to true in case you would like to write out your own InDetAlignMon.root
 InDetAlignMonDoOutput = True
@@ -229,9 +229,11 @@ if (InDetFlags.doPrintConfigurables()):
 #
 # Generic Tracks
 #
+from InDetRecExample import TrackingCommon
 from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import IDAlignMonGenericTracks
 InDetAlignMonGenericTracks_noTrig = IDAlignMonGenericTracks (name                = "InDetAlignMonGenericTracks_noTrig",
                                                              trackSelection      = m_alignMonTrackSelectionTool[1],
+                                                             TrackToVertexIPEstimator = TrackingCommon.getTrackToVertexIPEstimator(),
                                                              VxPrimContainerName = InDetKeys.xAODVertexContainer())   
 
 if jobproperties.Beam.beamType()=='cosmics' or jobproperties.Beam.beamType()=='singlebeam':
@@ -374,6 +376,7 @@ else:
 
     InDetAlignMonGenericTracks = IDAlignMonGenericTracks (name                = "InDetAlignMonGenericTracks",
                                                           trackSelection      = m_alignMonTrackSelectionTool[1],
+                                                          TrackToVertexIPEstimator = TrackingCommon.getTrackToVertexIPEstimator(),
                                                           tracksName          = InDetKeys.ExtendedTracks(),
                                                           VxPrimContainerName = InDetKeys.xAODVertexContainer())
 

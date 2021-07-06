@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -175,9 +175,6 @@ ReportMessage::ReportMessage (MSG::Level level,
 
   // The status code.
   *this << ": code " << sc;
-
-  // "Check" our copy of the StatusCode.
-  sc.setChecked();
 
   // Remember the end of the header.
   m_pos = stream().str().size();

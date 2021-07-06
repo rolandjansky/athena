@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -109,7 +109,7 @@ StatusCode RpcClusterBuilderPRD::fill_rpcClusterContainer() {
     
     const Muon::RpcPrepDataCollection * theCollection= *rpcCollection;
 
-    if(theCollection->size()>0){
+    if(!theCollection->empty()){
       
       
       // create temp collection for clusters 	 
@@ -304,14 +304,7 @@ void RpcClusterBuilderPRD::buildClusters(Identifier elementId, const MuonGM::Muo
 	mat(0,0) = 1.;
 	double err = theIDs.size()*width/sqrt((double)12);
 	mat *= err*err;
-	const Amg::MatrixX * errClusterPos = new Amg::MatrixX(mat);
-	//Trk::CovarianceMatrix * cov = new Trk::CovarianceMatrix(mat);
-	//const Trk::ErrorMatrix * errClusterPos = new Trk::ErrorMatrix(cov);
-
-	//DataVector<Trk::PrepRawData>* DV = new DataVector<Trk::PrepRawData>(SG::VIEW_ELEMENTS);
-	//	for(int k=0;k<digitsInCluster.size();++k){
-	//	  DV->push_back(digitsInCluster[k]);
-	//	}
+	auto  errClusterPos =  Amg::MatrixX(mat);
 
 	IdContext rpcContext = m_idHelperSvc->rpcIdHelper().module_context();
 	IdentifierHash rpcHashId;
@@ -353,7 +346,7 @@ void RpcClusterBuilderPRD::buildClusters(Identifier elementId, const MuonGM::Muo
       
       // if we are at the end, close the custer anyway and fill it with what we have found
       
-      if(count==m_digits[panelId].size()-1&&theIDs.size()>0){
+      if(count==m_digits[panelId].size()-1&&!theIDs.empty()){
 
 
 
@@ -386,13 +379,7 @@ void RpcClusterBuilderPRD::buildClusters(Identifier elementId, const MuonGM::Muo
 	mat(0,0) = 1.;
 	double err = theIDs.size()*width/sqrt((double)12);
 	mat *= err*err;
-	const Amg::MatrixX * errClusterPos = new Amg::MatrixX(mat);
-	//Trk::CovarianceMatrix * cov = new Trk::CovarianceMatrix(mat); 
-	//const Trk::ErrorMatrix * errClusterPos = new Trk::ErrorMatrix(cov);
-	//	DataVector<Trk::PrepRawData>* DV = new DataVector<Trk::PrepRawData>(SG::VIEW_ELEMENTS);
-	///	for(int k=0;k<digitsInCluster.size();++k){
-	//	  DV->push_back(digitsInCluster[k]);
-	//	}
+	auto errClusterPos =  Amg::MatrixX(mat);
 	
 	Amg::Vector2D pointLocPos ;
 	descriptor->surface(panelId).globalToLocal(globalPosition,globalPosition,pointLocPos);

@@ -17,8 +17,8 @@ namespace Overlay
                         const PixelRDORawData &/* additionalDatum */,
                         const IDC_OverlayBase *algorithm)
   {
-    algorithm->msg(MSG::WARNING) << "Overlay::mergeChannelData<PixelRDORawData>(): "
-      << "Merging of data on the same channel is not implemented for PixelRDORawData" << endmsg;
+    algorithm->msg(MSG::DEBUG) << "Overlay::mergeChannelData<PixelRDORawData>(): "
+      << "Merging of data on the same channel is not explicitly implemented for PixelRDORawData" << endmsg;
   }
 
   // Specialize copyCollection() for the Pixel

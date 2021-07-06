@@ -8,9 +8,9 @@
 ## \warning Only use this for testing/debugging purposes.
 ##          This run mode is neither fully implemented nor validated or supported yet.
 
-import Herwig7Config as hw7Config
-import Herwig7Control as hw7Control
-import Herwig7Utils as hw7Utils
+from . import Herwig7Config as hw7Config
+from . import Herwig7Control as hw7Control
+from . import Herwig7Utils as hw7Utils
 
 from AthenaCommon import Logging
 athMsgLog = Logging.logging.getLogger('Herwig7Control')

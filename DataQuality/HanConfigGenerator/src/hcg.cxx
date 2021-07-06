@@ -7,7 +7,6 @@
 // 
 //      
 //
-//   $Id: hanconfig.cxx, v0.0   Thu  12 March 2015 14:13:47 CEST sutt $
 
 
 #include <iostream>
@@ -1092,9 +1091,6 @@ int main(int argc, char** argv) {
 
   for ( int i=1 ; i<argc ; i++ ) { 
     if ( std::string(argv[i])=="-h" || std::string(argv[i])=="--help" )  return usage( *outp, argc, argv, 0 ); 
-    //    if ( std::string(argv[i])=="-v" || std::string(argv[i])=="--version" ) {
-    //      (*outp) << argv[0] << " APPLgrid version " << PACKAGE_VERSION << std::endl; 
-    //  return 0;
   }
   
   std::string dir = "";

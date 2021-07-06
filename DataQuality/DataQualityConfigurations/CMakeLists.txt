@@ -63,6 +63,10 @@ foreach( hanfile collisions_run collisions_minutes10
    install( FILES ${outputFile}
       DESTINATION ${CMAKE_INSTALL_DATADIR}/DataQualityConfigurations OPTIONAL )
 
+   # add a test
+   atlas_add_test( ${hanfile}_syntax SCRIPT scripts/han-config-check.sh ${configOutputFile} PROPERTIES TIMEOUT 300 POST_EXEC_SCRIPT nopost.sh )
+   atlas_add_test( ${hanfile}_topempty SCRIPT test/check_no_top_level_assessments.sh ${outputFile} POST_EXEC_SCRIPT nopost.sh )
+
    # Clean up:
    unset( outputFile )
    unset( configInputFiles )
@@ -80,6 +84,7 @@ add_dependencies( Package_DataQualityConfigurations
 set_target_properties( DataQualityConfigurations_han_configs PROPERTIES
    LABELS DataQualityConfigurations
    FOLDER DataQuality/DataQualityConfigurations )
+
 
 # Clean up:
 unset( hcfgfiles )

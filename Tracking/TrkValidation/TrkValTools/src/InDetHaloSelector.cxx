@@ -33,7 +33,7 @@ Trk::InDetHaloSelector::InDetHaloSelector(const std::string& type, const std::st
 StatusCode Trk::InDetHaloSelector::initialize() {
 
   // get the Particle Properties Service
-  IPartPropSvc* partPropSvc = 0;
+  IPartPropSvc* partPropSvc = nullptr;
   StatusCode sc =  service("PartPropSvc", partPropSvc, true);
   if (sc.isFailure()) {
     ATH_MSG_FATAL (" Could not initialize Particle Properties Service");
@@ -50,13 +50,13 @@ StatusCode Trk::InDetHaloSelector::finalize() {
   return StatusCode::SUCCESS;
 }
 
-std::vector<const HepMC::GenParticle*>*
+std::vector<HepMC::ConstGenParticlePtr>*
 Trk::InDetHaloSelector::selectGenSignal (const McEventCollection* SimTracks) const {
 
-  if (! SimTracks) return NULL;
+  if (! SimTracks) return nullptr;
 
-  std::vector<const HepMC::GenParticle *>* genSignal = 
-    new std::vector<const HepMC::GenParticle *>;
+  std::vector<HepMC::ConstGenParticlePtr>* genSignal = 
+    new std::vector<HepMC::ConstGenParticlePtr>;
 
   // pile-up: vector of MCEC has more than one entry
   DataVector<HepMC::GenEvent>::const_iterator itCollision = SimTracks->begin();

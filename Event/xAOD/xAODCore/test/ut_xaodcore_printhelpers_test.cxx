@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ut_xaodcore_printhelpers_test.cxx 646509 2015-02-12 16:43:18Z krasznaa $
 
 // System include(s):
+#include <cstdint>
 #include <iostream>
 #include <vector>
-#include <stdint.h>
 
 // EDM include(s):
 #include "AthContainers/AuxElement.h"

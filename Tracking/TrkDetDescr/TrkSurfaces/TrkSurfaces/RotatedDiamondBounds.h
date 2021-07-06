@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -56,22 +56,28 @@ public:
   /**Default Constructor, needed for persistency*/
   RotatedDiamondBounds();
 
-  /**Constructor for symmetric Diamond*/
-  RotatedDiamondBounds(double minhalex, double medhalex, double maxhalex, double haley1, double haley2);
-
   /**Copy constructor*/
   RotatedDiamondBounds(const RotatedDiamondBounds& diabo) = default;
-
-  /**Destructor*/
-  virtual ~RotatedDiamondBounds() = default;
-
-  /**Virtual constructor*/
-  RotatedDiamondBounds* clone() const override;
 
   /**Assignment operator*/
   RotatedDiamondBounds& operator=(const RotatedDiamondBounds& sbo) = default;
 
-  /**Equality operator*/
+   /**Move constructor*/
+  RotatedDiamondBounds(RotatedDiamondBounds&& diabo) noexcept = default;
+
+  /**Assignment operator*/
+  RotatedDiamondBounds& operator=(RotatedDiamondBounds&& sbo) noexcept = default;
+
+  /**Destructor*/
+  virtual ~RotatedDiamondBounds() = default;
+
+  /**Constructor for symmetric Diamond*/
+  RotatedDiamondBounds(double minhalex, double medhalex, double maxhalex, double haley1, double haley2);
+
+  /**Virtual constructor*/
+  RotatedDiamondBounds* clone() const override;
+
+ /**Equality operator*/
   virtual bool operator==(const SurfaceBounds& diabo) const override;
 
   /** Return the bounds type */

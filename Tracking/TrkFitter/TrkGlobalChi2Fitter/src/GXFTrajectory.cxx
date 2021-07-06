@@ -10,7 +10,6 @@
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 
-using CLHEP::HepVector;
 
 namespace Trk {
   GXFTrajectory::GXFTrajectory() {
@@ -341,7 +340,7 @@ namespace Trk {
           m_nupstreambrems++;
         }
 
-        it2++;
+        ++it2;
       }
     }
   }
@@ -425,43 +424,43 @@ namespace Trk {
     m_refpar.reset(nullptr);
   }
 
-  bool GXFTrajectory::converged() {
+  bool GXFTrajectory::converged() const {
     return m_converged;
   }
 
-  int GXFTrajectory::prefit() {
+  int GXFTrajectory::prefit() const {
     return m_prefit;
   }
 
-  int GXFTrajectory::numberOfHits() {
+  int GXFTrajectory::numberOfHits() const {
     return m_nhits;
   }
 
-  int GXFTrajectory::numberOfOutliers() {
+  int GXFTrajectory::numberOfOutliers() const {
     return m_noutl;
   }
 
-  int GXFTrajectory::numberOfSiliconHits() {
+  int GXFTrajectory::numberOfSiliconHits() const {
     return m_nsihits;
   }
 
-  int GXFTrajectory::numberOfTRTHits() {
+  int GXFTrajectory::numberOfTRTHits() const {
     return m_ntrthits;
   }
 
-  int GXFTrajectory::numberOfTRTPrecHits() {
+  int GXFTrajectory::numberOfTRTPrecHits() const {
     return m_ntrtprechits;
   }
 
-  int GXFTrajectory::numberOfTRTTubeHits() {
+  int GXFTrajectory::numberOfTRTTubeHits() const {
     return m_ntrttubehits;
   }
 
-  int GXFTrajectory::numberOfPseudoMeasurements() {
+  int GXFTrajectory::numberOfPseudoMeasurements() const {
     return m_npseudo;
   }
 
-  int GXFTrajectory::numberOfScatterers() {
+  int GXFTrajectory::numberOfScatterers() const {
     if (m_prefit != 0) {
       return m_ncaloscatterers;
     }
@@ -472,7 +471,7 @@ namespace Trk {
     m_nscatterers = nscat;
   }
 
-  int  GXFTrajectory::numberOfBrems() {
+  int  GXFTrajectory::numberOfBrems() const {
     return m_nbrems;
   }
 
@@ -480,26 +479,26 @@ namespace Trk {
     m_nbrems = nbrem;
   }
 
-  int GXFTrajectory::numberOfUpstreamStates() {
+  int GXFTrajectory::numberOfUpstreamStates() const {
     return m_nupstreamstates;
   }
 
-  int GXFTrajectory::numberOfUpstreamScatterers() {
+  int GXFTrajectory::numberOfUpstreamScatterers() const {
     if (m_prefit == 0) {
       return m_nupstreamscatterers;
     }
     return m_nupstreamcaloscatterers;
   }
 
-  int GXFTrajectory::numberOfUpstreamBrems() {
+  int GXFTrajectory::numberOfUpstreamBrems() const {
     return m_nupstreambrems;
   }
 
-  int GXFTrajectory::numberOfPerigeeParameters() {
+  int GXFTrajectory::numberOfPerigeeParameters() const {
     return m_nperpars;
   }
 
-  int GXFTrajectory::numberOfFitParameters() {
+  int GXFTrajectory::numberOfFitParameters() const {
     if (m_prefit == 1) {
       return m_nperpars + numberOfBrems() + numberOfScatterers();
     }
@@ -510,7 +509,7 @@ namespace Trk {
     return m_chi2;
   }
 
-  double GXFTrajectory::prevchi2() {
+  double GXFTrajectory::prevchi2() const {
     return m_prevchi2;
   }
 
@@ -623,17 +622,17 @@ namespace Trk {
   }
 
   double
-    GXFTrajectory::totalX0() {
+    GXFTrajectory::totalX0() const {
     return m_totx0;
   }
 
   double
-    GXFTrajectory::totalEnergyLoss() {
+    GXFTrajectory::totalEnergyLoss() const {
     return m_toteloss;
   }
 
   double
-    GXFTrajectory::mass() {
+    GXFTrajectory::mass() const {
     return m_mass;
   }
 

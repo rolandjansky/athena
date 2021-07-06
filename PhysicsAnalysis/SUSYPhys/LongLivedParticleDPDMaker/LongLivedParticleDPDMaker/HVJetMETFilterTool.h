@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -16,6 +16,8 @@
 
 // DerivationFramework includes
 #include "DerivationFrameworkInterfaces/ISkimmingTool.h"
+#include "xAODMissingET/MissingETContainer.h"
+#include "StoreGate/ReadHandleKey.h"
 
 namespace DerivationFramework {
 
@@ -43,12 +45,12 @@ namespace DerivationFramework {
     virtual bool eventPassesFilter() const;
     
   private:
-    mutable unsigned int m_ntot;
-    mutable unsigned int m_npass;
-    std::string m_metSGKey;
+    mutable std::atomic<unsigned int> m_ntot;
+    mutable std::atomic<unsigned int> m_npass;
+    SG::ReadHandleKey<xAOD::MissingETContainer> m_metSGKey
+      { this, "METContainerKey", "MET_RefFinal", ""};
     std::string m_metTerm;
     double m_metCut;
-    std::string m_jetSGKey; // only needed if we want to cut on dphi(jet,MET)
 
   }; 
   

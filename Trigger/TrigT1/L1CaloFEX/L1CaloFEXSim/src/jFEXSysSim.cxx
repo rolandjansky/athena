@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -13,6 +13,7 @@
 #include "L1CaloFEXSim/jFEXSim.h"
 #include "L1CaloFEXSim/jTower.h"
 #include "L1CaloFEXSim/jTowerContainer.h"
+#include "L1CaloFEXSim/FEXAlgoSpaceDefs.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
@@ -21,6 +22,17 @@
 #include "StoreGate/ReadHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+#include "xAODTrigger/jFexSRJetRoI.h"
+#include "xAODTrigger/jFexSRJetRoIContainer.h" 
+#include "xAODTrigger/jFexSRJetRoIAuxContainer.h"
+
+#include "xAODTrigger/jFexLRJetRoI.h"
+#include "xAODTrigger/jFexLRJetRoIContainer.h"
+#include "xAODTrigger/jFexLRJetRoIAuxContainer.h"
+
+#include "xAODTrigger/jFexTauRoI.h"
+#include "xAODTrigger/jFexTauRoIContainer.h" 
+#include "xAODTrigger/jFexTauRoIAuxContainer.h"
 
 #include <ctime>
 
@@ -49,7 +61,13 @@ namespace LVL1 {
     
     ATH_CHECK(m_jTowerContainerSGKey.initialize());
 
-    ATH_CHECK( m_jFEXSimTool.retrieve() );
+    ATH_CHECK(m_jFEXSimTool.retrieve() );
+ 
+    ATH_CHECK(m_jFexSRJetOutKey.initialize());
+    ATH_CHECK(m_jFexLRJetOutKey.initialize());
+    ATH_CHECK(m_jFexTauOutKey.initialize());
+    ATH_CHECK(m_jFexSumETOutKey.initialize());
+    ATH_CHECK(m_jFexMETOutKey.initialize());
 
     return StatusCode::SUCCESS;
   }
@@ -88,6 +106,9 @@ namespace LVL1 {
       return StatusCode::FAILURE;
     }
 
+    m_allSmallRJetTobs.clear();
+    m_allLargeRJetTobs.clear();
+    m_alltauTobs.clear();
     // We need to split the towers into 6 blocks in eta and 4 blocks in phi.
 
     // boundaries in eta: -2.5, -1.6, -0.8, 0.0, 0.8, 1.6, 2.5
@@ -113,41 +134,107 @@ namespace LVL1 {
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
     // C-SIDE NEGATIVE JFEX
     // LEFT-MOST
-    // -2.5 -> -0.8  (in reality this will be -4.9 to -0.8 , but we're ignoring the forward region for the time being...) [core is -4.9 to -1.6]
+    // -4.9 to -0.8 [core is -4.9 to -1.6]
     // DO THE LEFT-MOST (NEGATIVE ETA) JFEX FIRST
     //id_modifier + phi + (64 * eta)
-    int emecEta = 24; int emecPhi = 0; int emecMod = 500000;
-    int initialEMEC = calcTowerID(emecEta,emecPhi,emecMod); //501536;
+    int fcal2Eta = 3; int fcal2Phi = 0; int fcal2Mod = 1100000;
+    int initialFCAL2 = calcTowerID(fcal2Eta,fcal2Phi,fcal2Mod); //1100192
+    int fcal1Eta = 7; int fcal1Phi = 0; int fcal1Mod = 900000;
+    int initialFCAL1 = calcTowerID(fcal1Eta,fcal1Phi,fcal1Mod); //900448
+    int fcal0Eta = 11; int fcal0Phi = 0; int fcal0Mod = 700000;
+    int initialFCAL0 = calcTowerID(fcal0Eta,fcal0Phi,fcal0Mod); //700704
+    int emecEta = 28; int emecPhi = 0; int emecMod = 500000;
+    int initialEMEC = calcTowerID(emecEta,emecPhi,emecMod); //501792
     int transEta = 14; int transPhi = 0; int transMod = 300000;
     int initialTRANS = calcTowerID(transEta,transPhi,transMod); //300896;
     int embEta = 13; int embPhi = 0; int embMod = 100000;
     int initialEMB = calcTowerID(embEta,embPhi,embMod); //100832
 
-    int thisJFEX = 0;
+    uint8_t thisJFEX = 0;
     // jFEX 0
     thisJFEX = 0;
-    
+
+    // let's work fully out to in (sort of)
+    // Let's go with FCAL2 first
     // decide which subset of towers (and therefore supercells) should go to the jFEX
-    std::map<int,jTower> tmp_jTowersColl_subset;
-    
+    std::map<int,jTower> tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL;
+
     // let's try doing this with an array initially just containing tower IDs.
-    int tmp_jTowersIDs_subset [16*4][17];
-    
-    int rows = sizeof tmp_jTowersIDs_subset / sizeof tmp_jTowersIDs_subset[0];
-    int cols = sizeof tmp_jTowersIDs_subset[0] / sizeof tmp_jTowersIDs_subset[0][0];
-    
+    int tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL [2*FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width];
+
+    // zero the matrix out
+    for (int i = 0; i<2*FEXAlgoSpaceDefs::jFEX_algoSpace_height; i++){
+      for (int j = 0; j<FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width; j++){
+	tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL[i][j] = 0;
+      }
+    }
+
+    int rows = sizeof tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL / sizeof tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL[0];
+    int cols = sizeof tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL[0] / sizeof tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL[0][0];
+
+    // set the FCAL2 part
+    for(int thisCol=0; thisCol<4; thisCol++){
+      for(int thisRow=0; thisRow<rows/4; thisRow++){
+
+        int towerid = initialFCAL2 - (thisCol * 64) + thisRow;
+
+        tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL[thisRow][thisCol] = towerid;
+        tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+
+      }
+    }
+    //---
+
+    // Let's go with FCAL1
+    // set the FCAL1 part
+    for(int thisCol=4; thisCol<12; thisCol++){
+      for(int thisRow=0; thisRow<rows/4; thisRow++){
+
+        int towerid = initialFCAL1 - ((thisCol-4) * 64) + thisRow;
+
+        tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL[thisRow][thisCol] = towerid;
+        tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+
+      }
+    }
+    //---
+
+    // Let's go with FCAL0
+    // set the FCAL0 part
+    for(int thisCol=12; thisCol<24; thisCol++){
+      for(int thisRow=0; thisRow<rows/4; thisRow++){
+
+        int towerid = initialFCAL0 - ((thisCol-12) * 64) + thisRow;
+
+        tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL[thisRow][thisCol] = towerid;
+        tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+
+      }
+    }
+    //---
+
+
+    // decide which subset of towers (and therefore supercells) should go to the jFEX
+    // set the next EMEC part
+    for(int thisCol=24; thisCol<28; thisCol++){
+      for(int thisRow=0; thisRow<rows/2; thisRow++){
+
+        int towerid = initialEMEC - ((thisCol-24) * 64) + thisRow;
+
+        tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL[thisRow][thisCol] = towerid;
+        tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+
+      }
+    }
+
     // set the EMEC part
-    for(int thisCol=0; thisCol<10; thisCol++){
+    for(int thisCol=28; thisCol<38; thisCol++){
       for(int thisRow=0; thisRow<rows; thisRow++){
 	
-	int towerid = initialEMEC - (thisCol * 64) + thisRow;
-	
-	//if( (thisJFEX == 21) && (thisRow >= 7)){ towerid -= 64; }; // we'll bring this back in if need to apply jFEX overlap in phi
-	
-	tmp_jTowersIDs_subset[thisRow][thisCol] = towerid;
-	tmp_jTowersColl_subset.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
-	
-	std::vector<Identifier> supercellIDs = this_jTowerContainer->findTower(towerid)->getEMSCIDs();
+	int towerid = initialEMEC - ((thisCol-24) * 64) + thisRow; //note special case -24 rather than -28, this *is* deliberate
+
+	tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL[thisRow][thisCol] = towerid;
+	tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 	
       }
     }
@@ -157,27 +244,19 @@ namespace LVL1 {
 
       int towerid = initialTRANS + thisRow;
 
-      //if( (thisJFEX == 21) && (thisRow >= 7)){ towerid -= 64; }; // we'll bring this back in if need to apply jFEX overlap in phi
-
-      tmp_jTowersIDs_subset[thisRow][10] = towerid;
-      tmp_jTowersColl_subset.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
-
-      std::vector<Identifier> supercellIDs = this_jTowerContainer->findTower(towerid)->getEMSCIDs();
+      tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL[thisRow][38] = towerid;
+      tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 
     }
 
     // set the EMB part
-    for(int thisCol = 11; thisCol < cols; thisCol++){
+    for(int thisCol = 39; thisCol < 45; thisCol++){
       for(int thisRow=0; thisRow<rows; thisRow++){
 
-        int towerid = initialEMB - ( (thisCol-11) * 64) + thisRow;
+        int towerid = initialEMB - ( (thisCol-39) * 64) + thisRow;
 
-        //if( (thisJFEX == 21) && (thisRow >= 7)){ towerid -= 64; }; // we'll bring this back in if need to apply jFEX overlap in phi
-
-        tmp_jTowersIDs_subset[thisRow][thisCol] = towerid;
-        tmp_jTowersColl_subset.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
-
-	std::vector<Identifier> supercellIDs = this_jTowerContainer->findTower(towerid)->getEMSCIDs();
+        tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL[thisRow][thisCol] = towerid;
+        tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 
       }
     }
@@ -185,16 +264,21 @@ namespace LVL1 {
     ATH_MSG_DEBUG("CONTENTS OF jFEX " << thisJFEX << " :");
     for (int thisRow=rows-1; thisRow>=0; thisRow--){
       for (int thisCol=0; thisCol<cols; thisCol++){
-	int tmptowerid = tmp_jTowersIDs_subset[thisRow][thisCol];
+	int tmptowerid = tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL[thisRow][thisCol];
 	const float tmptowereta = this_jTowerContainer->findTower(tmptowerid)->eta();
 	const float tmptowerphi = this_jTowerContainer->findTower(tmptowerid)->phi();
 	if(thisCol != cols-1){ ATH_MSG_DEBUG("|  " << tmptowerid << "([" << tmptowerphi << "][" << tmptowereta << "])  "); }
 	else { ATH_MSG_DEBUG("|  " << tmptowerid << "([" << tmptowereta << "][" << tmptowerphi << "])  |"); }
       }
     }
-    
+
     m_jFEXSimTool->init(thisJFEX);
-    ATH_CHECK(m_jFEXSimTool->NewExecute(tmp_jTowersIDs_subset));
+    ATH_CHECK(m_jFEXSimTool->ExecuteForwardASide(tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL));
+    m_allSmallRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
+    m_allLargeRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
+    m_alltauTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
+    m_allsumEtTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
+    m_allMetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getMetTOBs() ) ));
     m_jFEXSimTool->reset();
     
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -219,23 +303,26 @@ namespace LVL1 {
     std::map<int,jTower> tmp_jTowersColl_subset_1;
     
     // let's try doing this with an array initially just containing tower IDs.
-    int tmp_jTowersIDs_subset_1 [16*4][24];
+    int tmp_jTowersIDs_subset_1 [2*FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width];
     
+    // zero the matrix out
+    for (int i = 0; i<2*FEXAlgoSpaceDefs::jFEX_algoSpace_height; i++){
+      for (int j = 0; j<FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width; j++){
+        tmp_jTowersIDs_subset_1[i][j] = 0;
+      }
+    }
+
     rows = sizeof tmp_jTowersIDs_subset_1 / sizeof tmp_jTowersIDs_subset_1[0];
     cols = sizeof tmp_jTowersIDs_subset_1[0] / sizeof tmp_jTowersIDs_subset_1[0][0];
     
     // set the EMEC part
-    for(int thisCol = 0; thisCol < 9/*cols*/; thisCol++){
+    for(int thisCol = 0; thisCol < 9; thisCol++){
       for(int thisRow=0; thisRow<rows; thisRow++){
 	
 	int towerid = initialEMEC - (thisCol * 64) + thisRow;
 	
-	//if( (thisJFEX == 21) && (thisRow >= 7)){ towerid -= 64; }; // we'll bring this back in if need to apply jFEX overlap in phi
-	
 	tmp_jTowersIDs_subset_1[thisRow][thisCol] = towerid;
 	tmp_jTowersColl_subset_1.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
-	
-	std::vector<Identifier> supercellIDs = this_jTowerContainer->findTower(towerid)->getEMSCIDs();
 	
       }
     }
@@ -245,12 +332,8 @@ namespace LVL1 {
       
       int towerid = initialTRANS + thisRow;
       
-      //if( (thisJFEX == 21) && (thisRow >= 7)){ towerid -= 64; }; // we'll bring this back in if need to apply jFEX overlap in phi
-      
       tmp_jTowersIDs_subset_1[thisRow][9] = towerid;
       tmp_jTowersColl_subset_1.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
-      
-      std::vector<Identifier> supercellIDs = this_jTowerContainer->findTower(towerid)->getEMSCIDs();
       
     }
     
@@ -260,12 +343,8 @@ namespace LVL1 {
 	
 	int towerid = initialEMB - ( (thisCol-10) * 64) + thisRow ;
 	
-	//if( (thisJFEX == 21) && (thisRow >= 7)){ towerid -= 64; }; // we'll bring this back in if need to apply jFEX overlap in phi
-	
 	tmp_jTowersIDs_subset_1[thisRow][thisCol] = towerid;
 	tmp_jTowersColl_subset_1.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
-	
-	std::vector<Identifier> supercellIDs = this_jTowerContainer->findTower(towerid)->getEMSCIDs();
 	
       }
     }
@@ -281,9 +360,14 @@ namespace LVL1 {
 	else { ATH_MSG_DEBUG("|  " << tmptowerid << "([" << tmptowereta << "][" << tmptowerphi << "])  |"); }
       }
     }
-      
+
     m_jFEXSimTool->init(thisJFEX);
-    ATH_CHECK(m_jFEXSimTool->NewExecute(tmp_jTowersIDs_subset_1));
+    ATH_CHECK(m_jFEXSimTool->ExecuteBarrel(tmp_jTowersIDs_subset_1));
+    m_allSmallRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
+    m_allLargeRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
+    m_alltauTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
+    m_allsumEtTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
+    m_allMetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getMetTOBs() ) ));
     m_jFEXSimTool->reset();
     
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -308,8 +392,16 @@ namespace LVL1 {
     std::map<int,jTower> tmp_jTowersColl_subset_2;
     
     // doing this with an array initially just containing tower IDs.
-    int tmp_jTowersIDs_subset_2 [16*4][24];
+    int tmp_jTowersIDs_subset_2 [2*FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width];
     
+    // zero the matrix out
+    for (int i = 0; i<2*FEXAlgoSpaceDefs::jFEX_algoSpace_height; i++){
+      for (int j = 0; j<FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width; j++){
+        tmp_jTowersIDs_subset_2[i][j] = 0;
+      }
+    }
+
+
     rows = sizeof tmp_jTowersIDs_subset_2 / sizeof tmp_jTowersIDs_subset_2[0];
     cols = sizeof tmp_jTowersIDs_subset_2[0] / sizeof tmp_jTowersIDs_subset_2[0][0];
     
@@ -318,12 +410,8 @@ namespace LVL1 {
       
       int towerid = initialEMEC /*- (thisCol * 64)*/  + thisRow;
       
-      //if( (thisJFEX == 21) && (thisRow >= 7)){ towerid -= 64; }; // we'll bring this back in if need to apply jFEX overlap in phi
-      
       tmp_jTowersIDs_subset_2[thisRow][0] = towerid;
       tmp_jTowersColl_subset_2.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
-      
-      std::vector<Identifier> supercellIDs = this_jTowerContainer->findTower(towerid)->getEMSCIDs();
       
     }
 
@@ -332,12 +420,8 @@ namespace LVL1 {
 
       int towerid = initialTRANS + thisRow;
 
-      //if( (thisJFEX == 21) && (thisRow >= 7)){ towerid -= 64; }; // we'll bring this back in if need to apply jFEX overlap in phi
-
       tmp_jTowersIDs_subset_2[thisRow][1] = towerid;
       tmp_jTowersColl_subset_2.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
-
-      std::vector<Identifier> supercellIDs = this_jTowerContainer->findTower(towerid)->getEMSCIDs();
 
     }
 
@@ -351,13 +435,9 @@ namespace LVL1 {
 	
 	towerid = tmp_initEMB - ( (thisCol-2) * 64) + thisRow;
 	
-	//if( (thisJFEX == 22) && (thisRow >= 7)){ towerid -= 64; }; // we'll bring this back in if need to apply jFEX overlap in phi
-	
 	tmp_jTowersIDs_subset_2[thisRow][thisCol] = towerid;
 	
 	tmp_jTowersColl_subset_2.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
-	
-	std::vector<Identifier> supercellIDs = this_jTowerContainer->findTower(towerid)->getEMSCIDs();
 	
       }
     }
@@ -373,13 +453,9 @@ namespace LVL1 {
 
         towerid = tmp_initEMB + ( (thisCol-16) * 64) + thisRow;
 
-        //if( (thisJFEX == 22) && (thisRow >= 7)){ towerid -= 64; }; // we'll bring this back in if need to apply jFEX overlap in phi
-
         tmp_jTowersIDs_subset_2[thisRow][thisCol] = towerid;
 
         tmp_jTowersColl_subset_2.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
-
-	std::vector<Identifier> supercellIDs = this_jTowerContainer->findTower(towerid)->getEMSCIDs();
 
       }
     }
@@ -397,7 +473,12 @@ namespace LVL1 {
 
     //tool use instead
     m_jFEXSimTool->init(thisJFEX);
-    ATH_CHECK(m_jFEXSimTool->NewExecute(tmp_jTowersIDs_subset_2));
+    ATH_CHECK(m_jFEXSimTool->ExecuteBarrel(tmp_jTowersIDs_subset_2));
+    m_allSmallRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) )); 
+    m_allLargeRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
+    m_alltauTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
+    m_allsumEtTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
+    m_allMetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getMetTOBs() ) ));
     m_jFEXSimTool->reset();
     
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -422,8 +503,16 @@ namespace LVL1 {
     std::map<int,jTower> tmp_jTowersColl_subset_3;
     
     // doing this with an array initially just containing tower IDs.
-    int tmp_jTowersIDs_subset_3 [16*4][24];
+    int tmp_jTowersIDs_subset_3 [2*FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width];
     
+    // zero the matrix out
+    for (int i = 0; i<2*FEXAlgoSpaceDefs::jFEX_algoSpace_height; i++){
+      for (int j = 0; j<FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width; j++){
+        tmp_jTowersIDs_subset_3[i][j] = 0;
+      }
+    }
+
+
     rows = sizeof tmp_jTowersIDs_subset_3 / sizeof tmp_jTowersIDs_subset_3[0];
     cols = sizeof tmp_jTowersIDs_subset_3[0] / sizeof tmp_jTowersIDs_subset_3[0][0];
     
@@ -436,13 +525,9 @@ namespace LVL1 {
 
         towerid = tmp_initEMB - ( (thisCol) * 64) + thisRow;
 
-        //if( (thisJFEX == 22) && (thisRow >= 7)){ towerid -= 64; }; // we'll bring this back in if need to apply jFEX overlap in phi
-
         tmp_jTowersIDs_subset_3[thisRow][thisCol] = towerid;
 
         tmp_jTowersColl_subset_3.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
-
-	std::vector<Identifier> supercellIDs = this_jTowerContainer->findTower(towerid)->getEMSCIDs();
 
       }
     }
@@ -458,13 +543,9 @@ namespace LVL1 {
 	
 	towerid = tmp_initEMB + ( (thisCol-8) * 64) + thisRow;
 	
-	//if( (thisJFEX == 22) && (thisRow >= 7)){ towerid -= 64; }; // we'll bring this back in if need to apply jFEX overlap in phi
-	
 	tmp_jTowersIDs_subset_3[thisRow][thisCol] = towerid;
 	
 	tmp_jTowersColl_subset_3.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
-	
-	std::vector<Identifier> supercellIDs = this_jTowerContainer->findTower(towerid)->getEMSCIDs();
 	
       }
     }
@@ -473,12 +554,8 @@ namespace LVL1 {
     for(int thisRow = 0; thisRow < rows; thisRow++){
       int towerid = initialTRANS + thisRow;
 
-      //if( (thisJFEX == 23) && (thisRow >= 7)){ towerid -= 64; }; // we'll bring this back in if need to apply jFEX overlap in phi
-
       tmp_jTowersIDs_subset_3[thisRow][22] = towerid;
       tmp_jTowersColl_subset_3.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
-
-      std::vector<Identifier> supercellIDs = this_jTowerContainer->findTower(towerid)->getEMSCIDs();
 
     }
 
@@ -486,12 +563,8 @@ namespace LVL1 {
     for(int thisRow=0; thisRow<rows; thisRow++){
       int towerid = initialEMEC + /*( (thisCol-8) * 64)*/ + thisRow;
 
-      //if( (thisJFEX == 23) && (thisRow >= 7)){ towerid -= 64; }; // we'll bring this back in if need to apply jFEX overlap in phi
-
       tmp_jTowersIDs_subset_3[thisRow][23] = towerid;
       tmp_jTowersColl_subset_3.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
-
-      std::vector<Identifier> supercellIDs = this_jTowerContainer->findTower(towerid)->getEMSCIDs();
 
     }
 
@@ -508,7 +581,12 @@ namespace LVL1 {
     
     //tool use instead
     m_jFEXSimTool->init(thisJFEX);
-    ATH_CHECK(m_jFEXSimTool->NewExecute(tmp_jTowersIDs_subset_3));
+    ATH_CHECK(m_jFEXSimTool->ExecuteBarrel(tmp_jTowersIDs_subset_3));
+    m_allSmallRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
+    m_allLargeRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
+    m_alltauTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
+    m_allsumEtTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
+    m_allMetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getMetTOBs() ) ));
     m_jFEXSimTool->reset();
     
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -532,8 +610,15 @@ namespace LVL1 {
     std::map<int,jTower> tmp_jTowersColl_subset_4;
     
     // doing this with an array initially just containing tower IDs.
-    int tmp_jTowersIDs_subset_4 [16*4][24];
+    int tmp_jTowersIDs_subset_4 [2*FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width];
     
+    // zero the matrix out
+    for (int i = 0; i<2*FEXAlgoSpaceDefs::jFEX_algoSpace_height; i++){
+      for (int j = 0; j<FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width; j++){
+        tmp_jTowersIDs_subset_4[i][j] = 0;
+      }
+    }
+
     rows = sizeof tmp_jTowersIDs_subset_4 / sizeof tmp_jTowersIDs_subset_4[0];
     cols = sizeof tmp_jTowersIDs_subset_4[0] / sizeof tmp_jTowersIDs_subset_4[0][0];
     
@@ -541,14 +626,9 @@ namespace LVL1 {
     for(int thisCol = 0; thisCol < 14; thisCol++){
       for(int thisRow=0; thisRow<rows; thisRow++){
 	int towerid = initialEMB + ( (thisCol) * 64) + thisRow;
-
-	
-	//if( (thisJFEX == 23) && (thisRow >= 7)){ towerid -= 64; }; // we'll bring this back in if need to apply jFEX overlap in phi
 	
 	tmp_jTowersIDs_subset_4[thisRow][thisCol] = towerid;
 	tmp_jTowersColl_subset_4.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
-	
-	std::vector<Identifier> supercellIDs = this_jTowerContainer->findTower(towerid)->getEMSCIDs();
 	
       }
     }
@@ -556,12 +636,8 @@ namespace LVL1 {
     for(int thisRow = 0; thisRow < rows; thisRow++){
       int towerid = initialTRANS + thisRow;
       
-      //if( (thisJFEX == 23) && (thisRow >= 7)){ towerid -= 64; }; // we'll bring this back in if need to apply jFEX overlap in phi
-      
       tmp_jTowersIDs_subset_4[thisRow][14] = towerid;
       tmp_jTowersColl_subset_4.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
-      
-      std::vector<Identifier> supercellIDs = this_jTowerContainer->findTower(towerid)->getEMSCIDs();
       
     }
     // set the EMEC part
@@ -569,16 +645,12 @@ namespace LVL1 {
       for(int thisRow=0; thisRow<rows; thisRow++){
 	int towerid = initialEMEC + ( (thisCol-15) * 64) + thisRow;
 	
-	//if( (thisJFEX == 23) && (thisRow >= 7)){ towerid -= 64; }; // we'll bring this back in if need to apply jFEX overlap in phi
-	
 	tmp_jTowersIDs_subset_4[thisRow][thisCol] = towerid;
 	tmp_jTowersColl_subset_4.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 	
-	std::vector<Identifier> supercellIDs = this_jTowerContainer->findTower(towerid)->getEMSCIDs();
-	
       }
     }
-    
+
     ATH_MSG_DEBUG("CONTENTS OF jFEX " << thisJFEX << " :");
     for (int thisRow=rows-1; thisRow>=0; thisRow--){
       for (int thisCol=0; thisCol<cols; thisCol++){
@@ -592,9 +664,13 @@ namespace LVL1 {
     
     //tool use instead
     m_jFEXSimTool->init(thisJFEX);
-    ATH_CHECK(m_jFEXSimTool->NewExecute(tmp_jTowersIDs_subset_4));
+    ATH_CHECK(m_jFEXSimTool->ExecuteBarrel(tmp_jTowersIDs_subset_4));
+    m_allSmallRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
+    m_allLargeRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
+    m_alltauTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
+    m_allsumEtTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
+    m_allMetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getMetTOBs() ) ));
     m_jFEXSimTool->reset();
-    
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -603,6 +679,12 @@ namespace LVL1 {
     // 0.8 -> 2.5 (in reality this will be 0.8 to 4.9 , but we're ignoring the forward region for the time being...) [core is 1.6 to 4.9]
     // DO THE RIGHT-MOST (POSITIVE ETA) JFEXs SIXTH
     //id_modifier + phi + (64 * eta)
+    fcal2Eta = 0; fcal2Phi = 0; fcal2Mod = 1200000;
+    initialFCAL2 = calcTowerID(fcal2Eta,fcal2Phi,fcal2Mod); //1200000
+    fcal1Eta = 0; fcal1Phi = 0; fcal1Mod = 1000000;
+    initialFCAL1 = calcTowerID(fcal1Eta,fcal1Phi,fcal1Mod); //1000000
+    fcal0Eta = 0; fcal0Phi = 0; fcal0Mod = 800000;
+    initialFCAL0 = calcTowerID(fcal0Eta,fcal0Phi,fcal0Mod); //800000
     emecEta = 15; emecPhi = 0; emecMod = 600000;
     initialEMEC = calcTowerID(emecEta,emecPhi,emecMod); //600960;
     transEta = 14; transPhi = 0; transMod = 400000;
@@ -614,62 +696,112 @@ namespace LVL1 {
     thisJFEX = 5;
     
     // decide which subset of towers (and therefore supercells) should go to the jFEX
-    std::map<int,jTower> tmp_jTowersColl_subset_5;
-    
+    std::map<int,jTower> tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL_2;
+
     // let's try doing this with an array initially just containing tower IDs.
-    int tmp_jTowersIDs_subset_5 [16*4][17];
+    int tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2 [2*FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width];
+
+    // zero the matrix out
+    for (int i = 0; i<2*FEXAlgoSpaceDefs::jFEX_algoSpace_height; i++){
+      for (int j = 0; j<FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width; j++){
+        tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2[i][j] = 0;
+      }
+    }
     
-    rows = sizeof tmp_jTowersIDs_subset_5 / sizeof tmp_jTowersIDs_subset_5[0];
-    cols = sizeof tmp_jTowersIDs_subset_5[0] / sizeof tmp_jTowersIDs_subset_5[0][0];
+    rows = sizeof tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2 / sizeof tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2[0];
+    cols = sizeof tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2[0] / sizeof tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2[0][0];
 
     // set the EMB part
     for(int thisCol = 0; thisCol < 6; thisCol++){
       for(int thisRow=0; thisRow<rows; thisRow++){
         int towerid = initialEMB + ( (thisCol) * 64) + thisRow;
 
-
-        //if( (thisJFEX == 23) && (thisRow >= 7)){ towerid -= 64; }; // we'll bring this back in if need to apply jFEX overlap in phi
-
-        tmp_jTowersIDs_subset_5[thisRow][thisCol] = towerid;
-        tmp_jTowersColl_subset_5.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
-
-	std::vector<Identifier> supercellIDs = this_jTowerContainer->findTower(towerid)->getEMSCIDs();
+        tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2[thisRow][thisCol] = towerid;
+        tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL_2.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 
       }
     }
+
     // set the TRANS part
     for(int thisRow = 0; thisRow < rows; thisRow++){
       int towerid = initialTRANS + thisRow;
 
-      //if( (thisJFEX == 23) && (thisRow >= 7)){ towerid -= 64; }; // we'll bring this back in if need to apply jFEX overlap in phi
-
-      tmp_jTowersIDs_subset_5[thisRow][6] = towerid;
-      tmp_jTowersColl_subset_5.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
-
-      std::vector<Identifier> supercellIDs = this_jTowerContainer->findTower(towerid)->getEMSCIDs();
+      tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2[thisRow][6] = towerid;
+      tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL_2.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 
     }
-    
+
     // set the EMEC part
-    for(int thisCol=7; thisCol<cols; thisCol++){
+    for(int thisCol=7; thisCol<17; thisCol++){
       for(int thisRow=0; thisRow<rows; thisRow++){
 	
 	int towerid = initialEMEC + ((thisCol-7) * 64) + thisRow;
 	
-	//if( (thisJFEX == 21) && (thisRow >= 7)){ towerid -= 64; }; // we'll bring this back in if need to apply jFEX overlap in phi
-	
-	tmp_jTowersIDs_subset_5[thisRow][thisCol] = towerid;
-	tmp_jTowersColl_subset_5.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
-	
-	std::vector<Identifier> supercellIDs = this_jTowerContainer->findTower(towerid)->getEMSCIDs();
+	tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2[thisRow][thisCol] = towerid;
+	tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL_2.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 	
       }
     }
-    
+
+    // set the next EMEC part
+    for(int thisCol=17; thisCol<21; thisCol++){
+      for(int thisRow=0; thisRow<rows/2; thisRow++){
+
+        int towerid = initialEMEC + ((thisCol-7) * 64) + thisRow; //note special case -7 rather than -17, this *is* deliberate
+
+        tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2[thisRow][thisCol] = towerid;
+        tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL_2.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+
+      }
+    }
+
+    //-----
+    // Let's go with FCAL0
+    // set the FCAL0 part
+    for(int thisCol=21; thisCol<33; thisCol++){
+      for(int thisRow=0; thisRow<rows/4; thisRow++){
+
+        int towerid = initialFCAL0 + ((thisCol-21) * 64) + thisRow;
+
+        tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2[thisRow][thisCol] = towerid;
+        tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL_2.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+
+      }
+    }
+
+    //---
+    // Let's go with FCAL1
+    // set the FCAL1 part
+    for(int thisCol=33; thisCol<41; thisCol++){
+      for(int thisRow=0; thisRow<rows/4; thisRow++){
+
+        int towerid = initialFCAL1 + ((thisCol-33) * 64) + thisRow;
+
+        tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2[thisRow][thisCol] = towerid;
+        tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL_2.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+
+      }
+    }
+
+    //---
+    // Let's go with FCAL2
+    // set the FCAL2 part
+    for(int thisCol=41; thisCol<45; thisCol++){
+      for(int thisRow=0; thisRow<rows/4; thisRow++){
+
+        int towerid = initialFCAL2 + ((thisCol-41) * 64) + thisRow;
+
+        tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2[thisRow][thisCol] = towerid;
+        tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL_2.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+
+      }
+    }
+    //---
+
     ATH_MSG_DEBUG("CONTENTS OF jFEX " << thisJFEX << " :");
     for (int thisRow=rows-1; thisRow>=0; thisRow--){
       for (int thisCol=0; thisCol<cols; thisCol++){
-	int tmptowerid = tmp_jTowersIDs_subset_5[thisRow][thisCol];
+	int tmptowerid = tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2[thisRow][thisCol];
 	const float tmptowereta = this_jTowerContainer->findTower(tmptowerid)->eta();
 	const float tmptowerphi = this_jTowerContainer->findTower(tmptowerid)->phi();
 	if(thisCol != cols-1){ ATH_MSG_DEBUG("|  " << tmptowerid << "([" << tmptowerphi << "][" << tmptowereta << "])  "); }
@@ -678,16 +810,123 @@ namespace LVL1 {
     }
 
     m_jFEXSimTool->init(thisJFEX);
-    ATH_CHECK(m_jFEXSimTool->NewExecute(tmp_jTowersIDs_subset_5));
+    ATH_CHECK(m_jFEXSimTool->ExecuteForwardCSide(tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2));
+    m_allSmallRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
+    m_allLargeRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
+    m_alltauTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
+    m_allsumEtTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
+    m_allMetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getMetTOBs() ) ));
     m_jFEXSimTool->reset();
+
     
-    //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //-----------------------------------------------------FILLING EDMs--------------------------------------------------------------------------------
+    //---SRJet EDM
+    auto jSRJetContainer = std::make_unique<xAOD::jFexSRJetRoIContainer> ();
+    std::unique_ptr< xAOD::jFexSRJetRoIAuxContainer > jSRJetAuxContainer = std::make_unique<xAOD::jFexSRJetRoIAuxContainer> ();
+    jSRJetContainer->setStore(jSRJetAuxContainer.get());
 
+    // iterate over all SRJEt Tobs and fill EDM with them   
+    for( auto const& [jfex, MODULE_tobs] : m_allSmallRJetTobs ) {
+        uint8_t fpgaNum =0;
+        for(auto &FPGA_tob : MODULE_tobs) {
+            for(auto &tob: FPGA_tob) {
+                ATH_MSG_DEBUG("fillSRJetEDM check jfex number and tob word args: "<< jfex<<" "<<tob);
+                ATH_CHECK(fillSRJetEDM(jfex,fpgaNum,tob, jSRJetContainer));
+            }
+            fpgaNum++;
+        }
+        
+    }
+    
+    SG::WriteHandle<xAOD::jFexSRJetRoIContainer_v1> outputjFexSRJetHandle(m_jFexSRJetOutKey/*, ctx*/);
+    ATH_MSG_DEBUG("  write: " << outputjFexSRJetHandle.key() << " = " << "..." );
+    ATH_CHECK(outputjFexSRJetHandle.record(std::move(jSRJetContainer),std::move(jSRJetAuxContainer)));
 
-    //Collate TOBS returned from jFEXSims. Should that be here?
-    // ToDo
-    // To implement
-    // {--Implement--}
+    //---LRJet EDM
+    auto jLRJetContainer = std::make_unique<xAOD::jFexLRJetRoIContainer> ();
+    std::unique_ptr< xAOD::jFexLRJetRoIAuxContainer > jLRJetAuxContainer = std::make_unique<xAOD::jFexLRJetRoIAuxContainer> ();
+    jLRJetContainer->setStore(jLRJetAuxContainer.get());
+
+    // iterate over all LRJEt Tobs and fill EDM with them
+    for(auto const& [jfex, MODULE_tobs] : m_allLargeRJetTobs ) {
+        uint8_t fpgaNum =0;
+        for(auto &FPGA_tob : MODULE_tobs) {
+            for(auto&tob: FPGA_tob) {
+                //	ATH_MSG_DEBUG("fillLRJetEDM check jfex number and tob word args: "<< jfex<<" "<<tob);
+                ATH_CHECK(fillLRJetEDM(jfex,fpgaNum, tob, jLRJetContainer));
+            }        
+            fpgaNum++;
+        }
+
+    }
+
+    SG::WriteHandle<xAOD::jFexLRJetRoIContainer_v1> outputjFexLRJetHandle(m_jFexLRJetOutKey/*, ctx*/);
+    ATH_MSG_DEBUG("  write: " << outputjFexLRJetHandle.key() << " = " << "..." );
+    ATH_CHECK(outputjFexLRJetHandle.record(std::move(jLRJetContainer),std::move(jLRJetAuxContainer)));
+    
+    //---Tau EDM
+    auto jTauContainer = std::make_unique<xAOD::jFexTauRoIContainer> ();
+    std::unique_ptr< xAOD::jFexTauRoIAuxContainer > jTauAuxContainer = std::make_unique<xAOD::jFexTauRoIAuxContainer> ();
+    jTauContainer->setStore(jTauAuxContainer.get());
+    //iterate over all Tau Tobs and fill EDM with 
+    for( auto const& [jfex, MODULE_tobs] : m_alltauTobs ) {
+        uint8_t fpgaNum =0;
+        for(auto &FPGA_tob : MODULE_tobs) {
+            for(auto &tob : FPGA_tob) {
+
+                //ATH_MSG_DEBUG("fillEDM check jfex number and tob word args: "<< jfex<<" "<<tob);
+                ATH_CHECK(fillTauEDM(jfex,fpgaNum, tob, jTauContainer));
+            }
+            fpgaNum++;
+        }
+        
+    }
+
+    SG::WriteHandle<xAOD::jFexTauRoIContainer_v1> outputjFexTauHandle(m_jFexTauOutKey/*, ctx*/);
+    ATH_MSG_DEBUG("  write: " << outputjFexTauHandle.key() << " = " << "..." );
+    ATH_CHECK(outputjFexTauHandle.record(std::move(jTauContainer),std::move(jTauAuxContainer)));
+    
+    
+    //---SumET EDM
+    auto jSumETContainer = std::make_unique<xAOD::jFexSumETRoIContainer> ();
+    std::unique_ptr< xAOD::jFexSumETRoIAuxContainer > jSumETAuxContainer = std::make_unique<xAOD::jFexSumETRoIAuxContainer> ();
+    jSumETContainer->setStore(jSumETAuxContainer.get());    
+    
+    for( auto const& [jfex, MODULE_tobs] : m_allsumEtTobs ) {
+        uint8_t fpgaNum =0;
+        for(auto &FPGA_tob : MODULE_tobs) {
+            for(auto &tob : FPGA_tob) {
+                ATH_CHECK(fillSumEtEDM(jfex,fpgaNum, tob, jSumETContainer));
+            }
+            fpgaNum+=2;
+        }
+        
+    }   
+
+    SG::WriteHandle<xAOD::jFexSumETRoIContainer_v1> outputjFexSumETHandle(m_jFexSumETOutKey/*, ctx*/);
+    ATH_MSG_DEBUG("  write: " << outputjFexSumETHandle.key() << " = " << "..." );
+    ATH_CHECK(outputjFexSumETHandle.record(std::move(jSumETContainer),std::move(jSumETAuxContainer)));    
+    
+    //---MET EDM 
+    auto jMETContainer = std::make_unique<xAOD::jFexMETRoIContainer> ();
+    std::unique_ptr< xAOD::jFexMETRoIAuxContainer > jMETAuxContainer = std::make_unique<xAOD::jFexMETRoIAuxContainer> ();
+    jMETContainer->setStore(jMETAuxContainer.get());    
+    
+    for( auto const& [jfex, MODULE_tobs] : m_allMetTobs ) {
+        uint8_t fpgaNum =0;
+        for(auto &FPGA_tob : MODULE_tobs) {
+            for(auto &tob : FPGA_tob) {
+                ATH_CHECK(fillMetEDM(jfex,fpgaNum, tob, jMETContainer));
+            }
+            fpgaNum+=2;
+        }
+        
+    }     
+
+    SG::WriteHandle<xAOD::jFexMETRoIContainer_v1> outputjFexMETHandle(m_jFexMETOutKey/*, ctx*/);
+    ATH_MSG_DEBUG("  write: " << outputjFexMETHandle.key() << " = " << "..." );
+    ATH_CHECK(outputjFexMETHandle.record(std::move(jMETContainer),std::move(jMETAuxContainer)));   
+
 
 
     //Send TOBs to bytestream?
@@ -699,6 +938,79 @@ namespace LVL1 {
 
   }
 
+
+  StatusCode jFEXSysSim::fillSRJetEDM(uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, std::unique_ptr< xAOD::jFexSRJetRoIContainer > &jContainer){
+    uint8_t jFEXNumber = (uint8_t)jFexNum;
+    uint32_t tobWord0 = tobWord;
+
+    xAOD::jFexSRJetRoI* my_EDM = new xAOD::jFexSRJetRoI();
+    jContainer->push_back( my_EDM );
+
+    my_EDM->initialize(jFEXNumber, fpgaNumber, tobWord0);
+    ATH_MSG_DEBUG(" setting SRJet jFEX Number:  " << +my_EDM->jFexNumber() << " et: " << my_EDM->et() << " eta: " << my_EDM->eta() <<  " phi: " << my_EDM->phi() );
+    return StatusCode::SUCCESS;
+
+  }
+  
+  
+  StatusCode jFEXSysSim::fillTauEDM(uint8_t jFexNum,uint8_t fpgaNumber, uint32_t tobWord, std::unique_ptr< xAOD::jFexTauRoIContainer > &jContainer){
+
+    uint8_t jFEXNumber = (uint8_t) jFexNum;
+    uint32_t tobWord0 = tobWord;
+
+    xAOD::jFexTauRoI* my_EDM = new xAOD::jFexTauRoI();
+    jContainer->push_back( my_EDM );
+    my_EDM->initialize(jFEXNumber, fpgaNumber, tobWord0);
+    ATH_MSG_DEBUG(" setting Tau jFEX Number:  " << +my_EDM->jFexNumber() << " et: " << my_EDM->et() << " eta: " << my_EDM->eta() <<  " phi: " << my_EDM->phi() );
+    return StatusCode::SUCCESS;
+
+  }
+
+
+  StatusCode jFEXSysSim::fillLRJetEDM(uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, std::unique_ptr< xAOD::jFexLRJetRoIContainer > &jContainer){
+
+    uint8_t jFEXNumber = (uint8_t) jFexNum;
+    uint32_t tobWord0 = tobWord;
+
+    xAOD::jFexLRJetRoI* my_EDM = new xAOD::jFexLRJetRoI();
+    jContainer->push_back( my_EDM );
+
+    my_EDM->initialize(jFEXNumber,fpgaNumber, tobWord0);
+    ATH_MSG_DEBUG(" setting LRJet jFEX Number:  " <<+my_EDM->jFexNumber() << " et: " << my_EDM->et() << " eta: " << my_EDM->eta() <<  " phi: " << my_EDM->phi() );
+    return StatusCode::SUCCESS;
+
+  }
+
+
+    StatusCode jFEXSysSim::fillSumEtEDM(uint8_t jFexNum,uint8_t fpgaNumber, uint32_t tobWord, std::unique_ptr< xAOD::jFexSumETRoIContainer > &jContainer) {
+
+        uint8_t jFEXNumber = (uint8_t) jFexNum;
+        uint32_t tobWord0 = tobWord;
+
+        xAOD::jFexSumETRoI* my_EDM = new xAOD::jFexSumETRoI();
+        jContainer->push_back( my_EDM );
+        my_EDM->initialize(jFEXNumber, fpgaNumber, tobWord0);
+        ATH_MSG_DEBUG(" setting SumET jFEX Number:  " << +my_EDM->jFexNumber() << " Et_up: " << my_EDM->getEt_upper() << " Et_down: " << my_EDM->getEt_lower() <<  " dat_low: " << my_EDM->getSat_upper()<<  " sat_up: " << my_EDM->getSat_lower() <<" tob: " << my_EDM->gettob());
+        return StatusCode::SUCCESS;
+
+    }   
+
+
+    StatusCode jFEXSysSim::fillMetEDM(uint8_t jFexNum,uint8_t fpgaNumber, uint32_t tobWord, std::unique_ptr< xAOD::jFexMETRoIContainer > &jContainer) {
+
+        uint8_t jFEXNumber = (uint8_t) jFexNum;
+        uint32_t tobWord0 = tobWord;
+
+        xAOD::jFexMETRoI* my_EDM = new xAOD::jFexMETRoI();
+        jContainer->push_back( my_EDM );
+        my_EDM->initialize(jFEXNumber, fpgaNumber, tobWord0);
+        ATH_MSG_DEBUG(" setting MET jFEX Number:  " << +my_EDM->jFexNumber() << " etX: " << my_EDM->getE_x() << " etY: " << my_EDM->getE_y() <<  " sat: " << my_EDM->getSat()<<  " res: " << my_EDM->getRes() );
+        return StatusCode::SUCCESS;
+
+    }
+
+
   
 } // end of namespace bracket
+
 

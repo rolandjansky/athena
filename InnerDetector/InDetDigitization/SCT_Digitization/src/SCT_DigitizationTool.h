@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_DIGITZATION_SCT_DIGITZATIONTOOL_H
@@ -23,9 +23,9 @@
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "InDetSimEvent/SiHitCollection.h"
 #include "PileUpTools/PileUpMergeSvc.h"
-#include "SCT_Digitization/ISCT_FrontEnd.h"
-#include "SCT_Digitization/ISCT_RandomDisabledCellGenerator.h"
-#include "SCT_Digitization/ISCT_SurfaceChargesGenerator.h"
+#include "SiDigitization/IFrontEnd.h"
+#include "SiDigitization/IRandomDisabledCellGenerator.h"
+#include "SiDigitization/ISurfaceChargesGenerator.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandle.h"
@@ -138,15 +138,15 @@ private:
   SG::WriteHandle<InDetSimDataCollection>            m_simDataCollMap; //!< SDO Map handle
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
-  ToolHandle<ISCT_FrontEnd> m_sct_FrontEnd{this, "FrontEnd", "SCT_FrontEnd", "Handle the Front End Electronic tool"};
-  ToolHandle<ISCT_SurfaceChargesGenerator> m_sct_SurfaceChargesGenerator{this, "SurfaceChargesGenerator", "SCT_SurfaceChargesGenerator", "Choice of using a more detailed charge drift model"};
-  ToolHandle<ISCT_RandomDisabledCellGenerator> m_sct_RandomDisabledCellGenerator{this, "RandomDisabledCellGenerator", "SCT_RandomDisabledCellGenerator", ""};
+  ToolHandle<IFrontEnd> m_sct_FrontEnd{this, "FrontEnd", "SCT_FrontEnd", "Handle the Front End Electronic tool"};
+  ToolHandle<ISurfaceChargesGenerator> m_sct_SurfaceChargesGenerator{this, "SurfaceChargesGenerator", "SCT_SurfaceChargesGenerator", "Choice of using a more detailed charge drift model"};
+  ToolHandle<IRandomDisabledCellGenerator> m_sct_RandomDisabledCellGenerator{this, "RandomDisabledCellGenerator", "SCT_RandomDisabledCellGenerator", ""};
   ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service
   ServiceHandle <PileUpMergeSvc> m_mergeSvc{this, "MergeSvc", "PileUpMergeSvc", "Merge service used in Pixel & SCT digitization"}; //!
 
   const SCT_ID* m_detID{nullptr}; //!< Handle to the ID helper
   std::unique_ptr<TimedHitCollection<SiHit>> m_thpcsi{nullptr};
-  std::list<ISiChargedDiodesProcessorTool*> m_diodeCollectionTools;
+  std::vector<ISiChargedDiodesProcessorTool*> m_diodeCollectionTools;
   std::vector<bool> m_processedElements; //!< vector of processed elements - set by digitizeHits() */
   std::vector<std::unique_ptr<SiHitCollection>> m_hitCollPtrs;
   bool m_HardScatterSplittingSkipper{false};

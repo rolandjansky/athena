@@ -1,0 +1,5 @@
+<lcgdict>
+  <class name="CaloClusterCollectionProcessor"/>
+  <class name="CaloClusterProcessor"/>
+  <class name="CaloTowerCollectionProcessor"/>
+</lcgdict>

@@ -186,6 +186,26 @@ function insertExamplesDQ() {
         <td class="cmt">Show <font color="red">data quality</font> summary: defects, plots and luminosity losses per system (restricted to LBs with ATLAS READY).</td>\
       </tr>\
       <tr>\
+      <td class="pgm" onClick="addColumn(&quot;f r 2015.A and dqsumgrl PHYS_StandardGRL_All_Good_Tight / sh dqsum&quot;);return false">f r 2015.A and dqsumgrl PHYS_StandardGRL_All_Good_Tight / sh dqsum</td>\
+      <td class="cmt">Show dq summary relative to <font color="red">GRL or virtual defect</font>, in this example using All_Good_Tight as GRL. If nothing is specified PHYS_StandardGRL_All_Good_25ns is used as default for dqsum. </td>\
+      </tr>\
+      <tr>\
+      <td class="pgm" onClick="addColumn(&quot;f r 2015.A and dqsumgrl no / sh dqsum&quot;);return false">f r 2015.A and dqsumgrl no / sh dqsum</td>\
+      <td class="cmt">Show dq summary using <font color="red">no GRL</font>, which means all intolerable defects are taken into account.</td>\
+      </tr>\
+      <tr>\
+      <td class="pgm" onClick="addColumn(&quot;f r 2015.A / sh dqsum and cos&quot;);return false">f r 2015.A / sh dqsum and cos(mics)</td>\
+      <td class="cmt">Show dq summary for <font color="red">cosmics</font> run, which means PHYS_Cosmics_AllGood is used as GRL, ATLAS not ready is ignored and losses are calculated using LB fractions.</td>\
+      </tr>\
+      <tr>\
+      <td class="pgm" onClick="addColumn(&quot;f r 2015.A / sh dqsum and heavy&quot;);return false">f r 2015.A / sh dqsum and heavy(ions)</td>\
+      <td class="cmt">Show dq summary for <font color="red">heavyions</font> run, which means PHYS_HeavyIonP_All_Good is used as GRL.</td>\
+      </tr>\
+      <tr>\
+      <td class="pgm" onClick="addColumn(&quot;f r 2015.A and logictag DetStatusDEFECTLOGIC-0075 and defecttag DetStatusDEFECTS-repro20-01 / sh dqsum&quot;);return false">f r 2015.A and logictag DetStatusDEFECTLOGIC-0075 and defecttag DetStatusDEFECTS-repro20-01 / sh dqsum</td>\
+      <td class="cmt">Show dq summary and specify <font color="red">logic and defect tag</font>, in this case DetStatusDEFECTLOGIC-0075 and  DetStatusDEFECTS-repro20-01, respectively. If nothing is specified HEAD is used as default.</td>\
+      </tr>\
+      <tr>\
         <td class="pgm" onClick="addColumn(&quot;f r 2015.A / sh dq&quot;);return false">f r 2015.A/ sh dq</td>\
         <td class="cmt">Show <font color="red">data quality</font> defects (restricted to LBs with ATLAS READY).</td>\
       </tr>\

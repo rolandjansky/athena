@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATE_DATASTORE_H
@@ -157,6 +157,11 @@ namespace SG {
     // return list of keys associated with an object
     void keys(const CLID& id, std::vector<std::string>& vkeys,
 	      bool includeAlias, bool onlyValid);
+
+    /// All proxies managed by this store.  Every proxy appears exactly
+    /// once in this list.
+    const std::vector<DataProxy*>& proxies() const;
+
 
   private:
     /// The string pool associated with this store.

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -49,7 +49,7 @@ namespace pool  {
   class DbContainer : public DbHandleBase<DbContainerObj>  {
   private:
     /// Assign transient object properly (including reference counting)
-    void switchPtr( const DbContainerObj* obj)  const;
+    void switchPtr( DbContainerObj* obj);
     /// Load object in the container identified by its link handle
     DbStatus _load( DbObjectHandle<DbObject>& objH,
                     const Token::OID_t& linkH,
@@ -60,7 +60,7 @@ namespace pool  {
                     Token::OID_t& linkH,
                     const DbTypeInfo* typ);
     /// Internal add of an object entry identified by its handle
-    DbStatus _save( const DbObjectHandle<DbObject>& objH,
+    DbStatus _save( DbObjectHandle<DbObject>& objH,
                     const DbTypeInfo* typ);
     /// Add object to the container
     DbStatus _update( const DbObjectHandle<DbObject>& handle,
@@ -76,7 +76,7 @@ namespace pool  {
     /// Copy constructor
     DbContainer(const DbContainer& c) : Base()  { switchPtr(c.m_ptr);      }
     /// Constructor taking transient object
-    DbContainer (const DbContainerObj* ptr)     { switchPtr(ptr);          }
+    DbContainer (DbContainerObj* ptr)           { switchPtr(ptr);          }
     /// Standard Destructor
     virtual ~DbContainer()                      { switchPtr(0);            }
     /// Assignment operator
@@ -102,16 +102,18 @@ namespace pool  {
     long long int size()    const;
     /// Access to the Database the container resides in
     const DbDatabase& containedIn() const;
+          DbDatabase& containedIn();
     /// Allow access to the Database implementation
     IOODatabase* db() const;
     /// Let the implementation access the internals
-    IDbContainer* info()  const;
+    const IDbContainer* info()  const;
+    IDbContainer* info();
     /// Retrieve persistent type information by name
     const DbTypeInfo* objectShape(const Guid& nam) const;
     /// Access the token of the container object
     const Token* token() const;
     /// Close the container the handle poits to
-    DbStatus close()  const;
+    DbStatus close();
 
     /// Open the container residing in \<file\> with given name and access mode
     /** @param   dbH     [IN]    Valid handle to database object
@@ -123,11 +125,11 @@ namespace pool  {
       *
       * @return Status code indicating success or failure.
       */
-    DbStatus open(const DbDatabase&   dbH, 
+    DbStatus open(DbDatabase&        dbH, 
                   const std::string&  nam, 
                   const DbTypeInfo*   typ, 
                   const DbType&       dbtyp,
-                  DbAccessMode        mod) const;
+                  DbAccessMode        mod);
 
     /// Check if the container was opened
     bool isOpen() const;
@@ -184,7 +186,7 @@ namespace pool  {
     template <class T> DbStatus destroy(const DbObjectHandle<T>& objH) 
     { DbObjectHandle<DbObject> oH(objH.ptr()); return _destroy(oH);          }
     /// Add an object to the container identified by its handle
-    template <class T> DbStatus save( const DbObjectHandle<T>& objH,
+    template <class T> DbStatus save( DbObjectHandle<T>& objH,
                                       const DbTypeInfo* typ)    
     { DbObjectHandle<DbObject> oH(objH.ptr()); return _save(oH, typ);        }
     /// Update an object to the container identified by its handle

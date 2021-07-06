@@ -43,17 +43,18 @@ StatusCode HIEventShapeFillerTool::initializeCollection(xAOD::HIEventShapeContai
 
 
 
-StatusCode HIEventShapeFillerTool::fillCollectionFromTowers(const SG::ReadHandleKey<xAOD::CaloClusterContainer>  &tower_container_key)
+StatusCode HIEventShapeFillerTool::fillCollectionFromTowers(const SG::ReadHandleKey<xAOD::CaloClusterContainer>  &tower_container_key,
+																														const SG::ReadHandleKey<INavigable4MomentumCollection>  &navi_container_key)
 {
    //retrieve the tower container from store
   if(m_useClusters)
   {
-		SG::ReadHandle<xAOD::CaloClusterContainer>  readHandleCaloClus ( tower_container_key );
+		SG::ReadHandle<xAOD::CaloClusterContainer>  readHandleCaloClus ( tower_container_key.key() );
     const xAOD::CaloClusterContainer* clusters=nullptr;
 		clusters = readHandleCaloClus.get();
     return fillCollectionFromClusterContainer(clusters);
   }
-	SG::ReadHandle<INavigable4MomentumCollection>  readHandleINav ( tower_container_key.key() );
+	SG::ReadHandle<INavigable4MomentumCollection>  readHandleINav ( navi_container_key.key() );
   const INavigable4MomentumCollection* navInColl = 0;
 	navInColl = readHandleINav.get();
   return fillCollectionFromTowerContainer(navInColl);

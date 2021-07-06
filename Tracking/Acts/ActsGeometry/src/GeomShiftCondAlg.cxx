@@ -21,7 +21,7 @@
 #include "ActsGeometry/IActsTrackingGeometrySvc.h"
 
 // ACTS
-#include "Acts/Utilities/Definitions.hpp"
+#include "Acts/Definitions/Algebra.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Detector/DetectorElementBase.hpp"
 #include "Acts/Surfaces/Surface.hpp"
@@ -146,8 +146,8 @@ StatusCode GeomShiftCondAlg::execute() {
 
       InDetDD::ExtendedAlignableTransform* eat = eat_item.second;
       GeoAlignableTransform* alTrf = eat->alignableTransform();
-      Acts::Transform3D delta;
-      delta = Acts::Translation3D(Acts::Vector3D::UnitZ()*val);
+      Acts::Transform3 delta;
+      delta = Acts::Translation3(Acts::Vector3::UnitZ()*val);
       ATH_MSG_DEBUG("add delta: " << alTrf << " -> (z=" << val << ")");
       alignStore->setDelta(alTrf, Amg::EigenTransformToCLHEP(delta));
     }

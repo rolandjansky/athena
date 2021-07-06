@@ -45,7 +45,7 @@ void compare (const Muon::CscStripPrepData& p1,
 
 void testit (const Muon::CscStripPrepData& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   CscStripPrepDataCnv_p1 cnv;
   CscStripPrepDataContainerCnv_tlp1 tlcnv;
   cnv.setRuntimeTopConverter (&tlcnv);
@@ -75,7 +75,7 @@ void test1()
   Muon::CscStripPrepData trans1 (Identifier (0x1234),
                                  IdentifierHash (567),
                                  locpos,
-                                 new Amg::MatrixX(cov),
+                                 cov,
                                  nullptr,
                                  sampleCharges,
                                  2.5,

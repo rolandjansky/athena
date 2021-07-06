@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -26,7 +26,6 @@
 #include "GaudiKernel/IEvtSelector.h"
 #include "AthenaBaseComps/AthService.h"
 #include "Gaudi/Property.h"  /*no forward decl: typedef*/
-#include "GaudiKernel/MsgStream.h"
 
 #include "AthenaKernel/IEvtSelectorSeek.h"
 
@@ -34,12 +33,6 @@
 class EventSource;
 class ISvcLocator;
 class McContext;
-
-#ifdef WIN32
-// Disable warning C4786: identifier was truncated to '255' characters in the debug information
-#pragma warning ( disable : 4786 )
-#endif
-
 
 //--------------------------------------------------------------------
 // Event Selector 
@@ -52,8 +45,7 @@ public:
 
   virtual StatusCode initialize() override;
   virtual StatusCode stop() override;
-  virtual StatusCode finalize() override;
-  virtual StatusCode queryInterface(const InterfaceID& riid, 
+  virtual StatusCode queryInterface(const InterfaceID& riid,
 				    void** ppvInterface) override;
   virtual StatusCode createContext(Context*& refpCtxt) const override;
 

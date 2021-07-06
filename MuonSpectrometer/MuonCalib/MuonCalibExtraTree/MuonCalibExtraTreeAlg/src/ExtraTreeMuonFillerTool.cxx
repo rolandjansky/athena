@@ -79,7 +79,7 @@ StatusCode ExtraTreeMuonFillerTool::writeTracks(unsigned int &index) {
   }
     
   // CombinedMuonTrackParticles, ExtrapolatedMuonTrackParticles, MuonSpectrometerTrackParticles
-  const xAOD::TrackParticleContainer *tracks(0);
+  const xAOD::TrackParticleContainer *tracks(nullptr);
   std::string trackSGKey = "MuonSpectrometerTrackParticles";
   if(!evtStore()->retrieve(tracks, trackSGKey).isSuccess()) {
     ATH_MSG_WARNING("Failed to retrieve TrackParticleContainer "<<trackSGKey);
@@ -93,7 +93,7 @@ StatusCode ExtraTreeMuonFillerTool::writeTracks(unsigned int &index) {
     }
   }
     
-  const xAOD::TrackParticleContainer *tracksExt(0);
+  const xAOD::TrackParticleContainer *tracksExt(nullptr);
   std::string trackExtSGKey = "ExtrapolatedMuonTrackParticles";
   if(!evtStore()->retrieve(tracksExt, trackExtSGKey).isSuccess()) {
     ATH_MSG_WARNING("Failed to retrieve TrackParticleContainer "<<trackExtSGKey);
@@ -107,7 +107,7 @@ StatusCode ExtraTreeMuonFillerTool::writeTracks(unsigned int &index) {
     }
   }
   
-  const xAOD::TrackParticleContainer *tracksComb(0);
+  const xAOD::TrackParticleContainer *tracksComb(nullptr);
   std::string trackCombSGKey = "CombinedMuonTrackParticles";
   if(!evtStore()->retrieve(tracksComb, trackCombSGKey).isSuccess()) {
     ATH_MSG_WARNING("Failed to retrieve TrackParticleContainer "<<trackCombSGKey);
@@ -137,30 +137,27 @@ inline StatusCode ExtraTreeMuonFillerTool::writeTrackParticle(const xAOD::TrackP
 
 inline Trk::Track* ExtraTreeMuonFillerTool::createTaggedMuonTrack( const xAOD::Muon &muon ) const {
   const xAOD::TrackParticle *idtp = muon.trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
-  const Trk::Track *track = idtp ? idtp->track() : 0;
-  if (!track) return 0;
+  const Trk::Track *track = idtp ? idtp->track() : nullptr;
+  if (!track) return nullptr;
   ATH_MSG_VERBOSE(" makeSegmentTrack ");
     
-  if( !track->trackStateOnSurfaces() || track->trackStateOnSurfaces()->empty() ) return 0;
+  if( !track->trackStateOnSurfaces() || track->trackStateOnSurfaces()->empty() ) return nullptr;
 
   Trk::TrackInfo::TrackPatternRecoInfo author       = Trk::TrackInfo::MuGirlUnrefitted;
   if (muon.author() == xAOD::Muon::MuTag) author    = Trk::TrackInfo::StacoLowPt;
   if (muon.author() == xAOD::Muon::MuTagIMO) author = Trk::TrackInfo::StacoLowPt;
   ATH_MSG_VERBOSE(" author " << muon.author());
-  DataVector<const Trk::TrackStateOnSurface> *trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>;
+
+  auto trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
 
   //  Copy ID track
-  // if(!m_useMuonHitsOnly){
   DataVector<const Trk::TrackStateOnSurface>::const_iterator it     = track->trackStateOnSurfaces()->begin();
   DataVector<const Trk::TrackStateOnSurface>::const_iterator it_end = track->trackStateOnSurfaces()->end(); 
-  for ( ; it!=it_end; ++it) trackStateOnSurfaces->push_back( (*it)->clone() );
-  //}
+  for ( ; it!=it_end; ++it) trackStateOnSurfaces.push_back( (*it)->clone() );
 
   //  Loop over segments   
   int nseg = muon.nMuonSegments();
   for (int i = 0; i < nseg; ++i) {
-//     const Trk::Segment* tseg = muon.muonSegment(i);
-//     const Muon::MuonSegment* seg  = dynamic_cast<const  Muon::MuonSegment* > (tseg);
     const xAOD::MuonSegment *segx = muon.muonSegment(i);   
     if (!segx ) {
       ATH_MSG_WARNING("Zero pointer to xAOD::MuonSegment! Skipping.");
@@ -180,24 +177,22 @@ inline Trk::Track* ExtraTreeMuonFillerTool::createTaggedMuonTrack( const xAOD::M
     std::vector<const Trk::MeasurementBase*>::const_iterator mit_end = seg->containedMeasurements().end();
     for( ;mit!=mit_end;++mit ) {
       const Trk::MeasurementBase &meas = **mit;
-
       std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);
       typePattern.set(Trk::TrackStateOnSurface::Measurement);
-
-      const Trk::TrackParameters *exPars = m_propagator->propagateParameters(*pars,meas.associatedSurface(),
-									     Trk::anyDirection, false, Trk::MagneticFieldProperties());
+      //ownership: assume the TSoS is taking care of this
+     std::unique_ptr<const Trk::TrackParameters> exPars(m_propagator->propagateParameters(*pars,meas.associatedSurface(),
+									     Trk::anyDirection, false, Trk::MagneticFieldProperties()).release());
       if(!exPars){
-	ATH_MSG_VERBOSE("Could not propagate Track to segment surface");
+        ATH_MSG_VERBOSE("Could not propagate Track to segment surface");
       }
-
-      const Trk::TrackStateOnSurface *trackState = new Trk::TrackStateOnSurface( meas.clone(), exPars, 0, 0, typePattern );
-      trackStateOnSurfaces->push_back( trackState ); 
+      const Trk::TrackStateOnSurface *trackState = new Trk::TrackStateOnSurface( meas.uniqueClone(), std::move(exPars), nullptr, nullptr, typePattern );
+      trackStateOnSurfaces.push_back( trackState ); 
     } // end segment loop
     delete pars;
   }
   Trk::TrackInfo info(Trk::TrackInfo::Unknown,Trk::muon);
   info.setPatternRecognitionInfo(author);
-  Trk::Track *newtrack = new Trk::Track(info, trackStateOnSurfaces,(track->fitQuality())->clone());
+  Trk::Track *newtrack = new Trk::Track(info, std::move(trackStateOnSurfaces),(track->fitQuality())->clone());
   return newtrack;
 }  //end ExtraTreeMuonFillerTool::createTaggedMuonTrack
 

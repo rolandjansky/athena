@@ -60,22 +60,6 @@ SpclMcValidationTool::~SpclMcValidationTool()
 }
 
 /////////////////////////////////////////////////////////////////// 
-/// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-/// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-/// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-/// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
 /// Non-const methods: 
 /////////////////////////////////////////////////////////////////// 
 
@@ -152,17 +136,21 @@ SpclMcValidationTool::executeTool( const McEventCollection* mcEvents,
     return StatusCode::FAILURE;
   }
 
-  if ( static_cast<int>( mcParts->size() ) != genEvt->particles_size() ) {
+#ifdef HEPMC3
+  int particles_size=genEvt->particles().size();
+#else
+  int particles_size=genEvt->particles_size();
+#endif
+  if ( static_cast<int>( mcParts->size() ) != particles_size ) {
     ATH_MSG_ERROR("TruthParticleContainer and McEventCollection don't have "\
 		  "the same number of particles !!" << endmsg
 		  << "\tTruthParticleContainer: " << mcParts->size() << endmsg
-		  << "\tHepMC::GenEvent:        " << genEvt->particles_size());
+		  << "\tHepMC::GenEvent:        " << particles_size);
     return StatusCode::FAILURE;
   }
 
   if ( !m_mcAodWriterTool->execute().isSuccess() ) {
-    ATH_MSG_WARNING("Could NOT write out the TruthParticleContainer through "\
-		    "the IIOMcAodTool !!");
+    ATH_MSG_WARNING("Could NOT write out the TruthParticleContainer through the IIOMcAodTool !!");
   }
 
   const TruthParticleContainer::const_iterator itrEnd  = mcParts->end();
@@ -170,15 +158,14 @@ SpclMcValidationTool::executeTool( const McEventCollection* mcEvents,
 	itrPart != itrEnd;
 	++itrPart ) {
     const TruthParticle * mc = *itrPart;
-    const HepMC::GenParticle * hepMc = mc->genParticle();
+    auto hepMc = mc->genParticle();
 
-    if ( hepMc->momentum() != mc->hlv() ) {
-      ATH_MSG_ERROR("TruthParticle and GenParticle-link don't have "\
-		    "same 4-mom !!");
+    if ( hepMc->momentum() != HepMC::FourVector(mc->hlv().x(),mc->hlv().y(),mc->hlv().z(),mc->hlv().t()) ) {
+      ATH_MSG_ERROR("TruthParticle and GenParticle-link don't have same 4-mom !!");
       return StatusCode::FAILURE;
     }
 
-    const HepMC::GenParticle * genPart = genEvt->barcode_to_particle(hepMc->barcode());
+    auto genPart = HepMC::barcode_to_particle(genEvt,HepMC::barcode(hepMc));
 
     if ( hepMc->momentum() != genPart->momentum() ) {
       ATH_MSG_ERROR("GenParticle-link and GenParticle from McEvtColl "\

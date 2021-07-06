@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/ServicesLayer.h"
@@ -14,7 +14,7 @@ ServicesLayer::ServicesLayer( double radius, double halfLength, int nStaves,
 			      int nModulesPerStave, int nChipsPerModule) :
   m_radius(radius), m_zPos(0.), m_rMin(0.), m_rMax(0.), m_halfLength(halfLength), m_nStaves(nStaves),
   m_type(type), m_part(part), m_number(num),
-  m_lastVolume(0), m_suffix(suffix), 
+  m_lastVolume(nullptr), m_suffix(suffix), 
   m_nModulesPerStave(nModulesPerStave), m_nChipsPerModule(nChipsPerModule)
 {
   if (part == DetType::Barrel) {
@@ -33,7 +33,7 @@ ServicesLayer::ServicesLayer( double zpos, double rmin, double rmax, int nStaves
 			      int nModulesPerStave, int nChipsPerModule) :
   m_radius(0.), m_zPos(zpos), m_rMin(rmin), m_rMax(rmax), m_halfLength(0.), m_nStaves(nStaves),
   m_type(type), m_part(part), m_number(num),
-  m_lastVolume(0), m_suffix(suffix), 
+  m_lastVolume(nullptr), m_suffix(suffix), 
   m_nModulesPerStave(nModulesPerStave), m_nChipsPerModule(nChipsPerModule)
 {
   if (part == DetType::Endcap) {

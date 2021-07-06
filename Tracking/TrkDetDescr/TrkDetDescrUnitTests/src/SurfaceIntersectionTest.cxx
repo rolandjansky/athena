@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -79,13 +79,13 @@ StatusCode Trk::SurfaceIntersectionTest::runTest()
         if (!sf) continue;
         
         // get the type
-        Trk::Surface::SurfaceType sType = sf->type();
-        ++m_surfaces[sType];
+        Trk::SurfaceType sType = sf->type();
+        ++m_surfaces[static_cast<int>(sType)];
         
         ATH_MSG_VERBOSE("Surface of type " << sf->name() << " at postion " << Amg::toString(sf->center()));
-        if (!m_surfaceNamesSet[sType]) {
-            m_surfaceNames[sType] = sf->name();
-            m_surfaceNamesSet[sType]   = true;
+        if (!m_surfaceNamesSet[static_cast<int>(sType)]) {
+            m_surfaceNames[static_cast<int>(sType)] = sf->name();
+            m_surfaceNamesSet[static_cast<int>(sType)]   = true;
         } 
         // create the Tree for this TrackingVolume
         TString treeName = "IntersectionTest_Event";
@@ -94,7 +94,7 @@ StatusCode Trk::SurfaceIntersectionTest::runTest()
                 treeName += "_Info";        
         TTree* currentInfoTree = new TTree(treeName.Data(),"Surface Information");
         
-        ITHistSvc* tHistSvc = 0;
+        ITHistSvc* tHistSvc = nullptr;
         if (m_writeTTree && service("THistSvc",tHistSvc).isFailure()) {
             ATH_MSG_FATAL( "initialize() Could not find Hist Service! Aborting." );
             return StatusCode::FAILURE;
@@ -149,10 +149,10 @@ StatusCode Trk::SurfaceIntersectionTest::runTest()
             
             // now doing the distance estimation
             Trk::Intersection intersection = sf->straightLineIntersection(startPosition,direction,false);
-            ++m_surfaceAttempts[sType];
+            ++m_surfaceAttempts[static_cast<int>(sType)];
             // now check if the intesection is valid or not
             if (intersection.valid){
-                ++m_surfaceSuccessful[sType];
+                ++m_surfaceSuccessful[static_cast<int>(sType)];
                 Amg::Vector3D consistency = (intersection.position-intersection.pathLength*direction) - startPosition;
                 if (m_writeTTree){
                     intersectionBranch.fill(intersection.position);

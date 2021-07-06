@@ -1,18 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-// IMuonTPExtrapolationTool.h
 #ifndef IMuonTPExtrapolationTool_H
 #define IMuonTPExtrapolationTool_H
 
 #include "AsgTools/IAsgTool.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODMuon/Muon.h"
-
-#ifndef XAOD_ANALYSIS
 #include "TrkParameters/TrackParameters.h"
-#endif
-
 
 class IMuonTPExtrapolationTool : virtual public asg::IAsgTool {
   ASG_TOOL_INTERFACE(IMuonTPExtrapolationTool)
@@ -26,7 +21,7 @@ class IMuonTPExtrapolationTool : virtual public asg::IAsgTool {
   virtual double dROnTriggerPivotPlane(const xAOD::Muon& tag, const xAOD::IParticle* probe) const =0;
 
   // this method is intended for use in the DAOD production. It takes only one particle as argument, and handles the decoration. 
-  virtual StatusCode decoratePivotPlaneCoords(const xAOD::IParticle* particle)=0;
+   virtual StatusCode decoratePivotPlaneCoords(const xAOD::IParticle* particle)const=0;
   };
 
 #endif

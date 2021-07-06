@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -115,7 +115,7 @@ namespace Muon {
       ServiceHandle<IRndmGenSvc>          m_rndmGenSvc{this,"randomGen","RndmGenSvc"};                 //!< Random number generator
       std::unique_ptr<Rndm::Numbers>                      m_flatDist;
       
-      std::vector<std::vector<std::pair<const Trk::Volume*,float> > >  m_constituents;
+      std::vector<std::vector<std::pair<std::unique_ptr<const Trk::Volume>,float> > >  m_constituents;
 
       Gaudi::Property<bool>               m_extraMaterial{this,"AddMaterial",false};
       Gaudi::Property<float>              m_extraX0{this,"AMradLength",0.3};

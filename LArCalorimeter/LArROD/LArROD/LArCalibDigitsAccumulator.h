@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -26,8 +26,9 @@
 #include "LArIdentifier/LArOnlineID_Base.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "LArRawConditions/LArCalibParams.h"
- #include "LArRecConditions/LArCalibLineMapping.h"
-
+#include "LArRecConditions/LArCalibLineMapping.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "CaloDetDescr/ICaloSuperCellIDTool.h"
 class LArCalibDigitsAccumulator : public AthAlgorithm
 {
 
@@ -53,7 +54,18 @@ public:
 
 private:
 
+
+  ToolHandle<ICaloSuperCellIDTool> m_sc2ccMappingTool;
+
   SG::ReadCondHandleKey<LArCalibLineMapping> m_calibMapKey{this,"CalibCablingKey","LArCalibLineMap","SG Key of LArCalibLineMapping object"};
+
+
+  SG::ReadCondHandleKey<LArCalibLineMapping> m_calibMapSCKey{this,"CalibMapSCKey","LArCalibIdMapSC","SG Key of calib line mapping object"};
+
+
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this, "OnOffMap", "LArOnOffIdMap", "SG key for mapping object"};
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKeySC{this,"ScCablingKey","LArOnOffIdMapSC","SG Key of SC LArOnOffIdMapping object"};
+
   const LArOnlineID_Base* m_onlineHelper;
 
   typedef std::vector<LArAccumulatedCalibDigit*> ACCUMDIGIT_VEC;

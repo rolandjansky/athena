@@ -1,0 +1,19 @@
+<lcgdict>
+
+  <class name="CaloClusterConstituentsOrigin" />
+  <class name="ChargedHadronSubtractionTool" />
+  <class name="ClusterAtEMScaleTool" />
+  <class name="ConstitTimeCutTool" />
+  <class name="ConstituentSubtractorTool" />
+  <class name="CorrectPFOTool" />
+  <class name="JetConstituentModSequence" />
+  <class name="JetConstituentModifierBase" />
+  <class name="JetInputElRemovalTool" />
+  <class name="JetRecToolsDict" />
+  <class name="JetTrackSelectionTool" />
+  <class name="PuppiWeightTool" />
+  <class name="SoftKillerWeightTool" />
+  <class name="VoronoiWeightTool" />
+  <class name="JetTrackSelectionAlg" />
+  
+</lcgdict>

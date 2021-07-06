@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BaseInfo.cxx,v 1.9 2008-11-25 21:45:04 ssnyder Exp $
 /**
  * @file  AthenaKernel/src/BaseInfo.cxx
  * @author scott snyder
@@ -19,6 +18,7 @@
 #include <map>
 #include <unordered_map>
 #include <algorithm>
+#include <iostream>
 #include "string.h"
 
 

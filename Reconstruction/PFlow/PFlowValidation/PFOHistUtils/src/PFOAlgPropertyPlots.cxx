@@ -44,77 +44,77 @@ namespace PFO {
     }
   }
 
-  void PFOAlgPropertyPlots::fill(const xAOD::PFO& PFO){
+  void PFOAlgPropertyPlots::fill(const xAOD::PFO& PFO, const xAOD::EventInfo& eventInfo){
 
     xAOD::PFODetails::PFOAttributes myAttribute_isInDenseEnvironment = xAOD::PFODetails::PFOAttributes::eflowRec_isInDenseEnvironment;
     int isInDenseEnvironment = false;
     bool gotAttribute = PFO.attribute(myAttribute_isInDenseEnvironment,isInDenseEnvironment);
     if (true == gotAttribute) {
-      m_PFO_isInDenseEnvironment->Fill(isInDenseEnvironment);
-      if (fabs(PFO.eta()) < 1) m_PFO_isInDenseEnvironment_etaBinA->Fill(isInDenseEnvironment);
-      else if (fabs(PFO.eta()) < 2) m_PFO_isInDenseEnvironment_etaBinB->Fill(isInDenseEnvironment);
-      else m_PFO_isInDenseEnvironment_etaBinC->Fill(isInDenseEnvironment);
+      m_PFO_isInDenseEnvironment->Fill(isInDenseEnvironment,eventInfo.beamSpotWeight());
+      if (fabs(PFO.eta()) < 1) m_PFO_isInDenseEnvironment_etaBinA->Fill(isInDenseEnvironment,eventInfo.beamSpotWeight());
+      else if (fabs(PFO.eta()) < 2) m_PFO_isInDenseEnvironment_etaBinB->Fill(isInDenseEnvironment,eventInfo.beamSpotWeight());
+      else m_PFO_isInDenseEnvironment_etaBinC->Fill(isInDenseEnvironment,eventInfo.beamSpotWeight());
     }
 
     else {
-      m_PFO_isInDenseEnvironment->Fill(-1.0);
-      if (fabs(PFO.eta()) < 1) m_PFO_isInDenseEnvironment_etaBinA->Fill(-1.0);
-      else if (fabs(PFO.eta()) < 2) m_PFO_isInDenseEnvironment_etaBinB->Fill(-1.0);
-      else m_PFO_isInDenseEnvironment_etaBinC->Fill(-1.0);
+      m_PFO_isInDenseEnvironment->Fill(-1.0,eventInfo.beamSpotWeight());
+      if (fabs(PFO.eta()) < 1) m_PFO_isInDenseEnvironment_etaBinA->Fill(-1.0,eventInfo.beamSpotWeight());
+      else if (fabs(PFO.eta()) < 2) m_PFO_isInDenseEnvironment_etaBinB->Fill(-1.0,eventInfo.beamSpotWeight());
+      else m_PFO_isInDenseEnvironment_etaBinC->Fill(-1.0,eventInfo.beamSpotWeight());
     }
       
     float expectedEnergy = 0.0;
     xAOD::PFODetails::PFOAttributes myAttribute_tracksExpectedEnergyDeposit = xAOD::PFODetails::PFOAttributes::eflowRec_tracksExpectedEnergyDeposit;
     gotAttribute = PFO.attribute(myAttribute_tracksExpectedEnergyDeposit,expectedEnergy);
     if (true == gotAttribute) {
-      m_PFO_tracksExpectedEnergyDeposit->Fill(expectedEnergy/1000.0);
-      if (fabs(PFO.eta()) < 1)  m_PFO_tracksExpectedEnergyDeposit_etaBinA->Fill(expectedEnergy/1000.0);
-      else if (fabs(PFO.eta()) < 2) m_PFO_tracksExpectedEnergyDeposit_etaBinB->Fill(expectedEnergy/1000.0);
-      else m_PFO_tracksExpectedEnergyDeposit_etaBinC->Fill(expectedEnergy/1000.0);
+      m_PFO_tracksExpectedEnergyDeposit->Fill(expectedEnergy/1000.0,eventInfo.beamSpotWeight());
+      if (fabs(PFO.eta()) < 1)  m_PFO_tracksExpectedEnergyDeposit_etaBinA->Fill(expectedEnergy/1000.0,eventInfo.beamSpotWeight());
+      else if (fabs(PFO.eta()) < 2) m_PFO_tracksExpectedEnergyDeposit_etaBinB->Fill(expectedEnergy/1000.0,eventInfo.beamSpotWeight());
+      else m_PFO_tracksExpectedEnergyDeposit_etaBinC->Fill(expectedEnergy/1000.0,eventInfo.beamSpotWeight());
     }
     else{
-      m_PFO_tracksExpectedEnergyDeposit->Fill(-1.0);
-      if (fabs(PFO.eta()) < 1)  m_PFO_tracksExpectedEnergyDeposit_etaBinA->Fill(-1.0);
-      else if (fabs(PFO.eta()) < 2) m_PFO_tracksExpectedEnergyDeposit_etaBinB->Fill(-1.0);
-      else m_PFO_tracksExpectedEnergyDeposit_etaBinC->Fill(-1.0);
+      m_PFO_tracksExpectedEnergyDeposit->Fill(-1.0,eventInfo.beamSpotWeight());
+      if (fabs(PFO.eta()) < 1)  m_PFO_tracksExpectedEnergyDeposit_etaBinA->Fill(-1.0,eventInfo.beamSpotWeight());
+      else if (fabs(PFO.eta()) < 2) m_PFO_tracksExpectedEnergyDeposit_etaBinB->Fill(-1.0,eventInfo.beamSpotWeight());
+      else m_PFO_tracksExpectedEnergyDeposit_etaBinC->Fill(-1.0,eventInfo.beamSpotWeight());
     }
   }
 
- void PFOAlgPropertyPlots::fill(const xAOD::FlowElement& FE){
+ void PFOAlgPropertyPlots::fill(const xAOD::FlowElement& FE, const xAOD::EventInfo& eventInfo){
 
    static SG::AuxElement::ConstAccessor<int> acc_IsInDenseEnvironment("IsInDenseEnvironment");
    // dump the "isInDenseEnvironment
    if(acc_IsInDenseEnvironment.isAvailable(FE)){
      int isInDenseEnvironment=acc_IsInDenseEnvironment(FE);
-     m_FE_isInDenseEnvironment->Fill(isInDenseEnvironment);
-     if (fabs(FE.eta()) < 1) m_FE_isInDenseEnvironment_etaBinA->Fill(isInDenseEnvironment);
-     else if (fabs(FE.eta()) < 2) m_FE_isInDenseEnvironment_etaBinB->Fill(isInDenseEnvironment);
-     else m_FE_isInDenseEnvironment_etaBinC->Fill(isInDenseEnvironment);
+     m_FE_isInDenseEnvironment->Fill(isInDenseEnvironment,eventInfo.beamSpotWeight());
+     if (fabs(FE.eta()) < 1) m_FE_isInDenseEnvironment_etaBinA->Fill(isInDenseEnvironment,eventInfo.beamSpotWeight());
+     else if (fabs(FE.eta()) < 2) m_FE_isInDenseEnvironment_etaBinB->Fill(isInDenseEnvironment,eventInfo.beamSpotWeight());
+     else m_FE_isInDenseEnvironment_etaBinC->Fill(isInDenseEnvironment,eventInfo.beamSpotWeight());
    }     
    else{ 
-     m_FE_isInDenseEnvironment->Fill(-1.0);
-     if (fabs(FE.eta()) < 1) m_FE_isInDenseEnvironment_etaBinA->Fill(-1.0);
-     else if (fabs(FE.eta()) < 2) m_FE_isInDenseEnvironment_etaBinB->Fill(-1.0);
-     else m_FE_isInDenseEnvironment_etaBinC->Fill(-1.0);     
+     m_FE_isInDenseEnvironment->Fill(-1.0,eventInfo.beamSpotWeight());
+     if (fabs(FE.eta()) < 1) m_FE_isInDenseEnvironment_etaBinA->Fill(-1.0,eventInfo.beamSpotWeight());
+     else if (fabs(FE.eta()) < 2) m_FE_isInDenseEnvironment_etaBinB->Fill(-1.0,eventInfo.beamSpotWeight());
+     else m_FE_isInDenseEnvironment_etaBinC->Fill(-1.0,eventInfo.beamSpotWeight());     
    }
    static SG::AuxElement::ConstAccessor<float> acc_FE_tracksExpectedEnergyDeposit("TracksExpectedEnergyDeposit");
    
    if(acc_FE_tracksExpectedEnergyDeposit.isAvailable(FE)){
      float expectedEnergy=acc_FE_tracksExpectedEnergyDeposit(FE);
-     m_FE_tracksExpectedEnergyDeposit->Fill(expectedEnergy/1000.0);
+     m_FE_tracksExpectedEnergyDeposit->Fill(expectedEnergy/1000.0,eventInfo.beamSpotWeight());
      if(fabs(FE.eta())<1) 
-       m_FE_tracksExpectedEnergyDeposit_etaBinA->Fill(expectedEnergy/1000.0);
+       m_FE_tracksExpectedEnergyDeposit_etaBinA->Fill(expectedEnergy/1000.0,eventInfo.beamSpotWeight());
      else if(fabs(FE.eta())<2)
-       m_FE_tracksExpectedEnergyDeposit_etaBinB->Fill(expectedEnergy/1000.0);
+       m_FE_tracksExpectedEnergyDeposit_etaBinB->Fill(expectedEnergy/1000.0,eventInfo.beamSpotWeight());
      else
-       m_FE_tracksExpectedEnergyDeposit_etaBinC->Fill(expectedEnergy/1000.0);
+       m_FE_tracksExpectedEnergyDeposit_etaBinC->Fill(expectedEnergy/1000.0,eventInfo.beamSpotWeight());
    }// end of accessor block on tracks expected energy deposit
    else{
-     m_FE_tracksExpectedEnergyDeposit->Fill(-1.0);
-     if( fabs(FE.eta())<1) m_FE_tracksExpectedEnergyDeposit_etaBinA->Fill(-1.0);
-     else if ((fabs(FE.eta())<2)) m_FE_tracksExpectedEnergyDeposit_etaBinB->Fill(-1.0);
+     m_FE_tracksExpectedEnergyDeposit->Fill(-1.0,eventInfo.beamSpotWeight());
+     if( fabs(FE.eta())<1) m_FE_tracksExpectedEnergyDeposit_etaBinA->Fill(-1.0,eventInfo.beamSpotWeight());
+     else if ((fabs(FE.eta())<2)) m_FE_tracksExpectedEnergyDeposit_etaBinB->Fill(-1.0,eventInfo.beamSpotWeight());
      else
-       m_FE_tracksExpectedEnergyDeposit_etaBinC->Fill(-1.0);
+       m_FE_tracksExpectedEnergyDeposit_etaBinC->Fill(-1.0,eventInfo.beamSpotWeight());
    }
 
  } // end of PFOAlgPropertyPlots::fill(const xAOD::FlowElement& FE) 

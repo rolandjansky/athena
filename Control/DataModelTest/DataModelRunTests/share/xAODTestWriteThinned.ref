@@ -27,7 +27,6 @@ AthDictLoaderSvc     INFO acquired Dso-registry
 ClassIDSvc           INFO  getRegistryEntries: read 3871 CLIDRegistry entries for module ALL
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 xAODMaker::Even...   INFO Initialising - Package version: xAODEventFormatCnv-00-00-00
-MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
 AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
@@ -40,7 +39,8 @@ PoolSvc              INFO POOL WriteCatalog is file:xAODTestWriteThinned_catalog
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
 MetaDataSvc          INFO Found MetaDataTools = PublicToolHandleArray([])
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr
+MetaDataSvc          INFO Initializing MetaDataSvc
 ClassIDSvc           INFO  getRegistryEntries: read 2082 CLIDRegistry entries for module ALL
 ClassIDSvc           INFO  getRegistryEntries: read 9365 CLIDRegistry entries for module ALL
 xAODMaker::Even...   INFO Initializing - Package version: xAODEventInfoCnv-00-00-00
@@ -51,8 +51,7 @@ PyComponentMgr       INFO Initializing PyComponentMgr...
 LoadWriteDicts       INFO Initializing LoadWriteDicts...
 ClassIDSvc           INFO  getRegistryEntries: read 869 CLIDRegistry entries for module ALL
 DecisionSvc          INFO Inserting stream: Thinned1 with no Algs
-OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
-Thinned1.Thinne...   INFO Initializing Thinned1.Thinned1Tool - package version AthenaServices-00-00-00
+Thinned1.Thinne...   INFO Initializing Thinned1.Thinned1Tool
 Thinned1.Thinne...   INFO Initializing Thinned1.Thinned1_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
 Thinned1             INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Thinned1_MakeEventStreamInfo','Athena::ThinningCacheTool/ThinningCacheTool_Thinned1'])
 Thinned1             INFO Data output: xaodthinned1.root

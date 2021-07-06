@@ -39,6 +39,7 @@ class AssocConfig:
 def getAssociator(config,suffix,doPFlow=False,
                   trkseltool=None,
                   trkisotool=None,caloisotool=None,
+                  useFELinks=False,
                   modConstKey="",
                   modClusColls={}):
     tool = None
@@ -47,15 +48,18 @@ def getAssociator(config,suffix,doPFlow=False,
     if doModClus:
         modLCClus = modClusColls['LC{0}Clusters'.format(modConstKey)]
         modEMClus = modClusColls['EM{0}Clusters'.format(modConstKey)]
+
+    from METReconstruction.METRecoFlags import metFlags
     # Construct tool and set defaults for case-specific configuration
     if config.objType == 'Ele':
-        from ROOT import met
-        tool = CompFactory.getComp("met::METElectronAssociator")('MET_ElectronAssociator_'+suffix,TCMatchMethod=met.ClusterLink)
+        tool = CompFactory.getComp("met::METElectronAssociator")('MET_ElectronAssociator_'+suffix,TCMatchMethod=1)
+        tool.UseFEElectronLinks = metFlags.UseFEElectronLinks()
     if config.objType == 'Gamma':
-        from ROOT import met
-        tool = CompFactory.getComp("met::METPhotonAssociator")('MET_PhotonAssociator_'+suffix,TCMatchMethod=met.ClusterLink)
+        tool = CompFactory.getComp("met::METPhotonAssociator")('MET_PhotonAssociator_'+suffix,TCMatchMethod=1)
+        tool.UseFEPhotonLinks = metFlags.UseFEPhotonLinks()
     if config.objType == 'Tau':
         tool = CompFactory.getComp("met::METTauAssociator")('MET_TauAssociator_'+suffix)
+        tool.UseFETauLinks = metFlags.UseFETauLinks()
     if config.objType == 'LCJet':
         tool = CompFactory.getComp("met::METJetAssocTool")('MET_LCJetAssocTool_'+suffix)
     if config.objType == 'EMJet':
@@ -64,6 +68,7 @@ def getAssociator(config,suffix,doPFlow=False,
         tool = CompFactory.getComp("met::METJetAssocTool")('MET_PFlowJetAssocTool_'+suffix)
     if config.objType == 'Muon':
         tool = CompFactory.getComp("met::METMuonAssociator")('MET_MuonAssociator_'+suffix)
+        tool.UseFEMuonLinks = metFlags.UseFEMuonLinks()
     if config.objType == 'Soft':
         tool = CompFactory.getComp("met::METSoftAssociator")('MET_SoftAssociator_'+suffix)
         tool.DecorateSoftConst = True
@@ -75,9 +80,10 @@ def getAssociator(config,suffix,doPFlow=False,
         tool.RecoJetKey = config.inputKey
     if doPFlow:
         tool.PFlow = True
-        tool.PFlowColl = modConstKey if modConstKey!="" else defaultInputKey["PFlowObj"]
+        tool.FlowElementCollection = modConstKey if modConstKey!="" else defaultInputKey["PFlowObj"]
     else:
         tool.UseModifiedClus = doModClus
+    tool.UseFELinks = useFELinks
     # set input/output key names
     if config.inputKey == '':
         tool.InputCollection = defaultInputKey[config.objType]
@@ -109,7 +115,6 @@ class METAssocConfig:
     #
     def outputMap(self):
         return 'METAssoc_'+self.suffix
-        return 'METAssoc_'+self.suffix
     #
     def setupAssociators(self,buildconfigs):
         print("{} Setting up associators for MET config {}".format(prefix,self.suffix))
@@ -120,6 +125,7 @@ class METAssocConfig:
             else:
                 associator = getAssociator(config=config,suffix=self.suffix,
                                            doPFlow=self.doPFlow,
+                                           useFELinks=self.useFELinks,
                                            trkseltool=self.trkseltool,
                                            trkisotool=self.trkisotool,
                                            caloisotool=self.caloisotool,
@@ -135,6 +141,7 @@ class METAssocConfig:
     #
     def __init__(self,suffix,inputFlags,buildconfigs=[],
                  doPFlow=False, doTruth=False,
+                 usePFOLinks=False,
                  trksel=None,
                  modConstKey="",
                  modClusColls={}
@@ -153,7 +160,8 @@ class METAssocConfig:
         else:
             print ("{} Creating MET Assoc config {}".format(prefix,suffix))
         self.suffix = suffix
-        self.doPFlow = doPFlow                
+        self.doPFlow = doPFlow
+        self.useFELinks = usePFOLinks
         self.modConstKey=modConstKey_tmp
         self.modClusColls=modClusColls_tmp
         self.doTruth = doTruth
@@ -174,7 +182,6 @@ class METAssocConfig:
         CaloCellAssocTool =  CompFactory.getComp("Rec::ParticleCaloCellAssociationTool")(ParticleCaloExtensionTool = CaloExtensionTool)
         self.caloisotool = CompFactory.getComp("xAOD::CaloIsolationTool")("CaloIsolationTool_MET",
                                                           saveOnlyRequestedCorrections=True,
-                                                          addCaloExtensionDecoration=False,
                                                           ParticleCaloExtensionTool = CaloExtensionTool,
                                                           ParticleCaloCellAssociationTool = CaloCellAssocTool)
         self.associators = {}

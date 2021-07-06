@@ -29,6 +29,8 @@
 #include "EvtGenBase/EvtRandomEngine.hh"
 #include "EvtGenBase/EvtDecayTable.hh"
 
+#include "PathResolver/PathResolver.h"
+
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/GenVertex.h"
 #include "AtlasHepMC/GenParticle.h"
@@ -494,8 +496,7 @@ void EvtInclusiveDecay::decayParticle(HepMC::GenEvent* hepMC, HepMC::GenParticle
 
 
 void EvtInclusiveDecay::addEvtGenDecayTree(HepMC::GenEvent* hepMC, HepMC::GenParticlePtr part,
-					   EvtParticle* evtPart, EvtVector4R treeStart,
-                                           double momentumScaleFactor) {  
+					   EvtParticle* evtPart, EvtVector4R treeStart, double momentumScaleFactor) {  
   if(evtPart->getNDaug()!=0) {  
     // Add decay vertex, starting from production vertex of particle
     double ct=(evtPart->getDaug(0)->get4Pos()).get(0)+treeStart.get(0);
@@ -504,6 +505,7 @@ void EvtInclusiveDecay::addEvtGenDecayTree(HepMC::GenEvent* hepMC, HepMC::GenPar
     double z=(evtPart->getDaug(0)->get4Pos()).get(3)+treeStart.get(3);
 
     HepMC::GenVertexPtr end_vtx = HepMC::newGenVertexPtr(HepMC::FourVector(x,y,z,ct));
+
     hepMC->add_vertex(end_vtx);
     end_vtx->add_particle_in(part);
 
@@ -900,9 +902,15 @@ std::string EvtInclusiveDecay::xmlpath(){
       if(testFile.good()) foundpath = testPath;
       testFile.close();
     }
+   }
+  else {
+// If the CMT environment is missing, try to find the xmldoc directory
+// using PathResolver:
+    foundpath = PathResolverFindCalibDirectory( "Pythia8/xmldoc" );
 
   }
 
+  
   return foundpath;
 }
 

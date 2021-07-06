@@ -1,10 +1,18 @@
+
+#ifdef MINBIAS
+pT     = 400;
+#else
 pT     = 1000;
+#endif
+
 eta    = 2.5;
 #if defined(LARGED0)
 	a0=10;
 #elif defined(LARGED0_EL)
 	a0=4.;
-#else	
+#elif defined(LRT)
+        a0=200.;
+#else
 	a0=3.;
 #endif
 // npix   = 1;
@@ -18,11 +26,21 @@ pT_rec  = 0;
 eta_rec = 5;
 Rmatch = 0.05;
 
-dumpflag = 1;
+#if defined(LRT)
+	a0v = 200.;
+	z0v = 300.5;
+#else
 
-
-a0v = 10.5;
-z0v = 300.5;
+#ifdef OFFVTX
+/// any z position wi respect to the primary vertex
+	a0v = 10.5;
+	z0v = 10.5;
+#else
+/// only 10.5 mm with respect to the primary vertex
+	a0v = 10.5;
+	z0v = 300.5;
+#endif
+#endif
 
 // VertexSelection    = 0;
 // VertexSelectionRec = 0;

@@ -40,7 +40,7 @@ class EventInfoTagBuilder : public AthAlgorithm
 public:
 
   /// Standard constructor.
-  EventInfoTagBuilder(const std::string& name, ISvcLocator* pSvcLocator);
+  using AthAlgorithm::AthAlgorithm;
 
   /// Destructor.
   ~EventInfoTagBuilder() = default;

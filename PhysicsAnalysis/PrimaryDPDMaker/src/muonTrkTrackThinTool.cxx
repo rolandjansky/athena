@@ -31,23 +31,14 @@
 
 // Constructor
 muonTrkTrackThinTool::muonTrkTrackThinTool(const std::string& name,ISvcLocator* pSvcLocator):
-  AthAlgorithm (name, pSvcLocator),
-  m_All(0),
-  m_pass(0),
-  m_trackAll(0),
-  m_trackpass(0)
-{
+  AthReentrantAlgorithm (name, pSvcLocator) {
 }
-  
-// Destructor
-muonTrkTrackThinTool::~muonTrkTrackThinTool() {
-}  
-
 // Athena initialize and finalize
 StatusCode muonTrkTrackThinTool::initialize()
 {
   ATH_MSG_VERBOSE("initialize() ...");
   ATH_CHECK( m_trackCollKey.initialize (m_streamName) );
+  ATH_CHECK( m_muonReadKey.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -56,18 +47,15 @@ StatusCode muonTrkTrackThinTool::finalize()
   ATH_MSG_VERBOSE("finalize() ...");
   ATH_MSG_INFO("muonTrkTrackThinTool Filter number of muons PASSED "<<m_pass<<" FROM "<< m_All);
   ATH_MSG_INFO("muonTrkTrackThinTool Filter number of Trk::Track PASSED "<<m_trackpass<<" FROM "<< m_trackAll);
-  //  ATH_MSG_INFO("Processed "<< m_ntot <<" tracks, "<< m_npass<< " were retained ");
   return StatusCode::SUCCESS;
 }
 
 // The thinning itself
-StatusCode muonTrkTrackThinTool::execute()
-{
-  const EventContext& ctx = Gaudi::Hive::currentContext();
+StatusCode muonTrkTrackThinTool::execute(const EventContext& ctx ) const {
   
   SG::ThinningHandle<TrackCollection> alltracks (m_trackCollKey, ctx);
 
-  if (alltracks->size() == 0){
+  if (alltracks->empty()){
     ATH_MSG_DEBUG( "------------- Track Collection is empty, collection type: " <<  m_trackCollKey.key());
     return StatusCode::SUCCESS;
   }
@@ -77,13 +65,16 @@ StatusCode muonTrkTrackThinTool::execute()
   m_trackAll+=  alltracks->size();
 
   // Retrieve the muons:
-  const xAOD::MuonContainer* muons = 0;
-  CHECK( evtStore()->retrieve( muons, "Muons" ) );
-  if (!muons){
-    ATH_MSG_ERROR( "------------- No Muon Collection to filter tracks of type Muons");
-    return StatusCode::FAILURE;
-  }
-  m_All+=  muons->size();
+   SG::ReadHandle<xAOD::MuonContainer> muonHandle(m_muonReadKey, ctx);
+    if(!muonHandle.isValid()){
+      ATH_MSG_ERROR("Could not read "<< m_muonReadKey);
+      return StatusCode::FAILURE;
+    }
+   
+   const xAOD::MuonContainer* muons = muonHandle.cptr();
+    
+
+   m_All+=  muons->size();
 
   // Loop over muon:
   for( const auto* muon : *muons ) {    

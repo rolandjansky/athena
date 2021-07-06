@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAPHYSVALMONITORING_SHOWERSHAPESPLOTS_H
@@ -7,13 +7,16 @@
 
 #include "TrkValHistUtils/PlotBase.h"
 #include "xAODEgamma/Egamma.h"
+#include "xAODEventInfo/EventInfo.h"
+
+#include "CLHEP/Units/SystemOfUnits.h"
 
 namespace Egamma{
   
 class ShowerShapesPlots:public PlotBase {
     public:
       ShowerShapesPlots(PlotBase* pParent, const std::string& sDir, std::string sParticleType);
-      void fill(const xAOD::Egamma& egamma);
+      void fill(const xAOD::Egamma& egamma, const xAOD::EventInfo& eventInfo) const;
       
       std::string m_sParticleType;
 
@@ -29,8 +32,18 @@ class ShowerShapesPlots:public PlotBase {
       TH1* fracs1;
       TH1* wtots1;
       TH1* f1;
+      TH1* f3;
       TH1* pos7;
       TH1* clusiso;
+      TH1* Eratio;
+      TH1* E0;
+      TH1* E1;
+      TH1* E2;
+      TH1* E3;
+      TH1* Rhad;
+      TH1* Rhad1;
+      TH1* Reta;
+      TH1* Rphi;
 
       TH2* hadleakvset;
       TH2* middleevset;
@@ -44,8 +57,14 @@ class ShowerShapesPlots:public PlotBase {
       TH2* fracs1vset;
       TH2* wtots1vset;
       TH2* f1vset;
+      TH2* f3vset;
       TH2* pos7vset;
       TH2* clusisovset;
+      TH2* Eratiovset;
+      TH2* Rhadvset;
+      TH2* Rhad1vset;
+      TH2* Retavset;
+      TH2* Rphivset;
 
       TH2* hadleakvseta;
       TH2* middleevseta;
@@ -59,8 +78,14 @@ class ShowerShapesPlots:public PlotBase {
       TH2* fracs1vseta;
       TH2* wtots1vseta;
       TH2* f1vseta;
+      TH2* f3vseta;
       TH2* pos7vseta;
       TH2* clusisovseta;
+      TH2* Eratiovseta;
+      TH2* Rhadvseta;
+      TH2* Rhad1vseta;
+      TH2* Retavseta;
+      TH2* Rphivseta;
 
     private:
       virtual void initializePlots();

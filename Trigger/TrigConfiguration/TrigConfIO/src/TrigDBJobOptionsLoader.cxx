@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./TrigDBHelper.h"
@@ -53,7 +53,8 @@ TrigConf::TrigDBJobOptionsLoader::loadJobOptions ( unsigned int smk,
 {
    auto session = createDBSession();
    session->transaction().start( /*bool readonly=*/ true);
-   QueryDefinition qdef = getQueryDefinition(session.get(), m_queries);
+   const size_t sv = schemaVersion(session.get());
+   QueryDefinition qdef = getQueryDefinition(sv, m_queries);
    try {
       qdef.setBoundValue<int>("smk", smk);
       auto q = qdef.createQuery( session.get() );

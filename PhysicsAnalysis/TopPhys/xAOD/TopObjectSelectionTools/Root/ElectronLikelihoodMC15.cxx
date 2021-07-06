@@ -69,6 +69,9 @@ namespace top {
     m_operatingPointLoose_DF = egammaNamesAreNotConsistantAnywhereLoose;
     m_operatingPoint = operatingPoint;
     m_operatingPointLoose = operatingPointLoose;
+
+    m_deadHVTool.setTypeAndName("AsgDeadHVCellRemovalTool/deadHVTool");
+    top::check(m_deadHVTool.retrieve(), "Failed to setup Egamma DeadHVCellRemovalTool");
   }
 
   ElectronLikelihoodMC15::ElectronLikelihoodMC15(const bool,
@@ -157,6 +160,11 @@ namespace top {
     if (m_applyTTVACut) {
       if (!passTTVACuts(el)) return false;
     }
+
+    // removing electron cluster in EMEC bad HV regions
+    // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EGammaIdentificationRun2#Removal_of_Electron_Photon_clust
+    if (!m_deadHVTool->accept(el)) return false;  
+
 
     // Electron Charge ID Selector Tool
     // apply decoration only

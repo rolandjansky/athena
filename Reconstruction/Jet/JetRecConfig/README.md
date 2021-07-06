@@ -12,18 +12,26 @@ documentation:
 https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/AthenaJobConfigRun3
 
 The backbone of this configuration framework is a set of classes that encode
-what is meaningful in a jet definition or jet constituent, such that helper
-code can interpret the definitions to generate all necessary tools/algs.
-These are defined in `JetDefinition.py`, and currently comprise:
-* `JetConstit`: A set of constituents used for jet finding, which may have
-  constituent modifiers applied.
+what is meaningful in a jet definition or jet constituent. Helper
+code will then interpret these definitions to generate all necessary tools/algs.
+
+The definition classes are defined in `JetDefinition.py`, and currently comprise:
+* Classes defining the input to jet finding. `JetInputExternal` describes external containers : clusters, tracks, event density... `JetInputConstit` and `JetInputConstitSeq` describe what can be used as constituents of jets.
 * `JetDefinition`: A jet configuration, fundamentally the clustering algorithm,
   radius, and input constituent type. Can be extended with lists of jet
-  modifiers. Jet grooming is still to be added (might be a derived class?)
-* `JetGhost`: A set of objects to be ghost-associated to the jets. Very
-  simplistic class at present.
+  modifiers. 
 * `JetModifier`: A configuration of a tool that adds jet moments or otherwise
   manipulates the jet collection.
+* There is also jet context dictionnary defined in
+  `StandardJetContext.py`. A jet context is simply a set of parameters
+  that we want to keep consistent across all components within a
+  JetDefinition. These parameters are mainly related to tracks (track
+  & vertex container names, trk-vtx association map,...). Each set of
+  parameters is kept together within a dict and each dict is stored
+  in the `jetContextDic`. For example `jetContextDic["default"]` is
+  the parameters for offline reco and `jetContextDic["ftf"]` can be
+  used in the trigger config. Each `JetDefinition` has a context
+  (which is "default" by default...). 
 
 Once the constituent and definition have been defined, these are passed to
 the `JetRecConfig.JetRecCfg` function, which builds up all needed
@@ -34,24 +42,21 @@ Athena job and potentially with other jet reconstruction sequences.
 
 As an intermediate step, the dictionary of dependencies for the jet reco job
 can be extracted without attempting to configure any Athena tools/algs. This
-is done by passing the jet definition to `JetRecConfig.resolveDependencies`,
+is done by passing the jet definition to `DependencyHelper.solveDependencies`,
 allowing quick checking of the elements that will be integrated to form the
 jet collection, including input collections, ghosts and modifiers.
 
 If working with standard objects, the user can to do something like
 ```
-from StandardJetDefs import AntiKt4LCTopo
-lcjetcfg = JetRecConfig.JetRecCfg(jetseq,AntiKt4LCTopo)
+from JetRecConfig.StandardSmallRJets import AntiKt4LCTopo
+acc = JetRecConfig.JetRecCfg(AntiKt4LCTopo)
 ```
 For minor variations, one can copy and modify the standard definitions:
 ```
-from StandardJetDefs import LCTopoOrigin, AntiKt4LCTopo
-from copy import deepcopy
-LCTopoCSSK = deepcopy(LCTopoOrigin)
-LCTopoCSSK.modifiers += ["CS","SK"]
-AntiKt4LCTopoCSSK = deepcopy(AntiKt4LCTopo)
-AntiKt4LCTopoCSSK.inputdef = LCTopoCSSK
-lccsskjetcfg = JetRecConfig.JetRecCfg(jetseq,AntiKt4LCTopoCSSK)
+from JetRecConfig.StandardSmallRJets import AntiKt4LCTopo
+from JetRecConfig.StandardJetConstits import stdConstitDic as cst
+AntiKt4LCTopoCSSK = AntiKt4LCTopo.clone(inputdef = cst.LCTopoCSSK, modifiers=["Filter:13000"] )
+
 ```
 The definitions can of course be built up from scratch by users who want full
 control.
@@ -66,7 +71,7 @@ https://indico.cern.ch/event/697121/contributions/2859415/attachments/1585431/25
 
 To provide a large variety of modifier tool configurations in an organised way,
 each modifier tool is configured via the `JetModifier` helper class. This in
-turn delegates setup of the configuration to a helper function that specifies
+turn can delegates setup of the configuration to a helper function (`createfn` argument) that specifies
 non-default tool properties, and may take into account the details of the jets.
 Every modifier keeps track of its prerequisites, which may be other modifiers,
 jet input objects (e.g. tracks) or ghosts (e.g. GhostTracks).
@@ -82,19 +87,23 @@ some other mods be run first:
 jvt = JetModifier("JetVertexTaggerTool", "jvt",
                   prereqs = [ "mod:JVF" ])
 ```
-Finally, a helper function might be defined to set up the tool correctly,
-possibly with input from a string encoding of the modifier setup:
-```
-def getJetFilterTool(modspec):
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    ca = ComponentAccumulator()
-    threshold = int(modspec)
-    jetptfilter = JetRecConf.JetFilterTool("jetptfilter_{0}mev".format(threshold))
-    jetptfilter.PtMin = threshold
-    ca.addPublicTool( jetptfilter )
-    return jetptfilter, ca
 
-"Filter": JetModifier("JetFilterTool","jetptfilter",helperfn=getJetFilterTool),
+One can pass the properties need for the tool in the ctor of the modifier
+
+```
+    ktdr       = JetModifier("KtDeltaRTool", "ktdr", JetRadius = 0.4),
+```
+
+Instead of a simple value, the property can be a function. This is
+useful when the property needs to depend on the jet definition to
+which the modifier is attached. The function will be called with 2
+args : the jet definition and a specifier (defaulting to "", see below).
+
+```
+def _jetname(jetdef,modspec):
+    return jetdef.fullname()
+
+Width =  JetModifier("JetWidthTool", "width", JetContainer = _jetname),
 ```
 A helper function can potentially be provided for the prereqs as well.
 
@@ -107,11 +116,11 @@ AntiKt4LCTopo.modifiers = ["Calib:AnalysisLatest:mc","Sort","JVT"]
 which will first ensure that all tools are called that are needed for
 calibration, then sort the collection (a filter is also applied, controlled
 by other options), and finally compute JVT, again adding all modifiers required
-by JVT. In the process, jet track selection and ghost association will be
-added to the job.
+by JVT. In the process, jet track selection and ghost association will
+be automatically added to the job because they are necessary for JVT.
 
 The set of standard modifiers (for offline reconstruction) is concentrated
-in JetRecConfig/python/StandardJetMods.py, which in turn accesses tool
+in `JetRecConfig.StandardJetMods`, which in turn accesses tool
 configuration helpers that are defined in the packages containing the tool
 C++ implementations. This allows a local lookup of the specific default
 configurations, while making it easy to determine where the source code
@@ -124,20 +133,10 @@ To run:
 cd $MYWORKDIR
 mkdir run
 cd run
-python JetRecTestCfg.py -H # Get instructions
+python test_StandardJets.py --help # Get instructions
 ```
 You can dump printouts of the dependency dict and/or component accumulators
 for each jet collection or run a full job in serial or multithreaded modes.
 
 # TODO
 
-* Set up configuration helpers for:
-  * Jet substructure moment tools
-* Develop a generic configuration helper for grooming jets
-  * This should support both finding+grooming and standalone grooming based
-    on the input collection being pre-made.
-  * Some autoconfiguration could be useful here? However, missing data
-    dependencies should be covered by the AthenaMT scheduler.
-* Some steering flags will eventually be needed to cope with different
-  situations. However, hopefully they can mostly just modify the top-level
-  configurations, without needing anything propagated into the helpers.

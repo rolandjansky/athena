@@ -162,7 +162,7 @@ int main( int argc, char* argv[] ) {
          R_CHECK( event.loadInputObjects() );
 
          // Tell the user where we are:
-         if( ! ( entry % 1000 ) ) {
+         if( ( entry % 1000 == 0 ) || ( entry +1 == entries ) ) {
             Info( APP_NAME, "===>>> Loaded entry %i / %i <<<===",
                   static_cast< int >( entry ), static_cast< int >( entries ) );
          }

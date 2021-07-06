@@ -23,7 +23,7 @@
 #include "TrigT1CaloUtils/TriggerTowerKey.h"
 
 namespace TrigConf {
-   class TriggerThreshold;
+  class L1Menu;
 }
 
 
@@ -45,7 +45,8 @@ The CPMTobAlgorithm:<br>
 class CPMTobAlgorithm {
 public: 
   
-  CPMTobAlgorithm(double eta, double phi, const xAOD::CPMTowerMap_t* ttContainer, ServiceHandle<TrigConf::ILVL1ConfigSvc> config, int slice = -1);
+  CPMTobAlgorithm(double eta, double phi, const xAOD::CPMTowerMap_t* ttContainer, 
+                  ServiceHandle<TrigConf::ILVL1ConfigSvc> config, const TrigConf::L1Menu * l1menu, int slice = -1);
 
   ~CPMTobAlgorithm();
   
@@ -85,6 +86,7 @@ private: //atribs
   double m_refEta;
   double m_refPhi;
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
+  const TrigConf::L1Menu * m_l1menu{nullptr};
 
   /** Algorithm results */
   double m_eta;

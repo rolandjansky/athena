@@ -1,6 +1,11 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+/**
+ * @file DiTauEfficiencyCorrectionsTool.cxx
+ * @brief Class for ditau efficiency correction scale factors and uncertainties
+ * @date 2021-02-18
+ * 
+ * @copyright Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ * 
+ */
 
 // EDM include(s):
 #include "PATInterfaces/SystematicRegistry.h"
@@ -21,6 +26,7 @@ DiTauEfficiencyCorrectionsTool::DiTauEfficiencyCorrectionsTool( const std::strin
   , m_vCommonEfficiencyTools()
   , m_bIsData(false)
   , m_bIsConfigured(false)
+  // , m_iRunNumber(0)
 {
   declareProperty( "EfficiencyCorrectionTypes",    m_vEfficiencyCorrectionTypes    = {} );
   declareProperty( "InputFilePathRecoHadTau",      m_sInputFilePathRecoHadTau      = "" );
@@ -130,7 +136,7 @@ void DiTauEfficiencyCorrectionsTool::printConfig(bool bAlways)
 
 //______________________________________________________________________________
 CP::CorrectionCode DiTauEfficiencyCorrectionsTool::getEfficiencyScaleFactor( const xAOD::DiTauJet& xDiTau,
-    double& eff )
+    double& eff, unsigned int /*iRunNumber*/, unsigned int /*iMu*/ )
 {
   eff = 1.;
 
@@ -149,14 +155,15 @@ CP::CorrectionCode DiTauEfficiencyCorrectionsTool::getEfficiencyScaleFactor( con
 }
 
 //______________________________________________________________________________
-CP::CorrectionCode DiTauEfficiencyCorrectionsTool::applyEfficiencyScaleFactor( const xAOD::DiTauJet& xDiTau )
+CP::CorrectionCode DiTauEfficiencyCorrectionsTool::applyEfficiencyScaleFactor( const xAOD::DiTauJet& xDiTau, 
+  unsigned int iRunNumber, unsigned int iMu)
 {
   if (m_bIsData)
     return CP::CorrectionCode::Ok;
 
   for (auto it = m_vCommonEfficiencyTools.begin(); it != m_vCommonEfficiencyTools.end(); it++)
   {
-    CP::CorrectionCode tmpCorrectionCode = (**it)->applyEfficiencyScaleFactor(xDiTau);
+    CP::CorrectionCode tmpCorrectionCode = (**it)->applyEfficiencyScaleFactor(xDiTau, iRunNumber, iMu);
     if (tmpCorrectionCode != CP::CorrectionCode::Ok)
     {
       return tmpCorrectionCode;
@@ -219,7 +226,7 @@ StatusCode DiTauEfficiencyCorrectionsTool::initializeTools_2017_moriond()
     if (iEfficiencyCorrectionType == SFJetIDHadTau)
     {
       // only set vars if they differ from "", which means they have been configured by the user
-      if (m_sInputFilePathJetIDHadTau.empty()) m_sInputFilePathJetIDHadTau = sDirectory+"JetID_TrueHadDiTau_2017-prerec.root";
+      if (m_sInputFilePathJetIDHadTau.empty()) m_sInputFilePathJetIDHadTau = sDirectory+"JetID_TrueHadDiTau_2017-fall.root";
       if (m_sVarNameJetIDHadTau.length() == 0) m_sVarNameJetIDHadTau = "DiTauScaleFactorJetIDHadTau";
 
       asg::AnaToolHandle<IDiTauEfficiencyCorrectionsTool>* tTool = new asg::AnaToolHandle<IDiTauEfficiencyCorrectionsTool>("JetIDHadTauTool", this);
@@ -244,7 +251,10 @@ std::string DiTauEfficiencyCorrectionsTool::ConvertJetIDToString(const int& iLev
   switch(iLevel)
   {
   case JETIDNONE:
-    return "none";
+    return "ditaureconstruction";
+    break;
+  case JETIDBDTVERYLOOSE:
+    return "jetbdtsigveryloose";
     break;
   case JETIDBDTLOOSE:
     return "jetbdtsigloose";
@@ -254,24 +264,6 @@ std::string DiTauEfficiencyCorrectionsTool::ConvertJetIDToString(const int& iLev
     break;
   case JETIDBDTTIGHT:
     return "jetbdtsigtight";
-    break;
-  case JETIDBDTOTHER:
-    return "jetbdtsigother";
-    break;
-  case JETIDLLHLOOSE:
-    return "taujllhloose";
-    break;
-  case JETIDLLHMEDIUM:
-    return "taujllhmedium";
-    break;
-  case JETIDLLHTIGHT:
-    return "taujllhtight";
-    break;
-  case JETIDLLHFAIL:
-    return "taujllh";
-    break;
-  case JETIDBDTFAIL:
-    return "jetbdtsig";
     break;
   default:
     assert(false && "No valid ID level passed. Breaking up ...");

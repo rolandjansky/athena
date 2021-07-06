@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigCaloMonitoring/HLTCaloClusterTool.h"
+#include "HLTCaloClusterTool.h"
 #include "egammaEvent/egammaContainer.h"
 #include "TrigCaloEvent/TrigEMClusterContainer.h"
 #include "GaudiKernel/MsgStream.h"

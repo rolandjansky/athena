@@ -4,6 +4,8 @@
 
 #include "TrigOutputHandling/HLTResultMTMaker.h"
 #include "AthenaMonitoringKernel/Monitored.h"
+#include "eformat/DetectorMask.h"
+#include "eformat/SourceIdentifier.h"
 #include <sstream>
 
 // Local helpers
@@ -61,8 +63,16 @@ StatusCode HLTResultMTMaker::initialize() {
   ATH_CHECK(m_makerTools.retrieve());
   ATH_CHECK(m_monTool.retrieve());
   ATH_CHECK(m_jobOptionsSvc.retrieve());
+  ATH_CHECK(m_bsMetaDataContRHKey.initialize(!m_extraROBs.empty() || !m_extraSubDets.empty()));
 
-  // Initialise the enabled ROBs/SubDets list from DataFlowConfig config and extra properties.
+  return StatusCode::SUCCESS;
+}
+
+// =============================================================================
+// Implementation of IStateful::start
+// Initialise the enabled ROBs/SubDets list from DataFlowConfig and extra properties.
+// =============================================================================
+StatusCode HLTResultMTMaker::start() {
   // DataFlowConfig is a special object used online to hold DF properties passed from TDAQ to HLT as run parameters.
   Gaudi::Property<std::vector<uint32_t>> enabledROBsProp("EnabledROBs",{});
   if (enabledROBsProp.fromString(m_jobOptionsSvc->get("DataFlowConfig.DF_Enabled_ROB_IDs","[]")).isSuccess()) {
@@ -93,9 +103,14 @@ StatusCode HLTResultMTMaker::initialize() {
                  << "StreamTag PEBInfo validation will be skipped.");
   }
   else {
+    ATH_CHECK(validateExtraROBsAndSubDets());
     m_enabledROBs.insert(m_extraEnabledROBs.value().begin(), m_extraEnabledROBs.value().end());
+    m_enabledROBs.insert(m_extraROBs.value().begin(), m_extraROBs.value().end());
     // Need to convert from uint32_t to eformat::SubDetector representable by uint8_t
     for (const uint32_t id : m_extraEnabledSubDets.value()) {
+      m_enabledSubDets.insert( static_cast<eformat::SubDetector>(id & 0xFF) );
+    }
+    for (const uint32_t id : m_extraSubDets.value()) {
       m_enabledSubDets.insert( static_cast<eformat::SubDetector>(id & 0xFF) );
     }
     ATH_MSG_INFO("StreamTag PEBInfo will be validated against " << m_enabledROBs.size() << " enabled ROBs and "
@@ -171,4 +186,53 @@ void HLTResultMTMaker::validatePEBInfo(HLT::HLTResultMT& hltResult) const {
     else
       ATH_MSG_VERBOSE("No disabled SubDets were requested by StreamTag " << st.type << "_" << st.name);
   }
+}
+
+// =============================================================================
+// Private method removing ExtraROBs/ExtraSubDets disabled by the detector mask
+// =============================================================================
+StatusCode HLTResultMTMaker::validateExtraROBsAndSubDets() {
+  if (m_extraROBs.empty() && m_extraSubDets.empty()) {
+    // Nothing to check
+    return StatusCode::SUCCESS;
+  }
+
+  // Get the detector mask
+  auto bsmdc = SG::makeHandle(m_bsMetaDataContRHKey);
+  ATH_CHECK(bsmdc.isValid());
+  ATH_CHECK(!bsmdc->empty());
+  const ByteStreamMetadata* metadata = bsmdc->front();
+  const eformat::helper::DetectorMask detectorMask{metadata->getDetectorMask(), metadata->getDetectorMask2()};
+
+  // Check ROBs
+  std::vector<uint32_t> validatedExtraROBs;
+  for (const uint32_t rob_id : m_extraROBs.value()) {
+    const eformat::helper::SourceIdentifier sid{rob_id};
+    const eformat::SubDetector subdet_id = sid.subdetector_id();
+    if (detectorMask.is_set(subdet_id)) {
+      validatedExtraROBs.push_back(rob_id);
+    }
+    else {
+      ATH_MSG_WARNING("Removing 0x" << MSG::hex << rob_id << MSG::dec << " from " << m_extraROBs.name()
+                      << " because SubDetector " << sid.human_detector() << " is disabled in the detector mask");
+    }
+  }
+  m_extraROBs = validatedExtraROBs;
+
+  // Check SubDets
+  std::vector<uint32_t> validatedExtraSubDets;
+  for (const uint32_t subdet_id32 : m_extraSubDets.value()) {
+    const eformat::SubDetector subdet_id = static_cast<eformat::SubDetector>(subdet_id32 & 0xFF);
+    if (detectorMask.is_set(subdet_id)) {
+      validatedExtraSubDets.push_back(subdet_id32);
+    }
+    else {
+      ATH_MSG_WARNING("Removing 0x" << MSG::hex << subdet_id << MSG::dec << " from " << m_extraSubDets.name()
+                      << " because SubDetector " << eformat::helper::SourceIdentifier(subdet_id,0,0).human_detector()
+                      << " is disabled in the detector mask");
+    }
+  }
+  m_extraSubDets = validatedExtraSubDets;
+
+  return StatusCode::SUCCESS;
 }

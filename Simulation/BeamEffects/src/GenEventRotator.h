@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_HEPMC_GENEVENTROTATOR_H
@@ -46,9 +46,9 @@ namespace Simulation {
     /** apply rotations to individual GenParticles */
     void rotateParticle(HepMC::GenParticlePtr p, const CLHEP::HepLorentzRotation& transform) const;
 
-    double m_xangle; /** rotation about x-axis (degrees) */
-    double m_yangle; /** rotation about y-axis (degrees) */
-    double m_zangle; /** rotation about z-axis (degrees) */
+    Gaudi::Property<double> m_xangle{this, "xAngle", 0.0, "rotation about x-axis"};
+    Gaudi::Property<double> m_yangle{this, "yAngle", 0.0, "rotation about y-axis"};
+    Gaudi::Property<double> m_zangle{this, "zAngle", 0.0, "rotation about z-axis"};
   };
 
 }

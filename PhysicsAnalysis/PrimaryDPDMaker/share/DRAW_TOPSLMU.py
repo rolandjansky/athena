@@ -59,7 +59,7 @@ topSequence += DRAW_TOPSLMU_Seq
 ### Output stream
 ##################
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-from D2PDMaker.D2PDHelpers import buildFileName
+from PrimaryDPDMaker.PrimaryDPDHelpers import buildFileName
 from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
 streamName = primDPD.WriteDRAW_TOPSLMU.StreamName
 fileName   = buildFileName( primDPD.WriteDRAW_TOPSLMU )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetMonitoring/LeadingJetsRelations.h"
@@ -44,7 +44,7 @@ int LeadingJetsRelations::buildHistos(){
 }
 
 
-int LeadingJetsRelations::fillHistosFromContainer(const xAOD::JetContainer &cont){
+int LeadingJetsRelations::fillHistosFromContainer(const xAOD::JetContainer &cont, float weight){
   if( cont.size()<2) return 0;
 
   const xAOD::Jet * j1 = cont[0];
@@ -54,14 +54,16 @@ int LeadingJetsRelations::fillHistosFromContainer(const xAOD::JetContainer &cont
   double dPhi  = fabs(j1->phi() - j2->phi() );
   if(dPhi > 2*3.14159) dPhi -= 2*3.14159;
   double dR = sqrt( dPhi*dPhi + dEta*dEta);
+  double histFrac = 0.;
+  if (j1->pt() > 0.) histFrac = j2->pt()/j1->pt();
   
-  if(m_histDeltaEta) m_histDeltaEta->Fill( dEta);
-  if(m_histDeltaPhi) m_histDeltaPhi->Fill( dPhi);
-  if(m_histDeltaR) m_histDeltaR->Fill( dR);
+  if(m_histDeltaEta) m_histDeltaEta->Fill( dEta, weight);
+  if(m_histDeltaPhi) m_histDeltaPhi->Fill( dPhi, weight);
+  if(m_histDeltaR) m_histDeltaR->Fill( dR, weight);
 
-  if(m_histFrac) m_histFrac->Fill( j2->pt() / j1->pt());
+  if(m_histFrac) m_histFrac->Fill( histFrac, weight);
 
-  if(m_histEta1Eta2) m_histEta1Eta2->Fill( j1->eta(), j2->eta() );
+  if(m_histEta1Eta2) m_histEta1Eta2->Fill( j1->eta(), j2->eta(), weight );
 
   return 0;
 }

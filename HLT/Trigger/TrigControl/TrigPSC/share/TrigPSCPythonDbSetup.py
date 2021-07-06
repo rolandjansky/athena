@@ -20,7 +20,7 @@ def setTHistSvcOutput():
    """Helper to set THistSvc.Output"""
 
    ## Do this only in a function to not pollute the global namespace
-   from TriggerJobOpts.HLTTriggerGetter import setTHistSvcOutput
+   from TriggerJobOpts.TriggerHistSvcConfig import setTHistSvcOutput
    output = []
    setTHistSvcOutput(output)
    setattr(iProperty("THistSvc"),"Output",output)

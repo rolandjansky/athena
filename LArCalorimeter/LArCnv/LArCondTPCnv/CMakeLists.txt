@@ -35,6 +35,11 @@ atlas_add_test( LArCaliWaveSubsetCnv_p2_test
                 test/LArCaliWaveSubsetCnv_p2_test.cxx
                 LINK_LIBRARIES GaudiKernel LArCondTPCnv TestTools )
 
+atlas_add_test( LArCaliWaveSubsetCnv_p3_test
+                SOURCES
+                test/LArCaliWaveSubsetCnv_p3_test.cxx
+                LINK_LIBRARIES GaudiKernel LArCondTPCnv TestTools )
+
 atlas_add_test( LArDSPThresholdsSubsetCnv_p1_test
                 SOURCES
                 test/LArDSPThresholdsSubsetCnv_p1_test.cxx

@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 // System include(s):
 #include <cassert>
@@ -305,8 +305,8 @@ namespace xAOD {
          // Get the type:
          ::TClass* cl =
               ::TClass::GetClass( ef_itr->second.className().c_str() );
-         const std::type_info* ti = cl->GetTypeInfo();
-         if( ( ! cl->IsLoaded() ) || ( ! ti ) ) {
+         const std::type_info* ti = ( cl ? cl->GetTypeInfo() : nullptr );
+         if( ( ! cl ) || ( ! cl->IsLoaded() ) || ( ! ti ) ) {
             Warning( "xAOD::TEvent::dump",
                      "Unknown type (%s) found in the event format",
                      ef_itr->second.className().c_str() );
@@ -424,7 +424,7 @@ namespace xAOD {
       }
 
       // Check if the EventFormat branch is available:
-      static const std::string eventFormatBranchName =
+      const std::string eventFormatBranchName =
          Utils::getFirstBranchMatch( m_inMetaTree, "EventFormat");
       if( ! m_inMetaTree->GetBranch( eventFormatBranchName.c_str() ) ) {
          // This can happen when the file was produced by an Athena job that
@@ -3003,6 +3003,7 @@ namespace xAOD {
             ::Fatal( "xAOD::TEvent::setAuxStore",
                      XAOD_MESSAGE( "Auxiliary manager for \"%s\" is not of the "
                                    "right type" ), auxKey.c_str() );
+            return StatusCode::FAILURE;
          }
          store = amgr->getConstStore();
          // If the store still doesn't know its type, help it now:
@@ -3021,6 +3022,7 @@ namespace xAOD {
             ::Fatal( "xAOD::TEvent::setAuxStore",
                      XAOD_MESSAGE( "Auxiliary manager for \"%s\" is not of the "
                                    "right type" ), auxKey.c_str() );
+            return StatusCode::FAILURE;
          }
          void* p = omgr->holder()->getAs( typeid( SG::IConstAuxStore ) );
          store = reinterpret_cast< const SG::IConstAuxStore* >( p );

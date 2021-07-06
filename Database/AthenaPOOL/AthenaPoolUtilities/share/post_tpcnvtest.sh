@@ -1,8 +1,8 @@
 #!/bin/sh
 #/** @file post.sh
-# @brief sh script that check the return code of an executable and compares 
+# @brief sh script that check the return code of an executable and compares
 # its output with a reference (if available).
-# @param test_name 
+# @param test_name
 #
 # @author Paolo Calafiura <pcalafiura@lbl.gov> - ATLAS Collaboration.
 # $Id: post_check.sh,v 1.32 2009-05-06 18:10:12 ssnyder Exp $
@@ -39,6 +39,7 @@ PP="$PP"'|Py:PropertyProxy  WARNING Found .* duplicates among the .* genConfDb f
 PP="$PP"'|Py:PropertyProxy  WARNING --------------------------------------------------'
 PP="$PP"'|Py:PropertyProxy  WARNING   -<component name>: <module> - . <duplicates> .'
 PP="$PP"'|Py:PropertyProxy  WARNING   -.* - '
+PP="$PP"'|Py:PropertyProxy  WARNING Fix your cmt/requirements file'
 PP="$PP"'|^ *Welcome to ApplicationMgr'
 PP="$PP"'|^ *running on .* on '
 PP="$PP"'|No duplicates have been found: that.s good'
@@ -126,7 +127,7 @@ PP="$PP"'|^Found new type of HLT feature: TrigInDetTrackCollection_TrigL2SiTrack
 # Verbosity removed in MuonIdHelper-00-08-20.
 PP="$PP"'|^MuonIdHelper::init_neighbors'
 
-PP="$PP"'|^SCT_ID +DEBUG|HepPDT Version|^RalSessionMgr Warning Use COOL_DISABLE_CORALCONNECTIONPOOLCLEANUP|^  Z range|^  R range|^ solefittorsimtilta|^ToolSvc.BunchCrossingTool +WARNING|^ToolSvc.CaloNoiseToolDefault +WARNING|^ *$|^DbSession Info|^MGM::MuonDetectorManager::updateAlignment +WARNING|PixelClusterErrorData Initialize|^done|mtst|into pool catalog|problem running pool_insertFileToCatalog'
+PP="$PP"'|^SCT_ID +DEBUG|HepPDT Version|^RalSessionMgr Warning Use COOL_DISABLE_CORALCONNECTIONPOOLCLEANUP|^  Z range|^  R range|^ solefittorsimtilta|^ToolSvc.BunchCrossingTool +WARNING|^ *$|^DbSession Info|^MGM::MuonDetectorManager::updateAlignment +WARNING|PixelClusterErrorData Initialize|^done|mtst|into pool catalog|problem running pool_insertFileToCatalog'
 
 PP="$PP"'|^DbSession Info +Open +DbSession|^ failed to import Digitization.DigitizationFlags'
 
@@ -201,7 +202,7 @@ PP="$PP"'|^PixelID +WARNING|^ DBM PixelID:|^PixelGeoModel did not build|^ PixelI
 PP="$PP"'|^Py:JobPropertyContainer:: WARNING|USHAPE|Will skip this envelope volume|^ ?AtlasGeometry.* WARNING'
 
 # 19.x.x...
-PP="$PP"'|load MagFieldTool|: Defining |Start of Reco Config|^CscSegments=|^MuonPatterns=|^MuonSegment.*=|^MuonTrack.*=|^PhiPatterns=|End of Reco Config|PerfMon domains|^::: domain|^IOVDbSvc +WARNING Tag .* substituted|^AtlasEnvelopeSvcDefinitionSvc +WARNING|LayerMaterialMap of size|^ AtlasEnvelopeSvcDefinitionSvc.* WARNING|^.*CnvAlg.* WARNING No .* with key .* found. Do nothing.|^ .*CnvAlg.* WARNING|^ToolSvc.PixelLayerBuilder +WARNING|^ ToolSvc.PixelLayerBuilder .* WARNING|^ ToolSvc.CaloNoiseToolDefault.* WARNING|^turning off forward muons|already in TClassTable|already loaded$'
+PP="$PP"'|load MagFieldTool|: Defining |Start of Reco Config|^CscSegments=|^MuonPatterns=|^MuonSegment.*=|^MuonTrack.*=|^PhiPatterns=|End of Reco Config|PerfMon domains|^::: domain|^IOVDbSvc +WARNING Tag .* substituted|^AtlasEnvelopeSvcDefinitionSvc +WARNING|LayerMaterialMap of size|^ AtlasEnvelopeSvcDefinitionSvc.* WARNING|^.*CnvAlg.* WARNING No .* with key .* found. Do nothing.|^ .*CnvAlg.* WARNING|^ToolSvc.PixelLayerBuilder +WARNING|^ ToolSvc.PixelLayerBuilder .* WARNING|^turning off forward muons|already in TClassTable|already loaded$'
 
 PP="$PP"'|TClassTable::Add|^Note.* already loaded|^DataLink version|^ElementLink version|Using split mode on a class'
 
@@ -248,11 +249,13 @@ PP="$PP"'|WARNING: new xAOD variables '
 # From MuonCondAlg.
 PP="$PP"'|Empty temporary A-line container'
 
+# Warnings from mini-projects, not holding all the EDM classes.
+PP="$PP"'|^RootAuxDynReader::init.*Could not find auxid for'
 
 test=$1
 if [ -z "$testStatus" ]; then
     echo "post.sh> Warning: athena exit status is not available "
-else 
+else
     # check exit status
     joblog=${test}.log
     if [ -r ${test}-SKIPPED ]; then
@@ -291,10 +294,10 @@ else
             refdiff=`basename ${reflog}`-todiff.bz2
             sed 's/H1Topo/Topo/g' < $joblog | egrep -v "$PP" | bzip2 -9 > $jobdiff
             sed 's/H1Topo/Topo/g' < $reflog | egrep -v "$PP" | bzip2 -9 > $refdiff
-            bzdiff -a -u -w $jobdiff $refdiff
+            bzdiff -a -u -w $refdiff $jobdiff
 	    diffStatus=$?
 	    if [ $diffStatus != 0 ] ; then
-		echo "post.sh> ERROR: $joblog and $reflog differ"
+		echo "post.sh> ERROR: $reflog and $joblog differ"
                 exit 1
 	    fi
 
@@ -316,4 +319,3 @@ fi
 joblog=${test}.log
 
 exit $testStatus
-

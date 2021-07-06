@@ -2,17 +2,21 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <utility>
+
+
+
 #include "TrkValHistUtils/ParamPlots.h"
 
 namespace Trk {
-  ParamPlots::ParamPlots(PlotBase *pParent, std::string sDir, std::string sParticleType) : PlotBase(pParent, sDir),
-    m_sParticleType(sParticleType) {
-    eta = NULL;
-    phi = NULL;
-    pt = NULL;
+  ParamPlots::ParamPlots(PlotBase *pParent, const std::string& sDir, std::string sParticleType) : PlotBase(pParent, sDir),
+    m_sParticleType(std::move(sParticleType)) {
+    eta = nullptr;
+    phi = nullptr;
+    pt = nullptr;
 
-    eta_phi = NULL;
-    eta_pt = NULL;
+    eta_phi = nullptr;
+    eta_pt = nullptr;
   }
 
   void
@@ -33,12 +37,11 @@ namespace Trk {
   }
 
   void
-  ParamPlots::fill(const xAOD::IParticle &prt) {
-    pt->Fill(prt.pt() * 0.001);
-    eta->Fill(prt.eta());
-    phi->Fill(prt.phi());
-
-    eta_pt->Fill(prt.eta(), prt.pt() * 0.001);
-    eta_phi->Fill(prt.eta(), prt.phi());
+  ParamPlots::fill(const xAOD::IParticle &prt, float weight) {
+    pt->Fill(prt.pt() * 0.001, weight); 
+    eta->Fill(prt.eta(),weight);
+    phi->Fill(prt.phi(),weight);
+    eta_pt->Fill(prt.eta(), prt.pt() * 0.001, weight);
+    eta_phi->Fill(prt.eta(), prt.phi(),weight);
   }
 }

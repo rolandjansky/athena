@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -56,6 +56,8 @@ namespace LVL1 {
 
     ATH_CHECK(m_eFexOutKey.initialize());
 
+    ATH_CHECK( m_eFEXFPGATowerIdProviderTool.retrieve() );
+
     return StatusCode::SUCCESS;
   }
 
@@ -93,6 +95,21 @@ namespace LVL1 {
       return StatusCode::FAILURE;
     }
 
+    // remove TOBs of the previous events from the map
+    m_allEmTobs.clear();
+
+    // do mapping with preloaded csv file if it is available
+    if (m_eFEXFPGATowerIdProviderTool->ifhaveinputfile()) {
+      ATH_CHECK( m_eFEXFPGATool.retrieve() );
+      int tmp_eTowersIDs_subset_eFEX[10][18];
+      for (int i_efex{ 0 }; i_efex < 24; i_efex++) {
+          ATH_CHECK(m_eFEXFPGATowerIdProviderTool->getRankedTowerIDineFEX(i_efex, tmp_eTowersIDs_subset_eFEX));
+          m_eFEXSimTool->init(160 + (i_efex % 3) * 16 + int(i_efex / 3));
+          ATH_CHECK(m_eFEXSimTool->NewExecute(tmp_eTowersIDs_subset_eFEX));
+          m_allEmTobs.insert( std::map<int, std::vector<uint32_t> >::value_type(i_efex, (m_eFEXSimTool->getEmTOBs() ) ));
+          m_eFEXSimTool->reset();
+      }
+    } else {
     // We need to split the towers into 3 blocks in eta and 8 blocks in phi.
 
     // boundaries in eta: -2.5, -0.8, 0.8, 2.5
@@ -152,8 +169,6 @@ namespace LVL1 {
 	  tmp_eTowersIDs_subset[thisRow][thisCol] = towerid;
 	  tmp_eTowersColl_subset.insert( std::map<int, eTower>::value_type(towerid,  *(this_eTowerContainer->findTower(towerid))));
 
-	  std::vector<Identifier> supercellIDs = this_eTowerContainer->findTower(towerid)->getSCIDs();
-
 	}
       }
 
@@ -167,8 +182,6 @@ namespace LVL1 {
 	tmp_eTowersIDs_subset[thisRow][10] = towerid;
 	tmp_eTowersColl_subset.insert( std::map<int, eTower>::value_type(towerid,  *(this_eTowerContainer->findTower(towerid))));
 
-	std::vector<Identifier> supercellIDs = this_eTowerContainer->findTower(towerid)->getSCIDs();
-
       }
 
       // set the EMB part
@@ -181,8 +194,6 @@ namespace LVL1 {
 
 	  tmp_eTowersIDs_subset[thisRow][thisCol] = towerid;
 	  tmp_eTowersColl_subset.insert( std::map<int, eTower>::value_type(towerid,  *(this_eTowerContainer->findTower(towerid))));
-
-	  std::vector<Identifier> supercellIDs = this_eTowerContainer->findTower(towerid)->getSCIDs();
 
 	}
       }
@@ -254,8 +265,6 @@ namespace LVL1 {
 
           tmp_eTowersColl_subset.insert( std::map<int, eTower>::value_type(towerid,  *(this_eTowerContainer->findTower(towerid))));
 
-	  std::vector<Identifier> supercellIDs = this_eTowerContainer->findTower(towerid)->getSCIDs();
-
         }
       }
       
@@ -318,8 +327,6 @@ namespace LVL1 {
           tmp_eTowersIDs_subset[thisRow][thisCol] = towerid;
           tmp_eTowersColl_subset.insert( std::map<int, eTower>::value_type(towerid,  *(this_eTowerContainer->findTower(towerid))));
 
-	  std::vector<Identifier> supercellIDs = this_eTowerContainer->findTower(towerid)->getSCIDs();
-
         }
       }
       // set the TRANS part
@@ -331,8 +338,6 @@ namespace LVL1 {
         tmp_eTowersIDs_subset[thisRow][7] = towerid;
         tmp_eTowersColl_subset.insert( std::map<int, eTower>::value_type(towerid,  *(this_eTowerContainer->findTower(towerid))));
 
-	std::vector<Identifier> supercellIDs = this_eTowerContainer->findTower(towerid)->getSCIDs();
-
       }
       // set the EMEC part
       for(int thisCol=8; thisCol<cols; thisCol++){
@@ -343,8 +348,6 @@ namespace LVL1 {
 
           tmp_eTowersIDs_subset[thisRow][thisCol] = towerid;
           tmp_eTowersColl_subset.insert( std::map<int, eTower>::value_type(towerid,  *(this_eTowerContainer->findTower(towerid))));
-
-	  std::vector<Identifier> supercellIDs = this_eTowerContainer->findTower(towerid)->getSCIDs();
 
         }
       }
@@ -373,7 +376,7 @@ namespace LVL1 {
 
     }
     
-
+    }
     m_eContainer = std::make_unique<xAOD::eFexEMRoIContainer> ();
     m_eAuxContainer = std::make_unique<xAOD::eFexEMRoIAuxContainer> ();
     m_eContainer->setStore(m_eAuxContainer.get());
@@ -402,15 +405,21 @@ namespace LVL1 {
 
   StatusCode eFEXSysSim::fillEDM(uint8_t eFexNum, uint32_t tobWord){
 
-    uint8_t eFEXNumber = eFexNum; 
     uint32_t tobWord0 = tobWord;
     uint32_t tobWord1 = 0;
-        
+
+    // Translate eFEX index into Shelf+eFEX:
+    // Messy because this eFEX index runs A, B, C while the readout order is C, B, A
+    int inShelf = eFexNum % 12;
+    uint8_t shelf = int(eFexNum/12);
+    uint8_t eFEX  = 3*int(inShelf/3) + 2 - (eFexNum%3);
+    
+    // Now create the object and fill it
     xAOD::eFexEMRoI* myEDM = new xAOD::eFexEMRoI();
     m_eContainer->push_back( myEDM );
 
-    myEDM->initialize(eFEXNumber, tobWord0, tobWord1);
-    ATH_MSG_DEBUG(" setting eFEX Number:  " << +myEDM->eFexNumber() << " et: " << myEDM->et() << " eta: " << myEDM->eta() <<  " phi: " << myEDM->phi() );
+    myEDM->initialize(eFEX, shelf, tobWord0, tobWord1);
+    ATH_MSG_DEBUG(" setting eFEX Number:  " << +myEDM->eFexNumber() << " shelf: " << +myEDM->shelfNumber() << " et: " << myEDM->et() << " eta: " << myEDM->eta() <<  " phi: " << myEDM->phi() << " input eFexNum: " << MSG::hex << +eFexNum << " TOB word: " << tobWord0 << MSG::dec );
 
     return StatusCode::SUCCESS;
 

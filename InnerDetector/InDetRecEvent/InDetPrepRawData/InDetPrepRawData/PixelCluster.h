@@ -23,6 +23,7 @@
 #include "GaudiKernel/SystemOfUnits.h"
 #include "Identifier/Identifier.h"
 #include <vector>
+#include <iosfwd>
 
 // Pixel splitter information stored in 32 bit
 // the information is : bool, prob1, pob2
@@ -44,7 +45,7 @@ namespace InDet{
 
   class SiWidth;
   
-  class PixelCluster : public SiCluster {
+  class PixelCluster final : public SiCluster {
   public:
 
     /** Public, Copy, operator=, constructor*/
@@ -62,7 +63,7 @@ namespace InDet{
                   const std::vector<Identifier>& rdoList,
                   const InDet::SiWidth& width,
                   const InDetDD::SiDetectorElement* detEl,
-                  const Amg::MatrixX* locErrMat,
+                  const Amg::MatrixX& locErrMat,
                   const float omegax = -1.,
                   const float omegay = -1.,
                   bool split = false,
@@ -79,7 +80,7 @@ namespace InDet{
                   const std::vector<int>& totList,
                   const InDet::SiWidth& width,
                   const InDetDD::SiDetectorElement* detEl,
-                  const Amg::MatrixX* locErrMat,
+                  const Amg::MatrixX& locErrMat,
                   const float omegax = -1.,
                   const float omegay = -1.,
                   bool split = false,
@@ -97,7 +98,25 @@ namespace InDet{
                   const std::vector<float>& chargeList,
                   const InDet::SiWidth& width,
                   const InDetDD::SiDetectorElement* detEl,
-                  const Amg::MatrixX* locErrMat,
+                  const Amg::MatrixX& locErrMat,
+                  const float omegax = -1.,
+                  const float omegay = -1.,
+                  bool split = false,
+                  float splitProb1 = 0.,
+                  float splitProb2 = 0.
+                );
+
+    PixelCluster( 
+                  const Identifier& RDOId,
+                  const Amg::Vector2D& locpos, 
+                  const Amg::Vector3D& globpos,
+                  const std::vector<Identifier>& rdoList,
+                  const int lvl1a,
+                  const std::vector<int>& totList,
+                  const std::vector<float>& chargeList,
+                  const InDet::SiWidth& width,
+                  const InDetDD::SiDetectorElement* detEl,
+                  const Amg::MatrixX& locErrMat,
                   const float omegax = -1.,
                   const float omegay = -1.,
                   bool split = false,
@@ -116,11 +135,14 @@ namespace InDet{
                   float totalCharge,
                   const InDet::SiWidth& width,
                   const InDetDD::SiDetectorElement* detEl,
-                  std::unique_ptr<const Amg::MatrixX> locErrMat,
+                  Amg::MatrixX&& locErrMat,
                   const float omegax,
                   const float omegay,
                   int splitInfoRaw
                 );
+                
+    /** Interface method checking the type*/
+    virtual bool type(Trk::PrepRawDataType type) const override final;
     
     float omegax() const; 
     float omegay() const;
@@ -145,10 +167,10 @@ namespace InDet{
     
     int   LVL1A() const;
     /** dump information about the PRD object. */
-    virtual MsgStream&    dump( MsgStream&    stream) const;
+    virtual MsgStream&    dump( MsgStream&    stream) const override final;
 
     /** dump information about the PRD object. */
-    virtual std::ostream& dump( std::ostream& stream) const;
+    virtual std::ostream& dump( std::ostream& stream) const override final;
 
     void packSplitInformation(bool split, float prob1, float prob2) ;
  
@@ -168,7 +190,7 @@ namespace InDet{
     bool  m_fake;
     bool  m_ambiguous;
     int   m_lvl1;
-    unsigned int m_splitInfo;
+    unsigned int m_splitInfo{};
     bool  m_tooBigToBeSplit;    
   };
 

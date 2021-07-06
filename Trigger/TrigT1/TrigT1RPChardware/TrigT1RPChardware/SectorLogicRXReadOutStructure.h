@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef SectorLogicRXReadOutStructure_H
-#define SectorLogicRXReadOutStructure_H
+#ifndef TrigT1RPChardware_SectorLogicRXReadOutStructure_H
+#define TrigT1RPChardware_SectorLogicRXReadOutStructure_H
 
 #include "TrigT1RPChardware/RPCReadOut.h"
 #include "TrigT1RPChardware/Lvl1Def.h"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -21,6 +21,7 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
+#include "L1CaloFEXSim/eFEXFPGATowerIdProvider.h"
 
 #include "xAODTrigger/eFexEMRoIContainer.h"
 #include "xAODTrigger/eFexEMRoIAuxContainer.h"
@@ -75,6 +76,8 @@ namespace LVL1 {
     SG::ReadHandleKey<CaloCellContainer> m_scellsCollectionSGKey {this, "SCell", "SCell", "SCell"};
 
     SG::WriteHandleKey< xAOD::eFexEMRoIContainer > m_eFexOutKey {this,"Key_eFexEMOutputContainer","L1_eEMRoI","Output eFexEM container"};
+    ToolHandle<IeFEXFPGATowerIdProvider> m_eFEXFPGATowerIdProviderTool {this, "eFEXFPGATowerIdProviderTool", "LVL1::eFEXFPGATowerIdProvider", "Tool that provides tower-FPGA mapping"};
+    ToolHandle<IeFEXFPGA> m_eFEXFPGATool {this, "eFEXFPGATool", "LVL1::eFEXFPGA", "Tool that simulates the FPGA hardware"};
 
     //std::map<int,eTower> m_eTowersColl;
 

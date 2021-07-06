@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 ///
 ///   @author   V.Kostykhin <Vadim.Kostyukhin@cern.ch>
@@ -20,7 +20,7 @@ namespace Rec{
 //          xAOD based stuff
 //
    void NewVrtSecInclusiveTool::selGoodTrkParticle( workVectorArrxAOD * xAODwrk,
-                                                    const xAOD::Vertex & PrimVrt)
+                                                    const xAOD::Vertex & primVrt)
    const
    {    
     std::vector<const xAOD::TrackParticle*>& inpTrk          = xAODwrk->inpTrk;
@@ -36,38 +36,35 @@ namespace Rec{
           if(m_fillHist){ m_hb_trkSelect->Fill( 0., m_w_1);}
           if((*i_ntrk)->numberDoF() == 0) continue; //Protection
           double trkChi2 = (*i_ntrk)->chiSquared() / (*i_ntrk)->numberDoF();
-          if(trkChi2 	      > m_cutChi2)           continue;
+          if(trkChi2           > m_cutChi2)          continue;
           if( (*i_ntrk)->pt()  < m_cutPt)            continue;
           if(m_fillHist){ m_hb_trkSelect->Fill( 1., m_w_1);}
- 
+
           const Trk::Perigee mPer=(*i_ntrk)->perigeeParameters() ;
-          double CovTrkMtx00 = (*(mPer.covariance()))(0,0);
- 
-          uint8_t PixelHits,SctHits,BLayHits;
-          if( !((*i_ntrk)->summaryValue(PixelHits,xAOD::numberOfPixelHits)) )   continue; // Track is 
-          if( !((*i_ntrk)->summaryValue(  SctHits,xAOD::numberOfSCTHits))   )   continue; // definitely  
+          const AmgSymMatrix(5) * locCov = mPer.covariance();
+          const double CovTrkMtx00 = (*locCov)(0,0);
+
+          uint8_t PixelHits,SctHits,BLayHits,TRTHits;
+          if( !((*i_ntrk)->summaryValue(PixelHits,xAOD::numberOfPixelHits)) )   continue; // Track is
+          if( !((*i_ntrk)->summaryValue(  SctHits,xAOD::numberOfSCTHits))   )   continue; // definitely
           if( SctHits<3 )                                                       continue; // bad
+          if( !((*i_ntrk)->summaryValue(  TRTHits,xAOD::numberOfTRTHits))   )   continue;
           if( !((*i_ntrk)->summaryValue(BLayHits,xAOD::numberOfInnermostPixelLayerHits)))  BLayHits=0;
           if(m_fillHist){ m_hb_trkSelect->Fill( 2., m_w_1);}
 
-          uint8_t splSCTHits,outSCTHits,splPixHits,outPixHits;
-          if( !((*i_ntrk)->summaryValue(splSCTHits,xAOD::numberOfSCTSpoiltHits)))  splSCTHits=0;
-          if( !((*i_ntrk)->summaryValue(outSCTHits,xAOD::numberOfSCTOutliers)))    outSCTHits=0;
-          if( !((*i_ntrk)->summaryValue(splPixHits,xAOD::numberOfPixelSpoiltHits)))splPixHits=0;
-          if( !((*i_ntrk)->summaryValue(outPixHits,xAOD::numberOfPixelOutliers)))  outPixHits=0;
-
           Amg::Vector3D perigeePos=mPer.position();
-          double impactA0=sqrt( (perigeePos.x()-PrimVrt.x())*(perigeePos.x()-PrimVrt.x())
-                               +(perigeePos.y()-PrimVrt.y())*(perigeePos.y()-PrimVrt.y()) );
-          double impactZ=perigeePos.z()-PrimVrt.z();
+          double impactD0=sqrt( (perigeePos.x()-primVrt.x())*(perigeePos.x()-primVrt.x())
+                               +(perigeePos.y()-primVrt.y())*(perigeePos.y()-primVrt.y()) );
+          double impactZ=perigeePos.z()-primVrt.z();
           if(m_fillHist){  
-            m_hb_trkD0->Fill( impactA0, m_w_1);
+            m_hb_trkD0->Fill( impactD0, m_w_1);
             m_hb_trkZ ->Fill( impactZ, m_w_1);
           }
           if(std::abs(impactZ)*std::sin((*i_ntrk)->theta())>m_cutZVrt) continue;
-          if(impactA0>m_cutA0)        continue;
+          if(impactD0>m_cutD0Max)        continue;
+          if(impactD0<m_cutD0Min)        continue;
           if(m_fillHist){ m_hb_trkSelect->Fill( 3., m_w_1);}
-     
+
           double bX=xAODwrk->beamX + (perigeePos.z()-xAODwrk->beamZ)*xAODwrk->tanBeamTiltX;
           double bY=xAODwrk->beamY + (perigeePos.z()-xAODwrk->beamZ)*xAODwrk->tanBeamTiltY;
           double impactBeam=sqrt( (perigeePos.x()-bX)*(perigeePos.x()-bX) + (perigeePos.y()-bY)*(perigeePos.y()-bY));
@@ -76,17 +73,18 @@ namespace Rec{
           if(signifBeam < m_antiPileupSigRCut) continue;   // cut against tracks from pileup vertices
           if(m_fillHist){ m_hb_trkSelect->Fill( 4., m_w_1);}
 //----
-          if(PixelHits	    < m_cutPixelHits) 		continue;
-          if(SctHits	    < m_cutSctHits) 		continue;
-          if((PixelHits+SctHits) < m_cutSiHits) 	continue;
-          if(BLayHits	    < m_cutBLayHits) 		continue;
+          if(PixelHits	    < m_cutPixelHits)       continue;
+          if(SctHits	    < m_cutSctHits)         continue;
+          if((PixelHits+SctHits) < m_cutSiHits)     continue;
+          if(BLayHits	    < m_cutBLayHits)        continue;
+          if(std::abs((*i_ntrk)->eta())<1.9 && TRTHits < m_cutTRTHits) continue; //TRT hits must be present inside TRT
           if(m_fillHist){ m_hb_trkSelect->Fill( 5., m_w_1);}
 //----
           orderedTrk.emplace(signifBeam,*i_ntrk);
           selectedTracks.push_back(*i_ntrk);
       }
 //---- Order tracks according to pt
-//      AnalysisUtils::Sort::pT (selectedTracks)     
+//      AnalysisUtils::Sort::pT (selectedTracks)
 //---- Order tracks according to ranks
       std::map<double,const xAOD::TrackParticle*>::reverse_iterator rt=orderedTrk.rbegin();
       selectedTracks.resize(orderedTrk.size());

@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_TriggerItem
@@ -33,7 +33,7 @@ namespace TrigConf {
       unsigned int       triggerType()      const { return m_TriggerType; }
       int                ctpId()            const { return m_CtpId; }
       unsigned int       partition()        const { return m_Partition; }
-      TriggerItemNode*   topNode()          const { return m_TopNode; }
+      const TriggerItemNode* topNode()      const { return m_TopNode; }
       unsigned short     monitor()          const { return m_Monitor; }
       uint16_t           bunchgroupMask()   const;
 

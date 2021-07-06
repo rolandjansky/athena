@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigEgammaMonitorBaseAlgorithm.h"
@@ -12,6 +12,7 @@ TrigEgammaMonitorBaseAlgorithm::TrigEgammaMonitorBaseAlgorithm( const std::strin
     m_matchTool("Trig::TrigEgammaMatchingToolMT/TrigEgammaMatchingToolMT")
 {
   declareProperty( "MatchTool" , m_matchTool );
+  declareProperty( "EmulationTool" , m_emulatorTool );
 }
 
 
@@ -22,13 +23,14 @@ TrigEgammaMonitorBaseAlgorithm::~TrigEgammaMonitorBaseAlgorithm() {}
 
 StatusCode TrigEgammaMonitorBaseAlgorithm::initialize() 
 {
-    
+
+  ATH_MSG_INFO("TrigEgammaMonitorBaseAlgorithm::initialize()...");
   ATH_CHECK(AthMonitorAlgorithm::initialize());
   ATH_CHECK(m_trigdec.retrieve());
   ATH_CHECK(m_photonIsEMTool.retrieve());
   ATH_CHECK(m_electronIsEMTool.retrieve());
   ATH_CHECK(m_electronLHTool.retrieve());
-
+  ATH_CHECK(m_electronDNNTool.retrieve());
 
   m_trigdec->ExperimentalAndExpertMethods()->enable();
 
@@ -48,26 +50,38 @@ StatusCode TrigEgammaMonitorBaseAlgorithm::initialize()
 
 
 
-bool TrigEgammaMonitorBaseAlgorithm::ApplyElectronPid( const xAOD::Electron *eg, const std::string pidName) const
+bool TrigEgammaMonitorBaseAlgorithm::ApplyElectronPid( const xAOD::Electron *eg, const std::string pidname) const
 {
     auto ctx = Gaudi::Hive::currentContext() ;
-    if (pidName == "Tight"){
+    if (pidname == "tight"){
         return (bool) this->m_electronIsEMTool[0]->accept(ctx,eg);
     }
-    else if (pidName == "Medium"){
+    else if (pidname == "medium"){
         return  (bool) this->m_electronIsEMTool[1]->accept(ctx,eg);
     }
-    else if (pidName == "Loose"){
+    else if (pidname == "loose"){
         return (bool) this->m_electronIsEMTool[2]->accept(ctx,eg);
     }
-    else if (pidName == "LHTight"){
+    else if (pidname == "lhtight"){
         return (bool) this->m_electronLHTool[0]->accept(ctx,eg);
     }
-    else if (pidName == "LHMedium"){
+    else if (pidname == "lhmedium"){
         return (bool) this->m_electronLHTool[1]->accept(ctx,eg);
     }
-    else if (pidName == "LHLoose"){
+    else if (pidname == "lhloose"){
         return (bool) this->m_electronLHTool[2]->accept(ctx,eg);
+    }
+    else if (pidname == "lhvloose"){
+        return (bool) this->m_electronLHTool[3]->accept(ctx,eg);
+    }
+    else if (pidname == "dnntight"){
+        return (bool) this->m_electronDNNTool[0]->accept(ctx,eg);
+    }
+    else if (pidname == "dnnmedium"){
+        return (bool) this->m_electronDNNTool[1]->accept(ctx,eg);
+    }
+    else if (pidname == "dnnloose"){
+        return (bool) this->m_electronDNNTool[2]->accept(ctx,eg);
     }
     else ATH_MSG_DEBUG("No Pid tool, continue without PID");
     return false;
@@ -78,16 +92,16 @@ bool TrigEgammaMonitorBaseAlgorithm::ApplyElectronPid( const xAOD::Electron *eg,
 // ************************************************************************************************
 
 
-bool TrigEgammaMonitorBaseAlgorithm::ApplyPhotonPid( const xAOD::Photon *eg, const std::string pidName) const
+bool TrigEgammaMonitorBaseAlgorithm::ApplyPhotonPid( const xAOD::Photon *eg, const std::string pidname) const
 {
     auto ctx = Gaudi::Hive::currentContext() ;
-    if (pidName == "Tight"){
+    if (pidname == "tight"){
         return (bool) this->m_photonIsEMTool[0]->accept(ctx,eg);
     }
-    else if (pidName == "Medium"){
+    else if (pidname == "medium"){
         return  (bool) this->m_photonIsEMTool[1]->accept(ctx,eg);
     }
-    else if (pidName == "Loose"){
+    else if (pidname == "loose"){
         return (bool) this->m_photonIsEMTool[2]->accept(ctx,eg);
     }
     else ATH_MSG_DEBUG("No Pid tool, continue without PID");
@@ -110,7 +124,7 @@ bool TrigEgammaMonitorBaseAlgorithm::isIsolated(const xAOD::Electron *eg, const 
   }
   float ptcone20_rel = ptcone20/eg->pt();
   ATH_MSG_DEBUG("Relative isolation value " << ptcone20_rel);
-  if (isolation == "Loose"){
+  if (isolation == "loose"){
     if (ptcone20_rel > 0.1) {
       ATH_MSG_DEBUG("Probe failing isolation");
       return false;
@@ -160,12 +174,11 @@ bool TrigEgammaMonitorBaseAlgorithm::isPrescaled(const std::string trigger) cons
 
 
 
-
 asg::AcceptData TrigEgammaMonitorBaseAlgorithm::setAccept( const TrigCompositeUtils::Decision *dec, const TrigInfo info) const {
     
     ATH_MSG_DEBUG("setAccept");
 
-    unsigned int condition=TrigDefs::Physics;
+    unsigned int condition=TrigDefs::includeFailedDecisions;
 
     asg::AcceptData acceptData (&m_accept);
    
@@ -177,37 +190,62 @@ asg::AcceptData TrigEgammaMonitorBaseAlgorithm::setAccept( const TrigCompositeUt
     bool passedEF=false;
     
     if (dec) {
-      auto trigger = info.trigName; 
-      passedL1Calo = match()->ancestorPassed<TrigRoiDescriptorCollection>( dec , trigger , "initialRois", condition);
 
-      if(!info.trigL1){ // HLT item get full decision
-          ATH_MSG_DEBUG("Check for active features: TrigEMCluster,CaloClusterContainer");
+        auto trigger = info.trigName; 
+        // Step 1
+        passedL1Calo = match()->ancestorPassed<TrigRoiDescriptorCollection>( dec , trigger , "initialRois", condition);
 
-          passedL2Calo = match()->ancestorPassed<xAOD::TrigEMClusterContainer>(dec, trigger, "HLT_FastCaloEMClusters", condition);  
-          passedEFCalo = match()->ancestorPassed<xAOD::CaloClusterContainer>(dec, trigger, "HLT_CaloEMClusters", condition);
+        if(!info.trigL1 && passedL1Calo ){ // HLT item get full decision
+            // Step 2
+            passedL2Calo = match()->ancestorPassed<xAOD::TrigEMClusterContainer>(dec, trigger, match()->key("FastCalo"), condition);  
+          
+            if(passedL2Calo){
+
+                // Step 3
+                if(info.trigType == "electron"){
+                    std::string key = match()->key("FastElectrons");
+                    if(info.isLRT)  key = match()->key("FastElectrons_LRT");
+                    passedL2 = match()->ancestorPassed<xAOD::TrigElectronContainer>(dec, trigger, key, condition);
+                }else if(info.trigType == "photon"){
+                    passedL2 = match()->ancestorPassed<xAOD::TrigPhotonContainer>(dec, trigger, match()->key("FastPhotons"), condition);
+                }
+
+                if(passedL2){
 
 
-          if(info.trigType == "electron"){
-              ATH_MSG_DEBUG("Check for active features: TrigElectron, ElectronContainer, TrackParticleContainer");
-              passedL2    = match()->ancestorPassed<xAOD::TrigElectronContainer>(dec, trigger, "HLT_FastElectrons", condition);
-              if (info.trigEtcut){
-                passedEF=true;
-              }else{
-                passedEF    = match()->ancestorPassed<xAOD::ElectronContainer>(dec, trigger, "HLT_egamma_Electrons", condition);
-              }
-              passedEFTrk = true; //match()->ancestorPassed<xAOD::TrackParticleContainer>(dec);
-          }
-          else if(info.trigType == "photon"){
-              ATH_MSG_DEBUG("Check for active features: TrigPhoton, PhotonContainer");
-              passedL2 = match()->ancestorPassed<xAOD::TrigPhotonContainer>(dec, trigger, "HLT_FastPhotons", condition);
-              if (info.trigEtcut){
-                passedEF=true;
-              }else{
-                passedEF = match()->ancestorPassed<xAOD::PhotonContainer>(dec, trigger, "HLT_egamma_Photons", condition);
-              }
-              passedEFTrk=true;// Assume true for photons
-          }
-      }
+                    // Step 4
+                    std::string key = match()->key("PrecisionCalo");
+                    if(info.isLRT)  key = match()->key("PrecisionCalo_LRT");
+                    passedEFCalo = match()->ancestorPassed<xAOD::CaloClusterContainer>(dec, trigger, key, condition);
+
+                    if(passedEFCalo){
+
+                        // Step 5
+                        passedEFTrk=true;// Assume true for photons
+
+                        // Step 6
+                        if(info.trigType == "electron"){
+                            if( info.trigEtcut || info.trigPerf){// etcut or idperf
+                                passedEF = true; // since we dont run the preciseElectron step
+                            }else{
+                                std::string key = match()->key("Electrons");
+                                if(info.isLRT)  key = match()->key("Electrons_LRT");
+                                if(info.isGSF)  key = match()->key("Electrons_GSF");
+                                passedEF = match()->ancestorPassed<xAOD::ElectronContainer>(dec, trigger, key, condition);
+                            }
+   
+                        }else if(info.trigType == "photon"){
+                            if (info.trigEtcut){
+                                passedEF = true; // since we dont run the precisePhoton step
+                            }else{
+                                passedEF = match()->ancestorPassed<xAOD::PhotonContainer>(dec, trigger, match()->key("Photons"), condition);
+                            }
+                        }
+                    } // EFCalo
+                }// L2
+            }// L2Calo
+        }// L2Calo
+
     }
 
     acceptData.setCutResult("L1Calo",passedL1Calo);
@@ -555,6 +593,8 @@ void TrigEgammaMonitorBaseAlgorithm::setTrigInfo(const std::string trigger){
       bool trigL1; // Level1 Trigger
       bool trigPerf; // Performance chain
       bool trigEtcut; // Et cut only chain
+      bool isGSF; // GSF Chain
+      bool isLRT; // LRT Chain
       float trigThrHLT; // HLT Et threshold
       float trigThrL1; // L1 Et threshold
      *******************************************/
@@ -567,6 +607,9 @@ void TrigEgammaMonitorBaseAlgorithm::setTrigInfo(const std::string trigger){
     std::string pidname="";
     bool perf=false;
     bool etcut=false;
+    bool trigIsEmulation=false;
+    bool trigGSF=false;
+    bool trigLRT=false;
     parseTriggerName(trigger,m_defaultProbePid,isL1,type,etthr,l1thr,l1type,pidname,etcut,perf); // Determines probe PID from trigger
 
     std::string l1item = "";
@@ -575,7 +618,14 @@ void TrigEgammaMonitorBaseAlgorithm::setTrigInfo(const std::string trigger){
     std::string decorator="is"+pidname;
 
     if(isL1) etthr=l1thr; // Should be handled elsewhere
-    TrigInfo info{trigger,type,l1item,l1type,pidname,decorator,isL1,perf,etcut,etthr,l1thr,false};
+
+    if (boost::contains(trigger,"gsf")){
+        trigGSF=true;
+    }
+    if (boost::contains(trigger,"lrt")){
+        trigLRT=true;
+    }
+    TrigInfo info{trigger,type,l1item,l1type,pidname,decorator,isL1,perf,etcut,etthr,l1thr,trigIsEmulation,trigGSF,trigLRT};
     m_trigInfo[trigger] = info;
 }
 
@@ -680,7 +730,7 @@ void TrigEgammaMonitorBaseAlgorithm::parseTriggerName(const std::string trigger,
         if(boost::contains(strs.at(0),"e")) type = "electron";
         else if(boost::contains(strs.at(0),"g")) type = "photon";
         else ATH_MSG_ERROR("Cannot set trigger type from name");
-        if(boost::contains(strs.at(1),"perf")){
+        if(boost::contains(strs.at(1),"idperf")){
             pidname = defaultPid;
             perf=true;
             ATH_MSG_DEBUG("Perf " << perf << " " << pidname );
@@ -698,6 +748,9 @@ void TrigEgammaMonitorBaseAlgorithm::parseTriggerName(const std::string trigger,
         else if( strs.at(1)== "etcut"){
             pidname = defaultPid;
             etcut=true;
+        }
+        else {
+            pidname = getProbePid(strs.at(1));
         }
 
         //Get the L1 information
@@ -756,17 +809,20 @@ const std::map<std::string,std::string> TrigEgammaMonitorBaseAlgorithm::m_trigLv
                                                                                         {"EFTrack","Trigger EFTrack step"},
                                                                                         {"HLT","Trigger HLT accept"}};
 
-const std::map<std::string, std::string> TrigEgammaMonitorBaseAlgorithm::m_pidMap = { {"vloose"   , "Loose"   },
-                                                                                      {"loose"    , "Loose"   },
-                                                                                      {"medium"   , "Medium"  },
-                                                                                      {"tight"    , "Tight"   },
-                                                                                      {"loose1"   , "Loose"   },
-                                                                                      {"medium1"  , "Medium"  },
-                                                                                      {"tight1"   , "Tight"   },
-                                                                                      {"lhvloose" , "LHLoose" },
-                                                                                      {"lhloose"  , "LHLoose" },
-                                                                                      {"lhmedium" , "LHMedium"},
-                                                                                      {"lhtight"  , "LHTight" } };
+const std::map<std::string, std::string> TrigEgammaMonitorBaseAlgorithm::m_pidMap = { {"vloose"   , "loose"   },
+                                                                                      {"loose"    , "loose"   },
+                                                                                      {"medium"   , "medium"  },
+                                                                                      {"tight"    , "tight"   },
+                                                                                      {"loose1"   , "loose"   },
+                                                                                      {"medium1"  , "medium"  },
+                                                                                      {"tight1"   , "tight"   },
+                                                                                      {"lhvloose" , "lhvloose" },
+                                                                                      {"lhloose"  , "lhloose" },
+                                                                                      {"lhmedium" , "lhmedium"},
+                                                                                      {"lhtight"  , "lhtight" },
+                                                                                      {"dnnloose"  , "dnnloose" },
+                                                                                      {"dnnmedium" , "dnnmedium"},
+                                                                                      {"dnntight"  , "dnntight" } };
 
 
 

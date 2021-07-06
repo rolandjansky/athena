@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////
@@ -21,7 +21,6 @@
 
 // Geometry Stuff
 #include "Identifier/Identifier.h"
-#include "AtlasDetDescr/AtlasDetectorID.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"

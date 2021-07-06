@@ -17,7 +17,7 @@ using namespace std;
 using namespace xercesc;
 
 void LogvolrefProcessor::process(const DOMElement *element, GmxUtil &gmxUtil, GeoNodeList &toAdd) {
-const XMLCh *ref = XMLString::transcode("ref");
+XMLCh *ref = XMLString::transcode("ref");
 const XMLCh *idref;
 DOMDocument *doc = element->getOwnerDocument();
 char *toRelease;
@@ -41,12 +41,17 @@ char *toRelease;
 //
 //    Process it
 //
-    const XMLCh *zeroid = element->getAttribute(XMLString::transcode("zeroid"));
-    if (XMLString::equals(zeroid, XMLString::transcode("true"))) {
+    XMLCh * zeroid_tmp = XMLString::transcode("zeroid");
+    XMLCh * true_tmp = XMLString::transcode("true");
+    const XMLCh *zeroid = element->getAttribute(zeroid_tmp);
+    if (XMLString::equals(zeroid, true_tmp)) {
         gmxUtil.tagHandler.logvol.zeroId(elem);
     }
 
     gmxUtil.tagHandler.logvol.process(elem, gmxUtil, toAdd);
+    XMLString::release(&ref);
+    XMLString::release(&zeroid_tmp);
+    XMLString::release(&true_tmp);
 
     return;
 }

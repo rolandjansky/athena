@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -97,7 +97,6 @@ StatusCode TileRawCorrelatedNoise::initialize() {
 //        ATH_MSG_DEBUG( "Matrix is being loaded: " << buff );
 //      }
       // load tokens to be searched for in a string
-      char* word;
       const char* TOKENS = { " \t\n" };
       // read Matrix
       int dima = 48;
@@ -109,16 +108,11 @@ StatusCode TileRawCorrelatedNoise::initialize() {
             // Check for comment lines
             if (*buff == '!' || *buff == '*') continue;
             // read value
-            int error = 0;
-            if (column == 0) {
-              if ((word = strtok_r(buff, TOKENS, &saveptr)) == NULL) error = 1;
-            } else {
-              if ((word = strtok_r(NULL, TOKENS, &saveptr)) == NULL) error = 1;
+            double pippo = 0;
+            if (const char* word = strtok_r(column==0 ? buff : nullptr, TOKENS, &saveptr))
+            {
+              pippo = atof(word);
             }
-
-            double pippo;
-            if (error) pippo = 0.;
-            else pippo = atof(word);
 
             ATH_MSG_VERBOSE ( "elem " << column << " is " << pippo );
             int chline = line;
@@ -178,7 +172,6 @@ StatusCode TileRawCorrelatedNoise::initialize() {
         //    log << MSG::DEBUG << "Vector is being loaded: "<< buff << endmsg;
         //}
         // load tokens to be searched for in a string
-        char* word;
         const char* TOKENS = { " \t\n" };
         // read Vector
         int dima = 48;
@@ -190,17 +183,12 @@ StatusCode TileRawCorrelatedNoise::initialize() {
               // Check for comment lines
               if (*buff == '!' || *buff == '*') continue;
               // read value
-              int error = 0;
-              if (Sample == 0) {
-                if ((word = strtok_r(buff, TOKENS, &saveptr)) == NULL) error = 1;
-              } else {
-                if ((word = strtok_r(NULL, TOKENS, &saveptr)) == NULL) error = 1;
-              }
-              double pippo;
-              if (error)
-                pippo = 0.;
-              else
+              double pippo = 0;
+              if (const char* word = strtok_r(Sample==0 ? buff : nullptr, TOKENS, &saveptr))
+              {
                 pippo = atof(word);
+              }
+
               ATH_MSG_VERBOSE ( "elem " << Sample << " is " << pippo );
               int chline = line;
               // read lines of mean matrix in pmt order but save it in channel order if m_pmtOrder is true
@@ -307,8 +295,10 @@ StatusCode TileRawCorrelatedNoise::initialize() {
 StatusCode TileRawCorrelatedNoise::execute() {
 // #############################################################################
 
+  const EventContext &ctx = Gaudi::Hive::currentContext();
+
   // get named TileDigitsContaner from TES
-  SG::ReadHandle<TileDigitsContainer> inputDigitsContainer(m_inputDigitsContainerKey);
+  SG::ReadHandle<TileDigitsContainer> inputDigitsContainer(m_inputDigitsContainerKey, ctx);
 
   ATH_MSG_DEBUG( "Got TileDigitsContainer '" << m_inputDigitsContainerKey.key() << "'" );
 
@@ -334,7 +324,7 @@ StatusCode TileRawCorrelatedNoise::execute() {
       // read pedestal value and use it as mean
       unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(Ros, Drawer);
       int adc = tileHWID->adc(adc_HWID);
-      double ped = m_tileToolNoiseSample->getPed(drawerIdx, Channel, adc);
+      double ped = m_tileToolNoiseSample->getPed(drawerIdx, Channel, adc, TileRawChannelUnit::ADCcounts, ctx);
       int nSamples = 7;
       for (int Sample = 0; Sample < nSamples; ++Sample) {
         m_meanSamples[Ros - 1][Drawer][Channel][Sample] = ped;
@@ -408,7 +398,7 @@ StatusCode TileRawCorrelatedNoise::execute() {
     }
   }
 
-  SG::WriteHandle<TileDigitsContainer> outputDigitsCnt(m_outputDigitsContainerKey);
+  SG::WriteHandle<TileDigitsContainer> outputDigitsCnt(m_outputDigitsContainerKey, ctx);
   ATH_CHECK( outputDigitsCnt.record(std::move(outputDigitsContainer)) );
 
 

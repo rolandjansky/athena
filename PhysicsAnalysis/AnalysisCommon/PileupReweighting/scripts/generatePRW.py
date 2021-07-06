@@ -70,6 +70,7 @@ def main():
       theParent=""
       for ds in prov['node']:
         if ds[u'dataType']!=u'AOD': continue
+        if 'recon.AOD' not in ds[u'logicalDatasetName']: continue
         theParent = str(ds[u'logicalDatasetName'])
         theParentSize = int(ds[u'events'])
         

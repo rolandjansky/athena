@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -52,13 +52,13 @@ class HWIdentifier;
 class TileTBHitToBeamElem: public AthAlgorithm {
   public:
 
-    TileTBHitToBeamElem(std::string name, ISvcLocator* pSvcLocator); //!< Constructor
+    TileTBHitToBeamElem(const std::string& name, ISvcLocator* pSvcLocator); //!< Constructor
 
     virtual ~TileTBHitToBeamElem(); //!< Destructor                         
 
-    StatusCode initialize();  //!< initialize method   
-    StatusCode execute();     //!< execute method   
-    StatusCode finalize();    //!< finalize method  
+    virtual StatusCode initialize() override;  //!< initialize method   
+    virtual StatusCode execute() override;     //!< execute method   
+    virtual StatusCode finalize() override;    //!< finalize method  
 
   private:
 

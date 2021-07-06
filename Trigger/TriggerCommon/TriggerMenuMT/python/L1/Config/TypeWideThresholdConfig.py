@@ -3,7 +3,7 @@
 from collections import OrderedDict as odict
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger('Menu.L1.Config.TypeWideThresholdConfig')
+log = logging.getLogger(__name__)
 
 from ..Base.ThresholdType import ThrType
 
@@ -37,9 +37,10 @@ def getConfig_MU():
     confObj["exclusionLists"]["rpcFeet"].append( odict([("sectorName", "B31"), ("rois",[1, 2, 3, 4, 5, 6, 7, 8])]) )
     confObj["exclusionLists"]["rpcFeet"].append( odict([("sectorName", "B32"), ("rois",[1, 2, 3, 4, 5, 6, 7, 8])]) )
     
+    # roads from https://indico.cern.ch/event/1011425/contributions/4272884/
     confObj["roads"] = odict()
-    confObj["roads"]["rpc"] = odict([(0,0), (4,0), (6,1), (8,2), (10,3), (15,4), (20,5)])
-    confObj["roads"]["tgc"] = odict(zip([0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30],[0]+list(range(0,15))))
+    confObj["roads"]["rpc"] = odict([(0,0), (4,0), (6,1), (8,2), (10,3), (12,4), (14,5)])
+    confObj["roads"]["tgc"] = odict([(0,0)] + list(zip([3,4,5,6,7,8,9,10,11,12,13,14,15,18,20],list(range(0,15)))))
     return confObj
 
 
@@ -101,8 +102,8 @@ def getConfig_EM():
         odict([ ("etamax", 49), ("etamin", -49), ("isobit", 1), ("mincut",  0), ("offset",   0), ("priority", 0), ("slope",  0), ("upperlimit",  0)]),
         odict([ ("etamax", 49), ("etamin", -49), ("isobit", 2), ("mincut", 20), ("offset", -18), ("priority", 0), ("slope", 80), ("upperlimit", 50)]),
         odict([ ("etamax", 49), ("etamin", -49), ("isobit", 3), ("mincut", 20), ("offset", -18), ("priority", 0), ("slope", 80), ("upperlimit", 50)]),
-        odict([ ("etamax", 49), ("etamin", -49), ("isobit", 4), ("mincut", 10), ("offset", -20), ("priority", 0), ("slope", 80), ("upperlimit", 50)]),
-        odict([ ("etamax", 49), ("etamin", -49), ("isobit", 5), ("mincut", 15), ("offset", -18), ("priority", 0), ("slope", 80), ("upperlimit", 50)]),
+        odict([ ("etamax", 49), ("etamin", -49), ("isobit", 4), ("mincut", 20), ("offset", -18), ("priority", 0), ("slope", 80), ("upperlimit", 50)]),
+        odict([ ("etamax", 49), ("etamin", -49), ("isobit", 5), ("mincut", 20), ("offset", -18), ("priority", 0), ("slope", 80), ("upperlimit", 50)]),
     ]
     confObj["ptMinToTopo"] = 3
     confObj["resolutionMeV"] = 500

@@ -16,6 +16,9 @@ typedef HepMC3::ConstGenParticlePtr ConstGenParticlePtr;
 inline GenParticlePtr newGenParticlePtr(const HepMC3::FourVector &mom = HepMC3::FourVector::ZERO_VECTOR(), int pid = 0, int status = 0) {
     return std::make_shared<HepMC3::GenParticle>(mom,pid,status);
 }
+inline ConstGenParticlePtr newConstGenParticlePtr(const HepMC3::FourVector &mom = HepMC3::FourVector::ZERO_VECTOR(), int pid = 0, int status = 0) {
+    return std::make_shared<const HepMC3::GenParticle>(mom,pid,status);
+}
 inline int barcode(GenParticlePtr p) {
     if (!p) return 0;
     std::shared_ptr<HepMC3::IntAttribute> barcode=p->attribute<HepMC3::IntAttribute>("barcode");
@@ -35,7 +38,7 @@ inline int barcode(const HepMC3::GenParticle* p) {
     std::shared_ptr<HepMC3::IntAttribute> barcode=p->attribute<HepMC3::IntAttribute>("barcode");
     return barcode?(barcode->value()):p->id();
 }
-template <class T> bool suggest_barcode(T p, int i) {return p->add_attribute("barcode",std::make_shared<HepMC3::IntAttribute>(i));}
+template <class T> bool suggest_barcode(T p, int i) { if (!p->parent_event()) return false; return p->add_attribute("barcode",std::make_shared<HepMC3::IntAttribute>(i));}
 using HepMC3::GenParticle;
 }
 #else

@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// VertexPositionFromFile.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 // class header include
 #include "VertexPositionFromFile.h"
@@ -27,23 +23,6 @@ namespace Simulation
                                                   const std::string& n,
                                                   const IInterface* p )
     : base_class(t,n,p)
-    , m_vertexPositionFile("")
-    , m_vertexPositionMap()
-    , m_runEventNumbersFile("")
-    , m_runEventNumbersIndex(0)
-    , m_vertexPositionRunNum()
-    , m_vertexPositionEventNum()
-    , m_eventInfoKey("McEventInfo")
-  {
-    // used for vertex position overrides
-    declareProperty( "VertexPositionsFile", m_vertexPositionFile );
-    declareProperty( "RunAndEventNumbersFile", m_runEventNumbersFile );
-    declareProperty( "EventInfoKey", m_eventInfoKey );
-  }
-
-
-  /** Destructor */
-  VertexPositionFromFile::~VertexPositionFromFile()
   {
   }
 
@@ -86,7 +65,7 @@ namespace Simulation
   StatusCode VertexPositionFromFile::readVertexPosFile()
   {
     ATH_MSG_INFO("Will read in vertex positions from file.");
-    FILE *vfile = fopen( m_vertexPositionFile.c_str(),"r");
+    FILE *vfile = fopen( m_vertexPositionFile.value().c_str(),"r");
     if (!vfile) {
       ATH_MSG_ERROR("Could not open vertex position file: " << m_vertexPositionFile);
       return StatusCode::FAILURE;
@@ -141,7 +120,7 @@ namespace Simulation
   /** read-in and cache run/event number overrides locally for vertex positioning */
   StatusCode VertexPositionFromFile::readRunEventNumFile()
   {
-    FILE *vefile = fopen( m_runEventNumbersFile.c_str(),"r");
+    FILE *vefile = fopen( m_runEventNumbersFile.value().c_str(),"r");
     if ( !vefile) {
       ATH_MSG_ERROR("Could not open vertex positioning run/event number file: "<< m_runEventNumbersFile);
       return StatusCode::FAILURE;

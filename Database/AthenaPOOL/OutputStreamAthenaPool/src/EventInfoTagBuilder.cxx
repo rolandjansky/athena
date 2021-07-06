@@ -7,12 +7,6 @@
 #include <StoreGate/ReadHandle.h>
 #include <StoreGate/WriteHandle.h>
 
-EventInfoTagBuilder::EventInfoTagBuilder( const std::string& name, ISvcLocator* pSvcLocator )
-  : AthAlgorithm(name, pSvcLocator)
-{
-}
-
-
 StatusCode EventInfoTagBuilder::initialize()
 {
   ATH_MSG_DEBUG( "Initializing " << name() );
@@ -25,7 +19,7 @@ StatusCode EventInfoTagBuilder::initialize()
   ATH_CHECK( m_tool.retrieve() );
 
   ATH_CHECK( m_evtKey.initialize() );
-  ATH_CHECK( m_inputAttList.initialize() );
+  ATH_CHECK( m_inputAttList.initialize(m_propInput) );
   ATH_CHECK( m_attributeListName.initialize() );
 
   return StatusCode::SUCCESS;

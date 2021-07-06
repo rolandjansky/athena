@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloIdentifier/LArMiniFCAL_ID.h"
@@ -331,7 +331,6 @@ int  LArMiniFCAL_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
     // collect the regions to later access deta/dphi etc.
     if (fill_vec_of_dict_regions()) return 1;
 
-    // added nov 2005 to speed up CaloNoiseTool initialisation
     m_vecOfPhiMin.resize(regions().hash_max());
     for (unsigned int i = 1; i < regions().hash_max(); ++i) {
       Identifier modId = module_id(i); 

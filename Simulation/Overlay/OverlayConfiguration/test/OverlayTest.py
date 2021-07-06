@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Run tests for MC+MC or MC+data overlay
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from __future__ import print_function
 
@@ -10,7 +10,7 @@ import sys
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-from OverlayConfiguration.OverlayHelpers import OverlayMessageSvcCfg
+from Digitization.DigitizationSteering import DigitizationMessageSvcCfg
 from OverlayConfiguration.OverlaySteering import OverlayMainCfg
 from OverlayConfiguration.OverlayTestHelpers import \
     CommonTestArgumentParser, OverlayJobOptsDumperCfg, \
@@ -50,7 +50,10 @@ if args.profile:
     from PerfMonVTune.PerfMonVTuneConfig import VTuneProfilerServiceCfg
     acc.merge(VTuneProfilerServiceCfg(ConfigFlags))
 acc.merge(OverlayJobOptsDumperCfg(ConfigFlags))
-acc.merge(OverlayMessageSvcCfg(ConfigFlags))
+acc.merge(DigitizationMessageSvcCfg(ConfigFlags))
+
+# Count algorithm misses
+acc.getService("AlgResourcePool").CountAlgorithmInstanceMisses = True
 
 # dump pickle
 with open("ConfigOverlay.pkl", "wb") as f:

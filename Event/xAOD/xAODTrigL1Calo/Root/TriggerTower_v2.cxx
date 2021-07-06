@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TriggerTower_v2.cxx 793304 2017-01-21 04:50:44Z ssnyder $
@@ -193,18 +193,12 @@ namespace xAOD{
       
   bool TriggerTower_v2::isCpSaturated() const
   {
-    if( cpET() >= m_saturation ){
-      return true;
-    }
-    return false;    
+    return cpET() >= m_saturation;    
   }
   
   bool TriggerTower_v2::isJepSaturated() const
   {    
-    if( jepET() >= m_saturation ){
-      return true;
-    }
-    return false;    
+    return jepET() >= m_saturation;    
   }  
   
   

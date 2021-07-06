@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file GsfMaterialEffectsUpdator.cxx
@@ -8,29 +8,36 @@
  * @brief         Implementation code for the class GsfMaterialEffectsUpdator
  */
 
-
 #include "TrkGaussianSumFilter/GsfMaterialEffectsUpdator.h"
-
-#include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
-#include "TrkGaussianSumFilter/MultiComponentStateAssembler.h"
+#include "TrkGaussianSumFilterUtils/MultiComponentStateAssembler.h"
 
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/Surface.h"
 
 #include "TrkGeometry/Layer.h"
 #include "TrkGeometry/MaterialProperties.h"
+namespace {
+bool
+updateP(AmgVector(5) & stateVector, double deltaP)
+{
+  double p = 1. / std::abs(stateVector[Trk::qOverP]);
+  p += deltaP;
+  if (p <= 0.) {
+    return false;
+  }
+  double updatedIp = stateVector[Trk::qOverP] > 0. ? 1. / p : -1. / p;
+  stateVector[Trk::qOverP] = updatedIp;
+  return true;
+}
+}
 
 Trk::GsfMaterialEffectsUpdator::GsfMaterialEffectsUpdator(
   const std::string& type,
   const std::string& name,
   const IInterface* parent)
   : AthAlgTool(type, name, parent)
-  , m_useReferenceMaterial(false)
-  , m_momentumCut(250. * Gaudi::Units::MeV)
 {
   declareInterface<IMultiStateMaterialEffectsUpdator>(this);
-  declareProperty("UseReferenceMaterial", m_useReferenceMaterial);
-  declareProperty("MinimalMomentum", m_momentumCut);
 }
 
 Trk::GsfMaterialEffectsUpdator::~GsfMaterialEffectsUpdator() = default;
@@ -38,9 +45,8 @@ Trk::GsfMaterialEffectsUpdator::~GsfMaterialEffectsUpdator() = default;
 StatusCode
 Trk::GsfMaterialEffectsUpdator::initialize()
 {
-  // Retrieve the specific material effects
-  ATH_CHECK(m_materialEffects.retrieve());
-  ATH_MSG_INFO("Initialisation of " << name() << " was successful");
+  m_materialEffects = GsfCombinedMaterialEffects(
+    m_parameterisationFileName, m_parameterisationFileNameHighX0);
   return StatusCode::SUCCESS;
 }
 
@@ -167,12 +173,7 @@ Trk::GsfMaterialEffectsUpdator::preUpdateState(
   Trk::ParticleHypothesis particleHypothesis) const
 {
 
-  ATH_MSG_DEBUG("Material effects update prior to propagation using layer "
-                "information and particle hypothesis: "
-                << particleHypothesis);
-
   const Trk::TrackParameters* trackParameters = componentParameters.first.get();
-
   if (!trackParameters) {
     ATH_MSG_ERROR(
       "Trying to update component without trackParameters... returing 0!");
@@ -268,11 +269,6 @@ Trk::GsfMaterialEffectsUpdator::postUpdateState(
   PropDirection direction,
   ParticleHypothesis particleHypothesis) const
 {
-
-  ATH_MSG_DEBUG("Material effects update after propagation using layer "
-                "information and particle hypothesis: "
-                << particleHypothesis);
-
   Trk::TrackParameters* trackParameters = componentParameters.first.get();
 
   if (!trackParameters) {
@@ -370,7 +366,6 @@ Trk::GsfMaterialEffectsUpdator::compute(
   double momentum = componentParameters.first->momentum().mag();
 
   if (momentum <= m_momentumCut) {
-    ATH_MSG_DEBUG("Ignoring material effects... Momentum too low");
     Trk::MultiComponentState clonedMultiComponentState{};
     clonedMultiComponentState.emplace_back(componentParameters.first->clone(),
                                            componentParameters.second);
@@ -385,13 +380,13 @@ Trk::GsfMaterialEffectsUpdator::compute(
   const Trk::TrackParameters* trackParameters = componentParameters.first.get();
   const AmgSymMatrix(5)* measuredCov = trackParameters->covariance();
 
-  Trk::IMultiStateMaterialEffects::Cache cache;
-  m_materialEffects->compute(cache,
-                             componentParameters,
-                             materialProperties,
-                             pathLength,
-                             direction,
-                             particleHypothesis);
+  GsfMaterial::Combined cache;
+  m_materialEffects.compute(cache,
+                            componentParameters,
+                            materialProperties,
+                            pathLength,
+                            direction,
+                            particleHypothesis);
 
   // check all vectors have the same size
   if (cache.weights.size() != cache.deltaPs.size()) {
@@ -415,41 +410,24 @@ Trk::GsfMaterialEffectsUpdator::compute(
       return {};
     }
 
-    AmgSymMatrix(5)* updatedCovariance = nullptr;
+    std::optional<AmgSymMatrix(5)> updatedCovariance = std::nullopt;
     if (measuredCov && cache.deltaCovariances.size() > componentIndex) {
-      updatedCovariance = new AmgSymMatrix(5)(
-        cache.deltaCovariances[componentIndex] + *measuredCov);
+      updatedCovariance =
+        AmgSymMatrix(5)(cache.deltaCovariances[componentIndex] + *measuredCov);
     }
-    Trk::TrackParameters* updatedTrackParameters =
-      trackParameters->associatedSurface().createTrackParameters(
+    std::unique_ptr<Trk::TrackParameters> updatedTrackParameters =
+      trackParameters->associatedSurface().createUniqueTrackParameters(
         updatedStateVector[Trk::loc1],
         updatedStateVector[Trk::loc2],
         updatedStateVector[Trk::phi],
         updatedStateVector[Trk::theta],
         updatedStateVector[Trk::qOverP],
-        updatedCovariance);
+        std::move(updatedCovariance));
     double updatedWeight =
       componentParameters.second * cache.weights[componentIndex];
-    computedState.emplace_back(updatedTrackParameters, updatedWeight);
+    computedState.emplace_back(std::move(updatedTrackParameters),
+                               updatedWeight);
   }
   return computedState;
 }
 
-/* ============================================================================
-   updateP method
-   ============================================================================
- */
-
-bool
-Trk::GsfMaterialEffectsUpdator::updateP(AmgVector(5) & stateVector,
-                                        double deltaP) const
-{
-  double p = 1. / std::abs(stateVector[Trk::qOverP]);
-  p += deltaP;
-  if (p <= 0.) {
-    return false;
-  }
-  double updatedIp = stateVector[Trk::qOverP] > 0. ? 1. / p : -1. / p;
-  stateVector[Trk::qOverP] = updatedIp;
-  return true;
-}

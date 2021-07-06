@@ -1,14 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigTrackingxAODCnvMT.h"
-#include "TrkToolInterfaces/ITrackParticleCreatorTool.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "TrkTrack/Track.h"
-#include "TrkParameters/TrackParameters.h"
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrkTrackSummary/TrackSummary.h"
 
 #include <cmath>
@@ -34,9 +31,6 @@ namespace InDet
                   m_trackKey = std::string("Tracks"),
                   "Track Collection");
   }
-
-  TrigTrackingxAODCnvMT::~TrigTrackingxAODCnvMT()
-  {}
 
   ///////////////////////////////////////////////////////////////////
   // Initialisation

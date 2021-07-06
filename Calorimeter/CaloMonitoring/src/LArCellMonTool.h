@@ -1,7 +1,7 @@
 //Dear emacs, this is -*-c++-*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -13,8 +13,8 @@
 #include "CaloMonToolBase.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "LArRecConditions/ILArBadChannelMasker.h"
-#include "CaloInterface/ICalorimeterNoiseTool.h"
+#include "LArRecConditions/LArBadChannelMask.h"
+#include "CaloConditions/CaloNoise.h"
 
 #include "LArIdentifier/LArOnlineID.h"
 #include "Identifier/IdentifierHash.h"
@@ -24,6 +24,8 @@
 #include "LArCabling/LArOnOffIdMapping.h"
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
+
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "LArCellBinning.h"
           
@@ -54,14 +56,14 @@ class LArCellMonTool : public CaloMonToolBase {
 
   LArCellMonTool(const std::string & type, const std::string& name, 
 		 const IInterface* parent);
-  ~LArCellMonTool();
+  virtual ~LArCellMonTool();
   
   //Methods implementing the ManagedMonitorToolBase interface
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
-  virtual StatusCode bookHistograms();
-  virtual StatusCode procHistograms();
-  virtual StatusCode fillHistograms();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
+  virtual StatusCode bookHistograms() override;
+  virtual StatusCode procHistograms() override;
+  virtual StatusCode fillHistograms() override;
 
 private:
 
@@ -144,7 +146,8 @@ private:
   void regTempHist(TH1* h, MonGroup& mg);
 
   //Private methods: Histogram filling
-  StatusCode createPerJobHistograms(const CaloCellContainer* cellcont);
+  StatusCode createPerJobHistograms(const EventContext& ctx,
+                                    const CaloCellContainer* cellcont);
   void checkTriggerAndBeamBackground();
   void sporadicNoiseCandidate(const CaloCell* cell, const LArCellMonTool::LayerEnum iLyr,const float threshold, const LArOnOffIdMapping* cabling);
 
@@ -157,19 +160,20 @@ private:
   bool m_oncePerJobHistosDone=false;
   SG::ReadHandleKey<CaloCellContainer> m_cellContainerName { this, "CaloCellContainer", "AllCalo", "SG key of the input cell container" };
 
-  bool m_useElectronicNoiseOnly;
-  ICalorimeterNoiseTool::CalorimeterNoiseType m_noiseType=ICalorimeterNoiseTool::TOTALNOISE;
-  ToolHandle<ICalorimeterNoiseTool> m_noiseTool;
+  SG::ReadCondHandleKey<CaloNoise> m_noiseKey
+    { this, "NoiseKey", "totalNoise", "SG key for noise" };
 
 
   // Trigger Awareness:
-  bool m_useTrigger;
+  bool m_useTriggerCaloMon;
   ToolHandle<Trig::TrigDecisionTool> m_trigDec; //!< TDT handle
   std::array<std::string,NOTA> m_triggerNames; 
   std::array<const Trig::ChainGroup*, NOTA> m_chainGroups{{}};
  
   // bad channel mask  
-  ToolHandle<ILArBadChannelMasker> m_badChannelMask;
+  LArBadChannelMask m_bcMask;
+  Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{}, "Bad-Channel categories to mask"};
+  
   bool m_maskKnownBadChannels;
   bool m_maskNoCondChannels;
 

@@ -75,9 +75,6 @@ if TrkDetFlags.MaterialDatabaseLocal() is True :
     TrkDetFlags.MaterialSubVersion           = ''
 TrkDetFlags.MagneticFieldCallbackEnforced    = False
 
-# load the tracking geometry service
-from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
-
 #--------------------------------------------------------------
 # Event related parameters
 #--------------------------------------------------------------

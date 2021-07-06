@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ut_xaodeventinfo_evtstore_test.cxx 727083 2016-03-01 15:20:50Z krasznaa $
@@ -59,7 +59,7 @@ int main() {
    std::vector< StoreGateSvc > evtStores;
    evtStores.reserve( 5 );
    for( int i = 0; i < 5; ++i ) {
-      evtStores.push_back( StoreGateSvc( i ) );
+      evtStores.emplace_back( i );
    }
 
    // Set up the test objects:
@@ -121,7 +121,7 @@ int main() {
    otree->Print();
 
    otree->Write();
-   otree->SetDirectory( 0 );
+   otree->SetDirectory( nullptr );
    ofile->Close();
 
    //
@@ -131,19 +131,19 @@ int main() {
    SIMPLE_ASSERT( ifile.get() );
 
    ::TTree* itree = dynamic_cast< ::TTree* >( ifile->Get( "TestTree" ) );
-   SIMPLE_ASSERT( itree != 0 );
+   SIMPLE_ASSERT( itree != nullptr );
 
-   eiP = 0;
+   eiP = nullptr;
    SIMPLE_ASSERT( itree->SetBranchAddress( "EventInfo", &eiP ) >= 0 );
-   eicP = 0;
+   eicP = nullptr;
    SIMPLE_ASSERT( itree->SetBranchAddress( "EventInfoContainer", &eicP ) >= 0 );
 
    SIMPLE_ASSERT( itree->GetEntry( 0 ) > 0 );
 
-   SIMPLE_ASSERT( eiP->evtStore() == 0 );
+   SIMPLE_ASSERT( eiP->evtStore() == nullptr );
    SIMPLE_ASSERT( eicP->size() == 5 );
    for( int i = 0; i < 5; ++i ) {
-      SIMPLE_ASSERT( ( *eicP )[ i ]->evtStore() == 0 );
+      SIMPLE_ASSERT( ( *eicP )[ i ]->evtStore() == nullptr );
    }
 
    // Now set the pointers to some values, trigger the reading from the branches
@@ -155,10 +155,10 @@ int main() {
 
    SIMPLE_ASSERT( itree->GetEntry( 0 ) > 0 );
 
-   SIMPLE_ASSERT( eiP->evtStore() == 0 );
+   SIMPLE_ASSERT( eiP->evtStore() == nullptr );
    SIMPLE_ASSERT( eicP->size() == 5 );
    for( int i = 0; i < 5; ++i ) {
-      SIMPLE_ASSERT( ( *eicP )[ i ]->evtStore() == 0 );
+      SIMPLE_ASSERT( ( *eicP )[ i ]->evtStore() == nullptr );
    }
 
    // Close and delete the file:

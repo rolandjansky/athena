@@ -10,7 +10,8 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 def TRTRawDataProviderAlgCfg(flags, name="TRTRawDataProvider", **kwargs):
     """Return a ComponentAccumulator for TRT raw data provider"""
     # Temporary until available in the central location
-    acc = ComponentAccumulator()
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
+    acc = TRT_GeometryCfg(flags)
 
     kwargs.setdefault("RDOKey", flags.Overlay.BkgPrefix + "TRT_RDOs")
 

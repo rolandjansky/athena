@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 
 # Haifeng Li <Haifeng.Li@cern.ch>
@@ -8,16 +8,11 @@ from D3PDMakerConfig.D3PDMakerFlags           import D3PDMakerFlags
 from EventCommonD3PDMaker.EventInfoD3PDObject import EventInfoD3PDObject
 from egammaD3PDMaker.ElectronD3PDObject       import ElectronD3PDObject
 from egammaD3PDMaker.PhotonD3PDObject         import PhotonD3PDObject
-from JetD3PDMaker.jetMETD3PDTrigger           import jetMETTriggerBitsD3PDObject
 from MuonD3PDMaker.MuonD3PDObject             import MuonD3PDObject
 from JetD3PDMaker.JetD3PDObject               import JetD3PDObject
 from TrackD3PDMaker.xAODVertexD3PDObject      import PrimaryxAODVertexD3PDObject
-from MissingETD3PDMaker.MissingETD3PDObject   import *
-from CaloD3PDMaker.MBTSD3PDObject             import MBTSD3PDObject
-from egammaD3PDAnalysis.egammaUserDataConfig  import egammaUserDataConfig
 from EventCommonD3PDMaker.LBMetadataConfig    import LBMetadataConfig
 from TruthD3PDMaker.GenEventD3PDObject        import GenEventD3PDObject
-from TruthD3PDAnalysis.truthParticleConfig    import truthParticleConfig
 from TruthD3PDMaker.TruthParticleD3PDObject   import TruthParticleD3PDObject
 from RecExConfig.RecFlags                     import rec
 
@@ -47,7 +42,6 @@ def JetD3PD (file,
                                       file = file,
                                       D3PDSvc = D3PDSvc,
                                       streamNameRoot = streamNameRoot)
-    JetIncludes = ['AssocTrackCont']
 
     alg += EventInfoD3PDObject        (**_args (level, 'EventInfo', kw ))
     alg += ElectronD3PDObject         (**_args (level, 'Electron', kw))
@@ -62,10 +56,6 @@ def JetD3PD (file,
     alg += JetD3PDObject (**_args(level,'AntiKt6H1TopoJets', kw,  sgkey='AntiKt6H1TopoJets',   prefix='AntiKt6H1Topo_' ) )
 
     
-    if D3PDMakerFlags.DoTrigger():
-        alg +=  jetMETTriggerBitsD3PDObject(level)
-        
- 
     alg += PrimaryxAODVertexD3PDObject (**_args (1, 'PrimaryVertex', kw,
                                                  allowMissing = True,
                                                  sgkey = D3PDMakerFlags.VertexSGKey(),

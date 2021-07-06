@@ -79,7 +79,9 @@ StatusCode TRTRawDataProvider::initialize() {
   }
   else {//Only need cabling if not using RoIs
     // Retrieve id mapping 
-  ATH_CHECK(m_CablingSvc.retrieve());
+    ATH_CHECK(m_CablingSvc.retrieve());
+    ATH_CHECK( m_roiCollectionKey.initialize(false) ); //Clear if unneeded
+    m_regionSelector.disable();
   }
 
   ATH_CHECK( m_rdoContainerKey.initialize() );

@@ -1,11 +1,11 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 ###############################################################
 #
 # Job options file for CaloNoise2Ntuple
 #
 #==============================================================
 
-# configuration for data, read noise from database through CaloNoiseToolDB
+# configuration for data
 
 if 'GlobalTag' not in dir():
    GlobalTag =  'OFLCOND-RUN12-SDR-35'

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PYANALYSISEXAMPLES_MYOBJ_H
@@ -10,6 +10,8 @@
 #include <typeinfo>
 
 #include "AthenaKernel/CLASS_DEF.h"
+
+namespace AthPyEx {
 
 class MyObj
 {
@@ -31,7 +33,9 @@ private:
   int m_a;
 };
 
-CLASS_DEF(MyObj, 86839352, 1)
+} // namespace AthPyEx
+
+CLASS_DEF(AthPyEx::MyObj, 28807578, 1)
 
 #endif
 

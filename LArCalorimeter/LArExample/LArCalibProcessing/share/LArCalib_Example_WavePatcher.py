@@ -64,18 +64,8 @@ theLArCaliWavePatcher.ContainerKey="LArCaliWave"
 theLArCaliWavePatcher.NewContainerKey="LArCaliWaveOut"
 theLArCaliWavePatcher.PatchMethod="PhiNeighbor"
 theLArCaliWavePatcher.OutputLevel=DEBUG
+theLArCaliWavePatcher.ProblemsToPatch=["deadCalib","deadReadout","deadPhys","almostDead","short"]
 topSequence+=theLArCaliWavePatcher
-
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-theLArRCBMasker=LArBadChannelMasker("LArRCBMasker")
-theLArRCBMasker.DoMasking=True
-theLArRCBMasker.ProblemsToMask=[
-    "deadCalib","deadReadout","deadPhys","almostDead","short",
-    ]
-ToolSvc+=theLArRCBMasker
-theLArCaliWavePatcher.MaskingTool=theLArRCBMasker
-
-
 
 OutputObjectSpecCaliWave = "LArCaliWaveContainere#LArCaliWaveOut#"+Folder
 

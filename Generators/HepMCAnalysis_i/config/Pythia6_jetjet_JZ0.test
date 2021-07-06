@@ -1,6 +1,0 @@
-enable=1
-runnumber=129320
-ecm=8000
-jobconf=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest/share/tests/MC14.129320.Pythia_AUET2BCTEQ6L1_jetjet_JZ0.py
-jobdescr="Generator: Pythia 6, Process: dijet, Tune: AUET2B, PDF: CTEQ6L1, sqrt(s): 8 TeV"
-analist="JetAnalysis EtmissAnalysis"

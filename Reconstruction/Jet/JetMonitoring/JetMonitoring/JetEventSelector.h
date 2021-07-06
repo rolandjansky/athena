@@ -1,7 +1,7 @@
 //  -*- c++ -*- 
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETMONITORING_JetEventSelector_H
@@ -26,10 +26,10 @@ class JetEventSelector : public asg::AsgTool , virtual public IJetEventSelector
 
  protected:
    
-   float m_min;
-   float m_max;
+   std::vector<float> m_min;
+   std::vector<float> m_max;
 
-   ToolHandle<IEventHistoVarTool> m_var;
+   ToolHandleArray<IEventHistoVarTool> m_var;
 
 };
 

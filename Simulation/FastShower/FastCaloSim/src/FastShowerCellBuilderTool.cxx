@@ -2017,7 +2017,9 @@ FastShowerCellBuilderTool::flag_simul_sate FastShowerCellBuilderTool::Is_below_v
     int nin=0;
     int id_in=0;
 #ifdef HEPMC3
-    for(auto par_in:ver->particles_in()) {
+    HepMC::ConstGenParticlePtr par_in;
+    for(auto pin:ver->particles_in()) {
+    par_in=pin;
 #else
     const HepMC::GenParticle* par_in=0;
     for(HepMC::GenVertex::particles_in_const_iterator pin=ver->particles_in_const_begin();pin!=ver->particles_in_const_end();++pin) {

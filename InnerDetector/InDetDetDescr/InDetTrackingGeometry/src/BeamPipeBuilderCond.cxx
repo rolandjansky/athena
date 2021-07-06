@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -25,12 +25,14 @@
 // Gaudi
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/SystemOfUnits.h"
+//Athena
+#include "AthenaKernel/IOVInfiniteRange.h"
 
 // constructor
 InDet::BeamPipeBuilderCond::BeamPipeBuilderCond(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
   m_beamPipeFromDb(true),
-  m_beamPipeMgr(0),
+  m_beamPipeMgr(nullptr),
   m_beamPipeMgrName("BeamPipe"),
   m_beamPipeEnvelope(1.*Gaudi::Units::mm),
   m_beamPipeOffsetX(0.*Gaudi::Units::mm),
@@ -102,19 +104,19 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >*>  InDet:
   std::vector<const Trk::CylinderLayer*>* beamPipe = new std::vector<const Trk::CylinderLayer*>;
   
   // the geometry
-  Amg::Transform3D* beamPipeTransform =  new Amg::Transform3D;
-  beamPipeTransform->setIdentity();
+  Amg::Transform3D beamPipeTransform;
+  beamPipeTransform.setIdentity();
 
   double beamPipeRadius = m_beamPipeRadius;
   
   if (m_beamPipeMgr){
         // get the central top volume
         PVConstLink beamPipeTopVolume =  m_beamPipeMgr->getTreeTop(0);
-        (*beamPipeTransform) = Amg::Translation3D(beamPipeTopVolume->getX().translation().x(),
+        beamPipeTransform = Amg::Translation3D(beamPipeTopVolume->getX().translation().x(),
                                                   beamPipeTopVolume->getX().translation().y(),
                                                   beamPipeTopVolume->getX().translation().z());
         const GeoLogVol* beamPipeLogVolume = beamPipeTopVolume->getLogVol();
-        const GeoTube* beamPipeTube = 0;
+        const GeoTube* beamPipeTube = nullptr;
         if (beamPipeLogVolume){
             // get the geoShape and translate
             Trk::GeoShapeConverter geoShaper;
@@ -126,7 +128,7 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >*>  InDet:
 		if(beamPipeTopVolume->getNameOfChildVol(i)=="SectionC03"){
 		  PVConstLink childTopVolume =  beamPipeTopVolume->getChildVol(i);
 		  const GeoLogVol* childLogVolume = childTopVolume->getLogVol();
-		  const GeoTube* childTube = 0;
+		  const GeoTube* childTube = nullptr;
 
 		  if (childLogVolume){
 		    childTube = dynamic_cast<const GeoTube*>(childLogVolume->getShape());
@@ -145,12 +147,12 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >*>  InDet:
         }
         ATH_MSG_VERBOSE("BeamPipe constructed from Database: translation (yes) - radius "<< ( beamPipeTube ? "(yes)" : "(no)") << " - r = " << beamPipeRadius );        
   } else 
-      (*beamPipeTransform) = Amg::Translation3D(m_beamPipeOffsetX, m_beamPipeOffsetY, 0.);
+      beamPipeTransform = Amg::Translation3D(m_beamPipeOffsetX, m_beamPipeOffsetY, 0.);
 
   ATH_MSG_VERBOSE("BeamPipe shift estimated as    : " 
-      <<  beamPipeTransform->translation().x() << ", "
-      <<  beamPipeTransform->translation().y() << ","
-      <<  beamPipeTransform->translation().y());
+      <<  beamPipeTransform.translation().x() << ", "
+      <<  beamPipeTransform.translation().y() << ","
+      <<  beamPipeTransform.translation().y());
   
   Trk::CylinderBounds* beamPipeBounds    = new Trk::CylinderBounds(beamPipeRadius, m_beamPipeHalflength);
   ATH_MSG_VERBOSE("BeamPipe bounds constructed as : " << (*beamPipeBounds) );
@@ -164,7 +166,7 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >*>  InDet:
 					   m_beamPipeRho);
   
   // binned layer material for the beam pipe possible
-  Trk::LayerMaterialProperties* beamPipeLayerMaterial=0;
+  Trk::LayerMaterialProperties* beamPipeLayerMaterial=nullptr;
   if (  m_beamPipeBinsZ == 1) 
      beamPipeLayerMaterial = new Trk::HomogeneousLayerMaterial(beamPipeMaterial, 1.0);
   else { 
@@ -181,7 +183,7 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >*>  InDet:
   //delete beamPipeLayerMaterial; 
   
   //create dummy infinite range
-  EventIDRange range;
+  EventIDRange range = IOVInfiniteRange::infiniteMixed();
   return std::make_pair(range,beamPipe);
   
 } 

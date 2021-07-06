@@ -106,6 +106,8 @@ StatusCode HLTMuonMonTool::initMuZTPDQA()
     }
   }//map loop    
 
+  ATH_CHECK( m_muonIsoKey.initialize() );
+
   return StatusCode::SUCCESS;
 }
 

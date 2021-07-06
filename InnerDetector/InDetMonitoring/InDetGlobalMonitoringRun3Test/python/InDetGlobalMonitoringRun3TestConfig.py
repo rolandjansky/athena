@@ -76,8 +76,6 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
         
         kwargsInDetGlobalPrimaryVertexMonAlg = { 
             'vxContainerName'                      : 'PrimaryVertices', #InDetKeys.xAODVertexContainer(),
-            'vxContainerNameWithOutBeamConstraint' : 'VxPrimaryCandidateWithBeamConstraint', #InDetKeys.PrimaryVerticesWithoutBeamConstraint(),
-            'vxContainerNameSplit'                 : 'VxPrimaryCandidateSplitStream', #InDetKeys.PrimaryVerticesSplitStream(),
             'doEnhancedMonitoring'                 : True # InDetFlags.doMonitoringPrimaryVertexingEnhanced()
         }
         

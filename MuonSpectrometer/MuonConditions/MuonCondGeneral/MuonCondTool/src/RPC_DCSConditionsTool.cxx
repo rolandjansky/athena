@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -15,11 +15,11 @@
 #include "MuonIdHelpers/RpcIdHelper.h"
 
 #include "PathResolver/PathResolver.h"
-#include <fstream>
-#include <string>
 #include <algorithm>
-#include <stdio.h>
+#include <cstdio>
+#include <fstream>
 #include <map>
+#include <string>
 
 #include "MuonCondTool/RPC_DCSConditionsTool.h"
 
@@ -39,12 +39,12 @@ RPC_DCSConditionsTool::RPC_DCSConditionsTool (const std::string& type,
 				    const std::string& name,
 				    const IInterface* parent)
 	  : AthAlgTool(type, name, parent), 
-            m_IOVSvc(0),
-            m_rpcIdHelper(0),
+            m_IOVSvc(nullptr),
+            m_rpcIdHelper(nullptr),
 	    m_log( msgSvc(), name ),
 	    m_debug(false),
 	    m_verbose(false),
-            m_chronoSvc(0)
+            m_chronoSvc(nullptr)
 {
   
   declareInterface< IRPC_DCSConditionsTool >(this);
@@ -88,7 +88,7 @@ StatusCode RPC_DCSConditionsTool::initialize()
   
     
   // Get interface to IOVSvc
-  m_IOVSvc = 0;
+  m_IOVSvc = nullptr;
   bool CREATEIF(true);
   sc = service( "IOVSvc", m_IOVSvc, CREATEIF );
   if ( sc.isFailure() )
@@ -181,11 +181,8 @@ StatusCode RPC_DCSConditionsTool::loadPanelOff(IOVSVC_CALLBACK_ARGS_P(I,keys))
   
  
   CondAttrListCollection::const_iterator itr;
-  unsigned int chan_index=0; 
   for (itr = atrc->begin(); itr != atrc->end(); ++itr) {
     
-    unsigned int chanNum=atrc->chanNum(chan_index);
-    std::string sector_name=atrc->chanName(chanNum);
 
     //itr=atrc->chanAttrListPair(chanNum);
     const coral::AttributeList& atr=itr->second;
@@ -200,7 +197,6 @@ StatusCode RPC_DCSConditionsTool::loadPanelOff(IOVSVC_CALLBACK_ARGS_P(I,keys))
       if( m_debug )  m_log << MSG::DEBUG <<  "panel_off "<< panel_off << endmsg;
       if( m_debug )  m_log << MSG::DEBUG <<  "panel_reason "<< panel_reason_off << endmsg;
  
-      char * ch_tmp;
       std::string delimiter = ",";
       std::vector<std::string> info_panel;
       MuonCalib::MdtStringUtils::tokenize(panel_off,info_panel,delimiter);
@@ -208,7 +204,7 @@ StatusCode RPC_DCSConditionsTool::loadPanelOff(IOVSVC_CALLBACK_ARGS_P(I,keys))
       Identifier PanelId;
     
       for(unsigned int i=0; i<info_panel.size();i++){
-        ch_tmp= const_cast<char*>(info_panel[i].c_str());
+        const char* ch_tmp= (info_panel[i].c_str());
         if( m_debug )  m_log << MSG::DEBUG << " info_panel " << ch_tmp << " "<<atoi(ch_tmp)<< endmsg; 
       
         PanelId= atoi(ch_tmp);
@@ -262,12 +258,8 @@ StatusCode RPC_DCSConditionsTool::loadPanelDead(IOVSVC_CALLBACK_ARGS_P(I,keys))
   
  
   CondAttrListCollection::const_iterator itr;
-  unsigned int chan_index=0; 
   for (itr = atrc->begin(); itr != atrc->end(); ++itr) {
  
-    unsigned int chanNum=atrc->chanNum(chan_index);
-    std::string sector_name=atrc->chanName(chanNum);
-    
     //itr=atrc->chanAttrListPair(chanNum);
     const coral::AttributeList& atr=itr->second;
     
@@ -282,7 +274,6 @@ StatusCode RPC_DCSConditionsTool::loadPanelDead(IOVSVC_CALLBACK_ARGS_P(I,keys))
       if( m_debug ) m_log << MSG::DEBUG <<  "panel_dead "<< panel_dead << endmsg;
       if( m_debug ) m_log << MSG::DEBUG <<  "panel_reason "<< panel_reason_dead << endmsg;
  
-      char * ch_tmp;
       std::string delimiter = ",";
       std::vector<std::string> info_panel;
       MuonCalib::MdtStringUtils::tokenize(panel_dead,info_panel,delimiter);
@@ -290,7 +281,7 @@ StatusCode RPC_DCSConditionsTool::loadPanelDead(IOVSVC_CALLBACK_ARGS_P(I,keys))
       Identifier PanelId;
     
       for(unsigned int i=0; i<info_panel.size();i++){
-        ch_tmp= const_cast<char*>(info_panel[i].c_str());
+        const char* ch_tmp= (info_panel[i].c_str());
         if( m_debug ) m_log << MSG::DEBUG << " info_panel " << ch_tmp << " "<<atoi(ch_tmp)<< endmsg; 
       
         PanelId= atoi(ch_tmp);

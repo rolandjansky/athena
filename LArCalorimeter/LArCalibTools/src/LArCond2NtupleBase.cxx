@@ -311,11 +311,14 @@ StatusCode LArCond2NtupleBase::initialize() {
 bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
 
   ATH_MSG_DEBUG("Starting fillFromIdentifier");
+ const LArBadChannelCont *bcCont = nullptr;
+ if ( m_addBC ) {
  SG::ReadCondHandle<LArBadChannelCont> readHandle{m_BCKey};
- const LArBadChannelCont *bcCont {*readHandle};
- if(m_addBC && !bcCont) {
+ bcCont =*readHandle;
+ if( !bcCont) {
      ATH_MSG_WARNING( "Do not have Bad chan container " << m_BCKey.key() );
      return false;
+ }
  }
  const LArCalibLineMapping *clCont=0;
  if(m_isSC){
@@ -428,9 +431,9 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
             m_region    = 0;
             m_detector  = 4;
           }
-          connected=true;
        }
      } // m_OffId
+     connected=true;
    }//end if is connected
  }catch (LArID_Exception & except) {}
 

@@ -1,6 +1,6 @@
 //Dear emacs, this is -*-c++-*-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARDIGITIZATION_LARPILEUPTOOL_H
@@ -23,15 +23,14 @@
 #include "CaloIdentifier/CaloGain.h"
 
 #include "LArElecCalib/ILArNoise.h"
-#include "LArElecCalib/ILArAutoCorrNoiseTool.h"
 #include "LArElecCalib/ILArOFC.h"
 #include "LArElecCalib/ILArPedestal.h"
 #include "LArElecCalib/ILArShape.h"
 #include "LArElecCalib/ILArfSampl.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 
-#include "LArRecConditions/ILArBadChannelMasker.h"
 #include "LArRecConditions/LArBadChannelCont.h"
+#include "LArRecConditions/LArBadChannelMask.h"
 
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"
@@ -227,7 +226,7 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
       "Pileup and/or noise added by overlaying random events (default=false)"};         // Pileup and noise added by overlaying random events
   Gaudi::Property<bool> m_isMcOverlay{this, "isMcOverlay", false,
       "Is input Overlay from MC or data (default=false, from data)"};             // true if input RDO for overlay are from MC, false if from data
-  bool m_useBad{true};
+
   Gaudi::Property<bool> m_useMBTime{this, "UseMBTime", false,
       "use detailed hit time from MB events in addition to bunch crossing time for pileup (default=false)"};
   Gaudi::Property<bool> m_recordMap{this, "RecordMap", true,
@@ -257,10 +256,11 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   const LArOnOffIdMapping* m_cabling{}; //Set in perpareEvent, used also in mergeEvent
 
-  //ToolHandle<ILArAutoCorrNoiseTool> m_autoCorrNoiseTool;
   SG::ReadCondHandleKey<LArAutoCorrNoise> m_autoCorrNoiseKey{this,"AutoCorrNoiseKey","LArAutoCorrNoise","SG Key of AutoCorrNoise conditions object"};
-  ToolHandle<ILArBadChannelMasker> m_maskingTool{this, "MaskingTool", "LArBadChannelMaskingTool" ,"Tool handle for dead channel masking"};
+
+  SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
   SG::ReadCondHandleKey<LArBadFebCont> m_badFebKey{this, "BadFebKey", "LArBadFeb", "Key of BadFeb object in ConditionsStore"};
+
   PublicToolHandle<ITriggerTime> m_triggerTimeTool{this, "TriggerTimeToolName", "CosmicTriggerTimeTool", "Trigger Tool Name"};
 
   const CaloCell_ID*     m_calocell_id{};
@@ -270,6 +270,10 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   const LArOnlineID*     m_laronline_id{};
 
   const CaloDetDescrManager* m_caloDDMgr{};
+
+
+  Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{},"Bad-Channel categories to mask entirly"}; 
+  LArBadChannelMask m_bcMask;
 
   Gaudi::Property<bool> m_skipNoHit{this, "SkipNoHit", false,
       "Skip events with no LAr hits (default=false)"};
@@ -290,7 +294,7 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   std::vector<float> m_energySum_DigiHSTruth;
   int m_nhit_tot{0};
   float m_trigtime{0};
-
+  
 };
 
 #endif

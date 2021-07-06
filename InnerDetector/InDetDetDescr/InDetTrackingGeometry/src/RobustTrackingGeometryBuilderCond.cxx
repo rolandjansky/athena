@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////
@@ -26,6 +26,7 @@
 #include "TrkGeometry/DiscLayer.h"
 #include "TrkSurfaces/DiscBounds.h"
 // Athena
+#include "AthenaKernel/IOVInfiniteRange.h"
 #include "CxxUtils/checker_macros.h"
 //Gaudi
 #include "GaudiKernel/SystemOfUnits.h"
@@ -140,7 +141,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::RobustTrackingGeome
    ////////////////////////////////////////////////////////////////////////////////////////////////////////    
    // The Overall Geometry
 
-   Trk::TrackingGeometry* trackingGeometry = 0;   
+   Trk::TrackingGeometry* trackingGeometry = nullptr;   
 
    // retrieve all the layers and sort them
    unsigned int numLayBuilders = m_layerBuilders.size();
@@ -173,7 +174,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::RobustTrackingGeome
    std::vector< double > discMaxZ(numLayBuilders,0.);
 
    //Start with a range covering 0 - inf, then narrow down
-   EventIDRange range;
+   EventIDRange range = IOVInfiniteRange::infiniteMixed();
    
    // (I) PARSE THE LAYERS FOR OVERALL DIMENSIONS -------------------------------------------------------------
    ATH_MSG_DEBUG( "[ STEP 1 ] : Parse the provided layers for the dimensions." );
@@ -187,15 +188,15 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::RobustTrackingGeome
        ATH_MSG_DEBUG( "[ LayerBuilder : '" << m_layerBuilders[ilb]->identification() << "' ] being processed. " );
        // (a) cylinder           
        std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> cylinderLayersPair = m_layerBuilders[ilb]->cylindricalLayers(ctx);
-       auto cylinderLayers = cylinderLayersPair.second;
+       const auto *cylinderLayers = cylinderLayersPair.second;
        // (a)
        std::vector<const Trk::Layer*> cylinderVolumeLayers;     
-       if (cylinderLayers && cylinderLayers->size()){
+       if (cylinderLayers && !cylinderLayers->empty()){
            range=EventIDRange::intersect(range,cylinderLayersPair.first);
            // screen output
            ATH_MSG_DEBUG(  "          Processing CylinderLayers : " );         
            // the ones to be filled into the double-vector
-           for (auto& cylIter : *cylinderLayers){
+           for (const auto & cylIter : *cylinderLayers){
                // get the CylinderBounds
                const Trk::CylinderBounds& cylBounds = (cylIter)->surfaceRepresentation().bounds();               
                double currentR = cylBounds.r();
@@ -238,14 +239,14 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::RobustTrackingGeome
        
        // (b) discs       
        std::pair<EventIDRange, const std::vector<const Trk::DiscLayer*>*> discLayersPair = m_layerBuilders[ilb]->discLayers(ctx);
-       auto discLayers = discLayersPair.second;
+       const auto *discLayers = discLayersPair.second;
        std::vector<const Trk::Layer*> discVolumeLayersNeg;
        std::vector<const Trk::Layer*> discVolumeLayersPos;                        
-       if (discLayers && discLayers->size()){
+       if (discLayers && !discLayers->empty()){
          range=EventIDRange::intersect(range,discLayersPair.first);
          // screen output
          ATH_MSG_DEBUG(  "          Processing DiscLayers : " );            
-         for (auto& discIter : *discLayers){
+         for (const auto & discIter : *discLayers){
                // get the DiscBounds
                const Trk::DiscBounds* discBounds = dynamic_cast<const Trk::DiscBounds*>
                                                                (&(discIter->surfaceRepresentation().bounds()));               
@@ -335,24 +336,24 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::RobustTrackingGeome
    
    // --------------------------------------------------------------------------------------------------
    // first the beampipe volume
-   Trk::TrackingVolume* beamPipeVolume = 0;
+   Trk::TrackingVolume* beamPipeVolume = nullptr;
    // the Volume Bounds
    Trk::CylinderVolumeBounds* beamPipeBounds = new Trk::CylinderVolumeBounds(overallRmin,overallExtendZ); 
    // BinnedArray needed
-   Trk::BinnedArray<Trk::Layer>* beamPipeLayerArray = 0;
+   Trk::BinnedArray<Trk::Layer>* beamPipeLayerArray = nullptr;
    std::pair<EventIDRange,const std::vector<const Trk::CylinderLayer*>*> beamPipeVecPair = m_beamPipeBuilder->cylindricalLayers(ctx);
-   auto beamPipeVec = beamPipeVecPair.second;
-   if (beamPipeVec->size()){
+   const auto *beamPipeVec = beamPipeVecPair.second;
+   if (!beamPipeVec->empty()){
        range=EventIDRange::intersect(range,beamPipeVecPair.first);
        beamPipeLayerArray = m_layerArrayCreator->cylinderLayerArray(*beamPipeVec,0.,beamPipeBounds->outerRadius(),Trk::arbitrary);
    }
    delete beamPipeVec;
    // create the TrackingVolume
-   beamPipeVolume = new Trk::TrackingVolume(0,
+   beamPipeVolume = new Trk::TrackingVolume(nullptr,
                                             beamPipeBounds,
                                             *m_materialProperties,
                                             beamPipeLayerArray,
-                                            0,
+                                            nullptr,
                                             "InDet::BeamPipe");
     // set the color code
     beamPipeVolume->registerColorCode(46);
@@ -393,8 +394,8 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::RobustTrackingGeome
        ATH_MSG_DEBUG( "       + color code                     : " << colorCode        );
                   
        // maxmmal z extend for volume set & endcap inner z
-       double currentSetExtendZ    =  ( (*pndlIter).size() || (*ppdlIter).size() ) ? discMaxZ[ilb] : cylinderExtendsInZ[ilb];
-       double currentEndcapInnerZ  =  ( (*pndlIter).size() || (*ppdlIter).size() ) ? discMinZ[ilb] : currentSetExtendZ;
+       double currentSetExtendZ    =  ( !(*pndlIter).empty() || !(*ppdlIter).empty() ) ? discMaxZ[ilb] : cylinderExtendsInZ[ilb];
+       double currentEndcapInnerZ  =  ( !(*pndlIter).empty() || !(*ppdlIter).empty() ) ? discMinZ[ilb] : currentSetExtendZ;
 
        // radii for the sectors 
        double currentCentralOuterR  = 0.;
@@ -423,7 +424,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::RobustTrackingGeome
        //   1 - radial packing, volumes can't be put in in central / ec sectors
        //   2 - only central sector exists
        //   3 - standard ecn / central / ecp sectors split
-       bool endcapsExist =  (*pndlIter).size()  && (*ppdlIter).size() ;
+       bool endcapsExist =  !(*pndlIter).empty()  && !(*ppdlIter).empty() ;
        // case flag set 
        PackCase caseFlag = (currentSetExtendZ < centralExtendZ && endcapsExist) ? contained : split;       
        if (currentSetExtendZ > centralExtendZ && currentEndcapInnerZ < centralExtendZ && endcapsExist) caseFlag = radial;
@@ -471,7 +472,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::RobustTrackingGeome
           // build the name
           std::string volumeBase = m_namespace+"Detectors::"+baseName;          
           // cylinder layers exist -------------------------------
-          if ((*pclIter).size()){
+          if (!(*pclIter).empty()){
             
             ATH_MSG_VERBOSE( "       -> central sector is being build." ); 
             // create the cylinder barrel 
@@ -491,7 +492,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::RobustTrackingGeome
           } 
 
           // negative disc layers exist ------------------------------
-          if ((*pndlIter).size()){
+          if (!(*pndlIter).empty()){
           
             ATH_MSG_VERBOSE( "       -> negative endcap is being build." );       
             // create the cylinder barrel 
@@ -510,7 +511,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::RobustTrackingGeome
             negativeSectorVolumes.push_back(negEndcap);                    
           }
           // positive disc layers exist --------------------------------
-          if ((*ppdlIter).size()){
+          if (!(*ppdlIter).empty()){
           
             ATH_MSG_VERBOSE( "       -> positive endcap is being build." );          
             // create the cylinder barrel 
@@ -553,7 +554,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::RobustTrackingGeome
                                                                            overallRmax, enclosingVolumeRadius,
                                                                            -overallExtendZ, overallExtendZ,
                                                                            1, true,
-                                                                           m_namespace+"Gaps::CentralEnclosure") : 0;
+                                                                           m_namespace+"Gaps::CentralEnclosure") : nullptr;
    
    // push the detector container into the ID volumes                                                              
    idVolumes.push_back(detectorContainer);
@@ -571,7 +572,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::RobustTrackingGeome
                                                                 m_replaceJointBoundaries);
   
    // if packing is needed ------------------------------------------------------------------
-   const Trk::TrackingVolume* highestIdVolume = 0;
+   const Trk::TrackingVolume* highestIdVolume = nullptr;
    if (enclose){
     
      // negative positions
@@ -580,7 +581,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::RobustTrackingGeome
          posIter != negDiscPositionZ.end(); ++posIter) (*posIter) *= -1;
         
      
-     const Trk::TrackingVolume* negativeEnclosure =  negDiscPositionZ.size() ?
+     const Trk::TrackingVolume* negativeEnclosure =  !negDiscPositionZ.empty() ?
                            m_trackingVolumeCreator->createGapTrackingVolume(*m_materialProperties,
                                                                            0., enclosingVolumeRadius,
                                                                            -enclosingVolumeHalfZ, -overallExtendZ,
@@ -592,7 +593,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::RobustTrackingGeome
                                                                             1, false,
                                                                             m_namespace+"Gaps::NegativeEnclosure");
   
-     const Trk::TrackingVolume* positiveEnclosure = m_enclosingDiscPositionZ.size() ? 
+     const Trk::TrackingVolume* positiveEnclosure = !m_enclosingDiscPositionZ.empty() ? 
                            m_trackingVolumeCreator->createGapTrackingVolume(*m_materialProperties,
                                                                            0., enclosingVolumeRadius,
                                                                            overallExtendZ, enclosingVolumeHalfZ,
@@ -732,14 +733,14 @@ const Trk::TrackingVolume* InDet::RobustTrackingGeometryBuilderCond::packVolumeT
                                                        volumeBase+"::NegativeSector",
                                                        m_buildBoundaryLayers,
                                                        m_replaceJointBoundaries) : 
-                                             (negVolSize ? negVolumes[0] : 0);
+                                             (negVolSize ? negVolumes[0] : nullptr);
   const Trk::TrackingVolume* centralVolume = (cenVolSize > 1) ?
          m_trackingVolumeCreator->createContainerTrackingVolume(centralVolumes,
                                                        *m_materialProperties,
                                                        volumeBase+"::CentralSector",
                                                        m_buildBoundaryLayers,
                                                        m_replaceJointBoundaries) :
-                                              (cenVolSize ? centralVolumes[0] : 0) ;
+                                              (cenVolSize ? centralVolumes[0] : nullptr) ;
                                               
    const Trk::TrackingVolume* positiveVolume = ( posVolSize > 1) ?
          m_trackingVolumeCreator->createContainerTrackingVolume(posVolumes,
@@ -747,7 +748,7 @@ const Trk::TrackingVolume* InDet::RobustTrackingGeometryBuilderCond::packVolumeT
                                                        volumeBase+"::PositiveSector",
                                                        m_buildBoundaryLayers,
                                                        m_replaceJointBoundaries) : 
-                                               (posVolSize ? posVolumes[0] : 0);
+                                               (posVolSize ? posVolumes[0] : nullptr);
    
    if (!negativeVolume && !positiveVolume){
        ATH_MSG_DEBUG( "No negative/positive sector given - no packing needed, returning central container!" );

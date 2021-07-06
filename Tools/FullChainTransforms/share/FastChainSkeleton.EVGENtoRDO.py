@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 # skeleton.EVGENtoRDO.py
 # skeleton file for running simulation+digi in one job for FastChain
 # currently using full simulation and digi, will swap in fast components later
@@ -472,14 +473,14 @@ if hasattr(runArgs,"samplingFractionDbTag"): #FIXME change this to PhysicsList?
 if hasattr(runArgs,"digiRndmSvc"):
     digitizationFlags.rndmSvc=runArgs.digiRndmSvc
 
-if hasattr(runArgs,"PileUpPremixing"):
-    fast_chain_log.info("Doing pile-up premixing")
-    digitizationFlags.PileUpPremixing = runArgs.PileUpPremixing
+if hasattr(runArgs,"PileUpPresampling"):
+    fast_chain_log.info("Doing pile-up presampling")
+    digitizationFlags.PileUpPresampling = runArgs.PileUpPresampling
 
 #--------------------------------------------------------------
 # Pileup configuration
 #--------------------------------------------------------------
-from SimuJobTransforms.SimTransformUtils import makeBkgInputCol
+from SimuJobTransforms.SimTransformUtils import makeBkgInputCol,getInputColOffset
 def HasInputFiles(runArgs, key):
     if hasattr(runArgs, key):
         cmd='runArgs.%s' % key
@@ -506,8 +507,12 @@ if hasattr(runArgs, "inputHighPtMinbiasHitsFile"):
     bkgArgName="inputHighPtMinbiasHitsFile"
 if HasInputFiles(runArgs, bkgArgName):
     exec("bkgArg = runArgs."+bkgArgName)
+    if(digitizationFlags.HighPtMinBiasInputColOffset.get_Value()<0):
+        #Calculate a pseudo random offset into the collection from the jobNumber
+        digitizationFlags.HighPtMinBiasInputColOffset = getInputColOffset(bkgArg, runArgs.jobNumber, fast_chain_log)
     digitizationFlags.HighPtMinBiasInputCols = makeBkgInputCol(bkgArg,
-                                                               digitizationFlags.numberOfHighPtMinBias.get_Value(), True, fast_chain_log)
+                                                               digitizationFlags.numberOfHighPtMinBias.get_Value(), True, fast_chain_log,
+                                                               digitizationFlags.HighPtMinBiasInputColOffset.get_Value())
 if digitizationFlags.HighPtMinBiasInputCols.statusOn:
     digitizationFlags.doHighPtMinBias = True
 else:

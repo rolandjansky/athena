@@ -29,7 +29,7 @@ namespace xAODMaker {
 
   StatusCode PhotonCnvAlg::initialize() {
 
-    ATH_MSG_DEBUG( "Initializing - Package version: " << PACKAGE_VERSION );
+    ATH_MSG_DEBUG( "Initializing" );
     ATH_MSG_DEBUG( "AODContainerName  = " << m_aodContainerName );
     ATH_MSG_DEBUG( "xAODContainerName = " << m_xaodContainerName );
 

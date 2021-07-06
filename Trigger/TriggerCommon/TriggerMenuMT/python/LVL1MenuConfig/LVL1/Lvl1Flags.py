@@ -11,7 +11,7 @@ from .Limits import Limits
 __author__  = 'J.Stelzer'
 __doc__="Level 1 specific flags for Run 2"
 
-log = logging.getLogger('LVL1.Lvl1Flags.py')
+log = logging.getLogger(__name__)
 
 _flags = [] 
 class CTPVersion(JobProperty):

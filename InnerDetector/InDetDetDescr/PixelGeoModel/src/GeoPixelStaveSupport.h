@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELSTAVESUPPORT_H
@@ -20,8 +20,8 @@ public:
   virtual double thicknessP() const = 0;
   virtual double thicknessN() const = 0;
   virtual GeoSimplePolygonBrep* computeStaveEnvelopShape(double) = 0;
-  virtual GeoVPhysVol* getEndblockEnvelopShape(int) const = 0;
-  virtual GeoTransform* getEndblockEnvelopShapeTrf(int) const =0;
+  virtual GeoVPhysVol* getEndblockEnvelopShape(int) = 0;
+  virtual GeoTransform* getEndblockEnvelopShapeTrf(int) =0;
   virtual double getEndblockZpos() const = 0;
   virtual double getServiceZpos() const =0;
   virtual double getEndblockLength() const = 0;

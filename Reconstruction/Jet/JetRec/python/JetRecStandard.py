@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # JetRecStandard.py
 #
@@ -23,7 +23,6 @@ jetlog.info( myname + "Begin.")
 
 from RecExConfig.RecFlags import rec 
 from InDetRecExample.InDetJobProperties import InDetFlags
-from JetRec.JetRecFlags import jetFlags
 
 # Function to display flag value and status.
 def sflagstat(flag):
@@ -50,8 +49,8 @@ jetlog.info( myname + "  Final use topoclusters: " + str(jetFlags.useTopo()))
 
 # Skip tracks if tracks or vertices are not present in the job.
 # No action if someone has already set the flag.
-haveTracks = cfgKeyStore.isInTransient('xAOD::TrackParticleContainer','InDetTrackParticles')
-haveVertices = cfgKeyStore.isInTransient("xAOD::VertexContainer","PrimaryVertices")
+haveTracks = cfgKeyStore.isInInput('xAOD::TrackParticleContainer','InDetTrackParticles')
+haveVertices = cfgKeyStore.isInInput("xAOD::VertexContainer","PrimaryVertices")
 recTracks = rec.doInDet()
 recVertices = bool(InDetFlags.doVertexFinding) and (recTracks or haveTracks)
 jetlog.info( myname + "Initial useTracks: " + sflagstat(jetFlags.useTracks) )
@@ -106,18 +105,18 @@ if not recAlgs.doEFlow():
 
 # Set the list of rho calculations.
 # If caller has set jetFlags.eventShapeTools(), then we use those values.
-if jetFlags.eventShapeTools() == None:
+if jetFlags.eventShapeTools() is None:
   jetFlags.eventShapeTools = []
   if jetFlags.useTopo():
     jetFlags.eventShapeTools += ['emtopo', 'lctopo']
   if jetFlags.usePFlow():
     jetFlags.eventShapeTools += ['empflow']
-  if jetFlags.usePFlowFE():
-    jetFlags.eventShapeTools += ['empflow_fe']
 
 # Import the jet tool manager.
 from JetRec.JetRecStandardToolManager import jtm
+jetlog.verbose("Initialised jtm with tools %s", jtm.tools)
 # Import the constituent tool manager
 from JetRecTools.ConstitToolManager import ctm
+jetlog.verbose("Initialised ctm with modifiers %s", ctm.modifiersMap)
 
 jetlog.info( myname + "End." )

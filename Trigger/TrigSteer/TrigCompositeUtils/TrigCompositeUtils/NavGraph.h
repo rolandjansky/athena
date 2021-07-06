@@ -30,10 +30,31 @@ namespace TrigCompositeUtils {
 
       /**
        * @brief Form an edge in the graph from this node to another one.
-       * @param[in] to The "parent" or "seed" Decision object from the perspective of this Node's shadowed Decision object.
+       * @param[in] to The "parent" or "seed" Decision object from the perspective of this Node's shadowed Decision object. Mutable to allow two-way linking.
        * @return True if a new edge was added. False if this was a duplicated call to add this edge.
        **/
-      bool linksTo(const NavGraphNode* to);
+      bool linksTo(NavGraphNode* to);
+
+      /**
+       * @brief Forget about any graph edges to the supplied node. Forgets both child and seed (a.k.a. parent) linking
+       * @param[in] Node to un-link
+       **/
+      void dropLinks(NavGraphNode* node);
+
+      /**
+       * @brief Flag this node as one to keep when the thin() operation is performed
+       **/
+      void keep();
+
+      /**
+       * @brief Reset the keep flag to false upon finishing thinning
+       **/
+      void resetKeep() ;
+
+      /**
+       * @return If the keep flag was set
+       **/
+      bool getKeep() const;
 
       /**
        * @brief Return a const pointer to the Decision object node which this NavGraphNode is shadowing.
@@ -41,16 +62,24 @@ namespace TrigCompositeUtils {
       const Decision* node() const;
 
       /**
-       * @brief Return a set of const pointers to the Decision object nodes which this NavGraphNode seeds from.
+       * @brief Return a set of const pointers to the Decision object nodes which this NavGraphNode seeds from. A.k.a its parents.
        * Note: NavGraph is used to represent a sub-graph of the full navigation graph, hence it is expected that
        * the set of seeds returned from this function may be smaller than the set of seeds returned from the
        * shadowed xAOD Decision Object.
        **/
-      const std::set<const NavGraphNode*>& seeds() const;
+      const std::set<NavGraphNode*>& seeds() const;
+
+      /**
+       * @brief Return a set of const pointers to the Decision object nodes which are the children of this NavGraphNode.
+       * Note: The m_decisionObject does not provide such forward-exploring capability.
+       **/
+      const std::set<NavGraphNode*>& children() const;
 
     private:
       const Decision* m_decisionObject; //!< The Decision object node which I shadow
-      std::set<const NavGraphNode*> m_filteredSeeds; //!< My seeds (edges in the graph), filtered on per-chain requirements.
+      std::set<NavGraphNode*> m_filteredSeeds; //!< My seeds (edges in the graph), filtered on per-chain requirements.
+      std::set<NavGraphNode*> m_filteredChildren; //!< Two-way linking information, used when thinning the graph.
+      bool m_keepFlag; //!< Keep this node when slimming the NavGraph. Needs to be set explicitly
 
   };
 
@@ -82,28 +111,60 @@ namespace TrigCompositeUtils {
       /**
        * @brief Get all final nodes.
        * @return Set of final nodes. These are the nodes which were added without any "comingFrom". 
-       * To explore the NavGraph fully, one should explore recursively from each of the final nodes.
+       * To explore the NavGraph fully, one should explore recursively all paths originating from each of the final nodes.
        **/
-      const std::set<NavGraphNode*>& finalNodes() const;
+      std::set<NavGraphNode*> finalNodes() const;
 
       /**
-       * @return Total number of unique nodes in the NavGraph. 
+       * @brief Get all nodes.
+       * @return Set of all nodes. Including all final, intermediate, and initial nodes.
+       **/
+      std::set<NavGraphNode*> allNodes();
+
+      /**
+       * @return Total number of nodes in the NavGraph. 
        **/
       size_t nodes() const;
 
       /**
-       * @return Total number of unique edges in the NavGraph. 
+       * @return Total number of edges in the NavGraph. 
        **/
       size_t edges() const;
 
       /**
-       * @bried Helper function. Print the internal graph structure to the terminal.
+       * @brief Perform thinning. Removing all nodes which are not explicitly flagged as keep(), after having re-wired them out of the graph.
+       * @return A set of the Decision* behind the NavGraphNodes which were thinned from the NavGraph.
+       **/
+      std::set<const Decision*> thin();
+
+      /**
+       * @brief Helper function. Print the internal graph structure to the terminal.
        * @param[in] log Athena messaging service reference.
        * @param[in] msgLevel Athena messaging service verbosity level.
        **/
       void printAllPaths(MsgStream& log, MSG::Level msgLevel = MSG::VERBOSE) const;
 
     private:
+
+      /**
+       * @brief Take all seeds (parents) of the supplied node and connect them to all the node's children. 
+       * Unlink the parents and children from the node.
+       * For the case of Parent nodes, P, node to be deleted, N, and Child nodes, C, this function converts from
+       *   P      P  P     P      P  P
+       *   |      \ /      |      \ /
+       *   N   ,   N   ,   N   ,   N
+       *   |       |      / \     / \
+       *   C       C      C  C    C  C
+       * to
+       *   P      P  P     P      P   P
+       *   |      \ /      |      |\ /|
+       *   |   ,   |   ,   |   ,  | | | 
+       *   |       |      / \     |/ \|
+       *   C       C      C  C    C   C
+       * where N is orphaned from the graph, with no parents or children.
+       * @param[in] toBeDeleted Node to rewire out of the navigation graph prior to its removal.
+       **/
+      void rewireNodeForRemoval(NavGraphNode& toBeDeleted);
 
       /**
        * @bried Internal helper function. Recursively print the graph structure from a single given starting node.

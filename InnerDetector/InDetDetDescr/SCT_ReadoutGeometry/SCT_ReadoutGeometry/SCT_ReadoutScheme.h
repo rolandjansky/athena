@@ -11,8 +11,8 @@
 #ifndef INDETREADOUTGEOMETRY_SCT_READOUTSCHEME_H
 #define INDETREADOUTGEOMETRY_SCT_READOUTSCHEME_H
 
-#include "InDetReadoutGeometry/SiCellId.h"
-#include "InDetReadoutGeometry/SiReadoutCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
+#include "ReadoutGeometryBase/SiReadoutCellId.h"
 
 #include <list>
 

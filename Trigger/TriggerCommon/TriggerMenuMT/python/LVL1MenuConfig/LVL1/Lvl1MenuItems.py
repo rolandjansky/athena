@@ -4,7 +4,7 @@ from .PrescaleHelper import getCutFromPrescale, getPrescaleFromCut
 from .Lvl1MenuUtil import oldStyle
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger("LVL1MenuItem")
+log = logging.getLogger(__name__)
 
 
 class LVL1MenuItem(object):

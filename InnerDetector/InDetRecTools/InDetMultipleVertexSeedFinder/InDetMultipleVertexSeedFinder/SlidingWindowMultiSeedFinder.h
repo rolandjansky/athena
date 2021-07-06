@@ -9,8 +9,8 @@
 #include "GaudiKernel/ToolHandle.h"
 //#include "TrkParameters/TrackParameters.h"
 #include "InDetRecToolInterfaces/IMultiPVSeedFinder.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
-class IBeamCondSvc;
 
 namespace Trk
 {
@@ -41,11 +41,11 @@ namespace InDet
 /**
  * Clustering method itself
  */   
-   std::vector< std::vector<const Trk::Track *> > seeds(const std::vector<const Trk::Track*>& tracks )const; 
+   virtual std::vector< std::vector<const Trk::Track *> > seeds(const std::vector<const Trk::Track*>& tracks )const override;
   
-   std::vector< std::vector<const Trk::TrackParticleBase *> > seeds(const std::vector<const Trk::TrackParticleBase*>& tracks )const;
+   virtual std::vector< std::vector<const Trk::TrackParticleBase *> > seeds(const std::vector<const Trk::TrackParticleBase*>& tracks )const override;
 
-   std::vector< std::vector<const Trk::TrackParameters *> > seeds(const std::vector<const xAOD::TrackParticle*>& tracks )const;
+   virtual std::vector< std::vector<const Trk::TrackParameters *> > seeds(const std::vector<const xAOD::TrackParticle*>& tracks )const override;
 
    //std::vector<int> m_z0sort(std::vector<const xAOD::TrackParticle*>& perigeeList,xAOD::Vertex * beamVtx) const;
 
@@ -63,7 +63,7 @@ namespace InDet
    ToolHandle<Trk::IVertexSeedFinder> m_vtxSeedFinder;
    
 //beam spot finder
-  ServiceHandle< IBeamCondSvc > m_beamService;    
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
   ToolHandle<Trk::IExtrapolator> m_extrapolator; //<! Extrapolator tool 
 
  };//end of class definitions

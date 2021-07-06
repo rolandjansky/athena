@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -136,9 +136,11 @@ DbTypeInfo::DbTypeInfo(const Guid& guid, TypeH type, Columns& cols)
       : Shape(),
         m_refCount( 0 ),
         m_columns(),
-        m_mult( 0 ),
-        m_class( type )
+        m_mult( 0 )
 {
+   if (type) {
+     m_class.store (type);
+   }
    setShapeID(guid);
    if( cols.size() == 0 )   {
       std::string full = DbReflex::fullTypeName(type);
@@ -175,8 +177,7 @@ DbTypeInfo::DbTypeInfo(const Guid& guid)
 : Shape(),
   m_refCount( 0 ),
   m_columns(),
-  m_mult( 0 ),
-  m_class( )
+  m_mult( 0 )
 {
   setShapeID(guid);
 }
@@ -191,22 +192,21 @@ DbTypeInfo::~DbTypeInfo()    {
 
 /// Access to reflection class (if availible)
 TypeH DbTypeInfo::clazz( bool noIdScan )  const  {
-  if ( m_class || noIdScan )  {
-    return m_class;
+  if ( m_class.isValid() ) {
+    return *m_class.ptr();
   }
-  else if ( !m_class && m_columns.size() > 0 )  {
-    static std::once_flag convert;
-    std::call_once (convert,
-                    [&] {
-                      DbTypeInfo* thisPtr = const_cast<DbTypeInfo*>(this);
-                      try {
-                        thisPtr->m_class = DbReflex::forGuid(m_id);
-                      }
-                      catch(...) {}
-                    });
-    return m_class;
+  if ( noIdScan || m_columns.size() == 0 ) {
+    return TypeH();
   }
-  return m_class;
+  TypeH cls;
+  try {
+    cls = DbReflex::forGuid (m_id);
+    if (cls.Class()) {
+      m_class.set (cls);
+    }
+  }
+  catch(...) {}
+  return cls;
 }
 
 /// Allow usage of base classes
@@ -227,10 +227,11 @@ const std::string DbTypeInfo::toString() const   {
   rep = "{ID=";
   rep += shapeID().toString();
   rep += "}";
-  if ( !m_class )
+  TypeH cls = clazz();
+  if ( !cls )
     rep += "{CL=<no_class>}";
   else
-    rep += "{CL=" + DbReflex::fullTypeName(m_class) + "}";
+    rep += "{CL=" + DbReflex::fullTypeName(cls) + "}";
   sprintf(txt,"{NCOL=%ld}{CNT=%d}", long(m_columns.size()), m_mult);
   rep += txt;
   for(Columns::const_iterator i=m_columns.begin(); i<m_columns.end();++i) {
@@ -274,12 +275,19 @@ Again:
           setShapeID(s);
           // this->clazz();
           break;
-        case 1:
-          m_class = DbReflex::forTypeName(s);
-          if ( m_class && shapeID() == Guid::null() )  {
-            setShapeID(DbReflex::guid(m_class));
+        case 1: {
+          TypeH cls = DbReflex::forTypeName(s);
+          if (cls) {
+            m_class.store (cls);
+          }
+          else {
+            m_class.reset();
+          }
+          if ( cls && shapeID() == Guid::null() )  {
+            setShapeID(DbReflex::guid(cls));
           }
           break;
+        }
         case 2:
           ::sscanf(s.c_str(), "%99d", &ncol);
           break;
@@ -326,9 +334,13 @@ const DbTypeInfo* DbTypeInfo::fromString(const std::string& string_rep)
       // find existing typeinfo or create a fresh one based on transient dictionary
       // do this first to ensure current type is first in the DbTransform list
       //cout << " -- fromDbString DbTypeInfo: " << string_rep << "  GUID=" << new_type_info->shapeID() <<  endl;
+      TypeH cls;
+      if (new_type_info->m_class.isValid()) {
+        cls = *new_type_info->m_class.ptr();
+      }
       if( DbTransform::getShape( new_type_info->shapeID() , main_type_info) != DbStatus::Success) {
          // new shape
-         if( !new_type_info->m_class ) {
+         if( !cls ) {
             // no transient type info for this type, use the string description as it is          
             DbTransform::regShape( new_type_info );
             //cout << "DbTypeInfo::fromString:  registered new  " << string_rep << endl;
@@ -336,13 +348,13 @@ const DbTypeInfo* DbTypeInfo::fromString(const std::string& string_rep)
          }
          // create new shape from transient type
          Columns cols;
-         main_type_info = new DbTypeInfo( new_type_info->shapeID(), new_type_info->m_class, cols );
+         main_type_info = new DbTypeInfo( new_type_info->shapeID(), cls, cols );
          DbTransform::regShape(main_type_info);
          created_main_ti = true;
          // cout << "DbTypeInfo::fromString:  registered new " <<  main_type_info->toString() << endl;
       } 
       // current shape is now registered, check if the one from DB has the same column names
-      if( new_type_info->m_class && main_type_info->toString() != string_rep ) {
+      if( cls && main_type_info->toString() != string_rep ) {
          // difference. See if DB shape is already known
          if( created_main_ti ) {
             // store pointer for later deletion to avoid memory leak
@@ -391,7 +403,7 @@ DbTypeInfo* DbTypeInfo::createEx(const Guid& guid)  {
 
 
 // small helper method to add a new shape
-DbTypeInfo* DbTypeInfo::regShape(const Guid& guid, const TypeH type, Columns& cols)
+DbTypeInfo* DbTypeInfo::regShape(const Guid& guid, const TypeH& type, Columns& cols)
 {
    DbTypeInfo* typ_info = new DbTypeInfo(guid, type, cols); 
    DbTransform::regShape(typ_info);

@@ -7,25 +7,25 @@ namespace Trk {
 inline bool
 Track::isValid() const
 {
-  return (m_fitQuality && m_trackStateVector);
+  return (m_fitQuality && !m_trackStateVector.empty());
 }
 
 inline const FitQuality*
 Track::fitQuality() const
 {
-  return m_fitQuality;
+  return m_fitQuality.get();
 }
 
 inline const DataVector<const TrackStateOnSurface>*
 Track::trackStateOnSurfaces() const
 {
-  return m_trackStateVector;
+  return &m_trackStateVector;
 }
 
 inline DataVector<const TrackStateOnSurface>*
 Track::trackStateOnSurfaces()
 {
-  return m_trackStateVector;
+  return &m_trackStateVector;
 }
 
 inline const TrackInfo&

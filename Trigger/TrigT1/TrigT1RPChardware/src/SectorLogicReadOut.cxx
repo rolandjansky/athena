@@ -203,6 +203,7 @@ RODword SectorLogicReadOut::getCounter32(ubit16 index){
     return m_counter32[index];
   } else {
    DISP<<" getCounter32: index= "<<index<<" is larger than "<<s_numberOfDecodedCounters<<std::endl;
+   DISP_ERROR;
    DISP<<" getCounter32: ... return 0 value"<<std::endl;
    DISP_ERROR;
    return 0;

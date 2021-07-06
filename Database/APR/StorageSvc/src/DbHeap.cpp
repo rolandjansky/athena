@@ -14,8 +14,14 @@ using namespace pool;
 
 static const size_t GUARDSIZE = 72;
 
-inline static DbObjectGuard* GUARD(const void* ptr)  {
-  return (DbObjectGuard*) (((char*)ptr)-GUARDSIZE);
+inline static DbObjectGuard* GUARD(void* ptr)  {
+  char* cptr = static_cast<char*>(ptr);
+  return reinterpret_cast<DbObjectGuard*> (cptr-GUARDSIZE);
+}
+
+inline static const DbObjectGuard* GUARD(const void* ptr)  {
+  const char* cptr = static_cast<const char*>(ptr);
+  return reinterpret_cast<const DbObjectGuard*> (cptr-GUARDSIZE);
 }
 
 /// Standard Constructor
@@ -32,12 +38,22 @@ size_t DbHeap::guardSize() {
 }
 
 /// Number of chunks currently allocated from the heap
-Token::OID_t& DbHeap::oid(const DbObject* pObj)  {
+Token::OID_t& DbHeap::oid(DbObject* pObj)  {
   return GUARD(pObj)->oid();
 }
 
 /// Number of chunks currently allocated from the heap
-DbContainer& DbHeap::container(const DbObject* pObj)  {
+const Token::OID_t& DbHeap::oid(const DbObject* pObj)  {
+  return GUARD(pObj)->oid();
+}
+
+/// Number of chunks currently allocated from the heap
+DbContainer& DbHeap::container(DbObject* pObj)  {
+  return GUARD(pObj)->container();
+}
+
+/// Number of chunks currently allocated from the heap
+const DbContainer& DbHeap::container(const DbObject* pObj)  {
   return GUARD(pObj)->container();
 }
 

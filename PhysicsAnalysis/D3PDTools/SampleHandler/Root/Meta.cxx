@@ -35,7 +35,6 @@ namespace SH
   void Meta ::
   testInvariant () const
   {
-    RCU_INVARIANT (this != 0);
   }
 
 

@@ -36,6 +36,10 @@ public:
    */
   virtual StatusCode passBeforePrescaleSelection(const ROIB::RoIBResult* roib, const std::vector<std::string>& l1ItemNames, bool& pass) const = 0;
 
+  /**
+   * Should return true if the implementation of decode() doesn't depend on RoIBResult
+   */
+  virtual bool isEmulated() const = 0;
 };  
 
 

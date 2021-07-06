@@ -85,8 +85,8 @@ namespace Trk {
 
     std::vector< std::vector<TLorentzVector> >    m_particleMomAtVertex;
     std::vector< Amg::MatrixX >                   m_covarianceAtVertex;
-    int m_nDoF;
-    double m_fullChi2;
+    int m_nDoF{};
+    double m_fullChi2{};
  
   };
 

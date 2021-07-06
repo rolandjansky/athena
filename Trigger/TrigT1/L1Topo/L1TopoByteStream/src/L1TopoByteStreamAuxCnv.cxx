@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ============================================================================
@@ -67,8 +67,7 @@ long L1TopoByteStreamAuxCnv::storageType() {
 //  Init method gets all necessary services etc.
 
 StatusCode L1TopoByteStreamAuxCnv::initialize() {
-  ATH_MSG_DEBUG("Initializing " << m_name << " - package version "
-                                << PACKAGE_VERSION);
+  ATH_MSG_DEBUG("Initializing " << m_name);
 
   CHECK(Converter::initialize());
   CHECK(m_readTool.retrieve());

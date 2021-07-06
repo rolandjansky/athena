@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DITAUREC_ELMUFINDER_H
@@ -14,39 +14,39 @@
 #include "xAODMuon/MuonContainer.h"
 
 class ElMuFinder : public DiTauToolBase {
-public:
+ public:
 
- //-------------------------------------------------------------
- //! Constructor
- //-------------------------------------------------------------
- ElMuFinder(const std::string& type,
-         const std::string& name,
-         const IInterface * parent);
+  //-------------------------------------------------------------
+  //! Constructor
+  //-------------------------------------------------------------
+  ElMuFinder(const std::string& type,
+	     const std::string& name,
+	     const IInterface * parent);
 
- //-------------------------------------------------------------
- //! Destructor
- //-------------------------------------------------------------
- virtual ~ElMuFinder();
+  //-------------------------------------------------------------
+  //! Destructor
+  //-------------------------------------------------------------
+  virtual ~ElMuFinder();
 
- virtual StatusCode initialize() override;
+  virtual StatusCode initialize() override;
 
- virtual StatusCode execute(DiTauCandidateData * data,
-                            const EventContext& ctx) const override;
+  virtual StatusCode execute(DiTauCandidateData * data,
+			     const EventContext& ctx) const override;
 
- virtual void cleanup(DiTauCandidateData *) override { }
+  virtual void cleanup(DiTauCandidateData *) override { }
  
 
-private:
+ private:
   SG::ReadHandleKey<xAOD::ElectronContainer> m_elContName
-  { this, "ElectronContainer", "Electrons", "" };
+    { this, "ElectronContainer", "Electrons", "" };
   float m_elMinPt;
   float m_elMaxEta;
   SG::ReadHandleKey<xAOD::MuonContainer> m_muContName
-  { this, "MuonContainer", "Muons", "" };
+    { this, "MuonContainer", "Muons", "" };
   float m_muMinPt;
   float m_muMaxEta;
   int m_muQual;
 
 };
 
-#endif  /* ELMUFINDER_H */
+#endif // DITAUREC_ELMUFINDER_H

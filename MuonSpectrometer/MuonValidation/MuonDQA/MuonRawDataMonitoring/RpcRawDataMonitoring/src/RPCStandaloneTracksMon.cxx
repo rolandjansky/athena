@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -33,7 +33,6 @@
 #include "MuonDQAUtils/MuonDQAHistMap.h" 
 
 #include "TrkMultiComponentStateOnSurface/MultiComponentStateOnSurface.h"
-#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "TrkEventPrimitives/ResidualPull.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkTrack/TrackStateOnSurface.h"
@@ -46,7 +45,7 @@
 #include <sstream>
 #include <iostream>
 #include <cmath>
-
+namespace{
 static const   int timeminrange	      =	 -200;
 static const   int timemaxrange	      =	  200;
 static const   int timeNbin	      =	  128;
@@ -56,14 +55,12 @@ static const   int EtaStationSpan     =     2;
 static const   int DoublePhiSpan      =     1;
 static const   int maxCSres           =     8;
 static const float Chi2dofCut         =     1;
-
+}
 /////////////////////////////////////////////////////////////////////////////
 
 RPCStandaloneTracksMon::RPCStandaloneTracksMon( const std::string & type, const std::string & name, const IInterface* parent )
   :ManagedMonitorToolBase( type, name, parent ),
-   m_first(true), 
-   m_rpcRoiSvc( "LVL1RPC::RPCRecRoiSvc", name ),
-   m_tgcRoiSvc( "LVL1TGC::TGCRecRoiSvc", name ),
+   m_first(true),   
    m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool")
 {
   // Declare the properties 
@@ -166,7 +163,9 @@ StatusCode RPCStandaloneTracksMon::initialize(){
   
   // MuonDetectorManager from the conditions store
   ATH_CHECK(m_DetectorManagerKey.initialize());
-
+  ATH_CHECK(m_tgcRoiTool.retrieve());
+  ATH_CHECK(m_rpcRoiTool.retrieve());  
+    
   ATH_CHECK(m_idHelperSvc.retrieve() );
     
   m_hardware_name_list.push_back("XXX");
@@ -840,7 +839,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 			   ( dataWord & 0x3fff ) );
       
       LVL1::RecMuonRoI roi( RoIWord,
-			    &( *m_rpcRoiSvc ), &( *m_tgcRoiSvc ),
+			    m_rpcRoiTool.get(), m_tgcRoiTool.get(),
 			    &dummy_thresholds );
       
       muctpi_rdo_roi.eta= roi.eta() ;
@@ -3301,6 +3300,7 @@ StatusCode RPCStandaloneTracksMon::bookHistogramsRecurrent( )
         // need to pay attention to BME case - not yet considered here .... 
         // need the full check here, since id.is_valid() is not enough to avoid exception in getRpcReadoutElement
         bool isValid=false; 
+        if (iname > m_idHelperSvc->rpcIdHelper().stationNameIndexMax()) continue;
         Identifier rpcId = m_idHelperSvc->rpcIdHelper().channelID(iname, (ieta-8), int(i_sec/2)+1, ir+1, idbz+1, idbphi+1, 1, 1, 1, true, &isValid, true); // last 6 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid, bool noPrint
         if (!isValid) {
           ATH_MSG_DEBUG("Could not find valid Identifier for station="<<iname<<", eta="<<(ieta-8)<<", phi="<<int(i_sec/2)+1<<", doubletR="<<ir+1<<", doubletZ="<<idbz+1<<", doubletPhi="<<idbphi+1<<", continuing...");

@@ -1,13 +1,13 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELCONDITIONSALGORITHMS_PIXELALIGNCONDALG_H
 #define PIXELCONDITIONSALGORITHMS_PIXELALIGNCONDALG_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 
@@ -21,14 +21,14 @@ namespace InDetDD {
   class PixelDetectorManager;
 }
 
-class PixelAlignCondAlg : public AthAlgorithm
+class PixelAlignCondAlg : public AthReentrantAlgorithm
 {
  public:
   PixelAlignCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~PixelAlignCondAlg() override = default;
 
   virtual StatusCode initialize() override;
-  virtual StatusCode execute() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
 
  private:
   BooleanProperty m_useDynamicAlignFolders{
@@ -48,6 +48,8 @@ class PixelAlignCondAlg : public AthAlgorithm
     this, "WriteKey", "PixelAlignmentStore", "Output pixel alignment data"};
 
   ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
+
+  StringProperty m_detManagerName{this, "DetManagerName", "Pixel", "Name of the DeterctorManager to retrieve"};
   const InDetDD::PixelDetectorManager* m_detManager{nullptr};
 };
 

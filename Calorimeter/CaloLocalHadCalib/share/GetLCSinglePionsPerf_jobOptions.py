@@ -42,7 +42,7 @@ lcPerf.usePionClustersOnly = False
 lcPerf.useRecoEfficiency = False
 
 
-if vars().has_key('outFileName'):
+if 'outFileName' in dir():
   lcPerf.OutputFileName = outFileName
 else:
   lcPerf.OutputFileName = "LCSinglePionsPerformance.root"

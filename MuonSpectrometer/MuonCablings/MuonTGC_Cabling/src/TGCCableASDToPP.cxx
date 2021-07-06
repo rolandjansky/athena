@@ -121,12 +121,10 @@ StatusCode TGCCableASDToPP::updateDatabase()
   delete m_ASD2PP_DIFF_12;
   m_ASD2PP_DIFF_12 = new std::vector<std::string>;
 
-  // Truncation saves initialization CPU time of about 30 ms. 
-  for(std::vector<std::string>::const_iterator it = tmp_ASD2PP_DIFF_12->begin();
-      it != tmp_ASD2PP_DIFF_12->end(); 
-      it++) {
-    if((*it).substr(0,1)=="/"||(*it).substr(0,1)=="*") continue; 
-    m_ASD2PP_DIFF_12->push_back(*it);
+  // Truncation saves initialization CPU time of about 30 ms.
+  for (const std::string& s : *tmp_ASD2PP_DIFF_12) {
+    if(s.substr(0,1)=="/"||s.substr(0,1)=="*") continue; 
+    m_ASD2PP_DIFF_12->push_back(s);
   }
   delete tmp_ASD2PP_DIFF_12;
   tmp_ASD2PP_DIFF_12 = 0;
@@ -169,7 +167,7 @@ StatusCode TGCCableASDToPP::updateDatabase()
 
 StatusCode TGCCableASDToPP::getUpdateInfo(const int side,  
 					  const int sector,  
-					  const std::string blockname, 
+					  const std::string& blockname, 
 					  std::vector<std::vector<int> >& info) 
 {
   // clear info
@@ -183,7 +181,7 @@ StatusCode TGCCableASDToPP::getUpdateInfo(const int side,
   // search block name
   while(it!=it_e) {
     buf = (*it);
-    it++;
+    ++it;
 
     if(buf.substr(0,1)=="/"||buf.substr(0,1)=="*") continue;
     if(buf.substr(0,blockname.size())==blockname) {
@@ -197,7 +195,7 @@ StatusCode TGCCableASDToPP::getUpdateInfo(const int side,
   // loop over entries of specified block
   while(it!=it_e) {
     buf = (*it);
-    it++;
+    ++it;
 
     if(buf.substr(0,1)=="/"||buf.substr(0,1)=="*") continue;
     if(buf.substr(0,1)=="E"||buf.substr(0,1)=="F") break;
@@ -409,7 +407,7 @@ TGCChannelId* TGCCableASDToPP::getChannelOut(const TGCChannelId* asdout,
 
 StatusCode TGCCableASDToPP::updateIndividualDatabase(const int side,  
 						     const int sector, 
-						     const std::string blockname, 
+						     const std::string& blockname, 
 						     TGCDatabase*& database) { 
   TGCDatabaseASDToPP* db = dynamic_cast<TGCDatabaseASDToPP*>(database); 
   if(!db) return StatusCode::FAILURE; 

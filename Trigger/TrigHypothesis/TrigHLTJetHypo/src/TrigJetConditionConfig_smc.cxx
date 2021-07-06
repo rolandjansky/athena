@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigJetConditionConfig_smc.h"
 
 #include "GaudiKernel/StatusCode.h"
-#include "./SMCConditionMT.h"
+#include "./SMCCondition.h"
 
 TrigJetConditionConfig_smc::TrigJetConditionConfig_smc(const std::string& type,
 						       const std::string& name,
@@ -21,9 +21,9 @@ StatusCode TrigJetConditionConfig_smc::initialize() {
 }
 
 
-ConditionMT TrigJetConditionConfig_smc::getCondition() const {
+Condition TrigJetConditionConfig_smc::getCondition() const {
   auto a2d = ArgStrToDouble();
-  return std::make_unique<SMCConditionMT>(a2d(m_min), a2d(m_max));
+  return std::make_unique<SMCCondition>(a2d(m_min), a2d(m_max));
 }
 
 
@@ -35,13 +35,4 @@ StatusCode TrigJetConditionConfig_smc::checkVals() const {
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
-}
-
-
-bool TrigJetConditionConfig_smc::addToCapacity(std::size_t) {
-  return false;
-}
-
-std::size_t TrigJetConditionConfig_smc::capacity() const {
-  return getCondition()->capacity();
 }

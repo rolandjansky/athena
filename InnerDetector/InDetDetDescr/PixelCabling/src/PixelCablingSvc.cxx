@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -17,8 +17,8 @@
 PixelCablingSvc::PixelCablingSvc(const std::string& name, ISvcLocator*svc):
   AthService(name,svc),
   m_detStore("DetectorStore", name),
-  m_detManager(0),
-  m_idHelper(0)
+  m_detManager(nullptr),
+  m_idHelper(nullptr)
 {
 }
 
@@ -29,7 +29,7 @@ StatusCode PixelCablingSvc::initialize() {
 
   ATH_CHECK(m_detStore.retrieve());
 
-  ATH_CHECK(m_detStore->retrieve(m_detManager,"Pixel"));
+  ATH_CHECK(m_detStore->retrieve(m_detManager,m_detManagerName));
 
   ATH_CHECK(m_detStore->retrieve(m_idHelper,"PixelID"));
 
@@ -72,6 +72,9 @@ Identifier PixelCablingSvc::getPixelId(Identifier offlineId, uint32_t FE, uint32
   }
   else if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI3) {
     rowsPerFE    = p_design->rowsPerCircuit()/2+4;  // normal + ganged
+  }
+  else if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::RD53) {
+    rowsPerFE    = p_design->rowsPerCircuit();
   }
 
   // ---------------------
@@ -172,6 +175,9 @@ uint32_t PixelCablingSvc::getFE(Identifier *pixelId, Identifier offlineId) {
   else if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI3) {
     rowsPerFE    = p_design->rowsPerCircuit()/2+4;  // normal + ganged
   }
+  else if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::RD53) {
+    rowsPerFE    = p_design->rowsPerCircuit();
+  }
 
   // ---------------------
   // Set module properties
@@ -231,6 +237,9 @@ uint32_t PixelCablingSvc::getColumn(Identifier *pixelId, Identifier offlineId) {
   }
   else if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI3) {
     rowsPerFE    = p_design->rowsPerCircuit()/2+4;  // normal + ganged
+  }
+  else if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::RD53) {
+    rowsPerFE    = p_design->rowsPerCircuit();
   }
 
   moduletype thisModule = getModuleType(offlineId);
@@ -305,6 +314,9 @@ uint32_t PixelCablingSvc::getRow(Identifier *pixelId, Identifier offlineId) {
   }
   else if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI3) {
     rowsPerFE    = p_design->rowsPerCircuit()/2+4;  // normal + ganged
+  }
+  else if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::RD53) {
+    rowsPerFE    = p_design->rowsPerCircuit();
   }
 
   moduletype thisModule = getModuleType(offlineId);
@@ -399,7 +411,7 @@ PixelCablingSvc::moduletype PixelCablingSvc::getModuleType(const Identifier& id)
 
     if (m_idHelper->is_dbm(id)) { isType = DBM; }
   }
-  else if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI3) {
+  else if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI3 || p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::RD53) {
     if      (abs(m_idHelper->barrel_ec(id))==0) { isType = PIX_BARREL; }
     else if (abs(m_idHelper->barrel_ec(id))==2) { isType = PIX_ENDCAP; }
     else                                        { isType = NONE; }

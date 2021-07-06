@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -22,6 +22,7 @@
 #include "CxxUtils/SealDebug.h"                // wlav
 #include "CxxUtils/SealSignal.h"               // wlav
 #include "CxxUtils/SealSharedLib.h"            // wlav
+#include "CxxUtils/UnwindBacktrace.h"          // sss
 #include "CxxUtils/checker_macros.h"
 
 // wlav copied from SealBase/sysapi/DebugAids.h
@@ -242,7 +243,7 @@ namespace Athena {                             // wlav
 //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
 /** The default output file descriptor for #stacktrace().  */
-IOFD			DebugAids::s_stackTraceFd = IOFD_INVALID;
+std::atomic<IOFD>  DebugAids::s_stackTraceFd = IOFD_INVALID;
 
 //<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
 
@@ -577,15 +578,19 @@ extern "C" void xl__trbk (void);
     effective for #stacktrace(), but can be overridden by the
     argument given to that function.  */
 IOFD
-DebugAids::stacktraceFd ATLAS_NOT_THREAD_SAFE (IOFD fd /* = IOFD_INVALID */)
+DebugAids::stacktraceFd (IOFD fd /* = IOFD_INVALID */)
 {
-    if (s_stackTraceFd == IOFD_INVALID)
-	s_stackTraceFd = STDERR_HANDLE;
-
-    IOFD old = s_stackTraceFd;
-    if (fd != IOFD_INVALID)
-	s_stackTraceFd = fd;
-    return old;
+  IOFD old = s_stackTraceFd;
+  if (fd == IOFD_INVALID) {
+    if (old == IOFD_INVALID) {
+      s_stackTraceFd.compare_exchange_strong (old, STDERR_HANDLE);
+      return s_stackTraceFd;
+    }
+  }
+  else {
+    s_stackTraceFd.compare_exchange_strong (old, fd);
+  }
+  return old;
 }
 
 /** Produce a stack trace.
@@ -605,11 +610,8 @@ DebugAids::stacktraceFd ATLAS_NOT_THREAD_SAFE (IOFD fd /* = IOFD_INVALID */)
 void
 DebugAids::stacktrace ATLAS_NOT_THREAD_SAFE (IOFD fd /* = IOFD_INVALID */)
 {
-    if (s_stackTraceFd == IOFD_INVALID)
-	s_stackTraceFd = STDERR_HANDLE;
-
     if (fd == IOFD_INVALID)
-	fd = s_stackTraceFd;
+      fd = stacktraceFd();
 
     std::cerr.flush ();
     fflush (stderr);
@@ -754,6 +756,9 @@ DebugAids::stacktrace ATLAS_NOT_THREAD_SAFE (IOFD fd /* = IOFD_INVALID */)
     fflush (stderr);
     dup2 (stderrfd, STDERR_FILENO);
     close (newfd);
+#elif HAVE_LINUX_UNWIND_BACKTRACE
+    CxxUtils::backtraceByUnwind (stacktraceLine, fd);
+
 #elif HAVE_BACKTRACE_SYMBOLS_FD && HAVE_DLADDR		// linux
     // we could have used backtrace_symbols_fd, except its output
     // format is pretty bad, so recode that here :-(

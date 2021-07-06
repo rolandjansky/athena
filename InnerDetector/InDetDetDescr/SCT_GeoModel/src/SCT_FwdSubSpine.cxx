@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////
@@ -79,7 +79,7 @@ GeoVPhysVol * SCT_FwdSubSpine::build()
   const SCT_ForwardModuleParameters * parameters = m_geometryManager->forwardModuleParameters();
   
   const GeoBox * spineShape1 = new GeoBox( m_thickness1/2., m_width1/2., m_length1/2.);
-  const GeoBox * spineShape2 = 0;
+  const GeoBox * spineShape2 = nullptr;
   if (m_ringType != 3) spineShape2 = new GeoBox( m_thickness2/2., m_width2/2., m_length2/2.);
   const GeoBox * spineShape3 = new GeoBox( m_thickness3/2., m_width3/2., m_length3/2.);
 
@@ -95,7 +95,7 @@ GeoVPhysVol * SCT_FwdSubSpine::build()
   double widthMain =  parameters->fwdSpineWidth(m_ringType);  // width of main spine
 
   
-  const GeoShape * subSpineMiddle = 0;
+  const GeoShape * subSpineMiddle = nullptr;
 
   // Inner sub spine
   double mountPosition = parameters->fwdModuleMountPoint(m_ringType); // mount point to physics center

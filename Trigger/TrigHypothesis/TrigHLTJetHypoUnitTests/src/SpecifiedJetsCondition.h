@@ -14,7 +14,7 @@
  *********************************************************************/
 
 #include <string>
-#include "TrigHLTJetHypo/../src/IConditionMT.h"
+#include "TrigHLTJetHypo/../src/ICondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 
 namespace HypoJet{
@@ -23,7 +23,7 @@ namespace HypoJet{
 
 class ITrigJetHypoInfoCollector;
 
-class SpecifiedJetsCondition: public IConditionMT{
+class SpecifiedJetsCondition: public ICondition{
  public:
   SpecifiedJetsCondition(const HypoJetGroupVector&);
   ~SpecifiedJetsCondition() override {}

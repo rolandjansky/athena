@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TgcPrepDataReplicationTool3BCtoAllBC.h"
@@ -12,7 +12,7 @@
 //================ Constructor =================================================
 Muon::TgcPrepDataReplicationTool3BCtoAllBC::TgcPrepDataReplicationTool3BCtoAllBC 
   (const std::string& t, const std::string& n, const IInterface* p)
-  : AthAlgTool(t, n, p),
+  : base_class(t, n, p),
   m_3BCKeys{"dummy", "dummy", "dummy"},
   m_AllBCKey("TGC_MeasurementsAllBCs")
 {
@@ -40,12 +40,12 @@ StatusCode Muon::TgcPrepDataReplicationTool3BCtoAllBC::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::TgcPrepDataReplicationTool3BCtoAllBC::replicate()
+StatusCode Muon::TgcPrepDataReplicationTool3BCtoAllBC::replicate() const
 {
     return convert3BCtoAllBC();
 }
 
-StatusCode Muon::TgcPrepDataReplicationTool3BCtoAllBC::convert3BCtoAllBC()
+StatusCode Muon::TgcPrepDataReplicationTool3BCtoAllBC::convert3BCtoAllBC() const
 {
 
   SG::WriteHandle<TgcPrepDataContainer> tgcPrepDataContainerAll(m_AllBCKey);
@@ -84,7 +84,7 @@ StatusCode Muon::TgcPrepDataReplicationTool3BCtoAllBC::convert3BCtoAllBC()
         bool duplicateInAllBCs = false;
         TgcPrepDataCollection::iterator tgcAllItr  = collection->begin();
         TgcPrepDataCollection::iterator tgcAllItrE = collection->end();
-        for(; tgcAllItr != tgcAllItrE; tgcAllItr++) {
+        for(; tgcAllItr != tgcAllItrE; ++tgcAllItr) {
           if(channelId == (*tgcAllItr)->identify()) {
             duplicateInAllBCs = true;
             break;
@@ -106,17 +106,4 @@ StatusCode Muon::TgcPrepDataReplicationTool3BCtoAllBC::convert3BCtoAllBC()
 
   return StatusCode::SUCCESS;
 }
-
-StatusCode Muon::TgcPrepDataReplicationTool3BCtoAllBC::queryInterface(const InterfaceID& riid, void** ppvIf) {
-  ATH_MSG_DEBUG("queryInterface()");
-  if(ITgcPrepDataReplicationTool::interfaceID().versionMatch(riid)) {
-    *ppvIf = dynamic_cast<ITgcPrepDataReplicationTool*>(this);
-    addRef();
-    ATH_MSG_DEBUG("InterfaceID successfully matched with ITgcPrepDataReplicationTool one.");
-    return StatusCode::SUCCESS;
-  }
-
-  return AthAlgTool::queryInterface(riid, ppvIf);
-}
-
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////
@@ -40,8 +40,7 @@ StatusCode RpcLv1RawDataEfficiency::initialize()
 {
   ATH_CHECK(ManagedMonitorToolBase::initialize());
   ATH_MSG_INFO( "In initializing 'RpcLv1RawDataEfficiency'"  );
-  ATH_MSG_INFO( "Package version = "<< PACKAGE_VERSION  );
-  
+
   m_trigtype  = 0 ;
   m_event  = 0 ;
   m_lumiblock  = 0 ;

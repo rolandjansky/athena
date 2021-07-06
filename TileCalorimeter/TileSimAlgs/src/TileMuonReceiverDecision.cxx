@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -37,8 +37,8 @@
 #include "StoreGate/WriteHandle.h"
 #include "AthenaKernel/errorcheck.h"
 
-TileMuonReceiverDecision::TileMuonReceiverDecision(std::string name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator),
+TileMuonReceiverDecision::TileMuonReceiverDecision(const std::string& name, ISvcLocator* pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator),
     m_tileID(nullptr),
     m_tileHWID(nullptr),
     m_cablingService(nullptr),
@@ -67,6 +67,11 @@ StatusCode TileMuonReceiverDecision::initialize() {
   m_cablingService = m_cablingSvc->cablingService();
   m_runPeriod = m_cablingService->runPeriod();
 
+  if( m_manualRunPeriod.value() > 0 ){
+    ATH_MSG_INFO("Overwriting run period from " << m_runPeriod << " to " << m_manualRunPeriod.value());
+    m_runPeriod = m_manualRunPeriod.value();
+  }
+
   if (m_runPeriod == 0) {
      ATH_MSG_INFO("Stopping ... TileMuonReceiverDecision should not be used for RUN1 simulations");
      return StatusCode::SUCCESS;
@@ -89,7 +94,7 @@ StatusCode TileMuonReceiverDecision::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TileMuonReceiverDecision::execute() {
+StatusCode TileMuonReceiverDecision::execute(const EventContext &ctx) const {
 
   std::vector<float> thresholds;
 
@@ -117,7 +122,7 @@ StatusCode TileMuonReceiverDecision::execute() {
 
   // Get the container with the matched filter reconstructed raw channels in MeV
   //
-  SG::ReadHandle<TileRawChannelContainer> rawChannelContainer(m_rawChannelContainerKey);
+  SG::ReadHandle<TileRawChannelContainer> rawChannelContainer(m_rawChannelContainerKey, ctx);
   ATH_CHECK( rawChannelContainer.isValid() );
   
   // Vectors for managemnt for TMDB 2015 configuration with inclusion in trigger in 1.1<eta<1.3
@@ -128,7 +133,7 @@ StatusCode TileMuonReceiverDecision::execute() {
 
   // Create the container to store the decision from the algorithm
   //  
-  SG::WriteHandle<TileMuonReceiverContainer> decisionContainer(m_muonReceiverContainerKey);
+  SG::WriteHandle<TileMuonReceiverContainer> decisionContainer(m_muonReceiverContainerKey, ctx);
   ATH_CHECK( decisionContainer.record(std::make_unique<TileMuonReceiverContainer>()) );
 
  // Special object with thresholds
@@ -150,6 +155,9 @@ StatusCode TileMuonReceiverDecision::execute() {
   // Used for validation only not including in container at the moment   
   float energy_HLX[maxCell]={0.,0.,0.,0.,0.};
   float time_HLX[maxCell]={0.,0.,0.,0.,0.};
+  
+  int  suppression_counter = 20;
+  bool suppress_printout   = false; 
 
   for (const TileRawChannelCollection* rawChannelCollection : *rawChannelContainer) {
 
@@ -188,7 +196,18 @@ StatusCode TileMuonReceiverDecision::execute() {
       // TMDB channel is used in COOL and goes from 0..n with n=5 for EB and n=8 in LB
       int TMDBchan = m_tileHWID->channel(adc_id) ;
       if ( TMDBchan >= upperLim ) {
-        ATH_MSG_WARNING( "(E.1."<< ich <<") hwid: "<< m_tileHWID->to_string(adc_id,-1) <<" ch: "<< TMDBchan <<" --> Tile ch: UNKNOWN"  );
+	if ( !suppress_printout ) { 
+	  if ( suppression_counter-- ) { 
+	    ATH_MSG_WARNING( "(E.1."<< ich <<") hwid: "<< m_tileHWID->to_string(adc_id,-1) <<" ch: "<< TMDBchan <<" --> Tile ch: UNKNOWN"  );
+	  }
+	  else { 
+	    ATH_MSG_WARNING( "Too many HWID WARNINGS - suppressing further output - switch to debug mode to view them all" );
+	    suppress_printout = true;
+	  }
+	}
+	else { 
+	  ATH_MSG_DEBUG( "(E.1."<< ich <<") hwid: "<< m_tileHWID->to_string(adc_id,-1) <<" ch: "<< TMDBchan <<" --> Tile ch: UNKNOWN"  );
+	}
         continue;
       }
       // TILE channel is the Tile HW channel
@@ -322,10 +341,5 @@ StatusCode TileMuonReceiverDecision::execute() {
   }
 
   ATH_MSG_DEBUG("TileMuonReceiverDecision execution completed" );
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TileMuonReceiverDecision::finalize() {
-  ATH_MSG_INFO( "TileMuonReceiverDecision finalized successfully");
   return StatusCode::SUCCESS;
 }

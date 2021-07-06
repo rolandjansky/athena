@@ -11,15 +11,16 @@
 # ----------------------------------------------------------------
 #
 from __future__ import with_statement, print_function
+from functools import total_ordering
 from CoolRunQuery.utils.AtlRunQueryTimer import timer
 
-from utils.AtlRunQueryUtils        import addKommaToNumber, filesize, prettyNumber, RunPeriods
-from utils.AtlRunQueryLookup       import DecodeDetectorMask
-from utils.AtlRunQueryIOV          import IOVRange,IOVTime
-from utils.AtlRunQueryLookup       import LArConfig, isDQ, OLCAlgorithms
-from output.AtlRunQueryRoot        import makeLBPlot, makeLBPlotList, makeTimePlotList, makeBSPlots, SaveGraphsToFile
-from AtlRunQueryQueryConfig        import QC
-from selector.AtlRunQuerySelectorBase import DataKey, Selector
+from CoolRunQuery.utils.AtlRunQueryUtils           import addKommaToNumber, filesize, prettyNumber, RunPeriods
+from CoolRunQuery.utils.AtlRunQueryLookup          import DecodeDetectorMask
+from CoolRunQuery.utils.AtlRunQueryIOV             import IOVRange,IOVTime
+from CoolRunQuery.utils.AtlRunQueryLookup          import LArConfig, isDQ, OLCAlgorithms
+from CoolRunQuery.output.AtlRunQueryRoot           import makeLBPlot, makeLBPlotList, makeTimePlotList, makeBSPlots, SaveGraphsToFile
+from CoolRunQuery.AtlRunQueryQueryConfig           import QC
+from CoolRunQuery.selector.AtlRunQuerySelectorBase import DataKey, Selector
 
 import math
 import time, calendar
@@ -27,7 +28,7 @@ import sys
 import re
 import datetime
 import subprocess
-import urllib
+import urllib.request
 
 _fW = {'Run' : 12, 'NLB': 5, 'Time': 50, '#Events': 10, 'Stream': 10}
 
@@ -298,7 +299,7 @@ class RunData:
 
 
 
-
+@total_ordering
 class Run:
     ShowOrder = []
     _SortedShowOrder = None
@@ -757,13 +758,13 @@ class Run:
         # typical address: https://atlas.web.cern.ch/Atlas/GROUPS/DATAPREPARATION/RunSummary/run142308_summary.html
         # OLD: fname = 'https://atlas.web.cern.ch/Atlas/GROUPS/DATAPREPARATION/RunSummary/run%i_summary.html' % (self.runNr)
         fname = 'http://atlas.web.cern.ch/Atlas/GROUPS/DATAPREPARATION/DataSummary/runsum.py?run=%i\n' % (self.runNr)
-        fwget = urllib.urlopen(fname)
+        fwget = urllib.request.urlopen(fname)
 
         wincontent = ''
         for line in fwget:
-            if '</head>' in line and '<base href' not in wincontent:
+            if '</head>' in str(line) and '<base href' not in wincontent:
                 wincontent += '<base href="http://atlas.web.cern.ch/Atlas/GROUPS/DATAPREPARATION/DataSummary/2010/"></base>'
-            wincontent += line
+            wincontent += str(line)
         wincontent = wincontent.replace('href="css/atlas-datasummary.css"', 'href="http://atlas.web.cern.ch/Atlas/GROUPS/DATAPREPARATION/DataSummary/css/atlas-datasummary.css"')
 
         # remove temporarily second plot with integration
@@ -880,10 +881,15 @@ class Run:
                 s+= "\n" + lbr.astxt()
             return s
 
-    def __cmp__(self,other):
+    def __lt__(self,other):
         if isinstance(other,Run):
-            return self.runNr - other.runNr
-        return self.runNr - other
+            return self.runNr < other.runNr
+        return self.runNr < other
+
+    def __eq__(self,other):
+        if isinstance(other,Run):
+            return self.runNr == other.runNr
+        return self.runNr == other
 
 
     def astxt(self):
@@ -1644,8 +1650,6 @@ def ashtml(run):
                             except ValueError:
                                 pass
 
-                        lbs = ev.keys()
-                        lbs.sort()
 
                         # find range with stable beams (requires LHC information to be available)
                         hasStableBeamsInfo, xvecStb = run.getStableBeamsVector()
@@ -1910,7 +1914,7 @@ def ashtml(run):
                         elif len(linklist)<=45:
                             nrow = 15
                         else:
-                            nrow = (len(linklist)+2)/3
+                            nrow = (len(linklist)+2)//3
                         
                         s += '<td align="center"><table class="triggerlinktable" align="center">'
                         s += '<tr>'
@@ -2395,7 +2399,7 @@ def createToolTips(run):
 
     # trigger keys
     lbtrigtypes = { 'L1 PSK': ['L1&nbsp;PSK', 'L1K'], 'HLT PSK' : ['HLT&nbsp;PSK','HLTK'] }
-    for lbtrigtype, c in lbtrigtypes.iteritems():
+    for lbtrigtype, c in lbtrigtypes.items():
         if lbtrigtype in Run.ShowOrder and 'blocks' in run.stats[lbtrigtype] and len(run.stats[lbtrigtype]['blocks'])>1:
             boxcontent = '<strong><b>%s&nbsp;evolved&nbsp;during&nbsp;run:</b></strong><br>' % c[0]
             boxcontent += '<table style="width: auto; border: 0px solid; border-width: margin: 0 0 0 0; 0px; border-spacing: 0px; border-collapse: separate; padding: 0px; font-size: 100%">'

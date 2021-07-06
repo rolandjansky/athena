@@ -1,9 +1,10 @@
-INFO     Reading events from /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data20_test/data_test.00374861.physics_Main.daq.RAW._lb0004._SFO-1._0001.data and metadata from /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.merge.RAW._lb0151._SFO-1._0001.1
+INFO     Reading events from /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data20_test/data_test.00386043.physics_Main.daq.RAW._lb0007._SFO-1._0001.data and metadata from /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.merge.RAW._lb0151._SFO-1._0001.1
 INFO     Writing file ./newMeta._0001.data
 Py:MetaReader        INFO Current mode used: full
 Py:MetaReader        INFO Current filenames: ['newMeta._0001.data']
 `-- newMeta._0001.data: 
     |-- GeoAtlas          : None
+    |-- auto_flush        : 1
     |-- beam_energy       : 6500
     |-- beam_type         : collisions
     |-- bs_metadata       : 
@@ -15,13 +16,14 @@ Py:MetaReader        INFO Current filenames: ['newMeta._0001.data']
     |   `-- stream            : physics_EnhancedBias
     |-- conditions_tag    : None
     |-- eventTypes        : ['IS_DATA', 'IS_ATLAS', 'IS_PHYSICS']
-    |-- evt_number        : [38471]
-    |-- file_guid         : 2A681347-1313-EB11-9120-FA163ED3DF9B
-    |-- file_size         : 5513920
+    |-- evt_number        : [1857736]
+    |-- file_comp_alg     : 1
+    |-- file_comp_level   : 1
+    |-- file_size         : 5552580
     |-- file_type         : BS
     |-- lumiBlockNumbers  : [151]
     |-- nentries          : 5
-    |-- processingTags    : ['CostMonitoring', 'Main']
+    |-- processingTags    : ['Main']
     |-- project_name      : data18_13TeV
     |-- runNumbers        : [360026]
     |-- run_type          : ['PHYSICS']

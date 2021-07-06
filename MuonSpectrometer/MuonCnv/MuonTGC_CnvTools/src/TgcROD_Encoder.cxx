@@ -17,7 +17,7 @@
 #include <iostream>
 
 // constructor
-Muon::TgcROD_Encoder::TgcROD_Encoder() : m_tgcRdo(0)
+Muon::TgcROD_Encoder::TgcROD_Encoder() : m_tgcRdo(nullptr)
 {}
 
 
@@ -33,7 +33,7 @@ void Muon::TgcROD_Encoder::setRdo(const TgcRdo* rdo) {
 // convert TGC RDO to a vector of 32bit words
 void Muon::TgcROD_Encoder::fillROD(std::vector<uint32_t>& v)
 {
-  IMessageSvc* msgSvc = 0;
+  IMessageSvc* msgSvc = nullptr;
   ISvcLocator* svcLocator = Gaudi::svcLocator();
   StatusCode sc = svcLocator->service("MessageSvc", msgSvc);
   if(sc.isFailure()) {

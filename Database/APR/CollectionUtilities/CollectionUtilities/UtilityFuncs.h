@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -18,7 +18,7 @@
 namespace pool {
 
    template <class KEY, class PAYLOAD>
-   std::vector<PAYLOAD> vectorizeMapPayload(const std::map<KEY,PAYLOAD> m)
+   std::vector<PAYLOAD> vectorizeMapPayload(const std::map<KEY,PAYLOAD>& m)
    {
       std::vector<PAYLOAD> outputs;
       for (typename std::map<KEY,PAYLOAD>::const_iterator j = m.begin(); j != m.end(); ++j) {
@@ -28,8 +28,8 @@ namespace pool {
    }
 
    // Funcs for manipulating CollectionMetadata
-   std::string getKey(const std::string key, const std::string encoded);
-   std::string getGroup(const std::string encoded);
+   std::string getKey(const std::string& key, const std::string& encoded);
+   std::string getGroup(const std::string& encoded);
    std::set<std::string> findGroups(const pool::ICollectionDescription& desc);
 
    // Funcs for manipulating CollectionDescriptions
@@ -40,7 +40,7 @@ namespace pool {
                         const pool::ICollectionDescription& desc1,
                         const std::vector< std::pair<std::string,std::string> >& spec0,
                         const std::vector< std::pair<std::string,std::string> >& spec1,
-                        const std::string spectype);
+                        const std::string& spectype);
 
    // Formatting
    std::pair<unsigned int,unsigned int>

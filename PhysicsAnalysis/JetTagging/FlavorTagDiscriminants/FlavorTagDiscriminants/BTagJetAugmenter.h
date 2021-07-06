@@ -23,18 +23,23 @@ public:
   BTagJetAugmenter(BTagJetAugmenter&&);
   void augmentJfDr(const xAOD::BTagging &btag);
   void augmentIpRatios(const xAOD::BTagging &btag);
-  void augmentBtagJes(const xAOD::Jet &target, const xAOD::Jet &uncalib);
-  void augment(const xAOD::Jet &jet);
-  void augment(const xAOD::Jet &jet, const xAOD::Jet &uncalibrated_jet);
+  void augmentBtagJes(const xAOD::BTagging &target,
+                      const xAOD::BTagging &uncalib);
+  void augment(const xAOD::BTagging &btag);
+  void augment(const xAOD::BTagging &btag,
+               const xAOD::BTagging &uncalibrated_btag);
 
-  std::vector<std::string> getDecoratorKeys() const;
+  std::set<std::string> getDecoratorKeys() const;
+  std::set<std::string> getAuxInputKeys() const;
 
 private:
   bool jfIsDefaults(const xAOD::BTagging &btag);
 
   float safelog_prob(float p_up, float p_down);
-  
+
   typedef SG::AuxElement AE;
+
+  AE::ConstAccessor<ElementLink<xAOD::JetContainer>> m_jetLink;
 
   AE::Decorator<float> m_pt_uncalib;
   AE::Decorator<float> m_eta_uncalib;

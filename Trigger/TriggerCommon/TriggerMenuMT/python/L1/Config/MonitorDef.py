@@ -30,7 +30,7 @@ For each of these type 64 L1Items can be monitored independently
 """
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger('Menu.L1.Config.MonitorDef')
+log = logging.getLogger(__name__)
 
 from ..Base.MonCounters import CtpinCounter, CtpmonCounter
 
@@ -41,20 +41,24 @@ class MonitorDef:
 
 
     # CTPIN counters
-    # these are generated for all CTPIN except the two highest JET inputs and the direct inputs
+    # these are generated for all CTPIN signals except the two highest JET inputs on JET1 (see comment at start of file)
     @staticmethod
-    def ctpinCounters( thresholds ):
+    def ctpinCounters( thresholds, connectors, ctpinConfig ):
+
+        connectedCables = []
+        for slotConnectors in ctpinConfig.values():
+            for connName in slotConnectors.values():
+                if connName:
+                    connectedCables += [ connName ]
 
         counters = []
-
-        for thr in thresholds:
-            # this special check addresses the LUT size issue for the monitoring (see file header and Cabling.py)
-            dontGenerateCounter = (thr.ttype=="JET" and (thr.mapping==8 or thr.mapping==9)) \
-                                  or thr.ttype=="TOPO" or thr.ttype=="ALFA"
-            if dontGenerateCounter:
-                continue
-            for mult in range(1, 2**thr.cableinfo.bitnum):
-                counters += [ CtpinCounter(thr.name,mult) ]
+        for ctpinCableName in connectedCables:
+            conn = connectors[ctpinCableName]
+            for i, tl in enumerate(conn.triggerLines):
+                if ctpinCableName == "JET1" and i==8:
+                    break
+                for mult in range(1, 2**tl.nbits):
+                    counters += [ CtpinCounter(threshold=tl.name, multiplicity = mult) ]
 
         return counters
 
@@ -64,16 +68,17 @@ class MonitorDef:
     # CTPMON counters
     # we only have a few for the moment
     @staticmethod
-    def ctpmonCounters( thresholds ):
+    def ctpmonCounters( thresholds, connectors ):
 
         counters = []
 
         cThr = {}
-        cThr[1] = [ 'AFP_FSA_SIT', 'AFP_FSA_TOF', 'AFP_FSC_SIT', 'AFP_FSC_TOF', 'AFP_NSA', 'AFP_NSC',
+        cThr[1] = [ 'AFP_NSA', 'AFP_NSC', 'AFP_FSA', 'AFP_FSC', 'AFP_FSA_TOF_T0', 'AFP_FSC_TOF_T0',
+                    'AFP_FSA_TOF_T1', 'AFP_FSC_TOF_T1', 'AFP_FSA_TOF_T2', 'AFP_FSC_TOF_T2', 'AFP_FSA_TOF_T3', 'AFP_FSC_TOF_T3',
                     'BPTX0', 'BPTX1', 'LUCID_C', 'J20', 'MU4', 'TE50', 'XE35', 'XE60',
-                    'MBTS_A0', 'MBTS_A1', 'MBTS_A2', 'MBTS_A3', 'MBTS_A4', 'MBTS_A5', 'MBTS_A6', 'MBTS_A7',
+                    'MBTS_A0', 'MBTS_A1', 'MBTS_A2',  'MBTS_A3',  'MBTS_A4',  'MBTS_A5',  'MBTS_A6',  'MBTS_A7',
                     'MBTS_A8', 'MBTS_A9', 'MBTS_A10', 'MBTS_A11', 'MBTS_A12', 'MBTS_A13', 'MBTS_A14', 'MBTS_A15',
-                    'MBTS_C0', 'MBTS_C1', 'MBTS_C2', 'MBTS_C3', 'MBTS_C4', 'MBTS_C5', 'MBTS_C6', 'MBTS_C7',
+                    'MBTS_C0', 'MBTS_C1', 'MBTS_C2',  'MBTS_C3',  'MBTS_C4',  'MBTS_C5',  'MBTS_C6',  'MBTS_C7',
                     'MBTS_C8', 'MBTS_C9', 'MBTS_C10', 'MBTS_C11', 'MBTS_C12', 'MBTS_C13', 'MBTS_C14', 'MBTS_C15' ]
 
         for mult in cThr:
@@ -95,7 +100,7 @@ class MonitorDef:
         TAP=2
         TAV=4
 
-        monItems = { 1 :[], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] }
+        monItems   = { 1 :[], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] }
         monItemsHF = { 1 :[], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] }
 
         # definitions hardcoded at the moment
@@ -108,8 +113,8 @@ class MonitorDef:
             "L1_EM3","L1_EM20VH","L1_EM22VHI",
             "L1_MU4","L1_MU10","L1_MU20",
             "L1_TAU12", "L1_TAU12IT", "L1_TAU20", "L1_TAU60",
-            "L1_J12", "L1_J20", "L1_J100", "L1_J400", "L1_J20.31ETA49", "L1_J30.31ETA49",
-            "L1_XE35", "L1_XE80", "L1_XS20", 
+            "L1_J12", "L1_J20", "L1_J100", "L1_J400", "L1_J20p31ETA49", "L1_J30p31ETA49",
+            "L1_XE35", "L1_XE60",
             "L1_MBTS_4_A", "L1_MBTS_4_C", "L1_MBTS_1", "L1_MBTS_2", "L1_MBTS_1_1",
             "L1_LUCID", "L1_LUCID_A_C_EMPTY", "L1_ALFA_ANY",
             "L1_ZDC_A", "L1_ZDC_C", "L1_ZDC_AND",
@@ -122,7 +127,7 @@ class MonitorDef:
             "L1_TGC_BURST",
             "L1_LLP-NOMATCH",
             "L1_DR-TAU20ITAU12I",
-            "L1_HT190-J15s5.ETA21",
+            "L1_HT190-J15s5pETA21",
             "L1_3J15_BTAG-MU4J15",
             "L1_MJJ-900",
             "L1_J40_DPHI-J20s2XE50",

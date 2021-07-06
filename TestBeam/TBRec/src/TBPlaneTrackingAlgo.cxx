@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBPlaneTrackingAlgo.h"
@@ -202,23 +202,20 @@ double &a1, double &a2,double &chi2, std::vector<double> &residual)
   
   ATH_MSG_DEBUG ("The hit plane container size is: " << hitPlaneNum);
   
-  TBHitPlaneCont::const_iterator it_hit = hitPlaneCont->begin();
-  TBHitPlaneCont::const_iterator last_hit = hitPlaneCont->end();
-  
   std::vector<double> vec_u;
   std::vector<double> vec_w;
   std::vector<double> err_vec_u;
   std::vector<double> err_vec_w;
 
-  for (; it_hit!=last_hit; it_hit++) { 
-    ATH_MSG_DEBUG ("Position in u: " << (*it_hit)->getPosu());
-    ATH_MSG_DEBUG ("Position in w: " << (*it_hit)->getPosw());
-    ATH_MSG_DEBUG ("Error in u: " << (*it_hit)->getErroru());
-    ATH_MSG_DEBUG ("Error in w: " << (*it_hit)->getErrorw());
-    vec_u.push_back((*it_hit)->getPosu());
-    vec_w.push_back((*it_hit)->getPosw());
-    err_vec_u.push_back((*it_hit)->getErroru());
-    err_vec_w.push_back((*it_hit)->getErrorw());
+  for (const TBHitPlane* hp : *hitPlaneCont) {
+    ATH_MSG_DEBUG ("Position in u: " << hp->getPosu());
+    ATH_MSG_DEBUG ("Position in w: " << hp->getPosw());
+    ATH_MSG_DEBUG ("Error in u: " << hp->getErroru());
+    ATH_MSG_DEBUG ("Error in w: " << hp->getErrorw());
+    vec_u.push_back(hp->getPosu());
+    vec_w.push_back(hp->getPosw());
+    err_vec_u.push_back(hp->getErroru());
+    err_vec_w.push_back(hp->getErrorw());
   }
   
   if(vec_u.size() != vec_w.size()){
@@ -371,33 +368,24 @@ void TBPlaneTrackingAlgo::FillRandomHit()
 StatusCode TBPlaneTrackingAlgo::buildHits()
 /////////////////////////////////////////
 {
-  StatusCode sc;
   ATH_MSG_DEBUG (" In buildHits() ");
   m_hitPlaneCont_u.clear();
   m_hitPlaneCont_v.clear();
 
-  TBBPCCont * bpcCont;
-  sc = evtStore()->retrieve(bpcCont, "BPCCont");
-  if (sc.isFailure()){
-    ATH_MSG_DEBUG ("Retrieval of BPCCont failed");
-    
-  }else {
-
-    TBBPCCont::const_iterator it_bc   = bpcCont->begin();
-    TBBPCCont::const_iterator last_bc   = bpcCont->end();
+  TBBPCCont * bpcCont = nullptr;
+  ATH_CHECK( evtStore()->retrieve(bpcCont, "BPCCont") );
 
   // Loop over BPC
-  for(;it_bc != last_bc;it_bc++){
-    const TBBPC * bpc = (*it_bc);
+  for (const TBBPC* bpc : *bpcCont) {
     std::string name = bpc->getDetectorName();
     ATH_MSG_DEBUG (" Hits in BPC "<< name);
     // Find calibration index for this BPC
     unsigned int ind=0;
     while(ind<m_bpc_names.size()) 
-	{
-	  if(name==m_bpc_names[ind]) break; 
-	  else ind++;
-	}
+    {
+      if(name==m_bpc_names[ind]) break; 
+      else ind++;
+    }
     if(ind==m_bpc_names.size()){
       ATH_MSG_ERROR ("No calibrations for BPC" << name);
       continue;
@@ -431,13 +419,9 @@ StatusCode TBPlaneTrackingAlgo::buildHits()
       hitv->setValidFlag(bpc->isXPosOverflow()&&bpc->isYPosOverflow());
       m_hitPlaneCont_v.push_back(hitv);
     }
+  }
 
-
-    }
-  } // BPC
-
-  return sc;
-
+  return StatusCode::SUCCESS;
 }
 
 
@@ -474,7 +458,7 @@ StatusCode TBPlaneTrackingAlgo::getnewcalib()
   int pos;
 
   std::ifstream calibfile;
-  std::string filename = PathResolver::find_file (m_calib_filename.c_str(), "DATAPATH");
+  std::string filename = PathResolver::find_file (m_calib_filename, "DATAPATH");
   calibfile.open(filename.c_str());
   if(!calibfile.good()){
     ATH_MSG_WARNING (" Problem with file named "<< m_calib_filename << " in $DATAPATH");

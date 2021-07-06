@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -33,8 +33,6 @@ Trk::RectangleBounds::RectangleBounds(const RectangleBounds& recbo)
   , m_boundValues(recbo.m_boundValues)
 {}
 
-// destructor
-Trk::RectangleBounds::~RectangleBounds() = default;
 
 Trk::RectangleBounds&
 Trk::RectangleBounds::operator=(const RectangleBounds& recbo)

@@ -3,25 +3,24 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// MuonTGHits.h, (c) ATLAS Detector Softwareop 
+// MuonTGHits.h, (c) ATLAS Detector Softwareop
 ///////////////////////////////////////////////////////////////////
 
 #ifndef MUONTGRECTOOLS_MUONTGHITS_H
 #define MUONTGRECTOOLS_MUONTGHITS_H
 
 #include "AthContainers/DataVector.h"
-#include "TrkGeometry/Layer.h"
-#include "TrkGeometry/DetachedTrackingVolume.h"
-#include "TrkPrepRawData/PrepRawData.h"
 #include "AthenaKernel/CLASS_DEF.h"
+#include "TrkGeometry/DetachedTrackingVolume.h"
+#include "TrkGeometry/Layer.h"
+#include "TrkPrepRawData/PrepRawData.h"
 
-namespace Muon{
+namespace Muon {
 
-typedef std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*> PairOfLayerPrd;
-typedef std::pair<const Trk::DetachedTrackingVolume*,std::vector<PairOfLayerPrd*>*> StationPrd;
-typedef DataVector<StationPrd> MuonTGHits;
-}
-CLASS_DEF(Muon::MuonTGHits,55556,1)
+    typedef std::pair<const Trk::Layer*, std::vector<const Trk::PrepRawData*>*> PairOfLayerPrd;
+    typedef std::pair<const Trk::DetachedTrackingVolume*, std::vector<PairOfLayerPrd*>*> StationPrd;
+    typedef DataVector<StationPrd> MuonTGHits;
+}  // namespace Muon
+CLASS_DEF(Muon::MuonTGHits, 55556, 1)
 
-#endif //MUONTGRECTOOLS_MUONTGHITS_H
-
+#endif  // MUONTGRECTOOLS_MUONTGHITS_H

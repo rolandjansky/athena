@@ -7,7 +7,7 @@
 
 #include "Gaudi/Property.h"
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
 #include "LArRecEvent/LArCollisionTime.h"
@@ -16,15 +16,18 @@
 #include "StoreGate/WriteHandleKey.h"
 
 
-class LArClusterCollisionTimeAlg : public AthAlgorithm {
+class LArClusterCollisionTimeAlg : public AthReentrantAlgorithm {
  public:
-  LArClusterCollisionTimeAlg(const std::string& name, ISvcLocator* pSvcLocator);
-  virtual ~LArClusterCollisionTimeAlg();
+  //LArClusterCollisionTimeAlg(const std::string& name, ISvcLocator* pSvcLocator);
+
+  using AthReentrantAlgorithm::AthReentrantAlgorithm;
+
+  ~LArClusterCollisionTimeAlg() = default;
     
   /** standard Athena-Algorithm method */
   StatusCode          initialize() override final;
   /** standard Athena-Algorithm method */
-  StatusCode          execute() override final;
+  StatusCode          execute(const EventContext& ctx) const override final;
   /** standard Athena-Algorithm method */
   StatusCode          finalize() override final;
 
@@ -46,8 +49,8 @@ class LArClusterCollisionTimeAlg : public AthAlgorithm {
   //---------------------------------------------------
   // Member variables
   //---------------------------------------------------
-  unsigned m_nEvt;
-  unsigned m_nCollEvt;
+  mutable std::atomic<unsigned> m_nEvt{0};
+  mutable std::atomic<unsigned> m_nCollEvt{0};
 
   //---------------------------------------------------
   // Properties
@@ -55,8 +58,8 @@ class LArClusterCollisionTimeAlg : public AthAlgorithm {
   Gaudi::Property<float> m_timeCut { this, "timeDiffCut", 2., "max |A-C| time difference tu pass the filter" };
   Gaudi::Property<size_t> m_maxClusters { this, "maxNClusters", 3, "how many clusters taken into sum" };
 
-  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_clusterContainerName;
-  SG::WriteHandleKey<LArCollisionTime> m_outputName;
+  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_clusterContainerName{this, "InputName", "LArClusterEM"};
+  SG::WriteHandleKey<LArCollisionTime> m_outputName{this, "OutputName", "LArClusterCollTime"};
   
 };
 #endif
