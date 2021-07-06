@@ -10,7 +10,8 @@ larRODFlags.NumberOfCollisions.set_Value_and_Lock(20) # Run-1,2 default
 larRODFlags.UseDelta.set_Value_and_Lock(3)     # it was used in Run-1
 larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(False) # default in Run-1
 
-jobproperties.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(False)  # default
+# Not available in 21.0-mc16a but keeping here for consistency
+# jobproperties.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(False)  # default
 jobproperties.LArDigitizationFlags.useFcalHighGain.set_Value_and_Lock(False)    # default
 
 # check if Beam flag is set properly
