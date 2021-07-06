@@ -367,6 +367,46 @@ private:
     TH1* m_vx_track_d0_err_merged;
     TH1* m_vx_track_d0_err_split;
 
+    TH2* m_vx_track_z0_ALL_matched_vs_track_pt;
+    TH2* m_vx_track_z0_ALL_merged_vs_track_pt;
+    TH2* m_vx_track_z0_ALL_split_vs_track_pt;
+    TH2* m_vx_track_z0_HS_matched_vs_track_pt;
+    TH2* m_vx_track_z0_HS_merged_vs_track_pt;
+    TH2* m_vx_track_z0_HS_split_vs_track_pt;
+    TH2* m_vx_track_z0_matched_vs_track_pt;
+    TH2* m_vx_track_z0_merged_vs_track_pt;
+    TH2* m_vx_track_z0_split_vs_track_pt;
+
+    TH2* m_vx_track_d0_ALL_matched_vs_track_pt;
+    TH2* m_vx_track_d0_ALL_merged_vs_track_pt;
+    TH2* m_vx_track_d0_ALL_split_vs_track_pt;
+    TH2* m_vx_track_d0_HS_matched_vs_track_pt;
+    TH2* m_vx_track_d0_HS_merged_vs_track_pt;
+    TH2* m_vx_track_d0_HS_split_vs_track_pt;
+    TH2* m_vx_track_d0_matched_vs_track_pt;
+    TH2* m_vx_track_d0_merged_vs_track_pt;
+    TH2* m_vx_track_d0_split_vs_track_pt;
+
+    TH2* m_vx_track_z0_err_ALL_matched_vs_track_pt;
+    TH2* m_vx_track_z0_err_ALL_merged_vs_track_pt;
+    TH2* m_vx_track_z0_err_ALL_split_vs_track_pt;
+    TH2* m_vx_track_z0_err_HS_matched_vs_track_pt;
+    TH2* m_vx_track_z0_err_HS_merged_vs_track_pt;
+    TH2* m_vx_track_z0_err_HS_split_vs_track_pt;
+    TH2* m_vx_track_z0_err_matched_vs_track_pt;
+    TH2* m_vx_track_z0_err_merged_vs_track_pt;
+    TH2* m_vx_track_z0_err_split_vs_track_pt;
+
+    TH2* m_vx_track_d0_err_ALL_matched_vs_track_pt;
+    TH2* m_vx_track_d0_err_ALL_merged_vs_track_pt;
+    TH2* m_vx_track_d0_err_ALL_split_vs_track_pt;
+    TH2* m_vx_track_d0_err_HS_matched_vs_track_pt;
+    TH2* m_vx_track_d0_err_HS_merged_vs_track_pt;
+    TH2* m_vx_track_d0_err_HS_split_vs_track_pt;
+    TH2* m_vx_track_d0_err_matched_vs_track_pt;
+    TH2* m_vx_track_d0_err_merged_vs_track_pt;
+    TH2* m_vx_track_d0_err_split_vs_track_pt;
+
     ///@}
 private:
     // plot base has no default implementation of this; we use it to book the histos

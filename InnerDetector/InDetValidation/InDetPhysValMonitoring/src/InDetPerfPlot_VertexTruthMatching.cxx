@@ -317,7 +317,47 @@ InDetPerfPlot_VertexTruthMatching::InDetPerfPlot_VertexTruthMatching(InDetPlotBa
     m_vx_track_d0_err_HS_split(nullptr),
     m_vx_track_d0_err_matched(nullptr),
     m_vx_track_d0_err_merged(nullptr),
-    m_vx_track_d0_err_split(nullptr)
+    m_vx_track_d0_err_split(nullptr),
+
+    m_vx_track_z0_ALL_matched_vs_track_pt(nullptr),
+    m_vx_track_z0_ALL_merged_vs_track_pt(nullptr),
+    m_vx_track_z0_ALL_split_vs_track_pt(nullptr),
+    m_vx_track_z0_HS_matched_vs_track_pt(nullptr),
+    m_vx_track_z0_HS_merged_vs_track_pt(nullptr),
+    m_vx_track_z0_HS_split_vs_track_pt(nullptr),
+    m_vx_track_z0_matched_vs_track_pt(nullptr),
+    m_vx_track_z0_merged_vs_track_pt(nullptr),
+    m_vx_track_z0_split_vs_track_pt(nullptr),
+
+    m_vx_track_d0_ALL_matched_vs_track_pt(nullptr),
+    m_vx_track_d0_ALL_merged_vs_track_pt(nullptr),
+    m_vx_track_d0_ALL_split_vs_track_pt(nullptr),
+    m_vx_track_d0_HS_matched_vs_track_pt(nullptr),
+    m_vx_track_d0_HS_merged_vs_track_pt(nullptr),
+    m_vx_track_d0_HS_split_vs_track_pt(nullptr),
+    m_vx_track_d0_matched_vs_track_pt(nullptr),
+    m_vx_track_d0_merged_vs_track_pt(nullptr),
+    m_vx_track_d0_split_vs_track_pt(nullptr),
+
+    m_vx_track_z0_err_ALL_matched_vs_track_pt(nullptr),
+    m_vx_track_z0_err_ALL_merged_vs_track_pt(nullptr),
+    m_vx_track_z0_err_ALL_split_vs_track_pt(nullptr),
+    m_vx_track_z0_err_HS_matched_vs_track_pt(nullptr),
+    m_vx_track_z0_err_HS_merged_vs_track_pt(nullptr),
+    m_vx_track_z0_err_HS_split_vs_track_pt(nullptr),
+    m_vx_track_z0_err_matched_vs_track_pt(nullptr),
+    m_vx_track_z0_err_merged_vs_track_pt(nullptr),
+    m_vx_track_z0_err_split_vs_track_pt(nullptr),
+
+    m_vx_track_d0_err_ALL_matched_vs_track_pt(nullptr),
+    m_vx_track_d0_err_ALL_merged_vs_track_pt(nullptr),
+    m_vx_track_d0_err_ALL_split_vs_track_pt(nullptr),
+    m_vx_track_d0_err_HS_matched_vs_track_pt(nullptr),
+    m_vx_track_d0_err_HS_merged_vs_track_pt(nullptr),
+    m_vx_track_d0_err_HS_split_vs_track_pt(nullptr),
+    m_vx_track_d0_err_matched_vs_track_pt(nullptr),
+    m_vx_track_d0_err_merged_vs_track_pt(nullptr),
+    m_vx_track_d0_err_split_vs_track_pt(nullptr)
 
 
 
@@ -592,6 +632,16 @@ void InDetPerfPlot_VertexTruthMatching::initializePlots() {
         book(m_vx_pt_kurtosis_ALL_split,"vx_pt_kurtosis_ALL_split");
         book(m_vx_pt_kurtosis_ALL_fake,"vx_pt_kurtosis_ALL_fake");
         
+        book(m_vx_nVertices_ALL_matched,"vx_nVertices_ALL_matched");
+        book(m_vx_nVertices_ALL_merged,"vx_nVertices_ALL_merged");
+        book(m_vx_nVertices_ALL_split,"vx_nVertices_ALL_split");
+        book(m_vx_nVertices_HS_matched,"vx_nVertices_HS_matched");
+        book(m_vx_nVertices_HS_merged,"vx_nVertices_HS_merged");
+        book(m_vx_nVertices_HS_split,"vx_nVertices_HS_split");
+        book(m_vx_nVertices_matched,"vx_nVertices_matched");
+        book(m_vx_nVertices_merged,"vx_nVertices_merged");
+        book(m_vx_nVertices_split, "vx_nVertices_split");
+
         book(m_vx_track_z0_ALL_matched,"vx_track_z0_ALL_matched");
         book(m_vx_track_z0_ALL_merged,"vx_track_z0_ALL_merged");
         book(m_vx_track_z0_ALL_split,"vx_track_z0_ALL_split");
@@ -631,6 +681,46 @@ void InDetPerfPlot_VertexTruthMatching::initializePlots() {
         book(m_vx_track_d0_err_matched,"vx_track_d0_err_matched");
         book(m_vx_track_d0_err_merged,"vx_track_d0_err_merged");
         book(m_vx_track_d0_err_split, "vx_track_d0_err_split");
+
+        book(m_vx_track_z0_ALL_matched_vs_track_pt,"vx_track_z0_ALL_matched_vs_track_pt");
+        book(m_vx_track_z0_ALL_merged_vs_track_pt,"vx_track_z0_ALL_merged_vs_track_pt");
+        book(m_vx_track_z0_ALL_split_vs_track_pt,"vx_track_z0_ALL_split_vs_track_pt");
+        book(m_vx_track_z0_HS_matched_vs_track_pt,"vx_track_z0_HS_matched_vs_track_pt");
+        book(m_vx_track_z0_HS_merged_vs_track_pt,"vx_track_z0_HS_merged_vs_track_pt");
+        book(m_vx_track_z0_HS_split_vs_track_pt,"vx_track_z0_HS_split_vs_track_pt");
+        book(m_vx_track_z0_matched_vs_track_pt,"vx_track_z0_matched_vs_track_pt");
+        book(m_vx_track_z0_merged_vs_track_pt,"vx_track_z0_merged_vs_track_pt");
+        book(m_vx_track_z0_split_vs_track_pt, "vx_track_z0_split_vs_track_pt");
+        
+        book(m_vx_track_d0_ALL_matched_vs_track_pt,"vx_track_d0_ALL_matched_vs_track_pt");
+        book(m_vx_track_d0_ALL_merged_vs_track_pt,"vx_track_d0_ALL_merged_vs_track_pt");
+        book(m_vx_track_d0_ALL_split_vs_track_pt,"vx_track_d0_ALL_split_vs_track_pt");
+        book(m_vx_track_d0_HS_matched_vs_track_pt,"vx_track_d0_HS_matched_vs_track_pt");
+        book(m_vx_track_d0_HS_merged_vs_track_pt,"vx_track_d0_HS_merged_vs_track_pt");
+        book(m_vx_track_d0_HS_split_vs_track_pt,"vx_track_d0_HS_split_vs_track_pt");
+        book(m_vx_track_d0_matched_vs_track_pt,"vx_track_d0_matched_vs_track_pt");
+        book(m_vx_track_d0_merged_vs_track_pt,"vx_track_d0_merged_vs_track_pt");
+        book(m_vx_track_d0_split_vs_track_pt, "vx_track_d0_split_vs_track_pt");
+    
+        book(m_vx_track_z0_err_ALL_matched_vs_track_pt,"vx_track_z0_err_ALL_matched_vs_track_pt");
+        book(m_vx_track_z0_err_ALL_merged_vs_track_pt,"vx_track_z0_err_ALL_merged_vs_track_pt");
+        book(m_vx_track_z0_err_ALL_split_vs_track_pt,"vx_track_z0_err_ALL_split_vs_track_pt");
+        book(m_vx_track_z0_err_HS_matched_vs_track_pt,"vx_track_z0_err_HS_matched_vs_track_pt");
+        book(m_vx_track_z0_err_HS_merged_vs_track_pt,"vx_track_z0_err_HS_merged_vs_track_pt");
+        book(m_vx_track_z0_err_HS_split_vs_track_pt,"vx_track_z0_err_HS_split_vs_track_pt");
+        book(m_vx_track_z0_err_matched_vs_track_pt,"vx_track_z0_err_matched_vs_track_pt");
+        book(m_vx_track_z0_err_merged_vs_track_pt,"vx_track_z0_err_merged_vs_track_pt");
+        book(m_vx_track_z0_err_split_vs_track_pt, "vx_track_z0_err_split_vs_track_pt");
+        
+        book(m_vx_track_d0_err_ALL_matched_vs_track_pt,"vx_track_d0_err_ALL_matched_vs_track_pt");
+        book(m_vx_track_d0_err_ALL_merged_vs_track_pt,"vx_track_d0_err_ALL_merged_vs_track_pt");
+        book(m_vx_track_d0_err_ALL_split_vs_track_pt,"vx_track_d0_err_ALL_split_vs_track_pt");
+        book(m_vx_track_d0_err_HS_matched_vs_track_pt,"vx_track_d0_err_HS_matched_vs_track_pt");
+        book(m_vx_track_d0_err_HS_merged_vs_track_pt,"vx_track_d0_err_HS_merged_vs_track_pt");
+        book(m_vx_track_d0_err_HS_split_vs_track_pt,"vx_track_d0_err_HS_split_vs_track_pt");
+        book(m_vx_track_d0_err_matched_vs_track_pt,"vx_track_d0_err_matched_vs_track_pt");
+        book(m_vx_track_d0_err_merged_vs_track_pt,"vx_track_d0_err_merged_vs_track_pt");
+        book(m_vx_track_d0_err_split_vs_track_pt, "vx_track_d0_err_split_vs_track_pt");
 
     }
 
@@ -845,6 +935,14 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
         // Best reco HS vertex identified via truth HS weights
         const xAOD::Vertex* bestRecoHSVtx_truth = InDetVertexTruthMatchUtils::bestHardScatterMatch(vertexContainer);
 
+       // add code to add protection against non-identified reconstructed HS vertex to avoid crashes in samples with low track multiplicity HS vertex
+       if (!bestRecoHSVtx_truth){
+            ATH_MSG_INFO("No bestRecoHS vertex - not filling vertex truth matching.");
+            return;
+        }
+
+
+
         // Did we correctly select the best reco HS vertex using sumpt2?
         truthVtx = getTruthVertex(bestRecoHSVtx_sumpt2);
         if (!truthVtx){
@@ -961,6 +1059,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
         
          const xAOD::TrackParticle* trackTmp = nullptr;
          float sumPt =0;
+         float trackPt = 0;
          float sum_dD =0;
 
          // get the charge associated with each track
@@ -985,6 +1084,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
             //  std::cout << "loop over tracks helenmaguire";
             for (size_t i = 0; i < vertex->nTrackParticles(); i++) {
                 trackTmp = vertex->trackParticle(i);
+                trackPt = trackTmp->pt() / Gaudi::Units::GeV; 
                 deltaZ = trackTmp->z0() - vertex->z();
                 deltaD = trackTmp->d0();
                 const xAOD::ParametersCovMatrix_t covTrk = trackTmp->definingParametersCovMatrix();
@@ -998,6 +1098,10 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
                    fillHisto(m_vx_track_d0_HS_matched, deltaD);
                    fillHisto(m_vx_track_z0_err_HS_matched,Amg::error(covTrk, 1));
                    fillHisto(m_vx_track_d0_err_HS_matched, Amg::error(covTrk, 0));
+                   fillHisto(m_vx_track_z0_HS_matched_vs_track_pt, deltaZ, trackPt);
+                   fillHisto(m_vx_track_d0_HS_matched_vs_track_pt, deltaD, trackPt);
+                   fillHisto(m_vx_track_z0_err_HS_matched_vs_track_pt,Amg::error(covTrk, 1), trackPt);
+                   fillHisto(m_vx_track_d0_err_HS_matched_vs_track_pt, Amg::error(covTrk, 0), trackPt);
                    break;
                }
                case InDetVertexTruthMatchUtils::VertexMatchType::MERGED: {
@@ -1005,6 +1109,10 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
                    fillHisto(m_vx_track_d0_HS_merged, deltaD);
                    fillHisto(m_vx_track_z0_err_HS_merged,Amg::error(covTrk, 1));
                    fillHisto(m_vx_track_d0_err_HS_merged, Amg::error(covTrk, 0));
+                   fillHisto(m_vx_track_z0_HS_merged_vs_track_pt, deltaZ, trackPt);
+                   fillHisto(m_vx_track_d0_HS_merged_vs_track_pt, deltaD, trackPt);
+                   fillHisto(m_vx_track_z0_err_HS_merged_vs_track_pt,Amg::error(covTrk, 1), trackPt);
+                   fillHisto(m_vx_track_d0_err_HS_merged_vs_track_pt, Amg::error(covTrk, 0), trackPt);
                    break;
                }
                case InDetVertexTruthMatchUtils::VertexMatchType::SPLIT: {
@@ -1012,6 +1120,10 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
                    fillHisto(m_vx_track_d0_HS_split, deltaD);
                    fillHisto(m_vx_track_z0_err_HS_split,Amg::error(covTrk, 1));
                    fillHisto(m_vx_track_d0_err_HS_split, Amg::error(covTrk, 0));
+                   fillHisto(m_vx_track_z0_HS_split_vs_track_pt, deltaZ, trackPt);
+                   fillHisto(m_vx_track_d0_HS_split_vs_track_pt, deltaD, trackPt);
+                   fillHisto(m_vx_track_z0_err_HS_split_vs_track_pt,Amg::error(covTrk, 1), trackPt);
+                   fillHisto(m_vx_track_d0_err_HS_split_vs_track_pt, Amg::error(covTrk, 0), trackPt);
                    break;
               }
               default: {
@@ -1027,6 +1139,10 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
                    fillHisto(m_vx_track_d0_matched, deltaD);
                    fillHisto(m_vx_track_z0_err_matched,Amg::error(covTrk, 1));
                    fillHisto(m_vx_track_d0_err_matched, Amg::error(covTrk, 0));
+                   fillHisto(m_vx_track_z0_matched_vs_track_pt, deltaZ, trackPt);
+                   fillHisto(m_vx_track_d0_matched_vs_track_pt, deltaD, trackPt);
+                   fillHisto(m_vx_track_z0_err_matched_vs_track_pt,Amg::error(covTrk, 1), trackPt);
+                   fillHisto(m_vx_track_d0_err_matched_vs_track_pt, Amg::error(covTrk, 0), trackPt);
                    break;
                }
                case InDetVertexTruthMatchUtils::VertexMatchType::MERGED: {
@@ -1034,6 +1150,10 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
                    fillHisto(m_vx_track_d0_merged, deltaD);
                    fillHisto(m_vx_track_z0_err_merged,Amg::error(covTrk, 1));
                    fillHisto(m_vx_track_d0_err_merged, Amg::error(covTrk, 0));
+                   fillHisto(m_vx_track_z0_merged_vs_track_pt, deltaZ, trackPt);
+                   fillHisto(m_vx_track_d0_merged_vs_track_pt, deltaD, trackPt);
+                   fillHisto(m_vx_track_z0_err_merged_vs_track_pt,Amg::error(covTrk, 1), trackPt);
+                   fillHisto(m_vx_track_d0_err_merged_vs_track_pt, Amg::error(covTrk, 0), trackPt);
                    break;
                }
                case InDetVertexTruthMatchUtils::VertexMatchType::SPLIT: {
@@ -1041,6 +1161,10 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
                    fillHisto(m_vx_track_d0_split, deltaD);
                    fillHisto(m_vx_track_z0_err_split,Amg::error(covTrk, 1));
                    fillHisto(m_vx_track_d0_err_split, Amg::error(covTrk, 0));
+                   fillHisto(m_vx_track_z0_split_vs_track_pt, deltaZ, trackPt);
+                   fillHisto(m_vx_track_d0_split_vs_track_pt, deltaD, trackPt);
+                   fillHisto(m_vx_track_z0_err_split_vs_track_pt,Amg::error(covTrk, 1), trackPt);
+                   fillHisto(m_vx_track_d0_err_split_vs_track_pt, Amg::error(covTrk, 0), trackPt);
                    break;
                }
               default: {
@@ -1059,6 +1183,10 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
                    fillHisto(m_vx_track_d0_ALL_matched, deltaD);
                    fillHisto(m_vx_track_z0_err_ALL_matched,Amg::error(covTrk, 1));
                    fillHisto(m_vx_track_d0_err_ALL_matched, Amg::error(covTrk, 0));
+                   fillHisto(m_vx_track_z0_ALL_matched_vs_track_pt, deltaZ, trackPt);
+                   fillHisto(m_vx_track_d0_ALL_matched_vs_track_pt, deltaD, trackPt);
+                   fillHisto(m_vx_track_z0_err_ALL_matched_vs_track_pt,Amg::error(covTrk, 1), trackPt);
+                   fillHisto(m_vx_track_d0_err_ALL_matched_vs_track_pt, Amg::error(covTrk, 0), trackPt);
                    break;
                }
                case InDetVertexTruthMatchUtils::VertexMatchType::MERGED: {
@@ -1066,6 +1194,10 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
                    fillHisto(m_vx_track_d0_ALL_merged, deltaD);
                    fillHisto(m_vx_track_z0_err_ALL_merged,Amg::error(covTrk, 1));
                    fillHisto(m_vx_track_d0_err_ALL_merged, Amg::error(covTrk, 0));
+                   fillHisto(m_vx_track_z0_ALL_merged_vs_track_pt, deltaZ, trackPt);
+                   fillHisto(m_vx_track_d0_ALL_merged_vs_track_pt, deltaD, trackPt);
+                   fillHisto(m_vx_track_z0_err_ALL_merged_vs_track_pt,Amg::error(covTrk, 1), trackPt);
+                   fillHisto(m_vx_track_d0_err_ALL_merged_vs_track_pt, Amg::error(covTrk, 0), trackPt);
                    break;
                }
                case InDetVertexTruthMatchUtils::VertexMatchType::SPLIT: {
@@ -1073,6 +1205,10 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
                    fillHisto(m_vx_track_d0_ALL_split, deltaD);
                    fillHisto(m_vx_track_z0_err_ALL_split,Amg::error(covTrk, 1));
                    fillHisto(m_vx_track_d0_err_ALL_split, Amg::error(covTrk, 0));
+                   fillHisto(m_vx_track_z0_ALL_split_vs_track_pt, deltaZ, trackPt);
+                   fillHisto(m_vx_track_d0_ALL_split_vs_track_pt, deltaD, trackPt);
+                   fillHisto(m_vx_track_z0_err_ALL_split_vs_track_pt,Amg::error(covTrk, 1), trackPt);
+                   fillHisto(m_vx_track_d0_err_ALL_split_vs_track_pt, Amg::error(covTrk, 0), trackPt);
                    break;
                }
               default: {
@@ -1084,10 +1220,6 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
 
 
           
-    //  in here add some more histos that count the deltaz on their own and not just sum deltaZ
-                //fillHisto(m_vx_track_z0_matched, deltaZ)
-                //etc  
-
                
                 if (trackTmp) {
                     sumPt = sumPt + trackTmp->pt();
