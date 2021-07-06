@@ -14,10 +14,8 @@
 
 #include <fstream>
 
-MuonDetectorCondAlg::MuonDetectorCondAlg(const std::string &name, ISvcLocator *pSvcLocator) : AthAlgorithm(name, pSvcLocator), m_condSvc{"CondSvc", name} {
-    // temporary way to pass MM correction for passivation
-    declareProperty("MMPassivationCorrection", m_MM_passivationCorr, "correction to MM strip width due to passivation");
-}
+MuonDetectorCondAlg::MuonDetectorCondAlg(const std::string &name, ISvcLocator *pSvcLocator) : AthAlgorithm(name, pSvcLocator), m_condSvc{"CondSvc", name} 
+{ }
 
 StatusCode MuonDetectorCondAlg::initialize() {
     ATH_MSG_DEBUG("Initializing ...");
@@ -86,9 +84,6 @@ StatusCode MuonDetectorCondAlg::execute() {
     // Add NSW to the MuonDetectorManager by calling BuildReadoutGeometry from MuonAGDDToolHelper
     // =======================
     if (MuonMgrData->mmIdHelper() && MuonMgrData->stgcIdHelper()) {
-        // temporary way to pass MM correction for passivation
-        MuonMgrData->setMMPassivationCorrection(m_MM_passivationCorr);
-
         BuildNSWReadoutGeometry theBuilder = BuildNSWReadoutGeometry();
         if (!theBuilder.BuildReadoutGeometry(MuonMgrData.get())) {
             ATH_MSG_FATAL("unable to add NSW ReadoutGeometry in the MuonDetectorManager in conditions store");
