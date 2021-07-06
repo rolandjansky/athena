@@ -413,9 +413,21 @@ def MuPatHitToolCfg(flags, name="MuPatHitTool",**kwargs):
     result.setPrivateTools(Muon__MuPatHitTool(name,**kwargs))
     return result
 
+def MuonTrackExtrapolationToolCfg(flags, name="MuonTrackExtrapolationTool", **kwargs):
+    # FIXME - it seems like this tool needs a lot of configuration still. But perhaps it can be simplified first?
+    from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
+    result = TrackingGeometryCondAlgCfg(flags) 
+    kwargs.setdefault("Cosmics", flags.Beam.Type == 'cosmics')
+    result.setPrivateTools(CompFactory.Muon.MuonTrackExtrapolationTool(name, **kwargs))
+    return result
+
 def MuonRefitToolCfg(flags, name="MuonRefitTool", **kwargs):
     # FIXME - many tools are not yet explicitly configured here.
     result= ComponentAccumulator()
+    kwargs.setdefault("MuonEntryExtrapolationTool", result.popToolsAndMerge(MuonTrackExtrapolationToolCfg(flags)) )
+    if flags.IOVDb.DatabaseInstance == 'COMP200' or \
+                'HLT'  in flags.IOVDb.GlobalTag or flags.Common.isOnline or flags.Muon.MuonTrigger:
+        kwargs["AlignmentErrorTool"] = None
     result.setPrivateTools(CompFactory.Muon.MuonRefitTool(name, **kwargs))
     return result
 
