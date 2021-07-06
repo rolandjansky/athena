@@ -54,16 +54,28 @@ namespace CP {
 
     //Write decoration handle keys
     SG::WriteDecorHandleKey<xAOD::EgammaContainer> m_zvertex{
+      this,
+      "zvertex",
       "Photons.zvertex"
+      "z vertex"
     };
     SG::WriteDecorHandleKey<xAOD::EgammaContainer> m_errz{
+      this,
+      "errz",
       "Photons.errz"
+      "error in Z"
     };
     SG::WriteDecorHandleKey<xAOD::EgammaContainer> m_HPV_zvertex{
-      "Photons.HPV_zvertex"
+      this,
+      "HPV_zvertex",
+      "Photons.HPV_zvertex",
+      "HPV z vertex"  
     };
     SG::WriteDecorHandleKey<xAOD::EgammaContainer> m_HPV_errz{
-      "Photons.HPV_errz"
+      this,
+      "HPV_errz",
+      "Photons.HPV_errz",
+      "HPV error in z"
     };
 
   private:
