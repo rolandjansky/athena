@@ -171,14 +171,24 @@ def ambiguityProcessorTool_builder( signature, config, summaryTool ,prefix=None 
 def scoringTool_builder( signature, config, summaryTool, prefix=None ):
 
   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator
+  
+  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTRTDriftCircleCut
 
+  # NB: This DriftCircleCutTool should not be used here, we want to use the AmbiScoringTool 
+  #     without using the DriftCircleCutTool at all, but unfortunatly, the AmbiScoringTool
+  #     needs a DriftCircleCut tool - either the one we pass in, or the default offline 
+  #     tool. 
+  #     In both of these cases, using the tool might be problematic, so we hope to 
+  #     be able to disable it in the tool completely at some point in the near future 
   from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
   scoringTool =  InDet__InDetAmbiScoringTool( name = '%sScoringTool_%s'%( prefix, config.input_name),
                                               Extrapolator = InDetTrigExtrapolator,
                                               minPt        = config.pTmin, 
                                               doEmCaloSeed = False,
-                                              SummaryTool  = summaryTool ) 
-                                              
+                                              SummaryTool  = summaryTool,
+                                              minTRTonTrk        = 0,
+                                              DriftCircleCutTool = InDetTrigTRTDriftCircleCut )
+                                                                                          
   log.info( scoringTool )
 
   from AthenaCommon.AppMgr import ToolSvc
