@@ -142,14 +142,14 @@ class tauRecTauJetRNNConfig(JobProperty):
     """
     statusOn=True
     allowedTypes=[['string']]
-    StoredValue=[ 'rnnid_mc16d_config_1p.json', 'rnnid_mc16d_config_3p.json' ]
+    StoredValue=[ 'rnnid_mc16d_config_1p.json', 'rnnid_mc16d_config_3p.json', 'rnnid_mc16d_config_3p.json' ]
 
 class tauRecTauJetRNNWPConfig(JobProperty):
     """Config files for TauWPDecorator for RNN jet ID
     """
     statusOn=True
     allowedTypes=[['string']]
-    StoredValue=[ 'rnnid_mc16d_flat_1p.root', 'rnnid_mc16d_flat_3p.root' ]
+    StoredValue=[ 'rnnid_mc16d_flat_1p.root', 'rnnid_mc16d_flat_3p.root', 'rnnid_mc16d_flat_3p.root' ]
 
 class tauRecTauEleRNNConfig(JobProperty):
     """Config files for TauJetRNNEvaluator eVeto
