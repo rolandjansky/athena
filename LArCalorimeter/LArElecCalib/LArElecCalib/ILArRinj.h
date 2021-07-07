@@ -28,5 +28,8 @@ class ILArRinj {
   enum {ERRORCODE = LArElecCalib::ERRORCODE};
 } ;
 
-CLASS_DEF( ILArRinj,164401013,1) 
+CLASS_DEF( ILArRinj,164401013,1)
+//ConditionsContainer clid for athenaMT"
+#include "AthenaKernel/CondCont.h"
+CLASS_DEF( CondCont<ILArRinj>, 65913879, 1 ) 
 #endif 
