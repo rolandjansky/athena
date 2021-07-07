@@ -102,9 +102,10 @@ public:
   // link to the particle generating the hit
   const HepMcParticleLink& particleLink() const;
 
-  // Pixel or SCT
+  // Pixel, SCT, or HGTD
   bool isPixel() const;
   bool isSCT() const;
+  bool isHGTD() const;
 
   // Barrel or Endcap
   int getBarrelEndcap() const;

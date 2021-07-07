@@ -19,6 +19,7 @@ GeoDetectorTool=CompFactory.GeoDetectorTool
 from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
 from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg, InDetServiceMaterialCfg
 from AtlasGeoModel.ITkGMConfig import ITkGeometryCfg
+from HGTD_GeoModel.HGTD_GeoModelConfig import HGTD_GeometryCfg
 from LArGeoAlgsNV.LArGMConfig import LArGMCfg
 from TileGeoModel.TileGMConfig import TileGMCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
@@ -88,6 +89,17 @@ def ITkStripGeoDetectorToolCfg(ConfigFlags, name='ITkStrip', **kwargs):
     #set up geometry
     result=ITkGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "ITkStrip")
+    #add the GeometryNotifierSvc
+    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
+    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
+    result.setPrivateTools(GeoDetectorTool(name, **kwargs))
+    return result
+
+
+def HGTDGeoDetectorToolCfg(ConfigFlags, name='HGTD', **kwargs):
+    #set up geometry
+    result=HGTD_GeometryCfg(ConfigFlags)
+    kwargs.setdefault("DetectorName", "HGTD")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
     kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
@@ -224,7 +236,11 @@ def ITKEnvelopeCfg(ConfigFlags, name="ITK", **kwargs):
     kwargs.setdefault("DetectorName", "ITK")
     kwargs.setdefault("InnerRadius", 32.15*mm)
     kwargs.setdefault("OuterRadius", 1.148*m)
-    kwargs.setdefault("dZ", 347.5*cm)
+    if ConfigFlags.Detector.GeometryHGTD:
+        # ITk should include the HGTD (3420 mm < |z| < 3545 mm) when turned on
+        kwargs.setdefault("dZ", 354.5*cm)
+    else:
+        kwargs.setdefault("dZ", 347.5*cm)
 
     SubDetectorList=[]
     if ConfigFlags.Detector.GeometryITkPixel:
@@ -281,7 +297,11 @@ def CALOEnvelopeCfg(ConfigFlags, name="CALO", **kwargs):
     kwargs.setdefault("NSurfaces", 18)
     kwargs.setdefault("InnerRadii", [41.,41.,41.,41.,41.,41.,120.,120.,1148.,1148.,120.,120.,41.,41.,41.,41.,41.,41.]) #FIXME Units?
     kwargs.setdefault("OuterRadii", [415.,415.,3795.,3795.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,3795.,3795.,415.,415.]) #FIXME Units?
-    kwargs.setdefault("ZSurfaces", [-6781.,-calolim,-calolim,-6530.,-6530.,-4587.,-4587.,-3475.,-3475.,3475.,3475.,4587.,4587.,6530.,6530.,calolim,calolim,6781.]) #FIXME Units?
+    if ConfigFlags.Detector.GeometryHGTD:
+        # Make room for HGTD (3420 mm < |z| < 3545 mm) when turned on
+        kwargs.setdefault("ZSurfaces", [-6781.,-calolim,-calolim,-6530.,-6530.,-4587.,-4587.,-3545.,-3545.,3545.,3545.,4587.,4587.,6530.,6530.,calolim,calolim,6781.]) #FIXME Units?
+    else:
+        kwargs.setdefault("ZSurfaces", [-6781.,-calolim,-calolim,-6530.,-6530.,-4587.,-4587.,-3475.,-3475.,3475.,3475.,4587.,4587.,6530.,6530.,calolim,calolim,6781.]) #FIXME Units?
     SubDetectorList=[]
     if ConfigFlags.Detector.GeometryLAr:
         toolLArMgr = result.popToolsAndMerge(LArMgrGeoDetectorToolCfg(ConfigFlags))
@@ -376,6 +396,9 @@ def generateSubDetectorList(ConfigFlags):
     if ConfigFlags.Detector.GeometryITk:
         toolITK = result.popToolsAndMerge(ITKEnvelopeCfg(ConfigFlags))
         SubDetectorList += [ toolITK ]
+    if ConfigFlags.Detector.GeometryHGTD:
+        toolHGTD = result.popToolsAndMerge(HGTDGeoDetectorToolCfg(ConfigFlags))
+        SubDetectorList += [ toolHGTD ]
     if ConfigFlags.Detector.GeometryCalo:
         toolCALO = result.popToolsAndMerge(CALOEnvelopeCfg(ConfigFlags))
         SubDetectorList += [ toolCALO ]
