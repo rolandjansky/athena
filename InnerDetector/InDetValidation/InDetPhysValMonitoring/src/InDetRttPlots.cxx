@@ -206,13 +206,13 @@ InDetRttPlots::fill(const xAOD::TruthParticle& truthParticle, float weight) {
 //
 
 void
-InDetRttPlots::fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::TrackParticle& track, const bool isGood, const float mu, const unsigned int nVtx, float weight) {
+InDetRttPlots::fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::TrackParticle* track, const bool isGood, const float mu, const unsigned int nVtx, float weight) {
   if (m_effPlots) m_effPlots->fill(truth, isGood, weight);
 
   if (m_anTrackingPlots) m_anTrackingPlots->fillEfficiency(truth, track, isGood, mu, nVtx, weight);
   if(m_config.doEfficienciesPerAuthor){
-    if(isGood){
-      std::bitset<xAOD::TrackPatternRecoInfo::NumberOfTrackRecoInfo>  patternInfo = track.patternRecoInfo();
+    if(isGood && track){
+      std::bitset<xAOD::TrackPatternRecoInfo::NumberOfTrackRecoInfo>  patternInfo = track->patternRecoInfo();
     
       bool isSiSpSeededFinder = patternInfo.test(0);
       bool isInDetExtensionProcessor = patternInfo.test(3);
