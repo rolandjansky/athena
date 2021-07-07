@@ -104,9 +104,9 @@ private:
             const unsigned int author, uint8_t type) const;
 
     /** @brief Do the final ambiguity **/
-    StatusCode doAmbiguityLinks(const EventContext& ctx,
+    static StatusCode doAmbiguityLinks(const EventContext& ctx,
                                 xAOD::ElectronContainer* electronContainer,
-                                xAOD::PhotonContainer* photonContainer) const;
+                                xAOD::PhotonContainer* photonContainer) ;
 
     /** @brief Call a tool using contExecute and electrons, photon containers if
      * given **/

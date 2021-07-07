@@ -256,7 +256,7 @@ StatusCode
 topoEgammaBuilder::doAmbiguityLinks(
   const EventContext& ctx,
   xAOD::ElectronContainer* electronContainer,
-  xAOD::PhotonContainer* photonContainer) const
+  xAOD::PhotonContainer* photonContainer) 
 {
 
   /// Needs the same logic as the ambiguity after building the objects (make
