@@ -92,6 +92,7 @@ namespace LVL1 {
     void makeTGCDecision(const std::string& tgcFlags, bool F, bool C, bool H);
     void parseTGCFlags(const std::string& tgcFlags);
     std::vector<std::string> parseString(std::string str, std::string sep) const;
+    std::string getShapedTGCFlags(const std::string& tgcFlags) const;
 
     ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_rpcTool{this, "RPCRecRoiTool", "LVL1::TrigT1RPCRecRoiTool/LVL1__TrigT1RPCRecRoiTool", "Tool to get the eta/phi coordinates in the RPC"};
     ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_tgcTool{this, "TGCRecRoiTool", "LVL1::TrigT1TGCRecRoiTool/LVL1__TrigT1TGCRecRoiTool", "Tool to get the eta/phi coordinates in the TGC"};
