@@ -149,7 +149,7 @@ HGTD_IDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
     }
     
     // Pass a pointer to the container to the Persistency service by reference.
-    pObj = StoreGateSvc::asStorable(m_hgtdId.get());
+    pObj = StoreGateSvc::asStorable(m_hgtdId.release());
 
     return StatusCode::SUCCESS;
 

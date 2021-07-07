@@ -194,7 +194,7 @@ void HGTD_DetectorFactory::readDbParameters() {
     innerRCoverBulkMaterial->add(m_materialMgr->getMaterial("std::Aerogel"), 0.5);
     innerRCoverBulkMaterial->add(m_materialMgr->getMaterial("muo::Honeycomb"), 0.5);
     m_materialMgr->addMaterial("hgtd", innerRCoverBulkMaterial);
-    m_cylVolPars["HGTD::InnerRCover2"] = {"HGTD::InnerRCover2", 111., 119., 105./2, -10., "hgtd::AerogelAndHoneycomb"};
+    m_cylVolPars["HGTD::InnerRCover2"] = {"HGTD::InnerRCover2", 111., 119., 105./2, -10., "AerogelAndHoneycomb"};
     m_cylVolPars["HGTD::InnerRCover3"] = {"HGTD::InnerRCover3", 119., 120., 105./2, -10., "sct::CFRP"};
     m_cylVolPars["HGTD::OuterRCover"]  = {"HGTD::OuterRCover", 980., 1000., 82./2, -6.5, "pix::Peek"};
     m_cylVolPars["HGTD::PeripheralCoolingLines"] = {"HGTD::PeripheralCoolingLines", 920., 980., 3./2, 31., "std::SSteel"};
@@ -206,7 +206,7 @@ void HGTD_DetectorFactory::readDbParameters() {
     coolantMaterial->add(m_materialMgr->getMaterial("pix::CO2_Liquid"), 0.5);
     coolantMaterial->add(m_materialMgr->getMaterial("trt::CO2"), 0.5);
     m_materialMgr->addMaterial("hgtd", coolantMaterial);
-    m_cylVolPars["HGTD::CoolingTubeFluid"] = {"HGTD::CoolingTubeFluid", 0, 0, 1.5, 0, "hgtd::CO2CoolantMix"}; // TODO: to add to db
+    m_cylVolPars["HGTD::CoolingTubeFluid"] = {"HGTD::CoolingTubeFluid", 0, 0, 1.5, 0, "CO2CoolantMix"}; // TODO: to add to db
 
     // These parameters are not in the db (yet) and don't fit into the cylinder or box structures used above
     // TODO: put these (and others needed for three-ring layout) into a separate table in the db when migrating to master
@@ -537,9 +537,6 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
     // These are items that are shared by all detector elements
     std::unique_ptr<SiCommonItems> commonItems{std::make_unique<SiCommonItems>(m_athComps->getIdHelper())};
 
-    // Add SiCommonItems to HGTD_DetectorManager to hold and delete it.
-    m_detectorManager->setCommonItems(std::move(commonItems));
-
     for (int layer = 0; layer < 4; layer++) {
         if (m_outputIdfr) cout << "Layer #" << layer << std::endl;
         // select from front vs back side of a disk
@@ -673,6 +670,9 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
         } // end of quadrants loop
         ATH_MSG_DEBUG( "Done placing modules for layer " << layer );
     }
+
+    // Add SiCommonItems to HGTD_DetectorManager to hold and delete it.
+    m_detectorManager->setCommonItems(std::move(commonItems));
 
     ATH_MSG_INFO( "**************************************************" );
     ATH_MSG_INFO( "  Done building HGTD with " << totMod <<" modules " );
