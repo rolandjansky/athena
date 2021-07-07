@@ -113,7 +113,8 @@ namespace top {
     std::shared_ptr<top::TopConfig> m_config;
     bool m_doFull_JER;
     bool m_doFull_JER_Pseudodata;
-    bool m_doOnly_JER_largeR;
+    bool m_doFull_JER_largeR;
+    bool m_doFull_JER_largeR_Pseudodata;
     bool m_isMC;
     bool m_doMultipleJES;
     bool m_do_fjvt = false;
@@ -136,6 +137,7 @@ namespace top {
     ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolReducedNPScenario4;
 
     ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolLargeR;
+    ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolLargeRPseudoData;
     std::unordered_map<std::string, ToolHandle<ICPJetUncertaintiesTool> > m_tagSFuncertTool;
     std::unordered_map<std::string, std::vector<CP::SystematicSet>> m_tagSFUncorrelatedSystematics; // Uncertainties name fo
     std::unordered_map<std::string, std::vector<std::string>> m_tagSFSysNames;
@@ -160,6 +162,7 @@ namespace top {
     systMap m_systMap_ReducedNPScenario3;
     systMap m_systMap_ReducedNPScenario4;
     systMap m_systMap_LargeR;
+    systMap m_systMap_LargeR_JERPseudo;
 
     typedef std::unordered_map<CP::SystematicSet, CP::SystematicSet>::const_iterator Itr;
 
