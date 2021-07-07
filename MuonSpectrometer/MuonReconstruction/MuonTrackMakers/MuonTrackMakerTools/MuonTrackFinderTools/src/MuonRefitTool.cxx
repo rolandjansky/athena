@@ -42,7 +42,7 @@ namespace Muon {
     }
 
     StatusCode MuonRefitTool::initialize() {
-        ATH_MSG_INFO("Initializing MuonRefitTool");
+        ATH_MSG_INFO("Initializing MuonRefitTool "<<name());
 
         ATH_CHECK(m_printer.retrieve());
         ATH_CHECK(m_edmHelperSvc.retrieve());

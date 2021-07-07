@@ -245,12 +245,14 @@ namespace Trk {
     }
 
 #ifdef LEGACY_TRKGEOM
-    if (!m_trackingGeometrySvc.empty()) {
+    if (m_trackingGeometryReadKey.key().empty()) {
       ATH_CHECK(m_trackingGeometrySvc.retrieve());
       ATH_MSG_INFO("  geometry Svc " << m_trackingGeometrySvc << " retrieved ");
     }
 #endif
-    ATH_CHECK( m_trackingGeometryReadKey.initialize(!m_trackingGeometryReadKey.key().empty()) );
+    if (!m_trackingGeometryReadKey.key().empty()){
+      ATH_CHECK( m_trackingGeometryReadKey.initialize());
+    }
     if (m_useCaloTG) {
       ATH_CHECK(m_caloMaterialProvider.retrieve());
       ATH_MSG_INFO(m_caloMaterialProvider << " retrieved ");

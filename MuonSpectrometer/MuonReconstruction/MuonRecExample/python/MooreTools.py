@@ -353,6 +353,8 @@ def MuonRefitTool(name,**kwargs):
     # kwargs.setdefault("DeweightEE", False)
     if conddb.dbdata == 'COMP200' or conddb.dbmc == 'COMP200' or 'HLT' in globalflags.ConditionsTag() or conddb.isOnline :
         kwargs["AlignmentErrorTool"] = None
+    kwargs.setdefault("MuonExtrapolator", getPublicTool("MuonExtrapolator"))
+    kwargs.setdefault("MuonEntryExtrapolationTool", getPublicTool("MuonTrackExtrapolationTool"))
     return CfgMgr.Muon__MuonRefitTool(name,**kwargs)
 
 
@@ -367,7 +369,7 @@ def MuonErrorOptimisationTool(name,extraFlags=None,**kwargs):
         if namePrefix or namePostfix:
             cloneName = namePrefix+"MuonRefitTool"+namePostfix
             kwargs["RefitTool"] = getPublicToolClone(cloneName, "MuonRefitTool", **cloneArgs)
-
+        else: kwargs.setdefault("RefitTool", getPublicTool("MuonRefitTool"))
     return CfgMgr.Muon__MuonErrorOptimisationTool(name,**kwargs)
 
 def MuonTrackCleaner(name,extraFlags=None,**kwargs):
@@ -529,16 +531,16 @@ class MuonTrackExtrapolationTool(CfgMgr.Muon__MuonTrackExtrapolationTool,Configu
     __slots__ = ()
     
     def __init__(self,name="MuonTrackExtrapolationTool",**kwargs):
-        self.applyUserDefaults(kwargs,name)
+        if TrackingCommon.use_tracking_geometry_cond_alg:
+            cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
+            kwargs.setdefault('TrackingGeometryReadKey', cond_alg.TrackingGeometryWriteKey)
+        else:
+            kwargs.setdefault('TrackingGeometrySvc', ServiceMgr.AtlasTrackingGeometrySvc )
+        if beamFlags.beamType() == 'cosmics':
+            kwargs.setdefault( 'Cosmics',  True )
+        
         super(MuonTrackExtrapolationTool,self).__init__(name,**kwargs)
 
-if TrackingCommon.use_tracking_geometry_cond_alg:
-  cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
-  MuonTrackExtrapolationTool.setDefaultProperties(TrackingGeometryReadKey=cond_alg.TrackingGeometryWriteKey)
-else:
-  MuonTrackExtrapolationTool.setDefaultProperties( TrackingGeometrySvc=ServiceMgr.AtlasTrackingGeometrySvc )
-if beamFlags.beamType() == 'cosmics':
-    MuonTrackExtrapolationTool.setDefaultProperties( Cosmics = True )
 
 # end of class MuonTrackExtrapolationTool
 
