@@ -11,6 +11,8 @@
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthVertexContainer.h"
 
+#include "TrigDecisionTool/FeatureRequestDescriptor.h"
+
 #include "TrigInDetAnalysis/Filter_AcceptAll.h"
 #include "TrigInDetAnalysisUtils/Filter_etaPT.h"
 #include "TrigInDetAnalysisUtils/Filter_RoiSelector.h"
@@ -18,6 +20,7 @@
 
 #include "TrigInDetAnalysis/TIDDirectory.h"
 #include "TrigInDetAnalysisUtils/TIDARoiDescriptorBuilder.h"
+
 
 std::string date();
 
@@ -968,17 +971,19 @@ void AnalysisConfigMT_Ntuple::loop() {
 
 		if ( roi_key!="" ) feature_type = TrigDefs::allFeaturesOfType;
 
+		int leg = -1;
+
+		if ( m_chainNames[ichain].element()!="" ) { 
+		  leg = std::atoi(m_chainNames[ichain].element().c_str());
+		}
+
 		std::vector< TrigCompositeUtils::LinkInfo<TrigRoiDescriptorCollection> > rois = 
-		  (*m_tdt)->template features<TrigRoiDescriptorCollection>( chainName, 
-									    decisiontype, 
-									    roi_key, 
-									    //   TrigDefs::lastFeatureOfType, 
-									    //   TrigDefs::allFeaturesOfType,
-									    feature_type,
-									    "roi" );
-		 
-		/// leave this here for the moment until we know everything is working ...
-		// const unsigned int featureCollectionMode = const std::string& navElementLinkKey = "roi") const;
+		  (*m_tdt)->template features<TrigRoiDescriptorCollection>( Trig::FeatureRequestDescriptor( chainName,  
+													    decisiontype, 
+													    roi_key, 
+													    feature_type,
+													    "roi", 
+													    leg ) );
 		
 		int iroi = 0; /// count of how many rois processed so far
 
