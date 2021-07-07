@@ -239,6 +239,11 @@ void CutFlowSvc::handle( const Incident& inc )
       ATH_MSG_WARNING("No EventStreamInfo taking stream from property InputStream");
     }
     else {
+      // ignore event-less files
+      if (esi->getProcessingTags().empty()) {
+        ATH_MSG_DEBUG("Ignoring input stream name of event-less file");
+        return;
+      }
       std::string inputstream = *(esi->getProcessingTags().begin());
       ATH_MSG_DEBUG("Input stream name: " << inputstream);
       if (m_inputStream.empty()) {m_inputStream=inputstream;}
