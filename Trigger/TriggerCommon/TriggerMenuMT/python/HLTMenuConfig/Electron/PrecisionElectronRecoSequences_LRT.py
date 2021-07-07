@@ -71,6 +71,8 @@ def precisionElectronRecoSequence_LRT(RoIs):
     TrigTopoEgammaAlgo.SuperElectronRecCollectionName = TrigSuperElectronAlgo.SuperElectronRecCollectionName
     TrigTopoEgammaAlgo.ElectronOutputName = TrigEgammaKeys_LRT.outputElectronKey_LRT
     collectionOut = TrigTopoEgammaAlgo.ElectronOutputName
+    TrigTopoEgammaAlgo.DummyElectronOutputName = "HLT_PrecisionDummyElectron"
+    collectionOut_dummy = TrigTopoEgammaAlgo.DummyElectronOutputName
 
     ## TrigElectronIsoBuilderCfg_LRT ##
     isoBuilder = TrigElectronIsoBuilderCfg_LRT("TrigElectronIsoBuilderCfg_LRT")
@@ -88,4 +90,4 @@ def precisionElectronRecoSequence_LRT(RoIs):
     PrecisionElectronSuperClusterMonAlgo_LRT.InputEgammaRecContainerName = TrigSuperElectronAlgo.SuperElectronRecCollectionName
     thesequence += PrecisionElectronSuperClusterMonAlgo_LRT
     
-    return (thesequence, collectionOut)
+    return (thesequence, collectionOut, collectionOut_dummy)

@@ -139,14 +139,17 @@ def setupMenu():
    ]
 
     TriggerFlags.EgammaSlice.signatures = TriggerFlags.EgammaSlice.signatures() + [
-
+        
+        # ElectronChains----------
         # Phase1 eEM chains
         ChainProp(name='HLT_e5_etcut_L1eEM3', groups=SingleElectronGroup),
-
 
         # lrt chains
         ChainProp(name='HLT_e5_idperf_loose_lrtloose_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_idperf_loose_lrtloose_L1EM22VHI', groups=SingleElectronGroup),  
+
+        #gsf-idperf chains
+        ChainProp(name='HLT_e5_idperf_gsf_tight_L1EM3', groups=SingleElectronGroup),        #gsf idperf chains
 
         # Test chains for ATR-23500
         ChainProp(name='HLT_e26_lhloose_nopix_lrtloose_L1EM22VHI', groups=SingleElectronGroup),

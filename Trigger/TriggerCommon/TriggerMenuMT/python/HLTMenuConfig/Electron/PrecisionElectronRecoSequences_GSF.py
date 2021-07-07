@@ -81,6 +81,8 @@ def precisionElectronRecoSequence_GSF(RoIs):
     thesequence_GSF += TrigTopoEgammaAlgo_GSF
     TrigTopoEgammaAlgo_GSF.ElectronOutputName = TrigEgammaKeys_GSF.outputElectronKey_GSF
     collectionOut_GSF = TrigTopoEgammaAlgo_GSF.ElectronOutputName
+    TrigTopoEgammaAlgo_GSF.DummyElectronOutputName = "HLT_PrecisionDummyElectron"
+    collectionOut_GSF_dummy = TrigTopoEgammaAlgo_GSF.DummyElectronOutputName
 
     ## TrigElectronIsoBuilderCfg_GSF ##
     isoBuilder_GSF = TrigElectronIsoBuilderCfg("TrigElectronIsoBuilderCfg_GSF")
@@ -99,4 +101,4 @@ def precisionElectronRecoSequence_GSF(RoIs):
     PrecisionElectronSuperClusterMonAlgo_GSF.InputEgammaRecContainerName = TrigSuperElectronAlgo_GSF.SuperElectronRecCollectionName
     thesequence_GSF += PrecisionElectronSuperClusterMonAlgo_GSF
 
-    return (thesequence_GSF, collectionOut_GSF)
+    return (thesequence_GSF, collectionOut_GSF, collectionOut_GSF_dummy)

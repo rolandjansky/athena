@@ -65,7 +65,7 @@ class TrigEgammaFastElectronHypoToolConfig:
     self.__name       = name
     self.__threshold  = float(cpart['threshold']) 
     self.__sel        = cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
-    self.__trkInfo    = cpart['trkInfo']
+    self.__idperfInfo    = cpart['idperfInfo']
     self.__lrtInfo    = cpart['lrtInfo']
 
     if not tool:
@@ -100,8 +100,8 @@ class TrigEgammaFastElectronHypoToolConfig:
   def lrtInfo(self):
     return self.__lrtInfo
   
-  def trkInfo(self):
-    return self.__trkInfo
+  def idperfInfo(self):
+    return self.__idperfInfo
 
   def tool(self):
     return self.__tool
@@ -141,7 +141,7 @@ class TrigEgammaFastElectronHypoToolConfig:
   #
   def compile(self):
     
-    if 'idperf' in self.trkInfo():
+    if 'idperf' in self.idperfInfo():
       self.nocut()
     else:
       self.nominal()
