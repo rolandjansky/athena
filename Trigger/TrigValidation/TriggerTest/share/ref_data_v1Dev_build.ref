@@ -122,6 +122,12 @@ HLT_2mu4_L12MU4:
     0: 2
 HLT_2mu4_bBmumu_Lxy0_L1BPH-2M9-0DR15-2MU4:
   eventCount: 0
+HLT_2mu4_bBmumux_BcmumuDsloose_L12MU4:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 2
 HLT_2mu4_bBmumux_BcmumuPi_L12MU4:
   eventCount: 0
   stepCounts:

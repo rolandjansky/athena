@@ -85,7 +85,8 @@ class TrigBmumuxComboHypo: public ::ComboHypo {
   enum Decay : size_t {
     kPsi_2mu,      // psi -> mu+ mu-
     kB_2mu1trk,    // B -> mu+ mu- trk1
-    kB_2mu2trk     // B -> mu+ mu- trk1 trk2
+    kB_2mu2trk,     // B -> mu+ mu- trk1 trk2
+    kB_2mu3trk     // B -> mu+ mu- trk1 trk2 trk3
   };
 
  private:
@@ -204,6 +205,27 @@ class TrigBmumuxComboHypo: public ::ComboHypo {
     "LambdaBToMuMuProtonKaon_massRange", {4800., 6400.}, "Lambda_b0 mass range"};
   Gaudi::Property<float> m_LambdaBToMuMuProtonKaon_chi2 {this,
     "LambdaBToMuMuProtonKaon_chi2", 60., "maximum chi2 of the fitted Lambda_b0 vertex"};
+
+  Gaudi::Property<bool> m_Bc_DsMuMuDecay {this,
+    "BcToDsMuMuPhiPi", true, "switch on/off B_c -> J/psi(-> mu+ mu-) phi Pi decay"};
+  Gaudi::Property<double> m_Bc_DsMuMuKaon_minKaonPt {this,
+    "Bc_DsMuMuKaon_minKaonPt", 1000., "minimum pT of kaon track"};
+  Gaudi::Property<std::pair<double, double>> m_rangePhiDs_MassCut {this,
+    "Bc_rangePhiDs_MassCut", {980., 1080.}, "range for mass of phi"};
+  Gaudi::Property<std::pair<double, double>> m_rangeDs_MassCut {this,
+    "Bc_rangeDs_MassCut", { 1600., 2400.} , "range for mass of Ds"};
+  Gaudi::Property<float> m_Bc_DsMuMu_chi2 {this,
+    "Bc_DsMuMu_chi2", 60., "maximum chi2 of the fitted Bc vertex"};
+
+  Gaudi::Property<bool> m_Bc_DpMuMuDecay {this,
+    "BcToDpMuMuPhiPi", true, "switch on/off B_c -> J/psi(-> mu+ mu-) phi Pi decay"};
+  Gaudi::Property<double> m_Bc_DpMuMuKaon_minKaonPt {this,
+    "Bc_DpMuMuKaon_minKaonPt", 1000., "minimum pT of kaon track"};
+  Gaudi::Property<std::pair<double, double>> m_rangeDp_MassCut {this,
+    "Bc_rangeDp_MassCut", { 1500., 2300.} , "range for mass of Ds"};
+  Gaudi::Property<float> m_Bc_DpMuMu_chi2 {this,
+    "Bc_DpMuMu_chi2", 60., "maximum chi2 of the fitted Bc vertex"};
+
 
   // external tools
   ToolHandle<InDet::VertexPointEstimator> m_vertexPointEstimator {this,
