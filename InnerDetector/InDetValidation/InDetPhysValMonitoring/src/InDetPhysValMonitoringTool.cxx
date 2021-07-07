@@ -524,11 +524,15 @@ InDetPhysValMonitoringTool::fillHistograms() {
           }
         }
       }
-      if ((matchedTrack!=nullptr) and (thisTruth!=nullptr)){
+      if (!thisTruth){ 
+        ATH_MSG_ERROR("An error occurred: Truth particle for tracking efficiency calculation is a nullptr");
+      }
+      else if (isEfficient && !matchedTrack){
+        ATH_MSG_ERROR("Something went wrong - we log a truth particle as reconstructed, but the reco track is a nullptr! Bailing out... ");  
+      }
+      else{ 
         ATH_MSG_DEBUG("Filling efficiency plots info monitoring plots");
-        m_monPlots->fillEfficiency(*thisTruth, *matchedTrack, isEfficient, puEvents, nVertices, beamSpotWeight);
-      } else {
-        ATH_MSG_ERROR("An error occurred: Either the matchedTrack or thisTruth pointer is nullptr");
+        m_monPlots->fillEfficiency(*thisTruth, matchedTrack, isEfficient, puEvents, nVertices, beamSpotWeight);
       }
     }
     
