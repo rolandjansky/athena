@@ -1,18 +1,19 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TileCellContainerCnv_H
 #define TileCellContainerCnv_H
 
-#include "AthenaPoolCnvSvc/T_AthenaPoolCustCnv.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 #include "TileEvent/TileCellContainer.h"
 
 class TileTBID;
 class StoreGateSvc;
 class CaloDetDescrElement;
 class MbtsDetDescrManager;
-typedef T_AthenaPoolCustCnv<TileCellContainer,TileCellVec> TileCellContainerCnvBase;
+
+typedef T_AthenaPoolCustomCnv<TileCellContainer,TileCellVec> TileCellContainerCnvBase;
 
 class TileCellContainerCnv:public TileCellContainerCnvBase
 {
@@ -20,20 +21,17 @@ class TileCellContainerCnv:public TileCellContainerCnvBase
    friend class CnvFactory<TileCellContainerCnv >;
 public:
     TileCellContainerCnv(ISvcLocator* svcloc);
+
     virtual ~TileCellContainerCnv();
 
     /// initialization
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
-    virtual StatusCode transToPers(TileCellContainer* obj, 
-				   TileCellVec*& persObj) ;
-    virtual StatusCode persToTrans(TileCellContainer*& transObj,
-				   TileCellVec* obj) ;
+    virtual TileCellVec*       createPersistent(TileCellContainer* cont) override;
+    virtual TileCellContainer* createTransient() override;
 
 private:
-    // vector of Collections.
-    std::map<std::string,TileCellVec> m_vecCellAll;
-    StoreGateSvc* m_storeGate; 
+    StoreGateSvc* m_storeGate;
     const TileTBID* m_tileTBID;
     const MbtsDetDescrManager* m_mbtsMgr;
 
