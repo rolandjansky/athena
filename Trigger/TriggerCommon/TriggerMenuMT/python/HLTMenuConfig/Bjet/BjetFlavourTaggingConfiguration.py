@@ -50,16 +50,22 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks , inputMuons = ""):
     ))
 
     #Run new Run3 taggers, i.e. DL1, RNNIP, DL1r
-    postTagDL2JetToTrainingMap={
-        'AntiKt4EMPFlow': [
-        #'BTagging/201903/smt/antikt4empflow/network.json',
+    tagger_list = [
+        # r21 offline b-tagging NNs
         'BTagging/201903/rnnip/antikt4empflow/network.json',
         'BTagging/201903/dl1r/antikt4empflow/network.json',
         'BTagging/201903/dl1/antikt4empflow/network.json',
-        #'BTagging/201903/dl1rmu/antikt4empflow/network.json',
-        ]
-    }
-    for jsonFile in postTagDL2JetToTrainingMap['AntiKt4EMPFlow']:
+
+        # loose track selection, trained on r21
+        'BTagging/20210517/dipsLoose/antikt4empflow/network.json',
+        # IP3D track selection, trained on r21
+        'BTagging/20210517/dips/antikt4empflow/network.json',
+        # DL1d, uses "loose" dips above
+        'BTagging/20210519r22/dl1d/antikt4empflow/network.json',
+        # DL1d, uses IP3D dips above
+        'BTagging/20210528r22/dl1d/antikt4empflow/network.json',
+    ]
+    for jsonFile in tagger_list:
         acc.merge(HighLevelBTagAlgCfg(ConfigFlags, BTaggingCollection=BTagName, TrackCollection=inputTracks, NNFile=jsonFile) )
 
 
