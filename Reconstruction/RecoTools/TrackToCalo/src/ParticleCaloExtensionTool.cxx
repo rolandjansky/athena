@@ -227,8 +227,17 @@ ParticleCaloExtensionTool::caloExtension(
     } else {
       unsigned int index(0);
       if (particle.indexOfParameterAtPosition(index, xAOD::LastMeasurement)) {
-        return caloExtension(ctx,
-          particle.curvilinearParameters(index), alongMomentum, particleType);
+        const Trk::CurvilinearParameters& lastParams =
+          particle.curvilinearParameters(index);
+        const Amg::Vector3D& position = lastParams.position();
+        // Muon Entry is around z 6783 and r  4255
+        if (position.perp() > 4200. || std::abs(position.z()) > 6700.) {
+          ATH_MSG_WARNING("Can extrapolate to calo along momentum if already "
+                          "past it. Probematic parameters : "
+                          << lastParams);
+          return nullptr;
+        }
+        return caloExtension(ctx, lastParams, alongMomentum, particleType);
       }
     }
   }
