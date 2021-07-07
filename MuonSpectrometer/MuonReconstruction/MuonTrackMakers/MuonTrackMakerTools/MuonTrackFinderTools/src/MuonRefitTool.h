@@ -85,8 +85,7 @@ namespace Muon {
         ToolHandle<IMuonCompetingClustersOnTrackCreator> m_compClusterCreator{
             this, "CompClusterCreator", "Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator"};
         ToolHandle<IDCSLFitProvider> m_t0Fitter{this, "T0Fitter", ""};
-        ToolHandle<Muon::IMuonTrackExtrapolationTool> m_muonEntryTrackExtrapolator{
-            this, "MuonEntryExtrapolationTool", "Muon::MuonTrackExtrapolationTool/MuonTrackExtrapolationTool"};
+        ToolHandle<Muon::IMuonTrackExtrapolationTool> m_muonEntryTrackExtrapolator{this, "MuonEntryExtrapolationTool", ""};
 
         Gaudi::Property<int> m_finderDebugLevel{this, "FinderDebugLevel", -1};
 

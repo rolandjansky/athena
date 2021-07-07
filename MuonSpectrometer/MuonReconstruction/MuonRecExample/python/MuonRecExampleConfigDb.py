@@ -157,7 +157,7 @@ addToolClone("MdtMathSegmentFinder", "MCTBMdtMathSegmentFinder", UseChamberTheta
 
 addTool("MuonRecExample.MooreTools.MuonSeededSegmentFinder", "MuonSeededSegmentFinder")
 
-
+addTool("MuonRecExample.MooreTools.MuonTrackExtrapolationTool", "MuonTrackExtrapolationTool")
 addTool( "MuonRecExample.MooreTools.MuonRefitTool", "MuonRefitTool")
 
 
@@ -187,7 +187,6 @@ addTool( "MuonRecExample.MooreTools.MuonAmbiProcessor", "MuonAmbiProcessor" )
 
 addTool( "MuonRecExample.MooreTools.MuonTrackSelectorTool", "MuonTrackSelectorTool" )
 
-addTool("MuonRecExample.MooreTools.MuonTrackExtrapolationTool", "MuonTrackExtrapolationTool")
 
 addToolClone("MuonSegmentRegionRecoveryTool","MuonEORecoveryTool",OnlyEO = True,
              Fitter="MCTBSLFitter", UseFitterOutlierLogic=False)

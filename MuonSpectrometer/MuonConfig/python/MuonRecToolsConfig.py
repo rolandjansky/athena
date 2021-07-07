@@ -316,7 +316,10 @@ def MuonChi2TrackFitterCfg(flags, name='MuonChi2TrackFitter', **kwargs):
     # take propagator and navigator from the extrapolator
     kwargs.setdefault("PropagatorTool", extrapolator.Propagators[0])
     kwargs.setdefault("NavigatorTool",  extrapolator.Navigator)
-
+    ### We need to include the tracking geometry conditions alg later
+    acc  = TrackingGeometrySvcCfg(flags)
+    result.merge(acc)
+    kwargs.setdefault("TrackingGeometrySvc", acc.getPrimary() )
     fitter = Trk__GlobalChi2Fitter(name=name, **kwargs)
     result.setPrivateTools(fitter)
     # print fitter
