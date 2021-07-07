@@ -1,16 +1,18 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Algorithm.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
 #include "LUCID_DigiTools/LUCID_DigiSettings.h"
+#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "GaudiKernel/Algorithm.h"
+#include "GaudiKernel/MsgStream.h"
 #include <iostream>
+#include <utility>
+
 
 LUCID_DigiSettings::LUCID_DigiSettings(): 
-  m_msgSvc(0),
+  m_msgSvc(nullptr),
   m_parValueNotSetByUserDouble(10.0e39),
   m_parValueNotSetByUserInt   (32767) {
   
@@ -116,7 +118,7 @@ void LUCID_DigiSettings::Print() const {
   log << MSG::INFO << "=====================================================" << endmsg;
 }
 
-void LUCID_DigiSettings::SetDigiParDouble(std::string parname, double parval) {
+void LUCID_DigiSettings::SetDigiParDouble(const std::string& parname, double parval) {
   
   if (!m_doubleMap.count(parname))
     if (!m_intMap.count(parname)) {
@@ -128,7 +130,7 @@ void LUCID_DigiSettings::SetDigiParDouble(std::string parname, double parval) {
   m_doubleMap[parname].par = &parval;
 }
 
-void LUCID_DigiSettings::SetDigiParInt(std::string parname, int parval) {
+void LUCID_DigiSettings::SetDigiParInt(const std::string& parname, int parval) {
   
   if (!m_doubleMap.count(parname))
     if (!m_intMap.count(parname)) {
@@ -140,7 +142,7 @@ void LUCID_DigiSettings::SetDigiParInt(std::string parname, int parval) {
   m_intMap[parname].par = &parval;
 }
 
-double LUCID_DigiSettings::GetDigiParDouble(std::string parname) {
+double LUCID_DigiSettings::GetDigiParDouble(const std::string& parname) {
   
   if (!m_doubleMap.count(parname))
     if (!m_intMap.count(parname)) {
@@ -152,7 +154,7 @@ double LUCID_DigiSettings::GetDigiParDouble(std::string parname) {
   return *m_doubleMap[parname].par;
 }
 
-int LUCID_DigiSettings::GetDigiParInt(std::string parname) {
+int LUCID_DigiSettings::GetDigiParInt(const std::string& parname) {
   
   if (!m_doubleMap.count(parname))
     if (!m_intMap.count(parname)) {
@@ -165,7 +167,7 @@ int LUCID_DigiSettings::GetDigiParInt(std::string parname) {
 }
 
 void LUCID_DigiSettings::DefNewParameterDouble(std::string parDescription,
-					       std::string parname,
+					       const std::string& parname,
 					       double* par,
 					       double  low,
 					       double  high) { 
@@ -176,7 +178,7 @@ void LUCID_DigiSettings::DefNewParameterDouble(std::string parDescription,
   
   parDouble parD;
   
-  parD.parDescription = parDescription;
+  parD.parDescription = std::move(parDescription);
   parD.par            = par;
   parD.low            = low;
   parD.high           = high;
@@ -186,7 +188,7 @@ void LUCID_DigiSettings::DefNewParameterDouble(std::string parDescription,
 }
 
 void LUCID_DigiSettings::DefNewParameterInt(std::string parDescription,
-					    std::string parname,
+					    const std::string& parname,
 					    int* par,
 					    int  low,
 					    int  high) {
@@ -197,7 +199,7 @@ void LUCID_DigiSettings::DefNewParameterInt(std::string parDescription,
   
   parInt parI;
   
-  parI.parDescription = parDescription;
+  parI.parDescription = std::move(parDescription);
   parI.par            = par;
   parI.low            = low;
   parI.high           = high;

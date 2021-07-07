@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -19,7 +19,6 @@ TBTrackingMonTool::TBTrackingMonTool(const std::string & type,
 				 const std::string & name,
 				 const IInterface* parent)
   : MonitorToolBase(type, name, parent),
-    m_isBooked(false),
     m_histo_track_chi2(nullptr),
     m_histo_track_angle(nullptr),
     m_histo_track_Uslope(nullptr),
@@ -54,9 +53,6 @@ StatusCode TBTrackingMonTool:: initialize()
   if(m_monitor_track == false){
     ATH_MSG_INFO ( name() << " Not monitoring tracks " );
   }
-
-  //set to true whitin bookHist() 
-  m_isBooked = false;
 
   return StatusCode::SUCCESS;
 }

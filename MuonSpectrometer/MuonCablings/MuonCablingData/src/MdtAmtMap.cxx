@@ -14,7 +14,7 @@ MdtAmtMap::MdtAmtMap(uint8_t tdcId) :
   m_phi(0),
   m_multiLayer(0),
   m_mezType(0),
-  m_mdtIdHelper(0)
+  m_mdtIdHelper(nullptr)
 { }
 
 

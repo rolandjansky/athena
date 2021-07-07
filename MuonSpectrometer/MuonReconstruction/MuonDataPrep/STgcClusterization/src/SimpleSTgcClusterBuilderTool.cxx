@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SimpleSTgcClusterBuilderTool.h"
@@ -39,7 +39,7 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
 
   double resolution=0.;
   bool isStrip = false;
-  if ( stripsVect.size()>0 ) {
+  if ( !stripsVect.empty() ) {
     resolution = stripsVect.at(0).localCovariance()(0,0);
     Identifier chanId = stripsVect.at(0).identify();
     if ( m_idHelperSvc->stgcIdHelper().channelType(chanId)==1 ) isStrip = true;
@@ -145,7 +145,7 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
           hash,
           localPosition,
           rdoList,
-          std::move(covN),
+          covN,
           cluster.at(0).detectorElement(),
           std::accumulate(elementsCharge.begin(), elementsCharge.end(), 0),
           (short int)0,
@@ -179,7 +179,7 @@ bool Muon::SimpleSTgcClusterBuilderTool::addStrip(const Muon::sTgcPrepData& stri
       << gasGap << " " << stripNum);
   
   // if no cluster is present start creating a new one
-  if (clustersStripNum[multilayer][gasGap].size()==0 ) {
+  if (clustersStripNum[multilayer][gasGap].empty() ) {
 
     ATH_MSG_DEBUG( ">>> No strip present in this gap: adding it as first cluster " );
     std::set<unsigned int> clusterStripNum;
@@ -255,7 +255,7 @@ void SimpleSTgcClusterBuilderTool::dumpStrips( std::vector<Muon::sTgcPrepData>& 
   }
 
   ATH_MSG_INFO("Dumping all clusters:  ");
-  for ( auto it : clustersVect ) {
+  for ( auto *it : clustersVect ) {
     Identifier clusterId = it->identify(); 
     ATH_MSG_INFO("***> New cluster identifier: " << m_idHelperSvc->stgcIdHelper().show_to_string(clusterId) ); 
     ATH_MSG_INFO("Cluster size: " << it->rdoList().size() );

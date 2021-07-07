@@ -2492,12 +2492,12 @@ double Trk::STEP_Propagator::dgdlambda( Cache& cache,double l) const
   double lnCore = 4.*me*me/(m*m*m*m*I*I*l*l*l*l)/(1.+2.*gamma*me/m+me*me/m*m);
   double lnCore_deriv = -4.*me*me/(m*m*m*m*I*I) * std::pow( l*l*l*l+2.*gamma*l*l*l*l*me/m+l*l*l*l*me*me/(m*m) ,-2) *
     (4.*l*l*l+8.*me*l*l*l*gamma/m-2.*me*l/(m*m*m*gamma)+4.*l*l*l*me*me/(m*m));
-  double ln_deriv = 2.*l*m*m*log(lnCore) + lnCore_deriv/(lnCore*beta*beta);
+  double ln_deriv = 2.*l*m*m*std::log(lnCore) + lnCore_deriv/(lnCore*beta*beta);
   double Bethe_Bloch_deriv = -kaz*ln_deriv;
 
   //density effect, only valid for high energies (gamma > 10 -> p > 1GeV for muons)
   if (gamma > 10.) {
-    double delta = 2.*log(28.816e-6 * std::sqrt(1000.*cache.m_material->zOverAtimesRho())/I) + 2.*log(beta*gamma) - 1.;
+    double delta = 2.*std::log(28.816e-6 * std::sqrt(1000.*cache.m_material->zOverAtimesRho())/I) + 2.*std::log(beta*gamma) - 1.;
     double delta_deriv = -2./(l*beta*beta)+2.*delta*l*m*m;
     Bethe_Bloch_deriv += kaz*delta_deriv;
   }
@@ -2602,11 +2602,11 @@ void Trk::STEP_Propagator::dumpMaterialEffects( Cache& cache,
                                     std::sqrt(cache.m_covariance(2, 2)),
                                     std::sqrt(cache.m_covariance(3, 3)));
 
-    Trk::CurvilinearParameters* cvlTP = parms->clone();
-    Trk::MaterialEffectsOnTrack* mefot = new Trk::MaterialEffectsOnTrack(
+    auto cvlTP = parms->uniqueClone();
+    auto mefot = std::make_unique<Trk::MaterialEffectsOnTrack>(
       cache.m_combinedThickness, std::move(sa), eloss, cvlTP->associatedSurface());
 
-    cache.m_matstates->push_back(new TrackStateOnSurface(nullptr,cvlTP,nullptr,mefot));
+    cache.m_matstates->push_back(new TrackStateOnSurface(nullptr,std::move(cvlTP),nullptr,std::move(mefot)));
   }
 
   cache.m_matdump_lastpath = path;

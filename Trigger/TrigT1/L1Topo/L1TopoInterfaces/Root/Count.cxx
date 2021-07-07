@@ -17,7 +17,7 @@ TCS::Count::setSizeCount(unsigned int sizeCount){
 
   unsigned int maximum = (1 << m_nBits) - 1; // saturation limit given by the number of bits allowed for the trigger line
 
-  int mask = (sizeCount < maximum)?sizeCount:maximum;
+  std::bitset<128> mask = (sizeCount < maximum)?sizeCount:maximum;
 
   m_count = (mask << m_firstBit);
 

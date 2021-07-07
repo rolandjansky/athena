@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LUCID_RawEvent/LUCID_RawData.h"
@@ -157,7 +157,7 @@ bool LUCID_RawData::isTubeFired(unsigned int tubeNumber, unsigned int bxID) cons
   return isTubeFired;
 }
 
-int LUCID_RawData::getLumatBitPosition(unsigned int tubeNumber) const {
+int LUCID_RawData::getLumatBitPosition(unsigned int tubeNumber) {
 
   if      (tubeNumber ==  0) return 13; // word0
   else if (tubeNumber ==  1) return  0;

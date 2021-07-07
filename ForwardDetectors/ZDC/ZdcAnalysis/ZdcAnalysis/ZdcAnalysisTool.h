@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ZDCANALYSIS_ZDCANALYSISTOOL_H
@@ -42,7 +42,7 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
   virtual StatusCode recoZdcModules(const xAOD::ZdcModuleContainer& moduleContainer) override;
 
   // methods for processing, used for decoration
-  bool sigprocMaxFinder(const std::vector<unsigned short>& adc, float deltaT, float& amp, float& time, float& qual);
+  static bool sigprocMaxFinder(const std::vector<unsigned short>& adc, float deltaT, float& amp, float& time, float& qual);
   bool sigprocSincInterp(const std::vector<unsigned short>& adc, float deltaT, float& amp, float& time, float& qual);
 
   void setEnergyCalibrations(unsigned int runNumber);
@@ -93,7 +93,7 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
   unsigned int m_lumiBlock;
 
   // internal functions
-  TF1* m_tf1SincInterp;
+  TF1* m_tf1SincInterp{};
 
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey {
     this, "EventInfoKey", "EventInfo",
@@ -127,12 +127,12 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
 
   std::array<std::array<TSpline*, 4>, 2> m_splines;
 
-  ZDCDataAnalyzer* m_zdcDataAnalyzer;
-  ZDCDataAnalyzer* m_zdcDataAnalyzer_40MHz;
-  ZDCDataAnalyzer* m_zdcDataAnalyzer_80MHz;
-  ZDCDataAnalyzer::ZDCModuleFloatArray m_peak2ndDerivMinSamples;
-  ZDCDataAnalyzer::ZDCModuleFloatArray m_peak2ndDerivMinThresholdsHG;
-  ZDCDataAnalyzer::ZDCModuleFloatArray m_peak2ndDerivMinThresholdsLG;
+  ZDCDataAnalyzer* m_zdcDataAnalyzer{};
+  ZDCDataAnalyzer* m_zdcDataAnalyzer_40MHz{};
+  ZDCDataAnalyzer* m_zdcDataAnalyzer_80MHz{};
+  ZDCDataAnalyzer::ZDCModuleFloatArray m_peak2ndDerivMinSamples{};
+  ZDCDataAnalyzer::ZDCModuleFloatArray m_peak2ndDerivMinThresholdsHG{};
+  ZDCDataAnalyzer::ZDCModuleFloatArray m_peak2ndDerivMinThresholdsLG{};
 
 
   ZDCTriggerEfficiency* m_zdcTriggerEfficiency;

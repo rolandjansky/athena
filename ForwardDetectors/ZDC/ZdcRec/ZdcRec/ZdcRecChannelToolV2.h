@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -49,7 +49,7 @@ class ZdcRecChannelToolV2: public asg::AsgTool, virtual public IIncidentListener
   int convertTT2ZM(const xAOD::TriggerTowerContainer* ttCollection, xAOD::ZdcModuleContainer* zdcModules) const;
   int makeRawFromDigits(xAOD::ZdcModuleContainer& zdcModules) const; // NOT const -- we're going to modify the objects to add signal processing
   int makeWaveformFromDigits(xAOD::ZdcModule& module) const;
-  int splitWaveform(std::map<int,float>& waveform, std::vector<float>& times, std::vector<float>& adcs) const;
+  static int splitWaveform(std::map<int,float>& waveform, std::vector<float>& times, std::vector<float>& adcs) ;
   int getPeakProperties(std::vector<float>& times, std::vector<float>& adcs, float& time, float& amp, float& qual, float& presamp) const;
 
 private:
@@ -65,7 +65,7 @@ private:
   float        m_pedestalValue; // pedestal value (set to 100)
 
   static int s_ppmChannel;
-  const ZdcID* m_zdcId;
+  const ZdcID* m_zdcId{};
 
 };
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _ZDCDataAnalyzer_h
@@ -24,37 +24,37 @@ private:
   std::string m_fitFunction;
   bool m_forceLG;
 
-  ZDCModuleBoolArray m_moduleDisabled;
-  std::array<std::array<ZDCPulseAnalyzer*, 4>, 2> m_moduleAnalyzers;
+  ZDCModuleBoolArray m_moduleDisabled{};
+  std::array<std::array<ZDCPulseAnalyzer*, 4>, 2> m_moduleAnalyzers{};
 
   int m_debugLevel;
   int m_eventCount;
 
-  ZDCModuleFloatArray m_HGGains;
-  ZDCModuleFloatArray m_pedestals;
+  ZDCModuleFloatArray m_HGGains{};
+  ZDCModuleFloatArray m_pedestals{};
 
   bool m_haveECalib;
-  std::array<std::array<TSpline*, 4>, 2> m_LBDepEcalibSplines;
+  std::array<std::array<TSpline*, 4>, 2> m_LBDepEcalibSplines{};
 
   bool m_haveT0Calib;
-  std::array<std::array<TSpline*, 4>, 2> m_T0HGOffsetSplines;
-  std::array<std::array<TSpline*, 4>, 2> m_T0LGOffsetSplines;
+  std::array<std::array<TSpline*, 4>, 2> m_T0HGOffsetSplines{};
+  std::array<std::array<TSpline*, 4>, 2> m_T0LGOffsetSplines{};
 
   // Transient data that is updated each LB or each event
   //
   int m_currentLB;
-  ZDCModuleFloatArray m_currentECalibCoeff;
-  ZDCModuleFloatArray m_currentT0OffsetsHG;
-  ZDCModuleFloatArray m_currentT0OffsetsLG;
+  ZDCModuleFloatArray m_currentECalibCoeff{};
+  ZDCModuleFloatArray m_currentT0OffsetsHG{};
+  ZDCModuleFloatArray m_currentT0OffsetsLG{};
 
-  std::array<std::array<bool, 4>, 2> m_dataLoaded;
+  std::array<std::array<bool, 4>, 2> m_dataLoaded{};
   // std::array<std::array<bool, 4>, 2> _moduleFail;
 
   unsigned int m_moduleMask;
 
-  std::array<std::array<unsigned int, 4>, 2> m_moduleStatus;
-  std::array<std::array<float, 4>, 2> m_calibAmplitude;
-  std::array<std::array<float, 4>, 2> m_calibTime;
+  std::array<std::array<unsigned int, 4>, 2> m_moduleStatus{};
+  std::array<std::array<float, 4>, 2> m_calibAmplitude{};
+  std::array<std::array<float, 4>, 2> m_calibTime{};
 
   std::array<float, 2> m_moduleSum;
   std::array<float, 2> m_moduleSumErrSq;
@@ -152,10 +152,10 @@ public:
 
   void StartEvent(int lumiBlock);
 
-  void LoadAndAnalyzeData(size_t side, size_t module, const std::vector<float> HGSamples, const std::vector<float> LGSamples); 
+  void LoadAndAnalyzeData(size_t side, size_t module, const std::vector<float>& HGSamples, const std::vector<float>& LGSamples); 
 
-  void LoadAndAnalyzeData(size_t side, size_t module, const std::vector<float> HGSamples, const std::vector<float> LGSamples,
-			  const std::vector<float> HGSamplesDelayed, const std::vector<float> LGSamplesDelayed); 
+  void LoadAndAnalyzeData(size_t side, size_t module, const std::vector<float>& HGSamples, const std::vector<float>& LGSamples,
+			  const std::vector<float>& HGSamplesDelayed, const std::vector<float>& LGSamplesDelayed); 
 
   bool FinishEvent();
 

@@ -60,7 +60,10 @@ namespace LVL1 {
     /// @brief Save all tau values. Use only after finishing defining all tau values for one TOB.
     void fill_tau();
 
-    /// @brief get total number of TOBs saved
+    /// @brief get total number of tau TOBs saved
+    int tau_size();
+
+    /// @brief get total number of eg TOBs saved
     int size();
 
     /// @brief get all e-gamma related values the ith TOB

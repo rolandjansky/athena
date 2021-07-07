@@ -97,8 +97,7 @@ def BTagRecoSplitCfg(inputFlags, JetCollection = ['AntiKt4EMTopo'], **kwargs):
     SecVertexers = [ "JetFitter" , "SV1" ]
     result.merge(JetBTaggerSplitAlgsCfg(inputFlags, JetCollection = JetCollection[0], TaggerList = taggerList, SecVertexers = SecVertexers, **kwargs))
 
-    from AthenaCommon.ConcurrencyFlags import jobproperties
-    if jobproperties.ConcurrencyFlags.NumThreads() == 0 :
+    if inputFlags.Concurrency.NumThreads == 0:
         for el in result._allSequences:
             el.name = "TopAlg"
 

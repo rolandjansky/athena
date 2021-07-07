@@ -208,10 +208,12 @@ StatusCode StreamTagMakerTool::fillPEBInfoMap(std::unordered_map<DecisionID, PEB
         ATH_MSG_ERROR("Empty PEB info for decision container " << key.key() << ", decision " << *d);
         return StatusCode::FAILURE;
       }
-      /// Assign PEBInfo to all passed chains for this decision
-      for (unsigned int id : ids) {
-        ATH_MSG_DEBUG("Mapping PEBInfo to passed chain " << HLT::Identifier(id).name());
-        PEBInfoWriterToolBase::PEBInfo& pebi = map[id];
+      // Assign PEBInfo to all passed chains for this decision
+      for (const unsigned int id : ids) {
+        // Convert leg id to chain id - changes nothing if id is already chain id
+        const HLT::Identifier chainId = getIDFromLeg(id);
+        ATH_MSG_DEBUG("Mapping PEBInfo to passed chain " << chainId.name());
+        PEBInfoWriterToolBase::PEBInfo& pebi = map[chainId.numeric()];
         pebi.robs.insert(robs.begin(),robs.end());
         pebi.subdets.insert(subdets.begin(),subdets.end());
       }

@@ -119,16 +119,13 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
 
   const int maxHash = m_pixelid->wafer_hash_max(); // 2048
 
-  // Loop over modules
-  for (int modHash=0; modHash<maxHash; modHash++) {
+  // Loop over modules except DBM, s.a.
+  for (int modHash=12; modHash<maxHash-12; modHash++) {
     Identifier waferID = m_pixelid->wafer_id(modHash);
     int pixlayer = getPixLayersID(m_pixelid->barrel_ec(waferID), m_pixelid->layer_disk(waferID) );
     int nFE;
     bool is_fei4;
-    if (pixlayer == PixLayers::kDBMC || pixlayer == PixLayers::kDBMA) {
-      nFE = 1;  
-      is_fei4 = true;
-    } else if (pixlayer == PixLayers::kIBL) {
+    if (pixlayer == PixLayers::kIBL) {
       nFE = 1; // IBL 3D
       if (m_pixelid->eta_module(waferID)>-7 && m_pixelid->eta_module(waferID)<6) nFE = 2; //IBL Planar
       is_fei4 = true;
@@ -272,7 +269,7 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
 	}
 	
 	// filling nActive modules per layer for later normalization
-	// for IBL (and DBM) normalization isdone by number of FEI4 
+	// for IBL normalization is done by number of FEI4 
 	if ( (pixlayer != PixLayers::kIBL && m_pixelCondSummaryTool->isActive(modHash) == true) ||
 	     (pixlayer == PixLayers::kIBL && m_pixelCondSummaryTool->isActive(modHash, pixID) == true) ) {
 	  nActive_layer[pixlayer]++;
@@ -284,7 +281,7 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
 
   } // loop over modules
 
-  // normalization by active modules (or FE's in IBL/DBM case)
+  // normalization by active modules (or FE's in IBL case)
   //
   for (int i = 0; i < PixLayers::COUNT; i++) {
     if (nActive_layer[i]>0) {

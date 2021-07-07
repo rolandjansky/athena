@@ -4,7 +4,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from RngComps.RandomServices import RNG
+from RngComps.RandomServices import RNG, dSFMT
 
 ###################################################################################################
 # Moved from AdditionalConfig
@@ -18,15 +18,18 @@ def PunchThroughToolCfg(flags, name="ISF_PunchThroughTool", **kwargs):
 
     from BarcodeServices.BarcodeServicesConfigNew import BarcodeSvcCfg
     from SubDetectorEnvelopes.SubDetectorEnvelopesConfigNew import EnvelopeDefSvcCfg
-
-    acc = RNG(flags.Random.Engine)
-    kwargs.setdefault("RandomNumberService", acc.getService("AthRNGSvc"))
+    acc = ComponentAccumulator()
+    seed = 'FastCaloSimRnd OFFSET 0 98346412 12461240'
+    acc.merge(dSFMT(seed))
+    kwargs.setdefault("RandomNumberService", acc.getService("AtDSFMTGenSvc"))
     kwargs.setdefault("RandomStreamName", "FastCaloSimRnd")
-    kwargs.setdefault("FilenameLookupTable", "CaloPunchThroughParametrisation.root")
+    kwargs.setdefault("FilenameLookupTable", 'FastCaloSim/MC16/TFCSparam_mpt_v01.root')
     kwargs.setdefault("PunchThroughInitiators", [211])
+    kwargs.setdefault("InitiatorsMinEnergy"     , [ 65536 ]                                         )
+    kwargs.setdefault("InitiatorsEtaRange"      , [       -2.7,     2.7 ]                               )
     kwargs.setdefault("PunchThroughParticles", [   2212,     211,      22,      11,      13])
     kwargs.setdefault("DoAntiParticles"      , [  False,    True,   False,    True,    True])
-    kwargs.setdefault("CorrelatedParticle"   , [    211,    2212,      11,      22,       0])
+    kwargs.setdefault("CorrelatedParticle"      , []    )
     kwargs.setdefault("FullCorrelationEnergy", [100000., 100000., 100000., 100000.,      0.])
     kwargs.setdefault("MinEnergy"            , [  938.3,   135.6,     50.,     50.,   105.7])
     kwargs.setdefault("MaxNumParticles"      , [     -1,      -1,      -1,      -1,      -1])
@@ -51,6 +54,7 @@ def LegacyFastShowerCellBuilderToolCfg(flags, name="ISF_LegacyFastShowerCellBuil
     acc = FastShowerCellBuilderToolBaseCfg(flags, name, **kwargs)
     FastShowerCellBuilderTool = acc.popPrivateTools()
     FastShowerCellBuilderTool.Invisibles += [13]
+    acc.setPrivateTools(FastShowerCellBuilderTool)
     return acc
 
 
@@ -170,6 +174,10 @@ def FastHitConvertToolCfg(flags, name="ISF_FastHitConvertTool", **kwargs):
     kwargs.setdefault("emecHitContainername", EMEC_hits_collection_name)
     kwargs.setdefault("fcalHitContainername", FCAL_hits_collection_name)
     kwargs.setdefault("hecHitContainername", HEC_hits_collection_name)
+
+    from TileConditions.TileInfoLoaderConfig import TileInfoLoaderCfg
+    acc.merge(TileInfoLoaderCfg(flags))
+
     kwargs.setdefault("tileHitContainername", tile_hits_collection_name)
 
     acc.setPrivateTools(CompFactory.FastHitConvertTool(name, **kwargs))
@@ -244,10 +252,11 @@ def FastCaloPileupToolCfg(flags, name="ISF_FastCaloPileupTool", **kwargs):
 def LegacyAFIIFastCaloToolCfg(flags, name="ISF_LegacyAFIIFastCaloTool", **kwargs):
     acc = ComponentAccumulator()
     kwargs.setdefault("BatchProcessMcTruth", True)
-    acc.merge(LegacyFastShowerCellBuilderToolCfg(flags))
-    tool = acc.getPublicTool("ISF_LegacyFastShowerCellBuilderTool")
-    kwargs.setdefault("CaloCellMakerTools_simulate", [tool])
-    acc.popToolsAndMerge(FastCaloToolBaseCfg(flags, name, **kwargs))
+    lfscb = acc.popToolsAndMerge(LegacyFastShowerCellBuilderToolCfg(flags))
+    acc.addPublicTool(lfscb)
+    kwargs.setdefault("CaloCellMakerTools_simulate", [acc.getPublicTool(lfscb.name)])
+    tool = acc.popToolsAndMerge(FastCaloToolBaseCfg(flags, name, **kwargs))
+    acc.setPrivateTools(tool)
     return acc
 
 

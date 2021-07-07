@@ -119,6 +119,23 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
   /// pt cut can never be below 20 MeV
   if (m_pTmin < 20.) m_pTmin = 20.;
 
+  if (m_etabins.size()>0) {
+    if (m_ptbins.size() > (m_etabins.size()-1)) {
+      ATH_MSG_ERROR( "No. of cut values bigger than eta bins");
+      return StatusCode::FAILURE;
+    }
+
+    if (m_ptbins.size() < (m_etabins.size()-1)) {
+      ATH_MSG_DEBUG( "No. of cut values smaller than eta bins. Extending size..." );
+      m_ptbins.value().resize(m_etabins.size()-1, m_ptbins.value().back());
+    }
+
+    for (auto& pt : m_ptbins) {
+      if (pt < 20.) pt = 20.;
+    }
+  }
+
+
   /// initialize counters
   resetCounter(m_totalInputSeeds);
   resetCounter(m_totalNoTrackPar);
@@ -309,7 +326,7 @@ MsgStream& InDet::SiTrackMaker_xk::dumpStatistics(MsgStream &out) const
   //Defining the range values to be printed
   rapidityTablePrint.emplace_back(0,std::string("| Track/Used   0.0-0.5 | "));
   rapidityTablePrint.emplace_back(1,std::string("|              0.5-1.0 | "));
-  rapidityTablePrint.emplace_back(1,std::string("|              1.0-1.5 | "));
+  rapidityTablePrint.emplace_back(2,std::string("|              1.0-1.5 | "));
   rapidityTablePrint.emplace_back(3,std::string("|              1.5-2.0 | "));
   rapidityTablePrint.emplace_back(4,std::string("|              2.0-2.5 | "));
   rapidityTablePrint.emplace_back(5,std::string("|              2.5-3.0 | "));
@@ -612,7 +629,6 @@ void InDet::SiTrackMaker_xk::endEvent(SiTrackMakerEventData_xk& data) const
     m_bremTracks[K] += data.summaryStatAll()[kBremTracks][K];
     m_seedsWithTrack[K] += data.summaryStatAll()[kSeedsWithTracks][K];
     m_deSize[K] = m_deSize[K] + data.summaryStatAll()[kDESize][K];
-
   }
   // Print event information
   //
@@ -672,7 +688,7 @@ std::list<Trk::Track*> InDet::SiTrackMaker_xk::getTracks
     Tp = getAtaPlaneDBM(fieldCache, data, Sp);
   }
   else {
-    Tp = getAtaPlane(fieldCache, data, false, Sp);
+    Tp = getAtaPlane(fieldCache, data, false, Sp, ctx);
   }
   /// if we failed to get the initial parameters, we bail out.
   /// Can happen in certain pathological cases (e.g. malformed strip hits),
@@ -840,7 +856,8 @@ std::unique_ptr<Trk::TrackParameters> InDet::SiTrackMaker_xk::getAtaPlane
 (MagField::AtlasFieldCache& fieldCache,
  SiTrackMakerEventData_xk& data,
  bool sss,
- const std::vector<const Trk::SpacePoint*>& SP) const
+ const std::vector<const Trk::SpacePoint*>& SP,
+ const EventContext& ctx) const
 {
   /// we need at least three space points on the seed.
   if (SP.size() < 3) return nullptr;
@@ -887,6 +904,9 @@ std::unique_ptr<Trk::TrackParameters> InDet::SiTrackMaker_xk::getAtaPlane
   double B  = 2.*(v2-A*u2)               ;  /// From inserting A into linear equation. Note that Igor sneaks in a factor two here
   double C  = B/sqrt(1.+A*A)             ;  /// Curvature estimate. (2R)²=(1+A²)/b² => 1/2R = b/sqrt(1+A²) = B / sqrt(1+A²).
   double T  = z2*sqrt(r2)/(1.+.04*C*C*rn);  /// estimate of the track dz/dr (1/tanTheta), corrected for curvature effects
+  if(m_ITKGeometry){
+    T = std::abs(C) > 1.e-6 ? (z2*C)/asin(C*sqrt(rn)) : z2/sqrt(rn);
+  }
 
   const Amg::Transform3D& Tp = pla->transform();
 
@@ -929,7 +949,7 @@ std::unique_ptr<Trk::TrackParameters> InDet::SiTrackMaker_xk::getAtaPlane
       T    =  z2*sqrt(r2)  ;  /// note: Now no curvature correction
       data.par()[2] = atan2(y2,x2);
       data.par()[3] = atan2(1.,T) ;
-      data.par()[5] = 1./m_pTmin  ; /// no pt estimate, assume min pt
+      data.par()[5] = m_ITKGeometry ? 0.9/m_pTmin : 1./m_pTmin  ; /// no pt estimate, assume min pt
     }
   }
   /// treat absence of solenoid like the low-field case
@@ -937,11 +957,17 @@ std::unique_ptr<Trk::TrackParameters> InDet::SiTrackMaker_xk::getAtaPlane
     T    = z2*sqrt(r2)   ;
     data.par()[2] = atan2(y2,x2);
     data.par()[3] = atan2(1.,T) ;
-    data.par()[5] = 1./m_pTmin  ;
+    data.par()[5] = m_ITKGeometry ? 0.9/m_pTmin : 1./m_pTmin  ;
   }
 
+  double pTm = pTmin(SP[0]->eta());    // all spacepoints should have approx. same eta
+
   /// apply the pt on the initial parameter estimate, with some margin
-  if (fabs(data.par()[5])*m_pTmin > 1.1) return nullptr;
+  if (m_ITKGeometry){
+    if(std::abs(data.par()[5])*pTm > 1) return nullptr;
+  }
+  else if(std::abs(data.par()[5])*m_pTmin > 1.1) return nullptr;
+
   /// update qoverp
   data.par()[4] = data.par()[5]/sqrt(1.+T*T);   /// qoverp from qoverpt and theta
   data.par()[6] = x0                              ;   /// ref point = first SP
@@ -954,12 +980,16 @@ std::unique_ptr<Trk::TrackParameters> InDet::SiTrackMaker_xk::getAtaPlane
 
   /// now we can return the initial track parameters we built, parameterised using the ref surface.
   /// Pass a nullptr for the covariance
-  return pla->createUniqueTrackParameters(data.par()[0],
-                                          data.par()[1],
-                                          data.par()[2],
-                                          data.par()[3],
-                                          data.par()[4],
-                                          std::nullopt);
+  std::unique_ptr<Trk::TrackParameters> T0 = pla->createUniqueTrackParameters(data.par()[0],
+									      data.par()[1],
+									      data.par()[2],
+									      data.par()[3],
+									      data.par()[4],
+									      std::nullopt);
+
+  if(m_ITKGeometry && m_tracksfinder->pTseed(data.combinatorialData(),*T0,SP,ctx) < pTm) return nullptr;
+  else return T0;
+
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -1562,4 +1592,16 @@ void InDet::SiTrackMaker_xk::globalDirections
   d2[0] = Sa*C2-Sb*S2;       /// px2: a sin theta cos alpha * C2 - b sin theta cos alpha S2
   d2[1]=  Sb*C2+Sa*S2;       /// py2: b sin theta cos alpha * C2 + a sin theta cos alpha S2
   d2[2]=cosTheta;
+}
+
+
+
+double InDet::SiTrackMaker_xk::pTmin(double eta) const
+{
+  if (m_ptbins.size() == 0) return m_pTmin;
+  double aeta = std::abs(eta);
+  for(int n = int(m_ptbins.size()-1); n>=0; --n) {
+    if(aeta > m_etabins[n]) return m_ptbins[n];
+  }
+  return m_pTmin;
 }

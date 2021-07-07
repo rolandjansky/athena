@@ -36,6 +36,7 @@
 #include "TrkiPatFitterUtils/MeasurementProcessor.h"
 #include <cmath>
 #include <iomanip>
+#include <utility> //std::as_const
 
 namespace Trk {
 
@@ -99,13 +100,13 @@ FitProcedure::constructTrack(
   if (leadingTSOS)
     size += leadingTSOS->size();
   trackStateOnSurfaces.reserve(size);
-  const AlignmentEffectsOnTrack* alignmentEffects = nullptr;
+  std::unique_ptr<const AlignmentEffectsOnTrack> alignmentEffects{};
   const FitMeasurement* fitMeasurement = measurements.front();
-  const FitQualityOnSurface* fitQoS = nullptr;
-  const MaterialEffectsBase* materialEffects = nullptr;
-  const MeasurementBase* measurementBase = nullptr;
+  std::unique_ptr<const FitQualityOnSurface> fitQoS{};
+  std::unique_ptr<const MaterialEffectsBase> materialEffects{};
+  std::unique_ptr<const MeasurementBase> measurementBase{};
   const Surface* surface = nullptr;
-  const TrackParameters* trackParameters = nullptr;
+  std::unique_ptr<const TrackParameters> trackParameters{};
   std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>
     defaultPattern;
   std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>
@@ -114,14 +115,14 @@ FitProcedure::constructTrack(
   // start with (measured) perigee
   unsigned scatter = 0;
   unsigned tsos = 0;
-  const Perigee* perigee = parameters.perigee();
+  std::unique_ptr<const Perigee> perigee(parameters.perigee());
   typePattern.set(TrackStateOnSurface::Perigee);
-  trackStateOnSurfaces.push_back(new TrackStateOnSurface(measurementBase,
-                                                          perigee,
-                                                          fitQoS,
-                                                          materialEffects,
+  trackStateOnSurfaces.push_back(new TrackStateOnSurface(std::move(measurementBase),
+                                                          std::move(perigee),
+                                                          std::move(fitQoS),
+                                                          std::move(materialEffects),
                                                           typePattern,
-                                                          alignmentEffects));
+                                                          std::move(alignmentEffects)));
   ++tsos;
 
   // append leading TSOS to perigee
@@ -156,8 +157,8 @@ FitProcedure::constructTrack(
         } else {
           // get the MeasuredParameters (with covariance)
           bool withCovariance = true;
-          trackParameters = parameters.trackParameters(
-            *cache.log, *fitMeasurement, withCovariance);
+          trackParameters.reset(parameters.trackParameters(
+            *cache.log, *fitMeasurement, withCovariance));
 
           if (!trackParameters) {
             *cache.log
@@ -168,22 +169,22 @@ FitProcedure::constructTrack(
           }
           typePattern.set(TrackStateOnSurface::Parameter);
           trackStateOnSurfaces.push_back(
-            new TrackStateOnSurface(measurementBase,
-                                    trackParameters,
-                                    fitQoS,
-                                    materialEffects,
+            new TrackStateOnSurface(std::move(measurementBase),
+                                    std::move(trackParameters),
+                                    std::move(fitQoS),
+                                    std::move(materialEffects),
                                     typePattern,
-                                    alignmentEffects));
+                                    std::move(alignmentEffects)));
           ++tsos;
         }
       }
       fitMeasurement = m;
       surface = m->surface();
-      measurementBase = nullptr;
-      fitQoS = nullptr;
-      materialEffects = nullptr;
+      measurementBase.reset();
+      fitQoS.reset();
+      materialEffects.reset();
       typePattern = defaultPattern;
-      alignmentEffects = nullptr;
+      alignmentEffects.reset();
     } else {
       fitMeasurement = m;
       if (cache.verbose)
@@ -198,8 +199,8 @@ FitProcedure::constructTrack(
       if (measurementBase) {
         // get the MeasuredParameters (with covariance)
         bool withCovariance = true;
-        trackParameters = parameters.trackParameters(
-          *cache.log, *fitMeasurement, withCovariance);
+        trackParameters.reset(parameters.trackParameters(
+          *cache.log, *fitMeasurement, withCovariance));
         if (!trackParameters) {
           *cache.log
             << MSG::WARNING
@@ -209,21 +210,21 @@ FitProcedure::constructTrack(
         }
         typePattern.set(TrackStateOnSurface::Parameter);
         trackStateOnSurfaces.push_back(
-          new TrackStateOnSurface(measurementBase,
-                                  trackParameters,
-                                  fitQoS,
-                                  materialEffects,
+          new TrackStateOnSurface(std::move(measurementBase),
+                                  std::move(trackParameters),
+                                  std::move(fitQoS),
+                                  std::move(materialEffects),
                                   typePattern,
-                                  alignmentEffects));
+                                  std::move(alignmentEffects)));
         ++tsos;
         fitMeasurement = m;
-        fitQoS = nullptr;
-        materialEffects = nullptr;
+        fitQoS.reset();
+        materialEffects.reset();
         typePattern = defaultPattern;
-        alignmentEffects = nullptr;
+        alignmentEffects.reset();
       }
 
-      measurementBase = m->measurementBase()->clone();
+      measurementBase = std::move(m->measurementBase()->uniqueClone());
       typePattern.set(TrackStateOnSurface::Measurement);
       if (m->isOutlier())
         typePattern.set(TrackStateOnSurface::Outlier);
@@ -232,10 +233,9 @@ FitProcedure::constructTrack(
     // it's a CaloDeposit or Scatterer (scatterers may be fitted or not fitted)
     if (m->materialEffects()) {
       // update momentum to account for energy loss
-      delete materialEffects;
 
       if (m->isEnergyDeposit()) {
-        materialEffects = m->materialEffects()->clone();
+        materialEffects = std::move(m->materialEffects()->uniqueClone());
         typePattern.set(TrackStateOnSurface::CaloDeposit);
       } else if (m->isScatterer()) {
         // set materialPattern as the scattering parameters are fitted
@@ -250,39 +250,39 @@ FitProcedure::constructTrack(
           typeMaterial.set(Trk::MaterialEffectsBase::EnergyLossEffects);
           if (m->numberDoF()) // fitted scatterer
           {
-            materialEffects = new MaterialEffectsOnTrack(
+            materialEffects.reset(new MaterialEffectsOnTrack(
               m->materialEffects()->thicknessInX0(),
               parameters.scatteringAngles(*m, scatter),
               energyLoss,
               m->materialEffects()->associatedSurface(),
-              typeMaterial);
+              typeMaterial));
             ++scatter;
           } else // unfitted (leading material)
           {
-            materialEffects = new MaterialEffectsOnTrack(
+            materialEffects.reset(new MaterialEffectsOnTrack(
               m->materialEffects()->thicknessInX0(),
               parameters.scatteringAngles(*m),
               energyLoss,
               m->materialEffects()->associatedSurface(),
-              typeMaterial);
+              typeMaterial));
           }
         } else // no meot for special calo scattering centres
         {
           if (m->numberDoF()) // fitted scatterer
           {
-            materialEffects = new MaterialEffectsOnTrack(
+            materialEffects.reset(new MaterialEffectsOnTrack(
               m->materialEffects()->thicknessInX0(),
               parameters.scatteringAngles(*m, scatter),
               m->materialEffects()->associatedSurface(),
-              typeMaterial);
+              typeMaterial));
             ++scatter;
           } else // unfitted (leading material)
           {
-            materialEffects = new MaterialEffectsOnTrack(
+            materialEffects.reset(new MaterialEffectsOnTrack(
               m->materialEffects()->thicknessInX0(),
               parameters.scatteringAngles(*m),
               m->materialEffects()->associatedSurface(),
-              typeMaterial);
+              typeMaterial));
           }
         }
 
@@ -291,7 +291,7 @@ FitProcedure::constructTrack(
         *cache.log << MSG::WARNING
                    << " deprecated TrackStateOnSurface::InertMaterial"
                    << endmsg;
-        materialEffects = m->materialEffects()->clone();
+        materialEffects = std::move(m->materialEffects()->uniqueClone());
         typePattern.set(TrackStateOnSurface::InertMaterial);
       }
     }
@@ -311,13 +311,13 @@ FitProcedure::constructTrack(
                  << AEOT.deltaAngle() << " output Trans "
                  << parameters.alignmentOffset(align) << " deltaAngle "
                  << parameters.alignmentAngle(align) << endmsg;
-      alignmentEffects =
+      alignmentEffects.reset(
         new Trk::AlignmentEffectsOnTrack(parameters.alignmentOffset(align),
                                          AEOT.sigmaDeltaTranslation(),
                                          parameters.alignmentAngle(align),
                                          AEOT.sigmaDeltaAngle(),
                                          AEOT.vectorOfAffectedTSOS(),
-                                         m->surface());
+                                         m->surface()));
       typePattern.set(TrackStateOnSurface::Alignment);
     }
 
@@ -330,8 +330,8 @@ FitProcedure::constructTrack(
 
   // remember the final TSOS !
   bool withCovariance = true;
-  trackParameters =
-    parameters.trackParameters(*cache.log, *fitMeasurement, withCovariance);
+  trackParameters.reset(
+    parameters.trackParameters(*cache.log, *fitMeasurement, withCovariance));
   if (!trackParameters) {
     *cache.log << MSG::WARNING
                << " fail track with incomplete return TSOS: no trackParameters"
@@ -339,12 +339,12 @@ FitProcedure::constructTrack(
     return nullptr;
   }
   typePattern.set(TrackStateOnSurface::Parameter);
-  trackStateOnSurfaces.push_back(new TrackStateOnSurface(measurementBase,
-                                                          trackParameters,
-                                                          fitQoS,
-                                                          materialEffects,
+  trackStateOnSurfaces.push_back(new TrackStateOnSurface(std::move(measurementBase),
+                                                          std::move(trackParameters),
+                                                          std::move(fitQoS),
+                                                          std::move(materialEffects),
                                                           typePattern,
-                                                          alignmentEffects));
+                                                          std::move(alignmentEffects)));
   ++tsos;
 
   // construct track

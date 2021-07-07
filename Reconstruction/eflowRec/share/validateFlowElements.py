@@ -20,7 +20,7 @@ def ReadMyxAOD(evt):
             "vector<ElementLink<xAOD::MuonContainer>>"
         )("FE_MuonLinks") # accessor matches type in the aux branch
 
-        chargedFEcont=evt.retrieve("xAOD::FlowElementContainer","JetETMissChargedFlowElements")
+        chargedFEcont=evt.retrieve("xAOD::FlowElementContainer","JetETMissChargedParticleFlowObjects")
         nchargedFE=chargedFEcont.size()
         try:
             for cfe in chargedFEcont:
@@ -36,7 +36,7 @@ def ReadMyxAOD(evt):
                     print("No auxdata retrieved")
 
         try:
-            neutralFEcont=evt.retrieve("xAOD::FlowElementContainer","JetETMissNeutralFlowElements")
+            neutralFEcont=evt.retrieve("xAOD::FlowElementContainer","JetETMissNeutralParticleFlowObjects")
             print("\n")
             nneutralFE=neutralFEcont.size()
             for nfe in neutralFEcont:

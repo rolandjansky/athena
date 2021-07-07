@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # Module used to generate proper Python iterators for all the known
 # DataVector container types.
@@ -32,6 +32,24 @@ def generateDVIterators():
     print( "generateDVIterators INFO Attaching iterators to all known DV "
            "types" )
     print( "generateDVIterators INFO This may take a moment..." )
+
+    # Load/access the dictionaries of all of the same types that xAOD::Init()
+    # accesses as well. Since apparently "the C++ side" and "the Python side"
+    # need to do this separately... :-/
+    for name in [ 'TruthParticleContainer',
+                  'MuonRoIContainer',
+                  'CaloClusterContainer',
+                  'TrackParticleContainer',
+                  'ElectronContainer',
+                  'MuonContainer',
+                  'JetContainer',
+                  'TauJetContainer',
+                  'PFOContainer',
+                  'TrigElectronContainer',
+                  'L2CombinedMuonContainer',
+                  'ParticleContainer' ]:
+        getattr( ROOT.xAOD, name, None )
+        pass
 
     # Iterate over all classes known to ROOT:
     for typ in ROOT.gROOT.GetListOfClasses():

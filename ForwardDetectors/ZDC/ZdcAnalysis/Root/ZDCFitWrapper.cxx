@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ZdcAnalysis/ZDCFitWrapper.h"
 
-ZDCFitExpFermiVariableTaus::ZDCFitExpFermiVariableTaus(std::string tag, float tmin, float tmax, bool fixTau1, bool fixTau2, float tau1, float tau2) :
+ZDCFitExpFermiVariableTaus::ZDCFitExpFermiVariableTaus(const std::string& tag, float tmin, float tmax, bool fixTau1, bool fixTau2, float tau1, float tau2) :
   ZDCFitWrapper(new TF1(("ExpFermiVariableTaus" + tag).c_str(), ZDCFermiExpFit, tmin, tmax, 5)),
   m_fixTau1(fixTau1), m_fixTau2(fixTau2), m_tau1(tau1), m_tau2(tau2)
 {
@@ -39,7 +39,7 @@ void ZDCFitExpFermiVariableTaus::Initialize(float initialAmp, float initialT0)
   theTF1->SetParameter(4, 0);
 }
 
-ZDCFitExpFermiFixedTaus::ZDCFitExpFermiFixedTaus(std::string tag, float tmin, float tmax, float tau1, float tau2) :
+ZDCFitExpFermiFixedTaus::ZDCFitExpFermiFixedTaus(const std::string& tag, float tmin, float tmax, float tau1, float tau2) :
   ZDCFitWrapper(new TF1(("ExpFermiFixedTaus" + tag).c_str(), this, tmin, tmax, 3)),
   m_tau1(tau1), m_tau2(tau2)
 {
@@ -76,7 +76,7 @@ void ZDCFitExpFermiFixedTaus::Initialize(float initialAmp, float initialT0)
   GetWrapperTF1()->SetParameter(2, 0);
 }
 
-ZDCFitExpFermiPrePulse::ZDCFitExpFermiPrePulse(std::string tag, float tmin, float tmax, float tau1, float tau2) :
+ZDCFitExpFermiPrePulse::ZDCFitExpFermiPrePulse(const std::string& tag, float tmin, float tmax, float tau1, float tau2) :
   ZDCPrePulseFitWrapper(new TF1(("ExpFermiPrePulse" + tag).c_str(), this, tmin, tmax, 5)),
   m_tau1(tau1), m_tau2(tau2)
 {
@@ -121,8 +121,8 @@ void ZDCFitExpFermiPrePulse::Initialize(float initialAmp, float initialT0)
   GetWrapperTF1()->SetParameter(4, 0);
 }
 
-ZDCFitExpFermiPulseSequence::ZDCFitExpFermiPulseSequence(std::string tag, float tmin, float tmax, float nominalT0, float deltaT,  float tau1, float tau2) :
-  ZDCFitWrapper(0), m_tau1(tau1), m_tau2(tau2)
+ZDCFitExpFermiPulseSequence::ZDCFitExpFermiPulseSequence(const std::string& tag, float tmin, float tmax, float nominalT0, float deltaT,  float tau1, float tau2) :
+  ZDCFitWrapper(nullptr), m_tau1(tau1), m_tau2(tau2)
 {
   // Create the reference function that we use to evaluate ExpFermiFit more efficiently
   //
@@ -183,7 +183,7 @@ void ZDCFitExpFermiPulseSequence::Initialize(float initialAmp, float initialT0)
 
 
 
-double ZDCFermiExpFit(double* xvec, double* pvec)
+double ZDCFermiExpFit(const double* xvec, const double* pvec)
 {
   static const float offsetScale = 0;
 

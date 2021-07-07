@@ -33,7 +33,7 @@ namespace xAOD {
       eFexTauRoI_v1();
 
       /// Initialise the object with its most important properties
-      void initialize( uint8_t eFexNumber, uint32_t word0, uint32_t word1 = 0 );
+      void initialize( uint8_t eFexNumber, uint8_t shelf, uint32_t word0, uint32_t word1 = 0 );
 
       /// Object types
       enum ObjectType {
@@ -53,22 +53,25 @@ namespace xAOD {
       /// Set the eFEX number
       void seteFexNumber( uint8_t value );
 
-      /// TOB ET (decoded from TOB, stored for convenience)
-      uint16_t tobEt() const;    /// getter for integer ET on TOB scale (100 MeV/count)
-      void     setTobEt( uint16_t value); /// setter for the above
-      float    et() const; /// floating point value (MeV, TOB scale)
+      /// The shelf number
+      uint8_t shelfNumber() const;
+      /// Set the shelf number
+      void setShelfNumber( uint8_t value );
 
+      /// TOB ET (decoded from TOB, stored for convenience)
+      float    et() const; /// floating point value (MeV, TOB scale)
+      void     setEt( float value); /// setter for the above
 
       /// Eta Coordinates (decoded from TOB, stored for convenience)
-      uint8_t iEta() const;  /// getter for integer eta index (0-49)
-      void    setEta( uint8_t value); /// setter for the above 
+      float   eta() const; /// Floating point, full precision (0.025)
+      void    setEta( float value); /// setter for the above 
+      unsigned int iEta() const;  /// getter for integer eta index (0-49)
       unsigned int seed() const; /// Seed supercell index within central tower (0 -> 3)
-      float eta() const; /// Floating point, full precision (0.025)
 
       /// Phi coordinates
-      uint8_t iPhi() const; /// Getter for integer phi index (0-63)
-      void  setPhi( uint8_t value); /// Setter for the above
-      float phi() const; /// Floating point, ATLAS phi convention (-pi -> pi)
+      float   phi() const; /// Floating point, ATLAS phi convention (-pi -> pi)
+      void    setPhi( float value); /// Setter for the above
+      unsigned int iPhi() const; /// Getter for integer phi index (0-63)
 
       
       /// Jet Discriminants
@@ -182,7 +185,9 @@ namespace xAOD {
       static const int s_eFexPhiOffset   =  2;
       static const int s_eFexEtaMask     = 0xf;
       static const int s_eFexEtaBit      =  4;
+      static const int s_eFexEtaWidth    =  16;
       static const int s_fpgaEtaWidth    =  4;
+      static const int s_shelfPhiWidth   =  4;
       static const int s_EtaCOffset      =  0;
       static const int s_EtaBOffset      = 17;
       static const int s_EtaAOffset      = 33;

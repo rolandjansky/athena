@@ -441,10 +441,8 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 	  }
 	}
       }else{ // run 3 access
-	auto features =getTrigDecisionTool()->features<xAOD::MuonContainer>(monObj.trigItem.Data(), TrigDefs::includeFailedDecisions);
-	for(const auto& muLinkInfo : features) {
-	  if( !muLinkInfo.isValid() )continue;
-	  auto roiLinkInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(muLinkInfo.source, "initialRoI");
+	auto initialRoIs = getTrigDecisionTool()->features<TrigRoiDescriptorCollection>(monObj.trigItem.Data(), TrigDefs::includeFailedDecisions, "", TrigDefs::lastFeatureOfType, "initialRoI");
+	for(const auto& roiLinkInfo : initialRoIs) {
 	  if( !roiLinkInfo.isValid() )continue;
 	  auto roiEL = roiLinkInfo.link;
 	  if( !roiEL.isValid() )continue;
@@ -485,7 +483,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 	  }else if(!ctp_in && ctp_out){ // fake output from CTP (must be a bug)
 	    roiEta_inNg_outOk.push_back(roiEta[roiWord]);
 	    roiPhi_inNg_outOk.push_back(roiPhi[roiWord]);
-	  }else if(ctp_in && !ctp_out){ // event dripped at CTP (overlap removal? bug?)
+	  }else if(ctp_in && !ctp_out){ // event dropped at CTP (overlap removal? bug?)
 	    roiEta_inOk_outNg.push_back(roiEta[roiWord]);
 	    roiPhi_inOk_outNg.push_back(roiPhi[roiWord]);
 	  }

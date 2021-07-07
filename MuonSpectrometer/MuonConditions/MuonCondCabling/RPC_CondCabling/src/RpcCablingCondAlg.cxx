@@ -173,13 +173,13 @@ StatusCode RpcCablingCondAlg::setup(const CondAttrListCollection* readCdoMap, co
 
         // Set the maxType variable and the type of SectorMap objects
         if (stop == 63 || stop == 8) {
-            for (int i = 0; i < 64; ++i)
-                if (sectorMap[i] > maxType) maxType = sectorMap[i];
-            sectorType.resize(maxType);
+            for (int i = 0; i < 64; ++i) { maxType = std::max(sectorMap[i], maxType); }
+            sectorType.clear();
+            sectorType.reserve(maxType);
             ATH_MSG_DEBUG("setup() - Loop over " << maxType << " sector-types");
 
             for (int i = 1; i <= maxType; ++i) {
-                sectorType[i - 1] = RPC_CondCabling::SectorLogicSetup(i, dataName, layout, m_cosmic_configuration);
+                sectorType.emplace_back(i, dataName, layout, m_cosmic_configuration, msgSvc().get());
                 RPC_CondCabling::SectorLogicSetup* sec = &(sectorType[i - 1]);
                 sectorType[i - 1].SetPtoTrigRoads(&trigroads);
                 for (int j = 0; j < 64; ++j) {
@@ -196,22 +196,22 @@ StatusCode RpcCablingCondAlg::setup(const CondAttrListCollection* readCdoMap, co
         for (int i = 1; i <= maxType; ++i) {
             // Read the RPC geometry
             if (data("RPC GEOM  # :", i)) {
-                RPC_CondCabling::RPCchamberdata RPCdata(data, i);
+                RPC_CondCabling::RPCchamberdata RPCdata(data, i, msgSvc().get());
                 if (!(sectorType[i - 1] += RPCdata)) return StatusCode::FAILURE;
             }
             // Read the Wired OR geometry
             if (data("WIRED OR  # :", i)) {
-                RPC_CondCabling::WiredORdata WORdata(data, i);
+                RPC_CondCabling::WiredORdata WORdata(data, i, msgSvc().get());
                 if (!(sectorType[i - 1] += WORdata)) return StatusCode::FAILURE;
             }
             // Read the CMAs segmentation
             if (data("CMAs  # : pivot segmentation", i)) {
-                RPC_CondCabling::CMApivotdata CMAdata(data, i, layout);
+                RPC_CondCabling::CMApivotdata CMAdata(data, i, layout, msgSvc().get());
                 if (!(sectorType[i - 1] += CMAdata)) return StatusCode::FAILURE;
             }
             // Read the CMAs cabling
             if (data("CMAs  # : eta cabling", i)) {
-                RPC_CondCabling::CMAcablingdata CMAdata(data, i);
+                RPC_CondCabling::CMAcablingdata CMAdata(data, i, msgSvc().get());
                 if (!(sectorType[i - 1] += CMAdata)) return StatusCode::FAILURE;
             }
         }

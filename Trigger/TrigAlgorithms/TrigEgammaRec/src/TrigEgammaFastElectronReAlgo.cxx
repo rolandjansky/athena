@@ -252,7 +252,7 @@ StatusCode TrigEgammaFastElectronReAlgo::execute(const EventContext& ctx) const
       ATH_MSG_DEBUG("pT of trackEL: "<<(*trackEL)->pt());     
 
       ATH_MSG_DEBUG("REGTEST: TrigElectron: cluster index = " << clusEL.index() <<
-                " track = "     << trkIter << " eta = " <<  etaAtCalo << " phi = " << phiAtCalo << 
+                " track index= "     << track_index << " eta = " <<  etaAtCalo << " phi = " << phiAtCalo << 
                 " deta = " << dEtaCalo << "dphi = " << dPhiCalo);
       xAOD::TrigElectron* trigElec = new xAOD::TrigElectron();
       trigElecColl->push_back(trigElec);

@@ -55,7 +55,7 @@ private:
     m_neutralFEContainerWriteHandleKey{
       this,
       "FEOutputName",
-      "JetETMissNeutralFlowElements",
+      "JetETMissNeutralParticleFlowObjects",
       "WriteHandleKey for neutral FlowElements"
     };
 };

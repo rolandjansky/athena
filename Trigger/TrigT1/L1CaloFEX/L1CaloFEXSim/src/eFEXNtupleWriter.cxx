@@ -63,6 +63,10 @@ StatusCode LVL1::eFEXNtupleWriter::initialize () {
   m_myTree->Branch ("eg_haveSeed",  &m_eg_haveseed);
   m_myTree->Branch ("tau_Iso",  &m_tau_Iso);
   m_myTree->Branch ("tau_Et",  &m_tau_Et);
+  m_myTree->Branch ("tau_Eta",  &m_tau_Eta);
+  m_myTree->Branch ("tau_Phi",  &m_tau_Phi);
+  m_myTree->Branch ("tau_floatEta",  &m_tau_floatEta);
+  m_myTree->Branch ("tau_floatPhi",  &m_tau_floatPhi);
   m_myTree->Branch ("tau_isCentralTowerSeed",  &m_tau_isCentralTowerSeed);
   m_myTree->Branch ("eFEXnumber",  &m_eFex_number);
   m_myTree->Branch ("eg_nTOBs",  &m_eg_nTOBs);
@@ -112,11 +116,19 @@ StatusCode LVL1::eFEXNtupleWriter::finalize () {
 StatusCode LVL1::eFEXNtupleWriter::loadtauAlgoVariables() {
   m_tau_Iso.clear();
   m_tau_Et.clear();
+  m_tau_Eta.clear();
+  m_tau_Phi.clear();
+  m_tau_floatEta.clear();
+  m_tau_floatPhi.clear();
   m_tau_isCentralTowerSeed.clear();
-  for (int i = 0; i < m_eFEXOutputCollection->size(); i++)
+  for (int i = 0; i < m_eFEXOutputCollection->tau_size(); i++)
   {
     m_tau_isCentralTowerSeed.push_back((*(m_eFEXOutputCollection->get_tau(i)))["isCentralTowerSeed"]);
     m_tau_Et.push_back((*(m_eFEXOutputCollection->get_tau(i)))["Et"]);
+    m_tau_Eta.push_back((*(m_eFEXOutputCollection->get_tau(i)))["Eta"]);
+    m_tau_Phi.push_back((*(m_eFEXOutputCollection->get_tau(i)))["Phi"]);
+    m_tau_floatEta.push_back((*(m_eFEXOutputCollection->get_tau(i)))["FloatEta"]);
+    m_tau_floatPhi.push_back((*(m_eFEXOutputCollection->get_tau(i)))["FloatPhi"]);
     m_tau_Iso.push_back((*(m_eFEXOutputCollection->get_tau(i)))["Iso"]);
   }
   return StatusCode::SUCCESS;

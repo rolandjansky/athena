@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _ZDCPulseAnalyzer_h
@@ -56,27 +56,27 @@ private:
 
   // Default fit values and cuts that can be set via modifier methods
   //
-  int m_HGOverflowADC;
-  int m_HGUnderflowADC;
-  int m_LGOverflowADC;
+  int m_HGOverflowADC{};
+  int m_HGUnderflowADC{};
+  int m_LGOverflowADC{};
 
-  float m_nominalT0HG;
-  float m_nominalT0LG;
+  float m_nominalT0HG{};
+  float m_nominalT0LG{};
 
-  float m_nominalTau1;
-  float m_nominalTau2;
+  float m_nominalTau1{};
+  float m_nominalTau2{};
 
-  bool m_fixTau1;
-  bool m_fixTau2;
+  bool m_fixTau1{};
+  bool m_fixTau2{};
 
-  float m_chisqDivAmpCutLG; // maximum good LG chisq / amplitude
-  float m_chisqDivAmpCutHG; // maximum good HG chisq / amplitude
+  float m_chisqDivAmpCutLG{}; // maximum good LG chisq / amplitude
+  float m_chisqDivAmpCutHG{}; // maximum good HG chisq / amplitude
 
-  float m_T0CutLowLG;  // minimum good corrected time for LG fits
-  float m_T0CutHighLG; // maximum good corrected time for LG fits
+  float m_T0CutLowLG{};  // minimum good corrected time for LG fits
+  float m_T0CutHighLG{}; // maximum good corrected time for LG fits
 
-  float m_T0CutLowHG;  // minimum good corrected time for HG fits
-  float m_T0CutHighHG; // maximum good corrected time for HG fits
+  float m_T0CutLowHG{};  // minimum good corrected time for HG fits
+  float m_T0CutHighHG{}; // maximum good corrected time for HG fits
 
   bool m_haveTimingCorrections;
   std::vector<float> m_LGT0CorrParams; // Parameters used to correct the fit LG times
@@ -96,8 +96,8 @@ private:
   // Delayed pulse members
   //
   bool m_useDelayed;
-  float m_delayedDeltaT;
-  float m_delayedPedestalDiff;
+  float m_delayedDeltaT{};
+  float m_delayedPedestalDiff{};
   mutable TH1* m_delayedHist;
 
   TFitter* m_prePulseCombinedFitter;
@@ -108,48 +108,48 @@ private:
 
   // Statuses
   //
-  bool m_haveData;
-  bool m_havePulse;
-  bool m_fail;
-  bool m_useLowGain;
-  bool m_HGOverflow;
-  bool m_HGUnderflow;
-  bool m_LGOverflow;
-  bool m_LGUnderflow;
-  bool m_PSHGOverUnderflow;
-  bool m_prePulse;
-  bool m_fitFailed;
-  bool m_badT0;
-  bool m_badChisq;
+  bool m_haveData{};
+  bool m_havePulse{};
+  bool m_fail{};
+  bool m_useLowGain{};
+  bool m_HGOverflow{};
+  bool m_HGUnderflow{};
+  bool m_LGOverflow{};
+  bool m_LGUnderflow{};
+  bool m_PSHGOverUnderflow{};
+  bool m_prePulse{};
+  bool m_fitFailed{};
+  bool m_badT0{};
+  bool m_badChisq{};
 
   // Pulse analysis
   //
-  float m_preSample;
+  float m_preSample{};
 
-  float m_maxADCValue;
-  float m_minADCValue;
-  float m_maxDelta;
-  float m_minDelta;
+  float m_maxADCValue{};
+  float m_minADCValue{};
+  float m_maxDelta{};
+  float m_minDelta{};
 
-  int m_maxSampl;
-  int m_minSampl;
+  int m_maxSampl{};
+  int m_minSampl{};
 
-  float m_minDeriv2nd;
-  int m_minDeriv2ndIndex;
+  float m_minDeriv2nd{};
+  int m_minDeriv2ndIndex{};
 
-  float m_fitAmplitude;
-  float m_fitAmpError;
-  float m_fitTime;
-  float m_fitTimeSub;
-  float m_fitTimeCorr;
-  float m_fitTau1;
-  float m_fitTau2;
-  float m_fitChisq;
-  float m_amplitude;
-  float m_ampError;
-  float m_preSampleAmp;
-  float m_bkgdMaxFraction;
-  float m_delayedBaselineShift;
+  float m_fitAmplitude{};
+  float m_fitAmpError{};
+  float m_fitTime{};
+  float m_fitTimeSub{};
+  float m_fitTimeCorr{};
+  float m_fitTau1{};
+  float m_fitTau2{};
+  float m_fitChisq{};
+  float m_amplitude{};
+  float m_ampError{};
+  float m_preSampleAmp{};
+  float m_bkgdMaxFraction{};
+  float m_delayedBaselineShift{};
 
   std::vector<float> m_ADCSamplesHGSub;
   std::vector<float> m_ADCSamplesLGSub;
@@ -211,7 +211,7 @@ private:
 
 public:
 
-  ZDCPulseAnalyzer(std::string tag, int Nsample, float deltaTSample, size_t preSampleIdx, int pedestal, float gainHG,
+  ZDCPulseAnalyzer(const std::string& tag, int Nsample, float deltaTSample, size_t preSampleIdx, int pedestal, float gainHG,
 		   std::string fitFunction, int peak2ndDerivMinSample, float peak2DerivMinThreshHG, float peak2DerivMinThreshLG);
 
   ~ZDCPulseAnalyzer();

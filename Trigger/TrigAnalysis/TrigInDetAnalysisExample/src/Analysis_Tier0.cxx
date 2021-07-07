@@ -43,7 +43,7 @@ void Analysis_Tier0::initialise() {
   h_chain->GetXaxis()->SetBinLabel(2, "Nevents" );
   h_chain->GetXaxis()->SetBinLabel(3, "N ref tracks" );
   h_chain->GetXaxis()->SetBinLabel(4, "N matched tracks" );
-  h_chain->GetXaxis()->SetBinLabel(5, "" ); //  spare
+  h_chain->GetXaxis()->SetBinLabel(5, "N total test tracks" );
 
  
   /// archive the chain name
@@ -435,6 +435,10 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
   h_ntrk->Fill( referenceTracks.size() );
   h_ntrk_rec->Fill( testTracks.size() );
 
+  /// fil the number of offline tracks
+  h_chain->Fill(4.5, testTracks.size() );
+
+
   for( ; reference!=referenceEnd ; reference++ ) {
     
     // Get reference parameters
@@ -501,7 +505,9 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
  
     h_d0vsphi->Fill(referencePhi, referenceD0 );
  
+    /// fil the number of offline tracks
     h_chain->Fill(2.5);
+
 
     for ( size_t ilayer=0 ; ilayer<32 ; ilayer++ ) { 
       if ( (*reference)->hitPattern()&(1<<ilayer) ) m_h_layer_rec->Fill( ilayer );

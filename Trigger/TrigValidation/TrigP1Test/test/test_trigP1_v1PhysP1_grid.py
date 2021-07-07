@@ -26,6 +26,7 @@ ex.type = 'athenaHLT'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
 ex.args = '-c "setMenu=\'PhysicsP1_pp_run3_v1\';doL1Sim=True;"'
+ex.args += ' --dump-config-reload'
 
 test = Test.Test()
 test.art_type = 'grid'

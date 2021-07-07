@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -57,9 +57,6 @@ class TBScintillatorMonTool: public MonitorToolBase
   std::string m_histoPath;
 
   bool m_fake_detector;
-
-  bool m_isBooked;
-
 
 
   // Scint histograms

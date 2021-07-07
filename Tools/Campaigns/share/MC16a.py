@@ -8,3 +8,5 @@ lar.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(True)
 
 from AthenaCommon.Resilience import protectedInclude
 protectedInclude('LArConfiguration/LArConfigRun2Old.py')
+
+protectedInclude('PyJobTransforms/HepMcParticleLinkVerbosity.py')

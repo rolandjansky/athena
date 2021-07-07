@@ -41,8 +41,6 @@ namespace FTAGValidation {
     int m_nTotal_qualityOnlineJets;
 
   private:
-    ServiceHandle< ITHistSvc > m_histSvc { this, "THistSvc", "", "Histogramming svc" };
-
     SG::ReadHandleKey< xAOD::JetContainer >  m_trigJetKey  { this, "TrigJetCollectionKey", "",   
 	"Input Jet collection name" };
     SG::ReadHandleKey< xAOD::VertexContainer > m_trigVertexKey { this, "TrigVertexCollectionKey", "",

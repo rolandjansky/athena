@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ICscStripFitter.cxx
@@ -8,7 +8,7 @@
 using Muon::CscStripPrepData;
 
 typedef ICscStripFitter::Result Result;
-typedef ICscStripFitter::ChargeList ChargeList;
+using ChargeList = ICscStripFitter::ChargeList;
 
 // Result ICscStripFitter::fit(const ChargeList&, double, Identifier& /*sid*/) const {
 //  return Result();

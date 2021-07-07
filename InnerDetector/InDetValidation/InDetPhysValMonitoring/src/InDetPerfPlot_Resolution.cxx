@@ -187,30 +187,32 @@ InDetPerfPlot_Resolution::initializePlots() {
       std::shared_ptr<TH1D> refHistEta { m_pullHelpereta[iparam]->ProjectionY("refEta")}; 
       std::shared_ptr<TH1D> refHistPt { m_pullHelperpt[iparam]->ProjectionY("refPt")}; 
 
-      //Projections
-      for (int ibins = 0; ibins < nPtBins; ibins++) {
-        tmpName = "pullProjection_pt_" + m_paramProp[iparam] +"_bin_"+ std::to_string(ibins + 1);
-        tmpTitle = tmpName + "; (" + m_paramProp[iparam] + "^{reco}-" + m_paramProp[iparam] +
-                   "^{true})/#sigma_{" + m_paramProp[iparam] + "}";
-        m_pullProjections_vs_pt[iparam][ibins] = Book1D(tmpName, refHistPt.get(), tmpTitle , false);
+      //Projections - VERY expensive, hence only at higher detail levels above 200
+      if(m_iDetailLevel > 200){
+        for (int ibins = 0; ibins < nPtBins; ibins++) {
+          tmpName = "pullProjection_pt_" + m_paramProp[iparam] +"_bin_"+ std::to_string(ibins + 1);
+          tmpTitle = tmpName + "; (" + m_paramProp[iparam] + "^{reco}-" + m_paramProp[iparam] +
+                    "^{true})/#sigma_{" + m_paramProp[iparam] + "}";
+          m_pullProjections_vs_pt[iparam][ibins] = Book1D(tmpName, refHistPt.get(), tmpTitle , false);
 
 
-        tmpName = "resProjection_pt_" + m_paramProp[iparam] +"_bin_"+ std::to_string(ibins + 1);
-        tmpTitle = tmpName + "; " + m_paramProp[iparam] + "^{reco}-" + m_paramProp[iparam] + "^{true} ";
-        m_resProjections_vs_pt[iparam][ibins] = Book1D(tmpName, refHistPt.get(), tmpTitle , false);
+          tmpName = "resProjection_pt_" + m_paramProp[iparam] +"_bin_"+ std::to_string(ibins + 1);
+          tmpTitle = tmpName + "; " + m_paramProp[iparam] + "^{reco}-" + m_paramProp[iparam] + "^{true} ";
+          m_resProjections_vs_pt[iparam][ibins] = Book1D(tmpName, refHistPt.get(), tmpTitle , false);
 
-      }
-      for (int ibins = 0; ibins < nEtaBins; ibins++) {
-        tmpName = "pullProjection_eta_" + m_paramProp[iparam] +"_bin_"+ std::to_string(ibins + 1);
-        tmpTitle = tmpName + "; (" + m_paramProp[iparam] + "^{reco}-" + m_paramProp[iparam] +
-                   "^{true})/#sigma_{" + m_paramProp[iparam] + "}";
-        m_pullProjections_vs_eta[iparam][ibins] = Book1D(tmpName, refHistEta.get(), tmpTitle , false);
+        }
+        for (int ibins = 0; ibins < nEtaBins; ibins++) {
+          tmpName = "pullProjection_eta_" + m_paramProp[iparam] +"_bin_"+ std::to_string(ibins + 1);
+          tmpTitle = tmpName + "; (" + m_paramProp[iparam] + "^{reco}-" + m_paramProp[iparam] +
+                    "^{true})/#sigma_{" + m_paramProp[iparam] + "}";
+          m_pullProjections_vs_eta[iparam][ibins] = Book1D(tmpName, refHistEta.get(), tmpTitle , false);
 
-        
-        tmpName = "resProjection_eta_" + m_paramProp[iparam] +"_bin_"+ std::to_string(ibins + 1);
-        tmpTitle = tmpName + "; " + m_paramProp[iparam] + "^{reco}-" + m_paramProp[iparam] + "^{true} ";
-        m_resProjections_vs_eta[iparam][ibins] = Book1D(tmpName, refHistEta.get(), tmpTitle , false);
-      }     
+          
+          tmpName = "resProjection_eta_" + m_paramProp[iparam] +"_bin_"+ std::to_string(ibins + 1);
+          tmpTitle = tmpName + "; " + m_paramProp[iparam] + "^{reco}-" + m_paramProp[iparam] + "^{true} ";
+          m_resProjections_vs_eta[iparam][ibins] = Book1D(tmpName, refHistEta.get(), tmpTitle , false);
+        }  
+      }   
    }
    //
    //End of saving resolution and pull residual binnings
@@ -393,7 +395,7 @@ InDetPerfPlot_Resolution::getTrackParameters(const xAOD::TruthParticle& truthprt
 void
 InDetPerfPlot_Resolution::finalizePlots() {
     
-  bool saveProjections = true;
+  bool saveProjections = (m_iDetailLevel > 200);
   for (unsigned int iparam = 0; iparam < NPARAMS; iparam++) {
     if(iparam == PT) continue;
     //
@@ -402,13 +404,13 @@ InDetPerfPlot_Resolution::finalizePlots() {
     //
     if(m_iDetailLevel >= 200){
       m_resolutionHelper.makeResolutions(m_resHelpereta[iparam], m_reswidth_vs_eta[iparam], m_resmean_vs_eta[iparam],
-                      m_resProjections_vs_eta[iparam], saveProjections, m_resolutionMethod);
+                      (saveProjections ? m_resProjections_vs_eta[iparam] : nullptr), saveProjections, m_resolutionMethod);
       m_resolutionHelper.makeResolutions(m_resHelperpt[iparam], m_reswidth_vs_pt[iparam], m_resmean_vs_pt[iparam],
-                      m_resProjections_vs_pt[iparam], saveProjections, m_resolutionMethod);
+                      (saveProjections ? m_resProjections_vs_pt[iparam] : nullptr), saveProjections, m_resolutionMethod);
       m_resolutionHelper.makeResolutions(m_pullHelperpt[iparam], m_pullwidth_vs_pt[iparam], m_pullmean_vs_pt[iparam],
-                      m_pullProjections_vs_pt[iparam], saveProjections, m_resolutionMethod);
+                      (saveProjections ? m_pullProjections_vs_pt[iparam] : nullptr), saveProjections, m_resolutionMethod);
       m_resolutionHelper.makeResolutions(m_pullHelpereta[iparam], m_pullwidth_vs_eta[iparam], m_pullmean_vs_eta[iparam],
-                      m_pullProjections_vs_eta[iparam], saveProjections, m_resolutionMethod);
+                      (saveProjections ? m_pullProjections_vs_eta[iparam] : nullptr), saveProjections, m_resolutionMethod);
       m_resolutionHelper.makeResolutions(m_resHelperpt_pos[iparam], m_reswidth_vs_pt_pos[iparam], m_resmean_vs_pt_pos[iparam], m_resolutionMethod);
       m_resolutionHelper.makeResolutions(m_resHelperpt_neg[iparam], m_reswidth_vs_pt_neg[iparam], m_resmean_vs_pt_neg[iparam], m_resolutionMethod);
       m_resolutionHelper.makeResolutions(m_resHelpereta_pos[iparam], m_reswidth_vs_eta_pos[iparam], m_resmean_vs_eta_pos[iparam], m_resolutionMethod);

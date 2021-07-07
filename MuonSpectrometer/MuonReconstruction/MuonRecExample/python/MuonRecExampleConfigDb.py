@@ -96,6 +96,8 @@ addTool( "MuonRecExample.MuonRecTools.MdtSegmentT0Fitter", "MdtSegmentT0Fitter" 
 
 addTool( "MuonRecExample.MuonRecTools.MdtMathSegmentFinder", "MdtMathSegmentFinder" )
 addTool( "MuonRecExample.MuonRecTools.MdtMathT0FitSegmentFinder", "MdtMathT0FitSegmentFinder" )
+if setup_mm:
+    addTool( "MuonRecExample.MuonRecTools.MMClusterOnTrackCreator", "MMClusterOnTrackCreator")
 
 addTool( "MuonRecExample.MuonRecTools.DCMathSegmentMaker", "DCMathSegmentMaker" )
 addTool( "MuonRecExample.MuonRecTools.DCMathT0FitSegmentMaker", "DCMathT0FitSegmentMaker" )

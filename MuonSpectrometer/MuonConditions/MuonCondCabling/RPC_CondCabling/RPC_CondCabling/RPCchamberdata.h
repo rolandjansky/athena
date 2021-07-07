@@ -17,41 +17,23 @@ namespace RPC_CondCabling {
     class RPCchamberdata : BaseObject {
     private:
         typedef std::list<RPCchamber> RPClist;
-
-        bool m_fail;
-
-        int m_number;
-        int m_station;
-        int m_type;
-        std::string m_name;
-        int m_stationEta;
-        int m_doubletR;
-        int m_doubletZ;
-        int m_phiReadoutPannels;
-        int m_eta_strips;
-        int m_strips_in_Eta_Conn;
-        int m_eta_connectors;
-        int m_phi_strips;
-        int m_ijk_etaReadout;
-        int m_strips_in_Phi_Conn;
-        int m_phi_connectors;
-        int m_ijk_phiReadout;
+        int m_station{0};
+        bool m_fail{true};
 
         RPClist m_rpc;
 
-        void reset_data(void);
-        bool get_data(DBline&);
-        bool confirm_connectors(ViewType);
-        bool confirm_ijk(ViewType);
+        void reset_data();
+        bool get_data(DBline&, RPCchamber::chamberParameters& params);
+        bool confirm_connectors(ViewType, RPCchamber::chamberParameters& params);
+        bool confirm_ijk(ViewType, RPCchamber::chamberParameters& params);
 
     public:
-        RPCchamberdata();
-        RPCchamberdata(DBline&, int);
-        ~RPCchamberdata();
+        RPCchamberdata(DBline&, int, IMessageSvc*);
+        virtual ~RPCchamberdata() = default;
 
-        RPCchamber* give_rpc(void);
+        std::unique_ptr<RPCchamber> give_rpc();
 
-        int station(void) const { return m_station; }
+        int station() const { return m_station; }
 
         void Print(std::ostream&, bool) const;
     };

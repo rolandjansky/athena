@@ -58,7 +58,7 @@ class ZDC_PileUpTool: public PileUpToolBase {
 
  private:
 
-  StatusCode recordContainers(ServiceHandle<StoreGateSvc>& evtStore, std::string m_key_digitCnt);
+  StatusCode recordContainers(ServiceHandle<StoreGateSvc>& evtStore, const std::string& m_key_digitCnt);
 
   void fillStripDigitContainer(const ZDC_SimStripHit_Collection*,    CLHEP::HepRandomEngine*);
   void fillStripDigitContainer(TimedHitCollection<ZDC_SimStripHit>&, CLHEP::HepRandomEngine*);
@@ -100,12 +100,12 @@ class ZDC_PileUpTool: public PileUpToolBase {
 
   double HighToLow(double signal, double gain_ratio, double gain_error, CLHEP::HepRandomEngine* rndEngine);
 
-  double m_GainRatio_Strip[8];
-  double m_GainRatioError_Strip[8];
+  double m_GainRatio_Strip[8]{};
+  double m_GainRatioError_Strip[8]{};
   double m_GainRatio_Pixel{10.0};
   double m_GainRatioError_Pixel{0.5};
 
-  unsigned int PixelID(int Side=-1, int Module=-1, int PixNo=-1);
+  static unsigned int PixelID(int Side=-1, int Module=-1, int PixNo=-1);
 };
 
 #endif

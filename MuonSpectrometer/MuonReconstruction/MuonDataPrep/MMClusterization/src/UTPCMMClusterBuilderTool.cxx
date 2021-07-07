@@ -1,10 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "UTPCMMClusterBuilderTool.h"
 
 #include <cmath>
+#include <memory>
+
 #include <numeric>
 
 #include "GaudiKernel/MsgStream.h"
@@ -214,7 +216,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::runHoughTrafo(const std::vector<Muon:
     ATH_MSG_DEBUG("beginning of runHoughTrafo() with: " << xpos.size() <<" hits" );
     double maxX =  *std::max_element(xpos.begin(),xpos.end());
     double minX =  *std::min_element(xpos.begin(),xpos.end());    
-    std::unique_ptr<TH2D> h_hough=0;
+    std::unique_ptr<TH2D> h_hough=nullptr;
     StatusCode sc = houghInitCummulator(h_hough,maxX,minX);
 
     if(sc.isFailure()) return sc;
@@ -239,7 +241,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::houghInitCummulator(std::unique_ptr<T
 
     ATH_MSG_VERBOSE("Hough Using nBinsA "<< nbinsa <<" nBinsd "<< nbinsd<<" dmax "<< dmax);
 
-    h_hough = std::unique_ptr<TH2D>(new TH2D("h_hough","h_hough",nbinsa,m_alphaMin*Gaudi::Units::degree,m_alphaMax*Gaudi::Units::degree,nbinsd,-dmax,dmax));
+    h_hough = std::make_unique<TH2D>("h_hough","h_hough",nbinsa,m_alphaMin*Gaudi::Units::degree,m_alphaMax*Gaudi::Units::degree,nbinsd,-dmax,dmax);
 
     return StatusCode::SUCCESS;
 }
@@ -270,7 +272,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::findAlphaMax(std::unique_ptr<TH2D>& h
         for(int i_binY=0; i_binY<=h_hough->GetNbinsY();i_binY++){
             if(h_hough->GetBinContent(i_binX,i_binY)==cmax){
             ATH_MSG_DEBUG("Find Max Alpha: BinX "<< i_binX << " Alpha: "<< h_hough->GetXaxis()->GetBinCenter(i_binX)/Gaudi::Units::degree <<" BinY: "<< i_binY <<" over threshold: "<< h_hough->GetBinContent(i_binX,i_binY));
-            maxPos.push_back(std::make_tuple(h_hough->GetXaxis()->GetBinCenter(i_binX),h_hough->GetYaxis()->GetBinCenter(i_binY)));
+            maxPos.emplace_back(h_hough->GetXaxis()->GetBinCenter(i_binX),h_hough->GetYaxis()->GetBinCenter(i_binY));
             }
         }
     }
@@ -310,22 +312,30 @@ StatusCode Muon::UTPCMMClusterBuilderTool::selectTrack(const std::vector<Muon::M
                 goodStrips.push_back(i_hit);
             }
         }
-        if(true){
+        {
+
             ATH_MSG_DEBUG("Angle estimate         ="<< std::get<0>(track)<<" "<<std::get<0>(track)/Gaudi::Units::degree);
+
             ATH_MSG_DEBUG("restimate              ="<< std::get<1>(track));
+
             ATH_MSG_DEBUG("slope estimate         ="<< slope);
+
             ATH_MSG_DEBUG("intercept estimate     ="<< intercept);
+
             ATH_MSG_DEBUG("good strips            ="<< goodStrips);
+
             ATH_MSG_DEBUG("n good points          ="<< goodStrips.size());
+
             ATH_MSG_DEBUG("chi2                   ="<< std::accumulate(dist.begin(),dist.end(),0.0)/(dist.size()-2));
+
         }
-        if (goodStrips.size()){
+        if (!goodStrips.empty()){
             allGoodStrips.push_back(goodStrips);
             chi2.push_back(std::accumulate(dist.begin(),dist.end(),0.0)/(dist.size()-2));
-            trackQuality.push_back(std::make_tuple(goodStrips.size(),std::accumulate(dist.begin(),dist.end(),0.0)/(dist.size()-2)));
+            trackQuality.emplace_back(goodStrips.size(),std::accumulate(dist.begin(),dist.end(),0.0)/(dist.size()-2));
         }
     }
-    if(chi2.size()==0) return StatusCode::FAILURE;
+    if(chi2.empty()) return StatusCode::FAILURE;
     int trackIndex=std::min_element(trackQuality.begin(),trackQuality.end(),sortTracks)-trackQuality.begin();
     idxGoodStrips=allGoodStrips.at(trackIndex);
     return StatusCode::SUCCESS;
@@ -373,14 +383,14 @@ StatusCode Muon::UTPCMMClusterBuilderTool::applyCrossTalkCut(std::vector<int> &i
 
 
 StatusCode Muon::UTPCMMClusterBuilderTool::finalFit(const std::vector<Muon::MMPrepData> &mmPrd, std::vector<int>& idxSelected,double& x0, double &sigmaX0, double &fitAngle, double &chiSqProb)const{
-    std::unique_ptr<TGraphErrors> fitGraph=std::unique_ptr<TGraphErrors>(new TGraphErrors());
-    std::unique_ptr<TF1> ffit=std::unique_ptr<TF1>(new TF1("ffit","pol1"));
+    std::unique_ptr<TGraphErrors> fitGraph=std::make_unique<TGraphErrors>();
+    std::unique_ptr<TF1> ffit=std::make_unique<TF1>("ffit","pol1");
     
     double xmin = 5000;
     double xmax = -5000;
     double xmean = std::accumulate(mmPrd.begin(),mmPrd.end(),0.0,[&](double a,const Muon::MMPrepData &b){return a+b.localPosition().x();})/mmPrd.size(); //get mean x value
     
-    std::unique_ptr<TLinearFitter> lf=std::unique_ptr<TLinearFitter>(new TLinearFitter(1,"1++x"));
+    std::unique_ptr<TLinearFitter> lf=std::make_unique<TLinearFitter>(1,"1++x");
     
     for(int idx:idxSelected){
         double xpos=mmPrd.at(idx).localPosition().x()-xmean; // substract mean value from x to center fit around 0
@@ -413,16 +423,26 @@ StatusCode Muon::UTPCMMClusterBuilderTool::finalFit(const std::vector<Muon::MMPr
     fitAngle = std::tan(-1/fitSlope);
     chiSqProb=ffit->GetProb();
 
-    if(true){
+    {
+
         ATH_MSG_DEBUG("==========uTPC fit Summary==============");
+
         ATH_MSG_DEBUG("Fit slope: " << ffit->GetParameter(1));
+
         ATH_MSG_DEBUG("Fit intercept:" << ffit->GetParameter(0));
+
         ATH_MSG_DEBUG("Fit status: "<<s);
+
         ATH_MSG_DEBUG("Cluster position "<< x0 << " +- " << sigmaX0);
+
         ATH_MSG_DEBUG("Fit angle: "<<fitAngle <<" "<<fitAngle*180./M_PI);
+
         ATH_MSG_DEBUG("ChisSqProb"<< chiSqProb);
+
         ATH_MSG_DEBUG("nStrips:"<<idxSelected.size());
+
         ATH_MSG_DEBUG("gas gap:"<<m_idHelperSvc->mmIdHelper().gasGap(mmPrd.at(0).identify()));
+
     }
     if(s!=0 && s!=4000){ //4000 means fit succesfull but error optimization by minos failed; fit is still usable.
         ATH_MSG_DEBUG("Final fit failed with error code "<<s);

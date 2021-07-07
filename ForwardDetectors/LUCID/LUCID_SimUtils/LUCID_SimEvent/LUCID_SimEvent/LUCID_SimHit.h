@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LUCID_SIMHIT_H
@@ -37,7 +37,7 @@ class LUCID_SimHit  {
                float energy);
   LUCID_SimHit(short tubeID,
                int   pdgCode,
-               HepMcParticleLink partLink,
+               const HepMcParticleLink& partLink,
                int   genVolume,
                float stepStartPosX,
                float stepStartPosY,
@@ -82,21 +82,21 @@ class LUCID_SimHit  {
 
  private:
 
-  short m_tubeID;
-  int   m_pdgCode;
-  int   m_track;
+  short m_tubeID{};
+  int   m_pdgCode{};
+  int   m_track{};
   HepMcParticleLink m_partLink; // link to the particle generating the hit
-  int   m_genVolume;
-  float m_stepStartPosX;
-  float m_stepStartPosY;
-  float m_stepStartPosZ;
-  float m_stepEndPosX;
-  float m_stepEndPosY;
-  float m_stepEndPosZ;
-  float m_preStepTime;
-  float m_postStepTime;
-  float m_wavelength;
-  float m_energy;
+  int   m_genVolume{};
+  float m_stepStartPosX{};
+  float m_stepStartPosY{};
+  float m_stepStartPosZ{};
+  float m_stepEndPosX{};
+  float m_stepEndPosY{};
+  float m_stepEndPosZ{};
+  float m_preStepTime{};
+  float m_postStepTime{};
+  float m_wavelength{};
+  float m_energy{};
 };
 
 inline const HepMcParticleLink& LUCID_SimHit::particleLink() const { return m_partLink; }

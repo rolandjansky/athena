@@ -25,7 +25,7 @@ namespace RPC_CondCabling {
         RPClink m_lowPt_RPCs;
         RPClink m_highPt_RPCs;
 
-        bool m_inversion;
+        bool m_inversion{false};
 
         bool cable_CMA_channels(HalfType);
         bool connect(SectorLogicSetup&);
@@ -33,15 +33,11 @@ namespace RPC_CondCabling {
         bool got_confirm_cabling(SectorLogicSetup&, int);
         bool end_at_RPC_Z_boundary(void) const;
         bool begin_at_RPC_Z_boundary(void) const;
-        bool m_debug;
-        bool m_verbose;
-        IMessageSvc* m_msgSvc;
 
     public:
-        EtaCMA(int, int, int, CMAcoverage, int, int, int, int, int, int, int, int, int, int, int);
-        EtaCMA(int, int, int, int, int, int, int, int, int, int, int);
+        EtaCMA(parseParams parse, IMessageSvc* svc);
         EtaCMA(const EtaCMA&);
-        ~EtaCMA();
+        virtual ~EtaCMA();
 
         EtaCMA& operator=(const EtaCMA&);
 

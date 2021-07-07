@@ -148,8 +148,11 @@ class MuonRotCreator(Trk__RIO_OnTrackCreator,ConfiguredBase):
 
     def __init__(self,name="MuonRotCreator",**kwargs):
         self.applyUserDefaults(kwargs,name)
-        kwargs.setdefault("ToolMuonDriftCircle", "MdtDriftCircleOnTrackCreator")
-        kwargs.setdefault("ToolMuonCluster", "MuonClusterOnTrackCreator")
+        setup_mm =  MuonGeometryFlags.hasMM() and muonRecFlags.doMicromegas()
+        kwargs.setdefault("ToolMuonDriftCircle", getPublicTool("MdtDriftCircleOnTrackCreator"))
+        kwargs.setdefault("ToolMuonCluster", getPublicTool("MuonClusterOnTrackCreator"))
+        if setup_mm:
+            kwargs.setdefault("ToolMuonMMCluster", getPublicTool("MMClusterOnTrackCreator"))
         kwargs.setdefault("Mode", 'muon' )
         super(MuonRotCreator,self).__init__(name,**kwargs)
 # end of class MuonRotCreator

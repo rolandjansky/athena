@@ -69,7 +69,7 @@ namespace InDet {
   std::vector<double> TruthClusterizationFactory::estimateNumberOfParticles(const InDet::PixelCluster& pCluster) const
   {
     std::vector<double> probabilities(3,0.);
-    auto rdos = pCluster.rdoList();
+    const auto &rdos = pCluster.rdoList();
     unsigned int nPartContributing = 0;
     //Initialize vector for a list of UNIQUE barcodes for the cluster
     std::vector<int> barcodes;

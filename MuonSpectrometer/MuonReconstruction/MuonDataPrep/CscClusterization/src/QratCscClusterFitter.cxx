@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "QratCscClusterFitter.h"
@@ -22,8 +22,8 @@ using Muon::CscStripPrepData;
 using MuonGM::CscReadoutElement;
 
 typedef ICscClusterFitter::DataNames DataNames;
-typedef ICscClusterFitter::Result Result;
-typedef std::vector<Result> Results;
+using Result = ICscClusterFitter::Result;
+using Results = std::vector<Result>;
 
 enum CscStation { UNKNOWN_STATION, CSS, CSL };
 enum CscPlane { CSS_ETA, CSL_ETA, CSS_PHI, CSL_PHI, UNKNOWN_PLANE };
@@ -206,7 +206,7 @@ int qrat_atanh(const double a, const double b, double c, const double x0, double
 
 //****************************************************************************
 
-QratCscClusterFitter::QratCscClusterFitter(std::string type, std::string aname, const IInterface* parent) :
+QratCscClusterFitter::QratCscClusterFitter(const std::string& type, const std::string& aname, const IInterface* parent) :
     AthAlgTool(type, aname, parent) {
     declareInterface<ICscClusterFitter>(this);
     m_max_width.push_back(5);                   // CSS eta

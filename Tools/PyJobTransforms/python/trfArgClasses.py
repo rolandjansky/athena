@@ -1178,16 +1178,21 @@ class argFile(argList):
         else:
             myargdict = copy.copy(argdict)
         # Never do event count checks for self merging
-        myargdict['checkEventCount'] = argSubstepBool('False', runarg=False)
+        myargdict['checkEventCount'] = argSubstepBool('False', runarg=False) 
+        newopts = []
         if 'athenaopts' in myargdict:
             # Need to ensure that "nprocs" is not passed to merger
+            # and prevent multiple '--threads' options when there are multiple sub-steps in 'athenopts'
             for subStep in myargdict['athenaopts'].value:
-                newopts = []
                 for opt in myargdict['athenaopts'].value[subStep]:
                     if opt.startswith('--nprocs'):
                         continue
+                    # Keep at least one '--threads'
+                    elif opt.startswith('--threads'):
+                        if opt in newopts:
+                            continue
                     newopts.append(opt)
-                myargdict['athenaopts'] = argSubstepList(newopts, runarg=False)
+            myargdict['athenaopts'] = argSubstepList(newopts, runarg=False)
         return myargdict
 
 

@@ -94,6 +94,25 @@ def scheduleMETAssocAlg(sequence=DerivationFrameworkJob,configlist="CustomMET"):
     if not hasattr(sequence,algname):
         sequence += assocAlg
 
+def scheduleStandardMETContent(sequence=DerivationFrameworkJob, algname = 'METStandardAssociationAlg'):
+    assocAlg = None
+    if algname in metalgs.keys():
+        print ("Get preexisting alg:", algname, metalgs[algname])
+        assocAlg = metalgs[algname]
+    else:
+        # This import statement executes code which auto-configures the standard associations.
+        # Design to be improved with the migration to the new config.
+        import METReconstruction.METConfig_Associator # noqa: F401
+
+        from METReconstruction.METRecoFlags import metFlags
+        standardConfigs = {k : v for k, v in metFlags.METAssocConfigs().items() if ("EMTopo" in k or "EMPFlow" in k)}
+        from METReconstruction.METAssocConfig import getMETAssocAlg
+        assocAlg = getMETAssocAlg(algname,standardConfigs)
+        metalgs[algname] = assocAlg
+        print ("Generate MET alg:", algname, assocAlg)
+    if not hasattr(sequence,algname):
+        sequence += assocAlg
+
 def scheduleMETCustomVertex(vxColl,jetcoll='AntiKt4EMTopo',
                             configlist="CustomMET",
                             outputlist="CustomMET"):

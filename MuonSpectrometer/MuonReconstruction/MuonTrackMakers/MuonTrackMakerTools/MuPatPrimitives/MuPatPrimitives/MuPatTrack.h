@@ -89,6 +89,8 @@ namespace Muon {
 
         /** @brief access to track */
         Trk::Track& track() const;
+         /** @brief update track. Candidate takes ownership of track. */
+        void updateTrack(std::unique_ptr<Trk::Track>& newTrack);
 
         /** @brief access to segments */
         const std::vector<MuPatSegment*>& segments() const;
@@ -104,6 +106,8 @@ namespace Muon {
 
         /** @brief add segment that does not match the track */
         void addExcludedSegment(MuPatSegment* segment);
+        /** @brief loops over the excluded segment collection and checks whether the pointer is in there */
+        bool isSegmentExcluded(const MuPatSegment* segment) const;
 
         /** @brief returns first track parameters */
         const Trk::TrackParameters& entryPars() const;
@@ -146,10 +150,7 @@ namespace Muon {
 
         //
         // private member functions
-        //
-        /** @brief update track. Candidate takes ownership of track. */
-        void updateTrack(std::unique_ptr<Trk::Track>& newTrack);
-
+        //       
         /** @brief update segment/track association, if add == true ,will add track to segments else remove it */
         void updateSegments(bool add);
 

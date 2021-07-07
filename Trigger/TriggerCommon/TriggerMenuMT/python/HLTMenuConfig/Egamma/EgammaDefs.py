@@ -82,25 +82,25 @@ def createTrigEgammaPrecisionElectronLHSelectors(ConfigFilePath=None):
 
     import collections
     SelectorNames = collections.OrderedDict({
-          'lhtight':'AsgElectronLHTightSelector',
-          'lhmedium':'AsgElectronLHMediumSelector',
-          'lhloose':'AsgElectronLHLooseSelector',
-          'lhvloose':'AsgElectronLHVLooseSelector',
-          'lhtightnopix':'AsgElectronLHTightSelectorNoPix',
-          'lhmediumnopix':'AsgElectronLHMediumSelectorNoPix',
-          'lhloosenopix':'AsgElectronLHLooseSelectorNoPix',
-          'lhvloosenopix':'AsgElectronLHVLooseSelectorNoPix',
+          'lhtight'       :'AsgElectronLHTightSelector',
+          'lhmedium'      :'AsgElectronLHMediumSelector',
+          'lhloose'       :'AsgElectronLHLooseSelector',
+          'lhvloose'      :'AsgElectronLHVLooseSelector',
+          'lhtight_nopix' :'AsgElectronLHTightSelectorNoPix',
+          'lhmedium_nopix':'AsgElectronLHMediumSelectorNoPix',
+          'lhloose_nopix' :'AsgElectronLHLooseSelectorNoPix',
+          'lhvloose_nopix':'AsgElectronLHVLooseSelectorNoPix',
           })
      
     ElectronToolConfigFile = collections.OrderedDict({
-          'lhtight':'ElectronLikelihoodTightTriggerConfig.conf',
-          'lhmedium':'ElectronLikelihoodMediumTriggerConfig.conf',
-          'lhloose':'ElectronLikelihoodLooseTriggerConfig.conf',
-          'lhvloose':'ElectronLikelihoodVeryLooseTriggerConfig.conf',
-          'lhtightnopix':'ElectronLikelihoodTightTriggerConfig_NoPix.conf',
-          'lhmediumnopix':'ElectronLikelihoodMediumTriggerConfig_NoPix.conf',
-          'lhloosenopix':'ElectronLikelihoodLooseTriggerConfig_NoPix.conf',
-          'lhvloosenopix':'ElectronLikelihoodVeryLooseTriggerConfig_NoPix.conf',
+          'lhtight'         :'ElectronLikelihoodTightTriggerConfig.conf',
+          'lhmedium'        :'ElectronLikelihoodMediumTriggerConfig.conf',
+          'lhloose'         :'ElectronLikelihoodLooseTriggerConfig.conf',
+          'lhvloose'        :'ElectronLikelihoodVeryLooseTriggerConfig.conf',
+          'lhtight_nopix'   :'ElectronLikelihoodTightTriggerConfig_NoPix.conf',
+          'lhmedium_nopix'  :'ElectronLikelihoodMediumTriggerConfig_NoPix.conf',
+          'lhloose_nopix'   :'ElectronLikelihoodLooseTriggerConfig_NoPix.conf',
+          'lhvloose_nopix'  :'ElectronLikelihoodVeryLooseTriggerConfig_NoPix.conf',
           })
 
     selectors = []

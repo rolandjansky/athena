@@ -5,3 +5,5 @@ bf.Beam.numberOfCollisions.set_Value_and_Lock(20.0)
 
 from AthenaCommon.Resilience import protectedInclude
 protectedInclude('LArConfiguration/LArConfigRun2Old.py')
+
+protectedInclude('PyJobTransforms/HepMcParticleLinkVerbosity.py')

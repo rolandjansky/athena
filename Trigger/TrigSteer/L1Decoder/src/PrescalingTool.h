@@ -70,7 +70,7 @@ class PrescalingTool : public extends<AthAlgTool, IPrescalingTool> {
 
    // properties
    Gaudi::Property<bool> m_keepUnknownChains{
-    this, "KeepUnknownChains", true,
+    this, "KeepUnknownChains", false,
     "If True then chains for which prescaling information is not set are kept" };
 
    ToolHandle<GenericMonitoringTool> m_monTool{this, "MonTool", "", "Monitoring tool"};

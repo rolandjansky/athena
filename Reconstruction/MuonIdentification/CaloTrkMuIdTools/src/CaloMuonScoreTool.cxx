@@ -261,34 +261,14 @@ float CaloMuonScoreTool::getMedian(std::vector<float> v) const {
     return (*max_it + med) / 2.0;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// CaloMuonScoreTool::getBin
-///////////////////////////////////////////////////////////////////////////////
-int CaloMuonScoreTool::getBin(std::vector<float> &bins, float &val) const {
-    // return -1 if value is outside the range
-    if (val < bins.front()) { return -1; }
+int CaloMuonScoreTool::getBin(const float low_edge, const float up_edge, const int n_bins, float val) const {
+    if (val < low_edge || val >= up_edge)
+        return -1;
+    const float bin_width = (up_edge - low_edge) / (n_bins - 1);
+    float interval = val - low_edge;
+    return std::ceil(interval / bin_width);
 
-    if (val > bins.back()) { return -1; }
 
-    int n_bins = bins.size();
-
-    for (int i = 0; i < n_bins; i++) {
-        if (val < bins[i]) return i;
-    }
-
-    return -1;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// CaloMuonScoreTool::getLinearlySpacedBins
-///////////////////////////////////////////////////////////////////////////////
-std::vector<float> CaloMuonScoreTool::getLinearlySpacedBins(float min, float max, int nBins) const {
-    double h = (max - min) / static_cast<float>(nBins - 1);
-    std::vector<float> xs(nBins);
-    std::vector<float>::iterator x;
-    double val;
-    for (x = xs.begin(), val = min; x != xs.end(); ++x, val += h) { *x = val; }
-    return xs;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -308,9 +288,6 @@ std::vector<float> CaloMuonScoreTool::getInputTensor(std::vector<float> &eta, st
     // initialise output matrix of zeros
     std::vector<float> tensor(m_etaBins * m_phiBins * m_nChannels, 0.);
 
-    std::vector<float> eta_bins = getLinearlySpacedBins(-m_etaCut, m_etaCut, m_etaBins);
-    std::vector<float> phi_bins = getLinearlySpacedBins(-m_phiCut, m_phiCut, m_phiBins);
-
     int skipped_cells = 0;
 
     for (int i = 0; i < n_cells; i++) {
@@ -318,9 +295,8 @@ std::vector<float> CaloMuonScoreTool::getInputTensor(std::vector<float> &eta, st
         float shifted_eta = eta[i] - median_eta;
         float shifted_phi = unwrappedPhi[i] - median_phi;
 
-        int eta_bin = getBin(eta_bins, shifted_eta);
-        int phi_bin = getBin(phi_bins, shifted_phi);
-
+        int eta_bin = getBin(-m_etaCut, m_etaCut, m_etaBins, shifted_eta);
+        int phi_bin = getBin(-m_phiCut, m_phiCut, m_phiBins, shifted_phi);
         // the cell lies outside the acceptable range
         if (eta_bin == -1 || phi_bin == -1) {
             skipped_cells++;

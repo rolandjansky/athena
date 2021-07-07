@@ -39,12 +39,13 @@ public:
     CaloMuonScoreTool(const std::string &type, const std::string &name, const IInterface *parent);
     virtual ~CaloMuonScoreTool() = default;
 
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     // Compute the muon score given a track particle
     float getMuonScore(const xAOD::TrackParticle *trk, const CaloCellContainer *cells = nullptr,
-                       const CaloExtensionCollection *extensionCache = nullptr) const;
+                       const CaloExtensionCollection *extensionCache = nullptr) const override;
 
+private:
     // run the ONNX inference on the input tensor
     float runOnnxInference(std::vector<float> &tensor) const;
 
@@ -57,13 +58,12 @@ public:
                           std::vector<float> &phi, std::vector<float> &energy, std::vector<int> &samplingId) const;
 
     // Compute the median of a vector of floats (can be even or odd in length)
+    /// --> Copy is neccessary as the elements are reorded for the moment which would then break
+    ///     association to the actual cell deposit
     float getMedian(std::vector<float> v) const;
 
-    // Get a linearly spaced vector of size `nBins`, ranging from `min` to `max` (both values included)
-    std::vector<float> getLinearlySpacedBins(float min, float max, int nBins) const;
-
     // Given a vector of bins, return the index of the matching bin
-    int getBin(std::vector<float> &bins, float &val) const;
+    int getBin(const float low_edge, const float up_edge, const int n_bins, float val) const;
 
     // Given a calo sampling ID (as integer), return the corresponding "RGB"-like channel ID (0,1,2,3,4,5,6)
     int channelForSamplingId(int &samplingId) const;
@@ -72,7 +72,6 @@ public:
     std::vector<float> getInputTensor(std::vector<float> &eta, std::vector<float> &phi, std::vector<float> &energy,
                                       std::vector<int> &sampling) const;
 
-private:
     Gaudi::Property<float> m_CaloCellAssociationConeSize{this, "CaloCellAssociationConeSize", 0.2,
                                                          "Size of the cone within which calo cells are associated with a track particle"};
     Gaudi::Property<int> m_etaBins{this, "etaBins", 30, "Number of bins in eta"};

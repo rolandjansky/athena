@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LUCID_DIGISETTINGS_H
@@ -12,7 +12,9 @@
 #include <string>
 
 class IMessageSvc;
+namespace Gaudi{
 class Algorithm;
+}
 
 class LUCID_DigiSettings {
   
@@ -22,10 +24,10 @@ class LUCID_DigiSettings {
 
   void   Initialize(IMessageSvc* msgSvc);
   
-  void   SetDigiParDouble(std::string, double);
-  void   SetDigiParInt   (std::string, int);
-  double GetDigiParDouble(std::string);
-  int    GetDigiParInt   (std::string);
+  void   SetDigiParDouble(const std::string&, double);
+  void   SetDigiParInt   (const std::string&, int);
+  double GetDigiParDouble(const std::string&);
+  int    GetDigiParInt   (const std::string&);
   
   void   OverwriteDigiParProperties(Gaudi::Algorithm*);
   void   OverwriteDigiParValues();
@@ -38,17 +40,17 @@ class LUCID_DigiSettings {
 
   IMessageSvc* m_msgSvc;
 
-  int    m_numTubes;
-  int    m_qdcChannelsPerPE;
-  double m_qdcFedNoiseFactor;
-  double m_tdcPmtNoiseFactor;
-  double m_tdcFedNoiseFactor;
+  int    m_numTubes{};
+  int    m_qdcChannelsPerPE{};
+  double m_qdcFedNoiseFactor{};
+  double m_tdcPmtNoiseFactor{};
+  double m_tdcFedNoiseFactor{};
 
   double m_parValueNotSetByUserDouble;
   int    m_parValueNotSetByUserInt;
 
-  void DefNewParameterDouble(std::string, std::string, double*, double, double);
-  void DefNewParameterInt   (std::string, std::string, int*,    int,    int); 
+  void DefNewParameterDouble(std::string, const std::string&, double*, double, double);
+  void DefNewParameterInt   (std::string, const std::string&, int*,    int,    int); 
 
   struct parDouble {  
 

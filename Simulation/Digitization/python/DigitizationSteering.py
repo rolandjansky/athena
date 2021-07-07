@@ -20,6 +20,7 @@ from MuonConfig.MM_DigitizationConfig import MM_DigitizationDigitToRDOCfg
 from MuonConfig.RPC_DigitizationConfig import RPC_DigitizationDigitToRDOCfg
 from MuonConfig.TGC_DigitizationConfig import TGC_DigitizationDigitToRDOCfg
 from MuonConfig.sTGC_DigitizationConfig import sTGC_DigitizationDigitToRDOCfg
+from PixelDigitization.ITkPixelDigitizationConfig import ITkPixelDigitizationCfg
 from PixelDigitization.PixelDigitizationConfigNew import PixelDigitizationCfg
 from SCT_Digitization.SCT_DigitizationConfigNew import SCT_DigitizationCfg
 from StripDigitization.StripDigitizationConfig import ITkStripDigitizationCfg
@@ -104,10 +105,14 @@ def DigitizationMainCfg(flags):
         acc.merge(PixelDigitizationCfg(flags))
     if flags.Detector.EnableSCT:
         acc.merge(SCT_DigitizationCfg(flags))
-    if flags.Detector.EnableITkStrip:
-        acc.merge(ITkStripDigitizationCfg(flags))
     if flags.Detector.EnableTRT:
         acc.merge(TRT_DigitizationCfg(flags))
+
+    # ITk
+    if flags.Detector.EnableITkPixel:
+        acc.merge(ITkPixelDigitizationCfg(flags))
+    if flags.Detector.EnableITkStrip:
+        acc.merge(ITkStripDigitizationCfg(flags))
 
     # Calorimeter
     if flags.Detector.EnableLAr:

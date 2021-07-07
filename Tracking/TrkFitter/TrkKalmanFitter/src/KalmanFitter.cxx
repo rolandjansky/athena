@@ -1425,14 +1425,14 @@ Trk::KalmanFitter::internallyMakePerigee(
 				      *m_tparScaleSetter));
   }
   // extrapolate to perigee
-  const Trk::TrackParameters* per = m_extrapolator->extrapolate(
+  std::unique_ptr<const Trk::TrackParameters> per(m_extrapolator->extrapolate(
     ctx,
     *nearestParam,
     perSurf,
     (m_sortingRefPoint.mag() > 1.0E-10 ? Trk::anyDirection
                                        : Trk::oppositeMomentum),
     false,
-    matEffects);
+    matEffects));
   if (!per) {
     ATH_MSG_DEBUG ("Perigee-making failed: extrapolation did not succeed.");
     return nullptr;
@@ -1440,7 +1440,7 @@ Trk::KalmanFitter::internallyMakePerigee(
 
   std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
   typePattern.set(TrackStateOnSurface::Perigee);
-  return new TrackStateOnSurface(nullptr , per, nullptr,  nullptr, typePattern );
+  return new TrackStateOnSurface(nullptr , std::move(per), nullptr,  nullptr, typePattern );
 }
 
 const Trk::TrackStateOnSurface*
@@ -1467,7 +1467,7 @@ Trk::KalmanFitter::makeReferenceState(
   nearestParam = *(std::min_element(parameterTrajectory.begin(),
                                     parameterTrajectory.end(),
                                     nearestSurfaceDefinition));
-  const Trk::TrackParameters* fittedRefParams = m_extrapolator->extrapolate(
+  std::unique_ptr<const Trk::TrackParameters> fittedRefParams(m_extrapolator->extrapolate(
     ctx,
     *nearestParam,
     refSurface,
@@ -1475,7 +1475,7 @@ Trk::KalmanFitter::makeReferenceState(
        Trk::anyDirection
                                        : Trk::oppositeMomentum),
     false,
-    matEffects);
+    matEffects));
   if (!fittedRefParams) {
     ATH_MSG_DEBUG (" No ref-params made: extrapolation failed.");
     return nullptr;
@@ -1483,7 +1483,7 @@ Trk::KalmanFitter::makeReferenceState(
 
   std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
   typePattern.set(TrackStateOnSurface::Perigee);
-  return new TrackStateOnSurface(nullptr, fittedRefParams, nullptr, nullptr, typePattern );
+  return new TrackStateOnSurface(nullptr, std::move(fittedRefParams), nullptr, nullptr, typePattern );
 }
 
 void Trk::KalmanFitter::monitorTrackFits(FitStatisticsCode code, const double& eta) const {

@@ -151,7 +151,7 @@ namespace InDet{
        *     InDet::SCT_ClusterCollection::const_iterator
        */
       template <typename T>
-      void set(int st,
+      bool set(int st,
 	       const InDet::SiDetElementBoundaryLink_xk*& dl,
 	       const T& sb,
 	       const T& se,

@@ -47,7 +47,6 @@ namespace FTAGValidation {
     ATH_CHECK( m_trigTrackKey.initialize() );
     ATH_CHECK( m_offJetKey.initialize() );
 
-    ATH_CHECK( m_histSvc.retrieve() );
     ATH_CHECK( initializeHistograms() );
 
     m_nTotal_events = 0;

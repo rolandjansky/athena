@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoModelInterfaces/StoredMaterialManager.h"
@@ -37,14 +37,14 @@
 
 LUCID_DetectorFactory::LUCID_DetectorFactory(StoreGateSvc* detStore,
 					     IRDBAccessSvc* pAccess)
-  :m_detectorManager(0),
-   m_materialManager(0),
+  :m_detectorManager(nullptr),
+   m_materialManager(nullptr),
    m_detectorStore  (detStore),
    m_access         (pAccess),
    m_lp             (new LUCID_RDBAccess()) {
 
-  m_quartz = 0;
-  m_peek = 0;
+  m_quartz = nullptr;
+  m_peek = nullptr;
 }
 
 LUCID_DetectorFactory::~LUCID_DetectorFactory() {

@@ -77,7 +77,7 @@ void PixelGmxInterface::addSensorType(std::string clas,
 {
   ATH_MSG_DEBUG("addModuleType called for class " << clas << ", typeName " << typeName);
 
-  if (clas == "QuadChip_RD53") {
+  if (clas == "SingleChip_RD53" || clas == "SingleChip_RD53_25x100" || clas == "QuadChip_RD53" || clas == "QuadChip_RD53_inclined") {
     makePixelModule(clas, parameters);
   } else {
     ATH_MSG_ERROR("addModuleType: unrecognised module class: " << clas);
@@ -153,9 +153,9 @@ void PixelGmxInterface::makePixelModule(const std::string &typeName,
 
   //For optionally setting PixelBarrel,PixelEndcap,PixelInclined
   //(so far) primarily useful for the latter to avoid orientation warnings
-  InDetDD::DetectorType detectorType{InDetDD::Undefined};
+  InDetDD::DetectorType detectorType{InDetDD::PixelBarrel};  // TODO: we should probably fail and not default to barrel here.
   int detectorTypeEnum = 0;
-  if(checkParameter(typeName, parameters, "detectorType", detectorTypeEnum)){
+  if (checkParameter(typeName, parameters, "detectorType", detectorTypeEnum)) {
     if (detectorTypeEnum == 1) detectorType = InDetDD::PixelBarrel;
     else if (detectorTypeEnum == 2) detectorType = InDetDD::PixelEndcap;
     else if (detectorTypeEnum == 3) detectorType = InDetDD::PixelInclined;

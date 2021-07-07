@@ -18,27 +18,20 @@ namespace RPC_CondCabling {
         typedef std::list<WiredOR> WORlist;
 
         bool m_fail;
-
-        int m_number;
-        int m_station;
-        int m_type;
-        int m_start;
-        int m_stop;
-
+        int m_station{-1};
         WORlist m_wor;
 
-        void reset_data(void);
-        bool get_data(DBline&);
-        bool confirm_boundary(void) const;
+        void reset_data();
+        bool get_data(DBline&, WiredOR::parseParams&);
+        bool confirm_boundary(WiredOR::parseParams&) const;
 
     public:
-        WiredORdata();
-        WiredORdata(DBline&, int);
-        ~WiredORdata();
+        WiredORdata(DBline&, int, IMessageSvc*);
+        virtual ~WiredORdata();
 
         std::unique_ptr<WiredOR> give_wor(void);
 
-        int station(void) const { return m_station; }
+        int station() const { return m_station; }
 
         void Print(std::ostream&, bool) const;
     };

@@ -20,7 +20,7 @@
 #include <vector>
 #include <map>
 
-#include <math.h>
+#include <cmath>
 
 #include "TMath.h"
 
@@ -117,7 +117,7 @@ StatusCode ZdcRecChannelTool::initialize()
         //Load Mapping
 	msg(MSG::DEBUG) << "--> ZDC : START OF MODIFICATION 0" << endmsg ;
 
-	const ZdcID* zdcId = 0;
+	const ZdcID* zdcId = nullptr;
 	if (detStore()->retrieve( zdcId ).isFailure() ) {
 	    msg(MSG::ERROR) << "execute: Could not retrieve ZdcID object from the detector store" << endmsg;
 	    return StatusCode::FAILURE;
@@ -239,13 +239,13 @@ int  ZdcRecChannelTool::makeRawFromDigits(
 	    chi.clear();
 
 	    wfm[0] = digits_p->get_digits_gain0_delay0();
-	    if (wfm[0].size() == 0) {
+	    if (wfm[0].empty()) {
 	    	msg(MSG::DEBUG) << "ZERO SIZE g0d0 at ID  " << id.getString() << endmsg;
 	    	wfm[0].resize(7);
 	    }
 
 	    wfm[1] = digits_p->get_digits_gain1_delay0();
-	    if (wfm[1].size() == 0) {
+	    if (wfm[1].empty()) {
 	    	msg(MSG::DEBUG) << "ZERO SIZE g1d0 at ID  " << id.getString() << endmsg;
 	    	wfm[1].resize(7);
 	    }
@@ -283,7 +283,7 @@ int  ZdcRecChannelTool::makeRawFromDigits(
 		//the code crashs if we do not treat this.
 		i = 0;
 	    for (vit = wfm.begin(); vit<wfm.end(); ++vit) {
-	    	if (vit->size() == 0) vit->resize(7);
+	    	if (vit->empty()) vit->resize(7);
 	    	ped = *vit->begin();
 	    	for (it=vit->begin(); it<vit->end();++it) {
 	    		(*it) -= ped;
@@ -496,7 +496,7 @@ int ZdcRecChannelTool::getTimingCFD(const Identifier& id,  const std::vector<std
 	gsl_root_fsolver *s;
 	gsl_function F;
 
-	CCallbackHolder cc;
+	CCallbackHolder cc{};
 
 	T = gsl_root_fsolver_brent;
 	s = gsl_root_fsolver_alloc (T);

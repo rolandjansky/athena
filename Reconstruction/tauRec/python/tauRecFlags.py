@@ -107,7 +107,7 @@ class tauRecRNNTrackClassificationConfig(JobProperty):
     """
     statusOn=True
     allowedTypes=['string']
-    StoredValue="RNNTrackClassifier.2021-04-20_14-16-37_90_35_50.json"
+    StoredValue="RNNTrackClassifier.2021-04-28_14-53-11_90_15_30.json"
 
 class tauRecDecayModeNNClassifierConfig(JobProperty):
     """Config file for TauDecayModeNNClassifier

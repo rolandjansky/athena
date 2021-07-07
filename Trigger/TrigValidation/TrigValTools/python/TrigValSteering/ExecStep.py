@@ -302,7 +302,7 @@ class ExecStep(Step):
         if self.max_events is None:
             if test.art_type == 'build':
                 if test.package_name == 'TrigP1Test':
-                    self.max_events = 100
+                    self.max_events = 80
                 else:
                     self.max_events = 20
             else:

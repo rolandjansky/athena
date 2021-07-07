@@ -158,12 +158,16 @@ def pebInfoWriterTool(name, eventBuildType):
 
 
 def pebInputMaker(chain, eventBuildType):
-    # Check if we are configuring a full-scan chain
-    isFullscan = (chain.L1decisions == [mapThresholdToL1DecisionCollection('FSNOSEED')])
+    # Check if we are configuring a chain with at least one full-scan leg
+    isFullscan = (mapThresholdToL1DecisionCollection('FSNOSEED') in chain.L1decisions)
 
     # Check if we are configuring RoI-based PEB
     _tmpTool = pebInfoWriterTool('tmpTool_'+eventBuildType, eventBuildType)
     isRoIBasedPEB = isinstance(_tmpTool, CompFactory.RoIPEBInfoWriterTool)
+    isStaticPEB = isinstance(_tmpTool, CompFactory.StaticPEBInfoWriterTool)
+    if not isRoIBasedPEB and not isStaticPEB:
+        raise RuntimeError('Cannot determine whether ' + eventBuildType +
+                           ' is static or RoI-based PEB from a tool of type ' + type(_tmpTool))
     del _tmpTool
 
     # Configure the InputMaker
@@ -173,8 +177,8 @@ def pebInputMaker(chain, eventBuildType):
     maker.mergeUsingFeature = isRoIBasedPEB
 
     # Configure the InputMaker RoI tool
-    if len(chain.steps) == 0:
-        # Streamers: use initial RoI
+    if len(chain.steps) == 0 or isStaticPEB:
+        # Streamers or static PEB: use initial RoI
         maker.RoITool = CompFactory.ViewCreatorInitialROITool()
     elif isFullscan and isRoIBasedPEB:
         # Full-scan chains with RoI-based PEB: create RoI around feature IParticle

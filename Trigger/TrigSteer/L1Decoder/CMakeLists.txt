@@ -16,7 +16,7 @@ atlas_add_library( L1DecoderLib
 atlas_add_component( L1Decoder
                      src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel AthenaMonitoringKernelLib GaudiKernel L1DecoderLib StoreGateLib TrigCompositeUtilsLib TrigConfHLTUtilsLib TrigConfInterfaces TrigConfL1Data TrigConfxAODLib TrigCostMonitorMTLib TrigSteeringEvent TrigT1Interfaces TrigT1Result TrigTimeAlgsLib xAODEventInfo xAODTrigger )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel AthenaMonitoringKernelLib GaudiKernel L1DecoderLib StoreGateLib TrigCompositeUtilsLib TrigConfHLTUtilsLib TrigConfInterfaces TrigConfL1Data TrigConfxAODLib TrigCostMonitorLib TrigSteeringEvent TrigT1Interfaces TrigT1Result TrigTimeAlgsLib xAODEventInfo xAODTrigger )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

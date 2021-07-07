@@ -124,7 +124,7 @@ def addP1Signatures():
         # Cosmic calo stream
         ChainProp(name='HLT_noalg_cosmiccalo_L1EM3_EMPTY', stream=['CosmicCalo'],groups=['RATE:Cosmic_Calo','BW:MinBias']),
         ChainProp(name='HLT_noalg_cosmiccalo_L1RD1_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['CosmicCalo','express'],groups=['RATE:Calibration','BW:Detector']),
-        ChainProp(name='HLT_noalg_cosmiccalo_L1J30_31ETA49_EMPTY', stream=['CosmicCalo'],groups=['RATE:Cosmic_Calo','BW:Jet']),
+        ChainProp(name='HLT_noalg_cosmiccalo_L1J30p31ETA49_EMPTY', stream=['CosmicCalo'],groups=['RATE:Cosmic_Calo','BW:Jet']),
         ChainProp(name='HLT_noalg_cosmiccalo_L1J12_EMPTY', stream=['CosmicCalo','express'],groups=['RATE:Cosmic_Calo','BW:Jet']),
         ChainProp(name='HLT_noalg_cosmiccalo_L1EM7_EMPTY', stream=['CosmicCalo','express'],groups=['RATE:Cosmic_Calo','BW:Jet']),
         ChainProp(name='HLT_noalg_cosmiccalo_L1J30_EMPTY', stream=['CosmicCalo','express'],groups=['RATE:Cosmic_Calo','BW:Jet']),

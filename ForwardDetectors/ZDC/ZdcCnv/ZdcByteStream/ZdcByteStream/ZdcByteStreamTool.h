@@ -69,7 +69,7 @@ public:
 							ZdcDigitsCollection* ttCollection);
 
 	/// Convert ZdcCollection to ROB fragments
-	StatusCode convert(const ZdcDigitsCollection* ttCollection,
+	static StatusCode convert(const ZdcDigitsCollection* ttCollection,
 	                       RawEventWrite* re);
 
 	/// Return reference to vector with all possible Source Identifiers
@@ -128,7 +128,7 @@ private:
 	/// Source ID converter
 	ZdcSrcIdMap* m_srcIdMap;
 	/// Trigger tower key provider
-	ZdcPpmSubBlock* m_errorBlock;
+	ZdcPpmSubBlock* m_errorBlock{};
 	/// Vector for current PPM sub-blocks
 	DataVector<ZdcPpmSubBlock> m_ppmBlocks;
 	/// Vector for compression statistics
@@ -138,7 +138,7 @@ private:
 	/// ROD status map
 	std::map<uint32_t, std::vector<uint32_t>*> m_rodStatusMap;
 
-	const ZdcID* m_zdcID;
+	const ZdcID* m_zdcID{};
 
 };
 

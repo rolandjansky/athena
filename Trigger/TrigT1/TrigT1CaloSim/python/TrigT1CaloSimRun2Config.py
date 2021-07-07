@@ -144,7 +144,6 @@ def L1LegacyCaloSimCfg(flags):
     acc.addEventAlgo(CompFactory.LVL1.RoIROD('RoIROD'))
     if flags.Input.isMC:
         acc.addEventAlgo(CompFactory.LVL1.TrigT1MBTS(UseNewConfig = flags.Trigger.readLVL1FromJSON))
-        acc.addEventAlgo(CompFactory.LVL1.TrigT1ZDC(UseNewConfig = flags.Trigger.readLVL1FromJSON))
     return acc
 
 if __name__ == '__main__':

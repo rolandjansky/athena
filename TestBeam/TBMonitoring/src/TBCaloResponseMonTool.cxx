@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -152,14 +152,12 @@ StatusCode TBCaloResponseMonTool::fillHists()
   if ( this->histsNotBooked() )
     {
       // store BPC names
-      TBBPCCont::const_iterator firstBPC = bpcContainer->begin();
-      TBBPCCont::const_iterator lastBPC  = bpcContainer->end();
-      for ( ; firstBPC != lastBPC; firstBPC++ )
+      for (const TBBPC* bpc : *bpcContainer)
 	{
-	  m_bpcNames.push_back((*firstBPC)->getDetectorName());
+	  m_bpcNames.push_back(bpc->getDetectorName());
 	  report << MSG::INFO
 		 << "BPC <"
-		 << (*firstBPC)->getDetectorName()
+		 << bpc->getDetectorName()
 		 << "> found in event"
 		 << endmsg;
 	}
@@ -175,16 +173,11 @@ StatusCode TBCaloResponseMonTool::fillHists()
 
   // get BPC response
   bpc_store_t bpcPos;
-  for ( TBBPCCont::const_iterator firstBPC = bpcContainer->begin();
-	firstBPC != bpcContainer->end();
-	firstBPC++ )
+  for (const TBBPC* bpc : *bpcContainer)
     {
-      //      if ( ! (*firstBPC)->isOverflow() )
-      //	{
-	  bpc_data_t bpcData((*firstBPC)->getXPos()/m_lUnit,
-			     (*firstBPC)->getYPos()/m_lUnit);
-	  bpcPos[(*firstBPC)->getDetectorName()] = bpcData;
-	  //	}
+	  bpc_data_t bpcData(bpc->getXPos()/m_lUnit,
+			     bpc->getYPos()/m_lUnit);
+	  bpcPos[bpc->getDetectorName()] = bpcData;
     }
 
   if ( bpcPos.size() != bpcContainer->size() )
@@ -208,7 +201,7 @@ StatusCode TBCaloResponseMonTool::fillHists()
   // signal versus position
   for ( bpc_store_t::iterator firstBPC = bpcPos.begin();
 	firstBPC != bpcPos.end();
-	firstBPC++ )
+	++firstBPC )
     {
       // BPC data
       bpc_key_t kBPC = (*firstBPC).first; 
@@ -225,34 +218,30 @@ StatusCode TBCaloResponseMonTool::fillHists()
   ///////////////////////////
 
   // calculate energy sums
-  std::vector<CaloSampling::CaloSample>::iterator firstSampling =
-    m_samplingIndices.begin();
-  std::vector<CaloSampling::CaloSample>::iterator lastSampling =
-    m_samplingIndices.end();
-  for ( ; firstSampling != lastSampling; firstSampling++ )
+  for (CaloSampling::CaloSample sampling : m_samplingIndices)
     {
       double theSampleEnergy = 
-	CaloSignalHelper::CaloESum(cellContainer,*firstSampling) / m_eUnit; 
-      m_layerE[*firstSampling]->fill(theSampleEnergy,1.);
+	CaloSignalHelper::CaloESum(cellContainer,sampling) / m_eUnit; 
+      m_layerE[sampling]->fill(theSampleEnergy,1.);
 
       // distributions for various beam positions
       for ( bpc_store_t::iterator firstBPC = bpcPos.begin();
 	    firstBPC != bpcPos.end();
-	    firstBPC++ )
+	    ++firstBPC )
 	{
 	  bpc_key_t kBPC          = (*firstBPC).first;
 	  TBBPC::signal_type xBPC = ((*firstBPC).second).first;
 	  TBBPC::signal_type yBPC = ((*firstBPC).second).second;
 	  // signal vs BPC x
 	  sample_1dprofile_t::iterator findIter = 
-	    (m_layerEProfileX[kBPC]).find(*firstSampling);
+	    (m_layerEProfileX[kBPC]).find(sampling);
 	  ((*findIter).second)->addData(xBPC,theSampleEnergy);
 	  // signal vs BPC y
-	  findIter = (m_layerEProfileY[kBPC]).find(*firstSampling);
+	  findIter = (m_layerEProfileY[kBPC]).find(sampling);
 	  ((*findIter).second)->addData(yBPC,theSampleEnergy);
 	  // signal in BPC y vs x
 	  sample_2dprofile_t::iterator searchIter =
-	    (m_layerEProfileXY[kBPC]).find(*firstSampling);
+	    (m_layerEProfileXY[kBPC]).find(sampling);
 	  ((*searchIter).second)->addData(xBPC,yBPC,theSampleEnergy);
 	}
     }
@@ -262,35 +251,31 @@ StatusCode TBCaloResponseMonTool::fillHists()
   //////////////////////////
 
   // loop requested calorimeters
-  std::vector<CaloCell_ID::SUBCALO>::iterator firstCalo = 
-    m_caloIndices.begin();
-  std::vector<CaloCell_ID::SUBCALO>::iterator lastCalo =
-    m_caloIndices.end();
-  for( ; firstCalo != lastCalo; firstCalo++ )
+  for (CaloCell_ID::SUBCALO calo : m_caloIndices)
     {
       // get module energy sums
       double theModuleEnergy =
-	CaloSignalHelper::CaloESum(cellContainer,*firstCalo) / m_eUnit;
-      m_caloE[*firstCalo]->fill(theModuleEnergy,1.);
+	CaloSignalHelper::CaloESum(cellContainer,calo) / m_eUnit;
+      m_caloE[calo]->fill(theModuleEnergy,1.);
       
       // distributions for various beam positions
       for ( bpc_store_t::iterator firstBPC = bpcPos.begin();
 	    firstBPC != bpcPos.end();
-	    firstBPC++ )
+	    ++firstBPC )
 	{
 	  bpc_key_t kBPC          = (*firstBPC).first;
 	  TBBPC::signal_type xBPC = ((*firstBPC).second).first;
 	  TBBPC::signal_type yBPC = ((*firstBPC).second).second;
 	  // signal vs BPC x
 	  module_1dprofile_t::iterator findIter = 
-	    (m_caloEProfileX[kBPC]).find(*firstCalo);
+	    (m_caloEProfileX[kBPC]).find(calo);
 	  ((*findIter).second)->addData(xBPC,theModuleEnergy);
 	  // signal vs BPC y
-	  findIter = (m_caloEProfileY[kBPC]).find(*firstCalo);
+	  findIter = (m_caloEProfileY[kBPC]).find(calo);
 	  ((*findIter).second)->addData(yBPC,theModuleEnergy);
 	  // signal in BPC y vs x
 	  module_2dprofile_t::iterator searchIter =
-	    (m_caloEProfileXY[kBPC]).find(*firstCalo);
+	    (m_caloEProfileXY[kBPC]).find(calo);
 	  ((*searchIter).second)->addData(xBPC,yBPC,theModuleEnergy);
 	}
     }
@@ -311,30 +296,26 @@ StatusCode TBCaloResponseMonTool::setupAction()
   ATH_CHECK( detStore()->retrieve (m_caloCellHelper, "CaloCell_ID") );
 
   // get calorimeter modules and regions
-  std::vector<std::string>::const_iterator firstCalo = 
-    m_caloNames.begin();
-  std::vector<std::string>::const_iterator lastCalo =
-    m_caloNames.end();
   report << MSG::INFO        
 	 << "Included calorimeter modules  : ";
-  for ( ; firstCalo != lastCalo; firstCalo++ )
+  for (const std::string& calo : m_caloNames)
     {
-      if ( *firstCalo == "LAREM" )
+      if ( calo == "LAREM" )
 	{
 	  m_caloIndices.push_back(CaloCell_ID::LAREM);
 	  report << MSG::INFO << "\042LAREM\042 ";
 	}
-      else if ( *firstCalo == "LARHEC" ) 
+      else if ( calo == "LARHEC" ) 
 	{
 	  m_caloIndices.push_back(CaloCell_ID::LARHEC);
 	  report << MSG::INFO << "\042LARHEC\042 ";
 	}
-      else if ( *firstCalo == "LARFCAL" )
+      else if ( calo == "LARFCAL" )
 	{
 	  m_caloIndices.push_back(CaloCell_ID::LARFCAL);
 	  report << MSG::INFO << "\042LARFCAL\042 ";
 	}
-      else if ( *firstCalo == "TILE" )
+      else if ( calo == "TILE" )
 	{
 	  m_caloIndices.push_back(CaloCell_ID::TILE);
 	  report << MSG::INFO << "\042TILE\042 ";
@@ -343,20 +324,16 @@ StatusCode TBCaloResponseMonTool::setupAction()
   report << MSG::INFO << endmsg;
 
   // get calorimeter samplings
-  std::vector<std::string>::const_iterator firstSampling =
-    m_samplingNames.begin();
-  std::vector<std::string>::const_iterator lastSampling =
-    m_samplingNames.end();
   report << MSG::INFO
 	 << "Included calorimeter samplings: ";
-  for ( ; firstSampling != lastSampling; firstSampling++ )
+  for (const std::string& sampling : m_samplingNames)
     {
       CaloSampling::CaloSample idSamp = 
-	CaloSamplingHelper::getSamplingId(*firstSampling);
+	CaloSamplingHelper::getSamplingId(sampling);
       if ( idSamp != CaloSampling::Unknown )
 	{
 	  m_samplingIndices.push_back(idSamp);
-	  report << MSG::INFO << "\042" << *firstSampling
+	  report << MSG::INFO << "\042" << sampling
 		 << "\042 ";
 	}
     }
@@ -446,16 +423,12 @@ StatusCode TBCaloResponseMonTool::bookMyHists()
   //					   m_etaBins,m_etaLow,m_etaHigh,
   //					   m_phiBins,m_phiLow,m_phiHigh);
   // energy in modules
-  std::vector<CaloCell_ID::SUBCALO>::iterator firstModule =
-    m_caloIndices.begin();
-  std::vector<CaloCell_ID::SUBCALO>::iterator lastModule = 
-    m_caloIndices.end();
   std::map<CaloCell_ID::SUBCALO,std::string> caloNameMap;
 
-  for ( ; firstModule != lastModule; firstModule++ )
+  for (CaloCell_ID::SUBCALO calo : m_caloIndices)
     {
       // find module name
-      switch ( *firstModule )
+      switch ( calo )
 	{
 	case CaloCell_ID::LAREM:
 	  tName = "LArEM";
@@ -473,7 +446,7 @@ StatusCode TBCaloResponseMonTool::bookMyHists()
 	  tName = "";
 	  break;
 	}
-      caloNameMap[*firstModule] = tName;
+      caloNameMap[calo] = tName;
       // book
       pName = m_path + "/" + tName + "_E"; 
       report << MSG::DEBUG
@@ -483,19 +456,15 @@ StatusCode TBCaloResponseMonTool::bookMyHists()
 	     << tName << " Energy"
 	     << "\042"
 	     << endmsg;
-      m_caloE[*firstModule] = ToolHistoSvc()->book(pName,tName+" Energy",
-						   m_eBins,m_eLow,m_eHigh);
+      m_caloE[calo] = ToolHistoSvc()->book(pName,tName+" Energy",
+                                           m_eBins,m_eLow,m_eHigh);
     }
 
   // energy in samplings
-  std::vector<CaloSampling::CaloSample>::iterator firstSampling =
-    m_samplingIndices.begin();
-  std::vector<CaloSampling::CaloSample>::iterator lastSampling =
-    m_samplingIndices.end();
-  for ( ; firstSampling != lastSampling; firstSampling++ )
+  for (CaloSampling::CaloSample sampling : m_samplingIndices)
     {
       std::string lName = 
-	CaloSamplingHelper::getSamplingName(*firstSampling);
+	CaloSamplingHelper::getSamplingName(sampling);
       pName             = m_path + "/" + lName + "_E";
       tName             = lName + " Energy";
       report << MSG::DEBUG
@@ -505,8 +474,8 @@ StatusCode TBCaloResponseMonTool::bookMyHists()
 	     << tName
 	     << "\042"
 	     << endmsg;
-      m_layerE[*firstSampling] = ToolHistoSvc()->book(pName,tName,
-						      m_eBins,m_eLow,m_eHigh);
+      m_layerE[sampling] = ToolHistoSvc()->book(pName,tName,
+                                                m_eBins,m_eLow,m_eHigh);
       //      pName             = m_path + "/" + lName + "_CellE";
       //      tName             = lName + " Cell Energy";
       //      report << MSG::DEBUG
@@ -516,7 +485,7 @@ StatusCode TBCaloResponseMonTool::bookMyHists()
       //	     << tName
       //	     << "\042"
       //	     << endmsg;
-      //      m_layerCellE[*firstSampling] = ToolHistoSvc()->book(pName,tName,
+      //      m_layerCellE[sampling] = ToolHistoSvc()->book(pName,tName,
       //							  m_eBins,
       //							  m_eLow,m_eHigh);
       //      pName             = m_path + "/" + lName + "_CellEEtaPhi"; 
@@ -528,7 +497,7 @@ StatusCode TBCaloResponseMonTool::bookMyHists()
       //	     << tName
       //	     << "\042"
       //	     << endmsg;
-      //      m_layerCellEinEtaVsPhi[*firstSampling] = 
+      //      m_layerCellEinEtaVsPhi[sampling] = 
       //	ToolHistoSvc()->book(pName,tName,
       //			     m_etaBins,m_etaLow,m_etaHigh,
       //			     m_phiBins,m_phiLow,m_phiHigh);
@@ -584,13 +553,9 @@ StatusCode TBCaloResponseMonTool::bookMyHists()
 			     m_xBins,m_xLow,m_xHigh,
 			     m_yBins,m_yLow,m_yHigh);
       // energy in modules
-      std::vector<CaloCell_ID::SUBCALO>::iterator firstM =
-	m_caloIndices.begin();
-      std::vector<CaloCell_ID::SUBCALO>::iterator lastM =
-	m_caloIndices.end();
-      for ( ; firstM != lastM; firstM++ )
+      for (CaloCell_ID::SUBCALO calo : m_caloIndices)
 	{
-	  std::string cName = caloNameMap[*firstM];
+	  std::string cName = caloNameMap[calo];
 	  pName = m_path + "/" + m_bpcNames[i] + "_" + cName + "_EvsX";
 	  tName = m_bpcNames[i] + " " + cName + " Energy vs X"; 
 	  report << MSG::DEBUG
@@ -600,9 +565,9 @@ StatusCode TBCaloResponseMonTool::bookMyHists()
 		 << tName
 		 << "\042"
 		 << endmsg;
-	  (m_caloEvsBPCx[m_bpcNames[i]])[*firstM] = 
+	  (m_caloEvsBPCx[m_bpcNames[i]])[calo] = 
 	    ToolHistoSvc()->book(pName,tName,m_xBins,m_xLow,m_xHigh);
-	  (m_caloEProfileX[m_bpcNames[i]])[*firstM] =
+	  (m_caloEProfileX[m_bpcNames[i]])[calo] = 
 	    new TBProfiler<double>(m_xBins,m_xLow,m_xHigh);
 	  pName = m_path + "/" + m_bpcNames[i] + "_" + cName + "_EvsY";
 	  tName = m_bpcNames[i] + " " + cName + " Energy vs Y"; 
@@ -613,9 +578,9 @@ StatusCode TBCaloResponseMonTool::bookMyHists()
 		 << tName
 		 << "\042"
 		 << endmsg;
-	  (m_caloEvsBPCy[m_bpcNames[i]])[*firstM] = 
+	  (m_caloEvsBPCy[m_bpcNames[i]])[calo] = 
 	    ToolHistoSvc()->book(pName,tName,m_yBins,m_yLow,m_yHigh);
-	  (m_caloEProfileY[m_bpcNames[i]])[*firstM] = 
+	  (m_caloEProfileY[m_bpcNames[i]])[calo] = 
 	    new TBProfiler<double>(m_yBins,m_yLow,m_yHigh);
 	  pName = m_path + "/" + m_bpcNames[i] + "_" + cName + "_EvsXY";
 	  tName = m_bpcNames[i] + " " + cName + " Energy in (X,Y)"; 
@@ -626,23 +591,19 @@ StatusCode TBCaloResponseMonTool::bookMyHists()
 		 << tName
 		 << "\042"
 		 << endmsg;
-	  (m_caloEinBPCxVsBPCy[m_bpcNames[i]])[*firstM] = 
+	  (m_caloEinBPCxVsBPCy[m_bpcNames[i]])[calo] = 
 	    ToolHistoSvc()->book(pName,tName,
 			     m_xBins,m_xLow,m_xHigh,
 			     m_yBins,m_yLow,m_yHigh);
-	  (m_caloEProfileXY[m_bpcNames[i]])[*firstM] =
+	  (m_caloEProfileXY[m_bpcNames[i]])[calo] =
 	    new TB2DProfiler<double>(m_xBins,m_xLow,m_xHigh,
 				     m_yBins,m_yLow,m_yHigh);
 	}
 
       // energy in samplings
-      std::vector<CaloSampling::CaloSample>::iterator firstS =
-	m_samplingIndices.begin();
-      std::vector<CaloSampling::CaloSample>::iterator lastS =
-	m_samplingIndices.end();
-      for ( ; firstS != lastS; firstS++ )
+      for (CaloSampling::CaloSample sampling : m_samplingIndices)
 	{
-	  std::string cName = CaloSamplingHelper::getSamplingName(*firstS);
+	  std::string cName = CaloSamplingHelper::getSamplingName(sampling);
 	  pName = m_path + "/" + m_bpcNames[i] + "_" + cName + "_EvsX";
 	  tName = m_bpcNames[i] + " " + cName + " Energy vs X"; 
 	  report << MSG::DEBUG
@@ -652,9 +613,9 @@ StatusCode TBCaloResponseMonTool::bookMyHists()
 		 << tName
 		 << "\042"
 		 << endmsg;
-	  (m_layerEvsBPCx[m_bpcNames[i]])[*firstS] = 
+	  (m_layerEvsBPCx[m_bpcNames[i]])[sampling] = 
 	    ToolHistoSvc()->book(pName,tName,m_xBins,m_xLow,m_xHigh);
-	  (m_layerEProfileX[m_bpcNames[i]])[*firstS] =
+	  (m_layerEProfileX[m_bpcNames[i]])[sampling] =
 	    new TBProfiler<double>(m_xBins,m_xLow,m_xHigh);
 	  pName = m_path + "/" + m_bpcNames[i] + "_" + cName + "_EvsY";
 	  tName = m_bpcNames[i] + " " + cName + " Energy vs Y"; 
@@ -665,9 +626,9 @@ StatusCode TBCaloResponseMonTool::bookMyHists()
 		 << tName
 		 << "\042"
 		 << endmsg;
-	  (m_layerEvsBPCy[m_bpcNames[i]])[*firstS] = 
+	  (m_layerEvsBPCy[m_bpcNames[i]])[sampling] = 
 	    ToolHistoSvc()->book(pName,tName,m_yBins,m_yLow,m_yHigh);
-	  (m_layerEProfileY[m_bpcNames[i]])[*firstS] = 
+	  (m_layerEProfileY[m_bpcNames[i]])[sampling] = 
 	    new TBProfiler<double>(m_yBins,m_yLow,m_yHigh);
 	  pName = m_path + "/" + m_bpcNames[i] + "_" + cName + "_EvsXY";
 	  tName = m_bpcNames[i] + " " + cName + " Energy in (X,Y)"; 
@@ -678,11 +639,11 @@ StatusCode TBCaloResponseMonTool::bookMyHists()
 		 << tName
 		 << "\042"
 		 << endmsg;
-	  (m_layerEinBPCxVsBPCy[m_bpcNames[i]])[*firstS] = 
+	  (m_layerEinBPCxVsBPCy[m_bpcNames[i]])[sampling] = 
 	    ToolHistoSvc()->book(pName,tName,
 			     m_xBins,m_xLow,m_xHigh,
 			     m_yBins,m_yLow,m_yHigh);
-	  (m_layerEProfileXY[m_bpcNames[i]])[*firstS] =
+	  (m_layerEProfileXY[m_bpcNames[i]])[sampling] =
 	    new TB2DProfiler<double>(m_xBins,m_xLow,m_xHigh,
 				     m_yBins,m_yLow,m_yHigh);
 	}
@@ -704,7 +665,7 @@ TBCaloResponseMonTool::finalHists()
   bpc_1dprofile_t::iterator firstBPC = m_totalEProfileX.begin();
   bpc_1dprofile_t::iterator lastBPC  = m_totalEProfileX.end();
 
-  for ( ; firstBPC != lastBPC; firstBPC++ )
+  for ( ; firstBPC != lastBPC; ++firstBPC )
     {
       bpc_key_t           theBPCName  = (*firstBPC).first;
       // x profile data
@@ -725,7 +686,7 @@ TBCaloResponseMonTool::finalHists()
 	(m_caloEProfileX[theBPCName]).begin();
       module_1dprofile_t::iterator lastModule =
 	(m_caloEProfileX[theBPCName]).end();
-      for ( ; firstModule != lastModule; firstModule++ )
+      for ( ; firstModule != lastModule; ++firstModule )
 	{
 	  module_key_t        theKey       = (*firstModule).first;
 	  // x profile data
@@ -752,7 +713,7 @@ TBCaloResponseMonTool::finalHists()
 	(m_layerEProfileX[theBPCName]).begin();
       sample_1dprofile_t::iterator lastSample =
 	(m_layerEProfileX[theBPCName]).end();
-      for ( ; firstSample != lastSample; firstSample++ )
+      for ( ; firstSample != lastSample; ++firstSample )
 	{
 	  sample_key_t        theKey       = (*firstSample).first;
 	  // x profile data

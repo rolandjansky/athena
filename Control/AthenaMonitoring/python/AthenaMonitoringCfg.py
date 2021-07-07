@@ -10,6 +10,27 @@ def AthenaMonitoringCfg(flags):
     error = local_logger.error
     result = ComponentAccumulator()
 
+    if flags.DQ.Environment == 'AOD':
+        info('Scheduling rebuild of standard jets')
+        from JetRecConfig.JetRecConfig import JetRecCfg
+        from JetRecConfig.StandardSmallRJets import AntiKt4EMTopo, AntiKt4EMPFlow, AntiKt4LCTopo
+        result.merge(JetRecCfg(flags, AntiKt4EMTopo))
+        result.merge(JetRecCfg(flags, AntiKt4LCTopo))
+        result.merge(JetRecCfg(flags, AntiKt4EMPFlow))
+        info('Scheduling b-tagging of rebuilt jets')
+        from BTagging.BTagRun3Config import BTagRecoSplitCfg
+        result.merge(BTagRecoSplitCfg(flags, ['AntiKt4EMTopo']))
+        result.merge(BTagRecoSplitCfg(flags, ['AntiKt4EMPFlow']))
+        info('Scheduling rebuild of standard MET')
+        from METReconstruction.METAssociatorCfg import METAssociatorCfg
+        result.merge(METAssociatorCfg(flags, 'AntiKt4EMTopo'))
+        result.merge(METAssociatorCfg(flags, 'AntiKt4LCTopo'))
+        result.merge(METAssociatorCfg(flags, 'AntiKt4EMPFlow'))
+        from CaloTools.CaloNoiseCondAlgConfig import CaloNoiseCondAlgCfg
+        result.merge(CaloNoiseCondAlgCfg(flags)) # Prereq for Calo MET
+        from METReconstruction.METCalo_Cfg import METCalo_Cfg
+        result.merge(METCalo_Cfg(flags))
+
     if flags.DQ.Steering.doPixelMon:
         info('Set up Pixel monitoring')
         from PixelMonitoring.PixelMonitoringConfig import PixelMonitoringConfig

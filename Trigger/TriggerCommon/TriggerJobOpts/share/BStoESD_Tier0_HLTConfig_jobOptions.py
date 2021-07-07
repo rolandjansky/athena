@@ -88,8 +88,8 @@ if rec.doTrigger():
 
 
         # need thresholds so should be called just if the info is there in COOL
-        from AnalysisTriggerAlgs.AnalysisTriggerAlgsConfig import RoIBResultToAOD
-        a2 = RoIBResultToAOD("RoIBResultToAOD")
+        from AnalysisTriggerAlgs.AnalysisTriggerAlgsConfig import RoIBResultToxAOD
+        a2 = RoIBResultToxAOD()
         a2.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
         a2.L1JEMJetTools.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
         a2.L1CPMTools.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"

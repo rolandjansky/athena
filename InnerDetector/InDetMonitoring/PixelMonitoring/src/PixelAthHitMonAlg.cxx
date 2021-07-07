@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelAthHitMonAlg.h"
@@ -117,7 +117,7 @@ StatusCode PixelAthHitMonAlg::fillHistograms( const EventContext& ctx ) const {
     }
   }
 
-  const int nChannels_mod[PixLayers::COUNT] = {46080, 46080, 46080, 46080, 46080, 26880, 26880, 26880};
+  const int nChannels_mod[PixLayers::COUNT] = {46080, 46080, 46080, 46080, 46080, 26880};
   float nGoodChannels_total = 0.;
   float nGoodChannels_layer[PixLayers::COUNT];
   float nActiveChannels_layer[PixLayers::COUNT];

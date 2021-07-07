@@ -13,7 +13,6 @@ __doc__="Decoding of chain name into a dictionary"
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
-import re
 
 def getOverallL1item(chainName):
     """
@@ -67,10 +66,6 @@ def getOverallL1item(chainName):
 
 def getL1item(chainName):
     mainL1 = getOverallL1item(chainName)
-    #replace the '_' left-closest-to ETA by '.' so that L1J75_31ETA49 becomes L1J75.31ETA49
-    if 'ETA' in mainL1:
-        r = re.compile("_(?P<eta>..ETA..)")
-        mainL1 = r.sub("p\\g<eta>", mainL1)
     return mainL1
 
 def getAllThresholdsFromItem(item):

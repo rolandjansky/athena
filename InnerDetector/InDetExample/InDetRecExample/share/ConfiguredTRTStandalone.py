@@ -72,6 +72,9 @@ class ConfiguredTRTStandalone:
                                                                      maxEta              = 2.1,
                                                                      UseParameterization = NewTrackingCuts.useTRTonlyParamCuts(),
                                                                      OldTransitionLogic  = NewTrackingCuts.useTRTonlyOldLogic(),
+                                                                     TRTTrksEtaBins      = NewTrackingCuts.TrkSel_TRTTrksEtaBins(),
+                                                                     TRTTrksMinTRTHitsThresholds = NewTrackingCuts.TrkSel_TRTTrksMinTRTHitsThresholds(),
+                                                                     TRTTrksMinTRTHitsMuDependencies = NewTrackingCuts.TrkSel_TRTTrksMinTRTHitsMuDependencies(),
                                                                      minTRTPrecisionFraction = NewTrackingCuts.minSecondaryTRTPrecFrac())
     # InDetTRT_StandaloneScoringTool.OutputLevel = VERBOSE 
     ToolSvc += InDetTRT_StandaloneScoringTool

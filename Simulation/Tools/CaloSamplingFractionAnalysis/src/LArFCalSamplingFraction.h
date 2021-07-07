@@ -64,142 +64,142 @@ private:
 
 private:
     /** Athena-Aware Ntuple (AAN) variables - branches of the AAN TTree */
-    TTree *m_tree_AS;
+    TTree *m_tree_AS{};
 
-    unsigned int m_runNumber;
-    unsigned int m_eventNumber;
-    unsigned int m_eventTime;
-    unsigned int m_lumiBlock;
-    unsigned int m_bCID;
-    double m_eventWeight;
+    unsigned int m_runNumber{};
+    unsigned int m_eventNumber{};
+    unsigned int m_eventTime{};
+    unsigned int m_lumiBlock{};
+    unsigned int m_bCID{};
+    double m_eventWeight{};
 
     /* ----- FCal-related variables ----- */
-    double m_vertx; // x-position for vertex generated particle (beam)
-    double m_verty;
-    double m_vertz;
+    double m_vertx{}; // x-position for vertex generated particle (beam)
+    double m_verty{};
+    double m_vertz{};
 
-    double m_vertex_eta; // eta value of generated particle
-    double m_vertex_phi;
+    double m_vertex_eta{}; // eta value of generated particle
+    double m_vertex_phi{};
 
-    double m_pt; // Momentum of generated particle
-    double m_px;
-    double m_py;
-    double m_pz;
+    double m_pt{}; // Momentum of generated particle
+    double m_px{};
+    double m_py{};
+    double m_pz{};
 
-    double m_E; // Energy of generated particle
+    double m_E{}; // Energy of generated particle
 
-    int m_NCell1; // Number of cells hit
-    int m_NCell2;
-    int m_NCell3;
+    int m_NCell1{}; // Number of cells hit
+    int m_NCell2{};
+    int m_NCell3{};
 
-    double m_x_mc_cc1; // Center of cluster in x (FCal1, extrapolated)
-    double m_y_mc_cc1;
+    double m_x_mc_cc1{}; // Center of cluster in x (FCal1, extrapolated)
+    double m_y_mc_cc1{};
 
-    double m_x_mc_cc2; // Center of cluster in x (FCal2, extrapolated)
-    double m_y_mc_cc2;
+    double m_x_mc_cc2{}; // Center of cluster in x (FCal2, extrapolated)
+    double m_y_mc_cc2{};
 
-    double m_x_mc_cc3; // Center of cluster in x (FCal3, extrapolated)
-    double m_y_mc_cc3;
+    double m_x_mc_cc3{}; // Center of cluster in x (FCal3, extrapolated)
+    double m_y_mc_cc3{};
 
-    double m_x_cc1; // Center of cluster in x (FCal1, c of g)
-    double m_y_cc1;
+    double m_x_cc1{}; // Center of cluster in x (FCal1, c of g)
+    double m_y_cc1{};
 
-    double m_x_cc2; // Center of cluster in x (FCal2, c of g)
-    double m_y_cc2;
+    double m_x_cc2{}; // Center of cluster in x (FCal2, c of g)
+    double m_y_cc2{};
 
-    double m_x_cc3; // Center of cluster in x (FCal3, c of g)
-    double m_y_cc3;
+    double m_x_cc3{}; // Center of cluster in x (FCal3, c of g)
+    double m_y_cc3{};
 
-    std::vector<int> *m_pdg_id;  // particle id
+    std::vector<int> *m_pdg_id{};  // particle id
 
-    std::vector<double> *m_hit_x1; // hit positions of cells
-    std::vector<double> *m_hit_y1;
+    std::vector<double> *m_hit_x1{}; // hit positions of cells
+    std::vector<double> *m_hit_y1{};
 
-    std::vector<double> *m_hit_x2;
-    std::vector<double> *m_hit_y2;
+    std::vector<double> *m_hit_x2{};
+    std::vector<double> *m_hit_y2{};
 
-    std::vector<double> *m_hit_x3;
-    std::vector<double> *m_hit_y3;
+    std::vector<double> *m_hit_x3{};
+    std::vector<double> *m_hit_y3{};
 
-    std::vector<double> *m_hit_ieta1; // hit indices of cells
-    std::vector<double> *m_hit_iphi1;
-    std::vector<double> *m_hit_ieta2;
-    std::vector<double> *m_hit_iphi2;
-    std::vector<double> *m_hit_ieta3;
-    std::vector<double> *m_hit_iphi3;
+    std::vector<double> *m_hit_ieta1{}; // hit indices of cells
+    std::vector<double> *m_hit_iphi1{};
+    std::vector<double> *m_hit_ieta2{};
+    std::vector<double> *m_hit_iphi2{};
+    std::vector<double> *m_hit_ieta3{};
+    std::vector<double> *m_hit_iphi3{};
 
-    std::vector<double> *m_cell1_E; // Energy in cells
-    std::vector<double> *m_cell2_E;
-    std::vector<double> *m_cell3_E;
+    std::vector<double> *m_cell1_E{}; // Energy in cells
+    std::vector<double> *m_cell2_E{};
+    std::vector<double> *m_cell3_E{};
 
-    double m_FCal1_SumE; // Energy in individual FCal modules
-    double m_FCal2_SumE;
-    double m_FCal3_SumE;
-    double m_TCScint_E;
-    double m_TCIron_E;
+    double m_FCal1_SumE{}; // Energy in individual FCal modules
+    double m_FCal2_SumE{};
+    double m_FCal3_SumE{};
+    double m_TCScint_E{};
+    double m_TCIron_E{};
 
-    double m_totalFCalEnergy;
-    int m_numHitsFCal;
+    double m_totalFCalEnergy{};
+    int m_numHitsFCal{};
 
     /* ----- Calibration Hits Variables ----- */
-    double m_totalCalibrationEnergy; // Total energy
+    double m_totalCalibrationEnergy{}; // Total energy
 
     // Physic processes
-    double m_totalEmEnergy;
-    double m_totalNonEmEnergy;
-    double m_totalInvisibleEnergy;
-    double m_totalEscapedEnergy;
+    double m_totalEmEnergy{};
+    double m_totalNonEmEnergy{};
+    double m_totalInvisibleEnergy{};
+    double m_totalEscapedEnergy{};
 
     // Energy deposited in different material categories
-    double m_totalActiveEnergy;
-    double m_totalInactiveEnergy;
-    double m_totalDeadMaterialEnergy;
+    double m_totalActiveEnergy{};
+    double m_totalInactiveEnergy{};
+    double m_totalDeadMaterialEnergy{};
 
     // Number of hits in different material categories
-    int m_numHitsActive;
-    int m_numHitsInactive;
-    int m_numHitsDead;
+    int m_numHitsActive{};
+    int m_numHitsInactive{};
+    int m_numHitsDead{};
 
     // Total energy deposited in the different FCal Modules
-    double m_totalFCalCalibrationEnergy; // Energy in all FCal
-    double m_totalFCal1CalibrationEnergy;
-    double m_totalFCal2CalibrationEnergy;
-    double m_totalFCal3CalibrationEnergy;
+    double m_totalFCalCalibrationEnergy{}; // Energy in all FCal
+    double m_totalFCal1CalibrationEnergy{};
+    double m_totalFCal2CalibrationEnergy{};
+    double m_totalFCal3CalibrationEnergy{};
 
-    double m_FCalActive;
-    double m_FCalInactive;
-    double m_FCalDead;
-    double m_FCalActiveEm;
-    double m_FCalActiveNonEm;
-    double m_FCalActiveInvisible;
-    double m_FCalActiveEscaped;
-    double m_FCalEm;
-    double m_FCal1Em;
-    double m_FCal2Em;
-    double m_FCal3Em;
-    double m_FCalNonEm;
-    double m_FCal1NonEm;
-    double m_FCal2NonEm;
-    double m_FCal3NonEm;
-    double m_FCalInvisible;
-    double m_FCal1Invisible;
-    double m_FCal2Invisible;
-    double m_FCal3Invisible;
-    double m_FCalEscaped;
-    double m_FCal1Escaped;
-    double m_FCal2Escaped;
-    double m_FCal3Escaped;
-    double m_PhysTotE;
-    double m_FCal1Active;
-    double m_FCal2Active;
-    double m_FCal3Active;
-    double m_FCal1Inactive;
-    double m_FCal2Inactive;
-    double m_FCal3Inactive;
+    double m_FCalActive{};
+    double m_FCalInactive{};
+    double m_FCalDead{};
+    double m_FCalActiveEm{};
+    double m_FCalActiveNonEm{};
+    double m_FCalActiveInvisible{};
+    double m_FCalActiveEscaped{};
+    double m_FCalEm{};
+    double m_FCal1Em{};
+    double m_FCal2Em{};
+    double m_FCal3Em{};
+    double m_FCalNonEm{};
+    double m_FCal1NonEm{};
+    double m_FCal2NonEm{};
+    double m_FCal3NonEm{};
+    double m_FCalInvisible{};
+    double m_FCal1Invisible{};
+    double m_FCal2Invisible{};
+    double m_FCal3Invisible{};
+    double m_FCalEscaped{};
+    double m_FCal1Escaped{};
+    double m_FCal2Escaped{};
+    double m_FCal3Escaped{};
+    double m_PhysTotE{};
+    double m_FCal1Active{};
+    double m_FCal2Active{};
+    double m_FCal3Active{};
+    double m_FCal1Inactive{};
+    double m_FCal2Inactive{};
+    double m_FCal3Inactive{};
 
-    const CaloDM_ID *m_caloDmID;
-    const CaloCell_ID *m_caloCellID;
-    const LArFCAL_ID *m_larFCalID;
+    const CaloDM_ID *m_caloDmID{};
+    const CaloCell_ID *m_caloCellID{};
+    const LArFCAL_ID *m_larFCalID{};
 
     // For LAr analysis: Do we have any calibration hits at all?
     bool m_calibrationRun;
