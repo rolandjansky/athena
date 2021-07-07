@@ -160,7 +160,6 @@ private:
 
   /// key for the truth match prob 
   const std::string m_trackParticleTruthProbKey{"truthMatchProbability"};
-  const float m_truthProbLowThreshold{0.5};
 
   /// plot members.
   /// No explicit initialisation, since unique_ptr will default-construct 

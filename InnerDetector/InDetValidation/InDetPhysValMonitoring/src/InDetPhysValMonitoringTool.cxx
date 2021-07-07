@@ -143,7 +143,9 @@ InDetPhysValMonitoringTool::initialize() {
     m_truthCutFlow = CutFlow(m_truthSelectionTool->nCuts());
   }
 
-  m_monPlots = std::make_unique<InDetRttPlots> (nullptr, m_dirName + m_folder, getFilledPlotConfig()); // m_detailLevel := DEBUG, enable expert histograms
+  m_monPlots = std::make_unique<InDetRttPlots>
+    (nullptr, static_cast<std::string>(m_dirName) + static_cast<std::string>(m_folder),
+     getFilledPlotConfig()); // m_detailLevel := DEBUG, enable expert histograms
 
   ATH_CHECK( m_trkParticleName.initialize() );
   ATH_CHECK( m_truthParticleName.initialize( (m_pileupSwitch == "HardScatter" or m_pileupSwitch == "All") and not m_truthParticleName.key().empty() ) );

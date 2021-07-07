@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETPHYSVALMONITORING_INDETPHYSVALMONITORINGTOOL_H
@@ -48,7 +48,7 @@
 //fwd declaration
 class IInDetPhysValDecoratorTool;
 class InDetRttPlots;
-class InDetRttPlotConfig; 
+struct InDetRttPlotConfig; 
 namespace IDPVM{
     class CachedGetAssocTruth;
 }
