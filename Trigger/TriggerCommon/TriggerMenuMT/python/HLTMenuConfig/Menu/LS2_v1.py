@@ -744,6 +744,8 @@ def setupMenu():
         ChainProp(name='HLT_mu6_bJpsi_MuonTrkPEB_L1MU6', stream =['BphysPEB'] , groups=BphysicsGroup+['PS:Online']),
         ChainProp(name='HLT_mu10_bJpsi_MuonTrkPEB_L1MU10', stream =['BphysPEB'] , groups=BphysicsGroup+['PS:Online']),
         ChainProp(name='HLT_mu20_bJpsi_MuonTrkPEB_L1MU20', stream =['BphysPEB'] , groups=BphysicsGroup+['PS:Online']),
+
+        ChainProp(name='HLT_2mu4_bBmumux_BcmumuDsloose_L12MU4', stream=["BphysDelayed"], groups=BphysicsGroup+EOFBPhysL1MuGroup),
     ]
 
     TriggerFlags.CombinedSlice.signatures = TriggerFlags.CombinedSlice.signatures() + [
