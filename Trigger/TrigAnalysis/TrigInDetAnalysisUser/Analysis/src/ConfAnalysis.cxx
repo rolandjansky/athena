@@ -856,10 +856,11 @@ TF1* FitFWGaussian(TH1D* s, double a, double b) {
 
 void fitSin( TH1D* h, const std::string& parent="" ) { 
 
-  TF1* fsin = new TF1( "sinp", "sqrt([0]*[0])*sin([1]-x)" ); // , -M_PI, M_PI );
+  TF1* fsin = new TF1( "sinp", "sqrt([0]*[0])*sin([1]-x)+[2]" ); // , -M_PI, M_PI );
 
   fsin->SetParameter(0,1);
   fsin->SetParameter(1,0);
+  fsin->SetParameter(2,0);
 
   fsin->SetLineWidth(1);
 
