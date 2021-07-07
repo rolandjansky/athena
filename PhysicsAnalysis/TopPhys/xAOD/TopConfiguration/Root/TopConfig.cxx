@@ -274,7 +274,7 @@ namespace top {
     m_doMultipleJES(false),
     m_jetJERSmearingModel("Simple"),
     m_jetJMSOption("None"),
-    m_largeRSysts_TreatMCasPseudodata(false),
+    m_doLargeRPseudodataJER(false),
     m_jetCalibSequence("GSC"),
     m_allowSmallRJMSforAFII(false),
     m_jetStoreTruthLabels("True"),
@@ -1376,10 +1376,10 @@ namespace top {
     this->jetUncertainties_QGHistPatterns(settings->value("JetUncertainties_QGHistPatterns"));
     this->jetJERSmearingModel(settings->value("JetJERSmearingModel"));
     this->jetJMSOption(settings->value("JetJMSOption"));
-    if (settings->value("LargeRSysts_TreatMCasPseudodata") == "False") {
-      this->largeRSysts_TreatMCasPseudodata(false);
-    } else if (settings->value("LargeRSysts_TreatMCasPseudodata") == "True") {
-      this->largeRSysts_TreatMCasPseudodata(true);
+    if (settings->value("DoLargeRPseudodataJER") == "False") {
+      this->doLargeRPseudodataJER(false);
+    } else if (settings->value("DoLargeRPseudodataJER") == "True") {
+      this->doLargeRPseudodataJER(true);
     }
     this->jetCalibSequence(settings->value("JetCalibSequence"));
     this->allowSmallRJMSforAFII(settings->value("AllowJMSforAFII") == "True");

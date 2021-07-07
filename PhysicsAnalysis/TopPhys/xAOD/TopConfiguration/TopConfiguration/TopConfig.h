@@ -1496,13 +1496,13 @@ namespace top {
 
     inline virtual const std::string& jetJMSOption() const {return m_jetJMSOption;}
 
-    inline virtual void largeRSysts_TreatMCasPseudodata(const bool& b) {
+    inline virtual void doLargeRPseudodataJER(const bool& b) {
       if (!m_configFixed) {
-        m_largeRSysts_TreatMCasPseudodata = b;
+        m_doLargeRPseudodataJER = b;
       }
     }
 
-    inline virtual bool largeRSysts_TreatMCasPseudodata() const {return m_largeRSysts_TreatMCasPseudodata;}
+    inline virtual bool doLargeRPseudodataJER() const {return m_doLargeRPseudodataJER;}
 
     inline virtual void jetCalibSequence(const std::string& s) {
       if (!m_configFixed) {
@@ -2501,7 +2501,7 @@ namespace top {
     bool m_doMultipleJES;
     std::string m_jetJERSmearingModel; // Full or Simple
     std::string m_jetJMSOption; // None, JMS_frozen or JMS_scaled
-    bool m_largeRSysts_TreatMCasPseudodata; // True or False
+    bool m_doLargeRPseudodataJER; // True or False
     std::string m_jetCalibSequence; // GCC or JMS
     bool m_allowSmallRJMSforAFII; // JMS is not supported on AFII so we crash, unless people override this option
     bool m_jetStoreTruthLabels; // True or False

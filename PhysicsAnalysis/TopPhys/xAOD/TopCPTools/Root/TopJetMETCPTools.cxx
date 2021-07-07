@@ -70,6 +70,9 @@ namespace top {
     declareProperty("JetCalibrationTool", m_jetCalibrationTool);
     declareProperty("JetCalibrationToolLargeR", m_jetCalibrationToolLargeR);
 
+    declareProperty("JetUncertaintiesToolLargeR", m_jetUncertaintiesToolLargeR);
+    declareProperty("JetUncertaintiesToolLargeRPseudoData", m_jetUncertaintiesToolLargeRPseudoData);
+
     declareProperty("JetUncertaintiesTool", m_jetUncertaintiesTool);
     declareProperty("JetUncertaintiesToolPseudoData", m_jetUncertaintiesToolPseudoData);
     declareProperty("FFJetSmearingTool", m_FFJetSmearingTool);
@@ -484,18 +487,35 @@ namespace top {
     std::string MC_type = "MC16";
 
     configDir = m_config->largeRJetUncertaintiesConfigDir(); 
-
-    //This has zero impact on the JES uncertainties, but controls how the JER uncertainties (currently only for small-R
-    // jets) are applied
-    bool JERisMC = true;
-
+   
     if(m_config->largeRJESJMSConfig() != "UFOSDMass"){
+
       m_jetUncertaintiesToolLargeR
 	= setupJetUncertaintiesTool("JetUncertaintiesToolLargeR",
-				    jetCalibrationNameLargeR, MC_type, JERisMC,
-				    configDir + "/R10_" + largeRJESJERJMS_unc_config + ".config", nullptr, "", calibArea);
+				    jetCalibrationNameLargeR, 
+                                    MC_type, 
+                                    m_config->isMC(),
+				    configDir + "/R10_" + largeRJESJERJMS_unc_config + ".config",
+                                    nullptr,
+                                    "",
+                                    calibArea);
+      
+      // setup the large-R pseudodata tool when required
+      if (m_config->isMC() && m_config->doLargeRPseudodataJER()) {
+        m_jetUncertaintiesToolLargeRPseudoData
+          = setupJetUncertaintiesTool("JetUncertaintiesToolLargeRPseudoData",
+                                      jetCalibrationNameLargeR,
+                                      MC_type,
+                                      false, // treat MC as data
+                                      configDir + "/R10_" + largeRJESJERJMS_unc_config + ".config",
+                                      nullptr,
+                                      "",
+                                      calibArea);      
+      } 
+
       if (!m_config->isSystNominal(m_config->systematics()))
         m_FFJetSmearingTool = setupFFJetSmearingTool(calibChoice,configDir + "/R10_" + largeRJMR_unc_config + ".config");
+
     }
 
     return StatusCode::SUCCESS;
