@@ -13,13 +13,12 @@
 namespace HLT {
   /**
    * @class CombinationsGenerator helper to generate all possible combinations of objects
-   * @warning The class is not making any assumption as if the this are combinations with objets repeated, i.e. it works on set of indices.
-   * For unique combinations there see utility functions below.
+   * @warning The class is not making any assumption as if the this are combinations with objets repeated, i.e. it works on set of indices.   
    **/
   class CombinationGenerator {
   public:
     /**
-     * @brief construct combnations maker with the sizes of collection to which it shoudl be applied
+     * @brief construct combnations maker with the sizes of collection to which it should be applied
      **/
     CombinationGenerator( const std::initializer_list<size_t>& collectionSizes );
     void add( size_t nextColl) { m_maxes.push_back( nextColl ); reset(); }
@@ -43,6 +42,49 @@ namespace HLT {
   private:
     std::vector<size_t> m_maxes;
     std::vector<size_t> m_current;
+  };
+
+  /**
+   * Generator of unique combinations (no indices are repeated)
+   * API description @see CombinationGenerator
+   **/
+  class UniqueCombinationGenerator {
+  public:
+    UniqueCombinationGenerator( size_t nelems, size_t comblen);
+    void reset();
+    size_t size() const { return m_combLen; }
+    const std::vector<size_t>& operator()() const { return current(); }
+    const std::vector<size_t>& current() const { return m_current; }
+
+    void operator++();
+    operator bool() const;
+  private:
+    size_t m_nElements;
+    size_t m_combLen;
+    std::vector<size_t> m_current;
+    std::vector<bool> m_bitmask;
+  };
+
+  /**
+   * An ensemble of UniqueCombinationGenerator
+   * API description @see CombinationGenerator
+   **/
+  class NestedUniqueCombinationGenerator {
+  public:
+    void add( const UniqueCombinationGenerator& gen );
+    void reset();
+    size_t size() const;
+    const std::vector<size_t>& operator()() const { return current(); }
+    const std::vector<size_t>& current() const { return m_current; }
+
+    void operator++();
+    operator bool() const;
+    
+
+  private:
+    std::vector<UniqueCombinationGenerator> m_generators;
+    std::vector<size_t> m_current;
+    void cache();
   };
 
   /**
