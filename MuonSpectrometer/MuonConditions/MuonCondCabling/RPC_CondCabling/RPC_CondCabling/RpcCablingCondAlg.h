@@ -66,10 +66,10 @@ private:
     bool CableParamCheck(const unsigned short int SubId, const unsigned short int SecId, const unsigned short int PADId,
                          const unsigned short int CMAId, const unsigned short int ijk, const unsigned int type,
                          const unsigned short int Channel1, const unsigned short int Channel2, const short int Number) const;
-    bool correct(const unsigned short int SubsystemId, const unsigned short int SectorId, const unsigned short int PADId,
+    static bool correct(const unsigned short int SubsystemId, const unsigned short int SectorId, const unsigned short int PADId,
                  const unsigned short int CMAId, const CMAinput it, const unsigned int layer, const unsigned short int Channel1,
                  const unsigned short int Channel2, const short int number, const L1RPCcabCorrection type, const sectorMap_t& smap,
-                 const RpcCablingCondData::STvec& sType) const;
+                 const RpcCablingCondData::STvec& sType) ;
 };
 
 #endif  // MUONCONDALG_RPCCABLINGCONDALG_H

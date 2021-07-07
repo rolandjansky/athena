@@ -4,8 +4,8 @@
 
 #include "RPC_CondCabling/EtaCMA.h"
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 #include <fstream>
 
@@ -296,7 +296,7 @@ bool EtaCMA::setup(SectorLogicSetup& setup) {
 
     // Read trigger configurations from files
 
-    if (p_trigroads == 0) {
+    if (p_trigroads == nullptr) {
         while (!CMAprogLow.is_open() && it != sectors.end()) {
             __osstream namestr;
 #ifdef LVL1_STANDALONE
@@ -366,7 +366,7 @@ bool EtaCMA::setup(SectorLogicSetup& setup) {
         }
         CMAprogLow.close();
         if (msgLevel(MSG::DEBUG)) {
-            DISP << "EtaCMA::setup low_pt program has been read ---- " << endmsg;
+            DISP << "EtaCMA::setup low_pt program has been read ---- " <<'\n';
             DISP_DEBUG;
         }
     } else if (!CMAprogLow_COOL.str().empty()) {
@@ -400,7 +400,7 @@ bool EtaCMA::setup(SectorLogicSetup& setup) {
     std::ifstream CMAprogHigh;
     std::istringstream CMAprogHigh_COOL;
 
-    if (p_trigroads == 0) {
+    if (p_trigroads == nullptr) {
         while (!CMAprogHigh.is_open() && it != sectors.end()) {
             __osstream namestr;
 #ifdef LVL1_STANDALONE
@@ -443,7 +443,7 @@ bool EtaCMA::setup(SectorLogicSetup& setup) {
                 }
                 CMAprogHigh_COOL.str(itc->second.c_str());
                 if (msgLevel(MSG::VERBOSE)) {
-                    DISP << "EtaCMA:CMAPROGHIGH " << CMAprogHigh_COOL.str() << endmsg;
+                    DISP << "EtaCMA:CMAPROGHIGH " << CMAprogHigh_COOL.str() << '\n';
                     DISP_VERBOSE;
                 }
             }
@@ -553,11 +553,9 @@ bool EtaCMA::doInversion(SectorLogicSetup& setup) {
 
 bool EtaCMA::end_at_RPC_Z_boundary(void) const {
     RPClink::const_iterator found = m_pivot_RPCs.find(pivot_stop_ch());
-    if ((*found).second->eta_strips() == pivot_stop_st()) return true;
-    return false;
+    return (*found).second->eta_strips() == pivot_stop_st();
 }
 
 bool EtaCMA::begin_at_RPC_Z_boundary(void) const {
-    if (pivot_start_st() == 1) return true;
-    return false;
+    return pivot_start_st() == 1;
 }

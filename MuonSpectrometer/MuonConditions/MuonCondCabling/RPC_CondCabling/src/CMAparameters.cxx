@@ -4,7 +4,7 @@
 
 #include "RPC_CondCabling/CMAparameters.h"
 
-#include <math.h>
+#include <cmath>
 
 #include <iomanip>
 #include <vector>
@@ -211,19 +211,19 @@ CMAparameters& CMAparameters::operator=(const CMAparameters& cma) {
 void CMAparameters::reset_pivot_cabling() {
     m_pivot_rpc_read = 0;
     if (m_pivot) delete[] m_pivot;
-    m_pivot = 0;
+    m_pivot = nullptr;
 }
 
 void CMAparameters::reset_lowPt_cabling() {
     m_lowPt_rpc_read = 0;
     if (m_lowPt) delete[] m_lowPt;
-    m_lowPt = 0;
+    m_lowPt = nullptr;
 }
 
 void CMAparameters::reset_highPt_cabling() {
     m_highPt_rpc_read = 0;
     if (m_highPt) delete[] m_highPt;
-    m_highPt = 0;
+    m_highPt = nullptr;
 }
 
 void CMAparameters::create_pivot_map(int rpc_to_read) {
@@ -254,13 +254,11 @@ void CMAparameters::create_highPt_map(int rpc_to_read) {
 }
 
 bool CMAparameters::operator==(const CMAparameters& cma) const {
-    if (this->id() == cma.id()) return true;
-    return false;
+    return this->id() == cma.id();
 }
 
 bool CMAparameters::operator==(const CMAidentity& id) const {
-    if (this->id() == id) return true;
-    return false;
+    return this->id() == id;
 }
 
 CMAparameters& CMAparameters::operator+=(const CMAparameters& cma) {
@@ -361,9 +359,9 @@ void CMAparameters::showMt(char display[][90], int ln, TrigType type) const {
 
     int pivot_loop = (m_pivot_rpc_read < 4) ? m_pivot_rpc_read : 3;
     int conf_loop = 0;
-    int(*conf)[2][confirm_channels] = 0;
+    int(*conf)[2][confirm_channels] = nullptr;
 
-    const CMAprogram* program = 0;
+    const CMAprogram* program = nullptr;
 
     if (type == Low) {
         conf_loop = m_lowPt_rpc_read;
@@ -476,7 +474,7 @@ void CMAparameters::Print(std::ostream& stream, bool detail) const {
     if (detail) showDt(stream);
 }
 
-void CMAparameters::noMoreChannels(const std::string stat) {
+void CMAparameters::noMoreChannels(const std::string& stat) {
     int max_channels = 0;
     if (stat == "Pivot")
         max_channels = pivot_channels;
@@ -489,7 +487,7 @@ void CMAparameters::noMoreChannels(const std::string stat) {
 }
 
 const CMAparameters* CMAparameters::test(CMAinput input, int cabling_code) const {
-    int* strips = 0;
+    int* strips = nullptr;
     int nstrips = 0;
 
     if (input == Pivot && m_pivot) {
@@ -502,15 +500,15 @@ const CMAparameters* CMAparameters::test(CMAinput input, int cabling_code) const
         nstrips = confirm_channels * m_highPt_rpc_read * 2;
         strips = reinterpret_cast<int*>(m_highPt);
     } else
-        return 0;
+        return nullptr;
 
     for (int i = 0; i < nstrips; ++i)
         if (strips[i] == cabling_code) return this;
 
-    return 0;
+    return nullptr;
 }
 
-void CMAparameters::two_obj_error_message(std::string msg, CMAparameters* cma) {
+void CMAparameters::two_obj_error_message(const std::string& msg, CMAparameters* cma) {
     this->error_header();
 
     DISP << "  " << msg << " between " << name() << " n. " << number() << " and " << cma->name() << " n. " << cma->number() << std::endl
@@ -573,14 +571,11 @@ int CMAparameters::whichCMAstation(CMAinput input) const {
 
 bool CMAparameters::give_connection(int station, int cab_code, CMAinput& IO, int& ly, int& ch) const {
     IO = whichCMAinput(station);
-    if (get_channel(IO, cab_code, ly, ch))
-        return true;
-    else
-        return false;
+    return get_channel(IO, cab_code, ly, ch);
 }
 
 bool CMAparameters::get_channel(CMAinput IO, int cab_code, int& ly, int& ch) const {
-    int* strips = 0;
+    int* strips = nullptr;
     int nstrips = 0;
     int channels = 0;
 
@@ -611,7 +606,7 @@ bool CMAparameters::get_channel(CMAinput IO, int cab_code, int& ly, int& ch) con
 }
 
 bool CMAparameters::get_cabling(CMAinput IO, int WOR, int ly, int ch, unsigned int& code) const {
-    int* strips = 0;
+    int* strips = nullptr;
     int channels = 0;
 
     if (ly >= 2) return false;
@@ -648,7 +643,7 @@ bool CMAparameters::correct(L1RPCcabCorrection type, CMAinput it, unsigned int l
 
     int worlo = 0;
     int maxch = 0;
-    int* map = 0;
+    int* map = nullptr;
 
     switch (it) {
         case Pivot:

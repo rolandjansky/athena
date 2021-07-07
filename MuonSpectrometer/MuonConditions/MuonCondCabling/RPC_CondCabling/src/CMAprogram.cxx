@@ -4,7 +4,7 @@
 
 #include "RPC_CondCabling/CMAprogram.h"
 
-#include <string.h>
+#include <cstring>
 
 CMAprogram::CMAprogram() :
     m_isnewcab(false),
@@ -88,7 +88,7 @@ CMAprogram::CMAprogram() :
     union data {
         uint64_t DoubleWord;
         uint8_t Bytes[8];
-    } Data;
+    } Data{};
 
     for (int i = 0; i < 6; ++i) Data.Bytes[i] = 0x07;
     for (int i = 6; i < 8; ++i) Data.Bytes[i] = 0x0;
@@ -195,7 +195,7 @@ CMAprogram::CMAprogram(std::ifstream& file) :
     union data {
         uint64_t DoubleWord;
         uint8_t Bytes[8];
-    } Data;
+    } Data{};
 
     m_isnewcab = false;
 
@@ -306,7 +306,7 @@ CMAprogram::CMAprogram(std::ifstream& file, bool NewCab) :
     union data {
         uint64_t DoubleWord;
         uint8_t Bytes[8];
-    } Data;
+    } Data{};
 
     m_isnewcab = NewCab;
 
@@ -417,7 +417,7 @@ CMAprogram::CMAprogram(std::istringstream& filestr) :
     union data {
         uint64_t DoubleWord;
         uint8_t Bytes[8];
-    } Data;
+    } Data{};
 
     m_isnewcab = false;
 
@@ -528,7 +528,7 @@ CMAprogram::CMAprogram(std::istringstream& filestr, bool NewCab) :
     union data {
         uint64_t DoubleWord;
         uint8_t Bytes[8];
-    } Data;
+    } Data{};
 
     m_isnewcab = NewCab;
 
@@ -791,8 +791,8 @@ bool CMAprogram::read(DBline& data) {
                     m_program_bytes[th - 1][ch][0] = second_word;
 
                     for (int bit = 0; bit < 32; ++bit) {
-                        m_threshold_registers[th - 1][ch][bit] = ((second_word >> bit) & right_bit) ? true : false;
-                        m_threshold_registers[th - 1][ch][bit + 32] = ((first_word >> bit) & right_bit) ? true : false;
+                        m_threshold_registers[th - 1][ch][bit] = ((second_word >> bit) & right_bit) != 0;
+                        m_threshold_registers[th - 1][ch][bit + 32] = ((first_word >> bit) & right_bit) != 0;
                     }
 
                     ++data;
@@ -915,7 +915,7 @@ bool CMAprogram::read_v02(DBline& data) {
                     union Data {
                         uint64_t bits;
                         uint32_t words[2];
-                    } dataun;
+                    } dataun{};
 
                     dataun.bits = twowords;
 
@@ -923,8 +923,8 @@ bool CMAprogram::read_v02(DBline& data) {
                     m_program_bytes[0][i][1] = dataun.words[1];
 
                     for (int bit = 0; bit < 32; ++bit) {
-                        m_threshold_registers[0][i][bit] = ((dataun.words[0] >> bit) & right_bit) ? true : false;
-                        m_threshold_registers[0][i][bit + 32] = ((dataun.words[1] >> bit) & right_bit) ? true : false;
+                        m_threshold_registers[0][i][bit] = ((dataun.words[0] >> bit) & right_bit) != 0;
+                        m_threshold_registers[0][i][bit + 32] = ((dataun.words[1] >> bit) & right_bit) != 0;
                     }
                     if (i < 31) ++data;
                 }
@@ -941,7 +941,7 @@ bool CMAprogram::read_v02(DBline& data) {
                     union Data {
                         uint64_t bits;
                         uint32_t words[2];
-                    } dataun;
+                    } dataun{};
 
                     dataun.bits = twowords;
 
@@ -949,8 +949,8 @@ bool CMAprogram::read_v02(DBline& data) {
                     m_program_bytes[1][i][1] = dataun.words[1];
 
                     for (int bit = 0; bit < 32; ++bit) {
-                        m_threshold_registers[1][i][bit] = ((dataun.words[0] >> bit) & right_bit) ? true : false;
-                        m_threshold_registers[1][i][bit + 32] = ((dataun.words[1] >> bit) & right_bit) ? true : false;
+                        m_threshold_registers[1][i][bit] = ((dataun.words[0] >> bit) & right_bit) != 0;
+                        m_threshold_registers[1][i][bit + 32] = ((dataun.words[1] >> bit) & right_bit) != 0;
                     }
 
                     if (i < 31) ++data;
@@ -968,7 +968,7 @@ bool CMAprogram::read_v02(DBline& data) {
                     union Data {
                         uint64_t bits;
                         uint32_t words[2];
-                    } dataun;
+                    } dataun{};
 
                     dataun.bits = twowords;
 
@@ -976,8 +976,8 @@ bool CMAprogram::read_v02(DBline& data) {
                     m_program_bytes[2][i][1] = dataun.words[1];
 
                     for (int bit = 0; bit < 32; ++bit) {
-                        m_threshold_registers[2][i][bit] = ((dataun.words[0] >> bit) & right_bit) ? true : false;
-                        m_threshold_registers[2][i][bit + 32] = ((dataun.words[1] >> bit) & right_bit) ? true : false;
+                        m_threshold_registers[2][i][bit] = ((dataun.words[0] >> bit) & right_bit) != 0;
+                        m_threshold_registers[2][i][bit + 32] = ((dataun.words[1] >> bit) & right_bit) != 0;
                     }
 
                     if (i < 31) ++data;
@@ -1006,8 +1006,8 @@ bool CMAprogram::read_v02(DBline& data) {
                         m_program_bytes[th - 1][ch][0] = second_word;
 
                         for (int bit = 0; bit < 32; ++bit) {
-                            m_threshold_registers[th - 1][ch][bit] = ((second_word >> bit) & right_bit) ? true : false;
-                            m_threshold_registers[th - 1][ch][bit + 32] = ((first_word >> bit) & right_bit) ? true : false;
+                            m_threshold_registers[th - 1][ch][bit] = ((second_word >> bit) & right_bit) != 0;
+                            m_threshold_registers[th - 1][ch][bit + 32] = ((first_word >> bit) & right_bit) != 0;
                         }
 
                         ++data;

@@ -258,10 +258,7 @@ StatusCode RpcCablingCondAlg::setup(const CondAttrListCollection* readCdoMap, co
                 // get the set of parameters for idenfying the first RPC strip
                 unsigned int ID = (*it).second.id().Ixx_index();
                 bool inversion = (*it).second.inversion();
-                if ((ID == 1 && inversion) || (ID == 0 && !inversion))
-                    isFirst = true;
-                else
-                    isFirst = false;
+                isFirst = (ID == 1 && inversion) || (ID == 0 && !inversion);
                 unsigned int PADid = (*it).first.PAD_index();
                 unsigned int cabling = UINT_MAX;
                 if ((*it).second.get_cabling(CMAinput::Pivot, 0, 0, 0, cabling)) {
@@ -773,7 +770,7 @@ std::list<Identifier> RpcCablingCondAlg::give_strip_id(const unsigned short int 
 bool RpcCablingCondAlg::correct(const unsigned short int SubsystemId, const unsigned short int SectorId, const unsigned short int PADId,
                                 const unsigned short int CMAId, const CMAinput it, const unsigned int layer,
                                 const unsigned short int Channel1, const unsigned short int Channel2, const short int number,
-                                const L1RPCcabCorrection type, const sectorMap_t& smap, const RpcCablingCondData::STvec& sType) const {
+                                const L1RPCcabCorrection type, const sectorMap_t& smap, const RpcCablingCondData::STvec& sType) {
     int logic_sector = (SubsystemId == 0x65) ? SectorId + 32 : SectorId;
     unsigned short int Ixx = CMAId & 1;
     unsigned short int ep = (CMAId >> 1) & 1;

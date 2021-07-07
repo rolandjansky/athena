@@ -141,10 +141,10 @@ namespace RPC_CondCabling {
 
         SectorLogicSetup& operator<<(int);
 
-        void PrintElement(std::ostream&, int, std::string, int, bool) const;
+        void PrintElement(std::ostream&, int, const std::string&, int, bool) const;
         friend std::ostream& operator<<(std::ostream&, const SectorLogicSetup&);
 
-        void SetPtoTrigRoads(const std::map<std::string, std::string>*);
+        static void SetPtoTrigRoads(const std::map<std::string, std::string>*);
         const std::map<std::string, std::string>* GetPtoTrigRoads() const { return s_trigroads; }  // LBTAG
     };
 
