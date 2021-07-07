@@ -238,7 +238,7 @@ electronSuperClusterBuilder::searchForSecondaryClusters(const std::size_t seedIn
 
 bool
 electronSuperClusterBuilder::matchSameTrack(const xAOD::TrackParticle& seedTrack,
-                                            const egammaRec& sec) const
+                                            const egammaRec& sec) 
 {
   const xAOD::TrackParticle* secTrack = sec.trackParticle();
   if (secTrack) {

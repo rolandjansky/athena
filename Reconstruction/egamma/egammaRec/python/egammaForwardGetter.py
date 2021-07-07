@@ -30,7 +30,6 @@ egammaForwardBuilder = AlgFactory(
     name='egammaForward',
     # Keys
     ElectronOutputName=egammaKeys.outputFwdElectronKey(),
-    TopoClusterName="CaloCalTopoClusters",
     ClusterContainerName=egammaKeys.outputFwdClusterKey(),
     # Tools
     ObjectQualityTool=egammaOQFlagsBuilder,

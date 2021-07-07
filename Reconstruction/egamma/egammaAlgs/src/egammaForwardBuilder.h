@@ -80,7 +80,7 @@ class egammaForwardBuilder : public AthReentrantAlgorithm
 
   /** @brief input topo cluster type */
   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_topoClusterKey {this,
-      "TopoClusterName", "",
+      "TopoClusterName", "CaloCalTopoClusters",
       "Name of the input cluster collection"};
 
   /** @brief output electron container */
