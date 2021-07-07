@@ -11,7 +11,7 @@ def same( val , tool):
 #
 # Create the hypo alg with all selectors
 #
-def createTrigEgammaPrecisionElectronHypoAlg(name, sequenceOut):
+def createTrigEgammaPrecisionElectronHypoAlg(name, sequenceOut, do_idperf):
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
     MonTool = GenericMonitoringTool("MonTool_"+name)
     
@@ -23,6 +23,7 @@ def createTrigEgammaPrecisionElectronHypoAlg(name, sequenceOut):
    
     thePrecisionElectronHypo = TrigEgammaPrecisionElectronHypoAlg(name)
     thePrecisionElectronHypo.Electrons = sequenceOut
+    thePrecisionElectronHypo.Do_idperf = do_idperf
     thePrecisionElectronHypo.RunInView = True
     thePrecisionElectronHypo.ElectronCBSelectorTools = createTrigEgammaPrecisionElectronCBSelectors()
     thePrecisionElectronHypo.ElectronLHSelectorTools = createTrigEgammaPrecisionElectronLHSelectors()
@@ -96,7 +97,8 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
     self.__sel = cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
     self.__iso = cpart['isoInfo']
     self.__d0  = cpart['lrtInfo']
-    self.__trkInfo = cpart['trkInfo']
+    self.__gsfInfo = cpart['gsfInfo']
+    self.__idperfInfo = cpart['idperfInfo']
     self.__lhInfo = cpart['lhInfo']
     
     if not tool:
@@ -110,6 +112,7 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
     tool.RelPtConeCut   = -999
     tool.PidName        = ""
     tool.d0Cut          = -1
+    tool.AcceptAll      = False
     self.__tool         = tool    
 
     self.__log.debug( 'Electron_Chain     :%s', self.__name )
@@ -140,8 +143,11 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
   def d0Info(self):
     return self.__d0
 
-  def trkInfo(self):
-    return self.__trkInfo
+  def gsfInfo(self):
+    return self.__gsfInfo
+
+  def idperfInfo(self):
+    return self.__idperfInfo
 
   def tool(self):
     return self.__tool
@@ -149,7 +155,6 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
   def nocut(self):
 
     self.__log.debug( 'Configure nocut' )
-    #self.tool().AcceptAll = True
     self.tool().ETthr          = same( self.etthr()*GeV, self.tool())
     self.tool().dETACLUSTERthr = 9999.
     self.tool().dPHICLUSTERthr = 9999.
@@ -170,6 +175,8 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
       self.__log.fatal(f"Bad LRT selection name: {self.d0Info()}")
     self.__tool.d0Cut = self.__lrtD0Cut[self.d0Info()]
 
+  def acceptAll(self):
+     self.tool().AcceptAll = True
   #
   # Isolation extra cut
   #
@@ -185,15 +192,14 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
       self.__log.fatal("Bad selection name: %s" % self.pidname())
     self.tool().PidName = self.pidname()
 
-
+  
   #
   # Compile the chain
   #
   def compile(self):
 
-    # main configuration
-    if 'etcut' == self.pidname():
-      self.etcut()
+    if 'idperf' in self.idperfInfo():
+      self.acceptAll()
 
     elif 'nocut' == self.pidname():
       self.nocut()
@@ -205,13 +211,12 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
     # secundary cut configurations
     if self.isoInfo() and self.isoInfo()!="":
       self.addIsoCut()
-    if self.d0Info() and self.d0Info()!="" and 'idperf' not in self.trkInfo():
+    if self.d0Info() and self.d0Info()!="" and 'idperf' not in self.idperfInfo():
       self.addLRTCut()
     
 
     if hasattr(self.tool(), "MonTool"):
       self.addMonitoring()
-
 
 
   #

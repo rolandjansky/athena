@@ -740,6 +740,20 @@ HLT_e5_dnntight_L1EM3:
     3: 3
 HLT_e5_etcut_L1eEM3:
   eventCount: 0
+HLT_e5_idperf_gsf_tight_L1EM3:
+  eventCount: 4
+  stepCounts:
+    0: 9
+    1: 8
+    2: 4
+    3: 4
+    4: 4
+  stepFeatures:
+    0: 17
+    1: 13
+    2: 5
+    3: 5
+    4: 5
 HLT_e5_idperf_loose_L1EM3:
   eventCount: 5
   stepCounts:
@@ -747,11 +761,13 @@ HLT_e5_idperf_loose_L1EM3:
     1: 9
     2: 5
     3: 5
+    4: 5
   stepFeatures:
     0: 19
     1: 15
     2: 7
     3: 7
+    4: 7
 HLT_e5_idperf_loose_lrtloose_L1EM3:
   eventCount: 6
   stepCounts:
@@ -759,11 +775,13 @@ HLT_e5_idperf_loose_lrtloose_L1EM3:
     1: 9
     2: 6
     3: 6
+    4: 6
   stepFeatures:
     0: 19
     1: 18
     2: 8
     3: 8
+    4: 8
 HLT_e5_idperf_medium_L1EM3:
   eventCount: 5
   stepCounts:
@@ -771,11 +789,13 @@ HLT_e5_idperf_medium_L1EM3:
     1: 9
     2: 5
     3: 5
+    4: 5
   stepFeatures:
     0: 21
     1: 17
     2: 7
     3: 7
+    4: 7
 HLT_e5_idperf_tight_L1EM3:
   eventCount: 4
   stepCounts:
@@ -783,11 +803,13 @@ HLT_e5_idperf_tight_L1EM3:
     1: 8
     2: 4
     3: 4
+    4: 4
   stepFeatures:
     0: 17
     1: 13
     2: 5
     3: 5
+    4: 5
 HLT_e5_lhtight_L1EM3:
   eventCount: 0
   stepCounts:
