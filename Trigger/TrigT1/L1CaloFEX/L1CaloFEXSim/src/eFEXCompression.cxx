@@ -60,7 +60,7 @@ int eFEXCompression::Expand(unsigned int code) {
   }
   /// Now expand the value
   int Et = s_minET[range] + (code-s_minCode[range])*s_steps[range];
-  
+
   return Et;
 }
 
@@ -89,7 +89,7 @@ unsigned int eFEXCompression::Linearize(unsigned int code, int threshold) {
   // Check for overflow
   if (Et >= s_maxET) return s_eFEXOverflow;
 
-  /// Convert to eFEX digit scale
+  /// Convert to eFEX digit scale: 25 MeV
   unsigned int eFexET = Et/s_eFEXstep;
   return eFexET;
 }
