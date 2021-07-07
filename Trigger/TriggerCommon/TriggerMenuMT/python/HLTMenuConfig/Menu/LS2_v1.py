@@ -698,6 +698,7 @@ def setupMenu():
         ChainProp(name="HLT_tau160_perf_tracktwoMVABDT_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau160_medium1_track_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau160_medium1_tracktwo_L1TAU100", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau160_mediumRNN_tracktwoMVATest_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau180_tightRNN_tracktwoLLP_L1TAU100", groups=SupportLegGroup+SingleTauGroup),    # 
         ChainProp(name="HLT_tau200_ptonly_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau200_medium1_track_L1TAU100", groups=SingleTauGroup),

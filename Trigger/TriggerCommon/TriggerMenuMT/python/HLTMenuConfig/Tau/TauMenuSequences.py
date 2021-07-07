@@ -186,6 +186,28 @@ def tauTrackTwoMVASeq():
                           Hypo        = precisionHypo,
                           HypoToolGen = TrigEFTauMVHypoToolFromDict )
 
+# ===============================================================================================                                                                                                                                     
+#     Tau Precision MVA Alg + EFMVHypo test step   (tracktwoMVATest)                                                                                                                                                                  
+# ===============================================================================================                                                                                                                                     
+
+def tauTrackTwoMVATestSeq():
+    (sequence, mvaViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(tauMVASequence,ConfigFlags )
+
+    from TrigTauHypo.TrigTauHypoConf import  TrigEFTauMVHypoAlg
+    precisionHypo = TrigEFTauMVHypoAlg("EFTauMVHypoAlgMVATest")
+    precisionHypo.taujetcontainer = sequenceOut
+
+    #Turn off high-pt ID loose cut loosening for testing purposes
+    from TrigTauHypo.TrigTauHypoConf import TrigEFTauMVHypoTool
+    TrigEFTauMVHypoTool.highpt = False
+
+    from TrigTauHypo.TrigTauHypoTool import TrigEFTauMVHypoToolFromDict
+
+    return  MenuSequence( Sequence    = sequence,
+                          Maker       = mvaViewsMaker,
+                          Hypo        = precisionHypo,
+                          HypoToolGen = TrigEFTauMVHypoToolFromDict )
+
 # ===============================================================================================
 #     Tau Precision LLP Alg + EFMVHypo step   (tracktwoLLP)
 # ===============================================================================================
