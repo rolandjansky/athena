@@ -88,8 +88,8 @@ namespace RPC_CondCabling {
 
         void Print(std::ostream&, bool) const;
 
-        void two_obj_error_message(std::string, WiredOR*);
-        void error(std::string);
+        void two_obj_error_message(const std::string&, WiredOR*);
+        void error(const std::string&);
     };
 
     template <class X> X& operator<<(X& stream, const WiredOR& Wor) {

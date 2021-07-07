@@ -113,8 +113,8 @@ protected:
     void create_lowPt_map(int);
     void create_highPt_map(int);
 
-    void noMoreChannels(const std::string stat);
-    void two_obj_error_message(std::string, CMAparameters*);
+    void noMoreChannels(const std::string& stat);
+    void two_obj_error_message(const std::string&, CMAparameters*);
     void no_confirm_error(int);
     void no_wor_readout(int, int);
     void error(const std::string&);

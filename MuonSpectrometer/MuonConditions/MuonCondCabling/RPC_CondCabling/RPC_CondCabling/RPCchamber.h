@@ -78,7 +78,7 @@ namespace RPC_CondCabling {
         void error(const std::string&) const;
 
     public:
-        RPCchamber(RPCchamber::chamberParameters params, IMessageSvc* msgSvc);
+        RPCchamber(const RPCchamber::chamberParameters& params, IMessageSvc* msgSvc);
         RPCchamber(const RPCchamber&) = default;
         virtual ~RPCchamber();
 

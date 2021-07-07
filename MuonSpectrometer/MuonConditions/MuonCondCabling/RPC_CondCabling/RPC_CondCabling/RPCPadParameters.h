@@ -47,7 +47,7 @@ public:
     unsigned short int feet_threshold(unsigned short int it) const;
     bool set_feet_threshold(unsigned short int it, unsigned short int th);
 
-    void Print(std::ostream& stream);
+    void Print(std::ostream& stream) const;
 };
 
 #endif  // MUONRPC_CABLING_RPCPADPARAMETERS_H

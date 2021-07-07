@@ -109,7 +109,7 @@ bool CMApivotdata::get_data(DBline& data, CMAparameters::parseParams& parser) {
 }
 
 std::unique_ptr<EtaCMA> CMApivotdata::give_eta_cma() {
-    if (m_etaCMA.size()) {
+    if (!m_etaCMA.empty()) {
         std::unique_ptr<EtaCMA> CMA = std::make_unique<EtaCMA>(m_etaCMA.front());
         m_etaCMA.pop_front();
         return CMA;
@@ -118,7 +118,7 @@ std::unique_ptr<EtaCMA> CMApivotdata::give_eta_cma() {
 }
 
 std::unique_ptr<EvenPhiCMA> CMApivotdata::give_evenphi_cma() {
-    if (m_evenphiCMA.size()) {
+    if (!m_evenphiCMA.empty()) {
         std::unique_ptr<EvenPhiCMA> CMA = std::make_unique<EvenPhiCMA>(m_evenphiCMA.front());
         m_evenphiCMA.pop_front();
         return CMA;
@@ -127,7 +127,7 @@ std::unique_ptr<EvenPhiCMA> CMApivotdata::give_evenphi_cma() {
 }
 
 std::unique_ptr<OddPhiCMA> CMApivotdata::give_oddphi_cma() {
-    if (m_oddphiCMA.size()) {
+    if (!m_oddphiCMA.empty()) {
         std::unique_ptr<OddPhiCMA> CMA = std::make_unique<OddPhiCMA>(m_oddphiCMA.front());
         m_oddphiCMA.pop_front();
         return CMA;

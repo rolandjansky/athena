@@ -52,7 +52,7 @@ bool WiredORdata::get_data(DBline& data, WiredOR::parseParams& parse_params) {
 }
 
 std::unique_ptr<WiredOR> WiredORdata::give_wor(void) {
-    if (m_wor.size()) {
+    if (!m_wor.empty()) {
         std::unique_ptr<WiredOR> Wor = std::make_unique<WiredOR>(m_wor.front());
         m_wor.pop_front();
         return Wor;

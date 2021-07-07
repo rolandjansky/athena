@@ -109,7 +109,7 @@ bool RPCchamberdata::get_data(DBline& data, RPCchamber::chamberParameters& param
 }
 
 std::unique_ptr<RPCchamber> RPCchamberdata::give_rpc() {
-    if (m_rpc.size()) {
+    if (!m_rpc.empty()) {
         std::unique_ptr<RPCchamber> cham = std::make_unique<RPCchamber>(m_rpc.front());
         m_rpc.pop_front();
         return cham;

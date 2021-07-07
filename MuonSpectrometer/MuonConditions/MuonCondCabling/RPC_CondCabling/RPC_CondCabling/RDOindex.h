@@ -113,7 +113,7 @@ private:
 
 public:
     RDOindex(unsigned int, unsigned int);
-    RDOindex(unsigned int, unsigned int, std::string, int, int, int, int, int);
+    RDOindex(unsigned int, unsigned int, const std::string&, int, int, int, int, int);
 
     RDOindex(const RDOindex&) = default;
     ~RDOindex() = default;

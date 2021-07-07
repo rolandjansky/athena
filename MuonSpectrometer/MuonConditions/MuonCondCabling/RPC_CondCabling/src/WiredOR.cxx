@@ -51,7 +51,7 @@ const RPCchamber* WiredOR::connected_rpc(int ord) const {
         --ord;
         ++rpcs;
     }
-    return 0;
+    return nullptr;
 }
 
 void WiredOR::add_cma(const CMAparameters* cma) { m_readoutCMAs.push_back(cma); }
@@ -156,7 +156,7 @@ void WiredOR::Print(std::ostream& stream, bool detail) const {
     }
 }
 
-void WiredOR::two_obj_error_message(std::string msg, WiredOR* wor) {
+void WiredOR::two_obj_error_message(const std::string& msg, WiredOR* wor) {
     error_header();
 
     DISP << "  " << msg << " between " << name() << " n. " << number() << " and " << wor->name() << " n. " << wor->number() << std::endl
@@ -164,7 +164,7 @@ void WiredOR::two_obj_error_message(std::string msg, WiredOR* wor) {
     DISP_ERROR;
 }
 
-void WiredOR::error(std::string msg) {
+void WiredOR::error(const std::string& msg) {
     error_header();
 
     DISP << msg << std::endl << *this;
