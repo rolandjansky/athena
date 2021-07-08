@@ -105,9 +105,8 @@ def HGTDSensitiveDetectorListCfg(ConfigFlags):
     tools = []
 
     if ConfigFlags.Detector.EnableHGTD:
-        # TODO: disabled pending infrastructure updates
-        # from HGTD_G4.HGTD_G4_SDToolConfig import HgtdSensorSDCfg
-        # tools += [ result.popToolsAndMerge(HgtdSensorSDCfg(ConfigFlags)) ]
+        from HGTD_G4_SD.HGTD_G4_SDToolConfig import HgtdSensorSDCfg
+        tools += [ result.popToolsAndMerge(HgtdSensorSDCfg(ConfigFlags)) ]
         pass
 
     result.setPrivateTools(tools)

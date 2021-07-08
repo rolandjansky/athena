@@ -46,12 +46,75 @@
 
 #include "InDetTrackSystematicsTools/InDetTrackTruthOriginDefs.h"
 
+
+/// helper struct - steer the configuration from the parent tool's side 
+struct InDetRttPlotConfig{
+  /// Plots for (selected) tracks, not necessarily truth matched
+  bool doTrackParameters{true}; 
+  bool doNTracks{true}; 
+  bool doHitResidualPlot{false}; 
+  bool doHitEffPlot{false}; 
+  bool doHitsRecoTracksPlots{true}; 
+  bool doTrtExtensionPlots{true}; 
+
+  /// Fake plots (and unlinked) 
+  bool doFakePlots{true}; 
+  bool doMissingTruthFakePlots{true}; 
+  bool doHitsFakeTracksPlots{true};
+  bool doHitsUnlinkedTracksPlots{true};
+
+  /// Efficiency plots - require truth, optionally
+  /// matching reco 
+  bool doEffPlots{true}; 
+
+  /// Resolution and "matched track" plots - 
+  /// filled if both reco and truth exist
+  bool doResolutionPlotPrim{true}; 
+  bool doResolutionPlotPrim_truthFromB{false}; 
+  bool doResolutionPlotSecd{false};
+  bool doHitsMatchedTracksPlots{true};
+
+  /// Vertexing plots - no truth requirement 
+  bool doVertexPlots{true}; 
+  bool doVerticesVsMuPlots{true}; 
+  bool doHardScatterVertexPlots{true}; 
+
+  /// Vertexing plots - truth requirement 
+  bool doVertexTruthMatchingPlots{true};
+  bool doHardScatterVertexTruthMatchingPlots{true}; 
+
+  /// ANT (also known as LRT) tracking.
+  /// Off by default as only used for merged containers
+  bool doAnTrackingPlots{false}; 
+
+  /// Plots for tracks in jets 
+  bool doTrkInJetPlots{false}; 
+  bool doTrkInJetPlots_bjets{false}; 
+  bool doTrkInJetPlots_matched{false}; 
+  bool doTrkInJetPlots_matched_bjets{false}; 
+  bool doTrkInJetPlots_fake{false}; 
+  bool doTrkInJetPlots_fake_bjets{false}; 
+  bool doTrkInJetPlots_unlinked{false}; 
+  bool doTrkInJetPlots_unlinked_bjets{false}; 
+  bool doTrkInJetPlots_truthFromB{false}; 
+
+  /// per author plots 
+  bool doEfficienciesPerAuthor{false}; 
+  bool doFakesPerAuthor{false};
+  bool doTrackParametersPerAuthor{false};
+  bool doResolutionsPerAuthor{false};
+  
+  /// Ntuple functionality 
+  bool doNtupleTruthToReco{false}; 
+
+  /// detail level (kept for compatibility)
+  int detailLevel{10};
+};
+
 ///class holding all plots for Inner Detector RTT Validation and implementing fill methods
 class InDetRttPlots: public InDetPlotBase {
 public:
-  InDetRttPlots(InDetPlotBase* pParent, const std::string& dirName, const int iDetailLevel = 10);
-
-  void SetFillJetPlots(bool fillJets, bool fillBJets);
+  InDetRttPlots(InDetPlotBase* pParent, const std::string& dirName, const InDetRttPlotConfig & config);
 
   ///fill for things needing truth and track only
   void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle, bool truthIsFromB=false, float mu = 0.0, float weight=1.0);
@@ -64,7 +127,7 @@ public:
   ///fill for things needing truth only
   void fill(const xAOD::TruthParticle& particle, float weight);
   ///Fill for efficiency plots
-  void fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::TrackParticle& track, const bool isGood, const float mu, const unsigned int nVtx, float weight);
+  void fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::TrackParticle* track, const bool isGood, const float mu, const unsigned int nVtx, float weight);
 
   ///fill for things needing all truth - not just the ones from the reco tracks
   
@@ -77,8 +140,6 @@ public:
   void fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::Jet& jet, const bool isGood, bool isBjet=false, bool truthIsFromB=false, float weight=1.0);
   void fillFakeRate(const xAOD::TrackParticle& track, const xAOD::Jet& jet, const bool isFake, bool isBjet=false, bool truthIsFromB=false, float weight=1.0);
   
-  virtual ~InDetRttPlots() {/**nop**/
-  };
   ///fill for Counters
   void fillCounter(const unsigned int freq, const InDetPerfPlot_nTracks::CounterCategory counter, float weight);
   ///fill for fakes
@@ -88,31 +149,44 @@ public:
   void fillNtuple(const xAOD::TrackParticle& track);
   void fillNtuple(const xAOD::TruthParticle& truth);
   void fillNtuple(const xAOD::TrackParticle& track, const xAOD::TruthParticle& truth, const int truthMatchRanking); 
+
+  virtual ~InDetRttPlots() {/**nop**/
+  };
+
 private:
-  InDetPerfPlot_TrackParameters m_trackParameters;
-  InDetPerfPlot_nTracks m_nTracks;
-  InDetPerfPlot_HitResidual m_hitResidualPlot;
-  InDetPerfPlot_HitEfficiency m_hitEffPlot;
-  InDetPerfPlot_FakeRate m_fakePlots;
-  InDetPerfPlot_FakeRate m_missingTruthFakePlots;
-  InDetPerfPlot_Resolution m_resolutionPlotPrim;
-  InDetPerfPlot_Resolution m_resolutionPlotPrim_truthFromB;
-  InDetPerfPlot_Hits m_hitsRecoTracksPlots;
-  InDetPerfPlot_Efficiency m_effPlots;
-  InDetPerfPlot_VerticesVsMu m_verticesVsMuPlots;
-  InDetPerfPlot_Vertex m_vertexPlots;
-  InDetPerfPlot_Vertex m_hardScatterVertexPlots;
-  InDetPerfPlot_VertexTruthMatching m_hardScatterVertexTruthMatchingPlots;
-  InDetPerfPlot_TRTExtension m_trtExtensionPlots;
-  InDetPerfPlot_ANTracking m_anTrackingPlots;
-  InDetPerfNtuple_TruthToReco m_ntupleTruthToReco;
+
+  /// configuration object
+  InDetRttPlotConfig m_config; 
+
+  /// key for the truth match prob 
+  const std::string m_trackParticleTruthProbKey{"truthMatchProbability"};
+  const float m_truthProbLowThreshold{0.5};
+
+  /// plot members.
+  /// No explicit initialisation, since unique_ptr will default-construct 
+  /// to return a nullptr
+  std::unique_ptr<InDetPerfPlot_TrackParameters> m_trackParameters;
+  std::unique_ptr<InDetPerfPlot_nTracks> m_nTracks;
+  std::unique_ptr<InDetPerfPlot_HitResidual> m_hitResidualPlot;
+  std::unique_ptr<InDetPerfPlot_HitEfficiency> m_hitEffPlot;
+  std::unique_ptr<InDetPerfPlot_FakeRate> m_fakePlots;
+  std::unique_ptr<InDetPerfPlot_FakeRate> m_missingTruthFakePlots;
+  std::unique_ptr<InDetPerfPlot_Resolution> m_resolutionPlotPrim;
+  std::unique_ptr<InDetPerfPlot_Resolution> m_resolutionPlotPrim_truthFromB;
+  std::unique_ptr<InDetPerfPlot_Hits> m_hitsRecoTracksPlots;
+  std::unique_ptr<InDetPerfPlot_Efficiency> m_effPlots;
+  std::unique_ptr<InDetPerfPlot_VerticesVsMu> m_verticesVsMuPlots;
+  std::unique_ptr<InDetPerfPlot_Vertex> m_vertexPlots;
+  std::unique_ptr<InDetPerfPlot_Vertex> m_hardScatterVertexPlots;
+  std::unique_ptr<InDetPerfPlot_VertexTruthMatching> m_hardScatterVertexTruthMatchingPlots;
+  std::unique_ptr<InDetPerfPlot_TRTExtension> m_trtExtensionPlots;
+  std::unique_ptr<InDetPerfPlot_ANTracking> m_anTrackingPlots;
+  std::unique_ptr<InDetPerfNtuple_TruthToReco> m_ntupleTruthToReco;
   std::unique_ptr<InDetPerfPlot_Resolution> m_resolutionPlotSecd;
   std::unique_ptr<InDetPerfPlot_Hits> m_hitsMatchedTracksPlots;
-  std::unique_ptr<InDetPerfPlot_Hits> m_hitsFakeTracksPlots{nullptr};
-  std::unique_ptr<InDetPerfPlot_Hits> m_hitsUnlinkedTracksPlots{nullptr};
+  std::unique_ptr<InDetPerfPlot_Hits> m_hitsFakeTracksPlots;
+  std::unique_ptr<InDetPerfPlot_Hits> m_hitsUnlinkedTracksPlots;
   std::unique_ptr<InDetPerfPlot_VertexTruthMatching> m_vertexTruthMatchingPlots;
-  bool m_doTrackInJetPlots;
-  bool m_doTrackInBJetPlots;
   std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots;
   std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots_bjets;
   std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots_matched;
@@ -122,11 +196,8 @@ private:
   std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots_unlinked;
   std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots_unlinked_bjets;
   
-  // by track origin
-  bool m_doTruthOriginPlots;
   std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots_truthFromB;
 
-  //By track authors
   std::unique_ptr<InDetPerfPlot_Efficiency> m_effSiSPSeededFinderPlots;
   std::unique_ptr<InDetPerfPlot_Efficiency> m_effInDetExtensionProcessorPlots;
   std::unique_ptr<InDetPerfPlot_Efficiency> m_effTRTSeededTrackFinderPlots;
@@ -150,12 +221,6 @@ private:
   std::unique_ptr<InDetPerfPlot_Resolution> m_resTRTSeededTrackFinderPlots;
   std::unique_ptr<InDetPerfPlot_Resolution> m_resTRTStandalonePlots;
   std::unique_ptr<InDetPerfPlot_Resolution> m_resSiSpacePointsSeedMaker_LargeD0Plots;
-
-
-
-
-  std::string m_trackParticleTruthProbKey;
-  float m_truthProbLowThreshold;
 };
 
 

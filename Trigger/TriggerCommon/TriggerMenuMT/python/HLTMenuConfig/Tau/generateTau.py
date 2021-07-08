@@ -109,10 +109,84 @@ def generateChains( flags, chainDict ):
         menuCA = MenuSequenceCA(selAcc, HypoToolGen=TrigTauTrackHypoToolFromDict)                                                                                                     
         return ChainStep(name=selAcc.name, Sequences=[menuCA], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))   
 
+    def __ftfIso():
+        selAcc=SelectionCA('tauIsoFTF')
+        name = 'FTFIso'
+        newRoITool   = CompFactory.ViewCreatorFetchFromViewROITool(RoisWriteHandleKey = 'HLT_Roi_TauIso',
+                                                                           InViewRoIs = 'UpdatedTrackRoI')                                                                                                                        
+        evtViewMaker = CompFactory.EventViewCreatorAlgorithm('IM'+name,
+                                                            ViewFallThrough   = True,
+                                                            RoIsLink          = 'roi',
+                                                            RoITool           = newRoITool,
+                                                            InViewRoIs        = 'Tau'+name+'RoIs',
+                                                            Views             = 'Tau'+name+'Views',
+                                                            ViewNodeName      = 'Tau'+name+'InView',
+                                                            RequireParentView = True,
+                                                            mergeUsingFeature = True   )
+
+        from TrigInDetConfig.TrigInDetConfig import trigInDetFastTrackingCfg
+        idTracking = trigInDetFastTrackingCfg(flags, roisKey=evtViewMaker.InViewRoIs, signatureName="TauIso")
+        fastInDetReco = InViewRecoCA('FastTauIso', viewMaker=evtViewMaker)
+        fastInDetReco.mergeReco(idTracking)
+        fastInDetReco.addRecoAlgo(CompFactory.AthViews.ViewDataVerifier(name='VDVFastTauIso',
+                                DataObjects=[( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % evtViewMaker.InViewRoIs ),
+                               ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnly')]) )
+
+        selAcc.mergeReco(fastInDetReco)
+        hypoAlg = CompFactory.TrigTrackPreSelHypoAlg("TrackPreSelHypoAlg_PassByIso",
+                                                    trackcollection = flags.Trigger.InDetTracking.TauIso.trkTracks_FTF )
+
+        from TrigTauHypo.TrigTauHypoConf import TrigTrackPreSelHypoTool
+        TrigTrackPreSelHypoTool.AcceptAll = True
+
+        selAcc.addHypoAlgo(hypoAlg)
+
+        from TrigTauHypo.TrigTauHypoTool import TrigTauTrackHypoToolFromDict
+        menuCA = MenuSequenceCA(selAcc, HypoToolGen=TrigTauTrackHypoToolFromDict)
+        return ChainStep(name=selAcc.name, Sequences=[menuCA], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
+
+    def __ftfIsoBDT():
+        selAcc=SelectionCA('tauIsoBDTFTF')
+        name = 'FTFIsoBDT'
+        newRoITool   = CompFactory.ViewCreatorFetchFromViewROITool(RoisWriteHandleKey = 'HLT_Roi_TauIsoBDT',
+                                                                           InViewRoIs = 'UpdatedTrackBDTRoI')                                                                                                 
+
+        evtViewMaker = CompFactory.EventViewCreatorAlgorithm('IM'+name,
+                                                            ViewFallThrough   = True,
+                                                            RoIsLink          = 'roi',
+                                                            RoITool           = newRoITool,
+                                                            InViewRoIs        = 'Tau'+name+'RoIs',
+                                                            Views             = 'Tau'+name+'Views',
+                                                            ViewNodeName      = 'Tau'+name+'InView',
+                                                            RequireParentView = True,
+                                                            mergeUsingFeature = True   )
+
+        from TrigInDetConfig.TrigInDetConfig import trigInDetFastTrackingCfg
+        idTracking = trigInDetFastTrackingCfg(flags, roisKey=evtViewMaker.InViewRoIs, signatureName="TauIsoBDT")
+        fastInDetReco = InViewRecoCA('FastTauIsoBDT', viewMaker=evtViewMaker)
+        fastInDetReco.mergeReco(idTracking)
+        fastInDetReco.addRecoAlgo(CompFactory.AthViews.ViewDataVerifier(name='VDVFastTauIsoBDT',
+                                DataObjects=[( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % evtViewMaker.InViewRoIs ),
+                               ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnly')]) )
+
+        selAcc.mergeReco(fastInDetReco)
+        hypoAlg = CompFactory.TrigTrackPreSelHypoAlg("TrackPreSelHypoAlg_PassByIsoBDT",
+                                                    trackcollection = flags.Trigger.InDetTracking.TauIsoBDT.trkTracks_FTF )
+
+        from TrigTauHypo.TrigTauHypoConf import TrigTrackPreSelHypoTool
+        TrigTrackPreSelHypoTool.AcceptAll = True
+
+        selAcc.addHypoAlgo(hypoAlg)
+
+        from TrigTauHypo.TrigTauHypoTool import TrigTauTrackHypoToolFromDict
+        menuCA = MenuSequenceCA(selAcc, HypoToolGen=TrigTauTrackHypoToolFromDict)
+        return ChainStep(name=selAcc.name, Sequences=[menuCA], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
+
 
     thresholds = [p["L1threshold"] for p in chainDict['chainParts'] if p['signature'] == 'Tau' ]
-    chain = Chain( name=chainDict['chainName'], L1Thresholds=thresholds, ChainSteps=[ __calo(), __ftfTau(), __ftfCore() ] )
+    chain = Chain( name=chainDict['chainName'], L1Thresholds=thresholds, ChainSteps=[ __calo(), __ftfTau(), __ftfCore(), __ftfIso(), __ftfIsoBDT() ] )
     return chain
+
 
 
 if __name__ == "__main__":

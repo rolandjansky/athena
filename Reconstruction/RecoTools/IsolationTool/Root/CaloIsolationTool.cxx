@@ -264,7 +264,7 @@ namespace xAOD {
     const Egamma* egam = dynamic_cast<const Egamma*>(ip);
     if ( egam ) return neutralEflowIsolation(result,*egam,cones,corrlist,coneCoreSize);
 
-    ATH_MSG_WARNING("PFlowObjectIsolation only supported for Egamma and TrackParticle");
+    ATH_MSG_WARNING("FlowElementIsolation only supported for Egamma and TrackParticle");
 
     return true;
   }
@@ -423,6 +423,10 @@ namespace xAOD {
 
     if( isoTypes.empty() ) {
       ATH_MSG_WARNING("Empty list passed, failing calculation");
+      return false;
+    }
+    if(!m_useEMScale){
+      ATH_MSG_WARNING("Only EM scale is supported by neutralEflowIsolation");
       return false;
     }
 
@@ -1003,20 +1007,20 @@ for( auto isoType : isoTypes ){
                                         float phi,
                                         std::vector<float>& coneSizes,
                                         bool coreEMonly,
-                                        const PFOContainer* container,
+                                        const FlowElementContainer* container,
                                         double coneCoreSize) const
   {
 
     // container is large: preselect only those in max cone size
     auto max_cone_iter=std::max_element(coneSizes.begin(), coneSizes.end());
     float max_cone = (*max_cone_iter);
-    std::vector<const PFO*> clusts;
+    std::vector<const FlowElement*> clusts;
     if (!container) {
 #ifndef XAOD_ANALYSIS
       if (m_pflowObjectsInConeTool) {
 	m_pflowObjectsInConeTool->particlesInCone(eta,phi,max_cone,clusts);
       } else {
-	ATH_MSG_WARNING("No PFlowObjectsInConeTool available");
+	ATH_MSG_WARNING("No FlowElementsInConeTool available");
       }
 #else
       if(!particlesInCone(eta,phi,max_cone,clusts)) ATH_MSG_WARNING("Failed to get particles in cone.");
@@ -1082,15 +1086,13 @@ for( auto isoType : isoTypes ){
    */
   bool CaloIsolationTool::pflowObjCones (CaloIsolation& result, float eta, float phi,
 					 std::vector<float>& coneSizes,
-					 const std::vector<const PFO*>& clusts) const
+					 const std::vector<const FlowElement*>& clusts) const
   {
 
     ATH_MSG_DEBUG("In pflowObjCones obj eta = " << eta << " phi = " << phi);
 
-    for (const PFO* cl : clusts) {
+    for (const FlowElement* cl : clusts) {
       float et = cl->pt();
-      if (m_useEMScale)
-	et = cl->ptEM();
       if (et <= 0 || fabs(cl->eta()) > 7.0) continue;
 
       float dPhi = Phi_mpi_pi(cl->phi()-phi);
@@ -1315,13 +1317,12 @@ for( auto isoType : isoTypes ){
 
 bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, float eta, float phi,
 							 float detaMax, float dphiMax, float dR2Max,
-							 const std::vector<const PFO*>& clusts, bool onlyEM) const
+							 const std::vector<const FlowElement*>& clusts, bool onlyEM) const
   {
 
     float pflowCore(0.);
-    for (const PFO* cl : clusts) {
-      ATH_MSG_DEBUG("pflo: eta " << cl->eta() << " phi " << cl->phi() << " pt " << cl->pt() << " ptEM = " << cl->ptEM()
-		    << " charge " << cl->charge());
+    for (const FlowElement* cl : clusts) {
+      ATH_MSG_DEBUG("pflo: eta " << cl->eta() << " phi " << cl->phi() << " pt " << cl->pt() << " charge " << cl->charge());
       float dphi = Phi_mpi_pi(cl->phi()-phi);
       if (detaMax > 0 && fabs(dphi) > dphiMax) continue;
       float deta = cl->eta()-eta;
@@ -1330,16 +1331,14 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
 
       /// get energy
       float et = cl->pt();
-      if (m_useEMScale)
-	et = cl->ptEM();
       if (et <= 0 || fabs(cl->eta()) > 7.0) continue;
 
       double emfrac = 1.;
       if (onlyEM) {
-	const xAOD::CaloCluster *ocl = cl->cluster(0);
+	const xAOD::CaloCluster *ocl = dynamic_cast<const xAOD::CaloCluster*>(cl->otherObject(0));
 	if(ocl) {
 	  double eEM = ocl->energyBE(0)+ocl->energyBE(1)+ocl->energyBE(2)+ocl->energyBE(3);
-	  emfrac     = std::min(1.,eEM / cl->eEM());
+	  emfrac     = std::min(1.,eEM / cl->e());
 	}
       }
       et *= emfrac;
@@ -1566,9 +1565,9 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
 
     return true;
   }
-  bool CaloIsolationTool::particlesInCone( float eta, float phi, float dr, std::vector<const PFO*>& output ) const{
+  bool CaloIsolationTool::particlesInCone( float eta, float phi, float dr, std::vector<const FlowElement*>& output ) const{
     /// retrieve container
-    const PFOContainer* Clusters = 0;
+    const FlowElementContainer* Clusters = 0;
     std::string m_ClusterLocation = "JetETMissNeutralParticleFlowObjects";
     if(evtStore()->retrieve(Clusters,m_ClusterLocation).isFailure()) {
       ATH_MSG_FATAL( "Unable to retrieve " << m_ClusterLocation);

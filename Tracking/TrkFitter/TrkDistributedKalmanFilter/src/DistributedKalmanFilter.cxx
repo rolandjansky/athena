@@ -48,6 +48,8 @@
 
 #include "TrkTrack/TrackInfo.h"
 
+#include <memory>
+
 #include <vector>
 #include <algorithm>
 #include <cmath>
@@ -826,12 +828,12 @@ Trk::TrackStateOnSurface* Trk::DistributedKalmanFilter::createTrackStateOnSurfac
 	      pM(i,j)=pTS->getTrackCovariance(i,j);
         }
       }
-      pTP.reset(new Trk::AtaPlane(pTS->getTrackState(0),
+      pTP = std::make_unique<Trk::AtaPlane>(pTS->getTrackState(0),
 			    pTS->getTrackState(1),
 			    pTS->getTrackState(2),
 			    pTS->getTrackState(3),
 			    pTS->getTrackState(4),*pPS,
-			    std::move(pM)));
+			    std::move(pM));
     } else if(type==3){
       const Trk::Surface& rS = pPRD->detectorElement()->surface(pPRD->identify()); 
       const Trk::StraightLineSurface* pLS=dynamic_cast<const Trk::StraightLineSurface*>(&rS);
@@ -844,13 +846,13 @@ Trk::TrackStateOnSurface* Trk::DistributedKalmanFilter::createTrackStateOnSurfac
       }
       if((pTS->getTrackState(2)<-M_PI) ||(pTS->getTrackState(2)>M_PI))
 	      printf("Phi is beyond the range\n");
-      pTP.reset(new Trk::AtaStraightLine(pTS->getTrackState(0),
+      pTP = std::make_unique<Trk::AtaStraightLine>(pTS->getTrackState(0),
 				   pTS->getTrackState(1),
 				   pTS->getTrackState(2),
 				   pTS->getTrackState(3),
 				   pTS->getTrackState(4),
 				   *pLS,
-				   std::move(pM)));
+				   std::move(pM));
     }
   if(pTP==nullptr) return nullptr;
   auto pRIO=std::unique_ptr<const Trk::RIO_OnTrack>(m_ROTcreator->correct(*pPRD,*pTP));

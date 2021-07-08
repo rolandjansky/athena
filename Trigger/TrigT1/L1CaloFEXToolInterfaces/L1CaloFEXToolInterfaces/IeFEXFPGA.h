@@ -40,9 +40,9 @@ Interface definition for eFEXFPGA
     
     virtual void SetIsoWP(std::vector<unsigned int> &, std::vector<unsigned int> &, unsigned int &) = 0;
 
-    virtual uint32_t formEmTOB(int &, int &, int &, unsigned int &, unsigned int &, unsigned int &, unsigned int &, unsigned int &, unsigned int &)  = 0;
-
     virtual std::vector<uint32_t> getEmTOBs() = 0; 
+
+    virtual std::vector<uint32_t> getTauTOBs() = 0; 
 
     // static virtual bool etSort(uint32_t &, uint32_t &) = 0;
 
@@ -58,3 +58,4 @@ Interface definition for eFEXFPGA
 } // end of namespace
 
 #endif
+

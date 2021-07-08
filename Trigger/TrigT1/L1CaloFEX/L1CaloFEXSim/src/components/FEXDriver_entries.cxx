@@ -4,6 +4,8 @@
 
 #include "L1CaloFEXSim/eFEXDriver.h"
 #include "L1CaloFEXSim/eFEXSysSim.h"
+#include "L1CaloFEXSim/eFEXFillEDM.h"
+#include "L1CaloFEXSim/eFEXFormTOBs.h"
 #include "L1CaloFEXSim/eFEXSim.h"
 #include "L1CaloFEXSim/eFEXFPGA.h"
 #include "L1CaloFEXSim/eFEXtauAlgo.h"
@@ -29,6 +31,8 @@ using namespace LVL1;
 
 DECLARE_COMPONENT(eFEXDriver)
 DECLARE_COMPONENT(eFEXSysSim)
+DECLARE_COMPONENT(eFEXFillEDM)
+DECLARE_COMPONENT(eFEXFormTOBs)
 DECLARE_COMPONENT(eFEXSim)
 DECLARE_COMPONENT(eTowerBuilder)
 DECLARE_COMPONENT(eSuperCellTowerMapper)

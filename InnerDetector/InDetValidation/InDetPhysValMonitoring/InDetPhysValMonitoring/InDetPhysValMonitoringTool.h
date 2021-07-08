@@ -48,6 +48,7 @@
 //fwd declaration
 class IInDetPhysValDecoratorTool;
 class InDetRttPlots;
+class InDetRttPlotConfig; 
 namespace IDPVM{
     class CachedGetAssocTruth;
 }
@@ -80,6 +81,9 @@ private:
     // Get truth particles into a vector, possibly using the pileup from the event
     const std::vector<const xAOD::TruthParticle *> getTruthParticles() const;
     std::pair<const std::vector<const xAOD::TruthVertex*>, const std::vector<const xAOD::TruthVertex*>> getTruthVertices() const;
+    
+    /// Generate an Rtt config struct based on the user-passed properties
+    InDetRttPlotConfig getFilledPlotConfig() const;  
 
     //
     const Trk::TrackParameters* getUnbiasedTrackParameters(const Trk::TrackParameters* trkParameters, const Trk::MeasurementBase* measurement );
@@ -149,39 +153,39 @@ private:
     std::vector<SG::ReadDecorHandleKey<xAOD::TruthParticleContainer> > m_intTruthDecor;
     std::vector<SG::ReadDecorHandleKey<xAOD::JetContainer> > m_intJetDecor;
 
-    ///Directory name
-    std::string m_dirName;
-
     ///histograms
     std::unique_ptr< InDetRttPlots > m_monPlots;
-    ///Tool for selecting tracks
-    bool m_useTrackSelection;
-    bool m_useVertexTruthMatchTool;
-    bool m_TrkSelectPV;   // make track selection relative to PV
-    bool m_doTruthOriginPlots;
-    ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectionTool;
-    ToolHandle<IInDetVertexTruthMatchTool> m_vtxValidTool;
-    ToolHandle<IAthSelectionTool> m_truthSelectionTool;
-    ToolHandle<InDet::IInDetTrackTruthOriginTool> m_trackTruthOriginTool{this, "trackTruthOriginTool", "InDet::InDetTrackTruthOriginTool"};
+
+
+    /// Properties to fine-tune the tool behaviour
+    BooleanProperty m_useTrackSelection {this, "useTrackSelection", false, "plot only tracks accepted by selection tool"};
+    BooleanProperty m_doTruthOriginPlots {this, "doTruthOriginPlots", false, "do plots split by track truth origin"};
+    BooleanProperty m_doPerAuthorPlots {this, "doPerAuthorPlots", false, "do plots split by track author"};
+    BooleanProperty m_doTrackInJetPlots {this, "FillTrackInJetPlots", true, "Fill plots for tracks in jets"}; 
+    BooleanProperty m_doHitLevelPlots {this, "doHitLevelPlots", false, "Fill hit efficiency and residual plots"}; 
+    BooleanProperty m_doBjetPlots {this, "FillTrackInBJetPlots", false, "Fill plots for tracks in truth-b-tagged jets"}; 
+    BooleanProperty m_fillTruthToRecoNtuple {this, "FillTruthToRecoNtuple", false, "Fill an ntuple with truth and matching reco info for more detailed stuidies"}; 
+    BooleanProperty m_useVertexTruthMatchTool {this, "useVertexTruthMatchTool", false, "Use the vertex truth matching tool"}; 
+    BooleanProperty m_onlyFillMatched {this, "onlyFillTruthMatched", false, "Only fill truth-to-reco (eff, reso, matched hit) plots"}; 
+    FloatProperty m_maxTrkJetDR{this,"maxTrkJetDR",0.4,"the maximum dR to jets to allow for track-in-jet plots"}; 
+    StringProperty m_dirName {this, "DirName", "SquirrelPlots/", "Top level directory to write histograms into"}; 
+    StringProperty m_folder {this, "SubFolder", "", "Subfolder to add for plots if desired. Used when working with multiple IDPVM tool instances."}; 
+    StringProperty m_pileupSwitch {this, "PileupSwitch", "HardScatter", "Pileup truth strategy to use. May be \"All\", \"HardScatter\", or \"PileUp\""}; 
+    FloatProperty m_lowProb{this,"LowProb",0.5,"Truth match prob. cutoff for efficiency (lower bound) and fake (upper bound) classification."}; 
+    FloatProperty m_highProb{this,"HighProb",0.8,"Truth match prob. cutoff - currently unused"}; 
+    IntegerProperty m_detailLevel{this, "DetailLevel",10,"High-level steering flag for plot detail level. A value of 100 will activate the PhysVal set of plots, and a value of 200 the full set"}; 
+
+    ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectionTool{this, "TrackSelectionTool", "InDet::InDetTrackSelectionTool/TrackSelectionTool", "Track selection tool to use"};
+    ToolHandle<IInDetVertexTruthMatchTool> m_vtxValidTool{this, "VertexTruthMatchTool", "InDetVertexTruthMatchTool/VtxTruthMatchTool", "Vertex truth matching tool to use"};
+    ToolHandle<IAthSelectionTool> m_truthSelectionTool{this, "TruthSelectionTool","AthTruthSelectionTool", "Truth selection tool (for efficiencies and resolutions)"};
+    ToolHandle<InDet::IInDetTrackTruthOriginTool> m_trackTruthOriginTool{this, "trackTruthOriginTool", "InDet::InDetTrackTruthOriginTool","truth track origin tool"};
 
     mutable std::mutex  m_mutex;
     mutable CutFlow     m_truthCutFlow ATLAS_THREAD_SAFE; // Guarded by m_mutex
     std::vector<int> m_prospectsMatched;
-    float m_lowProb;
-    float m_highProb;
-    int m_detailLevel;
     int m_truthCounter;
 
     std::vector<std::string> m_trackCutflowNames;
     std::vector<int> m_trackCutflow;
-    std::string m_pileupSwitch; // All, PileUp, or HardScatter
-    ///Jet Things
-
-    float m_maxTrkJetDR;
-    bool m_doTrackInJetPlots;
-    bool m_doBjetPlots; 
-	bool m_fillTruthToRecoNtuple;
-
-    std::string m_folder;
 };
 #endif

@@ -104,9 +104,9 @@ private:
             const unsigned int author, uint8_t type) const;
 
     /** @brief Do the final ambiguity **/
-    StatusCode doAmbiguityLinks(const EventContext& ctx,
+    static StatusCode doAmbiguityLinks(const EventContext& ctx,
                                 xAOD::ElectronContainer* electronContainer,
-                                xAOD::PhotonContainer* photonContainer) const;
+                                xAOD::PhotonContainer* photonContainer) ;
 
     /** @brief Call a tool using contExecute and electrons, photon containers if
      * given **/
@@ -171,6 +171,11 @@ private:
         "PhotonSuperRecCollection",
         "Input container for electron  Super Cluster  egammaRec objects"};
 
+    /** @brief Name of the dummy electron output collection*/
+    SG::WriteHandleKey<xAOD::ElectronContainer> m_dummyElectronOutputKey {this,
+        "DummyElectronOutputName", "",
+        "Name of Dummy Electron Container to be created"};
+
     //
     // Other properties.
     /** @brief Option to do truth*/
@@ -180,6 +185,7 @@ private:
     std::unique_ptr<electronPearShapeAlignmentCorrection> m_deltaEta1Pear;
     bool m_doAmbiguity{};
     bool m_doOQ{};
+    bool m_doDummyElectrons = false;
 };
 
 #endif

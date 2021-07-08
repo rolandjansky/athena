@@ -21,7 +21,6 @@ defaultInputKey = {
    'LCJet'     :'AntiKt4LCTopoJets',
    'EMJet'     :'AntiKt4EMTopoJets',
    'PFlowJet'  :'AntiKt4EMPFlowJets',
-   'PFlowFEJet':'AntiKt4EMPFlowFEJets',
    'Muon'      :'Muons',
    'Soft'      :'',
    'ClusColl'  :'CaloCalTopoClusters',
@@ -83,8 +82,6 @@ def getAssociator(config,suffix,doPFlow=False,
         tool = CfgMgr.met__METJetAssocTool('MET_EMJetAssocTool_'+suffix)
     if config.objType == 'PFlowJet':
         tool = CfgMgr.met__METJetAssocTool('MET_PFlowJetAssocTool_'+suffix)
-    if config.objType == 'PFlowFEJet':
-        tool = CfgMgr.met__METJetAssocTool('MET_PFlowFEJetAssocTool_'+suffix)
     if config.objType == 'Muon':
         tool = CfgMgr.met__METMuonAssociator('MET_MuonAssociator_'+suffix,DoClusterMatch=False)
     if config.objType == 'Soft':

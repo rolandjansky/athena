@@ -60,9 +60,6 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
     "empflow"  : ("EMPFlowEventShape",  jtm.empflowget),
   }
 
-  if jetFlags.usePFlowFE():
-    evsDict["empflow_fe"] = ("EMPFlowFEEventShape",  jtm.empflowget_fe)
-
   if jetFlags.useTracks():
     if jetFlags.useVertices():
       evsDict["emtopo"] = ("EMTopoOriginEventShape",   jtm.emoriginget)
@@ -136,7 +133,7 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
                                                             ThinNegativeEnergyCaloClusters = True,
                                                             CaloClustersKey = 'EMOriginTopoClusters',
                                                             StreamName = 'StreamAOD'))
-    if not IsInInputFile("xAOD::PFOContainer","CHSParticleFlowObjects"):
+    if not IsInInputFile("xAOD::FlowElementContainer","CHSParticleFlowObjects"):
       if not hasattr(job,"jetalgCHSPFlow"):
         ctools += [jtm.JetConstitSeq_PFlowCHS]
         if thinneg:
@@ -148,19 +145,6 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
             StreamName = 'StreamAOD'
             )
           postalgs.append(CHSnPFOsThinAlg)
-    if jetFlags.usePFlowFE() and not IsInInputFile("xAOD::FlowElementContainer","CHSFlowElements"):
-      if not hasattr(job,"jetalgCHSPFlowFE"):
-        ctools += [jtm.JetConstitSeq_PFlowCHS_FE]
-        if thinneg:
-          from ThinningUtils.ThinningUtilsConf import ThinNegativeEnergyNeutralPFOsAlg
-          CHSnFEsThinAlg = ThinNegativeEnergyNeutralPFOsAlg(
-            "ThinNegativeEnergyCHSNeutralFEsAlg",
-            NeutralPFOsKey="", # don't do the usual PFOs here
-            NeutralPFOsFEKey = "CHSNeutralFlowElements",
-            ThinNegativeEnergyNeutralPFOs = True,
-            StreamName = 'StreamAOD'
-            )
-          postalgs.append(CHSnFEsThinAlg)
 
   from JetRec.JetRecConf import JetToolRunner
   from JetRec.JetRecConf import JetAlgorithm

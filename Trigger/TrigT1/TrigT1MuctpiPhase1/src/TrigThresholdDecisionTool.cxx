@@ -44,7 +44,7 @@ namespace LVL1
 
     for (const std::shared_ptr<TrigConf::L1Threshold>& thrBase : menuThresholds.value().get()) {
       std::shared_ptr<TrigConf::L1Threshold_MU> thr = std::static_pointer_cast<TrigConf::L1Threshold_MU>(thrBase);
-      std::string tgcFlags = thr->tgcFlags();
+      std::string tgcFlags = getShapedTGCFlags( thr->tgcFlags() );
 
       //parse the tgc flags and buffer them
       parseTGCFlags(tgcFlags);
@@ -146,7 +146,7 @@ namespace LVL1
           }
         }
 
-        passed &= getTGCDecision(thr->tgcFlags(), F, C, H);
+        passed &= getTGCDecision(getShapedTGCFlags(thr->tgcFlags()), F, C, H);
       } // end Endcap or Forward
 
       if (passed) {
@@ -325,5 +325,33 @@ namespace LVL1
       first = false;
     }
     return parsed;
+  }
+  std::string TrigThresholdDecisionTool::getShapedTGCFlags(const std::string& tgcFlags) const
+  {
+    std::string flags = tgcFlags;
+    flags.erase(std::remove_if(flags.begin(),flags.end(),::isspace),flags.end()); // remove spaces
+    std::vector<std::string> vec_ors = parseString(flags,"|");
+    std::set<std::string> set_ors;
+    for(const auto& ors : vec_ors){
+      std::vector<std::string> vec_ands = parseString(ors,"&");
+      std::set<std::string> set_ands;
+      for(const auto& ands : vec_ands){
+	set_ands.insert(ands);
+      }
+      std::string aa = "";
+      for(const auto& ands : set_ands){
+	aa += ands;
+	aa += "&";
+      }
+      std::string bb = aa.substr(0,aa.size()-1); // remove the last "&"
+      set_ors.insert(bb);
+    }
+    std::string aa = "";
+    for(const auto& ors : set_ors){
+      aa += ors;
+      aa += "|";
+    }
+    std::string bb = aa.substr(0,aa.size()-1); // remove the last "|"
+    return bb;
   }
 }

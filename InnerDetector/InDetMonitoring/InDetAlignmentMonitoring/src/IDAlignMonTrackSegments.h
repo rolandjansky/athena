@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef IDAlignMonTrackSegments_H
 #define IDAlignMonTrackSegments_H
@@ -28,7 +28,7 @@ class TH2F_LW;
 class AtlasDetectorID;
 class PixelID;
 
-namespace InDetAlignMon{
+namespace InDetAlignMon {
   class TrackSelectionTool;
 }
 
@@ -38,19 +38,17 @@ namespace Trk {
   class TrackStateOnSurface;
 }
 
-namespace InDet{
+namespace InDet {
   class IInDetTrackSplitterTool;
 }
 
-class IDAlignMonTrackSegments : public ManagedMonitorToolBase
+class IDAlignMonTrackSegments: public ManagedMonitorToolBase
 {
-  
- public:
-  
-  IDAlignMonTrackSegments( const std::string & type, const std::string & name, const IInterface* parent ); 
-  
+public:
+  IDAlignMonTrackSegments(const std::string& type, const std::string& name, const IInterface* parent);
+
   virtual ~IDAlignMonTrackSegments();
-  
+
   virtual StatusCode initialize();
 
   virtual StatusCode bookHistograms();
@@ -58,32 +56,36 @@ class IDAlignMonTrackSegments : public ManagedMonitorToolBase
   //virtual StatusCode procHistograms();
   void RegisterHisto(MonGroup& mon, TH1F_LW* histo);
   void RegisterHisto(MonGroup& mon, TH2F_LW* histo);
- 
-  
- protected:
-  
-  
- private:
-  
+protected:
+private:
   StatusCode setupTools();
-  static TH1F_LW* MakeHist(const std::string & name, const std::string & title, int nBins, float xLow, float xUp, const std::string & xAxisTitle="", const std::string & yAxisTitle="");
-  static TH2F_LW* MakeHist(const std::string & name, const std::string & title, int nXBins, float xLow, float xUp, int nYBins, float yLow, float yUp, const std::string & xAxisTitle="", const std::string & yAxisTitle="");
+  static TH1F_LW* MakeHist(const std::string& name, const std::string& title, int nBins, float xLow, float xUp,
+                           const std::string& xAxisTitle = "", const std::string& yAxisTitle = "");
+  static TH2F_LW* MakeHist(const std::string& name, const std::string& title, int nXBins, float xLow, float xUp,
+                           int nYBins, float yLow, float yUp, const std::string& xAxisTitle = "",
+                           const std::string& yAxisTitle = "");
   void InitializeHistograms();
   std::string m_stream;
-  SG::ReadHandleKey<TrackCollection> m_inputTracksName{this, "InputTracksName", "InDetCosmic_Tracks"};
-  SG::ReadHandleKey<TrackCollection> m_upperTracksName{this, "UpperTracksName", "InDetCosmic_Tracks_Upper"};
-  SG::ReadHandleKey<TrackCollection> m_lowerTracksName{this, "LowerTracksName", "InDetCosmic_Tracks_Lower"};
-  
+  SG::ReadHandleKey<TrackCollection> m_inputTracksName {
+    this, "InputTracksName", "InDetCosmic_Tracks"
+  };
+  SG::ReadHandleKey<TrackCollection> m_upperTracksName {
+    this, "UpperTracksName", "InDetCosmic_Tracks_Upper"
+  };
+  SG::ReadHandleKey<TrackCollection> m_lowerTracksName {
+    this, "LowerTracksName", "InDetCosmic_Tracks_Lower"
+  };
+
   float m_matchedRcut;
   int m_events;
   int m_histosBooked;
-  
+
   //tools
   ToolHandle<Trk::ITrackSummaryTool> m_trackSumTool;
   ToolHandle<InDet::IInDetTrackSplitterTool> m_trackSplitter;
   ToolHandle<InDetAlignMon::TrackSelectionTool> m_trackSelectionUpper;
   ToolHandle<InDetAlignMon::TrackSelectionTool> m_trackSelectionLower;
-  
+
   bool m_useCTBSplitTracks;
   float m_deltaD0Range;
   float m_deltaD0Range2D;
@@ -97,15 +99,15 @@ class IDAlignMonTrackSegments : public ManagedMonitorToolBase
   float m_d0Range;
   float m_upperPhi;
   std::string m_triggerChainName;
-  
+
   // Histograms
   //=============
-  
+
   // Upper And Lower Histograms
   struct UpperLowerHistograms;
   UpperLowerHistograms* m_upper_hist;
   UpperLowerHistograms* m_lower_hist;
-  
+
   // Difference in Track Parameters
   struct DeltaTrackParamHistograms;
   DeltaTrackParamHistograms* m_delta_d0;
@@ -116,15 +118,14 @@ class IDAlignMonTrackSegments : public ManagedMonitorToolBase
   DeltaTrackParamHistograms* m_delta_PtqOverPt;
   DeltaTrackParamHistograms* m_delta_nHits;
   DeltaTrackParamHistograms* m_delta_charge;
-  
+
   // Debuging
-  TH1F_LW* m_debug_phi0{};
-  TH1F_LW* m_debug_eta0{};
-  
-  // pt 
-  TH1F_LW* m_delta_pt{};
-  TH1F_LW* m_reldelta_pt{};
-  
+  TH1F_LW* m_debug_phi0 {};
+  TH1F_LW* m_debug_eta0 {};
+
+  // pt
+  TH1F_LW* m_delta_pt {};
+  TH1F_LW* m_reldelta_pt {};
 };
 
 #endif

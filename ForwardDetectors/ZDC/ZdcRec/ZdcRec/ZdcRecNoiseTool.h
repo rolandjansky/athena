@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -60,7 +60,7 @@ private:
 	std::string  m_pedestalDir;
 	std::string  m_pedestalFile;
 
-	ZdcDigitsCollection* m_pedestalData;
+	ZdcDigitsCollection* m_pedestalData{};
 
 	//Boost accumulator
 	//boost::accumulators::accumulator_set< double, boost::accumulators::features<

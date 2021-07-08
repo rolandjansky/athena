@@ -1,11 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "LUCID_DigitizationToolBox.h"
 #include "PileUpTools/PileUpMergeSvc.h"
 #include <algorithm>
+#include <utility>
+
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandPoissonQ.h"
@@ -21,8 +23,8 @@ LUCID_DigitizationToolBox::LUCID_DigitizationToolBox():
   m_tdcTot(0),
   m_tdc   (0)
 {
-  m_digitContainer = 0;
-  m_tubeInfo       = 0;
+  m_digitContainer = nullptr;
+  m_tubeInfo       = nullptr;
   
   m_numTubes          = 0;  
   m_qdcChannelsPerPE  = 0;
@@ -73,10 +75,10 @@ LUCID_DigitizationToolBox::LUCID_DigitizationToolBox(int    numTubes,
   m_NoiseCharge         (NoiseCharge),
   m_numDyinodes         (numDyinodes),
   m_dynodeGammaFactor   (dynodeGammaFactor),
-  m_pmtSmearing         (pmtSmearing),
-  m_pmtScaling          (pmtScaling),
-  m_gasScaling          (gasScaling),
-  m_npeThreshold        (npeThreshold),
+  m_pmtSmearing         (std::move(pmtSmearing)),
+  m_pmtScaling          (std::move(pmtScaling)),
+  m_gasScaling          (std::move(gasScaling)),
+  m_npeThreshold        (std::move(npeThreshold)),
   m_fillRootTree        (fillRootTree),    
   m_tubeID              (0),
   m_npe                 (0),
@@ -89,8 +91,8 @@ LUCID_DigitizationToolBox::LUCID_DigitizationToolBox(int    numTubes,
   m_gainPerDynode     = std::pow(m_TotalPMTgain/m_dynodeGammaFactor, 1.0/static_cast<double>(m_numDyinodes)); 
   m_ChargeToQdcFactor = (double)1.6e-19 * m_AmpFactor/m_Q1bin;
 
-  m_digitContainer = 0;
-  m_tubeInfo       = 0;
+  m_digitContainer = nullptr;
+  m_tubeInfo       = nullptr;
 }
 
 //--------------------------------------------------------------------------
@@ -223,7 +225,7 @@ StatusCode LUCID_DigitizationToolBox::fillDigitContainer(LUCID_SimHitCollection*
 
 
 //--------------------------------------------------------------------------
-StatusCode LUCID_DigitizationToolBox::recordContainers(ServiceHandle<StoreGateSvc> digitsStore, std::string key_digitCnt) {
+StatusCode LUCID_DigitizationToolBox::recordContainers(const ServiceHandle<StoreGateSvc>& digitsStore, const std::string& key_digitCnt) {
   
   m_digitContainer = new LUCID_DigitContainer();
 
@@ -233,7 +235,7 @@ StatusCode LUCID_DigitizationToolBox::recordContainers(ServiceHandle<StoreGateSv
 }
 
 //--------------------------------------------------------------------------
-double LUCID_DigitizationToolBox::DynodeChainSimulation(double npe, CLHEP::HepRandomEngine* rndEngine){
+double LUCID_DigitizationToolBox::DynodeChainSimulation(double npe, CLHEP::HepRandomEngine* rndEngine) const{
   
   double smearedQDC = 0;
   

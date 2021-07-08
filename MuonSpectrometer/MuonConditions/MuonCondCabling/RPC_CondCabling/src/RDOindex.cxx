@@ -12,7 +12,7 @@ RDOindex::RDOindex(unsigned int PAD, unsigned int code) : m_PADid{static_cast<un
     set_indexes();
 }
 
-RDOindex::RDOindex(unsigned int PAD, unsigned int code, std::string Name, int sEta, int sPhi, int dR, int dZ, int dP) :
+RDOindex::RDOindex(unsigned int PAD, unsigned int code, const std::string& Name, int sEta, int sPhi, int dR, int dZ, int dP) :
     m_PADid(static_cast<unsigned short int>(PAD)),
     m_lvl1_code{code},
     m_stationEta{sEta},
@@ -84,7 +84,7 @@ void RDOindex::pad_identifier(Identifier& id) const {
             doublet_phi = m_doubletPhi;
         }
 
-        if (s_rpcIdHelper != 0) id = s_rpcIdHelper->padID(name, eta, phi, doublet_r, doublet_z, doublet_phi);
+        if (s_rpcIdHelper != nullptr) id = s_rpcIdHelper->padID(name, eta, phi, doublet_r, doublet_z, doublet_phi);
     }
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ZdcID_H
@@ -98,18 +98,18 @@ private:
 
     int         init_hashes(void);
 
-    size_type                   m_zdc_region_index;
-    size_type                   m_FORWARD_INDEX;
-    size_type                   m_ZDC_INDEX;
-    size_type                   m_SIDE_INDEX;
-    size_type                   m_MODULE_INDEX;
-    size_type                   m_TYPE_INDEX;
-    size_type                   m_CHANNEL_INDEX;
+    size_type                   m_zdc_region_index{};
+    size_type                   m_FORWARD_INDEX{};
+    size_type                   m_ZDC_INDEX{};
+    size_type                   m_SIDE_INDEX{};
+    size_type                   m_MODULE_INDEX{};
+    size_type                   m_TYPE_INDEX{};
+    size_type                   m_CHANNEL_INDEX{};
     const IdDictDictionary*     m_dict;
     MultiRange                  m_full_module_range;
     MultiRange                  m_full_channel_range;
-    size_type                   m_module_hash_max;
-    size_type                   m_channel_hash_max;
+    size_type                   m_module_hash_max{};
+    size_type                   m_channel_hash_max{};
     id_vec                      m_module_vec;
     id_vec                      m_channel_vec;
 

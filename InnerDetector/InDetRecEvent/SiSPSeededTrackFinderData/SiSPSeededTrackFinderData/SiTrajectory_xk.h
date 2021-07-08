@@ -183,7 +183,7 @@ namespace InDet{
                                                             /// Each one corresponds to one detector element on
                                                             /// the search road 
       const InDet::SiTools_xk*          m_tools           ; //
-      const Trk::Surface*               m_surfacedead     ;
+      std::unique_ptr<const Trk::Surface> m_surfacedead   ;
       PatternHoleSearchOutcome    m_patternHoleOutcome; 
 
       ///////////////////////////////////////////////////////////////////

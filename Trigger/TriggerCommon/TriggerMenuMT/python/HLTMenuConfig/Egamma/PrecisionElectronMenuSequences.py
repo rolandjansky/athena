@@ -29,23 +29,26 @@ def precisionElectronSequence(ConfigFlags, ion=False):
 
     # Configure the reconstruction algorithm sequence
     from TriggerMenuMT.HLTMenuConfig.Electron.PrecisionElectronRecoSequences import precisionElectronRecoSequence
-    (electronPrecisionRec, sequenceOut) = precisionElectronRecoSequence(InViewRoIs, ion)
+    (electronPrecisionRec, sequenceOut, sequenceOut_dummy) = precisionElectronRecoSequence(InViewRoIs, ion)
 
     # Suffix to distinguish probe leg sequences
     electronPrecisionInViewAlgs = parOR(tag(ion) + "InViewAlgs", [electronPrecisionRec])
     precisionElectronViewsMaker.ViewNodeName = tag(ion) + "InViewAlgs"
 
     electronPrecisionAthSequence = seqAND(tag(ion) + "AthSequence", [precisionElectronViewsMaker, electronPrecisionInViewAlgs ] )
-    return (electronPrecisionAthSequence, precisionElectronViewsMaker, sequenceOut)
+    return (electronPrecisionAthSequence, precisionElectronViewsMaker, sequenceOut, sequenceOut_dummy)
 
 
-def precisionElectronMenuSequence(is_probe_leg=False, ion=False):
+def precisionElectronMenuSequence(is_probe_leg=False, ion=False, do_idperf=False):
     # retrieve the reco seuqence+EVC
-    (electronPrecisionAthSequence, precisionElectronViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(precisionElectronSequence, ConfigFlags, ion=ion)
+    (electronPrecisionAthSequence, precisionElectronViewsMaker, sequenceOut, sequenceOut_dummy) = RecoFragmentsPool.retrieve(precisionElectronSequence, ConfigFlags, ion=ion)
 
     # make the Hypo
     from TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool import createTrigEgammaPrecisionElectronHypoAlg
-    thePrecisionElectronHypo = createTrigEgammaPrecisionElectronHypoAlg("TrigEgamma" + tag(ion) + "HypoAlg_noGSF", sequenceOut)
+    if do_idperf:
+        thePrecisionElectronHypo = createTrigEgammaPrecisionElectronHypoAlg("TrigEgamma" + tag(ion) + "HypoAlg_noGSF_idperf", sequenceOut_dummy, do_idperf)
+    else:
+        thePrecisionElectronHypo = createTrigEgammaPrecisionElectronHypoAlg("TrigEgamma" + tag(ion) + "HypoAlg_noGSF", sequenceOut, do_idperf)
     
     from TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool import TrigEgammaPrecisionElectronHypoToolFromDict
     

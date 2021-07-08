@@ -50,7 +50,7 @@ SiHit::SiHit(const HepGeom::Point3D<double> &localStartPosition,
              const double energyLoss,
              const double meanTime,
              const int trackNumber,
-             const int Pixel_SCT, const int BrlECap, const int LayerDisk,
+             const int Part, const int BrlECap, const int LayerDisk,
              const int etaM, const int phiM, const int side) :
   //  m_localStartPosition(localStartPosition),
   //  m_localEndPosition(localEndPosition),
@@ -66,7 +66,7 @@ SiHit::SiHit(const HepGeom::Point3D<double> &localStartPosition,
   m_ID(0)
 {
   // Compress the location info into the integer:
-  m_ID =  SiHitIdHelper::GetHelper()->buildHitId(Pixel_SCT,BrlECap,LayerDisk,etaM,phiM,side);
+  m_ID =  SiHitIdHelper::GetHelper()->buildHitId(Part,BrlECap,LayerDisk,etaM,phiM,side);
 }
 
 // Constructor
@@ -97,7 +97,7 @@ SiHit::SiHit(const HepGeom::Point3D<double> &localStartPosition,
              const double energyLoss,
              const double meanTime,
              const HepMcParticleLink &track,
-             const int Pixel_SCT, const int BrlECap, const int LayerDisk,
+             const int Part, const int BrlECap, const int LayerDisk,
              const int etaM, const int phiM, const int side) :
   //  m_localStartPosition(localStartPosition),
   //  m_localEndPosition(localEndPosition),
@@ -113,7 +113,7 @@ SiHit::SiHit(const HepGeom::Point3D<double> &localStartPosition,
   m_ID(0)
 {
   // Compress the location info into the integer:
-  m_ID =  SiHitIdHelper::GetHelper()->buildHitId(Pixel_SCT,BrlECap,LayerDisk,etaM,phiM,side);
+  m_ID =  SiHitIdHelper::GetHelper()->buildHitId(Part,BrlECap,LayerDisk,etaM,phiM,side);
 }
 
 void SiHit::ScaleLength(double sfactor) {
@@ -133,6 +133,10 @@ bool SiHit::isPixel() const {
 
 bool SiHit::isSCT() const {
   return  SiHitIdHelper::GetHelper()->isSCT(m_ID);
+}
+
+bool SiHit::isHGTD() const {
+  return  SiHitIdHelper::GetHelper()->isHGTD(m_ID);
 }
 
 HepGeom::Point3D<double> SiHit::localStartPosition() const
@@ -171,8 +175,11 @@ int SiHit::getSide() const {
 void SiHit::print() const {
   if (isPixel() == true) {
     std::cout << "*** Pixel Hit " << std::endl;
-  } else {
+  } else if (isSCT() == true) {
     std::cout << "*** SCT Hit " << std::endl;
+  }
+  else {
+    std::cout << "*** HGTD Hit " << std::endl;
   }
   std::cout << "          Barrel/ EndCap Number " << getBarrelEndcap() << std::endl;
   std::cout << "          Layer/Disk Number     " << getLayerDisk() << std::endl;

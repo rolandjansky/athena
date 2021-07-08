@@ -349,7 +349,7 @@ MuonChainParts_Default = {
 AllowedTopos_Bphysics = [
     'bJpsimumu','bJpsi','bUpsimumu','bUpsi','bBmumu','bDimu','bDimu2700','bDimu6000','bPhi','bTau','bJpsimumul2io',
     'Lxy0',
-    'bBmumux','BpmumuKp','BcmumuPi','BsmumuPhi','BdmumuKst','LbPqKm'
+    'bBmumux','BpmumuKp','BcmumuPi','BsmumuPhi','BdmumuKst','LbPqKm', 'BcmumuDsloose'
 ]
 
 # ---- Bphysics Dictionary of all allowed Values ----
@@ -508,7 +508,8 @@ ElectronChainParts = {
     'etaRange'       : [],
     'IDinfo'         : ['dnnloose','dnnmedium','dnntight','lhvloose','lhloose','lhmedium','lhtight','vloose','loose','medium','tight', 'mergedtight'],
     'isoInfo'        : ['ivarloose','ivarmedium','ivartight'],
-    'trkInfo'        : ['idperf', 'gsf'],
+    'idperfInfo'     : ['idperf'],
+    'gsfInfo'        : ['gsf'],
     'lrtInfo'        : ['lrtloose','lrtmedium','lrttight'],
     'caloInfo'       : [],
     'lhInfo'         : ['nod0', 'nopix'],
@@ -534,7 +535,8 @@ ElectronChainParts_Default = {
     'IDinfo'         : '',
     'isoInfo'        : '',
     'reccalibInfo'   : '',
-    'trkInfo'        : '',
+    'idperfInfo'     : '',
+    'gsfInfo'        : '',
     'lrtInfo'        : '', 
     'caloInfo'       : '',
     'lhInfo'         : '',

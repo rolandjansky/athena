@@ -114,7 +114,8 @@ class TrigEgammaFastCaloHypoToolConfig:
     self.__cand = cpart['trigType']
     self.__threshold  = float(cpart['threshold'])
     self.__sel        = cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
-    self.__trackinfo  = cpart['trkInfo'] if cpart['trkInfo'] else ''
+    self.__gsfinfo  = cpart['gsfInfo'] if cpart['trigType']=='e' and cpart['gsfInfo'] else ''
+    self.__idperfinfo  = cpart['idperfInfo'] if cpart['trigType']=='e' and cpart['idperfInfo'] else ''
     self.__noringerinfo = cpart['L2IDAlg'] if cpart['trigType']=='e' else ''
 
     if not tool:
@@ -144,7 +145,6 @@ class TrigEgammaFastCaloHypoToolConfig:
     self.__log.debug( 'Signature :%s'   , self.__cand )
     self.__log.debug( 'Threshold :%s'   , self.__threshold )
     self.__log.debug( 'Pidname   :%s'   , self.__sel )
-    self.__log.debug( 'trackinfo  :%s'  , self.__trackinfo )
     self.__log.debug( 'noringerinfo :%s', self.__noringerinfo )
 
   def chain(self):
@@ -165,8 +165,11 @@ class TrigEgammaFastCaloHypoToolConfig:
   def noringerinfo(self):
     return self.__noringerinfo
 
-  def trackinfo(self):
-    return self.__trackinfo
+  def gsfinfo(self):
+    return self.__gsfinfo
+
+  def idperfinfo(self):
+    return self.__idperfinfo
 
   def tool(self):
     return self.__tool

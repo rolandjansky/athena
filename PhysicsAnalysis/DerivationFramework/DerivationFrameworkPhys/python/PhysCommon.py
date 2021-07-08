@@ -18,7 +18,8 @@ InDetCommon.makeInDetDFCommon()
 EGammaCommon.makeEGammaDFCommon()
 MuonsCommon.makeMuonsDFCommon()
 from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets, addDefaultTrimmedJets, addJetTruthLabel, addQGTaggerTool, getPFlowfJVT
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDAODJets, addDefaultTrimmedJets, addJetTruthLabel, addQGTaggerTool, getPFlowfJVT, addEventCleanFlags
+from DerivationFrameworkJetEtMiss.METCommon import scheduleStandardMETContent
 from TriggerMenuMT.TriggerAPI.TriggerAPI import TriggerAPI
 from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerPeriod, TriggerType
 from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
@@ -118,12 +119,16 @@ largeRJetCollections = [
 ]
 
 OutputJets["PhysCommon"] = largeRJetCollections
-reducedJetList = ["AntiKt2PV0TrackJets","AntiKt4PV0TrackJets", "AntiKtVR30Rmax4Rmin02PV0TrackJets"]
+jetList = ["AntiKt4EMTopoJets",
+           "AntiKt4EMPFlowJets",
+           "AntiKt2PV0TrackJets",
+           "AntiKt4PV0TrackJets",
+           "AntiKtVR30Rmax4Rmin02PV0TrackJets"]
 
 if (DerivationFrameworkIsMonteCarlo):
    OutputJets["PhysCommon"].append("AntiKt10TruthTrimmedPtFrac5SmallR20Jets")
 
-replaceAODReducedJets(reducedJetList,DerivationFrameworkJob,"PhysCommon")
+addDAODJets(jetList,DerivationFrameworkJob,"PhysCommon")
 add_largeR_truth_jets = DerivationFrameworkIsMonteCarlo and not hasattr(DerivationFrameworkJob,'jetalgAntiKt10TruthTrimmedPtFrac5SmallR20')
 addDefaultTrimmedJets(DerivationFrameworkJob,"PhysCommon",dotruth=add_largeR_truth_jets, linkVRGhosts=True)
 
@@ -136,6 +141,11 @@ addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=DerivationFrameworkJob,algname=
 
 # fJVT
 getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=DerivationFrameworkJob, algname='PHYSJetForwardPFlowJvtToolAlg')
+
+# Event cleaning flags
+addEventCleanFlags()
+
+scheduleStandardMETContent(sequence=DerivationFrameworkJob, algname="METAssociationAlg")
 
 #====================================================================
 # EGAMMA

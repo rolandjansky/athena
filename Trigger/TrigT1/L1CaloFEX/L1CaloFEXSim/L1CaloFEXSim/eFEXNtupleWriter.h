@@ -78,6 +78,10 @@ private:
   // values from the tau algorithm
   std::vector<float> m_tau_Iso;
   std::vector<float> m_tau_Et;
+  std::vector<float> m_tau_Eta;
+  std::vector<float> m_tau_Phi;
+  std::vector<float> m_tau_floatEta;
+  std::vector<float> m_tau_floatPhi;
   std::vector<float> m_tau_isCentralTowerSeed;
   
   std::vector<int> m_eFex_number; ///< eFex number

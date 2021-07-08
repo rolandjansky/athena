@@ -46,11 +46,18 @@ DerivationFrameworkJob += AuxStoreWrapperSequence
 athOutSeq = CfgMgr.AthSequencer("AthOutSeq")
 athOutSeq += CfgMgr.xAODMaker__ElementLinkResetAlg( "ELReset" )
 
-from RecExConfig.InputFilePeeker import inputFileSummary
-if inputFileSummary is not None:
-    if (inputFileSummary['evt_type'][0] == 'IS_SIMULATION') and (inputFileSummary['stream_names'][0] != 'StreamEVGEN'):
-        svcMgr.IOVDbSvc.Folders += ['/Simulation/Parameters']
-    
+# Check if we're running evgen
+DerivationFrameworkRunningEvgen = False
+for achild in DerivationFrameworkJob.getAllChildren():
+    if 'EvgenPostSeq' in str(achild.name()):
+        DerivationFrameworkRunningEvgen = True
+# Only do input file peeking if we aren't running on evgen!
+if not DerivationFrameworkRunningEvgen:
+    from RecExConfig.InputFilePeeker import inputFileSummary
+    if inputFileSummary is not None:
+        if (inputFileSummary['evt_type'][0] == 'IS_SIMULATION') and (inputFileSummary['stream_names'][0] != 'StreamEVGEN'):
+            svcMgr.IOVDbSvc.Folders += ['/Simulation/Parameters']
+
 # Set up the metadata tool:
 if not globalflags.InputFormat=="bytestream":
     # Extra config: make sure if we are using EVNT that we don't try to check sim/digi/reco metadata 
@@ -80,7 +87,7 @@ jetFlags.useTracks = True
 # MC-related flags
 DerivationFrameworkIsMonteCarlo=False
 DerivationFrameworkSimBarcodeOffset = int(200e3)
-if globalflags.DataSource()=='geant4':
+if globalflags.DataSource()=='geant4' or DerivationFrameworkRunningEvgen:
     print ("Switching on jetFlags.useTruth")
     jetFlags.useTruth = True
     DerivationFrameworkIsMonteCarlo = True

@@ -78,7 +78,7 @@ def PixelAthHitMonAlgCfg(helper, alg, **kwargs):
 
     histoGroupName = 'HitToT'
     title = 'Hit ToT'
-    define1DLayers(helper, alg, histoGroupName, title, pathGroup, ';ToT [BC]', ';# hits', xbins=[300]*5+[20]*3, xmins=[-0.5]*8, binsizes=[1.0]*8)
+    define1DLayers(helper, alg, histoGroupName, title, pathGroup, ';ToT [BC]', ';# hits', xbins=[300]*5+[20], xmins=[-0.5]*6, binsizes=[1.0]*6)
 
     histoGroupName = 'HitMap' 
     title = 'hit map'

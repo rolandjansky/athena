@@ -24,7 +24,6 @@ namespace RPC_CondCabling {
         bool m_fail{true};
 
         ViewType m_view{ViewType::Eta};
-        CMAcoverage m_coverage{CMAcoverage::AllSectors};
         std::string m_covtag{};
 
         ETAlist m_etaCMA;

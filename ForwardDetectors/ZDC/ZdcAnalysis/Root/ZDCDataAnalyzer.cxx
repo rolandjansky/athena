@@ -1,11 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <ZdcAnalysis/ZDCDataAnalyzer.h>
 #include <ZdcAnalysis/ZDCPulseAnalyzer.h>
 
 #include <sstream>
+#include <utility>
+
 
 ZDCDataAnalyzer::ZDCDataAnalyzer(int nSample, float deltaTSample, size_t preSampleIdx, std::string fitFunction,
 				 const ZDCModuleFloatArray& peak2ndDerivMinSamples, 
@@ -13,7 +15,7 @@ ZDCDataAnalyzer::ZDCDataAnalyzer(int nSample, float deltaTSample, size_t preSamp
 				 const ZDCModuleFloatArray& peak2ndDerivMinThresholdsLG,
 				 bool forceLG) : 
   m_nSample(nSample), m_deltaTSample(deltaTSample), m_preSampleIdx(preSampleIdx),
-  m_fitFunction(fitFunction),
+  m_fitFunction(std::move(fitFunction)),
   m_forceLG(forceLG),
   m_debugLevel(-1),
   m_eventCount(0),
@@ -267,7 +269,7 @@ void ZDCDataAnalyzer::StartEvent(int lumiBlock)
   m_currentLB = lumiBlock;
 }
 
-void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::vector<float> HGSamples, const std::vector<float> LGSamples)
+void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::vector<float>& HGSamples, const std::vector<float>& LGSamples)
 {
   // We immediately return if this module is disabled
   //
@@ -339,8 +341,8 @@ void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::
   m_moduleStatus[side][module] = pulseAna_p->GetStatusMask();
 }
 
-void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::vector<float> HGSamples, const std::vector<float> LGSamples,
-					 const std::vector<float> HGSamplesDelayed, const std::vector<float> LGSamplesDelayed)
+void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::vector<float>& HGSamples, const std::vector<float>& LGSamples,
+					 const std::vector<float>& HGSamplesDelayed, const std::vector<float>& LGSamplesDelayed)
 {
   // We immediately return if this module is disabled
   //

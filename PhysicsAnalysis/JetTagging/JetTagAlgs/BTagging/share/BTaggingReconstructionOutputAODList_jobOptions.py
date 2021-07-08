@@ -19,7 +19,7 @@ if len(BTaggingAODList) == 0:
     BTagConf = getConfiguration()
     for coll in JetCollectionList:
       BTagConf.RegisterOutputContainersForJetCollection(coll[:-4])
-    BTaggingAODList = BTaggingFlags.btaggingAODList
+    BTaggingAODList = BTaggingFlags.btaggingAODList if jetFlags.writeJetsToAOD() else []
 
 #    BTaggingAODList += ["xAOD::BTaggingAuxContainer#*"]
 #    BTaggingAODList += ["xAOD::BTaggingContainer#*"]

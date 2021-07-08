@@ -12,7 +12,7 @@
 
 using namespace RPC_CondCabling;
 /// Helper struct to reduce the number of arguments in the constructor
-RPCchamber::RPCchamber(RPCchamber::chamberParameters params, IMessageSvc* msgSvc) : CablingObject{params, "RPC", msgSvc}, m_params{params} {
+RPCchamber::RPCchamber(const RPCchamber::chamberParameters& params, IMessageSvc* msgSvc) : CablingObject{params, "RPC", msgSvc}, m_params{params} {
     for (int i = 0; i < m_params.etaStrips; ++i) m_eta_read_mul.push_back(0);
 }
 
@@ -63,7 +63,7 @@ bool RPCchamber::setup(SectorLogicSetup& setup) {
 }
 
 bool RPCchamber::check() {
-    if (m_readoutCMAs.size() == 0) {
+    if (m_readoutCMAs.empty()) {
         error("==> No readout coverage for this chamber!");
         return false;
     }
@@ -338,16 +338,16 @@ bool RPCchamber::inversion(int sector) const {
     switch (stationName()[2]) {
         case 'L':
             if (sector % 2)
-                return (sector <= 31) ? true : false;  // HV
+                return sector <= 31;  // HV
             else
-                return (sector <= 31) ? false : true;  // RO
+                return sector > 31;  // RO
             break;
 
         case 'E':
             if (sector % 2)
-                return (sector <= 31) ? true : false;  // HV
+                return sector <= 31;  // HV
             else
-                return (sector <= 31) ? false : true;  // RO
+                return sector > 31;  // RO
             break;
 
         case 'R':
@@ -366,37 +366,37 @@ bool RPCchamber::inversion(int sector) const {
 
         case 'S':
             if (sector % 2)
-                return (sector <= 31) ? true : false;  // RO
+                return sector <= 31;  // RO
             else
-                return (sector <= 31) ? false : true;  // HV
+                return sector > 31;  // HV
             break;
 
         case 'F':
             if (stationName()[1] == 'O' && (sector == 25 || sector == 26 || sector == 57 || sector == 58)) {
                 if (sector % 2)
-                    return (sector <= 31) ? false : true;  // RO
+                    return sector > 31;  // RO
                 else
-                    return (sector <= 31) ? true : false;  // HV
+                    return sector <= 31;  // HV
             }
 
             if (sector % 2)
-                return (sector <= 31) ? true : false;  // RO
+                return sector <= 31;  // RO
             else
-                return (sector <= 31) ? false : true;  // HV
+                return sector > 31;  // HV
             break;
 
         case 'G':
             if (stationName()[1] == 'O' && stationName()[3] != '8' && (sector == 25 || sector == 26 || sector == 57 || sector == 58)) {
                 if (sector % 2)
-                    return (sector <= 31) ? false : true;  // RO
+                    return sector > 31;  // RO
                 else
-                    return (sector <= 31) ? true : false;  // HV
+                    return sector <= 31;  // HV
             }
 
             if (sector % 2)
-                return (sector <= 31) ? true : false;  // RO
+                return sector <= 31;  // RO
             else
-                return (sector <= 31) ? false : true;  // HV
+                return sector > 31;  // HV
             break;
 
         default: return false;

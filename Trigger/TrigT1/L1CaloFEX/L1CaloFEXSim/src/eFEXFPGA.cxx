@@ -81,7 +81,8 @@ void eFEXFPGA::reset(){
 
 StatusCode eFEXFPGA::execute(){
 
-  m_tobwords.clear();
+  m_emTobwords.clear();
+  m_tauTobwords.clear();
 
   SG::ReadHandle<eTowerContainer> jk_eFEXFPGA_eTowerContainer(m_eFEXFPGA_eTowerContainerKey/*,ctx*/);
   if(!jk_eFEXFPGA_eTowerContainer.isValid()){
@@ -110,6 +111,8 @@ StatusCode eFEXFPGA::execute(){
 
   auto & thr_eEM = l1Menu->thrExtraInfo().eEM();
 
+  const unsigned int eFexTobstep = 100;
+
   for(int ieta = 1; ieta < 5; ieta++) {
     for(int iphi = 1; iphi < 9; iphi++) {
       int tobtable[3][3]={
@@ -135,7 +138,6 @@ StatusCode eFEXFPGA::execute(){
       //returns a unsigned integer et value corresponding to the... eFEX EM cluster? in MeV?
       unsigned int eEMTobEt = 0;
       eEMTobEt = m_eFEXegAlgoTool->getET();
-      const unsigned int eFexTobstep = 100;
       unsigned int eEMTobEtCounts = 0;
       eEMTobEtCounts = eEMTobEt/eFexTobstep;//steps of 100 MeV for the TOB
 
@@ -182,8 +184,8 @@ StatusCode eFEXFPGA::execute(){
       int phi_ind = iphi - 1;
 
       //form the egamma tob word
-      uint32_t tobword = formEmTOB(m_id,eta_ind,phi_ind,RhadWP,WstotWP,RetaWP,seed,eEMTobEtCounts,ptMinToTopoCounts);
-      if ( (tobword != 0) && (eEMTobEtCounts != 0) ) m_tobwords.push_back(tobword);
+      uint32_t tobword = m_eFEXFormTOBsTool->formEmTOBWord(m_id,eta_ind,phi_ind,RhadWP,WstotWP,RetaWP,seed,eEMTobEtCounts,ptMinToTopoCounts);
+      if ( (tobword != 0) && (eEMTobEtCounts != 0) ) m_emTobwords.push_back(tobword);
 
       std::unique_ptr<eFEXegTOB> tmp_tob = m_eFEXegAlgoTool->geteFEXegTOB();
       
@@ -239,18 +241,33 @@ StatusCode eFEXFPGA::execute(){
       ATH_CHECK( m_eFEXtauAlgoTool->safetyTest() );
       m_eFEXtauAlgoTool->setup(tobtable);
 
+      if (!m_eFEXtauAlgoTool->isCentralTowerSeed()){ continue; }
+
+      // Get Et of eFEX tau object in MeV
+      unsigned int eTauTobEt = 0;
+      eTauTobEt = m_eFEXtauAlgoTool->getEt();
+      unsigned int eTauTobEtCounts = 0;
+      eTauTobEtCounts = eTauTobEt / eFexTobstep; // steps of 100 MeV for the TOB
+
+      int eta_ind = ieta; // No need to offset eta index with new 0-5 convention
+      int phi_ind = iphi - 1;
+      
+      uint32_t tobword = m_eFEXFormTOBsTool->formTauTOBWord(m_id, eta_ind, phi_ind, eTauTobEtCounts);
+      if ( tobword != 0 ) m_tauTobwords.push_back(tobword);
+
       // for plotting
       eFEXOutputs->addValue_tau("isCentralTowerSeed", m_eFEXtauAlgoTool->isCentralTowerSeed());
       eFEXOutputs->addValue_tau("Et", m_eFEXtauAlgoTool->getEt());
+      eFEXOutputs->addValue_tau("Eta", ieta);
+      eFEXOutputs->addValue_tau("Phi", iphi);
+      const LVL1::eTower * centerTower = jk_eFEXFPGA_eTowerContainer->findTower(m_eTowersIDs[iphi][ieta]);
+      eFEXOutputs->addValue_tau("FloatEta", centerTower->eta() * centerTower->getPosNeg());
+      eFEXOutputs->addValue_tau("FloatPhi", centerTower->phi());
       eFEXOutputs->addValue_tau("Iso", m_eFEXtauAlgoTool->getIso());
       
       eFEXOutputs->fill_tau();
-
-      if (!m_eFEXtauAlgoTool->isCentralTowerSeed()){ continue; }
-
     }
   }
-
 
   return StatusCode::SUCCESS;
 
@@ -260,18 +277,12 @@ StatusCode eFEXFPGA::execute(){
 
 std::vector<uint32_t> eFEXFPGA::getEmTOBs()
 {
-  auto tobsSort = m_tobwords;
+  auto tobsSort = m_emTobwords;
 
   ATH_MSG_DEBUG("number of tobs: " <<tobsSort.size() << " in FPGA: " << m_id << " before truncation");
 
   // sort tobs by their et (last 12 bits of the 32 bit tob word)
   std::sort (tobsSort.begin(), tobsSort.end(), etSort);
-
-  /*
-  for(auto &j : tobsSort){
-    std::cout << "values: post sort " << std::bitset<32>(j) << std::endl;
-  }
-  */
 
   // return the top 6 highest ET TOBs from the FPGA
   if (tobsSort.size() > 6) tobsSort.resize(6);
@@ -279,6 +290,20 @@ std::vector<uint32_t> eFEXFPGA::getEmTOBs()
 
 }
 
+std::vector<uint32_t> eFEXFPGA::getTauTOBs()
+{
+  auto tobsSort = m_tauTobwords;
+
+  ATH_MSG_DEBUG("number of tobs: " <<tobsSort.size() << " in FPGA: " << m_id << " before truncation");
+
+  // sort tobs by their et (last 12 bits of the 32 bit tob word)
+  std::sort (tobsSort.begin(), tobsSort.end(), etSort);
+
+  // return the top 6 highest ET TOBs from the FPGA
+  if (tobsSort.size() > 6) tobsSort.resize(6);
+  return tobsSort;
+
+}
 
 void eFEXFPGA::SetTowersAndCells_SG(int tmp_eTowersIDs_subset[][6]){
     
@@ -363,26 +388,5 @@ void eFEXFPGA::SetIsoWP(std::vector<unsigned int> & CoreEnv, std::vector<unsigne
 
 }
 
-
-
-
-uint32_t eFEXFPGA::formEmTOB(int & fpga, int & eta, int & phi, unsigned int & rhad, unsigned int & wstot, unsigned int & reta, unsigned int & seed, unsigned int & et, unsigned int & ptMinTopo)
-{
-  uint32_t tobword = 0;
-
-  if (et > 0xfff) et = 0xfff; //truncate at 12 bits, set to max value of 4095, 0xfff, or 111111111111
-
-  //Create bare minimum tob word with et, eta, phi, and fpga index, bitshifted to the appropriate locations
-  tobword = tobword + (fpga << 30) + (eta << 27) + (phi << 24) + (rhad << 22) + (wstot << 20) + (reta << 18) + (seed << 16) + et;
-
-  ATH_MSG_DEBUG("tobword: " << std::bitset<32>(tobword) );
-
-  //some arbitrary cut so that we're not flooded with tobs. taken from the Trigger menu!
-  unsigned int minEtThreshold = ptMinTopo;
-  if (et < minEtThreshold) return 0;  
-  else return tobword;
-
-}
-  
 } // end of namespace bracket
 

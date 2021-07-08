@@ -66,7 +66,8 @@ topoEgammaBuilder::initialize()
   }else{
     m_ambiguityTool.disable();
   }
-
+  m_doDummyElectrons = !(m_dummyElectronOutputKey.empty());
+  ATH_CHECK(m_dummyElectronOutputKey.initialize(m_doDummyElectrons));
   return StatusCode::SUCCESS;
 }
 
@@ -249,6 +250,15 @@ topoEgammaBuilder::execute(const EventContext& ctx) const
     ATH_CHECK(doAmbiguityLinks(ctx,electrons, photons));
   }
 
+  if (m_doDummyElectrons){
+    SG::WriteHandle<xAOD::ElectronContainer> dummyElectronContainer(m_dummyElectronOutputKey, ctx);
+    ATH_CHECK(dummyElectronContainer.record(std::make_unique<xAOD::ElectronContainer>(),
+                                     std::make_unique<xAOD::ElectronAuxContainer>()));
+
+    xAOD::Electron* dummy= new xAOD::Electron();
+    dummyElectronContainer->push_back(dummy);
+}
+
   return StatusCode::SUCCESS;
 }
 
@@ -256,7 +266,7 @@ StatusCode
 topoEgammaBuilder::doAmbiguityLinks(
   const EventContext& ctx,
   xAOD::ElectronContainer* electronContainer,
-  xAOD::PhotonContainer* photonContainer) const
+  xAOD::PhotonContainer* photonContainer) 
 {
 
   /// Needs the same logic as the ambiguity after building the objects (make

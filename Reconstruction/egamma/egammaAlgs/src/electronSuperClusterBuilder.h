@@ -71,8 +71,8 @@ public:
   StatusCode execute(const EventContext& ctx) const override final;
 
 private:
-  bool matchSameTrack(const xAOD::TrackParticle& seedTrack,
-                      const egammaRec& sec) const;
+  static bool matchSameTrack(const xAOD::TrackParticle& seedTrack,
+                      const egammaRec& sec) ;
 
   /**
    * @brief Search for secondary clusters

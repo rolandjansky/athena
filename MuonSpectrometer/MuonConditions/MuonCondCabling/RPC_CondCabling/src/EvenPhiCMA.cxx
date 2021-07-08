@@ -408,7 +408,7 @@ bool EvenPhiCMA::connect(SectorLogicSetup& setup) {
     if (lowPt_station())  // Check and connect Low Pt plane chambers
     {
         std::list<const EtaCMA*> CMAs = setup.find_eta_CMAs_in_PAD(id().PAD_index());
-        if (CMAs.size() == 0) {
+        if (CMAs.empty()) {
             error("   have no Eta matrix into PAD!");
             return false;
         }
@@ -430,11 +430,11 @@ bool EvenPhiCMA::connect(SectorLogicSetup& setup) {
             RPCchamber* start = setup.find_chamber(lowPt_station(), start_ch);
             RPCchamber* stop = setup.find_chamber(lowPt_station(), stop_ch);
 
-            if (start->readoutWORs().size() == 0) {
+            if (start->readoutWORs().empty()) {
                 no_wor_readout(start->number(), lowPt_station());
                 return false;
             }
-            if (stop->readoutWORs().size() == 0) {
+            if (stop->readoutWORs().empty()) {
                 no_wor_readout(stop->number(), lowPt_station());
                 return false;
             }
@@ -461,7 +461,7 @@ bool EvenPhiCMA::connect(SectorLogicSetup& setup) {
     if (highPt_station())  // Check and connect High Pt plane chambers
     {
         std::list<const EtaCMA*> CMAs = setup.find_eta_CMAs_in_PAD(id().PAD_index());
-        if (CMAs.size() == 0) {
+        if (CMAs.empty()) {
             error("   have no Eta matrix into PAD!");
             return false;
         }
@@ -483,11 +483,11 @@ bool EvenPhiCMA::connect(SectorLogicSetup& setup) {
             RPCchamber* start = setup.find_chamber(highPt_station(), start_ch);
             RPCchamber* stop = setup.find_chamber(highPt_station(), stop_ch);
 
-            if (start->readoutWORs().size() == 0) {
+            if (start->readoutWORs().empty()) {
                 no_wor_readout(start->number(), highPt_station());
                 return false;
             }
-            if (stop->readoutWORs().size() == 0) {
+            if (stop->readoutWORs().empty()) {
                 no_wor_readout(stop->number(), highPt_station());
                 return false;
             }
@@ -611,7 +611,7 @@ bool EvenPhiCMA::setup(SectorLogicSetup& setup) {
     const std::map<std::string, std::string>* p_trigroads = setup.GetPtoTrigRoads();
 
     // Read trigger configurations from files
-    if (p_trigroads == 0) {
+    if (p_trigroads == nullptr) {
         while (!CMAprogLow.is_open() && it != sectors.end()) {
             __osstream namestr;
             for (int i = 0; i < 200; ++i) name[i] = '\0';
@@ -719,7 +719,7 @@ bool EvenPhiCMA::setup(SectorLogicSetup& setup) {
 
     it = sectors.begin();
 
-    if (p_trigroads == 0) {
+    if (p_trigroads == nullptr) {
         while (!CMAprogHigh.is_open() && it != sectors.end()) {
             __osstream namestr;
             for (int i = 0; i < 200; ++i) name[i] = '\0';

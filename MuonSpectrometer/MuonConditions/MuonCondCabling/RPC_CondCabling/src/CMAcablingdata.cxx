@@ -93,7 +93,7 @@ bool CMAcablingdata::get_data(DBline& data, CMAparameters::parseParams& parser) 
 }
 
 std::unique_ptr<EtaCMA> CMAcablingdata::give_eta_cma() {
-    if (m_etaCMA.size()) {
+    if (!m_etaCMA.empty()) {
         std::unique_ptr<EtaCMA> CMA = std::make_unique<EtaCMA>(m_etaCMA.front());
         m_etaCMA.pop_front();
         return CMA;

@@ -8,9 +8,6 @@ rec.doEgamma.set_Value_and_Lock(False)
 rec.doMuon.set_Value_and_Lock(False)
 rec.doTau.set_Value_and_Lock(False)
 
-from eflowRec.eflowRecFlags import jobproperties as jobprops
-jobprops.eflowRecFlags.useFlowElements.set_Value_and_Lock(False)
-
 #Do not write out TAG file
 rec.doWriteTAG.set_Value_and_Lock(False)
 #Disable truth reco
@@ -30,6 +27,5 @@ athenaCommonFlags.EvtMax=100
 UserAlgs = ["PFlowUtils/PFlowCalibHitDecorator_algorithms.py"]
 include ("RecExCommon/RecExCommon_topOptions.py")
 #Add decoration to output item list
-StreamAOD.ItemList+=['xAOD::PFOAuxContainer#JetETMissNeutralParticleFlowObjectsAux.+calpfo_NLeadingTruthParticleBarcodeEnergyPairs']
-StreamAOD.ItemList+=['xAOD::FlowElementAuxContainer#JetETMissNeutralFlowElementssAux.+calfe_NLeadingTruthParticleBarcodeEnergyPairs']
+StreamAOD.ItemList+=['xAOD::FlowElementAuxContainer#JetETMissNeutralParticleFlowObjectsAux.+calfe_NLeadingTruthParticleBarcodeEnergyPairs']
 StreamAOD.ItemList+=['xAOD::CaloClusterAuxContainer#CaloCalTopoClustersAux.SECOND_R.SECOND_LAMBDA.CENTER_MAG.CENTER_LAMBDA.ISOLATION.ENG_BAD_CELLS.N_BAD_CELLS.BADLARQ_FRAC.ENG_POS.AVG_LAR_Q.AVG_TILE_Q.EM_PROBABILITY.BadChannelList.calclus_NLeadingTruthParticleBarcodeEnergyPairs']

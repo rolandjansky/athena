@@ -326,23 +326,26 @@ namespace met {
       if(obj->pt()<5e3 && obj->type()!=xAOD::Type::Muon) continue;
       constlist.clear();
       ATH_MSG_VERBOSE( "Object type, pt, eta, phi = " << obj->type() << ", " << obj->pt() << ", " << obj->eta() << "," << obj->phi() );
-      if(!m_fecollKey.key().empty()){
-        if(!m_useTracks){
-          ATH_MSG_ERROR("Attempting to build FlowElement MET without a track collection.");
-          return StatusCode::FAILURE;
+      if(m_pflow){
+        if(!m_fecollKey.key().empty()){
+          if(!m_useTracks){
+            ATH_MSG_ERROR("Attempting to build FlowElement MET without a track collection.");
+            return StatusCode::FAILURE;
+          }
+          std::map<const IParticle*, MissingETBase::Types::constvec_t> momentumOverride;
+          ATH_CHECK( this->extractFE(obj, constlist, constits, momentumOverride) );
+          MissingETComposition::insert(metMap, obj, constlist, momentumOverride);
         }
-        std::map<const IParticle*, MissingETBase::Types::constvec_t> momentumOverride;
-        ATH_CHECK( this->extractFE(obj, constlist, constits, momentumOverride) );
-        MissingETComposition::insert(metMap, obj, constlist, momentumOverride);
-      }
-      else if (m_pflow) {
-        if(!m_useTracks){
-          ATH_MSG_DEBUG("Attempting to build PFlow without a track collection.");
-          return StatusCode::FAILURE;
-        }else{
-          std::map<const IParticle*,MissingETBase::Types::constvec_t> momentumOverride;
-          ATH_CHECK( this->extractPFO(obj,constlist,constits,momentumOverride) );
-          MissingETComposition::insert(metMap,obj,constlist,momentumOverride);
+        else{
+          // Old PFO EDM
+          if(!m_useTracks){
+            ATH_MSG_DEBUG("Attempting to build PFlow without a track collection.");
+            return StatusCode::FAILURE;
+          }else{
+            std::map<const IParticle*,MissingETBase::Types::constvec_t> momentumOverride;
+            ATH_CHECK( this->extractPFO(obj,constlist,constits,momentumOverride) );
+            MissingETComposition::insert(metMap,obj,constlist,momentumOverride);
+          }
         }
       } else {
         std::vector<const IParticle*> tclist;

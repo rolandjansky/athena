@@ -89,7 +89,20 @@ BTagOutput_JetFitter = [
     'JetFitterSecondaryVertex_averageAllJetTrackRelativeEta',
     'JetFitter_mass','JetFitter_energyFraction','JetFitter_significance3d','JetFitter_nTracksAtVtx','JetFitter_N2Tpair','JetFitter_fittedCov','JetFitter_tracksAtPVchi2','JetFitter_tracksAtPVndf','JetFitter_tracksAtPVlinks','JetFitter_massUncorr','JetFitter_chi2','JetFitter_ndof','JetFitter_dRFlightDir',]
 BTagOutput_rnnip = ['rnnip_isDefaults','rnnip_pu','rnnip_pc','rnnip_pb','rnnip_ptau',]
-BTagOutput_highLevelTaggers = ['MV2c10_discriminant','DL1_pu','DL1_pc','DL1_pb','DL1r_pu','DL1r_pc','DL1r_pb',]
+
+# we don't plan to keep all these, they are just for comparisons while tuning
+three_output_taggers = [
+    'DL1',
+    'DL1r',
+    'dipsLoose20210517',
+    'dips20210517',
+    'DL1d20210519r22',          # uses dipsLoose
+    'DL1d20210528r22',          # uses IP3D track selection dips
+]
+BTagOutput_highLevelTaggers = [
+    'MV2c10_discriminant',
+    *[f'{t}_p{x}' for x in 'cub' for t in three_output_taggers],
+]
 
 BTagOutput += BTagOutput_IP2D + BTagOutput_IP3D + BTagOutput_SV1 + BTagOutput_JetFitter + BTagOutput_rnnip + BTagOutput_highLevelTaggers
 BTagVars = '.'.join(BTagOutput)

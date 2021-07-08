@@ -31,7 +31,7 @@ class PFChargedFlowElementCreatorAlgorithm : public  AthReentrantAlgorithm {
     SG::ReadHandleKey<eflowCaloObjectContainer> m_eflowCaloObjectContainerReadHandleKey{this,"eflowCaloObjectContainerName","eflowCaloObjects","ReadHandleKey for eflowCaloObjectContainer"};
   
     /** WriteHandleKey for charged PFO */
-    SG::WriteHandleKey<xAOD::FlowElementContainer> m_chargedFlowElementContainerWriteHandleKey{this,"FlowElementOutputName","JetETMissChargedFlowElements","WriteHandleKey for charged FlowElements"};
+    SG::WriteHandleKey<xAOD::FlowElementContainer> m_chargedFlowElementContainerWriteHandleKey{this,"FlowElementOutputName","JetETMissChargedParticleFlowObjects","WriteHandleKey for charged FlowElements"};
     
 };
 

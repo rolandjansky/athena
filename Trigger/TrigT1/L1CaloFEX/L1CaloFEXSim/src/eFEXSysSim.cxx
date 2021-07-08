@@ -25,6 +25,10 @@
 #include "xAODTrigger/eFexEMRoIContainer.h"
 #include "xAODTrigger/eFexEMRoIAuxContainer.h"
 
+#include "xAODTrigger/eFexTauRoI.h"
+#include "xAODTrigger/eFexTauRoIContainer.h"
+#include "xAODTrigger/eFexTauRoIAuxContainer.h"
+
 #include <ctime>
 
 namespace LVL1 {
@@ -55,6 +59,8 @@ namespace LVL1 {
     ATH_CHECK( m_eFEXSimTool.retrieve() );
 
     ATH_CHECK(m_eFexOutKey.initialize());
+
+    ATH_CHECK(m_eFexTauOutKey.initialize());
 
     ATH_CHECK( m_eFEXFPGATowerIdProviderTool.retrieve() );
 
@@ -97,6 +103,7 @@ namespace LVL1 {
 
     // remove TOBs of the previous events from the map
     m_allEmTobs.clear();
+    m_allTauTobs.clear();
 
     // do mapping with preloaded csv file if it is available
     if (m_eFEXFPGATowerIdProviderTool->ifhaveinputfile()) {
@@ -107,6 +114,7 @@ namespace LVL1 {
           m_eFEXSimTool->init(160 + (i_efex % 3) * 16 + int(i_efex / 3));
           ATH_CHECK(m_eFEXSimTool->NewExecute(tmp_eTowersIDs_subset_eFEX));
           m_allEmTobs.insert( std::map<int, std::vector<uint32_t> >::value_type(i_efex, (m_eFEXSimTool->getEmTOBs() ) ));
+          m_allTauTobs.insert( std::map<int, std::vector<uint32_t> >::value_type(i_efex, (m_eFEXSimTool->getTauTOBs() ) ));
           m_eFEXSimTool->reset();
       }
     } else {
@@ -216,6 +224,7 @@ namespace LVL1 {
       m_eFEXSimTool->init(thisEFEX);
       ATH_CHECK(m_eFEXSimTool->NewExecute(tmp_eTowersIDs_subset));
       m_allEmTobs.insert( std::map<int, std::vector<uint32_t> >::value_type(thisEFEX, (m_eFEXSimTool->getEmTOBs() ) ));
+      m_allTauTobs.insert( std::map<int, std::vector<uint32_t> >::value_type(thisEFEX, (m_eFEXSimTool->getTauTOBs() ) ));
       m_eFEXSimTool->reset();
 
       fexcounter++;
@@ -286,6 +295,7 @@ namespace LVL1 {
       m_eFEXSimTool->init(thisEFEX);
       ATH_CHECK(m_eFEXSimTool->NewExecute(tmp_eTowersIDs_subset));
       m_allEmTobs.insert( std::map<int, std::vector<uint32_t> >::value_type(thisEFEX, (m_eFEXSimTool->getEmTOBs() ) ));
+      m_allTauTobs.insert( std::map<int, std::vector<uint32_t> >::value_type(thisEFEX, (m_eFEXSimTool->getTauTOBs() ) ));
       m_eFEXSimTool->reset();
 
       fexcounter++;
@@ -384,7 +394,7 @@ namespace LVL1 {
     // iterate over all Em Tobs and fill EDM with them
     for( auto const& [efex, tobs] : m_allEmTobs ){
       for(auto &tob : tobs){
-	ATH_CHECK(fillEDM(efex,tob));
+        m_eFEXFillEDMTool->fillEmEDM(m_eContainer, efex, tob);
       }
     }
     
@@ -392,6 +402,20 @@ namespace LVL1 {
     ATH_MSG_DEBUG("  write: " << outputeFexHandle.key() << " = " << "..." );
     ATH_CHECK(outputeFexHandle.record(std::move(m_eContainer),std::move(m_eAuxContainer)));
 
+    m_tauContainer = std::make_unique<xAOD::eFexTauRoIContainer> ();
+    m_tauAuxContainer = std::make_unique<xAOD::eFexTauRoIAuxContainer> ();
+    m_tauContainer->setStore(m_tauAuxContainer.get());
+
+    // iterate over all tau TOBs and fill EDM with them
+    for( auto const& [efex, tobs] : m_allTauTobs ){
+      for( auto &tob: tobs ){
+        m_eFEXFillEDMTool->fillTauEDM(m_tauContainer, efex, tob);
+      }
+    }
+
+    SG::WriteHandle<xAOD::eFexTauRoIContainer> outputeFexTauHandle(m_eFexTauOutKey/*, ctx*/);
+    ATH_MSG_DEBUG(" write: " << outputeFexTauHandle.key() << " = " << "..." );
+    ATH_CHECK(outputeFexTauHandle.record(std::move(m_tauContainer), std::move(m_tauAuxContainer)));
 
     //Send TOBs to bytestream?
     // ToDo
@@ -401,30 +425,6 @@ namespace LVL1 {
     return StatusCode::SUCCESS;
 
   }
-  
-
-  StatusCode eFEXSysSim::fillEDM(uint8_t eFexNum, uint32_t tobWord){
-
-    uint32_t tobWord0 = tobWord;
-    uint32_t tobWord1 = 0;
-
-    // Translate eFEX index into Shelf+eFEX:
-    // Messy because this eFEX index runs A, B, C while the readout order is C, B, A
-    int inShelf = eFexNum % 12;
-    uint8_t shelf = int(eFexNum/12);
-    uint8_t eFEX  = 3*int(inShelf/3) + 2 - (eFexNum%3);
-    
-    // Now create the object and fill it
-    xAOD::eFexEMRoI* myEDM = new xAOD::eFexEMRoI();
-    m_eContainer->push_back( myEDM );
-
-    myEDM->initialize(eFEX, shelf, tobWord0, tobWord1);
-    ATH_MSG_DEBUG(" setting eFEX Number:  " << +myEDM->eFexNumber() << " shelf: " << +myEDM->shelfNumber() << " et: " << myEDM->et() << " eta: " << myEDM->eta() <<  " phi: " << myEDM->phi() << " input eFexNum: " << MSG::hex << +eFexNum << " TOB word: " << tobWord0 << MSG::dec );
-
-    return StatusCode::SUCCESS;
-
-  }
-
-  
 } // end of namespace bracket
+
 

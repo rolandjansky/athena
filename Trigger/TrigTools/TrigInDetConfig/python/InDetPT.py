@@ -12,7 +12,7 @@ log = logging.getLogger("InDetPrecisionTracking")
 
 def makeInDetPrecisionTracking( config=None, verifier=False, rois='EMViewRoIs', prefix="InDetTrigMT" ) :      
     
-    log.info( "makeInDetPRecisionTracking:: {} {} doTR: {} ".format(  config.input_name, config.name, config.doTRT ) )
+    log.info( "makeInDetPRecisionTracking:: {} {} doTRT: {} ".format(  config.input_name, config.name, config.doTRT ) )
     
     ptAlgs = [] # List containing all the precision tracking algorithms hence every new added alg has to be appended to the list
     
@@ -30,9 +30,6 @@ def makeInDetPrecisionTracking( config=None, verifier=False, rois='EMViewRoIs', 
     outTrackParticles   = config.tracks_IDTrig() # Final output xAOD::TrackParticle collection
     ambiTrackCollection = config.trkTracks_IDTrig()+"_Amb"  # Ambiguity solver tracks
     
-    if not doTRT:
-        ambiTrackCollection = outTrkTracks
-
     #  Verifying input data for the algorithms
   
     # If run in views need to check data dependancies!
@@ -41,9 +38,11 @@ def makeInDetPrecisionTracking( config=None, verifier=False, rois='EMViewRoIs', 
         from .InDetTrigCollectionKeys import TrigPixelKeys
         verifier.DataObjects += [( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+' + TrigPixelKeys.PixelClusterAmbiguitiesMap ),
                                  ( 'TrackCollection' , 'StoreGateSvc+' + config.trkTracks_FTF() )]
-        
-    summaryTool     = trackSummaryTool_builder( signature, config, prefix )
 
+    
+    from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryTool
+    summaryTool = InDetTrigTrackSummaryTool
+    
     if config.newConfig:
         log.info( "ID Trigger: NEW precision tracking configuration {} {}".format(config.input_name, signature) )
         ambiSolvingAlgs = ambiguitySolver_builder( signature, config, summaryTool, outputTrackName=ambiTrackCollection, prefix=prefix+"Trk" )
@@ -53,9 +52,11 @@ def makeInDetPrecisionTracking( config=None, verifier=False, rois='EMViewRoIs', 
 
     #Loading the alg to the sequence
     ptAlgs.extend( ambiSolvingAlgs )
-    
+
+    finalTrackCollection = ambiTrackCollection
     if doTRT:
         # do the TRT extension if requested
+        finalTrackCollection = outTrkTracks
         trtAlgs = trtExtension_builder( signature, config, rois, summaryTool, inputTracks=ambiTrackCollection, outputTracks=outTrkTracks, prefix=prefix ) 
         ptAlgs.extend( trtAlgs )
   
@@ -64,12 +65,18 @@ def makeInDetPrecisionTracking( config=None, verifier=False, rois='EMViewRoIs', 
     #  Track particle conversion algorithm
     #
     from .InDetTrigCommon import trackParticleCnv_builder
+    from TrigInDetConf.TrigInDetPostTools import InDetTrigParticleCreatorToolWithSummary, \
+        InDetTrigParticleCreatorToolWithSummaryTRTPid
 
+    creatorTool = InDetTrigParticleCreatorToolWithSummary
+    if config.electronPID:
+      creatorTool = InDetTrigParticleCreatorToolWithSummaryTRTPid
+    
     trackParticleCnvAlg = trackParticleCnv_builder( name                 = prefix+'xAODParticleCreatorAlg'+config.input_name+'_IDTrig',
                                                     config               = config,
-                                                    inTrackCollectionKey = outTrkTracks,
+                                                    inTrackCollectionKey = finalTrackCollection,
                                                     outTrackParticlesKey = outTrackParticles,
-                                                    trackSummaryTool     = summaryTool )
+                                                    trackParticleCreatorTool     =  creatorTool)
     
     log.debug(trackParticleCnvAlg)
     ptAlgs.append(trackParticleCnvAlg)
@@ -83,40 +90,6 @@ def makeInDetPrecisionTracking( config=None, verifier=False, rois='EMViewRoIs', 
     
     # Return list of Track keys, TrackParticle keys, and PT algs
     return  nameTrackCollections, nameTrackParticles, ptAlgs
-
-
-
-
-
-
-def trackSummaryTool_builder( signature, config, prefix="InDetTrigMT" ) : 
-  
-    doTRT = config.doTRT
-
-    from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryTool
-
-    if doTRT:
-
-        from AthenaCommon.AppMgr import ToolSvc
-        from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
-        from InDetTrigRecExample.InDetTrigConfigRecLoadTools import  InDetTrigTrackSummaryHelperToolSharedHits
-    
-        trigTrackSummaryTool = Trk__TrackSummaryTool(name = "%sTrackSummaryToolSharedHitsWithTRT_%s"%( prefix, signature ),
-                                                     InDetSummaryHelperTool = InDetTrigTrackSummaryHelperToolSharedHits,
-                                                     doSharedHits           = True,
-                                                     doHolesInDet           = True )
-        
-        if config.electronPID: 
-            from InDetTrigRecExample.InDetTrigConfigRecLoadTools import  InDetTrigTRT_ElectronPidTool
-            trigTrackSummaryTool.TRT_ElectronPidTool = InDetTrigTRT_ElectronPidTool
-            
-        summaryTool = trigTrackSummaryTool
-        ToolSvc += summaryTool
-            
-    else:
-        summaryTool = InDetTrigTrackSummaryTool
-
-    return summaryTool
 
 
 
@@ -198,14 +171,24 @@ def ambiguityProcessorTool_builder( signature, config, summaryTool ,prefix=None 
 def scoringTool_builder( signature, config, summaryTool, prefix=None ):
 
   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator
+  
+  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTRTDriftCircleCut
 
+  # NB: This DriftCircleCutTool should not be used here, we want to use the AmbiScoringTool 
+  #     without using the DriftCircleCutTool at all, but unfortunatly, the AmbiScoringTool
+  #     needs a DriftCircleCut tool - either the one we pass in, or the default offline 
+  #     tool. 
+  #     In both of these cases, using the tool might be problematic, so we hope to 
+  #     be able to disable it in the tool completely at some point in the near future 
   from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
   scoringTool =  InDet__InDetAmbiScoringTool( name = '%sScoringTool_%s'%( prefix, config.input_name),
                                               Extrapolator = InDetTrigExtrapolator,
                                               minPt        = config.pTmin, 
                                               doEmCaloSeed = False,
-                                              SummaryTool  = summaryTool ) 
-                                              
+                                              SummaryTool  = summaryTool,
+                                              minTRTonTrk        = 0,
+                                              DriftCircleCutTool = InDetTrigTRTDriftCircleCut )
+                                                                                          
   log.info( scoringTool )
 
   from AthenaCommon.AppMgr import ToolSvc

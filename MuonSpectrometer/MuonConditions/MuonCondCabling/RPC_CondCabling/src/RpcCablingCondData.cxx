@@ -125,7 +125,7 @@ int RpcCablingCondData::operator()(const Identifier& id) const {
 
 int RpcCablingCondData::max() const { return m_int2id.size(); }
 
-int RpcCablingCondData::offset() const { return 0; }
+int RpcCablingCondData::offset() { return 0; }
 
 std::vector<IdentifierHash> RpcCablingCondData::rod2hash(uint16_t subsystem_id, uint16_t rod_id) const {
     if ((subsystem_id != 0x66 && subsystem_id != 0x65) || (rod_id >= 16)) return std::vector<IdentifierHash>();
@@ -217,14 +217,14 @@ unsigned long int RpcCablingCondData::strip_code_fromOffId(const std::string& st
 }
 
 unsigned long int RpcCablingCondData::strip_code_fromOffline(int etaPhiView, int logicSector, int cablingStation, int gasGap,
-                                                             int zIndexInCablingStation, int strip) const {
+                                                             int zIndexInCablingStation, int strip) {
     unsigned long int code = 0;
     code = etaPhiView * 100000000 + logicSector * 1000000 + cablingStation * 100000 + gasGap * 10000 + zIndexInCablingStation * 100 +
            (strip - 1);
     return code;
 }
 
-bool RpcCablingCondData::largeSector(const std::string& stName) const {
+bool RpcCablingCondData::largeSector(const std::string& stName) {
     bool ls = false;
     if (stName == "BML" ||  // 2
         stName == "BOL" ||  // 4
@@ -658,8 +658,7 @@ bool RpcCablingCondData::giveOfflineId(const unsigned short int side, const unsi
     if (sector >= 32) return false;
     if (padId >= 10) return false;
     id = m_offline_id[side][sector][padId];
-    if (!id.is_valid()) return false;
-    return true;
+    return id.is_valid();
 }
 
 void RpcCablingCondData::setIds(const std::vector<Identifier>& int2id) { m_int2id = int2id; }

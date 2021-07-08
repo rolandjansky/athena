@@ -58,18 +58,6 @@ def getConstitFourMomTool(jetdef, modspec=""):
       "NSTATES"       :  3
       }
 
-    ### Workaround for inability of Gaudi to parse single-element tuple
-    try:
-        import GaudiPython.Bindings as GPB
-        _old_setattr = GPB.iProperty.__setattr__
-        def _new_setattr(self, name, value):
-           if type(value) == tuple:
-               value = list(value)
-           return _old_setattr(self, name, value)
-        GPB.iProperty.__setattr__ = _new_setattr
-    except Exception:
-        pass
-    ###
     cfourmom = CompFactory.JetConstitFourMomTool("constitfourmom_{0}".format(jetdef.basename))
     if "LCTopo" in jetdef.basename or "EMTopo" in jetdef.basename:
         cfourmom.JetScaleNames = ["DetectorEtaPhi"]

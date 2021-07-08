@@ -83,18 +83,18 @@ if jetFlags.detailLevel()==JetContentDetail.Validation:
 
 for jetrec in jtm.jetrecs:
   jetFlags.jetAODList += [ "xAOD::JetContainer#" + jetrec.name() ]
-  auxprefix = ""
   if jetrec.Trigger:
-    auxprefix = "Trig"
-  jetFlags.jetAODList += [ "xAOD::Jet" + auxprefix + "AuxContainer#" + jetrec.name() + "Aux." ]
+    jetFlags.jetAODList += [ "xAOD::JetTrigAuxContainer#" + jetrec.name() + "Aux." ]
+  else:
+    jetFlags.jetAODList += [ "xAOD::JetAuxContainer#" + jetrec.name() + "Aux." ]
 
 if jetFlags.useTracks() and jetFlags.useTopo():
     jetFlags.jetAODList += [ "xAOD::CaloClusterContainer#EMOriginTopoClusters" ,
                              "xAOD::CaloClusterContainer#LCOriginTopoClusters" ,
                              "xAOD::ShallowAuxContainer#LCOriginTopoClustersAux.",
-                             "xAOD::ShallowAuxContainer#EMOriginTopoClustersAux."] 
-    jetFlags.jetAODList += [ "xAOD::PFOContainer#CHSChargedParticleFlowObjects",
-                             "xAOD::PFOContainer#CHSNeutralParticleFlowObjects",
+                             "xAOD::ShallowAuxContainer#EMOriginTopoClustersAux."]
+    jetFlags.jetAODList += [ "xAOD::FlowElementContainer#CHSChargedParticleFlowObjects",
+                             "xAOD::FlowElementContainer#CHSNeutralParticleFlowObjects",
                              "xAOD::ShallowAuxContainer#CHSChargedParticleFlowObjectsAux.",
                              "xAOD::ShallowAuxContainer#CHSNeutralParticleFlowObjectsAux."] 
 
@@ -112,12 +112,5 @@ if jetFlags.debug > 1:
 #--------------------------------------------------------------
 from JetRec.JetAlgorithm import addJetRecoToAlgSequence
 addJetRecoToAlgSequence()
-
-#--------------------------------------------------------------
-# save event shapes set with the JetAlgorithm
-#--------------------------------------------------------------
-for esTool in jtm.allEDTools:
-    jetFlags.jetAODList += [ "xAOD::EventShape#%s" % esTool.OutputContainer,
-                             "xAOD::EventShapeAuxInfo#%sAux." % esTool.OutputContainer ]
 
 jetlog.info( myname + "End." )

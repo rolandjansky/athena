@@ -686,7 +686,8 @@ def getTauJetRNNEvaluator():
     myTauJetRNNEvaluator = TauJetRNNEvaluator(name = _name,
                                               NetworkFile0P = "",
                                               NetworkFile1P = tauFlags.tauRecTauJetRNNConfig()[0],
-                                              NetworkFile3P = tauFlags.tauRecTauJetRNNConfig()[1],
+                                              NetworkFile2P = tauFlags.tauRecTauJetRNNConfig()[1],
+                                              NetworkFile3P = tauFlags.tauRecTauJetRNNConfig()[2],
                                               OutputVarname = "RNNJetScore",
                                               MaxTracks = 10,
                                               MaxClusters = 6,
@@ -712,11 +713,13 @@ def getTauWPDecoratorJetRNN():
     from tauRecTools.tauRecToolsConf import TauWPDecorator
     myTauWPDecorator = TauWPDecorator( name=_name,
                                        flatteningFile1Prong = tauFlags.tauRecTauJetRNNWPConfig()[0],
-                                       flatteningFile3Prong = tauFlags.tauRecTauJetRNNWPConfig()[1],
+                                       flatteningFile2Prong = tauFlags.tauRecTauJetRNNWPConfig()[1],
+                                       flatteningFile3Prong = tauFlags.tauRecTauJetRNNWPConfig()[2],
                                        CutEnumVals =
                                        [ ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigVeryLoose, ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigLoose,
                                          ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigMedium, ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigTight ],
                                        SigEff1P = [0.95, 0.85, 0.75, 0.60],
+                                       SigEff2P = [0.95, 0.75, 0.60, 0.45],
                                        SigEff3P = [0.95, 0.75, 0.60, 0.45],
                                        ScoreName = "RNNJetScore",
                                        NewScoreName = "RNNJetScoreSigTrans",
@@ -833,3 +836,12 @@ def getTVATool():
 
     cached_instances[_name] = TVATool
     return TVATool
+
+def getTauAODSelector():
+    _name = sPrefix + 'TauAODSelector'
+    from tauRecTools.tauRecToolsConf import TauAODSelector
+
+    myTauAODSelector = TauAODSelector( name=_name,
+                                       MinTauPt = tauFlags.tauRecMinPt() )
+    cached_instances[_name] = myTauAODSelector
+    return myTauAODSelector

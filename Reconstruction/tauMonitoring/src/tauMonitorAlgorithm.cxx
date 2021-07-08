@@ -505,7 +505,7 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
             rConv = track->rConv();
             rConvII = track->rConvII();
           }
-          trackdRJetSeedAxis = track->dRJetSeedAxis(*tau); 
+          trackdRJetSeedAxis = track->p4().DeltaR(tau->p4(xAOD::TauJetParameters::JetSeed));
           double qOverP = trackParticle->qOverP(); 
           double trackPt = trackParticle->pt(); 
           uint8_t nInnermostPixelLayerHits = 0;

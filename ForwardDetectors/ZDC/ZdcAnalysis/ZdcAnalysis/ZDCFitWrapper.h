@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _ZDCFitWrapper_h
@@ -9,7 +9,7 @@
 //
 #include <TF1.h>
 
-double ZDCFermiExpFit(double* xvec, double* pvec);
+double ZDCFermiExpFit(const double* xvec, const double* pvec);
 
 class ZDCFitWrapper
 {
@@ -56,7 +56,7 @@ class ZDCFitExpFermiVariableTaus : public ZDCFitWrapper
 
 public:
 
-  ZDCFitExpFermiVariableTaus(std::string tag, float tmin, float tmax, bool fixTau1, bool fixTau2, float tau1, float tau2);
+  ZDCFitExpFermiVariableTaus(const std::string& tag, float tmin, float tmax, bool fixTau1, bool fixTau2, float tau1, float tau2);
 
   virtual void Initialize(float initialAmp, float initialT0);
 
@@ -117,7 +117,7 @@ class ZDCFitExpFermiFixedTaus : public ZDCFitWrapper
 
 public:
 
-  ZDCFitExpFermiFixedTaus(std::string tag, float tmin, float tmax, float tau1, float tau2);
+  ZDCFitExpFermiFixedTaus(const std::string& tag, float tmin, float tmax, float tau1, float tau2);
 
   ~ZDCFitExpFermiFixedTaus() { 
     delete m_expFermiFunc; 
@@ -180,7 +180,7 @@ class ZDCFitExpFermiPrePulse : public ZDCPrePulseFitWrapper
   TF1* m_expFermiFunc;
 
 public:
-  ZDCFitExpFermiPrePulse(std::string tag, float tmin, float tmax, float tau1, float tau2);
+  ZDCFitExpFermiPrePulse(const std::string& tag, float tmin, float tmax, float tau1, float tau2);
 
   virtual void Initialize(float initialAmp, float initialT0);
   //  void InitializePrePulseT0(float initPreT0) {  GetWrapperTF1()->SetParameter(3, initPreT0);}
@@ -267,7 +267,7 @@ class ZDCFitExpFermiPulseSequence : public ZDCFitWrapper
 
 
 public:
-  ZDCFitExpFermiPulseSequence(std::string tag, float tmin, float tmax, float nominalT0, float deltaT,  float tau1, float tau2);
+  ZDCFitExpFermiPulseSequence(const std::string& tag, float tmin, float tmax, float nominalT0, float deltaT,  float tau1, float tau2);
 
   ~ZDCFitExpFermiPulseSequence() 
   {

@@ -41,5 +41,8 @@ class LArRinjComplete: public ILArRinj,
   void set(const HWIdentifier& CellID, float vRinj);
 };
 
+#include "AthenaKernel/CondCont.h"
 CLASS_DEF( LArRinjComplete,2370948,1)
+CONDCONT_DEF( LArRinjComplete, 167204058, ILArRinj );
+
 #endif 

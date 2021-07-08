@@ -139,14 +139,17 @@ def setupMenu():
    ]
 
     TriggerFlags.EgammaSlice.signatures = TriggerFlags.EgammaSlice.signatures() + [
-
+        
+        # ElectronChains----------
         # Phase1 eEM chains
         ChainProp(name='HLT_e5_etcut_L1eEM3', groups=SingleElectronGroup),
-
 
         # lrt chains
         ChainProp(name='HLT_e5_idperf_loose_lrtloose_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_idperf_loose_lrtloose_L1EM22VHI', groups=SingleElectronGroup),  
+
+        #gsf-idperf chains
+        ChainProp(name='HLT_e5_idperf_gsf_tight_L1EM3', groups=SingleElectronGroup),        #gsf idperf chains
 
         # Test chains for ATR-23500
         ChainProp(name='HLT_e26_lhloose_nopix_lrtloose_L1EM22VHI', groups=SingleElectronGroup),
@@ -669,21 +672,21 @@ def setupMenu():
         ChainProp(name="HLT_tau25_tightRNN_tracktwoLLP_L1TAU12IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau25_medium1_track_L1TAU12IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau25_medium1_tracktwo_L1TAU12IM", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau35_ptonly_L1TAU12IM", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau35_idperf_track_L1TAU12IM", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau35_idperf_tracktwo_L1TAU12IM", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau35_idperf_tracktwoMVA_L1TAU12IM", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau35_idperf_tracktwoMVABDT_L1TAU12IM", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau35_perf_track_L1TAU12IM", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau35_perf_tracktwo_L1TAU12IM", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau35_perf_tracktwoMVA_L1TAU12IM", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau35_perf_tracktwoMVABDT_L1TAU12IM", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau35_looseRNN_tracktwoMVA_L1TAU12IM", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau35_looseRNN_tracktwoMVABDT_L1TAU12IM", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVABDT_L1TAU12IM", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau35_tightRNN_tracktwoMVA_L1TAU12IM", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau35_tightRNN_tracktwoMVABDT_L1TAU12IM", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau35_ptonly_L1TAU20IM", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau35_idperf_track_L1TAU20IM", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau35_idperf_tracktwo_L1TAU20IM", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau35_idperf_tracktwoMVA_L1TAU20IM", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau35_idperf_tracktwoMVABDT_L1TAU20IM", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau35_perf_track_L1TAU20IM", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau35_perf_tracktwo_L1TAU20IM", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau35_perf_tracktwoMVA_L1TAU20IM", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau35_perf_tracktwoMVABDT_L1TAU20IM", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau35_looseRNN_tracktwoMVA_L1TAU20IM", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau35_looseRNN_tracktwoMVABDT_L1TAU20IM", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVA_L1TAU20IM", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVABDT_L1TAU20IM", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau35_tightRNN_tracktwoMVA_L1TAU20IM", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau35_tightRNN_tracktwoMVABDT_L1TAU20IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau160_ptonly_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau160_idperf_track_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau160_idperf_tracktwo_L1TAU100", groups=SingleTauGroup),
@@ -741,6 +744,8 @@ def setupMenu():
         ChainProp(name='HLT_mu6_bJpsi_MuonTrkPEB_L1MU6', stream =['BphysPEB'] , groups=BphysicsGroup+['PS:Online']),
         ChainProp(name='HLT_mu10_bJpsi_MuonTrkPEB_L1MU10', stream =['BphysPEB'] , groups=BphysicsGroup+['PS:Online']),
         ChainProp(name='HLT_mu20_bJpsi_MuonTrkPEB_L1MU20', stream =['BphysPEB'] , groups=BphysicsGroup+['PS:Online']),
+
+        ChainProp(name='HLT_2mu4_bBmumux_BcmumuDsloose_L12MU4', stream=["BphysDelayed"], groups=BphysicsGroup+EOFBPhysL1MuGroup),
     ]
 
     TriggerFlags.CombinedSlice.signatures = TriggerFlags.CombinedSlice.signatures() + [

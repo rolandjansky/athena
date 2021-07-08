@@ -13,6 +13,7 @@ ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
 ex.args = '-c "setMenu=\'LS2_v1\';forceEnableAllChains=True;"'  # LS2_v1 to be renamed to Dev_pp_run3_v1
 ex.args += ' --ros2rob="{\'ROS-TDQ-CTP-00\': [0x770000]}"'
+ex.args += ' --dump-config-reload'
 
 test = Test.Test()
 test.art_type = 'build'

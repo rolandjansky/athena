@@ -58,6 +58,7 @@ namespace LVL1 {
     virtual StatusCode NewExecute(int tmp[10][18]) override;
 
     virtual std::vector<uint32_t> getEmTOBs() override;
+    virtual std::vector<uint32_t> getTauTOBs() override;
 
     /** Internal data */
   private:
@@ -69,7 +70,8 @@ namespace LVL1 {
     CaloCellContainer m_sCellsCollection;
     std::vector<eFEXFPGA*> m_eFEXFPGACollection;
 
-    std::vector<std::vector<uint32_t> > m_tobWords;
+    std::vector<std::vector<uint32_t> > m_emTobWords;
+    std::vector<std::vector<uint32_t> > m_tauTobWords;
 
     ToolHandle<IeFEXFPGA> m_eFEXFPGATool {this, "eFEXFPGATool", "LVL1::eFEXFPGA", "Tool that simulates the FPGA hardware"};
 

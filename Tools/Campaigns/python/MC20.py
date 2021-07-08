@@ -15,9 +15,14 @@ def MC20a(flags):
     flags.Tile.BestPhaseFromCOOL = False
     flags.Tile.correctTime = False
 
-    # pile-up
-    flags.Digitization.PU.NumberOfLowPtMinBias = 44.42397
-    flags.Digitization.PU.NumberOfHighPtMinBias = 0.07603015
+    ## pile-up
+    # These numbers are based upon a relative XS scaling of the high-pt slice
+    # of 64%, which leads to a relative high-pt / low-pt sampling of
+    # 0.001953314389 / 0.9980466856. Those numbers are then multiplied by 56.5
+    # to follow pile-up profile. Only a relevant number of significant digits
+    # are kept.
+    flags.Digitization.PU.NumberOfLowPtMinBias = 56.390
+    flags.Digitization.PU.NumberOfHighPtMinBias = 0.110
     flags.Digitization.PU.BunchStructureConfig = 'RunDependentSimData.BunchStructure_2015'
     flags.Digitization.PU.ProfileConfig = 'RunDependentSimData.PileUpProfile_run284500_MC20a'
 
@@ -36,9 +41,14 @@ def MC20d(flags):
     flags.Tile.BestPhaseFromCOOL = False
     flags.Tile.correctTime = False
 
-    # pile-up
-    flags.Digitization.PU.NumberOfLowPtMinBias = 80.36246
-    flags.Digitization.PU.NumberOfHighPtMinBias = 0.1375377
+    ## pile-up
+    # These numbers are based upon a relative XS scaling of the high-pt slice
+    # of 64%, which leads to a relative high-pt / low-pt sampling of
+    # 0.001953314389 / 0.9980466856. Those numbers are then multiplied by 90.5
+    # to follow pile-up profile. Only a relevant number of significant digits
+    # are kept.
+    flags.Digitization.PU.NumberOfLowPtMinBias = 90.323
+    flags.Digitization.PU.NumberOfHighPtMinBias = 0.177
     flags.Digitization.PU.BunchStructureConfig = 'RunDependentSimData.BunchStructure_2017'
     flags.Digitization.PU.ProfileConfig = 'RunDependentSimData.PileUpProfile_run300000_MC20d'
 
@@ -57,9 +67,14 @@ def MC20e(flags):
     flags.Tile.BestPhaseFromCOOL = False
     flags.Tile.correctTime = False
 
-    # pile-up
-    flags.Digitization.PU.NumberOfLowPtMinBias = 99.33
-    flags.Digitization.PU.NumberOfHighPtMinBias = 0.17
+    ## pile-up
+    # These numbers are based upon a relative XS scaling of the high-pt slice
+    # of 64%, which leads to a relative high-pt / low-pt sampling of
+    # 0.001953314389 / 0.9980466856. Those numbers are then multiplied by 90.5
+    # to follow pile-up profile. Only a relevant number of significant digits
+    # are kept.
+    flags.Digitization.PU.NumberOfLowPtMinBias = 90.323
+    flags.Digitization.PU.NumberOfHighPtMinBias = 0.177
     flags.Digitization.PU.BunchStructureConfig = 'RunDependentSimData.BunchStructure_2017'
     flags.Digitization.PU.ProfileConfig = 'RunDependentSimData.PileUpProfile_run310000_MC20e'
 

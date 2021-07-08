@@ -14,9 +14,9 @@ private:
 
     bool m_status;
 
-    bool m_threshold_registers[3][CMAparameters::pivot_channels][CMAparameters::confirm_channels];
+    bool m_threshold_registers[3][CMAparameters::pivot_channels][CMAparameters::confirm_channels]{};
 
-    uint32_t m_program_bytes[3][CMAparameters::pivot_channels][2];
+    uint32_t m_program_bytes[3][CMAparameters::pivot_channels][2]{};
 
     uint32_t m_overlap1;
     uint32_t m_overlap2;

@@ -8,6 +8,9 @@
 from InDetRecExample.TrackingCommon import makePublicTool, setDefaults
 from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 
+from AthenaCommon.Logging import logging 
+log = logging.getLogger("InDetTrigCommon")
+
 
 def ambiguityScoreAlg_builder(name, config, inputTrackCollection, outputTrackScoreMap ):
 
@@ -166,12 +169,11 @@ def getTrackingSuffix( name ):
       return ''
 
 
-def trackParticleCnv_builder(name, config, inTrackCollectionKey, outTrackParticlesKey, trackSummaryTool ):
+def trackParticleCnv_builder(name, config, inTrackCollectionKey, outTrackParticlesKey, trackParticleCreatorTool ):
   """Alg that stages conversion of Trk::TrackCollection into xAOD::TrackParticle container"""
 
-  trackParticleCreatorTool =  trackParticleCreatorTool_builder( name   = add_prefix( 'TrackParticleCreatorTool',config.input_name),
-                                                                config = config, 
-                                                                trackSummaryTool=trackSummaryTool )
+  if trackParticleCreatorTool is None:
+    log.error("trackParticleCnv_builder requires an instance of trackParticleCreatorTool")
 
   trackCollectionCnvTool   =  trackCollectionCnvTool_builder( name                     = add_prefix( 'xAODTrackCollectionCnvTool',config.input_name),
                                                               trackParticleCreatorTool = trackParticleCreatorTool,

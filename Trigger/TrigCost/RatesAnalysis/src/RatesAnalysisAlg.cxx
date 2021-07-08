@@ -232,6 +232,11 @@ StatusCode RatesAnalysisAlg::addExisting(const std::string pattern) {
         continue;
       }
 
+      if (lowerName.empty()) {
+        ATH_MSG_DEBUG("Can not add " << trigger << " due to multiple L1 seeds: L1All" );
+        continue;
+      }
+      
       // Check it also wasn't disabled in the reprocessing (e.g. auto prescaled out in a perf or tightperf menu)
       if (trigConf->prescale() < 1.) { // Note this prescale is from ATHENA
         ATH_MSG_DEBUG("Will not add " << trigger << ", it was disabled in the reprocessing.");

@@ -131,9 +131,14 @@ std::unique_ptr<VarCalc> get_default_calculator() {
 
     // Track variable calculator functions
     calc->insert("pt_log", Variables::Track::pt_log);
+    calc->insert("pt_tau_log", Variables::Track::pt_tau_log);
     calc->insert("pt_jetseed_log", Variables::Track::pt_jetseed_log);
     calc->insert("d0_abs_log", Variables::Track::d0_abs_log);
     calc->insert("z0sinThetaTJVA_abs_log", Variables::Track::z0sinThetaTJVA_abs_log);
+    calc->insert("z0sinthetaTJVA", Variables::Track::z0sinthetaTJVA);
+    calc->insert("z0sinthetaSigTJVA", Variables::Track::z0sinthetaSigTJVA);
+    calc->insert("d0TJVA", Variables::Track::d0TJVA);
+    calc->insert("d0SigTJVA", Variables::Track::d0SigTJVA);
     calc->insert("dEta", Variables::Track::dEta);
     calc->insert("dPhi", Variables::Track::dPhi);
     calc->insert("nInnermostPixelHits", Variables::Track::nInnermostPixelHits);
@@ -147,6 +152,7 @@ std::unique_ptr<VarCalc> get_default_calculator() {
 
     // Cluster variable calculator functions
     calc->insert("et_log", Variables::Cluster::et_log);
+    calc->insert("pt_tau_log", Variables::Cluster::pt_tau_log);
     calc->insert("pt_jetseed_log", Variables::Cluster::pt_jetseed_log);
     calc->insert("dEta", Variables::Cluster::dEta);
     calc->insert("dPhi", Variables::Cluster::dPhi);
@@ -353,6 +359,11 @@ bool pt_log(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track, double &ou
     return true;
 }
 
+bool pt_tau_log(const xAOD::TauJet &tau, const xAOD::TauTrack& /*track*/, double &out) {
+    out = std::log10(std::max(tau.pt(), 1e-6));
+    return true;
+}
+
 bool pt_jetseed_log(const xAOD::TauJet &tau, const xAOD::TauTrack& /*track*/, double &out) {
     out = std::log10(tau.ptJetSeed());
     return true;
@@ -365,6 +376,26 @@ bool d0_abs_log(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track, double
 
 bool z0sinThetaTJVA_abs_log(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track, double &out) {
     out = std::log10(std::abs(track.z0sinthetaTJVA()) + 1e-6);
+    return true;
+}
+
+bool z0sinthetaTJVA(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track, double &out) {
+    out = track.z0sinthetaTJVA();
+    return true;
+}
+
+bool z0sinthetaSigTJVA(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track, double &out) {
+    out = track.z0sinthetaSigTJVA();
+    return true;
+}
+
+bool d0TJVA(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track, double &out) {
+    out = track.d0TJVA();
+    return true;
+}
+
+bool d0SigTJVA(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track, double &out) {
+    out = track.d0SigTJVA();
     return true;
 }
 
@@ -445,6 +476,11 @@ using MomentType = xAOD::CaloCluster::MomentType;
 
 bool et_log(const xAOD::TauJet& /*tau*/, const xAOD::CaloVertexedTopoCluster &cluster, double &out) {
     out = std::log10(cluster.p4().Et());
+    return true;
+}
+
+bool pt_tau_log(const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster& /*cluster*/, double &out) {
+    out = std::log10(std::max(tau.pt(), 1e-6));
     return true;
 }
 

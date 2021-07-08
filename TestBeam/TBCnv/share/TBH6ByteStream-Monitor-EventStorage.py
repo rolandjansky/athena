@@ -49,7 +49,6 @@ Seq1.SubAlgorithms = [
     "TBScintillatorRec/TBScintRec",
     "TBTailCatcherRec/TBTailCatcherRec",
     "TBMWPCRec/TBMWPCRec",
-    "LArDigitPreProcessor<TBLArDigitContainer>/TBLArDigProcessor",
     "AthenaMon/TBMon1",
     "AthenaMon/LArMon1",
     "LArRawChannelSimpleBuilder/TBLArRawChannelBuilder",
@@ -127,12 +126,6 @@ include( "TBRec/H6TailCatcherRec_jobOptions.py" )
 
 TBMWPCRec =  Algorithm("TBMWPCRec")
 include( "TBRec/H6MWPCRec_jobOptions.py" )
-
-TBLArDigProcessor = Algorithm("TBLArDigProcessor")
-TBLArDigProcessor.InputContainers = ["MEDIUM","FREE"]
-TBLArDigProcessor.NumberOfSamples = 7
-TBLArDigProcessor.FirstSample     = 0
-TBLArDigProcessor.OutputLevel = INFO
 
 TBLArRawChannelBuilder = Algorithm("TBLArRawChannelBuilder");
 TBLArRawChannelBuilder.OutputLevel = INFO

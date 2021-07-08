@@ -28,7 +28,6 @@ namespace RPC_CondCabling {
         std::string m_layout;
 
         ViewType m_view{ViewType::NoView};
-        CMAcoverage m_coverage{CMAcoverage::AllSectors};
         std::string m_covtag{};
 
         ETAlist m_etaCMA;
