@@ -95,6 +95,8 @@ public:
 
   /**Implicit Constructor*/
   virtual ConeSurface* clone() const override;
+  
+  std::unique_ptr<ConeSurface> uniqueClone() const;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * charged */

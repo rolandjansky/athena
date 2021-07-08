@@ -121,6 +121,11 @@ DiscSurface::clone() const
   return new DiscSurface(*this);
 }
 
+inline std::unique_ptr<DiscSurface>
+DiscSurface::uniqueClone() const{
+  return std::unique_ptr<DiscSurface>(clone());
+}
+
 inline const SurfaceBounds&
 DiscSurface::bounds() const
 {

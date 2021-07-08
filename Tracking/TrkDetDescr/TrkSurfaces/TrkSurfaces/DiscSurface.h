@@ -111,6 +111,8 @@ public:
 
   /** Virtual constructor*/
   virtual DiscSurface* clone() const override;
+  
+  std::unique_ptr<DiscSurface>uniqueClone() const;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * charged */

@@ -126,6 +126,11 @@ PerigeeSurface::clone() const
   return new PerigeeSurface(*this);
 }
 
+inline std::unique_ptr<PerigeeSurface> 
+PerigeeSurface::uniqueClone() const{
+  return std::unique_ptr<PerigeeSurface>(clone());
+}
+
 inline const Amg::Vector3D&
 PerigeeSurface::normal() const
 {
