@@ -11,6 +11,7 @@
 #include "TrkParametersBase/ParametersBase.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include <cstdlib>//for "abort"
+#include <memory>
 
 namespace Trk
 {
@@ -36,6 +37,7 @@ class DetElementSurface : public Surface
 // Normally the Surface copy ctor sets the Identifier to be invalid. Store it, to get around this.
     bool                        operator==(const  Trk::Surface&) const { return false;}
     Surface *                   clone () const { return nullptr; }
+    std::unique_ptr<Surface>    uniqueClone() const {return nullptr; }
     bool                        insideBounds(const Amg::Vector2D &, double, double) const {return false;}
     bool insideBoundsCheck(const Amg::Vector2D& /*locpos*/, const BoundaryCheck& /*bchk*/) const { return false;}
     const Amg::Vector3D *       localToGlobal (const Amg::Vector2D &) const { return nullptr; }

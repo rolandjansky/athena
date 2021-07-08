@@ -76,16 +76,19 @@ public:
     const TrkDetElementBase& detelement,
     const Identifier& id);
 
-  /**Copy constructor with shift*/
+  /** Copy constructor with shift*/
   StraightLineSurface(
     const StraightLineSurface& slsf,
     const Amg::Transform3D& transf);
 
-  /**Equality operator*/
+  /** Equality operator*/
   virtual bool operator==(const Surface& sf) const override;
 
-  /**Implicit constructor*/
+  /** Implicit constructor*/
   virtual StraightLineSurface* clone() const override final;
+  
+  /** NVI uniqueClone **/
+  std::unique_ptr<StraightLineSurface> uniqueClone() const;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * charged */
