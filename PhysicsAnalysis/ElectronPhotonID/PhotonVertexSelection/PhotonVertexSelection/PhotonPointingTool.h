@@ -6,7 +6,7 @@
 #define PhotonVertexSelection_PhotonPointingTool_h
 
 // Framework includes
-#include "AsgTools/AsgTool.h"
+#include "AsgTools/AsgMetadataTool.h"
 
 // Local includes
 #include "PhotonVertexSelection/IPhotonPointingTool.h"
@@ -33,7 +33,7 @@ namespace CP {
   /// @author Christopher Meyer <chris.meyer@cern.ch>
   ///
   class PhotonPointingTool : public virtual IPhotonPointingTool,
-                             public asg::AsgTool {
+                             public asg::AsgMetadataTool {
 
     /// Create a proper constructor for Athena
     ASG_TOOL_CLASS(PhotonPointingTool, CP::IPhotonPointingTool)
