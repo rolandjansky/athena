@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // DCSTxtToCool.cxx
@@ -7,6 +7,8 @@
 // Text files produced by Jim Cook's utility to dump from PVSS local archive
 // Richard Hawkings, started 10/1/06
 // Compiles in offline cmt framework to binary executable, needs offline env
+
+#include <utility>
 
 #include <vector>
 #include <string>
@@ -30,17 +32,17 @@
 
 class DCSTxtToCool {
  public:
-  DCSTxtToCool(const std::string cooldb, const std::string configfile,
-	       const std::string datafile, const int offset);
+  DCSTxtToCool(const std::string& cooldb, const std::string& configfile,
+	       const std::string& datafile, const int offset);
   int execute();
 
  private:
-  bool getCoolDB(const std::string coolst, cool::IDatabasePtr& dbPtr);
-  void readMap(const std::string configfile);
-  void beginDataPoint(std::string folder);
+  static bool getCoolDB(const std::string& coolst, cool::IDatabasePtr& dbPtr);
+  static void readMap(const std::string& configfile);
+  void beginDataPoint(const std::string& folder);
   void storeDataPoint(cool::ValidityKey since, float value);
   void flushBuffer();
-  cool::IFolderPtr getFolder(const std::string folder,
+  static cool::IFolderPtr getFolder(const std::string& folder,
 			     const cool::IRecordSpecification& atrspec);
 
   std::string m_coolstr;
@@ -52,17 +54,17 @@ class DCSTxtToCool {
   int m_ndata;
   std::string m_datap;
   cool::IFolderPtr m_folderp;
-  DataPointInfo* m_dpinfo;
+  DataPointInfo* m_dpinfo{};
   cool::ValidityKey m_vkmin;
   cool::ValidityKey m_vkmax;
   typedef std::map<std::string, DataPointInfo*> DPMap;
-  DPMap m_dpmap;
-  std::vector<std::string> m_folderlist;
-  std::vector<int> m_folderchan;
+  DPMap m_dpmap{};
+  std::vector<std::string> m_folderlist{};
+  std::vector<int> m_folderchan{};
 };
 
-DCSTxtToCool::DCSTxtToCool(const std::string cooldb, 
-  const std::string configfile, const std::string datafile, const int offset) :
+DCSTxtToCool::DCSTxtToCool(const std::string& cooldb, 
+  const std::string& configfile, const std::string& datafile, const int offset) :
   m_coolstr(cooldb), m_configfile(configfile), m_datafile(datafile),
   m_timeoffset(offset),
   m_ndata(0), m_datap(""), m_vkmin(cool::ValidityKeyMax), m_vkmax(0) {
@@ -124,7 +126,7 @@ int DCSTxtToCool::execute() {
   return 0;
 }
 
-void DCSTxtToCool::beginDataPoint(std::string datap) {
+void DCSTxtToCool::beginDataPoint(const std::string& datap) {
   if (m_ndata>0) flushBuffer();
   // strip trailing linefeeds
   while (datap.substr(datap.size()-1,1)=="\r") 
@@ -135,7 +137,7 @@ void DCSTxtToCool::beginDataPoint(std::string datap) {
   DPMap::const_iterator fitr=m_dpmap.find(datap);
   if (fitr!=m_dpmap.end()) {
     m_dpinfo=fitr->second;
-    m_datap=datap;
+    m_datap=std::move(datap);
     std::cout << "Associated datapoint to folder " << m_dpinfo->folder() << 
       " channel " << m_dpinfo->channel() << std::endl;
     // now get pointer to COOL folder, creating if needed
@@ -146,18 +148,18 @@ void DCSTxtToCool::beginDataPoint(std::string datap) {
     // if folder creation fails, don't let data be stored
       std::cout << "No valid folder to store data: " << e.what() 
       << std::endl;
-      m_dpinfo=0;
+      m_dpinfo=nullptr;
     }
   } else {
     std::cout << "ERROR: No mapping defined for datapoint " << datap << 
       std::endl;
-    m_dpinfo=0;
+    m_dpinfo=nullptr;
   }
 }
 
 void DCSTxtToCool::storeDataPoint(cool::ValidityKey since, float value) {
   // if no valid folder mapping defined, skip storage
-  if (m_dpinfo==0) return;
+  if (m_dpinfo==nullptr) return;
   if (m_ndata==0) m_folderp->setupStorageBuffer();
   cool::Record payload(m_dpinfo->atrspec());
   payload[m_dpinfo->column()].setValue(value);
@@ -196,7 +198,7 @@ void DCSTxtToCool::flushBuffer() {
 }
 
 
-bool DCSTxtToCool::getCoolDB(const std::string coolstr,
+bool DCSTxtToCool::getCoolDB(const std::string& coolstr,
     cool::IDatabasePtr& dbPtr) {
   std::cout << "Attempt to open COOL database with connection string: "
 	    << coolstr << std::endl;
@@ -221,7 +223,7 @@ bool DCSTxtToCool::getCoolDB(const std::string coolstr,
   return false;
 }
 
-void DCSTxtToCool::readMap(const std::string configfile) {
+void DCSTxtToCool::readMap(const std::string& configfile) {
   std::cout << "Read configuration from file: " << configfile << std::endl;
   m_dpmap.clear();
   m_folderlist.clear();
@@ -260,7 +262,7 @@ void DCSTxtToCool::readMap(const std::string configfile) {
       m_folderchan[i] << std::endl;
 }
 
-cool::IFolderPtr DCSTxtToCool::getFolder(const std::string folder,
+cool::IFolderPtr DCSTxtToCool::getFolder(const std::string& folder,
   			   const cool::IRecordSpecification& atrspec) {
   if (m_coolDb->existsFolder(folder)) {
     std::cout << "Folder " << folder << " already exists in database" 

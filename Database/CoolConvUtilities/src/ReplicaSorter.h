@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ReplicaSorter - class implementing CORAL IReplicaSortingAlgorithm 
@@ -16,7 +16,7 @@ class ReplicaSorter : virtual public coral::IReplicaSortingAlgorithm {
 	    replicaSet);
  private:
   bool readConfig();
-  FILE* findFile(const std::string filename, const std::string pathvar);
+  static FILE* findFile(const std::string& filename, const std::string& pathvar);
   std::string m_hostname;
   typedef std::pair<std::string,int> ServerPair;
   typedef std::vector< ServerPair > ServerMap;
