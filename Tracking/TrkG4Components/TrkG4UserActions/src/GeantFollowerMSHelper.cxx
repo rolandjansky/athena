@@ -20,6 +20,7 @@
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkExUtils/ExtrapolationCache.h"
+#include <cmath>
 
 
 // constructor
@@ -869,8 +870,8 @@ const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::m
         auto scatNew =
           ScatteringAngles(deltaPhi,
                                deltaTheta,
-                               sqrt(sigmaDeltaPhi2_tot),
-                               sqrt(sigmaDeltaTheta2_tot));
+                               std::sqrt(sigmaDeltaPhi2_tot),
+                               std::sqrt(sigmaDeltaTheta2_tot));
         const Trk::EnergyLoss* energyLossNew =
           new EnergyLoss(deltaE_tot,
                          sigmaDeltaE_tot,
@@ -882,13 +883,12 @@ const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::m
                          sigmaDeltaE_rad_tot,
                          depth);
         const Trk::Surface& surf = *(meot->associatedSurface().clone());
-        const Trk::MaterialEffectsOnTrack* meotLast =
-          new Trk::MaterialEffectsOnTrack(
+        auto meotLast = std::make_unique<Trk::MaterialEffectsOnTrack>(
             X0_tot, std::move(scatNew), energyLossNew, surf, meotPattern);
-        const Trk::TrackParameters* pars = m->trackParameters()->clone();
+        auto pars = m->trackParameters()->uniqueClone();
 
         // make new TSOS
-        const Trk::TrackStateOnSurface* newTSOS = new Trk::TrackStateOnSurface( nullptr, pars, nullptr, meotLast, typePattern );
+        const Trk::TrackStateOnSurface* newTSOS = new Trk::TrackStateOnSurface( nullptr, std::move(pars), nullptr, std::move(meotLast), typePattern );
         newTSOSvector.push_back(newTSOS);
 
         Eloss_tot += energyLossNew->deltaE();
@@ -907,12 +907,12 @@ const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::m
 
 
       } else if(!aggregate&&reposition) {
-        if(fabs(depth)<10.) {
+        if(std::abs(depth)<10.) {
           auto scatNew =
             ScatteringAngles(deltaPhi,
                                  deltaTheta,
-                                 sqrt(sigmaDeltaPhi2_tot),
-                                 sqrt(sigmaDeltaTheta2_tot));
+                                 std::sqrt(sigmaDeltaPhi2_tot),
+                                 std::sqrt(sigmaDeltaTheta2_tot));
           const Trk::EnergyLoss* energyLossNew =
             new EnergyLoss(deltaE_tot,
                            sigmaDeltaE_tot,
