@@ -35,6 +35,10 @@ public:
    void insertDHRef( DataHeader_p6* pers_dh,
                      const std::string& key, const std::string& dh_tokstr,
                      DataHeaderForm_p6& dh_form );
+
+   void setSGAliasFiltering( bool doFiltering ) { m_SGAliasFiltering = doFiltering; }
+
+   bool m_SGAliasFiltering { true };
 };
 
 #endif
