@@ -35,7 +35,18 @@ def _setup():
 
         metadata_all_files = read_metadata(inFiles, mode='peeker', promote=True)
 
-        first_filename = inFiles[0]
+        # use first non-empty file
+        first_filename = None
+        for file_name, file_info in metadata_all_files.items():
+            try:
+                if file_info["nentries"]:
+                    first_filename = file_name
+                    break
+            except KeyError:
+                continue
+        # default to first file name if all input files are empty
+        if not first_filename:
+            first_filename = inFiles[0]
 
         metadata = metadata_all_files[first_filename]
         metadata['file_name'] = first_filename
