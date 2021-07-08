@@ -54,7 +54,7 @@ class PixelClusterOnTrackErrorData {
 
 
     // old parametrization (analytical formula)
-    double getPixelBarrelPhiError(double ang, int phiClusterSize) const; 
+    static double getPixelBarrelPhiError(double ang, int phiClusterSize) ; 
 
     // new parametrization (read from DB)
     float getPixelBarrelEtaError(int ibin) const;
@@ -85,9 +85,9 @@ class PixelClusterOnTrackErrorData {
     int getIBLBinEta(double eta, int etaClusterSize) const;
 
     // save constants on text file
-    void Print(std::string file) const;
+    void Print(const std::string& file) const;
     // load constants from text file
-    void Load(std::string file);
+    void Load(const std::string& file);
     // IBL
 
     int getIBLcsxbins() const {return m_csxbinsibl;}
@@ -103,7 +103,7 @@ class PixelClusterOnTrackErrorData {
   private: 
      void Initialize();
 
-     int m_version;    
+     int m_version{};    
    // parametrization of errors
     std::vector<float> m_barrelphierror;  
     std::vector<float> m_barreletaerror;
@@ -116,10 +116,10 @@ class PixelClusterOnTrackErrorData {
     std::vector<float> m_etaref; // eta values
     std::vector<float> m_phibins; // Incidence angle values
     // IBL
-    int m_csxbinsibl; // IBL csx bins
-    int m_csybinsibl; // IBL csy bins 
-    int m_etabinsibl;   // IBL eta bins
-    int m_phibinsibl; // IBL phi bins   
+    int m_csxbinsibl{}; // IBL csx bins
+    int m_csybinsibl{}; // IBL csy bins 
+    int m_etabinsibl{};   // IBL eta bins
+    int m_phibinsibl{}; // IBL phi bins   
     std::vector<float> m_ibletaref; // eta values of IBL
     std::vector<float> m_iblphibins; // Incidence angle values of IBL
     std::vector<float> m_iblphierror;

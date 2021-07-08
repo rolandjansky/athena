@@ -35,7 +35,7 @@ class SCT_ReadCalibChipGainCondAlg : public AthReentrantAlgorithm
   virtual bool isClonable() const override { return true; };
 
  private:
-  void insertNptGainFolderData(SCT_ModuleGainCalibData& theseCalibData, const coral::AttributeList& folderData) const;
+  static void insertNptGainFolderData(SCT_ModuleGainCalibData& theseCalibData, const coral::AttributeList& folderData) ;
 
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this, "ReadKey", "/SCT/DAQ/Calibration/ChipGain", "Key of input (raw) gain conditions folder"};
   SG::WriteCondHandleKey<SCT_GainCalibData> m_writeKey{this, "WriteKey", "SCT_GainCalibData", "Key of output (derived) gain conditions data"};

@@ -98,7 +98,7 @@ Amg::Vector2D PixelDistortionData::correctSimulation(uint32_t hashID, const Amg:
   return newlocpos;
 }
 
-double PixelDistortionData::getInSituZ(const double localeta, const double eta_size, const double localphi, const double phi_size, const float *disto) const
+double PixelDistortionData::getInSituZ(const double localeta, const double eta_size, const double localphi, const double phi_size, const float *disto) 
 {
   double etaHalfRangeBB = eta_size * 10. / 21.;
   double phiHalfRangeBB = phi_size * 10. / 21.;
@@ -127,7 +127,7 @@ double PixelDistortionData::getInSituZ(const double localeta, const double eta_s
   return bernstein_bezier(&eta, &phi, disto);
 }
 
-double PixelDistortionData::getSurveyZ(const double localeta, const double localphi, const float *disto) const
+double PixelDistortionData::getSurveyZ(const double localeta, const double localphi, const float *disto) 
 {
   const double xFE = 22.0 * CLHEP::millimeter; // Distance between the 2 Front-End line, where bows have been measured
   const double yFE = 60.8 * CLHEP::millimeter; // Length of the active surface of each module
@@ -150,12 +150,12 @@ double PixelDistortionData::getSurveyZ(const double localeta, const double local
   return z1 + ((z2 - z1) / xFE) * (localphi + xFE / 2.);
 }
 
-double PixelDistortionData::bernstein_grundpolynom(const double *t, const int n, const int i) const
+double PixelDistortionData::bernstein_grundpolynom(const double *t, const int n, const int i) 
 {
   return TMath::Binomial(n, i) * TMath::Power(*t, i) * TMath::Power(1. - *t, n - i);
 }
 
-double PixelDistortionData::bernstein_bezier(const double *u, const double *v, const float *P) const
+double PixelDistortionData::bernstein_bezier(const double *u, const double *v, const float *P) 
 {
   int n = 20;
   int m = 20;
@@ -172,7 +172,7 @@ double PixelDistortionData::bernstein_bezier(const double *u, const double *v, c
   return r;
 }
 
-bool PixelDistortionData::isOldParam(const unsigned long long ull_id) const
+bool PixelDistortionData::isOldParam(const unsigned long long ull_id) 
 {
   // Only pixel modules can have the old parametrisation
   if (ull_id < 0x240000000000000) return false;
@@ -181,7 +181,7 @@ bool PixelDistortionData::isOldParam(const unsigned long long ull_id) const
   return true;
 }
 
-bool PixelDistortionData::isIBL3D(const unsigned long long ull_id) const
+bool PixelDistortionData::isIBL3D(const unsigned long long ull_id) 
 {
   // Stave 1
   if (ull_id >= 0x200000000000000 && ull_id <= 0x200180000000000) return true;

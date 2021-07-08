@@ -97,7 +97,7 @@ StatusCode PixelChargeLUTCalibCondAlg::execute(const EventContext& ctx) const {
             std::stringstream eachFE(feString[j]);
             std::vector<std::string> eachString;
             while (std::getline(eachFE,buffer,'[')) { eachString.push_back(buffer); }
-            if (eachString.size()>0) {
+            if (!eachString.empty()) {
               std::stringstream calibFE(eachString[eachString.size()-1]);
               std::vector<std::string> calibString;
               while (std::getline(calibFE,buffer,',')) { calibString.push_back(buffer); }

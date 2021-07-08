@@ -10,7 +10,7 @@ TRTStrawCondAlg::TRTStrawCondAlg(const std::string& name
   : ::AthAlgorithm(name,pSvcLocator),
     m_condSvc("CondSvc",name),
     m_strawStatus("TRT_StrawStatusSummaryTool",this),
-    m_trtId(0),
+    m_trtId(nullptr),
     m_isGEANT4(true)
 { declareProperty("TRTStrawStatusSummaryTool",m_strawStatus);
   declareProperty("isGEANT4",m_isGEANT4);

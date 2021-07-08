@@ -61,23 +61,23 @@ StatusCode PixelOfflineCalibCondAlg::execute(const EventContext& ctx) const {
     // Find and open the text file
     ATH_MSG_INFO("Load PixelErrorData constants from text file");
     std::string file_name1 = PathResolver::find_file(m_textFileName1, "DATAPATH");
-    if (file_name1.size()==0) { ATH_MSG_WARNING("Input file " << file_name1 << " not found! Default (hardwired) values to be used!"); }
+    if (file_name1.empty()) { ATH_MSG_WARNING("Input file " << file_name1 << " not found! Default (hardwired) values to be used!"); }
     else { pced->Load(file_name1);  }
 
     ATH_MSG_INFO("Load PixelClusterOnTrackErrorData constants from text file");
     std::string file_name2 = PathResolver::find_file(m_textFileName2, "DATAPATH");
-    if (file_name2.size()==0) { ATH_MSG_WARNING("Input file " << file_name2 << " not found! Default (hardwired) values to be used!"); }
+    if (file_name2.empty()) { ATH_MSG_WARNING("Input file " << file_name2 << " not found! Default (hardwired) values to be used!"); }
     else { pcoted->Load(file_name2); }
 
     ATH_MSG_INFO("Load PixelChargeInterpolationData constants from text file");
     std::string file_name3 = PathResolver::find_file(m_textFileName3, "DATAPATH");
-    if (file_name3.size()==0) { ATH_MSG_WARNING("Input file " << file_name3 << " not found! Default (hardwired) values to be used!"); }
+    if (file_name3.empty()) { ATH_MSG_WARNING("Input file " << file_name3 << " not found! Default (hardwired) values to be used!"); }
     else { pcip->Load(file_name3);  }
 
     // First constants are info on the number of bins of parametrizations
     ATH_MSG_DEBUG("Get error constants");
     std::vector<float> constants = calibData->GetConstants();
-    if (constants.size()) { ATH_MSG_VERBOSE("constants are defined"); }
+    if (!constants.empty()) { ATH_MSG_VERBOSE("constants are defined"); }
     else                  { ATH_MSG_ERROR("constants size is NULL!!!"); } 
 
     const EventIDBase start{EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, 0,                       0,                       EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
@@ -86,7 +86,7 @@ StatusCode PixelOfflineCalibCondAlg::execute(const EventContext& ctx) const {
 
     ATH_MSG_DEBUG("Range of input is " << rangeW);
 
-    if (constants.size()) {
+    if (!constants.empty()) {
       ATH_MSG_DEBUG("Found constants with new-style Identifier key");
       writeCdo->SetConstants(constants);
     }
@@ -121,9 +121,11 @@ StatusCode PixelOfflineCalibCondAlg::execute(const EventContext& ctx) const {
     ATH_MSG_DEBUG("Range of input is " << rangeW);
 
     std::vector<float> constants;
-    for (int i=0; i<readCdo->size(); i++) { constants.push_back(readCdo->get(Identifier(1),i)); }
+    constants.reserve(readCdo->size());
 
-    if (constants.size()>0) {
+for (int i=0; i<readCdo->size(); i++) { constants.push_back(readCdo->get(Identifier(1),i)); }
+
+    if (!constants.empty()) {
       ATH_MSG_DEBUG("Found constants with new-style Identifier key");
       writeCdo->SetConstants(constants);
     }
@@ -132,9 +134,11 @@ StatusCode PixelOfflineCalibCondAlg::execute(const EventContext& ctx) const {
       key.set_literal(1);
 
       std::vector<float> const2;
-      for (int i=0; i<readCdo->size(); i++) { const2.push_back(readCdo->get(key.set_literal(i+1),i)); }
+      const2.reserve(readCdo->size());
 
-      if (const2.size()>0) {
+for (int i=0; i<readCdo->size(); i++) { const2.push_back(readCdo->get(key.set_literal(i+1),i)); }
+
+      if (!const2.empty()) {
         ATH_MSG_DEBUG("Found constants with old-style Identifier key");
         writeCdo->SetConstants(const2);
       }

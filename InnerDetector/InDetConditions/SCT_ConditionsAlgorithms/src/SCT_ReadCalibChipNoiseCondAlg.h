@@ -35,7 +35,7 @@ class SCT_ReadCalibChipNoiseCondAlg : public AthReentrantAlgorithm
   virtual bool isClonable() const override { return true; };
 
  private:
-  void insertNoiseOccFolderData(SCT_ModuleNoiseCalibData& theseCalibData, const coral::AttributeList& folderData) const;
+  static void insertNoiseOccFolderData(SCT_ModuleNoiseCalibData& theseCalibData, const coral::AttributeList& folderData) ;
 
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this, "ReadKey", "/SCT/DAQ/Calibration/ChipNoise", "Key of input (raw) noise conditions folder"};
   SG::WriteCondHandleKey<SCT_NoiseCalibData> m_writeKey{this, "WriteKey", "SCT_NoiseCalibData", "Key of output (derived) noise conditions data"};

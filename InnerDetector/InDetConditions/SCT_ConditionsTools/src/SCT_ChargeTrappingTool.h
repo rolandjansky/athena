@@ -57,7 +57,7 @@ class SCT_ChargeTrappingTool: public extends<AthAlgTool, ISCT_ChargeTrappingTool
  private:
   SCT_ChargeTrappingCondData calculate(const IdentifierHash& elementHash, double pos, const EventContext& ctx) const;
   double induced(int istrip, double x, double y) const;
-  double getPotentialValue(int& ix, int& iy) const;
+  static double getPotentialValue(int& ix, int& iy) ;
   void holeTransport(double& x0, double& y0, double& xfin, double& yfin, double& Q_m2, double& Q_m1, double& Q_00, double& Q_p1, double& Q_p2) const;
 
  private:

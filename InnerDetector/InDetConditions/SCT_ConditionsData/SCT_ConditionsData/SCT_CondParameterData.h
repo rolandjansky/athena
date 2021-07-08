@@ -50,9 +50,9 @@ public:
   /// Extended methods for data structure insertion
   bool insert(const IdentifierHash& idHash, const SCT_CondParameterData::ParameterIndex iparam, const float value);
   /// Is a given value within acceptable limits?
-  bool isValid(const float parameterValue, const SCT_CondParameterData::ParameterIndex iparam) const;
+  static bool isValid(const float parameterValue, const SCT_CondParameterData::ParameterIndex iparam) ;
   /// What is the default error value for this parameter?
-  float invalid(const unsigned int iparam) const;
+  static float invalid(const unsigned int iparam) ;
   /// Get maximum value
   float max(const SCT_CondParameterData::ParameterIndex iparam) const;
   /// Get minimum value
@@ -68,13 +68,13 @@ public:
   //@}
   
 private:
-  std::array<std::array<float, N_PARAMETERS>, SCT_ConditionsData::NUMBER_OF_WAFERS> m_values;
+  std::array<std::array<float, N_PARAMETERS>, SCT_ConditionsData::NUMBER_OF_WAFERS> m_values{};
 
-  float m_min[N_PARAMETERS];
-  float m_max[N_PARAMETERS];
-  unsigned int m_n[N_PARAMETERS];
-  float m_sum[N_PARAMETERS];
-  float m_sumsq[N_PARAMETERS];
+  float m_min[N_PARAMETERS]{};
+  float m_max[N_PARAMETERS]{};
+  unsigned int m_n[N_PARAMETERS]{};
+  float m_sum[N_PARAMETERS]{};
+  float m_sumsq[N_PARAMETERS]{};
 };
 
 // Class definition for StoreGate

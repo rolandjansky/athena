@@ -2,6 +2,10 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <cmath>
+
+
+
 #include "TRTActiveCondAlg.h"
 #include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -11,7 +15,7 @@ TRTActiveCondAlg::TRTActiveCondAlg(const std::string& name
   : ::AthAlgorithm(name,pSvcLocator),
     m_condSvc("CondSvc",name),
     m_strawStatus("TRT_StrawStatusSummaryTool",this),
-    m_trtId(0)
+    m_trtId(nullptr)
 { declareProperty("TRTStrawStatusSummaryTool",m_strawStatus); }
 TRTActiveCondAlg::~TRTActiveCondAlg(){}
 
@@ -132,12 +136,12 @@ StatusCode TRTActiveCondAlg::execute()
 	if (abs(side)==1) { // barrel
            float zRange = 360.; // straw length / 2  
 	   if ( m_trtId->layer_or_wheel(id) == 0 && m_trtId->straw_layer(id) < 9 ) zRange = 160.;  // short straws
-	   float r = sqrt( pow(strawPosition.x(), 2) + pow(strawPosition.y(), 2) );
-	   thetaMin = atan( r / (z+zRange) );
-	   thetaMax = ((z-zRange)>0.) ? atan( r / (z-zRange) ) : 1.57; // M_PI_2 - epsilon
+	   float r = std::sqrt( std::pow(strawPosition.x(), 2) + std::pow(strawPosition.y(), 2) );
+	   thetaMin = std::atan( r / (z+zRange) );
+	   thetaMax = ((z-zRange)>0.) ? std::atan( r / (z-zRange) ) : 1.57; // M_PI_2 - epsilon
 	} else { // endcap
-	   thetaMin = atan( rMinEndcap / z );		
-	   thetaMax = atan( rMaxEndcap / z );	
+	   thetaMin = std::atan( rMinEndcap / z );		
+	   thetaMax = std::atan( rMaxEndcap / z );	
 	}
         if (side<0) { // theta -> M_PI - theta
           float thetaDummy = thetaMin;
@@ -155,7 +159,7 @@ StatusCode TRTActiveCondAlg::execute()
               countInvalidEtaValues++;
               continue;
            }
-           etaCheck[ti] = -log( tanTheta );
+           etaCheck[ti] = -std::log( tanTheta );
         }
         float etaMin = etaCheck[0];
         float etaMax = etaCheck[1];

@@ -107,11 +107,11 @@ public:
   void fillHistory(const Detector_t&,const std::string&);
   
   void CompHistValues(const std::string&,long long,const std::string&,long long, std::vector<Detector_t>&);
-  int DiffHistValues(const std::vector<Detector_t>&);
+  int DiffHistValues(const std::vector<Detector_t>&) const;
 
   int GetRichTags();
 
-  int DumpHistValues(const Detector_t&,const std::string&,long long);
+  int DumpHistValues(const Detector_t&,const std::string&,long long) const;
 
 
   

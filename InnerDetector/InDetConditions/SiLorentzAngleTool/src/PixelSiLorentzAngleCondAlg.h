@@ -71,7 +71,7 @@ class PixelSiLorentzAngleCondAlg: public AthReentrantAlgorithm {
     BooleanProperty          m_useMagFieldCache{this, "UseMagFieldCache", true};
     BooleanProperty          m_useMagFieldDcs{this, "UseMagFieldDcs", true};
 
-    unsigned int             m_maxHash;
+    unsigned int             m_maxHash{};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //    Amg::Vector3D getMagneticField(const InDetDD::SiDetectorElement* element) const;

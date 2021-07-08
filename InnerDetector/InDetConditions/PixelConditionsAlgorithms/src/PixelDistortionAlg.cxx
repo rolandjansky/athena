@@ -13,10 +13,12 @@
 #include "PathResolver/PathResolver.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
-#include <map>
-#include <stdint.h>
-#include <string>
+#include <cmath>
+
+#include <cstdint>
 #include <istream>
+#include <map>
+#include <string>
 
 PixelDistortionAlg::PixelDistortionAlg(const std::string& name, ISvcLocator* pSvcLocator):
   ::AthAlgorithm(name, pSvcLocator)
@@ -82,7 +84,7 @@ StatusCode PixelDistortionAlg::execute() {
     std::string file_name = moduleData->getDistortionFileName();
     if (file_name[0] != '/') {
       PathResolver::find_file(moduleData->getDistortionFileName(), "DATAPATH");
-      if (file_name.size()==0) {
+      if (file_name.empty()) {
         ATH_MSG_ERROR("Distortion file " << moduleData->getDistortionFileName() << " not found! No pixel distortion will be applied.");
         return StatusCode::FAILURE;
       }
@@ -137,7 +139,7 @@ StatusCode PixelDistortionAlg::execute() {
       float twist = CLHEP::RandGaussZiggurat::shoot(rndmEngine,moduleData->getDistortionMeanTwist(),moduleData->getDistortionMeanTwist());
       distortionMap[i].push_back(r1*CLHEP::meter); // convert to 1/mm
       distortionMap[i].push_back(r2*CLHEP::meter); // convert to 1/mm
-      distortionMap[i].push_back(2.0*atan(twist)/CLHEP::degree); // convert to degree
+      distortionMap[i].push_back(2.0*std::atan(twist)/CLHEP::degree); // convert to degree
     }
   }
   else if (moduleData->getDistortionInputSource()==4) { // read from database here 
@@ -201,7 +203,7 @@ StatusCode PixelDistortionAlg::execute() {
   if (moduleData->getDistortionWriteToFile()) {
     std::ofstream* outfile = new std::ofstream("output_distortion.txt"); 
     for (int i=0; i<nmodule_max; i++) {
-      if (distortionMap[i].size()) {
+      if (!distortionMap[i].empty()) {
         if (moduleData->getDistortionVersion()==0) {
           *outfile << m_pixelID->wafer_id(IdentifierHash(i)) << " " << distortionMap[i].at(0) << " " << distortionMap[i].at(1) << " " << distortionMap[i].at(2) << std::endl;
         }
