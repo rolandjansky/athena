@@ -226,9 +226,9 @@ private:
     ""
   };
 
-  bool matchedToElectron(const xAOD::TrackParticle& tp);
-  bool matchedToPion(const xAOD::TrackParticle& tp);
-  bool notMatchedToTruth(const xAOD::TrackParticle& tp);
+  static bool matchedToElectron(const xAOD::TrackParticle& tp);
+  static bool matchedToPion(const xAOD::TrackParticle& tp);
+  static bool notMatchedToTruth(const xAOD::TrackParticle& tp);
 };
 
 #endif
