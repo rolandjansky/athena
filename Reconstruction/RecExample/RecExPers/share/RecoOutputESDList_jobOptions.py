@@ -234,6 +234,11 @@ if rec.doHeavyIon():
     protectedInclude ("HIRecExample/HIRecOutputESDList_jobOptions.py")
     fullESDList += CfgItemList( "HeavyIonsEsd", items = HIESDItemList )
 
+# remove decorations that might be created by monitoring
+if rec.doMonitoring():
+    fullESDList += CfgItemList( "MonitoringEsd", 
+                                items = ["xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.-jetClean_LooseBad"]
+                              )
 
 ## StreamESD_Augmented.AddItem( "RecoTimingObj#RAWtoESD_timings" )
 #fullESDList += CfgItemList( "TimingEsd",
