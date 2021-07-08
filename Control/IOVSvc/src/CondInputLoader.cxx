@@ -21,6 +21,8 @@
 #include "AthenaKernel/IIOVSvc.h"
 #include "StoreGate/CondHandleKey.h"
 #include "AthenaKernel/CondContMaker.h"
+#include "AthenaKernel/ITPCnvBase.h"
+#include "RootUtils/WithRootErrorHandler.h"
 
 #include "xAODEventInfo/EventInfo.h"
 #include "AthenaKernel/BaseInfo.h"
@@ -89,6 +91,7 @@ CondInputLoader::initialize()
   ATH_CHECK( m_clidSvc.retrieve() );
   ATH_CHECK( m_rcuSvc.retrieve() );
   ATH_CHECK( m_dictLoader.retrieve() );
+  ATH_CHECK( m_tpCnvSvc.retrieve() );
 
   // Trigger read of IOV database
   ServiceHandle<IIOVSvc> ivs("IOVSvc",name());
@@ -124,10 +127,28 @@ CondInputLoader::initialize()
 			       StoreID::storeName(StoreID::CONDITION_STORE));
 	handles_to_load.emplace(vhk.fullKey());
 
+        // Null ROOT error handler.  Used to suppress root warnings.
+        auto nullHand = [] (int, Bool_t, const char*, const char*) { return false; };
+
         // Loading root dictionaries in a multithreaded environment
         // is unreliable.
         // So try to be sure all dictionaries are loaded now.
-        m_dictLoader->load_type (id.clid());
+        RootType rt = m_dictLoader->load_type (id.clid(), true);
+        if (rt.Class()) {
+          RootUtils::WithRootErrorHandler suppress (nullHand);
+          rt.Class()->GetStreamerInfo();
+        }
+
+        // Also load the persistent class dictionary, if applicable.
+        std::unique_ptr<ITPCnvBase> tpcnv = m_tpCnvSvc->t2p_cnv_unique (id.clid());
+        if (tpcnv) {
+          RootType rtp = m_dictLoader->load_type (tpcnv->persistentTInfo(), true);
+          if (rtp.Class()) {
+            RootUtils::WithRootErrorHandler suppress (nullHand);
+            rtp.Class()->GetStreamerInfo();
+          }
+        }
+
 	break; //quit loop over m_load
       } // end if CondInputLoader deals with this folder
     }//end loop over m_load
@@ -162,7 +183,7 @@ CondInputLoader::initialize()
                                StoreID::storeName(StoreID::CONDITION_STORE));
           m_load.value().emplace(vhk.fullKey());
           // Again, make sure all needed dictionaries are loaded.
-          m_dictLoader->load_type (clid2);
+          m_dictLoader->load_type (clid2, true);
         }
       }
     }
