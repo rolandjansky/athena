@@ -88,7 +88,8 @@ void DataHeaderCnv_p6::elemToPers(const DataHeaderElement* trans,
       // StoreGate Type/Key & persistent Class GUID
       DataHeaderForm_p6::ObjRecord transObj( token->classID(), token->contID(), trans->m_key,
                                              trans->m_pClid, token->oid().first );
-      unsigned obj_idx = form.insertObj(transObj, trans->m_alias, trans->m_clids, trans->m_hashes);
+      unsigned obj_idx = form.insertObj(transObj, trans->m_alias, m_SGAliasFiltering,
+                                        trans->m_clids, trans->m_hashes);
       unsigned long long oid2 = token->oid().second;
 
       // first element sets the common DB

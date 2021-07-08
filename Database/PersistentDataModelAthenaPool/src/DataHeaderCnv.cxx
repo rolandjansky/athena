@@ -44,7 +44,9 @@ DataHeaderCnv::~DataHeaderCnv()
 //______________________________________________________________________________
 StatusCode DataHeaderCnv::initialize()
 {
+   // Read properties from the ConversionSvc
    m_inDHFMapMaxsize = 100;   // default DHForm cache size
+   bool doFilterDHAliases = true;
    IConversionSvc* cnvSvc(nullptr);
    if( service("AthenaPoolCnvSvc", cnvSvc, true ).isSuccess() ) {
       IProperty* prop = dynamic_cast<IProperty*>( cnvSvc );
@@ -53,9 +55,19 @@ StatusCode DataHeaderCnv::initialize()
          if( prop->getProperty(&sizeProp).isSuccess() ) {
             m_inDHFMapMaxsize = sizeProp.value();
          }
+         BooleanProperty aliasFilterProp("doFilterDHAliases", doFilterDHAliases);
+         if( prop->getProperty(&aliasFilterProp).isSuccess() ) {
+            doFilterDHAliases = aliasFilterProp.value();
+         }
       }
    }
    ATH_MSG_VERBOSE("Using DHForm cache size: " << m_inDHFMapMaxsize);
+   if( doFilterDHAliases ) {
+      ATH_MSG_VERBOSE("Will filter SG Aux aliases in DataHeader");
+   } else {
+      ATH_MSG_VERBOSE("Will NOT filter SG Aux aliases in DataHeader");
+   }
+   m_tpOutConverter.setSGAliasFiltering( doFilterDHAliases );
 
    // Listen to EndInputFile incidents to clear old DataHeaderForms from the cache
    // Get IncidentSvc
@@ -349,7 +361,7 @@ DataHeader* DataHeaderCnv::createTransient() {
          auto dh = m_tpInConverter.createTransient( header.get(), *(m_inputDHForms[ header->dhFormToken() ]) );
          dh->setEvtRefTokenStr( m_i_poolToken->toString() );
          // To dump the DataHeader uncomment below
-         // std::ostringstream ss;  dh->dump(ss); cout << ss.str() << endl;
+         // std::ostringstream ss;  dh->dump(ss); std::cout << ss.str() << std::endl;
          return dh;
       } else if (this->compareClassGuid( p5_guid )) {
          std::unique_ptr<DataHeader_p5> obj_p5( poolReadObject_p5() );
