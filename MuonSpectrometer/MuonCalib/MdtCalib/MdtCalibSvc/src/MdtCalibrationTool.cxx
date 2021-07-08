@@ -230,6 +230,7 @@ bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
     const MuonCalib::MdtTubeCalibContainer::SingleTubeCalib *singleTubeData =
       data.tubeCalib->getCalib( ml, layer, tube );
     if( singleTubeData ){
+      ATH_MSG_ALWAYS("Ooooh excitement "<<m_idHelperSvc->toString(id)<<" "<<singleTubeData->t0);
       t0 = singleTubeData->t0;
       inversePropSpeed = singleTubeData->inversePropSpeed;
       adcCal = singleTubeData->adcCal;
@@ -238,16 +239,16 @@ bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
 			<< ml << " " << layer << " " << tube
 			<< " using defaults.. ");
       if ( geo )
-	ATH_MSG_WARNING("detel " << geo->getMultilayer()
-			  << " lay " << geo->getNLayers()
-			  << " tubes " << geo->getNtubesperlayer());
+        	ATH_MSG_WARNING("detel " << geo->getMultilayer()
+	    		                         << " lay " << geo->getNLayers()
+			                             << " tubes " << geo->getNtubesperlayer());
       t0 =  800.;
     }
 
     // get t0 shift from tool (default: no shift, value is zero)
     if (m_imp->m_doT0Shift) t0 += m_imp->m_t0ShiftTool->getValue(id);
   } else {
-    ATH_MSG_WARNING("MdtTubeCalibContainer not found for " << m_idHelperSvc->mdtIdHelper().print_to_string( id ) << " - Tube cannot be calibrated!");
+    ATH_MSG_WARNING("MdtTubeCalibContainer not found for " << m_idHelperSvc->toString( id ) << " - Tube cannot be calibrated!");
     return false;
   }
 
