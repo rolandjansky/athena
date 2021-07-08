@@ -1270,8 +1270,7 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
             if ( rec.readESD() or tauFlags.Enabled() ) and rec.doTau:
                 # TauThinningAlg takes care of all tau-related thinning operations (taus, clusters, cells, cell links, PFOs, tracks, vertices)
                 from tauRec.tauRecConf import TauThinningAlg
-                tauThinningAlg = TauThinningAlg('TauThinningAlg',
-                                                MinTauPt = tauFlags.tauRecMinPt())
+                tauThinningAlg = TauThinningAlg('TauThinningAlg')
                 topSequence += tauThinningAlg
 
         except Exception:
