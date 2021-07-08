@@ -31,7 +31,7 @@
 #include "TRandom3.h"
 
 // performance test
-#include <time.h>
+#include <ctime>
 #include <vector>
 
 ///////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ MagField::SolenoidTest::SolenoidTest( const std::string& name, ISvcLocator* pSvc
     ::AthAlgorithm( name, pSvcLocator ),
     m_magFieldSvc( "AtlasFieldSvc", name ),
     m_thistSvc( "THistSvc", name ),
-    m_tree(0),
+    m_tree(nullptr),
     m_event(0)
 {
     // histogram service
@@ -135,8 +135,8 @@ StatusCode MagField::SolenoidTest::execute() {
     if( m_event==0 ) { // event #0
         // call field service once for initialization
         m_xyzt[0] = m_xyzt[1] = m_xyzt[2] = 0;
-        if ( m_useFullField ) m_magFieldSvc->getField( m_xyzt, m_field, 0 );
-        if ( m_useFastField ) m_magFieldSvc->getFieldZR( m_xyzt, m_fieldZR, 0 );
+        if ( m_useFullField ) m_magFieldSvc->getField( m_xyzt, m_field, nullptr );
+        if ( m_useFastField ) m_magFieldSvc->getFieldZR( m_xyzt, m_fieldZR, nullptr );
         // check the field status
         ATH_MSG_INFO("New service solenoidOn = " << m_magFieldSvc->solenoidOn());
         ATH_MSG_INFO("New service toroidOn   = " << m_magFieldSvc->toroidOn());
@@ -147,7 +147,7 @@ StatusCode MagField::SolenoidTest::execute() {
 
       // initialize performance timer
       time_t seconds;
-      seconds = time(NULL);
+      seconds = time(nullptr);
 
       for ( int k = 0; k < m_stepsPhi; k++ ) { // loop over phi
           double phi = 2.*M_PI*double(k)/double(m_stepsPhi);
@@ -163,13 +163,13 @@ StatusCode MagField::SolenoidTest::execute() {
                       if ( m_derivatives )
                           m_magFieldSvc->getField( m_xyzt, m_field, m_deriv );
                       else
-                          m_magFieldSvc->getField( m_xyzt, m_field, 0 );
+                          m_magFieldSvc->getField( m_xyzt, m_field, nullptr );
                   }
                   if ( m_useFastField ) {
                       if ( m_derivatives ) 
                           m_magFieldSvc->getFieldZR( m_xyzt, m_fieldZR, m_derivZR );
                       else
-                          m_magFieldSvc->getFieldZR( m_xyzt, m_fieldZR, 0 );
+                          m_magFieldSvc->getFieldZR( m_xyzt, m_fieldZR, nullptr );
                   }
 
                   // fill the ROOT Tree
@@ -177,7 +177,7 @@ StatusCode MagField::SolenoidTest::execute() {
               }
           }
       }
-      seconds = time(NULL) - seconds; 
+      seconds = time(nullptr) - seconds; 
       ATH_MSG_INFO( "accessing " << m_stepsR * m_stepsZ * m_stepsPhi
                     << " values in a grid took " << seconds << " seconds." );
     }
