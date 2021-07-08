@@ -36,7 +36,7 @@ void testit (const InDetBSErrContainer& trans1)
 {
   InDetBSErrContainerCnv_p1 cnv;
   InDetBSErrContainer_p1 pers;
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   cnv.transToPers (&trans1, &pers, log);
   InDetBSErrContainer trans2 (SG::VIEW_ELEMENTS);
   cnv.persToTrans (&pers, &trans2, log);

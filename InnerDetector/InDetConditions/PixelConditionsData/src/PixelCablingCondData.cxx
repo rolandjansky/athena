@@ -4,9 +4,11 @@
 
 #include "PixelConditionsData/PixelCablingCondData.h"
 #include "Identifier/Identifier.h"
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <sstream>
+#include <utility>
+
 
 PixelCablingCondData::PixelCablingCondData():
   m_idMap_onoff(),
@@ -51,12 +53,12 @@ void PixelCablingCondData::add_entry_offlineList(const uint32_t robid, const Ide
   m_offlineListVect[robid].push_back(offlineId); // add ROBid -> offline identifier pair in m_offlineListVect
 }
 
-void PixelCablingCondData::add_entry_DCSoffline(std::string DCSname, const Identifier offlineId) {
+void PixelCablingCondData::add_entry_DCSoffline(const std::string& DCSname, const Identifier offlineId) {
   m_idMapDCSoff.insert(std::make_pair(DCSname, offlineId));
 }
 
 void PixelCablingCondData::set_readout_map(std::map<uint32_t, bool> rodReadoutMap) {
-  m_rodReadoutMap = rodReadoutMap;
+  m_rodReadoutMap = std::move(rodReadoutMap);
 }
 
 Identifier PixelCablingCondData::find_entry_onoff(const uint64_t onlineId) const {
@@ -77,7 +79,7 @@ Identifier PixelCablingCondData::find_entry_onoff(const uint64_t onlineId) const
       std::map<uint32_t, bool>::const_iterator it = m_rodReadoutMap.find(rodid);
 
       if (it != m_rodReadoutMap.end()) {
-        if ((*it).second == true) { // true = is 80 MBit
+        if ((*it).second) { // true = is 80 MBit
 
           // Search again
           searchId = onlineId & (0xF0FFFFFF);
@@ -140,7 +142,7 @@ std::deque<Identifier> PixelCablingCondData::find_entry_offlineList(uint32_t rob
   return offlineId; // return the offline identifier list for the ROBId
 }
 
-Identifier PixelCablingCondData::find_entry_DCSoffline(std::string DCSname) const {
+Identifier PixelCablingCondData::find_entry_DCSoffline(const std::string& DCSname) const {
   std::unordered_map<std::string, Identifier>::const_iterator iter(m_idMapDCSoff.find(DCSname));
   if (iter == m_idMapDCSoff.end()) {
     return Identifier(0);

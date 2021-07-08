@@ -316,7 +316,7 @@ StatusCode TRTHWMapCondAlg::build_BarrelHVLinePadMaps(EventIDRange& range, TRTCo
       // Odd Stacks = Side A (1) Fusebox C & D, Even = Side C (0) Fusebox A & B
       int side = (sector+1)%2;
       // Pick the appropriate Fusebox/Pad map
-      std::map<std::string,std::vector<int> >* fuseBoxPadMap = 0;
+      std::map<std::string,std::vector<int> >* fuseBoxPadMap = nullptr;
       if ( side == 1 ) fuseBoxPadMap = &fuseBoxPadMapOdd;
       else fuseBoxPadMap = &fuseBoxPadMapEven;
       // Loop through all fusebox lines in this stack

@@ -12,7 +12,7 @@ TRTPhaseCondAlg::TRTPhaseCondAlg(const std::string& name
   : ::AthAlgorithm(name,pSvcLocator),
     m_condSvc("CondSvc",name),
     m_caldbtool("TRT_CalDbTool",this),
-    m_trtId(0)
+    m_trtId(nullptr)
 { declareProperty("TRTCalDbTool",m_caldbtool); }
 
 TRTPhaseCondAlg::~TRTPhaseCondAlg(){}

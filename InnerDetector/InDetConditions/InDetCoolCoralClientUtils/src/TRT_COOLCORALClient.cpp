@@ -10,9 +10,9 @@
 
 #include "InDetCoolCoralClientUtils/TRT_COOLCORALClient.h"
 
-#include <stdlib.h>                     // for atoi, NULL
-#include <sys/time.h>                   // for timeval, gettimeofday
+#include <cstdlib>                     // for atoi, NULL
 #include <iostream>                     // for operator<<, endl, etc
+#include <sys/time.h>                   // for timeval, gettimeofday
 
 // CORAL API
 #include "CoralKernel/Context.h"
@@ -348,12 +348,12 @@ void TRT_COOLCORALClient::CreateHVLinePadMap( const DetectorType& detector,
     int index1 = 0;
     int index2 = 0;
     index1 = padName.find("/Stack(",index1) + 7;
-    index2 = padName.find(")",index1);
+    index2 = padName.find(')',index1);
     std::string stackNumAsString( padName, index1, index2-index1 );
     index1 = padName.find("/Module_Type_",index1) + 13;
     std::string moduleNumAsString( padName, index1, 1 );
     index1 = padName.find("Pad",index1) + 3;
-    index2 = padName.find("_",index1);
+    index2 = padName.find('_',index1);
     std::string padNumAsString( padName, index1, index2-index1 );
     int stackNum = atoi(stackNumAsString.c_str());
     int moduleNum = atoi(moduleNumAsString.c_str());
@@ -362,7 +362,7 @@ void TRT_COOLCORALClient::CreateHVLinePadMap( const DetectorType& detector,
 
     // Parse the logical HV line name into COOL channel name
     std::string lineName = row0[1].data<std::string>();
-    int indexStart = lineName.find(":")+1;
+    int indexStart = lineName.find(':')+1;
     std::string chanName( lineName, indexStart, lineName.size()-indexStart );
     for ( int itr = 0; itr < (int)chanName.size(); ++itr ) {
       if ( chanName.compare( itr, 1, "/" ) == 0 ) {
@@ -392,11 +392,11 @@ void TRT_COOLCORALClient::GetHVLineFromPad( const DetectorType& detector,
                                             std::vector<std::string>& outputList ) {
   m_verbose = false;
 
-  struct timeval start_time;
-  struct timeval end_time;
+  struct timeval start_time{};
+  struct timeval end_time{};
   unsigned long long total_usecs;
 
-  gettimeofday(&start_time, NULL);
+  gettimeofday(&start_time, nullptr);
 
   m_session->transaction().start(true);
 
@@ -506,8 +506,8 @@ void TRT_COOLCORALClient::GetHVLineFromPad( const DetectorType& detector,
   for (PadMap_iter=PadMap.begin(); PadMap_iter != PadMap.end(); ++PadMap_iter)
     {
       std::string theString = (*PadMap_iter).second;
-      int bg = theString.find_first_of("d");
-      int ed = theString.find_first_of("_");
+      int bg = theString.find_first_of('d');
+      int ed = theString.find_first_of('_');
       int start = bg+1;
       int length = ed - bg - 1;
       std::string PadNumAsString( theString, start, length );
@@ -515,8 +515,8 @@ void TRT_COOLCORALClient::GetHVLineFromPad( const DetectorType& detector,
       FromString(padnr, PadNumAsString);
       if (padnr == pad) {
         pad_node_id = (*PadMap_iter).first;
-        int bg2 = theString.find_first_of("(");
-        int ed2 = theString.find_first_of(")");
+        int bg2 = theString.find_first_of('(');
+        int ed2 = theString.find_first_of(')');
         int start2 = bg2+1;
         int length2 = ed2 - bg2 - 1;
         std::string theStraws( theString, start2, length2 );
@@ -588,7 +588,7 @@ void TRT_COOLCORALClient::GetHVLineFromPad( const DetectorType& detector,
   m_session->transaction().commit();
 
   // measuring elapsed time
-  gettimeofday(&end_time, NULL);
+  gettimeofday(&end_time, nullptr);
   total_usecs = (end_time.tv_sec-start_time.tv_sec) * 1000000 +
     (end_time.tv_usec-start_time.tv_usec);
   if(m_verbose) std::cout << "Total time was " << total_usecs << " usec" << std::endl;

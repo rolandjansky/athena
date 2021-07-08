@@ -316,11 +316,11 @@ namespace PixelCalib{
     return setErrDeltaY(ibin, value);
   }
 
-  float PixelChargeInterpolationParameters::getDeltaXendcap() const{
+  float PixelChargeInterpolationParameters::getDeltaXendcap() {
     return 10*CLHEP::micrometer;
   } 
 
-  float PixelChargeInterpolationParameters::getDeltaYendcap() const{
+  float PixelChargeInterpolationParameters::getDeltaYendcap() {
     return 10*CLHEP::micrometer;
   }
 
@@ -439,7 +439,7 @@ namespace PixelCalib{
 
 
   //
-  void PixelChargeInterpolationParameters::Print(std::string file) const{
+  void PixelChargeInterpolationParameters::Print(const std::string& file) const{
 
     std::ofstream* outfile = new std::ofstream(file.c_str()); 
 
@@ -511,7 +511,7 @@ namespace PixelCalib{
   }
 
   // Load costants from file
-  void PixelChargeInterpolationParameters::Load(std::string file){
+  void PixelChargeInterpolationParameters::Load(const std::string& file){
     std::ifstream infile(file.c_str());
     int version = 0;
     int nxbins = 0;

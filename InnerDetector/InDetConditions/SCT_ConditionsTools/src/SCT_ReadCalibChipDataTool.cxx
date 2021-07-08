@@ -221,14 +221,14 @@ SCT_ReadCalibChipDataTool::getNoiseOccupancyData(const Identifier& moduleId, con
 }
 
 int
-SCT_ReadCalibChipDataTool::nPtGainIndex(const std::string& dataName) const {
+SCT_ReadCalibChipDataTool::nPtGainIndex(const std::string& dataName) {
   int i{N_NPTGAIN};
   while (i--) if (dataName==nPtGainParameterNames[i]) break;
   return i;
 }
 
 int
-SCT_ReadCalibChipDataTool::noiseOccIndex(const std::string& dataName) const {
+SCT_ReadCalibChipDataTool::noiseOccIndex(const std::string& dataName) {
   int i{N_NOISEOCC};
   while (i--) if (dataName==noiseOccParameterNames[i]) break;
   return i;

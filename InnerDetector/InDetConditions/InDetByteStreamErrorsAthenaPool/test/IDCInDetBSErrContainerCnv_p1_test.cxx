@@ -25,7 +25,7 @@ void testit (const IDCInDetBSErrContainer& trans1)
 {
   IDCInDetBSErrContainerCnv_p1 cnv;
   InDetBSErrContainer64_p1 pers;
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   cnv.transToPers (&trans1, &pers, log);
   IDCInDetBSErrContainer trans2 (10, -9999);
   cnv.persToTrans (&pers, &trans2, log);

@@ -32,8 +32,8 @@ class SCT_TdaqEnabledCondAlg : public AthReentrantAlgorithm
  private:
   bool unfilledRun(const EventContext& ctx) const;
 
-  unsigned int parseChannelName(const std::string &chanNameString) const;
-  std::string inWords(const unsigned int aNumber) const;
+  static unsigned int parseChannelName(const std::string &chanNameString) ;
+  static std::string inWords(const unsigned int aNumber) ;
 
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this, "ReadKey", "/TDAQ/Resources/ATLAS/SCT/Robins", "Key of input (raw) conditions folder"};
   SG::WriteCondHandleKey<SCT_TdaqEnabledCondData> m_writeKey{this, "WriteKey", "SCT_TdaqEnabledCondData", "Key of output (derived) conditions data"};

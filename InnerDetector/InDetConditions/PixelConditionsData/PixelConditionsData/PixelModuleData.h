@@ -220,9 +220,9 @@ class PixelModuleData {
 
     typedef std::map<int, std::vector<float>> chipCharge;
 
-    double m_bunchSpace;
-    bool m_UseComTime;
-    double m_ComTime;
+    double m_bunchSpace{};
+    bool m_UseComTime{};
+    double m_ComTime{};
 
     std::vector<int> m_BarrelNumberOfBCID;
     std::vector<int> m_EndcapNumberOfBCID;
@@ -278,18 +278,18 @@ class PixelModuleData {
     std::vector<int>  m_FEI4BarrelHitDiscConfig;
     std::vector<int>  m_FEI4EndcapHitDiscConfig;
 
-    float m_scaleFEI4;
-    bool m_UseFEI4SpecialScalingFunction;
+    float m_scaleFEI4{};
+    bool m_UseFEI4SpecialScalingFunction{};
 
-    float m_paramA;
-    float m_paramE;
-    float m_paramC;
+    float m_paramA{};
+    float m_paramE{};
+    float m_paramC{};
 
     std::vector<double> m_BarrelLorentzAngleCorr;
     std::vector<double> m_EndcapLorentzAngleCorr;
 
-    float m_biasVoltage;
-    float m_temperature;
+    float m_biasVoltage{};
+    float m_temperature{};
 
     std::vector<float> m_BarrelBiasVoltage;
     std::vector<float> m_EndcapBiasVoltage;
@@ -301,19 +301,19 @@ class PixelModuleData {
     std::vector<double> m_fluenceLayer3D;
     std::vector<std::string> m_RadSimFluenceMapList3D;
 
-    bool        m_cablingMapToFile;
+    bool        m_cablingMapToFile{};
     std::string m_cablingMapFileName;
 
-    int    m_distortionInputSource;
-    int    m_distortionVersion;
-    double m_distortionR1;
-    double m_distortionR2;
-    double m_distortionTwist;
-    double m_distortionMeanR;
-    double m_distortionRMSR;
-    double m_distortionMeanTwist;
-    double m_distortionRMSTwist;
-    bool   m_distortionWriteToFile;
+    int    m_distortionInputSource{};
+    int    m_distortionVersion{};
+    double m_distortionR1{};
+    double m_distortionR2{};
+    double m_distortionTwist{};
+    double m_distortionMeanR{};
+    double m_distortionRMSR{};
+    double m_distortionMeanTwist{};
+    double m_distortionRMSTwist{};
+    bool   m_distortionWriteToFile{};
     std::string m_distortionFileName;
 
 };

@@ -36,7 +36,7 @@ class PixelCablingCondData {
     void add_entry_rodrob(int rodid, int robid);               // add entries in m_idMap_rodrob
     void add_entry_robrod(int robid, int rodid);
     void add_entry_offlineList(const uint32_t, const Identifier);   // add entries in m_offlineListVect
-    void add_entry_DCSoffline(std::string, const Identifier);   // add entries in m_offlineListVect
+    void add_entry_DCSoffline(const std::string&, const Identifier);   // add entries in m_offlineListVect
 
     Identifier find_entry_onoff(const uint64_t) const;   // search entry in the map m_idMap_onoff - get the offlineId from the onlineId
     uint64_t find_entry_offon(const Identifier) const;   //  search entry in the map m_idMap_offon - get the onlineId from the offlineId
@@ -44,7 +44,7 @@ class PixelCablingCondData {
     int find_entry_rodrob(const int rodid) const;
     int find_entry_robrod(const int robid) const;
     std::deque<Identifier> find_entry_offlineList(uint32_t robid) const; // return entries from m_offlineListVect for a ROBId
-    Identifier find_entry_DCSoffline(std::string DCSname) const;
+    Identifier find_entry_DCSoffline(const std::string& DCSname) const;
     std::string find_entry_offlineDCS(const Identifier offlineId) const;
     uint64_t getOnlineIdFromRobId(uint32_t robid, uint32_t link) const;
 

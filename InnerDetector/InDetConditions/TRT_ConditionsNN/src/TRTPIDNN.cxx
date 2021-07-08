@@ -5,6 +5,8 @@
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include <iostream>
+#include <memory>
+
 
 // lwtnn includes
 //#include "lwtnn/LightweightGraph.hh"
@@ -41,7 +43,7 @@ StatusCode InDet::TRTPIDNN::configure(const std::string& json) {
   }
 
   try {
-    m_nn.reset(new lwt::LightweightGraph(m_nnConfig));
+    m_nn = std::make_unique<lwt::LightweightGraph>(m_nnConfig);
   } catch (lwt::NNConfigurationException& err) {
     log << MSG::ERROR << " NN configuration failed: " << err.what() << endmsg;
     return StatusCode::FAILURE;
@@ -59,14 +61,14 @@ StatusCode InDet::TRTPIDNN::configure(const std::string& json) {
   m_scalarInputs.clear();
   for (auto input : m_nnConfig.inputs) {
     m_scalarInputs[input.name] = {};
-    for (auto variable : input.variables) {
+    for (const auto& variable : input.variables) {
       m_scalarInputs[input.name][variable.name] = input.defaults[variable.name];
     }
   }
   m_vectorInputs.clear();
-  for (auto input : m_nnConfig.input_sequences) {
+  for (const auto& input : m_nnConfig.input_sequences) {
     m_vectorInputs[input.name] = {};
-    for (auto variable : input.variables) {
+    for (const auto& variable : input.variables) {
       m_vectorInputs[input.name][variable.name] = {};
     }
   }

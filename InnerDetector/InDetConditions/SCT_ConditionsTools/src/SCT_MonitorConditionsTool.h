@@ -70,9 +70,9 @@ private:
   // ------------------------------------------------------------------------------------
   std::string getList(const Identifier& imodule, const EventContext& ctx) const;
 
-  void expandRange(const std::string& rangeStr, std::set<int>& rangeList) const;
+  static void expandRange(const std::string& rangeStr, std::set<int>& rangeList) ;
   
-  void expandList(const std::string& defectStr, std::set<int>& defectList) const;
+  static void expandList(const std::string& defectStr, std::set<int>& defectList) ;
 
   static const std::string s_separator;
 

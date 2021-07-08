@@ -38,7 +38,7 @@ void testit (const TRT_BSIdErrContainer& trans1)
 {
   TRT_BSIdErrContainerCnv_p1 cnv;
   TRT_BSIdErrContainer_p1 pers;
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   cnv.transToPers (&trans1, &pers, log);
   TRT_BSIdErrContainer trans2 (SG::VIEW_ELEMENTS);
   cnv.persToTrans (&pers, &trans2, log);
