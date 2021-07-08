@@ -167,7 +167,7 @@ namespace AthONNX {
  
        /***************** Choose an example sample randomly ****************************/  
      	std::vector<std::vector<float>> input_tensor_values = m_input_tensor_values_notFlat[m_testSample];
-        std::vector<float> flatten = AthONNX::FlattenInput2D_1D(input_tensor_values, 784);
+        std::vector<float> flatten = AthONNX::FlattenInput_multiD_1D(input_tensor_values);
         // Output label of corresponding m_input_tensor_values[m_testSample]; e.g 0, 1, 2, 3 etc
         int output_tensor_values = m_output_tensor_values[m_testSample];
        
@@ -235,7 +235,7 @@ namespace AthONNX {
       		std::vector<float> batch_input_tensor_values;
       		for (int j = l; j < l+m_sizeOfBatch; j++) {
                          
-                        std::vector<float> flattened_input = AthONNX::FlattenInput2D_1D(m_input_tensor_values_notFlat[j],784);
+                        std::vector<float> flattened_input = AthONNX::FlattenInput_multiD_1D(m_input_tensor_values_notFlat[j]);
                         /******************For each batch we need a flattened (5 x 28 x 28 = 3920) 1D array******************************/
         		batch_input_tensor_values.insert(batch_input_tensor_values.end(), flattened_input.begin(), flattened_input.end());
         	}   
