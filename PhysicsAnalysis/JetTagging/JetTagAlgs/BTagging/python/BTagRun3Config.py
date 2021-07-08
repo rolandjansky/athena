@@ -97,7 +97,11 @@ def BTagRecoSplitCfg(inputFlags, JetCollection = ['AntiKt4EMTopo'], **kwargs):
     SecVertexers = [ "JetFitter" , "SV1" ]
     result.merge(JetBTaggerSplitAlgsCfg(inputFlags, JetCollection = JetCollection[0], TaggerList = taggerList, SecVertexers = SecVertexers, **kwargs))
 
-    if inputFlags.Concurrency.NumThreads == 0:
+    # the following is needed to reliably determine whether we're really being steered from an old-style job option
+    # assume we're running CPython
+    import inspect
+    stack = inspect.stack()
+    if len(stack) >= 2 and stack[1].function == 'CAtoGlobalWrapper':
         for el in result._allSequences:
             el.name = "TopAlg"
 
