@@ -119,13 +119,13 @@ class TgcDigitMaker {
      Calculates intrinsic time response according to incident angle of
      a track based on time response parameters
   */
-  float timeJitter(const Amg::Vector3D, CLHEP::HepRandomEngine* rndmEngine) const;
+  float timeJitter(const Amg::Vector3D&, CLHEP::HepRandomEngine* rndmEngine) const;
 
   /**
      Determines whether a hit is detected or not.
   */
   bool efficiencyCheck(const TgcSensor sensor, CLHEP::HepRandomEngine* rndmEngine) const;
-  bool efficiencyCheck(const std::string stationName, const int stationEta, const int stationPhi, const int gasGap, const TgcSensor sensor, const double energyDeposit) const;
+  bool efficiencyCheck(const std::string& stationName, const int stationEta, const int stationPhi, const int gasGap, const TgcSensor sensor, const double energyDeposit) const;
 
   uint16_t bcTagging(const double digittime, const double window, const double offset) const;
   void addDigit(const Identifier id, const uint16_t bctag, TgcDigitCollection* digits) const;
@@ -141,37 +141,37 @@ class TgcDigitMaker {
   /** Read share/TGC_Digitization_alignment.dat file */
   void readFileOfAlignment();
   /** Get energy threshold value for each chamber */
-  double getEnergyThreshold(const std::string stationName, int stationEta, int stationPhi, int gasGap, const TgcSensor sensor) const;
+  double getEnergyThreshold(const std::string& stationName, int stationEta, int stationPhi, int gasGap, const TgcSensor sensor) const;
   void randomCrossTalk(const Identifier elemId, const int gasGap, const TgcSensor sensor, const int channel, const float posInStrip, const double digitTime, CLHEP::HepRandomEngine* rndmEngine, TgcDigitCollection* digits) const;
   /** Method to check a chamber is dead or active */
-  bool isDeadChamber(const std::string stationName, int stationEta, int stationPhi, int gasGap);
+  bool isDeadChamber(const std::string& stationName, int stationEta, int stationPhi, int gasGap);
   /** Method to get time window offset */
-  double getTimeWindowOffset(const std::string stationName, int stationEta, const TgcSensor sensor) const; 
+  double getTimeWindowOffset(const std::string& stationName, int stationEta, const TgcSensor sensor) const; 
   /** Get stationName integer from stationName string */
-  int getIStationName(const std::string staionName) const; 
+  int getIStationName(const std::string& staionName) const; 
   /** Ad hoc implementation of detector position shift */
-  void adHocPositionShift(const std::string stationName, int stationEta, int stationPhi, 
-			  const Amg::Vector3D direCos, Amg::Vector3D &localPos) const;
+  void adHocPositionShift(const std::string& stationName, int stationEta, int stationPhi, 
+			  const Amg::Vector3D& direCos, Amg::Vector3D &localPos) const;
   /** Method to get time difference by cable radius of inner */
   float timeDiffByCableRadiusOfInner(const int iStationName, const int stationPhi, const int channel) const;
 
   /** Energy threshold value for each chamber */
-  double m_energyThreshold[N_STATIONNAME][N_STATIONETA][N_STATIONPHI][N_GASGAP][N_ISSTRIP];
+  double m_energyThreshold[N_STATIONNAME][N_STATIONETA][N_STATIONPHI][N_GASGAP][N_ISSTRIP]{};
   /** Cross talk probabilty for each chamber */
-  double m_crossTalk[N_STATIONNAME][N_STATIONETA][N_STATIONPHI][N_GASGAP][N_ISSTRIP][N_CROSSTALK_PARAMETER];
+  double m_crossTalk[N_STATIONNAME][N_STATIONETA][N_STATIONPHI][N_GASGAP][N_ISSTRIP][N_CROSSTALK_PARAMETER]{};
   /** Dead chamber flag for each chamber */
-  bool m_isDeadChamber[N_STATIONNAME][N_STATIONETA][N_STATIONPHI][N_GASGAP];
+  bool m_isDeadChamber[N_STATIONNAME][N_STATIONETA][N_STATIONPHI][N_GASGAP]{};
   /** Time window offset for each chamber */
-  double m_timeWindowOffset[N_STATIONNAME][N_STATIONETA][N_ISSTRIP];
+  double m_timeWindowOffset[N_STATIONNAME][N_STATIONETA][N_ISSTRIP]{};
 
   /** Alignment z constants. Translation in the global r direction */ 
-  double m_alignmentZ[N_STATIONNAME][N_STATIONETA][N_STATIONPHI];
+  double m_alignmentZ[N_STATIONNAME][N_STATIONETA][N_STATIONPHI]{};
   /** Alignment t constants. Translation in the global z direction */ 
-  double m_alignmentT[N_STATIONNAME][N_STATIONETA][N_STATIONPHI];
+  double m_alignmentT[N_STATIONNAME][N_STATIONETA][N_STATIONPHI]{};
   /** Alignment s constants. Translation in the global phi direction */ 
-  double m_alignmentS[N_STATIONNAME][N_STATIONETA][N_STATIONPHI];
+  double m_alignmentS[N_STATIONNAME][N_STATIONETA][N_STATIONPHI]{};
   /** Alignment ths constants. Rotation around the global phi direction */ 
-  double m_alignmentTHS[N_STATIONNAME][N_STATIONETA][N_STATIONPHI];
+  double m_alignmentTHS[N_STATIONNAME][N_STATIONETA][N_STATIONPHI]{};
 
   std::vector<std::vector<float> > m_vecAngle_Time;
 
@@ -179,7 +179,7 @@ class TgcDigitMaker {
   unsigned int m_runperiod;
   const MuonGM::MuonDetectorManager* m_mdManager; // cannot use ReadCondHandleKey since no athena component
   const TgcIdHelper* m_idHelper;
-  float m_efficiency[N_SENSOR];
+  float m_efficiency[N_SENSOR]{};
 
   /**
      define offsets and widths of time windows for signals from
@@ -187,8 +187,8 @@ class TgcDigitMaker {
      diffference with respect to the time after TOF and cable
      length corrections. Bunch crossing time is specified.
   */
-  double m_timeWindowOffsetSensor[N_SENSOR];
-  double m_gateTimeWindow[N_STATION][N_SENSOR];
+  double m_timeWindowOffsetSensor[N_SENSOR]{};
+  double m_gateTimeWindow[N_STATION][N_SENSOR]{};
   double m_bunchCrossingTime;
 
   //Declaring private message stream member.

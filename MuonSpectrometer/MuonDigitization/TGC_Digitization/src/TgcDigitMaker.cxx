@@ -463,7 +463,7 @@ StatusCode TgcDigitMaker::readFileOfTimeJitter()
   return StatusCode::SUCCESS;
 }
 //+++++++++++++++++++++++++++++++++++++++++++++++
-float TgcDigitMaker::timeJitter(const Amg::Vector3D direCosLocal, CLHEP::HepRandomEngine* rndmEngine) const 
+float TgcDigitMaker::timeJitter(const Amg::Vector3D& direCosLocal, CLHEP::HepRandomEngine* rndmEngine) const 
 {
   float injectionAngle = atan2(fabs(direCosLocal[2]),fabs(direCosLocal[0]))/CLHEP::degree;
 
@@ -499,7 +499,7 @@ bool TgcDigitMaker::efficiencyCheck(const TgcSensor sensor, CLHEP::HepRandomEngi
   return false;
 }
 //+++++++++++++++++++++++++++++++++++++++++++++++
-bool TgcDigitMaker::efficiencyCheck(const std::string stationName, const int stationEta, const int stationPhi, const int gasGap, const TgcSensor sensor, const double energyDeposit) const {
+bool TgcDigitMaker::efficiencyCheck(const std::string& stationName, const int stationEta, const int stationPhi, const int gasGap, const TgcSensor sensor, const double energyDeposit) const {
   // If the energy deposit is equal to or greater than the threshold value of the chamber, 
   // return true. 
   return (energyDeposit >= getEnergyThreshold(stationName, stationEta, stationPhi, gasGap, sensor));
@@ -942,7 +942,7 @@ void TgcDigitMaker::readFileOfAlignment() {
   ifs.close();
 }
 
-double TgcDigitMaker::getEnergyThreshold(const std::string stationName, int stationEta, int stationPhi, int gasGap, const TgcSensor sensor) const {
+double TgcDigitMaker::getEnergyThreshold(const std::string& stationName, int stationEta, int stationPhi, int gasGap, const TgcSensor sensor) const {
   // Convert std::string stationName to int iStationName from 41 to 48
   int iStationName = getIStationName(stationName);
 
@@ -1047,7 +1047,7 @@ void TgcDigitMaker::randomCrossTalk(const Identifier elemId,
   }
 }
 
-bool TgcDigitMaker::isDeadChamber(const std::string stationName, int stationEta, int stationPhi, int gasGap) {
+bool TgcDigitMaker::isDeadChamber(const std::string& stationName, int stationEta, int stationPhi, int gasGap) {
   bool v_isDeadChamber = true;
 
   // Convert std::string stationName to int iStationName from 41 to 48
@@ -1081,7 +1081,7 @@ bool TgcDigitMaker::isDeadChamber(const std::string stationName, int stationEta,
   return v_isDeadChamber; 
 }
 
-double TgcDigitMaker::getTimeWindowOffset(const std::string stationName, int stationEta, const TgcSensor sensor) const {
+double TgcDigitMaker::getTimeWindowOffset(const std::string& stationName, int stationEta, const TgcSensor sensor) const {
   // Convert std::string stationName to int iStationName from 41 to 48
   int iStationName = getIStationName(stationName);
 
@@ -1097,7 +1097,7 @@ double TgcDigitMaker::getTimeWindowOffset(const std::string stationName, int sta
   return m_timeWindowOffset[iStationName][stationEta][sensor];
 }
 
-int TgcDigitMaker::getIStationName(const std::string stationName) const {
+int TgcDigitMaker::getIStationName(const std::string& stationName) const {
   int iStationName = 0;
   if(     stationName=="T1F") iStationName = 41;
   else if(stationName=="T1E") iStationName = 42;
@@ -1111,8 +1111,8 @@ int TgcDigitMaker::getIStationName(const std::string stationName) const {
   return iStationName;
 }
 
-void TgcDigitMaker::adHocPositionShift(const std::string stationName, int stationEta, int stationPhi,
-				       const Amg::Vector3D direCos, Amg::Vector3D &localPos) const {
+void TgcDigitMaker::adHocPositionShift(const std::string& stationName, int stationEta, int stationPhi,
+				       const Amg::Vector3D& direCos, Amg::Vector3D &localPos) const {
   int iStationName = getIStationName(stationName);
   iStationName -= OFFSET_STATIONNAME;
   stationEta   -= OFFSET_STATIONETA;
