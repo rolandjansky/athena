@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SiSPSeededTrackFinder/SiSPSeededTrackFinder.h"
 
+#include "RoiDescriptor/RoiDescriptor.h"
 #include "SiSPSeededTrackFinderData/SiSpacePointsSeedMakerEventData.h"
 #include "SiSPSeededTrackFinderData/SiTrackMakerEventData_xk.h"
 #include "TrkPatternParameters/PatternTrackParameters.h"
@@ -40,12 +41,18 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
   /// optional PRD to track association map
   ATH_CHECK( m_prdToTrackMap.initialize( !m_prdToTrackMap.key().empty() ) );
 
+  ATH_CHECK( m_caloKey.initialize(m_useITkConvSeeded) );
+
   /// Get tool for space points seed maker
   ATH_CHECK( m_seedsmaker.retrieve() );
   ATH_CHECK( m_zvertexmaker.retrieve( DisableTool{ not m_useZvertexTool } ));
 
   /// Get track-finding tool
   ATH_CHECK( m_trackmaker.retrieve());
+
+  ATH_CHECK( m_regsel_strip.retrieve( DisableTool{ not m_useITkConvSeeded } ) );
+
+  if (m_ITKGeometry and m_doFastTracking) ATH_CHECK(m_etaDependentCutsSvc.retrieve());
 
   ATH_CHECK( m_trackSummaryTool.retrieve( DisableTool{ m_trackSummaryTool.name().empty()} ));
 
@@ -54,7 +61,7 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
     m_useZBoundaryFinding = false;
   }
 
-  if (m_useNewStrategy or m_useZBoundaryFinding or m_ITKGeometry) {
+  if (m_useNewStrategy or m_useZBoundaryFinding or m_ITKGeometry or m_useITkConvSeeded) {
 
     if (not m_beamSpotKey.key().empty()) {
       ATH_CHECK(m_beamSpotKey.initialize());
@@ -97,7 +104,9 @@ StatusCode InDet::SiSPSeededTrackFinder::execute(const EventContext& ctx) const
   * For example, run-3 central offline Si tracking has m_useNewStrategy=false, 
   * but m_useZBoundaryFinding true --> newStrategy
   **/
-  if (not m_useNewStrategy and not m_useZBoundaryFinding and not m_ITKGeometry) {
+  if (m_ITKGeometry and m_doFastTracking) return itkFastTrackingStrategy(ctx);
+  else if (m_useITkConvSeeded) return itkConvStrategy(ctx);
+  else if (not m_useNewStrategy and not m_useZBoundaryFinding and not m_ITKGeometry) {
     return oldStrategy(ctx);
   }
   return newStrategy(ctx);
@@ -387,6 +396,255 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy(const EventContext& ctx) co
   return StatusCode::SUCCESS;
 }
 
+
+
+///////////////////////////////////////////////////////////////////
+// ITk fast tracking strategy
+///////////////////////////////////////////////////////////////////
+
+StatusCode InDet::SiSPSeededTrackFinder::itkFastTrackingStrategy(const EventContext& ctx) const
+{
+  SG::WriteHandle<TrackCollection> outputTracks{m_outputTracksKey, ctx};
+  ATH_CHECK(outputTracks.record(std::make_unique<TrackCollection>()));
+
+  SiSpacePointsSeedMakerEventData seedEventData;
+
+  /**
+   * We run a single passe of seeding & track finding with PPP seeds
+   **/
+
+  /**
+   * Set up the first pass (pixel seeds), and prepare to
+   * obtain a vertex Z estimate from the candidates we find
+   **/
+
+  /// set up the seed maker for first pass
+  m_seedsmaker->newEvent(ctx, seedEventData, 0);
+  std::list<Trk::Vertex> vertexList;
+  /// and run seeding - starting with an empty list of vertices for the first pass
+  m_seedsmaker->find3Sp(ctx, seedEventData, vertexList);
+
+  const bool PIX = true ;
+  const bool SCT = true ;
+  InDet::ExtendedSiTrackMakerEventData_xk trackEventData(m_prdToTrackMap);
+  /// set up the track maker
+  m_trackmaker->newTrigEvent(ctx, trackEventData, PIX, SCT);
+
+  bool ERR = false;
+  Counter_t counter{};
+  const InDet::SiSpacePointsSeed* seed = nullptr;
+
+  /// prepare a collection for the quality-sorted track canddiates
+  std::multimap<double, Trk::Track*> qualitySortedTrackCandidates;
+
+  /// Get the value of the seed maker validation ntuple writing switch
+  bool doWriteNtuple = m_seedsmaker->getWriteNtupleBoolProperty();
+  long EvNumber = 0.;            //Event number variable to be used for the validation ntuple
+
+  if (doWriteNtuple) {
+    SG::ReadHandle<xAOD::EventInfo> eventInfo(m_evtKey,ctx);
+    if(!eventInfo.isValid()) {EvNumber = -1.0;} else {EvNumber = eventInfo->eventNumber();}
+  }
+
+  /// Loop through all seeds from the first pass and attempt to form track candidates
+  while ((seed = m_seedsmaker->next(ctx, seedEventData))) {
+
+    ++counter[kNSeeds];
+
+    /// copy all the tracks into trackList
+    std::list<Trk::Track*> trackList = m_trackmaker->getTracks(ctx, trackEventData, seed->spacePoints());
+    /// record track candidates found, using combinatorial track finding, from the given seed
+    for (Trk::Track* t: trackList) {
+
+      qualitySortedTrackCandidates.insert(std::make_pair(-trackQuality(t), t));
+
+    }
+    /// Call the ntuple writing method
+    if(doWriteNtuple) { m_seedsmaker->writeNtuple(seed, !trackList.empty() ? trackList.front() : nullptr, ISiSpacePointsSeedMaker::PixelSeed, EvNumber) ; }
+
+    if (counter[kNSeeds] >= m_maxNumberSeeds) {
+      ERR = true;
+      ++m_problemsTotal;
+      break;
+    }
+  }
+
+  m_trackmaker->endEvent(trackEventData);
+
+  /// Remove shared tracks with worse quality
+  filterSharedTracksFast(qualitySortedTrackCandidates);
+
+  /// Save good tracks in track collection
+  for (const std::pair<const double, Trk::Track*> & qualityAndTrack: qualitySortedTrackCandidates) {
+    ++counter[kNTracks];
+    outputTracks->push_back(qualityAndTrack.second);
+  }
+
+  m_counterTotal[kNSeeds] += counter[kNSeeds] ;
+
+  ++m_neventsTotal;
+
+  if (ERR) {
+    outputTracks->clear();
+  } else {
+    m_counterTotal[kNTracks] += counter[kNTracks];
+  }
+
+  // Print common event information
+  //
+  if (msgLvl(MSG::DEBUG)) {
+    dump(MSG::DEBUG, &counter);
+  }
+  return StatusCode::SUCCESS;
+}
+
+
+///////////////////////////////////////////////////////////////////
+// Conversion Strategy for ITk
+///////////////////////////////////////////////////////////////////
+
+StatusCode InDet::SiSPSeededTrackFinder::itkConvStrategy(const EventContext& ctx) const
+{
+  SG::WriteHandle<TrackCollection> outputTracks{m_outputTracksKey, ctx};
+  ATH_CHECK(outputTracks.record(std::make_unique<TrackCollection>()));
+  /// For HI events we can use MBTS information from calorimeter
+  if (not isGoodEvent(ctx)) {
+    return StatusCode::SUCCESS;
+  }
+
+  SiSpacePointsSeedMakerEventData seedEventData;
+
+  SG::ReadHandle calo(m_caloKey,ctx);
+  std::unique_ptr<RoiDescriptor> roiComp = std::make_unique<RoiDescriptor>(true);
+
+  if(calo.isValid()) {
+    RoiDescriptor * roi =0;
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle{m_beamSpotKey, ctx};
+    double beamZ = beamSpotHandle->beamVtx().position().z();
+    roiComp->clear();
+    roiComp->setComposite();
+
+    for( const Trk::CaloClusterROI* ccROI : *calo) {
+      if ( ccROI->energy() > m_ClusterE)  {
+        double eta = ccROI->globalPosition().eta();
+        double phi = ccROI->globalPosition().phi();
+        double z = beamZ;
+        double roiPhiMin = phi - m_deltaPhi;
+        double roiPhiMax = phi + m_deltaPhi;
+        double roiEtaMin = eta - m_deltaEta;
+        double roiEtaMax = eta + m_deltaEta;
+        double roiZMin = beamZ - m_deltaZ;
+        double roiZMax = beamZ + m_deltaZ;
+        roi = new RoiDescriptor( eta, roiEtaMin, roiEtaMax,phi, roiPhiMin ,roiPhiMax,z,roiZMin,roiZMax);
+        roiComp->push_back(roi);
+      }
+    }
+  }
+  else return StatusCode::FAILURE;
+
+  std::vector<IdentifierHash> listOfStripIds;
+  std::vector<IdentifierHash> listOfPixIds;
+
+  m_regsel_strip->HashIDList( *roiComp, listOfStripIds );
+
+  /// set up the seed maker for first pass
+  m_seedsmaker->newRegion(ctx, seedEventData, listOfPixIds, listOfStripIds);
+  std::list<Trk::Vertex> vertexList;
+  /// and run seeding - starting with an empty list of vertices for the first pass
+  m_seedsmaker->find3Sp(ctx, seedEventData, vertexList);
+
+  const bool PIX = true ;
+  const bool STRIP = true ;
+  InDet::ExtendedSiTrackMakerEventData_xk trackEventData(m_prdToTrackMap);
+  /// set up the track maker
+  m_trackmaker->newEvent(ctx, trackEventData, PIX, STRIP);
+
+  bool ERR = false;
+  Counter_t counter{};
+  const InDet::SiSpacePointsSeed* seed = nullptr;
+
+  /// prepare a collection for the quality-sorted track canddiates
+  std::multimap<double, Trk::Track*> qualitySortedTrackCandidates;
+
+  /// Get the value of the seed maker validation ntuple writing switch
+  bool doWriteNtuple = m_seedsmaker->getWriteNtupleBoolProperty();
+  long EvNumber = 0.;            //Event number variable to be used for the validation ntuple
+
+  if (doWriteNtuple) {
+    SG::ReadHandle<xAOD::EventInfo> eventInfo(m_evtKey,ctx);
+    if(!eventInfo.isValid()) {EvNumber = -1.0;} else {EvNumber = eventInfo->eventNumber();}
+  }
+
+  /// Loop through all seeds from the first pass and attempt to form track candidates
+  while ((seed = m_seedsmaker->next(ctx, seedEventData))) {
+
+    ++counter[kNSeeds];
+
+    /// copy all the tracks into trackList
+    std::list<Trk::Track*> trackList = m_trackmaker->getTracks(ctx, trackEventData, seed->spacePoints());
+    /// record track candidates found, using combinatorial track finding, from the given seed
+    for (Trk::Track* t: trackList) {
+      qualitySortedTrackCandidates.insert(std::make_pair(-trackQuality(t), t));
+    }
+
+    /// Call the ntuple writing method
+    if(doWriteNtuple) { m_seedsmaker->writeNtuple(seed, !trackList.empty() ? trackList.front() : nullptr, ISiSpacePointsSeedMaker::StripSeed, EvNumber) ; }
+
+    if (counter[kNSeeds] >= m_maxNumberSeeds) {
+      ERR = true;
+      ++m_problemsTotal;
+      break;
+    }
+  }
+
+  m_trackmaker->endEvent(trackEventData);
+
+  /// Remove shared tracks with worse quality
+  filterSharedTracks(qualitySortedTrackCandidates);
+
+  /// Save good tracks in track collection
+  for (const std::pair<const double, Trk::Track*> & qualityAndTrack: qualitySortedTrackCandidates) {
+    ++counter[kNTracks];
+    if (m_trackSummaryTool.isEnabled()) {
+      /// Note that for run-3 the tool here is configured to not perform a hole search,
+      /// regardless of the 'false' argument below
+      m_trackSummaryTool->computeAndReplaceTrackSummary(*qualityAndTrack.second,
+							trackEventData.combinatorialData().PRDtoTrackMap(),
+							false /* DO NOT suppress hole search*/);
+      InDet::PatternHoleSearchOutcome theOutcome;
+      /// Check if we have a hole search result for this guy
+      if (m_writeHolesFromPattern && trackEventData.combinatorialData().findPatternHoleSearchOutcome(qualityAndTrack.second,theOutcome)){
+	/// If yes: Write this information into the track summary.
+	qualityAndTrack.second->trackSummary()->update(Trk::numberOfPixelHoles, theOutcome.nPixelHoles);
+	qualityAndTrack.second->trackSummary()->update(Trk::numberOfSCTHoles, theOutcome.nSCTHoles);
+	qualityAndTrack.second->trackSummary()->update(Trk::numberOfSCTDoubleHoles, theOutcome.nSCTDoubleHoles);
+	qualityAndTrack.second->trackSummary()->update(Trk::numberOfSCTDeadSensors, theOutcome.nSCTDeads);
+	qualityAndTrack.second->trackSummary()->update(Trk::numberOfPixelDeadSensors, theOutcome.nPixelDeads);
+      }
+    }
+    outputTracks->push_back(qualityAndTrack.second);
+  }
+
+  m_counterTotal[kNSeeds] += counter[kNSeeds] ;
+
+  ++m_neventsTotal;
+
+  if (ERR) {
+    outputTracks->clear();
+  } else {
+    m_counterTotal[kNTracks] += counter[kNTracks];
+  }
+
+  // Print common event information
+  //
+  if (msgLvl(MSG::DEBUG)) {
+    dump(MSG::DEBUG, &counter);
+  }
+  return StatusCode::SUCCESS;
+}
+
+
+
 ///////////////////////////////////////////////////////////////////
 // Finalize
 ///////////////////////////////////////////////////////////////////
@@ -620,6 +878,64 @@ void InDet::SiSPSeededTrackFinder::filterSharedTracks(std::multimap<double, Trk:
   }
 }
 
+
+void InDet::SiSPSeededTrackFinder::filterSharedTracksFast(std::multimap<double, Trk::Track*>& qualitySortedTracks) const
+{
+  std::set<const Trk::PrepRawData*> clusters;
+
+  std::vector<const Trk::PrepRawData*> freeClusters;
+  freeClusters.reserve(15);
+
+  std::multimap<double, Trk::Track*>::iterator it_qualityAndTrack = qualitySortedTracks.begin();
+
+  /// loop over all track candidates, sorted by quality
+  while (it_qualityAndTrack!=qualitySortedTracks.end()) {
+    freeClusters.clear();
+
+    std::set<const Trk::PrepRawData*>::iterator it_clustersEnd = clusters.end();
+
+    int nClusters = 0;
+    int nPixels = 0;
+
+    /// loop over track states on surface of the track candidate
+    for (const Trk::TrackStateOnSurface* tsos: *((*it_qualityAndTrack).second->trackStateOnSurfaces())) {
+
+      if(!tsos->type(Trk::TrackStateOnSurface::Measurement)) continue;
+      const Trk::FitQualityOnSurface* fq =  tsos->fitQualityOnSurface();
+      if(!fq) continue;
+      if(fq->numberDoF() == 2) ++nPixels;
+
+      /// get the PRD from the measurement
+      const Trk::MeasurementBase* mb = tsos->measurementOnTrack();
+      const Trk::RIO_OnTrack*     ri = dynamic_cast<const Trk::RIO_OnTrack*>(mb);
+      if(!ri) continue;
+      const Trk::PrepRawData* pr = ri->prepRawData();
+      if (pr) {
+        /// increase cluster count
+	++nClusters;
+        /// and check if the cluster was already used in a previous ( = higher quality) track
+        if (clusters.find(pr)==it_clustersEnd) {
+          /// if not, record as a free (not prevously used) cluster
+          freeClusters.push_back(pr);
+        }
+      }
+    }
+
+    /// add the free clusters to our cluster set
+    clusters.insert(freeClusters.begin(), freeClusters.end());
+
+    int nFreeClusters = static_cast<int>(freeClusters.size());
+    if( passEtaDepCuts( (*it_qualityAndTrack).second, nClusters, nFreeClusters, nPixels) ){
+      /// if this is fulfilled, we keep the candidate
+      ++it_qualityAndTrack;
+    } else {
+      /// if we do not keep the track, clean up candidate
+      delete (*it_qualityAndTrack).second;
+      qualitySortedTracks.erase(it_qualityAndTrack++);
+    }
+  }
+}
+
 ///////////////////////////////////////////////////////////////////
 // Fill z coordinate histogram
 ///////////////////////////////////////////////////////////////////
@@ -754,4 +1070,30 @@ void InDet::SiSPSeededTrackFinder::magneticFieldInit()
   } else {
     m_fieldprop = Trk::MagneticFieldProperties(Trk::FastField);
   }
+}
+
+
+///////////////////////////////////////////////////////////////////
+// Check if track passes eta-dependent cuts for fast tracking
+///////////////////////////////////////////////////////////////////
+
+bool InDet::SiSPSeededTrackFinder::passEtaDepCuts(const Trk::Track* track,
+						  int nClusters,
+						  int nFreeClusters,
+						  int nPixels) const
+{
+  DataVector<const Trk::TrackStateOnSurface>::const_iterator  m = track->trackStateOnSurfaces()->begin();
+  const Trk::TrackParameters* par = (*m)->trackParameters();
+  if(!par) return false;
+
+  double eta = std::abs(par->eta());
+  if(nClusters               < m_etaDependentCutsSvc->getMinSiHitsAtEta(eta)) return false;
+  if(nFreeClusters           < m_etaDependentCutsSvc->getMinSiNotSharedAtEta(eta)) return false;
+  if(nClusters-nFreeClusters > m_etaDependentCutsSvc->getMaxSharedAtEta(eta)) return false;
+  if(nPixels                 < m_etaDependentCutsSvc->getMinPixelHitsAtEta(eta)) return false;
+
+  if(par->pT() < m_etaDependentCutsSvc->getMinPtAtEta(eta)) return false;
+  if(!(*m)->type(Trk::TrackStateOnSurface::Perigee)) return true ;
+  if(fabs(par->localPosition()[0]) > m_etaDependentCutsSvc->getMaxPrimaryImpactAtEta(eta)) return false;
+  return true;
 }

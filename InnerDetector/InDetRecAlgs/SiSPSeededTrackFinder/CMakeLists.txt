@@ -7,7 +7,7 @@ atlas_subdir( SiSPSeededTrackFinder )
 atlas_add_component( SiSPSeededTrackFinder
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps StoreGateLib GaudiKernel BeamSpotConditionsData InDetRecToolInterfaces TrkGeometry TrkSurfaces TrkSpacePoint TrkTrack TrkExInterfaces xAODEventInfo SiSPSeededTrackFinderData TrkPatternParameters TrkRIO_OnTrack TrkEventUtils TrkToolInterfaces)
+                     LINK_LIBRARIES AthenaBaseComps StoreGateLib GaudiKernel BeamSpotConditionsData InDetRecToolInterfaces IRegionSelector RoiDescriptor TrkCaloClusterROI TrkGeometry TrkSurfaces TrkSpacePoint TrkTrack TrkExInterfaces xAODEventInfo SiSPSeededTrackFinderData TrkPatternParameters TrkRIO_OnTrack TrkEventUtils TrkToolInterfaces)
 
 # Run tests:
 atlas_add_test( SiSPSeededTracksStandalone
