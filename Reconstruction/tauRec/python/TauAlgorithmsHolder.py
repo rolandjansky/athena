@@ -836,3 +836,12 @@ def getTVATool():
 
     cached_instances[_name] = TVATool
     return TVATool
+
+def getTauAODSelector():
+    _name = sPrefix + 'TauAODSelector'
+    from tauRecTools.tauRecToolsConf import TauAODSelector
+
+    myTauAODSelector = TauAODSelector( name=_name,
+                                       MinTauPt = tauFlags.tauRecMinPt() )
+    cached_instances[_name] = myTauAODSelector
+    return myTauAODSelector
