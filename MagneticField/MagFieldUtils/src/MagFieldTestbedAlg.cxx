@@ -37,9 +37,9 @@
 #include "TRandom3.h"
 
 // performance test
-#include <time.h>
-#include <vector>
 #include <cmath> // isnan
+#include <ctime>
+#include <vector>
 
 namespace {
 const double solenoidRadius = 1075.;
@@ -58,7 +58,7 @@ MagField::MagFieldTestbedAlg::MagFieldTestbedAlg(const std::string& name,
 		ISvcLocator* pSvcLocator) :
 		::AthAlgorithm(name, pSvcLocator), m_magFieldSvc("AtlasFieldSvc",
 				name), m_thistSvc("THistSvc", name), m_histStream(
-				"MagFieldTestbedAlg"), m_chronoSvc("ChronoStatSvc", name), m_tree(0), m_treeName("field"), m_generateBox(false), m_minX(-11999.),
+				"MagFieldTestbedAlg"), m_chronoSvc("ChronoStatSvc", name), m_tree(nullptr), m_treeName("field"), m_generateBox(false), m_minX(-11999.),
 				m_halfX(11999.), m_halfY(11999.), m_halfZ(22999.), m_stepsX(200), m_stepsY(
 				200), m_stepsZ(200), m_numberOfReadings(0), m_refFile(""), m_refTreeName(
 				"field"), m_absTolerance(1e-7), m_relTolerance(0.01), m_xyzt(), m_field(), m_explicitX(
@@ -299,7 +299,7 @@ StatusCode MagField::MagFieldTestbedAlg::execute() {
 
 			// initialize performance timer
 			time_t seconds;
-			seconds = time(NULL);
+			seconds = time(nullptr);
 
 			if (m_numberOfReadings != 0) {
 
@@ -341,7 +341,7 @@ StatusCode MagField::MagFieldTestbedAlg::execute() {
 					}
 				}
 			}
-			seconds = time(NULL) - seconds;
+			seconds = time(nullptr) - seconds;
 
 			if (m_numberOfReadings != 0) {
 				ATH_MSG_INFO(
@@ -365,7 +365,7 @@ StatusCode MagField::MagFieldTestbedAlg::execute() {
 			ATH_MSG_INFO(
 					"will now run comparison against given reference file: "
 							<< m_refFile);
-			if (checkWithReference() == true)
+			if (checkWithReference())
 				ATH_MSG_INFO("comparison against reference file successful!");
 			else {
 				ATH_MSG_ERROR("comparison against reference file FAILED!!!!");
@@ -385,8 +385,8 @@ StatusCode MagField::MagFieldTestbedAlg::fetchEnvironment() {
 		// use the transportation manager singleton to access the p_g4field
 		G4TransportationManager *transm =
 				G4TransportationManager::GetTransportationManager();
-		G4FieldManager *fieldm = (transm) ? transm->GetFieldManager() : 0;
-		p_g4field = (fieldm) ? fieldm->GetDetectorField() : 0;
+		G4FieldManager *fieldm = (transm) ? transm->GetFieldManager() : nullptr;
+		p_g4field = (fieldm) ? fieldm->GetDetectorField() : nullptr;
 
 		if (!p_g4field) {
 			return StatusCode::FAILURE;
@@ -401,7 +401,7 @@ void MagField::MagFieldTestbedAlg::getFieldValue() {
 	} else {
 		// use new magnetic field service
 		m_magFieldSvc->getField(m_xyzt, m_field,
-				m_useDerivatives ? m_deriv : 0);
+				m_useDerivatives ? m_deriv : nullptr);
 	}
 	if (isnan(m_deriv[0]) || isnan(m_deriv[1]) || isnan(m_deriv[2])
 			|| isnan(m_deriv[3]) || isnan(m_deriv[4]) || isnan(m_deriv[5])
@@ -417,7 +417,7 @@ bool MagField::MagFieldTestbedAlg::checkWithReference() {
 
 	// setup the reference TTree
 	TFile *refF = TFile::Open(m_refFile.c_str());
-	TTree *refT = (refF) ? (TTree*) refF->Get(m_refTreeName.c_str()) : 0;
+	TTree *refT = (refF) ? (TTree*) refF->Get(m_refTreeName.c_str()) : nullptr;
 
 	//comparison with Masahiro's reference file
 //	std::string temp = "scan";
