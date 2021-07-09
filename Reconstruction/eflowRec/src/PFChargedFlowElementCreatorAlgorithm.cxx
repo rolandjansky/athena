@@ -108,7 +108,7 @@ void PFChargedFlowElementCreatorAlgorithm::createChargedFlowElements(const eflow
      /* Optionally we add the links to clusters to the xAOD::PFO */
     if (addClusters){
 
-      std::vector<std::pair<eflowTrackClusterLink*,float> > trackClusterLinkPairs = energyFlowCaloObject.efRecLink();
+      std::vector<std::pair<eflowTrackClusterLink*,std::pair<float,float> > > trackClusterLinkPairs = energyFlowCaloObject.efRecLink();
 
       ATH_MSG_DEBUG("Have got " << trackClusterLinkPairs.size() << " trackClusterLinkPairs");
 
@@ -122,26 +122,28 @@ void PFChargedFlowElementCreatorAlgorithm::createChargedFlowElements(const eflow
 
       std::vector<eflowTrackClusterLink*> thisTracks_trackClusterLinksSubtracted;
 
-      //Create vector of pairs which map each CaloCluster to the ratio of its new energy to unstracted energy
+      //Create vector of pairs which map each CaloCluster to the asbolute value of its unstracted energy
       std::vector<std::pair<ElementLink<xAOD::CaloClusterContainer>, double> > vectorClusterToSubtractedEnergies;
 
       for (auto& trackClusterLink : thisTracks_trackClusterLinks){	
         for (auto& trackClusterLinkPair : trackClusterLinkPairs){
-          if (!m_eOverPMode && trackClusterLinkPair.first == trackClusterLink && !std::isnan(trackClusterLinkPair.second)) {
+          //If either of trackClusterLinkPair.second.first or trackClusterLinkPair.second.second is NAN, then no charegd shower
+          //subraction occurred and hence we don't want to save information about that.
+          if (!m_eOverPMode && trackClusterLinkPair.first == trackClusterLink && !std::isnan(trackClusterLinkPair.second.first)) {
             thisTracks_trackClusterLinksSubtracted.push_back(trackClusterLink);
             eflowRecCluster* efRecCluster = trackClusterLinkPair.first->getCluster();
             ElementLink<xAOD::CaloClusterContainer> theOriginalClusterLink = efRecCluster->getOriginalClusElementLink();
             ElementLink<xAOD::CaloClusterContainer> theSisterClusterLink = (*theOriginalClusterLink)->getSisterClusterLink();
-	          ATH_MSG_DEBUG("Will add cluster with E and ratio " << (*theOriginalClusterLink)->e() << " and " << trackClusterLinkPair.second);
-            if (theSisterClusterLink.isValid()) vectorClusterToSubtractedEnergies.emplace_back(std::pair(theSisterClusterLink,trackClusterLinkPair.second));
-            else vectorClusterToSubtractedEnergies.emplace_back(std::pair(theOriginalClusterLink,trackClusterLinkPair.second));
+	          ATH_MSG_DEBUG("Will add cluster with E, ratio and absolute subtracted energy " << (*theOriginalClusterLink)->e() << ", " << trackClusterLinkPair.second.first << ", " << trackClusterLinkPair.second.second);
+            if (theSisterClusterLink.isValid()) vectorClusterToSubtractedEnergies.emplace_back(std::pair(theSisterClusterLink,trackClusterLinkPair.second.second));
+            else vectorClusterToSubtractedEnergies.emplace_back(std::pair(theOriginalClusterLink,trackClusterLinkPair.second.second));
           }
           else if (m_eOverPMode && trackClusterLinkPair.first == trackClusterLink) thisTracks_trackClusterLinksSubtracted.push_back(trackClusterLink);
         }
       }
 
-      //sort the vectorClusterToSubtractedEnergies in order of subtracted energy ratio from low (most subtracted) to high (least subtracted)
-      std::sort(vectorClusterToSubtractedEnergies.begin(),vectorClusterToSubtractedEnergies.end(), [](auto const& a, auto const&b){return a.second < b.second;});
+      //sort the vectorClusterToSubtractedEnergies in order of subtracted energy from high (most subtracted) to low (least subtracted)
+      std::sort(vectorClusterToSubtractedEnergies.begin(),vectorClusterToSubtractedEnergies.end(), [](auto const& a, auto const&b){return a.second > b.second;});
       //now split this into two vectors, ready to be used by the FlowElement
       std::vector<ElementLink<xAOD::IParticleContainer> > theClusters;
       std::vector<float> theClusterWeights;

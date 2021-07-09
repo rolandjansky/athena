@@ -22,7 +22,7 @@ public:
   PFSubtractionStatusSetter();
 
   /** Set the ratio of new to old cluster energy for each cluster matched to a track with trackIndex */
-  void markSubtractionStatus(const std::vector<std::pair<xAOD::CaloCluster*, bool> >& clusterList, std::vector<float>& clusterSubtractedEnergyRatios,eflowCaloObject& thisEflowCaloObject, unsigned int trackIndex);    
+  void markSubtractionStatus(const std::vector<std::pair<xAOD::CaloCluster*, bool> >& clusterList, std::vector<std::pair<float,float> >& clusterSubtractedEnergyRatios,eflowCaloObject& thisEflowCaloObject, unsigned int trackIndex);    
   /** Set the ratio of new to old cluster energy, to zero, for all cluster matched to all tracks attached to the eflowCaloObject */
   void markAllTracksAnnihStatus(eflowCaloObject& thisEflowCaloObject);  
 };
