@@ -260,7 +260,17 @@ class LegacyThreshold( Threshold ):
                         ("priority", thrV.priority)
                     ]) )
         elif self.ttype == ThrType.XE:
-            confObj["value"] = self.thresholdValues[0].value
+            if len(self.thresholdValues)==1:
+                confObj["value"] = self.thresholdValues[0].value
+            else:
+                confObj["thrValues"] = []
+                for thrV in self.thresholdValues:
+                    confObj["thrValues"].append( odict([
+                        ("value", thrV.value),
+                        ("etamin", thrV.etamin),
+                        ("etamax", thrV.etamax),
+                        ("priority", thrV.priority)
+                    ]) )
         elif self.ttype == ThrType.XS:
             confObj["value"] = self.thresholdValues[0].value
         else:
