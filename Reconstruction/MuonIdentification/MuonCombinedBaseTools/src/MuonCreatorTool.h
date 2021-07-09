@@ -77,7 +77,10 @@ namespace MuonCombined {
         virtual xAOD::Muon* create(InDetCandidateTags& candidate, OutputData& outputData) const override final;
 
     private:
-        void addStatisticalCombination(xAOD::Muon& muon, const InDetCandidate& candidate, const StacoTag* tag,
+        /// Decorated a bunch of dummy values to the muon to ensure data consistency in the xAOD
+        void decorateDummyValues(xAOD::Muon& muon, OutputData& outputData) const;
+
+        void addStatisticalCombination(xAOD::Muon& muon, const InDetCandidate* candidate, const StacoTag* tag,
                                        OutputData& outputData) const;
 
         void addCombinedFit(xAOD::Muon& muon, const CombinedFitTag* tag, OutputData& outputData) const;
