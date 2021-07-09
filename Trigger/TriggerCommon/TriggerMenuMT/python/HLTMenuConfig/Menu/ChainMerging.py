@@ -9,7 +9,6 @@ from TrigCompositeUtils.TrigCompositeUtils import legName
 
 from collections import OrderedDict
 from copy import deepcopy
-from itertools import zip_longest
 import re
 
 log = logging.getLogger( __name__ )
@@ -70,6 +69,7 @@ def mergeParallel(chainDefList, offset):
         raise Exception("[mergeParallel] Cannot merge this chain, exiting.")
 
     allSteps = []
+    allStepsMult = []
     nSteps = []
     chainName = ''
     l1Thresholds = []
@@ -82,6 +82,7 @@ def mergeParallel(chainDefList, offset):
             log.error("[mergeParallel] Something is wrong with the combined chain name: cConfig.name = %s while chainName = %s", cConfig.name, chainName)
             raise Exception("[mergeParallel] Cannot merge this chain, exiting.")
         allSteps.append(cConfig.steps)
+        allStepsMult.append(len(cConfig.steps[0].multiplicity))
         nSteps.append(len(cConfig.steps))
         l1Thresholds.extend(cConfig.vseeds)
 
@@ -93,8 +94,8 @@ def mergeParallel(chainDefList, offset):
         else: 
             log.info("[mergeParallel] Alignment groups are empty for this combined chain - if this is not _newJO, this is not ok!")
 
-    # Use zip_longest so that we get None in case one chain has more steps than the other
-    orderedSteps = list(zip_longest(*allSteps))
+    # Use zip_longest_parallel so that we get None in case one chain has more steps than the other
+    orderedSteps = list(zip_longest_parallel(allSteps, allStepsMult))
 
     combChainSteps =[]
     log.debug("[mergeParallel] len(orderedSteps): %d", len(orderedSteps))
@@ -371,9 +372,6 @@ def makeCombinedStep(parallel_steps, stepNumber, chainDefList, allSteps = [], cu
     stepDicts = []
     comboHypoTools = []
     comboHypo = None
-
-    # this function only makes sense if we are merging steps corresponding to the chains in the chainDefList
-    assert len(chainDefList)==len(parallel_steps), "[makeCombinedStep] makeCombinedStep: Length of chain defs %d does not match length of steps to merge %d" % (len(chainDefList), len(allSteps))
     
     leg_counter = 0
     currentStepName = ''
@@ -431,6 +429,9 @@ def makeCombinedStep(parallel_steps, stepNumber, chainDefList, allSteps = [], cu
         if step is None or (hasNonEmptyStep and len(step.sequences) == 0):
             # this happens for merging chains with different numbers of steps, we need to "pad" out with empty sequences to propogate the decisions
             # all other chain parts' steps should contain an empty sequence
+
+            if chain_index+1 > len(chainDefList): 
+                chain_index-=chain_index
 
             new_stepDict = deepcopy(chainDefList[chain_index].steps[-1].stepDicts[-1])
             seqName = getEmptySeqName(new_stepDict['signature'], chain_index, stepNumber, chainDefList[0].alignmentGroups[0])
@@ -511,3 +512,28 @@ def makeCombinedStep(parallel_steps, stepNumber, chainDefList, allSteps = [], cu
     
     return theChainStep
 
+# modified version of zip_longest('ABCD', 'xy', fillvalue='-') --> Ax By C- D-, which takes into account the multiplicity of the steps
+def zip_longest_parallel(AllSteps, multiplicity, fillvalue=None):
+    from itertools import repeat
+    
+    iterators = [iter(it) for it in AllSteps]
+    num_active = len(iterators)
+    if not num_active:
+        return
+    while True:
+        values = []
+        for i, it in enumerate(iterators):
+            try:
+                value = next(it)
+            except StopIteration:
+                num_active -= 1
+                if not num_active:
+                    return
+                log.debug("multiplicity[i] %s",int(multiplicity[i]))
+                iterators[i] = repeat(fillvalue, int(multiplicity[i]))
+                value = fillvalue
+            values.append(value)
+            if int(multiplicity[i]) > 1 and value == fillvalue:
+                for i in range(int(multiplicity[i]-1)):
+                   values.append(value) 
+        yield tuple(values)

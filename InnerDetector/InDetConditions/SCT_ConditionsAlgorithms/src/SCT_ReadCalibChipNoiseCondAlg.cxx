@@ -115,7 +115,7 @@ StatusCode SCT_ReadCalibChipNoiseCondAlg::finalize() {
 }
 
 void 
-SCT_ReadCalibChipNoiseCondAlg::insertNoiseOccFolderData(SCT_ModuleNoiseCalibData& theseCalibData, const coral::AttributeList& folderData) const {
+SCT_ReadCalibChipNoiseCondAlg::insertNoiseOccFolderData(SCT_ModuleNoiseCalibData& theseCalibData, const coral::AttributeList& folderData) {
   for (int i{0}; i!=N_NOISEOCC; ++i) {
     SCT_ModuleCalibParameter& datavec{theseCalibData[i]};
     std::string dbData{((folderData)[noiseOccDbParameterNames[i]]).data<std::string>()};

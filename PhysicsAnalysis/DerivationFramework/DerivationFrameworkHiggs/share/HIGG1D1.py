@@ -575,6 +575,8 @@ if DerivationFrameworkIsMonteCarlo:
    addTruth3ContentToSlimmerTool(HIGG1D1SlimmingHelper)
    HIGG1D1SlimmingHelper.AllVariables += ["TruthHFWithDecayParticles","TruthHFWithDecayVertices","TruthCharm"]
 
+
+HIGG1D1SlimmingHelper.AllVariables   += ['EventInfo']
 HIGG1D1SlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.Tau1_wta.Tau2_wta.Tau3_wta.D2.GhostBHadronsFinalCount",
                                       "Electrons.TruthLink",
                                       "Muons.TruthLink",
@@ -588,12 +590,14 @@ HIGG1D1SlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jet
 
 #Custom Jet Varibles
 
-HIGG1D1SlimmingHelper.AppendToDictionary = {  "AntiKt4PFlowCustomVtxJets": "xAOD::JetContainer", "AntiKt4PFlowCustomVtxJetsAux":"xAOD::JetAuxContainer",
+HIGG1D1SlimmingHelper.AppendToDictionary.update({  "AntiKt4PFlowCustomVtxJets": "xAOD::JetContainer", "AntiKt4PFlowCustomVtxJetsAux":"xAOD::JetAuxContainer",
         "METAssoc_AntiKt4PFlowCustomVtxHgg":"xAOD::MissingETAssociationMap", "METAssoc_AntiKt4PFlowCustomVtxHggAux":"xAOD::MissingETAuxAssociationMap",
         "MET_Core_AntiKt4PFlowCustomVtxHgg":"xAOD::MissingETContainer", "MET_Core_AntiKt4PFlowCustomVtxHggAux":"xAOD::MissingETAuxContainer",
         HggVertexContainerName:"xAOD::VertexContainer", HggVertexContainerName+"Aux":"xAOD::ShallowAuxContainer",
-        "Kt4PFlowCustomVtxEventShape":"xAOD::EventShape", "Kt4PFlowCustomVtxEventShapeAux":"xAOD::EventShapeAuxInfo"
-     }
+        "Kt4PFlowCustomVtxEventShape":"xAOD::EventShape", "Kt4PFlowCustomVtxEventShapeAux":"xAOD::EventShapeAuxInfo",
+        'BTagging_AntiKt4PFlowCustomVtx':'xAOD::BTaggingContainer', 'BTagging_AntiKt4PFlowCustomVtxAux' : 'xAOD::BTaggingAuxContainer',
+        'ZeeRefittedPrimaryVertices':'xAOD::VertexContainer','ZeeRefittedPrimaryVerticesAux':'xAOD:VertexAuxContainer',
+     })
 
 HIGG1D1SlimmingHelper.AllVariables += [HggVertexContainerName,"ZeeRefittedPrimaryVertices","AntiKt4PFlowCustomVtxJets","Kt4PFlowCustomVtxEventShape"]
 
@@ -604,7 +608,11 @@ HIGG1D1SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt4EMPFlowJ
 HIGG1D1SlimmingHelper.ExtraVariables += BTaggingXbbContent("AntiKt4PFlowCustomVtxJets")
 HIGG1D1SlimmingHelper.ExtraVariables += BTaggingXbbContent("AntiKt4EMPFlowJets")
 
-
+# Add AFP information
+HIGG1D1Stream.AddItem("xAOD::AFPSiHitContainer#AFPSiHitContainer")
+HIGG1D1Stream.AddItem("xAOD::AFPSiHitAuxContainer#AFPSiHitContainerAux.")
+HIGG1D1Stream.AddItem("xAOD::AFPToFHitContainer#AFPToFHitContainer")
+HIGG1D1Stream.AddItem("xAOD::AFPToFHitAuxContainer#AFPToFHitContainerAux.")
 
 # is this really needed given Photons are in the AllVariables list ?
 from DerivationFrameworkEGamma.PhotonsCPDetailedContent import PhotonsCPDetailedContent
@@ -633,7 +641,6 @@ HIGG1D1_trigmatching_helper_tau.add_to_slimming(HIGG1D1SlimmingHelper)
 # Final construction of output stream
 HIGG1D1SlimmingHelper.AppendContentToStream(HIGG1D1Stream)
     
-
 #====================================================================
 # Add our sequence to the top sequence
 #====================================================================

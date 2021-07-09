@@ -6,11 +6,13 @@
 #include "TestTools/expect.h"
 #include "TrigCompositeUtils/ChainNameParser.h"
 
+namespace std {
 template<typename T>
 std::ostream& operator<<(std::ostream& o, const std::vector<T>& v) {
     for ( auto el : v )
         o << el << " ";
     return o;
+}
 }
 
 int main() {

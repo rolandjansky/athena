@@ -60,10 +60,12 @@ private:
                                                             "Input" };
 
   // Write decoration handle keys
-  // these are not really configuarable
-  SG::WriteDecorHandleKey<xAOD::EgammaContainer> m_decoratorPass{};
-  SG::WriteDecorHandleKey<xAOD::EgammaContainer> m_decoratorIsEM{};
-  SG::WriteDecorHandleKey<xAOD::EgammaContainer> m_decoratorResult{};
+  SG::WriteDecorHandleKey<xAOD::EgammaContainer>
+    m_decoratorPass{ this, "decoratorPass", "", "" };
+  SG::WriteDecorHandleKey<xAOD::EgammaContainer>
+    m_decoratorIsEM{ this, "decoratorIsEM", "", "" };
+  SG::WriteDecorHandleKey<xAOD::EgammaContainer>
+    m_decoratorResult{ this, "decoratorResult", "", "" };
   std::string m_cut;
   std::string m_sgName;
   bool m_storeTResult;

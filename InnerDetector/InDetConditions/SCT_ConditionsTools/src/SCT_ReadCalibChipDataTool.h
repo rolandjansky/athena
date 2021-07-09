@@ -65,8 +65,8 @@ class SCT_ReadCalibChipDataTool: public extends<AthAlgTool, ISCT_ReadCalibChipDa
   enum FolderType {NPTGAIN, NOISEOCC, UNKNOWN_FOLDER, N_FOLDERTYPES};
 
   // Private methods
-  int nPtGainIndex(const std::string& dataName) const;
-  int noiseOccIndex(const std::string& dataName) const;
+  static int nPtGainIndex(const std::string& dataName) ;
+  static int noiseOccIndex(const std::string& dataName) ;
 
   const SCT_GainCalibData* getCondDataGain(const EventContext& ctx) const;
   const SCT_NoiseCalibData* getCondDataNoise(const EventContext& ctx) const;

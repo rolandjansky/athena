@@ -43,7 +43,8 @@ private:
 
   // Write decoration handle keys
   // these are not really configuarable
-  SG::WriteDecorHandleKey<xAOD::EgammaContainer> m_decoratorPass{};
+  SG::WriteDecorHandleKey<xAOD::EgammaContainer>
+    m_decoratorPass{ this, "DecoratorPass", "", "" };
   std::string m_sgName;
 };
 }

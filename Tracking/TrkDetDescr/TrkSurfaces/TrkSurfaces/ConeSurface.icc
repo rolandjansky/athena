@@ -122,6 +122,12 @@ ConeSurface::clone() const
   return new ConeSurface(*this);
 }
 
+inline std::unique_ptr<ConeSurface> 
+ConeSurface::uniqueClone() const{
+  return std::unique_ptr<ConeSurface>(clone());
+}
+
+
 inline Amg::Vector3D
 ConeSurface::normal(const Amg::Vector2D& lp) const
 {

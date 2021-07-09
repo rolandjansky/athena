@@ -145,7 +145,7 @@ StatusCode TRTToTCondAlg::update1( TRTDedxcorrection& Dedxcorrection, const Cond
   std::vector<float> currentArrayValues = {};
   for (; channel != channel_values->end(); ++channel) {
     if (channelIndex != channel->first){
-      if(currentArrayValues.size()!=0) resultDict[dictNames[channelIndex]] = currentArrayValues;
+      if(!currentArrayValues.empty()) resultDict[dictNames[channelIndex]] = currentArrayValues;
       channelIndex = channel->first;      
       currentArrayValues.clear();
     }
@@ -173,10 +173,10 @@ StatusCode TRTToTCondAlg::update1( TRTDedxcorrection& Dedxcorrection, const Cond
 
 void TRTToTCondAlg::updateOccupancyCorrectionParameters(TRTDedxcorrection & Dedxcorrection, std::map<std::string,std::vector<float> > &result_dict) {
   // fill occupancy calibration parameters
-  for (unsigned int ind=0; ind < Dedxcorrection.nParametersHitBaseddEdx; ++ind) {
+  for (unsigned int ind=0; ind < TRTDedxcorrection::nParametersHitBaseddEdx; ++ind) {
     Dedxcorrection.hitOccPar[ind]=result_dict["HitOccPar"][ind];
   }
-  for (unsigned int ind=0; ind < Dedxcorrection.nParametersTrackBaseddEdx; ++ind) {
+  for (unsigned int ind=0; ind < TRTDedxcorrection::nParametersTrackBaseddEdx; ++ind) {
     Dedxcorrection.trackOccPar0NoHt[ind]=result_dict["TrackOccPar0_noHT"][ind];
     Dedxcorrection.trackOccPar1NoHt[ind]=result_dict["TrackOccPar1_noHT"][ind];
     Dedxcorrection.trackOccPar2NoHt[ind]=result_dict["TrackOccPar2_noHT"][ind];

@@ -397,9 +397,9 @@ bool TileJetMonitorAlgorithm::isGoodEvent(const EventContext& ctx) const {
   */
   if (! m_doJetCleaning) return true;
 
-  const xAOD::JetContainer* jetContainer = nullptr;
-  if (! evtStore()->retrieve(jetContainer, "AntiKt4EMTopoJets").isSuccess()){
-    ATH_MSG_INFO("Cannot retrieve AntiKt4EMTopoJets. However, returning true.");
+  const xAOD::JetContainer* jetContainer = SG::get(m_jetContainerKey);
+  if (! jetContainer){
+    ATH_MSG_INFO("Cannot retrieve " << m_jetContainerKey << ". However, returning true.");
     return true;
   }
 

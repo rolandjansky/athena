@@ -35,8 +35,8 @@ class ITkPixelClusterErrorData {
                        double delta_x_slope, double delta_x_offset, double error_x,
                        double delta_y_slope, double delta_y_offset, double error_y );
         
-    void print(std::string file) const;
-    void load(std::string file);
+    void print(const std::string& file) const;
+    void load(const std::string& file);
 
 
   private: 

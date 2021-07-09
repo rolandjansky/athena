@@ -31,9 +31,9 @@ class TRTToTCondAlg : public AthAlgorithm
   StatusCode update2(TRTDedxcorrection& Dedxcorrection, const CondAttrListCollection* attrListColl );
  
  protected:
-  void updateOldDBParameters(TRTDedxcorrection& Dedxcollection, std::map<std::string,std::vector<float> > &result_dict) ;
-  void updateNewDBParameters(TRTDedxcorrection& Dedxcorrection, std::map<std::string,std::vector<float> > &result_dict) ;
-  void updateOccupancyCorrectionParameters(TRTDedxcorrection & Dedxcorrection, std::map<std::string,std::vector<float> > &result_dict) ;
+  static void updateOldDBParameters(TRTDedxcorrection& Dedxcollection, std::map<std::string,std::vector<float> > &result_dict) ;
+  static void updateNewDBParameters(TRTDedxcorrection& Dedxcorrection, std::map<std::string,std::vector<float> > &result_dict) ;
+  static void updateOccupancyCorrectionParameters(TRTDedxcorrection & Dedxcorrection, std::map<std::string,std::vector<float> > &result_dict) ;
 
  private:
   ServiceHandle<ICondSvc> m_condSvc;

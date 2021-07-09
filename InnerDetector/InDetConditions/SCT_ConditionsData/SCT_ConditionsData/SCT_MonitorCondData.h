@@ -66,12 +66,12 @@ private:
   std::array<std::array<std::array<std::size_t,
     SCT_ConditionsData::CHIPS_PER_SIDE>,
     SCT_ConditionsData::SIDES_PER_MODULE>,
-    SCT_ConditionsData::NUMBER_OF_MODULES> m_badChipArray;
+    SCT_ConditionsData::NUMBER_OF_MODULES> m_badChipArray{};
   std::array<std::array<std::size_t,
     SCT_ConditionsData::SIDES_PER_MODULE>,
-    SCT_ConditionsData::NUMBER_OF_MODULES> m_badWaferArray;
+    SCT_ConditionsData::NUMBER_OF_MODULES> m_badWaferArray{};
   std::array<std::size_t,
-    SCT_ConditionsData::NUMBER_OF_MODULES> m_badModuleArray;
+    SCT_ConditionsData::NUMBER_OF_MODULES> m_badModuleArray{};
 
   static const std::string s_separator;
 };

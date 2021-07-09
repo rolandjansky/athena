@@ -318,6 +318,11 @@ if rec.doCaloRinger():
     except Exception:
         treatException("Could not load CaloRingerAlgs/CaloRingerOutputItemList_jobOptions.py" )
 
+# remove decorations that might be created by monitoring
+if rec.doMonitoring():
+    fullAODList += CfgItemList( "MonitoringAod", 
+                                items = ["xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.-jetClean_LooseBad"]
+                              )
 
 # now merge the explicit AOD list to the one coming from ObjKeyStore
 # (more and more will be taken from ObjKeyStore)

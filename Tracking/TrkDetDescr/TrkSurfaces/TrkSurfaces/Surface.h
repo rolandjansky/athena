@@ -170,6 +170,9 @@ public:
 
   /**Implicit constructor - uses the copy constructor */
   virtual Surface* clone() const = 0;
+  
+  /** NVI method returning unique_ptr clone */
+  std::unique_ptr<Surface> uniqueClone() const;
 
   /** Returns the Surface type to avoid dynamic casts */
   virtual SurfaceType type() const = 0;

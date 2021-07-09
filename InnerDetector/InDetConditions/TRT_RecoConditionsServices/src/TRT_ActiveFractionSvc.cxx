@@ -35,20 +35,20 @@ TRT_ActiveFractionSvc::TRT_ActiveFractionSvc( const std::string& name,
   declareProperty( "nBinsPhi", m_nBinsPhi );
 
   // Build the eta bin list (if not specified in job options)
-  if ( m_etaBins.size() == 0 ) {
+  if ( m_etaBins.empty() ) {
     // Default eta bins
-    m_etaBins.push_back( std::make_pair(-2.1,-1.75) );
-    m_etaBins.push_back( std::make_pair(-1.75,-1.3) );
-    m_etaBins.push_back( std::make_pair(-1.3,-1.07) );
-    m_etaBins.push_back( std::make_pair(-1.07,-0.65) );
-    m_etaBins.push_back( std::make_pair(-0.65,-0.1) );
-    m_etaBins.push_back( std::make_pair(-0.1,0.) );
-    m_etaBins.push_back( std::make_pair(0.,0.1) );
-    m_etaBins.push_back( std::make_pair(0.1,0.65) );
-    m_etaBins.push_back( std::make_pair(0.65,1.07) );
-    m_etaBins.push_back( std::make_pair(1.07,1.3) );
-    m_etaBins.push_back( std::make_pair(1.3,1.75) );
-    m_etaBins.push_back( std::make_pair(1.75,2.1) );
+    m_etaBins.emplace_back(-2.1,-1.75 );
+    m_etaBins.emplace_back(-1.75,-1.3 );
+    m_etaBins.emplace_back(-1.3,-1.07 );
+    m_etaBins.emplace_back(-1.07,-0.65 );
+    m_etaBins.emplace_back(-0.65,-0.1 );
+    m_etaBins.emplace_back(-0.1,0. );
+    m_etaBins.emplace_back(0.,0.1 );
+    m_etaBins.emplace_back(0.1,0.65 );
+    m_etaBins.emplace_back(0.65,1.07 );
+    m_etaBins.emplace_back(1.07,1.3 );
+    m_etaBins.emplace_back(1.3,1.75 );
+    m_etaBins.emplace_back(1.75,2.1 );
   }
 }
 
@@ -80,7 +80,7 @@ StatusCode TRT_ActiveFractionSvc::initialize() {
   double phiEdgeLow = -1. * M_PI; // Check this to be sure...
   double deltaPhi = 2. * M_PI / (1. * m_nBinsPhi) ;
   for ( int i = 0; i < m_nBinsPhi; ++i ) {
-    m_phiBins.push_back( std::make_pair( phiEdgeLow + i*deltaPhi, phiEdgeLow + (i+1)*deltaPhi ) );
+    m_phiBins.emplace_back( phiEdgeLow + i*deltaPhi, phiEdgeLow + (i+1)*deltaPhi );
   }
   // Initialize the table with 1.'s
   std::vector<double> dummyPhiVec( m_phiBins.size(), 1. );

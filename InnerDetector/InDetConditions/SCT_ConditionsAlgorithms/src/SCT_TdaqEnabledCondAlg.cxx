@@ -86,7 +86,7 @@ StatusCode SCT_TdaqEnabledCondAlg::execute(const EventContext& ctx) const
       CondAttrListCollection::ChanNum channelNumber{attrList->first};
       const CondAttrListCollection::AttributeList &payload{attrList->second};
       const std::string &enabled{payload["class"].data<std::string>()};
-      std::string chanName{readCdo->chanName(channelNumber)};
+      const std::string& chanName{readCdo->chanName(channelNumber)};
       unsigned int rodNumber{parseChannelName(chanName)};
       // range check on the rod channel number has been removed, since it refers both to existing channel names
       // which can be rods in slots 1-128 but also historical names which have since been removed
@@ -158,7 +158,7 @@ bool SCT_TdaqEnabledCondAlg::unfilledRun(const EventContext& ctx) const {
 
 //parse a rod channel name to a rod number, names are of the format 'ROL-SCT-BA-00-210000'
 //October 2014: names can now also be of format 'ROL-SCT-B-00-210100'
-unsigned int SCT_TdaqEnabledCondAlg::parseChannelName(const std::string &chanNameString) const {
+unsigned int SCT_TdaqEnabledCondAlg::parseChannelName(const std::string &chanNameString) {
   unsigned int result{0};
   const long unsigned int length{chanNameString.size()};
   if (length < 19) return result; //very rough check on sanity of string, should use regex
@@ -174,7 +174,7 @@ unsigned int SCT_TdaqEnabledCondAlg::parseChannelName(const std::string &chanNam
   return result; 
 }
 
-std::string SCT_TdaqEnabledCondAlg::inWords(const unsigned int aNumber) const {
+std::string SCT_TdaqEnabledCondAlg::inWords(const unsigned int aNumber) {
   switch (aNumber){
   case 0:
     return std::string("No SCT rods were");

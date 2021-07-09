@@ -10,8 +10,8 @@ PixelConditionsSummaryTool::PixelConditionsSummaryTool(const std::string& type, 
   :AthAlgTool(type, name, parent),
   m_pixelID(nullptr)
 {
-  m_isActiveStatus.push_back("OK");
-  m_isActiveStates.push_back("READY");
+  m_isActiveStatus.emplace_back("OK");
+  m_isActiveStates.emplace_back("READY");
 
   declareProperty("IsActiveStatus", m_isActiveStatus);
   declareProperty("IsActiveStates", m_isActiveStates);
@@ -74,7 +74,7 @@ const IDCInDetBSErrContainer* PixelConditionsSummaryTool::getContainer(const Eve
 PixelConditionsSummaryTool::IDCCacheEntry* PixelConditionsSummaryTool::getCacheEntry(const EventContext& ctx) const {
   IDCCacheEntry* cacheEntry = m_eventCache.get(ctx);
   if (cacheEntry->needsUpdate(ctx)) {
-    auto idcErrContPtr = getContainer(ctx);
+    const auto *idcErrContPtr = getContainer(ctx);
     if (idcErrContPtr==nullptr) {     // missing or not, the cache needs to be reset
       cacheEntry->reset(ctx.evt(), nullptr);
     }
@@ -110,7 +110,7 @@ uint64_t PixelConditionsSummaryTool::getBSErrorWord(const IdentifierHash& module
   if (!m_useByteStreamFEI3 && p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI3) { return 0; }
 
   std::scoped_lock<std::mutex> lock{*m_cacheMutex.get(ctx)};
-  auto idcCachePtr = getCacheEntry(ctx)->IDCCache;
+  const auto *idcCachePtr = getCacheEntry(ctx)->IDCCache;
   if (idcCachePtr==nullptr) {
     ATH_MSG_ERROR("PixelConditionsSummaryTool No cache! " );
   }

@@ -215,7 +215,8 @@ PHYSVALSlimmingHelper.SmartCollections = ["Electrons",
                                        "AntiKtVR30Rmax4Rmin02PV0TrackJets",
                                       ]
 
-PHYSVALSlimmingHelper.AllVariables =  ["Electrons", "ForwardElectrons",
+PHYSVALSlimmingHelper.AllVariables =  ["EventInfo",
+                                       "Electrons", "ForwardElectrons",
                                        "Photons",
                                        "Muons", "CombinedMuonTrackParticles","ExtrapolatedMuonTrackParticles",
                                        "MuonSpectrometerTrackParticles","MSOnlyExtrapolatedMuonTrackParticles","MuonSegments",

@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
@@ -86,7 +86,22 @@ def getEnvironment(flags):
         return 'online'
     else:
         # this could use being rethought to properly encode input and output types perhaps ...
-        return 'tier0ESD'
+        if flags.Input.Format == 'BS':
+            if flags.Output.AODFileName:
+                return 'tier0'
+            else:
+                return 'tier0Raw'
+        elif 'StreamESD' in flags.Input.ProcessingTags:
+            return 'tier0ESD'
+        elif 'StreamAOD' in flags.Input.ProcessingTags:
+            return 'AOD'
+        elif 'StreamDAOD_PHYS' in flags.Input.ProcessingTags:
+            return 'DAOD_PHYS'
+        else:
+            import logging
+            local_logger = logging.getLogger('DQConfigFlags_getEnvironment')
+            local_logger.warning('Unable to figure out environment for DQ; using "tier0ESD"')
+            return 'tier0ESD'
 
 def allSteeringFlagsOff():
     from AthenaConfiguration.AllConfigFlags import ConfigFlags

@@ -22,9 +22,9 @@ class StorePIDinfo{
    float GetBinValue ( int bin ) const; 
    int   GetBin   ( float input	) const; 
   private:
-   unsigned int m_nbins		;
-   float m_min		;
-   float m_max		;
+   unsigned int m_nbins{}		;
+   float m_min{}		;
+   float m_max{}		;
    std::vector<float>  	m_values;
 };
 #endif

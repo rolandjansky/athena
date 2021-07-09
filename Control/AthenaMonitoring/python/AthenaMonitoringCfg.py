@@ -11,25 +11,32 @@ def AthenaMonitoringCfg(flags):
     result = ComponentAccumulator()
 
     if flags.DQ.Environment == 'AOD':
-        info('Scheduling rebuild of standard jets')
-        from JetRecConfig.JetRecConfig import JetRecCfg
-        from JetRecConfig.StandardSmallRJets import AntiKt4EMTopo, AntiKt4EMPFlow, AntiKt4LCTopo
-        result.merge(JetRecCfg(flags, AntiKt4EMTopo))
-        result.merge(JetRecCfg(flags, AntiKt4LCTopo))
-        result.merge(JetRecCfg(flags, AntiKt4EMPFlow))
-        info('Scheduling b-tagging of rebuilt jets')
-        from BTagging.BTagRun3Config import BTagRecoSplitCfg
-        result.merge(BTagRecoSplitCfg(flags, ['AntiKt4EMTopo']))
-        result.merge(BTagRecoSplitCfg(flags, ['AntiKt4EMPFlow']))
-        info('Scheduling rebuild of standard MET')
-        from METReconstruction.METAssociatorCfg import METAssociatorCfg
-        result.merge(METAssociatorCfg(flags, 'AntiKt4EMTopo'))
-        result.merge(METAssociatorCfg(flags, 'AntiKt4LCTopo'))
-        result.merge(METAssociatorCfg(flags, 'AntiKt4EMPFlow'))
-        from CaloTools.CaloNoiseCondAlgConfig import CaloNoiseCondAlgCfg
-        result.merge(CaloNoiseCondAlgCfg(flags)) # Prereq for Calo MET
-        from METReconstruction.METCalo_Cfg import METCalo_Cfg
-        result.merge(METCalo_Cfg(flags))
+        info('Running on AOD: Scheduling rebuild of standard jet collections if necessary')
+        jets_to_schedule = []
+        for container in ('AntiKt4EMTopo', 'AntiKt4EMPFlow', 'AntiKt4LCTopo'):
+            if f'{container}Jets' not in flags.Input.Collections:
+                jets_to_schedule.append(container)
+        if not jets_to_schedule:
+            info('All needed jet collections in input file; nothing needed')
+        else:
+            info(f'Will rebuild jet collections: {jets_to_schedule}')
+            from JetRecConfig.JetRecConfig import JetRecCfg
+            import JetRecConfig.StandardSmallRJets
+            for container in jets_to_schedule:
+                result.merge(JetRecCfg(flags, getattr(JetRecConfig.StandardSmallRJets, container)))
+            info('Scheduling b-tagging of rebuilt jets')
+            from BTagging.BTagRun3Config import BTagRecoSplitCfg
+            for container in jets_to_schedule:
+                if container in ('AntiKt4EMTopo', 'AntiKt4EMPFlow'):
+                    result.merge(BTagRecoSplitCfg(flags, [container]))
+            info('Scheduling rebuild of standard MET')
+            from METReconstruction.METAssociatorCfg import METAssociatorCfg
+            for container in jets_to_schedule:
+                result.merge(METAssociatorCfg(flags, container))          
+            from CaloTools.CaloNoiseCondAlgConfig import CaloNoiseCondAlgCfg
+            result.merge(CaloNoiseCondAlgCfg(flags)) # Prereq for Calo MET
+            from METReconstruction.METCalo_Cfg import METCalo_Cfg
+            result.merge(METCalo_Cfg(flags))
 
     if flags.DQ.Steering.doPixelMon:
         info('Set up Pixel monitoring')

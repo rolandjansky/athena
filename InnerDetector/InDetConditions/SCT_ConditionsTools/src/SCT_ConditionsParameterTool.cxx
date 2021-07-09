@@ -73,7 +73,7 @@ bool
 SCT_ConditionsParameterTool::isValid(const float parameterValue, const SCT_CondParameterData::ParameterIndex iparam, const EventContext& ctx) const {
   const SCT_CondParameterData* data{getCondData(ctx)};
   if (data==nullptr) return invalid(iparam);
-  return data->isValid(parameterValue, iparam);
+  return SCT_CondParameterData::isValid(parameterValue, iparam);
 }
 
 bool 

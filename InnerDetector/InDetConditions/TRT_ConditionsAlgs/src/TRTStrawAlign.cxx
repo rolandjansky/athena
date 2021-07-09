@@ -26,8 +26,8 @@ TRTStrawAlign::TRTStrawAlign(const std::string& name, ISvcLocator* pSvcLocator)
   :AthAlgorithm   (name, pSvcLocator),
    p_caldbtool("TRT_StrawAlignDbSvc",name),
    p_aligndbtool("TRT_AlignDbSvc",name),
-   m_trtman(0),
-   m_trt(0),
+   m_trtman(nullptr),
+   m_trt(nullptr),
    m_setup(false),
    m_doWriteToPOOL(false),
    m_doRegIOV(false),
@@ -74,7 +74,7 @@ StatusCode TRTStrawAlign::initialize() {
   //
   // Get TRT manager and ID helper
   StatusCode sc = AthAlgorithm::detStore()->retrieve(m_trtman,"TRT");
-  if(sc.isFailure() || m_trtman==0) 
+  if(sc.isFailure() || m_trtman==nullptr) 
   {
     msg(MSG::FATAL) << "Could not find TRT manager " << endmsg;
     return StatusCode::FAILURE;
@@ -106,10 +106,10 @@ StatusCode TRTStrawAlign::initialize() {
 	msg(MSG::INFO) << " version tag: " << m_stawAlignTag << endmsg;
       }
     }
-    if (m_inputStrawAlignmentTextFile!="" && msgLvl(MSG::INFO)) msg(MSG::INFO)
+    if (!m_inputStrawAlignmentTextFile.empty() && msgLvl(MSG::INFO)) msg(MSG::INFO)
 			       << "Straw Alignment will read from text file "
 			       << m_inputStrawAlignmentTextFile << endmsg;
-    if (m_outputStrawAlignmentTextFile!="" && msgLvl(MSG::INFO)) msg(MSG::INFO)
+    if (!m_outputStrawAlignmentTextFile.empty() && msgLvl(MSG::INFO)) msg(MSG::INFO)
 				<< "Straw Alignment will be written on text file "
 				<< m_outputStrawAlignmentTextFile << endmsg;
   
@@ -133,10 +133,10 @@ StatusCode TRTStrawAlign::initialize() {
 	msg(MSG::INFO) << " version tag: " << m_moduleAlignTag << endmsg;
       }
     }
-    if (m_inputModuleAlignmentTextFile!="" && msgLvl(MSG::INFO)) msg(MSG::INFO)
+    if (!m_inputModuleAlignmentTextFile.empty() && msgLvl(MSG::INFO)) msg(MSG::INFO)
 			       << "Module Alignment will read from text file "
 			       << m_inputModuleAlignmentTextFile << endmsg;
-    if (m_outputModuleAlignmentTextFile!="" && msgLvl(MSG::INFO)) msg(MSG::INFO)
+    if (!m_outputModuleAlignmentTextFile.empty() && msgLvl(MSG::INFO)) msg(MSG::INFO)
 				<< "Module Alignment will be written on text file "
 				<< m_outputModuleAlignmentTextFile << endmsg;
   }
@@ -155,7 +155,7 @@ StatusCode TRTStrawAlign::execute() {
 
     if (m_doStrawAlign) {
       // read alignment constants from text file
-      if (m_inputStrawAlignmentTextFile!="") {
+      if (!m_inputStrawAlignmentTextFile.empty()) {
 	sc=p_caldbtool->readTextFile(m_inputStrawAlignmentTextFile);
 	if(sc!=StatusCode::SUCCESS) {
           msg(MSG::ERROR) << " Could not read input text file "
@@ -165,7 +165,7 @@ StatusCode TRTStrawAlign::execute() {
       }
 
       // write alignment constants to text file
-      if (m_outputStrawAlignmentTextFile!="") {
+      if (!m_outputStrawAlignmentTextFile.empty()) {
 	sc=p_caldbtool->writeTextFile(m_outputStrawAlignmentTextFile);
 	if(sc!=StatusCode::SUCCESS) {
           msg(MSG::ERROR) << " Could not write output text file "
@@ -192,7 +192,7 @@ StatusCode TRTStrawAlign::execute() {
 
     if (m_doModuleAlign) {
       // read alignment constants from text file
-      if (m_inputModuleAlignmentTextFile!="") {
+      if (!m_inputModuleAlignmentTextFile.empty()) {
 	sc=p_aligndbtool->readAlignTextFile(m_inputModuleAlignmentTextFile);
 	if(sc!=StatusCode::SUCCESS) {
           msg(MSG::ERROR) << " Could not read input text file "
@@ -202,7 +202,7 @@ StatusCode TRTStrawAlign::execute() {
       }
 
       // write alignment constants to text file
-      if (m_outputModuleAlignmentTextFile!="") {
+      if (!m_outputModuleAlignmentTextFile.empty()) {
 	sc=p_aligndbtool->writeAlignTextFile(m_outputModuleAlignmentTextFile);
 	if(sc!=StatusCode::SUCCESS) {
           msg(MSG::ERROR) << " Could not write output text file "      << endmsg;

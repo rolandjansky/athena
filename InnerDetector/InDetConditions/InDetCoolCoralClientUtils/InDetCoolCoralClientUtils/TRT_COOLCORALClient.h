@@ -26,7 +26,7 @@ class TRT_COOLCORALClient : private COOLCORALClient {
 
   void GetHVLineFromPad( const DetectorType&, int, int, int, std::vector<std::string>& );
   void CreateHVLinePadMap(const DetectorType&, std::map<int,std::string>&  );
-  int HashThisPad( const DetectorType&, int, int, int );
+  static int HashThisPad( const DetectorType&, int, int, int );
 
   void get_BarrelHVLinePadMap(std::map<std::string,std::string>&);
   void get_COOLChanMap( const std::string&, std::map<int,std::string>& );

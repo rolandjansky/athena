@@ -4,6 +4,8 @@
 #include "TRT_ConditionsData/HTcalculator.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
+#include <cmath>
+
 #include <iostream>
 
 
@@ -11,7 +13,7 @@ void HTcalculator::checkInitialization(){
 //No op
 }
 
-float HTcalculator::Limit(float prob) const{
+float HTcalculator::Limit(float prob) {
   if( prob > 1.0 ){
     return 1.0;
   }
@@ -95,7 +97,7 @@ float HTcalculator::getProbHT(
 
 float HTcalculator::pHTvsPGOG(int TrtPart, int GasType, float p, float mass, float occ) const {
 
-  float gamma = sqrt(p*p + mass*mass) / mass;
+  float gamma = std::sqrt(p*p + mass*mass) / mass;
    
   // The position of the upper point of linearity varies with occupancy!
   double par1 = m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(1) + m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(6)*occ;
@@ -103,24 +105,41 @@ float HTcalculator::pHTvsPGOG(int TrtPart, int GasType, float p, float mass, flo
   double par4 = m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(4) + m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(7)*occ;
 
   // TR onset part (main part):
-  double exp_term = exp(-(log10(gamma) - par4)/m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(5));
-  double pHT_TR   = m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(2) + m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(3)/(1.0 + exp_term);
+  double exp_term =
+    std::exp(-(std::log10(gamma) - par4) /
+             m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(5));
+  double pHT_TR =
+    m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(2) +
+    m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(3) / (1.0 + exp_term);
 
   // dE/dx part (linear at low gamma):
-  double exp_term0 = exp(-(m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(0) - par4)/m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(5));
-  double alpha0 = m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(2) + m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(3)/(1.0 + exp_term0);
-  double beta0 = m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(3) / ((1.0 + exp_term0)*(1.0 + exp_term0)) * exp_term0 / m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(5);
-  double pHT_dEdx = alpha0 + beta0*(log10(gamma) - m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(0));
+  double exp_term0 =
+    std::exp(-(m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(0) - par4) /
+             m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(5));
+  double alpha0 =
+    m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(2) +
+    m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(3) / (1.0 + exp_term0);
+  double beta0 = m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(3) /
+                 ((1.0 + exp_term0) * (1.0 + exp_term0)) * exp_term0 /
+                 m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(5);
+  double pHT_dEdx =
+    alpha0 + beta0 * (std::log10(gamma) -
+                      m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(0));
 
   // High-gamma part (linear at high gamma):
-  double exp_term1 = exp(-(par1 - par4)/m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(5));
-  double alpha1 = m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(2) + m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(3)/(1.0 + exp_term1);
-  double beta1 = m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(3) / ((1.0 + exp_term1)*(1.0 + exp_term1)) * exp_term1 / m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(5);
-  double pHT_HG   = alpha1 + beta1*(log10(gamma) - par1);
+  double exp_term1 = std::exp(
+    -(par1 - par4) / m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(5));
+  double alpha1 =
+    m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(2) +
+    m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(3) / (1.0 + exp_term1);
+  double beta1 = m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(3) /
+                 ((1.0 + exp_term1) * (1.0 + exp_term1)) * exp_term1 /
+                 m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(5);
+  double pHT_HG = alpha1 + beta1 * (std::log10(gamma) - par1);
 
   double pHT_OccZero = pHT_TR;
-  if      (log10(gamma) < m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(0))   pHT_OccZero = pHT_dEdx;
-  else if (log10(gamma) > par1  )                                                 pHT_OccZero = pHT_HG;
+  if      (std::log10(gamma) < m_par_pHTvsPGOG_new[GasType][TrtPart].GetBinValue(0))   pHT_OccZero = pHT_dEdx;
+  else if (std::log10(gamma) > par1  )                                                 pHT_OccZero = pHT_HG;
 
 
   // The occupancy dependency is included through the Anatoli formula and a quadratic fit from the muon plateau:

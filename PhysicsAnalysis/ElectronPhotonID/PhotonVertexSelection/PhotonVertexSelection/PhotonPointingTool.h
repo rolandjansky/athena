@@ -6,7 +6,7 @@
 #define PhotonVertexSelection_PhotonPointingTool_h
 
 // Framework includes
-#include "AsgTools/AsgTool.h"
+#include "AsgTools/AsgMetadataTool.h"
 
 // Local includes
 #include "PhotonVertexSelection/IPhotonPointingTool.h"
@@ -33,7 +33,7 @@ namespace CP {
   /// @author Christopher Meyer <chris.meyer@cern.ch>
   ///
   class PhotonPointingTool : public virtual IPhotonPointingTool,
-                             public asg::AsgTool {
+                             public asg::AsgMetadataTool {
 
     /// Create a proper constructor for Athena
     ASG_TOOL_CLASS(PhotonPointingTool, CP::IPhotonPointingTool)
@@ -54,16 +54,28 @@ namespace CP {
 
     //Write decoration handle keys
     SG::WriteDecorHandleKey<xAOD::EgammaContainer> m_zvertex{
+      this,
+      "zvertex",
       "Photons.zvertex"
+      "z vertex"
     };
     SG::WriteDecorHandleKey<xAOD::EgammaContainer> m_errz{
+      this,
+      "errz",
       "Photons.errz"
+      "error in Z"
     };
     SG::WriteDecorHandleKey<xAOD::EgammaContainer> m_HPV_zvertex{
-      "Photons.HPV_zvertex"
+      this,
+      "HPV_zvertex",
+      "Photons.HPV_zvertex",
+      "HPV z vertex"  
     };
     SG::WriteDecorHandleKey<xAOD::EgammaContainer> m_HPV_errz{
-      "Photons.HPV_errz"
+      this,
+      "HPV_errz",
+      "Photons.HPV_errz",
+      "HPV error in z"
     };
 
   private:

@@ -140,6 +140,11 @@ Surface::localToGlobal(const LocalParameters& locpars,
   return gPosition;
 }
 
+inline std::unique_ptr<Surface> 
+Surface::uniqueClone() const{
+  return std::unique_ptr<Surface>(clone());
+}
+
 // common to all surfaces, uses memory optized method
 inline std::optional<Amg::Vector2D>
 Surface::globalToLocal(const Amg::Vector3D& glopos, double) const
