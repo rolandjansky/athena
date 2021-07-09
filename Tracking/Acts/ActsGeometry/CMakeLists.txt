@@ -71,7 +71,6 @@ atlas_add_component( ActsGeometry
                      src/ActsGeantFollowerHelper.cxx
                      src/ActsGeantFollowerTool.cxx
                      src/ActsATLASConverterTool.cxx
-                     src/ActsCompareTrackAlg.cxx                                       
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} ${GEOMODEL_LIBRARIES} ${ROOT_LIBRARIES}
