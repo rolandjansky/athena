@@ -11,11 +11,11 @@
 
 #include "MuonCombinedStacoTagTool.h"
 
+#include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "MuonCombinedEvent/InDetCandidate.h"
 #include "MuonCombinedEvent/InDetCandidateToTagMap.h"
 #include "MuonCombinedEvent/MuonCandidate.h"
 #include "MuonCombinedEvent/StacoTag.h"
-#include "EventPrimitives/EventPrimitivesHelpers.h"
 namespace MuonCombined {
 
     MuonCombinedStacoTagTool::MuonCombinedStacoTagTool(const std::string& type, const std::string& name, const IInterface* parent) :
@@ -44,7 +44,7 @@ namespace MuonCombined {
 
         std::unique_ptr<const Trk::Perigee> bestPerigee;
         const InDetCandidate* bestCandidate = nullptr;
-        double bestChi2 {FLT_MAX};
+        double bestChi2{FLT_MAX};
 
         // loop over ID candidates
         for (const MuonCombined::InDetCandidate* const idTP : indetCandidates) {
@@ -74,12 +74,12 @@ namespace MuonCombined {
                                     << muonCandidate.extrapolatedTrack()->perigeeParameters()->associatedSurface().center().z()
                                     << " and extrapolation failed");
                     continue;
-                } 
+                }
                 msPer = dynamic_cast<const Trk::Perigee*>(exPars.get());
                 if (!msPer) {
                     ATH_MSG_WARNING("Extrapolation did not return a perigee!");
                     continue;
-                }                
+                }
             }
             double chi2 = 0;
             std::unique_ptr<const Trk::Perigee> perigee =
@@ -95,7 +95,7 @@ namespace MuonCombined {
             }
         }
         if (bestCandidate) {
-            double outerMatchChi2 {FLT_MAX};
+            double outerMatchChi2{FLT_MAX};
             if (bestCandidate->indetTrackParticle().trackLink().isValid()) {
                 outerMatchChi2 = m_tagTool->chi2(*bestCandidate->indetTrackParticle().track(), *muonCandidate.extrapolatedTrack(), ctx);
             }

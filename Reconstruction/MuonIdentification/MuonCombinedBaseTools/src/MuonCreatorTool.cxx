@@ -11,6 +11,7 @@
 #include "MuonCreatorTool.h"
 
 #include "AthContainers/ConstDataVector.h"
+#include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "FourMomUtils/P4Helpers.h"
 #include "MuidEvent/FieldIntegral.h"
 #include "MuonCombinedEvent/CaloTag.h"
@@ -42,20 +43,18 @@
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODMuon/MuonSegment.h"
 #include "xAODMuon/MuonSegmentContainer.h"
-#include "EventPrimitives/EventPrimitivesHelpers.h"
 
-namespace{
+namespace {
     static const SG::AuxElement::Decorator<int> dec_nUnspoiledCscHits("nUnspoiledCscHits");
     static const SG::AuxElement::Decorator<float> dec_MuonSpectrometerPt("MuonSpectrometerPt");
     static const SG::AuxElement::Decorator<float> dec_InnerDetectorPt("InnerDetectorPt");
     static const SG::AuxElement::Decorator<unsigned int> dec_numEnergyLossPerTrack("numEnergyLossPerTrack");
 
-    static const SG::AuxElement::Decorator<float> dec_ET_Core("ET_Core");        
-    static const SG::AuxElement::Decorator<float> dec_ET_EMCore("ET_EMCore");        
-    static const SG::AuxElement::Decorator<float> dec_ET_TileCore("ET_TileCore");        
-    static const SG::AuxElement::Decorator<float> dec_ET_HECCore("ET_HECCore");        
+    static const SG::AuxElement::Decorator<float> dec_ET_Core("ET_Core");
+    static const SG::AuxElement::Decorator<float> dec_ET_EMCore("ET_EMCore");
+    static const SG::AuxElement::Decorator<float> dec_ET_TileCore("ET_TileCore");
+    static const SG::AuxElement::Decorator<float> dec_ET_HECCore("ET_HECCore");
 
- 
     static const SG::AuxElement::Decorator<float> dec_deltaphi_1("deltaphi_1");
     static const SG::AuxElement::Decorator<float> dec_deltatheta_1("deltatheta_1");
     static const SG::AuxElement::Decorator<float> dec_sigmadeltaphi_1("sigmadeltaphi_1");
@@ -66,7 +65,7 @@ namespace{
     static const SG::AuxElement::Decorator<float> dec_sigmadeltaphi_0("sigmadeltaphi_0");
     static const SG::AuxElement::Decorator<float> dec_sigmadeltatheta_0("sigmadeltatheta_0");
 
-}
+}  // namespace
 namespace MuonCombined {
 
     MuonCreatorTool::MuonCreatorTool(const std::string& type, const std::string& name, const IInterface* parent) :
@@ -189,11 +188,11 @@ namespace MuonCombined {
                 mu->summaryValue(prec, xAOD::numberOfPrecisionLayers);
                 int nTotPrec = (int)prec, nGoodPrec = 0, nBadPrec = 0, nBadBar = 0, nBadEnd = 0, nBadSmall = 0, nBadLarge = 0, nGoodBar = 0,
                     nGoodEnd = 0, nGoodLarge = 0, nGoodSmall = 0;
-                
+
                 static const SG::AuxElement::Accessor<std::vector<std::vector<unsigned int>>> acc_alignEffectChId("alignEffectChId");
                 static const SG::AuxElement::Accessor<std::vector<float>> acc_alligSigmaDeltaTrans("alignEffectSigmaDeltaTrans");
                 const std::vector<std::vector<unsigned int>>& chIds = acc_alignEffectChId(*ptp);
-                const std::vector<float>& alignEffSDT =acc_alligSigmaDeltaTrans(*ptp);
+                const std::vector<float>& alignEffSDT = acc_alligSigmaDeltaTrans(*ptp);
                 std::map<Muon::MuonStationIndex::ChIndex, int> chamberQual;  // 1=good, 2=bad; for choosing large/small
                 for (unsigned int i = 0; i < chIds.size(); i++) {
                     for (unsigned int j = 0; j < chIds[i].size(); j++) {
@@ -356,12 +355,11 @@ namespace MuonCombined {
         // useless low-pT SA muons with 2 precision layers that would never make it
         // into analyses, though
         std::unique_ptr<Trk::CaloExtension> caloExtension =
-          m_caloExtTool->caloExtension(ctx, *muon->trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle));
+            m_caloExtTool->caloExtension(ctx, *muon->trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle));
         if (!caloExtension) {
-          ATH_MSG_DEBUG(
-            "failed to get a calo extension for this SA muon, discard it");
-          outputData.muonContainer->pop_back();
-          return nullptr;
+            ATH_MSG_DEBUG("failed to get a calo extension for this SA muon, discard it");
+            outputData.muonContainer->pop_back();
+            return nullptr;
         }
         if (caloExtension->caloLayerIntersections().empty()) {
             ATH_MSG_DEBUG("failed to retrieve any calo layers for this SA muon, discard it");
@@ -375,22 +373,20 @@ namespace MuonCombined {
 
         return muon;
     }
-    
-    
-    
-    void MuonCreatorTool::decorateDummyValues(xAOD::Muon& muon, OutputData& outputData) const{
+
+    void MuonCreatorTool::decorateDummyValues(xAOD::Muon& muon, OutputData& outputData) const {
         // Set variables to zero by calling the functions with null pointers.
         addCaloTag(muon, nullptr);
         addCombinedFit(muon, nullptr, outputData);
         addStatisticalCombination(muon, nullptr, nullptr, outputData);
         addMuGirl(muon, nullptr, outputData);
         addSegmentTag(muon, nullptr, outputData);
-        
+
         /// Unspoiled CSC hits
         dec_nUnspoiledCscHits(muon) = 0;
         dec_MuonSpectrometerPt(muon) = -1;
         dec_InnerDetectorPt(muon) = -1;
-        
+
         dec_ET_Core(muon) = 0;
         dec_ET_EMCore(muon) = 0;
         dec_ET_TileCore(muon) = 0;
@@ -400,13 +396,13 @@ namespace MuonCombined {
         dec_deltatheta_1(muon) = -999;
         dec_sigmadeltaphi_1(muon) = -999;
         dec_sigmadeltatheta_1(muon) = -999;
-    
+
         dec_deltaphi_0(muon) = -999;
         dec_deltatheta_0(muon) = -999;
         dec_sigmadeltaphi_0(muon) = -999;
         dec_sigmadeltatheta_0(muon) = -999;
 
-        fillEnergyLossFromTrack(muon,nullptr);
+        fillEnergyLossFromTrack(muon, nullptr);
     }
     xAOD::Muon* MuonCreatorTool::create(InDetCandidateTags& candidate, OutputData& outputData) const {
         // no tags, no muon
@@ -569,16 +565,16 @@ namespace MuonCombined {
         static const SG::AuxElement::Decorator<float> dec_phi0("phi0_staco");
         static const SG::AuxElement::Decorator<float> dec_theta("theta_staco");
         static const SG::AuxElement::Decorator<float> dec_qOverP("qOverP_staco");
-        static const SG::AuxElement::Decorator<float> dec_qOverPerr("qOverPErr_staco");        
-        
+        static const SG::AuxElement::Decorator<float> dec_qOverPerr("qOverPErr_staco");
+
         if (!tag) {
             // init variables if necessary.
             dec_d0(muon) = -999;
             dec_z0(muon) = -999;
             dec_phi0(muon) = -999;
             dec_theta(muon) = -999;
-            dec_qOverP(muon)= -999;
-            dec_qOverPerr(muon)= -999.;
+            dec_qOverP(muon) = -999;
+            dec_qOverPerr(muon) = -999.;
             return;
         }
 
@@ -601,18 +597,18 @@ namespace MuonCombined {
             Trk::FitQuality fq(tag->matchChi2(), 5);
             Trk::TrackInfo info(msTrack->info());
             // todo update patrec bit set adding ID values
-            
-                
+
             if (outputData.combinedTrackParticleContainer) {
-                xAOD::TrackParticle* tp = m_particleCreator->createParticle(ctx,  &tag->combinedParameters(), &fq, &info, &summary, {}, {}, xAOD::muon, outputData.combinedTrackParticleContainer);
+                xAOD::TrackParticle* tp = m_particleCreator->createParticle(ctx, &tag->combinedParameters(), &fq, &info, &summary, {}, {},
+                                                                            xAOD::muon, outputData.combinedTrackParticleContainer);
                 if (!tp) {
                     ATH_MSG_WARNING("Failed to create track particle");
                 } else {
                     /// Also add this decoration to maintain data-format consistency to the combined track particles
-                    /// (cf. ATLASRECTS-6454)    
-                    std::vector<float> dummy_cov(15,0.);
-                    tp->setTrackParameterCovarianceMatrix(0, dummy_cov);                
-                    
+                    /// (cf. ATLASRECTS-6454)
+                    std::vector<float> dummy_cov(15, 0.);
+                    tp->setTrackParameterCovarianceMatrix(0, dummy_cov);
+
                     ElementLink<xAOD::TrackParticleContainer> link(*outputData.combinedTrackParticleContainer,
                                                                    outputData.combinedTrackParticleContainer->size() - 1);
                     if (link.isValid()) {
@@ -636,12 +632,12 @@ namespace MuonCombined {
         muon.setParameter(static_cast<float>(tag->matchChi2()), xAOD::Muon::msInnerMatchChi2);
 
         // STACO parameters added as auxdata
-        dec_d0(muon)    = tag->combinedParameters().parameters()[Trk::d0];
-        dec_z0(muon)    = tag->combinedParameters().parameters()[Trk::z0];
-        dec_phi0(muon)  = tag->combinedParameters().parameters()[Trk::phi0];
+        dec_d0(muon) = tag->combinedParameters().parameters()[Trk::d0];
+        dec_z0(muon) = tag->combinedParameters().parameters()[Trk::z0];
+        dec_phi0(muon) = tag->combinedParameters().parameters()[Trk::phi0];
         dec_theta(muon) = tag->combinedParameters().parameters()[Trk::theta];
         dec_qOverP(muon) = tag->combinedParameters().parameters()[Trk::qOverP];
-        dec_qOverPerr(muon)= Amg::error(*tag->combinedParameters().covariance(), Trk::qOverP);
+        dec_qOverPerr(muon) = Amg::error(*tag->combinedParameters().covariance(), Trk::qOverP);
 
         ATH_MSG_DEBUG("Done adding Staco Muon  " << tag->author() << " type " << tag->type());
     }
@@ -842,15 +838,15 @@ namespace MuonCombined {
         bool foundseg = false;
         for (const auto& info : tag->segmentsInfo()) {
             if (info.link.isValid()) {
-	        //this is a bit tricky, as we have here a link to an xAOD segment in the old container
-	        //but the new container should have the segments in the same order, plus the MuGirl ones tacked on the end
-	        //so we should be able to just make a new link here
-	        //note that this only applies to segment-tagged muons, others get their associated segments elsewhere
-	        if (muon.author() == xAOD::Muon::MuTagIMO){
-		    ElementLink<xAOD::MuonSegmentContainer> seglink(*outputData.xaodSegmentContainer,info.link.index());
+                // this is a bit tricky, as we have here a link to an xAOD segment in the old container
+                // but the new container should have the segments in the same order, plus the MuGirl ones tacked on the end
+                // so we should be able to just make a new link here
+                // note that this only applies to segment-tagged muons, others get their associated segments elsewhere
+                if (muon.author() == xAOD::Muon::MuTagIMO) {
+                    ElementLink<xAOD::MuonSegmentContainer> seglink(*outputData.xaodSegmentContainer, info.link.index());
                     segments.push_back(seglink);
-		}
-                if (!foundseg) {                    // add parameters for the first segment
+                }
+                if (!foundseg) {  // add parameters for the first segment
                     muon.setParameter(static_cast<float>(info.dtheta), xAOD::Muon::segmentDeltaEta);
                     muon.setParameter(static_cast<float>(info.dphi), xAOD::Muon::segmentDeltaPhi);
                     muon.setParameter(
@@ -867,10 +863,10 @@ namespace MuonCombined {
 
     void MuonCreatorTool::addCaloTag(xAOD::Muon& mu, const CaloTag* tag) const {
         static const SG::AuxElement::Decorator<float> dec_ElCore("CT_EL_Core");
-        static const SG::AuxElement::Decorator<float> dec_ElType("CT_EL_Type");// FIXME - should be uint
+        static const SG::AuxElement::Decorator<float> dec_ElType("CT_EL_Type");  // FIXME - should be uint
         static const SG::AuxElement::Decorator<float> dec_ElLikelihood("CT_ET_LRLikelihood");
         static const SG::AuxElement::Decorator<float> dec_ElFSREnergy("CT_ET_FSRCandidateEnergy");
-        
+
         if (!tag) {
             // init variables if necessary.
 
@@ -881,7 +877,7 @@ namespace MuonCombined {
                 // Here we can make sure that we store the extra calotag information -
                 // just always add it since this is then unambigious for debugging
                 dec_ElCore(mu) = 0.0;
-                dec_ElType(mu) = -999.0;  
+                dec_ElType(mu) = -999.0;
                 dec_ElLikelihood(mu) = -999.0;
                 dec_ElFSREnergy(mu) = -999.0;
             }
@@ -898,7 +894,7 @@ namespace MuonCombined {
             // Here we can make sure that we store the extra calotag information - just
             // always add it since this is then unambigious for debugging
             dec_ElCore(mu) = tag->etCore();
-            dec_ElType(mu) = tag->energyLossType(); 
+            dec_ElType(mu) = tag->energyLossType();
             dec_ElLikelihood(mu) = tag->caloLRLikelihood();
             dec_ElFSREnergy(mu) = tag->fsrCandidateEnergy();
         }
@@ -962,7 +958,7 @@ namespace MuonCombined {
     }
 
     void MuonCreatorTool::addMuonCandidate(const MuonCandidate& candidate, xAOD::Muon& muon, OutputData& outputData,
-                                           const ElementLink<TrackCollection>& meLink) const {        
+                                           const ElementLink<TrackCollection>& meLink) const {
         // only set once
         if (muon.muonSpectrometerTrackParticleLink().isValid()) { return; }
         const EventContext& ctx = Gaudi::Hive::currentContext();
@@ -1152,17 +1148,14 @@ namespace MuonCombined {
                                         ATH_MSG_WARNING("MuGirl combtp is nullptr, continue");
                                         continue;
                                     }
-                                    std::unique_ptr<Trk::CaloExtension>
-                                      caloExtension =
-                                        m_caloExtTool->caloExtension(
-                                          Gaudi::Hive::currentContext(),
-                                          *combtp);
+                                    std::unique_ptr<Trk::CaloExtension> caloExtension =
+                                        m_caloExtTool->caloExtension(Gaudi::Hive::currentContext(), *combtp);
                                     if (!caloExtension) {
-                                      ATH_MSG_WARNING(
-                                        "failed to get a calo extension for "
-                                        "this "
-                                        "MuGirl muon, don't use it");
-                                      continue;
+                                        ATH_MSG_WARNING(
+                                            "failed to get a calo extension for "
+                                            "this "
+                                            "MuGirl muon, don't use it");
+                                        continue;
                                     }
                                     if (caloExtension->caloLayerIntersections().empty()) {
                                         ATH_MSG_WARNING(
@@ -1186,17 +1179,14 @@ namespace MuonCombined {
                                         ATH_MSG_WARNING("MuidCo combtp is nullptr, continue");
                                         continue;
                                     }
-                                    std::unique_ptr<Trk::CaloExtension>
-                                      caloExtension =
-                                        m_caloExtTool->caloExtension(
-                                          Gaudi::Hive::currentContext(),
-                                          *combtp);
+                                    std::unique_ptr<Trk::CaloExtension> caloExtension =
+                                        m_caloExtTool->caloExtension(Gaudi::Hive::currentContext(), *combtp);
                                     if (!caloExtension) {
-                                      ATH_MSG_WARNING(
-                                        "failed to get a calo extension for "
-                                        "this "
-                                        "combined muon, don't use it");
-                                      continue;
+                                        ATH_MSG_WARNING(
+                                            "failed to get a calo extension for "
+                                            "this "
+                                            "combined muon, don't use it");
+                                        continue;
                                     }
                                     if (caloExtension->caloLayerIntersections().empty()) {
                                         ATH_MSG_WARNING(
@@ -1356,7 +1346,6 @@ namespace MuonCombined {
 
     Trk::Track* MuonCreatorTool::createDummyTrack(const std::vector<const Muon::MuonSegment*>& segments,
                                                   const Trk::Track& indetTrack) const {
-        
         const EventContext& ctx = Gaudi::Hive::currentContext();
         ATH_MSG_VERBOSE("Creating dummy tracks from segments...");
 
@@ -1365,16 +1354,16 @@ namespace MuonCombined {
         for (const Muon::MuonSegment* seg : segments) {
             // create pars for muon and loop over hits
             double momentum{1e8}, charge{0.};
-            std::unique_ptr<const Trk::TrackParameters> pars {m_edmHelperSvc->createTrackParameters(*seg, momentum, charge)};
+            std::unique_ptr<const Trk::TrackParameters> pars{m_edmHelperSvc->createTrackParameters(*seg, momentum, charge)};
             for (const Trk::MeasurementBase* meas : seg->containedMeasurements()) {
                 std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);
                 typePattern.set(Trk::TrackStateOnSurface::Measurement);
                 // TSoS takes ownership
-                std::unique_ptr<Trk::TrackParameters> exPars {m_propagator->propagateParameters(ctx, *pars, meas->associatedSurface(), Trk::anyDirection, false,
-                                                         Trk::MagneticFieldProperties(Trk::NoField))};
+                std::unique_ptr<Trk::TrackParameters> exPars{m_propagator->propagateParameters(
+                    ctx, *pars, meas->associatedSurface(), Trk::anyDirection, false, Trk::MagneticFieldProperties(Trk::NoField))};
                 if (!exPars) { ATH_MSG_VERBOSE("Could not propagate Track to segment surface"); }
-                Trk::TrackStateOnSurface* trackState =new Trk::TrackStateOnSurface(meas->uniqueClone(), 
-                                                            std::move(exPars), nullptr, nullptr, typePattern);
+                Trk::TrackStateOnSurface* trackState =
+                    new Trk::TrackStateOnSurface(meas->uniqueClone(), std::move(exPars), nullptr, nullptr, typePattern);
                 trackStateOnSurfaces.push_back(trackState);
             }  // end segment loop
         }
@@ -1382,10 +1371,7 @@ namespace MuonCombined {
         Trk::TrackInfo info(Trk::TrackInfo::Unknown, Trk::muon);
         Trk::TrackInfo::TrackPatternRecoInfo author = Trk::TrackInfo::MuTag;
         info.setPatternRecognitionInfo(author);
-        Trk::Track* newtrack =
-          new Trk::Track(info,
-                         std::move(trackStateOnSurfaces),
-                         (indetTrack.fitQuality())->clone());
+        Trk::Track* newtrack = new Trk::Track(info, std::move(trackStateOnSurfaces), (indetTrack.fitQuality())->clone());
 
         // create a track summary for this track
         if (m_trackSummaryTool.isEnabled()) { m_trackSummaryTool->computeAndReplaceTrackSummary(*newtrack, nullptr, false); }
@@ -1410,7 +1396,7 @@ namespace MuonCombined {
                     << muon.primaryTrackParticleLink().dataID()
                     << "] is zero. Setting charge=0.0. The eta/phi of the muon is: " << muon.eta() << "/" << muon.phi());
                 muon.setCharge(0.0);
-            }           
+            }
         } else {
             ATH_MSG_DEBUG("No primary track particle set, deleting muon");
             return false;
@@ -1444,7 +1430,7 @@ namespace MuonCombined {
 
         if (!m_selectorTool.empty()) {
             dec_MuonSpectrometerPt(muon) = muon.pt();
-           dec_InnerDetectorPt(muon) = muon.pt();
+            dec_InnerDetectorPt(muon) = muon.pt();
             // set id cuts
             m_selectorTool->setPassesIDCuts(muon);
             ATH_MSG_VERBOSE("Setting passesIDCuts " << muon.passesIDCuts());
@@ -1480,7 +1466,7 @@ namespace MuonCombined {
             addMSIDScatteringAngles(**(muon.extrapolatedMuonSpectrometerTrackParticleLink()));
         if (muon.msOnlyExtrapolatedMuonSpectrometerTrackParticleLink().isValid())
             addMSIDScatteringAngles(**(muon.msOnlyExtrapolatedMuonSpectrometerTrackParticleLink()));
-        
+
         return true;
     }
 
@@ -1529,7 +1515,7 @@ namespace MuonCombined {
         static const SG::AuxElement::Decorator<std::vector<float>> dec_positionY("rpcHitPositionY");
         static const SG::AuxElement::Decorator<std::vector<float>> dec_positionZ("rpcHitPositionZ");
         static const SG::AuxElement::Decorator<std::vector<float>> dec_time("rpcHitTime");
-        
+
         std::vector<unsigned int>& rpcHitIdentifier = dec_HitIdentifier(muon);
         std::vector<float>& rpcHitPositionX = dec_positionX(muon);
         std::vector<float>& rpcHitPositionY = dec_positionY(muon);
@@ -1542,7 +1528,7 @@ namespace MuonCombined {
         if (tp && tp->track() && tp->track()->trackStateOnSurfaces() && tp != muon.trackParticle(xAOD::Muon::InnerDetectorTrackParticle)) {
             getRpcTiming(*tp, rpcHitIdentifier, rpcHitPositionX, rpcHitPositionY, rpcHitPositionZ, rpcHitTime);
         }
-     }
+    }
 
     void MuonCreatorTool::addSegmentsOnTrack(xAOD::Muon& muon, const xAOD::MuonSegmentContainer* segments) const {
         std::vector<ElementLink<xAOD::MuonSegmentContainer>> associatedSegments;
@@ -1660,8 +1646,7 @@ namespace MuonCombined {
     void MuonCreatorTool::collectCells(xAOD::Muon& muon, xAOD::CaloClusterContainer* clusterContainer,
                                        Trk::CaloExtension* inputCaloExt) const {
         const EventContext& ctx = Gaudi::Hive::currentContext();
-        
-        
+
         const xAOD::TrackParticle* tp = muon.primaryTrackParticle();
         if (!tp || !clusterContainer) {
             if (!tp) ATH_MSG_WARNING("Can not get primary track.");
@@ -1682,10 +1667,10 @@ namespace MuonCombined {
                 ATH_MSG_DEBUG("use the ID track extension tool");
                 caloExtension = m_caloExtToolID->caloExtension(ctx, *tp);
             } else
-              caloExtension = m_caloExtTool->caloExtension(ctx, *tp);
+                caloExtension = m_caloExtTool->caloExtension(ctx, *tp);
             if (!caloExtension) {
-              ATH_MSG_WARNING("Can not get caloExtension.");
-              return;
+                ATH_MSG_WARNING("Can not get caloExtension.");
+                return;
             }
 
             if (caloExtension->caloLayerIntersections().empty())
@@ -1731,7 +1716,7 @@ namespace MuonCombined {
     }
 
     void MuonCreatorTool::addAlignmentEffectsOnTrack(xAOD::TrackParticleContainer* trkCont) const {
-        for (const xAOD::TrackParticle*  tp : *trkCont) {
+        for (const xAOD::TrackParticle* tp : *trkCont) {
             std::vector<std::vector<unsigned int>> chId;
             std::vector<float> deltaTrans;
             std::vector<float> sigmaDeltaTrans;
@@ -1773,14 +1758,13 @@ namespace MuonCombined {
 
     void MuonCreatorTool::addMSIDScatteringAngles(xAOD::Muon& muon) const {
         const xAOD::TrackParticle* tp = muon.primaryTrackParticle();
-        if (!tp || tp == muon.trackParticle(xAOD::Muon::InnerDetectorTrackParticle)||
-            !tp->track() || !tp->track()->trackStateOnSurfaces()) return;
-       
-        int nscatter = 0;        
+        if (!tp || tp == muon.trackParticle(xAOD::Muon::InnerDetectorTrackParticle) || !tp->track() || !tp->track()->trackStateOnSurfaces())
+            return;
+
+        int nscatter = 0;
         for (const auto* tsos : *(tp->track()->trackStateOnSurfaces())) {
             if (tsos->materialEffectsOnTrack()) {
-                const Trk::MaterialEffectsOnTrack* meot =
-                    dynamic_cast<const Trk::MaterialEffectsOnTrack*>(tsos->materialEffectsOnTrack());
+                const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(tsos->materialEffectsOnTrack());
                 if (!meot->energyLoss() || !meot->scatteringAngles()) continue;
                 if (meot->energyLoss()->deltaE() == 0) {  // artificial scatterer found
                     if (nscatter == 0) {
@@ -1798,26 +1782,24 @@ namespace MuonCombined {
                 }
             }
             if (nscatter > 1) break;
-        }               
+        }
     }
 
     void MuonCreatorTool::addMSIDScatteringAngles(const xAOD::TrackParticle& tp) const {
-        
         dec_deltaphi_1(tp) = -999;
         dec_deltatheta_1(tp) = -999;
         dec_sigmadeltaphi_1(tp) = -999;
         dec_sigmadeltatheta_1(tp) = -999;
-    
+
         dec_deltaphi_0(tp) = -999;
         dec_deltatheta_0(tp) = -999;
         dec_sigmadeltaphi_0(tp) = -999;
         dec_sigmadeltatheta_0(tp) = -999;
         int nscatter = 0;
-        if (! tp.track() || !tp.track()->trackStateOnSurfaces()) return;
+        if (!tp.track() || !tp.track()->trackStateOnSurfaces()) return;
         for (const auto* tsos : *(tp.track()->trackStateOnSurfaces())) {
             if (tsos->materialEffectsOnTrack()) {
-                const Trk::MaterialEffectsOnTrack* meot =
-                    dynamic_cast<const Trk::MaterialEffectsOnTrack*>(tsos->materialEffectsOnTrack());
+                const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(tsos->materialEffectsOnTrack());
                 if (!meot->energyLoss() || !meot->scatteringAngles()) continue;
                 if (meot->energyLoss()->deltaE() == 0) {  // artificial scatterer found
                     if (nscatter == 0) {
