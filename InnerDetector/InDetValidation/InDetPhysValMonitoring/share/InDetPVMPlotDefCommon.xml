@@ -1242,6 +1242,15 @@
   <x title="Vertex Truth-Matched type" n="5" lo="-0.5" hi="4.5"/>
   <y title="Entries"/>
 </h>
+<h id="vx_z_diff" type="TH1F" title="PV selected-truth Z difference">
+  <x title="Vertex Truth-Matched type" n="100" lo="-0.5" hi="0.5"/>
+  <y title="Entries"/>
+</h>
+<h id="vx_z_diff_pull" type="TH1F" title="PV selected-truth Z difference pull">
+  <x title="Vertex Truth-Matched type" n="100" lo="-5.0" hi="5.0"/>
+  <y title="Entries"/>
+</h>
+
 <h id="vx_hs_classification" type="TH1F" title="Event hardscatter vertex classification">
   <x title="Hardscatter classification" n="5" lo="-0.5" hi="4.5"/>
   <y title="Entries"/>
@@ -1324,7 +1333,7 @@
 </h>
 <h id="vx_hs_truth_trans_reso_vs_PU" type="TH2" title="Transverse Residual vs. PU (2D)">
   <x title="Local PU density [vertices/mm]" n="12" lo="0.0" hi="6.0"/>
-  <y title="|Truth-reco| transverse residual [mm]" n="20" lo="0.0" hi="0.02"/>
+  <y title="|Truth-reco| transverse residual [mm]" n="20" lo="0" hi="0.02"/>
 </h>
 <h id="vx_hs_truth_long_reso" type="TH1" title="Truth Longitudinal Resolution">
   <x title="Local PU density [vertices/mm]" n="12" lo="0.0" hi="6.0"/>
@@ -1350,6 +1359,152 @@
   <x title="Local PU density [vertices/mm]" n="12" lo="0.0" hi="6.0"/>
   <y title="Transverse position Bias [mm]" lo="-0.01" hi="0.01"/>
 </h>
+<h id="vx_all_truth_reso_z_vs_PU" type="TH2" title="Vertex Resolution vs PU Density(all)">
+  <x title="Local PU density [vertices/mm]" n="12" lo="0.0" hi="6.0"/>
+  <y title="Reco_z-truth_z [mm]" n="60" lo="-0.2" hi="0.2"/>
+</h>
+<h id="vx_all_truth_reso_x_vs_PU" type="TH2" title="Vertex Resolution vs PU Density(all)">
+  <x title="Local PU density [vertices/mm]" n="12" lo="0.0" hi="6.0"/>
+  <y title="Reco_x-truth_x [mm]" n="60" lo="-0.1" hi="0.1"/>
+</h>
+<h id="vx_all_truth_reso_y_vs_PU" type="TH2" title="Vertex Resolution vs PU Density(all)">
+  <x title="Local PU density [vertices/mm]" n="12" lo="0.0" hi="6.0"/>
+  <y title="Reco_y-truth_y [mm]" n="60" lo="-0.1" hi="0.1"/>
+</h>
+<h id="vx_all_truth_pull_z_vs_PU" type="TH2" title="Vertex Pull vs PU Density(all)">
+  <x title="Local PU density [vertices/mm]" n="12" lo="0.0" hi="6.0"/>
+  <y title="(Reco_z-truth_z)/err_z" n="60" lo="-5.0" hi="5.0"/>
+</h>
+<h id="vx_all_truth_pull_x_vs_PU" type="TH2" title="Vertex Pull vs PU Density(all)">
+  <x title="Local PU density [vertices/mm]" n="12" lo="0.0" hi="6.0"/>
+  <y title="(Reco_x-truth_x)/err_x" n="60" lo="-5.0" hi="5.0"/>
+</h>
+<h id="vx_all_truth_pull_y_vs_PU" type="TH2" title="Vertex Pull vs PU Density(all)">
+  <x title="Local PU density [vertices/mm]" n="12" lo="0.0" hi="6.0"/>
+  <y title="(Reco_y-truth_y)/err_y" n="60" lo="-5.0" hi="5.0"/>
+</h>
+
+<h id="vx_all_truth_reso_z_vs_nTrk" type="TH2" title="Vertex Resolution vs Number of Tracks(all)">
+  <x title="Number of Tracks" n="50" lo="0.0" hi="100"/>
+  <y title="Reco_z-truth_z [mm]" n="60" lo="-0.2" hi="0.2"/>
+</h>
+<h id="vx_all_truth_reso_x_vs_nTrk" type="TH2" title="Vertex Resolution vs Number of Tracks(all)">
+  <x title="Number of Tracks" n="50" lo="0.0" hi="100"/>
+  <y title="Reco_x-truth_x [mm]" n="60" lo="-0.1" hi="0.1"/>
+</h>
+<h id="vx_all_truth_reso_y_vs_nTrk" type="TH2" title="Vertex Resolution vs Number of Tracks(all)">
+  <x title="Number of Tracks" n="50" lo="0.0" hi="100"/>
+  <y title="Reco_y-truth_y [mm]" n="60" lo="-0.1" hi="0.1"/>
+</h>
+<h id="vx_all_truth_pull_z_vs_nTrk" type="TH2" title="Vertex Pull vs Number of Tracks(all)">
+  <x title="Number of Tracks" n="50" lo="0.0" hi="100"/>
+  <y title="(Reco_z-truth_z)/err_z" n="60" lo="-5.0" hi="5.0"/>
+</h>
+<h id="vx_all_truth_pull_x_vs_nTrk" type="TH2" title="Vertex Pull vs Number of Tracks(all)">
+  <x title="Number of Tracks" n="50" lo="0.0" hi="100"/>
+  <y title="(Reco_x-truth_x)/err_x" n="60" lo="-5.0" hi="5.0"/>
+</h>
+<h id="vx_all_truth_pull_y_vs_nTrk" type="TH2" title="Vertex Pull vs Number of Tracks(all)">
+  <x title="Number of Tracks" n="50" lo="0.0" hi="100"/>
+  <y title="(Reco_y-truth_y)/err_y" n="60" lo="-5.0" hi="5.0"/>
+</h>
+<h id="vx_all_z_pull" type="TH1" title="Vertex Z Pull(all)">
+  <x title="(Reco_z-Truth_z)/Err_z" n="25" lo="-5.0" hi="5.0"/>
+  <y title="Number of Enries"/>
+</h>
+<h id="vx_all_y_pull" type="TH1" title="Vertex Y Pull(all)">
+  <x title="(Reco_y-Truth_y)/Err_y" n="25" lo="-5.0" hi="5.0"/>
+  <y title="Number of Enries"/>
+</h>
+<h id="vx_all_x_pull" type="TH1" title="Vertex X Pull(all)">
+  <x title="(Reco_x-Truth_x)/Err_x" n="25" lo="-5.0" hi="5.0"/>
+  <y title="Number of Enries"/>
+</h>
+<h id="vx_all_z_res" type="TH1" title="Vertex Z Resolution(all)">
+  <x title="Reco_z-Truth_z" n="60" lo="-0.2" hi="0.2"/>
+  <y title="Number of Enries"/>
+</h>
+<h id="vx_all_y_res" type="TH1" title="Vertex Y Resolution(all)">
+  <x title="Reco_y-Truth_y" n="60" lo="-0.2" hi="0.2"/>
+  <y title="Number of Enries"/>
+</h>
+<h id="vx_all_x_res" type="TH1" title="Vertex X Resolution(all)">
+  <x title="Reco_x-Truth_x" n="60" lo="-0.2" hi="0.2"/>
+  <y title="Number of Enries"/>
+</h>
+
+<h id="vx_hs_truth_reso_x_vs_PU" type="TH2" title="Vertex Resolution vs PU Density(hs)">
+  <x title="Local PU density [vertices/mm]" n="12" lo="0.0" hi="6.0"/>
+  <y title="Reco_x-truth_x [mm]" n="60" lo="-0.1" hi="0.1"/>
+</h>
+<h id="vx_hs_truth_reso_y_vs_PU" type="TH2" title="Vertex Resolution vs PU Density(hs)">
+  <x title="Local PU density [vertices/mm]" n="12" lo="0.0" hi="6.0"/>
+  <y title="Reco_y-truth_y [mm]" n="60" lo="-0.1" hi="0.1"/>
+</h>
+<h id="vx_hs_truth_pull_z_vs_PU" type="TH2" title="Vertex Pull vs PU Density(hs)">
+  <x title="Local PU density [vertices/mm]" n="12" lo="0.0" hi="6.0"/>
+  <y title="(Reco_z-truth_z)/err_z" n="60" lo="-5.0" hi="5.0"/>
+</h>
+<h id="vx_hs_truth_pull_x_vs_PU" type="TH2" title="Vertex Pull vs PU Density(hs)">
+  <x title="Local PU density [vertices/mm]" n="12" lo="0.0" hi="6.0"/>
+  <y title="(Reco_x-truth_x)/err_x" n="60" lo="-5.0" hi="5.0"/>
+</h>
+<h id="vx_hs_truth_pull_y_vs_PU" type="TH2" title="Vertex Pull vs PU Density(hs)">
+  <x title="Local PU density [vertices/mm]" n="12" lo="0.0" hi="6.0"/>
+  <y title="(Reco_y-truth_y)/err_y" n="60" lo="-5.0" hi="5.0"/>
+</h>
+
+<h id="vx_hs_truth_reso_z_vs_nTrk" type="TH2" title="Vertex Resolution vs Number of Tracks(hs)">
+  <x title="Number of Tracks" n="50" lo="0.0" hi="100"/>
+  <y title="Reco_z-truth_z [mm]" n="60" lo="-0.2" hi="0.2"/>
+</h>
+<h id="vx_hs_truth_reso_x_vs_nTrk" type="TH2" title="Vertex Resolution vs Number of Tracks(hs)">
+  <x title="Number of Tracks" n="50" lo="0.0" hi="100"/>
+  <y title="Reco_x-truth_x [mm]" n="60" lo="-0.1" hi="0.1"/>
+</h>
+<h id="vx_hs_truth_reso_y_vs_nTrk" type="TH2" title="Vertex Resolution vs Number of Tracks(hs)">
+  <x title="Number of Tracks" n="50" lo="0.0" hi="100"/>
+  <y title="Reco_y-truth_y [mm]" n="60" lo="-0.1" hi="0.1"/>
+</h>
+<h id="vx_hs_truth_pull_z_vs_nTrk" type="TH2" title="Vertex Pull vs Number of Tracks(hs)">
+  <x title="Number of Tracks" n="50" lo="0.0" hi="100"/>
+  <y title="(Reco_z-truth_z)/err_z" n="60" lo="-5.0" hi="5.0"/>
+</h>
+<h id="vx_hs_truth_pull_x_vs_nTrk" type="TH2" title="Vertex Pull vs Number of Tracks(hs)">
+  <x title="Number of Tracks" n="50" lo="0.0" hi="100"/>
+  <y title="(Reco_x-truth_x)/err_x" n="60" lo="-5.0" hi="5.0"/>
+</h>
+<h id="vx_hs_truth_pull_y_vs_nTrk" type="TH2" title="Vertex Pull vs Number of Tracks(hs)">
+  <x title="Number of Tracks" n="50" lo="0.0" hi="100"/>
+  <y title="(Reco_y-truth_y)/err_y" n="60" lo="-5.0" hi="5.0"/>
+</h>
+
+
+<h id="vx_hs_z_pull" type="TH1" title="Vertex Z Pull(hs)">
+  <x title="(Reco_z-Truth_z)/Err_z" n="25" lo="-5.0" hi="5.0"/>
+  <y title="Number of Enries"/>
+</h>
+<h id="vx_hs_y_pull" type="TH1" title="Vertex Y Pull(hs)">
+  <x title="(Reco_y-Truth_y)/Err_y" n="25" lo="-5.0" hi="5.0"/>
+  <y title="Number of Enries"/>
+</h>
+<h id="vx_hs_x_pull" type="TH1" title="Vertex X Pull(hs)">
+  <x title="(Reco_x-Truth_x)/Err_x" n="25" lo="-5.0" hi="5.0"/>
+  <y title="Number of Enries"/>
+</h>
+<h id="vx_hs_z_res" type="TH1" title="Vertex Z Resolution(hs)">
+  <x title="Reco_z-Truth_z" n="60" lo="-0.2" hi="0.2"/>
+  <y title="Number of Enries"/>
+</h>
+<h id="vx_hs_y_res" type="TH1" title="Vertex Y Resolution(hs)">
+  <x title="Reco_y-Truth_y" n="60" lo="-0.2" hi="0.2"/>
+  <y title="Number of Enries"/>
+</h>
+<h id="vx_hs_x_res" type="TH1" title="Vertex X Resolution(hs)">
+  <x title="Reco_x-Truth_x" n="60" lo="-0.2" hi="0.2"/>
+  <y title="Number of Enries"/>
+</h>
+
 <h id="vx_nTracks" type="TH1F" title="Number of tracks at vertex">
   <x title="Number of Tracks" n="150" lo="0" hi="150"/>
   <y title="Entries"/>
