@@ -26,6 +26,10 @@ HLT_2e17_gsf_lhvloose_L12EM15VHI:
   eventCount: 0
   stepFeatures:
     0: 1
+HLT_2e17_idperf_gsf_loose_L12EM15VHI:
+  eventCount: 0
+  stepFeatures:
+    0: 1
 HLT_2e17_idperf_loose_L12EM15VHI:
   eventCount: 0
   stepFeatures:
@@ -1809,6 +1813,20 @@ HLT_e26_gsf_lhtight_ivarloose_L1EM22VHI:
     2: 4
     3: 4
     4: 3
+HLT_e26_idperf_gsf_tight_L1EM22VHI:
+  eventCount: 5
+  stepCounts:
+    0: 5
+    1: 5
+    2: 5
+    3: 5
+    4: 5
+  stepFeatures:
+    0: 5
+    1: 5
+    2: 5
+    3: 5
+    4: 5
 HLT_e26_idperf_loose_L1EM24VHI:
   eventCount: 5
   stepCounts:
@@ -2732,6 +2750,20 @@ HLT_e60_dnnloose_L1EM22VHI:
     3: 2
     4: 2
 HLT_e60_gsf_lhmedium_L1EM22VHI:
+  eventCount: 2
+  stepCounts:
+    0: 2
+    1: 2
+    2: 2
+    3: 2
+    4: 2
+  stepFeatures:
+    0: 2
+    1: 2
+    2: 2
+    3: 2
+    4: 2
+HLT_e60_idperf_gsf_medium_L1EM22VHI:
   eventCount: 2
   stepCounts:
     0: 2
