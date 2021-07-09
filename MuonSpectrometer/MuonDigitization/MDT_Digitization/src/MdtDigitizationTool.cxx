@@ -826,8 +826,8 @@ bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSi
                     // extract calibration constants for single tube
                     const MuonCalib::MdtTubeCalibContainer::SingleTubeCalib* singleTubeData = data.tubeCalib->getCalib(ml, layer, tube);
                     if (singleTubeData) { 
-                        ATH_MSG_ALWAYS("What is the calibration constant for "<<m_idHelperSvc->toString(idDigit)<<" "<<singleTubeData->t0<<" "<<m_offsetTDC);
-                        t0 = singleTubeData->t0; 
+                        ATH_MSG_DEBUG("Extracted the following calibration constant for "<<m_idHelperSvc->toString(idDigit)<<" "<<singleTubeData->t0);
+                        t0 = singleTubeData->t0 + m_t0ShiftTuning; 
                     } else  ATH_MSG_WARNING("No calibration data found, using t0=" << m_offsetTDC<<" "<<m_idHelperSvc->toString(idDigit));
                 }
             } else {
@@ -853,7 +853,7 @@ bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSi
             const HepMcParticleLink::PositionFlag idxFlag =
                 (phit.eventId() == 0) ? HepMcParticleLink::IS_POSITION : HepMcParticleLink::IS_INDEX;
             MuonSimData::Deposit deposit(HepMcParticleLink(phit->trackNumber(), phit.eventId(), evColl, idxFlag),
-                                         MuonMCData((float)driftRadius, localZPos));
+                                         MuonMCData(driftRadius, hit.localPosition().z()));
 
             // Record the SDO collection in StoreGate
             std::vector<MuonSimData::Deposit> deposits;
