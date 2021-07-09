@@ -149,7 +149,13 @@ namespace InDetDD {
     
       /** Total number of circuits:*/
       int numberOfCircuits() const;
+
+      /** Number of circuits per column: */
+      int numberOfCircuitsPerColumn() const;
     
+      /** Number of circuits per row: */
+      int numberOfCircuitsPerRow() const;
+
       /** Number of cell columns per circuit:*/
       int columnsPerCircuit() const;
     
@@ -288,7 +294,17 @@ namespace InDetDD {
     {
       return m_readoutScheme.numberOfCircuits();
     }
-    
+
+    inline int PixelModuleDesign::numberOfCircuitsPerColumn() const
+    {
+      return m_readoutScheme.numberOfCircuitsPerColumn();
+    }
+
+    inline int PixelModuleDesign::numberOfCircuitsPerRow() const
+    {
+      return m_readoutScheme.numberOfCircuitsPerRow();
+    }
+
     inline int PixelModuleDesign::columnsPerCircuit() const
     {
       return m_readoutScheme.columnsPerCircuit();
