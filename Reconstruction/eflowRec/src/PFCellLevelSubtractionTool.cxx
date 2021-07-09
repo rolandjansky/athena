@@ -195,7 +195,7 @@ void PFCellLevelSubtractionTool::calculateRadialEnergyProfiles(eflowData& data) 
     continue;
     }
 
-    const std::vector<std::pair<eflowTrackClusterLink*,float> >& matchedTrackList = thisEflowCaloObject->efRecLink();
+    const std::vector<std::pair<eflowTrackClusterLink*,std::pair<float,float> > >& matchedTrackList = thisEflowCaloObject->efRecLink();
 
     unsigned int nTrackMatches = thisEflowCaloObject->nTracks();
 
@@ -372,7 +372,7 @@ void PFCellLevelSubtractionTool::performSubtraction(eflowData& data) const {
       continue;
     }
 
-    const std::vector<std::pair<eflowTrackClusterLink*, float> >& matchedTrackList = thisEflowCaloObject->efRecLink();
+    const std::vector<std::pair<eflowTrackClusterLink*, std::pair<float,float> > >& matchedTrackList = thisEflowCaloObject->efRecLink();
 
     if( msgLevel( MSG::DEBUG ) ){ 
       for (unsigned int iTrack = 0; iTrack < nTrackMatches; ++iTrack) {
@@ -394,11 +394,11 @@ void PFCellLevelSubtractionTool::performSubtraction(eflowData& data) const {
       ATH_MSG_DEBUG("We are going to annihilate. ExpectedEnergy, expectedSigma and clusterEnergy are " << expectedEnergy << ", " << expectedSigma << " and " << clusterEnergy);
       if( msgLevel( MSG::DEBUG ) ) for (auto thisPair : clusterList) ATH_MSG_DEBUG("Annihilating cluster with E and eta " << thisPair.first->e() << " and " << thisPair.first->eta());
 
+      pfSubtractionStatusSetter.markAllTracksAnnihStatus(*thisEflowCaloObject);
       Subtractor::annihilateClusters(clusterList);
 
-      //Now we should mark all of these clusters as being subtracted      
-      pfSubtractionStatusSetter.markAllTracksAnnihStatus(*thisEflowCaloObject);
-
+      if( msgLevel( MSG::DEBUG ) ) for (auto thisPair : clusterList) ATH_MSG_DEBUG("Have Annihilated cluster with E and eta " << thisPair.first->e() << " and " << thisPair.first->eta());
+      
     } else {
 
       /* Subtract the track from all matched clusters */
@@ -448,12 +448,12 @@ void PFCellLevelSubtractionTool::performSubtraction(eflowData& data) const {
           if( msgLevel( MSG::DEBUG ) ) for (auto thisPair : clusterSubtractionList) ATH_MSG_DEBUG("Annihilating cluster with E and eta " << thisPair.first->e() << " and " << thisPair.first->eta());
 	        Subtractor::annihilateClusters(clusterSubtractionList);
 	        //Now we should mark all of these clusters as being subtracted
-          std::vector<float> clusterSubtractedEnergyRatios;
+          std::vector<std::pair<float, float> > clusterSubtractedEnergyRatios;
           pfSubtractionEnergyRatioCalculator.calculateSubtractedEnergyRatiosForAnnih(clusterSubtractionList,clusterEnergyMap,clusterSubtractedEnergyRatios);           
           pfSubtractionStatusSetter.markSubtractionStatus(clusterSubtractionList, clusterSubtractedEnergyRatios, *thisEflowCaloObject, trackIndex);
 	      }
         else{
-          std::vector<float> clusterSubtractedEnergyRatios;
+          std::vector<std::pair<float, float> > clusterSubtractedEnergyRatios;
           pfSubtractionEnergyRatioCalculator.calculateSubtractedEnergyRatios(clusterSubtractionList,clusterEnergyMap,clusterSubtractedEnergyRatios);          
 	        pfSubtractionStatusSetter.markSubtractionStatus(clusterSubtractionList, clusterSubtractedEnergyRatios, *thisEflowCaloObject, trackIndex);
         }

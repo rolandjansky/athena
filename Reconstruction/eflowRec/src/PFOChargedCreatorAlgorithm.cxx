@@ -109,7 +109,7 @@ void PFOChargedCreatorAlgorithm::createChargedPFO(const eflowCaloObject& energyF
     /* Optionally we add the links to clusters to the xAOD::PFO */
     if (addClusters){
 
-      std::vector<std::pair<eflowTrackClusterLink*,float> > trackClusterLinkPairs = energyFlowCaloObject.efRecLink();
+      std::vector<std::pair<eflowTrackClusterLink*,std::pair<float,float> > > trackClusterLinkPairs = energyFlowCaloObject.efRecLink();
 
       std::vector<eflowTrackClusterLink*> thisTracks_trackClusterLinks = efRecTrack->getClusterMatches();
 
@@ -126,13 +126,13 @@ void PFOChargedCreatorAlgorithm::createChargedPFO(const eflowCaloObject& energyF
 
       for (auto *trackClusterLink : thisTracks_trackClusterLinks){
         for (auto trackClusterLinkPair : trackClusterLinkPairs){
-          if (!m_eOverPMode && trackClusterLinkPair.first == trackClusterLink && !std::isnan(trackClusterLinkPair.second)) {
+          if (!m_eOverPMode && trackClusterLinkPair.first == trackClusterLink && !std::isnan(trackClusterLinkPair.second.first)) {
             thisTracks_trackClusterLinksSubtracted.push_back(trackClusterLink);
             eflowRecCluster* efRecCluster = trackClusterLinkPair.first->getCluster();
             ElementLink<xAOD::CaloClusterContainer> theOriginalClusterLink = efRecCluster->getOriginalClusElementLink();
     	      ElementLink<xAOD::CaloClusterContainer> theSisterClusterLink = (*theOriginalClusterLink)->getSisterClusterLink();
-            if (theSisterClusterLink.isValid()) vectorClusterToSubtractedEnergies.emplace_back(std::pair(theSisterClusterLink,trackClusterLinkPair.second));
-            else vectorClusterToSubtractedEnergies.emplace_back(std::pair(theOriginalClusterLink,trackClusterLinkPair.second));
+            if (theSisterClusterLink.isValid()) vectorClusterToSubtractedEnergies.emplace_back(std::pair(theSisterClusterLink,trackClusterLinkPair.second.first));
+            else vectorClusterToSubtractedEnergies.emplace_back(std::pair(theOriginalClusterLink,trackClusterLinkPair.second.first));
           }
           else if (m_eOverPMode && trackClusterLinkPair.first == trackClusterLink) thisTracks_trackClusterLinksSubtracted.push_back(trackClusterLink);
         }
