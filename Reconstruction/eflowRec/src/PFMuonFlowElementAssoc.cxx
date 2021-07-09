@@ -120,8 +120,7 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext& ctx) const {
             // skip muon matching if the following cases occur
             int MuonType = muon->muonType();
             int MuonAuthor = muon->author();
-            if (MuonType ==
-                xAOD::Muon::MuonType::SiliconAssociatedForwardMuon) {  // if muon is a forward muon, skip. Basically the tracks associated
+            if (MuonType == xAOD::Muon::SiliconAssociatedForwardMuon) {  // if muon is a forward muon, skip. Basically the tracks associated
                                                                        // to this are the wrong type (InDetForwardTrackParticle instead of
                                                                        // InDetTrackParticle), so the indices used would be wrong/generate
                                                                        // spurious matches
@@ -192,9 +191,9 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext& ctx) const {
             std::vector<double> Muon_efrac_clustermatch;
             for (const xAOD::Muon* muon : *muonNeutralFEWriteDecorHandle) {
                 // Retrieve the ElementLink vector of clusters
-                const xAOD::CaloCluster* cluster =
-                    muon->cluster();  // de-ref the element link to retrieve the pointer to the original object
-                                      // check if the ElementLink is valid
+                const xAOD::CaloCluster* cluster = muon->cluster(); 
+                // de-ref the element link to retrieve the pointer to the original object
+                // check if the ElementLink is valid
                 if (!cluster) {
                     ATH_MSG_DEBUG("Muon has an invalid link to cluster");
                     continue;
@@ -312,19 +311,10 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext& ctx) const {
             }
             // For debug of the muon clusters used, add also: dR between caloclusters and number of caloclusters associated to each muon.
             // retrieve element link again to cluster
-            const ElementLink<xAOD::CaloClusterContainer> ClusterContLink = muon->clusterLink();
-            if (!ClusterContLink.isValid()) {
-                ATH_MSG_DEBUG("Muon cluster link is invalid, skip");
-                continue;
-            }
             // use elem link to retrieve container
-            const xAOD::CaloCluster* MuonCluster = *ClusterContLink;
-            TLorentzVector muon_fourvec = muon->p4();
-            TLorentzVector muon_cluster_fourvec = MuonCluster->p4();
-            double deltaR_muon_cluster = 0;
-            deltaR_muon_cluster = muon_fourvec.DeltaR(muon_cluster_fourvec);
+            const xAOD::CaloCluster* MuonCluster = muon->cluster();
             // retrieve the vector of delta R between muon and its associated calo cluster.
-            muon_ClusterInfo_deltaR_WriteDecorHandle(*muon) = deltaR_muon_cluster;
+            muon_ClusterInfo_deltaR_WriteDecorHandle(*muon) =  MuonCluster? xAOD::P4Helpers::deltaR(MuonCluster,muon) : -1.;
         }
     }  // end of experimental block
     ATH_MSG_VERBOSE("Execute completed successfully");
