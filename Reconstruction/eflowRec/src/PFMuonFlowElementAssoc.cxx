@@ -13,9 +13,13 @@
 #include "CaloEvent/CaloCell.h"
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
 #include "Identifier/Identifier.h"
-
+#include "FourMomUtils/xAODP4Helpers.h"
 typedef ElementLink<xAOD::MuonContainer> MuonLink_t; 
 using FlowElementLink_t = ElementLink<xAOD::FlowElementContainer>; 
+namespace {
+    static const SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::CaloClusterContainer>>>  acc_constClusterLinks("constituentClusterLinks");
+
+}
 //
 //      Algorithm created by M.T. Anthony
 //
@@ -28,7 +32,7 @@ PFMuonFlowElementAssoc::PFMuonFlowElementAssoc(const std::string& name,
  
 }
 
-PFMuonFlowElementAssoc::~PFMuonFlowElementAssoc() {} 
+PFMuonFlowElementAssoc::~PFMuonFlowElementAssoc() = default; 
 
 // ============================================================= 
 StatusCode PFMuonFlowElementAssoc::initialize() {   
@@ -111,17 +115,18 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
     //loop over muons in container
     for(const xAOD::Muon* muon: *muonChargedFEWriteDecorHandle){
       const xAOD::TrackParticle* muon_trk=muon->trackParticle(xAOD::Muon::TrackParticleType::InnerDetectorTrackParticle);      
-      if(muon_trk==nullptr) // not all muons have a track. catch the nullptrs in this case and skip
-	continue;
+      /// not all muons have a track. catch the nullptrs in this case and skip
+      if(!muon_trk) continue;
       // skip muon matching if the following cases occur
       int MuonType=muon->muonType();
       int MuonAuthor=muon->author();
-      if(MuonType==4) {// if muon is a forward muon, skip. Basically the tracks associated to this are the wrong type (InDetForwardTrackParticle instead of InDetTrackParticle), so the indices used would be wrong/generate spurious matches
-	ATH_MSG_DEBUG("Muon is identified as a forward muon, skipping");
-	continue;}
-      if(MuonAuthor==2){ // remove muons primarily authored by STACO algorithm.
-	ATH_MSG_DEBUG("Muon is authored by STACO algorithm, skip");
-	continue;
+      if(MuonType==xAOD::Muon::MuonType::SiliconAssociatedForwardMuon) {// if muon is a forward muon, skip. Basically the tracks associated to this are the wrong type (InDetForwardTrackParticle instead of InDetTrackParticle), so the indices used would be wrong/generate spurious matches
+      	ATH_MSG_DEBUG("Muon is identified as a forward muon, skipping");
+	      continue;
+      }
+      if(MuonAuthor==xAOD::Muon::Author::STACO){ // remove muons primarily authored by STACO algorithm.
+      	ATH_MSG_DEBUG("Muon is authored by STACO algorithm, skip");
+	      continue;
       }
       size_t MuonTrkIndex=muon_trk->index();
       if(MuonTrkIndex==FETrackIndex){
@@ -165,9 +170,9 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
       // retrieve the link to cells
       const CaloClusterCellLink* CellLink = FE_cluster->getCellLinks();
       // build the iterator(s) for the looping over the elements inside the CellLink
-      if(CellLink==nullptr && !m_UseMuonTopoClusters){ // safety check if no celll link and we're doing the cell based matching only
-	ATH_MSG_WARNING("Flow Element cluster link is nullptr");
-	continue;
+      if(!CellLink && !m_UseMuonTopoClusters){ // safety check if no celll link and we're doing the cell based matching only
+	      ATH_MSG_WARNING("Flow Element cluster link is nullptr");
+	      continue;
       }
       CaloClusterCellLink::const_iterator FE_FirstCell=CellLink->begin();
       CaloClusterCellLink::const_iterator FE_LastCell=CellLink->end();
@@ -183,22 +188,20 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
       std::vector<double> Muon_efrac_clustermatch;
       for (const xAOD::Muon* muon: *muonNeutralFEWriteDecorHandle ){
 	//Retrieve the ElementLink vector of clusters      
-	const ElementLink<xAOD::CaloClusterContainer>& ClusterLink=muon->clusterLink();
-	//check if the ElementLink is valid
-	if(!ClusterLink.isValid()){
-	  ATH_MSG_DEBUG("Muon has an invalid link to cluster");
-	  continue;
-	}
-	//access object from element link
-	const xAOD::CaloCluster* cluster = *ClusterLink; // de-ref the element link to retrieve the pointer to the original object
-	  if(m_UseMuonTopoClusters){
+		const xAOD::CaloCluster* cluster = muon->cluster(); // de-ref the element link to retrieve the pointer to the original object
+  //check if the ElementLink is valid
+	  if (!cluster){
+      ATH_MSG_DEBUG("Muon has an invalid link to cluster");
+	    continue;	
+    }
+    if(m_UseMuonTopoClusters){
 	    // get the linker to the topo clusters
-	    std::vector<ElementLink<xAOD::CaloClusterContainer>> linksToTopoClusters=cluster->auxdata<std::vector<ElementLink<xAOD::CaloClusterContainer>> >("constituentClusterLinks");
+	    const std::vector<ElementLink<xAOD::CaloClusterContainer>>& linksToTopoClusters = acc_constClusterLinks(*cluster);
 	    for (const ElementLink<xAOD::CaloClusterContainer>& TopoClusterLink: linksToTopoClusters){
 	      if(!TopoClusterLink.isValid()){
-		ATH_MSG_WARNING("Muon Calo cluster's TopoCluster link not found, skip");
-		continue;
-	      }
+	      	ATH_MSG_WARNING("Muon Calo cluster's TopoCluster link not found, skip");
+		      continue;
+	        }
 	      const xAOD::CaloCluster* MuonTopoCluster=*TopoClusterLink; // de-ref the link to get the topo-cluster
 	      size_t MuonTopoCluster_index=MuonTopoCluster->index();
 	      if(MuonTopoCluster_index==FEclusterindex){
@@ -221,7 +224,7 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
 	    
 	    //retrieve cells associated to Muon cluster
 	    const CaloClusterCellLink* Muon_Clus_CellLink=cluster->getCellLinks();
-	    if(Muon_Clus_CellLink==nullptr){
+	    if(!Muon_Clus_CellLink){
 	      ATH_MSG_WARNING("This Muon calo cluster does not have any cells associated to it");
 	      continue;
 	    } // if nullptr, skip this muon cluster.
