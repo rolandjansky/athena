@@ -520,7 +520,7 @@ void InDet::SiSpacePointsSeedMaker_ITKNew::newRegion
       // Loop through all trigger collections
       //
       for (const IdentifierHash& l: vSCT) {
-	auto w = m_spacepointsPixel->indexFind(l);
+	auto w = m_spacepointsSCT->indexFind(l);
 	if(w==spce) continue;       
 	for (Trk::SpacePoint* sp: **w) {        
           float r = sp->r();
