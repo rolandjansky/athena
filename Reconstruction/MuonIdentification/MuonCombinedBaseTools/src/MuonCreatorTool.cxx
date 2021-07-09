@@ -455,7 +455,7 @@ namespace MuonCombined {
         decorateDummyValues(*muon, outputData);
         bool first = true;
         for (const MuonCombined::TagBase* tag : tags) {
-            ATH_MSG_ALWAYS("Handling tag: type " << tag->type());
+            ATH_MSG_DEBUG("Handling tag: type " << tag->type());
 
             // staus
             if (m_buildStauContainer) {
