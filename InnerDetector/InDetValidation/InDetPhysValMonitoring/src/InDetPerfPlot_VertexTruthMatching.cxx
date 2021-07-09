@@ -8,6 +8,11 @@
  **/
 
 #include "InDetPerfPlot_VertexTruthMatching.h"
+#include "EventPrimitives/EventPrimitives.h"
+#include "EventPrimitives/EventPrimitivesHelpers.h"
+#include "TFitResult.h"
+#include "TFitResultPtr.h"
+
 
 using namespace IDPVM;
 
@@ -38,16 +43,57 @@ InDetPerfPlot_VertexTruthMatching::InDetPerfPlot_VertexTruthMatching(InDetPlotBa
     m_vx_hs_truth_trans_reso_vs_PU(nullptr),
     m_vx_hs_truth_long_reso(nullptr),
     m_vx_hs_truth_trans_reso(nullptr),
+
+    // Backport from master
+    m_vx_hs_z_pull(nullptr),
+    m_vx_hs_y_pull(nullptr),
+    m_vx_hs_x_pull(nullptr),
+    m_vx_all_z_pull(nullptr),
+    m_vx_all_y_pull(nullptr),
+    m_vx_all_x_pull(nullptr),
+    m_vx_hs_z_res(nullptr),
+    m_vx_hs_y_res(nullptr),
+    m_vx_hs_x_res(nullptr),
+    m_vx_all_z_res(nullptr),
+    m_vx_all_y_res(nullptr),
+    m_vx_all_x_res(nullptr),
+    m_vx_all_truth_z_res_vs_PU(nullptr),
+    m_vx_all_truth_x_res_vs_PU(nullptr),
+    m_vx_all_truth_y_res_vs_PU(nullptr),
+    m_vx_all_truth_z_pull_vs_PU(nullptr),
+    m_vx_all_truth_x_pull_vs_PU(nullptr),
+    m_vx_all_truth_y_pull_vs_PU(nullptr),
+    m_vx_all_truth_z_res_vs_nTrk(nullptr),
+    m_vx_all_truth_x_res_vs_nTrk(nullptr),
+    m_vx_all_truth_y_res_vs_nTrk(nullptr),
+    m_vx_all_truth_z_pull_vs_nTrk(nullptr),
+    m_vx_all_truth_x_pull_vs_nTrk(nullptr),
+    m_vx_all_truth_y_pull_vs_nTrk(nullptr),
+    m_vx_hs_truth_x_res_vs_PU(nullptr),
+    m_vx_hs_truth_y_res_vs_PU(nullptr),
+    m_vx_hs_truth_z_pull_vs_PU(nullptr),
+    m_vx_hs_truth_x_pull_vs_PU(nullptr),
+    m_vx_hs_truth_y_pull_vs_PU(nullptr),
+    m_vx_hs_truth_z_res_vs_nTrk(nullptr),
+    m_vx_hs_truth_x_res_vs_nTrk(nullptr),
+    m_vx_hs_truth_y_res_vs_nTrk(nullptr),
+    m_vx_hs_truth_z_pull_vs_nTrk(nullptr),
+    m_vx_hs_truth_x_pull_vs_nTrk(nullptr),
+    m_vx_hs_truth_y_pull_vs_nTrk(nullptr),
+
     m_vx_hs_long_reso(nullptr),
     m_vx_hs_long_bias(nullptr),
     m_vx_hs_trans_reso(nullptr),
     m_vx_hs_trans_bias(nullptr)
+
 {
   // nop
 }
 
 void InDetPerfPlot_VertexTruthMatching::initializePlots() {
 
+    book(m_vx_z_diff,"vx_z_diff");
+    book(m_vx_z_diff_pull,"vx_z_diff_pull");
     book(m_vx_type_truth,"vx_type_truth");
     book(m_vx_hs_classification,"vx_hs_classification");
     book(m_vx_nReco_vs_nTruth_inclusive,"vx_nReco_vs_nTruth_inclusive");
@@ -77,6 +123,47 @@ void InDetPerfPlot_VertexTruthMatching::initializePlots() {
     book(m_vx_hs_trans_reso, "vx_hs_trans_reso");
     book(m_vx_hs_trans_bias, "vx_hs_trans_bias");
 
+    book(m_vx_hs_z_pull, "vx_hs_z_pull");
+    book(m_vx_hs_y_pull, "vx_hs_y_pull");
+    book(m_vx_hs_x_pull, "vx_hs_x_pull");
+   
+    book(m_vx_all_z_pull, "vx_all_z_pull");
+    book(m_vx_all_y_pull, "vx_all_y_pull");
+    book(m_vx_all_x_pull, "vx_all_x_pull");
+
+    book(m_vx_hs_z_res, "vx_hs_z_res");
+    book(m_vx_hs_y_res, "vx_hs_y_res");
+    book(m_vx_hs_x_res, "vx_hs_x_res");
+    book(m_vx_all_z_res, "vx_all_z_res");
+    book(m_vx_all_y_res, "vx_all_y_res");
+    book(m_vx_all_x_res, "vx_all_x_res");
+
+    book(m_vx_all_truth_z_res_vs_PU, "vx_all_truth_reso_z_vs_PU");
+    book(m_vx_all_truth_x_res_vs_PU, "vx_all_truth_reso_x_vs_PU");
+    book(m_vx_all_truth_y_res_vs_PU,  "vx_all_truth_reso_y_vs_PU");
+    book(m_vx_all_truth_z_res_vs_nTrk, "vx_all_truth_reso_z_vs_nTrk");
+    book(m_vx_all_truth_x_res_vs_nTrk, "vx_all_truth_reso_x_vs_nTrk");
+    book(m_vx_all_truth_y_res_vs_nTrk, "vx_all_truth_reso_y_vs_nTrk");
+
+    book(m_vx_all_truth_z_pull_vs_PU, "vx_all_truth_pull_z_vs_PU");
+    book(m_vx_all_truth_x_pull_vs_PU, "vx_all_truth_pull_x_vs_PU");
+    book(m_vx_all_truth_y_pull_vs_PU, "vx_all_truth_pull_y_vs_PU");
+    book(m_vx_all_truth_z_pull_vs_nTrk, "vx_all_truth_pull_z_vs_nTrk");
+    book(m_vx_all_truth_x_pull_vs_nTrk, "vx_all_truth_pull_x_vs_nTrk");
+    book(m_vx_all_truth_y_pull_vs_nTrk, "vx_all_truth_pull_y_vs_nTrk");
+
+    book(m_vx_hs_truth_x_res_vs_PU, "vx_hs_truth_reso_x_vs_PU");
+    book(m_vx_hs_truth_y_res_vs_PU, "vx_hs_truth_reso_y_vs_PU");
+    book(m_vx_hs_truth_z_res_vs_nTrk, "vx_hs_truth_reso_z_vs_nTrk");
+    book(m_vx_hs_truth_x_res_vs_nTrk, "vx_hs_truth_reso_x_vs_nTrk");
+    book(m_vx_hs_truth_y_res_vs_nTrk, "vx_hs_truth_reso_y_vs_nTrk");
+
+    book(m_vx_hs_truth_z_pull_vs_PU, "vx_hs_truth_pull_z_vs_PU");
+    book(m_vx_hs_truth_x_pull_vs_PU, "vx_hs_truth_pull_x_vs_PU");
+    book(m_vx_hs_truth_y_pull_vs_PU, "vx_hs_truth_pull_y_vs_PU");
+    book(m_vx_hs_truth_z_pull_vs_nTrk, "vx_hs_truth_pull_z_vs_nTrk");
+    book(m_vx_hs_truth_x_pull_vs_nTrk, "vx_hs_truth_pull_x_vs_nTrk");
+    book(m_vx_hs_truth_y_pull_vs_nTrk, "vx_hs_truth_pull_y_vs_nTrk");
 }
 
 const xAOD::Vertex* InDetPerfPlot_VertexTruthMatching::getHSRecoVertexSumPt2(const xAOD::VertexContainer& recoVertices) const {
@@ -218,26 +305,47 @@ const xAOD::TruthVertex* InDetPerfPlot_VertexTruthMatching::getTruthVertex(const
     const xAOD::TruthVertex* truthVtx = nullptr;
     if (recoVtx) {
         const static SG::AuxElement::Decorator<std::vector<InDetVertexTruthMatchUtils::VertexTruthMatchInfo>> truthMatchingInfos("TruthEventMatchingInfos");
-        const std::vector<InDetVertexTruthMatchUtils::VertexTruthMatchInfo>& truthInfos = truthMatchingInfos(*recoVtx);
-        if (!truthInfos.empty()) {
-            const InDetVertexTruthMatchUtils::VertexTruthMatchInfo& truthInfo = truthInfos.at(0);
-            const ElementLink<xAOD::TruthEventBaseContainer> truthEventLink = std::get<0>(truthInfo);
-            const xAOD::TruthEvent* truthEvent = nullptr;
-            if (truthEventLink.isValid()) {
-                truthEvent = static_cast<const xAOD::TruthEvent*>(*truthEventLink);
-                if (truthEvent) {
-                    truthVtx = truthEvent->truthVertex(0);
+        try{
+            if (!truthMatchingInfos.isAvailable(*recoVtx)){
+                ATH_MSG_WARNING("TruthEventMatchingInfos DECORATOR not available -- returning nullptr!");
+                return truthVtx;
+            }
+      
+            const std::vector<InDetVertexTruthMatchUtils::VertexTruthMatchInfo>& truthInfos = truthMatchingInfos(*recoVtx);
+        
+            if (!truthInfos.empty()) {
+                const InDetVertexTruthMatchUtils::VertexTruthMatchInfo& truthInfo = truthInfos.at(0);
+                const ElementLink<xAOD::TruthEventBaseContainer> truthEventLink = std::get<0>(truthInfo);
+                const xAOD::TruthEvent* truthEvent = nullptr;
+                if (truthEventLink.isValid()) {
+                    truthEvent = static_cast<const xAOD::TruthEvent*>(*truthEventLink);
+                    if (truthEvent) {
+                        truthVtx = truthEvent->truthVertex(0);
+                    }
                 }
             }
+        
+            else {
+                ATH_MSG_INFO("TruthEventMatchingInfos DECORATOR yields empty vector -- returning nullptr!");
+            }
+         }
+         catch (SG::ExcBadAuxVar &){
+            ATH_MSG_WARNING("TruthEventMatchingInfos DECORATOR yields empty vector -- returning nullptr!");
         }
-        else {
-            ATH_MSG_INFO("TruthEventMatchingInfos DECORATOR yields empty vector -- returning nullptr!");
-        }
-    }
+
+     }
     return truthVtx;
 }
 
-void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex& vertex) {
+void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex& vertex, const xAOD::TruthVertex * tvrt) {
+    
+    if(tvrt){
+      float diff_z=vertex.z()-tvrt->z();
+      const AmgSymMatrix(3)& covariance = vertex.covariancePosition();
+      float err_z = fabs(Amg::error(covariance, 2)) > 1e-7 ? Amg::error(covariance, 2) : 1000.;
+      fillHisto(m_vx_z_diff,diff_z);
+      fillHisto(m_vx_z_diff_pull,diff_z/err_z);
+    }
 
     // Get the match type info for each vertex:
     const static xAOD::Vertex::Decorator<InDetVertexTruthMatchUtils::VertexMatchType> recoVtxMatchTypeInfo("VertexMatchType");
@@ -282,6 +390,12 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
     // Best reco HS vertex identified via number of truth HS tracks
     const xAOD::Vertex* bestRecoHSVtx_truth = InDetVertexTruthMatchUtils::bestHardScatterMatch(vertexContainer);
 
+    if (!bestRecoHSVtx_truth){
+        ATH_MSG_INFO("No bestRecoHS vertex - not filling vertex truth matching.");
+        return;
+    }
+
+
     // Did we successfully reconstruct our truth HS vertex?
     bool truthHSVtxRecoed = false;
     float minTruthRecoXyzDist2 = std::pow(m_cutMinTruthRecoRadialDiff, 2);
@@ -322,21 +436,92 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
 
         matchType = recoVtxMatchTypeInfo(*vertex);
         breakdown[matchType] += 1;
+ 
+        // Here the second check if the truth HS vertex is the closes one to the truth is removed 
+
+        const xAOD::TruthVertex *matchVertex = getTruthVertex(vertex);
+        if(!matchVertex) continue;
+        float residual_z = matchVertex->z() - vertex->z();
+        float residual_x = matchVertex->x() - vertex->x();
+        float residual_y = matchVertex->y() - vertex->y();
+        const AmgSymMatrix(3)& covariance = vertex->covariancePosition();
+        float vtxerr_x = fabs(Amg::error(covariance, 0)) > 1e-7 ? Amg::error(covariance, 0) : 1000.;
+        float vtxerr_y = fabs(Amg::error(covariance, 1)) > 1e-7 ? Amg::error(covariance, 1) : 1000.;
+        float vtxerr_z = fabs(Amg::error(covariance, 2)) > 1e-7 ? Amg::error(covariance, 2) : 1000.;
+        float localPUDensity = getLocalPUDensity(matchVertex, truthHSVertices, truthPUVertices);
+
+        fillHisto(m_vx_all_z_pull, residual_z/vtxerr_z);
+        fillHisto(m_vx_all_y_pull, residual_y/vtxerr_y);
+        fillHisto(m_vx_all_x_pull, residual_x/vtxerr_x);
+
+        fillHisto(m_vx_all_truth_z_res_vs_PU, localPUDensity, residual_z);
+        fillHisto(m_vx_all_truth_x_res_vs_PU, localPUDensity, residual_x);
+        fillHisto(m_vx_all_truth_y_res_vs_PU, localPUDensity, residual_y);
+
+        fillHisto(m_vx_all_z_res, residual_z);
+        fillHisto(m_vx_all_y_res, residual_y);
+        fillHisto(m_vx_all_x_res, residual_x);
+            
+        fillHisto(m_vx_all_truth_z_pull_vs_PU, localPUDensity, residual_z/vtxerr_z);
+        fillHisto(m_vx_all_truth_x_pull_vs_PU, localPUDensity, residual_x/vtxerr_x);
+        fillHisto(m_vx_all_truth_y_pull_vs_PU, localPUDensity, residual_y/vtxerr_y);
+
+        fillHisto(m_vx_all_truth_z_res_vs_nTrk, vertex->nTrackParticles(), residual_z);
+        fillHisto(m_vx_all_truth_x_res_vs_nTrk, vertex->nTrackParticles(), residual_x);
+        fillHisto(m_vx_all_truth_y_res_vs_nTrk, vertex->nTrackParticles(), residual_y);
+            
+        fillHisto(m_vx_all_truth_z_pull_vs_nTrk, vertex->nTrackParticles(), residual_z/vtxerr_z);
+        fillHisto(m_vx_all_truth_x_pull_vs_nTrk, vertex->nTrackParticles(), residual_x/vtxerr_x);
+        fillHisto(m_vx_all_truth_y_pull_vs_nTrk, vertex->nTrackParticles(), residual_y/vtxerr_y);
 
     } // end loop over vertices
 
     // Now fill plots relating to the reconstruction of our truth HS vertex (efficiency and resolutions)
     if (truthHSVertices.size() != 0) {
-        float localPUDensity = getLocalPUDensity(truthHSVtx, truthHSVertices, truthPUVertices);
+        float localPUDensity = getLocalPUDensity(truthHSVtx, truthHSVertices, truthPUVertices); 
 
 	fillHisto(m_vx_hs_reco_eff, localPUDensity, truthHSVtxRecoed);
 	fillHisto(m_vx_hs_reco_eff_nTruth, nTruthVertices, truthHSVtxRecoed);
 
         if (truthHSVtxRecoed) {
+            float residual_z = truthHSVtx->z() - bestRecoHSVtx_truth->z();
+            float residual_r = std::sqrt(std::pow(truthHSVtx->x() - bestRecoHSVtx_truth->x(), 2) + std::pow(truthHSVtx->y() - bestRecoHSVtx_truth->y(), 2));
+            float residual_x = truthHSVtx->x() - bestRecoHSVtx_truth->x();
+            float residual_y = truthHSVtx->y() - bestRecoHSVtx_truth->y();
+
             fillHisto(m_vx_hs_reco_long_reso, localPUDensity, getRecoLongitudinalReso(bestRecoHSVtx_truth));
             fillHisto(m_vx_hs_reco_trans_reso, localPUDensity, getRecoTransverseReso(bestRecoHSVtx_truth));
-            fillHisto(m_vx_hs_truth_long_reso_vs_PU, localPUDensity, truthHSVtx->z() - bestRecoHSVtx_truth->z());
-            fillHisto(m_vx_hs_truth_trans_reso_vs_PU, localPUDensity, std::sqrt(std::pow(truthHSVtx->x() - bestRecoHSVtx_truth->x(), 2) + std::pow(truthHSVtx->y() - bestRecoHSVtx_truth->y(), 2)));
+            fillHisto(m_vx_hs_truth_long_reso_vs_PU, localPUDensity, residual_z);
+            fillHisto(m_vx_hs_truth_trans_reso_vs_PU, localPUDensity, residual_r);
+            
+            const AmgSymMatrix(3)& covariance = bestRecoHSVtx_truth->covariancePosition();
+            float vtxerr_x = Amg::error(covariance, 0);
+            float vtxerr_y = Amg::error(covariance, 1);
+            float vtxerr_z = Amg::error(covariance, 2);
+
+            if(fabs(vtxerr_z) > 1e-7) fillHisto(m_vx_hs_z_pull, residual_z/vtxerr_z);
+            if(fabs(vtxerr_y) > 1e-7) fillHisto(m_vx_hs_y_pull, residual_y/vtxerr_y);
+            if(fabs(vtxerr_x) > 1e-7) fillHisto(m_vx_hs_x_pull, residual_x/vtxerr_x);
+
+            fillHisto(m_vx_hs_truth_x_res_vs_PU, localPUDensity, residual_x);
+            fillHisto(m_vx_hs_truth_y_res_vs_PU, localPUDensity, residual_y);
+
+            fillHisto(m_vx_hs_z_res, residual_z);
+            fillHisto(m_vx_hs_y_res, residual_y);
+            fillHisto(m_vx_hs_x_res, residual_x);            
+
+            fillHisto(m_vx_hs_truth_z_pull_vs_PU, localPUDensity, residual_z/vtxerr_z);
+            fillHisto(m_vx_hs_truth_x_pull_vs_PU, localPUDensity, residual_x/vtxerr_x);
+            fillHisto(m_vx_hs_truth_y_pull_vs_PU, localPUDensity, residual_y/vtxerr_y);
+
+            fillHisto(m_vx_hs_truth_z_res_vs_nTrk, bestRecoHSVtx_truth->nTrackParticles(), residual_z);
+            fillHisto(m_vx_hs_truth_x_res_vs_nTrk, bestRecoHSVtx_truth->nTrackParticles(), residual_x);
+            fillHisto(m_vx_hs_truth_y_res_vs_nTrk, bestRecoHSVtx_truth->nTrackParticles(), residual_y);
+            
+            fillHisto(m_vx_hs_truth_z_pull_vs_nTrk, bestRecoHSVtx_truth->nTrackParticles(), residual_z/vtxerr_z);
+            fillHisto(m_vx_hs_truth_x_pull_vs_nTrk, bestRecoHSVtx_truth->nTrackParticles(), residual_x/vtxerr_x);
+            fillHisto(m_vx_hs_truth_y_pull_vs_nTrk, bestRecoHSVtx_truth->nTrackParticles(), residual_y/vtxerr_y);
+
         }
 
 	fillHisto(m_vx_hs_sel_eff, localPUDensity, truthHSVtxRecoed && (bestRecoHSVtx_sumpt2 == bestRecoHSVtx_truth));

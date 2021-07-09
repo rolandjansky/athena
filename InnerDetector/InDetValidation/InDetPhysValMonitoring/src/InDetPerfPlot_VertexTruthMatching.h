@@ -44,7 +44,7 @@
 class InDetPerfPlot_VertexTruthMatching: public InDetPlotBase {
 public:
     InDetPerfPlot_VertexTruthMatching(InDetPlotBase* pParent, const std::string& dirName);
-    void fill(const xAOD::Vertex& vertex);
+    void fill(const xAOD::Vertex& vertex, const xAOD::TruthVertex * tvrt =0);
     void fill(const xAOD::VertexContainer& vertexContainer, const std::vector<const xAOD::TruthVertex*>& truthHSVertices, const std::vector<const xAOD::TruthVertex*>& truthPUVertices);
 private:
     float m_cutMinTruthRecoRadialDiff = 0.1;
@@ -53,6 +53,9 @@ private:
     IDPVM::ResolutionHelper::methods m_resolutionMethod;
     ///truth type
     TH1* m_vx_type_truth;
+    TH1* m_vx_z_diff;
+    TH1* m_vx_z_diff_pull;
+
     ///hardscatter classification
     TH1* m_vx_hs_classification;
     ///vertex reco efficiency
@@ -83,6 +86,66 @@ private:
     TH2* m_vx_hs_truth_trans_reso_vs_PU;
     TH1* m_vx_hs_truth_long_reso;
     TH1* m_vx_hs_truth_trans_reso;
+
+    TH2* m_vx_all_truth_long_reso_vs_PU;
+    TH2* m_vx_all_truth_trans_reso_vs_PU;
+
+    TH2* m_vx_hs_truth_long_pull_vs_PU;
+    TH2* m_vx_hs_truth_trans_pull_vs_PU;
+    TH2* m_vx_all_truth_long_pull_vs_PU;
+    TH2* m_vx_all_truth_trans_pull_vs_PU;
+
+    TH2* m_vx_hs_truth_long_reso_vs_nTrk;
+    TH2* m_vx_hs_truth_trans_reso_vs_nTrk;
+    TH2* m_vx_all_truth_long_reso_vs_nTrk;
+    TH2* m_vx_all_truth_trans_reso_vs_nTrk;
+    TH2* m_vx_hs_truth_long_pull_vs_nTrk;
+    TH2* m_vx_hs_truth_trans_pull_vs_nTrk;
+    TH2* m_vx_all_truth_long_pull_vs_nTrk;
+    TH2* m_vx_all_truth_trans_pull_vs_nTrk;
+
+    TH1* m_vx_hs_z_pull;
+    TH1* m_vx_hs_y_pull;
+    TH1* m_vx_hs_x_pull;
+    TH1* m_vx_all_z_pull;
+    TH1* m_vx_all_y_pull;
+    TH1* m_vx_all_x_pull;
+    
+    TH1* m_vx_hs_z_res;
+    TH1* m_vx_hs_y_res;
+    TH1* m_vx_hs_x_res;
+    TH1* m_vx_all_z_res;
+    TH1* m_vx_all_y_res;
+    TH1* m_vx_all_x_res;
+
+    TH2* m_vx_all_truth_z_res_vs_PU;
+    TH2* m_vx_all_truth_x_res_vs_PU;
+    TH2* m_vx_all_truth_y_res_vs_PU;
+    TH2* m_vx_all_truth_z_pull_vs_PU;
+    TH2* m_vx_all_truth_x_pull_vs_PU;
+    TH2* m_vx_all_truth_y_pull_vs_PU;
+
+    TH2* m_vx_all_truth_z_res_vs_nTrk;
+    TH2* m_vx_all_truth_x_res_vs_nTrk;
+    TH2* m_vx_all_truth_y_res_vs_nTrk;
+    TH2* m_vx_all_truth_z_pull_vs_nTrk;
+    TH2* m_vx_all_truth_x_pull_vs_nTrk;
+    TH2* m_vx_all_truth_y_pull_vs_nTrk;
+
+    TH2* m_vx_hs_truth_z_res_vs_PU;
+    TH2* m_vx_hs_truth_x_res_vs_PU;
+    TH2* m_vx_hs_truth_y_res_vs_PU;
+    TH2* m_vx_hs_truth_z_pull_vs_PU;
+    TH2* m_vx_hs_truth_x_pull_vs_PU;
+    TH2* m_vx_hs_truth_y_pull_vs_PU;
+
+    TH2* m_vx_hs_truth_z_res_vs_nTrk;
+    TH2* m_vx_hs_truth_x_res_vs_nTrk;
+    TH2* m_vx_hs_truth_y_res_vs_nTrk;
+    TH2* m_vx_hs_truth_z_pull_vs_nTrk;
+    TH2* m_vx_hs_truth_x_pull_vs_nTrk;
+    TH2* m_vx_hs_truth_y_pull_vs_nTrk;
+
     // For position resolutios:
     TH1* m_vx_hs_long_reso;
     TH1* m_vx_hs_long_bias;
