@@ -109,9 +109,7 @@ namespace Muon {
             Amg::Vector3D positionInSector(layerDescriptor.referencePosition, 0., 0.);
             Amg::Vector3D globalPosition = sectorRotation * positionInSector;
 
-            // Amg::Vector3D positionInSector2(layerDescriptor.referencePosition+100,0.,0.);
-            // Amg::Vector3D globalPosition2 = sectorRotation*positionInSector2;
-
+           
             // reference transform + surface
             Amg::Transform3D trans(sectorRotation * Amg::AngleAxis3D(xToZRotation, Amg::Vector3D(0., 1., 0.)));
             trans.pretranslate(globalPosition);
@@ -134,11 +132,6 @@ namespace Muon {
                                            << globalPosition.z() << " lpos3d " << lpos3d.x() << " " << lpos3d.y() << " " << lpos3d.z()
                                            << " normal: x " << surface->normal().x() << " y " << surface->normal().y() << " z "
                                            << surface->normal().z());
-                // << " lpos " << lpos[Trk::loc1] << " " << lpos[Trk::loc2]
-                // << " ref theta2 " << globalPosition2.theta() << " phi " << globalPosition2.phi() << " r " <<
-                // globalPosition2.perp()
-                // << " lpos3d2 " << lpos3d2.x() << " " << lpos3d2.y() << " " << lpos3d2.z()
-                // << " normal: theta " << surface->normal().phi() << " phi " << surface->normal().theta() );
             }
         }
         return true;
@@ -187,7 +180,7 @@ namespace Muon {
                                                         << MuonStationIndex::layerName(it.layerIndex) << " phi  " << surface.center().phi()
                                                         << " r " << surface.center().perp() << " z " << surface.center().z());
             }
-            if (false && currentPars->momentum().perp() < 500.) {
+            if (currentPars->momentum().perp() < 500.) {
                 ATH_MSG_DEBUG("Extrapolated pT less than 0.5 GeV, don't keep trying");
                 break;
             }
