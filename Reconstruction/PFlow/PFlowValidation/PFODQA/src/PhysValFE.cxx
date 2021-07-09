@@ -139,11 +139,9 @@ StatusCode PhysValFE::fillHistograms(){
     else ATH_MSG_WARNING("Invalid pointer to xAOD::FlowElement");
   }
 
+  //Don't check if this is valid - we no longer create PFO by default, so its expected this will not be valid.
+  //Future MR will remove all PFO code from these tools
   SG::ReadHandle<xAOD::PFOContainer> PFOContainerReadHandle(m_PFOContainerHandleKey);
-  if(!PFOContainerReadHandle.isValid()){
-    ATH_MSG_WARNING("PFO readhandle is a dud");
-    return StatusCode::SUCCESS;
-  }
 
   SG::ReadHandle<xAOD::MuonContainer> MuonContainerReadHandle(m_MuonContainerHandleKey);
   if(!MuonContainerReadHandle.isValid()){
