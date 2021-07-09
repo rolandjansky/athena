@@ -78,7 +78,7 @@ MdtCalibrationTool::Imp::Imp() = default;
 
 
 MdtCalibrationTool::MdtCalibrationTool(const std::string& type, const std::string &name, const IInterface* parent) :
-    base_class(type, name, parent)
+    base_class(type, name, parent),
     m_imp{ std::make_unique<MdtCalibrationTool::Imp>()} {
   // settable properties
   declareProperty("TimeWindowLowerBound",m_imp->settings.windowLowerBound );
