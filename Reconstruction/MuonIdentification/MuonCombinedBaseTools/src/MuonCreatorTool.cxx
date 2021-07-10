@@ -862,7 +862,6 @@ namespace MuonCombined {
     }
 
     void MuonCreatorTool::addCaloTag(xAOD::Muon& mu, const CaloTag* tag) const {
-        static const SG::AuxElement::Decorator<float> dec_ElCore("CT_EL_Core");
         static const SG::AuxElement::Decorator<float> dec_ElType("CT_EL_Type");  // FIXME - should be uint
         static const SG::AuxElement::Decorator<float> dec_ElLikelihood("CT_ET_LRLikelihood");
         static const SG::AuxElement::Decorator<float> dec_ElFSREnergy("CT_ET_FSRCandidateEnergy");
@@ -876,7 +875,7 @@ namespace MuonCombined {
             if (m_fillExtraELossInfo) {
                 // Here we can make sure that we store the extra calotag information -
                 // just always add it since this is then unambigious for debugging
-                dec_ElCore(mu) = 0.0;
+                dec_ET_Core(mu) = 0.0;
                 dec_ElType(mu) = -999.0;
                 dec_ElLikelihood(mu) = -999.0;
                 dec_ElFSREnergy(mu) = -999.0;
@@ -893,7 +892,7 @@ namespace MuonCombined {
         if (m_fillExtraELossInfo) {
             // Here we can make sure that we store the extra calotag information - just
             // always add it since this is then unambigious for debugging
-            dec_ElCore(mu) = tag->etCore();
+            dec_ET_Core(mu) = tag->etCore();
             dec_ElType(mu) = tag->energyLossType();
             dec_ElLikelihood(mu) = tag->caloLRLikelihood();
             dec_ElFSREnergy(mu) = tag->fsrCandidateEnergy();
