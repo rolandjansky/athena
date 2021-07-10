@@ -45,25 +45,25 @@
 #include "xAODMuon/MuonSegmentContainer.h"
 
 namespace {
-    static const SG::AuxElement::Decorator<int> dec_nUnspoiledCscHits("nUnspoiledCscHits");
-    static const SG::AuxElement::Decorator<float> dec_MuonSpectrometerPt("MuonSpectrometerPt");
-    static const SG::AuxElement::Decorator<float> dec_InnerDetectorPt("InnerDetectorPt");
-    static const SG::AuxElement::Decorator<unsigned int> dec_numEnergyLossPerTrack("numEnergyLossPerTrack");
+    static const SG::AuxElement::Accessor<int> dec_nUnspoiledCscHits("nUnspoiledCscHits");
+    static const SG::AuxElement::Accessor<float> dec_MuonSpectrometerPt("MuonSpectrometerPt");
+    static const SG::AuxElement::Accessor<float> dec_InnerDetectorPt("InnerDetectorPt");
+    static const SG::AuxElement::Accessor<unsigned int> dec_numEnergyLossPerTrack("numEnergyLossPerTrack");
 
-    static const SG::AuxElement::Decorator<float> dec_ET_Core("ET_Core");
-    static const SG::AuxElement::Decorator<float> dec_ET_EMCore("ET_EMCore");
-    static const SG::AuxElement::Decorator<float> dec_ET_TileCore("ET_TileCore");
-    static const SG::AuxElement::Decorator<float> dec_ET_HECCore("ET_HECCore");
+    static const SG::AuxElement::Accessor<float> dec_ET_Core("ET_Core");
+    static const SG::AuxElement::Accessor<float> dec_ET_EMCore("ET_EMCore");
+    static const SG::AuxElement::Accessor<float> dec_ET_TileCore("ET_TileCore");
+    static const SG::AuxElement::Accessor<float> dec_ET_HECCore("ET_HECCore");
 
-    static const SG::AuxElement::Decorator<float> dec_deltaphi_1("deltaphi_1");
-    static const SG::AuxElement::Decorator<float> dec_deltatheta_1("deltatheta_1");
-    static const SG::AuxElement::Decorator<float> dec_sigmadeltaphi_1("sigmadeltaphi_1");
-    static const SG::AuxElement::Decorator<float> dec_sigmadeltatheta_1("sigmadeltatheta_1");
+    static const SG::AuxElement::Accessor<float> dec_deltaphi_1("deltaphi_1");
+    static const SG::AuxElement::Accessor<float> dec_deltatheta_1("deltatheta_1");
+    static const SG::AuxElement::Accessor<float> dec_sigmadeltaphi_1("sigmadeltaphi_1");
+    static const SG::AuxElement::Accessor<float> dec_sigmadeltatheta_1("sigmadeltatheta_1");
 
-    static const SG::AuxElement::Decorator<float> dec_deltaphi_0("deltaphi_0");
-    static const SG::AuxElement::Decorator<float> dec_deltatheta_0("deltatheta_0");
-    static const SG::AuxElement::Decorator<float> dec_sigmadeltaphi_0("sigmadeltaphi_0");
-    static const SG::AuxElement::Decorator<float> dec_sigmadeltatheta_0("sigmadeltatheta_0");
+    static const SG::AuxElement::Accessor<float> dec_deltaphi_0("deltaphi_0");
+    static const SG::AuxElement::Accessor<float> dec_deltatheta_0("deltatheta_0");
+    static const SG::AuxElement::Accessor<float> dec_sigmadeltaphi_0("sigmadeltaphi_0");
+    static const SG::AuxElement::Accessor<float> dec_sigmadeltatheta_0("sigmadeltatheta_0");
 
 }  // namespace
 namespace MuonCombined {
@@ -560,12 +560,12 @@ namespace MuonCombined {
     void MuonCreatorTool::addStatisticalCombination(xAOD::Muon& muon, const InDetCandidate* candidate, const StacoTag* tag,
                                                     OutputData& outputData) const {
         const EventContext& ctx = Gaudi::Hive::currentContext();
-        static const SG::AuxElement::Decorator<float> dec_d0("d0_staco");
-        static const SG::AuxElement::Decorator<float> dec_z0("z0_staco");
-        static const SG::AuxElement::Decorator<float> dec_phi0("phi0_staco");
-        static const SG::AuxElement::Decorator<float> dec_theta("theta_staco");
-        static const SG::AuxElement::Decorator<float> dec_qOverP("qOverP_staco");
-        static const SG::AuxElement::Decorator<float> dec_qOverPerr("qOverPErr_staco");
+        static const SG::AuxElement::Accessor<float> dec_d0("d0_staco");
+        static const SG::AuxElement::Accessor<float> dec_z0("z0_staco");
+        static const SG::AuxElement::Accessor<float> dec_phi0("phi0_staco");
+        static const SG::AuxElement::Accessor<float> dec_theta("theta_staco");
+        static const SG::AuxElement::Accessor<float> dec_qOverP("qOverP_staco");
+        static const SG::AuxElement::Accessor<float> dec_qOverPerr("qOverPErr_staco");
 
         if (!tag) {
             // init variables if necessary.
@@ -862,9 +862,9 @@ namespace MuonCombined {
     }
 
     void MuonCreatorTool::addCaloTag(xAOD::Muon& mu, const CaloTag* tag) const {
-        static const SG::AuxElement::Decorator<float> dec_ElType("CT_EL_Type");  // FIXME - should be uint
-        static const SG::AuxElement::Decorator<float> dec_ElLikelihood("CT_ET_LRLikelihood");
-        static const SG::AuxElement::Decorator<float> dec_ElFSREnergy("CT_ET_FSRCandidateEnergy");
+        static const SG::AuxElement::Accessor<float> dec_ElType("CT_EL_Type");  // FIXME - should be uint
+        static const SG::AuxElement::Accessor<float> dec_ElLikelihood("CT_ET_LRLikelihood");
+        static const SG::AuxElement::Accessor<float> dec_ElFSREnergy("CT_ET_FSRCandidateEnergy");
 
         if (!tag) {
             // init variables if necessary.
@@ -1509,11 +1509,11 @@ namespace MuonCombined {
 
     void MuonCreatorTool::addRpcTiming(xAOD::Muon& muon) const {
         // vectors to be filled
-        static const SG::AuxElement::Decorator<std::vector<unsigned int>> dec_HitIdentifier("rpcHitIdentifier");
-        static const SG::AuxElement::Decorator<std::vector<float>> dec_positionX("rpcHitPositionX");
-        static const SG::AuxElement::Decorator<std::vector<float>> dec_positionY("rpcHitPositionY");
-        static const SG::AuxElement::Decorator<std::vector<float>> dec_positionZ("rpcHitPositionZ");
-        static const SG::AuxElement::Decorator<std::vector<float>> dec_time("rpcHitTime");
+        static const SG::AuxElement::Accessor<std::vector<unsigned int>> dec_HitIdentifier("rpcHitIdentifier");
+        static const SG::AuxElement::Accessor<std::vector<float>> dec_positionX("rpcHitPositionX");
+        static const SG::AuxElement::Accessor<std::vector<float>> dec_positionY("rpcHitPositionY");
+        static const SG::AuxElement::Accessor<std::vector<float>> dec_positionZ("rpcHitPositionZ");
+        static const SG::AuxElement::Accessor<std::vector<float>> dec_time("rpcHitTime");
 
         std::vector<unsigned int>& rpcHitIdentifier = dec_HitIdentifier(muon);
         std::vector<float>& rpcHitPositionX = dec_positionX(muon);
