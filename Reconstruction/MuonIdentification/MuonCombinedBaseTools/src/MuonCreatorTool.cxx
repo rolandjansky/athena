@@ -191,6 +191,7 @@ namespace MuonCombined {
 
                 static const SG::AuxElement::Accessor<std::vector<std::vector<unsigned int>>> acc_alignEffectChId("alignEffectChId");
                 static const SG::AuxElement::Accessor<std::vector<float>> acc_alligSigmaDeltaTrans("alignEffectSigmaDeltaTrans");
+            
                 const std::vector<std::vector<unsigned int>>& chIds = acc_alignEffectChId(*ptp);
                 const std::vector<float>& alignEffSDT = acc_alligSigmaDeltaTrans(*ptp);
                 std::map<Muon::MuonStationIndex::ChIndex, int> chamberQual;  // 1=good, 2=bad; for choosing large/small
@@ -1460,12 +1461,9 @@ namespace MuonCombined {
             addSegmentsOnTrack(muon, segments);
 
         addMSIDScatteringAngles(muon);
-        if (muon.combinedTrackParticleLink().isValid()) addMSIDScatteringAngles(**(muon.combinedTrackParticleLink()));
-        if (muon.extrapolatedMuonSpectrometerTrackParticleLink().isValid())
-            addMSIDScatteringAngles(**(muon.extrapolatedMuonSpectrometerTrackParticleLink()));
-        if (muon.msOnlyExtrapolatedMuonSpectrometerTrackParticleLink().isValid())
-            addMSIDScatteringAngles(**(muon.msOnlyExtrapolatedMuonSpectrometerTrackParticleLink()));
-
+        addMSIDScatteringAngles(muon.trackParticle(xAOD::Muon::CombinedTrackParticle));
+        addMSIDScatteringAngles(muon.trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle));
+        addMSIDScatteringAngles(muon.trackParticle(xAOD::Muon::MSOnlyExtrapolatedMuonSpectrometerTrackParticle));
         return true;
     }
 
@@ -1716,16 +1714,19 @@ namespace MuonCombined {
 
     void MuonCreatorTool::addAlignmentEffectsOnTrack(xAOD::TrackParticleContainer* trkCont) const {
         
-    static const SG::AuxElement::Decorator<std::vector<std::vector<unsigned int>>> dec_ChId("alignEffectChId");
-    static const SG::AuxElement::Decorator<std::vector<float>> dec_DeltaTrans("alignEffectDeltaTrans");
-    static const SG::AuxElement::Decorator<std::vector<float>> dec_SigmaDeltaTrans("alignEffectSigmaDeltaTrans");    
-    static const SG::AuxElement::Decorator<std::vector<float>> dec_deltaAngle("alignEffectDeltaAngle");
-    static const SG::AuxElement::Decorator<std::vector<float>> dec_sigmaDeltaAngle("alignEffectSigmaDeltaAngle");
+    static const SG::AuxElement::Accessor<std::vector<std::vector<unsigned int>>> acc_ChId("alignEffectChId");
+    static const SG::AuxElement::Accessor<std::vector<float>> acc_DeltaTrans("alignEffectDeltaTrans");
+    static const SG::AuxElement::Accessor<std::vector<float>> acc_SigmaDeltaTrans("alignEffectSigmaDeltaTrans");    
+    static const SG::AuxElement::Accessor<std::vector<float>> acc_deltaAngle("alignEffectDeltaAngle");
+    static const SG::AuxElement::Accessor<std::vector<float>> acc_sigmaDeltaAngle("alignEffectSigmaDeltaAngle");
     
-    for (const xAOD::TrackParticle* tp : *trkCont) {
-            std::vector<std::vector<unsigned int>> chId;
-            std::vector<float> deltaTrans, sigmaDeltaTrans, deltaAngle, sigmaDeltaAngle;
-
+    for (xAOD::TrackParticle* tp : *trkCont) {
+            std::vector<std::vector<unsigned int>>& chId = acc_ChId(*tp);
+            std::vector<float>& deltaTrans = acc_DeltaTrans(*tp);
+            std::vector<float>& sigmaDeltaTrans= acc_SigmaDeltaTrans(*tp);
+            std::vector<float>& deltaAngle = acc_deltaAngle(*tp);
+            std::vector<float>& sigmaDeltaAngle = acc_sigmaDeltaAngle(*tp);
+      
             const Trk::Track* trk = tp->track();
             if (trk && trk->trackStateOnSurfaces()) {
                 int nAEOT = 0;
@@ -1750,11 +1751,6 @@ namespace MuonCombined {
                     }
                 }
             }
-            dec_ChId(*tp) = chId;
-            dec_DeltaTrans(*tp) = deltaTrans;
-            dec_SigmaDeltaTrans(*tp) = sigmaDeltaTrans;
-            dec_deltaAngle(*tp) = deltaAngle;
-            dec_sigmaDeltaAngle(*tp) = sigmaDeltaAngle;
         }
     }
 
@@ -1787,8 +1783,9 @@ namespace MuonCombined {
         }
     }
 
-    void MuonCreatorTool::addMSIDScatteringAngles(const xAOD::TrackParticle& tp) const {
+    void MuonCreatorTool::addMSIDScatteringAngles(const xAOD::TrackParticle* tp) const {
         
+        if (!tp) return;
         static const SG::AuxElement::Decorator<float> dec_deltaphi_1("deltaphi_1");
         static const SG::AuxElement::Decorator<float> dec_deltatheta_1("deltatheta_1");
         static const SG::AuxElement::Decorator<float> dec_sigmadeltaphi_1("sigmadeltaphi_1");
@@ -1799,32 +1796,32 @@ namespace MuonCombined {
         static const SG::AuxElement::Decorator<float> dec_sigmadeltaphi_0("sigmadeltaphi_0");
         static const SG::AuxElement::Decorator<float> dec_sigmadeltatheta_0("sigmadeltatheta_0");
 
-        dec_deltaphi_1(tp) = -999;
-        dec_deltatheta_1(tp) = -999;
-        dec_sigmadeltaphi_1(tp) = -999;
-        dec_sigmadeltatheta_1(tp) = -999;
+        dec_deltaphi_1(*tp) = -999;
+        dec_deltatheta_1(*tp) = -999;
+        dec_sigmadeltaphi_1(*tp) = -999;
+        dec_sigmadeltatheta_1(*tp) = -999;
 
-        dec_deltaphi_0(tp) = -999;
-        dec_deltatheta_0(tp) = -999;
-        dec_sigmadeltaphi_0(tp) = -999;
-        dec_sigmadeltatheta_0(tp) = -999;
+        dec_deltaphi_0(*tp) = -999;
+        dec_deltatheta_0(*tp) = -999;
+        dec_sigmadeltaphi_0(*tp) = -999;
+        dec_sigmadeltatheta_0(*tp) = -999;
         int nscatter = 0;
-        if (!tp.track() || !tp.track()->trackStateOnSurfaces()) return;
-        for (const auto* tsos : *(tp.track()->trackStateOnSurfaces())) {
+        if (!tp->track() || !tp->track()->trackStateOnSurfaces()) return;
+        for (const auto* tsos : *(tp->track()->trackStateOnSurfaces())) {
             if (tsos->materialEffectsOnTrack()) {
                 const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(tsos->materialEffectsOnTrack());
                 if (!meot->energyLoss() || !meot->scatteringAngles()) continue;
                 if (meot->energyLoss()->deltaE() == 0) {  // artificial scatterer found
                     if (nscatter == 0) {
-                        dec_deltaphi_0(tp) = meot->scatteringAngles()->deltaPhi();
-                        dec_deltatheta_0(tp) = meot->scatteringAngles()->deltaTheta();
-                        dec_sigmadeltaphi_0(tp) = meot->scatteringAngles()->sigmaDeltaPhi();
-                        dec_sigmadeltatheta_0(tp) = meot->scatteringAngles()->sigmaDeltaTheta();
+                        dec_deltaphi_0(*tp) = meot->scatteringAngles()->deltaPhi();
+                        dec_deltatheta_0(*tp) = meot->scatteringAngles()->deltaTheta();
+                        dec_sigmadeltaphi_0(*tp) = meot->scatteringAngles()->sigmaDeltaPhi();
+                        dec_sigmadeltatheta_0(*tp) = meot->scatteringAngles()->sigmaDeltaTheta();
                     } else if (nscatter == 1) {
-                        dec_deltaphi_1(tp) = meot->scatteringAngles()->deltaPhi();
-                        dec_deltatheta_1(tp) = meot->scatteringAngles()->deltaTheta();
-                        dec_sigmadeltaphi_1(tp) = meot->scatteringAngles()->sigmaDeltaPhi();
-                        dec_sigmadeltatheta_1(tp) = meot->scatteringAngles()->sigmaDeltaTheta();
+                        dec_deltaphi_1(*tp) = meot->scatteringAngles()->deltaPhi();
+                        dec_deltatheta_1(*tp) = meot->scatteringAngles()->deltaTheta();
+                        dec_sigmadeltaphi_1(*tp) = meot->scatteringAngles()->sigmaDeltaPhi();
+                        dec_sigmadeltatheta_1(*tp) = meot->scatteringAngles()->sigmaDeltaTheta();
                     }
                     nscatter++;
                 }
