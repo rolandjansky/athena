@@ -88,6 +88,7 @@ public:
   virtual unsigned int abcdErrorChips(const Identifier& moduleId) const override; // Internally used
   virtual unsigned int abcdErrorChips(const Identifier& moduleId, const EventContext& ctx) const override; // Internally used
 
+
 private:
   enum N_ELEMENTS { N_CHIPS_PER_SIDE = 6, N_SIDES = 2, N_STRIPS_PER_CHIP = 128, N_STRIPS_PER_SIDE = N_STRIPS_PER_CHIP*N_CHIPS_PER_SIDE };
 
@@ -112,6 +113,10 @@ private:
     std::unordered_map<size_t, unsigned int> tempMaskedChips;
     std::unordered_map<size_t, unsigned int> abcdErrorChips;
 
+  
+    //Record the set number of the idcErrContainer, if the set numbers are the same, skip the fillData process to save time.
+    unsigned int m_set_number;
+    
     void reset(EventContext::ContextEvt_t evtId, const IDCInDetBSErrContainer_Cache* cache) {
       eventId = evtId;
       IDCCache = cache;
@@ -122,7 +127,7 @@ private:
     bool needsUpdate(const EventContext& ctx) const {
       return eventId != ctx.evt() or eventId == EventContext::INVALID_CONTEXT_EVT;
     }
-    
+ 
   };
   mutable SG::SlotSpecificObj<IDCCacheEntry> m_eventCache ATLAS_THREAD_SAFE;
 
