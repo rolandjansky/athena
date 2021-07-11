@@ -31,26 +31,27 @@ def resolveUrl(url):
     Returns an accessible URL or None"""
     import re
     if re.match("http://",url): # simple URL specification http://...
-        return url if testUrl(url) else None
+        return [url] if testUrl(url) else []
 
+    urls = []
     if re.match(r'\(serverurl=(.*?)\)',url): # syntax of FRONTIER_SERVER
         for url in getServerUrls(url):
             if testUrl(url):
-                return url     
-        return None
+                urls.append(url)
+        return urls
 
 
-def getFrontierCursor(url, schema, loglevel = logging.INFO):
+def getFrontierCursor(urls, schema, loglevel = logging.INFO):
     log = logging.getLogger( "TrigConfFrontier.py" )
     log.setLevel(loglevel)
-    url = resolveUrl(url)
-    if url is None:
+    url_list = resolveUrl(urls)
+    if len(url_list) == 0:
         log.warning("Cannot find a valid frontier connection, will not return a Frontier cursor")
         return None
     else:
-        log.info(f"Will use Frontier server at {url}")
+        log.info(f"Will use Frontier server at {urls}")
 
-    return FrontierCursor( url = url, schema = schema)
+    return FrontierCursor( urls = url_list, schema = schema)
         
 
 # used by FrontierCursor
@@ -73,15 +74,15 @@ def replacebindvars(query, bindvars):
 
 
 class FrontierCursor(object):
-    def __init__(self, url, schema, refreshFlag=False, doDecode=True, retrieveZiplevel="zip"):
-        self.url = url + "/Frontier"
+    def __init__(self, urls, schema, refreshFlag=False, doDecode=True, retrieveZiplevel="zip"):
+        self.urls = [str(x) + "/Frontier" for x in urls]#Add /Frontier to each URL
         self.schema = schema
         self.refreshFlag = refreshFlag
         self.retrieveZiplevel = retrieveZiplevel
         self.doDecode = doDecode
 
     def __str__(self):
-        s = "Using Frontier URL: %s\n" % self.url
+        s = "Using Frontier URL: %s\n" % self.urls
         s += "Schema: %s\n" % self.schema
         s += "Refresh cache:  %s" % self.refreshFlag
         return s
@@ -91,7 +92,7 @@ class FrontierCursor(object):
             query = replacebindvars(query,bindvars)
         
         log = logging.getLogger( "TrigConfFrontier.py" )
-        log.debug("Frontier URL  : %s", self.url)
+        log.debug("Frontier URLs  : %s", self.urls)
         log.debug("Refresh cache : %s", self.refreshFlag)
         log.debug("Query         : %s", query)
         
@@ -99,31 +100,39 @@ class FrontierCursor(object):
 
         self.result = None
 
-        compQuery = zlib.compress(query.encode("utf-8"),9)
-        base64Query = base64.binascii.b2a_base64(compQuery).decode("utf-8")
-        encQuery = base64Query.replace("+", ".").replace("\n","").replace("/","-").replace("=","_")
+        for url in self.urls:
+            try: 
+                compQuery = zlib.compress(query.encode("utf-8"),9)
+                base64Query = base64.binascii.b2a_base64(compQuery).decode("utf-8")
+                encQuery = base64Query.replace("+", ".").replace("\n","").replace("/","-").replace("=","_")
 
-        frontierRequest="%s/type=frontier_request:1:DEFAULT&encoding=BLOB%s&p1=%s" % (self.url, self.retrieveZiplevel, encQuery)
-        request = urllib.request.Request(frontierRequest)
+                frontierRequest="%s/type=frontier_request:1:DEFAULT&encoding=BLOB%s&p1=%s" % (url, self.retrieveZiplevel, encQuery)
+                request = urllib.request.Request(frontierRequest)
 
-        if self.refreshFlag:
-            request.add_header("pragma", "no-cache")
+                if self.refreshFlag:
+                    request.add_header("pragma", "no-cache")
 
-        frontierId = "TrigConfFrontier 1.0"
-        request.add_header("X-Frontier-Id", frontierId)
+                frontierId = "TrigConfFrontier 1.0"
+                request.add_header("X-Frontier-Id", frontierId)
 
-        queryStart = time.localtime()
-        log.debug("Query started: %s", time.strftime("%m/%d/%y %H:%M:%S %Z", queryStart))
+                queryStart = time.localtime()
+                log.debug("Query started: %s", time.strftime("%m/%d/%y %H:%M:%S %Z", queryStart))
 
-        t1 = time.time()
-        result = urllib.request.urlopen(request,None,10).read().decode()
-        t2 = time.time()
+                t1 = time.time()
+                result = urllib.request.urlopen(request,None,10).read().decode()
+                t2 = time.time()
 
-        queryEnd = time.localtime()
-        log.debug("Query ended: %s", time.strftime("%m/%d/%y %H:%M:%S %Z", queryEnd))
-        log.debug("Query time: %s [seconds]", (t2-t1))
-        log.debug("Result size: %i [seconds]", len(result))
-        self.result = result
+                queryEnd = time.localtime()
+                log.debug("Query ended: %s", time.strftime("%m/%d/%y %H:%M:%S %Z", queryEnd))
+                log.debug("Query time: %s [seconds]", (t2-t1))
+                log.debug("Result size: %i [seconds]", len(result))
+                self.result = result
+                return
+            except Exception:
+                log.warning("Problem with Frontier connection to %s trying next server", url)
+
+        raise Exception("All servers failed")
+                
 
     def fetchall(self):
         if self.doDecode: self.decodeResult()
@@ -220,7 +229,7 @@ def testQuery(query, bindvars):
 
     from TrigConfigSvc.TrigConfigSvcUtils import interpretConnection
     connectionParameters = interpretConnection("TRIGGERDBMC")
-    cursor = getFrontierCursor( url = connectionParameters['url'], schema = connectionParameters['schema'])
+    cursor = getFrontierCursor( urls = connectionParameters['url'], schema = connectionParameters['schema'])
     cursor.execute(query, bindvars)
     log.info("Raw response:")
     print(cursor.result)
