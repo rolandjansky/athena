@@ -14,6 +14,9 @@ def DisTrkTriggerHypoSequence():
         # Setup the hypothesis algorithm
         theDisTrkTrackTriggerHypo = TrigDisappearingTrackTriggerHypoAlg("DisTrkTrack")
 
+        from TrigEDMConfig.TriggerEDMRun3 import recordable
+        theDisTrkTrackTriggerHypo.DisTrkBDTSel = recordable("HLT_DisTrkBDTSel")
+
         from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
         from AthenaConfiguration.ComponentFactory import CompFactory
         DummyInputMakerAlg = conf2toConfigurable(CompFactory.InputMakerForRoI( "IM_DisTrkTrack_HypoOnlyStep" ))
