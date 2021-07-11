@@ -8,33 +8,44 @@
 #include "GaudiKernel/IAlgTool.h"
 
 
+namespace Combo {
+
+  /**
+   * @brief Map from the chain name to the multiplicities required at each input. 
+   * E.g. map["HLT_5j20_e10_2mu30"] = {5,1,2}
+   **/
+  typedef std::map<std::string, std::vector<int>> MultiplicityReqMap;
+
+  /**
+   * @brief Map from the chain name to legs required at each input. 
+   * E.g. map["HLT_5j20_e10_2mu30"] = 
+   **/
+  typedef std::map<std::string, std::vector<int>> LegMap;
+
+  /**
+   * @brief LegDecisionsMap For a given chain leg key, this map holds all Decision Objects which are active on the leg.  
+   **/
+  typedef std::map<TrigCompositeUtils::DecisionID, ElementLinkVector<TrigCompositeUtils::DecisionContainer>> LegDecisionsMap;
+
+  /**
+   * @brief LegDecision keeps a given Decision Object associated with a specific leg when being used inside a single combination.
+   **/
+  typedef std::pair<TrigCompositeUtils::DecisionID, ElementLink<TrigCompositeUtils::DecisionContainer> > LegDecision;
+}
+
+
 /**
  * @class $(klass) 
  * @brief This class describe the base functionalities of a HypoTool used by the ComboAlg
  **/
-
- /**
-  * @brief LegDecisionsMap describes the association between each decId and the decisions (via EL) associated to that 
-  **/
-
-typedef std::map<TrigCompositeUtils::DecisionID, ElementLinkVector<TrigCompositeUtils::DecisionContainer>> LegDecisionsMap;
-
- /**
-  * @brief LegDecision is pair needed to use single elements, without loosing the leg name
-  **/
-typedef std::pair <TrigCompositeUtils::DecisionID, ElementLink<TrigCompositeUtils::DecisionContainer> > LegDecision;
-
-
 class IComboHypoTool: virtual public ::IAlgTool { 
   
  public: 
   DeclareInterfaceID(IComboHypoTool, 1, 0);
 
-  virtual StatusCode decide( LegDecisionsMap & passingLegs, const EventContext& /* ctx */ ) const = 0 ;
-  
+  virtual StatusCode decide(Combo::LegDecisionsMap& passingLegs, const EventContext& /*ctx*/) const = 0 ;
  
 }; 
-
 
 
 #endif //> !DECISIONHANDLING_ICOMBOHYPOTOOL_H

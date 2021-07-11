@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DECISIONHANDLING_DELTARROICOMBOHYPOTOOL_H
@@ -24,7 +24,7 @@ class DeltaRRoIComboHypoTool:  public ComboHypoToolBase {
 
   private:
 
-  bool executeAlg(std::vector<LegDecision> & thecomb)  const override;
+  bool executeAlg(const std::vector<Combo::LegDecision>& combination) const override;
  
   double deltaR(double eta1, double eta2, double phi1, double phi2) const;
 

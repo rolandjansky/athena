@@ -124,34 +124,6 @@ StatusCode TrigMultiTrkComboHypo::initialize() {
     }
   }
 
-  // add IDs to ComboHypoTools to check that each trigger leg fulfill TrigCompositeUtils::passed() requirement
-  for (auto& tool : hypoTools()) {
-    const HLT::Identifier id = tool->decisionId();
-    const auto itr = triggerMultiplicityMap().find(id.name());
-    if (itr == triggerMultiplicityMap().end()) {
-      ATH_MSG_ERROR( "No entry found for " << tool->name() << " in triggerMultiplicityMap" );
-    }
-    const std::vector<int>& multiplicity = itr->second;
-    std::vector<HLT::Identifier> legDecisionIds;
-    if (multiplicity.size() == 1) {
-      legDecisionIds.assign(multiplicity[0], id);
-    }
-    else {
-      size_t n = static_cast<size_t>(std::accumulate(multiplicity.begin(), multiplicity.end(), 0));
-      legDecisionIds.reserve(n);
-      for (size_t i = 0; i < n; i++) {
-        legDecisionIds.push_back(TrigCompositeUtils::createLegName(id, i));
-      }
-    }
-    if (msgLvl(MSG::DEBUG)) {
-      ATH_MSG_DEBUG( "Leg decisions for tool " << tool->name() );
-      for (const auto& legDecisionId : legDecisionIds) {
-        ATH_MSG_DEBUG( " +++ " << legDecisionId );
-      }
-    }
-    tool->setLegDecisionIds(std::move(legDecisionIds));
-  }
-
   if (!m_monTool.empty()) {
     ATH_CHECK( m_monTool.retrieve() );
     ATH_MSG_DEBUG( "GenericMonitoringTool name:" << m_monTool );

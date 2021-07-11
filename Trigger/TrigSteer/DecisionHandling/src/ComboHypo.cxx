@@ -30,12 +30,17 @@ StatusCode ComboHypo::initialize() {
     ATH_MSG_INFO("-- "<< inp.key());
   }
   
-  if (m_hypoTools.size()>0)
+  if (m_hypoTools.size()>0) {
     ATH_CHECK(m_hypoTools.retrieve());
+  }
+
+  for (auto& tool: m_hypoTools ) {
+    ATH_CHECK(tool->setLegMultiplicity(m_multiplicitiesReqMap));
+  }
   
   // find max inputs size
   auto maxMultEl = std::max_element( m_multiplicitiesReqMap.begin(), m_multiplicitiesReqMap.end(),  
-    []( MultiplicityReqMap::value_type a, MultiplicityReqMap::value_type b ){ return a.second.size() < b.second.size(); }
+    []( Combo::MultiplicityReqMap::value_type a, Combo::MultiplicityReqMap::value_type b ){ return a.second.size() < b.second.size(); }
     ); 
   
   const size_t maxMult = maxMultEl->second.size();
@@ -86,7 +91,7 @@ StatusCode ComboHypo::finalize() {
 }
 
 
-StatusCode ComboHypo::copyDecisions(  const LegDecisionsMap & passingLegs, const EventContext& context ) const {
+StatusCode ComboHypo::copyDecisions( const Combo::LegDecisionsMap & passingLegs, const EventContext& context ) const {
  DecisionIDContainer passing;
   for (auto const& element : passingLegs) {
     passing.insert(element.first);
@@ -160,11 +165,11 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
   ATH_MSG_DEBUG( "Executing " << name() << "..." );
   
   // it maps decidionID to the combinations (list of dec object) that passed that ID
-  LegDecisionsMap dmap;
+  Combo::LegDecisionsMap dmap;
   ATH_CHECK( fillDecisionsMap( dmap, context ) );
 
   //this is added for saving good combinations for the hypocombo tools
-  LegDecisionsMap passingLegs;
+  Combo::LegDecisionsMap passingLegs;
 
 
   // loop over all chains in the mult-map
@@ -182,7 +187,7 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
     legFeatureHashes.resize( multiplicityPerLeg.size() );
     size_t fsCount = 0; //!< We allow the FullScan ROI to pass any multiplicity. So we may have to magic up some unique hashes. Counting integers work fine.
 
-    LegDecisionsMap thisChainCombMap;
+    Combo::LegDecisionsMap thisChainCombMap;
 
     // This map records the history for any given feature.
     // E.g. for a key corresponding to a 4th Step muon, the entries in the payload std::set will be the 3rd step, 2nd step and 1st step
@@ -209,7 +214,7 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
       const DecisionID requiredDecisionIDLeg = legId.numeric();
       ATH_MSG_DEBUG("Container " << legIndex << ", looking at leg : " << legId );
 
-      LegDecisionsMap::const_iterator it = dmap.find(requiredDecisionIDLeg);
+      Combo::LegDecisionsMap::const_iterator it = dmap.find(requiredDecisionIDLeg);
       if ( it == dmap.end() ) {
         overallDecision = false;
         break;
@@ -362,8 +367,7 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
     for ( auto& tool: m_hypoTools ) {
       ATH_MSG_DEBUG( "Calling  tool "<<tool->name());
       ATH_CHECK( tool->decide( passingLegs, context ) );
-      }
-    
+    }
   }
 
   // this is only for debug:
@@ -434,7 +438,7 @@ StatusCode ComboHypo::extractFeatureAndRoI(const ElementLink<DecisionContainer>&
 }
 
 
-StatusCode ComboHypo::fillDecisionsMap( LegDecisionsMap &  dmap, const EventContext& context) const {
+StatusCode ComboHypo::fillDecisionsMap( Combo::LegDecisionsMap &  dmap, const EventContext& context) const {
   for ( size_t inputContainerIndex = 0; inputContainerIndex < m_inputs.size(); ++inputContainerIndex ) {   
     auto inputHandle = SG::makeHandle( m_inputs.at(inputContainerIndex), context );
     if ( !inputHandle.isValid() ) {

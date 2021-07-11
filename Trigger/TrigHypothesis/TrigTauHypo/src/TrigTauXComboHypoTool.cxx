@@ -28,11 +28,18 @@ StatusCode TrigTauXComboHypoTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-bool TrigTauXComboHypoTool::executeAlg(std::vector<LegDecision> &combination) const {
+bool TrigTauXComboHypoTool::executeAlg(const std::vector<Combo::LegDecision>& combination) const {
   ATH_MSG_DEBUG("On combination executeAlg");
   auto dROfAccepted  = Monitored::Scalar( "dROfAccepted"   , -1.0 );
   auto dROfProcessed = Monitored::Scalar( "dROfProcessed"  , -1.0 );
   auto monitorIt    = Monitored::Group( m_monTool, dROfAccepted, dROfProcessed);
+
+  // Expecting to only run over chains with two legs and one IParticle required on each leg
+  // So should always have two objects from which to check DeltaR
+  if(combination.size() != 2){
+    ATH_MSG_ERROR("Expecting to combine exactly two IParticle physics objects, but instead found " << combination.size() << ". Will throw a runtime error");
+    throw std::runtime_error("Expecting to combine exactly two IParticle physics objects, but instead found "+combination.size());
+  }
 
   //retrieve the elements
   std::vector<ElementLink<xAOD::IParticleContainer>> selected_particles;

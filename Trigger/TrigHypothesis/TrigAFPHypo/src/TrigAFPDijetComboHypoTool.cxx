@@ -75,7 +75,7 @@ struct DescendingEt: std::binary_function<const xAOD::Jet*,
   }
 };
 
-bool TrigAFPDijetComboHypoTool::executeAlg(std::vector<LegDecision> &combination) const {
+bool TrigAFPDijetComboHypoTool::executeAlg(const std::vector<Combo::LegDecision>& combination) const {
 
   ATH_MSG_DEBUG("TrigAFPDijetComboHypoTool::executeAlg Executing algorithm");
 
@@ -86,19 +86,22 @@ bool TrigAFPDijetComboHypoTool::executeAlg(std::vector<LegDecision> &combination
   
   std::vector<ElementLink<xAOD::JetContainer>> selected_jets;
   
-  if(combination.size() != 2) ATH_MSG_ERROR("Number of previous leg decisions is not 2!");
+  // Expecting to run over chains with the signature HLT_afp_2jX, and hence to be supplied with three Decision Objects for each combination.
+  if(combination.size() != 3) ATH_MSG_ERROR("Number of leg decisions is not 3!");
   
-  // Loop over leg decisions
-  for(auto comb: combination){
-    
-    auto dec = comb.second;
-    auto jet_link = TrigCompositeUtils::findLink<xAOD::JetContainer>(*dec, TrigCompositeUtils::featureString()).link;
-    if(!jet_link.isValid()){
-      ATH_MSG_ERROR("Expecting to combine exactly two jets, but instead passed "+std::to_string(combination.size())+". Will throw a runtime error");
-      throw std::runtime_error("Expecting to combine exactly two jets, but instead passed "+std::to_string(combination.size()));
+  // One of these is the AFP Decision Object, which we ignore as we are fetching the AFP reconstruction directly from a ReadHandle.
+  // The other two should be Jet Decision Objects.
+  for(const auto comb: combination){
+    const auto dec = comb.second;
+    const auto jet_link = TrigCompositeUtils::findLink<xAOD::JetContainer>(*dec, TrigCompositeUtils::featureString()).link;
+    if (jet_link.isValid()) {
+      selected_jets.push_back(jet_link);
     }
-    selected_jets.push_back(jet_link);
+  }
 
+  if(selected_jets.size() != 2){
+    ATH_MSG_ERROR("Expecting to combine exactly two jets, but instead found " << selected_jets.size() << ". Will throw a runtime error");
+    throw std::runtime_error("Expecting to combine exactly two jets, but instead found "+selected_jets.size());
   }
   
   // Get jet pair

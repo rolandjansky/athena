@@ -6,6 +6,7 @@ atlas_subdir( DecisionHandling )
 atlas_add_library( DecisionHandlingLib
                    src/ComboHypo.cxx
                    src/ComboHypoToolBase.cxx
+                   src/DebugComboHypoTool.cxx
                    src/DumpDecisions.cxx
                    src/HypoBase.cxx
                    src/InputMakerBase.cxx
@@ -47,3 +48,7 @@ foreach(test emu_step_processing emu_step_menu_processing)
     PROPERTIES WORKING_DIRECTORY ${rundir}
         )
 endforeach()
+
+atlas_add_test( test_ComboHypoTool
+    SOURCES test/test_ComboHypoTool.cxx
+    LINK_LIBRARIES TestTools TrigCompositeUtilsLib DecisionHandlingLib )
