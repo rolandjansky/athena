@@ -45,25 +45,25 @@
 #include "xAODMuon/MuonSegmentContainer.h"
 
 namespace {
-    static const SG::AuxElement::Accessor<int> dec_nUnspoiledCscHits("nUnspoiledCscHits");
-    static const SG::AuxElement::Accessor<float> dec_MuonSpectrometerPt("MuonSpectrometerPt");
-    static const SG::AuxElement::Accessor<float> dec_InnerDetectorPt("InnerDetectorPt");
-    static const SG::AuxElement::Accessor<unsigned int> dec_numEnergyLossPerTrack("numEnergyLossPerTrack");
+    static const SG::AuxElement::Accessor<int> acc_nUnspoiledCscHits("nUnspoiledCscHits");
+    static const SG::AuxElement::Accessor<float> acc_MuonSpectrometerPt("MuonSpectrometerPt");
+    static const SG::AuxElement::Accessor<float> acc_InnerDetectorPt("InnerDetectorPt");
+    static const SG::AuxElement::Accessor<unsigned int> acc_numEnergyLossPerTrack("numEnergyLossPerTrack");
 
-    static const SG::AuxElement::Accessor<float> dec_ET_Core("ET_Core");
-    static const SG::AuxElement::Accessor<float> dec_ET_EMCore("ET_EMCore");
-    static const SG::AuxElement::Accessor<float> dec_ET_TileCore("ET_TileCore");
-    static const SG::AuxElement::Accessor<float> dec_ET_HECCore("ET_HECCore");
+    static const SG::AuxElement::Accessor<float> acc_ET_Core("ET_Core");
+    static const SG::AuxElement::Accessor<float> acc_ET_EMCore("ET_EMCore");
+    static const SG::AuxElement::Accessor<float> acc_ET_TileCore("ET_TileCore");
+    static const SG::AuxElement::Accessor<float> acc_ET_HECCore("ET_HECCore");
 
-    static const SG::AuxElement::Accessor<float> dec_deltaphi_1("deltaphi_1");
-    static const SG::AuxElement::Accessor<float> dec_deltatheta_1("deltatheta_1");
-    static const SG::AuxElement::Accessor<float> dec_sigmadeltaphi_1("sigmadeltaphi_1");
-    static const SG::AuxElement::Accessor<float> dec_sigmadeltatheta_1("sigmadeltatheta_1");
+    static const SG::AuxElement::Accessor<float> acc_deltaphi_1("deltaphi_1");
+    static const SG::AuxElement::Accessor<float> acc_deltatheta_1("deltatheta_1");
+    static const SG::AuxElement::Accessor<float> acc_sigmadeltaphi_1("sigmadeltaphi_1");
+    static const SG::AuxElement::Accessor<float> acc_sigmadeltatheta_1("sigmadeltatheta_1");
 
-    static const SG::AuxElement::Accessor<float> dec_deltaphi_0("deltaphi_0");
-    static const SG::AuxElement::Accessor<float> dec_deltatheta_0("deltatheta_0");
-    static const SG::AuxElement::Accessor<float> dec_sigmadeltaphi_0("sigmadeltaphi_0");
-    static const SG::AuxElement::Accessor<float> dec_sigmadeltatheta_0("sigmadeltatheta_0");
+    static const SG::AuxElement::Accessor<float> acc_deltaphi_0("deltaphi_0");
+    static const SG::AuxElement::Accessor<float> acc_deltatheta_0("deltatheta_0");
+    static const SG::AuxElement::Accessor<float> acc_sigmadeltaphi_0("sigmadeltaphi_0");
+    static const SG::AuxElement::Accessor<float> acc_sigmadeltatheta_0("sigmadeltatheta_0");
 
 }  // namespace
 namespace MuonCombined {
@@ -383,24 +383,24 @@ namespace MuonCombined {
         addSegmentTag(muon, nullptr, outputData);
 
         /// Unspoiled CSC hits
-        dec_nUnspoiledCscHits(muon) = 0;
-        dec_MuonSpectrometerPt(muon) = -1;
-        dec_InnerDetectorPt(muon) = -1;
+        acc_nUnspoiledCscHits(muon) = 0;
+        acc_MuonSpectrometerPt(muon) = -1;
+        acc_InnerDetectorPt(muon) = -1;
 
-        dec_ET_Core(muon) = 0;
-        dec_ET_EMCore(muon) = 0;
-        dec_ET_TileCore(muon) = 0;
-        dec_ET_HECCore(muon) = 0;
+        acc_ET_Core(muon) = 0;
+        acc_ET_EMCore(muon) = 0;
+        acc_ET_TileCore(muon) = 0;
+        acc_ET_HECCore(muon) = 0;
 
-        dec_deltaphi_1(muon) = -999;
-        dec_deltatheta_1(muon) = -999;
-        dec_sigmadeltaphi_1(muon) = -999;
-        dec_sigmadeltatheta_1(muon) = -999;
+        acc_deltaphi_1(muon) = -999;
+        acc_deltatheta_1(muon) = -999;
+        acc_sigmadeltaphi_1(muon) = -999;
+        acc_sigmadeltatheta_1(muon) = -999;
 
-        dec_deltaphi_0(muon) = -999;
-        dec_deltatheta_0(muon) = -999;
-        dec_sigmadeltaphi_0(muon) = -999;
-        dec_sigmadeltatheta_0(muon) = -999;
+        acc_deltaphi_0(muon) = -999;
+        acc_deltatheta_0(muon) = -999;
+        acc_sigmadeltaphi_0(muon) = -999;
+        acc_sigmadeltatheta_0(muon) = -999;
 
         fillEnergyLossFromTrack(muon, nullptr);
     }
@@ -552,7 +552,7 @@ namespace MuonCombined {
         // muon and fill Etcore variables for muon
         if (m_useCaloCells) collectCells(*muon, outputData.clusterContainer);
 
-        ATH_MSG_DEBUG("Done creating muon with " << dec_nUnspoiledCscHits(*muon) << " unspoiled csc hits");
+        ATH_MSG_DEBUG("Done creating muon with " << acc_nUnspoiledCscHits(*muon) << " unspoiled csc hits");
 
         return muon;
     }
@@ -560,21 +560,21 @@ namespace MuonCombined {
     void MuonCreatorTool::addStatisticalCombination(xAOD::Muon& muon, const InDetCandidate* candidate, const StacoTag* tag,
                                                     OutputData& outputData) const {
         const EventContext& ctx = Gaudi::Hive::currentContext();
-        static const SG::AuxElement::Accessor<float> dec_d0("d0_staco");
-        static const SG::AuxElement::Accessor<float> dec_z0("z0_staco");
-        static const SG::AuxElement::Accessor<float> dec_phi0("phi0_staco");
-        static const SG::AuxElement::Accessor<float> dec_theta("theta_staco");
-        static const SG::AuxElement::Accessor<float> dec_qOverP("qOverP_staco");
-        static const SG::AuxElement::Accessor<float> dec_qOverPerr("qOverPErr_staco");
+        static const SG::AuxElement::Accessor<float> acc_d0("d0_staco");
+        static const SG::AuxElement::Accessor<float> acc_z0("z0_staco");
+        static const SG::AuxElement::Accessor<float> acc_phi0("phi0_staco");
+        static const SG::AuxElement::Accessor<float> acc_theta("theta_staco");
+        static const SG::AuxElement::Accessor<float> acc_qOverP("qOverP_staco");
+        static const SG::AuxElement::Accessor<float> acc_qOverPerr("qOverPErr_staco");
 
         if (!tag) {
             // init variables if necessary.
-            dec_d0(muon) = -999;
-            dec_z0(muon) = -999;
-            dec_phi0(muon) = -999;
-            dec_theta(muon) = -999;
-            dec_qOverP(muon) = -999;
-            dec_qOverPerr(muon) = -999.;
+            acc_d0(muon) = -999;
+            acc_z0(muon) = -999;
+            acc_phi0(muon) = -999;
+            acc_theta(muon) = -999;
+            acc_qOverP(muon) = -999;
+            acc_qOverPerr(muon) = -999.;
             return;
         }
 
@@ -632,12 +632,12 @@ namespace MuonCombined {
         muon.setParameter(static_cast<float>(tag->matchChi2()), xAOD::Muon::msInnerMatchChi2);
 
         // STACO parameters added as auxdata
-        dec_d0(muon) = tag->combinedParameters().parameters()[Trk::d0];
-        dec_z0(muon) = tag->combinedParameters().parameters()[Trk::z0];
-        dec_phi0(muon) = tag->combinedParameters().parameters()[Trk::phi0];
-        dec_theta(muon) = tag->combinedParameters().parameters()[Trk::theta];
-        dec_qOverP(muon) = tag->combinedParameters().parameters()[Trk::qOverP];
-        dec_qOverPerr(muon) = Amg::error(*tag->combinedParameters().covariance(), Trk::qOverP);
+        acc_d0(muon) = tag->combinedParameters().parameters()[Trk::d0];
+        acc_z0(muon) = tag->combinedParameters().parameters()[Trk::z0];
+        acc_phi0(muon) = tag->combinedParameters().parameters()[Trk::phi0];
+        acc_theta(muon) = tag->combinedParameters().parameters()[Trk::theta];
+        acc_qOverP(muon) = tag->combinedParameters().parameters()[Trk::qOverP];
+        acc_qOverPerr(muon) = Amg::error(*tag->combinedParameters().covariance(), Trk::qOverP);
 
         ATH_MSG_DEBUG("Done adding Staco Muon  " << tag->author() << " type " << tag->type());
     }
@@ -862,9 +862,9 @@ namespace MuonCombined {
     }
 
     void MuonCreatorTool::addCaloTag(xAOD::Muon& mu, const CaloTag* tag) const {
-        static const SG::AuxElement::Accessor<float> dec_ElType("CT_EL_Type");  // FIXME - should be uint
-        static const SG::AuxElement::Accessor<float> dec_ElLikelihood("CT_ET_LRLikelihood");
-        static const SG::AuxElement::Accessor<float> dec_ElFSREnergy("CT_ET_FSRCandidateEnergy");
+        static const SG::AuxElement::Accessor<float> acc_ElType("CT_EL_Type");  // FIXME - should be uint
+        static const SG::AuxElement::Accessor<float> acc_ElLikelihood("CT_ET_LRLikelihood");
+        static const SG::AuxElement::Accessor<float> acc_ElFSREnergy("CT_ET_FSRCandidateEnergy");
 
         if (!tag) {
             // init variables if necessary.
@@ -875,10 +875,10 @@ namespace MuonCombined {
             if (m_fillExtraELossInfo) {
                 // Here we can make sure that we store the extra calotag information -
                 // just always add it since this is then unambigious for debugging
-                dec_ET_Core(mu) = 0.0;
-                dec_ElType(mu) = -999.0;
-                dec_ElLikelihood(mu) = -999.0;
-                dec_ElFSREnergy(mu) = -999.0;
+                acc_ET_Core(mu) = 0.0;
+                acc_ElType(mu) = -999.0;
+                acc_ElLikelihood(mu) = -999.0;
+                acc_ElFSREnergy(mu) = -999.0;
             }
             return;
         }
@@ -892,10 +892,10 @@ namespace MuonCombined {
         if (m_fillExtraELossInfo) {
             // Here we can make sure that we store the extra calotag information - just
             // always add it since this is then unambigious for debugging
-            dec_ET_Core(mu) = tag->etCore();
-            dec_ElType(mu) = tag->energyLossType();
-            dec_ElLikelihood(mu) = tag->caloLRLikelihood();
-            dec_ElFSREnergy(mu) = tag->fsrCandidateEnergy();
+            acc_ET_Core(mu) = tag->etCore();
+            acc_ElType(mu) = tag->energyLossType();
+            acc_ElLikelihood(mu) = tag->caloLRLikelihood();
+            acc_ElFSREnergy(mu) = tag->fsrCandidateEnergy();
         }
         // FIXME - calo deposits
     }
@@ -986,7 +986,7 @@ namespace MuonCombined {
                         float fieldInt = m_trackQuery->fieldIntegral(**meLink, ctx).betweenSpectrometerMeasurements();
                         muon.setParameter(fieldInt, xAOD::Muon::spectrometerFieldIntegral);
                         int nunspoiled = (*link)->track()->trackSummary()->get(Trk::numberOfCscUnspoiltEtaHits);
-                        dec_nUnspoiledCscHits(muon) = nunspoiled;
+                        acc_nUnspoiledCscHits(muon) = nunspoiled;
                     }
                 }
             } else {  // I don't think we should ever get here, but just in case
@@ -1028,7 +1028,7 @@ namespace MuonCombined {
                         float fieldInt = m_trackQuery->fieldIntegral(**meLink, ctx).betweenSpectrometerMeasurements();
                         muon.setParameter(fieldInt, xAOD::Muon::spectrometerFieldIntegral);
                         int nunspoiled = (*link)->track()->trackSummary()->get(Trk::numberOfCscUnspoiltEtaHits);
-                        dec_nUnspoiledCscHits(muon) = nunspoiled;
+                        acc_nUnspoiledCscHits(muon) = nunspoiled;
                     }
                 } else {  // no refitted track, so add original un-refitted extrapolated
                           // track as ME track
@@ -1079,7 +1079,7 @@ namespace MuonCombined {
                         m_trackQuery->fieldIntegral(**candidate.extrapolatedTrackLink(), ctx).betweenSpectrometerMeasurements();
                     muon.setParameter(fieldInt, xAOD::Muon::spectrometerFieldIntegral);
                     int nunspoiled = extrapolatedTrack->trackSummary()->get(Trk::numberOfCscUnspoiltEtaHits);
-                    dec_nUnspoiledCscHits(muon) = nunspoiled;
+                    acc_nUnspoiledCscHits(muon) = nunspoiled;
                 } else {
                     ATH_MSG_WARNING("failed to create ME track particle for SA muon");
                 }
@@ -1428,8 +1428,8 @@ namespace MuonCombined {
         }
 
         if (!m_selectorTool.empty()) {
-            dec_MuonSpectrometerPt(muon) = muon.pt();
-            dec_InnerDetectorPt(muon) = muon.pt();
+            acc_MuonSpectrometerPt(muon) = muon.pt();
+            acc_InnerDetectorPt(muon) = muon.pt();
             // set id cuts
             m_selectorTool->setPassesIDCuts(muon);
             ATH_MSG_VERBOSE("Setting passesIDCuts " << muon.passesIDCuts());
@@ -1509,17 +1509,17 @@ namespace MuonCombined {
 
     void MuonCreatorTool::addRpcTiming(xAOD::Muon& muon) const {
         // vectors to be filled
-        static const SG::AuxElement::Accessor<std::vector<unsigned int>> dec_HitIdentifier("rpcHitIdentifier");
-        static const SG::AuxElement::Accessor<std::vector<float>> dec_positionX("rpcHitPositionX");
-        static const SG::AuxElement::Accessor<std::vector<float>> dec_positionY("rpcHitPositionY");
-        static const SG::AuxElement::Accessor<std::vector<float>> dec_positionZ("rpcHitPositionZ");
-        static const SG::AuxElement::Accessor<std::vector<float>> dec_time("rpcHitTime");
+        static const SG::AuxElement::Accessor<std::vector<unsigned int>> acc_HitIdentifier("rpcHitIdentifier");
+        static const SG::AuxElement::Accessor<std::vector<float>> acc_positionX("rpcHitPositionX");
+        static const SG::AuxElement::Accessor<std::vector<float>> acc_positionY("rpcHitPositionY");
+        static const SG::AuxElement::Accessor<std::vector<float>> acc_positionZ("rpcHitPositionZ");
+        static const SG::AuxElement::Accessor<std::vector<float>> acc_time("rpcHitTime");
 
-        std::vector<unsigned int>& rpcHitIdentifier = dec_HitIdentifier(muon);
-        std::vector<float>& rpcHitPositionX = dec_positionX(muon);
-        std::vector<float>& rpcHitPositionY = dec_positionY(muon);
-        std::vector<float>& rpcHitPositionZ = dec_positionZ(muon);
-        std::vector<float>& rpcHitTime = dec_time(muon);
+        std::vector<unsigned int>& rpcHitIdentifier = acc_HitIdentifier(muon);
+        std::vector<float>& rpcHitPositionX = acc_positionX(muon);
+        std::vector<float>& rpcHitPositionY = acc_positionY(muon);
+        std::vector<float>& rpcHitPositionZ = acc_positionZ(muon);
+        std::vector<float>& rpcHitTime = acc_time(muon);
 
         // only fill if the primary track particle is not equal to the ID track
         // particle and it has an associated track with track states
@@ -1596,7 +1596,7 @@ namespace MuonCombined {
 
             muon.setEnergyLossType(xAOD::Muon::Parametrized);  // Not so nice! Add 'unknown' type?
             muon.setParameter(static_cast<float>(0.0), xAOD::Muon::FSR_CandidateEnergy);
-            if (m_fillExtraELossInfo) dec_numEnergyLossPerTrack(muon) = 0;
+            if (m_fillExtraELossInfo) acc_numEnergyLossPerTrack(muon) = 0;
 
             return;
         }
@@ -1638,7 +1638,7 @@ namespace MuonCombined {
             ATH_MSG_VERBOSE("More than one e loss per track... ");
             problem = true;
         }
-        if (m_fillExtraELossInfo) dec_numEnergyLossPerTrack(muon) = numEnergyLossPerTrack;
+        if (m_fillExtraELossInfo) acc_numEnergyLossPerTrack(muon) = numEnergyLossPerTrack;
         if (problem) ATH_MSG_VERBOSE("Dumping problematic muon: " << m_muonPrinter->print(muon));
     }
 
@@ -1699,10 +1699,10 @@ namespace MuonCombined {
         // collect the core energy
         std::vector<float> etcore(4, 0);
         m_cellCollector.collectEtCore(*cluster, etcore, caloNoise, m_sigmaCaloNoiseCut);
-        dec_ET_Core(muon) = etcore[Rec::CaloCellCollector::ET_Core];
-        dec_ET_EMCore(muon) = etcore[Rec::CaloCellCollector::ET_EMCore];
-        dec_ET_TileCore(muon) = etcore[Rec::CaloCellCollector::ET_TileCore];
-        dec_ET_HECCore(muon) = etcore[Rec::CaloCellCollector::ET_HECCore];
+        acc_ET_Core(muon) = etcore[Rec::CaloCellCollector::ET_Core];
+        acc_ET_EMCore(muon) = etcore[Rec::CaloCellCollector::ET_EMCore];
+        acc_ET_TileCore(muon) = etcore[Rec::CaloCellCollector::ET_TileCore];
+        acc_ET_HECCore(muon) = etcore[Rec::CaloCellCollector::ET_HECCore];
 
         if (m_caloNoiseKey.empty())
             ATH_MSG_DEBUG("NO Tool for calo noise,sigma: " << m_sigmaCaloNoiseCut);
@@ -1715,19 +1715,22 @@ namespace MuonCombined {
     }
 
     void MuonCreatorTool::addAlignmentEffectsOnTrack(xAOD::TrackParticleContainer* trkCont) const {
-        for (const xAOD::TrackParticle* tp : *trkCont) {
+        
+    static const SG::AuxElement::Decorator<std::vector<std::vector<unsigned int>>> dec_ChId("alignEffectChId");
+    static const SG::AuxElement::Decorator<std::vector<float>> dec_DeltaTrans("alignEffectDeltaTrans");
+    static const SG::AuxElement::Decorator<std::vector<float>> dec_SigmaDeltaTrans("alignEffectSigmaDeltaTrans");    
+    static const SG::AuxElement::Decorator<std::vector<float>> dec_deltaAngle("alignEffectDeltaAngle");
+    static const SG::AuxElement::Decorator<std::vector<float>> dec_sigmaDeltaAngle("alignEffectSigmaDeltaAngle");
+    
+    for (const xAOD::TrackParticle* tp : *trkCont) {
             std::vector<std::vector<unsigned int>> chId;
-            std::vector<float> deltaTrans;
-            std::vector<float> sigmaDeltaTrans;
-            std::vector<float> deltaAngle;
-            std::vector<float> sigmaDeltaAngle;
+            std::vector<float> deltaTrans, sigmaDeltaTrans, deltaAngle, sigmaDeltaAngle;
 
             const Trk::Track* trk = tp->track();
             if (trk && trk->trackStateOnSurfaces()) {
                 int nAEOT = 0;
                 for (const auto* tsos : *(trk->trackStateOnSurfaces())) {
                     if (!tsos->type(Trk::TrackStateOnSurface::Alignment)) continue;
-
                     const Trk::AlignmentEffectsOnTrack* aeot = tsos->alignmentEffectsOnTrack();
                     if (aeot) {
                         nAEOT++;
@@ -1747,11 +1750,11 @@ namespace MuonCombined {
                     }
                 }
             }
-            tp->auxdecor<std::vector<std::vector<unsigned int>>>("alignEffectChId") = chId;
-            tp->auxdecor<std::vector<float>>("alignEffectDeltaTrans") = deltaTrans;
-            tp->auxdecor<std::vector<float>>("alignEffectSigmaDeltaTrans") = sigmaDeltaTrans;
-            tp->auxdecor<std::vector<float>>("alignEffectDeltaAngle") = deltaAngle;
-            tp->auxdecor<std::vector<float>>("alignEffectSigmaDeltaAngle") = sigmaDeltaAngle;
+            dec_ChId(*tp) = chId;
+            dec_DeltaTrans(*tp) = deltaTrans;
+            dec_SigmaDeltaTrans(*tp) = sigmaDeltaTrans;
+            dec_deltaAngle(*tp) = deltaAngle;
+            dec_sigmaDeltaAngle(*tp) = sigmaDeltaAngle;
         }
     }
 
@@ -1767,15 +1770,15 @@ namespace MuonCombined {
                 if (!meot->energyLoss() || !meot->scatteringAngles()) continue;
                 if (meot->energyLoss()->deltaE() == 0) {  // artificial scatterer found
                     if (nscatter == 0) {
-                        dec_deltaphi_0(muon) = meot->scatteringAngles()->deltaPhi();
-                        dec_deltatheta_0(muon) = meot->scatteringAngles()->deltaTheta();
-                        dec_sigmadeltaphi_0(muon) = meot->scatteringAngles()->sigmaDeltaPhi();
-                        dec_sigmadeltatheta_0(muon) = meot->scatteringAngles()->sigmaDeltaTheta();
+                        acc_deltaphi_0(muon) = meot->scatteringAngles()->deltaPhi();
+                        acc_deltatheta_0(muon) = meot->scatteringAngles()->deltaTheta();
+                        acc_sigmadeltaphi_0(muon) = meot->scatteringAngles()->sigmaDeltaPhi();
+                        acc_sigmadeltatheta_0(muon) = meot->scatteringAngles()->sigmaDeltaTheta();
                     } else if (nscatter == 1) {
-                        dec_deltaphi_1(muon) = meot->scatteringAngles()->deltaPhi();
-                        dec_deltatheta_1(muon) = meot->scatteringAngles()->deltaTheta();
-                        dec_sigmadeltaphi_1(muon) = meot->scatteringAngles()->sigmaDeltaPhi();
-                        dec_sigmadeltatheta_1(muon) = meot->scatteringAngles()->sigmaDeltaTheta();
+                        acc_deltaphi_1(muon) = meot->scatteringAngles()->deltaPhi();
+                        acc_deltatheta_1(muon) = meot->scatteringAngles()->deltaTheta();
+                        acc_sigmadeltaphi_1(muon) = meot->scatteringAngles()->sigmaDeltaPhi();
+                        acc_sigmadeltatheta_1(muon) = meot->scatteringAngles()->sigmaDeltaTheta();
                     }
                     nscatter++;
                 }
@@ -1785,6 +1788,17 @@ namespace MuonCombined {
     }
 
     void MuonCreatorTool::addMSIDScatteringAngles(const xAOD::TrackParticle& tp) const {
+        
+        static const SG::AuxElement::Decorator<float> dec_deltaphi_1("deltaphi_1");
+        static const SG::AuxElement::Decorator<float> dec_deltatheta_1("deltatheta_1");
+        static const SG::AuxElement::Decorator<float> dec_sigmadeltaphi_1("sigmadeltaphi_1");
+        static const SG::AuxElement::Decorator<float> dec_sigmadeltatheta_1("sigmadeltatheta_1");
+
+        static const SG::AuxElement::Decorator<float> dec_deltaphi_0("deltaphi_0");
+        static const SG::AuxElement::Decorator<float> dec_deltatheta_0("deltatheta_0");
+        static const SG::AuxElement::Decorator<float> dec_sigmadeltaphi_0("sigmadeltaphi_0");
+        static const SG::AuxElement::Decorator<float> dec_sigmadeltatheta_0("sigmadeltatheta_0");
+
         dec_deltaphi_1(tp) = -999;
         dec_deltatheta_1(tp) = -999;
         dec_sigmadeltaphi_1(tp) = -999;
