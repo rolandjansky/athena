@@ -1,15 +1,12 @@
 #!/bin/bash
 #
-# art-description: Reco_tf.py data18 RAWtoALL in MT mode with RUCIO input dataset processing 50 files with 3 files/job
+# art-description: Reco_tf.py data16 RAWtoALL in MT mode
 # art-type: grid
-# art-input: data18_13TeV:data18_13TeV.00357750.physics_Main.daq.RAW
-# art-input-nfiles: 50
-# art-input-nfilesperjob: 3
 # art-include: master/Athena
 # art-athena-mt: 8
 
 timeout 43200 Reco_tf.py \
-  --inputBSFile=${ArtInFile} \
+  --inputBSFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data16_13TeV.00304008.physics_Main.daq.RAW._lb0838._SFO-6._0001.data \
   --outputAODFile=myAOD.pool.root \
   --outputHISTFile=myHIST.root \
   --outputDESDM_MCPFile=myDESDM_MCP.pool.root \
@@ -22,4 +19,4 @@ timeout 43200 Reco_tf.py \
   --conditionsTag 'all:CONDBR2-BLKPA-RUN2-03' --geometryVersion='default:ATLAS-R2-2016-01-00-01' \
   --runNumber='357750' --steering='doRAWtoALL' --maxEvents='-1'
 
-echo "art-result: $? Reco_tf_data18_rucio_mt"
+echo "art-result: $? Reco_tf_data16_mt"

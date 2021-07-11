@@ -11,6 +11,7 @@ timeout 64800 Reco_tf.py \
   --outputHISTFile=myHIST.root \
   --outputDESDM_MCPFile=myDESDM_MCP.pool.root \
   --outputDRAW_ZMUMUFile=myDRAW_ZMUMU.data \
+  --outputDAOD_IDTIDEFile=myIDTIDE.pool.root \
   --multithreaded='True' \
   --preExec 'all:from AthenaMonitoring.DQMonFlags import DQMonFlags; DQMonFlags.doHLTMon=False' \
   --postExec 'FPEAuditor.NStacktracesOnFPE=20' \

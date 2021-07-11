@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# art-description: Reco_tf.py q431 RAWtoALL in hybrid MT/MP mode: nprocs=2, threads=4
+# art-description: Reco_tf.py data18 RAWtoALL in hybrid MT/MP mode: nprocs=2, threads=4
 # art-type: grid
 # art-include: master/Athena
 # art-athena-mt: 8
@@ -11,6 +11,7 @@ timeout 43200 Reco_tf.py \
   --outputHISTFile=myHIST.root \
   --outputDESDM_MCPFile=myDESDM_MCP.pool.root \
   --outputDRAW_ZMUMUFile=myDRAW_ZMUMU.data \
+  --outputDAOD_IDTIDEFile=myIDTIDE.pool.root \
   --athenaopts="--nprocs=2 --threads=4" \
   --preExec 'all:from AthenaMonitoring.DQMonFlags import DQMonFlags; DQMonFlags.doHLTMon=False' \
   --postExec 'FPEAuditor.NStacktracesOnFPE=10' \
