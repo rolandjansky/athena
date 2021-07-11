@@ -22,6 +22,7 @@ class ConfigType(Enum):
     HLTPS = ("HLTPrescalesSet", "hltprescale")
     BGS = ("L1BunchGroupsSet", "bunchgroupset")
     HLTJO = ("HLTJobOptions", "joboptions")
+    HLTMON = ("HLTMonitoring", "hltmonitoringsummary")
     def __init__(self, basename, filetype):
         self.basename = basename
         self.filetype = filetype

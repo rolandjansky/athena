@@ -1,9 +1,9 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from .TrigConfigSvcCfg import getTrigConfigFromFlag, getL1MenuFileName, getHLTMenuFileName, getL1PrescalesSetFileName, getHLTPrescalesSetFileName, getBunchGroupSetFileName, getHLTJobOptionsFileName
+from .TrigConfigSvcCfg import getTrigConfigFromFlag, getL1MenuFileName, getHLTMenuFileName, getL1PrescalesSetFileName, getHLTPrescalesSetFileName, getBunchGroupSetFileName, getHLTJobOptionsFileName, getHLTMonitoringFileName
 
 from TrigConfIO.L1TriggerConfigAccess import L1MenuAccess, L1PrescalesSetAccess, BunchGroupSetAccess
-from TrigConfIO.HLTTriggerConfigAccess import HLTMenuAccess, HLTPrescalesSetAccess, HLTJobOptionsAccess
+from TrigConfIO.HLTTriggerConfigAccess import HLTMenuAccess, HLTPrescalesSetAccess, HLTJobOptionsAccess, HLTMonitoringAccess
 
 from PyUtils.Decorators import memoize
 
@@ -200,6 +200,23 @@ def getHLTJobOptionsAccess( flags = None ):
         from RecExConfig.InputFilePeeker import inputFileSummary as inpSum
         if inpSum["file_type"] != 'pool':
             raise RuntimeError("Cannot read trigger configuration (HLT menu) from input type %s" % inpSum["file_type"])
+        raise NotImplementedError("Python access to the trigger configuration (HLT menu) from in-file metadata not yet implemented")
+    else:
+        raise RuntimeError("Unknown source of trigger configuration: %s" % tc["SOURCE"])
+    return cfg
+
+def getHLTMonitoringAccess( flags = None ):
+    tc = getTrigConfigFromFlag( flags )
+    if tc["SOURCE"] == "FILE":
+        cfg = HLTMonitoringAccess( filename = getHLTMonitoringFileName( flags ) )
+    elif tc["SOURCE"] == "COOL":
+        # TODO when database will be ready
+        raise NotImplementedError("Python COOL access to the HLT monitoring not yet implemented")
+    elif tc["SOURCE"] == "DB":
+        # TODO when database will be ready
+        raise NotImplementedError("Python DB access to the HLT monitoring not yet implemented")
+    elif tc["SOURCE"] == "INFILE":
+        # TODO when database will be ready
         raise NotImplementedError("Python access to the trigger configuration (HLT menu) from in-file metadata not yet implemented")
     else:
         raise RuntimeError("Unknown source of trigger configuration: %s" % tc["SOURCE"])
