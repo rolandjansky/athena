@@ -152,7 +152,7 @@ namespace VKalVrtAthena {
         std::vector<ElementLink< xAOD::VertexContainer > > links;
         
         // Loop over vertices
-        for( const auto& vtx : *secondaryVertexContainer ) {
+        for( const auto vtx : *secondaryVertexContainer ) {
       
           std::vector<double> impactParameters;
           std::vector<double> impactParErrors;
