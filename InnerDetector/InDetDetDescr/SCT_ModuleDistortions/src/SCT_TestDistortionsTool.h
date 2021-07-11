@@ -33,13 +33,13 @@ class SCT_TestDistortionsTool:public AthAlgorithm {
   ToolHandle<ISCT_ModuleDistortionsTool> m_SCTDistoTool
     {this,"SCT_DistortionsTool","SCT_DistortionsTool",""};
 
-  TH2F* m_ZvsX;
-  TH2F* m_ZvsY;
-  TH3F* m_XYZ;
-  TH2F* m_outerXedge;
-  TH2F* m_outerYedge;
-  TH2F* m_outerX;
-  TH2F* m_outerY;
+  TH2F* m_ZvsX = nullptr;
+  TH2F* m_ZvsY = nullptr;
+  TH3F* m_XYZ = nullptr;
+  TH2F* m_outerXedge = nullptr;
+  TH2F* m_outerYedge = nullptr;
+  TH2F* m_outerX = nullptr;
+  TH2F* m_outerY = nullptr;
 
 };
 #endif // SCT_TestDistortionsTool_h
