@@ -51,7 +51,8 @@ namespace InDetDD {
          number of cell rows per circuit
          number of diode columns connected to one circuit
          number of diode rows connected to one circuit */
-         PixelReadoutScheme(const int circuitsPerColumn,const int circuitsPerRow,
+         PixelReadoutScheme(const int circuitsPerColumn,
+                            const int circuitsPerRow,
                             const int cellColumnsPerCircuit,
                             const int cellRowsPerCircuit,
                             const int diodeColumnsPerCircuit,
@@ -66,6 +67,12 @@ namespace InDetDD {
 
         /** total number of circuits: */
         int numberOfCircuits() const;
+
+        /** number of circuits per column: */
+        int numberOfCircuitsPerColumn() const;
+
+        /** number of circuits per row: */
+        int numberOfCircuitsPerRow() const;
 
         /** number of cell columns per circuit: */
         int columnsPerCircuit() const;
@@ -114,6 +121,8 @@ namespace InDetDD {
    private:
      PixelMultipleConnection1D m_rowConnections; //!< multiple connections for rows
      int m_numberOfCircuits; //!< total number of circuits
+     int m_numberOfCircuitsPerColumn; //!< number of circuits per column
+     int m_numberOfCircuitsPerRow; //!< number of circuits per row
      int m_columnsPerCircuit; //!< number of cell columns per circuit
      int m_rowsPerCircuit; //!< number of cell rows per circuit
      int m_columns; //!< Number of columns
@@ -130,6 +139,16 @@ inline PixelReadoutScheme::~PixelReadoutScheme()
 inline int PixelReadoutScheme::numberOfCircuits() const
 {
   return m_numberOfCircuits;
+}
+
+inline int PixelReadoutScheme::numberOfCircuitsPerColumn() const
+{
+  return m_numberOfCircuitsPerColumn;
+}
+
+inline int PixelReadoutScheme::numberOfCircuitsPerRow() const
+{
+  return m_numberOfCircuitsPerRow;
 }
 
 inline int PixelReadoutScheme::columnsPerCircuit() const
