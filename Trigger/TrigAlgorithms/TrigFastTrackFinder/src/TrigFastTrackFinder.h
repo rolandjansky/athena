@@ -140,7 +140,7 @@ protected:
   ToolHandle< GenericMonitoringTool > m_monTool  { this, "MonTool", "", "Monitoring tool" };
    // ToolHandle< Trk::IExtrapolator > m_extrapolator;
   ToolHandle< Trk::IExtrapolator > m_extrapolator { this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator" };
-  ToolHandle< Trk::ITrackFitter >  m_disTrkFitter { this, "DisTrkFitter", "Trk::KalmanFitter/InDetTrigTrackFitter"};
+  ToolHandle< Trk::ITrackFitter >  m_disTrkFitter;
 
   //for GPU acceleration
   ToolHandle<ITrigInDetAccelerationTool> m_accelTool;

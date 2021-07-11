@@ -48,7 +48,7 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   m_trigZFinder("TrigZFinder/TrigZFinder", this ),
   m_trackSummaryTool("Trk::ITrackSummaryTool/ITrackSummaryTool"),
   m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-  m_disTrkFitter("Trk::KalmanFitter/InDetTrigTrackFitter"),
+  m_disTrkFitter("Trk::KalmanFitter/InDetTrackFitter"),
   m_accelTool("TrigInDetAccelerationTool"),
   m_accelSvc("TrigInDetAccelerationSvc", name),
   m_doCloneRemoval(true),
@@ -156,6 +156,7 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   declareProperty("doHitDV_Seeding",   m_doHitDV_Seeding   = false);
   declareProperty("dodEdxTrk",         m_dodEdxTrk         = false);
   declareProperty("doDisappearingTrk", m_doDisappearingTrk = false);
+  declareProperty("DisTrackFitter",    m_disTrkFitter );
 }
 
 //--------------------------------------------------------------------------
