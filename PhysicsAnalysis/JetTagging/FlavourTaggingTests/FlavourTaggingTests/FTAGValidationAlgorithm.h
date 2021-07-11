@@ -53,13 +53,13 @@ namespace FTAGValidation {
     Gaudi::Property< float > m_maxJetEta { this,"MaxJetEta",2.5,
         "Maximum Eta range for jets"};
 
-    Gaudi::Property< float > m_minJetPt { this,"MinJetPt", 45.,
+    Gaudi::Property< float > m_minJetPt { this,"MinJetPt", 20.,
         "Minimum Jet Pt [GeV]" };
 
     Gaudi::Property< float > m_maxTrigJetEta { this,"MaxTrigJetEta",2.5,
         "Maximum Trigger Eta range for jets"};
 
-    Gaudi::Property< float > m_minTrigJetPt { this,"MinTrigJetPt", 45.,
+    Gaudi::Property< float > m_minTrigJetPt { this,"MinTrigJetPt", 20.,
         "Minimum Trigger Jet Pt [GeV]" };
 
   };
