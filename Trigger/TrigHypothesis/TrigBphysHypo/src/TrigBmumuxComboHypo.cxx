@@ -78,34 +78,6 @@ StatusCode TrigBmumuxComboHypo::initialize() {
     }
   }
 
-  // add IDs to ComboHypoTools to check that each trigger leg fulfill TrigCompositeUtils::passed() requirement
-  for (auto& tool : hypoTools()) {
-    const HLT::Identifier id = tool->decisionId();
-    const auto itr = triggerMultiplicityMap().find(id.name());
-    if (itr == triggerMultiplicityMap().end()) {
-      ATH_MSG_ERROR( "No entry found for " << tool->name() << " in triggerMultiplicityMap" );
-    }
-    const std::vector<int>& multiplicity = itr->second;
-    std::vector<HLT::Identifier> legDecisionIds;
-    if (multiplicity.size() == 1) {
-      legDecisionIds.assign(multiplicity[0], id);
-    }
-    else {
-      size_t n = static_cast<size_t>(std::accumulate(multiplicity.begin(), multiplicity.end(), 0));
-      legDecisionIds.reserve(n);
-      for (size_t i = 0; i < n; i++) {
-        legDecisionIds.push_back(TrigCompositeUtils::createLegName(id, i));
-      }
-    }
-    if (msgLvl(MSG::DEBUG)) {
-      ATH_MSG_DEBUG( "Leg decisions for tool " << tool->name() );
-      for (const auto& legId : legDecisionIds) {
-        ATH_MSG_DEBUG( " +++ " << legId );
-      }
-    }
-    tool->setLegDecisionIds(std::move(legDecisionIds));
-  }
-
   if (!m_monTool.empty()) {
     ATH_CHECK( m_monTool.retrieve() );
     ATH_MSG_DEBUG( "GenericMonitoringTool name:" << m_monTool );
@@ -707,14 +679,22 @@ bool TrigBmumuxComboHypo::passDimuonTrigger(const std::vector<const DecisionIDCo
   }
 
   for (const auto& tool : hypoTools()) {
-    const std::vector<HLT::Identifier>& legDecisionIDs = tool->legDecisionIds();
-    if (legDecisionIDs.size() != 2) continue;
+    std::vector<HLT::Identifier> legDecisionIDs;
+    legDecisionIDs.reserve(2);
+    if (tool->legDecisionIds().size() == 2) { // Muons on two legs
+      legDecisionIDs = tool->legDecisionIds();
+    } else if (tool->legDecisionIds().size() == 1 and tool->legMultiplicity().at(0) >= 2) { // Two muons on one leg
+      legDecisionIDs[0] = tool->legDecisionId(0);
+      legDecisionIDs[1] = tool->legDecisionId(0);
+    } else {
+      continue;
+    }
 
     bool direct = true;
     bool inverse = true;
     for (size_t i = 0; i < 2; ++i) {
-      if (direct && !TrigCompositeUtils::passed(legDecisionIDs[i].numeric(), *previousDecisionIDs[i])) direct = false;
-      if (inverse && !TrigCompositeUtils::passed(legDecisionIDs[i].numeric(), *previousDecisionIDs[1-i])) inverse = false;
+      if (direct && !TrigCompositeUtils::passed(legDecisionIDs.at(i).numeric(), *previousDecisionIDs.at(i) ) ) direct = false;
+      if (inverse && !TrigCompositeUtils::passed(legDecisionIDs.at(i).numeric(), *previousDecisionIDs.at(1-i) ) ) inverse = false;
     }
     if (direct || inverse) return true;
   }

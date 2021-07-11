@@ -6,6 +6,7 @@
 #include "../InputMakerForRoI.h"
 #include "../DeltaRRoIComboHypoTool.h"
 #include "DecisionHandling/ComboHypoToolBase.h"
+#include "DecisionHandling/DebugComboHypoTool.h"
 
 #include "../ViewCreatorInitialROITool.h"
 #include "../ViewCreatorPreviousROITool.h"
@@ -35,6 +36,7 @@ DECLARE_COMPONENT( ComboHypo )
 DECLARE_COMPONENT( InputMakerForRoI )
 DECLARE_COMPONENT( ComboHypoToolBase )
 DECLARE_COMPONENT( DeltaRRoIComboHypoTool )
+DECLARE_COMPONENT( DebugComboHypoTool )
 
 DECLARE_COMPONENT( ViewCreatorInitialROITool )
 DECLARE_COMPONENT( ViewCreatorPreviousROITool )

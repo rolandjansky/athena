@@ -63,7 +63,7 @@ StatusCode TrigComboHypoTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-bool TrigComboHypoTool::executeAlg(std::vector<LegDecision> &combination) const {
+bool TrigComboHypoTool::executeAlg(const std::vector<Combo::LegDecision>& combination) const {
   ATH_MSG_DEBUG("On combination executeAlg");
   auto varOfAccepted  = Monitored::Scalar( m_varTag+"OfAccepted"   , -1.0 );
   auto varOfProcessed = Monitored::Scalar( m_varTag+"OfProcessed"  , -1.0 );
@@ -72,20 +72,28 @@ bool TrigComboHypoTool::executeAlg(std::vector<LegDecision> &combination) const 
   //check that we found the two legs
   int nCombs(combination.size());
   if (nCombs < 2){
-    ATH_MSG_ERROR("Number of legs found is less than 2! N_legs = " << combination.size() );
+    ATH_MSG_ERROR("Number of Decision Objects passed is less than 2! Sum over decision objects on all legs = " << combination.size() );
     return false;
   }
   int           legA_index(-1), legB_index(-1);
 
-  ATH_MSG_DEBUG("Legs available = "<< combination);
+  ATH_MSG_DEBUG("Decision objects available = "<< combination);
   for (int i=0; i<nCombs; ++i){
     auto combId = HLT::Identifier(combination[i].first);
     if (!TrigCompositeUtils::isLegId(combId))
       continue;
     std::string   legName = combId.name().substr(0,6);
     if (legName == m_legA){
+      if (legA_index != -1) {
+        ATH_MSG_WARNING("More than one Decision Object supplied on " << legName 
+          << "! E.g. from a 2muX leg or similar. Do not know which one to use, will take the last one!");
+      }
       legA_index = i;
     }else  if (legName == m_legB){
+      if (legB_index != -1) {
+        ATH_MSG_WARNING("More than one Decision Object supplied on " << legName 
+          << "! E.g. from a 2muX leg or similar. Do not know which one to use, will take the last one!");
+      }
       legB_index = i;
     }
     ATH_MSG_DEBUG("\t Leg: "<< legName <<", full name:"<<combId.name());

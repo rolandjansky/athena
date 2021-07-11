@@ -18,104 +18,104 @@
 
 /**
  * @class ComboHypoToolBase
- * @brief
+ * @brief Base class for tools which cut on properties of multi-object or multi-leg chains.
+ * User should derive from this class and implement the executeAlg function.
+ * This will be called once per combination of objects in the event which reach the ComboHypo alg which hosts this tool.
  **/
-
 
 class ComboHypoToolBase : public extends<AthAlgTool, IComboHypoTool> {
 
 public:
   ComboHypoToolBase(const std::string& type, const std::string& name, const IInterface* parent);
-
   
   /**
    * @brief retrieves the decisions associated to this decId, make their combinations and apply the algorithm
-   @param[in]  LegDecisionsMap that lists all the passing decisions, to be updated  
-   @param[in]  Event Context passed to store the output collection
-  **/  
-  virtual StatusCode decide(LegDecisionsMap & passingLegs, const EventContext& /* ctx */ ) const override;
-  
-  virtual StatusCode decideOnSingleObject(TrigCompositeUtils::Decision*, const std::vector<const TrigCompositeUtils::DecisionIDContainer*>&) const { return StatusCode::SUCCESS; }
-  
+   * @param[in]  LegDecisionsMap that lists all the passing decisions, to be updated by the tool depending on the outcome of executeAlg 
+   * @param[in]  Event Context, currently unused
+   **/  
+  virtual StatusCode decide(Combo::LegDecisionsMap& passingLegs, const EventContext& /*ctx*/) const override;
+    
   /**
-   * @brief retrieves this decision Id
+   * @brief retrieves this ComboHypoTool's chain's decision ID
    **/
   virtual HLT::Identifier decisionId() const { return m_decisionId; }
 
-  void setLegDecisionIds(std::vector<HLT::Identifier> legDecisionIds) { m_legDecisionIds = std::move(legDecisionIds); }
+  /**
+  * @brief Sets the number of legs and the multiplicity required on each leg.
+  * This should be called when the Tool is retrieved by its parent ComboHypo alg.
+  * This also sets the leg Decision IDs at the same time
+  * param[in] multiplicityRequiredMap: Mapping of chains to required multiplicity per leg.
+  **/
+  StatusCode setLegMultiplicity(const Combo::MultiplicityReqMap& multiplicityRequiredMap);
+
+  /**
+  * @brief Gets the number of legs and the multiplicity required on each leg.
+  **/
+  const std::vector<int>& legMultiplicity() const { return m_legMultiplicities; }
+
+  /**
+   * @brief Retrieves this ComboHypoTool's chain's decision ID for a given leg.
+   * Only populated for chains with more than one leg. For chains with one leg, use decisionId()
+   **/
   HLT::Identifier legDecisionId(size_t i) const { return m_legDecisionIds.at(i); }
+
+  /**
+   * @brief Retrieves this ComboHypoTool's chain's decision IDs for all legs.
+   * Only populated for chains with more than one leg. For chains with one leg, use decisionId()
+   **/
   const std::vector<HLT::Identifier>& legDecisionIds() const { return m_legDecisionIds; }
+
+  /**
+  * @brief Alternate method called by BPhysics ComboHypoAlgs _instead_ of the base method decide(...).
+  * This function should be considered a specialist use-case only. It must be over-ridden to do anything useful.
+  **/
+  virtual StatusCode decideOnSingleObject(TrigCompositeUtils::Decision*, const std::vector<const TrigCompositeUtils::DecisionIDContainer*>&) const;
     
  protected:
 
   /**
-  * @brief creates the decision legs starting from the initial LegDecision map, storing only those concerning this decisionID
+  * @brief Only a dummy implementation exists in ComboHypoToolBase. This should be over-ridden by a derived class.
+  * The derived class should return a boolean pass/fail for each possible combination in the event.
+  * param[in] combination A single combination of objects to be discriminated against. Vector contains the required number of objects over
+  * all legs. Use the pair.first to tell which leg a given pair.second decision object belongs to in the current combination.
   **/
-  
-  StatusCode selectLegs(const LegDecisionsMap & IDCombMap, std::vector<std::vector<LegDecision>>& leg_decisions) const;
-    
-   /**
-  * @brief creates combinations of decisions starting from the legs vector of pairs, given the number of legs and the number of elements to combine
-    @param[in] leg_decisions: vector of legs (vector), each containing the corresponding decision pairs
-    @param[in] nLegs: number of legs to combine
-    @param[in] nToGroup: number of elements to group in a combination, in case one leg is used
-    @param[out] combinations: vector of combinations (vectors) of decision pairs
-  **/
-  void createCombinations( const std::vector<std::vector<LegDecision>>& leg_decisions,
-			   std::vector<std::vector<LegDecision>> & combinations,
-			   int nLegs, int nToGroup) const;
+  virtual bool executeAlg(const std::vector<Combo::LegDecision>& combination) const;
 
   /**
-  * @brief recursively creates combinations of elements from differnt vectors
-    @param[in] all: initial vector of decision legs
-    @parma[in] local: temporary vector of combinations
-    @param[in] lindex: leg index
-    @param[out] tocombine: vector of combinations
+  * @brief Creates the per-leg vectors of Decision objects starting from the initial LegDecision map, storing only those concerning this HypoTool's chain
+  * Pack the Decision objects in std::pair<DecisionID, ElementLink<Decision>> so the derived class' executeAlg function knows which leg each object is on.
   **/
-  void recursive_combine( const std::vector<std::vector<LegDecision>> & all,
-			  std::vector<std::vector<LegDecision>> & tocombine,
-			  std::vector<LegDecision> &local, u_int lindex)  const;
-
-  /**
-  * @brief contains the real algorithm to apply on the given combination of decisions
-  **/
-  virtual bool executeAlg(std::vector<LegDecision> &  /* thecomb  */) const {return true;}
-
-  
- /**
-  * @brief Converts the leg decision vector back to the map
-  **/
-  void updateLegDecisionsMap(const std::vector<std::vector<LegDecision>> & passing_comb,
-			     LegDecisionsMap & passingLegs) const;
+  StatusCode selectLegs(const Combo::LegDecisionsMap& IDCombMap, std::vector<std::vector<Combo::LegDecision>>& leg_decisions) const;
 
  /**
-  * @brief remove chain related info from passing legs
+  * @brief For when the tool accepts some/all combinations. Remove Decision Objects from legs of this HypoTool's chain
+  * which participated in NONE of combinations which were flagged as accepting the event.
   **/
-  void eraseFromLegDecisionsMap(LegDecisionsMap &passingLegs) const;
+  void updateLegDecisionsMap(const std::vector<std::vector<Combo::LegDecision>>& passing_comb, Combo::LegDecisionsMap & passingLegs) const;
+
+ /**
+  * @brief For when the tool rejects all combinations. Remove all Decision Objects from all the legs of this HypoTool's chain.
+  **/
+  void eraseFromLegDecisionsMap(Combo::LegDecisionsMap &passingLegs) const;
 
   /**
-  * @brief Print the Tool results stored in the passing combinations
+  * @brief Print the output of the tool, after having removed failed Decision Objects. Restricted to the ComboHypoTool's chain's legs.
   **/
-  StatusCode printDebugInformation(const LegDecisionsMap & passingLegs) const;
+  StatusCode printDebugInformation(const Combo::LegDecisionsMap & passingLegs) const;
 
-  
+  Gaudi::Property<size_t> m_combinationsThresholdWarn {this, "CombinationsThresholdWarn", 1000,
+    "Events processing this many combinations will generate a WARNING message."};
+
+  Gaudi::Property<size_t> m_combinationsThresholdBreak {this, "CombinationsThresholdBreak", 10000,
+    "Events processing this many combinations will generate a second WARNING message, and the loop over combinations will be terminated at this point."};  
  
-  /**
-  * @brief Fill out the WriteHandle of legs passing
-  **/
-  /*
-  // comment now, because this must be designed properly
-    StatusCode createOutput( LegDecisionsMap & passingLegs, const EventContext& ctx ) const;
-
-  // add here WriteHandles of combinations
-  // problem: the size of the array depends on the number of combinations, so cannot use the WriteHandleKeyArray
-    SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_passingLegs { this, "PassingLegs", {}, "Ouput Decisions legs passing the selection" };
-  */
+  // TODO - add optional write out of the data stored in passingCombinations in the decide function.
   
 private:
 
-  HLT::Identifier m_decisionId;
-  std::vector<HLT::Identifier> m_legDecisionIds;
+  HLT::Identifier m_decisionId; //!< The DecisionID of the chain, obtained from the Tool's name
+  std::vector<HLT::Identifier> m_legDecisionIds; //!< The DecisionIDs of the individual legs, derived from both m_decisionId and m_legMultiplicities.
+  std::vector<int> m_legMultiplicities; //!< The number of legs, and the required multiplicity on each leg.
 
 };
 

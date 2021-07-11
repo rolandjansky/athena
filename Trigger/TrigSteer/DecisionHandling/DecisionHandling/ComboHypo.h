@@ -36,13 +36,12 @@ class ComboHypo : public ::AthReentrantAlgorithm {
   virtual StatusCode execute(const EventContext& context) const override;
   virtual StatusCode finalize() override;
 
+
  protected:
   const SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer>& decisionsInput() const { return m_inputs; }
   const SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer>& decisionsOutput() const { return m_outputs; }
-  typedef std::map<std::string, std::vector<int>> MultiplicityReqMap;
-  typedef std::map<std::string, std::vector<int>> LegMap;
-  const MultiplicityReqMap& triggerMultiplicityMap() const { return m_multiplicitiesReqMap.value(); }
-  const LegMap& triggerLegMap() const { return m_legMap.value(); }
+  const Combo::MultiplicityReqMap& triggerMultiplicityMap() const { return m_multiplicitiesReqMap.value(); }
+  const Combo::LegMap& triggerLegMap() const { return m_legMap.value(); }
   ToolHandleArray<ComboHypoToolBase>& hypoTools() { return m_hypoTools; }
   const ToolHandleArray<ComboHypoToolBase>& hypoTools() const { return m_hypoTools; }
 
@@ -54,10 +53,10 @@ class ComboHypo : public ::AthReentrantAlgorithm {
   Gaudi::Property<bool> m_requireUniqueROI {this, "RequireUniqueROI", false,
     "Require each Feature in each leg of the combination to come from a unique L1 seeding ROI."};
 
-  Gaudi::Property< MultiplicityReqMap > m_multiplicitiesReqMap{this, "MultiplicitiesMap", {}, 
+  Gaudi::Property< Combo::MultiplicityReqMap > m_multiplicitiesReqMap{this, "MultiplicitiesMap", {}, 
     "Map from the chain name to multiplicities required at each input"};
 
-  Gaudi::Property< LegMap > m_legMap{this, "LegMap", {},
+  Gaudi::Property< Combo::LegMap > m_legMap{this, "LegMap", {},
     "Map from the chain name to legs required at each input"};
 
   Gaudi::Property<bool> m_checkMultiplicityMap { this, "CheckMultiplicityMap", true,
@@ -68,7 +67,7 @@ class ComboHypo : public ::AthReentrantAlgorithm {
   * the decisions that are mentioned in the passing set
   **/
   
-  StatusCode copyDecisions( const LegDecisionsMap & passingLegs, const EventContext& context ) const;
+  StatusCode copyDecisions( const Combo::LegDecisionsMap & passingLegs, const EventContext& context ) const;
 
 
   /**
@@ -91,7 +90,7 @@ class ComboHypo : public ::AthReentrantAlgorithm {
    * @brief iterates over all inputs, associating inputs to legs
    **/
 
-  StatusCode fillDecisionsMap( LegDecisionsMap& dmap, const EventContext& context) const;
+  StatusCode fillDecisionsMap( Combo::LegDecisionsMap& dmap, const EventContext& context) const;
 
   ToolHandleArray< ComboHypoToolBase > m_hypoTools {this, "ComboHypoTools", {}, "Tools to perform selection"};
 
