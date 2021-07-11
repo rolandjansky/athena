@@ -88,8 +88,8 @@ def makeTauAnalysisSequence( dataType, workingPoint, postfix = '',
 
     # Set up the algorithm selecting taus:
     alg = createAlgorithm( 'CP::AsgSelectionAlg', 'TauSelectionAlg' + postfix )
-    alg.selectionTool = '%s/%s' % \
-        ( selectionTool.getType(), selectionTool.getName() )
+    addPrivateTool( alg, 'selectionTool', 'TauAnalysisTools::TauSelectionTool' )
+    alg.selectionTool.ConfigPath = inputfile
     alg.selectionDecoration = 'selected_tau' + postfix + ',as_bits'
     seq.append( alg, inputPropName = 'particles',
                 stageName = 'selection' )
