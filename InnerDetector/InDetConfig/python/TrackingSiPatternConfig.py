@@ -418,13 +418,14 @@ def InDetAmbiTrackSelectionToolCfg(flags, name="InDetAmbiTrackSelectionTool", **
     else:
         AmbiTrackSelectionTool = CompFactory.InDet.InDetAmbiTrackSelectionTool
 
-    InDetTRTDriftCircleCut = TC.InDetTRTDriftCircleCutForPatternRecoCfg(flags)
-    acc.addPublicTool(InDetTRTDriftCircleCut)
+    if 'UseParameterization' in kwargs and kwargs.get('UseParameterization',False) :
+        InDetTRTDriftCircleCut = TC.InDetTRTDriftCircleCutForPatternRecoCfg(flags)
+        acc.addPublicTool(InDetTRTDriftCircleCut)
+        kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCut)
 
     InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags))
     acc.addPublicTool(InDetPRDtoTrackMapToolGangedPixels)
 
-    kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCut)
     kwargs.setdefault("AssociationTool" , InDetPRDtoTrackMapToolGangedPixels)
     kwargs.setdefault("minHits"         , flags.InDet.Tracking.minClusters)
     kwargs.setdefault("minNotShared"    , flags.InDet.Tracking.minSiNotShared)
@@ -480,9 +481,9 @@ def DenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, name = "InDetAmbiguit
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetCosmicsScoringToolCfg(flags))
     elif(flags.InDet.Tracking.extension == "R3LargeD0" and flags.InDet.nnCutLargeD0Threshold > 0):
         # Set up NN config
-        InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetNNScoringToolCfg(flags))
+        InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetNNScoringToolSiCfg(flags))
     else:
-        InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetAmbiScoringToolCfg(flags))
+        InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetAmbiScoringToolSiCfg(flags))
     acc.addPublicTool(InDetAmbiScoringTool)
 
 
@@ -540,9 +541,9 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProc
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetCosmicsScoringToolCfg(flags))
     elif(flags.InDet.Tracking.extension == "R3LargeD0" and flags.InDet.nnCutLargeD0Threshold > 0):
         # Set up NN config
-        InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetNNScoringToolCfg(flags))
+        InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetNNScoringToolSiCfg(flags))
     else:
-        InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetAmbiScoringToolCfg(flags))
+        InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetAmbiScoringToolSiCfg(flags))
     acc.addPublicTool(InDetAmbiScoringTool)
 
     use_low_pt_fitter =  True if flags.InDet.Tracking.extension == "LowPt" or flags.InDet.Tracking.extension == "VeryLowPt" or (flags.InDet.Tracking.extension == "Pixel" and flags.InDet.doMinBias) else False
@@ -633,9 +634,9 @@ def SimpleAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProcessor", Clu
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetCosmicsScoringToolCfg(flags))
     elif(flags.InDet.Tracking.extension == "R3LargeD0" and flags.InDet.nnCutLargeD0Threshold > 0):
         # Set up NN config
-        InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetNNScoringToolCfg(flags))
+        InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetNNScoringToolSiCfg(flags))
     else:
-        InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetAmbiScoringToolCfg(flags))
+        InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetAmbiScoringToolSiCfg(flags))
     acc.addPublicTool(InDetAmbiScoringTool)
 
     InDetTrackFitter = acc.popToolsAndMerge(TC.InDetTrackFitterCfg(flags))
