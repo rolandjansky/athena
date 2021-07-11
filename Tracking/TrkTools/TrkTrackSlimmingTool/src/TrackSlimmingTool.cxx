@@ -208,8 +208,8 @@ Trk::TrackSlimmingTool::slimTrack(Trk::Track& track) const
 
   // If m_keepParameters is true, then we want to keep the first and last
   // parameters of ID & MS.
-  const Trk::MeasurementBase* rot = nullptr;
-  const Trk::TrackParameters* parameters = nullptr;
+  std::unique_ptr<const Trk::MeasurementBase> rot{};
+  std::unique_ptr<const Trk::TrackParameters> parameters{};
   bool keepParameter = false;
   std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>
     typePattern(0);
@@ -217,8 +217,8 @@ Trk::TrackSlimmingTool::slimTrack(Trk::Track& track) const
   DataVector<const TrackStateOnSurface>::const_iterator itTSoS =
     oldTrackStates->begin();
   for (; itTSoS != oldTrackStates->end(); ++itTSoS) {
-    parameters = nullptr;
-    rot = nullptr;
+    parameters.reset();
+    rot.reset();
     // if requested: keep calorimeter TSOS with adjacent scatterers (on combined
     // muons)
     if (m_keepCaloDeposit &&
@@ -238,9 +238,9 @@ Trk::TrackSlimmingTool::slimTrack(Trk::Track& track) const
       if (meot && meot->energyLoss()) {
         trackStates.push_back(new TrackStateOnSurface(
           nullptr,
-          (**itTSoS).trackParameters()->clone(),
+          (**itTSoS).trackParameters()->uniqueClone(),
           nullptr,
-          new MaterialEffectsOnTrack(meot->thicknessInX0(),
+          std::make_unique<const MaterialEffectsOnTrack>(meot->thicknessInX0(),
                                      std::nullopt,
                                      new EnergyLoss(*meot->energyLoss()),
                                      meot->associatedSurface()),
@@ -267,9 +267,9 @@ Trk::TrackSlimmingTool::slimTrack(Trk::Track& track) const
                                    lastValidMSTSOS);
 
     if (keepParameter) {
-      parameters = (*itTSoS)
+      parameters = std::move((*itTSoS)
                      ->trackParameters()
-                     ->clone(); // make sure we add a new parameter by cloning
+                     ->uniqueClone()); // make sure we add a new parameter by cloning
       if ((*itTSoS)->type(TrackStateOnSurface::Perigee)) {
         typePattern.set(TrackStateOnSurface::Perigee);
       }
@@ -284,13 +284,13 @@ Trk::TrackSlimmingTool::slimTrack(Trk::Track& track) const
       if ((*itTSoS)->type(TrackStateOnSurface::Outlier)) {
         typePattern.set(TrackStateOnSurface::Outlier);
       }
-      rot = (*itTSoS)->measurementOnTrack()->clone();
+      rot = std::move((*itTSoS)->measurementOnTrack()->uniqueClone());
     }
 
     Trk::TrackStateOnSurface* newTSOS = nullptr;
     if (rot != nullptr || parameters != nullptr) {
       newTSOS = new Trk::TrackStateOnSurface(
-        rot, parameters, nullptr, nullptr, typePattern);
+        std::move(rot), std::move(parameters), nullptr, nullptr, typePattern);
       trackStates.push_back(newTSOS);
     }
   }

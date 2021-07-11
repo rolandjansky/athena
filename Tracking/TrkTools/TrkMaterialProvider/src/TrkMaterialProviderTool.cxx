@@ -1161,8 +1161,8 @@ void Trk::TrkMaterialProviderTool::updateVectorMS(DataVector<const Trk::TrackSta
            auto scatNew = Trk::ScatteringAngles(
              0,
              0,
-             sqrt(X0ScaleMS) * scatAngles->sigmaDeltaTheta(),
-             sqrt(X0ScaleMS) * scatAngles->sigmaDeltaPhi());
+             std::sqrt(X0ScaleMS) * scatAngles->sigmaDeltaTheta(),
+             std::sqrt(X0ScaleMS) * scatAngles->sigmaDeltaPhi());
            double deltaE = (ElossScaleMS * energyLoss->deltaE());
            double sigmaDeltaE = (ElossScaleMS * energyLoss->sigmaDeltaE());
            double sigmaPlusDeltaE =
@@ -1189,19 +1189,19 @@ void Trk::TrkMaterialProviderTool::updateVectorMS(DataVector<const Trk::TrackSta
                                                            sigmaDeltaE_rad,
                                                            depth);
            const Trk::Surface& surf = meot->associatedSurface();
-           const Trk::MaterialEffectsOnTrack* newMeot =
-             new Trk::MaterialEffectsOnTrack(X0ScaleMS * meot->thicknessInX0(),
+           auto newMeot =
+             std::make_unique<Trk::MaterialEffectsOnTrack>(X0ScaleMS * meot->thicknessInX0(),
                                              std::move(scatNew),
                                              energyLossNew,
                                              surf,
                                              meotPattern);
-           const Trk::TrackParameters* pars = nullptr;
+           std::unique_ptr<const Trk::TrackParameters> pars{};
            if ((*it)->trackParameters())
-             pars = (*it)->trackParameters()->clone();
+             pars = std::move((*it)->trackParameters()->uniqueClone());
            // make new TSOS
            const Trk::TrackStateOnSurface* newTSOS =
              new Trk::TrackStateOnSurface(
-               nullptr, pars, nullptr, newMeot, typePattern);
+               nullptr, std::move(pars), nullptr, std::move(newMeot), typePattern);
            DataVector<const Trk::TrackStateOnSurface>* newTSOSvector =
              new DataVector<const Trk::TrackStateOnSurface>(SG::VIEW_ELEMENTS);
            newTSOSvector->push_back(&(*newTSOS));
@@ -1284,14 +1284,11 @@ void Trk::TrkMaterialProviderTool::deleteTSOS(DataVector<const Trk::TrackStateOn
 void Trk::TrkMaterialProviderTool::printTSOS(const Trk::TrackStateOnSurface* m, const std::string& tag) const
 {
   unsigned int ivolGeo = getVolumeByGeo(m);
-
   std::string volGeo="ID";
   if(ivolGeo==2) volGeo="CALO";
   else if(ivolGeo==3) volGeo="MS";
-
   ATH_MSG_VERBOSE(tag<<" Type "<<std::left<<std::setw(35)<<m->dumpType()
 		<<" Volume "<<std::left<<std::setw(5)<<volGeo
-		//<<" Surface "<<std::left<<std::setw(5)<<m->surface()
 		<<" r "<<std::left<<std::setw(10)<<m->surface().globalReferencePoint().perp()
 		<<" z "<<std::left<<std::setw(10)<<m->surface().globalReferencePoint().z());
   if(m->materialEffectsOnTrack()) {
@@ -1319,12 +1316,8 @@ void Trk::TrkMaterialProviderTool::printTSOS(const Trk::TrackStateOnSurface* m, 
   if(m->trackParameters()) {
     ATH_MSG_VERBOSE(" -> TP: r "<<std::left<<std::setw(10)<<m->trackParameters()->position().perp()
 		  <<" z "<<std::left<<std::setw(10)<<m->trackParameters()->position().z()
-		  //ATH_MSG_VERBOSE(" qOverP "<<std::left<<std::setw(10)<<m->trackParameters()->parameters()[Trk::qOverP];
 		  <<" phi0 "<<std::left<<std::setw(10)<<m->trackParameters()->parameters()[Trk::phi0]
-		  //ATH_MSG_VERBOSE(" d0 "<<std::left<<std::setw(10)<<m->trackParameters()->parameters()[Trk::d0];
-		  //ATH_MSG_VERBOSE(" z0 "<<std::left<<std::setw(10)<<m->trackParameters()->parameters()[Trk::z0];
-		  //ATH_MSG_VERBOSE(" theta "<<std::left<<std::setw(10)<<m->trackParameters()->parameters()[Trk::theta];
-		  <<" eta "<<std::left<<std::setw(10)<<-log(tan(m->trackParameters()->parameters()[Trk::theta]/2)));
+		  <<" eta "<<std::left<<std::setw(10)<<-std::log(std::tan(m->trackParameters()->parameters()[Trk::theta]/2)));
     if(m->trackParameters()->covariance()) {
       ATH_MSG_VERBOSE(" -> Errors: qOverP "<<std::left<<std::setw(10)<<Amg::error(*m->trackParameters()->covariance(),Trk::qOverP)
 		    <<" phi0 "<<std::left<<std::setw(10)<<Amg::error(*m->trackParameters()->covariance(),Trk::phi0)
@@ -1376,10 +1369,7 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
 
   //
   DataVector<const Trk::TrackStateOnSurface>* newTSOSvector = new DataVector<const Trk::TrackStateOnSurface>(SG::VIEW_ELEMENTS);
-  // int maxsize = 2*matvec.size();
-  // if(aggregate) maxsize = 2;
-  // newTSOSvector.reserve(maxsize);
-  //
+  
   // initialize total sum variables
   //
   //
@@ -1402,7 +1392,6 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
   const Trk::TrackStateOnSurface* mfirst = nullptr;
   const Trk::TrackStateOnSurface* mlast = nullptr;
   Amg::Vector3D posFirst(0.,0.,0.);
-  //   double distLast = 0.;
   double deltaEFirst = 0.;
 
   double deltaPhi = 0.;
@@ -1419,7 +1408,6 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
   std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes> meotPattern(0);
   meotPattern.set(Trk::MaterialEffectsBase::EnergyLossEffects);
   meotPattern.set(Trk::MaterialEffectsBase::ScatteringEffects);
-  // meotPattern.set(Trk::MaterialEffectsBase::FittedMaterialEffects);
 
   std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);
   typePattern.set(Trk::TrackStateOnSurface::InertMaterial);
@@ -1429,10 +1417,8 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
   typePatternScat.set(Trk::TrackStateOnSurface::Scatterer);
 
   std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePatternDeposit(0);
-  //typePatternDeposit.set(Trk::TrackStateOnSurface::InertMaterial);
   typePatternDeposit.set(Trk::TrackStateOnSurface::CaloDeposit);
-  //typePatternDeposit.set(Trk::TrackStateOnSurface::Scatterer);
-
+  const auto sqrt12=std::sqrt(12.);
   for(const auto *m : *matvec) {
 
     if(!m->trackParameters()) {
@@ -1486,8 +1472,8 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
       }
 
       dir = dir/dir.mag();
-      Amg::Vector3D pos0   = pos - (depth/2.+depth/sqrt(12.))*dir;
-      Amg::Vector3D posNew = pos - (depth/2.-depth/sqrt(12.))*dir;
+      Amg::Vector3D pos0   = pos - (depth/2.+depth/sqrt12)*dir;
+      Amg::Vector3D posNew = pos - (depth/2.-depth/sqrt12)*dir;
       if(!mfirst) {
         mfirst = m;
         posFirst = pos0;
@@ -1495,10 +1481,8 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
       }
       mlast = m;
 
-      //bool use_eweight = false;
       double w = scat->sigmaDeltaTheta()*scat->sigmaDeltaTheta();
-      // use_eweight s false, so the following never executes
-      //if(use_eweight) w = std::abs(scaleEloss*energyLoss->deltaE());
+
       w_tot += w;
       wpos += w*pos0/2.;
       wpos += w*posNew/2.;
@@ -1506,14 +1490,13 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
 
       wdist2 += w*(pos0-posFirst).mag2()/2.;
       wdist2 += w*(posNew-posFirst).mag2()/2.;
-      //      distLast = (posNew-posFirst).mag();
 
       if (!aggregate&&!reposition) {
 
         auto scatNew = ScatteringAngles(deltaPhi,
                                         deltaTheta,
-                                        sqrt(sigmaDeltaPhi2_tot),
-                                        sqrt(sigmaDeltaTheta2_tot));
+                                        std::sqrt(sigmaDeltaPhi2_tot),
+                                        std::sqrt(sigmaDeltaTheta2_tot));
         auto energyLossNew = Trk::EnergyLoss(deltaE_tot,
                                              sigmaDeltaE_tot,
                                              sigmaMinusDeltaE_tot,
@@ -1525,14 +1508,14 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
                                              depth);
         const CaloEnergy* caloEnergyNew = new CaloEnergy(energyLossNew);
         const Trk::Surface& surf = meot->associatedSurface();
-        const Trk::MaterialEffectsOnTrack* meotLast =
-          new Trk::MaterialEffectsOnTrack(
+        auto meotLast =
+          std::make_unique<const Trk::MaterialEffectsOnTrack>(
             X0_tot, std::move(scatNew), caloEnergyNew, surf, meotPattern);
-        const Trk::TrackParameters* pars = m->trackParameters()->clone();
+        auto pars = m->trackParameters()->uniqueClone();
 
         // make new TSOS
         const Trk::TrackStateOnSurface* newTSOS = new Trk::TrackStateOnSurface(
-          nullptr, pars, nullptr, meotLast, typePattern);
+          nullptr, std::move(pars), nullptr, std::move(meotLast), typePattern);
 
         newTSOSvector->push_back(newTSOS);
         Eloss_tot += caloEnergyNew->deltaE();
@@ -1572,14 +1555,14 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
                                                depth);
           const CaloEnergy* caloEnergyNew = new CaloEnergy(energyLossNew);
           const Trk::Surface& surf = meot->associatedSurface();
-          const Trk::MaterialEffectsOnTrack* meotLast =
-            new Trk::MaterialEffectsOnTrack(
+          auto meotLast =
+            std::make_unique<const Trk::MaterialEffectsOnTrack>(
               X0_tot, std::move(scatNew), caloEnergyNew, surf, meotPattern);
-          const Trk::TrackParameters* pars = m->trackParameters()->clone();
+          auto pars = m->trackParameters()->uniqueClone();
           //        make new TSOS
           const Trk::TrackStateOnSurface* newTSOS =
             new Trk::TrackStateOnSurface(
-              nullptr, pars, nullptr, meotLast, typePattern);
+              nullptr, std::move(pars), nullptr, std::move(meotLast), typePattern);
           newTSOSvector->push_back(newTSOS);
           Eloss_tot += caloEnergyNew->deltaE();
 
@@ -1603,15 +1586,15 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
           const Trk::EnergyLoss* energyLoss0 = new EnergyLoss(0.,0.,0.,0.);
           auto scatFirst = ScatteringAngles(deltaPhi,
                                             deltaTheta,
-                                            sqrt(sigmaDeltaPhi2_tot / 2.),
-                                            sqrt(sigmaDeltaTheta2_tot / 2.));
+                                            std::sqrt(sigmaDeltaPhi2_tot / 2.),
+                                            std::sqrt(sigmaDeltaTheta2_tot / 2.));
 
           //        prepare for second MaterialEffectsOnTrack with X0 =  X0/2 Eloss = Eloss total and scattering2 = total2 / 2. depth = 0
           auto scatNew =
             ScatteringAngles(deltaPhi,
                                  deltaTheta,
-                                 sqrt(sigmaDeltaPhi2_tot / 2.),
-                                 sqrt(sigmaDeltaTheta2_tot / 2.));
+                                 std::sqrt(sigmaDeltaPhi2_tot / 2.),
+                                 std::sqrt(sigmaDeltaTheta2_tot / 2.));
           auto energyLossNew = Trk::EnergyLoss(deltaE_tot,
                                                sigmaDeltaE_tot,
                                                sigmaMinusDeltaE_tot,
@@ -1648,13 +1631,13 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
           double qOverP0 = m->trackParameters()->charge()/ (m->trackParameters()->momentum().mag()-std::abs(energyLoss->deltaE()));
           if(mprevious) qOverP0 = mprevious->trackParameters()->charge()/mprevious->trackParameters()->momentum().mag();
 
-          std::unique_ptr<Trk::TrackParameters> parsFirst =
+          std::unique_ptr<const Trk::TrackParameters> parsFirst =
             surfFirst.createUniqueParameters<5, Trk::Charged>(
               0., 0., dir.phi(), dir.theta(), qOverP0);
           //        calculate TrackParameters at second surface
           double qOverPNew = m->trackParameters()->charge() /
                              m->trackParameters()->momentum().mag();
-          std::unique_ptr<Trk::TrackParameters> parsLast =
+          std::unique_ptr<const Trk::TrackParameters> parsLast =
             surfLast.createUniqueParameters<5, Trk::Charged>(
               0., 0., dir.phi(), dir.theta(), qOverPNew);
           // make TSOS
@@ -1698,20 +1681,19 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
       //
       Amg::Vector3D pos = wpos/w_tot;
       bool threePlanes = false;
-      //if(std::abs(X0_tot)>50 && std::abs(pos.z())<6700 && pos.perp()<4200) threePlanes = true;
       if (std::abs(pos.z()) < 6700 && pos.perp() < 4200)
         threePlanes = true; // always 3 planes in calo
       //
       auto scatFirst =
         ScatteringAngles(deltaPhi,
                              deltaTheta,
-                             sqrt(sigmaDeltaPhi2_tot / 2.),
-                             sqrt(sigmaDeltaTheta2_tot / 2.));
+                             std::sqrt(sigmaDeltaPhi2_tot / 2.),
+                             std::sqrt(sigmaDeltaTheta2_tot / 2.));
       auto  scatNew =
         ScatteringAngles(deltaPhi,
                              deltaTheta,
-                             sqrt(sigmaDeltaPhi2_tot / 2.),
-                             sqrt(sigmaDeltaTheta2_tot / 2.));
+                             std::sqrt(sigmaDeltaPhi2_tot / 2.),
+                             std::sqrt(sigmaDeltaTheta2_tot / 2.));
       Trk::EnergyLoss* energyLoss2 = new EnergyLoss(deltaE_tot,
                                                     sigmaDeltaE_tot,
                                                     sigmaMinusDeltaE_tot,
@@ -1828,7 +1810,7 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
       std::unique_ptr<Trk::TrackParameters> parsFirst =
         surfFirst.createUniqueParameters<5, Trk::Charged>(
           0., 0., dir.phi(), dir.theta(), qOverP0);
-      std::unique_ptr<Trk::TrackParameters> parsLast =
+      std::unique_ptr<const Trk::TrackParameters> parsLast =
         surfLast.createUniqueParameters<5, Trk::Charged>(
           0., 0., dir.phi(), dir.theta(), qOverPNew);
 
