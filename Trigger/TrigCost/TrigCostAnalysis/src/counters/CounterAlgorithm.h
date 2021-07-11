@@ -22,8 +22,9 @@ class CounterAlgorithm : public CounterBase {
      * @brief Construct counter.
      * @param[in] name Counter's name
      * @param[in] parent Counter's parent monitor, cached non-owning pointer.
+     * @param[in] skipHistograms Skip histogram's decalration - for derived classes
      */
-    CounterAlgorithm(const std::string& name, const MonitorBase* parent);
+    CounterAlgorithm(const std::string& name, const MonitorBase* parent, const bool skipHistograms=false);
 
     /**
      * @brief Default destructor.
