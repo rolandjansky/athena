@@ -71,19 +71,25 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
                                          std::vector<double>& initialConditions,
                                          CLHEP::HepRandomEngine* rndmEngine,
                                          const EventContext &ctx) {
-  if (!Module.isBarrel()) {
+  // TODO: check that detectors other than ITk have this properly set
+  if (p_design.getReadoutTechnology() == InDetDD::PixelModuleDesign::RD53) {
+    // disable for now!
     return StatusCode::SUCCESS;
-  }
-  if (p_design.getReadoutTechnology() != InDetDD::PixelModuleDesign::FEI4) {
-    return StatusCode::SUCCESS;
-  }
-  if (p_design.numberOfCircuits() > 1) {
-    return StatusCode::SUCCESS;
+  } else {
+    if (!Module.isBarrel()) {
+      return StatusCode::SUCCESS;
+    }
+    if (p_design.getReadoutTechnology() != InDetDD::PixelModuleDesign::FEI4) {
+      return StatusCode::SUCCESS;
+    }
+    if (p_design.numberOfCircuits() > 1) {
+      return StatusCode::SUCCESS;
+    }
   }
 
   ATH_MSG_DEBUG("Applying SensorSim3D charge processor");
   if (initialConditions.size() != 8) {
-    ATH_MSG_INFO("ERROR! Starting coordinates were not filled correctly in EnergyDepositionSvc.");
+    ATH_MSG_ERROR("Starting coordinates were not filled correctly in EnergyDepositionSvc.");
     return StatusCode::FAILURE;
   }
 
