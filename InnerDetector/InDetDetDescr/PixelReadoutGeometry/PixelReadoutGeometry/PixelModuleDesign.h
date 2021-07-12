@@ -228,7 +228,11 @@ namespace InDetDD {
       /** Indicate that it is a more complex layout where cells are not 
          lined up with each other. Eg bricking. Probably never will be needed. */
       void setGeneralLayout();
-    
+
+      /** Debug string representation */
+      std::string debugStringRepr() const;
+
+
       ///////////////////////////////////////////////////////////////////
       // Private methods:
       ///////////////////////////////////////////////////////////////////
@@ -373,6 +377,11 @@ namespace InDetDD {
       const int maxCol = m_readoutScheme.columnsPerCircuit();
       if (maxRow*maxCol>26000) { return FEI4; }
       else                     { return FEI3; }
+    }
+
+    inline std::string PixelModuleDesign::debugStringRepr() const
+    {
+      return m_diodeMap.debugStringRepr();
     }
 
 } // namespace InDetDD
