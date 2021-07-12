@@ -101,7 +101,7 @@ StatusCode DerivationFramework::DiphotonVertexDecorator::addBranches() const
   const xAOD::Vertex *newPV = nullptr;
 
   SG::ReadHandle<xAOD::FlowElementContainer> FEHandle(m_FEContainerHandleKey);
-  for(const auto& fe : *FEHandle) fe->auxdecor<char>("passOR") = true;
+  for(const auto fe : *FEHandle) fe->auxdecor<char>("passOR") = true;
   
   if (ph1 and ph2)
   {
@@ -211,7 +211,7 @@ StatusCode DerivationFramework::DiphotonVertexDecorator::matchFlowElement(const 
   // Preselect FEs based on proximity: dR<0.4
   std::vector<const xAOD::FlowElement*> nearbyFE;
   nearbyFE.reserve(20);
-  for(const auto& fe : *feCont) {
+  for(const auto fe : *feCont) {
     if(xAOD::P4Helpers::isInDeltaR(*fe, *swclus, 0.4, true)) {
       if( ( !fe->isCharged() && fe->e() > FLT_MIN )) nearbyFE.push_back(fe);
     } // DeltaR check

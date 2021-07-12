@@ -87,7 +87,7 @@ namespace DerivationFramework {
       isMC = true;
 
 
-    for( const auto& el : *electrons ){
+    for( const auto el : *electrons ){
       fillTrackDetails(el,isMC);
       fillVertexDetails(el);
       fillClusterDetails(el);
