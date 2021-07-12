@@ -75,7 +75,7 @@ std::vector<std::pair<size_t, T>>
 IdentifiableValueCache<T>::getAll() const{
    std::vector<std::pair<size_t, T>> list;
    for(size_t i =0; i<m_vec.size(); i++){
-       T item = m_vec[i].load();
+       T item = m_vec[i].load(std::memory_order_relaxed);
        if(item!=m_emptyValue) list.emplace_back(i, std::move(item));
    }
    return list;

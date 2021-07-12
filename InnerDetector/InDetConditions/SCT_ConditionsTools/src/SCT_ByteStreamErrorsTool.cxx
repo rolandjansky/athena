@@ -265,8 +265,10 @@ SCT_ByteStreamErrorsTool::getErrorSet(int errorType, const EventContext& ctx) co
   if (errorType>=0 and errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES) {
     const auto *idcErrCont{getContainer(ctx)};
     if (idcErrCont != nullptr) {
-      const std::vector<std::pair<size_t, uint64_t>> errorcodesforView{idcErrCont->getAll()};
-      for (const auto& [hashId, errCode] : errorcodesforView) {
+      const std::set<size_t>& Mask = idcErrCont->getMask();
+      const auto& raw = idcErrCont->wholeEventReadAccess();
+      for (const size_t hashId : Mask) {
+        auto errCode = raw[hashId].load(std::memory_order_relaxed);
         if (SCT_ByteStreamErrors::hasError(errCode, static_cast<SCT_ByteStreamErrors::ErrorType>(errorType))) {
           result.insert(hashId);
         }
