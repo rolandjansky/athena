@@ -36,7 +36,7 @@ TrigConf::JsonFileLoader::findFile(const std::string & filename) const {
    }
 
    // check if absolute location has been specified
-   if (filename.find('/')==0) {
+   if (!filename.empty() && filename[0] == '/') {
       TRG_MSG_WARNING("Can not find file with absolute location " << filename);
       return {};
    }
