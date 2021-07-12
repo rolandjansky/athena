@@ -166,6 +166,7 @@ StatusCode MergeTruthParticlesTool::processTruthParticleContainer(const xAOD::Tr
   const static SG::AuxElement::Decorator< unsigned int > classificationDecorator("Classification");
   const static SG::AuxElement::Decorator< int > parentHadronIDDecorator("parentHadronID");  // check type
   const static SG::AuxElement::Decorator< int > eventNumberDecorator("pileupEventNumber");
+  const static SG::AuxElement::Decorator< float > pVzDecorator("PVz");
 
   const xAOD::TruthParticleContainer::const_iterator endOfTruthParticles(inputTruthParticleContainer->end());
   for (xAOD::TruthParticleContainer::const_iterator truthParticleIter(inputTruthParticleContainer->begin()); truthParticleIter != endOfTruthParticles; ++truthParticleIter) {
@@ -197,6 +198,9 @@ StatusCode MergeTruthParticlesTool::processTruthParticleContainer(const xAOD::Tr
     if (theParticle->isAvailable<int>("parentHadronID")) {
       parentHadronIDDecorator(*xTruthParticle) = theParticle->auxdata< int >( "parentHadronID" );
     } else {parentHadronIDDecorator(*xTruthParticle) = 0;}
+    if (theParticle->isAvailable<float>("PVz")) {
+      pVzDecorator(*xTruthParticle) = theParticle->auxdata< float >( "PVz" );
+    } else {pVzDecorator(*xTruthParticle) = 0.f;}
     // add the pile-up event number
     eventNumberDecorator(*xTruthParticle) = eventNumber;
   }
