@@ -1,351 +1,369 @@
-import subprocess, os
+import subprocess, os, shlex, re
+
+from AthenaCommon import Logging
+
+## Get handle to Athena logging
+logger = Logging.logging.getLogger("Superchic_i")
 
 
 class SuperChicConfig:
-    superchicpath = os.environ['SUPERCHICPATH']
-    
-    #SuperChic specific variables for input.DAT, see writeInputDAT function for more elaboration
-    rts = "13d3" #collision energy (GeV)
-    isurv = "4" #Model of soft survival (from 1 -> 4, corresponding to arXiv:1306.2149)
-    intag = "'in13'" #tag for input files
-    PDFname = "'MMHT2014lo68cl'"
-    PDFmember = "0"
-    proc = "57" #Please consult Superchic Manual https://superchic.hepforge.org/
-    beam = "'prot'"
-    outtg = "'out'"
-    sfaci = ".true."
-    diff = "'el'" #interaction: elastic ('el'), single ('sd','sda','sdb') and double ('dd') dissociation.
-    an = "208d0"
-    az = "82d0"
-    rz = "6.68d0"
-    dz = "0.447d0"
-    rn = "6.7d0"
-    dn = "0.55d0"
-    ionqcd = "'coh'"
-    ncall = "10000"
-    itmx = "10"
-    prec = "0.5d0"
-    ncall1 = "10000"
-    inccall = "10000"
-    itend = "1000"
-    iseed = "34"
-    genunw = ".true"
-    nev = "500"
-    erec = "'lhe'" #output file type
-    readwt = ".false."
-    wtmax = "0d0"
-    ymin = "-2.4d0" # Minimum object rapidity Y_X
-    ymax = "2.4d0" # Maximum object rapidity Y_X
-    mmin = "6d0" # Minimum object mass M_X
-    mmax = "500d0" # Maximum object mass M_X
-    gencuts = ".true." # Generate cuts below
-    scorr = ".true."
-    fwidth = ".true."
-    ptxmax = "100d0"
-    ptamin = "3.0d0" # Minimum pT of outgoing object a (gamma)
-    ptbmin = "3.0d0" # Minimum pT of outgoing object b (gamma)
-    etaamin = "-2.4d0" # Minimum eta of outgoing object a
-    etaamax = "2.4d0" # Maximum eta of outgoing object a
-    etabmin = "-2.4d0" # Minimum eta of outgoing object b
-    etabmax = "2.4d0" # Maximum eta of outgoing object b
-    acoabmax = "100d0"
-    ptcmin = "0d0"
-    etacmin = "-2.5d0"
-    etacmax = "2.5d0"
-    ptdmin = "0d0"
-    etadmin = "-2.5d0"
-    etadmax = "2.5d0"
-    ptemin = "0d0"
-    etaemin = "-2.5d0"
-    etaemax = "2.5d0"
-    ptfmin = "0d0"
-    etafmin = "-2.5d0"
-    etafmax = "2.5d0"
-    rjet = "0.6d0"
-    jalg = "'antikt'"
-    m2b = "0.133d0"
-    pdgid1 = "211"
-    pdgid2 = "-211"
-    malp = "1000d0"
-    gax = "0.001d0"
-    alpt = "'ps'"
-    mpol = "500d0"
-    mmon = "933d0"
-    gamm = "10d0"
-    mcharg = "100d0"
-    mneut = "80d0"
-    
+
+    def __init__(self, runArgs):
+        self.superchicpath = os.environ['SUPERCHICPATH']
+        
+        #SuperChic specific variables for input.DAT, see writeInputDAT function for more elaboration
+        self.rts = 13000. #collision energy (GeV)
+        if hasattr(runArgs,"ecmEnergy"):
+            self.rts = runArgs.ecmEnergy
+
+        self.isurv = 4 #Model of soft survival (from 1 -> 4, corresponding to arXiv:1306.2149)
+        self.intag = 'in' #tag for input files
+        self.PDFname = 'MMHT2014lo68cl'
+        self.PDFmember = 0
+        self.proc = 5 #Please consult Superchic Manual https://superchic.hepforge.org/
+        self.beam = 'prot'
+        self.outtg = 'out'
+        self.sfaci = True
+        self.diff = 'el' #interaction: elastic ('el'), single ('sd','sda','sdb') and double ('dd') dissociation.
+        self.an = 208
+        self.az = 82
+        self.rz = 6.68
+        self.dz = 0.447
+        self.rn = 6.7
+        self.dn = 0.55
+        self.ionqcd = 'coh'
+        self.ncall = 10000
+        self.itmx = 10
+        self.prec = 0.5
+        self.ncall1 = 10000
+        self.inccall = 10000
+        self.itend = 1000
+
+        self.iseed = 34
+        if hasattr(runArgs,"randomSeed"):
+            self.iseed  = runArgs.randomSeed
+
+        self.genunw = True
+
+        self.nev = "500"
+        if hasattr(runArgs,"maxEvents"):
+            self.nev = runArgs.maxEvents
+
+        self.erec = 'lhe' #output file type
+        self.readwt = False
+        self.wtmax = 0
+        self.ymin = -2.4 # Minimum object rapidity Y_X
+        self.ymax = 2.4 # Maximum object rapidity Y_X
+        self.mmin = 6. # Minimum object mass M_X
+        self.mmax = 500. # Maximum object mass M_X
+        self.gencuts = True # Generate cuts below
+        self.scorr = True
+        self.fwidth = True
+        self.ptxmax = 100.
+        self.ptamin = 3.0 # Minimum pT of outgoing object a (gamma)
+        self.ptbmin = 3.0 # Minimum pT of outgoing object b (gamma)
+        self.etaamin = -2.4 # Minimum eta of outgoing object a
+        self.etaamax = 2.4 # Maximum eta of outgoing object a
+        self.etabmin = -2.4 # Minimum eta of outgoing object b
+        self.etabmax = 2.4 # Maximum eta of outgoing object b
+        self.acoabmax = 100.
+        self.ptcmin = 0
+        self.etacmin = -2.5
+        self.etacmax = 2.5
+        self.ptdmin = 0
+        self.etadmin = -2.5
+        self.etadmax = 2.5
+        self.ptemin = 0
+        self.etaemin = -2.5
+        self.etaemax = 2.5
+        self.ptfmin = 0
+        self.etafmin = -2.5
+        self.etafmax = 2.5
+        self.rjet = 0.6
+        self.jalg = 'antikt'
+        self.m2b = 0.133
+        self.pdgid1 = 211
+        self.pdgid2 = -211
+        self.malp = 1000
+        self.gax = 0.001
+        self.alpt = 'ps'
+        self.mpol = 500
+        self.mmon = 933
+        self.gamm = 10
+        self.mcharg = 100
+        self.mneut = 80
+
+    def toFortran(self):
+
+        def fortDouble(x):
+            return str(x)+"d0"
+        def fortInt(x):
+            return str(x)
+        def fortBool(x):
+            return '.true.' if x else '.false.'
+        def fortStr(x):
+            return "'{}'".format(x)
+        
+        conf = ""
+        conf+="***********************************************************************************\n"
+        conf+="****** Initialize afain if FIRST FIVE PARAMETERS ARE CHANGED (and beam = 'prot'):******\n"
+        conf+="***********************************************************************************\n"
+        conf+=fortDouble(self.rts) + "                     ! [rts] : CMS collision energy (GeV) \n"
+        conf+=fortInt(self.isurv) + "                         ! [isurv] : Model of soft survival (from 1 -> 4)\n"
+        conf+=fortStr(self.intag) + "                     ! [intag] for input files  \n"
+        conf+="***********************************************************************************\n"
+        conf+="***********************************************************************************\n"
+        conf+=fortStr(self.PDFname) + "                ! [PDFname] : PDF set \n"
+        conf+=fortInt(self.PDFmember)  + "                       ! [PDFmember] : PDF member \n"
+        conf+="***********************************************************************************\n"
+        conf+=fortInt(self.proc) + "                             ! [proc] : Process number \n"
+        conf+=fortStr(self.beam) + "                           ! [beam] : Beam type ('prot', 'ion', 'ionp' or 'el') \n"
+        conf+=fortStr(self.outtg) + "                           ! [outtg] : for output file \n"
+        conf+=fortBool(self.sfaci) + "                          ! [sfaci] : Include soft survival effects \n"
+        conf+="***********************************************************************************\n"
+        conf+="***********************************************************************************\n"
+        conf+="***********************************************************************************\n"
+        conf+=fortStr(self.diff) + "                          ! [diff] : dissociation flag \n"
+        conf+="***********************************************************************************\n"
+        conf+=fortDouble(self.an) + "                                  ! [an] : Ion mass number \n"
+        conf+=fortDouble(self.az) + "                                   ! [az] : Ion atomic number \n"
+        conf+=fortDouble(self.rz) + "                                 ! [rz] : Ion proton density - radius \n"
+        conf+=fortDouble(self.dz) + "                                ! [dz] : Ion proton density - skin thickness \n"
+        conf+=fortDouble(self.rn) + "                                  ! [rn] : Ion neutron density - radius \n"
+        conf+=fortDouble(self.dn) + "                                  ! [dn] : Ion neutron density - skin thickness \n"
+        conf+=fortStr(self.ionqcd) + "                               ! [ionqcd] : Coherent ('coh') or incoherent ('incoh') for QCD-induced processes \n"
+        conf+="***********************************************************************************\n"
+        conf+="*************Integration parameters************************************************\n"
+        conf+="***********************************************************************************\n"
+        conf+=fortInt(self.ncall) + "                              ! [ncall] : Number of calls for preconditioning \n"
+        conf+=fortInt(self.itmx) + "                                  ! [itmx] : Number of iterations for preconditioning \n"
+        conf+=fortDouble(self.prec) + "                                 ! [prec] :  Relative accuracy (in %) in main run \n"
+        conf+=fortInt(self.ncall1) + "                               ! [ncall1] : Number of calls in first iteration \n"
+        conf+=fortInt(self.inccall) + "                              ! [inccall] : Number of increase calls per iteration \n"
+        conf+=fortInt(self.itend) + "                                ! [itend] : Maximum number of iterations \n"
+        conf+=fortInt(self.iseed) + "                                 ! [iseed] : Random number seed (integer > 0) \n"
+        conf+="***********************************************************************************\n"
+        conf+="********************Unweighted events**********************************************\n"
+        conf+="***********************************************************************************\n"
+        conf+=fortBool(self.genunw) + "                              ! [genunw] : Generate unweighted events \n"
+        conf+=fortInt(int(self.nev*1.01)) + "                                 ! [nev] : Number of events (preferably controlled by maxEvents option in Gen_tf command) \n"
+        conf+=fortStr(self.erec) + "                               ! [erec] : Event record format ('hepmc','lhe','hepevt') \n"
+        conf+=fortBool(self.readwt) + "                             ! [readwt] : Set to true to read in pre-calculated maxium weight below \n"
+        conf+=fortDouble(self.wtmax) +  "                               ! [wtmax] : Maximum weight \n"
+        conf+="***********************************************************************************\n"
+        conf+="***********************************************************************************\n"
+        conf+="*******************   general cuts ************************************************\n"
+        conf+=fortDouble(self.ymin) + "                               ! [ymin] : Minimum object rapidity Y_X \n"
+        conf+=fortDouble(self.ymax) + "                               ! [ymax] : Maximum object rapidity Y_X \n"
+        conf+=fortDouble(self.mmin) + "                               ! [mmin] : Minimum object mass M_X (redundant for resonance production) \n"
+        conf+=fortDouble(self.mmax) + "                               ! [mmax] : Maximum object mass M_X (redundant for resonance production) \n"
+        conf+=fortBool(self.gencuts) + "                             ! [gencuts] : Generate cuts below \n"
+        conf+=fortBool(self.scorr) + "                             ! [scorr] : Include spin correlations (for chi_c/b decays) \n"
+        conf+=fortBool(self.fwidth) + "                             ! [fwidth] : Include finite width (for chi_c decays)  \n"
+        conf+="***********************************************************************************\n"
+        conf+="************ See manual for momentum assignments***********************************\n"
+        conf+="***********************************************************************************\n"
+        conf+="******************* Proton Cuts ***************************************************\n"
+        conf+="***********************************************************************************\n"
+        conf+=fortDouble(self.ptxmax) + "                               ! [ptxmax] : max pT of the system  \n"
+        conf+="***********************************************************************************\n"
+        conf+="**********2 body final states : p(a) + p(b) ***************************************\n"
+        conf+="***********************************************************************************\n"
+        conf+=fortDouble(self.ptamin) + "                               ! [ptamin] \n"
+        conf+=fortDouble(self.ptbmin) + "                               ! [ptbmin] \n"
+        conf+=fortDouble(self.etaamin) + "                              ! [etaamin] \n"
+        conf+=fortDouble(self.etaamax) + "                              ! [etaamax] \n"
+        conf+=fortDouble(self.etabmin) + "                              ! [etabmin] \n"
+        conf+=fortDouble(self.etabmax) + "                              ! [etabmax] \n"
+        conf+=fortDouble(self.acoabmax) + "                             ! [acoabmax] \n"
+        conf+="***********************************************************************************\n"
+        conf+="****** 3 body final states : p(a) + p(b) + p(c) ***********************************\n"
+        conf+="***********************************************************************************\n"
+        conf+=fortDouble(self.ptamin) + "                                ! [ptamin] \n"
+        conf+=fortDouble(self.ptbmin)  + "                               ! [ptbmin] \n"
+        conf+=fortDouble(self.ptcmin) + "                                ! [ptcmin] \n"
+        conf+=fortDouble(self.etaamin) + "                               ! [etaamin] \n"
+        conf+=fortDouble(self.etaamax) + "                               ! [etaamax] \n"
+        conf+=fortDouble(self.etabmin)  + "                              ! [etabmin] \n"
+        conf+=fortDouble(self.etabmax) + "                               ! [etabmax]	 \n"
+        conf+=fortDouble(self.etacmin) + "                               ! [etacmin] \n"
+        conf+=fortDouble(self.etacmax) + "                               ! [etacmax]	 \n"
+        conf+="***********************************************************************************\n"
+        conf+="****** 4 body final states : p(a) + p(b) + p(c) + p(d) ****************************\n"
+        conf+="***********************************************************************************\n"
+        conf+=fortDouble(self.ptamin) + "                                ! [ptamin] \n"
+        conf+=fortDouble(self.ptbmin) + "                                ! [ptbmin] \n"
+        conf+=fortDouble(self.ptcmin) + "                                ! [ptcmin] \n"
+        conf+=fortDouble(self.ptdmin) + "                                ! [ptdmin] \n"
+        conf+=fortDouble(self.etaamin) + "                               ! [etaamin] \n"
+        conf+=fortDouble(self.etaamax) + "                               ! [etaamax] \n"
+        conf+=fortDouble(self.etabmin) + "                               ! [etabmin] \n"
+        conf+=fortDouble(self.etabmax) + "                               ! [etabmax] \n"
+        conf+=fortDouble(self.etacmin) + "                               ! [etacmin] \n"
+        conf+=fortDouble(self.etacmax) + "                               ! [etacmax] \n"
+        conf+=fortDouble(self.etadmin) + "                               ! [etacmin] \n"
+        conf+=fortDouble(self.etadmax) + "                               ! [etadmax] \n"
+        conf+="***********************************************************************************\n"
+        conf+="****** 6 body final states : p(a) + p(b) + p(c) + p(d) + p(e) + p(f) **************\n"
+        conf+="***********************************************************************************\n"
+        conf+=fortDouble(self.ptamin)  + "                                ! [ptamin] \n"
+        conf+=fortDouble(self.ptbmin)  + "                                ! [ptbmin] \n"
+        conf+=fortDouble(self.ptcmin)  + "                                ! [ptcmin]  \n"
+        conf+=fortDouble(self.ptdmin)  + "                                ! [ptdmin] \n"
+        conf+=fortDouble(self.ptemin)  + "                                ! [ptemin] \n"
+        conf+=fortDouble(self.ptfmin)  + "                                ! [ptfmin]  \n"
+        conf+=fortDouble(self.etaamin)  + "                               ! [etaamin] \n"
+        conf+=fortDouble(self.etaamax)  + "                               ! [etaamax] \n"
+        conf+=fortDouble(self.etabmin) + "                               ! [etabmin] \n"
+        conf+=fortDouble(self.etabmax) + "                               ! [etabmax]	\n"
+        conf+=fortDouble(self.etacmin) + "                               ! [etacmin] \n"
+        conf+=fortDouble(self.etacmax) + "                               ! [etacmax] \n"
+        conf+=fortDouble(self.etadmin) + "                               ! [etadmin]  \n"
+        conf+=fortDouble(self.etadmax) + "                               ! [etadmax]  \n"
+        conf+=fortDouble(self.etaemin) + "                               ! [etaemin]  \n"
+        conf+=fortDouble(self.etaemax) + "                               ! [etaemax] \n"
+        conf+=fortDouble(self.etaemin) + "                               ! [etafmin] \n"
+        conf+=fortDouble(self.etafmax) + "                               ! [etafmax]	\n"
+        conf+="***********************************************************************************\n"
+        conf+="******************* jet algorithm parameters **************************************\n"
+        conf+="***********************************************************************************\n"
+        conf+=fortDouble(self.rjet) + "                                  ! [rjet] : Jet Radius \n"
+        conf+=fortStr(self.jalg) + "                                  ! [jalg] : Jet algorithm ('antikt','kt') \n"
+        conf+="***********************************************************************************\n"
+        conf+="***** chi_c/b two-body decays *****************************************************\n"
+        conf+="***********************************************************************************\n"
+        conf+=fortDouble(self.m2b) + "                                   ! [m2b] : mass of decay particles \n"
+        conf+=fortInt(self.pdgid1) + "                                ! [pdgid1] : PDG number particle 1 \n"
+        conf+=fortInt(self.pdgid2) + "                                ! [pdgid2] : PDG number particle 2 \n"
+        conf+="***********************************************************************************\n"
+        conf+="*******  ALP Parameters ***********************************************************\n"
+        conf+="***********************************************************************************\n"
+        conf+=fortDouble(self.malp) + "                                  ! [malp] : ALP mass (GeV) \n"
+        conf+=fortDouble(self.gax) + "                                   ! [gax] : ALP coupling (GeV^-1) \n"
+        conf+=fortStr(self.alpt) + "                                  ! [alpt] : AlP type (scalar - 'sc', pseudoscalar - 'ps') \n"
+        conf+="***********************************************************************************\n"
+        conf+="**** Monopole Parameters **********************************************************\n"
+        conf+="***********************************************************************************\n"
+        conf+=fortDouble(self.mpol) + "                                  ! [mpol] : Monopole mass \n"
+        conf+=fortDouble(self.mmon) + "                                  ! [mmon] : Monopolium mass \n"
+        conf+=fortDouble(self.gamm) + "                                  ! [gamm] : Monopolium width \n"
+        conf+="***********************************************************************************\n"
+        conf+="****   SUSY Parameters ************************************************************\n"
+        conf+="***********************************************************************************\n"
+        conf+=fortDouble(self.mcharg) + "                                ! [mcharg] : Chargino/Slepton mass \n"
+        conf+=fortDouble(self.mneut)  + "                                ! [mneut]  : Neutralino mass \n"
+        conf+="***********************************************************************************\n"
+        conf+="***********************************************************************************\n"
+
+        return conf 
+
+    def outputLHEFile(self):
+        return "evrecs/evrec"+self.outtg+".dat"
+
 
 def writeInputDAT(Init):
     
-    outF = open("input.DAT", "w")
-    outF.write("***********************************************************************************\n")
-    outF.write("****** Initialize afain if FIRST FIVE PARAMETERS ARE CHANGED (and beam = 'prot'):******\n")
-    outF.write("***********************************************************************************\n")
-    outF.write(Init.rts + "                     ! [rts] : CMS collision energy (GeV) \n")
-    outF.write(Init.isurv + "                         ! [isurv] : Model of soft survival (from 1 -> 4)\n")
-    outF.write(Init.intag + "                     ! [intag] for input files  \n")
-    outF.write("***********************************************************************************\n")
-    outF.write("***********************************************************************************\n")
-    outF.write(Init.PDFname + "                ! [PDFname] : PDF set \n")
-    outF.write(Init.PDFmember  + "                       ! [PDFmember] : PDF member \n")
-    outF.write("***********************************************************************************\n")
-    outF.write(Init.proc + "                             ! [proc] : Process number \n")
-    outF.write(Init.beam + "                           ! [beam] : Beam type ('prot', 'ion', 'ionp' or 'el') \n")
-    outF.write(Init.outtg + "                           ! [outtg] : for output file \n")
-    outF.write(Init.sfaci + "                          ! [sfaci] : Include soft survival effects \n")
-    outF.write("***********************************************************************************\n")
-    outF.write("***********************************************************************************\n")
-    outF.write("***********************************************************************************\n")
-    outF.write(Init.diff + "                          ! [diff] : dissociation flag \n")
-    outF.write("***********************************************************************************\n")
-    outF.write(Init.an + "                                  ! [an] : Ion mass number \n")
-    outF.write(Init.az + "                                   ! [az] : Ion atomic number \n")
-    outF.write(Init.rz + "                                 ! [rz] : Ion proton density - radius \n")
-    outF.write(Init.dz + "                                ! [dz] : Ion proton density - skin thickness \n")
-    outF.write(Init.rn + "                                  ! [rn] : Ion neutron density - radius \n")
-    outF.write(Init.dn + "                                  ! [dn] : Ion neutron density - skin thickness \n")
-    outF.write(Init.ionqcd + "                               ! [ionqcd] : Coherent ('coh') or incoherent ('incoh') for QCD-induced processes \n")
-    outF.write("***********************************************************************************\n")
-    outF.write("*************Integration parameters************************************************\n")
-    outF.write("***********************************************************************************\n")
-    outF.write(Init.ncall + "                              ! [ncall] : Number of calls for preconditioning \n")
-    outF.write(Init.itmx + "                                  ! [itmx] : Number of iterations for preconditioning \n")
-    outF.write(Init.prec + "                                 ! [prec] :  Relative accuracy (in %) in main run \n")
-    outF.write(Init.ncall1 + "                               ! [ncall1] : Number of calls in first iteration \n")
-    outF.write(Init.inccall + "                              ! [inccall] : Number of increase calls per iteration \n")
-    outF.write(Init.itend + "                                ! [itend] : Maximum number of iterations \n")
-    outF.write(Init.iseed + "                                 ! [iseed] : Random number seed (integer > 0) \n")
-    outF.write("***********************************************************************************\n")
-    outF.write("********************Unweighted events**********************************************\n")
-    outF.write("***********************************************************************************\n")
-    outF.write(Init.genunw + "                              ! [genunw] : Generate unweighted events \n")
-    outF.write(Init.nev + "                                 ! [nev] : Number of events (preferably controlled by maxEvents option in Gen_tf command) \n")
-    outF.write(Init.erec + "                               ! [erec] : Event record format ('hepmc','lhe','hepevt') \n")
-    outF.write(Init.readwt + "                             ! [readwt] : Set to true to read in pre-calculated maxium weight below \n")
-    outF.write(Init.wtmax +  "                               ! [wtmax] : Maximum weight \n")
-    outF.write("***********************************************************************************\n")
-    outF.write("***********************************************************************************\n")
-    outF.write("*******************   general cuts ************************************************\n")
-    outF.write(Init.ymin + "                               ! [ymin] : Minimum object rapidity Y_X \n")
-    outF.write(Init.ymax + "                               ! [ymax] : Maximum object rapidity Y_X \n")
-    outF.write(Init.mmin + "                               ! [mmin] : Minimum object mass M_X (redundant for resonance production) \n")
-    outF.write(Init.mmax + "                               ! [mmax] : Maximum object mass M_X (redundant for resonance production) \n")
-    outF.write(Init.gencuts + "                             ! [gencuts] : Generate cuts below \n")
-    outF.write(Init.scorr + "                             ! [scorr] : Include spin correlations (for chi_c/b decays) \n")
-    outF.write(Init.fwidth + "                             ! [fwidth] : Include finite width (for chi_c decays)  \n")
-    outF.write("***********************************************************************************\n")
-    outF.write("************ See manual for momentum assignments***********************************\n")
-    outF.write("***********************************************************************************\n")
-    outF.write("******************* Proton Cuts ***************************************************\n")
-    outF.write("***********************************************************************************\n")
-    outF.write(Init.ptxmax + "                               ! [ptxmax] : max pT of the system  \n")
-    outF.write("***********************************************************************************\n")
-    outF.write("**********2 body final states : p(a) + p(b) ***************************************\n")
-    outF.write("***********************************************************************************\n")
-    outF.write(Init. ptamin + "                               ! [ptamin] \n")
-    outF.write(Init. ptbmin + "                               ! [ptbmin] \n")
-    outF.write(Init. etaamin + "                              ! [etaamin] \n")
-    outF.write(Init. etaamax + "                              ! [etaamax] \n")
-    outF.write(Init. etabmin + "                              ! [etabmin] \n")
-    outF.write(Init. etabmax + "                              ! [etabmax] \n")
-    outF.write(Init. acoabmax + "                             ! [acoabmax] \n")
-    outF.write("***********************************************************************************\n")
-    outF.write("****** 3 body final states : p(a) + p(b) + p(c) ***********************************\n")
-    outF.write("***********************************************************************************\n")
-    outF.write(Init.ptamin + "                                ! [ptamin] \n")
-    outF.write(Init.ptbmin  + "                               ! [ptbmin] \n")
-    outF.write(Init.ptcmin + "                                ! [ptcmin] \n")
-    outF.write(Init.etaamin + "                               ! [etaamin] \n")
-    outF.write(Init.etaamax + "                               ! [etaamax] \n")
-    outF.write(Init.etabmin  + "                              ! [etabmin] \n")
-    outF.write(Init.etabmax + "                               ! [etabmax]	 \n")
-    outF.write(Init.etacmin + "                               ! [etacmin] \n")
-    outF.write(Init.etacmax + "                               ! [etacmax]	 \n")
-    outF.write("***********************************************************************************\n")
-    outF.write("****** 4 body final states : p(a) + p(b) + p(c) + p(d) ****************************\n")
-    outF.write("***********************************************************************************\n")
-    outF.write(Init.ptamin + "                                ! [ptamin] \n")
-    outF.write(Init.ptbmin + "                                ! [ptbmin] \n")
-    outF.write(Init.ptcmin + "                                ! [ptcmin] \n")
-    outF.write(Init.ptdmin + "                                ! [ptdmin] \n")
-    outF.write(Init.etaamin + "                               ! [etaamin] \n")
-    outF.write(Init.etaamax + "                               ! [etaamax] \n")
-    outF.write(Init.etabmin + "                               ! [etabmin] \n")
-    outF.write(Init.etabmax + "                               ! [etabmax] \n")
-    outF.write(Init.etacmin + "                               ! [etacmin] \n")
-    outF.write(Init.etacmax + "                               ! [etacmax] \n")
-    outF.write(Init.etadmin + "                               ! [etacmin] \n")
-    outF.write(Init.etadmax + "                               ! [etadmax] \n")
-    outF.write("***********************************************************************************\n")
-    outF.write("****** 6 body final states : p(a) + p(b) + p(c) + p(d) + p(e) + p(f) **************\n")
-    outF.write("***********************************************************************************\n")
-    outF.write(Init.ptamin + "                                ! [ptamin] \n")
-    outF.write(Init.ptbmin + "                                ! [ptbmin] \n")
-    outF.write(Init.ptcmin + "                                ! [ptcmin]  \n")
-    outF.write(Init.ptdmin + "                                ! [ptdmin] \n")
-    outF.write(Init.ptemin + "                                ! [ptemin] \n")
-    outF.write(Init.ptfmin + "                                ! [ptfmin]  \n")
-    outF.write(Init.etaamin + "                               ! [etaamin] \n")
-    outF.write(Init.etaamax + "                               ! [etaamax] \n")
-    outF.write(Init.etabmin + "                               ! [etabmin] \n")
-    outF.write(Init.etabmax + "                               ! [etabmax]	\n")
-    outF.write(Init.etacmin + "                               ! [etacmin] \n")
-    outF.write(Init.etacmax + "                               ! [etacmax] \n")
-    outF.write(Init.etadmin + "                               ! [etadmin]  \n")
-    outF.write(Init.etadmax + "                               ! [etadmax]  \n")
-    outF.write(Init.etaemin + "                               ! [etaemin]  \n")
-    outF.write(Init.etaemax + "                               ! [etaemax] \n")
-    outF.write(Init.etaemin + "                               ! [etafmin] \n")
-    outF.write(Init.etafmax + "                               ! [etafmax]	\n")
-    outF.write("***********************************************************************************\n")
-    outF.write("******************* jet algorithm parameters **************************************\n")
-    outF.write("***********************************************************************************\n")
-    outF.write(Init.rjet + "                                  ! [rjet] : Jet Radius \n")
-    outF.write(Init.jalg + "                                  ! [jalg] : Jet algorithm ('antikt','kt') \n")
-    outF.write("***********************************************************************************\n")
-    outF.write("***** chi_c/b two-body decays *****************************************************\n")
-    outF.write("***********************************************************************************\n")
-    outF.write(Init.m2b + "                                   ! [m2b] : mass of decay particles \n")
-    outF.write(Init.pdgid1 + "                                ! [pdgid1] : PDG number particle 1 \n")
-    outF.write(Init.pdgid2 + "                                ! [pdgid2] : PDG number particle 2 \n")
-    outF.write("***********************************************************************************\n")
-    outF.write("*******  ALP Parameters ***********************************************************\n")
-    outF.write("***********************************************************************************\n")
-    outF.write(Init.malp + "                                  ! [malp] : ALP mass (GeV) \n")
-    outF.write(Init.gax + "                                   ! [gax] : ALP coupling (GeV^-1) \n")
-    outF.write(Init.alpt + "                                  ! [alpt] : AlP type (scalar - 'sc', pseudoscalar - 'ps') \n")
-    outF.write("***********************************************************************************\n")
-    outF.write("**** Monopole Parameters **********************************************************\n")
-    outF.write("***********************************************************************************\n")
-    outF.write(Init.mpol + "                                  ! [mpol] : Monopole mass \n")
-    outF.write(Init.mmon + "                                  ! [mmon] : Monopolium mass \n")
-    outF.write(Init.gamm + "                                  ! [gamm] : Monopolium width \n")
-    outF.write("***********************************************************************************\n")
-    outF.write("****   SUSY Parameters ************************************************************\n")
-    outF.write("***********************************************************************************\n")
-    outF.write(Init.mcharg + "                                ! [mcharg] : Chargino/Slepton mass \n")
-    outF.write(Init.mneut  + "                                ! [mneut]  : Neutralino mass \n")
-    outF.write("***********************************************************************************\n")
-    outF.write("***********************************************************************************\n")
-
-    outF.close()
+    with open("input.DAT", "w") as outF:
+        outF.write(Init.toFortran())
     
     return
 
 
-def SuperChicInitialize(Init):
+def run_command(command, stdin = None):
+    """
+    Run a command and print output continuously
+    """
+    process = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stdin=stdin)
+    while True:
+        output = process.stdout.readline()
+        if output == '' and process.poll() is not None:
+            break
+        if output:
+            #print output.strip()
+            # remove ANSI escape formatting characters
+            reaesc = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
+            text = reaesc.sub('', output.strip())
+            logger.info(text)
 
-    print("Starting SuperChic Initialization")
-    
+    rc = process.poll()
+    return rc
+
+
+def SuperChicInitialize(Init, stdin=None):
+
+    logger.info("Starting SuperChic Initialization")
+
+    if not os.path.exists('inputs'):
+        os.makedirs('inputs')
+    if not os.path.exists('evrecs'):
+        os.makedirs('evrecs')
+    if not os.path.exists('outputs'):
+        os.makedirs('outputs')
+
+
     try:
-        outputLog = open("init.log", 'w')
         inputDAT = open('input.DAT')
-        
-        init = subprocess.Popen([Init.superchicpath+"/bin/init"], stdin=inputDAT, stdout=outputLog, stderr=outputLog)
-
-        (output, err) = init.communicate()
-        init.wait()
-
-        print(output)
-        print(err)
-
-    except OSError:
-        print("init executable or file not found")
-        raise
 
     except IOError:
-        print("problem with file IO; potentially input.DAT not created correctly")
-        raise
+        raise Exception("problem with file IO; potentially input.DAT not created correctly")
+    else:
 
-    except:
-        print("Non-OSError or IOError in init execution block")
-        raise
+        try: 
+            rc = run_command(Init.superchicpath+"/bin/init", inputDAT) 
+
+        except OSError:
+            raise Exception("init executable or file not found")
+
+        except:
+            raise Exception("Non-OSError or IOError in init execution block")
+
+    if rc:
+        raise Exception('Unexpected error in superchic init execution')
         
-    #try... except does not catch fortran errors, instead check that the files made by init are filled
-    try:
-        fileName = "inputs/sdcoh"+Init.intag[1:-1]+".dat"
-        print(fileName)
-        if( os.path.isfile(fileName) ):
-            print("input file made by init")
-            InFile = open(fileName, "r")
-            line_count = 0
-            for line in InFile:
-                if line != "\n":
-                    line_count += 1
-            InFile.close()
-            if(line_count < 10):
-                raise Exception('Input not filled properly')
-        else:
-            raise Exception('no Input file produced')
-
-    except Exception as inst:
-        print(inst.args)
-        raise
-
-    outputLog.close()
-    inputDAT.close()
-
     return
 
 
 def SuperChicExecute(Init):
 
-    print("Starting SuperChic Itself")
+    logger.info("Starting SuperChic Itself")
 
+    if not os.path.exists('inputs'):
+        os.makedirs('inputs')
+    if not os.path.exists('evrecs'):
+        os.makedirs('evrecs')
+    if not os.path.exists('outputs'):
+        os.makedirs('outputs')
+
+    
     try:
-        outputLog = open("superchic.log", 'w')
         inputDAT = open('input.DAT')
-        
-        superchic = subprocess.Popen([Init.superchicpath+"/bin/superchic"], stdin=inputDAT, stdout=outputLog, stderr=outputLog)
-
-        (output, err) = superchic.communicate()
-        superchic.wait()
-
-        print(output)
-        print(err)
-
-    except OSError:
-        print("Superchic executable or file not found")
-        raise
-
     except IOError:
-        print("problem with IO; potentially input.DAT not created correctly")
-        raise
+        raise  Exception ("problem with IO; potentially input.DAT not created correctly")
+    else: 
 
-    except:
-        print("Non-OSError or IOError in Superchic execution block")
-        raise
+        try: 
+            rc = run_command(Init.superchicpath+'/bin/superchic', stdin=inputDAT)
 
-    #try... except does not catch fortran errors, instead check if the LHE file is filled
-    try:
-        fileName = "evrecs/evrec"+Init.outtg[1:-1]+".dat"
-        print(fileName)
-        if( os.path.isfile(fileName) ):
-            print("LHE file made by Superchic")
-            LHEFile = open(fileName, "r")
-            line_count = 0
-            for line in LHEFile:
-                if line != "\n":
-                    line_count += 1
-            LHEFile.close()
-            if(line_count < 10):
-                raise Exception('LHE not filled properly')
-        else:
-            raise Exception('no LHE file produced')
+        except OSError:
+            raise Exception("Superchic executable or file not found")
 
-    except Exception as inst:
-        print(inst.args)
-        raise
+        except:
+            raise Exception("Non-OSError or IOError in Superchic execution block")
 
-    outputLog.close()
-    inputDAT.close()
+    if rc:
+        raise Exception('Unexpected error in superchic execution')
 
     return
 
 
 
-def SuperChicRun(Init):
+def SuperChicRun(Init, genSeq):
+
+    # dump the job configuration for fortran code
+    print(Init.toFortran())
+
+    # attach config to genSequence for later usin in showering
+    genSeq.SuperChicConfig = Init
     
     writeInputDAT(Init)
     SuperChicInitialize(Init)
