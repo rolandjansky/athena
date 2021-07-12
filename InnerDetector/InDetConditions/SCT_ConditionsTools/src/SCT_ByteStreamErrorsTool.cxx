@@ -299,6 +299,15 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
   }
 
   auto *cacheEntry{getCacheEntry(ctx)};
+  
+  unsigned int idcErrCont_set_number =  idcErrCont->numberSet();
+
+  if (cacheEntry->m_set_number == idcErrCont_set_number){
+    ATH_MSG_VERBOSE("Same set number found, skip the next steps.");
+    return StatusCode::SUCCESS;
+  }else{
+    cacheEntry->m_set_number = idcErrCont_set_number; //update the set number in cacheEntry.
+  }
 
   /** OK, so we found the StoreGate container, now lets iterate
    * over it to populate the sets of errors owned by this Tool.

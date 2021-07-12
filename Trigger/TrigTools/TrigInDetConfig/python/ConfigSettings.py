@@ -180,7 +180,7 @@ class _ConfigSettings_fullScan( _ConfigSettingsBase ):
       self._UseTrigSeedML   = 4
       self._dodEdxTrk         = False
       self._doHitDV           = True
-      self._doDisappearingTrk = False
+      self._doDisappearingTrk = True
 
 
 class _ConfigSettings_beamSpotFS( _ConfigSettingsBase ):

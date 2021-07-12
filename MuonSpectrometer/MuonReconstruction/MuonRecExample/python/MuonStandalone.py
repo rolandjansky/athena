@@ -122,10 +122,10 @@ def MuonSegmentFinderAlg( name="MuonSegmentMaker", **kwargs):
     SegmentLocation = "TrackMuonSegments"
     if muonStandaloneFlags.segmentOrigin == 'TruthTracking':
         SegmentLocation = "ThirdChainSegments"
-    MuonSegmentFinderAlg = CfgMgr.MuonSegmentFinderAlg( "MuonSegmentMaker",SegmentCollectionName=SegmentLocation, 
+    MuonSegmentFinderAlg = CfgMgr.MuonSegmentFinderAlg( name,SegmentCollectionName=SegmentLocation, 
                                                         MuonPatternCalibration = getPublicTool("MuonPatternCalibration"),
                                                         MuonPatternSegmentMaker = getPublicTool("MuonPatternSegmentMaker"),
-                                                        PrintSummary = muonStandaloneFlags.printSummary() )
+                                                        PrintSummary = muonStandaloneFlags.printSummary(), **kwargs )
     # we check whether the layout contains any CSC chamber and if yes, we check that the user also wants to use the CSCs in reconstruction
     if muonRecFlags.doCSCs() and MuonGeometryFlags.hasCSC():
         getPublicTool("CscSegmentUtilTool")
@@ -134,6 +134,7 @@ def MuonSegmentFinderAlg( name="MuonSegmentMaker", **kwargs):
     else:
         MuonSegmentFinderAlg.Csc2dSegmentMaker = ""
         MuonSegmentFinderAlg.Csc4dSegmentMaker = ""
+        MuonSegmentFinderAlg.CSC_clusterkey = ""
     return MuonSegmentFinderAlg
 
 

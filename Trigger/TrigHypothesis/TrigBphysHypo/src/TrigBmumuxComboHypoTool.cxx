@@ -67,12 +67,23 @@ StatusCode TrigBmumuxComboHypoTool::decideOnSingleObject(Decision* decision, con
   ATH_CHECK( trigBphysEL.isValid() );
 
   ATH_CHECK( previousDecisionIDs.size() == 2 );
-  ATH_CHECK( previousDecisionIDs.size() == legDecisionIds().size() );
+
+  std::vector<HLT::Identifier> legDecisionIDsToCheck;
+  legDecisionIDsToCheck.reserve(2);
+  if (legDecisionIds().size() == 2) { // Muons on two legs
+    legDecisionIDsToCheck = legDecisionIds();
+  } else if (legDecisionIds().size() == 1 and legMultiplicity().at(0) >= 2) { // Two muons on one leg
+    legDecisionIDsToCheck[0] = legDecisionId(0);
+    legDecisionIDsToCheck[1] = legDecisionId(0);
+  } else {
+    return StatusCode::FAILURE;
+  }
+
   bool direct = true;
   bool inverse = true;
   for (size_t i = 0; i < 2; ++i) {
-    if (direct && !TrigCompositeUtils::passed(legDecisionId(i).numeric(), *previousDecisionIDs[i])) direct = false;
-    if (inverse && !TrigCompositeUtils::passed(legDecisionId(i).numeric(), *previousDecisionIDs[1-i])) inverse = false;
+    if (direct && !TrigCompositeUtils::passed(legDecisionIDsToCheck.at(i).numeric(), *previousDecisionIDs.at(i))) direct = false;
+    if (inverse && !TrigCompositeUtils::passed(legDecisionIDsToCheck.at(i).numeric(), *previousDecisionIDs.at(1-i))) inverse = false;
   }
   if (!direct && !inverse) {
     ATH_MSG_DEBUG( "Trigger legs matched to the previous decisions neither direct nor inverse way" );
@@ -84,4 +95,10 @@ StatusCode TrigBmumuxComboHypoTool::decideOnSingleObject(Decision* decision, con
   }
 
   return StatusCode::SUCCESS;
+}
+
+
+bool TrigBmumuxComboHypoTool::executeAlg(const std::vector<Combo::LegDecision>&) const { 
+  ATH_MSG_ERROR("executeAlg not supported for TrigBmumuxComboHypoTool.");
+  return true;
 }

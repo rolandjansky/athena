@@ -760,10 +760,10 @@ TriggerHLTListRun3 = [
     #('xAOD::TrigCompositeAuxContainer#HLT_HPtdEdxTrkAux.'+HPtdEdxTrkVars, 'BS ESD AODFULL AODSLIM', 'ID'),
 
     # disappearing track
-    #('xAOD::TrigCompositeContainer#HLT_DisTrkCand',                           'BS ESD AODFULL', 'ID'),
-    #('xAOD::TrigCompositeAuxContainer#HLT_DisTrkCandAux.',                    'BS ESD AODFULL', 'ID'),
-    #('xAOD::TrigCompositeContainer#HLT_DisTrkBDTSel',                         'BS ESD AODFULL AODSLIM', 'ID'),
-    #('xAOD::TrigCompositeAuxContainer#HLT_DisTrkBDTSelAux.',                  'BS ESD AODFULL AODSLIM', 'ID'),
+    ('xAOD::TrigCompositeContainer#HLT_DisTrkCand',                           'BS ESD AODFULL', 'ID'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_DisTrkCandAux.',                    'BS ESD AODFULL', 'ID'),
+    ('xAOD::TrigCompositeContainer#HLT_DisTrkBDTSel',                         'BS ESD AODFULL AODSLIM', 'ID'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_DisTrkBDTSelAux.',                  'BS ESD AODFULL AODSLIM', 'ID'),
 
     #
     ('xAOD::TrigCompositeContainer#HLTNav_R2ToR3Summary',   'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Steer'),
