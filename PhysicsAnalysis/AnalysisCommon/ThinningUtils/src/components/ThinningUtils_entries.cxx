@@ -15,6 +15,7 @@
 #include "../ThinCaloClustersTool.h"
 #include "../ThinTrackParticlesAlg.h"
 #include "../ThinTrackParticlesTool.h"
+#include "../ThinTRTStandaloneTrackAlg.h"
 
 DECLARE_COMPONENT( ThinInDetForwardTrackParticlesAlg )
 DECLARE_COMPONENT( ThinGeantTruthAlg )
@@ -33,3 +34,4 @@ DECLARE_COMPONENT( ThinCaloClustersAlg )
 DECLARE_COMPONENT( ThinCaloClustersTool )
 DECLARE_COMPONENT( ThinTrackParticlesAlg )
 DECLARE_COMPONENT( ThinTrackParticlesTool )
+DECLARE_COMPONENT( ThinTRTStandaloneTrackAlg )
