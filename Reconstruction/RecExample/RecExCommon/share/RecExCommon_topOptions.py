@@ -1266,13 +1266,6 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
             if rec.readESD() or recAlgs.doTrackParticleCellAssociation():
                 addClusterToCaloCellAOD("InDetTrackParticlesAssociatedClusters")
 
-            from tauRec.tauRecFlags import tauFlags
-            if ( rec.readESD() or tauFlags.Enabled() ) and rec.doTau:
-                # TauThinningAlg takes care of all tau-related thinning operations (taus, clusters, cells, cell links, PFOs, tracks, vertices)
-                from tauRec.tauRecConf import TauThinningAlg
-                tauThinningAlg = TauThinningAlg('TauThinningAlg')
-                topSequence += tauThinningAlg
-
         except Exception:
             treatException("Could not make AOD cells" )
 
@@ -1310,6 +1303,14 @@ if rec.doWriteAOD():
 
     # cannot redo the slimming if readAOD and writeAOD
     if not rec.readAOD() and (rec.doESD() or rec.readESD()):
+        if AODFlags.ThinTRTStandaloneTracks:
+            from ThinningUtils.ThinningUtilsConf import ThinTRTStandaloneTrackAlg
+            thinTRTStandaloneTrackAlg = ThinTRTStandaloneTrackAlg('ThinTRTStandaloneTrackAlg',
+                                                                  doElectron = (rec.doEgamma() and AODFlags.Electron()),
+                                                                  doPhoton = (rec.doEgamma() and AODFlags.Photon()),
+                                                                  doTau = rec.doTau())
+            topSequence += thinTRTStandaloneTrackAlg
+        
         if rec.doEgamma() and (AODFlags.Photon or AODFlags.Electron):
             doEgammaPhoton = AODFlags.Photon
             doEgammaElectron= AODFlags.Electron
@@ -1318,6 +1319,12 @@ if rec.doWriteAOD():
             if AODFlags.egammaTrackSlimmer:
                 from egammaRec.egammaTrackSlimmer import egammaTrackSlimmer
                 egammaTrackSlimmer()
+
+        if rec.doTau() and AODFlags.ThinTaus:
+            # tau-related thinning: taus, clusters, cells, cell links, PFOs, tracks, vertices
+            from tauRec.tauRecConf import TauThinningAlg
+            tauThinningAlg = TauThinningAlg('TauThinningAlg')
+            topSequence += tauThinningAlg
 
         if rec.doTruth() and AODFlags.ThinGeantTruth:
             from ThinningUtils.ThinGeantTruth import ThinGeantTruth
@@ -1388,6 +1395,7 @@ if rec.doWriteAOD():
     #FIXME HACK remove faulty object
     StreamAOD_Augmented.GetEventStream().ItemList = [ e for e in StreamAOD_Augmented.GetEventStream().ItemList if not e in [ 'CaloTowerContainer#HLT_TrigCaloTowerMaker'] ]
 
+    # FIXME: leftover?
     if AODFlags.TrackParticleSlimmer or AODFlags.TrackParticleLastHitAndPerigeeSlimmer:
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
