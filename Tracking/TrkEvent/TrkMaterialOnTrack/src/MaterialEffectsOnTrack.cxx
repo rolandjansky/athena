@@ -28,7 +28,7 @@ Trk::MaterialEffectsOnTrack::MaterialEffectsOnTrack(
   , m_scatteringAngles(std::move(scat))
   , m_energyLoss(eloss) // take ownership
 {
-  assert(m_energyLoss != 0);
+  //nop
 }
 
 Trk::MaterialEffectsOnTrack::MaterialEffectsOnTrack(
@@ -63,7 +63,7 @@ Trk::MaterialEffectsOnTrack::MaterialEffectsOnTrack(
   , m_scatteringAngles(std::nullopt)
   , m_energyLoss(eloss) // take ownership
 {
-  assert(m_energyLoss != 0);
+  //nop
 }
 
 Trk::MaterialEffectsOnTrack::MaterialEffectsOnTrack(const double tInX0,
