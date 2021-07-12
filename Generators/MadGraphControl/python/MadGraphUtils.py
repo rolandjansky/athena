@@ -195,7 +195,12 @@ def new_process(process='generate p p > t t~\noutput -f', keepJpegs=False, usePM
     Return the name of the process directory.
     """
     if config_only_check():
-        return
+        # Give some directories to work on
+        try:
+            os.makedirs('dummy_proc/Cards')
+        except os.error:
+            pass
+        return 'dummy_proc'
 
     # Don't run if generating events from gridpack
     if is_gen_from_gridpack():
@@ -2093,6 +2098,10 @@ def modify_run_card(run_card_input=None,run_card_backup=None,process_dir=MADGRAP
     This function can get a fresh runcard from DATAPATH or start from the process directory.
     Settings is a dictionary of keys (no spaces needed) and values to replace.
     """
+    if config_only_check():
+        mglog.info('Running config-only. No proc card, so not operating on the run card.')
+        return
+
     # Operate on lower case settings, and choose the capitalization MG5 has as the default (or all lower case)
     for s in list(settings.keys()):
         if s.lower() not in settings:
@@ -2305,6 +2314,12 @@ def is_gen_from_gridpack():
 
 
 def get_default_config_card(process_dir=MADGRAPH_GRIDPACK_LOCATION):
+    if config_only_check():
+        mglog.info('Athena running on config only mode: grabbing config card the old way, as there will be no proc dir')
+        if os.access(os.environ['MADPATH']+'/input/mg5_configuration.txt',os.R_OK):
+            shutil.copy(os.environ['MADPATH']+'/input/mg5_configuration.txt','local_mg5_configuration.txt')
+            return 'local_mg5_configuration.txt'
+
     lo_config_card=process_dir+'/Cards/me5_configuration.txt'
     nlo_config_card=process_dir+'/Cards/amcatnlo_configuration.txt'
 
@@ -2332,6 +2347,8 @@ def get_cluster_type(process_dir=MADGRAPH_GRIDPACK_LOCATION):
 
 def is_NLO_run(process_dir=MADGRAPH_GRIDPACK_LOCATION):
     # Very simple check based on the above config card grabbing
+    if config_only_check():
+        return False
     return get_default_config_card(process_dir=process_dir)==process_dir+'/Cards/amcatnlo_configuration.txt'
 
 
