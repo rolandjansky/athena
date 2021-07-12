@@ -82,26 +82,42 @@ namespace LVL1 {
       unsigned word;
       bool pass;
     };
+    struct RPCFlagDecision
+    {
+      RPCFlagDecision(const bool& M) {word = M;pass=false;}
+
+      //implement < operator so we can store this type in a set
+      bool operator<(const RPCFlagDecision& rhs) const {return word < rhs.word;}
+
+      unsigned word;
+      bool pass;
+    };
 
     bool isExcludedRPCROI(const TrigConf::L1ThrExtraInfo_MU& menuExtraInfo,
                           const std::string& rpcExclROIList,
                           unsigned roi,
                           unsigned sectorID,
                           bool isSideC) const;
+
     bool getTGCDecision(const std::string& tgcFlags, bool F, bool C, bool H) const;
     void makeTGCDecision(const std::string& tgcFlags, bool F, bool C, bool H);
-    void parseTGCFlags(const std::string& tgcFlags);
+
+    bool getRPCDecision(const std::string& rpcFlags, bool M) const;
+    void makeRPCDecision(const std::string& rpcFlags, bool M);
+
+    void parseFlags(const std::string& flags);
     std::vector<std::string> parseString(std::string str, std::string sep) const;
-    std::string getShapedTGCFlags(const std::string& tgcFlags) const;
+    std::string getShapedFlags(const std::string& flags) const;
 
     ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_rpcTool{this, "RPCRecRoiTool", "LVL1::TrigT1RPCRecRoiTool/LVL1__TrigT1RPCRecRoiTool", "Tool to get the eta/phi coordinates in the RPC"};
     ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_tgcTool{this, "TGCRecRoiTool", "LVL1::TrigT1TGCRecRoiTool/LVL1__TrigT1TGCRecRoiTool", "Tool to get the eta/phi coordinates in the TGC"};
 
-    //buffered parsed TGC flags
-    std::map<std::string, std::vector<std::vector<std::string> > > m_parsed_tgcFlags;
+    //buffered parsed TGC/RPC flags
+    std::map<std::string, std::vector<std::vector<std::string> > > m_parsed_flags;
 
-    //buffered set of decisions for words that have been checked for each TGC flag
+    //buffered set of decisions for words that have been checked for each TGC/RPC flag
     std::map<std::string, std::set<TGCFlagDecision> > m_tgcFlag_decisions;
+    std::map<std::string, std::set<RPCFlagDecision> > m_rpcFlag_decisions;
   };
 
 }
