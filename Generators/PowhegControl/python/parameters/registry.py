@@ -66,6 +66,7 @@ class Registry(metaclass=Singleton):
         self.add_default("chainA", "''", frozen=True, description="UNUSED. weakino decay chain.")
         self.add_default("chainB", "''", frozen=True, description="UNUSED. weakino decay chain.")
         self.add_default("channel_type", 0, description="channels for VBF ZZ. [0:all (default), 7: all Neutral Currents, 1:ucuc-type NC, 2:usus-type NC, 3:dcdc-type NC, 4:dsds-type NC, 8: all Charged Currents, 5: usdc-type CC, 6: dcus-type CC]")
+        self.add_default("channel", -1, description="bb4l decay code")
         self.add_default("charmmass", powheg_atlas_common.mass.c, name="mass_c", description="c-quark mass in GeV (loops enabled if <= 0)")
         self.add_default("charmthr", powheg_atlas_common.mass.c, description="minimum pT in GeV for generating emission off c-quarks. [<0:default to 1.5]")
         self.add_default("charmthrpdf", powheg_atlas_common.mass.c, description="threshold in GeV at which c-quark PDF becomes non-zero. [<0:default to 1.5]")

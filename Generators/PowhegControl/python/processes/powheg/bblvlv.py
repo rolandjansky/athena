@@ -22,6 +22,14 @@ class bblvlv(PowhegRES):
         # This is a hacky fix that's needed at the moment...
         self.manually_set_openloops_paths()
 
+        # Add parameter validation functions
+        self.validation_functions.append("validate_decays")
+
+        ## List of allowed decay modes
+        self.allowed_decay_modes = ["b mu+ vmu b~ e- ve~", "b e+ ve b~ mu- vmu~", "b emu+ vemu b~ emu- vemu~",\
+                                    "b tau+ vtau b~ e- ve~", "b e+ ve b~ tau- vtau~", \
+                                    "b mu+ vmu b~ tau- vtau~", "b tau+ vtau b~ mu- vmu~", "b l+ vl b~ l- vl~"]
+
         # Add all keywords for this process, overriding defaults if required
         self.add_keyword("allrad", 1)
         self.add_keyword("alpha")
@@ -158,4 +166,17 @@ class bblvlv(PowhegRES):
         self.add_keyword("zerowidth")
         self.add_keyword("zmass")
         self.add_keyword("zwidth")
+        self.add_keyword("channel", self.allowed_decay_modes[7], name="decay_mode")
 
+    def validate_decays(self):
+        """! Validate decay_mode keyword."""
+        self.expose()  # convenience call to simplify syntax
+        if self.decay_mode not in self.allowed_decay_modes:
+            logger.warning("Decay mode {} not recognised!".format(self.decay_mode))
+            raise ValueError("Decay mode {} not recognised!".format(self.decay_mode))
+        # Calculate appropriate decay mode numbers
+
+        __decay_mode_lookup = {"b mu+ vmu b~ e- ve~" : 0, "b e+ ve b~ mu- vmu~" : 1, "b emu+ vemu b~ emu- vemu~" : 2,\
+                               "b tau+ vtau b~ e- ve~" : 3, "b e+ ve b~ tau- vtau~" : 4, \
+                               "b mu+ vmu b~ tau- vtau~" : 5, "b tau+ vtau b~ mu- vmu~" : 6, "b l+ vl b~ l- vl~" : 7}
+        self.parameters_by_keyword("channel")[0].value = __decay_mode_lookup[self.decay_mode]
