@@ -203,7 +203,8 @@ int TauCombinedTES::getEtaIndex(const float& eta) const {
   if (std::abs(eta) < 1.6) {
     return 3;
   }
-  if (std::abs(eta) < 2.5) {
+  // slightly extend the tau eta range, as |eta|<2.5 applies to the seed jet
+  if (std::abs(eta) < 2.6) {
     return 4;
   }
 
@@ -326,8 +327,10 @@ double TauCombinedTES::getWeight(const double& caloSigma,
   double cov = correlation * caloSigma * panTauSigma;
   double caloWeight = std::pow(panTauSigma, 2) - cov;
   double panTauWeight = std::pow(caloSigma, 2) - cov;
-
-  return caloWeight/(caloWeight + panTauWeight);
+  
+  double weight = (caloWeight + panTauWeight !=0.) ? caloWeight/(caloWeight + panTauWeight) : 0.;
+  // enforce that the weight is within [0,1]
+  return std::clamp(weight, 0., 1.);
 }
 
 
