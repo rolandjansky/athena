@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 
-from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSeq, tauCaloMVAMenuSeq, tauFTFTauSeq, tauFTFTauCoreSeq, tauFTFTauIsoSeq, tauFTFTauIsoBDTSeq, tauTrackPrecSeq, tauTrackTwoPrecSeq, tauTrackTwoMVASeq, tauTrackTwoLLPSeq, tauPreSelSeq, tauPreSelTTSeq, tauPrecTrackSeq, tauPrecTrackIsoSeq
+from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSeq, tauCaloMVAMenuSeq, tauFTFTauSeq, tauFTFTauCoreSeq, tauFTFTauIsoSeq, tauFTFTauIsoBDTSeq, tauTrackPrecSeq, tauTrackTwoPrecSeq, tauTrackTwoMVASeq, tauTrackTwoLLPSeq, tauPreSelSeq, tauPreSelTTSeq, tauPrecTrackSeq, tauPrecTrackIsoSeq, tauTrackTwoMVATestSeq
 
 #--------------------------------------------------------
 # fragments generating config will be functions in new JO
@@ -42,6 +42,9 @@ def getTrackTwoPrecCfg(flags):
 
 def getTrackTwoMVACfg(flags):
     return tauTrackTwoMVASeq()
+
+def getTrackTwoMVATestCfg(flags):
+    return tauTrackTwoMVATestSeq()
 
 def getTrackTwoLLPCfg(flags):
     return tauTrackTwoLLPSeq()
@@ -82,6 +85,7 @@ class TauChainConfiguration(ChainConfigurationBase):
             "track"         :['getCaloSeq'   , 'getFTFTau'  , 'getTrkEmpty' , 'getPreSel'    , 'getPrecTrack'    , 'getTrackPrec'   ], 
             "tracktwo"      :['getCaloSeq'   , 'getFTFCore' , 'getFTFIso'   , 'getPreSelTT'  , 'getPrecTrackIso' , 'getTrackTwoPrec'],
             "tracktwoMVA"   :['getCaloMVASeq', 'getFTFCore' , 'getFTFIso'   , 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoMVA' ],
+            "tracktwoMVATest" :['getCaloMVASeq', 'getFTFCore' , 'getFTFIso'   , 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoMVATest' ],
             "tracktwoMVABDT":['getCaloMVASeq', 'getFTFCore' , 'getFTFIsoBDT', 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoMVA' ],
             "tracktwoLLP":['getCaloMVASeq', 'getFTFCore' , 'getFTFIsoBDT', 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoLLP' ],
         }
@@ -181,6 +185,11 @@ class TauChainConfiguration(ChainConfigurationBase):
     def getTrackTwoMVA(self):
         stepName = "TrkTwoMVA_tau"
         return self.getStep(6,stepName,[getTrackTwoMVACfg])
+
+    # --------------------                                                                                                                                                                                                            
+    def getTrackTwoMVATest(self):
+        stepName = "TrkTwoMVATest_tau"
+        return self.getStep(6,stepName,[getTrackTwoMVATestCfg])
 
     # --------------------                                                                                                      
     def getTrackTwoLLP(self):
