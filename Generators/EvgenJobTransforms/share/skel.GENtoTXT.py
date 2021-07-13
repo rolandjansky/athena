@@ -24,6 +24,7 @@ acam.athMasterSeq += acas.AlgSequence("EvgenPreFilterSeq")
 prefiltSeq = acam.athMasterSeq.EvgenPreFilterSeq
 acam.athFilterSeq += acas.AlgSequence("EvgenTestSeq")
 testSeq = acam.athFilterSeq.EvgenTestSeq
+
 ## NOTE: LogicalExpressionFilter is an algorithm, not a sequence
 from EvgenProdTools.LogicalExpressionFilter import LogicalExpressionFilter
 acam.athFilterSeq += LogicalExpressionFilter("EvgenFilterSeq")
@@ -115,6 +116,7 @@ postSeq.CountHepMC.FirstEvent = runArgs.firstEvent
 postSeq.CountHepMC.CorrectHepMC = True
 postSeq.CountHepMC.CorrectEventID = True
 
+# here you would need to implement looping  over all inputs and for each name call your routine
 
 ##==============================================================
 ## Pre- and main config parsing
@@ -147,9 +149,25 @@ def OutputTXTFile():
     if hasattr(runArgs,"outputTXTFile"): outputTXTFile=runArgs.outputTXTFile
     return outputTXTFile
 
-## Main job option include
-## Only permit one jobConfig argument for evgen: does more than one _ever_ make sense?
-print "number of job config anguments len(runArgs.jobConfig) = ", len(runArgs.jobConfig)
+lheFileToCheck = None
+# first check if output TXT file is defined
+if hasattr(runArgs,"outputTXTFile"): 
+    lheFileToCheck=runArgs.outputTXTFile
+# now check if input LHE file defined and it is single
+if hasattr(runArgs,"inputGeneratorFile") and ',' not in runArgs.inputGeneratorFile:
+    lheFileToCheck=runArgs.inputGeneratorFile
+#in case of multiplu inputs, you will have to check all of them, so
+if hasattr(runArgs,"inputGeneratorFile") and ',' in runArgs.inputGeneratorFile:
+    multiInput=runArgs.inputGeneratorFile.count(',')+1
+
+if hasattr(runArgs, "outputTXTFile") or hasattr(runArgs, "inputGeneratorFile"):
+    from EvgenProdTools.EvgenProdToolsConf import TestLHE
+    if not hasattr(genSeq, "TestLHE"):
+        genSeq += TestLHE()
+
+# Main job option include
+# Only permit one jobConfig argument for evgen: does more than one _ever_ make sense?
+print "job config", len(runArgs.jobConfig)
 
 if len(runArgs.jobConfig) != 1:
     print "runArgs.jobConfig = ", runArgs.jobConfig
@@ -233,6 +251,9 @@ include("EvgenJobTransforms/LHEonly.py")
 ## Announce start of JO checking
 evgenLog.debug("****************** CHECKING EVGEN CONFIGURATION *****************")
 print ("****************** CHECKING EVGEN CONFIGURATION *****************")
+
+if hasattr(runArgs,'inputGeneratorFile') and int(evgenConfig.inputFilesPerJob) == 0 : 
+   evgenConfig.inputFilesPerJob = 1 
 
 ## Print out options
 for opt in str(evgenConfig).split(os.linesep):
@@ -552,7 +573,6 @@ elif "HepMCAscii" in evgenConfig.generators:
 elif "ReadMcAscii" in evgenConfig.generators:
     eventsFile = "events.hepmc"
 elif gens_lhef(evgenConfig.generators):
-   #eventsFile = outputTXTFile
    eventsFile = "events.lhe"
 
 
@@ -719,6 +739,9 @@ with open(eventsFile) as f:
 
 evgenLog.info('Requested output events = '+str(count_ev))    
 print "MetaData: %s = %s" % ("Number of produced LHE events ", count_ev)
+
+if hasattr(runArgs, "outputTXTFile") or hasattr(runArgs, "inputGeneratorFile"):
+      print("inputGeneratorFile eA : ",eventsFile)
 
 if _checkattr("description", required=True):
     msg = evgenConfig.description

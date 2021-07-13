@@ -22,6 +22,7 @@ acam.athMasterSeq += acas.AlgSequence("EvgenPreFilterSeq")
 prefiltSeq = acam.athMasterSeq.EvgenPreFilterSeq
 acam.athFilterSeq += acas.AlgSequence("EvgenTestSeq")
 testSeq = acam.athFilterSeq.EvgenTestSeq
+
 ## NOTE: LogicalExpressionFilter is an algorithm, not a sequence
 from EvgenProdTools.LogicalExpressionFilter import LogicalExpressionFilter
 acam.athFilterSeq += LogicalExpressionFilter("EvgenFilterSeq")
@@ -211,6 +212,13 @@ def OutputTXTFile():
     return outputTXTFile
 ## Main job option include
 ## Only permit one jobConfig argument for evgen: does more than one _ever_ make sense?
+
+if hasattr(runArgs, "inputGeneratorFile") or hasattr(runArgs, "outputTXTFile") or os.path.isfile("events.lhe") :
+    from EvgenProdTools.EvgenProdToolsConf import TestLHE
+    if not hasattr(genSeq, "TestLHE"):
+        genSeq += TestLHE()
+        print "lheFile events.lhe exists in current directory. Will execute TestLHE checks"
+
 if len(runArgs.jobConfig) != 1:
     print "INFO    runArgs.jobConfig = ", runArgs.jobConfig
     evgenLog.error("You must supply one and only one jobConfig file argument")

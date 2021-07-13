@@ -104,6 +104,9 @@ postSeq.CountHepMC.FirstEvent = runArgs.firstEvent
 postSeq.CountHepMC.CorrectHepMC = True
 postSeq.CountHepMC.CorrectEventID = True
 
+from EvgenProdTools.EvgenProdToolsConf import TestLHE
+if not hasattr(testSeq, "TestLHE")
+    testSeq += TestLHE()
 
 ##==============================================================
 ## Pre- and main config parsing
