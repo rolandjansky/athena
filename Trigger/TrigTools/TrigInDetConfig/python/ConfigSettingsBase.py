@@ -32,6 +32,7 @@ class _ConfigSettingsBase() :
       self._electronPID         = False
       self._etaHalfWidth        = 0.1
       self._phiHalfWidth        = 0.1
+      self._zedHalfWidth        = -999 # don't set this parameter unless it is >= 0
       self._doFullScan          = False
       self._monPS               = 1
       self._monPtMin            = 1*GeV
@@ -175,6 +176,10 @@ class _ConfigSettingsBase() :
    @property
    def phiHalfWidth(self):
       return self._phiHalfWidth
+
+   @property
+   def zedHalfWidth(self):
+      return self._zedHalfWidth
 
    @property
    def doFullScan(self):

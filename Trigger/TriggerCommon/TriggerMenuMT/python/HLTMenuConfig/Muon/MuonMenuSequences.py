@@ -716,6 +716,7 @@ def muEFIsoAlgSequence(ConfigFlags, doMSiso=False):
     IDConfig = getInDetTrigConfig("muonIso")
     newRoITool.RoIEtaWidth=IDConfig.etaHalfWidth
     newRoITool.RoIPhiWidth=IDConfig.phiHalfWidth
+    newRoITool.RoIZedWidth=IDConfig.zedHalfWidth
     if doMSiso:
         newRoITool.RoisWriteHandleKey = "Roi_MuonIsoMS"
     else:

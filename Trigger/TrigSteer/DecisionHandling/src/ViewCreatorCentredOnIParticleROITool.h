@@ -9,6 +9,7 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #include "StoreGate/WriteHandleKey.h"
 #include "DecisionHandling/IViewCreatorROITool.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
+#include "xAODMuon/Muon.h"
 
 /**
  * @class ViewCreatorCentredOnIParticleROITool
@@ -45,6 +46,9 @@ public:
 
   Gaudi::Property< double > m_roiPhiWidth{this,"RoIPhiWidth",0.1,
     "Extent of the ROI in phi from its centre"};
+
+  Gaudi::Property< double > m_roiZedWidth{this,"RoIZedWidth",-999,
+    "Extent of the ROI in zed from its centre"};
 
 };
 
