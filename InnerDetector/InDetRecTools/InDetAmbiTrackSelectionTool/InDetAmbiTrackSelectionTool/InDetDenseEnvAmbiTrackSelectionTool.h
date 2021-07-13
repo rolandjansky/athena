@@ -16,6 +16,7 @@
 
 #include "AthenaKernel/SlotSpecificObj.h"
 #include "InDetRecToolInterfaces/ITrtDriftCircleCutTool.h"
+#include "InDetRecToolInterfaces/IInDetEtaDependentCutsSvc.h"
 #include "PixelGeoModel/IBLParameterSvc.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
@@ -425,6 +426,9 @@ namespace InDet
     /** TRT minimum number of drift circles tool- returns allowed minimum number of TRT drift circles */
     PublicToolHandle<ITrtDriftCircleCutTool>  m_selectortool{this, "DriftCircleCutTool", "InDet::InDetTrtDriftCircleCutTool"};
     ServiceHandle<IBLParameterSvc> m_IBLParameterSvc{this, "IBLParameterSvc", "IBLParameterSvc"};
+
+    /** ITk eta-dependet cuts*/
+    ServiceHandle<IInDetEtaDependentCutsSvc> m_etaDependentCutsSvc{this, "InDetEtaDependentCutsSvc", ""};
       
     /**atlas id helper*/
     const SiliconID* m_detID{nullptr};
