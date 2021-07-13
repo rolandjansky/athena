@@ -153,7 +153,6 @@ StatusCode TileCablingSvc::initialize() {
     int run1 = atlasVersion.compare(0,8,"ATLAS-R1");
     int ibl  = atlasVersion.compare(0,9,"ATLAS-IBL");
     int run2 = atlasVersion.compare(0,8,"ATLAS-R2");
-    int slhc = atlasVersion.compare(0,10,"ATLAS-SLHC");
     int upg  = atlasVersion.compare(0,7,"ATLAS-P") ;
     int comm = atlasVersion.compare(0,10,"ATLAS-Comm");
 
@@ -162,14 +161,13 @@ StatusCode TileCablingSvc::initialize() {
     bool upgradeABC = (tileID->cell_hash_max() == MAX_TILE_CELLS_UPGRADEABC);
 
     // choose which geometries are true RUN2 geometries to apply run2 cabling
-    bool nothing_found = (ctb*geo*run1*ibl*run2*slhc*upg*comm != 0);
+    bool nothing_found = (ctb*geo*run1*ibl*run2*upg*comm != 0);
     GeoModel::GeoConfig geoConfig = geoModel->geoConfig();
     bool RUN2 = (nothing_found && (geoConfig==GeoModel::GEO_RUN2 
                                    || geoConfig==GeoModel::GEO_RUN3
                                    )) || (run2 == 0);
-    bool RUN4 = (nothing_found && (geoConfig==GeoModel::GEO_RUN4
-                                   || geoConfig==GeoModel::GEO_ITk));
-    //|| (ibl == 0 || slhc == 0 || upg == 0);
+    bool RUN4 = (nothing_found && geoConfig==GeoModel::GEO_RUN4);
+    //|| (ibl == 0 || upg == 0);
 
     if (RUN2) {
 
@@ -204,7 +202,7 @@ StatusCode TileCablingSvc::initialize() {
     }  else if (ctb == 0) {
       ATH_MSG_INFO( "CTB geometry detected: " << atlasVersion );
       m_cablingType = TileCablingService::TestBeam;
-    } else if (geo == 0 || run1 == 0 || ibl == 0 || run2 == 0 || slhc == 0 || upg == 0) {
+    } else if (geo == 0 || run1 == 0 || ibl == 0 || run2 == 0 || upg == 0) {
       ATH_MSG_INFO( "RUN1 ATLAS geometry detected: " << atlasVersion );
       m_cablingType = TileCablingService::MBTSOnly;
     } else if (comm == 0) {

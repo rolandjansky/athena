@@ -126,8 +126,6 @@ StatusCode GeoDbTagSvc::setupTags()
       m_geoConfig = GeoModel::GEO_RUN2;
     else if(configVal=="RUN4")
       m_geoConfig = GeoModel::GEO_RUN4;
-    else if(configVal=="ITk")
-      m_geoConfig = GeoModel::GEO_ITk;
     else if(configVal=="TESTBEAM")
       m_geoConfig = GeoModel::GEO_TESTBEAM;
     else {
