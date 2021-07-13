@@ -48,49 +48,10 @@ StatusCode CopyPileupParticleTruthInfo::execute(const EventContext& ctx) const
 
   outputContainer->reserve(bkgContainer->size());
 
-  const static SG::AuxElement::Decorator< unsigned int > originDecorator("classifierParticleOrigin");
-  const static SG::AuxElement::Decorator< unsigned int > typeDecorator("classifierParticleType");
-  const static SG::AuxElement::Decorator< unsigned int > outcomeDecorator("classifierParticleOutCome");
-  const static SG::AuxElement::Decorator< unsigned int > classificationDecorator("Classification");
-  const static SG::AuxElement::Decorator< int > parentHadronIDDecorator("parentHadronID");  // check type
-  const static SG::AuxElement::Decorator< int > eventNumberDecorator("pileupEventNumber");
-const static SG::AuxElement::Decorator< float > pVzDecorator("PVz");
-
   for (const xAOD::TruthParticle *bkgTruthParticle : *bkgContainer.cptr()) {
     xAOD::TruthParticle *xTruthParticle = new xAOD::TruthParticle();
     outputContainer->push_back(xTruthParticle);
-    //*truthParticle = *bkgTruthParticle;
-    // Fill with numerical content
-    xTruthParticle->setPdgId(bkgTruthParticle->pdgId());
-    xTruthParticle->setBarcode(bkgTruthParticle->barcode());
-    xTruthParticle->setStatus(bkgTruthParticle->status());
-    xTruthParticle->setM(bkgTruthParticle->m());
-    xTruthParticle->setPx(bkgTruthParticle->px());
-    xTruthParticle->setPy(bkgTruthParticle->py());
-    xTruthParticle->setPz(bkgTruthParticle->pz());
-    xTruthParticle->setE(bkgTruthParticle->e());
-    // Copy over the decorations if they are available
-    if (bkgTruthParticle->isAvailable<unsigned int>("classifierParticleType")) {
-      typeDecorator(*xTruthParticle) = bkgTruthParticle->auxdata< unsigned int >( "classifierParticleType" );
-    } else {typeDecorator(*xTruthParticle) = 0;}
-    if (bkgTruthParticle->isAvailable<unsigned int>("classifierParticleOrigin")) {
-      originDecorator(*xTruthParticle) = bkgTruthParticle->auxdata< unsigned int >( "classifierParticleOrigin" );
-    } else {originDecorator(*xTruthParticle) = 0;}
-    if (bkgTruthParticle->isAvailable<unsigned int>("classifierParticleOutCome")) {
-      outcomeDecorator(*xTruthParticle) = bkgTruthParticle->auxdata< unsigned int >( "classifierParticleOutCome" );
-    } else {outcomeDecorator(*xTruthParticle) = 0;}
-    if (bkgTruthParticle->isAvailable<unsigned int>("Classification")) {
-      classificationDecorator(*xTruthParticle) = bkgTruthParticle->auxdata< unsigned int >( "Classification" );
-    } else {classificationDecorator(*xTruthParticle) = 0;}
-    if (bkgTruthParticle->isAvailable<int>("parentHadronID")) {
-      parentHadronIDDecorator(*xTruthParticle) = bkgTruthParticle->auxdata< int >( "parentHadronID" );
-    } else {parentHadronIDDecorator(*xTruthParticle) = 0;}
-    if (bkgTruthParticle->isAvailable<float>("PVz")) {
-      pVzDecorator(*xTruthParticle) = bkgTruthParticle->auxdata< float >( "PVz" );
-    } else {pVzDecorator(*xTruthParticle) = 0.f;}
-    if (bkgTruthParticle->isAvailable<int>("pileupEventNumber")) {
-      eventNumberDecorator(*xTruthParticle) = bkgTruthParticle->auxdata< int >( "pileupEventNumber" );
-    } else {eventNumberDecorator(*xTruthParticle) = 0;}
+    *xTruthParticle = *bkgTruthParticle;
   }
 
   ATH_MSG_DEBUG("execute() end");

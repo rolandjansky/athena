@@ -160,49 +160,14 @@ StatusCode MergeTruthParticlesTool::processTruthParticleContainer(const xAOD::Tr
   if (!inputTruthParticleContainer || !outputTruthParticleContainer) { return StatusCode::FAILURE; }
 
   // Set up decorators
-  const static SG::AuxElement::Decorator< unsigned int > originDecorator("classifierParticleOrigin");
-  const static SG::AuxElement::Decorator< unsigned int > typeDecorator("classifierParticleType");
-  const static SG::AuxElement::Decorator< unsigned int > outcomeDecorator("classifierParticleOutCome");
-  const static SG::AuxElement::Decorator< unsigned int > classificationDecorator("Classification");
-  const static SG::AuxElement::Decorator< int > parentHadronIDDecorator("parentHadronID");  // check type
-  const static SG::AuxElement::Decorator< int > eventNumberDecorator("pileupEventNumber");
-  const static SG::AuxElement::Decorator< float > pVzDecorator("PVz");
+  const static SG::AuxElement::Accessor< int > eventNumberAccessor("pileupEventNumber");
 
-  const xAOD::TruthParticleContainer::const_iterator endOfTruthParticles(inputTruthParticleContainer->end());
-  for (xAOD::TruthParticleContainer::const_iterator truthParticleIter(inputTruthParticleContainer->begin()); truthParticleIter != endOfTruthParticles; ++truthParticleIter) {
-    const xAOD::TruthParticle* theParticle = *truthParticleIter;
+  for (const xAOD::TruthParticle *theParticle : *inputTruthParticleContainer) {
     xAOD::TruthParticle* xTruthParticle = new xAOD::TruthParticle();
     outputTruthParticleContainer->push_back(xTruthParticle);
-    // Fill with numerical content
-    xTruthParticle->setPdgId(theParticle->pdgId());
-    xTruthParticle->setBarcode(theParticle->barcode());
-    xTruthParticle->setStatus(theParticle->status());
-    xTruthParticle->setM(theParticle->m());
-    xTruthParticle->setPx(theParticle->px());
-    xTruthParticle->setPy(theParticle->py());
-    xTruthParticle->setPz(theParticle->pz());
-    xTruthParticle->setE(theParticle->e());
-    // Copy over the decorations if they are available
-    if (theParticle->isAvailable<unsigned int>("classifierParticleType")) {
-      typeDecorator(*xTruthParticle) = theParticle->auxdata< unsigned int >( "classifierParticleType" );
-    } else {typeDecorator(*xTruthParticle) = 0;}
-    if (theParticle->isAvailable<unsigned int>("classifierParticleOrigin")) {
-      originDecorator(*xTruthParticle) = theParticle->auxdata< unsigned int >( "classifierParticleOrigin" );
-    } else {originDecorator(*xTruthParticle) = 0;}
-    if (theParticle->isAvailable<unsigned int>("classifierParticleOutCome")) {
-      outcomeDecorator(*xTruthParticle) = theParticle->auxdata< unsigned int >( "classifierParticleOutCome" );
-    } else {outcomeDecorator(*xTruthParticle) = 0;}
-    if (theParticle->isAvailable<unsigned int>("Classification")) {
-      classificationDecorator(*xTruthParticle) = theParticle->auxdata< unsigned int >( "Classification" );
-    } else {classificationDecorator(*xTruthParticle) = 0;}
-    if (theParticle->isAvailable<int>("parentHadronID")) {
-      parentHadronIDDecorator(*xTruthParticle) = theParticle->auxdata< int >( "parentHadronID" );
-    } else {parentHadronIDDecorator(*xTruthParticle) = 0;}
-    if (theParticle->isAvailable<float>("PVz")) {
-      pVzDecorator(*xTruthParticle) = theParticle->auxdata< float >( "PVz" );
-    } else {pVzDecorator(*xTruthParticle) = 0.f;}
+    *xTruthParticle = *theParticle; // deep-copy
     // add the pile-up event number
-    eventNumberDecorator(*xTruthParticle) = eventNumber;
+    eventNumberAccessor(*xTruthParticle) = eventNumber;
   }
   return StatusCode::SUCCESS;
 }
