@@ -247,12 +247,11 @@ void StripBoxDesign::distanceToDetectorEdge(SiLocalPosition const & pos,
 
 }
 
-  const GeoTrf::Transform3D StripBoxDesign::SiHitToGeoModel() const {
-    return GeoTrf::RotateY3D(90.*GeoModelKernelUnits::deg);
-  }
-
   const  Amg::Transform3D StripBoxDesign::moduleShift() const{
-    //local x is global Z (along strip)  
+    //local x is global Z (along strip) 
+    //This is defined by the detector geometry
+    //i.e. <param name="stripDirection" value="x"/>
+    //in Sensors.gmx
     return Amg::Translation3D(m_zShift,0.0, 0.0) * Amg::RotationMatrix3D::Identity();
   }
   

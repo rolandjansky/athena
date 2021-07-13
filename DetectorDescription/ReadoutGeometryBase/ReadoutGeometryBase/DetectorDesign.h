@@ -179,10 +179,6 @@ public:
     /**  Element boundary */
     virtual const Trk::SurfaceBounds &bounds() const = 0;
 
-    /** Transform from SiHit to GeoModel frame */
-    //virtual const HepGeom::Transform3D SiHitToGeoModel() const;
-    virtual const Amg::Transform3D SiHitToGeoModel() const;
-
     //Transform for "split" modules
     virtual const Amg::Transform3D moduleShift() const;
 
