@@ -240,7 +240,7 @@ StatusCode TrigBmumuxComboHypo::findDimuonCandidates(TrigBmumuxState& state) con
   const auto& muons = state.muons;
   std::vector<ElementLink<xAOD::TrackParticleContainer>> trackParticleLinks(2);
   std::vector<const DecisionIDContainer*> previousDecisionIDs(2, nullptr);
-  
+
   for (size_t itrk1 = 0; itrk1 < muons.size(); ++itrk1) {
     const xAOD::Muon* mu1 = *muons[itrk1].link;
     trackParticleLinks[0] = mu1->inDetTrackParticleLink();
@@ -508,7 +508,7 @@ StatusCode TrigBmumuxComboHypo::findBmumuxCandidates(TrigBmumuxState& state) con
            //auto charge3 = trk3->charge();
 
 
-           if(m_Bc_DsMuMuDecay && 
+           if(m_Bc_DsMuMuDecay &&
                 p_trk1.Pt() > m_LambdaBToMuMuProtonKaon_minKaonPt &&
                 p_trk2.Pt() > m_LambdaBToMuMuProtonKaon_minKaonPt &&
                 isInMassRange((p_trk1.SetM(PDG::mKaon) + p_trk2.SetM(PDG::mKaon)).M(), m_rangePhiDs_MassCut) &&
@@ -523,7 +523,7 @@ StatusCode TrigBmumuxComboHypo::findBmumuxCandidates(TrigBmumuxState& state) con
               }
            }
 
-           if(m_Bc_DpMuMuDecay && 
+           if(m_Bc_DpMuMuDecay &&
                 p_trk1.Pt() > m_Bc_DpMuMuKaon_minKaonPt &&
                 isInMassRange((p_trk1.SetM(PDG::mKaon) + p_trk2.SetM(PDG::mPion) + p_trk3.SetM(PDG::mPion)).M(), m_rangeDp_MassCut) ){
               if (!vtx3 && makeFit_vtx3){
@@ -724,28 +724,30 @@ bool TrigBmumuxComboHypo::isIdenticalTracks(const xAOD::Muon* lhs, const xAOD::M
 bool TrigBmumuxComboHypo::passDimuonTrigger(const std::vector<const DecisionIDContainer*>& previousDecisionIDs) const {
 
   if (previousDecisionIDs.size() != 2) {
+    ATH_MSG_WARNING( "TrigBmumuxComboHypo::passDimuonTrigger() expects exactly two containers with previous decision IDs" );
     return false;
   }
 
   for (const auto& tool : hypoTools()) {
-    std::vector<HLT::Identifier> legDecisionIDs;
-    legDecisionIDs.reserve(2);
-    if (tool->legDecisionIds().size() == 2) { // Muons on two legs
-      legDecisionIDs = tool->legDecisionIds();
-    } else if (tool->legDecisionIds().size() == 1 and tool->legMultiplicity().at(0) >= 2) { // Two muons on one leg
-      legDecisionIDs[0] = tool->legDecisionId(0);
-      legDecisionIDs[1] = tool->legDecisionId(0);
-    } else {
-      continue;
+    const std::vector<HLT::Identifier>& legDecisionIDs = tool->legDecisionIds();
+    if (legDecisionIDs.size() == 1 && tool->legMultiplicity().at(0) >= 2) {
+      // trigger with symmetric legs like HLT_2mu4_bBmumux_BsmumuPhi_L12MU4
+      const DecisionID id = legDecisionIDs[0].numeric();
+      if (TrigCompositeUtils::passed(id, *previousDecisionIDs[0]) && TrigCompositeUtils::passed(id, *previousDecisionIDs[1])) return true;
     }
-
-    bool direct = true;
-    bool inverse = true;
-    for (size_t i = 0; i < 2; ++i) {
-      if (direct && !TrigCompositeUtils::passed(legDecisionIDs.at(i).numeric(), *previousDecisionIDs.at(i) ) ) direct = false;
-      if (inverse && !TrigCompositeUtils::passed(legDecisionIDs.at(i).numeric(), *previousDecisionIDs.at(1-i) ) ) inverse = false;
+    else if (legDecisionIDs.size() == 2) {
+      // trigger with asymmetric legs like HLT_mu6_mu4_bBmumux_BsmumuPhi_L1MU6_2MU4
+      bool direct = true;
+      bool inverse = true;
+      for (size_t i = 0; i < 2; ++i) {
+        if (direct && !TrigCompositeUtils::passed(legDecisionIDs[i].numeric(), *previousDecisionIDs[i])) direct = false;
+        if (inverse && !TrigCompositeUtils::passed(legDecisionIDs[i].numeric(), *previousDecisionIDs[1-i])) inverse = false;
+      }
+      if (direct || inverse) return true;
     }
-    if (direct || inverse) return true;
+    else {
+      ATH_MSG_WARNING( "TrigBmumuxComboHypo can not check decisions for " << tool->name() );
+    }
   }
   return false;
 }
