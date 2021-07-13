@@ -81,6 +81,9 @@ InDet::InDetAmbiScoringTool::InDetAmbiScoringTool(const std::string& t,
   declareProperty("phiWidthEM",        m_phiWidthEm   = 0.075 );
   declareProperty("etaWidthEM",        m_etaWidthEm   = 0.05  );
 
+  declareProperty("useITkAmbigFcn",    m_useITkAmbigFcn = false);
+
+
   //set values for scores
   m_summaryTypeScore[Trk::numberOfPixelHits]            =  20;
   m_summaryTypeScore[Trk::numberOfPixelSharedHits]      = -10;  // NOT USED --- a shared hit is only half the weight
@@ -149,6 +152,8 @@ StatusCode InDet::InDetAmbiScoringTool::initialize()
   // Read handle for AtlasFieldCacheCondObj
   ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
   
+  if (not m_etaDependentCutsSvc.name().empty()) ATH_CHECK(m_etaDependentCutsSvc.retrieve());
+
   if (m_useAmbigFcn || m_useTRT_AmbigFcn) setupScoreModifiers();
 
   ATH_CHECK( m_caloROIInfoKey.initialize(m_useEmClusSeed) );
@@ -210,59 +215,75 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
   } else {
     ATH_MSG_DEBUG ("==> this is a refitted track, so we can use the chi2 and other stuff ! ");
 
+    double trackEta = track.trackParameters()->front()->eta();
+
     // NdF cut :
     if (track.fitQuality()) {
       ATH_MSG_DEBUG ("numberDoF = "<<track.fitQuality()->numberDoF());
     }
     // Number of double Holes
     if (numSCTDoubleHoles>=0) {
-      if (numSCTDoubleHoles > m_maxDoubleHoles ) {
+      int maxDoubleHoles = m_etaDependentCutsSvc.name().empty() ?
+	m_maxDoubleHoles :  m_etaDependentCutsSvc->getMaxDoubleHolesAtEta(trackEta);
+      if (numSCTDoubleHoles > maxDoubleHoles ) {
         ATH_MSG_DEBUG ("Track has "<< numSCTDoubleHoles <<" double holes, reject it!");
         return Trk::TrackScore(0);
       }
     }
     // Number of Si (Pixel+SCT) Holes
     if (numSCTHoles>=0 && numPixelHoles>=0) {
-      if (numPixelHoles+numSCTHoles > m_maxSiHoles ) {
+      int maxSiHoles = m_etaDependentCutsSvc.name().empty() ?
+	m_maxSiHoles :  m_etaDependentCutsSvc->getMaxSiHolesAtEta(trackEta);
+      if (numPixelHoles+numSCTHoles > maxSiHoles ) {
         ATH_MSG_DEBUG ("Track has "<< numPixelHoles <<" Pixel and " << numSCTHoles << " SCT holes, reject it!");
         return Trk::TrackScore(0);
       }
     }
     // Number of Pixel Holes
     if ( numPixelHoles>=0 ) {
-      if (numPixelHoles > m_maxPixelHoles ) {
+      int maxPixelHoles = m_etaDependentCutsSvc.name().empty() ?
+	m_maxPixelHoles : m_etaDependentCutsSvc->getMaxPixelHolesAtEta(trackEta);
+      if (numPixelHoles > maxPixelHoles ) {
         ATH_MSG_DEBUG ("Track has "<< numPixelHoles <<" Pixel  holes, reject it!");
         return Trk::TrackScore(0);
       }
     }
     // Number of SCT Holes
     if ( numSCTHoles>=0 ) {
-      if ( numSCTHoles > m_maxSctHoles ) {
+      int maxSctHoles = m_etaDependentCutsSvc.name().empty() ?
+	m_maxSctHoles : m_etaDependentCutsSvc->getMaxSctHolesAtEta(trackEta);
+      if ( numSCTHoles > maxSctHoles ) {
         ATH_MSG_DEBUG ("Track has "<< numSCTHoles << " SCT holes, reject it!");
         return Trk::TrackScore(0);
       }
     }
     // TRT cut
-    if (numTRT > 0 && numTRT < m_minTRTonTrk) {
+    if (!m_useITkAmbigFcn && numTRT > 0 && numTRT < m_minTRTonTrk) {
       ATH_MSG_DEBUG ("Track has " << numTRT << " TRT hits,  reject it");
       return Trk::TrackScore(0);
     }
     // TRT precision hits cut  
-    if (numTRT >= 15 && ((double)(numTRT-numTRTTube))/numTRT < m_minTRTprecision) {  
+    if (!m_useITkAmbigFcn && numTRT >= 15 && ((double)(numTRT-numTRTTube))/numTRT < m_minTRTprecision) {
       ATH_MSG_DEBUG ("Track has " << ((double)numTRTTube)/numTRT << " TRT tube hit fraction,  reject it");
       return Trk::TrackScore(0);  
     }  
     // Number of Si Clusters
     if ( numSCT>=0 && numPixel>=0) {
-      if (numPixel+numSCT+numPixelDead+numSCTDead < m_minSiClusters) {
+      int minSiClusters = m_etaDependentCutsSvc.name().empty() ?
+	m_minSiClusters : m_etaDependentCutsSvc->getMinSiHitsAtEta(trackEta);
+      if (numPixel+numSCT+numPixelDead+numSCTDead < minSiClusters) {
         ATH_MSG_DEBUG ("Track has " << numPixel+numSCT << " Si clusters and " << numPixelDead+numSCTDead << " dead sensors, reject it");
         return Trk::TrackScore(0);
       }
     }
     // Number of pixel clusters
-    if (numPixel>=0 && numPixel < m_minPixel) {
-      ATH_MSG_DEBUG ("Track has " << numPixel << " pixel hits, reject it");
-      return Trk::TrackScore(0);
+    if (numPixel>=0) {
+      int minPixel = m_etaDependentCutsSvc.name().empty() ?
+	m_minPixel : m_etaDependentCutsSvc->getMinPixelHitsAtEta(trackEta);
+      if(numPixel < minPixel) {
+	ATH_MSG_DEBUG ("Track has " << numPixel << " pixel hits, reject it");
+	return Trk::TrackScore(0);
+      }
     }
   }
   //
@@ -276,6 +297,7 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
   Trk::PerigeeSurface perigeeSurface(beamSpotPosition);
 
   const Trk::TrackParameters* input = track.trackParameters()->front();
+  double trackEta = input->eta();
 
   // cuts on parameters
   const EventContext& ctx = Gaudi::Hive::currentContext();
@@ -289,19 +311,22 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
   fieldCondObj->getInitializedCache (fieldCache);
 
   if (fieldCache.solenoidOn()){ 
-    if (fabs(input->pT()) < m_minPt) {
+    double minPt = m_etaDependentCutsSvc.name().empty() ?
+      m_minPt : m_etaDependentCutsSvc->getMinPtAtEta(trackEta);
+    if (std::abs(input->pT()) < minPt) {
       ATH_MSG_DEBUG ("Track pt < "<<m_minPt<<", reject it");
       return Trk::TrackScore(0);
     } 
   }
-  if (fabs(input->eta()) > m_maxEta) {
-    ATH_MSG_DEBUG ("Track eta > "<<m_maxEta<<", reject it");
+  double maxEta = m_etaDependentCutsSvc.name().empty() ?
+    m_maxEta : m_etaDependentCutsSvc->getMaxEta();
+  if (std::abs(input->eta()) > maxEta) {
+    ATH_MSG_DEBUG ("Track eta > "<<maxEta<<", reject it");
     return Trk::TrackScore(0);
   }
 
   // uses perigee on track or extrapolates, no material in any case, we cut on impacts
   // add back extrapolation without errors
-  {
   std::unique_ptr<const Trk::TrackParameters> parm( m_extrapolator->extrapolateDirectly(*input, perigeeSurface) );
 
   const Trk::Perigee*extrapolatedPerigee = dynamic_cast<const Trk::Perigee*> (parm.get());
@@ -311,21 +336,23 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
   }
 
   ATH_MSG_VERBOSE ("extrapolated perigee: "<<*extrapolatedPerigee);
-  if (fabs(extrapolatedPerigee->parameters()[Trk::z0]) > m_maxZImp) {
+  double maxZ0 = m_etaDependentCutsSvc.name().empty() ?
+    m_maxZImp : m_etaDependentCutsSvc->getMaxZImpactAtEta(trackEta);
+  if (std::abs(extrapolatedPerigee->parameters()[Trk::z0]) > maxZ0) {
     ATH_MSG_DEBUG ("Track Z impact > "<<m_maxZImp<<", reject it");
     return Trk::TrackScore(0);
   }
 
-  double maxD0 = m_maxRPhiImp;
+  double maxD0 = m_etaDependentCutsSvc.name().empty() ?
+    m_maxRPhiImp : m_etaDependentCutsSvc->getMaxPrimaryImpactAtEta(trackEta);
   if(m_useEmClusSeed) {
      if (isEmCaloCompatible( track ) ) {
-        maxD0 = m_maxRPhiImpEM;
+       maxD0 = m_maxRPhiImpEM;
      }
   }
-  if (fabs(extrapolatedPerigee->parameters()[Trk::d0]) > maxD0) {
+  if (std::abs(extrapolatedPerigee->parameters()[Trk::d0]) > maxD0) {
     ATH_MSG_DEBUG ("Track Rphi impact > "<<m_maxRPhiImp<<", reject it");
     return Trk::TrackScore(0);
-  }
   }
 
   //
@@ -495,40 +522,42 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::ambigScore( const Trk::Track& track
   //
   // --- special treatment for TRT hits
   //
-  int iTRT_Hits     = trackSummary.get(Trk::numberOfTRTHits);
-  int iTRT_Outliers = trackSummary.get(Trk::numberOfTRTOutliers);
-  //
-  if ( iTRT_Hits > 0 && m_maxTrtRatio > 0) {
-    // get expected number of TRT hits
-    double nTrtExpected = 30.;
-    assert( m_selectortool.isEnabled() );
-    nTrtExpected = m_selectortool->minNumberDCs(track.trackParameters()->front());
-    ATH_MSG_DEBUG ("Expected number of TRT hits: " << nTrtExpected << " for eta: "
+  if (!m_useITkAmbigFcn) {
+    int iTRT_Hits     = trackSummary.get(Trk::numberOfTRTHits);
+    int iTRT_Outliers = trackSummary.get(Trk::numberOfTRTOutliers);
+    //
+    if ( iTRT_Hits > 0 && m_maxTrtRatio > 0) {
+      // get expected number of TRT hits
+      double nTrtExpected = 30.;
+      assert( m_selectortool.isEnabled() );
+      nTrtExpected = m_selectortool->minNumberDCs(track.trackParameters()->front());
+      ATH_MSG_DEBUG ("Expected number of TRT hits: " << nTrtExpected << " for eta: "
        << fabs(track.trackParameters()->front()->eta()));
-    double ratio = (nTrtExpected != 0) ? iTRT_Hits / nTrtExpected : 0;
-    if (ratio > m_boundsTrtRatio[m_maxTrtRatio]) ratio = m_boundsTrtRatio[m_maxTrtRatio];
-    for (int i=0; i<m_maxTrtRatio; ++i) {
-      if ( m_boundsTrtRatio[i] < ratio && ratio <= m_boundsTrtRatio[i+1]) {
-        prob*= m_factorTrtRatio[i];
-        ATH_MSG_DEBUG ("Modifier for " << iTRT_Hits << " TRT hits (ratio " << ratio
+      double ratio = (nTrtExpected != 0) ? iTRT_Hits / nTrtExpected : 0;
+      if (ratio > m_boundsTrtRatio[m_maxTrtRatio]) ratio = m_boundsTrtRatio[m_maxTrtRatio];
+      for (int i=0; i<m_maxTrtRatio; ++i) {
+        if ( m_boundsTrtRatio[i] < ratio && ratio <= m_boundsTrtRatio[i+1]) {
+          prob*= m_factorTrtRatio[i];
+          ATH_MSG_DEBUG ("Modifier for " << iTRT_Hits << " TRT hits (ratio " << ratio
                  << ") is : "<< m_factorTrtRatio[i] << "  New score now: " << prob);
-        break;
+          break;
+        }
       }
-    } 
-  }
-  //
-  if ( iTRT_Hits > 0 && iTRT_Outliers >= 0 && m_maxTrtFittedRatio > 0) {
-    double fitted = double(iTRT_Hits) / double(iTRT_Hits + iTRT_Outliers);
-    if (fitted > m_boundsTrtFittedRatio[m_maxTrtFittedRatio]) fitted = m_boundsTrtFittedRatio[m_maxTrtFittedRatio];
-    for (int i=0; i<m_maxTrtFittedRatio; ++i) {
-      if (fitted <= m_boundsTrtFittedRatio[i+1]) {
-        prob*= m_factorTrtFittedRatio[i];
-        ATH_MSG_DEBUG ("Modifier for TRT fitted ratio of " << fitted
-                 << " is : "<< m_factorTrtFittedRatio[i] << "  New score now: " << prob);
-        break;
+    }
+    //
+    if ( iTRT_Hits > 0 && iTRT_Outliers >= 0 && m_maxTrtFittedRatio > 0) {
+      double fitted = double(iTRT_Hits) / double(iTRT_Hits + iTRT_Outliers);
+      if (fitted > m_boundsTrtFittedRatio[m_maxTrtFittedRatio]) fitted = m_boundsTrtFittedRatio[m_maxTrtFittedRatio];
+      for (int i=0; i<m_maxTrtFittedRatio; ++i) {
+	      if (fitted <= m_boundsTrtFittedRatio[i+1]) {
+	        prob*= m_factorTrtFittedRatio[i];
+	        ATH_MSG_DEBUG ("Modifier for TRT fitted ratio of " << fitted
+			    << " is : "<< m_factorTrtFittedRatio[i] << "  New score now: " << prob);
+	        break;
+	      }
       }
-    } 
-  }
+    }
+  } // end if(!m_useITkAmbigFcn)
 
   // is this a track from the pattern or a fitted track ?
   bool ispatterntrack = (track.info().trackFitter()==Trk::TrackInfo::Unknown);
@@ -641,12 +670,19 @@ void InDet::InDetAmbiScoringTool::setupScoreModifiers()
   //
   if (!m_useTRT_AmbigFcn) {
     // --- NewTracking
-    const int maxB_LayerHits = 3;
-    const double goodB_LayerHits[maxB_LayerHits+1] = {0.203, 0.732, 0.081, 0.010};
-    const double fakeB_LayerHits[maxB_LayerHits+1] = {0.808, 0.174, 0.018, 0.002};
-    // put it into the private members
-    m_maxB_LayerHits = maxB_LayerHits;
-    for (int i=0; i<=m_maxB_LayerHits; ++i) m_factorB_LayerHits.push_back(goodB_LayerHits[i]/fakeB_LayerHits[i]);
+    if (m_useITkAmbigFcn) {
+      const int maxB_LayerHitsITk = 8;
+      m_maxB_LayerHits = maxB_LayerHitsITk;
+      const double blayModi[maxB_LayerHitsITk + 1] = {0.25, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5};
+      for (int i = 0; i <= m_maxB_LayerHits; ++i) m_factorB_LayerHits.push_back(blayModi[i]);
+    } else {
+      const int maxB_LayerHits = 3;
+      const double goodB_LayerHits[maxB_LayerHits+1] = {0.203, 0.732, 0.081, 0.010};
+      const double fakeB_LayerHits[maxB_LayerHits+1] = {0.808, 0.174, 0.018, 0.002};
+      // put it into the private members
+      m_maxB_LayerHits = maxB_LayerHits;
+      for (int i=0; i<=m_maxB_LayerHits; ++i) m_factorB_LayerHits.push_back(goodB_LayerHits[i]/fakeB_LayerHits[i]);
+    }
   } else {
     // --- BackTracking
     const int maxB_LayerHits = 3;
@@ -662,11 +698,30 @@ void InDet::InDetAmbiScoringTool::setupScoreModifiers()
   //
   if (!m_useTRT_AmbigFcn) {
     // --- NewTracking
-    const int maxPixelHits = 8; // we see up to 8 with IBL (was 6)
-    const double goodPixelHits[maxPixelHits+1] = {0.095, 0.031, 0.118, 0.615, 0.137, 0.011, 0.01   , 0.011, 0.012};
-    const double fakePixelHits[maxPixelHits+1] = {0.658, 0.100, 0.091, 0.124, 0.026, 0.002, 0.001  , 0.001, 0.001};
-    m_maxPixelHits = maxPixelHits;
-    for (int i=0; i<=m_maxPixelHits; ++i) m_factorPixelHits.push_back(goodPixelHits[i]/fakePixelHits[i]);
+    if (m_useITkAmbigFcn) {
+      const int maxPixelHitsITk = 26;
+      m_maxPixelHits = maxPixelHitsITk;
+      double maxScore = 30.0;
+      double minScore = 5.00;
+      int maxBarrel = 10;
+      int minBarrel = 3;
+      int minEnd = 5;
+
+      double step[2] = {
+        (maxScore - minScore) / (maxBarrel - minBarrel), (maxScore - minScore) / (maxPixelHitsITk - minEnd)
+      };
+
+      for (int i = 0; i <= maxPixelHitsITk; i++) {
+        if (i < minEnd) m_factorPixelHits.push_back(0.01 + (i * 0.33));
+        else m_factorPixelHits.push_back(minScore + ((i - minEnd) * step[1]));
+      }
+    } else {
+      const int maxPixelHits = 8; // we see up to 8 with IBL (was 6)
+      const double goodPixelHits[maxPixelHits+1] = {0.095, 0.031, 0.118, 0.615, 0.137, 0.011, 0.01   , 0.011, 0.012};
+      const double fakePixelHits[maxPixelHits+1] = {0.658, 0.100, 0.091, 0.124, 0.026, 0.002, 0.001  , 0.001, 0.001};
+      m_maxPixelHits = maxPixelHits;
+      for (int i=0; i<=m_maxPixelHits; ++i) m_factorPixelHits.push_back(goodPixelHits[i]/fakePixelHits[i]);
+    }
   } else {
     // --- BackTracking
     const int maxPixelHits = 8; // we see up to 8 with IBL (was 6)
@@ -681,12 +736,31 @@ void InDet::InDetAmbiScoringTool::setupScoreModifiers()
   //
   if (!m_useTRT_AmbigFcn) {
     // --- NewTracking
-    const int maxPixLay = 7; // 3 barrel, 3 endcap, IBL, in practice one should see maybe 5 (was 3)
-    const double goodPixLay[maxPixLay+1] = {0.095, 0.033, 0.131, 0.740,   0.840, 0.940, 1.040,1.140};
-    const double fakePixLay[maxPixLay+1] = {0.658, 0.106, 0.092, 0.144,   0.144, 0.144, 0.144,0.144};
-    // put it into the private members
-    m_maxPixLay = maxPixLay;
-    for (int i=0; i<=m_maxPixLay; ++i) m_factorPixLay.push_back(goodPixLay[i]/fakePixLay[i]);
+    if (m_useITkAmbigFcn) {
+      const int maxPixelLayITk = 16;
+      m_maxPixLay = maxPixelLayITk;
+      double maxScore = 30.0;
+      double minScore = 5.00;
+      int maxBarrel = 10;
+      int minBarrel = 3;
+      int minEnd = 5;
+
+      double step[2] = {
+        (maxScore - minScore) / (maxBarrel - minBarrel), (maxScore - minScore) / (maxPixelLayITk - minEnd)
+      };
+
+      for (int i = 0; i <= maxPixelLayITk; i++) {
+        if (i < minEnd) m_factorPixLay.push_back(0.01 + (i * 0.33));
+        else m_factorPixLay.push_back(minScore + ((i - minEnd) * step[1]));
+      }
+    } else {
+      const int maxPixLay = 7; // 3 barrel, 3 endcap, IBL, in practice one should see maybe 5 (was 3)
+      const double goodPixLay[maxPixLay+1] = {0.095, 0.033, 0.131, 0.740,   0.840, 0.940, 1.040,1.140};
+      const double fakePixLay[maxPixLay+1] = {0.658, 0.106, 0.092, 0.144,   0.144, 0.144, 0.144,0.144};
+      // put it into the private members
+      m_maxPixLay = maxPixLay;
+      for (int i=0; i<=m_maxPixLay; ++i) m_factorPixLay.push_back(goodPixLay[i]/fakePixLay[i]);
+    }
   } else {
     // --- BackTracking
     const int maxPixLay = 7; // 3 barrel, 3 endcap, IBL, in practice one should see maybe 5 (was 5)
@@ -712,16 +786,35 @@ void InDet::InDetAmbiScoringTool::setupScoreModifiers()
   // --- total number of SCT+Pixel hits
   //
   // --- NewTracking and BackTracking
-  const int maxHits = 19; // there is a min cut on this anyway !
-  const double goodSiHits[maxHits+1] = { 0.001 , 0.002 , 0.003 , 0.004 , 0.01 , 0.01 , 0.01 ,
-           0.015 , 0.02 , 0.06 , 0.1  , 0.3  , 0.2   , 0.50 , 0.055,
-           0.03  , 0.015  , 0.010  , 0.002  , 0.0005 };
-  const double fakeSiHits[maxHits+1] = { 1.0   , 1.0   , 1.0   , 1.0   , 0.5 , 0.25  , 0.15 ,
-           0.20  , 0.1  , 0.2  , 0.08 , 0.07 , 0.035 , 0.08 , 0.008,
-           0.004 , 0.0015 , 0.0008 , 0.0001 , 0.00001 };
-  // put it into the private members
-  m_maxHits = maxHits;
-  for (int i=0; i<=m_maxHits; ++i) m_factorHits.push_back(goodSiHits[i]/fakeSiHits[i]);
+  if (m_useITkAmbigFcn) {
+    const int maxHitsITk = 26;
+    m_maxHits = maxHitsITk;
+    double maxScore = 40.0;
+    double minScore = 5.00;
+    int maxBarrel = 25;
+    int minBarrel = 9;
+    int minEnd = 12;
+
+    double step[2] = {
+      (maxScore - minScore) / (maxBarrel - minBarrel), (maxScore - minScore) / (maxHitsITk - minEnd)
+    };
+
+    for (int i = 0; i <= maxHitsITk; i++) {
+      if (i < minEnd) m_factorHits.push_back(0.01 + (i * 1.0 / minEnd));
+      else m_factorHits.push_back(minScore + ((i - minEnd) * step[1]));
+    }
+  } else {
+    const int maxHits = 19; // there is a min cut on this anyway !
+    const double goodSiHits[maxHits+1] = { 0.001 , 0.002 , 0.003 , 0.004 , 0.01 , 0.01 , 0.01 ,
+					   0.015 , 0.02 , 0.06 , 0.1  , 0.3  , 0.2   , 0.50 , 0.055,
+					   0.03  , 0.015  , 0.010  , 0.002  , 0.0005 };
+    const double fakeSiHits[maxHits+1] = { 1.0   , 1.0   , 1.0   , 1.0   , 0.5 , 0.25  , 0.15 ,
+					   0.20  , 0.1  , 0.2  , 0.08 , 0.07 , 0.035 , 0.08 , 0.008,
+					   0.004 , 0.0015 , 0.0008 , 0.0001 , 0.00001 };
+    // put it into the private members
+    m_maxHits = maxHits;
+    for (int i=0; i<=m_maxHits; ++i) m_factorHits.push_back(goodSiHits[i]/fakeSiHits[i]);
+  }
 
   //
   // --- ratio of TRT hits over expected
