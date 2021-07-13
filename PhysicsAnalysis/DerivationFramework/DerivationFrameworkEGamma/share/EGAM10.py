@@ -405,12 +405,10 @@ EGAM10Sequence += CfgMgr.DerivationFramework__DerivationKernel("EGAM10Kernel",
 #====================================================================
 # JET/MET
 #====================================================================
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
-reducedJetList = ["AntiKt4PV0TrackJets"]
-if (DerivationFrameworkIsMonteCarlo):
-    reducedJetList.append("AntiKt4TruthJets")
-    reducedJetList.append("AntiKt4TruthWZJets")
-replaceAODReducedJets(reducedJetList,EGAM10Sequence,"EGAM10")
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addAntiKt4PV0TrackJets, addAntiKt4TruthJets, addAntiKt4TruthWZJets
+addAntiKt4PV0TrackJets(EGAM10Sequence,"EGAM10")
+addAntiKt4TruthJets(EGAM10Sequence,"EGAM10")
+addAntiKt4TruthWZJets(EGAM10Sequence,"EGAM10")
 
 
 #========================================
@@ -443,6 +441,12 @@ EGAM10SlimmingHelper.ExtraVariables = ExtraContentElectrons + ExtraContentPhoton
 
 EGAM10SlimmingHelper.AllVariables += ExtraContainers
 
+# Add event info
+if jobproperties.egammaDFFlags.doEGammaEventInfoSlimming:
+    EGAM10SlimmingHelper.SmartCollections.append("EventInfo")
+else:
+    EGAM10SlimmingHelper.AllVariables += ["EventInfo"]
+
 # add detailed photon shower shape variables
 from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
 EGAM10SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
@@ -450,6 +454,7 @@ EGAM10SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
 # add new TTVA isolation variables
 EGAM10SlimmingHelper.ExtraVariables += ["Photons.ptcone20_TightTTVA_pt1000.ptcone20_TightTTVA_pt500.ptvarcone30_TightTTVA_pt1000.ptvarcone30_TightTTVA_pt500"]
 
+# additional truth-level variables
 if DerivationFrameworkIsMonteCarlo:
     EGAM10SlimmingHelper.ExtraVariables += ExtraElectronsTruth+ExtraPhotonsTruth
     EGAM10SlimmingHelper.AllVariables   += ExtraContainersTruth+ExtraContainersTruthPhotons
