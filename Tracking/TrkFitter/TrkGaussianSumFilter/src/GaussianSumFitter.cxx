@@ -1027,13 +1027,25 @@ Trk::GaussianSumFitter::fit(
   auto smoothedTrajectory = Trk::SmoothedTrajectory();
   auto smootherPredictionMultiState =
     std::make_unique<Trk::MultiComponentState>();
-  /*
+  
+  // Loop over TrackStateOnSurface objects in the forward
+  // trajectory to find the first measurement (i.e. not an outlier)
+  Trk::ForwardTrajectory::const_reverse_iterator trackStateOnSurface = forwardTrajectory.rbegin();
+  for (; trackStateOnSurface != forwardTrajectory.rend(); ++trackStateOnSurface) {
+    if (!(*trackStateOnSurface)->type(TrackStateOnSurface::Measurement)) {
+      smoothedTrajectory.push_back( (*trackStateOnSurface)->clone() );
+    } else {
+      break;
+    }
+  }
+  // trackStateOnSurface is now the first measurement on the track
+
+/*
    * Get the initial smoother prediction. It is the last prediction in the
    * forwards trajectory
    */
   // Following can be  owned by the input so const ptr*/
-  const Trk::TrackStateOnSurface* smootherPredictionStateOnSurface =
-    forwardTrajectory.back();
+  const Trk::TrackStateOnSurface* smootherPredictionStateOnSurface = *trackStateOnSurface;
   // We can have single or Multi components here, so we choose what to clone
   const Trk::MultiComponentStateOnSurface*
     smootherPredictionMultiStateOnSurface = nullptr;
@@ -1143,10 +1155,13 @@ Trk::GaussianSumFitter::fit(
   // Clear rioOnTrack pointer
   firstSmootherMeasurementOnTrack = nullptr;
 
+
+
   // Loop over all remaining TrackStateOnSurface objects in the forward
   // trajectory
-  Trk::ForwardTrajectory::const_reverse_iterator trackStateOnSurface =
-    forwardTrajectory.rbegin() + 1;
+  ++trackStateOnSurface;
+
+
   Trk::ForwardTrajectory::const_reverse_iterator lasttrackStateOnSurface =
     forwardTrajectory.rend() - 1;
   // TSOS that the cluster measuremenet will added on after .. can not be the
