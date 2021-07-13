@@ -354,11 +354,8 @@ EGAM7Sequence += CfgMgr.DerivationFramework__DerivationKernel("EGAM7Kernel",
 #====================================================================
 # JET/MET
 #====================================================================
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
-reducedJetList = []
-if (DerivationFrameworkIsMonteCarlo):
-    reducedJetList.append("AntiKt4TruthJets")
-replaceAODReducedJets(reducedJetList,EGAM7Sequence,"EGAM7")
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addAntiKt4TruthJets
+addAntiKt4TruthJets(EGAM7Sequence,"EGAM7")
 
 
 #========================================
@@ -404,6 +401,12 @@ else:
 
 for tool in EGAM7_ClusterEnergyPerLayerDecorators:
     EGAM7SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )
+
+# Add event info
+if jobproperties.egammaDFFlags.doEGammaEventInfoSlimming:
+    EGAM7SlimmingHelper.SmartCollections.append("EventInfo")
+else:
+    EGAM7SlimmingHelper.AllVariables += ["EventInfo"]
 
 # Add detailed shower shape variables
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *

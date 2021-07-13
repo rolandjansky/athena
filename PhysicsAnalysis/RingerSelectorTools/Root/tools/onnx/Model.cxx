@@ -4,17 +4,21 @@
 
 
 #include "RingerSelectorTools/tools/onnx/Model.h"
+#include <iostream>
+using namespace std;
 
 namespace Ringer{
 
   namespace onnx{
 
     Model::Model( std::string modelPath, AthONNX::IONNXRuntimeSvc *svc,
-                  float etmin, float etmax, float etamin, float etamax):
+                  float etmin, float etmax, float etamin, float etamax,
+                  unsigned barcode):
       m_etmin(etmin),
       m_etmax(etmax),
       m_etamin(etamin),
-      m_etamax(etamax)
+      m_etamax(etamax),
+      m_barcode(barcode)
 
     {
       // Some ORT related initialization
@@ -27,40 +31,31 @@ namespace Ringer{
 
     void Model::compile()
     {
-      // Set up the ONNX Runtime session.
       Ort::AllocatorWithDefaultOptions allocator;  
-      std::vector<int64_t> input_node_dims;
       size_t num_input_nodes = m_session->GetInputCount();
-      std::vector<const char*> input_node_names(num_input_nodes);
       
       for( std::size_t i = 0; i < num_input_nodes; i++ ) {
         char* input_name = m_session->GetInputName(i, allocator);
-        input_node_names[i] = input_name;
+        m_input_node_names.push_back(input_name);
         Ort::TypeInfo type_info = m_session->GetInputTypeInfo(i);
         auto tensor_info = type_info.GetTensorTypeAndShapeInfo();
-        //ONNXTensorElementDataType type = tensor_info.GetElementType();
-
-        input_node_dims = tensor_info.GetShape();
+        auto input_node_dims = tensor_info.GetShape();
         for (std::size_t j = 0; j < input_node_dims.size(); j++){
           if(input_node_dims[j]<0)
             input_node_dims[j] =1;
         }  
+        m_input_node_dims.push_back(input_node_dims);
       }
       
-
-      m_input_node_dims = input_node_dims;
-      m_input_node_names = input_node_names;
      
-      
-      size_t num_output_nodes = m_session->GetOutputCount();
-      std::vector<const char*> output_node_names(num_output_nodes);
-      
+      // Always have only one output
+      size_t num_output_nodes = m_session->GetOutputCount();      
       for( std::size_t i = 0; i < num_output_nodes; i++ ) {
         char* output_name = m_session->GetOutputName(i, allocator);
-        output_node_names[i]= output_name;
+        m_output_node_names.push_back(output_name);
       }
 
-      m_output_node_names = output_node_names;
+      
     }
 
 
@@ -71,14 +66,12 @@ namespace Ringer{
     {
       auto memory_info = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
       std::vector<Ort::Value> ort_inputs;
+
       size_t num_inputs = input_vecs.size();
-
       for( size_t i=0; i < num_inputs; ++i ){
-        
         ort_inputs.emplace_back( Ort::Value::CreateTensor<float>(memory_info, input_vecs[i].data(), 
-                                                                  input_vecs[i].size(), m_input_node_dims.data(), 
-                                                                  m_input_node_dims.size()) );
-
+                                                                  input_vecs[i].size(), m_input_node_dims[i].data(), 
+                                                                  m_input_node_dims[i].size()) );
       }
 
       // score model & input tensor, get back output tensor
