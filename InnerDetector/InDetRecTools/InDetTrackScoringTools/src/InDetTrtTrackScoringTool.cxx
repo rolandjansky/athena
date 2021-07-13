@@ -474,6 +474,12 @@ InDet::InDetTrtTrackScoringTool::getMuDependentNtrtMinCut(unsigned int eta_bin) 
 
     float avg_mu = m_lumiBlockMuTool->averageInteractionsPerCrossing();
 
+    // The mu-dependent cuts have only been validted up to mu = 80.
+    // Also there is some physical limit to nTRT, so at some point
+    // there needs to be a ceiling for this threshold.
+    // To be revisited when a higher mu value is reached.
+    avg_mu = std::min(80.f,avg_mu);
+
     // minTRT = a + avg_mu * b
     minTRT += avg_mu * m_TRTTrksMinTRTHitsMuDependencies[eta_bin];
   }
