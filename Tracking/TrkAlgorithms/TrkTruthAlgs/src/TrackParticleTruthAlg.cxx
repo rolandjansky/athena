@@ -84,13 +84,18 @@ StatusCode TrackParticleTruthAlg::execute() {
   const xAODTruthParticleLinkVector truthParticleLinks=*truthParticleLinkVec;
 
   int partInd=0;
-  for( const auto particle : *particlesLink ){
+  for( const xAOD::TrackParticle* particle : *particlesLink ){
 
     ATH_MSG_DEBUG("Looking up truth for pt " << particle->pt() << " eta " << particle->eta() << " phi " << particle->phi());
-    if( !particle->trackLink().isValid() ){
-      ATH_MSG_WARNING("Found TrackParticle with Invalid element link, skipping");
+    /// STACO combined tracks are just added to the muon for completeness
+    /// They're not expected to have a valid track link
+    if( !particle->trackLink().isValid()){
+      if (!particle->patternRecoInfo()[xAOD::STACO]) 
+          ATH_MSG_WARNING("Found TrackParticle with Invalid element link, skipping");
       //add dummy truth link
       particlesLink(*particle)=ElementLink<xAOD::TruthParticleContainer>();
+      particlesType(*particle) = 0;
+      particlesOrigin(*particle)= 0;
       continue;
     }
 

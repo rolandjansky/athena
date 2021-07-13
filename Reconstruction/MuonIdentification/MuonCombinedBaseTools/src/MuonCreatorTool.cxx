@@ -622,6 +622,9 @@ namespace MuonCombined {
                     // the ID track
                     // tp->setTrackLink(candidate.indetTrackParticle().trackLink());
                     tp->setTrackLink(ElementLink<TrackCollection>());
+                    std::bitset<xAOD::NumberOfTrackRecoInfo> pattern;
+                    pattern.set(xAOD::STACO);
+                    tp->setPatternRecognitionInfo(pattern);
                 }
             }  // endif outputData.combinedTrackParticleContainer
         }
