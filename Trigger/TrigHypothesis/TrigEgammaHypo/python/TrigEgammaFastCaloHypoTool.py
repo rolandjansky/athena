@@ -15,7 +15,7 @@ def same( val , tool):
 def createTrigEgammaFastCaloHypoAlg(name, sequenceOut):
   
   # make the Hypo
-  #rom TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaFastCaloSelectors
+  #from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaFastCaloSelectors
   from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastCaloHypoAlg
   theFastCaloHypo = TrigEgammaFastCaloHypoAlg(name)
   theFastCaloHypo.CaloClusters = sequenceOut
@@ -35,7 +35,7 @@ def createTrigEgammaFastCaloHypoAlg(name, sequenceOut):
   MonTool = GenericMonitoringTool("MonTool_"+name)
   MonTool.Histograms = [ 
         defineHistogram('TIME_exec', type='TH1F', path='EXPERT', title="Fast Calo Hypo Algtime; time [ us ] ; Nruns", xbins=80, xmin=0.0, xmax=8000.0),
-        defineHistogram('TIME_NN_exec', type='TH1F', path='EXPERT', title="Fast Calo Hypo NN Algtime; time [ us ] ; Nruns", xbins=100, xmin=0.0, xmax=100),
+        defineHistogram('TIME_NN_exec', type='TH1F', path='EXPERT', title="Fast Calo Hypo NN Algtime; time [ us ] ; Nruns", xbins=50, xmin=0.0, xmax=50),
   ]
   MonTool.HistPath = 'FastCaloL2EgammaHypo/'+name
   theFastCaloHypo.MonTool=MonTool
@@ -147,6 +147,7 @@ class TrigEgammaFastCaloHypoToolConfig:
     self.__log.debug( 'Pidname   :%s'   , self.__sel )
     self.__log.debug( 'noringerinfo :%s', self.__noringerinfo )
 
+
   def chain(self):
     return self.__name
   
@@ -213,7 +214,7 @@ class TrigEgammaFastCaloHypoToolConfig:
     self.tool().CAERATIOthr = TrigFastCaloElectronCutMaps( self.etthr() ).MapsCAERATIOthr[self.pidname()]
 
 
-  def ringer(self):
+  def nominal(self):
 
     self.__log.debug( 'Configure ringer' )
     self.tool().UseRinger = True
@@ -235,8 +236,8 @@ class TrigEgammaFastCaloHypoToolConfig:
       self.noringer()
 
     elif self.pidname() in self.__operation_points and 'noringer' not in self.noringerinfo() and self.isElectron():
-      self.ringer()
-  
+      self.nominal()
+
     elif self.pidname() in self.__operation_points and self.isPhoton():
       self.etcut()
    
