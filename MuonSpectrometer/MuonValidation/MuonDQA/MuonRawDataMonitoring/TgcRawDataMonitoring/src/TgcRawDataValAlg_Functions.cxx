@@ -35,7 +35,7 @@
 
 #include <TH2.h>
 #include <TBox.h>
-#include <inttypes.h> 
+#include <cinttypes> 
 
 #include <sstream>
 #include <cmath>
@@ -52,7 +52,7 @@ TgcRawDataValAlg::tgcchamberId(){
   Identifier Id;
 
   for(std::vector<Identifier>::const_iterator i = m_idHelperSvc->tgcIdHelper().module_begin(); 
-      i != idlast; i++){
+      i != idlast; ++i){
       Id=*i;
       std::string extid = m_idHelperSvc->tgcIdHelper().show_to_string(Id);
 
