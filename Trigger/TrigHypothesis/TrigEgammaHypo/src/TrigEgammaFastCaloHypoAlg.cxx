@@ -120,9 +120,8 @@ StatusCode TrigEgammaFastCaloHypoAlg::execute( const EventContext& context ) con
       int idx=0;
       for (auto& pidname : m_pidNames ){
         if (m_useRun3){
-          auto inputs = m_ringerNNTools[0]->prepare_inputs( ringsCluster , nullptr);
           timer_predict.start();
-          float nnOutput = m_ringerNNTools[0]->predict(ringsCluster, inputs);
+          float nnOutput = m_ringerNNTools[0]->predict(ringsCluster);
           timer_predict.stop();
           info.pidDecorator[pidname] = (bool)m_ringerNNTools[idx]->accept(ringsCluster, nnOutput, avgmu);
           info.valueDecorator[pidname+"NNOutput"] = nnOutput;

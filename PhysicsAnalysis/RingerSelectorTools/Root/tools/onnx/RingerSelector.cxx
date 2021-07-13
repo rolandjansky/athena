@@ -29,6 +29,9 @@ namespace Ringer{
 
       std::string configFile = PathResolverFindCalibFile( path );
 
+
+      std::string basepath = configFile.substr(0, configFile.find_last_of("/"));
+
       ATH_MSG_INFO( "Loading all tunings configs from " << configFile );
 
       if (configFile.empty()){
@@ -44,8 +47,8 @@ namespace Ringer{
       {
         // Retrieve the size
         unsigned size = env.GetValue( "Model__size" , 0 );
-        m_useShowerShapes = env.GetValue( "Model__UseShowerShapes", false);
-        m_useTrackVariables = env.GetValue( "Model__UseTrackVariables", false);
+
+        unsigned barcode = env.GetValue( "Model__barcode", 0); // select the input preprocessing mode
           
         // Retrieve Et bins
         auto etmin = GetValues<float>( "Model__etmin", env );
@@ -57,14 +60,14 @@ namespace Ringer{
         
         // Retreive all ONNX model file paths
         auto model_paths = GetPaths( "Model__path", env );
-        std::vector<std::string> strs;
-        boost::split(strs,path,boost::is_any_of("/"));
-        std::string basepath = strs[0]+"/"+strs[1];
+        ATH_MSG_INFO( "Basepath is "<< basepath);
+
         // Loop over all models
-        for ( unsigned idx = 0; idx < size; ++idx ){
+        for ( unsigned idx = 0; idx < size; ++idx )
+        {
           std::string modelPath = PathResolverFindCalibFile( basepath+"/"+model_paths[idx] );
           ATH_MSG_DEBUG( "Reading Onnx model from: " << modelPath );
-          auto model = Ringer::onnx::Model( modelPath, svc, etmin[idx], etmax[idx], etamin[idx], etamax[idx]) ;
+          auto model = Ringer::onnx::Model( modelPath, svc, etmin[idx], etmax[idx], etamin[idx], etamax[idx], barcode) ;
           
           // Compile the model
           model.compile();
@@ -111,10 +114,10 @@ namespace Ringer{
 
    
     //==============================================================================
-    bool RingerSelector::accept( const xAOD::TrigRingerRings *ringerShape, float discr, float avgmu ) const 
+    bool RingerSelector::accept( const xAOD::TrigRingerRings *ringsCluster, float discr, float avgmu ) const 
     {
-      float et = ringerShape->emCluster()->et()/Gaudi::Units::GeV;
-      float eta = std::min( std::abs(ringerShape->emCluster()->eta()), float(2.5));
+      float et = ringsCluster->emCluster()->et()/Gaudi::Units::GeV;
+      float eta = std::min( std::abs(ringsCluster->emCluster()->eta()), float(2.5));
     
       ATH_MSG_DEBUG( "Event et = "<< et << ", eta = " << eta );
       for( auto& cutDef : m_thresholds ){
@@ -128,11 +131,16 @@ namespace Ringer{
 
 
     //==============================================================================
-    std::vector<std::vector<float>> RingerSelector::prepare_inputs(  const xAOD::TrigRingerRings *ringerShape, 
+    // barcode = 0: use only rings normalized by total energy as input
+    // barcode = 1: use normalized rings and shower shapes (6 from cluster) as input
+    // barcode = 2: use normalized rings, shower shapes and track variables as input 
+    std::vector<std::vector<float>> RingerSelector::prepare_inputs(  unsigned barcode,
+                                                                     const xAOD::TrigRingerRings *ringsCluster, 
                                                                      const xAOD::TrigElectron *el ) const
     {
+      // barcode 0
       std::vector< std::vector< float > > inputs;
-      const std::vector<float> rings = ringerShape->rings();
+      const std::vector<float> rings = ringsCluster->rings();
       std::vector<float> refRings(rings.size());
       refRings.assign(rings.begin(), rings.end());
        
@@ -143,9 +151,9 @@ namespace Ringer{
       inputs.push_back( refRings );
 
 
-      if ( m_useShowerShapes ){
+      if ( barcode == 1 || barcode == 2 ){ // barcode 1
         std::vector<float> refShowers;
-        const xAOD::TrigEMCluster *pClus = ringerShape->emCluster();
+        const xAOD::TrigEMCluster *pClus = ringsCluster->emCluster();
         
         float e0 = pClus->energy( CaloSampling::PreSamplerB ) + pClus->energy( CaloSampling::PreSamplerE );
         float e1 = pClus->energy( CaloSampling::EMB1 ) + pClus->energy( CaloSampling::EME1 );
@@ -158,8 +166,12 @@ namespace Ringer{
         eratio/= (pClus->emaxs1() + pClus->e2tsts1());
         float weta2 = pClus->weta2();
         float wstot = pClus->wstot();
-        float reta = pClus->e237() / pClus->e277() ; 
+        float reta = pClus->e237() / pClus->e277();
 
+        // fix eratio and wstot for some cases
+        if(eratio>10) eratio=0;
+        if(eratio>1) eratio=1;
+        if(wstot<-99) wstot=0;
 
         float etot=0.0;
         for ( float e : pClus->energySample() )  etot+=e;
@@ -176,7 +188,7 @@ namespace Ringer{
         inputs.push_back( refShowers );
       }
 
-      if ( m_useTrackVariables && el){
+      if ( barcode == 2 && el){ // barcode 2
         std::vector<float> refTrack;
         refTrack.push_back( el->etOverPt() );
         refTrack.push_back( el->trkClusDeta() );
@@ -189,19 +201,19 @@ namespace Ringer{
 
 
     //==============================================================================
-    float RingerSelector::predict(const xAOD::TrigRingerRings *ringerShape , std::vector<std::vector<float>> &inputs ) const
+    float RingerSelector::predict(const xAOD::TrigRingerRings *ringsCluster , const xAOD::TrigElectron *el ) const
     {
-      float et = ringerShape->emCluster()->et()/Gaudi::Units::GeV;
-      float eta = std::min( std::abs(ringerShape->emCluster()->eta()), float(2.5));
- 
+      float et = ringsCluster->emCluster()->et()/Gaudi::Units::GeV;
+      float eta = std::min( std::abs(ringsCluster->emCluster()->eta()), float(2.5));
+
       // Find the correct model and predict
       for( auto& model : m_models ){
         
         if(et<=model.etMin() || et > model.etMax()) continue;
         if(eta<=model.etaMin() || eta > model.etaMax()) continue;
 
-        auto output = model.predict( inputs );       
-
+        auto inputs = prepare_inputs( model.barcode(), ringsCluster, el );
+        auto output = model.predict( inputs ); // propagate the input throut the model
         ATH_MSG_DEBUG( "The current model predict with output: " << output );
         return output;
       }
