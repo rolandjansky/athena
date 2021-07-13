@@ -71,7 +71,6 @@ def Kernel_GenericSimulatorMTCfg(flags, name="ISF_Kernel_GenericSimulatorMT", **
         acc.merge(truthacc)
 
     kwargs.setdefault("Cardinality", flags.Concurrency.NumThreads)
-    kwargs.setdefault("OutputLevel", 1)
     kwargs.setdefault("InputEvgenCollection", "BeamTruthEvent")
     kwargs.setdefault("OutputTruthCollection", "TruthEvent")
 
