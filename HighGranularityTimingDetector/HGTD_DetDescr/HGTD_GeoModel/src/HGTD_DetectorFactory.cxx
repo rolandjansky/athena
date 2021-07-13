@@ -186,27 +186,109 @@ void HGTD_DetectorFactory::readDbParameters() {
     m_cylVolPars["HGTD::CoolingPlate"].material = "std::Aluminium"; // TODO: should go into the db
 
     //  below lines are not yet in db!
-    m_cylVolPars["HGTD::InnerRCover1"] = {"HGTD::InnerRCover1", 110., 111., 105./2, -10., "sct::CFRP"};
-    // the InnerRCover bulk should be 70% aerogel and 30% honeycomb made from "aradime" (not defined - using "muo::Honeycomb" for now)
+
+    // temporarily hard-code custom materials - eventually will be defined in xml once HGTD migrates to GeoModelXML detector description
+
+    GeoMaterial* CFRP = new GeoMaterial("hgtd::CFRP", 1.78*(CLHEP::gram / CLHEP::cm3)); // copy of sct::CFRP used in 21.9
+    CFRP->add(m_materialMgr->getElement("Carbon"), 0.92);
+    CFRP->add(m_materialMgr->getElement("Hydrogen"), 0.02);
+    CFRP->add(m_materialMgr->getElement("Oxygen"), 0.05);
+    m_materialMgr->addMaterial("hgtd", CFRP);
+
+    GeoMaterial* Honeycomb = new GeoMaterial("hgtd::Honeycomb", 0.042*(CLHEP::gram / CLHEP::cm3)); // copy of muo::Honeycomb used in 21.9
+    Honeycomb->add(m_materialMgr->getElement("Carbon"), 0.88);
+    Honeycomb->add(m_materialMgr->getElement("Hydrogen"), 0.11);
+    m_materialMgr->addMaterial("hgtd", Honeycomb);
+
+    GeoMaterial* Peek = new GeoMaterial("hgtd::Peek", 1.3*(CLHEP::gram / CLHEP::cm3)); // copy of pix::Peek used in 21.9
+    Peek->add(m_materialMgr->getElement("Hydrogen"), 0.04);
+    Peek->add(m_materialMgr->getElement("Carbon"), 0.79);
+    Peek->add(m_materialMgr->getElement("Oxygen"), 0.16);
+    m_materialMgr->addMaterial("hgtd", Peek);
+
+    GeoMaterial* CO2_Liquid = new GeoMaterial("hgtd::CO2_Liquid", 1.032*(CLHEP::gram / CLHEP::cm3)); // copy of pix::CO2_Liquid used in 21.9
+    CO2_Liquid->add(m_materialMgr->getElement("Carbon"), 0.27);
+    CO2_Liquid->add(m_materialMgr->getElement("Oxygen"), 0.72);
+    m_materialMgr->addMaterial("hgtd", CO2_Liquid);
+
+    GeoMaterial* CO2 = new GeoMaterial("hgtd::CO2", 0.001842*(CLHEP::gram / CLHEP::cm3)); // copy of trt::CO2 used in 21.9
+    CO2->add(m_materialMgr->getElement("Carbon"), 0.27);
+    CO2->add(m_materialMgr->getElement("Oxygen"), 0.72);
+    m_materialMgr->addMaterial("hgtd", CO2);
+
+    GeoMaterial* CFiberSupport = new GeoMaterial("hgtd::CFiberSupport", 0.189*(CLHEP::gram / CLHEP::cm3)); // copy of sct::CFiberSupport used in 21.9
+    CFiberSupport->add(m_materialMgr->getElement("Carbon"), 1.0);
+    m_materialMgr->addMaterial("hgtd", CFiberSupport);
+
+    GeoMaterial* CuKapton = new GeoMaterial("hgtd::CuKapton", 2.94*(CLHEP::gram / CLHEP::cm3)); // copy of sct::CuKapton used in 21.9
+    CuKapton->add(m_materialMgr->getElement("Copper"), 0.61);
+    CuKapton->add(m_materialMgr->getElement("Carbon"), 0.26);
+    CuKapton->add(m_materialMgr->getElement("Hydrogen"), 0.01);
+    CuKapton->add(m_materialMgr->getElement("Oxygen"), 0.08);
+    CuKapton->add(m_materialMgr->getElement("Nitrogen"), 0.02);
+    m_materialMgr->addMaterial("hgtd", CuKapton);
+
+    GeoMaterial* BoratedPolyethelyne = new GeoMaterial("hgtd::BoratedPolyethelyne", 0.99*(CLHEP::gram / CLHEP::cm3)); // copy of LAr::BoratedPolyethelyne used in 21.9
+    BoratedPolyethelyne->add(m_materialMgr->getElement("Hydrogen"), 0.13);
+    BoratedPolyethelyne->add(m_materialMgr->getElement("Carbon"), 0.81);
+    BoratedPolyethelyne->add(m_materialMgr->getElement("Boron"), 0.05);
+    m_materialMgr->addMaterial("hgtd", BoratedPolyethelyne);
+
+    GeoMaterial* FEBoards = new GeoMaterial("hgtd::FEBoards", 0.99*(CLHEP::gram / CLHEP::cm3)); // copy of LAr::FEBoards used in 21.9
+    FEBoards->add(m_materialMgr->getElement("Silicon"), 0.27);
+    FEBoards->add(m_materialMgr->getElement("Oxygen"), 0.34);
+    FEBoards->add(m_materialMgr->getElement("Copper"), 0.28);
+    FEBoards->add(m_materialMgr->getElement("Hydrogen"), 0.01);
+    FEBoards->add(m_materialMgr->getElement("Carbon"), 0.09);
+    m_materialMgr->addMaterial("hgtd", FEBoards);
+
+    GeoMaterial* Epoxy = new GeoMaterial("hgtd::Epoxy", 1*(CLHEP::gram / CLHEP::cm3)); // copy of sct::Epoxy used in 21.9
+    Epoxy->add(m_materialMgr->getElement("Carbon"), 0.76);
+    Epoxy->add(m_materialMgr->getElement("Hydrogen"), 0.07);
+    Epoxy->add(m_materialMgr->getElement("Oxygen"), 0.16);
+    m_materialMgr->addMaterial("hgtd", Epoxy);
+
+
+
+    // tweak tub materials taken from db
+    m_cylVolPars["HGTD::FrontCover"].material   = "hgtd::CFiberSupport"; // sct::CFiberSupport in db
+    m_cylVolPars["HGTD::FlexTube"].material     = "hgtd::CuKapton"; // sct::CuKapton in db
+    m_cylVolPars["HGTD::CoolingPlate"].material = "hgtd::CFiberSupport"; // sct::CFiberSupport in db
+    m_cylVolPars["HGTD::ModeratorIn"].material  = "hgtd::BoratedPolyethelyne"; // LAr::BoratedPolyethelyne in db
+    m_cylVolPars["HGTD::ModeratorOut"].material = "hgtd::BoratedPolyethelyne"; // LAr::BoratedPolyethelyne in db
+    m_cylVolPars["HGTD::BackCover"].material    = "hgtd::CFiberSupport"; // sct::CFiberSupport in db
+    m_cylVolPars["HGTD::PeriphElec"].material   = "hgtd::FEBoards"; // LAr::FEBoards in db
+
+
+
+    // tweak box materials taken from db
+    m_boxVolPars["HGTD::Hybrid"].material     = "hgtd::CuKapton"; // sct::CuKapton in db
+    m_boxVolPars["HGTD::GlueSensor"].material = "hgtd::Epoxy"; // sct::Epoxy in db
+    m_boxVolPars["HGTD::GlueAsic"].material   = "hgtd::Epoxy"; // sct::Epoxy in db
+
+
+
+    m_cylVolPars["HGTD::InnerRCover1"] = {"HGTD::InnerRCover1", 110., 111., 105./2, -10., "hgtd::CFRP"};
+    // the InnerRCover bulk should be 70% aerogel and 30% honeycomb made from "aradime" (not defined - using "hgtd::Honeycomb" for now)
     // proportions should be 50/50 by weight, which is used for GeoMaterial fractions
     // TODO: these should be double-checked, or at least that the density/weight matches engineering drawings
-    GeoMaterial* innerRCoverBulkMaterial = new GeoMaterial("AerogelAndHoneycomb", 0.17*(CLHEP::gram / CLHEP::cm3));
+    GeoMaterial* innerRCoverBulkMaterial = new GeoMaterial("hgtd::AerogelAndHoneycomb", 0.17*(CLHEP::gram / CLHEP::cm3));
     innerRCoverBulkMaterial->add(m_materialMgr->getMaterial("std::Aerogel"), 0.5);
-    innerRCoverBulkMaterial->add(m_materialMgr->getMaterial("muo::Honeycomb"), 0.5);
+    innerRCoverBulkMaterial->add(m_materialMgr->getMaterial("hgtd::Honeycomb"), 0.5);
     m_materialMgr->addMaterial("hgtd", innerRCoverBulkMaterial);
-    m_cylVolPars["HGTD::InnerRCover2"] = {"HGTD::InnerRCover2", 111., 119., 105./2, -10., "AerogelAndHoneycomb"};
-    m_cylVolPars["HGTD::InnerRCover3"] = {"HGTD::InnerRCover3", 119., 120., 105./2, -10., "sct::CFRP"};
-    m_cylVolPars["HGTD::OuterRCover"]  = {"HGTD::OuterRCover", 980., 1000., 82./2, -6.5, "pix::Peek"};
+    m_cylVolPars["HGTD::InnerRCover2"] = {"HGTD::InnerRCover2", 111., 119., 105./2, -10., "hgtd::AerogelAndHoneycomb"};
+    m_cylVolPars["HGTD::InnerRCover3"] = {"HGTD::InnerRCover3", 119., 120., 105./2, -10., "hgtd::CFRP"};
+    m_cylVolPars["HGTD::OuterRCover"]  = {"HGTD::OuterRCover", 980., 1000., 82./2, -6.5, "hgtd::Peek"};
     m_cylVolPars["HGTD::PeripheralCoolingLines"] = {"HGTD::PeripheralCoolingLines", 920., 980., 3./2, 31., "std::SSteel"};
-    // TODO: outer cover should be 40% "pix::Peek" and 60% electrical connectors (unclear material)
+    // TODO: outer cover should be 40% "hgtd::Peek" and 60% electrical connectors (unclear material)
 
     m_cylVolPars["HGTD::CoolingTube"] = {"HGTD::CoolingTubes", 0, 0, 2.0, 0, "std::Titanium"}; // TODO: add to db
-    // Coolant should be 50% liquid and 50% gas CO2 ("trt::CO2")
-    GeoMaterial* coolantMaterial = new GeoMaterial("CO2CoolantMix", 0.55*(CLHEP::gram / CLHEP::cm3));
-    coolantMaterial->add(m_materialMgr->getMaterial("pix::CO2_Liquid"), 0.5);
-    coolantMaterial->add(m_materialMgr->getMaterial("trt::CO2"), 0.5);
+    // Coolant should be 50% liquid and 50% gas CO2 ("hgtd::CO2")
+    GeoMaterial* coolantMaterial = new GeoMaterial("hgtd::CO2CoolantMix", 0.55*(CLHEP::gram / CLHEP::cm3));
+    coolantMaterial->add(m_materialMgr->getMaterial("hgtd::CO2_Liquid"), 0.5);
+    coolantMaterial->add(m_materialMgr->getMaterial("hgtd::CO2"), 0.5);
     m_materialMgr->addMaterial("hgtd", coolantMaterial);
-    m_cylVolPars["HGTD::CoolingTubeFluid"] = {"HGTD::CoolingTubeFluid", 0, 0, 1.5, 0, "CO2CoolantMix"}; // TODO: to add to db
+    m_cylVolPars["HGTD::CoolingTubeFluid"] = {"HGTD::CoolingTubeFluid", 0, 0, 1.5, 0, "hgtd::CO2CoolantMix"}; // TODO: to add to db
 
     // These parameters are not in the db (yet) and don't fit into the cylinder or box structures used above
     // TODO: put these (and others needed for three-ring layout) into a separate table in the db when migrating to master
