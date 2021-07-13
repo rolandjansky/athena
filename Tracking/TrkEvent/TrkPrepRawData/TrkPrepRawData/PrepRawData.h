@@ -41,6 +41,7 @@ enum class PrepRawDataType
   PixelCluster,
   SCT_Cluster,
   TRT_DriftCircle,
+  HGTD_Cluster,
   PlanarCluster,
   MdtPrepData,
   CscStripPrepData,
