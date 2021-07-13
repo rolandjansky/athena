@@ -424,9 +424,6 @@ class EventHistoSpec(ToolSpec):
         group.defineHistogram(self.histName()+";"+self.name, path=path, **hargs) #give a recognisable histogram name in case of SelectSpec usage
 
 
-
-
-
 class SelectSpec(ToolSpec):
     """A dictionary specialized to contain a JetHistoSelectSort specification
     Invocation is like : spec = SelectSpec( name, , expr, path ) where 
