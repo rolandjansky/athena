@@ -454,6 +454,7 @@ class MenuSequence(object):
             # Reset this so that HypoAlgNode.addOutput will actually do something
             _Hypo.HypoOutputDecisions = "StoreGateSvc+UNSPECIFIED_OUTPUT"
 
+
             def getProbeInputMaker(dummyFlags,baseIM):
                 probeIM = baseIM.clone(baseIM.name()+"_probe")
                 for p,v in baseIM.getValuedProperties().items():
@@ -1097,7 +1098,6 @@ class SelectionCA(ComponentAccumulator):
 
 
 def lockConfigurable(conf):
-    log.debug('RecoFragmentsPool: Trying to lock %s',conf)
     # Need to recurse through a few possibilities to ensure the
     # locking block only receives Configurables
     if isinstance(conf,Node): # Send along the alg from the node
@@ -1110,9 +1110,11 @@ def lockConfigurable(conf):
     if not isinstance(conf,Configurable):
         return
 
+    log.debug('RecoFragmentsPool: Trying to lock %s',compName(conf))
+
     # Don't attempt this on components that the menu needs to configure
     skiplock = False
-    if isInputMakerBase(conf) or isComboHypoAlg(conf):
+    if isInputMakerBase(conf) or isHypoAlg(conf) or isComboHypoAlg(conf):
         skiplock=True
     if skiplock:
         return
