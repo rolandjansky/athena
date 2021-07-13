@@ -972,10 +972,6 @@ HLT_e9_lhtight_noringer_e4_etcut_Jpsiee_L1JPSI-1M5-EM7:
   eventCount: 0
   stepFeatures:
     0: 5
-HLT_e9_lhvloose_e5_lhvloose_bBeeM6000_2mu4_noL2Comb_L1BPH-0M9-EM7-EM5_2MU4:
-  eventCount: 0
-HLT_e9_lhvloose_e5_lhvloose_bBeeM6000_mu6_noL2Comb_L1BPH-0M9-EM7-EM5_MU6:
-  eventCount: 0
 HLT_e9_lhvloose_mu20_mu8noL1_L1MU20:
   eventCount: 0
 HLT_eb_low_L1RD2_FILLED:
