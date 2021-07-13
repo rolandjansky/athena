@@ -20,6 +20,7 @@ if len(BTaggingAODList) == 0:
     for coll in JetCollectionList:
       BTagConf.RegisterOutputContainersForJetCollection(coll[:-4])
     BTaggingAODList = BTaggingFlags.btaggingAODList if jetFlags.writeJetsToAOD() else []
+    BTaggingESDList = BTaggingFlags.btaggingAODList
 
 #    BTaggingAODList += ["xAOD::BTaggingAuxContainer#*"]
 #    BTaggingAODList += ["xAOD::BTaggingContainer#*"]
@@ -28,4 +29,5 @@ if len(BTaggingAODList) == 0:
 #    BTaggingAODList += ["xAOD::VertexContainer#BTagging*"]
 #    BTaggingAODList += ["xAOD::VertexAuxContainer#BTagging*"]
     
+printfunc ("#BTAG# ESD output container list: " + str(BTaggingESDList))
 printfunc ("#BTAG# AOD output container list: " + str(BTaggingAODList))

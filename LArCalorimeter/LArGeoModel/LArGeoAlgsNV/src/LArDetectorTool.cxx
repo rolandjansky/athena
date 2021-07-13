@@ -52,7 +52,7 @@ LArDetectorToolNV::LArDetectorToolNV(const std::string& type
   , m_geometryConfig("FULL")
   , m_EMECVariantInner("Wheel")
   , m_EMECVariantOuter("Wheel")
-  , m_activateFT(false)
+  , m_activateFT(true)
   , m_enableMBTS(true)
 {
   declareProperty("SaggingBarrelAccordeon",m_barrelSaggingOn);

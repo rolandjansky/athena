@@ -371,17 +371,28 @@ void StripSurfaceChargesGenerator::processSiHit(const SiDetectorElement* element
   const float cPhi{static_cast<float>(endPos[SiHit::xPhi]) - xPhi};
   const float cDep{static_cast<float>(endPos[SiHit::xDep]) - xDep};
 
+
+
   const float largeStep{std::sqrt(cEta*cEta + cPhi*cPhi + cDep*cDep)};
   const int numberOfSteps{static_cast<int>(largeStep / m_smallStepLength) + 1};
   const float steps{static_cast<float>(m_numberOfCharges * numberOfSteps)};
   const float e1{static_cast<float>(phit.energyLoss() / steps)};
   const float q1{static_cast<float>(e1 * m_siPropertiesTool->getSiProperties(hashId, ctx).electronHolePairsPerEnergy())};
 
-  // in the following, to test the code, we will use the original coordinate
-  // system of the SCTtest3SurfaceChargesGenerator x is eta y is phi z is depth
-  float xhit{xEta};
-  float yhit{xPhi};
-  float zhit{xDep};
+  // NB this is different to the SCT, where this would be
+  //float xhit{xEta};
+  //float yhit{xPhi};
+  //float zhit{xDep};
+  //float cX{cEta};
+  //float cY{cPhi};
+  //float cZ{cDep};
+
+ float xhit{xDep};
+ float yhit{xPhi};
+ float zhit{xEta};
+ float cX{cDep};
+ float cY{cPhi};
+ float cZ{cEta};
 
   InducedChargeModel::SCT_InducedChargeModelData* data{nullptr};
   if (m_doInducedChargeModel) { // Setting magnetic field for the ICM.
@@ -405,16 +416,16 @@ void StripSurfaceChargesGenerator::processSiHit(const SiDetectorElement* element
   if (m_doDistortions) {
     if (element->isBarrel()) {// Only apply disortions to barrel modules
       Amg::Vector2D BOW;
-      BOW[0] = m_distortionsTool->correctSimulation(hashId, xhit, yhit, cEta, cPhi, cDep)[0];
-      BOW[1] = m_distortionsTool->correctSimulation(hashId, xhit, yhit, cEta, cPhi, cDep)[1];
+      BOW[0] = m_distortionsTool->correctSimulation(hashId, xhit, yhit, cX, cY, cZ)[0];
+      BOW[1] = m_distortionsTool->correctSimulation(hashId, xhit, yhit, cX, cY, cZ)[1];
       xhit = BOW.x();
       yhit = BOW.y();
     }
   }
 
-  const float stepX{cEta / numberOfSteps};
-  const float stepY{cPhi / numberOfSteps};
-  const float stepZ{cDep / numberOfSteps};
+  const float stepX{cX / numberOfSteps};
+  const float stepY{cY / numberOfSteps};
+  const float stepZ{cZ / numberOfSteps};
 
   // check the status of truth information for this SiHit
   // some Truth information is cut for pile up events

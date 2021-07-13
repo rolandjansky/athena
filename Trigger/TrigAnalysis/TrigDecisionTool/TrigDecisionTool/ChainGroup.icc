@@ -145,17 +145,15 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
   std::vector<TrigCompositeUtils::LinkInfo<CONTAINER>> returnVector =
     TrigCompositeUtils::recursiveGetFeaturesOfType<CONTAINER>(navGraph, containerSGKey, lastFeatureOfTypeFlag, navElementLinkKey, allRequestedChainIDs);
 
-  // Check for missing navigation data if requesting the default "feature" links
-  if (navElementLinkKey == TrigCompositeUtils::featureString()) {
-    const auto& ctx = Gaudi::Hive::currentContext();
-    for (const TrigCompositeUtils::LinkInfo<CONTAINER>& linkInfo : returnVector) {
-      if (linkInfo.link.isValid()) continue; // We're looking for invalid links...
-      if (linkInfo.source->isRemapped()) continue; // ... which do not have remapping data. 
-      ElementLink<TrigCompositeUtils::DecisionContainer> sourceEL = TrigCompositeUtils::decisionToElementLink( linkInfo.source, ctx );
-      ATH_MSG_WARNING("A link to a feature from " << sourceEL.dataID() << " is invalid, "
-        "this is due to this container not having its 'remap_linkColIndices' and 'remap_linkColKeys' decorations.");
-      break;
-    } 
+  size_t invalid = 0;
+  for (const TrigCompositeUtils::LinkInfo<CONTAINER>& linkInfo : returnVector) {
+    if (not linkInfo.link.isValid()) {
+      ++invalid;
+    }
+  }
+  if (invalid) {
+    ATH_MSG_WARNING(invalid << " of " << returnVector.size() << " returned features have invalid element links. Check the Trigger EDM. "
+      << "Request was for features of type " << ClassID_traits<CONTAINER>::typeName());
   }
 
   return returnVector;

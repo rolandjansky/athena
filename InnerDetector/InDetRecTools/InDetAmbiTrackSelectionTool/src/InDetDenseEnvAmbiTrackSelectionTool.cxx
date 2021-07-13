@@ -61,6 +61,8 @@ StatusCode InDet::InDetDenseEnvAmbiTrackSelectionTool::initialize()
 
   ATH_CHECK(detStore()->retrieve(m_detID, "SiliconID"));
  
+  if(!m_etaDependentCutsSvc.name().empty()) ATH_CHECK(m_etaDependentCutsSvc.retrieve());
+
   ATH_CHECK(m_assoTool.retrieve());
 
   ATH_CHECK(m_inputHadClusterContainerName.initialize(m_useHClusSeed));
@@ -131,9 +133,14 @@ std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getClea
   // compute the number of shared hits from the number of max shared modules
   // reset every track as could be changed for tracks within an ROI
   // ROI matching is done within decideWhichHitsToKeep. Note mulitple ROI types
-  ent->m_maxSharedModules = 2*m_maxSharedModules+1; // see header for meaning
-  ent->m_minNotShared = m_minNotSharedHits;
-  ent->m_minSiHits = m_minSiHitsToAllowSplitting;
+  double trackEta = ptrTrack->trackParameters()->front()->eta();
+  int maxSharedModules = m_etaDependentCutsSvc.name().empty() ?
+    int(m_maxSharedModules) : m_etaDependentCutsSvc->getMaxSharedAtEta(trackEta);
+  ent->m_maxSharedModules = 2*maxSharedModules+1; // see header for meaning
+  ent->m_minNotShared = m_etaDependentCutsSvc.name().empty() ?
+    int(m_minNotSharedHits) : m_etaDependentCutsSvc->getMinSiNotSharedAtEta(trackEta);
+  ent->m_minSiHits = m_etaDependentCutsSvc.name().empty() ?
+    int(m_minSiHitsToAllowSplitting) : m_etaDependentCutsSvc->getMinSiHitsAtEta(trackEta);
 
   // cut on TRT hits, might use eta dependent cuts here
   int  nCutTRT = m_minTRT_Hits;

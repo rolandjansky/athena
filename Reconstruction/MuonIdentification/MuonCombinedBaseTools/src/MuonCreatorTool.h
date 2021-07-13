@@ -141,9 +141,9 @@ namespace MuonCombined {
                           std::vector<float>& rpcHitPositionY, std::vector<float>& rpcHitPositionZ, std::vector<float>& rpcHitTime) const;
         void addRpcTiming(xAOD::Muon& muon) const;
         void addMSIDScatteringAngles(xAOD::Muon& muon) const;
-        void addMSIDScatteringAngles(const xAOD::TrackParticle& track) const;
+        void addMSIDScatteringAngles(const xAOD::TrackParticle* track) const;
         void addSegmentsOnTrack(xAOD::Muon& muon, const xAOD::MuonSegmentContainer* segments) const;
-        void addAlignmentEffectsOnTrack(xAOD::TrackParticleContainer* trkCont) const;
+        void addAlignmentEffectsOnTrack(xAOD::TrackParticleContainer* trkCont)const;
 
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
         ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",

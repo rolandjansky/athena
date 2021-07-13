@@ -39,7 +39,7 @@ class TrigMultiTrkComboHypoTool: public ComboHypoToolBase {
 
  private:
   bool passed(const xAOD::TrigBphys*) const;
-  virtual bool executeAlg(std::vector<LegDecision>&) const override { return true; }
+  virtual bool executeAlg(const std::vector<Combo::LegDecision>&) const override;
   bool checkPreviousDecisionIDs(const std::vector<const TrigCompositeUtils::DecisionIDContainer*>&) const;
   int totalCharge(const xAOD::TrigBphys*) const;
   bool isInMassRange(double mass) const;

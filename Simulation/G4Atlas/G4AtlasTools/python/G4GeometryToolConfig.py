@@ -286,22 +286,15 @@ def IDETEnvelopeCfg(ConfigFlags, name="IDET", **kwargs):
 def CALOEnvelopeCfg(ConfigFlags, name="CALO", **kwargs):
     result = ComponentAccumulator()
 
-    from LArGeoAlgsNV.LArGeoAlgsNVConf import LArDetectorToolNV
-    calolim = 6735.
-    try:
-        if LArDetectorToolNV.ActivateFeedThrougs:
-            calolim = 6747.
-    except AttributeError:
-        pass
     kwargs.setdefault("DetectorName", "CALO")
     kwargs.setdefault("NSurfaces", 18)
     kwargs.setdefault("InnerRadii", [41.,41.,41.,41.,41.,41.,120.,120.,1148.,1148.,120.,120.,41.,41.,41.,41.,41.,41.]) #FIXME Units?
     kwargs.setdefault("OuterRadii", [415.,415.,3795.,3795.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,3795.,3795.,415.,415.]) #FIXME Units?
     if ConfigFlags.Detector.GeometryHGTD:
         # Make room for HGTD (3420 mm < |z| < 3545 mm) when turned on
-        kwargs.setdefault("ZSurfaces", [-6781.,-calolim,-calolim,-6530.,-6530.,-4587.,-4587.,-3545.,-3545.,3545.,3545.,4587.,4587.,6530.,6530.,calolim,calolim,6781.]) #FIXME Units?
+        kwargs.setdefault("ZSurfaces", [-6781.,-6747.,-6747.,-6530.,-6530.,-4587.,-4587.,-3545.,-3545.,3545.,3545.,4587.,4587.,6530.,6530.,6747.,6747.,6781.]) #FIXME Units?
     else:
-        kwargs.setdefault("ZSurfaces", [-6781.,-calolim,-calolim,-6530.,-6530.,-4587.,-4587.,-3475.,-3475.,3475.,3475.,4587.,4587.,6530.,6530.,calolim,calolim,6781.]) #FIXME Units?
+        kwargs.setdefault("ZSurfaces", [-6781.,-6747.,-6747.,-6530.,-6530.,-4587.,-4587.,-3475.,-3475.,3475.,3475.,4587.,4587.,6530.,6530.,6747.,6747.,6781.]) #FIXME Units?
     SubDetectorList=[]
     if ConfigFlags.Detector.GeometryLAr:
         toolLArMgr = result.popToolsAndMerge(LArMgrGeoDetectorToolCfg(ConfigFlags))
@@ -345,18 +338,11 @@ def ForwardRegionEnvelopeCfg(ConfigFlags, name='ForwardRegion', **kwargs):
 def MUONEnvelopeCfg(ConfigFlags, name="MUONQ02", **kwargs): #FIXME rename to MUON when safe (IS IT SAFE?))
     result = ComponentAccumulator()
 
-    from LArGeoAlgsNV.LArGeoAlgsNVConf import LArDetectorToolNV
-    calolim = 6736.
-    try:
-        if LArDetectorToolNV.ActivateFeedThrougs:
-            calolim = 6748.
-    except AttributeError:
-        pass
     kwargs.setdefault("DetectorName", "MUONQ02") #FIXME rename to MUON when safe
     kwargs.setdefault("NSurfaces", 34)
     kwargs.setdefault("InnerRadii", [1050.,1050.,1050.,1050.,436.7,436.7,279.,279.,70.,70.,420.,420.,3800.,3800.,4255.,4255.,4255.,4255.,4255.,4255.,3800.,3800.,420.,420.,70.,70.,279.,279.,436.7,436.7,1050.,1050.,1050.,1050.]) #FIXME Units?
     kwargs.setdefault("OuterRadii", [1500.,1500.,2750.,2750.,12650.,12650.,13400.,13400.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,13000.,13000.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,13400.,13400.,12650.,12650.,2750.,2750.,1500.,1500.]) #FIXME Units?
-    kwargs.setdefault("ZSurfaces", [-26046.,-23001.,-23001.,-22030.,-22030.,-18650.,-18650.,-12900.,-12900.,-6783.,-6783.,-calolim,-calolim,-6550.,-6550.,-4000.,-4000.,4000.,4000.,6550.,6550.,calolim,calolim,6783.,6783.,12900.,12900.,18650.,18650.,22030.,22030.,23001.,23001.,26046.]) #FIXME Units?
+    kwargs.setdefault("ZSurfaces", [-26046.,-23001.,-23001.,-22030.,-22030.,-18650.,-18650.,-12900.,-12900.,-6783.,-6783.,-6748.,-6748.,-6550.,-6550.,-4000.,-4000.,4000.,4000.,6550.,6550.,6748.,6748.,6783.,6783.,12900.,12900.,18650.,18650.,22030.,22030.,23001.,23001.,26046.]) #FIXME Units?
     SubDetectorList=[]
     if ConfigFlags.Detector.GeometryMuon:
         toolMuon = result.popToolsAndMerge(MuonGeoDetectorToolCfg(ConfigFlags))

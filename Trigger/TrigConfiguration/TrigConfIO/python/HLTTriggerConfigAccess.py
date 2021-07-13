@@ -112,3 +112,42 @@ class HLTJobOptionsAccess(TriggerConfigAccess):
         print("Job options")
         print("Number of algorithms: %i" % len(self) )
         print("Number of properties: %i" % sum(len(alg) for alg in self.algorithms().values()) )
+
+
+class HLTMonitoringAccess(TriggerConfigAccess):
+    """
+    this class provides access to the HLT monitoring json
+    """
+    def __init__(self, filename = None, dbalias = None, monikey = None ):
+        """
+        accessor needs to be initialized with either a filename or the dbalias and hlpskey
+        """
+        super(HLTMonitoringAccess,self).__init__( ConfigType.HLTMON, mainkey = "signatures",
+                                                    filename = filename, dbalias = dbalias, dbkey = monikey )
+
+        #self.loader.setQuery() # TODO when database will be ready
+        self.load()
+
+
+    def monitoredSignatures(self):
+        """
+        return stored monitoring dictionary
+        """
+        return self["signatures"]
+
+    def monitoredT0Chains(self, signature=""):
+        """
+        return list of all monitored t0 chains for given signature
+        """
+        t0chains = []
+
+        for monSignature in self["signatures"]:
+            if (signature and signature == monSignature) or not signature:
+                signatureDict = self["signatures"][monSignature]
+                t0chains += [chain for chain in signatureDict if "t0" in signatureDict[chain]]
+
+        return t0chains
+
+    def printSummary(self):
+        print("HLT monitoring groups %s" % self.name())
+        print("Number of signatures: %i" % len(self["signatures"]))

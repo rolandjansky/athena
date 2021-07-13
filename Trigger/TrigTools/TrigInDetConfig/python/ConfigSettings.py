@@ -64,6 +64,8 @@ class _ConfigSettings_muonIso( _ConfigSettingsBase ):
       self._roi       = "HLT_Roi_MuonIso"
       self._etaHalfWidth        = 0.35
       self._phiHalfWidth        = 0.35
+      # commented for now, but this should be added soon
+      # self._zedHalfWidth        = 10.0
 
 
 class _ConfigSettings_tau( _ConfigSettingsBase ):
@@ -180,7 +182,7 @@ class _ConfigSettings_fullScan( _ConfigSettingsBase ):
       self._UseTrigSeedML   = 4
       self._dodEdxTrk         = False
       self._doHitDV           = True
-      self._doDisappearingTrk = False
+      self._doDisappearingTrk = True
 
 
 class _ConfigSettings_beamSpotFS( _ConfigSettingsBase ):

@@ -199,17 +199,26 @@ StatusCode RatesAnalysisAlg::addExisting(const std::string pattern) {
   ATH_MSG_INFO("Read " << triggers.size() << " triggers from AOD.");
 
   // Check if chain was disabled in athena job
+  const bool runWithPrescaleJSON = !m_prescalesJSON.value().empty();
   const TrigConf::HLTPrescalesSet& hltPrescalesSet = m_configSvc->hltPrescalesSet(Gaudi::Hive::currentContext());
   for( auto & p : hltPrescalesSet.data().get_child("prescales") ) {
-    if (!m_prescalesJSON.value().count(p.first) || hltPrescalesSet.prescale(p.first).prescale < 0){
+    if ((!m_prescalesJSON.value().count(p.first) && !runWithPrescaleJSON) || hltPrescalesSet.prescale(p.first).prescale < 0){
       m_prescalesJSON[p.first] = hltPrescalesSet.prescale(p.first).prescale;
+
+      if (hltPrescalesSet.prescale(p.first).prescale < 0){
+        ATH_MSG_WARNING("Trigger " << p.first << " disabled in supplied AOD file. DISABLING");
+      }
     }
   }
 
   const TrigConf::L1PrescalesSet& l1PrescalesSet = m_configSvc->l1PrescalesSet(Gaudi::Hive::currentContext());
   for( auto & p : l1PrescalesSet.prescales() ) {
-    if (!m_prescalesJSON.value().count(p.first) || p.second.prescale < 0){
+    if ((!m_prescalesJSON.value().count(p.first) && !runWithPrescaleJSON) || p.second.prescale < 0){
       m_prescalesJSON[p.first] = p.second.prescale;
+
+      if (p.second.prescale < 0){
+        ATH_MSG_WARNING("Trigger " << p.first << " disabled in supplied AOD file. DISABLING");
+      }
     }
   }
 
@@ -228,12 +237,12 @@ StatusCode RatesAnalysisAlg::addExisting(const std::string pattern) {
     if (isHLT) {
       // If this is a HLT item, we require it to be seeded by at most one item. This allows us to use a factorising rates algorithm
       if (lowerName.find(",") != std::string::npos) {
-        ATH_MSG_DEBUG("Can not add " << trigger << " due to multiple L1 seeds." );
+        ATH_MSG_WARNING("Can not add " << trigger << " due to multiple L1 seeds." );
         continue;
       }
 
       if (lowerName.empty()) {
-        ATH_MSG_DEBUG("Can not add " << trigger << " due to multiple L1 seeds: L1All" );
+        ATH_MSG_WARNING("Can not add " << trigger << " due to multiple L1 seeds: L1All" );
         continue;
       }
       
@@ -287,6 +296,12 @@ StatusCode RatesAnalysisAlg::addExisting(const std::string pattern) {
     // We now have all the info needed to add this trigger
     ATH_MSG_DEBUG("Registering existing trigger " << trigger << " for automatic TDT based rates prediction." );
     ATH_CHECK( newTrigger(trigger, prescale, expressPrescale, lowerName, lowerPrescale, groups, kEXISTING) );
+  }
+
+  for (const auto& trigger : m_prescalesJSON) {
+    if (trigger.second > 0 &&  std::find(triggers.begin(), triggers.end(), trigger.first) == triggers.end()) {
+       ATH_MSG_WARNING( "Trigger " << trigger.first << " in supplied JSON is NOT AVAILABLE in the supplied AOD file.");
+    }
   }
 
   return StatusCode::SUCCESS;

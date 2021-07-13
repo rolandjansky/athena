@@ -287,9 +287,12 @@ namespace TrigCompositeUtils {
    * @brief Query all DecisionCollections in the event store, locate all Decision nodes in the graph where an object failed selection for a given chain.
    * @param[in] eventStore Pointer to event store within current event context
    * @param[in] ids IDs of chain (if multi-leg chain, include all legs) to located failed decision nodes for. Passing an empty set returns all decision nodes which failed at least one chain.
+   * @param[in] keysToIgnore Set of SG keys of containers which should not be explored by getRejectedDecisionNodes.
    * @return Vector of Decision nodes whose attached feature failed the trigger chain logic for chain with DecisionID id
    **/
-  std::vector<const Decision*> getRejectedDecisionNodes(asg::EventStoreType* eventStore, const DecisionIDContainer ids = {});
+  std::vector<const Decision*> getRejectedDecisionNodes(asg::EventStoreType* eventStore, 
+    const DecisionIDContainer ids = {},
+    const std::set<std::string>& keysToIgnore = std::set<std::string>());
 
 
   /**

@@ -153,7 +153,7 @@ except Exception:
 try:
     if rec.doBTagging():
         include("BTagging/BTaggingReconstructionOutputAODList_jobOptions.py")
-        fullESDList += CfgItemList( "BTaggingAod", items = BTaggingAODList, allowWildCard = True )
+        fullESDList += CfgItemList( "BTaggingEsd", items = BTaggingESDList, allowWildCard = True )
 except Exception:
     treatException("Could not load BTagging item list")    
 

@@ -11,6 +11,10 @@ LArRampSubsetCnv_p1::persToTrans(const LArRampPersType* persObj,
                                   LArRampTransType* transObj, 
                                   MsgStream & log)
 {
+    // Copy basic metadata
+    transObj->setChannel       (persObj->m_subset.m_channel);
+    transObj->setGroupingType  (persObj->m_subset.m_groupingType);
+
     transObj->initialize (persObj->m_subset.m_febIds, persObj->m_subset.m_gain);
 
     // Copy conditions
@@ -122,9 +126,6 @@ LArRampSubsetCnv_p1::persToTrans(const LArRampPersType* persObj,
     }
     transObj->insertCorrections (std::move (corrs));
 
-    // Copy the rest
-    transObj->setChannel       (persObj->m_subset.m_channel);
-    transObj->setGroupingType  (persObj->m_subset.m_groupingType);
 }
 
 

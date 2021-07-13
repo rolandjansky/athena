@@ -104,7 +104,10 @@ class PixelDiodeMatrix;
               of more complex layouts where cells are not lined up with each other 
               such as bricking. Probably never will be needed.  */
           void setGeneralLayout() {m_generalLayout = true;}
-        
+
+          /** Debug representation */
+          std::string debugStringRepr() const;
+
           ///////////////////////////////////////////////////////////////////
           // Private methods:
           ///////////////////////////////////////////////////////////////////
@@ -189,6 +192,11 @@ class PixelDiodeMatrix;
           cellId.phiIndex() <0 || cellId.phiIndex() >= phiDiodes() ||
           cellId.etaIndex() <0 || cellId.etaIndex() >= etaDiodes()) return SiCellId(); // Invalid
       return cellId; 
+    }
+
+    inline std::string PixelDiodeMap::debugStringRepr() const
+    {
+      return m_matrix->createDebugStringRepr();
     }
 
 } // namespace InDetDD

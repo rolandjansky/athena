@@ -28,7 +28,7 @@ public:
 private: 
    ToolHandleArray< TrigDisappearingTrackTriggerHypoTool > m_hypoTools  {this, "HypoTools", {}, "Tools to perfrom selection"};
    SG::ReadHandleKey< xAOD::TrigCompositeContainer > m_DisTrkCandKey    {this, "DisTrkCand",  "HLT_DisTrkCand",   ""};
-
+   //
    SG::WriteHandleKey<xAOD::TrigCompositeContainer>  m_DisTrkBDTSelKey  {this, "DisTrkBDTSel","HLT_DisTrkBDTSel", ""};
 }; 
 

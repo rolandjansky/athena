@@ -1258,8 +1258,10 @@ def InDetAmbiScoringToolBaseCfg(flags, name='InDetAmbiScoringTool', **kwargs) :
     InDetTrackSummaryTool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
     acc.addPublicTool(InDetTrackSummaryTool)
 
-    InDetTRTDriftCircleCutForPatternReco = InDetTRTDriftCircleCutForPatternRecoCfg(flags)
-    acc.addPublicTool(InDetTRTDriftCircleCutForPatternReco)
+    if 'DriftCircleCutTool' not in kwargs :
+        InDetTRTDriftCircleCutForPatternReco = InDetTRTDriftCircleCutForPatternRecoCfg(flags)
+        acc.addPublicTool(InDetTRTDriftCircleCutForPatternReco)
+        kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCutForPatternReco )
 
     from AthenaCommon.DetFlags  import DetFlags
     have_calo_rois = flags.InDet.doBremRecovery and flags.InDet.doCaloSeededBrem and DetFlags.detdescr.Calo_allOn()
@@ -1267,7 +1269,6 @@ def InDetAmbiScoringToolBaseCfg(flags, name='InDetAmbiScoringTool', **kwargs) :
         alg = InDetROIInfoVecCondAlgCfg()
         kwargs.setdefault("CaloROIInfoName", alg.WriteKey )
     kwargs.setdefault("SummaryTool", InDetTrackSummaryTool )
-    kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCutForPatternReco )
     kwargs.setdefault("useAmbigFcn", True )
     kwargs.setdefault("useTRT_AmbigFcn", False )
     kwargs.setdefault("maxZImp", flags.InDet.Tracking.maxZImpact )
@@ -1391,6 +1392,10 @@ def InDetAmbiScoringToolCfg(flags, name='InDetAmbiScoringTool', **kwargs) :
     acc.setPrivateTools(acc.popToolsAndMerge(InDetAmbiScoringToolBaseCfg(flags, name = name + flags.InDet.Tracking.extension, **kwargs )))
     return acc
 
+def InDetAmbiScoringToolSiCfg(flags, name='InDetAmbiScoringToolSi', **kwargs) :
+    kwargs.setdefault('DriftCircleCutTool','')
+    return InDetAmbiScoringToolCfg(flags, name, **kwargs)
+
 def InDetExtenScoringToolCfg(flags, name='InDetExtenScoringTool', **kwargs) :
     acc = ComponentAccumulator()
     if flags.InDet.trackFitterType in ['KalmanFitter', 'KalmanDNAFitter', 'ReferenceKalmanFitter']:
@@ -1450,14 +1455,15 @@ def InDetNNScoringToolBaseCfg(flags, name='InDetNNScoringTool', **kwargs) :
     InDetTrackSummaryTool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
     acc.addPublicTool(InDetTrackSummaryTool)
 
-    InDetTRTDriftCircleCutForPatternReco = InDetTRTDriftCircleCutForPatternRecoCfg(flags)
-    acc.addPublicTool(InDetTRTDriftCircleCutForPatternReco)
+    if 'DriftCircleCutTool' not in kwargs :
+        InDetTRTDriftCircleCutForPatternReco = InDetTRTDriftCircleCutForPatternRecoCfg(flags)
+        acc.addPublicTool(InDetTRTDriftCircleCutForPatternReco)
+        kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCutForPatternReco )
 
     kwargs.setdefault("nnCutConfig", "dev/TrackingCP/LRTAmbiNetwork/20200727_225401/nn-config.json" )
     kwargs.setdefault("nnCutThreshold", flags.InDet.nnCutLargeD0Threshold )
     kwargs.setdefault("Extrapolator", InDetExtrapolator )
     kwargs.setdefault("SummaryTool", InDetTrackSummaryTool )
-    kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCutForPatternReco )
     kwargs.setdefault("useAmbigFcn", True )
     kwargs.setdefault("useTRT_AmbigFcn", False )
     kwargs.setdefault("maxZImp", flags.InDet.Tracking.maxZImpact )
@@ -1484,6 +1490,10 @@ def InDetNNScoringToolCfg(flags, name='InDetNNScoringTool', **kwargs) :
     kwargs.setdefault("maxDoubleHoles", flags.InDet.Tracking.maxDoubleHoles)
 
     return InDetNNScoringToolBaseCfg(flags, name=name+flags.InDet.Tracking.extension, **kwargs )
+
+def InDetNNScoringToolSiCfg(flags, name='InDetNNScoringToolSi', **kwargs) :
+    kwargs.setdefault('DriftCircleCutTool','')
+    return InDetNNScoringToolCfg(flags,name, **kwargs)
 
 def InDetCosmicsScoringToolCfg(flags, name='InDetCosmicsScoringTool', **kwargs) :
     return InDetCosmicsScoringToolBaseCfg(flags,
