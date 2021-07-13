@@ -637,4 +637,41 @@ void LArMaterialManager::buildMaterials()
     pigtail_mat->lock();
     m_storedManager->addMaterial("LAr", pigtail_mat);
   }
+
+  // Fallback materials
+  {
+    // Fallback for sct::Rubber
+    const GeoMaterial *matRubber = m_storedManager->getMaterial("sct::Rubber");
+    if (matRubber == nullptr) {
+      msg << MSG::WARNING << "Creating fallback sct::Rubber material definition" << endmsg;
+      const GeoElement* carbon = m_storedManager->getElement("Carbon");
+      const GeoElement* hydrogen = m_storedManager->getElement("Hydrogen");
+      const int carbonAtoms{5};
+      const int hydrogenAtoms{8};
+      const double inv_totalFraction = 1. / (carbonAtoms * carbon->getA() + hydrogenAtoms * hydrogen->getA());
+
+      auto matRubberFallback = new GeoMaterial("sct::Rubber", 2.982*GeoModelKernelUnits::gram/Gaudi::Units::cm3);
+      matRubberFallback->add(carbon, carbonAtoms * carbon->getA() * inv_totalFraction);
+      matRubberFallback->add(hydrogen, hydrogenAtoms * hydrogen->getA() * inv_totalFraction);
+      matRubberFallback->lock();
+      m_storedManager->addMaterial("sct", matRubberFallback);
+    }
+
+    // Fallback for trt::CO2
+    const GeoMaterial *matCO2 = m_storedManager->getMaterial("trt::CO2"); //0.001842 g/cm3
+    if (matCO2 == nullptr) {
+      msg << MSG::WARNING << "Creating fallback trt::CO2 material definition" << endmsg;
+      const GeoElement* carbon = m_storedManager->getElement("Carbon");
+      const GeoElement* oxygen = m_storedManager->getElement("Oxygen");
+      const int carbonAtoms{1};
+      const int oxygenAtoms{2};
+      const double inv_totalFraction = 1. / (carbonAtoms * carbon->getA() + oxygenAtoms * oxygen->getA());
+
+      auto matCO2Fallback = new GeoMaterial("trt::CO2", 0.001842*GeoModelKernelUnits::gram/Gaudi::Units::cm3);
+      matCO2Fallback->add(carbon, carbonAtoms * carbon->getA() * inv_totalFraction);
+      matCO2Fallback->add(oxygen, oxygenAtoms * oxygen->getA() * inv_totalFraction);
+      matCO2Fallback->lock();
+      m_storedManager->addMaterial("trt", matCO2Fallback);
+    }
+  }
 }
