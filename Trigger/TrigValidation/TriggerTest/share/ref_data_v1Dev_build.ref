@@ -3730,22 +3730,6 @@ HLT_unconvtrk0_fslrt_L1XE50:
     0: 1
   stepFeatures:
     0: 1
-HLT_unconvtrk200_hitdv_medium_L1XE50:
-  eventCount: 0
-  stepCounts:
-    0: 1
-    1: 1
-  stepFeatures:
-    0: 1
-    1: 1
-HLT_unconvtrk200_hitdv_tight_L1XE50:
-  eventCount: 0
-  stepCounts:
-    0: 1
-    1: 1
-  stepFeatures:
-    0: 1
-    1: 1
 HLT_unconvtrk20_distrk_medium_L1XE50:
   eventCount: 0
   stepCounts:
@@ -3955,6 +3939,14 @@ HLT_xe80_tcpufit_unconvtrk140_isohpttrack_medium_iaggrmedium_L1XE50:
     0: 1
     1: 1
 HLT_xe80_tcpufit_unconvtrk200_hitdv_medium_L1XE50:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 2
+    1: 1
+HLT_xe80_tcpufit_unconvtrk200_hitdv_tight_L1XE50:
   eventCount: 0
   stepCounts:
     0: 1
