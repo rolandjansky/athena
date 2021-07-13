@@ -320,8 +320,12 @@ if rec.doCaloRinger():
 
 # remove decorations that might be created by monitoring
 if rec.doMonitoring():
+    monitoringItems = []
+    from JetRec.JetRecFlags import jetFlags
+    if jetFlags.writeJetsToAOD():
+        monitoringItems.append("xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.-jetClean_LooseBad")
     fullAODList += CfgItemList( "MonitoringAod", 
-                                items = ["xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.-jetClean_LooseBad"]
+                                items = monitoringItems
                               )
 
 # now merge the explicit AOD list to the one coming from ObjKeyStore

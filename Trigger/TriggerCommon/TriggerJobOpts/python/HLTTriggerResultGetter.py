@@ -390,7 +390,7 @@ class HLTTriggerResultGetter(Configured):
             log.info("AOD list is subset of ESD list - good.")
 
 
-        def _addSlimming(stream, edm):
+        def _addSlimmingRun2(stream, edm):
             from TrigNavTools.TrigNavToolsConfig import navigationThinningSvc
 
             edmlist = list(y.split('-')[0] for x in edm.values() for y in x) #flatten names
@@ -407,13 +407,30 @@ class HLTTriggerResultGetter(Configured):
             del edmlist
 
 
-        if TriggerFlags.doNavigationSlimming() and rec.readRDO() and rec.doWriteAOD():
-            _addSlimming('StreamAOD', _TriggerESDList ) #Use ESD item list also for AOD!
-            log.info("configured navigation slimming for AOD output")
-            
-        if TriggerFlags.doNavigationSlimming() and rec.readRDO() and rec.doWriteESD():
-            _addSlimming('StreamESD', _TriggerESDList )                
-            log.info("configured navigation slimming for ESD output")
+        if ConfigFlags.Trigger.EDMVersion == 1 or ConfigFlags.Trigger.EDMVersion == 2:
+
+            # Run 1, 2 slimming
+            if TriggerFlags.doNavigationSlimming() and rec.readRDO() and rec.doWriteAOD():
+                _addSlimmingRun2('StreamAOD', _TriggerESDList ) #Use ESD item list also for AOD!
+                log.info("configured navigation slimming for AOD output")
+                
+            if TriggerFlags.doNavigationSlimming() and rec.readRDO() and rec.doWriteESD():
+                _addSlimmingRun2('StreamESD', _TriggerESDList )                
+                log.info("configured navigation slimming for ESD output")
+
+        if ConfigFlags.Trigger.EDMVersion >= 3:
+            # Change in the future to 'if EDMVersion >= 3 or doEDMVersionConversion:'
+
+            # Run 3 slimming
+            if ConfigFlags.Trigger.doNavigationSlimming: 
+                from TrigNavSlimmingMT.TrigNavSlimmingMTConfig import getTrigNavSlimmingMTConfig
+                from AthenaCommon.Configurable import Configurable
+                Configurable.configurableRun3Behavior += 1
+                from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
+                appendCAtoAthena( getTrigNavSlimmingMTConfig(ConfigFlags) )
+                Configurable.configurableRun3Behavior -= 1
+            else:
+                log.info("doNavigationSlimming is False, won't schedule run 3 navigation slimming")
 
         objKeyStore.addManyTypesStreamESD( _TriggerESDList )
         objKeyStore.addManyTypesStreamAOD( _TriggerAODList )        

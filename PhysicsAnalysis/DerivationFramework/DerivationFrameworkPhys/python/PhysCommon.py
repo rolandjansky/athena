@@ -143,7 +143,7 @@ addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=DerivationFrameworkJob)
 getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=DerivationFrameworkJob)
 
 # Event cleaning flags
-addEventCleanFlags()
+addEventCleanFlags(sequence=DerivationFrameworkJob)
 
 scheduleStandardMETContent(sequence=DerivationFrameworkJob, algname="METAssociationAlg")
 

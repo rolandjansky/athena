@@ -230,6 +230,14 @@ def setupMenu():
 
         ChainProp(name='HLT_e60_dnnloose_L1EM22VHI', groups=SingleElectronGroup),
 
+        # Generic test T&P chain
+        ChainProp(name='HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI',l1SeedThresholds=['EM22VHI','PROBEEM3'],groups=MultiElectronGroup),
+        # T&P chains for displaced electrons
+        ChainProp(name='HLT_e26_lhtight_ivarloose_e5_lhvloose_nopix_lrtloose_idperf_probe_L1EM22VHI',l1SeedThresholds=['EM22VHI','PROBEEM3'],groups=MultiElectronGroup+SupportLegGroup),
+        ChainProp(name='HLT_e26_lhtight_ivarloose_e26_lhloose_nopix_lrttight_probe_L1EM22VHI',l1SeedThresholds=['EM22VHI','PROBEEM22VHI'],groups=MultiElectronGroup+SupportLegGroup),
+        ChainProp(name='HLT_e5_lhvloose_nopix_lrtloose_idperf_probe_g25_medium_L1EM20VH',l1SeedThresholds=['PROBEEM3','EM20VH'],groups=MultiPhotonGroup+SupportLegGroup),
+        ChainProp(name='HLT_e26_lhloose_nopix_lrttight_probe_g25_medium_L1EM20VH',l1SeedThresholds=['PROBEEM22VHI','EM20VH'],groups=MultiPhotonGroup+SupportLegGroup),
+        
         # Late stream for LLP
         ChainProp(name='HLT_g35_medium_g25_medium_L1EM7_EMPTY', l1SeedThresholds=['EM7']*2, stream=['Late'], groups=PrimaryLegGroup+MultiPhotonGroup),
         ChainProp(name='HLT_g35_medium_g25_medium_L1EM7_UNPAIRED_ISO', l1SeedThresholds=['EM7']*2, stream=['Late'], groups=PrimaryLegGroup+MultiPhotonGroup),
@@ -237,7 +245,6 @@ def setupMenu():
         ChainProp(name='HLT_2g22_tight_L1EM7_UNPAIRED_ISO', l1SeedThresholds=['EM7'], stream=['Late'], groups=PrimaryLegGroup+MultiPhotonGroup),
         ChainProp(name='HLT_2g50_tight_L1EM7_EMPTY', l1SeedThresholds=['EM7'], stream=['Late'], groups=PrimaryLegGroup+MultiPhotonGroup),
         ChainProp(name='HLT_2g50_tight_L1EM7_UNPAIRED_ISO', l1SeedThresholds=['EM7'], stream=['Late'], groups=PrimaryLegGroup+MultiPhotonGroup),
-
     ]
 
     TriggerFlags.METSlice.signatures = TriggerFlags.METSlice.signatures() + [
@@ -700,6 +707,7 @@ def setupMenu():
         ChainProp(name="HLT_tau160_perf_tracktwoMVABDT_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau160_medium1_track_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau160_medium1_tracktwo_L1TAU100", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau160_mediumRNN_tracktwoMVATest_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau180_tightRNN_tracktwoLLP_L1TAU100", groups=SupportLegGroup+SingleTauGroup),    # 
         ChainProp(name="HLT_tau200_ptonly_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau200_medium1_track_L1TAU100", groups=SingleTauGroup),
@@ -1054,11 +1062,10 @@ def setupMenu():
         ChainProp(name='HLT_unconvtrk0_fslrt_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']),
 
         # hit-based DV
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk200_hitdv_tight_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']*2),
         ChainProp(name='HLT_xe80_tcpufit_unconvtrk200_hitdv_medium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']*2),
-        ChainProp(name='HLT_unconvtrk200_hitdv_tight_L1XE50',  groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']),
-        ChainProp(name='HLT_unconvtrk260_hitdv_tight_L1J100',  groups=SingleJetGroup, l1SeedThresholds=['FSNOSEED']),
-        ChainProp(name='HLT_unconvtrk200_hitdv_medium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']),
-        ChainProp(name='HLT_unconvtrk260_hitdv_medium_L1J100', groups=SingleJetGroup, l1SeedThresholds=['FSNOSEED']),
+        ChainProp(name='HLT_unconvtrk260_hitdv_tight_L1J100',   groups=SingleJetGroup, l1SeedThresholds=['FSNOSEED']),
+        ChainProp(name='HLT_unconvtrk260_hitdv_medium_L1J100',  groups=SingleJetGroup, l1SeedThresholds=['FSNOSEED']),
 
         # disappearing track trigger
         ChainProp(name='HLT_xe80_tcpufit_unconvtrk20_distrk_tight_L1XE50',  groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']*2),

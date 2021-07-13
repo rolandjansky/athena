@@ -52,6 +52,13 @@ class doEGammaDAODTrackThinning (egammaDFFlagsJobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
+class doEGammaEventInfoSlimming (egammaDFFlagsJobProperty):
+    """ switch for (smart) slimming event info or keep full event info
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
 
 # class calibMVAVersion (JobProperty):
 #     """Version of calo cluster corrections used for calibration.
@@ -68,7 +75,7 @@ class egammaDFFlags(JobPropertyContainer):
 jobproperties.add_Container(egammaDFFlags)
 
 # I want always the following flags in the container  
-_list_Egamma=[Enabled,doEGammaCellReweighting,doEGammaCellReweightingVariations,doEGammaDAODTrackThinning]
+_list_Egamma=[Enabled,doEGammaCellReweighting,doEGammaCellReweightingVariations,doEGammaDAODTrackThinning,doEGammaEventInfoSlimming]
 
 for j in _list_Egamma: 
     jobproperties.egammaDFFlags.add_JobProperty(j)

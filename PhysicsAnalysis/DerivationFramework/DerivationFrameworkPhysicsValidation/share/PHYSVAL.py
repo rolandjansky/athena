@@ -8,6 +8,7 @@
 # It requires the reductionConf flag PHYS in Reco_tf.py   
 #====================================================================
 
+from typing import Sequence
 from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName, DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob
 from DerivationFrameworkInDet import InDetCommon
 from DerivationFrameworkEGamma import EGammaCommon
@@ -145,7 +146,7 @@ addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYSVAL)
 getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqPHYSVAL)
 
 # Event cleaning flags
-addEventCleanFlags()
+addEventCleanFlags(sequence=SeqPHYSVAL)
 
 scheduleStandardMETContent(sequence=SeqPHYSVAL, algname="METAssociationAlg")
 

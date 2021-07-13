@@ -11,12 +11,8 @@
 #include <TFile.h>
 #include <TH1F.h>
 #include <TLegend.h>
-#include <iostream>
 #include <TPad.h>
-//#include <stdio.h>
-#include <string.h>
-//#include <stdlib.h>
-#include <math.h>
+
 #include "../TJetNet.h"
 #include "../doNormalization.C"
 #include "Riostream.h"
@@ -24,21 +20,23 @@
 #include <TSystem.h>
 
 #include "../TTrainedNetwork.h"
-
-#include "TMatrixD.h"
-#include "TVectorD.h"
-//#include "trainNN.h"
-#include <algorithm>
-#include <vector>
-#include <utility>
 #include <TLatex.h>
-#include "TH2D.h"
-#include <sstream>
 #include <TProfile.h>
 #include <TMath.h>
 #include <TChain.h>
-#include <typeinfo>
+
 #include "TROOT.h"
+#include "TH2D.h"
+#include "TMatrixD.h"
+#include "TVectorD.h"
+#include <algorithm>
+#include <vector>
+#include <utility>
+#include <typeinfo>
+#include <sstream>
+#include <iostream>
+#include <string>
+#include <cmath>
 
 using namespace std;
 
@@ -717,15 +715,14 @@ void writeNtuple::Loop(  int nParticlesTraining, bool useTrackEstimate, TString 
 	  
 	}
 
-	//	cout << "position ordered" << endl; 
 
 
         double minDist = 10000000;
 
-        double TruthLocX;
-        double TruthLocY;
+        double TruthLocX{0.};
+        double TruthLocY{0.};
       
-        int truthIndex;         
+        int truthIndex{0};         
         // check which associated truth locX and locY are closer to the estimated passage point
         for( unsigned int mp=0; mp < outputNN_X.size(); mp++){
 
@@ -754,7 +751,6 @@ void writeNtuple::Loop(  int nParticlesTraining, bool useTrackEstimate, TString 
 
 
         }
-	//	cout << "position chosen " << endl;
 
         double locX_NN =  outputNN_X[truthIndex];
         double locY_NN =  outputNN_Y[truthIndex];
@@ -763,7 +759,6 @@ void writeNtuple::Loop(  int nParticlesTraining, bool useTrackEstimate, TString 
 	double errY_NN = outputNN_errY[truthIndex];
 
 
-	//	cout << "position and error set " << endl;
 
 
 	// if you want to fill with old clustering insted of NN uncomment this
@@ -781,7 +776,6 @@ void writeNtuple::Loop(  int nParticlesTraining, bool useTrackEstimate, TString 
 	double PixDigResPhi = TruthLocX - fOther->PixClusLocXcentroid->at(clus) +  fOther->PixClusLocX_LorentzCorrection->at(clus) ;
 	double PixDigResEta = TruthLocY - fOther->PixClusLocYcentroid->at(clus)  ;
 
-	//	cout << "digital resolution obtained" << endl;
 
  	m_PixDigResPhi->push_back( PixDigResPhi);
  	m_PixDigResEta->push_back( PixDigResEta);

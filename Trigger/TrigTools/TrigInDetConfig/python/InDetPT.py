@@ -454,6 +454,7 @@ def trtExtensionProcessor_builder( signature, config, summaryTool, inputTracks, 
 
 
     from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackFitter
+    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
     from InDetExtensionProcessor.InDetExtensionProcessorConf import InDet__InDetExtensionProcessor   
     trtExtensionProcessor = InDet__InDetExtensionProcessor (name               = "%sExtensionProcessor%s"%(prefix, signature),
                                                             TrackName          = inputTracks,
@@ -463,7 +464,8 @@ def trtExtensionProcessor_builder( signature, config, summaryTool, inputTracks, 
                                                             TrackFitter        = InDetTrigTrackFitter,
                                                             TrackSummaryTool   = summaryTool,
                                                             ScoringTool        = scoringTool, #TODO do I provide the same tool as for ambiguity solver?
-                                                            suppressHoleSearch = False )  # does not work properly
+                                                            suppressHoleSearch = False,
+                                                            RefitPrds = not (InDetTrigFlags.refitROT() or (InDetTrigFlags.trtExtensionType() == 'DAF')))
                                                             # Check these option after DAF is implemented
                                                             # tryBremFit         = InDetFlags.doBremRecovery(),
                                                             # caloSeededBrem     = InDetFlags.doCaloSeededBrem(),

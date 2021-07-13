@@ -17,9 +17,7 @@
 #ifndef TRIGFASTTRACKFINDER_TRIGFASTTRACKFINDER_H
 #define TRIGFASTTRACKFINDER_TRIGFASTTRACKFINDER_H
 
-#include<string>
-#include<vector>
-#include<map>
+
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
@@ -32,33 +30,22 @@
 #include "TrigInDetToolInterfaces/ITrigInDetTrackFitter.h"
 #include "TrigInDetToolInterfaces/ITrigZFinder.h"
 
-
 #include "InDetRecToolInterfaces/ISiTrackMaker.h"
 #include "SiSPSeededTrackFinderData/SiTrackMakerEventData_xk.h"
 #include "TrigInDetPattRecoTools/TrigCombinatorialSettings.h"
-#include "TrigInDetPattRecoTools/TrigTrackSeedGenerator.h"
+
 
 #include "AthenaMonitoringKernel/Monitored.h"
 
-#include "TrkTrack/TrackCollection.h"
-#include "TrkTrack/Track.h"
+#include "TrkTrack/TrackCollection.h" //typedef, cannot fwd declare
 
 #include "TrigInDetEvent/TrigVertexCollection.h"
-#include "TrigInDetEvent/TrigSiSpacePointBase.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 
-
-#include "InDetIdentifier/SCT_ID.h"
-#include "InDetIdentifier/PixelID.h"
-
 #include "TrigInDetToolInterfaces/ITrigL2LayerNumberTool.h"
 #include "TrigInDetToolInterfaces/ITrigSpacePointConversionTool.h"
-#include "TrigInDetToolInterfaces/ITrigL2SpacePointTruthTool.h"
-#include "TrigInDetToolInterfaces/TrigL2HitResidual.h"
-
-#include "TrigInDetPattRecoEvent/TrigInDetTriplet.h"
 
 // for UTT
 #include "TrigT1Interfaces/RecJetRoI.h"
@@ -71,6 +58,21 @@
 #include "TrigInDetAccelerationService/ITrigInDetAccelerationSvc.h"
 #include "TrigAccelEvent/TrigInDetAccelEDM.h"
 #include "TrigAccelEvent/TrigInDetAccelCodes.h"
+
+#include <string>
+#include <vector>
+#include <tuple>
+#include <map>
+#include <memory>
+#include <array>
+
+namespace Trk {
+  class Track; 
+}
+class SCT_ID;
+class PixelID;
+class TrigInDetTriplet;
+class TrigSiSpacePointBase;
 
 namespace InDet {
   class ExtendedSiTrackMakerEventData_xk : public InDet::SiTrackMakerEventData_xk
@@ -122,6 +124,13 @@ class TrigFastTrackFinder : public AthReentrantAlgorithm {
   };
 
 protected: 
+  static constexpr size_t N_BARREL_LAYERS{8};//previously hardcoded in function
+  struct OneLayerInfo_t{
+    int nHits{};
+    float chiSq{};
+    int nDof{};
+    int nGood{};
+  };
 
   void updateClusterMap(long int, const Trk::Track*, std::map<Identifier, std::vector<long int> >&) const;
   void extractClusterIds(const Trk::SpacePoint*, std::vector<Identifier>&) const;
@@ -138,7 +147,6 @@ protected:
   ToolHandle<ITrigZFinder> m_trigZFinder;
   ToolHandle< Trk::ITrackSummaryTool > m_trackSummaryTool;
   ToolHandle< GenericMonitoringTool > m_monTool  { this, "MonTool", "", "Monitoring tool" };
-   // ToolHandle< Trk::IExtrapolator > m_extrapolator;
   ToolHandle< Trk::IExtrapolator > m_extrapolator { this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator" };
   ToolHandle< Trk::ITrackFitter >  m_disTrkFitter;
 
@@ -183,7 +191,7 @@ protected:
 
   int  m_minHits;
 
-  int                     m_nfreeCut;     // Min number free clusters
+  int  m_nfreeCut;     // Min number free clusters
 
 
   float m_tripletMinPtFrac;
@@ -255,7 +263,8 @@ protected:
 			    const std::vector<double>&, const std::vector<double>&, const std::vector<double>&, bool) const;
   void print_disTrk(const Trk::Track* t) const;
   std::unique_ptr<Trk::Track> disTrk_refit(Trk::Track* t) const;
-  void getTrkBarrelLayerInfo(Trk::Track*, std::vector<int>&, std::vector<float>&, std::vector<int>&, std::vector<int>&) const;
+  
+  std::array<OneLayerInfo_t, N_BARREL_LAYERS> getTrkBarrelLayerInfo(Trk::Track* aTrack) const;
   bool isCleaningPassDisTrack(const TrigInDetTriplet&, Trk::Track*, bool) const;
   double disTrackQuality(const Trk::Track*) const;
   void recoVertexForDisTrack(const EventContext&, TrackCollection&, std::vector<double>&, std::vector<double>&, std::vector<double>&) const;

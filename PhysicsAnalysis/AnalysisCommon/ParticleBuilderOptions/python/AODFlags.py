@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #=======================================================================
 # File:   ParticleBuilderOptions/python/AODFlags.py
@@ -93,6 +93,12 @@ class ThinInDetForwardTrackParticles(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
+class ThinTRTStandaloneTracks(JobProperty):
+    """ If True, add ThinTRTStandaloneTrackAlg
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
 
 class Muon(JobProperty):
     """ If True, add Muon
@@ -103,6 +109,13 @@ class Muon(JobProperty):
 
 class Tau(JobProperty):
     """ If True, add Tau
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+
+class ThinTaus(JobProperty):
+    """ If True, add TauThinningAlg
     """
     statusOn=True
     allowedTypes=['bool']
@@ -296,8 +309,9 @@ _list_AOD=[ \
     ThinNegativeEnergyCaloClusters, \
     ThinNegativeEnergyNeutralPFOs, \
     ThinInDetForwardTrackParticles, \
+    ThinTRTStandaloneTracks, \
     Muon, \
-    Tau,\
+    Tau, ThinTaus, \
     TrackParticleSlimmer, TrackParticleLastHitAndPerigeeSlimmer, \
     ParticleJet,JetTag, \
     SpclMC,TruthParticleJet, \

@@ -6,8 +6,8 @@ def getOfflinePFAlgorithm(inputFlags):
     result=ComponentAccumulator()
 
     PFAlgorithm=CompFactory.PFAlgorithm
-    PFAlgorithm = PFAlgorithm("PFAlgorithm")   
-    
+    PFAlgorithm = PFAlgorithm("PFAlgorithm")
+
     from eflowRec.PFCfg import getPFClusterSelectorTool
     PFAlgorithm.PFClusterSelectorTool = getPFClusterSelectorTool("CaloTopoClusters","CaloCalTopoClusters","PFClusterSelectorTool")
 
@@ -26,9 +26,17 @@ def getOfflinePFAlgorithm(inputFlags):
     result.addEventAlgo(PFAlgorithm)
     return result
 
+def PFTauFlowElementLinkingCfg(inputFlags,neutral_FE_cont_name="",charged_FE_cont_name="",AODTest=False):
+    result=ComponentAccumulator()
+
+    from eflowRec.PFCfg import getTauFlowElementAssocAlgorithm
+    result.addEventAlgo(getTauFlowElementAssocAlgorithm(inputFlags,neutral_FE_cont_name,charged_FE_cont_name,AODTest))
+
+    return result
+
 def PFCfg(inputFlags,**kwargs):
 
-    #This is monolithic for now. 
+    #This is monolithic for now.
     #Once a first complete example runs, this will be split into small modular chunks.
     #Some such items may be best placed elsewehere (e.g. put magnetic field setup in magnetic field git folder etc)
     result=ComponentAccumulator()
@@ -39,12 +47,12 @@ def PFCfg(inputFlags,**kwargs):
     #Alias calibrated topoclusters, if they exist already, such that overwrite won't fial
     from SGComps.AddressRemappingConfig import InputRenameCfg
     result.merge(InputRenameCfg("xAOD::CaloClusterContainer","CaloCalTopoClusters",""))
-    
+
     #Setup up general geometry
     from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg
     result.merge(InDetGeometryCfg(inputFlags))
 
-    #Setup TRT conditions                                                                                                                                  
+    #Setup TRT conditions
     TRTAlignCondAlg=CompFactory.TRTAlignCondAlg
     result.addCondAlgo(TRTAlignCondAlg(name = "TRTAlignCondAlg",UseDynamicFolders = inputFlags.GeoModel.Align.Dynamic))
 
@@ -64,7 +72,7 @@ def PFCfg(inputFlags,**kwargs):
 
     GeometryDBSvc=CompFactory.GeometryDBSvc
     result.addService(GeometryDBSvc("InDetGeometryDBSvc"))
-    
+
     #from AthenaCommon import CfgGetter
     #result.getService("GeoModelSvc").DetectorTools += [ CfgGetter.getPrivateTool("PixelDetectorTool", checkType=True) ]
     #result.getService("GeoModelSvc").DetectorTools += [ CfgGetter.getPrivateTool("SCT_DetectorTool", checkType=True) ]
@@ -80,25 +88,25 @@ def PFCfg(inputFlags,**kwargs):
     #Setup up material for inner detector
     InDetServMatTool=CompFactory.InDetServMatTool
     result.getService("GeoModelSvc").DetectorTools += [ InDetServMatTool() ]
-    
+
     #Setup up tracking geometry
     from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
     acc = TrackingGeometrySvcCfg(inputFlags)
     result.merge(acc)
-    
+
     #load folders needed for Run2 ID alignment
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     result.merge(addFolders(inputFlags,['/TRT/Align'],'TRT_OFL'))
-    
+
     #Setup up muon geometry
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
-    result.merge(MuonGeoModelCfg(inputFlags))    
+    result.merge(MuonGeoModelCfg(inputFlags))
 
     #setup magnetic field service
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     result.merge(MagneticFieldSvcCfg(inputFlags))
 
-    #Configure topocluster algorithmsm, and associated conditions    
+    #Configure topocluster algorithmsm, and associated conditions
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
     result.merge(CaloTopoClusterCfg(inputFlags,
                                     doLCCalib=True))
@@ -138,15 +146,15 @@ if __name__=="__main__":
 
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior = True
-    
+
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as cfgFlags
 
     cfgFlags.Input.isMC=True
     cfgFlags.Input.Files=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/PFlowTests/mc16_13TeV/mc16_13TeV.361021.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ1W.recon.ESD.e3569_s3170_r12310_r12253_r12310/ESD.23850840._000295.pool.root.1"]
     cfgFlags.lock()
-    
-    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
-    cfg=MainServicesCfg(cfgFlags) 
+
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    cfg=MainServicesCfg(cfgFlags)
 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg.merge(PoolReadCfg(cfgFlags))

@@ -575,11 +575,8 @@ EGAM1Sequence += CfgMgr.DerivationFramework__DerivationKernel("EGAM1Kernel",
 #====================================================================
 # JET/MET
 #====================================================================
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
-reducedJetList = []
-if (DerivationFrameworkIsMonteCarlo):
-    reducedJetList.append("AntiKt4TruthJets")
-replaceAODReducedJets(reducedJetList,EGAM1Sequence,"EGAM1")
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addAntiKt4TruthJets
+addAntiKt4TruthJets(EGAM1Sequence,"EGAM1")
 
 
 #=======================================
@@ -648,6 +645,12 @@ for tool in EGAM1_ClusterEnergyPerLayerDecorators:
 
 # Add energy density variables
 EGAM1SlimmingHelper.ExtraVariables += ExtraVariablesEventShape
+
+# Add event info
+if jobproperties.egammaDFFlags.doEGammaEventInfoSlimming:
+    EGAM1SlimmingHelper.SmartCollections.append("EventInfo")
+else:
+    EGAM1SlimmingHelper.AllVariables += ["EventInfo"]
 
 # Add detailed shower shape variables (not needed for electrons because we save everything but it doesn't hurt..)
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *

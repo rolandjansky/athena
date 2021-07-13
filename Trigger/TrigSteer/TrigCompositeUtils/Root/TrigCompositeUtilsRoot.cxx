@@ -236,7 +236,10 @@ namespace TrigCompositeUtils {
     return nullptr;
   }
 
- std::vector<const Decision*> getRejectedDecisionNodes(asg::EventStoreType* eventStore, const DecisionIDContainer ids) {
+  std::vector<const Decision*> getRejectedDecisionNodes(asg::EventStoreType* eventStore,
+    const DecisionIDContainer ids,
+    const std::set<std::string>& keysToIgnore) {
+
     std::vector<const Decision*> output;
     // The list of containers we need to read can change on a file-by-file basis (it depends on the SMK)
     // Hence we query SG for all collections rather than maintain a large and ever changing ReadHandleKeyArray
@@ -263,6 +266,9 @@ namespace TrigCompositeUtils {
       // Get and check this container
       if ( key.find("HLTNav_") != 0 ) {
         continue; // Only concerned about the decision containers which make up the navigation, they have name prefix of HLTNav
+      }
+      if (keysToIgnore.count(key) == 1) {
+        continue; // Have been asked to not explore this SG container
       }
       SG::ReadHandle<DecisionContainer> containerRH(key);
       if (!containerRH.isValid()) {
