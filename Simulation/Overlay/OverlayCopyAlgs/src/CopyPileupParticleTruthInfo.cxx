@@ -54,6 +54,7 @@ StatusCode CopyPileupParticleTruthInfo::execute(const EventContext& ctx) const
   const static SG::AuxElement::Decorator< unsigned int > classificationDecorator("Classification");
   const static SG::AuxElement::Decorator< int > parentHadronIDDecorator("parentHadronID");  // check type
   const static SG::AuxElement::Decorator< int > eventNumberDecorator("pileupEventNumber");
+const static SG::AuxElement::Decorator< float > pVzDecorator("PVz");
 
   for (const xAOD::TruthParticle *bkgTruthParticle : *bkgContainer.cptr()) {
     xAOD::TruthParticle *xTruthParticle = new xAOD::TruthParticle();
@@ -84,6 +85,9 @@ StatusCode CopyPileupParticleTruthInfo::execute(const EventContext& ctx) const
     if (bkgTruthParticle->isAvailable<int>("parentHadronID")) {
       parentHadronIDDecorator(*xTruthParticle) = bkgTruthParticle->auxdata< int >( "parentHadronID" );
     } else {parentHadronIDDecorator(*xTruthParticle) = 0;}
+    if (bkgTruthParticle->isAvailable<float>("PVz")) {
+      pVzDecorator(*xTruthParticle) = bkgTruthParticle->auxdata< float >( "PVz" );
+    } else {pVzDecorator(*xTruthParticle) = 0.f;}
     if (bkgTruthParticle->isAvailable<int>("pileupEventNumber")) {
       eventNumberDecorator(*xTruthParticle) = bkgTruthParticle->auxdata< int >( "pileupEventNumber" );
     } else {eventNumberDecorator(*xTruthParticle) = 0;}
