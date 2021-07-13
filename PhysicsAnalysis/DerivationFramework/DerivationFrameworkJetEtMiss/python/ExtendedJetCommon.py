@@ -897,7 +897,7 @@ def addEventShape(radius, inputType, sequence):
         if inputType == "EMTopo":
             inputType = "EMTopoOrigin"
         elif inputType == "LCTopo":
-            inputType == "LCTopoOrigin"
+            inputType = "LCTopoOrigin"
     if not hasattr(sequence, "EDTool"+str(int(radius*10))+inputType):
         # Schedule pseudojets if necessary
         pjAlg = getPseudoJetAlg(inputType)
@@ -912,14 +912,14 @@ def getPseudoJetAlg(inputType):
             "EMTopoOrigin" : jtm.emoriginget,
             "EMPFlow": jtm.empflowget}[inputType]
 
-def addEventCleanFlags():
+def addEventCleanFlags(sequence):
     # Temporary workflow until the derivation framework is updated to remove JetAugmentationTool
     
     # Prereqs
-    applyJetCalibration_xAODColl("AntiKt4EMTopo")
-    updateJVT_xAODColl("AntiKt4EMTopo")
-    applyOverlapRemoval()
+    applyJetCalibration_xAODColl("AntiKt4EMTopo", sequence)
+    updateJVT_xAODColl("AntiKt4EMTopo", sequence)
+    applyOverlapRemoval(sequence)
 
-    eventCleanLoose_xAODColl("AntiKt4EMTopo")
-    eventCleanTight_xAODColl("AntiKt4EMTopo")
-    eventCleanLooseLLP_xAODColl("AntiKt4EMTopo")
+    eventCleanLoose_xAODColl("AntiKt4EMTopo", sequence)
+    eventCleanTight_xAODColl("AntiKt4EMTopo", sequence)
+    eventCleanLooseLLP_xAODColl("AntiKt4EMTopo", sequence)
