@@ -320,22 +320,6 @@ class HLTTriggerResultGetter(Configured):
             objKeyStore.addStreamAOD("JetKeyDescriptor","JetKeyMap")
             objKeyStore.addStreamAOD("JetMomentMap","TrigJetRecMomentMap")
                     
-        # ID truth
-        if not rec.readESD() and (not rec.readAOD()) and TriggerFlags.doID() \
-                and rec.doTruth():
-            try:
-                from TrigInDetTruthAlgs.TrigInDetTruthAlgsConfig import \
-                    TrigIDTruthMaker
-                topSequence += TrigIDTruthMaker()
-            except Exception:
-                log.warning( "Couldn't set up the trigger ID truth maker" )
-                pass
-
-        if rec.doESD() or rec.doAOD():
-            from TrigEDMConfig.TriggerEDM import getTrigIDTruthList
-            objKeyStore.addManyTypesStreamESD(getTrigIDTruthList(TriggerFlags.ESDEDMSet()))
-            objKeyStore.addManyTypesStreamAOD(getTrigIDTruthList(TriggerFlags.AODEDMSet()))
-
         if rec.doAOD() or rec.doWriteAOD():
             # schedule the RoiDescriptorStore conversion
             # log.warning( "HLTTriggerResultGetter - setting up RoiWriter" )
