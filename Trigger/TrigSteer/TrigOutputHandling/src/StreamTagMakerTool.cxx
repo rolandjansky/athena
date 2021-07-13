@@ -203,11 +203,6 @@ StatusCode StreamTagMakerTool::fillPEBInfoMap(std::unordered_map<DecisionID, PEB
                       << key.key() << ", decision " << *d);
         return StatusCode::FAILURE;
       }
-      if (robs.empty() && subdets.empty()) {
-        // This would mean streaming the full event to a PEB stream
-        ATH_MSG_ERROR("Empty PEB info for decision container " << key.key() << ", decision " << *d);
-        return StatusCode::FAILURE;
-      }
       // Assign PEBInfo to all passed chains for this decision
       for (const unsigned int id : ids) {
         // Convert leg id to chain id - changes nothing if id is already chain id
@@ -216,6 +211,11 @@ StatusCode StreamTagMakerTool::fillPEBInfoMap(std::unordered_map<DecisionID, PEB
         PEBInfoWriterToolBase::PEBInfo& pebi = map[chainId.numeric()];
         pebi.robs.insert(robs.begin(),robs.end());
         pebi.subdets.insert(subdets.begin(),subdets.end());
+        if (pebi.robs.empty() && pebi.subdets.empty()) {
+          // This would mean streaming the full event to a PEB stream
+          ATH_MSG_ERROR("Empty PEB info for decision container " << key.key() << ", decision " << *d);
+          return StatusCode::FAILURE;
+        }
       }
     } // Loop over decisions
   } // Loop over decision containers

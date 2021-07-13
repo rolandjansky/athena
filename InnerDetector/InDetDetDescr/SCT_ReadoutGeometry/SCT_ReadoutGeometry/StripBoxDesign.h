@@ -139,9 +139,6 @@ public:
 
     bool nearBondGap(const SiLocalPosition &, double) const;
 
-    // Transform from SiHit to GeoModel frame
-    const GeoTrf::Transform3D SiHitToGeoModel() const;
-
     // ------------------------------------------------------------------------------------------
 
 //

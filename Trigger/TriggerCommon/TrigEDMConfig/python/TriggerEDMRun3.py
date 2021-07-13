@@ -165,8 +165,13 @@ TriggerHLTListRun3 = [
     ('TrigRoiDescriptorCollection#HLT_TAURoI',                   'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#HLT_FSRoI',                    'BS ESD AODFULL AODSLIM',  'Steer'),
 
-    ('xAOD::TrigCompositeContainer#HLTNav_Summary_OnlineSlimmed', 'BS ESD AODFULL AODSLIM', 'Steer'),
-    ('xAOD::TrigCompositeAuxContainer#HLTNav_Summary_OnlineSlimmedAux.', 'BS ESD AODFULL AODSLIM', 'Steer'),
+    # xAOD::TrigCompositeContainer#HLTNav_Summary is now transient-only
+    ('xAOD::TrigCompositeContainer#HLTNav_Summary_OnlineSlimmed', 'BS ESD AODFULL AODSLIM', 'Steer'), # TODO: set to BS-only after slimmed versions are validated
+    ('xAOD::TrigCompositeAuxContainer#HLTNav_Summary_OnlineSlimmedAux.', 'BS ESD AODFULL AODSLIM', 'Steer'), # TODO: set to BS-only after slimmed versions are validated
+    ('xAOD::TrigCompositeContainer#HLTNav_Summary_ESDSlimmed', 'ESD', 'Steer'),
+    ('xAOD::TrigCompositeAuxContainer#HLTNav_Summary_ESDSlimmedAux.', 'ESD', 'Steer'),
+    ('xAOD::TrigCompositeContainer#HLTNav_Summary_AODSlimmed', 'AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeAuxContainer#HLTNav_Summary_AODSlimmedAux.', 'AODFULL AODSLIM', 'Steer'),
 
     ('xAOD::TrigCompositeContainer#HLT_TrigCostContainer',   'CostMonDS ESD', 'Steer'),
     ('xAOD::TrigCompositeAuxContainer#HLT_TrigCostContainerAux.alg.store.view.thread.thash.slot.roi.start.stop', 'CostMonDS ESD', 'Steer'),
@@ -760,10 +765,10 @@ TriggerHLTListRun3 = [
     #('xAOD::TrigCompositeAuxContainer#HLT_HPtdEdxTrkAux.'+HPtdEdxTrkVars, 'BS ESD AODFULL AODSLIM', 'ID'),
 
     # disappearing track
-    #('xAOD::TrigCompositeContainer#HLT_DisTrkCand',                           'BS ESD AODFULL', 'ID'),
-    #('xAOD::TrigCompositeAuxContainer#HLT_DisTrkCandAux.',                    'BS ESD AODFULL', 'ID'),
-    #('xAOD::TrigCompositeContainer#HLT_DisTrkBDTSel',                         'BS ESD AODFULL AODSLIM', 'ID'),
-    #('xAOD::TrigCompositeAuxContainer#HLT_DisTrkBDTSelAux.',                  'BS ESD AODFULL AODSLIM', 'ID'),
+    ('xAOD::TrigCompositeContainer#HLT_DisTrkCand',                           'BS ESD AODFULL', 'ID'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_DisTrkCandAux.',                    'BS ESD AODFULL', 'ID'),
+    ('xAOD::TrigCompositeContainer#HLT_DisTrkBDTSel',                         'BS ESD AODFULL AODSLIM', 'ID'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_DisTrkBDTSelAux.',                  'BS ESD AODFULL AODSLIM', 'ID'),
 
     #
     ('xAOD::TrigCompositeContainer#HLTNav_R2ToR3Summary',   'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Steer'),

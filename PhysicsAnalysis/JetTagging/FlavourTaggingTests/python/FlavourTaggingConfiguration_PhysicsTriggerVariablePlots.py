@@ -7,8 +7,7 @@ def getPhysicsTriggerVariablePlotsCfg():
     from FlavourTaggingTests.histoConfigurationWrapper import getHistoDefs
 
     # Chains we want to run over. To find out all available chains, run code ones and see printout in finalize step.
-    bJetChains = ["HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20",
-                  "HLT_j45_pf_subjesgscIS_ftf_boffperf_split_L1J20"]
+    bJetChains = ["HLT_j20_0eta290_020jvt_pf_ftf_boffperf_L1J15"]
 
 
     variables1D,variables2D = getHistoDefs( chains=bJetChains )

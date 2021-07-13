@@ -40,19 +40,18 @@ StatusCode PEBInfoWriterToolBase::decide(std::vector<Input>& inputs) const {
     bool isUnique = uniqueRoIs.insert(input.roiEL).second;
     ATH_MSG_DEBUG("RoI eta/phi = " << (*input.roiEL)->eta() << "/" << (*input.roiEL)->phi() << " has "
                   << (isUnique ? "not yet" : "already") << " been processed. So far seen "
-                  << uniqueRoIs.size() << " unique RoIs");
+                  << uniqueRoIs.size() << " unique RoIs including this one");
 
     // Skip processing if max RoIs limit reached
+    bool maxRoIsReached{false};
     if (m_maxRoIs>=0 && static_cast<int>(uniqueRoIs.size()) > m_maxRoIs) {
-      ATH_MSG_DEBUG("Skipping this input decision because number of processed RoIs reached MaxRoIs ("
-                    << m_maxRoIs.value() << ")");
-      // Make an accept decision without adding PEB Info (PEB hypo is pass-through)
-      TrigCompositeUtils::addDecisionID(m_decisionId, input.decision);
-      continue;
+      ATH_MSG_DEBUG("Will attach empty PEB Info to this decision because the number of "
+                    << "processed RoIs reached MaxRoIs (" << m_maxRoIs.value() << ")");
+      maxRoIsReached = true;
     }
 
-    // Create new PEB Info for this input
-    PEBInfo pebInfo = createPEBInfo(input);
+    // Create new PEB Info for this input (empty if max RoIs limit is reached)
+    PEBInfo pebInfo = maxRoIsReached ? PEBInfo{} : createPEBInfo(input);
 
     // Merge with previous ROBs    
     std::vector<uint32_t> previousRobs;

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# art-description: Reco_tf.py q431 RAWtoALL in MT mode with RUCIO input dataset processing 50 files with 3 files/job
+# art-description: Reco_tf.py data18 RAWtoALL in MT mode with RUCIO input dataset processing 50 files with 3 files/job
 # art-type: grid
 # art-input: data18_13TeV:data18_13TeV.00357750.physics_Main.daq.RAW
 # art-input-nfiles: 50
@@ -14,6 +14,7 @@ timeout 43200 Reco_tf.py \
   --outputHISTFile=myHIST.root \
   --outputDESDM_MCPFile=myDESDM_MCP.pool.root \
   --outputDRAW_ZMUMUFile=myDRAW_ZMUMU.data \
+  --outputDAOD_IDTIDEFile=myIDTIDE.pool.root \
   --multithreaded='True' \
   --preExec 'all:from AthenaMonitoring.DQMonFlags import DQMonFlags; DQMonFlags.doHLTMon=False' \
   --postExec 'FPEAuditor.NStacktracesOnFPE=10' \

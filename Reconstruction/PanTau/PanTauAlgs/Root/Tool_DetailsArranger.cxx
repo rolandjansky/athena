@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <string>
@@ -79,7 +79,7 @@ StatusCode PanTau::Tool_DetailsArranger::execute(PanTau::PanTauSeed* inSeed, xAO
   //if the tau is valid, overwrite with non-default values
   xAOD::TauJet* tauJet = const_cast<xAOD::TauJet*>(inSeed->getTauJet());
     
-  if(isBadSeed == true) {
+  if(isBadSeed) {
     ATH_MSG_DEBUG("This seed is not useable for detail arranging (other than validity flag)");
     tauJet->setPanTauDetail(xAOD::TauJetParameters::PanTau_isPanTauCandidate, 0);
     tauJet->setPanTauDetail(xAOD::TauJetParameters::PanTau_DecayMode, xAOD::TauJetParameters::Mode_NotSet);
@@ -136,14 +136,14 @@ void PanTau::Tool_DetailsArranger::addPanTauDetailToTauJet(PanTauSeed*          
   std::string         fullFeatName    = inSeed->getNameInputAlgorithm() + "_" + featName;
 
   double theValue = features->value(fullFeatName, isValid);
-  if(isValid == false) {
+  if(!isValid) {
 
     if(m_expectInvalidFeatures == false) {
       ATH_MSG_DEBUG("WARNING --- Problems getting value for feature " << fullFeatName << " from map! This should not happen for this seed!");
       ATH_MSG_DEBUG("WARNING --- Did the ModeDiscriminator set features used in BDTs that were not found to their default values?");
       ATH_MSG_DEBUG("NOTE    --- This can also happen for seeds with (for example) 0 neutrals when trying to get Neutral_SumM - check seed");
     }
-    theValue = -1111;
+    theValue = -1111.;
   }
 
   xAOD::TauJet* tauJet = const_cast<xAOD::TauJet*>(inSeed->getTauJet());
@@ -315,7 +315,7 @@ StatusCode PanTau::Tool_DetailsArranger::arrangePFOLinks(PanTau::PanTauSeed* inS
       pfo_link_vector.push_back(vec_pi0pfos.at(itlv).at(ipfo));
     }
 
-    static SG::AuxElement::Accessor<std::vector< ElementLink< xAOD::PFOContainer > > > accPi0PFOLinks("pi0PFOLinks");
+    static const SG::AuxElement::Accessor<std::vector< ElementLink< xAOD::PFOContainer > > > accPi0PFOLinks("pi0PFOLinks");
     accPi0PFOLinks(*p) = pfo_link_vector;
 
     ElementLink< xAOD::IParticleContainer > linkToPi0;

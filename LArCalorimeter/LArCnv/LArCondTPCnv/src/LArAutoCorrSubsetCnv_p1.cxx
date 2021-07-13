@@ -10,6 +10,9 @@ LArAutoCorrSubsetCnv_p1::persToTrans(const LArAutoCorrPersType* persObj,
                                   LArAutoCorrTransType* transObj, 
                                   MsgStream & log)
 {
+  // Copy basic metadata
+  transObj->setChannel       (persObj->m_subset.m_channel);
+  transObj->setGroupingType  (persObj->m_subset.m_groupingType);
   transObj->initialize (persObj->m_subset.m_febIds, persObj->m_subset.m_gain);
 
   unsigned int nfebids          = persObj->m_subset.m_febIds.size();
@@ -107,9 +110,6 @@ LArAutoCorrSubsetCnv_p1::persToTrans(const LArAutoCorrPersType* persObj,
   }
   transObj->insertCorrections (std::move (corrs));
 
-  // Copy the rest
-  transObj->setChannel       (persObj->m_subset.m_channel);
-  transObj->setGroupingType  (persObj->m_subset.m_groupingType);
 }
 
 

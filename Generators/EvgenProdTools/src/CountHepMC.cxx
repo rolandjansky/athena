@@ -63,27 +63,19 @@ StatusCode CountHepMC::execute() {
 
   if (m_corHepMC) {
     std::string   key = m_inputKeyName;
-
-// retrieve event from Transient Store (Storegate)
-   const McEventCollection* oldmcEvtColl=0;
-
-   if (evtStore()->retrieve(oldmcEvtColl, key).isSuccess()){
-      McEventCollection* newmcEvtColl = 0;
-      newmcEvtColl = const_cast<McEventCollection*> (oldmcEvtColl);
-
-      McEventCollection::const_iterator evt = newmcEvtColl->begin();
-      HepMC::GenEvent* hepMC = m_corRunNumber? const_cast<HepMC::GenEvent*>(*evt) : new HepMC::GenEvent(*(*evt));
-
+    // retrieve event from Transient Store (Storegate)
+    const McEventCollection* oldmcEvtColl=0;
+    if (evtStore()->retrieve(oldmcEvtColl, key).isSuccess()){
+      McEventCollection* newmcEvtColl = new McEventCollection(*oldmcEvtColl);
+      McEventCollection::iterator evt = newmcEvtColl->begin();
+      HepMC::GenEvent* hepMC = *evt;
       hepMC->set_event_number(newnum);
-      newmcEvtColl->pop_back();
-      newmcEvtColl->push_back(hepMC);
-
-   }
-else{
+      CHECK(evtStore()->overwrite( newmcEvtColl, key));
+    }
+    else{
       ATH_MSG_ERROR("No McEventCollection object found");
       return StatusCode::SUCCESS;
     }
-
   }
 
   if (m_corEvtID) {

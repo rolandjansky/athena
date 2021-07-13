@@ -148,9 +148,6 @@ def setupMenu():
         ChainProp(name='HLT_e5_idperf_loose_lrtloose_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_idperf_loose_lrtloose_L1EM22VHI', groups=SingleElectronGroup),  
 
-        #gsf-idperf chains
-        ChainProp(name='HLT_e5_idperf_gsf_tight_L1EM3', groups=SingleElectronGroup),        #gsf idperf chains
-
         # Test chains for ATR-23500
         ChainProp(name='HLT_e26_lhloose_nopix_lrtloose_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhloose_nopix_lrtmedium_L1EM22VHI', groups=SingleElectronGroup),
@@ -209,6 +206,11 @@ def setupMenu():
         ChainProp(name='HLT_e26_idperf_tight_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e60_idperf_medium_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_2e17_idperf_loose_L12EM15VHI', groups=MultiElectronGroup),
+
+        ChainProp(name='HLT_e5_idperf_gsf_tight_L1EM3', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e26_idperf_gsf_tight_L1EM22VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e60_idperf_gsf_medium_L1EM22VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_2e17_idperf_gsf_loose_L12EM15VHI', groups=MultiElectronGroup),
 
         # idperf for id validation, can some be removed?
         ChainProp(name='HLT_e5_idperf_loose_L1EM3', groups=SingleElectronGroup),
@@ -698,6 +700,7 @@ def setupMenu():
         ChainProp(name="HLT_tau160_perf_tracktwoMVABDT_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau160_medium1_track_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau160_medium1_tracktwo_L1TAU100", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau160_mediumRNN_tracktwoMVATest_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau180_tightRNN_tracktwoLLP_L1TAU100", groups=SupportLegGroup+SingleTauGroup),    # 
         ChainProp(name="HLT_tau200_ptonly_L1TAU100", groups=SingleTauGroup),
         ChainProp(name="HLT_tau200_medium1_track_L1TAU100", groups=SingleTauGroup),
@@ -1052,17 +1055,16 @@ def setupMenu():
         ChainProp(name='HLT_unconvtrk0_fslrt_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']),
 
         # hit-based DV
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk200_hitdv_tight_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']*2),
         ChainProp(name='HLT_xe80_tcpufit_unconvtrk200_hitdv_medium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']*2),
-        ChainProp(name='HLT_unconvtrk200_hitdv_tight_L1XE50',  groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']),
-        ChainProp(name='HLT_unconvtrk260_hitdv_tight_L1J100',  groups=SingleJetGroup, l1SeedThresholds=['FSNOSEED']),
-        ChainProp(name='HLT_unconvtrk200_hitdv_medium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']),
-        ChainProp(name='HLT_unconvtrk260_hitdv_medium_L1J100', groups=SingleJetGroup, l1SeedThresholds=['FSNOSEED']),
+        ChainProp(name='HLT_unconvtrk260_hitdv_tight_L1J100',   groups=SingleJetGroup, l1SeedThresholds=['FSNOSEED']),
+        ChainProp(name='HLT_unconvtrk260_hitdv_medium_L1J100',  groups=SingleJetGroup, l1SeedThresholds=['FSNOSEED']),
 
         # disappearing track trigger
-        #ChainProp(name='HLT_xe80_tcpufit_unconvtrk20_distrk_tight_L1XE50',  groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']*2),
-        #ChainProp(name='HLT_xe80_tcpufit_unconvtrk20_distrk_medium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']*2),
-        #ChainProp(name='HLT_unconvtrk20_distrk_tight_L1XE50',  groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']),
-        #ChainProp(name='HLT_unconvtrk20_distrk_medium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk20_distrk_tight_L1XE50',  groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']*2),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk20_distrk_medium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']*2),
+        ChainProp(name='HLT_unconvtrk20_distrk_tight_L1XE50',               groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']),
+        ChainProp(name='HLT_unconvtrk20_distrk_medium_L1XE50',              groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']),
 
         # dEdx triggers
         #ChainProp(name='HLT_xe80_tcpufit_unconvtrk25_dedx_medium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']*2),

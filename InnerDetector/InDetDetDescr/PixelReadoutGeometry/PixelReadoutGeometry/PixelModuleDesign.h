@@ -149,7 +149,13 @@ namespace InDetDD {
     
       /** Total number of circuits:*/
       int numberOfCircuits() const;
+
+      /** Number of circuits per column: */
+      int numberOfCircuitsPerColumn() const;
     
+      /** Number of circuits per row: */
+      int numberOfCircuitsPerRow() const;
+
       /** Number of cell columns per circuit:*/
       int columnsPerCircuit() const;
     
@@ -222,7 +228,11 @@ namespace InDetDD {
       /** Indicate that it is a more complex layout where cells are not 
          lined up with each other. Eg bricking. Probably never will be needed. */
       void setGeneralLayout();
-    
+
+      /** Debug string representation */
+      std::string debugStringRepr() const;
+
+
       ///////////////////////////////////////////////////////////////////
       // Private methods:
       ///////////////////////////////////////////////////////////////////
@@ -288,7 +298,17 @@ namespace InDetDD {
     {
       return m_readoutScheme.numberOfCircuits();
     }
-    
+
+    inline int PixelModuleDesign::numberOfCircuitsPerColumn() const
+    {
+      return m_readoutScheme.numberOfCircuitsPerColumn();
+    }
+
+    inline int PixelModuleDesign::numberOfCircuitsPerRow() const
+    {
+      return m_readoutScheme.numberOfCircuitsPerRow();
+    }
+
     inline int PixelModuleDesign::columnsPerCircuit() const
     {
       return m_readoutScheme.columnsPerCircuit();
@@ -357,6 +377,11 @@ namespace InDetDD {
       const int maxCol = m_readoutScheme.columnsPerCircuit();
       if (maxRow*maxCol>26000) { return FEI4; }
       else                     { return FEI3; }
+    }
+
+    inline std::string PixelModuleDesign::debugStringRepr() const
+    {
+      return m_diodeMap.debugStringRepr();
     }
 
 } // namespace InDetDD

@@ -1,10 +1,9 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # specifies egamma"standard"
 from AthenaCommon.Logging import logging
 import traceback
 from egammaRec import egammaKeys
-from InDetRecExample.InDetKeys import InDetKeys
 from RecExConfig.Configured import Configured
 
 
@@ -22,9 +21,8 @@ class egammaTrackSlimmer ( Configured ) :
         StreamName = 'StreamAOD',
         InputElectronContainerName=egammaKeys.outputElectronKey(),
         InputPhotonContainerName=egammaKeys.outputPhotonKey(),
-        TrackParticleContainerName= egammaKeys.outputTrackParticleKey(), 
-        VertexContainerName= egammaKeys.outputConversionKey(), 
-        InDetTrackParticleContainerName=InDetKeys.xAODTrackParticleContainer(), 
+        TrackParticleContainerName= egammaKeys.outputTrackParticleKey(),
+        VertexContainerName= egammaKeys.outputConversionKey(),
         doThinning=True
         )
       print (theEgammaTrackSlimmer)

@@ -121,7 +121,7 @@ class tauRecCalibrateLCConfig(JobProperty):
     """
     statusOn=True
     allowedTypes=['string']
-    StoredValue='CaloTES_R22_v1.root'
+    StoredValue='CaloTES_R22_Round2.5.root'
 
 class tauRecMvaTESConfig(JobProperty):
     """Config file for MvaTESEvaluator

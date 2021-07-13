@@ -10,6 +10,9 @@ void
 LArCaliWaveSubsetCnv_p2::persToTrans(const LArCaliWaveSubset_p2* persObj,  LArCWTransType* transObj, MsgStream & log)
 {
   log<<MSG::DEBUG<<"LArCaliWaveSubsetCNV_p2  begin persToTrans"<<endmsg;
+  // Copy basic metadata
+  transObj->setChannel       (persObj->m_subset.m_channel);
+  transObj->setGroupingType  (persObj->m_subset.m_groupingType);
 
   transObj->initialize (persObj->m_subset.m_febIds, persObj->m_subset.m_gain);
   unsigned int nfebids = persObj->m_subset.m_febIds.size();	       
@@ -153,9 +156,6 @@ LArCaliWaveSubsetCnv_p2::persToTrans(const LArCaliWaveSubset_p2* persObj,  LArCW
   }//over corrections
   transObj->insertCorrections (std::move (corrs));
 	
-  // Copy the rest
-  transObj->setChannel       (persObj->m_subset.m_channel);
-  transObj->setGroupingType  (persObj->m_subset.m_groupingType);
   log<< MSG::DEBUG <<"CaliWave ver p2 successfully read in."<<endmsg;
 }
 

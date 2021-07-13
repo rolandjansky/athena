@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# art-description: Reco_tf.py q431 RAWtoALL in MP mode, use 4 cores due to large memory usage of MP
+# art-description: Reco_tf.py data18 RAWtoALL in MP mode, use 4 cores due to large memory usage of MP
 # art-type: grid
 # art-include: master/Athena
 # art-athena-mt: 8
@@ -12,6 +12,7 @@ timeout 43200 Reco_tf.py \
   --outputHISTFile=myHIST.root \
   --outputDESDM_MCPFile=myDESDM_MCP.pool.root \
   --outputDRAW_ZMUMUFile=myDRAW_ZMUMU.data \
+  --outputDAOD_IDTIDEFile=myIDTIDE.pool.root \
   --multiprocess='True' \
   --preExec 'all:from AthenaMonitoring.DQMonFlags import DQMonFlags; DQMonFlags.doHLTMon=False' \
   --postExec 'FPEAuditor.NStacktracesOnFPE=10' \

@@ -121,14 +121,29 @@ bool TrigMultiTrkComboHypoTool::checkPreviousDecisionIDs(const std::vector<const
   }
   else {  // trigger with asymmetric legs like HLT_mu6_2mu4_bDimu_L1MU6_3MU4
 
-    std::vector<size_t> a(legDecisionIds().size());
-    std::iota(a.begin(), a.end(), 0);  // {0, 1, 2, .., legDecisionIds().size() - 1}
+    std::vector<size_t> a;
+    std::vector<HLT::Identifier> legDecisionIdToCheck;
+
+    size_t count = 0;
+    for (size_t legIndex = 0; legIndex < legMultiplicity().size(); ++legIndex) {
+      for (size_t objectIndex = 0; objectIndex < (size_t) legMultiplicity().at(legIndex); ++objectIndex) {
+        a.push_back(count++);
+        legDecisionIdToCheck.push_back(legDecisionId(legIndex));
+      }
+    }
+    // For HLT_mu6_2mu4_bDimu_L1MU6_3MU4
+    // a = [0,1,2]
+    // legDecisionIdToCheck = [
+    //  createLegName("HLT_mu6_2mu4_bDimu_L1MU6_3MU4", 0), 
+    //  createLegName("HLT_mu6_2mu4_bDimu_L1MU6_3MU4", 1), 
+    //  createLegName("HLT_mu6_2mu4_bDimu_L1MU6_3MU4", 1)]
+
     int i = 1;
     bool result = true;
     do {
       result = true;
       for (size_t k = 0; k < m_nTrk; ++k) {
-        result = result && TrigCompositeUtils::passed(legDecisionId(a[k]).numeric(), *previousDecisionIDs[k]);
+        result = result && TrigCompositeUtils::passed(legDecisionIdToCheck.at( a.at(k) ).numeric(), *previousDecisionIDs[k]);
       }
       if (msgLvl(MSG::DEBUG)) {
         msg() << "combination #" << i++ << ": { ";
@@ -160,4 +175,10 @@ int TrigMultiTrkComboHypoTool::totalCharge(const xAOD::TrigBphys* trigBphys) con
     charge += static_cast<int>(trigBphys->trackParticle(i)->charge());
   }
   return charge;
+}
+
+
+bool TrigMultiTrkComboHypoTool::executeAlg(const std::vector<Combo::LegDecision>&) const { 
+  ATH_MSG_ERROR("executeAlg not supported for TrigBmumuxComboHypoTool.");
+  return true;
 }

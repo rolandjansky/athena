@@ -61,14 +61,20 @@ private:
     this, "NodesToDrop", {"F"},
     "Any nodes within the set of names will be dropped as part of the thinning and the navigation re-wired around them"};
 
+  Gaudi::Property<std::vector<std::string>> m_allOutputContainers{
+    this, "AllOutputContainers", {},
+    "List of SG keys of all possible output containers at differing verbosity. Used to stop different instances of the alg interfering with each other."};
+
   Gaudi::Property<std::vector<std::string>> m_chainsFilter{
     this, "ChainsFilter", {},
     "Optional list of HLT chains. If provided, only navigation data corresponding to these chains will be kept. "
     "Matching multiple chains via regular expressions is supported."};
 
-  ToolHandle<Trig::TrigDecisionTool> m_trigDec{
+  PublicToolHandle<Trig::TrigDecisionTool> m_trigDec{
     this, "TrigDecisionTool", "Trig::TrigDecisionTool/TrigDecisionTool",
     "Trigger Decision Tool, used to apply the ChainsFilter"};
+
+  std::set<std::string> m_allOutputContainersSet; //!< Processed form of m_allOutputContainers
 
   /**
    * @brief Convert the ChainsFilter into the set of chain-IDd and chain-leg-IDs which comprises 

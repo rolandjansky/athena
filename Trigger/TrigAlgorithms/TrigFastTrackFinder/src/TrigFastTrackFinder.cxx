@@ -11,10 +11,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <cmath>
-#include <iostream>
-#include <algorithm>
-#include <memory>
+
 
 #include "TrigFastTrackFinder.h"
 
@@ -23,6 +20,15 @@
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
+#include "TrigInDetPattRecoEvent/TrigInDetTriplet.h"
+#include "TrigInDetToolInterfaces/TrigL2HitResidual.h"
+#include "TrigInDetEvent/TrigSiSpacePointBase.h"
+#include "TrigInDetPattRecoTools/TrigTrackSeedGenerator.h"
+
+//
+#include "InDetIdentifier/SCT_ID.h"
+#include "InDetIdentifier/PixelID.h"
+#include "TrkTrack/Track.h"
 
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/Track.h"
@@ -38,6 +44,11 @@
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
 #include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h"
 
+#include <cmath>
+#include <iostream>
+#include <algorithm>
+#include <memory>
+
 TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* pSvcLocator) :
 
   AthReentrantAlgorithm(name, pSvcLocator),
@@ -48,7 +59,7 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   m_trigZFinder("TrigZFinder/TrigZFinder", this ),
   m_trackSummaryTool("Trk::ITrackSummaryTool/ITrackSummaryTool"),
   m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-  m_disTrkFitter("Trk::KalmanFitter/InDetTrigTrackFitter"),
+  m_disTrkFitter("Trk::KalmanFitter/InDetTrackFitter"),
   m_accelTool("TrigInDetAccelerationTool"),
   m_accelSvc("TrigInDetAccelerationSvc", name),
   m_doCloneRemoval(true),
@@ -156,6 +167,7 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   declareProperty("doHitDV_Seeding",   m_doHitDV_Seeding   = false);
   declareProperty("dodEdxTrk",         m_dodEdxTrk         = false);
   declareProperty("doDisappearingTrk", m_doDisappearingTrk = false);
+  declareProperty("DisTrackFitter",    m_disTrkFitter );
 }
 
 //--------------------------------------------------------------------------
@@ -969,12 +981,6 @@ void TrigFastTrackFinder::updateClusterMap(long int trackIdx, const Trk::Track* 
     if (siCL==nullptr) continue;
     Identifier id = siCL->identify();
     clusterMap[id].push_back(trackIdx);
-    //no sorting is needed as the vectors are sorted by the algorithm design
-    //due to monotonically increasing trackIdx
-    // std::map<Identifier, std::vector<long int> >::iterator itm = clusterMap.find(id);
-    //std::sort((*itm).second.begin(),(*itm).second.end());
-    //std::copy((*itm).second.begin(),(*itm).second.end(),std::ostream_iterator<long int>(std::cout," "));
-    //std::cout<<std::endl;
   }
 }
 
@@ -994,7 +1000,7 @@ bool TrigFastTrackFinder::usedByAnyTrack(const std::vector<Identifier>& vIds, st
   if(itm0 == clusterMap.end()) return false;
   xSection.reserve((*itm0).second.size());
   std::copy((*itm0).second.begin(), (*itm0).second.end(), std::back_inserter(xSection));
-  std::vector<Identifier>::const_iterator it = vIds.begin();it++;
+  std::vector<Identifier>::const_iterator it = vIds.begin();++it;
   for(;it!=vIds.end();++it) {
     std::map<Identifier, std::vector<long int> >::iterator itm1 = clusterMap.find(*it);
     if(itm1 == clusterMap.end()) return false;
@@ -2368,13 +2374,10 @@ bool TrigFastTrackFinder::isCleaningPassDisTrack(const TrigInDetTriplet& seed, T
       ATH_MSG_DEBUG("UTT: FTF::isCleaningPassDisTrack> ... (failTrk) Chi2 cut passed");
    }
    else {
-      std::vector<int>   v_nhits;
-      std::vector<float> v_chi2;
-      std::vector<int>   v_ndof;
-      std::vector<int>   v_nhits_good;
-      getTrkBarrelLayerInfo(trk,v_nhits,v_chi2,v_ndof,v_nhits_good);
 
-      int n_hits_iblbl = v_nhits[0] + v_nhits[1];
+      const auto & barrelInfo = getTrkBarrelLayerInfo(trk);
+
+      int n_hits_iblbl = barrelInfo[0].nHits + barrelInfo[1].nHits;
       if( n_hits_iblbl < COMB_N_HITS_IBL_OR_BL_CUT ) return false;
 
       // PIX cuts
@@ -2382,9 +2385,9 @@ bool TrigFastTrackFinder::isCleaningPassDisTrack(const TrigInDetTriplet& seed, T
       double chi2_pixbr = 0;
       int    ndof_pixbr = 0;
       for(unsigned int ily=0; ily<=3; ily++) {
-	 n_hits_pixbr += v_nhits[ily];
-	 chi2_pixbr   += v_chi2[ily];
-	 ndof_pixbr   += v_ndof[ily];
+	      n_hits_pixbr += barrelInfo[ily].nHits;
+	      chi2_pixbr   += barrelInfo[ily].chiSq;
+	      ndof_pixbr   += barrelInfo[ily].nDof;
       }
       if( n_hits_pixbr < COMB_N_HITS_PIX_BR_CUT ) return false;
       if( ndof_pixbr < 1 )  return false;
@@ -2396,8 +2399,8 @@ bool TrigFastTrackFinder::isCleaningPassDisTrack(const TrigInDetTriplet& seed, T
       int n_hits_sctbr_good = 0; 
       int n_doublehits_sctbr_good = 0;
       for(unsigned int ily=4; ily<=7; ily++) {
-	 n_hits_sctbr_good += v_nhits_good[ily];
-	 if( v_nhits_good[ily] >= 2 ) n_doublehits_sctbr_good++;
+	      n_hits_sctbr_good += barrelInfo[ily].nGood;
+	      if( barrelInfo[ily].nGood >= 2 ) n_doublehits_sctbr_good++;
       }
       if( n_hits_sctbr_good > COMB_N_GOOD_HITS_SCT_BR_CUT ) return false;
       if( n_doublehits_sctbr_good > COMB_N_GOOD_DOUBLEHITS_SCT_BR_CUT ) return false;
@@ -2408,62 +2411,62 @@ bool TrigFastTrackFinder::isCleaningPassDisTrack(const TrigInDetTriplet& seed, T
    return true;
 }
 
-void TrigFastTrackFinder::getTrkBarrelLayerInfo(Trk::Track* t, std::vector<int>& v_nhits, std::vector<float>& v_chi2, std::vector<int>& v_ndof, std::vector<int>& v_good) const
+std::array<TrigFastTrackFinder::OneLayerInfo_t, TrigFastTrackFinder::N_BARREL_LAYERS>
+TrigFastTrackFinder::getTrkBarrelLayerInfo(Trk::Track* t) const
 {
-   const double CHI2_GOOD_CUT = 3.0;
-
-   const int N_LAYERS = 8;
-
-   v_nhits.clear(); v_chi2.clear(); v_ndof.clear(); v_good.clear();
-   v_nhits.resize(N_LAYERS); v_chi2.resize(N_LAYERS); v_ndof.resize(N_LAYERS); v_good.resize(N_LAYERS);
+   static constexpr double CHI2_GOOD_CUT = 3.0;
+   //nHits, chiSq, nDof, nGood in array
+   std::array<TrigFastTrackFinder::OneLayerInfo_t, TrigFastTrackFinder::N_BARREL_LAYERS> result{};
+   if (not t) return result;
 
    const DataVector<const Trk::TrackStateOnSurface>* recoTrackStates = t->trackStateOnSurfaces();
    if (recoTrackStates) {
       DataVector<const Trk::TrackStateOnSurface>::const_iterator tsosIter    = recoTrackStates->begin();
       DataVector<const Trk::TrackStateOnSurface>::const_iterator tsosIterEnd = recoTrackStates->end();
       for ( ; tsosIter != tsosIterEnd; ++tsosIter) {
-	 const Trk::FitQualityOnSurface* fq = (*tsosIter)->fitQualityOnSurface();
-	 double x2 = 0;
-	 int  ndof = 0; 
-	 if(fq!=nullptr) {
-	    x2 = fq->chiSquared();
-	    ndof = fq->numberDoF();
-	 }
-	 bool chi2_good = (x2 <= CHI2_GOOD_CUT);
-	 const Trk::MeasurementBase *measurement = (*tsosIter)->measurementOnTrack();
-	 const InDet::PixelClusterOnTrack *pixclus = dynamic_cast<const InDet::PixelClusterOnTrack*>(measurement);
-	 if (pixclus!=nullptr) {
-	    int bec   = m_pixelId->barrel_ec(pixclus->identify());
-	    int layer = m_pixelId->layer_disk(pixclus->identify());
-	    if ( bec==0 ) {
-	       if( layer < 0 || 3 < layer ) {
-		  ATH_MSG_WARNING("Pixel layer out of range, layer=" << layer);
-		  continue;
-	       }
-	       v_nhits[layer]++;
-	       v_chi2[layer] += x2;
-	       v_ndof[layer] += ndof;
-	       if(chi2_good) v_good[layer]++;
-	    }
-	 }
-	 const InDet::SCT_ClusterOnTrack *sctclus = dynamic_cast<const InDet::SCT_ClusterOnTrack*>(measurement);
-	 if (sctclus!=nullptr) {
-	    int bec   = m_sctId->barrel_ec(sctclus->identify());
-	    int layer = m_sctId->layer_disk(sctclus->identify());
-	    if ( bec==0 ) {
-	       if( layer < 0 || 3 < layer ) {
-		  ATH_MSG_WARNING("SCT layer out of range, layer=" << layer);
-		  continue;
-	       }
-	       layer += 4;
-	       v_nhits[layer]++;
-	       v_chi2[layer] += x2;
-	       v_ndof[layer] += ndof;
-	       if(chi2_good) v_good[layer]++;
-	    }
-	 }
-      }
+	      const Trk::FitQualityOnSurface* fq = (*tsosIter)->fitQualityOnSurface();
+	      double x2 = 0;
+	      int  ndof = 0; 
+	      if(fq!=nullptr) {
+	        x2 = fq->chiSquared();
+	        ndof = fq->numberDoF();
+	      }
+	      bool chi2_good = (x2 <= CHI2_GOOD_CUT);
+	      const Trk::MeasurementBase *measurement = (*tsosIter)->measurementOnTrack();
+	      const InDet::PixelClusterOnTrack *pixclus = dynamic_cast<const InDet::PixelClusterOnTrack*>(measurement);
+	      if (pixclus!=nullptr) {
+	        int bec   = m_pixelId->barrel_ec(pixclus->identify());
+	        int layer = m_pixelId->layer_disk(pixclus->identify());
+	        if ( bec==0 ) {
+	          if( layer < 0 || 3 < layer ) {
+		          ATH_MSG_WARNING("Pixel layer out of range, layer=" << layer);
+		          continue;
+	          }
+	          result[layer].nHits++;
+	          result[layer].chiSq += x2;
+	          result[layer].nDof += ndof;
+	          if(chi2_good) result[layer].nGood++;
+	        }
+	      }
+	      const InDet::SCT_ClusterOnTrack *sctclus = dynamic_cast<const InDet::SCT_ClusterOnTrack*>(measurement);
+	      if (sctclus!=nullptr) {
+	      int bec   = m_sctId->barrel_ec(sctclus->identify());
+	      int layer = m_sctId->layer_disk(sctclus->identify());
+	      if ( bec==0 ) {
+	        if( layer < 0 || 3 < layer ) {
+		        ATH_MSG_WARNING("SCT layer out of range, layer=" << layer);
+		        continue;
+	        }
+          layer += 4;
+          result[layer].nHits++;
+          result[layer].chiSq += x2;
+          result[layer].nDof += ndof;
+          if(chi2_good) result[layer].nGood++;
+	        }
+	      }
+      }//end loop on TSoS
    }
+   return result;
 }
 
 double TrigFastTrackFinder::disTrackQuality(const Trk::Track* Tr) const
@@ -2577,8 +2580,8 @@ void TrigFastTrackFinder::recoVertexForDisTrack(const EventContext& ctx, TrackCo
       }
       int match_idx = IDX_INITIAL;
       if( idx_min != IDX_INITIAL ) {
-	 double c_zerr_min = sqrt(cluster_zerr[idx_min]/cluster_w2sum[idx_min]);
-	 double err = sqrt(zerr*zerr+c_zerr_min*c_zerr_min);
+	 double c_zerr_min = std::sqrt(cluster_zerr[idx_min]/cluster_w2sum[idx_min]);
+	 double err = std::sqrt(zerr*zerr+c_zerr_min*c_zerr_min);
 	 if( std::abs(err) < 1e-12 ) err = 1e-12;
 	 double dist = dist_min / err;
 	 if( dist < CLUSTCUT_DIST_SIGMA && dist_min < CLUSTCUT_DIST ) { match_idx = idx_min; }
@@ -2613,7 +2616,7 @@ void TrigFastTrackFinder::recoVertexForDisTrack(const EventContext& ctx, TrackCo
    for(unsigned int i=0; i<cluster_z.size(); i++) {
       if( cluster_ntrk[i] < VTXCUT_N_TRACKS ) continue;
       double z = cluster_z[i] / cluster_wsum[i];
-      double zerr = sqrt(cluster_zerr[i] / cluster_w2sum[i]);
+      double zerr = std::sqrt(cluster_zerr[i] / cluster_w2sum[i]);
       zVtx.push_back(std::make_tuple(cluster_ptsum[i],z,zerr,cluster_ntrk[i]));
    }
    // ptsum sort
@@ -2676,7 +2679,7 @@ bool TrigFastTrackFinder::isGoodForDisTrackVertex(Trk::Track* t) const
    double theta = t->perigeeParameters()->parameters()[Trk::theta]; 
    double qOverP = std::abs(t->perigeeParameters()->parameters()[Trk::qOverP]);
    if ( qOverP < 1e-12 ) qOverP = 1e-12;
-   double pt    = sin(theta)/qOverP;
+   double pt    = std::sin(theta)/qOverP;
    pt /= 1000.0;
    if( pt < TRKCUT_PT ) return false;
 
@@ -2818,20 +2821,16 @@ bool TrigFastTrackFinder::isPreselPassDisTrack(Trk::Track* trk, double d0_wrtVtx
    if( trk->perigeeParameters() == nullptr ) return false;
 
    // barrel hits
-   std::vector<int>   v_nhits;
-   std::vector<float> v_chi2;
-   std::vector<int>   v_ndof;
-   std::vector<int>   v_nhits_good;
-   getTrkBarrelLayerInfo(trk,v_nhits,v_chi2,v_ndof,v_nhits_good);
+   const auto & barrelLayerInfo = getTrkBarrelLayerInfo(trk);
 
    // PIX cuts
    double chi2_pixbr = 0.0;
    int    ndof_pixbr = 0;
    int    n_good_brlayers_pix = 0;
    for(unsigned int ily=0; ily<=3; ily++) {
-      if( v_nhits_good[ily] >= 1 ) n_good_brlayers_pix++;
-      chi2_pixbr += v_chi2[ily];
-      ndof_pixbr += v_ndof[ily];
+      if( barrelLayerInfo[ily].nGood >= 1 ) n_good_brlayers_pix++;
+      chi2_pixbr += barrelLayerInfo[ily].chiSq;
+      ndof_pixbr += barrelLayerInfo[ily].nDof;
    }
    if( n_good_brlayers_pix < PRESEL_N_GOOD_BR_LAYERS_PIX ) return false;
 
@@ -2880,18 +2879,14 @@ const Trk::Perigee* TrigFastTrackFinder::extrapolateDisTrackToBS(Trk::Track* t,
 
 TrigFastTrackFinder::DisTrkCategory TrigFastTrackFinder::getDisTrkCategory(Trk::Track* trk) const
 {
-   std::vector<int>   v_nhits;
-   std::vector<float> v_chi2;
-   std::vector<int>   v_ndof;
-   std::vector<int>   v_nhits_good;
-   getTrkBarrelLayerInfo(trk,v_nhits,v_chi2,v_ndof,v_nhits_good);
+   const auto & result = getTrkBarrelLayerInfo(trk);
 
    int n_good_brlayers_pix = 0;
    int n_hits_sct = 0;
    for(unsigned int ily=0; ily<8; ily++) {
-      if( ily<=3 && v_nhits_good[ily] >= 1 ) n_good_brlayers_pix++;
+      if( ily<=3 && result[ily].nGood >= 1 ) n_good_brlayers_pix++;
       if( 4<=ily ) {
-	 n_hits_sct += v_nhits[ily];
+	      n_hits_sct += result[ily].nHits;
       }
    }
    if( trk->trackSummary()!=0 ) { n_hits_sct = trk->trackSummary()->get(Trk::SummaryType::numberOfSCTHits); }
@@ -2960,10 +2955,10 @@ void TrigFastTrackFinder::fillDisTrkCand(xAOD::TrigComposite* comp, const std::s
    float theta_wrtVtx=0; float eta_wrtVtx=0; float pt_wrtVtx=0; float d0_wrtVtx=0; float z0_wrtVtx=0; float phi_wrtVtx=0;
    if( vertexPerigee != nullptr ) {
       theta_wrtVtx = vertexPerigee->parameters()[Trk::theta]; 
-      eta_wrtVtx   = -log(tan(0.5*theta_wrtVtx));
+      eta_wrtVtx   = -std::log(std::tan(0.5*theta_wrtVtx));
       float qOverP_wrtVtx = std::abs(vertexPerigee->parameters()[Trk::qOverP]);
       if ( qOverP_wrtVtx < 1e-12 ) qOverP_wrtVtx = 1e-12;
-      pt_wrtVtx    = sin(theta_wrtVtx)/qOverP_wrtVtx;
+      pt_wrtVtx    = std::sin(theta_wrtVtx)/qOverP_wrtVtx;
       d0_wrtVtx    = vertexPerigee->parameters()[Trk::d0]; 
       z0_wrtVtx    = vertexPerigee->parameters()[Trk::z0]; 
       phi_wrtVtx   = vertexPerigee->parameters()[Trk::phi]; 
@@ -2975,19 +2970,17 @@ void TrigFastTrackFinder::fillDisTrkCand(xAOD::TrigComposite* comp, const std::s
    comp->setDetail<float>(prefix+"_z0_wrtVtx",  z0_wrtVtx);
    
    // barrel hits
-   std::vector<int>   v_nhits;
-   std::vector<float> v_chi2;
-   std::vector<int>   v_ndof;
-   std::vector<int>   v_nhits_good;
+   std::array<OneLayerInfo_t, N_BARREL_LAYERS> barrelInfo{};
    int n_ibl  =-1; int n_pix1  =-1; int n_pix2  =-1; int n_pix3  =-1; int n_sct1  =-1; int n_sct2  =-1; int n_sct3  =-1; int n_sct4  =-1;
    int n_ibl_g=-1; int n_pix1_g=-1; int n_pix2_g=-1; int n_pix3_g=-1; int n_sct1_g=-1; int n_sct2_g=-1; int n_sct3_g=-1; int n_sct4_g=-1;
-   if( trk != nullptr ) {
-      getTrkBarrelLayerInfo(trk,v_nhits,v_chi2,v_ndof,v_nhits_good);
-      n_ibl =v_nhits[0]; n_pix1=v_nhits[1]; n_pix2=v_nhits[2]; n_pix3=v_nhits[3]; 
-      n_sct1=v_nhits[4]; n_sct2=v_nhits[5]; n_sct3=v_nhits[6]; n_sct4=v_nhits[7];
-      n_ibl_g =v_nhits_good[0]; n_pix1_g=v_nhits_good[1]; n_pix2_g=v_nhits_good[2]; n_pix3_g=v_nhits_good[3]; 
-      n_sct1_g=v_nhits_good[4]; n_sct2_g=v_nhits_good[5]; n_sct3_g=v_nhits_good[6]; n_sct4_g=v_nhits_good[7];
-   }
+   
+   barrelInfo = getTrkBarrelLayerInfo(trk);
+   n_ibl = barrelInfo[0].nHits; n_pix1=barrelInfo[1].nHits; n_pix2=barrelInfo[2].nHits; n_pix3=barrelInfo[3].nHits; 
+   n_sct1=barrelInfo[4].nHits; n_sct2=barrelInfo[5].nHits; n_sct3=barrelInfo[6].nHits; n_sct4=barrelInfo[7].nHits;
+   //
+   n_ibl_g =barrelInfo[0].nGood; n_pix1_g=barrelInfo[1].nGood; n_pix2_g=barrelInfo[2].nGood; n_pix3_g=barrelInfo[3].nGood; 
+   n_sct1_g=barrelInfo[4].nGood; n_sct2_g=barrelInfo[5].nGood; n_sct3_g=barrelInfo[6].nGood; n_sct4_g=barrelInfo[7].nGood;
+   
    comp->setDetail<int>  (prefix+"_n_brhits_ibl",       n_ibl);
    comp->setDetail<int>  (prefix+"_n_brhits_pix1",      n_pix1);
    comp->setDetail<int>  (prefix+"_n_brhits_pix2",      n_pix2);
@@ -2996,22 +2989,22 @@ void TrigFastTrackFinder::fillDisTrkCand(xAOD::TrigComposite* comp, const std::s
    comp->setDetail<int>  (prefix+"_n_brhits_sct2",      n_sct2);
    comp->setDetail<int>  (prefix+"_n_brhits_sct3",      n_sct3);
    comp->setDetail<int>  (prefix+"_n_brhits_sct4",      n_sct4);
-   comp->setDetail<float>(prefix+"_chi2sum_br_ibl",     v_chi2[0]);
-   comp->setDetail<float>(prefix+"_chi2sum_br_pix1",    v_chi2[1]);
-   comp->setDetail<float>(prefix+"_chi2sum_br_pix2",    v_chi2[2]);
-   comp->setDetail<float>(prefix+"_chi2sum_br_pix3",    v_chi2[3]);
-   comp->setDetail<float>(prefix+"_chi2sum_br_sct1",    v_chi2[4]);
-   comp->setDetail<float>(prefix+"_chi2sum_br_sct2",    v_chi2[5]);
-   comp->setDetail<float>(prefix+"_chi2sum_br_sct3",    v_chi2[6]);
-   comp->setDetail<float>(prefix+"_chi2sum_br_sct4",    v_chi2[7]);
-   comp->setDetail<float>(prefix+"_ndofsum_br_ibl",     v_ndof[0]);
-   comp->setDetail<float>(prefix+"_ndofsum_br_pix1",    v_ndof[1]);
-   comp->setDetail<float>(prefix+"_ndofsum_br_pix2",    v_ndof[2]);
-   comp->setDetail<float>(prefix+"_ndofsum_br_pix3",    v_ndof[3]);
-   comp->setDetail<float>(prefix+"_ndofsum_br_sct1",    v_ndof[4]);
-   comp->setDetail<float>(prefix+"_ndofsum_br_sct2",    v_ndof[5]);
-   comp->setDetail<float>(prefix+"_ndofsum_br_sct3",    v_ndof[6]);
-   comp->setDetail<float>(prefix+"_ndofsum_br_sct4",    v_ndof[7]);
+   comp->setDetail<float>(prefix+"_chi2sum_br_ibl",     barrelInfo[0].chiSq);
+   comp->setDetail<float>(prefix+"_chi2sum_br_pix1",    barrelInfo[1].chiSq);
+   comp->setDetail<float>(prefix+"_chi2sum_br_pix2",    barrelInfo[2].chiSq);
+   comp->setDetail<float>(prefix+"_chi2sum_br_pix3",    barrelInfo[3].chiSq);
+   comp->setDetail<float>(prefix+"_chi2sum_br_sct1",    barrelInfo[4].chiSq);
+   comp->setDetail<float>(prefix+"_chi2sum_br_sct2",    barrelInfo[5].chiSq);
+   comp->setDetail<float>(prefix+"_chi2sum_br_sct3",    barrelInfo[6].chiSq);
+   comp->setDetail<float>(prefix+"_chi2sum_br_sct4",    barrelInfo[7].chiSq);
+   comp->setDetail<float>(prefix+"_ndofsum_br_ibl",     barrelInfo[0].nDof);
+   comp->setDetail<float>(prefix+"_ndofsum_br_pix1",    barrelInfo[1].nDof);
+   comp->setDetail<float>(prefix+"_ndofsum_br_pix2",    barrelInfo[2].nDof);
+   comp->setDetail<float>(prefix+"_ndofsum_br_pix3",    barrelInfo[3].nDof);
+   comp->setDetail<float>(prefix+"_ndofsum_br_sct1",    barrelInfo[4].nDof);
+   comp->setDetail<float>(prefix+"_ndofsum_br_sct2",    barrelInfo[5].nDof);
+   comp->setDetail<float>(prefix+"_ndofsum_br_sct3",    barrelInfo[6].nDof);
+   comp->setDetail<float>(prefix+"_ndofsum_br_sct4",    barrelInfo[7].nDof);
    comp->setDetail<int>  (prefix+"_n_brhits_good_ibl",  n_ibl_g);
    comp->setDetail<int>  (prefix+"_n_brhits_good_pix1", n_pix1_g);
    comp->setDetail<int>  (prefix+"_n_brhits_good_pix2", n_pix2_g);
@@ -3034,13 +3027,13 @@ void TrigFastTrackFinder::fillDisTrkCand(xAOD::TrigComposite* comp, const std::s
 	    float theta_t = (*t)->perigeeParameters()->parameters()[Trk::theta]; 
 	    float qOverP_t= std::abs((*t)->perigeeParameters()->parameters()[Trk::qOverP]);
 	    if ( qOverP_t < 1e-12 ) qOverP_t = 1e-12;
-	    float pt_t    = sin(theta_t)/qOverP_t;
+	    float pt_t    = std::sin(theta_t)/qOverP_t;
 	    float phi_t   = (*t)->perigeeParameters()->parameters()[Trk::phi]; 
-	    float eta_t   = -log(tan(theta_t/2.0));
+	    float eta_t   = -std::log(std::tan(theta_t/2.0));
 	    float deta    = eta_t - eta;
 	    float dphi    = std::abs(phi_t - phi);
 	    if( dphi > CLHEP::pi ) dphi = CLHEP::pi*2 - dphi;
-	    float dr   = pow( (deta*deta + dphi*dphi), 0.5 );
+	    float dr   = std::sqrt(deta*deta + dphi*dphi);
 	    if( dr > ISOL_CALC_DR_CUT_TO_AVOID_ZERO && dr<0.1 && pt_t > 1000.0 ) iso1_dr01 += pt_t;
 	    if( dr > ISOL_CALC_DR_CUT_TO_AVOID_ZERO && dr<0.2 && pt_t > 1000.0 ) iso1_dr02 += pt_t;
 	    if( dr > ISOL_CALC_DR_CUT_TO_AVOID_ZERO && dr<0.4 && pt_t > 1000.0 ) iso1_dr04 += pt_t;

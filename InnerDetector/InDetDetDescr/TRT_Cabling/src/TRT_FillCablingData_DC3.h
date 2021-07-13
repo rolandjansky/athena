@@ -71,7 +71,7 @@ class TRT_FillCablingData_DC3: public AthAlgTool {
 
    IdContext m_cntx;
 
-   TRT_CablingData* m_cabling;
+   TRT_CablingData* m_cabling = nullptr;
 
    // Define parameters
    void defineParameters();
@@ -80,11 +80,11 @@ class TRT_FillCablingData_DC3: public AthAlgTool {
    void defineTables();
    void defineTables_broken_FDR();
 
-   bool m_broken_FDR_Cabling;
+   bool m_broken_FDR_Cabling = false;
    bool m_RealData;
 
-   int m_numberOfRings;
-   int m_numberOfLayers[3];
+   int m_numberOfRings = 0;
+   int m_numberOfLayers[3]{};
 
    // Identifiers for all straws;
    //   Make 2D because IDs are different depending on which ROD we are
@@ -101,7 +101,7 @@ class TRT_FillCablingData_DC3: public AthAlgTool {
    std::vector< int > m_StrawsPerLayer;
 
    // Wheel to ROD index for EC
-   int m_StrawLayerToRod[160];
+   int m_StrawLayerToRod[160]{};
    
    // buffer offset to straw maps
    std::map< int, int > m_barrel_a_map;

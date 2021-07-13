@@ -77,7 +77,7 @@ def TrigHitDVHypoToolFromDict( chainDict ):
             doSPseed.append(True)
         elif cpart['IDinfo'] =="tight":
             log.info("Tight ID working point is set")
-            jetEta.append(2.0)
+            jetEta.append(1.0)
             doSPseed.append(False)
         else:
             if cpart['IDinfo'] =="medium": 
@@ -85,7 +85,7 @@ def TrigHitDVHypoToolFromDict( chainDict ):
             else:
                 log.info("no working point specificed. setting medium working point")
             jetEta.append(2.0)
-            doSPseed.append(True)
+            doSPseed.append(False)
 
     tool.cutJetEta = jetEta
     tool.doSPseed  = doSPseed

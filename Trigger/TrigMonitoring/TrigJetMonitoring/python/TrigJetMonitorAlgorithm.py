@@ -94,8 +94,9 @@ Chains2Monitor['MT'] = {
   'HLT_j460_a10t_lcw_jes_L1SC111-CJ15'          : { 'HLTColl' : 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes', 'RefChain' : 'HLT_j85_L1J20', 'OfflineColl' : 'AntiKt4EMTopoJets' },
   'HLT_j420_a10t_lcw_jes_35smcINF_L1SC111-CJ15' : { 'HLTColl' : 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes', 'RefChain' : 'HLT_j85_L1J20', 'OfflineColl' : 'AntiKt4EMTopoJets' },
   # HT and dijet scenarios
-  'HLT_j0_HT1000_L1J20'                              : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS', 'RefChain' : 'NONE', 'OfflineColl' : 'NONE' },
+  'HLT_j0_HT1000_L1J100'                              : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS', 'RefChain' : 'NONE', 'OfflineColl' : 'NONE' },
   'HLT_j0_HT1000XX30et_L1J20'                        : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS', 'RefChain' : 'NONE', 'OfflineColl' : 'NONE' },
+  'HLT_j0_HT1000_j0_DIJET80j12ptXX0j12eta240XX700djmass_L1J20' : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS', 'RefChain' : 'NONE', 'OfflineColl' : 'NONE' },
   'HLT_j0_DIJET80j12ptXX0j12eta240XX700djmass_L1J20' : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS', 'RefChain' : 'NONE', 'OfflineColl' : 'NONE' },
   'HLT_j0_DIJET80j12etXX0j12eta240XX700djmass_L1J20' : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS', 'RefChain' : 'NONE', 'OfflineColl' : 'NONE' },
 }
@@ -140,6 +141,7 @@ for case in ['MT','Legacy']:
 #########################################################
 
 def getEtaRange(chain):
+  etaMin,etaMax = 0,2.5 # central jets by default
   if 'eta' in chain:
     etaParts    = chain.split('eta')
     etaMinTemp  = etaParts[0].split('_')
@@ -147,9 +149,7 @@ def getEtaRange(chain):
     etaMin      = int(etaMin)/10
     etaMax      = etaParts[1].split('_')[0]
     etaMax      = int(etaMax)/10
-    return etaMin,etaMax
-  else: # by default central
-    return 0,2.5
+  return etaMin,etaMax
 
 def getBinningFromThreshold(chain,varname):
   #default binning if nothing below applies
@@ -177,6 +177,16 @@ def getBinningFromThreshold(chain,varname):
   #mass binning for large-R smc chains
   elif varname == "m":
     xbins, xmin, xmax = 35, 30000., 100000.
+  return xbins, xmin, xmax
+
+def getHTBinning(chain,binwidth):
+  parts = chain.split('HT')
+  threshold = parts[1].split('_')[0]
+  if 'XX' in threshold:
+    threshold = threshold.split('XX')[0]
+  xmin = int(threshold)
+  xmax = xmin + 500
+  xbins = int((xmax-xmin)/binwidth)-1
   return xbins, xmin, xmax
 
 #########################################################
@@ -525,23 +535,25 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT,onlyUsePassingJet
      return parts[1].split('_')[0]
 
    def getEtaRangeString(chain):
+     etaMin, etaMax = 0, 32
      if 'eta' in chain:
        etaParts    = chain.split('eta')
        etaMinTemp  = etaParts[0].split('_')
        etaMin      = etaMinTemp[len(etaMinTemp)-1]
-       if int(etaMin) > 0 : etaMin = str(int(int(etaMin)/10))
        etaMax      = etaParts[1].split('_')[0]
+       if int(etaMin) > 0 : etaMin = str(int(int(etaMin)/10))
        if int(etaMax) > 0 : etaMax = str(int(int(etaMax)/10))
-       return 'Eta{}_{}'.format(etaMin,etaMax)
-     else: return 'Eta0_32'
+     return 'Eta{}_{}'.format(etaMin,etaMax)
 
    def getNjetHistName(chain):
+     NjetHistName = 'NONE'
      parts         = chain.split('j')
      # check if it is a multi-threshold multijet chain or a single-threshold multijet chain
      multiplicity  = parts[0].split('_')[1] # for single-threshold multijet chains
      if (chain.count('_j')-chain.count('_jes')) > 1  or multiplicity != '':
-       return 'njetsEt{}{}'.format(getThreshold(parts),getEtaRangeString(chain))
-     else: return 'NONE'
+       NjetHistName = 'njetsEt{}{}'.format(getThreshold(parts),getEtaRangeString(chain))
+     return NjetHistName
+
 
    trigConf = JetMonAlgSpec( # the usual JetMonAlgSpec 
        jetMonAlgSpecName,
@@ -562,7 +574,7 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT,onlyUsePassingJet
    )
    for hist in ExtraOnlineNJetHists: trigConf.appendHistos(EventHistoSpec(hist, (20,0,25), title=hist+';'+hist+';Entries'))
    # Add NjetEt and NjetPt histograms for simple scenarios
-   if 'ht' not in chain and 'dijet' not in chain and 'fbdj' not in chain:
+   if 'ht' not in chain and 'HT' not in chain and 'dijet' not in chain and 'DIJET' not in chain and 'fbdj' not in chain:
      NjetHistName = getNjetHistName(chain)
      from JetMonitoring.JetStandardHistoSpecs import knownEventVar
      if knownEventVar.get(NjetHistName,None) is not None and NjetHistName not in ExtraOnlineNJetHists: #avoids duplication warnings for some chains
@@ -578,6 +590,16 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT,onlyUsePassingJet
      trigConf.appendHistos("Jvt")
      trigConf.appendHistos("JVFCorr")
      trigConf.appendHistos("JvtRpt")
+
+   if 'ht' in chain or 'HT' in chain:
+     def defineHistoForHTChain(conf, parentAlg, monhelper , path):
+         # create a monitoring group with the histo path starting from the parentAlg
+         group = monhelper.addGroup(parentAlg, conf.Group, conf.topLevelDir+jetcollFolder+'/')
+         # define the histograms
+         xbins, xmin, xmax = getHTBinning(chain,25) # bin width in GeV
+         group.defineHistogram("jetHT;HT",title="Jet HT;H_{T} [GeV];Entries", type="TH1F", path=chainFolder, xbins=xbins , xmin=xmin, xmax=xmax ,)
+     trigConf.appendHistos(ToolSpec('JetHistoHTFiller','JetHistoHTFiller_'+chain,MinPt=30.,MaxEta=3.2,FailureOnMissingContainer=False,
+                                  defineHistoFunc=defineHistoForHTChain,Group='jetHT_'+jetcoll))
 
    return trigConf
 

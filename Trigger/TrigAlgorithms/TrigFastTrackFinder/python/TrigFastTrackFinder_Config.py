@@ -326,7 +326,10 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
 
         self.doDisappearingTrk = config.doDisappearingTrk
         if config.doDisappearingTrk:
-            self.DisTrkCand = "HLT_DisTrkCand"
+            from TrigEDMConfig.TriggerEDMRun3 import recordable
+            self.DisTrkCand = recordable("HLT_DisTrkCand")
+            from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackFitter
+            self.DisTrackFitter = InDetTrigTrackFitter
 
 
         ## SCT and Pixel detector elements road builder

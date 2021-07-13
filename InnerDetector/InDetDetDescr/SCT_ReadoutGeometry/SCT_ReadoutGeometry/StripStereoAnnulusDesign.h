@@ -169,9 +169,6 @@ public:
     /** Shape of element */
     virtual DetectorShape shape() const;
 
-   // Transform from SiHit to GeoModel frame
-   const Amg::Transform3D SiHitToGeoModel() const;
-
    double sinStripAngleReco(double phiCoord, double etaCoord) const;
 
     // ------------------------------------------------------------------------------------------
