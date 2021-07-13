@@ -136,13 +136,13 @@ addDefaultTrimmedJets(SeqPHYSVAL,"PHYSVAL",dotruth=add_largeR_truth_jets,linkVRG
 
 # Add large-R jet truth labeling
 if (DerivationFrameworkIsMonteCarlo):
-   addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=SeqPHYSVAL,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
+   addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=SeqPHYSVAL,labelname="R10TruthLabel_R21Consolidated")
 
-addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=SeqPHYSVAL,algname="QGTaggerToolAlg")
-addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYSVAL,algname="QGTaggerToolPFAlg")
+addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=SeqPHYSVAL)
+addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYSVAL)
 
 # fJVT
-getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqPHYSVAL, algname='PHYSVALJetForwardPFlowJvtToolAlg')
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqPHYSVAL)
 
 # Event cleaning flags
 addEventCleanFlags()

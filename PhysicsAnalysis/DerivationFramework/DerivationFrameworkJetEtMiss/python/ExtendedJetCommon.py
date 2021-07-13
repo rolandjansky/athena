@@ -423,7 +423,7 @@ def addJetPtAssociation(jetalg, truthjetalg, sequence, algname):
 
 ##################################################################
 
-def addJetTruthLabel(jetalg,algname,labelname,sequence):
+def addJetTruthLabel(jetalg,labelname,sequence):
     supportedLabelNames = ['R10TruthLabel_R21Consolidated','R10TruthLabel_R21Precision']
     supportedTruthJets = ['AntiKt10Truth','AntiKt10TruthTrimmedPtFrac5SmallR20']
     supportedRecoJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20','AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20','AntiKt10UFOCSSKTrimmedPtFrac5SmallR20','AntiKt10UFOCSSKSoftDropBeta100Zcut10','AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5','AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5Ninf','AntiKt10UFOCHSTrimmedPtFrac5SmallR20']
@@ -434,101 +434,59 @@ def addJetTruthLabel(jetalg,algname,labelname,sequence):
     elif labelname not in supportedLabelNames:
         extjetlog.warning('*** JetTruthLabeling augmentation requested for unsupported label definition {}! ***'.format(labelname))
         return
-    else:
-        isTruthJet = False
-        if jetalg in supportedTruthJets:
-            isTruthJet = True
 
-        jetaugtool = getJetAugmentationTool(jetalg, labelname)
+    truthLabelAlgName = 'DFJetTruthLabelAlg_' + jetalg + '_' + labelname
+    if hasattr(sequence, truthLabelAlgName):
+        return
 
-        if(jetaugtool is None):
-            extjetlog.warning('*** addJetTruthLabel called but corresponding augmentation tool does not exist! ***')
-            return
+    isTruthJet = False
+    if jetalg in supportedTruthJets:
+        isTruthJet = True
 
-        jettruthlabeltoolname = 'DFJetTruthLabel_'+jetalg+'_'+labelname
-
-        from AthenaCommon.AppMgr import ToolSvc
-
-        if hasattr(ToolSvc,jettruthlabeltoolname):
-            jetaugtool.JetTruthLabelingTool = getattr(ToolSvc,jettruthlabeltoolname)
-        else:
-            jettruthlabeltool = CfgMgr.JetTruthLabelingTool(jettruthlabeltoolname,IsTruthJetCollection=isTruthJet,TruthLabelName=labelname)
-            ToolSvc += jettruthlabeltool
-            jetaugtool.JetTruthLabelingTool = jettruthlabeltool
-
-        extjetlog.info('ExtendedJetCommon: Applying JetTruthLabel augmentation to jet collection: ' + jetalg + 'Jets' + ' using ' + labelname +' definition')
-        applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
+    jetTruthLabelTool = CfgMgr.JetTruthLabelingTool('DFJetTruthLabel_'+jetalg+'_'+labelname,
+                                                    IsTruthJetCollection = isTruthJet,
+                                                    TruthLabelName = labelname)
+    if not isTruthJet:
+        jetTruthLabelTool.RecoJetContainer = jetalg + 'Jets'
+    extjetlog.info('ExtendedJetCommon: Applying JetTruthLabel augmentation to jet collection: ' + jetalg + 'Jets' + ' using ' + labelname +' definition')
+    sequence += CfgMgr.JetDecorationAlg(truthLabelAlgName, JetContainer=jetalg+'Jets', Decorators=[jetTruthLabelTool])
 
 ##################################################################  
 
-def getPFlowfJVT(jetalg,algname,sequence,primaryVertexCont="PrimaryVertices",trackVertexAssociation="JetTrackVtxAssoc",overlapLabel="",outLabel="fJvt",includePV=False):
+def getPFlowfJVT(jetalg,sequence,primaryVertexCont="PrimaryVertices",overlapLabel="",outLabel="fJvt",includePV=False):
     supportedJets = ['AntiKt4EMPFlow']
     if jetalg not in supportedJets:
         extjetlog.error('*** PFlow fJvt augmentation requested for unsupported jet collection {}! ***'.format(jetalg))
         return
-    else:
-        from AthenaCommon.AppMgr import ToolSvc
-        jetaugtool = getJetAugmentationTool(jetalg,suffix=algname)
+    
+    fJVTAlgName = "DFJetFJVTAlg_" + jetalg
+    if hasattr(sequence, fJVTAlgName):
+        return
 
-        #Check if the calibration and JVT tools exist already
-        jetcalibtoolname_default = 'DFJetCalib_'+jetalg
-        jetjvttoolname_default = 'DFJetJvt_'+jetalg
+    # Calibration tool specific for pFlow fJVT: without GSC and smearing
+    jetCalibrationTool = CfgMgr.JetCalibrationTool('DFJetFJVT_' + jetalg + '_CalibTool',
+                                                    JetCollection = 'AntiKt4EMPFlow',
+                                                    ConfigFile = "JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config",
+                                                    CalibSequence = "JetArea_Residual_EtaJES",
+                                                    CalibArea = "00-04-82",
+                                                    RhoKey = 'Kt4EMPFlowEventShape',
+                                                    IsData = False)
 
-        jvtefftoolname = getJvtEffToolName(jetalg)
+    wPFOTool = CfgMgr.CP__WeightPFOTool("DFJetFJVT_" + jetalg + "_wPFO")
 
-        #Jet calibration tool
-        if hasattr(ToolSvc, jetcalibtoolname_default):
-            jetaugtool.JetCalibTool = getattr(ToolSvc, jetcalibtoolname_default)
-        else:
-            applyJetCalibration(jetalg,algname,sequence,suffix=algname)
+    fJVTTool = CfgMgr.JetForwardPFlowJvtTool('DFJetFJVT_' + jetalg,
+                                                verticesName = primaryVertexCont,
+                                                JetContainer = jetalg+"Jets",
+                                                TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
+                                                WeightPFOTool = wPFOTool,
+                                                JetCalibrationTool = jetCalibrationTool,
+                                                FEName = 'CHSParticleFlowObjects',
+                                                ORName = overlapLabel,
+                                                FjvtRawName = 'DFCommonJets_' + outLabel,
+                                                includePV = includePV)
 
-        #JVT tool
-        if hasattr(ToolSvc, jetjvttoolname_default) and hasattr(ToolSvc, jvtefftoolname):
-            jetaugtool.JetJvtTool = getattr(ToolSvc, jetjvttoolname_default)
-            jetaugtool.JetJvtEffTool = getattr(ToolSvc, jvtefftoolname)
-        else:
-            updateJVT(jetalg,algname,sequence,customVxColl=primaryVertexCont,suffix=algname)
-
-        # Calibration tool specific for pFlow fJVT: without GSC and smearing
-        jetcalibtoolname = 'DFJetCalib_PFfJvt_'+jetalg
-        if hasattr(ToolSvc, jetcalibtoolname):
-            jetaugtool.JetCalibToolfJvt = getattr(ToolSvc,jetcalibtoolname)
-        else:
-            jetalg_calib = 'AntiKt4EMPFlow'
-            rhoKey = 'Kt4EMPFlowEventShape'
-
-            jetcalibrationtool = CfgMgr.JetCalibrationTool(jetcalibtoolname,
-                                                           JetCollection=jetalg_calib,
-                                                           ConfigFile="JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config",
-                                                           CalibSequence="JetArea_Residual_EtaJES",
-                                                           CalibArea="00-04-82",
-                                                           RhoKey=rhoKey,
-                                                           IsData=False)
-
-            ToolSvc += jetcalibrationtool
-
-        wpfotoolname = "DFwPFO_"+jetalg+algname
-        wpfotool = CfgMgr.CP__WeightPFOTool(wpfotoolname)
-
-        pffjvttoolname = 'DFJetPFfJvt_'+jetalg+algname
-        jetCont = jetalg+"Jets"
-
-        if hasattr(ToolSvc,pffjvttoolname):
-            jetaugtool.JetForwardPFlowJvtTool = getattr(ToolSvc,pffjvttoolname)
-            jetaugtool.fJvtMomentKey = outLabel
-        else:
-            pffjvttool = CfgMgr.JetForwardPFlowJvtTool(pffjvttoolname,
-                                                       verticesName=primaryVertexCont, JetContainer=jetCont,
-                                                       TrackVertexAssociation=jtm.tvassoc.TrackVertexAssociation,
-                                                       WeightPFOTool=wpfotool, JetCalibrationTool=jetcalibrationtool,
-                                                       FEName='CHSParticleFlowObjects',
-                                                       ORName=overlapLabel, FjvtRawName='DFCommonJets_'+outLabel, includePV=includePV)
-            ToolSvc += pffjvttool
-            jetaugtool.JetForwardPFlowJvtTool = pffjvttool
-            jetaugtool.fJvtMomentKey = outLabel
-
-        extjetlog.info('ExtendedJetCommon: Applying PFlow fJvt augmentation to jet collection: '+jetalg+'Jets')
-        applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
+    extjetlog.info('ExtendedJetCommon: Applying PFlow fJvt augmentation to jet collection: ' + jetalg + 'Jets')
+    sequence += CfgMgr.JetDecorationAlg(fJVTAlgName, JetContainer=jetalg+'Jets', Decorators=[fJVTTool])
 
 def applyBTaggingAugmentation(jetalg,algname='default',sequence=DerivationFrameworkJob,btagtooldict={}):
     if algname == 'default':
@@ -574,55 +532,32 @@ def addOriginCorrection(jetalg, sequence, algname,vertexPrefix):
 #################################################################
 ### Schedule Q/G-tagging decorations ### QGTaggerTool ##### 
 #################################################################
-def addQGTaggerTool(jetalg, sequence, algname, truthjetalg=None ):
-    jetaugtool = getJetAugmentationTool(jetalg,'_qgTag')
-    if(jetaugtool is None):
-        extjetlog.warning('*** addQGTaggerTool called but corresponding augmentation tool does not exist! ***')
+def addQGTaggerTool(jetalg, sequence, truthjetalg=None):
 
-    from AthenaCommon.AppMgr import ToolSvc
+    qgAlgName = 'DFQGTaggerAlg_' + jetalg
+    if hasattr(sequence, qgAlgName):
+        return
 
     if truthjetalg is not None:
-        jetptassociationtoolname = 'DFJetPtAssociation_'+truthjetalg+'_'+jetalg
-        if hasattr(ToolSvc,jetptassociationtoolname):
-            jetaugtool.JetPtAssociationTool = getattr(ToolSvc,jetptassociationtoolname)
-        else:
-            jetptassociationtool = CfgMgr.JetPtAssociationTool(jetptassociationtoolname, JetContainer=jetalg+'Jets', MatchingJetContainer=truthjetalg, AssociationName="GhostTruth")
-            ToolSvc += jetptassociationtool
-            jetaugtool.JetPtAssociationTool = jetptassociationtool
+        truthAssocAlgName = 'DFJetPtAssociationAlg_'+ truthjetalg + '_' + jetalg
+        if not hasattr(sequence, truthAssocAlgName):
+            jetTruthAssocTool = CfgMgr.JetPtAssociationTool('DFJetPtAssociation_' + truthjetalg + '_' + jetalg,
+                                                            JetContainer = jetalg + 'Jets',
+                                                            MatchingJetContainer = truthjetalg,
+                                                            AssociationName = "GhostTruth")
 
-    #Track selection tool
-    TrackSelectionToolName = 'DFQGTaggerTool' + '_InDetTrackSelectionTool_' + jetalg
-    if hasattr(ToolSvc, TrackSelectionToolName):
-        jetaugtool.TrackSelectionTool = getattr(ToolSvc, TrackSelectionToolName)
-    else:
-        trackselectiontool = CfgMgr.InDet__InDetTrackSelectionTool( TrackSelectionToolName )
-        trackselectiontool.CutLevel = "Loose"
-        ToolSvc += trackselectiontool
-        jetaugtool.TrackSelectionTool = trackselectiontool
-    
-    #Track-vertex association tool
-    TrackVertexAssociationToolName = 'DFQGTaggerTool' + '_InDetTrackVertexAssosciationTool_' + jetalg
-    if hasattr(ToolSvc, TrackVertexAssociationToolName):
-        jetaugtool.TrackVertexAssociationTool = getattr(ToolSvc, TrackVertexAssociationToolName)
-    else:
-        trackvertexassoctool = CfgMgr.CP__TrackVertexAssociationTool(TrackVertexAssociationToolName)
-        trackvertexassoctool.WorkingPoint = "Loose"
-        ToolSvc += trackvertexassoctool
-        jetaugtool.TrackVertexAssociationTool = trackvertexassoctool
+            sequence += CfgMgr.JetDecorationAlg(truthAssocAlgName, JetContainer=jetalg+'Jets', Decorators=[jetTruthAssocTool])
 
-    QGTaggerToolName = 'DFQGTaggerTool_' + jetalg
-    pvxName = "PrimaryVertices"
-
-    #calculate variables for q/g tagging
-    if hasattr(ToolSvc,QGTaggerToolName):
-        jetaugtool.JetQGTaggerTool = getattr(ToolSvc,QGTaggerToolName)
-    else:
-        qgtool = CfgMgr.JetQGTaggerVariableTool(QGTaggerToolName,JetContainer=jetalg+'Jets',VertexContainer=pvxName,TVATool=trackvertexassoctool,TrkSelTool=trackselectiontool)
-        ToolSvc += qgtool
-        jetaugtool.JetQGTaggerTool = qgtool
+    trackselectiontool = CfgMgr.InDet__InDetTrackSelectionTool('DFQGTaggerTool_InDetTrackSelectionTool_' + jetalg, CutLevel = "Loose" )
+    trackvertexassoctool = CfgMgr.CP__TrackVertexAssociationTool('DFQGTaggerTool_InDetTrackVertexAssosciationTool_' + jetalg, WorkingPoint = "Loose")
+    qgTool = CfgMgr.JetQGTaggerVariableTool('DFQGTaggerTool_' + jetalg,
+                                            JetContainer=jetalg + 'Jets',
+                                            VertexContainer='PrimaryVertices',
+                                            TVATool=trackvertexassoctool,
+                                            TrkSelTool=trackselectiontool)
 
     extjetlog.info('ExtendedJetCommon: Adding QGTaggerTool for jet collection: '+jetalg)
-    applyJetAugmentation(jetalg, algname, sequence, jetaugtool)
+    sequence += CfgMgr.JetDecorationAlg(qgAlgName, JetContainer=jetalg+'Jets', Decorators=[qgTool])
 
 ################################################################## 
 
