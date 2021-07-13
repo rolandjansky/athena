@@ -262,7 +262,7 @@ void VP1CaloCellSystem::Clockwork::BuildCellManagers()
 			controller->showVolumeOutLines(),controller->globalCuts());
 
 	// Connect controller signals to manager slots
-	for(VP1CCManagerContainer::iterator it=cell_managers.begin(); it!=cell_managers.end(); it++) {
+	for(VP1CCManagerContainer::iterator it=cell_managers.begin(); it!=cell_managers.end(); ++it) {
 		connect(controller,SIGNAL(selectionIntervalsChanged(VP1CCIntervalMap)),
 				it->second,SLOT(selectionUpdated(VP1CCIntervalMap)));
 		connect(controller,SIGNAL(scaleChanged(QPair<bool,double>)),
@@ -430,9 +430,9 @@ std::string VP1CaloCellSystem::Clockwork::SearchTileRawchanKeys(const std::vecto
 	searchOrder.push_back("TileRawChannelCnt");
 	searchOrder.push_back("TileRawChannelFlt");
 
-	for(size_t i=0; i<searchOrder.size(); i++) {
+	for(size_t i=0; i<searchOrder.size(); ++i) {
 		std::string searchString = searchOrder[i];
-		for(size_t ii=0; ii<inputKeys.size(); ii++)
+		for(size_t ii=0; ii<inputKeys.size(); ++ii)
 			if(inputKeys[ii]==searchString)
 				return searchString;
 	}
@@ -581,7 +581,7 @@ void VP1CaloCellSystem::systemerase()
 
 	// Delete Cell Managers and clear the map
 	VP1CCManagerContainer::iterator it = m_clockwork->cell_managers.begin();
-	for(; it!=m_clockwork->cell_managers.end(); it++)
+	for(; it!=m_clockwork->cell_managers.end(); ++it)
 		if(it->second) delete it->second;
 
 	m_clockwork->cell_managers.clear();
@@ -589,7 +589,7 @@ void VP1CaloCellSystem::systemerase()
 
 	// delete separator helpers and clear the separator helper map
 	VP1CC_SeparatorMap::iterator itSepHelper = m_clockwork->sepHelperMap.begin();
-	for(; itSepHelper!= m_clockwork->sepHelperMap.end(); itSepHelper++)
+	for(; itSepHelper!= m_clockwork->sepHelperMap.end(); ++itSepHelper)
 		if(itSepHelper->second) delete itSepHelper->second;
 	m_clockwork->sepHelperMap.clear();
 
@@ -628,7 +628,7 @@ void VP1CaloCellSystem::buildEventSceneGraph(StoreGateSvc* sg, SoSeparator *root
 			//   1. Create one Separator and one Material for each member of VP1CC_SeparatorTypes
 			//   2. Also create Separator Helper objects
 			VP1CC_SeparatorTypesSet::iterator itSepType=m_clockwork->sepTypes.begin();
-			for(; itSepType!=m_clockwork->sepTypes.end(); itSepType++) {
+			for(; itSepType!=m_clockwork->sepTypes.end(); ++itSepType) {
 				SoSeparator* childSep = new SoSeparator();
 				VP1ExtraSepLayerHelper* sepHelper = new VP1ExtraSepLayerHelper(childSep);
 
@@ -834,7 +834,7 @@ void VP1CaloCellSystem::userPickedNode(SoNode* pickedNode, SoPath *pickedPath)
 			return;
 		}
 
-		for(unsigned int ii=0; ii<msg.size(); ii++)
+		for(unsigned int ii=0; ii<msg.size(); ++ii)
 			message((msg[ii]).c_str());
 
 		// Digits
@@ -859,7 +859,7 @@ void VP1CaloCellSystem::userPickedNode(SoNode* pickedNode, SoPath *pickedPath)
 					}
 
 					LArDigitContainer::const_iterator itLArDig=m_clockwork->lar_digits->begin();
-					for(;itLArDig!=m_clockwork->lar_digits->end(); itLArDig++) {
+					for(;itLArDig!=m_clockwork->lar_digits->end(); ++itLArDig) {
 						if((*itLArDig)->hardwareID()==hwId) {
 
 							message("displaying LAr digits...");
@@ -918,7 +918,7 @@ void VP1CaloCellSystem::userPickedNode(SoNode* pickedNode, SoPath *pickedPath)
 						TileDigitsContainer::const_iterator itTileDig = m_clockwork->tile_digits->begin();
 
 						// loop over Tile digits
-						for(;itTileDig!=m_clockwork->tile_digits->end();itTileDig++) {
+						for(;itTileDig!=m_clockwork->tile_digits->end();++itTileDig) {
 							if((*itTileDig)->size() >0 && (*itTileDig)->identify()==frag1) {
 								messageDebug("Baa");
 								digits1 = (**itTileDig)[channel1];
@@ -928,7 +928,7 @@ void VP1CaloCellSystem::userPickedNode(SoNode* pickedNode, SoPath *pickedPath)
 								if(channel2==channel1) {
 									itTileDig = m_clockwork->tile_digits->begin();
 
-									for(;itTileDig!=m_clockwork->tile_digits->end();itTileDig++) {
+									for(;itTileDig!=m_clockwork->tile_digits->end();++itTileDig) {
 										if((*itTileDig)->size() >0 && (*itTileDig)->identify()==frag2) {
 											digits2 = (**itTileDig)[channel2];
 											break;
@@ -967,7 +967,7 @@ void VP1CaloCellSystem::userPickedNode(SoNode* pickedNode, SoPath *pickedPath)
 						TileRawChannelContainer::const_iterator itTileRawCh = m_clockwork->tile_rawchannel->begin();
 						const TileRawChannel* rawchannel1 = 0;
 						// loop over Tile channels
-						for(;itTileRawCh!=m_clockwork->tile_rawchannel->end();itTileRawCh++) {
+						for(;itTileRawCh!=m_clockwork->tile_rawchannel->end();++itTileRawCh) {
 
 							if((*itTileRawCh)->size()>0 && (*itTileRawCh)->identify()==frag1) {
 								rawchannel1 = (**itTileRawCh)[channel1];
@@ -978,7 +978,7 @@ void VP1CaloCellSystem::userPickedNode(SoNode* pickedNode, SoPath *pickedPath)
 									messageDebug("channel2==_channel1");
 									// D0
 									itTileRawCh = m_clockwork->tile_rawchannel->begin();
-									for(;itTileRawCh!=m_clockwork->tile_rawchannel->end();itTileRawCh++)
+									for(;itTileRawCh!=m_clockwork->tile_rawchannel->end();++itTileRawCh)
 										if((*itTileRawCh)->size()>0 && (*itTileRawCh)->identify()==frag2) {
 											messageDebug("Get channel2...");
 											//the following value is never used, gets immediately overwritten after the 
@@ -1057,7 +1057,7 @@ void VP1CaloCellSystem::userPickedNode(SoNode* pickedNode, SoPath *pickedPath)
 						// ----------------- Plot digits -------------------
 						const TileDigits* digits = 0;
 						TileDigitsContainer::const_iterator itTileDig = m_clockwork->tile_digits->begin();
-						for(;itTileDig!=m_clockwork->tile_digits->end();itTileDig++) {
+						for(;itTileDig!=m_clockwork->tile_digits->end();++itTileDig) {
 							if((*itTileDig)->size() >0 && (*itTileDig)->identify()==frag) {
 								digits = (**itTileDig)[channel];
 
@@ -1077,7 +1077,7 @@ void VP1CaloCellSystem::userPickedNode(SoNode* pickedNode, SoPath *pickedPath)
 						// ---------------- Plot pulse --------------------
 						TileRawChannelContainer::const_iterator itTileRawCh = m_clockwork->tile_rawchannel->begin();
 						const TileRawChannel* rawchannel = 0;
-						for(;itTileRawCh!=m_clockwork->tile_rawchannel->end();itTileRawCh++) {
+						for(;itTileRawCh!=m_clockwork->tile_rawchannel->end();++itTileRawCh) {
 							messageDebug("Tile Crack plot pulse");
 							if((*itTileRawCh)->size()>0 && (*itTileRawCh)->identify()==frag) {
 								rawchannel = (**itTileRawCh)[channel];
@@ -1106,7 +1106,7 @@ void VP1CaloCellSystem::userPickedNode(SoNode* pickedNode, SoPath *pickedPath)
 
 	// Maybe MBTS has been selected?
 	std::vector<std::string> msg = m_clockwork->mbtsHelper->userPickedNode(pickedNode);
-	for(unsigned int ii=0; ii<msg.size(); ii++)
+	for(unsigned int ii=0; ii<msg.size(); ++ii)
 		message((msg[ii]).c_str());
 }
 
@@ -1153,7 +1153,7 @@ void VP1CaloCellSystem::energyMode()
 
 	// Delete Cell Managers and clear the map
 	VP1CCManagerContainer::iterator it_ccman = m_clockwork->cell_managers.begin();
-	for(; it_ccman!=m_clockwork->cell_managers.end(); it_ccman++)
+	for(; it_ccman!=m_clockwork->cell_managers.end(); ++it_ccman)
 		if(it_ccman->second) delete it_ccman->second;
 
 	m_clockwork->cell_managers.clear();
@@ -1166,7 +1166,7 @@ void VP1CaloCellSystem::setupEnergyMode()
 {
 	// Prepare Separator Helpers for large changes
 	VP1CC_SeparatorMap::iterator itSepHelp = m_clockwork->sepHelperMap.begin();
-	for(;itSepHelp != m_clockwork->sepHelperMap.end(); itSepHelp++)
+	for(;itSepHelp != m_clockwork->sepHelperMap.end(); ++itSepHelp)
 		itSepHelp->second->largeChangesBegin();
 
 	// Create Managers
@@ -1178,12 +1178,12 @@ void VP1CaloCellSystem::setupEnergyMode()
 	// Update scene with initial values of controller objects
 	const VP1CCIntervalMap& intervals = m_clockwork->controller->selectionIntervals();
 	VP1CCManagerContainer::iterator it = m_clockwork->cell_managers.begin();
-	for(; it!=m_clockwork->cell_managers.end(); it++)
+	for(; it!=m_clockwork->cell_managers.end(); ++it)
 		it->second->selectionUpdated(intervals);
 
 	// Large changes over
 	itSepHelp = m_clockwork->sepHelperMap.begin();
-	for(;itSepHelp != m_clockwork->sepHelperMap.end(); itSepHelp++)
+	for(;itSepHelp != m_clockwork->sepHelperMap.end(); ++itSepHelp)
 		itSepHelp->second->largeChangesEnd();
 
 	updateGUI();
