@@ -647,7 +647,7 @@ namespace Trk {
 
     if ((tp_closestmuon != nullptr) && (cache.m_msEntrance != nullptr)) {
       tmppar.reset(
-        m_extrapolator->extrapolateToVolume(
+        m_extrapolator->extrapolateToVolume(ctx,
           *tp_closestmuon,
           *cache.m_msEntrance,
           propdir,
@@ -695,6 +695,7 @@ namespace Trk {
       
       if (muonsurf != nullptr) {
         matvec.reset(m_extrapolator->extrapolateM(
+          ctx,
           *tp_closestmuon, 
           *muonsurf, 
           propdir,
