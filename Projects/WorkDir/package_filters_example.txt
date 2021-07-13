@@ -16,4 +16,11 @@
 # So in that case you should not bother with using such a filter file.
 #
 + Control/AthenaExamples/AthExHelloWorld
++ Generators/EvgenProdTools
++ Generators/EvgenJobTransforms
++ DetectorDescription/AGDD/AGDDKernel
++ DetectorDescription/AGDD/AGDDControl 
++ DetectorDescription/AGDD/AGDDModel
++ Database/IOVDbDataModel
+
 - .*

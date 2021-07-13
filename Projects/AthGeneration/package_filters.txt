@@ -94,6 +94,9 @@
 #+ Database/RegistrationServices
 + Database/TPTools
 #+ DataQuality/GoodRunsLists
++ DetectorDescription/AGDD/AGDDKernel
++ DetectorDescription/AGDD/AGDDControl
++ DetectorDescription/AGDD/AGDDModel
 + DetectorDescription/AtlasDetDescr
 + DetectorDescription/GeoModel/GeoModelKernel
 + DetectorDescription/GeoModel/GeoModelInterfaces

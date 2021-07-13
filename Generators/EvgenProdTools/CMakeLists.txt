@@ -8,6 +8,8 @@ atlas_subdir( EvgenProdTools )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
+                          DetectorDescription/AGDD/AGDDControl
+                          Database/IOVDbDataModel
                           Generators/GenAnalysisTools/TruthHelper
                           Generators/GeneratorModules
                           PRIVATE
@@ -15,7 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/EventInfo
                           GaudiKernel
                           Generators/TruthUtils
-                          Tools/PathResolver )
+                          Tools/PathResolver   )
 
 # External dependencies:
 find_package( HepMC )
@@ -26,13 +28,13 @@ atlas_add_library( EvgenProdToolsLib
                    src/*.cxx
                    PUBLIC_HEADERS EvgenProdTools
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps TruthHelper GeneratorModulesLib
-                   PRIVATE_LINK_LIBRARIES AthenaKernel EventInfo GaudiKernel TruthUtils IOVDbDataModel AthenaPoolUtilities PathResolver )
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AGDDControl IOVDbDataModel TruthHelper GeneratorModulesLib
+                   PRIVATE_LINK_LIBRARIES AthenaKernel EventInfo GaudiKernel TruthUtils AthenaPoolUtilities PathResolver )
 
 atlas_add_component( EvgenProdTools
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps TruthHelper GeneratorModulesLib AthenaKernel EventInfo GaudiKernel TruthUtils EvgenProdToolsLib IOVDbDataModel AthenaPoolUtilities PathResolver )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AGDDControl IOVDbDataModel TruthHelper GeneratorModulesLib AthenaKernel EventInfo GaudiKernel TruthUtils EvgenProdToolsLib AthenaPoolUtilities PathResolver )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
