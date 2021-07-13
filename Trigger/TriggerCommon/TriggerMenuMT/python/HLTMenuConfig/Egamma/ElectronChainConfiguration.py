@@ -230,7 +230,7 @@ class ElectronChainConfiguration(ChainConfigurationBase):
     
     def getPrecisionCaloElectron_lrt(self,is_probe_leg=False):
         stepName = "precisionCalo_electron_lrt"
-        return self.getStep(3,stepName,[ precisionCaloSequenceCfg_lrt],is_probe_leg=False)
+        return self.getStep(3,stepName,[ precisionCaloSequenceCfg_lrt],is_probe_leg=is_probe_leg)
 
     def getPrecisionTracking(self,is_probe_leg=False):
         if self.chainPart['extra'] == 'ion':

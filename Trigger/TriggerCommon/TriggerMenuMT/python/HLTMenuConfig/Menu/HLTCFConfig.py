@@ -177,8 +177,11 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     for vmname, vm in viewMakerMap.items():
         log.debug(f"{vmname} InputMakerOutputDecisions: {vm.InputMakerOutputDecisions}")
         if vmname.endswith("_probe"):
-            log.debug(f"Setting InputCachedViews on {vmname} to read decisions from tag leg {vmname[:-6]}: {vm.InputMakerOutputDecisions}")
-            vm.InputCachedViews = viewMakerMap[vmname[:-6]].InputMakerOutputDecisions
+            try:
+                log.debug(f"Setting InputCachedViews on {vmname} to read decisions from tag leg {vmname[:-6]}: {vm.InputMakerOutputDecisions}")
+                vm.InputCachedViews = viewMakerMap[vmname[:-6]].InputMakerOutputDecisions
+            except KeyError: # We may be using a probe leg that has different reco from the tag
+                log.debug(f"Tag leg does not match probe: '{vmname[:-6]}', will not use cached views")
 
     Configurable.configurableRun3Behavior=1
     summaryAcc, summaryAlg = triggerSummaryCfg( ConfigFlags, hypos )
@@ -327,9 +330,12 @@ def sequenceScanner( HLTNode ):
                 inView = c.name()==inViewSequence or childInView
                 stepIndex = _mapSequencesInSteps(c, stepIndex, childInView=inView)
                 _seqMapInStep[compName(c)].add((stepIndex,inView))
+                log.verbose("sequenceScanner: Child %s of sequence %s is in view? %s --> '%s'", compName(c), name, inView, inViewSequence)
             else:
                 if isinstance(c,EventViewCreatorAlgorithm):
                     inViewSequence = c.ViewNodeName
+                    log.verbose("sequenceScanner: EventViewCreatorAlg %s is child of sequence %s with ViewNodeName %s", compName(c), name, c.ViewNodeName)
+        log.debug("sequenceScanner: Sequence %s is in view? %s --> '%s'", name, inView, inViewSequence)
         return stepIndex
 
     # do the job:
@@ -340,7 +346,7 @@ def sequenceScanner( HLTNode ):
         nonViewSteps = sum([0 if isInViews else 1 for (stepIndex,isInViews) in steps])
         if nonViewSteps > 1:
             steplist = [stepIndex for stepIndex,inViewSequence in steps]
-            log.error("sequenceScanner: Sequence %s is expected outside of a view in more than one step: %s", alg, )
+            log.error("sequenceScanner: Sequence %s is expected outside of a view in more than one step: %s", alg, steplist)
             match=re.search('Step([0-9]+)',alg)
             if match:
                 candidateStep=match.group(1)
