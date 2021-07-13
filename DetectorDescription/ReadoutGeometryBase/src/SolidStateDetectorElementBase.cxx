@@ -373,12 +373,18 @@ using Trk::distDepth;
     if (m_geoAlignStore){ 
       ptrXf = m_geoAlignStore->getAbsPosition(getMaterialGeom());
       if (ptrXf) {
-	m_transformHit = (*ptrXf) * m_design->SiHitToGeoModel(); //need .linear()?
-	geotrf = (*ptrXf) * m_design->moduleShift();
-      }
+	     m_transformHit = (*ptrXf);
+         //the below can have an (optional) shift to acccount for transformations
+         //applied when constructing the DetectorElements from the GeoPhysVols
+         //(At the moment, only used for ITkStrip barrel when creating a DetElement per row)
+         geotrf = (*ptrXf) * m_design->moduleShift();
+        }
     }
     else{
-      m_transformHit  = (getMaterialGeom()->getAbsoluteTransform() * m_design->SiHitToGeoModel()); //need .linear()?
+      m_transformHit  = getMaterialGeom()->getAbsoluteTransform();
+    //the below can have an (optional) shift to acccount for transformations
+    //applied when constructing the DetectorElements from the GeoPhysVols
+    //(At the moment, only used for ITkStrip barrel when creating a DetElement per row)
       geotrf = getMaterialGeom()->getAbsoluteTransform() * m_design->moduleShift();
     }
     
@@ -680,7 +686,7 @@ using Trk::distDepth;
 
     phi = globalPoint.phi();
   }
-
+  //TODO: can we make this Amg??? Save some back/forth conversions elsewhere...
   const HepGeom::Transform3D
   SolidStateDetectorElementBase::recoToHitTransformImpl() const
   {

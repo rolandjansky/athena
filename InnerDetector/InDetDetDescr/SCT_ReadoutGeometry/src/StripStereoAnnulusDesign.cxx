@@ -409,10 +409,6 @@ DetectorShape StripStereoAnnulusDesign::shape() const
    return InDetDD::Annulus;
  }
 
-const Amg::Transform3D StripStereoAnnulusDesign::SiHitToGeoModel() const {
-   return Amg::getRotateY3D(90.*CLHEP::deg) ;
-}
-
 double StripStereoAnnulusDesign::stripLength(const InDetDD::SiCellId &cellId) const
 {
   SiLocalPosition lpoc = localPositionOfCell(cellId);
