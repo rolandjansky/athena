@@ -78,7 +78,7 @@ EGAM5_MTTool = DerivationFramework__EGTransverseMassTool( name = "EGAM5_MTTool",
                                                           StoreGateEntryName = "WENU_TransverseMass",
                                                           ObjectMassHypothesis = 0.511*MeV,
                                                           ObjectContainerName = "Electrons",
-                                                          METContainerName = "MET_LocHadTopo",
+                                                          METContainerName = "MET_Core_AntiKt4EMPFlow",
                                                           )
 ToolSvc += EGAM5_MTTool
 print(EGAM5_MTTool)
@@ -374,11 +374,8 @@ EGAM5Sequence += CfgMgr.DerivationFramework__DerivationKernel("EGAM5Kernel",
 #====================================================================
 # JET/MET
 #====================================================================
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
-reducedJetList = []
-if (DerivationFrameworkIsMonteCarlo):
-    reducedJetList.append("AntiKt4TruthJets")
-replaceAODReducedJets(reducedJetList,EGAM5Sequence,"EGAM5")
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addAntiKt4TruthJets
+addAntiKt4TruthJets(EGAM5Sequence,"EGAM5")
 
 
 #========================================
@@ -424,6 +421,12 @@ else:
 
 for tool in EGAM5_ClusterEnergyPerLayerDecorators:
     EGAM5SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )
+
+# Add event info
+if jobproperties.egammaDFFlags.doEGammaEventInfoSlimming:
+    EGAM5SlimmingHelper.SmartCollections.append("EventInfo")
+else:
+    EGAM5SlimmingHelper.AllVariables += ["EventInfo"]
 
 # Add detailed shower shape variables
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
