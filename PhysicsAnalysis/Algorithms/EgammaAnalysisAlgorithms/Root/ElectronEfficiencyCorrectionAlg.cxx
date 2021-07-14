@@ -39,8 +39,9 @@ namespace CP
     }
 
     ANA_CHECK (m_efficiencyCorrectionTool.retrieve());
-    m_systematicsList.addHandle (m_electronHandle);
-    ANA_CHECK (m_systematicsList.addAffectingSystematics (m_efficiencyCorrectionTool->affectingSystematics()));
+    ANA_CHECK (m_electronHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_scaleFactorDecoration.initialize (m_systematicsList, m_electronHandle));
+    ANA_CHECK (m_systematicsList.addSystematics (*m_efficiencyCorrectionTool));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
@@ -53,8 +54,6 @@ namespace CP
   StatusCode ElectronEfficiencyCorrectionAlg ::
   execute ()
   {
-    ANA_CHECK (m_scaleFactorDecoration.preExecute (m_systematicsList));
-
     return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
         ANA_CHECK (m_efficiencyCorrectionTool->applySystematicVariation (sys));
         xAOD::ElectronContainer *electrons = nullptr;

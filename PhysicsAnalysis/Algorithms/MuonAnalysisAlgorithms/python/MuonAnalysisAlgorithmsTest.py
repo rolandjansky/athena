@@ -39,8 +39,7 @@ def makeSequence (dataType) :
                                                   enableCutflow=True, enableKinematicHistograms=True )
     muonSequenceTight.removeStage ("calibration")
     muonSequenceTight.configure( inputName = 'AnalysisMuonsMedium_%SYS%',
-                                 outputName = 'AnalysisMuons_%SYS%',
-                                 affectingSystematics = muonSequenceMedium.affectingSystematics())
+                                 outputName = 'AnalysisMuons_%SYS%')
 
     # Add the sequence to the job:
     algSeq += muonSequenceTight
@@ -53,14 +52,12 @@ def makeSequence (dataType) :
     ntupleMaker.TreeName = 'muons'
     ntupleMaker.Branches = [ 'EventInfo.runNumber     -> runNumber',
                              'EventInfo.eventNumber   -> eventNumber', ]
-    ntupleMaker.systematicsRegex = '(^$)'
     algSeq += ntupleMaker
     ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMakerMuons' )
     ntupleMaker.TreeName = 'muons'
     ntupleMaker.Branches = [ 'AnalysisMuons_NOSYS.eta -> mu_eta',
                              'AnalysisMuons_NOSYS.phi -> mu_phi',
                              'AnalysisMuons_%SYS%.pt  -> mu_%SYS%_pt', ]
-    ntupleMaker.systematicsRegex = '(^MUON_.*)'
     algSeq += ntupleMaker
     treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
     treeFiller.TreeName = 'muons'

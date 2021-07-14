@@ -9,7 +9,9 @@
 #define ASG_ANALYSIS_ALGORITHMS__ASG_CUT_BOOKKEEPER_ALG_H
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
+#include <AsgServices/ServiceHandle.h>
 #include <PMGAnalysisInterfaces/IPMGTruthWeightTool.h>
+#include <SystematicsHandles/ISystematicsSvc.h>
 
 namespace CP
 {
@@ -42,6 +44,10 @@ namespace CP
     /// \brief the truth weight tool
   private:
     ToolHandle<PMGTools::IPMGTruthWeightTool> m_truthWeightTool;
+
+    /// \brief the systematics service
+  private:
+    ServiceHandle<ISystematicsSvc> m_systematics {"SystematicsSvc", ""};
 
     /// \brief run number we are processing
   private:

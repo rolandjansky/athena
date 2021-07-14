@@ -32,7 +32,7 @@ namespace CP
   initialize ()
   {
     ANA_CHECK (m_calibrationTool.retrieve());
-    m_systematicsList.addHandle (m_jetHandle);
+    ANA_CHECK (m_jetHandle.initialize (m_systematicsList));
     ANA_CHECK (m_systematicsList.initialize());
     return StatusCode::SUCCESS;
   }

@@ -31,12 +31,12 @@ namespace CP
   initialize ()
   {
     ANA_CHECK (m_overlapTool.retrieve());
-    if (m_electronsHandle) m_systematicsList.addHandle (m_electronsHandle);
-    if (m_muonsHandle) m_systematicsList.addHandle (m_muonsHandle);
-    if (m_jetsHandle) m_systematicsList.addHandle (m_jetsHandle);
-    if (m_tausHandle) m_systematicsList.addHandle (m_tausHandle);
-    if (m_photonsHandle) m_systematicsList.addHandle (m_photonsHandle);
-    if (m_fatJetsHandle) m_systematicsList.addHandle (m_fatJetsHandle);
+    ANA_CHECK (m_electronsHandle.initialize (m_systematicsList, SG::AllowEmpty));
+    ANA_CHECK (m_muonsHandle.initialize (m_systematicsList, SG::AllowEmpty));
+    ANA_CHECK (m_jetsHandle.initialize (m_systematicsList, SG::AllowEmpty));
+    ANA_CHECK (m_tausHandle.initialize (m_systematicsList, SG::AllowEmpty));
+    ANA_CHECK (m_photonsHandle.initialize (m_systematicsList, SG::AllowEmpty));
+    ANA_CHECK (m_fatJetsHandle.initialize (m_systematicsList, SG::AllowEmpty));
     ANA_CHECK (m_systematicsList.initialize());
     return StatusCode::SUCCESS;
   }

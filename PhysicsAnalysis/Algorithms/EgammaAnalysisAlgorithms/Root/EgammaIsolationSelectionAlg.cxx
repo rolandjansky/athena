@@ -41,7 +41,7 @@ namespace CP
     ANA_CHECK (makeSelectionAccessor (m_selectionDecoration, m_selectionAccessor));
     ANA_CHECK (m_selectionTool.retrieve());
       
-    m_systematicsList.addHandle (m_egammasHandle);
+    ANA_CHECK (m_egammasHandle.initialize (m_systematicsList));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
 
