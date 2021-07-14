@@ -7,7 +7,7 @@
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob, DerivationFrameworkIsMonteCarlo
 from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets, addStandardVRTrackJets, addSoftDropJets, addTrimmedJets, defineEDAlg
-from JetJvtEfficiency.JetJvtEfficiencyToolConfig import (getJvtEffTool, getJvtEffToolName)
+from JetJvtEfficiency.JetJvtEfficiencyToolConfig import getJvtEffTool
 
 from AthenaCommon import CfgMgr
 from AthenaCommon import Logging
@@ -345,64 +345,6 @@ def applyJetCalibration_CustomColl(jetalg='AntiKt10LCTopoTrimmedPtFrac5SmallR20'
         applyJetCalibration(jetalg,'JetCommonKernel_{0}'.format(jetalg),sequence)
 
 ##################################################################
-# JVT
-##################################################################
-
-def updateJVT(jetalg,algname,sequence, suffix = '',customVxColl = 'PrimaryVertices'):
-    jetaugtool = getJetAugmentationTool(jetalg, suffix)
-    if(jetaugtool is None or jetaugtool.JetCalibTool==''):
-        extjetlog.warning('*** JVT update called but corresponding augmentation tool does not exist! ***')
-        extjetlog.warning('*** You must apply jet calibration before scheduling JVT! ***')
-
-    jvttoolname = 'DFJetJvt_'+jetalg
-
-    pvxName = customVxColl
-
-    if '_BTagging' in jetalg:
-        jetalg_basename = jetalg[:jetalg.find('_BTagging')]
-    elif 'PFlowCustomVtx' in jetalg:
-        jetalg_basename = 'AntiKt4EMPFlow'
-    else:
-        jetalg_basename = jetalg
-
-    #use the standard name defined by the config helper
-    jvtefftoolname = getJvtEffToolName(jetalg_basename)
-
-    from AthenaCommon.AppMgr import ToolSvc
-
-    #setup the jvt updating tools if not already done
-    if hasattr(ToolSvc,jvttoolname):
-        jetaugtool.JetJvtTool = getattr(ToolSvc,jvttoolname)
-    else:
-        jvttool = CfgMgr.JetVertexTaggerTool(jvttoolname,JetContainer=jetalg_basename+'Jets',VertexContainer=pvxName)
-        ToolSvc += jvttool
-        jetaugtool.JetJvtTool = jvttool
-
-    #now do the same for the efftool, but this has an auto-config function                                                                                                                                 
-    
-    if hasattr(ToolSvc,jvtefftoolname):
-        jetaugtool.JetJvtEffTool = getattr(ToolSvc,jvtefftoolname)
-        extjetlog.info('Setup the jvt eff tool {}'.format(jvtefftoolname))
-    else:
-        extjetlog.info('Setting up the jvt eff tool {}'.format(jvtefftoolname))
-        jvtefftool = getJvtEffTool(jetalg_basename)
-        ToolSvc += jvtefftool
-        jetaugtool.JetJvtEffTool = jvtefftool
-
-    extjetlog.info('ExtendedJetCommon: Updating JVT for jet collection: '+jetalg+'Jets')
-    applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
-
-################################################################## 
-
-def updateJVT_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
-    supportedJets = ['AntiKt4EMTopo','AntiKt4EMPFlow','AntiKt4EMTopo_BTagging201810','AntiKt4EMPFlow_BTagging201810']
-    if jetalg not in supportedJets:
-        extjetlog.warning('*** JVT update requested for unsupported jet collection {}! ***'.format(jetalg))
-        return
-    else:
-        updateJVT(jetalg,'JetCommonKernel_{0}'.format(jetalg),sequence)
-
-##################################################################
 
 def addJetPtAssociation(jetalg, truthjetalg, sequence, algname):
     jetaugtool = getJetAugmentationTool(jetalg, '_PtAssoc')
@@ -559,7 +501,20 @@ def addQGTaggerTool(jetalg, sequence, truthjetalg=None):
     extjetlog.info('ExtendedJetCommon: Adding QGTaggerTool for jet collection: '+jetalg)
     sequence += CfgMgr.JetDecorationAlg(qgAlgName, JetContainer=jetalg+'Jets', Decorators=[qgTool])
 
-################################################################## 
+##################################################################
+
+def addPassJvtForCleaning(sequence=DerivationFrameworkJob):
+    algName = "DFJet_EventCleaning_passJvtAlg"
+    if hasattr(sequence, algName):
+        return
+
+    passJvtTool = getJvtEffTool('AntiKt4EMTopo')
+    passJvtTool.PassJVTKey = "DFCommonJets_passJvt"
+
+    extjetlog.info('ExtendedJetCommon: Adding passJvt decoration to AntiKt4EMTopoJets for event cleaning')
+    sequence += CfgMgr.JetDecorationAlg(algName, JetContainer='AntiKt4EMTopoJets', Decorators=[passJvtTool])
+
+##################################################################
 
 def applyOverlapRemoval(sequence=DerivationFrameworkJob):
 
@@ -603,97 +558,6 @@ def getJetCleaningTool(cleaningLevel):
         ToolSvc += jetcleaningtool
 
     return jetcleaningtool
-
-##################################################################
-# Event cleaning variables
-################################################################## 
-def eventCleanLoose_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
-    from JetSelectorTools.JetSelectorToolsConf import ECUtils__EventCleaningTool as EventCleaningTool
-    from JetSelectorTools.JetSelectorToolsConf import EventCleaningTestAlg
-    prefix = "DFCommonJets_"
-    ecToolLoose = EventCleaningTool('EventCleaningTool_Loose',CleaningLevel='LooseBad')
-    ecToolLoose.JetCleanPrefix = prefix
-    ecToolLoose.JetCleaningTool = getJetCleaningTool("LooseBad")
-    ecToolLoose.JetContainer = "AntiKt4EMTopoJets"
-    algCleanLoose = EventCleaningTestAlg('EventCleaningTestAlg_Loose',
-                                         EventCleaningTool=ecToolLoose,
-                                         JetCollectionName="AntiKt4EMTopoJets",
-                                         EventCleanPrefix=prefix)
-    sequence += algCleanLoose
-
-##################################################################  
-
-def eventCleanTight_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
-    from JetSelectorTools.JetSelectorToolsConf import ECUtils__EventCleaningTool as EventCleaningTool
-    from JetSelectorTools.JetSelectorToolsConf import EventCleaningTestAlg
-    prefix = "DFCommonJets_"
-    ecToolTight = EventCleaningTool('EventCleaningTool_Tight',CleaningLevel='TightBad')
-    ecToolTight.JetCleanPrefix = prefix
-    ecToolTight.JetCleaningTool = getJetCleaningTool("TightBad")
-    ecToolTight.JetContainer = "AntiKt4EMTopoJets"
-    algCleanTight = EventCleaningTestAlg('EventCleaningTestAlg_Tight',
-                                         EventCleaningTool=ecToolTight,
-                                         JetCollectionName="AntiKt4EMTopoJets",
-                                         EventCleanPrefix=prefix,
-                                         CleaningLevel="TightBad",
-                                         doEvent=False)
-    sequence += algCleanTight
-
-##################################################################  
-
-def eventCleanLooseLLP_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
-    from JetSelectorTools.JetSelectorToolsConf import ECUtils__EventCleaningTool as EventCleaningTool
-    from JetSelectorTools.JetSelectorToolsConf import EventCleaningTestAlg
-    prefix = "DFCommonJets_"
-    ecToolLooseLLP = EventCleaningTool('EventCleaningTool_LooseLLP',CleaningLevel='LooseBadLLP')
-    ecToolLooseLLP.JetCleanPrefix = prefix
-    ecToolLooseLLP.JetCleaningTool = getJetCleaningTool("LooseBadLLP")
-    ecToolLooseLLP.JetContainer = "AntiKt4EMTopoJets"
-    algCleanLooseLLP = EventCleaningTestAlg('EventCleaningTestAlg_LooseLLP',
-                            EventCleaningTool=ecToolLooseLLP,
-                            JetCollectionName="AntiKt4EMTopoJets",
-                            EventCleanPrefix=prefix,
-                            CleaningLevel="LooseBadLLP",
-                            doEvent=True) #Save the event level decoration
-    sequence += algCleanLooseLLP
-
-##################################################################  
-
-def eventCleanVeryLooseLLP_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
-    from JetSelectorTools.JetSelectorToolsConf import ECUtils__EventCleaningTool as EventCleaningTool
-    from JetSelectorTools.JetSelectorToolsConf import EventCleaningTestAlg
-    prefix = "DFCommonJets_"
-    #Do not save decorations, which are anyway not listed in AntiKt4EMTopoJetsCPContent.py
-    ecToolVeryLooseLLP = EventCleaningTool('EventCleaningTool_VeryLooseLLP',CleaningLevel='VeryLooseBadLLP')
-    ecToolVeryLooseLLP.JetCleanPrefix = prefix
-    ecToolVeryLooseLLP.JetCleaningTool = getJetCleaningTool("VeryLooseBadLLP")
-    ecToolVeryLooseLLP.JetContainer = "AntiKt4EMTopoJets"
-    algCleanVeryLooseLLP = EventCleaningTestAlg('EventCleaningTestAlg_VeryLooseLLP',
-                            EventCleaningTool=ecToolVeryLooseLLP,
-                            JetCollectionName="AntiKt4EMTopoJets",
-                EventCleanPrefix=prefix,
-                CleaningLevel="VeryLooseBadLLP",
-                doEvent=False) #Save the event level decoration
-    sequence += algCleanVeryLooseLLP
-
-################################################################## 
-
-def eventCleanSuperLooseLLP_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
-    from JetSelectorTools.JetSelectorToolsConf import ECUtils__EventCleaningTool as EventCleaningTool
-    from JetSelectorTools.JetSelectorToolsConf import EventCleaningTestAlg
-    prefix = "DFCommonJets_"
-    #Do not save decorations, which are anyway not listed in AntiKt4EMTopoJetsCPContent.py
-    ecToolSuperLooseLLP = EventCleaningTool('EventCleaningTool_SuperLooseLLP',CleaningLevel='SuperLooseBadLLP')
-    ecToolSuperLooseLLP.JetCleanPrefix = prefix
-    ecToolSuperLooseLLP.JetCleaningTool = getJetCleaningTool("SuperLooseBadLLP")
-    ecToolSuperLooseLLP.JetContainer = "AntiKt4EMTopoJets"
-    algCleanSuperLooseLLP = EventCleaningTestAlg('EventCleaningTestAlg_SuperLooseLLP',
-                            EventCleaningTool=ecToolSuperLooseLLP,
-                            JetCollectionName="AntiKt4EMTopoJets",
-                EventCleanPrefix=prefix,
-                CleaningLevel="SuperLooseBadLLP",
-                doEvent=False) #Save the event level decoration
-    sequence += algCleanSuperLooseLLP
 
 ################################################################## 
 
@@ -847,14 +711,38 @@ def getPseudoJetAlg(inputType):
             "EMTopoOrigin" : jtm.emoriginget,
             "EMPFlow": jtm.empflowget}[inputType]
 
-def addEventCleanFlags(sequence):
-    # Temporary workflow until the derivation framework is updated to remove JetAugmentationTool
+def addEventCleanFlags(sequence, workingPoints = ['Loose', 'Tight', 'LooseLLP']):
     
     # Prereqs
-    applyJetCalibration_xAODColl("AntiKt4EMTopo", sequence)
-    updateJVT_xAODColl("AntiKt4EMTopo", sequence)
+    addPassJvtForCleaning(sequence)
     applyOverlapRemoval(sequence)
 
-    eventCleanLoose_xAODColl("AntiKt4EMTopo", sequence)
-    eventCleanTight_xAODColl("AntiKt4EMTopo", sequence)
-    eventCleanLooseLLP_xAODColl("AntiKt4EMTopo", sequence)
+    from JetSelectorTools.JetSelectorToolsConf import ECUtils__EventCleaningTool as EventCleaningTool
+    from JetSelectorTools.JetSelectorToolsConf import EventCleaningTestAlg
+    supportedWPs = ['Loose', 'Tight', 'LooseLLP', 'VeryLooseLLP', 'SuperLooseLLP']
+    prefix = "DFCommonJets_"
+
+    for wp in workingPoints:
+        if wp not in supportedWPs:
+            extjetlog.warning('*** Unsupported event cleaning WP {} requested! Skipping it.***'.format(jetalg))
+            continue
+        algName = 'EventCleaningTestAlg_' + wp
+        if hasattr(sequence, algName):
+            continue
+
+        cleaningLevel = wp + 'Bad'
+        # LLP WPs have a slightly different name format
+        if 'LLP' in wp:
+            cleaningLevel = wp.replace('LLP', 'BadLLP')
+
+        ecTool = EventCleaningTool('EventCleaningTool_' + wp, CleaningLevel=cleaningLevel)
+        ecTool.JetCleanPrefix = prefix
+        ecTool.JetCleaningTool = getJetCleaningTool(cleaningLevel)
+        ecTool.JetContainer = "AntiKt4EMTopoJets"
+        algClean = EventCleaningTestAlg(algName,
+                                        EventCleaningTool=ecTool,
+                                        JetCollectionName="AntiKt4EMTopoJets",
+                                        EventCleanPrefix=prefix,
+                                        CleaningLevel=cleaningLevel,
+                                        doEvent = ('Loose' in wp)) # Only store event-level flags for Loose and LooseLLP
+        sequence += algClean
