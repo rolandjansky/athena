@@ -251,7 +251,7 @@ def getTriggerDBCursor(connection):
     elif technology == 'frontier':
         from TrigConfigSvc.TrigConfFrontier import getFrontierCursor
         schema = connectionParameters["schema"].rstrip('.')
-        cursor = getFrontierCursor( url = connectionParameters['url'], schema = schema, loglevel = logging.getLogger("TrigConfigSvcUtils.py").level)
+        cursor = getFrontierCursor( urls = connectionParameters['url'], schema = schema, loglevel = logging.getLogger("TrigConfigSvcUtils.py").level)
         schema = schema + '.'
 
     elif technology == 'mysql':
