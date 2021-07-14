@@ -115,6 +115,17 @@ if (Malloc):
     os.environ["MALLOC_CHECK_"] = "3"
     rdo2aod.malloc = True
 
+for a in ["preexec_trig", "preexec_reco", "preexec_aod", "preexec_all", "postexec_trig", "postexec_reco"]:
+    if a in locals():
+        v = locals()[a]
+        if type(v) is list: v = ";".join(v)
+        v0 = getattr (rdo2aod, a)
+        if v0 is None or v0 == "":
+            v0 = v
+        else:
+            v0 += ";"+v
+        setattr (rdo2aod, a, v0)
+
 # Run athena analysis to produce TrkNtuple
 
 test = Test.Test()

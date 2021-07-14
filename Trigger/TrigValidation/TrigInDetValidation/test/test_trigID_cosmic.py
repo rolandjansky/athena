@@ -30,7 +30,14 @@ Events  = 4000
 Threads = 8 
 Slots   = 8
 Release = "current"
-
+preexec_reco = [
+  "from InDetRecExample.InDetJobProperties import InDetFlags",
+  "InDetFlags.doCosmics.set_Value_and_Lock(True)",
+  "InDetFlags.doTRTStandalone.set_Value_and_Lock(False)",
+  "InDetFlags.doR3LargeD0.set_Value_and_Lock(False)",
+  "InDetFlags.doForwardTracks.set_Value_and_Lock(False)",
+]
+preexec_aod = preexec_reco
 Input   = 'mc_cosmics'    # defined in TrigValTools/share/TrigValInputs.json  
 
 Jobs = [ ( "Offline",     " TIDAdata-run3-offline.dat      -r Offline -o data-hists-offline.root" ) ]
