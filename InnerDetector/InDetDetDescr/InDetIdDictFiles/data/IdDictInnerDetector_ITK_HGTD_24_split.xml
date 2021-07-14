@@ -1022,6 +1022,7 @@
     <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
     <range field="eta_module" value="1" />
     <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
     <range field="strip" minvalue="0" maxvalue="1023" />
   </region>
 
@@ -1032,6 +1033,7 @@
     <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
     <range field="eta_module" value="2" />
     <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
     <range field="strip" minvalue="0" maxvalue="1151" />
   </region>
 
@@ -1042,6 +1044,7 @@
     <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
     <range field="eta_module" value="3" />
     <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
     <range field="strip" minvalue="0" maxvalue="1151" />
   </region>
 
@@ -1052,6 +1055,7 @@
     <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
     <range field="eta_module" value="4" />
     <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
     <range field="strip" minvalue="0" maxvalue="1279" />
   </region>
 
@@ -1062,6 +1066,7 @@
     <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
     <range field="eta_module" value="5" />
     <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
     <range field="strip" minvalue="0" maxvalue="1279" />
   </region>
 
@@ -1072,6 +1077,7 @@
     <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
     <range field="eta_module" value="6" />
     <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
     <range field="strip" minvalue="0" maxvalue="1407" />
   </region>
 
@@ -1082,6 +1088,7 @@
     <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
     <range field="eta_module" value="7" />
     <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
     <range field="strip" minvalue="0" maxvalue="1407" />
   </region>
 
@@ -1092,6 +1099,7 @@
     <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />
     <range field="eta_module" value="8" />
     <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
     <range field="strip" minvalue="0" maxvalue="1535" />
   </region>
 
@@ -1112,6 +1120,7 @@
     <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
     <range field="eta_module" value="10" />
     <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
     <range field="strip" minvalue="0" maxvalue="895" />
   </region>
 
@@ -1122,6 +1131,7 @@
     <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
     <range field="eta_module" value="11" />
     <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
     <range field="strip" minvalue="0" maxvalue="895" />
   </region>
 
@@ -1132,6 +1142,7 @@
     <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
     <range field="eta_module" value="12" />
     <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
     <range field="strip" minvalue="0" maxvalue="895" />
   </region>
 
@@ -1142,6 +1153,7 @@
     <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
     <range field="eta_module" value="13" />
     <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
     <range field="strip" minvalue="0" maxvalue="895" />
   </region>
 
@@ -1152,6 +1164,7 @@
     <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
     <range field="eta_module" value="14" />
     <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
     <range field="strip" minvalue="0" maxvalue="1023" />
   </region>
 
@@ -1162,6 +1175,7 @@
     <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
     <range field="eta_module" value="15" />
     <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
     <range field="strip" minvalue="0" maxvalue="1023" />
   </region>
 
@@ -1172,6 +1186,7 @@
     <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
     <range field="eta_module" value="16" />
     <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
     <range field="strip" minvalue="0" maxvalue="1151" />
   </region>
 
@@ -1182,6 +1197,7 @@
     <range field="phi_module" minvalue="0" maxvalue="63" wraparound="TRUE" />
     <range field="eta_module" value="17" />
     <range field="side" minvalue="0" maxvalue="1" />
+    <range field="row" value="0" />
     <range field="strip" minvalue="0" maxvalue="1151" />
   </region>
 
