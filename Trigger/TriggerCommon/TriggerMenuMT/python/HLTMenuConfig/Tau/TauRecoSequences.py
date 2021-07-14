@@ -84,8 +84,13 @@ def _algoTauCaloOnlyMVA(L1RoIs, inputRoIs, clusters):
     return algo
 
 def _algoTauTrackRoiUpdater(inputRoIs, tracks):
+    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+    config = getInDetTrigConfig("tauIso")
     from TrigTauHypo.TrigTauHypoConf import TrigTauTrackRoiUpdater
     algo                               = TrigTauTrackRoiUpdater("TrackRoiUpdater")
+    algo.etaHalfWidth                  = config.etaHalfWidth
+    algo.phiHalfWidth                  = config.phiHalfWidth
+    algo.z0HalfWidth                   = config.zedHalfWidth
     algo.RoIInputKey                   = inputRoIs
     algo.RoIOutputKey                  = "UpdatedTrackRoI"
     algo.fastTracksKey                 = tracks
@@ -93,8 +98,13 @@ def _algoTauTrackRoiUpdater(inputRoIs, tracks):
     return algo
 
 def _algoTauTrackBDTRoiUpdater(inputRoIs, tracks):
+    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+    config = getInDetTrigConfig("tauIso")
     from TrigTauHypo.TrigTauHypoConf import TrigTauTrackRoiUpdater
     algo                               = TrigTauTrackRoiUpdater("TrackRoiUpdaterBDT")
+    algo.etaHalfWidth                  = config.etaHalfWidth
+    algo.phiHalfWidth                  = config.phiHalfWidth
+    algo.z0HalfWidth                   = config.zedHalfWidth
     algo.RoIInputKey                   = inputRoIs
     algo.RoIOutputKey                  = "UpdatedTrackBDTRoI"
     algo.fastTracksKey                 = tracks
