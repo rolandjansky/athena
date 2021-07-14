@@ -12,8 +12,8 @@ from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from PixelCabling.PixelCablingConfigNew import PixelCablingSvcCfg
 from PixelConditionsAlgorithms.PixelConditionsConfig import (
     PixelConfigCondAlgCfg, PixelChargeCalibCondAlgCfg,
-    PixelDistortionAlgCfg, PixelRadSimFluenceMapAlgCfg
-    # TODO: NEW FOR RUN3    PixelChargeLUTCalibCondAlgCfg
+    PixelDistortionAlgCfg, PixelRadSimFluenceMapAlgCfg,
+    PixelChargeLUTCalibCondAlgCfg
 )
 from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
 from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
@@ -107,8 +107,10 @@ def BarrelFEI4SimToolCfg(flags, name="BarrelFEI4SimTool", **kwargs):
     """Return a FEI4SimTool configured for Barrel"""
     acc = PixelCablingSvcCfg(flags)
     acc.merge(PixelConfigCondAlgCfg(flags))
-    acc.merge(PixelChargeCalibCondAlgCfg(flags))
-    # TODO: NEW FOR RUN3 acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
+    if flags.GeoModel.Run=="RUN3":
+        acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
+    else:
+        acc.merge(PixelChargeCalibCondAlgCfg(flags))
     kwargs.setdefault("BarrelEC", 0)
     kwargs.setdefault("DoNoise", flags.Digitization.DoInnerDetectorNoise)
     kwargs.setdefault("PixelCablingSvc", acc.getPrimary())
@@ -122,8 +124,10 @@ def DBMFEI4SimToolCfg(flags, name="DBMFEI4SimTool", **kwargs):
     """Return a FEI4SimTool configured for Endcap"""
     acc = PixelCablingSvcCfg(flags)
     acc.merge(PixelConfigCondAlgCfg(flags))
-    acc.merge(PixelChargeCalibCondAlgCfg(flags))
-    # TODO: NEW FOR RUN3 acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
+    if flags.GeoModel.Run=="RUN3":
+        acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
+    else:
+        acc.merge(PixelChargeCalibCondAlgCfg(flags))
     kwargs.setdefault("BarrelEC", 4)
     kwargs.setdefault("DoNoise", flags.Digitization.DoInnerDetectorNoise)
     kwargs.setdefault("PixelCablingSvc", acc.getPrimary())
@@ -137,8 +141,10 @@ def BarrelFEI3SimToolCfg(flags, name="BarrelFEI3SimTool", **kwargs):
     """Return a FEI3SimTool configured for Barrel"""
     acc = PixelCablingSvcCfg(flags)
     acc.merge(PixelConfigCondAlgCfg(flags))
-    acc.merge(PixelChargeCalibCondAlgCfg(flags))
-    # TODO: NEW FOR RUN3 acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
+    if flags.GeoModel.Run=="RUN3":
+        acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
+    else:
+        acc.merge(PixelChargeCalibCondAlgCfg(flags))
     kwargs.setdefault("BarrelEC", 0)
     kwargs.setdefault("PixelCablingSvc", acc.getPrimary())
     kwargs.setdefault("PixelConditionsSummaryTool", acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags)))
@@ -152,7 +158,10 @@ def EndcapFEI3SimToolCfg(flags, name="EndcapFEI3SimTool", **kwargs):
     acc = PixelCablingSvcCfg(flags)
     acc.merge(PixelConfigCondAlgCfg(flags))
     acc.merge(PixelChargeCalibCondAlgCfg(flags))
-    # TODO: NEW FOR RUN3 acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
+    if flags.GeoModel.Run=="RUN3":
+        acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
+    else:
+        acc.merge(PixelChargeCalibCondAlgCfg(flags))
     kwargs.setdefault("BarrelEC", 2)
     kwargs.setdefault("PixelCablingSvc", acc.getPrimary())
     kwargs.setdefault("PixelConditionsSummaryTool", acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags)))
