@@ -308,10 +308,11 @@ CorrectionCode JetJvtEfficiency::applyAllEfficiencyScaleFactor(const xAOD::IPart
   return CorrectionCode::Ok;
 }
 
-StatusCode decorate(const xAOD::JetContainer& jets) const{
+StatusCode JetJvtEfficiency::decorate(const xAOD::JetContainer& jets) const{
   SG::WriteDecorHandle<xAOD::JetContainer, char> passJvtHandle(m_passJvtKey);
   for(const xAOD::Jet* jet : jets)
     passJvtHandle(*jet) = passesJvtCut(*jet);
+  return StatusCode::SUCCESS;
 }
 
 bool JetJvtEfficiency::passesJvtCut(const xAOD::Jet& jet) const {
