@@ -81,6 +81,7 @@ find_package( Doxygen )
 find_package( PNG )
 find_package( VDT )
 find_package( TIFF )
+find_package( heaptrack )
 
 # Set up the correct runtime environment for OpenBLAS.
 set( OpenBlasEnvironment_DIR "${CMAKE_SOURCE_DIR}/cmake"
