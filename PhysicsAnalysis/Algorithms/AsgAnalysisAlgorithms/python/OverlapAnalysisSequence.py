@@ -36,13 +36,7 @@ def makeOverlapAnalysisSequence( dataType,
             'photons'   : 'AnalysisPhotonsOR_%SYS%',
             'muons'     : 'AnalysisMuonsOR_%SYS%',
             'jets'      : 'AnalysisJetsOR_%SYS%',
-            'taus'      : 'AnalysisTauJetsOR_%SYS%' },
-         affectingSystematics = {
-            'electrons' : '(^$)|(^EG_.*)|(^EL_.*)',
-            'photons'   : '(^$)|(^EG_.*)|(^PH_.*)',
-            'muons'     : '(^$)|(^MUON_.*)',
-            'jets'      : '(^$)|(^JET_.*)',
-            'taus'      : '(^$)|(^TAUS_.*)' } )
+            'taus'      : 'AnalysisTauJetsOR_%SYS%' } )
 
     Where:
       - You need to provide input and output names in pairs, you must not skip
@@ -51,10 +45,6 @@ def makeOverlapAnalysisSequence( dataType,
       - You only define inputs/outputs that your analysis uses. The "labels" of
         the possible inputs/outputs are: "electrons", "photons", "muons",
         "jets", "taus" and "fatJets".
-      - You have to define with affectingSystematics which systematic variations
-        are affecting the containers you passed to the sequence as inputs. If
-        left empty, the configuration assumes that no systematic variation is
-        affecting the input(s).
 
     Function keyword arguments:
       dataType -- The data type to run on ("data", "mc" or "afii")

@@ -36,15 +36,11 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
 
     # Set up the per-event jet efficiency scale factor calculation algorithm
     if dataType != 'data' and globalSF:
-        from JetAnalysisSequence import jvtSysts, fjvtSysts
-
         alg = createAlgorithm( 'CP::AsgEventScaleFactorAlg', 'JvtEventScaleFactorAlg' )
         alg.scaleFactorInputDecoration = 'jvt_effSF_%SYS%'
-        alg.scaleFactorInputDecorationRegex = jvtSysts
         alg.scaleFactorOutputDecoration = 'jvt_effSF_%SYS%'
 
         seq.append( alg,
-                    affectingSystematics = jvtSysts,
                     inputPropName = { 'jets' : 'particles',
                                       'eventInfo' : 'eventInfo' },
                     dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
@@ -52,11 +48,9 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
         if not disableFJvt:
             alg = createAlgorithm( 'CP::AsgEventScaleFactorAlg', 'ForwardJvtEventScaleFactorAlg' )
             alg.scaleFactorInputDecoration = 'fjvt_effSF_%SYS%'
-            alg.scaleFactorInputDecorationRegex = fjvtSysts
             alg.scaleFactorOutputDecoration = 'fjvt_effSF_%SYS%'
 
             seq.append( alg,
-                        affectingSystematics = fjvtSysts,
                         inputPropName = { 'jets' : 'particles',
                                           'eventInfo' : 'eventInfo' },
                         metaConfig = {'selectionDecorNames' : ['fjvt_selection'] if runSelection else [],

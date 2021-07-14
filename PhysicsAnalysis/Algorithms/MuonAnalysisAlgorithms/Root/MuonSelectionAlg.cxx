@@ -47,7 +47,7 @@ namespace CP
       ANA_CHECK (m_selectionTool.retrieve());
     }
 
-    m_systematicsList.addHandle (m_muonsHandle);
+    ANA_CHECK (m_muonsHandle.initialize (m_systematicsList));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
 

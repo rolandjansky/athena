@@ -33,7 +33,7 @@ namespace CP
   initialize ()
   {
     ANA_CHECK (m_showerShapeFudgeTool.retrieve());
-    m_systematicsList.addHandle (m_photonHandle);
+    ANA_CHECK (m_photonHandle.initialize (m_systematicsList));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());

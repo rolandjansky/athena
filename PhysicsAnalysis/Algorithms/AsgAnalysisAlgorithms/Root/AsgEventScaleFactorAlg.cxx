@@ -37,7 +37,10 @@ namespace CP
       return StatusCode::FAILURE;
     }
 
-    m_systematicsList.addHandle (m_particleHandle);
+    ANA_CHECK (m_eventInfoHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_particleHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_scaleFactorInputDecoration.initialize (m_systematicsList, m_particleHandle));
+    ANA_CHECK (m_scaleFactorOutputDecoration.initialize (m_systematicsList, m_eventInfoHandle));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
 
@@ -49,9 +52,6 @@ namespace CP
   StatusCode AsgEventScaleFactorAlg ::
   execute ()
   {
-    ANA_CHECK (m_scaleFactorInputDecoration.preExecute (m_systematicsList));
-    ANA_CHECK (m_scaleFactorOutputDecoration.preExecute (m_systematicsList));
-
     return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
       xAOD::EventInfo *eventInfo = nullptr;
       ANA_CHECK (m_eventInfoHandle.getCopy (eventInfo, sys));

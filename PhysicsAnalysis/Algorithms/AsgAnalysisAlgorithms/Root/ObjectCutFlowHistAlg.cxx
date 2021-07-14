@@ -36,7 +36,7 @@ namespace CP
   StatusCode ObjectCutFlowHistAlg ::
   initialize ()
   {
-    m_systematicsList.addHandle (m_inputHandle);
+    ANA_CHECK (m_inputHandle.initialize (m_systematicsList));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
 
@@ -87,8 +87,8 @@ namespace CP
         auto histIter = m_hist.find (sys);
         if (histIter == m_hist.end())
         {
-          const std::string name
-            = makeSystematicsName (m_histPattern, sys);
+          std::string name;
+          ANA_CHECK (m_systematicsList.service().makeSystematicsName (name, m_histPattern, sys));
 
           ANA_CHECK (book (TH1F (name.c_str(), "object cut flow", m_allCutsNum+1, 0, m_allCutsNum+1)));
 

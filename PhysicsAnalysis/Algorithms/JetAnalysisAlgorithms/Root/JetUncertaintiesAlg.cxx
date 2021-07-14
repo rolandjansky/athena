@@ -32,8 +32,8 @@ namespace CP
   initialize ()
   {
     ANA_CHECK (m_uncertaintiesTool.retrieve());
-    m_systematicsList.addHandle (m_jetHandle);
-    ANA_CHECK (m_systematicsList.addAffectingSystematics (m_uncertaintiesTool->affectingSystematics()));
+    ANA_CHECK (m_jetHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_systematicsList.addSystematics (*m_uncertaintiesTool));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());

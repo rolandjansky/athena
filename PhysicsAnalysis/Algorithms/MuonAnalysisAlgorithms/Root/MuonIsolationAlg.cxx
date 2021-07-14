@@ -43,7 +43,7 @@ namespace CP
     ANA_CHECK (makeSelectionAccessor (m_isolationDecoration, m_isolationAccessor));
 
     ANA_CHECK (m_isolationTool.retrieve());
-    m_systematicsList.addHandle (m_muonHandle);
+    ANA_CHECK (m_muonHandle.initialize (m_systematicsList));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
 

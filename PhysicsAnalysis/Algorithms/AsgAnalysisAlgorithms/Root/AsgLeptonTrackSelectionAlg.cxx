@@ -73,7 +73,7 @@ namespace CP
     if (m_nMinSCTHits != -1 || m_nMaxSCTHits != -1)
       m_accept.addCut ("numSCTHits", "Minimum and/or maxiumum SCT hits");
 
-    m_systematicsList.addHandle (m_particlesHandle);
+    ANA_CHECK (m_particlesHandle.initialize (m_systematicsList));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
     return StatusCode::SUCCESS;

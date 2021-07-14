@@ -35,8 +35,8 @@ namespace CP
   initialize ()
   {
     ANA_CHECK (m_calibrationAndSmearingTool.retrieve());
-    m_systematicsList.addHandle (m_muonHandle);
-    ANA_CHECK (m_systematicsList.addAffectingSystematics (m_calibrationAndSmearingTool->affectingSystematics()));
+    ANA_CHECK (m_muonHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_systematicsList.addSystematics (*m_calibrationAndSmearingTool));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());

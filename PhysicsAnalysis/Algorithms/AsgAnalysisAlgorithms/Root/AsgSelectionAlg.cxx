@@ -45,9 +45,9 @@ namespace CP
     ANA_CHECK (m_selectionTool.retrieve());
     m_systematicsTool = dynamic_cast<ISystematicsTool*>(&*m_selectionTool);
     if (m_systematicsTool)
-      ANA_CHECK (m_systematicsList.addAffectingSystematics (m_systematicsTool->affectingSystematics()));
+      ANA_CHECK (m_systematicsList.addSystematics (*m_systematicsTool));
       
-    m_systematicsList.addHandle (m_particlesHandle);
+    ANA_CHECK (m_particlesHandle.initialize (m_systematicsList));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
 

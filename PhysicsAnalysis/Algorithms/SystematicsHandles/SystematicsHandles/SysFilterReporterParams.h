@@ -11,7 +11,7 @@
 
 #include <AsgMessaging/AsgMessagingForward.h>
 #include <SystematicsHandles/SysCopyHandle.h>
-#include <SystematicsHandles/SysDecorationHandle.h>
+#include <SystematicsHandles/SysWriteDecorHandle.h>
 #include <xAODEventInfo/EventInfo.h>
 #include <functional>
 
@@ -90,7 +90,7 @@ namespace CP
 
     /// \brief the decoration for writing the event decision
   private:
-    SysDecorationHandle<char> m_eventDecisionOutputDecoration;
+    SysWriteDecorHandle<char> m_eventDecisionOutputDecoration;
 
     /// \brief counter for passed events
   private:

@@ -81,13 +81,7 @@ def makeOverlapSequence (dataType) :
             'photons'   : 'AnalysisPhotonsOR_%SYS%',
             'muons'     : 'AnalysisMuonsOR_%SYS%',
             'jets'      : 'AnalysisJetsOR_%SYS%',
-            'taus'      : 'AnalysisTauJetsOR_%SYS%' },
-        affectingSystematics = {
-            'electrons' : electronSequence.affectingSystematics(),
-            'photons'   : photonSequence.affectingSystematics(),
-            'muons'     : muonSequence.affectingSystematics(),
-            'jets'      : jetSequence.affectingSystematics(),
-            'taus'      : tauSequence.affectingSystematics() } )
+            'taus'      : 'AnalysisTauJetsOR_%SYS%' } )
     algSeq += overlapSequence
 
     # Set up an ntuple to check the job with:
@@ -129,7 +123,6 @@ def makeOverlapSequence (dataType) :
         'AnalysisTauJetsOR_%SYS%.eta -> tau_OR_%SYS%_eta',
         'AnalysisTauJetsOR_%SYS%.phi -> tau_OR_%SYS%_phi',
         'AnalysisTauJetsOR_%SYS%.pt  -> tau_OR_%SYS%_pt' ]
-    ntupleMaker.systematicsRegex = '.*'
     algSeq += ntupleMaker
     treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
     treeFiller.TreeName = 'particles'
@@ -166,7 +159,6 @@ def makeEventAlgorithmsSequence (dataType) :
         'EventInfo.runNumber   -> runNumber',
         'EventInfo.eventNumber -> eventNumber',
         ]
-    ntupleMaker.systematicsRegex = '.*'
     algSeq += ntupleMaker
     treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
     treeFiller.TreeName = 'events'
@@ -208,7 +200,6 @@ def makeGeneratorAlgorithmsSequence (dataType) :
         'EventInfo_NOSYS.eventNumber -> eventNumber',
         'EventInfo_NOSYS.generatorWeight_%SYS% -> generatorWeight_%SYS%',
     ]
-    ntupleMaker.systematicsRegex = '.*'
     algSeq += ntupleMaker
     treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
     treeFiller.TreeName = 'events'

@@ -12,7 +12,7 @@
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <PMGAnalysisInterfaces/IPMGTruthWeightTool.h>
 #include <SystematicsHandles/SysCopyHandle.h>
-#include <SystematicsHandles/SysDecorationHandle.h>
+#include <SystematicsHandles/SysWriteDecorHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 
 namespace CP
@@ -47,7 +47,7 @@ namespace CP
 
     /// \brief the decoration for the truth weights
   private:
-    SysDecorationHandle<float> m_decoration {
+    SysWriteDecorHandle<float> m_decoration {
       this, "decoration", "", "the decoration for the truth weights"};
   };
 }

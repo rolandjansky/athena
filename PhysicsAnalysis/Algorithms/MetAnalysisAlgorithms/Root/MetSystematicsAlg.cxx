@@ -36,8 +36,8 @@ namespace CP
   initialize ()
   {
     ANA_CHECK (m_systematicsTool.retrieve());
-    m_systematicsList.addHandle (m_metHandle);
-    ANA_CHECK (m_systematicsList.addAffectingSystematics (m_systematicsTool->affectingSystematics()));
+    ANA_CHECK (m_metHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_systematicsList.addSystematics (*m_systematicsTool));
     ANA_CHECK (m_systematicsList.initialize());
     return StatusCode::SUCCESS;
   }
@@ -47,26 +47,27 @@ namespace CP
   StatusCode MetSystematicsAlg ::
   execute ()
   {
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
-        ANA_CHECK (m_systematicsTool->applySystematicVariation (sys));
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
+      ANA_CHECK (m_systematicsTool->applySystematicVariation (sys));
 
-        xAOD::MissingETContainer *met {};
-        ANA_CHECK (m_metHandle.getCopy (met, sys));
+      xAOD::MissingETContainer *met {};
+      ANA_CHECK (m_metHandle.getCopy (met, sys));
 
-        xAOD::MissingET *softTerm = (*met)[m_softTerm];
-        if (softTerm == nullptr)
-        {
-          ANA_MSG_ERROR ("failed to find MET soft-term \"" << m_softTerm << "\"");
-          return StatusCode::FAILURE;
-        }
+      xAOD::MissingET *softTerm = (*met)[m_softTerm];
+      if (softTerm == nullptr)
+      {
+        ANA_MSG_ERROR ("failed to find MET soft-term \"" << m_softTerm << "\"");
+        return StatusCode::FAILURE;
+      }
 
-        // This returns a `CorrectionCode`, so in principle this could
-        // return an `OutOfValidity` result, but I have no idea what
-        // that would mean or how to handle it, so I'm implicitly
-        // converting it into a `FAILURE` instead.
-        ANA_CHECK (m_systematicsTool->applyCorrection (*softTerm));
+      // This returns a `CorrectionCode`, so in principle this could
+      // return an `OutOfValidity` result, but I have no idea what
+      // that would mean or how to handle it, so I'm implicitly
+      // converting it into a `FAILURE` instead.
+      ANA_CHECK (m_systematicsTool->applyCorrection (*softTerm));
+    }
 
-        return StatusCode::SUCCESS;
-      });
+    return StatusCode::SUCCESS;
   }
 }

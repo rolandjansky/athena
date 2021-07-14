@@ -47,12 +47,11 @@ namespace CP
     ANA_CHECK (m_makerTool.retrieve());
     for (auto* handle : {&m_electronsHandle, &m_photonsHandle,
                          &m_muonsHandle, &m_tausHandle, &m_invisHandle}) {
-      if (*handle) {
-        m_systematicsList.addHandle (*handle);
-      }
+      ANA_CHECK (handle->initialize (m_systematicsList, SG::AllowEmpty));
     }
-    m_systematicsList.addHandle (m_jetsHandle);
-    m_systematicsList.addHandle (m_metHandle);
+    ANA_CHECK (m_jetsHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_metHandle.initialize (m_systematicsList));
+
     ANA_CHECK (m_systematicsList.initialize());
 
     return StatusCode::SUCCESS;

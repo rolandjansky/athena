@@ -31,7 +31,7 @@ StatusCode AsgClassificationDecorationAlg::initialize()
 
   m_classificationAccessor = std::make_unique<SG::AuxElement::Accessor<unsigned int> > (m_classificationDecoration);
 
-  m_systematicsList.addHandle(m_particlesHandle);
+  ANA_CHECK (m_particlesHandle.initialize (m_systematicsList));
   ANA_CHECK(m_systematicsList.initialize());
 
   ANA_CHECK(m_tool->initialize());

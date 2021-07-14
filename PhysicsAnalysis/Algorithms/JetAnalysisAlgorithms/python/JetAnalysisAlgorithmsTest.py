@@ -34,8 +34,7 @@ def makeSequence (dataType, jetContainer="AntiKt4EMPFlowJets") :
     jvtSequence = makeJetJvtAnalysisSequence( dataType, jetContainer, enableCutflow=True )
     jvtSequence.configure( inputName = { 'eventInfo' : 'EventInfo_%SYS%',
                                          'jets'      : 'AnalysisJetsBase_%SYS%' },
-                           outputName = { 'jets'      : 'AnalysisJets_%SYS%' },
-                           affectingSystematics = { 'jets' : jetSequence.affectingSystematics() } )
+                           outputName = { 'jets'      : 'AnalysisJets_%SYS%' } )
     print( jvtSequence ) # For debugging
 
     # Add the sequences to the job:
@@ -61,7 +60,6 @@ def makeSequence (dataType, jetContainer="AntiKt4EMPFlowJets") :
             'AnalysisJets_%SYS%.jvt_effSF_NOSYS -> jet_%SYS%_jvtEfficiency',
             # 'AnalysisJets_%SYS%.fjvt_effSF_NOSYS -> jet_%SYS%_fjvtEfficiency',
             ]
-        ntupleMaker.systematicsRegex = '(^$)|(^JET_.*)'
         algSeq += ntupleMaker
     treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
     treeFiller.TreeName = 'jets'

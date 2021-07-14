@@ -33,8 +33,8 @@ namespace CP
   initialize ()
   {
     ANA_CHECK (m_smearingTool.retrieve());
-    m_systematicsList.addHandle (m_tauHandle);
-    ANA_CHECK (m_systematicsList.addAffectingSystematics (m_smearingTool->affectingSystematics()));
+    ANA_CHECK (m_tauHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_systematicsList.addSystematics (*m_smearingTool));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());

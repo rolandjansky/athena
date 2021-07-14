@@ -41,8 +41,8 @@ namespace CP
     m_scaleFactorAccessor = std::make_unique<SG::AuxElement::Accessor<float> > (m_scaleFactorDecoration);
 
     ANA_CHECK (m_efficiencyCorrectionTool.retrieve());
-    m_systematicsList.addHandle (m_photonHandle);
-    ANA_CHECK (m_systematicsList.addAffectingSystematics (m_efficiencyCorrectionTool->affectingSystematics()));
+    ANA_CHECK (m_photonHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_systematicsList.addSystematics (*m_efficiencyCorrectionTool));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());

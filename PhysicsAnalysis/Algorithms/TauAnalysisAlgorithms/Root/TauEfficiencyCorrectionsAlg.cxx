@@ -39,8 +39,9 @@ namespace CP
     }
 
     ANA_CHECK (m_efficiencyCorrectionsTool.retrieve());
-    m_systematicsList.addHandle (m_tauHandle);
-    ANA_CHECK (m_systematicsList.addAffectingSystematics (m_efficiencyCorrectionsTool->affectingSystematics()));
+    ANA_CHECK (m_tauHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_scaleFactorDecoration.initialize (m_systematicsList, m_tauHandle));
+    ANA_CHECK (m_systematicsList.addSystematics (*m_efficiencyCorrectionsTool));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
@@ -52,8 +53,6 @@ namespace CP
   StatusCode TauEfficiencyCorrectionsAlg ::
   execute ()
   {
-    ANA_CHECK (m_scaleFactorDecoration.preExecute (m_systematicsList));
-
     return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
         ANA_CHECK (m_efficiencyCorrectionsTool->applySystematicVariation (sys));
         xAOD::TauJetContainer *taus = nullptr;

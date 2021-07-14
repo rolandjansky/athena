@@ -10,7 +10,6 @@
 //
 
 #include <AsgAnalysisAlgorithms/SysListDumperAlg.h>
-#include <SystematicsHandles/Helpers.h>
 #include <TH1.h>
 
 //
@@ -55,7 +54,7 @@ namespace CP
 
     m_firstEvent = false;
 
-    const std::unordered_set<CP::SystematicSet> systematics = m_systematicsList.systematicsVector();
+    const decltype(auto) systematics = m_systematicsList.systematicsVector();
 
     ANA_CHECK (book (TH1F (m_histogramName.c_str(), "systematics", systematics.size(), 0, systematics.size())));
     TH1 *histogram = hist (m_histogramName);
@@ -63,9 +62,8 @@ namespace CP
     int i = 1;
     return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode
     {
-      std::string name = sys.name();
-      if (name.empty())
-        name = nominalSystematicsName();
+      std::string name;
+      ANA_CHECK (m_systematicsList.service().makeSystematicsName (name, "%SYS%", sys));
 
       histogram->GetXaxis()->SetBinLabel(i, name.c_str());
       i++;

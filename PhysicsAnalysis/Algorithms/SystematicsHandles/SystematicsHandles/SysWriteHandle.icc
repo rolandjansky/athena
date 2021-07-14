@@ -9,8 +9,7 @@
 // includes
 //
 
-#include <AsgTools/MessageCheck.h>
-#include <SystematicsHandles/Helpers.h>
+#include <AsgMessaging/MessageCheck.h>
 
 //
 // method implementations
@@ -30,20 +29,93 @@ namespace CP
 
 
 
-  template<typename T,typename Aux> ::StatusCode SysWriteHandle<T,Aux> ::
+  template<typename T,typename Aux> bool SysWriteHandle<T,Aux> ::
+  empty () const noexcept
+  {
+    return m_outputName.empty();
+  }
+
+
+
+  template<typename T,typename Aux> SysWriteHandle<T,Aux> ::
+  operator bool () const noexcept
+  {
+    return !m_outputName.empty();
+  }
+
+
+
+  template<typename T,typename Aux> std::string SysWriteHandle<T,Aux> ::
+  getNamePattern () const
+  {
+    return m_outputName;
+  }
+
+
+
+  template<typename T,typename Aux>
+  StatusCode SysWriteHandle<T,Aux> ::
+  initialize (SysListHandle& sysListHandle)
+  {
+    return sysListHandle.addHandle (*this);
+  }
+
+
+
+  template<typename T,typename Aux>
+  StatusCode SysWriteHandle<T,Aux> ::
+  initialize (SysListHandle& sysListHandle, SG::AllowEmptyEnum)
+  {
+    if (!empty())
+      return initialize (sysListHandle);
+    else
+      return StatusCode::SUCCESS;
+  }
+
+
+
+  template<typename T,typename Aux>
+  const std::string& SysWriteHandle<T,Aux> ::
+  getName (const CP::SystematicSet& sys) const
+  {
+    auto cache = m_outputNameCache.find (sys);
+    if (cache == m_outputNameCache.end())
+    {
+      if (m_outputName.empty())
+        throw std::logic_error ("uninitialized SysWriteHandle(" + m_outputName + ")");
+      else
+        throw std::logic_error ("unknown systematic in SysWriteHandle(" + m_outputName + "): (" + sys.name() + ")");
+    }
+    return cache->second;
+  }
+
+
+
+  template<typename T,typename Aux>
+  template<typename,typename>
+  ::StatusCode SysWriteHandle<T,Aux> ::
+  record (std::unique_ptr<T> object, const CP::SystematicSet& sys) const
+  {
+    const std::string& name = getName (sys);
+    assert (m_evtStore);
+    return m_evtStore->record (object.release(), name);
+  }
+
+
+
+  template<typename T,typename Aux>
+  template<typename,typename>
+  ::StatusCode SysWriteHandle<T,Aux> ::
   record (std::unique_ptr<T> object, std::unique_ptr<Aux> aux,
           const CP::SystematicSet& sys) const
   {
     auto cache = m_outputNameCache.find (sys);
     if (cache == m_outputNameCache.end())
     {
-      std::string newName = makeSystematicsName (m_outputName, sys);
-      ANA_MSG_DEBUG ("SysWriteHandle: " << newName << " (" << sys.name() << ")");
-      m_outputNameCache.insert (std::make_pair (sys, newName));
-      cache = m_outputNameCache.find (sys);
-      assert (cache != m_outputNameCache.end());
-      if (!m_evtStore)
-        m_evtStore = m_evtStoreGetter();
+      if (m_outputName.empty())
+        throw std::logic_error ("uninitialized SysWriteHandle(" + m_outputName + ")");
+      else
+        throw std::logic_error ("unknown systematic in SysWriteHandle(" + m_outputName + "): (" + sys.name() + ")");
     }
     assert (m_evtStore);
     if (m_evtStore->record (aux.release(), cache->second + "Aux.").isFailure())
@@ -55,60 +127,31 @@ namespace CP
 
 
 
-  template<typename T,typename Aux> std::string SysWriteHandle<T,Aux> ::
-  getInputAffecting () const
+  template<typename T,typename Aux>
+  CP::SystematicSet SysWriteHandle<T,Aux> ::
+  getInputAffecting (const ISystematicsSvc& /*svc*/) const
   {
-    return "";
+    return CP::SystematicSet ();
   }
 
 
 
-  template<typename T> template<typename T2> SysWriteHandle<T,void> ::
-  SysWriteHandle (T2 *owner, const std::string& propertyName,
-                 const std::string& propertyValue,
-                 const std::string& propertyDescription)
-    : AsgMessagingForward (owner), m_outputName (propertyValue)
-    , m_evtStoreGetter ([owner] () {return &*owner->evtStore();})
+  template<typename T,typename Aux>
+  StatusCode SysWriteHandle<T,Aux> ::
+  fillSystematics (const ISystematicsSvc& svc,
+                   const CP::SystematicSet& fullAffecting,
+                   const std::vector<CP::SystematicSet>& sysList)
   {
-    owner->declareProperty (propertyName, m_outputName, propertyDescription);
-  }
-
-
-
-  template<typename T> const std::string& SysWriteHandle<T,void> ::
-  getName (const CP::SystematicSet& sys) const
-  {
-    auto cache = m_outputNameCache.find (sys);
-    if (cache == m_outputNameCache.end())
+    if (!m_evtStore)
+      m_evtStore = m_evtStoreGetter();
+    for (auto& sys : sysList)
     {
-      std::string newName = makeSystematicsName (m_outputName, sys);
+      std::string newName;
+      ANA_CHECK (svc.makeSystematicsName (newName, m_outputName, sys));
       ANA_MSG_DEBUG ("SysWriteHandle: " << newName << " (" << sys.name() << ")");
-      m_outputNameCache.insert (std::make_pair (sys, newName));
-      cache = m_outputNameCache.find (sys);
-      assert (cache != m_outputNameCache.end());
-
-      // retrieving this here, just so that it exists
-      if (!m_evtStore)
-        m_evtStore = m_evtStoreGetter();
+      m_outputNameCache.emplace (sys, newName);
     }
-    return cache->second;
-  }
-
-
-
-  template<typename T> ::StatusCode SysWriteHandle<T,void> ::
-  record (std::unique_ptr<T> object, const CP::SystematicSet& sys) const
-  {
-    const std::string& name = getName (sys);
-    assert (m_evtStore);
-    return m_evtStore->record (object.release(), name);
-  }
-
-
-
-  template<typename T> std::string SysWriteHandle<T,void> ::
-  getInputAffecting () const
-  {
-    return "";
+    ANA_CHECK (svc.setObjectSystematics (m_outputName, fullAffecting));
+    return StatusCode::SUCCESS;
   }
 }
