@@ -1772,7 +1772,6 @@ namespace Rec {
         if (msgLevel(MSG::DEBUG)) countAEOTs(standaloneTrack.get(), " in standalone Refit standaloneTrack track before fit ");
 
         std::unique_ptr<Trk::Track> refittedTrack{fit(*standaloneTrack, ctx, false, Trk::muon)};
-
         if (!checkTrack("standaloneRefit", refittedTrack.get(), standaloneTrack.get())) { return nullptr; }
 
         // eventually this whole tool will use unique_ptrs
@@ -1808,7 +1807,13 @@ namespace Rec {
     std::unique_ptr<Trk::Track> CombinedMuonTrackBuilder::fit(Trk::Track& track, const EventContext& ctx,
                                                               const Trk::RunOutlierRemoval runOutlier,
                                                               const Trk::ParticleHypothesis particleHypothesis) const {
-        ATH_MSG_VERBOSE(" fit() " << m_printer->print(track) << std::endl << m_printer->printStations(track));
+        
+        
+        ATH_MSG_VERBOSE(" fit() " << m_printer->print(track) 
+                                  << std::endl
+                                  <<m_printer->printMeasurements(track) 
+                                  << std::endl
+                                  << m_printer->printStations(track));
         // check valid particleHypothesis
         if (particleHypothesis != Trk::muon && particleHypothesis != Trk::nonInteracting) {
             // invalid particle hypothesis
@@ -2447,7 +2452,7 @@ namespace Rec {
         Trk::ParticleHypothesis particleHypothesis, Trk::RunOutlierRemoval runOutlier,
         const std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>& spectrometerTSOS, const Trk::RecVertex* vertex,
         const Trk::RecVertex* mbeamAxis, const Trk::PerigeeSurface* mperigeeSurface, const Trk::Perigee* seedParameters) const {
-        ATH_MSG_VERBOSE(" createExtrapolatedTrack: pt " << parameters.momentum().perp() << " r " << parameters.position().perp() << " z "
+        ATH_MSG_DEBUG(" createExtrapolatedTrack() - "<<__LINE__<<": pt " << parameters.momentum().perp() << " r " << parameters.position().perp() << " z "
                                                         << parameters.position().z() << " cov " << parameters.covariance() << " muonfit "
                                                         << (particleHypothesis == Trk::muon));
 
@@ -2459,17 +2464,17 @@ namespace Rec {
 
         if (vertex && m_indetVolume->inside(parameters.position())) { perigee = dynamic_cast<const Trk::Perigee*>(&parameters); }
         if (perigee) {
-            ATH_MSG_DEBUG("got a perigee");
+            ATH_MSG_DEBUG("createExtrapolatedTrack(): Got a perigee ");
             trackParameters = perigee;
         } else {
-            ATH_MSG_DEBUG("no perigee");
+            ATH_MSG_DEBUG("createExtrapolatedTrack(): no perigee");
             // extrapolate backwards to associate leading material in spectrometer
             // (provided material has already been allocated between measurements)
             const Trk::TrackParameters* leadingParameters = &parameters;
             if (particleHypothesis == Trk::muon) {
                 bool haveMaterial{false}, haveLeadingMaterial{false}, firstMSHit{false};
 
-                for (const auto& s : spectrometerTSOS) {
+                for (const std::unique_ptr<const Trk::TrackStateOnSurface>&  s : spectrometerTSOS) {
                     if (s->materialEffectsOnTrack()) {
                         haveMaterial = true;
                         if (!firstMSHit) haveLeadingMaterial = true;
@@ -2495,9 +2500,9 @@ namespace Rec {
                             parameterVector[Trk::qOverP] = parameters.charge() / Emax;
                         }
                     }
-                    auto correctedParameters(parameters.associatedSurface().createUniqueTrackParameters(
+                    std::unique_ptr<Trk::TrackParameters> correctedParameters{parameters.associatedSurface().createUniqueTrackParameters(
                         parameterVector[Trk::loc1], parameterVector[Trk::loc2], parameterVector[Trk::phi], parameterVector[Trk::theta],
-                        parameterVector[Trk::qOverP], std::nullopt));
+                        parameterVector[Trk::qOverP], std::nullopt)};
 
                     Trk::IMaterialAllocator::Garbage_t garbage;
                     std::unique_ptr<std::vector<const Trk::TrackStateOnSurface*>> lead_tsos_from_alloc{
@@ -2515,7 +2520,7 @@ namespace Rec {
             bool caloAssociated = false;
 
             if (particleHypothesis == Trk::muon) {
-                ATH_MSG_VERBOSE(" Retriving Calorimeter TSOS from " << __func__ << " at line " << __LINE__);
+                ATH_MSG_VERBOSE(" Retrieving Calorimeter TSOS from " << __func__ << " at line " << __LINE__);
                 if (m_useCaloTG) {
                     caloTSOS = getCaloTSOSfromMatProvider(*leadingParameters, spectrometerTrack);
                     // Dump CaloTSOS
@@ -2672,8 +2677,11 @@ namespace Rec {
         if (trackParameters && !trackParameters->covariance()) { ATH_MSG_VERBOSE(" createExtrapolatedTrack: no cov (2)"); }
 
         if (trackParameters) {
+            if (! dynamic_cast<const Trk::Perigee*>(trackParameters)){
+                ATH_MSG_DEBUG("createExtrapolatedTrack() - Track parameters are not perigee "<<(*trackParameters));
+            }
             trackStateOnSurfaces.push_back(new const Trk::TrackStateOnSurface(
-                nullptr, dynamic_cast<const Trk::Perigee*>(trackParameters->clone()), nullptr, nullptr, perigeeType));
+                nullptr,trackParameters->clone(), nullptr, nullptr, perigeeType));
         }
 
         // optionally append a pseudoMeasurement describing the vertex
@@ -2735,12 +2743,9 @@ namespace Rec {
         }
 
         // fit the track
-        if (msgLvl(MSG::VERBOSE)) {
-            msg(MSG::VERBOSE) << "  fit SA track with " << track->trackStateOnSurfaces()->size() << " TSOS";
-            if (particleHypothesis == Trk::nonInteracting) { msg() << " using nonInteracting hypothesis"; }
-            msg() << endmsg;
-        }
-
+        ATH_MSG_VERBOSE( "  fit SA track with " << track->trackStateOnSurfaces()->size() << " TSOS"<<
+                            (particleHypothesis == Trk::nonInteracting ? " using nonInteracting hypothesis" : "usig interacting hypothesis"));
+         
         std::unique_ptr<Trk::Track> fittedTrack{fit(*track, ctx, runOutlier, particleHypothesis)};
 
         if (fittedTrack) {
