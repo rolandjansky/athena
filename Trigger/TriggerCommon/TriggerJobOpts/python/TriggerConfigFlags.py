@@ -132,14 +132,18 @@ def createTriggerFlags():
     flags.addFlag('Trigger.CostMonitoring.monitorAllEvents', False)
     flags.addFlag('Trigger.CostMonitoring.monitorROBs', True)
 
-    # enable muon inputs simulation
-    flags.addFlag('Trigger.L1.doMuons', True)
+    # enable L1Muon ByteStream conversion / simulation
+    flags.addFlag('Trigger.L1.doMuon', True)
 
-    # version of CTP data, int value up to 4
-    flags.addFlag('Trigger.L1.CTPVersion', 4)
+    # enable L1Calo ByteStream conversion / simulation
+    flags.addFlag('Trigger.L1.doCalo', True)
 
-    # list of thresholds (not sure if we want to use new flags to generate L1, leaving out for now?)
-    
+    # enable L1Topo ByteStream conversion / simulation
+    flags.addFlag('Trigger.L1.doTopo', True)
+
+    # enable CTP ByteStream conversion / simulation
+    flags.addFlag('Trigger.L1.doCTP', True)
+
     # partition name used to determine online vs offline BS result writing
     import os
     flags.addFlag('Trigger.Online.partitionName', os.getenv('TDAQ_PARTITION') or '')
