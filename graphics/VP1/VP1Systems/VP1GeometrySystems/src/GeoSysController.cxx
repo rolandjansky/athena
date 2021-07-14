@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -459,7 +459,7 @@ bool GeoSysController::showVolumeOutLines() const
 //____________________________________________________________________
 VP1GeoFlags::MuonChamberAdaptionStyleFlags GeoSysController::muonChamberAdaptionStyle() const
 {
-  VP1GeoFlags::MuonChamberAdaptionStyleFlags f(0);
+  VP1GeoFlags::MuonChamberAdaptionStyleFlags f;
   if (m_d->ui_muon.checkBox_muonadapt_openmdtchambers->isChecked())
     f |= VP1GeoFlags::OpenMDTChambers;
   if (m_d->ui_muon.checkBox_muonadapt_hidetubes->isChecked())
@@ -609,7 +609,7 @@ void GeoSysController::emit_actionOnAllNonStandardVolumes() {
 */
 void GeoSysController::emit_resetSubSystems()
 {
-  VP1GeoFlags::SubSystemFlags f(0);
+  VP1GeoFlags::SubSystemFlags f;
   if (sender()==m_d->ui_misc.toolButton_pixelmod_reset)
     f = VP1GeoFlags::Pixel;
   else if (sender()==m_d->ui_misc.toolButton_sctmod_reset)
