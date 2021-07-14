@@ -69,8 +69,8 @@ namespace CP
   {
     return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
         ANA_CHECK (m_efficiencyTool->applySystematicVariation (sys));
-        xAOD::JetContainer *jets = nullptr;
-        ANA_CHECK (m_jetHandle.getCopy (jets, sys));
+        const xAOD::JetContainer *jets = nullptr;
+        ANA_CHECK (m_jetHandle.retrieve (jets, sys));
 
         const xAOD::JetContainer *truthjets = nullptr;
 	if(!m_truthJetsName.empty()) {
@@ -78,7 +78,7 @@ namespace CP
 	  ANA_CHECK(m_efficiencyTool->tagTruth(jets,truthjets));
 	}
 
-        for (xAOD::Jet *jet : *jets)
+        for (const xAOD::Jet *jet : *jets)
         {
           if (m_preselection.getBool (*jet))
           {

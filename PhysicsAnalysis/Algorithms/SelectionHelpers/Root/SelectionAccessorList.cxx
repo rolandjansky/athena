@@ -63,7 +63,7 @@ namespace CP
 
 
   void SelectionAccessorList ::
-  setBits (SG::AuxElement& /*element*/,
+  setBits (const SG::AuxElement& /*element*/,
            SelectionType /*selection*/) const
   {
     // technically we could support setting by setting all the
@@ -88,7 +88,7 @@ namespace CP
 
 
   void SelectionAccessorList ::
-  setBool (SG::AuxElement& /*element*/,
+  setBool (const SG::AuxElement& /*element*/,
            bool /*selection*/) const
   {
     // technically we could support setting by setting all the

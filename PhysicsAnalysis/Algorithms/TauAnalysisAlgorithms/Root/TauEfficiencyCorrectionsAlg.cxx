@@ -55,9 +55,9 @@ namespace CP
   {
     return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
         ANA_CHECK (m_efficiencyCorrectionsTool->applySystematicVariation (sys));
-        xAOD::TauJetContainer *taus = nullptr;
-        ANA_CHECK (m_tauHandle.getCopy (taus, sys));
-        for (xAOD::TauJet *tau : *taus)
+        const xAOD::TauJetContainer *taus = nullptr;
+        ANA_CHECK (m_tauHandle.retrieve (taus, sys));
+        for (const xAOD::TauJet *tau : *taus)
         {
           if (m_preselection.getBool (*tau))
           {

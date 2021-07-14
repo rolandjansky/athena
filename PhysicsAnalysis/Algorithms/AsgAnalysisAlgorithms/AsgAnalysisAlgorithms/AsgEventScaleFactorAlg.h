@@ -11,7 +11,7 @@
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <SelectionHelpers/ISelectionAccessor.h>
 #include <SelectionHelpers/SelectionReadHandle.h>
-#include <SystematicsHandles/SysCopyHandle.h>
+#include <SystematicsHandles/SysReadHandle.h>
 #include <SystematicsHandles/SysReadDecorHandle.h>
 #include <SystematicsHandles/SysWriteDecorHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
@@ -43,12 +43,12 @@ namespace CP
 
     /// \brief the event info we run on (empty by default)
   private:
-    SysCopyHandle<xAOD::EventInfo> m_eventInfoHandle {
+    SysReadHandle<xAOD::EventInfo> m_eventInfoHandle {
       this, "eventInfo", "EventInfo", "the event info object to run on"};
 
     /// \brief the jet collection we run on
   private:
-    SysCopyHandle<xAOD::IParticleContainer> m_particleHandle {
+    SysReadHandle<xAOD::IParticleContainer> m_particleHandle {
       this, "particles", "", "the particle collection to run on"};
 
     /// \brief the preselection we apply to our input

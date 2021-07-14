@@ -61,11 +61,11 @@ namespace CP
   {
     return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
         ANA_CHECK (m_efficiencyScaleFactorTool->applySystematicVariation (sys));
-        xAOD::MuonContainer *muons = nullptr;
-        ANA_CHECK (m_muonHandle.getCopy (muons, sys));
+        const xAOD::MuonContainer *muons = nullptr;
+        ANA_CHECK (m_muonHandle.retrieve (muons, sys));
         const xAOD::EventInfo *eventInfo = nullptr;
         ANA_CHECK (m_eventInfoHandle.retrieve (eventInfo, sys));
-        for (xAOD::Muon *muon : *muons)
+        for (const xAOD::Muon *muon : *muons)
         {
           if (m_preselection.getBool (*muon))
           {

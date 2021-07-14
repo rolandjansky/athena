@@ -53,8 +53,8 @@ namespace CP
     return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode
     {
       ANA_CHECK (m_truthWeightTool->applySystematicVariation (sys));
-      xAOD::EventInfo *eventInfo = nullptr;
-      ANA_CHECK (m_eventInfoHandle.getCopy (eventInfo, sys));
+      const xAOD::EventInfo *eventInfo = nullptr;
+      ANA_CHECK (m_eventInfoHandle.retrieve (eventInfo, sys));
 
       m_decoration.set (*eventInfo, m_truthWeightTool->getSysWeight (), sys);
 
