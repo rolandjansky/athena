@@ -271,15 +271,7 @@ StatusCode EvtInclusiveDecay::execute() {
   }
 
   if(m_readExisting && m_outputKeyName==key) {
-    McEventCollection* newmcEvtColl=0;
-    newmcEvtColl = const_cast<McEventCollection*> (oldmcEvtColl);
-    newmcEvtColl->clear();
-    for (McEventCollection::const_iterator evt = m_mcEvtColl->begin(); evt != m_mcEvtColl->end(); ++evt) {
-      newmcEvtColl->push_back(new HepMC::GenEvent(*(*evt)));
-    }
-    m_mcEvtColl->clear();
-    delete m_mcEvtColl;
-    m_mcEvtColl=NULL;
+    CHECK(evtStore()->overwrite(m_mcEvtColl, m_outputKeyName));
   }
 
   return StatusCode::SUCCESS;
