@@ -2,7 +2,6 @@
 
 from AthenaCommon.CfgGetter import addTool,addAlgorithm
 addTool("MM_Digitization.MM_DigitizationConfig.MM_DigitizationTool","MM_DigitizationTool")
-addTool("MM_Digitization.MM_DigitizationConfig.MM_Response_DigitTool","MM_Response_DigitTool")
 addTool("MM_Digitization.MM_DigitizationConfig.getMMRange", "MMRange")
 addTool("MM_Digitization.MM_DigitizationConfig.MM_OverlayDigitizationTool", "MM_OverlayDigitizationTool")
 addAlgorithm("MM_Digitization.MM_DigitizationConfig.getMM_OverlayDigitizer", "MM_OverlayDigitizer")
