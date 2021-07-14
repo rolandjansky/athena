@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1369,7 +1369,7 @@ namespace MuonCombined {
       }
       */
     }else{
-      ATH_MSG_ERROR("No primary track particle set, deleting muon");
+      ATH_MSG_DEBUG("No primary track particle set, deleting muon");
       return false;
     }
 
