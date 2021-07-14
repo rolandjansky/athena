@@ -37,13 +37,32 @@ StatusCode HLTEfficiencyMonitoringAlg::fillHistograms(const EventContext &contex
 
   auto offlineTrkHandle = SG::makeHandle(m_offlineTrkKey, context);
   int countPassing = 0;
+  int countPassing_pt2 = 0; // count of tracks passing higher pt (here 2 GeV)
+  int countPassing_pt4 = 0; 
+  int countPassing_pt6 = 0;
+  int countPassing_pt8 = 0;
+  auto leadingTrackPt = Scalar<double>("leadingTrackPt");
   for (const auto trk : *offlineTrkHandle)
   {
-    if (m_trackSelectionTool->accept(*trk))
+    const double pt = std::fabs(trk->pt()); // fabs used in case the charge is encoded in pt ( i.e. it is really q * pt)
+    if (m_trackSelectionTool->accept(*trk) )
       ++countPassing;
+    if ( pt > 2000. ) 
+      ++countPassing_pt2;
+    if ( pt > 4000. )
+      ++countPassing_pt4;
+    if ( pt > 6000. )
+      ++countPassing_pt6;
+    if ( pt > 8000. )
+      ++countPassing_pt8;
+    if ( pt > leadingTrackPt ) leadingTrackPt = pt;
   }
   ATH_MSG_DEBUG("::monitorTrkCounts countPassing = " << countPassing);
   auto nTrkOffline = Scalar("nTrkOffline", countPassing);
+  auto nTrkOffline_pt2 = Scalar("nTrkOffline_pt2", countPassing_pt2);
+  auto nTrkOffline_pt4 = Scalar("nTrkOffline_pt4", countPassing_pt4);
+  auto nTrkOffline_pt6 = Scalar("nTrkOffline_pt6", countPassing_pt6);
+  auto nTrkOffline_pt8 = Scalar("nTrkOffline_pt8", countPassing_pt8);
 
   for (auto &ref: m_refTriggerList)
   {
@@ -57,7 +76,7 @@ StatusCode HLTEfficiencyMonitoringAlg::fillHistograms(const EventContext &contex
       auto effPassed = Scalar<int>("EffPassed", decision ? 1 : 0);
       const unsigned int passBits = trigDecTool->isPassedBits(trig);
       if (!(passBits & TrigDefs::EF_prescaled))
-        fill(trig + ref, effPassed, nTrkOffline);
+        fill(trig + ref, effPassed, nTrkOffline, nTrkOffline_pt2, nTrkOffline_pt4, nTrkOffline_pt6, nTrkOffline_pt8, leadingTrackPt);
     }
   }
 

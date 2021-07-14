@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOMODELINTERFACES_IGEODBTAGSVC_H
@@ -19,7 +19,6 @@ namespace GeoModel {
     GEO_RUN2,
     GEO_RUN3,
     GEO_RUN4,
-    GEO_ITk,
     GEO_TESTBEAM
   };
 }
@@ -68,6 +67,3 @@ class IGeoDbTagSvc : virtual public IInterface {
 };
 
 #endif // GEOMODELINTERFACES_IGEODBTAGSVC_H
-
-
-

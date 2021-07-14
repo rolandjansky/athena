@@ -10,12 +10,10 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 log.info("Importing %s",__name__)
 
-
-
 def generateChainConfigs( chainDict ):
     log.debug('dictionary is: %s\n', pprint.pformat(chainDict))
 
-    
+
     listOfChainDicts = splitChainDict(chainDict)
     listOfChainDefs = []
 
@@ -28,22 +26,16 @@ def generateChainConfigs( chainDict ):
         if subChainDict['chainParts'][0]['signature'] != 'Bjet':
             continue
 
-        Bjet = BjetChainConfiguration(subChainDict).assembleChain() 
+        Bjet = BjetChainConfiguration(subChainDict, jet).assembleChain()
 
         listOfChainDefs += [Bjet]
 
     if len(listOfChainDefs)>1:
-        theBjetChainDef = mergeChainDefs(listOfChainDefs, chainDict) 
+        theBjetChainDef = mergeChainDefs(listOfChainDefs, chainDict)
         jet.steps = jet.steps + theBjetChainDef.steps
     else:
         jet.steps = jet.steps + Bjet.steps
-    
+
     theChainDef = jet
 
     return theChainDef
-
-
-
-    
-
-    

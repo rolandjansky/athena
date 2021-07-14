@@ -5,19 +5,19 @@
 ##  Helper classes to implement a user-friendly Jet Monitoring configuration (hopefuly)
 ##  
 ## The principles are as follow :
-##   * the full configuration for 1 JetMonitoringAlg is specified as a dictionnary
-##   * specialized helper functions can turn the dictionnary into fully configured algs and perform the definition of histograms in
+##   * the full configuration for 1 JetMonitoringAlg is specified as a dictionary
+##   * specialized helper functions can turn the dictionary into fully configured algs and perform the definition of histograms in
 ##     the monitoring framework.
-##   * entries in the dictionnary are either
+##   * entries in the dictionary are either
 ##       - simple values used by the helper functions
 ##       - Other dicitionnaries specifying a sub-tool
-##       - an alias (a string) refering to a known standard specification (that is a dictionnary)
+##       - an alias (a string) refering to a known standard specification (that is a dictionary)
 ##
 ## 
-##  The dictionnaries are actually specialized versions of the python dictionnary.
+##  The dictionaries are actually specialized versions of the python dictionary.
 ##  Specializing allows
 ##    * to write specifications in a very compact and readable way
-##    * to write the helper functions as custom methods of the specialized dictionnaries (ex: spec.toAlg(), spec.toTool(), ...)
+##    * to write the helper functions as custom methods of the specialized dictionaries (ex: spec.toAlg(), spec.toTool(), ...)
 ##
 ## Specialized dicts are :
 ##  ToolSpec : generic base for any tool 
@@ -31,14 +31,14 @@
 from AthenaCommon import  SystemOfUnits
 
 class ConfigDict(dict):
-    """A python dictionnary extended so that each entry in the dict can also be accessed as 
+    """A python dictionary extended so that each entry in the dict can also be accessed as 
        member attribute.  
     Ex: 
        d = ConfigDict(aKey = 4)
        d.aKey # --> == 4 is the same as d["aKey"]
        d.bKey = 12 # now d["bKey"] is existing and set to 12      
 
-    all other usual methods of dictionnary are working as expected.    
+    all other usual methods of dictionary are working as expected.    
     """
     def __init__(self, **kwargs):
         dict.__init__(self, **kwargs)
@@ -156,7 +156,7 @@ def findSelectIndex( name):
 
 
 class ToolSpec(ConfigDict):
-    """A dictionnary specialized for containing the specification of a Athena tool.    
+    """A dictionary specialized for containing the specification of a Athena tool.    
     """
     def __init__(self, klass, name, **args):
         self.name = name

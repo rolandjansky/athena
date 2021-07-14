@@ -115,6 +115,7 @@ def set_flags(flags, options=default_options):
     flags.Input.isMC = False
     flags.IOVDb.DatabaseInstance = 'CONDBR2'
     flags.IOVDb.GlobalTag = flags.Trigger.OnlineCondTag
+    flags.Trigger.EDMVersion = 3
     flags.Trigger.triggerMenuSetup = 'LS2_v1'
     flags.Trigger.enableL1MuonPhase1 = options.EnableL1MuonPhase1
     flags.Trigger.enableL1CaloPhase1 = options.EnableL1CaloPhase1

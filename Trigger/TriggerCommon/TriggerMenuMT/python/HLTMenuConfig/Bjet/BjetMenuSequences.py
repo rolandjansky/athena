@@ -8,26 +8,24 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 #from AthenaCommon.Constants import DEBUG
 
-# ====================================================================================================  
+# ====================================================================================================
 #    Get MenuSequences
-# ==================================================================================================== 
+# ====================================================================================================
 
 
-def getBJetSequence():
-    return bJetStep2Sequence()
-
-# ==================================================================================================== 
+# ====================================================================================================
 #    step 1: This is Jet code. Not here!
-# ==================================================================================================== 
+# ====================================================================================================
 
-# ==================================================================================================== 
+# ====================================================================================================
 #    step 2: Second stage of fast tracking, Precision tracking, and flavour tagging
-# ====================================================================================================  
+# ====================================================================================================
 
-def bJetStep2Sequence():
+# todo: pass in more information, i.e. jet collection name
+def getBJetSequence(jc_name):
 
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
-    
+
     config=getInDetTrigConfig('jet')
     prmVtxKey = config.vertex
     outputRoIName = "HLT_Roi_Bjet"
@@ -41,7 +39,7 @@ def bJetStep2Sequence():
     newRoITool.VertexReadHandleKey = prmVtxKey
     newRoITool.PrmVtxLink = prmVtxKey.replace( "HLT_","" )
     #
-    InputMakerAlg.mergeUsingFeature = True 
+    InputMakerAlg.mergeUsingFeature = True
     InputMakerAlg.RoITool = newRoITool
     #
     InputMakerAlg.Views = "BTagViews"
@@ -51,8 +49,11 @@ def bJetStep2Sequence():
     InputMakerAlg.ViewFallThrough = True
     # BJet specific
     InputMakerAlg.PlaceJetInView = True
-    InputMakerAlg.InViewJets = recordable( "HLT_bJets" )
 
+    # Output container names as defined in TriggerEDMRun3
+    jc_key = f'{jc_name}_'if jc_name else ''
+    InputMakerAlg.InViewJets = recordable( f'HLT_{jc_key}bJets' )
+    BTagName = recordable(f'HLT_{jc_key}BTagging')
 
     # Prepare data objects for view verifier
     viewDataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % InputMakerAlg.InViewRoIs ),
@@ -63,14 +64,17 @@ def bJetStep2Sequence():
     from TriggerMenuMT.HLTMenuConfig.Bjet.BjetTrackingConfiguration import getSecondStageBjetTracking
     secondStageAlgs, PTTrackParticles = getSecondStageBjetTracking( inputRoI=InputMakerAlg.InViewRoIs, dataObjects=viewDataObjects )
 
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
-
-    # Flavour Tagging
-    from TriggerMenuMT.HLTMenuConfig.Bjet.BjetFlavourTaggingConfiguration import getFlavourTagging
-    acc_flavourTaggingAlgs,bTaggingContainerName = getFlavourTagging( inputJets=str(InputMakerAlg.InViewJets), inputVertex=prmVtxKey, inputTracks=PTTrackParticles[0] , inputMuons = None)
-    
-    Configurable.configurableRun3Behavior=0
+    from AthenaCommon.Configurable import ConfigurableRun3Behavior
+    with ConfigurableRun3Behavior():
+        # Flavour Tagging
+        from TriggerMenuMT.HLTMenuConfig.Bjet.BjetFlavourTaggingConfiguration import getFlavourTagging
+        acc_flavourTaggingAlgs,bTaggingContainerName = getFlavourTagging(
+            inputJets=str(InputMakerAlg.InViewJets),
+            inputVertex=prmVtxKey,
+            inputTracks=PTTrackParticles[0],
+            BTagName=BTagName,
+            inputMuons=None
+        )
 
     #Conversion of flavour-tagging algorithms from new to old-style
     from AthenaCommon.CFElements import findAllAlgorithms
@@ -82,7 +86,7 @@ def bJetStep2Sequence():
     acc_flavourTaggingAlgs.wasMerged() #Needed to remove error message; Next we add all algorithms to sequence so this is kind of an old-style merge
     bJetBtagSequence = seqAND( "bJetBtagSequence", secondStageAlgs + AllFlavourTaggingAlgs )
     InputMakerAlg.ViewNodeName = "bJetBtagSequence"
-    
+
     # Sequence
     BjetAthSequence = seqAND( "BjetAthSequence_step2",[InputMakerAlg,bJetBtagSequence] )
 
@@ -105,8 +109,3 @@ def bJetStep2Sequence():
                          Maker       = InputMakerAlg,
                          Hypo        = hypo,
                          HypoToolGen = TrigBjetBtagHypoToolFromDict)
-
-
-
-
- 

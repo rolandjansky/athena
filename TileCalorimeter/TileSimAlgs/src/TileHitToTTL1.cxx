@@ -109,8 +109,8 @@ StatusCode TileHitToTTL1::initialize() {
     ATH_MSG_INFO( "TileTTL1 from MBTS will not be produced" ); 
   } else {
     ATH_MSG_INFO( "Storing MBTS TileTTL1 in separate container " << m_mbtsTTL1ContainerKey.key() );
-    ATH_CHECK( m_mbtsTTL1ContainerKey.initialize() );
   }
+  ATH_CHECK( m_mbtsTTL1ContainerKey.initialize(SG::AllowEmpty) );
 
   if (m_maskBadChannels) {
     ATH_MSG_INFO( "Bad Channel trigger status will be applied" );
