@@ -104,216 +104,274 @@ Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& c
     EventIDRange range = IOVInfiniteRange::infiniteMixed();
 
     SG::ReadCondHandle<MuonGM::MuonDetectorManager> readHandle{m_muonMgrReadKey, ctx};
-    if (!readHandle.isValid() || !(*readHandle)) { 
+    if (!readHandle.isValid() || !(*readHandle)) {
         ATH_MSG_FATAL(m_muonMgrReadKey.fullKey() << " is not available.");
         return std::make_pair(range, std::move(mStations));
-     }
+    }
 
     readHandle.range(range);
     const MuonGM::MuonDetectorManager* muonMgr = readHandle.cptr();
-        // retrieve muon station prototypes from GeoMode(this)->l
-        const std::vector<const Trk::DetachedTrackingVolume*>* msTypes = this->buildDetachedTrackingVolumeTypes(blend, muonMgr);
-        std::vector<const Trk::DetachedTrackingVolume*>::const_iterator msTypeIter = msTypes->begin();
+    // retrieve muon station prototypes from GeoMode(this)->l
+    const std::vector<const Trk::DetachedTrackingVolume*>* msTypes = this->buildDetachedTrackingVolumeTypes(blend, muonMgr);
+    std::vector<const Trk::DetachedTrackingVolume*>::const_iterator msTypeIter = msTypes->begin();
 
-        // position MDT chambers by repeating loop over muon tree
-        // link to top tree
-        const GeoVPhysVol* top = &(*(muonMgr->getTreeTop(0)));
-        GeoVolumeCursor vol(top);
-        while (!vol.atEnd()) {
-            const GeoVPhysVol* cv = &(*(vol.getVolume()));
-            const GeoLogVol* clv = cv->getLogVol();
-            std::string vname = clv->getName();
+    // position MDT chambers by repeating loop over muon tree
+    // link to top tree
+    const GeoVPhysVol* top = &(*(muonMgr->getTreeTop(0)));
+    GeoVolumeCursor vol(top);
+    while (!vol.atEnd()) {
+        const GeoVPhysVol* cv = &(*(vol.getVolume()));
+        const GeoLogVol* clv = cv->getLogVol();
+        std::string vname = clv->getName();
 
-            // special treatment for NSW
-            if (vname.substr(0, 3) == "NSW" || vname.substr(0, 8) == "NewSmall") {
-                ATH_MSG_INFO(vname << " processing NSW ");
-                std::vector<std::pair<const Trk::DetachedTrackingVolume*, std::vector<Amg::Transform3D> > > objs;
+        // special treatment for NSW
+        if (vname.substr(0, 3) == "NSW" || vname.substr(0, 8) == "NewSmall") {
+            ATH_MSG_INFO(vname << " processing NSW ");
+            std::vector<std::pair<const Trk::DetachedTrackingVolume*, std::vector<Amg::Transform3D> > > objs;
 
-                std::vector<const GeoShape*> input_shapes;
-                std::vector<std::pair<std::pair<const GeoLogVol*, Trk::MaterialProperties*>, std::vector<Amg::Transform3D> > > vols;
-                std::vector<std::string> volNames;
+            std::vector<const GeoShape*> input_shapes;
+            std::vector<std::pair<std::pair<const GeoLogVol*, Trk::MaterialProperties*>, std::vector<Amg::Transform3D> > > vols;
+            std::vector<std::string> volNames;
 
-                bool simpleTree = false;
-                if (!cv->getNChildVols()) {
-                    std::vector<Amg::Transform3D> volTr;
-                    volTr.push_back(vol.getTransform());
-                    std::pair<const GeoLogVol*, Trk::MaterialProperties*> cpair(clv, 0);
-                    vols.push_back(
-                        std::pair<std::pair<const GeoLogVol*, Trk::MaterialProperties*>, std::vector<Amg::Transform3D> >(cpair, volTr));
-                    volNames.push_back(vname);
-                    simpleTree = true;
-                } else {
-                    getNSWStationsForTranslation(cv, "", Amg::Transform3D(Trk::s_idTransform), vols, volNames);
+            bool simpleTree = false;
+            if (!cv->getNChildVols()) {
+                std::vector<Amg::Transform3D> volTr;
+                volTr.push_back(vol.getTransform());
+                std::pair<const GeoLogVol*, Trk::MaterialProperties*> cpair(clv, 0);
+                vols.push_back(
+                    std::pair<std::pair<const GeoLogVol*, Trk::MaterialProperties*>, std::vector<Amg::Transform3D> >(cpair, volTr));
+                volNames.push_back(vname);
+                simpleTree = true;
+            } else {
+                getNSWStationsForTranslation(cv, "", Amg::Transform3D(Trk::s_idTransform), vols, volNames);
+            }
+            input_shapes.resize(vols.size());
+            for (unsigned int i = 0; i < vols.size(); i++) input_shapes[i] = vols[i].first.first->getShape();
+
+            ATH_MSG_DEBUG(vname << " processing NSW "
+                                << " nr of selected volumes " << vols.size());
+
+            // initial solution
+            // Large/Small sector envelope englobing (4+4+1+4+4)x 4(rings) =  68 layers identified with simId (station
+            // type,ring,phi,sector,multi,layer)
+            //
+            // advanced solution:
+            // Large/Small sector envelope englobing (4+4+1+4+4) 17 layers (or: 5 volumes with 4/4/1/4/4 layers )
+            // each layer carrying 4 surfaces linked to readout geometry (rings)
+
+            // collect layers corresponding to sensitive planes/spacers
+            std::vector<const Trk::Layer*> sectorL;
+            std::vector<const Trk::Layer*> sectorS;
+
+            int nClones = vols.size() ? vols[0].second.size() : 0;
+
+            for (unsigned int ish = 0; ish < vols.size(); ish++) {
+                bool isLargeSector = fabs(((vols[ish]).second)[0].translation().phi()) < 0.01 ? true : false;
+                std::string protoName = vname;
+                if (!simpleTree) protoName = vname + "_" + volNames[ish];
+
+                // Got to mothervolume of sTGC_Sensitive/sTGC_Frame and MM_Sensitive/MM_Frame: TGCGas ArCo2
+                ATH_MSG_DEBUG(" ish " << ish << " protoName14 " << protoName.substr(1, 4) << " volName04 " << volNames[ish].substr(0, 4));
+                if (volNames[ish].substr(0, 4) != "sTGC" && volNames[ish].substr(0, 2) != "MM") continue;
+
+                std::string oName = protoName.substr(protoName.find("-") + 1);
+                Identifier nswId = m_muonStationTypeBuilder->identifyNSW(muonMgr, oName, vols[ish].second[0]);
+
+                // get bounds and transform from readout geometry
+                const Trk::RotatedTrapezoidBounds* rtrd = nullptr;
+                const Trk::TrapezoidBounds* trd = nullptr;
+                const Trk::DiamondBounds* dia = nullptr;
+                const Trk::RotatedDiamondBounds* rdia = nullptr;
+                Amg::Transform3D layTransf(Trk::s_idTransform);
+                if (m_idHelperSvc->issTgc(nswId)) {
+                    const MuonGM::sTgcReadoutElement* stgc = muonMgr->getsTgcReadoutElement(nswId);
+                    if (stgc) rtrd = dynamic_cast<const Trk::RotatedTrapezoidBounds*>(&stgc->bounds(nswId));
+                    if (stgc) trd = dynamic_cast<const Trk::TrapezoidBounds*>(&stgc->bounds(nswId));
+                    if (stgc) dia = dynamic_cast<const Trk::DiamondBounds*>(&stgc->bounds(nswId));
+                    if (stgc) rdia = dynamic_cast<const Trk::RotatedDiamondBounds*>(&stgc->bounds(nswId));
+                    if (stgc) layTransf = stgc->transform(nswId);
+                    if (stgc) ATH_MSG_DEBUG(" STGC readout element ");
+                    if (!stgc) ATH_MSG_DEBUG(" STGC and NO readout element ");
+                } else if (m_idHelperSvc->isMM(nswId)) {
+                    const MuonGM::MMReadoutElement* mm = muonMgr->getMMReadoutElement(nswId);
+                    if (mm) rtrd = dynamic_cast<const Trk::RotatedTrapezoidBounds*>(&mm->bounds(nswId));
+                    if (mm) layTransf = mm->transform(nswId);
+                    if (mm) ATH_MSG_DEBUG(" MM readout element ");
+                    if (!mm) ATH_MSG_DEBUG(" MM and NO readout element ");
                 }
-                input_shapes.resize(vols.size());
-                for (unsigned int i = 0; i < vols.size(); i++) input_shapes[i] = vols[i].first.first->getShape();
+                if (isLargeSector) ATH_MSG_DEBUG(" Large Sector ");
+                if (!isLargeSector) ATH_MSG_DEBUG(" Small Sector ");
 
-                ATH_MSG_DEBUG(vname << " processing NSW "
-                                    << " nr of selected volumes " << vols.size());
+                ATH_MSG_DEBUG(" ish " << ish << " " << protoName << " input_shapes[ish] " << input_shapes[ish]->type());
 
-                // initial solution
-                // Large/Small sector envelope englobing (4+4+1+4+4)x 4(rings) =  68 layers identified with simId (station
-                // type,ring,phi,sector,multi,layer)
-                //
-                // advanced solution:
-                // Large/Small sector envelope englobing (4+4+1+4+4) 17 layers (or: 5 volumes with 4/4/1/4/4 layers )
-                // each layer carrying 4 surfaces linked to readout geometry (rings)
+                const Trk::HomogeneousLayerMaterial mat(*(vols[ish].first.second), 0.);
 
-                // collect layers corresponding to sensitive planes/spacers
-                std::vector<const Trk::Layer*> sectorL;
-                std::vector<const Trk::Layer*> sectorS;
+                const Trk::Layer* layer = nullptr;
 
-                int nClones = vols.size() ? vols[0].second.size() : 0;
+                if (!rtrd && !dia && !trd && !rdia) {  // translate from GeoModel ( spacer & non-identified stuff )
+                    // This used to be a !rtrd check as we either had a rotatedTrap or nothing
+                    // Now we included trapezoid and diamond shape for the sTGC
+                    ATH_MSG_DEBUG(" translate from GeoModel " << protoName);
 
-                for (unsigned int ish = 0; ish < vols.size(); ish++) {
-                    bool isLargeSector = fabs(((vols[ish]).second)[0].translation().phi()) < 0.01 ? true : false;
-                    std::string protoName = vname;
-                    if (!simpleTree) protoName = vname + "_" + volNames[ish];
-
-                    // Got to mothervolume of sTGC_Sensitive/sTGC_Frame and MM_Sensitive/MM_Frame: TGCGas ArCo2
-                    ATH_MSG_DEBUG(" ish " << ish << " protoName14 " << protoName.substr(1, 4) << " volName04 "
-                                          << volNames[ish].substr(0, 4));
-                    if (volNames[ish].substr(0, 4) != "sTGC" && volNames[ish].substr(0, 2) != "MM") continue;
-
-                    std::string oName = protoName.substr(protoName.find("-") + 1);
-                    Identifier nswId = m_muonStationTypeBuilder->identifyNSW(muonMgr, oName, vols[ish].second[0]);
-
-                    // get bounds and transform from readout geometry
-                    const Trk::RotatedTrapezoidBounds* rtrd = nullptr;
-                    const Trk::TrapezoidBounds* trd = nullptr;
-                    const Trk::DiamondBounds* dia = nullptr;
-                    const Trk::RotatedDiamondBounds* rdia = nullptr;
-                    Amg::Transform3D layTransf(Trk::s_idTransform);
-                    if (m_idHelperSvc->issTgc(nswId)) {
-                        const MuonGM::sTgcReadoutElement* stgc = muonMgr->getsTgcReadoutElement(nswId);
-                        if (stgc) rtrd = dynamic_cast<const Trk::RotatedTrapezoidBounds*>(&stgc->bounds(nswId));
-                        if (stgc) trd = dynamic_cast<const Trk::TrapezoidBounds*>(&stgc->bounds(nswId));
-                        if (stgc) dia = dynamic_cast<const Trk::DiamondBounds*>(&stgc->bounds(nswId));
-                        if (stgc) rdia = dynamic_cast<const Trk::RotatedDiamondBounds*>(&stgc->bounds(nswId));
-                        if (stgc) layTransf = stgc->transform(nswId);
-                        if (stgc) ATH_MSG_DEBUG(" STGC readout element ");
-                        if (!stgc) ATH_MSG_DEBUG(" STGC and NO readout element ");
-                    } else if (m_idHelperSvc->isMM(nswId)) {
-                        const MuonGM::MMReadoutElement* mm = muonMgr->getMMReadoutElement(nswId);
-                        if (mm) rtrd = dynamic_cast<const Trk::RotatedTrapezoidBounds*>(&mm->bounds(nswId));
-                        if (mm) layTransf = mm->transform(nswId);
-                        if (mm) ATH_MSG_DEBUG(" MM readout element ");
-                        if (!mm) ATH_MSG_DEBUG(" MM and NO readout element ");
+                    Amg::Transform3D ident(Trk::s_idTransform);
+                    // m_geoShapeConverter->decodeShape(input_shapes[ish]);
+                    const Trk::Volume* trObject = m_geoShapeConverter->translateGeoShape(input_shapes[ish], &ident);
+                    if (trObject) {
+                        std::unique_ptr<const Trk::TrackingVolume> newType = std::unique_ptr<const Trk::TrackingVolume>(
+                            new Trk::TrackingVolume(*trObject, vols[ish].first.second->material(), 0, 0, protoName));
+                        layer = m_muonStationTypeBuilder->createLayer(muonMgr, newType.get(), vols[ish].first.second, vols[ish].second[0]);
+                        if (layer) layer->moveLayer(vols[ish].second[0]);
+                        delete trObject;
                     }
-                    if (isLargeSector) ATH_MSG_DEBUG(" Large Sector ");
-                    if (!isLargeSector) ATH_MSG_DEBUG(" Small Sector ");
+                } else if (dia) {
+                    // create active layer for diamond shape of NSW-sTGC QL3
+                    std::shared_ptr<Trk::DiamondBounds> tbounds = std::make_shared<Trk::DiamondBounds>(
+                        dia->minHalflengthX(), dia->medHalflengthX(), dia->maxHalflengthX(), dia->halflengthY1(), dia->halflengthY2());
+                    Trk::SharedObject<const Trk::SurfaceBounds> bounds(tbounds);
+                    Trk::OverlapDescriptor* od = 0;
+                    double thickness = (mat.fullMaterial(layTransf.translation()))->thickness();
+                    layer = new Trk::PlaneLayer(Amg::Transform3D(layTransf * Amg::AngleAxis3D(-0.5 * M_PI, Amg::Vector3D(0., 0., 1.))),
+                                                bounds, mat, thickness, od, 1);
+                } else if (rdia) {
+                    // create active layer for diamond shape of NSW-sTGC QL3
+                    std::shared_ptr<Trk::DiamondBounds> tbounds = std::make_shared<Trk::DiamondBounds>(
+                        rdia->minHalflengthX(), rdia->medHalflengthX(), rdia->maxHalflengthX(), rdia->halflengthY1(), rdia->halflengthY2());
+                    Trk::SharedObject<const Trk::SurfaceBounds> bounds(tbounds);
+                    Trk::OverlapDescriptor* od = 0;
+                    double thickness = (mat.fullMaterial(layTransf.translation()))->thickness();
+                    layer = new Trk::PlaneLayer(Amg::Transform3D(layTransf * Amg::AngleAxis3D(-0.5 * M_PI, Amg::Vector3D(0., 0., 1.))),
+                                                bounds, mat, thickness, od, 1);
+                } else if (trd) {
+                    // create active layer for trapezoid shape of rest of NSW-sTGC
+                    std::shared_ptr<Trk::TrapezoidBounds> tbounds =
+                        std::make_shared<Trk::TrapezoidBounds>(trd->minHalflengthX(), trd->maxHalflengthX(), trd->halflengthY());
+                    Trk::SharedObject<const Trk::SurfaceBounds> bounds(tbounds);
+                    Trk::OverlapDescriptor* od = 0;
+                    double thickness = (mat.fullMaterial(layTransf.translation()))->thickness();
+                    layer = new Trk::PlaneLayer(Amg::Transform3D(layTransf * Amg::AngleAxis3D(-0.5 * M_PI, Amg::Vector3D(0., 0., 1.))),
+                                                bounds, mat, thickness, od, 1);
+                } else {
+                    // create active layer
+                    // change of boundary type ( VP1 problems with rotated trapezoid )
+                    std::shared_ptr<Trk::RotatedTrapezoidBounds> tbounds =
+                        std::make_shared<Trk::RotatedTrapezoidBounds>(rtrd->halflengthX(), rtrd->minHalflengthY(), rtrd->maxHalflengthY());
+                    Trk::SharedObject<const Trk::SurfaceBounds> bounds(tbounds);
+                    Trk::OverlapDescriptor* od = 0;
+                    double thickness = (mat.fullMaterial(layTransf.translation()))->thickness();
+                    layer = new Trk::PlaneLayer(Amg::Transform3D(layTransf * Amg::AngleAxis3D(-0.5 * M_PI, Amg::Vector3D(0., 0., 1.))),
+                                                bounds, mat, thickness, od, 1);
+                }
 
-                    ATH_MSG_DEBUG(" ish " << ish << " " << protoName << " input_shapes[ish] " << input_shapes[ish]->type());
+                if (layer) {
+                    unsigned int layType = nswId.get_identifier32().get_compact();
+                    layer->setLayerType(layType);
 
-                    const Trk::HomogeneousLayerMaterial mat(*(vols[ish].first.second), 0.);
+                    if (isLargeSector)
+                        sectorL.push_back(layer);
+                    else
+                        sectorS.push_back(layer);
+                    if (isLargeSector)
+                        ATH_MSG_INFO("new NSW prototype build for Large sector: "
+                                     << protoName << ", " << vols[ish].second.size() << " x0 "
+                                     << mat.fullMaterial(layTransf.translation())->x0() << " thickness "
+                                     << (mat.fullMaterial(layTransf.translation()))->thickness());
+                    if (!isLargeSector)
+                        ATH_MSG_INFO("new NSW prototype build for Large sector: "
+                                     << protoName << ", " << vols[ish].second.size() << " x0 "
+                                     << mat.fullMaterial(layTransf.translation())->x0() << " thickness "
+                                     << (mat.fullMaterial(layTransf.translation()))->thickness());
+                } else {
+                    ATH_MSG_DEBUG(" NO layer build for: " << protoName);
+                }
+            }  // end new object
 
-                    const Trk::Layer* layer = nullptr;
+            // create station prototypes
+            const Trk::TrackingVolume* newTypeL = m_muonStationTypeBuilder->processNSW(muonMgr, sectorL);
+            // create layer representation
+            std::pair<const Trk::Layer*, const std::vector<const Trk::Layer*>*> layerReprL =
+                m_muonStationTypeBuilder->createLayerRepresentation(newTypeL);
+            // create prototype as detached tracking volume
+            std::unique_ptr<const Trk::DetachedTrackingVolume> typeL{
+                newTypeL ? new Trk::DetachedTrackingVolume("NSWL", newTypeL, layerReprL.first, layerReprL.second) : nullptr};
+            // objs.push_back(std::pair<const Trk::DetachedTrackingVolume*,std::vector<Amg::Transform3D> >(typeStat,vols[ish].second));
+            const Trk::TrackingVolume* newTypeS = m_muonStationTypeBuilder->processNSW(muonMgr, sectorS);
+            // create layer representation
+            std::pair<const Trk::Layer*, const std::vector<const Trk::Layer*>*> layerReprS =
+                m_muonStationTypeBuilder->createLayerRepresentation(newTypeS);
 
-                    if (!rtrd && !dia && !trd && !rdia) {  // translate from GeoModel ( spacer & non-identified stuff )
-                        // This used to be a !rtrd check as we either had a rotatedTrap or nothing
-                        // Now we included trapezoid and diamond shape for the sTGC
-                        ATH_MSG_DEBUG(" translate from GeoModel " << protoName);
+            std::unique_ptr<const Trk::DetachedTrackingVolume> typeS{
+                newTypeS ? new Trk::DetachedTrackingVolume("NSWS", newTypeS, layerReprS.first, layerReprS.second) : nullptr};
 
-                        Amg::Transform3D ident(Trk::s_idTransform);
-                        // m_geoShapeConverter->decodeShape(input_shapes[ish]);
-                        const Trk::Volume* trObject = m_geoShapeConverter->translateGeoShape(input_shapes[ish], &ident);
-                        if (trObject) {
-                            std::unique_ptr<const Trk::TrackingVolume> newType = std::unique_ptr<const Trk::TrackingVolume>(
-                                new Trk::TrackingVolume(*trObject, vols[ish].first.second->material(), 0, 0, protoName));
-                            layer = m_muonStationTypeBuilder->createLayer(muonMgr, newType.get(), vols[ish].first.second, vols[ish].second[0]);
-                            if (layer) layer->moveLayer(vols[ish].second[0]);
-                            delete trObject;
+            if (typeL) {
+                auto typeLptr = typeL.get();
+                mStations->push_back(std::move(typeL));
+
+                for (int it = 1; it < 8; it++) {
+                    // clone station from prototype :: CHECK z<0 side, probably turns in wrong direction
+                    Amg::Transform3D ntransf(Amg::AngleAxis3D(it * 0.25 * M_PI, Amg::Vector3D(0., 0., 1.)));
+                    std::unique_ptr<const Trk::DetachedTrackingVolume> newStat{typeLptr->clone("NSWL", ntransf)};
+                    ATH_MSG_DEBUG("cloned 1 NSWL station:" << newStat->trackingVolume()->center());
+                    // no detailed identification of NSW layer representation
+                    const std::vector<const Trk::Layer*>* lays = newStat->trackingVolume()->confinedArbitraryLayers();
+                    for (unsigned int il = 0; il < lays->size(); il++) {
+                        int iType = (*lays)[il]->layerType();
+                        if (iType != 0) {
+                            Identifier id(iType);
+                            Identifier nid(0);
+                            if (m_idHelperSvc->issTgc(id)) {
+                                nid = m_idHelperSvc->stgcIdHelper().channelID(
+                                    m_idHelperSvc->stgcIdHelper().stationName(id), m_idHelperSvc->stgcIdHelper().stationEta(id),
+                                    m_idHelperSvc->stgcIdHelper().stationPhi(id) + it, m_idHelperSvc->stgcIdHelper().multilayer(id),
+                                    m_idHelperSvc->stgcIdHelper().gasGap(id), 1, 1);
+                            } else if (m_idHelperSvc->isMM(id)) {
+                                nid = m_idHelperSvc->mmIdHelper().channelID(
+                                    m_idHelperSvc->mmIdHelper().stationName(id), m_idHelperSvc->mmIdHelper().stationEta(id),
+                                    m_idHelperSvc->mmIdHelper().stationPhi(id) + it, m_idHelperSvc->mmIdHelper().multilayer(id),
+                                    m_idHelperSvc->mmIdHelper().gasGap(id), 1);
+                            }
+
+                            unsigned int nType = nid.get_identifier32().get_compact();
+                            (*lays)[il]->setLayerType(nType);
                         }
-                    } else if (dia) {
-                        // create active layer for diamond shape of NSW-sTGC QL3
-                        std::shared_ptr<Trk::DiamondBounds> tbounds = std::make_shared<Trk::DiamondBounds>(
-                            dia->minHalflengthX(), dia->medHalflengthX(), dia->maxHalflengthX(), dia->halflengthY1(), dia->halflengthY2());
-                        Trk::SharedObject<const Trk::SurfaceBounds> bounds(tbounds);
-                        Trk::OverlapDescriptor* od = 0;
-                        double thickness = (mat.fullMaterial(layTransf.translation()))->thickness();
-                        layer = new Trk::PlaneLayer(Amg::Transform3D(layTransf * Amg::AngleAxis3D(-0.5 * M_PI, Amg::Vector3D(0., 0., 1.))),
-                                                    bounds, mat, thickness, od, 1);
-                    } else if (rdia) {
-                        // create active layer for diamond shape of NSW-sTGC QL3
-                        std::shared_ptr<Trk::DiamondBounds> tbounds =
-                            std::make_shared<Trk::DiamondBounds>(rdia->minHalflengthX(), rdia->medHalflengthX(), rdia->maxHalflengthX(),
-                                                                 rdia->halflengthY1(), rdia->halflengthY2());
-                        Trk::SharedObject<const Trk::SurfaceBounds> bounds(tbounds);
-                        Trk::OverlapDescriptor* od = 0;
-                        double thickness = (mat.fullMaterial(layTransf.translation()))->thickness();
-                        layer = new Trk::PlaneLayer(Amg::Transform3D(layTransf * Amg::AngleAxis3D(-0.5 * M_PI, Amg::Vector3D(0., 0., 1.))),
-                                                    bounds, mat, thickness, od, 1);
-                    } else if (trd) {
-                        // create active layer for trapezoid shape of rest of NSW-sTGC
-                        std::shared_ptr<Trk::TrapezoidBounds> tbounds =
-                            std::make_shared<Trk::TrapezoidBounds>(trd->minHalflengthX(), trd->maxHalflengthX(), trd->halflengthY());
-                        Trk::SharedObject<const Trk::SurfaceBounds> bounds(tbounds);
-                        Trk::OverlapDescriptor* od = 0;
-                        double thickness = (mat.fullMaterial(layTransf.translation()))->thickness();
-                        layer = new Trk::PlaneLayer(Amg::Transform3D(layTransf * Amg::AngleAxis3D(-0.5 * M_PI, Amg::Vector3D(0., 0., 1.))),
-                                                    bounds, mat, thickness, od, 1);
-                    } else {
-                        // create active layer
-                        // change of boundary type ( VP1 problems with rotated trapezoid )
-                        std::shared_ptr<Trk::RotatedTrapezoidBounds> tbounds = std::make_shared<Trk::RotatedTrapezoidBounds>(
-                            rtrd->halflengthX(), rtrd->minHalflengthY(), rtrd->maxHalflengthY());
-                        Trk::SharedObject<const Trk::SurfaceBounds> bounds(tbounds);
-                        Trk::OverlapDescriptor* od = 0;
-                        double thickness = (mat.fullMaterial(layTransf.translation()))->thickness();
-                        layer = new Trk::PlaneLayer(Amg::Transform3D(layTransf * Amg::AngleAxis3D(-0.5 * M_PI, Amg::Vector3D(0., 0., 1.))),
-                                                    bounds, mat, thickness, od, 1);
                     }
+                    mStations->push_back(std::move(newStat));
+                }
 
-                    if (layer) {
-                        unsigned int layType = nswId.get_identifier32().get_compact();
-                        layer->setLayerType(layType);
+                if (nClones == 16) {  // have to mirror stations as well
+                    Amg::Transform3D ntransf(Amg::AngleAxis3D(M_PI, Amg::Vector3D(1., 0., 0.)));
+                    std::unique_ptr<const Trk::DetachedTrackingVolume> mtypeL{typeLptr->clone("NSWL", ntransf)};
+                    ATH_MSG_DEBUG("cloned 2 NSWL station mtypeL :" << mtypeL->trackingVolume()->center());
+                    // recalculate identifier
+                    const std::vector<const Trk::Layer*>* lays = mtypeL->trackingVolume()->confinedArbitraryLayers();
+                    for (unsigned int il = 0; il < lays->size(); il++) {
+                        int iType = (*lays)[il]->layerType();
+                        if (iType != 0) {
+                            Identifier id(iType);
+                            Identifier nid(0);
+                            if (m_idHelperSvc->issTgc(id)) {
+                                nid = m_idHelperSvc->stgcIdHelper().channelID(
+                                    m_idHelperSvc->stgcIdHelper().stationName(id), -m_idHelperSvc->stgcIdHelper().stationEta(id),
+                                    m_idHelperSvc->stgcIdHelper().stationPhi(id), m_idHelperSvc->stgcIdHelper().multilayer(id),
+                                    m_idHelperSvc->stgcIdHelper().gasGap(id), 1, 1);
+                            } else if (m_idHelperSvc->isMM(id)) {
+                                nid = m_idHelperSvc->mmIdHelper().channelID(
+                                    m_idHelperSvc->mmIdHelper().stationName(id), -m_idHelperSvc->mmIdHelper().stationEta(id),
+                                    m_idHelperSvc->mmIdHelper().stationPhi(id), m_idHelperSvc->mmIdHelper().multilayer(id),
+                                    m_idHelperSvc->mmIdHelper().gasGap(id), 1);
+                            }
 
-                        if (isLargeSector)
-                            sectorL.push_back(layer);
-                        else
-                            sectorS.push_back(layer);
-                        if (isLargeSector)
-                            ATH_MSG_INFO("new NSW prototype build for Large sector: "
-                                         << protoName << ", " << vols[ish].second.size() << " x0 "
-                                         << mat.fullMaterial(layTransf.translation())->x0() << " thickness "
-                                         << (mat.fullMaterial(layTransf.translation()))->thickness());
-                        if (!isLargeSector)
-                            ATH_MSG_INFO("new NSW prototype build for Large sector: "
-                                         << protoName << ", " << vols[ish].second.size() << " x0 "
-                                         << mat.fullMaterial(layTransf.translation())->x0() << " thickness "
-                                         << (mat.fullMaterial(layTransf.translation()))->thickness());
-                    } else {
-                        ATH_MSG_DEBUG(" NO layer build for: " << protoName);
+                            unsigned int nType = nid.get_identifier32().get_compact();
+                            (*lays)[il]->setLayerType(nType);
+                        }
                     }
-                }  // end new object
-
-                // create station prototypes
-                const Trk::TrackingVolume* newTypeL = m_muonStationTypeBuilder->processNSW(muonMgr, sectorL);
-                // create layer representation
-                std::pair<const Trk::Layer*, const std::vector<const Trk::Layer*>*> layerReprL =
-                    m_muonStationTypeBuilder->createLayerRepresentation(newTypeL);
-                // create prototype as detached tracking volume
-                std::unique_ptr<const Trk::DetachedTrackingVolume> typeL{
-                    newTypeL ? new Trk::DetachedTrackingVolume("NSWL", newTypeL, layerReprL.first, layerReprL.second) : nullptr};
-                // objs.push_back(std::pair<const Trk::DetachedTrackingVolume*,std::vector<Amg::Transform3D> >(typeStat,vols[ish].second));
-                const Trk::TrackingVolume* newTypeS = m_muonStationTypeBuilder->processNSW(muonMgr, sectorS);
-                // create layer representation
-                std::pair<const Trk::Layer*, const std::vector<const Trk::Layer*>*> layerReprS =
-                    m_muonStationTypeBuilder->createLayerRepresentation(newTypeS);
-
-                std::unique_ptr<const Trk::DetachedTrackingVolume> typeS{
-                    newTypeS ? new Trk::DetachedTrackingVolume("NSWS", newTypeS, layerReprS.first, layerReprS.second) : nullptr};
-
-                if (typeL) {
-                    auto typeLptr = typeL.get();
-                    mStations->push_back(std::move(typeL));
-
-                    for (int it = 1; it < 8; it++) {
+                    auto mtypeLptr = mtypeL.get();
+                    mStations->push_back(std::move(mtypeL));
+                    for (unsigned int it = 1; it < 8; it++) {
                         // clone station from prototype :: CHECK z<0 side, probably turns in wrong direction
                         Amg::Transform3D ntransf(Amg::AngleAxis3D(it * 0.25 * M_PI, Amg::Vector3D(0., 0., 1.)));
-                        std::unique_ptr<const Trk::DetachedTrackingVolume> newStat{typeLptr->clone("NSWL", ntransf)};
-                        ATH_MSG_DEBUG("cloned 1 NSWL station:" << newStat->trackingVolume()->center());
-                        // no detailed identification of NSW layer representation
+                        std::unique_ptr<const Trk::DetachedTrackingVolume> newStat{mtypeLptr->clone("NSWL", ntransf)};
+                        ATH_MSG_DEBUG("cloned NSWL station:" << newStat->trackingVolume()->center());
+                        // recalculate identifiers
                         const std::vector<const Trk::Layer*>* lays = newStat->trackingVolume()->confinedArbitraryLayers();
                         for (unsigned int il = 0; il < lays->size(); il++) {
                             int iType = (*lays)[il]->layerType();
@@ -338,77 +396,80 @@ Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& c
                         }
                         mStations->push_back(std::move(newStat));
                     }
+                }
+            }
 
-                    if (nClones == 16) {  // have to mirror stations as well
-                        Amg::Transform3D ntransf(Amg::AngleAxis3D(M_PI, Amg::Vector3D(1., 0., 0.)));
-                        std::unique_ptr<const Trk::DetachedTrackingVolume> mtypeL{typeLptr->clone("NSWL", ntransf)};
-                        ATH_MSG_DEBUG("cloned 2 NSWL station mtypeL :" << mtypeL->trackingVolume()->center());
-                        // recalculate identifier
-                        const std::vector<const Trk::Layer*>* lays = mtypeL->trackingVolume()->confinedArbitraryLayers();
-                        for (unsigned int il = 0; il < lays->size(); il++) {
-                            int iType = (*lays)[il]->layerType();
-                            if (iType != 0) {
-                                Identifier id(iType);
-                                Identifier nid(0);
-                                if (m_idHelperSvc->issTgc(id)) {
-                                    nid = m_idHelperSvc->stgcIdHelper().channelID(
-                                        m_idHelperSvc->stgcIdHelper().stationName(id), -m_idHelperSvc->stgcIdHelper().stationEta(id),
-                                        m_idHelperSvc->stgcIdHelper().stationPhi(id), m_idHelperSvc->stgcIdHelper().multilayer(id),
-                                        m_idHelperSvc->stgcIdHelper().gasGap(id), 1, 1);
-                                } else if (m_idHelperSvc->isMM(id)) {
-                                    nid = m_idHelperSvc->mmIdHelper().channelID(
-                                        m_idHelperSvc->mmIdHelper().stationName(id), -m_idHelperSvc->mmIdHelper().stationEta(id),
-                                        m_idHelperSvc->mmIdHelper().stationPhi(id), m_idHelperSvc->mmIdHelper().multilayer(id),
-                                        m_idHelperSvc->mmIdHelper().gasGap(id), 1);
-                                }
+            if (typeS) {
+                auto typeSptr = typeS.get();
+                mStations->push_back(std::move(typeS));
 
-                                unsigned int nType = nid.get_identifier32().get_compact();
-                                (*lays)[il]->setLayerType(nType);
+                for (unsigned int it = 1; it < 8; it++) {
+                    // clone station from prototype
+                    Amg::Transform3D ntransf(Amg::AngleAxis3D(it * 0.25 * M_PI, Amg::Vector3D(0., 0., 1.)));
+                    std::unique_ptr<const Trk::DetachedTrackingVolume> newStat{typeSptr->clone("NSWS", ntransf)};
+                    ATH_MSG_DEBUG("cloned NSWS station:" << newStat->trackingVolume()->center());
+                    // recalculate identifiers
+                    const std::vector<const Trk::Layer*>* lays = newStat->trackingVolume()->confinedArbitraryLayers();
+                    for (unsigned int il = 0; il < lays->size(); il++) {
+                        int iType = (*lays)[il]->layerType();
+                        if (iType != 0) {
+                            Identifier id(iType);
+                            Identifier nid(0);
+                            if (m_idHelperSvc->issTgc(id)) {
+                                nid = m_idHelperSvc->stgcIdHelper().channelID(
+                                    m_idHelperSvc->stgcIdHelper().stationName(id), m_idHelperSvc->stgcIdHelper().stationEta(id),
+                                    m_idHelperSvc->stgcIdHelper().stationPhi(id) + it, m_idHelperSvc->stgcIdHelper().multilayer(id),
+                                    m_idHelperSvc->stgcIdHelper().gasGap(id), 1, 1);
+                            } else if (m_idHelperSvc->isMM(id)) {
+                                nid = m_idHelperSvc->mmIdHelper().channelID(
+                                    m_idHelperSvc->mmIdHelper().stationName(id), m_idHelperSvc->mmIdHelper().stationEta(id),
+                                    m_idHelperSvc->mmIdHelper().stationPhi(id) + it, m_idHelperSvc->mmIdHelper().multilayer(id),
+                                    m_idHelperSvc->mmIdHelper().gasGap(id), 1);
                             }
-                        }
-                        auto mtypeLptr = mtypeL.get();
-                        mStations->push_back(std::move(mtypeL));
-                        for (unsigned int it = 1; it < 8; it++) {
-                            // clone station from prototype :: CHECK z<0 side, probably turns in wrong direction
-                            Amg::Transform3D ntransf(Amg::AngleAxis3D(it * 0.25 * M_PI, Amg::Vector3D(0., 0., 1.)));
-                            std::unique_ptr<const Trk::DetachedTrackingVolume> newStat{mtypeLptr->clone("NSWL", ntransf)};
-                            ATH_MSG_DEBUG("cloned NSWL station:" << newStat->trackingVolume()->center());
-                            // recalculate identifiers
-                            const std::vector<const Trk::Layer*>* lays = newStat->trackingVolume()->confinedArbitraryLayers();
-                            for (unsigned int il = 0; il < lays->size(); il++) {
-                                int iType = (*lays)[il]->layerType();
-                                if (iType != 0) {
-                                    Identifier id(iType);
-                                    Identifier nid(0);
-                                    if (m_idHelperSvc->issTgc(id)) {
-                                        nid = m_idHelperSvc->stgcIdHelper().channelID(
-                                            m_idHelperSvc->stgcIdHelper().stationName(id), m_idHelperSvc->stgcIdHelper().stationEta(id),
-                                            m_idHelperSvc->stgcIdHelper().stationPhi(id) + it, m_idHelperSvc->stgcIdHelper().multilayer(id),
-                                            m_idHelperSvc->stgcIdHelper().gasGap(id), 1, 1);
-                                    } else if (m_idHelperSvc->isMM(id)) {
-                                        nid = m_idHelperSvc->mmIdHelper().channelID(
-                                            m_idHelperSvc->mmIdHelper().stationName(id), m_idHelperSvc->mmIdHelper().stationEta(id),
-                                            m_idHelperSvc->mmIdHelper().stationPhi(id) + it, m_idHelperSvc->mmIdHelper().multilayer(id),
-                                            m_idHelperSvc->mmIdHelper().gasGap(id), 1);
-                                    }
 
-                                    unsigned int nType = nid.get_identifier32().get_compact();
-                                    (*lays)[il]->setLayerType(nType);
-                                }
-                            }
-                            mStations->push_back(std::move(newStat));
+                            unsigned int nType = nid.get_identifier32().get_compact();
+                            (*lays)[il]->setLayerType(nType);
                         }
                     }
+                    mStations->push_back(std::move(newStat));
                 }
 
-                if (typeS) {
-                    auto typeSptr = typeS.get();
-                    mStations->push_back(std::move(typeS));
+                if (nClones == 16) {  // have to mirror stations as well
+                    double phiS = typeSptr->trackingVolume()->center().phi();
+                    Amg::Transform3D ntransf(Amg::AngleAxis3D(+phiS, Amg::Vector3D(0., 0., 1.)) *
+                                             Amg::AngleAxis3D(+M_PI, Amg::Vector3D(1., 0., 0.)) *
+                                             Amg::AngleAxis3D(-phiS, Amg::Vector3D(0., 0., 1.)));
+                    std::unique_ptr<const Trk::DetachedTrackingVolume> mtypeS{typeSptr->clone("NSWL", ntransf)};
+                    ATH_MSG_DEBUG("cloned NSWS station:" << mtypeS->trackingVolume()->center());
+                    // recalculate identifiers
+                    const std::vector<const Trk::Layer*>* lays = mtypeS->trackingVolume()->confinedArbitraryLayers();
+                    for (unsigned int il = 0; il < lays->size(); il++) {
+                        int iType = (*lays)[il]->layerType();
+                        if (iType != 0) {
+                            Identifier id(iType);
+                            Identifier nid(0);
+                            if (m_idHelperSvc->issTgc(id)) {
+                                nid = m_idHelperSvc->stgcIdHelper().channelID(
+                                    m_idHelperSvc->stgcIdHelper().stationName(id), -m_idHelperSvc->stgcIdHelper().stationEta(id),
+                                    m_idHelperSvc->stgcIdHelper().stationPhi(id), m_idHelperSvc->stgcIdHelper().multilayer(id),
+                                    m_idHelperSvc->stgcIdHelper().gasGap(id), 1, 1);
+                            } else if (m_idHelperSvc->isMM(id)) {
+                                nid = m_idHelperSvc->mmIdHelper().channelID(
+                                    m_idHelperSvc->mmIdHelper().stationName(id), -m_idHelperSvc->mmIdHelper().stationEta(id),
+                                    m_idHelperSvc->mmIdHelper().stationPhi(id), m_idHelperSvc->mmIdHelper().multilayer(id),
+                                    m_idHelperSvc->mmIdHelper().gasGap(id), 1);
+                            }
 
+                            unsigned int nType = nid.get_identifier32().get_compact();
+                            (*lays)[il]->setLayerType(nType);
+                        }
+                    }
+                    auto mtypeSptr = mtypeS.get();
+                    mStations->push_back(std::move(mtypeS));
                     for (unsigned int it = 1; it < 8; it++) {
-                        // clone station from prototype
+                        // clone station from prototype :: CHECK z<0 side, probably turns in wrong direction
                         Amg::Transform3D ntransf(Amg::AngleAxis3D(it * 0.25 * M_PI, Amg::Vector3D(0., 0., 1.)));
-                        std::unique_ptr<const Trk::DetachedTrackingVolume> newStat{typeSptr->clone("NSWS", ntransf)};
+                        std::unique_ptr<const Trk::DetachedTrackingVolume> newStat{mtypeSptr->clone("NSWL", ntransf)};
                         ATH_MSG_DEBUG("cloned NSWS station:" << newStat->trackingVolume()->center());
                         // recalculate identifiers
                         const std::vector<const Trk::Layer*>* lays = newStat->trackingVolume()->confinedArbitraryLayers();
@@ -435,192 +496,128 @@ Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& c
                         }
                         mStations->push_back(std::move(newStat));
                     }
-
-                    if (nClones == 16) {  // have to mirror stations as well
-                        double phiS = typeSptr->trackingVolume()->center().phi();
-                        Amg::Transform3D ntransf(Amg::AngleAxis3D(+phiS, Amg::Vector3D(0., 0., 1.)) *
-                                                 Amg::AngleAxis3D(+M_PI, Amg::Vector3D(1., 0., 0.)) *
-                                                 Amg::AngleAxis3D(-phiS, Amg::Vector3D(0., 0., 1.)));
-                        std::unique_ptr<const Trk::DetachedTrackingVolume> mtypeS{typeSptr->clone("NSWL", ntransf)};
-                        ATH_MSG_DEBUG("cloned NSWS station:" << mtypeS->trackingVolume()->center());
-                        // recalculate identifiers
-                        const std::vector<const Trk::Layer*>* lays = mtypeS->trackingVolume()->confinedArbitraryLayers();
-                        for (unsigned int il = 0; il < lays->size(); il++) {
-                            int iType = (*lays)[il]->layerType();
-                            if (iType != 0) {
-                                Identifier id(iType);
-                                Identifier nid(0);
-                                if (m_idHelperSvc->issTgc(id)) {
-                                    nid = m_idHelperSvc->stgcIdHelper().channelID(
-                                        m_idHelperSvc->stgcIdHelper().stationName(id), -m_idHelperSvc->stgcIdHelper().stationEta(id),
-                                        m_idHelperSvc->stgcIdHelper().stationPhi(id), m_idHelperSvc->stgcIdHelper().multilayer(id),
-                                        m_idHelperSvc->stgcIdHelper().gasGap(id), 1, 1);
-                                } else if (m_idHelperSvc->isMM(id)) {
-                                    nid = m_idHelperSvc->mmIdHelper().channelID(
-                                        m_idHelperSvc->mmIdHelper().stationName(id), -m_idHelperSvc->mmIdHelper().stationEta(id),
-                                        m_idHelperSvc->mmIdHelper().stationPhi(id), m_idHelperSvc->mmIdHelper().multilayer(id),
-                                        m_idHelperSvc->mmIdHelper().gasGap(id), 1);
-                                }
-
-                                unsigned int nType = nid.get_identifier32().get_compact();
-                                (*lays)[il]->setLayerType(nType);
-                            }
-                        }
-                        auto mtypeSptr = mtypeS.get();
-                        mStations->push_back(std::move(mtypeS));
-                        for (unsigned int it = 1; it < 8; it++) {
-                            // clone station from prototype :: CHECK z<0 side, probably turns in wrong direction
-                            Amg::Transform3D ntransf(Amg::AngleAxis3D(it * 0.25 * M_PI, Amg::Vector3D(0., 0., 1.)));
-                            std::unique_ptr<const Trk::DetachedTrackingVolume> newStat{mtypeSptr->clone("NSWL", ntransf)};
-                            ATH_MSG_DEBUG("cloned NSWS station:" << newStat->trackingVolume()->center());
-                            // recalculate identifiers
-                            const std::vector<const Trk::Layer*>* lays = newStat->trackingVolume()->confinedArbitraryLayers();
-                            for (unsigned int il = 0; il < lays->size(); il++) {
-                                int iType = (*lays)[il]->layerType();
-                                if (iType != 0) {
-                                    Identifier id(iType);
-                                    Identifier nid(0);
-                                    if (m_idHelperSvc->issTgc(id)) {
-                                        nid = m_idHelperSvc->stgcIdHelper().channelID(
-                                            m_idHelperSvc->stgcIdHelper().stationName(id), m_idHelperSvc->stgcIdHelper().stationEta(id),
-                                            m_idHelperSvc->stgcIdHelper().stationPhi(id) + it, m_idHelperSvc->stgcIdHelper().multilayer(id),
-                                            m_idHelperSvc->stgcIdHelper().gasGap(id), 1, 1);
-                                    } else if (m_idHelperSvc->isMM(id)) {
-                                        nid = m_idHelperSvc->mmIdHelper().channelID(
-                                            m_idHelperSvc->mmIdHelper().stationName(id), m_idHelperSvc->mmIdHelper().stationEta(id),
-                                            m_idHelperSvc->mmIdHelper().stationPhi(id) + it, m_idHelperSvc->mmIdHelper().multilayer(id),
-                                            m_idHelperSvc->mmIdHelper().gasGap(id), 1);
-                                    }
-
-                                    unsigned int nType = nid.get_identifier32().get_compact();
-                                    (*lays)[il]->setLayerType(nType);
-                                }
-                            }
-                            mStations->push_back(std::move(newStat));
-                        }
-                    }
                 }
-
-            }  // end NSW!
-
-            if (vname.size() > 7 && vname.substr(vname.size() - 7, 7) == "Station" &&
-                ((m_buildBarrel && vname.substr(0, 1) == "B") || (m_buildEndcap && vname.substr(0, 1) == "E") ||
-                 (m_buildCsc && vname.substr(0, 1) == "C") || (m_buildTgc && vname.substr(0, 1) == "T"))) {
-                int etaphi = vol.getId();  // retrive eta/phi indexes
-                int sign = (etaphi < 0) ? -1 : 1;
-                etaphi = sign * etaphi;
-                int is_mirr = etaphi / 1000;
-                etaphi = etaphi - is_mirr * 1000;
-                int eta = etaphi / 100;
-                int phi = etaphi - eta * 100;
-                eta = eta * sign;
-                const MuonGM::MuonStation* gmStation = muonMgr->getMuonStation(vname.substr(0, 3), eta, phi);
-                // try to retrieve
-                if (!gmStation) { gmStation = muonMgr->getMuonStation(vname.substr(0, 4), eta, phi); }
-                // assembly ?
-                if (!gmStation) {
-                    int etaphi = vol.getId();  // retrieve eta/phi indexes
-                    int a_etaphi = static_cast<int>(etaphi / 100000);
-                    int sideC = static_cast<int>(a_etaphi / 10000);
-                    a_etaphi -= sideC * 10000;
-                    is_mirr = static_cast<int>(a_etaphi / 1000);
-                    a_etaphi -= is_mirr * 1000;
-                    eta = static_cast<int>(a_etaphi / 100);
-                    phi = a_etaphi - eta * 100;
-                    if (sideC) eta *= -1;
-                    gmStation = muonMgr->getMuonStation(vname.substr(0, 3), eta, phi);
-                }
-                //
-                if (!gmStation) ATH_MSG_WARNING("Muon station not found! " << vname << "," << eta << "," << phi);
-                std::string stName = (clv->getName()).substr(0, vname.size() - 8);
-                if (stName.substr(0, 1) == "B" && eta < 0) { stName = (clv->getName()).substr(0, vname.size() - 8) + "-"; }
-                if (stName.substr(0, 1) == "T" || stName.substr(0, 1) == "C") { stName = vname.substr(0, 4); }
-                // loop over prototypes
-                const Trk::DetachedTrackingVolume* msTV = 0;
-                for (msTypeIter = msTypes->begin(); msTypeIter != msTypes->end(); ++msTypeIter) {
-                    std::string msTypeName = (*msTypeIter)->name();
-                    if ((stName.substr(0, 1) == "T" && stName == msTypeName.substr(0, stName.size())) ||
-                        (stName.substr(0, 1) != "T" && stName == msTypeName)) {
-                        msTV = *msTypeIter;
-                        if (msTV && gmStation) {
-                            Amg::Transform3D transf = Amg::CLHEPTransformToEigen(gmStation->getTransform());
-                            Identifier stId(0);
-                            if (m_idHelperSvc->hasCSC() && stName.substr(0, 1) == "C") {
-                                stId = m_idHelperSvc->cscIdHelper().elementID(vname.substr(0, 3), eta, phi);
-                            }
-                            // adjust eta,phi
-                            if (msTypeName.substr(0, 1) == "C") {
-                                eta = 1;
-                                if (transf.translation().z() < 0) eta = 0;
-                                double phic = transf.translation().phi() + 0.1;
-                                phi = static_cast<int>(phic < 0 ? 4 * phic / M_PI + 8 : 4 * phic / M_PI);
-                            }
-                            if (msTypeName.substr(0, 1) == "T") {
-                                bool az = true;
-                                std::string msName = msTV->trackingVolume()->volumeName();
-                                if (transf.translation().z() < 0) az = false;
-                                if (msName.substr(7, 2) == "01") eta = az ? 5 : 4;
-                                if (msName.substr(7, 2) == "02") eta = az ? 5 : 4;
-                                if (msName.substr(7, 2) == "03") eta = az ? 6 : 3;
-                                if (msName.substr(7, 2) == "04") eta = az ? 7 : 2;
-                                if (msName.substr(7, 2) == "05") eta = az ? 8 : 1;
-                                if (msName.substr(7, 2) == "06") eta = az ? 5 : 4;
-                                if (msName.substr(7, 2) == "07") eta = az ? 5 : 4;
-                                if (msName.substr(7, 2) == "08") eta = az ? 6 : 3;
-                                if (msName.substr(7, 2) == "09") eta = az ? 7 : 2;
-                                if (msName.substr(7, 2) == "10") eta = az ? 8 : 1;
-                                if (msName.substr(7, 2) == "11") eta = az ? 9 : 0;
-                                if (msName.substr(7, 2) == "12") eta = az ? 5 : 4;
-                                if (msName.substr(7, 2) == "13") eta = az ? 5 : 4;
-                                if (msName.substr(7, 2) == "14") eta = az ? 6 : 3;
-                                if (msName.substr(7, 2) == "15") eta = az ? 7 : 2;
-                                if (msName.substr(7, 2) == "16") eta = az ? 8 : 1;
-                                if (msName.substr(7, 2) == "17") eta = az ? 9 : 0;
-                                if (msName.substr(7, 2) == "18") eta = az ? 5 : 4;
-                                if (msName.substr(7, 2) == "19") eta = az ? 5 : 4;
-                                if (msName.substr(7, 2) == "20") eta = az ? 5 : 4;
-                                if (msName.substr(7, 2) == "21") eta = az ? 5 : 4;
-                                if (msName.substr(7, 2) == "22") eta = az ? 5 : 4;
-                            }
-                            if (m_idHelperSvc->hasTGC() && stName.substr(0, 1) == "T") {
-                                int etaSt = eta - 4;
-                                if (eta < 5) etaSt = eta - 5;
-                                double phic = transf.translation().phi();
-                                if (msTypeName.substr(2, 1) == "E" && msTypeName.substr(0, 3) != "T4E")
-                                    phi = static_cast<int>(phic < 0 ? 24 * phic / M_PI + 48 : 24 * phic / M_PI);
-                                else
-                                    phi = static_cast<int>(phic < 0 ? 12 * phic / M_PI + 24 : 12 * phic / M_PI);
-                                phi++;
-                                stId = m_idHelperSvc->tgcIdHelper().elementID(vname.substr(0, 3), etaSt, phi);
-                            } else if (m_idHelperSvc->hasRPC() && stName.substr(0, 3) == "BML") {
-                                stId = m_idHelperSvc->rpcIdHelper().elementID(vname.substr(0, 3), eta, phi, 1);
-                            } else if (m_idHelperSvc->hasMDT() && stName.substr(0, 1) != "C") {
-                                stId = m_idHelperSvc->mdtIdHelper().elementID(vname.substr(0, 3), eta, phi);
-                            }
-                            if (!(stId.get_compact()))
-                                ATH_MSG_WARNING("identifier of the station not found:" << vname << "," << eta << "," << phi);
-                            unsigned int iD = stId.get_identifier32().get_compact();
-                            // clone station from prototype
-                            std::unique_ptr<const Trk::DetachedTrackingVolume> newStat{msTV->clone(vname, transf)};
-                            // identify layer representation
-                            newStat->layerRepresentation()->setLayerType(iD);
-                            // resolved stations only:
-                            // glue components
-                            glueComponents(newStat.get());
-                            // identify layers
-                            identifyLayers(newStat.get(), eta, phi, muonMgr);
-                            mStations->push_back(std::move(newStat));
-                        }
-                    }
-                }
-                if (!msTV) ATH_MSG_DEBUG(name() << " this station has no prototype: " << vname);
             }
-            vol.next();
+
+        }  // end NSW!
+
+        if (vname.size() > 7 && vname.substr(vname.size() - 7, 7) == "Station" &&
+            ((m_buildBarrel && vname.substr(0, 1) == "B") || (m_buildEndcap && vname.substr(0, 1) == "E") ||
+             (m_buildCsc && vname.substr(0, 1) == "C") || (m_buildTgc && vname.substr(0, 1) == "T"))) {
+            int etaphi = vol.getId();  // retrive eta/phi indexes
+            int sign = (etaphi < 0) ? -1 : 1;
+            etaphi = sign * etaphi;
+            int is_mirr = etaphi / 1000;
+            etaphi = etaphi - is_mirr * 1000;
+            int eta = etaphi / 100;
+            int phi = etaphi - eta * 100;
+            eta = eta * sign;
+            const MuonGM::MuonStation* gmStation = muonMgr->getMuonStation(vname.substr(0, 3), eta, phi);
+            // try to retrieve
+            if (!gmStation) { gmStation = muonMgr->getMuonStation(vname.substr(0, 4), eta, phi); }
+            // assembly ?
+            if (!gmStation) {
+                int etaphi = vol.getId();  // retrieve eta/phi indexes
+                int a_etaphi = static_cast<int>(etaphi / 100000);
+                int sideC = static_cast<int>(a_etaphi / 10000);
+                a_etaphi -= sideC * 10000;
+                is_mirr = static_cast<int>(a_etaphi / 1000);
+                a_etaphi -= is_mirr * 1000;
+                eta = static_cast<int>(a_etaphi / 100);
+                phi = a_etaphi - eta * 100;
+                if (sideC) eta *= -1;
+                gmStation = muonMgr->getMuonStation(vname.substr(0, 3), eta, phi);
+            }
+            //
+            if (!gmStation) ATH_MSG_WARNING("Muon station not found! " << vname << "," << eta << "," << phi);
+            std::string stName = (clv->getName()).substr(0, vname.size() - 8);
+            if (stName.substr(0, 1) == "B" && eta < 0) { stName = (clv->getName()).substr(0, vname.size() - 8) + "-"; }
+            if (stName.substr(0, 1) == "T" || stName.substr(0, 1) == "C") { stName = vname.substr(0, 4); }
+            // loop over prototypes
+            const Trk::DetachedTrackingVolume* msTV = 0;
+            for (msTypeIter = msTypes->begin(); msTypeIter != msTypes->end(); ++msTypeIter) {
+                std::string msTypeName = (*msTypeIter)->name();
+                if ((stName.substr(0, 1) == "T" && stName == msTypeName.substr(0, stName.size())) ||
+                    (stName.substr(0, 1) != "T" && stName == msTypeName)) {
+                    msTV = *msTypeIter;
+                    if (msTV && gmStation) {
+                        Amg::Transform3D transf = Amg::CLHEPTransformToEigen(gmStation->getTransform());
+                        Identifier stId(0);
+                        if (m_idHelperSvc->hasCSC() && stName.substr(0, 1) == "C") {
+                            stId = m_idHelperSvc->cscIdHelper().elementID(vname.substr(0, 3), eta, phi);
+                        }
+                        // adjust eta,phi
+                        if (msTypeName.substr(0, 1) == "C") {
+                            eta = 1;
+                            if (transf.translation().z() < 0) eta = 0;
+                            double phic = transf.translation().phi() + 0.1;
+                            phi = static_cast<int>(phic < 0 ? 4 * phic / M_PI + 8 : 4 * phic / M_PI);
+                        }
+                        if (msTypeName.substr(0, 1) == "T") {
+                            bool az = true;
+                            std::string msName = msTV->trackingVolume()->volumeName();
+                            if (transf.translation().z() < 0) az = false;
+                            if (msName.substr(7, 2) == "01") eta = az ? 5 : 4;
+                            if (msName.substr(7, 2) == "02") eta = az ? 5 : 4;
+                            if (msName.substr(7, 2) == "03") eta = az ? 6 : 3;
+                            if (msName.substr(7, 2) == "04") eta = az ? 7 : 2;
+                            if (msName.substr(7, 2) == "05") eta = az ? 8 : 1;
+                            if (msName.substr(7, 2) == "06") eta = az ? 5 : 4;
+                            if (msName.substr(7, 2) == "07") eta = az ? 5 : 4;
+                            if (msName.substr(7, 2) == "08") eta = az ? 6 : 3;
+                            if (msName.substr(7, 2) == "09") eta = az ? 7 : 2;
+                            if (msName.substr(7, 2) == "10") eta = az ? 8 : 1;
+                            if (msName.substr(7, 2) == "11") eta = az ? 9 : 0;
+                            if (msName.substr(7, 2) == "12") eta = az ? 5 : 4;
+                            if (msName.substr(7, 2) == "13") eta = az ? 5 : 4;
+                            if (msName.substr(7, 2) == "14") eta = az ? 6 : 3;
+                            if (msName.substr(7, 2) == "15") eta = az ? 7 : 2;
+                            if (msName.substr(7, 2) == "16") eta = az ? 8 : 1;
+                            if (msName.substr(7, 2) == "17") eta = az ? 9 : 0;
+                            if (msName.substr(7, 2) == "18") eta = az ? 5 : 4;
+                            if (msName.substr(7, 2) == "19") eta = az ? 5 : 4;
+                            if (msName.substr(7, 2) == "20") eta = az ? 5 : 4;
+                            if (msName.substr(7, 2) == "21") eta = az ? 5 : 4;
+                            if (msName.substr(7, 2) == "22") eta = az ? 5 : 4;
+                        }
+                        if (m_idHelperSvc->hasTGC() && stName.substr(0, 1) == "T") {
+                            int etaSt = eta - 4;
+                            if (eta < 5) etaSt = eta - 5;
+                            double phic = transf.translation().phi();
+                            if (msTypeName.substr(2, 1) == "E" && msTypeName.substr(0, 3) != "T4E")
+                                phi = static_cast<int>(phic < 0 ? 24 * phic / M_PI + 48 : 24 * phic / M_PI);
+                            else
+                                phi = static_cast<int>(phic < 0 ? 12 * phic / M_PI + 24 : 12 * phic / M_PI);
+                            phi++;
+                            stId = m_idHelperSvc->tgcIdHelper().elementID(vname.substr(0, 3), etaSt, phi);
+                        } else if (m_idHelperSvc->hasRPC() && stName.substr(0, 3) == "BML") {
+                            stId = m_idHelperSvc->rpcIdHelper().elementID(vname.substr(0, 3), eta, phi, 1);
+                        } else if (m_idHelperSvc->hasMDT() && stName.substr(0, 1) != "C") {
+                            stId = m_idHelperSvc->mdtIdHelper().elementID(vname.substr(0, 3), eta, phi);
+                        }
+                        if (!(stId.get_compact()))
+                            ATH_MSG_WARNING("identifier of the station not found:" << vname << "," << eta << "," << phi);
+                        unsigned int iD = stId.get_identifier32().get_compact();
+                        // clone station from prototype
+                        std::unique_ptr<const Trk::DetachedTrackingVolume> newStat{msTV->clone(vname, transf)};
+                        // identify layer representation
+                        newStat->layerRepresentation()->setLayerType(iD);
+                        // resolved stations only:
+                        // glue components
+                        glueComponents(newStat.get());
+                        // identify layers
+                        identifyLayers(newStat.get(), eta, phi, muonMgr);
+                        mStations->push_back(std::move(newStat));
+                    }
+                }
+            }
+            if (!msTV) ATH_MSG_DEBUG(name() << " this station has no prototype: " << vname);
         }
-        // clean up prototypes
-        for (unsigned int it = 0; it < msTypes->size(); it++) delete (*msTypes)[it];
-        delete msTypes;
-    
+        vol.next();
+    }
+    // clean up prototypes
+    for (unsigned int it = 0; it < msTypes->size(); it++) delete (*msTypes)[it];
+    delete msTypes;
 
     ATH_MSG_INFO(name() << "returns " << (*mStations).size() << " stations");
     return std::make_pair(range, std::move(mStations));
@@ -730,7 +727,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilderC
                         }
                         const GeoTrd* trd = dynamic_cast<const GeoTrd*>(shapeS);
 
-                        double halfX1  {0.}, halfX2{0.}, halfY1 {0.}, halfY2{0.}, halfZ{0.};
+                        double halfX1{0.}, halfX2{0.}, halfY1{0.}, halfY2{0.}, halfZ{0.};
                         if (trd) {
                             //
                             halfX1 = trd->getXHalfLength1();

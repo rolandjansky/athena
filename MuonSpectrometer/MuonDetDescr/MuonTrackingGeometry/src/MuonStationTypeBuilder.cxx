@@ -1363,7 +1363,7 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processSpacer(Trk::Volu
 }
 
 const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processNSW(const MuonGM::MuonDetectorManager* muonDetMgr,
-                                                            const std::vector<const Trk::Layer*>& layers) const {
+                                                                    const std::vector<const Trk::Layer*>& layers) const {
     ATH_MSG_DEBUG(name() << " processing NSW station components " << layers.size());
     ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1374,7 +1374,7 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processNSW(const MuonGM
     Amg::Transform3D transf = layers[0]->surfaceRepresentation().transform();
 
     // loop over layers and retrieve boundaries
-    double zMin {25000.}, zMax{-25000.}, rMin{13000.}, rMed{0.}, rMax{0.}, hMin{0.}, hMed {0.}, hMax{0.};
+    double zMin{25000.}, zMax{-25000.}, rMin{13000.}, rMed{0.}, rMax{0.}, hMin{0.}, hMed{0.}, hMax{0.};
 
     for (unsigned int il = 0; il < layers.size(); il++) {
         zMin = fmin(zMin, (layers[il]->surfaceRepresentation().center().z()) - 0.5 * layers[il]->thickness());
@@ -1440,7 +1440,7 @@ Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processCscStation(const GeoVP
     //   has to be derived from the component volume shape and component
     //   displacement
     bool isDiamond = false;
-    double xMin {0.}, xMed {0.}, xMax {0}, y1{0.}, y2{0}, z{0.};
+    double xMin{0.}, xMed{0.}, xMax{0}, y1{0.}, y2{0}, z{0.};
     // printChildren(mv);
     // find the shape and dimensions for the first component
     const GeoVPhysVol* cv = &(*(mv->getChildVol(0)));
@@ -2410,8 +2410,8 @@ std::pair<const Trk::Layer*, const std::vector<const Trk::Layer*>*> Muon::MuonSt
     return std::pair<const Trk::Layer*, const std::vector<const Trk::Layer*>*>(layRepr, multi);
 }
 
-Identifier Muon::MuonStationTypeBuilder::identifyNSW(const MuonGM::MuonDetectorManager* muonDetMgr,
-                                                     const std::string& vName, const Amg::Transform3D& transf) const {
+Identifier Muon::MuonStationTypeBuilder::identifyNSW(const MuonGM::MuonDetectorManager* muonDetMgr, const std::string& vName,
+                                                     const Amg::Transform3D& transf) const {
     Identifier id(0);
 
     if ((vName[0] == 'Q') || (vName[0] == 'M')) {  // NSW stations
@@ -2453,9 +2453,8 @@ Identifier Muon::MuonStationTypeBuilder::identifyNSW(const MuonGM::MuonDetectorM
     return id;
 }
 
-const Trk::Layer* Muon::MuonStationTypeBuilder::createLayer(const MuonGM::MuonDetectorManager* muonDetMgr,
-                                                            const Trk::TrackingVolume* trVol, Trk::MaterialProperties* matEx,
-                                                            Amg::Transform3D& transf) const {
+const Trk::Layer* Muon::MuonStationTypeBuilder::createLayer(const MuonGM::MuonDetectorManager* muonDetMgr, const Trk::TrackingVolume* trVol,
+                                                            Trk::MaterialProperties* matEx, Amg::Transform3D& transf) const {
     // identification first
 
     std::string vName = trVol->volumeName().substr(trVol->volumeName().find("-") + 1);

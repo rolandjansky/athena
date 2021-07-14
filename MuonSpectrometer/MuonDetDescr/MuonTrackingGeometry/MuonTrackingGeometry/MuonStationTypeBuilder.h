@@ -97,8 +97,7 @@ namespace Muon {
 
         const Trk::TrackingVolume* processSpacer(Trk::Volume&, std::vector<const GeoVPhysVol*>, std::vector<Amg::Transform3D>) const;
 
-        const Trk::TrackingVolume* processNSW(const MuonGM::MuonDetectorManager* muonDetMgr,
-                                              const std::vector<const Trk::Layer*>&) const;
+        const Trk::TrackingVolume* processNSW(const MuonGM::MuonDetectorManager* muonDetMgr, const std::vector<const Trk::Layer*>&) const;
 
         const Trk::LayerArray* processCSCTrdComponent(const GeoVPhysVol*&, Trk::TrapezoidVolumeBounds*&, Amg::Transform3D*&, Cache&) const;
 
@@ -109,13 +108,11 @@ namespace Muon {
 
         std::pair<const Trk::Layer*, const std::vector<const Trk::Layer*>*> createLayerRepresentation(
             const Trk::TrackingVolume* trVol) const;
-        
-        const Trk::Layer* createLayer(const MuonGM::MuonDetectorManager* detMgr,
-                                      const Trk::TrackingVolume* trVol, 
-                                      Trk::MaterialProperties*, Amg::Transform3D&) const;
-   
-        Identifier identifyNSW(const MuonGM::MuonDetectorManager* muonDetMgr,
-                               const std::string&, const Amg::Transform3D&) const;
+
+        const Trk::Layer* createLayer(const MuonGM::MuonDetectorManager* detMgr, const Trk::TrackingVolume* trVol, Trk::MaterialProperties*,
+                                      Amg::Transform3D&) const;
+
+        Identifier identifyNSW(const MuonGM::MuonDetectorManager* muonDetMgr, const std::string&, const Amg::Transform3D&) const;
 
         void printChildren(const GeoVPhysVol*) const;
         // used to be private ..

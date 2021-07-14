@@ -172,133 +172,132 @@ Muon::MuonInertMaterialBuilder::buildDetachedTrackingVolumeTypes(bool blend) {
     std::vector<std::pair<const Trk::DetachedTrackingVolume*, std::vector<Amg::Transform3D> > > objs;
 
     std::vector<std::string> objName;
-    if (!m_muonMgr){
+    if (!m_muonMgr) {
         ATH_MSG_FATAL("Passive material cannot be built with a detector manager");
         return nullptr;
     }
-        // link to top tree
-        const GeoVPhysVol* top = &(*(m_muonMgr->getTreeTop(0)));
-        GeoVolumeCursor vol(top);
-       
-        while (!vol.atEnd()) {
-            const GeoVPhysVol* cv = &(*(vol.getVolume()));
-            const GeoLogVol* clv = cv->getLogVol();
-            std::string vname = clv->getName();
-            //	if ( vname.size()<8 && vname.substr(0,3)=="NSW" && vname.substr(1,4)=="sTGC" ) {   // do nothing NSW sTGC station
-            //	} else if ( vname.size()<8 && vname.substr(0,3)=="NSW" && vname.substr(1,2)=="MM" ) {   // do nothing NSW MM station
-            //	} else if ( vname.size()>=8 && vname.substr(0,8)=="NewSmall" && vname.substr(1,4)=="sTGC" ) {  // do nothing, probably NSW
-            //station 	} else if ( vname.size()>=8 && vname.substr(0,8)=="NewSmall" && vname.substr(1,2)=="MM" ) {  // do nothing, probably
-            //NSW station
-            if (vname.size() > 7 && vname.substr(vname.size() - 7, 7) == "Station") {  // do nothing, active station
-            } else {
-                // std::cout << " INERT muon object found:" << vname << std::endl;
+    // link to top tree
+    const GeoVPhysVol* top = &(*(m_muonMgr->getTreeTop(0)));
+    GeoVolumeCursor vol(top);
 
-                bool accepted = true;
-                if (vname.substr(0, 3) == "BAR" || vname.substr(0, 2) == "BT" || vname.substr(0, 6) == "EdgeBT" ||
-                    vname.substr(0, 6) == "HeadBT")
-                    accepted = m_buildBT ? true : false;
-                else if (vname.substr(0, 3) == "ECT")
-                    accepted = m_buildECT ? true : false;
-                else if (vname.substr(0, 4) == "Feet" ||
-                         (vname.size() > 7 && (vname.substr(3, 4) == "Feet" || vname.substr(4, 4) == "Feet")))
-                    accepted = m_buildFeets ? true : false;
-                else if (vname.substr(0, 4) == "Rail")
-                    accepted = m_buildRails > 0 ? true : false;
-                else if (vname.substr(0, 1) == "J")
-                    accepted = m_buildShields > 0 ? true : false;
-                // NSW build inertmaterial for spacer frame, aluminium HUB, NJD disk and A plate
-                else if (vname.substr(0, 3) == "NSW" && vname.substr(1, 6) == "Spacer")
-                    accepted = m_buildNSWInert ? true : false;
-                else if (vname.substr(0, 3) == "NSW" && vname.substr(1, 2) == "Al")
-                    accepted = m_buildNSWInert ? true : false;
-                else if (vname.substr(0, 3) == "NJD")
-                    accepted = m_buildNSWInert ? true : false;
-                else if (vname.substr(0, 1) == "A" && vname.substr(1, 5) == "Plate")
-                    accepted = m_buildNSWInert ? true : false;
-                // strange NSW will be anyway build
-                else if (vname.substr(0, 1) != "J")
-                    accepted = m_buildSupports > 0 ? true : false;
+    while (!vol.atEnd()) {
+        const GeoVPhysVol* cv = &(*(vol.getVolume()));
+        const GeoLogVol* clv = cv->getLogVol();
+        std::string vname = clv->getName();
+        //	if ( vname.size()<8 && vname.substr(0,3)=="NSW" && vname.substr(1,4)=="sTGC" ) {   // do nothing NSW sTGC station
+        //	} else if ( vname.size()<8 && vname.substr(0,3)=="NSW" && vname.substr(1,2)=="MM" ) {   // do nothing NSW MM station
+        //	} else if ( vname.size()>=8 && vname.substr(0,8)=="NewSmall" && vname.substr(1,4)=="sTGC" ) {  // do nothing, probably NSW
+        // station 	} else if ( vname.size()>=8 && vname.substr(0,8)=="NewSmall" && vname.substr(1,2)=="MM" ) {  // do nothing, probably
+        // NSW station
+        if (vname.size() > 7 && vname.substr(vname.size() - 7, 7) == "Station") {  // do nothing, active station
+        } else {
+            // std::cout << " INERT muon object found:" << vname << std::endl;
 
-                // if ( vname=="EdgeBTVoussoir" && accepted && m_simplify ) accepted = false;
+            bool accepted = true;
+            if (vname.substr(0, 3) == "BAR" || vname.substr(0, 2) == "BT" || vname.substr(0, 6) == "EdgeBT" ||
+                vname.substr(0, 6) == "HeadBT")
+                accepted = m_buildBT ? true : false;
+            else if (vname.substr(0, 3) == "ECT")
+                accepted = m_buildECT ? true : false;
+            else if (vname.substr(0, 4) == "Feet" || (vname.size() > 7 && (vname.substr(3, 4) == "Feet" || vname.substr(4, 4) == "Feet")))
+                accepted = m_buildFeets ? true : false;
+            else if (vname.substr(0, 4) == "Rail")
+                accepted = m_buildRails > 0 ? true : false;
+            else if (vname.substr(0, 1) == "J")
+                accepted = m_buildShields > 0 ? true : false;
+            // NSW build inertmaterial for spacer frame, aluminium HUB, NJD disk and A plate
+            else if (vname.substr(0, 3) == "NSW" && vname.substr(1, 6) == "Spacer")
+                accepted = m_buildNSWInert ? true : false;
+            else if (vname.substr(0, 3) == "NSW" && vname.substr(1, 2) == "Al")
+                accepted = m_buildNSWInert ? true : false;
+            else if (vname.substr(0, 3) == "NJD")
+                accepted = m_buildNSWInert ? true : false;
+            else if (vname.substr(0, 1) == "A" && vname.substr(1, 5) == "Plate")
+                accepted = m_buildNSWInert ? true : false;
+            // strange NSW will be anyway build
+            else if (vname.substr(0, 1) != "J")
+                accepted = m_buildSupports > 0 ? true : false;
 
-                if (accepted) ATH_MSG_VERBOSE(name() << " INERT muon object found:" << vname);
-                if (accepted) ATH_MSG_VERBOSE(" INERT muon object found and accepted :" << vname);
-                if (!accepted) ATH_MSG_VERBOSE(" INERT muon object found and rejected :" << vname);
+            // if ( vname=="EdgeBTVoussoir" && accepted && m_simplify ) accepted = false;
 
-                if (!accepted) {
-                    vol.next();
-                    continue;
-                }
+            if (accepted) ATH_MSG_VERBOSE(name() << " INERT muon object found:" << vname);
+            if (accepted) ATH_MSG_VERBOSE(" INERT muon object found and accepted :" << vname);
+            if (!accepted) ATH_MSG_VERBOSE(" INERT muon object found and rejected :" << vname);
 
-                // update to accomodate AGDD structures
-
-                if (msg().level() == MSG::VERBOSE) printInfo(cv);
-
-                std::vector<const GeoShape*> input_shapes;
-                std::vector<std::pair<const GeoLogVol*, std::vector<Amg::Transform3D> > > vols;
-
-                bool simpleTree = false;
-                if (!cv->getNChildVols()) {
-                    std::vector<Amg::Transform3D> volTr;
-                    volTr.push_back(vol.getTransform());
-                    vols.push_back(std::pair<const GeoLogVol*, std::vector<Amg::Transform3D> >(clv, volTr));
-                    simpleTree = true;
-                } else {
-                    getObjsForTranslation(cv, Trk::s_idTransform, vols);
-                }
-                input_shapes.resize(vols.size());
-                for (unsigned int i = 0; i < vols.size(); i++) input_shapes[i] = vols[i].first->getShape();
-
-                // reserve m_constituents to avoid having DetachedTrackingVolume.constituents() point to a Vector that was reallocated
-                // meanwhile
-                m_constituents.reserve(vols.size() + 3);
-
-                for (unsigned int ish = 0; ish < vols.size(); ish++) {
-                    std::string protoName = vname;
-                    if (!simpleTree) protoName = vname + (vols[ish].first->getName());
-                    std::string pName = vols[ish].first->getName();
-                    ATH_MSG_VERBOSE(" check in pName " << pName << ", made of " << vols[ish].first->getMaterial()->getName() << " x0 "
-                                                       << vols[ish].first->getMaterial()->getRadLength() << ","
-                                                       << vols[ish].first->getShape()->type());
-                    // if(pName.substr(0,6)=="sTGC_1") continue;
-                    // if(pName.substr(0,4)=="MM_1") continue;
-
-                    bool found = false;
-                    for (unsigned int ip = 0; ip < objs.size(); ip++) {
-                        if (protoName == objs[ip].first->name()) {
-                            found = true;
-                            if (simpleTree) objs[ip].second.push_back(vol.getTransform());
-                            // else objs[ip].second.insert(objs[ip].second.end(),vols[ish].second.begin(),vols[ish].second.end());
-                        }
-                    }
-                    if (found) continue;
-                    // m_geoShapeConverter->decodeShape(input_shapes[ish]);
-                    Amg::Transform3D ident;
-                    ident.setIdentity();
-                    if (msg().level() == MSG::VERBOSE) {
-                        const Trk::Volume* trTest = m_geoShapeConverter->translateGeoShape(input_shapes[ish], &(vols[ish].second[0]));
-                        delete trTest;
-                    }
-                    const Trk::Volume* trObject = m_geoShapeConverter->translateGeoShape(input_shapes[ish], &ident);
-
-                    if (trObject) {
-                        Trk::Material mat = m_materialConverter->convert(vols[ish].first->getMaterial());
-                        const Trk::TrackingVolume* newType = new Trk::TrackingVolume(*trObject, mat, 0, 0, protoName);
-                        const Trk::TrackingVolume* simType = simplifyShape(newType, blend);
-                        const Trk::DetachedTrackingVolume* typeStat = new Trk::DetachedTrackingVolume(protoName, simType);
-                        if (blend) typeStat->saveConstituents(&(m_constituents.back()));
-                        objs.push_back(
-                            std::pair<const Trk::DetachedTrackingVolume*, std::vector<Amg::Transform3D> >(typeStat, vols[ish].second));
-                        delete trObject;
-
-                    } else {
-                        ATH_MSG_WARNING(name() << " volume not translated: " << vname);
-                    }
-                }  // end new object
+            if (!accepted) {
+                vol.next();
+                continue;
             }
-            vol.next();
+
+            // update to accomodate AGDD structures
+
+            if (msg().level() == MSG::VERBOSE) printInfo(cv);
+
+            std::vector<const GeoShape*> input_shapes;
+            std::vector<std::pair<const GeoLogVol*, std::vector<Amg::Transform3D> > > vols;
+
+            bool simpleTree = false;
+            if (!cv->getNChildVols()) {
+                std::vector<Amg::Transform3D> volTr;
+                volTr.push_back(vol.getTransform());
+                vols.push_back(std::pair<const GeoLogVol*, std::vector<Amg::Transform3D> >(clv, volTr));
+                simpleTree = true;
+            } else {
+                getObjsForTranslation(cv, Trk::s_idTransform, vols);
+            }
+            input_shapes.resize(vols.size());
+            for (unsigned int i = 0; i < vols.size(); i++) input_shapes[i] = vols[i].first->getShape();
+
+            // reserve m_constituents to avoid having DetachedTrackingVolume.constituents() point to a Vector that was reallocated
+            // meanwhile
+            m_constituents.reserve(vols.size() + 3);
+
+            for (unsigned int ish = 0; ish < vols.size(); ish++) {
+                std::string protoName = vname;
+                if (!simpleTree) protoName = vname + (vols[ish].first->getName());
+                std::string pName = vols[ish].first->getName();
+                ATH_MSG_VERBOSE(" check in pName " << pName << ", made of " << vols[ish].first->getMaterial()->getName() << " x0 "
+                                                   << vols[ish].first->getMaterial()->getRadLength() << ","
+                                                   << vols[ish].first->getShape()->type());
+                // if(pName.substr(0,6)=="sTGC_1") continue;
+                // if(pName.substr(0,4)=="MM_1") continue;
+
+                bool found = false;
+                for (unsigned int ip = 0; ip < objs.size(); ip++) {
+                    if (protoName == objs[ip].first->name()) {
+                        found = true;
+                        if (simpleTree) objs[ip].second.push_back(vol.getTransform());
+                        // else objs[ip].second.insert(objs[ip].second.end(),vols[ish].second.begin(),vols[ish].second.end());
+                    }
+                }
+                if (found) continue;
+                // m_geoShapeConverter->decodeShape(input_shapes[ish]);
+                Amg::Transform3D ident;
+                ident.setIdentity();
+                if (msg().level() == MSG::VERBOSE) {
+                    const Trk::Volume* trTest = m_geoShapeConverter->translateGeoShape(input_shapes[ish], &(vols[ish].second[0]));
+                    delete trTest;
+                }
+                const Trk::Volume* trObject = m_geoShapeConverter->translateGeoShape(input_shapes[ish], &ident);
+
+                if (trObject) {
+                    Trk::Material mat = m_materialConverter->convert(vols[ish].first->getMaterial());
+                    const Trk::TrackingVolume* newType = new Trk::TrackingVolume(*trObject, mat, 0, 0, protoName);
+                    const Trk::TrackingVolume* simType = simplifyShape(newType, blend);
+                    const Trk::DetachedTrackingVolume* typeStat = new Trk::DetachedTrackingVolume(protoName, simType);
+                    if (blend) typeStat->saveConstituents(&(m_constituents.back()));
+                    objs.push_back(
+                        std::pair<const Trk::DetachedTrackingVolume*, std::vector<Amg::Transform3D> >(typeStat, vols[ish].second));
+                    delete trObject;
+
+                } else {
+                    ATH_MSG_WARNING(name() << " volume not translated: " << vname);
+                }
+            }  // end new object
         }
-    
+        vol.next();
+    }
+
     // add some extra material to the endcap     // ST this should be phased out eventually ?
     if (m_extraMaterial) {
         // scaling
