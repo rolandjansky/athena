@@ -16,12 +16,12 @@
 #include <functional>
 #include <string>
 #include <vector>
-#include <unordered_set>
 
 class StatusCode;
 
 namespace CP
 {
+  class IReentrantSystematicsTool;
   class ISysHandleBase;
   class SystematicSet;
 
@@ -49,7 +49,7 @@ namespace CP
     ///
     /// \pre !isInitialized()
   public:
-    void addHandle (ISysHandleBase& handle);
+    StatusCode addHandle (ISysHandleBase& handle);
 
 
     /// \brief register a set of affecting variables for the current
@@ -60,9 +60,12 @@ namespace CP
     /// handling (or at least as a cross check of those).
     ///
     /// \pre !isInitialized()
+    /// \{
   public:
-    StatusCode addAffectingSystematics
-      (const CP::SystematicSet& affectingSystematics);
+    StatusCode addSystematics (const CP::SystematicSet& recommended,
+                               const CP::SystematicSet& affecting);
+    StatusCode addSystematics (const IReentrantSystematicsTool& tool);
+    /// \}
 
 
     /// \brief intialize this property
@@ -78,9 +81,14 @@ namespace CP
     bool isInitialized () const noexcept;
 
 
+    /// \brief the service we use
+  public:
+    const ISystematicsSvc& service () const;
+
+
     /// \brief the list of systematics to loop over
   public:
-    std::unordered_set<CP::SystematicSet> systematicsVector ();
+    const std::vector<CP::SystematicSet>& systematicsVector () const;
 
 
     /// \brief run the function for each systematic
@@ -103,7 +111,7 @@ namespace CP
     /// \pre isInitialized()
   public:
     StatusCode foreach
-      (const std::function<StatusCode(const CP::SystematicSet&)>& func);
+      (const std::function<StatusCode(const CP::SystematicSet&)>& func) const;
 
 
 
@@ -115,25 +123,24 @@ namespace CP
   private:
     ServiceHandle<ISystematicsSvc> m_systematicsService {"SystematicsSvc", ""};
 
-    /// \brief the regular expression for affecting systematics
-  private:
-    std::string m_affectingRegex {"^$"};
-
-    /// \brief the full affecting systematics including the inputs
-  private:
-    std::string m_fullAffecting;
-
-    /// \brief the cache of affecting filtered systematics
-  private:
-    std::unordered_map<CP::SystematicSet,CP::SystematicSet> m_affectingCache;
-
     /// \brief the list of systematics handles we have
   private:
     std::vector<ISysHandleBase*> m_sysHandles;
 
+    /// \brief this set of affecting systematics
+  private:
+    CP::SystematicSet m_affecting;
+
+    /// \brief the value of \ref systematicsVector
+  private:
+    std::vector<CP::SystematicSet> m_systematicsVector;
+
     /// \brief the value of \ref isInitialized
   private:
     bool m_isInitialized = false;
+
+  private:
+    StatusCode fillSystematicsVector ();
   };
 }
 

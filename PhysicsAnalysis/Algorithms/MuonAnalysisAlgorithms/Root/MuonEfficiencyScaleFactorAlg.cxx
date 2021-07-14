@@ -41,8 +41,12 @@ namespace CP
     }
 
     ANA_CHECK (m_efficiencyScaleFactorTool.retrieve());
-    m_systematicsList.addHandle (m_muonHandle);
-    ANA_CHECK (m_systematicsList.addAffectingSystematics (m_efficiencyScaleFactorTool->affectingSystematics()));
+    ANA_CHECK (m_muonHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_eventInfoHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_scaleFactorDecoration.initialize (m_systematicsList, m_muonHandle, SG::AllowEmpty));
+    ANA_CHECK (m_mcEfficiencyDecoration.initialize (m_systematicsList, m_muonHandle, SG::AllowEmpty));
+    ANA_CHECK (m_dataEfficiencyDecoration.initialize (m_systematicsList, m_muonHandle, SG::AllowEmpty));
+    ANA_CHECK (m_systematicsList.addSystematics (*m_efficiencyScaleFactorTool));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
@@ -55,16 +59,6 @@ namespace CP
   StatusCode MuonEfficiencyScaleFactorAlg ::
   execute ()
   {
-    if (m_scaleFactorDecoration) {
-      ANA_CHECK (m_scaleFactorDecoration.preExecute (m_systematicsList));
-    }
-    if (m_mcEfficiencyDecoration) {
-      ANA_CHECK (m_mcEfficiencyDecoration.preExecute (m_systematicsList));
-    }
-    if (m_dataEfficiencyDecoration) {
-      ANA_CHECK (m_dataEfficiencyDecoration.preExecute (m_systematicsList));
-    }
-
     return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
         ANA_CHECK (m_efficiencyScaleFactorTool->applySystematicVariation (sys));
         xAOD::MuonContainer *muons = nullptr;

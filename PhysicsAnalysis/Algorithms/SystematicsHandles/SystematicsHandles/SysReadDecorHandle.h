@@ -5,14 +5,16 @@
 /// @author Nils Krumnack
 
 
-#ifndef SYSTEMATICS_HANDLES__SYS_READ_HANDLE_H
-#define SYSTEMATICS_HANDLES__SYS_READ_HANDLE_H
+#ifndef SYSTEMATICS_HANDLES__SYS_READ_DECOR_HANDLE_H
+#define SYSTEMATICS_HANDLES__SYS_READ_DECOR_HANDLE_H
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <AsgDataHandles/VarHandleKey.h>
 #include <AsgMessaging/AsgMessagingForward.h>
+#include <AthContainers/AuxElement.h>
 #include <PATInterfaces/SystematicSet.h>
 #include <SystematicsHandles/ISysHandleBase.h>
+#include <SystematicsHandles/SysListHandle.h>
 #include <string>
 #include <type_traits>
 #include <unordered_map>
@@ -21,13 +23,12 @@ class StatusCode;
 
 namespace CP
 {
-  class SysListHandle;
   class SystematicSet;
 
 
   /// \brief a data handle for reading systematics varied input data
 
-  template<typename T> class SysReadHandle final
+  template<typename T> class SysReadDecorHandle final
     : public ISysHandleBase, public asg::AsgMessagingForward
   {
     //
@@ -37,9 +38,9 @@ namespace CP
     /// \brief standard constructor
   public:
     template<typename T2>
-    SysReadHandle (T2 *owner, const std::string& propertyName,
-                   const std::string& propertyValue,
-                   const std::string& propertyDescription);
+    SysReadDecorHandle (T2 *owner, const std::string& propertyName,
+                             const std::string& propertyValue,
+                             const std::string& propertyDescription);
 
 
     /// \brief whether we have a name configured
@@ -51,15 +52,18 @@ namespace CP
     explicit operator bool () const noexcept;
 
     /// \brief get the name pattern before substitution
-  public:
+    ///
+    /// This is not currently defined for decoration handles and made
+    /// private.
+  private:
     virtual std::string getNamePattern () const override;
 
 
     /// \brief initialize this handle
     /// \{
   public:
-    StatusCode initialize (SysListHandle& sysListHandle);
-    StatusCode initialize (SysListHandle& sysListHandle, SG::AllowEmptyEnum);
+    StatusCode initialize (SysListHandle& sysListHandle, const ISysHandleBase& objectHandle);
+    StatusCode initialize (SysListHandle& sysListHandle, const ISysHandleBase& objectHandle, SG::AllowEmptyEnum);
     /// \}
 
 
@@ -68,10 +72,10 @@ namespace CP
     const std::string& getName (const CP::SystematicSet& sys) const;
 
 
-    /// \brief retrieve the object for the given name
+    /// \brief retrieve the object decoration for the given systematic
   public:
-    ::StatusCode retrieve (const T*& object,
-                           const CP::SystematicSet& sys) const;
+    const T& get (const SG::AuxElement& object,
+                  const CP::SystematicSet& sys) const;
 
 
 
@@ -95,33 +99,23 @@ namespace CP
 
     /// \brief the input name we use
   private:
-    std::string m_inputName;
+    std::string m_decorName;
+
+    /// \brief the object handle we use
+  private:
+    const ISysHandleBase *m_objectHandle {nullptr};
 
     /// \brief the cache of names we use
   private:
-    std::unordered_map<CP::SystematicSet,std::string> m_inputNameCache;
+    std::unordered_map<CP::SystematicSet,std::tuple<std::string,SG::AuxElement::ConstAccessor<T> > > m_dataCache;
 
-
-    /// \brief the type of the event store we use
+    /// \brief get the data for the given systematics
   private:
-    typedef std::decay<decltype(*((EL::AnaAlgorithm*)0)->evtStore())>::type StoreType;
-
-    /// \brief the event store we use
-  private:
-    StoreType *m_evtStore = nullptr;
-
-    /// \brief the function to retrieve the event store
-    ///
-    /// This is an std::function to allow the parent to be either a
-    /// tool or an algorithm.  Though we are not really supporting
-    /// tools as parents when using \ref SysListHandle, so in
-    /// principle this could be replaced with a pointer to the
-    /// algorithm instead.
-  private:
-    std::function<StoreType*()> m_evtStoreGetter;
+    const auto&
+    getData (const CP::SystematicSet& sys) const;
   };
 }
 
-#include "SysReadHandle.icc"
+#include "SysReadDecorHandle.icc"
 
 #endif

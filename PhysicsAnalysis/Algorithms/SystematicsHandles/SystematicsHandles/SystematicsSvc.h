@@ -40,9 +40,31 @@ namespace CP
     //
 
   public:
-    virtual ::StatusCode initialize () override;
-    virtual ::StatusCode finalize () override;
-    virtual const SysListType& systematicsVector () const override;
+    virtual StatusCode initialize () override;
+    virtual StatusCode finalize () override;
+    virtual std::vector<CP::SystematicSet>
+    makeSystematicsVector () const override;
+    virtual StatusCode addSystematics (const CP::SystematicSet& recommended,
+                                       const CP::SystematicSet& affecting) const override;
+    virtual CP::SystematicSet
+    getObjectSystematics (const std::string& name) const override;
+    virtual StatusCode
+    setObjectSystematics (const std::string& name,
+                          const CP::SystematicSet& systematics) const override;
+    virtual CP::SystematicSet
+    getDecorSystematics (const std::string& objectName,
+                         const std::string& decorName) const override;
+    virtual StatusCode
+    setDecorSystematics (const std::string& objectName,
+                         const std::string& decorName,
+                         const CP::SystematicSet& systematics) const override;
+    virtual StatusCode
+    registerCopy (const std::string& fromName,
+                  const std::string& toName) const override;
+    virtual StatusCode
+    makeSystematicsName (std::string& result,
+                         const std::string& name,
+                         const CP::SystematicSet& sys) const override;
 
 
 
@@ -67,18 +89,35 @@ namespace CP
   private:
     float m_sigmaRecommended = 0;
 
-
-    /// \brief the list of actual systematics
+    /// \brief nominal systematics name
   private:
-    mutable std::vector<CP::SystematicSet> m_systematicsVector;
+    std::string m_nominalSystematicsName {"NOSYS"};
 
-    /// \brief whether \ref m_systematicsVector was initialized
-  private:
-    mutable std::atomic<bool> m_hasVector {false};
 
-    /// \brief a mutex for filling \ref m_systematicsVector
+    /// \brief the list of affecting systematics
   private:
-    mutable std::mutex m_vectorMutex;
+    mutable SystematicSet m_affectingSystematics;
+
+    /// \brief the list of recommended systematics
+  private:
+    mutable SystematicSet m_recommendedSystematics;
+
+    /// \brief the list of per-object systematics
+  private:
+    mutable std::unordered_map<std::string,CP::SystematicSet> m_objectSystematics;
+
+    /// \brief the list of per-object-and-decoration systematics
+  private:
+    mutable std::unordered_map<std::string,CP::SystematicSet> m_decorSystematics;
+
+    /// \brief the map of registered copies
+  private:
+    mutable std::unordered_map<std::string,std::string> m_copies;
+
+    /// \brief a mutex for accessing \ref m_affectingSystematics and
+    /// \ref m_recommendedSystematics
+  private:
+    mutable std::mutex m_systematicsMutex;
   };
 }
 

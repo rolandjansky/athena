@@ -35,7 +35,7 @@ namespace CP
   StatusCode MetBuilderAlg ::
   initialize ()
   {
-    m_systematicsList.addHandle (m_metHandle);
+    ANA_CHECK (m_metHandle.initialize (m_systematicsList));
     ANA_CHECK (m_systematicsList.initialize());
     return StatusCode::SUCCESS;
   }

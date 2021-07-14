@@ -102,14 +102,12 @@ def makeFTagAnalysisSequence( seq, dataType, jetCollection,
         alg.efficiencyTool.SystematicsStrategy = "Envelope"
         alg.efficiencyTool.MinPt = minPt
         alg.scaleFactorDecoration = 'ftag_effSF_' + btagger + '_' + btagWP + '_%SYS%'
-        alg.scaleFactorDecorationRegex = '(^FT_EFF_.*)'
         alg.selectionDecoration = 'ftag_select_' + btagger + '_' + btagWP + ',as_char'
         alg.outOfValidity = 2
         alg.outOfValidityDeco = 'no_ftag_' + btagger + '_' + btagWP
         if preselection is not None:
             alg.preselection = preselection
         seq.append( alg, inputPropName = 'jets',
-                    affectingSystematics = '(^FT_EFF_.*)',
                     stageName = 'efficiency' )
         pass
 

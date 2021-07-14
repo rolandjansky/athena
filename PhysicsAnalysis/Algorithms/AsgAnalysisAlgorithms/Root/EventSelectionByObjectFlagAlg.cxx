@@ -24,7 +24,7 @@ EventSelectionByObjectFlagAlg ::EventSelectionByObjectFlagAlg(
 
 StatusCode EventSelectionByObjectFlagAlg ::initialize() {
 
-    m_systematicsList.addHandle(m_particleHandle);
+    ANA_CHECK(m_particleHandle.initialize (m_systematicsList));
     ANA_CHECK(m_systematicsList.initialize());
     ANA_CHECK(m_preselection.initialize());
     ANA_CHECK(m_veto.initialize());
@@ -35,7 +35,7 @@ StatusCode EventSelectionByObjectFlagAlg ::initialize() {
 
 StatusCode EventSelectionByObjectFlagAlg ::execute() {
 
-    SysFilterReporterCombiner filterCombiner (m_filterParams, m_systematicsList, true);
+    SysFilterReporterCombiner filterCombiner (m_filterParams, true);
 
     // loop over systematics
     return m_systematicsList.foreach ([&](const CP::SystematicSet &sys) -> StatusCode {

@@ -14,7 +14,7 @@
 #include <SelectionHelpers/OutOfValidityHelper.h>
 #include <SelectionHelpers/SelectionReadHandle.h>
 #include <SystematicsHandles/SysCopyHandle.h>
-#include <SystematicsHandles/SysDecorationHandle.h>
+#include <SystematicsHandles/SysWriteDecorHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <SystematicsHandles/SysReadHandle.h>
 
@@ -62,7 +62,7 @@ namespace CP
 
     /// \brief the decoration for the electron scale factor
   private:
-    SysDecorationHandle<float> m_scaleFactorDecoration {
+    SysWriteDecorHandle<float> m_scaleFactorDecoration {
       this, "scaleFactorDecoration", "", "the decoration for the electron efficiency scale factor"};
   };
 }

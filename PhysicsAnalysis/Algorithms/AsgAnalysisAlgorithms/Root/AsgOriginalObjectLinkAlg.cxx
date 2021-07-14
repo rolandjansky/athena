@@ -36,7 +36,7 @@ namespace CP
       return StatusCode::FAILURE;
     }
 
-    m_systematicsList.addHandle (m_particleHandle);
+    ANA_CHECK (m_particleHandle.initialize (m_systematicsList));
     ANA_CHECK (m_systematicsList.initialize());
     return StatusCode::SUCCESS;
   }

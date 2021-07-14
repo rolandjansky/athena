@@ -12,7 +12,8 @@
 #include <SelectionHelpers/ISelectionAccessor.h>
 #include <SelectionHelpers/SelectionReadHandle.h>
 #include <SystematicsHandles/SysCopyHandle.h>
-#include <SystematicsHandles/SysDecorationHandle.h>
+#include <SystematicsHandles/SysReadDecorHandle.h>
+#include <SystematicsHandles/SysWriteDecorHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <xAODBase/IParticleContainer.h>
 #include <xAODEventInfo/EventInfo.h>
@@ -57,12 +58,12 @@ namespace CP
 
     /// \brief the decoration for reading the scale factor
   private:
-    SysDecorationHandle<float> m_scaleFactorInputDecoration {
+    SysReadDecorHandle<float> m_scaleFactorInputDecoration {
       this, "scaleFactorInputDecoration", "", "the decoration for the input efficiency scale factor"};
 
     /// \brief the decoration for writing the scale factor
   private:
-    SysDecorationHandle<float> m_scaleFactorOutputDecoration {
+    SysWriteDecorHandle<float> m_scaleFactorOutputDecoration {
       this, "scaleFactorOutputDecoration", "", "the decoration for the output efficiency scale factor"};
   };
 }

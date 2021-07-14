@@ -5,10 +5,11 @@
 /// @author Nils Krumnack
 
 
-#ifndef SYSTEMATICS_HANDLES__SYS_DECORATION_HANDLE_H
-#define SYSTEMATICS_HANDLES__SYS_DECORATION_HANDLE_H
+#ifndef SYSTEMATICS_HANDLES__SYS_WRITE_DECOR_HANDLE_H
+#define SYSTEMATICS_HANDLES__SYS_WRITE_DECOR_HANDLE_H
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
+#include <AsgDataHandles/VarHandleKey.h>
 #include <AsgMessaging/AsgMessagingForward.h>
 #include <AthContainers/AuxElement.h>
 #include <PATInterfaces/SystematicSet.h>
@@ -35,7 +36,7 @@ namespace CP
 
   /// \brief a data handle for reading systematics varied input data
 
-  template<typename T> class SysDecorationHandle final
+  template<typename T> class SysWriteDecorHandle final
     : public ISysHandleBase, public asg::AsgMessagingForward
   {
     //
@@ -45,45 +46,38 @@ namespace CP
     /// \brief standard constructor
   public:
     template<typename T2>
-    SysDecorationHandle (T2 *owner, const std::string& propertyName,
+    SysWriteDecorHandle (T2 *owner, const std::string& propertyName,
                              const std::string& propertyValue,
                              const std::string& propertyDescription);
 
 
-    /// \brief register a set of used systematics for in the current
-    /// execut call (usually obtained from \ref CP::SystListHandle)
-  public:
-    StatusCode preExecute (SysListHandle &systematics);
-
-
-    /// \brief whether \ref preExecute has been called successfully at least once
-  public:
-    bool isPrepared () const noexcept;
-
-
     /// \brief whether we have a name configured
   public:
-    bool empty () const noexcept;
+    virtual bool empty () const noexcept override;
 
     /// \brief !empty()
   public:
     explicit operator bool () const noexcept;
 
+    /// \brief get the name pattern before substitution
+    ///
+    /// This is not currently defined for decoration handles and made
+    /// private.
+  private:
+    virtual std::string getNamePattern () const override;
+
+
+    /// \brief initialize this handle
+    /// \{
+  public:
+    StatusCode initialize (SysListHandle& sysListHandle, const ISysHandleBase& objectHandle);
+    StatusCode initialize (SysListHandle& sysListHandle, const ISysHandleBase& objectHandle, SG::AllowEmptyEnum);
+    /// \}
+
 
     /// \brief get the name we retrieve from the event store
   public:
     const std::string& getName (const CP::SystematicSet& sys) const;
-
-
-    /// \brief retrieve the object decoration for the given systematic
-  public:
-    const T& get (const SG::AuxElement& object,
-                  const CP::SystematicSet& sys) const;
-
-    /// \brief check if the object decoration is available
-  public:
-    bool isAvailable (const SG::AuxElement& object,
-                      const CP::SystematicSet& sys) const;
 
 
     /// \brief set the object decoration for the given systematic
@@ -97,8 +91,13 @@ namespace CP
     // inherited interface
     //
 
-  public:
-    virtual std::string getInputAffecting () const override;
+  private:
+    virtual CP::SystematicSet
+    getInputAffecting (const ISystematicsSvc& svc) const override;
+    virtual StatusCode
+    fillSystematics (const ISystematicsSvc& svc,
+                     const CP::SystematicSet& fullAffecting,
+                     const std::vector<CP::SystematicSet>& sysList) override;
 
 
 
@@ -106,29 +105,25 @@ namespace CP
     // private interface
     //
 
-    /// \brief the value of \ref isPrepared
-  private:
-    bool m_isPrepared{false};
-
     /// \brief the input name we use
   private:
-    std::string m_inputName;
+    std::string m_decorName;
 
-    /// \brief the regular expression for affecting systematics
+    /// \brief the object handle we use
   private:
-    std::string m_affectingRegex {".*"};
+    const ISysHandleBase *m_objectHandle {nullptr};
 
     /// \brief the cache of names we use
   private:
-    mutable std::unordered_map<CP::SystematicSet,std::tuple<std::string,SG::AuxElement::ConstAccessor<T>,SG::AuxElement::Accessor<T> > > m_dataCache;
+    std::unordered_map<CP::SystematicSet,std::tuple<std::string,SG::AuxElement::Accessor<T> > > m_dataCache;
 
     /// \brief get the data for the given systematics
   private:
-    const std::tuple<std::string,SG::AuxElement::ConstAccessor<T>,SG::AuxElement::Accessor<T> >&
+    const auto&
     getData (const CP::SystematicSet& sys) const;
   };
 }
 
-#include "SysDecorationHandle.icc"
+#include "SysWriteDecorHandle.icc"
 
 #endif

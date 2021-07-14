@@ -46,7 +46,7 @@ namespace CP
     m_significanceAccessor = std::make_unique<SG::AuxElement::Accessor<float> > (m_significanceDecoration);
 
     ANA_CHECK (m_significanceTool.retrieve());
-    m_systematicsList.addHandle (m_metHandle);
+    ANA_CHECK (m_metHandle.initialize (m_systematicsList));
     ANA_CHECK (m_systematicsList.initialize());
     return StatusCode::SUCCESS;
   }
