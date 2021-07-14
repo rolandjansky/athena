@@ -82,7 +82,7 @@ namespace CP
 
     /// \brief set the object decoration for the given systematic
   public:
-    void set (SG::AuxElement& object, const T& value,
+    void set (const SG::AuxElement& object, const T& value,
               const CP::SystematicSet& sys) const;
 
 
@@ -115,7 +115,7 @@ namespace CP
 
     /// \brief the cache of names we use
   private:
-    std::unordered_map<CP::SystematicSet,std::tuple<std::string,SG::AuxElement::Accessor<T> > > m_dataCache;
+    std::unordered_map<CP::SystematicSet,std::tuple<std::string,SG::AuxElement::Decorator<T> > > m_dataCache;
 
     /// \brief get the data for the given systematics
   private:

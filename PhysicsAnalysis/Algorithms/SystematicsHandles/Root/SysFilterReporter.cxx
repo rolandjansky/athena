@@ -29,7 +29,7 @@ namespace CP
     , m_sys (val_sys)
     , m_passed (val_combiner.m_passedDefault)
   {
-    ANA_CHECK_THROW (val_combiner.m_params.m_eventInfoHandle.getCopy (m_eventInfo, m_sys));
+    ANA_CHECK_THROW (val_combiner.m_params.m_eventInfoHandle.retrieve (m_eventInfo, m_sys));
   }
 
 
