@@ -310,7 +310,7 @@ def addPassJvtForCleaning(sequence=DerivationFrameworkJob):
         return
 
     passJvtTool = getJvtEffTool('AntiKt4EMTopo')
-    passJvtTool.PassJVTKey = "DFCommonJets_passJvt"
+    passJvtTool.PassJVTKey = "AntiKt4EMTopoJets.DFCommonJets_passJvt"
 
     extjetlog.info('ExtendedJetCommon: Adding passJvt decoration to AntiKt4EMTopoJets for event cleaning')
     sequence += CfgMgr.JetDecorationAlg(algName, JetContainer='AntiKt4EMTopoJets', Decorators=[passJvtTool])
