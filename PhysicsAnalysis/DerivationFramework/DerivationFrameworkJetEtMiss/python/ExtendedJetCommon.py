@@ -240,22 +240,18 @@ def getJetExternalAssocTool(jetalg, extjetalg, **options):
 
 ###################################################################
 
-def addJetPtAssociation(jetalg, truthjetalg, sequence, algname):
-    jetaugtool = getJetAugmentationTool(jetalg, '_PtAssoc')
-    if(jetaugtool is None):
-        extjetlog.warning('*** addJetPtAssociation called but corresponding augmentation tool does not exist! ***')
+def addJetPtAssociation(jetalg, truthjetalg, sequence):
 
-    jetptassociationtoolname = 'DFJetPtAssociation_'+truthjetalg
-    from AthenaCommon.AppMgr import ToolSvc
-    if hasattr(ToolSvc,jetptassociationtoolname):
-        jetaugtool.JetPtAssociationTool = getattr(ToolSvc,jetptassociationtoolname)
-    else:
-        jetptassociationtool = CfgMgr.JetPtAssociationTool(jetptassociationtoolname, JetContainer=jetalg+'Jets', MatchingJetContainer=truthjetalg, AssociationName="GhostTruth")
-        ToolSvc += jetptassociationtool
-        jetaugtool.JetPtAssociationTool = jetptassociationtool
+    truthAssocAlgName = 'DFJetPtAssociationAlg_'+ truthjetalg + '_' + jetalg
+    if hasattr(sequence, truthAssocAlgName):
+        return
+    jetTruthAssocTool = CfgMgr.JetPtAssociationTool('DFJetPtAssociation_' + truthjetalg + '_' + jetalg,
+                                                    JetContainer = jetalg + 'Jets',
+                                                    MatchingJetContainer = truthjetalg,
+                                                    AssociationName = "GhostTruth")
 
     extjetlog.info('ExtendedJetCommon: Adding JetPtAssociationTool for jet collection: '+jetalg+'Jets')
-    applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
+    sequence += CfgMgr.JetDecorationAlg(truthAssocAlgName, JetContainer=jetalg+'Jets', Decorators=[jetTruthAssocTool])
 
 ##################################################################
 
@@ -324,47 +320,6 @@ def getPFlowfJVT(jetalg,sequence,primaryVertexCont="PrimaryVertices",overlapLabe
     extjetlog.info('ExtendedJetCommon: Applying PFlow fJvt augmentation to jet collection: ' + jetalg + 'Jets')
     sequence += CfgMgr.JetDecorationAlg(fJVTAlgName, JetContainer=jetalg+'Jets', Decorators=[fJVTTool])
 
-def applyBTaggingAugmentation(jetalg,algname='default',sequence=DerivationFrameworkJob,btagtooldict={}):
-    if algname == 'default':
-      algname = 'JetCommonKernel_{0}'.format(jetalg)
-    jetaugtool = getJetAugmentationTool(jetalg)
-
-    if(jetaugtool is None or jetaugtool.JetCalibTool=='' or jetaugtool.JetJvtTool==''):
-        extjetlog.warning('*** B-tagging called but corresponding augmentation tool does not exist! ***')
-        extjetlog.warning('*** You must apply jet calibration and JVT! ***')
-
-    btagWPs = []
-    btagtools = []
-    for WP,tool in sorted(btagtooldict.items()):
-        btagWPs.append(WP)
-        btagtools.append(tool)
-    jetaugtool.JetBtagTools = btagtools
-    jetaugtool.JetBtagWPs = btagWPs
-
-    inJets = jetalg+'Jets'
-    if '_BTagging' in jetalg:
-      inJets = jetalg.replace('_BTagging','Jets_BTagging')
-    extjetlog.info('ExtendedJetCommon: Applying b-tagging working points for jet collection: '+inJets)
-    applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
-
-def addOriginCorrection(jetalg, sequence, algname,vertexPrefix):
-    jetaugtool = getJetAugmentationTool(jetalg,'_OriginCorr'+vertexPrefix)
-    if(jetaugtool is None):
-        extjetlog.warning('*** addOriginCorrection called but corresponding augmentation tool does not exist! ***')
-
-    origincorrectiontoolname = 'DFOriginCorrection'+vertexPrefix+'_'+jetalg
-    jetaugtool.MomentPrefix = vertexPrefix+'_'
-    from AthenaCommon.AppMgr import ToolSvc
-    if hasattr(ToolSvc,origincorrectiontoolname):
-        jetaugtool.JetOriginCorrectionTool = getattr(ToolSvc,origincorrectiontoolname)
-    else:
-        origincorrectiontool = CfgMgr.JetOriginCorrectionTool(origincorrectiontoolname, JetContainer=jetalg+'Jets', VertexContainer=vertexPrefix+'PrimaryVertices',OriginCorrectedName=vertexPrefix+'_JetOriginConstitScaleMomentum',ForceEMScale=True)
-        ToolSvc += origincorrectiontool
-        jetaugtool.JetOriginCorrectionTool = origincorrectiontool
-
-    extjetlog.info('ExtendedJetCommon: Adding OriginCorrection for jet collection: '+jetalg)
-    applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
-
 #################################################################
 ### Schedule Q/G-tagging decorations ### QGTaggerTool ##### 
 #################################################################
@@ -375,14 +330,7 @@ def addQGTaggerTool(jetalg, sequence, truthjetalg=None):
         return
 
     if truthjetalg is not None:
-        truthAssocAlgName = 'DFJetPtAssociationAlg_'+ truthjetalg + '_' + jetalg
-        if not hasattr(sequence, truthAssocAlgName):
-            jetTruthAssocTool = CfgMgr.JetPtAssociationTool('DFJetPtAssociation_' + truthjetalg + '_' + jetalg,
-                                                            JetContainer = jetalg + 'Jets',
-                                                            MatchingJetContainer = truthjetalg,
-                                                            AssociationName = "GhostTruth")
-
-            sequence += CfgMgr.JetDecorationAlg(truthAssocAlgName, JetContainer=jetalg+'Jets', Decorators=[jetTruthAssocTool])
+        addJetPtAssociation(jetalg, truthjetalg, sequence)
 
     trackselectiontool = CfgMgr.InDet__InDetTrackSelectionTool('DFQGTaggerTool_InDetTrackSelectionTool_' + jetalg, CutLevel = "Loose" )
     trackvertexassoctool = CfgMgr.CP__TrackVertexAssociationTool('DFQGTaggerTool_InDetTrackVertexAssosciationTool_' + jetalg, WorkingPoint = "Loose")
