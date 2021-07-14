@@ -6,6 +6,9 @@
 #define PARTICLEJETTOOLS_JETTRUTHLABELINGTOOL_H
 
 #include "AsgTools/AsgTool.h"
+#include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgDataHandles/ReadDecorHandleKey.h"
+#include "AsgDataHandles/WriteDecorHandleKey.h"
 
 #include "xAODJet/JetContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
@@ -65,10 +68,6 @@ protected:
   /// Label truth jet collection
   StatusCode labelTruthJets() const;
   StatusCode labelTruthJets( const xAOD::JetContainer &jets ) const;
-
-  /// Apply label to a single jet
-  /// This method is included for backwards compatibility with BoostedJetTaggers
-  StatusCode labelRecoJet(const xAOD::Jet &jet) const;
 
   /// Apply labels to all jets in a container
   StatusCode labelRecoJets(const xAOD::JetContainer &jets ) const;

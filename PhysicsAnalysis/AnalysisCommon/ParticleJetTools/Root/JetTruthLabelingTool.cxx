@@ -4,6 +4,10 @@
 
 #include "ParticleJetTools/JetTruthLabelingTool.h"
 
+#include "AsgDataHandles/ReadHandle.h"
+#include "AsgDataHandles/ReadDecorHandle.h"
+#include "AsgDataHandles/WriteDecorHandle.h"
+
 JetTruthLabelingTool::JetTruthLabelingTool(const std::string& name) :
   asg::AsgTool(name)
 {
@@ -62,21 +66,21 @@ StatusCode JetTruthLabelingTool::initialize(){
   m_split23_truthKey = m_truthJetCollectionName.key() + "." + m_truthLabelName + "Split23";
 
   if(!m_isTruthJetCol){
-    m_label_recoKey  = m_jetContainerName.key() + "." + m_truthLabelName;
-    m_dR_W_recoKey   = m_jetContainerName.key() + "." + m_truthLabelName + "_dR_W";
-    m_dR_Z_recoKey   = m_jetContainerName.key() + "." + m_truthLabelName + "_dR_Z";
-    m_dR_H_recoKey   = m_jetContainerName.key() + "." + m_truthLabelName + "_dR_H";
-    m_dR_Top_recoKey = m_jetContainerName.key() + "." + m_truthLabelName + "_dR_Top";
-    m_NB_recoKey     = m_jetContainerName.key() + "." + m_truthLabelName + "_NB";
-    m_truthSplit23_recoKey = m_jetContainerName.key() + "." + m_truthLabelName + "_TruthJetSplit23";
-    m_truthJetMass_recoKey = m_jetContainerName.key() + "." + m_truthLabelName + "_TruthJetMass";
+    m_label_recoKey  = m_jetContainerName + "." + m_truthLabelName;
+    m_dR_W_recoKey   = m_jetContainerName + "." + m_truthLabelName + "_dR_W";
+    m_dR_Z_recoKey   = m_jetContainerName + "." + m_truthLabelName + "_dR_Z";
+    m_dR_H_recoKey   = m_jetContainerName + "." + m_truthLabelName + "_dR_H";
+    m_dR_Top_recoKey = m_jetContainerName + "." + m_truthLabelName + "_dR_Top";
+    m_NB_recoKey     = m_jetContainerName + "." + m_truthLabelName + "_NB";
+    m_truthSplit23_recoKey = m_jetContainerName + "." + m_truthLabelName + "_TruthJetSplit23";
+    m_truthJetMass_recoKey = m_jetContainerName + "." + m_truthLabelName + "_TruthJetMass";
   }
 
   ATH_CHECK(m_evtInfoKey.initialize());
   ATH_CHECK(m_truthParticleContainerName.initialize(!m_useTRUTH3));
   ATH_CHECK(m_truthBosonContainerName.initialize(m_useTRUTH3));
   ATH_CHECK(m_truthTopQuarkContainerName.initialize(m_useTRUTH3));
-  ATH_CHECK(m_truthJetCollectionName.initialize())
+  ATH_CHECK(m_truthJetCollectionName.initialize());
 
   ATH_CHECK(m_label_truthKey.initialize());
   ATH_CHECK(m_dR_W_truthKey.initialize(m_useDRMatch));
@@ -242,101 +246,94 @@ StatusCode JetTruthLabelingTool::decorate(const xAOD::JetContainer& jets) const 
 
 StatusCode JetTruthLabelingTool::labelRecoJets(const xAOD::JetContainer& jets ) const {
 
-  for(xAOD::Jet *jet : jets) {
-    ATH_CHECK( labelRecoJet(*jet, *truthJets) );
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode JetTruthLabelingTool::labelRecoJet( const xAOD::Jet& jet) const {
-
   SG::ReadHandle<xAOD::JetContainer> truthJets(m_truthJetCollectionName);
+  for(const xAOD::Jet *jet : jets) {
 
-  /// Get parent ungroomed reco jet for R21Precision
-  const xAOD::Jet* parent = nullptr;
-  if ( m_truthLabelName == "R10TruthLabel_R21Precision" ) {
-    ElementLink<xAOD::JetContainer> element_link = jet.auxdata<ElementLink<xAOD::JetContainer> >("Parent");
-    if ( element_link.isValid() ) {
-      parent = *element_link;
-    }
-    else {
-      ATH_MSG_ERROR("Unable to get a link to the parent jet! Returning a NULL pointer."); 
-      return StatusCode::FAILURE;
-    }
-  }
-
-  /// Find matched truth jet
-  float dRmin = 9999;
-  const xAOD::Jet* matchTruthJet = nullptr;
-  for ( const xAOD::Jet* truthJet : **truthJets ) {
-    float dR = jet.p4().DeltaR( truthJet->p4() );
-    /// If parent jet has been retrieved, calculate dR w.r.t. it instead
-    if ( parent ) dR = parent->p4().DeltaR( truthJet->p4() );
-    /// If m_dRTruthJet < 0, the closest truth jet is used as matched jet. Otherwise, only match if dR < m_dRTruthJet
-    if ( m_dRTruthJet < 0 || dR < m_dRTruthJet ) { 
-      if ( dR < dRmin ) {
-        dRmin = dR;
-        matchTruthJet = truthJet;
+    /// Get parent ungroomed reco jet for R21Precision
+    const xAOD::Jet* parent = nullptr;
+    if ( m_truthLabelName == "R10TruthLabel_R21Precision" ) {
+      ElementLink<xAOD::JetContainer> element_link = jet->auxdata<ElementLink<xAOD::JetContainer> >("Parent");
+      if ( element_link.isValid() ) {
+        parent = *element_link;
+      }
+      else {
+        ATH_MSG_ERROR("Unable to get a link to the parent jet! Returning a NULL pointer."); 
+        return StatusCode::FAILURE;
       }
     }
-  }
 
-  int label = LargeRJetTruthLabel::enumToInt( LargeRJetTruthLabel::notruth );
-  float dR_truthJet_W = 9999;
-  float dR_truthJet_Z = 9999;
-  float dR_truthJet_Top = 9999;
-  float dR_truthJet_H = 9999;
-  int truthJetNB = -1;
-  float truthJetSplit23 = -9999;
-  float truthJetMass = -9999;
+    /// Find matched truth jet
+    float dRmin = 9999;
+    const xAOD::Jet* matchTruthJet = nullptr;
+    for ( const xAOD::Jet* truthJet : *truthJets ) {
+      float dR = jet->p4().DeltaR( truthJet->p4() );
+      /// If parent jet has been retrieved, calculate dR w.r.t. it instead
+      if ( parent ) dR = parent->p4().DeltaR( truthJet->p4() );
+      /// If m_dRTruthJet < 0, the closest truth jet is used as matched jet. Otherwise, only match if dR < m_dRTruthJet
+      if ( m_dRTruthJet < 0 || dR < m_dRTruthJet ) { 
+        if ( dR < dRmin ) {
+          dRmin = dR;
+          matchTruthJet = truthJet;
+        }
+      }
+    }
 
-  if ( matchTruthJet ) {
-    // WriteDecorHandles can also read
-    SG::WriteDecorHandle<xAOD::JetContainer, int> labelHandle(m_label_truthKey);
-    label = labelHandle(*matchTruthJet);
+    int label = LargeRJetTruthLabel::enumToInt( LargeRJetTruthLabel::notruth );
+    float dR_truthJet_W = 9999;
+    float dR_truthJet_Z = 9999;
+    float dR_truthJet_Top = 9999;
+    float dR_truthJet_H = 9999;
+    int truthJetNB = -1;
+    float truthJetSplit23 = -9999;
+    float truthJetMass = -9999;
+
+    if ( matchTruthJet ) {
+      // WriteDecorHandles can also read
+      SG::WriteDecorHandle<xAOD::JetContainer, int> labelHandle(m_label_truthKey);
+      label = labelHandle(*matchTruthJet);
+      if ( m_useDRMatch ) {
+        SG::WriteDecorHandle<xAOD::JetContainer, float> dRWHandle(m_dR_W_truthKey);
+        SG::WriteDecorHandle<xAOD::JetContainer, float> dRZHandle(m_dR_Z_truthKey);
+        SG::WriteDecorHandle<xAOD::JetContainer, float> dRHHandle(m_dR_H_truthKey);
+        SG::WriteDecorHandle<xAOD::JetContainer, float> dRTopHandle(m_dR_Top_truthKey);
+        if(dRWHandle.isAvailable()) dR_truthJet_W = dRWHandle(*matchTruthJet);
+        if(dRZHandle.isAvailable()) dR_truthJet_Z = dRZHandle(*matchTruthJet);
+        if(dRHHandle.isAvailable()) dR_truthJet_H = dRHHandle(*matchTruthJet);
+        if(dRTopHandle.isAvailable()) dR_truthJet_Top = dRTopHandle(*matchTruthJet);
+      }
+      if ( m_truthLabelName == "R10TruthLabel_R21Precision" ) {
+        SG::ReadDecorHandle<xAOD::JetContainer, float> split23Handle(m_split23_truthKey);
+        if(split23Handle.isAvailable()) truthJetSplit23 = split23Handle(*matchTruthJet);
+      }
+      SG::WriteDecorHandle<xAOD::JetContainer, int> nbHandle(m_NB_truthKey);
+      if(nbHandle.isAvailable()) truthJetNB = nbHandle(*matchTruthJet);
+      truthJetMass = matchTruthJet->m();
+    }
+
+    /// Decorate truth label
+    SG::WriteDecorHandle<xAOD::JetContainer, int> labelHandle(m_label_recoKey);
+    labelHandle(*jet) = label;
+
+    /// Decorate additional information used for truth labeling
     if ( m_useDRMatch ) {
-      SG::WriteDecorHandle<xAOD::JetContainer, float> dRWHandle(m_dR_W_truthKey);
-      SG::WriteDecorHandle<xAOD::JetContainer, float> dRZHandle(m_dR_Z_truthKey);
-      SG::WriteDecorHandle<xAOD::JetContainer, float> dRHHandle(m_dR_H_truthKey);
-      SG::WriteDecorHandle<xAOD::JetContainer, float> dRTopHandle(m_dR_Top_truthKey);
-      if(dRWHandle.isAvailable()) dR_truthJet_W = dRWHandle(*matchTruthJet);
-      if(dRZHandle.isAvailable()) dR_truthJet_Z = dRZHandle(*matchTruthJet);
-      if(dRHHandle.isAvailable()) dR_truthJet_H = dRHHandle(*matchTruthJet);
-      if(dRTopHandle.isAvailable()) dR_truthJet_Top = dRTopHandle(*matchTruthJet);
+      SG::WriteDecorHandle<xAOD::JetContainer, float> dRWHandle(m_dR_W_recoKey);
+      SG::WriteDecorHandle<xAOD::JetContainer, float> dRZHandle(m_dR_Z_recoKey);
+      SG::WriteDecorHandle<xAOD::JetContainer, float> dRHHandle(m_dR_H_recoKey);
+      SG::WriteDecorHandle<xAOD::JetContainer, float> dRTopHandle(m_dR_Top_recoKey);
+      dRWHandle(*jet) = dR_truthJet_W;
+      dRZHandle(*jet) = dR_truthJet_Z;
+      dRHHandle(*jet) = dR_truthJet_H;
+      dRTopHandle(*jet) = dR_truthJet_Top;
     }
     if ( m_truthLabelName == "R10TruthLabel_R21Precision" ) {
-      SG::ReadDecorHandle<xAOD::JetContainer, float> split23Handle(m_split23_truthKey);
-      if(split23Handle.isAvailable()) truthJetSplit23 = split23Handle(*matchTruthJet);
+      SG::WriteDecorHandle<xAOD::JetContainer, float> split23Handle(m_truthSplit23_recoKey);
+      split23Handle(*jet) = truthJetSplit23;
     }
-    SG::WriteDecorHandle<xAOD::JetContainer, int> nbHandle(m_NB_truthKey);
-    if(nbHandle.isAvailable()) truthJetNB = nbHandle(*matchTruthJet);
-    truthJetMass = matchTruthJet->m();
+    SG::WriteDecorHandle<xAOD::JetContainer, int> nbHandle(m_NB_recoKey);
+    SG::WriteDecorHandle<xAOD::JetContainer, float> truthMassHandle(m_truthJetMass_recoKey);
+    nbHandle(*jet) = truthJetNB;
+    truthMassHandle(*jet) = truthJetMass;
   }
-
-  /// Decorate truth label
-  SG::WriteDecorHandle<xAOD::JetContainer, int> labelHandle(m_label_recoKey);
-  labelHandle(jet) = label;
-
-  /// Decorate additional information used for truth labeling
-  if ( m_useDRMatch ) {
-    SG::WriteDecorHandle<xAOD::JetContainer, float> dRWHandle(m_dR_W_recoKey);
-    SG::WriteDecorHandle<xAOD::JetContainer, float> dRZHandle(m_dR_Z_recoKey);
-    SG::WriteDecorHandle<xAOD::JetContainer, float> dRHHandle(m_dR_H_recoKey);
-    SG::WriteDecorHandle<xAOD::JetContainer, float> dRTopHandle(m_dR_Top_recoKey);
-    dRWHandle(jet) = dR_truthJet_W;
-    dRZHandle(jet) = dR_truthJet_Z;
-    dRHHandle(jet) = dR_truthJet_H;
-    dRTopHandle(jet) = dR_truthJet_Top;
-  }
-  if ( m_truthLabelName == "R10TruthLabel_R21Precision" ) {
-    SG::WriteDecorHandle<xAOD::JetContainer, float> split23Handle(m_truthSplit23_recoKey);
-    split23Handle(jet) = truthJetSplit23;
-  }
-  SG::WriteDecorHandle<xAOD::JetContainer, int> nbHandle(m_NB_recoKey);
-  SG::WriteDecorHandle<xAOD::JetContainer, float> truthMassHandle(m_truthJetMass_recoKey);
-  nbHandle(jet) = truthJetNB;
-  truthMassHandle(jet) = truthJetMass;
 
   return StatusCode::SUCCESS;
 }
@@ -352,7 +349,7 @@ StatusCode JetTruthLabelingTool::labelTruthJets() const {
     return StatusCode::FAILURE;
   }
 
-  return labelTruthJets(**truthJets);
+  return labelTruthJets(*truthJets);
 
 }
 
@@ -385,7 +382,7 @@ StatusCode JetTruthLabelingTool::labelTruthJets( const xAOD::JetContainer &truth
   /// Get truth particles directly if using dR matching
   if ( m_useDRMatch ) {
   
-    channelNumber = (*eventInfo)->mcChannelNumber();
+    channelNumber = eventInfo->mcChannelNumber();
 
     if ( channelNumber < 0 ) {
       ATH_MSG_ERROR("Channel number was not set correctly");
@@ -415,7 +412,7 @@ StatusCode JetTruthLabelingTool::labelTruthJets( const xAOD::JetContainer &truth
         return StatusCode::FAILURE;
       }
       /// Get truth particle TLVs
-      getTLVs(tlv_truthParts, *truthPartsBoson, *truthPartsTop, isSherpa);
+      getTLVs(tlv_truthParts, truthPartsBoson.cptr(), truthPartsTop.cptr(), isSherpa);
     }
 
     /// TRUTH1
@@ -426,7 +423,7 @@ StatusCode JetTruthLabelingTool::labelTruthJets( const xAOD::JetContainer &truth
         return StatusCode::FAILURE;
       }
       /// Get truth particle TLVs
-      getTLVs(tlv_truthParts, *truthParts, *truthParts, isSherpa);
+      getTLVs(tlv_truthParts, truthParts.cptr(), truthParts.cptr(), isSherpa);
     }
   }
 
