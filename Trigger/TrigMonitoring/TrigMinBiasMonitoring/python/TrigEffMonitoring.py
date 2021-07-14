@@ -6,16 +6,16 @@
 @brief configuration for the trigger efficiency monitoring
 '''
 from AthenaConfiguration.AutoConfigFlags import GetFileMD
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 
-def _TrigEff(configFlags, triggerAndRef):
+def _TrigEff(configFlags, triggerAndRef, algname='HLTMinBiasEffMonitoringAlg'):
     from AthenaMonitoring import AthMonitorCfgHelper
     monConfig = AthMonitorCfgHelper(
-        configFlags, 'HLTEfficiencyMonitoringAlgflags')
+        configFlags, 'HLTMinBiasEffMonitoringAlg')
 
-    from AthenaConfiguration.ComponentFactory import CompFactory
     alg = monConfig.addAlgorithm(
-        CompFactory.HLTEfficiencyMonitoringAlg, 'HLTEfficiencyMonitoringAlg')
+        CompFactory.HLTEfficiencyMonitoringAlg, 'HLTMinBiasEffMonitoringAlg')
 
     trkSel = CompFactory.InDet.InDetTrackSelectionTool(
         "InDetTrackSelectionTool_LoosePrimary", CutLevel="LoosePrimary"
@@ -32,15 +32,25 @@ def _TrigEff(configFlags, triggerAndRef):
 
     alreadyConfigured = set()
     for cdef in triggerAndRef:
-        chain = cdef["chain"]
-        refchain = cdef["refchain"]
-        xmin  = cdef["xmin"]
-        xmax  = cdef["xmax"]
+        chain = cdef['chain']
+        refchain = cdef['refchain']
+        xmin  = cdef['xmin']
+        xmax  = cdef['xmax']
         xbins = xmax-xmin
         effGroup = monConfig.addGroup(
             alg, chain+refchain, topPath='HLT/MinBiasMon/EffAll/')
-        effGroup.defineHistogram('EffPassed,nTrkOffline;' + chain + '_ref_' + refchain, type='TEfficiency',
+
+        whichcounter='nTrkOffline'
+        # if the chain cuts on higher pt (there is a few predefined chains) use different counter
+        if '_pt' in chain:
+            whichcounter += '_'+chain.split('_')[3]
+
+        effGroup.defineHistogram(f'EffPassed,{whichcounter};{chain}_ref_{refchain}', type='TEfficiency',
                                   title=chain+';Offline Good nTrk;Efficiency', xbins=xbins, xmin=xmin, xmax=xmax)
+        if '_pt' in chain:
+            effGroup.defineHistogram(f'EffPassed,leadingTrackPt;{chain}_ref_{refchain}_pt', type='TEfficiency',
+                                      title=chain+';Leading track pt;Efficiency', xbins=100, xmin=0.0, xmax=10)
+
         if chain not in alreadyConfigured:
             alreadyConfigured.add(chain)
             # need this protection because we can measure efficiency with several reference trigger, but want counts irrespective of ref. triggers
@@ -53,7 +63,7 @@ def _TrigEff(configFlags, triggerAndRef):
     return monConfig.result()
 
 
-def TrigEff(ConfigFlags):
+def TrigMinBiasEff(ConfigFlags):
 
     # configure the monitoring dynamically according to the chains present in the menu
     mbChains = [ c for c in GetFileMD(ConfigFlags.Input.Files)['TriggerMenu']['HLTChains'] if '_mb_' in c]
@@ -61,15 +71,13 @@ def TrigEff(ConfigFlags):
         return _TrigEff(ConfigFlags, [])
 
 
-    # here we keep chain with detailed settings
+    # here we generate config with detailed settings
     def _c(chain, refchain, **kwargs):
         conf = {"chain":chain, "refchain": refchain, "xmin":0, "xmax":20 }
         conf.update(kwargs)
         return conf
 
     # check all mb_sptrk chains w.r.t. random noalg
-
-    # define first the basic chains
     triggerAndRef = [ _c(chain, "HLT_noalg_L1RD0_FILLED")  for chain in mbChains
                     if ("HLT_mb_sptrk_" in chain or "HLT_mb_sp_" in chain or "HLT_mb_mbts_" in chain)]
     triggerAndRef += [ _c("HLT_mb_sptrk_L1RD0_FILLED", "HLT_mb_sp_L1RD0_FILLED") ]
@@ -97,10 +105,8 @@ def TrigEff(ConfigFlags):
             s = chain.split("_")
             return "_".join(s[:3]+s[4:])
         triggerAndRef += [  _c(chain, _dropsup(chain),  xmin=_trk(chain)-20, xmax=_trk(chain)+30) for chain in pusup ]
-
+    # add here all the special cases
     return _TrigEff(ConfigFlags, triggerAndRef)
-
-
 
 
 
@@ -116,7 +122,7 @@ if __name__ == '__main__':
 
     #ConfigFlags.Input.Files = ['myAOD.pool.root']
     ConfigFlags.Input.Files = [
-        'AOD.25577237._000002.pool.root.1'
+        'AOD.25577237._000120.pool.root.1'
 #        '/afs/cern.ch/user/k/kburka/workspace/mbts/AOD.25577237._000120.pool.root.1'
     ]
     ConfigFlags.Output.HISTFileName = 'TestEffMonitorOutput.root'
@@ -130,12 +136,13 @@ if __name__ == '__main__':
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
-    cfg.merge(TrigEff(ConfigFlags))
+    cfg.merge(TrigMinBiasEff(ConfigFlags))
+
 # for testing is it sometimes useful to enable also this monitoring
 #    from TrigMinBiasMonitoring.TrigSPTRKMonitoringMT import TrigSPTRK
 #    cfg.merge(TrigSPTRK(ConfigFlags))
 
-    cfg.getEventAlgo('HLTEfficiencyMonitoringAlg').OutputLevel = DEBUG  # DEBUG
+    cfg.getEventAlgo('HLTMinBiasEffMonitoringAlg').OutputLevel = DEBUG  # DEBUG
     cfg.printConfig(withDetails=True)  # set True for exhaustive info
     with open("cfg.pkl", "wb") as f:
         cfg.store(f)
