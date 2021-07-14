@@ -68,19 +68,6 @@ def addAntiKt10LCTopoJets(sequence, outputlist):
     addStandardJets("AntiKt", 1.0, "LCTopo", ptmin=40000, ptminFilter=50000, mods="lctopo_ungroomed", algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt2PV0TrackJets(sequence, outputlist):
-    
-    #To be fixed by FTAG
-    #btag_akt2trk = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection="AntiKt2Track", AddToToolSvc=True,
-    #                                            Verbose=True,
-    #                                            options={"name"         : "btagging_antikt2track",
-    #                                                     "BTagName"     : "BTagging_AntiKt2Track",
-    #                                                     "BTagJFVtxName": "JFVtx",
-    #                                                     "BTagSVName"   : "SecVtx",
-    #                                                     },
-    #                                            SetupScheme = "",
-    #                                            TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP', 'MV2c10Flip']
-    #)
-    #jtm.modifiersMap["akt2track"] = jtm.modifiersMap["track_ungroomed"] + [btag_akt2trk]
     jtm.modifiersMap["akt2track"] = jtm.modifiersMap["track_ungroomed"]
     addStandardJets("AntiKt", 0.2, "PV0Track", ptmin=2000, mods="akt2track",
                     algseq=sequence, outputGroup=outputlist)
