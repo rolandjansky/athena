@@ -208,8 +208,8 @@ def createTrigEgammaPrecisionPhotonSelectors(ConfigFilePath=None):
             'tight'  : 'PhotonIsEMTightSelectorCutDefs.conf',
             } 
     PhotonIsEMBits = {
-            'loose'  : egammaPID.PhotonLooseEF,
-            'medium' : egammaPID.PhotonMediumEF,
+            'loose'  : egammaPID.PhotonLoose,
+            'medium' : egammaPID.PhotonMedium,
             'tight'  : egammaPID.PhotonTight,
             }
 
