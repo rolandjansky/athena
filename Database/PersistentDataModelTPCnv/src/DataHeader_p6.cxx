@@ -62,7 +62,6 @@ unsigned int DataHeaderForm_p6::getDbTech(unsigned int index) const {
    return m_dbRecords[index].tech;
 }
 
-
 unsigned int DataHeaderForm_p6::insertObj(const ObjRecord& rec,
         const std::set<std::string>& aliases, bool doAliasFiltering,
 	const std::set<unsigned int>& symLinks,
@@ -73,29 +72,20 @@ unsigned int DataHeaderForm_p6::insertObj(const ObjRecord& rec,
            iter != last; ++iter, ++index) {
       if (*iter == rec) break;
    }
-   std::vector<std::string>     alias;
-   if( doAliasFiltering ) {
-      const std::string keydot = rec.key + ".";
-      // ignore aliases coming from AuxContainers
-      for( const auto& al: aliases) {
-         if( al != rec.key and al.rfind(keydot,0)!=0 ) alias.push_back( al );
-      }
-   } else {
-      alias.assign( aliases.cbegin(), aliases.cend() );
-   }
+   std::vector<std::string>     alias( aliases.cbegin(), aliases.cend() );
    std::vector<unsigned int>    symlinks( symLinks.begin(), symLinks.end() );
    if (index != m_objRecords.size()) {
       // found matching object record, check if all the info is the same
-      if( m_objAlias[index] != alias ) {
-         m_objAlias[index] = std::move(alias);
-         m_modified = true;
-      }
       if( m_objSymLinks[index] != symlinks ) {
          m_objSymLinks[index] = std::move(symlinks);
          m_modified = true;
       }
       if( m_objHashes[index] != hashes ) {
          m_objHashes[index] = hashes;
+         m_modified = true;
+      }
+      if( (!doAliasFiltering or m_modified) and m_objAlias[index] != alias ) {
+         m_objAlias[index] = std::move(alias);
          m_modified = true;
       }
       return index;
