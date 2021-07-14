@@ -22,6 +22,7 @@ def setRunEgammaOnlyRecoFlags():
 
     AODFlags.ThinGeantTruth.set_Value_and_Lock(False)
     AODFlags.egammaTrackSlimmer.set_Value_and_Lock(False)
+    AODFlags.ThinTRTStandaloneTracks.set_Value_and_Lock(False)
     AODFlags.ThinInDetForwardTrackParticles.set_Value_and_Lock(False)
     AODFlags.ThinNegativeEnergyNeutralPFOs.set_Value_and_Lock(False)
 
