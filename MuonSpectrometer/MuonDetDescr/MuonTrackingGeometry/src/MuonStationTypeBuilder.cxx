@@ -74,11 +74,6 @@ Muon::MuonStationTypeBuilder::MuonStationTypeBuilder(const std::string& t, const
 // Athena standard methods
 // initialize
 StatusCode Muon::MuonStationTypeBuilder::initialize() {
-    // get Muon Spectrometer Description Manager
-    ATH_CHECK(detStore()->retrieve(m_muonMgr));
-
-    ATH_MSG_DEBUG(m_muonMgr->geometryVersion());
-
     // Retrieve the tracking volume array creator
     // -------------------------------------------
     ATH_CHECK(m_trackingVolumeArrayCreator.retrieve());
@@ -1367,25 +1362,19 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processSpacer(Trk::Volu
     return spacer;
 }
 
-const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processNSW(std::vector<const Trk::Layer*> layers) const {
+const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processNSW(const MuonGM::MuonDetectorManager* muonDetMgr,
+                                                            const std::vector<const Trk::Layer*>& layers) const {
     ATH_MSG_DEBUG(name() << " processing NSW station components " << layers.size());
     ///////////////////////////////////////////////////////////////////////////////////////////////////
 
     // double tolerance = 0.0001;
 
-    const Trk::TrackingVolume* trVol = 0;
+    const Trk::TrackingVolume* trVol = nullptr;
 
     Amg::Transform3D transf = layers[0]->surfaceRepresentation().transform();
 
     // loop over layers and retrieve boundaries
-    double zMin = 25000.;
-    double zMax = -25000.;
-    double rMin = 13000.;
-    double rMed = 0.;
-    double rMax = 0.;
-    double hMin = 0.;
-    double hMed = 0.;
-    double hMax = 0.;
+    double zMin {25000.}, zMax{-25000.}, rMin{13000.}, rMed{0.}, rMax{0.}, hMin{0.}, hMed {0.}, hMax{0.};
 
     for (unsigned int il = 0; il < layers.size(); il++) {
         zMin = fmin(zMin, (layers[il]->surfaceRepresentation().center().z()) - 0.5 * layers[il]->thickness());
@@ -1399,15 +1388,15 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processNSW(std::vector<
 
             // hMin taken from MM, ring 0
             Identifier id(layers[il]->layerType());
-            if (m_muonMgr->mmIdHelper()->is_mm(id)) {
-                if (abs(m_muonMgr->mmIdHelper()->stationEta(id)) == 1) hMin = trdBounds->minHalflengthX();
+            if (muonDetMgr->mmIdHelper()->is_mm(id)) {
+                if (std::abs(muonDetMgr->mmIdHelper()->stationEta(id)) == 1) hMin = trdBounds->minHalflengthX();
                 // hMed taken from MM, ring 1
-                if (abs(m_muonMgr->mmIdHelper()->stationEta(id)) == 2) {
+                if (std::abs(muonDetMgr->mmIdHelper()->stationEta(id)) == 2) {
                     hMed = trdBounds->minHalflengthX();
                     rMed = layers[il]->surfaceRepresentation().center().perp() - trdBounds->halflengthY();
                 }
                 // hMax taken from MM, ring 3
-                if (abs(m_muonMgr->mmIdHelper()->stationEta(id)) == 4) hMax = trdBounds->maxHalflengthX();
+                if (std::abs(muonDetMgr->mmIdHelper()->stationEta(id)) == 4) hMax = trdBounds->maxHalflengthX();
             }
         }
     }
@@ -1451,12 +1440,7 @@ Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processCscStation(const GeoVP
     //   has to be derived from the component volume shape and component
     //   displacement
     bool isDiamond = false;
-    double xMin = 0;
-    double xMed = 0;
-    double xMax = 0;
-    double y1 = 0;
-    double y2 = 0;
-    double z = 0;
+    double xMin {0.}, xMed {0.}, xMax {0}, y1{0.}, y2{0}, z{0.};
     // printChildren(mv);
     // find the shape and dimensions for the first component
     const GeoVPhysVol* cv = &(*(mv->getChildVol(0)));
@@ -1567,8 +1551,8 @@ Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processCscStation(const GeoVP
     volSteps.push_back(-xTotal + xShift);
     std::vector<const Trk::TrackingVolume*> components;
     if (!isDiamond) {
-        Trk::TrapezoidVolumeBounds* cscBounds = 0;
-        Trk::TrapezoidVolumeBounds* compBounds = 0;
+        Trk::TrapezoidVolumeBounds* cscBounds = nullptr;
+        Trk::TrapezoidVolumeBounds* compBounds = nullptr;
         xMax = xMed;
         y2 = 0.5 * zShift;
         cscBounds = new Trk::TrapezoidVolumeBounds(xMin, xMax, y1, xTotal);
@@ -2307,7 +2291,7 @@ std::pair<const Trk::Layer*, const std::vector<const Trk::Layer*>*> Muon::MuonSt
         }
     }
 
-    const Trk::PlaneLayer* layer = 0;
+    const Trk::PlaneLayer* layer = nullptr;
 
     if (cubBounds) {
         double thickness = 2 * cubBounds->halflengthX();
@@ -2426,7 +2410,8 @@ std::pair<const Trk::Layer*, const std::vector<const Trk::Layer*>*> Muon::MuonSt
     return std::pair<const Trk::Layer*, const std::vector<const Trk::Layer*>*>(layRepr, multi);
 }
 
-Identifier Muon::MuonStationTypeBuilder::identifyNSW(std::string vName, Amg::Transform3D transf) const {
+Identifier Muon::MuonStationTypeBuilder::identifyNSW(const MuonGM::MuonDetectorManager* muonDetMgr,
+                                                     const std::string& vName, const Amg::Transform3D& transf) const {
     Identifier id(0);
 
     if ((vName[0] == 'Q') || (vName[0] == 'M')) {  // NSW stations
@@ -2457,18 +2442,19 @@ Identifier Muon::MuonStationTypeBuilder::identifyNSW(std::string vName, Amg::Tra
         if (vName[0] == 'Q') {
             std::string stName = (vName[1] == 'L') ? "STL" : "STS";
             // int stId = (vName[2]=='L') ? 0 : 1;
-            id = m_muonMgr->stgcIdHelper()->channelID(stName, iEta, iPhi, iMult, iLay, 1, 1);
+            id = muonDetMgr->stgcIdHelper()->channelID(stName, iEta, iPhi, iMult, iLay, 1, 1);
         } else {
             std::string stName = (vName[2] == 'L') ? "MML" : "MMS";
             // int stId = (vName[2]=='L') ? 0 : 1;
-            id = m_muonMgr->mmIdHelper()->channelID(stName, iEta, iPhi, iMult, iLay, 1);
+            id = muonDetMgr->mmIdHelper()->channelID(stName, iEta, iPhi, iMult, iLay, 1);
         }
     }
 
     return id;
 }
 
-const Trk::Layer* Muon::MuonStationTypeBuilder::createLayer(const Trk::TrackingVolume* trVol, Trk::MaterialProperties* matEx,
+const Trk::Layer* Muon::MuonStationTypeBuilder::createLayer(const MuonGM::MuonDetectorManager* muonDetMgr,
+                                                            const Trk::TrackingVolume* trVol, Trk::MaterialProperties* matEx,
                                                             Amg::Transform3D& transf) const {
     // identification first
 
@@ -2510,8 +2496,8 @@ const Trk::Layer* Muon::MuonStationTypeBuilder::createLayer(const Trk::TrackingV
             // giving a 0 value
             std::string stName = (vName[1] == 'L') ? "STL" : "STS";
             int stId = (vName[1] == 'L') ? 0 : 1;
-            Identifier id = m_muonMgr->stgcIdHelper()->channelID(stName, iEta, iPhi, iMult, iLay, 1, 1);
-            const MuonGM::sTgcReadoutElement* stgc = m_muonMgr->getsTgcRElement_fromIdFields(stId, iEta, iPhi, iMult);
+            Identifier id = muonDetMgr->stgcIdHelper()->channelID(stName, iEta, iPhi, iMult, iLay, 1, 1);
+            const MuonGM::sTgcReadoutElement* stgc = muonDetMgr->getsTgcRElement_fromIdFields(stId, iEta, iPhi, iMult);
             layType = id.get_identifier32().get_compact();
             if (stgc) {
                 rtrd = dynamic_cast<const Trk::RotatedTrapezoidBounds*>(&stgc->bounds(id));
@@ -2521,8 +2507,8 @@ const Trk::Layer* Muon::MuonStationTypeBuilder::createLayer(const Trk::TrackingV
         } else {
             std::string stName = (vName[2] == 'L') ? "MML" : "MMS";
             int stId = (vName[2] == 'L') ? 0 : 1;
-            Identifier id = m_muonMgr->mmIdHelper()->channelID(stName, iEta, iPhi, iMult, iLay, 1);
-            const MuonGM::MMReadoutElement* mm = m_muonMgr->getMMRElement_fromIdFields(stId, iEta, iPhi, iMult);
+            Identifier id = muonDetMgr->mmIdHelper()->channelID(stName, iEta, iPhi, iMult, iLay, 1);
+            const MuonGM::MMReadoutElement* mm = muonDetMgr->getMMRElement_fromIdFields(stId, iEta, iPhi, iMult);
             layType = id.get_identifier32().get_compact();
             if (mm) {
                 rtrd = dynamic_cast<const Trk::RotatedTrapezoidBounds*>(&mm->bounds(id));
@@ -2531,7 +2517,7 @@ const Trk::Layer* Muon::MuonStationTypeBuilder::createLayer(const Trk::TrackingV
         }
     }
 
-    const Trk::Layer* layRepr = 0;
+    const Trk::Layer* layRepr = nullptr;
     if (!trVol) return layRepr;
 
     // retrieve volume envelope

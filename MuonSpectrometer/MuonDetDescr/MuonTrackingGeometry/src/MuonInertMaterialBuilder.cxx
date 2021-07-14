@@ -172,16 +172,18 @@ Muon::MuonInertMaterialBuilder::buildDetachedTrackingVolumeTypes(bool blend) {
     std::vector<std::pair<const Trk::DetachedTrackingVolume*, std::vector<Amg::Transform3D> > > objs;
 
     std::vector<std::string> objName;
-
-    if (m_muonMgr) {
+    if (!m_muonMgr){
+        ATH_MSG_FATAL("Passive material cannot be built with a detector manager");
+        return nullptr;
+    }
         // link to top tree
         const GeoVPhysVol* top = &(*(m_muonMgr->getTreeTop(0)));
         GeoVolumeCursor vol(top);
+       
         while (!vol.atEnd()) {
             const GeoVPhysVol* cv = &(*(vol.getVolume()));
             const GeoLogVol* clv = cv->getLogVol();
             std::string vname = clv->getName();
-
             //	if ( vname.size()<8 && vname.substr(0,3)=="NSW" && vname.substr(1,4)=="sTGC" ) {   // do nothing NSW sTGC station
             //	} else if ( vname.size()<8 && vname.substr(0,3)=="NSW" && vname.substr(1,2)=="MM" ) {   // do nothing NSW MM station
             //	} else if ( vname.size()>=8 && vname.substr(0,8)=="NewSmall" && vname.substr(1,4)=="sTGC" ) {  // do nothing, probably NSW
@@ -296,8 +298,7 @@ Muon::MuonInertMaterialBuilder::buildDetachedTrackingVolumeTypes(bool blend) {
             }
             vol.next();
         }
-    }
-
+    
     // add some extra material to the endcap     // ST this should be phased out eventually ?
     if (m_extraMaterial) {
         // scaling

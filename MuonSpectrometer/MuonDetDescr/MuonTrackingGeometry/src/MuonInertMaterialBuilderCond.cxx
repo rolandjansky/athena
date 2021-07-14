@@ -165,21 +165,31 @@ Muon::MuonInertMaterialBuilderCond::buildDetachedTrackingVolumeTypes(const Event
     std::vector<std::string> objName;
 
     SG::ReadCondHandle<MuonGM::MuonDetectorManager> readHandle{m_muonMgrReadKey, ctx};
-    if (!readHandle.isValid() || *readHandle == nullptr) {
+    if (!readHandle.isValid() || !(*readHandle)) {
         ATH_MSG_ERROR(m_muonMgrReadKey.fullKey()
                       << " is not available. Could not get MuonDetectorManager, no layers for muons will be built.");
+        return {};
     }
     const MuonGM::MuonDetectorManager* muonMgr = *readHandle;
+    /// We need to retrieve the detector manager from the detector store as this is the only 
+    /// which has passive material assigned
+    detStore()->retrieve(muonMgr).ignore();
+    if (!muonMgr){
+        ATH_MSG_FATAL("Somehow the Muon detector manager is missing ");
+        return {};
+    }
     auto constituentsVector = std::make_unique<std::vector<std::vector<std::pair<std::unique_ptr<const Trk::Volume>, float>>>>();
-    if (muonMgr) {
         // link to top tree
         const GeoVPhysVol* top = &(*(muonMgr->getTreeTop(0)));
+        if (!top) {
+            ATH_MSG_FATAL("Without physical Geovolume, the assembly of the passive material becomes difficult");
+            return {};
+        }
         GeoVolumeCursor vol(top);
         while (!vol.atEnd()) {
             const GeoVPhysVol* cv = &(*(vol.getVolume()));
             const GeoLogVol* clv = cv->getLogVol();
             std::string vname = clv->getName();
-
             //	if ( vname.size()<8 && vname.substr(0,3)=="NSW" && vname.substr(1,4)=="sTGC" ) {   // do nothing NSW sTGC station
             //	} else if ( vname.size()<8 && vname.substr(0,3)=="NSW" && vname.substr(1,2)=="MM" ) {   // do nothing NSW MM station
             //	} else if ( vname.size()>=8 && vname.substr(0,8)=="NewSmall" && vname.substr(1,4)=="sTGC" ) {  // do nothing, probably NSW
@@ -294,8 +304,7 @@ Muon::MuonInertMaterialBuilderCond::buildDetachedTrackingVolumeTypes(const Event
             }
             vol.next();
         }
-    }
-
+    
     // add some extra material to the endcap     // ST this should be phased out eventually ?
     if (m_extraMaterial) {
         // scaling
@@ -328,7 +337,7 @@ Muon::MuonInertMaterialBuilderCond::buildDetachedTrackingVolumeTypes(const Event
     //
 
     const std::vector<std::pair<const Trk::DetachedTrackingVolume*, std::vector<Amg::Transform3D>>>* mObjects =
-        new std::vector<std::pair<const Trk::DetachedTrackingVolume*, std::vector<Amg::Transform3D>>>(objs);
+        new std::vector<std::pair<const Trk::DetachedTrackingVolume*, std::vector<Amg::Transform3D>>>(std::move(objs));
 
     int count = 0;
     for (unsigned int i = 0; i < mObjects->size(); i++) count += (*mObjects)[i].second.size();

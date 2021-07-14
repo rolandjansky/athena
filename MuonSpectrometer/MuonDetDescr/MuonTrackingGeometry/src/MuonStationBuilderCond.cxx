@@ -104,11 +104,13 @@ Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& c
     EventIDRange range = IOVInfiniteRange::infiniteMixed();
 
     SG::ReadCondHandle<MuonGM::MuonDetectorManager> readHandle{m_muonMgrReadKey, ctx};
-    if (!readHandle.isValid() || *readHandle == nullptr) { ATH_MSG_FATAL(m_muonMgrReadKey.fullKey() << " is not available."); }
+    if (!readHandle.isValid() || !(*readHandle)) { 
+        ATH_MSG_FATAL(m_muonMgrReadKey.fullKey() << " is not available.");
+        return std::make_pair(range, std::move(mStations));
+     }
 
     readHandle.range(range);
     const MuonGM::MuonDetectorManager* muonMgr = readHandle.cptr();
-    if (muonMgr) {
         // retrieve muon station prototypes from GeoMode(this)->l
         const std::vector<const Trk::DetachedTrackingVolume*>* msTypes = this->buildDetachedTrackingVolumeTypes(blend, muonMgr);
         std::vector<const Trk::DetachedTrackingVolume*>::const_iterator msTypeIter = msTypes->begin();
@@ -174,7 +176,7 @@ Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& c
                     if (volNames[ish].substr(0, 4) != "sTGC" && volNames[ish].substr(0, 2) != "MM") continue;
 
                     std::string oName = protoName.substr(protoName.find("-") + 1);
-                    Identifier nswId = m_muonStationTypeBuilder->identifyNSW(oName, vols[ish].second[0]);
+                    Identifier nswId = m_muonStationTypeBuilder->identifyNSW(muonMgr, oName, vols[ish].second[0]);
 
                     // get bounds and transform from readout geometry
                     const Trk::RotatedTrapezoidBounds* rtrd = nullptr;
@@ -205,7 +207,7 @@ Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& c
 
                     const Trk::HomogeneousLayerMaterial mat(*(vols[ish].first.second), 0.);
 
-                    const Trk::Layer* layer = 0;
+                    const Trk::Layer* layer = nullptr;
 
                     if (!rtrd && !dia && !trd && !rdia) {  // translate from GeoModel ( spacer & non-identified stuff )
                         // This used to be a !rtrd check as we either had a rotatedTrap or nothing
@@ -218,7 +220,7 @@ Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& c
                         if (trObject) {
                             std::unique_ptr<const Trk::TrackingVolume> newType = std::unique_ptr<const Trk::TrackingVolume>(
                                 new Trk::TrackingVolume(*trObject, vols[ish].first.second->material(), 0, 0, protoName));
-                            layer = m_muonStationTypeBuilder->createLayer(newType.get(), vols[ish].first.second, vols[ish].second[0]);
+                            layer = m_muonStationTypeBuilder->createLayer(muonMgr, newType.get(), vols[ish].first.second, vols[ish].second[0]);
                             if (layer) layer->moveLayer(vols[ish].second[0]);
                             delete trObject;
                         }
@@ -286,7 +288,7 @@ Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& c
                 }  // end new object
 
                 // create station prototypes
-                const Trk::TrackingVolume* newTypeL = m_muonStationTypeBuilder->processNSW(sectorL);
+                const Trk::TrackingVolume* newTypeL = m_muonStationTypeBuilder->processNSW(muonMgr, sectorL);
                 // create layer representation
                 std::pair<const Trk::Layer*, const std::vector<const Trk::Layer*>*> layerReprL =
                     m_muonStationTypeBuilder->createLayerRepresentation(newTypeL);
@@ -294,7 +296,7 @@ Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& c
                 std::unique_ptr<const Trk::DetachedTrackingVolume> typeL{
                     newTypeL ? new Trk::DetachedTrackingVolume("NSWL", newTypeL, layerReprL.first, layerReprL.second) : nullptr};
                 // objs.push_back(std::pair<const Trk::DetachedTrackingVolume*,std::vector<Amg::Transform3D> >(typeStat,vols[ish].second));
-                const Trk::TrackingVolume* newTypeS = m_muonStationTypeBuilder->processNSW(sectorS);
+                const Trk::TrackingVolume* newTypeS = m_muonStationTypeBuilder->processNSW(muonMgr, sectorS);
                 // create layer representation
                 std::pair<const Trk::Layer*, const std::vector<const Trk::Layer*>*> layerReprS =
                     m_muonStationTypeBuilder->createLayerRepresentation(newTypeS);
@@ -618,7 +620,7 @@ Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& c
         // clean up prototypes
         for (unsigned int it = 0; it < msTypes->size(); it++) delete (*msTypes)[it];
         delete msTypes;
-    }
+    
 
     ATH_MSG_INFO(name() << "returns " << (*mStations).size() << " stations");
     return std::make_pair(range, std::move(mStations));
@@ -728,11 +730,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilderC
                         }
                         const GeoTrd* trd = dynamic_cast<const GeoTrd*>(shapeS);
 
-                        double halfX1 = 0.;
-                        double halfX2 = 0.;
-                        double halfY1 = 0.;
-                        double halfY2 = 0.;
-                        double halfZ = 0.;
+                        double halfX1  {0.}, halfX2{0.}, halfY1 {0.}, halfY2{0.}, halfZ{0.};
                         if (trd) {
                             //
                             halfX1 = trd->getXHalfLength1();

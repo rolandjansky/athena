@@ -100,8 +100,10 @@ StatusCode Muon::MuonStationBuilder::initialize() {
 
 const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder::buildDetachedTrackingVolumes(bool blend) {
     std::vector<const Trk::DetachedTrackingVolume*> mStations;
-
-    if (m_muonMgr) {
+    if (!m_muonMgr){
+        ATH_MSG_FATAL("No muon manager is provided");
+        return nullptr;
+    }
         // retrieve muon station prototypes from GeoModel
         const std::vector<const Trk::DetachedTrackingVolume*>* msTypes = buildDetachedTrackingVolumeTypes(blend);
         std::vector<const Trk::DetachedTrackingVolume*>::const_iterator msTypeIter = msTypes->begin();
@@ -167,7 +169,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
                     if (volNames[ish].substr(0, 4) != "sTGC" && volNames[ish].substr(0, 2) != "MM") continue;
 
                     std::string oName = protoName.substr(protoName.find("-") + 1);
-                    Identifier nswId = m_muonStationTypeBuilder->identifyNSW(oName, vols[ish].second[0]);
+                    Identifier nswId = m_muonStationTypeBuilder->identifyNSW(m_muonMgr, oName, vols[ish].second[0]);
 
                     // get bounds and transform from readout geometry
                     const Trk::RotatedTrapezoidBounds* rtrd = nullptr;
@@ -211,7 +213,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
                         if (trObject) {
                             std::unique_ptr<const Trk::TrackingVolume> newType = std::unique_ptr<const Trk::TrackingVolume>(
                                 new Trk::TrackingVolume(*trObject, vols[ish].first.second->material(), 0, 0, protoName));
-                            layer = m_muonStationTypeBuilder->createLayer(newType.get(), vols[ish].first.second, vols[ish].second[0]);
+                            layer = m_muonStationTypeBuilder->createLayer(m_muonMgr, newType.get(), vols[ish].first.second, vols[ish].second[0]);
                             if (layer) layer->moveLayer(vols[ish].second[0]);
                             delete trObject;
                         }
@@ -279,7 +281,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
                 }  // end new object
 
                 // create station prototypes
-                const Trk::TrackingVolume* newTypeL = m_muonStationTypeBuilder->processNSW(sectorL);
+                const Trk::TrackingVolume* newTypeL = m_muonStationTypeBuilder->processNSW(m_muonMgr, sectorL);
                 // create layer representation
                 std::pair<const Trk::Layer*, const std::vector<const Trk::Layer*>*> layerReprL =
                     m_muonStationTypeBuilder->createLayerRepresentation(newTypeL);
@@ -287,7 +289,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
                 const Trk::DetachedTrackingVolume* typeL =
                     newTypeL ? new Trk::DetachedTrackingVolume("NSWL", newTypeL, layerReprL.first, layerReprL.second) : 0;
                 // objs.push_back(std::pair<const Trk::DetachedTrackingVolume*,std::vector<Amg::Transform3D> >(typeStat,vols[ish].second));
-                const Trk::TrackingVolume* newTypeS = m_muonStationTypeBuilder->processNSW(sectorS);
+                const Trk::TrackingVolume* newTypeS = m_muonStationTypeBuilder->processNSW(m_muonMgr, sectorS);
                 // create layer representation
                 std::pair<const Trk::Layer*, const std::vector<const Trk::Layer*>*> layerReprS =
                     m_muonStationTypeBuilder->createLayerRepresentation(newTypeS);
@@ -606,8 +608,8 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
         // clean up prototypes
         for (unsigned int it = 0; it < msTypes->size(); it++) delete (*msTypes)[it];
         delete msTypes;
-    }
-    const std::vector<const Trk::DetachedTrackingVolume*>* muonStations = new std::vector<const Trk::DetachedTrackingVolume*>(mStations);
+    
+    const std::vector<const Trk::DetachedTrackingVolume*>* muonStations = new std::vector<const Trk::DetachedTrackingVolume*>(std::move(mStations));
 
     //
     ATH_MSG_INFO(name() << "returns " << (*muonStations).size() << " stations");
