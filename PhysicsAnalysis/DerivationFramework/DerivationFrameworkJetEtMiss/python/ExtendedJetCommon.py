@@ -194,34 +194,6 @@ def addAntiKt4NoPtCutJets(sequence,outputlist):
 
 ##################################################################
 
-def applyJetAugmentation(jetalg,algname,sequence,jetaugtool):
-    if hasattr(sequence,algname):
-        jetaug = getattr(sequence,algname)
-    else:
-        jetaug = CfgMgr.DerivationFramework__CommonAugmentation(algname)
-        sequence += jetaug
-
-    if jetaugtool not in jetaug.AugmentationTools:
-        jetaug.AugmentationTools.append(jetaugtool)
-
-def getJetAugmentationTool(jetalg, suffix=''):
-    jetaugtoolname = 'DFJetAug_'+jetalg+suffix
-    jetaugtool = None
-    from AthenaCommon.AppMgr import ToolSvc
-    if hasattr(ToolSvc,jetaugtoolname):
-        jetaugtool = getattr(ToolSvc,jetaugtoolname)
-    else:
-        inJets = jetalg+'Jets'
-        if '_BTagging' in jetalg:
-          inJets = jetalg.replace('_BTagging','Jets_BTagging')
-        jetaugtool = CfgMgr.DerivationFramework__JetAugmentationTool(jetaugtoolname,
-                                                                     InputJets=inJets)
-        ToolSvc += jetaugtool
-
-    return jetaugtool
-
-##################################################################
-
 def getJetExternalAssocTool(jetalg, extjetalg, **options):
     jetassoctoolname = 'DFJetExternalAssoc_%s_From_%s' % (jetalg, extjetalg)
     jetassoctool = None
