@@ -31,6 +31,16 @@ __all__ = [ 'Configurable',
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'Configurable' )
 
+# context manager, sets the configurableRun3Behavior flag
+class ConfigurableRun3Behavior:
+    def __init__(self, target_state=1):
+        self._target_state = target_state
+        self._previous_state = None
+    def __enter__(self):
+        self._previous_state = Configurable.configurableRun3Behavior
+        Configurable.configurableRun3Behavior = self._target_state
+    def __exit__(self, exception_type, exception_value, traceback):
+        Configurable.configurableRun3Behavior = self._previous_state
 
 ### base class for configurable Gaudi algorithms/services/algtools/etc. ======
 class Configurable(metaclass=ConfigurableMeta.ConfigurableMeta ):

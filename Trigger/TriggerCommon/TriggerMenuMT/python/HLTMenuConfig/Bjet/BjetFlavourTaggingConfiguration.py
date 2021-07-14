@@ -2,7 +2,6 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 from BTagging.JetParticleAssociationAlgConfig import JetParticleAssociationAlgCfg
 from BTagging.JetSecVtxFindingAlgConfig import JetSecVtxFindingAlgCfg
@@ -12,12 +11,10 @@ from BTagging.BTagTrackAugmenterAlgConfig import BTagTrackAugmenterAlgCfg
 from BTagging.BTagHighLevelAugmenterAlgConfig import BTagHighLevelAugmenterAlgCfg
 from BTagging.HighLevelBTagAlgConfig import HighLevelBTagAlgCfg
 
-def getFlavourTagging( inputJets, inputVertex, inputTracks , inputMuons = ""):
+def getFlavourTagging( inputJets, inputVertex, inputTracks, BTagName,
+                       inputMuons = ""):
 
     acc = ComponentAccumulator()
-    
-    #Output container names as defined in TriggerEDMRun3
-    BTagName = recordable("HLT_BTagging")
 
     #Particle to Jet Association
     acc.merge(JetParticleAssociationAlgCfg(ConfigFlags, inputJets.replace("Jets",""), inputTracks, "TracksForBTagging"))
@@ -33,13 +30,13 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks , inputMuons = ""):
     for sv in SecVertexers:
         acc.merge(JetSecVtxFindingAlgCfg(ConfigFlags, inputJets.replace("Jets",""), inputVertex, sv, "TracksForBTagging"))
         acc.merge(JetSecVertexingAlgCfg(ConfigFlags, BTagName, inputJets.replace("Jets",""), inputTracks, inputVertex, sv))
-    
+
     #Run Run2 taggers, i.e. IP2D, IP3D, SV1, JetFitter, MV2c10
     acc.merge(JetBTaggingAlgCfg(ConfigFlags, BTaggingCollection=BTagName, JetCollection=inputJets.replace("Jets",""), PrimaryVertexCollectionName=inputVertex, TaggerList=ConfigFlags.BTagging.Run2TrigTaggers, SetupScheme="Trig", SecVertexers = SecVertexers, Tracks = "TracksForBTagging", Muons = Muons))
 
     #Track Augmenter
     acc.merge(BTagTrackAugmenterAlgCfg(ConfigFlags, TrackCollection=inputTracks, PrimaryVertexCollectionName=inputVertex))
-    
+
     #Jet Augmenter
     acc.merge(BTagHighLevelAugmenterAlgCfg(
         ConfigFlags,
