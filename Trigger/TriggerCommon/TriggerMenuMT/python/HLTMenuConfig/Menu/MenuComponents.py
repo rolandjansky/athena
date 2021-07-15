@@ -1044,7 +1044,7 @@ class InEventRecoCA( ComponentAccumulator ):
 
 class InViewRecoCA(ComponentAccumulator):
     """ Class to handle in-view reco, sets up the View maker if not provided and exposes InputMaker so that more inputs to it can be added in the process of assembling the menu """
-    def __init__(self, name, viewMaker=None, roisKey=None):
+    def __init__(self, name, viewMaker=None, roisKey=None, RequireParentView=None):
         super( InViewRecoCA, self ).__init__()
         self.name = name
         self.mainSeq = seqAND( name )
@@ -1054,6 +1054,8 @@ class InViewRecoCA(ComponentAccumulator):
 
         if viewMaker:
             self.viewMakerAlg = viewMaker
+            assert RequireParentView is None, "Can not specify viewMaker and settings (RequreParentView) of default ViewMaker"
+            assert roisKey is None, "Can not specify viewMaker and settings (roisKey) of default ViewMaker"
         else:
             self.viewMakerAlg = CompFactory.EventViewCreatorAlgorithm("IM"+name,
                                                           ViewFallThrough = True,
@@ -1061,7 +1063,8 @@ class InViewRecoCA(ComponentAccumulator):
                                                           RoITool         = ViewCreatorInitialROITool(),
                                                           InViewRoIs      = roisKey if roisKey else name+'RoIs',
                                                           Views           = name+'Views',
-                                                          ViewNodeName    = name+"InView")
+                                                          ViewNodeName    = name+"InView", 
+                                                          RequireParentView = RequireParentView if RequireParentView else False)
 
         self.addEventAlgo( self.viewMakerAlg, self.mainSeq.name )
         self.viewsSeq = parOR( self.viewMakerAlg.ViewNodeName )

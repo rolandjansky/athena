@@ -63,7 +63,7 @@ def _ftf(flags, chainDict):
     return ChainStep( name=selAcc.name, Sequences=[fastInDetSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 
 def _precisonCalo(flags, chainDict):
-    recoAcc = InViewRecoCA('ElectronRoITopoClusterReco')
+    recoAcc = InViewRecoCA('ElectronRoITopoClusterReco', RequireParentView = True)
     recoAcc.addRecoAlgo(CompFactory.AthViews.ViewDataVerifier(name='VDV'+recoAcc.name,
                                                               DataObjects=[('TrigRoiDescriptorCollection', recoAcc.inputMaker().InViewRoIs),
                                                                            ('CaloBCIDAverage', 'StoreGateSvc+CaloBCIDAverage')]))
@@ -71,7 +71,7 @@ def _precisonCalo(flags, chainDict):
     from TrigCaloRec.TrigCaloRecConfig import hltCaloTopoClusteringCfg
     recoAcc.mergeReco(hltCaloTopoClusteringCfg(flags,
                                                namePrefix="Electron",
-                                               roisKey=recoAcc.inputMaker().InViewRoIs)) # RoI
+                                               roisKey=recoAcc.inputMaker().InViewRoIs) ) # RoI
 
     copier = CompFactory.egammaTopoClusterCopier('TrigEgammaTopoClusterCopierPrecisionCaloRoIs',
                                                  InputTopoCollection='HLT_TopoCaloClustersRoI',
@@ -90,6 +90,33 @@ def _precisonCalo(flags, chainDict):
     return ChainStep(name=selAcc.name, Sequences=[menuSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 
 
+def _precisionTracking(flags, chainDict):
+    selAcc=SelectionCA('ElectronPrecision')
+
+    name = "IMPrecisionTrackingElectron"
+    evtViewMaker = CompFactory.EventViewCreatorAlgorithm(name,
+                                                            ViewFallThrough = True,
+                                                            RoIsLink        = 'initialRoI',
+                                                            RoITool         = CompFactory.ViewCreatorPreviousROITool(),
+                                                            InViewRoIs      = flags.Trigger.InDetTracking.Electron.roi, #this will then be renamed to: flags.InDet.Tracking.roi
+                                                            Views           = name+'Views',
+                                                            ViewNodeName    = 'PrecisionElectronInView',
+                                                            RequireParentView = True)
+    del name
+    precisionInDetReco = InViewRecoCA('PrecionTrackingElectron', viewMaker=evtViewMaker)
+
+    from TrigInDetConfig.TrigInDetConfig import trigInDetPrecisionTrackingCfg
+    idTracking = trigInDetPrecisionTrackingCfg(flags, signatureName="Electron")
+    precisionInDetReco.mergeReco(idTracking)
+
+    selAcc.mergeReco(precisionInDetReco)
+    from TrigEgammaHypo.TrigEgammaPrecisionTrackingHypoTool import TrigEgammaPrecisionTrackingHypoToolFromDict
+    hypoAlg = CompFactory.TrigEgammaPrecisionTrackingHypoAlg("ElectronprecisionEtcutHypo")
+    selAcc.addHypoAlgo(hypoAlg)
+    menuSequence = MenuSequenceCA(selAcc,
+                                  HypoToolGen=TrigEgammaPrecisionTrackingHypoToolFromDict)
+    return ChainStep(name=selAcc.name, Sequences=[menuSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
+
 def generateChains(flags, chainDict):
 
     l1Thresholds=[]
@@ -98,7 +125,10 @@ def generateChains(flags, chainDict):
 
     # # # offline egamma
     chain = Chain(chainDict['chainName'], L1Thresholds=l1Thresholds,
-                            ChainSteps=[_fastCalo(flags, chainDict), _ftf(flags, chainDict), _precisonCalo(flags, chainDict)])
+                            ChainSteps=[_fastCalo(flags, chainDict),
+                                        _ftf(flags, chainDict),
+                                        _precisonCalo(flags, chainDict),
+                                        _precisionTracking(flags, chainDict)])
 
     return chain
 

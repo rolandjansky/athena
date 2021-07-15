@@ -457,7 +457,7 @@ def generateDecisionTree(flags, chains):
                 for inIndex, input in enumerate(filterAlg.Input):
                     log.info("%s filered chains from input: %s : %s",
                              stepCounter, input,  ", ".join(filterAlg.ChainsPerInput[inIndex]))
-                assert len(filterAlg.IOMapping) == len(filterAlg.Output), "Not all output will be filled in filter"
+                assert len(filterAlg.IOMapping) == len(filterAlg.Output), "Not all output will be filled in filter, while processing chain {}".format(chain.name)
 
             imAlgs = findAllInputMakers( stepCounter, step.name )
             for imAlg in imAlgs:
