@@ -12,7 +12,7 @@
 #include <MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
 #include <SelectionHelpers/SelectionReadHandle.h>
-#include <SystematicsHandles/SysCopyHandle.h>
+#include <SystematicsHandles/SysReadHandle.h>
 #include <SystematicsHandles/SysWriteDecorHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <SystematicsHandles/SysReadHandle.h>
@@ -49,7 +49,7 @@ namespace CP
 
     /// \brief the muon collection we run on
   private:
-    SysCopyHandle<xAOD::MuonContainer> m_muonHandle {
+    SysReadHandle<xAOD::MuonContainer> m_muonHandle {
       this, "muons", "Muons", "the muon collection to run on"};
 
     /// \brief the EventInfo collection we use

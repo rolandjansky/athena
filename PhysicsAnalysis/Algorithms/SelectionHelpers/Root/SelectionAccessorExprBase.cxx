@@ -11,13 +11,13 @@ SelectionType SelectionAccessorExprBase::getBits(
   return getBool(element) ? selectionAccept() : selectionReject();
 }
 
-void SelectionAccessorExprBase::setBool(SG::AuxElement& /*element*/,
+void SelectionAccessorExprBase::setBool(const SG::AuxElement& /*element*/,
                                         bool /*value*/) const {
   throw std::runtime_error(
       "setting not supported for CP::SelectionAccessorExprBase");
 }
 
-void SelectionAccessorExprBase::setBits(SG::AuxElement& /*element*/,
+void SelectionAccessorExprBase::setBits(const SG::AuxElement& /*element*/,
                                         SelectionType /*selection*/) const {
   throw std::runtime_error(
       "setting not supported for CP::SelectionAccessorExprBase");

@@ -85,7 +85,7 @@ namespace CP
 
     /// \brief the event info object we are decorating
   private:
-    xAOD::EventInfo *m_eventInfo {nullptr};
+    const xAOD::EventInfo *m_eventInfo {nullptr};
 
     /// \brief the value of passed we will set
   private:

@@ -4,6 +4,7 @@
 # art-description: Trigger RDO->RDO_TRIG athena test of the Cosmic_run3_v1 menu
 # art-type: grid
 # art-include: master/Athena
+# art-athena-mt: 4
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
@@ -24,7 +25,8 @@ ex = ExecStep.ExecStep()
 ex.type = 'athena'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'mc_cosmics'
-ex.threads = 1
+ex.threads = 4
+ex.concurrent_events = 4
 ex.args = '-c "setMenu=\'Cosmic_run3_v1\';doCosmics=True;doWriteBS=False;doWriteRDOTrigger=True;"'
 
 test = Test.Test()

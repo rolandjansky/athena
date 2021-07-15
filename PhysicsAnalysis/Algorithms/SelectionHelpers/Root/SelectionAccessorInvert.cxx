@@ -36,7 +36,7 @@ namespace CP
 
 
   void SelectionAccessorInvert ::
-  setBits (SG::AuxElement& element,
+  setBits (const SG::AuxElement& element,
            SelectionType selection) const
   {
     m_base->setBool (element, selection != selectionAccept());
@@ -53,7 +53,7 @@ namespace CP
 
 
   void SelectionAccessorInvert ::
-  setBool (SG::AuxElement& element,
+  setBool (const SG::AuxElement& element,
            bool selection) const
   {
     m_base->setBool (element, !selection);

@@ -53,14 +53,14 @@ namespace CP
   execute ()
   {
     return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
-      xAOD::EventInfo *eventInfo = nullptr;
-      ANA_CHECK (m_eventInfoHandle.getCopy (eventInfo, sys));
+      const xAOD::EventInfo *eventInfo = nullptr;
+      ANA_CHECK (m_eventInfoHandle.retrieve (eventInfo, sys));
 
-      xAOD::IParticleContainer *particles = nullptr;
-      ANA_CHECK (m_particleHandle.getCopy (particles, sys));
+      const xAOD::IParticleContainer *particles = nullptr;
+      ANA_CHECK (m_particleHandle.retrieve (particles, sys));
 
       float scaleFactor = 1;
-      for (xAOD::IParticle *particle : *particles)
+      for (const xAOD::IParticle *particle : *particles)
       {
         if (m_preselection.getBool (*particle))
         {

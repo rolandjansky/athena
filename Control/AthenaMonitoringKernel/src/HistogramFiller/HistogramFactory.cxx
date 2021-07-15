@@ -283,12 +283,23 @@ std::string HistogramFactory::getFullName(const HistogramDef& def) const {
 void HistogramFactory::remove(const HistogramDef& def) {
   std::string path = getFullName( def );
 
+  bool exists = false;
+  if (def.type=="TEfficiency") {
+    exists = m_histSvc->existsEfficiency(path);
+  } else if (def.type=="TGraph") {
+    exists = m_histSvc->existsGraph(path);
+  } else if (def.type=="TTree") {
+    exists = m_histSvc->existsTree(path);
+  } else {
+    exists = m_histSvc->existsHist(path);
+  }
+
   // see docu here:
   // https://acode-browser1.usatlas.bnl.gov/lxr/source/Gaudi/GaudiSvc/src/THistSvc/THistSvc.h#0146
   // and here:
   // https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/HLT/Trigger/TrigControl/TrigServices/src/TrigMonTHistSvc.cxx#0216
   // online implementation actually claims ownership of the object and we ever need to call this in online situation
   //
-  if ( m_histSvc->exists( path) )
+  if (exists)
     m_histSvc->deReg(path).ignore(); // we actually ignore if that was sucessfull as we plan to use is eagerly to cleanup LumiBlock histograms history
 }
