@@ -742,9 +742,9 @@ InDet::CompetingTRT_DriftCirclesOnTrackTool::createSimpleCompetingROT(
     ATH_MSG_WARNING( "first and only DriftCircleOnTrack could not be created.");
     return nullptr;
   }
-  std::vector< const Trk::RIO_OnTrack* >* ROTvector = new std::vector<const Trk::RIO_OnTrack*>;
-  std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb > *assgnProbVector =
-    new std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >;
+  auto ROTvector = std::make_unique<std::vector<const Trk::RIO_OnTrack*>>();
+  auto assgnProbVector =
+    std::make_unique<std::vector<Trk::CompetingRIOsOnTrack::AssignmentProb>>();
   ROTvector->push_back(rot1);
   Trk::CompetingRIOsOnTrack::AssignmentProb assgnProb1 =
     m_weightCalculator->calculateWeight(trkPars, *rot1, beta);
@@ -791,7 +791,7 @@ InDet::CompetingTRT_DriftCirclesOnTrackTool::createSimpleCompetingROT(
   // --- call normalize()
   double thisWeightCut = (std::abs(trkPars.position().z())>800.0 ?
                           m_jo_EndCapCutValue : m_jo_BarrelCutValue );
-  m_weightCalculator->normalize(*assgnProbVector, ROTvector, beta, thisWeightCut);
+  m_weightCalculator->normalize(*assgnProbVector, ROTvector.get(), beta, thisWeightCut);
 
   double meanWeight = assgnProbVector->at(0) /std::sqrt( ROTvector->at(0)->localCovariance()(Trk::locX,Trk::locX));
   double meanDriftR = meanWeight * ROTvector->at(0)->localParameters()[Trk::locX];
@@ -816,20 +816,26 @@ InDet::CompetingTRT_DriftCirclesOnTrackTool::createSimpleCompetingROT(
     new std::vector<const InDet::TRT_DriftCircleOnTrack*>;
   const InDet::TRT_DriftCircleOnTrack* dc1 = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>
     ( ROTvector->at(0));
-  if (!dc1) throw std::logic_error("Not a TRT_DriftCircleOnTrack");
+  if (!dc1) {
+    throw std::logic_error("Not a TRT_DriftCircleOnTrack");
+  }
   DCvector->push_back(dc1);
   if (ROTvector->size() > 1) {
     const InDet::TRT_DriftCircleOnTrack* dc2
       = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>( ROTvector->at(1));
-    if (!dc2) throw std::logic_error("Not a TRT_DriftCircleOnTrack");
+    if (!dc2) {
+      throw std::logic_error("Not a TRT_DriftCircleOnTrack");
+    }
       DCvector->push_back(dc2);
   }
   InDet::CompetingTRT_DriftCirclesOnTrack* theCompetingROT =
-    new InDet::CompetingTRT_DriftCirclesOnTrack
-    (PrdSf, DCvector, assgnProbVector,
-     new Trk::LocalParameters(effectiveLocalPar), new Amg::MatrixX(meanCovMatrix), 4 /* 4 = common surface*/ );
-  //    testCompetingROT(*theCompetingROT);
-  delete ROTvector;
+    new InDet::CompetingTRT_DriftCirclesOnTrack(
+      PrdSf,
+      DCvector,
+      assgnProbVector.release(),
+      new Trk::LocalParameters(effectiveLocalPar),
+      new Amg::MatrixX(meanCovMatrix),
+      4 /* 4 = common surface*/);
   return theCompetingROT;
 }
 
