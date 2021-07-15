@@ -63,6 +63,7 @@ namespace Rec {
                                                    double& E_tile_meas, double& E_tile_exp, double& E_HEC_meas, double& E_HEC_exp,
                                                    double& E_dead_exp, std::vector<Identifier>* crossedCells,
                                                    std::vector<double>* sigmaNoise_cell, std::vector<double>* E_exp_cell) const {
+        const EventContext& ctx = Gaudi::Hive::currentContext();
         //
         // Input parameters trk:        (muon) track pointer
         //                  deltaE:     Mean Energy loss in Calorimeter
@@ -129,7 +130,7 @@ namespace Rec {
 
         const xAOD::TrackParticle* tp = nullptr;
 
-        SG::ReadHandle<xAOD::TrackParticleContainer> indetTrackParticles(m_indetTrackParticleLocation);
+        SG::ReadHandle<xAOD::TrackParticleContainer> indetTrackParticles(m_indetTrackParticleLocation,ctx);
         if (indetTrackParticles.isValid()) {
             // check ID trackparticles
             for (const auto *it : *indetTrackParticles) {
@@ -145,7 +146,7 @@ namespace Rec {
 
         // look for Muon trackparticles
 
-        SG::ReadHandle<xAOD::TrackParticleContainer> muonTrackParticles(m_muonTrackParticleLocation);
+        SG::ReadHandle<xAOD::TrackParticleContainer> muonTrackParticles(m_muonTrackParticleLocation,ctx);
         if (!tp && muonTrackParticles.isValid()) {
             for (const auto *it : *muonTrackParticles) {
                 if ((*it).track() == trk) {
@@ -466,7 +467,7 @@ namespace Rec {
         // Corrections for dead material 0.15*E_tile_expected + 0.20*E_HEC_expected;
 
         double E_dead = E_expected - E_em_expected - E_tile_expected - E_HEC_expected + 0.12 * E_tile_expected + 0.27 * E_HEC_expected;
-        ;
+        
 
         //  treatment of FSR
 
@@ -474,7 +475,7 @@ namespace Rec {
         double E_measured = 0.;
         double E_measured_expected = E_em_expected + E_tile_expected + E_HEC_expected;
         //     if(E_em*cos(theta)>m_emEtCut&&E_em1>0.15*E_em) {
-        if (E_em * sin(theta) > m_emEtCut) {
+        if (E_em * std::sin(theta) > m_emEtCut) {
             // large e.m. deposit starting in first e.m. layer
             E_FSR = E_em;
             // do not use measured e.m. energy for muons and use expected (tile and HEC are fine)
@@ -493,14 +494,14 @@ namespace Rec {
         // eta dependent correction
 
         double etaPos = caloExtension.caloEntryLayerIntersection()->position().eta();
-        E = E + etaCorr(etaPos) * E_expected;
+        E += etaCorr(etaPos) * E_expected;
 
         ATH_MSG_DEBUG(" Total energy " << E << " sigma " << sigma << " E calo measured in cells " << E_measured
                                        << " E calo expected in cells " << E_measured_expected << " E_expected meanIoni from TG "
                                        << E_expected);
 
         if (E_em + E_tile + E_HEC < 0.1 * E && E_em + E_tile + E_HEC > 1000.) {
-            ATH_MSG_WARNING(" Real Measured Calorimeter energy " << E_em + E_tile + E_HEC << " is much lower than total " << E
+            ATH_MSG_DEBUG(" Real Measured Calorimeter energy " << E_em + E_tile + E_HEC << " is much lower than total " << E
                                                                  << " expected energy too large " << E_expected
                                                                  << " put measured energy to zero ");
             E = 0.;
