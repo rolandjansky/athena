@@ -51,7 +51,7 @@ public:
     }
 
     //**********************************************************************
-    sTgcVMMSim(const std::vector<sTgcDigit> inputDigits,
+    sTgcVMMSim(std::vector<sTgcDigit> inputDigits,
         float time,
         float deadWindow,
         float readWindow,
@@ -59,7 +59,7 @@ public:
         int typeOfChannel)
         : m_deadtimeStart(-9999)
         , m_readtimeStart(-9999)
-        , m_digitsIn(inputDigits)
+        , m_digitsIn(std::move(inputDigits))
         , m_currentState(READY)
         , m_vmmTime(time)
         , m_readtimeWindow(readWindow)

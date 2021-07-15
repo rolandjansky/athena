@@ -50,8 +50,6 @@ public:
   CscSimData();
   CscSimData (const std::vector<Deposit>& deposits, int simDataWord =0);
   CscSimData (      std::vector<Deposit>&& deposits, int simDataWord =0);
-  CscSimData (const CscSimData& rhs) = default;
-  ~CscSimData() = default;
   int word() const;                       // Get the packed simdata word
   void deposits(std::vector<Deposit>& deposits) const; // Get the Deposits
   const std::vector< Deposit >& getdeposits() const;

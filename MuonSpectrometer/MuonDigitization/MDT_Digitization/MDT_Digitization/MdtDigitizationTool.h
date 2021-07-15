@@ -151,7 +151,7 @@ private:
 
     ToolHandle<IMDT_DigitizationTool> m_digiTool{this, "DigitizationTool", "MDT_Response_DigiTool",
                                                  "Tool which handle the digitization process"};
-    std::list<MDTSimHitCollection*> m_MDTHitCollList;
+    std::vector<MDTSimHitCollection*> m_MDTHitCollList;
 
     // TDC ELECTRONICS
     Gaudi::Property<double> m_offsetTDC{this, "OffsetTDC", 800., "TDC offset used if no calibration data is found"};

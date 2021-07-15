@@ -79,8 +79,8 @@ inline bool sort_EarlyToLate(tempDigitType a, tempDigitType b){
   return a.first < b.first;
 }
 
-inline bool sort_digitsEarlyToLate(sTgcSimDigitData a, sTgcSimDigitData b){
-  return (a.getSTGCDigit()).time() < (b.getSTGCDigit()).time();
+inline bool sort_digitsEarlyToLate(const sTgcSimDigitData &a, const sTgcSimDigitData &b){
+  return a.getSTGCDigit().time() < b.getSTGCDigit().time();
 }
 
 /*******************************************************************************/
@@ -527,17 +527,17 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 
         ATH_MSG_VERBOSE("...Check time 5: " << newTime );
         // Create a new digit with updated time and BCTag
-        auto newDigit = std::make_unique<sTgcDigit>(newDigitId, newBcTag, newTime, newCharge, isDead, isPileup);  
+        sTgcDigit newDigit(newDigitId, newBcTag, newTime, newCharge, isDead, isPileup);
         ATH_MSG_VERBOSE("Unmerged Digit") ;
-        ATH_MSG_VERBOSE(" BC tag = "    << newDigit->bcTag()) ;
-        ATH_MSG_VERBOSE(" digitTime = " << newDigit->time()) ;
-        ATH_MSG_VERBOSE(" charge = "    << newDigit->charge()) ;
+        ATH_MSG_VERBOSE(" BC tag = "    << newDigit.bcTag()) ;
+        ATH_MSG_VERBOSE(" digitTime = " << newDigit.time()) ;
+        ATH_MSG_VERBOSE(" charge = "    << newDigit.charge()) ;
 
         // Create a MuonSimData (SDO) corresponding to the digit
         MuonSimData::Deposit deposit(particleLink, MuonMCData(hit.depositEnergy(), tof));
         std::vector<MuonSimData::Deposit> deposits;
         deposits.push_back(deposit);
-        MuonSimData simData(deposits, hit.particleEncoding());
+        MuonSimData simData(std::move(deposits), hit.particleEncoding());
         // The sTGC SDO should be placed at the center of the gap, same as the digits.
         // We use the position from the hit on the wire surface which is by construction in the center of the gap
         // G_HITONSURFACE_WIRE projects the whole hit to the center of the gap
@@ -546,15 +546,15 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 
         if(newChannelType == 0){ //Pad Digit
           //Put the hit and digit in a vector associated with the RE
-          unmergedPadDigits[elemId][newDigitId].push_back(sTgcSimDigitData(simData, *newDigit));   
+          unmergedPadDigits[elemId][newDigitId].emplace_back(simData, newDigit);
         }
         else if(newChannelType == 1){ //Strip Digit
           //Put the hit and digit in a vector associated with the RE
-          unmergedStripDigits[elemId][newDigitId].push_back(sTgcSimDigitData(simData, *newDigit));   
+          unmergedStripDigits[elemId][newDigitId].emplace_back(simData, newDigit);
         }
         else if(newChannelType == 2){ //Wire Digit
           //Put the hit and digit in a vector associated with the RE
-          unmergedWireDigits[elemId][newDigitId].push_back(sTgcSimDigitData(simData, *newDigit));   
+          unmergedWireDigits[elemId][newDigitId].emplace_back(simData, newDigit);
         }
       } // end of loop digiHits
     } // end of while(i != e)
@@ -633,7 +633,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 
       float vmmStartTime = (*(merged_pad_digits.begin())).time();
 
-      std::unique_ptr<sTgcVMMSim> theVMM = std::make_unique<sTgcVMMSim>(merged_pad_digits, vmmStartTime, m_deadtimePad, m_readtimePad, m_produceDeadDigits, 0);  // object to simulate the VMM response
+      std::unique_ptr<sTgcVMMSim> theVMM = std::make_unique<sTgcVMMSim>(std::move(merged_pad_digits), vmmStartTime, m_deadtimePad, m_readtimePad, m_produceDeadDigits, 0);  // object to simulate the VMM response
       theVMM->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
       theVMM->initialReport();
 
@@ -732,7 +732,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       ATH_MSG_VERBOSE("Merging complete for Strip REID[" << it_REID->first.getString() << "]");
       ATH_MSG_VERBOSE(it_REID->second.size() << " digits on the channel after merging");
       vmmArray[it_DETEL->first][it_REID->first].first = true;
-      std::unique_ptr<sTgcVMMSim> vMMSimPtr = std::make_unique<sTgcVMMSim>(merged_strip_digits, (earliestEventTime-25), m_deadtimeStrip, m_readtimeStrip, m_produceDeadDigits, 1); // object to simulate the VMM response
+      std::unique_ptr<sTgcVMMSim> vMMSimPtr = std::make_unique<sTgcVMMSim>(std::move(merged_strip_digits), (earliestEventTime-25), m_deadtimeStrip, m_readtimeStrip, m_produceDeadDigits, 1); // object to simulate the VMM response
       vmmArray[it_DETEL->first][it_REID->first].second = std::move(vMMSimPtr);
       vmmArray[it_DETEL->first][it_REID->first].second->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
       ATH_MSG_VERBOSE("VMM instantiated for Strip REID[" << it_REID->first.getString() << "]");
@@ -797,7 +797,8 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
     }
   }
   ATH_MSG_VERBOSE("There are " << nStripDigits << " flushed strip digits in this event.");
-
+  static_assert(std::is_nothrow_move_constructible<MuonSimData>::value);
+  static_assert(std::is_nothrow_move_constructible<sTgcSimDigitData>::value);//CscSimData
   /**********************************
    * PROCESS WIRE DIGIT *
    *********************************/
@@ -875,7 +876,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 
       float vmmStartTime = (*(merged_wire_digits.begin())).time();
 
-      std::unique_ptr<sTgcVMMSim> theVMM = std::make_unique<sTgcVMMSim>(merged_wire_digits, vmmStartTime, m_deadtimeWire, m_readtimeWire, m_produceDeadDigits, 2);  // object to simulate the VMM response
+      std::unique_ptr<sTgcVMMSim> theVMM = std::make_unique<sTgcVMMSim>(std::move(merged_wire_digits), vmmStartTime, m_deadtimeWire, m_readtimeWire, m_produceDeadDigits, 2);  // object to simulate the VMM response
       theVMM->setMessageLevel(msgLevel());
       theVMM->initialReport();
 
