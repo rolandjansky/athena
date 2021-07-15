@@ -45,10 +45,7 @@ def makeSequence (dataType) :
     metSequence.configure( inputName = { 'jets'      : 'AnalysisJets_%SYS%',
                                          'muons'     : 'Muons',
                                          'electrons' : 'METElectrons_%SYS%' },
-                           outputName = 'AnalysisMET_%SYS%',
-                           affectingSystematics = { 'jets'      : jetSequence.affectingSystematics(),
-                                                    'muons'     : '(^$)',
-                                                    'electrons' : '(^$)' } )
+                           outputName = 'AnalysisMET_%SYS%' )
 
     # Add the sequence to the job:
     algSeq += metSequence
@@ -65,7 +62,6 @@ def makeSequence (dataType) :
                              'AnalysisMET_%SYS%.mpy   -> met_%SYS%_mpy',
                              'AnalysisMET_%SYS%.sumet -> met_%SYS%_sumet',
                              'AnalysisMET_%SYS%.name  -> met_%SYS%_name', ]
-    ntupleMaker.systematicsRegex = '.*'
     algSeq += ntupleMaker
     treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
     treeFiller.TreeName = 'met'

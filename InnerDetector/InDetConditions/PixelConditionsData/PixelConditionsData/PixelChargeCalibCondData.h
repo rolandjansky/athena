@@ -15,6 +15,7 @@ class PixelChargeCalibCondData {
     virtual ~PixelChargeCalibCondData();
 
     enum PixelType{NORMAL,LONG,GANGED};
+    enum CalibrationStrategy{RUN1PIX,LUTFEI4,RD53};
 
     // Normal pixel
     void setAnalogThreshold(const int chanNum, const int value);
@@ -59,6 +60,14 @@ class PixelChargeCalibCondData {
     float getToT(const int chanNum, const int FE, const int type, float Q) const;
     float getCharge(const int chanNum, const int FE, const int type, float ToT) const;
 
+    // new IBL calibration
+    void  setCalibrationStrategy(const int chanNum, const int type);
+    void  setTot2Charges(const int chanNum, const std::array<float,16> charges);
+    const std::array<float,16> getQs(const int chanNum, const int FE) const;
+    int   getCalibrationStrategy(const int chanNum) const;
+    float getChargeLUTFEI4(const int chanNum, const int FE, float ToT) const;
+    float getToTLUTFEI4(const int chanNum, const int FE, float Q) const;
+
     void clear();
 
   private:
@@ -93,6 +102,11 @@ class PixelChargeCalibCondData {
     chipThreshold m_analogThresholdSigmaGanged;
     chipThreshold m_analogThresholdNoiseGanged;
     chipThreshold m_intimethresholdGanged;
+
+    // new IBL calibration
+    std::map<int, int> m_calibrationStrategy;
+    typedef std::vector<std::array<float,16>> IBLModule;
+    std::map<int,IBLModule> m_tot2chrg;
 
 };
 

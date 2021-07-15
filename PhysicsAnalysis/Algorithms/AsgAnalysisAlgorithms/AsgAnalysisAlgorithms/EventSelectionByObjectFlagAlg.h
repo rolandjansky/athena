@@ -9,7 +9,6 @@
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <SelectionHelpers/SelectionReadHandle.h>
-#include <SystematicsHandles/SysDecorationHandle.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysFilterReporterParams.h>
 #include <SystematicsHandles/SysListHandle.h>

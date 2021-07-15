@@ -324,6 +324,9 @@ void PixelChargeCalibCondData::setInTimeThresholdGanged(const int chanNum, const
 }
 
 float PixelChargeCalibCondData::getToT(const int chanNum, const int FE, const int type, float Q) const {
+  if (getCalibrationStrategy(chanNum)==CalibrationStrategy::LUTFEI4) {
+    return getToTLUTFEI4(chanNum,FE,Q);
+  }
   float paramA = getQ2TotA(chanNum,FE,type);
   float paramE = getQ2TotE(chanNum,FE,type);
   float paramC = getQ2TotC(chanNum,FE,type);
@@ -331,6 +334,9 @@ float PixelChargeCalibCondData::getToT(const int chanNum, const int FE, const in
 }
 
 float PixelChargeCalibCondData::getCharge(const int chanNum, const int FE, const int type, float ToT) const {
+  if (getCalibrationStrategy(chanNum)==CalibrationStrategy::LUTFEI4) {
+    return getChargeLUTFEI4(chanNum,FE,ToT);
+  }
   float paramA = getQ2TotA(chanNum,FE,type);
   float paramE = getQ2TotE(chanNum,FE,type);
   float paramC = getQ2TotC(chanNum,FE,type);
@@ -339,6 +345,56 @@ float PixelChargeCalibCondData::getCharge(const int chanNum, const int FE, const
     charge = (paramC*ToT/paramA-paramE)/(1.0-ToT/paramA);
   }
   return charge;
+}
+
+void PixelChargeCalibCondData::setCalibrationStrategy(const int chanNum, const int type) {
+  m_calibrationStrategy[chanNum] = type;
+}
+
+int PixelChargeCalibCondData::getCalibrationStrategy(const int chanNum) const {
+  auto itr = m_calibrationStrategy.find(chanNum);
+  if (itr!=m_calibrationStrategy.end()) {
+    return itr->second;
+  }
+  return 0;
+}
+
+void PixelChargeCalibCondData::setTot2Charges(const int chanNum, const std::array<float,16> charges) {
+  std::map<int,IBLModule>::iterator it = m_tot2chrg.find(chanNum);
+  if (it!=m_tot2chrg.end()) { it->second.push_back(charges); }
+  else {
+    IBLModule leading; leading.push_back(charges);
+    m_tot2chrg.insert(std::pair<int,IBLModule>(chanNum,leading));
+  }
+}
+
+const std::array<float,16> PixelChargeCalibCondData::getQs(const int chanNum, const int FE) const {
+  std::array<float,16> defQ = { 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0. };
+  auto itr = m_tot2chrg.find(chanNum);
+  if (itr!=m_tot2chrg.end()) {
+    IBLModule chip = itr->second;
+    defQ = chip.at(FE);
+  }
+  return defQ ;
+}
+
+float PixelChargeCalibCondData::getChargeLUTFEI4(const int chanNum, const int FE, float ToT) const {
+  std::array<float,16> chrg = getQs(chanNum,FE);
+  return chrg[(int)ToT-1];
+}
+
+float PixelChargeCalibCondData::getToTLUTFEI4(const int chanNum, const int FE, float Q) const {
+  float tot = -1;
+  float minDif = 9999999.9;
+  for (unsigned int t=0; t<16; t++) {
+    float chrg = getChargeLUTFEI4(chanNum,FE,1.0*(t+1));
+    float dif = std::fabs(chrg-Q);
+    if (dif<minDif) {
+      minDif = dif;
+      tot = 1.0*(t+1);
+    }
+  }
+  return tot;
 }
 
 void PixelChargeCalibCondData::clear() {

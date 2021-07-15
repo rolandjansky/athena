@@ -32,9 +32,9 @@ namespace CP
   initialize ()
   {
     ANA_CHECK (m_isolationCorrectionTool.retrieve());
-    if (m_electronsHandle) m_systematicsList.addHandle (m_electronsHandle);
-    if (m_muonsHandle) m_systematicsList.addHandle (m_muonsHandle);
-    if (m_photonsHandle) m_systematicsList.addHandle (m_photonsHandle);
+    ANA_CHECK (m_electronsHandle.initialize (m_systematicsList, SG::AllowEmpty));
+    ANA_CHECK (m_muonsHandle.initialize (m_systematicsList, SG::AllowEmpty));
+    ANA_CHECK (m_photonsHandle.initialize (m_systematicsList, SG::AllowEmpty));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
     return StatusCode::SUCCESS;

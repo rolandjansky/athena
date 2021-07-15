@@ -9,9 +9,6 @@
 #include "AthContainers/AuxVectorBase.h"
 #include "AthContainers/normalizedTypeinfoName.h"
 
-// Framework include(s):
-#include "SystematicsHandles/Helpers.h"
-
 // ROOT include(s):
 #include <TClass.h>
 #include <TTree.h>

@@ -33,7 +33,7 @@ namespace CP
   initialize ()
   {
     ANA_CHECK (m_matchingTool.retrieve());
-    m_systematicsList.addHandle (m_tauHandle);
+    ANA_CHECK (m_tauHandle.initialize (m_systematicsList));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
     return StatusCode::SUCCESS;

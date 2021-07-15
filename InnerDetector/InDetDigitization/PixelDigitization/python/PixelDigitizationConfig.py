@@ -404,8 +404,6 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelRadSimFluenceMapAlg
         condSeq += PixelRadSimFluenceMapAlg()
 
-    useNewChargeFormat  = False
-
     ############################################################################################
     # Set up Conditions DB
     ############################################################################################
@@ -448,18 +446,19 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     #####################
     # Calibration Setup #
     #####################
-    if not useNewChargeFormat:
-        if not conddb.folderRequested("/PIXEL/PixCalib"):
-            conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection")
-        if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
-            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
-            condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
-    else:
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
+    if commonGeoFlags.Run()=="RUN3":
         if not conddb.folderRequested("/PIXEL/ChargeCalibration"):
             conddb.addFolder("PIXEL_OFL", "/PIXEL/ChargeCalibration", className="CondAttrListCollection")
         if not hasattr(condSeq, 'PixelChargeLUTCalibCondAlg'):
             from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeLUTCalibCondAlg
             condSeq += PixelChargeLUTCalibCondAlg(name="PixelChargeLUTCalibCondAlg", ReadKey="/PIXEL/ChargeCalibration")
+    else:
+        if not conddb.folderRequested("/PIXEL/PixCalib"):
+            conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection")
+        if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
+            condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
 
     #####################
     # Cabling map Setup #

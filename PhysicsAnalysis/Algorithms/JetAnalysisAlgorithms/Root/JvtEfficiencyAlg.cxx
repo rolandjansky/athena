@@ -46,8 +46,9 @@ namespace CP
     }
 
     ANA_CHECK (m_efficiencyTool.retrieve());
-    m_systematicsList.addHandle (m_jetHandle);
-    ANA_CHECK (m_systematicsList.addAffectingSystematics (m_efficiencyTool->affectingSystematics()));
+    ANA_CHECK (m_jetHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_scaleFactorDecoration.initialize (m_systematicsList, m_jetHandle, SG::AllowEmpty));
+    ANA_CHECK (m_systematicsList.addSystematics (*m_efficiencyTool));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
@@ -66,8 +67,6 @@ namespace CP
   StatusCode JvtEfficiencyAlg ::
   execute ()
   {
-    ANA_CHECK (m_scaleFactorDecoration.preExecute (m_systematicsList));
-
     return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
         ANA_CHECK (m_efficiencyTool->applySystematicVariation (sys));
         xAOD::JetContainer *jets = nullptr;

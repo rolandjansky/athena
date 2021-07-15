@@ -88,15 +88,17 @@ StatusCode PixelChargeLUTCalibCondAlg::execute(const EventContext& ctx) const {
           std::stringstream checkFE(component[i]);
           std::vector<std::string> feString;
           while (std::getline(checkFE,buffer,']')) { feString.push_back(buffer); }
-
+        
           IdentifierHash wafer_hash = IdentifierHash(i-1);
           const InDetDD::SiDetectorElement *element = elements->getDetectorElement(wafer_hash);
           const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
           int numFE = p_design->numberOfCircuits() < 8 ? p_design->numberOfCircuits() : 16;
+
           for (int j=0; j<numFE; j++) {
             std::stringstream eachFE(feString[j]);
             std::vector<std::string> eachString;
             while (std::getline(eachFE,buffer,'[')) { eachString.push_back(buffer); }
+
             if (!eachString.empty()) {
               std::stringstream calibFE(eachString[eachString.size()-1]);
               std::vector<std::string> calibString;
@@ -108,34 +110,43 @@ StatusCode PixelChargeLUTCalibCondAlg::execute(const EventContext& ctx) const {
                   ATH_MSG_FATAL("Parameter size is not consistent(20) " << calibString.size() << " at (i,j)=(" <<  i-1 << "," << j << ")");
                   return StatusCode::FAILURE;
                 }
+
+                std::array<float,16> chrgs;
+                for (int k=0; k<16; k++) {
+                  chrgs[k]=std::atof(calibString[k+4].c_str());
+                }
+                writeCdo -> setCalibrationStrategy(i-1, 1);
+                writeCdo -> setTot2Charges(i-1, chrgs);
+
                 // Normal pixel
                 writeCdo -> setAnalogThreshold(i-1, std::atoi(calibString[0].c_str()));
-                writeCdo -> setAnalogThresholdSigma(i-1, std::atoi(calibString[1].c_str()));
-                writeCdo -> setAnalogThresholdNoise(i-1, std::atoi(calibString[2].c_str()));
-                writeCdo -> setInTimeThreshold(i-1, std::atoi(calibString[3].c_str()));
+                writeCdo -> setAnalogThresholdSigma(i-1, 0);
+                writeCdo -> setAnalogThresholdNoise(i-1, std::atoi(calibString[1].c_str()));
+                writeCdo -> setInTimeThreshold(i-1, 0);
 
-                writeCdo -> setQ2TotA(i-1, std::atof(calibString[12].c_str()));
-                writeCdo -> setQ2TotE(i-1, std::atof(calibString[13].c_str()));
-                writeCdo -> setQ2TotC(i-1, std::atof(calibString[14].c_str()));
+                writeCdo -> setQ2TotA(i-1, 0.0);
+                writeCdo -> setQ2TotE(i-1, 0.0);
+                writeCdo -> setQ2TotC(i-1, 0.0);
 
-                writeCdo -> setTotRes1(i-1, std::atof(calibString[18].c_str()));
-                writeCdo -> setTotRes2(i-1, std::atof(calibString[19].c_str()));
+                writeCdo -> setTotRes1(i-1, 0.0);
+                writeCdo -> setTotRes2(i-1, 0.0);
 
                 // Long pixel
-                writeCdo -> setAnalogThresholdLong(i-1, std::atoi(calibString[4].c_str()));
-                writeCdo -> setAnalogThresholdSigmaLong(i-1, std::atoi(calibString[5].c_str()));
-                writeCdo -> setAnalogThresholdNoiseLong(i-1, std::atoi(calibString[6].c_str()));
-                writeCdo -> setInTimeThresholdLong(i-1, std::atoi(calibString[7].c_str()));
+                writeCdo -> setAnalogThresholdLong(i-1, std::atoi(calibString[2].c_str()));
+                writeCdo -> setAnalogThresholdSigmaLong(i-1, 0);
+                writeCdo -> setAnalogThresholdNoiseLong(i-1, std::atoi(calibString[3].c_str()));
+                writeCdo -> setInTimeThresholdLong(i-1, 0);
 
-                writeCdo -> setQ2TotALong(i-1, std::atof(calibString[15].c_str()));
-                writeCdo -> setQ2TotELong(i-1, std::atof(calibString[16].c_str()));
-                writeCdo -> setQ2TotCLong(i-1, std::atof(calibString[17].c_str()));
+                writeCdo -> setQ2TotALong(i-1, 0.0);
+                writeCdo -> setQ2TotELong(i-1, 0.0);
+                writeCdo -> setQ2TotCLong(i-1, 0.0);
 
                 // Ganged pixel
-                writeCdo -> setAnalogThresholdGanged(i-1, std::atoi(calibString[8].c_str()));
-                writeCdo -> setAnalogThresholdSigmaGanged(i-1, std::atoi(calibString[9].c_str()));
-                writeCdo -> setAnalogThresholdNoiseGanged(i-1, std::atoi(calibString[10].c_str()));
-                writeCdo -> setInTimeThresholdGanged(i-1, std::atoi(calibString[11].c_str()));
+                writeCdo -> setAnalogThresholdGanged(i-1, std::atoi(calibString[2].c_str()));
+                writeCdo -> setAnalogThresholdSigmaGanged(i-1, 0);
+                writeCdo -> setAnalogThresholdNoiseGanged(i-1, std::atoi(calibString[3].c_str()));
+                writeCdo -> setInTimeThresholdGanged(i-1, 0);
+
               }
               // conventional calibration
               else {

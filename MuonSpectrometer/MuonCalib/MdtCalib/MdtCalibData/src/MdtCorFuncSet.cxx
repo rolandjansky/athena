@@ -32,10 +32,25 @@ namespace MuonCalib {
   //MdtCorFuncSet& MdtCorFuncSet::operator=(const MdtCorFuncSet&) {return *this;}
   //MdtCorFuncSet::MdtCorFuncSet(const MdtCorFuncSet&) {}
 
-  void MdtCorFuncSet::setSlewing(IMdtSlewCorFunc * slew) { if( m_slewing ) delete m_slewing; m_slewing=slew;}
-  void MdtCorFuncSet::setBField(IMdtBFieldCorFunc* bField) { if( m_bField ) delete m_bField; m_bField=bField; }
-  void MdtCorFuncSet::setTemperature(IMdtTempCorFunc * temperature) { if( m_temperature ) delete m_temperature; m_temperature=temperature;}
-  void MdtCorFuncSet::background(IMdtBackgroundCorFunc* background) { if( m_background ) delete m_background; m_background=background; }
-  void MdtCorFuncSet::wireSag(IMdtWireSagCorFunc* wireSag) { if( m_wireSag ) delete m_wireSag; m_wireSag = wireSag; }
+  void MdtCorFuncSet::setSlewing(IMdtSlewCorFunc *slew) { 
+    if( m_slewing ) delete m_slewing; 
+    m_slewing=slew; 
+  }
+  void MdtCorFuncSet::setBField(IMdtBFieldCorFunc *bField) { 
+    if( m_bField ) delete m_bField; 
+    m_bField=bField;
+  }
+  void MdtCorFuncSet::setTemperature(IMdtTempCorFunc *temperature) { 
+    if( m_temperature ) delete m_temperature; 
+    m_temperature=temperature;
+  }
+  void MdtCorFuncSet::background(IMdtBackgroundCorFunc *background) { 
+    if( m_background ) delete m_background; 
+    m_background=background; 
+  }
+  void MdtCorFuncSet::wireSag(IMdtWireSagCorFunc *wireSag) { 
+    if( m_wireSag ) delete m_wireSag; 
+    m_wireSag = wireSag; 
+  }
 
 }  //namespace MuonCalib

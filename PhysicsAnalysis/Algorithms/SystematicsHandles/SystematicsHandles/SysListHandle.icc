@@ -24,7 +24,6 @@ namespace CP
   {
     owner->declareProperty (propertyName, m_systematicsService,
                             propertyDescription);
-    owner->declareProperty ("systematicsRegex", m_affectingRegex, "affecting systematics");
   }
 
 
@@ -33,5 +32,13 @@ namespace CP
   isInitialized () const noexcept
   {
     return m_isInitialized;
+  }
+
+
+
+  inline const ISystematicsSvc& SysListHandle ::
+  service () const
+  {
+    return *m_systematicsService;
   }
 }

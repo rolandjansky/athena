@@ -48,8 +48,8 @@ namespace CP
     }
 
     ANA_CHECK (m_pileupReweightingTool.retrieve());
-    m_systematicsList.addHandle (m_eventInfoHandle);
-    ANA_CHECK (m_systematicsList.addAffectingSystematics (m_pileupReweightingTool->affectingSystematics()));
+    ANA_CHECK (m_eventInfoHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_systematicsList.addSystematics (*m_pileupReweightingTool));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
     return StatusCode::SUCCESS;
