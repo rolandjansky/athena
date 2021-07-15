@@ -4,6 +4,7 @@
 
 import json
 import argparse
+import tarfile
 
 # Print Header
 def printHeader():
@@ -144,6 +145,32 @@ def printEnvironmentInfo():
     print('{0:<40}{1:<}'.format('Math Library:',data['summary']['envInfo']['mathLib']))
     print('='*105)
 
+# Print out data
+def printReport(data):
+
+    printHeader()
+
+    # Print Component Level Data
+    if args.level in ['All', 'ComponentLevel']:
+        printComponentLevelInfo(args.exec_only,
+                                args.order_by,
+                                args.max_comps)
+
+    # Print Event Level Data
+    if args.level in ['All', 'EventLevel']:
+        printEventLevelInfo()
+
+    # Print Snapshots Summary
+    if args.level in ['All', 'SummaryLevel']:
+        printSnapshotsInfo()
+
+    # Print System and Environment Information
+    if args.level in ['All']:
+        printSystemInfo()
+        printEnvironmentInfo()
+    # Print Footer
+    printFooter()
+
 # Main function
 if '__main__' in __name__:
 
@@ -167,30 +194,20 @@ if '__main__' in __name__:
     args = parser.parse_args()
 
     # Load the data and print the requested information
-    with(open(args.input)) as json_file:
+    if tarfile.is_tarfile(args.input):
 
-        data = json.load(json_file)
+        tar = tarfile.open(args.input)
+        #If data is tarred, there could be more than one json in the tar file: cycle through all
+        for member in tar.getmembers():
+            f = tar.extractfile(member)
+            data = json.load(f)
+            printReport(data)
 
-        # Print Header
-        printHeader()
+        tar.close()
 
-        # Print Component Level Data
-        if args.level in ['All', 'ComponentLevel']:
-            printComponentLevelInfo(args.exec_only,
-                                    args.order_by,
-                                    args.max_comps)
+    #if it is a json file, proceed as normal
+    else:
 
-        # Print Event Level Data
-        if args.level in ['All', 'EventLevel']:
-            printEventLevelInfo()
-
-        # Print Snapshots Summary
-        if args.level in ['All', 'SummaryLevel']:
-            printSnapshotsInfo()
-
-        # Print System and Environment Information
-        if args.level in ['All']:
-            printSystemInfo()
-            printEnvironmentInfo()
-        # Print Footer
-        printFooter()
+        with(open(args.input)) as json_file:
+            data = json.load(json_file)
+            printReport(data)
