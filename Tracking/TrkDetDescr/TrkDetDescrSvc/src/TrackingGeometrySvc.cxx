@@ -174,8 +174,9 @@ StatusCode Trk::TrackingGeometrySvc::trackingGeometryInit(bool needsInit)
 
       if (msgLvl(MSG::VERBOSE)) {
          Trk::TrackingGeometryMirror mirror(atlasTrackingGeometry);
-         mirror.dump(msg(MSG::VERBOSE), name()+" TrackingGeometry dump ");
-         mirror.cleanup();
+         std::stringstream sstr;
+         mirror.dump(sstr, "TrackingGeometry dump ");
+         ATH_MSG_ALWAYS(std::endl<<sstr.str());
       }
       // record the resulting TrackingGeometry 
       if (m_pDetStore->record(atlasTrackingGeometry, m_trackingGeometryName, false).isFailure() ){

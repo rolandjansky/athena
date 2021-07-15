@@ -75,7 +75,7 @@ StatusCode Trk::TrackingGeometryCondAlg::execute(const EventContext& ctx) const{
      Trk::TrackingGeometryMirror dumper(trackingGeometry);
      std::stringstream sstr;
      dumper.dump(sstr, "TrackingGeometry dump " );
-     ATH_MSG_ALWAYS(sstr.str());
+     ATH_MSG_ALWAYS(std::endl<<sstr.str());
   }
   if (!m_trackingGeometrySvc.name().empty()) {
      Trk::TrackingGeometrySvc *the_service = dynamic_cast<Trk::TrackingGeometrySvc *>(&(*m_trackingGeometrySvc));
