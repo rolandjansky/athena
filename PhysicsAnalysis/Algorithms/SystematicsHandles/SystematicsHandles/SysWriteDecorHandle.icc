@@ -93,7 +93,7 @@ namespace CP
 
 
   template<typename T> void SysWriteDecorHandle<T> ::
-  set (SG::AuxElement& object, const T& value,
+  set (const SG::AuxElement& object, const T& value,
        const CP::SystematicSet& sys) const
   {
     const auto& data = getData (sys);

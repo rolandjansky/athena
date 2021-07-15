@@ -56,9 +56,9 @@ namespace CP
   {
     return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
         ANA_CHECK (m_efficiencyCorrectionTool->applySystematicVariation (sys));
-        xAOD::ElectronContainer *electrons = nullptr;
-        ANA_CHECK (m_electronHandle.getCopy (electrons, sys));
-        for (xAOD::Electron *electron : *electrons)
+        const xAOD::ElectronContainer *electrons = nullptr;
+        ANA_CHECK (m_electronHandle.retrieve (electrons, sys));
+        for (const xAOD::Electron *electron : *electrons)
         {
           if (m_preselection.getBool (*electron))
           {

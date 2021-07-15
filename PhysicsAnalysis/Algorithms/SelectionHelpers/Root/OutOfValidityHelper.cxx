@@ -35,7 +35,7 @@ namespace CP
 
 
   ::StatusCode OutOfValidityHelper ::
-  check (xAOD::IParticle& particle,
+  check (const xAOD::IParticle& particle,
          const CP::CorrectionCode& code,
          const char *context) const
   {
