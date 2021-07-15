@@ -285,8 +285,8 @@ StatusCode MdtDigitizationTool::mergeEvent(const EventContext& ctx) {
     if (status.isFailure()) { ATH_MSG_ERROR("doDigitization Failed"); }
 
     // Clean-up
-    std::list<MDTSimHitCollection*>::iterator MDTHitColl = m_MDTHitCollList.begin();
-    std::list<MDTSimHitCollection*>::iterator MDTHitCollEnd = m_MDTHitCollList.end();
+    std::vector<MDTSimHitCollection*>::iterator MDTHitColl = m_MDTHitCollList.begin();
+    std::vector<MDTSimHitCollection*>::iterator MDTHitCollEnd = m_MDTHitCollList.end();
     while (MDTHitColl != MDTHitCollEnd) {
         delete (*MDTHitColl);
         ++MDTHitColl;
