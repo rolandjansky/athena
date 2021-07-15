@@ -51,11 +51,12 @@ void smallCombination () {
   VALUE ( c1.size() ) EXPECTED ( 0 );
 }
 
-
+namespace std {
 std::ostream& operator<<( std::ostream& o, const std::vector<size_t>& v ) {
   for ( auto el: v)
     o << el << " ";
   return o;
+}
 }
 
 void trivialUniqueCombination() {
