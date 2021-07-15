@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags
 from InDetRecExample.TrackingCommon  import setDefaults
 from InDetRecExample.InDetJobProperties import InDetFlags
@@ -30,7 +30,7 @@ def getPixelPrepDataToxAOD(name='xAOD_PixelPrepDataToxAOD', **kwargs) :
       condSeq += PixelDCSCondStatusAlg(name="PixelDCSCondStatusAlg")
 
     isIdTrkDxAODSimulation = globalflags.DataSource == 'geant4'
-    add_IDTIDE_content = kwargs.pop('AddIDTIDEContent', jobproperties.PrimaryDPDFlags.WriteDAOD_IDTIDEStream is True )
+    add_IDTIDE_content = kwargs.pop('AddIDTIDEContent', jobproperties.PrimaryDPDFlags.WriteDAOD_IDTIDEStream.get_Value() is True )
     need_pix_ToTList =add_IDTIDE_content or (InDetDxAODFlags.DumpPixelRdoInfo() or InDetDxAODFlags.DumpPixelNNInfo() )
 
     topSequence = AlgSequence()
