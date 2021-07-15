@@ -91,7 +91,7 @@ bool TrigAFPDijetComboHypoTool::executeAlg(const std::vector<Combo::LegDecision>
   
   // One of these is the AFP Decision Object, which we ignore as we are fetching the AFP reconstruction directly from a ReadHandle.
   // The other two should be Jet Decision Objects.
-  for(const auto comb: combination){
+  for(const auto& comb: combination){
     const auto dec = comb.second;
     const auto jet_link = TrigCompositeUtils::findLink<xAOD::JetContainer>(*dec, TrigCompositeUtils::featureString()).link;
     if (jet_link.isValid()) {
@@ -100,10 +100,13 @@ bool TrigAFPDijetComboHypoTool::executeAlg(const std::vector<Combo::LegDecision>
   }
 
   if(selected_jets.size() != 2){
-    ATH_MSG_ERROR("Expecting to combine exactly two jets, but instead found " << selected_jets.size() << ". Will throw a runtime error");
-    throw std::runtime_error("Expecting to combine exactly two jets, but instead found "+selected_jets.size());
+    ATH_MSG_ERROR("Expecting to combine exactly two jets, but instead found "
+                  << selected_jets.size() << ". Will throw a runtime error");
+    throw std::runtime_error(
+      "Expecting to combine exactly two jets, but instead found " +
+      std::to_string(selected_jets.size()));
   }
-  
+
   // Get jet pair
   auto jetLink1 = selected_jets[0]; // Need to check if jets are actually ordered in pT
   auto jetLink2 = selected_jets[1];

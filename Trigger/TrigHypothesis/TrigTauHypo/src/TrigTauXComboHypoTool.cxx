@@ -37,8 +37,12 @@ bool TrigTauXComboHypoTool::executeAlg(const std::vector<Combo::LegDecision>& co
   // Expecting to only run over chains with two legs and one IParticle required on each leg
   // So should always have two objects from which to check DeltaR
   if(combination.size() != 2){
-    ATH_MSG_ERROR("Expecting to combine exactly two IParticle physics objects, but instead found " << combination.size() << ". Will throw a runtime error");
-    throw std::runtime_error("Expecting to combine exactly two IParticle physics objects, but instead found "+combination.size());
+    ATH_MSG_ERROR("Expecting to combine exactly two IParticle physics objects, "
+                  "but instead found "
+                  << combination.size() << ". Will throw a runtime error");
+    throw std::runtime_error("Expecting to combine exactly two IParticle "
+                             "physics objects, but instead found " +
+                             std::to_string(combination.size()));
   }
 
   //retrieve the elements
