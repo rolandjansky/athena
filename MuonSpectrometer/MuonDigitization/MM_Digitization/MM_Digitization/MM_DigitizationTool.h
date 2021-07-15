@@ -128,7 +128,6 @@ class MM_DigitizationTool : public PileUpToolBase {
 		ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 		ToolHandle<Muon::INSWCalibSmearingTool> m_smearingTool{this,"SmearingTool","Muon::NSWCalibSmearingTool/MMCalibSmearingTool"};
 		ToolHandle<Muon::INSWCalibTool> m_calibrationTool{this,"CalibrationTool","Muon::NSWCalibTool/NSWCalibTool"};
-		ToolHandle<IMM_DigitizationTool> m_digitTool{this,"DigitizationTool","MM_Response_DigitTool","Tool which handles the digitization process"};
 
 		SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj"};
 
