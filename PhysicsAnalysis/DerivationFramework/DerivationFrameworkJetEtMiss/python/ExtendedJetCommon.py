@@ -525,7 +525,7 @@ def addEventCleanFlags(sequence, workingPoints = ['Loose', 'Tight', 'LooseLLP'])
 
     for wp in workingPoints:
         if wp not in supportedWPs:
-            extjetlog.warning('*** Unsupported event cleaning WP {} requested! Skipping it.***'.format(jetalg))
+            extjetlog.warning('*** Unsupported event cleaning WP {} requested! Skipping it.***'.format(wp))
             continue
         algName = 'EventCleaningTestAlg_' + wp
         if hasattr(sequence, algName):
