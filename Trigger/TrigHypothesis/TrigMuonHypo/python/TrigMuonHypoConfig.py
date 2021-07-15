@@ -342,7 +342,7 @@ class TrigMufastHypoConfig(object):
                     tool.PtThresholds[th] = [ -1. * GeV ]
                     tool.AcceptAll = True
                 else:
-                    if "idperf" in toolName or int(thvalue) < 5:
+                    if "idperf" in toolName or int(thvalue) < 5 or "3layersEC" in toolName:
                         thvaluename =  thvalue + 'GeV_v15a'
                     elif "0eta105" in toolName:
                         thvaluename = thvalue+ "GeV_barrelOnly_v15a"

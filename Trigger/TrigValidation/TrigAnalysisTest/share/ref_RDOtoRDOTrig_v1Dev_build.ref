@@ -7417,9 +7417,9 @@ HLT_mu80_L1MU20:
 HLT_mu80_msonly_3layersEC_L1MU20:
   eventCount: 0
   stepCounts:
-    0: 8
+    0: 4
   stepFeatures:
-    0: 10
+    0: 5
 HLT_mu8_L1MU6:
   eventCount: 10
   stepCounts:
