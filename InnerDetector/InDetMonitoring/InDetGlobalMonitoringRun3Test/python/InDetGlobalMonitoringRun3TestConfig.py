@@ -1,14 +1,14 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
-
-
 
 ####################################################
 #                                                  #
 # InDetGlobalManager top algorithm                 #
 #                                                  #
 ####################################################
+
+
 
 def InDetGlobalMonitoringRun3TestConfig(flags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -28,7 +28,7 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
             'DoIBL' : True,                       #InDetFlags.doIBL(), #Turn on/off IBL histograms 
             'TrackName'  : 'CombinedInDetTracks',  #Until new config ready
             'TrackName2' : 'CombinedInDetTracks',  #Until new config ready
-            'TrackName3' : 'CombinedInDetTracks',  #Until new config ready
+            'TrackName3' : 'CombinedInDetTracks', 
         }
         
         
@@ -43,15 +43,10 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
         inDetGlobalTrackMonAlg.TrackSelectionTool.CutLevel         = "TightPrimary"
         inDetGlobalTrackMonAlg.TrackSelectionTool.maxNPixelHoles   = 1
         inDetGlobalTrackMonAlg.TrackSelectionTool.minPt            = 5000
-        #        InDetGlobalTrackMonAlg.Baseline_TrackSelectionTool.TrackSummaryTool = InDetTrackSummaryTool
-        #        InDetGlobalTrackMonAlg.Baseline_TrackSelectionTool.Extrapolator     = InDetExtrapolator
-        #
         inDetGlobalTrackMonAlg.Tight_TrackSelectionTool = CompFactory.InDet.InDetTrackSelectionTool('InDetGlobalTrackMonAlg_TightTrackSelectionTool')
         inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.UseTrkTrackTools = True
         inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.CutLevel         = "TightPrimary"
         inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.minPt            = 5000
-        #        InDetGlobalTrackMonAlg.Tight_TrackSelectionTool.TrackSummaryTool = InDetTrackSummaryTool
-        #        InDetGlobalTrackMonAlg.Tight_TrackSelectionTool.Extrapolator     = InDetExtrapolator
         
 
         # Run 3 configs - stolen from SCT
@@ -65,6 +60,47 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
         
         InDetGlobalTrackMonAlgCfg(helper, inDetGlobalTrackMonAlg, **kwargsInDetGlobalTrackMonAlg)
         ########### here ends InDetGlobalTrackMonAlg ###########
+
+
+
+        ########### here begins InDetGlobalLRTMonAlg ###########
+        kwargsInDetGlobalLRTMonAlg = { 
+            'DoIBL' : True,                       #InDetFlags.doIBL(), #Turn on/off IBL histograms 
+            'TrackName'  : 'CombinedInDetTracks',  #Until new config ready
+            'TrackName2' : 'CombinedInDetTracks',  #Until new config ready
+            'TrackName3' : 'CombinedInDetTracks',  'TrackName4' : 'ExtendedLargeD0Tracks',
+        }
+        
+        
+        from InDetGlobalMonitoringRun3Test.InDetGlobalLRTMonAlgCfg import InDetGlobalLRTMonAlgCfg 
+
+        inDetGlobalLRTMonAlg = helper.addAlgorithm(CompFactory.InDetGlobalLRTMonAlg, 'InDetGlobalLRTMonAlg')
+        for k, v in kwargsInDetGlobalLRTMonAlg.items():
+            setattr(inDetGlobalLRTMonAlg, k, v)
+
+        inDetGlobalLRTMonAlg.TrackSelectionTool = CompFactory.InDet.InDetTrackSelectionTool('InDetGlobalLRTMonAlg_TrackSelectionTool')
+        inDetGlobalLRTMonAlg.TrackSelectionTool.UseTrkTrackTools = True
+        inDetGlobalLRTMonAlg.TrackSelectionTool.CutLevel         = "TightPrimary"
+        inDetGlobalLRTMonAlg.TrackSelectionTool.maxNPixelHoles   = 1
+        inDetGlobalLRTMonAlg.TrackSelectionTool.minPt            = 5000
+        
+
+        # Run 3 configs - stolen from SCT
+        from SCT_Monitoring.TrackSummaryToolWorkaround import TrackSummaryToolWorkaround
+        InDetTrackSummaryTool = acc.popToolsAndMerge(TrackSummaryToolWorkaround(flags))
+        inDetGlobalLRTMonAlg.TrackSummaryTool = InDetTrackSummaryTool
+        inDetGlobalLRTMonAlg.TrackSelectionTool.TrackSummaryTool = InDetTrackSummaryTool
+        inDetGlobalLRTMonAlg.TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
+        
+        InDetGlobalLRTMonAlgCfg(helper, inDetGlobalLRTMonAlg, **kwargsInDetGlobalLRTMonAlg)
+        ########### here ends InDetGlobalLRTMonAlg ###########
+
+
+
+
+
+
+
         
     # run on ESD
     if flags.DQ.Environment != 'tier0Raw':
