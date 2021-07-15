@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileGeoSectionBuilder.h"
@@ -1511,7 +1511,25 @@ void TileGeoSectionBuilder::fillFinger(GeoPhysVol*&             mother,
   const GeoMaterial *shieldSteel = m_theMaterialManager->getMaterial("shield::ShieldSteel");
   const GeoMaterial *matRubber = m_theMaterialManager->getMaterial("sct::Rubber");
 
-  // InDetServices
+  // Fallback rubber material definition
+  if (matRubber == nullptr) {
+    (*m_log) << MSG::WARNING << "Creating fallback sct::Rubber material definition" << endmsg;
+    const GeoElement* carbon = m_theMaterialManager->getElement("Carbon");
+    const GeoElement* hydrogen = m_theMaterialManager->getElement("Hydrogen");
+    const int carbonAtoms{5};
+    const int hydrogenAtoms{8};
+    const double inv_totalFraction = 1. / (carbonAtoms * carbon->getA() + hydrogenAtoms * hydrogen->getA());
+
+    auto matRubberFallback = new GeoMaterial("sct::Rubber", 2.982*GeoModelKernelUnits::gram/Gaudi::Units::cm3);
+    matRubberFallback->add(carbon, carbonAtoms * carbon->getA() * inv_totalFraction);
+    matRubberFallback->add(hydrogen, hydrogenAtoms * hydrogen->getA() * inv_totalFraction);
+    matRubberFallback->lock();
+    m_theMaterialManager->addMaterial("sct", matRubberFallback);
+
+    matRubber = m_theMaterialManager->getMaterial("sct::Rubber");
+  }
+
+  // m_matLArServices
   if (m_matLArServices == 0)
    { m_matLArServices = new GeoMaterial("LArServices", 2.5*GeoModelKernelUnits::gram/Gaudi::Units::cm3);
      m_matLArServices->add(shieldSteel, 0.20);
