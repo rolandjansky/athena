@@ -48,6 +48,7 @@ flags.Exec.MaxEvents = 50
 # TODO this two should be resolved in a smarter way (i.e. required passing the tag from the driver test, however now, parsing of string with - fails)
 flags.IOVDb.GlobalTag = lambda f: 'OFLCOND-MC16-SDR-25' if f.Input.isMC else "CONDBR2-HLTP-2018-01"
 flags.Common.isOnline = lambda f: not f.Input.isMC
+flags.Common.MsgSourceLength=70
 flags.Trigger.doLVL1=True # run L1 sim also on data
 flags.Concurrency.NumThreads = 1
 
@@ -127,7 +128,7 @@ acc.foreach_component("*HLTTop/RoRSeqFilter/*").OutputLevel = INFO# filters
 acc.foreach_component("*/FPrecisionCalo").OutputLevel = INFO# filters
 acc.foreach_component("*/CHElectronFTF").OutputLevel = INFO# filters
 acc.foreach_component("*HLTTop/*Input*").OutputLevel = INFO # input makers
-acc.foreach_component("*HLTTop/*HLTEDMCreator*").OutputLevel = DEBUG # messaging from the EDM creators
+acc.foreach_component("*HLTTop/*HLTEDMCreator*").OutputLevel = INFO # messaging from the EDM creators
 acc.foreach_component("*HLTTop/*GenericMonitoringTool*").OutputLevel = WARNING # silence mon tools (addressing by type)
 
 if log.getEffectiveLevel() <= logging.DEBUG:

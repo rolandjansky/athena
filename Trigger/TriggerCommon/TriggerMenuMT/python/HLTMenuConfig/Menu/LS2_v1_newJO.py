@@ -1,19 +1,6 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
 
-# def get_flag_item(chainName, L1itemsChainParts, groups):
-#     PhysicsStream = 'Main'
-
-#     if L1itemsChainParts == []:
-#         L1item = 'L1_'+chainName.split('_L1')[-1]
-#         L1thresholds = L1item.split('_')[1:]
-#         L1itemsChainParts = [L1item, L1thresholds ]
-#     elif L1itemsChainParts[0] is None:
-#         L1item = 'L1_'+chainName.split('_L1')[-1]
-#         L1itemsChainParts[0] = L1item
-
-        #return [chainName, L1itemsChainParts, [PhysicsStream], groups, -1]
-
 def setupMenu():
     """
     Assign chains for LS2_v1
