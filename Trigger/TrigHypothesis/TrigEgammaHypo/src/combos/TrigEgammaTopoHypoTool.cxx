@@ -51,8 +51,12 @@ bool TrigEgammaTopoHypoTool::executeAlg(const std::vector<Combo::LegDecision> &c
   // Expecting to only run over chains with two legs and one electron or photon required on each leg
   // So should always have two objects from which to form the invariant mass
   if(combination.size() != 2){
-    ATH_MSG_ERROR("Expecting to combine exactly two electrons/photons, but instead found " << combination.size() << ". Will throw a runtime error");
-    throw std::runtime_error("Expecting to combine exactly two electrons/photons, but instead found "+combination.size());
+    ATH_MSG_ERROR(
+      "Expecting to combine exactly two electrons/photons, but instead found "
+      << combination.size() << ". Will throw a runtime error");
+    throw std::runtime_error(
+      "Expecting to combine exactly two electrons/photons, but instead found " +
+      std::to_string(combination.size()));
   }
 
   for (auto el: combination){
