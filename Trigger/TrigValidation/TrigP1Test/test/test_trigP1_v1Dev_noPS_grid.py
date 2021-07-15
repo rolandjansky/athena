@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-# art-description: Trigger RDO->RDO_TRIG athena test of the Dev_pp_run3_v1 menu with pileup80 ttbar sample
+# art-description: athenaHLT test of the full Dev_pp_run3_v1 menu without the TriggerValidation prescale set
 # art-type: grid
 # art-include: master/Athena
-# art-athena-mt: 8
+# art-athena-mt: 4
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
@@ -18,17 +18,19 @@
 # art-output: *perfmon*
 # art-output: prmon*
 # art-output: *.check*
+# art-memory: 7000
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 
 ex = ExecStep.ExecStep()
-ex.type = 'athena'
+ex.type = 'athenaHLT'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
-ex.input = 'ttbar_pu80'
-ex.threads = 8
-ex.concurrent_events = 8
-# LS2_v1 soon to be renamed to Dev_pp_run3_v1
-ex.args = '-c "setMenu=\'LS2_v1_TriggerValidation_prescale\';doWriteBS=False;doWriteRDOTrigger=True;"'
+ex.input = 'data'
+ex.threads = 4
+ex.concurrent_events = 4
+ex.max_events = 500
+ex.args = '-c "setMenu=\'LS2_v1\';doL1Sim=True;"'  # LS2_v1 to be renamed to Dev_pp_run3_v1
+ex.args += ' --dump-config-reload'
 
 test = Test.Test()
 test.art_type = 'grid'
