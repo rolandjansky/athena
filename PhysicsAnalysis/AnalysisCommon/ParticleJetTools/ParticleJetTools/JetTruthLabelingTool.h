@@ -6,6 +6,7 @@
 #define PARTICLEJETTOOLS_JETTRUTHLABELINGTOOL_H
 
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/PropertyWrapper.h"
 #include "AsgDataHandles/ReadHandleKey.h"
 #include "AsgDataHandles/ReadDecorHandleKey.h"
 #include "AsgDataHandles/WriteDecorHandleKey.h"
