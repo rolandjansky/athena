@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONHOUGHPATTERNEVENT_MUONHOUGHTRANSFORMER_RZ_H
@@ -18,7 +18,7 @@ class MuonHoughTransformer_rz: public MuonHoughTransformer
   virtual void fillHit(MuonHoughHit* hit, double weight=1.);
   virtual int fillHisto(double rz0, double theta, double weight=1., int sector=0);
 
-  double calculateAngle(double hitx, double hity, double hitz, double z0)const; // in rad
+  static double calculateAngle(double hitx, double hity, double hitz, double z0); // in rad
 
   virtual float weightHoughTransform (double r0) const;
   float weightHoughTransform (double r0,double angle) const;

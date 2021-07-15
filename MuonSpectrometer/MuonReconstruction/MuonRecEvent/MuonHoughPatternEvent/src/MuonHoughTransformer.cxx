@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternEvent/MuonHoughTransformer.h"
@@ -91,7 +91,7 @@ MuonHoughPattern* MuonHoughTransformer::associateHitsToMaximum(const MuonHoughHi
 	{
 	  if (printlevel>=4 || log.level()<=MSG::VERBOSE)
 	    {log << MSG::VERBOSE << "MuonHoughTransformer::No Maximum Found" << endmsg;}
-	  return 0;
+	  return nullptr;
 	}
       else 
 	{
@@ -104,7 +104,7 @@ MuonHoughPattern* MuonHoughTransformer::associateHitsToMaximum(const MuonHoughHi
     {
       if (printlevel>=4 || log.level()<=MSG::VERBOSE)
 	{log << MSG::VERBOSE << "MuonHoughTransformer::No Maximum Found" << endmsg;}
-      return 0;
+      return nullptr;
     }
   
   return houghpattern;
@@ -235,7 +235,7 @@ std::vector <std::pair <int,int> > MuonHoughTransformer::getMaxima(int max_patte
 
       if (sectors.find(sector) != sectors.end()) {check = false;}
 
-      if (check == true)
+      if (check)
 	{
 	  maximumbins.push_back(maximumbin);
 	  sectors.insert(maximumbin.first);

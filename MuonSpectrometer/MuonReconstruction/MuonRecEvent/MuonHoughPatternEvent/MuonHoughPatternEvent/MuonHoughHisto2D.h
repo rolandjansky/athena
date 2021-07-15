@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONHOUGHPATTERNEVENT_MUONHOUGHHISTO2D_H
@@ -110,7 +110,7 @@ class MuonHoughHisto2D
   double getThreshold()const;
   
   /** intialises a root histogram of MuonHoughHisto2D and fill it, used for debugging purposes */
-  TH2F* bookAndFillRootHistogram(std::string hname) const;
+  TH2F* bookAndFillRootHistogram(const std::string& hname) const;
   
   void setMaximumIsValid(bool flag ) { m_maximumIsValid = flag; }
 
