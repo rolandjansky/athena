@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from PyUtils.Decorators import memoize
+import importlib
 
 # Configure the scheduler
 from AthenaCommon.AlgScheduler import AlgScheduler
@@ -55,7 +55,6 @@ class GenerateMenuMT(object, metaclass=Singleton):
         self.allChainsForAlignment = []
         self.chainDicts = []
         self.combinationsInMenu = []
-        self.combinationsInMenu = []
         self.alignmentGroupsToAlign = set()
         self.configLengthDict = {}
         
@@ -69,28 +68,8 @@ class GenerateMenuMT(object, metaclass=Singleton):
                               'HeavyIon', 'Beamspot', 'Cosmic', 'EnhancedBias',
                               'Monitor', 'Calib', 'Streaming', 'Combined', 'MinBias', 'UnconventionalTracking', 'Test'] #, AFP
         self.calibCosmicMonSigs = ['Streaming','Monitor','Beamspot','Cosmic', 'Calib', 'EnhancedBias']
-        
-        # flags
-        self.doEgammaChains         = True
-        self.doJetChains            = True
-        self.doBjetChains           = True
-        self.doMuonChains           = True
-        self.doBphysicsChains       = True
-        self.doMETChains            = True
-        self.doTauChains            = True
-        self.doAFPChains            = True
-        self.doMinBiasChains        = True
-        self.doHeavyIonChains       = True
-        self.doCosmicChains         = True
-        self.doCalibChains          = True
-        self.doStreamingChains      = True
-        self.doMonitorChains        = True
-        self.doBeamspotChains       = True
-        self.doEnhancedBiasChains   = True
-        self.doUnconventionalTrackingChains   = True
-        self.doCombinedChains       = True
-        self.doTestChains           = True
 
+        self.chainDefModule = {}   # Generate[SIG]ChainDefs module for each SIGnature
 
     def setTriggerConfigHLT(self):
         """
@@ -155,8 +134,8 @@ class GenerateMenuMT(object, metaclass=Singleton):
         return 
 
     def importSignaturesToGenerate(self):
-        # check if all the signature files can be imported files can be imported
-        # and then import them!
+        """check if all the signature files can be imported and then import them"""
+
         log.debug("[getSignaturesInMenu]signaturesToGenerate: %s",  self.signaturesToGenerate)
 
         # Extend the list to satisfy certain requirements
@@ -170,25 +149,23 @@ class GenerateMenuMT(object, metaclass=Singleton):
             log.debug("[getSignaturesInMenu] sig: %s", sig)
             
             try:
-                if eval('self.do' + sig + 'Chains') or sig=='Streaming':  
-                    if sig == 'Egamma':
-                        sigFolder = sig
-                        subSigs = ['Electron', 'Photon']
-                    elif sig in self.calibCosmicMonSigs:
-                        sigFolder = 'CalibCosmicMon'
-                         #only import the CalibCosmicMon signatures that we need, not all of them!
-                        subSigs = [sig]
-                    else:
-                        sigFolder = sig
-                        subSigs = [sig]
-                    for ss in subSigs:
-                        #import the includes into the global namespace. Only import the signature we need!
-                        #this is equivalent having this line at the beginning of the file:
-                        #import TriggerMenuMT.HLTMenuConfig.[sig].Generate[sig]ChainDefs as Generate[sig]ChainDefs
-                        import_module = 'TriggerMenuMT.HLTMenuConfig.' + sigFolder +'.Generate' + ss + 'ChainDefs'
-                        globals()['Generate'+ss+'ChainDefs'] = __import__(import_module,fromlist=['Generate'+ss+'ChainDefs'])
-                        if ss not in self.availableSignatures:
-                            self.availableSignatures.append(ss)
+                if sig == 'Egamma':
+                    sigFolder = sig
+                    subSigs = ['Electron', 'Photon']
+                elif sig in self.calibCosmicMonSigs:
+                    sigFolder = 'CalibCosmicMon'
+                     #only import the CalibCosmicMon signatures that we need, not all of them!
+                    subSigs = [sig]
+                else:
+                    sigFolder = sig
+                    subSigs = [sig]
+                for ss in subSigs:
+                    # import the relevant signature module
+                    import_module = 'TriggerMenuMT.HLTMenuConfig.' + sigFolder +'.Generate' + ss + 'ChainDefs'
+                    self.chainDefModule[ss] = importlib.import_module(import_module)
+
+                    if ss not in self.availableSignatures:
+                        self.availableSignatures.append(ss)
 
             except ImportError:
                 log.exception('Problems when importing ChainDef generating code for %s', sig)
@@ -246,7 +223,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
 
         return 
 
-    @memoize
+
     def generateAllChainConfigs(self):
         """
         == Obtains chain configs for all chains in menu
@@ -327,7 +304,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
         log.info("[generateAllChainConfigs] all chain configurations have been generated.")
         return TriggerConfigHLT.configsList()
 
-    @memoize
+
     def getChainsFromMenu(self):
         """
         == Returns the list of chain names that are in the menu
@@ -346,14 +323,13 @@ class GenerateMenuMT(object, metaclass=Singleton):
         #ConfigFlags.lock()
 
         for sig in self.allSignatures:
-            if eval('TriggerFlags.' + sig + 'Slice.signatures()') and eval('self.do' + sig + 'Chains'):
+            signatures = getattr(TriggerFlags, sig+'Slice').signatures()
+            if signatures:
                 log.debug("Adding %s chains to the list of chains to be configured", sig)
-                chains+= eval('TriggerFlags.' + sig + 'Slice.signatures()')
+                chains += signatures
                 self.signaturesToGenerate.append(sig)
-            elif not eval('TriggerFlags.' + sig + 'Slice.signatures()'):
+            else:
                 log.debug('Signature %s is not switched on (no chains in menu)', sig)
-            elif not eval('self.do' + sig + 'Chains'):
-                log.debug('Signature %s is not switched on (disabled by flag)', sig)
 
         log.info("The following signature(s) is(are) enabled: %s", self.signaturesToGenerate)
 
@@ -411,10 +387,9 @@ class GenerateMenuMT(object, metaclass=Singleton):
                 sigFolder = currentSig
 
             if currentSig in self.availableSignatures and currentSig != 'Combined':
-                try:                    
-                    functionToCall ='Generate'+currentSig+'ChainDefs.generateChainConfigs(chainPartDict)' 
-                    log.debug("[__generateChainConfigs] Trying to get chain config for %s in folder %s using %s", currentSig, sigFolder, functionToCall)
-                    chainPartConfig = eval(functionToCall)
+                try:
+                    log.debug("[__generateChainConfigs] Trying to get chain config for %s in folder %s", currentSig, sigFolder)
+                    chainPartConfig = self.chainDefModule[currentSig].generateChainConfigs(chainPartDict)
                 except Exception:
                     log.error('[__generateChainConfigs] Problems creating ChainDef for chain %s ', chainName)
                     log.error('[__generateChainConfigs] I am in chain part\n %s ', chainPartDict)
@@ -460,9 +435,8 @@ class GenerateMenuMT(object, metaclass=Singleton):
             
             if len(mainChainDict['extraComboHypos']) > 0:
                 try:
-                    functionToCall ='GenerateCombinedChainDefs.addTopoInfo(theChainConfig,mainChainDict,listOfChainConfigs,lengthOfChainConfigs)' 
                     log.debug("Trying to add extra ComboHypoTool for %s",mainChainDict['extraComboHypos'])
-                    theChainConfig = eval(functionToCall)
+                    theChainConfig = self.chainDefModule['Combined'].addTopoInfo(theChainConfig,mainChainDict,listOfChainConfigs,lengthOfChainConfigs)
                 except RuntimeError:
                     log.error('[__generateChainConfigs] Problems creating ChainDef for chain %s ', chainName)
                     log.error('[__generateChainConfigs] I am in the extraComboHypos section, for %s ', mainChainDict['extraComboHypos'])
@@ -517,7 +491,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
 
         return chainConfigs 
  
-    @memoize
+
     def generateMT(self):
         """
         == Main function of the class which generates L1, L1Topo and HLT menu
