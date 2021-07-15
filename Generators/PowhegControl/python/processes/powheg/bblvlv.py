@@ -1,7 +1,10 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+from AthenaCommon import Logging
 from ..powheg_RES import PowhegRES
 
+## Get handle to Athena logging
+logger = Logging.logging.getLogger("PowhegControl")
 
 class bblvlv(PowhegRES):
     """! Default Powheg configuration for top pair and Wt production including non-resonant and interference effects.
