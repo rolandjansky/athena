@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCHAMBERT0S_CHAMBERT0S_H
@@ -18,7 +18,7 @@ namespace Muon {
   class ChamberT0s {
   public:
       /** Value returned by ChamberT0s::getT0(...) when chamber is not known to ChamberT0s*/
-      static float ChamberUnknown ;
+      static constexpr float ChamberUnknown = -99999.9;
       
       ChamberT0s( ) ;
       

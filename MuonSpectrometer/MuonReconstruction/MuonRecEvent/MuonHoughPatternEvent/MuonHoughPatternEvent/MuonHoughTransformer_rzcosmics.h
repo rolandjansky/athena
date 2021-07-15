@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONHOUGHPATTERNEVENT_MUONHOUGHTRANSFORMER_RZCOSMICS_H
@@ -26,7 +26,7 @@ class MuonHoughTransformer_rzcosmics: public MuonHoughTransformer
 
  private:
   /** recalculate trackparameters of pattern */
-  void updateParameters(MuonHoughPattern*)const;
+  static void updateParameters(MuonHoughPattern*);
 
   /** weight in transform, dotprod is the phi angle between the normal and the phisector */
   float weightHoughTransform (double r0,double sintheta, double sinphi, double dotprod) const;
