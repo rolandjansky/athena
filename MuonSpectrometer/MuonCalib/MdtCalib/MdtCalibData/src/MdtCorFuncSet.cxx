@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibData/MdtCorFuncSet.h"
@@ -18,7 +18,7 @@ namespace MuonCalib {
   }
 
   MdtCorFuncSet::MdtCorFuncSet() 
-      : m_slewing(0),m_bField(0),m_temperature(0),m_background(0),m_wireSag(0) {
+      : m_slewing(nullptr),m_bField(nullptr),m_temperature(nullptr),m_background(nullptr),m_wireSag(nullptr) {
   }
 
   MdtCorFuncSet::~MdtCorFuncSet() {

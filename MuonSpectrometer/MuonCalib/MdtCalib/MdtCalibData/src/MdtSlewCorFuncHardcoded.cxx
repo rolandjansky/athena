@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
   MDT Timeslew correction for AMT digitization chip.
   Timeslew correction parmeterized as function of ADC:  timeslew = 109/q(ADC) [ns]
@@ -27,7 +27,9 @@ const std::vector<double> MdtSlewCorFuncHardcoded::initialize_LUT() {
   // Constant 109 is from an optimization of the timeslew correction
   // calibrated_p(i) is the integrated charge as a function of ADC
   std::vector<double> LUT;
-  for( int i=0; i<400; i++ ) {
+  LUT.reserve(400);
+
+for( int i=0; i<400; i++ ) {
     LUT.push_back(109./calibrated_p(i));
   }
   return LUT;

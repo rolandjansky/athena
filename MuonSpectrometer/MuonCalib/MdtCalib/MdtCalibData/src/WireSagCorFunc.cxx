@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -25,7 +25,7 @@ using namespace MuonCalib;
 void WireSagCorFunc::init(const CalibFunc::ParVec& params) {
   MsgStream log(Athena::getMessageSvc(), "WireSagCorFunc");
   m_params = params;
-  if (m_params.size() != 0) {
+  if (!m_params.empty()) {
     log << MSG::ERROR << "Wrong number of parameters: " << m_params.size() << endmsg;
   }
 }

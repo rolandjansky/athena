@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -38,7 +38,7 @@ void BFieldCorFunc::init(const std::string &quality, const CalibFunc::ParVec &pa
   if (m_param.size()!=2) {
     MsgStream log(Athena::getMessageSvc(), "BFieldCorFunc");
     log<<MSG::ERROR<< "Wrong number of parameters!"<<endmsg;
-    m_Legendre=NULL;
+    m_Legendre=nullptr;
     return;	
   }
 
@@ -109,7 +109,7 @@ void BFieldCorFunc::init(const std::string &quality, const CalibFunc::ParVec &pa
   if (fitter.fit_parameters(sample_points, 1, nb_points, &legendre)) {
     MsgStream log(Athena::getMessageSvc(), "BFieldCorFunc");
     log<<MSG::WARNING<<"Unable to fit the integral in the correction!"<<endmsg;
-    m_Legendre=NULL;
+    m_Legendre=nullptr;
     return;	
   }
   m_alpha = fitter.coefficients();
@@ -247,7 +247,7 @@ std::string BFieldCorFunc::name() const {
 //:: METHOD correction ::
 //:::::::::::::::::::::::
 double BFieldCorFunc::correction(double t, double B_wire, double B_mu) const {
-  if(m_Legendre==NULL) {
+  if(m_Legendre==nullptr) {
     return 0.0;
   }
 
@@ -302,7 +302,7 @@ double BFieldCorFunc::correction(double t, double B_wire, double B_mu) const {
 //::::::::::::::::::::::::::::
 double BFieldCorFunc::correction_to_B(
   double t, double B_wire, double B_mu, double B_factor) const {
-  if (m_Legendre==NULL)	{
+  if (m_Legendre==nullptr)	{
     return 0.0;
   }
 ///////////////
