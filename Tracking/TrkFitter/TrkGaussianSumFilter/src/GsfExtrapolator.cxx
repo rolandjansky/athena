@@ -1516,7 +1516,7 @@ Trk::GsfExtrapolator::addMaterialtoVector(Cache& cache,
     Trk::CurvilinearParameters* cvlTP = new Trk::CurvilinearParameters(
       nextPar->position(), nextPar->momentum(), nextPar->charge());
     Trk::MaterialEffectsOnTrack* mefot = new Trk::MaterialEffectsOnTrack(
-      dInX0, std::move(newsa), eloss, cvlTP->associatedSurface());
+      dInX0, newsa, eloss, cvlTP->associatedSurface());
     cache.m_matstates->push_back(
       new TrackStateOnSurface(nullptr, cvlTP, nullptr, mefot));
   }

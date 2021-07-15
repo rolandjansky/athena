@@ -68,8 +68,6 @@ public:
     MuonSimData();
     MuonSimData (const std::vector< Deposit >& deposits, int simDataWord = 0);
     MuonSimData (std::vector< Deposit >&& deposits, int simDataWord = 0);
-    MuonSimData (const MuonSimData& other) = default;
-   ~MuonSimData() = default;
     int word() const;                       // Get the packed simdata word
     void deposits(std::vector<Deposit>& deposits) const; // Get the Deposits
     const std::vector< Deposit >& getdeposits() const;
@@ -79,7 +77,7 @@ public:
     float getTime() const;
     
 private:
-    int m_word;  
+    int m_word;
     std::vector<Deposit> m_deposits;
     float m_x;
     float m_y;

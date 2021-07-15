@@ -12,13 +12,13 @@ namespace PSUtils
 {
   struct MemStruct
   {
-    int totalSize;
-    int physicalMemSize;
-    int sharedMemSize;
-    int textSize;
-    int sharedLibSize;
-    int stackSize;
-    int nDirtyPages;
+    int totalSize{};
+    int physicalMemSize{};
+    int sharedMemSize{};
+    int textSize{};
+    int sharedLibSize{};
+    int stackSize{};
+    int nDirtyPages{};
   };
     
 

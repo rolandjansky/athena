@@ -75,12 +75,12 @@ void PixelGmxInterface::addSensorType(std::string clas,
                                       std::string typeName,
                                       std::map<std::string, std::string> parameters)
 {
-  ATH_MSG_DEBUG("addModuleType called for class " << clas << ", typeName " << typeName);
+  ATH_MSG_DEBUG("addSensorType called for class " << clas << ", typeName " << typeName);
 
-  if (clas == "SingleChip_RD53" || clas == "SingleChip_RD53_25x100" || clas == "QuadChip_RD53" || clas == "QuadChip_RD53_inclined") {
-    makePixelModule(clas, parameters);
+  if (clas == "SingleChip_RD53" || clas == "QuadChip_RD53") {
+    makePixelModule(typeName, parameters);
   } else {
-    ATH_MSG_ERROR("addModuleType: unrecognised module class: " << clas);
+    ATH_MSG_ERROR("addSensorType: unrecognised module class: " << clas);
     ATH_MSG_ERROR("No module design created");
   }
 }
@@ -114,6 +114,7 @@ void PixelGmxInterface::makePixelModule(const std::string &typeName,
   getParameter(typeName, parameters, "circuitsPerEta", circuitsPerEta);
   getParameter(typeName, parameters, "circuitsPerPhi", circuitsPerPhi);
   getParameter(typeName, parameters, "thickness", thickness);
+  getParameter(typeName, parameters, "is3D", is3D);
   getParameter(typeName, parameters, "rows", rowsPerChip);
   getParameter(typeName, parameters, "columns", columnsPerChip);
   getParameter(typeName, parameters, "pitchEta", pitchEta);
@@ -169,7 +170,7 @@ void PixelGmxInterface::makePixelModule(const std::string &typeName,
                                                             readoutSide, is3D, detectorType);
   
 
-  ATH_MSG_DEBUG("readout geo - design : " << design->width() << " " << design->length() << " " << design->thickness() << "    " <<design->rows() << " " << design->columns());
+  ATH_MSG_DEBUG("readout geo - design : " << design->width() << " " << design->length() << " " << design->thickness() << " " <<design->rows() << " " << design->columns());
 
   m_detectorManager->addDesign(std::move(design));
 

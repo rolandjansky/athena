@@ -471,7 +471,7 @@ StatusCode SCT_DigitizationTool::processBunchXing(int bunchXing,
     }
 
     TimedHitCollList::iterator endColl{hitCollList.end()};
-    for (TimedHitCollList::iterator iColl{hitCollList.begin()}; iColl != endColl; iColl++) {
+    for (TimedHitCollList::iterator iColl{hitCollList.begin()}; iColl != endColl; ++iColl) {
       std::unique_ptr<SiHitCollection> hitCollPtr{std::make_unique<SiHitCollection>(*iColl->second)};
       PileUpTimeEventIndex timeIndex{iColl->first};
       ATH_MSG_DEBUG("SiHitCollection found with " << hitCollPtr->size() <<

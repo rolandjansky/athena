@@ -267,9 +267,10 @@ Trk::TrackSlimmingTool::slimTrack(Trk::Track& track) const
                                    lastValidMSTSOS);
 
     if (keepParameter) {
-      parameters = std::move((*itTSoS)
-                     ->trackParameters()
-                     ->uniqueClone()); // make sure we add a new parameter by cloning
+      parameters =
+        (*itTSoS)
+          ->trackParameters()
+          ->uniqueClone(); // make sure we add a new parameter by cloning
       if ((*itTSoS)->type(TrackStateOnSurface::Perigee)) {
         typePattern.set(TrackStateOnSurface::Perigee);
       }
@@ -284,7 +285,7 @@ Trk::TrackSlimmingTool::slimTrack(Trk::Track& track) const
       if ((*itTSoS)->type(TrackStateOnSurface::Outlier)) {
         typePattern.set(TrackStateOnSurface::Outlier);
       }
-      rot = std::move((*itTSoS)->measurementOnTrack()->uniqueClone());
+      rot =(*itTSoS)->measurementOnTrack()->uniqueClone();
     }
 
     Trk::TrackStateOnSurface* newTSOS = nullptr;

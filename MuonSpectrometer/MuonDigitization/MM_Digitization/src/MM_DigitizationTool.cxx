@@ -129,9 +129,6 @@ StatusCode MM_DigitizationTool::initialize() {
 
 	ATH_CHECK(m_idHelperSvc.retrieve());
 
-	// Digit tools
-	ATH_CHECK(m_digitTool.retrieve());
-
   if (m_hitsContainerKey.key().empty()) {
     ATH_MSG_FATAL("Property InputObjectName not set !");
     return StatusCode::FAILURE;
@@ -283,7 +280,6 @@ StatusCode MM_DigitizationTool::initialize() {
   ATH_MSG_DEBUG(" Shortest strip number: " << stripNumberShortestStrip  << " length: " << shortestStripLength << " longest strip number: " << stripNumberLongestStrip << " length " << longestStripLength);
 
 	ATH_MSG_DEBUG ( "Configuration  MM_DigitizationTool " );
-	ATH_MSG_DEBUG ( "DigitizationTool       " << m_digitTool           );
 	ATH_MSG_INFO ( "RndmSvc                " << m_rndmSvc             );
 	ATH_MSG_INFO ( "RndmEngine             " << m_rndmEngineName      );
 	ATH_MSG_DEBUG ( "InputObjectName        " << m_inputObjectName     );

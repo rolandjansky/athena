@@ -20,7 +20,6 @@ class MdtDigiToolOutput {
 public:
     MdtDigiToolOutput(bool wasEff, double time, double adc) : m_wasEff(wasEff), m_time(time), m_adc(adc) {}
 
-    ~MdtDigiToolOutput() {}
 
     double driftTime() const { return m_time; }
     double adc() const { return m_adc; }

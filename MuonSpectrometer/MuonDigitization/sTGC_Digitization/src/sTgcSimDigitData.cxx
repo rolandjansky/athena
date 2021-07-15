@@ -8,11 +8,6 @@
 // Constructor
 sTgcSimDigitData::sTgcSimDigitData() { }
 
-sTgcSimDigitData::sTgcSimDigitData(const sTgcSimDigitData& simDigit) {
-
-    m_sTGCSimData = simDigit.getSimData();
-    m_sTGCDigit = simDigit.getSTGCDigit();
-}
 
 sTgcSimDigitData::sTgcSimDigitData(const MuonSimData& hit, const sTgcDigit& digit): 
     m_sTGCSimData(hit),
@@ -20,6 +15,4 @@ sTgcSimDigitData::sTgcSimDigitData(const MuonSimData& hit, const sTgcDigit& digi
 {
 }
 
-// Destructor
-sTgcSimDigitData::~sTgcSimDigitData() {}
 

@@ -53,6 +53,9 @@
 #include "PDFcreator.h"
 #include "PunchThroughParticle.h"
 #include "ISF_Interfaces/IGeoIDSvc.h"
+#include "ISF_FastCaloSimEvent/TFCS1DFunctionInt32Histogram.h"
+
+
 
 //Barcode
 #include "BarcodeInterfaces/IBarcodeSvc.h"
@@ -946,10 +949,23 @@ std::unique_ptr<ISF::PDFcreator> ISF::PunchThroughTool::readLookuptablePDF(int p
 
         //Add entry to pdf map
         if(strcmp(key->GetClassName(), "TH1F") == 0){
-          pdf->addToEnergyEtaRangeHist1DMap(energy, etaMinEtaMax, hist1D);
+          pdf->addToEnergyEtaRangeHist1DMap(energy, etaMinEtaMax, new TFCS1DFunctionInt32Histogram(hist1D));
         }
         if(strcmp(key->GetClassName(), "TH2F") == 0){
-          pdf->addToEnergyEtaRangeHist2DMap(energy, etaMinEtaMax, hist2D);
+
+          //Store 2D histogram as map of x bins to y-projection 1D hists.
+          std::map<double, TFCS1DFunction*>* histMap2D = new std::map<double, TFCS1DFunction*>;
+
+          for(int ibinx = 0; ibinx < hist2D->GetXaxis()->GetNbins(); ibinx ++){
+
+            TH1 * histYProjection = hist2D->ProjectionY((hist2D->GetName() + std::string("_bin") + std::to_string(ibinx + 1)).c_str(),ibinx + 1,ibinx + 1); //get y projection
+
+            if(histYProjection->Integral() < std::numeric_limits<Double_t>::epsilon()){continue;} // don't add to map if y projection has no entries
+
+            histMap2D->insert(std::make_pair(hist2D->GetXaxis()->GetBinCenter(ibinx + 1), new TFCS1DFunctionInt32Histogram(histYProjection)));
+          }
+
+          pdf->addToEnergyEtaRangeHist2DMap(energy, etaMinEtaMax, histMap2D);
         }
       }
 
