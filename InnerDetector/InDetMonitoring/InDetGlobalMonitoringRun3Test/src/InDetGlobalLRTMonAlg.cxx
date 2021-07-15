@@ -1,21 +1,20 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
-/** @file InDetGlobalTrackMonAlg.h
- * Implementation of inner detector global track monitoring tool
+/** @file InDetGlobalLRTMonAlg.h
+ * Implementation of inner detector global LRT  monitoring tool
  *
  *@author
- * Leonid Serkin <lserkin@cern.ch> @n
- * Per Johansson <Per.Johansson@cern.ch> @n
+ * Hamza Hanif  <hamza.hanif@cern.ch> 
  *
- * based on InDetGlobalTrackMonTool.cxx
+ * based on InDetGlobalTrackMonTool.cxx (Leonid Serkin  and  Per Johansson)
  *
  ****************************************************************************/
 
 //main header
-#include "InDetGlobalTrackMonAlg.h"
+#include "InDetGlobalLRTMonAlg.h"
 
 //Standard c++
 #include <vector>
@@ -28,11 +27,10 @@
 
 
 
-InDetGlobalTrackMonAlg::InDetGlobalTrackMonAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
+InDetGlobalLRTMonAlg::InDetGlobalLRTMonAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthMonitorAlgorithm(name, pSvcLocator),
   m_holes_search_tool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool", this),
   m_trackSelTool      ( "InDet::InDetTrackSelectionTool/TrackSelectionTool", this),
-  m_tight_trackSelTool( "InDet::InDetTrackSelectionTool/TrackSelectionTool", this ),
   m_atlasid(nullptr),
   m_trtID(nullptr),
   m_sctID(nullptr),
@@ -52,20 +50,17 @@ InDetGlobalTrackMonAlg::InDetGlobalTrackMonAlg( const std::string& name, ISvcLoc
   declareProperty("DoTide",m_doTide,"Make TIDE plots?");
   declareProperty("DoTideResiduals",m_doTideResiduals,"Make TIDE residual plots?");
   declareProperty("HoleSearchTool", m_holes_search_tool,"Tool to search for holes on track");	
-  //    declareProperty("UpdatorTool"                  , m_iUpdator);
   declareProperty("DoHitMaps", m_doHitMaps,"Produce hit maps?");	
   declareProperty("DoForwardTracks", m_doForwardTracks,"Run over forward tracks?");	
   declareProperty("DoIBL", m_doIBL,"IBL present?");	
-  //    declareProperty("ResidualPullCalculatorTool", m_residualPullCalculator);
   declareProperty( "TrackSelectionTool", m_trackSelTool);
-  declareProperty( "Tight_TrackSelectionTool", m_tight_trackSelTool );
 }
 
 
-InDetGlobalTrackMonAlg::~InDetGlobalTrackMonAlg() {}
+InDetGlobalLRTMonAlg::~InDetGlobalLRTMonAlg() {}
 
 
-StatusCode InDetGlobalTrackMonAlg::initialize() {
+StatusCode InDetGlobalLRTMonAlg::initialize() {
   ATH_CHECK( detStore()->retrieve(m_atlasid, "AtlasID") );
   
   m_pixelID = nullptr;
@@ -94,41 +89,44 @@ StatusCode InDetGlobalTrackMonAlg::initialize() {
   m_doIBL = m_IBLParameterSvc->containsIBL();
   
   if (!m_trackSelTool.empty() )      ATH_CHECK( m_trackSelTool.retrieve() );
-  if (!m_tight_trackSelTool.empty()) ATH_CHECK( m_tight_trackSelTool.retrieve() );
   
   if (!m_holes_search_tool.empty())  ATH_CHECK( m_holes_search_tool.retrieve());
   
   ATH_CHECK( m_CombinedTracksName.initialize() );
   ATH_CHECK( m_ForwardTracksName.initialize() );
-  
+  ATH_CHECK( m_tracksLarge.initialize() );   
   ATH_CHECK( m_clustersKey.initialize() );  // maybe not needed
   
   return AthMonitorAlgorithm::initialize();
 }
 
 
-StatusCode InDetGlobalTrackMonAlg::fillHistograms( const EventContext& ctx ) const {
+StatusCode InDetGlobalLRTMonAlg::fillHistograms( const EventContext& ctx ) const {
   using namespace Monitored;
   
   //*******************************************************************************
   //************************** Begin of filling Track Histograms ******************
   //*******************************************************************************
 
-  ATH_MSG_DEBUG("Filling InDetGlobalTrackMonAlg");
+  ATH_MSG_DEBUG("Filling InDetGlobalLRTMonAlg");
   
   // For histogram naming
-  auto trackGroup = getGroup("Track");
+  auto lrtGroup = getGroup("LRT");
   
-  // m_manager->lumiBlockNumber() // not used anymore, now use
   int lb       = GetEventInfo(ctx)->lumiBlock();
   auto lb_m    = Monitored::Scalar<int>( "m_lb", lb );
   
+  
+  float lumiPerBCID       = lbAverageInteractionsPerCrossing(ctx);
+  auto lumiPerBCID_m    = Monitored::Scalar<float>( "m_lumiPerBCID", lumiPerBCID );
+
+
   // retrieving tracks
-  auto combined_tracks = SG::makeHandle(m_CombinedTracksName, ctx);
+  auto combined_tracks = SG::makeHandle(m_tracksLarge, ctx);
   
   // check for tracks
   if ( !(combined_tracks.isValid()) ) {
-    ATH_MSG_ERROR("InDetGlobalMonitoringRun3Test: Track container "<< m_CombinedTracksName.key() << " could not be found.");
+    ATH_MSG_ERROR("InDetGlobalMonitoringRun3Test: Track container "<< m_tracksLarge.key() << " could not be found.");
     return StatusCode::RECOVERABLE;
   } else {
     ATH_MSG_DEBUG("InDetGlobalMonitoringRun3Test: Track container "<< combined_tracks.name() <<" is found.");
@@ -136,7 +134,6 @@ StatusCode InDetGlobalTrackMonAlg::fillHistograms( const EventContext& ctx ) con
   
   // counters
   int nBase = 0;
-  int nTight = 0;
   int nNoIBL = 0;
   int nNoBL = 0;
   int nNoTRText = 0;
@@ -149,12 +146,6 @@ StatusCode InDetGlobalTrackMonAlg::fillHistograms( const EventContext& ctx ) con
 	ATH_MSG_DEBUG( "InDetGlobalMonitoringRun3Test: NULL track pointer in collection" );
 	continue;
       }
-    
-    // not sure it works now....
-    // Skip tracks that are not inside out
-    //if ( ( m_dataType == AthenaMonManager::collisions || m_dataType == AthenaMonManager::userDefined )
-    //     && ! track->info().patternRecoInfo( Trk::TrackInfo::SiSPSeededFinder ) )
-    //    continue;
     
     
     // Loose primary tracks
@@ -198,59 +189,104 @@ StatusCode InDetGlobalTrackMonAlg::fillHistograms( const EventContext& ctx ) con
     
     auto eta_perigee_m   = Monitored::Scalar<float>( "m_eta_perigee", eta_perigee);
     auto phi_perigee_m   = Monitored::Scalar<float>( "m_phi_perigee", phi_perigee);
-    fill(trackGroup, eta_perigee_m, phi_perigee_m); // Trk_Base_eta_phi
+    fill(lrtGroup, eta_perigee_m, phi_perigee_m); // Trk_Base_eta_phi
     
-    
+  
+
+ 
+    float eta_perigee1 = perigee->eta();
+    auto eta_perigee_m1   = Monitored::Scalar<float>( "m_eta_perigee1", eta_perigee1);
+    fill(lrtGroup, eta_perigee_m1);
+
+    float phi_perigee1 = perigee->parameters()[Trk::phi0];
+
+
+
+
+    auto phi_perigee_m1   = Monitored::Scalar<float>( "m_phi_perigee1", phi_perigee1);
+    fill(lrtGroup, phi_perigee_m1);
+
+
+    float d0_perigee = perigee->parameters()[Trk::d0];    
+    auto d0_perigee_m   = Monitored::Scalar<float>( "m_d0_perigee", d0_perigee);    
+    fill(lrtGroup, d0_perigee_m);
+    float z0_perigee = perigee->parameters()[Trk::z0];
+    auto z0_perigee_m   = Monitored::Scalar<float>( "m_z0_perigee", z0_perigee);
+    fill(lrtGroup, z0_perigee_m); 
+
+
+
+
+
+    float theta = perigee->parameters()[Trk::theta];
+    float qOverPt = perigee->parameters()[Trk::qOverP]/sin(theta);
+
+    float charge = perigee->charge();
+    float pT = 0;
+    if ( qOverPt != 0 ) {
+      pT = (1/qOverPt)*(charge);    
+      auto pT_m = Monitored::Scalar<float>("m_trkPt", pT/1000); 
+      fill(lrtGroup, pT_m);
+    }
+
+
+
+
+
+
+
+
+  
     if ( m_doIBL )
       {
 	int numberOfInnermostPixelLayerHits = summary->get( Trk::numberOfInnermostPixelLayerHits );
 	auto numberOfInnermostPixelLayerHits_m = Monitored::Scalar<int>( "m_numberOfInnermostPixelLayerHits", numberOfInnermostPixelLayerHits);
-	fill(trackGroup, eta_perigee_m, phi_perigee_m, numberOfInnermostPixelLayerHits_m);
+	fill(lrtGroup, eta_perigee_m, phi_perigee_m, numberOfInnermostPixelLayerHits_m);
 	
-	fill(trackGroup, lb_m, numberOfInnermostPixelLayerHits_m);
+	fill(lrtGroup, lb_m, numberOfInnermostPixelLayerHits_m);
       }
     
     auto pixHits_m  = Monitored::Scalar<int>( "m_pixHits", pixHits ); 
-    fill(trackGroup, eta_perigee_m, phi_perigee_m, pixHits_m);
-    fill(trackGroup, lb_m, pixHits_m);
+    fill(lrtGroup, eta_perigee_m, phi_perigee_m, pixHits_m);
+    fill(lrtGroup, lb_m, pixHits_m);
     
     auto numberOfPixelDeadSensors_m = Monitored::Scalar<int>( "m_numberOfPixelDeadSensors", numberOfPixelDeadSensors );
-    fill(trackGroup, eta_perigee_m, phi_perigee_m, numberOfPixelDeadSensors_m);
+    fill(lrtGroup, eta_perigee_m, phi_perigee_m, numberOfPixelDeadSensors_m);
     
     int numberOfPixelSharedHits = ( summary->get(Trk::numberOfPixelSharedHits) >= 0 ) ? summary->get(Trk::numberOfPixelSharedHits) : 0 ;
     auto numberOfPixelSharedHits_m = Monitored::Scalar<int>( "m_numberOfPixelSharedHits", numberOfPixelSharedHits);
-    fill(trackGroup, eta_perigee_m, phi_perigee_m, numberOfPixelSharedHits_m);
+    fill(lrtGroup, eta_perigee_m, phi_perigee_m, numberOfPixelSharedHits_m);
     
     int numberOfPixelHoles = summary->get(Trk::numberOfPixelHoles) >= 0 ? summary->get(Trk::numberOfPixelHoles) : 0;
     auto numberOfPixelHoles_m = Monitored::Scalar<int>( "m_numberOfPixelHoles", numberOfPixelHoles); 
-    fill(trackGroup, eta_perigee_m, phi_perigee_m, numberOfPixelHoles_m);
+    fill(lrtGroup, eta_perigee_m, phi_perigee_m, numberOfPixelHoles_m);
     
     int numberOfPixelSplitHits = ( summary->get(Trk::numberOfPixelSplitHits) >= 0 ) ? summary->get(Trk::numberOfPixelSplitHits) : 0 ;
     auto numberOfPixelSplitHits_m = Monitored::Scalar<int>( "m_numberOfPixelSplitHits", numberOfPixelSplitHits);
-    fill(trackGroup, eta_perigee_m, phi_perigee_m, numberOfPixelSplitHits_m);
+    fill(lrtGroup, eta_perigee_m, phi_perigee_m, numberOfPixelSplitHits_m);
     
     auto sctHits_m  = Monitored::Scalar<int>( "m_sctHits", sctHits ); 
-    fill(trackGroup, eta_perigee_m, phi_perigee_m, sctHits_m);
-    fill(trackGroup, lb_m, sctHits_m);
+    fill(lrtGroup, eta_perigee_m, phi_perigee_m, sctHits_m);
+    fill(lrtGroup, lb_m, sctHits_m);
     
     auto numberOfSCTDeadSensors_m = Monitored::Scalar<int>( "m_numberOfSCTDeadSensors", numberOfSCTDeadSensors );
-    fill(trackGroup, eta_perigee_m, phi_perigee_m, numberOfSCTDeadSensors_m);
+    fill(lrtGroup, eta_perigee_m, phi_perigee_m, numberOfSCTDeadSensors_m);
     
     int numberOfSCTSharedHits = ( summary->get(Trk::numberOfSCTSharedHits) >= 0 ) ? summary->get(Trk::numberOfSCTSharedHits) : 0 ;
     auto numberOfSCTSharedHits_m = Monitored::Scalar<int>( "m_numberOfSCTSharedHits", numberOfSCTSharedHits);
-    fill(trackGroup, eta_perigee_m, phi_perigee_m, numberOfSCTSharedHits_m);
+    fill(lrtGroup, eta_perigee_m, phi_perigee_m, numberOfSCTSharedHits_m);
     
     int numberOfSCTHoles   = summary->get(Trk::numberOfSCTHoles) >= 0 ? summary->get(Trk::numberOfSCTHoles) : 0;
     auto numberOfSCTHoles_m   = Monitored::Scalar<int>( "m_numberOfSCTHoles", numberOfSCTHoles);
-    fill(trackGroup, eta_perigee_m, phi_perigee_m, numberOfSCTHoles_m);
+    fill(lrtGroup, eta_perigee_m, phi_perigee_m, numberOfSCTHoles_m);
     
     auto trtHits_m  = Monitored::Scalar<int>( "m_trtHits", trtHits ); 
-    fill(trackGroup, eta_perigee_m, phi_perigee_m, trtHits_m);
-    fill(trackGroup, lb_m, trtHits_m);
+    fill(lrtGroup, eta_perigee_m, phi_perigee_m, trtHits_m);
+    fill(lrtGroup, lb_m, trtHits_m);
     
     int numberOfTRTDeadStraws =    ( summary->get(Trk::numberOfTRTDeadStraws) >= 0 ) ? summary->get(Trk::numberOfTRTDeadStraws) : 0 ;
     auto numberOfTRTDeadStraws_m = Monitored::Scalar<int>( "m_numberOfTRTDeadStraws", numberOfTRTDeadStraws);
-    fill(trackGroup, eta_perigee_m, phi_perigee_m, numberOfTRTDeadStraws_m);
+    fill(lrtGroup, eta_perigee_m, phi_perigee_m, numberOfTRTDeadStraws_m);
     
     // Fill hits ENDS 
     // =================================== //
@@ -265,13 +301,13 @@ StatusCode InDetGlobalTrackMonAlg::fillHistograms( const EventContext& ctx ) con
 	// no IBL hit but a hit is expected
 	if ( summary->get( Trk::expectInnermostPixelLayerHit ) && !summary->get( Trk::numberOfInnermostPixelLayerHits ) ) InnermostPixelLayerHit = 1;
 	auto InnermostPixelLayerHit_m = Monitored::Scalar<int>( "m_InnermostPixelLayerHit", InnermostPixelLayerHit);
-	fill(trackGroup, eta_perigee_m, phi_perigee_m, InnermostPixelLayerHit_m);
+	fill(lrtGroup, eta_perigee_m, phi_perigee_m, InnermostPixelLayerHit_m);
 	
 	
 	// no b-layer hit but a hit is expected
 	if ( summary->get( Trk::expectNextToInnermostPixelLayerHit ) && !summary->get( Trk::numberOfNextToInnermostPixelLayerHits ) ) NextToInnermostPixelLayerHit = 1 ;
 	auto NextToInnermostPixelLayerHit_m = Monitored::Scalar<int>( "m_NextToInnermostPixelLayerHit", NextToInnermostPixelLayerHit);
-	fill(trackGroup, eta_perigee_m, phi_perigee_m, NextToInnermostPixelLayerHit_m);
+	fill(lrtGroup, eta_perigee_m, phi_perigee_m, NextToInnermostPixelLayerHit_m);
 	
       }
     else
@@ -279,7 +315,7 @@ StatusCode InDetGlobalTrackMonAlg::fillHistograms( const EventContext& ctx ) con
 	if ( summary->get( Trk::expectInnermostPixelLayerHit ) && !summary->get( Trk::numberOfInnermostPixelLayerHits ) ) InnermostPixelLayerHit = 1;
 	NextToInnermostPixelLayerHit = InnermostPixelLayerHit;
 	auto NextToInnermostPixelLayerHit_m = Monitored::Scalar<int>( "m_NextToInnermostPixelLayerHit", NextToInnermostPixelLayerHit);
-	fill(trackGroup, eta_perigee_m, phi_perigee_m, NextToInnermostPixelLayerHit_m);
+	fill(lrtGroup, eta_perigee_m, phi_perigee_m, NextToInnermostPixelLayerHit_m);
 	
       }
     
@@ -287,14 +323,9 @@ StatusCode InDetGlobalTrackMonAlg::fillHistograms( const EventContext& ctx ) con
     int noTRTHits = 0;
     if ( summary->get(Trk::numberOfTRTHits) == 0 ) noTRTHits = 1;
     auto noTRTHits_m = Monitored::Scalar<int>( "m_noTRTHits", noTRTHits);
-    fill(trackGroup, eta_perigee_m, phi_perigee_m, noTRTHits_m);
+    fill(lrtGroup, eta_perigee_m, phi_perigee_m, noTRTHits_m);
     
     
-    // Tight track selection
-    int track_pass_tight = 0;
-    if ( m_tight_trackSelTool -> accept(*track) ) track_pass_tight = 1; // tight selection
-    auto track_pass_tight_m = Monitored::Scalar<int>( "m_track_pass_tight", track_pass_tight);
-    fill(trackGroup, eta_perigee_m, phi_perigee_m, track_pass_tight_m);
     
     // =================================== //
     // FillEtaPhi ENDS    
@@ -306,26 +337,20 @@ StatusCode InDetGlobalTrackMonAlg::fillHistograms( const EventContext& ctx ) con
 	if ( summary->get( Trk::expectInnermostPixelLayerHit ) && !summary->get( Trk::numberOfInnermostPixelLayerHits ) ) NoIBL = 1;
 	if (NoIBL == 1) nNoIBL++;
 	auto NoIBL_m = Monitored::Scalar<int>( "m_NoIBL_LB", NoIBL);
-	fill(trackGroup, lb_m, NoIBL_m);
+	fill(lrtGroup, lb_m, NoIBL_m);
       }
     
     int NoBL = 0;
     if ( summary->get( ( m_doIBL ) ? Trk::expectNextToInnermostPixelLayerHit : Trk::expectInnermostPixelLayerHit ) && !summary->get( ( m_doIBL ) ? Trk::numberOfNextToInnermostPixelLayerHits : Trk::numberOfInnermostPixelLayerHits ) ) NoBL = 1;
     if (NoBL == 1) nNoBL++;
     auto NoBL_m = Monitored::Scalar<int>( "m_NoBL_LB", NoBL);
-    fill(trackGroup, lb_m, NoBL_m);
+    fill(lrtGroup, lb_m, NoBL_m);
     
     int NoTRText = 0;
     if ( summary->get(Trk::numberOfTRTHits) + summary->get(Trk::numberOfTRTOutliers) == 0 ) NoTRText = 1;
     if (NoTRText == 1) nNoTRText++;
     auto NoTRText_m = Monitored::Scalar<int>( "m_NoTRText_LB", NoTRText);
-    fill(trackGroup, lb_m, NoTRText_m);
-    
-    
-    if ( m_tight_trackSelTool -> accept(*track) )
-      {
-	nTight++;
-      } 
+    fill(lrtGroup, lb_m, NoTRText_m);
     
     
     // FillHitMaps is false for now
@@ -336,24 +361,28 @@ StatusCode InDetGlobalTrackMonAlg::fillHistograms( const EventContext& ctx ) con
   
   // Filling per-event histograms
   auto nBase_m   = Monitored::Scalar<int>( "m_nBase", nBase);
-  fill(trackGroup, nBase_m);
+  fill(lrtGroup, nBase_m);
   
   auto nBaseLB_m   = Monitored::Scalar<int>( "m_nBase_LB", nBase);
-  fill(trackGroup, lb_m, nBaseLB_m);
+  fill(lrtGroup, lb_m, nBaseLB_m);
+
+
+  fill(lrtGroup, lumiPerBCID_m, nBaseLB_m);
+
+
+
   
-  auto nTight_m   = Monitored::Scalar<int>( "m_nTight_LB", nTight);
-  fill(trackGroup, lb_m, nTight_m);
   
   if ( m_doIBL ) {
     auto nNoIBL_m   = Monitored::Scalar<int>( "m_nNoIBL_LB", nNoIBL);
-    fill(trackGroup, lb_m, nNoIBL_m);
+    fill(lrtGroup, lb_m, nNoIBL_m);
   }
   
   auto nNoBL_m   = Monitored::Scalar<int>( "m_nNoBL_LB", nNoBL);
-  fill(trackGroup, lb_m, nNoBL_m);
+  fill(lrtGroup, lb_m, nNoBL_m);
   
   auto nNoTRText_m   = Monitored::Scalar<int>( "m_nNoTRText_LB", nNoTRText);
-  fill(trackGroup, lb_m, nNoTRText_m);
+  fill(lrtGroup, lb_m, nNoTRText_m);
 
 
   
