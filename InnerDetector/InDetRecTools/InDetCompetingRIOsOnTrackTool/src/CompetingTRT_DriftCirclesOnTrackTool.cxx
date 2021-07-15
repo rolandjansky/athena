@@ -370,15 +370,21 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
     // ----------------------------------
     // calculate effective measurement:
     // TRT barrel and TRT end-cap differ
-    const Trk::LocalParameters* effectiveLocalPar = nullptr;
-    const Amg::MatrixX* effectiveErrMat = nullptr;
+    std::unique_ptr<const Trk::LocalParameters> effectiveLocalPar = nullptr;
+    std::unique_ptr<const Amg::MatrixX> effectiveErrMat = nullptr;
     const Trk::Surface* assocSurface = nullptr;
     if(TRTtype == InDetDD::TRT_BaseElement::BARREL) {
         //calculation of effective measurements for Barrel-TRT
         // surface of the trkPar does not matter for standard calc
         assocSurface = &(ROTwithMaximumAssgnProb->associatedSurface());
         ATH_MSG_DEBUG("CompetingROT is in Barrel part");
-        calcEffectiveMeasurement(effectiveLocalPar, effectiveErrMat, ROTvector, assgnProbVector, &trkPar, assocSurface, nonVanishingROTsHaveCommonSurface);
+        calcEffectiveMeasurement(effectiveLocalPar,
+                                 effectiveErrMat,
+                                 ROTvector,
+                                 assgnProbVector,
+                                 &trkPar,
+                                 assocSurface,
+                                 nonVanishingROTsHaveCommonSurface);
 
     } else {
         //calculation of effective measurements for EndCap-TRT
@@ -388,36 +394,52 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
             // surface of the trkPar does not matter for standard calc
             ATH_MSG_DEBUG("    but all non-vanishing ROTs have the same surface: use standard calc");
             assocSurface = &(ROTwithMaximumAssgnProb->associatedSurface());
-            calcEffectiveMeasurement(effectiveLocalPar, effectiveErrMat, ROTvector, assgnProbVector, &trkPar, assocSurface, nonVanishingROTsHaveCommonSurface);
+            calcEffectiveMeasurement(effectiveLocalPar,
+                                     effectiveErrMat,
+                                     ROTvector,
+                                     assgnProbVector,
+                                     &trkPar,
+                                     assocSurface,
+                                     nonVanishingROTsHaveCommonSurface);
         } else {
-            // use DiscSurface as the common one
-            assocSurface = &(ROTwithMaximumAssgnProb->detectorElement()->surface());
-            // get LocR of trkPar on this surface
-            // this is not the optimal way, but should be sufficient if trkPar is given
-            // on one of the straws.
-            // The LocR of trkPar has not such a great influence and the last iterations
-            // where just one straw remains in competition are done on this StraightLineSurface anyway
-            // TODO: check how this can be done in a better way
-            std::optional<Amg::Vector2D> localTrkPar = assocSurface->globalToLocal(trkPar.position(), 10.); // use rather huge tolerance because z-coord does not matter
-            if (!localTrkPar) {
-                ATH_MSG_ERROR("Could not get TrackParameters on DiscSurface:");
-                ATH_MSG_ERROR("CompetingTRT_DriftCirclesOnTrack creation aborted!");
-                //clean-up
-                delete ROTvector;
-                delete assgnProbVector;
-                return nullptr;
-            }
-            ATH_MSG_DEBUG("estimated TrackParametres on DiscSurface: ("<<(*localTrkPar)[Trk::locR]<<","<<(*localTrkPar)[Trk::locPhi]<<")");
+          // use DiscSurface as the common one
+          assocSurface =
+            &(ROTwithMaximumAssgnProb->detectorElement()->surface());
+          // get LocR of trkPar on this surface
+          // this is not the optimal way, but should be sufficient if trkPar is
+          // given on one of the straws. The LocR of trkPar has not such a great
+          // influence and the last iterations where just one straw remains in
+          // competition are done on this StraightLineSurface anyway
+          // TODO: check how this can be done in a better way
+          std::optional<Amg::Vector2D> localTrkPar =
+            assocSurface->globalToLocal(
+              trkPar.position(),
+              10.); // use rather huge tolerance because z-coord does not matter
+          if (!localTrkPar) {
+            ATH_MSG_ERROR("Could not get TrackParameters on DiscSurface:");
+            ATH_MSG_ERROR("CompetingTRT_DriftCirclesOnTrack creation aborted!");
+            // clean-up
+            delete ROTvector;
+            delete assgnProbVector;
+            return nullptr;
+          }
+          ATH_MSG_DEBUG("estimated TrackParametres on DiscSurface: ("
+                        << (*localTrkPar)[Trk::locR] << ","
+                        << (*localTrkPar)[Trk::locPhi] << ")");
 
-            //            delete discpar;
-            calcEffectiveEndCapMeasurement( effectiveLocalPar, effectiveErrMat, ROTvector, assgnProbVector, *localTrkPar, assocSurface);
+          //            delete discpar;
+          calcEffectiveEndCapMeasurement(effectiveLocalPar,
+                                         effectiveErrMat,
+                                         ROTvector,
+                                         assgnProbVector,
+                                         *localTrkPar,
+                                         assocSurface);
         }
     }
 
     if (!effectiveLocalPar) {
         ATH_MSG_ERROR("Could not produce effective localParameters");
         //clean-up
-        delete effectiveErrMat;
         delete ROTvector;
         delete assgnProbVector;
         return nullptr;
@@ -425,8 +447,6 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
     if (!effectiveErrMat) {
         ATH_MSG_ERROR("Could not produce effective ErrorMatrix");
         //clean-up
-
-        delete effectiveLocalPar;
         delete ROTvector;
         delete assgnProbVector;
         return nullptr;
@@ -435,8 +455,16 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
     // ---------------------------------------
     // create CompetingTRT_DriftCirclesOnTrack
     //return (new CompetingTRT_DriftCirclesOnTrack(assocSurface, ROTvector, assgnProbVector, effectiveLocalPar, effectiveErrMat, ROTsHaveCommonSurface));
-    CompetingTRT_DriftCirclesOnTrack* theCompetingROT = new CompetingTRT_DriftCirclesOnTrack(assocSurface, ROTvector, assgnProbVector, effectiveLocalPar, effectiveErrMat, ROTsHaveCommonSurface);
-    if (msgLvl(MSG::VERBOSE)) testCompetingROT(*theCompetingROT);
+    CompetingTRT_DriftCirclesOnTrack* theCompetingROT =
+      new CompetingTRT_DriftCirclesOnTrack(assocSurface,
+                                           ROTvector,
+                                           assgnProbVector,
+                                           *effectiveLocalPar,
+                                           *effectiveErrMat,
+                                           ROTsHaveCommonSurface);
+    if (msgLvl(MSG::VERBOSE)){
+      testCompetingROT(*theCompetingROT);
+    }
     return theCompetingROT;
 }
 
@@ -656,14 +684,20 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
     // ----------------------------------
     // calculate effective measurement:
     // TRT barrel and TRT end-cap differ
-    const Trk::LocalParameters* effectiveLocalPar = nullptr;
-    const Amg::MatrixX* effectiveErrMat = nullptr;
+    std::unique_ptr<const Trk::LocalParameters> effectiveLocalPar = nullptr;
+    std::unique_ptr<const Amg::MatrixX> effectiveErrMat = nullptr;
     const Trk::Surface* assocSurface = nullptr;
     if(isBarrel) {
         //calculation of effective measurements for Barrel-TRT
         // surface of the trkPar does not matter for standard calc
         assocSurface = &(ROTwithMaximumAssgnProb->associatedSurface());
-        calcEffectiveMeasurement(effectiveLocalPar, effectiveErrMat, &(compROT->containedROTs()), assgnProbVector, &trkPar, assocSurface, nonVanishingROTsHaveCommonSurface);
+        calcEffectiveMeasurement(effectiveLocalPar,
+                                 effectiveErrMat,
+                                 &(compROT->containedROTs()),
+                                 assgnProbVector,
+                                 &trkPar,
+                                 assocSurface,
+                                 nonVanishingROTsHaveCommonSurface);
 
     } else {
         //calculation of effective measurements for EndCap-TRT
@@ -671,25 +705,42 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
             // use standard calculation if just one straw is in the competition
             // surface of the trkPar does not matter for standard calc
             assocSurface = &(ROTwithMaximumAssgnProb->associatedSurface());
-            calcEffectiveMeasurement(effectiveLocalPar, effectiveErrMat, &(compROT->containedROTs()), assgnProbVector, &trkPar, assocSurface, nonVanishingROTsHaveCommonSurface);
+            calcEffectiveMeasurement(effectiveLocalPar,
+                                     effectiveErrMat,
+                                     &(compROT->containedROTs()),
+                                     assgnProbVector,
+                                     &trkPar,
+                                     assocSurface,
+                                     nonVanishingROTsHaveCommonSurface);
         } else {
-            // use DiscSurface as the common one
-            assocSurface = &(ROTwithMaximumAssgnProb->detectorElement()->surface());
-            // get LocR of trkPar on this surface
-            // this is not the optimal way, but should be sufficient if trkPar is given
-            // on one of the straws.
-            // The LocR of trkPar has not such a great influence and the last iterations
-            // where just one straw remains in competition are done on this StraightLineSurface anyway
-            // TODO: check how this can be done in a better way
-            std::optional<Amg::Vector2D> localTrkPar = assocSurface->globalToLocal(trkPar.position(), 10.); // use rather huge tolerance because z-coord does not matter
-            if (!localTrkPar) {
-                ATH_MSG_ERROR("Could not get TrackParameters on DiscSurface:");
-                ATH_MSG_ERROR("CompetingTRT_DriftCirclesOnTrack update aborted!");
-                // FIXME: delete everything
-                return;
-            }
-            ATH_MSG_DEBUG("estimated TrackParametres on DiscSurface: ("<<(*localTrkPar)[Trk::locR]<<","<<(*localTrkPar)[Trk::locPhi]<<")");
-            calcEffectiveEndCapMeasurement( effectiveLocalPar, effectiveErrMat, &(compROT->containedROTs()), assgnProbVector, *localTrkPar, assocSurface);
+          // use DiscSurface as the common one
+          assocSurface =
+            &(ROTwithMaximumAssgnProb->detectorElement()->surface());
+          // get LocR of trkPar on this surface
+          // this is not the optimal way, but should be sufficient if trkPar is
+          // given on one of the straws. The LocR of trkPar has not such a great
+          // influence and the last iterations where just one straw remains in
+          // competition are done on this StraightLineSurface anyway
+          // TODO: check how this can be done in a better way
+          std::optional<Amg::Vector2D> localTrkPar =
+            assocSurface->globalToLocal(
+              trkPar.position(),
+              10.); // use rather huge tolerance because z-coord does not matter
+          if (!localTrkPar) {
+            ATH_MSG_ERROR("Could not get TrackParameters on DiscSurface:");
+            ATH_MSG_ERROR("CompetingTRT_DriftCirclesOnTrack update aborted!");
+            // FIXME: delete everything
+            return;
+          }
+          ATH_MSG_DEBUG("estimated TrackParametres on DiscSurface: ("
+                        << (*localTrkPar)[Trk::locR] << ","
+                        << (*localTrkPar)[Trk::locPhi] << ")");
+          calcEffectiveEndCapMeasurement(effectiveLocalPar,
+                                         effectiveErrMat,
+                                         &(compROT->containedROTs()),
+                                         assgnProbVector,
+                                         *localTrkPar,
+                                         assocSurface);
         } // end else (nonVanishingROTsHaveCommonSurface)
     } // end TRT end-cap
 
@@ -707,9 +758,9 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
     // have to set the effective measurement and error matrix directly:
     compROT->m_localParams = (*effectiveLocalPar);
     compROT->m_localCovariance = (*effectiveErrMat);
-    delete effectiveErrMat;
-    delete effectiveLocalPar;
-    if (msgLvl(MSG::VERBOSE)) testCompetingROT(*compROT);
+    if (msgLvl(MSG::VERBOSE)) {
+      testCompetingROT(*compROT);
+    }
 }
 
 
@@ -833,8 +884,8 @@ InDet::CompetingTRT_DriftCirclesOnTrackTool::createSimpleCompetingROT(
       PrdSf,
       DCvector,
       assgnProbVector.release(),
-      new Trk::LocalParameters(effectiveLocalPar),
-      new Amg::MatrixX(meanCovMatrix),
+      effectiveLocalPar,
+      meanCovMatrix,
       4 /* 4 = common surface*/);
   return theCompetingROT;
 }
@@ -873,8 +924,8 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::reequipCompetingROT
 // INTERNAL: calculate eff. LocPars+Err according to the weights (BR)
 /////////////////////////////////////////////////////////////////////
 void InDet::CompetingTRT_DriftCirclesOnTrackTool::calcEffectiveMeasurement(
-    const Trk::LocalParameters*& effectiveLocalPar,
-    const Amg::MatrixX*& effectiveErrMat,
+    std::unique_ptr<const Trk::LocalParameters>& effectiveLocalPar,
+    std::unique_ptr<const Amg::MatrixX>& effectiveErrMat,
     const std::vector< const InDet::TRT_DriftCircleOnTrack* >* ROTs,
     const std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >* assgnProbs,
     const Trk::TrackParameters* trkPar,
@@ -936,8 +987,8 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::calcEffectiveMeasurement(
         // make new LocalParameters
         ATH_MSG_DEBUG("mean driftradius: " << meanDriftRadius );
         Trk::DefinedParameter radiusPar(meanDriftRadius,Trk::locX);
-        effectiveLocalPar = new Trk::LocalParameters(radiusPar);
-	effectiveErrMat = new Amg::MatrixX(meanCovMatrix);
+        effectiveLocalPar = std::make_unique<Trk::LocalParameters>(radiusPar);
+        effectiveErrMat = std::make_unique<Amg::MatrixX>(meanCovMatrix);
     } else {
         // weird dimension for a TRT_DriftCircle
         // FIXME: decide what to do...
@@ -955,8 +1006,8 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::calcEffectiveMeasurement(
 // INTERNAL: calculate eff. LocPars+Err according to the weights (EC)
 /////////////////////////////////////////////////////////////////////
 void InDet::CompetingTRT_DriftCirclesOnTrackTool::calcEffectiveEndCapMeasurement(
-    const Trk::LocalParameters* &effectiveLocalPar,
-    const Amg::MatrixX* &effectiveErrMat,
+    std::unique_ptr<const Trk::LocalParameters>& effectiveLocalPar,
+    std::unique_ptr<const Amg::MatrixX>& effectiveErrMat,
     const std::vector< const InDet::TRT_DriftCircleOnTrack* >* ROTs,
     const std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >* assgnProbs,
     const Amg::Vector2D& localTrack,
@@ -1031,7 +1082,7 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::calcEffectiveEndCapMeasurement
     }
     Amg::MatrixX meanCovMatrix(1, 1);
     meanCovMatrix(0,0) = 1./meanPhiWeight;
-    effectiveErrMat = new Amg::MatrixX(meanCovMatrix);
+    effectiveErrMat = std::make_unique<Amg::MatrixX>(meanCovMatrix);
     // !!!!! do not use effectiveErrMat->covValue(Trk::locPhi) !!!!!
     //                  effectiveErrMat->covValue(0) has to be used
     // ErrorMatrix uses the internal index not the extrenal of LocalParameters!!!!!
@@ -1041,7 +1092,7 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::calcEffectiveEndCapMeasurement
     meanPhi /= sumAssgnProb;
     ATH_MSG_DEBUG("mean phi: " << meanPhi );
     Trk::DefinedParameter radiusPar(meanPhi, Trk::locPhi);
-    effectiveLocalPar = new Trk::LocalParameters(radiusPar);
+    effectiveLocalPar = std::make_unique<Trk::LocalParameters>(radiusPar);
 
     // solution 2 (just with the ambiguity of one straw):
     // Use the surface of the straw as measurement surface (StraightLineSurface).
