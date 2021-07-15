@@ -144,8 +144,10 @@ StatusCode EventSelectorAthenaPool::initialize() {
       return(StatusCode::FAILURE);
    }
    // Listen to the Event Processing incidents
-   m_incidentSvc->addListener(this,IncidentType::BeginProcessing,0);
-   m_incidentSvc->addListener(this,IncidentType::EndProcessing,0);
+   if (m_eventStreamingTool.empty()) {
+      m_incidentSvc->addListener(this, IncidentType::BeginProcessing, 0);
+      m_incidentSvc->addListener(this, IncidentType::EndProcessing, 0);
+   }
 
    // Get AthenaPoolCnvSvc
    if (!m_athenaPoolCnvSvc.retrieve().isSuccess()) {
@@ -1170,7 +1172,7 @@ void EventSelectorAthenaPool::handle(const Incident& inc)
 */
 bool EventSelectorAthenaPool::disconnectIfFinished( const SG::SourceID &fid ) const
 {
-   if( m_activeEventsPerSource[fid] <= 0 && m_guid != fid ) {
+   if( m_eventStreamingTool.empty() && m_activeEventsPerSource[fid] <= 0 && m_guid != fid ) {
       // Explicitly disconnect file corresponding to old FID to release memory
       if( !m_keepInputFilesOpen.value() ) {
          // Assume that the end of collection file indicates the end of payload file.
