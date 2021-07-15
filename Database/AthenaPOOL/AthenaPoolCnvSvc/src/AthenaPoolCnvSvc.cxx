@@ -1161,7 +1161,6 @@ StatusCode AthenaPoolCnvSvc::readData() {
       buffer = m_serializeSvc->serialize(instance, cltype, nbytes);
       sc = m_inputStreamingTool->putObject(buffer, nbytes, num);
       while (sc.isRecoverable()) {
-         usleep(100);
          sc = m_inputStreamingTool->putObject(buffer, nbytes, num);
       }
       delete [] static_cast<char*>(buffer); buffer = nullptr;
