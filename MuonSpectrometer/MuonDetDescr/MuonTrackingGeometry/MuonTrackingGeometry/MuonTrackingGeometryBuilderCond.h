@@ -80,6 +80,8 @@ namespace Muon {
             double m_outerEndcapZ;
             bool m_adjustStatic;
             bool m_static3d;
+            unsigned int m_frameNum{0};
+            unsigned int m_frameStat{0};
             std::vector<double> m_zPartitions;
             std::vector<int> m_zPartitionsType;
             std::vector<float> m_adjustedPhi;
@@ -90,12 +92,13 @@ namespace Muon {
             std::vector<std::vector<std::pair<int, float> > > m_shieldHPart;
             std::map<const Trk::DetachedTrackingVolume*, std::vector<const Trk::TrackingVolume*>*> m_blendMap;
             std::vector<const Trk::DetachedTrackingVolume*> m_blendVols;
-            const std::vector<std::vector<std::pair<const Trk::DetachedTrackingVolume*, const Span*> >*>* m_stationSpan;
-            const std::vector<std::vector<std::pair<const Trk::DetachedTrackingVolume*, const Span*> >*>* m_inertSpan;
+            const std::vector<std::vector<std::pair<const Trk::DetachedTrackingVolume*, const Span*> >*>* m_stationSpan{nullptr};
+            const std::vector<std::vector<std::pair<const Trk::DetachedTrackingVolume*, const Span*> >*>* m_inertSpan{nullptr};
             RZPairVector m_msCutoutsIn;
             RZPairVector m_msCutoutsOut;
             Trk::Material m_muonMaterial;                     //!< the (empty) material
             Trk::TrackingVolume* m_standaloneTrackingVolume;  // muon standalone tracking volume
+            
         };
 
         /** Private method to find z/phi span of detached volumes */
@@ -186,15 +189,11 @@ namespace Muon {
         Gaudi::Property<int> m_activeAdjustLevel{this, "ActiveAdjustLevel", 2};
         Gaudi::Property<int> m_inertAdjustLevel{this, "InertAdjustLevel", 1};
 
-        mutable std::atomic_uint m_frameNum{0};
-        mutable std::atomic_uint m_frameStat{0};
+      
 
         Gaudi::Property<std::string> m_entryVolume{this, "EntryVolumeName", "MuonSpectrometerEntrance"};
         Gaudi::Property<std::string> m_exitVolume{this, "ExitVolumeName", "All::Container::CompleteDetector"};
 
-        // const std::vector<const Trk::DetachedTrackingVolume*>*   m_inertObjs;   // muon inert material
-        // mutable std::vector<std::pair<std::string,std::pair<double, unsigned int> > >   m_dilFact;
-        // mutable std::vector<Trk::MaterialProperties>               m_matProp;
         typedef ServiceHandle<IChronoStatSvc> IChronoStatSvc_t;
         IChronoStatSvc_t m_chronoStatSvc{this, "ChronoStatSvc", "ChronoStatSvc", "n"};
     };

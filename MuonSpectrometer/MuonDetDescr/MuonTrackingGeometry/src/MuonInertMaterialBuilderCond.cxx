@@ -285,7 +285,7 @@ Muon::MuonInertMaterialBuilderCond::buildDetachedTrackingVolumeTypes(const Event
                     const Trk::Volume* trTest = m_geoShapeConverter->translateGeoShape(input_shapes[ish], &(vols[ish].second[0]));
                     delete trTest;
                 }
-                const Trk::Volume* trObject = m_geoShapeConverter->translateGeoShape(input_shapes[ish], &ident);
+                std::unique_ptr<const Trk::Volume> trObject {m_geoShapeConverter->translateGeoShape(input_shapes[ish], &ident)};
 
                 if (trObject) {
                     Trk::Material mat = m_materialConverter->convert(vols[ish].first->getMaterial());
@@ -295,8 +295,6 @@ Muon::MuonInertMaterialBuilderCond::buildDetachedTrackingVolumeTypes(const Event
                     if (blend) typeStat->saveConstituents(&(constituentsVector->back()));
                     objs.push_back(
                         std::pair<const Trk::DetachedTrackingVolume*, std::vector<Amg::Transform3D>>(typeStat, vols[ish].second));
-                    delete trObject;
-
                 } else {
                     ATH_MSG_WARNING(name() << " volume not translated: " << vname);
                 }

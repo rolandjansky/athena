@@ -88,8 +88,8 @@ namespace Muon {
             std::vector<std::vector<std::pair<int, float> > > m_shieldHPart;
             std::map<const Trk::DetachedTrackingVolume*, std::vector<const Trk::TrackingVolume*>*> m_blendMap;
             std::vector<const Trk::DetachedTrackingVolume*> m_blendVols;
-            const std::vector<std::vector<std::pair<const Trk::DetachedTrackingVolume*, const Span*> >*>* m_stationSpan;
-            const std::vector<std::vector<std::pair<const Trk::DetachedTrackingVolume*, const Span*> >*>* m_inertSpan;
+            const std::vector<std::vector<std::pair<const Trk::DetachedTrackingVolume*, const Span*> >*>* m_stationSpan{nullptr};
+            const std::vector<std::vector<std::pair<const Trk::DetachedTrackingVolume*, const Span*> >*>* m_inertSpan{nullptr};
             RZPairVector m_msCutoutsIn;
             RZPairVector m_msCutoutsOut;
             Trk::Material m_muonMaterial;                     //!< the (empty) material

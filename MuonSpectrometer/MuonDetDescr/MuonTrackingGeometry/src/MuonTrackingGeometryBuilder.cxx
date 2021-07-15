@@ -126,10 +126,6 @@ const Trk::TrackingGeometry* Muon::MuonTrackingGeometryBuilder::trackingGeometry
     aLVC.m_outerEndcapZ = m_outerEndcapZ;
     aLVC.m_adjustStatic = m_adjustStatic;
     aLVC.m_static3d = m_static3d;
-    aLVC.m_blendMap.clear();
-    aLVC.m_blendVols.clear();
-    aLVC.m_stationSpan = 0;
-    aLVC.m_inertSpan = 0;
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     // check setup
     if (m_muonInert && m_blendInertMaterial) {
@@ -237,42 +233,42 @@ const Trk::TrackingGeometry* Muon::MuonTrackingGeometryBuilder::trackingGeometry
     // MuonSpectrometer contains:
     //       - Barrel
     //       - Endcaps inner/outer
-    const Trk::TrackingVolume* muonBarrel = 0;
-    Trk::CylinderVolumeBounds* barrelBounds = 0;
-    const Trk::TrackingVolume* negativeMuonOuterWheel = 0;
-    Trk::CylinderVolumeBounds* negativeOuterWheelBounds = 0;
-    const Trk::TrackingVolume* negativeMuonBigWheel = 0;
-    Trk::CylinderVolumeBounds* negativeBigWheelBounds = 0;
-    const Trk::TrackingVolume* negativeMuonOuterBuffer = 0;
-    Trk::CylinderVolumeBounds* negativeOuterBufferBounds = 0;
-    const Trk::TrackingVolume* positiveMuonOuterWheel = 0;
-    const Trk::TrackingVolume* negativeMuonSmallWheel = 0;
-    const Trk::TrackingVolume* positiveMuonSmallWheel = 0;
-    Trk::CylinderVolumeBounds* negativeSmallWheelBounds = 0;
-    const Trk::TrackingVolume* negativeECT = 0;
-    const Trk::TrackingVolume* positiveECT = 0;
-    Trk::CylinderVolumeBounds* negativeECTBounds = 0;
-    const Trk::TrackingVolume* positiveMuonBigWheel = 0;
-    const Trk::TrackingVolume* positiveMuonOuterBuffer = 0;
+    const Trk::TrackingVolume* muonBarrel = nullptr;
+    Trk::CylinderVolumeBounds* barrelBounds = nullptr;
+    const Trk::TrackingVolume* negativeMuonOuterWheel = nullptr;
+    Trk::CylinderVolumeBounds* negativeOuterWheelBounds = nullptr;
+    const Trk::TrackingVolume* negativeMuonBigWheel = nullptr;
+    Trk::CylinderVolumeBounds* negativeBigWheelBounds = nullptr;
+    const Trk::TrackingVolume* negativeMuonOuterBuffer = nullptr;
+    Trk::CylinderVolumeBounds* negativeOuterBufferBounds = nullptr;
+    const Trk::TrackingVolume* positiveMuonOuterWheel = nullptr;
+    const Trk::TrackingVolume* negativeMuonSmallWheel = nullptr;
+    const Trk::TrackingVolume* positiveMuonSmallWheel = nullptr;
+    Trk::CylinderVolumeBounds* negativeSmallWheelBounds = nullptr;
+    const Trk::TrackingVolume* negativeECT = nullptr;
+    const Trk::TrackingVolume* positiveECT = nullptr;
+    Trk::CylinderVolumeBounds* negativeECTBounds = nullptr;
+    const Trk::TrackingVolume* positiveMuonBigWheel = nullptr;
+    const Trk::TrackingVolume* positiveMuonOuterBuffer = nullptr;
     // volumes needed to close the geometry
-    const Trk::TrackingVolume* negBeamPipe = 0;
-    const Trk::TrackingVolume* posBeamPipe = 0;
-    Trk::CylinderVolumeBounds* negBeamPipeBounds = 0;
-    Trk::CylinderVolumeBounds* posBeamPipeBounds = 0;
-    const Trk::TrackingVolume* enclosed = 0;
-    Trk::CylinderVolumeBounds* enclosedBounds = 0;
-    const Trk::TrackingVolume* negDiskShield = 0;
-    Trk::CylinderVolumeBounds* negDiskShieldBounds = 0;
-    const Trk::TrackingVolume* posDiskShield = 0;
-    Trk::CylinderVolumeBounds* posDiskShieldBounds = 0;
-    const Trk::TrackingVolume* negInnerShield = 0;
-    const Trk::TrackingVolume* posInnerShield = 0;
-    Trk::CylinderVolumeBounds* negInnerShieldBounds = 0;
-    Trk::CylinderVolumeBounds* posInnerShieldBounds = 0;
-    const Trk::TrackingVolume* negOuterShield = 0;
-    const Trk::TrackingVolume* posOuterShield = 0;
-    Trk::CylinderVolumeBounds* negOuterShieldBounds = 0;
-    Trk::CylinderVolumeBounds* posOuterShieldBounds = 0;
+    const Trk::TrackingVolume* negBeamPipe = nullptr;
+    const Trk::TrackingVolume* posBeamPipe = nullptr;
+    Trk::CylinderVolumeBounds* negBeamPipeBounds = nullptr;
+    Trk::CylinderVolumeBounds* posBeamPipeBounds = nullptr;
+    const Trk::TrackingVolume* enclosed = nullptr;
+    Trk::CylinderVolumeBounds* enclosedBounds = nullptr;
+    const Trk::TrackingVolume* negDiskShield = nullptr;
+    Trk::CylinderVolumeBounds* negDiskShieldBounds = nullptr;
+    const Trk::TrackingVolume* posDiskShield = nullptr;
+    Trk::CylinderVolumeBounds* posDiskShieldBounds = nullptr;
+    const Trk::TrackingVolume* negInnerShield = nullptr;
+    const Trk::TrackingVolume* posInnerShield = nullptr;
+    Trk::CylinderVolumeBounds* negInnerShieldBounds = nullptr;
+    Trk::CylinderVolumeBounds* posInnerShieldBounds = nullptr;
+    const Trk::TrackingVolume* negOuterShield = nullptr;
+    const Trk::TrackingVolume* posOuterShield = nullptr;
+    Trk::CylinderVolumeBounds* negOuterShieldBounds = nullptr;
+    Trk::CylinderVolumeBounds* posOuterShieldBounds = nullptr;
     // if input, redefine dimensions to fit expected MS entry
     if (tvol) {
         bool msEntryDefined = false;
@@ -282,7 +278,7 @@ const Trk::TrackingGeometry* Muon::MuonTrackingGeometryBuilder::trackingGeometry
         const Trk::CylinderVolumeBounds* enclosedDetectorBounds = dynamic_cast<const Trk::CylinderVolumeBounds*>(&(tvol->volumeBounds()));
         if (!enclosedDetectorBounds) {
             ATH_MSG_ERROR(" dynamic cast of enclosed volume to the cylinder bounds failed, aborting MTG build-up ");
-            return 0;
+            return nullptr;
         }
         double enclosedDetectorHalfZ = enclosedDetectorBounds->halflengthZ();
         double enclosedDetectorOuterRadius = enclosedDetectorBounds->outerRadius();
@@ -316,7 +312,7 @@ const Trk::TrackingGeometry* Muon::MuonTrackingGeometryBuilder::trackingGeometry
                     ATH_MSG_WARNING(name() << " z adjusted ");
                 } else {
                     ATH_MSG_ERROR(name() << "assymetric Z dimensions - cannot recover " << negZ << "," << posZ);
-                    return 0;
+                    return nullptr;
                 }
             }
         }
@@ -327,10 +323,10 @@ const Trk::TrackingGeometry* Muon::MuonTrackingGeometryBuilder::trackingGeometry
                             << enclosedDetectorOuterRadius);
         // check if input makes sense - gives warning if cuts into muon envelope
         // adjust radius
-        const Trk::TrackingVolume* barrelR = 0;
+        const Trk::TrackingVolume* barrelR = nullptr;
         if (enclosedDetectorOuterRadius > aLVC.m_innerBarrelRadius) {
             ATH_MSG_WARNING(name() << " enclosed volume too wide, cuts into muon envelope, abandon :R:" << enclosedDetectorOuterRadius);
-            return 0;
+            return nullptr;
         } else {
             aLVC.m_innerBarrelRadius = enclosedDetectorOuterRadius;
             barrelR = tvol;
@@ -338,7 +334,7 @@ const Trk::TrackingGeometry* Muon::MuonTrackingGeometryBuilder::trackingGeometry
         // adjust z
         if (enclosedDetectorHalfZ > m_barrelZ) {
             ATH_MSG_WARNING(name() << " enclosed volume too long, cuts into muon envelope, abandon :Z:" << enclosedDetectorHalfZ);
-            return 0;
+            return nullptr;
         } else {
             if (enclosedDetectorHalfZ < m_barrelZ) {
                 Trk::CylinderVolumeBounds* barrelZPBounds =
@@ -696,12 +692,10 @@ const Trk::TrackingGeometry* Muon::MuonTrackingGeometryBuilder::trackingGeometry
     if (aLVC.m_stationSpan) {
         for (size_t i = 0; i < aLVC.m_stationSpan->size(); i++) delete (*aLVC.m_stationSpan)[i];
         delete aLVC.m_stationSpan;
-        aLVC.m_stationSpan = 0;
     }
     if (aLVC.m_inertSpan) {
         for (size_t i = 0; i < aLVC.m_inertSpan->size(); i++) delete (*aLVC.m_inertSpan)[i];
         delete aLVC.m_inertSpan;
-        aLVC.m_inertSpan = 0;
     }
 
     for (size_t i = 0; i < aLVC.m_spans.size(); i++) delete aLVC.m_spans[i];
@@ -729,7 +723,7 @@ StatusCode Muon::MuonTrackingGeometryBuilder::finalize() {
                 ATH_MSG_DEBUG(name() << " station pointer corrupted ! ");
         }
         delete m_stations;
-        m_stations = 0;
+        m_stations = nullptr;
     }
     if (m_inertObjs) {
         unsigned int inLim = (m_blendInertMaterial && m_removeBlended) ? (unsigned int)m_inertPerm : m_inertObjs->size();
@@ -740,7 +734,7 @@ StatusCode Muon::MuonTrackingGeometryBuilder::finalize() {
                 ATH_MSG_DEBUG(name() << " inert object pointer corrupted ! ");
         }
         delete m_inertObjs;
-        m_inertObjs = 0;
+        m_inertObjs = nullptr;
     }
 
     m_chronoStatSvc->chronoPrint("MS::build-up");
@@ -750,7 +744,7 @@ StatusCode Muon::MuonTrackingGeometryBuilder::finalize() {
 }
 const Muon::Span* Muon::MuonTrackingGeometryBuilder::findVolumeSpan(const Trk::VolumeBounds* volBounds, Amg::Transform3D transform,
                                                                     double zTol, double phiTol, LocalVariablesContainer& aLVC) const {
-    if (!volBounds) return 0;
+    if (!volBounds) return nullptr;
     // volume shape
     const Trk::CuboidVolumeBounds* box = dynamic_cast<const Trk::CuboidVolumeBounds*>(volBounds);
     const Trk::TrapezoidVolumeBounds* trd = dynamic_cast<const Trk::TrapezoidVolumeBounds*>(volBounds);
@@ -1018,7 +1012,7 @@ const Muon::Span* Muon::MuonTrackingGeometryBuilder::findVolumeSpan(const Trk::V
 const std::vector<std::vector<std::pair<const Trk::DetachedTrackingVolume*, const Muon::Span*> >*>*
 Muon::MuonTrackingGeometryBuilder::findVolumesSpan(const std::vector<const Trk::DetachedTrackingVolume*>* objs, double zTol, double phiTol,
                                                    LocalVariablesContainer& aLVC) const {
-    if (!objs || !objs->size()) return 0;
+    if (!objs || !objs->size()) return nullptr;
     std::vector<std::vector<std::pair<const Trk::DetachedTrackingVolume*, const Span*> >*>* spans =
         new std::vector<std::vector<std::pair<const Trk::DetachedTrackingVolume*, const Span*> >*>(9);
     // split MS into 9 blocks to speed up the build-up of geometry
@@ -1092,7 +1086,7 @@ Muon::MuonTrackingGeometryBuilder::findVolumesSpan(const std::vector<const Trk::
 
 const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilder::processVolume(const Trk::Volume* vol, int etaN, int phiN,
                                                                             std::string volumeName, LocalVariablesContainer& aLVC) const {
-    const Trk::TrackingVolume* tVol = 0;
+    const Trk::TrackingVolume* tVol = nullptr;
 
     unsigned int colorCode = m_colorCode;
 
@@ -1108,7 +1102,7 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilder::processVolume(cons
         const Trk::CylinderVolumeBounds* cyl = dynamic_cast<const Trk::CylinderVolumeBounds*>(&(vol->volumeBounds()));
         if (!cyl) {
             ATH_MSG_ERROR(" process volume: volume cylinder boundaries not retrieved, return 0 ");
-            return 0;
+            return nullptr;
         }
         // subvolume boundaries
         Trk::CylinderVolumeBounds* subBds = 0;
@@ -1158,7 +1152,7 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilder::processVolume(cons
                 std::vector<const Trk::DetachedTrackingVolume*>* detVols = getDetachedObjects(subVol, blendVols, aLVC);
                 const Trk::TrackingVolume* sVol = new Trk::TrackingVolume(*subVol, aLVC.m_muonMaterial, detVols, volName);
                 // statistics
-                m_frameNum++;
+                ++m_frameNum;
                 if (detVols) m_frameStat += detVols->size();
                 // prepare blending
                 if (m_blendInertMaterial && blendVols.size()) {
@@ -1232,8 +1226,9 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilder::processVolume(cons
 
         tVol = new Trk::TrackingVolume(*vol, aLVC.m_muonMaterial, muonObjs, volumeName);
         // statistics
-        m_frameNum++;
+        ++m_frameNum;
         if (muonObjs) m_frameStat += muonObjs->size();
+        
         // prepare blending
         if (m_blendInertMaterial && blendVols.size()) {
             for (unsigned int id = 0; id < blendVols.size(); id++) {
@@ -1258,7 +1253,7 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilder::processVolume(cons
     //         0 ( -"- plus inner endcap H binning )
     //         0 ( -"- plus outer endcap H binning )
 
-    const Trk::TrackingVolume* tVol = 0;
+    const Trk::TrackingVolume* tVol = nullptr;
 
     unsigned int colorCode = m_colorCode;
 
@@ -1270,7 +1265,7 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilder::processVolume(cons
     const Trk::CylinderVolumeBounds* cyl = dynamic_cast<const Trk::CylinderVolumeBounds*>(&(vol->volumeBounds()));
     if (!cyl) {
         ATH_MSG_ERROR(" process volume: volume cylinder boundaries not retrieved, return 0 ");
-        return 0;
+        return nullptr;
     }
     // create vector of zSteps for this volume
     std::vector<float> zSteps;
@@ -1385,7 +1380,7 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilder::processVolume(cons
                 for (unsigned int h = 0; h < hSteps.size() - 1; h++) {
                     hCode = colorCode > 0 ? 1 - hCode : 0;
                     // similar volume may exist already
-                    Trk::Volume* subVol = 0;
+                    Trk::Volume* subVol = nullptr;
                     Amg::Transform3D* transf = new Amg::Transform3D(Amg::AngleAxis3D(posPhi, Amg::Vector3D(0., 0., 1.)) *
                                                                     Amg::Translation3D(Amg::Vector3D(0., 0., posZ)));
                     //
@@ -1415,8 +1410,9 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilder::processVolume(cons
                     const Trk::TrackingVolume* sVol = new Trk::TrackingVolume(*subVol, aLVC.m_muonMaterial, detVols, volName);
 
                     // statistics
-                    m_frameNum++;
+                    ++m_frameNum;
                     if (detVols) m_frameStat += detVols->size();
+                    
                     // prepare blending
                     if (m_blendInertMaterial && blendVols.size()) {
                         for (unsigned int id = 0; id < blendVols.size(); id++) {
@@ -1548,7 +1544,7 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilder::processVolume(cons
 
     if (etaN * phiN > 1) {  // partition
         // subvolume boundaries
-        Trk::CylinderVolumeBounds* subBds = 0;
+        Trk::CylinderVolumeBounds* subBds = nullptr;
 
         // create subvolumes & BinnedArray
         std::vector<Trk::TrackingVolumeOrderPosition> subVolumes(etaN * phiN);
@@ -1583,8 +1579,9 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilder::processVolume(cons
                 std::vector<const Trk::DetachedTrackingVolume*>* detVols = getDetachedObjects(&subVol, blendVols, aLVC);
                 const Trk::TrackingVolume* sVol = new Trk::TrackingVolume(subVol, aLVC.m_muonMaterial, detVols, volName);
                 // statistics
-                m_frameNum++;
+                ++m_frameNum;
                 if (detVols) m_frameStat += detVols->size();
+                
                 // prepare blending
                 if (m_blendInertMaterial && blendVols.size()) {
                     for (unsigned int id = 0; id < blendVols.size(); id++) {
@@ -1665,8 +1662,9 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilder::processVolume(cons
 
         tVol = new Trk::TrackingVolume(*vol, aLVC.m_muonMaterial, muonObjs, volumeName);
         // statistics
-        m_frameNum++;
+        ++m_frameNum;
         if (muonObjs) m_frameStat += muonObjs->size();
+        
         // prepare blending
         if (m_blendInertMaterial && blendVols.size()) {
             for (unsigned int id = 0; id < blendVols.size(); id++) {
@@ -1686,7 +1684,7 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilder::processShield(cons
                                                                             LocalVariablesContainer& aLVC) const {
     ATH_MSG_VERBOSE(name() << "processing shield volume " << volumeName << "  in mode:" << type);
 
-    const Trk::TrackingVolume* tVol = 0;
+    const Trk::TrackingVolume* tVol = nullptr;
 
     unsigned int colorCode = m_colorCode;
 
@@ -1698,7 +1696,7 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilder::processShield(cons
     const Trk::CylinderVolumeBounds* cyl = dynamic_cast<const Trk::CylinderVolumeBounds*>(&(vol->volumeBounds()));
     if (!cyl) {
         ATH_MSG_ERROR(" process volume: volume cylinder boundaries not retrieved, return 0 ");
-        return 0;
+        return nullptr;
     }
     // create vector of zSteps for this volume
     std::vector<float> zSteps;
@@ -1737,7 +1735,7 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilder::processShield(cons
     }
 
     // subvolume boundaries
-    Trk::CylinderVolumeBounds* subBds = 0;
+    Trk::CylinderVolumeBounds* subBds = nullptr;
 
     // create subvolumes & BinnedArray
     std::vector<Trk::TrackingVolumeOrderPosition> subVolumesVect;
@@ -1776,8 +1774,9 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilder::processShield(cons
             const Trk::TrackingVolume* sVol = new Trk::TrackingVolume(subVol, aLVC.m_muonMaterial, detVols, volName);
 
             // statistics
-            m_frameNum++;
+            ++m_frameNum;
             if (detVols) m_frameStat += detVols->size();
+            
             // prepare blending
             if (m_blendInertMaterial && blendVols.size()) {
                 for (unsigned int id = 0; id < blendVols.size(); id++) {
@@ -1856,7 +1855,7 @@ std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonTrackingGeometryBuild
     const Trk::Volume* vol, std::vector<const Trk::DetachedTrackingVolume*>& blendVols, LocalVariablesContainer& aLVC, int mode) const {
     // mode : 0 all, 1 active only, 2 inert only
 
-    std::vector<const Trk::DetachedTrackingVolume*>* detTVs = 0;
+    std::vector<const Trk::DetachedTrackingVolume*>* detTVs = nullptr;
 
     if (!m_stations && !m_inertObjs) return detTVs;
 
@@ -1888,7 +1887,7 @@ std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonTrackingGeometryBuild
         type = bcyl->type();
         if (type > 1) rMaxc *= 1. / cos(dphi);
     } else
-        return 0;
+        return nullptr;
 
     Amg::Vector3D center(rmed, 0., 0.);
     center = vol->transform() * center;
@@ -2788,7 +2787,7 @@ void Muon::MuonTrackingGeometryBuilder::blendMaterial(LocalVariablesContainer& a
     // std::map<const Trk::DetachedTrackingVolume*,std::vector<const Trk::TrackingVolume*>* >::iterator mIter = m_blendMap.begin();
     std::vector<const Trk::DetachedTrackingVolume*>::iterator viter = aLVC.m_blendVols.begin();
 
-    const std::vector<std::pair<std::unique_ptr<const Trk::Volume>, float> >* cs = 0;
+    const std::vector<std::pair<std::unique_ptr<const Trk::Volume>, float> >* cs = nullptr;
 
     //  for ( ; mIter!= m_blendMap.end(); mIter++) {
     //  cs = (*mIter).first->constituents();
