@@ -402,6 +402,10 @@ namespace top {
     if (isLargeR) {
       top::check(m_jetCalibrationToolLargeR->applyCalibration(*(shallow_xaod_copy.first)),
           "Failed to do applyCalibration on large-R jets");
+      if (m_config->isMC()) {
+          ///-- Truth labeling required by the large-R jet uncertainties --///
+          top::check(m_jetTruthLabelingTool->decorate(*(shallow_xaod_copy.first)), "Failed to do truth labeling for large-R jet");
+      }
     } else {
       top::check(m_jetCalibrationTool->applyCalibration(*(shallow_xaod_copy.first)),
           "Failed to do applyCalibration on small-R jets");
@@ -458,8 +462,6 @@ namespace top {
         ///-- for TA mass or calo mass, the calibrated mass or pt needs special treatment --///
         const std::string calibChoice = m_config->largeRJESJMSConfig();
         if (m_config->isMC()) {
-          ///-- Truth labeling required by the large-R jet uncertainties --///
-          top::check(m_jetTruthLabelingTool->modifyJet(*jet), "Failed to do truth labeling for large-R jet");
           if (calibChoice == "TAMass") {
             xAOD::JetFourMom_t jet_calib_p4;
             jet->getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumTA", jet_calib_p4);
