@@ -631,7 +631,8 @@ def getMvaTESEvaluator():
     _name = sPrefix + 'MvaTESEvaluator'
     from tauRecTools.tauRecToolsConf import MvaTESEvaluator
     MvaTESEvaluator = MvaTESEvaluator(name = _name,
-                                      WeightFileName = tauFlags.tauRecMvaTESConfig())
+                                      WeightFileName = tauFlags.tauRecMvaTESConfig(),
+                                      WeightFileName0p = tauFlags.tauRec0pMvaTESConfig())
     cached_instances[_name] = MvaTESEvaluator
     return MvaTESEvaluator
 
@@ -841,7 +842,8 @@ def getTauAODSelector():
     _name = sPrefix + 'TauAODSelector'
     from tauRecTools.tauRecToolsConf import TauAODSelector
 
-    myTauAODSelector = TauAODSelector( name=_name,
-                                       MinTauPt = tauFlags.tauRecMinPt() )
+    myTauAODSelector = TauAODSelector(name=_name,
+                                      Min0pTauPt = tauFlags.tauRec0pMinPt(),
+                                      MinTauPt = tauFlags.tauRecMinPt())
     cached_instances[_name] = myTauAODSelector
     return myTauAODSelector
