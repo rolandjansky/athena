@@ -25,18 +25,17 @@ public:
   StatusCode callGenerator();
   StatusCode genFinalize();
   StatusCode fillEvt(HepMC::GenEvent* evt);
-  void getParameters(int &argc, char** &argv);
   void compilePlugin(std::string);
 
 protected:
   
   SHERPA::Sherpa * p_sherpa;
 
+  /// Sherpa base settings (read from base fragment file)
+  std::string m_basefragment;
+
   /// Sherpa run card snippet (from JO file)
   std::string m_runcard;
-
-  /// List of additional Sherpa parameters beyond run card snippet (from JO file)
-  std::vector<std::string> m_params;
 
   /// List of needed OpenLoops process libraries (from JO file)
   std::vector<std::string> m_openloopslibs;
