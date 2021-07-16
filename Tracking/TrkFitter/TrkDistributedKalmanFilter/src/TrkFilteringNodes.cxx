@@ -370,6 +370,7 @@ namespace Trk
     W[1][0] = W[0][1] = pTS->getTrackCovariance(0, 1) + m_V[0][1];
     W[1][1] = pTS->getTrackCovariance(1, 1) + m_V[1][1];
     det = W[0][0] * W[1][1] - W[0][1] * W[0][1];
+    if (det  ==  0.0) return 1e8;
     det = 1.0 / det;
     m_D[0][0] = W[1][1] * det;
     m_D[0][1] = -W[0][1] * det;
