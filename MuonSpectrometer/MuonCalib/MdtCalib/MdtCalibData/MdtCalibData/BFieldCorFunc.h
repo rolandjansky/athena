@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -136,7 +136,7 @@ private:
 	                 // integral part of the correction function
 
 // pointer to the Legendre polynomial singleton (chosen in order to limit the amount of memory used)
-  Legendre_polynomial *m_Legendre; 
+  const Legendre_polynomial *m_Legendre; 
 
 // information about r(t) used to calculate the correction function //
 
