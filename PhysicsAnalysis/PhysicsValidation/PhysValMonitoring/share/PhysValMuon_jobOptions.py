@@ -19,14 +19,13 @@ for class_name, name in metadata['metadata_items'].items():
         if "DAOD_PHYSVAL" in class_name :
             print ("Running on DAOD_PHYSVAL - will not add TTVA decorations.")
             isDAOD_PHYSVAL=True
-
+    
 if not isDAOD_PHYSVAL:
-    from TrackVertexAssociationTool.getTTVAToolForReco import addUsedInFitDecoratorForReco
-    addUsedInFitDecoratorForReco(add2Seq = algseq)
-
-from IsolationAlgs.IsoUpdatedTrackCones import GetUpdatedIsoTrackCones
-if not hasattr(algseq,"IsolationBuilderTight500"):
-    algseq += GetUpdatedIsoTrackCones()
+        from TrackVertexAssociationTool.getTTVAToolForReco import addUsedInFitDecoratorForReco
+        addUsedInFitDecoratorForReco(add2Seq = algseq)
+        from IsolationAlgs.IsoUpdatedTrackCones import GetUpdatedIsoTrackCones
+        if not hasattr(algseq,"IsolationBuilderTight500"):
+            algseq += GetUpdatedIsoTrackCones()
 
 from MuonPhysValMonitoring.MuonPhysValMonitoringConf import MuonPhysValMonitoring__MuonPhysValMonitoringTool
 from RecExConfig.RecFlags import rec as recFlags
