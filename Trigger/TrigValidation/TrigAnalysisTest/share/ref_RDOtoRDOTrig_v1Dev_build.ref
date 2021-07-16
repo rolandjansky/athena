@@ -6311,21 +6311,19 @@ HLT_mu14_tau25_mediumRNN_tracktwoMVA_xe50_cell_03dRAB_L1MU10_TAU12IM_XE35:
     7: 6
     8: 1
 HLT_mu20_2mu4noL1_L1MU20:
-  eventCount: 1
+  eventCount: 0
   stepCounts:
     0: 8
     1: 6
     2: 6
     3: 6
     4: 1
-    5: 1
   stepFeatures:
     0: 10
     1: 7
     2: 7
     3: 7
-    4: 2
-    5: 2
+    4: 3
 HLT_mu20_L1MU6:
   eventCount: 6
   stepCounts:
@@ -6512,21 +6510,19 @@ HLT_mu20_mu2noL1_invmJPsi_os_L1MU20:
     4: 7
     5: 7
 HLT_mu22_2mu4noL1_L1MU20:
-  eventCount: 1
+  eventCount: 0
   stepCounts:
     0: 8
     1: 6
     2: 6
     3: 6
     4: 1
-    5: 1
   stepFeatures:
     0: 10
     1: 7
     2: 7
     3: 7
-    4: 2
-    5: 2
+    4: 3
 HLT_mu22_mu10noL1_L1MU20:
   eventCount: 2
   stepCounts:
