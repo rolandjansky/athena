@@ -553,21 +553,26 @@ def TrigMuonEFMSonlyHypoToolFromDict( chainDict ) :
 
 def TrigMuonEFMSonlyHypoToolFromName(chainDict):
     #For full scan chains, we need to configure the thresholds based on all muons
-    #in the chain to get the counting correct. Currently a bit convoluted as
-    #the chain dict is (improperly) overwritten when merging for FS chains.
-    #Can probably improve this once serial merging is officially implemented
+    #in the chain to get the counting correct. 
     thresholds=[]
     chainName = chainDict["chainName"]
     hltChainName = chainName[:chainName.index("_L1")]
     cparts = hltChainName.split("_")
+
     if 'HLT' in hltChainName:
         cparts.remove('HLT')
     for part in cparts:
         if 'mu' in part:
-            thr=part.replace('mu','')
+            thrPart = part.split('mu')
+            if not thrPart[0]:
+                mult = 1
+            else:
+                mult=thrPart[0]
+            thr = thrPart[1]
             if 'noL1' in part:
                 thr =thr.replace('noL1','')
-            thresholds.append(thr)
+            for i in range(1,int(mult)+1):
+                thresholds.append(thr)
     config = TrigMuonEFMSonlyHypoConfig()
     tool = config.ConfigurationHypoTool(chainDict['chainName'], thresholds)
     addMonitoring( tool, TrigMuonEFHypoMonitoring, "TrigMuonEFMSonlyHypoTool", chainDict['chainName'] )
@@ -656,14 +661,21 @@ def TrigMuonEFCombinerHypoToolFromName(chainDict):
         cparts.remove('HLT')
     for part in cparts:
         if 'mu' in part:
-            thr=part.replace('mu','')
+            thrPart = part.split('mu')
+            if not thrPart[0]:
+                mult = 1
+            else:
+                mult=thrPart[0]
+            thr = thrPart[1]
             if 'noL1' in part:
                 thr =thr.replace('noL1','')
-            thresholds.append(thr)
-        if 'nscan' in cparts:
-            narrowscan=True
-        else:
-            narrowscan=False
+            for i in range(1,int(mult)+1):
+                thresholds.append(thr)
+
+    if 'nscan' in chainDict['chainParts'][0]['addInfo']:
+        narrowscan=True
+    else:
+        narrowscan=False
 
     if 'muonqual' in chainDict['chainParts'][0]['addInfo']:
        muonquality = True
