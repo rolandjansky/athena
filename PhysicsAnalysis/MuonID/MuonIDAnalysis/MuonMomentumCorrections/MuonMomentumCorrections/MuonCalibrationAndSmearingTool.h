@@ -44,6 +44,7 @@ namespace MCAST {
   namespace SagittaCorType { enum { CB=0, ID=1, ME=2, WEIGHTS=3, AUTO=4}; }
   namespace SagittaSysType { enum { NOMINAL=0, RHO=1, BIAS=2}; }
   namespace MST_Categories { enum { Undefined = -1, Zero = 0, One = 1, Two = 2, Three = 3, Four = 4, Total = 5 }; }
+  namespace SagittaInputHistType { enum {NOMINAL=0,SINGLE=1 };   } 
 }
 
 class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearingTool, public virtual ISystematicsTool, public asg::AsgTool {
@@ -79,6 +80,9 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
       double ptcb = 0;
       double eta = 0;
       double phi = 0;
+      double sagitta_calibrated_ptcb=0;
+      double sagitta_calibrated_ptid=0;
+      double sagitta_calibrated_ptms=0;
       double g0;
       double g1;
       double g2;
@@ -162,6 +166,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
 
     virtual void ConvertToSagittaBias(TH2F *h,float mean=1);
     virtual TProfile2D* GetHist(std::string fname="", std::string hname="inclusive",double GlobalScale=MZPDG);
+    virtual TProfile2D* GetHistSingleMethod(std::string fname="", std::string hname="");
     virtual bool isBadMuon( const xAOD::Muon& mu, InfoHelper& muonInfo ) const;
     int ConvertToMacroCategory( const int raw_mst_category ) const;
     //private:
@@ -234,7 +239,8 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     bool m_sgIetrsManual;
     double m_fixedRho;
     bool m_useFixedRho;
-
+    double m_sagittaMapUnitConversion;
+  
     std::vector < std::unique_ptr<TProfile2D> > m_sagittasCB;
     std::vector < std::unique_ptr<TProfile2D> > m_sagittasID;
     std::vector < std::unique_ptr<TProfile2D> > m_sagittasME;
@@ -252,7 +258,8 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     std::string m_SagittaRelease;
     std::vector <unsigned int > m_SagittaIterations;
     std::vector <double> m_GlobalZScales;
-
+    unsigned int m_saggitaMapsInputType;
+  
     asg::AnaToolHandle<CP::IMuonSelectionTool> m_MuonSelectionTool;
 
   }; // class MuonCalibrationAndSmearingTool

@@ -31,6 +31,7 @@ namespace CP {
     m_loadNames( false ),
     m_nb_regions( 0. ),
     m_doMacroRegions( false ),
+    m_currentParameters( nullptr),
     m_StatCombPtThreshold(300.00),
     m_HighPtSystThreshold(300.00),
     m_useStatComb(false),
@@ -39,6 +40,7 @@ namespace CP {
     m_doSagittaMCDistortion(false),
     m_IterWeight(0.5),
     m_SagittaRelease("sagittaBiasDataAll_03_02_19"),
+    
     m_MuonSelectionTool("") {
     
     declareProperty("Year", m_year = "Data16" );
@@ -67,15 +69,14 @@ namespace CP {
     declareProperty("noEigenDecor" ,m_doNotUseAMGMATRIXDECOR=false);
     declareProperty("useExternalSeed" ,m_useExternalSeed=false);
     declareProperty("externalSeed" ,m_externalSeed=0);
-
-    m_currentParameters = nullptr;
+    declareProperty("sagittaMapsInputType", m_saggitaMapsInputType=MCAST::SagittaInputHistType::NOMINAL);
+    declareProperty("sagittaMapUnitConversion",m_sagittaMapUnitConversion=1e-3);
     m_SagittaIterations.push_back(0);
     m_SagittaIterations.push_back(0);
     m_SagittaIterations.push_back(0);
     m_sagittaPhaseSpaceCB=nullptr;
     m_sagittaPhaseSpaceID=nullptr;
     m_sagittaPhaseSpaceME=nullptr;
-
   }
 
   MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const MuonCalibrationAndSmearingTool& tool ) :
@@ -180,7 +181,8 @@ namespace CP {
     declareProperty("doExtraSmearing", m_extra_highpt_smearing = false );
     declareProperty("do2StationsHighPt", m_2stations_highpt_smearing = false );
     declareProperty( "FilesPath", m_FilesPath = "" );
-
+    declareProperty("sagittaMapsInputType", m_saggitaMapsInputType=tool.m_saggitaMapsInputType);
+    declareProperty("sagittaMapUnitConversion",m_sagittaMapUnitConversion=tool.m_sagittaMapUnitConversion);
   }
 
 
@@ -353,15 +355,33 @@ namespace CP {
       }
 
 
+      if (m_saggitaMapsInputType==MCAST::SagittaInputHistType::SINGLE){
+	ATH_MSG_INFO("Setting up the tool for sinlge histogram input for sagitta bias corrections");
+	m_SagittaIterations.clear();
+        m_SagittaIterations={1,1,1};
+	m_SagittaCorrPhaseSpace=false; 
+      }
+
       std::vector<std::string> trackNames; trackNames.push_back("CB"); trackNames.push_back("ID");  trackNames.push_back("ME");
 
 
       for( unsigned int i=0; i<m_SagittaIterations.size(); i++){
         ATH_MSG_VERBOSE("Case "<<i<<" track Name "<<trackNames.at(i)<<" and iterations "<<m_SagittaIterations.at(i));
-        for( unsigned int j=0; j< m_SagittaIterations.at(i) ;  j++){
-          ATH_MSG_VERBOSE("Track "<<i<<" file "<< PathResolverFindCalibFile(Form("MuonMomentumCorrections/%s/outqDeltamPlots_iter%d/",m_SagittaRelease.c_str(),j) + trackNames.at(i) + "_data.root"));
-          MuonCalibrationAndSmearingTool::setSagittaHistogramsSingle(GetHist( PathResolverFindCalibFile(Form("MuonMomentumCorrections/%s/outqDeltamPlots_iter%d/",m_SagittaRelease.c_str(),j) + trackNames.at(i) + "_data.root"),"inclusive",m_GlobalZScales.at(i)),i);
-        }
+        
+	  if( m_saggitaMapsInputType==MCAST::SagittaInputHistType::NOMINAL) {
+	    for( unsigned int j=0; j< m_SagittaIterations.at(i) ;  j++){
+	      ATH_MSG_VERBOSE("Track "<<i<<" file "<< PathResolverFindCalibFile(Form("MuonMomentumCorrections/%s/outqDeltamPlots_iter%d/",m_SagittaRelease.c_str(),j) + trackNames.at(i) + "_data.root"));
+	      MuonCalibrationAndSmearingTool::setSagittaHistogramsSingle(GetHist( PathResolverFindCalibFile(Form("MuonMomentumCorrections/%s/outqDeltamPlots_iter%d/",m_SagittaRelease.c_str(),j) + trackNames.at(i) + "_data.root"),"inclusive",m_GlobalZScales.at(i)),i);
+	    }}
+	  else if (m_saggitaMapsInputType==MCAST::SagittaInputHistType::SINGLE){
+	    ATH_MSG_VERBOSE("Track "<<i<<" file "<< PathResolverFindCalibFile(Form("MuonMomentumCorrections/%s/%s/",m_SagittaRelease.c_str(),m_year.c_str())+ trackNames.at(i) + "_data.root"));
+	    MuonCalibrationAndSmearingTool::setSagittaHistogramsSingle(GetHistSingleMethod(PathResolverFindCalibFile(Form("MuonMomentumCorrections/%s/%s/",m_SagittaRelease.c_str(),m_year.c_str())+ trackNames.at(i) + "_data.root"),Form("p%s_0",trackNames.at(i).c_str())),i);
+	  }
+	  else {
+	    ATH_MSG_ERROR("Unkown sagitta bias map input configuration type ");
+	    return StatusCode::FAILURE;
+	  }
+	
       }
 
       if(m_SagittaCorrPhaseSpace){
@@ -398,6 +418,25 @@ namespace CP {
     h->GetZaxis()->SetRangeUser(-1,+1);
   }
 
+  TProfile2D* MuonCalibrationAndSmearingTool::GetHistSingleMethod(std::string fname, std::string hname){
+   if (fname.empty() || hname.empty()) {
+     return nullptr;
+   }
+   std::unique_ptr<TFile> fmc {TFile::Open(fname.c_str(),"READ")};
+   if (!fmc || !fmc->IsOpen()) {
+     ATH_MSG_ERROR("Could not open "<<fname); 
+     return nullptr;
+   } 
+   TProfile2D *hinclusive=nullptr;
+   fmc->GetObject(hname.c_str(), hinclusive);
+   if (!hinclusive){
+     ATH_MSG_ERROR("No sagitta map found");
+     return nullptr;
+   }
+   hinclusive->SetDirectory(nullptr);
+   return hinclusive;
+   }
+
   TProfile2D* MuonCalibrationAndSmearingTool::GetHist(std::string fname, std::string hname,double GlobalScale){
     if( fname.size() == 0 || hname.size()==0 ) return nullptr;
 
@@ -410,7 +449,7 @@ namespace CP {
     }
 
     TH3F *h3=nullptr;
-    h3=(TH3F*)fmc->Get(hname.c_str());
+    h3=dynamic_cast <TH3F*> (fmc->Get(hname.c_str()));
 
     if( h3==nullptr ){
       ATH_MSG_ERROR("sagitta map is nullptr");
@@ -418,13 +457,13 @@ namespace CP {
     }
 
     h3->SetDirectory(0);
-    TProfile2D *hinclusive=(TProfile2D*)h3->Project3DProfile("yx");
+    TProfile2D *hinclusive=dynamic_cast <TProfile2D*> (h3->Project3DProfile("yx"));
     hinclusive->SetDirectory(0);
     hinclusive->GetXaxis()->SetTitle(h3->GetXaxis()->GetTitle());
     hinclusive->GetYaxis()->SetTitle(h3->GetYaxis()->GetTitle());
     hinclusive->GetZaxis()->SetTitle(h3->GetZaxis()->GetTitle());
 
-    ConvertToSagittaBias((TH2F*)hinclusive,GlobalScale);
+    ConvertToSagittaBias(dynamic_cast <TH2F*> (hinclusive),GlobalScale);
 
     delete h3;
     fmc->Close();
@@ -462,7 +501,7 @@ namespace CP {
       return 0.0;
     }
     double p2=corrM->GetBinContent(binEta,binPhi);
-
+    
     if(m_currentParameters->SagittaBias != MCAST::SystVariation::Default){
       if(m_currentParameters->SagittaBias == MCAST::SystVariation::Up){
         p2=0.5*p2;
@@ -475,17 +514,17 @@ namespace CP {
   }
 
   CorrectionCode MuonCalibrationAndSmearingTool::CorrectForCharge(double p2, double& pt, int q, bool isMC,double p2Kin) const {
-
+    
     if( q==0 ) {
       ATH_MSG_DEBUG("Muon charge is 0");
       return CorrectionCode::OutOfValidityRange;
     }
     double corrPt=pt;
     if(isMC)
-      corrPt = corrPt/(1 - q*p2*1e-3*corrPt);
+      corrPt = corrPt/(1 - q*p2*m_sagittaMapUnitConversion*corrPt);
     else{
       p2=p2-p2Kin;
-      corrPt = corrPt/(1 + q*p2*1e-3*corrPt);
+      corrPt = corrPt/(1 + q*p2*m_sagittaMapUnitConversion*corrPt);
     }
     pt=corrPt;
     return CorrectionCode::Ok;
@@ -495,8 +534,9 @@ namespace CP {
 
     if(m_doSagittaMCDistortion && isMC && iter == 0) stop=true;
 
+    ATH_MSG_DEBUG("Sagitta correction method "<< SgCorrType <<" iter "<<iter);
+
     if(iter == 0){
-      ATH_MSG_DEBUG("Sagitta correction method "<< SgCorrType <<" iter "<<iter);
       if( ( mu.primaryTrackParticleLink() ).isValid() ) {
         const ElementLink< xAOD::TrackParticleContainer >& cb_track = mu.primaryTrackParticleLink();
         muonInfo.ptcb = ( !cb_track ) ? 0. : ( *cb_track )->pt() * MeVtoGeV;
@@ -567,6 +607,7 @@ namespace CP {
       if(muonInfo.ptcb == 0 ) return CorrectionCode::Ok;
       if( iter >=  m_sagittasCB.size())  return CorrectionCode::Ok;
       CorrectionCode corr = CorrectForCharge( sagitta(m_sagittasCB.at(iter).get(), lvCB)*m_IterWeight, muonInfo.ptcb, q, isMC,p2PhaseSpaceCB);
+      muonInfo.sagitta_calibrated_ptcb=muonInfo.ptcb;
       iter++;
       if(corr != CorrectionCode::Ok) return corr;
       if(!stop)  return applySagittaBiasCorrection(MCAST::SagittaCorType::CB, mu, iter, stop, isMC, muonInfo);
@@ -576,6 +617,7 @@ namespace CP {
       if(muonInfo.ptid == 0 ) return CorrectionCode::Ok;
       if( iter >= m_sagittasID.size())  return CorrectionCode::Ok;
       CorrectionCode corr = CorrectForCharge(  sagitta(m_sagittasID.at(iter).get(), lvID)*m_IterWeight, muonInfo.ptid, q, isMC,p2PhaseSpaceID);
+      muonInfo.sagitta_calibrated_ptid=muonInfo.ptid;
       iter++;
       if(corr != CorrectionCode::Ok) return corr;
       if(!stop)return applySagittaBiasCorrection(MCAST::SagittaCorType::ID, mu, iter, stop, isMC, muonInfo);
@@ -585,6 +627,7 @@ namespace CP {
       if(muonInfo.ptms == 0 ) return CorrectionCode::Ok;
       if( iter >=  m_sagittasME.size() )  return CorrectionCode::Ok;
       CorrectionCode corr = CorrectForCharge(sagitta(m_sagittasME.at(iter).get(), lvME)*m_IterWeight, muonInfo.ptms, q, isMC,p2PhaseSpaceME);
+      muonInfo.sagitta_calibrated_ptms=muonInfo.ptms;
       iter++;
       if(corr != CorrectionCode::Ok) return corr;
       if(!stop) return applySagittaBiasCorrection(MCAST::SagittaCorType::ME, mu, iter, stop, isMC, muonInfo);
@@ -1066,7 +1109,7 @@ namespace CP {
         mu.setP4( muonInfo.ptid * GeVtoMeV, muonInfo.eta, muonInfo.phi );
       }
       else {
-        mu.auxdata< float >( "MuonSpectrometerPt" ) = muonInfo.ptms * GeVtoMeV;
+	mu.auxdata< float >( "MuonSpectrometerPt" ) = muonInfo.ptms * GeVtoMeV;
       }
 
       // SAF specifics

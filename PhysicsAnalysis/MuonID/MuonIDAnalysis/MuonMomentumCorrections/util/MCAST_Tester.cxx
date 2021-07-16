@@ -37,6 +37,8 @@
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "AsgMessaging/MessageCheck.h"
 
+
+
 ANA_MSG_HEADER(msgMMC)
 
 int main( int argc, char* argv[] ) {
@@ -127,29 +129,33 @@ int main( int argc, char* argv[] ) {
   corrTool.setProperty("Year",                  "Data17" );
   //   corrTool.setProperty("Algo",                  "muons" );
   //   corrTool.setProperty("SmearingType",          "q_pT" );
-  //corrTool.setProperty("Release",               "Recs2017_08_02" );
-  corrTool.setProperty("Release",               "Recs2018_05_20" );     
+  corrTool.setProperty("Release",               "Recs2020_03_03" );
+  //corrTool.setProperty("Release",               "Recs2018_05_20" );     
   //   corrTool.setProperty("ToroidOff",             false );
   //   corrTool.setProperty("FilesPath",             "" );
   corrTool.setProperty("StatComb",              false);
   //   corrTool.setProperty("MinCombPt",             300.0);
-  corrTool.setProperty("SagittaCorr",           false);
-  corrTool.setProperty("SagittaRelease",        "sagittaBiasDataAll_30_07_18");
-  corrTool.setProperty("doSagittaMCDistortion", true);
-  corrTool.setProperty("SagittaCorrPhaseSpace", true);
+  corrTool.setProperty("SagittaCorr",           true);
+  //corrTool.setProperty("SagittaRelease",        "sagittaBiasDataAll_30_07_18");
+  corrTool.setProperty("SagittaRelease",        "sagittaBiasDataAll_SingleHistMethod_B_07_04_2021");
+  corrTool.setProperty("doSagittaMCDistortion", false);
+  corrTool.setProperty("SagittaCorrPhaseSpace", false);
+  corrTool.setProperty("SagittaIterWeight", 1);
   //   corrTool.setProperty("sgItersCB",             11);
   //   corrTool.setProperty("sgItersID",             11);
   //   corrTool.setProperty("sgItersME",             11);
   //   corrTool.setProperty("sgIetrsMamual",         false);
   corrTool.setProperty("fixedRho",              0.0);
-  corrTool.setProperty("useFixedRho",           true);
+  corrTool.setProperty("useFixedRho",           false);
   corrTool.setProperty("noEigenDecor" ,         false);
+  corrTool.setProperty("sagittaMapsInputType" ,         1);
+  corrTool.setProperty("sagittaMapUnitConversion",1); 
   //   corrTool.setProperty("useExternalSeed" ,      false);
   //   corrTool.setProperty("externalSeed" ,         0);
-  
   //::: retrieve the tool
   corrTool.retrieve();
 
+  
   ////////////////////////////////////////////////////
   //::: MuonSelectionTool
   // setup the tool handle as per the
@@ -297,7 +303,7 @@ int main( int argc, char* argv[] ) {
         Charge = muon->charge();
 
         //::: Print some info about the selected muon:
-        //Info( APP_NAME, "Selected muon: eta = %g, phi = %g, pt = %g", muon->eta(), muon->phi(), muon->pt()/1e3 );
+        Info( APP_NAME, "Selected muon: eta = %g, phi = %g, pt = %g", muon->eta(), muon->phi(), muon->pt()/1e3 );
 
         float ptCB = 0 ;
         if(muon->primaryTrackParticleLink().isValid()){
@@ -318,7 +324,7 @@ int main( int argc, char* argv[] ) {
           ptME = (!ms_track) ? 0:(*ms_track)->pt();
         }
 
-        //if(entry %  1000 ==0 )
+
         Info( APP_NAME, "--> CB %g, ID %g, ME %g, author: %d, type: %d",ptCB,ptID,ptME,muon->author(),muon->muonType());
 
         // either use the correctedCopy call or correct the muon object itself
