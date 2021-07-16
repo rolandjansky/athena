@@ -26,7 +26,6 @@
 
 //MM digitization includes
 #include "MM_Digitization/MM_DigitizationTool.h"
-#include "MM_Digitization/IMM_DigitizationTool.h"
 #include "MM_Digitization/MM_DigitToolInput.h"
 #include "MuonSimEvent/MM_SimIdToOfflineId.h"
 
@@ -119,7 +118,6 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
   m_sdoContainer(nullptr),
   
   // Tools
-  m_digitTool("MM_Response_DigitTool", this),
   m_file(nullptr),
   m_ntuple(nullptr),
   
@@ -196,7 +194,6 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
   declareProperty("RndmSvc",             m_rndmSvc,            "Random Number Service used in Muon digitization");
   declareProperty("RndmEngine",          m_rndmEngineName,     "Random engine name");
   
-  declareProperty("DigitizationTool",    m_digitTool,          "Tool which handle the digitization process");
   declareProperty("EnergyThreshold",     m_energyThreshold = 50., "Minimal energy to produce a PRD"  );
   declareProperty("MaskMultiplet", m_maskMultiplet = 0,  "0: all, 1: first, 2: second, 3: both"  );
   
@@ -269,8 +266,6 @@ StatusCode MM_DigitizationTool::initialize() {
 	// Magnetic field service
 	ATH_CHECK( m_magFieldSvc.retrieve() );
 
-	// Digit tools
-	ATH_CHECK( m_digitTool.retrieve() );
 
 	// Random Service
 	ATH_CHECK( m_rndmSvc.retrieve() );
@@ -423,7 +418,6 @@ StatusCode MM_DigitizationTool::initialize() {
 	ATH_MSG_DEBUG ( "RndmSvc                " << m_rndmSvc             );
 	ATH_MSG_DEBUG ( "RndmEngine             " << m_rndmEngineName      );
 	ATH_MSG_DEBUG ( "MagFieldSvc            " << m_magFieldSvc         );
-	ATH_MSG_DEBUG ( "DigitizationTool       " << m_digitTool           );
 	ATH_MSG_DEBUG ( "InputObjectName        " << m_inputObjectName     );
 	ATH_MSG_DEBUG ( "OutputObjectName       " << m_outputObjectName    );
 	ATH_MSG_DEBUG ( "OutputSDOName          " << m_outputSDOName       );
