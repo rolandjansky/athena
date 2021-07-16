@@ -459,6 +459,7 @@ namespace top {
     registerParameter("DoTight", "Dumps the normal non-\"*_Loose\" trees : Data, MC, Both (default), False", "Both");
     registerParameter("DoLoose", "Run Loose selection and dumps the Loose trees : Data (default), MC, Both, False",
                       "Data");
+    registerParameter("UseHItoolsConfiguration", "Flag to tell the code to use heavy ion specific tool setup. Default is False", "False", {"True","False"});
     registerParameter("DoSysts", "Run systematics on given selection: Both (default), Tight, Loose", "Both");
 
     registerParameter("UseLooseObjectsInMETInLooseTree",

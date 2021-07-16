@@ -31,40 +31,8 @@
 
 namespace top {
   JetMETCPTools::JetMETCPTools(const std::string& name) :
-    asg::AsgTool(name),
+    asg::AsgTool(name) {
 
-    m_jetJVT_ConfigFile("JVTlikelihood_20140805.root"),
-
-    // Calibration strings for R21 only
-    m_jetAntiKt4_Data_ConfigFile("JES_MC16Recommendation_Consolidated_EMTopo_Apr2019_Rel21.config"),
-    m_jetAntiKt4_Data_CalibSequence("JetArea_Residual_EtaJES_GSC_Insitu"),
-
-    m_jetAntiKt4_MCFS_ConfigFile("JES_MC16Recommendation_Consolidated_EMTopo_Apr2019_Rel21.config"),
-    m_jetAntiKt4_MCFS_CalibSequence("JetArea_Residual_EtaJES_GSC_Smear"),
-
-    m_jetAntiKt4_Data_JMS_ConfigFile("JES_JMS_MC16Recommendation_Consolidated_data_only_EMTopo_Sep2019_Rel21.config"),
-    m_jetAntiKt4_Data_JMS_CalibSequence("JetArea_Residual_EtaJES_GSC_JMS_Insitu"),
-
-    m_jetAntiKt4_MCFS_JMS_ConfigFile("JES_JMS_MC16Recommendation_Consolidated_MC_only_EMTopo_July2019_Rel21.config"),
-    m_jetAntiKt4_MCFS_JMS_CalibSequence("JetArea_Residual_EtaJES_GSC_Smear_JMS"),
-
-    m_jetAntiKt4_MCAFII_ConfigFile("JES_MC16Recommendation_AFII_EMTopo_Apr2019_Rel21.config"),
-    m_jetAntiKt4_MCAFII_CalibSequence("JetArea_Residual_EtaJES_GSC_Smear"),
-
-    m_jetAntiKt4_MCAFII_PFlow_ConfigFile("JES_MC16Recommendation_AFII_PFlow_Apr2019_Rel21.config"),
-    m_jetAntiKt4_MCAFII_PFlow_CalibSequence("JetArea_Residual_EtaJES_GSC_Smear"),
-
-    m_jetAntiKt4_Data_PFlow_ConfigFile("JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config"),
-    m_jetAntiKt4_Data_PFlow_CalibSequence("JetArea_Residual_EtaJES_GSC_Insitu"),
-
-    m_jetAntiKt4_PFlow_MCFS_ConfigFile("JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config"),
-    m_jetAntiKt4_PFlow_MCFS_CalibSequence("JetArea_Residual_EtaJES_GSC_Smear"),
-
-    m_jetAntiKt4_Data_PFlow_JMS_ConfigFile("JES_JMS_MC16Recommendation_Consolidated_data_only_PFlow_July2019_Rel21.config"),
-    m_jetAntiKt4_Data_PFlow_JMS_CalibSequence("JetArea_Residual_EtaJES_GSC_JMS_Insitu"),
-
-    m_jetAntiKt4_PFlow_MCFS_JMS_ConfigFile("JES_JMS_MC16Recommendation_Consolidated_MC_only_PFlow_July2019_Rel21.config"),
-    m_jetAntiKt4_PFlow_MCFS_JMS_CalibSequence("JetArea_Residual_EtaJES_GSC_Smear_JMS") {
     declareProperty("config", m_config);
 
     declareProperty("JetCalibrationTool", m_jetCalibrationTool);
@@ -99,6 +67,7 @@ namespace top {
 
     declareProperty("met_maker", m_met_maker);
     declareProperty("met_systematics", m_met_systematics);
+
   }
 
   StatusCode JetMETCPTools::initialize() {
@@ -110,6 +79,71 @@ namespace top {
 
     if (m_config->getDerivationStream() == "PHYS") {
       m_truthJetCollForHS = "AntiKt4TruthDressedWZJets";
+    }
+    if (m_config->useHItoolsConfiguration()) { // Heavy Ion special setup
+      m_jetJVT_ConfigFile = "JVTlikelihood_20140805.root";
+
+      m_jetAntiKt4_Data_ConfigFile = "JES_MC16Recommendation_LowMu1718_EMTopo_Aug2019_Rel21.config";
+      m_jetAntiKt4_Data_CalibSequence = "EtaJES";
+
+      m_jetAntiKt4_MCFS_ConfigFile = "JES_MC16Recommendation_LowMu1718_EMTopo_Aug2019_Rel21.config";
+      m_jetAntiKt4_MCFS_CalibSequence ="EtaJES";
+
+      m_jetAntiKt4_Data_JMS_ConfigFile = "JES_JMS_MC16Recommendation_Consolidated_data_only_EMTopo_Sep2019_Rel21.config";
+      m_jetAntiKt4_Data_JMS_CalibSequence = "JetArea_Residual_EtaJES_GSC_JMS_Insitu";
+
+      m_jetAntiKt4_MCFS_JMS_ConfigFile = "JES_JMS_MC16Recommendation_Consolidated_MC_only_EMTopo_July2019_Rel21.config";
+      m_jetAntiKt4_MCFS_JMS_CalibSequence = "JetArea_Residual_EtaJES_GSC_Smear_JMS";
+
+      m_jetAntiKt4_MCAFII_ConfigFile = "JES_MC16Recommendation_AFII_EMTopo_Apr2019_Rel21.config";
+      m_jetAntiKt4_MCAFII_CalibSequence = "JetArea_Residual_EtaJES_GSC_Smear";
+
+      m_jetAntiKt4_MCAFII_PFlow_ConfigFile = "JES_MC16Recommendation_AFII_PFlow_Apr2019_Rel21.config";
+      m_jetAntiKt4_MCAFII_PFlow_CalibSequence = "JetArea_Residual_EtaJES_GSC_Smear";
+
+      m_jetAntiKt4_Data_PFlow_ConfigFile = "JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config";
+      m_jetAntiKt4_Data_PFlow_CalibSequence = "JetArea_Residual_EtaJES_GSC_Insitu";
+
+      m_jetAntiKt4_PFlow_MCFS_ConfigFile = "JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config";
+      m_jetAntiKt4_PFlow_MCFS_CalibSequence = "JetArea_Residual_EtaJES_GSC_Smear";
+
+      m_jetAntiKt4_Data_PFlow_JMS_ConfigFile = "JES_JMS_MC16Recommendation_Consolidated_data_only_PFlow_July2019_Rel21.config";
+      m_jetAntiKt4_Data_PFlow_JMS_CalibSequence = "JetArea_Residual_EtaJES_GSC_JMS_Insitu";
+
+      m_jetAntiKt4_PFlow_MCFS_JMS_ConfigFile = "JES_JMS_MC16Recommendation_Consolidated_MC_only_PFlow_July2019_Rel21.config";
+      m_jetAntiKt4_PFlow_MCFS_JMS_CalibSequence = "JetArea_Residual_EtaJES_GSC_Smear_JMS";
+    } else { // standard pp collisions
+      m_jetJVT_ConfigFile = "JVTlikelihood_20140805.root";
+
+      m_jetAntiKt4_Data_ConfigFile = "JES_MC16Recommendation_Consolidated_EMTopo_Apr2019_Rel21.config";
+      m_jetAntiKt4_Data_CalibSequence = "JetArea_Residual_EtaJES_GSC_Insitu";
+
+      m_jetAntiKt4_MCFS_ConfigFile = "JES_MC16Recommendation_Consolidated_EMTopo_Apr2019_Rel21.config";
+      m_jetAntiKt4_MCFS_CalibSequence ="JetArea_Residual_EtaJES_GSC_Smear";
+
+      m_jetAntiKt4_Data_JMS_ConfigFile = "JES_JMS_MC16Recommendation_Consolidated_data_only_EMTopo_Sep2019_Rel21.config";
+      m_jetAntiKt4_Data_JMS_CalibSequence = "JetArea_Residual_EtaJES_GSC_JMS_Insitu";
+
+      m_jetAntiKt4_MCFS_JMS_ConfigFile = "JES_JMS_MC16Recommendation_Consolidated_MC_only_EMTopo_July2019_Rel21.config";
+      m_jetAntiKt4_MCFS_JMS_CalibSequence = "JetArea_Residual_EtaJES_GSC_Smear_JMS";
+
+      m_jetAntiKt4_MCAFII_ConfigFile = "JES_MC16Recommendation_AFII_EMTopo_Apr2019_Rel21.config";
+      m_jetAntiKt4_MCAFII_CalibSequence = "JetArea_Residual_EtaJES_GSC_Smear";
+
+      m_jetAntiKt4_MCAFII_PFlow_ConfigFile = "JES_MC16Recommendation_AFII_PFlow_Apr2019_Rel21.config";
+      m_jetAntiKt4_MCAFII_PFlow_CalibSequence = "JetArea_Residual_EtaJES_GSC_Smear";
+
+      m_jetAntiKt4_Data_PFlow_ConfigFile = "JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config";
+      m_jetAntiKt4_Data_PFlow_CalibSequence = "JetArea_Residual_EtaJES_GSC_Insitu";
+
+      m_jetAntiKt4_PFlow_MCFS_ConfigFile = "JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config";
+      m_jetAntiKt4_PFlow_MCFS_CalibSequence = "JetArea_Residual_EtaJES_GSC_Smear";
+
+      m_jetAntiKt4_Data_PFlow_JMS_ConfigFile = "JES_JMS_MC16Recommendation_Consolidated_data_only_PFlow_July2019_Rel21.config";
+      m_jetAntiKt4_Data_PFlow_JMS_CalibSequence = "JetArea_Residual_EtaJES_GSC_JMS_Insitu";
+
+      m_jetAntiKt4_PFlow_MCFS_JMS_ConfigFile = "JES_JMS_MC16Recommendation_Consolidated_MC_only_PFlow_July2019_Rel21.config";
+      m_jetAntiKt4_PFlow_MCFS_JMS_CalibSequence = "JetArea_Residual_EtaJES_GSC_Smear_JMS";
     }
 
     if (m_config->useJets()) {
