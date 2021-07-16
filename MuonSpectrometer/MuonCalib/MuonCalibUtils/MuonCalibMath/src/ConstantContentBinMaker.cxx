@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibMath/ConstantContentBinMaker.h"
@@ -68,7 +68,7 @@ bool ConstantContentBinMaker::binDataPoints(const unsigned int & bin_content,
 // CHECK WHETHER THE IS SUFFICIENT DATA POINTS //
 /////////////////////////////////////////////////
 
-    if (m_points.size()==0 || n_bins<2) {
+    if (m_points.empty() || n_bins<2) {
         MsgStream log(Athena::getMessageSvc(), "ConstantContentBinMaker");
         log<< MSG::WARNING << "Class ConstantContentBinMaker, method binDataPoints: Too few data points for binning!"<<endmsg;
         return false;
@@ -78,7 +78,7 @@ bool ConstantContentBinMaker::binDataPoints(const unsigned int & bin_content,
 // CHECK REFERENCE COORDINATE //
 ////////////////////////////////
 
-    if (ref_coord.size()==0) {
+    if (ref_coord.empty()) {
         splitting_axis = std::vector<unsigned int>(
                                         m_points[0].dataVector().rows());
         for (unsigned int k=0; k<splitting_axis.size(); k++) {

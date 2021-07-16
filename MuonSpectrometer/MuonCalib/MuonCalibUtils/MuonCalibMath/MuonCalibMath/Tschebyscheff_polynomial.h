@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef Tschebyscheff_polynomialHXX
@@ -24,12 +24,11 @@ This class is a monoton/singleton object.
   class Tschebyscheff_polynomial {
 
   private:
-    static Tschebyscheff_polynomial *s_polynomial_pointer; //!< pointer to the monoton
     Tschebyscheff_polynomial(void); //!< constructor
 
   public:
     // Methods
-    static Tschebyscheff_polynomial * get_Tschebyscheff_polynomial(void); //!< get a pointer to the Tschebyscheff polynomial
+    static const Tschebyscheff_polynomial * get_Tschebyscheff_polynomial(void); //!< get a pointer to the Tschebyscheff polynomial
     /** get the value of the Tschebyscheff polynomial of order order at 
 	x (-1 <= x <= 1) */
     inline double value(const unsigned int & order,

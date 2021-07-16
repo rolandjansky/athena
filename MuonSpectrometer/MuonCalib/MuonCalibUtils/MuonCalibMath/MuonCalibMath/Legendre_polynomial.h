@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -45,13 +45,12 @@ This class is a monoton/singleton object.
   class Legendre_polynomial {
 
   private:
-    static Legendre_polynomial *s_polynomial_pointer; //!< pointer to the monoton
     Legendre_polynomial(void); //!< constructor
 
   public:
     // Methods
     /** get a pointer to the Legendre polynomial */
-    static Legendre_polynomial * get_Legendre_polynomial(void);
+    static const Legendre_polynomial * get_Legendre_polynomial(void);
 
     /** get the value of the Legendre polynomial of order m_order at x */
     inline double value(const int & order,

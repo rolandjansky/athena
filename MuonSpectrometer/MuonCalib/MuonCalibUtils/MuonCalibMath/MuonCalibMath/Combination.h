@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -67,8 +67,8 @@ public:
 				///< = wh_class
 
 private:
-	unsigned int m_n; // the n of Comb(n, k)
-	unsigned int m_k; // the k of Comb(n, k)
+	unsigned int m_n = 0U; // the n of Comb(n, k)
+	unsigned int m_k = 0U; // the k of Comb(n, k)
 	std::vector<unsigned int> m_index; // vector containing the indices of
 					   // the current combination
 	std::vector<unsigned int> m_flag; // vector of flags

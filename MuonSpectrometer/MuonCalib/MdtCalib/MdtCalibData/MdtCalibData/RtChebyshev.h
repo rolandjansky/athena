@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -53,7 +53,7 @@ Units: [t] = ns, [r] = mm, [v] = mm/ns.
 
   private:
     // Chebyshev polyonomials //
-    Tschebyscheff_polynomial * m_Chebyshev; //!< pointer to the Chebyshev polynomials
+    const Tschebyscheff_polynomial * m_Chebyshev; //!< pointer to the Chebyshev polynomials
 
     // private methods //
     /** initialization method */
