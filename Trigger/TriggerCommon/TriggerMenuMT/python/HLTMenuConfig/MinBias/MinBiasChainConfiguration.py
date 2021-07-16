@@ -8,7 +8,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import EmptyMenuSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 from TriggerMenuMT.HLTMenuConfig.MinBias.MinBiasMenuSequences import MinBiasSPSequence, MinBiasTrkSequence, MinBiasMbtsSequence, MinBiasZVertexFinderSequence
 from TriggerMenuMT.HLTMenuConfig.MinBias.ALFAMenuSequences import ALFAPerfSequence
-from TriggerMenuMT.HLTMenuConfig.MinBias.AFPMenuSequence import AFPTrkRecoSequence
+from TriggerMenuMT.HLTMenuConfig.MinBias.AFPMenuSequence import AFPTrkRecoSequence, AFPTrkRecoHypoSequence
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 
 #----------------------------------------------------------------
@@ -27,6 +27,9 @@ def MinBiasMbtsSequenceCfg(flags):
 
 def AFPrecoSequenceCfg(flags):
     return AFPTrkRecoSequence()
+
+def AFPrecoHypoSequenceCfg(flags):
+    return AFPTrkRecoHypoSequence()
 
 def TrigAFPDijetComboHypoToolCfg(chainDict):
     from TrigAFPHypo.TrigAFPHypoConf import TrigAFPDijetComboHypoTool
@@ -56,8 +59,13 @@ class MinBiasChainConfig(ChainConfigurationBase):
     def assembleChain(self):
         log.debug("Assembling chain for %s", self.chainName)
         steps = []
+
         if "mbts" == self.chainPart['recoAlg'][0] or "mbts" in self.chainName:
             steps.append(self.getMinBiasMbtsStep())
+        elif "afphypo" == self.chainPart['recoAlg'][0]:
+            steps.append(self.getAFPRecoHypoStep())
+        elif "afprec" == self.chainPart['recoAlg'][0]:
+            steps.append(self.getAFPRecoStep())
         else:
             steps.append(self.getMinBiasEmptyMbtsStep())
 
@@ -73,8 +81,11 @@ class MinBiasChainConfig(ChainConfigurationBase):
             steps.append(self.getMinBiasTrkStep())
 
         # afp reco chain
-        if "afprec" == self.chainPart['recoAlg'][0]:
-            steps.append(self.getAFPRecoStep())
+        # if "afprec" == self.chainPart['recoAlg'][0]:
+        #     steps.append(self.getAFPRecoStep())
+            
+        #if "afphypo" == self.chainPart['recoAlg'][0]:
+        #    steps.append(self.getAFPRecoHypoStep())
             
         if "_alfaperf" in self.chainName:
             steps.append(self.getALFAPerfStep())
@@ -101,6 +112,9 @@ class MinBiasChainConfig(ChainConfigurationBase):
 
     def getAFPRecoStep(self):
          return self.getStep(1,'AFPReco',[AFPrecoSequenceCfg])
+
+    def getAFPRecoHypoStep(self):
+         return self.getStep(1,'AFPRecoHypo',[AFPrecoHypoSequenceCfg])
 
     def getALFAPerfStep(self):
         return self.getStep(1,'ALFAPerf',[ALFAPerfSequenceCfg])
