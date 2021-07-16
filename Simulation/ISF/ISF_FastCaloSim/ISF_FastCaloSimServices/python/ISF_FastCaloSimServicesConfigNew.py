@@ -5,6 +5,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from RngComps.RandomServices import RNG, dSFMT
+from ISF_Services.ISF_ServicesConfigNew import TruthServiceCfg
 
 ###################################################################################################
 # Moved from AdditionalConfig
@@ -235,6 +236,10 @@ def FastCaloToolBaseCfg(flags, name="ISF_FastCaloTool", **kwargs):
                                                             acc.getPublicTool(CaloCellContainer.name),
                                                             acc.getPublicTool(FastHit.name)])
     kwargs.setdefault("Extrapolator", acc.getPublicTool(Extrapolator.name))
+    if "ParticleTruthSvc" not in kwargs:
+        truthacc = TruthServiceCfg(flags)
+        kwargs.setdefault("ParticleTruthSvc", truthacc.getPrimary())
+        acc.merge(truthacc)
     acc.setPrivateTools(CompFactory.ISF.FastCaloTool(name, **kwargs))
     return acc
 
@@ -282,7 +287,12 @@ def FastCaloSimV2ToolCfg(flags, name="ISF_FastCaloSimV2Tool", **kwargs):
     acc.merge(RNG(flags.Random.Engine))
     kwargs.setdefault("RandomSvc", acc.getService("AthRNGSvc"))
     kwargs.setdefault("RandomStream", "FastCaloSimRnd")
-    kwargs.setdefault("PunchThroughTool", "")
+    PT_tool = acc.popToolsAndMerge(PunchThroughToolCfg(flags))
+    kwargs.setdefault("PunchThroughTool", PT_tool)
+    if "ParticleTruthSvc" not in kwargs:
+        truthacc = TruthServiceCfg(flags)
+        kwargs.setdefault("ParticleTruthSvc", truthacc.getPrimary())
+        acc.merge(truthacc)
 
     acc.setPrivateTools(CompFactory.ISF.FastCaloSimV2Tool(name, **kwargs))
     return acc
@@ -360,6 +370,10 @@ def FastCaloSimPileupOTSvcCfg(flags, name="ISF_FastCaloSimPileupOTSvc", **kwargs
                                                       acc.getPublicTool(CaloCellContainer.name),
                                                       acc.getPublicTool(FastHit.name)])
     kwargs.setdefault("Extrapolator", acc.getPublicTool(Extrapolator.name))
+    if "ParticleTruthSvc" not in kwargs:
+        truthacc = TruthServiceCfg(flags)
+        kwargs.setdefault("ParticleTruthSvc", truthacc.getPrimary())
+        acc.merge(truthacc)
     acc.addService(CompFactory.ISF.FastCaloSimSvcPU(name, **kwargs))
     return acc
 

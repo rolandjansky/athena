@@ -107,7 +107,7 @@ namespace ISFTesting {
       ATH_MSG_INFO ("initializing MockTruthSvc: " << name());
       return StatusCode::SUCCESS;
     };
-    void registerTruthIncident(ISF::ITruthIncident&) const { };
+    void registerTruthIncident(ISF::ITruthIncident&, bool) const { };
     StatusCode initializeTruthCollection() { return StatusCode::SUCCESS; };
     StatusCode releaseEvent() { return StatusCode::SUCCESS; };
   };

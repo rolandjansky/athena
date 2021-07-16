@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOTOOL_h
@@ -25,6 +25,7 @@
 #include "ISF_Interfaces/BaseSimulatorTool.h"
 #include "ISF_Event/ISFParticleContainer.h"
 #include "ISF_FastCaloSimInterfaces/IPunchThroughTool.h"
+#include "ISF_Interfaces/ITruthSvc.h"
 
 // Tracking includes
 #include "TrkExInterfaces/ITimedExtrapolator.h"
@@ -111,6 +112,8 @@ private:
   // Would be better to pass this explicitly through setupEvent / simulate,
   // but the interfaces would need to be reworked to do that.
   mutable SG::SlotSpecificObj<TRandom3> m_rndm;
+
+  ServiceHandle<ISF::ITruthSvc> m_truthRecordSvc{this,"ParticleTruthSvc", "ISF_TruthRecordSvc", "ISF Particle Truth Svc"};
 };
 
 }
