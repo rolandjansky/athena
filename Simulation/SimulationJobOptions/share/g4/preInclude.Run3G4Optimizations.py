@@ -1,6 +1,6 @@
 ##########################################################
 #
-# SimulationJobOptions/preInclude.Run3G4Optimiziations.py
+# SimulationJobOptions/preInclude.Run3G4Optimizations.py
 # Marilena Bandieramonte
 #
 # Geant4 Optimization Options for Run3
