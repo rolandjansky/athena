@@ -95,16 +95,6 @@ CaloTopoTowerMaker::~CaloTopoTowerMaker()
 
 StatusCode CaloTopoTowerMaker::initialize()
 {
-  // -- allocate tower geometry service
-  ATH_MSG_INFO("Allocate tower geometry service:");
-  if ( !m_towerGeometrySvc.isValid() ) { 
-    ATH_MSG_ERROR("[reject] cannot allocate tower geometry service - fatal");
-    return StatusCode::FAILURE; 
-  } else {
-    ATH_MSG_INFO( CaloRec::Helpers::fmtMsg("Tower geometry service is allocated, describes %6zu towers in grid:", m_towerGeometrySvc->towerBins()) );
-    ATH_MSG_INFO( CaloRec::Helpers::fmtMsg("[accept] %3zu eta bins in [%5.2f,%5.2f]",m_towerGeometrySvc->etaBins(),m_towerGeometrySvc->etaMin(),m_towerGeometrySvc->etaMax()) );
-    ATH_MSG_INFO( CaloRec::Helpers::fmtMsg("[accept] %3zu phi bins in [%5.2f,%5.2f]",m_towerGeometrySvc->phiBins(),m_towerGeometrySvc->phiMin(),m_towerGeometrySvc->phiMax()) );
-  }
 
   // -- retrieve the needed tower maker tool
   if (m_towerMakerTool.retrieve().isFailure()) {
@@ -144,6 +134,9 @@ StatusCode CaloTopoTowerMaker::initialize()
     m_towerCellLinkOutput = m_towerOutput.key() + "_links";
   }
   ATH_CHECK( m_towerCellLinkOutput.initialize() );
+
+
+  ATH_CHECK(detStore()->retrieve(m_caloCellID,"CaloCell_ID"));
 
   return StatusCode::SUCCESS;
 }
@@ -186,7 +179,7 @@ StatusCode CaloTopoTowerMaker::execute (const EventContext& ctx) const
     } // correction tool loop
   } else {
     // fill the towers with LCW calibration 
-    std::unique_ptr<CaloCellClusterWeights> cellWeights(new CaloCellClusterWeights(std::max(m_towerGeometrySvc->maxCellHash(),m_towerGeometrySvc->totalNumberCells())));
+    std::unique_ptr<CaloCellClusterWeights> cellWeights=std::make_unique<CaloCellClusterWeights>(m_caloCellID->calo_cell_hash_max());
     if ( m_chronoTools ) { m_chrono->chronoStart(chronoName+m_towerMakerTool->name()); }
     ATH_CHECK( m_towerMakerTool->execute(ctx,clusColl.ptr(),cellWeights.get()) );
     if ( m_chronoTools ) { m_chrono->chronoStop(chronoName+m_towerMakerTool->name()); }

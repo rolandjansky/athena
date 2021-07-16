@@ -93,7 +93,7 @@ class doCaloTopoTower(CaloRecFlagsJobProperty):
     """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False
+    StoredValue=True
     
 class doCaloTopoSignal(CaloRecFlagsJobProperty):
     """ produce mixed topo-cluster and topo-tower container 
@@ -114,7 +114,7 @@ class doCaloFwdTopoTower(CaloRecFlagsJobProperty):
     """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False
+    StoredValue=True
 
 class doTileMuId(CaloRecFlagsJobProperty):
     """ switch for TileMuId - muon finding algorighm
