@@ -61,7 +61,6 @@
 #include "NSWCalibTools/INSWCalibTool.h"
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MagFieldElements/AtlasFieldCache.h"
-#include "MM_Digitization/IMM_DigitizationTool.h"
 
 #include <memory>
 #include <string>
