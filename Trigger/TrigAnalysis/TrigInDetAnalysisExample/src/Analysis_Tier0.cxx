@@ -510,7 +510,7 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
 
 
     for ( size_t ilayer=0 ; ilayer<32 ; ilayer++ ) { 
-      if ( (*reference)->hitPattern()&(1<<ilayer) ) m_h_layer_rec->Fill( ilayer );
+      if ( (*reference)->hitPattern()&(1<<ilayer) ) m_h_layer->Fill( ilayer );
     } 
     
     if (test) {
