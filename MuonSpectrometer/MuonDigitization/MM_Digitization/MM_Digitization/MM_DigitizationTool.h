@@ -87,7 +87,6 @@ class MicromegasHitIdHelper;
 class IAtRndmGenSvc;
 class MsgStream;
 
-class IMM_DigitizationTool;
 class MuonSimDataCollection;
 
 class TTree;
@@ -154,8 +153,6 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 		MmDigitContainer*      m_digitContainer;
 		MuonSimDataCollection* m_sdoContainer;
 
-		// Tools
-		ToolHandle <IMM_DigitizationTool> m_digitTool;
 		TFile *m_file;
 		TTree *m_ntuple;
 
