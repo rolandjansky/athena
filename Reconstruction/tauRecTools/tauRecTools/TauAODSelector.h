@@ -22,6 +22,7 @@ public:
 private:
 
   // minimum tau pt below which taus are not written to AOD
+  double m_min0pTauPt;
   double m_minTauPt;
 
 };
