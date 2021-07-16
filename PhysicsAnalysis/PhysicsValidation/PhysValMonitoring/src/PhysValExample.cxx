@@ -65,6 +65,9 @@ namespace PhysVal {
     declareProperty( "TrackContainerName", m_trackName = "InDetTrackParticles" );  
     declareProperty( "VertexContainerName", m_vertexName = "PrimaryVertices" );  
     declareProperty( "METContainerName", m_metName = "MET_RefFinal" ); 
+    declareProperty( "DoExMET", m_doExMET = true ); 
+    declareProperty( "DoExJet", m_doExJet = true ); 
+    declareProperty( "DoExBtag", m_doExBtag = true ); 
   }
   
   // Destructor
@@ -78,7 +81,7 @@ namespace PhysVal {
   {
     ATH_MSG_INFO ("Initializing " << name() << "...");    
     ATH_CHECK(ManagedMonitorToolBase::initialize());
-    
+
     return StatusCode::SUCCESS;
   }
   
@@ -133,17 +136,21 @@ namespace PhysVal {
     
     // Jets
     int nbtag(0);
-    m_jetPlots.initializeEvent();
-    const xAOD::JetContainer* jets(0);
-    ATH_CHECK(evtStore()->retrieve(jets, m_jetName));
-    for (auto jet : *jets) {
-      m_jetPlots.fill(jet,event);
-      const xAOD::BTagging* btag = xAOD::BTaggingUtilities::getBTagging( *jet );
-      if (btag && btag->IP3D_loglikelihoodratio() > 1.2) ++nbtag;
+    if (m_doExJet){
+      m_jetPlots.initializeEvent();
+      const xAOD::JetContainer* jets(0);
+      ATH_CHECK(evtStore()->retrieve(jets, m_jetName));
+      for (auto jet : *jets) {
+	m_jetPlots.fill(jet,event);
+	if (m_doExBtag){
+	  const xAOD::BTagging* btag = xAOD::BTaggingUtilities::getBTagging( *jet );
+	  if (btag && btag->IP3D_loglikelihoodratio() > 1.2) ++nbtag;
+	}
+      }
+      m_jetPlots.fill(event);
     }
-    m_jetPlots.fill(event);
     m_btagPlots.fill(nbtag,event);
-
+      
     // Electrons
     m_elecPlots.initializeEvent();
     const xAOD::ElectronContainer* electrons(0);
@@ -183,15 +190,19 @@ namespace PhysVal {
 
     m_trkvtxPlots.fill(trks->size(), vtxs->size(), event->averageInteractionsPerCrossing(),event);
 
-    const xAOD::MissingETContainer* met_container (0);
-    ATH_CHECK(evtStore()->retrieve(met_container, m_metName));
-    const xAOD::MissingET* met = (*met_container)["FinalClus"];
-    if (!met) {
-      ATH_MSG_ERROR ("Couldn't retrieve MET Final");
-      return StatusCode::SUCCESS;
+
+
+    if (m_doExMET){
+      const xAOD::MissingETContainer* met_container (0);
+      ATH_CHECK(evtStore()->retrieve(met_container, m_metName));
+      
+      const xAOD::MissingET* met = (*met_container)["FinalClus"];
+      if (!met) {
+	ATH_MSG_WARNING ("Couldn't retrieve MET Final");
+	return StatusCode::SUCCESS;
+      }
+      m_metPlots.fill(met,event);
     }
-    m_metPlots.fill(met,event);
-    
     int i(0);
     for (auto name : m_timingNames) {
       float time;

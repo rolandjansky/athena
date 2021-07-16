@@ -100,6 +100,12 @@ class PhysValExample
   StatusCode book(PlotBase& plots);
   StatusCode getTiming(std::string name, float& recoTime);
 
+  //Flags to determine whether to fill example jet,met,btag plots
+  bool m_doExJet;
+  bool m_doExBtag;
+  bool m_doExMET;
+
+
 }; 
 
 // I/O operators
