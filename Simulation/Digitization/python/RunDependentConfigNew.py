@@ -45,7 +45,7 @@ def LumiProfileSvcCfg(flags, name="LumiProfileSvc", **kwargs):
     return acc
 
 
-def NoProfileSvcCfg(name="NoProfileSvc", **kwargs):
+def NoProfileSvcCfg(flags, name="NoProfileSvc", **kwargs):
     acc = ComponentAccumulator()
     acc.addService(CompFactory.NoProfileSvc(name, **kwargs))
     return acc

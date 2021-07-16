@@ -91,7 +91,7 @@ def fromRunArgs(runArgs):
         ConfigFlags.Input.OverrideRunNumber = True
         ConfigFlags.Input.LumiBlockNumber = [1] # dummy value
 
-    if hasattr(runArgs, 'outputHITSFile'):
+    if hasattr(runArgs, 'physicsList'):
         ConfigFlags.Sim.PhysicsList = runArgs.physicsList
 
     if hasattr(runArgs, 'conditionsTag'):
