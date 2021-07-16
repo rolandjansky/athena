@@ -16,12 +16,16 @@ CaloESDList += [ "TileTTL1Container#TileTTL1MBTS" ]
 CaloClusterItemList=[]
 CaloClusterKeys=[]
 
+from RecExConfig.AutoConfiguration import IsInInputFile
+
+storedFwdTowersInESD = IsInInputFile("xAOD::CaloClusterContainer","CaloCalFwdTopoTowers")
+
 CaloClusterKeys+=["CaloCalTopoClusters"]
 if jobproperties.CaloRecFlags.doCaloTopoTower.get_Value():
     CaloClusterKeys+=["CaloCalTopoTowers"]
 if jobproperties.CaloRecFlags.doCaloTopoSignal.get_Value():
     CaloClusterKeys+=["CaloCalTopoSignals"]
-if jobproperties.CaloRecFlags.doCaloFwdTopoTower.get_Value():
+if jobproperties.CaloRecFlags.doCaloFwdTopoTower.get_Value() or storedFwdTowersInESD:
     CaloClusterKeys+=["CaloCalFwdTopoTowers"]
 
 CaloClusterKeys+=["CombinedCluster"]
@@ -192,7 +196,7 @@ for theKey in CaloClusterKeys: #Fixme .. Apply this only to TopoClusters?
 CaloClusterItemList += ["CaloClusterCellLinkContainer#CaloCalTopoClusters_links"]
 
 #CaloCalFwdTopoClusters are also clusters but with a dedicated sliming:
-if jobproperties.CaloRecFlags.doCaloFwdTopoTower.get_Value():
+if jobproperties.CaloRecFlags.doCaloFwdTopoTower.get_Value() or storedFwdTowersInESD:
     theKey="CaloCalFwdTopoTowers"
     CaloClusterItemList+=["xAOD::CaloClusterContainer#"+theKey]
     AuxListItem="xAOD::CaloClusterAuxContainer#"+theKey+"Aux"

@@ -31,7 +31,7 @@
 #include "CaloRec/CaloTowerCollectionProcessor.h"
 #include "CaloEvent/CaloCellClusterWeights.h"
 
-#include "CaloTowerGeometrySvc.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 
 class CaloClusterCellLinkContainer;
 class IChronoStatSvc;
@@ -56,7 +56,6 @@ class CaloTopoTowerMaker : public AthReentrantAlgorithm
    *
    */
   StatusCode makeContainer();
-
   
   /** @brief the name of the key in StoreGate for the output
       CaloClusterContainer */
@@ -85,9 +84,6 @@ class CaloTopoTowerMaker : public AthReentrantAlgorithm
   /// This tool provides the (optional) LCW calibration.
   ToolHandle<CaloTowerCollectionProcessor> m_towerCalibratorTool;
 
-  /// @brief Tower geometry service
-  ServiceHandle<CaloTowerGeometrySvc> m_towerGeometrySvc { this, "CaloTowerGeometrySvc", "CaloTowerGeometrySvc", "CaloTower geometry provider" };
-
   /// Handle to the ChronoStatSvc
   ServiceHandle<IChronoStatSvc> m_chrono;
 
@@ -109,6 +105,10 @@ class CaloTopoTowerMaker : public AthReentrantAlgorithm
 
   /// @brief Use LCW calibration for topo-towers (default is @c true)
   bool m_useLCWCalibration = { true  };
+
+
+  /// Identifier helper
+  const CaloCell_ID* m_caloCellID=nullptr;
 
 };
 #endif // CALOREC_CALOTOPOTOWERMAKER_H
