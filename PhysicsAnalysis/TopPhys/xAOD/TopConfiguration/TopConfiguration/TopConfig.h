@@ -247,6 +247,9 @@ namespace top {
     // Default is true for Data and false for MC
     inline bool doLooseEvents() const {return m_doLooseEvents;}
 
+    inline void setUseHItoolsConfiguration(const bool flag) {m_useHItoolsConfiguration = flag;}
+    inline bool useHItoolsConfiguration() const {return m_useHItoolsConfiguration;}
+
     // Run systematics on Loose selection
     // Default is true
     inline bool doTightSysts() const {return m_doTightSysts;}
@@ -2303,6 +2306,8 @@ namespace top {
     bool m_doTightEvents;
     // Dumps the "*_Loose trees (on demand)
     bool m_doLooseEvents;
+    
+    bool m_useHItoolsConfiguration;
 
     // Run systematics on the given selection
     bool m_doTightSysts;

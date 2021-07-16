@@ -105,6 +105,7 @@ namespace top {
     m_doTightEvents(true),
     // Runs Loose selection and dumps the "*_Loose" trees
     m_doLooseEvents(false),
+    m_useHItoolsConfiguration(false),
     // Runs systematics on the given selection
     m_doTightSysts(true),
     m_doLooseSysts(true),
@@ -772,6 +773,10 @@ namespace top {
     this->sgKeyTracks(settings->value("TrackCollectionName"));
     this->jetSubstructureName(settings->value("LargeJetSubstructure"));
     this->decoKeyJetGhostTrack(settings->value("JetGhostTrackDecoName"));
+
+    bool useHItoolsConfiguration(false);
+    settings->retrieve("UseHItoolsConfiguration", useHItoolsConfiguration);
+    this->setUseHItoolsConfiguration(useHItoolsConfiguration);
 
     // check that jets use tagged collection name for new derivations
     // this is due to b-tagging breaking changes in derivations
@@ -2953,7 +2958,6 @@ namespace top {
                                                                                m_sgKeyPseudoTop + "_Loose_" +
                                                                                (*i).second));
     }
-
 
     // TTree index
     unsigned int TTreeIndex(0);
