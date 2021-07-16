@@ -2234,6 +2234,12 @@ HLT_larpsallem_L1EM3:
     0: 13
   stepFeatures:
     0: 42
+HLT_mb_afphypo_j0_L1RD0_FILLED:
+  eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 183
 HLT_mb_afprec_L1AFP_A_AND_C_TOF_J20:
   eventCount: 0
 HLT_mb_afprec_L1AFP_A_AND_C_TOF_J30:
