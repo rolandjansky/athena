@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/IChronoStatSvc.h"
@@ -15,6 +15,7 @@
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
 #include "ISF_Event/ISFParticleContainer.h"
+#include "ISF_Event/ISFTruthIncident.h"
 
 // McEventCollection
 #include "GeneratorObjects/McEventCollection.h"
@@ -79,6 +80,8 @@ StatusCode ISF::FastCaloTool::commonInitialize()
   else {
     m_punchThroughTool.disable();
   }
+
+  ATH_CHECK(m_truthRecordSvc.retrieve());
 
   // Get TimedExtrapolator
   if (!m_extrapolator.empty()) {
@@ -212,18 +215,21 @@ StatusCode ISF::FastCaloTool::simulate(const ISFParticle& isp, ISFParticleContai
   // punch-through simulation
 
   if (m_doPunchThrough) {
+    Barcode::PhysicsProcessCode process = 201;
     // call punch-through simulation
-    const ISF::ISFParticleContainer* isfpVec = m_punchThroughTool->computePunchThroughParticles(isp);
-
-    // return punch-through particles as secondaries
-    if (isfpVec) {
-      /*ISF::ISFParticleContainer::const_iterator partIt    = isfpVec->begin();
-        ISF::ISFParticleContainer::const_iterator partItEnd = isfpVec->end();
-
-        for ( ; partIt!=partItEnd; ++partIt) {
-        secondaries.push_back( *partIt );
-        }*/
-      secondaries = *isfpVec;
+    const ISF::ISFParticleVector *someSecondaries = m_punchThroughTool->computePunchThroughParticles(isp);
+    if (someSecondaries) {
+      //Record truth incident for created punch through particles
+      ISF::ISFTruthIncident truth( const_cast<ISF::ISFParticle&>(isp),
+                                   *someSecondaries,
+                                   process,
+                                   isp.nextGeoID(),  // inherits from the parent
+                                   ISF::fKillsPrimary);
+      m_truthRecordSvc->registerTruthIncident( truth, true );
+      for (auto secondary : *someSecondaries) {
+        secondaries.push_back(secondary);
+      }
+      delete someSecondaries;
     }
   }
 

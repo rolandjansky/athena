@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMV2TOOL_H
@@ -7,6 +7,7 @@
 
 // ISF includes
 #include "ISF_Interfaces/BaseSimulatorTool.h"
+#include "ISF_Interfaces/ITruthSvc.h"
 
 // FastCaloSim includes
 #include "IFastCaloSimParamSvc.h"
@@ -80,6 +81,7 @@ namespace ISF {
     ServiceHandle<IAthRNGSvc> m_rndmGenSvc{this, "RandomSvc", "AthRNGSvc", ""};
     Gaudi::Property<std::string>    m_randomEngineName{this, "RandomStream", ""};
     Gaudi::Property<std::string>    m_caloCellsOutputName{this, "CaloCellsOutputName", "AllCalo"};
+    ServiceHandle<ISF::ITruthSvc> m_truthRecordSvc{this,"ParticleTruthSvc", "ISF_TruthRecordSvc", "ISF Particle Truth Svc"};
   };
 
 }
