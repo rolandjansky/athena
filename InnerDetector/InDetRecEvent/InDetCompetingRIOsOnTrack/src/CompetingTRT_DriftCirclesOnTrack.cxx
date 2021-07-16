@@ -50,8 +50,8 @@ InDet::CompetingTRT_DriftCirclesOnTrack::CompetingTRT_DriftCirclesOnTrack(
   const Trk::Surface* sf,
   std::vector<const InDet::TRT_DriftCircleOnTrack*>* childrots,
   std::vector<AssignmentProb>* assgnProb,
-  const Trk::LocalParameters* effecLocalPars,
-  const Amg::MatrixX* effecLocalErrMat,
+  const Trk::LocalParameters& effecLocalPars,
+  const Amg::MatrixX& effecLocalErrMat,
   int ROTsHaveComSrfc // meaning of the values are described in the definition
                       // of ROTsHaveCommonSurface()
   )
@@ -61,10 +61,8 @@ InDet::CompetingTRT_DriftCirclesOnTrack::CompetingTRT_DriftCirclesOnTrack(
   , m_containedChildRots(childrots)
   , m_ROTsHaveCommonSurface(ROTsHaveComSrfc)
 {
-  m_localParams = *effecLocalPars;
-  m_localCovariance = *effecLocalErrMat;
-  delete effecLocalErrMat;
-  delete effecLocalPars;
+  m_localParams = effecLocalPars;
+  m_localCovariance = effecLocalErrMat;
 }
 
 InDet::CompetingTRT_DriftCirclesOnTrack&
