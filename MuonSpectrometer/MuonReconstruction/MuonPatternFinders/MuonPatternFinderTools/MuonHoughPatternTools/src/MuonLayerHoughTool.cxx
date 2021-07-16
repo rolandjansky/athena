@@ -41,9 +41,9 @@ namespace Muon {
       if (Gaudi::Concurrency::ConcurrencyFlags::concurrent() && Gaudi::Concurrency::ConcurrencyFlags::numThreads()>1) {
         // Disabled for >1 threads due to thread-safety concerns, but we want to keep it as a debug tool
         ATH_MSG_DEBUG("HitNtuple disabled because of concurrency");
-	m_file = 0;
-	m_tree = 0;
-	m_ntuple = 0;
+	m_file = nullptr;
+	m_tree = nullptr;
+	m_ntuple = nullptr;
       } else {
         TDirectory* cdir = gDirectory;
         m_file = new TFile("HitNtuple.root","RECREATE");
@@ -53,9 +53,9 @@ namespace Muon {
         gDirectory = cdir;
       }
     }else{
-      m_file = 0;
-      m_tree = 0;
-      m_ntuple = 0;
+      m_file = nullptr;
+      m_tree = nullptr;
+      m_ntuple = nullptr;
     }
     
     initializeSectorMapping(muDetMgr);
@@ -151,7 +151,7 @@ namespace Muon {
       if (truthMuons.isValid()) {
         ATH_MSG_DEBUG("Retrieved truth muons " << truthMuons->size());
         int nmuons = 0;
-        for (const auto truthMu: *truthMuons){
+        for (const auto *const truthMu: *truthMuons){
           m_ntuple->tpdgId[nmuons] = truthMu->pdgId();
           m_ntuple->tbarcode[nmuons] = truthMu->barcode();
           m_ntuple->tmuonIndex[nmuons] = nmuons;
@@ -173,7 +173,7 @@ namespace Muon {
         if (truthSegments.isValid()) {
           ATH_MSG_DEBUG("Retrieved truth Segments " << truthSegments->size());
           int nsegs = 0;
-          for (const auto truthSeg: *truthSegments){
+          for (const auto *const truthSeg: *truthSegments){
             m_ntuple->sbarcode[nsegs] = 0;
             m_ntuple->sposx[nsegs] = truthSeg->x();
             m_ntuple->sposy[nsegs] = truthSeg->y();
@@ -224,7 +224,7 @@ namespace Muon {
       return std::make_pair(regionIndex,sectorLayerHash);
     };
 
-    for( auto col : mdtCols ){
+    for( const auto *col : mdtCols ){
       if( !col ) continue;
       Identifier id = col->identify();
       int sector = m_idHelperSvc->sector(id);
@@ -232,7 +232,7 @@ namespace Muon {
       fill(state.truthHits,*col,state.houghDataPerSectorVec->vec[sector-1].hitVec[hashes.second]);
     }
 
-    for( auto col : rpcCols ){
+    for( const auto *col : rpcCols ){
       if( !col ) continue;
       Identifier id = col->identify();
       int sector = m_idHelperSvc->sector(id);
@@ -245,7 +245,7 @@ namespace Muon {
       return std::binary_search(hashes.begin(),hashes.end(),hash);
     };
 
-    for( auto col : tgcCols ){
+    for( const auto *col : tgcCols ){
       if( !col ) continue;
       Identifier id = col->identify();
       int sector = m_idHelperSvc->sector(id);
@@ -501,7 +501,7 @@ namespace Muon {
             associatedMaxima.insert(road.maxima.begin(), road.maxima.end());
 
             ATH_MSG_DEBUG(" New road " << road.maxima.size());
-            for (auto max : road.maxima) {
+            for (auto *max : road.maxima) {
                 MuonStationIndex::ChIndex chIndex = max->hough->m_descriptor.chIndex;
                 MuonStationIndex::LayerIndex layer = Muon::MuonStationIndex::toLayerIndex(chIndex);
                 MuonStationIndex::DetectorRegionIndex region = max->hough->m_descriptor.region;
@@ -823,7 +823,7 @@ namespace Muon {
         }
       }
       // print out information on the triggerLayersPhiMinMax
-      if( msgLvl(MSG::DEBUG) && false ){
+      if( false ){
         ATH_MSG_DEBUG("Trigger layers " << triggerLayersPhiMinMax.size() << " tgc layers " << tgcClusters.size() );
         for( auto tgcit = triggerLayersPhiMinMax.begin() ;tgcit!=triggerLayersPhiMinMax.end();++tgcit ){
           ATH_MSG_VERBOSE("  " << m_idHelperSvc->toString(tgcit->first) );
@@ -849,7 +849,7 @@ namespace Muon {
       double phimax = -10;
       
       // loop over all maxima found on road
-      for( auto max : road.maxima ){
+      for( auto *max : road.maxima ){
 
         // get station information for maximum on road
         const MuonHough::MuonLayerHough::Maximum& maximum = *max;
@@ -1297,7 +1297,7 @@ namespace Muon {
     }
     if( chamberData.empty() ) return;
 
-    MuonPatternCombination* combi = new MuonPatternCombination(0,chamberData);
+    MuonPatternCombination* combi = new MuonPatternCombination(nullptr,chamberData);
 
     ATH_MSG_DEBUG(" creating new unassociated " << m_printer->print( *combi ) );
     patternCombis.push_back(combi);
@@ -1481,7 +1481,7 @@ namespace Muon {
   ATH_MSG_DEBUG("No phi hits selected, skipping combi ");
   continue;
       }
-      MuonPatternCombination* combi = new MuonPatternCombination(0,chamberData);
+      MuonPatternCombination* combi = new MuonPatternCombination(nullptr,chamberData);
       ATH_MSG_DEBUG("adding pattern combination with chambers " << chamberData.size() << " phi layers " << addedPhiHits.size()
         << std::endl << m_printer->print(*combi) );
       patternCombis.push_back(combi);
@@ -1694,23 +1694,23 @@ namespace Muon {
         for( ;iit!=iit_end;++iit ){
           // !?! else if made by Felix
           if( mdtCont && mdtCont->size()>0 && tech == MuonStationIndex::MDT ) {
-            auto pos = mdtCont->indexFindPtr(*iit);
+            const auto *pos = mdtCont->indexFindPtr(*iit);
             if( pos != nullptr ) fill(truthHits,*pos,houghData.hitVec[layerHash]);
           }
           else if( rpcCont && rpcCont->size()>0 && tech == MuonStationIndex::RPC ) {
-            auto pos = rpcCont->indexFindPtr(*iit);
+            const auto *pos = rpcCont->indexFindPtr(*iit);
             if( pos != nullptr ) fill(truthHits,*pos,houghData.hitVec[layerHash],houghData.phiHitVec[regionLayer.first]);
           }
           else if( tgcCont && tgcCont->size()>0 && tech == MuonStationIndex::TGC ) {
-            auto pos = tgcCont->indexFindPtr(*iit);
+            const auto *pos = tgcCont->indexFindPtr(*iit);
             if( pos != nullptr ) fill(truthHits, tgcClusteringObjs, *pos,houghData.hitVec[layerHash],houghData.phiHitVec[regionLayer.first],collectionsPerSector.sector);
           }
           else if( stgcCont && stgcCont->size()>0 && tech == MuonStationIndex::STGC ) {
-            auto pos = stgcCont->indexFindPtr(*iit);
+            const auto *pos = stgcCont->indexFindPtr(*iit);
             if( pos != nullptr ) fill(truthHits,*pos,houghData.hitVec[layerHash],houghData.phiHitVec[regionLayer.first],collectionsPerSector.sector);
           }
           else if( mmCont && mmCont->size()>0 && tech == MuonStationIndex::MM ) {
-            auto pos = mmCont->indexFindPtr(*iit);
+            const auto *pos = mmCont->indexFindPtr(*iit);
             if( pos != nullptr ) fill(truthHits,*pos,houghData.hitVec[layerHash]);
           }
         }
