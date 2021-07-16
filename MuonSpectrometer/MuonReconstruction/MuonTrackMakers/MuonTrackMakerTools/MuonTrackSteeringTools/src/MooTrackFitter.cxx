@@ -143,7 +143,7 @@ namespace Muon {
 
     std::unique_ptr<Trk::Track> MooTrackFitter::refit(const Trk::Track& track) const {
         if (msgLvl(MSG::DEBUG)) {
-            const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
+            const Trk::TrackStates* states = track.trackStateOnSurfaces();
             int nStates = 0;
             if (states) nStates = states->size();
             msg(MSG::DEBUG) << MSG::DEBUG << "refit: fitting track with hits: " << nStates;
@@ -2171,7 +2171,7 @@ namespace Muon {
         GarbageContainer localGarbage;
 
         // access TSOS of track
-        const DataVector<const Trk::TrackStateOnSurface>* oldTSOT = track.trackStateOnSurfaces();
+        const Trk::TrackStates* oldTSOT = track.trackStateOnSurfaces();
         if (!oldTSOT) return std::make_pair<std::unique_ptr<Trk::Track>, std::unique_ptr<Trk::Track>>(nullptr, nullptr);
 
         // check whether the perigee is expressed at the point of closes approach or at muon entry
@@ -2186,8 +2186,8 @@ namespace Muon {
 
         // loop over content input track and count perigees
         unsigned int nperigees(0);
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator tit = oldTSOT->begin();
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator tit_end = oldTSOT->end();
+        Trk::TrackStates::const_iterator tit = oldTSOT->begin();
+        Trk::TrackStates::const_iterator tit_end = oldTSOT->end();
         for (; tit != tit_end; ++tit) {
             // look whether state is a perigee
             if ((*tit)->type(Trk::TrackStateOnSurface::Perigee) && dynamic_cast<const Trk::Perigee*>((*tit)->trackParameters()))
@@ -2329,7 +2329,7 @@ namespace Muon {
         Trk::PerigeeSurface persurf(startPars.position());
         Trk::Perigee* perigee = new Trk::Perigee(0, 0, phi, theta, qoverp, persurf);
 
-        auto trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
+        auto trackStateOnSurfaces = Trk::TrackStates();
         trackStateOnSurfaces.reserve(tsos.size() + 1);
         trackStateOnSurfaces.push_back(MuonTSOSHelper::createPerigeeTSOS(perigee));
         for (const Trk::TrackStateOnSurface* tsos : tsos) trackStateOnSurfaces.push_back(tsos->clone());
@@ -2407,7 +2407,7 @@ namespace Muon {
 
             // clean up previous track and create new one with fake hits
             perigee = new Trk::Perigee(0, 0, phi, theta, qoverp, persurf);
-            trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
+            trackStateOnSurfaces = Trk::TrackStates();
             trackStateOnSurfaces.reserve(tsos.size() + 3);
             trackStateOnSurfaces.push_back(MuonTSOSHelper::createPerigeeTSOS(perigee));
 
