@@ -469,6 +469,10 @@ StatusCode TRTMonitoringRun3ESD_Alg::fillTRTTracks(const xAOD::TrackParticleCont
     auto TimeResidual_B_Ar              = Monitored::Scalar<float>("TimeResidual_B_Ar", 0.0);
     auto TimeResidual_E                 = Monitored::Scalar<float>("TimeResidual_E", 0.0);
     auto TimeResidual_E_Ar              = Monitored::Scalar<float>("TimeResidual_E_Ar", 0.0);
+    auto TimeResidual_noTubeHits_B      = Monitored::Scalar<float>("TimeResidual_noTubeHits_B", 0.0);
+    auto TimeResidual_noTubeHits_B_Ar   = Monitored::Scalar<float>("TimeResidual_noTubeHits_B_Ar", 0.0);
+    auto TimeResidual_noTubeHits_E      = Monitored::Scalar<float>("TimeResidual_noTubeHits_E", 0.0);
+    auto TimeResidual_noTubeHits_E_Ar   = Monitored::Scalar<float>("TimeResidual_noTubeHits_E_Ar", 0.0);
     auto TronTDist_E                    = Monitored::Scalar<float>("TronTDist_E", 0.0);
     auto TronTDist_B                    = Monitored::Scalar<float>("TronTDist_B", 0.0);
     auto TronTDist_B_Ar                 = Monitored::Scalar<float>("TronTDist_B_Ar", 0.0);
@@ -859,11 +863,15 @@ for (; p_trk != trackCollection.end(); ++p_trk) {
                             }
                             TimeResidual_B_Ar = timeresidual;
                             fill("ShiftTRTTrackHistograms"+std::to_string(ibe), TimeResidual_B_Ar);
+                            TimeResidual_noTubeHits_B_Ar = timeresidual;
+                            if (!isTubeHit) fill("ShiftTRTTrackHistograms"+std::to_string(ibe), TimeResidual_noTubeHits_B_Ar);
                         } else {
                             Residual_B = loc - locR;
                             fill("ShiftTRTTrackHistograms"+std::to_string(ibe), Residual_B);
                             TimeResidual_B = timeresidual;
                             fill("ShiftTRTTrackHistograms"+std::to_string(ibe), TimeResidual_B);
+                            TimeResidual_noTubeHits_B = timeresidual;
+                            if (!isTubeHit) fill("ShiftTRTTrackHistograms"+std::to_string(ibe), TimeResidual_noTubeHits_B);
 
                             if (cnst_is_pT_over_20GeV) {
                                 Residual_B_20GeV = loc - locR;
@@ -883,6 +891,8 @@ for (; p_trk != trackCollection.end(); ++p_trk) {
                             fill("ShiftTRTTrackHistograms"+std::to_string(ibe)+std::to_string(iside), Residual_E_Ar);
                             TimeResidual_E_Ar = timeresidual;
                             fill("ShiftTRTTrackHistograms"+std::to_string(ibe)+std::to_string(iside), TimeResidual_E_Ar);
+                            TimeResidual_noTubeHits_E_Ar = timeresidual;
+                            if (!isTubeHit) fill("ShiftTRTTrackHistograms"+std::to_string(ibe)+std::to_string(iside), TimeResidual_noTubeHits_E_Ar);
 
                             if (cnst_is_pT_over_20GeV) {
                                 Residual_E_Ar_20GeV = loc - locR;
@@ -893,6 +903,8 @@ for (; p_trk != trackCollection.end(); ++p_trk) {
                             fill("ShiftTRTTrackHistograms"+std::to_string(ibe)+std::to_string(iside), Residual_E);
                             TimeResidual_E = timeresidual;
                             fill("ShiftTRTTrackHistograms"+std::to_string(ibe)+std::to_string(iside), TimeResidual_E);
+                            TimeResidual_noTubeHits_E = timeresidual;
+                            if (!isTubeHit) fill("ShiftTRTTrackHistograms"+std::to_string(ibe)+std::to_string(iside), TimeResidual_noTubeHits_E);
 
                             if (cnst_is_pT_over_20GeV) {
                                 Residual_E_20GeV = loc - locR;
