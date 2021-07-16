@@ -203,6 +203,7 @@ unsigned long int RpcCablingCondData::strip_code_fromOffId(const std::string& st
             cabStat = 2;  // special case of single RPC Chambers at the same R or dbr2
         }
     }
+    if (stationName.substr(0,3)=="BIS" && logicSector>31) logicSector+=1; // BIS78 are in doubPhi==1
 
     if (logicSector < 0 || logicSector > 63) { return 999999; }
 
