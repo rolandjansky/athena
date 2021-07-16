@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -61,7 +61,7 @@ private:
   std::vector<double> m_t; // drift times
 
 // r(t) inversion method
-  double getTFromR(const double &r, const IRtRelation &input_rt);
+  static double getTFromR(const double &r, const IRtRelation &input_rt);
 
 };
 
