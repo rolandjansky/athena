@@ -54,7 +54,7 @@ namespace CP
 
     m_firstEvent = false;
 
-    const decltype(auto) systematics = m_systematicsList.systematicsVector();
+    const auto& systematics = m_systematicsList.systematicsVector();
 
     ANA_CHECK (book (TH1F (m_histogramName.c_str(), "systematics", systematics.size(), 0, systematics.size())));
     TH1 *histogram = hist (m_histogramName);
