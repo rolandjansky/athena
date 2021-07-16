@@ -11,7 +11,7 @@
 //needed from Sherpa EvtGenerator
 #include "SHERPA/Main/Sherpa.H"
 #include "SHERPA/Initialization/Initialization_Handler.H"
-#include "SHERPA/Tools/Variations.H"
+#include "ATOOLS/Phys/Variations.H"
 #include "ATOOLS/Org/Exception.H"
 #include "ATOOLS/Org/Run_Parameter.H"
 
@@ -27,8 +27,8 @@ CLHEP::HepRandomEngine* p_rndEngine;
 Sherpa_i::Sherpa_i(const std::string& name, ISvcLocator* pSvcLocator) 
   : GenModule(name, pSvcLocator), p_sherpa(NULL)
 {
+  declareProperty("BaseFragment", m_basefragment = "");
   declareProperty("RunCard", m_runcard = "");
-  declareProperty("Parameters", m_params);
   declareProperty("OpenLoopsLibs", m_openloopslibs);
   declareProperty("ExtraFiles", m_extrafiles);
   declareProperty("NCores", m_ncores=1);
@@ -45,7 +45,7 @@ Sherpa_i::Sherpa_i(const std::string& name, ISvcLocator* pSvcLocator)
 StatusCode Sherpa_i::genInitialize(){
   if (m_plugincode != "") {
     compilePlugin(m_plugincode);
-    m_params.push_back("SHERPA_LDADD=Sherpa_iPlugin");
+    m_basefragment += "SHERPA_LDADD: Sherpa_iPlugin \n";
   }
   
   ATH_MSG_INFO("Sherpa initialising...");
@@ -56,40 +56,62 @@ StatusCode Sherpa_i::genInitialize(){
   long int si2 = sip[1];
   atRndmGenSvc().CreateStream(si1, si2, "SHERPA");
 
-  p_sherpa = new SHERPA::Sherpa();
+  std::map<std::string,std::string> inputfiles;
+  inputfiles["Base.yaml"] = m_basefragment;
+  inputfiles["Sherpa.yaml"] = m_runcard;
+  for(auto& inputfile : inputfiles) {
+    // remove first line and last character containing '"'
+    // TODO fix Python/C++ string passing, cf. also below
+    inputfile.second.erase(0, inputfile.second.find("\n") + 1);
+    inputfile.second.pop_back();
+
+    // write input content to file in working directory
+    FILE *file = fopen(inputfile.first.c_str(),"w");
+    fputs(inputfile.second.c_str(),file);
+    fclose(file);
+    ATH_MSG_INFO("Sherpa_i using the following settings in "+inputfile.first);
+    ATH_MSG_INFO("\n"+inputfile.second+"\n");
+  }
+
+  int argc = 2;
+  char** argv = new char*[2];
+  argv[0] = new char[7];
+  argv[1] = new char[34];
+  strcpy(argv[0], "Sherpa");
+  strcpy(argv[1], "RUNDATA: [Base.yaml, Sherpa.yaml]");
+  p_sherpa = new SHERPA::Sherpa(argc, argv);
+  delete [] argv;
 
 
   /***
       translate ATOOLS:SignalHandler
+      TODO: is this even needed?
   ***/
   std::set_terminate(ATOOLS::Terminate);
   std::set_unexpected(ATOOLS::Terminate);
-  signal(SIGSEGV,ATOOLS::SignalHandler);
-  signal(SIGINT,ATOOLS::SignalHandler);
-  signal(SIGBUS,ATOOLS::SignalHandler);
-  signal(SIGFPE,ATOOLS::SignalHandler);
-  signal(SIGABRT,ATOOLS::SignalHandler);
-  signal(SIGTERM,ATOOLS::SignalHandler);
-  signal(SIGXCPU,ATOOLS::SignalHandler);
+  signal(SIGSEGV,ATOOLS::HandleSignal);
+  signal(SIGINT,ATOOLS::HandleSignal);
+  signal(SIGPIPE,ATOOLS::HandleSignal);
+  signal(SIGBUS,ATOOLS::HandleSignal);
+  signal(SIGFPE,ATOOLS::HandleSignal);
+  signal(SIGABRT,ATOOLS::HandleSignal);
+  signal(SIGTERM,ATOOLS::HandleSignal);
+  signal(SIGXCPU,ATOOLS::HandleSignal);
+  signal(SIGUSR1,ATOOLS::HandleSignal);
 
   try {
-    int argc;
-    char** argv;
-    getParameters(argc, argv);
-    p_sherpa->InitializeTheRun(argc,(char **)argv);
-    delete [] argv;
-
+    p_sherpa->InitializeTheRun();
     p_sherpa->InitializeTheEventHandler();
   }
-  catch (ATOOLS::Exception exception) {
-    if (exception.Class()=="Matrix_Element_Handler" && exception.Type()==ATOOLS::ex::normal_exit) {
-      ATH_MSG_ERROR("Have to compile Amegic libraries");
-      ATH_MSG_ERROR("You probably want to run ./makelibs");
-    }
-    else {
-      ATH_MSG_ERROR("Unwanted ATOOLS::exception caught.");
-      ATH_MSG_ERROR(exception);
-    }
+  catch (const ATOOLS::normal_exit& exception) {
+    ATH_MSG_ERROR("Normal exit caught, this probably means:");
+    ATH_MSG_ERROR("Have to compile Amegic libraries");
+    ATH_MSG_ERROR("You probably want to run ./makelibs");
+    return StatusCode::FAILURE;
+  }
+  catch (const ATOOLS::Exception& exception) {
+    ATH_MSG_ERROR("Unwanted ATOOLS::exception caught.");
+    ATH_MSG_ERROR(exception);
     return StatusCode::FAILURE;
   }
   catch (std::exception exception) {
@@ -168,63 +190,7 @@ StatusCode Sherpa_i::genFinalize() {
 }
 
 
-void Sherpa_i::getParameters(int &argc, char** &argv) {
-  std::vector<std::string> params;
 
-  // set some ATLAS specific default values as a starting point
-  params.push_back("EXTERNAL_RNG=Atlas_RNG");
-
-  /***
-      Adopt Atlas Debug Level Scheme
-  ***/
-
-  std::string verbose_arg;
-  MsgStream log(messageService(), name());
-  if( log.level()==MSG::FATAL || log.level()==MSG::ERROR || log.level()==MSG::WARNING ){
-    params.push_back("OUTPUT=0");
-  }
-  else if(log.level()==MSG::INFO){
-    params.push_back("OUTPUT=2");
-  }
-  else if(log.level()==MSG::DEBUG){
-    params.push_back("OUTPUT=3");
-  }
-  else{
-    params.push_back("OUTPUT=15");
-  }
-
-  // disregard manual RUNDATA setting if run card given in JO
-  if (m_runcard != "") m_params.push_back("RUNDATA=Run.dat");
-  
-  // allow to overwrite all parameters from JO file
-  params.insert(params.begin()+params.size(), m_params.begin(), m_params.end());
-
-  // create Run.dat file if runcard explicitely given
-  if (m_runcard != "") {
-    FILE *file = fopen("Run.dat","w");
-    fputs(m_runcard.c_str(),file);
-    fclose(file);
-  }
-
-  /***
-      Convert into Sherpas argc/argv arguments
-  ***/
-  argc = 1+params.size();
-  argv = new char * [ 1+params.size() ];
-  argv[0] = new char[7];
-  strcpy(argv[0], "Sherpa");
-
-  ATH_MSG_INFO("Sherpa_i using the following Arguments");
-  ATH_MSG_INFO(m_runcard);
-  for(size_t i=0; i<params.size(); i++) {
-    ATH_MSG_INFO(" [ " << params[i] << " ] ");
-    argv[i+1] = new char[params[i].size()+1];
-    strcpy(argv[i+1], params[i].c_str());
-  }
-  ATH_MSG_INFO("End Sherpa_i Argument List");
-  ATH_MSG_INFO("Further Sherpa initialisation output will be redirected to the LOG_FILE specified above.");
-
-}
 
 void Sherpa_i::compilePlugin(std::string pluginCode) {
   // TODO: not very pretty, should we eventually do this in Python instead (base fragment)
@@ -237,7 +203,7 @@ void Sherpa_i::compilePlugin(std::string pluginCode) {
   // thus removing them here
   command += "tail -n +2 Sherpa_iPlugin.C | head -n -1 > Sherpa_iPlugin.C.tmp; mv Sherpa_iPlugin.C.tmp Sherpa_iPlugin.C; ";
   command += "g++ -shared -std=c++0x -g ";
-  command += "-I`Sherpa-config --incdir` ";
+  command += "`Sherpa-config --cppflags` ";
   command += "`Sherpa-config --ldflags` ";
   command += "-fPIC -o libSherpa_iPlugin.so Sherpa_iPlugin.C";
   ATH_MSG_INFO("Now compiling plugin library using: "+command);
