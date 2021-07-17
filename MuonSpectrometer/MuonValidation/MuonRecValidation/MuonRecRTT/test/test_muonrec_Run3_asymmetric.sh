@@ -25,6 +25,7 @@ Reco_tf.py --inputRDOFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Muon
            --autoConfiguration everything \
            --imf False \
            --postInclude MuonPRDTest/NSWPRDValAlg.reco.py \
+           --postExec 'conddb.addOverride("/MDT/RTBLOB","MDTRT_Sim-R3SYM-01");conddb.addOverride("/MDT/T0BLOB","MDTT0_Sim-R3SYM-01")' \
            --conditionsTag 'default:OFLCOND-MC16-SDR-RUN2-06' \
            --outputESDFile OUT_ESD.root
 exit_code=$?
