@@ -60,17 +60,17 @@ InDetBeamSpotRooFit::FitStatus InDetBeamSpotRooFit::fit(std::vector< BeamSpot::V
 
   //This is to determine the min and max values of the data for setting up the RooDataSet
   double xMin = m_vertexData[0].x ;
-  double xMax = m_vertexData[0].x;
+  double xMax = xMin;
   double yMin = m_vertexData[0].y ;
-  double yMax = m_vertexData[0].y;
+  double yMax = yMin;
   double zMin = m_vertexData[0].z;
-  double zMax = m_vertexData[0].z;
+  double zMax = zMin;
   double vxxMin=m_vertexData[0].vxx ;
-  double vxxMax=m_vertexData[0].vxx;
+  double vxxMax=vxxMin;
   double vyyMin=m_vertexData[0].vyy;
-  double vyyMax=m_vertexData[0].vyy;
+  double vyyMax=vyyMin;
   double vxyMin=m_vertexData[0].vxy;
-  double vxyMax=m_vertexData[0].vxy;
+  double vxyMax=vxyMin;
 
   for(Int_t i = 1;i < (Int_t)m_vertexData.size() ; i++){
     if (m_vertexData[i].x < xMin) xMin = m_vertexData[i].x;
