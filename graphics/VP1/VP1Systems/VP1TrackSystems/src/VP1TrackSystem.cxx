@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////
@@ -510,9 +510,10 @@ void VP1TrackSystem::setApplicableIDProjections( InDetProjFlags::InDetProjPartsF
 
   if (changes) {
     messageVerbose("  => Flags changed.");
-    if (m_d->common->controller())
+    if (m_d->common->controller()) {
       foreach( TrackCollHandleBase* collhandle, m_d->common->controller()->collWidget()->collections<TrackCollHandleBase>() )
       collhandle->updateInDetProjectionsOfAllHandles();
+    }
   } else {
     messageVerbose("  => Flags unchanged.");
   }
