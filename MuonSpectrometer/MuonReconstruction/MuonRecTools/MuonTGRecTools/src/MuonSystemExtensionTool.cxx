@@ -180,10 +180,6 @@ namespace Muon {
                                                         << MuonStationIndex::layerName(it.layerIndex) << " phi  " << surface.center().phi()
                                                         << " r " << surface.center().perp() << " z " << surface.center().z());
             }
-            if (currentPars->momentum().perp() < 500.) {
-                ATH_MSG_DEBUG("Extrapolated pT less than 0.5 GeV, don't keep trying");
-                break;
-            }
             
             std::unique_ptr<const Trk::TrackParameters> exPars {m_extrapolator->extrapolate(ctx, *currentPars, surface, Trk::alongMomentum, false, Trk::muon)};
             if (!exPars) {
