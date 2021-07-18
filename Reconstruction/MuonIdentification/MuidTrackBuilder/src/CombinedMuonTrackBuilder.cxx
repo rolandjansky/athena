@@ -1599,7 +1599,7 @@ namespace Rec {
             perigee_owner = m_propagator->propagate(ctx, *param_owner, *m_perigeeSurface, Trk::oppositeMomentum, false,
                                                     m_magFieldProperties, Trk::nonInteracting);
             /// If the perigee parameters are not of Type Trk::Peirgee forget what has been tried
-            if (perigee_owner->surfaceType() != Trk::SurfaceType::Perigee) { perigee_owner.reset(); }
+            if (perigee_owner && perigee_owner->surfaceType() != Trk::SurfaceType::Perigee) { perigee_owner.reset(); }
         }
 
         // in case of problem above: clone combined perigee
