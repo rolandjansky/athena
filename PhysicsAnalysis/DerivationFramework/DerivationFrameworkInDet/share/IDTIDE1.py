@@ -23,9 +23,23 @@ msg = logging.getLogger( "IDTIDE1" )
 _info = msg.info
 
 #Steering options
+
 idDxAOD_doPix=True
 idDxAOD_doSct=True
 idDxAOD_doTrt=False
+
+select_aux_items=True
+
+from AthenaCommon.JobProperties import jobproperties
+from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags
+print('DEBUG IDTRKVALID stream = %s' % jobproperties.PrimaryDPDFlags.WriteDAOD_IDTRKVALIDStream)
+pix_from_InDetDxAOD = InDetDxAODFlags.DumpPixelInfo() and jobproperties.PrimaryDPDFlags.WriteDAOD_IDTRKVALIDStream
+sct_from_InDetDxAOD = InDetDxAODFlags.DumpSctInfo()   and jobproperties.PrimaryDPDFlags.WriteDAOD_IDTRKVALIDStream
+trt_from_InDetDxAOD = InDetDxAODFlags.DumpTrtInfo()   and jobproperties.PrimaryDPDFlags.WriteDAOD_IDTRKVALIDStream
+need_pix_ToTList = idDxAOD_doPix and ( InDetDxAODFlags.DumpPixelRdoInfo() or InDetDxAODFlags.DumpPixelNNInfo() )
+print('DEBUG IDTRKVALID dump pix: %s [rdo: %s nn: %s ->%s] sct: %s trt: %s  ' % (InDetDxAODFlags.DumpPixelInfo() ,InDetDxAODFlags.DumpPixelRdoInfo(), InDetDxAODFlags.DumpPixelNNInfo(), need_pix_ToTList,
+                                                                            InDetDxAODFlags.DumpSctInfo(),
+                                                                            InDetDxAODFlags.DumpTrtInfo()))
 
 # IsMonteCarlo=(globalflags.DataSource == 'geant4')
 
@@ -71,6 +85,7 @@ if idDxAOD_doTrt:
 # AUGMENTATION TOOLS
 #====================================================================
 augmentationTools = []
+tsos_augmentationTools=[]
 # Add unbiased track parameters to track particles
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackToVertexWrapper
 IDTIDE1TrackToVertexWrapper= DerivationFramework__TrackToVertexWrapper(name = "IDTIDE1TrackToVertexWrapper",
@@ -98,11 +113,12 @@ DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackStateO
                                                           DecorationPrefix = "",
                                                           StoreTRT   = idDxAOD_doTrt,
                                                           TRT_ToT_dEdx = TrackingCommon.getInDetTRT_dEdxTool() if idDxAOD_doTrt else "",
+                                                          PRDtoTrackMap= "PRDtoTrackMap" + InDetKeys.UnslimmedTracks() if  jobproperties.PrimaryDPDFlags.WriteDAOD_IDTRKVALIDStream else "",
                                                           StoreSCT   = idDxAOD_doSct,
                                                           StorePixel = idDxAOD_doPix,
                                                           OutputLevel =INFO)
 ToolSvc += DFTSOS
-augmentationTools.append(DFTSOS)
+tsos_augmentationTools.append(DFTSOS)
 _info(DFTSOS)
 
 # Sequence for skimming kernel (if running on data) -> PrepDataToxAOD -> ID TIDE kernel
@@ -227,7 +243,7 @@ IDTIDESeqAfterPresel = parOR("IDTIDESeqAfterPresel")
 IDTIDESequence += IDTIDESeqAfterPresel
 
 #Setup decorators tools
-if idDxAOD_doTrt:
+if idDxAOD_doTrt and not trt_from_InDetDxAOD:
   from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import TRT_PrepDataToxAOD
   xAOD_TRT_PrepDataToxAOD = TRT_PrepDataToxAOD( name = "xAOD_TRT_PrepDataToxAOD")
   xAOD_TRT_PrepDataToxAOD.OutputLevel=INFO
@@ -235,7 +251,7 @@ if idDxAOD_doTrt:
   _info( "Add TRT xAOD TrackMeasurementValidation: %s" , xAOD_TRT_PrepDataToxAOD)
   IDTIDESeqAfterPresel += xAOD_TRT_PrepDataToxAOD
 
-if idDxAOD_doSct:
+if idDxAOD_doSct and not sct_from_InDetDxAOD:
   from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import SCT_PrepDataToxAOD
   xAOD_SCT_PrepDataToxAOD = SCT_PrepDataToxAOD( name = "xAOD_SCT_PrepDataToxAOD")
   xAOD_SCT_PrepDataToxAOD.OutputLevel=INFO
@@ -243,16 +259,18 @@ if idDxAOD_doSct:
   _info("Add SCT xAOD TrackMeasurementValidation: %s", xAOD_SCT_PrepDataToxAOD)
   IDTIDESeqAfterPresel += xAOD_SCT_PrepDataToxAOD
 
-if idDxAOD_doPix:
-  from PixelCalibAlgs.PixelCalibAlgsConf import PixelChargeToTConversion 
-  PixelChargeToTConversionSetter = PixelChargeToTConversion(name = "PixelChargeToTConversionSetter") 
-  IDTIDESeqAfterPresel += PixelChargeToTConversionSetter 
-  _info("Add Pixel xAOD ToTConversionSetter: %s Properties: %s", PixelChargeToTConversionSetter, PixelChargeToTConversionSetter.properties())
-  from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import PixelPrepDataToxAOD
-  xAOD_PixelPrepDataToxAOD = PixelPrepDataToxAOD( name = "xAOD_PixelPrepDataToxAOD",
-                                                  ClusterSplitProbabilityName = TrackingCommon.pixelClusterSplitProbName())
-  xAOD_PixelPrepDataToxAOD.OutputLevel=INFO
-  xAOD_PixelPrepDataToxAOD.UseTruthInfo=IsMonteCarlo
+if idDxAOD_doPix and not pix_from_InDetDxAOD:
+  if need_pix_ToTList :
+    from PixelCalibAlgs.PixelCalibAlgsConf import PixelChargeToTConversion 
+    PixelChargeToTConversionSetter = PixelChargeToTConversion(name = "PixelChargeToTConversionSetter",
+                                                              ExtraOutputs = ['PixelClusters_ToTList'])
+    # IDTIDESeqAfterPresel += PixelChargeToTConversionSetter 
+    topSequence += PixelChargeToTConversionSetter
+    _info("Add Pixel xAOD ToTConversionSetter: %s Properties: %s", PixelChargeToTConversionSetter, PixelChargeToTConversionSetter.properties())
+  from InDetPrepRawDataToxAOD.InDetDxAODUtils import getPixelPrepDataToxAOD
+  xAOD_PixelPrepDataToxAOD = getPixelPrepDataToxAOD(
+                                                    # OutputLevel=INFO
+                                                    )
   _info( "Add Pixel xAOD TrackMeasurementValidation: %s", xAOD_PixelPrepDataToxAOD)
   IDTIDESeqAfterPresel += xAOD_PixelPrepDataToxAOD
 
@@ -315,15 +333,34 @@ if IsMonteCarlo:
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
 #====================================================================
+IDTIDESkimmingSequence = seqAND("IDTIDESkimmingSequence")
+IDTIDESeqAfterPresel += IDTIDESkimmingSequence
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 idtide_kernel = CfgMgr.DerivationFramework__DerivationKernel("IDTIDE1Kernel",
                                                              AugmentationTools = augmentationTools,
                                                              SkimmingTools = skimmingTools,
-                                                             ThinningTools = thinningTools,
+                                                             ThinningTools = [],
                                                              RunSkimmingFirst = True,
                                                              OutputLevel =INFO)
 
-IDTIDESeqAfterPresel += idtide_kernel
+IDTIDEPostProcSequence = parOR("IDTIDEPostProcSequence")
+
+# shared between IDTIDE and IDTRKVALID
+dftsos_kernel = CfgMgr.DerivationFramework__DerivationKernel("DFTSOSKernel",
+                                                             AugmentationTools = tsos_augmentationTools,
+                                                             ThinningTools = [],
+                                                             OutputLevel =INFO)
+idtidethinning_kernel = CfgMgr.DerivationFramework__DerivationKernel("IDTIDEThinningKernel",
+                                                             AugmentationTools = [],
+                                                             ThinningTools = thinningTools,
+                                                             OutputLevel =INFO)
+
+IDTIDESkimmingSequence += idtide_kernel
+IDTIDESkimmingSequence += IDTIDEPostProcSequence
+
+IDTIDEPostProcSequence += dftsos_kernel
+IDTIDEPostProcSequence += idtidethinning_kernel
+
 DerivationFrameworkJob += IDTIDESequence
 accept_algs=[ idtide_kernel.name() ]
 
@@ -334,7 +371,16 @@ IDTIDE1Stream.AcceptAlgs( accept_algs )
 # CONTENT LIST  
 #====================================================================
 IDTIDE1Stream.AddItem("xAOD::EventInfo#*")
-IDTIDE1Stream.AddItem("xAOD::EventAuxInfo#*")
+if not select_aux_items :
+   IDTIDE1Stream.AddItem("xAOD::EventAuxInfo#*")
+else :
+   IDTIDE1Stream.AddItem('xAOD::EventAuxInfo#EventInfoAux' \
+                      +'.TrtPhaseTime.actualInteractionsPerCrossing.averageInteractionsPerCrossing.backgroundFlags.bcid' \
+                      +'.beamPosSigmaX.beamPosSigmaXY.beamPosSigmaY.beamPosSigmaZ.beamPosX.beamPosY.beamPosZ.beamStatus.beamTiltXZ.beamTiltYZ' \
+                      + '.coreFlags.detDescrTags.detectorMask0.detectorMask1.detectorMask2.detectorMask3.eventNumber.eventTypeBitmask.extendedLevel1ID.forwardDetFlags.larFlags' \
+                      + '.level1TriggerType.lumiBlock.lumiFlags.mcChannelNumber.mcEventNumber.mcEventWeights.muonFlags.pixelFlags.runNumber.sctFlags.statusElement.streamTagDets' \
+                      + '.streamTagNames.streamTagObeysLumiblock.streamTagRobs.streamTagTypes.tileFlags.timeStamp.timeStampNSOffset.trtFlags')
+
 IDTIDE1Stream.AddItem("xAOD::EventShape#*")
 IDTIDE1Stream.AddItem("xAOD::EventShapeAuxInfo#*")
 IDTIDE1Stream.AddItem("xAOD::TriggerMenuContainer#*")
@@ -347,13 +393,52 @@ IDTIDE1Stream.AddItem("xAOD::TrigDecisionAuxInfo#*")
 #IDTIDE1Stream.AddItem("xAOD::TrigNavigation#*")
 #IDTIDE1Stream.AddItem("xAOD::TrigNavigationAuxInfo#*")
 IDTIDE1Stream.AddItem("xAOD::TrackParticleContainer#InDetTrackParticles")
-IDTIDE1Stream.AddItem("xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux.-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition")
-IDTIDE1Stream.AddItem("xAOD::TrackParticleClusterAssociationContainer#*")
-IDTIDE1Stream.AddItem("xAOD::TrackParticleClusterAssociationAuxContainer#*")
-IDTIDE1Stream.AddItem("xAOD::TrackStateValidationContainer#*")
-IDTIDE1Stream.AddItem("xAOD::TrackStateValidationAuxContainer#*")
-IDTIDE1Stream.AddItem("xAOD::TrackMeasurementValidationContainer#*")
-IDTIDE1Stream.AddItem("xAOD::TrackMeasurementValidationAuxContainer#*")
+if not select_aux_items :
+  IDTIDE1Stream.AddItem("xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux.-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition")
+else :
+  IDTIDE1Stream.AddItem("xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux" \
+                        +'.IDTIDE1_biased_PVd0Sigma.IDTIDE1_biased_PVz0Sigma.IDTIDE1_biased_PVz0SigmaSinTheta.IDTIDE1_biased_d0.IDTIDE1_biased_d0Sigma.IDTIDE1_biased_z0.IDTIDE1_biased_z0Sigma' \
+                        + '.IDTIDE1_biased_z0SigmaSinTheta.IDTIDE1_biased_z0SinTheta.IDTIDE1_unbiased_PVd0Sigma.IDTIDE1_unbiased_PVz0Sigma.IDTIDE1_unbiased_PVz0SigmaSinTheta.IDTIDE1_unbiased_d0' \
+                        + '.IDTIDE1_unbiased_d0Sigma.IDTIDE1_unbiased_z0.IDTIDE1_unbiased_z0Sigma.IDTIDE1_unbiased_z0SigmaSinTheta.IDTIDE1_unbiased_z0SinTheta' \
+                        + '.TRTTrackOccupancy.TRTdEdx.TRTdEdxUsedHits.TTVA_AMVFVertices_forReco.TTVA_AMVFWeights_forReco.TrackCompatibility' \
+                        + '.TrkBLX.TrkBLY.TrkBLZ.TrkIBLX.TrkIBLY.TrkIBLZ.TrkL1X.TrkL1Y.TrkL1Z.TrkL2X.TrkL2Y.TrkL2Z' \
+                        + '.beamlineTiltX.beamlineTiltY.btagIp_d0.btagIp_d0Uncertainty.btagIp_trackDisplacement.btagIp_trackMomentum.btagIp_z0SinTheta.btagIp_z0SinThetaUncertainty' \
+                        + '.chiSquared.d0.definingParametersCovMatrixDiag.definingParametersCovMatrixOffDiag.eProbabilityComb.eProbabilityHT.eProbabilityNN' \
+                        + '.expectInnermostPixelLayerHit.expectNextToInnermostPixelLayerHit.hitPattern.identifierOfFirstHit.msosLink.nBC_meas.numberDoF.numberOfContribPixelLayers' \
+                        + '.numberOfDBMHits.numberOfGangedFlaggedFakes.numberOfGangedPixels.numberOfIBLOverflowsdEdx.numberOfInnermostPixelLayerHits.numberOfInnermostPixelLayerOutliers' \
+                        + '.numberOfInnermostPixelLayerSharedHits.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerHits.numberOfNextToInnermostPixelLayerOutliers' \
+                        + '.numberOfNextToInnermostPixelLayerSharedHits.numberOfNextToInnermostPixelLayerSplitHits.numberOfOutliersOnTrack.numberOfPhiHoleLayers.numberOfPhiLayers' \
+                        + '.numberOfPixelDeadSensors.numberOfPixelHits.numberOfPixelHoles.numberOfPixelOutliers.numberOfPixelSharedHits.numberOfPixelSplitHits.numberOfPixelSpoiltHits' \
+                        + '.numberOfPrecisionHoleLayers.numberOfPrecisionLayers.numberOfSCTDeadSensors.numberOfSCTDoubleHoles.numberOfSCTHits.numberOfSCTHoles.numberOfSCTOutliers' \
+                        + '.numberOfSCTSharedHits.numberOfSCTSpoiltHits.numberOfTRTDeadStraws.numberOfTRTHighThresholdHits.numberOfTRTHighThresholdHitsTotal.numberOfTRTHighThresholdOutliers' \
+                        + '.numberOfTRTHits.numberOfTRTHoles.numberOfTRTOutliers.numberOfTRTSharedHits.numberOfTRTTubeHits.numberOfTRTXenonHits.numberOfTriggerEtaHoleLayers' \
+                        + '.numberOfTriggerEtaLayers.numberOfUsedHitsdEdx' \
+                        + '.particleHypothesis.patternRecoInfo.phi.pixeldEdx.qOverP.radiusOfFirstHit.standardDeviationOfChi2OS.theta.trackFitter.trackLink.trackProperties.vx.vy.vz.z')
+IDTIDE1Stream.AddItem("xAOD::TrackParticleClusterAssociationContainer#InDetTrackParticlesClusterAssociations*")
+IDTIDE1Stream.AddItem("xAOD::TrackParticleClusterAssociationAuxContainer#InDetTrackParticlesClusterAssociations*")
+
+keys = ['PixelMSOSs'] if idDxAOD_doPix else []
+keys+= ['SCT_MSOSs']  if idDxAOD_doSct else []
+keys+= ['TRT_MSOSs']  if idDxAOD_doTrt else []
+for key in keys :
+  IDTIDE1Stream.AddItem("xAOD::TrackStateValidationContainer#%s*" % key)
+  IDTIDE1Stream.AddItem("xAOD::TrackStateValidationAuxContainer#%s*" % key)
+keys = []
+if idDxAOD_doPix and not select_aux_items :
+  keys += ['PixelClusters'] if idDxAOD_doPix else []
+elif idDxAOD_doPix :
+  keys += ['PixelClustersAux.' \
+           +'.BiasVoltage.DCSState.DepletionVoltage.LVL1A.LorentzShift.NN_etaPixelIndexWeightedPosition.NN_localEtaPixelIndexWeightedPosition.NN_localPhiPixelIndexWeightedPosition' \
+           + '.NN_matrixOfCharge.NN_matrixOfToT.NN_phiBS.NN_phiPixelIndexWeightedPosition.NN_sizeX.NN_sizeY.NN_thetaBS.NN_vectorOfPitchesY.Temperature.ToT.bec.broken.charge.detectorElementID' \
+           + '.eta_module.eta_pixel_index.gangedPixel.globalX.globalY.globalZ.hasBSError.identifier.isFake.isSplit.layer.localX.localXError.localXYCorrelation.localY.localYError.nRDO.phi_module' \
+           + '.phi_pixel_index.rdoIdentifierList.rdo_Aterm.rdo_Cterm.rdo_Eterm.rdo_charge.rdo_eta_pixel_index.rdo_phi_pixel_index.rdo_tot.sihit_barcode.sizePhi.sizeZ.splitProbability1' \
+           + '.splitProbability2']
+keys+= ['SCT_Clusters']     if idDxAOD_doSct else []
+keys+= ['TRT_DriftCircles'] if idDxAOD_doTrt else []
+print('DEBUG keys %s' % (keys))
+for key in keys :
+  IDTIDE1Stream.AddItem("xAOD::TrackMeasurementValidationContainer#%s*" % key.split('Aux.',1)[0])
+  IDTIDE1Stream.AddItem("xAOD::TrackMeasurementValidationAuxContainer#%s%s" % (key,"*" if key.find(".")<0 else ""))
 IDTIDE1Stream.AddItem("xAOD::VertexContainer#PrimaryVertices")
 IDTIDE1Stream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV")
 IDTIDE1Stream.AddItem("xAOD::ElectronContainer#Electrons")
@@ -387,3 +472,5 @@ if IsMonteCarlo:
   IDTIDE1Stream.AddItem("xAOD::TruthEventAuxContainer#*")
   IDTIDE1Stream.AddItem("xAOD::JetContainer#AntiKt4TruthJets")
   IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt4TruthJetsAux.")
+
+print(IDTIDE1Stream)
