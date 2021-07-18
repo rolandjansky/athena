@@ -314,7 +314,7 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext& ctx) const {
             // use elem link to retrieve container
             const xAOD::CaloCluster* MuonCluster = muon->cluster();
             // retrieve the vector of delta R between muon and its associated calo cluster.
-            muon_ClusterInfo_deltaR_WriteDecorHandle(*muon) =  MuonCluster? xAOD::P4Helpers::deltaR(MuonCluster,muon) : -1.;
+            muon_ClusterInfo_deltaR_WriteDecorHandle(*muon) =  MuonCluster && MuonCluster->pt() > FLT_EPSILON ? xAOD::P4Helpers::deltaR(MuonCluster,muon) : -1.;
         }
     }  // end of experimental block
     ATH_MSG_VERBOSE("Execute completed successfully");
